@@ -95,8 +95,10 @@ namespace MediaPortal.Extensions.UserServices.FanArtService
       if (Guid.TryParse(name, out mediaItemId) == false)
         return false;
 
+      IFanArtCache fanArtCache = ServiceRegistration.Get<IFanArtCache>();
+
       List<string> fanArtFiles = new List<string>();
-      fanArtFiles.AddRange(FanArtCache.GetFanArtFiles(mediaItemId.ToString().ToUpperInvariant(), fanArtType));
+      fanArtFiles.AddRange(fanArtCache.GetFanArtFiles(mediaItemId, fanArtType));
 
       // Try fallback
       if (fanArtFiles.Count == 0 &&
@@ -127,7 +129,7 @@ namespace MediaPortal.Extensions.UserServices.FanArtService
               {
                 if ((Guid?)relation[RelationshipAspect.ATTR_LINKED_ROLE] == SeasonAspect.ROLE_SEASON)
                 {
-                  fanArtFiles.AddRange(FanArtCache.GetFanArtFiles(relation[RelationshipAspect.ATTR_LINKED_ID].ToString().ToUpperInvariant(), fanArtType));
+                  fanArtFiles.AddRange(fanArtCache.GetFanArtFiles((Guid)relation[RelationshipAspect.ATTR_LINKED_ID], fanArtType));
                   if (fanArtFiles.Count > 0)
                     break;
                 }
@@ -140,7 +142,7 @@ namespace MediaPortal.Extensions.UserServices.FanArtService
                 {
                   if ((Guid?)relation[RelationshipAspect.ATTR_LINKED_ROLE] == SeriesAspect.ROLE_SERIES)
                   {
-                    fanArtFiles.AddRange(FanArtCache.GetFanArtFiles(relation[RelationshipAspect.ATTR_LINKED_ID].ToString().ToUpperInvariant(), fanArtType));
+                    fanArtFiles.AddRange(fanArtCache.GetFanArtFiles((Guid)relation[RelationshipAspect.ATTR_LINKED_ID], fanArtType));
                     if (fanArtFiles.Count > 0)
                       break;
                   }
@@ -160,7 +162,7 @@ namespace MediaPortal.Extensions.UserServices.FanArtService
               {
                 if ((Guid?)relation[RelationshipAspect.ATTR_LINKED_ROLE] == SeriesAspect.ROLE_SERIES)
                 {
-                  fanArtFiles.AddRange(FanArtCache.GetFanArtFiles(relation[RelationshipAspect.ATTR_LINKED_ID].ToString().ToUpperInvariant(), fanArtType));
+                  fanArtFiles.AddRange(fanArtCache.GetFanArtFiles((Guid)relation[RelationshipAspect.ATTR_LINKED_ID], fanArtType));
                   if (fanArtFiles.Count > 0)
                     break;
                 }
@@ -179,7 +181,7 @@ namespace MediaPortal.Extensions.UserServices.FanArtService
               {
                 if ((Guid?)relation[RelationshipAspect.ATTR_LINKED_ROLE] == PersonAspect.ROLE_ACTOR)
                 {
-                  fanArtFiles.AddRange(FanArtCache.GetFanArtFiles(relation[RelationshipAspect.ATTR_LINKED_ID].ToString().ToUpperInvariant(), fanArtType));
+                  fanArtFiles.AddRange(fanArtCache.GetFanArtFiles((Guid)relation[RelationshipAspect.ATTR_LINKED_ID], fanArtType));
                   if (fanArtFiles.Count > 0)
                     break;
                 }

@@ -64,7 +64,6 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Settings\Configuration\AudioMDE\ServerAudioMDEOnlineData.cs" />
     <Compile Include="Settings\Configuration\AudioMDE\ServerAudioMDEBrowseOffline.cs" />
-    <Compile Include="Settings\Configuration\AudioMDE\ServerAudioMDESourcePrimary.cs" />
     <Compile Include="Settings\Configuration\AudioMDE\ServerAudioMDESourceEnable.cs" />
     <Compile Include="Settings\Configuration\FanArt\ServerFanArtMaxThumbs.cs" />
     <Compile Include="Settings\Configuration\FanArt\ServerFanArtMaxPosters.cs" />
@@ -81,12 +80,12 @@
     <Compile Include="Settings\Configuration\MovieMDE\ServerMovieMDEFilter.cs" />
     <Compile Include="Settings\Configuration\MovieMDE\ServerMovieMDEOnlineData.cs" />
     <Compile Include="Settings\Configuration\MovieMDE\ServerMovieMDESourceEnable.cs" />
-    <Compile Include="Settings\Configuration\MovieMDE\ServerMovieMDESourcePrimary.cs" />
     <Compile Include="Settings\Configuration\MovieMDE\ServerMovieMDEBrowseOffline.cs" />
+    <Compile Include="Settings\Configuration\MovieMDE\ServerMovieMDEDownloadAllCollectionMovies.cs" />
+    <Compile Include="Settings\Configuration\SeriesMDE\ServerSeriesMDEDownloadAllSeriesEpisodes.cs" />
     <Compile Include="Settings\Configuration\SeriesMDE\ServerSeriesMDEFilter.cs" />
     <Compile Include="Settings\Configuration\SeriesMDE\ServerSeriesMDEOnlineData.cs" />
     <Compile Include="Settings\Configuration\SeriesMDE\ServerSeriesMDESourceEnable.cs" />
-    <Compile Include="Settings\Configuration\SeriesMDE\ServerSeriesMDESourcePrimary.cs" />
     <Compile Include="Settings\Configuration\SeriesMDE\ServerSeriesMDEBrowseOffline.cs" />
     <Compile Include="Settings\Configuration\AudioMDE\ServerAudioMDEFilter.cs" />
     <Compile Include="Settings\Configuration\ServerImporterWorker.cs" />

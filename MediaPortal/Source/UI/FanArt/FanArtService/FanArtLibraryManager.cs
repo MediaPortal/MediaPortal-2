@@ -34,6 +34,7 @@ using MediaPortal.Common.ResourceAccess;
 using MediaPortal.Common.Runtime;
 using MediaPortal.Common.Services.Settings;
 using MediaPortal.Common.Threading;
+using MediaPortal.Extensions.UserServices.FanArtService.FanArtDataflow;
 using MediaPortal.Extensions.UserServices.FanArtService.Interfaces;
 using MediaPortal.Extensions.UserServices.FanArtService.Settings;
 using System;
@@ -51,37 +52,16 @@ namespace MediaPortal.Extensions.UserServices.FanArtService
   /// </summary>
   public class FanArtLibraryManager : IFanArtLibraryManager
   {
-    #region Internal classes
-
-    protected enum ActionType
-    {
-      Collect,
-      Delete
-    }
-
-    protected class FanArtManagerAction
-    {
-      public FanArtManagerAction(ActionType actionType, Guid mediaItemId, IDictionary<Guid, IList<MediaItemAspect>> aspects)
-      {
-        Type = actionType;
-        MediaItemId = mediaItemId;
-        Aspects = aspects;
-      }
-
-      public ActionType Type { get; private set; }
-      public Guid MediaItemId { get; private set; }
-      public IDictionary<Guid, IList<MediaItemAspect>> Aspects { get; private set; }
-    }
-
-    #endregion
-
     #region Protected fields
-    
+
+    protected readonly object _syncObj = new object();
+    protected bool _isInit = true;
+    protected bool _hasSkippedCleanupBeenLogged = false;
     protected AsynchronousMessageQueue _messageQueue;
     protected SettingsChangeWatcher<FanArtServiceSettings> _settings;
     protected IIntervalWork _fanArtCleanupIntervalWork;
 
-    protected ActionBlock<FanArtManagerAction> _fanartActionBlock; //Handles individual fanart collection/deletion
+    protected FanArtActionBlock _fanartActionBlock; //Handles individual fanart collection/deletion
     protected ActionBlock<bool> _fanartCleanupBlock; //Handles full fanart cleanup
 
     #endregion
@@ -119,8 +99,7 @@ namespace MediaPortal.Extensions.UserServices.FanArtService
     /// </summary>
     protected void InitBlocks()
     {
-      _fanartActionBlock = new ActionBlock<FanArtManagerAction>(a => OnFanArtAction(a),
-        new ExecutionDataflowBlockOptions { MaxDegreeOfParallelism = Environment.ProcessorCount * 5 });
+      _fanartActionBlock = new FanArtActionBlock();
       
       //Bounded capacity of 2 means there is at max 1 cleanup task running and 1 waiting
       _fanartCleanupBlock = new ActionBlock<bool>(_ => CleanupFanArt(),
@@ -129,11 +108,24 @@ namespace MediaPortal.Extensions.UserServices.FanArtService
 
     protected void CompleteBlocks()
     {
-      //Mark blocks for completion, no new tasks will be scheduled
-      _fanartActionBlock.Complete();
-      _fanartCleanupBlock.Complete();
-      //Wait for all blocks to complete before returning
-      Task.WhenAll(_fanartActionBlock.Completion, _fanartCleanupBlock.Completion).Wait();
+      lock (_syncObj)
+      {
+        _isInit = false;
+        //Mark blocks for completion, no new tasks will be scheduled
+        _fanartCleanupBlock.Complete();
+        //Cancel the FanartActionBlock, this ensures we stop processing immediately, we persist
+        //any pending actions below and will restore them on next startup
+        _fanartActionBlock.Cancel();
+        //Wait for all blocks to complete before returning
+        Task.WhenAll(_fanartActionBlock.Completion, _fanartCleanupBlock.Completion).Wait();
+      }
+    }
+
+    protected void RestorePendingActions()
+    {
+      lock (_syncObj)
+        if (_isInit)
+          _fanartActionBlock.Restore();
     }
 
     /// <summary>
@@ -189,13 +181,25 @@ namespace MediaPortal.Extensions.UserServices.FanArtService
 
     private void OnMessageReceived(AsynchronousMessageQueue queue, SystemMessage message)
     {
-      if (message.ChannelName == MediaLibraryMessaging.CHANNEL)
+      if (message.ChannelName == SystemMessaging.CHANNEL)
+      {
+        SystemMessaging.MessageType messageType = (SystemMessaging.MessageType)message.MessageType;
+        if (messageType == SystemMessaging.MessageType.SystemStateChanged)
+        {
+          SystemState newState = (SystemState)message.MessageData[SystemMessaging.NEW_STATE];
+          if (newState == SystemState.Running)
+            RestorePendingActions();
+        }
+      }
+      else if (message.ChannelName == MediaLibraryMessaging.CHANNEL)
       {
         MediaLibraryMessaging.MessageType messageType = (MediaLibraryMessaging.MessageType)message.MessageType;
         if (messageType == MediaLibraryMessaging.MessageType.MediaItemsAddedOrUpdated)
         {
-          MediaItem item = (MediaItem)message.MessageData[MediaLibraryMessaging.PARAM];
-          ScheduleFanArtCollection(item.MediaItemId, item.Aspects);
+          IEnumerable<MediaItem> items = message.MessageData[MediaLibraryMessaging.PARAM] as IEnumerable<MediaItem>;
+          if (items != null)
+            foreach (MediaItem item in items)
+              ScheduleFanArtCollection(item.MediaItemId, item.Aspects);
         }
         else if (messageType == MediaLibraryMessaging.MessageType.MediaItemsDeleted)
         {
@@ -231,67 +235,27 @@ namespace MediaPortal.Extensions.UserServices.FanArtService
       ServiceRegistration.Get<ILogger>().Debug("FanArtManagement: Scheduling fanart deletion for {0}.", mediaItemId);
       _fanartActionBlock.Post(new FanArtManagerAction(ActionType.Delete, mediaItemId, null));
     }
-
+    
     /// <summary>
     /// Schedules a cleanup of all fanart where the corresponding media item no longer exists.
     /// </summary>
     public void ScheduleFanArtCleanup()
     {
-      ServiceRegistration.Get<ILogger>().Debug("FanArtManagement: Scheduling fanart cleanup.");
-      if (!_fanartCleanupBlock.Post(true))
-        ServiceRegistration.Get<ILogger>().Info("FanArtManagement: Skipping additional fanart cleanup. There is already a cleanup in the works and another one scheduled.");
+      if (_fanartCleanupBlock.Post(true))
+      {
+        _hasSkippedCleanupBeenLogged = false;
+        ServiceRegistration.Get<ILogger>().Debug("FanArtManagement: Scheduling fanart cleanup.");
+      }
+      else if (!_hasSkippedCleanupBeenLogged)
+      {
+        _hasSkippedCleanupBeenLogged = true;
+        ServiceRegistration.Get<ILogger>().Debug("FanArtManagement: Skipping additional fanart cleanup. There is already a cleanup in the works and another one scheduled.");
+      }
     }
 
     #endregion
 
     #region Protected methods
-
-    /// <summary>
-    /// Called by the <see cref="_fanartActionBlock"/> for every new task.
-    /// </summary>
-    /// <param name="action"></param>
-    protected void OnFanArtAction(FanArtManagerAction action)
-    {
-      if (action.Type == ActionType.Collect)
-        CollectFanArt(action.MediaItemId, action.Aspects);
-      else if (action.Type == ActionType.Delete)
-        DeleteFanArt(action.MediaItemId);
-    }
-
-    /// <summary>
-    /// Collects all fanart for the given media item using the registered <see cref="IMediaFanArtHandler"/>s
-    /// </summary>
-    /// <param name="mediaItemId">The id of the media item.</param>
-    /// <param name="aspects">The aspects of the media item.</param>
-    protected void CollectFanArt(Guid mediaItemId, IDictionary<Guid, IList<MediaItemAspect>> aspects)
-    {
-      try
-      {
-        IEnumerable<IMediaFanArtHandler> handlers = GetFanArtHandlers().Where(h => h.FanArtAspects.Any(a => aspects.ContainsKey(a)));
-        foreach (IMediaFanArtHandler handler in handlers)
-          handler.CollectFanArt(mediaItemId, aspects);
-      }
-      catch (Exception ex)
-      {
-        ServiceRegistration.Get<ILogger>().Error("FanArtManagement: Error collecting fanart for media item {0}.", ex, mediaItemId);
-      }
-    }
-
-    /// <summary>
-    /// Deletes all fanart for the given media item.
-    /// </summary>
-    /// <param name="mediaItemId"></param>
-    protected void DeleteFanArt(Guid mediaItemId)
-    {
-      try
-      {
-        DoDeleteFanArt(mediaItemId, GetFanArtHandlers());
-      }
-      catch (Exception ex)
-      {
-        ServiceRegistration.Get<ILogger>().Error("FanArtManagement: Error deleting fanart for media item {0}.", ex, mediaItemId);
-      }
-    }
 
     /// <summary>
     /// Performs a complete cleanup of all orphaned fanart.
@@ -303,7 +267,7 @@ namespace MediaPortal.Extensions.UserServices.FanArtService
         var sw = Stopwatch.StartNew();
         //Order is important here, get all fanart ids first to ensure we don't delete the fanart
         //of a media item that was added after the call to GetAllMediaItemIds
-        ICollection<Guid> fanArtIds = FanArtCache.GetAllFanArtIds();
+        ICollection<Guid> fanArtIds = ServiceRegistration.Get<IFanArtCache>().GetAllFanArtIds();
         ICollection<Guid> mediaItemIds = GetAllMediaItemIds();
         ICollection<Guid> fanArtToDelete = fanArtIds.Except(mediaItemIds).ToList();
         if (fanArtToDelete.Count == 0)

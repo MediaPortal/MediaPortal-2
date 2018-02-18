@@ -22,18 +22,17 @@
 
 #endregion
 
-using System;
-using System.Collections.Generic;
-using System.Globalization;
 using MediaPortal.Common;
-using MediaPortal.Common.Localization;
+using MediaPortal.Common.FanArt;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.MediaManagement.Helpers;
 using MediaPortal.Common.PathManager;
 using MediaPortal.Extensions.OnlineLibraries.Libraries.MusicBrainzV2.Data;
 using MediaPortal.Extensions.OnlineLibraries.Wrappers;
-using System.IO;
-using MediaPortal.Common.FanArt;
+using System;
+using System.Globalization;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace MediaPortal.Extensions.OnlineLibraries.Matchers
 {
@@ -64,7 +63,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
       Enabled = false;
     }
 
-    public override bool InitWrapper(bool useHttps)
+    public override Task<bool> InitWrapperAsync(bool useHttps)
     {
       try
       {
@@ -76,14 +75,14 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
         if (wrapper.Init(CACHE_PATH, useHttps))
         {
           _wrapper = wrapper;
-          return true;
+          return Task.FromResult(true);
         }
       }
       catch (Exception ex)
       {
         ServiceRegistration.Get<ILogger>().Error("MusicBrainzMatcher: Error initializing wrapper", ex);
       }
-      return false;
+      return Task.FromResult(false);
     }
 
     #endregion
@@ -166,55 +165,16 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
 
     #region FanArt
 
-    protected override int SaveFanArtImages(string id, IEnumerable<TrackImage> images, string language, string mediaItemId, string name, string fanartType)
+    protected override bool VerifyFanArtImage(TrackImage image, string language, string fanArtType)
     {
-      try
-      {
-        if (images == null)
-          return 0;
-
-        string imgType = null;
-        if (fanartType == FanArtTypes.Cover)
-          imgType = "Front";
-        else if (fanartType == FanArtTypes.DiscArt)
-          imgType = "Medium";
-
-        if (imgType == null)
-          return 0;
-
-        int idx = 0;
-        foreach (TrackImage img in images)
-        {
-          using (FanArtCache.FanArtCountLock countLock = FanArtCache.GetFanArtCountLock(mediaItemId, fanartType))
-          {
-            if (countLock.Count >= FanArtCache.MAX_FANART_IMAGES[fanartType])
-              break;
-            if (idx >= FanArtCache.MAX_FANART_IMAGES[fanartType])
-              break;
-
-            foreach (string imageType in img.Types)
-            {
-              if (imageType.Equals(imgType, StringComparison.InvariantCultureIgnoreCase))
-              {
-                FanArtCache.InitFanArtCache(mediaItemId, name);
-                if (_wrapper.DownloadFanArt(id, img, Path.Combine(FANART_CACHE_PATH, mediaItemId, fanartType)))
-                {
-                  countLock.Count++;
-                  idx++;
-                }
-                break;
-              }
-            }
-          }
-        }
-        Logger.Debug(GetType().Name + @" Download: Saved {0} for media item {1} ({2}) of type {3}", idx, mediaItemId, name, fanartType);
-        return idx;
-      }
-      catch (Exception ex)
-      {
-        Logger.Debug(GetType().Name + " Download: Exception downloading images for ID {0} [{1} ({2})]", ex, id, mediaItemId, name);
-        return 0;
-      }
+      string imgType;
+      if (fanArtType == FanArtTypes.Cover)
+        imgType = "Front";
+      else if (fanArtType == FanArtTypes.DiscArt)
+        imgType = "Medium";
+      else
+        return false;
+      return image.Types.Contains(imgType, StringComparer.InvariantCultureIgnoreCase);
     }
 
     #endregion

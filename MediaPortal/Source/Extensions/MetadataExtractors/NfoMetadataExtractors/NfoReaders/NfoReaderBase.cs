@@ -38,6 +38,7 @@ using MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.Utilities;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 using System.Globalization;
+using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 
 namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoReaders
 {
@@ -78,6 +79,15 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoRea
     /// <param name="extractedAspectData">Dictionary of MediaItemAspects to write the Attribute to</param>
     /// <returns><c>true</c> if metadata was written to the Attribute; else <c>false</c></returns>
     protected delegate bool TryWriteAttributeDelegate(IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData);
+
+    /// <summary>
+    /// Delegate used to write metadata for a relation into a dictionary of MediaItemAspect
+    /// </summary>
+    /// <typeparam name="T">The type of the stub item to write metadata for</typeparam>
+    /// <param name="relationshipStub">The stub item to write metadata for</param>
+    /// <param name="extractedAspectData">Dictionary of MediaItemAspects to write the MediaItemAspects to</param>
+    /// <returns><c>true</c> if MediaItemAspects were added to the MediaItemAspect dictionary; else <c>false</c></returns>
+    protected delegate bool TryWriteRelationshipDelegate<T>(T relationshipStub, IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData);
 
     #endregion
 
@@ -156,15 +166,14 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoRea
     /// </summary>
     /// <param name="debugLogger">Debug logger to log to</param>
     /// <param name="miNumber">Unique number of the MediaItem for which the nfo-file is parsed</param>
-    /// <param name="importOnly">If <c>true</c>, this is an import only cycle meaning no refresh of existing media</param>
     /// <param name="forceQuickMode">If <c>true</c>, no long lasting operations such as parsing pictures are performed</param>
     /// <param name="httpClient"><see cref="HttpClient"/> used to download from http URLs contained in nfo-files</param>
     /// <param name="settings">Settings of the NfoMetadataExtractor</param>
-    protected NfoReaderBase(ILogger debugLogger, long miNumber, bool importOnly, bool forceQuickMode, HttpClient httpClient, NfoMetadataExtractorSettingsBase settings)
+    /// 
+    protected NfoReaderBase(ILogger debugLogger, long miNumber, bool forceQuickMode, HttpClient httpClient, NfoMetadataExtractorSettingsBase settings)
     {
       _debugLogger = debugLogger;
       _miNumber = miNumber;
-      _importOnly = importOnly;
       _forceQuickMode = forceQuickMode;
       _httpDownloadClient = httpClient;
       _settings = settings;
@@ -269,6 +278,83 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoRea
         }
       }
       return result;
+    }
+
+    #endregion
+
+    #region Protected methods
+
+    protected bool TryWriteRelationshipMetadata<T>(TryWriteRelationshipDelegate<T> writeDelegate, T relationshipStub, IList<IDictionary<Guid, IList<MediaItemAspect>>> extractedAspects)
+    {
+      var result = false;
+      try
+      {
+        IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData = new Dictionary<Guid, IList<MediaItemAspect>>();
+        if (writeDelegate.Invoke(relationshipStub, extractedAspectData))
+        {
+          extractedAspects.Add(extractedAspectData);
+          result = true;
+        }
+      }
+      catch (Exception e)
+      {
+        _debugLogger.Error("[#{0}]: Error writing relationship metadata into the MediaItemAspects (delegate: {1})", e, _miNumber, writeDelegate);
+      }
+      return result;
+    }
+
+    protected bool TryWriteRelationshipMetadata<T>(TryWriteRelationshipDelegate<T> writeDelegate, IEnumerable<T> relationshipStubs, IList<IDictionary<Guid, IList<MediaItemAspect>>> extractedAspects)
+    {
+      var result = false;
+      try
+      {
+        foreach (T relationshipStub in relationshipStubs)
+        {
+          IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData = new Dictionary<Guid, IList<MediaItemAspect>>();
+          if (writeDelegate.Invoke(relationshipStub, extractedAspectData))
+          {
+            extractedAspects.Add(extractedAspectData);
+            result = true;
+          }
+        }
+      }
+      catch (Exception e)
+      {
+        _debugLogger.Error("[#{0}]: Error writing relationship metadata into the MediaItemAspects (delegate: {1})", e, _miNumber, writeDelegate);
+      }
+      return result;
+    }
+
+    protected bool TryWritePersonAspect(PersonStub person, string occupation, IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData)
+    {
+      if (person == null)
+        return false;
+      if (!string.IsNullOrEmpty(person.ImdbId))
+        MediaItemAspect.AddOrUpdateExternalIdentifier(extractedAspectData, ExternalIdentifierAspect.SOURCE_IMDB, ExternalIdentifierAspect.TYPE_PERSON, person.ImdbId);
+      MediaItemAspect personAspect = MediaItemAspect.GetOrCreateAspect(extractedAspectData, PersonAspect.Metadata);
+      if (person.Name != null)
+        personAspect.SetAttribute(PersonAspect.ATTR_PERSON_NAME, person.Name);
+      if (person.Biography != null || person.MiniBiography != null)
+        personAspect.SetAttribute(PersonAspect.ATTR_BIOGRAPHY, string.IsNullOrEmpty(person.Biography) ? person.MiniBiography : person.Biography);
+      if (person.Birthdate.HasValue)
+        personAspect.SetAttribute(PersonAspect.ATTR_DATEOFBIRTH, person.Birthdate);
+      if (person.Deathdate.HasValue)
+        personAspect.SetAttribute(PersonAspect.ATTR_DATEOFDEATH, person.Deathdate);
+      personAspect.SetAttribute(PersonAspect.ATTR_OCCUPATION, occupation);
+      return true;
+    }
+
+    protected bool TryWriteCharacterAspect(PersonStub person, IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData)
+    {
+      if (person == null)
+        return false;
+      if (!string.IsNullOrEmpty(person.ImdbId))
+        MediaItemAspect.AddOrUpdateExternalIdentifier(extractedAspectData, ExternalIdentifierAspect.SOURCE_IMDB, ExternalIdentifierAspect.TYPE_CHARACTER, person.ImdbId);
+      MediaItemAspect characterAspect = MediaItemAspect.GetOrCreateAspect(extractedAspectData, CharacterAspect.Metadata);
+      if(person.Name != null)
+      characterAspect.SetAttribute(CharacterAspect.ATTR_ACTOR_NAME, person.Name);
+      characterAspect.SetAttribute(CharacterAspect.ATTR_CHARACTER_NAME, person.Role);
+      return true;
     }
 
     #endregion
@@ -651,8 +737,6 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoRea
     protected async Task<byte[]> ParseSimpleImageAsync(XElement element, IFileSystemResourceAccessor nfoDirectoryFsra)
     {
       if (_forceQuickMode)
-        return null;
-      if (_importOnly)
         return null;
 
       var imageFileString = ParseSimpleString(element);

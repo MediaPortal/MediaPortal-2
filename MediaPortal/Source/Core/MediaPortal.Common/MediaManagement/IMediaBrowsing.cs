@@ -26,6 +26,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using MediaPortal.Common.ResourceAccess;
+using MediaPortal.Common.MediaManagement.MLQueries;
 
 namespace MediaPortal.Common.MediaManagement
 {

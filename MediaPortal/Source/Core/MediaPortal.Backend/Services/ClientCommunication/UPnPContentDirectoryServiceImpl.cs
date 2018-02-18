@@ -346,6 +346,14 @@ namespace MediaPortal.Backend.Services.ClientCommunication
         };
       AddStateVariable(A_ARG_TYPE_MediaItems);
 
+      // Used to transport a collection of relationship items with a role, linked role and media item aspects
+      // ReSharper disable once InconsistentNaming - Following UPnP standards variable naming convention.
+      DvStateVariable A_ARG_TYPE_RelationshipItems = new DvStateVariable("A_ARG_TYPE_RelationshipItems", new DvExtendedDataType(UPnPExtendedDataTypes.DtRelationshipItemEnumeration))
+      {
+        SendEvents = false,
+      };
+      AddStateVariable(A_ARG_TYPE_RelationshipItems);
+
       // Used to transport a collection of share import progresses
       // ReSharper disable once InconsistentNaming - Following UPnP standards variable naming convention.
       DvStateVariable A_ARG_TYPE_DictionaryGuidInt32 = new DvStateVariable("A_ARG_TYPE_DictionaryGuidInt32", new DvExtendedDataType(UPnPExtendedDataTypes.DtDictionaryGuidInt32))
@@ -845,6 +853,17 @@ namespace MediaPortal.Backend.Services.ClientCommunication
           });
       AddAction(mpnp10AddOrUpdateMediaItemIdAction);
 
+      DvAction mpnp10ReconcileMediaItemRelationshipsAction = new DvAction("X_MediaPortal_ReconcileMediaItemRelationships", OnMPnP10ReconcileMediaItemRelations,
+          new DvArgument[] {
+            new DvArgument("MediaItemId", A_ARG_TYPE_Uuid, ArgumentDirection.In),
+            new DvArgument("MediaItemAspects", A_ARG_TYPE_MediaItemAspects, ArgumentDirection.In),
+            new DvArgument("RelationshipItems", A_ARG_TYPE_RelationshipItems, ArgumentDirection.In),
+          },
+          new DvArgument[] {
+            new DvArgument("MediaItems", A_ARG_TYPE_MediaItems, ArgumentDirection.Out, true),
+          });
+      AddAction(mpnp10ReconcileMediaItemRelationshipsAction);
+
       DvAction mpnp10DeleteMediaItemOrPathAction = new DvAction("X_MediaPortal_DeleteMediaItemOrPath", OnMPnP10DeleteMediaItemOrPath,
           new DvArgument[] {
             new DvArgument("SystemId", A_ARG_TYPE_SystemId, ArgumentDirection.In),
@@ -1054,7 +1073,7 @@ namespace MediaPortal.Backend.Services.ClientCommunication
           new DvArgument[] {
           });
       AddAction(mpnp11RefreshMediaItemAction);
-      
+
       // Media playback
 
       DvAction mpnp11NotifyPlaybackAction = new DvAction("X_MediaPortal_NotifyPlayback", OnMPnP11NotifyPlayback,
@@ -1733,6 +1752,17 @@ namespace MediaPortal.Backend.Services.ClientCommunication
       IEnumerable<MediaItemAspect> mediaItemAspects = (IEnumerable<MediaItemAspect>)inParams[4];
       mediaItemId = ServiceRegistration.Get<IMediaLibrary>().AddOrUpdateMediaItem(parentDirectoryId, systemId, path, mediaItemId, mediaItemAspects, true);
       outParams = new List<object> { MarshallingHelper.SerializeGuid(mediaItemId) };
+      return null;
+    }
+
+    static UPnPError OnMPnP10ReconcileMediaItemRelations(DvAction action, IList<object> inParams, out IList<object> outParams,
+        CallContext context)
+    {
+      Guid mediaItemId = MarshallingHelper.DeserializeGuid((string)inParams[0]);
+      IEnumerable<MediaItemAspect> mediaItemAspects = (IEnumerable<MediaItemAspect>)inParams[1];
+      IEnumerable<RelationshipItem> relationshipItems = (IEnumerable<RelationshipItem>)inParams[2];
+      IList<MediaItem> result = ServiceRegistration.Get<IMediaLibrary>().ReconcileMediaItemRelationships(mediaItemId, mediaItemAspects, relationshipItems);
+      outParams = new List<object> { result };
       return null;
     }
 

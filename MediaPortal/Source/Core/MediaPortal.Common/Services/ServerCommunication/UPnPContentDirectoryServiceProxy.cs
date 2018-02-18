@@ -529,6 +529,20 @@ namespace MediaPortal.Common.Services.ServerCommunication
       return MarshallingHelper.DeserializeGuid((string)outParameters[0]);
     }
 
+    public async Task<IList<MediaItem>> ReconcileMediaItemRelationshipsAsync(Guid mediaItemId, IEnumerable<MediaItemAspect> mediaItemAspects,
+      IEnumerable<RelationshipItem> relationshipItems)
+    {
+      CpAction action = GetAction("X_MediaPortal_ReconcileMediaItemRelationships");
+      IList<object> inParameters = new List<object>
+        {
+            MarshallingHelper.SerializeGuid(mediaItemId),
+            mediaItemAspects,
+            relationshipItems
+        };
+      IList<object> outParameters = await action.InvokeAsync(inParameters);
+      return (IList<MediaItem>)outParameters[0];
+    }
+
     public async Task DeleteMediaItemOrPathAsync(string systemId, ResourcePath path, bool inclusive)
     {
       CpAction action = GetAction("X_MediaPortal_DeleteMediaItemOrPath");

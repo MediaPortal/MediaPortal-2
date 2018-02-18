@@ -150,6 +150,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SlimTv.Proxy3", "UI\TV\Slim
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StubMetadataExtractors", "Extensions\MetadataExtractors\StubMetadataExtractors\StubMetadataExtractors.csproj", "{B7D9598A-9744-489D-BDED-88BA73AD5DC8}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Test.NfoMetadataExtractor", "..\Tests\Test.NfoMetadataExtractor\Test.NfoMetadataExtractor.csproj", "{F1E39B0C-451F-4F77-A948-AF2C33CBB921}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x86 = Debug|x86
@@ -369,6 +371,10 @@ Global
 		{B7D9598A-9744-489D-BDED-88BA73AD5DC8}.Debug|x86.Build.0 = Debug|x86
 		{B7D9598A-9744-489D-BDED-88BA73AD5DC8}.Release|x86.ActiveCfg = Release|x86
 		{B7D9598A-9744-489D-BDED-88BA73AD5DC8}.Release|x86.Build.0 = Release|x86
+		{F1E39B0C-451F-4F77-A948-AF2C33CBB921}.Debug|x86.ActiveCfg = Debug|x86
+		{F1E39B0C-451F-4F77-A948-AF2C33CBB921}.Debug|x86.Build.0 = Debug|x86
+		{F1E39B0C-451F-4F77-A948-AF2C33CBB921}.Release|x86.ActiveCfg = Release|x86
+		{F1E39B0C-451F-4F77-A948-AF2C33CBB921}.Release|x86.Build.0 = Release|x86
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -442,6 +448,7 @@ Global
 		{9F6CBAFB-159F-4343-9AFA-65B9D95BF08A} = {7022055E-FF0A-47A6-A6CE-9D80BE64CCDA}
 		{E0C8EDE8-7398-4D47-9D5D-73CDA5ECAF25} = {1D7CBAB2-F708-4A74-8DF9-610497AED552}
 		{B7D9598A-9744-489D-BDED-88BA73AD5DC8} = {1B4741DC-78EA-4D93-8EED-00CB9617AD2F}
+		{F1E39B0C-451F-4F77-A948-AF2C33CBB921} = {4B3FDD47-818E-455A-B3AD-5AFDDABFA4D5}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {1EEA469D-E8FA-442D-A7DC-FA62A56A8808}

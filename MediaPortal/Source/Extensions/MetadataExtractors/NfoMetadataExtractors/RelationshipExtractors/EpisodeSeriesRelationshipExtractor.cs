@@ -22,25 +22,52 @@
 
 #endregion
 
-using System;
-using System.Collections.Generic;
 using MediaPortal.Common;
+using MediaPortal.Common.Genres;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Common.MediaManagement.Helpers;
 using MediaPortal.Common.MediaManagement.MLQueries;
-using System.Linq;
-using MediaPortal.Extensions.OnlineLibraries;
-using MediaPortal.Common.Genres;
+using MediaPortal.Common.ResourceAccess;
+using MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.Extractors;
+using MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoReaders;
 using MediaPortal.Utilities.Collections;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
 {
-  class EpisodeSeriesRelationshipExtractor : INfoRelationshipExtractor, IRelationshipRoleExtractor
+  class EpisodeSeriesRelationshipExtractor : NfoSeriesExtractorBase, IRelationshipRoleExtractor
   {
+    #region Static members
+
     private static readonly Guid[] ROLE_ASPECTS = { EpisodeAspect.ASPECT_ID };
     private static readonly Guid[] LINKED_ROLE_ASPECTS = { SeriesAspect.ASPECT_ID };
+
+    #endregion
+
+    #region Protected methods
+
+    /// <summary>
+    /// Asynchronously tries to extract series metadata for the given <param name="mediaItemAccessor"></param>
+    /// </summary>
+    /// <param name="mediaItemAccessor">Points to the resource for which we try to extract metadata</param>
+    /// <param name="extractedAspectData">Dictionary of MediaItemAspect to update with metadata</param>
+    /// <returns><c>true</c> if metadata was found and stored into the <paramref name="extractedAspectData"/>, else <c>false</c></returns>
+    protected async Task<bool> TryExtractSeriesMetadataAsync(IResourceAccessor mediaItemAccessor, IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData)
+    {
+      NfoSeriesReader seriesNfoReader = await TryGetNfoSeriesReaderAsync(mediaItemAccessor).ConfigureAwait(false);
+      if (seriesNfoReader != null)
+        return seriesNfoReader.TryWriteMetadata(extractedAspectData);
+      return false;
+    }
+
+    #endregion
+
+    #region IRelationshipRoleExtractor implementations
 
     public bool BuildRelationship
     {
@@ -74,48 +101,41 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
 
     public IFilter GetSearchFilter(IDictionary<Guid, IList<MediaItemAspect>> extractedAspects)
     {
-      return GetSeriesSearchFilter(extractedAspects);
+      if (!extractedAspects.ContainsKey(SeriesAspect.ASPECT_ID))
+        return null;
+      return RelationshipExtractorUtils.CreateExternalItemFilter(extractedAspects, ExternalIdentifierAspect.TYPE_SERIES);
     }
 
-    public bool TryExtractRelationships(IDictionary<Guid, IList<MediaItemAspect>> aspects, bool importOnly, out IList<RelationshipItem> extractedLinkedAspects)
+    public ICollection<string> GetExternalIdentifiers(IDictionary<Guid, IList<MediaItemAspect>> extractedAspects)
     {
-      extractedLinkedAspects = null;
+      if (!extractedAspects.ContainsKey(SeriesAspect.ASPECT_ID))
+        return new List<string>();
+      return RelationshipExtractorUtils.CreateExternalItemIdentifiers(extractedAspects, ExternalIdentifierAspect.TYPE_SERIES);
+    }
 
-      //Only run during import
-      if (!importOnly)
+    public async Task<bool> TryExtractRelationshipsAsync(IResourceAccessor mediaItemAccessor, IDictionary<Guid, IList<MediaItemAspect>> aspects, IList<IDictionary<Guid, IList<MediaItemAspect>>> extractedLinkedAspects)
+    {
+      IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData = extractedLinkedAspects.Count > 0 ?
+        extractedLinkedAspects[0] : new Dictionary<Guid, IList<MediaItemAspect>>();
+
+      if (!await TryExtractSeriesMetadataAsync(mediaItemAccessor, extractedAspectData).ConfigureAwait(false))
         return false;
 
-      EpisodeInfo episodeInfo = new EpisodeInfo();
-      if (!episodeInfo.FromMetadata(aspects))
+      SeriesInfo seriesInfo = new SeriesInfo();
+      if (!seriesInfo.FromMetadata(extractedAspectData))
         return false;
 
-      SeriesInfo seriesInfo = episodeInfo.CloneBasicInstance<SeriesInfo>();
-      UpdatePersons(aspects, seriesInfo.Actors, true);
-      UpdateCharacters(aspects, seriesInfo.Characters, true);
-      if (!UpdateSeries(aspects, seriesInfo))
-        return false;
       GenreMapper.AssignMissingSeriesGenreIds(seriesInfo.Genres);
-
-      extractedLinkedAspects = new List<RelationshipItem>();
-      IDictionary<Guid, IList<MediaItemAspect>> seriesAspects = new Dictionary<Guid, IList<MediaItemAspect>>();
-      seriesInfo.SetMetadata(seriesAspects);
-
-      if (aspects.ContainsKey(EpisodeAspect.ASPECT_ID))
-      {
-        bool episodeVirtual = true;
-        if (MediaItemAspect.TryGetAttribute(aspects, MediaAspect.ATTR_ISVIRTUAL, false, out episodeVirtual))
-        {
-          MediaItemAspect.SetAttribute(seriesAspects, MediaAspect.ATTR_ISVIRTUAL, episodeVirtual);
-        }
-      }
-
-      if (!seriesAspects.ContainsKey(ExternalIdentifierAspect.ASPECT_ID))
+      seriesInfo.SetMetadata(extractedAspectData);
+      if (!extractedAspectData.ContainsKey(ExternalIdentifierAspect.ASPECT_ID))
         return false;
 
-      StorePersons(seriesAspects, seriesInfo.Actors, true);
-      StoreCharacters(seriesAspects, seriesInfo.Characters, true);
+      bool episodeVirtual;
+      if (MediaItemAspect.TryGetAttribute(aspects, MediaAspect.ATTR_ISVIRTUAL, false, out episodeVirtual))
+        MediaItemAspect.SetAttribute(extractedAspectData, MediaAspect.ATTR_ISVIRTUAL, episodeVirtual);
 
-      extractedLinkedAspects.Add(new RelationshipItem(seriesAspects, Guid.Empty));
+      extractedLinkedAspects.Clear();
+      extractedLinkedAspects.Add(extractedAspectData);
       return true;
     }
 
@@ -143,13 +163,6 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
       return index >= 0;
     }
 
-    public void CacheExtractedItem(Guid extractedItemId, IDictionary<Guid, IList<MediaItemAspect>> extractedAspects)
-    {
-    }
-
-    internal static ILogger Logger
-    {
-      get { return ServiceRegistration.Get<ILogger>(); }
-    }
+    #endregion
   }
 }

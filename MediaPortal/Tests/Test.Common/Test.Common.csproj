@@ -49,6 +49,7 @@
     <Compile Include="TestMediaItemAspectTypeRegistration.cs" />
     <Compile Include="MultipleTestMIA.cs" />
     <Compile Include="SingleTestMIA.cs" />
+    <Compile Include="TestRelationshipExtraction.cs" />
     <Compile Include="TestUtils.cs" />
     <Compile Include="TestMediaItemAspectMetadata.cs" />
     <Compile Include="TestMediaItemQuery.cs" />

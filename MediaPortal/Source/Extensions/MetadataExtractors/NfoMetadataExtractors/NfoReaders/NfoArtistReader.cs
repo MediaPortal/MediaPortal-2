@@ -22,20 +22,18 @@
 
 #endregion
 
+using MediaPortal.Common.Logging;
+using MediaPortal.Common.MediaManagement;
+using MediaPortal.Common.MediaManagement.DefaultItemAspects;
+using MediaPortal.Common.ResourceAccess;
+using MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.Settings;
+using MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.Stubs;
+using MediaPortal.Utilities.Cache;
 using System;
 using System.Collections.Generic;
 using System.Net.Http;
 using System.Threading.Tasks;
 using System.Xml.Linq;
-using MediaPortal.Common.Logging;
-using MediaPortal.Common.MediaManagement;
-using MediaPortal.Common.MediaManagement.DefaultItemAspects;
-using MediaPortal.Common.MediaManagement.Helpers;
-using MediaPortal.Common.ResourceAccess;
-using MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.Settings;
-using MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.Stubs;
-using System.Globalization;
-using MediaPortal.Utilities.Cache;
 
 namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoReaders
 {
@@ -47,7 +45,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoRea
   /// There is a TryRead method for any known child element of the nfo-file's root element and a
   /// TryWrite method for any MIA-Attribute we store values in.
   /// </remarks>
-  class NfoArtistReader : NfoReaderBase<ArtistStub>
+  public class NfoArtistReader : NfoReaderBase<ArtistStub>
   {
     #region Consts
 
@@ -76,15 +74,15 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoRea
     /// </summary>
     /// <param name="debugLogger">Debug logger to log to</param>
     /// <param name="miNumber">Unique number of the MediaItem for which the nfo-file is parsed</param>
-    /// <param name="importOnly">If true, this is an import only cycle meaning no refresh of existing media</param>
     /// <param name="forceQuickMode">If true, no long lasting operations such as parsing images are performed</param>
     /// <param name="httpClient"><see cref="HttpClient"/> used to download from http URLs contained in nfo-files</param>
     /// <param name="settings">Settings of the <see cref="NfoMovieMetadataExtractor"/></param>
-    public NfoArtistReader(ILogger debugLogger, long miNumber, bool importOnly, bool forceQuickMode, HttpClient httpClient, NfoAudioMetadataExtractorSettings settings)
-      : base(debugLogger, miNumber, importOnly, forceQuickMode, httpClient, settings)
+    public NfoArtistReader(ILogger debugLogger, long miNumber, bool forceQuickMode, HttpClient httpClient, NfoAudioMetadataExtractorSettings settings)
+      : base(debugLogger, miNumber, forceQuickMode, httpClient, settings)
     {
       _settings = settings;
       InitializeSupportedElements();
+      InitializeSupportedAttributes();
     }
 
     #endregion
@@ -116,6 +114,26 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoRea
       _supportedElements.Add("instruments", new TryReadElementDelegate(Ignore));
       _supportedElements.Add("album", new TryReadElementDelegate(Ignore));
       _supportedElements.Add("thumb", new TryReadElementDelegate(Ignore));
+    }
+
+    /// <summary>
+    /// Adds a delegate for each Attribute in a MediaItemAspect into which this MetadataExtractor can write metadata to NfoReaderBase._supportedAttributes
+    /// </summary>
+    private void InitializeSupportedAttributes()
+    {
+      _supportedAttributes.Add(TryWriteMediaAspectTitle);
+
+      _supportedAttributes.Add(TryWritePersonAspectPersonName);
+      _supportedAttributes.Add(TryWritePersonAspectOccupation);
+      _supportedAttributes.Add(TryWritePersonAspectBiography);
+      _supportedAttributes.Add(TryWritePersonAspectDateOfBirth);
+      _supportedAttributes.Add(TryWritePersonAspectDateOfDeath);
+      _supportedAttributes.Add(TryWritePersonAspectGroup);
+
+      _supportedAttributes.Add(TryWriteExternalIdentifierAspectAudioDbId);
+      _supportedAttributes.Add(TryWriteExternalIdentifierAspectMusicBrainzArtistId);
+
+      _supportedAttributes.Add(TryWriteThumbnailLargeAspectThumbnail);
     }
 
     #endregion
@@ -255,6 +273,195 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoRea
     {
       // For examples of valid element values see the comment of NfoReaderBase.ParseSimpleImageAsync
       return ((_currentStub.Thumb = await ParseSimpleImageAsync(element, nfoDirectoryFsra).ConfigureAwait(false)) != null);
+    }
+
+    #endregion
+
+    #endregion
+
+    #region Writer methods to store metadata in MediaItemAspects
+
+    // The following writer methods only write the first item found in the nfo-file
+    // into the MediaItemAspects. This can be extended in the future once we support
+    // multiple MediaItems in one media file.
+
+    #region MediaAspect
+
+    /// <summary>
+    /// Tries to write metadata into <see cref="MediaAspect.ATTR_TITLE"/>
+    /// </summary>
+    /// <param name="extractedAspectData">Dictionary of <see cref="MediaItemAspect"/>s to write into</param>
+    /// <returns><c>true</c> if any information was written; otherwise <c>false</c></returns>
+    private bool TryWriteMediaAspectTitle(IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData)
+    {
+      if (_stubs[0].Name != null)
+      {
+        MediaItemAspect.SetAttribute(extractedAspectData, MediaAspect.ATTR_TITLE, _stubs[0].Name);
+        return true;
+      }
+      return false;
+    }
+
+    #endregion
+
+    #region PersonAspect
+
+    /// <summary>
+    /// Tries to write metadata into <see cref="PersonAspect.ATTR_PERSON_NAME"/>
+    /// </summary>
+    /// <param name="extractedAspectData">Dictionary of <see cref="MediaItemAspect"/>s to write into</param>
+    /// <returns><c>true</c> if any information was written; otherwise <c>false</c></returns>
+    private bool TryWritePersonAspectPersonName(IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData)
+    {
+      if (_stubs[0].Name != null)
+      {
+        MediaItemAspect.SetAttribute(extractedAspectData, PersonAspect.ATTR_PERSON_NAME, _stubs[0].Name);
+        return true;
+      }
+      return false;
+    }
+
+    /// <summary>
+    /// Tries to write metadata into <see cref="PersonAspect.ATTR_OCCUPATION"/>
+    /// </summary>
+    /// <param name="extractedAspectData">Dictionary of <see cref="MediaItemAspect"/>s to write into</param>
+    /// <returns><c>true</c> if any information was written; otherwise <c>false</c></returns>
+    private bool TryWritePersonAspectOccupation(IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData)
+    {
+      MediaItemAspect.SetAttribute(extractedAspectData, PersonAspect.ATTR_OCCUPATION, PersonAspect.OCCUPATION_ARTIST);
+      return true;
+    }
+
+    /// <summary>
+    /// Tries to write metadata into <see cref="PersonAspect.ATTR_BIOGRAPHY"/>
+    /// </summary>
+    /// <param name="extractedAspectData">Dictionary of <see cref="MediaItemAspect"/>s to write into</param>
+    /// <returns><c>true</c> if any information was written; otherwise <c>false</c></returns>
+    private bool TryWritePersonAspectBiography(IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData)
+    {
+      if (_stubs[0].Biography != null)
+      {
+        MediaItemAspect.SetAttribute(extractedAspectData, PersonAspect.ATTR_BIOGRAPHY, _stubs[0].Biography);
+        return true;
+      }
+      return false;
+    }
+
+    /// <summary>
+    /// Tries to write metadata into <see cref="PersonAspect.ATTR_DATEOFBIRTH"/>
+    /// </summary>
+    /// <param name="extractedAspectData">Dictionary of <see cref="MediaItemAspect"/>s to write into</param>
+    /// <returns><c>true</c> if any information was written; otherwise <c>false</c></returns>
+    private bool TryWritePersonAspectDateOfBirth(IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData)
+    {
+      // priority 1:
+      if (_stubs[0].Birthdate.HasValue)
+      {
+        MediaItemAspect.SetAttribute(extractedAspectData, PersonAspect.ATTR_DATEOFBIRTH, _stubs[0].Birthdate);
+        return true;
+      }
+      // priority 2:
+      if (_stubs[0].Formeddate.HasValue)
+      {
+        MediaItemAspect.SetAttribute(extractedAspectData, PersonAspect.ATTR_DATEOFBIRTH, _stubs[0].Formeddate);
+        return true;
+      }
+      return false;
+    }
+
+    /// <summary>
+    /// Tries to write metadata into <see cref="PersonAspect.ATTR_DATEOFDEATH"/>
+    /// </summary>
+    /// <param name="extractedAspectData">Dictionary of <see cref="MediaItemAspect"/>s to write into</param>
+    /// <returns><c>true</c> if any information was written; otherwise <c>false</c></returns>
+    private bool TryWritePersonAspectDateOfDeath(IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData)
+    {
+      // priority 1:
+      if (_stubs[0].Deathdate.HasValue)
+      {
+        MediaItemAspect.SetAttribute(extractedAspectData, PersonAspect.ATTR_DATEOFDEATH, _stubs[0].Deathdate);
+        return true;
+      }
+      // priority 2:
+      if (_stubs[0].Disbandeddate.HasValue)
+      {
+        MediaItemAspect.SetAttribute(extractedAspectData, PersonAspect.ATTR_DATEOFDEATH, _stubs[0].Disbandeddate);
+        return true;
+      }
+      return false;
+    }
+
+    /// <summary>
+    /// Tries to write metadata into <see cref="PersonAspect.ATTR_GROUP"/>
+    /// </summary>
+    /// <param name="extractedAspectData">Dictionary of <see cref="MediaItemAspect"/>s to write into</param>
+    /// <returns><c>true</c> if any information was written; otherwise <c>false</c></returns>
+    private bool TryWritePersonAspectGroup(IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData)
+    {
+      if (_stubs[0].Birthdate.HasValue || _stubs[0].Deathdate.HasValue)
+      {
+        MediaItemAspect.SetAttribute(extractedAspectData, PersonAspect.ATTR_GROUP, false);
+        return true;
+      }
+      if (_stubs[0].Formeddate.HasValue || _stubs[0].Disbandeddate.HasValue)
+      {
+        MediaItemAspect.SetAttribute(extractedAspectData, PersonAspect.ATTR_GROUP, true);
+        return true;
+      }
+      return false;
+    }
+
+    #endregion
+
+    #region ExternalIdentifierAspect
+
+    /// <summary>
+    /// Tries to write metadata into <see cref="ExternalIdentifierAspect.ATTR_ID"/>
+    /// </summary>
+    /// <param name="extractedAspectData">Dictionary of <see cref="MediaItemAspect"/>s to write into</param>
+    /// <returns><c>true</c> if any information was written; otherwise <c>false</c></returns>
+    private bool TryWriteExternalIdentifierAspectAudioDbId(IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData)
+    {
+      if (_stubs[0].AudioDbId.HasValue)
+      {
+        MediaItemAspect.AddOrUpdateExternalIdentifier(extractedAspectData, ExternalIdentifierAspect.SOURCE_AUDIODB, ExternalIdentifierAspect.TYPE_PERSON, _stubs[0].AudioDbId.ToString());
+        return true;
+      }
+      return false;
+    }
+
+    /// <summary>
+    /// Tries to write metadata into <see cref="ExternalIdentifierAspect.ATTR_ID"/>
+    /// </summary>
+    /// <param name="extractedAspectData">Dictionary of <see cref="MediaItemAspect"/>s to write into</param>
+    /// <returns><c>true</c> if any information was written; otherwise <c>false</c></returns>
+    private bool TryWriteExternalIdentifierAspectMusicBrainzArtistId(IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData)
+    {
+      if (_stubs[0].MusicBrainzArtistId != null)
+      {
+        MediaItemAspect.AddOrUpdateExternalIdentifier(extractedAspectData, ExternalIdentifierAspect.SOURCE_MUSICBRAINZ, ExternalIdentifierAspect.TYPE_PERSON, _stubs[0].MusicBrainzArtistId);
+        return true;
+      }
+      return false;
+    }
+
+    #endregion
+
+    #region ThumbnailLargeAspect
+
+    /// <summary>
+    /// Tries to write metadata into <see cref="ThumbnailLargeAspect.ATTR_THUMBNAIL"/>
+    /// </summary>
+    /// <param name="extractedAspectData">Dictionary of <see cref="MediaItemAspect"/>s to write into</param>
+    /// <returns><c>true</c> if any information was written; otherwise <c>false</c></returns>
+    private bool TryWriteThumbnailLargeAspectThumbnail(IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData)
+    {
+      if (_stubs[0].Thumb != null)
+      {
+        MediaItemAspect.SetAttribute(extractedAspectData, ThumbnailLargeAspect.ATTR_THUMBNAIL, _stubs[0].Thumb);
+        return true;
+      }
+      return false;
     }
 
     #endregion

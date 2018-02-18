@@ -1,0 +1,260 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<!-- created on 2018-02-07 19:25:44 - tinyMediaManager 2.9.7 -->
+<movie>
+    <title>The Lego Batman Movie</title>
+    <originaltitle>The Lego Batman Movie</originaltitle>
+    <set>
+        <name>The Lego Movie Collection</name>
+        <overview>A Series of films based on the toys of the same name.</overview>
+    </set>
+    <sorttitle></sorttitle>
+    <rating>7.2</rating>
+    <year>2017</year>
+    <top250></top250>
+    <votes>1853</votes>
+    <outline>In the irreverent spirit of fun that made “The Lego Movie” a worldwide phenomenon, the self-described leading man of that ensemble—Lego Batman—stars in his own big-screen adventure. But there are big changes...</outline>
+    <plot>In the irreverent spirit of fun that made “The Lego Movie” a worldwide phenomenon, the self-described leading man of that ensemble—Lego Batman—stars in his own big-screen adventure. But there are big changes brewing in Gotham, and if he wants to save the city from The Joker’s hostile takeover, Batman may have to drop the lone vigilante thing, try to work with others and maybe, just maybe, learn to lighten up.</plot>
+    <tagline>Always be yourself. Unless you can be Batman.</tagline>
+    <runtime>104</runtime>
+    <thumb>http://image.tmdb.org/t/p/w500/1pHOqpdCYNmtRVJs6pGKQKttrPm.jpg</thumb>
+    <fanart>http://image.tmdb.org/t/p/original/yFWd9F1BHNowmRFqM4W4Rp906ob.jpg</fanart>
+    <mpaa>UK:U</mpaa>
+    <certification>UK:U</certification>
+    <id>tt4116284</id>
+    <ids>
+        <entry>
+            <key>tmdb</key>
+            <value xsi:type="xs:int" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">324849</value>
+        </entry>
+        <entry>
+            <key>imdb</key>
+            <value xsi:type="xs:string" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">tt4116284</value>
+        </entry>
+        <entry>
+            <key>tmdbSet</key>
+            <value xsi:type="xs:int" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">325470</value>
+        </entry>
+    </ids>
+    <tmdbId>324849</tmdbId>
+    <trailer>plugin://plugin.video.hdtrailers_net/video/apple.com/http%3A%2F%2Fmovietrailers.apple.com%2Fmovies%2Fwb%2Fthelegobatmanmovie%2Fthe-lego-batman-movie-extended-tv-spot_h720p.mov</trailer>
+    <country>Denmark</country>
+    <country>United States</country>
+    <premiered>2017-02-08</premiered>
+    <fileinfo>
+        <streamdetails>
+            <video>
+                <codec>h264</codec>
+                <aspect>2.4</aspect>
+                <width>1280</width>
+                <height>530</height>
+                <durationinseconds>6268</durationinseconds>
+            </video>
+            <audio>
+                <codec>AAC</codec>
+                <language>eng</language>
+                <channels>2</channels>
+            </audio>
+        </streamdetails>
+    </fileinfo>
+    <watched>false</watched>
+    <playcount>0</playcount>
+    <genre>Action</genre>
+    <genre>Animation</genre>
+    <genre>Comedy</genre>
+    <genre>Family</genre>
+    <genre>Fantasy</genre>
+    <studio>Lin Pictures</studio>
+    <studio>Warner Bros. Animation</studio>
+    <studio>Warner Bros.</studio>
+    <studio>Animal Logic</studio>
+    <studio>DC Entertainment</studio>
+    <studio>Lord Miller</studio>
+    <studio>LEGO System A</studio>
+    <studio>S</studio>
+    <credits>Chris McKenna</credits>
+    <credits>Erik Sommers</credits>
+    <credits>Seth Grahame-Smith</credits>
+    <credits>Jared Stern</credits>
+    <credits>John Whittington</credits>
+    <director>Chris McKay</director>
+    <actor>
+        <name>Will Arnett</name>
+        <role>Batman / Bruce Wayne (voice)</role>
+        <thumb>http://image.tmdb.org/t/p/w185/vHCqn3SHfSV6GOWrxzEtoDaSMoU.jpg</thumb>
+    </actor>
+    <actor>
+        <name>Zach Galifianakis</name>
+        <role>The Joker (voice)</role>
+        <thumb>http://image.tmdb.org/t/p/w185/vhNUOBLnAZIHlJ7EUu6eQUE4NJ9.jpg</thumb>
+    </actor>
+    <actor>
+        <name>Michael Cera</name>
+        <role>Robin / Dick Grayson (voice)</role>
+        <thumb>http://image.tmdb.org/t/p/w185/kxeJQa9Ae7Ns1J1b5012SMeyXn2.jpg</thumb>
+    </actor>
+    <actor>
+        <name>Rosario Dawson</name>
+        <role>Batgirl / Barbara Gordon (voice)</role>
+        <thumb>http://image.tmdb.org/t/p/w185/dEK1rMmSJAPGdc2t1XWdbqBmvEq.jpg</thumb>
+    </actor>
+    <actor>
+        <name>Ralph Fiennes</name>
+        <role>Alfred Pennyworth (voice)</role>
+        <thumb>http://image.tmdb.org/t/p/w185/95C56hfbvSA1UNvD433EzXviyV5.jpg</thumb>
+    </actor>
+    <actor>
+        <name>Mariah Carey</name>
+        <role>Mayor McCaskill (voice)</role>
+        <thumb>http://image.tmdb.org/t/p/w185/3z4TOe9qzpgmQ2xwLp6Kmv4A7Gq.jpg</thumb>
+    </actor>
+    <actor>
+        <name>Jenny Slate</name>
+        <role>Harley Quinn (voice)</role>
+        <thumb>http://image.tmdb.org/t/p/w185/9Hoc977N6Ry9Oaw6a74IefkV5wA.jpg</thumb>
+    </actor>
+    <actor>
+        <name>Billy Dee Williams</name>
+        <role>Two-Face / Harvey Dent (voice)</role>
+        <thumb>http://image.tmdb.org/t/p/w185/sDuo82Mb5o3ZGt4SuV9dR0lAh8P.jpg</thumb>
+    </actor>
+    <actor>
+        <name>Héctor Elizondo</name>
+        <role>Jim Gordon (voice)</role>
+        <thumb>http://image.tmdb.org/t/p/w185/48UNfVFZVr0jyMIlLPhzm8IIM7f.jpg</thumb>
+    </actor>
+    <actor>
+        <name>Conan O'Brien</name>
+        <role>The Riddler /  Edward Nygma (voice)</role>
+        <thumb>http://image.tmdb.org/t/p/w185/qADVUyXUC8hVbVNQLpf4a6xGiA7.jpg</thumb>
+    </actor>
+    <actor>
+        <name>Jason Mantzoukas</name>
+        <role>Scarecrow / Jonathan Crane (voice)</role>
+        <thumb>http://image.tmdb.org/t/p/w185/lVoosYoixfjULVdvKp2N1twKisH.jpg</thumb>
+    </actor>
+    <actor>
+        <name>Doug Benson</name>
+        <role>Bane (voice)</role>
+        <thumb>http://image.tmdb.org/t/p/w185/nSsChKaYBZX1zV1Bnz35HHOzxo4.jpg</thumb>
+    </actor>
+    <actor>
+        <name>Zoë Kravitz</name>
+        <role>Catwoman / Selina Kyle (voice)</role>
+        <thumb>http://image.tmdb.org/t/p/w185/wcl5pdFDAUyDgJ1gfQErXch6FgH.jpg</thumb>
+    </actor>
+    <actor>
+        <name>Kate Micucci</name>
+        <role>Clayface /  Basil Karlo (voice)</role>
+        <thumb>http://image.tmdb.org/t/p/w185/qoUOtNflMZb9l1zgg9aeMiu1MF7.jpg</thumb>
+    </actor>
+    <actor>
+        <name>Riki Lindhome</name>
+        <role>Poison Ivy /  Pamela Isley (voice)</role>
+        <thumb>http://image.tmdb.org/t/p/w185/lwjArx8HnH61Z3OoMs0MZ5kXlMO.jpg</thumb>
+    </actor>
+    <actor>
+        <name>Channing Tatum</name>
+        <role>Superman / Clark Kent (voice)</role>
+        <thumb>http://image.tmdb.org/t/p/w185/pykInmL4Y8HXNX63kkI4RsJhalF.jpg</thumb>
+    </actor>
+    <actor>
+        <name>Jonah Hill</name>
+        <role>Green Lantern /  Hal Jordan (voice)</role>
+        <thumb>http://image.tmdb.org/t/p/w185/7GXzpyHLCEA36J9biB0wJVAauiO.jpg</thumb>
+    </actor>
+    <actor>
+        <name>Adam Devine</name>
+        <role>The Flash / Barry Allen (voice)</role>
+        <thumb>http://image.tmdb.org/t/p/w185/6qDsS9jcywuajS7gB8gLuQRJ7Um.jpg</thumb>
+    </actor>
+    <actor>
+        <name>Eddie Izzard</name>
+        <role>Voldemort (voice)</role>
+        <thumb>http://image.tmdb.org/t/p/w185/j5hzBqmcyWG2GC754uACCoNgAvS.jpg</thumb>
+    </actor>
+    <actor>
+        <name>Seth Green</name>
+        <role>King Kong (voice)</role>
+        <thumb>http://image.tmdb.org/t/p/w185/7ksgEtZZIhSkJmt7zMyVDOQfdxu.jpg</thumb>
+    </actor>
+    <actor>
+        <name>Jemaine Clement</name>
+        <role>Sauron (voice)</role>
+        <thumb>http://image.tmdb.org/t/p/w185/juL82d8Cl1AQ1cUIOgJLRBGuNyY.jpg</thumb>
+    </actor>
+    <actor>
+        <name>Ellie Kemper</name>
+        <role>Phyllis (voice)</role>
+        <thumb>http://image.tmdb.org/t/p/w185/cCwFcI3P9oa1Yy7jcPQyjehdsur.jpg</thumb>
+    </actor>
+    <actor>
+        <name>David Burrows</name>
+        <role>Anchorman Phil (voice)</role>
+        <thumb>http://image.tmdb.org/t/p/w185/qXjlTMWPCz3xmOmEY3n8lcBhhhZ.jpg</thumb>
+    </actor>
+    <actor>
+        <name>Ralph Garman</name>
+        <role>Reporter #2 (voice)</role>
+        <thumb>http://image.tmdb.org/t/p/w185/vMzb4yCslLhJb7CQkS3R1jbyCO6.jpg</thumb>
+    </actor>
+    <actor>
+        <name>Chris Hardwick</name>
+        <role>Reporter (voice)</role>
+        <thumb>http://image.tmdb.org/t/p/w185/4neHtCQpQgOwmUil43R3syamU4z.jpg</thumb>
+    </actor>
+    <actor>
+        <name>Chris McKay</name>
+        <role>Pilot Bill (voice)</role>
+        <thumb>http://image.tmdb.org/t/p/w185/uNxHmDKTTNrm5HfIlf8EAHApzMq.jpg</thumb>
+    </actor>
+    <actor>
+        <name>Laura Kightlinger</name>
+        <role>Reporter Pippa (voice)</role>
+        <thumb>http://image.tmdb.org/t/p/w185/4vslXi1sgtxWKekk8juHHqP0vWU.jpg</thumb>
+    </actor>
+    <actor>
+        <name>Brian Musburger</name>
+        <role>Reporter #1 (voice)</role>
+    </actor>
+    <actor>
+        <name>Susan Bennett</name>
+        <role>Batcomputer (voice)</role>
+    </actor>
+    <actor>
+        <name>Todd Hansen</name>
+        <role>Captain Dale (voice)</role>
+    </actor>
+    <actor>
+        <name>Mark Jonathan Davis</name>
+        <role>Richard Cheese (voice)</role>
+    </actor>
+    <producer>
+        <name>Roy Lee</name>
+        <role>Producer</role>
+    </producer>
+    <producer>
+        <name>Dan Lin</name>
+        <role>Producer</role>
+        <thumb>http://image.tmdb.org/t/p/w185/qrQNLd6nHOWCIfDyybbSQZF7bze.jpg</thumb>
+    </producer>
+    <producer>
+        <name>Phil Lord</name>
+        <role>Producer</role>
+        <thumb>http://image.tmdb.org/t/p/w185/4Wm6aETstEkBEHHB33gTxUbgPrc.jpg</thumb>
+    </producer>
+    <producer>
+        <name>Christopher Miller</name>
+        <role>Producer</role>
+        <thumb>http://image.tmdb.org/t/p/w185/uYipqRxA5EHEJpsqmPEcR8whgKI.jpg</thumb>
+    </producer>
+    <producer>
+        <name>Mary Hidalgo</name>
+        <role>Casting</role>
+    </producer>
+    <producer>
+        <name>Barbara Harris</name>
+        <role>ADR Voice Casting</role>
+    </producer>
+    <languages>English</languages>
+    <source>WEB_DL</source>
+</movie>

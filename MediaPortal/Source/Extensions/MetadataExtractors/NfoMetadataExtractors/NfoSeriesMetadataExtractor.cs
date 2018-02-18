@@ -22,39 +22,33 @@
 
 #endregion
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net;
-using System.Net.Http;
-using System.Threading;
-using System.Threading.Tasks;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
-using MediaPortal.Common.PathManager;
-using MediaPortal.Common.PluginManager;
-using MediaPortal.Common.ResourceAccess;
-using MediaPortal.Common.Services.Logging;
-using MediaPortal.Common.Settings;
-using MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoReaders;
-using MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.Settings;
-using MediaPortal.Utilities;
-using MediaPortal.Common.Services.Settings;
 using MediaPortal.Common.MediaManagement.Helpers;
 using MediaPortal.Common.MediaManagement.TransientAspects;
-using System.Text.RegularExpressions;
-using MediaPortal.Utilities.SystemAPI;
+using MediaPortal.Common.PluginManager;
+using MediaPortal.Common.ResourceAccess;
+using MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.Extractors;
+using MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoReaders;
 using MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.Utilities;
+using MediaPortal.Utilities;
+using MediaPortal.Utilities.SystemAPI;
+using System;
 using System.Collections;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text.RegularExpressions;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
 {
   /// <summary>
   /// MediaPortal 2 metadata extractor for series reading from local nfo-files.
   /// </summary>
-  public class NfoSeriesMetadataExtractor : IMetadataExtractor, IDisposable
+  public class NfoSeriesMetadataExtractor : NfoSeriesExtractorBase, IMetadataExtractor
   {
     #region Constants / Static fields
 
@@ -84,32 +78,6 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
     /// Metadata of this MetadataExtractor
     /// </summary>
     private readonly MetadataExtractorMetadata _metadata;
-
-    /// <summary>
-    /// Settings of the <see cref="NfoSeriesMetadataExtractor"/>
-    /// </summary>
-    private readonly NfoSeriesMetadataExtractorSettings _settings;
-    
-    /// <summary>
-    /// Debug logger
-    /// </summary>
-    /// <remarks>
-    /// NoLogger if _settings.EnableDebugLogging == <c>false</c>"/>
-    /// FileLogger if _settings.EnableDebugLogging == <c>true</c>"/>
-    /// </remarks>
-    private readonly ILogger _debugLogger;
-
-    /// <summary>
-    /// Unique number of the last MediaItem for which this MetadataExtractor was called
-    /// </summary>
-    private long _lastMediaItemNumber = 1;
-
-    /// <summary>
-    /// <see cref="HttpClient"/> used to download from http URLs contained in nfo-files
-    /// </summary>
-    private HttpClient _httpClient;
-
-    private SettingsChangeWatcher<NfoSeriesMetadataExtractorSettings> _settingWatcher;
 
     #endregion
 
@@ -156,34 +124,6 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
           EpisodeAspect.Metadata,
           ThumbnailLargeAspect.Metadata
         });
-
-      _settingWatcher = new SettingsChangeWatcher<NfoSeriesMetadataExtractorSettings>();
-      _settingWatcher.SettingsChanged += SettingsChanged;
-
-      LoadSettings();
-
-      _settings = _settingWatcher.Settings;
-
-      if (_settings.EnableDebugLogging)
-      {
-        _debugLogger = FileLogger.CreateFileLogger(ServiceRegistration.Get<IPathManager>().GetPath(@"<LOG>\NfoSeriesMetadataExtractorDebug.log"), LogLevel.Debug, false, true);
-        LogSettings();
-      }
-      else
-        _debugLogger = new NoLogger();
-
-      var handler = new HttpClientHandler();
-      if (handler.SupportsAutomaticDecompression)
-        // This enables the automatic decompression of the content. It does not automatically send an "Accept-Encoding" header!
-        // We therefore have to add the Accept-Encoding header(s) manually below.
-        // Additionally, due to the automatic decompression, HttpResponseMessage.Content.Headers DOES NOT contain
-        // a "Content-Encoding" header anymore when we try to access it. It is automatically removed when decompressing.
-        handler.AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Deflate;
-      else
-        _debugLogger.Warn("HttpClient does not support compression");
-      _httpClient = new HttpClient(handler);
-      _httpClient.DefaultRequestHeaders.AcceptEncoding.Add(new System.Net.Http.Headers.StringWithQualityHeaderValue("gzip"));
-      _httpClient.DefaultRequestHeaders.AcceptEncoding.Add(new System.Net.Http.Headers.StringWithQualityHeaderValue("deflate"));
     }
 
     #endregion
@@ -193,15 +133,10 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
     public static bool IncludeActorDetails { get; private set; }
     public static bool IncludeCharacterDetails { get; private set; }
 
-    private void LoadSettings()
+    protected override void LoadSettings()
     {
       IncludeActorDetails = _settingWatcher.Settings.IncludeActorDetails;
       IncludeCharacterDetails = _settingWatcher.Settings.IncludeCharacterDetails;
-    }
-
-    private void SettingsChanged(object sender, EventArgs e)
-    {
-      LoadSettings();
     }
 
     #endregion
@@ -215,9 +150,9 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
     /// </summary>
     /// <param name="mediaItemAccessor">Points to the resource for which we try to extract metadata</param>
     /// <param name="extractedAspectData">Dictionary of <see cref="MediaItemAspect"/>s with the extracted metadata</param>
-    /// <param name="importOnly">If <c>true</c>, nothing is downloaded from the internet</param>
+    /// <param name="forceQuickMode">If <c>true</c>, nothing is downloaded from the internet</param>
     /// <returns><c>true</c> if metadata was found and stored into <param name="extractedAspectData"></param>, else <c>false</c></returns>
-    private async Task<bool> TryExtractEpsiodeMetadataAsync(IResourceAccessor mediaItemAccessor, IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData, bool importOnly, bool forceQuickMode)
+    private async Task<bool> TryExtractEpsiodeMetadataAsync(IResourceAccessor mediaItemAccessor, IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData, bool forceQuickMode)
     {
       // Get a unique number for this call to TryExtractMetadataAsync. We use this to make reading the debug log easier.
       // This MetadataExtractor is called in parallel for multiple MediaItems so that the respective debug log entries
@@ -226,7 +161,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
       bool isStub = extractedAspectData.ContainsKey(StubAspect.ASPECT_ID);
       try
       {
-        _debugLogger.Info("[#{0}]: Start extracting metadata for resource '{1}' (importOnly: {2}, forceQuickMode: {3})", miNumber, mediaItemAccessor, importOnly, forceQuickMode);
+        _debugLogger.Info("[#{0}]: Start extracting metadata for resource '{1}' (forceQuickMode: {2})", miNumber, mediaItemAccessor, forceQuickMode);
 
         // This MetadataExtractor only works for MediaItems accessible by an IFileSystemResourceAccessor.
         // Otherwise it is not possible to find a nfo-file in the MediaItem's directory or parent directory.
@@ -254,7 +189,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
           episodeDetailsFound = true;
           // Now we (asynchronously) extract the metadata into a stub object.
           // If no metadata was found, nothing can be stored in the MediaItemAspects.
-          episodeNfoReader = new NfoSeriesEpisodeReader(_debugLogger, miNumber, importOnly, forceQuickMode, isStub, _httpClient, _settings);
+          episodeNfoReader = new NfoSeriesEpisodeReader(_debugLogger, miNumber, forceQuickMode, isStub, _httpClient, _settings);
           using (episodeNfoFsra)
           {
             if (!await episodeNfoReader.TryReadMetadataAsync(episodeNfoFsra).ConfigureAwait(false))
@@ -271,7 +206,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
         {
           // If we found one, we (asynchronously) extract the metadata into a stub object and, if metadata was found,
           // we store it into the episodeNfoReader so that the latter can store metadata from series and episode level into the MediaItemAspects.
-          var seriesNfoReader = new NfoSeriesReader(_debugLogger, miNumber, importOnly, forceQuickMode, !episodeDetailsFound, isStub, _httpClient, _settings);
+          var seriesNfoReader = new NfoSeriesReader(_debugLogger, miNumber, forceQuickMode, !episodeDetailsFound, isStub, _httpClient, _settings);
           using (seriesNfoFsra)
           {
             if (await seriesNfoReader.TryReadMetadataAsync(seriesNfoFsra).ConfigureAwait(false))
@@ -281,7 +216,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
               // Check if episode should be found
               if (isStub || !episodeDetailsFound)
               {
-                if (series != null && series.Episodes.Count > 0)
+                if (series != null && series.Episodes?.Count > 0)
                 {
                   List<Stubs.SeriesEpisodeStub> episodeStubs = null;
                   if (extractedAspectData.ContainsKey(EpisodeAspect.ASPECT_ID))
@@ -386,7 +321,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
                       }
                     }
 
-                    episodeNfoReader = new NfoSeriesEpisodeReader(_debugLogger, miNumber, importOnly, forceQuickMode, isStub, _httpClient, _settings);
+                    episodeNfoReader = new NfoSeriesEpisodeReader(_debugLogger, miNumber, forceQuickMode, isStub, _httpClient, _settings);
                     episodeNfoReader.SetEpisodeStubs(new List<Stubs.SeriesEpisodeStub> { mergedEpisode });
                   }
                 }
@@ -415,7 +350,6 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
                   episode.SeriesName = series.ShowTitle;
                   episode.SetMetadata(extractedAspectData);
                 }
-                INfoRelationshipExtractor.StoreSeries(extractedAspectData, series);
               }
             }
             else
@@ -476,7 +410,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
         {
           // If we found one, we (asynchronously) extract the metadata into a stub object and, if metadata was found,
           // we store it into the episodeNfoReader so that the latter can store metadata from series and episode level into the MediaItemAspects.
-          var seriesNfoReader = new NfoSeriesReader(_debugLogger, miNumber, importOnly, forceQuickMode, false, false, _httpClient, _settings);
+          var seriesNfoReader = new NfoSeriesReader(_debugLogger, miNumber, forceQuickMode, false, false, _httpClient, _settings);
           using (seriesNfoFsra)
           {
             if (await seriesNfoReader.TryReadMetadataAsync(seriesNfoFsra).ConfigureAwait(false))
@@ -509,205 +443,6 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
 
     #endregion
 
-    #region Resource helpers
-
-    /// <summary>
-    /// Tries to find an episode nfo-file for the given <param name="mediaFsra"></param>
-    /// </summary>
-    /// <param name="miNumber">Unique number for logging purposes</param>
-    /// <param name="mediaFsra">FileSystemResourceAccessor for which we search an episode nfo-file</param>
-    /// <param name="episodeNfoFsra">FileSystemResourceAccessor of the episode nfo-file or <c>null</c> if no epsiode nfo-file was found</param>
-    /// <returns><c>true</c> if an episode nfo-file was found, otherwise <c>false</c></returns>
-    private bool TryGetEpisodeNfoSResourceAccessor(long miNumber, IFileSystemResourceAccessor mediaFsra, out IFileSystemResourceAccessor episodeNfoFsra)
-    {
-      episodeNfoFsra = null;
-
-      // Determine the directory, in which we look for the episode nfo-file
-      // We cannot use mediaFsra.GetResource, because for ChainedResourceProviders the parent directory
-      // may be located in the ParentResourceProvider. For details see the comments for the ResourcePathHelper class.
-      
-      // First get the ResourcePath of the parent directory
-      // The parent directory is
-      // - for an IFilesystemResourceAcessor pointing to a file:
-      //   the directory in which the file is located;
-      // - for an IFilesystemResourceAcessor pointing to a root directory of a ChainedResourceProvider (e.g. in case of a DVD iso-file):
-      //   the directory in which the file that was unfolded by the ChainedResourceProvider is located;
-      // - for an IFilesystemResourceAcessor pointing to any other directory (e.g. DVD directories):
-      //   the parent directory of such directory.
-      var episodeNfoDirectoryResourcePath = ResourcePathHelper.Combine(mediaFsra.CanonicalLocalResourcePath, "../");
-      _debugLogger.Info("[#{0}]: episode nfo-directory: '{1}'", miNumber, episodeNfoDirectoryResourcePath);
-
-      // Then try to create an IFileSystemResourceAccessor for this directory
-      IResourceAccessor episodeNfoDirectoryRa;
-      episodeNfoDirectoryResourcePath.TryCreateLocalResourceAccessor(out episodeNfoDirectoryRa);
-      var episodeNfoDirectoryFsra = episodeNfoDirectoryRa as IFileSystemResourceAccessor;
-      if (episodeNfoDirectoryFsra == null)
-      {
-        _debugLogger.Info("[#{0}]: Cannot extract metadata; episode nfo-directory not accessible'", miNumber, episodeNfoDirectoryResourcePath);
-        if (episodeNfoDirectoryRa != null)
-          episodeNfoDirectoryRa.Dispose();
-        return false;
-      }
-
-      // Finally try to find an episode nfo-file in that directory
-      using (episodeNfoDirectoryFsra)
-      {
-        var episodeNfoFileNames = GetEpisodeNfoFileNames(mediaFsra);
-        foreach (var episodeNfoFileName in episodeNfoFileNames)
-          if (episodeNfoDirectoryFsra.ResourceExists(episodeNfoFileName))
-          {
-            _debugLogger.Info("[#{0}]: episode nfo-file found: '{1}'", miNumber, episodeNfoFileName);
-            episodeNfoFsra = episodeNfoDirectoryFsra.GetResource(episodeNfoFileName);
-            return true;
-          }
-          else
-            _debugLogger.Info("[#{0}]: episode nfo-file '{1}' not found; checking next possible file...", miNumber, episodeNfoFileName);
-      }
-
-      _debugLogger.Info("[#{0}]: Cannot extract metadata; No episode nfo-file found", miNumber);
-      return false;
-    }
-
-    /// <summary>
-    /// Tries to find a series nfo-file for the given <param name="mediaFsra"></param>
-    /// </summary>
-    /// <param name="miNumber">Unique number for logging purposes</param>
-    /// <param name="mediaFsra">FileSystemResourceAccessor for which we search a series nfo-file</param>
-    /// <param name="seriesNfoFsra">FileSystemResourceAccessor of the series nfo-file or <c>null</c> if no series nfo-file was found</param>
-    /// <returns><c>true</c> if a series nfo-file was found, otherwise <c>false</c></returns>
-    private bool TryGetSeriesNfoSResourceAccessor(long miNumber, IFileSystemResourceAccessor mediaFsra, out IFileSystemResourceAccessor seriesNfoFsra)
-    {
-      seriesNfoFsra = null;
-
-      // Determine the first directory, in which we look for the series nfo-file
-      // We cannot use mediaFsra.GetResource, because for ChainedResourceProviders the parent directory
-      // may be located in the ParentResourceProvider. For details see the comments for the ResourcePathHelper class.
-
-      // First get the ResourcePath of the parent directory
-      // The parent directory is
-      // - for an IFilesystemResourceAcessor pointing to a file:
-      //   the directory in which the file is located;
-      // - for an IFilesystemResourceAcessor pointing to a root directory of a ChainedResourceProvider (e.g. in case of a DVD iso-file):
-      //   the directory in which the file that was unfolded by the ChainedResourceProvider is located;
-      // - for an IFilesystemResourceAcessor pointing to any other directory (e.g. DVD directories):
-      //   the parent directory of such directory.
-      var firstSeriesNfoDirectoryResourcePath = ResourcePathHelper.Combine(mediaFsra.CanonicalLocalResourcePath, "../");
-      _debugLogger.Info("[#{0}]: first series nfo-directory: '{1}'", miNumber, firstSeriesNfoDirectoryResourcePath);
-
-      // Then try to create an IFileSystemResourceAccessor for this directory
-      IResourceAccessor seriesNfoDirectoryRa;
-      firstSeriesNfoDirectoryResourcePath.TryCreateLocalResourceAccessor(out seriesNfoDirectoryRa);
-      var seriesNfoDirectoryFsra = seriesNfoDirectoryRa as IFileSystemResourceAccessor;
-      if (seriesNfoDirectoryFsra == null)
-      {
-        _debugLogger.Info("[#{0}]: first series nfo-directory not accessible'", miNumber, firstSeriesNfoDirectoryResourcePath);
-        if (seriesNfoDirectoryRa != null)
-          seriesNfoDirectoryRa.Dispose();
-      }
-      else
-      {
-        // Try to find a series nfo-file in the that directory
-        using (seriesNfoDirectoryFsra)
-        {
-          var seriesNfoFileNames = GetSeriesNfoFileNames();
-          foreach (var seriesNfoFileName in seriesNfoFileNames)
-            if (seriesNfoDirectoryFsra.ResourceExists(seriesNfoFileName))
-            {
-              _debugLogger.Info("[#{0}]: series nfo-file found: '{1}'", miNumber, seriesNfoFileName);
-              seriesNfoFsra = seriesNfoDirectoryFsra.GetResource(seriesNfoFileName);
-              return true;
-            }
-            else
-              _debugLogger.Info("[#{0}]: series nfo-file '{1}' not found; checking next possible file...", miNumber, seriesNfoFileName);
-        }
-      }
-
-      // Determine the second directory, in which we look for the series nfo-file
-
-      // First get the ResourcePath of the parent directory's parent directory
-      var secondSeriesNfoDirectoryResourcePath = ResourcePathHelper.Combine(firstSeriesNfoDirectoryResourcePath, "../");
-      _debugLogger.Info("[#{0}]: second series nfo-directory: '{1}'", miNumber, secondSeriesNfoDirectoryResourcePath);
-
-      // Then try to create an IFileSystemResourceAccessor for this directory
-      secondSeriesNfoDirectoryResourcePath.TryCreateLocalResourceAccessor(out seriesNfoDirectoryRa);
-      seriesNfoDirectoryFsra = seriesNfoDirectoryRa as IFileSystemResourceAccessor;
-      if (seriesNfoDirectoryFsra == null)
-      {
-        _debugLogger.Info("[#{0}]: second series nfo-directory not accessible'", miNumber, secondSeriesNfoDirectoryResourcePath);
-        if (seriesNfoDirectoryRa != null)
-          seriesNfoDirectoryRa.Dispose();
-        return false;
-      }
-
-      // Finally try to find a series nfo-file in the that second directory
-      using (seriesNfoDirectoryFsra)
-      {
-        var seriesNfoFileNames = GetSeriesNfoFileNames();
-        foreach (var seriesNfoFileName in seriesNfoFileNames)
-          if (seriesNfoDirectoryFsra.ResourceExists(seriesNfoFileName))
-          {
-            _debugLogger.Info("[#{0}]: series nfo-file found: '{1}'", miNumber, seriesNfoFileName);
-            seriesNfoFsra = seriesNfoDirectoryFsra.GetResource(seriesNfoFileName);
-            return true;
-          }
-          else
-            _debugLogger.Info("[#{0}]: series nfo-file '{1}' not found; checking next possible file...", miNumber, seriesNfoFileName);
-      }
-
-      _debugLogger.Info("[#{0}]: No series nfo-file found", miNumber);
-      return false;
-    }
-
-    /// <summary>
-    /// Determines all possible file names for the episode nfo-file based on the respective NfoSeriesMetadataExtractorSettings
-    /// </summary>
-    /// <param name="mediaFsra">IFilesystemResourceAccessor to the media file for which we search an episode nfo-file</param>
-    /// <returns>IEnumerable of strings containing the possible episode nfo-file names</returns>
-    IEnumerable<string> GetEpisodeNfoFileNames(IFileSystemResourceAccessor mediaFsra)
-    {
-      // Always consider the file or directory name of the media item
-      string mediaFileOrDirectoryName;
-      
-      // If the MediaItem is a file, we simply take the filename without extension
-      if (mediaFsra.IsFile)
-        mediaFileOrDirectoryName = ResourcePathHelper.GetFileNameWithoutExtension(mediaFsra.CanonicalLocalResourcePath.Serialize());
-      else
-      {
-        // if the media is a directory (such as a DVD or BluRay) we start with the ResourcePath
-        mediaFileOrDirectoryName = mediaFsra.CanonicalLocalResourcePath.Serialize();
-        
-        // In case of the root path of a ChainedResourceProvider (such as for DVD- or BluRay-Iso-Files), we remove the last
-        // ChainedResourceProvider, leaving us with the full path of the file, the ChainedResourceProvider has unfolded
-        if (mediaFileOrDirectoryName.EndsWith(":///") && mediaFileOrDirectoryName.Contains(">"))
-          mediaFileOrDirectoryName = mediaFileOrDirectoryName.Substring(0, mediaFileOrDirectoryName.LastIndexOf(">", StringComparison.Ordinal) - 1);
-
-        // If it's a directory in a BaseResourceProvider, we just remove the last "/" so that the following
-        // GetFileNameWithoutExtension considers the directory as a file.
-        else
-          mediaFileOrDirectoryName = StringUtils.RemoveSuffixIfPresent(mediaFileOrDirectoryName, "/");
-
-        // Finally we get the file name without extension
-        mediaFileOrDirectoryName = ResourcePathHelper.GetFileNameWithoutExtension(mediaFileOrDirectoryName);
-      }
-
-      // Combine the mediaFileOrDirectoryName with the NfoFileNameExtensions from the settings
-      return _settings.NfoFileNameExtensions.Select(extension => mediaFileOrDirectoryName + extension).ToList();
-    }
-
-    /// <summary>
-    /// Determines all possible file names for the series nfo-file based on the respective NfoSeriesMetadataExtractorSettings
-    /// </summary>
-    /// <returns>IEnumerable of strings containing the possible series nfo-file names</returns>
-    IEnumerable<string> GetSeriesNfoFileNames()
-    {
-      var result = new List<string>();
-
-      // Combine the SeriesNfoFileNames from the settings with the NfoFileNameExtensions from the settings
-      foreach (var extension in _settings.NfoFileNameExtensions)
-        result.AddRange(_settings.SeriesNfoFileNames.Select(seriesNfoFileName => seriesNfoFileName + extension));
-      return result;
-    }
-
     #endregion
 
     #region Logging helpers
@@ -715,7 +450,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
     /// <summary>
     /// Logs version and setting information into <see cref="_debugLogger"/>
     /// </summary>
-    private void LogSettings()
+    protected override void LogSettings()
     {
       _debugLogger.Info("-------------------------------------------------------------");
       _debugLogger.Info("NfoSeriesMetadataExtractor v{0} instantiated", ServiceRegistration.Get<IPluginManager>().AvailablePlugins[PLUGIN_ID].Metadata.PluginVersion);
@@ -732,20 +467,6 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
 
     #endregion
 
-    #endregion
-
-    #region IDisposable implementation
-
-    public void Dispose()
-    {
-      if (_httpClient == null)
-        return;
-      _httpClient.Dispose();
-      _httpClient = null;
-    }
-
-    #endregion
-
     #region IMetadataExtractor implementation
 
     public MetadataExtractorMetadata Metadata
@@ -753,14 +474,12 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
       get { return _metadata; }
     }
 
-    public bool TryExtractMetadata(IResourceAccessor mediaItemAccessor, IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData, bool importOnly, bool forceQuickMode)
+    public Task<bool> TryExtractMetadataAsync(IResourceAccessor mediaItemAccessor, IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData, bool forceQuickMode)
     {
       //if (extractedAspectData.ContainsKey(EpisodeAspect.ASPECT_ID))
       //  return false;
-
-      // The following is bad practice as it wastes one ThreadPool thread.
-      // ToDo: Once the IMetadataExtractor interface is updated to support async operations, call TryExtractMetadataAsync directly
-      return TryExtractEpsiodeMetadataAsync(mediaItemAccessor, extractedAspectData, importOnly, forceQuickMode).Result;
+      
+      return TryExtractEpsiodeMetadataAsync(mediaItemAccessor, extractedAspectData, forceQuickMode);
     }
 
     public bool IsDirectorySingleResource(IResourceAccessor mediaItemAccessor)

@@ -54,9 +54,8 @@
     <Reference Include="System.Drawing" />
     <Reference Include="System.Runtime.Serialization" />
     <Reference Include="System.ServiceModel.Web" />
-    <Reference Include="System.Threading.Tasks.Dataflow, Version=4.5.24.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
-      <HintPath>..\..\..\..\Packages\Microsoft.Tpl.Dataflow.4.5.24\lib\portable-net45+win8+wpa81\System.Threading.Tasks.Dataflow.dll</HintPath>
-      <Private>True</Private>
+    <Reference Include="System.Threading.Tasks.Dataflow, Version=4.6.2.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>..\..\..\..\Packages\System.Threading.Tasks.Dataflow.4.8.0\lib\netstandard2.0\System.Threading.Tasks.Dataflow.dll</HintPath>
     </Reference>
     <Reference Include="System.Web" />
     <Reference Include="System.Web.Extensions" />
@@ -470,7 +469,6 @@
     <Compile Include="Libraries\MovieDbV3\Data\MovieSearchResult.cs" />
     <Compile Include="Libraries\MovieDbV3\Data\PagedMovieSearchResult.cs" />
     <Compile Include="Wrappers\TheAudioDbWrapper.cs" />
-    <Compile Include="Matches\BaseFanArtMatch.cs" />
     <Compile Include="Matches\SeriesMatch.cs" />
     <Compile Include="Libraries\Common\Settings.cs" />
     <Compile Include="Wrappers\TheMovieDbWrapper.cs" />

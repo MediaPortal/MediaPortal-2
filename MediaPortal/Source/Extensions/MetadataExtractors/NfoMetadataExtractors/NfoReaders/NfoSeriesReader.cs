@@ -24,11 +24,17 @@
 
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
 using System.Xml.Linq;
+using MediaPortal.Common.Certifications;
+using MediaPortal.Common.Genres;
 using MediaPortal.Common.Logging;
+using MediaPortal.Common.MediaManagement;
+using MediaPortal.Common.MediaManagement.DefaultItemAspects;
+using MediaPortal.Common.MediaManagement.Helpers;
 using MediaPortal.Common.ResourceAccess;
 using MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.Settings;
 using MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.Stubs;
@@ -59,7 +65,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoRea
   ///   Reenable in <see cref="InitializeSupportedElements"/>
   /// ToDo: Reenable the above once we can store the information in our MediaLibrary
   /// </remarks>
-  class NfoSeriesReader : NfoReaderBase<SeriesStub>
+  public class NfoSeriesReader : NfoReaderBase<SeriesStub>
   {
     #region Consts / static fields
 
@@ -107,13 +113,14 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoRea
     /// <param name="readEpisodes">If true, episode details will also be read from the nfo-file</param>
     /// <param name="httpClient"><see cref="HttpClient"/> used to download from http URLs contained in nfo-files</param>
     /// <param name="settings">Settings of the <see cref="NfoSeriesMetadataExtractor"/></param>
-    public NfoSeriesReader(ILogger debugLogger, long miNumber, bool importOnly, bool forceQuickMode, bool readEpisodes, bool readFileDetails, HttpClient httpClient, NfoSeriesMetadataExtractorSettings settings)
-      : base(debugLogger, miNumber, importOnly, forceQuickMode, httpClient, settings)
+    public NfoSeriesReader(ILogger debugLogger, long miNumber, bool forceQuickMode, bool readEpisodes, bool readFileDetails, HttpClient httpClient, NfoSeriesMetadataExtractorSettings settings)
+      : base(debugLogger, miNumber, forceQuickMode, httpClient, settings)
     {
       _readEpisodes = readEpisodes;
       _readFileDetails = readFileDetails;
       _settings = settings;
       InitializeSupportedElements();
+      InitializeSupportedAttributes();
     }
 
     #endregion
@@ -181,6 +188,29 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoRea
       _supportedElements.Add("lastplayed", new TryReadElementDelegate(Ignore));
       _supportedElements.Add("resume", new TryReadElementDelegate(Ignore));
       _supportedElements.Add("dateadded", new TryReadElementDelegate(Ignore));
+    }
+
+    /// <summary>
+    /// Adds a delegate for each Attribute in a MediaItemAspect into which this MetadataExtractor can write metadata to NfoReaderBase._supportedAttributes
+    /// </summary>
+    private void InitializeSupportedAttributes()
+    {
+      _supportedAttributes.Add(TryWriteMediaAspectTitle);
+      _supportedAttributes.Add(TryWriteMediaAspectSortTitle);
+      _supportedAttributes.Add(TryWriteMediaAspectRecordingTime);
+
+      _supportedAttributes.Add(TryWriteSeriesAspectGenres);
+      _supportedAttributes.Add(TryWriteSeriesAspectActors);
+      _supportedAttributes.Add(TryWriteSeriesAspectDescription);
+      _supportedAttributes.Add(TryWriteSeriesAspectTvDbId);
+      _supportedAttributes.Add(TryWriteSeriesAspectSeriesName);
+      _supportedAttributes.Add(TryWriteSeriesAspectTotalRating);
+      _supportedAttributes.Add(TryWriteSeriesAspectRatingCount);
+      _supportedAttributes.Add(TryWriteSeriesAspectEnded);
+      _supportedAttributes.Add(TryWriteSeriesAspectCertification);
+      _supportedAttributes.Add(TryWriteSeriesAspectNetworks);
+
+      _supportedAttributes.Add(TryWriteThumbnailLargeAspectThumbnail);
     }
 
     #endregion
@@ -536,7 +566,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoRea
       if (!_readEpisodes)
         return false;
 
-      NfoSeriesEpisodeReader episodeNfoReader = new NfoSeriesEpisodeReader(_debugLogger, _miNumber, _importOnly, _forceQuickMode, _readFileDetails, _httpDownloadClient, (NfoSeriesMetadataExtractorSettings)_settings);
+      NfoSeriesEpisodeReader episodeNfoReader = new NfoSeriesEpisodeReader(_debugLogger, _miNumber, _forceQuickMode, _readFileDetails, _httpDownloadClient, (NfoSeriesMetadataExtractorSettings)_settings);
       // For examples of valid element values see the comment in NfoReaderBase.ParsePerson
       if(await episodeNfoReader.TryReadElementAsync(element, nfoDirectoryFsra).ConfigureAwait(false))
       {
@@ -732,6 +762,284 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoRea
 
     #endregion
 
+    #region Writer methods to store metadata in MediaItemAspects
+
+    #region MediaAspect
+
+    /// <summary>
+    /// Tries to write metadata into <see cref="MediaAspect.ATTR_TITLE"/>
+    /// </summary>
+    /// <param name="extractedAspectData">Dictionary of <see cref="MediaItemAspect"/>s to write into</param>
+    /// <returns><c>true</c> if any information was written; otherwise <c>false</c></returns>
+    private bool TryWriteMediaAspectTitle(IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData)
+    {
+      if (_stubs[0].ShowTitle != null)
+      {
+        MediaItemAspect.SetAttribute(extractedAspectData, MediaAspect.ATTR_TITLE, _stubs[0].ShowTitle);
+        return true;
+      }
+      return false;
+    }
+
+    /// <summary>
+    /// Tries to write metadata into <see cref="MediaAspect.ATTR_SORT_TITLE"/>
+    /// </summary>
+    /// <param name="extractedAspectData">Dictionary of <see cref="MediaItemAspect"/>s to write into</param>
+    /// <returns><c>true</c> if any information was written; otherwise <c>false</c></returns>
+    private bool TryWriteMediaAspectSortTitle(IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData)
+    {
+      // priority 1:
+      if (_stubs[0].SortTitle != null)
+      {
+        MediaItemAspect.SetAttribute(extractedAspectData, MediaAspect.ATTR_SORT_TITLE, _stubs[0].SortTitle);
+        return true;
+      }
+
+      // priority 2:
+      if (_stubs[0].ShowTitle != null)
+      {
+        MediaItemAspect.SetAttribute(extractedAspectData, MediaAspect.ATTR_SORT_TITLE, BaseInfo.GetSortTitle(_stubs[0].ShowTitle));
+        return true;
+      }
+      return false;
+    }
+
+    /// <summary>
+    /// Tries to write metadata into <see cref="MediaAspect.ATTR_RECORDINGTIME"/>
+    /// </summary>
+    /// <param name="extractedAspectData">Dictionary of <see cref="MediaItemAspect"/>s to write into</param>
+    /// <returns><c>true</c> if any information was written; otherwise <c>false</c></returns>
+    private bool TryWriteMediaAspectRecordingTime(IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData)
+    {
+      // priority 1:
+      if (_stubs[0].Premiered.HasValue)
+      {
+        MediaItemAspect.SetAttribute(extractedAspectData, MediaAspect.ATTR_RECORDINGTIME, _stubs[0].Premiered.Value);
+        return true;
+      }
+      //priority 2:
+      if (_stubs[0].Year.HasValue)
+      {
+        MediaItemAspect.SetAttribute(extractedAspectData, MediaAspect.ATTR_RECORDINGTIME, _stubs[0].Year.Value);
+        return true;
+      }
+      return false;
+    }
+
+    #endregion
+
+    #region SeriesAspect
+
+    /// <summary>
+    /// Tries to write metadata into <see cref="GenreAspect.ATTR_GENRE"/>
+    /// </summary>
+    /// <param name="extractedAspectData">Dictionary of <see cref="MediaItemAspect"/>s to write into</param>
+    /// <returns><c>true</c> if any information was written; otherwise <c>false</c></returns>
+    private bool TryWriteSeriesAspectGenres(IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData)
+    {
+      if (_stubs[0].Genres != null && _stubs[0].Genres.Any())
+      {
+        List<GenreInfo> genres = _stubs[0].Genres.Select(s => new GenreInfo { Name = s }).ToList();
+        GenreMapper.AssignMissingSeriesGenreIds(genres);
+        foreach (GenreInfo genre in genres)
+        {
+          MultipleMediaItemAspect genreAspect = MediaItemAspect.CreateAspect(extractedAspectData, GenreAspect.Metadata);
+          genreAspect.SetAttribute(GenreAspect.ATTR_ID, genre.Id);
+          genreAspect.SetAttribute(GenreAspect.ATTR_GENRE, genre.Name);
+        }
+        return true;
+      }
+      return false;
+    }
+
+    /// <summary>
+    /// Tries to write metadata into <see cref="SeriesAspect.ATTR_ACTORS"/>
+    /// </summary>
+    /// <param name="extractedAspectData">Dictionary of <see cref="MediaItemAspect"/>s to write into</param>
+    /// <returns><c>true</c> if any information was written; otherwise <c>false</c></returns>
+    private bool TryWriteSeriesAspectActors(IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData)
+    {
+      List<string> actors = null;
+      List<string> characters = null;
+      if (_stubs[0].Actors != null)
+      {
+        actors = _stubs.SelectMany(e => e.Actors).OrderBy(actor => actor.Order).Where(actor => !string.IsNullOrEmpty(actor.Name)).
+          Select(actor => actor.Name).Distinct().ToList();
+        characters = _stubs.SelectMany(e => e.Actors).OrderBy(actor => actor.Order).Where(actor => !string.IsNullOrEmpty(actor.Role)).
+          Select(actor => actor.Role).Distinct().ToList();
+      }
+      if (actors != null && actors.Any())
+      {
+        MediaItemAspect.SetCollectionAttribute(extractedAspectData, SeriesAspect.ATTR_ACTORS, actors);
+        if (characters != null && characters.Any())
+          MediaItemAspect.SetCollectionAttribute(extractedAspectData, SeriesAspect.ATTR_CHARACTERS, characters);
+        return true;
+      }
+      return false;
+    }
+
+    /// <summary>
+    /// Tries to write metadata into <see cref="SeriesAspect.ATTR_DESCRIPTION"/>
+    /// </summary>
+    /// <param name="extractedAspectData">Dictionary of <see cref="MediaItemAspect"/>s to write into</param>
+    /// <returns><c>true</c> if any information was written; otherwise <c>false</c></returns>
+    private bool TryWriteSeriesAspectDescription(IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData)
+    {
+      // priority 1:
+      if (_stubs[0].Plot != null)
+      {
+        MediaItemAspect.SetAttribute(extractedAspectData, SeriesAspect.ATTR_DESCRIPTION, _stubs[0].Plot);
+        return true;
+      }
+      // priority 2:
+      if (_stubs[0].Outline != null)
+      {
+        MediaItemAspect.SetAttribute(extractedAspectData, SeriesAspect.ATTR_DESCRIPTION, _stubs[0].Outline);
+        return true;
+      }
+      return false;
+    }
+
+    /// <summary>
+    /// Tries to write metadata into external id.
+    /// </summary>
+    /// <param name="extractedAspectData">Dictionary of <see cref="MediaItemAspect"/>s to write into</param>
+    /// <returns><c>true</c> if any information was written; otherwise <c>false</c></returns>
+    private bool TryWriteSeriesAspectTvDbId(IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData)
+    {
+      //priority 1:
+      if (_stubs[0].Id.HasValue)
+      {
+        MediaItemAspect.AddOrUpdateExternalIdentifier(extractedAspectData, ExternalIdentifierAspect.SOURCE_TVDB, ExternalIdentifierAspect.TYPE_SERIES, _stubs[0].Id.Value.ToString());
+        return true;
+      }
+      return false;
+    }
+
+    /// <summary>
+    /// Tries to write metadata into <see cref="SeriesAspect.ATTR_SERIES_NAME"/>
+    /// </summary>
+    /// <param name="extractedAspectData">Dictionary of <see cref="MediaItemAspect"/>s to write into</param>
+    /// <returns><c>true</c> if any information was written; otherwise <c>false</c></returns>
+    private bool TryWriteSeriesAspectSeriesName(IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData)
+    {
+      if (_stubs[0].ShowTitle != null)
+      {
+        MediaItemAspect.SetAttribute(extractedAspectData, SeriesAspect.ATTR_SERIES_NAME,
+          CultureInfo.InvariantCulture.TextInfo.ToTitleCase(_stubs[0].ShowTitle));
+        return true;
+      }
+      return false;
+    }
+
+    /// <summary>
+    /// Tries to write metadata into <see cref="SeriesAspect.ATTR_TOTAL_RATING"/>
+    /// </summary>
+    /// <param name="extractedAspectData">Dictionary of <see cref="MediaItemAspect"/>s to write into</param>
+    /// <returns><c>true</c> if any information was written; otherwise <c>false</c></returns>
+    private bool TryWriteSeriesAspectTotalRating(IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData)
+    {
+      if (_stubs[0].Rating.HasValue)
+      {
+        MediaItemAspect.SetAttribute(extractedAspectData, SeriesAspect.ATTR_TOTAL_RATING, (double)_stubs.Where(e => e.Rating.HasValue).Average(e => e.Rating.Value));
+        return true;
+      }
+      return false;
+    }
+
+    /// <summary>
+    /// Tries to write metadata into <see cref="SeriesAspect.ATTR_RATING_COUNT"/>
+    /// </summary>
+    /// <param name="extractedAspectData">Dictionary of <see cref="MediaItemAspect"/>s to write into</param>
+    /// <returns><c>true</c> if any information was written; otherwise <c>false</c></returns>
+    private bool TryWriteSeriesAspectRatingCount(IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData)
+    {
+      if (_stubs[0].Votes.HasValue && _stubs[0].Rating.HasValue)
+      {
+        MediaItemAspect.SetAttribute(extractedAspectData, SeriesAspect.ATTR_RATING_COUNT, _stubs[0].Votes.Value);
+        return true;
+      }
+      return false;
+    }
+
+    /// <summary>
+    /// Tries to write metadata into <see cref="SeriesAspect.ATTR_ENDED"/>
+    /// </summary>
+    /// <param name="extractedAspectData">Dictionary of <see cref="MediaItemAspect"/>s to write into</param>
+    /// <returns><c>true</c> if any information was written; otherwise <c>false</c></returns>
+    private bool TryWriteSeriesAspectEnded(IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData)
+    {
+      if (_stubs[0].Status != null)
+      {
+        MediaItemAspect.SetAttribute(extractedAspectData, SeriesAspect.ATTR_ENDED, _stubs[0].Status.Contains("End"));
+        return true;
+      }
+      return false;
+    }
+
+    /// <summary>
+    /// Tries to write metadata into <see cref="SeriesAspect..ATTR_CERTIFICATION"/>
+    /// </summary>
+    /// <param name="extractedAspectData">Dictionary of <see cref="MediaItemAspect"/>s to write into</param>
+    /// <returns><c>true</c> if any information was written; otherwise <c>false</c></returns>
+    private bool TryWriteSeriesAspectCertification(IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData)
+    {
+      CertificationMapping certification;
+      if (_stubs[0].Mpaa != null && TryGetCertification(_stubs[0].Mpaa, out certification))
+      {
+        MediaItemAspect.SetAttribute(extractedAspectData, SeriesAspect.ATTR_CERTIFICATION, certification.CertificationId);
+        return true;
+      }
+      return false;
+    }
+
+    /// <summary>
+    /// Tries to write metadata into <see cref="SeriesAspect.ATTR_NETWORKS"/>
+    /// </summary>
+    /// <param name="extractedAspectData">Dictionary of <see cref="MediaItemAspect"/>s to write into</param>
+    /// <returns><c>true</c> if any information was written; otherwise <c>false</c></returns>
+    private bool TryWriteSeriesAspectNetworks(IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData)
+    {
+      if (_stubs[0].Studio != null)
+      {
+        MediaItemAspect.SetCollectionAttribute(extractedAspectData, SeriesAspect.ATTR_NETWORKS, new[] { _stubs[0].Studio });
+        return true;
+      }
+      return false;
+    }
+
+    #endregion
+
+    #region ThumbnailLargeAspect
+
+    /// <summary>
+    /// Tries to write metadata into <see cref="ThumbnailLargeAspect.ATTR_THUMBNAIL"/>
+    /// </summary>
+    /// <param name="extractedAspectData">Dictionary of <see cref="MediaItemAspect"/>s to write into</param>
+    /// <returns><c>true</c> if any information was written; otherwise <c>false</c></returns>
+    private bool TryWriteThumbnailLargeAspectThumbnail(IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData)
+    {
+      if (_stubs[0].Thumbs != null && _stubs[0].Thumbs.Any())
+      {
+        MediaItemAspect.SetAttribute(extractedAspectData, ThumbnailLargeAspect.ATTR_THUMBNAIL, _stubs[0].Thumbs.First().Thumb);
+        return true;
+      }
+      return false;
+    }
+
+    #endregion
+
+    #region Relationships
+
+    private bool TryWriteActorAspect(PersonStub person, IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData)
+    {
+      return TryWritePersonAspect(person, PersonAspect.OCCUPATION_ACTOR, extractedAspectData);
+    }
+
+    #endregion
+
+    #endregion
+
     #region General helper methods
 
     /// <summary>
@@ -783,6 +1091,16 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoRea
       return new SeriesThumbStub.Color(r, g, b);
     }
 
+    protected bool TryGetCertification(IEnumerable<string> certifications, out CertificationMapping certificationMapping)
+    {
+      if (certifications != null)
+        foreach (string certification in certifications)
+          if (CertificationMapper.TryFindSeriesCertification(certification, out certificationMapping))
+            return true;
+      certificationMapping = null;
+      return false;
+    }
+
     #endregion
 
     #endregion
@@ -796,6 +1114,30 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoRea
     public List<SeriesStub> GetSeriesStubs()
     {
       return _stubs;
+    }
+
+    public bool TryWriteActorMetadata(IList<IDictionary<Guid, IList<MediaItemAspect>>> extractedAspects)
+    {
+      if (_stubs[0].Actors == null)
+        return false;
+      //Distinct actor names, ordered by Order
+      IEnumerable<PersonStub> actors = _stubs[0].Actors
+        .Where(a => !string.IsNullOrEmpty(a.Name))
+        .GroupBy(a => a.Name).Select(g => g.First())
+        .OrderBy(a => a.Order);
+      return TryWriteRelationshipMetadata(TryWriteActorAspect, actors, extractedAspects);
+    }
+
+    public bool TryWriteCharacterMetadata(IList<IDictionary<Guid, IList<MediaItemAspect>>> extractedAspects)
+    {
+      if (_stubs[0].Actors == null)
+        return false;
+      //Distinct actor names, ordered by Order
+      IEnumerable<PersonStub> actors = _stubs[0].Actors
+        .Where(a => !string.IsNullOrEmpty(a.Name))
+        .GroupBy(a => a.Name).Select(g => g.First())
+        .OrderBy(a => a.Order);
+      return TryWriteRelationshipMetadata(TryWriteCharacterAspect, actors, extractedAspects);
     }
 
     #endregion

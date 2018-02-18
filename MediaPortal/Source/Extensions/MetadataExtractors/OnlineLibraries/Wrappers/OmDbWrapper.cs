@@ -22,18 +22,19 @@
 
 #endregion
 
+using MediaPortal.Common;
+using MediaPortal.Common.Certifications;
+using MediaPortal.Common.Logging;
+using MediaPortal.Common.MediaManagement;
+using MediaPortal.Common.MediaManagement.DefaultItemAspects;
+using MediaPortal.Common.MediaManagement.Helpers;
+using MediaPortal.Extensions.OnlineLibraries.Libraries.OmDbV1;
+using MediaPortal.Extensions.OnlineLibraries.Libraries.OmDbV1.Data;
+using MediaPortal.Utilities;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using MediaPortal.Common;
-using MediaPortal.Common.Logging;
-using MediaPortal.Utilities;
-using MediaPortal.Extensions.OnlineLibraries.Libraries.OmDbV1;
-using MediaPortal.Extensions.OnlineLibraries.Libraries.OmDbV1.Data;
-using MediaPortal.Common.MediaManagement.Helpers;
-using MediaPortal.Common.MediaManagement.DefaultItemAspects;
-using MediaPortal.Common.MediaManagement;
-using MediaPortal.Common.Certifications;
+using System.Threading.Tasks;
 
 namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
 {
@@ -53,37 +54,34 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
 
     #region Search
 
-    public override bool SearchMovie(MovieInfo movieSearch, string language, out List<MovieInfo> movies)
+    public override async Task<IList<MovieInfo>> SearchMovieAsync(MovieInfo movieSearch, string language)
     {
-      movies = null;
-      List<OmDbSearchItem> foundMovies = _omDbHandler.SearchMovie(movieSearch.MovieName.Text, 
-        movieSearch.ReleaseDate.HasValue ? movieSearch.ReleaseDate.Value.Year : 0);
-      if (foundMovies == null) return false;
-      movies = foundMovies.Select(m => new MovieInfo()
+      List<OmDbSearchItem> foundMovies = await _omDbHandler.SearchMovieAsync(movieSearch.MovieName.Text, 
+        movieSearch.ReleaseDate.HasValue ? movieSearch.ReleaseDate.Value.Year : 0).ConfigureAwait(false);
+      if (foundMovies == null || foundMovies.Count == 0) return null;
+      return foundMovies.Select(m => new MovieInfo()
       {
         ImdbId = m.ImdbID,
         MovieName = new SimpleTitle(m.Title, true),
         ReleaseDate = m.Year.HasValue ? new DateTime(m.Year.Value, 1, 1) : default(DateTime?),
       }).ToList();
-
-      return movies.Count > 0;
     }
 
-    public override bool SearchSeriesEpisode(EpisodeInfo episodeSearch, string language, out List<EpisodeInfo> episodes)
+    public override async Task<List<EpisodeInfo>> SearchSeriesEpisodeAsync(EpisodeInfo episodeSearch, string language)
     {
-      episodes = null;
       SeriesInfo seriesSearch = null;
       if(string.IsNullOrEmpty(episodeSearch.SeriesImdbId))
       {
         seriesSearch = episodeSearch.CloneBasicInstance<SeriesInfo>();
-        if (!SearchSeriesUniqueAndUpdate(seriesSearch, language))
-          return false;
+        if (!await SearchSeriesUniqueAndUpdateAsync(seriesSearch, language))
+          return null;
         episodeSearch.CopyIdsFrom(seriesSearch);
       }
 
+      List<EpisodeInfo> episodes = null;
       if (!string.IsNullOrEmpty(episodeSearch.SeriesImdbId) && episodeSearch.SeasonNumber.HasValue)
       {
-        OmDbSeason season = _omDbHandler.GetSeriesSeason(episodeSearch.SeriesImdbId, episodeSearch.SeasonNumber.Value, false);
+        OmDbSeason season = await _omDbHandler.GetSeriesSeasonAsync(episodeSearch.SeriesImdbId, episodeSearch.SeasonNumber.Value, false).ConfigureAwait(false);
         if (season != null && season.Episodes != null)
         {
           foreach (OmDbSeasonEpisode episode in season.Episodes)
@@ -121,45 +119,43 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
         info.CopyIdsFrom(seriesSearch);
         CollectionUtils.AddAll(info.EpisodeNumbers, episodeSearch.EpisodeNumbers);
         episodes.Add(info);
-        return true;
       }
 
-      return episodes != null;
+      return episodes;
     }
 
-    public override bool SearchSeries(SeriesInfo seriesSearch, string language, out List<SeriesInfo> series)
+    public override async Task<List<SeriesInfo>> SearchSeriesAsync(SeriesInfo seriesSearch, string language)
     {
-      series = null;
-      List<OmDbSearchItem> foundSeries = _omDbHandler.SearchSeries(seriesSearch.SeriesName.Text,
-        seriesSearch.FirstAired.HasValue ? seriesSearch.FirstAired.Value.Year : 0);
+      List<OmDbSearchItem> foundSeries = await _omDbHandler.SearchSeriesAsync(seriesSearch.SeriesName.Text,
+        seriesSearch.FirstAired.HasValue ? seriesSearch.FirstAired.Value.Year : 0).ConfigureAwait(false);
       if (foundSeries == null && !string.IsNullOrEmpty(seriesSearch.AlternateName))
-        foundSeries = _omDbHandler.SearchSeries(seriesSearch.AlternateName, 
-          seriesSearch.FirstAired.HasValue ? seriesSearch.FirstAired.Value.Year : 0);
+        foundSeries = await _omDbHandler.SearchSeriesAsync(seriesSearch.AlternateName, 
+          seriesSearch.FirstAired.HasValue ? seriesSearch.FirstAired.Value.Year : 0).ConfigureAwait(false);
       if (foundSeries == null && seriesSearch.FirstAired.HasValue)
-        foundSeries = _omDbHandler.SearchSeries(seriesSearch.SeriesName.Text, 0);
+        foundSeries = await _omDbHandler.SearchSeriesAsync(seriesSearch.SeriesName.Text, 0).ConfigureAwait(false);
       if (foundSeries == null && seriesSearch.FirstAired.HasValue && !string.IsNullOrEmpty(seriesSearch.AlternateName))
-        foundSeries = _omDbHandler.SearchSeries(seriesSearch.AlternateName, 0);
-      if (foundSeries == null) return false;
-      series = foundSeries.Select(s => new SeriesInfo()
+        foundSeries = await _omDbHandler.SearchSeriesAsync(seriesSearch.AlternateName, 0).ConfigureAwait(false);
+      if (foundSeries == null) return null;
+      List<SeriesInfo> series = foundSeries.Select(s => new SeriesInfo()
       {
         ImdbId = s.ImdbID,
         SeriesName = new SimpleTitle(s.Title, true),
         FirstAired = s.Year.HasValue ? new DateTime(s.Year.Value, 1, 1) : default(DateTime?),
       }).ToList();
-      return series.Count > 0;
+      return series;
     }
 
     #endregion
 
     #region Update
 
-    public override bool UpdateFromOnlineMovie(MovieInfo movie, string language, bool cacheOnly)
+    public override async Task<bool> UpdateFromOnlineMovieAsync(MovieInfo movie, string language, bool cacheOnly)
     {
       try
       {
         OmDbMovie movieDetail = null;
         if (!string.IsNullOrEmpty(movie.ImdbId))
-          movieDetail = _omDbHandler.GetMovie(movie.ImdbId, cacheOnly);
+          movieDetail = await _omDbHandler.GetMovie(movie.ImdbId, cacheOnly).ConfigureAwait(false);
         if (movieDetail == null) return false;
 
         movie.ImdbId = movieDetail.ImdbID;
@@ -224,13 +220,13 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
       }
     }
 
-    public override bool UpdateFromOnlineSeries(SeriesInfo series, string language, bool cacheOnly)
+    public override async Task<bool> UpdateFromOnlineSeriesAsync(SeriesInfo series, string language, bool cacheOnly)
     {
       try
       {
         OmDbSeries seriesDetail = null;
         if (!string.IsNullOrEmpty(series.ImdbId))
-          seriesDetail = _omDbHandler.GetSeries(series.ImdbId, cacheOnly);
+          seriesDetail = await _omDbHandler.GetSeriesAsync(series.ImdbId, cacheOnly).ConfigureAwait(false);
         if (seriesDetail == null) return false;
 
         series.ImdbId = seriesDetail.ImdbID;
@@ -350,13 +346,13 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
       }
     }
 
-    public override bool UpdateFromOnlineSeriesSeason(SeasonInfo season, string language, bool cacheOnly)
+    public override async Task<bool> UpdateFromOnlineSeriesSeasonAsync(SeasonInfo season, string language, bool cacheOnly)
     {
       try
       {
         OmDbSeason seasonDetail = null;
         if (!string.IsNullOrEmpty(season.SeriesImdbId) && season.SeasonNumber.HasValue)
-          seasonDetail = _omDbHandler.GetSeriesSeason(season.SeriesImdbId, season.SeasonNumber.Value, cacheOnly);
+          seasonDetail = await _omDbHandler.GetSeriesSeasonAsync(season.SeriesImdbId, season.SeasonNumber.Value, cacheOnly).ConfigureAwait(false);
         if (seasonDetail == null) return false;
 
         season.SeriesName = new SimpleTitle(seasonDetail.Title, true);
@@ -373,7 +369,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
       }
     }
 
-    public override bool UpdateFromOnlineSeriesEpisode(EpisodeInfo episode, string language, bool cacheOnly)
+    public override async Task<bool> UpdateFromOnlineSeriesEpisodeAsync(EpisodeInfo episode, string language, bool cacheOnly)
     {
       try
       {
@@ -382,11 +378,11 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
 
         if (!string.IsNullOrEmpty(episode.SeriesImdbId) && episode.SeasonNumber.HasValue && episode.EpisodeNumbers.Count > 0)
         {
-          OmDbSeason seasonDetail = _omDbHandler.GetSeriesSeason(episode.SeriesImdbId, 1, cacheOnly);
+          OmDbSeason seasonDetail = await _omDbHandler.GetSeriesSeasonAsync(episode.SeriesImdbId, 1, cacheOnly).ConfigureAwait(false);
 
           foreach (int episodeNumber in episode.EpisodeNumbers)
           {
-            episodeDetail = _omDbHandler.GetSeriesEpisode(episode.SeriesImdbId, episode.SeasonNumber.Value, episodeNumber, cacheOnly);
+            episodeDetail = await _omDbHandler.GetSeriesEpisodeAsync(episode.SeriesImdbId, episode.SeasonNumber.Value, episodeNumber, cacheOnly).ConfigureAwait(false);
             if (episodeDetail == null) continue;
             if (episodeDetail.EpisodeNumber <= 0) continue;
 

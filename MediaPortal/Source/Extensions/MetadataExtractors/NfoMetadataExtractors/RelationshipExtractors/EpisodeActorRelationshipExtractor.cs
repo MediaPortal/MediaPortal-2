@@ -22,23 +22,51 @@
 
 #endregion
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Common.MediaManagement.Helpers;
 using MediaPortal.Common.MediaManagement.MLQueries;
+using MediaPortal.Common.ResourceAccess;
+using MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.Extractors;
+using MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoReaders;
 using MediaPortal.Utilities.Collections;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
 {
-  class EpisodeActorRelationshipExtractor : INfoRelationshipExtractor, IRelationshipRoleExtractor
+  class EpisodeActorRelationshipExtractor : NfoSeriesExtractorBase, IRelationshipRoleExtractor
   {
+    #region Static fields
+
     private static readonly Guid[] ROLE_ASPECTS = { EpisodeAspect.ASPECT_ID, VideoAspect.ASPECT_ID };
     private static readonly Guid[] LINKED_ROLE_ASPECTS = { PersonAspect.ASPECT_ID };
+
+    #endregion
+
+    #region Protected methods
+
+    /// <summary>
+    /// Asynchronously tries to extract episode actors for the given <param name="mediaItemAccessor"></param>
+    /// </summary>
+    /// <param name="mediaItemAccessor">Points to the resource for which we try to extract metadata</param>
+    /// <param name="extractedAspects">List of MediaItemAspect dictionaries to update with metadata</param>
+    /// <returns><c>true</c> if metadata was found and stored into the <paramref name="extractedAspects"/>, else <c>false</c></returns>
+    protected async Task<bool> TryExtractEpisodeActorsMetadataAsync(IResourceAccessor mediaItemAccessor, IList<IDictionary<Guid, IList<MediaItemAspect>>> extractedAspects, int? season, int? episode)
+    {
+      NfoSeriesEpisodeReader episodeNfoReader = await TryGetNfoSeriesEpisodeReaderAsync(mediaItemAccessor, season, episode).ConfigureAwait(false);
+      if (episodeNfoReader != null)
+        return episodeNfoReader.TryWriteActorMetadata(extractedAspects);
+      return false;
+    }
+
+    #endregion
+
+    #region IRelationshipRoleExtractor implementation
 
     public bool BuildRelationship
     {
@@ -72,42 +100,44 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
 
     public IFilter GetSearchFilter(IDictionary<Guid, IList<MediaItemAspect>> extractedAspects)
     {
-      return GetPersonSearchFilter(extractedAspects);
+      if (!extractedAspects.ContainsKey(PersonAspect.ASPECT_ID))
+        return null;
+      return RelationshipExtractorUtils.CreateExternalItemFilter(extractedAspects, ExternalIdentifierAspect.TYPE_PERSON);
     }
 
-    public bool TryExtractRelationships(IDictionary<Guid, IList<MediaItemAspect>> aspects, bool importOnly, out IList<RelationshipItem> extractedLinkedAspects)
+    public ICollection<string> GetExternalIdentifiers(IDictionary<Guid, IList<MediaItemAspect>> extractedAspects)
     {
-      extractedLinkedAspects = null;
+      if (!extractedAspects.ContainsKey(PersonAspect.ASPECT_ID))
+        return new List<string>();
+      return RelationshipExtractorUtils.CreateExternalItemIdentifiers(extractedAspects, ExternalIdentifierAspect.TYPE_PERSON);
+    }
 
-      if (!NfoSeriesMetadataExtractor.IncludeActorDetails)
-        return false;
-
-      //Only run during import
-      if (!importOnly)
-        return false;
-
+    public async Task<bool> TryExtractRelationshipsAsync(IResourceAccessor mediaItemAccessor, IDictionary<Guid, IList<MediaItemAspect>> aspects, IList<IDictionary<Guid, IList<MediaItemAspect>>> extractedLinkedAspects)
+    {
       EpisodeInfo episodeInfo = new EpisodeInfo();
-      if(!episodeInfo.FromMetadata(aspects))
+      if (!episodeInfo.FromMetadata(aspects))
         return false;
 
-      if (!UpdatePersons(aspects, episodeInfo.Actors, false))
+      int? season = episodeInfo.SeasonNumber;
+      int? episode = episodeInfo.EpisodeNumbers != null && episodeInfo.EpisodeNumbers.Any() ? episodeInfo.EpisodeNumbers.First() : (int?)null;
+      
+      IList<IDictionary<Guid, IList<MediaItemAspect>>> nfoLinkedAspects = new List<IDictionary<Guid, IList<MediaItemAspect>>>();
+      if (!await TryExtractEpisodeActorsMetadataAsync(mediaItemAccessor, nfoLinkedAspects, season, episode).ConfigureAwait(false))
         return false;
 
-      if (episodeInfo.Actors.Count == 0)
+      List<PersonInfo> actors;
+      if (!RelationshipExtractorUtils.TryCreateInfoFromLinkedAspects(nfoLinkedAspects, out actors))
         return false;
 
-      extractedLinkedAspects = new List<RelationshipItem>();
-      foreach (PersonInfo person in episodeInfo.Actors)
+      actors = actors.Where(p => p != null && !string.IsNullOrEmpty(p.Name)).ToList();
+      if (actors.Count == 0)
+        return false;
+
+      extractedLinkedAspects.Clear();
+      foreach (PersonInfo person in actors)
       {
-        person.AssignNameId();
-        person.HasChanged = true;
-        IDictionary<Guid, IList<MediaItemAspect>> personAspects = new Dictionary<Guid, IList<MediaItemAspect>>();
-        person.SetMetadata(personAspects);
-
-        if (personAspects.ContainsKey(ExternalIdentifierAspect.ASPECT_ID))
-        {
-          extractedLinkedAspects.Add(new RelationshipItem(personAspects, Guid.Empty));
-        }
+        if (person.SetLinkedMetadata() && person.LinkedAspects.ContainsKey(ExternalIdentifierAspect.ASPECT_ID))
+          extractedLinkedAspects.Add(person.LinkedAspects);
       }
       return extractedLinkedAspects.Count > 0;
     }
@@ -149,13 +179,6 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
       return index >= 0;
     }
 
-    public void CacheExtractedItem(Guid extractedItemId, IDictionary<Guid, IList<MediaItemAspect>> extractedAspects)
-    {
-    }
-
-    internal static ILogger Logger
-    {
-      get { return ServiceRegistration.Get<ILogger>(); }
-    }
+    #endregion
   }
 }

@@ -27,9 +27,12 @@ using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Common.MediaManagement.Helpers;
 using MediaPortal.Common.MediaManagement.MLQueries;
+using MediaPortal.Common.MediaManagement.TransientAspects;
+using MediaPortal.Common.ResourceAccess;
 using MediaPortal.Extensions.OnlineLibraries;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
 {
@@ -54,7 +57,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
 
     public AudioRelationshipExtractor()
     {
-      _metadata = new RelationshipExtractorMetadata(METADATAEXTRACTOR_ID, "Audio relationship extractor");
+      _metadata = new RelationshipExtractorMetadata(METADATAEXTRACTOR_ID, "Audio relationship extractor", MetadataExtractorPriority.Core);
       RegisterRelationships();
       InitExtractors();
     }
@@ -80,7 +83,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
       IRelationshipTypeRegistration relationshipRegistration = ServiceRegistration.Get<IRelationshipTypeRegistration>();
 
       //Relationships must be registered in order from tracks up to all parent relationships
-      
+
       //Hierarchical relationships
       relationshipRegistration.RegisterLocallyKnownRelationshipType(new RelationshipType("Track->Album", true,
         AudioAspect.ROLE_TRACK, AudioAlbumAspect.ROLE_ALBUM, AudioAspect.ASPECT_ID, AudioAlbumAspect.ASPECT_ID,

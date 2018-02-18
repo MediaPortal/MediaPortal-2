@@ -146,6 +146,9 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor.Sett
   /// </summary>
   public class SeriesMetadataExtractorSettings
   {
+    private const int DEFAULT_MAXIMUM_ACTOR_COUNT = 10;
+    private const int DEFAULT_MAXIMUM_CHARACTER_COUNT = 10;
+
     public SeriesMetadataExtractorSettings()
     {
       // Init default replacements
@@ -227,7 +230,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor.Sett
     /// <summary>
     /// If <c>true</c>, the SeriesMetadataExtractor does not fetch any information for missing local episodes.
     /// </summary>
-    [Setting(SettingScope.Global, false)]
+    [Setting(SettingScope.Global, true)]
     public bool OnlyLocalMedia { get; set; }
 
     /// <summary>
@@ -249,10 +252,22 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor.Sett
     public bool IncludeActorDetails { get; set; }
 
     /// <summary>
+    /// The maximum number of actors to extract.
+    /// </summary>
+    [Setting(SettingScope.Global, DEFAULT_MAXIMUM_ACTOR_COUNT)]
+    public int MaximumActorCount { get; set; }
+
+    /// <summary>
     /// If <c>true</c>, Character details will be fetched from online sources.
     /// </summary>
     [Setting(SettingScope.Global, true)]
     public bool IncludeCharacterDetails { get; set; }
+
+    /// <summary>
+    /// The maximum number of characters to extract.
+    /// </summary>
+    [Setting(SettingScope.Global, DEFAULT_MAXIMUM_CHARACTER_COUNT)]
+    public int MaximumCharacterCount { get; set; }
 
     /// <summary>
     /// If <c>true</c>, Director details will be fetched from online sources.

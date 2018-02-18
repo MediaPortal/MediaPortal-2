@@ -61,10 +61,17 @@ namespace MediaPortal.Common.MediaManagement.Helpers
     /// </summary>
     public byte[] Thumbnail = null;
 
+    private IDictionary<Guid, IList<MediaItemAspect>> _linkedAspects;
     private bool _hasThumbnail = false;
     private bool _hasChanged = false;
     private DateTime? _lastChange = null;
     private DateTime? _dateAdded = null;
+
+    public IDictionary<Guid, IList<MediaItemAspect>> LinkedAspects
+    {
+      get { return _linkedAspects; }
+    }
+
 
     public bool HasThumbnail
     {
@@ -283,6 +290,21 @@ namespace MediaPortal.Common.MediaManagement.Helpers
     public abstract bool SetMetadata(IDictionary<Guid, IList<MediaItemAspect>> aspectData);
 
     public abstract bool FromMetadata(IDictionary<Guid, IList<MediaItemAspect>> aspectData);
+
+    public virtual bool SetLinkedMetadata()
+    {
+      if (_linkedAspects == null)
+        return false;
+      return SetMetadata(_linkedAspects);
+    }
+
+    public virtual bool FromLinkedMetadata(IDictionary<Guid, IList<MediaItemAspect>> aspectData)
+    {
+      if (aspectData == null)
+        return false;
+      _linkedAspects = aspectData;
+      return FromMetadata(aspectData);
+    }
 
     public abstract void AssignNameId();
 

@@ -67,9 +67,8 @@
     <Reference Include="System.Drawing" />
     <Reference Include="System.Runtime.Caching" />
     <Reference Include="System.ServiceProcess" />
-    <Reference Include="System.Threading.Tasks.Dataflow, Version=4.5.24.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
-      <HintPath>..\..\..\Packages\Microsoft.Tpl.Dataflow.4.5.24\lib\portable-net45+win8+wpa81\System.Threading.Tasks.Dataflow.dll</HintPath>
-      <Private>True</Private>
+    <Reference Include="System.Threading.Tasks.Dataflow, Version=4.6.2.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>..\..\..\Packages\System.Threading.Tasks.Dataflow.4.8.0\lib\netstandard2.0\System.Threading.Tasks.Dataflow.dll</HintPath>
     </Reference>
     <Reference Include="System.Web" />
     <Reference Include="System.Management" />
@@ -85,6 +84,7 @@
     <Compile Include="FanArt\FanArtCache.cs" />
     <Compile Include="FanArt\FanArtConstants.cs" />
     <Compile Include="FanArt\FanArtSettings.cs" />
+    <Compile Include="FanArt\IFanArtCache.cs" />
     <Compile Include="Genres\GenreMapper.cs" />
     <Compile Include="Genres\SeriesGenre.cs" />
     <Compile Include="Genres\MovieGenre.cs" />
@@ -108,6 +108,7 @@
     <Compile Include="Genres\GenreMapping.cs" />
     <Compile Include="MediaManagement\Helpers\GenreInfo.cs" />
     <Compile Include="MediaManagement\Helpers\BaseInfo.cs" />
+    <Compile Include="MediaManagement\Helpers\HelperExtensionMethods.cs" />
     <Compile Include="MediaManagement\Helpers\RelationshipCache.cs" />
     <Compile Include="MediaManagement\Helpers\SimpleRating.cs" />
     <Compile Include="MediaManagement\Helpers\SimpleTitle.cs" />
@@ -137,6 +138,7 @@
     <Compile Include="MediaManagement\MLQueries\RelationalUserDataFilter.cs" />
     <Compile Include="Genres\GenreSettings.cs" />
     <Compile Include="MediaManagement\RelationshipExtractorMetadata.cs" />
+    <Compile Include="MediaManagement\RelationshipExtractorUtils.cs" />
     <Compile Include="MediaManagement\RelationshipType.cs" />
     <Compile Include="MediaManagement\MLQueries\FilteredRelationshipFilter.cs" />
     <Compile Include="MediaManagement\RelationshipItem.cs" />
@@ -166,7 +168,10 @@
     <Compile Include="Services\MediaManagement\ImportDataflowBlocks\DirectorySaveBlock.cs" />
     <Compile Include="Services\MediaManagement\ImportDataflowBlocks\FileUnfoldBlock.cs" />
     <Compile Include="Services\MediaManagement\ImportDataflowBlocks\ImporterWorkerDataflowBlockBase.cs" />
+    <Compile Include="Services\MediaManagement\ImportDataflowBlocks\IRelationshipCache.cs" />
     <Compile Include="Services\MediaManagement\ImportDataflowBlocks\MediaItemLoadBlock.cs" />
+    <Compile Include="Services\MediaManagement\ImportDataflowBlocks\LRURelationshipCache.cs" />
+    <Compile Include="Services\MediaManagement\ImportDataflowBlocks\RelationshipExtractorBlock.cs" />
     <Compile Include="Services\MediaManagement\ImportDataflowBlocks\MediaItemSaveBlock.cs" />
     <Compile Include="Services\MediaManagement\ImportDataflowBlocks\MetadataExtractorBlock.cs" />
     <Compile Include="Services\MediaManagement\ImportJobNewGen.cs" />
@@ -471,6 +476,7 @@
     <Compile Include="Services\FileEventNotification\FileWatchEventArgs.cs" />
     <Compile Include="UPnP\UPnPDtDictionary.cs" />
     <Compile Include="UPnP\UPnPDtMediaCategoryEnumeration.cs" />
+    <Compile Include="UPnP\UPnPDtRelationshipItemEnumeration.cs" />
     <Compile Include="UPnP\UPnPSystemResumeHelper.cs" />
     <Compile Include="UPnP\UPnPTypesAndIds.cs" />
     <Compile Include="UPnP\UPnPExtendedDataTypes.cs" />

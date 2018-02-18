@@ -52,7 +52,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
 
     public AudioRelationshipExtractor()
     {
-      _metadata = new RelationshipExtractorMetadata(METADATAEXTRACTOR_ID, "NFO Audio relationship extractor");
+      _metadata = new RelationshipExtractorMetadata(METADATAEXTRACTOR_ID, "NFO Audio relationship extractor", MetadataExtractorPriority.Extended);
       RegisterRelationships();
       InitExtractors();
     }

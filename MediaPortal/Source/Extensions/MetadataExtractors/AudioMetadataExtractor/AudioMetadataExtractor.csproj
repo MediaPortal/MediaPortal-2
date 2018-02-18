@@ -67,7 +67,6 @@
     <Compile Include="RelationshipExtractors\AlbumArtistRelationshipExtractor.cs" />
     <Compile Include="RelationshipExtractors\AlbumLabelRelationshipExtractor.cs" />
     <Compile Include="Matchers\MusicNameMatcher.cs" />
-    <Compile Include="RelationshipExtractors\IAudioRelationshipExtractor.cs" />
     <Compile Include="RelationshipExtractors\TrackAlbumArtistRelationshipExtractor.cs" />
     <Compile Include="RelationshipExtractors\TrackConductorRelationshipExtractor.cs" />
     <Compile Include="RelationshipExtractors\TrackComposerRelationshipExtractor.cs" />
