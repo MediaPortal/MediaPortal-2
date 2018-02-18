@@ -630,11 +630,8 @@ namespace MediaPortal.UiComponents.BlueVision.Models
         return new ItemsList();
       }
 
-      lock (homeContext.SyncRoot)
-      {
-        // Force a refresh here because we need to update items after changing user profile.
-        return UpdateMenu(homeContext);
-      }
+      // Force a refresh here because we need to update items after changing user profile.
+      return UpdateMenu(homeContext);
     }
 
     private bool IsManuallyPositioned(WorkflowAction wfAction)
