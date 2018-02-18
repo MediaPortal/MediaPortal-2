@@ -679,9 +679,6 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
         if (userProfile.HasValue)
         {
           var userResult = await userProfileDataManagement.UserProfileDataManagement.GetUserAdditionalDataAsync(userProfile.Value, UserDataKeysKnown.KEY_CHANNEL_PLAY_COUNT, channel.ChannelId);
-          if (!userResult.Success)
-            return;
-
           string data = userResult.Result;
           double count = (data != null ? Convert.ToDouble(data, CultureInfo.InvariantCulture) : 0) + (DateTime.UtcNow - _watchStart[channel]).TotalHours;
           await userProfileDataManagement.UserProfileDataManagement.SetUserAdditionalDataAsync(userProfile.Value,
