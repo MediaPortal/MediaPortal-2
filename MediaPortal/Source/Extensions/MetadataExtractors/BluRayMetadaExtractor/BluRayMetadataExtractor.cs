@@ -128,7 +128,7 @@ namespace MediaPortal.Media.MetadataExtractors
                 MultipleMediaItemAspect providerResourceAspect = MediaItemAspect.CreateAspect(extractedAspectData, ProviderResourceAspect.Metadata);
                 // Calling EnsureLocalFileSystemAccess not necessary; only string operation
                 providerResourceAspect.SetAttribute(ProviderResourceAspect.ATTR_RESOURCE_INDEX, 0);
-                providerResourceAspect.SetAttribute(ProviderResourceAspect.ATTR_PRIMARY, true);
+                providerResourceAspect.SetAttribute(ProviderResourceAspect.ATTR_TYPE, ProviderResourceAspect.TYPE_PRIMARY);
                 providerResourceAspect.SetAttribute(ProviderResourceAspect.ATTR_MIME_TYPE, "video/bluray"); // BluRay disc
                 providerResourceAspect.SetAttribute(ProviderResourceAspect.ATTR_RESOURCE_ACCESSOR_PATH, mediaItemAccessor.CanonicalLocalResourcePath.Serialize());
 
@@ -139,6 +139,11 @@ namespace MediaPortal.Media.MetadataExtractors
                 MultipleMediaItemAspect videoStreamAspect = MediaItemAspect.CreateAspect(extractedAspectData, VideoStreamAspect.Metadata);
                 videoStreamAspect.SetAttribute(VideoStreamAspect.ATTR_RESOURCE_INDEX, 0);
                 videoStreamAspect.SetAttribute(VideoStreamAspect.ATTR_STREAM_INDEX, -1);
+                videoStreamAspect.SetAttribute(VideoStreamAspect.ATTR_AUDIOSTREAMCOUNT, 1);
+
+                MultipleMediaItemAspect audioStreamAspect = MediaItemAspect.CreateAspect(extractedAspectData, VideoAudioStreamAspect.Metadata);
+                audioStreamAspect.SetAttribute(VideoAudioStreamAspect.ATTR_RESOURCE_INDEX, 0);
+                audioStreamAspect.SetAttribute(VideoAudioStreamAspect.ATTR_STREAM_INDEX, -1);
 
                 MediaItemAspect mediaAspect = MediaItemAspect.GetOrCreateAspect(extractedAspectData, MediaAspect.Metadata);
                 mediaAspect.SetAttribute(MediaAspect.ATTR_ISVIRTUAL, false);
@@ -147,20 +152,7 @@ namespace MediaPortal.Media.MetadataExtractors
                 {
                   BDInfoExt bdinfo = new BDInfoExt(rah.LocalFsResourceAccessor.LocalFileSystemPath);
                   string title = bdinfo.GetTitle();
-                  if(title == null)
-                  {
-                    try
-                    {
-                      title = mediaItemAccessor.ResourceName;
-                      if (title.StartsWith($"[{rah.LocalFsResourceAccessor.Path.Substring(1)}] "))
-                        title = title.Substring(rah.LocalFsResourceAccessor.Path.Length + 2).Trim();
-                    }
-                    catch
-                    {
-                      title = mediaItemAccessor.ResourceName;
-                    }
-                  }
-                  mediaAspect.SetAttribute(MediaAspect.ATTR_TITLE, title);
+                  mediaAspect.SetAttribute(MediaAspect.ATTR_TITLE, title ?? bdinfo.VolumeLabel);
 
                   // Check for BD disc thumbs
                   FileInfo thumbnail = bdinfo.GetBiggestThumb();
@@ -194,6 +186,36 @@ namespace MediaPortal.Media.MetadataExtractors
           ServiceRegistration.Get<ILogger>().Info("BluRayMetadataExtractor: Exception reading source '{0}'", mediaItemAccessor.ResourcePathName);
         return false;
       }
+    }
+
+    public bool IsDirectorySingleResource(IResourceAccessor mediaItemAccessor)
+    {
+      IFileSystemResourceAccessor fsra = mediaItemAccessor as IFileSystemResourceAccessor;
+      if (fsra == null)
+        return false;
+
+      if (!fsra.IsFile && fsra.ResourceExists("BDMV"))
+      {
+        using (IFileSystemResourceAccessor fsraBDMV = fsra.GetResource("BDMV"))
+        {
+          if (fsraBDMV != null && fsraBDMV.ResourceExists("index.bdmv"))
+          {
+            // Video Blu-ray
+            return true;
+          }
+        }
+      }
+      return false;
+    }
+
+    public bool IsStubResource(IResourceAccessor mediaItemAccessor)
+    {
+      return false;
+    }
+
+    public bool TryExtractStubItems(IResourceAccessor mediaItemAccessor, ICollection<IDictionary<Guid, IList<MediaItemAspect>>> extractedStubAspectData)
+    {
+      return false;
     }
 
     #endregion

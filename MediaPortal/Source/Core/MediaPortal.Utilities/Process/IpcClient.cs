@@ -82,7 +82,7 @@ namespace MediaPortal.Utilities.Process
              if (client.ShudownApplication(exitTimeout, killAfterTimeout))
                ++succeededCnt;
            }
-           catch (Exception ex)
+           catch (Exception)
            {
 
            }

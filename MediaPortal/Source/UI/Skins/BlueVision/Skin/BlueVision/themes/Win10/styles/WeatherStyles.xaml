@@ -11,15 +11,17 @@
   <DataTemplate x:Key="WeatherLocationItemDataTemplate" DataType="{x:Type collections:ListItem}">
     <Grid x:Name="ItemControl" VerticalAlignment="Center" HorizontalAlignment="Stretch">
       <Grid.ColumnDefinitions>
-        <ColumnDefinition Width="300"/>
-        <ColumnDefinition Width="20"/>
+        <ColumnDefinition Width="Auto"/>
+        <ColumnDefinition Width="30"/>
         <ColumnDefinition Width="*"/>
       </Grid.ColumnDefinitions>
       <Grid.RowDefinitions>
         <RowDefinition Height="Auto"/>
       </Grid.RowDefinitions>
-      <Label Grid.Row="0" Grid.Column="0" x:Name="ItemLabel" Content="{Binding [Name]}" FontSize="{ThemeResource BigFontSize}" Color="{ThemeResource TextColor}"/>
-      <Label Grid.Row="0" Grid.Column="2" x:Name="DetailLabel" Content="{Binding [Detail]}" FontSize="{ThemeResource BigFontSize}" Color="{ThemeResource TextColor}"/>
+      <Label Grid.Row="0" Grid.Column="0" x:Name="ItemLabel" Content="{Binding [Name]}" Margin="10,0,0,0"
+             FontSize="{ThemeResource BigFontSize}" Color="{ThemeResource TextColor}"/>
+      <Label Grid.Row="0" Grid.Column="2" x:Name="DetailLabel" Content="{Binding [Detail]}" Margin="0,0,10,0"
+             FontSize="{ThemeResource BigFontSize}" Color="{ThemeResource TextColor}"/>
     </Grid>
   </DataTemplate>
 

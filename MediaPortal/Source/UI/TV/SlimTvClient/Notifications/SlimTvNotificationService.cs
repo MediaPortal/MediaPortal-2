@@ -167,10 +167,10 @@ namespace MediaPortal.Plugins.SlimTv.Client.Notifications
     {
       ITvHandler tvHandler = ServiceRegistration.Get<ITvHandler>();
       tvHandler.Initialize();
-      IChannel channel;
-      if (tvHandler.ChannelAndGroupInfo == null || !tvHandler.ChannelAndGroupInfo.GetChannel(channelId, out channel))
-        channel = null;
-      return channel;
+      if (tvHandler.ChannelAndGroupInfo == null)
+        return null;
+      var result = tvHandler.ChannelAndGroupInfo.GetChannelAsync(channelId).Result;
+      return result.Success ? result.Result : null;
     }
 
     #endregion

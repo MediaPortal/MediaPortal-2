@@ -1441,7 +1441,7 @@
     <Setter Property="ItemContainerStyle" Value="{ThemeResource DefaultMenuItemContainerStyle}"/>
   </Style>
 
-  <!-- ************************** TreeView item container styles ***************************** -->
+   <!-- ************************** TreeView item container styles ***************************** -->
 
   <!-- Tree item container which shows a PlusMinus button and the item content, in expanded state a sub stack panel unter the first line -->
   <Style x:Key="DefaultTreeItemContainerStyle" TargetType="{x:Type HeaderedItemsControl}">

@@ -92,7 +92,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor
         return;
 
       _checkCache.Add(mediaItemId);
-      Task.Run(() => ExtractFanArt(mediaItemId, aspects));
+      ExtractFanArt(mediaItemId, aspects);
     }
 
     private void ExtractFanArt(Guid mediaItemId, IDictionary<Guid, IList<MediaItemAspect>> aspects)
@@ -382,7 +382,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor
     public void DeleteFanArt(Guid mediaItemId)
     {
       _checkCache.Remove(mediaItemId);
-      Task.Run(() => FanArtCache.DeleteFanArtFiles(mediaItemId.ToString()));
+      FanArtCache.DeleteFanArtFiles(mediaItemId.ToString());
     }
 
     public void ClearCache()

@@ -95,6 +95,23 @@
     <Compile Include="Controls\Animations\ColorKeyFrame.cs" />
     <Compile Include="Controls\Animations\DiscreteObjectKeyFrame.cs" />
     <Compile Include="Controls\Animations\ColorKeyFrameCollection.cs" />
+    <Compile Include="Controls\Animations\EasingColorKeyFrame.cs" />
+    <Compile Include="Controls\Animations\EasingFunctions\BounceEase.cs" />
+    <Compile Include="Controls\Animations\EasingPointKeyFrame.cs" />
+    <Compile Include="Controls\Animations\EasingDoubleKeyFrame.cs" />
+    <Compile Include="Controls\Animations\EasingFunctions\SineEase.cs" />
+    <Compile Include="Controls\Animations\EasingFunctions\QuinticEase.cs" />
+    <Compile Include="Controls\Animations\EasingFunctions\QuarticEase.cs" />
+    <Compile Include="Controls\Animations\EasingFunctions\QuadraticEase.cs" />
+    <Compile Include="Controls\Animations\EasingFunctions\PowerEase.cs" />
+    <Compile Include="Controls\Animations\EasingFunctions\ExponentialEase.cs" />
+    <Compile Include="Controls\Animations\EasingFunctions\ElasticEase.cs" />
+    <Compile Include="Controls\Animations\EasingFunctions\CubicEase.cs" />
+    <Compile Include="Controls\Animations\EasingFunctions\CircleEase.cs" />
+    <Compile Include="Controls\Animations\EasingFunctions\BackEase.cs" />
+    <Compile Include="Controls\Animations\EasingFunctions\EasingFunctionBase.cs" />
+    <Compile Include="Controls\Animations\EasingFunctions\EasingMode.cs" />
+    <Compile Include="Controls\Animations\EasingFunctions\IEasingFunction.cs" />
     <Compile Include="Controls\Animations\PointKeyFrameCollection.cs" />
     <Compile Include="Controls\Animations\ObjectKeyFrameCollection.cs" />
     <Compile Include="Controls\Animations\DoubleKeyFrameCollection.cs" />
@@ -370,6 +387,7 @@
     <Compile Include="Settings\Configuration\Appearance\StartupScreen.cs" />
     <Compile Include="Settings\Configuration\General\ApplicationSuspendLevel.cs" />
     <Compile Include="SharpDX\SharpDXExtensions.cs" />
+    <Compile Include="Utils\DoubleUtils.cs" />
     <Compile Include="Utils\ImageSourceFactory.cs" />
     <Compile Include="Utils\UIResourcesHelper.cs" />
     <Compile Include="Settings\Configuration\Appearance\ScreenSaverTimeout.cs" />
@@ -619,6 +637,7 @@
       <SubType>Designer</SubType>
     </None>
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="build.targets" />
   <Import Project="..\..\..\Packages\FreeImage.3.15.4\build\FreeImage.targets" Condition="Exists('..\..\..\Packages\FreeImage.3.15.4\build\FreeImage.targets')" />

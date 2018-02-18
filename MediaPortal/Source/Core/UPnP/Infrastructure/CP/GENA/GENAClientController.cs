@@ -180,7 +180,7 @@ namespace UPnP.Infrastructure.CP.GENA
       }
       catch (Exception e) // SocketException, SecurityException
       {
-        UPnPConfiguration.LOGGER.Info("GENAClientController: Unable to bind to multicast address(es) for endpoint '{0}'", e,
+        UPnPConfiguration.LOGGER.Warn("GENAClientController: Unable to bind to multicast address(es) for endpoint '{0}'", e,
             NetworkHelper.IPAddrToString(address));
       }
     }

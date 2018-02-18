@@ -29,8 +29,11 @@ using System.Xml.XPath;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.Localization;
+using MediaPortal.Common.UserManagement;
+using MediaPortal.Common.UserProfileDataManagement;
 using MediaPortal.UI.Presentation.SkinResources;
 using MediaPortal.UI.Presentation.Workflow;
+using MediaPortal.UI.Services.UserManagement;
 using MediaPortal.Utilities;
 
 namespace MediaPortal.UI.Services.Workflow
@@ -169,6 +172,7 @@ namespace MediaPortal.UI.Services.Workflow
       string sourceStates = null;
       string targetState = null;
       string navigationContextDisplayLabel = null;
+      string restrictionGroup = null;
       XPathNavigator attrNav = actionNav.Clone();
       if (attrNav.MoveToFirstAttribute())
         do
@@ -202,6 +206,9 @@ namespace MediaPortal.UI.Services.Workflow
             case "HelpText":
               helpText = attrNav.Value;
               break;
+            case "RestrictionGroup":
+              SetValueAndRegister(ref restrictionGroup, attrNav.Value);
+              break;
             default:
               throw new ArgumentException("'" + actionNav.Name + "' element doesn't support an attribute '" + attrNav.Name + "'");
           }
@@ -214,12 +221,14 @@ namespace MediaPortal.UI.Services.Workflow
         throw new ArgumentException(string.Format("{0} '{1}': 'SourceStates' attribute missing", actionNav.Name, name));
       if (string.IsNullOrEmpty(targetState))
         throw new ArgumentException(string.Format("{0} '{1}': 'TargetState' attribute missing", actionNav.Name, name));
+
       PushNavigationTransition result = new PushNavigationTransition(new Guid(id), name, ParseActionSourceStates(sourceStates),
           LocalizationHelper.CreateResourceString(displayTitle), LocalizationHelper.CreateResourceString(helpText),
           new Guid(targetState), navigationContextDisplayLabel)
         {
             DisplayCategory = displayCategory,
-            SortOrder = sortOrder
+            SortOrder = sortOrder,
+            RestrictionGroup = restrictionGroup
         };
       return result;
     }
@@ -233,6 +242,7 @@ namespace MediaPortal.UI.Services.Workflow
       string helpText = null;
       string sortOrder = null;
       string sourceStates = null;
+      string restrictionGroup = null;
       int numPop = -1;
       XPathNavigator attrNav = actionNav.Clone();
       if (attrNav.MoveToFirstAttribute())
@@ -265,6 +275,9 @@ namespace MediaPortal.UI.Services.Workflow
             case "HelpText":
               helpText = attrNav.Value;
               break;
+            case "RestrictionGroup":
+              SetValueAndRegister(ref restrictionGroup, attrNav.Value);
+              break;
             default:
               throw new ArgumentException("'" + actionNav.Name + "' element doesn't support an attribute '" + attrNav.Name + "'");
           }
@@ -281,8 +294,9 @@ namespace MediaPortal.UI.Services.Workflow
           LocalizationHelper.CreateResourceString(displayTitle), LocalizationHelper.CreateResourceString(helpText), numPop)
         {
             DisplayCategory = displayCategory,
-            SortOrder = sortOrder
-        };
+            SortOrder = sortOrder,
+            RestrictionGroup = restrictionGroup
+      };
       return result;
     }
 
@@ -296,6 +310,7 @@ namespace MediaPortal.UI.Services.Workflow
       string sortOrder = null;
       string sourceStates = null;
       string contributorModel = null;
+      string restrictionGroup = null;
       XPathNavigator attrNav = actionNav.Clone();
       if (attrNav.MoveToFirstAttribute())
         do
@@ -326,6 +341,9 @@ namespace MediaPortal.UI.Services.Workflow
             case "HelpText":
               helpText = attrNav.Value;
               break;
+            case "RestrictionGroup":
+              SetValueAndRegister(ref restrictionGroup, attrNav.Value);
+              break;
             default:
               throw new ArgumentException("'" + actionNav.Name + "' element doesn't support an attribute '" + attrNav.Name + "'");
           }
@@ -342,8 +360,9 @@ namespace MediaPortal.UI.Services.Workflow
           LocalizationHelper.CreateResourceString(displayTitle), LocalizationHelper.CreateResourceString(helpText), new Guid(contributorModel))
         {
             DisplayCategory = displayCategory,
-            SortOrder = sortOrder
-        };
+            SortOrder = sortOrder,
+            RestrictionGroup = restrictionGroup
+      };
       return result;
     }
 
@@ -358,6 +377,7 @@ namespace MediaPortal.UI.Services.Workflow
       string sourceStates = null;
       string modelId = null;
       string methodName = null;
+      string restrictionGroup = null;
       XPathNavigator attrNav = actionNav.Clone();
       if (attrNav.MoveToFirstAttribute())
         do
@@ -391,6 +411,9 @@ namespace MediaPortal.UI.Services.Workflow
             case "MethodName":
               methodName = attrNav.Value;
               break;
+            case "RestrictionGroup":
+              SetValueAndRegister(ref restrictionGroup, attrNav.Value);
+              break;
             default:
               throw new ArgumentException("'" + actionNav.Name + "' element doesn't support an attribute '" + attrNav.Name + "'");
           }
@@ -410,9 +433,26 @@ namespace MediaPortal.UI.Services.Workflow
           new Guid(modelId), methodName)
         {
             DisplayCategory = displayCategory,
-            SortOrder = sortOrder
-        };
+            SortOrder = sortOrder,
+            RestrictionGroup = restrictionGroup
+      };
       return result;
+    }
+
+    protected static UserProfileType? ParseOptionalProfileType(string actionNavName, string minUserProfile, string name)
+    {
+      if (string.IsNullOrEmpty(minUserProfile)) return null;
+
+      UserProfileType tmpValue;
+      if (!Enum.TryParse(minUserProfile, out tmpValue))
+        throw new ArgumentException(string.Format("{0} '{1}': Invalid value '{2}' for 'RestrictionGroup'", actionNavName, name, minUserProfile));
+      return tmpValue;
+    }
+
+    private static void SetValueAndRegister(ref string restrictionGroup, string attrValue)
+    {
+      restrictionGroup = attrValue;
+      ServiceRegistration.Get<IUserManagement>().RegisterRestrictionGroup(restrictionGroup);
     }
   }
 }

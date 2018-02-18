@@ -32,16 +32,46 @@ Parameters which have to be accessible by a DynamicResource lookup:
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     Source="screens\master_home.xaml"
     xmlns:mp_special_controls="clr-namespace:MediaPortal.UI.SkinEngine.SpecialElements.Controls;assembly=SkinEngine"
-    >
+    xmlns:wmc="clr-namespace:MediaPortal.UiComponents.WMCSkin.Controls;assembly=WMCSkin"
+    xmlns:fanart="clr-namespace:MediaPortal.Extensions.UserServices.FanArtService.Client;assembly=FanArtService.Client"
+    xmlns:wmc_markup_extensions="clr-namespace:MediaPortal.UiComponents.WMCSkin.MarkupExtensions;assembly=WMCSkin"
+    xmlns:imagesources="clr-namespace:MediaPortal.UI.SkinEngine.Controls.ImageSources;assembly=SkinEngine">
   <Include.Resources>
 
-    <ControlTemplate x:Key="FanArtBackground_Template">
+    <!--ControlTemplate x:Key="FanArtBackground_Template">
       <Image Stretch="Fill" Opacity="{Binding Source={StaticResource SkinSettingsModel}, Path=[WMC].FanartOverlayOpacity}" Source="Background_GridView.png"/>
+    </-->
+
+    <ControlTemplate x:Key="FanArtBackgroundHome_Template">
+      <ControlTemplate.Resources>
+        <fanart:FanArtImageSourceConverter x:Key="FanArtImageSourceConverter"/>
+        <Model x:Key="FanArtBackgroundModel" Id="8F42C8E9-E8A3-475C-A50A-99E1E644DC91"/>
+        <Model x:Key="SkinSettingsModel" Id="13961014-16C4-4361-9751-8E2C585EFD44"/>
+      </ControlTemplate.Resources>
+      <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch" >
+        <Grid.ColumnDefinitions>
+          <ColumnDefinition Width="25*"/>
+          <ColumnDefinition Width="75*"/>
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+          <RowDefinition Height="75*"/>
+          <RowDefinition Height="25*"/>
+        </Grid.RowDefinitions>
+        <Image x:Name="FanArtImageBackground" Stretch="UniformToFill" Grid.Column="1" Grid.Row="0"
+               IsVisible="{Binding Source={StaticResource SkinSettingsModel}, Path=[WMC].EnableFanart}">
+          <Image.Source>
+            <imagesources:ImageSourceWrapper Delay="0.5" DelayInOut="true" Transition="transitions\dissolve" TransitionDuration="0.5"
+                   Source="{Binding Source={StaticResource FanArtBackgroundModel}, Path=ImageSource, Converter={StaticResource FanArtImageSourceConverter}, ConverterParameter=FanArt;1200;750;False}"/>
+          </Image.Source>
+        </Image>
+        <Image Stretch="Fill" Source="Background_Home.png" Grid.ColumnSpan="2" Grid.RowSpan="2" Opacity="1"/>
+      </Grid>
     </ControlTemplate>
 
     <!-- Background Manager for menu hovers -->
     <Model x:Key="BackgroundManagerModel" Id="1F4CAEDE-7108-483d-B5C8-18BEC7EC58E5"/>
     <Model x:Key="HomeMenuModel" Id="2EAA2DAB-241F-432F-A487-CDD35CCD4309"/>
+    <Model x:Key="HomeContentModel" Id="24BB1BBE-A3B3-474A-8D55-C37EBE182F6C"/>
 
     <!-- Header has to be defined by the includer: "Header_Text" -->
 
@@ -173,6 +203,115 @@ Parameters which have to be accessible by a DynamicResource lookup:
           <Button VerticalAlignment="Bottom" Style="{StaticResource SubMenuRightButtonStyle}" Height="50"
                   Command="{Command Source={StaticResource HomeMenuModel},Path=MovePreviousSubItem}"/>
         </Grid>
+
+
+        <!--++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++-->
+        <!--++++++++++++++++++++++++   HOME CONTENT   ++++++++++++++++++++++-->
+        <!--++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++-->
+
+        <Control Grid.Row="1" VerticalAlignment="Top" HorizontalAlignment="Left" Margin="-200,-50,0,0" Width="500">
+          <Control.TemplateControl>
+            <Include Source="screens\MultiDetailsHome.inc"/>
+          </Control.TemplateControl>
+        </Control>
+
+        <Grid x:Name="HomeContentGrid" Grid.Row="1" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,-150,50,0">
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="1000"/>
+          </Grid.ColumnDefinitions>
+          <Grid.RowDefinitions>
+            <RowDefinition Height="615"/>
+          </Grid.RowDefinitions>
+
+          <Grid.Resources>
+            <!-- HomeContent Storyboard -->
+            <Storyboard x:Key="SlideInStoryboard" FillBehavior="HoldEnd">
+              <DoubleAnimation BeginTime="00:00:00" From="600" To="0" Duration="00:00:01.1" DecelerationRatio="0"
+                               FillBehavior="HoldEnd" Storyboard.TargetProperty="RenderTransform.X">
+                <DoubleAnimation.EasingFunction>
+                  <BackEase Amplitude="0.3" EasingMode="EaseOut"/>
+                </DoubleAnimation.EasingFunction>
+              </DoubleAnimation>
+              <DoubleAnimationUsingKeyFrames BeginTime="00:00:00" FillBehavior="HoldEnd" Storyboard.TargetProperty="Opacity">
+                <SplineDoubleKeyFrame KeyTime="00:00:00" Value="0"/>
+                <SplineDoubleKeyFrame KeyTime="00:00:00.4" Value="0"/>
+                <SplineDoubleKeyFrame KeyTime="00:00:01.1" Value="1"/>
+              </DoubleAnimationUsingKeyFrames>
+            </Storyboard>
+            <Storyboard x:Key="SlideOutStoryboard" FillBehavior="Stop">
+              <DoubleAnimation BeginTime="00:00:00" From="0" To="600" Duration="00:00:00.5" AccelerationRatio="1"
+                               FillBehavior="HoldEnd" Storyboard.TargetProperty="RenderTransform.X" >
+              </DoubleAnimation>
+              <DoubleAnimationUsingKeyFrames BeginTime="00:00:00" FillBehavior="HoldEnd" Storyboard.TargetProperty="Opacity">
+                <SplineDoubleKeyFrame KeyTime="00:00:00.0" Value="1"/>
+                <SplineDoubleKeyFrame KeyTime="00:00:00.5" Value="0"/>
+              </DoubleAnimationUsingKeyFrames>
+            </Storyboard>
+          </Grid.Resources>
+          
+          <!-- To allow the next home content to slide in whilst the previous slides out we use the HomeContentModel
+               To alternate the content between HomeContent0Control and HomeContent1Control below -->
+
+          <!-- Home Content 0 -->
+          <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+              <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+            <Grid.RenderTransform>
+              <TranslateTransform X="1200"/>
+            </Grid.RenderTransform>
+            <Grid.Triggers>
+              <!-- Trigger for the HomeContent Storyboard -->
+              <DataTrigger Binding="{Binding Source={StaticResource HomeContentModel},Path=CurrentContentIndex}" Value="0">
+                <DataTrigger.EnterActions>
+                  <BeginStoryboard x:Name="Content0BeginSlideInStoryboard" Storyboard="{StaticResource SlideInStoryboard}"/>
+                </DataTrigger.EnterActions>
+                <DataTrigger.ExitActions>
+                  <BeginStoryboard x:Name="Content0BeginSlideOutStoryboard" Storyboard="{StaticResource SlideOutStoryboard}"/>
+                  <StopStoryboard BeginStoryboardName="Content0BeginSlideInStoryboard"/>
+                </DataTrigger.ExitActions>
+              </DataTrigger>
+            </Grid.Triggers>
+
+            <Control x:Name="HomeContent0Control" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+                   Template="{wmc_markup_extensions:DynamicResourceBindingExtension ResourceKey={Binding Source={StaticResource HomeContentModel}, Path=Content0ActionId}}"/>
+            
+          </Grid>
+
+          <!-- Home Content 1 -->
+
+          <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+              <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+            <Grid.RenderTransform>
+              <TranslateTransform X="1200"/>
+            </Grid.RenderTransform>
+            <Grid.Triggers>
+              <!-- Trigger for the HomeContent Storyboard -->
+              <DataTrigger Binding="{Binding Source={StaticResource HomeContentModel},Path=CurrentContentIndex}" Value="1">
+                <DataTrigger.EnterActions>
+                  <BeginStoryboard x:Name="Content1BeginSlideInStoryboard" Storyboard="{StaticResource SlideInStoryboard}"/>
+                </DataTrigger.EnterActions>
+                <DataTrigger.ExitActions>
+                  <BeginStoryboard x:Name="Content1BeginSlideOutStoryboard" Storyboard="{StaticResource SlideOutStoryboard}"/>
+                  <StopStoryboard BeginStoryboardName="Content1BeginSlideInStoryboard"/>
+                </DataTrigger.ExitActions>
+              </DataTrigger>
+            </Grid.Triggers>
+
+            <Control x:Name="HomeContent1Control" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+                   Template="{wmc_markup_extensions:DynamicResourceBindingExtension ResourceKey={Binding Source={StaticResource HomeContentModel}, Path=Content1ActionId}}"/>
+            
+          </Grid>
+
+        </Grid>
         
         <Grid x:Name="LeftButtonGrid" Grid.Row="1" HorizontalAlignment="Right" Margin="0,0,10,-140" Panel.ZIndex="1000"
               IsVisible="{Binding Source={StaticResource MouseModel},Path=IsMouseUsed}">
@@ -186,8 +325,8 @@ Parameters which have to be accessible by a DynamicResource lookup:
                   Command="{Command Source={StaticResource HomeMenuModel},Path=MoveNextSubItem}"/>
         </Grid>
 
-        <KeyBinding Key="Up" Command="{Command Source={StaticResource HomeMenuModel},Path=MovePrevious}"/>
-        <KeyBinding Key="Down" Command="{Command Source={StaticResource HomeMenuModel},Path=MoveNext}"/>
+        <KeyBinding Key="Up" Command="{Command Source={StaticResource HomeMenuModel},Path=MovePrevious}" IsEnabled="{Binding ElementName=HomeContentGrid, Path=!IsKeyboardFocusWithin}"/>
+        <KeyBinding Key="Down" Command="{Command Source={StaticResource HomeMenuModel},Path=MoveNext}" IsEnabled="{Binding ElementName=HomeContentGrid, Path=!IsKeyboardFocusWithin}"/>
 
       </Grid>
     </ControlTemplate>

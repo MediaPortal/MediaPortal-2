@@ -36,13 +36,13 @@ using MediaPortal.Common.Services.ServerCommunication;
 using MediaPortal.Common.Settings;
 using MediaPortal.Common.SystemCommunication;
 using MediaPortal.Common.SystemResolver;
-using MediaPortal.Common.Threading;
 using MediaPortal.UI.ServerCommunication;
 using MediaPortal.UI.ServerCommunication.Settings;
 using MediaPortal.UI.Shares;
 using UPnP.Infrastructure.CP;
 using RelocationMode = MediaPortal.Common.MediaManagement.RelocationMode;
 using System.Threading;
+using System.Threading.Tasks;
 using MediaPortal.Common.Services.MediaManagement;
 
 namespace MediaPortal.UI.Services.ServerCommunication
@@ -66,12 +66,12 @@ namespace MediaPortal.UI.Services.ServerCommunication
 
       #region IMediaBrowsing implementation
 
-      public MediaItem LoadLocalItem(ResourcePath path,
-          IEnumerable<Guid> necessaryRequestedMIATypeIDs, IEnumerable<Guid> optionalRequestedMIATypeIDs, Guid? userProfile)
+      public async Task<MediaItem> LoadLocalItemAsync(ResourcePath path,
+          IEnumerable<Guid> necessaryRequestedMIATypeIDs, IEnumerable<Guid> optionalRequestedMIATypeIDs, Guid? userProfile = null)
       {
         try
         {
-          return _contentDirectory.LoadItem(_localSystemId, path, necessaryRequestedMIATypeIDs, optionalRequestedMIATypeIDs, userProfile);
+          return await _contentDirectory.LoadItemAsync(_localSystemId, path, necessaryRequestedMIATypeIDs, optionalRequestedMIATypeIDs, userProfile);
         }
         catch (Exception)
         {
@@ -79,12 +79,24 @@ namespace MediaPortal.UI.Services.ServerCommunication
         }
       }
 
-      public IList<MediaItem> Browse(Guid parentDirectoryId,
+      public async Task<MediaItem> LoadLocalItemAsync(Guid mediaItemId, IEnumerable<Guid> necessaryRequestedMIATypeIDs, IEnumerable<Guid> optionalRequestedMIATypeIDs, Guid? userProfile = null)
+      {
+        try
+        {
+          return await _contentDirectory.LoadItemAsync(_localSystemId, mediaItemId, necessaryRequestedMIATypeIDs, optionalRequestedMIATypeIDs, userProfile);
+        }
+        catch (Exception)
+        {
+          throw new DisconnectedException();
+        }
+      }
+
+      public async Task<IList<MediaItem>> BrowseAsync(Guid parentDirectoryId,
           IEnumerable<Guid> necessaryRequestedMIATypeIDs, IEnumerable<Guid> optionalRequestedMIATypeIDs, Guid? userProfile, bool includVirtual, uint? offset = null, uint? limit = null)
       {
         try
         {
-          return _contentDirectory.Browse(parentDirectoryId, necessaryRequestedMIATypeIDs, optionalRequestedMIATypeIDs, userProfile, includVirtual, offset, limit);
+          return await _contentDirectory.BrowseAsync(parentDirectoryId, necessaryRequestedMIATypeIDs, optionalRequestedMIATypeIDs, userProfile, includVirtual, offset, limit);
         }
         catch (Exception)
         {
@@ -92,11 +104,11 @@ namespace MediaPortal.UI.Services.ServerCommunication
         }
       }
 
-      public IDictionary<Guid, DateTime> GetManagedMediaItemAspectCreationDates()
+      public async Task<IDictionary<Guid, DateTime>> GetManagedMediaItemAspectCreationDatesAsync()
       {
         try
         {
-          return _contentDirectory.GetAllManagedMediaItemAspectCreationDates();
+          return await _contentDirectory.GetAllManagedMediaItemAspectCreationDatesAsync();
         }
         catch (Exception)
         {
@@ -104,11 +116,11 @@ namespace MediaPortal.UI.Services.ServerCommunication
         }
       }
 
-      public ICollection<Guid> GetAllManagedMediaItemAspectTypes()
+      public async Task<ICollection<Guid>> GetAllManagedMediaItemAspectTypesAsync()
       {
         try
         {
-          return _contentDirectory.GetAllManagedMediaItemAspectTypes();
+          return await _contentDirectory.GetAllManagedMediaItemAspectTypesAsync();
         }
         catch (Exception)
         {
@@ -124,7 +136,19 @@ namespace MediaPortal.UI.Services.ServerCommunication
       {
         try
         {
-          return _contentDirectory.AddOrUpdateMediaItem(parentDirectoryId, _localSystemId, path, updatedAspects);
+          return _contentDirectory.AddOrUpdateMediaItemAsync(parentDirectoryId, _localSystemId, path, updatedAspects).Result;
+        }
+        catch (Exception)
+        {
+          throw new DisconnectedException();
+        }
+      }
+
+      public Guid UpdateMediaItem(Guid parentDirectoryId, ResourcePath path, Guid mediItemId, IEnumerable<MediaItemAspect> updatedAspects, bool isRefresh, ResourcePath basePath, CancellationToken cancelToken)
+      {
+        try
+        {
+          return _contentDirectory.AddOrUpdateMediaItemAsync(parentDirectoryId, _localSystemId, path, mediItemId, updatedAspects).Result;
         }
         catch (Exception)
         {
@@ -136,7 +160,7 @@ namespace MediaPortal.UI.Services.ServerCommunication
       {
         try
         {
-          _contentDirectory.DeleteMediaItemOrPath(_localSystemId, path, true);
+          _contentDirectory.DeleteMediaItemOrPathAsync(_localSystemId, path, true);
         }
         catch (Exception)
         {
@@ -148,7 +172,7 @@ namespace MediaPortal.UI.Services.ServerCommunication
       {
         try
         {
-          _contentDirectory.DeleteMediaItemOrPath(_localSystemId, path, false);
+          _contentDirectory.DeleteMediaItemOrPathAsync(_localSystemId, path, false);
         }
         catch (Exception)
         {
@@ -156,9 +180,8 @@ namespace MediaPortal.UI.Services.ServerCommunication
         }
       }
 
-      public IList<MediaItem> GetUpdatableMediaItems(IEnumerable<Guid> necessaryRequestedMIATypeIDs, IEnumerable<Guid> optionalRequestedMIATypeIDs)
+      public void MarkUpdatableMediaItems()
       {
-        return null;
       }
 
       #endregion
@@ -204,14 +227,14 @@ namespace MediaPortal.UI.Services.ServerCommunication
           case SharesMessaging.MessageType.ShareAdded:
             share = (Share) message.MessageData[SharesMessaging.SHARE];
             if (cd != null)
-              cd.RegisterShare(share);
+              cd.RegisterShareAsync(share);
             importerWorker.ScheduleImport(share.BaseResourcePath, share.MediaCategories, true);
             break;
           case SharesMessaging.MessageType.ShareRemoved:
             share = (Share) message.MessageData[SharesMessaging.SHARE];
             importerWorker.CancelJobsForPath(share.BaseResourcePath);
             if (cd != null)
-              cd.RemoveShare(share.ShareId);
+              cd.RemoveShareAsync(share.ShareId);
             break;
           case SharesMessaging.MessageType.ShareChanged:
             RelocationMode relocationMode = (RelocationMode) message.MessageData[SharesMessaging.RELOCATION_MODE];
@@ -230,7 +253,7 @@ namespace MediaPortal.UI.Services.ServerCommunication
             }
             else
             {
-              cd.UpdateShare(share.ShareId, share.BaseResourcePath, share.Name, share.UseShareWatcher, share.MediaCategories, relocationMode);
+              cd.UpdateShareAsync(share.ShareId, share.BaseResourcePath, share.Name, share.UseShareWatcher, share.MediaCategories, relocationMode);
               switch (relocationMode)
               {
                 case RelocationMode.ClearAndReImport:
@@ -265,9 +288,9 @@ namespace MediaPortal.UI.Services.ServerCommunication
             if (share == null)
               break;
             if (messageType == ImporterWorkerMessaging.MessageType.ImportStarted)
-              cd.ClientStartedShareImport(share.ShareId);
+              cd.ClientStartedShareImportAsync(share.ShareId);
             else
-              cd.ClientCompletedShareImport(share.ShareId);
+              cd.ClientCompletedShareImportAsync(share.ShareId);
             break;
         }
       }
@@ -314,7 +337,8 @@ namespace MediaPortal.UI.Services.ServerCommunication
       }
 
       ServerConnectionMessaging.SendServerConnectionStateChangedMessage(ServerConnectionMessaging.MessageType.HomeServerConnected);
-      ServiceRegistration.Get<IThreadPool>().Add(CompleteServerConnection);
+      //ServiceRegistration.Get<IThreadPool>().Add(CompleteServerConnection);
+      _ = CompleteServerConnectionAsync();
     }
 
     void OnBackendServerDisconnected(DeviceConnection connection)
@@ -381,7 +405,7 @@ namespace MediaPortal.UI.Services.ServerCommunication
     /// <summary>
     /// Synchronously synchronizes all local shares and media item aspect types with the MediaPortal server.
     /// </summary>
-    protected void CompleteServerConnection()
+    protected async Task CompleteServerConnectionAsync()
     {
       UPnPServerControllerServiceProxy sc = ServerControllerServiceProxy;
       ISystemResolver systemResolver = ServiceRegistration.Get<ISystemResolver>();
@@ -415,24 +439,24 @@ namespace MediaPortal.UI.Services.ServerCommunication
           ServerConnectionSettings settings = settingsManager.Load<ServerConnectionSettings>();
           ServiceRegistration.Get<ILogger>().Info("ServerConnectionManager: Synchronizing shares with home server");
           IDictionary<Guid, Share> serverShares = new Dictionary<Guid, Share>();
-          foreach (Share share in cd.GetShares(systemResolver.LocalSystemId, SharesFilter.All))
+          foreach (Share share in await cd.GetSharesAsync(systemResolver.LocalSystemId, SharesFilter.All))
             serverShares.Add(share.ShareId, share);
           IDictionary<Guid, Share> localShares = ServiceRegistration.Get<ILocalSharesManagement>().Shares;
           // First remove shares - if the client lost its configuration and re-registers an already present share, the server's method will throw an exception
           foreach (Guid serverShareId in serverShares.Keys)
             if (!localShares.ContainsKey(serverShareId))
-              cd.RemoveShare(serverShareId);
+              await cd.RemoveShareAsync(serverShareId);
           foreach (Share localShare in localShares.Values)
           {
             RelocationMode relocationMode;
             if (!serverShares.ContainsKey(localShare.ShareId))
             {
-              cd.RegisterShare(localShare);
+              await cd.RegisterShareAsync(localShare);
               newShares.Add(localShare);
             }
             else if (settings.CachedSharesUpdates.TryGetValue(localShare.ShareId, out relocationMode))
             {
-              cd.UpdateShare(localShare.ShareId, localShare.BaseResourcePath, localShare.Name, localShare.UseShareWatcher, localShare.MediaCategories,
+              await cd.UpdateShareAsync(localShare.ShareId, localShare.BaseResourcePath, localShare.Name, localShare.UseShareWatcher, localShare.MediaCategories,
                   relocationMode);
               switch (relocationMode)
               {
@@ -458,13 +482,13 @@ namespace MediaPortal.UI.Services.ServerCommunication
         {
           IMediaItemAspectTypeRegistration miatr = ServiceRegistration.Get<IMediaItemAspectTypeRegistration>();
           ServiceRegistration.Get<ILogger>().Info("ServerConnectionManager: Checking for unregistered media item aspect types at home server");
-          ICollection<Guid> serverMIATypes = cd.GetAllManagedMediaItemAspectTypes();
+          ICollection<Guid> serverMIATypes = await cd.GetAllManagedMediaItemAspectTypesAsync();
           foreach (KeyValuePair<Guid, MediaItemAspectMetadata> localMiaType in miatr.LocallyKnownMediaItemAspectTypes)
             if (!serverMIATypes.Contains(localMiaType.Key))
             {
               ServiceRegistration.Get<ILogger>().Info("ServerConnectionManager: Adding unregistered media item aspect type '{0}' (ID '{1}') at home server",
                   localMiaType.Value.Name, localMiaType.Key);
-              cd.AddMediaItemAspectStorage(localMiaType.Value);
+              await cd.AddMediaItemAspectStorageAsync(localMiaType.Value);
             }
         }
         catch (Exception e)

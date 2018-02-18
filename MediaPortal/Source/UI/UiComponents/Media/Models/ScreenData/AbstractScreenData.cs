@@ -33,6 +33,7 @@ using MediaPortal.Utilities;
 using MediaPortal.Utilities.Exceptions;
 using System;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace MediaPortal.UiComponents.Media.Models.ScreenData
 {
@@ -369,20 +370,20 @@ namespace MediaPortal.UiComponents.Media.Models.ScreenData
     /// <returns>Enumeration of media items.</returns>
     public IEnumerable<MediaItem> GetAllMediaItems()
     {
-      List<MediaItem> result = new List<MediaItem>(GetAllMediaItemsOverride());
+      List<MediaItem> result = new List<MediaItem>(GetAllMediaItemsOverride().Result);
       Sorting.Sorting sorting = CurrentSorting;
       if (sorting != null)
         result.Sort(sorting);
       return result;
     }
 
-    protected virtual IEnumerable<MediaItem> GetAllMediaItemsOverride()
+    protected virtual async Task<IEnumerable<MediaItem>> GetAllMediaItemsOverride()
     {
       // Actually, this method doesn't need to be virtual because the code here is very generic -
       // depending on the base view specification of the current screen, we collect all items.
       // But screens like the search screen modify their list of items dynamically. Such screens must
       // return their dynamically generated items list.
-      return _navigationData.BaseViewSpecification.GetAllMediaItems();
+      return await _navigationData.BaseViewSpecification.GetAllMediaItems();
     }
 
     protected virtual void Display_ListBeingBuilt()

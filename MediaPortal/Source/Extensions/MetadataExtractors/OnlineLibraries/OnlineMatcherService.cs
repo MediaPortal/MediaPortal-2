@@ -23,7 +23,6 @@
 #endregion
 
 using MediaPortal.Common;
-using MediaPortal.Common.Genres;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Common.MediaManagement.Helpers;
@@ -34,7 +33,6 @@ using MediaPortal.Extensions.OnlineLibraries.Matchers;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text.RegularExpressions;
 
 namespace MediaPortal.Extensions.OnlineLibraries
 {
@@ -46,9 +44,6 @@ namespace MediaPortal.Extensions.OnlineLibraries
     private List<IMusicMatcher> MUSIC_MATCHERS = new List<IMusicMatcher>();
     private List<ISeriesMatcher> SERIES_MATCHERS = new List<ISeriesMatcher>();
     private List<IMovieMatcher> MOVIE_MATCHERS = new List<IMovieMatcher>();
-    private List<GenreMapping> MUSIC_GENRE_MAP = new List<GenreMapping>();
-    private List<GenreMapping> SERIES_GENRE_MAP = new List<GenreMapping>();
-    private List<GenreMapping> MOVIE_GENRE_MAP = new List<GenreMapping>();
     private SettingsChangeWatcher<OnlineLibrarySettings> SETTINGS_CHANGE_WATCHER = null;
 
     #region Static instance
@@ -69,6 +64,7 @@ namespace MediaPortal.Extensions.OnlineLibraries
 
       MOVIE_MATCHERS.Add(MovieTheMovieDbMatcher.Instance);
       //MOVIE_MATCHERS.Add(MovieOmDbMatcher.Instance);
+      MOVIE_MATCHERS.Add(MovieSimApiMatcher.Instance);
       MOVIE_MATCHERS.Add(MovieFanArtTvMatcher.Instance);
 
       SERIES_MATCHERS.Add(SeriesTvDbMatcher.Instance);
@@ -93,21 +89,12 @@ namespace MediaPortal.Extensions.OnlineLibraries
 
       //Music matchers
       ConfigureMatchers(MUSIC_MATCHERS, settings.MusicMatchers, settings.MusicLanguageCulture);
-      if (settings.MusicGenreMappings.Length == 0)
-        settings.MusicGenreMappings = OnlineLibrarySettings.DEFAULT_MUSIC_GENRES;
-      MUSIC_GENRE_MAP = new List<GenreMapping>(settings.MusicGenreMappings);
 
       //Movie matchers
       ConfigureMatchers(MOVIE_MATCHERS, settings.MovieMatchers, settings.MovieLanguageCulture);
-      if (settings.MovieGenreMappings.Length == 0)
-        settings.MovieGenreMappings = OnlineLibrarySettings.DEFAULT_MOVIE_GENRES;
-      MOVIE_GENRE_MAP = new List<GenreMapping>(settings.MovieGenreMappings);
 
       //Series matchers
       ConfigureMatchers(SERIES_MATCHERS, settings.SeriesMatchers, settings.SeriesLanguageCulture);
-      if (settings.SeriesGenreMappings.Length == 0)
-        settings.SeriesGenreMappings = OnlineLibrarySettings.DEFAULT_SERIES_GENRES;
-      SERIES_GENRE_MAP = new List<GenreMapping>(settings.SeriesGenreMappings);
     }
 
     protected void ConfigureMatchers<T>(ICollection<T> matchers, ICollection<MatcherSetting> settings, string languageCulture) where T : IMatcher
@@ -138,7 +125,6 @@ namespace MediaPortal.Extensions.OnlineLibraries
         list.Add(setting);
       }
       settings.MusicMatchers = list.ToArray();
-      settings.MusicGenreMappings = MUSIC_GENRE_MAP.ToArray();
 
       list.Clear();
       foreach (IMovieMatcher matcher in MOVIE_MATCHERS)
@@ -150,7 +136,6 @@ namespace MediaPortal.Extensions.OnlineLibraries
         list.Add(setting);
       }
       settings.MovieMatchers = list.ToArray();
-      settings.MovieGenreMappings = MOVIE_GENRE_MAP.ToArray();
 
       list.Clear();
       foreach (ISeriesMatcher matcher in SERIES_MATCHERS)
@@ -162,7 +147,6 @@ namespace MediaPortal.Extensions.OnlineLibraries
         list.Add(setting);
       }
       settings.SeriesMatchers = list.ToArray();
-      settings.SeriesGenreMappings = SERIES_GENRE_MAP.ToArray();
 
       ServiceRegistration.Get<ISettingsManager>().Save(settings);
     }
@@ -172,49 +156,7 @@ namespace MediaPortal.Extensions.OnlineLibraries
       LoadSettings();
     }
 
-    private bool AssignMissingGenreIds(List<GenreInfo> genres, List<GenreMapping> genreMap)
-    {
-      bool retVal = false;
-      List<GenreInfo> checkGenres = new List<GenreInfo>(genres);
-      genres.Clear();
-      foreach (GenreInfo genre in checkGenres)
-      {
-        if (genre.Id > 0)
-        {
-          if (!genres.Contains(genre))
-            genres.Add(genre);
-          continue;
-        }
-
-        if (string.IsNullOrEmpty(genre.Name))
-          continue;
-
-        GenreInfo testGenre = genre;
-        foreach (GenreMapping map in genreMap)
-        {
-          if (map.GenrePattern.Regex.IsMatch(genre.Name))
-          {
-            testGenre = new GenreInfo
-            {
-              Id = map.GenreId,
-              Name = genre.Name
-            };
-            retVal = true;
-            break;
-          }
-        }
-        if (!genres.Contains(testGenre))
-          genres.Add(testGenre);
-      }
-      return retVal;
-    }
-
     #region Audio
-
-    public bool AssignMissingMusicGenreIds(List<GenreInfo> genres)
-    {
-      return AssignMissingGenreIds(genres, MUSIC_GENRE_MAP);
-    }
 
     public List<AlbumInfo> GetLastChangedAudioAlbums()
     {
@@ -347,6 +289,13 @@ namespace MediaPortal.Extensions.OnlineLibraries
           matcher.StoreComposerMatch(person);
         }
       }
+      else if (person.Occupation == PersonAspect.OCCUPATION_CONDUCTOR)
+      {
+        foreach (IMusicMatcher matcher in MUSIC_MATCHERS)
+        {
+          matcher.StoreConductorMatch(person);
+        }
+      }
     }
 
     public void StoreAudioCompanyMatch(CompanyInfo company)
@@ -363,11 +312,6 @@ namespace MediaPortal.Extensions.OnlineLibraries
     #endregion
 
     #region Movie
-
-    public bool AssignMissingMovieGenreIds(List<GenreInfo> genres)
-    {
-      return AssignMissingGenreIds(genres, MOVIE_GENRE_MAP);
-    }
 
     public List<MovieInfo> GetLastChangedMovies()
     {
@@ -528,11 +472,6 @@ namespace MediaPortal.Extensions.OnlineLibraries
     #endregion
 
     #region Series
-
-    public bool AssignMissingSeriesGenreIds(List<GenreInfo> genres)
-    {
-      return AssignMissingGenreIds(genres, SERIES_GENRE_MAP);
-    }
 
     public List<SeriesInfo> GetLastChangedSeries()
     {

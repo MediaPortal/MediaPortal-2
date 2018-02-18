@@ -39,6 +39,10 @@ namespace MediaPortal.UiComponents.Media.Models.Navigation
   {
     public ViewItem(View view, string overrideName, int? absNumItems) : base(absNumItems)
     {
+      if (view.Specification is MediaLibraryBrowseViewSpecification mlbvs)
+      {
+        Id = mlbvs.DirectoryId.ToString();
+      }
       SimpleTitle = string.IsNullOrEmpty(overrideName) ? view.DisplayName : overrideName;
       var itemCount = view.MediaItems.Count;
       if (itemCount > 0)

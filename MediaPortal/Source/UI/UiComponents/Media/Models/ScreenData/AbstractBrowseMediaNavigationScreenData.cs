@@ -100,7 +100,7 @@ namespace MediaPortal.UiComponents.Media.Models.ScreenData
         IServerConnectionManager serverConnectionManager = ServiceRegistration.Get<IServerConnectionManager>();
         IContentDirectory contentDirectory = serverConnectionManager.ContentDirectory;
         if (contentDirectory != null)
-          result = contentDirectory.GetShares(serverConnectionManager.HomeServerSystemId, SharesFilter.All).BestContainingPath(path);
+          result = contentDirectory.GetSharesAsync(serverConnectionManager.HomeServerSystemId, SharesFilter.All).Result.BestContainingPath(path);
       }
       return result;
     }

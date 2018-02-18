@@ -127,7 +127,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
       }
 
       _checkCache.Add(mediaItemId);
-      Task.Run(() => ExtractFanArt(mediaItemId, aspects, albumMediaItemId, artistMediaItems));
+      ExtractFanArt(mediaItemId, aspects, albumMediaItemId, artistMediaItems);
     }
 
     private void ExtractFanArt(Guid mediaItemId, IDictionary<Guid, IList<MediaItemAspect>> aspects, Guid? albumMediaItemId, IDictionary<Guid, string> artistMediaItems)
@@ -199,6 +199,12 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
         return;
 
       ExtractFolderImages(mediaItemLocater, albumMediaItemId, artistMediaItems, albumTitle);
+
+      SingleMediaItemAspect mediaAspect;
+      if (MediaItemAspect.TryGetAspect(aspects, MediaAspect.Metadata, out mediaAspect))
+        if (mediaAspect.GetAttributeValue<bool>(MediaAspect.ATTR_ISSTUB) == true)
+          return; //Cannot extract images from stub files
+
       using (IResourceAccessor mediaItemAccessor = mediaItemLocater.CreateAccessor())
       {
         using (LocalFsResourceAccessorHelper rah = new LocalFsResourceAccessorHelper(mediaItemAccessor))
@@ -333,7 +339,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
                 discArtPaths.AddRange(
                     from potentialFanArtFile in potentialFanArtFiles
                     let potentialFanArtFileNameWithoutExtension = ResourcePathHelper.GetFileNameWithoutExtension(potentialFanArtFile.ToString()).ToLowerInvariant()
-                    where potentialFanArtFileNameWithoutExtension == "discart" || potentialFanArtFileNameWithoutExtension == "disc"
+                    where potentialFanArtFileNameWithoutExtension == "cdart" || potentialFanArtFileNameWithoutExtension == "discart" || potentialFanArtFileNameWithoutExtension == "disc"
                     select potentialFanArtFile);
 
                 fanArtPaths.AddRange(
@@ -349,8 +355,8 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
             }
             foreach (ResourcePath posterPath in coverPaths)
               SaveFolderFile(mediaItemLocater, posterPath, FanArtTypes.Cover, albumMediaItemId.Value, albumTitle);
-            foreach (ResourcePath discartPath in discArtPaths)
-              SaveFolderFile(mediaItemLocater, discartPath, FanArtTypes.DiscArt, albumMediaItemId.Value, albumTitle);
+            foreach (ResourcePath discArtPath in discArtPaths)
+              SaveFolderFile(mediaItemLocater, discArtPath, FanArtTypes.DiscArt, albumMediaItemId.Value, albumTitle);
             foreach (ResourcePath fanartPath in fanArtPaths)
               SaveFolderFile(mediaItemLocater, fanartPath, FanArtTypes.FanArt, albumMediaItemId.Value, albumTitle);
 
@@ -502,7 +508,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
 
     public void DeleteFanArt(Guid mediaItemId)
     {
-      Task.Run(() => FanArtCache.DeleteFanArtFiles(mediaItemId.ToString()));
+      FanArtCache.DeleteFanArtFiles(mediaItemId.ToString());
     }
 
     public void ClearCache()

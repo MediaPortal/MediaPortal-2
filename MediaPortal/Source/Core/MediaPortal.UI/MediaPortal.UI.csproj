@@ -145,6 +145,7 @@
     <Compile Include="ServerCommunication\Settings\FrontendServerSettings.cs" />
     <Compile Include="ServerCommunication\Settings\ServerConnectionSettings.cs" />
     <Compile Include="Services\FrontendServer\FrontendServer.cs" />
+    <Compile Include="Services\MediaManagement\RelationshipTypeRegistration.cs" />
     <Compile Include="Services\Players\Builders\PlayerBuilder.cs" />
     <Compile Include="Services\Players\PCMOpenPlayerStrategy\PreservePiP.cs" />
     <Compile Include="Services\Players\PCMOpenPlayerStrategy\Default.cs" />
@@ -169,8 +170,9 @@
     <Compile Include="Services\Shares\LocalSharesManagement.cs" />
     <Compile Include="Presentation\UiNotifications\DefaultNotification.cs" />
     <Compile Include="Services\UiNotifications\NotificationService.cs" />
-    <Compile Include="Services\UserManagement\IUserManagement.cs" />
+    <Compile Include="Services\UserManagement\UserMessageHandler.cs" />
     <Compile Include="Services\UserManagement\UserManagement.cs" />
+    <Compile Include="Services\UserManagement\UserMessaging.cs" />
     <Compile Include="Services\Workflow\ShortcutResourcesLoader.cs" />
     <Compile Include="Services\Workflow\WorkflowStateBuilder.cs" />
     <Compile Include="Settings\StartupSettings.cs" />

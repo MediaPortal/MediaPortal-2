@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2017 Team MediaPortal
+#region Copyright (C) 2007-2015 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2017 Team MediaPortal
+    Copyright (C) 2007-2015 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -56,7 +56,9 @@ protected AbstractProperty _trackProperty;
 protected AbstractProperty _numTracksProperty;
 protected AbstractProperty _albumArtistsProperty;
 protected AbstractProperty _composersProperty;
+protected AbstractProperty _conductorsProperty;
 protected AbstractProperty _encodingProperty;
+protected AbstractProperty _contentGroupProperty;
 protected AbstractProperty _bitRateProperty;
 protected AbstractProperty _channelsProperty;
 protected AbstractProperty _sampleRateProperty;
@@ -191,6 +193,17 @@ public IEnumerable<string> Composers
   set { _composersProperty.SetValue(value); }
 }
 
+public AbstractProperty ConductorsProperty
+{
+  get{ return _conductorsProperty; }
+}
+
+public IEnumerable<string> Conductors
+{
+  get { return (IEnumerable<string>) _conductorsProperty.GetValue(); }
+  set { _conductorsProperty.SetValue(value); }
+}
+
 public AbstractProperty EncodingProperty
 {
   get{ return _encodingProperty; }
@@ -200,6 +213,17 @@ public string Encoding
 {
   get { return (string) _encodingProperty.GetValue(); }
   set { _encodingProperty.SetValue(value); }
+}
+
+public AbstractProperty ContentGroupProperty
+{
+  get{ return _contentGroupProperty; }
+}
+
+public string ContentGroup
+{
+  get { return (string) _contentGroupProperty.GetValue(); }
+  set { _contentGroupProperty.SetValue(value); }
 }
 
 public AbstractProperty BitRateProperty
@@ -307,7 +331,9 @@ public AudioAspectWrapper()
   _numTracksProperty = new SProperty(typeof(int?));
   _albumArtistsProperty = new SProperty(typeof(IEnumerable<string>));
   _composersProperty = new SProperty(typeof(IEnumerable<string>));
+  _conductorsProperty = new SProperty(typeof(IEnumerable<string>));
   _encodingProperty = new SProperty(typeof(string));
+  _contentGroupProperty = new SProperty(typeof(string));
   _bitRateProperty = new SProperty(typeof(int?));
   _channelsProperty = new SProperty(typeof(int?));
   _sampleRateProperty = new SProperty(typeof(long?));
@@ -347,8 +373,10 @@ public void Init(MediaItem mediaItem)
   Track = (int?) aspect[AudioAspect.ATTR_TRACK];
   NumTracks = (int?) aspect[AudioAspect.ATTR_NUMTRACKS];
   AlbumArtists = (IEnumerable<string>) aspect[AudioAspect.ATTR_ALBUMARTISTS] ?? EMPTY_STRING_COLLECTION;
+  Conductors = (IEnumerable<string>) aspect[AudioAspect.ATTR_CONDUCTERS] ?? EMPTY_STRING_COLLECTION;
   Composers = (IEnumerable<string>) aspect[AudioAspect.ATTR_COMPOSERS] ?? EMPTY_STRING_COLLECTION;
   Encoding = (string) aspect[AudioAspect.ATTR_ENCODING];
+  ContentGroup = (string) aspect[AudioAspect.ATTR_CONTENT_GROUP];
   BitRate = (int?) aspect[AudioAspect.ATTR_BITRATE];
   SampleRate = (long?) aspect[AudioAspect.ATTR_SAMPLERATE];
   Channels = (int?) aspect[AudioAspect.ATTR_CHANNELS];
@@ -370,8 +398,10 @@ public void SetEmpty()
   Track = null;
   NumTracks = null;
   AlbumArtists = EMPTY_STRING_COLLECTION;
+  Conductors = EMPTY_STRING_COLLECTION;
   Composers = EMPTY_STRING_COLLECTION;
   Encoding = null;
+  ContentGroup = null;
   BitRate = null;
   SampleRate = null;
   Channels = null;

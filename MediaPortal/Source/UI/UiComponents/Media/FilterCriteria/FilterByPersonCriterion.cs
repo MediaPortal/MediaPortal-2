@@ -33,7 +33,7 @@ namespace MediaPortal.UiComponents.Media.FilterCriteria
   {
     public FilterByPersonCriterion(Guid role, Guid linkedRole) :
       base(role, linkedRole, Consts.NECESSARY_PERSON_MIAS, Consts.OPTIONAL_PERSON_MIAS,
-        new SortInformation(PersonAspect.ATTR_PERSON_NAME, SortDirection.Ascending))
+        new AttributeSortInformation(PersonAspect.ATTR_PERSON_NAME, SortDirection.Ascending))
     {
     }
   }

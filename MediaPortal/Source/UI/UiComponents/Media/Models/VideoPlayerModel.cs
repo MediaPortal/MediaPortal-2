@@ -48,7 +48,6 @@ namespace MediaPortal.UiComponents.Media.Models
     public const string MODEL_ID_STR = "4E2301B4-3C17-4a1d-8DE5-2CEA169A0256";
     public static readonly Guid MODEL_ID = new Guid(MODEL_ID_STR);
 
-    private bool _isPlayerConfigOpen;
     protected AbstractProperty _isPipProperty;
 
     public VideoPlayerModel() : base(Consts.WF_STATE_ID_CURRENTLY_PLAYING_VIDEO, Consts.WF_STATE_ID_FULLSCREEN_VIDEO)
@@ -92,7 +91,6 @@ namespace MediaPortal.UiComponents.Media.Models
           bool isPlayerConfigDialog = ServiceRegistration.Get<IWorkflowManager>().CurrentNavigationContext.WorkflowState.StateId.ToString().Equals("D0B79345-69DF-4870-B80E-39050434C8B3", StringComparison.OrdinalIgnoreCase);
           if (isPlayerConfigDialog)
           {
-            _isPlayerConfigOpen = true;
             IsOSDVisible = false;
           }
         }
@@ -102,7 +100,6 @@ namespace MediaPortal.UiComponents.Media.Models
           ICollection<Guid> statesRemoved = new List<Guid>(((IDictionary<Guid, NavigationContext>)message.MessageData[WorkflowManagerMessaging.CONTEXTS]).Keys);
           if (statesRemoved.Contains(new Guid("D0B79345-69DF-4870-B80E-39050434C8B3")))
           {
-            _isPlayerConfigOpen = false;
             _isOsdOpenOnDemand = false;
             SetLastOSDMouseUsageTime();
           }

@@ -24,11 +24,7 @@
 
 using MediaPortal.Common.Configuration.ConfigurationClasses;
 using MediaPortal.Common.Localization;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using MediaPortal.UiComponents.Media.Helpers;
 
 namespace MediaPortal.UiComponents.Media.Settings.Configuration
 {
@@ -61,6 +57,9 @@ namespace MediaPortal.UiComponents.Media.Settings.Configuration
       settings.ShowVirtualMovieMedia = _selected.Contains(1);
       settings.ShowVirtualSeriesMedia = _selected.Contains(2);
       SettingsManager.Save(settings);
+      VirtualMediaHelper.ShowVirtualAudioMedia = settings.ShowVirtualAudioMedia;
+      VirtualMediaHelper.ShowVirtualMovieMedia = settings.ShowVirtualMovieMedia;
+      VirtualMediaHelper.ShowVirtualSeriesMedia = settings.ShowVirtualSeriesMedia;
     }
   }
 }

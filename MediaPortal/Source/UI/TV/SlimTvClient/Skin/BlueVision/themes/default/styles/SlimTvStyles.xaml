@@ -596,7 +596,7 @@
                   <Binding Source="{StaticResource SlimTvMultiChannelGuide}" Path="ShowChannelNumbers" />
                 </Label.IsVisible>
               </Label>
-              <Image x:Name="ChannelLogo" Grid.Column="1" Stretch="Uniform" Margin="5,-1,0,-1" Width="92" HorizontalAlignment="Center"
+              <Image x:Name="ChannelLogo" Grid.Column="1" Stretch="Uniform" Margin="5,-1,0,-1" Width="{ThemeResource ChannelLogoWidth}" HorizontalAlignment="Center"
                      Height="{Binding ElementName=ChannelHeader,Path=ActualHeight}">
                 <Image.Source>
                   <fanart:FanArtImageSource fanart:FanArtMediaType="{Binding ChannelLogoType}" fanart:FanArtType="Banner"

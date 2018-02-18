@@ -48,7 +48,7 @@ namespace MediaPortal.Plugins.ServerSettings.UPnP
 
         return SettingsSerializer.Deserialize(settingsTypeName, (string) outParameters[0]);
       }
-      catch (Exception ex)
+      catch (Exception)
       {
         throw;
       }
@@ -62,7 +62,7 @@ namespace MediaPortal.Plugins.ServerSettings.UPnP
         IList<object> inParameters = new List<object> { settingsTypeName, settings };
         action.InvokeAction(inParameters);
       }
-      catch (Exception ex)
+      catch (Exception)
       {
         throw;
       }

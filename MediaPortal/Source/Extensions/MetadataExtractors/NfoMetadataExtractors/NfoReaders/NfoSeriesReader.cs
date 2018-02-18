@@ -81,6 +81,20 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoRea
 
     #endregion
 
+    #region Private fields
+
+    /// <summary>
+    /// If true, episode details will also be read from the nfo-file
+    /// </summary>
+    private bool _readEpisodes;
+
+    /// <summary>
+    /// If true, file details will also be read from the nfo-file
+    /// </summary>
+    private bool _readFileDetails;
+
+    #endregion
+
     #region Ctor
 
     /// <summary>
@@ -90,11 +104,14 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoRea
     /// <param name="miNumber">Unique number of the MediaItem for which the nfo-file is parsed</param>
     /// <param name="importOnly">If true, this is an import only cycle meaning no refresh of existing media</param>
     /// <param name="forceQuickMode">If true, no long lasting operations such as parsing images are performed</param>
+    /// <param name="readEpisodes">If true, episode details will also be read from the nfo-file</param>
     /// <param name="httpClient"><see cref="HttpClient"/> used to download from http URLs contained in nfo-files</param>
     /// <param name="settings">Settings of the <see cref="NfoSeriesMetadataExtractor"/></param>
-    public NfoSeriesReader(ILogger debugLogger, long miNumber, bool importOnly, bool forceQuickMode, HttpClient httpClient, NfoSeriesMetadataExtractorSettings settings)
+    public NfoSeriesReader(ILogger debugLogger, long miNumber, bool importOnly, bool forceQuickMode, bool readEpisodes, bool readFileDetails, HttpClient httpClient, NfoSeriesMetadataExtractorSettings settings)
       : base(debugLogger, miNumber, importOnly, forceQuickMode, httpClient, settings)
     {
+      _readEpisodes = readEpisodes;
+      _readFileDetails = readFileDetails;
       _settings = settings;
       InitializeSupportedElements();
     }
@@ -140,6 +157,8 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoRea
       _supportedElements.Add("rating", new TryReadElementDelegate(TryReadRating));
       _supportedElements.Add("votes", new TryReadElementDelegate(TryReadVotes));
       _supportedElements.Add("top250", new TryReadElementDelegate(TryReadTop250));
+
+      _supportedElements.Add("episodedetails", new TryReadElementAsyncDelegate(TryReadEpisodeAsync));
 
       // The following element readers have been added above, but are replaced by the Ignore method here for performance reasons
       // ToDo: Reenable the below once we can store the information in the MediaLibrary
@@ -295,6 +314,13 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoRea
         value.Name = ParseSimpleString(element.Element("setname"));
         value.Description = ParseSimpleString(element.Element("setdescription"));
         value.Rule = ParseSimpleString(element.Element("setrule"));
+        value.TmdbId = ParseSimpleInt(element.Element("tmdbid"));
+        if (!value.TmdbId.HasValue)
+          value.TmdbId = ParseSimpleInt(element.Element("tmdbId"));
+        if (!value.TmdbId.HasValue)
+          value.TmdbId = ParseSimpleInt(element.Element("thmdb"));
+        if (!value.TmdbId.HasValue)
+          value.TmdbId = ParseSimpleInt(element.Element("tmdb"));
         //ToDo: Reenable parsing <setimage> child elements once we can store them in the MediaLibrary
         value.Image = await Task.FromResult<byte[]>(null); // ParseSimpleImageAsync(element.Element("setimage"), nfoDirectoryFsra).ConfigureAwait(false);
       }
@@ -497,6 +523,31 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoRea
           _debugLogger.Warn("[#{0}]: Unknown child element: {1}", _miNumber, childElement);
       }
       return result;
+    }
+
+    /// <summary>
+    /// Tries to (asynchronously) read an epsiode value
+    /// </summary>
+    /// <param name="element"><see cref="XElement"/> to read from</param>
+    /// <param name="nfoDirectoryFsra"><see cref="IFileSystemResourceAccessor"/> to the parent directory of the nfo-file</param>
+    /// <returns><c>true</c> if a value was found in <paramref name="element"/>; otherwise <c>false</c></returns>
+    private async Task<bool> TryReadEpisodeAsync(XElement element, IFileSystemResourceAccessor nfoDirectoryFsra)
+    {
+      if (!_readEpisodes)
+        return false;
+
+      NfoSeriesEpisodeReader episodeNfoReader = new NfoSeriesEpisodeReader(_debugLogger, _miNumber, _importOnly, _forceQuickMode, _readFileDetails, _httpDownloadClient, (NfoSeriesMetadataExtractorSettings)_settings);
+      // For examples of valid element values see the comment in NfoReaderBase.ParsePerson
+      if(await episodeNfoReader.TryReadElementAsync(element, nfoDirectoryFsra).ConfigureAwait(false))
+      {
+        if (_currentStub.Episodes == null)
+          _currentStub.Episodes = new HashSet<SeriesEpisodeStub>();
+        foreach (SeriesEpisodeStub stub in episodeNfoReader.GetEpisodeStubs())         
+          _currentStub.Episodes.Add(stub);
+
+        return true;
+      }
+      return false;
     }
 
     #endregion

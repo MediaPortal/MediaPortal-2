@@ -59,6 +59,7 @@ namespace MediaPortal.Common.MediaManagement.MLQueries
     /// <summary>
     /// For internal use of the XML serialization system only.
     /// </summary>
+    [XmlAttribute("LinkedId")]
     public Guid XML_LinkedId
     {
       get { return _linkedMediaItemId; }

@@ -58,6 +58,7 @@ namespace MediaPortal.Common.Services.MediaManagement
     private readonly CancellationTokenSource _cts;
     private readonly List<ImporterWorkerDataflowBlockBase> _dataflowBlocks;
     private readonly ConcurrentDictionary<ResourcePath, PendingImportResourceNewGen> _pendingImportResources;
+    private readonly Dictionary<ResourcePath, int> _pendingStubResourcesRefCount;
     private int _numberOfLastPendingImportResource;
     private int _numberOfDisposedPendingImportResources;
     private bool _notifyProgress;
@@ -75,6 +76,7 @@ namespace MediaPortal.Common.Services.MediaManagement
       _numberOfDisposedPendingImportResources = 0;
       _notifyProgress = true;
       _pendingImportResources = new ConcurrentDictionary<ResourcePath, PendingImportResourceNewGen>();
+      _pendingStubResourcesRefCount = new Dictionary<ResourcePath, int>();
       _importJobControllerCompletion = new TaskCompletionSource<object>();
       _firstBlockHasFinished = new TaskCompletionSource<object>();
       _cts = new CancellationTokenSource();
@@ -198,6 +200,20 @@ namespace MediaPortal.Common.Services.MediaManagement
     {
       if (!_pendingImportResources.TryAdd(pendingImportResource.PendingResourcePath, pendingImportResource))
       {
+        // Stubs are special because they are all based on the same resource path and therefore should not 
+        // be disposed.
+        if (pendingImportResource.IsValid && pendingImportResource.IsStubResource)
+        {
+          lock(_pendingStubResourcesRefCount)
+          {
+            if (!_pendingStubResourcesRefCount.ContainsKey(pendingImportResource.PendingResourcePath))
+              _pendingStubResourcesRefCount.Add(pendingImportResource.PendingResourcePath, 1);
+            else
+              _pendingStubResourcesRefCount[pendingImportResource.PendingResourcePath]++;
+          }
+          return;
+        }
+
         // Due to the BoundedCapacity of the of FileUnfoldBlock.OutputBlock and MetadataExtractorBlock.InputBlock
         // it may be the case that a directory resource has already been processed by the FileUnfoldBlock but is
         // not immediately passed to the MetadataExtractorBlock.InputBlock, where its CurrentBlock property is set.
@@ -212,6 +228,21 @@ namespace MediaPortal.Common.Services.MediaManagement
 
     public void UnregisterPendingImportResource(PendingImportResourceNewGen pendingImportResource)
     {
+      // Stubs resource should be disposed after first
+      if (pendingImportResource.IsValid && pendingImportResource.IsStubResource)
+      {
+        lock (_pendingStubResourcesRefCount)
+        {
+          if (_pendingStubResourcesRefCount.ContainsKey(pendingImportResource.PendingResourcePath))
+          {
+            _pendingStubResourcesRefCount[pendingImportResource.PendingResourcePath]--;
+            if (_pendingStubResourcesRefCount[pendingImportResource.PendingResourcePath] <= 0)
+              _pendingStubResourcesRefCount.Remove(pendingImportResource.PendingResourcePath);
+            return;
+          }
+        }
+      }
+
       // We need to make sure that only the PendingImportResource object that is registered can unregister itself, hence
       // the ReferenceEquals condition. If we don't do that and have two different PendingImportResource objects pointing
       // to the same ResourcePath (which are therefore "equal"), the registration fails as described above, but the 
@@ -354,7 +385,6 @@ namespace MediaPortal.Common.Services.MediaManagement
           _dataflowBlocks.Add(new DirectoryUnfoldBlock(_cts.Token, _importJobInformation, this));
           _dataflowBlocks.Add(new DirectorySaveBlock(_cts.Token, _importJobInformation, this));
           _dataflowBlocks.Add(new FileUnfoldBlock(_cts.Token, _importJobInformation, this));
-          _dataflowBlocks.Add(new ChangeUnfoldBlock(_cts.Token, _importJobInformation, this));
           _dataflowBlocks.Add(new MediaItemLoadBlock(_cts.Token, _importJobInformation, this));
           _dataflowBlocks.Add(new MetadataExtractorBlock(_cts.Token, _importJobInformation, this, false));
           _dataflowBlocks.Add(new MediaItemSaveBlock(_cts.Token, _importJobInformation, this));

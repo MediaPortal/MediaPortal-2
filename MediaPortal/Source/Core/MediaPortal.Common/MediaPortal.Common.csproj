@@ -78,14 +78,20 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ApplicationCore.cs" />
+    <Compile Include="Commands\AsyncMethodDelegateCommand.cs" />
+    <Compile Include="Certifications\CertificationMapper.cs" />
+    <Compile Include="Certifications\CetificationMapping.cs" />
     <Compile Include="Exceptions\LauncherExceptionHandling.cs" />
     <Compile Include="FanArt\FanArtCache.cs" />
     <Compile Include="FanArt\FanArtConstants.cs" />
     <Compile Include="FanArt\FanArtSettings.cs" />
+    <Compile Include="Genres\GenreMapper.cs" />
     <Compile Include="Genres\SeriesGenre.cs" />
     <Compile Include="Genres\MovieGenre.cs" />
     <Compile Include="Genres\MusicGenre.cs" />
+    <Compile Include="Genres\GenreStringManager.cs" />
     <Compile Include="Logging\ILoggerConfig.cs" />
+    <Compile Include="MediaManagement\DefaultItemAspects\StubAspect.cs" />
     <Compile Include="MediaManagement\DefaultItemAspects\GenreAspect.cs" />
     <Compile Include="MediaManagement\DefaultItemAspects\SelectionMarkerAspect.cs" />
     <Compile Include="MediaManagement\DefaultItemAspects\AudioAlbumAspect.cs" />
@@ -99,6 +105,7 @@
     <Compile Include="MediaManagement\DefaultItemAspects\SubtitleAspect.cs" />
     <Compile Include="MediaManagement\DefaultItemAspects\VideoStreamAspect.cs" />
     <Compile Include="MediaManagement\DefaultItemAspects\VideoAudioStreamAspect.cs" />
+    <Compile Include="Genres\GenreMapping.cs" />
     <Compile Include="MediaManagement\Helpers\GenreInfo.cs" />
     <Compile Include="MediaManagement\Helpers\BaseInfo.cs" />
     <Compile Include="MediaManagement\Helpers\RelationshipCache.cs" />
@@ -113,20 +120,30 @@
     <Compile Include="MediaManagement\Helpers\AlbumInfo.cs" />
     <Compile Include="MediaManagement\Helpers\TrackInfo.cs" />
     <Compile Include="MediaManagement\IMediaFanArtHandler.cs" />
+    <Compile Include="MediaManagement\IRelationshipTypeRegistration.cs" />
     <Compile Include="MediaManagement\IMediaMergeHandler.cs" />
     <Compile Include="MediaManagement\IRelationshipExtractor.cs" />
     <Compile Include="MediaManagement\FanArtHandlerMetadata.cs" />
     <Compile Include="MediaManagement\MergeHandlerMetadata.cs" />
+    <Compile Include="MediaManagement\MetadataUpdater.cs" />
     <Compile Include="MediaManagement\MLQueries\AbstractRelationshipFilter.cs" />
     <Compile Include="MediaManagement\MLQueries\AbstractUserDataFilter.cs" />
+    <Compile Include="MediaManagement\MLQueries\DataSortInformation.cs" />
     <Compile Include="MediaManagement\MLQueries\EmptyUserDataFilter.cs" />
+    <Compile Include="MediaManagement\MLQueries\AttributeSortInformation.cs" />
+    <Compile Include="MediaManagement\MLQueries\ISortInformation.cs" />
     <Compile Include="MediaManagement\MLQueries\RelationshipFilter.cs" />
     <Compile Include="MediaManagement\MLQueries\IUserDataFilter.cs" />
     <Compile Include="MediaManagement\MLQueries\RelationalUserDataFilter.cs" />
+    <Compile Include="Genres\GenreSettings.cs" />
     <Compile Include="MediaManagement\RelationshipExtractorMetadata.cs" />
-    <Compile Include="MediaManagement\RelationshipHierarchy.cs" />
+    <Compile Include="MediaManagement\RelationshipType.cs" />
     <Compile Include="MediaManagement\MLQueries\FilteredRelationshipFilter.cs" />
     <Compile Include="MediaManagement\RelationshipItem.cs" />
+    <Compile Include="MediaManagement\TransientAspects\TempAlbumAspect.cs" />
+    <Compile Include="MediaManagement\TransientAspects\TempActorAspect.cs" />
+    <Compile Include="MediaManagement\TransientAspects\TempArtistAspect.cs" />
+    <Compile Include="MediaManagement\TransientAspects\TempSeriesAspect.cs" />
     <Compile Include="ResourceAccess\IUncachableResource.cs" />
     <Compile Include="ResourceAccess\IImpersonationService.cs" />
     <Compile Include="Services\Dokan\DokanFileInfo.cs" />
@@ -147,7 +164,6 @@
     <Compile Include="Services\Logging\LogSettings.cs" />
     <Compile Include="Services\MediaManagement\ImportDataflowBlocks\AsyncManualResetEvent.cs" />
     <Compile Include="Services\MediaManagement\ImportDataflowBlocks\DirectorySaveBlock.cs" />
-    <Compile Include="Services\MediaManagement\ImportDataflowBlocks\ChangeUnfoldBlock.cs" />
     <Compile Include="Services\MediaManagement\ImportDataflowBlocks\FileUnfoldBlock.cs" />
     <Compile Include="Services\MediaManagement\ImportDataflowBlocks\ImporterWorkerDataflowBlockBase.cs" />
     <Compile Include="Services\MediaManagement\ImportDataflowBlocks\MediaItemLoadBlock.cs" />
@@ -181,12 +197,14 @@
     <Compile Include="Services\ResourceAccess\RawUrlResourceProvider\RawUrlResourceProvider.cs" />
     <Compile Include="Services\ResourceAccess\RawUrlResourceProvider\RawUrlResourceAccessor.cs" />
     <Compile Include="Services\Runtime\PowerEventHandler.cs" />
+    <Compile Include="Services\ServerCommunication\AsyncExtensions.cs" />
     <Compile Include="Services\ServerCommunication\UPnPServerWatcher.cs" />
     <Compile Include="Services\Settings\SettingsChangeWatcher.cs" />
     <Compile Include="Services\Settings\SettingsManagerMessaging.cs" />
     <Compile Include="Services\TaskScheduler\TaskWaitableTimer.cs" />
     <Compile Include="Services\ThumbnailGenerator\IThumbnailProvider.cs" />
     <Compile Include="Services\ThumbnailGenerator\ThumbnailProviderBuilder.cs" />
+    <Compile Include="Settings\SerializableRegex.cs" />
     <Compile Include="SystemCommunication\MPClientMetadata.cs" />
     <Compile Include="Commands\CommandList.cs" />
     <Compile Include="Commands\ICommand.cs" />
@@ -478,7 +496,9 @@
     <Compile Include="UPnP\UPnPDtShare.cs" />
     <Compile Include="UPnP\UPnPDtUserProfile.cs" />
     <Compile Include="UPnP\UPnPDtUserProfileEnumeration.cs" />
+    <Compile Include="UserManagement\IUserManagement.cs" />
     <Compile Include="UserProfileDataManagement\IUserProfileDataManagement.cs" />
+    <Compile Include="UserProfileDataManagement\IUserRestriction.cs" />
     <Compile Include="UserProfileDataManagement\UserDataKeysKnown.cs" />
     <Compile Include="UserProfileDataManagement\UserProfile.cs" />
     <Compile Include="VersionInfo\VersionInfo.cs" />
@@ -496,10 +516,15 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <Content Include="Genres\Language\strings_en.xml">
+      <SubType>Designer</SubType>
+    </Content>
     <Content Include="References\log4net.dll" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="build.targets" />
+    <None Include="build.targets">
+      <SubType>Designer</SubType>
+    </None>
     <None Include="packages.config" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

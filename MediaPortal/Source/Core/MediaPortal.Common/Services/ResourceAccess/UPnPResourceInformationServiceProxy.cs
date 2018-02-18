@@ -35,7 +35,7 @@ using UPnP.Infrastructure.CP.DeviceTree;
 namespace MediaPortal.Common.Services.ResourceAccess
 {
   /// <summary>
-  /// Encapsulates the MediaPortal 2 UPnP client's proxy for the ContentDirectory service.
+  /// Encapsulates the MediaPortal 2 UPnP client's proxy for the ResourceInformationService service.
   /// </summary>
   public class UPnPResourceInformationServiceProxy : UPnPServiceProxyBase, IResourceInformationService
   {

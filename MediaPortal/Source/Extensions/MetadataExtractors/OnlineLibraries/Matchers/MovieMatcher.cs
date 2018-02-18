@@ -40,6 +40,8 @@ using MediaPortal.Extensions.OnlineLibraries.Matches;
 using MediaPortal.Extensions.OnlineLibraries.Wrappers;
 using MediaPortal.Extensions.OnlineLibraries.Libraries;
 using System.Linq;
+using MediaPortal.Common.MediaManagement;
+using MediaPortal.Common.Genres;
 
 namespace MediaPortal.Extensions.OnlineLibraries.Matchers
 {
@@ -127,7 +129,6 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
 
     public static string FANART_CACHE_PATH = ServiceRegistration.Get<IPathManager>().GetPath(@"<DATA>\FanArt\");
     private TimeSpan CACHE_CHECK_INTERVAL = TimeSpan.FromMinutes(60);
-    private const int MAX_PERSONS = 10;
 
     protected override string MatchesSettingsFile
     {
@@ -326,52 +327,12 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
 
         if (matchFound)
         {
-          movieInfo.HasChanged |= MetadataUpdater.SetOrUpdateId(ref movieInfo.ImdbId, movieMatch.ImdbId);
-          movieInfo.HasChanged |= MetadataUpdater.SetOrUpdateId(ref movieInfo.MovieDbId, movieMatch.MovieDbId);
-          movieInfo.HasChanged |= MetadataUpdater.SetOrUpdateId(ref movieInfo.CollectionMovieDbId, movieMatch.CollectionMovieDbId);
+          movieInfo.MergeWith(movieMatch, true);
 
-          movieInfo.HasChanged |= MetadataUpdater.SetOrUpdateString(ref movieInfo.MovieName, movieMatch.MovieName);
-          movieInfo.HasChanged |= MetadataUpdater.SetOrUpdateString(ref movieInfo.OriginalName, movieMatch.OriginalName);
-          movieInfo.HasChanged |= MetadataUpdater.SetOrUpdateString(ref movieInfo.Summary, movieMatch.Summary);
-          movieInfo.HasChanged |= MetadataUpdater.SetOrUpdateString(ref movieInfo.Certification, movieMatch.Certification);
-          movieInfo.HasChanged |= MetadataUpdater.SetOrUpdateString(ref movieInfo.CollectionName, movieMatch.CollectionName);
-          movieInfo.HasChanged |= MetadataUpdater.SetOrUpdateString(ref movieInfo.Tagline, movieMatch.Tagline);
-
-          movieInfo.HasChanged |= MetadataUpdater.SetOrUpdateValue(ref movieInfo.Budget, movieMatch.Budget);
-          movieInfo.HasChanged |= MetadataUpdater.SetOrUpdateValue(ref movieInfo.Revenue, movieMatch.Revenue);
-          movieInfo.HasChanged |= MetadataUpdater.SetOrUpdateValue(ref movieInfo.Runtime, movieMatch.Runtime);
-          movieInfo.HasChanged |= MetadataUpdater.SetOrUpdateValue(ref movieInfo.ReleaseDate, movieMatch.ReleaseDate);
-          movieInfo.HasChanged |= MetadataUpdater.SetOrUpdateValue(ref movieInfo.Popularity, movieMatch.Popularity);
-          movieInfo.HasChanged |= MetadataUpdater.SetOrUpdateValue(ref movieInfo.Score, movieMatch.Score);
-
-          movieInfo.HasChanged |= MetadataUpdater.SetOrUpdateRatings(ref movieInfo.Rating, movieMatch.Rating);
-          if (movieInfo.Genres.Count == 0)
-          {
-            movieInfo.HasChanged |= MetadataUpdater.SetOrUpdateList(movieInfo.Genres, movieMatch.Genres.Distinct().ToList(), true);
-          }
           if (movieInfo.Genres.Count > 0)
           {
-            movieInfo.HasChanged |= OnlineMatcherService.Instance.AssignMissingMovieGenreIds(movieInfo.Genres);
+            movieInfo.HasChanged |= GenreMapper.AssignMissingMovieGenreIds(movieInfo.Genres, language.ToString());
           }
-          movieInfo.HasChanged |= MetadataUpdater.SetOrUpdateList(movieInfo.Awards, movieMatch.Awards.Distinct().ToList(), true);
-
-          //Limit the number of persons
-          if(movieInfo.Actors.Count == 0 && movieMatch.Actors.Count > MAX_PERSONS)
-            movieMatch.Actors.RemoveRange(MAX_PERSONS, movieMatch.Actors.Count - MAX_PERSONS);
-          if (movieInfo.Characters.Count == 0 && movieMatch.Characters.Count > MAX_PERSONS)
-            movieMatch.Characters.RemoveRange(MAX_PERSONS, movieMatch.Characters.Count - MAX_PERSONS);
-          if (movieInfo.Directors.Count == 0 && movieMatch.Directors.Count > MAX_PERSONS)
-            movieMatch.Directors.RemoveRange(MAX_PERSONS, movieMatch.Directors.Count - MAX_PERSONS);
-          if (movieInfo.Writers.Count == 0 && movieMatch.Writers.Count > MAX_PERSONS)
-            movieMatch.Writers.RemoveRange(MAX_PERSONS, movieMatch.Writers.Count - MAX_PERSONS);
-
-          //These lists contain Ids and other properties that are not persisted, so they will always appear changed.
-          //So changes to these lists will only be stored if something else has changed.
-          MetadataUpdater.SetOrUpdateList(movieInfo.Actors, movieMatch.Actors.Where(p => !string.IsNullOrEmpty(p.Name)).Distinct().ToList(), movieInfo.Actors.Count == 0);
-          MetadataUpdater.SetOrUpdateList(movieInfo.Characters, movieMatch.Characters.Where(p => !string.IsNullOrEmpty(p.Name)).Distinct().ToList(), movieInfo.Characters.Count == 0);
-          MetadataUpdater.SetOrUpdateList(movieInfo.Directors, movieMatch.Directors.Where(p => !string.IsNullOrEmpty(p.Name)).Distinct().ToList(), movieInfo.Directors.Count == 0);
-          MetadataUpdater.SetOrUpdateList(movieInfo.ProductionCompanies, movieMatch.ProductionCompanies.Where(c => !string.IsNullOrEmpty(c.Name)).Distinct().ToList(), movieInfo.ProductionCompanies.Count == 0);
-          MetadataUpdater.SetOrUpdateList(movieInfo.Writers, movieMatch.Writers.Where(p => !string.IsNullOrEmpty(p.Name)).Distinct().ToList(), movieInfo.Writers.Count == 0);
 
           //Store person matches
           foreach (PersonInfo person in movieInfo.Actors)
@@ -847,22 +808,12 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
 
         if (updated)
         {
-          movieCollectionInfo.HasChanged |= MetadataUpdater.SetOrUpdateId(ref movieCollectionInfo.MovieDbId, movieCollectionMatch.MovieDbId);
+          movieCollectionInfo.MergeWith(movieCollectionMatch, true, updateMovieList);
 
-          movieCollectionInfo.HasChanged |= MetadataUpdater.SetOrUpdateString(ref movieCollectionInfo.CollectionName, movieCollectionMatch.CollectionName);
-
-          if (movieCollectionInfo.TotalMovies < movieCollectionMatch.TotalMovies)
-          {
-            movieCollectionInfo.HasChanged = true;
-            movieCollectionInfo.TotalMovies = movieCollectionMatch.TotalMovies;
-          }
-
-          if (updateMovieList) //Comparing all movies can be quite time consuming
+          if (updateMovieList)
           {
             foreach (MovieInfo movie in movieCollectionMatch.Movies)
-              OnlineMatcherService.Instance.AssignMissingMovieGenreIds(movie.Genres);
-
-            MetadataUpdater.SetOrUpdateList(movieCollectionInfo.Movies, movieCollectionMatch.Movies.Distinct().ToList(), true);
+              GenreMapper.AssignMissingMovieGenreIds(movie.Genres, language.ToString());
           }
         }
 

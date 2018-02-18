@@ -30,6 +30,7 @@ using MediaPortal.UiComponents.Media.General;
 using MediaPortal.Utilities.FileSystem;
 using System.Linq;
 using MediaPortal.Common.ResourceAccess;
+using MediaPortal.UiComponents.Media.Helpers;
 
 namespace MediaPortal.UiComponents.Media.Views.RemovableMediaDrives
 {
@@ -112,7 +113,7 @@ namespace MediaPortal.UiComponents.Media.Views.RemovableMediaDrives
 
     public override IEnumerable<MediaItem> GetAllMediaItems()
     {
-      return _mediaItemsSubViewSpecification.GetAllMediaItems();
+      return _mediaItemsSubViewSpecification.GetAllMediaItems().Result;
     }
 
     #endregion

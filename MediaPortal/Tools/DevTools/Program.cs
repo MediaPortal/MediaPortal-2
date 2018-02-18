@@ -182,7 +182,7 @@ namespace MediaPortal.DevTools
                 Share source = new Share(Guid.NewGuid(), client.GetSystemId(), resourcePath, name, true, categories);
 
                 _logger.Info("Adding LOCAL media source name={0} path={1} categories=[{2}]", source.BaseResourcePath.BasePathSegment.Path, source.Name, string.Join(",", source.MediaCategories));
-                client.GetContentDirectory().RegisterShare(source);
+                client.GetContentDirectory().RegisterShareAsync(source).Wait();
 
                 _logger.Info("Media sources after add:");
                 ListMediaSources(GetMediaSources(client));
@@ -197,7 +197,7 @@ namespace MediaPortal.DevTools
 
                 foreach (Guid id in ids)
                 {
-                  client.GetContentDirectory().RemoveShare(id);
+                  client.GetContentDirectory().RemoveShareAsync(id).Wait();
                 }
 
                 _logger.Info("Media sources after delete:");
@@ -211,7 +211,7 @@ namespace MediaPortal.DevTools
                 foreach (Guid id in ids)
                 {
                   _logger.Info("Refreshing source {0}", id);
-                  client.GetContentDirectory().ReImportShare(id);
+                  client.GetContentDirectory().ReImportShareAsync(id).Wait();
                 }
               }
 
@@ -221,7 +221,7 @@ namespace MediaPortal.DevTools
 
                 foreach (Guid id in ids)
                 {
-                  Share preSource = client.GetContentDirectory().GetShare(id);
+                  Share preSource = client.GetContentDirectory().GetShareAsync(id).Result;
                   if (preSource == null)
                   {
                     _logger.Error("No media source {0} found", id);
@@ -230,15 +230,15 @@ namespace MediaPortal.DevTools
                   ShowMediaSource(preSource);
 
                   _logger.Info("Removing old source");
-                  client.GetContentDirectory().RemoveShare(preSource.ShareId);
+                  client.GetContentDirectory().RemoveShareAsync(preSource.ShareId).Wait();
 
                   Share postSource = new Share(Guid.NewGuid(), preSource.SystemId, preSource.BaseResourcePath, preSource.Name, true, preSource.MediaCategories);
 
                   _logger.Info("Adding media source name={0} path={1} categories=[{2}]", postSource.Name, postSource.BaseResourcePath.BasePathSegment.Path, string.Join(",", postSource.MediaCategories));
-                  client.GetContentDirectory().RegisterShare(postSource);
+                  client.GetContentDirectory().RegisterShareAsync(postSource).Wait();
 
                   _logger.Info("Media source after reload:");
-                  ShowMediaSource(client.GetContentDirectory().GetShare(postSource.ShareId));
+                  ShowMediaSource(client.GetContentDirectory().GetShareAsync(postSource.ShareId).Result);
                 }
               }
 
@@ -312,7 +312,7 @@ namespace MediaPortal.DevTools
     private static void ShowMediaItems(Client client, IFilter filter)
     {
       IMediaItemAspectTypeRegistration registration = ServiceRegistration.Get<IMediaItemAspectTypeRegistration>();
-      IList<MediaItem> items = client.GetContentDirectory().Search(new MediaItemQuery(null, registration.LocallyKnownMediaItemAspectTypes.Keys, filter), true, null, true);
+      IList<MediaItem> items = client.GetContentDirectory().SearchAsync(new MediaItemQuery(null, registration.LocallyKnownMediaItemAspectTypes.Keys, filter), true, null, true).Result;
       foreach (MediaItem item in items)
       {
         Console.WriteLine("\nItem {0}:", item.MediaItemId);
@@ -393,7 +393,7 @@ namespace MediaPortal.DevTools
     private static ICollection<Share> GetMediaSources(Client client)
     {
       IServerConnectionManager serverConnectionManager = ServiceRegistration.Get<IServerConnectionManager>();
-      return client.GetContentDirectory().GetShares(serverConnectionManager.HomeServerSystemId, SharesFilter.All);
+      return client.GetContentDirectory().GetSharesAsync(serverConnectionManager.HomeServerSystemId, SharesFilter.All).Result;
     }
 
     private static void ListMediaSources(ICollection<Share> sources)

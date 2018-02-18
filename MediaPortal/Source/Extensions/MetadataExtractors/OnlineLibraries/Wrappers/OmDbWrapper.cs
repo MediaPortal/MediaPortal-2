@@ -32,6 +32,8 @@ using MediaPortal.Extensions.OnlineLibraries.Libraries.OmDbV1;
 using MediaPortal.Extensions.OnlineLibraries.Libraries.OmDbV1.Data;
 using MediaPortal.Common.MediaManagement.Helpers;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
+using MediaPortal.Common.MediaManagement;
+using MediaPortal.Common.Certifications;
 
 namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
 {
@@ -163,7 +165,12 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
         movie.ImdbId = movieDetail.ImdbID;
         movie.MovieName = new SimpleTitle(movieDetail.Title, true);
         movie.Summary = new SimpleTitle(movieDetail.Plot, true);
-        movie.Certification = movieDetail.Rated;
+
+        CertificationMapping cert = null;
+        if (CertificationMapper.TryFindMovieCertification(movieDetail.Rated, out cert))
+        {
+          movie.Certification = cert.CertificationId;
+        }
 
         movie.Revenue = movieDetail.Revenue.HasValue ? movieDetail.Revenue.Value : 0;
         movie.Runtime = movieDetail.Runtime.HasValue ? movieDetail.Runtime.Value : 0;
@@ -187,7 +194,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
 
         if (movieDetail.ImdbRating.HasValue)
         {
-          MetadataUpdater.SetOrUpdateRatings(ref movie.Rating, new SimpleRating(movieDetail.ImdbVotes, movieDetail.ImdbVotes));
+          MetadataUpdater.SetOrUpdateRatings(ref movie.Rating, new SimpleRating(movieDetail.ImdbRating, movieDetail.ImdbVotes));
         }
         if (movieDetail.TomatoRating.HasValue)
         {
@@ -235,7 +242,12 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
         {
           series.IsEnded = true;
         }
-        series.Certification = seriesDetail.Rated;
+
+        CertificationMapping cert = null;
+        if (CertificationMapper.TryFindMovieCertification(seriesDetail.Rated, out cert))
+        {
+          series.Certification = cert.CertificationId;
+        }
 
         List<string> awards = new List<string>();
         if (!string.IsNullOrEmpty(seriesDetail.Awards))

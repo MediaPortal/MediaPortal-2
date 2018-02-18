@@ -33,7 +33,7 @@ namespace MediaPortal.UiComponents.Media.FilterCriteria
   {
     public FilterByAlbumCriterion(Guid linkedRole) :
       base(AudioAlbumAspect.ROLE_ALBUM, linkedRole, Consts.NECESSARY_ALBUM_MIAS, Consts.OPTIONAL_ALBUM_MIAS,
-        new SortInformation(AudioAlbumAspect.ATTR_ALBUM, SortDirection.Ascending))
+        new AttributeSortInformation(AudioAlbumAspect.ATTR_ALBUM, SortDirection.Ascending))
     {
     }
   }

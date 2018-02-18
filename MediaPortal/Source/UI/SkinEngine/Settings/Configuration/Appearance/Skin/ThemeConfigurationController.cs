@@ -97,7 +97,7 @@ namespace MediaPortal.UI.SkinEngine.Settings.Configuration.Appearance.Skin
 
     public override bool IsSettingSupported(ConfigSetting setting)
     {
-      return setting != null && setting is ThemeConfigSetting;
+      return base.IsSettingSupported(setting) && setting is ThemeConfigSetting;
     }
 
     protected override string DialogScreen

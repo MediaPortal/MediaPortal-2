@@ -26,6 +26,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
+using System.Threading.Tasks;
 using MediaPortal.Common;
 using MediaPortal.Common.General;
 using MediaPortal.Common.Logging;
@@ -34,6 +35,7 @@ using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Common.MediaManagement.MLQueries;
 using MediaPortal.Common.Settings;
 using MediaPortal.Common.Threading;
+using MediaPortal.Common.UserManagement;
 using MediaPortal.Common.UserProfileDataManagement;
 using MediaPortal.Extensions.OnlineLibraries.Libraries.Trakt;
 using MediaPortal.Extensions.OnlineLibraries.Libraries.Trakt.Authentication;
@@ -290,7 +292,7 @@ namespace MediaPortal.UiComponents.Trakt.Models
 
         #region Get local database info
 
-        var collectedMovies = contentDirectory.Search(new MediaItemQuery(types, null, null), true, userProfile, false);
+        var collectedMovies = contentDirectory.SearchAsync(new MediaItemQuery(types, null, null), true, userProfile, false).Result;
 
         TraktLogger.Info("Found {0} movies available to sync in local database", collectedMovies.Count);
 
@@ -315,7 +317,7 @@ namespace MediaPortal.UiComponents.Trakt.Models
             TraktLogger.Info("Marking movie as unwatched in local database, movie is not watched on trakt.tv. Title = '{0}', Year = '{1}', IMDb ID = '{2}', TMDb ID = '{3}'",
               movie.Title, movie.Year.HasValue ? movie.Year.ToString() : "<empty>", movie.Ids.Imdb ?? "<empty>", movie.Ids.Tmdb.HasValue ? movie.Ids.Tmdb.ToString() : "<empty>");
 
-            MarkAsUnWatched(localMovie);
+            MarkAsUnWatched(localMovie).Wait();
           }
           // update watched set
           watchedMovies = collectedMovies.Where(IsWatched).ToList();
@@ -338,7 +340,7 @@ namespace MediaPortal.UiComponents.Trakt.Models
             TraktLogger.Info("Updating local movie watched state / play count to match trakt.tv. Plays = '{0}', Title = '{1}', Year = '{2}', IMDb ID = '{3}', TMDb ID = '{4}'",
                               twm.Plays, twm.Movie.Title, twm.Movie.Year.HasValue ? twm.Movie.Year.ToString() : "<empty>", twm.Movie.Ids.Imdb ?? "<empty>", twm.Movie.Ids.Tmdb.HasValue ? twm.Movie.Ids.Tmdb.ToString() : "<empty>");
 
-            MarkAsWatched(localMovie);
+            MarkAsWatched(localMovie).Wait();
           }
         }
 
@@ -636,7 +638,7 @@ namespace MediaPortal.UiComponents.Trakt.Models
 
           #region Get data from local database
 
-          var localEpisodes = contentDirectory.Search(new MediaItemQuery(types, null, null), true, userProfile, false);
+          var localEpisodes = contentDirectory.SearchAsync(new MediaItemQuery(types, null, null), true, userProfile, false).Result;
           int episodeCount = localEpisodes.Count;
 
           TraktLogger.Info("Found {0} total episodes in local database", episodeCount);
@@ -667,7 +669,7 @@ namespace MediaPortal.UiComponents.Trakt.Models
                 TraktLogger.Info("Marking episode as unwatched in local database, episode is not watched on trakt.tv. Title = '{0}', Year = '{1}', Season = '{2}', Episode = '{3}', Show TVDb ID = '{4}', Show IMDb ID = '{5}'",
                   episode.ShowTitle, episode.ShowYear.HasValue ? episode.ShowYear.ToString() : "<empty>", episode.Season, episode.Number, episode.ShowTvdbId.HasValue ? episode.ShowTvdbId.ToString() : "<empty>", episode.ShowImdbId ?? "<empty>");
 
-                MarkAsUnWatched(watchedEpisode);
+                MarkAsUnWatched(watchedEpisode).Wait();
 
                 // update watched episodes
                 localWatchedEpisodes.Remove(watchedEpisode);
@@ -695,7 +697,7 @@ namespace MediaPortal.UiComponents.Trakt.Models
                 TraktLogger.Info("Marking episode as watched in local database, episode is watched on trakt.tv. Plays = '{0}', Title = '{1}', Year = '{2}', Season = '{3}', Episode = '{4}', Show TVDb ID = '{5}', Show IMDb ID = '{6}', Last Watched = '{7}'",
                     traktEpisode.Plays, traktEpisode.ShowTitle, traktEpisode.ShowYear.HasValue ? traktEpisode.ShowYear.ToString() : "<empty>", traktEpisode.Season, traktEpisode.Number, traktEpisode.ShowTvdbId.HasValue ? traktEpisode.ShowTvdbId.ToString() : "<empty>", traktEpisode.ShowImdbId ?? "<empty>", traktEpisode.WatchedAt);
 
-                MarkAsWatched(episode);
+                MarkAsWatched(episode).Wait();
               }
             }
           }
@@ -1128,17 +1130,17 @@ namespace MediaPortal.UiComponents.Trakt.Models
       return string.Format("{0}_{1}_{2}", show, episode.Season, episode.Number);
     }
 
-    private void MarkAsWatched(MediaItem mediaItem)
+    private async Task MarkAsWatched(MediaItem mediaItem)
     {
       SetWatched setWatchedAction = new SetWatched();
-      if (setWatchedAction.IsAvailable(mediaItem))
+      if (await setWatchedAction.IsAvailableAsync(mediaItem))
       {
         try
         {
-          ContentDirectoryMessaging.MediaItemChangeType changeType;
-          if (setWatchedAction.Process(mediaItem, out changeType) && changeType != ContentDirectoryMessaging.MediaItemChangeType.None)
+          var result = await setWatchedAction.ProcessAsync(mediaItem);
+          if (result.Success && result.Result != ContentDirectoryMessaging.MediaItemChangeType.None)
           {
-            ContentDirectoryMessaging.SendMediaItemChangedMessage(mediaItem, changeType);
+            ContentDirectoryMessaging.SendMediaItemChangedMessage(mediaItem, result.Result);
             TraktLogger.Info("Marking media item '{0}' as watched", mediaItem.GetType());
           }
         }
@@ -1149,17 +1151,17 @@ namespace MediaPortal.UiComponents.Trakt.Models
       }
     }
 
-    private void MarkAsUnWatched(MediaItem mediaItem)
+    private async Task MarkAsUnWatched(MediaItem mediaItem)
     {
       SetUnwatched setUnwatchedAction = new SetUnwatched();
-      if (setUnwatchedAction.IsAvailable(mediaItem))
+      if (await setUnwatchedAction.IsAvailableAsync(mediaItem))
       {
         try
         {
-          ContentDirectoryMessaging.MediaItemChangeType changeType;
-          if (setUnwatchedAction.Process(mediaItem, out changeType) && changeType != ContentDirectoryMessaging.MediaItemChangeType.None)
+          var result = await setUnwatchedAction.ProcessAsync(mediaItem);
+          if (result.Success && result.Result != ContentDirectoryMessaging.MediaItemChangeType.None)
           {
-            ContentDirectoryMessaging.SendMediaItemChangedMessage(mediaItem, changeType);
+            ContentDirectoryMessaging.SendMediaItemChangedMessage(mediaItem, result.Result);
             TraktLogger.Info("Marking media item '{0}' as unwatched", mediaItem.GetType());
           }
         }

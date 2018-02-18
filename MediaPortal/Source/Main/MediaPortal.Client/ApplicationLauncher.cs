@@ -25,6 +25,7 @@
 using System;
 using System.Collections.Generic;
 using System.Threading;
+using System.Threading.Tasks;
 using System.Windows.Forms;
 using MediaPortal.Common.Exceptions;
 using MediaPortal.Common.MediaManagement;
@@ -144,6 +145,7 @@ namespace MediaPortal.Client
 
       Application.ThreadException += LauncherExceptionHandling.Application_ThreadException;
       AppDomain.CurrentDomain.UnhandledException += LauncherExceptionHandling.CurrentDomain_UnhandledException;
+      TaskScheduler.UnobservedTaskException += LauncherExceptionHandling.TaskScheduler_UnobservedTaskException;
 
       SystemStateService systemStateService = new SystemStateService();
       ServiceRegistration.Set<ISystemStateService>(systemStateService);
@@ -222,7 +224,7 @@ namespace MediaPortal.Client
           skinEngine.Startup(); // 4)
           UiExtension.Startup(); // 5)
 
-          ApplicationCore.RegisterDefaultMediaItemAspectTypes(); // To be done after UI services are running
+          ApplicationCore.RegisterDefaultMediaItemAspectTypes().Wait(); // To be done after UI services are running
 
           _ipcServer = new IpcServer("Client");
           _ipcServer.CustomShutdownCallback = () =>

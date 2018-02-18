@@ -69,7 +69,10 @@
     <Compile Include="Controls\ItemsListFilter.cs" />
     <Compile Include="Controls\SubItemsContentPresenter.cs" />
     <Compile Include="Converters\ItemsListActionFilter.cs" />
+    <Compile Include="Converters\MediaListVisibilityConverter.cs" />
     <Compile Include="Converters\RoundingFormatConverter.cs" />
+    <Compile Include="MarkupExtensions\DynamicResourceBindingExtension.cs" />
+    <Compile Include="Models\HomeContentModel.cs" />
     <Compile Include="Models\HomeMenuActionProxy.cs" />
     <Compile Include="Models\HomeMenuModel.cs" />
     <Compile Include="Models\NavigationList.cs" />
@@ -77,13 +80,16 @@
     <Compile Include="Models\ScreenModeModel.cs" />
     <Compile Include="Models\SubItem.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Settings\Configuration\EnableBannersConfiguration.cs" />
     <Compile Include="Settings\Configuration\EnableAnimatedBackgroundConfiguration.cs" />
     <Compile Include="Settings\Configuration\EnableCertificationLogosConfiguration.cs" />
+    <Compile Include="Settings\Configuration\BaseGridViewTypeConfiguration.cs" />
     <Compile Include="Settings\Configuration\FanartOverlayOpacityConfiguration.cs" />
     <Compile Include="Settings\Configuration\EnableMediaItemDetailsViewConfiguration.cs" />
     <Compile Include="Settings\Configuration\EnableWatchedFlagsConfiguration.cs" />
     <Compile Include="Settings\Configuration\EnableFanartConfiguration.cs" />
+    <Compile Include="Settings\Configuration\SeasonGridViewTypeConfiguration.cs" />
+    <Compile Include="Settings\Configuration\SeriesGridViewTypeConfiguration.cs" />
+    <Compile Include="Settings\Configuration\MovieGridViewTypeConfiguration.cs" />
     <Compile Include="Settings\WMCSkinSettings.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -93,6 +99,28 @@
     </Content>
     <Content Include="Skin\WMCSkin\images\0983AB07-5EC6-4F38-B657-F07FF0819A4EFocus.png" />
     <Content Include="Skin\WMCSkin\images\0983AB07-5EC6-4F38-B657-F07FF0819A4ENofocus.png" />
+    <Content Include="Skin\WMCSkin\images\Certification\AU_G.png" />
+    <Content Include="Skin\WMCSkin\images\Certification\AU_M.png" />
+    <Content Include="Skin\WMCSkin\images\Certification\AU_MA.png" />
+    <Content Include="Skin\WMCSkin\images\Certification\AU_PG.png" />
+    <Content Include="Skin\WMCSkin\images\Certification\AU_R.png" />
+    <Content Include="Skin\WMCSkin\images\Certification\DE_FSK0.png" />
+    <Content Include="Skin\WMCSkin\images\Certification\DE_FSK12.png" />
+    <Content Include="Skin\WMCSkin\images\Certification\DE_FSK16.png" />
+    <Content Include="Skin\WMCSkin\images\Certification\DE_FSK18.png" />
+    <Content Include="Skin\WMCSkin\images\Certification\DE_FSK6.png" />
+    <Content Include="Skin\WMCSkin\images\Certification\US_G.png" />
+    <Content Include="Skin\WMCSkin\images\Certification\US_NC17.png" />
+    <Content Include="Skin\WMCSkin\images\Certification\US_PG.png" />
+    <Content Include="Skin\WMCSkin\images\Certification\US_PG13.png" />
+    <Content Include="Skin\WMCSkin\images\Certification\US_R.png" />
+    <Content Include="Skin\WMCSkin\images\Certification\US_TV14.png" />
+    <Content Include="Skin\WMCSkin\images\Certification\US_TVG.png" />
+    <Content Include="Skin\WMCSkin\images\Certification\US_TVMA.png" />
+    <Content Include="Skin\WMCSkin\images\Certification\US_TVPG.png" />
+    <Content Include="Skin\WMCSkin\images\Certification\US_TVY.png" />
+    <Content Include="Skin\WMCSkin\images\Certification\US_TVY7.png" />
+    <Content Include="Skin\WMCSkin\images\Certification\US_TVY7FV.png" />
     <Content Include="Skin\WMCSkin\images\Effects\Layer1.png" />
     <Content Include="Skin\WMCSkin\images\Effects\Layer2.png" />
     <Content Include="Skin\WMCSkin\images\Effects\Layer3.png" />
@@ -186,6 +214,7 @@
     <Content Include="Skin\WMCSkin\images\Medialogos\flags\Bosnian-flag.png" />
     <Content Include="Skin\WMCSkin\images\Medialogos\flags\Botswana-flag.png" />
     <Content Include="Skin\WMCSkin\images\Medialogos\flags\Bouvet-island.png" />
+    <Content Include="Skin\WMCSkin\images\Medialogos\flags\br.png" />
     <Content Include="Skin\WMCSkin\images\Medialogos\flags\Brazil-flag.png" />
     <Content Include="Skin\WMCSkin\images\Medialogos\flags\British-antarctic-territory.png" />
     <Content Include="Skin\WMCSkin\images\Medialogos\flags\British-virgin-islands.png" />
@@ -202,8 +231,8 @@
     <Content Include="Skin\WMCSkin\images\Medialogos\flags\Centralafricanrepublic128.png" />
     <Content Include="Skin\WMCSkin\images\Medialogos\flags\Chad-flag.png" />
     <Content Include="Skin\WMCSkin\images\Medialogos\flags\Chile-flag.png" />
-    <Content Include="Skin\WMCSkin\images\Medialogos\flags\China-flag.png" />
     <Content Include="Skin\WMCSkin\images\Medialogos\flags\Christmas-island.png" />
+    <Content Include="Skin\WMCSkin\images\Medialogos\flags\cn.png" />
     <Content Include="Skin\WMCSkin\images\Medialogos\flags\Colombia-flag.png" />
     <Content Include="Skin\WMCSkin\images\Medialogos\flags\Comoros-flag.png" />
     <Content Include="Skin\WMCSkin\images\Medialogos\flags\Congo-flag.png" />
@@ -226,6 +255,7 @@
     <Content Include="Skin\WMCSkin\images\Medialogos\flags\England-flag.png" />
     <Content Include="Skin\WMCSkin\images\Medialogos\flags\Equatorial-guinea-flag.png" />
     <Content Include="Skin\WMCSkin\images\Medialogos\flags\Eritrea-flag.png" />
+    <Content Include="Skin\WMCSkin\images\Medialogos\flags\es.png" />
     <Content Include="Skin\WMCSkin\images\Medialogos\flags\Estonia.png" />
     <Content Include="Skin\WMCSkin\images\Medialogos\flags\Ethiopia-flag.png" />
     <Content Include="Skin\WMCSkin\images\Medialogos\flags\Ex-yugoslavia-flag.png" />
@@ -298,6 +328,7 @@
     <Content Include="Skin\WMCSkin\images\Medialogos\flags\Montserrat-flag.png" />
     <Content Include="Skin\WMCSkin\images\Medialogos\flags\Morocco-flag.png" />
     <Content Include="Skin\WMCSkin\images\Medialogos\flags\Mozambique-flag.png" />
+    <Content Include="Skin\WMCSkin\images\Medialogos\flags\mx.png" />
     <Content Include="Skin\WMCSkin\images\Medialogos\flags\Myanmar.png" />
     <Content Include="Skin\WMCSkin\images\Medialogos\flags\Namibia-flag.png" />
     <Content Include="Skin\WMCSkin\images\Medialogos\flags\Nepal-flag.png" />
@@ -348,7 +379,6 @@
     <Content Include="Skin\WMCSkin\images\Medialogos\flags\Somalia-flag.png" />
     <Content Include="Skin\WMCSkin\images\Medialogos\flags\South-africa-flag.png" />
     <Content Include="Skin\WMCSkin\images\Medialogos\flags\South-sudan-flag.png" />
-    <Content Include="Skin\WMCSkin\images\Medialogos\flags\Spain-flag.png" />
     <Content Include="Skin\WMCSkin\images\Medialogos\flags\Spm.png" />
     <Content Include="Skin\WMCSkin\images\Medialogos\flags\Sudan-flag.png" />
     <Content Include="Skin\WMCSkin\images\Medialogos\flags\Suriname-flag.png" />
@@ -375,8 +405,9 @@
     <Content Include="Skin\WMCSkin\images\Medialogos\flags\Uganda-flag.png" />
     <Content Include="Skin\WMCSkin\images\Medialogos\flags\uk.png" />
     <Content Include="Skin\WMCSkin\images\Medialogos\flags\United-arab-emirates.png" />
-    <Content Include="Skin\WMCSkin\images\Medialogos\flags\United-states-flag.png" />
+    <Content Include="Skin\WMCSkin\images\Medialogos\flags\Unknown.png" />
     <Content Include="Skin\WMCSkin\images\Medialogos\flags\Uruguay-flag.png" />
+    <Content Include="Skin\WMCSkin\images\Medialogos\flags\us.png" />
     <Content Include="Skin\WMCSkin\images\Medialogos\flags\Uzbekistan-flag.png" />
     <Content Include="Skin\WMCSkin\images\Medialogos\flags\Vanuatu-flag.png" />
     <Content Include="Skin\WMCSkin\images\Medialogos\flags\Venezuela-flag.png" />
@@ -385,7 +416,6 @@
     <Content Include="Skin\WMCSkin\images\Medialogos\flags\Yemen-flag.png" />
     <Content Include="Skin\WMCSkin\images\Medialogos\flags\Zambia-flag.png" />
     <Content Include="Skin\WMCSkin\images\Medialogos\flags\Zimbabwe-flag.png" />
-    <Content Include="Skin\WMCSkin\images\Medialogos\nosubtitles.png" />
     <Content Include="Skin\WMCSkin\images\Medialogos\resolution\1080i.png" />
     <Content Include="Skin\WMCSkin\images\Medialogos\resolution\1080p.png" />
     <Content Include="Skin\WMCSkin\images\Medialogos\resolution\2160p.png" />
@@ -400,14 +430,18 @@
     <Content Include="Skin\WMCSkin\images\Medialogos\resolution\SD.png" />
     <Content Include="Skin\WMCSkin\images\Medialogos\source\bluray.png" />
     <Content Include="Skin\WMCSkin\images\Medialogos\source\dvd.png" />
-    <Content Include="Skin\WMCSkin\images\Medialogos\subtitles.png" />
+    <Content Include="Skin\WMCSkin\images\Medialogos\subtitle\External.png" />
+    <Content Include="Skin\WMCSkin\images\Medialogos\subtitle\Frame.png" />
+    <Content Include="Skin\WMCSkin\images\Medialogos\subtitle\Internal.png" />
+    <Content Include="Skin\WMCSkin\images\Medialogos\subtitle\nosubtitles.png" />
+    <Content Include="Skin\WMCSkin\images\Medialogos\subtitle\subtitles.png" />
+    <Content Include="Skin\WMCSkin\images\Medialogos\video\3d.png" />
     <Content Include="Skin\WMCSkin\images\Medialogos\video\3gp.png" />
     <Content Include="Skin\WMCSkin\images\Medialogos\video\3iv2.png" />
     <Content Include="Skin\WMCSkin\images\Medialogos\video\asf.png" />
     <Content Include="Skin\WMCSkin\images\Medialogos\video\avc.png" />
     <Content Include="Skin\WMCSkin\images\Medialogos\video\avc1.png" />
     <Content Include="Skin\WMCSkin\images\Medialogos\video\avi.png" />
-    <Content Include="Skin\WMCSkin\images\Medialogos\video\default.png" />
     <Content Include="Skin\WMCSkin\images\Medialogos\video\div2.png" />
     <Content Include="Skin\WMCSkin\images\Medialogos\video\div3.png" />
     <Content Include="Skin\WMCSkin\images\Medialogos\video\div3_bak.png" />
@@ -419,7 +453,6 @@
     <Content Include="Skin\WMCSkin\images\Medialogos\video\flash.png" />
     <Content Include="Skin\WMCSkin\images\Medialogos\video\flv.png" />
     <Content Include="Skin\WMCSkin\images\Medialogos\video\fmp4.png" />
-    <Content Include="Skin\WMCSkin\images\Medialogos\video\folder copy.png" />
     <Content Include="Skin\WMCSkin\images\Medialogos\video\h262.png" />
     <Content Include="Skin\WMCSkin\images\Medialogos\video\h263.png" />
     <Content Include="Skin\WMCSkin\images\Medialogos\video\h264.png" />
@@ -473,7 +506,18 @@
     <Content Include="Skin\WMCSkin\images\PlayerControl\BACKWARD.DISABLED.PNG" />
     <Content Include="Skin\WMCSkin\images\PlayerControl\BACKWARD.FOCUS.PNG" />
     <Content Include="Skin\WMCSkin\images\PlayerControl\BACKWARD.NOFOCUS.PNG" />
+    <Content Include="Skin\WMCSkin\images\PlayerControl\BOTTOM.RIGHT.SHADOW.PNG" />
+    <Content Include="Skin\WMCSkin\images\PlayerControl\Bottom.shadow.png" />
+    <Content Include="Skin\WMCSkin\images\PlayerControl\Chapter.FOCUS.png" />
+    <Content Include="Skin\WMCSkin\images\PlayerControl\Chapter.NOFOCUS.PNG" />
+    <Content Include="Skin\WMCSkin\images\PlayerControl\Current.position.PNG" />
+    <Content Include="Skin\WMCSkin\images\PlayerControl\CURRENT.POSITION.SHADOW.PNG" />
     <Content Include="Skin\WMCSkin\images\PlayerControl\DIVIDER.PNG" />
+    <Content Include="Skin\WMCSkin\images\PlayerControl\DOWN.DISABLED.PNG" />
+    <Content Include="Skin\WMCSkin\images\PlayerControl\DOWN.FOCUS.PNG" />
+    <Content Include="Skin\WMCSkin\images\PlayerControl\DOWN.NOFOCUS.PNG" />
+    <Content Include="Skin\WMCSkin\images\PlayerControl\DOWN_FOCUS.png" />
+    <Content Include="Skin\WMCSkin\images\PlayerControl\DOWN_NOFOCUS.png" />
     <Content Include="Skin\WMCSkin\images\PlayerControl\FORWARD.DISABLED.PNG" />
     <Content Include="Skin\WMCSkin\images\PlayerControl\FORWARD.FOCUS.PNG" />
     <Content Include="Skin\WMCSkin\images\PlayerControl\FORWARD.NOFOCUS.PNG" />
@@ -485,6 +529,8 @@
     <Content Include="Skin\WMCSkin\images\PlayerControl\GUIDE.FOCUS.PNG" />
     <Content Include="Skin\WMCSkin\images\PlayerControl\GUIDE.NOFOCUS.PNG" />
     <Content Include="Skin\WMCSkin\images\PlayerControl\GUIDE.PRESSED.PNG" />
+    <Content Include="Skin\WMCSkin\images\PlayerControl\Maximize.focus.png" />
+    <Content Include="Skin\WMCSkin\images\PlayerControl\Maximize.nofocus.png" />
     <Content Include="Skin\WMCSkin\images\PlayerControl\MENU.PRESSED.PNG" />
     <Content Include="Skin\WMCSkin\images\PlayerControl\MINUS.DISABLED.PNG" />
     <Content Include="Skin\WMCSkin\images\PlayerControl\MINUS.FOCUS.PNG" />
@@ -498,6 +544,8 @@
     <Content Include="Skin\WMCSkin\images\PlayerControl\NEXT.DISABLED.PNG" />
     <Content Include="Skin\WMCSkin\images\PlayerControl\NEXT.FOCUS.PNG" />
     <Content Include="Skin\WMCSkin\images\PlayerControl\NEXT.NOFOCUS.PNG" />
+    <Content Include="Skin\WMCSkin\images\PlayerControl\Next_Focus.png" />
+    <Content Include="Skin\WMCSkin\images\PlayerControl\Next_NoFocus.png" />
     <Content Include="Skin\WMCSkin\images\PlayerControl\PAUSE.DISABLED.PNG" />
     <Content Include="Skin\WMCSkin\images\PlayerControl\PAUSE.FOCUS.PNG" />
     <Content Include="Skin\WMCSkin\images\PlayerControl\PAUSE.NOFOCUS.PNG" />
@@ -512,11 +560,21 @@
     <Content Include="Skin\WMCSkin\images\PlayerControl\PREVIOUS.DISABLED.PNG" />
     <Content Include="Skin\WMCSkin\images\PlayerControl\PREVIOUS.FOCUS.PNG" />
     <Content Include="Skin\WMCSkin\images\PlayerControl\PREVIOUS.NOFOCUS.PNG" />
+    <Content Include="Skin\WMCSkin\images\PlayerControl\Previous_Focus.png" />
+    <Content Include="Skin\WMCSkin\images\PlayerControl\Previous_NoFocus.png" />
+    <Content Include="Skin\WMCSkin\images\PlayerControl\RADIOBUTTON.FOCUS.PNG" />
+    <Content Include="Skin\WMCSkin\images\PlayerControl\RADIOBUTTON.NOFOCUS.PNG" />
+    <Content Include="Skin\WMCSkin\images\PlayerControl\RADIOBUTTON.UNCHECKED.FOCUS.PNG" />
+    <Content Include="Skin\WMCSkin\images\PlayerControl\RADIOBUTTON.UNCHECKED.NOFOCUS.PNG" />
     <Content Include="Skin\WMCSkin\images\PlayerControl\RECORD.DISABLED.PNG" />
     <Content Include="Skin\WMCSkin\images\PlayerControl\RECORD.FOCUS.PNG" />
     <Content Include="Skin\WMCSkin\images\PlayerControl\RECORD.NOFOCUS.PNG" />
-    <Content Include="Skin\WMCSkin\images\PlayerControl\SCHEDULE.FOCUS .png" />
+    <Content Include="Skin\WMCSkin\images\PlayerControl\SCHEDULE.FOCUS.png" />
     <Content Include="Skin\WMCSkin\images\PlayerControl\SCHEDULE.NOFOCUS.png" />
+    <Content Include="Skin\WMCSkin\images\PlayerControl\SEARCH.FOCUS.png" />
+    <Content Include="Skin\WMCSkin\images\PlayerControl\SEARCH.NOFOCUS.png" />
+    <Content Include="Skin\WMCSkin\images\PlayerControl\Seekbardummy.png" />
+    <Content Include="Skin\WMCSkin\images\PlayerControl\Seekbarshadow.png" />
     <Content Include="Skin\WMCSkin\images\PlayerControl\STARTMENU.LAUNCH.SKITTLE.PNG" />
     <Content Include="Skin\WMCSkin\images\PlayerControl\STOP.DISABLED.PNG" />
     <Content Include="Skin\WMCSkin\images\PlayerControl\STOP.FOCUS.PNG" />
@@ -524,6 +582,13 @@
     <Content Include="Skin\WMCSkin\images\PlayerControl\SUBTITLES.DISABLED.PNG" />
     <Content Include="Skin\WMCSkin\images\PlayerControl\SUBTITLES.FOCUS.PNG" />
     <Content Include="Skin\WMCSkin\images\PlayerControl\SUBTITLES.NOFOCUS.PNG" />
+    <Content Include="Skin\WMCSkin\images\PlayerControl\Time.Indicator.png" />
+    <Content Include="Skin\WMCSkin\images\PlayerControl\Time.shadow.PNG" />
+    <Content Include="Skin\WMCSkin\images\PlayerControl\UP.DISABLED.PNG" />
+    <Content Include="Skin\WMCSkin\images\PlayerControl\UP.FOCUS.PNG" />
+    <Content Include="Skin\WMCSkin\images\PlayerControl\UP.NOFOCUS.PNG" />
+    <Content Include="Skin\WMCSkin\images\PlayerControl\UP_FOCUS.png" />
+    <Content Include="Skin\WMCSkin\images\PlayerControl\UP_NOFOCUS.png" />
     <Content Include="Skin\WMCSkin\images\preview.png" />
     <Content Include="Skin\WMCSkin\images\RECORD.SERIES.PNG" />
     <Content Include="Skin\WMCSkin\images\RECORD.SINGLE.PNG" />
@@ -635,6 +700,16 @@
       <Generator>MSBuild:Compile</Generator>
     </Content>
     <Content Include="Skin\WMCSkin\screens\MediaItemAudioAlbumDetails.inc" />
+    <Content Include="Skin\WMCSkin\screens\MediaItemHomeEpisodeDetails.inc">
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="Skin\WMCSkin\screens\MediaItemHomeAudioDetails.inc">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Skin\WMCSkin\screens\MediaItemHomeImageDetails.inc" />
+    <Content Include="Skin\WMCSkin\screens\MediaItemHomeAudioAlbumDetails.inc">
+      <SubType>Designer</SubType>
+    </Content>
     <Content Include="Skin\WMCSkin\screens\MediaItemListAudioAlbumDetails.inc">
       <SubType>Designer</SubType>
     </Content>
@@ -647,7 +722,16 @@
     <Content Include="Skin\WMCSkin\screens\MediaItemListSeasonDetails.inc">
       <SubType>Designer</SubType>
     </Content>
+    <Content Include="Skin\WMCSkin\screens\MediaItemHomeSeriesDetails.inc">
+      <SubType>Designer</SubType>
+    </Content>
     <Content Include="Skin\WMCSkin\screens\MediaItemMovieCollectionDetails.inc">
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="Skin\WMCSkin\screens\MediaItemHomeMovieDetails.inc">
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="Skin\WMCSkin\screens\MediaItemHomeOthersDetails.inc">
       <SubType>Designer</SubType>
     </Content>
     <Content Include="Skin\WMCSkin\screens\MediaItemSeasonDetails.inc" />
@@ -679,6 +763,9 @@
       <SubType>Designer</SubType>
     </Content>
     <Content Include="Skin\WMCSkin\screens\MediaItemsList.inc">
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="Skin\WMCSkin\screens\MultiDetailsHome.inc">
       <SubType>Designer</SubType>
     </Content>
     <Content Include="Skin\WMCSkin\screens\MultiListDetails.inc">
@@ -815,17 +902,122 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="Skin\WMCSkin\themes\Dark-WMC\theme.xml" />
-    <Content Include="Skin\WMCSkin\themes\default\images\FilterLarge.png" />
-    <Content Include="Skin\WMCSkin\themes\default\images\FilterSmall.png" />
-    <Content Include="Skin\WMCSkin\themes\default\images\VideoLarge.png" />
-    <Content Include="Skin\WMCSkin\themes\default\images\VideoSmall.png" />
-    <Content Include="Skin\WMCSkin\themes\default\images\AudioLarge.png" />
-    <Content Include="Skin\WMCSkin\themes\default\images\AudioSmall.png" />
-    <Content Include="Skin\WMCSkin\themes\default\images\NavigationLarge.png" />
-    <Content Include="Skin\WMCSkin\themes\default\images\NavigationSmall.png" />
-    <Content Include="Skin\WMCSkin\themes\default\images\ImageLarge.png" />
-    <Content Include="Skin\WMCSkin\themes\default\images\ImageSmall.png" />
     <Content Include="Skin\WMCSkin\themes\default\styles\Colors.xaml" />
+    <Content Include="Skin\WMCSkin\themes\Turquoise-WMC\images\Background.png" />
+    <Content Include="Skin\WMCSkin\themes\Turquoise-WMC\images\Background_EPG.png" />
+    <Content Include="Skin\WMCSkin\themes\Turquoise-WMC\images\Background_EPG_overlay.png" />
+    <Content Include="Skin\WMCSkin\themes\Turquoise-WMC\images\Background_GridView.png" />
+    <Content Include="Skin\WMCSkin\themes\Turquoise-WMC\images\Background_ListView.png" />
+    <Content Include="Skin\WMCSkin\themes\Turquoise-WMC\images\CircularBar\0.png" />
+    <Content Include="Skin\WMCSkin\themes\Turquoise-WMC\images\CircularBar\1.png" />
+    <Content Include="Skin\WMCSkin\themes\Turquoise-WMC\images\CircularBar\10.png" />
+    <Content Include="Skin\WMCSkin\themes\Turquoise-WMC\images\CircularBar\100.png" />
+    <Content Include="Skin\WMCSkin\themes\Turquoise-WMC\images\CircularBar\11.png" />
+    <Content Include="Skin\WMCSkin\themes\Turquoise-WMC\images\CircularBar\12.png" />
+    <Content Include="Skin\WMCSkin\themes\Turquoise-WMC\images\CircularBar\13.png" />
+    <Content Include="Skin\WMCSkin\themes\Turquoise-WMC\images\CircularBar\14.png" />
+    <Content Include="Skin\WMCSkin\themes\Turquoise-WMC\images\CircularBar\15.png" />
+    <Content Include="Skin\WMCSkin\themes\Turquoise-WMC\images\CircularBar\16.png" />
+    <Content Include="Skin\WMCSkin\themes\Turquoise-WMC\images\CircularBar\17.png" />
+    <Content Include="Skin\WMCSkin\themes\Turquoise-WMC\images\CircularBar\18.png" />
+    <Content Include="Skin\WMCSkin\themes\Turquoise-WMC\images\CircularBar\19.png" />
+    <Content Include="Skin\WMCSkin\themes\Turquoise-WMC\images\CircularBar\2.png" />
+    <Content Include="Skin\WMCSkin\themes\Turquoise-WMC\images\CircularBar\20.png" />
+    <Content Include="Skin\WMCSkin\themes\Turquoise-WMC\images\CircularBar\21.png" />
+    <Content Include="Skin\WMCSkin\themes\Turquoise-WMC\images\CircularBar\22.png" />
+    <Content Include="Skin\WMCSkin\themes\Turquoise-WMC\images\CircularBar\23.png" />
+    <Content Include="Skin\WMCSkin\themes\Turquoise-WMC\images\CircularBar\24.png" />
+    <Content Include="Skin\WMCSkin\themes\Turquoise-WMC\images\CircularBar\25.png" />
+    <Content Include="Skin\WMCSkin\themes\Turquoise-WMC\images\CircularBar\26.png" />
+    <Content Include="Skin\WMCSkin\themes\Turquoise-WMC\images\CircularBar\27.png" />
+    <Content Include="Skin\WMCSkin\themes\Turquoise-WMC\images\CircularBar\28.png" />
+    <Content Include="Skin\WMCSkin\themes\Turquoise-WMC\images\CircularBar\29.png" />
+    <Content Include="Skin\WMCSkin\themes\Turquoise-WMC\images\CircularBar\3.png" />
+    <Content Include="Skin\WMCSkin\themes\Turquoise-WMC\images\CircularBar\30.png" />
+    <Content Include="Skin\WMCSkin\themes\Turquoise-WMC\images\CircularBar\31.png" />
+    <Content Include="Skin\WMCSkin\themes\Turquoise-WMC\images\CircularBar\32.png" />
+    <Content Include="Skin\WMCSkin\themes\Turquoise-WMC\images\CircularBar\33.png" />
+    <Content Include="Skin\WMCSkin\themes\Turquoise-WMC\images\CircularBar\34.png" />
+    <Content Include="Skin\WMCSkin\themes\Turquoise-WMC\images\CircularBar\35.png" />
+    <Content Include="Skin\WMCSkin\themes\Turquoise-WMC\images\CircularBar\36.png" />
+    <Content Include="Skin\WMCSkin\themes\Turquoise-WMC\images\CircularBar\37.png" />
+    <Content Include="Skin\WMCSkin\themes\Turquoise-WMC\images\CircularBar\38.png" />
+    <Content Include="Skin\WMCSkin\themes\Turquoise-WMC\images\CircularBar\39.png" />
+    <Content Include="Skin\WMCSkin\themes\Turquoise-WMC\images\CircularBar\4.png" />
+    <Content Include="Skin\WMCSkin\themes\Turquoise-WMC\images\CircularBar\40.png" />
+    <Content Include="Skin\WMCSkin\themes\Turquoise-WMC\images\CircularBar\41.png" />
+    <Content Include="Skin\WMCSkin\themes\Turquoise-WMC\images\CircularBar\42.png" />
+    <Content Include="Skin\WMCSkin\themes\Turquoise-WMC\images\CircularBar\43.png" />
+    <Content Include="Skin\WMCSkin\themes\Turquoise-WMC\images\CircularBar\44.png" />
+    <Content Include="Skin\WMCSkin\themes\Turquoise-WMC\images\CircularBar\45.png" />
+    <Content Include="Skin\WMCSkin\themes\Turquoise-WMC\images\CircularBar\46.png" />
+    <Content Include="Skin\WMCSkin\themes\Turquoise-WMC\images\CircularBar\47.png" />
+    <Content Include="Skin\WMCSkin\themes\Turquoise-WMC\images\CircularBar\48.png" />
+    <Content Include="Skin\WMCSkin\themes\Turquoise-WMC\images\CircularBar\49.png" />
+    <Content Include="Skin\WMCSkin\themes\Turquoise-WMC\images\CircularBar\5.png" />
+    <Content Include="Skin\WMCSkin\themes\Turquoise-WMC\images\CircularBar\50.png" />
+    <Content Include="Skin\WMCSkin\themes\Turquoise-WMC\images\CircularBar\51.png" />
+    <Content Include="Skin\WMCSkin\themes\Turquoise-WMC\images\CircularBar\52.png" />
+    <Content Include="Skin\WMCSkin\themes\Turquoise-WMC\images\CircularBar\53.png" />
+    <Content Include="Skin\WMCSkin\themes\Turquoise-WMC\images\CircularBar\54.png" />
+    <Content Include="Skin\WMCSkin\themes\Turquoise-WMC\images\CircularBar\55.png" />
+    <Content Include="Skin\WMCSkin\themes\Turquoise-WMC\images\CircularBar\56.png" />
+    <Content Include="Skin\WMCSkin\themes\Turquoise-WMC\images\CircularBar\57.png" />
+    <Content Include="Skin\WMCSkin\themes\Turquoise-WMC\images\CircularBar\58.png" />
+    <Content Include="Skin\WMCSkin\themes\Turquoise-WMC\images\CircularBar\59.png" />
+    <Content Include="Skin\WMCSkin\themes\Turquoise-WMC\images\CircularBar\6.png" />
+    <Content Include="Skin\WMCSkin\themes\Turquoise-WMC\images\CircularBar\60.png" />
+    <Content Include="Skin\WMCSkin\themes\Turquoise-WMC\images\CircularBar\61.png" />
+    <Content Include="Skin\WMCSkin\themes\Turquoise-WMC\images\CircularBar\62.png" />
+    <Content Include="Skin\WMCSkin\themes\Turquoise-WMC\images\CircularBar\63.png" />
+    <Content Include="Skin\WMCSkin\themes\Turquoise-WMC\images\CircularBar\64.png" />
+    <Content Include="Skin\WMCSkin\themes\Turquoise-WMC\images\CircularBar\65.png" />
+    <Content Include="Skin\WMCSkin\themes\Turquoise-WMC\images\CircularBar\66.png" />
+    <Content Include="Skin\WMCSkin\themes\Turquoise-WMC\images\CircularBar\67.png" />
+    <Content Include="Skin\WMCSkin\themes\Turquoise-WMC\images\CircularBar\68.png" />
+    <Content Include="Skin\WMCSkin\themes\Turquoise-WMC\images\CircularBar\69.png" />
+    <Content Include="Skin\WMCSkin\themes\Turquoise-WMC\images\CircularBar\7.png" />
+    <Content Include="Skin\WMCSkin\themes\Turquoise-WMC\images\CircularBar\70.png" />
+    <Content Include="Skin\WMCSkin\themes\Turquoise-WMC\images\CircularBar\71.png" />
+    <Content Include="Skin\WMCSkin\themes\Turquoise-WMC\images\CircularBar\72.png" />
+    <Content Include="Skin\WMCSkin\themes\Turquoise-WMC\images\CircularBar\73.png" />
+    <Content Include="Skin\WMCSkin\themes\Turquoise-WMC\images\CircularBar\74.png" />
+    <Content Include="Skin\WMCSkin\themes\Turquoise-WMC\images\CircularBar\75.png" />
+    <Content Include="Skin\WMCSkin\themes\Turquoise-WMC\images\CircularBar\76.png" />
+    <Content Include="Skin\WMCSkin\themes\Turquoise-WMC\images\CircularBar\77.png" />
+    <Content Include="Skin\WMCSkin\themes\Turquoise-WMC\images\CircularBar\78.png" />
+    <Content Include="Skin\WMCSkin\themes\Turquoise-WMC\images\CircularBar\79.png" />
+    <Content Include="Skin\WMCSkin\themes\Turquoise-WMC\images\CircularBar\8.png" />
+    <Content Include="Skin\WMCSkin\themes\Turquoise-WMC\images\CircularBar\80.png" />
+    <Content Include="Skin\WMCSkin\themes\Turquoise-WMC\images\CircularBar\81.png" />
+    <Content Include="Skin\WMCSkin\themes\Turquoise-WMC\images\CircularBar\82.png" />
+    <Content Include="Skin\WMCSkin\themes\Turquoise-WMC\images\CircularBar\83.png" />
+    <Content Include="Skin\WMCSkin\themes\Turquoise-WMC\images\CircularBar\84.png" />
+    <Content Include="Skin\WMCSkin\themes\Turquoise-WMC\images\CircularBar\85.png" />
+    <Content Include="Skin\WMCSkin\themes\Turquoise-WMC\images\CircularBar\86.png" />
+    <Content Include="Skin\WMCSkin\themes\Turquoise-WMC\images\CircularBar\87.png" />
+    <Content Include="Skin\WMCSkin\themes\Turquoise-WMC\images\CircularBar\88.png" />
+    <Content Include="Skin\WMCSkin\themes\Turquoise-WMC\images\CircularBar\89.png" />
+    <Content Include="Skin\WMCSkin\themes\Turquoise-WMC\images\CircularBar\9.png" />
+    <Content Include="Skin\WMCSkin\themes\Turquoise-WMC\images\CircularBar\90.png" />
+    <Content Include="Skin\WMCSkin\themes\Turquoise-WMC\images\CircularBar\91.png" />
+    <Content Include="Skin\WMCSkin\themes\Turquoise-WMC\images\CircularBar\92.png" />
+    <Content Include="Skin\WMCSkin\themes\Turquoise-WMC\images\CircularBar\93.png" />
+    <Content Include="Skin\WMCSkin\themes\Turquoise-WMC\images\CircularBar\94.png" />
+    <Content Include="Skin\WMCSkin\themes\Turquoise-WMC\images\CircularBar\95.png" />
+    <Content Include="Skin\WMCSkin\themes\Turquoise-WMC\images\CircularBar\96.png" />
+    <Content Include="Skin\WMCSkin\themes\Turquoise-WMC\images\CircularBar\97.png" />
+    <Content Include="Skin\WMCSkin\themes\Turquoise-WMC\images\CircularBar\98.png" />
+    <Content Include="Skin\WMCSkin\themes\Turquoise-WMC\images\CircularBar\99.png" />
+    <Content Include="Skin\WMCSkin\themes\Turquoise-WMC\images\Effects\Layer1.png" />
+    <Content Include="Skin\WMCSkin\themes\Turquoise-WMC\images\Effects\Layer2.png" />
+    <Content Include="Skin\WMCSkin\themes\Turquoise-WMC\images\Effects\Layer3.png" />
+    <Content Include="Skin\WMCSkin\themes\Turquoise-WMC\images\Effects\Layer4.png" />
+    <Content Include="Skin\WMCSkin\themes\Turquoise-WMC\images\Effects\Layer5.png" />
+    <Content Include="Skin\WMCSkin\themes\Turquoise-WMC\images\Effects\Layer6.png" />
+    <Content Include="Skin\WMCSkin\themes\Turquoise-WMC\images\FIRSTRUN.PNG" />
+    <Content Include="Skin\WMCSkin\themes\Turquoise-WMC\images\preview.jpg" />
+    <Content Include="Skin\WMCSkin\themes\Turquoise-WMC\theme.xml" />
     <Content Include="Skin\WMCSkin\workflow\wmc-actions.xml" />
     <Content Include="Skin\WMCSkin\themes\default\styles\Consts.xaml" />
     <Content Include="plugin.xml">
@@ -902,6 +1094,10 @@
     <ProjectReference Include="..\..\SkinEngine\SkinEngine.csproj">
       <Project>{7E943389-3589-40C9-B481-2E223554CC49}</Project>
       <Name>SkinEngine</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\UiComponents\Media\Media.csproj">
+      <Project>{cd37e2ff-4cf7-4f96-8c73-c6764988d408}</Project>
+      <Name>Media</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\UiComponents\SkinBase\SkinBase.csproj">
       <Project>{4EFED5BE-2F6A-4944-BB96-053D5945BA1F}</Project>
@@ -1066,6 +1262,17 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Skin\WMCSkin\themes\default\styles\CurrentlyPlayingStyles.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\WMCSkin\themes\Turquoise-WMC\styles\Colors.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\WMCSkin\themes\default\styles\HomeContentStyles.xaml">
       <SubType>Designer</SubType>
     </Content>
   </ItemGroup>

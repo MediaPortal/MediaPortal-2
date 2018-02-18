@@ -63,9 +63,11 @@
     <Compile Include="..\..\..\Core\MediaPortal.Common\VersionInfo\VersionInfo.cs">
       <Link>Properties\VersionInfo.cs</Link>
     </Compile>
-    <Compile Include="Metadata\TempSeriesAspect.cs" />
-    <Compile Include="Metadata\TempPersonAspect.cs" />
-    <Compile Include="NfoVideoMetadataExtractor.cs" />
+    <Compile Include="NfoAudioMetadataExtractor.cs" />
+    <Compile Include="NfoReaders\NfoArtistReader.cs" />
+    <Compile Include="NfoReaders\NfoAlbumReader.cs" />
+	<Compile Include="NfoVideoMetadataExtractor.cs" />
+    <Compile Include="RelationshipExtractors\AlbumArtistRelationshipExtractor.cs" />
     <Compile Include="RelationshipExtractors\INfoRelationshipExtractor.cs" />
     <Compile Include="RelationshipExtractors\MovieActorRelationshipExtractor.cs" />
     <Compile Include="RelationshipExtractors\MovieCharacterRelationshipExtractor.cs" />
@@ -77,7 +79,14 @@
     <Compile Include="RelationshipExtractors\EpisodeSeriesRelationshipExtractor.cs" />
     <Compile Include="RelationshipExtractors\SeriesActorRelationshipExtractor.cs" />
     <Compile Include="RelationshipExtractors\SeriesCharacterRelationshipExtractor.cs" />
+    <Compile Include="RelationshipExtractors\AudioRelationshipExtractor.cs" />
     <Compile Include="RelationshipExtractors\SeriesRelationshipExtractor.cs" />
+    <Compile Include="RelationshipExtractors\TrackAlbumArtistRelationshipExtractor.cs" />
+    <Compile Include="RelationshipExtractors\TrackAlbumRelationshipExtractor.cs" />
+    <Compile Include="Settings\NfoAudioMetadataExtractorSettings.cs" />
+    <Compile Include="Stubs\AlbumTrackStub.cs" />
+    <Compile Include="Stubs\AlbumStub.cs" />
+    <Compile Include="Stubs\ArtistStub.cs" />
     <Compile Include="Utilities\JsonByteArrayConverter.cs" />
     <Compile Include="Settings\NfoMetadataExtractorSettingsBase.cs" />
     <Compile Include="NfoReaders\NfoSeriesEpisodeReader.cs" />
@@ -99,6 +108,7 @@
     <Compile Include="Stubs\StreamDetailsStub.cs" />
     <Compile Include="Stubs\SubtitleStreamDetailsStub.cs" />
     <Compile Include="Stubs\VideoStreamDetailsStub.cs" />
+    <Compile Include="Utilities\StubParser.cs" />
     <Compile Include="Utilities\XmlNfoReader.cs" />
   </ItemGroup>
   <ItemGroup>

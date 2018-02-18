@@ -32,7 +32,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.Stubs
     /// <summary>
     /// Language of the subtitle
     /// </summary>
-    /// <example>"French"</example>
+    /// <example>"French","fre"</example>
     public string Language { get; set; }
   }
 }

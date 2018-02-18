@@ -22,13 +22,14 @@
 
 #endregion
 
-using System;
-using System.Collections.Generic;
+using MediaPortal.Common;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
+using MediaPortal.Common.MediaManagement.Helpers;
 using MediaPortal.Common.MediaManagement.MLQueries;
 using MediaPortal.Extensions.OnlineLibraries;
-using MediaPortal.Common.MediaManagement.Helpers;
+using System;
+using System.Collections.Generic;
 
 namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
 {
@@ -50,13 +51,17 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
 
     protected RelationshipExtractorMetadata _metadata;
     private IList<IRelationshipRoleExtractor> _extractors;
-    private IList<RelationshipHierarchy> _hierarchies;
     private volatile bool includeFullSeriesFilter = true;
 
     public SeriesRelationshipExtractor()
     {
       _metadata = new RelationshipExtractorMetadata(METADATAEXTRACTOR_ID, "Series relationship extractor");
+      RegisterRelationships();
+      InitExtractors();
+    }
 
+    protected void InitExtractors()
+    {
       _extractors = new List<IRelationshipRoleExtractor>();
 
       _extractors.Add(new EpisodeSeriesRelationshipExtractor());
@@ -74,11 +79,40 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
       _extractors.Add(new SeriesProductionRelationshipExtractor());
 
       _extractors.Add(new SeriesEpisodeRelationshipExtractor());
+    }
 
-      _hierarchies = new List<RelationshipHierarchy>();
-      _hierarchies.Add(new RelationshipHierarchy(EpisodeAspect.ROLE_EPISODE, EpisodeAspect.ATTR_EPISODE, SeriesAspect.ROLE_SERIES, SeriesAspect.ATTR_AVAILABLE_EPISODES, true));
-      _hierarchies.Add(new RelationshipHierarchy(EpisodeAspect.ROLE_EPISODE, EpisodeAspect.ATTR_EPISODE, SeasonAspect.ROLE_SEASON, SeasonAspect.ATTR_AVAILABLE_EPISODES, true));
-      _hierarchies.Add(new RelationshipHierarchy(SeasonAspect.ROLE_SEASON, SeasonAspect.ATTR_SEASON, SeriesAspect.ROLE_SERIES, SeriesAspect.ATTR_AVAILABLE_SEASONS, false));
+    /// <summary>
+    /// Registers all relationships that are extracted by this relationship extractor.
+    /// </summary>
+    protected void RegisterRelationships()
+    {
+      IRelationshipTypeRegistration relationshipRegistration = ServiceRegistration.Get<IRelationshipTypeRegistration>();
+
+      //Relationships must be registered in order from episodes up to all parent relationships
+
+      //Hierarchical relationships
+      relationshipRegistration.RegisterLocallyKnownRelationshipType(new RelationshipType("Episode->Series", true,
+        EpisodeAspect.ROLE_EPISODE, SeriesAspect.ROLE_SERIES, EpisodeAspect.ASPECT_ID, SeriesAspect.ASPECT_ID,
+        EpisodeAspect.ATTR_EPISODE, SeriesAspect.ATTR_AVAILABLE_EPISODES, true), true);
+
+      relationshipRegistration.RegisterLocallyKnownRelationshipType(new RelationshipType("Episode->Season", false,
+        EpisodeAspect.ROLE_EPISODE, SeasonAspect.ROLE_SEASON, EpisodeAspect.ASPECT_ID, SeasonAspect.ASPECT_ID,
+        EpisodeAspect.ATTR_EPISODE, SeasonAspect.ATTR_AVAILABLE_EPISODES, true), true);
+
+      relationshipRegistration.RegisterLocallyKnownRelationshipType(new RelationshipType("Season->Series", false,
+        SeasonAspect.ROLE_SEASON, SeriesAspect.ROLE_SERIES, SeasonAspect.ASPECT_ID, SeriesAspect.ASPECT_ID,
+        SeasonAspect.ATTR_SEASON, SeriesAspect.ATTR_AVAILABLE_SEASONS, false), false);
+
+      //Simple (non hierarchical) relationships
+      relationshipRegistration.RegisterLocallyKnownRelationshipType(new RelationshipType("Episode->Actor", EpisodeAspect.ROLE_EPISODE, PersonAspect.ROLE_ACTOR), true);
+      relationshipRegistration.RegisterLocallyKnownRelationshipType(new RelationshipType("Episode->Director", EpisodeAspect.ROLE_EPISODE, PersonAspect.ROLE_DIRECTOR), true);
+      relationshipRegistration.RegisterLocallyKnownRelationshipType(new RelationshipType("Episode->Writer", EpisodeAspect.ROLE_EPISODE, PersonAspect.ROLE_WRITER), true);
+      relationshipRegistration.RegisterLocallyKnownRelationshipType(new RelationshipType("Episode->Character", EpisodeAspect.ROLE_EPISODE, CharacterAspect.ROLE_CHARACTER), true);
+
+      relationshipRegistration.RegisterLocallyKnownRelationshipType(new RelationshipType("Series->Actor", SeriesAspect.ROLE_SERIES, PersonAspect.ROLE_ACTOR), false);
+      relationshipRegistration.RegisterLocallyKnownRelationshipType(new RelationshipType("Series->Character", SeriesAspect.ROLE_SERIES, CharacterAspect.ROLE_CHARACTER), false);
+      relationshipRegistration.RegisterLocallyKnownRelationshipType(new RelationshipType("Series->TV Network", SeriesAspect.ROLE_SERIES, CompanyAspect.ROLE_TV_NETWORK), false);
+      relationshipRegistration.RegisterLocallyKnownRelationshipType(new RelationshipType("Series->Company", SeriesAspect.ROLE_SERIES, CompanyAspect.ROLE_COMPANY), false);
     }
 
     public IDictionary<IFilter, uint> GetLastChangedItemsFilters()
@@ -204,11 +238,6 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
     public IList<IRelationshipRoleExtractor> RoleExtractors
     {
       get { return _extractors; }
-    }
-
-    public IList<RelationshipHierarchy> Hierarchies
-    {
-      get { return _hierarchies; }
     }
   }
 }

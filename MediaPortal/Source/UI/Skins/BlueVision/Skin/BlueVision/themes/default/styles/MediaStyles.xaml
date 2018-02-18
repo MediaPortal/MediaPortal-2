@@ -26,10 +26,7 @@
       <Image x:Name="PartlyWatchedLabel" Height="25" Margin="0,0,5,0" Stretch="Uniform" Opacity="0.7"
                Source="partlywatched.png">
         <Image.IsVisible>
-          <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} == 0 &amp;&amp; {1} > 1">
-            <Binding Path="PlayCount"/>
-            <Binding Path="WatchPercentage"/>
-          </MultiBinding>
+          <Binding Path="WatchPercentage" Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0} > 0"/>
         </Image.IsVisible>
         <Image.Opacity>
           <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
@@ -43,7 +40,7 @@
       <Image x:Name="WatchedLabel" Height="25" Margin="0,0,5,0" Stretch="Uniform" Opacity="0.7"
                Source="watched.png">
         <Image.IsVisible>
-          <Binding Path="PlayCount" Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0} > 0"/>
+          <Binding Path="WatchPercentage" Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0} == 100"/>
         </Image.IsVisible>
         <Image.Opacity>
           <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
@@ -61,23 +58,18 @@
       <Grid>
         <Image Source="flag.png" Height="71" Stretch="Uniform">
           <Image.IsVisible>
-            <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} >1">
-              <Binding Path="WatchPercentage"/>
-            </MultiBinding>
+            <Binding Path="WatchPercentage" Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0} > 0"/>
           </Image.IsVisible>
         </Image>
         <Image x:Name="PartlyWatchedLabel" Height="18" Margin="0,6,6,0" Stretch="Uniform"
                Source="partlywatched.png" HorizontalAlignment="Right" VerticalAlignment="Top"/>
         <Grid.IsVisible>
-          <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} == 0 &amp;&amp; {1} > 1">
-            <Binding Path="PlayCount"/>
-            <Binding Path="WatchPercentage"/>
-          </MultiBinding>
+          <Binding Path="WatchPercentage" Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0} > 0"/>
         </Grid.IsVisible>
       </Grid>
       <Grid>
         <Grid.IsVisible>
-          <Binding Path="PlayCount" Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0} > 0"/>
+          <Binding Path="WatchPercentage" Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0} == 100"/>
         </Grid.IsVisible>
         <Image Source="flag.png" Height="71" Stretch="Uniform"/>
         <Image x:Name="WatchedLabel" Height="18" Margin="0,6,6,0" Stretch="Uniform"
@@ -1170,6 +1162,7 @@
         <Image Stretch="Uniform" HorizontalAlignment="Center" VerticalAlignment="Center" Source="Audio.png" Margin="10"
                IsVisible="{Binding ElementName=ItemTypeAudio, Path=!HasImage}">
         </Image>
+        <Control HorizontalAlignment="Right" VerticalAlignment="Top" Template="{StaticResource Cover_WatchedFlag_Template}"/>
       </Grid>
     </Grid>
   </ControlTemplate>
@@ -1192,6 +1185,7 @@
         </Grid.OpacityMask>
         <Image Stretch="Fill" FallbackSource="Audio.png" VerticalAlignment="Center" HorizontalAlignment="Center" Source="{Binding MediaItem}">
         </Image>
+        <Control HorizontalAlignment="Right" VerticalAlignment="Top" Template="{StaticResource Cover_WatchedFlag_Template}"/>
       </Grid>
       <Border Grid.Row="0" CornerRadius="{ThemeResource MediumRadiusFocus}" BorderBrush="{ThemeResource MediaItemsFocusedBorderBrush}"
               BorderThickness="3" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="-5.5"
@@ -1279,11 +1273,10 @@
           </Image.Source>
         </Image>
         <Border VerticalAlignment="Stretch" HorizontalAlignment="Stretch" BorderThickness="0" Background="#FF50575c" 
-              IsVisible="{Binding ElementName=ItemTypeAudio, Path=!HasImage}">
-        </Border>
+                IsVisible="{Binding ElementName=ItemTypeAudio, Path=!HasImage}"/>
         <Image Stretch="Uniform" HorizontalAlignment="Center" VerticalAlignment="Center" Source="Audio.png" Margin="10"
-               IsVisible="{Binding ElementName=ItemTypeAudio, Path=!HasImage}">
-        </Image>
+               IsVisible="{Binding ElementName=ItemTypeAudio, Path=!HasImage}"/>
+        <Control HorizontalAlignment="Right" VerticalAlignment="Top" Template="{StaticResource Cover_WatchedFlag_Template}"/>
       </Grid>
     </Grid>
   </ControlTemplate>
@@ -1310,7 +1303,7 @@
                                       fanart:MaxWidth="{StaticResource MEDIA_AUDIO_COVER}" fanart:MaxHeight="{StaticResource MEDIA_AUDIO_COVER}"/>
           </Image.Source>
         </Image>
-
+        <Control HorizontalAlignment="Right" VerticalAlignment="Top" Template="{StaticResource Cover_WatchedFlag_Template}"/>
       </Grid>
       <Border Grid.Row="0" CornerRadius="{ThemeResource MediumRadiusFocus}" BorderBrush="{ThemeResource MediaItemsFocusedBorderBrush}"
               BorderThickness="3" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="-5.5"
@@ -1383,8 +1376,8 @@
           </VisualBrush>
         </Grid.OpacityMask>
         <Image Source="{Binding MediaItem}" Stretch="Uniform" FallbackSource="Image.png"
-               HorizontalAlignment="Center" VerticalAlignment="Center">
-        </Image>
+               HorizontalAlignment="Center" VerticalAlignment="Center"/>
+        <Control HorizontalAlignment="Right" VerticalAlignment="Top" Template="{StaticResource Cover_WatchedFlag_Template}"/>
       </Grid>
     </Grid>
   </ControlTemplate>
@@ -1419,6 +1412,7 @@
                                 Source="{Binding MediaItem}" FallbackSource="Image.png" />
           </Image.Source>
         </Image>
+        <Control HorizontalAlignment="Right" VerticalAlignment="Top" Template="{StaticResource Cover_WatchedFlag_Template}"/>
       </Grid>
 
       <Border Grid.Row="1" CornerRadius="{ThemeResource MediumRadiusFocus}" BorderBrush="{ThemeResource MediaItemsFocusedBorderBrush}"

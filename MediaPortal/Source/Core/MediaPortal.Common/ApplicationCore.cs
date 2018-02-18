@@ -202,43 +202,38 @@ namespace MediaPortal.Common
       ServiceRegistration.Get<IThreadPool>().Shutdown();
     }
 
-    public static void RegisterDefaultMediaItemAspectTypes()
+    public static async System.Threading.Tasks.Task RegisterDefaultMediaItemAspectTypes()
     {
       IMediaItemAspectTypeRegistration miatr = ServiceRegistration.Get<IMediaItemAspectTypeRegistration>();
 
-      miatr.RegisterLocallyKnownMediaItemAspectType(ProviderResourceAspect.Metadata);
-      miatr.RegisterLocallyKnownMediaItemAspectType(ImporterAspect.Metadata);
-
-      miatr.RegisterLocallyKnownMediaItemAspectType(DirectoryAspect.Metadata);
-
-      miatr.RegisterLocallyKnownMediaItemAspectType(MediaAspect.Metadata);
-
-      miatr.RegisterLocallyKnownMediaItemAspectType(VideoAspect.Metadata);
-      miatr.RegisterLocallyKnownMediaItemAspectType(GenreAspect.Metadata);
-      miatr.RegisterLocallyKnownMediaItemAspectType(VideoStreamAspect.Metadata);
-      miatr.RegisterLocallyKnownMediaItemAspectType(VideoAudioStreamAspect.Metadata);
-      miatr.RegisterLocallyKnownMediaItemAspectType(SubtitleAspect.Metadata);
-
-      miatr.RegisterLocallyKnownMediaItemAspectType(AudioAspect.Metadata);
-      miatr.RegisterLocallyKnownMediaItemAspectType(AudioAlbumAspect.Metadata);
-
-      miatr.RegisterLocallyKnownMediaItemAspectType(ImageAspect.Metadata);
-
-      miatr.RegisterLocallyKnownMediaItemAspectType(EpisodeAspect.Metadata);
-      miatr.RegisterLocallyKnownMediaItemAspectType(SeasonAspect.Metadata);
-      miatr.RegisterLocallyKnownMediaItemAspectType(SeriesAspect.Metadata);
-
-      miatr.RegisterLocallyKnownMediaItemAspectType(MovieAspect.Metadata);
-      miatr.RegisterLocallyKnownMediaItemAspectType(MovieCollectionAspect.Metadata);
-
-      miatr.RegisterLocallyKnownMediaItemAspectType(CompanyAspect.Metadata);
-      miatr.RegisterLocallyKnownMediaItemAspectType(PersonAspect.Metadata);
-      miatr.RegisterLocallyKnownMediaItemAspectType(CharacterAspect.Metadata);
-
-      miatr.RegisterLocallyKnownMediaItemAspectType(ThumbnailLargeAspect.Metadata);
-
-      miatr.RegisterLocallyKnownMediaItemAspectType(ExternalIdentifierAspect.Metadata);
-      miatr.RegisterLocallyKnownMediaItemAspectType(RelationshipAspect.Metadata);
+      var knownAspects = new List<MediaItemAspectMetadata>
+      {
+        ProviderResourceAspect.Metadata,
+        ImporterAspect.Metadata,
+        DirectoryAspect.Metadata,
+        MediaAspect.Metadata,
+        VideoAspect.Metadata,
+        GenreAspect.Metadata,
+        VideoStreamAspect.Metadata,
+        VideoAudioStreamAspect.Metadata,
+        SubtitleAspect.Metadata,
+        AudioAspect.Metadata,
+        AudioAlbumAspect.Metadata,
+        ImageAspect.Metadata,
+        EpisodeAspect.Metadata,
+        SeasonAspect.Metadata,
+        SeriesAspect.Metadata,
+        MovieAspect.Metadata,
+        MovieCollectionAspect.Metadata,
+        CompanyAspect.Metadata,
+        PersonAspect.Metadata,
+        CharacterAspect.Metadata,
+        ThumbnailLargeAspect.Metadata,
+        ExternalIdentifierAspect.Metadata,
+        RelationshipAspect.Metadata,
+        StubAspect.Metadata
+      };
+      await miatr.RegisterLocallyKnownMediaItemAspectTypeAsync(knownAspects);
     }
 
     public static void DisposeCoreServices()

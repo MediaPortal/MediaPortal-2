@@ -146,6 +146,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WakeOnLan.Server", "..\Incu
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WakeOnLan.Common", "..\Incubator\WakeOnLan\WakeOnLan.Common\WakeOnLan.Common.csproj", "{9F6CBAFB-159F-4343-9AFA-65B9D95BF08A}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SlimTv.Proxy3", "UI\TV\SlimTvProxy3\SlimTv.Proxy3.csproj", "{E0C8EDE8-7398-4D47-9D5D-73CDA5ECAF25}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StubMetadataExtractors", "Extensions\MetadataExtractors\StubMetadataExtractors\StubMetadataExtractors.csproj", "{B7D9598A-9744-489D-BDED-88BA73AD5DC8}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x86 = Debug|x86
@@ -359,6 +363,12 @@ Global
 		{9F6CBAFB-159F-4343-9AFA-65B9D95BF08A}.Debug|x86.Build.0 = Debug|x86
 		{9F6CBAFB-159F-4343-9AFA-65B9D95BF08A}.Release|x86.ActiveCfg = Release|x86
 		{9F6CBAFB-159F-4343-9AFA-65B9D95BF08A}.Release|x86.Build.0 = Release|x86
+		{E0C8EDE8-7398-4D47-9D5D-73CDA5ECAF25}.Debug|x86.ActiveCfg = Debug|x86
+		{E0C8EDE8-7398-4D47-9D5D-73CDA5ECAF25}.Release|x86.ActiveCfg = Release|x86
+		{B7D9598A-9744-489D-BDED-88BA73AD5DC8}.Debug|x86.ActiveCfg = Debug|x86
+		{B7D9598A-9744-489D-BDED-88BA73AD5DC8}.Debug|x86.Build.0 = Debug|x86
+		{B7D9598A-9744-489D-BDED-88BA73AD5DC8}.Release|x86.ActiveCfg = Release|x86
+		{B7D9598A-9744-489D-BDED-88BA73AD5DC8}.Release|x86.Build.0 = Release|x86
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -430,6 +440,8 @@ Global
 		{7022055E-FF0A-47A6-A6CE-9D80BE64CCDA} = {D78DACAE-6316-45F4-B7D7-31A50791E977}
 		{1E65B673-2705-4211-BD06-0659DD0415C1} = {7022055E-FF0A-47A6-A6CE-9D80BE64CCDA}
 		{9F6CBAFB-159F-4343-9AFA-65B9D95BF08A} = {7022055E-FF0A-47A6-A6CE-9D80BE64CCDA}
+		{E0C8EDE8-7398-4D47-9D5D-73CDA5ECAF25} = {1D7CBAB2-F708-4A74-8DF9-610497AED552}
+		{B7D9598A-9744-489D-BDED-88BA73AD5DC8} = {1B4741DC-78EA-4D93-8EED-00CB9617AD2F}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {1EEA469D-E8FA-442D-A7DC-FA62A56A8808}

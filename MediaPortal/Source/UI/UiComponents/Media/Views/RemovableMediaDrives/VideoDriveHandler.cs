@@ -31,6 +31,8 @@ using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Common.ResourceAccess;
 using MediaPortal.Utilities.FileSystem;
+using MediaPortal.UiComponents.Media.Helpers;
+using System.Linq;
 
 namespace MediaPortal.UiComponents.Media.Views.RemovableMediaDrives
 {
@@ -68,6 +70,15 @@ namespace MediaPortal.UiComponents.Media.Views.RemovableMediaDrives
         _mediaItem = mediaAccessor.CreateLocalMediaItem(ra, mediaAccessor.GetMetadataExtractorsForMIATypes(extractedMIATypeIds));
       if (_mediaItem == null)
         throw new Exception(string.Format("Could not create media item for drive '{0}'", driveInfo.Name));
+
+      MatchWithStubs(driveInfo, new MediaItem[] { _mediaItem });
+      IEnumerable<MediaItem> processedItems = CertificationHelper.ProcessMediaItems(new MediaItem[] { _mediaItem });
+      if (processedItems.Count() == 0)
+      {
+        _mediaItem = null;
+        return;
+      }
+      _mediaItem = processedItems.First();
       SingleMediaItemAspect mia = null;
       MediaItemAspect.TryGetAspect(_mediaItem.Aspects, MediaAspect.Metadata, out mia);
       mia.SetAttribute(MediaAspect.ATTR_TITLE, mia.GetAttributeValue(MediaAspect.ATTR_TITLE) +
@@ -153,7 +164,12 @@ namespace MediaPortal.UiComponents.Media.Views.RemovableMediaDrives
 
     public override IList<MediaItem> MediaItems
     {
-      get { return new List<MediaItem>(1) {_mediaItem}; }
+      get
+      {
+        if(_mediaItem != null)
+          return new List<MediaItem>(1) {_mediaItem};
+        return new List<MediaItem>();
+      }
     }
 
     public override IList<ViewSpecification> SubViewSpecifications
@@ -163,7 +179,9 @@ namespace MediaPortal.UiComponents.Media.Views.RemovableMediaDrives
 
     public override IEnumerable<MediaItem> GetAllMediaItems()
     {
-      yield return _mediaItem;
+      if (_mediaItem != null)
+        yield return _mediaItem;
+      yield break;
     }
 
     #endregion

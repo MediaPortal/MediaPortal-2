@@ -172,8 +172,7 @@
                Margin="10" Source="Medialogos\Subtitle\Frame.png"
                IsVisible="{Binding Path=SubtitleFormat,Converter={StaticResource ReferenceToBoolConverter}}"/>
 
-        <Grid Grid.Row="2" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="10"
-              IsVisible="{Binding Path=IsInternal,Converter={StaticResource ReferenceToBoolConverter}}">
+        <Grid Grid.Row="2" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="10">
           <Grid.RowDefinitions>
             <RowDefinition Height="*"/>
           </Grid.RowDefinitions>
@@ -183,8 +182,8 @@
           </Grid.ColumnDefinitions>
           <Image Grid.Column="1" Stretch="Uniform" HorizontalAlignment="Right" VerticalAlignment="Center"
                  Margin="0,0,15,0" Source="Medialogos\Subtitle\Internal.png" IsVisible="{Binding IsInternal}"/>
-          <!--Image Grid.Column="1" Stretch="Uniform" HorizontalAlignment="Right" VerticalAlignment="Center"
-                                 Margin="0,0,10,0" Source="Medialogos\Subtitle\External.png" IsVisible="{Binding !IsInternal}"/-->
+          <Image Grid.Column="1" Stretch="Uniform" HorizontalAlignment="Right" VerticalAlignment="Center"
+                 Margin="0,0,15,0" Source="Medialogos\Subtitle\External.png" IsVisible="{Binding !IsInternal}"/>
           <Label Grid.Column="0" Margin="20,0,0,0" Color="{ThemeResource TextColor}" 
                  FontSize="{ThemeResource SmallerFontSize}" FontFamily="SegoeUIBold"
                  HorizontalAlignment="Center" VerticalAlignment="Center"

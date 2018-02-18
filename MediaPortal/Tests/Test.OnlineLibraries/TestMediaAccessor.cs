@@ -144,5 +144,20 @@ namespace Test.OnlineLibraries
     {
       throw new NotImplementedException();
     }
+
+    public bool IsDirectorySingleResource(IResourceAccessor mediaItemAccessor)
+    {
+      throw new NotImplementedException();
+    }
+
+    public bool IsStubResource(IResourceAccessor mediaItemAccessor)
+    {
+      throw new NotImplementedException();
+    }
+
+    public IEnumerable<IDictionary<Guid, IList<MediaItemAspect>>> ExtractStubItems(IResourceAccessor mediaItemAccessor, IEnumerable<Guid> metadataExtractorIds)
+    {
+      throw new NotImplementedException();
+    }
   }
 }

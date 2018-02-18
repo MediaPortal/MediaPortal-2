@@ -45,7 +45,7 @@ namespace MediaPortal.UiComponents.Configuration.ConfigurationControllers
 
     public override bool IsSettingSupported(ConfigSetting setting)
     {
-      return setting != null && !string.IsNullOrEmpty(DialogScreen);
+      return base.IsSettingSupported(setting) && !string.IsNullOrEmpty(DialogScreen);
     }
 
     protected abstract string DialogScreen { get; }

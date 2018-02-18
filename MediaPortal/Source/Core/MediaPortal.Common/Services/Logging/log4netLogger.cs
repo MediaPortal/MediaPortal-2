@@ -86,7 +86,7 @@ namespace MediaPortal.Common.Services.Logging
       {
         return string.Format(format, args);
       }
-      catch (Exception ex)
+      catch (Exception)
       {
         return format;
       }

@@ -27,15 +27,15 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Text;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+using NUnit.Framework;
 using UPnP.Infrastructure.Utils.HTTP;
 
 namespace Tests.UPnP
 {
-  [TestClass]
+  [TestFixture]
   public class HttpHeaders
   {
-    [TestMethod]
+    [Test]
     public void Http_ParsePostHeaders()
     {
       // Typical http headers, taken TMP forum search
@@ -58,7 +58,7 @@ namespace Tests.UPnP
       Parse(requestHeaders);
     }
 
-    [TestMethod]
+    [Test]
     public void Http_ParseGetHeaders()
     {
       List<string> requestHeaders = new List<string>
@@ -80,7 +80,7 @@ namespace Tests.UPnP
       Parse(requestHeaders);
     }
 
-    [TestMethod]
+    [Test]
     public void Http_ParseConnectHeaders()
     {
       List<string> requestHeaders = new List<string>
@@ -120,7 +120,7 @@ namespace Tests.UPnP
       }
     }
 
-    [TestMethod]
+    [Test]
     public void Http_ParseHeadersPerformanceTest()
     {
       var watch = Stopwatch.StartNew();

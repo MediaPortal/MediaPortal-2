@@ -46,5 +46,7 @@ namespace MediaPortal.Common.Genres
     public const int WORLD = 18;
     public const int ALTERNATIVE = 19;
     public const int COMPILATION = 20;
+    public const int AUDIOBOOK = 21;
+    public const int KARAOKE = 22;
   }
 }

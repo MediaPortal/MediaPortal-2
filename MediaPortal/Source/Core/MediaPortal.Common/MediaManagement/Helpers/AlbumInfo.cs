@@ -143,6 +143,71 @@ namespace MediaPortal.Common.MediaManagement.Helpers
       return CloneProperties(this);
     }
 
+    public void MergeWith(AlbumInfo other, bool overwriteShorterStrings = false, bool updateTrackList = false)
+    {
+      HasChanged |= MetadataUpdater.SetOrUpdateId(ref AudioDbId, other.AudioDbId);
+      HasChanged |= MetadataUpdater.SetOrUpdateId(ref CdDdId, other.CdDdId);
+      HasChanged |= MetadataUpdater.SetOrUpdateId(ref MusicBrainzDiscId, other.MusicBrainzDiscId);
+      HasChanged |= MetadataUpdater.SetOrUpdateId(ref MusicBrainzGroupId, other.MusicBrainzGroupId);
+      HasChanged |= MetadataUpdater.SetOrUpdateId(ref MusicBrainzId, other.MusicBrainzId);
+      HasChanged |= MetadataUpdater.SetOrUpdateId(ref AmazonId, other.AmazonId);
+      HasChanged |= MetadataUpdater.SetOrUpdateId(ref ItunesId, other.ItunesId);
+      HasChanged |= MetadataUpdater.SetOrUpdateId(ref UpcEanId, other.UpcEanId);
+
+      HasChanged |= MetadataUpdater.SetOrUpdateString(ref Album, other.Album, overwriteShorterStrings);
+      HasChanged |= MetadataUpdater.SetOrUpdateString(ref Description, other.Description, overwriteShorterStrings);
+
+      if (TotalTracks < other.TotalTracks)
+      {
+        HasChanged = true;
+        TotalTracks = other.TotalTracks;
+      }
+
+      HasChanged |= MetadataUpdater.SetOrUpdateValue(ref Compilation, other.Compilation);
+      HasChanged |= MetadataUpdater.SetOrUpdateValue(ref DiscNum, other.DiscNum);
+      HasChanged |= MetadataUpdater.SetOrUpdateValue(ref ReleaseDate, other.ReleaseDate);
+      HasChanged |= MetadataUpdater.SetOrUpdateValue(ref Sales, other.Sales);
+      HasChanged |= MetadataUpdater.SetOrUpdateValue(ref TotalDiscs, other.TotalDiscs);
+
+      HasChanged |= MetadataUpdater.SetOrUpdateRatings(ref Rating, other.Rating);
+
+      if (Genres.Count == 0)
+      {
+        HasChanged |= MetadataUpdater.SetOrUpdateList(Genres, other.Genres.Distinct().ToList(), true);
+      }
+      HasChanged |= MetadataUpdater.SetOrUpdateList(Awards, other.Awards.Distinct().ToList(), true);
+
+      //These lists contain Ids and other properties that are not persisted, so they will always appear changed.
+      //So changes to these lists will only be stored if something else has changed.
+      MetadataUpdater.SetOrUpdateList(Artists, other.Artists.Where(p => !string.IsNullOrEmpty(p.Name)).Distinct().ToList(), Artists.Count == 0, overwriteShorterStrings);
+      MetadataUpdater.SetOrUpdateList(MusicLabels, other.MusicLabels.Where(c => !string.IsNullOrEmpty(c.Name)).Distinct().ToList(), MusicLabels.Count == 0, overwriteShorterStrings);
+
+      if (updateTrackList) //Comparing all tracks can be quite time consuming
+      {
+        MetadataUpdater.SetOrUpdateList(Tracks, other.Tracks.Distinct().ToList(), true, overwriteShorterStrings);
+        List<string> artists = new List<string>();
+        foreach (TrackInfo track in other.Tracks)
+        {
+          if (track.Artists.Count > 0)
+            if (!artists.Contains(track.Artists[0].Name))
+              artists.Add(track.Artists[0].Name);
+        }
+        if (other.Tracks.Count > 5 && (float)artists.Count > (float)other.Tracks.Count * 0.6 && !Compilation)
+        {
+          Compilation = true;
+          HasChanged = true;
+        }
+      }
+
+      if (Artists.Count > 0 && !Compilation &&
+        (Artists[0].Name.IndexOf("Various", StringComparison.InvariantCultureIgnoreCase) >= 0 ||
+        Artists[0].Name.Equals("VA", StringComparison.InvariantCultureIgnoreCase)))
+      {
+        Compilation = true;
+        HasChanged = true;
+      }
+    }
+
     #region Members
 
     /// <summary>
@@ -156,10 +221,7 @@ namespace MediaPortal.Common.MediaManagement.Helpers
       SetMetadataChanged(aspectData);
 
       MediaItemAspect.SetAttribute(aspectData, MediaAspect.ATTR_TITLE, ToString());
-      if (!string.IsNullOrEmpty(AlbumSort))
-        MediaItemAspect.SetAttribute(aspectData, MediaAspect.ATTR_SORT_TITLE, AlbumSort);
-      else
-        MediaItemAspect.SetAttribute(aspectData, MediaAspect.ATTR_SORT_TITLE, GetSortTitle(Album));
+      if (!string.IsNullOrEmpty(AlbumSort)) MediaItemAspect.SetAttribute(aspectData, MediaAspect.ATTR_SORT_TITLE, AlbumSort);
       //MediaItemAspect.SetAttribute(aspectData, MediaAspect.ATTR_ISVIRTUAL, true); //Is maintained by medialibrary and metadataextractors
       MediaItemAspect.SetAttribute(aspectData, AudioAlbumAspect.ATTR_ALBUM, Album);
       MediaItemAspect.SetAttribute(aspectData, AudioAlbumAspect.ATTR_COMPILATION, Compilation);

@@ -24,7 +24,6 @@
 
 using System.Collections.Generic;
 using MediaPortal.Common.Settings;
-using MediaPortal.Extensions.OnlineLibraries;
 using System.Text.RegularExpressions;
 
 namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor.Settings
@@ -49,6 +48,11 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor.Setti
           ".mov",
           ".wtv",
           ".dvr-ms",
+          ".divx",
+          ".mpeg",
+          ".m2p",
+          ".qt",
+          ".rm"
       };
 
     // Don't add any others unless support has been added for them
@@ -60,6 +64,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor.Setti
         ".ssa",
         ".sub",
         ".vtt",
+        ".idx",
       };
 
     protected readonly static List<string> DEFAULT_SUBTITLE_FOLDERS = new List<string>

@@ -122,7 +122,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.WICThumbnailProvider
           return true;
         }
       }
-      catch (Exception e)
+      catch (Exception)
       {
         // ServiceRegistration.Get<ILogger>().Warn("WICThumbnailProvider: Error loading bitmapSource from file data stream", e);
         return false;

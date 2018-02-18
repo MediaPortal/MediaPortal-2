@@ -13,9 +13,10 @@
   <ResourceWrapper x:Key="SquareButtonZoomCoefficient" Resource="1"/>
   <ResourceWrapper x:Key="WideButtonZoomCoefficientX" Resource="1"/>
   <ResourceWrapper x:Key="WideButtonZoomCoefficientY" Resource="1"/>
-  <ResourceWrapper x:Key="PosterButtonZoomCoefficientX" Resource="1.17"/>
-  <ResourceWrapper x:Key="PosterButtonZoomCoefficientY" Resource="1.15"/>
+  <ResourceWrapper x:Key="PosterButtonZoomCoefficientX" Resource="1.14"/>
+  <ResourceWrapper x:Key="PosterButtonZoomCoefficientY" Resource="1.12"/>
   <Model x:Key="ScreenModeModel" Id="0E621AA5-0733-4E88-A0F0-887F8D73A055"/>
+  <Model x:Key="LoginModel" Id="82582433-FD64-41bd-9059-7F662DBDA713"/>
   <ExpressionMultiValueConverter x:Key="ExpressionMultiValueConverter"/>
   <ExpressionValueConverter x:Key="ExpressionValueConverter"/>
   <StringFormatConverter x:Key="StringFormatConverter"/>
@@ -41,6 +42,17 @@
       <SplineDoubleKeyFrame KeyTime="00:00:00" Value="1"/>
       <SplineDoubleKeyFrame KeyTime="00:00:00.1" Value="1"/>
       <SplineDoubleKeyFrame KeyTime="00:00:00.3" Value="{ThemeResource PosterButtonZoomCoefficientY}"/>
+    </DoubleAnimationUsingKeyFrames>
+  </Storyboard>
+
+  <Storyboard x:Key="FocusedLostButtonWideStoryboard_Poster" FillBehavior="HoldEnd">
+    <DoubleAnimationUsingKeyFrames BeginTime="00:00:00" FillBehavior="HoldEnd" Storyboard.TargetName="GrowControl" Storyboard.TargetProperty="RenderTransform.Children[0].ScaleX">
+      <SplineDoubleKeyFrame KeyTime="00:00:00" Value="{ThemeResource PosterButtonZoomCoefficientX}"/>
+      <SplineDoubleKeyFrame KeyTime="00:00:00.3" Value="1"/>
+    </DoubleAnimationUsingKeyFrames>
+    <DoubleAnimationUsingKeyFrames BeginTime="00:00:00" FillBehavior="HoldEnd" Storyboard.TargetName="GrowControl" Storyboard.TargetProperty="RenderTransform.Children[0].ScaleY">
+      <SplineDoubleKeyFrame KeyTime="00:00:00" Value="{ThemeResource PosterButtonZoomCoefficientY}"/>
+      <SplineDoubleKeyFrame KeyTime="00:00:00.3" Value="1"/>
     </DoubleAnimationUsingKeyFrames>
   </Storyboard>
 
@@ -476,6 +488,7 @@
               </Trigger.EnterActions>
               <Trigger.ExitActions>
                 <StopStoryboard BeginStoryboardName="Focused_BeginStoryboard"/>
+                <BeginStoryboard x:Name="FocusLost_StoryStoryboard" Storyboard="{ThemeResource FocusedLostButtonWideStoryboard_Poster}"/>
               </Trigger.ExitActions>
             </Trigger>
             <Trigger Property="IsPressed" Value="True">
@@ -528,6 +541,7 @@
               </Trigger.EnterActions>
               <Trigger.ExitActions>
                 <StopStoryboard BeginStoryboardName="Focused_BeginStoryboard"/>
+                <BeginStoryboard x:Name="FocusLost_StoryStoryboard" Storyboard="{ThemeResource FocusedLostButtonWideStoryboard_Poster}"/>
               </Trigger.ExitActions>
             </Trigger>
             <Trigger Property="IsPressed" Value="True">
@@ -1531,6 +1545,29 @@
               </Image.Triggers>
             </Image>
           </Grid>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+
+  <Style x:Key="UserButtonStyle" TargetType="{x:Type Button}">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="{x:Type Button}">
+          <DockPanel>
+            <Image x:Name="UserIcon" DockPanel.Dock="Left" Height="80" Width="80" Source="Person.png" Stretch="Uniform"
+                   HorizontalAlignment="Center" VerticalAlignment="Center" Opacity="0.9"/>
+            <Label x:Name="UserLabel" DockPanel.Dock="Right" Margin="-12,0,0,0" IsVisible="{Binding Source={StaticResource LoginModel}, Path=IsUserLoggedIn}"
+                   DataContext="{Binding Source={StaticResource LoginModel}, Path=CurrentUser}" Content="{Binding Path=Name}" 
+                   Color="{ThemeResource MenuTextBackground}" FontSize="{ThemeResource SmallerFontSize}" VerticalAlignment="Center">
+            </Label>
+          </DockPanel>
+          <ControlTemplate.Triggers>
+            <Trigger Property="HasFocus" Value="True">
+              <Setter TargetName="UserLabel" Property="Color" Value="{ThemeResource TextColor}"/>
+              <Setter TargetName="UserIcon" Property="Opacity" Value="1.2"/>
+            </Trigger>
+          </ControlTemplate.Triggers>
         </ControlTemplate>
       </Setter.Value>
     </Setter>

@@ -356,6 +356,7 @@
   <Register Location="/Configuration/Settings/Shares">
     <CustomConfigSetting
         Id="SharesConfiguration"
+        RestrictionGroup="Settings.MediaSources"
         Text="[Settings.Shares.ConfigureShares.SharesConfiguration]"
         HelpText="[Settings.Shares.ConfigureShares.SharesConfiguration.Help]"
         ClassName="MediaPortal.UiComponents.SkinBase.Settings.Configuration.Shares.SharesConfigSetting"
@@ -363,6 +364,7 @@
 
     <CustomConfigSetting
         Id="SharesOverview"
+        RestrictionGroup="Settings.MediaSources"
         Text="[Settings.Shares.Overview.SharesOverview]"
         HelpText="[Settings.Shares.Overview.SharesOverview.Help]"
         ClassName="MediaPortal.UiComponents.SkinBase.Settings.Configuration.Shares.SharesOverviewSetting"

@@ -171,7 +171,7 @@ namespace MediaPortal.UiComponents.Trakt.Service
       IServerConnectionManager scm = ServiceRegistration.Get<IServerConnectionManager>();
       IContentDirectory cd = scm.ContentDirectory;
     
-      return cd?.Search(new MediaItemQuery(aspects, new Guid[] { }, new MediaItemIdFilter(filter)), false, null, true).First();
+      return cd?.SearchAsync(new MediaItemQuery(aspects, new Guid[] { }, new MediaItemIdFilter(filter)), false, null, true).Result.First();
     }
 
     private TraktScrobbleMovie CreateMovieData(MediaItem mediaItem)

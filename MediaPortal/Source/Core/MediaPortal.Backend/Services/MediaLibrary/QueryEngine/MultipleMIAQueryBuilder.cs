@@ -31,9 +31,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
 {
     public class MultipleMIAQueryBuilder : MainQueryBuilder
     {
-        private MultipleMediaItemAspectMetadata _requestedMIA;
-
-        public MultipleMIAQueryBuilder(MIA_Management miaManagement, IEnumerable<QueryAttribute> simpleSelectAttributes,
+      public MultipleMIAQueryBuilder(MIA_Management miaManagement, IEnumerable<QueryAttribute> simpleSelectAttributes,
             MultipleMediaItemAspectMetadata requestedMIA,
             Guid[] mediaItemIds)
           : base(miaManagement, simpleSelectAttributes,

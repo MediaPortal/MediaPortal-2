@@ -186,10 +186,10 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
       string title = null;
       string sortTitle = null;
       // VideoAspect must be present to be sure it is actually a video resource.
-      if (!extractedAspectData.ContainsKey(VideoStreamAspect.ASPECT_ID) && !extractedAspectData.ContainsKey(SubtitleAspect.ASPECT_ID))
+      if (!extractedAspectData.ContainsKey(VideoAspect.ASPECT_ID) && !extractedAspectData.ContainsKey(SubtitleAspect.ASPECT_ID))
         return false;
 
-      if (extractedAspectData.ContainsKey(SubtitleAspect.ASPECT_ID) && !importOnly)
+      if (!extractedAspectData.ContainsKey(VideoAspect.ASPECT_ID) && extractedAspectData.ContainsKey(SubtitleAspect.ASPECT_ID) && !importOnly)
         return false; //Subtitles can only be imported not refreshed
 
       bool refresh = false;
@@ -341,6 +341,16 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
       }
       movieInfo.AssignNameId();
 
+      if (movieInfo.MovieNameSort.IsEmpty)
+      {
+        if (!movieInfo.CollectionName.IsEmpty && movieInfo.ReleaseDate.HasValue)
+          movieInfo.MovieNameSort = $"{movieInfo.CollectionName.Text} {movieInfo.ReleaseDate.Value.Year}-{movieInfo.ReleaseDate.Value.Month.ToString("00")}";
+        else if (!movieInfo.MovieName.IsEmpty)
+          movieInfo.MovieNameSort = BaseInfo.GetSortTitle(movieInfo.MovieName.Text);
+        else
+          movieInfo.MovieNameSort = BaseInfo.GetSortTitle(title);
+      }
+
       if (refresh)
       {
         if ((IncludeActorDetails && !BaseInfo.HasRelationship(extractedAspectData, PersonAspect.ROLE_ACTOR) && movieInfo.Actors.Count > 0) ||
@@ -450,6 +460,21 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
         // couldn't perform our task here.
         ServiceRegistration.Get<ILogger>().Info("MoviesMetadataExtractor: Exception reading resource '{0}' (Text: '{1}')", mediaItemAccessor.CanonicalLocalResourcePath, e.Message);
       }
+      return false;
+    }
+
+    public bool IsDirectorySingleResource(IResourceAccessor mediaItemAccessor)
+    {
+      return false;
+    }
+
+    public bool IsStubResource(IResourceAccessor mediaItemAccessor)
+    {
+      return false;
+    }
+
+    public bool TryExtractStubItems(IResourceAccessor mediaItemAccessor, ICollection<IDictionary<Guid, IList<MediaItemAspect>>> extractedStubAspectData)
+    {
       return false;
     }
 

@@ -81,7 +81,6 @@
     <Compile Include="Models\GroupMenuListView.cs" />
     <Compile Include="Models\HomeMenuModel.cs" />
     <Compile Include="Models\GridListView.cs" />
-    <Compile Include="Models\LatestMediaModel.cs" />
     <Compile Include="Models\PowerMenuModel.cs" />
     <Compile Include="Models\SetupModel.cs" />
     <Compile Include="Models\SynchronousSettingsChangeWatcher.cs" />
@@ -574,6 +573,7 @@
     <Content Include="Skin\BlueVision\images\unheard_icon.png" />
     <Content Include="Skin\BlueVision\images\UnwatchedTab_small.png" />
     <Content Include="Skin\BlueVision\images\unwatched_icon.png" />
+    <Content Include="Skin\BlueVision\images\User.png" />
     <Content Include="Skin\BlueVision\images\video-icon.png" />
     <Content Include="Skin\BlueVision\images\VideoLarge.png" />
     <Content Include="Skin\BlueVision\images\VideoNormal.png" />
@@ -647,6 +647,7 @@
     <Content Include="Skin\BlueVision\themes\Win10\images\preview.jpg" />
     <Content Include="Skin\BlueVision\themes\Win10\images\ShutdownIcon.png" />
     <Content Include="Skin\BlueVision\themes\Win10\images\SplashScreen.jpg" />
+    <Content Include="Skin\BlueVision\themes\Win10\images\user.png" />
     <Content Include="Skin\BlueVision\themes\Win10\images\VideoLarge.png" />
     <Content Include="Skin\BlueVision\themes\Win10\images\VideoNormal.png" />
     <Content Include="Skin\BlueVision\themes\Win10\images\VideoWide.png" />
@@ -1098,6 +1099,12 @@
       <SubType>Designer</SubType>
     </Content>
     <Content Include="Skin\BlueVision\themes\Win10\screens\FullscreenContentImage.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="Skin\BlueVision\themes\Win10\screens\dialogNewsFeedsSetup.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="Skin\BlueVision\themes\Win10\screens\dialogWeatherSetup.xaml">
       <SubType>Designer</SubType>
     </Content>
     <Page Include="Skin\BlueVision\themes\Win10\screens\SimpleFilterItems.xaml">

@@ -67,7 +67,36 @@ namespace MediaPortal.Common.MediaManagement
     /// If the return value is <c>true</c>, the extractedAspectData collection was filled by this metadata extractor.
     /// If the return value is <c>false</c>, the <paramref name="extractedAspectData"/> collection remains
     /// unchanged.</returns>
-    bool TryExtractMetadata(IResourceAccessor mediaItemAccessor, IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData, 
-      bool importOnly, bool forceQuickMode);
+    bool TryExtractMetadata(IResourceAccessor mediaItemAccessor, IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData, bool importOnly, bool forceQuickMode);
+
+    /// <summary>
+    /// Checks if the given directory <paramref name="mediaItemAccessor"/> is considered a "single item" media source (like DVD or BD folders on hard drive).
+    /// </summary>
+    /// <param name="mediaItemAccessor">The media item resource accessor to open the stream to the physical media.</param>
+    /// <returns><c>true</c> if it is a single item.</returns>
+    bool IsDirectorySingleResource(IResourceAccessor mediaItemAccessor);
+
+    /// <summary>
+    /// Checks if the given <paramref name="mediaItemAccessor"/> points to a stub (a CD, DVD or BD placeholder).
+    /// </summary>
+    /// <param name="mediaItemAccessor">The media item resource accessor to open the stream to the physical media.</param>
+    /// <returns><c>true</c> if it is a stub item.</returns>
+    bool IsStubResource(IResourceAccessor mediaItemAccessor);
+
+    /// <summary>
+    /// Worker method to actually try stub extraction from the media resource given by
+    /// <paramref name="mediaItemAccessor"/>.
+    /// If this method returns <c>true</c>, the extracted media item aspects were written to the
+    /// <paramref name="extractedAspectData"/> collection.
+    /// </summary>
+    /// <remarks>
+    /// If <see cref="MetadataExtractorMetadata.ProcessesNonFiles"/> is <c>true</c>, file resources as well as other resources
+    /// will be passed to this method.
+    /// </remarks>
+    /// <param name="mediaItemAccessor">The media item resource accessor to open the stream to the physical media.</param>
+    /// <param name="extractedStubAspectData">List of dictionaries containing a mapping of media item aspect ids to stub aspects.</param>
+    /// <returns><c>true</c> if stubs could be extracted from the specified media item, else <c>false</c>.
+    /// If the return value is <c>true</c>, the extractedStubAspectData collection was filled by this metadata extractor.
+    bool TryExtractStubItems(IResourceAccessor mediaItemAccessor, ICollection<IDictionary<Guid, IList<MediaItemAspect>>> extractedStubAspectData);
   }
 }
