@@ -48,7 +48,7 @@ namespace MediaPortal.UiComponents.Media.MediaLists
       if (navigationFilter != null)
         filter = BooleanCombinationFilter.CombineFilters(BooleanOperator.And, filter, navigationFilter);
 
-      return new MediaItemQuery(_necessaryMias, filter)
+      return new MediaItemQuery(_necessaryMias, _optionalMias, filter)
       {
         SortInformation = new List<ISortInformation> { new AttributeSortInformation(ImporterAspect.ATTR_DATEADDED, SortDirection.Ascending) }
       };

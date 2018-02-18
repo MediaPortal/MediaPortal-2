@@ -54,6 +54,7 @@ namespace MediaPortal.UiComponents.Media.MediaLists
     protected IList<MediaItem> _currentMediaItems;
     protected ItemsList _allItems;
     protected IEnumerable<Guid> _necessaryMias;
+    protected IEnumerable<Guid> _optionalMias;
     protected PlayableMediaItemToListItemAction _playableConverterAction;
     protected PlayableContainerMediaItemToListItemAction _playableContainerConverterAction;
 
