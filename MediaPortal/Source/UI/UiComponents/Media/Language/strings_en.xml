@@ -173,7 +173,6 @@
   <string name="Media.ImageItemsHeader">Image(s)</string>
   <string name="Media.DiscItemsHeader">Disc(s)</string>
   <string name="Media.TrackItemsHeader">Track(s)</string>
-  <string name="Media.DiscItemsHeader">Disc(s)</string>
   <string name="Media.SimpleSearchHeader">Simple search</string>
   <string name="Media.ChooseCollectionHeader">Collections</string>
   <string name="Media.ChooseActorHeader">Actors</string>
