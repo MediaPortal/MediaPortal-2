@@ -11,8 +11,8 @@
     <TransifexDir Condition="$(TransifexDir) == ''">$(ProjectRoot)\Tools\Transifex</TransifexDir>
 
     <!-- Transifex Client -->
-    <TransifexClientExePath>$(TransifexDir)\tx.exe</TransifexClientExePath>
-    <TransifexClientDownloadUrl>http://files.transifex.com/transifex-client/0.11/tx.exe</TransifexClientDownloadUrl>
+    <TransifexClientExePath>$(TransifexDir)\tx.py36.exe</TransifexClientExePath>
+    <TransifexClientDownloadUrl>https://github.com/transifex/transifex-client/releases/download/0.13.1/tx.py36.exe</TransifexClientDownloadUrl>
 
     <!-- Transifex Helper -->
     <TransifexHelperDir Condition="$(TransifexHelperDir) == ''">$(ProjectRoot)\Tools\TransifexHelper</TransifexHelperDir>
