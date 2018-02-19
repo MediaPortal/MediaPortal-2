@@ -175,7 +175,7 @@ file_filter=Cache_MP2\VideoPlayer\strings_<lang>.xml
 source_file=Cache_MP2\VideoPlayer\strings_en.xml
 source_lang=en
 type=ANDROID
-[MP2.WakeOnLan.Client]
+[MP2.WakeOnLanClient]
 file_filter=Cache_MP2\WakeOnLan.Client\strings_<lang>.xml
 source_file=Cache_MP2\WakeOnLan.Client\strings_en.xml
 source_lang=en
