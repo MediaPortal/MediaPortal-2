@@ -50,12 +50,12 @@ Parameters which have to be accessible by a DynamicResource lookup:
       </ControlTemplate.Resources>
       <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch" >
         <Grid.ColumnDefinitions>
-          <ColumnDefinition Width="25*"/>
-          <ColumnDefinition Width="75*"/>
+          <ColumnDefinition Width="20*"/>
+          <ColumnDefinition Width="80*"/>
         </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
-          <RowDefinition Height="75*"/>
-          <RowDefinition Height="25*"/>
+          <RowDefinition Height="80*"/>
+          <RowDefinition Height="20*"/>
         </Grid.RowDefinitions>
         <Image x:Name="FanArtImageBackground" Stretch="UniformToFill" Grid.Column="1" Grid.Row="0"
                IsVisible="{Binding Source={StaticResource SkinSettingsModel}, Path=[WMC].EnableFanart}">
