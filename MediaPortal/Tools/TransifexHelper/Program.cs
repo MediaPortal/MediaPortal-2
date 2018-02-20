@@ -37,11 +37,19 @@ namespace TransifexHelper
   {
     #region struct transifex project
 
+    [DebuggerDisplay("{GetProjectAndResourceCombined()} ({LanguageDirectory})")]
     private class TransifexResource
     {
-      public string Name;
-      public string ProjectSlug;
-      public string LanguageDirectory;
+      private string _name;
+
+      public string Name
+      {
+        get { return _name; }
+        set { _name = value.Replace(".", ""); } // Cleanup invalid characters from resource names (no dots)
+      }
+
+      public string ProjectSlug { get; set; }
+      public string LanguageDirectory { get; set; }
 
       public string GetCacheSubDirectory()
       {
@@ -102,7 +110,10 @@ namespace TransifexHelper
         ExecutePull();
 
       if (mpOptions.Fix)
+      {
+        DeleteEmptyFiles();
         FixEncodings();
+      }
 
       if (mpOptions.FromCache)
         CopyFromCache();
@@ -357,6 +368,29 @@ namespace TransifexHelper
     }
 
     /// <summary>
+    /// Deletes empty translation files (unfortunately saved by TX client).
+    /// </summary>
+    private static void DeleteEmptyFiles()
+    {
+      Console.WriteLine("Checking for empty language files...");
+      foreach (var res in TransifexResources)
+      {
+        string inputDir = res.GetCacheFullDirectory();
+        if (!Directory.Exists(inputDir))
+          continue;
+
+        foreach (FileInfo langFile in new DirectoryInfo(inputDir).GetFiles())
+        {
+          if (langFile.Length < 100)
+          {
+            Console.WriteLine("Delete empty file {0} (size less than 100 bytes)", langFile.FullName);
+            langFile.Delete();
+          }
+        }
+      }
+    }
+
+    /// <summary>
     /// Temporary workaround: Open all language xml and replace &lt; and &gt; tags by valid xml encodings.
     /// </summary>
     private static void FixEncodings()
@@ -406,38 +440,38 @@ namespace TransifexHelper
     /// <returns>String with normalized CR+LF-linebreaks.</returns>
     private static string NormalizeLineBreaks(string input)
     {
-        // Allow 10% as a rough guess of how much the string may grow.
-        // If we're wrong we'll either waste space or have extra copies -
-        // it will still work
-        StringBuilder builder = new StringBuilder((int) (input.Length * 1.1));
+      // Allow 10% as a rough guess of how much the string may grow.
+      // If we're wrong we'll either waste space or have extra copies -
+      // it will still work
+      StringBuilder builder = new StringBuilder((int)(input.Length * 1.1));
 
-        bool lastWasCR = false;
+      bool lastWasCR = false;
 
-        foreach (char c in input)
+      foreach (char c in input)
+      {
+        if (lastWasCR)
         {
-            if (lastWasCR)
-            {
-                lastWasCR = false;
-                if (c == '\n')
-                {
-                    continue; // Already written \r\n
-                }
-            }
-            switch (c)
-            {
-                case '\r':
-                    builder.Append("\r\n");
-                    lastWasCR = true;
-                    break;
-                case '\n':
-                    builder.Append("\r\n");
-                    break;
-                default:
-                    builder.Append(c);
-                    break;
-            }
+          lastWasCR = false;
+          if (c == '\n')
+          {
+            continue; // Already written \r\n
+          }
         }
-        return builder.ToString();
+        switch (c)
+        {
+          case '\r':
+            builder.Append("\r\n");
+            lastWasCR = true;
+            break;
+          case '\n':
+            builder.Append("\r\n");
+            break;
+          default:
+            builder.Append(c);
+            break;
+        }
+      }
+      return builder.ToString();
     }
 
     #endregion
