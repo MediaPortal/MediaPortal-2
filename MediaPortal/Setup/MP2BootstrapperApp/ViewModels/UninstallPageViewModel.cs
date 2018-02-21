@@ -28,7 +28,7 @@ namespace MP2BootstrapperApp.ViewModels
   {
     public UninstallPageViewModel(InstallWizardViewModel viewModel)
     {
-      viewModel.Header = "Uninstall page header";
+      viewModel.Header = "Uninstall Mediaportal";
     }
     
   }

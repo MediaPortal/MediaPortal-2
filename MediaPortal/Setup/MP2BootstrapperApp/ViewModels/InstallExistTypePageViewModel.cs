@@ -30,7 +30,7 @@ namespace MP2BootstrapperApp.ViewModels
 
     public InstallExistTypePageViewModel(InstallWizardViewModel viewModel)
     {
-      viewModel.Header = "Exist install page header"; 
+      viewModel.Header = "Installation already exists"; 
     }
 
     public ActionType ActionType

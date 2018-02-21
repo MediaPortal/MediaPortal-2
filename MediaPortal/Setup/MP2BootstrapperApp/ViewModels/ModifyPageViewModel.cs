@@ -28,7 +28,7 @@ namespace MP2BootstrapperApp.ViewModels
   {
     public ModifyPageViewModel(InstallWizardViewModel viewModel)
     {
-      viewModel.Header = "Modify page header";
+      viewModel.Header = "Modify Installation";
     }
   }
 }

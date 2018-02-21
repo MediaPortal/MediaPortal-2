@@ -28,7 +28,7 @@ namespace MP2BootstrapperApp.ViewModels
   {
     public UpdatePageViewModel(InstallWizardViewModel viewModel)
     {
-      viewModel.Header = "Update page header";
+      viewModel.Header = "Update Mediaportal";
     }
     
   }

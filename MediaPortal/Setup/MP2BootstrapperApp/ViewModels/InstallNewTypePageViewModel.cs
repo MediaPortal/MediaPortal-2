@@ -30,7 +30,7 @@ namespace MP2BootstrapperApp.ViewModels
 
     public InstallNewTypePageViewModel(InstallWizardViewModel viewModel)
     {
-      viewModel.Header = "New install page header";
+      viewModel.Header = "New Installation";
     }
 
     public InstallType InstallType

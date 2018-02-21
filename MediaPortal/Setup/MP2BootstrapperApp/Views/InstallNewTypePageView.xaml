@@ -4,13 +4,13 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:MP2BootstrapperApp.Views"
-             xmlns:conv="clr-namespace:MP2BootstrapperApp">
-  
+             xmlns:conv="clr-namespace:MP2BootstrapperApp" Margin="10,20,10,0">
+
   <Grid>
     <Grid.Resources>
       <conv:EnumToBooleanConverter x:Key="EnumToBooleanConverter" />
     </Grid.Resources>
-      <Grid.ColumnDefinitions>
+    <Grid.ColumnDefinitions>
       <ColumnDefinition Width="*" />
       <ColumnDefinition Width="*" />
       <ColumnDefinition Width="*" />
@@ -22,29 +22,29 @@
     <RadioButton Grid.Column="0" Grid.Row="0" IsChecked="{Binding Path=InstallType, Converter={StaticResource EnumToBooleanConverter}, ConverterParameter={x:Static conv:InstallType.ClientServer}}"
                  HorizontalAlignment="Center" HorizontalContentAlignment="Center" Margin="10,10,10,10"  VerticalAlignment="Top" Width="195" Height="149">
       <StackPanel>
-        <Image Source="..\resources\full_install.png" Stretch="Fill" Width="75" Height="75"/>
-        <Label FontSize="22" Foreground="#FFD4D4D4" Margin="0,30,0,0">Client and Server</Label>
+        <Image Source="..\resources\full_install.png" Stretch="Fill" Width="65" Height="65" Margin="0,4,0,0"/>
+        <Label FontSize="22" Foreground="#FFD4D4D4" Margin="0,26,0,0">Client and Server</Label>
       </StackPanel>
     </RadioButton>
     <RadioButton Grid.Column="1" Grid.Row="0" IsChecked="{Binding Path=InstallType, Converter={StaticResource EnumToBooleanConverter}, ConverterParameter={x:Static conv:InstallType.Client}}"
                  HorizontalAlignment="Center" HorizontalContentAlignment="Center" Margin="10,10,10,10" VerticalAlignment="Top" Width="195" Height="149">
       <StackPanel>
-        <Image Source="..\resources\MP2Client.png" Stretch="Fill" Width="75" Height="75"/>
-        <Label FontSize="22" Foreground="#FFD4D4D4" HorizontalContentAlignment="Center" Margin="0,30,0,0">Client</Label>
+        <Image Source="..\resources\MP2Client.png" Stretch="Fill" Width="54" Height="55" Margin="0,11,0,0"/>
+        <Label FontSize="22" Foreground="#FFD4D4D4" HorizontalContentAlignment="Center" Margin="0,30,0,0" Content="Client"/>
       </StackPanel>
     </RadioButton>
     <RadioButton Grid.Column="2" Grid.Row="0" IsChecked="{Binding Path=InstallType, Converter={StaticResource EnumToBooleanConverter}, ConverterParameter={x:Static conv:InstallType.Server}}"
                  HorizontalAlignment="Center" HorizontalContentAlignment="Center" Margin="10,10,10,10"  VerticalAlignment="Top" Width="195" Height="149">
       <StackPanel>
-        <Image Source="..\resources\MP2Server.png" Stretch="Fill" Width="65" Height="65"/>
+        <Image Source="..\resources\MP2Server.png" Stretch="Fill" Width="55" Height="55" Margin="0,11,0,0"/>
         <Label FontSize="22" Foreground="#FFD4D4D4" HorizontalContentAlignment="Center" Margin="0,30,0,0">Server</Label>
       </StackPanel>
     </RadioButton>
     <RadioButton Grid.Column="3" Grid.Row="0" IsChecked="{Binding Path=InstallType, Converter={StaticResource EnumToBooleanConverter}, ConverterParameter={x:Static conv:InstallType.Custom}}"
-                 HorizontalAlignment="Center" HorizontalContentAlignment="Center" Margin="10,10,10,10" VerticalAlignment="Top" Width="208" Height="149">
+                 HorizontalAlignment="Center" HorizontalContentAlignment="Center" Margin="12,10,10,10" VerticalAlignment="Top" Width="208" Height="149">
       <StackPanel>
-        <Image Source="..\resources\custom_install.png" Stretch="Fill" Width="65" Height="65"/>
-        <Label FontSize="22" Foreground="#FFD4D4D4" HorizontalContentAlignment="Center" Margin="0,30,0,0">Custom Installation</Label>
+        <Image Source="..\resources\custom_install.png" Stretch="Fill" Width="55" Height="55" Margin="0,11,0,0"/>
+        <Label FontSize="22" Foreground="#FFD4D4D4" HorizontalContentAlignment="Center" Margin="0,30,0,0">Custom</Label>
       </StackPanel>
     </RadioButton>
   </Grid>

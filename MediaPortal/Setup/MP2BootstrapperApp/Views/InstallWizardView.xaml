@@ -6,10 +6,10 @@
         xmlns:view="clr-namespace:MP2BootstrapperApp.Views"
         xmlns:viewModels="clr-namespace:MP2BootstrapperApp.ViewModels"
         mc:Ignorable="d"
-        Title="Mediaportal" Height="638.045" Width="1020.739" ResizeMode="NoResize" WindowStyle="None" WindowStartupLocation="CenterScreen" UseLayoutRounding="False"
+        Title="Mediaportal" Height="600" Width="1000" ResizeMode="NoResize" WindowStyle="None" WindowStartupLocation="CenterScreen" UseLayoutRounding="False" AllowsTransparency="True"
 >
   <Window.Effect>
-    <DropShadowEffect ShadowDepth="0" BlurRadius="25"/>
+    <DropShadowEffect ShadowDepth="3" BlurRadius="25"/>
   </Window.Effect>
   <Window.Foreground>
     <SolidColorBrush Color="Black"/>
@@ -22,11 +22,11 @@
     <DataTemplate DataType="{x:Type viewModels:InstallWelcomePageViewModel}">
       <view:InstallWelcomePageView />
     </DataTemplate>
-    
+
     <DataTemplate DataType="{x:Type viewModels:InstallExistTypePageViewModel}">
       <view:InstallExistTypePageView />
     </DataTemplate>
-    
+
     <DataTemplate DataType="{x:Type viewModels:InstallNewTypePageViewModel}">
       <view:InstallNewTypePageView />
     </DataTemplate>
@@ -42,7 +42,7 @@
     <DataTemplate DataType="{x:Type viewModels:UpdatePageViewModel}">
       <view:UpdatePageView />
     </DataTemplate>
-    
+
     <DataTemplate DataType="{x:Type viewModels:ModifyPageViewModel}">
       <view:ModifyPageView />
     </DataTemplate>
@@ -138,57 +138,65 @@
       <ColumnDefinition Width="*"/>
     </Grid.ColumnDefinitions>
     <Grid.RowDefinitions>
-      <RowDefinition Height="160"/>
+      <RowDefinition Height="138"/>
       <RowDefinition Height="*"/>
       <RowDefinition Height="Auto"/>
       <RowDefinition Height="Auto"/>
       <RowDefinition Height="Auto"/>
     </Grid.RowDefinitions>
 
-    <Grid Grid.Row="0" Grid.Column="0" Background="{StaticResource Banner}">
-      <ToggleButton HorizontalAlignment="Right" VerticalAlignment="Top" Height="30" Width="30" Margin="30" Name="CloseButton"
-                    Style="{StaticResource ToggleButtonWindowClose}" BorderBrush="White" Foreground="White" />
+    <Grid Grid.Row="0" Grid.Column="0" Opacity="1" Height="138">
+      <Grid.Effect>
+        <DropShadowEffect Color="#FF060606" Opacity="0.45"/>
+      </Grid.Effect>
+      <Grid.Background>
+        <SolidColorBrush Color="#FF151515" Opacity="1"/>
+      </Grid.Background>
+
+      <ToggleButton HorizontalAlignment="Right" VerticalAlignment="Top" Height="30" Width="30" Margin="0,20,20,0" Name="CloseButton"
+                    Style="{StaticResource ToggleButtonWindowClose}" BorderBrush="White" Foreground="White" Visibility="Hidden" />
+      <Rectangle Fill="{StaticResource Banner}" HorizontalAlignment="Left" Height="120" VerticalAlignment="Top" Width="753" Margin="22,18,0,0"/>
     </Grid>
 
-    <HeaderedContentControl Grid.Column="0" Grid.Row="1" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="40" Content="{Binding Path=CurrentPage}" Header="{Binding Path=Header}" FontSize="32" Foreground="Green"/>
+    <HeaderedContentControl Grid.Column="0" Grid.Row="1" VerticalAlignment="Top" HorizontalAlignment="Center" Margin="10,40" Content="{Binding Path=CurrentPage}" Header="{Binding Path=Header}" FontSize="26" Foreground="White" HorizontalContentAlignment="Stretch" Width="900"/>
 
-    <Grid Grid.Column="0" Grid.Row="2">
+    <Grid Grid.Column="0" Grid.Row="2" Height="45">
       <Grid.ColumnDefinitions>
         <ColumnDefinition SharedSizeGroup="Buttons" />
         <ColumnDefinition SharedSizeGroup="Buttons" />
         <ColumnDefinition SharedSizeGroup="Buttons" />
       </Grid.ColumnDefinitions>
-      <Button Grid.Row="0" Grid.Column="0" x:Name="Back" IsEnabled="True" Command="{Binding Path=BackCommand}"
+      <Button Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2"  x:Name="Back" IsEnabled="True" Command="{Binding Path=BackCommand}"
               HorizontalAlignment="Center" HorizontalContentAlignment="Center" VerticalAlignment="Bottom"
-              Width="25" Height="25">
-        <StackPanel Height="25" Width="25">
-          <Image Source="..\resources\button_back.png" Stretch="Fill" Width="25" Height="25" />
+              Width="25" Height="25" RenderTransformOrigin="0.614,-0.278" Margin="200,0,0,10">
+        <StackPanel Height="23" Width="23">
+          <Image Source="..\resources\button_back.png" Stretch="Fill" Width="23" Height="23" />
         </StackPanel>
       </Button>
       <Button Grid.Row="0" Grid.Column="1" x:Name="Next" IsEnabled="True" Command="{Binding Path=NextCommand}"
               HorizontalAlignment="Center" HorizontalContentAlignment="Center" VerticalAlignment="Bottom"
-              Width="25" Height="25">
-        <StackPanel Height="25" Width="25">
-          <Image Source="..\resources\button_next.png" Stretch="Fill" Width="25" Height="25"
-                 HorizontalAlignment="Left" />
+              Width="25" Height="25" Margin="0,0,0,10">
+        <StackPanel Height="23" Width="23">
+          <Image Source="..\resources\button_next.png" Stretch="Fill" Width="23" Height="23"
+                 HorizontalAlignment="Left" Margin="0" />
         </StackPanel>
       </Button>
-      <Button Grid.Row="0" Grid.Column="2" x:Name="Cancel" Command="{Binding Path=CancelCommand}"
+      <Button Grid.Row="0" Grid.Column="1" x:Name="Cancel" Command="{Binding Path=CancelCommand}"
               HorizontalAlignment="Center" HorizontalContentAlignment="Center" VerticalAlignment="Bottom"
-              Width="25" Height="25">
-        <StackPanel Height="25" Width="25">
-          <Image Source="..\resources\button_cancel.png" Stretch="Fill" Width="25" Height="25"
+              Width="25" Height="25" Margin="0,0,-130,10">
+        <StackPanel Height="20" Width="20">
+          <Image Source="..\resources\button_cancel.png" Stretch="Fill" Width="20" Height="20"
                  RenderTransformOrigin="0.6,3.24" />
         </StackPanel>
       </Button>
     </Grid>
 
-    <ProgressBar Grid.Column="0" Grid.Row="3" HorizontalAlignment="Left" Height="5"  VerticalAlignment="Bottom" Width="1023" Foreground="#FFE8641B" Minimum="0" Value="{Binding Path=Progress}" BorderThickness="0"/>
+    <ProgressBar Grid.Column="0" Grid.Row="3" HorizontalAlignment="Left" Height="5"  VerticalAlignment="Bottom" Width="1000" Foreground="#FFE8641B" Minimum="0" Value="{Binding Path=Progress}" BorderThickness="0"/>
     <Grid Grid.Column="0" Grid.Row="4">
-      <Rectangle HorizontalAlignment="Left" Height="130.538" Stroke="Black" VerticalAlignment="Top"
-                 Width="1020.739" StrokeThickness="0">
+      <Rectangle HorizontalAlignment="Left" Height="131" Stroke="Black" VerticalAlignment="Top"
+                 Width="1000" StrokeThickness="0">
         <Rectangle.Fill>
-          <SolidColorBrush Color="Black" Opacity="0.6" />
+          <SolidColorBrush Color="#FF151515" Opacity="0.8" />
         </Rectangle.Fill>
         <Rectangle.Effect>
           <DropShadowEffect Opacity="0.57" Direction="482" BlurRadius="8" />

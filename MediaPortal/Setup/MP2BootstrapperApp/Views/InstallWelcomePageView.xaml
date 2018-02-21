@@ -5,6 +5,7 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:MP2BootstrapperApp.Views">
   <Grid>
-    <TextBlock TextAlignment="Center" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="Red" FontStretch="SemiCondensed" FontSize="48"> <Run Text="WELCOME PAGE"/></TextBlock>
+       <TextBox HorizontalAlignment="Center" Height="64" TextWrapping="Wrap" FontSize="20" Text="This is the next generation media center software available to all, open source, for free.
+                 Making use of advanced technologies to bring you the best possible HTPC experience." VerticalAlignment="Top" Width="877" Background="{x:Null}" Foreground="White" Margin="0,35,0,0" SelectionBrush="{x:Null}" BorderBrush="{x:Null}" HorizontalContentAlignment="Center" BorderThickness="0" Focusable="False"/>
   </Grid>
 </UserControl>

@@ -28,7 +28,7 @@ namespace MP2BootstrapperApp.ViewModels
   {
     public RepairPageViewModel(InstallWizardViewModel viewModel)
     {
-      viewModel.Header = "Repair page header";
+      viewModel.Header = "Repair installation";
     }
     
   }
