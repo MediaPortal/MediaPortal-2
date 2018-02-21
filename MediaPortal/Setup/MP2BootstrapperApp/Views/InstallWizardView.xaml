@@ -107,6 +107,32 @@
         </Trigger>
       </Style.Triggers>
     </Style>
+    
+    <Style TargetType="HeaderedContentControl">
+      <Setter Property="Template">
+        <Setter.Value>
+          <ControlTemplate TargetType="{x:Type HeaderedContentControl}">
+            <StackPanel>
+              <Grid>
+                <Rectangle Stroke="{TemplateBinding Background}"/>
+                <ContentPresenter ContentSource="Header"/>
+              </Grid>
+              <Grid>
+                <Rectangle Fill="{TemplateBinding Background}"/>
+                <ContentPresenter ContentSource="Content"/>
+              </Grid>
+            </StackPanel>
+          </ControlTemplate>
+        </Setter.Value>
+      </Setter>
+    </Style>
+    
+    <DataTemplate x:Key="HeaderTemplate">
+      <TextBlock Text="{Binding}" 
+                 Foreground="White" 
+                 FontSize="26"
+                 TextAlignment="Center"/>
+    </DataTemplate>
 
     <VisualBrush x:Key="Background">
       <VisualBrush.Visual>
@@ -158,7 +184,7 @@
       <Rectangle Fill="{StaticResource Banner}" HorizontalAlignment="Left" Height="120" VerticalAlignment="Top" Width="753" Margin="22,18,0,0"/>
     </Grid>
 
-    <HeaderedContentControl Grid.Column="0" Grid.Row="1" VerticalAlignment="Top" HorizontalAlignment="Center" Margin="10,40" Content="{Binding Path=CurrentPage}" Header="{Binding Path=Header}" FontSize="26" Foreground="White" HorizontalContentAlignment="Stretch" Width="900"/>
+    <HeaderedContentControl Grid.Column="0" Grid.Row="1" HeaderTemplate="{StaticResource HeaderTemplate}" VerticalAlignment="Top" HorizontalAlignment="Center" Margin="10,40" Content="{Binding Path=CurrentPage}" Header="{Binding Path=Header}" FontSize="26" Foreground="White" HorizontalContentAlignment="Stretch" Width="900"/>
 
     <Grid Grid.Column="0" Grid.Row="2" Height="45">
       <Grid.ColumnDefinitions>
