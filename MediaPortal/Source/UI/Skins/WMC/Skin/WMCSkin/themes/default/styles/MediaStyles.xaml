@@ -3378,7 +3378,7 @@
       <Grid.RowDefinitions>
         <RowDefinition Height="*"/>
       </Grid.RowDefinitions>
-      <Border VerticalAlignment="Stretch" HorizontalAlignment="Stretch" CornerRadius="4" BorderThickness="0" 
+      <Border VerticalAlignment="Stretch" HorizontalAlignment="Stretch" BorderThickness="0" 
               Width="{StaticResource AUDIO_GRID_WIDTH}" Height="{StaticResource AUDIO_GRID_HEIGHT}">
         <Border.Background>
           <LinearGradientBrush StartPoint="0,1" EndPoint="1,0">
@@ -3386,11 +3386,22 @@
             <GradientStop Color="{ThemeResource MediaItemBackgroundColor2}" Offset="1"/>
           </LinearGradientBrush>
         </Border.Background>
-        <Image Stretch="Uniform" Source="{Binding MediaItem}" FallbackSource="Image.png" Margin="1"
-               Width="{StaticResource AUDIO_GRID_WIDTH}" Height="{StaticResource AUDIO_GRID_HEIGHT}"/>
       </Border>
+      <Image Stretch="Uniform" Width="{StaticResource AUDIO_GRID_WIDTH}" Height="{StaticResource AUDIO_GRID_HEIGHT}" FallbackSource="Image.png">
+        <Image.Source>
+          <fanart:FanArtImageSource fanart:FanArtMediaType="Image" fanart:FanArtType="FanArt"
+                              fanart:FanArtName="{Binding Source={Binding MediaItem}, Path=MediaItemId}" fanart:MaxWidth="250" fanart:MaxHeight="250" fanart:Cache="false"/>
+        </Image.Source>
+      </Image>
       <Control HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,-3,-3,0" Template="{StaticResource Cover_WatchedFlag_Template}" 
                IsVisible="{Binding Source={StaticResource SkinSettingsModel}, Path=[WMC].EnableListWatchedFlags}"/>
+      <Grid.OpacityMask>
+        <VisualBrush>
+          <VisualBrush.Visual>
+            <Border Name="mask" Background="White" CornerRadius="5" BorderThickness="0" BorderBrush="Black"/>
+          </VisualBrush.Visual>
+        </VisualBrush>
+      </Grid.OpacityMask>
     </Grid>
   </ControlTemplate>
 
@@ -3402,15 +3413,30 @@
       <Grid.RowDefinitions>
         <RowDefinition Height="{StaticResource AUDIO_GRID_HEIGHT_S}"/>
       </Grid.RowDefinitions>
-      <Border VerticalAlignment="Stretch" HorizontalAlignment="Stretch" CornerRadius="4" BorderThickness="0" >
+      <Image x:Name="ItemTypeImage" Stretch="UniformToFill" FallbackSource="Image.png">
+        <Image.Source>
+          <fanart:FanArtImageSource fanart:FanArtMediaType="Image" fanart:FanArtType="FanArt"
+                              fanart:FanArtName="{Binding Source={Binding MediaItem}, Path=MediaItemId}" fanart:MaxWidth="250" fanart:MaxHeight="250" fanart:Cache="false"/>
+        </Image.Source>
+      </Image>
+      <Border VerticalAlignment="Stretch" HorizontalAlignment="Stretch" BorderThickness="0" IsVisible="{Binding ElementName=ItemTypeImage, Path=!HasImage}">
         <Border.Background>
           <LinearGradientBrush StartPoint="0,1" EndPoint="1,0">
             <GradientStop Color="{ThemeResource MediaItemBackgroundColor1}" Offset="0"/>
             <GradientStop Color="{ThemeResource MediaItemBackgroundColor2}" Offset="1"/>
           </LinearGradientBrush>
         </Border.Background>
-        <Image Stretch="Uniform" Source="{Binding MediaItem}" FallbackSource="Image.png" Margin="1"/>
       </Border>
+      <Image Stretch="Uniform" Source="Image.png" IsVisible="{Binding ElementName=ItemTypeImage, Path=!HasImage}"/>
+      <Control HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,-3,-3,0" Template="{StaticResource Cover_WatchedFlag_Template}" 
+               IsVisible="{Binding Source={StaticResource SkinSettingsModel}, Path=[WMC].EnableListWatchedFlags}"/>
+      <Grid.OpacityMask>
+        <VisualBrush>
+          <VisualBrush.Visual>
+            <Border Name="mask" Background="White" CornerRadius="5" BorderThickness="0" BorderBrush="Black"/>
+          </VisualBrush.Visual>
+        </VisualBrush>
+      </Grid.OpacityMask>
     </Grid>
   </ControlTemplate>
 
