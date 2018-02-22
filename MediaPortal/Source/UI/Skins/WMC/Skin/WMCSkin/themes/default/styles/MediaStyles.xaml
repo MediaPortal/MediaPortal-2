@@ -3378,7 +3378,7 @@
       <Grid.RowDefinitions>
         <RowDefinition Height="*"/>
       </Grid.RowDefinitions>
-      <Border VerticalAlignment="Stretch" HorizontalAlignment="Stretch" CornerRadius="4" BorderThickness="0" 
+      <Border VerticalAlignment="Stretch" HorizontalAlignment="Stretch" BorderThickness="0" 
               Width="{StaticResource AUDIO_GRID_WIDTH}" Height="{StaticResource AUDIO_GRID_HEIGHT}">
         <Border.Background>
           <LinearGradientBrush StartPoint="0,1" EndPoint="1,0">
@@ -3386,11 +3386,22 @@
             <GradientStop Color="{ThemeResource MediaItemBackgroundColor2}" Offset="1"/>
           </LinearGradientBrush>
         </Border.Background>
-        <Image Stretch="Uniform" Source="{Binding MediaItem}" FallbackSource="Image.png" Margin="1"
-               Width="{StaticResource AUDIO_GRID_WIDTH}" Height="{StaticResource AUDIO_GRID_HEIGHT}"/>
       </Border>
+      <Image Stretch="Uniform" Width="{StaticResource AUDIO_GRID_WIDTH}" Height="{StaticResource AUDIO_GRID_HEIGHT}" FallbackSource="Image.png">
+        <Image.Source>
+          <fanart:FanArtImageSource fanart:FanArtMediaType="Image" fanart:FanArtType="FanArt"
+                              fanart:FanArtName="{Binding Source={Binding MediaItem}, Path=MediaItemId}" fanart:MaxWidth="250" fanart:MaxHeight="250" fanart:Cache="false"/>
+        </Image.Source>
+      </Image>
       <Control HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,-3,-3,0" Template="{StaticResource Cover_WatchedFlag_Template}" 
                IsVisible="{Binding Source={StaticResource SkinSettingsModel}, Path=[WMC].EnableListWatchedFlags}"/>
+      <Grid.OpacityMask>
+        <VisualBrush>
+          <VisualBrush.Visual>
+            <Border Name="mask" Background="White" CornerRadius="5" BorderThickness="0" BorderBrush="Black"/>
+          </VisualBrush.Visual>
+        </VisualBrush>
+      </Grid.OpacityMask>
     </Grid>
   </ControlTemplate>
 
@@ -3402,15 +3413,30 @@
       <Grid.RowDefinitions>
         <RowDefinition Height="{StaticResource AUDIO_GRID_HEIGHT_S}"/>
       </Grid.RowDefinitions>
-      <Border VerticalAlignment="Stretch" HorizontalAlignment="Stretch" CornerRadius="4" BorderThickness="0" >
+      <Image x:Name="ItemTypeImage" Stretch="UniformToFill" FallbackSource="Image.png">
+        <Image.Source>
+          <fanart:FanArtImageSource fanart:FanArtMediaType="Image" fanart:FanArtType="FanArt"
+                              fanart:FanArtName="{Binding Source={Binding MediaItem}, Path=MediaItemId}" fanart:MaxWidth="250" fanart:MaxHeight="250" fanart:Cache="false"/>
+        </Image.Source>
+      </Image>
+      <Border VerticalAlignment="Stretch" HorizontalAlignment="Stretch" BorderThickness="0" IsVisible="{Binding ElementName=ItemTypeImage, Path=!HasImage}">
         <Border.Background>
           <LinearGradientBrush StartPoint="0,1" EndPoint="1,0">
             <GradientStop Color="{ThemeResource MediaItemBackgroundColor1}" Offset="0"/>
             <GradientStop Color="{ThemeResource MediaItemBackgroundColor2}" Offset="1"/>
           </LinearGradientBrush>
         </Border.Background>
-        <Image Stretch="Uniform" Source="{Binding MediaItem}" FallbackSource="Image.png" Margin="1"/>
       </Border>
+      <Image Stretch="Uniform" Source="Image.png" IsVisible="{Binding ElementName=ItemTypeImage, Path=!HasImage}"/>
+      <Control HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,-3,-3,0" Template="{StaticResource Cover_WatchedFlag_Template}" 
+               IsVisible="{Binding Source={StaticResource SkinSettingsModel}, Path=[WMC].EnableListWatchedFlags}"/>
+      <Grid.OpacityMask>
+        <VisualBrush>
+          <VisualBrush.Visual>
+            <Border Name="mask" Background="White" CornerRadius="5" BorderThickness="0" BorderBrush="Black"/>
+          </VisualBrush.Visual>
+        </VisualBrush>
+      </Grid.OpacityMask>
     </Grid>
   </ControlTemplate>
 
@@ -4660,26 +4686,11 @@
               <Binding>
                 <Binding.Source>
                   <ItemsPanelTemplate>
-                    <!--VirtualizingWrapPanel x:Name="GridItemsHost" IsItemsHost="True" Orientation="Vertical"/-->
                     <AnimatedWrapPanel x:Name="GridItemsHost" IsItemsHost="True" Orientation="Vertical" ScrollMargin="500,500" Margin="-240,0,-290,0">
                       <AnimatedWrapPanel.Resources>
                         <Storyboard x:Key="ScrollAnimation" FillBehavior="HoldEnd">
                           <DoubleAnimation BeginTime="00:00:00" From="0" To="1" Duration="00:00:00.400" AccelerationRatio="0.5" DecelerationRatio="0.5"
                                            FillBehavior="HoldEnd" Storyboard.TargetName="GridItemsHost" Storyboard.TargetProperty="ScrollOffsetMultiplier" />
-                          <!--DoubleAnimationUsingKeyFrames BeginTime="00:00:00" FillBehavior="HoldEnd" 
-                                                         Storyboard.TargetName="GridItemsHost" Storyboard.TargetProperty="ScrollOffsetMultiplier">
-                            <SplineDoubleKeyFrame KeyTime="00:00:00" Value="0"/>
-                            <SplineDoubleKeyFrame KeyTime="00:00:00.30" Value="0.03"/>
-                            <SplineDoubleKeyFrame KeyTime="00:00:00.60" Value="0.1"/>
-                            <SplineDoubleKeyFrame KeyTime="00:00:00.90" Value="0.19"/>
-                            <SplineDoubleKeyFrame KeyTime="00:00:00.120" Value="0.35"/>
-                            <SplineDoubleKeyFrame KeyTime="00:00:00.150" Value="0.5"/>
-                            <SplineDoubleKeyFrame KeyTime="00:00:00.180" Value="0.65"/>
-                            <SplineDoubleKeyFrame KeyTime="00:00:00.210" Value="0.81"/>
-                            <SplineDoubleKeyFrame KeyTime="00:00:00.240" Value="0.9"/>
-                            <SplineDoubleKeyFrame KeyTime="00:00:00.270" Value="0.97"/>
-                            <SplineDoubleKeyFrame KeyTime="00:00:00.300" Value="1"/>
-                          </-->
                         </Storyboard>
                       </AnimatedWrapPanel.Resources>
                       <AnimatedWrapPanel.Triggers>
@@ -4697,7 +4708,6 @@
               <Binding>
                 <Binding.Source>
                   <ItemsPanelTemplate>
-                    <!--VirtualizingStackPanel x:Name="CoverListItemsHost" IsItemsHost="True" Orientation="Horizontal"/-->
                     <AnimatedStackPanel x:Name="CoverListItemsHost" IsItemsHost="True" Orientation="Horizontal" ScrollMargin="280,260" Margin="-140,0,-170,0">
                       <AnimatedStackPanel.Resources>
                         <Storyboard x:Key="ScrollAnimation" FillBehavior="HoldEnd">
