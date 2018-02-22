@@ -286,5 +286,15 @@ namespace MediaPortal.Utilities.FileSystem
         null :
         Path.GetInvalidPathChars().Aggregate(path, (current, c) => current.Replace(c, replaceChar));
     }
+
+    /// <summary>
+    /// Gets a temporary filename with the given <paramref name="extension"/>.
+    /// </summary>
+    /// <param name="extension">File extension including "."</param>
+    /// <returns>Tempf file</returns>
+    public static string GetTempFileName(string extension)
+    {
+      return Path.Combine(Path.GetTempPath(), Guid.NewGuid() + extension);
+    }
   }
 }

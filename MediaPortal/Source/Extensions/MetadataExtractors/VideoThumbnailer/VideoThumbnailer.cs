@@ -178,9 +178,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoThumbnailer
           downscale = "";
       }
 
-      // ToDo: Move creation of temp file names to FileUtils class
-      string tempFileName = Path.GetTempPath() + Guid.NewGuid() + ".jpg";
-      string executable = FileUtils.BuildAssemblyRelativePath("ffmpeg.exe");
+      string tempFileName = FileUtils.GetTempFileName(".jpg");
       string arguments = string.Format("-ss {0} -i \"{1}\" -vframes 1 -an -dn -vf \"yadif='mode=send_frame:parity=auto:deint=all',scale=iw*sar:ih,setsar=1/1{3}\" -y \"{2}\"",
         defaultVideoOffset,
         // Calling EnsureLocalFileSystemAccess not necessary; access for external process ensured by ExecuteWithResourceAccess
@@ -215,7 +213,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoThumbnailer
         {
           if (e is TaskCanceledException)
           {
-            ServiceRegistration.Get<ILogger>().Warn("VideoThumbnailer.ExtractThumbnail: External process aborted due to timeout: Executable='{0}', Arguments='{1}', Timeout='{2}'", executable, arguments, PROCESS_TIMEOUT_MS);
+            ServiceRegistration.Get<ILogger>().Warn("VideoThumbnailer.ExtractThumbnail: External process aborted due to timeout: Executable='{0}', Arguments='{1}', Timeout='{2}'", FFMpegBinary.FFMpegPath, arguments, PROCESS_TIMEOUT_MS);
             return true;
           }
           return false;
