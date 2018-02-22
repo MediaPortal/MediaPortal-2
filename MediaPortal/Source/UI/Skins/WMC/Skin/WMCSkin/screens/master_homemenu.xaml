@@ -84,7 +84,7 @@ Parameters which have to be accessible by a DynamicResource lookup:
         </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
           <RowDefinition Height="*"/>
-          <RowDefinition Height="500"/>
+          <RowDefinition Height="505"/>
           <RowDefinition Height="480"/>
         </Grid.RowDefinitions>
         <Grid.Resources>
