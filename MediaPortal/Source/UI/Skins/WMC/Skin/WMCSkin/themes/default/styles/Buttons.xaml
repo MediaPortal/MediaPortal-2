@@ -659,7 +659,7 @@
               <RowDefinition Height="54"/>
             </Grid.RowDefinitions>
             <Label x:Name="ItemLabelUnfocused" Grid.Column="0" Grid.Row="0" Content="{Binding [Name]}" TextTrimming="CharacterEllipsis" Width="280" HorizontalContentAlignment="Center"
-                   HorizontalAlignment="Center" VerticalAlignment="Bottom" Opacity="0.4" Color="{ThemeResource TextColor}"/>
+                   Margin="10,0,0,0" HorizontalAlignment="Center" VerticalAlignment="Bottom" Opacity="0.4" Color="{ThemeResource TextColor}"/>
             <Label x:Name="ItemLabel" Grid.Column="0" Grid.Row="1" Content="{Binding [Name]}" IsVisible="False" Height="54" Scroll="Auto"
                    HorizontalAlignment="Left" VerticalAlignment="Center" Color="{ThemeResource TextColor}"/>
             <ContentPresenter x:Name="ButtonContentPresenter" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
