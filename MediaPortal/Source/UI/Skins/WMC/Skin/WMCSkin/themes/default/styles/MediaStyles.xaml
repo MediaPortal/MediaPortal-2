@@ -3389,7 +3389,7 @@
       </Border>
       <Image Stretch="Uniform" Width="{StaticResource AUDIO_GRID_WIDTH}" Height="{StaticResource AUDIO_GRID_HEIGHT}" FallbackSource="Image.png">
         <Image.Source>
-          <fanart:FanArtImageSource fanart:FanArtMediaType="Image" fanart:FanArtType="FanArt"
+          <fanart:FanArtImageSource fanart:FanArtMediaType="Image" fanart:FanArtType="Thumbnail"
                               fanart:FanArtName="{Binding Source={Binding MediaItem}, Path=MediaItemId}" fanart:MaxWidth="250" fanart:MaxHeight="250" fanart:Cache="false"/>
         </Image.Source>
       </Image>
@@ -3415,7 +3415,7 @@
       </Grid.RowDefinitions>
       <Image x:Name="ItemTypeImage" Stretch="UniformToFill" FallbackSource="Image.png">
         <Image.Source>
-          <fanart:FanArtImageSource fanart:FanArtMediaType="Image" fanart:FanArtType="FanArt"
+          <fanart:FanArtImageSource fanart:FanArtMediaType="Image" fanart:FanArtType="Thumbnail"
                               fanart:FanArtName="{Binding Source={Binding MediaItem}, Path=MediaItemId}" fanart:MaxWidth="250" fanart:MaxHeight="250" fanart:Cache="false"/>
         </Image.Source>
       </Image>
