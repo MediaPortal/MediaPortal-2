@@ -159,7 +159,7 @@ namespace MediaPortal.Utilities.FileSystem
         file.CopyTo(temppath, false);
       }
 
-      if (!copySubDirs) 
+      if (!copySubDirs)
         return;
 
       foreach (DirectoryInfo subdir in dirs)
@@ -209,7 +209,7 @@ namespace MediaPortal.Utilities.FileSystem
       string fileName = Path.GetFileName(underlayingResourcePath);
       string directory = Path.GetTempPath() + Guid.NewGuid().ToString("D");
       Directory.CreateDirectory(directory);
-      return directory  + "\\" + fileName;
+      return directory + "\\" + fileName;
     }
 
     /// <summary>
@@ -225,6 +225,18 @@ namespace MediaPortal.Utilities.FileSystem
       using (BinaryReader binaryReader = new BinaryReader(fileStream))
         binaryReader.Read(binary, 0, binary.Length);
       return binary;
+    }
+
+    /// <summary>
+    /// Builds a full path for a given <paramref name="fileName"/> sorted by subfolder architecture (x64 or x86) that is located in the same folder as the <see cref="Assembly.GetCallingAssembly"/>.
+    /// /// </summary>
+    /// <param name="fileName">File name</param>
+    /// <returns>Combined path</returns>
+    public static string BuildAssemblyRelativePathForArchitecture(string fileName)
+    {
+      string executingPath = Assembly.GetCallingAssembly().Location;
+      string architecture = Environment.Is64BitOperatingSystem ? "x64" : "x86";
+      return Path.Combine(Path.GetDirectoryName(executingPath), architecture, fileName);
     }
 
     /// <summary>
@@ -257,7 +269,7 @@ namespace MediaPortal.Utilities.FileSystem
     /// <returns>Safe name or <c>null</c> if <paramref name="filename"/> is <seealso cref="string.IsNullOrWhiteSpace"/>.</returns>
     public static string GetSafeFilename(string filename, char replaceChar = '_')
     {
-      return string.IsNullOrWhiteSpace(filename) ? 
+      return string.IsNullOrWhiteSpace(filename) ?
         null :
         Path.GetInvalidFileNameChars().Aggregate(filename, (current, c) => current.Replace(c, replaceChar));
     }
@@ -270,9 +282,19 @@ namespace MediaPortal.Utilities.FileSystem
     /// <returns>Safe name or <c>null</c> if <paramref name="path"/> is <seealso cref="string.IsNullOrWhiteSpace"/>.</returns>
     public static string GetSafePath(string path, char replaceChar = '_')
     {
-      return string.IsNullOrWhiteSpace(path) ? 
+      return string.IsNullOrWhiteSpace(path) ?
         null :
         Path.GetInvalidPathChars().Aggregate(path, (current, c) => current.Replace(c, replaceChar));
+    }
+
+    /// <summary>
+    /// Gets a temporary filename with the given <paramref name="extension"/>.
+    /// </summary>
+    /// <param name="extension">File extension including "."</param>
+    /// <returns>Tempf file</returns>
+    public static string GetTempFileName(string extension)
+    {
+      return Path.Combine(Path.GetTempPath(), Guid.NewGuid() + extension);
     }
   }
 }

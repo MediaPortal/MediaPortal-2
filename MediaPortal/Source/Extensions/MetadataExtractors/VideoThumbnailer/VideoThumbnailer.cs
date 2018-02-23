@@ -176,9 +176,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoThumbnailer
           downscale = "";
       }
 
-      // ToDo: Move creation of temp file names to FileUtils class
-      string tempFileName = Path.GetTempPath() + Guid.NewGuid() + ".jpg";
-      string executable = FileUtils.BuildAssemblyRelativePath("ffmpeg.exe");
+      string tempFileName = FileUtils.GetTempFileName(".jpg");
       string arguments = string.Format("-ss {0} -i \"{1}\" -vframes 1 -an -dn -vf \"yadif='mode=send_frame:parity=auto:deint=all',scale=iw*sar:ih,setsar=1/1{3}\" -y \"{2}\"",
         defaultVideoOffset,
         // Calling EnsureLocalFileSystemAccess not necessary; access for external process ensured by ExecuteWithResourceAccess

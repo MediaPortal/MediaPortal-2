@@ -10,19 +10,16 @@
     <PluginFiles Include="$(ProjectDir)plugin.xml" />
   </ItemGroup>
 
-  <ItemGroup>
-    <References Include="$(TargetDir)ffmpeg.exe" />
-    <References Include="$(TargetDir)ffprobe.exe" />
-    <References Include="$(TargetDir)ffplay.exe" />
-    <References Include="$(TargetDir)av*.dll" />
-    <References Include="$(TargetDir)sw*.dll" />
-    <References Include="$(TargetDir)post*.dll" />
-    <Fonts Include="$(TargetDir)fonts\**\*.*" />
-  </ItemGroup>
-
   <Target Name="AfterBuild">
+    <!-- This position is required to capture newly copied package references -->
+    <ItemGroup>
+      <ReferencesX86 Include="$(TargetDir)x86\*.*" />
+      <ReferencesX64 Include="$(TargetDir)x64\*.*" />
+      <Fonts Include="$(TargetDir)fonts\**\*.*" />
+    </ItemGroup>
     <Copy SourceFiles="@(PluginFiles)" DestinationFolder="$(PluginDestination)" />
-    <Copy SourceFiles="@(References)" DestinationFolder="$(PluginDestination)" />
+    <Copy SourceFiles="@(ReferencesX86)" DestinationFolder="$(PluginDestination)\x86" />
+    <Copy SourceFiles="@(ReferencesX64)" DestinationFolder="$(PluginDestination)\x64" />
     <Copy SourceFiles="@(Fonts)" DestinationFiles="@(Fonts->'$(PluginDestination)\fonts\%(RecursiveDir)%(Filename)%(Extension)')" />
   </Target>
 
