@@ -574,5 +574,241 @@ namespace Test.Backend
                 new BindVar("V7", 1, typeof(int))
             }, bindVars, "Bind vars");
     }
+
+    [Test]
+    public void TestQueryLimit()
+    {
+      MockDBUtils.Reset();
+      SingleTestMIA mia1 = TestBackendUtils.CreateSingleMIA("SINGLE1", Cardinality.Inline, true, true);
+      MultipleTestMIA mia2 = TestBackendUtils.CreateMultipleMIA("MULTIPLE2", Cardinality.Inline, true, false);
+      MultipleTestMIA mia3 = TestBackendUtils.CreateMultipleMIA("MULTIPLE3", Cardinality.Inline, false, true);
+
+      Guid itemId0 = new Guid("aaaaaaaa-1111-1111-1111-aaaaaaaaaaaa");
+      Guid itemId1 = new Guid("bbbbbbbb-2222-2222-2222-bbbbbbbbbbbb");
+      Guid itemId2 = new Guid("cccccccc-3333-3333-3333-cccccccccccc");
+      Guid itemId3 = new Guid("dddddddd-4444-4444-4444-dddddddddddd");
+      Guid itemId4 = new Guid("eeeeeeee-5555-5555-5555-eeeeeeeeeeee");
+      Guid itemId5 = new Guid("ffffffff-6666-6666-6666-ffffffffffff");
+      Guid itemId6 = new Guid("aaaaaaaa-7777-7777-7777-aaaaaaaaaaaa");
+
+      MockReader reader = MockDBUtils.AddReader(1, "SELECT T0.MEDIA_ITEM_ID A2, T0.MEDIA_ITEM_ID A3, T0.ATTR_STRING A0, T0.ATTR_INTEGER A1 FROM M_SINGLE1 T0  WHERE T0.MEDIA_ITEM_ID IN(SELECT T0.MEDIA_ITEM_ID FROM M_SINGLE1 T0" +
+        " INNER JOIN M_MULTIPLE2 T1 ON T1.MEDIA_ITEM_ID = T0.MEDIA_ITEM_ID )  AND EXISTS(SELECT 1 FROM M_MULTIPLE2 WHERE MEDIA_ITEM_ID=T0.MEDIA_ITEM_ID)", "A2", "A3", "A4", "A0", "A1");
+      reader.AddResult(itemId0, itemId0, itemId0, "zero", 0, "0_0");
+      reader.AddResult(itemId1, itemId1, itemId1, "one", 1, "1_1");
+      reader.AddResult(itemId2, itemId2, itemId2, "two", 2, "2_2");
+      reader.AddResult(itemId3, itemId3, itemId3, "tree", 3, "3_3");
+      reader.AddResult(itemId4, itemId4, itemId4, "four", 4, "4_4");
+      reader.AddResult(itemId5, itemId5, itemId5, "five", 5, "5_5");
+      reader.AddResult(itemId6, itemId6, itemId6, "six", 6, "6_6");
+
+      MockReader multipleReader2 = MockDBUtils.AddReader(2, "SELECT T0.MEDIA_ITEM_ID A2, T0.MEDIA_ITEM_ID A3, T0.ATTR_ID A0, T0.ATTR_STRING A1 FROM M_MULTIPLE2 T0  WHERE T0.MEDIA_ITEM_ID IN (@V0, @V1, @V2, @V3, @V4)", "A2", "A3", "A0", "A1");
+      multipleReader2.AddResult(itemId0, itemId0, "0_0", "zerozero");
+      multipleReader2.AddResult(itemId0, itemId0, "0_1", "zeroone");
+      multipleReader2.AddResult(itemId1, itemId1, "1_0", "onezero");
+      multipleReader2.AddResult(itemId1, itemId1, "1_1", "oneone");
+      multipleReader2.AddResult(itemId2, itemId2, "2_0", "twozero");
+      multipleReader2.AddResult(itemId2, itemId2, "2_1", "twoone");
+      multipleReader2.AddResult(itemId3, itemId3, "3_0", "twoone");
+      multipleReader2.AddResult(itemId3, itemId3, "3_1", "threeone");
+      multipleReader2.AddResult(itemId3, itemId3, "3_2", "threetwo");
+      multipleReader2.AddResult(itemId4, itemId4, "4_0", "fourzero");
+      multipleReader2.AddResult(itemId4, itemId4, "4_1", "fourone");
+
+      MockReader multipleReader3 = MockDBUtils.AddReader(3, "SELECT T0.MEDIA_ITEM_ID A2, T0.MEDIA_ITEM_ID A3, T0.ATTR_ID A0, T0.ATTR_INTEGER A1 FROM M_MULTIPLE3 T0  WHERE T0.MEDIA_ITEM_ID IN (@V0, @V1, @V2, @V3, @V4)", "A2", "A3", "A0", "A1");
+      multipleReader3.AddResult(itemId1, itemId1, "1_0", 10);
+      multipleReader3.AddResult(itemId1, itemId1, "1_1", 11);
+      multipleReader3.AddResult(itemId1, itemId1, "1_2", 12);
+      multipleReader3.AddResult(itemId1, itemId1, "1_3", 13);
+      multipleReader3.AddResult(itemId1, itemId1, "1_4", 14);
+      multipleReader3.AddResult(itemId2, itemId2, "1_0", 20);
+      multipleReader3.AddResult(itemId3, itemId3, "1_0", 30);
+      multipleReader3.AddResult(itemId3, itemId3, "1_1", 31);
+      multipleReader3.AddResult(itemId3, itemId3, "1_2", 32);
+                                                     
+      MockReader reader2 = MockDBUtils.AddReader(4, "SELECT T0.MEDIA_ITEM_ID A2, T0.MEDIA_ITEM_ID A3, T1.MEDIA_ITEM_ID A4, T0.ATTR_STRING A0, T0.ATTR_INTEGER A1 FROM M_SINGLE1 T0 INNER JOIN M_MULTIPLE2 T1 ON T1.MEDIA_ITEM_ID = T0.MEDIA_ITEM_ID ", "A2", "A3", "A4", "A0", "A1");
+      reader2.AddResult(itemId0, itemId0, itemId0, "zero", 0, "0_0");
+      reader2.AddResult(itemId0, itemId0, itemId0, "zero", 0, "0_0");
+      reader2.AddResult(itemId1, itemId1, itemId1, "one", 1, "1_1");
+      reader2.AddResult(itemId1, itemId1, itemId1, "one", 1, "1_1");
+      reader2.AddResult(itemId2, itemId2, itemId2, "two", 2, "2_2");
+      reader2.AddResult(itemId2, itemId2, itemId2, "two", 2, "2_2");
+      reader2.AddResult(itemId3, itemId3, itemId3, "tree", 3, "3_3");
+      reader2.AddResult(itemId3, itemId3, itemId3, "tree", 3, "3_3");
+      reader2.AddResult(itemId3, itemId3, itemId3, "tree", 3, "3_3");
+      reader2.AddResult(itemId4, itemId4, itemId4, "four", 4, "4_4");
+      reader2.AddResult(itemId4, itemId4, itemId4, "four", 4, "4_4");
+      reader2.AddResult(itemId5, itemId5, itemId5, "five", 5, "5_5");
+      reader2.AddResult(itemId5, itemId5, itemId5, "five", 5, "5_5");
+      reader2.AddResult(itemId6, itemId6, itemId6, "six", 6, "6_6");
+      reader2.AddResult(itemId6, itemId6, itemId6, "six", 6, "6_6");
+      reader2.AddResult(itemId6, itemId6, itemId6, "six", 6, "6_6");
+
+      MockReader multipleReader4 = MockDBUtils.AddReader(5, "SELECT T0.MEDIA_ITEM_ID A2, T0.MEDIA_ITEM_ID A3, T0.ATTR_ID A0, T0.ATTR_STRING A1 FROM M_MULTIPLE2 T0  WHERE T0.MEDIA_ITEM_ID IN (@V0, @V1, @V2)", "A2", "A3", "A0", "A1");
+      multipleReader4.AddResult(itemId0, itemId0, "0_0", "zerozero");
+      multipleReader4.AddResult(itemId0, itemId0, "0_1", "zeroone");
+      multipleReader4.AddResult(itemId1, itemId1, "1_0", "onezero");
+      multipleReader4.AddResult(itemId1, itemId1, "1_1", "oneone");
+      multipleReader4.AddResult(itemId2, itemId2, "2_0", "twozero");
+      multipleReader4.AddResult(itemId2, itemId2, "2_1", "twoone");
+
+      MockReader multipleReader5 = MockDBUtils.AddReader(6, "SELECT T0.MEDIA_ITEM_ID A2, T0.MEDIA_ITEM_ID A3, T0.ATTR_ID A0, T0.ATTR_INTEGER A1 FROM M_MULTIPLE3 T0  WHERE T0.MEDIA_ITEM_ID IN (@V0, @V1, @V2)", "A2", "A3", "A0", "A1");
+      multipleReader5.AddResult(itemId1, itemId1, "1_0", 10);
+      multipleReader5.AddResult(itemId1, itemId1, "1_1", 11);
+      multipleReader5.AddResult(itemId1, itemId1, "1_2", 12);
+      multipleReader5.AddResult(itemId1, itemId1, "1_3", 13);
+      multipleReader5.AddResult(itemId1, itemId1, "1_4", 14);
+      multipleReader5.AddResult(itemId2, itemId2, "1_0", 20);
+
+      Guid[] requiredAspects = { mia1.ASPECT_ID, mia2.ASPECT_ID };
+      Guid[] optionalAspects = { mia3.ASPECT_ID };
+      MediaItemQuery query = new MediaItemQuery(requiredAspects, optionalAspects, null)
+      {
+        Limit = 5,
+      };
+      CompiledMediaItemQuery compiledQuery = CompiledMediaItemQuery.Compile(MockCore.Management, query);
+      IList<MediaItem> results = compiledQuery.QueryList();
+      /*
+      foreach (MediaItem result in results)
+          //Console.WriteLine("Query result " + result.MediaItemId + ": " + string.Join(",", result.Aspects.Values) + ": " + result);
+      */
+
+      Assert.AreEqual(5, results.Count, "Results count");
+
+      Assert.AreEqual(itemId0, results[0].MediaItemId, "MediaItem ID #0");
+      Assert.AreEqual(2, results[0].Aspects.Count, "MediaItem Aspects #0");
+      Assert.AreEqual(itemId1, results[1].MediaItemId, "MediaItem ID #1");
+      Assert.AreEqual(3, results[1].Aspects.Count, "MediaItem Aspects #1");
+      Assert.AreEqual(itemId2, results[2].MediaItemId, "MediaItem ID #2");
+      Assert.AreEqual(3, results[2].Aspects.Count, "MediaItem Aspects #2");
+      Assert.AreEqual(itemId3, results[3].MediaItemId, "MediaItem ID #3");
+      Assert.AreEqual(3, results[3].Aspects.Count, "MediaItem Aspects #3");
+      Assert.AreEqual(itemId4, results[4].MediaItemId, "MediaItem ID #4");
+      Assert.AreEqual(2, results[4].Aspects.Count, "MediaItem Aspects #4");
+    }
+
+    [Test]
+    public void TestQueryOffset()
+    {
+      MockDBUtils.Reset();
+      SingleTestMIA mia1 = TestBackendUtils.CreateSingleMIA("SINGLE1", Cardinality.Inline, true, true);
+      MultipleTestMIA mia2 = TestBackendUtils.CreateMultipleMIA("MULTIPLE2", Cardinality.Inline, true, false);
+      MultipleTestMIA mia3 = TestBackendUtils.CreateMultipleMIA("MULTIPLE3", Cardinality.Inline, false, true);
+
+      Guid itemId0 = new Guid("aaaaaaaa-1111-1111-1111-aaaaaaaaaaaa");
+      Guid itemId1 = new Guid("bbbbbbbb-2222-2222-2222-bbbbbbbbbbbb");
+      Guid itemId2 = new Guid("cccccccc-3333-3333-3333-cccccccccccc");
+      Guid itemId3 = new Guid("dddddddd-4444-4444-4444-dddddddddddd");
+      Guid itemId4 = new Guid("eeeeeeee-5555-5555-5555-eeeeeeeeeeee");
+      Guid itemId5 = new Guid("ffffffff-6666-6666-6666-ffffffffffff");
+      Guid itemId6 = new Guid("aaaaaaaa-7777-7777-7777-aaaaaaaaaaaa");
+
+      MockReader reader = MockDBUtils.AddReader(1, "SELECT T0.MEDIA_ITEM_ID A2, T0.MEDIA_ITEM_ID A3, T0.ATTR_STRING A0, T0.ATTR_INTEGER A1 FROM M_SINGLE1 T0  WHERE T0.MEDIA_ITEM_ID IN(SELECT T0.MEDIA_ITEM_ID FROM M_SINGLE1 T0" +
+        " INNER JOIN M_MULTIPLE2 T1 ON T1.MEDIA_ITEM_ID = T0.MEDIA_ITEM_ID )  AND EXISTS(SELECT 1 FROM M_MULTIPLE2 WHERE MEDIA_ITEM_ID=T0.MEDIA_ITEM_ID)", "A2", "A3", "A4", "A0", "A1");
+      reader.AddResult(itemId0, itemId0, itemId0, "zero", 0, "0_0");
+      reader.AddResult(itemId1, itemId1, itemId1, "one", 1, "1_1");
+      reader.AddResult(itemId2, itemId2, itemId2, "two", 2, "2_2");
+      reader.AddResult(itemId3, itemId3, itemId3, "tree", 3, "3_3");
+      reader.AddResult(itemId4, itemId4, itemId4, "four", 4, "4_4");
+      reader.AddResult(itemId5, itemId5, itemId5, "five", 5, "5_5");
+      reader.AddResult(itemId6, itemId6, itemId6, "six", 6, "6_6");
+
+      MockReader multipleReader2 = MockDBUtils.AddReader(2, "SELECT T0.MEDIA_ITEM_ID A2, T0.MEDIA_ITEM_ID A3, T0.ATTR_ID A0, T0.ATTR_STRING A1 FROM M_MULTIPLE2 T0  WHERE T0.MEDIA_ITEM_ID IN (@V0, @V1, @V2, @V3)", "A2", "A3", "A0", "A1");
+      multipleReader2.AddResult(itemId3, itemId3, "3_0", "twoone");
+      multipleReader2.AddResult(itemId3, itemId3, "3_1", "threeone");
+      multipleReader2.AddResult(itemId3, itemId3, "3_2", "threetwo");
+      multipleReader2.AddResult(itemId4, itemId4, "4_0", "fourzero");
+      multipleReader2.AddResult(itemId4, itemId4, "4_1", "fourone");
+      multipleReader2.AddResult(itemId5, itemId5, "5_0", "fivezero");
+      multipleReader2.AddResult(itemId5, itemId5, "5_1", "fiveone");
+      multipleReader2.AddResult(itemId6, itemId6, "6_0", "sixzero");
+      multipleReader2.AddResult(itemId6, itemId6, "6_1", "sixone");
+      multipleReader2.AddResult(itemId6, itemId6, "6_2", "sixtwo");
+
+      MockReader multipleReader3 = MockDBUtils.AddReader(3, "SELECT T0.MEDIA_ITEM_ID A2, T0.MEDIA_ITEM_ID A3, T0.ATTR_ID A0, T0.ATTR_INTEGER A1 FROM M_MULTIPLE3 T0  WHERE T0.MEDIA_ITEM_ID IN (@V0, @V1, @V2, @V3)", "A2", "A3", "A0", "A1");
+      multipleReader3.AddResult(itemId3, itemId3, "1_0", 30);
+      multipleReader3.AddResult(itemId3, itemId3, "1_1", 31);
+      multipleReader3.AddResult(itemId3, itemId3, "1_2", 32);
+      multipleReader3.AddResult(itemId6, itemId6, "1_0", 60);
+      multipleReader3.AddResult(itemId6, itemId6, "1_1", 61);
+      multipleReader3.AddResult(itemId6, itemId6, "1_2", 62);
+      multipleReader3.AddResult(itemId6, itemId6, "1_3", 63);
+      multipleReader3.AddResult(itemId6, itemId6, "1_4", 64);
+
+      MockReader reader2 = MockDBUtils.AddReader(4, "SELECT T0.MEDIA_ITEM_ID A2, T0.MEDIA_ITEM_ID A3, T1.MEDIA_ITEM_ID A4, T0.ATTR_STRING A0, T0.ATTR_INTEGER A1 FROM M_SINGLE1 T0 INNER JOIN M_MULTIPLE2 T1 ON T1.MEDIA_ITEM_ID = T0.MEDIA_ITEM_ID ", "A2", "A3", "A4", "A0", "A1");
+      reader2.AddResult(itemId0, itemId0, itemId0, "zero", 0, "0_0");
+      reader2.AddResult(itemId0, itemId0, itemId0, "zero", 0, "0_0");
+      reader2.AddResult(itemId1, itemId1, itemId1, "one", 1, "1_1");
+      reader2.AddResult(itemId1, itemId1, itemId1, "one", 1, "1_1");
+      reader2.AddResult(itemId2, itemId2, itemId2, "two", 2, "2_2");
+      reader2.AddResult(itemId2, itemId2, itemId2, "two", 2, "2_2");
+      reader2.AddResult(itemId3, itemId3, itemId3, "tree", 3, "3_3");
+      reader2.AddResult(itemId3, itemId3, itemId3, "tree", 3, "3_3");
+      reader2.AddResult(itemId3, itemId3, itemId3, "tree", 3, "3_3");
+      reader2.AddResult(itemId4, itemId4, itemId4, "four", 4, "4_4");
+      reader2.AddResult(itemId4, itemId4, itemId4, "four", 4, "4_4");
+      reader2.AddResult(itemId5, itemId5, itemId5, "five", 5, "5_5");
+      reader2.AddResult(itemId5, itemId5, itemId5, "five", 5, "5_5");
+      reader2.AddResult(itemId6, itemId6, itemId6, "six", 6, "6_6");
+      reader2.AddResult(itemId6, itemId6, itemId6, "six", 6, "6_6");
+      reader2.AddResult(itemId6, itemId6, itemId6, "six", 6, "6_6");
+
+      MockReader multipleReader4 = MockDBUtils.AddReader(5, "SELECT T0.MEDIA_ITEM_ID A2, T0.MEDIA_ITEM_ID A3, T0.ATTR_ID A0, T0.ATTR_STRING A1 FROM M_MULTIPLE2 T0  WHERE T0.MEDIA_ITEM_ID IN (@V0, @V1, @V2, @V3, @V4, @V5)", "A2", "A3", "A0", "A1");
+      multipleReader4.AddResult(itemId0, itemId0, "0_0", "zerozero");
+      multipleReader4.AddResult(itemId0, itemId0, "0_1", "zeroone");
+      multipleReader4.AddResult(itemId1, itemId1, "1_0", "onezero");
+      multipleReader4.AddResult(itemId1, itemId1, "1_1", "oneone");
+      multipleReader4.AddResult(itemId2, itemId2, "2_0", "twozero");
+      multipleReader4.AddResult(itemId2, itemId2, "2_1", "twoone");
+      multipleReader4.AddResult(itemId3, itemId3, "3_0", "twoone");
+      multipleReader4.AddResult(itemId3, itemId3, "3_1", "threeone");
+      multipleReader4.AddResult(itemId3, itemId3, "3_2", "threetwo");
+      multipleReader4.AddResult(itemId4, itemId4, "4_0", "fourzero");
+      multipleReader4.AddResult(itemId4, itemId4, "4_1", "fourone");
+      multipleReader4.AddResult(itemId5, itemId5, "5_0", "fivezero");
+      multipleReader4.AddResult(itemId5, itemId5, "5_1", "fiveone");
+      multipleReader4.AddResult(itemId6, itemId6, "6_0", "sixzero");
+      multipleReader4.AddResult(itemId6, itemId6, "6_1", "sixone");
+      multipleReader4.AddResult(itemId6, itemId6, "6_2", "sixtwo");
+
+      MockReader multipleReader5 = MockDBUtils.AddReader(6, "SELECT T0.MEDIA_ITEM_ID A2, T0.MEDIA_ITEM_ID A3, T0.ATTR_ID A0, T0.ATTR_INTEGER A1 FROM M_MULTIPLE3 T0  WHERE T0.MEDIA_ITEM_ID IN (@V0, @V1, @V2, @V3, @V4, @V5)", "A2", "A3", "A0", "A1");
+      multipleReader5.AddResult(itemId1, itemId1, "1_0", 10);
+      multipleReader5.AddResult(itemId1, itemId1, "1_1", 11);
+      multipleReader5.AddResult(itemId1, itemId1, "1_2", 12);
+      multipleReader5.AddResult(itemId1, itemId1, "1_3", 13);
+      multipleReader5.AddResult(itemId1, itemId1, "1_4", 14);
+      multipleReader5.AddResult(itemId2, itemId2, "1_0", 20);
+      multipleReader5.AddResult(itemId3, itemId3, "1_0", 30);
+      multipleReader5.AddResult(itemId3, itemId3, "1_1", 31);
+      multipleReader5.AddResult(itemId3, itemId3, "1_2", 32);
+      multipleReader5.AddResult(itemId6, itemId6, "1_0", 60);
+      multipleReader5.AddResult(itemId6, itemId6, "1_1", 61);
+      multipleReader5.AddResult(itemId6, itemId6, "1_2", 62);
+      multipleReader5.AddResult(itemId6, itemId6, "1_3", 63);
+      multipleReader5.AddResult(itemId6, itemId6, "1_4", 64);
+
+      Guid[] requiredAspects = { mia1.ASPECT_ID, mia2.ASPECT_ID };
+      Guid[] optionalAspects = { mia3.ASPECT_ID };
+      MediaItemQuery query = new MediaItemQuery(requiredAspects, optionalAspects, null)
+      {
+        Offset = 3,
+      };
+      CompiledMediaItemQuery compiledQuery = CompiledMediaItemQuery.Compile(MockCore.Management, query);
+      IList<MediaItem> results = compiledQuery.QueryList();
+      /*
+      foreach (MediaItem result in results)
+          //Console.WriteLine("Query result " + result.MediaItemId + ": " + string.Join(",", result.Aspects.Values) + ": " + result);
+      */
+
+      Assert.AreEqual(4, results.Count, "Results count");
+
+      Assert.AreEqual(itemId3, results[0].MediaItemId, "MediaItem ID #0");
+      Assert.AreEqual(3, results[0].Aspects.Count, "MediaItem Aspects #0");
+      Assert.AreEqual(itemId4, results[1].MediaItemId, "MediaItem ID #1");
+      Assert.AreEqual(2, results[1].Aspects.Count, "MediaItem Aspects #1");
+      Assert.AreEqual(itemId5, results[2].MediaItemId, "MediaItem ID #2");
+      Assert.AreEqual(2, results[2].Aspects.Count, "MediaItem Aspects #2");
+      Assert.AreEqual(itemId6, results[3].MediaItemId, "MediaItem ID #3");
+      Assert.AreEqual(3, results[3].Aspects.Count, "MediaItem Aspects #3");
+    }
   }
 }

@@ -34,6 +34,136 @@
     </Setter>
   </Style>
 
+  <!-- Details template for program info. Will be used with different Program items (CurrentProgram/NextProgram) -->
+  <Style x:Key="OSDProgramDetailsTemplate" TargetType="{x:Type Control}">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate>
+          <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+            <Grid.RowDefinitions>
+              <RowDefinition Height="Auto"/>
+              <RowDefinition Height="Auto"/>
+              <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="300"/>
+              <ColumnDefinition Width="Auto"/>
+              <ColumnDefinition Width="15"/>
+              <ColumnDefinition Width="Auto"/>
+              <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+
+            <StackPanel Orientation="Horizontal" Grid.Row="0" Grid.Column="0" MaxWidth="900">
+              <Label x:Name="CurrentProgramTitleLabel" Content="{Binding Path=Title}" Scroll="Auto"
+                     FontFamily="DefaultBold" Color="{DynamicResource ProgramFontColor}"/>
+              <Label x:Name="CurrentProgramSeriesLabel" Color="{DynamicResource ProgramFontColor}" Scroll="Auto"
+                     IsVisible="{Binding Path=Series, Converter={StaticResource EmptyStringToFalseConverter}}">
+                <Label.Content>
+                  <Binding Path="Series" Converter="{StaticResource StringFormatConverter}" ConverterParameter="{} ({0})"/>
+                </Label.Content>
+              </Label>
+            </StackPanel>
+
+            <Label x:Name="Channel" Grid.Row="1" Grid.Column="0" Scroll="Auto"
+                   Content="{Binding Source={StaticResource SlimTvClient},Path=ChannelName}"
+                   Color="{DynamicResource ProgramFontColor}"/>
+
+            <Label x:Name="ProgramStart" Grid.Row="1" Grid.Column="1" Scroll="Auto" Margin="5,0,5,0"
+                   Content="{Binding Path=StartTime, Converter={StaticResource SlimTvDateFormatConverter}}"
+                   Color="{DynamicResource ProgramFontColor}"/>
+
+            <Label Grid.Row="1" Grid.Column="2" Content="-" Color="{DynamicResource ProgramFontColor}"/>
+
+            <Label x:Name="ProgramEnd" Grid.Row="1" Grid.Column="3" Scroll="Auto" Margin="5,0,0,0"
+                   Content="{Binding Path=EndTime, Converter={StaticResource SlimTvDateFormatConverter}}"
+                   Color="{DynamicResource ProgramFontColor}"/>
+
+            <Label x:Name="Genre" Grid.Row="1" Grid.Column="4" Scroll="Auto" Margin="30,0,0,0"
+                   Content="{Binding Genre}"
+                   Color="{DynamicResource ProgramFontColor}"/>
+
+            <Label Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="5" x:Name="Description" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+                   Wrap="True" Scroll="Auto"
+                   Height="{ThemeResource OSDDetailLabelHeight}"
+                   Content="{Binding Description}"
+                   Color="{ThemeResource TextColor}"
+                   ScrollSpeed="15" />
+
+            <!-- Dummy button which makes the panel focusable -->
+            <Button Style="{ThemeResource EmptyStyle}" SetFocusPrio="{DynamicResource ButtonFocus}"/>
+          </Grid>
+
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+
+  <Style x:Key="ProgramInfoScrollViewerStyle" TargetType="{x:Type ScrollViewer}">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="{x:Type ScrollViewer}">
+          <!-- Set grid height as scroll viewer height -->
+          <Grid x:Name="ScrollViewerGrid" ActualHeight="{TemplateBinding Path=ScrollBarYSize,Mode=OneWayToSource}">
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+              <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+
+            <!-- Content -->
+            <ScrollContentPresenter Grid.ZIndex="100" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
+
+            <!-- Arrow up -->
+            <StackPanel VerticalAlignment="Top" HorizontalAlignment="Center">
+              <StackPanel.IsVisible>
+                <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0}>0 &amp;&amp; {1}">
+                  <TemplateBinding Path="ScrollBarYKnobPos" />
+                  <Binding ElementName="ScrollViewerGrid" Path="IsKeyboardFocusWithin" />
+                </MultiBinding>
+              </StackPanel.IsVisible>
+              <Image Source="details_arrow_left.png" Opacity="0.5">
+                <Image.LayoutTransform>
+                  <RotateTransform Angle="90"/>
+                </Image.LayoutTransform>
+              </Image>
+            </StackPanel>
+
+            <!-- Arrow down -->
+            <StackPanel VerticalAlignment="Bottom" HorizontalAlignment="Center">
+              <StackPanel.IsVisible>
+                <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0}==0 &amp;&amp; {1}">
+                  <TemplateBinding Path="ScrollBarYKnobPos" />
+                  <Binding ElementName="ScrollViewerGrid" Path="IsKeyboardFocusWithin" />
+                </MultiBinding>
+              </StackPanel.IsVisible>
+              <Image Source="details_arrow_left.png" Opacity="0.5">
+                <Image.LayoutTransform>
+                  <RotateTransform Angle="270"/>
+                </Image.LayoutTransform>
+              </Image>
+            </StackPanel>
+
+          </Grid>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+
+
+  <!-- Default ListView style. The properties "ItemTemplate", "ItemContainerStyle" and "DataStringProvider" should be exchanged for custom ListView styles. -->
+  <Style x:Key="ProgramInfoListViewStyle" BasedOn="{ThemeResource DefaultListViewStyle}">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="{x:Type ListView}">
+          <ScrollViewer CanContentScroll="True" Style="{ThemeResource ProgramInfoScrollViewerStyle}">
+            <ItemsPresenter VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
+          </ScrollViewer>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+
   <Style x:Key="PrimarySlimTvOSDStyle" TargetType="{x:Type mp_special_controls:PlayerControl}">
     <Setter Property="Template">
       <Setter.Value>
@@ -45,17 +175,18 @@
 
           <Control Style="{ThemeResource OSDContainer}" Width="{ThemeResource FullScreenContentVideoPrimaryPlayerOSDWidth}" DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}">
             <Control.Resources>
+              <ResourceWrapper x:Key="ProgramDetailsHeight" Resource="280"/>
               <ControlTemplate x:Key="OSD_Cover_Template">
-                <Image x:Name="ChannelLogo" Stretch="Uniform" Width="180" Margin="10" VerticalAlignment="Top">
+                <Image x:Name="ChannelLogo" Stretch="Uniform" Width="180" Margin="10" VerticalAlignment="Top" Context="{StaticResource SlimTvClient}">
                   <Image.Source>
-                    <fanart:FanArtImageSource fanart:FanArtMediaType="{Binding Source={StaticResource SlimTvClient}, Path=ChannelLogoType}" fanart:FanArtType="Banner" fanart:FanArtName="{Binding Source={StaticResource SlimTvClient}, Path=ChannelName}"
+                    <fanart:FanArtImageSource fanart:FanArtMediaType="{Binding ChannelLogoType}" fanart:FanArtType="Banner" fanart:FanArtName="{Binding ChannelName}"
                                               fanart:MaxWidth="0" fanart:MaxHeight="0"/>
                   </Image.Source>
                 </Image>
               </ControlTemplate>
               <ControlTemplate x:Key="OSD_InfoArea_Template">
 
-                <DockPanel LastChildFill="true" Margin="3">
+                <DockPanel LastChildFill="true" Margin="3" DataContext="{Binding Source={StaticResource SlimTvClient}}">
 
                   <Grid DockPanel.Dock="Center" HorizontalAlignment="Stretch">
                     <Grid.ColumnDefinitions>
@@ -66,110 +197,27 @@
                       <RowDefinition Height="Auto"/>
                     </Grid.RowDefinitions>
 
-                    <Grid DataContext="{Binding Source={StaticResource SlimTvClient}}" IsVisible="{Binding !IsOSDLevel2}" MaxWidth="900">
-                      <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="Auto"/>
-                        <ColumnDefinition Width="*"/>
-                      </Grid.ColumnDefinitions>
-                      <Label Grid.Column="0" x:Name="CurrentProgramTitleLabel" Content="{Binding Path=CurrentProgram.Title}" Scroll="Auto"
-                               FontFamily="DefaultBold" Color="{ThemeResource TextColor}"/>
-                      <Label Grid.Column="1" x:Name="CurrentProgramSeriesLabel" Color="{ThemeResource TextColor}" Scroll="Auto"
-                             IsVisible="{Binding Path=CurrentProgram.Series, Converter={StaticResource EmptyStringToFalseConverter}}">
-                        <Label.Content>
-                          <Binding Path="CurrentProgram.Series" Converter="{StaticResource StringFormatConverter}" ConverterParameter="{} ({0})"/>
-                        </Label.Content>
-                      </Label>
-                    </Grid>
+                    <!-- Now / next program informations -->
+                    <ListView Grid.Column="0" Grid.Row="1" Height="{StaticResource ProgramDetailsHeight}" Style="{ThemeResource ProgramInfoListViewStyle}"
+                              Margin="0,0,0,20">
 
-                    <Label x:Name="NextProgramTitleLabel"  Grid.Column="0" Grid.Row="1" Content="{Binding Source={StaticResource SlimTvClient},Path=NextProgram.Title}" Scroll="Auto"
-                        HorizontalAlignment="Left" VerticalAlignment="Center"
-                        IsVisible="{Binding Source={StaticResource SlimTvClient},Path=IsOSDLevel0}"
-                        Color="{ThemeResource NextProgramLabelColor}" />
+                      <!-- Current Program detailed information -->
+                      <Control Style="{ThemeResource OSDProgramDetailsTemplate}" Context="{Binding Source={StaticResource SlimTvClient},Path=CurrentProgram}">
+                        <Control.Resources>
+                          <ResourceWrapper x:Key="ProgramFontColor" Resource="{ThemeResource TextColor}"/>
+                          <ResourceWrapper x:Key="ButtonFocus" Resource="Default"/>
+                        </Control.Resources>
+                      </Control>
 
-                    <!-- Title lable for OSD Level 2 (next program) -->
-                    <Label x:Name="NextProgramTitleLabelLevel2" Grid.Column="0" Content="{Binding Source={StaticResource SlimTvClient},Path=NextProgram.Title}" Scroll="Auto"
-                        HorizontalAlignment="Left" VerticalAlignment="Center"
-                        IsVisible="{Binding Source={StaticResource SlimTvClient},Path=IsOSDLevel2}"
-                        Color="{ThemeResource NextProgramLabelColor}"
-                        FontFamily="DefaultBold" />
+                      <!-- Next Program detailed information -->
+                      <Control Style="{ThemeResource OSDProgramDetailsTemplate}" Context="{Binding Source={StaticResource SlimTvClient},Path=NextProgram}">
+                        <Control.Resources>
+                          <ResourceWrapper x:Key="ProgramFontColor" Resource="{ThemeResource NextProgramLabelColor}"/>
+                          <ResourceWrapper x:Key="ButtonFocus" Resource="None"/>
+                        </Control.Resources>
+                      </Control>
 
-                    <!-- Current Program detailed information -->
-                    <Grid Grid.Column="0" Grid.Row="1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
-                        IsVisible="{Binding Source={StaticResource SlimTvClient},Path=IsOSDLevel1}">
-                      <Grid.RowDefinitions>
-                        <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="*"/>
-                      </Grid.RowDefinitions>
-                      <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="300"/>
-                        <ColumnDefinition Width="Auto"/>
-                        <ColumnDefinition Width="15"/>
-                        <ColumnDefinition Width="Auto"/>
-                        <ColumnDefinition Width="*"/>
-                      </Grid.ColumnDefinitions>
-                      <Label x:Name="Channel" Grid.Row="0" Grid.Column="0" Scroll="Auto"
-                          Content="{Binding Source={StaticResource SlimTvClient},Path=ChannelName}"
-                          Color="{ThemeResource TextColor}"/>
-
-                      <Label x:Name="ProgramStart" Grid.Row="0" Grid.Column="1" Scroll="Auto" Margin="5,0,0,0"
-                          Content="{Binding Source={StaticResource SlimTvClient},Path=CurrentProgram.StartTime, Converter={StaticResource SlimTvDateFormatConverter}}"
-                          Color="{ThemeResource TextColor}"/>
-
-                      <Label Grid.Row="0" Grid.Column="2" Content="-" Color="{ThemeResource TextColor}"/>
-
-                      <Label x:Name="ProgramEnd" Grid.Row="0" Grid.Column="3" Scroll="Auto" Margin="5,0,0,0"
-                          Content="{Binding Source={StaticResource SlimTvClient},Path=CurrentProgram.EndTime, Converter={StaticResource SlimTvDateFormatConverter}}"
-                          Color="{ThemeResource TextColor}"/>
-
-                      <Label x:Name="Genre" Grid.Row="0" Grid.Column="4" Scroll="Auto" Margin="5,0,0,0"
-                          Content="{Binding Source={StaticResource SlimTvClient},Path=CurrentProgram.Genre}"
-                          Color="{ThemeResource TextColor}"/>
-
-                      <Label Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="5" x:Name="Description" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
-                          Wrap="True" Scroll="Auto"
-                          Height="{ThemeResource OSDDetailLabelHeight}"
-                          Content="{Binding Source={StaticResource SlimTvClient},Path=CurrentProgram.Description}"
-                          Color="{ThemeResource TextColor}"/>
-                    </Grid>
-
-                    <!-- Next Program detailed information -->
-                    <Grid Grid.Column="0" Grid.Row="1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
-                        IsVisible="{Binding Source={StaticResource SlimTvClient},Path=IsOSDLevel2}">
-                      <Grid.RowDefinitions>
-                        <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="*"/>
-                      </Grid.RowDefinitions>
-                      <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="300"/>
-                        <ColumnDefinition Width="Auto"/>
-                        <ColumnDefinition Width="15"/>
-                        <ColumnDefinition Width="Auto"/>
-                        <ColumnDefinition Width="*"/>
-                      </Grid.ColumnDefinitions>
-                      <Label x:Name="NextChannel" Grid.Row="0" Grid.Column="0" Scroll="Auto"
-                          Content="{Binding Source={StaticResource SlimTvClient},Path=ChannelName}"
-                          Color="{ThemeResource TextColor}"/>
-
-                      <Label x:Name="NextProgramStart" Grid.Row="0" Grid.Column="1" Scroll="Auto" Margin="5,0,0,0"
-                          Content="{Binding Source={StaticResource SlimTvClient},Path=NextProgram.StartTime, Converter={StaticResource SlimTvDateFormatConverter}}"
-                          Color="{ThemeResource TextColor}"/>
-
-                      <Label Grid.Row="0" Grid.Column="2" Content="-" Color="{ThemeResource TextColor}"/>
-
-                      <Label x:Name="NextProgramEnd" Grid.Row="0" Grid.Column="3" Scroll="Auto" Margin="5,0,0,0"
-                          Content="{Binding Source={StaticResource SlimTvClient},Path=NextProgram.EndTime, Converter={StaticResource SlimTvDateFormatConverter}}"
-                          Color="{ThemeResource TextColor}"/>
-
-                      <Label x:Name="NextGenre" Grid.Row="0" Grid.Column="4" Scroll="Auto" Margin="5,0,0,0"
-                          Content="{Binding Source={StaticResource SlimTvClient},Path=NextProgram.Genre}"
-                          Color="{ThemeResource TextColor}"/>
-
-                      <Label Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="5" x:Name="NextDescription" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
-                          Wrap="True" Scroll="Auto"
-                          Height="{ThemeResource OSDDetailLabelHeight}"
-                          Content="{Binding Source={StaticResource SlimTvClient},Path=NextProgram.Description}"
-                          Color="{ThemeResource TextColor}"/>
-                    </Grid>
+                    </ListView>
 
                     <!--<Label x:Name="TimeLabel" Color="{ThemeResource TextColor}" FontSize="{ThemeResource BigFontSize}"
                         HorizontalAlignment="Center" VerticalAlignment="Center" Grid.Column="2" Grid.Row="0" Grid.RowSpan="2" 
@@ -181,7 +229,7 @@
 
               <ControlTemplate x:Key="OSD_Progress_Template">
 
-                <DockPanel LastChildFill="true" Margin="10,3,30,3">
+                <DockPanel LastChildFill="true" Margin="10,3,30,3" DataContext="{Binding Source={StaticResource SlimTvClient}}">
                   <Grid DockPanel.Dock="Center" HorizontalAlignment="Stretch">
                     <Grid.ColumnDefinitions>
                       <ColumnDefinition Width="Auto"/>
@@ -193,7 +241,7 @@
                     </Grid.RowDefinitions>
 
                     <Label x:Name="CurrentProgramStartLabel" Grid.Column="0"
-                        Content="{Binding Source={StaticResource SlimTvClient}, Path=CurrentProgram.StartTime, Converter={StaticResource SlimTvDateFormatConverter}}"
+                        Content="{Binding Path=CurrentProgram.StartTime, Converter={StaticResource SlimTvDateFormatConverter}}"
                         Color="{ThemeResource TextColor}" HorizontalAlignment="Left" VerticalAlignment="Center"
                         FontSize="{ThemeResource SmallFontSize}"/>
 
@@ -201,7 +249,7 @@
                         Style="{ThemeResource OSDProgressBarStyle}" Value="{Binding Source={StaticResource SlimTvClient},Path=ProgramProgress}" />
 
                     <Label x:Name="CurrentProgramEndLabel" Grid.Column="2"
-                        Content="{Binding Source={StaticResource SlimTvClient},Path=CurrentProgram.EndTime, Converter={StaticResource SlimTvDateFormatConverter}}"
+                        Content="{Binding Path=CurrentProgram.EndTime, Converter={StaticResource SlimTvDateFormatConverter}}"
                         Color="{ThemeResource TextColor}" HorizontalAlignment="Right" VerticalAlignment="Center"
                         FontSize="{ThemeResource SmallFontSize}"/>
 
@@ -210,7 +258,7 @@
               </ControlTemplate>
 
               <ControlTemplate x:Key="OSD_Controls_Template">
-                <Control Template="{ThemeResource GenericVideoOSDControlsControl}" />
+                <Control Template="{ThemeResource GenericVideoOSDControlsControl}"/>
               </ControlTemplate>
 
             </Control.Resources>
@@ -1143,7 +1191,7 @@
         <Label.Content>
           <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0}+{1}+{2}">
             <Binding Path="[Name]" Converter="{StaticResource StringFormatConverter}" ConverterParameter="{}{0}"/>
-            <Binding Source=" "/> 
+            <Binding Source=" "/>
             <Binding Path="[Series]" Converter="{StaticResource StringFormatConverter}" ConverterParameter="{}{0}"/>
           </MultiBinding>
         </Label.Content>

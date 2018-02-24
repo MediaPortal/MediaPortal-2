@@ -22,32 +22,20 @@
 
 #endregion
 
-using MediaPortal.Common.MediaManagement.MLQueries;
-using MediaPortal.Common.UserProfileDataManagement;
+using MediaPortal.Common.Commands;
+using MediaPortal.Plugins.SlimTv.Client.Models.Navigation;
 using MediaPortal.Plugins.SlimTv.Client.TvHandler;
 using MediaPortal.UiComponents.Media.MediaLists;
-using System;
-using System.Collections.Generic;
+using MediaPortal.UiComponents.Media.Models;
 
 namespace MediaPortal.Plugins.SlimTv.Client.MediaLists
 {
-  public class SlimTvLastWatchedRecordingsMediaListProvider : BaseRecordingMediaListProvider
+  public class SlimTvLastWatchedRecordingsMediaListProvider : BaseLastWatchedMediaListProvider
   {
-    public override bool UpdateItems(int maxItems, UpdateReason updateReason)
+    public SlimTvLastWatchedRecordingsMediaListProvider()
     {
-      if ((updateReason & UpdateReason.Forced) == UpdateReason.Forced ||
-          (updateReason & UpdateReason.PlaybackComplete) == UpdateReason.PlaybackComplete)
-      {
-        Guid? userProfile = CurrentUserProfile?.ProfileId;
-        _query = new MediaItemQuery(SlimTvConsts.NECESSARY_RECORDING_MIAS, null)
-        {
-          Filter = userProfile.HasValue ? AppendUserFilter(new NotFilter(new EmptyUserDataFilter(userProfile.Value, UserDataKeysKnown.KEY_PLAY_DATE))) : null,
-          Limit = (uint)maxItems, // Last 5 imported items
-          SortInformation = new List<ISortInformation> { new DataSortInformation(UserDataKeysKnown.KEY_PLAY_DATE, SortDirection.Descending) }
-        };
-        return base.UpdateItems(maxItems, UpdateReason.Forced);
-      }
-      return true;
+      _necessaryMias = SlimTvConsts.NECESSARY_RECORDING_MIAS;
+      _playableConverterAction = mi => new RecordingItem(mi) { Command = new MethodDelegateCommand(() => PlayItemsModel.CheckQueryPlayAction(mi)) };
     }
   }
 }

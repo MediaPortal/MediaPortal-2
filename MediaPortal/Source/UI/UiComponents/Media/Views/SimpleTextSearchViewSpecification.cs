@@ -29,6 +29,7 @@ using MediaPortal.Common.Logging;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.MLQueries;
 using MediaPortal.Common.SystemCommunication;
+using MediaPortal.Common.UserManagement;
 using MediaPortal.UiComponents.Media.General;
 using MediaPortal.UI.ServerCommunication;
 using UPnP.Infrastructure.CP;
@@ -109,7 +110,7 @@ namespace MediaPortal.UiComponents.Media.Views
         {
           Limit = Consts.MAX_NUM_ITEMS_VISIBLE
         };
-        mediaItems = cd.Search(query, true, userProfile, showVirtual);
+        mediaItems = cd.SearchAsync(query, true, userProfile, showVirtual).Result;
       }
       catch (UPnPRemoteException e)
       {

@@ -22,15 +22,12 @@
 
 #endregion
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
+using MediaPortal.Common.PluginManager;
 using MediaPortal.Common.PluginManager.Exceptions;
 using MediaPortal.Common.ResourceAccess;
-using MediaPortal.Common.PluginManager;
 using MediaPortal.Common.Services.ResourceAccess.LocalFsResourceProvider;
 using MediaPortal.Common.Services.ResourceAccess.RawUrlResourceProvider;
 using MediaPortal.Common.Services.ResourceAccess.RemoteResourceProvider;
@@ -38,6 +35,10 @@ using MediaPortal.Common.Services.ResourceAccess.VirtualResourceProvider;
 using MediaPortal.Common.SystemResolver;
 using MediaPortal.Utilities;
 using MediaPortal.Utilities.SystemAPI;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace MediaPortal.Common.Services.MediaManagement
 {
@@ -647,8 +648,8 @@ namespace MediaPortal.Common.Services.MediaManagement
           kvp => kvp.Key).ToList();
     }
 
-    public IDictionary<Guid, IList<MediaItemAspect>> ExtractMetadata(IResourceAccessor mediaItemAccessor,
-        IEnumerable<Guid> metadataExtractorIds, bool importOnly, bool forceQuickMode)
+    public Task<IDictionary<Guid, IList<MediaItemAspect>>> ExtractMetadataAsync(IResourceAccessor mediaItemAccessor,
+      IEnumerable<Guid> metadataExtractorIds, bool forceQuickMode)
     {
       ICollection<IMetadataExtractor> extractors = new List<IMetadataExtractor>();
       foreach (Guid extractorId in metadataExtractorIds)
@@ -657,12 +658,11 @@ namespace MediaPortal.Common.Services.MediaManagement
         if (LocalMetadataExtractors.TryGetValue(extractorId, out extractor))
           extractors.Add(extractor);
       }
-      return ExtractMetadata(mediaItemAccessor, extractors, importOnly, forceQuickMode);
+      return ExtractMetadataAsync(mediaItemAccessor, extractors, forceQuickMode);
     }
 
-    public IDictionary<Guid, IList<MediaItemAspect>> ExtractMetadata(IResourceAccessor mediaItemAccessor,
-        IEnumerable<Guid> metadataExtractorIds, IDictionary<Guid, IList<MediaItemAspect>> existingAspects, 
-        bool importOnly, bool forceQuickMode)
+    public Task<IDictionary<Guid, IList<MediaItemAspect>>> ExtractMetadataAsync(IResourceAccessor mediaItemAccessor,
+      IEnumerable<Guid> metadataExtractorIds, IDictionary<Guid, IList<MediaItemAspect>> existingAspects, bool forceQuickMode)
     {
       ICollection<IMetadataExtractor> extractors = new List<IMetadataExtractor>();
       foreach (Guid extractorId in metadataExtractorIds)
@@ -671,19 +671,17 @@ namespace MediaPortal.Common.Services.MediaManagement
         if (LocalMetadataExtractors.TryGetValue(extractorId, out extractor))
           extractors.Add(extractor);
       }
-      return ExtractMetadata(mediaItemAccessor, extractors, existingAspects, importOnly, forceQuickMode);
+      return ExtractMetadataAsync(mediaItemAccessor, extractors, existingAspects, forceQuickMode);
     }
 
-    public IDictionary<Guid, IList<MediaItemAspect>> ExtractMetadata(IResourceAccessor mediaItemAccessor,
-        IEnumerable<IMetadataExtractor> metadataExtractors, bool importOnly, bool forceQuickMode)
+    public Task<IDictionary<Guid, IList<MediaItemAspect>>> ExtractMetadataAsync(IResourceAccessor mediaItemAccessor,
+      IEnumerable<IMetadataExtractor> metadataExtractors, bool forceQuickMode)
     {
-      return ExtractMetadata(mediaItemAccessor, metadataExtractors, new Dictionary<Guid, IList<MediaItemAspect>>(), 
-        importOnly, forceQuickMode);
+      return ExtractMetadataAsync(mediaItemAccessor, metadataExtractors, new Dictionary<Guid, IList<MediaItemAspect>>(), forceQuickMode);
     }
 
-    public IDictionary<Guid, IList<MediaItemAspect>> ExtractMetadata(IResourceAccessor mediaItemAccessor,
-        IEnumerable<IMetadataExtractor> metadataExtractors, IDictionary<Guid, IList<MediaItemAspect>> existingAspects, 
-        bool importOnly, bool forceQuickMode)
+    public async Task<IDictionary<Guid, IList<MediaItemAspect>>> ExtractMetadataAsync(IResourceAccessor mediaItemAccessor,
+      IEnumerable<IMetadataExtractor> metadataExtractors, IDictionary<Guid, IList<MediaItemAspect>> existingAspects, bool forceQuickMode)
     {
       IDictionary<Guid, IList<MediaItemAspect>> result = existingAspects;
       if(result == null)
@@ -701,7 +699,7 @@ namespace MediaPortal.Common.Services.MediaManagement
       {
         try
         {
-          if (extractor.TryExtractMetadata(mediaItemAccessor, result, importOnly, forceQuickMode))
+          if (await extractor.TryExtractMetadataAsync(mediaItemAccessor, result, forceQuickMode).ConfigureAwait(false))
             success = true;
         }
         catch (Exception e)
@@ -718,9 +716,7 @@ namespace MediaPortal.Common.Services.MediaManagement
     public MediaItem CreateLocalMediaItem(IResourceAccessor mediaItemAccessor, IEnumerable<Guid> metadataExtractorIds)
     {
       ISystemResolver systemResolver = ServiceRegistration.Get<ISystemResolver>();
-      const bool importOnly = true;
-      const bool forceQuickMode = true;
-      IDictionary<Guid, IList<MediaItemAspect>> aspects = ExtractMetadata(mediaItemAccessor, metadataExtractorIds, importOnly, forceQuickMode);
+      IDictionary<Guid, IList<MediaItemAspect>> aspects = ExtractMetadataAsync(mediaItemAccessor, metadataExtractorIds, true).Result;
       if (aspects == null)
         return null;
       IList<MultipleMediaItemAspect> providerResourceAspects;
@@ -735,13 +731,13 @@ namespace MediaPortal.Common.Services.MediaManagement
       return null;
     }
 
-    public bool IsSingleResource(IResourceAccessor mediaItemAccessor)
+    public bool IsDirectorySingleResource(IResourceAccessor mediaItemAccessor)
     {
       foreach (IMetadataExtractor extractor in LocalMetadataExtractors.Values)
       {
         try
         {
-          if (extractor.IsSingleResource(mediaItemAccessor))
+          if (extractor.IsDirectorySingleResource(mediaItemAccessor))
             return true;
         }
         catch (Exception e)

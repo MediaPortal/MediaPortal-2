@@ -54,6 +54,6 @@
             Style="{ThemeResource PrimaryImageOSDStyle}"
             VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
     
-    <KeyBinding Key="Info" Command="{Command ShowVideoInfo}"/>
+    <KeyBinding Key="Info" Command="{Command ToggleOSD}"/>
   </Grid>
 </Screen>

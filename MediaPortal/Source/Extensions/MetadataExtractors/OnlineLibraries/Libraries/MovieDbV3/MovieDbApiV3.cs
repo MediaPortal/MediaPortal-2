@@ -22,12 +22,13 @@
 
 #endregion
 
-using System.Collections.Generic;
-using System.IO;
-using System.Web;
-using System.Linq;
 using MediaPortal.Extensions.OnlineLibraries.Libraries.MovieDbV3.Data;
 using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Threading.Tasks;
+using System.Web;
 
 namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MovieDbV3
 {
@@ -65,6 +66,23 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MovieDbV3
     private const string URL_GETSERIESCHANGES = URL_API_BASE + "tv/changes";
     private const string URL_GETMOVIECHANGES = URL_API_BASE + "movie/changes";
     private const string URL_GETPERSONCHANGES = URL_API_BASE + "person/changes";
+
+    private const string EXTERNAL_SOURCE_IMDB = "imdb_id";
+    private const string EXTERNAL_SOURCE_TVRAGE = "tvrage_id";
+    private const string EXTERNAL_SOURCE_TVDB = "tvdb_id";
+
+    private const string PREFIX_MOVIE = "Movie";
+    private const string PREFIX_CREW = "Crew";
+    private const string PREFIX_COLLECTION = "Collection";
+    private const string PREFIX_COMPANY = "Company";
+    private const string PREFIX_NETWORK = "Network";
+    private const string PREFIX_PERSON = "Person";
+    private const string PREFIX_SERIES = "Series";
+    private const string PREFIX_SERIES_CREW = "Series_Crew";
+    private const string PREFIX_SEASON_FORMAT = "Season{0}";
+    private const string PREFIX_SEASON_CREW_FORMAT = "Season{0}_Crew";
+    private const string PREFIX_SEASON_EPISODE_FORMAT = "Season{0}_Episode{1}";
+    private const string PREFIX_SEASON_EPISODE_CREW_FORMAT = "Season{0}_Episode{1}_Crew";
 
     #endregion
 
@@ -175,7 +193,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MovieDbV3
       {
         try
         {
-          _downloader.DeleteCache(file);
+          _downloader.DeleteCacheAsync(file).Wait();
         }
         catch
         { }
@@ -187,7 +205,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MovieDbV3
       {
         try
         {
-          _downloader.DeleteCache(file);
+          _downloader.DeleteCacheAsync(file).Wait();
         }
         catch
         { }
@@ -211,7 +229,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MovieDbV3
       {
         try
         {
-          _downloader.DeleteCache(file);
+          _downloader.DeleteCacheAsync(file).Wait();
         }
         catch
         { }
@@ -278,17 +296,22 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MovieDbV3
       }
     }
 
+    protected Task<T> SearchAsync<T>(string queryUrl, string query, string language)
+    {
+      string url = GetUrl(queryUrl, language) + "&query=" + HttpUtility.UrlEncode(query);
+      return _downloader.DownloadAsync<T>(url);
+    }
+
     /// <summary>
     /// Search for movies by name given in <paramref name="query"/> using the <paramref name="language"/>.
     /// </summary>
     /// <param name="query">Full or partly name of movie</param>
     /// <param name="language">Language</param>
     /// <returns>List of possible matches</returns>
-    public List<MovieSearchResult> SearchMovie(string query, string language)
+    public async Task<List<MovieSearchResult>> SearchMovieAsync(string query, string language)
     {
-      string url = GetUrl(URL_MOVIEQUERY, language) + "&query=" + HttpUtility.UrlEncode(query);
-      PagedMovieSearchResult results = _downloader.Download<PagedMovieSearchResult>(url);
-      return results.Results;
+      PagedMovieSearchResult result = await SearchAsync<PagedMovieSearchResult>(URL_MOVIEQUERY, query, language).ConfigureAwait(false);
+      return result.Results;
     }
 
     /// <summary>
@@ -297,169 +320,129 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MovieDbV3
     /// <param name="query">Full or partly name of series</param>
     /// <param name="language">Language</param>
     /// <returns>List of possible matches</returns>
-    public List<SeriesSearchResult> SearchSeries(string query, string language)
+    public async Task<List<SeriesSearchResult>> SearchSeriesAsync(string query, string language)
     {
-      string url = GetUrl(URL_SERIESQUERY, language) + "&query=" + HttpUtility.UrlEncode(query);
-      PagedSeriesSearchResult results = _downloader.Download<PagedSeriesSearchResult>(url);
-      return results.Results;
+      PagedSeriesSearchResult result = await SearchAsync<PagedSeriesSearchResult>(URL_SERIESQUERY, query, language).ConfigureAwait(false);
+      return result.Results;
     }
 
-    public List<PersonSearchResult> SearchPerson(string query, string language)
+    public async Task<List<PersonSearchResult>> SearchPersonAsync(string query, string language)
     {
-      string url = GetUrl(URL_PERSONQUERY, language) + "&query=" + HttpUtility.UrlEncode(query);
-      PagedPersonSearchResult results = _downloader.Download<PagedPersonSearchResult>(url);
-      return results.Results;
+      PagedPersonSearchResult result = await SearchAsync<PagedPersonSearchResult>(URL_PERSONQUERY, query, language).ConfigureAwait(false);
+      return result.Results;
     }
 
-    public List<CompanySearchResult> SearchCompany(string query, string language)
+    public async Task<List<CompanySearchResult>> SearchCompanyAsync(string query, string language)
     {
-      string url = GetUrl(URL_COMPANYQUERY, language) + "&query=" + HttpUtility.UrlEncode(query);
-      PagedCompanySearchResult results = _downloader.Download<PagedCompanySearchResult>(url);
-      return results.Results;
+      PagedCompanySearchResult result = await SearchAsync<PagedCompanySearchResult>(URL_COMPANYQUERY, query, language).ConfigureAwait(false);
+      return result.Results;
     }
 
-    public List<IdResult> FindMovieByImdbId(string imDbId, string language)
+    protected Task<IdSearchResult> FindByExternalIdAsync(object id, string language, string externalSource)
     {
-      string url = GetUrl(URL_IDQUERY, language, imDbId) + "&external_source=imdb_id";
-      IdSearchResult results = _downloader.Download<IdSearchResult>(url);
-      return results.MovieResults;
+      string url = GetUrl(URL_IDQUERY, language, id) + "&external_source=" + externalSource;
+      return _downloader.DownloadAsync<IdSearchResult>(url);
     }
 
-    public List<IdResult> FindPersonByImdbId(string imDbId, string language)
+    public async Task<List<IdResult>> FindMovieByImdbId(string imDbId, string language)
     {
-      string url = GetUrl(URL_IDQUERY, language, imDbId) + "&external_source=imdb_id";
-      IdSearchResult results = _downloader.Download<IdSearchResult>(url);
-      return results.PersonResults;
+      IdSearchResult result = await FindByExternalIdAsync(imDbId, language, EXTERNAL_SOURCE_IMDB).ConfigureAwait(false);
+      return result.MovieResults;
     }
 
-    public List<IdResult> FindPersonByTvRageId(int tvRageId, string language)
+    public async Task<List<IdResult>> FindPersonByImdbIdAsync(string imDbId, string language)
     {
-      string url = GetUrl(URL_IDQUERY, language, tvRageId) + "&external_source=tvrage_id";
-      IdSearchResult results = _downloader.Download<IdSearchResult>(url);
-      return results.PersonResults;
+      IdSearchResult result = await FindByExternalIdAsync(imDbId, language, EXTERNAL_SOURCE_IMDB).ConfigureAwait(false);
+      return result.PersonResults;
     }
 
-    public List<IdResult> FindSeriesByImdbId(string imDbId, string language)
+    public async Task<List<IdResult>> FindPersonByTvRageIdAsync(int tvRageId, string language)
     {
-      string url = GetUrl(URL_IDQUERY, language, imDbId) + "&external_source=imdb_id";
-      IdSearchResult results = _downloader.Download<IdSearchResult>(url);
-      return results.SeriesResults;
+      IdSearchResult result = await FindByExternalIdAsync(tvRageId, language, EXTERNAL_SOURCE_TVRAGE).ConfigureAwait(false);
+      return result.PersonResults;
     }
 
-    public List<IdResult> FindSeriesByTvDbId(int tvDbId, string language)
+    public async Task<List<IdResult>> FindSeriesByImdbIdAsync(string imDbId, string language)
     {
-      string url = GetUrl(URL_IDQUERY, language, tvDbId) + "&external_source=tvdb_id";
-      IdSearchResult results = _downloader.Download<IdSearchResult>(url);
-      return results.SeriesResults;
+      IdSearchResult result = await FindByExternalIdAsync(imDbId, language, EXTERNAL_SOURCE_IMDB).ConfigureAwait(false);
+      return result.SeriesResults;
     }
 
-    public List<IdResult> FindSeriesByTvRageId(int tvRageId, string language)
+    public async Task<List<IdResult>> FindSeriesByTvDbIdAsync(int tvDbId, string language)
     {
-      string url = GetUrl(URL_IDQUERY, language, tvRageId) + "&external_source=tvrage_id";
-      IdSearchResult results = _downloader.Download<IdSearchResult>(url);
-      return results.SeriesResults;
+      IdSearchResult result = await FindByExternalIdAsync(tvDbId, language, EXTERNAL_SOURCE_TVDB).ConfigureAwait(false);
+      return result.SeriesResults;
     }
 
-    public List<IdResult> FindSeriesSeasonByTvDbId(int tvDbId, string language)
+    public async Task<List<IdResult>> FindSeriesByTvRageIdAsync(int tvRageId, string language)
     {
-      string url = GetUrl(URL_IDQUERY, language, tvDbId) + "&external_source=tvdb_id";
-      IdSearchResult results = _downloader.Download<IdSearchResult>(url);
-      return results.SeriesSeasonResults;
+      IdSearchResult result = await FindByExternalIdAsync(tvRageId, language, EXTERNAL_SOURCE_TVRAGE).ConfigureAwait(false);
+      return result.SeriesResults;
     }
 
-    public List<IdResult> FindSeriesSeasonByTvRageId(int tvRageId, string language)
+    public async Task<List<IdResult>> FindSeriesSeasonByTvDbIdAsync(int tvDbId, string language)
     {
-      string url = GetUrl(URL_IDQUERY, language, tvRageId) + "&external_source=tvrage_id";
-      IdSearchResult results = _downloader.Download<IdSearchResult>(url);
-      return results.SeriesSeasonResults;
+      IdSearchResult result = await FindByExternalIdAsync(tvDbId, language, EXTERNAL_SOURCE_TVDB).ConfigureAwait(false);
+      return result.SeriesSeasonResults;
     }
 
-    public List<IdResult> FindSeriesEpisodeByImdbId(string imDbId, string language)
+    public async Task<List<IdResult>> FindSeriesSeasonByTvRageIdAsync(int tvRageId, string language)
     {
-      string url = GetUrl(URL_IDQUERY, language, imDbId) + "&external_source=imdb_id";
-      IdSearchResult results = _downloader.Download<IdSearchResult>(url);
-      return results.SeriesEpisodeResults;
+      IdSearchResult result = await FindByExternalIdAsync(tvRageId, language, EXTERNAL_SOURCE_TVRAGE).ConfigureAwait(false);
+      return result.SeriesSeasonResults;
     }
 
-    public List<IdResult> FindSeriesEpisodeByTvDbId(int tvDbId, string language)
+    public async Task<List<IdResult>> FindSeriesEpisodeByImdbIdAsync(string imDbId, string language)
     {
-      string url = GetUrl(URL_IDQUERY, language, tvDbId) + "&external_source=tvdb_id";
-      IdSearchResult results = _downloader.Download<IdSearchResult>(url);
-      return results.SeriesEpisodeResults;
+      IdSearchResult result = await FindByExternalIdAsync(imDbId, language, EXTERNAL_SOURCE_IMDB).ConfigureAwait(false);
+      return result.SeriesEpisodeResults;
     }
 
-    public List<IdResult> FindSeriesEpisodeByTvRageId(int tvRageId, string language)
+    public async Task<List<IdResult>> FindSeriesEpisodeByTvDbIdAsync(int tvDbId, string language)
     {
-      string url = GetUrl(URL_IDQUERY, language, tvRageId) + "&external_source=tvrage_id";
-      IdSearchResult results = _downloader.Download<IdSearchResult>(url);
-      return results.SeriesEpisodeResults;
+      IdSearchResult result = await FindByExternalIdAsync(tvDbId, language, EXTERNAL_SOURCE_TVDB).ConfigureAwait(false);
+      return result.SeriesEpisodeResults;
     }
 
-    /// <summary>
-    /// Returns detailed information for a single <see cref="Movie"/> with given <paramref name="id"/>. This method caches request
-    /// to same movies using the cache path given in <see cref="MovieDbApiV3"/> constructor.
-    /// </summary>
-    /// <param name="id">TMDB id of movie</param>
-    /// <param name="language">Language</param>
-    /// <returns>Movie information</returns>
-    public Movie GetMovie(int id, string language, bool cacheOnly)
+    public async Task<List<IdResult>> FindSeriesEpisodeByTvRageIdAsync(int tvRageId, string language)
     {
-      string cache = CreateAndGetCacheName(id, language, "Movie");
-      Movie movie = null;
-      if (!string.IsNullOrEmpty(cache) && File.Exists(cache))
-      {
-        movie = _downloader.ReadCache<Movie>(cache);
-      }
-      else
-      {
-        if (cacheOnly) return null;
-        string url = GetUrl(URL_GETMOVIE, language, id);
-        movie = _downloader.Download<Movie>(url, cache);
-      }
-      if(movie != null && movie.Id > 0 && movie.Collection != null && movie.Collection.Id > 0)
-      {
-        lock(_collectionMovieList)
-        {
-          if (!_collectionMovieList.ContainsKey(movie.Collection.Id))
-            _collectionMovieList.Add(movie.Collection.Id, new List<int>());
-          if(!_collectionMovieList[movie.Collection.Id].Contains(movie.Id))
-            _collectionMovieList[movie.Collection.Id].Add(movie.Id);
-        }
-      }
-      return movie;
+      IdSearchResult result = await FindByExternalIdAsync(tvRageId, language, EXTERNAL_SOURCE_TVRAGE).ConfigureAwait(false);
+      return result.SeriesEpisodeResults;
     }
 
-    /// <summary>
-    /// Returns cache file for a single <see cref="Movie"/> with given <paramref name="id"/>.
-    /// </summary>
-    /// <param name="id">Id of movie</param>
-    /// <returns>Cache file name</returns>
-    public string GetMovieCacheFile(int id, string language)
+    protected Task<T> GetAsync<T>(string getUrl, string prefix, int id, string language, bool cacheOnly, string appendToQuery = null)
     {
-      return CreateAndGetCacheName(id, language, "Movie");
+      return GetAsync<T>(getUrl, prefix, id.ToString(), language, cacheOnly, appendToQuery);
     }
 
-    /// <summary>
-    /// Returns detailed information for a single <see cref="Movie"/> with given <paramref name="imdbId"/>. This method caches request
-    /// to same movies using the cache path given in <see cref="MovieDbApiV3"/> constructor.
-    /// </summary>
-    /// <param name="imdbId">IMDB id of movie</param>
-    /// <param name="language">Language</param>
-    /// <returns>Movie information</returns>
-    public Movie GetMovie(string imdbId, string language, bool cacheOnly)
+    protected Task<T> GetAsync<T>(string getUrl, string prefix, string id, string language, bool cacheOnly, string appendToQuery = null)
     {
-      string cache = CreateAndGetCacheName(imdbId, language, "Movie");
-      Movie movie = null;
-      if (!string.IsNullOrEmpty(cache) && File.Exists(cache))
-      {
-        movie = _downloader.ReadCache<Movie>(cache);
-      }
-      else
-      {
-        if (cacheOnly) return null;
-        string url = GetUrl(URL_GETMOVIE, language, imdbId);
-        movie = _downloader.Download<Movie>(url, cache);
-      }
+      string cache = CreateAndGetCacheName(id, language, prefix);
+      string url = GetUrl(getUrl, language, id);
+      if (!string.IsNullOrEmpty(appendToQuery))
+        url += "&append_to_response=" + appendToQuery;
+      return GetAsync<T>(url, cache, cacheOnly);
+    }
+
+    protected Task<T> GetAsync<T>(string url, string cacheName, bool cacheOnly)
+    {
+      if (!string.IsNullOrEmpty(cacheName) && File.Exists(cacheName))
+        return Task.FromResult(_downloader.ReadCache<T>(cacheName));
+      if (cacheOnly) return Task.FromResult(default(T));
+      return _downloader.DownloadAsync<T>(url, cacheName);
+    }
+
+    protected async Task<ImageCollection> GetImagesAsync(string getUrl, string language, params object[] args)
+    {
+      string url = GetUrl(getUrl, language, args);
+      ImageCollection result = await _downloader.DownloadAsync<ImageCollection>(url).ConfigureAwait(false);
+      result.SetMovieIds();
+      return result;
+    }
+
+    protected async Task<Movie> GetMovieByIdAsync(string id, string language, bool cacheOnly)
+    {
+      Movie movie = await GetAsync<Movie>(URL_GETMOVIE, PREFIX_MOVIE, id, language, cacheOnly).ConfigureAwait(false);
       if (movie != null && movie.Id > 0 && movie.Collection != null && movie.Collection.Id > 0)
       {
         lock (_collectionMovieList)
@@ -474,13 +457,47 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MovieDbV3
     }
 
     /// <summary>
+    /// Returns detailed information for a single <see cref="Movie"/> with given <paramref name="id"/>. This method caches request
+    /// to same movies using the cache path given in <see cref="MovieDbApiV3"/> constructor.
+    /// </summary>
+    /// <param name="id">TMDB id of movie</param>
+    /// <param name="language">Language</param>
+    /// <returns>Movie information</returns>
+    public Task<Movie> GetMovieAsync(int id, string language, bool cacheOnly)
+    {
+      return GetMovieByIdAsync(id.ToString(), language, cacheOnly);
+    }
+
+    /// <summary>
+    /// Returns cache file for a single <see cref="Movie"/> with given <paramref name="id"/>.
+    /// </summary>
+    /// <param name="id">Id of movie</param>
+    /// <returns>Cache file name</returns>
+    public string GetMovieCacheFile(int id, string language)
+    {
+      return CreateAndGetCacheName(id, language, PREFIX_MOVIE);
+    }
+
+    /// <summary>
+    /// Returns detailed information for a single <see cref="Movie"/> with given <paramref name="imdbId"/>. This method caches request
+    /// to same movies using the cache path given in <see cref="MovieDbApiV3"/> constructor.
+    /// </summary>
+    /// <param name="imdbId">IMDB id of movie</param>
+    /// <param name="language">Language</param>
+    /// <returns>Movie information</returns>
+    public Task<Movie> GetMovieAsync(string imdbId, string language, bool cacheOnly)
+    {
+      return GetMovieByIdAsync(imdbId, language, cacheOnly);
+    }
+
+    /// <summary>
     /// Returns cache file for a single <see cref="Movie"/> with given <paramref name="id"/>.
     /// </summary>
     /// <param name="id">Id of movie</param>
     /// <returns>Cache file name</returns>
     public string GetMovieCacheFile(string imdbId, string language)
     {
-      return CreateAndGetCacheName(imdbId, language, "Movie");
+      return CreateAndGetCacheName(imdbId, language, PREFIX_MOVIE);
     }
 
     /// <summary>
@@ -488,16 +505,11 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MovieDbV3
     /// </summary>
     /// <param name="id">TMDB id of movie</param>
     /// <returns>Cast and Crew</returns>
-    public MovieCasts GetMovieCastCrew(int id, string language, bool cacheOnly)
+    public Task<MovieCasts> GetMovieCastCrewAsync(int id, string language, bool cacheOnly)
     {
-      string cache = CreateAndGetCacheName(id, language, "Crew");
-      if (!string.IsNullOrEmpty(cache) && File.Exists(cache))
-      {
-        return _downloader.ReadCache<MovieCasts>(cache);
-      }
-      if (cacheOnly) return null;
       string url = GetUrl(URL_GETMOVIECASTCREW, null, id);
-      return _downloader.Download<MovieCasts>(url, cache);
+      string cache = CreateAndGetCacheName(id, language, PREFIX_CREW);
+      return GetAsync<MovieCasts>(url, cache, cacheOnly);
     }
 
     /// <summary>
@@ -507,7 +519,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MovieDbV3
     /// <returns>Cache file name</returns>
     public string GetMovieCastCrewCacheFile(int id, string language)
     {
-      return CreateAndGetCacheName(id, language, "Crew");
+      return CreateAndGetCacheName(id, language, PREFIX_CREW);
     }
 
     /// <summary>
@@ -516,12 +528,9 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MovieDbV3
     /// <param name="id">TMDB id of movie</param>
     /// <param name="language">Language</param>
     /// <returns>Image collection</returns>
-    public ImageCollection GetMovieImages(int id, string language)
+    public Task<ImageCollection> GetMovieImagesAsync(int id, string language)
     {
-      string url = GetUrl(URL_GETMOVIEIMAGES, language, id);
-      ImageCollection result = _downloader.Download<ImageCollection>(url);
-      result.SetMovieIds();
-      return result;
+      return GetImagesAsync(URL_GETMOVIEIMAGES, language, id);
     }
 
     /// <summary>
@@ -531,12 +540,12 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MovieDbV3
     /// <param name="id">TMDB id of collection</param>
     /// <param name="language">Language</param>
     /// <returns>Collection information</returns>
-    public MovieCollection GetCollection(int id, string language, bool cacheOnly)
+    public async Task<MovieCollection> GetCollectionAsync(int id, string language, bool cacheOnly)
     {
-      string cache = CreateAndGetCacheName(id, language, "Collection");
+      string cache = CreateAndGetCacheName(id, language, PREFIX_COLLECTION);
       if (!string.IsNullOrEmpty(cache) && File.Exists(cache))
       {
-        MovieCollection collection = _downloader.ReadCache<MovieCollection>(cache);
+        MovieCollection collection = await _downloader.ReadCacheAsync<MovieCollection>(cache).ConfigureAwait(false);
         if (collection != null)
         {
           bool expired = false;
@@ -555,14 +564,14 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MovieDbV3
             }
           }
           if (expired)
-            _downloader.DeleteCache(cache);
+            await _downloader.DeleteCacheAsync(cache).ConfigureAwait(false);
           else
             return collection;
         }
       }
       if (cacheOnly) return null;
       string url = GetUrl(URL_GETCOLLECTION, language, id);
-      return _downloader.Download<MovieCollection>(url, cache);
+      return await _downloader.DownloadAsync<MovieCollection>(url, cache).ConfigureAwait(false);
     }
 
     /// <summary>
@@ -572,7 +581,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MovieDbV3
     /// <returns>Cache file name</returns>
     public string GetCollectionCacheFile(int id, string language)
     {
-      return CreateAndGetCacheName(id, language, "Collection");
+      return CreateAndGetCacheName(id, language, PREFIX_COLLECTION);
     }
 
     /// <summary>
@@ -581,12 +590,9 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MovieDbV3
     /// <param name="id">TMDB id of movie collection</param>
     /// <param name="language">Language</param>
     /// <returns>Image collection</returns>
-    public ImageCollection GetMovieCollectionImages(int id, string language)
+    public Task<ImageCollection> GetMovieCollectionImagesAsync(int id, string language)
     {
-      string url = GetUrl(URL_GETCOLLECTIONIMAGES, language, id);
-      ImageCollection result = _downloader.Download<ImageCollection>(url);
-      result.SetMovieIds();
-      return result;
+      return GetImagesAsync(URL_GETCOLLECTIONIMAGES, language, id);
     }
 
     /// <summary>
@@ -596,16 +602,9 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MovieDbV3
     /// <param name="id">TMDB id of company</param>
     /// <param name="language">Language</param>
     /// <returns>Company information</returns>
-    public Company GetCompany(int id, string language, bool cacheOnly)
+    public Task<Company> GetCompanyAsync(int id, string language, bool cacheOnly)
     {
-      string cache = CreateAndGetCacheName(id, language, "Company");
-      if (!string.IsNullOrEmpty(cache) && File.Exists(cache))
-      {
-        return _downloader.ReadCache<Company>(cache);
-      }
-      if (cacheOnly) return null;
-      string url = GetUrl(URL_GETCOMPANY, language, id);
-      return _downloader.Download<Company>(url, cache);
+      return GetAsync<Company>(URL_GETCOMPANY, PREFIX_COMPANY, id, language, cacheOnly);
     }
 
     /// <summary>
@@ -615,7 +614,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MovieDbV3
     /// <returns>Cache file name</returns>
     public string GetCompanyCacheFile(int id, string language)
     {
-      return CreateAndGetCacheName(id, language, "Company");
+      return CreateAndGetCacheName(id, language, PREFIX_COMPANY);
     }
 
     /// <summary>
@@ -625,16 +624,9 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MovieDbV3
     /// <param name="id">TMDB id of network</param>
     /// <param name="language">Language</param>
     /// <returns>Network information</returns>
-    public Network GetNetwork(int id, string language, bool cacheOnly)
+    public Task<Network> GetNetworkAsync(int id, string language, bool cacheOnly)
     {
-      string cache = CreateAndGetCacheName(id, language, "Network");
-      if (!string.IsNullOrEmpty(cache) && File.Exists(cache))
-      {
-        return _downloader.ReadCache<Network>(cache);
-      }
-      if (cacheOnly) return null;
-      string url = GetUrl(URL_GETNETWORK, language, id);
-      return _downloader.Download<Network>(url, cache);
+      return GetAsync<Network>(URL_GETNETWORK, PREFIX_NETWORK, id, language, cacheOnly);
     }
 
     /// <summary>
@@ -644,7 +636,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MovieDbV3
     /// <returns>Cache file name</returns>
     public string GetNetworkCacheFile(int id, string language)
     {
-      return CreateAndGetCacheName(id, language, "Network");
+      return CreateAndGetCacheName(id, language, PREFIX_NETWORK);
     }
 
     /// <summary>
@@ -654,16 +646,9 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MovieDbV3
     /// <param name="id">TMDB id of person</param>
     /// <param name="language">Language</param>
     /// <returns>Person information</returns>
-    public Person GetPerson(int id, string language, bool cacheOnly)
+    public Task<Person> GetPersonAsync(int id, string language, bool cacheOnly)
     {
-      string cache = CreateAndGetCacheName(id, language, "Person");
-      if (!string.IsNullOrEmpty(cache) && File.Exists(cache))
-      {
-        return _downloader.ReadCache<Person>(cache);
-      }
-      if (cacheOnly) return null;
-      string url = GetUrl(URL_GETPERSON, language, id) + "&append_to_response=external_ids";
-      return _downloader.Download<Person>(url, cache);
+      return GetAsync<Person>(URL_GETPERSON, PREFIX_PERSON, id, language, cacheOnly, "external_ids");
     }
 
     /// <summary>
@@ -673,7 +658,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MovieDbV3
     /// <returns>Cache file name</returns>
     public string GetPersonCacheFile(int id, string language)
     {
-      return CreateAndGetCacheName(id, language, "Person");
+      return CreateAndGetCacheName(id, language, PREFIX_PERSON);
     }
 
     /// <summary>
@@ -682,12 +667,9 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MovieDbV3
     /// <param name="id">TMDB id of person</param>
     /// <param name="language">Language</param>
     /// <returns>Image collection</returns>
-    public ImageCollection GetPersonImages(int id, string language)
+    public Task<ImageCollection> GetPersonImagesAsync(int id, string language)
     {
-      string url = GetUrl(URL_GETPERSONIMAGES, language, id);
-      ImageCollection result = _downloader.Download<ImageCollection>(url);
-      result.SetMovieIds();
-      return result;
+      return GetImagesAsync(URL_GETPERSONIMAGES, language, id);
     }
 
     /// <summary>
@@ -697,16 +679,9 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MovieDbV3
     /// <param name="id">TMDB id of series</param>
     /// <param name="language">Language</param>
     /// <returns>Series information</returns>
-    public Series GetSeries(int id, string language, bool cacheOnly)
+    public Task<Series> GetSeriesAsync(int id, string language, bool cacheOnly)
     {
-      string cache = CreateAndGetCacheName(id, language, "Series");
-      if (!string.IsNullOrEmpty(cache) && File.Exists(cache))
-      {
-        return _downloader.ReadCache<Series>(cache);
-      }
-      if (cacheOnly) return null;
-      string url = GetUrl(URL_GETSERIES, language, id) + "&append_to_response=external_ids,content_ratings";
-      return _downloader.Download<Series>(url, cache);
+      return GetAsync<Series>(URL_GETSERIES, PREFIX_SERIES, id, language, cacheOnly, "external_ids,content_ratings");
     }
 
     /// <summary>
@@ -716,7 +691,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MovieDbV3
     /// <returns>Cache file name</returns>
     public string GetSeriesCacheFile(int id, string language)
     {
-      return CreateAndGetCacheName(id, language, "Series");
+      return CreateAndGetCacheName(id, language, PREFIX_SERIES);
     }
 
     /// <summary>
@@ -724,16 +699,11 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MovieDbV3
     /// </summary>
     /// <param name="id">TMDB id of series</param>
     /// <returns>Cast and Crew</returns>
-    public MovieCasts GetSeriesCastCrew(int id, string language, bool cacheOnly)
+    public Task<MovieCasts> GetSeriesCastCrewAsync(int id, string language, bool cacheOnly)
     {
-      string cache = CreateAndGetCacheName(id, language, "Series_Crew");
-      if (!string.IsNullOrEmpty(cache) && File.Exists(cache))
-      {
-        return _downloader.ReadCache<MovieCasts>(cache);
-      }
-      if (cacheOnly) return null;
       string url = GetUrl(URL_GETSERIESCASTCREW, null, id);
-      return _downloader.Download<MovieCasts>(url, cache);
+      string cache = CreateAndGetCacheName(id, language, PREFIX_SERIES_CREW);
+      return GetAsync<MovieCasts>(url, cache, cacheOnly);
     }
 
     /// <summary>
@@ -743,7 +713,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MovieDbV3
     /// <returns>Cache file name</returns>
     public string GetSeriesCastCrewCacheFile(int id, string language)
     {
-      return CreateAndGetCacheName(id, language, "Series_Crew");
+      return CreateAndGetCacheName(id, language, PREFIX_SERIES_CREW);
     }
 
     /// <summary>
@@ -752,12 +722,9 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MovieDbV3
     /// <param name="id">TMDB id of series</param>
     /// <param name="language">Language</param>
     /// <returns>Image collection</returns>
-    public ImageCollection GetSeriesImages(int id, string language)
+    public Task<ImageCollection> GetSeriesImagesAsync(int id, string language)
     {
-      string url = GetUrl(URL_GETSERIESIMAGES, language, id);
-      ImageCollection result = _downloader.Download<ImageCollection>(url);
-      result.SetMovieIds();
-      return result;
+      return GetImagesAsync(URL_GETSERIESIMAGES, language, id);
     }
 
     /// <summary>
@@ -768,16 +735,11 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MovieDbV3
     /// <param name="season">Season number</param>
     /// <param name="language">Language</param>
     /// <returns>Season information</returns>
-    public Season GetSeriesSeason(int id, int season, string language, bool cacheOnly)
+    public Task<Season> GetSeriesSeasonAsync(int id, int season, string language, bool cacheOnly)
     {
-      string cache = CreateAndGetCacheName(id, language, string.Format("Season{0}", season));
-      if (!string.IsNullOrEmpty(cache) && File.Exists(cache))
-      {
-        return _downloader.ReadCache<Season>(cache);
-      }
-      if (cacheOnly) return null;
       string url = GetUrl(URL_GETSEASON, language, id, season) + "&append_to_response=external_ids";
-      return _downloader.Download<Season>(url, cache);
+      string cache = CreateAndGetCacheName(id, language, string.Format(PREFIX_SEASON_FORMAT, season));
+      return GetAsync<Season>(url, cache, cacheOnly);
     }
 
     /// <summary>
@@ -787,7 +749,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MovieDbV3
     /// <returns>Cache file name</returns>
     public string GetSeriesSeasonCacheFile(int id, int season, string language)
     {
-      return CreateAndGetCacheName(id, language, string.Format("Season{0}", season));
+      return CreateAndGetCacheName(id, language, string.Format(PREFIX_SEASON_FORMAT, season));
     }
 
     /// <summary>
@@ -796,16 +758,11 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MovieDbV3
     /// <param name="id">TMDB id of series</param>
     /// <param name="season">Season number</param>
     /// <returns>Cast and Crew</returns>
-    public MovieCasts GetSeriesSeasonCastCrew(int id, int season, string language, bool cacheOnly)
+    public Task<MovieCasts> GetSeriesSeasonCastCrewAsync(int id, int season, string language, bool cacheOnly)
     {
-      string cache = CreateAndGetCacheName(id, language, string.Format("Season{0}_Crew", season));
-      if (!string.IsNullOrEmpty(cache) && File.Exists(cache))
-      {
-        return _downloader.ReadCache<MovieCasts>(cache);
-      }
-      if (cacheOnly) return null;
       string url = GetUrl(URL_GETSEASONCASTCREW, null, id, season);
-      return _downloader.Download<MovieCasts>(url, cache);
+      string cache = CreateAndGetCacheName(id, language, string.Format(PREFIX_SEASON_CREW_FORMAT, season));
+      return GetAsync<MovieCasts>(url, cache, cacheOnly);
     }
 
     /// <summary>
@@ -815,7 +772,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MovieDbV3
     /// <returns>Cache file name</returns>
     public string GetSeriesSeasonCastCrewCacheFile(int id, int season, string language)
     {
-      return CreateAndGetCacheName(id, language, string.Format("Season{0}_Crew", season));
+      return CreateAndGetCacheName(id, language, string.Format(PREFIX_SEASON_CREW_FORMAT, season));
     }
 
     /// <summary>
@@ -825,12 +782,9 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MovieDbV3
     /// <param name="season">Season number</param>
     /// <param name="language">Language</param>
     /// <returns>Image collection</returns>
-    public ImageCollection GetSeriesSeasonImages(int id, int season, string language)
+    public Task<ImageCollection> GetSeriesSeasonImagesAsync(int id, int season, string language)
     {
-      string url = GetUrl(URL_GETSEASONIMAGES, language, id, season);
-      ImageCollection result = _downloader.Download<ImageCollection>(url);
-      result.SetMovieIds();
-      return result;
+      return GetImagesAsync(URL_GETSEASONIMAGES, language, id, season);
     }
 
     /// <summary>
@@ -842,16 +796,11 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MovieDbV3
     /// <param name="episode">Episode number</param>
     /// <param name="language">Language</param>
     /// <returns>Episode information</returns>
-    public Episode GetSeriesEpisode(int id, int season, int episode, string language, bool cacheOnly)
+    public Task<Episode> GetSeriesEpisodeAsync(int id, int season, int episode, string language, bool cacheOnly)
     {
-      string cache = CreateAndGetCacheName(id, language, string.Format("Season{0}_Episode{1}", season, episode));
-      if (!string.IsNullOrEmpty(cache) && File.Exists(cache))
-      {
-        return _downloader.ReadCache<Episode>(cache);
-      }
-      if (cacheOnly) return null;
       string url = GetUrl(URL_GETEPISODE, language, id, season, episode) + "&append_to_response=external_ids";
-      return _downloader.Download<Episode>(url, cache);
+      string cache = CreateAndGetCacheName(id, language, string.Format(PREFIX_SEASON_EPISODE_FORMAT, season, episode));
+      return GetAsync<Episode>(url, cache, cacheOnly);
     }
 
     /// <summary>
@@ -861,7 +810,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MovieDbV3
     /// <returns>Cache file name</returns>
     public string GetSeriesEpisodeCacheFile(int id, int season, int episode, string language)
     {
-      return CreateAndGetCacheName(id, language, string.Format("Season{0}_Episode{1}", season, episode));
+      return CreateAndGetCacheName(id, language, string.Format(PREFIX_SEASON_EPISODE_FORMAT, season, episode));
     }
 
     /// <summary>
@@ -871,16 +820,11 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MovieDbV3
     /// <param name="season">Season number</param>
     /// <param name="episode">Episode number</param>
     /// <returns>Cast and Crew</returns>
-    public MovieCasts GetSeriesEpisodeCastCrew(int id, int season, int episode, string language, bool cacheOnly)
+    public Task<MovieCasts> GetSeriesEpisodeCastCrewAsync(int id, int season, int episode, string language, bool cacheOnly)
     {
-      string cache = CreateAndGetCacheName(id, language, string.Format("Season{0}_Episode{1}_Crew", season, episode));
-      if (!string.IsNullOrEmpty(cache) && File.Exists(cache))
-      {
-        return _downloader.ReadCache<MovieCasts>(cache);
-      }
-      if (cacheOnly) return null;
       string url = GetUrl(URL_GETEPISODECASTCREW, null, id, season, episode);
-      return _downloader.Download<MovieCasts>(url, cache);
+      string cache = CreateAndGetCacheName(id, language, string.Format(PREFIX_SEASON_EPISODE_CREW_FORMAT, season, episode));
+      return GetAsync<MovieCasts>(url, cache, cacheOnly);
     }
 
     /// <summary>
@@ -890,7 +834,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MovieDbV3
     /// <returns>Cache file name</returns>
     public string GetSeriesEpisodeCastCrewCacheFile(int id, int season, int episode, string language)
     {
-      return CreateAndGetCacheName(id, language, string.Format("Season{0}_Episode{1}_Crew", season, episode));
+      return CreateAndGetCacheName(id, language, string.Format(PREFIX_SEASON_EPISODE_CREW_FORMAT, season, episode));
     }
 
     /// <summary>
@@ -901,12 +845,9 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MovieDbV3
     /// <param name="episode">Episode number</param>
     /// <param name="language">Language</param>
     /// <returns>Image collection</returns>
-    public ImageCollection GetSeriesEpisodeImages(int id, int season, int episode, string language)
+    public Task<ImageCollection> GetSeriesEpisodeImagesAsync(int id, int season, int episode, string language)
     {
-      string url = GetUrl(URL_GETEPISODEIMAGES, language, id, season, episode);
-      ImageCollection result = _downloader.Download<ImageCollection>(url);
-      result.SetMovieIds();
-      return result;
+      return GetImagesAsync(URL_GETEPISODEIMAGES, language, id, season, episode);
     }
 
     /// <summary>
@@ -915,15 +856,14 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MovieDbV3
     /// <param name="image">Image to download</param>
     /// <param name="folderPath">The folder to store the image</param>
     /// <returns><c>true</c> if successful</returns>
-    public bool DownloadImage(string Id, ImageItem image, string folderPath)
+    public Task<bool> DownloadImageAsync(string Id, ImageItem image, string folderPath)
     {
       string cacheFileName = CreateAndGetCacheName(Id, image, folderPath);
       if (string.IsNullOrEmpty(cacheFileName))
-        return false;
+        return Task.FromResult(false);
 
       string sourceUri = Configuration.Images.BaseUrl + "original" + image.FilePath;
-      _downloader.DownloadFile(sourceUri, cacheFileName);
-      return true;
+      return _downloader.DownloadFileAsync(sourceUri, cacheFileName);
     }
 
     public byte[] GetImage(string Id, ImageItem image, string folderPath)

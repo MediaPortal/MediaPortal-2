@@ -76,6 +76,9 @@
             <Button Style="{StaticResource ButtonWideStyle}" Content="List restore focus test"
                 HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
                 Command="{Command Source={StaticResource Model},Path=ShowScreenInTransientState,Parameters=test-listview-restore-focus}"/>
+            <Button Style="{StaticResource ButtonWideStyle}" Content="Animations test"
+                HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+                Command="{Command Source={StaticResource Model},Path=ShowScreenInTransientState,Parameters=test-animations}"/>
           </StackPanel>
         </UniformGrid>
       </DockPanel>

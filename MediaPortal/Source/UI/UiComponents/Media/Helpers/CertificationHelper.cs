@@ -38,6 +38,8 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
+using MediaPortal.Common.UserManagement;
 
 namespace MediaPortal.UiComponents.Media.Helpers
 {
@@ -177,7 +179,7 @@ namespace MediaPortal.UiComponents.Media.Helpers
 
       return allowedMedia;
     }
-    public static IFilter GetUserCertificateFilter(IEnumerable<Guid> necessaryMias)
+    public static async Task<IFilter> GetUserCertificateFilter(IEnumerable<Guid> necessaryMias)
     {
       UserProfile userProfile = null;
       bool applyUserRestrictions = false;
@@ -194,7 +196,7 @@ namespace MediaPortal.UiComponents.Media.Helpers
       IServerConnectionManager serverConnectionManager = ServiceRegistration.Get<IServerConnectionManager>();
       IContentDirectory contentDirectory = serverConnectionManager.ContentDirectory;
       if (contentDirectory != null)
-        shares = contentDirectory.GetShares(null, SharesFilter.All);
+        shares = await contentDirectory.GetSharesAsync(null, SharesFilter.All);
 
       int? allowedAge = null;
       bool? includeParentalGuidedContent = null;

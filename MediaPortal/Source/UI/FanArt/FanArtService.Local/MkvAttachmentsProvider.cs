@@ -35,7 +35,6 @@ using MediaPortal.Common.MediaManagement.MLQueries;
 using MediaPortal.Common.ResourceAccess;
 using MediaPortal.Extensions.MetadataExtractors.MatroskaLib;
 using MediaPortal.Extensions.UserServices.FanArtService.Interfaces;
-using MediaPortal.Common.Services.ResourceAccess.VirtualResourceProvider;
 using MediaPortal.Common.FanArt;
 
 namespace MediaPortal.Extensions.UserServices.FanArtService.Local
@@ -116,11 +115,14 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Local
               return false;
 
             MatroskaInfoReader mkvReader = new MatroskaInfoReader(fsra);
-            byte[] binaryData = null;
-            if (patterns.Any(pattern => mkvReader.GetAttachmentByName(pattern, out binaryData)))
+            foreach (string pattern in patterns)
             {
-              result = new List<FanArtImage> { new FanArtImage(name, binaryData) };
-              return true;
+              byte[] binaryData = mkvReader.GetAttachmentByNameAsync(pattern).Result;
+              if (binaryData != null)
+              {
+                result = new List<FanArtImage> { new FanArtImage(name, binaryData) };
+                return true;
+              }
             }
           }
         }

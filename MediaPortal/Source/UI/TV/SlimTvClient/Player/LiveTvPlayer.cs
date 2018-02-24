@@ -104,8 +104,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Player
         return;
       IWorkflowManager workflowManager = ServiceRegistration.Get<IWorkflowManager>();
       SlimTvClientModel model = workflowManager.GetModel(SlimTvClientModel.MODEL_ID) as SlimTvClientModel;
-      if (model != null)
-        model.Tune(channel);
+      _ = model?.Tune(channel);
     }
 
     protected override void EnumerateChapters(bool forceRefresh)

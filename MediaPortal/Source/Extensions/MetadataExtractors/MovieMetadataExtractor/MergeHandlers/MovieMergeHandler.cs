@@ -82,7 +82,9 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
 
     public IFilter GetSearchFilter(IDictionary<Guid, IList<MediaItemAspect>> extractedAspects)
     {
-      return IMovieRelationshipExtractor.GetMovieSearchFilter(extractedAspects);
+      if (!extractedAspects.ContainsKey(MovieAspect.ASPECT_ID))
+        return null;
+      return RelationshipExtractorUtils.CreateExternalItemFilter(extractedAspects, ExternalIdentifierAspect.TYPE_MOVIE);
     }
 
     public bool TryMatch(IDictionary<Guid, IList<MediaItemAspect>> extractedAspects, IDictionary<Guid, IList<MediaItemAspect>> existingAspects)
@@ -161,6 +163,8 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
 
         existing.MergeWith(extracted, true);
         existing.SetMetadata(existingAspects);
+        if (!MergeResourceAspects(extractedAspects, existingAspects))
+          return false;
 
         return true;
       }

@@ -143,7 +143,7 @@ namespace MediaPortal.Common.MediaManagement
     /// </summary>
     /// <remarks>
     /// Every media item aspect whose attributes might be equipped by the metadata extractor
-    /// should be defined here. If the ME still provides metadata in method <see cref="IMetadataExtractor.TryExtractMetadata"/>
+    /// should be defined here. If the ME still provides metadata in method <see cref="IMetadataExtractor.TryExtractMetadataAsync"/>
     /// for aspects which aren't returned here, these attributes might be discarded by the system.
     /// </remarks>
     public IDictionary<Guid, MediaItemAspectMetadata> ExtractedAspectTypes

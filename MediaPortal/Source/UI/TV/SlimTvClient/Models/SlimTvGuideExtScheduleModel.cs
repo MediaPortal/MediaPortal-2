@@ -25,6 +25,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using MediaPortal.Common;
 using MediaPortal.Common.Commands;
 using MediaPortal.Common.General;
@@ -136,7 +137,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
 
     public void RecordSingleProgram()
     {
-      CreateOrDeleteSchedule(_selectedProgram);
+      _ = CreateOrDeleteSchedule(_selectedProgram);
     }
 
     public void RecordSeries()
@@ -146,9 +147,9 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
       screenManager.ShowDialog("DialogExtSchedule");
     }
 
-    public void RecordOrCancelSeries(ScheduleRecordingType scheduleRecordingType)
+    public async Task RecordOrCancelSeries(ScheduleRecordingType scheduleRecordingType)
     {
-      CreateOrDeleteSchedule(_selectedProgram, scheduleRecordingType);
+      await CreateOrDeleteSchedule(_selectedProgram, scheduleRecordingType);
       _selectedSchedule = null;
       UpdateButtonStateForSchedule();
     }
@@ -217,7 +218,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
         string currentName = name;
         ListItem recTypeItem = new ListItem(Consts.KEY_NAME, string.Format("[SlimTvClient.ScheduleRecordingType_{0}]", name))
         {
-          Command = new MethodDelegateCommand(() => RecordOrCancelSeries((ScheduleRecordingType)Enum.Parse(typeof(ScheduleRecordingType), currentName)))
+          Command = new AsyncMethodDelegateCommand(() => RecordOrCancelSeries((ScheduleRecordingType)Enum.Parse(typeof(ScheduleRecordingType), currentName)))
         };
         _dialogActionsList.Add(recTypeItem);
       }
@@ -229,12 +230,12 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
       _dialogActionsList.Clear();
       ListItem recTypeItem = new ListItem(Consts.KEY_NAME, "[SlimTvClient.DeleteSingle]")
           {
-            Command = new MethodDelegateCommand(() => RecordOrCancelSeries(ScheduleRecordingType.Once))
+            Command = new AsyncMethodDelegateCommand(() => RecordOrCancelSeries(ScheduleRecordingType.Once))
           };
       _dialogActionsList.Add(recTypeItem);
       recTypeItem = new ListItem(Consts.KEY_NAME, "[SlimTvClient.DeleteFullSchedule]")
       {
-        Command = new MethodDelegateCommand(() => RecordOrCancelSeries(ScheduleRecordingType.EveryTimeOnEveryChannel))
+        Command = new AsyncMethodDelegateCommand(() => RecordOrCancelSeries(ScheduleRecordingType.EveryTimeOnEveryChannel))
       };
       _dialogActionsList.Add(recTypeItem);
     }
@@ -251,8 +252,9 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
     {
       base.UpdateProgramStatus(program);
 
-      IChannel channel;
-      ChannelName = _tvHandler.ChannelAndGroupInfo.GetChannel(program.ChannelId, out channel) ? channel.Name : string.Empty;
+      var result = _tvHandler.ChannelAndGroupInfo.GetChannelAsync(program.ChannelId).Result;
+      IChannel channel = result.Result;
+      ChannelName =  channel != null ? channel.Name : string.Empty;
       ChannelLogoType = channel.GetFanArtMediaType();
     }
 
@@ -270,7 +272,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
     /// <summary>
     /// For extended scheduling we will load all programs with same title independent from channel.
     /// </summary>
-    protected void UpdatePrograms()
+    protected async void UpdatePrograms()
     {
       if (_selectedProgram == null)
         return;
@@ -279,8 +281,10 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
         return;
 
       DateTime dtDay = DateTime.Now;
-      if (!_tvHandler.ProgramInfo.GetPrograms(_selectedProgram.Title, dtDay, dtDay.AddDays(28), out _programs))
+      var result = await _tvHandler.ProgramInfo.GetProgramsAsync(_selectedProgram.Title, dtDay, dtDay.AddDays(28));
+      if (!result.Success)
         return;
+      _programs = result.Result;
 
       FillProgramsList();
     }
@@ -288,7 +292,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
     /// <summary>
     /// Loads all programs that are affected by the given series schedule.
     /// </summary>
-    protected void UpdateProgramsForSchedule()
+    protected async Task UpdateProgramsForSchedule()
     {
       if (_selectedSchedule == null)
         return;
@@ -296,8 +300,10 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
       if (_tvHandler.ScheduleControl == null)
         return;
 
-      if (!_tvHandler.ScheduleControl.GetProgramsForSchedule(_selectedSchedule, out _programs))
+      var result = await _tvHandler.ScheduleControl.GetProgramsForScheduleAsync(_selectedSchedule);
+      if (!result.Success)
         return;
+      _programs = result.Result;
 
       FillProgramsList();
       _selectedProgram = _programs.FirstOrDefault();
@@ -320,9 +326,8 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
       bool isSeries = false;
       foreach (IProgram program in _programs)
       {
-        IChannel channel;
-        if (!_tvHandler.ChannelAndGroupInfo.GetChannel(program.ChannelId, out channel))
-          channel = null;
+        var result = _tvHandler.ChannelAndGroupInfo.GetChannelAsync(program.ChannelId).Result;
+        var channel = !result.Success ? null : result.Result;
         // Use local variable, otherwise delegate argument is not fixed
         ProgramProperties programProperties = new ProgramProperties();
         IProgram currentProgram = program;
@@ -336,7 +341,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
 
         ProgramListItem item = new ProgramListItem(programProperties)
         {
-          Command = new MethodDelegateCommand(() => CreateOrDeleteSchedule(currentProgram))
+          Command = new AsyncMethodDelegateCommand(() => CreateOrDeleteSchedule(currentProgram))
         };
         item.AdditionalProperties["PROGRAM"] = currentProgram;
         item.Selected = _lastProgramId == program.ProgramId; // Restore focus
@@ -359,10 +364,10 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
       _programsList.FireChange();
     }
 
-    protected override RecordingStatus? CreateOrDeleteSchedule(IProgram program, ScheduleRecordingType recordingType = ScheduleRecordingType.Once)
+    protected override async Task<RecordingStatus?> CreateOrDeleteSchedule(IProgram program, ScheduleRecordingType recordingType = ScheduleRecordingType.Once)
     {
       _lastProgramId = program.ProgramId;
-      var newStatus = base.CreateOrDeleteSchedule(program, recordingType);
+      var newStatus = await base.CreateOrDeleteSchedule(program, recordingType);
 
       UpdateButtonStateForSchedule();
 
@@ -422,7 +427,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
         if (newContext.ContextVariables.TryGetValue(SlimTvClientModel.KEY_SCHEDULE, out scheduleObject))
         {
           _selectedSchedule = (ISchedule)scheduleObject;
-          UpdateProgramsForSchedule();
+          _ = UpdateProgramsForSchedule();
         }
       }
     }

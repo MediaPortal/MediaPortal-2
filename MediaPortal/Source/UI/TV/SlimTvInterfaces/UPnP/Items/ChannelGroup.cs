@@ -25,11 +25,12 @@
 using System.IO;
 using System.Xml;
 using System.Xml.Serialization;
+using MediaPortal.Common.UserProfileDataManagement;
 using MediaPortal.Plugins.SlimTv.Interfaces.Items;
 
 namespace MediaPortal.Plugins.SlimTv.Interfaces.UPnP.Items
 {
-  public class ChannelGroup : IChannelGroup
+  public class ChannelGroup : IChannelGroup, IUserRestriction
   {
     private static XmlSerializer _xmlSerializer;
 
@@ -40,10 +41,6 @@ namespace MediaPortal.Plugins.SlimTv.Interfaces.UPnP.Items
     public int ChannelGroupId { get; set; }
 
     public string Name { get; set; }
-
-    public MediaType MediaType { get; set; }
-
-    public int SortOrder { get; set; }
 
     #endregion
 
@@ -84,5 +81,8 @@ namespace MediaPortal.Plugins.SlimTv.Interfaces.UPnP.Items
     {
       return _xmlSerializer ?? (_xmlSerializer = new XmlSerializer(typeof(ChannelGroup)));
     }
+
+    [XmlIgnore]
+    public string RestrictionGroup { get { return string.Format("TV: Group: {0}", Name); } set { /* read only */ } }
   }
 }

@@ -25,22 +25,27 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using MediaPortal.Common;
-using MediaPortal.Common.Services.Settings;
 using MediaPortal.Common.Settings;
+using MediaPortal.Common.UserManagement;
+using MediaPortal.Common.UserProfileDataManagement;
 using MediaPortal.Plugins.SlimTv.Client.Settings;
 using MediaPortal.Plugins.SlimTv.Interfaces;
 using MediaPortal.Plugins.SlimTv.Interfaces.Items;
+using MediaPortal.UI.Services.UserManagement;
 
 namespace MediaPortal.Plugins.SlimTv.Client.Helpers
 {
   /// <summary>
   /// Helper class to store channel groups and channels in a common place for all models.
   /// </summary>
-  public class ChannelContext
+  public class ChannelContext : IDisposable
   {
     protected static readonly object _syncObj = new object();
     protected static ChannelContext _channelContext;
+
+    private UserMessageHandler _userMessageHandler;
 
     #region Static instance
 
@@ -68,15 +73,26 @@ namespace MediaPortal.Plugins.SlimTv.Client.Helpers
       ChannelGroups = new NavigationList<IChannelGroup>();
       Channels = new NavigationList<IChannel>();
       ChannelGroups.OnCurrentChanged += ReloadChannels;
-      InitChannelGroups();
+      _userMessageHandler = new UserMessageHandler();
+      _userMessageHandler.RequestRestrictions += OnRegisterRestrictions;
+      _userMessageHandler.UserChanged += OnUserChanged;
+      InitChannelGroups().Wait();
     }
 
-    public void InitChannelGroups()
+    public async Task InitChannelGroups()
     {
-      IList<IChannelGroup> channelGroups;
       var tvHandler = ServiceRegistration.Get<ITvHandler>(false);
-      if (tvHandler != null && tvHandler.ChannelAndGroupInfo.GetChannelGroups(out channelGroups))
+      if (tvHandler != null && tvHandler.ChannelAndGroupInfo != null)
       {
+        var result = await tvHandler.ChannelAndGroupInfo.GetChannelGroupsAsync();
+        if (!result.Success)
+          return;
+
+        var channelGroups = result.Result;
+
+        RegisterRestrictions(channelGroups);
+
+        Channels?.Clear();
         ChannelGroups.Clear();
         ChannelGroups.AddRange(FilterGroups(channelGroups));
         ChannelGroups.FireListChanged();
@@ -100,15 +116,44 @@ namespace MediaPortal.Plugins.SlimTv.Client.Helpers
     }
 
     /// <summary>
-    /// Applies a filter to channel groups. This will be used to remove "All Channels" group if needed.
+    /// Registers known channel groups so it can be used to restrict users.
+    /// </summary>
+    /// <param name="channelGroups"></param>
+    private void RegisterRestrictions(IList<IChannelGroup> channelGroups)
+    {
+      IUserManagement userManagement = ServiceRegistration.Get<IUserManagement>();
+      foreach (IUserRestriction channelGroup in channelGroups.OfType<IUserRestriction>())
+        userManagement.RegisterRestrictionGroup(channelGroup.RestrictionGroup);
+    }
+
+    /// <summary>
+    /// Applies a filter to channel groups. This will be used to remove "All Channels" group if needed or to apply user restrictions.
     /// </summary>
     /// <param name="channelGroups">Groups</param>
     /// <returns>Filtered groups</returns>
     private static IList<IChannelGroup> FilterGroups(IList<IChannelGroup> channelGroups)
     {
-      if (!ServiceRegistration.Get<ISettingsManager>().Load<SlimTvClientSettings>().HideAllChannelsGroup)
-        return channelGroups;
-      return channelGroups.Where(g => g.Name != "All Channels").ToList();
+      IList<IChannelGroup> filteredGroups = new List<IChannelGroup>();
+      IUserManagement userManagement = ServiceRegistration.Get<IUserManagement>();
+      bool hideAllChannelsGroup = ServiceRegistration.Get<ISettingsManager>().Load<SlimTvClientSettings>().HideAllChannelsGroup;
+      foreach (IChannelGroup channelGroup in channelGroups.Where(g => !hideAllChannelsGroup || g.Name != "All Channels"))
+      {
+        IUserRestriction restriction = channelGroup as IUserRestriction;
+        if (restriction != null && !userManagement.CheckUserAccess(restriction))
+          continue;
+        filteredGroups.Add(channelGroup);
+      }
+      return filteredGroups;
+    }
+
+    private void OnUserChanged(object sender, EventArgs e)
+    {
+      InitChannelGroups().Wait();
+    }
+
+    private void OnRegisterRestrictions(object sender, EventArgs e)
+    {
+      InitChannelGroups().Wait();
     }
 
     /// <summary>
@@ -116,12 +161,17 @@ namespace MediaPortal.Plugins.SlimTv.Client.Helpers
     /// </summary>
     /// <param name="oldindex">Index of previous selected entry</param>
     /// <param name="newindex">Index of current selected entry</param>
-    private void ReloadChannels(int oldindex, int newindex)
+    private async void ReloadChannels(int oldindex, int newindex)
     {
-      IList<IChannel> channels;
       var tvHandler = ServiceRegistration.Get<ITvHandler>(false);
-      if (tvHandler != null && tvHandler.ChannelAndGroupInfo.GetChannels(ChannelGroups.Current, out channels))
+      if (tvHandler != null)
       {
+        var result = await tvHandler.ChannelAndGroupInfo.GetChannelsAsync(ChannelGroups.Current);
+        if (!result.Success)
+          return;
+
+        IList<IChannel> channels = result.Result;
+
         Channels.ClearAndReset();
         Channels.AddRange(channels);
         Channels.FireListChanged();
@@ -137,6 +187,11 @@ namespace MediaPortal.Plugins.SlimTv.Client.Helpers
         if (tvHandler.ChannelAndGroupInfo != null && selectedChannelId != 0)
           Channels.MoveTo(channel => channel.ChannelId == selectedChannelId);
       }
+    }
+
+    public void Dispose()
+    {
+      _userMessageHandler?.Dispose();
     }
   }
 

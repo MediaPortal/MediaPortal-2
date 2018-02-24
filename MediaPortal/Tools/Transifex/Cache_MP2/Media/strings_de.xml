@@ -5,7 +5,7 @@
   <string name="Media.BrowseMediaMenuItem.Help">Durchsuchen der Medienbibliothek nach allen Arten von Medien, angeordnet nach der Dateistruktur. Der Zugriff auf Wechseldatenträger ist hier ebenfalls möglich.</string>
   <string name="Media.LocalMediaMenuItem">Lokale Medien</string>
   <string name="Media.AudioMenuItem">Audio</string>
-  <string name="Media.AudioMenuItem.Help">Musik oder Hörbücher aus der Medienbibliothek wiedergeben und zusätzliche Medieninformationen abrufen. Hier lassen sich auch Playlisten mit deinen Lieblingssongs erstellen.</string>
+  <string name="Media.AudioMenuItem.Help">Musik oder Hörbücher aus der Medienbibliothek wiedergeben und zusätzliche Medieninformationen abrufen. Hier lassen sich auch Playlisten mit eigenen Lieblingssongs erstellen.</string>
   <string name="Media.VideosMenuItem">Videos</string>
   <string name="Media.VideosMenuItem.Help">Durchsuchen der Medienbibliothek nach allen Arten von Videos, z. B. Spielfilme, Serien und andere Videos. Mit Hilfe von Filtern lässt sich die Auswahl an die eigenen Wünsche anpassen.</string>
   <string name="Media.SeriesMenuItem">Serien</string>
@@ -140,6 +140,7 @@
   <string name="Media.SeasonItemsHeader">Staffel(n)</string>
   <string name="Media.MoviesItemsHeader">Filme</string>
   <string name="Media.ImageItemsHeader">Bilder</string>
+  <string name="Media.DiscItemsHeader">Disk(s)</string>
   <string name="Media.TrackItemsHeader">Titel</string>
   <string name="Media.SimpleSearchHeader">Einfache Suche</string>
   <string name="Media.ChooseCollectionHeader">Sammlung</string>
@@ -391,6 +392,8 @@
   <string name="Settings.Players.OpenPlayerStrategy.Help">Option, wie neu geöffnete Player unter anderen bereits geöffneten Playern positioniert werden</string>
   <string name="Settings.Players.WatchedPlayPercentage">Gesehen-Prozent</string>
   <string name="Settings.Players.WatchedPlayPercentage.Help">Legt eine Prozentangabe fest, ab der ein Medienelement als \"Gesehen\" markiert wird</string>
+  <string name="Settings.Players.OpenPlayerConfigInOsd">Player-Konfigurationsdialog im OSD anzeigen</string>
+  <string name="Settings.Players.OpenPlayerConfigInOsd.Help">Wenn aktiviert, wird beim zweiten Drücken von \'Info\' der Player-Konfigurationsdialog eingeblendet.</string>
   <string name="Settings.Media">Medien-Bibliothek</string>
   <string name="Settings.Media.ShowVirtual">Alle bekannten Medienelemente anzeigen</string>
   <string name="Settings.Media.ShowVirtual.Help">Legt fest, ob auch Informationen zu bekannten Medienelementen angezeigt werden, die nicht in der Medienbibliothek verfügbar sind</string>

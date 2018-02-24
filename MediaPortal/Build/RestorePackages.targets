@@ -16,7 +16,7 @@
   </ItemGroup>
 
   <Target Name="DownloadNuGet">
-    <DownloadFile DownloadAddress="https://nuget.org/nuget.exe" OutputFilename="$(NuGetExePath)" Condition="!Exists('$(NuGetExePath)')" />
+    <DownloadFile DownloadAddress="https://dist.nuget.org/win-x86-commandline/latest/nuget.exe" OutputFilename="$(NuGetExePath)" Condition="!Exists('$(NuGetExePath)')" />
   </Target>
 
   <Target Name="RestoreAllPackages"
@@ -24,6 +24,8 @@
 
     <Message Text="Found the following 'packages.config'-files: @(PackagesConfigs->'%(FullPath)')"/>
 
+    <!-- First do a self update of nuget.exe -->
+    <Exec Command='"$(NuGetExePath)" update -self'/>
     <Exec Command='"$(NuGetExePath)" install "%(PackagesConfigs.FullPath)"'/>
   </Target>
 
@@ -33,6 +35,8 @@
   -->
   <Target Name="RestoreBuildPackages"
           DependsOnTargets="DownloadNuGet">
+    <!-- First do a self update of nuget.exe -->
+    <Exec Command='"$(NuGetExePath)" update -self'/>
     <Exec Command='"$(NuGetExePath)" install "$(MSBuildThisFileDirectory)\packages.config"'/>
   </Target>
 </Project>

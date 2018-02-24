@@ -23,6 +23,7 @@
 #endregion
 
 using System;
+using MediaPortal.Common.UserProfileDataManagement;
 
 namespace MediaPortal.Common.Configuration
 {
@@ -33,7 +34,7 @@ namespace MediaPortal.Common.Configuration
   /// location property contains the parent location with the Id of this setting registration as last
   /// path element.
   /// </summary>
-  public class ConfigBaseMetadata
+  public class ConfigBaseMetadata : IUserRestriction
   {
     #region Variables
 
@@ -105,11 +106,13 @@ namespace MediaPortal.Common.Configuration
     /// if there is a parent, and the Id of this setting registration as last location path element.</param>
     /// <param name="text">The text to be displayed for this setting registration.</param>
     /// <param name="sort">Sorting information.</param>
-    public ConfigBaseMetadata(string location, string text, string sort)
+    /// <param name="restrictionGroup">Optional group to restrict access</param>
+    public ConfigBaseMetadata(string location, string text, string sort, string restrictionGroup)
     {
       _location = location;
       _text = text;
       _sort = sort;
+      RestrictionGroup = restrictionGroup;
     }
 
     #endregion
@@ -181,6 +184,12 @@ namespace MediaPortal.Common.Configuration
         location = location.Remove(location.Length - 1);
       return location;
     }
+
+    #endregion
+
+    #region IUserRestriction members
+
+    public string RestrictionGroup { get; set; }
 
     #endregion
   }

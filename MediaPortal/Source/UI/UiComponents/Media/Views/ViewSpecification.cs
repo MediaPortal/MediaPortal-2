@@ -29,6 +29,7 @@ using MediaPortal.UiComponents.Media.Models.Sorting;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace MediaPortal.UiComponents.Media.Views
 {
@@ -123,12 +124,19 @@ namespace MediaPortal.UiComponents.Media.Views
     /// Returns all media items of this view and all sub views. Can be overridden to provide a more efficient implementation.
     /// </summary>
     /// <returns>Enumeration of all media items of this and all sub views.</returns>
-    public virtual IEnumerable<MediaItem> GetAllMediaItems()
+    public virtual async Task<IEnumerable<MediaItem>> GetAllMediaItems()
     {
       IList<MediaItem> mis;
       IList<ViewSpecification> vss;
       ReLoadItemsAndSubViewSpecifications(out mis, out vss);
-      return vss.SelectMany(subViewSpecification => subViewSpecification.GetAllMediaItems()).Union(mis);
+      IEnumerable<MediaItem> combinedItems = new List<MediaItem>();
+      foreach (var subViewSpecification in vss)
+      {
+        IEnumerable<MediaItem> mi = await subViewSpecification.GetAllMediaItems();
+        combinedItems = combinedItems.Union(mi);
+      }
+      combinedItems = combinedItems.Union(mis);
+      return combinedItems;
     }
 
     /// <summary>
@@ -152,6 +160,7 @@ namespace MediaPortal.UiComponents.Media.Views
     /// <param name="subViewSpecifications">Sub view specifications to this view specification. <c>null</c> if the loading of sub views didn't succeed.</param>
     /// <exception cref="Exception">If there are problems accessing the datasource of this view. Exceptions in reading
     /// and/or parsing media items should not be thrown; those media items should simply be ignored.</exception>
+    //protected internal abstract Task<Tuple<IList<MediaItem>, IList<ViewSpecification>>> ReLoadItemsAndSubViewSpecifications(); //out IList<MediaItem> mediaItems, out IList<ViewSpecification> subViewSpecifications
     protected internal abstract void ReLoadItemsAndSubViewSpecifications(out IList<MediaItem> mediaItems, out IList<ViewSpecification> subViewSpecifications);
 
     public virtual IViewChangeNotificator CreateChangeNotificator()

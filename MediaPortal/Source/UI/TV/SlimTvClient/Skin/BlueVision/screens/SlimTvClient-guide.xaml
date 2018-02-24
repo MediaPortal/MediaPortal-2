@@ -64,9 +64,9 @@
           <Label x:Name="CurrentChannelNameLabel" Content="{Binding ChannelName}" VerticalAlignment="Center"
               Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}" Margin="7,0,0,0"/>
         </StackPanel>
-      
+ 
         <ListView  Grid.Column="0" Grid.Row="1" Grid.ColumnSpan="2"
-              Margin="-10,0,-10,20" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+              Margin="-10,0,14,20" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
               Style="{ThemeResource SingleChannelWithLogoAndProgramListViewStyle}"
               ItemsSource="{Binding Path=ProgramsList}"
               SelectionChanged="{CommandStencil UpdateProgram}">

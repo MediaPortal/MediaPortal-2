@@ -8,12 +8,15 @@
       <a:ActivePart>Undefined</a:ActivePart>
       <a:MaxSize xmlns:b="http://schemas.datacontract.org/2004/07/System.Drawing">
         <b:height>110</b:height>
-        <b:width>200</b:width>
+        <b:width>310</b:width>
       </a:MaxSize>
-      <a:MinSize i:nil="true" xmlns:b="http://schemas.datacontract.org/2004/07/System.Drawing"/>
+      <a:MinSize xmlns:b="http://schemas.datacontract.org/2004/07/System.Drawing">
+        <b:height>110</b:height>
+        <b:width>310</b:width>
+      </a:MinSize>
       <a:TargetSize xmlns:b="http://schemas.datacontract.org/2004/07/System.Drawing">
         <b:height>110</b:height>
-        <b:width>200</b:width>
+        <b:width>310</b:width>
       </a:TargetSize>
     </a:AbstractEffect>
     <a:AbstractEffect i:type="a:EffectOuterGlow">

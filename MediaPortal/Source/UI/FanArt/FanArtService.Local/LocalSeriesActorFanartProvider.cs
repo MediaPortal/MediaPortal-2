@@ -34,7 +34,6 @@ using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Common.MediaManagement.MLQueries;
 using MediaPortal.Common.ResourceAccess;
 using MediaPortal.Common.Services.ResourceAccess;
-using MediaPortal.Common.Services.ResourceAccess.VirtualResourceProvider;
 using MediaPortal.Extensions.UserServices.FanArtService.Interfaces;
 
 namespace MediaPortal.Extensions.UserServices.FanArtService.Local
@@ -42,7 +41,6 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Local
   public class LocalSeriesActorFanartProvider : IFanArtProvider
   {
     private readonly static Guid[] NECESSARY_MIAS = { ProviderResourceAspect.ASPECT_ID, VideoAspect.ASPECT_ID, RelationshipAspect.ASPECT_ID };
-    private readonly static ICollection<String> EXTENSIONS = new HashSet<string>(StringComparer.OrdinalIgnoreCase) { ".jpg", ".png", ".tbn" };
 
     public FanArtProviderSource Source { get { return FanArtProviderSource.File; } }
 
@@ -133,7 +131,7 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Local
               IFileSystemResourceAccessor actorMediaItemDirectory = directoryFsra.GetResource(".actors");
               if (actorMediaItemDirectory != null)
               {
-                  var potentialArtistFanArtFiles = GetPotentialFanArtFiles(actorMediaItemDirectory);
+                  var potentialArtistFanArtFiles = LocalFanartHelper.GetPotentialFanArtFiles(actorMediaItemDirectory);
 
                   foreach (ResourcePath thumbPath in
                       from potentialFanArtFile in potentialArtistFanArtFiles
@@ -154,7 +152,7 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Local
               IFileSystemResourceAccessor actorMediaItemDirectory = directoryFsra.GetResource(".actors");
               if (actorMediaItemDirectory != null)
               {
-                var potentialArtistFanArtFiles = GetPotentialFanArtFiles(actorMediaItemDirectory);
+                var potentialArtistFanArtFiles = LocalFanartHelper.GetPotentialFanArtFiles(actorMediaItemDirectory);
 
                 foreach (ResourcePath thumbPath in
                     from potentialFanArtFile in potentialArtistFanArtFiles
@@ -175,26 +173,6 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Local
       }
       result = files;
       return files.Count > 0;
-    }
-
-    /// <summary>
-    /// Returns a list of ResourcePaths to all potential FanArt files in a given directory
-    /// </summary>
-    /// <param name="directoryAccessor">ResourceAccessor pointing to the directory where FanArt files should be searched</param>
-    /// <returns>List of ResourcePaths to potential FanArt files</returns>
-    private List<ResourcePath> GetPotentialFanArtFiles(IFileSystemResourceAccessor directoryAccessor)
-    {
-      var result = new List<ResourcePath>();
-      if (directoryAccessor.IsFile)
-        return result;
-      foreach (var file in directoryAccessor.GetFiles())
-        using (file)
-        {
-          var path = file.CanonicalLocalResourcePath;
-          if (EXTENSIONS.Contains(ResourcePathHelper.GetExtension(path.ToString())))
-            result.Add(path);
-        }
-      return result;
     }
   }
 }

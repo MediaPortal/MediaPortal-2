@@ -68,6 +68,7 @@ namespace MediaPortal.UiComponents.Media.General
     public const string STR_WF_STATE_ID_QUERY_AV_TYPE_CHECK_QUERY_PLAYACTION_MULTIPLE_ITEMS = "9F73CA87-732F-4017-9B1D-11DAFEED7FEC";
 
     public const string STR_WF_STATE_ID_CHECK_RESUME_SINGLE_ITEM = "04138763-42E6-49F1-BA51-EE3A9BAA835D";
+    public const string STR_WF_STATE_ID_CHECK_EDITION = "DECA9453-E04B-4B2D-90AF-2545CAF29507";
 
     public static readonly Guid MODULE_ID_MEDIA = new Guid(STR_MODULE_ID_MEDIA);
 
@@ -119,6 +120,7 @@ namespace MediaPortal.UiComponents.Media.General
     public static readonly Guid WF_STATE_ID_QUERY_AV_TYPE_CHECK_QUERY_PLAYACTION_MULTIPLE_ITEMS = new Guid(STR_WF_STATE_ID_QUERY_AV_TYPE_CHECK_QUERY_PLAYACTION_MULTIPLE_ITEMS);
 
     public static readonly Guid WF_STATE_ID_CHECK_RESUME_SINGLE_ITEM = new Guid(STR_WF_STATE_ID_CHECK_RESUME_SINGLE_ITEM);
+    public static readonly Guid WF_STATE_ID_CHECK_EDITION = new Guid(STR_WF_STATE_ID_CHECK_EDITION);
 
     // Localization resource identifiers
     public const string RES_PLAY_AUDIO_ITEM = "[Media.PlayAudioItem]";

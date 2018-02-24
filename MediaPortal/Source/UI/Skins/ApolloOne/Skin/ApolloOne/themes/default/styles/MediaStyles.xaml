@@ -284,7 +284,7 @@
       <!-- GE2301: Unwatched marker added by red tab -->      
       <Image Source="MediaItem_Unwatched.png" Margin="-7,-4,-8,-4">
         <Image.IsVisible>
-          <Binding Path="PlayCount" Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0} == 0"/>
+          <Binding Path="WatchPercentage" Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0} == 0"/>
         </Image.IsVisible>
       </Image>
       <!-- GE2301: Unwatched marker added by red tab -->      

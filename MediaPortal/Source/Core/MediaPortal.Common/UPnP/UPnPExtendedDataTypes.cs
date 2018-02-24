@@ -39,6 +39,7 @@ namespace MediaPortal.Common.UPnP
     public static readonly UPnPExtendedDataType DtMediaItemQuery = new UPnPDtMediaItemQuery();
     public static readonly UPnPExtendedDataType DtMediaItem = new UPnPDtMediaItem();
     public static readonly UPnPExtendedDataType DtMediaItemEnumeration = new UPnPDtMediaItemEnumeration();
+    public static readonly UPnPExtendedDataType DtRelationshipItemEnumeration = new UPnPDtRelationshipItemEnumeration();
     public static readonly UPnPExtendedDataType DtMediaItemsFilter = new UPnPDtMediaItemsFilter();
     public static readonly UPnPExtendedDataType DtMediaItemAttributeValues = new UPnPDtMediaItemAttributeValues();
     public static readonly UPnPExtendedDataType DtMediaItemAspectEnumeration = new UPnPDtMediaItemAspectEnumeration();

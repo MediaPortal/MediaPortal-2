@@ -24,6 +24,8 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 using MediaPortal.Common;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.SystemCommunication;
@@ -44,16 +46,22 @@ namespace MediaPortal.DevTools
       get { return _locallyKnownMediaItemAspectTypes; }
     }
 
-    public void RegisterLocallyKnownMediaItemAspectType(MediaItemAspectMetadata miaType)
+    public async Task RegisterLocallyKnownMediaItemAspectTypeAsync(IEnumerable<MediaItemAspectMetadata> miaTypes)
+    {
+      await Task.WhenAll(miaTypes.Select(RegisterLocallyKnownMediaItemAspectTypeAsync));
+    }
+
+    public Task RegisterLocallyKnownMediaItemAspectTypeAsync(MediaItemAspectMetadata miaType)
     {
       if (_locallyKnownMediaItemAspectTypes.ContainsKey(miaType.AspectId))
-        return;
+        return Task.CompletedTask;
       _locallyKnownMediaItemAspectTypes.Add(miaType.AspectId, miaType);
       IServerConnectionManager serverConnectionManager = ServiceRegistration.Get<IServerConnectionManager>();
       IContentDirectory cd = serverConnectionManager == null ? null :
           serverConnectionManager.ContentDirectory;
       if (cd != null)
-        cd.AddMediaItemAspectStorage(miaType);
+        cd.AddMediaItemAspectStorageAsync(miaType).Wait();
+      return Task.CompletedTask;
     }
 
     public void RegisterLocallyKnownMediaItemAspectType(MediaItemAspectMetadata miaType, MediaItemAspectMetadata.AttributeSpecification[] fkSpecs, MediaItemAspectMetadata refType, MediaItemAspectMetadata.AttributeSpecification[] refSpecs)

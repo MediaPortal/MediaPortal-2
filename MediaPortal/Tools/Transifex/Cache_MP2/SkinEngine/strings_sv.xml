@@ -77,7 +77,7 @@
   <!--For example: "Slowmotion forward (0.5x)"-->
   <string name="PlayerControl.SlowMotionBackward">Slowmotion bakåt ({0})</string>
   <!--For example: "Slowmotion backward (0.5x)"-->
-  <string name="PlayerControl.PlaybackRateHint">{0} gånger</string>
+  <string name="PlayerControl.PlaybackRateHint">{0} ggr</string>
   <!--For example: 2x or 0.5x-->
   <string name="PlayerControl.Stopped">Stoppad</string>
   <string name="PlayerControl.Ended">Avslutad</string>

@@ -48,37 +48,37 @@ namespace MediaPortal.Backend.Services.UserProfileDataManagement
     {
       // Used to transport an enumeration of user profiles
       DvStateVariable A_ARG_TYPE_UserProfileEnumeration = new DvStateVariable("A_ARG_TYPE_UserProfileEnumeration", new DvExtendedDataType(UPnPExtendedDataTypes.DtUserProfileEnumeration))
-          {
-            SendEvents = false,
-          };
+      {
+        SendEvents = false,
+      };
       AddStateVariable(A_ARG_TYPE_UserProfileEnumeration);
 
       //Used for transporting a user profile
       DvStateVariable A_ARG_TYPE_UserProfile = new DvStateVariable("A_ARG_TYPE_UserProfile", new DvExtendedDataType(UPnPExtendedDataTypes.DtUserProfile))
-          {
-            SendEvents = false,
-          };
+      {
+        SendEvents = false,
+      };
       AddStateVariable(A_ARG_TYPE_UserProfile);
 
       // Used for boolean values
       DvStateVariable A_ARG_TYPE_Bool = new DvStateVariable("A_ARG_TYPE_Bool", new DvStandardDataType(UPnPStandardDataType.Boolean))
-          {
-            SendEvents = false
-          };
+      {
+        SendEvents = false
+      };
       AddStateVariable(A_ARG_TYPE_Bool);
 
       // Used for any single GUID value
       DvStateVariable A_ARG_TYPE_Uuid = new DvStateVariable("A_ARG_TYPE_Id", new DvStandardDataType(UPnPStandardDataType.Uuid))
-          {
-            SendEvents = false
-          };
+      {
+        SendEvents = false
+      };
       AddStateVariable(A_ARG_TYPE_Uuid);
 
       // Used for string values
       DvStateVariable A_ARG_TYPE_String = new DvStateVariable("A_ARG_TYPE_String", new DvStandardDataType(UPnPStandardDataType.String))
-          {
-            SendEvents = false
-          };
+      {
+        SendEvents = false
+      };
       AddStateVariable(A_ARG_TYPE_String);
 
       // Used for several parameters
@@ -268,7 +268,7 @@ namespace MediaPortal.Backend.Services.UserProfileDataManagement
             new DvArgument("Success", A_ARG_TYPE_Bool, ArgumentDirection.Out, true)
           });
       AddAction(getUserAdditionalDataAction);
-  
+
       DvAction setUserAdditionalDataAction = new DvAction("SetUserAdditionalData", OnSetUserAdditionalData,
           new DvArgument[] {
             new DvArgument("ProfileId", A_ARG_TYPE_Uuid, ArgumentDirection.In),
@@ -349,39 +349,37 @@ namespace MediaPortal.Backend.Services.UserProfileDataManagement
     static UPnPError OnGetProfiles(DvAction action, IList<object> inParams, out IList<object> outParams,
         CallContext context)
     {
-      ICollection<UserProfile> profiles = ServiceRegistration.Get<IUserProfileDataManagement>().GetProfiles();
-      outParams = new List<object> {profiles};
+      ICollection<UserProfile> profiles = ServiceRegistration.Get<IUserProfileDataManagement>().GetProfilesAsync().Result;
+      outParams = new List<object> { profiles };
       return null;
     }
 
     static UPnPError OnGetProfile(DvAction action, IList<object> inParams, out IList<object> outParams,
         CallContext context)
     {
-      Guid profileId = MarshallingHelper.DeserializeGuid((string) inParams[0]);
-      UserProfile profile;
-      if (!ServiceRegistration.Get<IUserProfileDataManagement>().GetProfile(profileId, out profile))
-        profile = null;
-      outParams = new List<object> {profile};
+      Guid profileId = MarshallingHelper.DeserializeGuid((string)inParams[0]);
+      var result = ServiceRegistration.Get<IUserProfileDataManagement>().GetProfileAsync(profileId).Result;
+      UserProfile profile = result.Success ? result.Result : null;
+      outParams = new List<object> { profile };
       return null;
     }
 
     static UPnPError OnGetProfileByName(DvAction action, IList<object> inParams, out IList<object> outParams,
         CallContext context)
     {
-      string profileName = (string) inParams[0];
-      UserProfile profile;
-      if (!ServiceRegistration.Get<IUserProfileDataManagement>().GetProfileByName(profileName, out profile))
-        profile = null;
-      outParams = new List<object> {profile};
+      string profileName = (string)inParams[0];
+      var result = ServiceRegistration.Get<IUserProfileDataManagement>().GetProfileByNameAsync(profileName).Result;
+      UserProfile profile = result.Success ? result.Result : null;
+      outParams = new List<object> { profile };
       return null;
     }
 
     static UPnPError OnCreateProfile(DvAction action, IList<object> inParams, out IList<object> outParams,
         CallContext context)
     {
-      string profileName = (string) inParams[0];
-      Guid profileId = ServiceRegistration.Get<IUserProfileDataManagement>().CreateProfile(profileName);
-      outParams = new List<object> {profileId};
+      string profileName = (string)inParams[0];
+      Guid profileId = ServiceRegistration.Get<IUserProfileDataManagement>().CreateProfileAsync(profileName).Result;
+      outParams = new List<object> { profileId };
       return null;
     }
 
@@ -389,9 +387,9 @@ namespace MediaPortal.Backend.Services.UserProfileDataManagement
         CallContext context)
     {
       string profileName = (string)inParams[0];
-      int profileType = (int)inParams[1];
+      UserProfileType profileType = (UserProfileType)inParams[1];
       string profilePassword = (string)inParams[2];
-      Guid profileId = ServiceRegistration.Get<IUserProfileDataManagement>().CreateProfile(profileName, profileType, profilePassword);
+      Guid profileId = ServiceRegistration.Get<IUserProfileDataManagement>().CreateProfileAsync(profileName, profileType, profilePassword).Result;
       outParams = new List<object> { profileId };
       return null;
     }
@@ -401,9 +399,9 @@ namespace MediaPortal.Backend.Services.UserProfileDataManagement
     {
       Guid profileId = MarshallingHelper.DeserializeGuid((string)inParams[0]);
       string profileName = (string)inParams[1];
-      int profileType = (int)inParams[2];
+      UserProfileType profileType = (UserProfileType)inParams[2];
       string profilePassword = (string)inParams[3];
-      bool success = ServiceRegistration.Get<IUserProfileDataManagement>().UpdateProfile(profileId, profileName, profileType, profilePassword);
+      bool success = ServiceRegistration.Get<IUserProfileDataManagement>().UpdateProfileAsync(profileId, profileName, profileType, profilePassword).Result;
       outParams = new List<object> { success };
       return null;
     }
@@ -416,7 +414,7 @@ namespace MediaPortal.Backend.Services.UserProfileDataManagement
       byte[] image = null;
       if (!string.IsNullOrEmpty(profileImage))
         image = Convert.FromBase64String(profileImage);
-      bool success = ServiceRegistration.Get<IUserProfileDataManagement>().SetProfileImage(profileId, image);
+      bool success = ServiceRegistration.Get<IUserProfileDataManagement>().SetProfileImageAsync(profileId, image).Result;
       outParams = new List<object> { success };
       return null;
     }
@@ -424,19 +422,19 @@ namespace MediaPortal.Backend.Services.UserProfileDataManagement
     static UPnPError OnRenameProfile(DvAction action, IList<object> inParams, out IList<object> outParams,
         CallContext context)
     {
-      Guid profileId = MarshallingHelper.DeserializeGuid((string) inParams[0]);
-      string newName = (string) inParams[1];
-      bool success = ServiceRegistration.Get<IUserProfileDataManagement>().RenameProfile(profileId, newName);
-      outParams = new List<object> {success};
+      Guid profileId = MarshallingHelper.DeserializeGuid((string)inParams[0]);
+      string newName = (string)inParams[1];
+      bool success = ServiceRegistration.Get<IUserProfileDataManagement>().RenameProfileAsync(profileId, newName).Result;
+      outParams = new List<object> { success };
       return null;
     }
 
     static UPnPError OnDeleteProfile(DvAction action, IList<object> inParams, out IList<object> outParams,
         CallContext context)
     {
-      Guid profileId = MarshallingHelper.DeserializeGuid((string) inParams[0]);
-      bool success = ServiceRegistration.Get<IUserProfileDataManagement>().DeleteProfile(profileId);
-      outParams = new List<object> {success};
+      Guid profileId = MarshallingHelper.DeserializeGuid((string)inParams[0]);
+      bool success = ServiceRegistration.Get<IUserProfileDataManagement>().DeleteProfileAsync(profileId).Result;
+      outParams = new List<object> { success };
       return null;
     }
 
@@ -444,7 +442,7 @@ namespace MediaPortal.Backend.Services.UserProfileDataManagement
         CallContext context)
     {
       Guid profileId = MarshallingHelper.DeserializeGuid((string)inParams[0]);
-      bool success = ServiceRegistration.Get<IUserProfileDataManagement>().LoginProfile(profileId);
+      bool success = ServiceRegistration.Get<IUserProfileDataManagement>().LoginProfileAsync(profileId).Result;
       outParams = new List<object> { success };
       return null;
     }
@@ -454,26 +452,24 @@ namespace MediaPortal.Backend.Services.UserProfileDataManagement
     static UPnPError OnGetUserPlaylistData(DvAction action, IList<object> inParams, out IList<object> outParams,
         CallContext context)
     {
-      Guid profileId = MarshallingHelper.DeserializeGuid((string) inParams[0]);
-      Guid playlistId = MarshallingHelper.DeserializeGuid((string) inParams[1]);
-      string key = (string) inParams[2];
-      string data;
-      bool success;
-      if (!(success = ServiceRegistration.Get<IUserProfileDataManagement>().GetUserPlaylistData(profileId, playlistId, key, out data)))
-        data = null;
-      outParams = new List<object> {data, success};
+      Guid profileId = MarshallingHelper.DeserializeGuid((string)inParams[0]);
+      Guid playlistId = MarshallingHelper.DeserializeGuid((string)inParams[1]);
+      string key = (string)inParams[2];
+      var result = ServiceRegistration.Get<IUserProfileDataManagement>().GetUserPlaylistDataAsync(profileId, playlistId, key).Result;
+      string data = result.Success ? result.Result : null;
+      outParams = new List<object> { data, result.Success };
       return null;
     }
 
     static UPnPError OnSetUserPlaylistData(DvAction action, IList<object> inParams, out IList<object> outParams,
         CallContext context)
     {
-      Guid profileId = MarshallingHelper.DeserializeGuid((string) inParams[0]);
-      Guid playlistId = MarshallingHelper.DeserializeGuid((string) inParams[1]);
-      string key = (string) inParams[2];
-      string data = (string) inParams[3];
-      bool success = ServiceRegistration.Get<IUserProfileDataManagement>().SetUserPlaylistData(profileId, playlistId, key, data);
-      outParams = new List<object> {success};
+      Guid profileId = MarshallingHelper.DeserializeGuid((string)inParams[0]);
+      Guid playlistId = MarshallingHelper.DeserializeGuid((string)inParams[1]);
+      string key = (string)inParams[2];
+      string data = (string)inParams[3];
+      bool success = ServiceRegistration.Get<IUserProfileDataManagement>().SetUserPlaylistDataAsync(profileId, playlistId, key, data).Result;
+      outParams = new List<object> { success };
       return null;
     }
 
@@ -482,28 +478,26 @@ namespace MediaPortal.Backend.Services.UserProfileDataManagement
     static UPnPError OnGetUserMediaItemData(DvAction action, IList<object> inParams, out IList<object> outParams,
         CallContext context)
     {
-      Guid profileId = MarshallingHelper.DeserializeGuid((string) inParams[0]);
-      Guid mediaItemId = MarshallingHelper.DeserializeGuid((string) inParams[1]);
-      string key = (string) inParams[2];
-      string data;
-      bool success;
-      if (!(success = ServiceRegistration.Get<IUserProfileDataManagement>().GetUserMediaItemData(profileId, mediaItemId, key, out data)))
-        data = null;
-      outParams = new List<object> {data, success};
+      Guid profileId = MarshallingHelper.DeserializeGuid((string)inParams[0]);
+      Guid mediaItemId = MarshallingHelper.DeserializeGuid((string)inParams[1]);
+      string key = (string)inParams[2];
+      var result = ServiceRegistration.Get<IUserProfileDataManagement>().GetUserMediaItemDataAsync(profileId, mediaItemId, key).Result;
+      string data = result.Success ? result.Result : null;
+      outParams = new List<object> { data, result.Success };
       return null;
     }
 
     static UPnPError OnSetUserMediaItemData(DvAction action, IList<object> inParams, out IList<object> outParams,
         CallContext context)
     {
-      Guid profileId = MarshallingHelper.DeserializeGuid((string) inParams[0]);
-      Guid mediaItemId = MarshallingHelper.DeserializeGuid((string) inParams[1]);
-      string key = (string) inParams[2];
-      string data = (string) inParams[3];
-      bool success = ServiceRegistration.Get<IUserProfileDataManagement>().SetUserMediaItemData(profileId, mediaItemId, key, data);
-      if(success)
+      Guid profileId = MarshallingHelper.DeserializeGuid((string)inParams[0]);
+      Guid mediaItemId = MarshallingHelper.DeserializeGuid((string)inParams[1]);
+      string key = (string)inParams[2];
+      string data = (string)inParams[3];
+      bool success = ServiceRegistration.Get<IUserProfileDataManagement>().SetUserMediaItemDataAsync(profileId, mediaItemId, key, data).Result;
+      if (success)
         ServiceRegistration.Get<IMediaLibrary>().UserDataUpdated(profileId, mediaItemId, key, data);
-      outParams = new List<object> {success};
+      outParams = new List<object> { success };
       return null;
     }
 
@@ -515,23 +509,21 @@ namespace MediaPortal.Backend.Services.UserProfileDataManagement
       Guid profileId = MarshallingHelper.DeserializeGuid((string)inParams[0]);
       string key = (string)inParams[1];
       int dataNo = (int)inParams[2];
-      string data;
-      bool success;
-      if (!(success = ServiceRegistration.Get<IUserProfileDataManagement>().GetUserAdditionalData(profileId, key, out data, dataNo)))
-        data = null;
-      outParams = new List<object> { data, success };
+      var result = ServiceRegistration.Get<IUserProfileDataManagement>().GetUserAdditionalDataAsync(profileId, key, dataNo).Result;
+      string data = result.Success ? result.Result : null;
+      outParams = new List<object> { data, result.Success };
       return null;
     }
 
     static UPnPError OnSetUserAdditionalData(DvAction action, IList<object> inParams, out IList<object> outParams,
         CallContext context)
     {
-      Guid profileId = MarshallingHelper.DeserializeGuid((string) inParams[0]);
-      string key = (string) inParams[1];
+      Guid profileId = MarshallingHelper.DeserializeGuid((string)inParams[0]);
+      string key = (string)inParams[1];
       int dataNo = (int)inParams[2];
-      string data = (string) inParams[3];
-      bool success = ServiceRegistration.Get<IUserProfileDataManagement>().SetUserAdditionalData(profileId, key, data, dataNo);
-      outParams = new List<object> {success};
+      string data = (string)inParams[3];
+      bool success = ServiceRegistration.Get<IUserProfileDataManagement>().SetUserAdditionalDataAsync(profileId, key, data, dataNo).Result;
+      outParams = new List<object> { success };
       return null;
     }
 
@@ -545,14 +537,12 @@ namespace MediaPortal.Backend.Services.UserProfileDataManagement
       uint? offset = (uint?)inParams[4];
       uint? limit = (uint?)inParams[5];
 
-      string data;
-      IEnumerable<Tuple<int, string>> list; 
-      bool success;
-      if (!(success = ServiceRegistration.Get<IUserProfileDataManagement>().GetUserAdditionalDataList(profileId, key, out list, sortByKey, sortOrder, offset, limit)))
-        data = null;
-      else
-        data = MarshallingHelper.SerializeTuple2EnumerationToCsv(list.Select(t => new Tuple<string, string>(t.Item1.ToString(), t.Item2)));
-      outParams = new List<object> { data, success };
+      var result = ServiceRegistration.Get<IUserProfileDataManagement>().GetUserAdditionalDataListAsync(profileId, key, sortByKey, sortOrder, offset, limit).Result;
+
+      var data = result.Success ? 
+        MarshallingHelper.SerializeTuple2EnumerationToCsv(result.Result.Select(t => new Tuple<string, string>(t.Item1.ToString(), t.Item2))):
+        null;
+      outParams = new List<object> { data, result.Success };
       return null;
     }
 
@@ -566,14 +556,11 @@ namespace MediaPortal.Backend.Services.UserProfileDataManagement
       uint? offset = (uint?)inParams[4];
       uint? limit = (uint?)inParams[5];
 
-      string data;
-      IEnumerable<Tuple<string, int, string>> list; 
-      bool success;
-      if (!(success = ServiceRegistration.Get<IUserProfileDataManagement>().GetUserSelectedAdditionalDataList(profileId, keys, out list, sortByKey, sortOrder, offset, limit)))
-        data = null;
-      else
-        data = MarshallingHelper.SerializeTuple3EnumerationToCsv(list.Select(t => new Tuple<string, string, string>(t.Item1, t.Item2.ToString(), t.Item3)));
-      outParams = new List<object> { data, success };
+      var result = ServiceRegistration.Get<IUserProfileDataManagement>().GetUserSelectedAdditionalDataListAsync(profileId, keys, sortByKey, sortOrder, offset, limit).Result;
+      var data = result.Success ?
+         MarshallingHelper.SerializeTuple3EnumerationToCsv(result.Result.Select(t => new Tuple<string, string, string>(t.Item1, t.Item2.ToString(), t.Item3)))
+         : null;
+      outParams = new List<object> { data, result.Success };
       return null;
     }
 
@@ -582,9 +569,9 @@ namespace MediaPortal.Backend.Services.UserProfileDataManagement
     static UPnPError OnClearAllUserData(DvAction action, IList<object> inParams, out IList<object> outParams,
         CallContext context)
     {
-      Guid profileId = MarshallingHelper.DeserializeGuid((string) inParams[0]);
-      bool success = ServiceRegistration.Get<IUserProfileDataManagement>().ClearAllUserData(profileId);
-      outParams = new List<object> {success};
+      Guid profileId = MarshallingHelper.DeserializeGuid((string)inParams[0]);
+      bool success = ServiceRegistration.Get<IUserProfileDataManagement>().ClearAllUserDataAsync(profileId).Result;
+      outParams = new List<object> { success };
       return null;
     }
 
@@ -593,7 +580,7 @@ namespace MediaPortal.Backend.Services.UserProfileDataManagement
     {
       Guid profileId = MarshallingHelper.DeserializeGuid((string)inParams[0]);
       string key = (string)inParams[1];
-      bool success = ServiceRegistration.Get<IUserProfileDataManagement>().ClearUserMediaItemDataKey(profileId, key);
+      bool success = ServiceRegistration.Get<IUserProfileDataManagement>().ClearUserMediaItemDataKeyAsync(profileId, key).Result;
       outParams = new List<object> { success };
       return null;
     }
@@ -603,7 +590,7 @@ namespace MediaPortal.Backend.Services.UserProfileDataManagement
     {
       Guid profileId = MarshallingHelper.DeserializeGuid((string)inParams[0]);
       string key = (string)inParams[1];
-      bool success = ServiceRegistration.Get<IUserProfileDataManagement>().ClearUserAdditionalDataKey(profileId, key);
+      bool success = ServiceRegistration.Get<IUserProfileDataManagement>().ClearUserAdditionalDataKeyAsync(profileId, key).Result;
       outParams = new List<object> { success };
       return null;
     }

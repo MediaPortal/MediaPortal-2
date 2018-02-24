@@ -126,9 +126,10 @@
     <Compile Include="Helpers\ProgramListItem.cs" />
     <Compile Include="Helpers\ProgramProperties.cs" />
     <Compile Include="Helpers\ResourceHelper.cs" />
+    <Compile Include="MediaItemActions\DeleteRecordingFromStorage.cs" />
     <Compile Include="MediaLists\BaseFavoriteChannelMediaListProvider.cs" />
-    <Compile Include="MediaLists\BaseRecordingMediaListProvider.cs" />
     <Compile Include="MediaLists\SlimTvLastWatchedRecordingsMediaListProvider.cs" />
+    <Compile Include="MediaLists\SlimTvMediaListProviderBase.cs" />
     <Compile Include="MediaLists\SlimTvUnwatchedRecordingsMediaListProvider.cs" />
     <Compile Include="MediaLists\SlimTvProgramsMediaListProvider.cs" />
     <Compile Include="MediaLists\SlimTvSchedulesMediaListProvider.cs" />
@@ -607,6 +608,11 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Skin\default\superlayers\RecordingEndedNotification.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\BlueVision\themes\Titanium Extended\screens\SlimTvClient-miniguide.xaml">
       <SubType>Designer</SubType>
     </Content>
   </ItemGroup>

@@ -30,6 +30,7 @@ using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.ResourceAccess;
 using MediaPortal.Common.SystemCommunication;
 using MediaPortal.Common.SystemResolver;
+using MediaPortal.Common.UserManagement;
 using MediaPortal.UI.ServerCommunication;
 using MediaPortal.UI.Shares;
 using MediaPortal.UI.Services.UserManagement;
@@ -142,8 +143,8 @@ namespace MediaPortal.UiComponents.Media.Views
       if (userProfileDataManagement != null && userProfileDataManagement.IsValidUser)
         userProfile = userProfileDataManagement.CurrentUser.ProfileId;
 
-      MediaItem parentDirectory = cd.LoadItem(localShare.SystemId, localShare.BaseResourcePath,
-          SystemSharesViewSpecification.DIRECTORY_MIA_ID_ENUMERATION, SystemSharesViewSpecification.EMPTY_ID_ENUMERATION, userProfile);
+      MediaItem parentDirectory = cd.LoadItemAsync(localShare.SystemId, localShare.BaseResourcePath,
+          SystemSharesViewSpecification.DIRECTORY_MIA_ID_ENUMERATION, SystemSharesViewSpecification.EMPTY_ID_ENUMERATION, userProfile).Result;
       if (parentDirectory == null)
         return;
       navigateToViewDlgt(new MediaLibraryBrowseViewSpecification(localShare.Name, parentDirectory.MediaItemId,
@@ -164,8 +165,8 @@ namespace MediaPortal.UiComponents.Media.Views
         userProfile = userProfileDataManagement.CurrentUser.ProfileId;
 
       ResourcePath directoryPath = viewRA.CanonicalLocalResourcePath;
-      MediaItem directoryItem = cd.LoadItem(systemId, directoryPath,
-          SystemSharesViewSpecification.DIRECTORY_MIA_ID_ENUMERATION, SystemSharesViewSpecification.EMPTY_ID_ENUMERATION, userProfile);
+      MediaItem directoryItem = cd.LoadItemAsync(systemId, directoryPath,
+          SystemSharesViewSpecification.DIRECTORY_MIA_ID_ENUMERATION, SystemSharesViewSpecification.EMPTY_ID_ENUMERATION, userProfile).Result;
       if (directoryItem == null)
         return null;
       return new MediaLibraryBrowseViewSpecification(viewRA.ResourceName, directoryItem.MediaItemId, systemId,

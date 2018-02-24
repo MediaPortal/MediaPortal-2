@@ -85,6 +85,11 @@ Das Abwählen von Quellen erhöht die Import-Geschwindigkeit, aber manche Metada
   <string name="Settings.ServerSettings.ImageMDESettings">Bilder-Import Einstellungen</string>
   <string name="Settings.ServerSettings.ImageMDESettings.ServerImageMDEGeoLocation">Ortsinformationen laden</string>
   <string name="Settings.ServerSettings.ImageMDESettings.ServerImageMDEGeoLocation.Help">Lädt passende Ortsinformationen zu den im Bild gespeicherten Geokoordinaten </string>
+  <string name="Settings.ServerSettings.VideoMDESettings">Video-Import Einstellungen</string>
+  <string name="Settings.ServerSettings.VideoMDESettings.ServerVideoMDEBrowseOffline">FanArt für offline-Betrieb cachen</string>
+  <string name="Settings.ServerSettings.VideoMDESettings.ServerVideoMDEBrowseOffline.Help">Legt zu nutzenden FanArt fest, auch wenn der Share nicht erreichbar ist.</string>
+  <string name="Settings.ServerSettings.VideoMDESettings.ServerVideoMDEBrowseOfflineNetwork">FanArt auf Netzwerk-Laufwerk cachen</string>
+  <string name="Settings.ServerSettings.VideoMDESettings.ServerVideoMDEBrowseOfflineLocal">FanArt auf lokalem Laufwerk cachen</string>
   <string name="Settings.ServerSettings.FanArtSettings">FanArt-Einstellungen</string>
   <string name="Settings.ServerSettings.FanArtSettings.ServerFanArtMaxBackdrops">Hintergründe - Maximale Anzahl</string>
   <string name="Settings.ServerSettings.FanArtSettings.ServerFanArtMaxBackdrops.Help">Legt die maximal Anzahl verfügbarer Hintergundbilder fest. Je höher die Anzahl, desto mehr Plattenplatz wird benötigt.</string>

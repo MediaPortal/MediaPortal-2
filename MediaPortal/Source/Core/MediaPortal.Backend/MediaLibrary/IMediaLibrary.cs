@@ -310,6 +310,16 @@ namespace MediaPortal.Backend.MediaLibrary
     /// <param name="isRefresh">Is the media item being added/updated because of a refresh cycle.</param>
     /// <returns>Id of the media item which has been added or updated.</returns>
     Guid AddOrUpdateMediaItem(Guid parentDirectoryId, string systemId, ResourcePath path, Guid mediaItemId, IEnumerable<MediaItemAspect> mediaItemAspects, bool isRefresh);
+    
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="mediaItemId"></param>
+    /// <param name="mediaItemAspects"></param>
+    /// <param name="relationshipItems"></param>
+    /// <param name="updateParents"></param>
+    /// <returns></returns>
+    IList<MediaItem> ReconcileMediaItemRelationships(Guid mediaItemId, IEnumerable<MediaItemAspect> mediaItemAspects, IEnumerable<RelationshipItem> relationshipItems);
 
     /// <summary>
     /// Writes some media item aspects of an existing media item to the media library.

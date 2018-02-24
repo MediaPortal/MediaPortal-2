@@ -28,6 +28,7 @@ using System.Data.Common;
 using System.IO;
 using System.IO.Compression;
 using System.Linq;
+using System.Threading.Tasks;
 using MediaPortal.Backend.Database;
 using MediaPortal.Backend.MediaLibrary;
 using MediaPortal.Common;
@@ -45,10 +46,11 @@ using IPathManager = MediaPortal.Common.PathManager.IPathManager;
 using ScheduleRecordingType = MediaPortal.Plugins.SlimTv.Interfaces.ScheduleRecordingType;
 using MediaPortal.Common.Runtime;
 using MediaPortal.Common.Messaging;
+using MediaPortal.Common.Services.ServerCommunication;
 
 namespace MediaPortal.Plugins.SlimTv.Service
 {
-  public abstract class AbstractSlimTvService : ITvProvider, ITimeshiftControlEx, IProgramInfo, IChannelAndGroupInfo, IScheduleControl, ITunerInfo, IMessageReceiver
+  public abstract class AbstractSlimTvService : ITvProvider, ITimeshiftControlEx, IProgramInfoAsync, IChannelAndGroupInfoAsync, IScheduleControlAsync, IMessageReceiver
   {
     public static readonly MediaCategory Series = new MediaCategory("Series", null);
     public static readonly MediaCategory Movie = new MediaCategory("Movie", null);
@@ -379,28 +381,29 @@ namespace MediaPortal.Plugins.SlimTv.Service
 
     #region ITvProvider implementation
 
-    public bool StartTimeshift(int slotIndex, IChannel channel, out MediaItem timeshiftMediaItem)
+    public Task<AsyncResult<MediaItem>> StartTimeshiftAsync(int slotIndex, IChannel channel)
     {
       throw new NotImplementedException("Not available in server side implementation");
     }
 
-    public bool StopTimeshift(int slotIndex)
+    public Task<bool> StopTimeshiftAsync(int slotIndex)
     {
       throw new NotImplementedException("Not available in server side implementation");
     }
 
-    public bool StartTimeshift(string userName, int slotIndex, IChannel channel, out MediaItem timeshiftMediaItem)
+    public async Task<AsyncResult<MediaItem>> StartTimeshiftAsync(string userName, int slotIndex, IChannel channel)
     {
       string timeshiftFile = SwitchTVServerToChannel(GetUserName(userName, slotIndex), channel.ChannelId);
-      timeshiftMediaItem = CreateMediaItem(slotIndex, timeshiftFile, channel);
-      return !string.IsNullOrEmpty(timeshiftFile);
+      var timeshiftMediaItem = await CreateMediaItem(slotIndex, timeshiftFile, channel);
+      var result = !string.IsNullOrEmpty(timeshiftFile);
+      return new AsyncResult<MediaItem>(result, timeshiftMediaItem);
     }
 
-    public abstract bool StopTimeshift(string userName, int slotIndex);
+    public abstract Task<bool> StopTimeshiftAsync(string userName, int slotIndex);
 
-    public abstract MediaItem CreateMediaItem(int slotIndex, string streamUrl, IChannel channel);
+    public abstract Task<MediaItem> CreateMediaItem(int slotIndex, string streamUrl, IChannel channel);
 
-    protected virtual MediaItem CreateMediaItem(int slotIndex, string streamUrl, IChannel channel, bool isTv, IChannel fullChannel)
+    protected virtual async Task<MediaItem> CreateMediaItem(int slotIndex, string streamUrl, IChannel channel, bool isTv, IChannel fullChannel)
     {
       LiveTvMediaItem tvStream = isTv
         ? SlimTvMediaItemBuilder.CreateMediaItem(slotIndex, streamUrl, fullChannel)
@@ -409,12 +412,11 @@ namespace MediaPortal.Plugins.SlimTv.Service
       if (tvStream != null)
       {
         // Add program infos to the LiveTvMediaItem
-        IProgram currentProgram;
-        IProgram nextProgram;
-        if (GetNowNextProgram(channel, out currentProgram, out nextProgram))
+        var result = await GetNowNextProgramAsync(channel);
+        if (result.Success)
         {
-          tvStream.AdditionalProperties[LiveTvMediaItem.CURRENT_PROGRAM] = currentProgram;
-          tvStream.AdditionalProperties[LiveTvMediaItem.NEXT_PROGRAM] = nextProgram;
+          tvStream.AdditionalProperties[LiveTvMediaItem.CURRENT_PROGRAM] = result.Result[0];
+          tvStream.AdditionalProperties[LiveTvMediaItem.NEXT_PROGRAM] = result.Result[1];
         }
         return tvStream;
       }
@@ -427,47 +429,43 @@ namespace MediaPortal.Plugins.SlimTv.Service
       return null;
     }
 
-    public abstract bool GetNowNextProgram(IChannel channel, out IProgram programNow, out IProgram programNext);
+    public abstract Task<AsyncResult<IProgram[]>> GetNowNextProgramAsync(IChannel channel);
 
-    public virtual bool GetNowAndNextForChannelGroup(IChannelGroup channelGroup, out IDictionary<int, IProgram[]> nowNextPrograms)
+    public virtual async Task<AsyncResult<IDictionary<int, IProgram[]>>> GetNowAndNextForChannelGroupAsync(IChannelGroup channelGroup)
     {
-      nowNextPrograms = new Dictionary<int, IProgram[]>();
-      IList<IChannel> channels;
-      if (!GetChannels(channelGroup, out channels))
-        return false;
+      var nowNextPrograms = new Dictionary<int, IProgram[]>();
 
+      var result = await GetChannelsAsync(channelGroup);
+      if (!result.Success)
+        return new AsyncResult<IDictionary<int, IProgram[]>>(false, null);
+
+      IList<IChannel> channels = result.Result;
       foreach (IChannel channel in channels)
       {
-        IProgram programNow;
-        IProgram programNext;
-        if (GetNowNextProgram(channel, out programNow, out programNext))
-          nowNextPrograms[channel.ChannelId] = new[] { programNow, programNext };
+        var progrResult = await GetNowNextProgramAsync(channel);
+        if (progrResult.Success)
+          nowNextPrograms[channel.ChannelId] = progrResult.Result;
       }
-      return true;
+      return new AsyncResult<IDictionary<int, IProgram[]>>(true, nowNextPrograms);
     }
 
-    public abstract bool GetPrograms(IChannel channel, DateTime from, DateTime to, out IList<IProgram> programs);
+    public abstract Task<AsyncResult<IList<IProgram>>> GetProgramsAsync(IChannel channel, DateTime from, DateTime to);
 
-    public abstract bool GetPrograms(string title, DateTime from, DateTime to, out IList<IProgram> programs);
+    public abstract Task<AsyncResult<IList<IProgram>>> GetProgramsAsync(string title, DateTime from, DateTime to);
 
-    public abstract bool GetProgramsGroup(IChannelGroup channelGroup, DateTime from, DateTime to, out IList<IProgram> programs);
+    public abstract Task<AsyncResult<IList<IProgram>>> GetProgramsGroupAsync(IChannelGroup channelGroup, DateTime from, DateTime to);
 
-    public abstract bool GetProgramsForSchedule(ISchedule schedule, out IList<IProgram> programs);
+    public abstract Task<AsyncResult<IList<IProgram>>> GetProgramsForScheduleAsync(ISchedule schedule);
 
-    public virtual bool GetScheduledPrograms(IChannel channel, out IList<IProgram> programs)
-    {
-      throw new NotImplementedException();
-    }
+    public abstract Task<AsyncResult<IChannel>> GetChannelAsync(IProgram program);
 
-    public abstract bool GetChannel(IProgram program, out IChannel channel);
+    public abstract Task<AsyncResult<IChannel>> GetChannelAsync(int channelId);
 
     public abstract bool GetProgram(int programId, out IProgram program);
 
-    public abstract bool GetChannelGroups(out IList<IChannelGroup> groups);
+    public abstract Task<AsyncResult<IList<IChannelGroup>>> GetChannelGroupsAsync();
 
-    public abstract bool GetChannel(int channelId, out IChannel channel);
-
-    public abstract bool GetChannels(IChannelGroup group, out IList<IChannel> channels);
+    public abstract Task<AsyncResult<IList<IChannel>>> GetChannelsAsync(IChannelGroup group);
 
     // This property applies only to client side management and is not used in server!
     public int SelectedChannelId { get; set; }
@@ -475,38 +473,29 @@ namespace MediaPortal.Plugins.SlimTv.Service
     // This property applies only to client side management and is not used in server!
     public int SelectedChannelGroupId { get; set; }
 
-    public abstract bool GetSchedules(out IList<ISchedule> schedules);
+    public abstract Task<AsyncResult<IList<ISchedule>>> GetSchedulesAsync();
 
-    public abstract bool CreateSchedule(IProgram program, ScheduleRecordingType recordingType, out ISchedule schedule);
+    public abstract Task<AsyncResult<ISchedule>> IsCurrentlyRecordingAsync(string fileName);
 
-    public abstract bool CreateScheduleByTime(IChannel channel, DateTime from, DateTime to, ScheduleRecordingType recordingType, out ISchedule schedule);
+    public abstract Task<AsyncResult<ISchedule>> CreateScheduleAsync(IProgram program, ScheduleRecordingType recordingType);
 
-    public abstract bool CreateScheduleByTime(IChannel channel, string title, DateTime from, DateTime to, ScheduleRecordingType recordingType, out ISchedule schedule);
+    public abstract Task<AsyncResult<ISchedule>> CreateScheduleByTimeAsync(IChannel channel, DateTime from, DateTime to, ScheduleRecordingType recordingType);
 
-    public abstract bool CreateScheduleDetailed(IChannel channel, string title, DateTime from, DateTime to, ScheduleRecordingType recordingType, int preRecordInterval, int postRecordInterval, string directory, int priority, out ISchedule schedule);
+    public abstract Task<bool> RemoveScheduleForProgramAsync(IProgram program, ScheduleRecordingType recordingType);
 
-    public abstract bool EditSchedule(ISchedule schedule, IChannel channel = null, string title = null, DateTime? from = null, DateTime? to = null, ScheduleRecordingType? recordingType = null, int? preRecordInterval = null, int? postRecordInterval = null, string directory = null, int? priority = null);
+    public abstract Task<bool> RemoveScheduleAsync(ISchedule schedule);
 
-    public abstract bool RemoveScheduleForProgram(IProgram program, ScheduleRecordingType recordingType);
+    public abstract Task<AsyncResult<RecordingStatus>> GetRecordingStatusAsync(IProgram program);
 
-    public abstract bool RemoveSchedule(ISchedule schedule);
+    public abstract Task<AsyncResult<string>> GetRecordingFileOrStreamAsync(IProgram program);
 
-    public abstract bool UnCancelSchedule(IProgram program);
-
-    public abstract bool GetRecordingStatus(IProgram program, out RecordingStatus recordingStatus);
-
-    public abstract bool GetRecordingFileOrStream(IProgram program, out string fileOrStream);
-
+    // TODO: Async
     protected abstract string SwitchTVServerToChannel(string userName, int channelId);
 
     protected static string GetUserName(string clientName, int slotIndex)
     {
       return string.Format("{0}-{1}", clientName, slotIndex);
     }
-
-    public abstract bool GetCards(out List<ICard> cards);
-
-    public abstract bool GetActiveVirtualCards(out List<IVirtualCard> cards);
 
     #endregion
   }

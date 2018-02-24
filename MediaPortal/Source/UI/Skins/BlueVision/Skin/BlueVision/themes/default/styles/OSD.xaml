@@ -13,6 +13,9 @@
     <Setter Property="Template">
       <Setter.Value>
         <ControlTemplate>
+          <ControlTemplate.Resources>
+            <Model x:Key="VideoPlayerModel" Id="4E2301B4-3C17-4a1d-8DE5-2CEA169A0256"/>
+          </ControlTemplate.Resources>
           <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
             <Grid.ColumnDefinitions>
               <ColumnDefinition Width="*"/>
@@ -28,6 +31,57 @@
                   <Binding Source="{x:Static aspect:AudioAspect.ASPECT_ID}" />
                 </MultiBinding>
               </Border.IsVisible>
+            </Border>
+            <Grid x:Name="MainOSDGrid" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="40,10,40,10">
+              <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="150"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+              </Grid.ColumnDefinitions>
+
+              <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="70"/>
+              </Grid.RowDefinitions>
+
+              <Control Grid.Column="0" Grid.Row="0" Grid.RowSpan="3" x:Name="OSDCoverPresenter" HorizontalAlignment="Center" VerticalAlignment="Center"
+                       Template="{DynamicResource ResourceKey=OSD_Cover_Template}" />
+
+              <Control Grid.Column="1" Grid.Row="0" Grid.ColumnSpan="2" Grid.RowSpan="2" x:Name="OSDInfoAreaPresenter" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+                       Template="{DynamicResource ResourceKey=OSD_InfoArea_Template}" />
+
+              <Control Grid.Column="1" Grid.Row="2" Grid.ColumnSpan="2" x:Name="ProgressPresenter" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+                       Template="{DynamicResource ResourceKey=OSD_Progress_Template}"/>
+
+              <Grid  Grid.Column="2" Grid.Row="0" Grid.RowSpan="2" HorizontalAlignment="Right" VerticalAlignment="Top" Height="34" Margin="0,0,25,0" SetFocusPrio="Default">
+                <!--IsVisible="{Binding ShowMouseControls}"-->
+                <Control x:Name="ControlsPresenter" HorizontalAlignment="Center"
+                         Template="{DynamicResource ResourceKey=OSD_Controls_Template}"/>
+              </Grid>
+            </Grid>
+          </Grid>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+
+  <Style x:Key="OSDAudioContainer" TargetType="{x:Type Control}">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate>
+          <ControlTemplate.Resources>
+            <Model x:Key="AudioPlayerModel" Id="D8998340-DA2D-42be-A29B-6D7A72AEA2DC"/>
+          </ControlTemplate.Resources>
+          <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch" IsVisible="{Binding Source={StaticResource AudioPlayerModel},Path=IsOSDVisible}">
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+              <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+
+            <Border CornerRadius="{ThemeResource DialogBorderCornerRadius}" Margin="40,-10,40,30" Background="#E0000000">
             </Border>
             <Grid x:Name="MainOSDGrid" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="40,10,40,10">
               <Grid.ColumnDefinitions>

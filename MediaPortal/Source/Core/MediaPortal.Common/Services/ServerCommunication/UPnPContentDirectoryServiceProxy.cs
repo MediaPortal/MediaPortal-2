@@ -26,6 +26,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using MediaPortal.Common.General;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.MLQueries;
@@ -127,21 +128,21 @@ namespace MediaPortal.Common.Services.ServerCommunication
 
     #region Shares management
 
-    public void RegisterShare(Share share)
+    public async Task RegisterShareAsync(Share share)
     {
       CpAction action = GetAction("X_MediaPortal_RegisterShare");
       IList<object> inParameters = new List<object> {share};
-      action.InvokeAction(inParameters);
+      await action.InvokeAsync(inParameters);
     }
 
-    public void RemoveShare(Guid shareId)
+    public async Task RemoveShareAsync(Guid shareId)
     {
       CpAction action = GetAction("X_MediaPortal_RemoveShare");
       IList<object> inParameters = new List<object> {MarshallingHelper.SerializeGuid(shareId)};
-      action.InvokeAction(inParameters);
+      await action.InvokeAsync(inParameters);
     }
 
-    public int UpdateShare(Guid shareId, ResourcePath baseResourcePath, string shareName, bool useShareWatcher,
+    public async Task<int> UpdateShareAsync(Guid shareId, ResourcePath baseResourcePath, string shareName, bool useShareWatcher,
         IEnumerable<string> mediaCategories, RelocationMode relocationMode)
     {
       CpAction action = GetAction("X_MediaPortal_UpdateShare");
@@ -169,11 +170,11 @@ namespace MediaPortal.Common.Services.ServerCommunication
           throw new NotImplementedException(string.Format("RelocationMode '{0}' is not implemented", relocationMode));
       }
       inParameters.Add(relocationModeStr);
-      IList<object> outParameters = action.InvokeAction(inParameters);
+      IList<object> outParameters = await action.InvokeAsync(inParameters);
       return (int)(uint) outParameters[0];
     }
 
-    public ICollection<Share> GetShares(string systemId, SharesFilter sharesFilter)
+    public async Task<ICollection<Share>> GetSharesAsync(string systemId, SharesFilter sharesFilter)
     {
       CpAction action = GetAction("X_MediaPortal_GetShares");
       IList<object> inParameters = new List<object> {systemId};
@@ -190,71 +191,71 @@ namespace MediaPortal.Common.Services.ServerCommunication
           throw new NotImplementedException(string.Format("SharesFilter '{0}' is not implemented", sharesFilter));
       }
       inParameters.Add(onlineStateStr);
-      IList<object> outParameters = action.InvokeAction(inParameters);
+      IList<object> outParameters = await action.InvokeAsync(inParameters);
       return new List<Share>((IEnumerable<Share>) outParameters[0]);
     }
 
-    public Share GetShare(Guid shareId)
+    public async Task<Share> GetShareAsync(Guid shareId)
     {
       CpAction action = GetAction("X_MediaPortal_GetShare");
       IList<object> inParameters = new List<object> {MarshallingHelper.SerializeGuid(shareId)};
-      IList<object> outParameters = action.InvokeAction(inParameters);
+      IList<object> outParameters = await action.InvokeAsync(inParameters);
       return (Share) outParameters[0];
     }
 
-    public void ReImportShare(Guid shareId)
+    public async Task ReImportShareAsync(Guid shareId)
     {
       CpAction action = GetAction("X_MediaPortal_ReImportShare");
       IList<object> inParameters = new List<object> {MarshallingHelper.SerializeGuid(shareId)};
-      action.InvokeAction(inParameters);
+      await action.InvokeAsync(inParameters);
     }
 
-    public void SetupDefaultServerShares()
+    public async Task SetupDefaultServerSharesAsync()
     {
       CpAction action = GetAction("X_MediaPortal_SetupDefaultServerShares");
-      action.InvokeAction(null);
+      await action.InvokeAsync(null);
     }
 
     #endregion
 
     #region Media item aspect storage management
 
-    public void AddMediaItemAspectStorage(MediaItemAspectMetadata miam)
+    public async Task AddMediaItemAspectStorageAsync(MediaItemAspectMetadata miam)
     {
       CpAction action = GetAction("X_MediaPortal_AddMediaItemAspectStorage");
       IList<object> inParameters = new List<object> {miam};
-      action.InvokeAction(inParameters);
+      await action.InvokeAsync(inParameters);
     }
 
-    public void RemoveMediaItemAspectStorage(Guid aspectId)
+    public async Task RemoveMediaItemAspectStorageAsync(Guid aspectId)
     {
       CpAction action = GetAction("X_MediaPortal_RemoveMediaItemAspectStorage");
       IList<object> inParameters = new List<object> {MarshallingHelper.SerializeGuid(aspectId)};
-      action.InvokeAction(inParameters);
+      await action.InvokeAsync(inParameters);
     }
 
-    public ICollection<Guid> GetAllManagedMediaItemAspectTypes()
+    public async Task<ICollection<Guid>> GetAllManagedMediaItemAspectTypesAsync()
     {
       CpAction action = GetAction("X_MediaPortal_GetAllManagedMediaItemAspectTypes");
       IList<object> inParameters = new List<object>();
-      IList<object> outParameters = action.InvokeAction(inParameters);
+      IList<object> outParameters = await action.InvokeAsync(inParameters);
       string miaTypeIDs = (string) outParameters[0];
       return miaTypeIDs.Split(',').Select(MarshallingHelper.DeserializeGuid).ToList();
     }
 
-    public IDictionary<Guid, DateTime> GetAllManagedMediaItemAspectCreationDates()
+    public async Task<IDictionary<Guid, DateTime>> GetAllManagedMediaItemAspectCreationDatesAsync()
     {
       CpAction action = GetAction("GetAllManagedMediaItemAspectCreationDates");
       IList<object> inParameters = new List<object>();
-      IList<object> outParameters = action.InvokeAction(inParameters);
+      IList<object> outParameters = await action.InvokeAsync(inParameters);
       return (IDictionary<Guid, DateTime>) outParameters[0];
     }
 
-    public MediaItemAspectMetadata GetMediaItemAspectMetadata(Guid miamId)
+    public async Task<MediaItemAspectMetadata> GetMediaItemAspectMetadataAsync(Guid miamId)
     {
       CpAction action = GetAction("X_MediaPortal_GetMediaItemAspectMetadata");
       IList<object> inParameters = new List<object> {MarshallingHelper.SerializeGuid(miamId)};
-      IList<object> outParameters = action.InvokeAction(inParameters);
+      IList<object> outParameters = await action.InvokeAsync(inParameters);
       return (MediaItemAspectMetadata) outParameters[0];
     }
 
@@ -262,7 +263,7 @@ namespace MediaPortal.Common.Services.ServerCommunication
 
     #region Media query
 
-    public MediaItem LoadItem(string systemId, ResourcePath path,
+    public async Task<MediaItem> LoadItemAsync(string systemId, ResourcePath path,
         IEnumerable<Guid> necessaryMIATypes, IEnumerable<Guid> optionalMIATypes, Guid? userProfile)
     {
       CpAction action = GetAction("X_MediaPortal_LoadItem");
@@ -270,11 +271,11 @@ namespace MediaPortal.Common.Services.ServerCommunication
           MarshallingHelper.SerializeGuidEnumerationToCsv(necessaryMIATypes),
           MarshallingHelper.SerializeGuidEnumerationToCsv(optionalMIATypes),
           userProfile.HasValue ? MarshallingHelper.SerializeGuid(userProfile.Value) : null };
-      IList<object> outParameters = action.InvokeAction(inParameters);
+      IList<object> outParameters = await action.InvokeAsync(inParameters);
       return (MediaItem) outParameters[0];
     }
 
-    public MediaItem LoadItem(string systemId, Guid mediaItemId,
+    public async Task<MediaItem> LoadItemAsync(string systemId, Guid mediaItemId,
         IEnumerable<Guid> necessaryMIATypes, IEnumerable<Guid> optionalMIATypes, Guid? userProfile)
     {
       CpAction action = GetAction("X_MediaPortal_LoadItemId");
@@ -282,18 +283,18 @@ namespace MediaPortal.Common.Services.ServerCommunication
           MarshallingHelper.SerializeGuidEnumerationToCsv(necessaryMIATypes),
           MarshallingHelper.SerializeGuidEnumerationToCsv(optionalMIATypes),
           userProfile.HasValue ? MarshallingHelper.SerializeGuid(userProfile.Value) : null };
-      IList<object> outParameters = action.InvokeAction(inParameters);
+      IList<object> outParameters = await action.InvokeAsync(inParameters);
       return (MediaItem)outParameters[0];
     }
 
-    public void RefreshMediaItemMetadata(string systemId, Guid mediaItemId, bool clearMetadata)
+    public async Task RefreshMediaItemMetadataAsync(string systemId, Guid mediaItemId, bool clearMetadata)
     {
       CpAction action = GetAction("X_MediaPortal_RefreshMediaItem");
       IList<object> inParameters = new List<object> { systemId, MarshallingHelper.SerializeGuid(mediaItemId), clearMetadata };
-      action.InvokeAction(inParameters);
+      await action.InvokeAsync(inParameters);
     }
 
-    public IList<MediaItem> Browse(Guid parentDirectoryId,
+    public async Task<IList<MediaItem>> BrowseAsync(Guid parentDirectoryId,
         IEnumerable<Guid> necessaryMIATypes, IEnumerable<Guid> optionalMIATypes,
         Guid? userProfile, bool includeVirtual, uint? offset = null, uint? limit = null)
     {
@@ -308,12 +309,11 @@ namespace MediaPortal.Common.Services.ServerCommunication
         offset,
         limit,
       };
-      IList<object> outParameters = action.InvokeAction(inParameters);
+      IList<object> outParameters = await action.InvokeAsync(inParameters);
       return (IList<MediaItem>)outParameters[0];
     }
 
-    public IList<MediaItem> Search(MediaItemQuery query, bool onlyOnline, Guid? userProfile, bool includeVirtual, 
-      uint? offset = null, uint? limit = null)
+    public async Task<IList<MediaItem>> SearchAsync(MediaItemQuery query, bool onlyOnline, Guid? userProfile, bool includeVirtual,  uint? offset = null, uint? limit = null)
     {
       CpAction action = GetAction("X_MediaPortal_Search");
       String onlineStateStr = SerializeOnlineState(onlyOnline);
@@ -326,11 +326,11 @@ namespace MediaPortal.Common.Services.ServerCommunication
         offset,
         limit,
       };
-      IList<object> outParameters = action.InvokeAction(inParameters);
+      IList<object> outParameters = await action.InvokeAsync(inParameters);
       return (IList<MediaItem>) outParameters[0];
     }
 
-    public IList<MediaItem> SimpleTextSearch(string searchText, IEnumerable<Guid> necessaryMIATypes, IEnumerable<Guid> optionalMIATypes,
+    public async Task<IList<MediaItem>> SimpleTextSearch(string searchText, IEnumerable<Guid> necessaryMIATypes, IEnumerable<Guid> optionalMIATypes,
       IFilter filter, bool excludeCLOBs, bool onlyOnline, bool caseSensitive,
       Guid? userProfile, bool includeVirtual, uint? offset = null, uint? limit = null)
     {
@@ -352,11 +352,11 @@ namespace MediaPortal.Common.Services.ServerCommunication
         offset,
         limit,
       };
-      IList<object> outParameters = action.InvokeAction(inParameters);
+      IList<object> outParameters = await action.InvokeAsync(inParameters);
       return (IList<MediaItem>)outParameters[0];
     }
 
-    public HomogenousMap GetValueGroups(MediaItemAspectMetadata.AttributeSpecification attributeType, IFilter selectAttributeFilter,
+    public async Task<HomogenousMap> GetValueGroupsAsync(MediaItemAspectMetadata.AttributeSpecification attributeType, IFilter selectAttributeFilter,
         ProjectionFunction projectionFunction, IEnumerable<Guid> necessaryMIATypes, IFilter filter, bool onlyOnline, bool includeVirtual)
     {
       CpAction action = GetAction("X_MediaPortal_GetValueGroups");
@@ -373,11 +373,11 @@ namespace MediaPortal.Common.Services.ServerCommunication
         onlineStateStr,
         includeVirtual,
       };
-      IList<object> outParameters = action.InvokeAction(inParameters);
+      IList<object> outParameters = await action.InvokeAsync(inParameters);
       return (HomogenousMap) outParameters[0];
     }
 
-    public Tuple<HomogenousMap, HomogenousMap> GetKeyValueGroups(MediaItemAspectMetadata.AttributeSpecification keyAttributeType, MediaItemAspectMetadata.AttributeSpecification valueAttributeType,
+    public async Task<Tuple<HomogenousMap, HomogenousMap>> GetKeyValueGroupsAsync(MediaItemAspectMetadata.AttributeSpecification keyAttributeType, MediaItemAspectMetadata.AttributeSpecification valueAttributeType,
       IFilter selectAttributeFilter, ProjectionFunction projectionFunction, IEnumerable<Guid> necessaryMIATypes, IFilter filter, bool onlyOnline, bool includeVirtual)
     {
       CpAction action = GetAction("X_MediaPortal_GetKeyValueGroups");
@@ -396,11 +396,11 @@ namespace MediaPortal.Common.Services.ServerCommunication
         onlineStateStr,
         includeVirtual,
       };
-      IList<object> outParameters = action.InvokeAction(inParameters);
+      IList<object> outParameters = await action.InvokeAsync(inParameters);
       return new Tuple<HomogenousMap, HomogenousMap>((HomogenousMap)outParameters[0], (HomogenousMap)outParameters[1]);
     }
 
-    public IList<MLQueryResultGroup> GroupValueGroups(MediaItemAspectMetadata.AttributeSpecification attributeType,
+    public async Task<IList<MLQueryResultGroup>> GroupValueGroupsAsync(MediaItemAspectMetadata.AttributeSpecification attributeType,
         IFilter selectAttributeFilter, ProjectionFunction projectionFunction, IEnumerable<Guid> necessaryMIATypes,
         IFilter filter, bool onlyOnline, GroupingFunction groupingFunction, bool includeVirtual)
     {
@@ -427,11 +427,11 @@ namespace MediaPortal.Common.Services.ServerCommunication
         groupingFunctionStr,
         includeVirtual,
       };
-      IList<object> outParameters = action.InvokeAction(inParameters);
+      IList<object> outParameters = await action.InvokeAsync(inParameters);
       return (IList<MLQueryResultGroup>) outParameters[0];
     }
 
-    public int CountMediaItems(IEnumerable<Guid> necessaryMIATypes, IFilter filter, bool onlyOnline, bool includeVirtual)
+    public async Task<int> CountMediaItemsAsync(IEnumerable<Guid> necessaryMIATypes, IFilter filter, bool onlyOnline, bool includeVirtual)
     {
       CpAction action = GetAction("X_MediaPortal_CountMediaItems");
       string onlineStateStr = SerializeOnlineState(onlyOnline);
@@ -442,7 +442,7 @@ namespace MediaPortal.Common.Services.ServerCommunication
         onlineStateStr,
         includeVirtual,
       };
-      IList<object> outParameters = action.InvokeAction(inParameters);
+      IList<object> outParameters = await action.InvokeAsync(inParameters);
       return (int)(uint) outParameters[0];
     }
 
@@ -450,37 +450,37 @@ namespace MediaPortal.Common.Services.ServerCommunication
 
     #region Playlist management
 
-    public ICollection<PlaylistInformationData> GetPlaylists()
+    public async Task<ICollection<PlaylistInformationData>> GetPlaylistsAsync()
     {
       CpAction action = GetAction("X_MediaPortal_GetPlaylists");
-      IList<object> outParameters = action.InvokeAction(null);
+      IList<object> outParameters = await action.InvokeAsync(null);
       return (ICollection<PlaylistInformationData>) outParameters[0];
     }
 
-    public void SavePlaylist(PlaylistRawData playlistData)
+    public async Task SavePlaylistAsync(PlaylistRawData playlistData)
     {
       CpAction action = GetAction("X_MediaPortal_SavePlaylist");
       IList<object> inParameters = new List<object> {playlistData};
-      action.InvokeAction(inParameters);
+      await action.InvokeAsync(inParameters);
     }
 
-    public bool DeletePlaylist(Guid playlistId)
+    public async Task<bool> DeletePlaylistAsync(Guid playlistId)
     {
       CpAction action = GetAction("X_MediaPortal_DeletePlaylist");
       IList<object> inParameters = new List<object> {MarshallingHelper.SerializeGuid(playlistId)};
-      IList<object> outParameters = action.InvokeAction(inParameters);
+      IList<object> outParameters = await action.InvokeAsync(inParameters);
       return (bool) outParameters[0];
     }
 
-    public PlaylistRawData ExportPlaylist(Guid playlistId)
+    public async Task<PlaylistRawData> ExportPlaylistAsync(Guid playlistId)
     {
       CpAction action = GetAction("X_MediaPortal_ExportPlaylist");
       IList<object> inParameters = new List<object> {MarshallingHelper.SerializeGuid(playlistId)};
-      IList<object> outParameters = action.InvokeAction(inParameters);
+      IList<object> outParameters = await action.InvokeAsync(inParameters);
       return (PlaylistRawData) outParameters[0];
     }
 
-    public IList<MediaItem> LoadCustomPlaylist(IList<Guid> mediaItemIds,
+    public async Task<IList<MediaItem>> LoadCustomPlaylistAsync(IList<Guid> mediaItemIds,
       ICollection<Guid> necessaryMIATypes, ICollection<Guid> optionalMIATypes,
       uint? offset = null, uint? limit = null)
     {
@@ -490,7 +490,7 @@ namespace MediaPortal.Common.Services.ServerCommunication
             MarshallingHelper.SerializeGuidEnumerationToCsv(necessaryMIATypes),
             MarshallingHelper.SerializeGuidEnumerationToCsv(optionalMIATypes),
             offset, limit};
-      IList<object> outParameters = action.InvokeAction(inParameters);
+      IList<object> outParameters = await action.InvokeAsync(inParameters);
       return (IList<MediaItem>) outParameters[0];
     }
 
@@ -498,7 +498,7 @@ namespace MediaPortal.Common.Services.ServerCommunication
 
     #region Media import
 
-    public Guid AddOrUpdateMediaItem(Guid parentDirectoryId, string systemId, ResourcePath path,
+    public async Task<Guid> AddOrUpdateMediaItemAsync(Guid parentDirectoryId, string systemId, ResourcePath path,
         IEnumerable<MediaItemAspect> mediaItemAspects)
     {
       CpAction action = GetAction("X_MediaPortal_AddOrUpdateMediaItem");
@@ -509,11 +509,11 @@ namespace MediaPortal.Common.Services.ServerCommunication
             path.Serialize(),
             mediaItemAspects
         };
-      IList<object> outParameters = action.InvokeAction(inParameters);
+      IList<object> outParameters = await action.InvokeAsync(inParameters);
       return MarshallingHelper.DeserializeGuid((string) outParameters[0]);
     }
 
-    public Guid AddOrUpdateMediaItem(Guid parentDirectoryId, string systemId, ResourcePath path,
+    public async Task<Guid> AddOrUpdateMediaItemAsync(Guid parentDirectoryId, string systemId, ResourcePath path,
         Guid mediaItemId, IEnumerable<MediaItemAspect> mediaItemAspects)
     {
       CpAction action = GetAction("X_MediaPortal_AddOrUpdateMediaItemId");
@@ -525,39 +525,53 @@ namespace MediaPortal.Common.Services.ServerCommunication
             MarshallingHelper.SerializeGuid(mediaItemId),
             mediaItemAspects
         };
-      IList<object> outParameters = action.InvokeAction(inParameters);
+      IList<object> outParameters = await action.InvokeAsync(inParameters);
       return MarshallingHelper.DeserializeGuid((string)outParameters[0]);
     }
 
-    public void DeleteMediaItemOrPath(string systemId, ResourcePath path, bool inclusive)
+    public async Task<IList<MediaItem>> ReconcileMediaItemRelationshipsAsync(Guid mediaItemId, IEnumerable<MediaItemAspect> mediaItemAspects,
+      IEnumerable<RelationshipItem> relationshipItems)
+    {
+      CpAction action = GetAction("X_MediaPortal_ReconcileMediaItemRelationships");
+      IList<object> inParameters = new List<object>
+        {
+            MarshallingHelper.SerializeGuid(mediaItemId),
+            mediaItemAspects,
+            relationshipItems
+        };
+      IList<object> outParameters = await action.InvokeAsync(inParameters);
+      return (IList<MediaItem>)outParameters[0];
+    }
+
+    public async Task DeleteMediaItemOrPathAsync(string systemId, ResourcePath path, bool inclusive)
     {
       CpAction action = GetAction("X_MediaPortal_DeleteMediaItemOrPath");
       IList<object> inParameters = new List<object> {systemId, path.Serialize(), inclusive};
-      action.InvokeAction(inParameters);
+      await action.InvokeAsync(inParameters);
     }
 
-    public void ClientStartedShareImport(Guid shareId)
+    public async Task ClientStartedShareImportAsync(Guid shareId)
     {
       CpAction action = GetAction("X_MediaPortal_ClientStartedShareImport");
       IList<object> inParameters = new List<object> {MarshallingHelper.SerializeGuid(shareId)};
-      action.InvokeAction(inParameters);
+      await action.InvokeAsync(inParameters);
     }
 
-    public void ClientCompletedShareImport(Guid shareId)
+    public async Task ClientCompletedShareImportAsync(Guid shareId)
     {
       CpAction action = GetAction("X_MediaPortal_ClientCompletedShareImport");
       IList<object> inParameters = new List<object> {MarshallingHelper.SerializeGuid(shareId)};
-      action.InvokeAction(inParameters);
+      await action.InvokeAsync(inParameters);
     }
 
-    public ICollection<Guid> GetCurrentlyImportingShares()
+    public async Task<ICollection<Guid>> GetCurrentlyImportingSharesAsync()
     {
       CpAction action = GetAction("X_MediaPortal_GetCurrentlyImportingShares");
-      IList<object> outParameters = action.InvokeAction(null);
+      IList<object> outParameters = await action.InvokeAsync(null);
       return MarshallingHelper.ParseCsvGuidCollection((string) outParameters[0]);
     }
 
-    public void NotifyPlayback(Guid mediaItemId, bool watched)
+    public async Task NotifyPlaybackAsync(Guid mediaItemId, bool watched)
     {
       CpAction action = GetAction("X_MediaPortal_NotifyPlayback");
       IList<object> inParameters = new List<object>
@@ -565,10 +579,10 @@ namespace MediaPortal.Common.Services.ServerCommunication
         MarshallingHelper.SerializeGuid(mediaItemId),
         watched
       };
-      action.InvokeAction(inParameters);
+      await action.InvokeAsync(inParameters);
     }
 
-    public void NotifyUserPlayback(Guid userId, Guid mediaItemId, int percentage, bool updatePlayDate = true)
+    public async Task NotifyUserPlaybackAsync(Guid userId, Guid mediaItemId, int percentage, bool updatePlayDate = true)
     {
       CpAction action = GetAction("X_MediaPortal_NotifyUserPlayback");
       IList<object> inParameters = new List<object>
@@ -578,7 +592,7 @@ namespace MediaPortal.Common.Services.ServerCommunication
         percentage,
         updatePlayDate
       };
-      action.InvokeAction(inParameters);
+      await action.InvokeAsync(inParameters);
     }
 
     #endregion

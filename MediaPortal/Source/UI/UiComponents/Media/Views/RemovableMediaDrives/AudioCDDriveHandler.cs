@@ -242,7 +242,7 @@ namespace MediaPortal.UiComponents.Media.Views.RemovableMediaDrives
 
     public override IEnumerable<MediaItem> GetAllMediaItems()
     {
-      return _audioCDSubViewSpecification.GetAllMediaItems();
+      return _audioCDSubViewSpecification.GetAllMediaItems().Result;
     }
 
     #endregion

@@ -62,6 +62,12 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.Stubs
     /// Order of the movie in the set
     /// </summary>
     /// <example>5</example>
-    public int? Order { get; set; }  
+    public int? Order { get; set; }
+
+    /// <summary>
+    /// Collection ID of this movie at www.themoviedb.org
+    /// </summary>
+    /// <example>675</example>
+    public int? TmdbId { get; set; }
   }
 }

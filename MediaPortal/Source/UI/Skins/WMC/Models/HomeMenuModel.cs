@@ -324,8 +324,11 @@ namespace MediaPortal.UiComponents.WMCSkin.Models
       lock (homeContext.SyncRoot)
       {
         ItemsList menu = GetMenuItems(homeContext);
-        return menu != null ? menu : UpdateMenu(homeContext);
+        if (menu != null)
+          return menu;
       }
+      //Update outside of context lock
+      return UpdateMenu(homeContext);
     }
 
     protected void UpdateMenu()

@@ -24,7 +24,9 @@
 
 using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using MediaPortal.Common.ResourceAccess;
+using MediaPortal.Common.MediaManagement.MLQueries;
 
 namespace MediaPortal.Common.MediaManagement
 {
@@ -39,7 +41,7 @@ namespace MediaPortal.Common.MediaManagement
     /// <param name="userProfile">User profile to load any user specific media item data for.</param>
     /// <returns>Loaded media item.</returns>
     /// <exception cref="DisconnectedException">If the connection to the media library was disconnected.</exception>
-    MediaItem LoadLocalItem(ResourcePath path,
+    Task<MediaItem> LoadLocalItemAsync(ResourcePath path,
         IEnumerable<Guid> necessaryRequestedMIATypeIDs, IEnumerable<Guid> optionalRequestedMIATypeIDs, Guid? userProfile = null);
 
     /// <summary>
@@ -51,7 +53,7 @@ namespace MediaPortal.Common.MediaManagement
     /// <param name="userProfile">User profile to load any user specific media item data for.</param>
     /// <returns>Loaded media item.</returns>
     /// <exception cref="DisconnectedException">If the connection to the media library was disconnected.</exception>
-    MediaItem LoadLocalItem(Guid mediaItemId,
+    Task<MediaItem> LoadLocalItemAsync(Guid mediaItemId,
         IEnumerable<Guid> necessaryRequestedMIATypeIDs, IEnumerable<Guid> optionalRequestedMIATypeIDs, Guid? userProfile = null);
 
     /// <summary>
@@ -66,7 +68,7 @@ namespace MediaPortal.Common.MediaManagement
     /// <param name="limit">Maximum number of items to return.</param>
     /// <returns>Collection of media items.</returns>
     /// <exception cref="DisconnectedException">If the connection to the media library was disconnected.</exception>
-    IList<MediaItem> Browse(Guid parentDirectoryId, IEnumerable<Guid> necessaryRequestedMIATypeIDs,
+    Task<IList<MediaItem>> BrowseAsync(Guid parentDirectoryId, IEnumerable<Guid> necessaryRequestedMIATypeIDs,
         IEnumerable<Guid> optionalRequestedMIATypeIDs, Guid? userProfile, bool includeVirtual, 
         uint? offset = null, uint? limit = null);
 
@@ -80,12 +82,12 @@ namespace MediaPortal.Common.MediaManagement
     /// Loads the creation dates of all managed MIAs in the MediaLibrary
     /// </summary>
     /// <returns>Dictionary with MIA IDs as keys and the respective creation dates as values</returns>
-    IDictionary<Guid, DateTime> GetManagedMediaItemAspectCreationDates();
+    Task<IDictionary<Guid, DateTime>> GetManagedMediaItemAspectCreationDatesAsync();
 
     /// <summary>
     /// Loads all managed MIA types from the MediaLibrary
     /// </summary>
     /// <returns>Collection with MIA IDs</returns>
-    ICollection<Guid> GetAllManagedMediaItemAspectTypes();
+    Task<ICollection<Guid>> GetAllManagedMediaItemAspectTypesAsync();
   }
 }

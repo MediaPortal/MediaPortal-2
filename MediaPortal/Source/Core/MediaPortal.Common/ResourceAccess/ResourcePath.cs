@@ -522,7 +522,7 @@ namespace MediaPortal.Common.ResourceAccess
       if (!(obj is ResourcePath))
         return false;
       ResourcePath other = (ResourcePath) obj;
-      return Serialize() == other.Serialize();
+      return string.Compare(Serialize(), other.Serialize(), true) == 0;
     }
 
     public static bool operator ==(ResourcePath path1, ResourcePath path2)

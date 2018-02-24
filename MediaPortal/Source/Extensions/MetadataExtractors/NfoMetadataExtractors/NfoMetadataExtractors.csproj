@@ -63,12 +63,15 @@
     <Compile Include="..\..\..\Core\MediaPortal.Common\VersionInfo\VersionInfo.cs">
       <Link>Properties\VersionInfo.cs</Link>
     </Compile>
+    <Compile Include="Extractors\NfoExtractorBase.cs" />
+    <Compile Include="Extractors\NfoAudioExtractorBase.cs" />
+    <Compile Include="Extractors\NfoMovieExtractorBase.cs" />
+    <Compile Include="Extractors\NfoSeriesExtractorBase.cs" />
     <Compile Include="NfoAudioMetadataExtractor.cs" />
     <Compile Include="NfoReaders\NfoArtistReader.cs" />
     <Compile Include="NfoReaders\NfoAlbumReader.cs" />
-	<Compile Include="NfoVideoMetadataExtractor.cs" />
+    <Compile Include="NfoVideoMetadataExtractor.cs" />
     <Compile Include="RelationshipExtractors\AlbumArtistRelationshipExtractor.cs" />
-    <Compile Include="RelationshipExtractors\INfoRelationshipExtractor.cs" />
     <Compile Include="RelationshipExtractors\MovieActorRelationshipExtractor.cs" />
     <Compile Include="RelationshipExtractors\MovieCharacterRelationshipExtractor.cs" />
     <Compile Include="RelationshipExtractors\MovieCollectionRelationshipExtractor.cs" />

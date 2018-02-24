@@ -28,7 +28,8 @@
   <string name="SlimTvClient.RecordNow">Jetzt aufnehmen</string>
   <string name="SlimTvClient.DeleteSchedule">Aufnahmeplan löschen</string>
   <string name="SlimTvClient.CreateSchedule">Aufnahme planen</string>
-  <string name="SlimTvClient.CreateManualSchedule">Manuelle Aufnahmenplanung</string>
+  <string name="SlimTvClient.CreateManualSchedule">Manuelle Aufnahmeplanung</string>
+  <string name="SlimTvClient.DeleteRecording.Confirmation">Sind Sie sicher, dass Sie die laufende Aufnahme beenden und löschen wollen?  Das kann nicht rückängig gemacht werden.</string>
   <string name="SlimTvClient.ProgramSearch">Programme suchen</string>
   <string name="SlimTvClient.ProgramSearch.Help">Sucht nach Titeln im EPG und zeigt die gefundenen Sendungen tabellarisch an.</string>
   <!--Extended recording features-->
@@ -90,6 +91,13 @@
   <string name="SlimTvClient.HideAllChannelsGroup.Help">Wenn aktiviert, wird die vordefinierte Gruppe \"All Channels\" ausgeblendet.</string>
   <string name="SlimTvClient.ChannelLogoStyle">TV Logo-Stil</string>
   <string name="SlimTvClient.ChannelLogoStyle.Help">TV Logo-Stil auswählen. Nach einer Änderung müssen Server und Client anschließend neu gestartet werden.</string>
+  <string name="SlimTvClient.RecordingNotificationDuration">Timeout Aufnahme-Benachrichtigung</string>
+  <string name="SlimTvClient.RecordingNotificationDuration.Help">Hier kann eingestellt werden, wie lange die Aufnahme-Benachrichtigung auf dem Bildschirm angezeigt wird.</string>
+  <string name="SlimTvClient.Notifications">Benachrichtigungen</string>
+  <string name="SlimTvClient.ShowRecordingStartedNotifications">\"Aufnahme gestartet\" anzeigen</string>
+  <string name="SlimTvClient.ShowRecordingStartedNotifications.Help">Legt fest ob bei Beginn einer Aufnahme eine Benachrichtigung angezeigt wird.</string>
+  <string name="SlimTvClient.ShowRecordingEndedNotifications">\"Aufnahme beendet\" anzeigen</string>
+  <string name="SlimTvClient.ShowRecordingEndedNotifications.Help">Legt fest, ob beim Beenden einer Aufnahme eine Benachrichtigung angezeigt wird.</string>
   <string name="SlimTvClient.RecordingsMenuItem">Aufnahmen</string>
   <string name="SlimTvClient.Recordings.Help">Hier findet man die aufgenommenen Sendungen und kann sie abspielen.</string>
   <string name="SlimTvClient.RecordingsRootViewName">TV-Aufnahmen</string>
@@ -99,4 +107,6 @@
   <string name="SlimTvClient.NameFilterMenuItemLabel">Name</string>
   <string name="SlimTvClient.NameFilterNavBarItemLabel">{0}</string>
   <string name="SlimTvClient.RecordingsByNameHeader">Datum</string>
+  <string name="SlimTvClient.RecordingStartedHeader">Aufnahme gestartet</string>
+  <string name="SlimTvClient.RecordingEndedHeader">Aufnahme beendet</string>
 </resources>

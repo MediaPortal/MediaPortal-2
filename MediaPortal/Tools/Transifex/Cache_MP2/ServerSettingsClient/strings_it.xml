@@ -79,6 +79,11 @@
   <string name="Settings.ServerSettings.ImageMDESettings">Impostazione importazione Immagini</string>
   <string name="Settings.ServerSettings.ImageMDESettings.ServerImageMDEGeoLocation">Verifica i dettagli di geolocalizzazione</string>
   <string name="Settings.ServerSettings.ImageMDESettings.ServerImageMDEGeoLocation.Help">Decidi se i dati di localizzazione memorizzati nelle immagini debbano essere utilizzati</string>
+  <string name="Settings.ServerSettings.VideoMDESettings">Impostazioni di importazione video</string>
+  <string name="Settings.ServerSettings.VideoMDESettings.ServerVideoMDEBrowseOffline">Memorizza le FanArt per la navigazione offline</string>
+  <string name="Settings.ServerSettings.VideoMDESettings.ServerVideoMDEBrowseOffline.Help">Scegli quale FanArt dovrebbe essere resa disponibile da una condivisione anche se quest\'ultima è offline</string>
+  <string name="Settings.ServerSettings.VideoMDESettings.ServerVideoMDEBrowseOfflineNetwork">Memorizza FanArt in una condivisione di rete</string>
+  <string name="Settings.ServerSettings.VideoMDESettings.ServerVideoMDEBrowseOfflineLocal">Memorizza FanArt in una condivisione locale</string>
   <string name="Settings.ServerSettings.FanArtSettings">Impostazioni FanArt</string>
   <string name="Settings.ServerSettings.FanArtSettings.ServerFanArtMaxBackdrops">Numero massimo di fondali</string>
   <string name="Settings.ServerSettings.FanArtSettings.ServerFanArtMaxBackdrops.Help">Numero massimo di fondali da rendere disponibili. Un numero maggiore implica un maggiore uso dello spazio su disco.</string>

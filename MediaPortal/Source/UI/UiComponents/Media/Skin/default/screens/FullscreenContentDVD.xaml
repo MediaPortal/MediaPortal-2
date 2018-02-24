@@ -20,6 +20,9 @@
     <Grid.RowDefinitions>
       <RowDefinition Height="*"/>
     </Grid.RowDefinitions>
+
+    <Include Source="screens\FullScreenContentDVDKeyBindings.inc"/>
+
     <Grid x:Name="BackgroundPipLayoutGrid" Grid.Row="0" Grid.Column="0" VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
       <Grid.ColumnDefinitions>
         <ColumnDefinition Width="*"/>
@@ -71,9 +74,5 @@
             AutoVisibility="true"/>
       </DockPanel> <!-- OSD_RightPanel -->
     </DockPanel> <!-- OSD_LayoutPanel -->
-    <KeyBinding Key="Info" Command="{Command ShowVideoInfo}"/>
-    <KeyBinding Key="ZoomMode" Command="{Command PlayerUIContributor.ShowZoomModeDialog}"/>
-    <KeyBinding Key="Yellow" Command="{Command PlayerUIContributor.OpenChooseSubtitleDialog}" IsEnabled="{Binding PlayerUIContributor.SubtitlesAvailable}"/>
-    <KeyBinding Key="Blue" Command="{Command Source={Service WorkflowManager},Path=NavigatePush,Parameters=A3F53310-4D93-4f93-8B09-D53EE8ACD829}" />
   </Grid>
 </Screen>

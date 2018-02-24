@@ -24,6 +24,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.UiComponents.Media.Views;
 
@@ -70,9 +71,10 @@ namespace MediaPortal.Plugins.SlimTv.Client.MediaExtensions
       }
     }
 
-    public override IEnumerable<MediaItem> GetAllMediaItems()
+    public override Task<IEnumerable<MediaItem>> GetAllMediaItems()
     {
-      return _mediaItems;
+      IEnumerable<MediaItem> result = _mediaItems;
+      return Task.FromResult(result);
     }
 
     protected override void ReLoadItemsAndSubViewSpecifications(out IList<MediaItem> mediaItems, out IList<ViewSpecification> subViewSpecifications)

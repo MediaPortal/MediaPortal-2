@@ -24,6 +24,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace MediaPortal.Common.MediaManagement
 {
@@ -45,7 +46,7 @@ namespace MediaPortal.Common.MediaManagement
     /// <summary>
     /// Collect all FanArt from a source and stores it in the cache
     /// </summary>
-    void CollectFanArt(Guid mediaItemId, IDictionary<Guid, IList<MediaItemAspect>> aspects);
+    Task CollectFanArtAsync(Guid mediaItemId, IDictionary<Guid, IList<MediaItemAspect>> aspects);
 
     /// <summary>
     /// Deletes no longer needed FanArt from the cache

@@ -429,7 +429,7 @@ namespace MediaPortal.Plugins.StatisticsRenderer
 
     private static void UnregisterKeyBindings()
     {
-      Log("Registering KeyBindings on IInputManager");
+      Log("Unregistering KeyBindings from IInputManager");
       IInputManager manager = ServiceRegistration.Get<IInputManager>(false);
       if (manager != null)
       {

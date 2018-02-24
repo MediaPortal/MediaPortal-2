@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <string name="HomeEditor.OthersMenuItem">Ekstra</string>
+  <string name="HomeEditor.Configuration">Rediger Hjem Menyen</string>
+  <string name="HomeEditor.Configuration.Header">Hjem Meny Grupper</string>
+  <string name="HomeEditor.Configuration.Help">Rediger hjem menyen</string>
+  <string name="HomeEditor.Configuration.Label">Hjem meny grupper</string>
+  <string name="HomeEditor.Configuration.AddGroup">Legg til Gruppe</string>
+  <string name="HomeEditor.Configuration.GroupEdit.Header">Rediger Gruppe</string>
+  <string name="HomeEditor.Configuration.GroupRemove.Header">Fjern Gruppe</string>
+  <string name="HomeEditor.Configuration.GroupRemove.Label">Velg gruppe for fjerning</string>
+  <string name="HomeEditor.Configuration.DisplayName">Visningsnavn</string>
+  <string name="HomeEditor.Configuration.RestoreDefaults">Tilbakestill til Standardinnstillinger</string>
+  
+  <string name="HomeEditor.Configuration.GroupEdit.Label">Gruppe meny handlinger</string>
+  <string name="HomeEditor.Configuration.ActionEdit.Header">Rediger Handling</string>
+  <string name="HomeEditor.Configuration.ActionRemove.Header">Fjerne Handling</string>
+  <string name="HomeEditor.Configuration.ActionRemove.Label">Velg handling som skal fjernes</string>
+  <string name="HomeEditor.Configuration.ActionEdit.Label">Velg handling</string>
+  <string name="HomeEditor.Configuration.AddAction">Legg til Handling</string>
+</resources>

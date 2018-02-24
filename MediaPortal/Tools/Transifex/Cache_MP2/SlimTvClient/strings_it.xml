@@ -29,6 +29,7 @@
   <string name="SlimTvClient.DeleteSchedule">Cancella registrazione programmata</string>
   <string name="SlimTvClient.CreateSchedule">Programma registrazione</string>
   <string name="SlimTvClient.CreateManualSchedule">Programma registrazione manualmente</string>
+  <string name="SlimTvClient.DeleteRecording.Confirmation">Sei sicuro di voler annullare ed eliminare la registrazione? Non sarà possibile tornare indietro.</string>
   <string name="SlimTvClient.ProgramSearch">Ricerca programmi</string>
   <string name="SlimTvClient.ProgramSearch.Help">Ricerca i titoli dei programmi nella guida e trova i tuoi show preferiti</string>
   <!--Extended recording features-->
@@ -90,6 +91,13 @@
   <string name="SlimTvClient.HideAllChannelsGroup.Help">Se abilitato, il gruppo tutti i canali verrà nascosto</string>
   <string name="SlimTvClient.ChannelLogoStyle">Stile del logo canale</string>
   <string name="SlimTvClient.ChannelLogoStyle.Help">Scegli lo stile del logo canale. Server e client dovranno essere riavviati per ottenere i cambiamenti.</string>
+  <string name="SlimTvClient.RecordingNotificationDuration">Tempo scaduto per la notifica di registrazione.</string>
+  <string name="SlimTvClient.RecordingNotificationDuration.Help">Configura il numero di secondi per mostrare la notifica di registrazione.</string>
+  <string name="SlimTvClient.Notifications">Notifiche</string>
+  <string name="SlimTvClient.ShowRecordingStartedNotifications">Mostra le notifiche di inizio di registrazione</string>
+  <string name="SlimTvClient.ShowRecordingStartedNotifications.Help">Seleziona per abilitare una notifica quando viene iniziata una registrazione.</string>
+  <string name="SlimTvClient.ShowRecordingEndedNotifications">Mostra le notifiche di fine registrazione</string>
+  <string name="SlimTvClient.ShowRecordingEndedNotifications.Help">Seleziona per abilitare una notifica quando finisce una registrazione.</string>
   <string name="SlimTvClient.RecordingsMenuItem">Registrazioni</string>
   <string name="SlimTvClient.Recordings.Help">Qui trovi al lista dei programmi registrati, per poterli riprodurre.</string>
   <string name="SlimTvClient.RecordingsRootViewName">Registrazioni TV</string>
@@ -99,4 +107,6 @@
   <string name="SlimTvClient.NameFilterMenuItemLabel">Filtra per nome</string>
   <string name="SlimTvClient.NameFilterNavBarItemLabel">{0}</string>
   <string name="SlimTvClient.RecordingsByNameHeader">Registrazioni per nome</string>
+  <string name="SlimTvClient.RecordingStartedHeader">Inizio registrazione</string>
+  <string name="SlimTvClient.RecordingEndedHeader">Fine registrazione</string>
 </resources>

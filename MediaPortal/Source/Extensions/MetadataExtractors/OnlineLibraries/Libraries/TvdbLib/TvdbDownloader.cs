@@ -18,22 +18,31 @@
  * 
  */
 
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Net;
-using System.Text;
-using System.Xml;
 using ICSharpCode.SharpZipLib.Zip;
 using MediaPortal.Extensions.OnlineLibraries.Libraries.Common;
 using MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib.Data;
 using MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib.Data.Banner;
 using MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib.Exceptions;
 using MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib.Xml;
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Net;
+using System.Text;
+using System.Threading.Tasks;
+using System.Xml;
 
 namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib
 {
+  public class TvDbUpdate
+  {
+    public DateTime UpdateTime { get; internal set; }
+    public List<TvdbSeries> UpdateSeries { get; internal set; }
+    public List<TvdbEpisode> UpdateEpisodes { get; internal set; }
+    public List<TvdbBanner> UpdateBanners { get; internal set; }
+  }
+
   /// <summary>
   /// TvdbDownloader allows simple downloading of all informations stored
   /// on http://thetvdb.com. Unlike the class Tvdb TvdbDownloader doesn't
@@ -66,10 +75,22 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib
         return webClient.DownloadString(url);
     }
 
+    protected async Task<string> DownloadStringAsync(string url)
+    {
+      using (WebClient webClient = new CompressionWebClient { Encoding = Encoding.UTF8 })
+        return await webClient.DownloadStringTaskAsync(url).ConfigureAwait(false);
+    }
+
     protected byte[] DownloadData(string url)
     {
       using (WebClient webClient = new CompressionWebClient { Encoding = Encoding.UTF8 })
         return webClient.DownloadData(url);
+    }
+
+    protected async Task<byte[]> DownloadDataAsync(string url)
+    {
+      using (WebClient webClient = new CompressionWebClient { Encoding = Encoding.UTF8 })
+        return await webClient.DownloadDataTaskAsync(url).ConfigureAwait(false);
     }
 
     /// <summary>
@@ -83,14 +104,14 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib
     ///                                           or http://forums.thetvdb.com/</para></exception>  
     /// <exception cref="TvdbInvalidApiKeyException">The stored api key is invalid</exception>
     /// <exception cref="TvdbNotAvailableException">The tvdb database is unavailable</exception>
-    public List<TvdbEpisode> DownloadEpisodes(int seriesId, TvdbLanguage language)
+    public async Task<List<TvdbEpisode>> DownloadEpisodesAsync(int seriesId, TvdbLanguage language)
     {
       String xml = string.Empty;
       String link = string.Empty;
       try
       {
         link = TvdbLinkCreator.CreateSeriesEpisodesLink(_apiKey, seriesId, language);
-        xml = DownloadString(link);
+        xml = await DownloadStringAsync(link).ConfigureAwait(false);
         List<TvdbEpisode> epList = _xmlHandler.ExtractEpisodes(xml);
         return epList;
       }
@@ -109,7 +130,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib
     {
       Log.Warn("Request not successful for {0}", ex, new object[] { action });
       if (ex.Message.Equals("The remote server returned an error: (404) Not Found."))
-        throw new TvdbUserNotFoundException("Couldn't connect to Thetvdb.com to " + action +", are you sure this is the correct user id?");
+        throw new TvdbUserNotFoundException("Couldn't connect to Thetvdb.com to " + action + ", are you sure this is the correct user id?");
       throw new TvdbNotAvailableException("Couldn't connect to Thetvdb.com to " + action +
                                           ", check your internet connection and the status of http://thetvdb.com");
     }
@@ -143,14 +164,14 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib
     ///                                           or http://forums.thetvdb.com/</para></exception>  
     /// <exception cref="TvdbInvalidApiKeyException">The stored api key is invalid</exception>
     /// <exception cref="TvdbNotAvailableException">The tvdb database is unavailable</exception>
-    public List<TvdbBanner> DownloadBanners(int seriesId)
+    public async Task<List<TvdbBanner>> DownloadBannersAsync(int seriesId)
     {
       String xml = string.Empty;
       String link = string.Empty;
       try
       {
         link = TvdbLinkCreator.CreateSeriesBannersLink(_apiKey, seriesId);
-        xml = DownloadString(link);
+        xml = await DownloadStringAsync(link).ConfigureAwait(false);
         List<TvdbBanner> banners = _xmlHandler.ExtractBanners(xml);
         return banners;
       }
@@ -179,7 +200,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib
     ///                                           or http://forums.thetvdb.com/</para></exception>  
     /// <exception cref="TvdbInvalidApiKeyException">The stored api key is invalid</exception>
     /// <exception cref="TvdbNotAvailableException">The tvdb database is unavailable</exception>
-    public TvdbSeries DownloadSeries(int seriesId, TvdbLanguage language, bool loadEpisodes, bool loadActors, bool loadBanners)
+    public async Task<TvdbSeries> DownloadSeriesAsync(int seriesId, TvdbLanguage language, bool loadEpisodes, bool loadActors, bool loadBanners)
     {
       //download the xml data from this request
       String xml = string.Empty;
@@ -187,7 +208,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib
       try
       {
         link = TvdbLinkCreator.CreateSeriesLink(_apiKey, seriesId, language, loadEpisodes, false);
-        xml = DownloadString(link);
+        xml = await DownloadStringAsync(link).ConfigureAwait(false);
 
         //extract all series the xml file contains
         List<TvdbSeries> seriesList = _xmlHandler.ExtractSeries(xml);
@@ -217,7 +238,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib
           //also load actors
           if (loadActors)
           {
-            List<TvdbActor> actors = DownloadActors(seriesId);
+            List<TvdbActor> actors = await DownloadActorsAsync(seriesId).ConfigureAwait(false);
             if (actors != null)
             {
               series.TvdbActorsLoaded = true;
@@ -228,7 +249,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib
           //also load banner paths
           if (loadBanners)
           {
-            List<TvdbBanner> banners = DownloadBanners(seriesId);
+            List<TvdbBanner> banners = await DownloadBannersAsync(seriesId).ConfigureAwait(false);
             if (banners != null)
             {
               series.Banners = banners;
@@ -262,7 +283,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib
     /// <exception cref="TvdbInvalidApiKeyException">The stored api key is invalid</exception>
     /// <exception cref="TvdbNotAvailableException">The tvdb database is unavailable</exception>
     /// <returns>the series object</returns>
-    public TvdbSeries DownloadSeriesZipped(int seriesId, TvdbLanguage language)
+    public async Task<TvdbSeries> DownloadSeriesZippedAsync(int seriesId, TvdbLanguage language)
     {
       //download the xml data from this request
       byte[] xml = null;
@@ -270,7 +291,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib
       try
       {
         link = TvdbLinkCreator.CreateSeriesLinkZipped(_apiKey, seriesId, language);
-        xml = DownloadData(link);
+        xml = await DownloadDataAsync(link).ConfigureAwait(false);
 
         ZipInputStream zip = new ZipInputStream(new MemoryStream(xml));
 
@@ -358,7 +379,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib
     /// <exception cref="TvdbInvalidApiKeyException">The stored api key is invalid</exception>
     /// <exception cref="TvdbNotAvailableException">The tvdb database is unavailable</exception>
     /// <returns>the series object that corresponds to the given site and id</returns>
-    public TvdbSearchResult DownloadSeriesSearchByExternalId(ExternalId site, String id)
+    public async Task<TvdbSearchResult> DownloadSeriesSearchByExternalIdAsync(ExternalId site, String id)
     {
       //download the xml data from this request
       String xml = string.Empty;
@@ -366,7 +387,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib
       try
       {
         link = TvdbLinkCreator.CreateGetSeriesByIdLink(_apiKey, site, id);
-        xml = DownloadString(link);
+        xml = await DownloadStringAsync(link).ConfigureAwait(false);
 
         //extract all series the xml file contains
         List<TvdbSearchResult> seriesList = _xmlHandler.ExtractSeriesSearchResults(xml);
@@ -392,16 +413,14 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib
       }
     }
 
-
-
-    internal TvdbSeriesFields DownloadSeriesFields(int seriesId, TvdbLanguage language)
+    internal async Task<TvdbSeriesFields> DownloadSeriesFieldsAsync(int seriesId, TvdbLanguage language)
     {
       String xml = string.Empty;
       String link = string.Empty;
       try
       {
         link = TvdbLinkCreator.CreateSeriesLink(_apiKey, seriesId, language, false, false);
-        xml = DownloadString(link);
+        xml = await DownloadStringAsync(link).ConfigureAwait(false);
 
         //extract all series the xml file contains
         List<TvdbSeriesFields> seriesList = _xmlHandler.ExtractSeriesFields(xml);
@@ -430,14 +449,14 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib
     ///                                           or http://forums.thetvdb.com/</para></exception>  
     /// <exception cref="TvdbContentNotFoundException">The episode/series/banner couldn't be located on the tvdb server.</exception>
     /// <exception cref="TvdbNotAvailableException">Exception is thrown when thetvdb isn't available.</exception>
-    public TvdbEpisode DownloadEpisode(int episodeId, TvdbLanguage language)
+    public async Task<TvdbEpisode> DownloadEpisodeAsync(int episodeId, TvdbLanguage language)
     {
       String xml = "";
       String link = "";
       try
       {
         link = TvdbLinkCreator.CreateEpisodeLink(_apiKey, episodeId, language, false);
-        xml = DownloadString(link);
+        xml = await DownloadStringAsync(link).ConfigureAwait(false);
         List<TvdbEpisode> epList = _xmlHandler.ExtractEpisodes(xml);
         return epList != null && epList.Count == 1 ? epList[0] : null;
       }
@@ -468,7 +487,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib
     ///                                           or http://forums.thetvdb.com/</para></exception>  
     /// <exception cref="TvdbContentNotFoundException">The episode/series/banner couldn't be located on the tvdb server.</exception>
     /// <exception cref="TvdbNotAvailableException">Exception is thrown when thetvdb isn't available.</exception>
-    public TvdbEpisode DownloadEpisode(int seriesId, int seasonNr, int episodeNr, TvdbEpisode.EpisodeOrdering order, TvdbLanguage language)
+    public async Task<TvdbEpisode> DownloadEpisodeAsync(int seriesId, int seasonNr, int episodeNr, TvdbEpisode.EpisodeOrdering order, TvdbLanguage language)
     {
       String xml = "";
       String link = "";
@@ -489,7 +508,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib
       try
       {
         link = TvdbLinkCreator.CreateEpisodeLink(_apiKey, seriesId, seasonNr, episodeNr, orderString, language);
-        xml = DownloadString(link);
+        xml = await DownloadStringAsync(link).ConfigureAwait(false);
         List<TvdbEpisode> epList = _xmlHandler.ExtractEpisodes(xml);
         return epList != null && epList.Count == 1 ? epList[0] : null;
       }
@@ -506,7 +525,6 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib
       }
     }
 
-
     /// <summary>
     /// Download the episode specified from http://thetvdb.com
     /// </summary>
@@ -519,14 +537,14 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib
     ///                                           or http://forums.thetvdb.com/</para></exception>  
     /// <exception cref="TvdbContentNotFoundException">The episode/series/banner couldn't be located on the tvdb server.</exception>
     /// <exception cref="TvdbNotAvailableException">Exception is thrown when thetvdb isn't available.</exception>
-    public TvdbEpisode DownloadEpisode(int seriesId, DateTime airDate, TvdbLanguage language)
+    public async Task<TvdbEpisode> DownloadEpisodeAsync(int seriesId, DateTime airDate, TvdbLanguage language)
     {
       String xml = string.Empty;
       String link = string.Empty;
       try
       {
         link = TvdbLinkCreator.CreateEpisodeLink(_apiKey, seriesId, airDate, language);
-        xml = DownloadString(link);
+        xml = await DownloadStringAsync(link).ConfigureAwait(false);
         if (!xml.Contains("No Results from SP"))
         {
           List<TvdbEpisode> epList = _xmlHandler.ExtractEpisodes(xml);
@@ -546,7 +564,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib
       catch (WebException ex)
       {
         throw HandleContentWebException(
-          string.Format("Couldn't download episode  for series {0} from {1}({2}), maybe the episode doesn't exist", seriesId, airDate.ToShortDateString(), language.Abbriviation), 
+          string.Format("Couldn't download episode  for series {0} from {1}({2}), maybe the episode doesn't exist", seriesId, airDate.ToShortDateString(), language.Abbriviation),
           ex);
       }
     }
@@ -561,14 +579,14 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib
     ///                                           or http://forums.thetvdb.com/</para></exception>  
     /// <exception cref="TvdbUserNotFoundException">The user doesn't exist</exception>
     /// <exception cref="TvdbNotAvailableException">The tvdb database is unavailable</exception>
-    public TvdbLanguage DownloadUserPreferredLanguage(String userId)
+    public async Task<TvdbLanguage> DownloadUserPreferredLanguageAsync(String userId)
     {
       String xml = "";
       String link = "";
       try
       {
         link = TvdbLinkCreator.CreateUserLanguageLink(userId);
-        xml = DownloadString(link);
+        xml = await DownloadStringAsync(link).ConfigureAwait(false);
       }
       catch (XmlException ex)
       {
@@ -593,9 +611,9 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib
     ///                                           or http://forums.thetvdb.com/</para></exception>  
     /// <exception cref="TvdbUserNotFoundException">The user doesn't exist</exception>
     /// <exception cref="TvdbNotAvailableException">The tvdb database is unavailable</exception>
-    public List<int> DownloadUserFavoriteList(String userId)
+    public Task<List<int>> DownloadUserFavoriteListAsync(String userId)
     {
-      return DownloadUserFavoriteList(userId, Util.UserFavouriteAction.None, 0);
+      return DownloadUserFavoriteListAsync(userId, Util.UserFavouriteAction.None, 0);
     }
 
     /// <summary>
@@ -610,14 +628,14 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib
     ///                                           or http://forums.thetvdb.com/</para></exception>  
     /// <exception cref="TvdbUserNotFoundException">The user doesn't exist</exception>
     /// <exception cref="TvdbNotAvailableException">The tvdb database is unavailable</exception>
-    internal List<int> DownloadUserFavoriteList(String userId, Util.UserFavouriteAction type, int seriesId)
+    internal async Task<List<int>> DownloadUserFavoriteListAsync(String userId, Util.UserFavouriteAction type, int seriesId)
     {
       String xml = string.Empty;
       String link = string.Empty;
       try
       {
         link = TvdbLinkCreator.CreateUserFavouriteLink(userId, type, seriesId);
-        xml = DownloadString(link);
+        xml = await DownloadStringAsync(link).ConfigureAwait(false);
       }
       catch (XmlException ex)
       {
@@ -626,7 +644,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib
       }
       catch (WebException ex)
       {
-        throw HandleUserWebException("retrieve favorite list for user "+ userId, ex);
+        throw HandleUserWebException("retrieve favorite list for user " + userId, ex);
       }
       List<int> favList = _xmlHandler.ExtractSeriesFavorites(xml);
       return favList;
@@ -635,42 +653,32 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib
     /// <summary>
     /// Download an Update
     /// </summary>
-    /// <param name="updateSeries">updated series to return</param>
-    /// <param name="updateEpisodes">updated episodes to return</param>
-    /// <param name="updateBanners">updated banners to return</param>
     /// <param name="interval">interval to download (0=day, 1=week, 2=month)</param>
     /// <param name="zipped">use zip</param>
-    /// <returns>Time of the update</returns>
+    /// <returns><see cref="TvDbUpdate"/> object containing the update time, series, episodes and banners.</returns>
     /// <exception cref="TvdbInvalidXmlException"><para>Exception is thrown when there was an error parsing the xml files. </para>
     ///                                           <para>Feel free to post a detailed description of this issue on http://code.google.com/p/tvdblib 
     ///                                           or http://forums.thetvdb.com/</para></exception>  
     /// <exception cref="TvdbInvalidApiKeyException">The stored api key is invalid</exception>
     /// <exception cref="TvdbNotAvailableException">Exception is thrown when thetvdb isn't available.</exception>
-    public DateTime DownloadUpdate(out List<TvdbSeries> updateSeries, out List<TvdbEpisode> updateEpisodes,
-                                   out List<TvdbBanner> updateBanners, int interval,
-                                    bool zipped)
+    public Task<TvDbUpdate> DownloadUpdateAsync(int interval, bool zipped)
     {
-      return DownloadUpdate(out updateSeries, out updateEpisodes, out updateBanners, (Interval)interval, zipped);
+      return DownloadUpdateAsync((Interval)interval, zipped);
     }
 
     /// <summary>
     /// Download an Update
     /// </summary>
-    /// <param name="updateSeries">updated series to return</param>
-    /// <param name="updateEpisodes">updated episodes to return</param>
-    /// <param name="updateBanners">updated banners to return</param>
     /// <param name="interval">interval to download</param>
     /// <param name="zipped">use zip</param>
-    /// <returns>Time of the update</returns>
+    /// <returns><see cref="TvDbUpdate"/> object containing the update time, series, episodes and banners.</returns>
     /// <exception cref="TvdbInvalidXmlException"><para>Exception is thrown when there was an error parsing the xml files. </para>
     ///                                           <para>Feel free to post a detailed description of this issue on http://code.google.com/p/tvdblib 
     ///                                           or http://forums.thetvdb.com/</para></exception>  
     /// <exception cref="TvdbInvalidApiKeyException">The stored api key is invalid</exception>
     /// <exception cref="TvdbNotAvailableException">Exception is thrown when thetvdb isn't available.</exception>
-    public DateTime DownloadUpdate(out List<TvdbSeries> updateSeries, out List<TvdbEpisode> updateEpisodes,
-                                     out List<TvdbBanner> updateBanners, Interval interval, bool zipped)
+    public async Task<TvDbUpdate> DownloadUpdateAsync(Interval interval, bool zipped)
     {
-
       String xml = "";
       String link = "";
       try
@@ -678,7 +686,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib
         link = TvdbLinkCreator.CreateUpdateLink(_apiKey, interval, zipped);
         if (zipped)
         {
-          byte[] data = DownloadData(link);
+          byte[] data = await DownloadDataAsync(link).ConfigureAwait(false);
           ZipInputStream zip = new ZipInputStream(new MemoryStream(data));
           zip.GetNextEntry();
           byte[] buffer = new byte[zip.Length];
@@ -687,14 +695,16 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib
         }
         else
         {
-          xml = DownloadString(link);
+          xml = await DownloadStringAsync(link).ConfigureAwait(false);
         }
 
-        updateEpisodes = _xmlHandler.ExtractEpisodeUpdates(xml);
-        updateSeries = _xmlHandler.ExtractSeriesUpdates(xml);
-        updateBanners = _xmlHandler.ExtractBannerUpdates(xml);
-
-        return _xmlHandler.ExtractUpdateTime(xml);
+        return new TvDbUpdate
+        {
+          UpdateEpisodes = _xmlHandler.ExtractEpisodeUpdates(xml),
+          UpdateSeries = _xmlHandler.ExtractSeriesUpdates(xml),
+          UpdateBanners = _xmlHandler.ExtractBannerUpdates(xml),
+          UpdateTime = _xmlHandler.ExtractUpdateTime(xml)
+        };
       }
       catch (XmlException ex)
       {
@@ -721,14 +731,14 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib
     ///                                           or http://forums.thetvdb.com/</para></exception>  
     /// <exception cref="TvdbContentNotFoundException">The episode/series/banner couldn't be located on the tvdb server.</exception>
     /// <exception cref="TvdbNotAvailableException">Exception is thrown when thetvdb isn't available.</exception>
-    public List<TvdbLanguage> DownloadLanguages()
+    public async Task<List<TvdbLanguage>> DownloadLanguagesAsync()
     {
       String xml = string.Empty;
       String link = string.Empty;
       try
       {
         link = TvdbLinkCreator.CreateLanguageLink(_apiKey);
-        xml = DownloadString(link);
+        xml = await DownloadStringAsync(link).ConfigureAwait(false);
         return _xmlHandler.ExtractLanguages(xml);
       }
       catch (XmlException ex)
@@ -752,9 +762,9 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib
     ///                                           or http://forums.thetvdb.com/</para></exception>  
     /// <exception cref="TvdbInvalidApiKeyException">The stored api key is invalid</exception>
     /// <exception cref="TvdbNotAvailableException">Exception is thrown when thetvdb isn't available.</exception>
-    public List<TvdbSearchResult> DownloadSearchResults(String name)
+    public Task<List<TvdbSearchResult>> DownloadSearchResultsAsync(String name)
     {
-      return DownloadSearchResults(name, TvdbLanguage.DefaultLanguage);
+      return DownloadSearchResultsAsync(name, TvdbLanguage.DefaultLanguage);
     }
 
     /// <summary>
@@ -768,14 +778,14 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib
     ///                                           or http://forums.thetvdb.com/</para></exception>  
     /// <exception cref="TvdbInvalidApiKeyException">The stored api key is invalid</exception>
     /// <exception cref="TvdbNotAvailableException">Exception is thrown when thetvdb isn't available.</exception>
-    public List<TvdbSearchResult> DownloadSearchResults(String name, TvdbLanguage language)
+    public async Task<List<TvdbSearchResult>> DownloadSearchResultsAsync(String name, TvdbLanguage language)
     {
       String xml = string.Empty;
       String link = string.Empty;
       try
       {
         link = TvdbLinkCreator.CreateSearchLink(name, language);
-        xml = DownloadString(link);
+        xml = await DownloadStringAsync(link).ConfigureAwait(false);
         return _xmlHandler.ExtractSeriesSearchResults(xml);
       }
       catch (XmlException ex)
@@ -801,14 +811,14 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib
     ///                                           or http://forums.thetvdb.com/</para></exception>  
     /// <exception cref="TvdbUserNotFoundException">The user doesn't exist</exception>
     /// <exception cref="TvdbNotAvailableException">Exception is thrown when thetvdb isn't available.</exception>
-    public double RateSeries(String userId, int seriesId, int rating)
+    public async Task<double> RateSeriesAsync(String userId, int seriesId, int rating)
     {
       String xml = string.Empty;
       String link = string.Empty;
       try
       {
         link = TvdbLinkCreator.CreateUserSeriesRating(userId, seriesId, rating);
-        xml = DownloadString(link);
+        xml = await DownloadStringAsync(link).ConfigureAwait(false);
       }
       catch (XmlException ex)
       {
@@ -834,14 +844,14 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib
     ///                                           or http://forums.thetvdb.com/</para></exception>  
     /// <exception cref="TvdbUserNotFoundException">The user doesn't exist</exception>
     /// <exception cref="TvdbNotAvailableException">Exception is thrown when thetvdb isn't available.</exception>
-    public double RateEpisode(String userId, int episodeId, int rating)
+    public async Task<double> RateEpisodeAsync(String userId, int episodeId, int rating)
     {
       String xml = string.Empty;
       String link = string.Empty;
       try
       {
         link = TvdbLinkCreator.CreateUserEpisodeRating(userId, episodeId, rating);
-        xml = DownloadString(link);
+        xml = await DownloadStringAsync(link).ConfigureAwait(false);
         return _xmlHandler.ExtractRating(xml);
       }
       catch (XmlException ex)
@@ -866,14 +876,14 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib
     ///                                           or http://forums.thetvdb.com/</para></exception>  
     /// <exception cref="TvdbUserNotFoundException">The user doesn't exist</exception>
     /// <exception cref="TvdbNotAvailableException">Exception is thrown when thetvdb isn't available.</exception>
-    public double DownloadSeriesRating(String userId, int seriesId)
+    public async Task<double> DownloadSeriesRatingAsync(String userId, int seriesId)
     {
       String xml = string.Empty;
       String link = string.Empty;
       try
       {
         link = TvdbLinkCreator.CreateUserSeriesRating(userId, seriesId);
-        xml = DownloadString(link);
+        xml = await DownloadStringAsync(link).ConfigureAwait(false);
         return _xmlHandler.ExtractRating(xml);
       }
       catch (XmlException ex)
@@ -898,14 +908,14 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib
     ///                                           or http://forums.thetvdb.com/</para></exception>  
     /// <exception cref="TvdbUserNotFoundException">The user doesn't exist</exception>
     /// <exception cref="TvdbNotAvailableException">Exception is thrown when thetvdb isn't available.</exception>
-    public double DownloadEpisodeRating(String userId, int episodeId)
+    public async Task<double> DownloadEpisodeRatingAsync(String userId, int episodeId)
     {
       String xml = string.Empty;
       String link = string.Empty;
       try
       {
         link = TvdbLinkCreator.CreateUserEpisodeRating(userId, episodeId);
-        xml = DownloadString(link);
+        xml = await DownloadStringAsync(link).ConfigureAwait(false);
         return _xmlHandler.ExtractRating(xml);
       }
       catch (XmlException ex)
@@ -924,14 +934,14 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib
     /// </summary>
     /// <param name="seriesId">Id of series</param>
     /// <returns>List of actors for the given series</returns>
-    public List<TvdbActor> DownloadActors(int seriesId)
+    public async Task<List<TvdbActor>> DownloadActorsAsync(int seriesId)
     {
       String xml = "";
       String link = "";
       try
       {
         link = TvdbLinkCreator.CreateActorLink(seriesId, _apiKey);
-        xml = DownloadString(link);
+        xml = await DownloadStringAsync(link).ConfigureAwait(false);
         //add series id to actors
         List<TvdbActor> actors = _xmlHandler.ExtractActors(xml);
 
@@ -957,14 +967,14 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib
     ///                                           or http://forums.thetvdb.com/</para></exception>  
     /// <exception cref="TvdbUserNotFoundException">The user doesn't exist</exception>
     /// <exception cref="TvdbNotAvailableException">Exception is thrown when thetvdb isn't available.</exception>
-    public Dictionary<int, TvdbRating> DownloadAllSeriesRatings(String userId)
+    public async Task<Dictionary<int, TvdbRating>> DownloadAllSeriesRatingsAsync(String userId)
     {
       String xml = string.Empty;
       String link = string.Empty;
       try
       {
         link = TvdbLinkCreator.CreateAllSeriesRatingsLink(_apiKey, userId);
-        xml = DownloadString(link);
+        xml = await DownloadStringAsync(link).ConfigureAwait(false);
         return _xmlHandler.ExtractRatings(xml, TvdbRating.ItemType.Series);
       }
       catch (XmlException ex)
@@ -989,14 +999,14 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib
     ///                                           or http://forums.thetvdb.com/</para></exception>  
     /// <exception cref="TvdbUserNotFoundException">The user doesn't exist</exception>
     /// <exception cref="TvdbNotAvailableException">Exception is thrown when thetvdb isn't available.</exception>
-    public Dictionary<int, TvdbRating> DownloadRatingsForSeries(string userId, int seriesId)
+    public async Task<Dictionary<int, TvdbRating>> DownloadRatingsForSeriesAsync(string userId, int seriesId)
     {
       String xml = string.Empty;
       String link = string.Empty;
       try
       {
         link = TvdbLinkCreator.CreateSeriesRatingsLink(_apiKey, userId, seriesId);
-        xml = DownloadString(link);
+        xml = await DownloadStringAsync(link).ConfigureAwait(false);
         Dictionary<int, TvdbRating> retList = _xmlHandler.ExtractRatings(xml, TvdbRating.ItemType.Series);
         Dictionary<int, TvdbRating> episodeList = _xmlHandler.ExtractRatings(xml, TvdbRating.ItemType.Episode);
         if (retList != null && episodeList != null && retList.Count > 0)

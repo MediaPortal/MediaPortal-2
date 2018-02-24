@@ -23,13 +23,13 @@
 #endregion
 
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using MediaPortal.UiComponents.Media.General;
 using MediaPortal.UiComponents.Media.Models.ScreenData;
 using MediaPortal.UiComponents.Media.Models.Sorting;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Common.MediaManagement.MLQueries;
 using MediaPortal.UiComponents.Media.Helpers;
-using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.UiComponents.Media.FilterTrees;
 
 namespace MediaPortal.UiComponents.Media.Models.NavigationModel
@@ -51,20 +51,20 @@ namespace MediaPortal.UiComponents.Media.Models.NavigationModel
       _rootRole = EpisodeAspect.ROLE_EPISODE;
     }
 
-    protected override void Prepare()
+    protected override async Task PrepareAsync()
     {
-      base.Prepare();
+      await base.PrepareAsync();
 
       if (_rootRole.HasValue)
       {
         _customFilterTree = new RelationshipFilterTree(_rootRole.Value);
 
         //Update filter by adding the user filter to the already loaded filters
-        IFilter userFilter = CertificationHelper.GetUserCertificateFilter(_necessaryMias);
+        IFilter userFilter = await CertificationHelper.GetUserCertificateFilter(_necessaryMias);
         if (userFilter != null)
           _customFilterTree.AddFilter(userFilter);
 
-        userFilter = CertificationHelper.GetUserCertificateFilter(new[] { SeriesAspect.ASPECT_ID });
+        userFilter = await CertificationHelper.GetUserCertificateFilter(new[] { SeriesAspect.ASPECT_ID });
         if (userFilter != null)
           _customFilterTree.AddFilter(userFilter, new FilterTreePath(SeriesAspect.ROLE_SERIES));
       }

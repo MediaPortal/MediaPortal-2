@@ -134,6 +134,7 @@ namespace MediaPortal.Common.MediaManagement.Helpers
     {
       if (string.IsNullOrEmpty(Name)) return false;
 
+      AssignNameId();
       SetMetadataChanged(aspectData);
 
       MediaItemAspect.SetAttribute(aspectData, MediaAspect.ATTR_TITLE, ToString());

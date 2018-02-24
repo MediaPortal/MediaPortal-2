@@ -24,6 +24,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using MediaPortal.Common;
 using MediaPortal.Common.Commands;
 using MediaPortal.Common.General;
@@ -32,6 +33,7 @@ using MediaPortal.Common.Logging;
 using MediaPortal.Common.Messaging;
 using MediaPortal.Common.PluginManager;
 using MediaPortal.Common.PluginManager.Exceptions;
+using MediaPortal.Common.Services.ServerCommunication;
 using MediaPortal.Plugins.SlimTv.Client.Helpers;
 using MediaPortal.Plugins.SlimTv.Client.Messaging;
 using MediaPortal.Plugins.SlimTv.Interfaces;
@@ -218,28 +220,28 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
         {
           _programActions.Add(new ListItem(Consts.KEY_NAME, loc.ToString("[SlimTvClient.WatchNow]"))
               {
-                Command = new MethodDelegateCommand(() => { TuneChannelByProgram(program); })
+                Command = new AsyncMethodDelegateCommand(() => TuneChannelByProgram(program))
               });
         }
 
         if (_tvHandler.ScheduleControl != null)
         {
-          RecordingStatus recordingStatus;
-          if (_tvHandler.ScheduleControl.GetRecordingStatus(program, out recordingStatus) && recordingStatus != RecordingStatus.None)
+          var result = _tvHandler.ScheduleControl.GetRecordingStatusAsync(program).Result;
+          if (result.Success && result.Result != RecordingStatus.None)
           {
             if (isRunning)
               _programActions.Add(
                 new ListItem(Consts.KEY_NAME, loc.ToString("[SlimTvClient.WatchFromBeginning]"))
                   {
-                    Command = new MethodDelegateCommand(() => _tvHandler.WatchRecordingFromBeginning(program))
+                    Command = new AsyncMethodDelegateCommand(() => _tvHandler.WatchRecordingFromBeginningAsync(program))
                   });
 
             _programActions.Add(
               new ListItem(Consts.KEY_NAME, loc.ToString(isRunning ? "[SlimTvClient.StopCurrentRecording]" : "[SlimTvClient.DeleteSchedule]", program.Title))
                 {
-                  Command = new MethodDelegateCommand(() =>
+                  Command = new AsyncMethodDelegateCommand(async () =>
                                                         {
-                                                          if (_tvHandler.ScheduleControl.RemoveScheduleForProgram(program, ScheduleRecordingType.Once))
+                                                          if (await _tvHandler.ScheduleControl.RemoveScheduleForProgramAsync(program, ScheduleRecordingType.Once))
                                                             UpdateRecordingStatus(program, RecordingStatus.None);
                                                         }
                     )
@@ -250,17 +252,16 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
             _programActions.Add(
               new ListItem(Consts.KEY_NAME, loc.ToString(isRunning ? "[SlimTvClient.RecordNow]" : "[SlimTvClient.CreateSchedule]"))
                 {
-                  Command = new MethodDelegateCommand(() =>
+                  Command = new AsyncMethodDelegateCommand(async () =>
                                                         {
-                                                          ISchedule schedule;
-                                                          bool result;
+                                                          AsyncResult<ISchedule> recResult;
                                                           // "No Program" placeholder
                                                           if (program.ProgramId == -1)
-                                                            result = _tvHandler.ScheduleControl.CreateScheduleByTime(new Channel { ChannelId = program.ChannelId }, program.StartTime, program.EndTime, ScheduleRecordingType.Once, out schedule);
+                                                            recResult = await _tvHandler.ScheduleControl.CreateScheduleByTimeAsync(new Channel { ChannelId = program.ChannelId }, program.StartTime, program.EndTime, ScheduleRecordingType.Once);
                                                           else
-                                                            result = _tvHandler.ScheduleControl.CreateSchedule(program, ScheduleRecordingType.Once, out schedule);
+                                                            recResult = await _tvHandler.ScheduleControl.CreateScheduleAsync(program, ScheduleRecordingType.Once);
 
-                                                          if (result)
+                                                          if (recResult.Success)
                                                             UpdateRecordingStatus(program, RecordingStatus.Scheduled);
                                                         }
                     )
@@ -288,16 +289,16 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
       screenManager.ShowDialog(_programActionsDialogName);
     }
 
-    protected void TuneChannelByProgram(IProgram program)
+    protected async Task TuneChannelByProgram(IProgram program)
     {
-      IChannel channel;
-      if (_tvHandler.ProgramInfo.GetChannel(program, out channel))
+      var result = await _tvHandler.ProgramInfo.GetChannelAsync(program);
+      if (result.Success)
       {
         IWorkflowManager workflowManager = ServiceRegistration.Get<IWorkflowManager>();
         SlimTvClientModel model = workflowManager.GetModel(SlimTvClientModel.MODEL_ID) as SlimTvClientModel;
         if (model != null)
         {
-          model.Tune(channel);
+          await model.Tune(result.Result);
           // Always switch to fullscreen
           workflowManager.NavigatePush(Consts.WF_STATE_ID_FULLSCREEN_VIDEO);
         }

@@ -24,12 +24,14 @@
 
 using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using MediaPortal.Common;
 using MediaPortal.Common.Commands;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Common.MediaManagement.MLQueries;
 using MediaPortal.Common.SystemCommunication;
+using MediaPortal.Common.UserManagement;
 using MediaPortal.UI.Presentation.DataObjects;
 using MediaPortal.UI.Presentation.Models;
 using MediaPortal.UI.Presentation.Workflow;
@@ -96,26 +98,24 @@ namespace MediaPortal.UiComponents.Media.Models
         return;
       }
 
-      ItemsList list = new ItemsList();
-      FillList(contentDirectory, Consts.NECESSARY_MOVIES_MIAS, list, item => new MovieItem(item));
-      AllItems.Add(new TitledItem("[Media.MoviesMenuItem]", list));
-
-      list = new ItemsList();
-      FillList(contentDirectory, Consts.NECESSARY_EPISODE_MIAS, list, item => new EpisodeItem(item));
-      AllItems.Add(new TitledItem("[Media.SeriesMenuItem]", list));
-
-      list = new ItemsList();
-      FillList(contentDirectory, Consts.NECESSARY_IMAGE_MIAS, list, item => new ImageItem(item));
-      AllItems.Add(new TitledItem("[Media.ImagesMenuItem]", list));
-
-      list = new ItemsList();
-      FillList(contentDirectory, Consts.NECESSARY_AUDIO_MIAS, list, item => new AudioItem(item));
-      AllItems.Add(new TitledItem("[Media.AudioMenuItem]", list));
+      ItemsList l1 = new ItemsList();
+      ItemsList l2 = new ItemsList();
+      ItemsList l3 = new ItemsList();
+      ItemsList l4 = new ItemsList();
+      var t1 = FillListAsync(contentDirectory, Consts.NECESSARY_MOVIES_MIAS, l1, item => new MovieItem(item));
+      var t2 = FillListAsync(contentDirectory, Consts.NECESSARY_EPISODE_MIAS, l2, item => new EpisodeItem(item));
+      var t3 = FillListAsync(contentDirectory, Consts.NECESSARY_IMAGE_MIAS, l3, item => new ImageItem(item));
+      var t4 = FillListAsync(contentDirectory, Consts.NECESSARY_AUDIO_MIAS, l4, item => new AudioItem(item));
+      Task.WaitAll(t1, t2, t3, t4);
+      AllItems.Add(new TitledItem("[Media.MoviesMenuItem]", l1));
+      AllItems.Add(new TitledItem("[Media.SeriesMenuItem]", l2));
+      AllItems.Add(new TitledItem("[Media.ImagesMenuItem]", l3));
+      AllItems.Add(new TitledItem("[Media.AudioMenuItem]", l4));
 
       AllItems.FireChange();
     }
 
-    protected static void FillList(IContentDirectory contentDirectory, Guid[] necessaryMIATypeIds, ItemsList list, MediaItemToListItemAction converterAction)
+    protected static async Task FillListAsync(IContentDirectory contentDirectory, Guid[] necessaryMIATypeIds, ItemsList list, MediaItemToListItemAction converterAction)
     {
       MediaItemQuery query = new MediaItemQuery(necessaryMIATypeIds, null)
       {
@@ -131,7 +131,7 @@ namespace MediaPortal.UiComponents.Media.Models
       }
       bool showVirtual = VirtualMediaHelper.ShowVirtualMedia(necessaryMIATypeIds);
 
-      var items = contentDirectory.Search(query, false, userProfile, showVirtual);
+      var items = await contentDirectory.SearchAsync(query, false, userProfile, showVirtual);
       list.Clear();
       foreach (MediaItem mediaItem in items)
       {

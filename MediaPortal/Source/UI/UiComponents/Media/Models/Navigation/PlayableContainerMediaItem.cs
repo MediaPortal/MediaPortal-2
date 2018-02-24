@@ -40,15 +40,22 @@ namespace MediaPortal.UiComponents.Media.Models.Navigation
       if (mediaItem == null)
         return;
 
+      int? playPct = null;
+      int? playCnt = null;
       if (mediaItem.UserData.ContainsKey(UserDataKeysKnown.KEY_PLAY_PERCENTAGE))
       {
-        WatchPercentage = mediaItem.UserData[UserDataKeysKnown.KEY_PLAY_PERCENTAGE];
+        playPct = Convert.ToInt32(mediaItem.UserData[UserDataKeysKnown.KEY_PLAY_PERCENTAGE]);
       }
 
       if (mediaItem.UserData.ContainsKey(UserDataKeysKnown.KEY_PLAY_COUNT))
       {
-        PlayCount = Convert.ToInt32(mediaItem.UserData[UserDataKeysKnown.KEY_PLAY_COUNT]);
+        playCnt = Convert.ToInt32(mediaItem.UserData[UserDataKeysKnown.KEY_PLAY_COUNT]);
+        if (!playPct.HasValue && playCnt > 0)
+          playPct = 100;
       }
+
+      WatchPercentage = (playPct ?? 0).ToString();
+      PlayCount = playCnt ?? 0;
     }
 
     public int PlayCount

@@ -25,6 +25,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using MediaPortal.Common;
 using MediaPortal.Common.Commands;
 using MediaPortal.Common.Logging;
@@ -103,17 +104,18 @@ namespace MediaPortal.UiComponents.Media.Models.NavigationModel
     /// <summary>
     /// Prepares custom views or initializes specific data, which are not available at construction time (i.e. <see cref="MediaNavigationModel.GetMediaSkinOptionalMIATypes(string)"/>).
     /// </summary>
-    protected virtual void Prepare()
+    protected virtual Task PrepareAsync()
     {
       // Read filters from plugin.xml and apply the matching ones
       BuildFilters();
 
       _customRootViewSpecification = null;
+      return Task.CompletedTask;
     }
 
     public virtual void InitMediaNavigation(out string mediaNavigationMode, out NavigationData navigationData)
     {
-      Prepare();
+      PrepareAsync();
 
       string nextScreenName;
       AbstractScreenData nextScreen = null;

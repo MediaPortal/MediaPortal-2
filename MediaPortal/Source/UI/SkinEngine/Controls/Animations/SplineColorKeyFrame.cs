@@ -104,6 +104,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Animations
       if (keyframe <= 0.0) return start;
       if (keyframe >= 1.0) return Value;
       if (double.IsNaN(keyframe)) return start;
+
       double v = _spline.GetSplineProgress(keyframe);
       return Color.SmoothStep(start, Value, (float)v);
     }

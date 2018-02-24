@@ -28,6 +28,5 @@ namespace MediaPortal.Extensions.OnlineLibraries
   {
     public string Id { get; set; }
     public bool Enabled { get; set; }
-    public bool Primary { get; set; }
   }
 }

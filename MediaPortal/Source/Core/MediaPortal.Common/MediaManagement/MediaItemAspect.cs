@@ -735,6 +735,24 @@ namespace MediaPortal.Common.MediaManagement
       return aspects;
     }
 
+    public static IDictionary<Guid, IList<MediaItemAspect>> GetAspects(IEnumerable<MediaItemAspect> aspectData)
+    {
+      IDictionary<Guid, IList<MediaItemAspect>> aspects = new Dictionary<Guid, IList<MediaItemAspect>>();
+      foreach (MediaItemAspect aspect in aspectData)
+      {
+        SingleMediaItemAspect singleAspect = aspect as SingleMediaItemAspect;
+        if (singleAspect != null)
+          SetAspect(aspects, singleAspect);
+        else
+        {
+          MultipleMediaItemAspect multiAspect = aspect as MultipleMediaItemAspect;
+          if (multiAspect != null)
+            AddOrUpdateAspect(aspects, multiAspect);
+        }
+      }
+      return aspects;
+    }
+
     public override string ToString()
     {
       return "MIA of type '" + _metadata + "'";

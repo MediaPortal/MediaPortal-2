@@ -44,6 +44,13 @@
               <Grid.RenderTransform>
                 <TranslateTransform Y="250"/>
               </Grid.RenderTransform>
+
+              <Grid.IsVisible>
+                <MultiBinding Converter="{StaticResource InvertedMediaItemAspectToBoolConverter}">
+                  <Binding Path="MediaItem" />
+                  <Binding Source="{x:Static aspect:ImageAspect.ASPECT_ID}" />
+                </MultiBinding>
+              </Grid.IsVisible>
               
               <Grid.Resources>
                 <Storyboard x:Key="InfoSlideInStoryboard" FillBehavior="HoldEnd">
@@ -104,20 +111,20 @@
                 <RowDefinition Height="30"/>
               </Grid.RowDefinitions>
               <Grid.RenderTransform>
-                <TranslateTransform Y="-120"/>
+                <TranslateTransform Y="-140"/>
               </Grid.RenderTransform>
               
               <Grid.Resources>
                 <Storyboard x:Key="SlideInStoryboard" FillBehavior="HoldEnd">
                   <DoubleAnimationUsingKeyFrames BeginTime="00:00:00" FillBehavior="HoldEnd" Storyboard.TargetName="PlayerControlPanel" Storyboard.TargetProperty="RenderTransform.Y">
-                    <SplineDoubleKeyFrame KeyTime="00:00:00" Value="-120"/>
+                    <SplineDoubleKeyFrame KeyTime="00:00:00" Value="-140"/>
                     <SplineDoubleKeyFrame KeyTime="00:00:00.35" Value="0"/>
                   </DoubleAnimationUsingKeyFrames>
                 </Storyboard>
                 <Storyboard x:Key="SlideOutStoryboard" FillBehavior="HoldEnd">
                   <DoubleAnimationUsingKeyFrames BeginTime="00:00:00" FillBehavior="HoldEnd" Storyboard.TargetName="PlayerControlPanel" Storyboard.TargetProperty="RenderTransform.Y">
                     <SplineDoubleKeyFrame KeyTime="00:00:00" Value="0"/>
-                    <SplineDoubleKeyFrame KeyTime="00:00:00.35" Value="-120"/>
+                    <SplineDoubleKeyFrame KeyTime="00:00:00.35" Value="-140"/>
                   </DoubleAnimationUsingKeyFrames>
                 </Storyboard>
               </Grid.Resources>
@@ -134,7 +141,7 @@
                 </DataTrigger>
               </Grid.Triggers>
 
-              <Border Margin="-40,-25,-40,0" Grid.RowSpan="2" BorderThickness="0">
+              <Border Margin="-41,-25,-41,-10" Grid.RowSpan="2" BorderThickness="0">
                 <Border.Background>
                   <LinearGradientBrush StartPoint="0.5,0" EndPoint="0.5,1">
                     <LinearGradientBrush.GradientStops>
@@ -148,7 +155,7 @@
 
               <Control x:Name="ControlsPresenter" HorizontalAlignment="Stretch"
                        Template="{DynamicResource ResourceKey=OSD_Controls_Template}"/>
-              <Control Grid.Row="1" x:Name="ProgressPresenter" HorizontalAlignment="Stretch" VerticalAlignment="Top" Margin="0,-2,0,2"
+              <Control Grid.Row="1" x:Name="ProgressPresenter" HorizontalAlignment="Stretch" VerticalAlignment="Top" Margin="0,-2,0,0"
                        Template="{DynamicResource ResourceKey=OSD_Progress_Template}"/>
             </Grid>
           </Grid>
@@ -157,4 +164,143 @@
     </Setter>
   </Style>
 
+  <Style x:Key="OSDAudioContainer" TargetType="{x:Type Control}">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate>
+          <Grid x:Name="MainOSDGrid" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="40,10,40,0">
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="150"/>
+              <ColumnDefinition Width="*"/>
+              <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+              <RowDefinition Height="200"/>
+              <RowDefinition Height="*"/>
+              <RowDefinition Height="250"/>
+            </Grid.RowDefinitions>
+
+            <Grid.Resources>
+              <Model x:Key="AudioPlayerModel" Id="D8998340-DA2D-42be-A29B-6D7A72AEA2DC"/>
+            </Grid.Resources>
+
+            <Grid x:Name="InfoControlPanel" Grid.Column="0" Grid.ColumnSpan="3" Grid.Row="2"
+                  HorizontalAlignment="Stretch" VerticalAlignment="Stretch" SetFocusPrio="Default">
+              <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="180"/>
+                <ColumnDefinition Width="*"/>
+              </Grid.ColumnDefinitions>
+              <Grid.RowDefinitions>
+                <RowDefinition Height="250"/>
+              </Grid.RowDefinitions>
+              <Grid.RenderTransform>
+                <TranslateTransform Y="250"/>
+              </Grid.RenderTransform>
+
+              <Grid.Resources>
+                <Storyboard x:Key="InfoSlideInStoryboard" FillBehavior="HoldEnd">
+                  <DoubleAnimationUsingKeyFrames BeginTime="00:00:00" FillBehavior="HoldEnd" Storyboard.TargetName="InfoControlPanel" Storyboard.TargetProperty="RenderTransform.Y">
+                    <SplineDoubleKeyFrame KeyTime="00:00:00" Value="255"/>
+                    <SplineDoubleKeyFrame KeyTime="00:00:00.35" Value="0"/>
+                  </DoubleAnimationUsingKeyFrames>
+                </Storyboard>
+                <Storyboard x:Key="InfoSlideOutStoryboard" FillBehavior="HoldEnd">
+                  <DoubleAnimationUsingKeyFrames BeginTime="00:00:00" FillBehavior="HoldEnd" Storyboard.TargetName="InfoControlPanel" Storyboard.TargetProperty="RenderTransform.Y">
+                    <SplineDoubleKeyFrame KeyTime="00:00:00" Value="0"/>
+                    <SplineDoubleKeyFrame KeyTime="00:00:00.35" Value="255"/>
+                  </DoubleAnimationUsingKeyFrames>
+                </Storyboard>
+              </Grid.Resources>
+
+              <Grid.Triggers>
+                <DataTrigger Binding="{Binding Source={StaticResource AudioPlayerModel},Path=IsOSDVisible}" Value="True">
+                  <DataTrigger.EnterActions>
+                    <BeginStoryboard x:Name="InfoSlideIn_BeginStoryboard" Storyboard="{StaticResource InfoSlideInStoryboard}"/>
+                  </DataTrigger.EnterActions>
+                  <DataTrigger.ExitActions>
+                    <StopStoryboard BeginStoryboardName="InfoSlideIn_BeginStoryboard"/>
+                    <BeginStoryboard Storyboard="{StaticResource InfoSlideOutStoryboard}"/>
+                  </DataTrigger.ExitActions>
+                </DataTrigger>
+              </Grid.Triggers>
+
+              <Border Margin="-43,0,-43,0" Grid.ColumnSpan="2" BorderThickness="0">
+                <Border.Background>
+                  <LinearGradientBrush StartPoint="0.5,0" EndPoint="0.5,1">
+                    <LinearGradientBrush.GradientStops>
+                      <GradientStop Color="#00000000" Offset="0"  />
+                      <GradientStop Color="#CC000000" Offset="0.05"  />
+                      <GradientStop Color="#E6000000" Offset="1"  />
+                    </LinearGradientBrush.GradientStops>
+                  </LinearGradientBrush>
+                </Border.Background>
+              </Border>
+              <Control x:Name="OSDCoverPresenter" Margin="0,10,20,10" HorizontalAlignment="Center" VerticalAlignment="Center"
+                       Template="{DynamicResource ResourceKey=OSD_Cover_Template}" />
+              <Control Grid.Column="1" x:Name="OSDInfoAreaPresenter" Margin="0,10,0,0"
+                       HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Template="{DynamicResource ResourceKey=OSD_InfoArea_Template}" />
+            </Grid>
+
+            <Grid x:Name="PlayerControlPanel" Grid.ColumnSpan="3" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" SetFocusPrio="Default">
+              <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+              </Grid.ColumnDefinitions>
+              <Grid.RowDefinitions>
+                <RowDefinition Height="90"/>
+                <RowDefinition Height="30"/>
+              </Grid.RowDefinitions>
+              <Grid.RenderTransform>
+                <TranslateTransform Y="-140"/>
+              </Grid.RenderTransform>
+
+              <Grid.Resources>
+                <Storyboard x:Key="SlideInStoryboard" FillBehavior="HoldEnd">
+                  <DoubleAnimationUsingKeyFrames BeginTime="00:00:00" FillBehavior="HoldEnd" Storyboard.TargetName="PlayerControlPanel" Storyboard.TargetProperty="RenderTransform.Y">
+                    <SplineDoubleKeyFrame KeyTime="00:00:00" Value="-140"/>
+                    <SplineDoubleKeyFrame KeyTime="00:00:00.35" Value="0"/>
+                  </DoubleAnimationUsingKeyFrames>
+                </Storyboard>
+                <Storyboard x:Key="SlideOutStoryboard" FillBehavior="HoldEnd">
+                  <DoubleAnimationUsingKeyFrames BeginTime="00:00:00" FillBehavior="HoldEnd" Storyboard.TargetName="PlayerControlPanel" Storyboard.TargetProperty="RenderTransform.Y">
+                    <SplineDoubleKeyFrame KeyTime="00:00:00" Value="0"/>
+                    <SplineDoubleKeyFrame KeyTime="00:00:00.35" Value="-140"/>
+                  </DoubleAnimationUsingKeyFrames>
+                </Storyboard>
+              </Grid.Resources>
+
+              <Grid.Triggers>
+                <DataTrigger Binding="{Binding Source={StaticResource AudioPlayerModel},Path=IsOSDVisible}" Value="True">
+                  <DataTrigger.EnterActions>
+                    <BeginStoryboard x:Name="SlideIn_BeginStoryboard" Storyboard="{StaticResource SlideInStoryboard}"/>
+                  </DataTrigger.EnterActions>
+                  <DataTrigger.ExitActions>
+                    <StopStoryboard BeginStoryboardName="SlideIn_BeginStoryboard"/>
+                    <BeginStoryboard Storyboard="{StaticResource SlideOutStoryboard}"/>
+                  </DataTrigger.ExitActions>
+                </DataTrigger>
+              </Grid.Triggers>
+
+              <Border Margin="-41,-25,-41,-10" Grid.RowSpan="2" BorderThickness="0">
+                <Border.Background>
+                  <LinearGradientBrush StartPoint="0.5,0" EndPoint="0.5,1">
+                    <LinearGradientBrush.GradientStops>
+                      <GradientStop Color="#CC000000" Offset="0"  />
+                      <GradientStop Color="#CC000000" Offset="0.95"  />
+                      <GradientStop Color="#00000000" Offset="1"  />
+                    </LinearGradientBrush.GradientStops>
+                  </LinearGradientBrush>
+                </Border.Background>
+              </Border>
+
+              <Control x:Name="ControlsPresenter" HorizontalAlignment="Stretch"
+                       Template="{DynamicResource ResourceKey=OSD_Controls_Template}"/>
+              <Control Grid.Row="1" x:Name="ProgressPresenter" HorizontalAlignment="Stretch" VerticalAlignment="Top" Margin="0,-2,0,0"
+                       Template="{DynamicResource ResourceKey=OSD_Progress_Template}"/>
+            </Grid>
+          </Grid>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+  
 </ResourceDictionary>

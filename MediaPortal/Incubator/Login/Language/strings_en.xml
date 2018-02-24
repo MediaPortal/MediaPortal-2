@@ -52,10 +52,15 @@
   <string name="UserConfig.No">No</string>
   <string name="UserConfig.Ok">OK</string>
 
-  <string name="UserConfig.SelectProfileType">Select profile type</string>
-  <string name="UserConfig.ClientProfileType">Client profile</string>
-  <string name="UserConfig.UserProfileType">User profile</string>
-  <string name="UserConfig.AdminProfileType">Administrator profile</string>
+  <string name="UserConfig.SelectProfileTemplate">Select profile template</string>
+  <string name="UserConfig.ClientProfile">Client profile</string>
+  <string name="UserConfig.UserProfile">User profile</string>
+
+  <string name="UserConfig.RestrictionGroups">Restrict actions</string>
+  <string name="UserConfig.RestrictedAll">All allowed</string>
+  <string name="UserConfig.RestrictedNone">None allowed</string>
+  <string name="UserConfig.RestrictedNumbers">{0} / {1} allowed</string>
+  <string name="UserConfig.SelectRestrictions">Select allowed features for user</string>
 
   <string name="UserConfig.SharesText">Shares</string>
   <string name="UserConfig.SelectShares">Select share access</string>
@@ -65,4 +70,12 @@
   <string name="UserConfig.GlobalShares">Server media sources</string>
   <string name="UserConfig.NoConfigGlobalSharesHomeServerNotConnected">The home server is currently not connected, so server media sources cannot be managed at the moment.</string>
   <string name="UserConfig.NoConfigLocalSharesHomeServerLocal">The home server is located at the same machine, so only server media sources can be configured.</string>
+
+  <string name="RestrictionGroup.Settings.UserProfile">Settings: Manage all user profiles</string>
+  <string name="RestrictionGroup.Settings.UserProfile.ManageOwn">Settings: Manage own profile</string>
+
+  <string name="UserProfileTemplate.Admin">Administrator</string>
+  <string name="UserProfileTemplate.Teenager">Teenager</string>
+  <string name="UserProfileTemplate.Child">Child</string>
+
 </resources>

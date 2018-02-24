@@ -17,6 +17,7 @@
         <Grid.Resources>
           <Model x:Key="ExtendedVideoSkip" Id="8573DBD8-A257-426a-9875-9DB155D32D47"/>
           <Model x:Key="MouseModel" Id="CA6428A7-A6E2-4dd3-9661-F89CEBAF8E62"/>
+          <Model x:Key="AudioPlayerModel" Id="D8998340-DA2D-42be-A29B-6D7A72AEA2DC"/>
         </Grid.Resources>
         <Grid.ColumnDefinitions>
           <ColumnDefinition Width="25*"/>
@@ -54,6 +55,8 @@
             </VisualBrush.Visual>
           </VisualBrush>
         </Grid.Background>
+        
+        <Include Source="screens\FullScreenContentAudioKeyBindings.inc"/>
 
         <!--Playerstate overlay-->
         <Grid Grid.ColumnSpan="3" Grid.RowSpan="2" HorizontalAlignment="Center" VerticalAlignment="Center">
@@ -293,11 +296,11 @@
           </StackPanel>
         </Grid>
 
-        <DockPanel x:Name="OSD_RightPanel" Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="2" LastChildFill="false">
+        <DockPanel x:Name="OSD_RightPanel" Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="2" LastChildFill="false"
+                   IsVisible="{Binding Source={StaticResource AudioPlayerModel}, Path=IsOSDVisible}">
           <mp_special_controls:PlayerControl x:Name="PrimaryOSD" DockPanel.Dock="Bottom"
             Style="{ThemeResource PrimaryAudioOSDStyle}" VerticalAlignment="Stretch" HorizontalAlignment="Right"/>
         </DockPanel>
-
       </Grid>
     </mp_special_controls:PlayerControl.TemplateControl>
   </mp_special_controls:PlayerControl>

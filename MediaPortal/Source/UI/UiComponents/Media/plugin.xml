@@ -11,7 +11,7 @@
     PluginVersion="1.1"
     ReleaseDate="2016-12-20 01:00:00 GMT+01:00"
     CurrentAPI="2"/>
-  
+
   <DependsOn>
     <CoreDependency Name="MediaPortal.Common" CompatibleAPI="2" />
     <CoreDependency Name="MediaPortal.UI" CompatibleAPI="2" />
@@ -28,6 +28,7 @@
 
   <Runtime>
     <Assembly FileName="Media.dll"/>
+    <PluginStateTracker ClassName="MediaPortal.UiComponents.Media.MediaPlugin"/>
   </Runtime>
 
   <Register Location="/Models">
@@ -150,6 +151,10 @@
         Name="CheckResumePlayback"
         DisplayLabel="[Media.CheckQueryPlayActionSingleItemWorkflowStateNavigationContextDisplayLabel]"
         WorkflowModel="3750D3FE-CA2A-4c8a-97B3-A08EF305C084"/> <!-- Workflow model = PlayItems model -->
+    <DialogState Id="DECA9453-E04B-4B2D-90AF-2545CAF29507"
+        Name="CheckEdition"
+        DisplayLabel="[Media.CheckQueryPlayActionSingleItemWorkflowStateNavigationContextDisplayLabel]"
+        WorkflowModel="3750D3FE-CA2A-4c8a-97B3-A08EF305C084"/> <!-- Workflow model = PlayItems model -->
 
     <!-- CP/FSC states -->
 
@@ -247,7 +252,7 @@
     <MediaItemActionBuilder Id="{6840E4DB-3787-421F-910E-7450BD5A408C}" Caption="[Media.SetWatched]" Sort="C.1" ClassName="MediaPortal.UiComponents.Media.MediaItemActions.SetWatched"/>
     <MediaItemActionBuilder Id="{8B92989B-B57F-43C9-ACE2-C1E4866122E7}" Caption="[Media.Refresh]" Sort="C.2" ClassName="MediaPortal.UiComponents.Media.MediaItemActions.RefreshMediaItem"/>
     <MediaItemActionBuilder Id="{3185CBDB-0EF8-4E22-AE3E-2D79FA52F63A}" Caption="[Media.Reimport]" Sort="C.3" ClassName="MediaPortal.UiComponents.Media.MediaItemActions.ReimportMediaItem"/>
-    <MediaItemActionBuilder Id="{37417344-B43E-486F-A2C5-DFF9E8C1C8E1}" Caption="[Media.DeleteFromStorage]" Sort="D.2" ClassName="MediaPortal.UiComponents.Media.MediaItemActions.DeleteFromStorage"/>
+    <MediaItemActionBuilder Id="{37417344-B43E-486F-A2C5-DFF9E8C1C8E1}" Caption="[Media.DeleteFromStorage]" Sort="D.2" ClassName="MediaPortal.UiComponents.Media.MediaItemActions.DeleteFromStorage" RestrictionGroup="Media.DeleteMediaItem" />
   </Register>
 
   <!-- MediaNavigationFilter -->
@@ -379,6 +384,11 @@
       HelpText="[Settings.Players.WatchedPlayPercentage.Help]"
       ClassName="MediaPortal.UiComponents.Media.Settings.Configuration.WatchedPlayPercentage"/>
 
+    <ConfigSetting
+      Id="OpenPlayerConfigInOsd"
+      Text="[Settings.Players.OpenPlayerConfigInOsd]"
+      HelpText="[Settings.Players.OpenPlayerConfigInOsd.Help]"
+      ClassName="MediaPortal.UiComponents.Media.Settings.Configuration.OpenPlayerConfigInOsd"/>
   </Register>
 
   <!-- Contents of '/Media' section -->

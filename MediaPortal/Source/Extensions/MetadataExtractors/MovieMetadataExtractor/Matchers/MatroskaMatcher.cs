@@ -22,17 +22,17 @@
 
 #endregion
 
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
+using MediaPortal.Common.Genres;
+using MediaPortal.Common.MediaManagement;
+using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Common.MediaManagement.Helpers;
 using MediaPortal.Common.ResourceAccess;
 using MediaPortal.Extensions.MetadataExtractors.MatroskaLib;
 using MediaPortal.Utilities;
-using MediaPortal.Common.MediaManagement.DefaultItemAspects;
-using MediaPortal.Extensions.OnlineLibraries;
-using MediaPortal.Common.MediaManagement;
-using MediaPortal.Common.Genres;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor.Matchers
 {
@@ -41,67 +41,55 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor.Match
   /// </summary>
   public class MatroskaMatcher
   {
-    public static bool TryMatchImdbId(ILocalFsResourceAccessor folderOrFileLfsra, out string imdbId)
+    public static async Task<string> TryMatchImdbIdAsync(ILocalFsResourceAccessor folderOrFileLfsra)
     {
       // Calling EnsureLocalFileSystemAccess not necessary; only string operation
       string extensionLower = StringUtils.TrimToEmpty(Path.GetExtension(folderOrFileLfsra.LocalFileSystemPath)).ToLower();
       if (!MatroskaConsts.MATROSKA_VIDEO_EXTENSIONS.Contains(extensionLower))
-      {
-        imdbId = null;
-        return false;
-      }
+        return null;
 
       MatroskaInfoReader mkvReader = new MatroskaInfoReader(folderOrFileLfsra);
       // Add keys to be extracted to tags dictionary, matching results will returned as value
       Dictionary<string, IList<string>> tagsToExtract = MatroskaConsts.DefaultTags;
-      mkvReader.ReadTags(tagsToExtract);
+      await mkvReader.ReadTagsAsync(tagsToExtract).ConfigureAwait(false);
 
       if (tagsToExtract[MatroskaConsts.TAG_MOVIE_IMDB_ID] != null)
       {
         foreach (string candidate in tagsToExtract[MatroskaConsts.TAG_MOVIE_IMDB_ID])
         {
-          if (ImdbIdMatcher.TryMatchImdbId(candidate, out imdbId))
-            return true;
+          if (ImdbIdMatcher.TryMatchImdbId(candidate, out string imdbId))
+            return imdbId;
         }
       }
 
-      imdbId = null;
-      return false;
+      return null;
     }
 
-    public static bool TryMatchTmdbId(ILocalFsResourceAccessor folderOrFileLfsra, out string tmdbId)
+    public static async Task<string> TryMatchTmdbIdAsync(ILocalFsResourceAccessor folderOrFileLfsra)
     {
       // Calling EnsureLocalFileSystemAccess not necessary; only string operation
       string extensionLower = StringUtils.TrimToEmpty(Path.GetExtension(folderOrFileLfsra.LocalFileSystemPath)).ToLower();
       if (!MatroskaConsts.MATROSKA_VIDEO_EXTENSIONS.Contains(extensionLower))
-      {
-        tmdbId = "0";
-        return false;
-      }
+        return null;
 
       MatroskaInfoReader mkvReader = new MatroskaInfoReader(folderOrFileLfsra);
       // Add keys to be extracted to tags dictionary, matching results will returned as value
       Dictionary<string, IList<string>> tagsToExtract = MatroskaConsts.DefaultTags;
-      mkvReader.ReadTags(tagsToExtract);
+      await mkvReader.ReadTagsAsync(tagsToExtract).ConfigureAwait(false);
 
       if (tagsToExtract[MatroskaConsts.TAG_MOVIE_TMDB_ID] != null)
       {
         foreach (string candidate in tagsToExtract[MatroskaConsts.TAG_MOVIE_TMDB_ID])
         {
-          int tmdbIdInt;
-          if (int.TryParse(candidate, out tmdbIdInt))
-          {
-            tmdbId = tmdbIdInt.ToString();
-            return true;
-          }
+          if (int.TryParse(candidate, out int tmdbIdInt))
+            return tmdbIdInt.ToString();
         }
       }
-
-      tmdbId = "0";
-      return false;
+      
+      return null;
     }
 
-    public static bool ExtractFromTags(ILocalFsResourceAccessor folderOrFileLfsra, MovieInfo movieInfo)
+    public static async Task<bool> ExtractFromTagsAsync(ILocalFsResourceAccessor folderOrFileLfsra, MovieInfo movieInfo)
     {
       // Calling EnsureLocalFileSystemAccess not necessary; only string operation
       string extensionLower = StringUtils.TrimToEmpty(Path.GetExtension(folderOrFileLfsra.LocalFileSystemPath)).ToLower();
@@ -112,7 +100,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor.Match
       MatroskaInfoReader mkvReader = new MatroskaInfoReader(folderOrFileLfsra);
       // Add keys to be extracted to tags dictionary, matching results will returned as value
       Dictionary<string, IList<string>> tagsToExtract = MatroskaConsts.DefaultTags;
-      mkvReader.ReadTags(tagsToExtract);
+      await mkvReader.ReadTagsAsync(tagsToExtract).ConfigureAwait(false);
 
       // Read plot
       IList<string> tags = tagsToExtract[MatroskaConsts.TAG_EPISODE_SUMMARY];

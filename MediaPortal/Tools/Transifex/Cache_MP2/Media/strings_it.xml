@@ -140,6 +140,7 @@
   <string name="Media.SeasonItemsHeader">Stagione/i</string>
   <string name="Media.MoviesItemsHeader">Film</string>
   <string name="Media.ImageItemsHeader">Immagine/i</string>
+  <string name="Media.DiscItemsHeader">Disco(i)</string>
   <string name="Media.TrackItemsHeader">Traccia/e</string>
   <string name="Media.SimpleSearchHeader">Ricerca semplice</string>
   <string name="Media.ChooseCollectionHeader">Collezioni</string>
@@ -252,6 +253,7 @@
   <string name="Media.SetWatched">Imposta come già visto</string>
   <string name="Media.SetUnwatched">Imposta come non ancora visto</string>
   <string name="Media.DeleteFromStorage">Cancella dal supporto</string>
+  <string name="Media.DeleteFromStorage.Confirmation">Sei sicuro di volere rimuovere questo elemento? L\'azione non può essere annullata.</string>
   <string name="Media.ConfirmAction">Conferma l\'azione</string>
   <!--Play items dialog-->
   <string name="Media.PlayItemDialogHeader">Riproduci contenuto</string>
@@ -390,6 +392,8 @@
   <string name="Settings.Players.OpenPlayerStrategy.Help">Decidi come i nuovi player saranno posizionati sopra quelli già aperti</string>
   <string name="Settings.Players.WatchedPlayPercentage">Percentuale dei contenuti già visti</string>
   <string name="Settings.Players.WatchedPlayPercentage.Help">Scegli la percentuale di un contenuto da riprodurre prima che sia marcato come già visto</string>
+  <string name="Settings.Players.OpenPlayerConfigInOsd">Apri la configurazione del lettore in OSD</string>
+  <string name="Settings.Players.OpenPlayerConfigInOsd.Help">Attiva l\'opzione per mostrare la configurazione del lettore dopo aver premuto il tasto \'Info\' una seconda volta</string>
   <string name="Settings.Media">Libreria multimediale</string>
   <string name="Settings.Media.ShowVirtual">Mostra tutti i tipi di contenuto noti</string>
   <string name="Settings.Media.ShowVirtual.Help">Decidi se mostrare tutti i tipi noti anche se non si riferiscono ad un file locale</string>

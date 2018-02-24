@@ -88,7 +88,7 @@ namespace Test.OnlineLibraries
       ServiceRegistration.Set<ILocalization>(new NoLocalization());
 
       MusicBrainzMatcher matcher = new MusicBrainzMatcher();
-      matcher.Init();
+      matcher.InitAsync().Wait();
 
       TrackInfo track = new TrackInfo();
       track.TrackName = title;
@@ -96,7 +96,7 @@ namespace Test.OnlineLibraries
       track.Album = album;
       track.ReleaseDate = new DateTime(year, 1, 1);
       track.TrackNum = trackNum;
-      if (matcher.FindAndUpdateTrack(track, false))
+      if (matcher.FindAndUpdateTrackAsync(track).Result)
       {
         Console.WriteLine("Found track title={0} artist={1} album={2} year={3} trackNum={4}:\nTitle={5} Artists={6} Album={7} Year={8} Track={9}",
           title, artist, album, year, trackNum, track.TrackName, string.Join(", ", track.Artists), track.Album, track.ReleaseDate, track.TrackNum);
@@ -120,12 +120,12 @@ namespace Test.OnlineLibraries
       ServiceRegistration.Set<ILocalization>(new NoLocalization());
 
       MusicFreeDbMatcher matcher = new MusicFreeDbMatcher();
-      matcher.Init();
+      matcher.InitAsync().Wait();
 
       TrackInfo track = new TrackInfo();
       track.AlbumCdDdId = cdDbId;
       track.TrackName = title;
-      if (matcher.FindAndUpdateTrack(track, false))
+      if (matcher.FindAndUpdateTrackAsync(track).Result)
       {
         Console.WriteLine("Found track CDDB ID={0} title={1}:\nTitle={2} Artists={3} Album={4} Year={5} Track={6}",
           cdDbId, title, track.TrackName, string.Join(", ", track.Artists), track.Album, track.ReleaseDate, track.TrackNum);
@@ -148,7 +148,7 @@ namespace Test.OnlineLibraries
       ServiceRegistration.Set<ILocalization>(new NoLocalization());
 
       MusicTheAudioDbMatcher matcher = new MusicTheAudioDbMatcher();
-      matcher.Init();
+      matcher.InitAsync().Wait();
 
       TrackInfo track = new TrackInfo();
       track.TrackName = title;
@@ -156,7 +156,7 @@ namespace Test.OnlineLibraries
       track.Album = album;
       track.ReleaseDate = new DateTime(year, 1, 1);
       track.TrackNum = trackNum;
-      if (matcher.FindAndUpdateTrack(track, false))
+      if (matcher.FindAndUpdateTrackAsync(track).Result)
       {
         Console.WriteLine("Found track title={0} artist={1} album={2} year={3} trackNum={4}:\nTitle={5} Artists={6} Album={7} Year={8} Track={9}",
           title, artist, album, year, trackNum, track.TrackName, string.Join(", ", track.Artists), track.Album, track.ReleaseDate, track.TrackNum);
@@ -184,7 +184,7 @@ namespace Test.OnlineLibraries
       ServiceRegistration.Set<IMediaAccessor>(new TestMediaAccessor());
       ServiceRegistration.Set<IMediaItemAspectTypeRegistration>(new MockMediaItemAspectTypeRegistration());
 
-      ApplicationCore.RegisterDefaultMediaItemAspectTypes();
+      ApplicationCore.RegisterDefaultMediaItemAspectTypes().Wait();
 
       ServiceRegistration.Set<SeriesTvDbMatcher>(new SeriesTvDbMatcher());
 
@@ -211,7 +211,7 @@ namespace Test.OnlineLibraries
 
       IMetadataExtractor extractor = new Tve3RecordingMetadataExtractor();
       IResourceAccessor accessor = new MockLocalFsResourceAccessor(ProviderPathHelper.ChangeExtension(filename, ".ts"));
-      extractor.TryExtractMetadata(accessor, aspects, false, false);
+      extractor.TryExtractMetadataAsync(accessor, aspects, false);
 
       Console.WriteLine("After extract:");
       ShowMIAs(aspects, registration);
@@ -223,11 +223,9 @@ namespace Test.OnlineLibraries
         {
           TvdbId = Int32.Parse(value)
         };
-        SeriesTvDbMatcher.Instance.UpdateSeries(seriesInfo, false, false);
+        SeriesTvDbMatcher.Instance.UpdateSeriesAsync(seriesInfo, false).Wait();
         Console.WriteLine("{0}: {1}", seriesInfo.SeriesName, seriesInfo.Description);
       }
-
-      SeriesTvDbMatcher.Instance.EndDownloads();
     }
 
     static void Usage()

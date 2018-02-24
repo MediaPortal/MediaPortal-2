@@ -24,6 +24,7 @@
 
 using System.Linq;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using MediaPortal.Common;
 using MediaPortal.Common.Localization;
 using MediaPortal.Common.Logging;
@@ -74,55 +75,65 @@ namespace MediaPortal.Plugins.SlimTv.Client.TvHandler
       }
     }
 
-    public ITimeshiftControl TimeshiftControl
+    //public ITimeshiftControl TimeshiftControl
+    //{
+    //  get { return _tvProvider as ITimeshiftControl; }
+    //}
+
+    public ITimeshiftControlAsync TimeshiftControl
     {
-      get { return _tvProvider as ITimeshiftControl; }
+      get { return _tvProvider as ITimeshiftControlAsync; }
     }
 
-    public IChannelAndGroupInfo ChannelAndGroupInfo
+    public IChannelAndGroupInfoAsync ChannelAndGroupInfo
     {
-      get { return _tvProvider as IChannelAndGroupInfo; }
+      get { return _tvProvider as IChannelAndGroupInfoAsync; }
     }
 
-    public IProgramInfo ProgramInfo
+    //public IProgramInfo ProgramInfo
+    //{
+    //  get { return _tvProvider as IProgramInfo; }
+    //}
+
+    public IProgramInfoAsync ProgramInfo
     {
-      get { return _tvProvider as IProgramInfo; }
+      get { return _tvProvider as IProgramInfoAsync; }
     }
 
-    public IScheduleControl ScheduleControl
+    public IScheduleControlAsync ScheduleControl
     {
-      get { return _tvProvider as IScheduleControl; }
+      get { return _tvProvider as IScheduleControlAsync; }
     }
 
-    public IProgram CurrentProgram
-    {
-      get { return GetCurrentProgram(GetChannel(PlayerContextIndex.PRIMARY)); }
-    }
+    //public IProgram CurrentProgram
+    //{
+    //  get { return GetCurrentProgram(GetChannel(PlayerContextIndex.PRIMARY)); }
+    //}
 
-    public IProgram NextProgram
-    {
-      get { return GetNextProgram(GetChannel(PlayerContextIndex.PRIMARY)); }
-    }
+    //public IProgram NextProgram
+    //{
+    //  get { return GetNextProgram(GetChannel(PlayerContextIndex.PRIMARY)); }
+    //}
 
-    public IProgram GetCurrentProgram(IChannel channel)
-    {
-      IProgram currentProgram;
-      IProgram nextProgram;
-      if (ProgramInfo != null && ProgramInfo.GetNowNextProgram(channel, out currentProgram, out nextProgram))
-        return currentProgram;
+    //public IProgram GetCurrentProgram(IChannel channel)
+    //{
+    //  IProgram currentProgram;
+    //  IProgram nextProgram;
+    //  if (ProgramInfo != null && ProgramInfo.GetNowNextProgram(channel, out currentProgram, out nextProgram))
+    //    return currentProgram;
 
-      return null;
-    }
+    //  return null;
+    //}
 
-    public IProgram GetNextProgram(IChannel channel)
-    {
-      IProgram currentProgram;
-      IProgram nextProgram;
-      if (ProgramInfo != null && ProgramInfo.GetNowNextProgram(channel, out currentProgram, out nextProgram))
-        return nextProgram;
+    //public IProgram GetNextProgram(IChannel channel)
+    //{
+    //  IProgram currentProgram;
+    //  IProgram nextProgram;
+    //  if (ProgramInfo != null && ProgramInfo.GetNowNextProgram(channel, out currentProgram, out nextProgram))
+    //    return nextProgram;
 
-      return null;
-    }
+    //  return null;
+    //}
 
     /// <summary>
     /// Gets a value how many slots are currently used for timeshifting (0..2).
@@ -189,13 +200,10 @@ namespace MediaPortal.Plugins.SlimTv.Client.TvHandler
     // Note: the slotIndex represents the server side stream, which is not related to the PlayerSlot.
     public IChannel GetChannel(int slotIndex)
     {
-      if (TimeshiftControl == null)
-        return null;
-
-      return TimeshiftControl.GetChannel(GetMatchingSlotIndex(slotIndex));
+      return TimeshiftControl?.GetChannel(GetMatchingSlotIndex(slotIndex));
     }
 
-    public bool StartTimeshift(int slotIndex, IChannel channel)
+    public async Task<bool> StartTimeshiftAsync(int slotIndex, IChannel channel)
     {
       if (TimeshiftControl == null || channel == null)
         return false;
@@ -203,10 +211,10 @@ namespace MediaPortal.Plugins.SlimTv.Client.TvHandler
       ServiceRegistration.Get<ILogger>().Debug("SlimTvHandler: StartTimeshift slot {0} for channel '{1}'", slotIndex, channel.Name);
 
       int newSlotIndex = GetMatchingSlotIndex(slotIndex);
-      MediaItem timeshiftMediaItem;
-      bool result = TimeshiftControl.StartTimeshift(newSlotIndex, channel, out timeshiftMediaItem);
+      var result = await TimeshiftControl.StartTimeshiftAsync(newSlotIndex, channel);
       IList<MultipleMediaItemAspect> pras;
-      if (result && timeshiftMediaItem != null && MediaItemAspect.TryGetAspects(timeshiftMediaItem.Aspects, ProviderResourceAspect.Metadata, out pras))
+      MediaItem timeshiftMediaItem = result.Result;
+      if (result.Success && timeshiftMediaItem != null && MediaItemAspect.TryGetAspects(timeshiftMediaItem.Aspects, ProviderResourceAspect.Metadata, out pras))
       {
         string newAccessorPath = (string)pras[0].GetAttributeValue(ProviderResourceAspect.ATTR_RESOURCE_ACCESSOR_PATH);
 
@@ -215,7 +223,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.TvHandler
         {
           AddOrUpdateTimeshiftContext(timeshiftMediaItem as LiveTvMediaItem, channel);
           PlayerContextConcurrencyMode playMode = GetMatchingPlayMode();
-          PlayItemsModel.PlayOrEnqueueItem(timeshiftMediaItem, true, playMode);
+          await PlayItemsModel.PlayOrEnqueueItem(timeshiftMediaItem, true, playMode);
         }
         else
         {
@@ -232,8 +240,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.TvHandler
         _slotContexes[newSlotIndex].AccessorPath = newAccessorPath;
         _slotContexes[newSlotIndex].Channel = channel;
       }
-
-      return result;
+      return result.Success;
     }
 
     /// <summary>
@@ -242,7 +249,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.TvHandler
     /// </summary>
     /// <param name="timeshiftMediaItem">MediaItem</param>
     /// <param name="channel">Current channel.</param>
-    private bool AddOrUpdateTimeshiftContext(LiveTvMediaItem timeshiftMediaItem, IChannel channel)
+    private void AddOrUpdateTimeshiftContext(LiveTvMediaItem timeshiftMediaItem, IChannel channel)
     {
       TimeshiftContext tsContext = new TimeshiftContext { Channel = channel };
       // Remove the newly tuned channel from history if present
@@ -251,7 +258,6 @@ namespace MediaPortal.Plugins.SlimTv.Client.TvHandler
       // Then add the new context to the end
       timeshiftMediaItem.TimeshiftContexes.Add(tsContext);
       timeshiftMediaItem.AdditionalProperties[LiveTvMediaItem.CHANNEL] = channel;
-      return true;
     }
 
     private void UpdateExistingMediaItem(MediaItem timeshiftMediaItem)
@@ -327,7 +333,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.TvHandler
       return oldItem.GetPlayData(out oldMimeType, out oldTitle) && newItem.GetPlayData(out newMimeType, out newTitle) && oldMimeType == newMimeType;
     }
 
-    public bool StopTimeshift(int slotIndex)
+    public async Task<bool> StopTimeshiftAsync(int slotIndex)
     {
       if (TimeshiftControl == null)
         return false;
@@ -335,7 +341,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.TvHandler
       _slotContexes[slotIndex].AccessorPath = null;
       _slotContexes[slotIndex].Channel = null;
 
-      return TimeshiftControl.StopTimeshift(slotIndex);
+      return await TimeshiftControl.StopTimeshiftAsync(slotIndex);
     }
 
     public bool DisposeSlot(int slotIndex)
@@ -343,18 +349,21 @@ namespace MediaPortal.Plugins.SlimTv.Client.TvHandler
       // when we change the channel and the card was changed, don't need to stop the 
       if (_slotContexes[slotIndex].CardChanging)
         return true;
-      return StopTimeshift(slotIndex);
+      return StopTimeshiftAsync(slotIndex).Result;
     }
 
-    public bool WatchRecordingFromBeginning(IProgram program)
+    public async Task<bool> WatchRecordingFromBeginningAsync(IProgram program)
     {
-      string fileOrStream;
-      if (ScheduleControl.GetRecordingFileOrStream(program, out fileOrStream))
+      var result = await ScheduleControl.GetRecordingFileOrStreamAsync(program);
+      if (result.Success)
       {
-        IChannel channel;
-        if (ChannelAndGroupInfo.GetChannel(program.ChannelId, out channel))
+        string fileOrStream = result.Result;
+
+        var channelResult = await ChannelAndGroupInfo.GetChannelAsync(program.ChannelId);
+        if (channelResult.Success)
         {
-          MediaItem recordig = SlimTvMediaItemBuilder.CreateRecordingMediaItem(0, fileOrStream, program, channel);
+
+          MediaItem recordig = SlimTvMediaItemBuilder.CreateRecordingMediaItem(0, fileOrStream, program, channelResult.Result);
           PlayItemsModel.CheckQueryPlayAction(recordig);
           return true;
         }

@@ -49,15 +49,11 @@ using Card = TvDatabase.Card;
 using IUser = TvControl.IUser;
 using User = TvControl.User;
 using VirtualCard = TvControl.VirtualCard;
-using SlimTvCard = MediaPortal.Plugins.SlimTv.Interfaces.UPnP.Items.Card;
-using SlimTvVirtualCard = MediaPortal.Plugins.SlimTv.Interfaces.UPnP.Items.VirtualCard;
-using SlimTvUser = MediaPortal.Plugins.SlimTv.Interfaces.UPnP.Items.User;
 using System.Globalization;
 using Gentle.Framework;
 using System.Collections;
 using MediaPortal.Common.Settings;
 using MediaPortal.Plugins.SlimTv.Proxy.Settings;
-using TvLibrary.Interfaces;
 
 namespace MediaPortal.Plugins.SlimTv.Service
 {
@@ -660,117 +656,14 @@ namespace MediaPortal.Plugins.SlimTv.Service
 
     public override bool CreateScheduleByTime(IChannel channel, DateTime from, DateTime to, ScheduleRecordingType recordingType, out ISchedule schedule)
     {
-      return CreateScheduleByTime(channel, "Manual", from, to, recordingType, out schedule);
-    }
-
-    public override bool CreateScheduleByTime(IChannel channel, string title, DateTime from, DateTime to, ScheduleRecordingType recordingType, out ISchedule schedule)
-    {
       TvBusinessLayer layer = new TvBusinessLayer();
-      TvDatabase.Schedule tvSchedule = layer.AddSchedule(channel.ChannelId, title, from, to, (int)recordingType);
+      TvDatabase.Schedule tvSchedule = layer.AddSchedule(channel.ChannelId, "Manual", from, to, (int)recordingType);
       tvSchedule.PreRecordInterval = Int32.Parse(layer.GetSetting("preRecordInterval", "5").Value);
       tvSchedule.PostRecordInterval = Int32.Parse(layer.GetSetting("postRecordInterval", "5").Value);
       tvSchedule.Persist();
       RemoteControl.Instance.OnNewSchedule();
       schedule = tvSchedule.ToSchedule();
       return true;
-    }
-
-    public override bool CreateScheduleDetailed(IChannel channel, string title, DateTime from, DateTime to, ScheduleRecordingType recordingType, int preRecordInterval, int postRecordInterval, string directory, int priority, out ISchedule schedule)
-    {
-      TvBusinessLayer layer = new TvBusinessLayer();
-      TvDatabase.Schedule tvSchedule = layer.AddSchedule(channel.ChannelId, title, from, to, (int)recordingType);
-      tvSchedule.PreRecordInterval = preRecordInterval >= 0 ? preRecordInterval : Int32.Parse(layer.GetSetting("preRecordInterval", "5").Value);
-      tvSchedule.PostRecordInterval = postRecordInterval >= 0 ? postRecordInterval : Int32.Parse(layer.GetSetting("postRecordInterval", "5").Value);
-      if (!String.IsNullOrEmpty(directory))
-      {
-        tvSchedule.Directory = directory;
-      }
-      if (priority >= 0)
-      {
-        tvSchedule.Priority = priority;
-      }
-      tvSchedule.Persist();
-      RemoteControl.Instance.OnNewSchedule();
-      schedule = tvSchedule.ToSchedule();
-      return true;
-    }
-
-    public override bool EditSchedule(ISchedule schedule, IChannel channel = null, string title = null, DateTime? from = null, DateTime? to = null, ScheduleRecordingType? recordingType = null, int? preRecordInterval = null, int? postRecordInterval = null, string directory = null, int? priority = null)
-    {
-      try
-      {
-        ServiceRegistration.Get<ILogger>().Debug("Editing schedule {0} on channel {1} for {2}, {3} till {4}, type {5}", schedule.ScheduleId, channel.ChannelId, title, from, to, recordingType);
-        TvDatabase.Schedule tvSchedule = TvDatabase.Schedule.Retrieve(schedule.ScheduleId);
-
-        tvSchedule.IdChannel = channel.ChannelId;
-        if (title != null)
-        {
-          tvSchedule.ProgramName = title;
-        }
-        if (from != null)
-        {
-          tvSchedule.StartTime = from.Value;
-        }
-        if (to != null)
-        {
-          tvSchedule.EndTime = to.Value;
-        }
-
-        if (recordingType != null)
-        {
-          ScheduleRecordingType scheduleRecType = recordingType.Value;
-          tvSchedule.ScheduleType = (int)scheduleRecType;
-        }
-
-        if (preRecordInterval != null)
-        {
-          tvSchedule.PreRecordInterval = preRecordInterval.Value;
-        }
-        if (postRecordInterval != null)
-        {
-          tvSchedule.PostRecordInterval = postRecordInterval.Value;
-        }
-
-        if (directory != null)
-        {
-          tvSchedule.Directory = directory;
-        }
-        if (priority != null)
-        {
-          tvSchedule.Priority = priority.Value;
-        }
-
-        tvSchedule.Persist();
-
-        RemoteControl.Instance.OnNewSchedule(); // I don't think this is needed, but doesn't hurt either
-        return true;
-      }
-      catch (Exception ex)
-      {
-        ServiceRegistration.Get<ILogger>().Warn(String.Format("Failed to edit schedule {0}", schedule.ScheduleId), ex);
-        return false;
-      }
-    }
-
-    public override bool UnCancelSchedule(IProgram program)
-    {
-      var tvProgram = TvDatabase.Program.Retrieve(program.ProgramId);
-      try
-      {
-        ServiceRegistration.Get<ILogger>().Debug("Uncancelling schedule for programId {0}", tvProgram.IdProgram);
-        foreach (TvDatabase.Schedule schedule in TvDatabase.Schedule.ListAll().Where(schedule => schedule.IsSerieIsCanceled(program.StartTime, tvProgram.IdChannel)))
-        {
-          schedule.UnCancelSerie(program.StartTime, tvProgram.IdChannel);
-          schedule.Persist();
-        }
-
-        return true;
-      }
-      catch (Exception ex)
-      {
-        ServiceRegistration.Get<ILogger>().Warn(String.Format("Failed to uncancel schedule for programId {0}", program.ProgramId), ex);
-        return false;
-      }
     }
 
     public override bool RemoveScheduleForProgram(IProgram program, ScheduleRecordingType recordingType)
@@ -831,7 +724,13 @@ namespace MediaPortal.Plugins.SlimTv.Service
 
     private static bool GetRecording(IProgram program, out Recording recording)
     {
-      recording = Recording.ListAll().FirstOrDefault(r => r.IsRecording && r.IdChannel == program.ChannelId && r.Title == program.Title);
+      recording = Recording.ListAllActive().FirstOrDefault(r => r.IsRecording && r.IdChannel == program.ChannelId && r.Title == program.Title);
+      return recording != null;
+    }
+
+    private static bool GetRecording(string filename, out Recording recording)
+    {
+      recording = Recording.ListAllActive().FirstOrDefault(r => r.IsRecording && string.Equals(r.FileName, filename, StringComparison.OrdinalIgnoreCase));
       return recording != null;
     }
 
@@ -884,95 +783,15 @@ namespace MediaPortal.Plugins.SlimTv.Service
       return _tvUsers[userName];
     }
 
-    public override bool GetCards(out List<ICard> cards)
+    public override bool IsCurrentlyRecording(string fileName, out ISchedule schedule)
     {
-      TvBusinessLayer layer = new TvBusinessLayer();
-      cards = layer.Cards.Select(card => new SlimTvCard()
-      {
-        Name = card.Name,
-        CardId = card.IdCard,
-        EpgIsGrabbing = card.GrabEPG,
-        HasCam = card.CAM,
-        CamType = card.CamType == (int)CamType.Default ? SlimTvCamType.Default : SlimTvCamType.Astoncrypt2,
-        DecryptLimit = card.DecryptLimit,
-        Enabled = card.Enabled,
-        RecordingFolder = card.RecordingFolder,
-        TimeshiftFolder = card.TimeShiftFolder,
-        DevicePath = card.DevicePath,
-        PreloadCard = card.PreloadCard,
-        Priority = card.Priority,
-        SupportSubChannels = card.supportSubChannels,
-        RecordingFormat = card.RecordingFormat
-      }).Cast<ICard>().ToList();
+      Recording recording;
+      schedule = null;
+      if (!GetRecording(fileName, out recording) || recording.Idschedule <= 0)
+        return false;
 
-      return cards.Count > 0;
-    }
-
-    public override bool GetActiveVirtualCards(out List<IVirtualCard> cards)
-    {
-      IEnumerable<VirtualCard> virtualCards = Card.ListAll()
-                .Where(card => RemoteControl.Instance.CardPresent(card.IdCard))
-                .Select(card => RemoteControl.Instance.GetUsersForCard(card.IdCard))
-                .Where(users => users != null)
-                .SelectMany(user => user)
-                .Select(user => new VirtualCard(user, RemoteControl.HostName))
-                .Where(tvCard => tvCard.IsTimeShifting || tvCard.IsRecording);
-
-      cards = new List<IVirtualCard>();
-      foreach (var card in virtualCards)
-      {
-        cards.Add(new SlimTvVirtualCard
-        {
-          BitRateMode = (int)card.BitRateMode,
-          ChannelName = card.ChannelName,
-          Device = card.Device,
-          Enabled = card.Enabled,
-          GetTimeshiftStoppedReason = (int)card.GetTimeshiftStoppedReason,
-          GrabTeletext = card.GrabTeletext,
-          HasTeletext = card.HasTeletext,
-          Id = card.Id,
-          ChannelId = card.IdChannel,
-          IsGrabbingEpg = card.IsGrabbingEpg,
-          IsRecording = card.IsRecording,
-          IsScanning = card.IsScanning,
-          IsScrambled = card.IsScrambled,
-          IsTimeShifting = card.IsTimeShifting,
-          IsTunerLocked = card.IsTunerLocked,
-          MaxChannel = card.MaxChannel,
-          MinChannel = card.MinChannel,
-          Name = card.Name,
-          QualityType = (int)card.QualityType,
-          RecordingFileName = card.RecordingFileName,
-          RecordingFolder = card.RecordingFolder,
-          RecordingFormat = card.RecordingFormat,
-          RecordingScheduleId = card.RecordingScheduleId,
-          RecordingStarted = card.RecordingStarted != DateTime.MinValue ? card.RecordingStarted : new DateTime(2000, 1, 1),
-          RemoteServer = card.RemoteServer,
-          RTSPUrl = card.RTSPUrl,
-          SignalLevel = card.SignalLevel,
-          SignalQuality = card.SignalQuality,
-          TimeShiftFileName = card.TimeShiftFileName,
-          TimeShiftFolder = card.TimeshiftFolder,
-          TimeShiftStarted = card.TimeShiftStarted != DateTime.MinValue ? card.TimeShiftStarted : new DateTime(2000, 1, 1),
-          Type = (SlimTvCardType)Enum.Parse(typeof(SlimTvCardType), card.Type.ToString()),
-          User = card.User != null ? new SlimTvUser
-          {
-            Priority = card.User.Priority,
-            ChannelStates = card.User.ChannelStates.ToDictionary(item => item.Key, item => (SlimTvChannelState)Enum.Parse(typeof(SlimTvChannelState), item.ToString())),
-            CardId = card.User.CardId,
-            Name = card.User.Name,
-            FailedCardId = card.User.FailedCardId,
-            HeartBeat = card.User.HeartBeat,
-            History = card.User.History,
-            IdChannel = card.User.IdChannel,
-            IsAdmin = card.User.IsAdmin,
-            SubChannel = card.User.SubChannel,
-            TvStoppedReason = (SlimTvStoppedReason)Enum.Parse(typeof(SlimTvStoppedReason), card.User.TvStoppedReason.ToString()),
-          } : null
-        });
-      }
-
-      return cards.Count > 0;
+      schedule = TvDatabase.Schedule.ListAll().FirstOrDefault(s => s.IdSchedule == recording.Idschedule).ToSchedule();
+      return schedule != null;
     }
 
     #endregion

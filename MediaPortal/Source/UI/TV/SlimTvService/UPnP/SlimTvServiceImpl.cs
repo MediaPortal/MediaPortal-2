@@ -24,8 +24,10 @@
 
 using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using MediaPortal.Common;
 using MediaPortal.Common.MediaManagement;
+using MediaPortal.Common.Services.ServerCommunication;
 using MediaPortal.Plugins.SlimTv.Interfaces;
 using MediaPortal.Plugins.SlimTv.Interfaces.Items;
 using MediaPortal.Plugins.SlimTv.Interfaces.UPnP.DataTypes;
@@ -247,7 +249,7 @@ namespace MediaPortal.Plugins.SlimTv.Service.UPnP
                             new[]
                                      {
                                        new DvArgument("Result", A_ARG_TYPE_Bool, ArgumentDirection.Out, true),
-                                       new DvArgument("Schedules", A_ARG_TYPE_Schedules, ArgumentDirection.Out, true)
+                                       new DvArgument("Schedules", A_ARG_TYPE_Schedules, ArgumentDirection.Out, false)
                                      });
       AddAction(getSchedules);
 
@@ -260,7 +262,7 @@ namespace MediaPortal.Plugins.SlimTv.Service.UPnP
                             new[]
                                      {
                                        new DvArgument("Result", A_ARG_TYPE_Bool, ArgumentDirection.Out, true),
-                                       new DvArgument("Schedule", A_ARG_TYPE_Schedule, ArgumentDirection.Out, true)
+                                       new DvArgument("Schedule", A_ARG_TYPE_Schedule, ArgumentDirection.Out, false)
                                      });
       AddAction(createSchedule);
 
@@ -268,7 +270,6 @@ namespace MediaPortal.Plugins.SlimTv.Service.UPnP
                             new[]
                                      {
                                        new DvArgument("ChannelId", A_ARG_TYPE_ChannelId, ArgumentDirection.In),
-                                       new DvArgument("Title", A_ARG_TYPE_String, ArgumentDirection.In),
                                        new DvArgument("TimeFrom", A_ARG_TYPE_DateTime, ArgumentDirection.In),
                                        new DvArgument("TimeTo", A_ARG_TYPE_DateTime, ArgumentDirection.In),
                                        new DvArgument("ScheduleRecordingType", A_ARG_TYPE_ScheduleRecordingType, ArgumentDirection.In)
@@ -276,7 +277,7 @@ namespace MediaPortal.Plugins.SlimTv.Service.UPnP
                             new[]
                                      {
                                        new DvArgument("Result", A_ARG_TYPE_Bool, ArgumentDirection.Out, true),
-                                       new DvArgument("Schedule", A_ARG_TYPE_Schedule, ArgumentDirection.Out, true)
+                                       new DvArgument("Schedule", A_ARG_TYPE_Schedule, ArgumentDirection.Out, false)
                                      });
       AddAction(createScheduleByTime);
 
@@ -323,7 +324,7 @@ namespace MediaPortal.Plugins.SlimTv.Service.UPnP
                             new[]
                                      {
                                        new DvArgument("Result", A_ARG_TYPE_Bool, ArgumentDirection.Out, true),
-                                       new DvArgument("RecordingStatus", A_ARG_TYPE_RecordingStatus, ArgumentDirection.Out, true)
+                                       new DvArgument("RecordingStatus", A_ARG_TYPE_RecordingStatus, ArgumentDirection.Out, false)
                                      });
       AddAction(getRecordingStatus);
 
@@ -335,9 +336,21 @@ namespace MediaPortal.Plugins.SlimTv.Service.UPnP
                             new[]
                                      {
                                        new DvArgument("Result", A_ARG_TYPE_Bool, ArgumentDirection.Out, true),
-                                       new DvArgument("FileOrStream", A_ARG_TYPE_String, ArgumentDirection.Out, true)
+                                       new DvArgument("FileOrStream", A_ARG_TYPE_String, ArgumentDirection.Out, false)
                                      });
       AddAction(getRecordingFileOrStream);
+
+      DvAction isCurrentlyRecording = new DvAction(Consts.ACTION_GET_IS_CURRENT_REC, OnIsCurrentlyRecording,
+                            new[]
+                                     {
+                                       new DvArgument("FileName", A_ARG_TYPE_String, ArgumentDirection.In)
+                                     },
+                            new[]
+                                     {
+                                       new DvArgument("Result", A_ARG_TYPE_Bool, ArgumentDirection.Out, true),
+                                       new DvArgument("Schedule", A_ARG_TYPE_Schedule, ArgumentDirection.Out, false)
+                                     });
+      AddAction(isCurrentlyRecording);
 
       #endregion
     }
@@ -352,10 +365,9 @@ namespace MediaPortal.Plugins.SlimTv.Service.UPnP
       int slotIndex = (int)inParams[0];
       int channelId = (int)inParams[1];
 
-      MediaItem timeshiftMediaItem;
       // We use the client's RemoteAdress as unique "user name", so we do not need to pass this argument from clients via UPnP.
-      bool result = timeshiftControl.StartTimeshift(BuildUserName(context), slotIndex, new Channel { ChannelId = channelId }, out timeshiftMediaItem);
-      outParams = new List<object> { result, timeshiftMediaItem };
+      AsyncResult<MediaItem> result = timeshiftControl.StartTimeshiftAsync(BuildUserName(context), slotIndex, new Channel { ChannelId = channelId }).Result;
+      outParams = new List<object> { result.Success, result.Result };
       return null;
     }
 
@@ -369,7 +381,7 @@ namespace MediaPortal.Plugins.SlimTv.Service.UPnP
       int slotIndex = (int)inParams[0];
 
       // We use the client's RemoteAdress as unique "user name", so we do not need to pass this argument from clients via UPnP.
-      bool result = timeshiftControl.StopTimeshift(BuildUserName(context), slotIndex);
+      bool result = timeshiftControl.StopTimeshiftAsync(BuildUserName(context), slotIndex).Result;
       outParams = new List<object> { result };
       return null;
     }
@@ -392,8 +404,9 @@ namespace MediaPortal.Plugins.SlimTv.Service.UPnP
         return new UPnPError(500, "ITimeshiftControl service not available");
 
       // We use the client's RemoteAdress as unique "user name", so we do not need to pass this argument from clients via UPnP.
-      timeshiftControl.StopTimeshift(BuildUserName(context), 0);
-      timeshiftControl.StopTimeshift(BuildUserName(context), 1);
+      var t1 = timeshiftControl.StopTimeshiftAsync(BuildUserName(context), 0);
+      var t2 = timeshiftControl.StopTimeshiftAsync(BuildUserName(context), 1);
+      Task.WaitAll(t1, t2);
       outParams = new List<object> { true };
       return null;
     }
@@ -401,50 +414,47 @@ namespace MediaPortal.Plugins.SlimTv.Service.UPnP
     private UPnPError OnGetChannelGroups(DvAction action, IList<object> inParams, out IList<object> outParams, CallContext context)
     {
       outParams = new List<object>();
-      IChannelAndGroupInfo channelAndGroupInfo = ServiceRegistration.Get<ITvProvider>() as IChannelAndGroupInfo;
+      IChannelAndGroupInfoAsync channelAndGroupInfo = ServiceRegistration.Get<ITvProvider>() as IChannelAndGroupInfoAsync;
       if (channelAndGroupInfo == null)
         return new UPnPError(500, "IChannelAndGroupInfo service not available");
 
-      IList<IChannelGroup> groups;
-      bool result = channelAndGroupInfo.GetChannelGroups(out groups);
-      outParams = new List<object> { result, groups };
+      AsyncResult<IList<IChannelGroup>> result = channelAndGroupInfo.GetChannelGroupsAsync().Result;
+      outParams = new List<object> { result.Success, result.Result };
       return null;
     }
 
     private UPnPError OnGetChannel(DvAction action, IList<object> inParams, out IList<object> outParams, CallContext context)
     {
       outParams = new List<object>();
-      IChannelAndGroupInfo channelAndGroupInfo = ServiceRegistration.Get<ITvProvider>() as IChannelAndGroupInfo;
+      IChannelAndGroupInfoAsync channelAndGroupInfo = ServiceRegistration.Get<ITvProvider>() as IChannelAndGroupInfoAsync;
       if (channelAndGroupInfo == null)
         return new UPnPError(500, "IChannelAndGroupInfo service not available");
 
       int channelId = (int)inParams[0];
 
-      IChannel channel;
-      bool result = channelAndGroupInfo.GetChannel(channelId, out channel);
-      outParams = new List<object> { result, new List<IChannel> { channel } };
+      AsyncResult<IChannel> result = channelAndGroupInfo.GetChannelAsync(channelId).Result;
+      outParams = new List<object> { result.Success, new List<IChannel> { result.Result } };
       return null;
     }
 
     private UPnPError OnGetChannels(DvAction action, IList<object> inParams, out IList<object> outParams, CallContext context)
     {
       outParams = new List<object>();
-      IChannelAndGroupInfo channelAndGroupInfo = ServiceRegistration.Get<ITvProvider>() as IChannelAndGroupInfo;
+      IChannelAndGroupInfoAsync channelAndGroupInfo = ServiceRegistration.Get<ITvProvider>() as IChannelAndGroupInfoAsync;
       if (channelAndGroupInfo == null)
         return new UPnPError(500, "IChannelAndGroupInfo service not available");
 
       int channelGroupId = (int)inParams[0];
 
-      IList<IChannel> channels;
-      bool result = channelAndGroupInfo.GetChannels(new ChannelGroup { ChannelGroupId = channelGroupId }, out channels);
-      outParams = new List<object> { result, channels };
+      AsyncResult<IList<IChannel>> result = channelAndGroupInfo.GetChannelsAsync(new ChannelGroup { ChannelGroupId = channelGroupId }).Result;
+      outParams = new List<object> { result.Success, result.Result };
       return null;
     }
 
     private UPnPError OnGetPrograms(DvAction action, IList<object> inParams, out IList<object> outParams, CallContext context)
     {
       outParams = new List<object>();
-      IProgramInfo programInfo = ServiceRegistration.Get<ITvProvider>() as IProgramInfo;
+      IProgramInfoAsync programInfo = ServiceRegistration.Get<ITvProvider>() as IProgramInfoAsync;
       if (programInfo == null)
         return new UPnPError(500, "IProgramInfo service not available");
 
@@ -452,16 +462,15 @@ namespace MediaPortal.Plugins.SlimTv.Service.UPnP
       DateTime timeFrom = (DateTime)inParams[1];
       DateTime timeTo = (DateTime)inParams[2];
 
-      IList<IProgram> programs;
-      bool result = programInfo.GetPrograms(new Channel { ChannelId = channelId }, timeFrom, timeTo, out programs);
-      outParams = new List<object> { result, programs };
+      AsyncResult<IList<IProgram>> result = programInfo.GetProgramsAsync(new Channel { ChannelId = channelId }, timeFrom, timeTo).Result;
+      outParams = new List<object> { result.Success, result.Result };
       return null;
     }
 
     private UPnPError OnGetProgramsByTitle(DvAction action, IList<object> inParams, out IList<object> outParams, CallContext context)
     {
       outParams = new List<object>();
-      IProgramInfo programInfo = ServiceRegistration.Get<ITvProvider>() as IProgramInfo;
+      IProgramInfoAsync programInfo = ServiceRegistration.Get<ITvProvider>() as IProgramInfoAsync;
       if (programInfo == null)
         return new UPnPError(500, "IProgramInfo service not available");
 
@@ -469,16 +478,15 @@ namespace MediaPortal.Plugins.SlimTv.Service.UPnP
       DateTime timeFrom = (DateTime)inParams[1];
       DateTime timeTo = (DateTime)inParams[2];
 
-      IList<IProgram> programs;
-      bool result = programInfo.GetPrograms(title, timeFrom, timeTo, out programs);
-      outParams = new List<object> { result, programs };
+      AsyncResult<IList<IProgram>> result = programInfo.GetProgramsAsync(title, timeFrom, timeTo).Result;
+      outParams = new List<object> { result.Success, result.Result };
       return null;
     }
 
     private UPnPError OnGetProgramsGroup(DvAction action, IList<object> inParams, out IList<object> outParams, CallContext context)
     {
       outParams = new List<object>();
-      IProgramInfo programInfo = ServiceRegistration.Get<ITvProvider>() as IProgramInfo;
+      IProgramInfoAsync programInfo = ServiceRegistration.Get<ITvProvider>() as IProgramInfoAsync;
       if (programInfo == null)
         return new UPnPError(500, "IProgramInfo service not available");
 
@@ -486,41 +494,38 @@ namespace MediaPortal.Plugins.SlimTv.Service.UPnP
       DateTime timeFrom = (DateTime)inParams[1];
       DateTime timeTo = (DateTime)inParams[2];
 
-      IList<IProgram> programs;
-      bool result = programInfo.GetProgramsGroup(new ChannelGroup { ChannelGroupId = channelGroupId }, timeFrom, timeTo, out programs);
-      outParams = new List<object> { result, programs };
+      AsyncResult<IList<IProgram>> result = programInfo.GetProgramsGroupAsync(new ChannelGroup { ChannelGroupId = channelGroupId }, timeFrom, timeTo).Result;
+      outParams = new List<object> { result.Success, result.Result };
       return null;
     }
 
     private UPnPError OnGetNowNextProgram(DvAction action, IList<object> inParams, out IList<object> outParams, CallContext context)
     {
       outParams = new List<object>();
-      IProgramInfo programInfo = ServiceRegistration.Get<ITvProvider>() as IProgramInfo;
+      IProgramInfoAsync programInfo = ServiceRegistration.Get<ITvProvider>() as IProgramInfoAsync;
       if (programInfo == null)
         return new UPnPError(500, "IProgramInfo service not available");
 
       int channelId = (int)inParams[0];
-      IProgram programNow;
-      IProgram programNext;
-      bool result = programInfo.GetNowNextProgram(new Channel { ChannelId = channelId }, out programNow, out programNext);
-      outParams = new List<object> { result, programNow, programNext };
+      AsyncResult<IProgram[]> result = programInfo.GetNowNextProgramAsync(new Channel { ChannelId = channelId }).Result;
+      outParams = new List<object> { result.Success, result.Result[0], result.Result[1] };
       return null;
     }
 
     private UPnPError OnGetNowNextProgramForGroup(DvAction action, IList<object> inParams, out IList<object> outParams, CallContext context)
     {
       outParams = new List<object>();
-      IProgramInfo programInfo = ServiceRegistration.Get<ITvProvider>() as IProgramInfo;
+      IProgramInfoAsync programInfo = ServiceRegistration.Get<ITvProvider>() as IProgramInfoAsync;
       if (programInfo == null)
         return new UPnPError(500, "IProgramInfo service not available");
 
       int channelGroupId = (int)inParams[0];
       IList<IProgram> programs = new List<IProgram>();
-      IDictionary<int, IProgram[]> nowNextPrograms;
       // Flatten to simple list for UPnP transfer
-      if (programInfo.GetNowAndNextForChannelGroup(new ChannelGroup { ChannelGroupId = channelGroupId }, out nowNextPrograms))
+      var result = programInfo.GetNowAndNextForChannelGroupAsync(new ChannelGroup { ChannelGroupId = channelGroupId }).Result;
+      if (result.Success)
       {
-        foreach (KeyValuePair<int, IProgram[]> nowNextProgram in nowNextPrograms)
+        foreach (KeyValuePair<int, IProgram[]> nowNextProgram in result.Result)
           foreach (var program in nowNextProgram.Value)
             if (program != null)
               programs.Add(program);
@@ -532,23 +537,22 @@ namespace MediaPortal.Plugins.SlimTv.Service.UPnP
     private UPnPError OnGetSchedules(DvAction action, IList<object> inParams, out IList<object> outParams, CallContext context)
     {
       outParams = new List<object>();
-      IProgramInfo programInfo = ServiceRegistration.Get<ITvProvider>() as IProgramInfo;
-      IScheduleControl scheduleControl = ServiceRegistration.Get<ITvProvider>() as IScheduleControl;
+      IProgramInfoAsync programInfo = ServiceRegistration.Get<ITvProvider>() as IProgramInfoAsync;
+      IScheduleControlAsync scheduleControl = ServiceRegistration.Get<ITvProvider>() as IScheduleControlAsync;
       if (programInfo == null || scheduleControl == null)
         return new UPnPError(500, "IProgramInfo or IScheduleControl service not available");
 
-      IList<ISchedule> schedules;
-      bool result = scheduleControl.GetSchedules(out schedules);
+      AsyncResult<IList<ISchedule>> result = scheduleControl.GetSchedulesAsync().Result;
 
-      outParams = new List<object> { result, schedules };
+      outParams = new List<object> { result.Success, result.Result };
       return null;
     }
 
     private UPnPError OnCreateSchedule(DvAction action, IList<object> inParams, out IList<object> outParams, CallContext context)
     {
       outParams = new List<object>();
-      IProgramInfo programInfo = ServiceRegistration.Get<ITvProvider>() as IProgramInfo;
-      IScheduleControl scheduleControl = ServiceRegistration.Get<ITvProvider>() as IScheduleControl;
+      IProgramInfoAsync programInfo = ServiceRegistration.Get<ITvProvider>() as IProgramInfoAsync;
+      IScheduleControlAsync scheduleControl = ServiceRegistration.Get<ITvProvider>() as IScheduleControlAsync;
       if (programInfo == null || scheduleControl == null)
         return new UPnPError(500, "IProgramInfo or IScheduleControl service not available");
 
@@ -556,7 +560,13 @@ namespace MediaPortal.Plugins.SlimTv.Service.UPnP
       ScheduleRecordingType recordingType = (ScheduleRecordingType)inParams[1];
       IProgram program;
       ISchedule schedule = null;
-      bool result = programInfo.GetProgram(programId, out program) && scheduleControl.CreateSchedule(program, recordingType, out schedule);
+      bool result = false;
+      if (programInfo.GetProgram(programId, out program))
+      {
+        var scheduleResult = scheduleControl.CreateScheduleAsync(program, recordingType).Result;
+        result = scheduleResult.Success;
+        schedule = scheduleResult.Result;
+      }
 
       outParams = new List<object> { result, schedule };
       return null;
@@ -565,20 +575,24 @@ namespace MediaPortal.Plugins.SlimTv.Service.UPnP
     private UPnPError OnCreateScheduleByTime(DvAction action, IList<object> inParams, out IList<object> outParams, CallContext context)
     {
       outParams = new List<object>();
-      IScheduleControl scheduleControl = ServiceRegistration.Get<ITvProvider>() as IScheduleControl;
-      IChannelAndGroupInfo channelAndGroupInfo = ServiceRegistration.Get<ITvProvider>() as IChannelAndGroupInfo;
+      IScheduleControlAsync scheduleControl = ServiceRegistration.Get<ITvProvider>() as IScheduleControlAsync;
+      IChannelAndGroupInfoAsync channelAndGroupInfo = ServiceRegistration.Get<ITvProvider>() as IChannelAndGroupInfoAsync;
       if (scheduleControl == null || channelAndGroupInfo == null)
         return new UPnPError(500, "IChannelAndGroupInfo or IScheduleControl service not available");
 
       int channelId = (int)inParams[0];
-      string title = (string)inParams[1];
-      DateTime startTime = (DateTime)inParams[2];
-      DateTime endTime = (DateTime)inParams[3];
-      ScheduleRecordingType recordingType = (ScheduleRecordingType)inParams[4];
+      DateTime startTime = (DateTime)inParams[1];
+      DateTime endTime = (DateTime)inParams[2];
+      ScheduleRecordingType recordingType = (ScheduleRecordingType)inParams[3];
       ISchedule schedule = null;
 
-      IChannel channel;
-      bool result = channelAndGroupInfo.GetChannel(channelId, out channel) && scheduleControl.CreateScheduleByTime(channel, title, startTime, endTime, recordingType, out schedule);
+      AsyncResult<IChannel> result = channelAndGroupInfo.GetChannelAsync(channelId).Result;
+      if (result.Success)
+      {
+        var scheduleResult = scheduleControl.CreateScheduleByTimeAsync(result.Result, startTime, endTime, recordingType).Result;
+        if (scheduleResult.Success)
+          schedule = scheduleResult.Result;
+      }
 
       outParams = new List<object> { result, schedule };
       return null;
@@ -587,15 +601,15 @@ namespace MediaPortal.Plugins.SlimTv.Service.UPnP
     private UPnPError OnRemoveScheduleForProgram(DvAction action, IList<object> inParams, out IList<object> outParams, CallContext context)
     {
       outParams = new List<object>();
-      IProgramInfo programInfo = ServiceRegistration.Get<ITvProvider>() as IProgramInfo;
-      IScheduleControl scheduleControl = ServiceRegistration.Get<ITvProvider>() as IScheduleControl;
+      IProgramInfoAsync programInfo = ServiceRegistration.Get<ITvProvider>() as IProgramInfoAsync;
+      IScheduleControlAsync scheduleControl = ServiceRegistration.Get<ITvProvider>() as IScheduleControlAsync;
       if (programInfo == null || scheduleControl == null)
         return new UPnPError(500, "IProgramInfo or IScheduleControl service not available");
 
       int programId = (int)inParams[0];
       ScheduleRecordingType recordingType = (ScheduleRecordingType)inParams[1];
       IProgram program;
-      bool result = programInfo.GetProgram(programId, out program) && scheduleControl.RemoveScheduleForProgram(program, recordingType);
+      var result = programInfo.GetProgram(programId, out program) && scheduleControl.RemoveScheduleForProgramAsync(program, recordingType).Result;
 
       outParams = new List<object> { result };
       return null;
@@ -604,13 +618,13 @@ namespace MediaPortal.Plugins.SlimTv.Service.UPnP
     private UPnPError OnRemoveSchedule(DvAction action, IList<object> inParams, out IList<object> outParams, CallContext context)
     {
       outParams = new List<object>();
-      IProgramInfo programInfo = ServiceRegistration.Get<ITvProvider>() as IProgramInfo;
-      IScheduleControl scheduleControl = ServiceRegistration.Get<ITvProvider>() as IScheduleControl;
+      IProgramInfoAsync programInfo = ServiceRegistration.Get<ITvProvider>() as IProgramInfoAsync;
+      IScheduleControlAsync scheduleControl = ServiceRegistration.Get<ITvProvider>() as IScheduleControlAsync;
       if (programInfo == null || scheduleControl == null)
         return new UPnPError(500, "IProgramInfo or IScheduleControl service not available");
 
       ISchedule schedule = (ISchedule)inParams[0];
-      bool result = scheduleControl.RemoveSchedule(schedule);
+      bool result = scheduleControl.RemoveScheduleAsync(schedule).Result;
 
       outParams = new List<object> { result };
       return null;
@@ -619,30 +633,40 @@ namespace MediaPortal.Plugins.SlimTv.Service.UPnP
     private UPnPError OnGetProgramsForSchedule(DvAction action, IList<object> inParams, out IList<object> outParams, CallContext context)
     {
       outParams = new List<object>();
-      IScheduleControl scheduleControl = ServiceRegistration.Get<ITvProvider>() as IScheduleControl;
+      IScheduleControlAsync scheduleControl = ServiceRegistration.Get<ITvProvider>() as IScheduleControlAsync;
       if (scheduleControl == null)
         return new UPnPError(500, "IProgramInfo or IScheduleControl service not available");
 
       ISchedule schedule = (ISchedule)inParams[0];
-      IList<IProgram> programs;
-      bool result = scheduleControl.GetProgramsForSchedule(schedule, out programs);
 
-      outParams = new List<object> { result, programs };
+      AsyncResult<IList<IProgram>> result = scheduleControl.GetProgramsForScheduleAsync(schedule).Result;
+
+      outParams = new List<object> { result.Success, result.Result };
       return null;
     }
 
     private UPnPError OnGetRecordingStatus(DvAction action, IList<object> inParams, out IList<object> outParams, CallContext context)
     {
       outParams = new List<object>();
-      IProgramInfo programInfo = ServiceRegistration.Get<ITvProvider>() as IProgramInfo;
-      IScheduleControl scheduleControl = ServiceRegistration.Get<ITvProvider>() as IScheduleControl;
+      IProgramInfoAsync programInfo = ServiceRegistration.Get<ITvProvider>() as IProgramInfoAsync;
+      IScheduleControlAsync scheduleControl = ServiceRegistration.Get<ITvProvider>() as IScheduleControlAsync;
       if (programInfo == null || scheduleControl == null)
         return new UPnPError(500, "IProgramInfo or IScheduleControl service not available");
 
       int programId = (int)inParams[0];
+
+      bool result = false;
       IProgram program;
       RecordingStatus recordingStatus = RecordingStatus.None;
-      bool result = programInfo.GetProgram(programId, out program) && scheduleControl.GetRecordingStatus(program, out recordingStatus);
+      if (programInfo.GetProgram(programId, out program))
+      {
+        var scheduleResult = scheduleControl.GetRecordingStatusAsync(program).Result;
+        if (scheduleResult.Success)
+        {
+          result = true;
+          recordingStatus = scheduleResult.Result;
+        }
+      }
 
       outParams = new List<object> { result, recordingStatus.ToString() };
       return null;
@@ -651,17 +675,40 @@ namespace MediaPortal.Plugins.SlimTv.Service.UPnP
     private UPnPError OnGetRecordingFileOrStream(DvAction action, IList<object> inParams, out IList<object> outParams, CallContext context)
     {
       outParams = new List<object>();
-      IProgramInfo programInfo = ServiceRegistration.Get<ITvProvider>() as IProgramInfo;
-      IScheduleControl scheduleControl = ServiceRegistration.Get<ITvProvider>() as IScheduleControl;
+      IProgramInfoAsync programInfo = ServiceRegistration.Get<ITvProvider>() as IProgramInfoAsync;
+      IScheduleControlAsync scheduleControl = ServiceRegistration.Get<ITvProvider>() as IScheduleControlAsync;
       if (programInfo == null || scheduleControl == null)
         return new UPnPError(500, "IProgramInfo or IScheduleControl service not available");
 
       int programId = (int)inParams[0];
       IProgram program;
+      bool result = false;
       string fileOrStream = null;
-      bool result = programInfo.GetProgram(programId, out program) && scheduleControl.GetRecordingFileOrStream(program, out fileOrStream);
+      if (programInfo.GetProgram(programId, out program))
+      {
+        var scheduleResult = scheduleControl.GetRecordingFileOrStreamAsync(program).Result;
+        if (scheduleResult.Success)
+        {
+          result = true;
+          fileOrStream = scheduleResult.Result;
+        }
+      }
 
       outParams = new List<object> { result, fileOrStream };
+      return null;
+    }
+
+    private UPnPError OnIsCurrentlyRecording(DvAction action, IList<object> inParams, out IList<object> outParams, CallContext context)
+    {
+      outParams = new List<object>();
+      IScheduleControlAsync scheduleControl = ServiceRegistration.Get<ITvProvider>() as IScheduleControlAsync;
+      if (scheduleControl == null)
+        return new UPnPError(500, "IProgramInfo or IScheduleControl service not available");
+
+      string fileName = (string)inParams[0];
+      AsyncResult<ISchedule> result = scheduleControl.IsCurrentlyRecordingAsync(fileName).Result;
+
+      outParams = new List<object> { result.Success, result.Result };
       return null;
     }
   }

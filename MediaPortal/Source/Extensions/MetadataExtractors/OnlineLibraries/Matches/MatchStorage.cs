@@ -38,7 +38,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matches
   /// </summary>
   /// <typeparam name="TMatch">Type of match</typeparam>
   /// <typeparam name="TId">Type of match's ID</typeparam>
-  public class MatchStorage<TMatch, TId> : IDisposable where TMatch : BaseMatch
+  public class MatchStorage<TMatch, TId> : IDisposable where TMatch : BaseMatch<TId>
   {
     protected readonly string _matchesSettingsFile;
     protected readonly ConcurrentDictionary<String, TMatch> _storage;

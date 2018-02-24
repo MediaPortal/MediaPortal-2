@@ -30,10 +30,11 @@ namespace MediaPortal.UI.Presentation.Players.ResumeState
   /// <summary>
   /// Holds the required information to resume playback based on a <see cref="TimeSpan"/>.
   /// </summary>
-  public class PositionResumeState : ResumeStateBase
+  public class PositionResumeState : ResumeStateBase, IResumeStateEdition
   {
     public TimeSpan ResumePosition { get; set; }
     public int ActiveResourceLocatorIndex { get; set; }
+    public int ActiveEditionIndex { get; set; }
 
     public override void InitFromString(string value)
     {
@@ -51,11 +52,17 @@ namespace MediaPortal.UI.Presentation.Players.ResumeState
         if (int.TryParse(parts[1], out index))
           ActiveResourceLocatorIndex = index;
       }
+      if (parts.Length > 2)
+      {
+        int index;
+        if (int.TryParse(parts[2], out index))
+          ActiveEditionIndex = index;
+      }
     }
 
     public override string ToString()
     {
-      return string.Format("{0};{1}", ResumePosition.TotalSeconds.ToString(CultureInfo.InvariantCulture), ActiveResourceLocatorIndex);
+      return string.Format("{0};{1};{2}", ResumePosition.TotalSeconds.ToString(CultureInfo.InvariantCulture), ActiveResourceLocatorIndex, ActiveEditionIndex);
     }
   }
 }

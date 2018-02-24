@@ -2,18 +2,18 @@
 <resources>
   <!--Menu items for the five Media navigation parts-->
   <string name="Media.BrowseMediaMenuItem">Parcourir les fichiers multimédias</string>
-  <string name="Media.BrowseMediaMenuItem.Help">Parcourir la bibliothèque multimédia pour tous types de médias. Ici, vous avez également accès à des lecteurs amovibles.</string>
+  <string name="Media.BrowseMediaMenuItem.Help">Parcourir la médiathèque pour tous types de médias. Ici, vous avez également accès à des lecteurs amovibles.</string>
   <string name="Media.LocalMediaMenuItem">Fichiers multimédias locaux</string>
   <string name="Media.AudioMenuItem">Audio</string>
   <string name="Media.AudioMenuItem.Help">Lire de la musique ou des livres audio de votre bibliothèque, ainsi  qu\'afficher des informations des contenus. Vous pouvez également créer des listes de lecture pour vos chansons préférées.</string>
   <string name="Media.VideosMenuItem">Vidéos</string>
-  <string name="Media.VideosMenuItem.Help">Parcourir la vidéothèque. Ici, vous avez accès à toutes vidéos , films,  épisodes et autres. Vous pouvez définir des filtres pour affiner l\'affichage à vos besoins.</string>
+  <string name="Media.VideosMenuItem.Help">Parcourir la médiathèque pour les vidéos. Ici, vous avez accès à toutes vidéos , films,  épisodes et autres. Vous pouvez définir des filtres pour affiner l\'affichage à vos besoins.</string>
   <string name="Media.SeriesMenuItem">Séries</string>
-  <string name="Media.SeriesMenuItem.Help">Parcourir la vidéothèque des séries. Obtenir des informations  la série, saisons et  épisodes du type notes, genre, acteurs, affiches, fanarts et plus. Vous pouvez définir des filtres pour affiner l\'affichage à vos besoins.</string>
+  <string name="Media.SeriesMenuItem.Help">Parcourir la médiathèque pour les séries. Obtenir des informations  la série, saisons et  épisodes du type notes, genre, acteurs, affiches, fanarts et plus. Vous pouvez définir des filtres pour affiner l\'affichage à vos besoins.</string>
   <string name="Media.MoviesMenuItem">Films</string>
-  <string name="Media.MoviesMenuItem.Help">Parcourir la vidéothèque des films. Obtenir des informations du type notes, genre, acteurs, affiches, fanarts et plus. Vous pouvez définir des filtres pour affiner l\'affichage à vos besoins.</string>
+  <string name="Media.MoviesMenuItem.Help">Parcourir la médiathèque pour les films. Obtenir des informations du type notes, genre, acteurs, affiches, fanarts et plus. Vous pouvez définir des filtres pour affiner l\'affichage à vos besoins.</string>
   <string name="Media.ImagesMenuItem">Images</string>
-  <string name="Media.ImagesMenuItem.Help">Parcourir la photothèque. Obtenir des informations du type lieux, l\'année et détails de l\'image. Vous pouvez définir des filtres pour affiner l\'affichage à vos besoins.</string>
+  <string name="Media.ImagesMenuItem.Help">Parcourir la médiathèque pour les images. Obtenir des informations du type lieux, l\'année et détails de l\'image. Vous pouvez définir des filtres pour affiner l\'affichage à vos besoins.</string>
   <string name="Media.LatestMediaMenuItem">Dernier fichier multimédia</string>
   <!--General strings used in filter/sort/group menus-->
   <string name="Media.NameMenuItem">Par nom</string>
@@ -140,6 +140,7 @@
   <string name="Media.SeasonItemsHeader">Saison(s)</string>
   <string name="Media.MoviesItemsHeader">Film(s)</string>
   <string name="Media.ImageItemsHeader">Image(s)</string>
+  <string name="Media.DiscItemsHeader">Disque(s)</string>
   <string name="Media.TrackItemsHeader">Piste(s)</string>
   <string name="Media.SimpleSearchHeader">Recherche simple</string>
   <string name="Media.ChooseCollectionHeader">Collections</string>
@@ -252,6 +253,9 @@
   <string name="Media.SetWatched">Ensemble visionné</string>
   <string name="Media.SetUnwatched">Ensemble non visionné</string>
   <string name="Media.DeleteFromStorage">Supprimer du stockage</string>
+  <string name="Media.DeleteFromStorage.Confirmation">Êtes vous sur de vouloir supprimer cet élément?
+Vous ne pourrez pas revenir sur ce choix. </string>
+  <string name="Media.ConfirmAction">Veuillez confirmer l\'action</string>
   <!--Play items dialog-->
   <string name="Media.PlayItemDialogHeader">Lire l\'élément</string>
   <string name="Media.PlayAudioItems">Lire le fichies audio</string>
@@ -269,6 +273,7 @@
   <string name="Media.PlayVideoImageItemMutedConcurrentAudio">Lire les vidéos/images en arrière-plan tout en poursuivant la lecture des fichiers audio</string>
   <string name="Media.PlayVideoImageItemPiP">Lire les vidéos/images en mode \"Picture in picture\"</string>
   <string name="Media.PlaybackResume">Reprendre la lecture</string>
+  <string name="Media.PlaybackResumeTime">Reprendre lecture depuis: \'{0}\'</string>
   <string name="Media.PlaybackFromStart">Lecture au début</string>
   <!--Player context names-->
   <string name="Media.VideoImageContextName">Vidéos/images</string>
@@ -388,6 +393,9 @@
   <string name="Settings.Players.OpenPlayerStrategy.Help">Gestion de la place du lecteur nouvellement ouvert, parmi les lecteurs déjà ouverts</string>
   <string name="Settings.Players.WatchedPlayPercentage">Pourcentage de lecture</string>
   <string name="Settings.Players.WatchedPlayPercentage.Help">Sélectionnez à partir de quel pourcentage, le média est indiqué comme vu. </string>
+  <string name="Settings.Players.OpenPlayerConfigInOsd">Ouvrir la config. du lecteur dans l\'OSD</string>
+  <string name="Settings.Players.OpenPlayerConfigInOsd.Help">Activer cette option pour afficher la configuration du lecteur après appui sur la touche \"Info\" une seconde fois</string>
+  <string name="Settings.Media">Médiathèque</string>
   <string name="Settings.Media.ShowVirtual">Afficher tout les médias connus</string>
   <string name="Settings.Media.ShowVirtual.Help">Indiquer si, tout les fichier média connus doivent être afficher, même si aucun élément n\'est disponible en local</string>
   <string name="Settings.Media.ShowVirtual.Audio">Afficher tous les titres de l\'album connu</string>

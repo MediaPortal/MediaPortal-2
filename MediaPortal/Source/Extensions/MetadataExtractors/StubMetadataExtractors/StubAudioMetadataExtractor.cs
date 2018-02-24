@@ -179,12 +179,12 @@ namespace MediaPortal.Extensions.MetadataExtractors.StubMetadataExtractors
       get { return _metadata; }
     }
 
-    public bool TryExtractMetadata(IResourceAccessor mediaItemAccessor, IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData, bool importOnly, bool forceQuickMode)
+    public Task<bool> TryExtractMetadataAsync(IResourceAccessor mediaItemAccessor, IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData, bool forceQuickMode)
     {
-      return false;
+      return Task.FromResult(false);
     }
 
-    public bool IsSingleResource(IResourceAccessor mediaItemAccessor)
+    public bool IsDirectorySingleResource(IResourceAccessor mediaItemAccessor)
     {
       return false;
     }

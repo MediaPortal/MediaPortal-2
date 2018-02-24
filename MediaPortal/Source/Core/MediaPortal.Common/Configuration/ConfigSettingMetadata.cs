@@ -39,7 +39,7 @@ namespace MediaPortal.Common.Configuration
     protected IDictionary<string, Type> _additionalTypes = null;
 
     public ConfigSettingMetadata(string location, string text, string sort, string className,
-        string helpText, ICollection<string> listenTo) : base(location, text, sort)
+        string helpText, ICollection<string> listenTo, string restrictionGroup) : base(location, text, sort, restrictionGroup)
     {
       _className = className;
       _helpText = helpText;

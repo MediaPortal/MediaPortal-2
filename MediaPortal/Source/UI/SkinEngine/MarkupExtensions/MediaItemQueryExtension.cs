@@ -27,7 +27,6 @@ using MediaPortal.Common.General;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.MLQueries;
 using MediaPortal.Common.SystemCommunication;
-using MediaPortal.Common.Threading;
 using MediaPortal.UI.ServerCommunication;
 using MediaPortal.UI.Services.UserManagement;
 using MediaPortal.UI.SkinEngine.Xaml;
@@ -35,6 +34,8 @@ using MediaPortal.Utilities.DeepCopy;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
+using MediaPortal.Common.UserManagement;
 
 namespace MediaPortal.UI.SkinEngine.MarkupExtensions
 {
@@ -68,16 +69,14 @@ namespace MediaPortal.UI.SkinEngine.MarkupExtensions
   public class MediaItemQueryExtension : BindingBase
   {
     #region Protected fields
-    
+
     protected readonly object _syncObj = new object();
     //Whether we are currently updating properties
     protected bool _isUpdating = false;
-    //Whether we are currently performing a query
-    protected bool _isQuerying = false;
-    //Whether state has changed whilst performing a query -> perform new query when current query has finished
-    protected bool _isDirty = false;
     //The last updated value, used to avoid multiple updates with the same value
     protected object _lastUpdatedValue = null;
+    //The last used filter, used to avoid multiple searches with same filter
+    protected IFilter _lastUsedFilter = null;
 
     protected AbstractProperty _queryModeProperty;
     protected AbstractProperty _necessaryRequestedMIAsProperty;
@@ -125,7 +124,7 @@ namespace MediaPortal.UI.SkinEngine.MarkupExtensions
     protected void OnPropertyChanged(AbstractProperty property, object oldValue)
     {
       if (_active)
-        UpdateAsync();
+        _ = UpdateAsync();
     }
 
     #endregion
@@ -141,7 +140,7 @@ namespace MediaPortal.UI.SkinEngine.MarkupExtensions
     }
 
     //Asynchronously performs a query using the specified filter
-    protected void UpdateAsync()
+    protected async Task UpdateAsync()
     {
       //Avoid recursive calls, this can happen if the call to BeginUpdate
       //updates one of our properties, triggering another update
@@ -152,61 +151,20 @@ namespace MediaPortal.UI.SkinEngine.MarkupExtensions
       try
       {
         OnBeginUpdate();
+
+        if (_lastUsedFilter == Filter)
+          return;
+
+        await QueryMediaItems();
       }
       finally
       {
         _isUpdating = false;
       }
-
-      //Check state is valid before invoking a thread pool thread
-      if (Filter == null)
-      {
-        //Set target property to null if invalid to remove any previously assigned media items
-        UpdateTargetProperty(null, QueryMode);
-        return;
-      }
-      //Update using the thread pool
-      IThreadPool tp = ServiceRegistration.Get<IThreadPool>();
-      tp.Add(Update);
-    }
-    
-    protected void Update()
-    {
-      lock (_syncObj)
-      {
-        if (_isQuerying)
-        {
-          //If we are currently querying, mark as dirty so
-          //we can re-update when the current query has finished
-          _isDirty = true;
-          return;
-        }
-        _isQuerying = true;
-      }
-
-      bool isDirty;
-      try
-      {
-        QueryMediaItems();
-      }
-      finally
-      {
-        lock (_syncObj)
-        {
-          //reset inside lock
-          isDirty = _isDirty;
-          _isDirty = false;
-          _isQuerying = false;
-        }
-      }
-
-      //update outside lock
-      if (isDirty)
-        Update();
     }
 
     //Performs the actual query and updates the target property with the returned media item(s)
-    protected void QueryMediaItems()
+    protected async Task QueryMediaItems()
     {
       IFilter filter = Filter;
       if (filter == null)
@@ -220,12 +178,14 @@ namespace MediaPortal.UI.SkinEngine.MarkupExtensions
       if (cd == null)
         return;
 
+      _lastUsedFilter = filter;
+
       MediaItemQueryMode queryMode = QueryMode;
       MediaItemQuery query = new MediaItemQuery(NecessaryRequestedMIAs, OptionalRequestedMIAs, filter);
       if (queryMode == MediaItemQueryMode.SingleItem)
         query.Limit = 1;
 
-      IList<MediaItem> items = cd.Search(query, true, GetCurrentUserId(), false);
+      IList<MediaItem> items = await cd.SearchAsync(query, true, GetCurrentUserId(), false);
       UpdateTargetProperty(items, queryMode);
     }
 
@@ -268,7 +228,7 @@ namespace MediaPortal.UI.SkinEngine.MarkupExtensions
         return;
       base.Activate();
       //State may already be valid so try a query now
-      UpdateAsync();
+      _ = UpdateAsync();
     }
 
     public override void DeepCopy(IDeepCopyable source, ICopyManager copyManager)

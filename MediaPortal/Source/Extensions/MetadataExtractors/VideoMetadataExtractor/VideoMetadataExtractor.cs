@@ -22,28 +22,29 @@
 
 #endregion
 
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
 using MediaInfoLib;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
+using MediaPortal.Common.MediaManagement.Helpers;
 using MediaPortal.Common.ResourceAccess;
+using MediaPortal.Common.Services.ResourceAccess.LocalFsResourceProvider;
+using MediaPortal.Common.Services.Settings;
 using MediaPortal.Common.Services.ThumbnailGenerator;
 using MediaPortal.Common.Settings;
 using MediaPortal.Extensions.MetadataExtractors.MatroskaLib;
 using MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor.Settings;
 using MediaPortal.Utilities;
 using MediaPortal.Utilities.SystemAPI;
-using System.Text.RegularExpressions;
-using MediaPortal.Common.Services.ResourceAccess.LocalFsResourceProvider;
+using System;
+using System.Collections.Generic;
 using System.Globalization;
+using System.IO;
+using System.Linq;
 using System.Text;
-using MediaPortal.Common.MediaManagement.Helpers;
-using MediaPortal.Common.Services.Settings;
+using System.Text.RegularExpressions;
+using System.Threading.Tasks;
 
 namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor
 {
@@ -259,7 +260,16 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor
 
       public static VideoResult CreateFileInfo(string fileName, MediaInfoWrapper fileInfo)
       {
-        return new VideoResult(fileName, fileInfo);
+        return new VideoResult(CleanupTitle(fileName), fileInfo);
+      }
+
+      protected static string CleanupTitle(string title)
+      {
+        foreach (Regex regex in REGEXP_CLEANUPS)
+          title = regex.Replace(title, "");
+        while (title.Contains(".."))
+          title = title.Replace("..", "."); //Remove leftover periods
+        return BaseInfo.CleanupWhiteSpaces(title);
       }
 
       public void AddMediaInfo(MediaInfoWrapper mediaInfo)
@@ -400,11 +410,10 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor
           videoAspect.SetAttribute(VideoAspect.ATTR_ISDVD, IsDVD);
 
           MediaItemAspect.SetAttribute(extractedAspectData, MediaAspect.ATTR_TITLE, _title);
-          MediaItemAspect.SetAttribute(extractedAspectData, MediaAspect.ATTR_SORT_TITLE, BaseInfo.GetSortTitle(_title));
         }
 
         MediaItemAspect.SetAttribute(extractedAspectData, MediaAspect.ATTR_ISVIRTUAL, false);
-        
+
         if (!refresh)
         {
           MediaItemAspect.SetAttribute(extractedAspectData, MediaAspect.ATTR_RECORDINGTIME, lfsra.LastChanged);
@@ -606,11 +615,11 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor
         {
           int providerIndex = -1;
           IList<MultipleMediaItemAspect> providerResourceAspects = new List<MultipleMediaItemAspect>();
-          if(MediaItemAspect.TryGetAspects(extractedAspectData, ProviderResourceAspect.Metadata, out providerResourceAspects))
+          if (MediaItemAspect.TryGetAspects(extractedAspectData, ProviderResourceAspect.Metadata, out providerResourceAspects))
           {
-            for(int idx = 0; idx <providerResourceAspects.Count; idx++)
+            for (int idx = 0; idx < providerResourceAspects.Count; idx++)
             {
-              if(providerResourceAspects[idx].GetAttributeValue<string>(ProviderResourceAspect.ATTR_RESOURCE_ACCESSOR_PATH) == lfsra.CanonicalLocalResourcePath.Serialize())
+              if (providerResourceAspects[idx].GetAttributeValue<string>(ProviderResourceAspect.ATTR_RESOURCE_ACCESSOR_PATH) == lfsra.CanonicalLocalResourcePath.Serialize())
               {
                 providerIndex = idx;
                 providerResourceAspects[idx].SetAttribute(ProviderResourceAspect.ATTR_SIZE, lfsra.Size);
@@ -662,7 +671,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor
       }
     }
 
-    protected void ExtractMatroskaTags(ILocalFsResourceAccessor lfsra, IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData, bool importOnly, bool forceQuickMode)
+    protected async Task ExtractMatroskaTagsAsync(ILocalFsResourceAccessor lfsra, IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData)
     {
       try
       {
@@ -675,7 +684,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor
         MatroskaInfoReader mkvReader = new MatroskaInfoReader(lfsra);
         // Add keys to be extracted to tags dictionary, matching results will returned as value
         Dictionary<string, IList<string>> tagsToExtract = MatroskaConsts.DefaultTags;
-        mkvReader.ReadTags(tagsToExtract);
+        await mkvReader.ReadTagsAsync(tagsToExtract).ConfigureAwait(false);
 
         // Read title
         string title = string.Empty;
@@ -685,7 +694,6 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor
         if (!string.IsNullOrEmpty(title))
         {
           MediaItemAspect.SetAttribute(extractedAspectData, MediaAspect.ATTR_TITLE, title);
-          MediaItemAspect.SetAttribute(extractedAspectData, MediaAspect.ATTR_SORT_TITLE, BaseInfo.GetSortTitle(title));
         }
 
         // Read release date
@@ -702,13 +710,13 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor
         if (MediaItemAspect.TryGetAspects(extractedAspectData, VideoStreamAspect.Metadata, out videoStreamAspects))
         {
           string stereoType = videoStreamAspects[0].GetAttributeValue<string>(VideoStreamAspect.ATTR_VIDEO_TYPE);
-          if (string.IsNullOrEmpty(stereoType) || stereoType == VideoStreamAspect.TYPE_SD || 
+          if (string.IsNullOrEmpty(stereoType) || stereoType == VideoStreamAspect.TYPE_SD ||
             stereoType == VideoStreamAspect.TYPE_HD || stereoType == VideoStreamAspect.TYPE_UHD)
           {
             int? height = videoStreamAspects[0].GetAttributeValue<int?>(VideoStreamAspect.ATTR_HEIGHT);
             int? width = videoStreamAspects[0].GetAttributeValue<int?>(VideoStreamAspect.ATTR_WIDTH);
 
-            MatroskaInfoReader.StereoMode mode = mkvReader.ReadStereoMode();
+            MatroskaInfoReader.StereoMode mode = await mkvReader.ReadStereoModeAsync().ConfigureAwait(false);
             if (mode == MatroskaInfoReader.StereoMode.AnaglyphCyanRed || mode == MatroskaInfoReader.StereoMode.AnaglyphGreenMagenta)
               videoStreamAspects[0].SetAttribute(VideoStreamAspect.ATTR_VIDEO_TYPE, VideoStreamAspect.TYPE_ANAGLYPH);
             else if (mode == MatroskaInfoReader.StereoMode.SBSLeftEyeFirst || mode == MatroskaInfoReader.StereoMode.SBSRightEyeFirst)
@@ -746,7 +754,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor
       }
     }
 
-    protected void ExtractMp4Tags(ILocalFsResourceAccessor lfsra, IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData, bool importOnly, bool forceQuickMode)
+    protected void ExtractMp4Tags(ILocalFsResourceAccessor lfsra, IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData)
     {
       try
       {
@@ -782,12 +790,12 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor
       }
     }
 
-    protected void ExtractThumbnailData(ILocalFsResourceAccessor lfsra, IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData, bool importOnly, bool forceQuickMode)
+    protected void ExtractThumbnailData(ILocalFsResourceAccessor lfsra, IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData, bool forceQuickMode)
     {
       try
       {
         // In quick mode only allow thumbs taken from cache.
-        bool cachedOnly = importOnly || forceQuickMode;
+        bool cachedOnly = forceQuickMode;
 
         // Thumbnail extraction
         IThumbnailGenerator generator = ServiceRegistration.Get<IThumbnailGenerator>();
@@ -800,76 +808,6 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor
       catch (Exception e)
       {
         ServiceRegistration.Get<ILogger>().Info("VideoMetadataExtractor: Exception reading thumbnail from resource '{0}' (Text: '{1}')", e, lfsra.CanonicalLocalResourcePath, e.Message);
-      }
-    }
-
-    protected bool ExtractExternalSubtitle(string title, IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData, ILocalFsResourceAccessor lfsra)
-    {
-      try
-      {
-        using (lfsra.EnsureLocalFileSystemAccess())
-        {
-          if (!HasSubtitleExtension(lfsra.LocalFileSystemPath))
-            return false;
-
-          IList<MultipleMediaItemAspect> providerResourceAspects;
-          if (MediaItemAspect.TryGetAspects(extractedAspectData, ProviderResourceAspect.Metadata, out providerResourceAspects))
-          {
-            foreach (MultipleMediaItemAspect providerResourceAspect in providerResourceAspects)
-            {
-              string accessorPath = (string)providerResourceAspect.GetAttributeValue(ProviderResourceAspect.ATTR_RESOURCE_ACCESSOR_PATH);
-              ResourcePath resourcePath = ResourcePath.Deserialize(accessorPath);
-              if (resourcePath.Equals(lfsra.CanonicalLocalResourcePath))
-              {
-                return false;
-              }
-            }
-          }
-
-          string subFormat = GetSubtitleFormat(lfsra.LocalFileSystemPath);
-          if (!string.IsNullOrEmpty(subFormat))
-          {
-            MediaItemAspect.SetAttribute(extractedAspectData, MediaAspect.ATTR_TITLE, title);
-            MediaItemAspect.SetAttribute(extractedAspectData, MediaAspect.ATTR_SORT_TITLE, BaseInfo.GetSortTitle(title));
-            MediaItemAspect.SetAttribute(extractedAspectData, MediaAspect.ATTR_ISVIRTUAL, false);
-            MediaItemAspect.SetAttribute(extractedAspectData, MediaAspect.ATTR_RECORDINGTIME, lfsra.LastChanged);
-
-            MultipleMediaItemAspect providerResourceAspect = MediaItemAspect.CreateAspect(extractedAspectData, ProviderResourceAspect.Metadata);
-            providerResourceAspect.SetAttribute(ProviderResourceAspect.ATTR_RESOURCE_INDEX, 0);
-            providerResourceAspect.SetAttribute(ProviderResourceAspect.ATTR_TYPE, ProviderResourceAspect.TYPE_SECONDARY);
-            providerResourceAspect.SetAttribute(ProviderResourceAspect.ATTR_MIME_TYPE, GetSubtitleMime(subFormat));
-            providerResourceAspect.SetAttribute(ProviderResourceAspect.ATTR_SIZE, lfsra.Size);
-            providerResourceAspect.SetAttribute(ProviderResourceAspect.ATTR_RESOURCE_ACCESSOR_PATH, lfsra.CanonicalLocalResourcePath.Serialize());
-
-            MultipleMediaItemAspect subtitleResourceAspect = MediaItemAspect.CreateAspect(extractedAspectData, SubtitleAspect.Metadata);
-            subtitleResourceAspect.SetAttribute(SubtitleAspect.ATTR_RESOURCE_INDEX, 0);
-            subtitleResourceAspect.SetAttribute(SubtitleAspect.ATTR_VIDEO_RESOURCE_INDEX, 0);
-            subtitleResourceAspect.SetAttribute(SubtitleAspect.ATTR_STREAM_INDEX, -1); //External subtitle
-            subtitleResourceAspect.SetAttribute(SubtitleAspect.ATTR_SUBTITLE_FORMAT, subFormat);
-            subtitleResourceAspect.SetAttribute(SubtitleAspect.ATTR_INTERNAL, false);
-            subtitleResourceAspect.SetAttribute(SubtitleAspect.ATTR_DEFAULT, false);
-            subtitleResourceAspect.SetAttribute(SubtitleAspect.ATTR_FORCED, false);
-            if (IsImageBasedSubtitle(subFormat) == false)
-            {
-              string language = GetSubtitleLanguage(lfsra.LocalFileSystemPath);
-              string encoding = GetSubtitleEncoding(lfsra.LocalFileSystemPath, language);
-
-              if (language != null) subtitleResourceAspect.SetAttribute(SubtitleAspect.ATTR_SUBTITLE_LANGUAGE, language);
-              if (encoding != null) subtitleResourceAspect.SetAttribute(SubtitleAspect.ATTR_SUBTITLE_ENCODING, encoding);
-            }
-            else
-            {
-              subtitleResourceAspect.SetAttribute(SubtitleAspect.ATTR_SUBTITLE_ENCODING, SubtitleAspect.BINARY_ENCODING);
-            }
-            return true;
-          }
-        }
-        return false;
-      }
-      catch (Exception e)
-      {
-        ServiceRegistration.Get<ILogger>().Info("VideoMetadataExtractor: Exception extracting external subtitles from resource '{0}' (Text: '{1}')", e, lfsra.CanonicalLocalResourcePath, e.Message);
-        return false;
       }
     }
 
@@ -895,13 +833,21 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor
       {
         if (File.Exists(Path.Combine(Path.GetDirectoryName(subtitleSource), Path.GetFileNameWithoutExtension(subtitleSource) + ".idx")) == true)
         {
-          return SubtitleAspect.FORMAT_VOBSUB;
+          //Only the idx file should be imported
+          return null;
         }
         else
         {
           string subContent = File.ReadAllText(subtitleSource);
           if (subContent.Contains("[INFORMATION]")) return SubtitleAspect.FORMAT_SUBVIEW;
           else if (subContent.Contains("}{")) return SubtitleAspect.FORMAT_MICRODVD;
+        }
+      }
+      else if (string.Compare(Path.GetExtension(subtitleSource), ".idx", true, CultureInfo.InvariantCulture) == 0)
+      {
+        if (File.Exists(Path.Combine(Path.GetDirectoryName(subtitleSource), Path.GetFileNameWithoutExtension(subtitleSource) + ".sub")) == true)
+        {
+          return SubtitleAspect.FORMAT_VOBSUB;
         }
       }
       else if (string.Compare(Path.GetExtension(subtitleSource), ".vtt", true, CultureInfo.InvariantCulture) == 0)
@@ -960,7 +906,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor
       return Encoding.Default.BodyName.ToUpperInvariant();
     }
 
-    protected string GetSubtitleLanguage(string subtitleSource)
+    protected string GetSubtitleLanguage(string subtitleSource, bool imageBased)
     {
       if (string.IsNullOrEmpty(subtitleSource))
       {
@@ -970,9 +916,10 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor
       CultureInfo[] cultures = CultureInfo.GetCultures(CultureTypes.NeutralCultures);
 
       //Language from file name
-      string[] tags = subtitleSource.Split('.');
+      string[] tags = subtitleSource.ToUpperInvariant().Split('.');
       if (tags.Length > 2)
       {
+        tags = tags.Where((t, index) => index > 0 && index < tags.Length - 1).ToArray(); //Ignore first element (title) and last element (extension)
         foreach (CultureInfo culture in cultures)
         {
           string languageName = culture.EnglishName;
@@ -980,95 +927,98 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor
           {
             languageName = culture.Parent.EnglishName;
           }
-          if (languageName.ToUpperInvariant() == tags[tags.Length - 2].ToUpperInvariant() ||
-            culture.ThreeLetterISOLanguageName.ToUpperInvariant() == tags[tags.Length - 2].ToUpperInvariant() ||
-            culture.ThreeLetterWindowsLanguageName.ToUpperInvariant() == tags[tags.Length - 2].ToUpperInvariant() ||
-            culture.TwoLetterISOLanguageName.ToUpperInvariant() == tags[tags.Length - 2].ToUpperInvariant())
+          if (tags.Contains(languageName.ToUpperInvariant()) ||
+            tags.Contains(culture.ThreeLetterISOLanguageName.ToUpperInvariant()) ||
+            tags.Contains(culture.ThreeLetterWindowsLanguageName.ToUpperInvariant()) ||
+            tags.Contains(culture.TwoLetterISOLanguageName.ToUpperInvariant()))
           {
-            return culture.TwoLetterISOLanguageName.ToUpperInvariant();
+            return culture.TwoLetterISOLanguageName;
           }
         }
       }
 
       //Language from file encoding
-      string encoding = GetSubtitleEncoding(subtitleSource, null);
-      if (encoding != null)
+      if (!imageBased)
       {
-        switch (encoding.ToUpperInvariant())
+        string encoding = GetSubtitleEncoding(subtitleSource, null);
+        if (encoding != null)
         {
-          case "US-ASCII":
-            return "EN";
+          switch (encoding.ToUpperInvariant())
+          {
+            case "US-ASCII":
+              return "EN";
 
-          case "WINDOWS-1253":
-            return "EL";
-          case "ISO-8859-7":
-            return "EL";
+            case "WINDOWS-1253":
+              return "EL";
+            case "ISO-8859-7":
+              return "EL";
 
-          case "WINDOWS-1254":
-            return "TR";
+            case "WINDOWS-1254":
+              return "TR";
 
-          case "WINDOWS-1255":
-            return "HE";
-          case "ISO-8859-8":
-            return "HE";
+            case "WINDOWS-1255":
+              return "HE";
+            case "ISO-8859-8":
+              return "HE";
 
-          case "WINDOWS-1256":
-            return "AR";
-          case "ISO-8859-6":
-            return "AR";
+            case "WINDOWS-1256":
+              return "AR";
+            case "ISO-8859-6":
+              return "AR";
 
-          case "WINDOWS-1258":
-            return "VI";
-          case "VISCII":
-            return "VI";
+            case "WINDOWS-1258":
+              return "VI";
+            case "VISCII":
+              return "VI";
 
-          case "WINDOWS-31J":
-            return "JA";
-          case "EUC-JP":
-            return "JA";
-          case "Shift_JIS":
-            return "JA";
-          case "ISO-2022-JP":
-            return "JA";
+            case "WINDOWS-31J":
+              return "JA";
+            case "EUC-JP":
+              return "JA";
+            case "Shift_JIS":
+              return "JA";
+            case "ISO-2022-JP":
+              return "JA";
 
-          case "X-MSWIN-936":
-            return "ZH";
-          case "GB18030":
-            return "ZH";
-          case "X-EUC-CN":
-            return "ZH";
-          case "GBK":
-            return "ZH";
-          case "GB2312":
-            return "ZH";
-          case "X-WINDOWS-950":
-            return "ZH";
-          case "X-MS950-HKSCS":
-            return "ZH";
-          case "X-EUC-TW":
-            return "ZH";
-          case "BIG5":
-            return "ZH";
-          case "BIG5-HKSCS":
-            return "ZH";
+            case "X-MSWIN-936":
+              return "ZH";
+            case "GB18030":
+              return "ZH";
+            case "X-EUC-CN":
+              return "ZH";
+            case "GBK":
+              return "ZH";
+            case "GB2312":
+              return "ZH";
+            case "X-WINDOWS-950":
+              return "ZH";
+            case "X-MS950-HKSCS":
+              return "ZH";
+            case "X-EUC-TW":
+              return "ZH";
+            case "BIG5":
+              return "ZH";
+            case "BIG5-HKSCS":
+              return "ZH";
 
-          case "EUC-KR":
-            return "KO";
-          case "ISO-2022-KR":
-            return "KO";
+            case "EUC-KR":
+              return "KO";
+            case "ISO-2022-KR":
+              return "KO";
 
-          case "TIS-620":
-            return "TH";
-          case "ISO-8859-11":
-            return "TH";
+            case "TIS-620":
+              return "TH";
+            case "ISO-8859-11":
+              return "TH";
 
-          case "KOI8-R":
-            return "RU";
-          case "KOI7":
-            return "RU";
+            case "KOI8-R":
+              return "RU";
+            case "KOI7":
+              return "RU";
 
-          case "KOI8-U":
-            return "UK";
+            case "KOI8-U":
+              return "UK";
+          }
         }
       }
 
@@ -1163,10 +1113,30 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor
             }
             foreach (string subFile in subFiles)
             {
+              if (!HasSubtitleExtension(subFile))
+                continue;
+
+              LocalFsResourceAccessor fsra = new LocalFsResourceAccessor((LocalFsResourceProvider)lfsra.ParentProvider, LocalFsResourceProviderBase.ToProviderPath(subFile));
+
+              //Check if already exists
+              bool exists = false;
+              foreach (MultipleMediaItemAspect providerResourceAspect in providerResourceAspects)
+              {
+                string subAccessorPath = (string)providerResourceAspect.GetAttributeValue(ProviderResourceAspect.ATTR_RESOURCE_ACCESSOR_PATH);
+                ResourcePath subResourcePath = ResourcePath.Deserialize(subAccessorPath);
+                if (subResourcePath.Equals(fsra.CanonicalLocalResourcePath))
+                {
+                  //Already exists
+                  exists = true;
+                  break;
+                }
+              }
+              if (exists)
+                continue;
+
               string subFormat = GetSubtitleFormat(subFile);
               if (!string.IsNullOrEmpty(subFormat))
               {
-                LocalFsResourceAccessor fsra = new LocalFsResourceAccessor((LocalFsResourceProvider)lfsra.ParentProvider, LocalFsResourceProviderBase.ToProviderPath(subFile));
                 MultipleMediaItemAspect providerResourceAspect = MediaItemAspect.CreateAspect(extractedAspectData, ProviderResourceAspect.Metadata);
                 providerResourceAspect.SetAttribute(ProviderResourceAspect.ATTR_RESOURCE_INDEX, newResourceIndex);
                 providerResourceAspect.SetAttribute(ProviderResourceAspect.ATTR_TYPE, ProviderResourceAspect.TYPE_SECONDARY);
@@ -1180,14 +1150,15 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor
                 subtitleResourceAspect.SetAttribute(SubtitleAspect.ATTR_STREAM_INDEX, -1); //External subtitle
                 subtitleResourceAspect.SetAttribute(SubtitleAspect.ATTR_SUBTITLE_FORMAT, subFormat);
                 subtitleResourceAspect.SetAttribute(SubtitleAspect.ATTR_INTERNAL, false);
-                subtitleResourceAspect.SetAttribute(SubtitleAspect.ATTR_DEFAULT, false);
-                subtitleResourceAspect.SetAttribute(SubtitleAspect.ATTR_FORCED, false);
-                if (IsImageBasedSubtitle(subFormat) == false)
-                {
-                  string language = GetSubtitleLanguage(subFile);
-                  string encoding = GetSubtitleEncoding(subFile, language);
+                subtitleResourceAspect.SetAttribute(SubtitleAspect.ATTR_DEFAULT, subFile.ToLowerInvariant().Contains(".default."));
+                subtitleResourceAspect.SetAttribute(SubtitleAspect.ATTR_FORCED, subFile.ToLowerInvariant().Contains(".forced."));
 
-                  if (language != null) subtitleResourceAspect.SetAttribute(SubtitleAspect.ATTR_SUBTITLE_LANGUAGE, language);
+                bool imageBased = IsImageBasedSubtitle(subFormat);
+                string language = GetSubtitleLanguage(subFile, imageBased);
+                if (language != null) subtitleResourceAspect.SetAttribute(SubtitleAspect.ATTR_SUBTITLE_LANGUAGE, language);
+                if (imageBased == false)
+                {
+                  string encoding = GetSubtitleEncoding(subFile, language);
                   if (encoding != null) subtitleResourceAspect.SetAttribute(SubtitleAspect.ATTR_SUBTITLE_ENCODING, encoding);
                 }
                 else
@@ -1233,21 +1204,17 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor
         if (!MediaItemAspect.TryGetAttribute(extractedAspectData, MediaAspect.ATTR_TITLE, out title))
           title = ProviderPathHelper.GetFileNameWithoutExtension(lfsra.ResourceName);
 
-        foreach (Regex regex in REGEXP_CLEANUPS)
-          title = regex.Replace(title, "");
-        title = BaseInfo.CleanupWhiteSpaces(title);
-
         string stereoType = videoStreamAspects[0].GetAttributeValue<string>(VideoStreamAspect.ATTR_VIDEO_TYPE);
         int? height = videoStreamAspects[0].GetAttributeValue<int?>(VideoStreamAspect.ATTR_HEIGHT);
         int? width = videoStreamAspects[0].GetAttributeValue<int?>(VideoStreamAspect.ATTR_WIDTH);
 
         List<string> suffixes = new List<string>();
         if (partNum > 0)
-          suffixes.Add("Multi-part");
+          suffixes.Add("#");
         if (!string.IsNullOrEmpty(stereoType))
           suffixes.Add(stereoType);
         if (height.HasValue && width.HasValue)
-          suffixes.Add(string.Format("{0}x{1}", width.Value, height.Value));
+          suffixes.Add($"{width.Value}x{height.Value}");
 
         videoStreamAspects[0].SetAttribute(VideoStreamAspect.ATTR_VIDEO_PART_SET_NAME, title + (suffixes.Count > 0 ? " (" + string.Join(", ", suffixes) + ")" : ""));
       }
@@ -1272,19 +1239,16 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor
       get { return _metadata; }
     }
 
-    public bool TryExtractMetadata(IResourceAccessor mediaItemAccessor, IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData, bool importOnly, bool forceQuickMode)
+    public async Task<bool> TryExtractMetadataAsync(IResourceAccessor mediaItemAccessor, IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData, bool forceQuickMode)
     {
       try
       {
-        bool refresh = false;
-        if (extractedAspectData.ContainsKey(VideoStreamAspect.ASPECT_ID))
-          refresh = true;
-
-        VideoResult result = null;
         IFileSystemResourceAccessor fsra = mediaItemAccessor as IFileSystemResourceAccessor;
         if (fsra == null)
           return false;
-        if (!refresh && !fsra.IsFile && fsra.ResourceExists("VIDEO_TS"))
+
+        VideoResult result = null;
+        if (!fsra.IsFile && fsra.ResourceExists("VIDEO_TS"))
         {
           IFileSystemResourceAccessor fsraVideoTs = fsra.GetResource("VIDEO_TS");
           if (fsraVideoTs != null && fsraVideoTs.ResourceExists("VIDEO_TS.IFO"))
@@ -1324,9 +1288,9 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor
                 result.UpdateMetadata(extractedAspectData, lfsra, -1, 0, false);
                 try
                 {
-                  ExtractMatroskaTags(lfsra, extractedAspectData, importOnly, forceQuickMode);
-                  ExtractMp4Tags(lfsra, extractedAspectData, importOnly, forceQuickMode);
-                  ExtractThumbnailData(lfsra, extractedAspectData, importOnly, forceQuickMode);
+                  await ExtractMatroskaTagsAsync(lfsra, extractedAspectData).ConfigureAwait(false);
+                  ExtractMp4Tags(lfsra, extractedAspectData);
+                  ExtractThumbnailData(lfsra, extractedAspectData, forceQuickMode);
                 }
                 catch (Exception ex)
                 {
@@ -1359,80 +1323,44 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor
               }
             }
 
-            if (refresh)
+            using (MediaInfoWrapper fileInfo = ReadMediaInfo(fsra))
             {
-              using (MediaInfoWrapper fileInfo = ReadMediaInfo(fsra))
-              {
-                // Before we start evaluating the file, check if it is a video at all
-                if (!fileInfo.IsValid || (fileInfo.GetVideoCount() == 0 && !IsWorkaroundRequired(filePath)))
-                  return false;
+              // Before we start evaluating the file, check if it is a video at all
+              if (!fileInfo.IsValid || (fileInfo.GetVideoCount() == 0 && !IsWorkaroundRequired(filePath)))
+                return false;
 
-                result = VideoResult.CreateFileInfo(mediaTitle, fileInfo);
-                if (result != null)
-                {
-                  using (LocalFsResourceAccessorHelper rah = new LocalFsResourceAccessorHelper(mediaItemAccessor))
-                  {
-                    ILocalFsResourceAccessor lfsra = rah.LocalFsResourceAccessor;
-                    if (lfsra != null)
-                    {
-                      result.UpdateMetadata(extractedAspectData, lfsra, multipart, multipartSet, true);
-                    }
-                  }
-                }
-              }
+              result = VideoResult.CreateFileInfo(mediaTitle, fileInfo);
             }
-            else
+
+            using (Stream stream = fsra.OpenRead())
+              result.MimeType = MimeTypeDetector.GetMimeType(stream, DEFAULT_MIMETYPE);
+
+            if (result != null)
             {
-              using (MediaInfoWrapper fileInfo = ReadMediaInfo(fsra))
+              using (LocalFsResourceAccessorHelper rah = new LocalFsResourceAccessorHelper(mediaItemAccessor))
               {
-                // Before we start evaluating the file, check if it is a video at all
-                if (!fileInfo.IsValid || (fileInfo.GetVideoCount() == 0 && !IsWorkaroundRequired(filePath)))
-                  return false;
-
-                result = VideoResult.CreateFileInfo(mediaTitle, fileInfo);
-              }
-              using (Stream stream = fsra.OpenRead())
-                result.MimeType = MimeTypeDetector.GetMimeType(stream, DEFAULT_MIMETYPE);
-
-              if (result != null)
-              {
-                using (LocalFsResourceAccessorHelper rah = new LocalFsResourceAccessorHelper(mediaItemAccessor))
+                ILocalFsResourceAccessor lfsra = rah.LocalFsResourceAccessor;
+                if (lfsra != null)
                 {
-                  ILocalFsResourceAccessor lfsra = rah.LocalFsResourceAccessor;
-                  if (lfsra != null)
+                  result.UpdateMetadata(extractedAspectData, lfsra, multipart, multipartSet, false);
+                  try
                   {
-                    result.UpdateMetadata(extractedAspectData, lfsra, multipart, multipartSet, false);
-                    try
-                    {
-                      ExtractMatroskaTags(lfsra, extractedAspectData, importOnly, forceQuickMode);
-                      ExtractMp4Tags(lfsra, extractedAspectData, importOnly, forceQuickMode);
-                      ExtractThumbnailData(lfsra, extractedAspectData, importOnly, forceQuickMode);
-                    }
-                    catch (Exception ex)
-                    {
-                      ServiceRegistration.Get<ILogger>().Debug("VideoMetadataExtractor: Exception reading tags for '{0}'", ex, lfsra.CanonicalLocalResourcePath);
-                    }
-                    UpdateSetName(lfsra, extractedAspectData, multipart);
-
-                    //Initial add of all subtitles because they have been skipped during import
-                    if(!forceQuickMode)
-                      FindExternalSubtitles(lfsra, extractedAspectData);
-
-                    return true;
+                    await ExtractMatroskaTagsAsync(lfsra, extractedAspectData).ConfigureAwait(false);
+                    ExtractMp4Tags(lfsra, extractedAspectData);
+                    ExtractThumbnailData(lfsra, extractedAspectData, forceQuickMode);
                   }
+                  catch (Exception ex)
+                  {
+                    ServiceRegistration.Get<ILogger>().Debug("VideoMetadataExtractor: Exception reading tags for '{0}'", ex, lfsra.CanonicalLocalResourcePath);
+                  }
+                  UpdateSetName(lfsra, extractedAspectData, multipart);
+
+                  //Initial add of all subtitles because they have been skipped during import
+                  if (!forceQuickMode)
+                    FindExternalSubtitles(lfsra, extractedAspectData);
+
+                  return true;
                 }
-              }
-            }
-          }
-          else if (HasSubtitleExtension(filePath) && !importOnly && !forceQuickMode)
-          {
-            //Don't handle subtitle files during import cycle because they will be handled together with the video file instead
-            using (LocalFsResourceAccessorHelper rah = new LocalFsResourceAccessorHelper(mediaItemAccessor))
-            {
-              ILocalFsResourceAccessor lfsra = rah.LocalFsResourceAccessor;
-              if (lfsra != null)
-              {
-                return ExtractExternalSubtitle(mediaTitle, extractedAspectData, lfsra);
               }
             }
           }
@@ -1447,7 +1375,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor
       return false;
     }
 
-    public bool IsSingleResource(IResourceAccessor mediaItemAccessor)
+    public bool IsDirectorySingleResource(IResourceAccessor mediaItemAccessor)
     {
       IFileSystemResourceAccessor fsra = mediaItemAccessor as IFileSystemResourceAccessor;
       if (fsra == null)

@@ -23,6 +23,7 @@
 #endregion
 
 using System;
+using System.Threading.Tasks;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.MediaManagement;
@@ -36,6 +37,7 @@ using MediaPortal.UI.Services.UserManagement;
 using MediaPortal.Common.SystemCommunication;
 using MediaPortal.UI.ServerCommunication;
 using MediaPortal.Common.Settings;
+using MediaPortal.Common.UserManagement;
 using MediaPortal.UI.Services.Players.Settings;
 
 namespace MediaPortal.UI.Players.BassPlayer
@@ -154,7 +156,7 @@ namespace MediaPortal.UI.Players.BassPlayer
       lock (_syncObj)
         if (_externalState != PlayerState.Active)
           return;
-      NotifyPlayback();
+      _ = NotifyPlayback();
       // Just make MP come up with the next item on its playlist
       FireNextItemRequest();
     }
@@ -216,28 +218,39 @@ namespace MediaPortal.UI.Players.BassPlayer
         dlgt(this);
     }
 
-    protected void NotifyPlayback()
+    protected async Task NotifyPlayback()
     {
       IUserManagement userProfileDataManagement = ServiceRegistration.Get<IUserManagement>();
-      double playPercentage = CurrentTime.TotalSeconds / Duration.TotalSeconds;
       ISettingsManager settingsManager = ServiceRegistration.Get<ISettingsManager>();
       PlayerManagerSettings settings = settingsManager.Load<PlayerManagerSettings>();
+      int playPercentage = GetCurrentPlayPercentage();
       bool played = playPercentage >= settings.WatchedPlayPercentage;
-      if (_mediaItemId.HasValue && _mediaItemId.Value != Guid.Empty)
+      if (played)
+        playPercentage = 100;
+
+      IServerConnectionManager scm = ServiceRegistration.Get<IServerConnectionManager>();
+      IContentDirectory cd = scm.ContentDirectory;
+      if (_mediaItemId.HasValue && _mediaItemId.Value != Guid.Empty && cd != null)
       {
-        IServerConnectionManager scm = ServiceRegistration.Get<IServerConnectionManager>();
-        IContentDirectory cd = scm.ContentDirectory;
         if (userProfileDataManagement.IsValidUser)
         {
           bool updateLastPlayed = (played || playPercentage >= PLAY_THRESHOLD_PERCENT || CurrentTime.TotalSeconds >= PLAY_THRESHOLD_SEC);
-          if (cd != null)
-            cd.NotifyUserPlayback(userProfileDataManagement.CurrentUser.ProfileId, _mediaItemId.Value, Convert.ToInt32(playPercentage), updateLastPlayed);
+          await cd.NotifyUserPlaybackAsync(userProfileDataManagement.CurrentUser.ProfileId, _mediaItemId.Value, playPercentage, updateLastPlayed);
         }
-        else if (cd != null)
+        else
         {
-          cd.NotifyPlayback(_mediaItemId.Value, played);
+          await cd.NotifyPlaybackAsync(_mediaItemId.Value, played);
         }
       }
+    }
+
+    protected int GetCurrentPlayPercentage()
+    {
+      double total = Duration.TotalSeconds;
+      if (total == 0)
+        return 0;
+      double current = CurrentTime.TotalSeconds;
+      return (int)(100 * current / total);
     }
 
     #endregion
@@ -247,9 +260,7 @@ namespace MediaPortal.UI.Players.BassPlayer
     /// <summary>
     /// Enqueues a play workitem for the given mediaitem.
     /// </summary>
-    /// <param name="locator">Resource locator of the to-be-played item.</param>
-    /// <param name="mimeType">Mime type of the media item to be played, if given. May be <c>null</c>.</param>
-    /// <param name="mediaItemTitle">Title of the media item to be played.</param>
+    /// <param name="mediaItem">MediaItem to-be-played item.</param>
     /// <remarks>
     /// The workitem will actually be executed on the controller's mainthread.
     /// </remarks>
@@ -257,7 +268,7 @@ namespace MediaPortal.UI.Players.BassPlayer
     {
       string mimeType;
       string title;
-      if (!mediaItem.GetPlayData(out mimeType, out title))
+      if (!GetMediaItemPlayData(mediaItem, out mimeType, out title))
         return false;
       IResourceLocator locator = mediaItem.GetResourceLocator();
       if (!InputSourceFactory.CanPlay(locator, mimeType))
@@ -276,6 +287,11 @@ namespace MediaPortal.UI.Players.BassPlayer
       _externalState = PlayerState.Active;
       _controller.MoveToNextItem_Async(inputSource, StartTime.AtOnce);
       return true;
+    }
+
+    protected virtual bool GetMediaItemPlayData(MediaItem mediaItem, out string mimeType, out string title)
+    {
+      return mediaItem.GetPlayData(out mimeType, out title);
     }
 
     #endregion
@@ -307,7 +323,7 @@ namespace MediaPortal.UI.Players.BassPlayer
 
     public void Stop()
     {
-      NotifyPlayback();
+      _ = NotifyPlayback();
       lock (_syncObj)
       {
         if (_externalState != PlayerState.Active)

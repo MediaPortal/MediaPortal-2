@@ -46,6 +46,7 @@ using PointF = SharpDX.Vector2;
 using MediaPortal.UI.Services.UserManagement;
 using MediaPortal.Common.UserProfileDataManagement;
 using MediaPortal.Common.SystemCommunication;
+using MediaPortal.Common.UserManagement;
 using MediaPortal.UI.ServerCommunication;
 
 namespace MediaPortal.UI.Players.Image
@@ -403,15 +404,17 @@ namespace MediaPortal.UI.Players.Image
 
       IServerConnectionManager scm = ServiceRegistration.Get<IServerConnectionManager>();
       IContentDirectory cd = scm.ContentDirectory;
-      IUserManagement userProfileDataManagement = ServiceRegistration.Get<IUserManagement>();
-      if (userProfileDataManagement.IsValidUser)
+      if (cd != null)
       {
-        if (cd != null)
-          cd.NotifyUserPlayback(userProfileDataManagement.CurrentUser.ProfileId, mediaItem.MediaItemId, 100, true);
-      }
-      else if (cd != null)
-      {
-        cd.NotifyPlayback(mediaItem.MediaItemId, true);
+        IUserManagement userProfileDataManagement = ServiceRegistration.Get<IUserManagement>();
+        if (userProfileDataManagement.IsValidUser)
+        {
+          cd.NotifyUserPlaybackAsync(userProfileDataManagement.CurrentUser.ProfileId, mediaItem.MediaItemId, 100, true);
+        }
+        else
+        {
+          cd.NotifyPlaybackAsync(mediaItem.MediaItemId, true);
+        }
       }
       return true;
     }

@@ -25,6 +25,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using MediaPortal.Common;
 using MediaPortal.Common.Exceptions;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
@@ -40,7 +41,7 @@ namespace MediaPortal.UiComponents.Media.FilterCriteria
   {
     #region Base overrides
 
-    public override ICollection<FilterValue> GetAvailableValues(IEnumerable<Guid> necessaryMIATypeIds, IFilter selectAttributeFilter, IFilter filter)
+    public override async Task<ICollection<FilterValue>> GetAvailableValuesAsync(IEnumerable<Guid> necessaryMIATypeIds, IFilter selectAttributeFilter, IFilter filter)
     {
       IContentDirectory cd = ServiceRegistration.Get<IServerConnectionManager>().ContentDirectory;
       if (cd == null)
@@ -67,22 +68,25 @@ namespace MediaPortal.UiComponents.Media.FilterCriteria
 
       bool showVirtual = VirtualMediaHelper.ShowVirtualMedia(necessaryMIATypeIds);
 
-      int numEmptyItems = cd.CountMediaItems(necessaryMIATypeIds, emptyFilter, true, showVirtual);
-      int numSmallItems = cd.CountMediaItems(necessaryMIATypeIds, smallFilter, true, showVirtual);
-      int numMediumItems = cd.CountMediaItems(necessaryMIATypeIds, mediumFilter, true, showVirtual);
-      int numBigItems = cd.CountMediaItems(necessaryMIATypeIds, bigFilter, true, showVirtual);
+      var taskEmpty = cd.CountMediaItemsAsync(necessaryMIATypeIds, emptyFilter, true, showVirtual);
+      var taskSmall = cd.CountMediaItemsAsync(necessaryMIATypeIds, smallFilter, true, showVirtual);
+      var taskMedium = cd.CountMediaItemsAsync(necessaryMIATypeIds, mediumFilter, true, showVirtual);
+      var taskBig = cd.CountMediaItemsAsync(necessaryMIATypeIds, bigFilter, true, showVirtual);
+
+      var counts = await Task.WhenAll(taskEmpty, taskSmall, taskMedium, taskBig);
+
       return new List<FilterValue>(new FilterValue[]
         {
-            new FilterValue(Consts.RES_VALUE_EMPTY_TITLE, emptyFilter, null, numEmptyItems, this),
-            new FilterValue(Consts.RES_IMAGE_FILTER_SMALL, smallFilter, null, numSmallItems, this),
-            new FilterValue(Consts.RES_IMAGE_FILTER_MEDIUM, mediumFilter, null, numMediumItems, this),
-            new FilterValue(Consts.RES_IMAGE_FILTER_BIG, bigFilter, null, numBigItems, this),
+            new FilterValue(Consts.RES_VALUE_EMPTY_TITLE, emptyFilter, null, counts[0], this),
+            new FilterValue(Consts.RES_IMAGE_FILTER_SMALL, smallFilter, null, counts[1], this),
+            new FilterValue(Consts.RES_IMAGE_FILTER_MEDIUM, mediumFilter, null, counts[2], this),
+            new FilterValue(Consts.RES_IMAGE_FILTER_BIG, bigFilter, null, counts[3], this),
         }.Where(fv => !fv.NumItems.HasValue || fv.NumItems.Value > 0));
     }
 
-    public override ICollection<FilterValue> GroupValues(ICollection<Guid> necessaryMIATypeIds, IFilter selectAttributeFilter, IFilter filter)
+    public override Task<ICollection<FilterValue>> GroupValuesAsync(ICollection<Guid> necessaryMIATypeIds, IFilter selectAttributeFilter, IFilter filter)
     {
-      return null;
+      return Task.FromResult((ICollection<FilterValue>)null);
     }
 
     #endregion
