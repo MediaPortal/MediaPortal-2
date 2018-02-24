@@ -32,6 +32,18 @@
     </Setter>
   </Style>
 
+  <Style x:Key="HomeMediaListListViewContainerStyle" BasedOn="{ThemeResource DefaultItemContainerStyle}">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="{x:Type ListViewItem}">
+          <Button Style="{ThemeResource ButtonWideStyle_List_Grow}"
+                  Command="{Binding Path=Command,Mode=OneTime}"
+                  IsEnabled="{Binding Enabled}" SetFocus="{Binding Path=Selected,Mode=OneTime}"/>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+
   <DataTemplate x:Key="ChannelDataTemplate" DataType="{x:Type collections:ListItem}">
     <Grid x:Name="ItemControl" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
       <Grid.ColumnDefinitions>
@@ -62,7 +74,7 @@
   </DataTemplate>
 
   <DataTemplate x:Key="ProgramsDataTemplate" DataType="{x:Type collections:ListItem}">
-    <Grid x:Name="ItemControl" HorizontalAlignment="Stretch" Margin="-5,0,-35,0" Height="{StaticResource CHANNEL_GRID_HEIGHT_S}">
+    <Grid x:Name="ItemControl" HorizontalAlignment="Stretch" Height="{StaticResource CHANNEL_GRID_HEIGHT_S}">
       <Grid.ColumnDefinitions>
         <ColumnDefinition Width="20*"/>
         <ColumnDefinition Width="70*"/>
@@ -93,18 +105,19 @@
   </DataTemplate>
 
   <DataTemplate x:Key="SchedulesDataTemplate" DataType="{x:Type collections:ListItem}">
-    <Grid x:Name="ItemControl" HorizontalAlignment="Stretch" Margin="-5,0,-35,0" Height="{StaticResource CHANNEL_GRID_HEIGHT_S}">
+    <Grid x:Name="ItemControl" HorizontalAlignment="Stretch" Height="{StaticResource CHANNEL_GRID_HEIGHT_S}">
       <Grid.ColumnDefinitions>
         <ColumnDefinition Width="20*"/>
-        <ColumnDefinition Width="70*"/>
-        <ColumnDefinition Width="10*"/>
+        <ColumnDefinition Width="30*"/>
+        <ColumnDefinition Width="42*"/>
+        <ColumnDefinition Width="8*"/>
       </Grid.ColumnDefinitions>
       <Grid.RowDefinitions>
         <RowDefinition Height="*"/>
         <RowDefinition Height="*"/>
       </Grid.RowDefinitions>
       <Border Background="Black" CornerRadius="5" BorderThickness="0" Opacity="0.2" HorizontalAlignment="Stretch" 
-              Grid.ColumnSpan="3" Grid.RowSpan="2" VerticalAlignment="Stretch"/>
+              Grid.ColumnSpan="4" Grid.RowSpan="2" VerticalAlignment="Stretch"/>
       <Image x:Name="ItemTypeImage" Stretch="Uniform" Margin="10" Grid.RowSpan="2">
         <Image.Source>
           <fanart:FanArtImageSource fanart:FanArtMediaType="{Binding Program.ChannelLogoType}" fanart:FanArtType="Banner" fanart:FanArtName="{Binding Program.ChannelName}"
@@ -115,13 +128,24 @@
              TextTrimming="CharacterEllipsis" IsVisible="{Binding ElementName=ItemTypeImage, Path=!HasImage}"
              Content="{Binding Program.ChannelName}" Color="Black" FontSize="{ThemeResource SmallFontSize}" Margin="5"/>
       
-      <Label x:Name="ProgramLabel" VerticalAlignment="Center" HorizontalAlignment="Stretch" Grid.Column="1" Margin="0,1,0,-1" Content="{Binding Program.Title}" FontFamily="SegoeUIBold"
+      <Label x:Name="ProgramLabel" VerticalAlignment="Center" HorizontalAlignment="Stretch" Grid.Column="1" Grid.ColumnSpan="3" Margin="0,1,0,-1" Content="{Binding Program.Title}" FontFamily="SegoeUIBold"
              TextTrimming="CharacterEllipsis" Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallerFontSize}" />
       <Label x:Name="StartTimeLabel" VerticalAlignment="Center" Grid.Column="1" Grid.Row="1" Margin="0,-1,0,1" Content="{Binding Program.StartTime}"
              Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallerFontSize}" />
 
-      <Label x:Name="ScheduleTypeLabel" VerticalAlignment="Center" Grid.Column="2" Grid.RowSpan="2" Content="{Binding Program.RecordingType}"
-             Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallerFontSize}" />
+      <Image Grid.Column="3" Grid.Row="1" x:Name="SeriesRecIndicator" Source="RECORD.SERIES.png" IsVisible="{Binding Program.IsSeriesScheduled}"
+             VerticalAlignment="Center" HorizontalAlignment="Left" Height="30" Stretch="Uniform" Margin="5,0,0,0"/>
+      <Image Grid.Column="3" Grid.Row="1" x:Name="RecIndicator" Source="RECORD.SINGLE.png" IsVisible="{Binding !Program.IsSeriesScheduled}"
+             VerticalAlignment="Center" HorizontalAlignment="Left" Height="30" Stretch="Uniform" Margin="5,0,0,0"/>
+
+      <Label x:Name="ScheduleTypeLabel" VerticalAlignment="Center" Grid.Column="2" Grid.Row="1" Content="{Binding [ScheduleType]}" ScrollDelay="0" Scroll="None"
+             Color="{ThemeResource MenuTextBackground}" FontSize="{ThemeResource SmallerFontSize}" HorizontalAlignment="Right" Margin="0,0,10,0">
+        <Label.Triggers>
+          <DataTrigger Binding="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Button}, Path=HasFocus}" Value="True">
+            <Setter Property="Scroll" Value="Auto"/>
+          </DataTrigger>
+        </Label.Triggers>
+      </Label>
     </Grid>
   </DataTemplate>
 
@@ -154,20 +178,14 @@
     </Setter>
   </Style>
 
-  <Style x:Key="HomeScreenProgramItemViewStyle" BasedOn="{ThemeResource LeftMenuListViewStyle}">
-    <Setter Property="LayoutTransform">
-      <Setter.Value>
-        <TransformGroup>
-          <ScaleTransform ScaleX="1" ScaleY="1"/>
-        </TransformGroup>
-      </Setter.Value>
-    </Setter>
+  <Style x:Key="HomeScreenProgramItemViewStyle" BasedOn="{ThemeResource ContentsMenuListViewStyle}">
+    <Setter Property="ItemContainerStyle" Value="{ThemeResource HomeMediaListListViewContainerStyle}"/>
     <Setter Property="Template">
       <Setter.Value>
         <ControlTemplate TargetType="{x:Type ListView}">
-          <ScrollViewer CanContentScroll="True" Margin="0,5,0,-25"
-                        VerticalScrollBarVisibility="Hidden" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" >
-            <ItemsPresenter VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
+          <ScrollViewer CanContentScroll="True" Margin="-30,5,-30,-25" HorizontalScrollBarVisibility="Disabled"
+                        VerticalScrollBarVisibility="Disabled" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" >
+            <ItemsPresenter VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Margin="30,0,30,0" HorizontalContentAlignment="Center"/>
           </ScrollViewer>
         </ControlTemplate>
       </Setter.Value>
@@ -175,7 +193,7 @@
     <Setter Property="ItemsPanel">
       <Setter.Value>
         <ItemsPanelTemplate>
-          <VirtualizingStackPanel x:Name="ListItemsHost" Orientation="Vertical" IsItemsHost="True" HorizontalAlignment="Center" LoopScroll="False"/>
+          <VirtualizingStackPanel x:Name="ListItemsHost" Orientation="Vertical" IsItemsHost="True" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" LoopScroll="False"/>
         </ItemsPanelTemplate>
       </Setter.Value>
     </Setter>

@@ -23,10 +23,12 @@
 #endregion
 
 using MediaPortal.Common.Commands;
+using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Plugins.SlimTv.Client.Models.Navigation;
 using MediaPortal.Plugins.SlimTv.Client.TvHandler;
 using MediaPortal.UiComponents.Media.MediaLists;
 using MediaPortal.UiComponents.Media.Models;
+using System;
 
 namespace MediaPortal.Plugins.SlimTv.Client.MediaLists
 {
@@ -35,6 +37,8 @@ namespace MediaPortal.Plugins.SlimTv.Client.MediaLists
     public SlimTvContinueWatchRecordingsMediaListProvider()
     {
       _necessaryMias = SlimTvConsts.NECESSARY_RECORDING_MIAS;
+      //Needed for calculating play percentage
+      _optionalMias = new Guid[] { VideoStreamAspect.ASPECT_ID };
       _playableConverterAction = mi => new RecordingItem(mi) { Command = new MethodDelegateCommand(() => PlayItemsModel.CheckQueryPlayAction(mi)) };
     }
   }

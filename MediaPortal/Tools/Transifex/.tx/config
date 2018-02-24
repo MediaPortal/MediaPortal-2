@@ -50,6 +50,11 @@ file_filter=Cache_MP2\Diagnostics\strings_<lang>.xml
 source_file=Cache_MP2\Diagnostics\strings_en.xml
 source_lang=en
 type=ANDROID
+[MP2.Genres]
+file_filter=Cache_MP2\Genres\strings_<lang>.xml
+source_file=Cache_MP2\Genres\strings_en.xml
+source_lang=en
+type=ANDROID
 [MP2.HelloWorldExamplePlugin]
 file_filter=Cache_MP2\HelloWorldExamplePlugin\strings_<lang>.xml
 source_file=Cache_MP2\HelloWorldExamplePlugin\strings_en.xml
@@ -68,6 +73,11 @@ type=ANDROID
 [MP2.IsoResourceProvider]
 file_filter=Cache_MP2\IsoResourceProvider\strings_<lang>.xml
 source_file=Cache_MP2\IsoResourceProvider\strings_en.xml
+source_lang=en
+type=ANDROID
+[MP2.Login]
+file_filter=Cache_MP2\Login\strings_<lang>.xml
+source_file=Cache_MP2\Login\strings_en.xml
 source_lang=en
 type=ANDROID
 [MP2.Media]
@@ -175,9 +185,9 @@ file_filter=Cache_MP2\VideoPlayer\strings_<lang>.xml
 source_file=Cache_MP2\VideoPlayer\strings_en.xml
 source_lang=en
 type=ANDROID
-[MP2.WakeOnLan.Client]
-file_filter=Cache_MP2\WakeOnLan.Client\strings_<lang>.xml
-source_file=Cache_MP2\WakeOnLan.Client\strings_en.xml
+[MP2.WakeOnLanClient]
+file_filter=Cache_MP2\WakeOnLanClient\strings_<lang>.xml
+source_file=Cache_MP2\WakeOnLanClient\strings_en.xml
 source_lang=en
 type=ANDROID
 [MP2.Weather]
