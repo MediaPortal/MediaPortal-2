@@ -52,6 +52,8 @@ namespace MediaPortal.Common.FanArt
 
     #endregion
 
+    //The maximum length of the cache file's name, longer names will be truncated to this length
+    private const int MAX_CACHE_NAME_LENGTH = 50;
     private readonly string FANART_CACHE_PATH = ServiceRegistration.Get<IPathManager>().GetPath(@"<DATA>\FanArt\");
     private readonly TimeSpan FANART_COUNT_TIMEOUT = new TimeSpan(0, 5, 0);
     
@@ -244,8 +246,13 @@ namespace MediaPortal.Common.FanArt
 
     protected string CreateCacheNameFilePath(string fanArtCacheDirectory, string cacheName)
     {
-      return string.IsNullOrEmpty(cacheName) ? null :
-        Path.Combine(fanArtCacheDirectory, FileUtils.GetSafeFilename(cacheName.Trim().ToUpperInvariant() + ".mpcache"));
+      if (string.IsNullOrEmpty(cacheName))
+        return null;
+      cacheName = cacheName.Trim();
+      //Long names can cause a PathTooLongException
+      if (cacheName.Length > MAX_CACHE_NAME_LENGTH)
+        cacheName = cacheName.Substring(0, MAX_CACHE_NAME_LENGTH);
+      return Path.Combine(fanArtCacheDirectory, FileUtils.GetSafeFilename(cacheName.ToUpperInvariant() + ".mpcache"));
     }
 
     protected int GetMaxFanArtCount(string fanArtType, int defaultCount = 3)
