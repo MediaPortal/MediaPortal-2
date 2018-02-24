@@ -153,6 +153,7 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Test.NfoMetadataExtractor", "..\Tests\Test.NfoMetadataExtractor\Test.NfoMetadataExtractor.csproj", "{F1E39B0C-451F-4F77-A948-AF2C33CBB921}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GDIThumbnailProvider", "Extensions\MetadataExtractors\GDIThumbnailProvider\GDIThumbnailProvider.csproj", "{65CF3575-AC34-4E46-92C3-84E6EDA9BACD}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Test.Utilities", "..\Tests\Test.Utilities\Test.Utilities.csproj", "{D88FE0C5-43D2-4138-9E80-5264E558A279}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -381,6 +382,10 @@ Global
 		{65CF3575-AC34-4E46-92C3-84E6EDA9BACD}.Debug|x86.Build.0 = Debug|x86
 		{65CF3575-AC34-4E46-92C3-84E6EDA9BACD}.Release|x86.ActiveCfg = Release|x86
 		{65CF3575-AC34-4E46-92C3-84E6EDA9BACD}.Release|x86.Build.0 = Release|x86
+		{D88FE0C5-43D2-4138-9E80-5264E558A279}.Debug|x86.ActiveCfg = Debug|x86
+		{D88FE0C5-43D2-4138-9E80-5264E558A279}.Debug|x86.Build.0 = Debug|x86
+		{D88FE0C5-43D2-4138-9E80-5264E558A279}.Release|x86.ActiveCfg = Release|x86
+		{D88FE0C5-43D2-4138-9E80-5264E558A279}.Release|x86.Build.0 = Release|x86
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -456,6 +461,7 @@ Global
 		{B7D9598A-9744-489D-BDED-88BA73AD5DC8} = {1B4741DC-78EA-4D93-8EED-00CB9617AD2F}
 		{F1E39B0C-451F-4F77-A948-AF2C33CBB921} = {4B3FDD47-818E-455A-B3AD-5AFDDABFA4D5}
 		{65CF3575-AC34-4E46-92C3-84E6EDA9BACD} = {35DF0F35-CB07-4868-AD8B-146E5D5B5DB0}
+		{D88FE0C5-43D2-4138-9E80-5264E558A279} = {4B3FDD47-818E-455A-B3AD-5AFDDABFA4D5}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {1EEA469D-E8FA-442D-A7DC-FA62A56A8808}

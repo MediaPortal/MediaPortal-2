@@ -131,7 +131,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib.Data.Banner
     /// <returns>true if the banner could be loaded successfully, false otherwise</returns>
     public Task<bool> LoadBannerAsync()
     {
-      return LoadBannerAsync(false);
+      return LoadBannerAsync(false, CachePath);
     }
 
     /// <summary>
@@ -139,7 +139,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib.Data.Banner
     /// </summary>
     /// <param name="replaceOld">If true will replace an old image (if one exists already)</param>
     /// <returns>true if the banner could be loaded successfully, false otherwise</returns>
-    public async Task<bool> LoadBannerAsync(bool replaceOld)
+    public async Task<bool> LoadBannerAsync(bool replaceOld, string cachePath)
     {
       bool wasLoaded = IsLoaded;//is the banner already loaded at this point
       await _bannerLoadingLock.WaitAsync().ConfigureAwait(false);
@@ -159,7 +159,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib.Data.Banner
           String cacheName = CreateCacheName(Id, BannerPath);
           if (CacheProvider != null && CacheProvider.Initialised)
           {//try to load the image from cache first
-            img = CacheProvider.LoadImageFromCache(SeriesId, CachePath, cacheName);
+            img = CacheProvider.LoadImageFromCache(SeriesId, cachePath, cacheName);
           }
 
           if (img == null)
@@ -168,7 +168,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib.Data.Banner
 
             if (img != null && CacheProvider != null && CacheProvider.Initialised)
             {//store the image to cache
-              CacheProvider.SaveToCache(img, SeriesId, CachePath, cacheName);
+              CacheProvider.SaveToCache(img, SeriesId, cachePath, cacheName);
             }
           }
 
