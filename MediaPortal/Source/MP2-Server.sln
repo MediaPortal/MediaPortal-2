@@ -152,6 +152,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StubMetadataExtractors", "E
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Test.NfoMetadataExtractor", "..\Tests\Test.NfoMetadataExtractor\Test.NfoMetadataExtractor.csproj", "{F1E39B0C-451F-4F77-A948-AF2C33CBB921}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ImageProcessorThumbnailProvider", "Extensions\MetadataExtractors\ImageProcessorThumbnailProvider\ImageProcessorThumbnailProvider.csproj", "{E1DF2D6A-0CF0-4A90-83FF-08ACF5937B3E}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x86 = Debug|x86
@@ -322,9 +324,7 @@ Global
 		{80A1F03E-F333-420D-8C62-3FFEE778A47C}.Release|x86.ActiveCfg = Release|x86
 		{80A1F03E-F333-420D-8C62-3FFEE778A47C}.Release|x86.Build.0 = Release|x86
 		{7F790D8D-3A5A-499F-B9D3-8D9A1EF4F73A}.Debug|x86.ActiveCfg = Debug|x86
-		{7F790D8D-3A5A-499F-B9D3-8D9A1EF4F73A}.Debug|x86.Build.0 = Debug|x86
 		{7F790D8D-3A5A-499F-B9D3-8D9A1EF4F73A}.Release|x86.ActiveCfg = Release|x86
-		{7F790D8D-3A5A-499F-B9D3-8D9A1EF4F73A}.Release|x86.Build.0 = Release|x86
 		{C239225E-CA92-4482-AFE7-F54006C48922}.Debug|x86.ActiveCfg = Debug|x86
 		{C239225E-CA92-4482-AFE7-F54006C48922}.Debug|x86.Build.0 = Debug|x86
 		{C239225E-CA92-4482-AFE7-F54006C48922}.Release|x86.ActiveCfg = Release|x86
@@ -375,6 +375,10 @@ Global
 		{F1E39B0C-451F-4F77-A948-AF2C33CBB921}.Debug|x86.Build.0 = Debug|x86
 		{F1E39B0C-451F-4F77-A948-AF2C33CBB921}.Release|x86.ActiveCfg = Release|x86
 		{F1E39B0C-451F-4F77-A948-AF2C33CBB921}.Release|x86.Build.0 = Release|x86
+		{E1DF2D6A-0CF0-4A90-83FF-08ACF5937B3E}.Debug|x86.ActiveCfg = Debug|x86
+		{E1DF2D6A-0CF0-4A90-83FF-08ACF5937B3E}.Debug|x86.Build.0 = Debug|x86
+		{E1DF2D6A-0CF0-4A90-83FF-08ACF5937B3E}.Release|x86.ActiveCfg = Release|x86
+		{E1DF2D6A-0CF0-4A90-83FF-08ACF5937B3E}.Release|x86.Build.0 = Release|x86
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -449,6 +453,7 @@ Global
 		{E0C8EDE8-7398-4D47-9D5D-73CDA5ECAF25} = {1D7CBAB2-F708-4A74-8DF9-610497AED552}
 		{B7D9598A-9744-489D-BDED-88BA73AD5DC8} = {1B4741DC-78EA-4D93-8EED-00CB9617AD2F}
 		{F1E39B0C-451F-4F77-A948-AF2C33CBB921} = {4B3FDD47-818E-455A-B3AD-5AFDDABFA4D5}
+		{E1DF2D6A-0CF0-4A90-83FF-08ACF5937B3E} = {35DF0F35-CB07-4868-AD8B-146E5D5B5DB0}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {1EEA469D-E8FA-442D-A7DC-FA62A56A8808}

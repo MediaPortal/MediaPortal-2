@@ -22,24 +22,25 @@
 
 #endregion
 
+using System.IO;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.Services.ThumbnailGenerator;
-//using MediaPortal.Extensions.MetadataExtractors.ShellThumbnailProvider;
-using MediaPortal.Extensions.MetadataExtractors.WICThumbnailProvider;
+using MediaPortal.Extensions.MetadataExtractors.ImageProcessorThumbnailProvider;
+//using MediaPortal.Extensions.MetadataExtractors.WICThumbnailProvider;
 using NUnit.Framework;
 
 namespace Test.Common
 {
-  [TestFixture]
-  public class WicThumbnailer : Thumbnailer<WICThumbnailProvider>
-  {
-  }
-
   //[TestFixture]
-  //public class ShellThumbnailer : Thumbnailer<ShellThumbnailProvider>
+  //public class WicThumbnailer : Thumbnailer<WICThumbnailProvider>
   //{
   //}
+
+  [TestFixture]
+  public class ImageProcessorThumbnailer : Thumbnailer<ImageProcessorThumbnailProvider>
+  {
+  }
 
   public abstract class Thumbnailer<T>
     where T : IThumbnailProvider, new()
@@ -51,63 +52,73 @@ namespace Test.Common
     }
 
     [Test]
-    public void CreateThumbnail512ForJpg20MP()
+    public void CreateThumbnailsForAllJpg()
     {
-      string fileName = @"Images\jpg_20mp.JPG";
-      int size = 512;
-      TestSingleThumbCreation(fileName, size, ImageType.Jpeg);
+      var dir = new DirectoryInfo("Images");
+      foreach (int size in new int[] { 512, 1024, 2048 })
+        foreach (var file in dir.GetFiles("*.jpg"))
+          TestSingleThumbCreation(file.FullName, size, ImageType.Jpeg);
     }
 
     [Test]
-    public void CreateThumbnail1024ForJpg20MP()
+    public void CreateThumbnailsForAllPng()
     {
-      string fileName = @"Images\jpg_20mp.JPG";
-      int size = 1024;
-      TestSingleThumbCreation(fileName, size, ImageType.Jpeg);
+      var dir = new DirectoryInfo("Images");
+      foreach (int size in new int[] { 512, 1024, 2048 })
+        foreach (var file in dir.GetFiles("*.png"))
+          TestSingleThumbCreation(file.FullName, size, ImageType.Png);
     }
 
     [Test]
-    public void CreateThumbnail2048ForJpg20MP()
+    public void CreateThumbnailsForAllTif()
     {
-      string fileName = @"Images\jpg_20mp.JPG";
-      int size = 2048;
-      TestSingleThumbCreation(fileName, size, ImageType.Jpeg);
+      var dir = new DirectoryInfo("Images");
+      foreach (int size in new int[] { 512, 1024, 2048 })
+        foreach (var file in dir.GetFiles("*.tif"))
+          TestSingleThumbCreation(file.FullName, size, ImageType.Png);
     }
 
     [Test]
-    public void CreateThumbnail512ForPng()
+    public void CreateThumbnailsForAllBmp()
     {
-      string fileName = @"Images\png_transparent.png";
-      int size = 512;
-      TestSingleThumbCreation(fileName, size, null /*ImageType.Png*/); // TODO: do we expect to get png thumbs if the source is png? (This would keep the alpha channel)
+      var dir = new DirectoryInfo("Images");
+      foreach (int size in new int[] { 512, 1024, 2048 })
+        foreach (var file in dir.GetFiles("*.bmp"))
+          TestSingleThumbCreation(file.FullName, size, null); // Could be with or without alpha channel
     }
 
     [Test]
-    public void CreateThumbnail1024ForPng()
+    public void CreateThumbnailsForAllGif()
     {
-      string fileName = @"Images\png_transparent.png";
-      int size = 1024;
-      TestSingleThumbCreation(fileName, size, null /*ImageType.Png*/); // TODO: do we expect to get png thumbs if the source is png? (This would keep the alpha channel)
-    }
-
-    [Test]
-    public void CreateThumbnail2048ForPng()
-    {
-      string fileName = @"Images\png_transparent.png";
-      int size = 2048;
-      TestSingleThumbCreation(fileName, size, null /*ImageType.Png*/); // TODO: do we expect to get png thumbs if the source is png? (This would keep the alpha channel)
+      var dir = new DirectoryInfo("Images");
+      foreach (int size in new int[] { 512, 1024, 2048 })
+        foreach (var file in dir.GetFiles("*.gif"))
+          TestSingleThumbCreation(file.FullName, size, ImageType.Jpeg);
     }
 
     private void TestSingleThumbCreation(string fileName, int size, ImageType? expectedImageType = null)
     {
+      string file = Path.GetFileName(fileName);
       byte[] imageData;
       ImageType imageType;
       var result = GetProvider().GetThumbnail(fileName, size, size, false, out imageData, out imageType);
-      Assert.AreEqual(result, true, "Thumbnail creation failed");
-      Assert.AreNotEqual(imageData, null, "Thumbnail creation success, but no image data returned (null)");
-      Assert.AreNotEqual(imageData?.Length, 0, "Thumbnail creation success, but no image data returned (length=0)");
+      Assert.AreEqual(result, true, $"{GetType().Name}: Thumbnail creation failed ({file}, {size})");
+      Assert.AreNotEqual(imageData, null, $"{GetType().Name}: Thumbnail creation success, but no image data returned (null) ({file}, {size})");
+      Assert.AreNotEqual(imageData?.Length, 0, $"{GetType().Name}: Thumbnail creation success, but no image data returned (length=0) ({file}, {size})");
       if (expectedImageType.HasValue)
-        Assert.AreEqual(expectedImageType.Value, imageType, "Thumbnail creation success, but resulting image types is wrong");
+        Assert.AreEqual(expectedImageType.Value, imageType, $"{GetType().Name}: Thumbnail creation success, but resulting image types is wrong ({file}, {size})");
+
+#if DEBUG
+      // Only write images in debug mode for checking output quality
+      if (result)
+      {
+        var targetBase = Path.GetFileNameWithoutExtension(fileName);
+        if (!Directory.Exists("Resized"))
+          Directory.CreateDirectory("Resized");
+        string targetFile = $@"Resized\{targetBase}_{size}.{imageType}";
+        File.WriteAllBytes(targetFile, imageData);
+      }
+#endif
     }
 
     protected IThumbnailProvider GetProvider()
