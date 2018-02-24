@@ -582,13 +582,18 @@ namespace MediaPortal.Plugins.SlimTv.Providers.UPnP
       }
     }
 
+	  public async Task<AsyncResult<ISchedule>> CreateScheduleByTimeAsync(IChannel channel, DateTime from, DateTime to, ScheduleRecordingType recordingType)
+    {
+      return await CreateScheduleByTimeAsync(channel, "Manual", from, to, recordingType);
+    }
+
     //public bool CreateScheduleByTime(IChannel channel, DateTime from, DateTime to, ScheduleRecordingType recordingType, out ISchedule schedule)
-    public async Task<AsyncResult<ISchedule>> CreateScheduleByTimeAsync(IChannel channel, DateTime from, DateTime to, ScheduleRecordingType recordingType)
+    public async Task<AsyncResult<ISchedule>> CreateScheduleByTimeAsync(IChannel channel, string title, DateTime from, DateTime to, ScheduleRecordingType recordingType)
     {
       try
       {
         CpAction action = GetAction(Consts.ACTION_CREATE_SCHEDULE_BY_TIME);
-        IList<object> inParameters = new List<object> { channel.ChannelId, from, to, (int)recordingType };
+        IList<object> inParameters = new List<object> { channel.ChannelId, title, from, to, (int)recordingType };
         IList<object> outParameters = await action.InvokeAsync(inParameters);
         bool result = (bool)outParameters[0];
         var schedule = result ? (ISchedule)outParameters[1] : null;
@@ -599,6 +604,16 @@ namespace MediaPortal.Plugins.SlimTv.Providers.UPnP
         NotifyException(ex);
         return new AsyncResult<ISchedule>(false, null);
       }
+    }
+
+    public Task<AsyncResult<ISchedule>> CreateScheduleDetailedAsync(IChannel channel, string title, DateTime from, DateTime to, ScheduleRecordingType recordingType, int preRecordInterval, int postRecordInterval, string directory, int priority)
+    {
+      throw new NotImplementedException();
+    }
+
+    public Task<bool> EditScheduleAsync(ISchedule schedule, IChannel channel = null, string title = null, DateTime? from = null, DateTime? to = null, ScheduleRecordingType? recordingType = null, int? preRecordInterval = null, int? postRecordInterval = null, string directory = null, int? priority = null)
+    {
+      throw new NotImplementedException();
     }
 
     //public bool RemoveScheduleForProgram(IProgram program, ScheduleRecordingType recordingType)
@@ -633,6 +648,11 @@ namespace MediaPortal.Plugins.SlimTv.Providers.UPnP
         NotifyException(ex);
         return false;
       }
+    }
+
+    public Task<bool> UnCancelScheduleAsync(IProgram program)
+    {
+      throw new NotImplementedException();
     }
 
     //public bool GetRecordingStatus(IProgram program, out RecordingStatus recordingStatus)
