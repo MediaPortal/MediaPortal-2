@@ -67,7 +67,6 @@ namespace MediaPortal.Plugins.SlimTv.Service
         EpisodeNumberDetailed = tvProgram.EpisodeNumber,
         EpisodePart = tvProgram.EpisodePart,
         EpisodeTitle = tvProgram.EpisodeName,
-        Genre = tvProgram.Genre
       };
 
       program.RecordingStatus = tvProgram.IsRecording ? RecordingStatus.Recording : RecordingStatus.None;

@@ -669,10 +669,10 @@ namespace MediaPortal.Plugins.SlimTv.Service
 
     public override Task<AsyncResult<ISchedule>> CreateScheduleByTimeAsync(IChannel channel, DateTime from, DateTime to, ScheduleRecordingType recordingType)
     {
-      return CreateScheduleByTime(channel, "Manual", from, to, recordingType, out schedule);
+      return CreateScheduleByTimeAsync(channel, "Manual", from, to, recordingType);
     }
 
-    public override bool CreateScheduleByTime(IChannel channel, string title, DateTime from, DateTime to, ScheduleRecordingType recordingType, out ISchedule schedule)
+    public override Task<AsyncResult<ISchedule>> CreateScheduleByTimeAsync(IChannel channel, string title, DateTime from, DateTime to, ScheduleRecordingType recordingType)
     {
       TvBusinessLayer layer = new TvBusinessLayer();
       TvDatabase.Schedule tvSchedule = layer.AddSchedule(channel.ChannelId, title, from, to, (int)recordingType);
@@ -680,11 +680,11 @@ namespace MediaPortal.Plugins.SlimTv.Service
       tvSchedule.PostRecordInterval = Int32.Parse(layer.GetSetting("postRecordInterval", "5").Value);
       tvSchedule.Persist();
       RemoteControl.Instance.OnNewSchedule();
-      schedule = tvSchedule.ToSchedule();
-      return true;
+      var schedule = tvSchedule.ToSchedule();
+      return Task.FromResult(new AsyncResult<ISchedule>(true, schedule));
     }
 
-    public override bool CreateScheduleDetailed(IChannel channel, string title, DateTime from, DateTime to, ScheduleRecordingType recordingType, int preRecordInterval, int postRecordInterval, string directory, int priority, out ISchedule schedule)
+    public override Task<AsyncResult<ISchedule>> CreateScheduleDetailedAsync(IChannel channel, string title, DateTime from, DateTime to, ScheduleRecordingType recordingType, int preRecordInterval, int postRecordInterval, string directory, int priority)
     {
       TvBusinessLayer layer = new TvBusinessLayer();
       TvDatabase.Schedule tvSchedule = layer.AddSchedule(channel.ChannelId, title, from, to, (int)recordingType);
@@ -700,11 +700,11 @@ namespace MediaPortal.Plugins.SlimTv.Service
       }
       tvSchedule.Persist();
       RemoteControl.Instance.OnNewSchedule();
-      schedule = tvSchedule.ToSchedule();
-      return true;
+      var schedule = tvSchedule.ToSchedule();
+      return Task.FromResult(new AsyncResult<ISchedule>(true, schedule));
     }
 
-    public override bool EditSchedule(ISchedule schedule, IChannel channel = null, string title = null, DateTime? from = null, DateTime? to = null, ScheduleRecordingType? recordingType = null, int? preRecordInterval = null, int? postRecordInterval = null, string directory = null, int? priority = null)
+    public override Task<bool> EditScheduleAsync(ISchedule schedule, IChannel channel = null, string title = null, DateTime? from = null, DateTime? to = null, ScheduleRecordingType? recordingType = null, int? preRecordInterval = null, int? postRecordInterval = null, string directory = null, int? priority = null)
     {
       try
       {
@@ -752,16 +752,16 @@ namespace MediaPortal.Plugins.SlimTv.Service
         tvSchedule.Persist();
 
         RemoteControl.Instance.OnNewSchedule(); // I don't think this is needed, but doesn't hurt either
-        return true;
+        return Task.FromResult(true);
       }
       catch (Exception ex)
       {
         ServiceRegistration.Get<ILogger>().Warn(String.Format("Failed to edit schedule {0}", schedule.ScheduleId), ex);
-        return false;
+        return Task.FromResult(false);
       }
     }
 
-    public override bool UnCancelSchedule(IProgram program)
+    public override Task<bool> UnCancelScheduleAsync(IProgram program)
     {
       var tvProgram = TvDatabase.Program.Retrieve(program.ProgramId);
       try
@@ -772,13 +772,12 @@ namespace MediaPortal.Plugins.SlimTv.Service
           schedule.UnCancelSerie(program.StartTime, tvProgram.IdChannel);
           schedule.Persist();
         }
-
-        return true;
+        return Task.FromResult(true);
       }
       catch (Exception ex)
       {
         ServiceRegistration.Get<ILogger>().Warn(String.Format("Failed to uncancel schedule for programId {0}", program.ProgramId), ex);
-        return false;
+        return Task.FromResult(false);
       }
     }
 
@@ -898,10 +897,10 @@ namespace MediaPortal.Plugins.SlimTv.Service
       return _tvUsers[userName];
     }
 
-    public override bool GetCards(out List<ICard> cards)
+    public override Task<AsyncResult<List<ICard>>> GetCardsAsync()
     {
       TvBusinessLayer layer = new TvBusinessLayer();
-      cards = layer.Cards.Select(card => new SlimTvCard()
+      var cards = layer.Cards.Select(card => new SlimTvCard()
       {
         Name = card.Name,
         CardId = card.IdCard,
@@ -919,10 +918,10 @@ namespace MediaPortal.Plugins.SlimTv.Service
         RecordingFormat = card.RecordingFormat
       }).Cast<ICard>().ToList();
 
-      return cards.Count > 0;
+      return Task.FromResult(new AsyncResult<List<ICard>>(cards.Count > 0, cards));
     }
 
-    public override bool GetActiveVirtualCards(out List<IVirtualCard> cards)
+    public override Task<AsyncResult<List<IVirtualCard>>> GetActiveVirtualCardsAsync()
     {
       IEnumerable<VirtualCard> virtualCards = Card.ListAll()
                 .Where(card => RemoteControl.Instance.CardPresent(card.IdCard))
@@ -932,7 +931,7 @@ namespace MediaPortal.Plugins.SlimTv.Service
                 .Select(user => new VirtualCard(user, RemoteControl.HostName))
                 .Where(tvCard => tvCard.IsTimeShifting || tvCard.IsRecording);
 
-      cards = new List<IVirtualCard>();
+      var cards = new List<IVirtualCard>();
       foreach (var card in virtualCards)
       {
         cards.Add(new SlimTvVirtualCard
@@ -985,7 +984,7 @@ namespace MediaPortal.Plugins.SlimTv.Service
           } : null
         });
       }
-      return cards.Count > 0;
+      return Task.FromResult(new AsyncResult<List<IVirtualCard>>(cards.Count > 0, cards));
     }
 
     public override Task<AsyncResult<ISchedule>> IsCurrentlyRecordingAsync(string fileName)
