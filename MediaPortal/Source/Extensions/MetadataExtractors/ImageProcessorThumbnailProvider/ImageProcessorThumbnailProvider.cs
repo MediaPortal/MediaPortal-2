@@ -28,6 +28,8 @@ using System.IO;
 using ImageProcessor;
 using ImageProcessor.Imaging;
 using ImageProcessor.Imaging.Formats;
+using MediaPortal.Common;
+using MediaPortal.Common.Logging;
 using MediaPortal.Common.Services.ThumbnailGenerator;
 
 namespace MediaPortal.Extensions.MetadataExtractors.ImageProcessorThumbnailProvider
@@ -72,21 +74,20 @@ namespace MediaPortal.Extensions.MetadataExtractors.ImageProcessorThumbnailProvi
       if (cachedOnly)
         return false;
 
+      // Note: Current version 2.6 has concurrency issues. So we need to lock here. This needs to be checked later again as it is a major performance drawback.
+      lock (this)
       try
       {
-        if (stream.CanSeek)
-          stream.Seek(0, SeekOrigin.Begin);
-
         // Format is automatically detected though can be changed.
         using (MemoryStream outStream = new MemoryStream())
         using (ImageFactory imageFactory = new ImageFactory())
         {
           // Load, resize, set the format and quality and save an image.
-          var loaded = imageFactory.Load(stream);
+          imageFactory.Load(stream);
 
-          ISupportedImageFormat format = loaded.CurrentImageFormat;
+          ISupportedImageFormat format = imageFactory.CurrentImageFormat;
           // We want to preserve png's alpha channel, otherwise use always jpg
-          if (loaded.CurrentBitDepth == 32)
+          if (imageFactory.CurrentBitDepth == 32)
           {
             format = new PngFormat();
             imageType = ImageType.Png;
@@ -97,15 +98,16 @@ namespace MediaPortal.Extensions.MetadataExtractors.ImageProcessorThumbnailProvi
             imageType = ImageType.Jpeg;
           }
 
-          // Use the dimension that has the largest size for limiting
-          Size targetSize = loaded.Image.Width > loaded.Image.Height ?
+          //imageFactory.AutoRotate();
+
+          // Use the dimension that has the largest size for limiting. Has to be done after auto-rotate!
+          Size targetSize = imageFactory.Image.Width > imageFactory.Image.Height ?
             new Size(width, 0) :
             new Size(0, height);
 
           ResizeLayer size = new ResizeLayer(targetSize, upscale: false);
 
-          loaded.AutoRotate()
-            .Resize(size)
+          imageFactory.Resize(size)
             .Format(format)
             .Save(outStream);
 
@@ -113,9 +115,9 @@ namespace MediaPortal.Extensions.MetadataExtractors.ImageProcessorThumbnailProvi
           return true;
         }
       }
-      catch (Exception)
+      catch (Exception ex)
       {
-        // ServiceRegistration.Get<ILogger>().Warn("ImageProcessorThumbnailProvider: Error loading bitmapSource from file data stream", e);
+        ServiceRegistration.Get<ILogger>().Warn("ImageProcessorThumbnailProvider: Error loading bitmapSource from file data stream", ex);
         return false;
       }
     }
