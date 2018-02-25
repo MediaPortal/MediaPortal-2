@@ -1,32 +1,32 @@
 <Plugin
     DescriptorVersion="1.0"
-    Name="ShellThumbnailProvider"
-    PluginId="{A2CF09C5-D4D0-43AC-89A8-3ECF5ED2510B}"
+    Name="ImageProcessorThumbnailProvider"
+    PluginId="{41033A3F-A427-43F6-B148-B0AB9D952CD6}"
     Author = "Morpheus_xx"
     Copyright="GPL"
-    Description="Thumbnail creator based on Windows Explorer shell methods.">
+    Description="Thumbnail creator based on ImageProcessor library.">
 
   <Version
     PluginVersion="1.0"
-    ReleaseDate="2013-11-11 01:00:00 GMT+01:00"
+    ReleaseDate="2018-02-24 01:00:00 GMT+01:00"
     CurrentAPI="1"/>
 
   <DependsOn>
-    <CoreDependency Name="MediaPortal.Common" CompatibleAPI="1" />
+    <CoreDependency Name="MediaPortal.Common" CompatibleAPI="2" />
     <CoreDependency Name="MediaPortal.Utilities" CompatibleAPI="1" />
   </DependsOn>
 
   <Runtime>
-    <Assembly FileName="ShellThumbnailProvider.dll"/>
+    <Assembly FileName="ImageProcessorThumbnailProvider.dll"/>
     <Assembly FileName="..\..\MediaPortal.Common.dll"/>
   </Runtime>
 
   <Builder Name="ThumbnailProviderBuilder" ClassName="MediaPortal.Common.Services.ThumbnailGenerator.ThumbnailProviderBuilder"/>
   <Register Location="/Thumbnails/Providers">
     <ThumbnailProviderBuilder
-      Id="{B4A81FF4-CA2B-4F03-B26A-4F44023CF73B}"
-      ClassName="MediaPortal.Extensions.MetadataExtractors.ShellThumbnailProvider.ShellThumbnailProvider"
-      ProviderName="ShellThumbnailProvider"
-      Priority="100"/>
+      Id="{373B3A40-2F71-486A-B1CB-2056153BBE85}"
+      ClassName="MediaPortal.Extensions.MetadataExtractors.ImageProcessorThumbnailProvider.ImageProcessorThumbnailProvider"
+      ProviderName="ImageProcessorThumbnailProvider"
+      Priority="120"/>
   </Register>
 </Plugin>
