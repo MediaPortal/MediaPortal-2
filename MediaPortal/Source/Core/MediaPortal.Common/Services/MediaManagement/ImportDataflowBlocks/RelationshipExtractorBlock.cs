@@ -88,7 +88,7 @@ namespace MediaPortal.Common.Services.MediaManagement.ImportDataflowBlocks
     /// <remarks>
     /// The preceding MediaItemSaveBlock has a BoundedCapacity. To avoid that this limitation does not have any effect
     /// because all the items are immediately passed to an unbounded InputBlock of this RelationshipExtractorBlock, we
-    /// have to set the BoundedCapacity of the InputBlock to 1. The BoundedCapacity of the InnerBlock is set to 500,
+    /// have to set the BoundedCapacity of the InputBlock to 1. The BoundedCapacity of the InnerBlock is set to 50,
     /// which is a good trade-off between speed and memory usage. The OutputBlock disposes the PendingImportResources and 
     /// therefore does not need a BoundedCapacity.
     /// </remarks>
@@ -134,6 +134,10 @@ namespace MediaPortal.Common.Services.MediaManagement.ImportDataflowBlocks
         }
 
         importResource.IsValid = false;
+        if (importResource.Aspects != null)
+          importResource.Aspects.Clear();
+        if (importResource.ExistingAspects != null)
+          importResource.ExistingAspects.Clear();
         return importResource;
       }
       catch (OperationCanceledException)
@@ -259,7 +263,7 @@ namespace MediaPortal.Common.Services.MediaManagement.ImportDataflowBlocks
     protected async Task<ICollection<MediaItem>> ReconcileRelationships(Guid mediaItemId, IDictionary<Guid, IList<MediaItemAspect>> aspects, ICollection<ExtractedRelation> relations)
     {
       ICollection<MediaItem> newMediaItems = new List<MediaItem>();
-
+      int cacheMisses = 0;
       await _cacheSync.WaitAsync(_ct);
       try
       {
@@ -278,6 +282,8 @@ namespace MediaPortal.Common.Services.MediaManagement.ImportDataflowBlocks
           //in which case we don't need to process it again
           if (!_relationshipCache.HasItemEverBeenCached(updatedMediaItem.MediaItemId))
             newMediaItems.Add(updatedMediaItem);
+          else
+            cacheMisses++;
           var itemMatcher = GetLinkedRoleExtractors(updatedMediaItem.Aspects).FirstOrDefault();
           if (itemMatcher != null)
             _relationshipCache.TryAddItem(updatedMediaItem, itemMatcher);
@@ -289,7 +295,7 @@ namespace MediaPortal.Common.Services.MediaManagement.ImportDataflowBlocks
       }
 
       ServiceRegistration.Get<ILogger>().Info(
-        $"{BLOCK_NAME}: Added {relations.Count} relations ({newMediaItems.Count} new) to {GetMediaItemName(aspects)} ({mediaItemId})");
+        $"{BLOCK_NAME}: Added {relations.Count} relations ({newMediaItems.Count} new, {cacheMisses} recached) to {GetMediaItemName(aspects)} ({mediaItemId})");
 
       TransferTransientAspects(aspects, newMediaItems);
       return newMediaItems;
