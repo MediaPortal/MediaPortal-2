@@ -214,8 +214,9 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Interfaces
             return new FileStream(cachedFilenameWithExtension, FileMode.Open, FileAccess.Read);
 
         Image fullsizeImage = Image.FromStream(originalStream);
-        //Image doesn't need resizing, just return the original
-        if (fullsizeImage.Width <= maxSize && fullsizeImage.Height <= maxSize)
+
+        //Image doesn't need rotating or resizing, just return the original
+        if (!fullsizeImage.ExifAutoRotate() && fullsizeImage.Width <= maxSize && fullsizeImage.Height <= maxSize)
         {
           fullsizeImage.Dispose();
           originalStream.Position = 0;
