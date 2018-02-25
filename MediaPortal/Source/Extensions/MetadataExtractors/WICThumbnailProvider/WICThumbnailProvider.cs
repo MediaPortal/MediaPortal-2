@@ -78,12 +78,50 @@ namespace MediaPortal.Extensions.MetadataExtractors.WICThumbnailProvider
         using (var factory = new ImagingFactory2())
         using (var inputStream = new WICStream(factory, stream))
         using (var decoder = new BitmapDecoder(factory, inputStream, DecodeOptions.CacheOnLoad))
+        using (var rotator = new BitmapFlipRotator(factory))
         using (var scaler = new BitmapScaler(factory))
         using (var output = new MemoryStream())
-        using (var encoder = new BitmapEncoder(factory, ContainerFormatGuids.Jpeg))
         {
           // decode the loaded image to a format that can be consumed by D2D
           BitmapSource source = decoder.GetFrame(0);
+
+          // Prefer PNG output for source PNG and for source formats with Alpha channel
+          var usePngOutput = decoder.DecoderInfo.FriendlyName.StartsWith("PNG") || PixelFormat.GetBitsPerPixel(source.PixelFormat) == 32;
+
+          BitmapTransformOptions bitmapTransformationOptions = BitmapTransformOptions.Rotate0;
+          BitmapFrameDecode frame = source as BitmapFrameDecode;
+          if (frame != null)
+          {
+            const string EXIF_ORIENTATION_TAG = "/app1/{ushort=0}/{ushort=274}";
+            ushort? orientation = null;
+            try
+            {
+              // Not supported on all input types, i.e. BMP will fail here
+              orientation = (ushort?)frame.MetadataQueryReader.TryGetMetadataByName(EXIF_ORIENTATION_TAG); //0x0112
+            }
+            catch { }
+
+            // If the EXIF orientation specifies that the image needs to be flipped or rotated before display, set that up to happen
+            if (orientation.HasValue)
+            {
+              switch (orientation.Value)
+              {
+                case 1: break; // No rotation required.
+                case 2: bitmapTransformationOptions = BitmapTransformOptions.Rotate0 | BitmapTransformOptions.FlipHorizontal; break;
+                case 3: bitmapTransformationOptions = BitmapTransformOptions.Rotate180; break;
+                case 4: bitmapTransformationOptions = BitmapTransformOptions.Rotate180 | BitmapTransformOptions.FlipHorizontal; break;
+                case 5: bitmapTransformationOptions = BitmapTransformOptions.Rotate270 | BitmapTransformOptions.FlipHorizontal; break;
+                case 6: bitmapTransformationOptions = BitmapTransformOptions.Rotate90; break;
+                case 7: bitmapTransformationOptions = BitmapTransformOptions.Rotate90 | BitmapTransformOptions.FlipHorizontal; break;
+                case 8: bitmapTransformationOptions = BitmapTransformOptions.Rotate270; break;
+              }
+            }
+          }
+
+          // Note: when the image is rotated, the processing takes ages here (from msec to minute for 20MPix image!). Leave this job to other 
+          // thumbnail provider (like GDI) which can handle this better.
+          if (bitmapTransformationOptions != BitmapTransformOptions.Rotate0)
+            return false;
 
           // Scale down larger images
           int sourceWidth = source.Size.Width;
@@ -104,27 +142,45 @@ namespace MediaPortal.Extensions.MetadataExtractors.WICThumbnailProvider
             scaler.Initialize(source, width, newHeight, BitmapInterpolationMode.Fant);
             source = scaler;
           }
-          encoder.Initialize(output);
 
-          using (var bitmapFrameEncode = new BitmapFrameEncode(encoder))
+          // Rotate first
+          if (bitmapTransformationOptions != BitmapTransformOptions.Rotate0)
           {
-            // Create image encoder
-            var wicPixelFormat = PixelFormat.FormatDontCare;
-            bitmapFrameEncode.Initialize();
-            bitmapFrameEncode.SetSize(source.Size.Width, source.Size.Height);
-            bitmapFrameEncode.SetPixelFormat(ref wicPixelFormat);
-            bitmapFrameEncode.WriteSource(source);
-            bitmapFrameEncode.Commit();
-            encoder.Commit();
+            rotator.Initialize(source, bitmapTransformationOptions);
+            source = rotator;
+          }
+
+          Guid formatGuid = ContainerFormatGuids.Jpeg;
+          imageType = ImageType.Jpeg;
+
+          if (usePngOutput)
+          {
+            formatGuid = ContainerFormatGuids.Png;
+            imageType = ImageType.Png;
+          }
+
+          using (var encoder = new BitmapEncoder(factory, formatGuid))
+          {
+            encoder.Initialize(output);
+            using (var bitmapFrameEncode = new BitmapFrameEncode(encoder))
+            {
+              // Create image encoder
+              var wicPixelFormat = PixelFormat.FormatDontCare;
+              bitmapFrameEncode.Initialize();
+              bitmapFrameEncode.SetSize(source.Size.Width, source.Size.Height);
+              bitmapFrameEncode.SetPixelFormat(ref wicPixelFormat);
+              bitmapFrameEncode.WriteSource(source);
+              bitmapFrameEncode.Commit();
+              encoder.Commit();
+            }
           }
           imageData = output.ToArray();
-          imageType = ImageType.Jpeg;
           return true;
         }
       }
       catch (Exception)
       {
-        // ServiceRegistration.Get<ILogger>().Warn("WICThumbnailProvider: Error loading bitmapSource from file data stream", e);
+        //ServiceRegistration.Get<ILogger>().Warn("WICThumbnailProvider: Error loading bitmapSource from file data stream", ex);
         return false;
       }
     }
