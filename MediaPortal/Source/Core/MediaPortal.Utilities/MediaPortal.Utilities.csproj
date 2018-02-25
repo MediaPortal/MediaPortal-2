@@ -120,6 +120,7 @@
     </Compile>
     <Compile Include="StringUtils.cs" />
     <Compile Include="SystemAPI\WindowsAPI.cs" />
+    <Compile Include="Threading\AsyncPriorityLock.cs" />
     <Compile Include="Threading\AsyncReaderWriterLock.cs" />
     <Compile Include="Threading\KeyedAsyncReaderWriterLock.cs" />
     <Compile Include="UPnP\MarshallingHelper.cs" />

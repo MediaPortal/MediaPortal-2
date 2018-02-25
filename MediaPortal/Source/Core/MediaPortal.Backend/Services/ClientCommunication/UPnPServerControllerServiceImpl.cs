@@ -55,6 +55,16 @@ namespace MediaPortal.Backend.Services.ClientCommunication
 
     protected AsynchronousMessageQueue _messageQueue;
 
+    static IMediaLibrary MediaLibrary
+    {
+      get
+      {
+        IMediaLibrary mediaLibrary = ServiceRegistration.Get<IMediaLibrary>();
+        mediaLibrary.ReserveAccess(5000);
+        return mediaLibrary;
+      }
+    }
+
     public UPnPServerControllerServiceImpl() : base(
         UPnPTypesAndIds.SERVER_CONTROLLER_SERVICE_TYPE, UPnPTypesAndIds.SERVER_CONTROLLER_SERVICE_TYPE_VERSION,
         UPnPTypesAndIds.SERVER_CONTROLLER_SERVICE_ID)
@@ -271,8 +281,7 @@ namespace MediaPortal.Backend.Services.ClientCommunication
       if (error != null)
         return error;
 
-      IMediaLibrary mediaLibrary = ServiceRegistration.Get<IMediaLibrary>();
-      IDictionary<Guid, Share> allShares = mediaLibrary.GetShares(null);
+      IDictionary<Guid, Share> allShares = MediaLibrary.GetShares(null);
       IDictionary<string, ICollection<Share>> importRequests = new Dictionary<string, ICollection<Share>>();
       foreach (Guid shareId in shareIds)
       {

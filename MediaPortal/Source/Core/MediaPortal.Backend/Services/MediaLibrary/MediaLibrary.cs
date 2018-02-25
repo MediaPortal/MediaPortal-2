@@ -45,6 +45,7 @@ using MediaPortal.Common.UserProfileDataManagement;
 using MediaPortal.Utilities;
 using MediaPortal.Utilities.DB;
 using MediaPortal.Utilities.Exceptions;
+using MediaPortal.Utilities.Threading;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -72,12 +73,13 @@ namespace MediaPortal.Backend.Services.MediaLibrary
         _parent = parent;
       }
 
-      public Task<MediaItem> LoadLocalItemAsync(ResourcePath path,
+      public async Task<MediaItem> LoadLocalItemAsync(ResourcePath path,
           IEnumerable<Guid> necessaryRequestedMIATypeIDs, IEnumerable<Guid> optionalRequestedMIATypeIDs, Guid? userProfileId = null)
       {
         try
         {
-          return Task.FromResult(_parent.LoadItem(_parent.LocalSystemId, path, necessaryRequestedMIATypeIDs, optionalRequestedMIATypeIDs, userProfileId));
+          using (var lck = await _parent.RequestImporterAccessAsync())
+            return _parent.LoadItem(_parent.LocalSystemId, path, necessaryRequestedMIATypeIDs, optionalRequestedMIATypeIDs, userProfileId);
         }
         catch (Exception)
         {
@@ -85,12 +87,13 @@ namespace MediaPortal.Backend.Services.MediaLibrary
         }
       }
 
-      public Task<MediaItem> LoadLocalItemAsync(Guid mediaItemId,
+      public async Task<MediaItem> LoadLocalItemAsync(Guid mediaItemId,
           IEnumerable<Guid> necessaryRequestedMIATypeIDs, IEnumerable<Guid> optionalRequestedMIATypeIDs, Guid? userProfileId = null)
       {
         try
         {
-          return Task.FromResult(_parent.LoadItem(_parent.LocalSystemId, mediaItemId, necessaryRequestedMIATypeIDs, optionalRequestedMIATypeIDs, userProfileId));
+          using (var lck = await _parent.RequestImporterAccessAsync())
+            return _parent.LoadItem(_parent.LocalSystemId, mediaItemId, necessaryRequestedMIATypeIDs, optionalRequestedMIATypeIDs, userProfileId);
         }
         catch (Exception)
         {
@@ -98,13 +101,14 @@ namespace MediaPortal.Backend.Services.MediaLibrary
         }
       }
 
-      public Task<IList<MediaItem>> BrowseAsync(Guid parentDirectoryId,
+      public async Task<IList<MediaItem>> BrowseAsync(Guid parentDirectoryId,
           IEnumerable<Guid> necessaryRequestedMIATypeIDs, IEnumerable<Guid> optionalRequestedMIATypeIDs, Guid? userProfileId,
           bool includeVirtual, uint? offset = null, uint? limit = null)
       {
         try
         {
-          return Task.FromResult(_parent.Browse(parentDirectoryId, necessaryRequestedMIATypeIDs, optionalRequestedMIATypeIDs, userProfileId, includeVirtual, offset, limit));
+          using (var lck = await _parent.RequestImporterAccessAsync())
+            return _parent.Browse(parentDirectoryId, necessaryRequestedMIATypeIDs, optionalRequestedMIATypeIDs, userProfileId, includeVirtual, offset, limit);
         }
         catch (Exception)
         {
@@ -112,12 +116,13 @@ namespace MediaPortal.Backend.Services.MediaLibrary
         }
       }
 
-      public Task<IDictionary<Guid, DateTime>> GetManagedMediaItemAspectCreationDatesAsync()
+      public async Task<IDictionary<Guid, DateTime>> GetManagedMediaItemAspectCreationDatesAsync()
       {
         try
         {
           // TODO: make underlying IMediaLibrary async
-          return Task.FromResult(_parent.GetManagedMediaItemAspectCreationDates());
+          using (var lck = await _parent.RequestImporterAccessAsync())
+            return _parent.GetManagedMediaItemAspectCreationDates();
         }
         catch (Exception)
         {
@@ -125,11 +130,12 @@ namespace MediaPortal.Backend.Services.MediaLibrary
         }
       }
 
-      public Task<ICollection<Guid>> GetAllManagedMediaItemAspectTypesAsync()
+      public async Task<ICollection<Guid>> GetAllManagedMediaItemAspectTypesAsync()
       {
         try
         {
-          return Task.FromResult(_parent.GetManagedMediaItemAspectMetadata().Keys);
+          using (var lck = await _parent.RequestImporterAccessAsync())
+            return _parent.GetManagedMediaItemAspectMetadata().Keys;
         }
         catch (Exception)
         {
@@ -141,7 +147,8 @@ namespace MediaPortal.Backend.Services.MediaLibrary
       {
         try
         {
-          _parent.MarkUpdatableMediaItems();
+          using (var lck = _parent.RequestImporterAccess())
+            _parent.MarkUpdatableMediaItems();
         }
         catch (Exception)
         {
@@ -159,13 +166,16 @@ namespace MediaPortal.Backend.Services.MediaLibrary
         _parent = parent;
       }
 
-      public Task<Guid> UpdateMediaItemAsync(Guid parentDirectoryId, ResourcePath path, IEnumerable<MediaItemAspect> updatedAspects, bool isRefresh, ResourcePath basePath)
+      public async Task<Guid> UpdateMediaItemAsync(Guid parentDirectoryId, ResourcePath path, IEnumerable<MediaItemAspect> updatedAspects, bool isRefresh, ResourcePath basePath)
       {
         try
         {
-          lock (_parent.GetResourcePathLock(basePath))
+          using (var lck = await _parent.RequestImporterAccessAsync())
           {
-            return Task.FromResult(_parent.AddOrUpdateMediaItem(parentDirectoryId, _parent.LocalSystemId, path, null, null, updatedAspects, isRefresh));
+            lock (_parent.GetResourcePathLock(basePath))
+            {
+              return _parent.AddOrUpdateMediaItem(parentDirectoryId, _parent.LocalSystemId, path, null, null, updatedAspects, isRefresh);
+            }
           }
         }
         catch (Exception)
@@ -174,13 +184,16 @@ namespace MediaPortal.Backend.Services.MediaLibrary
         }
       }
 
-      public Task<Guid> UpdateMediaItemAsync(Guid parentDirectoryId, ResourcePath path, Guid mediaItemId, IEnumerable<MediaItemAspect> updatedAspects, bool isRefresh, ResourcePath basePath)
+      public async Task<Guid> UpdateMediaItemAsync(Guid parentDirectoryId, ResourcePath path, Guid mediaItemId, IEnumerable<MediaItemAspect> updatedAspects, bool isRefresh, ResourcePath basePath)
       {
         try
         {
-          lock (_parent.GetResourcePathLock(basePath))
+          using (var lck = await _parent.RequestImporterAccessAsync())
           {
-            return Task.FromResult(_parent.AddOrUpdateMediaItem(parentDirectoryId, _parent.LocalSystemId, path, mediaItemId, null, updatedAspects, isRefresh));
+            lock (_parent.GetResourcePathLock(basePath))
+            {
+              return _parent.AddOrUpdateMediaItem(parentDirectoryId, _parent.LocalSystemId, path, mediaItemId, null, updatedAspects, isRefresh);
+            }
           }
         }
         catch (Exception)
@@ -189,11 +202,12 @@ namespace MediaPortal.Backend.Services.MediaLibrary
         }
       }
 
-      public Task<IList<MediaItem>> ReconcileMediaItemRelationshipsAsync(Guid mediaItemId, IEnumerable<MediaItemAspect> mediaItemAspects, IEnumerable<RelationshipItem> relationshipItems)
+      public async Task<IList<MediaItem>> ReconcileMediaItemRelationshipsAsync(Guid mediaItemId, IEnumerable<MediaItemAspect> mediaItemAspects, IEnumerable<RelationshipItem> relationshipItems)
       {
         try
         {
-          return Task.FromResult(_parent.ReconcileMediaItemRelationships(mediaItemId, mediaItemAspects, relationshipItems));
+          using (var lck = await _parent.RequestImporterAccessAsync())
+            return _parent.ReconcileMediaItemRelationships(mediaItemId, mediaItemAspects, relationshipItems);
         }
         catch (Exception)
         {
@@ -201,12 +215,12 @@ namespace MediaPortal.Backend.Services.MediaLibrary
         }
       }
 
-      public Task DeleteMediaItemAsync(ResourcePath path)
+      public async Task DeleteMediaItemAsync(ResourcePath path)
       {
         try
         {
-          _parent.DeleteMediaItemOrPath(_parent.LocalSystemId, path, true);
-          return Task.CompletedTask;
+          using (var lck = await _parent.RequestImporterAccessAsync())
+            _parent.DeleteMediaItemOrPath(_parent.LocalSystemId, path, true);
         }
         catch (Exception)
         {
@@ -214,12 +228,12 @@ namespace MediaPortal.Backend.Services.MediaLibrary
         }
       }
 
-      public Task DeleteUnderPathAsync(ResourcePath path)
+      public async Task DeleteUnderPathAsync(ResourcePath path)
       {
         try
         {
-          _parent.DeleteMediaItemOrPath(_parent.LocalSystemId, path, false);
-          return Task.CompletedTask;
+          using (var lck = await _parent.RequestImporterAccessAsync())
+            _parent.DeleteMediaItemOrPath(_parent.LocalSystemId, path, false);
         }
         catch (Exception)
         {
@@ -369,6 +383,11 @@ namespace MediaPortal.Backend.Services.MediaLibrary
     protected Dictionary<Guid, ShareImportState> _shareImportStates = new Dictionary<Guid, ShareImportState>();
     protected object _shareImportCacheSync = new object();
     protected ICollection<Share> _importingSharesCache;
+    protected System.Timers.Timer _releaseAccessTimer = new System.Timers.Timer();
+    protected object _accessReleaseSync = new object();
+    protected IDisposable _accessLockRelease = null;
+    protected AsyncPriorityLock _accessLock = new AsyncPriorityLock();
+    protected Stopwatch _accessDurationTimer = new Stopwatch();
 
     #endregion
 
@@ -378,6 +397,9 @@ namespace MediaPortal.Backend.Services.MediaLibrary
     {
       ISystemResolver systemResolver = ServiceRegistration.Get<ISystemResolver>();
       _localSystemId = systemResolver.LocalSystemId;
+
+      _releaseAccessTimer.AutoReset = false;
+      _releaseAccessTimer.Elapsed += ReleaseAccessTimer_Elapsed;
 
       _mediaBrowsingCallback = new MediaBrowsingCallback(this);
       _importResultHandler = new ImportResultHandler(this);
@@ -393,6 +415,56 @@ namespace MediaPortal.Backend.Services.MediaLibrary
     public void Dispose()
     {
       _messageQueue.Shutdown();
+      _releaseAccessTimer.Stop();
+      _accessDurationTimer.Stop();
+      _accessLockRelease?.Dispose();
+      _accessLockRelease = null;
+    }
+
+    #endregion
+
+    #region Access
+
+    private void ReleaseAccessTimer_Elapsed(object sender, System.Timers.ElapsedEventArgs e)
+    {
+      try
+      {
+        lock (_accessReleaseSync)
+        {
+          _accessDurationTimer.Stop();
+          _accessLockRelease?.Dispose();
+          _accessLockRelease = null;
+        }
+      }
+      catch(Exception ex)
+      {
+        Logger.Error("MediaLibrary: Error releasing access lock", ex);
+      }
+    }
+
+    public async Task<IDisposable> RequestImporterAccessAsync()
+    {
+      return await _accessLock.InferiorLockAsync();
+    }
+
+    public IDisposable RequestImporterAccess()
+    {
+      return _accessLock.InferiorLock();
+    }
+
+    public void ReserveAccess(int duration)
+    {
+      lock (_accessReleaseSync)
+      {
+        _accessDurationTimer.Stop();
+        _releaseAccessTimer.Stop();
+        double remainingTime = _accessDurationTimer.ElapsedMilliseconds < _releaseAccessTimer.Interval ? _releaseAccessTimer.Interval - _accessDurationTimer.ElapsedMilliseconds : 0;
+        _releaseAccessTimer.Interval = duration < remainingTime ? remainingTime : duration;
+        _releaseAccessTimer.Start();
+        _accessDurationTimer.Restart();
+        if (_accessLockRelease == null)
+          _accessLockRelease = _accessLock.PriorityLock();
+      }
     }
 
     #endregion
