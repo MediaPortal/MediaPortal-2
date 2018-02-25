@@ -112,23 +112,39 @@ namespace MediaPortal.Utilities.Graphics
     /// Checks the given <paramref name="image"/> for contained EXIF orientation tags and automatically rotates the image if required.
     /// </summary>
     /// <param name="image">Image</param>
-    public static void ExifAutoRotate(this Image image)
+    /// <returns><c>true</c> if image got rotated</returns>
+    public static bool ExifAutoRotate(this Image image)
     {
-      RotateFlipType rotate = RotateFlipType.RotateNoneFlipNone;
-      var exifOrientation = image.PropertyItems.FirstOrDefault(p => p.Id == 0x0112);
-      if (exifOrientation != null)
+      PropertyItem exifOrientation = null;
+      try
       {
-        var value = (int)exifOrientation.Value[0];
-        if (value == 6)
-          rotate = RotateFlipType.Rotate90FlipNone;
-        else if (value == 8)
-          rotate = RotateFlipType.Rotate270FlipNone;
-        else if (value == 3)
-          rotate = RotateFlipType.Rotate180FlipNone;
+        // Accessing property items can fail for some image types. In this case we assume
+        // all images as correctly rotated already.
+        exifOrientation = image.PropertyItems.FirstOrDefault(p => p.Id == 0x0112);
       }
+      catch { }
+
+      RotateFlipType rotate = RotateFlipType.RotateNoneFlipNone;
+      if (exifOrientation == null)
+        return false;
+
+      var value = (int)exifOrientation.Value[0];
+      if (value == 6)
+        rotate = RotateFlipType.Rotate90FlipNone;
+      else if (value == 8)
+        rotate = RotateFlipType.Rotate270FlipNone;
+      else if (value == 3)
+        rotate = RotateFlipType.Rotate180FlipNone;
 
       if (rotate != RotateFlipType.RotateNoneFlipNone)
+      {
         image.RotateFlip(rotate);
+        // Reset the information to avoid duplicated rotations.
+        exifOrientation.Value[0] = 0;
+        image.SetPropertyItem(exifOrientation);
+        return true;
+      }
+      return false;
     }
 
     /// <summary> 
