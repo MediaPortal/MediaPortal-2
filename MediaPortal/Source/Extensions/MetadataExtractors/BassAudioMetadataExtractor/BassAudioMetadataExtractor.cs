@@ -247,22 +247,6 @@ namespace MediaPortal.Extensions.MetadataExtractors.BassAudioMetadataExtractor
               // Decoding of invalid image data can fail, but main MediaItem is correct.
               catch { }
             }
-            else
-            {
-              // In quick mode only allow thumbs taken from cache.
-              bool cachedOnly = forceQuickMode;
-
-              // Thumbnail extraction
-              fileName = mediaItemAccessor.ResourcePathName;
-              IThumbnailGenerator generator = ServiceRegistration.Get<IThumbnailGenerator>();
-              byte[] thumbData;
-              ImageType imageType;
-              if (generator.GetThumbnail(fileName, cachedOnly, out thumbData, out imageType))
-              {
-                trackInfo.Thumbnail = thumbData;
-                trackInfo.HasChanged = true;
-              }
-            }
           }
         }
 
