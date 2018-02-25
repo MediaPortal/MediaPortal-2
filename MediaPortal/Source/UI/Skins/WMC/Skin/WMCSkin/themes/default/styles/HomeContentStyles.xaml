@@ -59,7 +59,14 @@
           </VisualBrush.Visual>
         </VisualBrush>
       </Grid.OpacityMask>
-      <Border VerticalAlignment="Stretch" HorizontalAlignment="Stretch" BorderThickness="0" Background="White"/>
+      <Border VerticalAlignment="Stretch" HorizontalAlignment="Stretch" BorderThickness="0">
+        <Border.Background>
+          <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+            <GradientStop Color="White" Offset="0"/>
+            <GradientStop Color="#CCCCCC" Offset="1"/>
+          </LinearGradientBrush>
+        </Border.Background>
+      </Border>
       <Image x:Name="ItemTypeImage" Stretch="Uniform" Margin="10,5,10,5">
         <Image.Source>
           <fanart:FanArtImageSource fanart:FanArtMediaType="{Binding ChannelLogoType}" fanart:FanArtType="Banner" fanart:FanArtName="{Binding Channel.Name}"
