@@ -64,9 +64,13 @@
       <Project>{ecf060e7-caa1-4466-851f-f80b857641ea}</Project>
       <Name>MediaPortal.Common</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\Source\Extensions\MetadataExtractors\ImageProcessorThumbnailProvider\ImageProcessorThumbnailProvider.csproj">
-      <Project>{E1DF2D6A-0CF0-4A90-83FF-08ACF5937B3E}</Project>
-      <Name>ImageProcessorThumbnailProvider</Name>
+    <ProjectReference Include="..\..\Source\Extensions\MetadataExtractors\GDIThumbnailProvider\GDIThumbnailProvider.csproj">
+      <Project>{65CF3575-AC34-4E46-92C3-84E6EDA9BACD}</Project>
+      <Name>GDIThumbnailProvider</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\Source\Extensions\MetadataExtractors\WICThumbnailProvider\WICThumbnailProvider.csproj">
+      <Project>{7F790D8D-3A5A-499F-B9D3-8D9A1EF4F73A}</Project>
+      <Name>WICThumbnailProvider</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
