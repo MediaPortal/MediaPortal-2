@@ -39,44 +39,29 @@ namespace MediaPortal.Plugins.Transcoding.Interfaces.Profiles.Setup
     public AudioSettings AudioSettings = new AudioSettings();
     public SubtitleSettings SubtitleSettings = new SubtitleSettings();
 
+    public List<VideoTranscodingTarget> GenericVideoTargets = new List<VideoTranscodingTarget>();
+    public List<AudioTranscodingTarget> GenericAudioTargets = new List<AudioTranscodingTarget>();
+    public List<ImageTranscodingTarget> GenericImageTargets = new List<ImageTranscodingTarget>();
+
     public List<VideoTranscodingTarget> VideoTargets = new List<VideoTranscodingTarget>();
     public List<AudioTranscodingTarget> AudioTargets = new List<AudioTranscodingTarget>();
     public List<ImageTranscodingTarget> ImageTargets = new List<ImageTranscodingTarget>();
 
-    public VideoTranscodingTarget GetMatchingVideoTranscoding(MetadataContainer info, string preferredAudioLanguages, out VideoMatch matchedSource)
+    public VideoTranscodingTarget GetMatchingVideoTranscoding(MetadataContainer info, int matchedAudioStream, out VideoMatch matchedSource)
     {
       matchedSource = null;
-      if (info == null) return null;
 
-      int iMatchedAudioStream = 0;
-      if (string.IsNullOrEmpty(preferredAudioLanguages) == false)
-      {
-        List<string> valuesLangs = new List<string>(preferredAudioLanguages.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries));
-        int currentPriority = -1;
-        for (int iAudio = 0; iAudio < info.Audio.Count; iAudio++)
-        {
-          for (int iPriority = 0; iPriority < valuesLangs.Count; iPriority++)
-          {
-            if (valuesLangs[iPriority].Equals(info.Audio[iAudio].Language, StringComparison.InvariantCultureIgnoreCase) == true)
-            {
-              if (currentPriority == -1 || iPriority < currentPriority)
-              {
-                currentPriority = iPriority;
-                iMatchedAudioStream = iAudio;
-              }
-            }
-          }
-        }
-      }
+      if (info == null)
+        return null;
 
       foreach (VideoTranscodingTarget tDef in VideoTargets)
       {
         foreach (VideoInfo src in tDef.Sources)
         {
-          if (src.Matches(info, iMatchedAudioStream, VideoSettings.H264LevelCheckMethod))
+          if (src.Matches(info, matchedAudioStream, VideoSettings.H264LevelCheckMethod))
           {
             matchedSource = new VideoMatch();
-            matchedSource.MatchedAudioStream = iMatchedAudioStream;
+            matchedSource.MatchedAudioStream = matchedAudioStream;
             matchedSource.MatchedVideoSource = src;
             return tDef;
           }
@@ -90,15 +75,15 @@ namespace MediaPortal.Plugins.Transcoding.Interfaces.Profiles.Setup
       matchedSource = null;
       if (info == null) return null;
 
-      int iMatchedAudioStream = 0;
+      int matchedAudioStream = info.FirstAudioStream.StreamIndex;
       foreach (AudioTranscodingTarget tDef in AudioTargets)
       {
         foreach (AudioInfo src in tDef.Sources)
         {
-          if (src.Matches(info, iMatchedAudioStream))
+          if (src.Matches(info, matchedAudioStream))
           {
             matchedSource = new AudioMatch();
-            matchedSource.MatchedAudioStream = iMatchedAudioStream;
+            matchedSource.MatchedAudioStream = matchedAudioStream;
             matchedSource.MatchedAudioSource = src;
             return tDef;
           }

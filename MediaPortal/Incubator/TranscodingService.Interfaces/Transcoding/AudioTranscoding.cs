@@ -29,18 +29,18 @@ namespace MediaPortal.Plugins.Transcoding.Interfaces.Transcoding
   public class AudioTranscoding : BaseTranscoding
   {
     //Source info
-    public TimeSpan SourceDuration = new TimeSpan(0);
+    public TimeSpan? SourceDuration = null;
     public AudioContainer SourceAudioContainer = AudioContainer.Unknown;
     public AudioCodec SourceAudioCodec = AudioCodec.Unknown;
-    public long SourceAudioBitrate = -1;
-    public int SourceAudioChannels = -1;
-    public long SourceAudioFrequency = -1;
+    public long? SourceAudioBitrate = null;
+    public int? SourceAudioChannels = null;
+    public long? SourceAudioFrequency = null;
 
     //Target info
     public AudioContainer TargetAudioContainer = AudioContainer.Unknown;
     public AudioCodec TargetAudioCodec = AudioCodec.Unknown;
-    public long TargetAudioFrequency = -1;
-    public long TargetAudioBitrate = -1;
+    public long? TargetAudioFrequency = null;
+    public long? TargetAudioBitrate = null;
     public bool TargetForceAudioStereo = false;
     public bool TargetForceCopy = false;
     public Coder TargetCoder = Coder.Default;

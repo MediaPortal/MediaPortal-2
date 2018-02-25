@@ -28,8 +28,8 @@ namespace MediaPortal.Plugins.Transcoding.Interfaces.Metadata
   {
     public AudioContainer TargetAudioContainer = AudioContainer.Unknown;
     public AudioCodec TargetAudioCodec = AudioCodec.Unknown;
-    public long TargetAudioFrequency = -1;
-    public long TargetAudioBitrate = -1;
-    public int TargetAudioChannels = -1;
+    public long? TargetAudioFrequency = null;
+    public long? TargetAudioBitrate = null;
+    public int? TargetAudioChannels = null;
   }
 }

@@ -31,6 +31,7 @@ using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Common.ResourceAccess;
 using MediaPortal.Plugins.Transcoding.Interfaces.Metadata;
 using MediaPortal.Plugins.Transcoding.Interfaces;
+using System.Threading.Tasks;
 
 namespace MediaPortal.Extensions.MetadataExtractors.TranscodingService.MetadataExtractor
 {
@@ -61,14 +62,11 @@ namespace MediaPortal.Extensions.MetadataExtractors.TranscodingService.MetadataE
 
     public MetadataExtractorMetadata Metadata { get; private set; }
 
-    public bool TryExtractMetadata(IResourceAccessor mediaItemAccessor, IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData, bool importOnly, bool forceQuickMode)
+    public async Task<bool> TryExtractMetadataAsync(IResourceAccessor mediaItemAccessor, IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData, bool forceQuickMode)
     {
       try
       {
         if (forceQuickMode)
-          return false;
-
-        if (!importOnly)
           return false;
 
         if (!extractedAspectData.ContainsKey(AudioAspect.ASPECT_ID))
@@ -83,7 +81,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.TranscodingService.MetadataE
             return false;
         }
         
-        MetadataContainer metadata = MediaAnalyzer.ParseMediaStream(mediaItemAccessor);
+        MetadataContainer metadata = await MediaAnalyzer.ParseMediaStreamAsync(mediaItemAccessor);
         if (metadata == null)
         {
           Logger.Info("TranscodeAudioMetadataExtractor: Error analyzing stream '{0}'", mediaItemAccessor.CanonicalLocalResourcePath);
@@ -98,7 +96,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.TranscodingService.MetadataE
       return false;
     }
 
-    public bool IsSingleResource(IResourceAccessor mediaItemAccessor)
+    public bool IsDirectorySingleResource(IResourceAccessor mediaItemAccessor)
     {
       return false;
     }

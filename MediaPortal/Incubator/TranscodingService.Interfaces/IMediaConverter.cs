@@ -22,7 +22,9 @@
 
 #endregion
 
+using System;
 using System.IO;
+using System.Threading.Tasks;
 using MediaPortal.Common.ResourceAccess;
 using MediaPortal.Plugins.Transcoding.Interfaces.Metadata;
 using MediaPortal.Plugins.Transcoding.Interfaces.Transcoding;
@@ -61,10 +63,8 @@ namespace MediaPortal.Plugins.Transcoding.Interfaces
     /// <param name="VideoTarget">Provides transcoding information used to ensure the right stream is returned</param>
     /// <param name="Context">Provides the current transcoding context used which is used verification</param>
     /// <param name="FileName">The file name of the requested segment</param>
-    /// <param name="FileData">The stream for the requested segment</param>
-    /// <param name="ContainerEnum">The media container of the returned stream</param>
-    /// <returns>Validity of returned stream</returns>
-    bool GetSegmentFile(VideoTranscoding VideoTarget, TranscodeContext Context, string FileName, out Stream FileData, out dynamic ContainerEnum);
+    /// <returns>The stream for the requested segment and the media container of the returned stream</returns>
+    Task<(Stream FileData, dynamic ContainerEnum)?> GetSegmentFileAsync(VideoTranscoding VideoTarget, TranscodeContext Context, string FileName);
 
     #endregion
 
@@ -101,24 +101,24 @@ namespace MediaPortal.Plugins.Transcoding.Interfaces
     /// <param name="ClientId">ID of the client</param>
     /// <param name="TranscodeId">ID of the transcode</param>
     /// <returns>Transcode running status</returns>
-    bool IsTranscodeRunning(string ClientId, string TranscodeId);
+    Task<bool> IsTranscodeRunningAsync(string ClientId, string TranscodeId);
 
     /// <summary>
     /// Stops the specified running client transcode
     /// </summary>
     /// <param name="ClientId">ID of the client</param>
     /// <param name="TranscodeId">ID of the transcode</param>
-    void StopTranscode(string ClientId, string TranscodeId);
+    Task StopTranscodeAsync(string ClientId, string TranscodeId);
 
     /// <summary>
     /// Deletes transcoded files from the cache if needed
     /// </summary>
-    void CleanUpTranscodeCache();
+    Task CleanUpTranscodeCacheAsync();
 
     /// <summary>
     /// Stops all currently running client transcodes
     /// </summary>
-    void StopAllTranscodes();
+    Task StopAllTranscodesAsync();
 
     #endregion
 
@@ -129,7 +129,7 @@ namespace MediaPortal.Plugins.Transcoding.Interfaces
     /// </summary>
     /// <param name="FileResource">The file resource</param>
     /// <returns>Stream from the requested file resource</returns>
-    Stream GetFileStream(ILocalFsResourceAccessor FileResource);
+    Task<Stream> GetFileStreamAsync(ILocalFsResourceAccessor FileResource);
 
     /// <summary>
     /// Gets a transcoded subtitle stream for the specified video transcode
@@ -137,7 +137,7 @@ namespace MediaPortal.Plugins.Transcoding.Interfaces
     /// <param name="ClientId">ID of the client requesting the stream</param>
     /// <param name="VideoTarget">The video transcoding target</param>
     /// <returns>Stream for the transcoded subtitle</returns>
-    Stream GetSubtitleStream(string ClientId, VideoTranscoding VideoTarget);
+    Task<Stream> GetSubtitleStreamAsync(string ClientId, VideoTranscoding VideoTarget);
 
     /// <summary>
     /// Gets a transcode context for the specified media (video/audio/image) transcode
@@ -148,7 +148,7 @@ namespace MediaPortal.Plugins.Transcoding.Interfaces
     /// <param name="Duration">The number of seconds to limit the transcode to</param>
     /// <param name="WaitForBuffer">Wait for the buffer to start growing</param>
     /// <returns>Transcode context for the started transcode</returns>
-    TranscodeContext GetMediaStream(string ClientId, BaseTranscoding MediaTarget, double StartTime, double Duration, bool WaitForBuffer);
+    Task<TranscodeContext> GetMediaStreamAsync(string ClientId, BaseTranscoding MediaTarget, double StartTime, double Duration, bool WaitForBuffer);
 
     /// <summary>
     /// Gets a transcode context for the specified channel (SlimTv) transcode
@@ -158,7 +158,7 @@ namespace MediaPortal.Plugins.Transcoding.Interfaces
     /// <param name="ChannelId">The channel number to transcode</param>
     /// <param name="WaitForBuffer">Wait for the buffer to start growing</param>
     /// <returns>Transcode context for the started transcode</returns>
-    TranscodeContext GetLiveStream(string ClientId, BaseTranscoding MediaTarget, int ChannelId, bool WaitForBuffer);
+    Task<TranscodeContext> GetLiveStreamAsync(string ClientId, BaseTranscoding MediaTarget, int ChannelId, bool WaitForBuffer);
     
     #endregion
   }

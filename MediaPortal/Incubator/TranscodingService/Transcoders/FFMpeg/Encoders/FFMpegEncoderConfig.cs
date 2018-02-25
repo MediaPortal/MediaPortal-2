@@ -32,14 +32,12 @@ namespace MediaPortal.Plugins.Transcoding.Service.Transcoders.FFMpeg.Encoders
     public Dictionary<VideoCodec, Dictionary<EncodingProfile, string>> Profiles { get; set; }
     public Dictionary<VideoCodec, Dictionary<EncodingPreset, string>> Presets { get; set; }
     public List<VideoCodec> SupportedCodecs { get; set; }
-    public int MaximumStreams { get; set; }
 
     public FFMpegEncoderConfig()
     {
       Profiles = new Dictionary<VideoCodec, Dictionary<EncodingProfile, string>>();
       Presets = new Dictionary<VideoCodec, Dictionary<EncodingPreset, string>>();
       SupportedCodecs = new List<VideoCodec>();
-      MaximumStreams = 0;
     }
 
     public string GetEncoderPreset(VideoCodec codec, EncodingPreset preset)

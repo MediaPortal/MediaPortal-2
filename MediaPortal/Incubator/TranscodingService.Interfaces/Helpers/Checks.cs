@@ -23,6 +23,7 @@
 #endregion
 
 using System;
+using System.Linq;
 using MediaPortal.Plugins.Transcoding.Interfaces.Transcoding;
 
 namespace MediaPortal.Plugins.Transcoding.Interfaces.Helpers
@@ -31,43 +32,64 @@ namespace MediaPortal.Plugins.Transcoding.Interfaces.Helpers
   {
     public static bool IsVideoDimensionChanged(VideoTranscoding video)
     {
-      return IsVideoHeightChangeNeeded(video.SourceVideoHeight, video.TargetVideoMaxHeight) ||
-        IsVideoAspectRatioChanged(video.SourceVideoWidth, video.SourceVideoHeight, video.SourceVideoPixelAspectRatio, video.TargetVideoAspectRatio) ||
+      return IsVideoHeightChangeNeeded(video.FirstSourceVideoStream.Height, video.TargetVideoMaxHeight) ||
+        IsVideoAspectRatioChanged(video.FirstSourceVideoStream.Width, video.FirstSourceVideoStream.Height, video.FirstSourceVideoStream.PixelAspectRatio, video.TargetVideoAspectRatio) ||
         IsSquarePixelNeeded(video);
     }
 
-    public static bool IsVideoHeightChangeNeeded(int newHeight, int targetMaximumHeight)
+    public static bool IsVideoHeightChangeNeeded(int? newHeight, int? targetMaximumHeight)
     {
       return (newHeight > 0 && targetMaximumHeight > 0 && newHeight > targetMaximumHeight);
     }
 
     public static bool IsSquarePixelNeeded(VideoTranscoding video)
     {
-      bool squarePixels = IsSquarePixel(video.SourceVideoPixelAspectRatio);
+      bool squarePixels = IsSquarePixel(video.FirstSourceVideoStream.PixelAspectRatio);
       return (video.TargetVideoContainer == VideoContainer.Asf || video.TargetVideoContainer == VideoContainer.Flv) && squarePixels == false;
     }
 
-    public static bool IsVideoAspectRatioChanged(int newWidth, int newHeight, double pixelAspectRatio, double targetAspectRatio)
+    public static bool IsVideoAspectRatioChanged(int? newWidth, int? newHeight, double? pixelAspectRatio, double? targetAspectRatio)
     {
+      if (!targetAspectRatio.HasValue || !pixelAspectRatio.HasValue)
+        return false;
       return targetAspectRatio > 0 && newWidth > 0 && newHeight > 0 &&
-        (Math.Round(targetAspectRatio, 2, MidpointRounding.AwayFromZero) != Math.Round(pixelAspectRatio * (double)newWidth / (double)newHeight, 2, MidpointRounding.AwayFromZero));
+        (Math.Round(targetAspectRatio.Value, 2, MidpointRounding.AwayFromZero) != Math.Round(pixelAspectRatio.Value * (double)newWidth / (double)newHeight, 2, MidpointRounding.AwayFromZero));
     }
 
-    public static bool IsSquarePixel(double pixelAspectRatio)
+    public static bool IsSquarePixel(double? pixelAspectRatio)
     {
-      if (pixelAspectRatio <= 0)
+      if (!pixelAspectRatio.HasValue)
       {
         return true;
       }
-      return Math.Abs(1.0 - pixelAspectRatio) < 0.01;
+      return Math.Abs(1.0 - pixelAspectRatio.Value) < 0.01;
     }
 
-    public static bool IsVideoStreamChanged(VideoTranscoding video, bool supportHardcodedSubs)
+    public static bool AreMultipleAudioStreamsSupported(VideoTranscoding video)
+    {
+      if (!video.TargetAudioMultiTrackSupport)
+        return false;
+
+      if (video.TargetVideoContainer == VideoContainer.Avi)
+        return true;
+      if (video.TargetVideoContainer == VideoContainer.Matroska)
+        return true;
+      if (video.TargetVideoContainer == VideoContainer.Mpeg2Ts)
+        return true;
+      if (video.TargetVideoContainer == VideoContainer.Mp4)
+        return true;
+      if (video.TargetVideoContainer == VideoContainer.Asf)
+        return true;
+
+      return false;
+    }
+
+    public static bool IsVideoStreamChanged(VideoTranscoding video)
     {
       bool notChanged = true;
       notChanged &= video.TargetForceVideoTranscoding == false;
-      notChanged &= (video.TargetSubtitleSupport == SubtitleSupport.None || video.SourceSubtitleAvailable == false || (video.TargetSubtitleSupport == SubtitleSupport.HardCoded && supportHardcodedSubs == false));
-      notChanged &= (video.TargetVideoCodec == VideoCodec.Unknown || video.TargetVideoCodec == video.SourceVideoCodec);
+      notChanged &= (video.TargetSubtitleSupport == SubtitleSupport.None || video.PreferredSourceSubtitles.Any() == false || video.TargetSubtitleSupport != SubtitleSupport.HardCoded);
+      notChanged &= (video.TargetVideoCodec == VideoCodec.Unknown || video.TargetVideoCodec == video.FirstSourceVideoStream.Codec);
       notChanged &= IsVideoDimensionChanged(video) == false;
       notChanged &= video.TargetVideoBitrate <= 0;
 
@@ -79,20 +101,20 @@ namespace MediaPortal.Plugins.Transcoding.Interfaces.Helpers
       return container == VideoContainer.Mpeg2Ts || container == VideoContainer.Wtv || container == VideoContainer.Hls || container == VideoContainer.M2Ts;
     }
 
-    public static bool IsAudioStreamChanged(BaseTranscoding media)
+    public static bool IsAudioStreamChanged(int mediaStreamIndex, int audioStreamIndex, BaseTranscoding media)
     {
       AudioCodec sourceCodec = AudioCodec.Unknown;
       AudioCodec targetCodec = AudioCodec.Unknown;
-      long sourceBitrate = 0;
-      long targetBitrate = 0;
-      long sourceFrequency = 0;
-      long targetFrequency = 0;
+      long? sourceBitrate = 0;
+      long? targetBitrate = 0;
+      long? sourceFrequency = 0;
+      long? targetFrequency = 0;
       if (media is VideoTranscoding)
       {
         VideoTranscoding video = (VideoTranscoding)media;
-        sourceCodec = video.SourceAudioCodec;
-        sourceBitrate = video.SourceAudioBitrate;
-        sourceFrequency = video.SourceAudioFrequency;
+        sourceCodec = video.SourceAudioStreams[mediaStreamIndex].First(s => s.StreamIndex == audioStreamIndex).Codec;
+        sourceBitrate = video.SourceAudioStreams[mediaStreamIndex].First(s => s.StreamIndex == audioStreamIndex).Bitrate;
+        sourceFrequency = video.SourceAudioStreams[mediaStreamIndex].First(s => s.StreamIndex == audioStreamIndex).Frequency;
         targetCodec = video.TargetAudioCodec;
         targetBitrate = video.TargetAudioBitrate;
         targetFrequency = video.TargetAudioFrequency;

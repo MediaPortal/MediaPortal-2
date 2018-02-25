@@ -33,7 +33,8 @@ namespace MediaPortal.Plugins.Transcoding.Service.Transcoders.FFMpeg.Encoders
     {
       Software,
       HardwareIntel,
-      HardwareNvidia
+      HardwareNvidia,
+      HardwareAmd
     }
 
     private Dictionary<EncoderHandler, List<string>> _currentEncoderTranscodes = new Dictionary<EncoderHandler, List<string>>();
@@ -41,7 +42,7 @@ namespace MediaPortal.Plugins.Transcoding.Service.Transcoders.FFMpeg.Encoders
     private FFMpegEncoderConfig _softwareEncoder = null;
     private object _syncLock = new object();
 
-    public void RegisterEncoder(EncoderHandler handler, int maximumStreams, List<VideoCodec> supportedCodecs)
+    public void RegisterEncoder(EncoderHandler handler)
     {
       lock (_syncLock)
       {
@@ -54,8 +55,7 @@ namespace MediaPortal.Plugins.Transcoding.Service.Transcoders.FFMpeg.Encoders
           }
           _registeredEncoders.Add(handler, new FFMpegEncoderConfig()
           {
-            MaximumStreams = maximumStreams,
-            SupportedCodecs = supportedCodecs,
+            SupportedCodecs = { VideoCodec.Mpeg2, VideoCodec.H264, VideoCodec.H265 },
             Presets = new Dictionary<VideoCodec, Dictionary<EncodingPreset, string>>()
             {
               {
@@ -151,8 +151,7 @@ namespace MediaPortal.Plugins.Transcoding.Service.Transcoders.FFMpeg.Encoders
           }
           _registeredEncoders.Add(handler, new FFMpegEncoderConfig()
           {
-            MaximumStreams = maximumStreams,
-            SupportedCodecs = supportedCodecs,
+            SupportedCodecs = { VideoCodec.H264, VideoCodec.H265 },
             Presets = new Dictionary<VideoCodec, Dictionary<EncodingPreset, string>>()
             {
               {
@@ -236,7 +235,6 @@ namespace MediaPortal.Plugins.Transcoding.Service.Transcoders.FFMpeg.Encoders
       _currentEncoderTranscodes.Add(EncoderHandler.Software, new List<string>());
       _softwareEncoder = new FFMpegEncoderConfig()
       {
-        MaximumStreams = 0,
         SupportedCodecs = new List<VideoCodec>()
         {
           VideoCodec.H264,
@@ -304,8 +302,7 @@ namespace MediaPortal.Plugins.Transcoding.Service.Transcoders.FFMpeg.Encoders
       {
         foreach (KeyValuePair<EncoderHandler, FFMpegEncoderConfig> encoder in _registeredEncoders)
         {
-          if (encoder.Value.SupportedCodecs.Contains(codec) && //Check codec support
-            (encoder.Value.MaximumStreams <= 0 || encoder.Value.MaximumStreams <= _currentEncoderTranscodes[encoder.Key].Count)) //Check maximum stream support
+          if (encoder.Value.SupportedCodecs.Contains(codec)) //Check codec support
           {
             handler = encoder.Key;
             break;

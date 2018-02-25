@@ -29,9 +29,9 @@ namespace MediaPortal.Plugins.Transcoding.Interfaces.Metadata.Streams
     public AudioCodec Codec { get; set; }
     public int StreamIndex { get; set; }
     public string Language { get; set; }
-    public long Frequency { get; set; }
-    public int Channels { get; set; }
-    public long Bitrate { get; set; }
-    public bool Default { get; set; }
+    public long? Frequency { get; set; }
+    public int? Channels { get; set; }
+    public long? Bitrate { get; set; }
+    public bool Default { get; set; } = false;
   }
 }

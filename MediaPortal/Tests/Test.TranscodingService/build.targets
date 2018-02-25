@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="4.0">
+
+  <PropertyGroup>
+    <ReferencesDestination>$(SolutionDir)..\Tests\$(ProjectName)\$(OutDir)</ReferencesDestination>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <References Include="$(SolutionDir)Extensions\MetadataExtractors\MediaInfoLib\$(OutDir)MediaInfo.dll" />
+    <References Include="$(SolutionDir)Extensions\MetadataExtractors\FFMpegLib\$(OutDir)ffmpeg.exe" />
+    <References Include="$(SolutionDir)Extensions\MetadataExtractors\FFMpegLib\$(OutDir)ffprobe.exe" />
+    <References Include="$(SolutionDir)Extensions\MetadataExtractors\FFMpegLib\$(OutDir)ffplay.exe" />
+    <References Include="$(SolutionDir)Extensions\MetadataExtractors\FFMpegLib\$(OutDir)av*.dll" />
+    <References Include="$(SolutionDir)Extensions\MetadataExtractors\FFMpegLib\$(OutDir)sw*.dll" />
+    <References Include="$(SolutionDir)Extensions\MetadataExtractors\FFMpegLib\$(OutDir)post*.dll" />
+    <Fonts Include="$(SolutionDir)Extensions\MetadataExtractors\FFMpegLib\$(OutDir)fonts\**\*.*" />
+  </ItemGroup>
+
+  <Target Name="AfterBuild">
+    <Copy SourceFiles="@(References)" DestinationFolder="$(ReferencesDestination)" />
+    <Copy SourceFiles="@(Fonts)" DestinationFiles="@(Fonts->'$(ReferencesDestination)\fonts\%(RecursiveDir)%(Filename)%(Extension)')" />
+  </Target>
+
+</Project>

@@ -40,6 +40,9 @@ using MediaPortal.Plugins.Transcoding.Interfaces.Metadata;
 using MediaPortal.Plugins.Transcoding.Interfaces.Metadata.Streams;
 using MediaPortal.Plugins.Transcoding.Interfaces.Analyzers;
 using MediaPortal.Plugins.Transcoding.Interfaces.SlimTv;
+using System.Text.RegularExpressions;
+using System.Threading.Tasks;
+using MediaPortal.Utilities.Threading;
 
 namespace MediaPortal.Plugins.Transcoding.Service.Transcoders
 {
@@ -53,6 +56,11 @@ namespace MediaPortal.Plugins.Transcoding.Service.Transcoders
     public const string HLS_SEGMENT_FILE_TEMPLATE = "%05d.ts";
     public const string HLS_SEGMENT_SUB_TEMPLATE = "sub.vtt";
     public const int HLS_PLAYLIST_TIMEOUT = 25000; //Can take long time to start for RTSP
+
+    private const int FILE_STREAM_TIMEOUT = 30000;
+
+    private readonly static Regex SRT_LINE_REGEX = new Regex(@"(?<sequence>\d+)\r\n(?<start>\d{2}\:\d{2}\:\d{2},\d{3}) --\> (?<end>\d{2}\:\d{2}\:\d{2},\d{3})\r\n(?<text>[\s\S]*?\r\n\r\n)",
+     RegexOptions.Compiled | RegexOptions.ECMAScript);
 
     public int HLSSegmentTimeInSeconds
     {
@@ -79,6 +87,8 @@ namespace MediaPortal.Plugins.Transcoding.Service.Transcoders
     }
 
     protected Dictionary<string, Dictionary<string, List<TranscodeContext>>> _runningClientTranscodes = new Dictionary<string, Dictionary<string, List<TranscodeContext>>>();
+    protected AsyncReaderWriterLock _transcodeLock = new AsyncReaderWriterLock();
+    protected SemaphoreSlim _cacheLock = new SemaphoreSlim(1, 1);
     protected string _cachePath;
     protected long _cacheMaximumSize;
     protected long _cacheMaximumAge;
@@ -89,7 +99,6 @@ namespace MediaPortal.Plugins.Transcoding.Service.Transcoders
     protected string _subtitleDefaultEncoding;
     protected string _subtitleDefaultLanguage;
     protected ILogger _logger;
-    protected bool _supportHardcodedSubs = true;
     protected SlimTvHandler _slimtTvHandler = null;
 
     public BaseMediaConverter()
@@ -122,87 +131,100 @@ namespace MediaPortal.Plugins.Transcoding.Service.Transcoders
       return sequenceNumber;
     }
 
-    public bool GetSegmentFile(VideoTranscoding TranscodingInfo, TranscodeContext Context, string FileName, out Stream FileData, out dynamic ContainerEnum)
+    public async Task<(Stream FileData, dynamic ContainerEnum)?> GetSegmentFileAsync(VideoTranscoding TranscodingInfo, TranscodeContext Context, string FileName)
     {
-      FileData = null;
-      ContainerEnum = null;
-      string completePath = Path.Combine(Context.SegmentDir, FileName);
-      string playlistPath = null;
-      if (TranscodingInfo.TargetIsLive == false)
+      (Stream FileData, dynamic ContainerEnum)? nullVal = null;
+      try
       {
-        playlistPath = Path.Combine(Context.SegmentDir, PLAYLIST_TEMP_FILE_NAME);
-      }
-      else
-      {
-        playlistPath = Path.Combine(Context.SegmentDir, PLAYLIST_FILE_NAME);
-      }
-      DateTime waitStart = DateTime.Now;
+        string completePath = Path.Combine(Context.SegmentDir, FileName);
+        string playlistPath = null;
+        if (TranscodingInfo.TargetIsLive == false)
+        {
+          playlistPath = Path.Combine(Context.SegmentDir, PLAYLIST_TEMP_FILE_NAME);
+        }
+        else
+        {
+          playlistPath = Path.Combine(Context.SegmentDir, PLAYLIST_FILE_NAME);
+        }
+        DateTime waitStart = DateTime.Now;
 
-      //Thread.Sleep(2000); //Ensure that writing is completed. Is there a better way?
-      if (Path.GetExtension(PLAYLIST_FILE_NAME) == Path.GetExtension(FileName)) //playlist file
-      {
-        while (File.Exists(completePath) == false)
+        //Ensure that writing is completed. Is there a better way?
+        if (Path.GetExtension(PLAYLIST_FILE_NAME) == Path.GetExtension(FileName)) //playlist file
         {
-          if (Context.Running == false) return false;
-          if ((DateTime.Now - waitStart).TotalMilliseconds > HLS_PLAYLIST_TIMEOUT) return false;
-          Thread.Sleep(100);
-        }
-        ContainerEnum = VideoContainer.Hls;
-        MemoryStream memStream = new MemoryStream(PlaylistManifest.CorrectPlaylistUrls(TranscodingInfo.HlsBaseUrl, completePath));
-        memStream.Position = 0;
-        FileData = memStream;
-      }
-      if (Path.GetExtension(HLS_SEGMENT_FILE_TEMPLATE) == Path.GetExtension(FileName)) //segment file
-      {
-        long sequenceNumber = GetSegmentSequence(FileName);
-        while (true)
-        {
-          if (File.Exists(completePath) == false)
+          while (!File.Exists(completePath))
           {
-            if (Context.CurrentSegment > sequenceNumber)
-            {
-              // Probably rewinding
-              return false;
-            }
-            if ((sequenceNumber - Context.CurrentSegment) > 2)
-            {
-              //Probably forwarding
-              return false;
-            }
+            if ((DateTime.Now - waitStart).TotalMilliseconds > HLS_PLAYLIST_TIMEOUT)
+              return nullVal;
+
+            await Task.Delay(10).ConfigureAwait(false);
           }
-          else
+
+          return (await PlaylistManifest.CorrectPlaylistUrlsAsync(TranscodingInfo.HlsBaseUrl, completePath).ConfigureAwait(false), VideoContainer.Hls);
+        }
+        if (Path.GetExtension(HLS_SEGMENT_FILE_TEMPLATE) == Path.GetExtension(FileName)) //segment file
+        {
+          long sequenceNumber = GetSegmentSequence(FileName);
+          while (Context.Running)
           {
-            //If playlist generated by ffmpeg contains the file it must be done
-            if (File.Exists(playlistPath) == true)
+            if (!File.Exists(completePath))
             {
-              string playlistContents = File.ReadAllText(playlistPath, Encoding.UTF8);
-              if (playlistContents.Contains(FileName)) break;
+              if (Context.CurrentSegment > sequenceNumber)
+                return nullVal; // Probably rewinding
+              if ((sequenceNumber - Context.CurrentSegment) > 2)
+                return nullVal; //Probably forwarding
             }
+            else
+            {
+              //If playlist generated by ffmpeg contains the file it must be done
+              if (File.Exists(playlistPath))
+              {
+                bool fileFound = false;
+                using (StreamReader reader = new StreamReader(playlistPath, Encoding.UTF8))
+                {
+                  while (!reader.EndOfStream)
+                  {
+                    string line = await reader.ReadLineAsync().ConfigureAwait(false);
+                    if (line.Contains(FileName))
+                    {
+                      fileFound = true;
+                      break;
+                    }
+                  }
+                }
+                if (fileFound)
+                  break;
+              }
+            }
+            if ((DateTime.Now - waitStart).TotalSeconds > _hlsSegmentTimeInSeconds)
+              return nullVal;
+
+            await Task.Delay(10).ConfigureAwait(false);
           }
-          if (Context.Running == false) return false;
-          if ((DateTime.Now - waitStart).TotalSeconds > _hlsSegmentTimeInSeconds) return false;
-          Thread.Sleep(100);
+
+          if (sequenceNumber >= 0)
+            Context.CurrentSegment = sequenceNumber;
+          return (await GetFileStreamAsync(completePath).ConfigureAwait(false), VideoContainer.Mpeg2Ts);
         }
-        ContainerEnum = VideoContainer.Mpeg2Ts;
-        if (sequenceNumber >= 0)
+        if (Path.GetExtension(HLS_SEGMENT_SUB_TEMPLATE) == Path.GetExtension(FileName)) //subtitle file
         {
-          Context.CurrentSegment = sequenceNumber;
+          while (!File.Exists(completePath))
+          {
+            if (!Context.Running)
+              return nullVal;
+            if ((DateTime.Now - waitStart).TotalMilliseconds > _hlsSegmentTimeInSeconds)
+              return nullVal;
+
+            await Task.Delay(10).ConfigureAwait(false);
+          }
+
+          return (await GetFileStreamAsync(completePath).ConfigureAwait(false), SubtitleCodec.WebVtt);
         }
-        FileData = GetFileStream(completePath);
       }
-      if (Path.GetExtension(HLS_SEGMENT_SUB_TEMPLATE) == Path.GetExtension(FileName)) //subtitle file
+      catch (Exception ex)
       {
-        while (File.Exists(completePath) == false)
-        {
-          if (Context.Running == false) return false;
-          if ((DateTime.Now - waitStart).TotalSeconds > _hlsSegmentTimeInSeconds) return false;
-          Thread.Sleep(100);
-        }
-        ContainerEnum = SubtitleCodec.WebVtt;
-        FileData = GetFileStream(completePath);
+        _logger.Error("MediaConverter: Error getting segment file '{0}'", ex, FileName);
       }
-      if (FileData != null) return true;
-      return false;
+      return nullVal;
     }
 
     #endregion
@@ -233,7 +255,7 @@ namespace MediaPortal.Plugins.Transcoding.Service.Transcoders
 
       if (TranscodingInfo.TargetForceCopy == false)
       {
-        if (Checks.IsAudioStreamChanged(TranscodingInfo))
+        if (Checks.IsAudioStreamChanged(0, 0, TranscodingInfo))
         {
           if (TranscodingInfo.TargetAudioCodec == AudioCodec.Unknown)
           {
@@ -279,7 +301,7 @@ namespace MediaPortal.Plugins.Transcoding.Service.Transcoders
                 break;
             }
           }
-          long frequency = Validators.GetAudioFrequency(TranscodingInfo.SourceAudioCodec, TranscodingInfo.TargetAudioCodec, TranscodingInfo.SourceAudioFrequency, TranscodingInfo.TargetAudioFrequency);
+          long? frequency = Validators.GetAudioFrequency(TranscodingInfo.SourceAudioCodec, TranscodingInfo.TargetAudioCodec, TranscodingInfo.SourceAudioFrequency, TranscodingInfo.TargetAudioFrequency);
           if (frequency > 0)
           {
             metadata.TargetAudioFrequency = frequency;
@@ -333,9 +355,9 @@ namespace MediaPortal.Plugins.Transcoding.Service.Transcoders
         {
           if (TranscodingInfo.SourceOrientation > 4)
           {
-            int iTemp = metadata.TargetMaxWidth;
+            int? tempWidth = metadata.TargetMaxWidth.Value;
             metadata.TargetMaxWidth = metadata.TargetMaxHeight;
-            metadata.TargetMaxHeight = iTemp;
+            metadata.TargetMaxHeight = tempWidth;
           }
           metadata.TargetOrientation = 0;
         }
@@ -347,79 +369,59 @@ namespace MediaPortal.Plugins.Transcoding.Service.Transcoders
 
     public TranscodedVideoMetadata GetTranscodedVideoMetadata(VideoTranscoding TranscodingInfo)
     {
+      VideoContainer srcContainer = TranscodingInfo.FirstSourceVideoContainer;
+      VideoStream srcVideo = TranscodingInfo.FirstSourceVideoStream;
+      AudioStream srcAudio = TranscodingInfo.FirstSourceAudioStream;
       TranscodedVideoMetadata metadata = new TranscodedVideoMetadata
       {
-        TargetAudioBitrate = TranscodingInfo.TargetAudioBitrate,
-        TargetAudioCodec = TranscodingInfo.TargetAudioCodec,
-        TargetAudioFrequency = TranscodingInfo.TargetAudioFrequency,
-        TargetVideoFrameRate = TranscodingInfo.SourceFrameRate,
+        TargetAudioBitrate = TranscodingInfo.TargetAudioBitrate ?? srcAudio.Bitrate,
+        TargetAudioCodec = TranscodingInfo.TargetAudioCodec == AudioCodec.Unknown ? srcAudio.Codec : TranscodingInfo.TargetAudioCodec,
+        TargetAudioFrequency = TranscodingInfo.TargetAudioFrequency ?? srcAudio.Frequency,
+        TargetVideoFrameRate = srcVideo.Framerate,
         TargetLevel = TranscodingInfo.TargetLevel,
         TargetPreset = TranscodingInfo.TargetPreset,
         TargetProfile = TranscodingInfo.TargetProfile,
         TargetVideoPixelFormat = TranscodingInfo.TargetPixelFormat
       };
-      if(TranscodingInfo.TargetForceVideoCopy)
+      if (TranscodingInfo.TargetForceVideoCopy)
       {
-        metadata.TargetVideoContainer = TranscodingInfo.SourceVideoContainer;
-        metadata.TargetVideoAspectRatio = TranscodingInfo.SourceVideoAspectRatio;
-        metadata.TargetVideoBitrate = TranscodingInfo.SourceVideoBitrate;
-        metadata.TargetVideoCodec = TranscodingInfo.SourceVideoCodec;
-        metadata.TargetVideoFrameRate = TranscodingInfo.SourceFrameRate;
-        metadata.TargetVideoPixelFormat = TranscodingInfo.SourcePixelFormat;
-        metadata.TargetVideoMaxWidth = TranscodingInfo.SourceVideoWidth;
-        metadata.TargetVideoMaxHeight = TranscodingInfo.SourceVideoHeight;
+        metadata.TargetVideoContainer = srcContainer;
+        metadata.TargetVideoAspectRatio = srcVideo.AspectRatio;
+        metadata.TargetVideoBitrate = srcVideo.Bitrate;
+        metadata.TargetVideoCodec = srcVideo.Codec;
+        metadata.TargetVideoFrameRate = srcVideo.Framerate;
+        metadata.TargetVideoPixelFormat = srcVideo.PixelFormatType;
+        metadata.TargetVideoMaxWidth = srcVideo.Width;
+        metadata.TargetVideoMaxHeight = srcVideo.Height;
       }
       if (TranscodingInfo.TargetForceAudioCopy)
       {
-        metadata.TargetAudioBitrate = TranscodingInfo.SourceAudioBitrate;
-        metadata.TargetAudioCodec = TranscodingInfo.SourceAudioCodec;
-        metadata.TargetAudioFrequency = TranscodingInfo.SourceAudioFrequency;
-        metadata.TargetAudioChannels = TranscodingInfo.SourceAudioChannels;
-        metadata.TargetAudioBitrate = TranscodingInfo.SourceAudioBitrate;
-      }
-      if (metadata.TargetVideoPixelFormat == PixelFormat.Unknown)
-      {
-        metadata.TargetVideoPixelFormat = PixelFormat.Yuv420;
-      }
-      metadata.TargetVideoAspectRatio = TranscodingInfo.TargetVideoAspectRatio;
-      if (metadata.TargetVideoAspectRatio <= 0)
-      {
-        metadata.TargetVideoAspectRatio = 16.0F / 9.0F;
-      }
-      metadata.TargetVideoBitrate = TranscodingInfo.TargetVideoBitrate;
-      metadata.TargetVideoCodec = TranscodingInfo.TargetVideoCodec;
-      if (metadata.TargetVideoCodec == VideoCodec.Unknown)
-      {
-        metadata.TargetVideoCodec = TranscodingInfo.SourceVideoCodec;
-      }
-      metadata.TargetVideoContainer = TranscodingInfo.TargetVideoContainer;
-      if (metadata.TargetVideoContainer == VideoContainer.Unknown)
-      {
-        metadata.TargetVideoContainer = TranscodingInfo.SourceVideoContainer;
-      }
-      metadata.TargetVideoTimestamp = Timestamp.None;
-      if (metadata.TargetVideoContainer == VideoContainer.M2Ts)
-      {
-        metadata.TargetVideoTimestamp = Timestamp.Valid;
+        metadata.TargetAudioBitrate = srcAudio.Bitrate;
+        metadata.TargetAudioCodec = srcAudio.Codec;
+        metadata.TargetAudioFrequency = srcAudio.Frequency;
+        metadata.TargetAudioChannels = srcAudio.Channels;
       }
 
-      metadata.TargetVideoMaxWidth = TranscodingInfo.SourceVideoWidth;
-      metadata.TargetVideoMaxHeight = TranscodingInfo.SourceVideoHeight;
-      if (metadata.TargetVideoMaxHeight <= 0)
-      {
-        metadata.TargetVideoMaxHeight = 1080;
-      }
+      metadata.TargetVideoMaxWidth = srcVideo.Width;
+      metadata.TargetVideoMaxHeight = srcVideo.Height ?? 1080;
+      metadata.TargetVideoAspectRatio = TranscodingInfo.TargetVideoAspectRatio ?? 16.0F / 9.0F;
+      metadata.TargetVideoBitrate = TranscodingInfo.TargetVideoBitrate;
+      metadata.TargetVideoCodec = TranscodingInfo.TargetVideoCodec == VideoCodec.Unknown ? srcVideo.Codec : TranscodingInfo.TargetVideoCodec;
+      metadata.TargetVideoContainer = TranscodingInfo.TargetVideoContainer == VideoContainer.Unknown ? srcContainer : TranscodingInfo.TargetVideoContainer;
+      metadata.TargetVideoTimestamp = Timestamp.None;
+      if (metadata.TargetVideoContainer == VideoContainer.M2Ts)
+        metadata.TargetVideoTimestamp = Timestamp.Valid;
+      if (metadata.TargetVideoPixelFormat == PixelFormat.Unknown)
+        metadata.TargetVideoPixelFormat = PixelFormat.Yuv420;
 
       if (TranscodingInfo.TargetForceVideoCopy == false)
       {
-        float newPixelAspectRatio = TranscodingInfo.SourceVideoPixelAspectRatio;
-        if (newPixelAspectRatio <= 0)
-        {
-          newPixelAspectRatio = 1.0F;
-        }
+        float newPixelAspectRatio = 1.0F;
+        if (srcVideo.PixelAspectRatio.HasValue)
+          newPixelAspectRatio = srcVideo.PixelAspectRatio.Value;
 
-        Size newSize = new Size(TranscodingInfo.SourceVideoWidth, TranscodingInfo.SourceVideoHeight);
-        Size newContentSize = new Size(TranscodingInfo.SourceVideoWidth, TranscodingInfo.SourceVideoHeight);
+        Size newSize = new Size(srcVideo.Width ?? 0, srcVideo.Height ?? 0);
+        Size newContentSize = new Size(srcVideo.Width ?? 0, srcVideo.Height ?? 0);
         bool pixelARChanged = false;
         bool videoARChanged = false;
         bool videoHeightChanged = false;
@@ -427,36 +429,19 @@ namespace MediaPortal.Plugins.Transcoding.Service.Transcoders
         metadata.TargetVideoPixelAspectRatio = newPixelAspectRatio;
         metadata.TargetVideoMaxWidth = newSize.Width;
         metadata.TargetVideoMaxHeight = newSize.Height;
-
-        metadata.TargetVideoFrameRate = TranscodingInfo.SourceFrameRate;
-        if (metadata.TargetVideoFrameRate > 23.9 && metadata.TargetVideoFrameRate < 23.99)
-          metadata.TargetVideoFrameRate = 23.976F;
-        else if (metadata.TargetVideoFrameRate >= 23.99 && metadata.TargetVideoFrameRate < 24.1)
-          metadata.TargetVideoFrameRate = 24;
-        else if (metadata.TargetVideoFrameRate >= 24.99 && metadata.TargetVideoFrameRate < 25.1)
-          metadata.TargetVideoFrameRate = 25;
-        else if (metadata.TargetVideoFrameRate >= 29.9 && metadata.TargetVideoFrameRate < 29.99)
-          metadata.TargetVideoFrameRate = 29.97F;
-        else if (metadata.TargetVideoFrameRate >= 29.99 && metadata.TargetVideoFrameRate < 30.1)
-          metadata.TargetVideoFrameRate = 30;
-        else if (metadata.TargetVideoFrameRate >= 49.9 && metadata.TargetVideoFrameRate < 50.1)
-          metadata.TargetVideoFrameRate = 50;
-        else if (metadata.TargetVideoFrameRate >= 59.9 && metadata.TargetVideoFrameRate < 59.99)
-          metadata.TargetVideoFrameRate = 59.94F;
-        else if (metadata.TargetVideoFrameRate >= 59.99 && metadata.TargetVideoFrameRate < 60.1)
-          metadata.TargetVideoFrameRate = 60;
+        metadata.TargetVideoFrameRate = Validators.GetNormalizedFramerate(srcVideo.Framerate);
       }
       if (TranscodingInfo.TargetForceAudioCopy == false)
       {
-        metadata.TargetAudioChannels = Validators.GetAudioNumberOfChannels(TranscodingInfo.SourceAudioCodec, TranscodingInfo.TargetAudioCodec, TranscodingInfo.SourceAudioChannels, TranscodingInfo.TargetForceAudioStereo);
-        long frequency = Validators.GetAudioFrequency(TranscodingInfo.SourceAudioCodec, TranscodingInfo.TargetAudioCodec, TranscodingInfo.SourceAudioFrequency, TranscodingInfo.TargetAudioFrequency);
-        if (frequency != -1)
+        metadata.TargetAudioChannels = Validators.GetAudioNumberOfChannels(srcAudio.Codec, TranscodingInfo.TargetAudioCodec, srcAudio.Channels, TranscodingInfo.TargetForceAudioStereo);
+        long? frequency = Validators.GetAudioFrequency(srcAudio.Codec, TranscodingInfo.TargetAudioCodec, srcAudio.Frequency, TranscodingInfo.TargetAudioFrequency);
+        if (frequency.HasValue)
         {
           metadata.TargetAudioFrequency = frequency;
         }
         if (TranscodingInfo.TargetAudioCodec != AudioCodec.Lpcm)
         {
-          metadata.TargetAudioBitrate = Validators.GetAudioBitrate(TranscodingInfo.SourceAudioBitrate, TranscodingInfo.TargetAudioBitrate);
+          metadata.TargetAudioBitrate = Validators.GetAudioBitrate(srcAudio.Bitrate, TranscodingInfo.TargetAudioBitrate);
         }
       }
       return metadata;
@@ -490,71 +475,63 @@ namespace MediaPortal.Plugins.Transcoding.Service.Transcoders
       }
     }
 
-    public bool IsTranscodeRunning(string ClientId, string TranscodeId)
+    public async Task<bool> IsTranscodeRunningAsync(string ClientId, string TranscodeId)
     {
-      lock (_runningClientTranscodes)
+      using (await _transcodeLock.ReaderLockAsync().ConfigureAwait(false))
       {
-        return _runningClientTranscodes.ContainsKey(ClientId) && _runningClientTranscodes[ClientId].ContainsKey(TranscodeId);
+        return _runningClientTranscodes.Where(t => t.Key == ClientId && t.Value.ContainsKey(TranscodeId)).Any();
       }
     }
 
-    public void StopTranscode(string ClientId, string TranscodeId)
+    public async Task StopTranscodeAsync(string ClientId, string TranscodeId)
     {
-      lock (_runningClientTranscodes)
+      using (await _transcodeLock.WriterLockAsync().ConfigureAwait(false))
       {
-        if (_runningClientTranscodes.ContainsKey(ClientId) && _runningClientTranscodes[ClientId].ContainsKey(TranscodeId))
+        foreach (TranscodeContext context in _runningClientTranscodes.Where(t => t.Key == ClientId && t.Value.ContainsKey(TranscodeId)).SelectMany(t => t.Value[TranscodeId]))
         {
-          foreach (TranscodeContext context in _runningClientTranscodes[ClientId][TranscodeId])
+          try
           {
-            try
-            {
-              context.Dispose();
-            }
-            catch
-            {
-              if (context.Live) _logger.Debug("MediaConverter: Error disposing transcode context for live stream");
-              else _logger.Debug("MediaConverter: Error disposing transcode context for file '{0}'", context.TargetFile);
-            }
+            context.Dispose();
+          }
+          catch (Exception ex)
+          {
+            if (context.Live) _logger.Error("MediaConverter: Error disposing transcode context for live stream", ex);
+            else _logger.Error("MediaConverter: Error disposing transcode context for file '{0}'", ex, context.TargetFile);
           }
         }
       }
     }
 
-    public void StopAllTranscodes()
+    public async Task StopAllTranscodesAsync()
     {
-      lock (_runningClientTranscodes)
+      using (await _transcodeLock.WriterLockAsync().ConfigureAwait(false))
       {
-        foreach (string clientId in _runningClientTranscodes.Keys)
+        foreach (TranscodeContext context in _runningClientTranscodes.Values.SelectMany(t => t.Values.SelectMany(c => c)))
         {
-          foreach (string transcodeId in _runningClientTranscodes[clientId].Keys)
+          try
           {
-            foreach (TranscodeContext context in _runningClientTranscodes[clientId][transcodeId])
-            {
-              try
-              {
-                context.Dispose();
-              }
-              catch
-              {
-                if (context.Live) _logger.Debug("MediaConverter: Error disposing transcode context for live stream");
-                else _logger.Debug("MediaConverter: Error disposing transcode context for file '{0}'", context.TargetFile);
-              }
-            }
+            context.Dispose();
+          }
+          catch (Exception ex)
+          {
+            if (context.Live) _logger.Error("MediaConverter: Error disposing transcode context for live stream", ex);
+            else _logger.Error("MediaConverter: Error disposing transcode context for file '{0}'", ex, context.TargetFile);
           }
         }
       }
     }
 
-    public void CleanUpTranscodeCache()
+    public async Task CleanUpTranscodeCacheAsync()
     {
-      lock (_cachePath)
+      await _cacheLock.WaitAsync().ConfigureAwait(false);
+      try
       {
         if (Directory.Exists(_cachePath) == true)
         {
           int maxTries = 10;
           SortedDictionary<DateTime, string> fileList = new SortedDictionary<DateTime, string>();
           long cacheSize = 0;
-          List<string> dirObjects = new List<string>(Directory.GetFiles(_cachePath, "*.mp*"));
+          List<string> dirObjects = new List<string>(Directory.GetFiles(_cachePath, "*.*"));
           dirObjects.AddRange(Directory.GetDirectories(_cachePath, "*" + PlaylistManifest.PLAYLIST_FOLDER_SUFFIX));
           foreach (string dirObject in dirObjects)
           {
@@ -692,7 +669,7 @@ namespace MediaPortal.Plugins.Transcoding.Service.Transcoders
                 continue;
               }
               FileInfo[] folderFiles = info.GetFiles();
-              cacheSize = folderFiles.Aggregate(cacheSize, (current, folderFile) => current - folderFile.Length);
+              cacheSize -= folderFiles.Sum(f => f.Length);
               fileList.Remove(dirObject.Key);
               try
               {
@@ -716,12 +693,21 @@ namespace MediaPortal.Plugins.Transcoding.Service.Transcoders
               fileList.Remove(dirObject.Key);
               try
               {
-                info.Delete();
+                if(!info.IsReadOnly && !info.Attributes.HasFlag(FileAttributes.System) && !info.Attributes.HasFlag(FileAttributes.Hidden))
+                  info.Delete();
               }
               catch { }
             }
           }
         }
+      }
+      catch (Exception ex)
+      {
+        _logger.Error("MediaConverter: Error cleaning cache", ex);
+      }
+      finally
+      {
+        _cacheLock.Release();
       }
     }
 
@@ -729,398 +715,605 @@ namespace MediaPortal.Plugins.Transcoding.Service.Transcoders
 
     #region Subtitles
 
-    protected SubtitleStream FindSubtitle(VideoTranscoding video)
+    protected Dictionary<int, SubtitleStream> FindPrimarySubtitle(VideoTranscoding video)
     {
-      if (video.SourceSubtitleStreamIndex == Subtitles.NO_SUBTITLE) return null;
+      if (video.SourceSubtitles == null) return null;
 
-      SubtitleStream currentEmbeddedSub = null;
-      SubtitleStream currentExternalSub = null;
+      Dictionary<int, SubtitleStream> currentEmbeddedSub = new Dictionary<int, SubtitleStream>();
+      Dictionary<int, SubtitleStream> currentExternalSub = new Dictionary<int, SubtitleStream>();
+      Dictionary<int, SubtitleStream> defaultEmbeddedSub = new Dictionary<int, SubtitleStream>();
+      Dictionary<int, SubtitleStream> englishEmbeddedSub = new Dictionary<int, SubtitleStream>();
+      Dictionary<int, SubtitleStream> subsEmbedded = new Dictionary<int, SubtitleStream>();
+      Dictionary<int, SubtitleStream> langSubsEmbedded = new Dictionary<int, SubtitleStream>();
+      Dictionary<int, SubtitleStream> defaultSub = new Dictionary<int, SubtitleStream>();
+      Dictionary<int, SubtitleStream> englishSub = new Dictionary<int, SubtitleStream>();
+      Dictionary<int, SubtitleStream> subs = new Dictionary<int, SubtitleStream>();
+      Dictionary<int, SubtitleStream> langSubs = new Dictionary<int, SubtitleStream>();
 
-      SubtitleStream defaultEmbeddedSub = null;
-      SubtitleStream englishEmbeddedSub = null;
-      List<SubtitleStream> subsEmbedded = new List<SubtitleStream>();
-      List<SubtitleStream> langSubsEmbedded = new List<SubtitleStream>();
-
-      List<SubtitleStream> allSubs = Subtitles.GetSubtitleStreams(video, _subtitleDefaultEncoding, _subtitleDefaultLanguage);
-      foreach (SubtitleStream sub in allSubs)
+      Dictionary<int, List<SubtitleStream>> allSubs = video.SourceSubtitles;
+      //Find embedded sub
+      foreach (var mediaSourceIndex in allSubs.Keys)
       {
-        if (sub.IsEmbedded == false)
+        foreach (var sub in allSubs.Where(s => s.Key == mediaSourceIndex).SelectMany(s => s.Value).Where(s => s.IsEmbedded))
         {
-          continue;
-        }
-        if (video.SourceSubtitleStreamIndex >= 0 && sub.StreamIndex == video.SourceSubtitleStreamIndex)
-        {
-          return sub;
-        }
-        if (sub.Default == true)
-        {
-          defaultEmbeddedSub = sub;
-        }
-        else if (string.Compare(sub.Language, "EN", true, CultureInfo.InvariantCulture) == 0)
-        {
-          englishEmbeddedSub = sub;
-        }
-        if (string.IsNullOrEmpty(video.TargetSubtitleLanguages) == false)
-        {
-          string[] langs = video.TargetSubtitleLanguages.Split(',');
-          foreach (string lang in langs)
+          if (sub.Default == true)
           {
-            if (string.IsNullOrEmpty(lang) == false && string.Compare(sub.Language, lang, true, CultureInfo.InvariantCulture) == 0)
+            if(!defaultEmbeddedSub.ContainsKey(mediaSourceIndex))
+              defaultEmbeddedSub.Add(mediaSourceIndex, sub);
+          }
+          else if (string.Compare(sub.Language, "EN", true, CultureInfo.InvariantCulture) == 0)
+          {
+            if (!englishEmbeddedSub.ContainsKey(mediaSourceIndex))
+              englishEmbeddedSub.Add(mediaSourceIndex, sub);
+          }
+          if (string.IsNullOrEmpty(video.TargetSubtitleLanguages) == false)
+          {
+            string[] langs = video.TargetSubtitleLanguages.Split(',');
+            foreach (string lang in langs)
             {
-              langSubsEmbedded.Add(sub);
+              if (string.IsNullOrEmpty(lang) == false && string.Compare(sub.Language, lang, true, CultureInfo.InvariantCulture) == 0)
+              {
+                if (!langSubsEmbedded.ContainsKey(mediaSourceIndex))
+                  langSubsEmbedded.Add(mediaSourceIndex, sub);
+              }
             }
           }
+          if (!subsEmbedded.ContainsKey(mediaSourceIndex))
+            subsEmbedded.Add(mediaSourceIndex, sub);
         }
-        subsEmbedded.Add(sub);
-      }
-      if (currentEmbeddedSub == null && langSubsEmbedded.Count > 0)
-      {
-        currentEmbeddedSub = langSubsEmbedded[0];
-      }
 
-      SubtitleStream defaultSub = null;
-      SubtitleStream englishSub = null;
-      List<SubtitleStream> subs = new List<SubtitleStream>();
-      List<SubtitleStream> langSubs = new List<SubtitleStream>();
-      foreach (SubtitleStream sub in allSubs)
-      {
-        if (sub.IsEmbedded == true)
+        if (!currentEmbeddedSub.ContainsKey(mediaSourceIndex) && langSubsEmbedded.ContainsKey(mediaSourceIndex))
         {
-          continue;
+          currentEmbeddedSub.Add(mediaSourceIndex, langSubsEmbedded[mediaSourceIndex]);
         }
-        if (video.SourceSubtitleStreamIndex < Subtitles.NO_SUBTITLE &&
-          sub.StreamIndex == video.SourceSubtitleStreamIndex)
+
+        //Find external sub
+        foreach (SubtitleStream sub in allSubs.Where(s => s.Key == mediaSourceIndex).SelectMany(s => s.Value).Where(s => !s.IsEmbedded))
         {
-          return sub;
-        }
-        if (sub.Default == true)
-        {
-          defaultSub = sub;
-        }
-        else if (string.Compare(sub.Language, "EN", true, CultureInfo.InvariantCulture) == 0)
-        {
-          englishSub = sub;
-        }
-        if (string.IsNullOrEmpty(video.TargetSubtitleLanguages) == false)
-        {
-          string[] langs = video.TargetSubtitleLanguages.Split(',');
-          foreach (string lang in langs)
+          if (sub.Default == true)
           {
-            if (string.IsNullOrEmpty(lang) == false && string.Compare(sub.Language, lang, true, CultureInfo.InvariantCulture) == 0)
+            if (!defaultSub.ContainsKey(mediaSourceIndex))
+              defaultSub.Add(mediaSourceIndex, sub);
+          }
+          else if (string.Compare(sub.Language, "EN", true, CultureInfo.InvariantCulture) == 0)
+          {
+            if (!englishSub.ContainsKey(mediaSourceIndex))
+              englishSub.Add(mediaSourceIndex, sub);
+          }
+          if (string.IsNullOrEmpty(video.TargetSubtitleLanguages) == false)
+          {
+            string[] langs = video.TargetSubtitleLanguages.Split(',');
+            foreach (string lang in langs)
             {
-              langSubs.Add(sub);
+              if (string.IsNullOrEmpty(lang) == false && string.Compare(sub.Language, lang, true, CultureInfo.InvariantCulture) == 0)
+              {
+                if (!langSubs.ContainsKey(mediaSourceIndex))
+                  langSubs.Add(mediaSourceIndex, sub);
+              }
             }
           }
+          if (!subs.ContainsKey(mediaSourceIndex))
+            subs.Add(mediaSourceIndex, sub);
         }
-        subs.Add(sub);
-      }
-      if (currentExternalSub == null && langSubs.Count > 0)
-      {
-        currentExternalSub = langSubs[0];
+        if (!currentExternalSub.ContainsKey(mediaSourceIndex) && langSubs.ContainsKey(mediaSourceIndex))
+        {
+          currentExternalSub.Add(mediaSourceIndex, langSubs[mediaSourceIndex]);
+        }
       }
 
       //Best language subtitle
-      if (currentExternalSub != null)
+      if (currentExternalSub.Count > 0)
       {
         return currentExternalSub;
       }
-      if (currentEmbeddedSub != null)
+      if (currentEmbeddedSub.Count > 0)
       {
         return currentEmbeddedSub;
       }
 
       //Best default subtitle
-      if (currentExternalSub == null && defaultSub != null)
+      if (currentExternalSub.Count == 0 && defaultSub.Count > 0)
       {
         currentExternalSub = defaultSub;
       }
-      if (currentEmbeddedSub == null && defaultEmbeddedSub != null)
+      if (currentEmbeddedSub.Count == 0 && defaultEmbeddedSub.Count > 0)
       {
         currentEmbeddedSub = defaultEmbeddedSub;
       }
-      if (currentExternalSub != null)
+      if (currentExternalSub.Count > 0)
       {
         return currentExternalSub;
       }
-      if (currentEmbeddedSub != null)
+      if (currentEmbeddedSub.Count > 0)
       {
         return currentEmbeddedSub;
       }
 
       //Best english
-      if (currentExternalSub == null && englishSub != null)
+      if (currentExternalSub.Count == 0 && englishSub.Count > 0)
       {
         currentExternalSub = englishSub;
       }
-      if (currentEmbeddedSub == null && englishEmbeddedSub != null)
+      if (currentEmbeddedSub.Count == 0 && englishEmbeddedSub.Count > 0)
       {
         currentEmbeddedSub = englishEmbeddedSub;
       }
-      if (currentExternalSub != null)
+      if (currentExternalSub.Count > 0)
       {
         return currentExternalSub;
       }
-      if (currentEmbeddedSub != null)
+      if (currentEmbeddedSub.Count > 0)
       {
         return currentEmbeddedSub;
       }
 
       //Best remaining subtitle
-      if (currentExternalSub == null && subs.Count > 0)
+      if (currentExternalSub.Count == 0 && subs.Count > 0)
       {
-        currentExternalSub = subs[0];
+        currentExternalSub = subs;
       }
-      if (currentEmbeddedSub == null && subsEmbedded.Count > 0)
+      if (currentEmbeddedSub.Count == 0 && subsEmbedded.Count > 0)
       {
-        currentEmbeddedSub = subsEmbedded[0];
+        currentEmbeddedSub = subsEmbedded;
       }
-      if (currentExternalSub != null)
+      if (currentExternalSub.Count > 0)
       {
         return currentExternalSub;
       }
-      if (currentEmbeddedSub != null)
+      if (currentEmbeddedSub.Count > 0)
       {
         return currentEmbeddedSub;
       }
       return null;
     }
 
-    protected SubtitleStream ConvertSubtitleToUtf8(SubtitleStream sub, string targetFileName)
+    protected async Task<SubtitleStream> ConvertSubtitleEncodingAsync(SubtitleStream sub, string targetFileName, string charEncoding)
     {
-      if (Subtitles.SubtitleIsUnicode(sub.CharacterEncoding) == false)
+      try
       {
-        if (string.IsNullOrEmpty(sub.CharacterEncoding) == false)
+        if (string.IsNullOrEmpty(charEncoding))
+          charEncoding = "utf-8";
+
+        if (!SubtitleHelper.SubtitleIsUnicode(sub.CharacterEncoding) && !SubtitleHelper.SubtitleIsImage(sub.CharacterEncoding))
         {
-          string sourceName = sub.Source;
-          File.WriteAllText(targetFileName, File.ReadAllText(sourceName, Encoding.GetEncoding(sub.CharacterEncoding)), Encoding.UTF8);
-          sub.CharacterEncoding = "UTF-8";
-          sub.Source = targetFileName;
-          _logger.Debug("MediaConverter: Converted subtitle file '{0}' to UTF-8", sourceName);
+          if (!string.IsNullOrEmpty(sub.CharacterEncoding) && !SubtitleAnalyzer.IsImageBasedSubtitle(sub.Codec))
+          {
+            string path = Path.GetDirectoryName(targetFileName);
+            if (!Directory.Exists(path))
+              Directory.CreateDirectory(path);
+
+            string sourceName = sub.Source;
+            using (var sourceReader = new StreamReader(sourceName, Encoding.GetEncoding(sub.CharacterEncoding)))
+            using (var targetWriter = new StreamWriter(targetFileName, false, Encoding.GetEncoding(charEncoding)))
+            {
+              while (!sourceReader.EndOfStream)
+                await targetWriter.WriteLineAsync(await sourceReader.ReadLineAsync());
+            };
+            sub.CharacterEncoding = "UTF-8";
+            sub.Source = targetFileName;
+            _logger.Debug("MediaConverter: Converted subtitle file '{0}' to UTF-8", sourceName);
+          }
         }
+      }
+      catch (Exception ex)
+      {
+        _logger.Error("MediaConverter: Error converting subtitle", ex);
       }
       return sub;
     }
 
-    public Stream GetSubtitleStream(string ClientId, VideoTranscoding TranscodingInfo)
+    public async Task<Stream> GetSubtitleStreamAsync(string ClientId, VideoTranscoding TranscodingInfo)
     {
-      SubtitleStream sub = GetSubtitle(ClientId, TranscodingInfo, 0);
-      if (sub == null || sub.Source == null)
+      try
       {
-        return null;
-      }
-      if (IsTranscodeRunning(ClientId, TranscodingInfo.TranscodeId) == false)
-      {
-        TouchFile(sub.Source);
-      }
-      return GetFileStream(sub.Source);
-    }
+        Dictionary<int, List<SubtitleStream>> subs = await GetSubtitlesAsync(ClientId, TranscodingInfo, 0).ConfigureAwait(false);
+        if (subs == null)
+          return null;
 
-    protected abstract bool ExtractSubtitleFile(VideoTranscoding video, SubtitleStream subtitle, string subtitleEncoding, string targetFilePath, double timeStart);
-
-    protected abstract bool ConvertSubtitleFile(string clientId, VideoTranscoding video, double timeStart, string transcodingFile, SubtitleStream sourceSubtitle, ref SubtitleStream res);
-
-    protected SubtitleStream GetSubtitle(string clientId, VideoTranscoding video, double timeStart)
-    {
-      SubtitleStream sourceSubtitle = FindSubtitle(video);
-      if (sourceSubtitle == null) return null;
-      if (video.TargetSubtitleSupport == SubtitleSupport.None) return null;
-
-      SubtitleStream res = new SubtitleStream
-      {
-        StreamIndex = sourceSubtitle.StreamIndex,
-        Codec = sourceSubtitle.Codec,
-        Language = sourceSubtitle.Language,
-        Source = sourceSubtitle.Source,
-        CharacterEncoding = sourceSubtitle.CharacterEncoding
-      };
-      if (SubtitleAnalyzer.IsSubtitleSupportedByContainer(sourceSubtitle.Codec, video.SourceVideoContainer, video.TargetVideoContainer) == true)
-      {
-        if (sourceSubtitle.IsEmbedded)
+        SubtitleStream sub = subs.SelectMany(s => s.Value).FirstOrDefault(s => !s.IsPartial);
+        if (sub != null && File.Exists(sub.Source))
         {
-          //Subtitle stream can be copied directly
-          return res;
+          if (await IsTranscodeRunningAsync(ClientId, TranscodingInfo.TranscodeId).ConfigureAwait(false) == false)
+          {
+            TouchFile(sub.Source);
+          }
+          return await GetFileStreamAsync(sub.Source).ConfigureAwait(false);
         }
       }
-      
-      // create a file name for the output file which contains the subtitle informations
-      string transcodingFile = video.TranscodeId;
-      if (sourceSubtitle != null && string.IsNullOrEmpty(sourceSubtitle.Language) == false)
+      catch (Exception ex)
       {
-        transcodingFile += "." + sourceSubtitle.Language;
-      }
-      if (timeStart > 0)
-      {
-        transcodingFile = DateTime.Now.Ticks.ToString();
-      }
-      transcodingFile += ".mpts";
-      transcodingFile = Path.Combine(_cachePath, transcodingFile);
-
-      SubtitleCodec targetCodec = video.TargetSubtitleCodec;
-      if (targetCodec == SubtitleCodec.Unknown)
-      {
-        targetCodec = sourceSubtitle.Codec;
-      }
-
-      // the file already exists in the cache -> just return
-      if (File.Exists(transcodingFile))
-      {
-        if (IsTranscodeRunning(clientId, video.TranscodeId) == false)
-        {
-          TouchFile(transcodingFile);
-        }
-        res.Codec = targetCodec;
-        res.Source = transcodingFile;
-        if (Subtitles.SubtitleIsUnicode(res.CharacterEncoding) == false)
-        {
-          res.CharacterEncoding = "UTF-8";
-        }
-        return res;
-      }
-
-      // subtitle is embedded in the source file
-      if (sourceSubtitle.IsEmbedded)
-      {
-        if (ExtractSubtitleFile(video, sourceSubtitle, res.CharacterEncoding, transcodingFile, timeStart) && File.Exists(transcodingFile))
-        {
-          res.Codec = targetCodec;
-          res.CharacterEncoding = "UTF-8";
-          res.Source = transcodingFile;
-          return res;
-        }
-        return null;
-      }
-
-      // SourceSubtitle == TargetSubtitleCodec -> just return
-      if (video.TargetSubtitleCodec != SubtitleCodec.Unknown && video.TargetSubtitleCodec == sourceSubtitle.Codec && timeStart == 0)
-      {
-        return ConvertSubtitleToUtf8(res, transcodingFile);
-      }
-
-      // Burn external subtitle into video
-      if (res.Source == null)
-      {
-        return null;
-      }
-
-      if(ConvertSubtitleFile(clientId, video, timeStart, transcodingFile, sourceSubtitle, ref res))
-      {
-        return res;
+        _logger.Error("MediaConverter: Error getting subtitle stream", ex);
       }
       return null;
+    }
+
+    protected abstract Task<bool> ExtractSubtitleFileAsync(int sourceMediaIndex, VideoTranscoding video, SubtitleStream subtitle, string subtitleEncoding, string targetFilePath, double timeStart);
+
+    protected abstract Task<bool> ConvertSubtitleFileAsync(string clientId, VideoTranscoding video, double timeStart, string transcodingFile, SubtitleStream sourceSubtitle, SubtitleStream res);
+
+    protected async Task<Dictionary<int, List<SubtitleStream>>> GetSubtitlesAsync(string clientId, VideoTranscoding video, double timeStart)
+    {
+      try
+      {
+        if (video.TargetSubtitleSupport == SubtitleSupport.None)
+          return null;
+
+        Dictionary<int, List<SubtitleStream>> sourceSubtitles = new Dictionary<int, List<SubtitleStream>>();
+        Dictionary<int, SubtitleStream> primarySubs = FindPrimarySubtitle(video);
+        if (primarySubs == null) return null;
+        foreach (var primarySub in primarySubs)
+        {
+          sourceSubtitles.Add(primarySub.Key, new List<SubtitleStream>() { primarySub.Value });
+        }
+
+        Dictionary<int, List<SubtitleStream>> allSubs = video.SourceSubtitles;
+        foreach (var srcSub in allSubs)
+        {
+          if (sourceSubtitles.ContainsKey(srcSub.Key))
+          {
+            sourceSubtitles[srcSub.Key].AddRange(srcSub.Value.Where(s => !sourceSubtitles[srcSub.Key].Contains(s)));
+          }
+        }
+
+        Dictionary<int, List<SubtitleStream>> res = new Dictionary<int, List<SubtitleStream>>();
+        foreach (var sourceMediaIndex in sourceSubtitles.Keys)
+        {
+          res.Add(sourceMediaIndex, new List<SubtitleStream>());
+          foreach (var srcStream in sourceSubtitles[sourceMediaIndex])
+          {
+            SubtitleStream sub = new SubtitleStream
+            {
+              StreamIndex = srcStream.StreamIndex,
+              Codec = srcStream.Codec,
+              Language = srcStream.Language,
+              Source = srcStream.Source,
+              CharacterEncoding = srcStream.CharacterEncoding,
+              IsPartial = video.SourceMedia.Count > 1
+            };
+            if (SubtitleAnalyzer.IsSubtitleSupportedByContainer(srcStream.Codec, video.FirstSourceVideoContainer, video.TargetVideoContainer) == true)
+            {
+              if (srcStream.IsEmbedded)
+              {
+                //Subtitle stream can be copied directly
+                if (!res.ContainsKey(sourceMediaIndex))
+                  res.Add(sourceMediaIndex, new List<SubtitleStream>());
+                res[sourceMediaIndex].Add(sub);
+                continue;
+              }
+            }
+
+            SubtitleCodec targetCodec = video.TargetSubtitleCodec;
+            if (targetCodec == SubtitleCodec.Unknown)
+            {
+              targetCodec = srcStream.Codec;
+            }
+
+            // create a file name for the output file which contains the subtitle informations
+            string transcodingFile = GetSubtitleTranscodingFileName(video, timeStart, srcStream, targetCodec, sourceSubtitles.Count > 1 ? sourceMediaIndex : (int?)null);
+            transcodingFile = Path.Combine(_cachePath, transcodingFile);
+
+            // the file already exists in the cache -> just return
+            if (File.Exists(transcodingFile))
+            {
+              if (await IsTranscodeRunningAsync(clientId, video.TranscodeId).ConfigureAwait(false) == false)
+              {
+                TouchFile(transcodingFile);
+              }
+              sub.Codec = targetCodec;
+              sub.Source = transcodingFile;
+              if (SubtitleHelper.SubtitleIsUnicode(sub.CharacterEncoding) == false)
+              {
+                sub.CharacterEncoding = "UTF-8";
+              }
+              if (!res[sourceMediaIndex].Any(s => s.Source == transcodingFile))
+                res[sourceMediaIndex].Add(sub);
+              continue;
+            }
+
+            // subtitle is embedded in the source file
+            if (srcStream.IsEmbedded)
+            {
+              if (await ExtractSubtitleFileAsync(sourceMediaIndex, video, srcStream, sub.CharacterEncoding, transcodingFile, timeStart).ConfigureAwait(false) && File.Exists(transcodingFile))
+              {
+                sub.StreamIndex = -1;
+                sub.Codec = targetCodec;
+                sub.CharacterEncoding = "UTF-8";
+                sub.Source = transcodingFile;
+                res[sourceMediaIndex].Add(sub);
+                continue;
+              }
+            }
+
+            // SourceSubtitle == TargetSubtitleCodec -> just return
+            if (video.TargetSubtitleCodec != SubtitleCodec.Unknown && video.TargetSubtitleCodec == srcStream.Codec && timeStart == 0)
+            {
+              sub = await ConvertSubtitleEncodingAsync(sub, transcodingFile, video.TargetSubtitleCharacterEncoding).ConfigureAwait(false);
+              res[sourceMediaIndex].Add(sub);
+              continue;
+            }
+
+            // Burn external subtitle into video
+            if (sub.Source == null)
+            {
+              return null;
+            }
+
+            if (await ConvertSubtitleFileAsync(clientId, video, timeStart, transcodingFile, srcStream, sub).ConfigureAwait(false))
+            {
+              res[sourceMediaIndex].Add(sub);
+              continue;
+            }
+          }
+        }
+
+        //Merge srt subtitles if necessary and possible
+        Dictionary<int, SubtitleStream> partSrtSubs = new Dictionary<int, SubtitleStream>();
+        foreach (var key in res.Keys)
+        {
+          if (res[key].Any(s => s.Source != null && s.Codec == SubtitleCodec.Srt && s.IsPartial))
+            partSrtSubs.Add(key, res[key].First(s => s.Source != null && s.Codec == SubtitleCodec.Srt && s.IsPartial));
+        }
+        if (partSrtSubs.Count() > 1)
+        {
+          string transcodingFile = GetSubtitleTranscodingFileName(video, timeStart, partSrtSubs.First().Value, SubtitleCodec.Srt);
+          transcodingFile = Path.Combine(_cachePath, transcodingFile);
+
+          if (await MergeSrtSubtitlesAsync(transcodingFile, partSrtSubs, video.SourceMediaDurations.ToDictionary(d => d.Key, d => d.Value.TotalSeconds), timeStart).ConfigureAwait(false))
+          {
+            res.Add(-1, new List<SubtitleStream>()
+            {
+              new SubtitleStream
+              {
+                CharacterEncoding = partSrtSubs.First().Value.CharacterEncoding,
+                Codec = SubtitleCodec.Srt,
+                Language = partSrtSubs.First().Value.Language,
+                StreamIndex = -1,
+                Source = transcodingFile,
+                IsPartial = false
+              }
+            });
+          }
+        }
+
+        return res;
+      }
+      catch (Exception ex)
+      {
+        _logger.Error("MediaConverter: Error getting subtitle", ex);
+      }
+      return null;
+    }
+
+    protected async Task<bool> MergeSrtSubtitlesAsync(string mergeFile, Dictionary<int, SubtitleStream> subtitles, Dictionary<int, double> subtitleTimeOffsets, double timeStart)
+    {
+      try
+      {
+        if (subtitles.Any(s => s.Value.Source == null || s.Value.Codec != SubtitleCodec.Srt))
+          return false;
+
+        int sequence = 0;
+        using (StreamWriter output = new StreamWriter(mergeFile, false, Encoding.UTF8))
+        {
+          foreach (var sub in subtitles)
+          {
+            using (StreamReader input = new StreamReader(sub.Value.Source, Encoding.UTF8))
+            {
+              await output.WriteAsync(SRT_LINE_REGEX.Replace(await input.ReadToEndAsync().ConfigureAwait(false), (m) =>
+              {
+                if ((subtitleTimeOffsets[sub.Key] - timeStart) >= 0)
+                {
+                  return m.Value.Replace($@"{m.Groups["sequence"].Value}\r\n{m.Groups["start"].Value} --> {m.Groups["end"].Value}\r\n",
+                    string.Format("{0}\r\n{1:HH\\:mm\\:ss\\,fff} --> {2:HH\\:mm\\:ss\\,fff}\r\n",
+                        sequence++,
+                        DateTime.Parse(m.Groups["start"].Value.Replace(",", ".")).AddSeconds(subtitleTimeOffsets[sub.Key] - timeStart),
+                        DateTime.Parse(m.Groups["end"].Value.Replace(",", ".")).AddSeconds(subtitleTimeOffsets[sub.Key] - timeStart)));
+                }
+                else
+                {
+                  return "";
+                }
+              })).ConfigureAwait(false);
+            }
+          }
+        }
+        return File.Exists(mergeFile);
+      }
+      catch (Exception ex)
+      {
+        _logger.Error("MediaConverter: Error merging subtitle", ex);
+      }
+      return false;
     }
 
     #endregion
 
     #region Transcoding
 
-    protected bool AssignExistingTranscodeContext(string clientId, string transcodeId, ref TranscodeContext context)
+    protected string GetSubtitleTranscodingFileName(VideoTranscoding video, double timeStart, SubtitleStream sourceSubtitle, SubtitleCodec targetCodec, int? sourceMediaIndex = null)
     {
-      lock (_runningClientTranscodes)
+      string transcodingFile = Path.GetFileNameWithoutExtension(GetTranscodingVideoFileName(video, timeStart, false));
+      if (sourceMediaIndex.HasValue)
       {
-        if (_runningClientTranscodes.ContainsKey(clientId))
+        transcodingFile += "." + sourceMediaIndex;
+      }
+      if (string.IsNullOrEmpty(sourceSubtitle.Language) == false)
+      {
+        transcodingFile += "." + sourceSubtitle.Language;
+      }
+      transcodingFile += "." + SubtitleHelper.GetSubtitleExtension(targetCodec);
+      return transcodingFile;
+    }
+
+    protected string GetTranscodingAudioFileName(AudioTranscoding audio, double timeStart)
+    {
+      string transcodingFile = audio.TranscodeId;
+      if (timeStart > 0)
+      {
+        transcodingFile += "." + Convert.ToInt64(timeStart).ToString();
+      }
+      transcodingFile += "." + AudioHelper.GetAudioExtension(audio.TargetAudioContainer);
+      return transcodingFile;
+    }
+
+    protected string GetTranscodingImageFileName(ImageTranscoding image)
+    {
+      string transcodingFile = image.TranscodeId;
+      transcodingFile += "." + ImageHelper.GetImageExtension(image.TargetImageCodec);
+      return transcodingFile;
+    }
+
+    protected string GetTranscodingVideoFileName(VideoTranscoding video, double timeStart, bool embeddedSupported)
+    {
+      string transcodingFile = video.TranscodeId;
+      if (timeStart > 0)
+      {
+        transcodingFile += "." + Convert.ToInt64(timeStart).ToString();
+      }
+      else
+      {
+        transcodingFile += ".A" + video.FirstSourceAudioStream.StreamIndex;
+        if (video.TargetAudioMultiTrackSupport && video.SourceAudioStreams.Count > 1)
+          transcodingFile += ".Multi";
+        if ((video.PreferredSourceSubtitles?.Any() ?? false) && (embeddedSupported || video.TargetSubtitleSupport == SubtitleSupport.HardCoded))
         {
-          if (_runningClientTranscodes[clientId].ContainsKey(transcodeId))
+          string subLanguage = video.FirstPreferredSourceSubtitle.Language;
+          if (string.IsNullOrEmpty(subLanguage) == false)
           {
-            List<TranscodeContext> runningContexts = _runningClientTranscodes[clientId][transcodeId];
-            if (runningContexts != null)
-            {
-              //Non partial have first priority
-              for (int contextNo = 0; contextNo < runningContexts.Count; contextNo++)
-              {
-                if (runningContexts[contextNo].Partial == false)
-                {
-                  context = runningContexts[contextNo];
-                  return true;
-                }
-              }
-            }
+            transcodingFile += ".S" + subLanguage;
           }
         }
+      }
+      transcodingFile += "." + VideoHelper.GetVideoExtension(video.TargetVideoContainer);
+      return transcodingFile;
+    }
+
+    protected async Task<bool> AssignExistingTranscodeContextAsync(string clientId, string transcodeId, TranscodeContext context)
+    {
+      try
+      {
+        using (await _transcodeLock.ReaderLockAsync().ConfigureAwait(false))
+        {
+          if (_runningClientTranscodes.Where(t => t.Key == clientId && t.Value.ContainsKey(transcodeId)).Any())
+          {
+            List<TranscodeContext> runningContexts = _runningClientTranscodes[clientId][transcodeId];
+            //Non partial have first priority
+            context = runningContexts?.FirstOrDefault(c => !c.Partial);
+            return context != null;
+          }
+          return false;
+        }
+      }
+      catch (Exception ex)
+      {
+        _logger.Error("MediaConverter: Error assigning context", ex);
       }
       return false;
     }
 
-    public TranscodeContext GetLiveStream(string ClientId, BaseTranscoding TranscodingInfo, int ChannelId, bool WaitForBuffer)
+    public async Task<TranscodeContext> GetLiveStreamAsync(string ClientId, BaseTranscoding TranscodingInfo, int ChannelId, bool WaitForBuffer)
     {
-      TranscodingInfo.SourceMedia = new TranscodeLiveAccessor(ChannelId);
-      if (TranscodingInfo is AudioTranscoding)
+      try
       {
-        ((AudioTranscoding)TranscodingInfo).TargetIsLive = true;
-        return TranscodeAudio(ClientId, TranscodingInfo as AudioTranscoding, 0, 0, WaitForBuffer);
-      }
-      else if (TranscodingInfo is VideoTranscoding)
-      {
-        ((VideoTranscoding)TranscodingInfo).TargetIsLive = true;
-        return TranscodeVideo(ClientId, TranscodingInfo as VideoTranscoding, 0, 0, WaitForBuffer);
-      }
-      return null;
-    }
-
-    public TranscodeContext GetMediaStream(string ClientId, BaseTranscoding TranscodingInfo, double StartTime, double Duration, bool WaitForBuffer)
-    {
-      if (TranscodingInfo.SourceMedia is ILocalFsResourceAccessor)
-      {
-        if (((ILocalFsResourceAccessor)TranscodingInfo.SourceMedia).Exists == false)
+        TranscodingInfo.SourceMedia = new Dictionary<int, IResourceAccessor> { { 0, new TranscodeLiveAccessor(ChannelId) } };
+        if (TranscodingInfo is AudioTranscoding at)
         {
-          _logger.Error("MediaConverter: File '{0}' does not exist for transcode '{1}'", TranscodingInfo.SourceMedia, TranscodingInfo.TranscodeId);
-          return null;
+          at.TargetIsLive = true;
+          return await TranscodeAudioAsync(ClientId, at, 0, 0, WaitForBuffer);
+        }
+        else if (TranscodingInfo is VideoTranscoding vt)
+        {
+          vt.TargetIsLive = true;
+          return await TranscodeVideoAsync(ClientId, vt, 0, 0, WaitForBuffer);
         }
       }
-      if (TranscodingInfo is ImageTranscoding)
+      catch (Exception ex)
       {
-        return TranscodeImage(ClientId, TranscodingInfo as ImageTranscoding, WaitForBuffer);
+        _logger.Error("MediaConverter: Error getting live stream", ex);
       }
-      else if (TranscodingInfo is AudioTranscoding)
-      {
-        return TranscodeAudio(ClientId, TranscodingInfo as AudioTranscoding, StartTime, Duration, WaitForBuffer);
-      }
-      else if (TranscodingInfo is VideoTranscoding)
-      {
-        return TranscodeVideo(ClientId, TranscodingInfo as VideoTranscoding, StartTime, Duration, WaitForBuffer);
-      }
-      _logger.Error("MediaConverter: Transcoding info is not valid for transcode '{0}'", TranscodingInfo.TranscodeId);
       return null;
     }
 
-    protected abstract TranscodeContext TranscodeVideo(string clientId, VideoTranscoding video, double timeStart, double timeDuration, bool waitForBuffer);
+    public async Task<TranscodeContext> GetMediaStreamAsync(string ClientId, BaseTranscoding TranscodingInfo, double StartTime, double Duration, bool WaitForBuffer)
+    {
+      try
+      {
+        if (TranscodingInfo.SourceMedia is ILocalFsResourceAccessor lfra)
+        {
+          if (lfra.Exists == false)
+          {
+            _logger.Error("MediaConverter: File '{0}' does not exist for transcode '{1}'", TranscodingInfo.SourceMedia, TranscodingInfo.TranscodeId);
+            return null;
+          }
+        }
+        if (TranscodingInfo is ImageTranscoding it)
+        {
+          return await TranscodeImageAsync(ClientId, it, WaitForBuffer);
+        }
+        else if (TranscodingInfo is AudioTranscoding at)
+        {
+          return await TranscodeAudioAsync(ClientId, at, StartTime, Duration, WaitForBuffer);
+        }
+        else if (TranscodingInfo is VideoTranscoding vt)
+        {
+          return await TranscodeVideoAsync(ClientId, vt, StartTime, Duration, WaitForBuffer);
+        }
+        _logger.Error("MediaConverter: Transcoding info is not valid for transcode '{0}'", TranscodingInfo.TranscodeId);
+        return null;
+      }
+      catch (Exception ex)
+      {
+        _logger.Error("MediaConverter: Error getting stream", ex);
+      }
+      return null;
+    }
 
-    protected abstract TranscodeContext TranscodeAudio(string clientId, AudioTranscoding audio, double timeStart, double timeDuration, bool waitForBuffer);
+    protected abstract Task<TranscodeContext> TranscodeVideoAsync(string clientId, VideoTranscoding video, double timeStart, double timeDuration, bool waitForBuffer);
 
-    protected abstract TranscodeContext TranscodeImage(string clientId, ImageTranscoding image, bool waitForBuffer);
+    protected abstract Task<TranscodeContext> TranscodeAudioAsync(string clientId, AudioTranscoding audio, double timeStart, double timeDuration, bool waitForBuffer);
 
-    public Stream GetFileStream(ILocalFsResourceAccessor FileResource)
+    protected abstract Task<TranscodeContext> TranscodeImageAsync(string clientId, ImageTranscoding image, bool waitForBuffer);
+
+    public async Task<Stream> GetFileStreamAsync(ILocalFsResourceAccessor FileResource)
     {
       // Impersonation
       using (ServiceRegistration.Get<IImpersonationService>().CheckImpersonationFor(FileResource.CanonicalLocalResourcePath))
       {
-        return GetFileStream(FileResource.LocalFileSystemPath);
+        return await GetFileStreamAsync(FileResource.LocalFileSystemPath);
       }
     }
 
-    private Stream GetFileStream(string filePath)
+    private async Task<Stream> GetFileStreamAsync(string filePath)
     {
-      int iTry = 60;
-      while (iTry > 0)
+      try
       {
-        if (File.Exists(filePath) == true)
+        DateTime waitStart = DateTime.Now;
+        long length = 0;
+        while (!File.Exists(filePath) || length == 0)
         {
-          long length = 0;
           try
           {
-            length = new FileInfo(filePath).Length;
+            if (File.Exists(filePath))
+              length = new FileInfo(filePath).Length;
           }
           catch { }
-          if (length > 0)
+
+          if ((DateTime.Now - waitStart).TotalMilliseconds > FILE_STREAM_TIMEOUT)
           {
-            _logger.Debug(string.Format("MediaConverter: Serving ready file '{0}'", filePath));
-            BufferedStream stream = new BufferedStream(new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite));
-            return stream;
+            _logger.Error("MediaConverter: Timed out waiting for ready file '{0}'", filePath);
+            return null;
           }
+
+          await Task.Delay(500).ConfigureAwait(false);
         }
-        iTry--;
-        Thread.Sleep(500);
+
+        _logger.Debug(string.Format("MediaConverter: Serving ready file '{0}'", filePath));
+        BufferedStream stream = new BufferedStream(new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite));
+        return stream;
       }
-      _logger.Error("MediaConverter: Timed out waiting for ready file '{0}'", filePath);
+      catch (Exception ex)
+      {
+        _logger.Error("MediaConverter: Error serving ready file '{0}'", ex, filePath);
+      }
       return null;
     }
 
@@ -1128,28 +1321,23 @@ namespace MediaPortal.Plugins.Transcoding.Service.Transcoders
 
     #region Transcoder
 
-    protected void AddTranscodeContext(string clientId, string transcodeId, TranscodeContext context)
+    protected async Task AddTranscodeContextAsync(string clientId, string transcodeId, TranscodeContext context)
     {
-      try
+      using (await _transcodeLock.WriterLockAsync().ConfigureAwait(false))
       {
-        lock (_runningClientTranscodes)
+        try
         {
-          context.CompleteEvent.Reset();
-          if (_runningClientTranscodes.ContainsKey(clientId) == false)
-          {
+          if (!_runningClientTranscodes.ContainsKey(clientId))
             _runningClientTranscodes.Add(clientId, new Dictionary<string, List<TranscodeContext>>());
-          }
+
           if (_runningClientTranscodes[clientId].Count > 0 &&
-            (_runningClientTranscodes[clientId].ContainsKey(transcodeId) == false || context.Partial == false))
+            (!_runningClientTranscodes[clientId].ContainsKey(transcodeId) || !context.Partial))
           {
             //Don't waste resources on transcoding if the client wants different media item
             _logger.Debug("MediaConverter: Ending {0} transcodes for client {1}", _runningClientTranscodes[clientId].Count, clientId);
-            foreach (var transcodeContexts in _runningClientTranscodes[clientId].Values)
+            foreach (var transcodeContext in _runningClientTranscodes[clientId].Values.SelectMany(t => t))
             {
-              foreach (var transcodeContext in transcodeContexts)
-              {
-                transcodeContext.Stop();
-              }
+              transcodeContext.Stop();
             }
             _runningClientTranscodes[clientId].Clear();
           }
@@ -1158,50 +1346,43 @@ namespace MediaPortal.Plugins.Transcoding.Service.Transcoders
             //Don't waste resources on transcoding multiple partial transcodes
             _logger.Debug("MediaConverter: Ending partial transcodes for client {0}", clientId);
             List<TranscodeContext> contextList = new List<TranscodeContext>(_runningClientTranscodes[clientId][transcodeId]);
-            foreach (var transcodeContext in contextList)
+            foreach (var transcodeContext in _runningClientTranscodes[clientId][transcodeId].Where(c => c.Partial && c != context))
             {
-              if (transcodeContext.Partial == true && transcodeContext != context)
-              {
-                transcodeContext.Stop();
-              }
+              transcodeContext.Stop();
             }
           }
           if (_runningClientTranscodes[clientId].ContainsKey(transcodeId) == false)
-          {
             _runningClientTranscodes[clientId].Add(transcodeId, new List<TranscodeContext>());
-          }
+
           _runningClientTranscodes[clientId][transcodeId].Add(context);
         }
-      }
-      catch (Exception ex)
-      {
-        _logger.Error("MediaConverter: Error adding context for '{0}'", ex, transcodeId);
+        catch (Exception ex)
+        {
+          _logger.Error("MediaConverter: Error adding context for '{0}'", ex, transcodeId);
+        }
       }
     }
 
-    protected void RemoveTranscodeContext(string clientId, string transcodeId, TranscodeContext context)
+    protected async Task RemoveTranscodeContextAsync(string clientId, string transcodeId, TranscodeContext context)
     {
-      try
+      using (await _transcodeLock.WriterLockAsync().ConfigureAwait(false))
       {
-        lock (_runningClientTranscodes)
+        try
         {
-          if (_runningClientTranscodes.ContainsKey(clientId) == true)
+          if (_runningClientTranscodes.Where(t => t.Key == clientId && t.Value.ContainsKey(transcodeId)).Any())
           {
-            if (_runningClientTranscodes[clientId].ContainsKey(transcodeId) == true)
-            {
-              context.CompleteEvent.Set();
-              _runningClientTranscodes[clientId][transcodeId].Remove(context);
-              if (_runningClientTranscodes[clientId][transcodeId].Count == 0)
-                _runningClientTranscodes[clientId].Remove(transcodeId);
-            }
-            if (_runningClientTranscodes[clientId].Count == 0)
-              _runningClientTranscodes.Remove(clientId);
+            context.Stop();
+            _runningClientTranscodes[clientId][transcodeId].Remove(context);
+            if (_runningClientTranscodes[clientId][transcodeId].Count == 0)
+              _runningClientTranscodes[clientId].Remove(transcodeId);
           }
+          if (_runningClientTranscodes[clientId].Count == 0)
+            _runningClientTranscodes.Remove(clientId);
         }
-      }
-      catch (Exception ex)
-      {
-        _logger.Error("MediaConverter: Error removing context for '{0}'", ex, transcodeId);
+        catch (Exception ex)
+        {
+          _logger.Error("MediaConverter: Error removing context for '{0}'", ex, transcodeId);
+        }
       }
     }
 

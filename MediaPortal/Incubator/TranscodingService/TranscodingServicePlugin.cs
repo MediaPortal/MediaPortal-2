@@ -32,6 +32,7 @@ using MediaPortal.Plugins.Transcoding.Service.Settings;
 using MediaPortal.Common.Settings;
 using MediaPortal.Plugins.Transcoding.Interfaces;
 using MediaPortal.Plugins.Transcoding.Service.Transcoders.FFMpeg;
+using MediaPortal.Plugins.Transcoding.Interfaces.Profiles;
 
 namespace MediaPortal.Plugins.Transcoding.Service
 {
@@ -49,17 +50,26 @@ namespace MediaPortal.Plugins.Transcoding.Service
       threadPool.AddIntervalWork(_tidyUpCacheWork, false);
     }
 
-    public void Activated(PluginRuntime pluginRuntime)
+    public async void Activated(PluginRuntime pluginRuntime)
     {
       var meta = pluginRuntime.Metadata;
       Logger.Info(string.Format("{0} v{1} [{2}] by {3}", meta.Name, meta.PluginVersion, meta.Description, meta.Author));
 
       LoadTranscodeSettings();
 
+      var profileManager = new TranscodeProfileManager();
+      profileManager.SubtitleFont = Settings.SubtitleFont;
+      profileManager.SubtitleFontSize = Settings.SubtitleFontSize;
+      profileManager.SubtitleColor = Settings.SubtitleColor;
+      profileManager.SubtitleBox = Settings.SubtitleBox;
+      profileManager.ForceSubtitles = Settings.ForceSubtitles;
+      ServiceRegistration.Set<ITranscodeProfileManager>(profileManager);
+      Logger.Debug("TranscodingService: Registered TranscodeProfileManager.");
+
       if (Settings.Transcoder == Transcoder.FFMpeg)
       {
         var converter = new FFMpegMediaConverter();
-        converter.CleanUpTranscodeCache();
+        await converter.CleanUpTranscodeCacheAsync();
         ServiceRegistration.Set<IMediaConverter>(converter);
         Logger.Debug("TranscodingService: Registered FFMpeg MediaConverter.");
 
@@ -69,10 +79,11 @@ namespace MediaPortal.Plugins.Transcoding.Service
       }
     }
 
-    private void TidyUpCache()
+    private async void TidyUpCache()
     {
       IMediaConverter converter = ServiceRegistration.Get<IMediaConverter>(false);
-      converter?.CleanUpTranscodeCache();
+      if(converter != null)
+        await converter.CleanUpTranscodeCacheAsync();
     }
 
     private void LoadTranscodeSettings()
@@ -104,12 +115,14 @@ namespace MediaPortal.Plugins.Transcoding.Service
     {
     }
 
-    public void Shutdown()
+    public async void Shutdown()
     {
       IMediaConverter converter = ServiceRegistration.Get<IMediaConverter>(false);
-      converter?.StopAllTranscodes();
-      converter?.CleanUpTranscodeCache();
-
+      if (converter != null)
+      {
+        await converter.StopAllTranscodesAsync();
+        await converter.CleanUpTranscodeCacheAsync();
+      }
       SaveTranscodeSettings();
     }
 

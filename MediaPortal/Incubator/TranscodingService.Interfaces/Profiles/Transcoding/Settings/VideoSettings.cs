@@ -31,6 +31,7 @@ namespace MediaPortal.Plugins.Transcoding.Interfaces.Profiles.Setup.Settings
     public QualityMode Quality = QualityMode.Default;
     public Coder CoderType = Coder.Default;
     public int QualityFactor = 3;
+    public bool MultipleAudioTracksSupported = false;
 
     public LevelCheck H264LevelCheckMethod = LevelCheck.Any;
     public int H264QualityFactor = 25;

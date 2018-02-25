@@ -97,7 +97,10 @@ namespace MediaPortal.Plugins.Transcoding.Interfaces
     Ogg,
     Rtp,
     Rtsp,
-    WavPack
+    WavPack,
+    Mpeg2Ts,
+    Dsf,
+    Wav
   }
 
   public enum AudioCodec
@@ -121,7 +124,9 @@ namespace MediaPortal.Plugins.Transcoding.Interfaces
     WmaLossless,
     Alac,
     Speex,
-    Ape
+    Ape,
+    EAc3,
+    WavPack
   }
 
   public enum ImageContainer
@@ -157,7 +162,8 @@ namespace MediaPortal.Plugins.Transcoding.Interfaces
     WebVtt,
     DvbSub,
     DvbTxt,
-    VobSub
+    VobSub,
+    HdmvPgs
   }
 
   public enum VideoCodec

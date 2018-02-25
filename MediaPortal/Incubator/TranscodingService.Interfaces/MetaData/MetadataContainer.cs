@@ -23,6 +23,7 @@
 #endregion
 
 using System.Collections.Generic;
+using System.Linq;
 using MediaPortal.Plugins.Transcoding.Interfaces.Metadata.Streams;
 using Newtonsoft.Json;
 
@@ -35,6 +36,11 @@ namespace MediaPortal.Plugins.Transcoding.Interfaces.Metadata
     public VideoStream Video = new VideoStream();
     public List<AudioStream> Audio = new List<AudioStream>();
     public List<SubtitleStream> Subtitles = new List<SubtitleStream>();
+
+    [JsonIgnore]
+    public AudioStream FirstAudioStream => Audio.FirstOrDefault();
+    [JsonIgnore]
+    public SubtitleStream FirstSubtitleStream => Subtitles.FirstOrDefault();
 
     [JsonIgnore]
     public bool IsImage

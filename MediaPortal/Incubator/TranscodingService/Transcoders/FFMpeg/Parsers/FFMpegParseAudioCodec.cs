@@ -37,8 +37,10 @@ namespace MediaPortal.Plugins.Transcoding.Service.Transcoders.FFMpeg.Parsers
           token.Equals("aac_latm", StringComparison.InvariantCultureIgnoreCase))
           return AudioCodec.Aac;
         if (token.Equals("ac3", StringComparison.InvariantCultureIgnoreCase) || token.StartsWith("ac-3", StringComparison.InvariantCultureIgnoreCase) ||
-          token.Equals("liba52", StringComparison.InvariantCultureIgnoreCase) || token.Equals("eac3", StringComparison.InvariantCultureIgnoreCase))
+          token.Equals("liba52", StringComparison.InvariantCultureIgnoreCase))
           return AudioCodec.Ac3;
+        if (token.Equals("eac3", StringComparison.InvariantCultureIgnoreCase))
+          return AudioCodec.EAc3;
         if (token.Equals("amrnb", StringComparison.InvariantCultureIgnoreCase) || token.Equals("amr_nb", StringComparison.InvariantCultureIgnoreCase) ||
           token.Equals("amrwb", StringComparison.InvariantCultureIgnoreCase) || token.Equals("amr_wb", StringComparison.InvariantCultureIgnoreCase))
           return AudioCodec.Amr;
@@ -82,6 +84,8 @@ namespace MediaPortal.Plugins.Transcoding.Service.Transcoders.FFMpeg.Parsers
           return AudioCodec.Speex;
         if (token.Equals("ape", StringComparison.InvariantCultureIgnoreCase))
           return AudioCodec.Ape;
+        if (token.Equals("wavpack", StringComparison.InvariantCultureIgnoreCase) || token.Equals("wv", StringComparison.InvariantCultureIgnoreCase))
+          return AudioCodec.WavPack;
       }
       return AudioCodec.Unknown;
     }

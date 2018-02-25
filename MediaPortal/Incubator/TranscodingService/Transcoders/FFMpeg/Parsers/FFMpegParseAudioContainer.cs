@@ -43,7 +43,8 @@ namespace MediaPortal.Plugins.Transcoding.Service.Transcoders.FFMpeg.Parsers
           return AudioContainer.Adts;
         if (token.Equals("ape", StringComparison.InvariantCultureIgnoreCase))
           return AudioContainer.Ape;
-        if (token.Equals("asf", StringComparison.InvariantCultureIgnoreCase))
+        if (token.Equals("asf", StringComparison.InvariantCultureIgnoreCase) || token.Equals("wmav1", StringComparison.InvariantCultureIgnoreCase) || 
+          token.Equals("wmav2", StringComparison.InvariantCultureIgnoreCase))
           return AudioContainer.Asf;
         if (token.Equals("flac", StringComparison.InvariantCultureIgnoreCase))
           return AudioContainer.Flac;
@@ -66,8 +67,14 @@ namespace MediaPortal.Plugins.Transcoding.Service.Transcoders.FFMpeg.Parsers
           return AudioContainer.Rtp;
         if (token.Equals("rtsp", StringComparison.InvariantCultureIgnoreCase))
           return AudioContainer.Rtsp;
-        if (token.Equals("wavpack", StringComparison.InvariantCultureIgnoreCase))
+        if (token.Equals("wavpack", StringComparison.InvariantCultureIgnoreCase) || token.Equals("wv", StringComparison.InvariantCultureIgnoreCase))
           return AudioContainer.WavPack;
+        if (token.Equals("mpegts", StringComparison.InvariantCultureIgnoreCase))
+          return AudioContainer.Mpeg2Ts;
+        if (token.Equals("dsf", StringComparison.InvariantCultureIgnoreCase))
+          return AudioContainer.Dsf;
+        if (token.Equals("wav", StringComparison.InvariantCultureIgnoreCase))
+          return AudioContainer.Wav;
       }
 
       //Try file extensions

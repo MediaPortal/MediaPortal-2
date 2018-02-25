@@ -22,6 +22,7 @@
 
 #endregion
 
+using System;
 using System.Collections.Generic;
 using System.Globalization;
 using MediaPortal.Plugins.Transcoding.Interfaces.Metadata;
@@ -34,7 +35,7 @@ namespace MediaPortal.Plugins.Transcoding.Service.Transcoders.FFMpeg.Parsers
     {
       var input = output.Split('\n');
       if (!input[0].StartsWith("ffmpeg version") && !input[0].StartsWith("ffprobe version"))
-        return;
+        throw new InvalidOperationException($"Cannot decode output because output '{input[0]}' is not valid");
       FFMpegParseFFMpegOutputLines.ParseFFMpegOutputLines(input, ref info, countryCodesMapping);
     }
   }

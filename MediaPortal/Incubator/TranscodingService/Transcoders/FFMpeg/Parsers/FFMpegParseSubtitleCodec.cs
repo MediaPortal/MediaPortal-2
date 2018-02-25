@@ -47,7 +47,7 @@ namespace MediaPortal.Plugins.Transcoding.Service.Transcoders.FFMpeg.Parsers
           return SubtitleCodec.MicroDvd;
         if (token.Equals("subviewer", StringComparison.InvariantCultureIgnoreCase))
           return SubtitleCodec.SubView;
-        if (token.Equals("webvtt", StringComparison.InvariantCultureIgnoreCase))
+        if (token.Equals("webvtt", StringComparison.InvariantCultureIgnoreCase) || token.Equals("vtt", StringComparison.InvariantCultureIgnoreCase))
           return SubtitleCodec.WebVtt;
         if (token.Equals("dvb_subtitle", StringComparison.InvariantCultureIgnoreCase) || token.Equals("dvbsub", StringComparison.InvariantCultureIgnoreCase))
           return SubtitleCodec.DvbSub;
@@ -55,6 +55,8 @@ namespace MediaPortal.Plugins.Transcoding.Service.Transcoders.FFMpeg.Parsers
           return SubtitleCodec.DvbTxt;
         if (token.Equals("dvd_subtitle", StringComparison.InvariantCultureIgnoreCase) || token.Equals("dvdsub", StringComparison.InvariantCultureIgnoreCase))
           return SubtitleCodec.VobSub;
+        if (token.Equals("hdmv_pgs_subtitle", StringComparison.InvariantCultureIgnoreCase))
+          return SubtitleCodec.HdmvPgs;
       }
       return SubtitleCodec.Unknown;
     }

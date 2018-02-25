@@ -33,28 +33,27 @@ namespace MediaPortal.Plugins.Transcoding.Interfaces.Metadata.Streams
     public string FourCC { get; set; }
     public int StreamIndex { get; set; }
     public string Language { get; set; }
-    public float AspectRatio { get; set; }
-    public float PixelAspectRatio { get; set; }
+    public float? AspectRatio { get; set; }
+    public float? PixelAspectRatio { get; set; }
     public PixelFormat PixelFormatType { get; set; }
-    public long Bitrate { get; set; }
-    public float Framerate { get; set; }
+    public long? Bitrate { get; set; }
+    public float? Framerate { get; set; }
     public EncodingProfile ProfileType { get; set; }
-    public float HeaderLevel { get; set; }
-    public float RefLevel { get; set; }
+    public float? HeaderLevel { get; set; }
+    public float? RefLevel { get; set; }
     public Timestamp TimestampType { get; set; }
-    public int Width { get; set; }
-    public int Height { get; set; }
+    public int? Width { get; set; }
+    public int? Height { get; set; }
 
     [JsonIgnore]
     public bool HasSquarePixels
     {
       get
       {
-        if (PixelAspectRatio == 0)
-        {
+        if (!PixelAspectRatio.HasValue)
           return true;
-        }
-        return Math.Abs(1.0 - PixelAspectRatio) < 0.01;
+
+        return Math.Abs(1.0 - PixelAspectRatio.Value) < 0.01;
       }
     }
   }

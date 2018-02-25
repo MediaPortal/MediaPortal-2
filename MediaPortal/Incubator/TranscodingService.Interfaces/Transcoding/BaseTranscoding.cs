@@ -23,14 +23,20 @@
 #endregion
 
 using MediaPortal.Common.ResourceAccess;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace MediaPortal.Plugins.Transcoding.Interfaces.Transcoding
 {
   public abstract class BaseTranscoding
   {
     public string TranscodeId = "";
-    public IResourceAccessor SourceMedia;
+    public Dictionary<int, IResourceAccessor> SourceMedia = new Dictionary<int, IResourceAccessor>();
+    public Dictionary<int, TimeSpan> SourceMediaDurations = new Dictionary<int, TimeSpan>();
     public string TranscoderBinPath = "";
     public string TranscoderArguments = "";
+
+    public TimeSpan SourceMediaTotalDuration => TimeSpan.FromSeconds(SourceMediaDurations.Sum(d => d.Value.TotalSeconds));
   }
 }

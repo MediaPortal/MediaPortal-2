@@ -37,27 +37,41 @@ using MediaPortal.Plugins.Transcoding.Interfaces.Transcoding;
 using MediaPortal.Plugins.Transcoding.Interfaces.Metadata;
 using MediaPortal.Plugins.Transcoding.Interfaces.Profiles.MediaMatch;
 using MediaPortal.Plugins.Transcoding.Interfaces.Metadata.Streams;
+using System.Linq;
+using MediaPortal.Plugins.Transcoding.Interfaces.Analyzers;
+using System.Threading.Tasks;
 
 //Thanks goes to the Serviio team over at http://www.serviio.org/
 //Their profile structure was inspiring and the community driven DLNA profiling is very effective 
 
 namespace MediaPortal.Plugins.Transcoding.Interfaces.Profiles
 {
-  public class TranscodeProfileManager
+  public class TranscodeProfileManager : ITranscodeProfileManager
   {
     public const string INPUT_FILE_TOKEN = "{input}";
     public const string OUTPUT_FILE_TOKEN = "{output}";
     public const string SUBTITLE_FILE_TOKEN = "{subtitle}";
 
-    private static Dictionary<string, Dictionary<string, TranscodingSetup>> _profiles = new Dictionary<string, Dictionary<string, TranscodingSetup>>();
+    private Dictionary<string, Dictionary<string, TranscodingSetup>> _profiles = new Dictionary<string, Dictionary<string, TranscodingSetup>>();
+    private string _subtitleFont = null;
+    private string _subtitleFontSize = null;
+    private string _subtitleColor = null;
+    private bool _subtitleBox = false;
+    private bool _forceSubtitles = true;
 
-    public static void ClearTranscodeProfiles(string section)
+    public string SubtitleFont { get => _subtitleFont; set => _subtitleFont = value; }
+    public string SubtitleFontSize { get => _subtitleFontSize; set => _subtitleFontSize = value; }
+    public string SubtitleColor { get => _subtitleColor; set => _subtitleColor = value; }
+    public bool SubtitleBox { get => _subtitleBox; set => _subtitleBox = value; }
+    public bool ForceSubtitles { get => _forceSubtitles; set => _forceSubtitles = value; }
+
+    public void ClearTranscodeProfiles(string section)
     {
       if (_profiles.ContainsKey(section) == true)
         _profiles[section].Clear();
     }
 
-    public static void AddTranscodingProfile(string section, string profileName, TranscodingSetup profile)
+    public void AddTranscodingProfile(string section, string profileName, TranscodingSetup profile)
     {
       if (_profiles.ContainsKey(section) == false)
         _profiles.Add(section, new Dictionary<string, TranscodingSetup>());
@@ -73,7 +87,7 @@ namespace MediaPortal.Plugins.Transcoding.Interfaces.Profiles
       }
     }
 
-    public static void LoadTranscodeProfiles(string section, string profileFile)
+    public async Task LoadTranscodeProfilesAsync(string section, string profileFile)
     {
       try
       {
@@ -84,15 +98,13 @@ namespace MediaPortal.Plugins.Transcoding.Interfaces.Profiles
 
           string profileName = null;
           TranscodingSetup profile = null;
-          XmlTextReader reader = new XmlTextReader(profileFile);
-          while (reader.Read())
+          XmlReader reader = XmlReader.Create(profileFile, new XmlReaderSettings { Async = true });
+          while (await reader.ReadAsync())
           {
             if (reader.NodeType != XmlNodeType.Element && reader.NodeType != XmlNodeType.EndElement)
-            {
               continue;
-            }
-            string nodeName = reader.Name;
 
+            string nodeName = reader.Name;
             if (nodeName == "Profile" && reader.NodeType == XmlNodeType.Element)
             {
               profileName = null;
@@ -101,11 +113,11 @@ namespace MediaPortal.Plugins.Transcoding.Interfaces.Profiles
               {
                 if (reader.Name == "id")
                 {
-                  profileName = reader.ReadContentAsString();
+                  profileName = await reader.ReadContentAsStringAsync();
                 }
                 else if (reader.Name == "baseProfile")
                 {
-                  string parentProfileId = reader.ReadContentAsString();
+                  string parentProfileId = await reader.ReadContentAsStringAsync();
 
                   profile.VideoSettings.MaxHeight = _profiles[section][parentProfileId].VideoSettings.MaxHeight;
                   profile.VideoSettings.H262QualityFactor = _profiles[section][parentProfileId].VideoSettings.H262QualityFactor;
@@ -123,6 +135,7 @@ namespace MediaPortal.Plugins.Transcoding.Interfaces.Profiles
                   profile.VideoSettings.Quality = _profiles[section][parentProfileId].VideoSettings.Quality;
                   profile.VideoSettings.QualityFactor = _profiles[section][parentProfileId].VideoSettings.QualityFactor;
                   profile.VideoSettings.CoderType = _profiles[section][parentProfileId].VideoSettings.CoderType;
+                  profile.VideoSettings.MultipleAudioTracksSupported = _profiles[section][parentProfileId].VideoSettings.MultipleAudioTracksSupported;
 
                   profile.ImageSettings.AutoRotate = _profiles[section][parentProfileId].ImageSettings.AutoRotate;
                   profile.ImageSettings.MaxHeight = _profiles[section][parentProfileId].ImageSettings.MaxHeight;
@@ -134,41 +147,26 @@ namespace MediaPortal.Plugins.Transcoding.Interfaces.Profiles
                   profile.AudioSettings.CoderType = _profiles[section][parentProfileId].AudioSettings.CoderType;
 
                   profile.SubtitleSettings.SubtitleMode = _profiles[section][parentProfileId].SubtitleSettings.SubtitleMode;
+                  profile.SubtitleSettings.TetxBasedSupported = _profiles[section][parentProfileId].SubtitleSettings.TetxBasedSupported;
+                  profile.SubtitleSettings.ImageBasedSupported = _profiles[section][parentProfileId].SubtitleSettings.ImageBasedSupported;
                   profile.SubtitleSettings.SubtitlesSupported = new List<ProfileSubtitle>(_profiles[section][parentProfileId].SubtitleSettings.SubtitlesSupported);
 
                   if (_profiles[section].ContainsKey(parentProfileId) == true)
                   {
-                    profile.AudioTargets = new List<AudioTranscodingTarget>();
-                    foreach (AudioTranscodingTarget aTrans in _profiles[section][parentProfileId].AudioTargets)
-                    {
-                      if (aTrans.Target.ForceInheritance == true)
-                      {
-                        profile.AudioTargets.Add(aTrans);
-                      }
-                    }
-                    profile.ImageTargets = new List<ImageTranscodingTarget>();
-                    foreach (ImageTranscodingTarget iTrans in _profiles[section][parentProfileId].ImageTargets)
-                    {
-                      if (iTrans.Target.ForceInheritance == true)
-                      {
-                        profile.ImageTargets.Add(iTrans);
-                      }
-                    }
-                    profile.VideoTargets = new List<VideoTranscodingTarget>();
-                    foreach (VideoTranscodingTarget vTrans in _profiles[section][parentProfileId].VideoTargets)
-                    {
-                      if (vTrans.Target.ForceInheritance == true)
-                      {
-                        profile.VideoTargets.Add(vTrans);
-                      }
-                    }
+                    profile.AudioTargets = _profiles[section][parentProfileId].AudioTargets.Where(a => a.Target.ForceInheritance).ToList();
+                    profile.ImageTargets = _profiles[section][parentProfileId].ImageTargets.Where(i => i.Target.ForceInheritance).ToList();
+                    profile.VideoTargets = _profiles[section][parentProfileId].VideoTargets.Where(v => v.Target.ForceInheritance).ToList();
+
+                    profile.GenericAudioTargets = _profiles[section][parentProfileId].GenericAudioTargets.ToList();
+                    profile.GenericImageTargets = _profiles[section][parentProfileId].GenericImageTargets.ToList();
+                    profile.GenericVideoTargets = _profiles[section][parentProfileId].GenericVideoTargets.ToList();
                   }
                 }
               }
             }
             else if (nodeName == "Settings" && reader.NodeType == XmlNodeType.Element)
             {
-              while (reader.Read())
+              while (await reader.ReadAsync())
               {
                 if (reader.Name == "Settings" && reader.NodeType == XmlNodeType.EndElement)
                 {
@@ -184,7 +182,7 @@ namespace MediaPortal.Plugins.Transcoding.Interfaces.Profiles
                     }
                     else if (reader.Name == "qualityMode")
                     {
-                      profile.VideoSettings.Quality = (QualityMode)Enum.Parse(typeof(QualityMode), reader.ReadContentAsString(), true);
+                      profile.VideoSettings.Quality = (QualityMode)Enum.Parse(typeof(QualityMode), await reader.ReadContentAsStringAsync(), true);
                     }
                     else if (reader.Name == "qualityFactor")
                     {
@@ -192,7 +190,11 @@ namespace MediaPortal.Plugins.Transcoding.Interfaces.Profiles
                     }
                     else if (reader.Name == "coder")
                     {
-                      profile.VideoSettings.CoderType = (Coder)Enum.Parse(typeof(Coder), reader.ReadContentAsString(), true);
+                      profile.VideoSettings.CoderType = (Coder)Enum.Parse(typeof(Coder), await reader.ReadContentAsStringAsync(), true);
+                    }
+                    else if (reader.Name == "multipleAudioTracksSupported")
+                    {
+                      profile.VideoSettings.MultipleAudioTracksSupported = reader.ReadContentAsBoolean();
                     }
                   }
                 }
@@ -206,11 +208,11 @@ namespace MediaPortal.Plugins.Transcoding.Interfaces.Profiles
                     }
                     else if (reader.Name == "preset")
                     {
-                      profile.VideoSettings.H262TargetPreset = (EncodingPreset)Enum.Parse(typeof(EncodingPreset), reader.ReadContentAsString(), true);
+                      profile.VideoSettings.H262TargetPreset = (EncodingPreset)Enum.Parse(typeof(EncodingPreset), await reader.ReadContentAsStringAsync(), true);
                     }
                     else if (reader.Name == "profile")
                     {
-                      profile.VideoSettings.H262TargetProfile = (EncodingProfile)Enum.Parse(typeof(EncodingProfile), reader.ReadContentAsString(), true);
+                      profile.VideoSettings.H262TargetProfile = (EncodingProfile)Enum.Parse(typeof(EncodingProfile), await reader.ReadContentAsStringAsync(), true);
                     }
                   }
                 }
@@ -220,7 +222,7 @@ namespace MediaPortal.Plugins.Transcoding.Interfaces.Profiles
                   {
                     if (reader.Name == "levelCheck")
                     {
-                      profile.VideoSettings.H264LevelCheckMethod = (LevelCheck)Enum.Parse(typeof(LevelCheck), reader.ReadContentAsString(), true);
+                      profile.VideoSettings.H264LevelCheckMethod = (LevelCheck)Enum.Parse(typeof(LevelCheck), await reader.ReadContentAsStringAsync(), true);
                     }
                     else if (reader.Name == "qualityFactor")
                     {
@@ -228,15 +230,15 @@ namespace MediaPortal.Plugins.Transcoding.Interfaces.Profiles
                     }
                     else if (reader.Name == "preset")
                     {
-                      profile.VideoSettings.H264TargetPreset = (EncodingPreset)Enum.Parse(typeof(EncodingPreset), reader.ReadContentAsString(), true);
+                      profile.VideoSettings.H264TargetPreset = (EncodingPreset)Enum.Parse(typeof(EncodingPreset), await reader.ReadContentAsStringAsync(), true);
                     }
                     else if (reader.Name == "profile")
                     {
-                      profile.VideoSettings.H264TargetProfile = (EncodingProfile)Enum.Parse(typeof(EncodingProfile), reader.ReadContentAsString(), true);
+                      profile.VideoSettings.H264TargetProfile = (EncodingProfile)Enum.Parse(typeof(EncodingProfile), await reader.ReadContentAsStringAsync(), true);
                     }
                     else if (reader.Name == "level")
                     {
-                      profile.VideoSettings.H264Level = Convert.ToSingle(reader.ReadContentAsString(), CultureInfo.InvariantCulture);
+                      profile.VideoSettings.H264Level = Convert.ToSingle(await reader.ReadContentAsStringAsync(), CultureInfo.InvariantCulture);
                     }
                   }
                 }
@@ -250,15 +252,15 @@ namespace MediaPortal.Plugins.Transcoding.Interfaces.Profiles
                     }
                     else if (reader.Name == "preset")
                     {
-                      profile.VideoSettings.H265TargetPreset = (EncodingPreset)Enum.Parse(typeof(EncodingPreset), reader.ReadContentAsString(), true);
+                      profile.VideoSettings.H265TargetPreset = (EncodingPreset)Enum.Parse(typeof(EncodingPreset), await reader.ReadContentAsStringAsync(), true);
                     }
                     else if (reader.Name == "profile")
                     {
-                      profile.VideoSettings.H265TargetProfile = (EncodingProfile)Enum.Parse(typeof(EncodingProfile), reader.ReadContentAsString(), true);
+                      profile.VideoSettings.H265TargetProfile = (EncodingProfile)Enum.Parse(typeof(EncodingProfile), await reader.ReadContentAsStringAsync(), true);
                     }
                     else if (reader.Name == "level")
                     {
-                      profile.VideoSettings.H265Level = Convert.ToSingle(reader.ReadContentAsString(), CultureInfo.InvariantCulture);
+                      profile.VideoSettings.H265Level = Convert.ToSingle(await reader.ReadContentAsStringAsync(), CultureInfo.InvariantCulture);
                     }
                   }
                 }
@@ -280,11 +282,11 @@ namespace MediaPortal.Plugins.Transcoding.Interfaces.Profiles
                     }
                     else if (reader.Name == "qualityMode")
                     {
-                      profile.ImageSettings.Quality = (QualityMode)Enum.Parse(typeof(QualityMode), reader.ReadContentAsString(), true);
+                      profile.ImageSettings.Quality = (QualityMode)Enum.Parse(typeof(QualityMode), await reader.ReadContentAsStringAsync(), true);
                     }
                     else if (reader.Name == "coder")
                     {
-                      profile.ImageSettings.CoderType = (Coder)Enum.Parse(typeof(Coder), reader.ReadContentAsString(), true);
+                      profile.ImageSettings.CoderType = (Coder)Enum.Parse(typeof(Coder), await reader.ReadContentAsStringAsync(), true);
                     }
                   }
                 }
@@ -302,7 +304,7 @@ namespace MediaPortal.Plugins.Transcoding.Interfaces.Profiles
                     }
                     else if (reader.Name == "coder")
                     {
-                      profile.AudioSettings.CoderType = (Coder)Enum.Parse(typeof(Coder), reader.ReadContentAsString(), true);
+                      profile.AudioSettings.CoderType = (Coder)Enum.Parse(typeof(Coder), await reader.ReadContentAsStringAsync(), true);
                     }
                   }
                 }
@@ -314,10 +316,18 @@ namespace MediaPortal.Plugins.Transcoding.Interfaces.Profiles
                   {
                     if (reader.Name == "support")
                     {
-                      profile.SubtitleSettings.SubtitleMode = (SubtitleSupport)Enum.Parse(typeof(SubtitleSupport), reader.ReadContentAsString(), true);
+                      profile.SubtitleSettings.SubtitleMode = (SubtitleSupport)Enum.Parse(typeof(SubtitleSupport), await reader.ReadContentAsStringAsync(), true);
+                    }
+                    else if (reader.Name == "imageBasedSupported")
+                    {
+                      profile.SubtitleSettings.ImageBasedSupported = reader.ReadContentAsBoolean();
+                    }
+                    else if (reader.Name == "textBasedSupported")
+                    {
+                      profile.SubtitleSettings.TetxBasedSupported = reader.ReadContentAsBoolean();
                     }
                   }
-                  while (subReader.Read())
+                  while (await subReader.ReadAsync())
                   {
                     if (subReader.Name == "Subtitle" && subReader.NodeType == XmlNodeType.Element)
                     {
@@ -326,11 +336,15 @@ namespace MediaPortal.Plugins.Transcoding.Interfaces.Profiles
                       {
                         if (subReader.Name == "format")
                         {
-                          newSub.Format = (SubtitleCodec)Enum.Parse(typeof(SubtitleCodec), subReader.ReadContentAsString(), true);
+                          newSub.Format = (SubtitleCodec)Enum.Parse(typeof(SubtitleCodec), await subReader.ReadContentAsStringAsync(), true);
                         }
                         else if (subReader.Name == "mime")
                         {
-                          newSub.Mime = subReader.ReadContentAsString();
+                          newSub.Mime = await subReader.ReadContentAsStringAsync();
+                        }
+                        else if (subReader.Name == "encoding")
+                        {
+                          newSub.Encoding = await subReader.ReadContentAsStringAsync();
                         }
                       }
                       profile.SubtitleSettings.SubtitlesSupported.Add(newSub);
@@ -339,9 +353,17 @@ namespace MediaPortal.Plugins.Transcoding.Interfaces.Profiles
                 }
               }
             }
+            else if (nodeName == "GenericTranscoding" && reader.NodeType == XmlNodeType.Element)
+            {
+              profile.GenericVideoTargets.Clear();
+              profile.GenericAudioTargets.Clear();
+              profile.GenericImageTargets.Clear();
+
+              await ReadTranscodingAsync(reader, reader.Name, profile.GenericVideoTargets, profile.GenericAudioTargets, profile.GenericImageTargets);
+            }
             else if (nodeName == "MediaTranscoding" && reader.NodeType == XmlNodeType.Element)
             {
-              ReadTranscoding(reader, reader.Name, ref profile.VideoTargets, ref profile.AudioTargets, ref profile.ImageTargets);
+              await ReadTranscodingAsync(reader, reader.Name, profile.VideoTargets, profile.AudioTargets, profile.ImageTargets);
             }
             else if (nodeName == "Profile" && reader.NodeType == XmlNodeType.EndElement)
             {
@@ -357,22 +379,9 @@ namespace MediaPortal.Plugins.Transcoding.Interfaces.Profiles
       }
     }
 
-    private static void ReadTranscoding(XmlTextReader reader, string elementName,
-      ref List<VideoTranscodingTarget> vTrans, ref List<AudioTranscodingTarget> aTrans, ref List<ImageTranscodingTarget> iTrans)
+    private async Task ReadTranscodingAsync(XmlReader reader, string elementName,
+      List<VideoTranscodingTarget> vTrans, List<AudioTranscodingTarget> aTrans, List<ImageTranscodingTarget> iTrans)
     {
-      if (vTrans == null)
-      {
-        vTrans = new List<VideoTranscodingTarget>();
-      }
-      if (aTrans == null)
-      {
-        aTrans = new List<AudioTranscodingTarget>();
-      }
-      if (iTrans == null)
-      {
-        iTrans = new List<ImageTranscodingTarget>();
-      }
-
       List<VideoTranscodingTarget> vList = new List<VideoTranscodingTarget>();
       List<AudioTranscodingTarget> aList = new List<AudioTranscodingTarget>();
       List<ImageTranscodingTarget> iList = new List<ImageTranscodingTarget>();
@@ -381,7 +390,7 @@ namespace MediaPortal.Plugins.Transcoding.Interfaces.Profiles
       AudioTranscodingTarget aTranscoding = new AudioTranscodingTarget();
       ImageTranscodingTarget iTranscoding = new ImageTranscodingTarget();
 
-      while (reader.Read())
+      while (await reader.ReadAsync())
       {
         if (reader.Name == "VideoTarget" && reader.NodeType == XmlNodeType.Element)
         {
@@ -391,43 +400,43 @@ namespace MediaPortal.Plugins.Transcoding.Interfaces.Profiles
           {
             if (reader.Name == "container")
             {
-              vTranscoding.Target.VideoContainerType = (VideoContainer)Enum.Parse(typeof(VideoContainer), reader.ReadContentAsString(), true);
+              vTranscoding.Target.VideoContainerType = (VideoContainer)Enum.Parse(typeof(VideoContainer), await reader.ReadContentAsStringAsync(), true);
             }
             else if (reader.Name == "movflags")
             {
-              vTranscoding.Target.Movflags = reader.ReadContentAsString();
+              vTranscoding.Target.Movflags = await reader.ReadContentAsStringAsync();
             }
             else if (reader.Name == "videoCodec")
             {
-              vTranscoding.Target.VideoCodecType = (VideoCodec)Enum.Parse(typeof(VideoCodec), reader.ReadContentAsString(), true);
+              vTranscoding.Target.VideoCodecType = (VideoCodec)Enum.Parse(typeof(VideoCodec), await reader.ReadContentAsStringAsync(), true);
             }
             else if (reader.Name == "videoFourCC")
             {
-              vTranscoding.Target.FourCC = reader.ReadContentAsString();
+              vTranscoding.Target.FourCC = await reader.ReadContentAsStringAsync();
             }
             else if (reader.Name == "videoAR")
             {
-              vTranscoding.Target.AspectRatio = Convert.ToSingle(reader.ReadContentAsString(), CultureInfo.InvariantCulture);
+              vTranscoding.Target.AspectRatio = Convert.ToSingle(await reader.ReadContentAsStringAsync(), CultureInfo.InvariantCulture);
             }
             else if (reader.Name == "videoProfile")
             {
-              vTranscoding.Target.EncodingProfileType = (EncodingProfile)Enum.Parse(typeof(EncodingProfile), reader.ReadContentAsString(), true);
+              vTranscoding.Target.EncodingProfileType = (EncodingProfile)Enum.Parse(typeof(EncodingProfile), await reader.ReadContentAsStringAsync(), true);
             }
             else if (reader.Name == "videoLevel")
             {
-              vTranscoding.Target.LevelMinimum = Convert.ToSingle(reader.ReadContentAsString(), CultureInfo.InvariantCulture);
+              vTranscoding.Target.LevelMinimum = Convert.ToSingle(await reader.ReadContentAsStringAsync(), CultureInfo.InvariantCulture);
             }
             else if (reader.Name == "videoPreset")
             {
-              vTranscoding.Target.TargetPresetType = (EncodingPreset)Enum.Parse(typeof(EncodingPreset), reader.ReadContentAsString(), true);
+              vTranscoding.Target.TargetPresetType = (EncodingPreset)Enum.Parse(typeof(EncodingPreset), await reader.ReadContentAsStringAsync(), true);
             }
             else if (reader.Name == "qualityMode")
             {
-              vTranscoding.Target.QualityType = (QualityMode)Enum.Parse(typeof(QualityMode), reader.ReadContentAsString(), true);
+              vTranscoding.Target.QualityType = (QualityMode)Enum.Parse(typeof(QualityMode), await reader.ReadContentAsStringAsync(), true);
             }
             else if (reader.Name == "videoBrandExclusion")
             {
-              vTranscoding.Target.BrandExclusion = reader.ReadContentAsString();
+              vTranscoding.Target.BrandExclusion = await reader.ReadContentAsStringAsync();
             }
             else if (reader.Name == "videoMaxBitrate")
             {
@@ -443,11 +452,11 @@ namespace MediaPortal.Plugins.Transcoding.Interfaces.Profiles
             }
             else if (reader.Name == "videoPixelFormat")
             {
-              vTranscoding.Target.PixelFormatType = (PixelFormat)Enum.Parse(typeof(PixelFormat), reader.ReadContentAsString(), true);
+              vTranscoding.Target.PixelFormatType = (PixelFormat)Enum.Parse(typeof(PixelFormat), await reader.ReadContentAsStringAsync(), true);
             }
             else if (reader.Name == "audioCodec")
             {
-              vTranscoding.Target.AudioCodecType = (AudioCodec)Enum.Parse(typeof(AudioCodec), reader.ReadContentAsString(), true);
+              vTranscoding.Target.AudioCodecType = (AudioCodec)Enum.Parse(typeof(AudioCodec), await reader.ReadContentAsStringAsync(), true);
             }
             else if (reader.Name == "audioBitrate")
             {
@@ -475,14 +484,14 @@ namespace MediaPortal.Plugins.Transcoding.Interfaces.Profiles
             }
             else if (reader.Name == "transcoder")
             {
-              vTranscoding.TranscoderBinPath = reader.ReadContentAsString();
+              vTranscoding.TranscoderBinPath = await reader.ReadContentAsStringAsync();
             }
             else if (reader.Name == "transcoderArguments")
             {
-              vTranscoding.TranscoderArguments = reader.ReadContentAsString();
+              vTranscoding.TranscoderArguments = await reader.ReadContentAsStringAsync();
             }
           }
-          while (reader.Read())
+          while (await reader.ReadAsync())
           {
             if (reader.Name == "VideoTarget" && reader.NodeType == XmlNodeType.EndElement)
             {
@@ -500,31 +509,31 @@ namespace MediaPortal.Plugins.Transcoding.Interfaces.Profiles
               {
                 if (reader.Name == "container")
                 {
-                  src.VideoContainerType = (VideoContainer)Enum.Parse(typeof(VideoContainer), reader.ReadContentAsString(), true);
+                  src.VideoContainerType = (VideoContainer)Enum.Parse(typeof(VideoContainer), await reader.ReadContentAsStringAsync(), true);
                 }
                 else if (reader.Name == "videoCodec")
                 {
-                  src.VideoCodecType = (VideoCodec)Enum.Parse(typeof(VideoCodec), reader.ReadContentAsString(), true);
+                  src.VideoCodecType = (VideoCodec)Enum.Parse(typeof(VideoCodec), await reader.ReadContentAsStringAsync(), true);
                 }
                 else if (reader.Name == "videoFourCC")
                 {
-                  src.FourCC = reader.ReadContentAsString();
+                  src.FourCC = await reader.ReadContentAsStringAsync();
                 }
                 else if (reader.Name == "videoAR")
                 {
-                  src.AspectRatio = Convert.ToSingle(reader.ReadContentAsString(), CultureInfo.InvariantCulture);
+                  src.AspectRatio = Convert.ToSingle(reader.ReadContentAsStringAsync(), CultureInfo.InvariantCulture);
                 }
                 else if (reader.Name == "videoProfile")
                 {
-                  src.EncodingProfileType = (EncodingProfile)Enum.Parse(typeof(EncodingProfile), reader.ReadContentAsString(), true);
+                  src.EncodingProfileType = (EncodingProfile)Enum.Parse(typeof(EncodingProfile), await reader.ReadContentAsStringAsync(), true);
                 }
                 else if (reader.Name == "videoLevel")
                 {
-                  src.LevelMinimum = Convert.ToSingle(reader.ReadContentAsString(), CultureInfo.InvariantCulture);
+                  src.LevelMinimum = Convert.ToSingle(await reader.ReadContentAsStringAsync(), CultureInfo.InvariantCulture);
                 }
                 else if (reader.Name == "videoBrandExclusion")
                 {
-                  src.BrandExclusion = reader.ReadContentAsString();
+                  src.BrandExclusion = await reader.ReadContentAsStringAsync();
                 }
                 else if (reader.Name == "videoMaxBitrate")
                 {
@@ -540,11 +549,11 @@ namespace MediaPortal.Plugins.Transcoding.Interfaces.Profiles
                 }
                 else if (reader.Name == "videoPixelFormat")
                 {
-                  src.PixelFormatType = (PixelFormat)Enum.Parse(typeof(PixelFormat), reader.ReadContentAsString(), true);
+                  src.PixelFormatType = (PixelFormat)Enum.Parse(typeof(PixelFormat), await reader.ReadContentAsStringAsync(), true);
                 }
                 else if (reader.Name == "audioCodec")
                 {
-                  src.AudioCodecType = (AudioCodec)Enum.Parse(typeof(AudioCodec), reader.ReadContentAsString(), true);
+                  src.AudioCodecType = (AudioCodec)Enum.Parse(typeof(AudioCodec), await reader.ReadContentAsStringAsync(), true);
                 }
                 else if (reader.Name == "audioBitrate")
                 {
@@ -571,7 +580,7 @@ namespace MediaPortal.Plugins.Transcoding.Interfaces.Profiles
           {
             if (reader.Name == "container")
             {
-              aTranscoding.Target.AudioContainerType = (AudioContainer)Enum.Parse(typeof(AudioContainer), reader.ReadContentAsString(), true);
+              aTranscoding.Target.AudioContainerType = (AudioContainer)Enum.Parse(typeof(AudioContainer), await reader.ReadContentAsStringAsync(), true);
             }
             else if (reader.Name == "audioBitrate")
             {
@@ -591,14 +600,14 @@ namespace MediaPortal.Plugins.Transcoding.Interfaces.Profiles
             }
             else if (reader.Name == "transcoder")
             {
-              aTranscoding.TranscoderBinPath = reader.ReadContentAsString();
+              aTranscoding.TranscoderBinPath = await reader.ReadContentAsStringAsync();
             }
             else if (reader.Name == "transcoderArguments")
             {
-              aTranscoding.TranscoderArguments = reader.ReadContentAsString();
+              aTranscoding.TranscoderArguments = await reader.ReadContentAsStringAsync();
             }
           }
-          while (reader.Read())
+          while (await reader.ReadAsync())
           {
             if (reader.Name == "AudioTarget" && reader.NodeType == XmlNodeType.EndElement)
             {
@@ -616,7 +625,7 @@ namespace MediaPortal.Plugins.Transcoding.Interfaces.Profiles
               {
                 if (reader.Name == "container")
                 {
-                  src.AudioContainerType = (AudioContainer)Enum.Parse(typeof(AudioContainer), reader.ReadContentAsString(), true);
+                  src.AudioContainerType = (AudioContainer)Enum.Parse(typeof(AudioContainer), await reader.ReadContentAsStringAsync(), true);
                 }
                 else if (reader.Name == "audioBitrate")
                 {
@@ -639,15 +648,15 @@ namespace MediaPortal.Plugins.Transcoding.Interfaces.Profiles
           {
             if (reader.Name == "container")
             {
-              iTranscoding.Target.ImageContainerType = (ImageContainer)Enum.Parse(typeof(ImageContainer), reader.ReadContentAsString(), true);
+              iTranscoding.Target.ImageContainerType = (ImageContainer)Enum.Parse(typeof(ImageContainer), await reader.ReadContentAsStringAsync(), true);
             }
             else if (reader.Name == "pixelFormat")
             {
-              iTranscoding.Target.PixelFormatType = (PixelFormat)Enum.Parse(typeof(PixelFormat), reader.ReadContentAsString(), true);
+              iTranscoding.Target.PixelFormatType = (PixelFormat)Enum.Parse(typeof(PixelFormat), await reader.ReadContentAsStringAsync(), true);
             }
             else if (reader.Name == "qualityMode")
             {
-              iTranscoding.Target.QualityType = (QualityMode)Enum.Parse(typeof(QualityMode), reader.ReadContentAsString(), true);
+              iTranscoding.Target.QualityType = (QualityMode)Enum.Parse(typeof(QualityMode), await reader.ReadContentAsStringAsync(), true);
             }
             else if (reader.Name == "forceInheritance")
             {
@@ -655,14 +664,14 @@ namespace MediaPortal.Plugins.Transcoding.Interfaces.Profiles
             }
             else if (reader.Name == "transcoder")
             {
-              iTranscoding.TranscoderBinPath = reader.ReadContentAsString();
+              iTranscoding.TranscoderBinPath = await reader.ReadContentAsStringAsync();
             }
             else if (reader.Name == "transcoderOptions")
             {
-              iTranscoding.TranscoderArguments = reader.ReadContentAsString();
+              iTranscoding.TranscoderArguments = await reader.ReadContentAsStringAsync();
             }
           }
-          while (reader.Read())
+          while (await reader.ReadAsync())
           {
             if (reader.Name == "ImageTarget" && reader.NodeType == XmlNodeType.EndElement)
             {
@@ -680,11 +689,11 @@ namespace MediaPortal.Plugins.Transcoding.Interfaces.Profiles
               {
                 if (reader.Name == "container")
                 {
-                  src.ImageContainerType = (ImageContainer)Enum.Parse(typeof(ImageContainer), reader.ReadContentAsString(), true);
+                  src.ImageContainerType = (ImageContainer)Enum.Parse(typeof(ImageContainer), await reader.ReadContentAsStringAsync(), true);
                 }
                 else if (reader.Name == "pixelFormat")
                 {
-                  src.PixelFormatType = (PixelFormat)Enum.Parse(typeof(PixelFormat), reader.ReadContentAsString(), true);
+                  src.PixelFormatType = (PixelFormat)Enum.Parse(typeof(PixelFormat), await reader.ReadContentAsStringAsync(), true);
                 }
               }
               iTranscoding.Sources.Add(src);
@@ -692,171 +701,221 @@ namespace MediaPortal.Plugins.Transcoding.Interfaces.Profiles
           }
         }
         if (reader.Name == elementName && reader.NodeType == XmlNodeType.EndElement)
-        {
           break;
-        }
       }
 
       //Own transcoding profiles should have higher priority than inherited ones
       vList.AddRange(vTrans);
+      vTrans.Clear();
+      vTrans.AddRange(vList);
+
       aList.AddRange(aTrans);
+      aTrans.Clear();
+      aTrans.AddRange(aList);
+
       iList.AddRange(iTrans);
-      vTrans = vList;
-      aTrans = aList;
-      iTrans = iList;
+      iTrans.Clear();
+      iTrans.AddRange(iList);
     }
 
-    public static TranscodingSetup GetTranscodeProfile(string section, string profile)
+    public TranscodingSetup GetTranscodeProfile(string section, string profile)
     {
       if (ValidateProfile(section, profile))
-      {
         return _profiles[section][profile];
-      }
+
       return null;
     }
 
-    public static bool ValidateProfile(string section, string profile)
+    private bool ValidateProfile(string section, string profile)
     {
       if (_profiles.ContainsKey(section) == true && _profiles[section].ContainsKey(profile) == true)
-      {
         return true;
+
+      return false;
+    }
+
+    private bool AreEmbeddedSubsSupported(TranscodingSetup transSetup, VideoTranscodingTarget target)
+    {
+      if (transSetup.SubtitleSettings.SubtitleMode == SubtitleSupport.Embedded)
+      {
+        if (target == null)
+          return false;
+        else if (target.Target.VideoContainerType == VideoContainer.Matroska)
+          return true;
+        else if (target.Target.VideoContainerType == VideoContainer.Mp4)
+          return true;
+        else if (target.Target.VideoContainerType == VideoContainer.Hls)
+          return true;
+        else if (target.Target.VideoContainerType == VideoContainer.Avi)
+          return true;
+        //else if (target.Target.VideoContainerType == VideoContainer.Mpeg2Ts)
+        //  return true;
       }
       return false;
     }
 
-    public static VideoTranscoding GetVideoTranscoding(string section, string profile, MetadataContainer info, string preferedAudioLanguages, bool liveStreaming, string transcodeId)
+    private int GetPreferredAudioStream(MetadataContainer info, string preferredAudioLanguages)
     {
-      if (info == null) return null;
-      if (ValidateProfile(section, profile) == false) return null;
+      int matchedAudioStream = info.FirstAudioStream.StreamIndex;
+      if (string.IsNullOrEmpty(preferredAudioLanguages) == false)
+      {
+        List<string> valuesLangs = new List<string>(preferredAudioLanguages.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries));
+        int currentPriority = -1;
+        for (int idx = 0; idx < info.Audio.Count; idx++)
+        {
+          for (int priority = 0; priority < valuesLangs.Count; priority++)
+          {
+            if (valuesLangs[priority].Equals(info.Audio[idx].Language, StringComparison.InvariantCultureIgnoreCase) == true)
+            {
+              if (currentPriority == -1 || priority < currentPriority)
+              {
+                currentPriority = priority;
+                matchedAudioStream = info.Audio[idx].StreamIndex;
+              }
+            }
+          }
+        }
+      }
+      return matchedAudioStream;
+    }
 
-      TranscodingSetup transSetup = _profiles[section][profile];
-      VideoMatch srcVideo;
-      VideoTranscodingTarget dstVideo = _profiles[section][profile].GetMatchingVideoTranscoding(info, preferedAudioLanguages, out srcVideo);
-      if (dstVideo != null && srcVideo.MatchedVideoSource.Matches(dstVideo.Target) == false)
+    /// <summary>
+    /// Get the video transcoding profile that best matches the source video.
+    /// </summary>
+    public VideoTranscoding GetVideoTranscoding(string section, string profile, IList<MetadataContainer> infos, string preferedAudioLanguages, bool liveStreaming, string transcodeId)
+    {
+      if (infos == null)
+        return null;
+
+      TranscodingSetup transSetup = GetTranscodeProfile(section, profile);
+      if (transSetup == null)
+        return null;
+
+      VideoMatch srcVideo = null;
+      int matchedAudioStream = GetPreferredAudioStream(infos.First(), preferedAudioLanguages);
+      VideoTranscodingTarget dstVideo = transSetup.GetMatchingVideoTranscoding(infos.First(), matchedAudioStream, out srcVideo);
+      SubtitleSupport subMode = transSetup.SubtitleSettings.SubtitleMode;
+      if (subMode != SubtitleSupport.HardCoded)
+      {
+        if (!infos.Any(i => i.Subtitles.Any()))
+        {
+          //No subtitles
+          subMode = SubtitleSupport.None;
+        }
+        else if (subMode != SubtitleSupport.None && transSetup.SubtitleSettings.TetxBasedSupported && !transSetup.SubtitleSettings.ImageBasedSupported && !infos.Any(i => i.Subtitles.Any(s => !SubtitleAnalyzer.IsImageBasedSubtitle(s.Codec))))
+        {
+          //No matching text subtitles supported
+          subMode = SubtitleSupport.None;
+        }
+        else if (subMode != SubtitleSupport.None && !transSetup.SubtitleSettings.TetxBasedSupported && transSetup.SubtitleSettings.ImageBasedSupported && !infos.Any(i => i.Subtitles.Any(s => SubtitleAnalyzer.IsImageBasedSubtitle(s.Codec))))
+        {
+          //No matching image subtitles supported
+          subMode = SubtitleSupport.None;
+        }
+
+        if (subMode == SubtitleSupport.Embedded && !AreEmbeddedSubsSupported(transSetup, dstVideo))
+        {
+          //Embedding subtitles not supported
+          subMode = SubtitleSupport.None;
+        }
+        if (ForceSubtitles && subMode == SubtitleSupport.None && infos.Any(i => i.Subtitles.Any()))
+        {
+          //Force subtitles
+          subMode = SubtitleSupport.HardCoded;
+        }
+      }
+
+      if ((infos.Count > 1 || subMode == SubtitleSupport.HardCoded) && transSetup.GenericVideoTargets.Any())
+      {
+        //Stacked files or hardcoded subs need generic transcoding
+        srcVideo = new VideoMatch();
+        srcVideo.MatchedAudioStream = matchedAudioStream;
+        dstVideo = transSetup.GenericVideoTargets.First();
+        srcVideo.MatchedVideoSource = dstVideo.Target;
+      }
+      else if (dstVideo == null)
+      {
+        return null;
+      }
+
+      if (srcVideo.MatchedVideoSource.Matches(dstVideo.Target) == false)
       {
         VideoTranscoding video = new VideoTranscoding();
-        video.SourceAudioStreamIndex = info.Audio[srcVideo.MatchedAudioStream].StreamIndex;
-        video.SourceVideoStreamIndex = info.Video.StreamIndex;
-        if (info.Metadata.VideoContainerType != VideoContainer.Unknown)
+        for(int infoIndex = 0; infoIndex < infos.Count; infoIndex++)
         {
-          video.SourceVideoContainer = info.Metadata.VideoContainerType;
-        }
-        if (info.Audio[srcVideo.MatchedAudioStream].Bitrate > 0)
-        {
-          video.SourceAudioBitrate = info.Audio[srcVideo.MatchedAudioStream].Bitrate;
-        }
-        if (info.Audio[srcVideo.MatchedAudioStream].Frequency > 0)
-        {
-          video.SourceAudioFrequency = info.Audio[srcVideo.MatchedAudioStream].Frequency;
-        }
-        if (info.Audio[srcVideo.MatchedAudioStream].Channels > 0)
-        {
-          video.SourceAudioChannels = info.Audio[srcVideo.MatchedAudioStream].Channels;
-        }
-        if (info.Audio[srcVideo.MatchedAudioStream].Codec != AudioCodec.Unknown)
-        {
-          video.SourceAudioCodec = info.Audio[srcVideo.MatchedAudioStream].Codec;
-        }
-        video.SourceSubtitles = new List<SubtitleStream>(info.Subtitles);
+          MetadataContainer info = infos[infoIndex];
 
-        if (info.Video.Bitrate > 0)
-        {
-          video.SourceVideoBitrate = info.Video.Bitrate;
-        }
-        if (info.Video.Framerate > 0)
-        {
-          video.SourceFrameRate = info.Video.Framerate;
-        }
-        if (info.Video.PixelFormatType != PixelFormat.Unknown)
-        {
-          video.SourcePixelFormat = info.Video.PixelFormatType;
-        }
-        if (info.Video.AspectRatio > 0)
-        {
-          video.SourceVideoAspectRatio = info.Video.AspectRatio;
-        }
-        if (info.Video.Codec != VideoCodec.Unknown)
-        {
-          video.SourceVideoCodec = info.Video.Codec;
-        }
-        if (info.Video.Height > 0)
-        {
-          video.SourceVideoHeight = info.Video.Height;
-        }
-        if (info.Video.Width > 0)
-        {
-          video.SourceVideoWidth = info.Video.Width;
-        }
-        if (info.Video.PixelAspectRatio > 0)
-        {
-          video.SourceVideoPixelAspectRatio = info.Video.PixelAspectRatio;
-        }
+          video.SourceVideoStreams.Add(infoIndex, info.Video);
+          video.SourceVideoContainers.Add(infoIndex, info.Metadata.VideoContainerType);
 
-        if (info.Metadata.Duration > 0)
-        {
-          video.SourceDuration = TimeSpan.FromSeconds(info.Metadata.Duration);
-        }
-        if (info.Metadata.Source != null)
-        {
-          video.SourceMedia = info.Metadata.Source;
-        }
+          if(info.Metadata.Duration.HasValue)
+            video.SourceMediaDurations.Add(infoIndex, TimeSpan.FromSeconds(info.Metadata.Duration.Value));
+          if (info.Metadata.Source != null)
+            video.SourceMedia.Add(infoIndex, info.Metadata.Source);
+
+          video.SourceAudioStreams.Add(infoIndex, new List<AudioStream>() { info.Audio.First(s => s.StreamIndex == srcVideo.MatchedAudioStream) });
+          if (transSetup.VideoSettings.MultipleAudioTracksSupported)
+          {
+            video.TargetAudioMultiTrackSupport = true;
+            for (int idx = 0; idx < info.Audio.Count; idx++)
+            {
+              if (info.Audio[idx].StreamIndex == srcVideo.MatchedAudioStream)
+                continue;
+
+              video.SourceAudioStreams[infoIndex].Add(info.Audio[idx]);
+            }
+          }
+
+          video.SourceSubtitles.Add(infoIndex, new List<SubtitleStream>(info.Subtitles));
+        }      
 
         if (dstVideo.Target.VideoContainerType != VideoContainer.Unknown)
-        {
           video.TargetVideoContainer = dstVideo.Target.VideoContainerType;
-        }
 
         if (dstVideo.Target.Movflags != null)
-        {
           video.Movflags = dstVideo.Target.Movflags;
-        }
 
         video.TargetAudioBitrate = transSetup.AudioSettings.DefaultBitrate;
         if (dstVideo.Target.AudioBitrate > 0)
-        {
           video.TargetAudioBitrate = dstVideo.Target.AudioBitrate;
-        }
+
         if (dstVideo.Target.AudioFrequency > 0)
-        {
           video.TargetAudioFrequency = dstVideo.Target.AudioFrequency;
-        }
+
         if (dstVideo.Target.AudioCodecType != AudioCodec.Unknown)
-        {
           video.TargetAudioCodec = dstVideo.Target.AudioCodecType;
-        }
+ 
         video.TargetForceAudioStereo = transSetup.AudioSettings.DefaultStereo;
         if (dstVideo.Target.ForceStereo)
-        {
           video.TargetForceAudioStereo = dstVideo.Target.ForceStereo;
-        }
 
         video.TargetVideoQuality = transSetup.VideoSettings.Quality;
         if (dstVideo.Target.QualityType != QualityMode.Default)
-        {
           video.TargetVideoQuality = dstVideo.Target.QualityType;
-        }
+
         if (dstVideo.Target.PixelFormatType != PixelFormat.Unknown)
-        {
           video.TargetPixelFormat = dstVideo.Target.PixelFormatType;
-        }
+
         if (dstVideo.Target.AspectRatio > 0)
-        {
           video.TargetVideoAspectRatio = dstVideo.Target.AspectRatio;
-        }
+
         if (dstVideo.Target.MaxVideoBitrate > 0)
-        {
           video.TargetVideoBitrate = dstVideo.Target.MaxVideoBitrate;
-        }
+
         if (dstVideo.Target.VideoCodecType != VideoCodec.Unknown)
-        {
           video.TargetVideoCodec = dstVideo.Target.VideoCodecType;
-        }
+
         video.TargetVideoMaxHeight = transSetup.VideoSettings.MaxHeight;
         if (dstVideo.Target.MaxVideoHeight > 0)
-        {
           video.TargetVideoMaxHeight = dstVideo.Target.MaxVideoHeight;
-        }
+
         video.TargetForceVideoTranscoding = dstVideo.Target.ForceVideoTranscoding;
+
+        video.TargetSubtitleCharacterEncoding = transSetup.SubtitleSettings.SubtitlesSupported.FirstOrDefault()?.Encoding;
+        video.TargetSubtitleBox = _subtitleBox;
+        video.TargetSubtitleColor = _subtitleColor;
+        video.TargetSubtitleFont = _subtitleFont;
+        video.TargetSubtitleFontSize = _subtitleFontSize;
 
         if (dstVideo.Target.VideoCodecType == VideoCodec.Mpeg2)
         {
@@ -869,38 +928,30 @@ namespace MediaPortal.Plugins.Transcoding.Interfaces.Profiles
           video.TargetQualityFactor = transSetup.VideoSettings.H264QualityFactor;
           video.TargetLevel = transSetup.VideoSettings.H264Level;
           if (dstVideo.Target.LevelMinimum > 0)
-          {
             video.TargetLevel = dstVideo.Target.LevelMinimum;
-          }
+
           video.TargetProfile = transSetup.VideoSettings.H264TargetProfile;
           if (dstVideo.Target.EncodingProfileType != EncodingProfile.Unknown)
-          {
             video.TargetProfile = dstVideo.Target.EncodingProfileType;
-          }
+
           video.TargetPreset = transSetup.VideoSettings.H264TargetPreset;
           if (dstVideo.Target.TargetPresetType != EncodingPreset.Default)
-          {
             video.TargetPreset = dstVideo.Target.TargetPresetType;
-          }
         }
         else if (dstVideo.Target.VideoCodecType == VideoCodec.H265)
         {
           video.TargetQualityFactor = transSetup.VideoSettings.H265QualityFactor;
           video.TargetLevel = transSetup.VideoSettings.H265Level;
           if (dstVideo.Target.LevelMinimum > 0)
-          {
             video.TargetLevel = dstVideo.Target.LevelMinimum;
-          }
+ 
           video.TargetProfile = transSetup.VideoSettings.H265TargetProfile;
           if (dstVideo.Target.EncodingProfileType != EncodingProfile.Unknown)
-          {
             video.TargetProfile = dstVideo.Target.EncodingProfileType;
-          }
+      
           video.TargetPreset = transSetup.VideoSettings.H265TargetPreset;
           if (dstVideo.Target.TargetPresetType != EncodingPreset.Default)
-          {
             video.TargetPreset = dstVideo.Target.TargetPresetType;
-          }
         }
 
         video.TargetVideoQualityFactor = transSetup.VideoSettings.QualityFactor;
@@ -908,10 +959,7 @@ namespace MediaPortal.Plugins.Transcoding.Interfaces.Profiles
         video.TargetIsLive = liveStreaming;
 
         video.TargetSubtitleSupport = transSetup.SubtitleSettings.SubtitleMode;
-        if (transSetup.SubtitleSettings.SubtitleMode == SubtitleSupport.HardCoded)
-        {
-          video.TargetSubtitleSupport = SubtitleSupport.None;
-        }
+        video.TargetSubtitleSupport = subMode;
 
         video.TranscoderBinPath = dstVideo.TranscoderBinPath;
         video.TranscoderArguments = dstVideo.TranscoderArguments;
@@ -922,64 +970,57 @@ namespace MediaPortal.Plugins.Transcoding.Interfaces.Profiles
       return null;
     }
 
-    public static AudioTranscoding GetAudioTranscoding(string section, string profile, MetadataContainer info, bool liveStreaming, string transcodeId)
+    /// <summary>
+    /// Get the audio transcoding profile that best matches the source audio.
+    /// </summary>
+    public AudioTranscoding GetAudioTranscoding(string section, string profile, MetadataContainer info, bool liveStreaming, string transcodeId)
     {
-      if (info == null) return null;
-      if (ValidateProfile(section, profile) == false) return null;
+      if (info == null)
+        return null;
 
-      TranscodingSetup transSetup = _profiles[section][profile];
+      TranscodingSetup transSetup = GetTranscodeProfile(section, profile);
+      if (transSetup == null)
+        return null;
+
       AudioMatch srcAudio;
       AudioTranscodingTarget dstAudio = transSetup.GetMatchingAudioTranscoding(info, out srcAudio);
       if (dstAudio != null && srcAudio.MatchedAudioSource.Matches(dstAudio.Target) == false)
       {
         AudioTranscoding audio = new AudioTranscoding();
         if (info.Metadata.AudioContainerType != AudioContainer.Unknown)
-        {
           audio.SourceAudioContainer = info.Metadata.AudioContainerType;
-        }
-        if (info.Audio[srcAudio.MatchedAudioStream].Bitrate > 0)
-        {
-          audio.SourceAudioBitrate = info.Audio[srcAudio.MatchedAudioStream].Bitrate;
-        }
-        if (info.Audio[srcAudio.MatchedAudioStream].Frequency > 0)
-        {
-          audio.SourceAudioFrequency = info.Audio[srcAudio.MatchedAudioStream].Frequency;
-        }
-        if (info.Audio[srcAudio.MatchedAudioStream].Channels > 0)
-        {
-          audio.SourceAudioChannels = info.Audio[srcAudio.MatchedAudioStream].Channels;
-        }
-        if (info.Audio[srcAudio.MatchedAudioStream].Codec != AudioCodec.Unknown)
-        {
-          audio.SourceAudioCodec = info.Audio[srcAudio.MatchedAudioStream].Codec;
-        }
-        if (info.Metadata.Duration > 0)
-        {
-          audio.SourceDuration = TimeSpan.FromSeconds(info.Metadata.Duration);
-        }
+
+        if (info.Audio.First(s => s.StreamIndex == srcAudio.MatchedAudioStream).Bitrate > 0)
+          audio.SourceAudioBitrate = info.Audio.First(s => s.StreamIndex == srcAudio.MatchedAudioStream).Bitrate;
+       
+        if (info.Audio.First(s => s.StreamIndex == srcAudio.MatchedAudioStream).Frequency > 0)
+          audio.SourceAudioFrequency = info.Audio.First(s => s.StreamIndex == srcAudio.MatchedAudioStream).Frequency;
+        
+        if (info.Audio.First(s => s.StreamIndex == srcAudio.MatchedAudioStream).Channels > 0)
+          audio.SourceAudioChannels = info.Audio.First(s => s.StreamIndex == srcAudio.MatchedAudioStream).Channels;
+        
+        if (info.Audio.First(s => s.StreamIndex == srcAudio.MatchedAudioStream).Codec != AudioCodec.Unknown)
+          audio.SourceAudioCodec = info.Audio.First(s => s.StreamIndex == srcAudio.MatchedAudioStream).Codec;
+      
+        if (info.Metadata.Duration.HasValue)
+          audio.SourceDuration = TimeSpan.FromSeconds(info.Metadata.Duration.Value);
+      
         if (info.Metadata.Source != null)
-        {
-          audio.SourceMedia = info.Metadata.Source;
-        }
+          audio.SourceMedia.Add(0, info.Metadata.Source);
 
         audio.TargetAudioBitrate = transSetup.AudioSettings.DefaultBitrate;
         if (dstAudio.Target.Bitrate > 0)
-        {
           audio.TargetAudioBitrate = dstAudio.Target.Bitrate;
-        }
+   
         if (dstAudio.Target.AudioContainerType != AudioContainer.Unknown)
-        {
           audio.TargetAudioContainer = dstAudio.Target.AudioContainerType;
-        }
+      
         if (dstAudio.Target.Frequency > 0)
-        {
           audio.TargetAudioFrequency = dstAudio.Target.Frequency;
-        }
+       
         audio.TargetForceAudioStereo = transSetup.AudioSettings.DefaultStereo;
         if (dstAudio.Target.ForceStereo)
-        {
           audio.TargetForceAudioStereo = dstAudio.Target.ForceStereo;
-        }
 
         audio.TargetCoder = transSetup.AudioSettings.CoderType;
         audio.TargetIsLive = liveStreaming;
@@ -992,55 +1033,50 @@ namespace MediaPortal.Plugins.Transcoding.Interfaces.Profiles
       return null;
     }
 
-    public static ImageTranscoding GetImageTranscoding(string section, string profile, MetadataContainer info, string transcodeId)
+    /// <summary>
+    /// Get the image transcoding profile that best matches the source image.
+    /// </summary>
+    public ImageTranscoding GetImageTranscoding(string section, string profile, MetadataContainer info, string transcodeId)
     {
-      if (info == null) return null;
-      if (ValidateProfile(section, profile) == false) return null;
+      if (info == null)
+        return null;
 
-      TranscodingSetup transSetup = _profiles[section][profile];
+      TranscodingSetup transSetup = GetTranscodeProfile(section, profile);
+      if (transSetup == null)
+        return null;
+
       ImageMatch srcImage;
       ImageTranscodingTarget dstImage = transSetup.GetMatchingImageTranscoding(info, out srcImage);
       if (dstImage != null && srcImage.MatchedImageSource.Matches(dstImage.Target) == false)
       {
         ImageTranscoding image = new ImageTranscoding();
         if (info.Metadata.ImageContainerType != ImageContainer.Unknown)
-        {
           image.SourceImageCodec = info.Metadata.ImageContainerType;
-        }
-        if (info.Image.Height > 0)
-        {
-          image.SourceHeight = info.Image.Height;
-        }
-        if (info.Image.Width > 0)
-        {
-          image.SourceWidth = info.Image.Width;
-        }
-        if (info.Image.Orientation > 0)
-        {
-          image.SourceOrientation = info.Image.Orientation;
-        }
+   
+        if (info.Image.Height.HasValue)
+          image.SourceHeight = info.Image.Height.Value;
+    
+        if (info.Image.Width.HasValue)
+          image.SourceWidth = info.Image.Width.Value;
+    
+        if (info.Image.Orientation.HasValue)
+          image.SourceOrientation = info.Image.Orientation.Value;
+
         if (info.Image.PixelFormatType != PixelFormat.Unknown)
-        {
           image.SourcePixelFormat = info.Image.PixelFormatType;
-        }
+ 
         if (info.Metadata.Source != null)
-        {
-          image.SourceMedia = info.Metadata.Source;
-        }
+          image.SourceMedia.Add(0, info.Metadata.Source);
 
         if (dstImage.Target.PixelFormatType > 0)
-        {
           image.TargetPixelFormat = dstImage.Target.PixelFormatType;
-        }
+  
         if (dstImage.Target.ImageContainerType != ImageContainer.Unknown)
-        {
           image.TargetImageCodec = dstImage.Target.ImageContainerType;
-        }
+   
         image.TargetImageQuality = transSetup.ImageSettings.Quality;
         if (dstImage.Target.QualityType != QualityMode.Default)
-        {
           image.TargetImageQuality = dstImage.Target.QualityType;
-        }
 
         image.TargetImageQualityFactor = transSetup.VideoSettings.QualityFactor;
 
@@ -1058,195 +1094,103 @@ namespace MediaPortal.Plugins.Transcoding.Interfaces.Profiles
       return null;
     }
 
-    public static VideoTranscoding GetVideoSubtitleTranscoding(string section, string profile, MetadataContainer info, bool live, string transcodeId)
+    /// <summary>
+    /// Get a video transcoding profile that adds subtitles the source video.
+    /// </summary>
+    public VideoTranscoding GetVideoSubtitleTranscoding(string section, string profile, IList<MetadataContainer> infos, bool live, string transcodeId)
     {
-      if (info == null) return null;
-      if (ValidateProfile(section, profile) == false) return null;
-      if (info.Audio.Count == 0) return null;
+      if (infos == null)
+        return null;
 
-      int iMatchedAudioStream = 0;
+      TranscodingSetup transSetup = GetTranscodeProfile(section, profile);
+      if (transSetup == null)
+        return null;
+
+      if (!infos.Any(i => i.Audio.Count > 0))
+        return null;
+
+      int matchedAudioStream = 0;
       VideoTranscoding video = new VideoTranscoding();
-      video.SourceAudioStreamIndex = info.Audio[iMatchedAudioStream].StreamIndex;
-      video.SourceVideoStreamIndex = info.Video.StreamIndex;
-      if (info.Metadata.VideoContainerType != VideoContainer.Unknown)
+      for (int infoIndex = 0; infoIndex < infos.Count; infoIndex++)
       {
-        video.SourceVideoContainer = info.Metadata.VideoContainerType;
-      }
-      if (info.Audio[iMatchedAudioStream].Bitrate > 0)
-      {
-        video.SourceAudioBitrate = info.Audio[iMatchedAudioStream].Bitrate;
-      }
-      if (info.Audio[iMatchedAudioStream].Frequency > 0)
-      {
-        video.SourceAudioFrequency = info.Audio[iMatchedAudioStream].Frequency;
-      }
-      if (info.Audio[iMatchedAudioStream].Channels > 0)
-      {
-        video.SourceAudioChannels = info.Audio[iMatchedAudioStream].Channels;
-      }
-      if (info.Audio[iMatchedAudioStream].Codec != AudioCodec.Unknown)
-      {
-        video.SourceAudioCodec = info.Audio[iMatchedAudioStream].Codec;
-      }
-      video.SourceSubtitles = new List<SubtitleStream>(info.Subtitles);
+        MetadataContainer info = infos[infoIndex];
 
-      if (info.Video.Bitrate > 0)
-      {
-        video.SourceVideoBitrate = info.Video.Bitrate;
-      }
-      if (info.Video.Framerate > 0)
-      {
-        video.SourceFrameRate = info.Video.Framerate;
-      }
-      if (info.Video.PixelFormatType != PixelFormat.Unknown)
-      {
-        video.SourcePixelFormat = info.Video.PixelFormatType;
-      }
-      if (info.Video.AspectRatio > 0)
-      {
-        video.SourceVideoAspectRatio = info.Video.AspectRatio;
-      }
-      if (info.Video.Codec != VideoCodec.Unknown)
-      {
-        video.SourceVideoCodec = info.Video.Codec;
-      }
-      if (info.Video.Height > 0)
-      {
-        video.SourceVideoHeight = info.Video.Height;
-      }
-      if (info.Video.Width > 0)
-      {
-        video.SourceVideoWidth = info.Video.Width;
-      }
-      if (info.Video.PixelAspectRatio > 0)
-      {
-        video.SourceVideoPixelAspectRatio = info.Video.PixelAspectRatio;
-      }
-      if (info.Metadata.Duration > 0)
-      {
-        video.SourceDuration = TimeSpan.FromSeconds(info.Metadata.Duration);
-      }
-      if (info.Metadata.Source != null)
-      {
-        video.SourceMedia = info.Metadata.Source;
+        video.SourceVideoStreams.Add(infoIndex, info.Video);
+        video.SourceVideoContainers.Add(infoIndex, info.Metadata.VideoContainerType);
+
+        if (info.Metadata.Duration.HasValue)
+          video.SourceMediaDurations.Add(infoIndex, TimeSpan.FromSeconds(info.Metadata.Duration.Value));
+
+        if (info.Metadata.Source != null)
+          video.SourceMedia.Add(infoIndex, info.Metadata.Source);
+
+        video.SourceAudioStreams.Add(infoIndex, new List<AudioStream>() { info.Audio[matchedAudioStream] });
+        for (int idx = 0; idx < info.Audio.Count; idx++)
+        {
+          if (idx == matchedAudioStream)
+            continue;
+
+          video.SourceAudioStreams[infoIndex].Add(info.Audio[idx]);
+        }
+
+        video.SourceSubtitles.Add(infoIndex, new List<SubtitleStream>(info.Subtitles));
       }
 
-      video.TargetVideoContainer = video.SourceVideoContainer;
-      video.TargetAudioCodec = video.SourceAudioCodec;
-      video.TargetVideoCodec = video.SourceVideoCodec;
-      video.TargetLevel = info.Video.HeaderLevel;
-      video.TargetProfile = info.Video.ProfileType;
+      video.TargetVideoContainer = video.FirstSourceVideoContainer;
+      video.TargetAudioCodec = video.FirstSourceAudioStream.Codec;
+      video.TargetVideoCodec = video.FirstSourceVideoStream.Codec;
+      video.TargetLevel = video.FirstSourceVideoStream.HeaderLevel;
+      video.TargetProfile = video.FirstSourceVideoStream.ProfileType;
       video.TargetForceAudioCopy = true;
       video.TargetForceVideoCopy = true;
 
-      TranscodingSetup transSetup = _profiles[section][profile];
       video.TargetSubtitleSupport = transSetup.SubtitleSettings.SubtitleMode;
-      video.SourceSubtitles.AddRange(info.Subtitles);
       if (transSetup.SubtitleSettings.SubtitleMode == SubtitleSupport.HardCoded)
-      {
         video.TargetSubtitleSupport = SubtitleSupport.None;
-      }
+  
       video.TargetIsLive = live;
       video.TranscodeId = transcodeId;
       return video;
     }
 
-    public static VideoTranscoding GetLiveVideoTranscoding(MetadataContainer info, string preferedAudioLanguages, string transcodeId)
+    /// <summary>
+    /// Get a video transcoding profile that streams the live source video.
+    /// </summary>
+    public VideoTranscoding GetLiveVideoTranscoding(MetadataContainer info, string preferedAudioLanguages, string transcodeId)
     {
-      if (info == null) return null;
+      if (info == null)
+        return null;
 
-      int iMatchedAudioStream = 0;
-      if (string.IsNullOrEmpty(preferedAudioLanguages) == false)
-      {
-        List<string> valuesLangs = new List<string>(preferedAudioLanguages.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries));
-        int currentPriority = -1;
-        for (int iAudio = 0; iAudio < info.Audio.Count; iAudio++)
-        {
-          for (int iPriority = 0; iPriority < valuesLangs.Count; iPriority++)
-          {
-            if (valuesLangs[iPriority].Equals(info.Audio[iAudio].Language, StringComparison.InvariantCultureIgnoreCase) == true)
-            {
-              if (currentPriority == -1 || iPriority < currentPriority)
-              {
-                currentPriority = iPriority;
-                iMatchedAudioStream = iAudio;
-              }
-            }
-          }
-        }
-      }
+      int matchedAudioStream = GetPreferredAudioStream(info, preferedAudioLanguages);
 
       VideoTranscoding video = new VideoTranscoding();
-      video.SourceAudioStreamIndex = info.Audio[iMatchedAudioStream].StreamIndex;
-      video.SourceVideoStreamIndex = info.Video.StreamIndex;
-      if (info.Metadata.VideoContainerType != VideoContainer.Unknown)
-      {
-        video.SourceVideoContainer = info.Metadata.VideoContainerType;
-      }
-      if (info.Audio[iMatchedAudioStream].Bitrate > 0)
-      {
-        video.SourceAudioBitrate = info.Audio[iMatchedAudioStream].Bitrate;
-      }
-      if (info.Audio[iMatchedAudioStream].Frequency > 0)
-      {
-        video.SourceAudioFrequency = info.Audio[iMatchedAudioStream].Frequency;
-      }
-      if (info.Audio[iMatchedAudioStream].Channels > 0)
-      {
-        video.SourceAudioChannels = info.Audio[iMatchedAudioStream].Channels;
-      }
-      if (info.Audio[iMatchedAudioStream].Codec != AudioCodec.Unknown)
-      {
-        video.SourceAudioCodec = info.Audio[iMatchedAudioStream].Codec;
-      }
-      video.SourceSubtitles = new List<SubtitleStream>(info.Subtitles);
+      video.SourceVideoStreams.Add(0, info.Video);
+      video.SourceVideoContainers.Add(0, info.Metadata.VideoContainerType);
 
-      if (info.Video.Bitrate > 0)
-      {
-        video.SourceVideoBitrate = info.Video.Bitrate;
-      }
-      if (info.Video.Framerate > 0)
-      {
-        video.SourceFrameRate = info.Video.Framerate;
-      }
-      if (info.Video.PixelFormatType != PixelFormat.Unknown)
-      {
-        video.SourcePixelFormat = info.Video.PixelFormatType;
-      }
-      if (info.Video.AspectRatio > 0)
-      {
-        video.SourceVideoAspectRatio = info.Video.AspectRatio;
-      }
-      if (info.Video.Codec != VideoCodec.Unknown)
-      {
-        video.SourceVideoCodec = info.Video.Codec;
-      }
-      if (info.Video.Height > 0)
-      {
-        video.SourceVideoHeight = info.Video.Height;
-      }
-      if (info.Video.Width > 0)
-      {
-        video.SourceVideoWidth = info.Video.Width;
-      }
-      if (info.Video.PixelAspectRatio > 0)
-      {
-        video.SourceVideoPixelAspectRatio = info.Video.PixelAspectRatio;
-      }
-      //if (info.Metadata.Duration > 0)
-      //{
-      //  video.SourceDuration = TimeSpan.FromSeconds(info.Metadata.Duration);
-      //}
       if (info.Metadata.Source != null)
+        video.SourceMedia.Add(0, info.Metadata.Source);
+
+      video.SourceAudioStreams.Add(0, new List<AudioStream>() { info.Audio.First(s => s.StreamIndex == matchedAudioStream) });
+      for (int idx = 0; idx < info.Audio.Count; idx++)
       {
-        video.SourceMedia = info.Metadata.Source;
+        if (info.Audio[idx].StreamIndex == matchedAudioStream)
+          continue;
+
+        video.SourceAudioStreams[0].Add(info.Audio[idx]);
       }
 
-      video.TargetVideoContainer = video.SourceVideoContainer;
-      video.TargetAudioCodec = video.SourceAudioCodec;
-      video.TargetVideoCodec = video.SourceVideoCodec;
-      video.TargetLevel = info.Video.HeaderLevel;
-      video.TargetProfile = info.Video.ProfileType;
+      video.SourceSubtitles.Add(0, new List<SubtitleStream>(info.Subtitles));
+
+      video.TargetSubtitleBox = _subtitleBox;
+      video.TargetSubtitleColor = _subtitleColor;
+      video.TargetSubtitleFont = _subtitleFont;
+      video.TargetSubtitleFontSize = _subtitleFontSize;
+
+      video.TargetVideoContainer = video.FirstSourceVideoContainer;
+      video.TargetAudioCodec = video.FirstSourceAudioStream.Codec;
+      video.TargetVideoCodec = video.FirstSourceVideoStream.Codec;
+      video.TargetLevel = video.FirstSourceVideoStream.HeaderLevel;
+      video.TargetProfile = video.FirstSourceVideoStream.ProfileType;
       video.TargetForceVideoCopy = true;
       video.TargetForceAudioCopy = true;
 
@@ -1256,40 +1200,34 @@ namespace MediaPortal.Plugins.Transcoding.Interfaces.Profiles
       return video;
     }
 
-    public static AudioTranscoding GetLiveAudioTranscoding(MetadataContainer info, string transcodeId)
+    /// <summary>
+    /// Get an audio transcoding profile that streams the live source audio.
+    /// </summary>
+    public AudioTranscoding GetLiveAudioTranscoding(MetadataContainer info, string transcodeId)
     {
-      if (info == null) return null;
+      if (info == null)
+        return null;
 
-      int iMatchedAudioStream = 0;
+      int matchedAudioStream = 0;
+
       AudioTranscoding audio = new AudioTranscoding();
       if (info.Metadata.AudioContainerType != AudioContainer.Unknown)
-      {
         audio.SourceAudioContainer = info.Metadata.AudioContainerType;
-      }
-      if (info.Audio[iMatchedAudioStream].Bitrate > 0)
-      {
-        audio.SourceAudioBitrate = info.Audio[iMatchedAudioStream].Bitrate;
-      }
-      if (info.Audio[iMatchedAudioStream].Frequency > 0)
-      {
-        audio.SourceAudioFrequency = info.Audio[iMatchedAudioStream].Frequency;
-      }
-      if (info.Audio[iMatchedAudioStream].Channels > 0)
-      {
-        audio.SourceAudioChannels = info.Audio[iMatchedAudioStream].Channels;
-      }
-      if (info.Audio[iMatchedAudioStream].Codec != AudioCodec.Unknown)
-      {
-        audio.SourceAudioCodec = info.Audio[iMatchedAudioStream].Codec;
-      }
-      //if (info.Metadata.Duration > 0)
-      //{
-      //  audio.SourceDuration = TimeSpan.FromSeconds(info.Metadata.Duration);
-      //}
+    
+      if (info.Audio[matchedAudioStream].Bitrate > 0)
+        audio.SourceAudioBitrate = info.Audio[matchedAudioStream].Bitrate;
+    
+      if (info.Audio[matchedAudioStream].Frequency > 0)
+        audio.SourceAudioFrequency = info.Audio[matchedAudioStream].Frequency;
+     
+      if (info.Audio[matchedAudioStream].Channels > 0)
+        audio.SourceAudioChannels = info.Audio[matchedAudioStream].Channels;
+  
+      if (info.Audio[matchedAudioStream].Codec != AudioCodec.Unknown)
+        audio.SourceAudioCodec = info.Audio[matchedAudioStream].Codec;
+   
       if (info.Metadata.Source != null)
-      {
-        audio.SourceMedia = info.Metadata.Source;
-      }
+        audio.SourceMedia.Add(0, info.Metadata.Source);
 
       audio.TargetAudioContainer = audio.SourceAudioContainer;
       audio.TargetAudioCodec = audio.SourceAudioCodec;

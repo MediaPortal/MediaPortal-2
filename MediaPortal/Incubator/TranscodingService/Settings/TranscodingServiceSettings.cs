@@ -115,7 +115,12 @@ namespace MediaPortal.Plugins.Transcoding.Service.Settings
       AudioFileExtensions = DEFAULT_AUDIO_FILE_EXTENSIONS;
       VideoFileExtensions = DEFAULT_VIDEO_FILE_EXTENSIONS;
       ImageFileExtensions = DEFAULT_IMAGE_FILE_EXTENSIONS;
-    }
+      SubtitleColor = null;
+      SubtitleFontSize = null;
+      SubtitleBox = false;
+      SubtitleFont = null;
+      ForceSubtitles = true;
+  }
 
     /// <summary>
     /// Enable caching of transcoded files so they can be reused at a later time
@@ -202,6 +207,37 @@ namespace MediaPortal.Plugins.Transcoding.Service.Settings
     /// </summary>
     [Setting(SettingScope.Global)]
     public Transcoder Transcoder { get; private set; }
+
+    /// <summary>
+    /// The font to use for harcoded subtitles.
+    /// </summary>
+    [Setting(SettingScope.Global)]
+    public string SubtitleFont { get; private set; }
+
+    /// <summary>
+    /// The font size to use for harcoded subtitles.
+    /// </summary>
+    [Setting(SettingScope.Global)]
+    public string SubtitleFontSize { get; private set; }
+
+    /// <summary>
+    /// The primary color to use for subtitle to use for harcoded subtitles. 
+    /// Hexadecimal in Blue Green Red order as per ASS standard.
+    /// </summary>
+    [Setting(SettingScope.Global)]
+    public string SubtitleColor { get; private set; }
+
+    /// <summary>
+    /// Show an opaque box behind the hardcoded subtitles.
+    /// </summary>
+    [Setting(SettingScope.Global)]
+    public bool SubtitleBox { get; private set; }
+
+    /// <summary>
+    /// Always add subtitles if possible.
+    /// </summary>
+    [Setting(SettingScope.Global)]
+    public bool ForceSubtitles { get; private set; }
 
     /// <summary>
     /// Audio file extensions supported for transcoding.

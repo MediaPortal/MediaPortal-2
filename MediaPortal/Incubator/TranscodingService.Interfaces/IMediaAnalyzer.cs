@@ -25,6 +25,8 @@
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.ResourceAccess;
 using MediaPortal.Plugins.Transcoding.Interfaces.Metadata;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace MediaPortal.Plugins.Transcoding.Interfaces
 {
@@ -35,20 +37,22 @@ namespace MediaPortal.Plugins.Transcoding.Interfaces
     /// </summary>
     /// <param name="MediaResource">The IResourceAccessor to the media file</param>
     /// <returns>Metadata Container with all information about the media</returns>
-    MetadataContainer ParseMediaStream(IResourceAccessor MediaResource);
+    Task<MetadataContainer> ParseMediaStreamAsync(IResourceAccessor MediaResource);
 
     /// <summary>
     /// Parses a MediaItem and returns a MetadataContainer with the information (codecs, container, streams, ...) found
     /// </summary>
     /// <param name="Media">The MediaItem to parse</param>
+    /// <param name="MediaPartSetId">The media set part to analyze. Null for first set.</param>
     /// <returns>Metadata Container with all information about the MediaItem</returns>
-    MetadataContainer ParseMediaItem(MediaItem Media);
+    Task<IList<MetadataContainer>> ParseMediaItemAsync(MediaItem Media, int? MediaPartSetId);
 
     /// <summary>
     /// Parses a channel (SlimTv) and returns a MetadataContainer with the information (codecs, container, streams, ...) found
     /// </summary>
     /// <param name="ChannelId">Channel ID of the channel stream</param>
+    /// <param name="ChannelMediaItem">Channel media item</param>
     /// <returns>Metadata Container with all information about the channel</returns>
-    MetadataContainer ParseChannelStream(int ChannelId, out MediaItem ChannelMediaItem);
+    Task<MetadataContainer> ParseChannelStreamAsync(int ChannelId, MediaItem ChannelMediaItem);
   }
 }

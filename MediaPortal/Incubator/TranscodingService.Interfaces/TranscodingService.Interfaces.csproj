@@ -55,10 +55,14 @@
     </Compile>
     <Compile Include="Analyzers\H264Analyzer.cs" />
     <Compile Include="Analyzers\SubtitleAnalyzer.cs" />
+    <Compile Include="Helpers\ImageHelper.cs" />
+    <Compile Include="Helpers\AudioHelper.cs" />
+    <Compile Include="Helpers\VideoHelper.cs" />
+    <Compile Include="ITranscodeProfileManager.cs" />
     <Compile Include="IMediaConverter.cs" />
     <Compile Include="IMediaAnalyzer.cs" />
     <Compile Include="Enums.cs" />
-    <Compile Include="Helpers\Subtitles.cs" />
+    <Compile Include="Helpers\SubtitleHelper.cs" />
     <Compile Include="MetaData\MetadataContainer.cs" />
     <Compile Include="MetaData\MetadataExtensions.cs" />
     <Compile Include="MetaData\Streams\AudioStream.cs" />
@@ -75,9 +79,12 @@
     <Compile Include="Profiles\MediaMatch\AudioMatch.cs" />
     <Compile Include="Profiles\MediaMatch\ImageMatch.cs" />
     <Compile Include="Profiles\MediaMatch\VideoMatch.cs" />
-    <Compile Include="SlimTv\FileReader.cs" />
-    <Compile Include="SlimTv\MultiFileReader.cs" />
+    <Compile Include="SlimTv\COMHelper.cs" />
+    <Compile Include="SlimTv\FilterGraphTools.cs" />
+    <Compile Include="SlimTv\FilterLoader.cs" />
+    <Compile Include="SlimTv\ITsReaderCallback.cs" />
     <Compile Include="SlimTv\SlimTvHandler.cs" />
+    <Compile Include="SlimTv\TranscodeChannel.cs" />
     <Compile Include="Transcoding\AudioTranscoding.cs" />
     <Compile Include="Transcoding\BaseTranscoding.cs" />
     <Compile Include="Transcoding\ImageTranscoding.cs" />
@@ -107,6 +114,10 @@
     <ProjectReference Include="..\..\Source\Core\MediaPortal.Utilities\MediaPortal.Utilities.csproj">
       <Project>{4fe7b8ae-1330-424a-91a1-c68d7abf9cb8}</Project>
       <Name>MediaPortal.Utilities</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\Source\UI\Players\DirectShowWrapper\DirectShowWrapper.csproj">
+      <Project>{c4a45fa7-bcd1-4b14-b6d5-051a780eb83b}</Project>
+      <Name>DirectShowWrapper</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\Source\UI\TV\SlimTvInterfaces\SlimTv.Interfaces.csproj">
       <Project>{f31c71fa-4a24-4d33-b0ee-52cf667dcef4}</Project>

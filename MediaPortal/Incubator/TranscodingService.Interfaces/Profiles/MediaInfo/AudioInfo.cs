@@ -23,6 +23,7 @@
 #endregion
 
 using MediaPortal.Plugins.Transcoding.Interfaces.Metadata;
+using System.Linq;
 
 namespace MediaPortal.Plugins.Transcoding.Interfaces.Profiles.MediaInfo
 {
@@ -38,8 +39,8 @@ namespace MediaPortal.Plugins.Transcoding.Interfaces.Profiles.MediaInfo
     {
       bool bPass = true;
       bPass &= (AudioContainerType == AudioContainer.Unknown || AudioContainerType == info.Metadata.AudioContainerType);
-      bPass &= (Bitrate == 0 || Bitrate >= info.Audio[audioStreamIndex].Bitrate);
-      bPass &= (Frequency == 0 || Frequency >= info.Audio[audioStreamIndex].Frequency);
+      bPass &= (Bitrate == 0 || Bitrate >= info.Audio.First(s => s.StreamIndex == audioStreamIndex).Bitrate);
+      bPass &= (Frequency == 0 || Frequency >= info.Audio.First(s => s.StreamIndex == audioStreamIndex).Frequency);
 
       return bPass;
     }

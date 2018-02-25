@@ -27,8 +27,8 @@ namespace MediaPortal.Plugins.Transcoding.Interfaces.Metadata.Streams
   public class ImageStream
   {
     public PixelFormat PixelFormatType { get; set; }
-    public int Width { get; set; }
-    public int Height { get; set; }
-    public int Orientation { get; set; }
+    public int? Width { get; set; }
+    public int? Height { get; set; }
+    public int? Orientation { get; set; }
   }
 }

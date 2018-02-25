@@ -28,12 +28,12 @@ namespace MediaPortal.Plugins.Transcoding.Interfaces.Metadata.Streams
 {
   public class SubtitleStream
   {
-    public SubtitleCodec Codec { get; set; }
-    public int StreamIndex { get; set; }
+    public SubtitleCodec Codec { get; set; } = SubtitleCodec.Unknown;
+    public int StreamIndex { get; set; } = -1;
     public string Language { get; set; }
     public string Source { get; set; }
     public string CharacterEncoding { get; set; } = "";
-    public bool Default { get; set; }
+    public bool Default { get; set; } = false;
 
     [JsonIgnore]
     public bool IsEmbedded
@@ -44,5 +44,8 @@ namespace MediaPortal.Plugins.Transcoding.Interfaces.Metadata.Streams
         return false;
       }
     }
+
+    [JsonIgnore]
+    public bool IsPartial { get; set; }
   }
 }

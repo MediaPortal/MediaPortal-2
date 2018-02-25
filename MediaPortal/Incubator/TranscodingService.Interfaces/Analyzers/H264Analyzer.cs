@@ -23,7 +23,7 @@
 #endregion
 
 using System;
-using System.Runtime.InteropServices;
+using System.Linq;
 
 //Thanks goes to Jay Codec over at https://github.com/jcodec/jcodec
 //His code provided insights into the decoding of the Annex B header
@@ -218,7 +218,6 @@ namespace MediaPortal.Plugins.Transcoding.Interfaces.Analyzers
       public bool useDefaultScalingMatrixFlag;
       public static ScalingList Read(BitStreamReader bitReader, int sizeOfScalingList)
       {
-
         ScalingList sl = new ScalingList();
         sl.scalingList = new int[sizeOfScalingList];
         int lastScale = 8;
@@ -550,16 +549,6 @@ namespace MediaPortal.Plugins.Transcoding.Interfaces.Analyzers
 
     #endregion
 
-    [DllImport("msvcrt.dll", CallingConvention = CallingConvention.Cdecl)]
-    private static extern int memcmp(byte[] array1, byte[] array2, long count);
-
-    private bool CompareBytes(byte[] array1, byte[] array2)
-    {
-      // Validate buffers are the same length.
-      // This also ensures that the count does not exceed the length of either buffer.  
-      return array1.Length == array2.Length && memcmp(array1, array2, array1.Length) == 0;
-    }
-
     private void ReadBytes(byte[] readBuffer)
     {
       Array.Copy(buffer, currrentPos, readBuffer, 0, readBuffer.LongLength);
@@ -580,7 +569,7 @@ namespace MediaPortal.Plugins.Transcoding.Interfaces.Analyzers
       while ((buffer.LongLength - currrentPos) >= sequenceBuffer.Length)
       {
         ReadBytes(sequenceBuffer);
-        if (CompareBytes(nalStart, sequenceBuffer) == true)
+        if (nalStart.SequenceEqual(sequenceBuffer) == true)
         {
           if (start == -1)
           {

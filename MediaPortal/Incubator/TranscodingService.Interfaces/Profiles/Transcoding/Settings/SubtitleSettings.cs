@@ -30,11 +30,14 @@ namespace MediaPortal.Plugins.Transcoding.Interfaces.Profiles.Setup.Settings
   public class SubtitleSettings
   {
     public SubtitleSupport SubtitleMode = SubtitleSupport.None;
+    public bool TetxBasedSupported = false;
+    public bool ImageBasedSupported = false;
     public List<ProfileSubtitle> SubtitlesSupported = new List<ProfileSubtitle>();
   }
   public class ProfileSubtitle
   {
     public SubtitleCodec Format = SubtitleCodec.Srt;
     public string Mime = "text/srt";
+    public string Encoding = "";
   }
 }

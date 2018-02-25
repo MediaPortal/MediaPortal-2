@@ -22,8 +22,6 @@
 
 #endregion
 
-using System;
-
 namespace MediaPortal.Plugins.Transcoding.Interfaces.Metadata
 {
   public class TranscodedVideoMetadata
@@ -31,19 +29,19 @@ namespace MediaPortal.Plugins.Transcoding.Interfaces.Metadata
     public VideoContainer TargetVideoContainer = VideoContainer.Unknown;
     public VideoCodec TargetVideoCodec = VideoCodec.Unknown;
     public AudioCodec TargetAudioCodec = AudioCodec.Unknown;
-    public int TargetVideoMaxHeight = -1;
-    public int TargetVideoMaxWidth = -1;
-    public long TargetAudioFrequency = -1;
-    public float TargetVideoAspectRatio = -1;
-    public long TargetVideoBitrate = -1;
-    public long TargetAudioBitrate = -1;
-    public int TargetAudioChannels = -1;
-    public float TargetVideoPixelAspectRatio = -1;
+    public int? TargetVideoMaxHeight = null;
+    public int? TargetVideoMaxWidth = null;
+    public long? TargetAudioFrequency = null;
+    public float? TargetVideoAspectRatio = null;
+    public long? TargetVideoBitrate = null;
+    public long? TargetAudioBitrate = null;
+    public int? TargetAudioChannels = null;
+    public float? TargetVideoPixelAspectRatio = null;
     public EncodingPreset TargetPreset = EncodingPreset.Default;
     public EncodingProfile TargetProfile = EncodingProfile.Baseline;
     public PixelFormat TargetVideoPixelFormat = PixelFormat.Yuv420;
-    public float TargetLevel = -1;
-    public float TargetVideoFrameRate = -1;
+    public float? TargetLevel = null;
+    public float? TargetVideoFrameRate = null;
     public Timestamp TargetVideoTimestamp = Timestamp.None;
   }
 }

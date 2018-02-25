@@ -61,7 +61,8 @@ namespace MediaPortal.Plugins.Transcoding.Interfaces.Helpers
       { AudioCodec.Mp3, 2 },
       { AudioCodec.Wma, 2 },
       { AudioCodec.WmaPro, 6 },
-      { AudioCodec.Lpcm, 2 }
+      { AudioCodec.Lpcm, 2 },
+      { AudioCodec.Aac, 8 }
     };
 
 
@@ -95,6 +96,31 @@ namespace MediaPortal.Plugins.Transcoding.Interfaces.Helpers
       return normalizedFps;
     }
 
+    public static float? GetNormalizedFramerate(float? framerate)
+    {
+      if (!framerate.HasValue)
+        return null;
+
+      if (framerate > 23.9 && framerate < 23.99)
+        return 23.976F;
+      else if (framerate >= 23.99 && framerate < 24.1)
+        return 24;
+      else if (framerate >= 24.99 && framerate < 25.1)
+        return 25;
+      else if (framerate >= 29.9 && framerate < 29.99)
+        return 29.97F;
+      else if (framerate >= 29.99 && framerate < 30.1)
+        return 30;
+      else if (framerate >= 49.9 && framerate < 50.1)
+        return 50;
+      else if (framerate >= 59.9 && framerate < 59.99)
+        return 59.94F;
+      else if (framerate >= 59.99 && framerate < 60.1)
+        return 60;
+
+      return framerate;
+    }
+
     public static int GetMaxNumberOfChannels(AudioCodec codec)
     {
       if (codec != AudioCodec.Unknown && MAX_CHANNEL_NUMBER.ContainsKey(codec))
@@ -104,10 +130,10 @@ namespace MediaPortal.Plugins.Transcoding.Interfaces.Helpers
       return 2;
     }
 
-    public static int GetAudioNumberOfChannels(AudioCodec sourceCodec, AudioCodec targetCodec, int sourceChannels, bool forceStereo)
+    public static int? GetAudioNumberOfChannels(AudioCodec sourceCodec, AudioCodec targetCodec, int? sourceChannels, bool forceStereo)
     {
       bool downmixingSupported = sourceCodec != AudioCodec.Flac;
-      if (sourceChannels <= 0)
+      if (!sourceChannels.HasValue)
       {
         if (forceStereo)
           return 2;
@@ -123,18 +149,22 @@ namespace MediaPortal.Plugins.Transcoding.Interfaces.Helpers
         {
           return maxChannels;
         }
+        if(targetCodec == AudioCodec.Aac && sourceChannels == 7)
+        {
+          return 6;
+        }
         return sourceChannels;
       }
-      return -1;
+      return null;
     }
 
-    public static long GetAudioBitrate(long sourceBitrate, long targetBitrate)
+    public static long? GetAudioBitrate(long? sourceBitrate, long? targetBitrate)
     {
       if (targetBitrate > 0)
       {
         return targetBitrate;
       }
-      long bitrate = sourceBitrate;
+      long bitrate = sourceBitrate ?? 0;
       if (bitrate > 0 && VALID_AUDIO_BITRATES.Contains(bitrate) == false)
       {
         bitrate = FindNearestValidBitrate(bitrate);
@@ -167,7 +197,7 @@ namespace MediaPortal.Plugins.Transcoding.Interfaces.Helpers
       return nearest;
     }
 
-    public static long GetAudioFrequency(AudioCodec sourceCodec, AudioCodec targetCodec, long sourceFrequency, long targetSampleRate)
+    public static long? GetAudioFrequency(AudioCodec sourceCodec, AudioCodec targetCodec, long? sourceFrequency, long? targetSampleRate)
     {
       if (targetSampleRate > 0)
       {
@@ -178,14 +208,14 @@ namespace MediaPortal.Plugins.Transcoding.Interfaces.Helpers
       bool frequencyRequired = true;
       if (sourceFrequency >= 44100)
       {
-        minfrequency = sourceFrequency;
+        minfrequency = sourceFrequency.Value;
         frequencyRequired = false;
       }
       if (isLPCM || frequencyRequired)
       {
         return minfrequency;
       }
-      return -1;
+      return null;
     }
   }
 }

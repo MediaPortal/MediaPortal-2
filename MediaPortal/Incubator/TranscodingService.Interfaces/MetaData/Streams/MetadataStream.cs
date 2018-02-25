@@ -32,9 +32,9 @@ namespace MediaPortal.Plugins.Transcoding.Interfaces.Metadata.Streams
     public AudioContainer AudioContainerType { get; set; }
     public VideoContainer VideoContainerType { get; set; }
     public ImageContainer ImageContainerType { get; set; }
-    public long Size { get; set; }
-    public long Bitrate { get; set; }
-    public double Duration { get; set; }
+    public long? Size { get; set; }
+    public long? Bitrate { get; set; }
+    public double? Duration { get; set; }
     [JsonIgnore]
     public IResourceAccessor Source { get; set; }
     public bool Live { get; set; }

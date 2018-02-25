@@ -27,28 +27,28 @@ using System.IO;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.MediaManagement;
-using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Common.ResourceAccess;
 using MediaPortal.Plugins.SlimTv.Interfaces;
-using MediaPortal.Plugins.SlimTv.Interfaces.Items;
 using MediaPortal.Plugins.SlimTv.Interfaces.ResourceProvider;
 using System.Text;
 using System;
 using System.Threading;
-using MediaPortal.Plugins.SlimTv.Interfaces.LiveTvMediaItem;
 using MediaPortal.Common.Services.ResourceAccess.LocalFsResourceProvider;
 using System.Linq;
 using MediaPortal.Plugins.Transcoding.Interfaces.MetaData;
+using System.Threading.Tasks;
+using System.Collections.Concurrent;
 
 namespace MediaPortal.Plugins.Transcoding.Interfaces.SlimTv
 {
   public class SlimTvHandler : IDisposable
   {
-    private ILogger _logger = null;
-    private Dictionary<string, int> _clients = new Dictionary<string, int>();
-    private Dictionary<int, Channel> _channels = new Dictionary<int, Channel>();
-    private Dictionary<string, int> _timeShiftings = new Dictionary<string, int>();
-    private Dictionary<int, int> _slotChannels = new Dictionary<int, int>()
+    private readonly ILogger _logger = null;
+    private readonly SemaphoreSlim _slotLock = new SemaphoreSlim(1, 1);
+    private readonly ConcurrentDictionary<int, TranscodeChannel> _channels = new ConcurrentDictionary<int, TranscodeChannel>();
+    private readonly ConcurrentDictionary<string, int> _clientChannels = new ConcurrentDictionary<string, int>();
+    private readonly ConcurrentDictionary<string, int> _timeShiftings = new ConcurrentDictionary<string, int>();
+    private readonly Dictionary<int, int> _slotChannels = new Dictionary<int, int>()
     {
       //Slot 0 is used by client for main screen
       //Slot 1 is used by client for PIP screen
@@ -68,61 +68,79 @@ namespace MediaPortal.Plugins.Transcoding.Interfaces.SlimTv
       _logger = ServiceRegistration.Get<ILogger>();
     }
 
-    private int LockChannel(int channelId)
+    private async Task<int> LockChannelAsync(int channelId)
     {
-      lock(_slotChannels)
+      try
       {
-        int slot = 2;
-        while(_slotChannels.ContainsKey(slot))
+        await _slotLock.WaitAsync().ConfigureAwait(false);
+        try
         {
-          if (_slotChannels[slot] == 0)
-          {
-            _slotChannels[slot] = channelId;
+          int slot = _slotChannels.Where(s => s.Value == 0).Select(s => s.Key).FirstOrDefault();
+          if (slot > 0)
             return slot;
-          }
-          slot++;
+          return -1;
         }
+        finally
+        {
+          _slotLock.Release();
+        }
+      }
+      catch (Exception ex)
+      {
+        _logger.Error("SlimTvHandler: Error locking channel {0}", ex, channelId);
         return -1;
       }
     }
 
-    private int GetChannelSlot(int channelId)
+    private async Task<int> GetChannelSlotAsync(int channelId)
     {
-      lock (_slotChannels)
+      try
       {
-        int slot = 2;
-        while (_slotChannels.ContainsKey(slot))
+        await _slotLock.WaitAsync().ConfigureAwait(false);
+        try
         {
-          if (_slotChannels[slot] == channelId)
-          {
-            return _slotChannels[slot];
-          }
-          slot++;
+          int slot = _slotChannels.Where(s => s.Value == channelId).Select(s => s.Key).FirstOrDefault();
+          if (slot > 0)
+            return slot;
+          return -1;
+        }
+        finally
+        {
+          _slotLock.Release();
         }
       }
-      return -1;
+      catch (Exception ex)
+      {
+        _logger.Error("SlimTvHandler: Error getting channel {0}", ex, channelId);
+        return -1;
+      }
     }
 
-    private void ReleaseChannel(int channelId)
+    private async Task ReleaseChannelAsync(int channelId)
     {
-      lock (_slotChannels)
+      try
       {
-        int slot = 2;
-        while (_slotChannels.ContainsKey(slot))
+        await _slotLock.WaitAsync().ConfigureAwait(false);
+        try
         {
-          if (_slotChannels[slot] == channelId)
-          {
+          int slot = _slotChannels.Where(s => s.Value == channelId).Select(s => s.Key).FirstOrDefault();
+          if (slot > 0)
             _slotChannels[slot] = 0;
-            return;
-          }
-          slot++;
         }
+        finally
+        {
+          _slotLock.Release();
+        }
+      }
+      catch (Exception ex)
+      {
+        _logger.Error("SlimTvHandler: Error releasing channel {0}", ex, channelId);
       }
     }
 
-    public IResourceAccessor GetAnalysisAccessor(int ChannelId)
+    public async Task<IResourceAccessor> GetAnalysisAccessorAsync(int ChannelId)
     {
-      lock(_channels)
+      try
       {
         if (_channels.ContainsKey(ChannelId))
         {
@@ -135,7 +153,7 @@ namespace MediaPortal.Plugins.Transcoding.Interfaces.SlimTv
 
             FileStream file = File.Open(masterFile, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
             byte[] buffer = new byte[file.Length];
-            file.Read(buffer, 0, buffer.Length);
+            await file.ReadAsync(buffer, 0, buffer.Length).ConfigureAwait(false);
             file.Close();
 
             int offset = 8 + 4 + 4;
@@ -147,10 +165,10 @@ namespace MediaPortal.Plugins.Transcoding.Interfaces.SlimTv
             {
               if ((DateTime.Now - tc).TotalMilliseconds > 2000)
               {
-                _logger.Debug("SlimTvHandler: timed out while waiting for buffer file to become available");
+                _logger.Debug("SlimTvHandler: Timed out while waiting for buffer file to become available");
                 return null;
               }
-              Thread.Sleep(1);
+              await Task.Delay(5).ConfigureAwait(false);
             }
 
             LocalFsResourceProvider localFsResourceProvider = new LocalFsResourceProvider();
@@ -162,241 +180,171 @@ namespace MediaPortal.Plugins.Transcoding.Interfaces.SlimTv
             return stra;
           }
         }
+        return null;
       }
-      return null;
+      catch (Exception ex)
+      {
+        _logger.Error("SlimTvHandler: Error getting analysis accessor for channel {0}", ex, ChannelId);
+        return null;
+      }
     }
 
-    public IResourceAccessor GetDefaultAccessor(int ChannelId)
+    public Task<IResourceAccessor> GetDefaultAccessorAsync(int ChannelId)
     {
-      lock (_channels)
+      try
       {
         if (_channels.ContainsKey(ChannelId))
         {
           var resourcePath = ResourcePath.Deserialize(_channels[ChannelId].MetaData.PrimaryProviderResourcePath());
           IResourceAccessor stra = SlimTvResourceProvider.GetResourceAccessor(resourcePath.BasePathSegment.Path);
-          return stra;
+          return Task.FromResult(stra);
         }
-        return null;
       }
+      catch (Exception ex)
+      {
+        _logger.Error("SlimTvHandler: Error getting default accessor for channel {0}", ex, ChannelId);
+      }
+      return Task.FromResult<IResourceAccessor>(null);
     }
 
     public bool AttachConverterStreamHook(string ClientId, Stream LiveStreamHook)
     {
       int channelId = 0;
-      lock (_channels)
-      {
-        if (_clients.ContainsKey(ClientId) == false) return false;
-        channelId = _clients[ClientId];
-        if (_channels.ContainsKey(channelId))
-        {
-          var resourcePath = ResourcePath.Deserialize(_channels[channelId].MetaData.PrimaryProviderResourcePath());
-          IResourceAccessor stra = SlimTvResourceProvider.GetResourceAccessor(resourcePath.BasePathSegment.Path);
-          if (stra is INetworkResourceAccessor)
-          {
-            return false;
-          }
-        }
+      if (!_clientChannels.TryGetValue(ClientId, out channelId))
+        return false;
 
-        lock (_channels[channelId].ClientStreams)
-        {
-          if (_channels[channelId].ClientStreams.ContainsKey(ClientId) == false)
-          {
-            _channels[channelId].ClientStreams.Add(ClientId, LiveStreamHook);
-            return true;
-          }
-          return false;
-        }
-      }
+      TranscodeChannel channel;
+      if (!_channels.TryGetValue(channelId, out channel))
+        return false;
+
+      if (!channel.Clients.TryAdd(ClientId, LiveStreamHook))
+        return false;
+
+      return true;
     }
 
-    public bool StartTuning(string ClientId, int ChannelId, out MediaItem LiveMediaItem)
+    public async Task<(bool Success, MediaItem LiveMediaItem)> StartTuningAsync(string ClientId, int ChannelId)
     {
-      LiveMediaItem = null;
-      lock (_channels)
+      try
       {
-        if (_channels.ContainsKey(ChannelId))
+        TranscodeChannel channel;
+        if (_channels.TryGetValue(ChannelId, out channel))
         {
           //Channel already tuned
-          if (_channels[ChannelId].Clients.Contains(ClientId))
+          if (channel.Clients.ContainsKey(ClientId))
           {
             //Client already streaming
-            LiveMediaItem = _channels[ChannelId].MetaData;
-            return true;
+            return (true, channel.MetaData);
           }
           else
           {
             //Initiate client stream
-            _channels[ChannelId].Clients.Add(ClientId);
-            _clients.Add(ClientId, ChannelId);
-            LiveMediaItem = _channels[ChannelId].MetaData;
-            return true;
+            if (!channel.Clients.TryAdd(ClientId, null))
+              return (false, null);
+
+            _clientChannels.TryAdd(ClientId, ChannelId);
+
+            return (true, channel.MetaData);
           }
         }
 
         if (ServiceRegistration.IsRegistered<ITvProvider>())
         {
-          IChannelAndGroupInfo channelAndGroupInfo = ServiceRegistration.Get<ITvProvider>() as IChannelAndGroupInfo;
-          IChannel channel;
-          if (channelAndGroupInfo.GetChannel(ChannelId, out channel))
+          IChannelAndGroupInfoAsync channelAndGroupInfo = ServiceRegistration.Get<ITvProvider>() as IChannelAndGroupInfoAsync;
+          var channelResult = await channelAndGroupInfo.GetChannelAsync(ChannelId).ConfigureAwait(false);
+          if (!channelResult.Success)
+            return (false, null);
+
+          ITimeshiftControlEx timeshiftControl = ServiceRegistration.Get<ITvProvider>() as ITimeshiftControlEx;
+          int slot = await LockChannelAsync(ChannelId).ConfigureAwait(false);
+          var mediaItem = (await timeshiftControl.StartTimeshiftAsync(ClientId, slot, channelResult.Result).ConfigureAwait(false));
+          if (!mediaItem.Success)
           {
-            ITimeshiftControlEx timeshiftControl = ServiceRegistration.Get<ITvProvider>() as ITimeshiftControlEx;
-
-            int slot = LockChannel(ChannelId);
-            if (!timeshiftControl.StartTimeshift(ClientId, slot, channel, out LiveMediaItem))
-            {
-              _logger.Error("SlimTvHandler: Couldn't start timeshifting for channel {0}", ChannelId);
-              ReleaseChannel(ChannelId);
-              return false;
-            }
-
-            //Initiate channel cache
-            _channels.Add(ChannelId, new Channel());
-            _channels[ChannelId].Clients.Add(ClientId);
-            _channels[ChannelId].MetaData = LiveMediaItem;
-            _clients.Add(ClientId, ChannelId);
-            _timeShiftings.Add(ClientId, slot);
-            
-            var resourcePath = ResourcePath.Deserialize(LiveMediaItem.PrimaryProviderResourcePath());
-            IResourceAccessor stra = SlimTvResourceProvider.GetResourceAccessor(resourcePath.BasePathSegment.Path);
-            if (stra is ILocalFsResourceAccessor)
-            {
-              using (ServiceRegistration.Get<IImpersonationService>().CheckImpersonationFor(stra.CanonicalLocalResourcePath))
-              {
-                MultiFileReader reader = new MultiFileReader(true);
-                reader.SetFileAccessor((ILocalFsResourceAccessor)stra);
-                _channels[ChannelId].FileReader = reader;
-                ThreadPool.QueueUserWorkItem(new WaitCallback(ChannelStreamReader), ChannelId);
-              }
-            }
-            //Allow channel content to become available or stream analysis/transoding will fail
-            Thread.Sleep(5000);
-            return true;
+            _logger.Error("SlimTvHandler: Couldn't start timeshifting for channel {0}", ChannelId);
+            await ReleaseChannelAsync(ChannelId).ConfigureAwait(false);
+            return (false, null);
           }
+
+          //Initiate channel cache
+          channel = new TranscodeChannel();
+          channel.Clients.TryAdd(ClientId, null);
+          channel.SetChannel(mediaItem.Result);
+          channel.StartStreaming();
+          _channels.TryAdd(ChannelId, channel);
+          _clientChannels.TryAdd(ClientId, ChannelId);
+          _timeShiftings.TryAdd(ClientId, slot);
+
+          //Allow channel content to become available or stream analysis/transoding will fail
+          await Task.Delay(5000).ConfigureAwait(false);
+          return (true, mediaItem.Result);
         }
-        return false;
+
+        return (false, null);
+      }
+      catch (Exception ex)
+      {
+        _logger.Error("SlimTvHandler: Error starting tuning of channel {0}", ex, ChannelId);
+        return (false, null);
       }
     }
 
-    public bool EndTuning(string ClientId)
+    public async Task<bool> EndTuningAsync(string ClientId)
     {
-      lock (_channels)
+      try
       {
         int channelId = 0;
-        try
-        {
-          if (_clients.ContainsKey(ClientId) == false) return true;
-          channelId = _clients[ClientId];
-          if (_channels.ContainsKey(channelId) == false) return true;
-          _channels[channelId].Clients.Remove(ClientId);
-          _clients.Remove(ClientId);
-          lock (_channels[channelId].ClientStreams)
-          {
-            if (_channels[channelId].ClientStreams.ContainsKey(ClientId))
-            {
-              _channels[channelId].ClientStreams[ClientId].Close();
-              _channels[channelId].ClientStreams.Remove(ClientId);
-            }
-          }
-        }
-        catch(Exception ex)
-        {
-          _logger.Error("SlimTvHandler: Couldn't remove client {0}", ex, ClientId);
-        }
+        if (!_clientChannels.TryRemove(ClientId, out channelId))
+          return false;
 
-        if (_channels.ContainsKey(channelId) && _channels[channelId].Clients.Count == 0)
+        TranscodeChannel channel;
+        if (!_channels.TryGetValue(channelId, out channel))
+          return false;
+
+        Stream stream = null;
+        if (!channel.Clients.TryRemove(ClientId, out stream))
+          return false;
+
+        stream.Dispose();
+
+        if (channel.Clients.Count == 0)
         {
-          int slot = GetChannelSlot(channelId);
-          try
-          {
-            LiveTvMediaItem mediaItem = (LiveTvMediaItem)_channels[channelId].MetaData;
-            slot = (int)mediaItem.AdditionalProperties[LiveTvMediaItem.SLOT_INDEX];
-            if (_channels[channelId].FileReader != null)
-            {
-              _channels[channelId].FileReader.CloseFile();
-            }
-            _channels.Remove(channelId);
-          }
-          catch (Exception ex)
-          {
-            _logger.Error("SlimTvHandler: Couldn't remove channel {0}", ex, channelId);
-          }
+          int slot = 0;
+          _timeShiftings.TryRemove(ClientId, out slot);
+          _channels.TryRemove(channelId, out channel);
+          channel.StopStreaming();
 
           ITimeshiftControlEx timeshiftControl = ServiceRegistration.Get<ITvProvider>() as ITimeshiftControlEx;
-          if (!timeshiftControl.StopTimeshift(ClientId, slot))
+          if (!(await timeshiftControl.StopTimeshiftAsync(ClientId, slot).ConfigureAwait(false)))
           {
             _logger.Error("SlimTvHandler: Couldn't stop timeshifting for channel {0}", channelId);
             return false;
           }
-          ReleaseChannel(channelId);
-          _timeShiftings.Remove(ClientId);
+          await ReleaseChannelAsync(channelId).ConfigureAwait(false);
         }
+
         return true;
       }
-    }
-
-    private void ChannelStreamReader(object channel)
-    {
-      int channelId = (int)channel;
-      byte[] buffer = new byte[1024];
-      int readBytes = 0;
-      try
+      catch (Exception ex)
       {
-        Channel c = _channels[channelId];
-        if (c.FileReader == null) return;
-        using (ServiceRegistration.Get<IImpersonationService>().CheckImpersonationFor((c.FileReader.GetFileAccessor()).CanonicalLocalResourcePath))
-        {
-          if (c.FileReader.OpenFile() == false)
-          {
-            _logger.Error("SlimTvHandler: Couldn't start multi file reader for channel {0}", channelId);
-            return;
-          }
-          while (_channels.ContainsKey(channelId))
-          {
-            if (c.FileReader.Read(buffer, 0, buffer.Length, out readBytes))
-            {
-              lock (c.ClientStreams)
-              {
-                if (c.ClientStreams.Keys.Count > 0 && readBytes > 0)
-                {
-                  foreach (Stream stream in c.ClientStreams.Values)
-                  {
-                    if (stream.CanWrite) stream.Write(buffer, 0, readBytes);
-                  }
-                }
-              }
-            }
-          }
-        }
+        _logger.Error("SlimTvHandler: Error ending tuning for client {0}", ex, ClientId);
       }
-      catch(Exception ex)
-      {
-        _logger.Error("SlimTvHandler: Stream reading failed for channel {0}", ex, channelId);
-      }
+      return false;
     }
 
     public void Dispose()
     {
       try
       {
-        ITimeshiftControlEx timeshiftControl = ServiceRegistration.Get<ITvProvider>() as ITimeshiftControlEx;
-        if (timeshiftControl != null)
+        if (ServiceRegistration.Get<ITvProvider>() is ITimeshiftControlEx timeshiftControl)
         {
           foreach (string user in _timeShiftings.Keys)
           {
-            timeshiftControl.StopTimeshift(user, _timeShiftings[user]);
+            timeshiftControl.StopTimeshiftAsync(user, _timeShiftings[user]);
           }
         }
       }
       catch
       {}
-    }
-
-    private class Channel
-    {
-      public List<string> Clients = new List<string>();
-      public Dictionary<string, Stream> ClientStreams = new Dictionary<string, Stream>();
-      public MultiFileReader FileReader = null;
-      public MediaItem MetaData = null;
     }
   }
 }

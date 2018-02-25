@@ -23,6 +23,7 @@
 #endregion
 
 using System.Collections.Generic;
+using System.Linq;
 using MediaPortal.Plugins.Transcoding.Interfaces.Metadata;
 
 namespace MediaPortal.Plugins.Transcoding.Interfaces.Profiles.MediaInfo
@@ -56,7 +57,7 @@ namespace MediaPortal.Plugins.Transcoding.Interfaces.Profiles.MediaInfo
       bool bPass = true;
       bPass &= (VideoContainerType == VideoContainer.Unknown || VideoContainerType == info.Metadata.VideoContainerType);
       bPass &= (VideoCodecType == VideoCodec.Unknown || VideoCodecType == info.Video.Codec);
-      bPass &= (AudioCodecType == AudioCodec.Unknown || AudioCodecType == info.Audio[audioStreamIndex].Codec);
+      bPass &= (AudioCodecType == AudioCodec.Unknown || AudioCodecType == info.Audio.First(s => s.StreamIndex == audioStreamIndex).Codec);
       if (SquarePixels == true)
       {
         bPass &= (info.Video.HasSquarePixels == true);
@@ -68,11 +69,11 @@ namespace MediaPortal.Plugins.Transcoding.Interfaces.Profiles.MediaInfo
       bPass &= (PixelFormatType == PixelFormat.Unknown || PixelFormatType == info.Video.PixelFormatType);
       if (AudioMultiChannel == true)
       {
-        bPass &= (info.Audio[audioStreamIndex].Channels == 0 || info.Audio[audioStreamIndex].Channels > 2);
+        bPass &= (!info.Audio.First(s => s.StreamIndex == audioStreamIndex).Channels.HasValue || info.Audio.First(s => s.StreamIndex == audioStreamIndex).Channels > 2);
       }
       else if (AudioMultiChannel == false)
       {
-        bPass &= (info.Audio[audioStreamIndex].Channels <= 2);
+        bPass &= (!info.Audio.First(s => s.StreamIndex == audioStreamIndex).Channels.HasValue || info.Audio.First(s => s.StreamIndex == audioStreamIndex).Channels <= 2);
       }
 
       List<string> brandExclusions = new List<string>();
@@ -96,7 +97,7 @@ namespace MediaPortal.Plugins.Transcoding.Interfaces.Profiles.MediaInfo
           bPass &= (info.Video.ProfileType != EncodingProfile.Unknown && EncodingProfileType == info.Video.ProfileType);
           if (LevelMinimum > 0)
           {
-            float videoLevel = 0;
+            float? videoLevel = 0;
             if (levelCheckType == LevelCheck.RefFramesLevel)
             {
               videoLevel = info.Video.RefLevel;
@@ -107,21 +108,17 @@ namespace MediaPortal.Plugins.Transcoding.Interfaces.Profiles.MediaInfo
             }
             else
             {
-              if (info.Video.HeaderLevel <= 0)
+              if (info.Video.RefLevel.HasValue)
               {
                 videoLevel = info.Video.RefLevel;
               }
-              if (info.Video.RefLevel <= 0)
+              else if (info.Video.HeaderLevel.HasValue)
               {
                 videoLevel = info.Video.HeaderLevel;
               }
               if (info.Video.HeaderLevel > info.Video.RefLevel)
               {
                 videoLevel = info.Video.HeaderLevel;
-              }
-              else
-              {
-                videoLevel = info.Video.RefLevel;
               }
             }
             bPass &= (videoLevel > 0 && videoLevel >= LevelMinimum);

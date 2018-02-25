@@ -34,6 +34,8 @@ using MediaPortal.Plugins.Transcoding.Interfaces.Metadata;
 using MediaPortal.Plugins.Transcoding.Interfaces.Helpers;
 using System.IO;
 using MediaPortal.Plugins.Transcoding.Interfaces;
+using System.Threading.Tasks;
+using System.Threading;
 
 namespace MediaPortal.Plugins.Transcoding.Service.Transcoders.FFMpeg
 {
@@ -48,7 +50,7 @@ namespace MediaPortal.Plugins.Transcoding.Service.Transcoders.FFMpeg
 
     #endregion
 
-    private readonly object FFPROBE_THROTTLE_LOCK = new object();
+    private readonly SemaphoreSlim _probeLock = new SemaphoreSlim(Environment.ProcessorCount, Environment.ProcessorCount);
     private readonly Dictionary<string, CultureInfo> _countryCodesMapping = new Dictionary<string, CultureInfo>();
     private readonly string ANALYSIS_CACHE_PATH = Path.Combine(DEFAULT_ANALYSIS_CACHE_PATH, "FFMpeg");
 
@@ -65,19 +67,30 @@ namespace MediaPortal.Plugins.Transcoding.Service.Transcoders.FFMpeg
       }
     }
 
-    private ProcessExecutionResult ParseFile(ILocalFsResourceAccessor lfsra, string arguments)
+    private async Task<ProcessExecutionResult> ParseFileAsync(ILocalFsResourceAccessor lfsra, string arguments)
     {
-      ProcessExecutionResult executionResult;
-      lock (FFPROBE_THROTTLE_LOCK)
-        executionResult = FFMpegBinary.FFProbeExecuteWithResourceAccessAsync(lfsra, arguments, ProcessPriorityClass.Idle, _analyzerTimeout).Result;
+      await _probeLock.WaitAsync();
+      try
+      {
+        ProcessExecutionResult executionResult = await FFMpegBinary.FFProbeExecuteWithResourceAccessAsync(lfsra, arguments, ProcessPriorityClass.BelowNormal, _analyzerTimeout);
 
-      // My guess (agree with dtb's comment): AFAIK ffmpeg uses stdout to pipe out binary data(multimedia, snapshots, etc.)
-      // and stderr is used for logging purposes. In your example you use stdout.
-      // http://stackoverflow.com/questions/4246758/why-doesnt-this-method-redirect-my-output-from-exe-ffmpeg
-      return executionResult;
+        // My guess (agree with dtb's comment): AFAIK ffmpeg uses stdout to pipe out binary data(multimedia, snapshots, etc.)
+        // and stderr is used for logging purposes. In your example you use stdout.
+        // http://stackoverflow.com/questions/4246758/why-doesnt-this-method-redirect-my-output-from-exe-ffmpeg
+        return executionResult;
+      }
+      catch (Exception ex)
+      {
+        _logger.Error("FFMpegMediaAnalyzer: Failed to parse file '{0}'", ex, lfsra.LocalFileSystemPath);
+      }
+      finally
+      {
+        _probeLock.Release();
+      }
+      return null;
     }
 
-    public override MetadataContainer ParseMediaStream(IResourceAccessor MediaResource)
+    public override async Task<MetadataContainer> ParseMediaStreamAsync(IResourceAccessor MediaResource)
     {
       if (MediaResource is ILocalFsResourceAccessor)
       {
@@ -88,7 +101,7 @@ namespace MediaPortal.Plugins.Transcoding.Service.Transcoders.FFMpeg
         string arguments = "";
 
         //Check cache
-        MetadataContainer info = LoadAnalysis(MediaResource);
+        MetadataContainer info = await LoadAnalysisAsync(MediaResource);
         if (info != null)
           return info;
 
@@ -102,7 +115,7 @@ namespace MediaPortal.Plugins.Transcoding.Service.Transcoders.FFMpeg
           arguments = string.Format("-threads {0} -i \"{1}\"", _analyzerMaximumThreads, fileName);
         }
 
-        ProcessExecutionResult executionResult = ParseFile(fileResource, arguments);
+        ProcessExecutionResult executionResult = await ParseFileAsync(fileResource, arguments);
         if (executionResult != null && executionResult.Success && executionResult.ExitCode == 0 && !string.IsNullOrEmpty(executionResult.StandardError))
         {
           //_logger.Debug("MediaAnalyzer: Successfully ran FFProbe:\n {0}", executionResult.StandardError);
@@ -134,7 +147,7 @@ namespace MediaPortal.Plugins.Transcoding.Service.Transcoders.FFMpeg
           {
             info.Metadata.Mime = MimeDetector.GetFileMime(fileResource, "unknown/unknown");
           }
-          SaveAnalysis(MediaResource, info);
+          await SaveAnalysisAsync(MediaResource, info);
           return info;
         }
 
@@ -150,7 +163,7 @@ namespace MediaPortal.Plugins.Transcoding.Service.Transcoders.FFMpeg
           return null;
 
         //Check cache
-        MetadataContainer info = LoadAnalysis(MediaResource);
+        MetadataContainer info = await LoadAnalysisAsync(MediaResource);
         if (info != null)
           return info;
 
@@ -162,9 +175,20 @@ namespace MediaPortal.Plugins.Transcoding.Service.Transcoders.FFMpeg
         arguments += "-analyzeduration " + _analyzerStreamTimeout + " ";
         arguments += string.Format("-i \"{0}\"", url);
 
-        ProcessExecutionResult executionResult;
-        lock (FFPROBE_THROTTLE_LOCK)
-          executionResult = FFMpegBinary.FFProbeExecuteAsync(arguments, ProcessPriorityClass.Idle, _analyzerTimeout).Result;
+        ProcessExecutionResult executionResult = null;
+        await _probeLock.WaitAsync();
+        try
+        {
+          executionResult = FFMpegBinary.FFProbeExecuteAsync(arguments, ProcessPriorityClass.BelowNormal, _analyzerTimeout).Result;
+        }
+        catch (Exception ex)
+        {
+          _logger.Error("FFMpegMediaAnalyzer: Failed to parse url '{0}'", ex, url);
+        }
+        finally
+        {
+          _probeLock.Release();
+        }
 
         if (executionResult != null && executionResult.Success && executionResult.ExitCode == 0 && !string.IsNullOrEmpty(executionResult.StandardError))
         {
@@ -197,7 +221,7 @@ namespace MediaPortal.Plugins.Transcoding.Service.Transcoders.FFMpeg
           {
             info.Metadata.Mime = MimeDetector.GetUrlMime(url, "unknown/unknown");
           }
-          SaveAnalysis(MediaResource, info);
+          await SaveAnalysisAsync(MediaResource, info);
           return info;
         }
 

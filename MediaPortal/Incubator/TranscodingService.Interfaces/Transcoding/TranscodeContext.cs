@@ -23,8 +23,9 @@
 #endregion
 
 using System;
+using System.Collections.Generic;
 using System.IO;
-using System.Threading;
+using System.Threading.Tasks;
 
 namespace MediaPortal.Plugins.Transcoding.Interfaces.Transcoding
 {
@@ -38,28 +39,18 @@ namespace MediaPortal.Plugins.Transcoding.Interfaces.Transcoding
     protected TimeSpan _lastTime = TimeSpan.FromTicks(0);
     protected object _lastSync = new object();
     protected bool _streamInUse = false;
-    protected long _currentSegment = 0;
-    protected ManualResetEvent _completeEvent = new ManualResetEvent(true);
+    protected TaskCompletionSource<bool> _completeTask = null;
 
-    public ManualResetEvent CompleteEvent 
-    {
-      get { return _completeEvent; }
-    }
+    private object _syncLock = new object();
 
     public string TargetFile { get; set; }
-    public string TargetSubtitle { get; set; }
+    public ICollection<string> TargetSubtitles { get; set; } = new List<string>();
     public string SegmentDir { get; set; }
     public string HlsBaseUrl { get; set; }
     public bool Aborted { get; set; }
-    public bool Failed { get; set; }
+    public bool Failed { get; private set; }
     public bool Partial { get; set; }
-    public bool Segmented 
-    { 
-      get
-      {
-        return string.IsNullOrEmpty(SegmentDir) == false;
-      }
-    }
+    public bool Segmented => !string.IsNullOrEmpty(SegmentDir);
     public bool Live { get; set; }
     public bool InUse 
     {
@@ -74,17 +65,7 @@ namespace MediaPortal.Plugins.Transcoding.Interfaces.Transcoding
       }
     }
     public long LastSegment { get; set; }
-    public long CurrentSegment
-    {
-      set
-      {
-        _currentSegment = value;
-      }
-      get
-      {
-        return _currentSegment;
-      }
-    }
+    public long CurrentSegment { get; set; }
     public TimeSpan TargetDuration { get; set; }
     public TimeSpan CurrentDuration 
     { 
@@ -229,11 +210,11 @@ namespace MediaPortal.Plugins.Transcoding.Interfaces.Transcoding
     public bool Running { get; private set; }
 
     /// <summary>
-    /// Returns a Stream to the transcoded file or also to a playlist file in case of HLS.
+    /// Returns a stream to the transcoded file or playlist file in case of HLS.
     /// Using HLS:
     /// FFMPeg creates a tmp file and replaces the playlist file for each new segment,
-    /// because of this one has to close the Stream after reading the playlist file.
-    /// Here we try to recreate the Stream for convenience.
+    /// because of this one has to close the stream after reading the playlist file.
+    /// Here we try to recreate the stream for convenience.
     /// </summary>
     public Stream TranscodedStream
     {
@@ -251,11 +232,9 @@ namespace MediaPortal.Plugins.Transcoding.Interfaces.Transcoding
       private set { _transcodedStream = value; }
     }
 
-    public void Start()
-    {
-      Running = true;
-      Aborted = false;
-    }
+    public Task WaitForCompleteAsync() { return _completeTask?.Task ?? Task.CompletedTask; }
+
+    public void WaitForComplete() { (_completeTask?.Task ?? Task.CompletedTask).Wait(); }
 
     public void AssignStream(Stream stream)
     {
@@ -264,9 +243,49 @@ namespace MediaPortal.Plugins.Transcoding.Interfaces.Transcoding
       TranscodedStream = stream;
     }
 
+    public void Start()
+    {
+      lock (_syncLock)
+      {
+        if (!Running)
+        {
+          Running = true;
+          Aborted = false;
+          Failed = false;
+          if (_completeTask?.Task.IsCompleted ?? true)
+            _completeTask = new TaskCompletionSource<bool>();
+        }
+      }
+    }
+
+    public void Abort()
+    {
+      if (Running)
+      {
+        Aborted = true;
+        Stop();
+      }
+    }
+
+    public void Fail()
+    {
+      if (Running)
+      {
+        Failed = true;
+        Stop();
+      }
+    }
+
     public void Stop()
     {
-      Running = false;
+      lock (_syncLock)
+      {
+        if (Running)
+        {
+          Running = false;
+          _completeTask?.TrySetResult(true);
+        }
+      }
     }
 
     public void Dispose()

@@ -26,10 +26,10 @@ namespace MediaPortal.Plugins.Transcoding.Interfaces.Metadata
 {
   public class TranscodedImageMetadata
   {
-    public int TargetMaxHeight = -1;
-    public int TargetMaxWidth = -1;
+    public int? TargetMaxHeight = null;
+    public int? TargetMaxWidth = null;
     public ImageContainer TargetImageCodec = ImageContainer.Jpeg;
     public PixelFormat TargetPixelFormat = PixelFormat.Unknown;
-    public int TargetOrientation = -1;
+    public int? TargetOrientation = null;
   }
 }

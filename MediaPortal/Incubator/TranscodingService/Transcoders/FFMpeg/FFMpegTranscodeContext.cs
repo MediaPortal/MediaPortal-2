@@ -144,12 +144,6 @@ namespace MediaPortal.Plugins.Transcoding.Service.Transcoders.FFMpeg
         deletePath = "";
       }
 
-      string subtitlePath = TargetSubtitle;
-      if (Partial == false && Live == false)
-      {
-        subtitlePath = "";
-      }
-
       DateTime waitStart = DateTime.Now;
       while (true)
       {
@@ -159,17 +153,25 @@ namespace MediaPortal.Plugins.Transcoding.Service.Transcoders.FFMpeg
         }
         try
         {
-          //Only delete subtitle if it is in the cache
-          if (subtitlePath != null && subtitlePath.StartsWith(_cachePath) == true)
+          foreach (string subtitlePath in TargetSubtitles)
           {
-            try
+            if (Partial == false && Live == false)
             {
-              if (File.Exists(subtitlePath))
-              {
-                File.Delete(subtitlePath);
-              }
+              //Can be reused
+              continue;
             }
-            catch { }
+            //Only delete subtitle if it is in the cache
+            if (!string.IsNullOrEmpty(subtitlePath) && subtitlePath.StartsWith(_cachePath) == true)
+            {
+              try
+              {
+                if (File.Exists(subtitlePath))
+                {
+                  File.Delete(subtitlePath);
+                }
+              }
+              catch { }
+            }
           }
           if (isFolder == false)
           {
