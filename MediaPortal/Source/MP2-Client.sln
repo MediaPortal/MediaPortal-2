@@ -234,6 +234,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StubMetadataExtractors", "E
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ImageProcessorThumbnailProvider", "Extensions\MetadataExtractors\ImageProcessorThumbnailProvider\ImageProcessorThumbnailProvider.csproj", "{E1DF2D6A-0CF0-4A90-83FF-08ACF5937B3E}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GDIThumbnailProvider", "Extensions\MetadataExtractors\GDIThumbnailProvider\GDIThumbnailProvider.csproj", "{65CF3575-AC34-4E46-92C3-84E6EDA9BACD}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x86 = Debug|x86
@@ -523,6 +525,7 @@ Global
 		{D2416E5A-CF6A-4B45-836D-02300D666127}.Release|x86.ActiveCfg = Release|x86
 		{D2416E5A-CF6A-4B45-836D-02300D666127}.Release|x86.Build.0 = Release|x86
 		{7F790D8D-3A5A-499F-B9D3-8D9A1EF4F73A}.Debug|x86.ActiveCfg = Debug|x86
+		{7F790D8D-3A5A-499F-B9D3-8D9A1EF4F73A}.Debug|x86.Build.0 = Debug|x86
 		{7F790D8D-3A5A-499F-B9D3-8D9A1EF4F73A}.Release|x86.ActiveCfg = Release|x86
 		{A0493D76-A38B-4B0F-92E6-B7B51200D005}.Debug|x86.ActiveCfg = Debug|x86
 		{A0493D76-A38B-4B0F-92E6-B7B51200D005}.Debug|x86.Build.0 = Debug|x86
@@ -584,6 +587,10 @@ Global
 		{E1DF2D6A-0CF0-4A90-83FF-08ACF5937B3E}.Debug|x86.Build.0 = Debug|x86
 		{E1DF2D6A-0CF0-4A90-83FF-08ACF5937B3E}.Release|x86.ActiveCfg = Release|x86
 		{E1DF2D6A-0CF0-4A90-83FF-08ACF5937B3E}.Release|x86.Build.0 = Release|x86
+		{65CF3575-AC34-4E46-92C3-84E6EDA9BACD}.Debug|x86.ActiveCfg = Debug|x86
+		{65CF3575-AC34-4E46-92C3-84E6EDA9BACD}.Debug|x86.Build.0 = Debug|x86
+		{65CF3575-AC34-4E46-92C3-84E6EDA9BACD}.Release|x86.ActiveCfg = Release|x86
+		{65CF3575-AC34-4E46-92C3-84E6EDA9BACD}.Release|x86.Build.0 = Release|x86
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -695,6 +702,7 @@ Global
 		{61D4920F-81AA-4215-A34B-F9BD06B85B71} = {6383E739-61E6-46EE-9B06-8940E50A13D3}
 		{B7D9598A-9744-489D-BDED-88BA73AD5DC8} = {1B4741DC-78EA-4D93-8EED-00CB9617AD2F}
 		{E1DF2D6A-0CF0-4A90-83FF-08ACF5937B3E} = {25FB2AD6-2FA0-4974-93EE-565FB51EF775}
+		{65CF3575-AC34-4E46-92C3-84E6EDA9BACD} = {25FB2AD6-2FA0-4974-93EE-565FB51EF775}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {2EFE6986-DFCD-450F-BFEE-15D3F8642201}
