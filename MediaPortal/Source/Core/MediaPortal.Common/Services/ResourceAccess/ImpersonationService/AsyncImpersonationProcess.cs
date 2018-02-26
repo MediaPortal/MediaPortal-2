@@ -410,11 +410,8 @@ namespace MediaPortal.Common.Services.ResourceAccess.ImpersonationService
           // because the process has exited already. The exception should not be logged because 
           // there is no guarantee that the exited event has finished setting the task to the 
           // RanToCompletion state before this exception sets it to the Faulted state.
-          if (!exited && !process.HasExited)
-          {
-            tcs.TrySetException(e);
+          if (!exited && !process.HasExited && tcs.TrySetException(e))
             debugLogger.Error("AsyncImpersonationProcess ({0}): Exception while setting the PriorityClass", e, executable);
-          }
         }
         catch (Exception e)
         {
