@@ -60,6 +60,7 @@ namespace MediaPortal.Utilities.Process
     public static Task<ProcessExecutionResult> ExecuteAsync(string executable, string arguments, ProcessPriorityClass priorityClass = ProcessPriorityClass.Normal, int maxWaitMs = DEFAULT_TIMEOUT)
     {
       var tcs = new TaskCompletionSource<ProcessExecutionResult>();
+      bool exited = false;
       var process = new System.Diagnostics.Process
       {
         StartInfo = new ProcessStartInfo(executable, arguments)
@@ -103,6 +104,7 @@ namespace MediaPortal.Utilities.Process
       // That ensures disposal of the process object.
       process.Exited += async (sender, args) =>
       {
+        exited = true;
         try
         {
           await processStart.Task;
@@ -139,6 +141,8 @@ namespace MediaPortal.Utilities.Process
       processStart.SetResult(processStarted);
       if (processStarted)
       {
+        process.BeginOutputReadLine();
+        process.BeginErrorReadLine();
         try
         {
           // This call may throw an exception if the process has already exited when we get here.
@@ -154,19 +158,17 @@ namespace MediaPortal.Utilities.Process
           // because the process has exited already. The exception should not be logged because 
           // there is no guarantee that the exited event has finished setting the task to the 
           // RanToCompletion state before this exception sets it to the Faulted state.
-          if (!process.HasExited)
+          if (!exited && !process.HasExited)
             tcs.TrySetException(e);
         }
         catch (Exception e)
         {
           tcs.TrySetException(e);
         }
-
-        process.BeginOutputReadLine();
-        process.BeginErrorReadLine();
       }
       else
       {
+        exited = true;
         standardOutputResults.SetResult(null);
         standardErrorResults.SetResult(null);
 
@@ -182,7 +184,7 @@ namespace MediaPortal.Utilities.Process
             // RanToCompletion before.
             tcs.TrySetCanceled();
             // Always kill the process if is running.
-            if (!process.HasExited)
+            if (!exited && !process.HasExited)
               process.Kill();
           }
           // ReSharper disable once EmptyGeneralCatchClause
@@ -455,7 +457,7 @@ namespace MediaPortal.Utilities.Process
     /// <returns>String without preamble.</returns>
     public static string RemoveEncodingPreamble(string rawString)
     {
-      if (!string.IsNullOrWhiteSpace(rawString) && rawString.StartsWith(CONSOLE_ENCODING_PREAMBLE))
+      if (!string.IsNullOrWhiteSpace(rawString) && rawString.StartsWith(CONSOLE_ENCODING_PREAMBLE, StringComparison.Ordinal))
         return rawString.Substring(CONSOLE_ENCODING_PREAMBLE.Length);
       return rawString;
     }

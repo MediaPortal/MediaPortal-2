@@ -504,5 +504,21 @@ namespace MediaPortal.Backend.MediaLibrary
     void NotifySystemOffline(string systemId);
 
     #endregion
+
+    #region Access
+
+    /// <summary>
+    /// Reserve access to the media library by blocking any import for the specified duration.
+    /// </summary>
+    /// <param name="duration">THe duration in ms to block the importer from accessing the media library.</param>
+    void ReserveAccess(int duration);
+
+    /// <summary>
+    /// Access request for any importer wanting access to media library.
+    /// </summary>
+    /// <returns>A lock that must be disposed when access is complete.</returns>
+    IDisposable RequestImporterAccess();
+
+    #endregion
   }
 }
