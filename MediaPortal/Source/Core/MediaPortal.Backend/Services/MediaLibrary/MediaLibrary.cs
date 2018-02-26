@@ -444,21 +444,24 @@ namespace MediaPortal.Backend.Services.MediaLibrary
 
     public async Task<IDisposable> RequestImporterAccessAsync()
     {
-      return await _accessLock.InferiorLockAsync();
+      return await _accessLock.LowPriorityLockAsync();
     }
 
     public IDisposable RequestImporterAccess()
     {
-      return _accessLock.InferiorLock();
+      return _accessLock.LowPriorityLock();
     }
 
     public void ReserveAccess(int duration)
     {
       lock (_accessReleaseSync)
       {
+        double remainingTime = _accessDurationTimer.ElapsedMilliseconds < _releaseAccessTimer.Interval ? _releaseAccessTimer.Interval - _accessDurationTimer.ElapsedMilliseconds : 0;
+        if (remainingTime > duration)
+          return;
+
         _accessDurationTimer.Stop();
         _releaseAccessTimer.Stop();
-        double remainingTime = _accessDurationTimer.ElapsedMilliseconds < _releaseAccessTimer.Interval ? _releaseAccessTimer.Interval - _accessDurationTimer.ElapsedMilliseconds : 0;
         _releaseAccessTimer.Interval = duration < remainingTime ? remainingTime : duration;
         _releaseAccessTimer.Start();
         _accessDurationTimer.Restart();
