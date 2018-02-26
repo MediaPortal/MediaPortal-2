@@ -3413,13 +3413,7 @@
       <Grid.RowDefinitions>
         <RowDefinition Height="{StaticResource AUDIO_GRID_HEIGHT_S}"/>
       </Grid.RowDefinitions>
-      <Image x:Name="ItemTypeImage" Stretch="UniformToFill" FallbackSource="Image.png">
-        <Image.Source>
-          <fanart:FanArtImageSource fanart:FanArtMediaType="Image" fanart:FanArtType="Thumbnail"
-                              fanart:FanArtName="{Binding Source={Binding MediaItem}, Path=MediaItemId}" fanart:MaxWidth="250" fanart:MaxHeight="250" fanart:Cache="false"/>
-        </Image.Source>
-      </Image>
-      <Border VerticalAlignment="Stretch" HorizontalAlignment="Stretch" BorderThickness="0" IsVisible="{Binding ElementName=ItemTypeImage, Path=!HasImage}">
+      <Border VerticalAlignment="Stretch" HorizontalAlignment="Stretch" BorderThickness="0">
         <Border.Background>
           <LinearGradientBrush StartPoint="0,1" EndPoint="1,0">
             <GradientStop Color="{ThemeResource MediaItemBackgroundColor1}" Offset="0"/>
@@ -3427,6 +3421,12 @@
           </LinearGradientBrush>
         </Border.Background>
       </Border>
+      <Image x:Name="ItemTypeImage" Stretch="UniformToFill" FallbackSource="Image.png">
+        <Image.Source>
+          <fanart:FanArtImageSource fanart:FanArtMediaType="Image" fanart:FanArtType="Thumbnail"
+                              fanart:FanArtName="{Binding Source={Binding MediaItem}, Path=MediaItemId}" fanart:MaxWidth="250" fanart:MaxHeight="250" fanart:Cache="false"/>
+        </Image.Source>
+      </Image>
       <Image Stretch="Uniform" Source="Image.png" IsVisible="{Binding ElementName=ItemTypeImage, Path=!HasImage}"/>
       <Control HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,-3,-3,0" Template="{StaticResource Cover_WatchedFlag_Template}" 
                IsVisible="{Binding Source={StaticResource SkinSettingsModel}, Path=[WMC].EnableListWatchedFlags}"/>
