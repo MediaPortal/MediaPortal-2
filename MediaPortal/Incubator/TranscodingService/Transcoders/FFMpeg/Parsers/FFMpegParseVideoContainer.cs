@@ -80,7 +80,7 @@ namespace MediaPortal.Plugins.Transcoding.Service.Transcoders.FFMpeg.Parsers
       }
 
       //Try file extensions
-      if (lfsra.LocalFileSystemPath != null)
+      if (lfsra?.LocalFileSystemPath != null)
       {
         if (lfsra.LocalFileSystemPath.EndsWith(".wmv", StringComparison.InvariantCultureIgnoreCase))
           return VideoContainer.Asf;

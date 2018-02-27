@@ -47,7 +47,7 @@ namespace MediaPortal.Plugins.Transcoding.Service.Transcoders.FFMpeg.Parsers
       }
 
       //Try file extensions
-      if (lfsra.LocalFileSystemPath != null)
+      if (lfsra?.LocalFileSystemPath != null)
       {
         if (lfsra.LocalFileSystemPath.EndsWith(".bmp", StringComparison.InvariantCultureIgnoreCase))
           return ImageContainer.Bmp;

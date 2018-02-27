@@ -31,6 +31,7 @@ using MediaPortal.Plugins.Transcoding.Service.Transcoders.FFMpeg.Encoders;
 using MediaPortal.Plugins.Transcoding.Interfaces.Profiles;
 using System;
 using System.Linq;
+using MediaPortal.Plugins.Transcoding.Interfaces.Helpers;
 
 namespace MediaPortal.Plugins.Transcoding.Service.Transcoders.FFMpeg
 {
@@ -104,7 +105,8 @@ namespace MediaPortal.Plugins.Transcoding.Service.Transcoders.FFMpeg
               }
               else if (InputResourceAccessor[sourceMediaIndex] is INetworkResourceAccessor)
               {
-                result.Append("-i \"" + ((INetworkResourceAccessor)InputResourceAccessor[sourceMediaIndex]).URL + "\" ");
+                var resolvedUrl = UrlHelper.ResolveHostToIPv4Url(((INetworkResourceAccessor)InputResourceAccessor[sourceMediaIndex]).URL);
+                result.Append("-i \"" + resolvedUrl + "\" ");
               }
             }
           }

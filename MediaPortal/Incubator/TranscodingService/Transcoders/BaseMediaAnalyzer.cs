@@ -142,7 +142,7 @@ namespace MediaPortal.Plugins.Transcoding.Service.Transcoders
         }
         else //Not been tuned for transcode aspects yet
         {
-          MediaItem liveMediaItem = new MediaItem(LiveMedia.MediaItemId, LiveMedia.Aspects); //Preserve current aspects
+          LiveTvMediaItem liveMediaItem = new LiveTvMediaItem(LiveMedia.MediaItemId, LiveMedia.Aspects); //Preserve current aspects
           IChannel channel = (IChannel)LiveMedia.AdditionalProperties[LiveTvMediaItem.CHANNEL];
           var container = await ParseChannelStreamAsync(channel.ChannelId, liveMediaItem).ConfigureAwait(false);
           if (container == null) return null;
@@ -289,11 +289,6 @@ namespace MediaPortal.Plugins.Transcoding.Service.Transcoders
           filePath = Path.Combine(filePath, GetResourceCategory(file.ResourceName));
           filePath = Path.Combine(filePath, $"{file.ResourceName}.analysis");
         }
-        else if (accessor is INetworkResourceAccessor link)
-        {
-          filePath = Path.Combine(filePath, GetResourceCategory(link.ResourceName));
-          filePath = Path.Combine(filePath, $"{link.ResourceName}.analysis");
-        }
         else
         {
           return;
@@ -323,11 +318,6 @@ namespace MediaPortal.Plugins.Transcoding.Service.Transcoders
           filePath = Path.Combine(filePath, GetResourceCategory(file.ResourceName));
           filePath = Path.Combine(filePath, $"{file.ResourceName}.analysis");
         }
-        else if (accessor is INetworkResourceAccessor link)
-        {
-          filePath = Path.Combine(filePath, GetResourceCategory(link.ResourceName));
-          filePath = Path.Combine(filePath, $"{link.ResourceName}.analysis");
-        }
         if (File.Exists(filePath))
         {
           MetadataContainer info = null;
@@ -344,39 +334,21 @@ namespace MediaPortal.Plugins.Transcoding.Service.Transcoders
       return null;
     }
 
-    public async Task<MetadataContainer> ParseChannelStreamAsync(int ChannelId, MediaItem ChannelMediaItem)
+    public async Task<MetadataContainer> ParseChannelStreamAsync(int ChannelId, LiveTvMediaItem ChannelMediaItem)
     {
       MetadataContainer info = null;
       try
       {
         string identifier = "MediaAnalyzer_" + ChannelId;
         var result = await _slimTvHandler.StartTuningAsync(identifier, ChannelId).ConfigureAwait(false);
-        if (result.Success)
+        try
         {
-          try
+          if (result.Success)
           {
             CopyAspects(result.LiveMediaItem, ChannelMediaItem);
-            if (ChannelMediaItem.Aspects.ContainsKey(VideoAspect.ASPECT_ID))
+            foreach (KeyValuePair<string, object> props in ((LiveTvMediaItem)result.LiveMediaItem).AdditionalProperties)
             {
-              //Create media item with channel GUID
-              string channelGuid = "{54560000-0000-0000-0000-" + ChannelId.ToString("000000000000") + "}";
-              LiveTvMediaItem liveTvMediaItem = new LiveTvMediaItem(new Guid(channelGuid), ChannelMediaItem.Aspects);
-              foreach (KeyValuePair<string, object> props in ((LiveTvMediaItem)ChannelMediaItem).AdditionalProperties)
-              {
-                liveTvMediaItem.AdditionalProperties.Add(props.Key, props.Value);
-              }
-              ChannelMediaItem = liveTvMediaItem;
-            }
-            else if (ChannelMediaItem.Aspects.ContainsKey(AudioAspect.ASPECT_ID))
-            {
-              //Create media item with channel GUID
-              string channelGuid = "{5244494F-0000-0000-0000-" + ChannelId.ToString("000000000000") + "}";
-              LiveTvMediaItem liveRadioMediaItem = new LiveTvMediaItem(new Guid(channelGuid), ChannelMediaItem.Aspects);
-              foreach (KeyValuePair<string, object> props in ((LiveTvMediaItem)ChannelMediaItem).AdditionalProperties)
-              {
-                liveRadioMediaItem.AdditionalProperties.Add(props.Key, props.Value);
-              }
-              ChannelMediaItem = liveRadioMediaItem;
+              ChannelMediaItem.AdditionalProperties[props.Key] = props.Value;
             }
 
             IResourceAccessor ra = await _slimTvHandler.GetAnalysisAccessorAsync(ChannelId).ConfigureAwait(false);
@@ -384,10 +356,10 @@ namespace MediaPortal.Plugins.Transcoding.Service.Transcoders
             if (info == null)
               return null;
           }
-          finally
-          {
-            await _slimTvHandler.EndTuningAsync(identifier).ConfigureAwait(false);
-          }
+        }
+        finally
+        {
+          await _slimTvHandler.EndTuningAsync(identifier).ConfigureAwait(false);
         }
       }
       catch (Exception ex)

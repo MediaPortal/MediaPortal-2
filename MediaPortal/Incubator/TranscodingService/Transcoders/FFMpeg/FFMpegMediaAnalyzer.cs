@@ -159,13 +159,6 @@ namespace MediaPortal.Plugins.Transcoding.Service.Transcoders.FFMpeg
       else if (MediaResource is INetworkResourceAccessor)
       {
         string url = ((INetworkResourceAccessor)MediaResource).URL;
-        if (!(HasImageExtension(url) || HasVideoExtension(url) || HasAudioExtension(url)))
-          return null;
-
-        //Check cache
-        MetadataContainer info = await LoadAnalysisAsync(MediaResource);
-        if (info != null)
-          return info;
 
         string arguments = "";
         if (url.StartsWith("rtsp://", StringComparison.InvariantCultureIgnoreCase) == true)
@@ -173,7 +166,15 @@ namespace MediaPortal.Plugins.Transcoding.Service.Transcoders.FFMpeg
           arguments += "-rtsp_transport +tcp+udp ";
         }
         arguments += "-analyzeduration " + _analyzerStreamTimeout + " ";
-        arguments += string.Format("-i \"{0}\"", url);
+
+        //Resolve host first because ffprobe can hang when resolving host
+        var resolvedUrl = UrlHelper.ResolveHostToIPv4Url(url);
+        if (string.IsNullOrEmpty(resolvedUrl))
+        {
+          _logger.Error("FFMpegMediaAnalyzer: Failed to resolve host for resource '{0}'", url);
+          return null;
+        }
+        arguments += string.Format("-i \"{0}\"", resolvedUrl);
 
         ProcessExecutionResult executionResult = null;
         await _probeLock.WaitAsync();
@@ -193,7 +194,7 @@ namespace MediaPortal.Plugins.Transcoding.Service.Transcoders.FFMpeg
         if (executionResult != null && executionResult.Success && executionResult.ExitCode == 0 && !string.IsNullOrEmpty(executionResult.StandardError))
         {
           //_logger.Debug("MediaAnalyzer: Successfully ran FFProbe:\n {0}", executionResult.StandardError);
-          info = new MetadataContainer { Metadata = { Source = MediaResource } };
+          MetadataContainer info = new MetadataContainer { Metadata = { Source = MediaResource } };
           info.Metadata.Size = 0;
           FFMpegParseFFMpegOutput.ParseFFMpegOutput(executionResult.StandardError, ref info, _countryCodesMapping);
 
@@ -221,7 +222,6 @@ namespace MediaPortal.Plugins.Transcoding.Service.Transcoders.FFMpeg
           {
             info.Metadata.Mime = MimeDetector.GetUrlMime(url, "unknown/unknown");
           }
-          await SaveAnalysisAsync(MediaResource, info);
           return info;
         }
 

@@ -740,7 +740,6 @@ namespace MediaPortal.Plugins.Transcoding.Service.Transcoders.FFMpeg
       if (data.Context.Segmented == true)
         await FFMpegPlaylistManifest.CreatePlaylistFilesAsync(data.TranscodeData).ConfigureAwait(false);
 
-      bool isFile = true;
       bool isSlimTv = false;
       int liveChannelId = 0;
       bool runProcess = true;
@@ -774,10 +773,14 @@ namespace MediaPortal.Plugins.Transcoding.Service.Transcoders.FFMpeg
             int mediaStreamIndex = data.TranscodeData.FirstResourceIndex;
             data.TranscodeData.InputResourceAccessor[mediaStreamIndex] = mediaAccessor;
           }
+          else
+          {
+            _logger.Error("FFMpegMediaConverter: Transcoder unable to start timeshifting for channel {0} because no URL was found", liveChannelId);
+            runProcess = false;
+            exitCode = 5001;
+          }
         }
       }
-      if (data.TranscodeData.FirstResourceAccessor is INetworkResourceAccessor)
-        isFile = false;
 
       ProcessStartInfo startInfo = new ProcessStartInfo()
       {
@@ -837,10 +840,6 @@ namespace MediaPortal.Plugins.Transcoding.Service.Transcoders.FFMpeg
               else
               {
                 data.TranscodeData.LiveStream = ffmpeg.StandardOutput.BaseStream;
-              }
-              if (isSlimTv && isFile)
-              {
-                _slimtTvHandler.AttachConverterStreamHook(identifier, ffmpeg.StandardInput.BaseStream);
               }
 
               while (ffmpeg.HasExited == false)
