@@ -24,6 +24,7 @@
 
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.ResourceAccess;
+using MediaPortal.Plugins.SlimTv.Interfaces.LiveTvMediaItem;
 using MediaPortal.Plugins.Transcoding.Interfaces.Metadata;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -53,6 +54,6 @@ namespace MediaPortal.Plugins.Transcoding.Interfaces
     /// <param name="ChannelId">Channel ID of the channel stream</param>
     /// <param name="ChannelMediaItem">Channel media item</param>
     /// <returns>Metadata Container with all information about the channel</returns>
-    Task<MetadataContainer> ParseChannelStreamAsync(int ChannelId, MediaItem ChannelMediaItem);
+    Task<MetadataContainer> ParseChannelStreamAsync(int ChannelId, LiveTvMediaItem ChannelMediaItem);
   }
 }

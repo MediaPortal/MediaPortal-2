@@ -68,7 +68,7 @@ namespace MediaPortal.Plugins.Transcoding.Interfaces.Metadata
     {
       get
       {
-        if (IsVideo == true)
+        if (IsVideo)
         {
           return false;
         }

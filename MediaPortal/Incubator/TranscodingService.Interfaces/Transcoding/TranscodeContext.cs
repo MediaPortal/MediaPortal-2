@@ -290,7 +290,8 @@ namespace MediaPortal.Plugins.Transcoding.Interfaces.Transcoding
 
     public void Dispose()
     {
-      Stop();
+      Running = false;
+      _completeTask?.TrySetResult(true);
       if (TranscodedStream != null)
         TranscodedStream.Dispose();
     }
