@@ -49,19 +49,6 @@ namespace MediaPortal.Plugins.SlimTv.Interfaces
     Task<AsyncResult<MediaItem>> StartTimeshiftAsync(string userName, int slotIndex, IChannel channel);
 
     /// <summary>
-    /// Starts timeshifting a channel an returns the created MediaItem with a RTSP stream URL.
-    /// </summary>
-    /// <param name="userName">Unique name that identifies one TV client.</param>
-    /// <param name="slotIndex">Slot Index for Playback (0=Primary, 1=PiP).</param>
-    /// <param name="channel">Channel.</param>
-    /// <returns>True if succeeded.</returns>
-    /// <returns>
-    /// <see cref="AsyncResult{T}.Success"/> <c>true</c> if programs could be found.
-    /// <see cref="AsyncResult{T}.Result"/> returns the created MediaItem.
-    /// </returns>
-    Task<AsyncResult<MediaItem>> StartTimeshiftUrlAsync(string userName, int slotIndex, IChannel channel);
-
-    /// <summary>
     /// Stops the active timeshifting.
     /// </summary>
     /// <param name="userName">Unique name that identifies one TV client.</param>

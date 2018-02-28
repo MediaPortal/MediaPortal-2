@@ -834,7 +834,7 @@ namespace MediaPortal.Plugins.SlimTv.Service
       return recording != null;
     }
 
-    protected override string SwitchTVServerToChannel(string userName, int channelId, bool forceUrl)
+    protected override string SwitchTVServerToChannel(string userName, int channelId)
     {
       if (String.IsNullOrEmpty(userName))
       {
@@ -859,7 +859,7 @@ namespace MediaPortal.Plugins.SlimTv.Service
         ServiceRegistration.Get<ILogger>().Error("Couldn't get virtual card");
         return null;
       }
-      return (!forceUrl && userName.StartsWith(LOCAL_USERNAME + "-")) ? card.TimeShiftFileName : card.RTSPUrl;
+      return userName.StartsWith(LOCAL_USERNAME + "-") ? card.TimeShiftFileName : card.RTSPUrl;
     }
 
     protected IUser GetUserByUserName(string userName, bool create = false)

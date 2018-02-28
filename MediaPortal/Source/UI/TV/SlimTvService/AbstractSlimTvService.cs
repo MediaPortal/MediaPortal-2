@@ -391,19 +391,9 @@ namespace MediaPortal.Plugins.SlimTv.Service
       throw new NotImplementedException("Not available in server side implementation");
     }
 
-    public Task<AsyncResult<MediaItem>> StartTimeshiftAsync(string userName, int slotIndex, IChannel channel)
+    public async Task<AsyncResult<MediaItem>> StartTimeshiftAsync(string userName, int slotIndex, IChannel channel)
     {
-      return StartTimeshiftAsync(userName, slotIndex, channel, false);
-    }
-
-    public Task<AsyncResult<MediaItem>> StartTimeshiftUrlAsync(string userName, int slotIndex, IChannel channel)
-    {
-      return StartTimeshiftAsync(userName, slotIndex, channel, true);
-    }
-
-    private async Task<AsyncResult<MediaItem>> StartTimeshiftAsync(string userName, int slotIndex, IChannel channel, bool forceUrl)
-    {
-      string timeshiftFile = SwitchTVServerToChannel(GetUserName(userName, slotIndex), channel.ChannelId, forceUrl);
+      string timeshiftFile = SwitchTVServerToChannel(GetUserName(userName, slotIndex), channel.ChannelId);
       var timeshiftMediaItem = await CreateMediaItem(slotIndex, timeshiftFile, channel);
       var result = !string.IsNullOrEmpty(timeshiftFile);
       return new AsyncResult<MediaItem>(result, timeshiftMediaItem);
@@ -508,7 +498,7 @@ namespace MediaPortal.Plugins.SlimTv.Service
     public abstract Task<AsyncResult<string>> GetRecordingFileOrStreamAsync(IProgram program);
 
     // TODO: Async
-    protected abstract string SwitchTVServerToChannel(string userName, int channelId, bool forceUrl);
+    protected abstract string SwitchTVServerToChannel(string userName, int channelId);
 
     protected static string GetUserName(string clientName, int slotIndex)
     {
