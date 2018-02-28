@@ -26,48 +26,55 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Net;
-using HttpServer;
-using HttpServer.HttpModules;
-using HttpServer.Sessions;
+using System.Threading;
+using System.Threading.Tasks;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.Network;
+using MediaPortal.Common.Services.ResourceAccess;
 using MediaPortal.Extensions.UserServices.FanArtService.Interfaces;
+using Microsoft.Owin;
 
 namespace MediaPortal.Extensions.UserServices.FanArtService
 {
-  public class FanartAccessModule : HttpModule
+  public class FanartAccessModule : OwinMiddleware
   {
+
+    public FanartAccessModule(OwinMiddleware next) : base(next)
+    {
+    }
+
     /// <summary>
     /// Method that process the url
     /// </summary>
-    /// <param name="request">Information sent by the browser about the request</param>
-    /// <param name="response">Information that is being sent back to the client.</param>
-    /// <param name="session">Session used to </param>
-    /// <returns>true if this module handled the request.</returns>
-    public override bool Process(IHttpRequest request, IHttpResponse response, IHttpSession session)
+    public override async Task Invoke(IOwinContext context)
     {
+      var request = context.Request;
+      var response = context.Response;
       Uri uri = request.Uri;
-      if (!uri.AbsolutePath.StartsWith("/FanartService"))
-        return false;
+      if (!uri.AbsolutePath.StartsWith(ResourceHttpAccessUrlUtils.RESOURCE_SERVER_BASE_PATH) || !uri.AbsolutePath.Contains("/FanartService"))
+      {
+        await Next.Invoke(context);
+        return;
+      }
 
       IFanArtService fanart = ServiceRegistration.Get<IFanArtService>(false);
       if (fanart == null)
-        return false;
+        return;
 
-      string mediaType = request.Param["mediatype"].Value;
-      string fanArtType = request.Param["fanarttype"].Value;
+      string mediaType = request.Query["mediatype"];
+      string fanArtType = request.Query["fanarttype"];
       int maxWidth;
       int maxHeight;
-      string name = request.Param["name"].Value;
+      string name = request.Query["name"];
       if (string.IsNullOrWhiteSpace(name))
-        return false;
+        return;
 
       name = name.Decode(); // For safe handling of "&" character in name
 
       // Both values are optional
-      int.TryParse(request.Param["width"].Value, out maxWidth);
-      int.TryParse(request.Param["height"].Value, out maxHeight);
+      int.TryParse(request.Query["width"], out maxWidth);
+      int.TryParse(request.Query["height"], out maxHeight);
 
       IList<FanArtImage> files = fanart.GetFanArt(mediaType, fanArtType, name, maxWidth, maxHeight, true);
       if (files == null || files.Count == 0)
@@ -75,35 +82,28 @@ namespace MediaPortal.Extensions.UserServices.FanArtService
 #if DEBUG
         ServiceRegistration.Get<ILogger>().Debug("No FanArt for {0} '{1}' of type '{2}'", name, fanArtType, mediaType);
 #endif
-        return false;
+        return;
       }
 
       using (MemoryStream memoryStream = new MemoryStream(files[0].BinaryData))
-        SendWholeStream(response, memoryStream, false);
-      return true;
+        await SendWholeStream(response, memoryStream, false);
     }
 
-    protected void SendWholeStream(IHttpResponse response, Stream resourceStream, bool onlyHeaders)
+    protected async Task SendWholeStream(IOwinResponse response, Stream resourceStream, bool onlyHeaders)
     {
-      response.Status = HttpStatusCode.OK;
-      response.ContentLength = resourceStream.Length;
-      response.SendHeaders();
+      var length = resourceStream.Length;
+      response.StatusCode = (int)HttpStatusCode.OK;
+      response.ContentLength = length;
 
-      if (onlyHeaders)
-        return;
+      CancellationTokenSource cts = new CancellationTokenSource();
 
-      Send(response, resourceStream, resourceStream.Length);
-    }
-
-    protected void Send(IHttpResponse response, Stream resourceStream, long length)
-    {
       const int BUF_LEN = 8192;
       byte[] buffer = new byte[BUF_LEN];
       int bytesRead;
-      while ((bytesRead = resourceStream.Read(buffer, 0, length > BUF_LEN ? BUF_LEN : (int) length)) > 0) // Don't use Math.Min since (int) length is negative for length > Int32.MaxValue
+      while ((bytesRead = resourceStream.Read(buffer, 0, length > BUF_LEN ? BUF_LEN : (int)length)) > 0) // Don't use Math.Min since (int) length is negative for length > Int32.MaxValue
       {
         length -= bytesRead;
-        response.SendBody(buffer, 0, bytesRead);
+        await response.WriteAsync(buffer, 0, bytesRead, cts.Token);
       }
     }
   }

@@ -121,8 +121,8 @@ namespace MediaPortal.Extensions.MetadataExtractors.MatroskaLib
     public MatroskaInfoReader(ILocalFsResourceAccessor lfsra)
     {
       _lfsra = lfsra;
-      _mkvInfoPath = FileUtils.BuildAssemblyRelativePath("mkvinfo.exe");
-      _mkvExtractPath = FileUtils.BuildAssemblyRelativePath("mkvextract.exe");
+      _mkvInfoPath = FileUtils.BuildAssemblyRelativePathForArchitecture("mkvinfo.exe");
+      _mkvExtractPath = FileUtils.BuildAssemblyRelativePathForArchitecture("mkvextract.exe");
     }
 
     #endregion

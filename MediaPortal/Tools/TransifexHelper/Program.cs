@@ -221,7 +221,9 @@ namespace TransifexHelper
     {
       ProcessStartInfo processStartInfo = new ProcessStartInfo();
       processStartInfo.FileName = TransifexClientExeFile;
-      processStartInfo.Arguments = " pull -f";
+      // Note: we had used " -f" (force) argument before. This always downloads every resources, no matter if empty or unchanged (many traffic/duration).
+      // In favour of speed we use the default now. If there are problems with missing new translations, we could switch back to forced mode.
+      processStartInfo.Arguments = " pull";
       processStartInfo.WorkingDirectory = TransifexRootFolder;
       processStartInfo.RedirectStandardOutput = true;
       processStartInfo.UseShellExecute = false;
