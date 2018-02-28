@@ -30,7 +30,6 @@ using MediaPortal.Common.ResourceAccess;
 using MediaPortal.Plugins.SlimTv.Interfaces;
 using MediaPortal.Plugins.SlimTv.Interfaces.ResourceProvider;
 using System;
-using System.Threading;
 using System.Linq;
 using MediaPortal.Plugins.Transcoding.Interfaces.MetaData;
 using System.Threading.Tasks;
@@ -43,76 +42,16 @@ namespace MediaPortal.Plugins.Transcoding.Interfaces.SlimTv
     private class ChannelInfo
     {
       public int ChannelId;
-      public int Slot;
       public TranscodeChannel Channel;
     }
 
+    private const string TV_USER_NAME = "Transcode";
     private readonly ILogger _logger = null;
-    private readonly SemaphoreSlim _slotLock = new SemaphoreSlim(1, 1);
     private readonly ConcurrentDictionary<string, ChannelInfo> _clientChannels = new ConcurrentDictionary<string, ChannelInfo>();
-    private readonly Dictionary<int, int> _slotChannels = new Dictionary<int, int>()
-    {
-      { 1, 0 },
-      { 2, 0 },
-      { 3, 0 },
-      { 4, 0 },
-      { 5, 0 },
-      { 6, 0 },
-      { 7, 0 },
-      { 8, 0 },
-      { 9, 0 } 
-      //Slot 10 and above not supported
-    };
 
     public SlimTvHandler()
     {
       _logger = ServiceRegistration.Get<ILogger>();
-    }
-
-    private async Task<int> LockChannelAsync(int channelId)
-    {
-      try
-      {
-        await _slotLock.WaitAsync().ConfigureAwait(false);
-        try
-        {
-          int slot = _slotChannels.Where(s => s.Value == 0).Select(s => s.Key).FirstOrDefault();
-          if (slot > 0)
-            return slot;
-          return -1;
-        }
-        finally
-        {
-          _slotLock.Release();
-        }
-      }
-      catch (Exception ex)
-      {
-        _logger.Error("SlimTvHandler: Error locking channel {0}", ex, channelId);
-        return -1;
-      }
-    }
-
-    private async Task ReleaseChannelAsync(int channelId)
-    {
-      try
-      {
-        await _slotLock.WaitAsync().ConfigureAwait(false);
-        try
-        {
-          int slot = _slotChannels.Where(s => s.Value == channelId).Select(s => s.Key).FirstOrDefault();
-          if (slot > 0)
-            _slotChannels[slot] = 0;
-        }
-        finally
-        {
-          _slotLock.Release();
-        }
-      }
-      catch (Exception ex)
-      {
-        _logger.Error("SlimTvHandler: Error releasing channel {0}", ex, channelId);
-      }
     }
 
     public Task<IResourceAccessor> GetAnalysisAccessorAsync(int ChannelId)
@@ -179,12 +118,10 @@ namespace MediaPortal.Plugins.Transcoding.Interfaces.SlimTv
             return (false, null);
 
           ITimeshiftControlEx timeshiftControl = ServiceRegistration.Get<ITvProvider>() as ITimeshiftControlEx;
-          int slot = await LockChannelAsync(ChannelId).ConfigureAwait(false);
-          var mediaItem = (await timeshiftControl.StartTimeshiftUrlAsync(ClientId, slot, channelResult.Result).ConfigureAwait(false));
+          var mediaItem = (await timeshiftControl.StartTimeshiftAsync(TV_USER_NAME, ChannelId, channelResult.Result).ConfigureAwait(false));
           if (!mediaItem.Success)
           {
             _logger.Error("SlimTvHandler: Couldn't start timeshifting for channel {0}", ChannelId);
-            await ReleaseChannelAsync(ChannelId).ConfigureAwait(false);
             return (false, null);
           }
 
@@ -195,11 +132,10 @@ namespace MediaPortal.Plugins.Transcoding.Interfaces.SlimTv
             {
               Channel = new TranscodeChannel(),
               ChannelId = ChannelId,
-              Slot = slot
             };
             if (!_clientChannels.TryAdd(ClientId, newChannel))
             {
-              await timeshiftControl.StopTimeshiftAsync(ClientId, slot);
+              await timeshiftControl.StopTimeshiftAsync(TV_USER_NAME, ChannelId);
               return (false, null);
             }
 
@@ -208,7 +144,7 @@ namespace MediaPortal.Plugins.Transcoding.Interfaces.SlimTv
           catch
           {
             _clientChannels.TryRemove(ClientId, out ChannelInfo c);
-            await timeshiftControl.StopTimeshiftAsync(ClientId, slot);
+            await timeshiftControl.StopTimeshiftAsync(TV_USER_NAME, ChannelId);
             throw;
           }
 
@@ -236,12 +172,11 @@ namespace MediaPortal.Plugins.Transcoding.Interfaces.SlimTv
         if (channel != null && !_clientChannels.Any(c => c.Value?.ChannelId == channel.ChannelId))
         {
           ITimeshiftControlEx timeshiftControl = ServiceRegistration.Get<ITvProvider>() as ITimeshiftControlEx;
-          if (!(await timeshiftControl.StopTimeshiftAsync(ClientId, channel.Slot).ConfigureAwait(false)))
+          if (!(await timeshiftControl.StopTimeshiftAsync(TV_USER_NAME, channel.ChannelId).ConfigureAwait(false)))
           {
             _logger.Error("SlimTvHandler: Couldn't stop timeshifting for channel {0}", channel.ChannelId);
             return false;
           }
-          await ReleaseChannelAsync(channel.ChannelId).ConfigureAwait(false);
         }
 
         return true;
@@ -261,11 +196,11 @@ namespace MediaPortal.Plugins.Transcoding.Interfaces.SlimTv
         {
           foreach (var client in _clientChannels)
           {
-            List<int> stoppedSlots = new List<int>();
-            if (client.Value != null && !stoppedSlots.Contains(client.Value.Slot) && client.Value.Slot > 0)
+            List<int> stoppedChannels = new List<int>();
+            if (client.Value != null && !stoppedChannels.Contains(client.Value.ChannelId) && client.Value.ChannelId > 0)
             {
-              stoppedSlots.Add(client.Value.Slot);
-              timeshiftControl.StopTimeshiftAsync(client.Key, client.Value.Slot).Wait();
+              stoppedChannels.Add(client.Value.ChannelId);
+              timeshiftControl.StopTimeshiftAsync(TV_USER_NAME, client.Value.ChannelId).Wait();
             }
             client.Value?.Channel?.Dispose();
           }
