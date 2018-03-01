@@ -1077,7 +1077,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
                   if (changeFilter.Value > 0)
                     changeQuery.Limit = changeFilter.Value;
                   IList<MediaItem> foundItems = Search(database, transaction, changeQuery, false, null, false);
-                  if (foundItems != null)
+                  if (foundItems?.Count > 0)
                   {
                     int currentItem = 0;
                     List<Guid> miUpdateList = new List<Guid>();
@@ -1086,10 +1086,14 @@ namespace MediaPortal.Backend.Services.MediaLibrary
                       int remaining = foundItems.Count - currentItem;
                       int endItem = currentItem + (remaining > MAX_VARIABLES_LIMIT ? MAX_VARIABLES_LIMIT : remaining);
                       command.Parameters.Clear();
+                      List<string> sqlParams = new List<string>();
                       for (int index = currentItem; index < endItem; index++)
-                        database.AddParameter(command, "MI" + index, foundItems[index].MediaItemId, typeof(Guid));
-                      command.CommandText = string.Format(_preparedStatements.UpdateMediaItemsDirtyAttributeFromIdSQL,
-                        string.Join(",", foundItems.Where((id, index) => index >= currentItem && index < endItem).Select((id, index) => "@MI" + index)));
+                      {
+                        string paramName = "MI" + index;
+                        sqlParams.Add("@" + paramName);
+                        database.AddParameter(command, paramName, foundItems[index].MediaItemId, typeof(Guid));
+                      }
+                      command.CommandText = string.Format(_preparedStatements.UpdateMediaItemsDirtyAttributeFromIdSQL, string.Join(",", sqlParams));
                       command.ExecuteNonQuery();
                       itemCount += (endItem - currentItem);
                       currentItem = endItem;
@@ -1109,7 +1113,6 @@ namespace MediaPortal.Backend.Services.MediaLibrary
       catch (Exception e)
       {
         Logger.Error("MediaLibrary: Error marking updated media items", e);
-        throw;
       }
     }
 
