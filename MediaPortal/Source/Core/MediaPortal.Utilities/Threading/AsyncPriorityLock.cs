@@ -24,6 +24,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace MediaPortal.Utilities.Threading
@@ -67,7 +68,7 @@ namespace MediaPortal.Utilities.Threading
     private readonly Queue<TaskCompletionSource<Releaser>> _waitingLowPriorities = new Queue<TaskCompletionSource<Releaser>>();
 
     //Current number of priority locks.
-    private int _priorityLocks;
+    private long _priorityLocks;
 
     public AsyncPriorityLock()
     {
@@ -92,13 +93,13 @@ namespace MediaPortal.Utilities.Threading
     /// <returns></returns>
     public Task<Releaser> LowPriorityLockAsync()
     {
-      lock (_syncObj)
+      if (Interlocked.Read(ref _priorityLocks) == 0)
       {
-        if (_priorityLocks == 0)
-        {
-          return _lowPriorityReleaser;
-        }
-        else
+        return _lowPriorityReleaser;
+      }
+      else
+      {
+        lock (_syncObj)
         {
           var waiter = new TaskCompletionSource<Releaser>();
           _waitingLowPriorities.Enqueue(waiter);
@@ -124,30 +125,19 @@ namespace MediaPortal.Utilities.Threading
     /// <returns></returns>
     public Task<Releaser> PriorityLockAsync()
     {
-      lock (_syncObj)
-      {
-        ++_priorityLocks;
-        return _priorityReleaser;
-      }
+      Interlocked.Increment(ref _priorityLocks);
+      return _priorityReleaser;
     }
 
     private void LowPriorityRelease()
     {
-      lock (_syncObj)
-      {
-        while (_priorityLocks == 0 && _waitingLowPriorities.Count > 0)
-        {
-          TaskCompletionSource<Releaser> toWake = _waitingLowPriorities.Dequeue();
-          toWake.SetResult(new Releaser(this, false));
-        }
-      }
     }
 
     private void PriorityRelease()
     {
+      Interlocked.Decrement(ref _priorityLocks);
       lock (_syncObj)
       {
-        --_priorityLocks;
         while (_priorityLocks == 0 && _waitingLowPriorities.Count > 0)
         {
           TaskCompletionSource<Releaser> toWake = _waitingLowPriorities.Dequeue();

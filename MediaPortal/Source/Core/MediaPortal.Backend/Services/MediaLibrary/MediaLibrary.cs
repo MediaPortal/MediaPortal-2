@@ -116,13 +116,12 @@ namespace MediaPortal.Backend.Services.MediaLibrary
         }
       }
 
-      public async Task<IDictionary<Guid, DateTime>> GetManagedMediaItemAspectCreationDatesAsync()
+      public Task<IDictionary<Guid, DateTime>> GetManagedMediaItemAspectCreationDatesAsync()
       {
         try
         {
           // TODO: make underlying IMediaLibrary async
-          using (var lck = await _parent.RequestImporterAccessAsync())
-            return _parent.GetManagedMediaItemAspectCreationDates();
+          return Task.FromResult(_parent.GetManagedMediaItemAspectCreationDates());
         }
         catch (Exception)
         {
@@ -130,12 +129,11 @@ namespace MediaPortal.Backend.Services.MediaLibrary
         }
       }
 
-      public async Task<ICollection<Guid>> GetAllManagedMediaItemAspectTypesAsync()
+      public Task<ICollection<Guid>> GetAllManagedMediaItemAspectTypesAsync()
       {
         try
         {
-          using (var lck = await _parent.RequestImporterAccessAsync())
-            return _parent.GetManagedMediaItemAspectMetadata().Keys;
+          return Task.FromResult(_parent.GetManagedMediaItemAspectMetadata().Keys);
         }
         catch (Exception)
         {
@@ -383,11 +381,8 @@ namespace MediaPortal.Backend.Services.MediaLibrary
     protected Dictionary<Guid, ShareImportState> _shareImportStates = new Dictionary<Guid, ShareImportState>();
     protected object _shareImportCacheSync = new object();
     protected ICollection<Share> _importingSharesCache;
-    protected System.Timers.Timer _releaseAccessTimer = new System.Timers.Timer();
-    protected object _accessReleaseSync = new object();
-    protected IDisposable _accessLockRelease = null;
+    protected CancellationTokenSource _accessLockCancel = new CancellationTokenSource();
     protected AsyncPriorityLock _accessLock = new AsyncPriorityLock();
-    protected Stopwatch _accessDurationTimer = new Stopwatch();
 
     #endregion
 
@@ -397,9 +392,6 @@ namespace MediaPortal.Backend.Services.MediaLibrary
     {
       ISystemResolver systemResolver = ServiceRegistration.Get<ISystemResolver>();
       _localSystemId = systemResolver.LocalSystemId;
-
-      _releaseAccessTimer.AutoReset = false;
-      _releaseAccessTimer.Elapsed += ReleaseAccessTimer_Elapsed;
 
       _mediaBrowsingCallback = new MediaBrowsingCallback(this);
       _importResultHandler = new ImportResultHandler(this);
@@ -415,32 +407,12 @@ namespace MediaPortal.Backend.Services.MediaLibrary
     public void Dispose()
     {
       _messageQueue.Shutdown();
-      _releaseAccessTimer.Stop();
-      _accessDurationTimer.Stop();
-      _accessLockRelease?.Dispose();
-      _accessLockRelease = null;
+      _accessLockCancel.Cancel();
     }
 
     #endregion
 
     #region Access
-
-    private void ReleaseAccessTimer_Elapsed(object sender, System.Timers.ElapsedEventArgs e)
-    {
-      try
-      {
-        lock (_accessReleaseSync)
-        {
-          _accessDurationTimer.Stop();
-          _accessLockRelease?.Dispose();
-          _accessLockRelease = null;
-        }
-      }
-      catch(Exception ex)
-      {
-        Logger.Error("MediaLibrary: Error releasing access lock", ex);
-      }
-    }
 
     public async Task<IDisposable> RequestImporterAccessAsync()
     {
@@ -454,20 +426,11 @@ namespace MediaPortal.Backend.Services.MediaLibrary
 
     public void ReserveAccess(int duration)
     {
-      lock (_accessReleaseSync)
+      IDisposable accessToken = _accessLock.PriorityLock();
+      Task.Delay(duration, _accessLockCancel.Token).ContinueWith((t) =>
       {
-        double remainingTime = _accessDurationTimer.ElapsedMilliseconds < _releaseAccessTimer.Interval ? _releaseAccessTimer.Interval - _accessDurationTimer.ElapsedMilliseconds : 0;
-        if (remainingTime > duration)
-          return;
-
-        _accessDurationTimer.Stop();
-        _releaseAccessTimer.Stop();
-        _releaseAccessTimer.Interval = duration < remainingTime ? remainingTime : duration;
-        _releaseAccessTimer.Start();
-        _accessDurationTimer.Restart();
-        if (_accessLockRelease == null)
-          _accessLockRelease = _accessLock.PriorityLock();
-      }
+        accessToken.Dispose();
+      });
     }
 
     #endregion
