@@ -24,13 +24,14 @@
 
 using System;
 using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace MediaPortal.Utilities.Threading
 {
   /// <summary>
   /// A class that acts like a priority access handler. Multiple priority locks can be held
-  /// at the same time while inferior locks can only be held when no priority lock is held.
+  /// at the same time while low priority locks can only be held when no priority lock is held.
   /// </summary>
   public class AsyncPriorityLock
   {
@@ -52,7 +53,7 @@ namespace MediaPortal.Utilities.Threading
           if (_isPriority)
             _parent.PriorityRelease();
           else
-            _parent.InferiorRelease();
+            _parent.LowPriorityRelease();
         }
       }
     }
@@ -61,47 +62,47 @@ namespace MediaPortal.Utilities.Threading
 
     //Tasks that complete immediately for fast path when there is no need to wait.
     private readonly Task<Releaser> _priorityReleaser;
-    private readonly Task<Releaser> _inferiorReleaser;
+    private readonly Task<Releaser> _lowPriorityReleaser;
 
-    //Queue of waiting inferiors lock requesters
-    private readonly Queue<TaskCompletionSource<Releaser>> _waitingInferiors = new Queue<TaskCompletionSource<Releaser>>();
+    //Queue of waiting low priority lock requesters
+    private readonly Queue<TaskCompletionSource<Releaser>> _waitingLowPriorities = new Queue<TaskCompletionSource<Releaser>>();
 
     //Current number of priority locks.
-    private int _priorityLocks;
+    private long _priorityLocks;
 
     public AsyncPriorityLock()
     {
       _priorityReleaser = Task.FromResult(new Releaser(this, true));
-      _inferiorReleaser = Task.FromResult(new Releaser(this, false));
+      _lowPriorityReleaser = Task.FromResult(new Releaser(this, false));
     }
 
     /// <summary>
-    /// Acquires an inferior lock.
-    /// The acquired Releaser must be disposed to release the inferior lock.
+    /// Acquires a low priority lock.
+    /// The acquired Releaser must be disposed to release the low priority lock.
     /// </summary>
     /// <returns></returns>
-    public Releaser InferiorLock()
+    public Releaser LowPriorityLock()
     {
-      return InferiorLockAsync().Result;
+      return LowPriorityLockAsync().Result;
     }
 
     /// <summary>
-    /// Returns a task that completes when the inferior lock has been acquired.
-    /// The acquired Releaser must be disposed to release the inferior lock.
+    /// Returns a task that completes when the low priority lock has been acquired.
+    /// The acquired Releaser must be disposed to release the low priority lock.
     /// </summary>
     /// <returns></returns>
-    public Task<Releaser> InferiorLockAsync()
+    public Task<Releaser> LowPriorityLockAsync()
     {
-      lock (_syncObj)
+      if (Interlocked.Read(ref _priorityLocks) == 0)
       {
-        if (_priorityLocks == 0)
-        {
-          return _inferiorReleaser;
-        }
-        else
+        return _lowPriorityReleaser;
+      }
+      else
+      {
+        lock (_syncObj)
         {
           var waiter = new TaskCompletionSource<Releaser>();
-          _waitingInferiors.Enqueue(waiter);
+          _waitingLowPriorities.Enqueue(waiter);
           return waiter.Task;
         }
       }
@@ -124,33 +125,22 @@ namespace MediaPortal.Utilities.Threading
     /// <returns></returns>
     public Task<Releaser> PriorityLockAsync()
     {
-      lock (_syncObj)
-      {
-        ++_priorityLocks;
-        return _priorityReleaser;
-      }
+      Interlocked.Increment(ref _priorityLocks);
+      return _priorityReleaser;
     }
 
-    private void InferiorRelease()
+    private void LowPriorityRelease()
     {
-      lock (_syncObj)
-      {
-        while (_priorityLocks == 0 && _waitingInferiors.Count > 0)
-        {
-          TaskCompletionSource<Releaser> toWake = _waitingInferiors.Dequeue();
-          toWake.SetResult(new Releaser(this, false));
-        }
-      }
     }
 
     private void PriorityRelease()
     {
+      Interlocked.Decrement(ref _priorityLocks);
       lock (_syncObj)
       {
-        --_priorityLocks;
-        while (_priorityLocks == 0 && _waitingInferiors.Count > 0)
+        while (_priorityLocks == 0 && _waitingLowPriorities.Count > 0)
         {
-          TaskCompletionSource<Releaser> toWake = _waitingInferiors.Dequeue();
+          TaskCompletionSource<Releaser> toWake = _waitingLowPriorities.Dequeue();
           toWake.SetResult(new Releaser(this, false));
         }
       }

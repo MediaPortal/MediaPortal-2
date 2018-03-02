@@ -42,6 +42,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.Diagnostics;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Threading.Tasks.Dataflow;
 
@@ -60,6 +61,7 @@ namespace MediaPortal.Extensions.UserServices.FanArtService
     protected AsynchronousMessageQueue _messageQueue;
     protected SettingsChangeWatcher<FanArtServiceSettings> _settings;
     protected IIntervalWork _fanArtCleanupIntervalWork;
+    protected CancellationTokenSource _cleanupTokenSource = new CancellationTokenSource();
 
     protected FanArtActionBlock _fanartActionBlock; //Handles individual fanart collection/deletion
     protected ActionBlock<bool> _fanartCleanupBlock; //Handles full fanart cleanup
@@ -116,6 +118,8 @@ namespace MediaPortal.Extensions.UserServices.FanArtService
         //Cancel the FanartActionBlock, this ensures we stop processing immediately, we persist
         //any pending actions below and will restore them on next startup
         _fanartActionBlock.Cancel();
+        //Cancel the cleanup if running
+        _cleanupTokenSource.Cancel();
         //Wait for all blocks to complete before returning
         Task.WhenAll(_fanartActionBlock.Completion, _fanartCleanupBlock.Completion).Wait();
       }
@@ -279,10 +283,17 @@ namespace MediaPortal.Extensions.UserServices.FanArtService
 
         ICollection<IMediaFanArtHandler> handlers = GetFanArtHandlers();
         foreach (Guid mediaItemId in fanArtToDelete)
+        {
           DoDeleteFanArt(mediaItemId, handlers);
+          if (_cleanupTokenSource.IsCancellationRequested)
+            break;
+        }
 
         sw.Stop();
-        ServiceRegistration.Get<ILogger>().Debug("FanArtManagement: Cleaned up orphaned fanart for {0} non existant media items in {1}ms.", fanArtToDelete.Count, sw.ElapsedMilliseconds);
+        if(_cleanupTokenSource.IsCancellationRequested)
+          ServiceRegistration.Get<ILogger>().Debug("FanArtManagement: Cleaned up cancelled after {0}ms.", sw.ElapsedMilliseconds);
+        else
+          ServiceRegistration.Get<ILogger>().Debug("FanArtManagement: Cleaned up orphaned fanart for {0} non existant media items in {1}ms.", fanArtToDelete.Count, sw.ElapsedMilliseconds);
       }
       catch (Exception ex)
       {

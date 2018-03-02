@@ -116,13 +116,12 @@ namespace MediaPortal.Backend.Services.MediaLibrary
         }
       }
 
-      public async Task<IDictionary<Guid, DateTime>> GetManagedMediaItemAspectCreationDatesAsync()
+      public Task<IDictionary<Guid, DateTime>> GetManagedMediaItemAspectCreationDatesAsync()
       {
         try
         {
           // TODO: make underlying IMediaLibrary async
-          using (var lck = await _parent.RequestImporterAccessAsync())
-            return _parent.GetManagedMediaItemAspectCreationDates();
+          return Task.FromResult(_parent.GetManagedMediaItemAspectCreationDates());
         }
         catch (Exception)
         {
@@ -130,12 +129,11 @@ namespace MediaPortal.Backend.Services.MediaLibrary
         }
       }
 
-      public async Task<ICollection<Guid>> GetAllManagedMediaItemAspectTypesAsync()
+      public Task<ICollection<Guid>> GetAllManagedMediaItemAspectTypesAsync()
       {
         try
         {
-          using (var lck = await _parent.RequestImporterAccessAsync())
-            return _parent.GetManagedMediaItemAspectMetadata().Keys;
+          return Task.FromResult(_parent.GetManagedMediaItemAspectMetadata().Keys);
         }
         catch (Exception)
         {
@@ -383,11 +381,8 @@ namespace MediaPortal.Backend.Services.MediaLibrary
     protected Dictionary<Guid, ShareImportState> _shareImportStates = new Dictionary<Guid, ShareImportState>();
     protected object _shareImportCacheSync = new object();
     protected ICollection<Share> _importingSharesCache;
-    protected System.Timers.Timer _releaseAccessTimer = new System.Timers.Timer();
-    protected object _accessReleaseSync = new object();
-    protected IDisposable _accessLockRelease = null;
+    protected CancellationTokenSource _accessLockCancel = new CancellationTokenSource();
     protected AsyncPriorityLock _accessLock = new AsyncPriorityLock();
-    protected Stopwatch _accessDurationTimer = new Stopwatch();
 
     #endregion
 
@@ -397,9 +392,6 @@ namespace MediaPortal.Backend.Services.MediaLibrary
     {
       ISystemResolver systemResolver = ServiceRegistration.Get<ISystemResolver>();
       _localSystemId = systemResolver.LocalSystemId;
-
-      _releaseAccessTimer.AutoReset = false;
-      _releaseAccessTimer.Elapsed += ReleaseAccessTimer_Elapsed;
 
       _mediaBrowsingCallback = new MediaBrowsingCallback(this);
       _importResultHandler = new ImportResultHandler(this);
@@ -415,56 +407,30 @@ namespace MediaPortal.Backend.Services.MediaLibrary
     public void Dispose()
     {
       _messageQueue.Shutdown();
-      _releaseAccessTimer.Stop();
-      _accessDurationTimer.Stop();
-      _accessLockRelease?.Dispose();
-      _accessLockRelease = null;
+      _accessLockCancel.Cancel();
     }
 
     #endregion
 
     #region Access
 
-    private void ReleaseAccessTimer_Elapsed(object sender, System.Timers.ElapsedEventArgs e)
-    {
-      try
-      {
-        lock (_accessReleaseSync)
-        {
-          _accessDurationTimer.Stop();
-          _accessLockRelease?.Dispose();
-          _accessLockRelease = null;
-        }
-      }
-      catch(Exception ex)
-      {
-        Logger.Error("MediaLibrary: Error releasing access lock", ex);
-      }
-    }
-
     public async Task<IDisposable> RequestImporterAccessAsync()
     {
-      return await _accessLock.InferiorLockAsync();
+      return await _accessLock.LowPriorityLockAsync();
     }
 
     public IDisposable RequestImporterAccess()
     {
-      return _accessLock.InferiorLock();
+      return _accessLock.LowPriorityLock();
     }
 
     public void ReserveAccess(int duration)
     {
-      lock (_accessReleaseSync)
+      IDisposable accessToken = _accessLock.PriorityLock();
+      Task.Delay(duration, _accessLockCancel.Token).ContinueWith((t) =>
       {
-        _accessDurationTimer.Stop();
-        _releaseAccessTimer.Stop();
-        double remainingTime = _accessDurationTimer.ElapsedMilliseconds < _releaseAccessTimer.Interval ? _releaseAccessTimer.Interval - _accessDurationTimer.ElapsedMilliseconds : 0;
-        _releaseAccessTimer.Interval = duration < remainingTime ? remainingTime : duration;
-        _releaseAccessTimer.Start();
-        _accessDurationTimer.Restart();
-        if (_accessLockRelease == null)
-          _accessLockRelease = _accessLock.PriorityLock();
-      }
+        accessToken.Dispose();
+      });
     }
 
     #endregion
@@ -1111,7 +1077,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
                   if (changeFilter.Value > 0)
                     changeQuery.Limit = changeFilter.Value;
                   IList<MediaItem> foundItems = Search(database, transaction, changeQuery, false, null, false);
-                  if (foundItems != null)
+                  if (foundItems?.Count > 0)
                   {
                     int currentItem = 0;
                     List<Guid> miUpdateList = new List<Guid>();
@@ -1120,10 +1086,14 @@ namespace MediaPortal.Backend.Services.MediaLibrary
                       int remaining = foundItems.Count - currentItem;
                       int endItem = currentItem + (remaining > MAX_VARIABLES_LIMIT ? MAX_VARIABLES_LIMIT : remaining);
                       command.Parameters.Clear();
+                      List<string> sqlParams = new List<string>();
                       for (int index = currentItem; index < endItem; index++)
-                        database.AddParameter(command, "MI" + index, foundItems[index].MediaItemId, typeof(Guid));
-                      command.CommandText = string.Format(_preparedStatements.UpdateMediaItemsDirtyAttributeFromIdSQL,
-                        string.Join(",", foundItems.Where((id, index) => index >= currentItem && index < endItem).Select((id, index) => "@MI" + index)));
+                      {
+                        string paramName = "MI" + index;
+                        sqlParams.Add("@" + paramName);
+                        database.AddParameter(command, paramName, foundItems[index].MediaItemId, typeof(Guid));
+                      }
+                      command.CommandText = string.Format(_preparedStatements.UpdateMediaItemsDirtyAttributeFromIdSQL, string.Join(",", sqlParams));
                       command.ExecuteNonQuery();
                       itemCount += (endItem - currentItem);
                       currentItem = endItem;
@@ -1143,7 +1113,6 @@ namespace MediaPortal.Backend.Services.MediaLibrary
       catch (Exception e)
       {
         Logger.Error("MediaLibrary: Error marking updated media items", e);
-        throw;
       }
     }
 
