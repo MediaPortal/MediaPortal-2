@@ -345,7 +345,7 @@ namespace MediaPortal.Plugins.Transcoding.Service.Transcoders.FFMpeg
             {
               if (string.IsNullOrEmpty(sub.Source) == false)
               {
-                data.InputSubtitleFilePath.Add(mediaSourceIndex, sub.Source);
+                data.AddSubtitle(mediaSourceIndex, sub.Source);
                 context.TargetSubtitles.Add(sub.Source);
               }
             }
@@ -374,7 +374,7 @@ namespace MediaPortal.Plugins.Transcoding.Service.Transcoders.FFMpeg
           {
             foreach (int mediaSourceIndex in video.PreferredSourceSubtitles.Keys)
             {
-              _ffMpegCommandline.AddSubtitleEmbeddingParameters(mediaSourceIndex, video.PreferredSourceSubtitles[mediaSourceIndex].First(), embeddedSubCodec, timeStart, data);
+              _ffMpegCommandline.AddSubtitleEmbeddingParameters(mediaSourceIndex, video.PreferredSourceSubtitles[mediaSourceIndex], embeddedSubCodec, timeStart, data);
             }
           }
           else if (video.TargetSubtitleSupport != SubtitleSupport.SoftCoded)
@@ -574,7 +574,7 @@ namespace MediaPortal.Plugins.Transcoding.Service.Transcoders.FFMpeg
 
     private async Task<Stream> GetFileStreamAsync(string filePath)
     {
-      int iTry = 60;
+      int iTry = 20;
       while (iTry > 0)
       {
         if (File.Exists(filePath) == true)

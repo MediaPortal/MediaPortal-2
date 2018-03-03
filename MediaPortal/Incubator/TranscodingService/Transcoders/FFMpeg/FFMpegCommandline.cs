@@ -65,6 +65,29 @@ namespace MediaPortal.Plugins.Transcoding.Service.Transcoders.FFMpeg
       {"[", @"\["},
       {"]", @"\]"}
     };
+    private readonly Dictionary<string, string> _isoMap = new Dictionary<string, string>
+    {
+      { "bod", "tib" },
+      { "ces", "cze" },
+      { "cym", "wel" },
+      { "deu", "ger" },
+      { "ell", "gre" },
+      { "eus", "baq" },
+      { "fas", "per" },
+      { "fra", "fre" },
+      { "hye", "arm" },
+      { "isl", "ice" },
+      { "kat", "geo" },
+      { "mkd", "mac" },
+      { "mri", "mao" },
+      { "msa", "may" },
+      { "mya", "bur" },
+      { "nld", "dut" },
+      { "ron", "rum" },
+      { "slk", "slo" },
+      { "sqi", "alb" },
+      { "zho", "chi" },
+    };
     private readonly Dictionary<QualityMode, string> VideoQualityModes = new Dictionary<QualityMode, string>()
     {
       { QualityMode.Default, "25" },
@@ -154,10 +177,8 @@ namespace MediaPortal.Plugins.Transcoding.Service.Transcoders.FFMpeg
     internal void InitTranscodingParameters(Dictionary<int, IResourceAccessor> sourceFiles, ref FFMpegTranscodeData data)
     {
       foreach (var mediaSourceIndex in sourceFiles.Keys)
-      {
         data.InputArguments.Add(mediaSourceIndex, new List<string>());
-        data.InputSubtitleArguments.Add(mediaSourceIndex, new List<string>());
-      }
+
       data.InputResourceAccessor = sourceFiles;
       AddInputOptions(ref data);
       data.OutputArguments.Add("-y");
@@ -372,51 +393,37 @@ namespace MediaPortal.Plugins.Transcoding.Service.Transcoders.FFMpeg
       data.OutputArguments.Add("-c:s copy");
       if (string.IsNullOrEmpty(subtitle.Language) == false)
       {
-        string languageName = null;
-        CultureInfo[] cultures = CultureInfo.GetCultures(CultureTypes.NeutralCultures);
-        foreach (CultureInfo culture in cultures)
-        {
-          if (culture.TwoLetterISOLanguageName.ToUpperInvariant() == subtitle.Language)
-          {
-            languageName = culture.ThreeLetterISOLanguageName;
-            break;
-          }
-        }
+        string languageName = Get3LetterLanguage(subtitle.Language);
         if (string.IsNullOrEmpty(languageName) == false)
           data.OutputArguments.Add(string.Format("-metadata:s:s:0 language={0}", languageName.ToLowerInvariant()));
       }
     }
 
-    internal void AddSubtitleEmbeddingParameters(int mediaSourceIndex, SubtitleStream subtitle, SubtitleCodec codec, double timeStart, FFMpegTranscodeData data)
+    internal void AddSubtitleEmbeddingParameters(int mediaSourceIndex, List<SubtitleStream> subtitles, SubtitleCodec codec, double timeStart, FFMpegTranscodeData data)
     {
       if (codec == SubtitleCodec.Unknown)
         return;
 
-      if (subtitle == null)
+      if (subtitles == null || subtitles.Count == 0)
         return;
 
-      data.InputSubtitleFilePath.Add(mediaSourceIndex, subtitle.Source);
-
-      string subtitleFormat = FFMpegGetSubtitleContainer.GetSubtitleContainer(subtitle.Codec);
-      data.InputSubtitleArguments[mediaSourceIndex].Add(string.Format("-f {0}", subtitleFormat));
-      string subtitleEncoder = FFMpegGetSubtitleContainer.GetSubtitleContainer(codec);
-      data.OutputArguments.Add(string.Format("-c:s {0}", subtitleEncoder));
-      if (string.IsNullOrEmpty(subtitle.Language) == false)
+      foreach (var subtitle in subtitles)
       {
-        string languageName = null;
-        CultureInfo[] cultures = CultureInfo.GetCultures(CultureTypes.NeutralCultures);
-        foreach (CultureInfo culture in cultures)
-        {
-          if (string.Compare(culture.TwoLetterISOLanguageName, subtitle.Language) == 0)
-          {
-            languageName = culture.ThreeLetterISOLanguageName;
-            break;
-          }
-        }
+        if (subtitle == null || string.IsNullOrEmpty(subtitle.Source))
+          continue;
+
+        data.AddSubtitle(mediaSourceIndex, subtitle.Source);
+
+        string subtitleFormat = FFMpegGetSubtitleContainer.GetSubtitleContainer(subtitle.Codec);
+        data.AddSubtitleArgument(mediaSourceIndex, (data.InputSubtitleFilePaths[mediaSourceIndex]?.Count ?? 1) - 1, string.Format("-f {0}", subtitleFormat));
+        string languageName = Get3LetterLanguage(subtitle.Language);
+        int inputNo = data.InputResourceAccessor.Count + data.InputSubtitleFilePaths.SelectMany(s => s.Value).Count() - 1;
         if (string.IsNullOrEmpty(languageName) == false)
-          data.OutputArguments.Add(string.Format("-metadata:s:s:0 language={0}", languageName.ToLowerInvariant()));
+          data.OutputArguments.Add(string.Format("-metadata:s:s:{0} language={1}", inputNo - 1, languageName.ToLowerInvariant())); // subtitle metadata stream index needs to be 1 less
+        data.OutputArguments.Add(string.Format("-map {0}:s:0", inputNo));
+        string subtitleEncoder = FFMpegGetSubtitleContainer.GetSubtitleContainer(codec);
+        data.OutputArguments.Add(string.Format("-c:s:{0} {1}", inputNo, subtitleEncoder));
       }
-      data.OutputArguments.Add(string.Format("-map {0}:s:0", data.InputResourceAccessor.Count + data.InputSubtitleFilePath.Count - 1));
     }
 
     private void AddSubtitleExtractionParameters(SubtitleStream subtitle, string subtitleEncoding, string subtitleEncoder, string subtitleFormat, double timeStart, FFMpegTranscodeData data)
@@ -566,7 +573,7 @@ namespace MediaPortal.Plugins.Transcoding.Service.Transcoders.FFMpeg
       if (audio.TargetAudioContainer == AudioContainer.Mp3)
         data.OutputArguments.Add("-id3v2_version 3");
 
-      AddAudioChannelsNumberParameters(0, audio, data);
+      AddAudioChannelsNumberParameters(0, 0, audio, data);
 
       string coder = null;
       Coders.TryGetValue(audio.TargetCoder, out coder);
@@ -903,9 +910,9 @@ namespace MediaPortal.Plugins.Transcoding.Service.Transcoders.FFMpeg
               foreach (var sub in video.PreferredSourceSubtitles[media.Key])
               {
                 if (SubtitleAnalyzer.IsImageBasedSubtitle(sub.Codec) == true || sub.IsEmbedded)
-                  data.InputSubtitleFilePath.Add(media.Key, sub.Source);
+                  data.AddSubtitle(media.Key, sub.Source);
              
-                data.OutputFilter.Add(GetSubtitleFilter(data.InputResourceAccessor.Count + data.InputSubtitleFilePath.Count - 1, video, sub, newSize, data));
+                data.OutputFilter.Add(GetSubtitleFilter(data.InputResourceAccessor.Count + data.InputSubtitleFilePaths.Count - 1, video, sub, newSize, data));
               }
             }
             data.OutputFilter.Add(string.Format("[v{0}];", inputNo));
@@ -968,8 +975,8 @@ namespace MediaPortal.Plugins.Transcoding.Service.Transcoders.FFMpeg
           {
             if (sub.IsEmbedded)
             {
-              data.InputSubtitleFilePath.Add(-1, sub.Source);
-              data.OutputArguments.Add(string.Format("-map {0}:s:{1}", data.InputResourceAccessor.Count + data.InputSubtitleFilePath.Count - 1, sub.StreamIndex));
+              data.AddSubtitle(-1, sub.Source);
+              data.OutputArguments.Add(string.Format("-map {0}:s:{1}", data.InputResourceAccessor.Count + data.InputSubtitleFilePaths.Count - 1, sub.StreamIndex));
             }
           }
         }
@@ -981,9 +988,26 @@ namespace MediaPortal.Plugins.Transcoding.Service.Transcoders.FFMpeg
       return _filerPathEncoding.Aggregate(filePath, (current, enc) => current.Replace(enc.Key, enc.Value));
     }
 
+    
+
+    private string Get3LetterLanguage(string iso2language)
+    {
+      if (string.IsNullOrEmpty(iso2language) == false)
+      {
+        //ffmpeg uses ISO 639-2/B but .net uses ISO 639-2/T so need to map
+        CultureInfo[] cultures = CultureInfo.GetCultures(CultureTypes.NeutralCultures);
+        var lang = cultures.FirstOrDefault(c => string.Compare(c.TwoLetterISOLanguageName, iso2language, true) == 0)?.ThreeLetterISOLanguageName;
+        if (_isoMap.ContainsKey(lang))
+          return _isoMap[lang];
+        return lang;
+      }
+      return null;
+    }
+
     internal void AddVideoAudioParameters(VideoTranscoding video, FFMpegTranscodeData data)
     {
       int mediaStreamIndex = video.FirstAudioStreamIndex;
+      int inputNo = 0;
       foreach (var audio in video.SourceAudioStreams[mediaStreamIndex])
       {
         if (audio.Codec == AudioCodec.Unknown)
@@ -994,27 +1018,32 @@ namespace MediaPortal.Plugins.Transcoding.Service.Transcoders.FFMpeg
 
         if (Checks.IsAudioStreamChanged(mediaStreamIndex, audio.StreamIndex, video) == false || video.TargetForceAudioCopy == true)
         {
-          data.OutputArguments.Add(string.Format("-c:a:{0} copy", audio.StreamIndex));
+          data.OutputArguments.Add(string.Format("-c:a:{0} copy", inputNo));
         }
         else
         {
-          data.OutputArguments.Add(string.Format("-c:a:{0} {1}", audio.StreamIndex, FFMpegGetAudioCodec.GetAudioCodec(video.TargetAudioCodec)));
+          data.OutputArguments.Add(string.Format("-c:a:{0} {1}", inputNo, FFMpegGetAudioCodec.GetAudioCodec(video.TargetAudioCodec)));
 
           long? frequency = Validators.GetAudioFrequency(audio.Codec, video.TargetAudioCodec, audio.Frequency, video.TargetAudioFrequency);
           if (frequency.HasValue)
-            data.OutputArguments.Add(string.Format("-ar:a:{0} {1}", audio.StreamIndex, frequency.Value));
+            data.OutputArguments.Add(string.Format("-ar:a:{0} {1}", inputNo, frequency.Value));
 
           if (video.TargetAudioCodec != AudioCodec.Lpcm)
-            data.OutputArguments.Add(string.Format("-b:a:{0} {1}k", audio.StreamIndex, Validators.GetAudioBitrate(audio.Bitrate, video.TargetAudioBitrate)));
+            data.OutputArguments.Add(string.Format("-b:a:{0} {1}k", inputNo, Validators.GetAudioBitrate(audio.Bitrate, video.TargetAudioBitrate)));
 
-          AddAudioChannelsNumberParameters(audio.StreamIndex, video, data);
+          string languageName = Get3LetterLanguage(audio.Language);
+          if (string.IsNullOrEmpty(languageName) == false)
+            data.OutputArguments.Add(string.Format("-metadata:s:a:{0} language={1}", inputNo, languageName.ToLowerInvariant()));
+
+          AddAudioChannelsNumberParameters(inputNo, audio.StreamIndex, video, data);
+          inputNo++;
         }
         if (!Checks.AreMultipleAudioStreamsSupported(video))
           break;
       }      
     }
 
-    private void AddAudioChannelsNumberParameters(int audioStreamIndex, BaseTranscoding media, FFMpegTranscodeData data)
+    private void AddAudioChannelsNumberParameters(int inputNo, int audioStreamIndex, BaseTranscoding media, FFMpegTranscodeData data)
     {
       int? channels = null;
       int? streamIndex = null;
@@ -1033,7 +1062,7 @@ namespace MediaPortal.Plugins.Transcoding.Service.Transcoders.FFMpeg
       }
       if (channels.HasValue)
       {
-        data.OutputArguments.Add(string.Format("-ac{0} {1}", streamIndex == null ? "" : ":a:" + streamIndex.Value, channels.Value));
+        data.OutputArguments.Add(string.Format("-ac:{0} {1}", inputNo, channels.Value));
       }
     }
 
@@ -1045,7 +1074,8 @@ namespace MediaPortal.Plugins.Transcoding.Service.Transcoders.FFMpeg
         {
           if (timeStart < dur.Value.TotalSeconds)
           {
-            data.InputSubtitleArguments[dur.Key].Add(string.Format(CultureInfo.InvariantCulture, "-ss {0:0.0}", timeStart));
+            foreach(var subKey in data.InputSubtitleArguments[dur.Key].Keys)
+              data.InputSubtitleArguments[dur.Key][subKey].Add(string.Format(CultureInfo.InvariantCulture, "-ss {0:0.0}", timeStart));
             data.InputArguments[dur.Key].Add(string.Format(CultureInfo.InvariantCulture, "-ss {0:0.0}", timeStart));
             break;
           }

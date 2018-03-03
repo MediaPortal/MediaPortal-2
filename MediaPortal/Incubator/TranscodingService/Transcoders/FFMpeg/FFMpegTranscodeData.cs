@@ -51,11 +51,11 @@ namespace MediaPortal.Plugins.Transcoding.Service.Transcoders.FFMpeg
     public string TranscoderBinPath;
     public List<string> GlobalArguments = new List<string>();
     public Dictionary<int, List<string>> InputArguments = new Dictionary<int, List<string>>();
-    public Dictionary<int, List<string>> InputSubtitleArguments = new Dictionary<int, List<string>>();
+    public Dictionary<int, Dictionary<int, List<string>>> InputSubtitleArguments = new Dictionary<int, Dictionary<int, List<string>>>();
     public List<string> OutputArguments = new List<string>();
     public List<string> OutputFilter = new List<string>();
     public Dictionary<int, IResourceAccessor> InputResourceAccessor;
-    public Dictionary<int, string> InputSubtitleFilePath = new Dictionary<int, string>();
+    public Dictionary<int, List<string>> InputSubtitleFilePaths = new Dictionary<int, List<string>>();
     public string OutputFilePath;
     public bool IsLive = false;
     public bool IsStream = false;
@@ -68,9 +68,28 @@ namespace MediaPortal.Plugins.Transcoding.Service.Transcoders.FFMpeg
     public Stream SegmentSubsPlaylistData = null;
     public FFMpegEncoderHandler.EncoderHandler Encoder = FFMpegEncoderHandler.EncoderHandler.Software;
 
+    public void AddSubtitle(int mediaSourceIndex, string subtitle)
+    {
+      if (!InputSubtitleFilePaths.ContainsKey(mediaSourceIndex))
+      {
+        InputSubtitleFilePaths[mediaSourceIndex] = new List<string>();
+        InputSubtitleArguments[mediaSourceIndex] = new Dictionary<int, List<string>>();
+      }
+      InputSubtitleFilePaths[mediaSourceIndex].Add(subtitle);
+    }
+
+    public void AddSubtitleArgument(int mediaSourceIndex, int subtitleIndex, string arg)
+    {
+      if (!InputSubtitleArguments[mediaSourceIndex].ContainsKey(subtitleIndex))
+      {
+        InputSubtitleArguments[mediaSourceIndex][subtitleIndex] = new List<string>();
+      }
+      InputSubtitleArguments[mediaSourceIndex][subtitleIndex].Add(arg);
+    }
+
     public int FirstResourceIndex => InputResourceAccessor == null ? -1 : InputResourceAccessor.First().Key;
     public IResourceAccessor FirstResourceAccessor => InputResourceAccessor?.FirstOrDefault().Value;
-    public string FirstSubtitleFilePath => InputSubtitleFilePath.FirstOrDefault().Value;
+    public string FirstSubtitleFilePath => InputSubtitleFilePaths.FirstOrDefault().Value.FirstOrDefault();
 
     public string TranscoderArguments
     {
@@ -110,17 +129,21 @@ namespace MediaPortal.Plugins.Transcoding.Service.Transcoders.FFMpeg
               }
             }
           }
-          if (InputSubtitleFilePath != null && InputSubtitleFilePath.Count > 0)
+          if (InputSubtitleFilePaths != null && InputSubtitleFilePaths.Count > 0)
           {
-            foreach (int sourceMediaIndex in InputSubtitleFilePath.Keys)
+            foreach (int sourceMediaIndex in InputSubtitleFilePaths.Keys)
             {
-              if (string.IsNullOrEmpty(InputSubtitleFilePath[sourceMediaIndex]) == false)
+              for(int subIdx = 0; subIdx < InputSubtitleFilePaths[sourceMediaIndex].Count; subIdx++)
               {
-                foreach (string arg in InputSubtitleArguments[sourceMediaIndex])
+                string subtitle = InputSubtitleFilePaths[sourceMediaIndex][subIdx];
+                if (string.IsNullOrEmpty(subtitle) == false)
                 {
-                  result.Append(arg + " ");
+                  foreach (string arg in InputSubtitleArguments[sourceMediaIndex][subIdx])
+                  {
+                    result.Append(arg + " ");
+                  }
+                  result.Append("-i \"" + subtitle + "\" ");
                 }
-                result.Append("-i \"" + InputSubtitleFilePath[sourceMediaIndex] + "\" ");
               }
             }
           }
@@ -155,7 +178,7 @@ namespace MediaPortal.Plugins.Transcoding.Service.Transcoders.FFMpeg
           {
             arg = arg.Replace(TranscodeProfileManager.INPUT_FILE_TOKEN, "\"" + ((ILocalFsResourceAccessor)FirstResourceAccessor).LocalFileSystemPath + "\"");
           }
-          if (InputSubtitleFilePath != null && InputSubtitleFilePath.Count > 0  && string.IsNullOrEmpty(FirstSubtitleFilePath) == false)
+          if (InputSubtitleFilePaths != null && InputSubtitleFilePaths.Count > 0  && string.IsNullOrEmpty(FirstSubtitleFilePath) == false)
           {
             arg = arg.Replace(TranscodeProfileManager.SUBTITLE_FILE_TOKEN, "\"" + FirstSubtitleFilePath) + "\"";
           }

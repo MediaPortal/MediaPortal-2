@@ -1173,14 +1173,22 @@ namespace MediaPortal.Plugins.Transcoding.Service.Transcoders
       {
         transcodingFile += ".A" + video.FirstSourceAudioStream.StreamIndex;
         if (video.TargetAudioMultiTrackSupport && video.SourceAudioStreams.Count > 1)
-          transcodingFile += ".Multi";
-        if ((video.PreferredSourceSubtitles?.Any() ?? false) && (embeddedSupported || video.TargetSubtitleSupport == SubtitleSupport.HardCoded))
+          transcodingFile += ".MultiA";
+        if ((video.PreferredSourceSubtitles?.Any() ?? false) && video.TargetSubtitleSupport == SubtitleSupport.HardCoded)
         {
           string subLanguage = video.FirstPreferredSourceSubtitle.Language;
           if (string.IsNullOrEmpty(subLanguage) == false)
           {
-            transcodingFile += ".S" + subLanguage;
+            transcodingFile += ".HC" + subLanguage;
           }
+          else
+          {
+            transcodingFile += ".HC";
+          }
+        }
+        else if ((video.PreferredSourceSubtitles?.Any() ?? false) && embeddedSupported)
+        {
+          transcodingFile += ".MultiS";
         }
       }
       transcodingFile += "." + VideoHelper.GetVideoExtension(video.TargetVideoContainer);
