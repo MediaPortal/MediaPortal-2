@@ -3,22 +3,33 @@
 
   <PropertyGroup>
     <ReferencesDestination>$(SolutionDir)..\Tests\$(ProjectName)\$(OutDir)</ReferencesDestination>
+    <ReferencesX86Destination>$(SolutionDir)..\Tests\$(ProjectName)\$(OutDir)x86\</ReferencesX86Destination>
+    <ReferencesX64Destination>$(SolutionDir)..\Tests\$(ProjectName)\$(OutDir)x64\</ReferencesX64Destination>
   </PropertyGroup>
 
   <ItemGroup>
     <References Include="$(SolutionDir)Extensions\MetadataExtractors\MediaInfoLib\$(OutDir)MediaInfo.dll" />
-    <References Include="$(SolutionDir)Extensions\MetadataExtractors\FFMpegLib\$(OutDir)ffmpeg.exe" />
-    <References Include="$(SolutionDir)Extensions\MetadataExtractors\FFMpegLib\$(OutDir)ffprobe.exe" />
-    <References Include="$(SolutionDir)Extensions\MetadataExtractors\FFMpegLib\$(OutDir)ffplay.exe" />
-    <References Include="$(SolutionDir)Extensions\MetadataExtractors\FFMpegLib\$(OutDir)av*.dll" />
-    <References Include="$(SolutionDir)Extensions\MetadataExtractors\FFMpegLib\$(OutDir)sw*.dll" />
-    <References Include="$(SolutionDir)Extensions\MetadataExtractors\FFMpegLib\$(OutDir)post*.dll" />
+    <ReferencesX86 Include="$(SolutionDir)Extensions\MetadataExtractors\FFMpegLib\$(OutDir)x86\ffmpeg.exe" />
+    <ReferencesX86 Include="$(SolutionDir)Extensions\MetadataExtractors\FFMpegLib\$(OutDir)x86\ffprobe.exe" />
+    <ReferencesX86 Include="$(SolutionDir)Extensions\MetadataExtractors\FFMpegLib\$(OutDir)x86\ffplay.exe" />
+    <ReferencesX86 Include="$(SolutionDir)Extensions\MetadataExtractors\FFMpegLib\$(OutDir)x86\av*.dll" />
+    <ReferencesX86 Include="$(SolutionDir)Extensions\MetadataExtractors\FFMpegLib\$(OutDir)x86\sw*.dll" />
+    <ReferencesX86 Include="$(SolutionDir)Extensions\MetadataExtractors\FFMpegLib\$(OutDir)x86\post*.dll" />
+    <ReferencesX64 Include="$(SolutionDir)Extensions\MetadataExtractors\FFMpegLib\$(OutDir)x64\ffmpeg.exe" />
+    <ReferencesX64 Include="$(SolutionDir)Extensions\MetadataExtractors\FFMpegLib\$(OutDir)x64\ffprobe.exe" />
+    <ReferencesX64 Include="$(SolutionDir)Extensions\MetadataExtractors\FFMpegLib\$(OutDir)x64\ffplay.exe" />
+    <ReferencesX64 Include="$(SolutionDir)Extensions\MetadataExtractors\FFMpegLib\$(OutDir)x64\av*.dll" />
+    <ReferencesX64 Include="$(SolutionDir)Extensions\MetadataExtractors\FFMpegLib\$(OutDir)x64\sw*.dll" />
+    <ReferencesX64 Include="$(SolutionDir)Extensions\MetadataExtractors\FFMpegLib\$(OutDir)x64\post*.dll" />
     <Fonts Include="$(SolutionDir)Extensions\MetadataExtractors\FFMpegLib\$(OutDir)fonts\**\*.*" />
   </ItemGroup>
 
   <Target Name="AfterBuild">
     <Copy SourceFiles="@(References)" DestinationFolder="$(ReferencesDestination)" />
-    <Copy SourceFiles="@(Fonts)" DestinationFiles="@(Fonts->'$(ReferencesDestination)\fonts\%(RecursiveDir)%(Filename)%(Extension)')" />
+    <Copy SourceFiles="@(ReferencesX86)" DestinationFolder="$(ReferencesX86Destination)" />
+    <Copy SourceFiles="@(ReferencesX64)" DestinationFolder="$(ReferencesX64Destination)" />
+    <Copy SourceFiles="@(Fonts)" DestinationFiles="@(Fonts->'$(ReferencesX86Destination)\fonts\%(RecursiveDir)%(Filename)%(Extension)')" />
+    <Copy SourceFiles="@(Fonts)" DestinationFiles="@(Fonts->'$(ReferencesX64Destination)\fonts\%(RecursiveDir)%(Filename)%(Extension)')" />
   </Target>
 
 </Project>
