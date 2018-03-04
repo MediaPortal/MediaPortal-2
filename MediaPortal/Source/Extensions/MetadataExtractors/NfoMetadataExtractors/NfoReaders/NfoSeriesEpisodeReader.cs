@@ -956,7 +956,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoRea
       if (_useSeriesStubs && _seriesStubs[0].Genres != null && _seriesStubs[0].Genres.Any())
       {
         List<GenreInfo> genres = _seriesStubs[0].Genres.Select(s => new GenreInfo { Name = s }).ToList();
-        GenreMapper.AssignMissingSeriesGenreIds(genres);
+        GenreMapper.AssignMissingSeriesGenreIds(genres, _settings.LanguageCulture);
         foreach(GenreInfo genre in genres)
         {
           MultipleMediaItemAspect genreAspect = MediaItemAspect.CreateAspect(extractedAspectData, GenreAspect.Metadata);

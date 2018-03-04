@@ -91,7 +91,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
       UpdateArtists(aspects, albumInfo.Artists, true);
       if (!UpdateAlbum(aspects, albumInfo))
         return false;
-      GenreMapper.AssignMissingSeriesGenreIds(albumInfo.Genres);
+      GenreMapper.AssignMissingMusicGenreIds(albumInfo.Genres, NfoAudioMetadataExtractor.LanguageCulture);
 
       extractedLinkedAspects = new List<RelationshipItem>();
       IDictionary<Guid, IList<MediaItemAspect>> albumAspects = new Dictionary<Guid, IList<MediaItemAspect>>();

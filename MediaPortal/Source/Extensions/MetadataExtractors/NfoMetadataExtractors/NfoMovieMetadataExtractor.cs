@@ -190,12 +190,14 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
     public static bool IncludeActorDetails { get; private set; }
     public static bool IncludeCharacterDetails { get; private set; }
     public static bool IncludeDirectorDetails { get; private set; }
+    public static string LanguageCulture { get; private set; }
 
     private void LoadSettings()
     {
       IncludeActorDetails = _settingWatcher.Settings.IncludeActorDetails;
       IncludeCharacterDetails = _settingWatcher.Settings.IncludeCharacterDetails;
       IncludeDirectorDetails = _settingWatcher.Settings.IncludeDirectorDetails;
+      LanguageCulture = _settingWatcher.Settings.LanguageCulture;
     }
 
     private void SettingsChanged(object sender, EventArgs e)

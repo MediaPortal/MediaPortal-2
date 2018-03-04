@@ -94,7 +94,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
       UpdateCharacters(aspects, seriesInfo.Characters, true);
       if (!UpdateSeries(aspects, seriesInfo))
         return false;
-      GenreMapper.AssignMissingSeriesGenreIds(seriesInfo.Genres);
+      GenreMapper.AssignMissingSeriesGenreIds(seriesInfo.Genres, NfoSeriesMetadataExtractor.LanguageCulture);
 
       extractedLinkedAspects = new List<RelationshipItem>();
       IDictionary<Guid, IList<MediaItemAspect>> seriesAspects = new Dictionary<Guid, IList<MediaItemAspect>>();

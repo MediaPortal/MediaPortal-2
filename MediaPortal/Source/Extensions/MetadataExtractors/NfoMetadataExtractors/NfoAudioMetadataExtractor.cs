@@ -184,11 +184,13 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
 
     public static bool IncludeArtistDetails { get; private set; }
     public static bool IncludeAlbumDetails { get; private set; }
+    public static string LanguageCulture { get; private set; }
 
     private void LoadSettings()
     {
       IncludeArtistDetails = _settingWatcher.Settings.IncludeArtistDetails;
       IncludeAlbumDetails = _settingWatcher.Settings.IncludeAlbumDetails;
+      LanguageCulture = _settingWatcher.Settings.LanguageCulture;
     }
 
     private void SettingsChanged(object sender, EventArgs e)
@@ -333,7 +335,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
                       if (album.Genres != null && album.Genres.Count > 0)
                       {
                         trackInfo.Genres = album.Genres.Select(s => new GenreInfo { Name = s.Trim() }).ToList();
-                        GenreMapper.AssignMissingMusicGenreIds(trackInfo.Genres);
+                        GenreMapper.AssignMissingMusicGenreIds(trackInfo.Genres, _settings.LanguageCulture);
                       }
 
                       if (album.Thumb != null && album.Thumb.Length > 0)

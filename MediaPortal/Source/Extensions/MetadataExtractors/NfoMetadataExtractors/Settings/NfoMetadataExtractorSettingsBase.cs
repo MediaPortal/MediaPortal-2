@@ -23,7 +23,8 @@
 #endregion
 
 using System.Collections.Generic;
-using MediaPortal.Common.Services.Settings;
+using MediaPortal.Common;
+using MediaPortal.Common.Localization;
 using MediaPortal.Common.Settings;
 
 namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.Settings
@@ -42,6 +43,8 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.Settin
   /// </remarks>
   public abstract class NfoMetadataExtractorSettingsBase
   {
+    protected string _languageCulture = ServiceRegistration.Get<ILocalization>().CurrentCulture.Name;
+
     #region Ctor
 
     protected NfoMetadataExtractorSettingsBase()
@@ -101,6 +104,16 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.Settin
     /// </summary>
     [Setting(SettingScope.Global, false)]
     public bool WriteStubObjectIntoDebugLog { get; set; }
+
+    /// <summary>
+    /// Language culture for the language in the nfo files.
+    /// </summary>
+    [Setting(SettingScope.Global)]
+    public string LanguageCulture
+    {
+      get { return _languageCulture; }
+      set { _languageCulture = value; }
+    }
 
     #endregion
   }
