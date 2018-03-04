@@ -170,7 +170,14 @@ namespace MediaPortal.UI.SkinEngine.DirectX
 
     public static void ExecuteInMainThread(WorkDlgt method)
     {
-      _setup.RenderTarget.Invoke(method);
+      try
+      {
+        _setup.RenderTarget.Invoke(method);
+      }
+      catch (Exception ex)
+      {
+        ServiceRegistration.Get<ILogger>().Error("GraphicsDevice: Error executing action in MainThread.", ex);
+      }
     }
 
     public static void ReCreateDXDevice()
@@ -610,6 +617,8 @@ namespace MediaPortal.UI.SkinEngine.DirectX
       renderStrategy.BeginRender(doWaitForNextFame);
 
       _renderAndResourceAccessLock.EnterReadLock();
+
+      bool doReset = false;
       try
       {
         Fire(DeviceSceneBegin);
@@ -630,6 +639,7 @@ namespace MediaPortal.UI.SkinEngine.DirectX
       }
       catch (SharpDXException e)
       {
+        doReset = true;
         DeviceState state = CheckDeviceState();
         ServiceRegistration.Get<ILogger>().Warn("GraphicsDevice: DirectX Exception, DeviceState: {0}", e, state);
         _deviceOk = state == DeviceState.Ok;
@@ -638,6 +648,10 @@ namespace MediaPortal.UI.SkinEngine.DirectX
       finally
       {
         _renderAndResourceAccessLock.ExitReadLock();
+        // If there are exceptions during render pass, the device can stay in an invalid state, even if the CheckDeviceState returns "ok".
+        // So we prefer to reset the device and try continue rendering.
+        if (doReset)
+          Reset();
       }
       return false;
     }
