@@ -59,24 +59,25 @@
   <ItemGroup>
     <DependsOnTargets Include="WriteBuildInfos" />
     <DependsOnTargets Include="ClearBinDirectory" Condition="$(ClearBinDirectory) == 'true'" />
+    <DependsOnTargets Include="RestoreOVPackages" Condition="$(BuildOnlineVideos) == 'true'" />
+    <DependsOnTargets Include="RestoreAllPackages" />
     <DependsOnTargets Include="DownloadTranslations" Condition="$(DownloadTranslations) == 'true'" />
     <DependsOnTargets Include="CopyTranslations" Condition="$(CopyTranslations) == 'true'" />
     <DependsOnTargets Include="WriteAssemblyInfo" Condition="$(WriteAssemblyInfo) == 'true'" />
   </ItemGroup>
 
-  <!-- This item group holds the MP2 solutions that should acutally being built. -->
+  <!-- This item group holds the MP2 solutions that should actually being built. -->
   <ItemGroup>
-    <ProjectsToRestoreAndBuild Include="$(ProjectRoot)\Source\MP2-Client.sln" Condition="$(BuildClient) == 'true'" />
-    <ProjectsToRestoreAndBuild Include="$(ProjectRoot)\Source\MP2-Server.sln" Condition="$(BuildServer) == 'true'" />
-    <ProjectsToRestoreAndBuild Include="$(ProjectRoot)\Source\MP2-ServiceMonitor.sln" Condition="$(BuildServiceMonitor) == 'true'" />
-    <ProjectsToRestoreAndBuild Include="$(ProjectRoot)\..\OnlineVideos\OnlineVideos.MediaPortal2.sln" Condition="$(BuildOnlineVideos) == 'true'" />
-  </ItemGroup>
-  <ItemGroup>
+    <ProjectsToBuild Include="$(ProjectRoot)\Source\MP2-Client.sln" Condition="$(BuildClient) == 'true'" />
+    <ProjectsToBuild Include="$(ProjectRoot)\Source\MP2-Server.sln" Condition="$(BuildServer) == 'true'" />
+    <ProjectsToBuild Include="$(ProjectRoot)\Source\MP2-ServiceMonitor.sln" Condition="$(BuildServiceMonitor) == 'true'" />
+    <ProjectsToBuild Include="$(ProjectRoot)\..\OnlineVideos\OnlineVideos.MediaPortal2.sln" Condition="$(BuildOnlineVideos) == 'true'" />
     <ProjectsToBuild Include="$(ProjectRoot)\Setup\MP2-Setup.sln" Condition="$(BuildSetup) == 'true'" />
   </ItemGroup>
 
 
   <!-- Targets -->
+  <Import Project="$(MSBuildProjectDirectory)\RestorePackages.targets" />
   <Import Project="$(MSBuildProjectDirectory)\Transifex.targets" />
 
   <Target Name="WriteBuildInfos">
@@ -96,6 +97,11 @@
   <Target Name="ClearBinDirectory">
     <RemoveDir Condition="$(OneStepOnly) == 'false'" Directories="$(ProjectRoot)\bin" />
   </Target>
+
+  <Target Name="RestoreOVPackages"
+          DependsOnTargets="DownloadNuGet">
+    <Exec Command='"$(NuGetExePath)" restore "$(OnlineVideosDir)\OnlineVideos.MediaPortal2.sln"'/>
+  </Target>
   
   <Target Name="BuildAssemblyInfoHelper">
     <MSBuild Projects="$(AssemblyInfoHelperDir)\AssemblyInfoHelper.sln" Properties="Configuration=Release;Platform=Any CPU" Targets="Restore;Rebuild"/>
@@ -108,9 +114,6 @@
 
   <Target Name="Build"
           DependsOnTargets="@(DependsOnTargets)">
-    <MSBuild Projects="@(ProjectsToRestoreAndBuild)"
-             Properties="Configuration=$(Configuration);Platform=$(Platform)"
-             Targets="Restore;Rebuild" />
     <MSBuild Projects="@(ProjectsToBuild)"
              Properties="Configuration=$(Configuration);Platform=$(Platform)"
              Targets="Rebuild" />
