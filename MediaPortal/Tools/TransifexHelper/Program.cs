@@ -107,7 +107,10 @@ namespace TransifexHelper
         ExecutePush();
 
       if (mpOptions.Pull)
+      {
         ExecutePull();
+        WritePullMarkerFile();
+      }
 
       if (mpOptions.Fix)
       {
@@ -134,6 +137,11 @@ namespace TransifexHelper
     private static string TransifexClientExeFile
     {
       get { return TransifexRootFolder + @"\tx.exe"; }
+    }
+
+    private static string TransifexPullCacheMarker
+    {
+      get { return TransifexRootFolder + @"\Cache_MP2\Force_Update_Done.DO_NOT_COMMIT"; }
     }
 
     #endregion
@@ -219,11 +227,16 @@ namespace TransifexHelper
     /// </summary>
     private static void ExecutePull()
     {
+      // Check for marker file
+      var forcePullDone = File.Exists(TransifexPullCacheMarker);
+
       ProcessStartInfo processStartInfo = new ProcessStartInfo();
       processStartInfo.FileName = TransifexClientExeFile;
       // Note: we had used " -f" (force) argument before. This always downloads every resources, no matter if empty or unchanged (many traffic/duration).
       // In favour of speed we use the default now. If there are problems with missing new translations, we could switch back to forced mode.
       processStartInfo.Arguments = " pull";
+      if (!forcePullDone)
+        processStartInfo.Arguments += " -f";
       processStartInfo.WorkingDirectory = TransifexRootFolder;
       processStartInfo.RedirectStandardOutput = true;
       processStartInfo.UseShellExecute = false;
@@ -231,6 +244,12 @@ namespace TransifexHelper
       Process process = Process.Start(processStartInfo);
       Console.Write(process.StandardOutput.ReadToEnd());
       process.WaitForExit();
+    }
+
+    private static void WritePullMarkerFile()
+    {
+      if (!File.Exists(TransifexPullCacheMarker))
+        File.WriteAllText(TransifexPullCacheMarker, "Marker file to avoid duplicate 'force' pull actions. Do not commit this file to Git!");
     }
 
     /// <summary>

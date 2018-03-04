@@ -10,7 +10,7 @@
     <TransifexDir Condition="$(TransifexDir) == ''">$(ProjectRoot)\Tools\Transifex</TransifexDir>
 
     <!-- Transifex Client -->
-    <TransifexClientExePath>$(TransifexDir)\tx.py36.exe</TransifexClientExePath>
+    <TransifexClientExePath>$(TransifexDir)\tx.exe</TransifexClientExePath>
     <TransifexClientDownloadUrl>https://github.com/transifex/transifex-client/releases/download/0.13.1/tx.py36.exe</TransifexClientDownloadUrl>
 
     <!-- Transifex Helper -->
@@ -32,7 +32,7 @@
           DependsOnTargets="DownloadTransifexClient;BuildTransifexHelper"
           Condition="$(DownloadTranslations) != 'false'">
 
-    <Exec Command='"$(TransifexClientExePath)" pull -a -f'
+    <Exec Command='"$(TransifexHelperExePath)" --pull -t "$(ProjectRoot)"'
           WorkingDirectory="$(TransifexDir)"/>
     <Exec Command='"$(TransifexHelperExePath)" --fix -t "$(ProjectRoot)"'/>
 
