@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2015 Team MediaPortal
+#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2015 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -27,6 +27,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading;
+using System.Threading.Tasks;
 using MediaPortal.Backend.Database;
 using MediaPortal.Common;
 using MediaPortal.Common.MediaManagement;
@@ -52,6 +53,7 @@ using VirtualCard = TvControl.VirtualCard;
 using System.Globalization;
 using Gentle.Framework;
 using System.Collections;
+using MediaPortal.Common.Services.ServerCommunication;
 using MediaPortal.Common.Settings;
 using MediaPortal.Plugins.SlimTv.Proxy.Settings;
 using System.Threading.Tasks;
@@ -189,9 +191,9 @@ namespace MediaPortal.Plugins.SlimTv.Service
       RemoteControl.Clear();
       lock (_recordingSync)
       {
-        if(_checkForRecordingTimer != null) _checkForRecordingTimer.Dispose();
+        if (_checkForRecordingTimer != null) _checkForRecordingTimer.Dispose();
         _checkForRecordingTimer = null;
-        if(_allCards != null) _allCards.Clear();
+        if (_allCards != null) _allCards.Clear();
         _allCards = null;
         _currentlyRecording.Clear();
         _currentlyRecording = null;
@@ -520,20 +522,21 @@ namespace MediaPortal.Plugins.SlimTv.Service
       if (group.ChannelGroupId < 0)
       {
         var radioGroup = RadioChannelGroup.Retrieve(-group.ChannelGroupId);
-        channels = GetChannelsInGroup(radioGroup.IdGroup)
-          .OrderBy(c => c.SortOrder)
-          .Where(c => c != null && c.VisibleInGuide)
+        var radioChannels = radioGroup.ReferringRadioGroupMap().OrderBy(rgm => rgm.SortOrder).Select(rgm => rgm.ReferencedChannel());
+        channels = radioChannels
+          .Where(c => c.VisibleInGuide)
           .Select(c => c.ToChannel())
+          .Where(c => c != null)
           .ToList();
       }
       else
       {
-        var tvGroup = TvDatabase.ChannelGroup.Retrieve(group.ChannelGroupId);
-        channels = GetChannelsInGroup(tvGroup.IdGroup)
+        channels = GetChannelsInGroup(group.ChannelGroupId)
           // Bug? SortOrder contains logical channel number, not the group sort order?
           // .OrderBy(c => c.SortOrder)
           .Where(c => c != null && c.VisibleInGuide)
           .Select(c => c.ToChannel())
+          .Where(c => c != null)
           .ToList();
       }
       return Task.FromResult(new AsyncResult<IList<IChannel>>(true, channels));
@@ -569,6 +572,7 @@ namespace MediaPortal.Plugins.SlimTv.Service
     {
       ISchedule schedule;
       var tvProgram = TvDatabase.Program.Retrieve(program.ProgramId);
+      ISchedule schedule;
       if (tvProgram == null)
       {
         return Task.FromResult(new AsyncResult<ISchedule>(false, null));
@@ -794,9 +798,8 @@ namespace MediaPortal.Plugins.SlimTv.Service
     public override Task<AsyncResult<ISchedule>> IsCurrentlyRecordingAsync(string fileName)
     {
       Recording recording;
-      if (!GetRecording(fileName, out recording) || recording.Idschedule <= 0)
+      if (GetRecording(fileName, out recording) || recording.Idschedule <= 0)
         return Task.FromResult(new AsyncResult<ISchedule>(false, null));
-
       var schedule = TvDatabase.Schedule.ListAll().FirstOrDefault(s => s.IdSchedule == recording.Idschedule).ToSchedule();
       return Task.FromResult(new AsyncResult<ISchedule>(schedule != null, schedule));
     }
