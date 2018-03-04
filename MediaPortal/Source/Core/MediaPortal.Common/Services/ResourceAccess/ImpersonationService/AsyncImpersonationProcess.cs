@@ -309,6 +309,7 @@ namespace MediaPortal.Common.Services.ResourceAccess.ImpersonationService
     internal static Task<ProcessExecutionResult> ExecuteAsync(string executable, string arguments, WindowsIdentityWrapper idWrapper, ILogger debugLogger, ProcessPriorityClass priorityClass = ProcessPriorityClass.Normal, int maxWaitMs = ProcessUtils.DEFAULT_TIMEOUT)
     {
       var tcs = new TaskCompletionSource<ProcessExecutionResult>();
+      bool exited = false;
       var process = new AsyncImpersonationProcess(debugLogger)
       {
         StartInfo = new ProcessStartInfo(executable, arguments)
@@ -353,6 +354,7 @@ namespace MediaPortal.Common.Services.ResourceAccess.ImpersonationService
       // That ensures disposal of the process object.
       process.Exited += async (sender, args) =>
       {
+        exited = true;
         try
         {
           await processStart.Task;
@@ -391,6 +393,8 @@ namespace MediaPortal.Common.Services.ResourceAccess.ImpersonationService
       processStart.SetResult(processStarted);
       if (processStarted)
       {
+        process.BeginOutputReadLine();
+        process.BeginErrorReadLine();
         try
         {
           // This call may throw an exception if the process has already exited when we get here.
@@ -406,7 +410,7 @@ namespace MediaPortal.Common.Services.ResourceAccess.ImpersonationService
           // because the process has exited already. The exception should not be logged because 
           // there is no guarantee that the exited event has finished setting the task to the 
           // RanToCompletion state before this exception sets it to the Faulted state.
-          if (!process.HasExited && tcs.TrySetException(e))
+          if (!exited && !process.HasExited && tcs.TrySetException(e))
             debugLogger.Error("AsyncImpersonationProcess ({0}): Exception while setting the PriorityClass", e, executable);
         }
         catch (Exception e)
@@ -414,12 +418,10 @@ namespace MediaPortal.Common.Services.ResourceAccess.ImpersonationService
           if (tcs.TrySetException(e))
             debugLogger.Error("AsyncImpersonationProcess ({0}): Exception while setting the PriorityClass", e, executable);
         }
-
-        process.BeginOutputReadLine();
-        process.BeginErrorReadLine();
       }
       else
       {
+        exited = true;
         standardOutputResults.SetResult(null);
         standardErrorResults.SetResult(null);
 
@@ -437,7 +439,7 @@ namespace MediaPortal.Common.Services.ResourceAccess.ImpersonationService
             // RanToCompletion before.
             tcs.TrySetCanceled();
             // Always kill the process if is running.
-            if (!process.HasExited)
+            if (!exited && !process.HasExited)
             {
               process.Kill();
               debugLogger.Warn("AsyncImpersonationProcess ({0}): Process was killed because maxWaitMs was reached.", executable);

@@ -45,6 +45,7 @@ using MediaPortal.Common.UserProfileDataManagement;
 using MediaPortal.Utilities;
 using MediaPortal.Utilities.DB;
 using MediaPortal.Utilities.Exceptions;
+using MediaPortal.Utilities.Threading;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -72,12 +73,13 @@ namespace MediaPortal.Backend.Services.MediaLibrary
         _parent = parent;
       }
 
-      public Task<MediaItem> LoadLocalItemAsync(ResourcePath path,
+      public async Task<MediaItem> LoadLocalItemAsync(ResourcePath path,
           IEnumerable<Guid> necessaryRequestedMIATypeIDs, IEnumerable<Guid> optionalRequestedMIATypeIDs, Guid? userProfileId = null)
       {
         try
         {
-          return Task.FromResult(_parent.LoadItem(_parent.LocalSystemId, path, necessaryRequestedMIATypeIDs, optionalRequestedMIATypeIDs, userProfileId));
+          using (var lck = await _parent.RequestImporterAccessAsync())
+            return _parent.LoadItem(_parent.LocalSystemId, path, necessaryRequestedMIATypeIDs, optionalRequestedMIATypeIDs, userProfileId);
         }
         catch (Exception)
         {
@@ -85,12 +87,13 @@ namespace MediaPortal.Backend.Services.MediaLibrary
         }
       }
 
-      public Task<MediaItem> LoadLocalItemAsync(Guid mediaItemId,
+      public async Task<MediaItem> LoadLocalItemAsync(Guid mediaItemId,
           IEnumerable<Guid> necessaryRequestedMIATypeIDs, IEnumerable<Guid> optionalRequestedMIATypeIDs, Guid? userProfileId = null)
       {
         try
         {
-          return Task.FromResult(_parent.LoadItem(_parent.LocalSystemId, mediaItemId, necessaryRequestedMIATypeIDs, optionalRequestedMIATypeIDs, userProfileId));
+          using (var lck = await _parent.RequestImporterAccessAsync())
+            return _parent.LoadItem(_parent.LocalSystemId, mediaItemId, necessaryRequestedMIATypeIDs, optionalRequestedMIATypeIDs, userProfileId);
         }
         catch (Exception)
         {
@@ -98,13 +101,14 @@ namespace MediaPortal.Backend.Services.MediaLibrary
         }
       }
 
-      public Task<IList<MediaItem>> BrowseAsync(Guid parentDirectoryId,
+      public async Task<IList<MediaItem>> BrowseAsync(Guid parentDirectoryId,
           IEnumerable<Guid> necessaryRequestedMIATypeIDs, IEnumerable<Guid> optionalRequestedMIATypeIDs, Guid? userProfileId,
           bool includeVirtual, uint? offset = null, uint? limit = null)
       {
         try
         {
-          return Task.FromResult(_parent.Browse(parentDirectoryId, necessaryRequestedMIATypeIDs, optionalRequestedMIATypeIDs, userProfileId, includeVirtual, offset, limit));
+          using (var lck = await _parent.RequestImporterAccessAsync())
+            return _parent.Browse(parentDirectoryId, necessaryRequestedMIATypeIDs, optionalRequestedMIATypeIDs, userProfileId, includeVirtual, offset, limit);
         }
         catch (Exception)
         {
@@ -141,7 +145,8 @@ namespace MediaPortal.Backend.Services.MediaLibrary
       {
         try
         {
-          _parent.MarkUpdatableMediaItems();
+          using (var lck = _parent.RequestImporterAccess())
+            _parent.MarkUpdatableMediaItems();
         }
         catch (Exception)
         {
@@ -159,13 +164,16 @@ namespace MediaPortal.Backend.Services.MediaLibrary
         _parent = parent;
       }
 
-      public Task<Guid> UpdateMediaItemAsync(Guid parentDirectoryId, ResourcePath path, IEnumerable<MediaItemAspect> updatedAspects, bool isRefresh, ResourcePath basePath)
+      public async Task<Guid> UpdateMediaItemAsync(Guid parentDirectoryId, ResourcePath path, IEnumerable<MediaItemAspect> updatedAspects, bool isRefresh, ResourcePath basePath)
       {
         try
         {
-          lock (_parent.GetResourcePathLock(basePath))
+          using (var lck = await _parent.RequestImporterAccessAsync())
           {
-            return Task.FromResult(_parent.AddOrUpdateMediaItem(parentDirectoryId, _parent.LocalSystemId, path, null, null, updatedAspects, isRefresh));
+            lock (_parent.GetResourcePathLock(basePath))
+            {
+              return _parent.AddOrUpdateMediaItem(parentDirectoryId, _parent.LocalSystemId, path, null, null, updatedAspects, isRefresh);
+            }
           }
         }
         catch (Exception)
@@ -174,13 +182,16 @@ namespace MediaPortal.Backend.Services.MediaLibrary
         }
       }
 
-      public Task<Guid> UpdateMediaItemAsync(Guid parentDirectoryId, ResourcePath path, Guid mediaItemId, IEnumerable<MediaItemAspect> updatedAspects, bool isRefresh, ResourcePath basePath)
+      public async Task<Guid> UpdateMediaItemAsync(Guid parentDirectoryId, ResourcePath path, Guid mediaItemId, IEnumerable<MediaItemAspect> updatedAspects, bool isRefresh, ResourcePath basePath)
       {
         try
         {
-          lock (_parent.GetResourcePathLock(basePath))
+          using (var lck = await _parent.RequestImporterAccessAsync())
           {
-            return Task.FromResult(_parent.AddOrUpdateMediaItem(parentDirectoryId, _parent.LocalSystemId, path, mediaItemId, null, updatedAspects, isRefresh));
+            lock (_parent.GetResourcePathLock(basePath))
+            {
+              return _parent.AddOrUpdateMediaItem(parentDirectoryId, _parent.LocalSystemId, path, mediaItemId, null, updatedAspects, isRefresh);
+            }
           }
         }
         catch (Exception)
@@ -189,11 +200,12 @@ namespace MediaPortal.Backend.Services.MediaLibrary
         }
       }
 
-      public Task<IList<MediaItem>> ReconcileMediaItemRelationshipsAsync(Guid mediaItemId, IEnumerable<MediaItemAspect> mediaItemAspects, IEnumerable<RelationshipItem> relationshipItems)
+      public async Task<IList<MediaItem>> ReconcileMediaItemRelationshipsAsync(Guid mediaItemId, IEnumerable<MediaItemAspect> mediaItemAspects, IEnumerable<RelationshipItem> relationshipItems)
       {
         try
         {
-          return Task.FromResult(_parent.ReconcileMediaItemRelationships(mediaItemId, mediaItemAspects, relationshipItems));
+          using (var lck = await _parent.RequestImporterAccessAsync())
+            return _parent.ReconcileMediaItemRelationships(mediaItemId, mediaItemAspects, relationshipItems);
         }
         catch (Exception)
         {
@@ -201,12 +213,12 @@ namespace MediaPortal.Backend.Services.MediaLibrary
         }
       }
 
-      public Task DeleteMediaItemAsync(ResourcePath path)
+      public async Task DeleteMediaItemAsync(ResourcePath path)
       {
         try
         {
-          _parent.DeleteMediaItemOrPath(_parent.LocalSystemId, path, true);
-          return Task.CompletedTask;
+          using (var lck = await _parent.RequestImporterAccessAsync())
+            _parent.DeleteMediaItemOrPath(_parent.LocalSystemId, path, true);
         }
         catch (Exception)
         {
@@ -214,12 +226,12 @@ namespace MediaPortal.Backend.Services.MediaLibrary
         }
       }
 
-      public Task DeleteUnderPathAsync(ResourcePath path)
+      public async Task DeleteUnderPathAsync(ResourcePath path)
       {
         try
         {
-          _parent.DeleteMediaItemOrPath(_parent.LocalSystemId, path, false);
-          return Task.CompletedTask;
+          using (var lck = await _parent.RequestImporterAccessAsync())
+            _parent.DeleteMediaItemOrPath(_parent.LocalSystemId, path, false);
         }
         catch (Exception)
         {
@@ -369,6 +381,8 @@ namespace MediaPortal.Backend.Services.MediaLibrary
     protected Dictionary<Guid, ShareImportState> _shareImportStates = new Dictionary<Guid, ShareImportState>();
     protected object _shareImportCacheSync = new object();
     protected ICollection<Share> _importingSharesCache;
+    protected CancellationTokenSource _accessLockCancel = new CancellationTokenSource();
+    protected AsyncPriorityLock _accessLock = new AsyncPriorityLock();
 
     #endregion
 
@@ -393,6 +407,30 @@ namespace MediaPortal.Backend.Services.MediaLibrary
     public void Dispose()
     {
       _messageQueue.Shutdown();
+      _accessLockCancel.Cancel();
+    }
+
+    #endregion
+
+    #region Access
+
+    public async Task<IDisposable> RequestImporterAccessAsync()
+    {
+      return await _accessLock.LowPriorityLockAsync();
+    }
+
+    public IDisposable RequestImporterAccess()
+    {
+      return _accessLock.LowPriorityLock();
+    }
+
+    public void ReserveAccess(int duration)
+    {
+      IDisposable accessToken = _accessLock.PriorityLock();
+      Task.Delay(duration, _accessLockCancel.Token).ContinueWith((t) =>
+      {
+        accessToken.Dispose();
+      });
     }
 
     #endregion
@@ -1039,7 +1077,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
                   if (changeFilter.Value > 0)
                     changeQuery.Limit = changeFilter.Value;
                   IList<MediaItem> foundItems = Search(database, transaction, changeQuery, false, null, false);
-                  if (foundItems != null)
+                  if (foundItems?.Count > 0)
                   {
                     int currentItem = 0;
                     List<Guid> miUpdateList = new List<Guid>();
@@ -1048,10 +1086,14 @@ namespace MediaPortal.Backend.Services.MediaLibrary
                       int remaining = foundItems.Count - currentItem;
                       int endItem = currentItem + (remaining > MAX_VARIABLES_LIMIT ? MAX_VARIABLES_LIMIT : remaining);
                       command.Parameters.Clear();
+                      List<string> sqlParams = new List<string>();
                       for (int index = currentItem; index < endItem; index++)
-                        database.AddParameter(command, "MI" + index, foundItems[index].MediaItemId, typeof(Guid));
-                      command.CommandText = string.Format(_preparedStatements.UpdateMediaItemsDirtyAttributeFromIdSQL,
-                        string.Join(",", foundItems.Where((id, index) => index >= currentItem && index < endItem).Select((id, index) => "@MI" + index)));
+                      {
+                        string paramName = "MI" + index;
+                        sqlParams.Add("@" + paramName);
+                        database.AddParameter(command, paramName, foundItems[index].MediaItemId, typeof(Guid));
+                      }
+                      command.CommandText = string.Format(_preparedStatements.UpdateMediaItemsDirtyAttributeFromIdSQL, string.Join(",", sqlParams));
                       command.ExecuteNonQuery();
                       itemCount += (endItem - currentItem);
                       currentItem = endItem;
@@ -1071,7 +1113,6 @@ namespace MediaPortal.Backend.Services.MediaLibrary
       catch (Exception e)
       {
         Logger.Error("MediaLibrary: Error marking updated media items", e);
-        throw;
       }
     }
 

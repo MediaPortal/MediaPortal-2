@@ -1239,6 +1239,16 @@ namespace MediaPortal.Backend.Services.ClientCommunication
       return null;
     }
 
+    static IMediaLibrary MediaLibrary
+    {
+      get
+      {
+        IMediaLibrary mediaLibrary = ServiceRegistration.Get<IMediaLibrary>();
+        mediaLibrary.ReserveAccess(5000);
+        return mediaLibrary;
+      }
+    }
+
     #region Device Actions Implementation
 
     #region UPnP 1.0 Device Actions Implementation
@@ -1332,7 +1342,7 @@ namespace MediaPortal.Backend.Services.ClientCommunication
 
       //MediaItemQuery query = new MediaItemQuery(necessaryMIATypes, null);
 
-      //IList<MediaItem> result = ServiceRegistration.Get<IMediaLibrary>().Search(query, false, startIndex, requestedCount);
+      //IList<MediaItem> result = MediaLibrary.Search(query, false, startIndex, requestedCount);
 
       //outParams = new List<object>
       //{
@@ -1365,7 +1375,7 @@ namespace MediaPortal.Backend.Services.ClientCommunication
       //  outParams = null;
       //  return error;
       //}
-      //IList<MediaItem> mediaItems = ServiceRegistration.Get<IMediaLibrary>().Search(query, !all);
+      //IList<MediaItem> mediaItems = MediaLibrary.Search(query, !all);
       //outParams = new List<object>
       //{
       //  mediaItems,       // Result
@@ -1395,7 +1405,7 @@ namespace MediaPortal.Backend.Services.ClientCommunication
         CallContext context)
     {
       Share share = (Share) inParams[0];
-      ServiceRegistration.Get<IMediaLibrary>().RegisterShare(share);
+      MediaLibrary.RegisterShare(share);
       outParams = null;
       return null;
     }
@@ -1404,7 +1414,7 @@ namespace MediaPortal.Backend.Services.ClientCommunication
         CallContext context)
     {
       Guid shareId = MarshallingHelper.DeserializeGuid((string) inParams[0]);
-      ServiceRegistration.Get<IMediaLibrary>().RemoveShare(shareId);
+      MediaLibrary.RemoveShare(shareId);
       outParams = null;
       return null;
     }
@@ -1425,8 +1435,7 @@ namespace MediaPortal.Backend.Services.ClientCommunication
         outParams = null;
         return error;
       }
-      IMediaLibrary mediaLibrary = ServiceRegistration.Get<IMediaLibrary>();
-      int numAffected = mediaLibrary.UpdateShare(shareId, baseResourcePath, shareName, useShareWatcher, mediaCategories, relocationMode);
+      int numAffected = MediaLibrary.UpdateShare(shareId, baseResourcePath, shareName, useShareWatcher, mediaCategories, relocationMode);
       outParams = new List<object> {numAffected};
       return null;
     }
@@ -1443,7 +1452,7 @@ namespace MediaPortal.Backend.Services.ClientCommunication
         outParams = null;
         return error;
       }
-      IDictionary<Guid, Share> shares = ServiceRegistration.Get<IMediaLibrary>().GetShares(systemId);
+      IDictionary<Guid, Share> shares = MediaLibrary.GetShares(systemId);
       ICollection<Share> result;
       if (all)
         result = shares.Values;
@@ -1464,7 +1473,7 @@ namespace MediaPortal.Backend.Services.ClientCommunication
         CallContext context)
     {
       Guid shareId = MarshallingHelper.DeserializeGuid((string) inParams[0]);
-      Share result = ServiceRegistration.Get<IMediaLibrary>().GetShare(shareId);
+      Share result = MediaLibrary.GetShare(shareId);
       outParams = new List<object> {result};
       return null;
     }
@@ -1473,7 +1482,7 @@ namespace MediaPortal.Backend.Services.ClientCommunication
         CallContext context)
     {
       Guid shareId = MarshallingHelper.DeserializeGuid((string) inParams[0]);
-      Share share = ServiceRegistration.Get<IMediaLibrary>().GetShare(shareId);
+      Share share = MediaLibrary.GetShare(shareId);
       ServiceRegistration.Get<IImporterWorker>().ScheduleRefresh(share.BaseResourcePath, share.MediaCategories, true);
       outParams = null;
       return null;
@@ -1482,7 +1491,7 @@ namespace MediaPortal.Backend.Services.ClientCommunication
     static UPnPError OnMPnP10SetupDefaultServerShares(DvAction action, IList<object> inParams, out IList<object> outParams,
         CallContext context)
     {
-      ServiceRegistration.Get<IMediaLibrary>().SetupDefaultLocalShares();
+      MediaLibrary.SetupDefaultLocalShares();
       outParams = null;
       return null;
     }
@@ -1491,7 +1500,7 @@ namespace MediaPortal.Backend.Services.ClientCommunication
         CallContext context)
     {
       MediaItemAspectMetadata miam = (MediaItemAspectMetadata) inParams[0];
-      ServiceRegistration.Get<IMediaLibrary>().AddMediaItemAspectStorage(miam);
+      MediaLibrary.AddMediaItemAspectStorage(miam);
       outParams = null;
       return null;
     }
@@ -1500,7 +1509,7 @@ namespace MediaPortal.Backend.Services.ClientCommunication
         CallContext context)
     {
       Guid aspectId = MarshallingHelper.DeserializeGuid((string) inParams[0]);
-      ServiceRegistration.Get<IMediaLibrary>().RemoveMediaItemAspectStorage(aspectId);
+      MediaLibrary.RemoveMediaItemAspectStorage(aspectId);
       outParams = null;
       return null;
     }
@@ -1508,7 +1517,7 @@ namespace MediaPortal.Backend.Services.ClientCommunication
     static UPnPError OnMPnP10GetAllManagedMediaItemAspectTypes(DvAction action, IList<object> inParams, out IList<object> outParams,
         CallContext context)
     {
-      ICollection<Guid> result = ServiceRegistration.Get<IMediaLibrary>().GetManagedMediaItemAspectMetadata().Keys;
+      ICollection<Guid> result = MediaLibrary.GetManagedMediaItemAspectMetadata().Keys;
       outParams = new List<object> {MarshallingHelper.SerializeGuidEnumerationToCsv(result)};
       return null;
     }
@@ -1517,7 +1526,7 @@ namespace MediaPortal.Backend.Services.ClientCommunication
         CallContext context)
     {
       Guid aspectId = MarshallingHelper.DeserializeGuid((string) inParams[0]);
-      MediaItemAspectMetadata miam = ServiceRegistration.Get<IMediaLibrary>().GetManagedMediaItemAspectMetadata(aspectId);
+      MediaItemAspectMetadata miam = MediaLibrary.GetManagedMediaItemAspectMetadata(aspectId);
       outParams = new List<object> {miam};
       return null;
     }
@@ -1525,7 +1534,7 @@ namespace MediaPortal.Backend.Services.ClientCommunication
     static UPnPError OnMPnP10GetAllManagedMediaItemAspectCreationDates(DvAction action, IList<object> inParams, out IList<object> outParams,
         CallContext context)
     {
-      IDictionary<Guid, DateTime> result = ServiceRegistration.Get<IMediaLibrary>().GetManagedMediaItemAspectCreationDates();
+      IDictionary<Guid, DateTime> result = MediaLibrary.GetManagedMediaItemAspectCreationDates();
       outParams = new List<object> { result };
       return null;
     }
@@ -1537,7 +1546,7 @@ namespace MediaPortal.Backend.Services.ClientCommunication
       ResourcePath path = ResourcePath.Deserialize((string) inParams[1]);
       IEnumerable<Guid> necessaryMIATypes = MarshallingHelper.ParseCsvGuidCollection((string) inParams[2]);
       IEnumerable<Guid> optionalMIATypes = MarshallingHelper.ParseCsvGuidCollection((string) inParams[3]);
-      MediaItem mediaItem = ServiceRegistration.Get<IMediaLibrary>().LoadItem(systemId, path,
+      MediaItem mediaItem = MediaLibrary.LoadItem(systemId, path,
           necessaryMIATypes, optionalMIATypes);
       outParams = new List<object> {mediaItem};
       return null;
@@ -1549,7 +1558,7 @@ namespace MediaPortal.Backend.Services.ClientCommunication
       Guid parentDirectoryId = MarshallingHelper.DeserializeGuid((string) inParams[0]);
       IEnumerable<Guid> necessaryMIATypes = MarshallingHelper.ParseCsvGuidCollection((string) inParams[1]);
       IEnumerable<Guid> optionalMIATypes = MarshallingHelper.ParseCsvGuidCollection((string) inParams[2]);
-      ICollection<MediaItem> result = ServiceRegistration.Get<IMediaLibrary>().Browse(parentDirectoryId, necessaryMIATypes, 
+      ICollection<MediaItem> result = MediaLibrary.Browse(parentDirectoryId, necessaryMIATypes, 
         optionalMIATypes, null, false);
 
       outParams = new List<object> {result};
@@ -1568,7 +1577,7 @@ namespace MediaPortal.Backend.Services.ClientCommunication
         outParams = null;
         return error;
       }
-      IList<MediaItem> mediaItems = ServiceRegistration.Get<IMediaLibrary>().Search(query, !all, null, false);
+      IList<MediaItem> mediaItems = MediaLibrary.Search(query, !all, null, false);
       outParams = new List<object> {mediaItems};
       return null;
     }
@@ -1594,7 +1603,7 @@ namespace MediaPortal.Backend.Services.ClientCommunication
         outParams = null;
         return error;
       }
-      IMediaLibrary mediaLibrary = ServiceRegistration.Get<IMediaLibrary>();
+      IMediaLibrary mediaLibrary = MediaLibrary;
       MediaItemQuery query = mediaLibrary.BuildSimpleTextSearchQuery(searchText, necessaryMIATypes, optionalMIATypes,
           filter, !excludeCLOBs, caseSensitive);
       IList<MediaItem> mediaItems = mediaLibrary.Search(query, !all, null, false);
@@ -1627,7 +1636,7 @@ namespace MediaPortal.Backend.Services.ClientCommunication
       if (!miam.AttributeSpecifications.TryGetValue(attributeName, out attributeType))
         return new UPnPError(600, string.Format("Media item aspect type '{0}' doesn't contain an attribute of name '{1}'",
             aspectId, attributeName));
-      HomogenousMap values = ServiceRegistration.Get<IMediaLibrary>().GetValueGroups(attributeType, selectAttributeFilter,
+      HomogenousMap values = MediaLibrary.GetValueGroups(attributeType, selectAttributeFilter,
           projectionFunction, necessaryMIATypes, filter, !all, false);
       outParams = new List<object> {values};
       return null;
@@ -1661,7 +1670,7 @@ namespace MediaPortal.Backend.Services.ClientCommunication
       if (!miam.AttributeSpecifications.TryGetValue(attributeName, out attributeType))
         return new UPnPError(600, string.Format("Media item aspect type '{0}' doesn't contain an attribute of name '{1}'",
             aspectId, attributeName));
-      IList<MLQueryResultGroup> values = ServiceRegistration.Get<IMediaLibrary>().GroupValueGroups(attributeType,
+      IList<MLQueryResultGroup> values = MediaLibrary.GroupValueGroups(attributeType,
           selectAttributeFilter, projectionFunction, necessaryMIATypes, filter, !all, groupingFunction, false);
       outParams = new List<object> {values};
       return null;
@@ -1678,7 +1687,7 @@ namespace MediaPortal.Backend.Services.ClientCommunication
       UPnPError error = ParseOnlineState("OnlineState", onlineStateStr, out all);
       if (error != null)
         return error;
-      int numMediaItems = ServiceRegistration.Get<IMediaLibrary>().CountMediaItems(necessaryMIATypes, filter, !all, false);
+      int numMediaItems = MediaLibrary.CountMediaItems(necessaryMIATypes, filter, !all, false);
       outParams = new List<object> {numMediaItems};
       return null;
     }
@@ -1686,7 +1695,7 @@ namespace MediaPortal.Backend.Services.ClientCommunication
     static UPnPError OnMPnP10GetPlaylists(DvAction action, IList<object> inParams, out IList<object> outParams,
         CallContext context)
     {
-      ICollection<PlaylistInformationData> result = ServiceRegistration.Get<IMediaLibrary>().GetPlaylists();
+      ICollection<PlaylistInformationData> result = MediaLibrary.GetPlaylists();
       outParams = new List<object> {result};
       return null;
     }
@@ -1695,7 +1704,7 @@ namespace MediaPortal.Backend.Services.ClientCommunication
         CallContext context)
     {
       PlaylistRawData playlistData = (PlaylistRawData) inParams[0];
-      ServiceRegistration.Get<IMediaLibrary>().SavePlaylist(playlistData);
+      MediaLibrary.SavePlaylist(playlistData);
       outParams = null;
       return null;
     }
@@ -1704,7 +1713,7 @@ namespace MediaPortal.Backend.Services.ClientCommunication
         CallContext context)
     {
       Guid playlistId = MarshallingHelper.DeserializeGuid((string) inParams[0]);
-      bool result = ServiceRegistration.Get<IMediaLibrary>().DeletePlaylist(playlistId);
+      bool result = MediaLibrary.DeletePlaylist(playlistId);
       outParams = new List<object> {result};
       return null;
     }
@@ -1713,7 +1722,7 @@ namespace MediaPortal.Backend.Services.ClientCommunication
         CallContext context)
     {
       Guid playlistId = MarshallingHelper.DeserializeGuid((string) inParams[0]);
-      PlaylistRawData result = ServiceRegistration.Get<IMediaLibrary>().ExportPlaylist(playlistId);
+      PlaylistRawData result = MediaLibrary.ExportPlaylist(playlistId);
       outParams = new List<object> {result};
       return null;
     }
@@ -1724,7 +1733,7 @@ namespace MediaPortal.Backend.Services.ClientCommunication
       IList<Guid> mediaItemIds = MarshallingHelper.ParseCsvGuidCollection((string) inParams[0]);
       IEnumerable<Guid> necessaryMIATypes = MarshallingHelper.ParseCsvGuidCollection((string) inParams[1]);
       IEnumerable<Guid> optionalMIATypes = MarshallingHelper.ParseCsvGuidCollection((string) inParams[2]);
-      IList<MediaItem> result = ServiceRegistration.Get<IMediaLibrary>().LoadCustomPlaylist(
+      IList<MediaItem> result = MediaLibrary.LoadCustomPlaylist(
         mediaItemIds, necessaryMIATypes, optionalMIATypes, null, null);
       outParams = new List<object> {result};
       return null;
@@ -1737,7 +1746,7 @@ namespace MediaPortal.Backend.Services.ClientCommunication
       string systemId = (string) inParams[1];
       ResourcePath path = ResourcePath.Deserialize((string) inParams[2]);
       IEnumerable<MediaItemAspect> mediaItemAspects = (IEnumerable<MediaItemAspect>) inParams[3];
-      Guid mediaItemId = ServiceRegistration.Get<IMediaLibrary>().AddOrUpdateMediaItem(parentDirectoryId, systemId, path, mediaItemAspects, true);
+      Guid mediaItemId = MediaLibrary.AddOrUpdateMediaItem(parentDirectoryId, systemId, path, mediaItemAspects, true);
       outParams = new List<object> {MarshallingHelper.SerializeGuid(mediaItemId)};
       return null;
     }
@@ -1750,7 +1759,7 @@ namespace MediaPortal.Backend.Services.ClientCommunication
       ResourcePath path = ResourcePath.Deserialize((string)inParams[2]);
       Guid mediaItemId = MarshallingHelper.DeserializeGuid((string)inParams[3]);
       IEnumerable<MediaItemAspect> mediaItemAspects = (IEnumerable<MediaItemAspect>)inParams[4];
-      mediaItemId = ServiceRegistration.Get<IMediaLibrary>().AddOrUpdateMediaItem(parentDirectoryId, systemId, path, mediaItemId, mediaItemAspects, true);
+      mediaItemId = MediaLibrary.AddOrUpdateMediaItem(parentDirectoryId, systemId, path, mediaItemId, mediaItemAspects, true);
       outParams = new List<object> { MarshallingHelper.SerializeGuid(mediaItemId) };
       return null;
     }
@@ -1761,7 +1770,7 @@ namespace MediaPortal.Backend.Services.ClientCommunication
       Guid mediaItemId = MarshallingHelper.DeserializeGuid((string)inParams[0]);
       IEnumerable<MediaItemAspect> mediaItemAspects = (IEnumerable<MediaItemAspect>)inParams[1];
       IEnumerable<RelationshipItem> relationshipItems = (IEnumerable<RelationshipItem>)inParams[2];
-      IList<MediaItem> result = ServiceRegistration.Get<IMediaLibrary>().ReconcileMediaItemRelationships(mediaItemId, mediaItemAspects, relationshipItems);
+      IList<MediaItem> result = MediaLibrary.ReconcileMediaItemRelationships(mediaItemId, mediaItemAspects, relationshipItems);
       outParams = new List<object> { result };
       return null;
     }
@@ -1772,7 +1781,7 @@ namespace MediaPortal.Backend.Services.ClientCommunication
       string systemId = (string) inParams[0];
       ResourcePath path = ResourcePath.Deserialize((string) inParams[1]);
       bool inclusive = (bool) inParams[2];
-      ServiceRegistration.Get<IMediaLibrary>().DeleteMediaItemOrPath(systemId, path, inclusive);
+      MediaLibrary.DeleteMediaItemOrPath(systemId, path, inclusive);
       outParams = null;
       return null;
     }
@@ -1781,7 +1790,7 @@ namespace MediaPortal.Backend.Services.ClientCommunication
         CallContext context)
     {
       Guid shareId = MarshallingHelper.DeserializeGuid((string) inParams[0]);
-      ServiceRegistration.Get<IMediaLibrary>().ClientStartedShareImport(shareId);
+      MediaLibrary.ClientStartedShareImport(shareId);
       outParams = null;
       return null;
     }
@@ -1790,7 +1799,7 @@ namespace MediaPortal.Backend.Services.ClientCommunication
         CallContext context)
     {
       Guid shareId = MarshallingHelper.DeserializeGuid((string) inParams[0]);
-      ServiceRegistration.Get<IMediaLibrary>().ClientCompletedShareImport(shareId);
+      MediaLibrary.ClientCompletedShareImport(shareId);
       outParams = null;
       return null;
     }
@@ -1798,17 +1807,15 @@ namespace MediaPortal.Backend.Services.ClientCommunication
     static UPnPError OnMPnP10GetCurrentlyImportingShares(DvAction action, IList<object> inParams, out IList<object> outParams,
         CallContext context)
     {
-      IMediaLibrary mediaLibrary = ServiceRegistration.Get<IMediaLibrary>();
-      outParams = new List<object> {MarshallingHelper.SerializeGuidEnumerationToCsv(mediaLibrary.GetCurrentlyImportingShareIds())};
+      outParams = new List<object> {MarshallingHelper.SerializeGuidEnumerationToCsv(MediaLibrary.GetCurrentlyImportingShareIds())};
       return null;
     }
 
     static UPnPError OnMPnP10NotifyPlayback(DvAction action, IList<object> inParams, out IList<object> outParams,
         CallContext context)
     {
-      IMediaLibrary mediaLibrary = ServiceRegistration.Get<IMediaLibrary>();
       Guid mediaItemId = MarshallingHelper.DeserializeGuid((string) inParams[0]);
-      mediaLibrary.NotifyPlayback(mediaItemId, true);
+      MediaLibrary.NotifyPlayback(mediaItemId, true);
       outParams = null;
       return null;
     }
@@ -1830,7 +1837,7 @@ namespace MediaPortal.Backend.Services.ClientCommunication
       uint? offset = (uint?)inParams[5];
       uint? limit = (uint?)inParams[6];
       
-      IList<MediaItem> result = ServiceRegistration.Get<IMediaLibrary>().Browse(parentDirectoryId, necessaryMIATypes, optionalMIATypes, userProfile, includeVirtual, offset, limit);
+      IList<MediaItem> result = MediaLibrary.Browse(parentDirectoryId, necessaryMIATypes, optionalMIATypes, userProfile, includeVirtual, offset, limit);
 
       outParams = new List<object> { result };
       return null;
@@ -1858,7 +1865,7 @@ namespace MediaPortal.Backend.Services.ClientCommunication
         query.Limit = limit;
       if (!query.Offset.HasValue)
         query.Offset = offset;
-      IList<MediaItem> mediaItems = ServiceRegistration.Get<IMediaLibrary>().Search(query, !all, userProfile, includeVirtual);
+      IList<MediaItem> mediaItems = MediaLibrary.Search(query, !all, userProfile, includeVirtual);
       outParams = new List<object> { mediaItems };
       return null;
     }
@@ -1890,7 +1897,7 @@ namespace MediaPortal.Backend.Services.ClientCommunication
         outParams = null;
         return error;
       }
-      IMediaLibrary mediaLibrary = ServiceRegistration.Get<IMediaLibrary>();
+      IMediaLibrary mediaLibrary = MediaLibrary;
       MediaItemQuery query = mediaLibrary.BuildSimpleTextSearchQuery(searchText, necessaryMIATypes, optionalMIATypes,
           filter, !excludeCLOBs, caseSensitive);
       query.Limit = limit;
@@ -1926,7 +1933,7 @@ namespace MediaPortal.Backend.Services.ClientCommunication
       if (!miam.AttributeSpecifications.TryGetValue(attributeName, out attributeType))
         return new UPnPError(600, string.Format("Media item aspect type '{0}' doesn't contain an attribute of name '{1}'",
             aspectId, attributeName));
-      HomogenousMap values = ServiceRegistration.Get<IMediaLibrary>().GetValueGroups(attributeType, selectAttributeFilter,
+      HomogenousMap values = MediaLibrary.GetValueGroups(attributeType, selectAttributeFilter,
           projectionFunction, necessaryMIATypes, filter, !all, includeVirtual);
       outParams = new List<object> { values };
       return null;
@@ -1968,7 +1975,7 @@ namespace MediaPortal.Backend.Services.ClientCommunication
       if (!valueMiam.AttributeSpecifications.TryGetValue(valueAttributeName, out valueAttributeType))
         return new UPnPError(600, string.Format("Media item aspect type '{0}' doesn't contain an attribute of name '{1}'",
             valueAspectId, valueAttributeName));
-      Tuple<HomogenousMap, HomogenousMap> values = ServiceRegistration.Get<IMediaLibrary>().GetKeyValueGroups(keyAttributeType, valueAttributeType, selectAttributeFilter,
+      Tuple<HomogenousMap, HomogenousMap> values = MediaLibrary.GetKeyValueGroups(keyAttributeType, valueAttributeType, selectAttributeFilter,
           projectionFunction, necessaryMIATypes, filter, !all, includeVirtual);
       outParams = new List<object> { values.Item1, values.Item2 };
       return null;
@@ -2003,7 +2010,7 @@ namespace MediaPortal.Backend.Services.ClientCommunication
       if (!miam.AttributeSpecifications.TryGetValue(attributeName, out attributeType))
         return new UPnPError(600, string.Format("Media item aspect type '{0}' doesn't contain an attribute of name '{1}'",
             aspectId, attributeName));
-      IList<MLQueryResultGroup> values = ServiceRegistration.Get<IMediaLibrary>().GroupValueGroups(attributeType,
+      IList<MLQueryResultGroup> values = MediaLibrary.GroupValueGroups(attributeType,
           selectAttributeFilter, projectionFunction, necessaryMIATypes, filter, !all, groupingFunction, includeVirtual);
       outParams = new List<object> { values };
       return null;
@@ -2021,7 +2028,7 @@ namespace MediaPortal.Backend.Services.ClientCommunication
       UPnPError error = ParseOnlineState("OnlineState", onlineStateStr, out all);
       if (error != null)
         return error;
-      int numMediaItems = ServiceRegistration.Get<IMediaLibrary>().CountMediaItems(necessaryMIATypes, filter, !all, includeVirtual);
+      int numMediaItems = MediaLibrary.CountMediaItems(necessaryMIATypes, filter, !all, includeVirtual);
       outParams = new List<object> { numMediaItems };
       return null;
     }
@@ -2034,7 +2041,7 @@ namespace MediaPortal.Backend.Services.ClientCommunication
       IEnumerable<Guid> optionalMIATypes = MarshallingHelper.ParseCsvGuidCollection((string)inParams[2]);
       uint? offset = (uint?)inParams[3];
       uint? limit = (uint?)inParams[4];
-      IList<MediaItem> result = ServiceRegistration.Get<IMediaLibrary>().LoadCustomPlaylist(
+      IList<MediaItem> result = MediaLibrary.LoadCustomPlaylist(
           mediaItemIds, necessaryMIATypes, optionalMIATypes, offset, limit);
       outParams = new List<object> { result };
       return null;
@@ -2050,7 +2057,7 @@ namespace MediaPortal.Backend.Services.ClientCommunication
       Guid? userProfile = null;
       if(!string.IsNullOrEmpty((string)inParams[4]))
         userProfile = MarshallingHelper.DeserializeGuid((string)inParams[4]);
-      MediaItem mediaItem = ServiceRegistration.Get<IMediaLibrary>().LoadItem(systemId, path,
+      MediaItem mediaItem = MediaLibrary.LoadItem(systemId, path,
           necessaryMIATypes, optionalMIATypes, userProfile);
       outParams = new List<object> { mediaItem };
       return null;
@@ -2066,7 +2073,7 @@ namespace MediaPortal.Backend.Services.ClientCommunication
       Guid? userProfile = null;
       if (!string.IsNullOrEmpty((string)inParams[4]))
         userProfile = MarshallingHelper.DeserializeGuid((string)inParams[4]);
-      MediaItem mediaItem = ServiceRegistration.Get<IMediaLibrary>().LoadItem(systemId, mediaItemId,
+      MediaItem mediaItem = MediaLibrary.LoadItem(systemId, mediaItemId,
           necessaryMIATypes, optionalMIATypes, userProfile);
       outParams = new List<object> { mediaItem };
       return null;
@@ -2078,7 +2085,7 @@ namespace MediaPortal.Backend.Services.ClientCommunication
       string systemId = (string)inParams[0];
       Guid mediaItemId = MarshallingHelper.DeserializeGuid((string)inParams[1]);
       bool clearMetadata = (bool)inParams[2];
-      ServiceRegistration.Get<IMediaLibrary>().RefreshMediaItemMetadata(systemId, mediaItemId, clearMetadata);
+      MediaLibrary.RefreshMediaItemMetadata(systemId, mediaItemId, clearMetadata);
       outParams = null;
       return null;
     }
@@ -2086,10 +2093,9 @@ namespace MediaPortal.Backend.Services.ClientCommunication
     static UPnPError OnMPnP11NotifyPlayback(DvAction action, IList<object> inParams, out IList<object> outParams,
         CallContext context)
     {
-      IMediaLibrary mediaLibrary = ServiceRegistration.Get<IMediaLibrary>();
       Guid mediaItemId = MarshallingHelper.DeserializeGuid((string)inParams[0]);
       bool watched = (bool)inParams[1];
-      mediaLibrary.NotifyPlayback(mediaItemId, watched);
+      MediaLibrary.NotifyPlayback(mediaItemId, watched);
       outParams = null;
       return null;
     }
@@ -2097,12 +2103,11 @@ namespace MediaPortal.Backend.Services.ClientCommunication
     static UPnPError OnMPnP11NotifyUserPlayback(DvAction action, IList<object> inParams, out IList<object> outParams,
         CallContext context)
     {
-      IMediaLibrary mediaLibrary = ServiceRegistration.Get<IMediaLibrary>();
       Guid userId = MarshallingHelper.DeserializeGuid((string)inParams[0]);
       Guid mediaItemId = MarshallingHelper.DeserializeGuid((string)inParams[1]);
       int percentage = (int)inParams[2];
       bool updatePlayDate = (bool)inParams[3];
-      mediaLibrary.NotifyUserPlayback(userId, mediaItemId, percentage, updatePlayDate);
+      MediaLibrary.NotifyUserPlayback(userId, mediaItemId, percentage, updatePlayDate);
       outParams = null;
       return null;
     }
