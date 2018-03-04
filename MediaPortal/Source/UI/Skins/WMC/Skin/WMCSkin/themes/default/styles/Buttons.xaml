@@ -1827,33 +1827,19 @@
     </Setter>
   </Style>
 
-  <Style x:Key="SubMenuLeftButtonStyle" TargetType="{x:Type Button}">
+  <Style x:Key="SubMenuNavigateButtonStyle" TargetType="{x:Type Button}">
     <Setter Property="Template">
       <Setter.Value>
         <ControlTemplate TargetType="{x:Type Button}">
           <Grid>
             <Image x:Name="image" Source="Left_Menu.PNG" Stretch="Uniform" VerticalAlignment="Center"/>
+            <Grid.RenderTransform>
+              <RotateTransform Angle="0" />
+            </Grid.RenderTransform>
           </Grid>
           <ControlTemplate.Triggers>
             <Trigger Property="HasFocus" Value="True">
               <Setter TargetName="image" Property="Source" Value="Left_Menu_Focus.PNG"/>
-            </Trigger>
-          </ControlTemplate.Triggers>
-        </ControlTemplate>
-      </Setter.Value>
-    </Setter>
-  </Style>
-
-  <Style x:Key="SubMenuRightButtonStyle" TargetType="{x:Type Button}">
-    <Setter Property="Template">
-      <Setter.Value>
-        <ControlTemplate TargetType="{x:Type Button}">
-          <Grid>
-            <Image x:Name="image" Source="Right_Menu.PNG" Stretch="Uniform" VerticalAlignment="Center"/>
-          </Grid>
-          <ControlTemplate.Triggers>
-            <Trigger Property="HasFocus" Value="True">
-              <Setter TargetName="image" Property="Source" Value="Right_Menu_Focus.PNG"/>
             </Trigger>
           </ControlTemplate.Triggers>
         </ControlTemplate>
