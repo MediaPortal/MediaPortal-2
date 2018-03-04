@@ -162,10 +162,9 @@ Parameters which have to be accessible by a DynamicResource lookup:
           </Grid.Triggers>
 
           <ListView Margin="-1240,0,0,0" x:Name="SubItemsListViewHome" 
-                   SetFocusPrio="DefaultHigh"
-                   ItemsSource="{Binding Source={StaticResource HomeMenuModel},Path=SubItems,Mode=OneTime}"
-                   Style="{ThemeResource SubMenuListViewStyle}"
-                   SelectionChanged="{CommandStencil Source={StaticResource HomeMenuModel}, Path=SetSelectedItem}">
+                    ItemsSource="{Binding Source={StaticResource HomeMenuModel},Path=SubItems,Mode=OneTime}"
+                    Style="{ThemeResource SubMenuListViewStyle}" SetFocusPrio="DefaultHigh"
+                    SelectionChanged="{CommandStencil Source={StaticResource HomeMenuModel}, Path=SetSelectedItem}">
             <ListView.Resources>
               <CommandBridge x:Key="Menu_Command" Command="{Binding Path=Command,Mode=OneTime}"/>
             </ListView.Resources>
@@ -278,6 +277,10 @@ Parameters which have to be accessible by a DynamicResource lookup:
                   <StopStoryboard BeginStoryboardName="Content0BeginSlideInStoryboard"/>
                 </DataTrigger.ExitActions>
               </DataTrigger>
+              <Trigger Property="HasFocus" Value="True">
+                <Setter TargetName="SubItemsListViewHome" Property="" Value="Auto"/>
+                <Setter Property="StackPanel.ZIndex" Value="100.0"/>
+              </Trigger>
             </Grid.Triggers>
 
             <Control x:Name="HomeContent0Control" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
