@@ -98,7 +98,7 @@ namespace MediaPortal.Common.Services.MediaManagement.ImportDataflowBlocks
     public RelationshipExtractorBlock(CancellationToken ct, ImportJobInformation importJobInformation, ImportJobController parentImportJobController)
       : base(importJobInformation,
       new ExecutionDataflowBlockOptions { CancellationToken = ct, BoundedCapacity = 1 },
-      new ExecutionDataflowBlockOptions { CancellationToken = ct, MaxDegreeOfParallelism = Environment.ProcessorCount * 5, BoundedCapacity = 50, EnsureOrdered = false },
+      new ExecutionDataflowBlockOptions { CancellationToken = ct, MaxDegreeOfParallelism = Environment.ProcessorCount * 5, BoundedCapacity = 50 },
       new ExecutionDataflowBlockOptions { CancellationToken = ct },
       BLOCK_NAME, true, parentImportJobController)
     {

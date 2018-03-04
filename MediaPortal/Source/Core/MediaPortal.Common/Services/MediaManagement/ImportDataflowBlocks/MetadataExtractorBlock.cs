@@ -66,7 +66,7 @@ namespace MediaPortal.Common.Services.MediaManagement.ImportDataflowBlocks
     public MetadataExtractorBlock(CancellationToken ct, ImportJobInformation importJobInformation, ImportJobController parentImportJobController, bool forceQuickMode)
       : base(importJobInformation,
       new ExecutionDataflowBlockOptions { CancellationToken = ct, BoundedCapacity = 1 },
-      new ExecutionDataflowBlockOptions { CancellationToken = ct, MaxDegreeOfParallelism = Environment.ProcessorCount * 5, BoundedCapacity = 100, EnsureOrdered = false },
+      new ExecutionDataflowBlockOptions { CancellationToken = ct, MaxDegreeOfParallelism = Environment.ProcessorCount * 5, BoundedCapacity = 100 },
       new ExecutionDataflowBlockOptions { CancellationToken = ct, BoundedCapacity = 1 },
       BLOCK_NAME, true, parentImportJobController)
     {
