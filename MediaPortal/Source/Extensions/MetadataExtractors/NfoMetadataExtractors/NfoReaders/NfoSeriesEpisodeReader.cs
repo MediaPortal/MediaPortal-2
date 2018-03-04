@@ -1156,7 +1156,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoRea
         return true;
       }
       //priority 2:
-      if ( _seriesStubs[0].Year != null)
+      if (_useSeriesStubs && _seriesStubs[0].Year != null)
       {
         MediaItemAspect.SetAttribute(extractedAspectData, MediaAspect.ATTR_RECORDINGTIME, _seriesStubs[0].Year);
         return true;
