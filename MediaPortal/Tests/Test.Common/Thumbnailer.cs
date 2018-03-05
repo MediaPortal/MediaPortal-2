@@ -22,6 +22,7 @@
 
 #endregion
 
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
@@ -30,7 +31,6 @@ using MediaPortal.Common.Logging;
 using MediaPortal.Common.Services.ThumbnailGenerator;
 using MediaPortal.Extensions.MetadataExtractors.GDIThumbnailProvider;
 using MediaPortal.Extensions.MetadataExtractors.WICThumbnailProvider;
-using MediaPortal.Utilities.FileSystem;
 using NUnit.Framework;
 
 namespace Test.Common
@@ -67,8 +67,8 @@ namespace Test.Common
 
   public abstract class Thumbnailer
   {
-    protected string IMAGE_FOLDER = TestContext.CurrentContext.TestDirectory + "\\Images\\";
-    protected string RESIZED_FOLDER = TestContext.CurrentContext.TestDirectory+ "\\Resized\\";
+    protected string IMAGE_FOLDER;
+    protected string RESIZED_FOLDER;
 
     protected readonly List<IThumbnailProvider> _providers = new List<IThumbnailProvider>();
     protected bool _skipJpg = false;
@@ -76,6 +76,21 @@ namespace Test.Common
     [SetUp]
     public void SetUp()
     {
+      var contextTestDirectory = TestContext.CurrentContext.TestDirectory;
+      Console.WriteLine("Test setup: Current test folder {0}", contextTestDirectory);
+
+      // Workaround for TeamCity build failure, where the test is executed inside another folder.
+      if (!contextTestDirectory.Contains("Test.Common"))
+      {
+        var testRoot = @"MediaPortal\Tests\";
+        var pos = contextTestDirectory.IndexOf(testRoot);
+        contextTestDirectory = contextTestDirectory.Substring(0, pos) + testRoot + @"Test.Common\bin\x86\Release";
+        Console.WriteLine("Test setup: Remapped folder for image test to {0}", contextTestDirectory);
+      }
+
+      IMAGE_FOLDER = contextTestDirectory + "\\Images\\";
+      RESIZED_FOLDER = contextTestDirectory + "\\Resized\\";
+
       ServiceRegistration.Set<ILogger>(new NoLogger());
       InitProviders();
     }
