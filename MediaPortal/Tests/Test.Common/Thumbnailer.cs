@@ -67,8 +67,8 @@ namespace Test.Common
 
   public abstract class Thumbnailer
   {
-    protected string IMAGE_FOLDER = FileUtils.BuildAssemblyRelativePath("Images\\");
-    protected string RESIZED_FOLDER = FileUtils.BuildAssemblyRelativePath("Resized\\");
+    protected string IMAGE_FOLDER = TestContext.CurrentContext.TestDirectory + "\\Images\\";
+    protected string RESIZED_FOLDER = TestContext.CurrentContext.TestDirectory+ "\\Resized\\";
 
     protected readonly List<IThumbnailProvider> _providers = new List<IThumbnailProvider>();
     protected bool _skipJpg = false;
