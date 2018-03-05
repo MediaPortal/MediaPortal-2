@@ -30,6 +30,7 @@ using MediaPortal.Common.Logging;
 using MediaPortal.Common.Services.ThumbnailGenerator;
 using MediaPortal.Extensions.MetadataExtractors.GDIThumbnailProvider;
 using MediaPortal.Extensions.MetadataExtractors.WICThumbnailProvider;
+using MediaPortal.Utilities.FileSystem;
 using NUnit.Framework;
 
 namespace Test.Common
@@ -66,7 +67,8 @@ namespace Test.Common
 
   public abstract class Thumbnailer
   {
-    const string IMAGE_FOLDER = "Images";
+    protected string IMAGE_FOLDER = FileUtils.BuildAssemblyRelativePath("Images\\");
+    protected string RESIZED_FOLDER = FileUtils.BuildAssemblyRelativePath("Resized\\");
 
     protected readonly List<IThumbnailProvider> _providers = new List<IThumbnailProvider>();
     protected bool _skipJpg = false;
@@ -167,9 +169,9 @@ namespace Test.Common
       if (result)
       {
         var targetBase = Path.GetFileNameWithoutExtension(fileName);
-        if (!Directory.Exists("Resized"))
-          Directory.CreateDirectory("Resized");
-        string targetFile = $@"Resized\{targetBase}_{size}.{imageType}";
+        if (!Directory.Exists(RESIZED_FOLDER))
+          Directory.CreateDirectory(RESIZED_FOLDER);
+        string targetFile = RESIZED_FOLDER+ $"{targetBase}_{size}.{imageType}";
         File.WriteAllBytes(targetFile, imageData);
       }
 #endif

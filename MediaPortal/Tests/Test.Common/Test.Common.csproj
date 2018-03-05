@@ -70,6 +70,10 @@
       <Project>{ecf060e7-caa1-4466-851f-f80b857641ea}</Project>
       <Name>MediaPortal.Common</Name>
     </ProjectReference>
+    <ProjectReference Include="..\..\Source\Core\MediaPortal.Utilities\MediaPortal.Utilities.csproj">
+      <Project>{4FE7B8AE-1330-424A-91A1-C68D7ABF9CB8}</Project>
+      <Name>MediaPortal.Utilities</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\Source\Extensions\MetadataExtractors\GDIThumbnailProvider\GDIThumbnailProvider.csproj">
       <Project>{65CF3575-AC34-4E46-92C3-84E6EDA9BACD}</Project>
       <Name>GDIThumbnailProvider</Name>
