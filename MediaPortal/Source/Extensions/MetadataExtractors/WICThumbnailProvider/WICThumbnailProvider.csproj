@@ -68,14 +68,8 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="MediaPortal.SharpDX">
-      <Version>2.6.3</Version>
-    </PackageReference>
-    <PackageReference Include="MediaPortal.SharpDX.Direct2D1">
-      <Version>2.6.3</Version>
-    </PackageReference>
-    <PackageReference Include="MediaPortal.SharpDX.DXGI">
-      <Version>2.6.3</Version>
+    <PackageReference Include="SharpDX.Direct2D1">
+      <Version>4.0.1</Version>
     </PackageReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
