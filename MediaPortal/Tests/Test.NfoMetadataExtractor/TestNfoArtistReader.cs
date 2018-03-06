@@ -32,12 +32,20 @@ using MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.Stubs;
 using NUnit.Framework;
 using System;
 using System.Collections.Generic;
+using MediaPortal.Common;
+using MediaPortal.Common.Localization;
 
 namespace Test.NfoMetadataExtractor
 {
   [TestFixture]
   public class TestNfoArtistReader
   {
+    [OneTimeSetUp]
+    public void Init()
+    {
+      ServiceRegistration.Set<ILocalization>(new NoLocalization());
+    }
+
     [Test]
     public void TestNfoArtistReaderWriteMetadata()
     {

@@ -42,16 +42,19 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
+using MediaPortal.Common.Localization;
 
 namespace Test.NfoMetadataExtractor
 {
   [TestFixture]
   public class TestNfoMovieReader
   {
-    static TestNfoMovieReader()
+    [OneTimeSetUp]
+    public void Init()
     {
       ServiceRegistration.Set<IPathManager>(new PathManager());
       ServiceRegistration.Set<ISettingsManager>(new NoSettingsManager());
+      ServiceRegistration.Set<ILocalization>(new NoLocalization());
     }
 
     [Test]
