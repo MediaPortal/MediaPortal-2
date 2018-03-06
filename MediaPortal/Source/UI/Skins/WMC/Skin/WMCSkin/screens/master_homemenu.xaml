@@ -111,7 +111,7 @@ Parameters which have to be accessible by a DynamicResource lookup:
         </ListView>
 
         <Grid x:Name="SubItemsFadeControl" Grid.Row="2" Grid.Column="0" Opacity="0" Panel.ZIndex="100"
-              HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+              HorizontalAlignment="Stretch" VerticalAlignment="Top">
           <Grid.ColumnDefinitions>
             <ColumnDefinition Width="*"/>
           </Grid.ColumnDefinitions>
@@ -162,10 +162,9 @@ Parameters which have to be accessible by a DynamicResource lookup:
           </Grid.Triggers>
 
           <ListView Margin="-1240,0,0,0" x:Name="SubItemsListViewHome" 
-                   SetFocusPrio="DefaultHigh"
-                   ItemsSource="{Binding Source={StaticResource HomeMenuModel},Path=SubItems,Mode=OneTime}"
-                   Style="{ThemeResource SubMenuListViewStyle}"
-                   SelectionChanged="{CommandStencil Source={StaticResource HomeMenuModel}, Path=SetSelectedItem}">
+                    ItemsSource="{Binding Source={StaticResource HomeMenuModel},Path=SubItems,Mode=OneTime}"
+                    Style="{ThemeResource SubMenuListViewStyle}" SetFocusPrio="DefaultHigh"
+                    SelectionChanged="{CommandStencil Source={StaticResource HomeMenuModel}, Path=SetSelectedItem}">
             <ListView.Resources>
               <CommandBridge x:Key="Menu_Command" Command="{Binding Path=Command,Mode=OneTime}"/>
             </ListView.Resources>
@@ -192,7 +191,7 @@ Parameters which have to be accessible by a DynamicResource lookup:
               Template="{DynamicResource ResourceKey=Contents_Template}" SetFocus="true"/>
         </Grid>
 
-        <Grid x:Name="RightButtonGrid" Grid.Row="1" HorizontalAlignment="Left" Margin="-290,0,0,-140" Panel.ZIndex="1000"
+        <Grid x:Name="RightButtonGrid" Grid.Row="1" HorizontalAlignment="Left" Margin="-250,0,0,-180" Panel.ZIndex="1000"
               IsVisible="{Binding Source={StaticResource MouseModel},Path=IsMouseUsed}">
           <Grid.ColumnDefinitions>
             <ColumnDefinition Width="Auto"/>
@@ -200,8 +199,12 @@ Parameters which have to be accessible by a DynamicResource lookup:
           <Grid.RowDefinitions>
             <RowDefinition Height="*"/>
           </Grid.RowDefinitions>
-          <Button VerticalAlignment="Bottom" Style="{StaticResource SubMenuRightButtonStyle}" Height="50"
-                  Command="{Command Source={StaticResource HomeMenuModel},Path=MovePreviousSubItem}"/>
+          <Button VerticalAlignment="Bottom" Style="{StaticResource SubMenuNavigateButtonStyle}" Height="50"
+                  Command="{Command Source={StaticResource HomeMenuModel},Path=MovePreviousSubItem}">
+            <Button.RenderTransform>
+              <RotateTransform Angle="180" />
+            </Button.RenderTransform>
+          </Button>
         </Grid>
 
 
@@ -274,6 +277,10 @@ Parameters which have to be accessible by a DynamicResource lookup:
                   <StopStoryboard BeginStoryboardName="Content0BeginSlideInStoryboard"/>
                 </DataTrigger.ExitActions>
               </DataTrigger>
+              <Trigger Property="HasFocus" Value="True">
+                <Setter TargetName="SubItemsListViewHome" Property="" Value="Auto"/>
+                <Setter Property="StackPanel.ZIndex" Value="100.0"/>
+              </Trigger>
             </Grid.Triggers>
 
             <Control x:Name="HomeContent0Control" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
@@ -321,8 +328,40 @@ Parameters which have to be accessible by a DynamicResource lookup:
           <Grid.RowDefinitions>
             <RowDefinition Height="*"/>
           </Grid.RowDefinitions>
-          <Button VerticalAlignment="Bottom" Style="{StaticResource SubMenuLeftButtonStyle}" Height="50"
+          <Button VerticalAlignment="Bottom" Style="{StaticResource SubMenuNavigateButtonStyle}" Height="50"
                   Command="{Command Source={StaticResource HomeMenuModel},Path=MoveNextSubItem}"/>
+        </Grid>
+
+        <Grid x:Name="TopButtonGrid" Grid.Row="1" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="160,10,0,0" Panel.ZIndex="1000"
+              IsVisible="{Binding Source={StaticResource MouseModel},Path=IsMouseUsed}">
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="Auto"/>
+          </Grid.ColumnDefinitions>
+          <Grid.RowDefinitions>
+            <RowDefinition Height="*"/>
+          </Grid.RowDefinitions>
+          <Button VerticalAlignment="Bottom" Style="{StaticResource SubMenuNavigateButtonStyle}" Height="50"
+                  Command="{Command Source={StaticResource HomeMenuModel},Path=MovePrevious}">
+            <Button.RenderTransform>
+              <RotateTransform Angle="270" />
+            </Button.RenderTransform>
+          </Button>
+        </Grid>
+
+        <Grid x:Name="BottomButtonGrid" Grid.Row="2" HorizontalAlignment="Left" VerticalAlignment="Bottom" Margin="210,0,0,-10" Panel.ZIndex="1000"
+              IsVisible="{Binding Source={StaticResource MouseModel},Path=IsMouseUsed}">
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="Auto"/>
+          </Grid.ColumnDefinitions>
+          <Grid.RowDefinitions>
+            <RowDefinition Height="*"/>
+          </Grid.RowDefinitions>
+          <Button VerticalAlignment="Bottom" Style="{StaticResource SubMenuNavigateButtonStyle}" Height="50"
+                  Command="{Command Source={StaticResource HomeMenuModel},Path=MoveNext}">
+            <Button.RenderTransform>
+              <RotateTransform Angle="90" />
+            </Button.RenderTransform>
+          </Button>
         </Grid>
 
         <KeyBinding Key="Up" Command="{Command Source={StaticResource HomeMenuModel},Path=MovePrevious}" IsEnabled="{Binding ElementName=HomeContentGrid, Path=!IsKeyboardFocusWithin}"/>

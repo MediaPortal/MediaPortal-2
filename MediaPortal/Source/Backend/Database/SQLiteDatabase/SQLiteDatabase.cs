@@ -63,7 +63,9 @@ namespace MediaPortal.Database.SQLite
     #region Variables
 
     private readonly string _connectionString;
+#if !NO_POOL
     private ConnectionPool<SQLiteConnection> _connectionPool;
+#endif
     private readonly SQLiteSettings _settings;
     private readonly ILogger _sqliteDebugLogger;
     private readonly AsynchronousMessageQueue _messageQueue;
@@ -116,7 +118,9 @@ namespace MediaPortal.Database.SQLite
         string databaseFileForUri = databaseFile.Replace('\\', '/');
         string databaseUri = System.Web.HttpUtility.UrlPathEncode("file:///" + databaseFileForUri + "?cache=shared");
 
+#if !NO_POOL
         _connectionPool = new ConnectionPool<SQLiteConnection>(CreateOpenAndInitializeConnection);
+#endif
 
         // We are using the ConnectionStringBuilder to generate the connection string
         // This ensures code compatibility in case of changes to the SQLite connection string parameters
@@ -228,6 +232,7 @@ namespace MediaPortal.Database.SQLite
 
     #endregion
 
+#if !NO_POOL
     #region Public properties
 
     public ConnectionPool<SQLiteConnection> ConnectionPool
@@ -239,6 +244,7 @@ namespace MediaPortal.Database.SQLite
     }
 
     #endregion
+#endif
 
     #region Private methods
 
@@ -247,7 +253,7 @@ namespace MediaPortal.Database.SQLite
     /// InitializationCommand via ExecuteNonQuery()
     /// </summary>
     /// <returns>Newly created and initialized <see cref="SQLiteConnection"/></returns>
-    private SQLiteConnection CreateOpenAndInitializeConnection()
+    internal SQLiteConnection CreateOpenAndInitializeConnection()
     {
       var connection = new SQLiteConnection(_connectionString);
       connection.Open();
@@ -531,11 +537,13 @@ namespace MediaPortal.Database.SQLite
       _maintenanceScheduler.Complete();
       _maintenanceScheduler.Completion.Wait();
 
+#if !NO_POOL
       if (_connectionPool != null)
       {
         _connectionPool.Dispose();
         _connectionPool = null;
       }
+#endif
     }
 
     #endregion

@@ -60,9 +60,6 @@ namespace MediaPortal.Extensions.UserServices.FanArtService
 
       // Try to load thumbnail from ML
       List<Guid> thumbGuids = new List<Guid> { ThumbnailLargeAspect.ASPECT_ID };
-      // Check for Image's rotation info
-      if (isImage)
-        thumbGuids.Add(ImageAspect.ASPECT_ID);
 
       IFilter filter = new MediaItemIdFilter(mediaItemId);
       IList<MediaItem> items = mediaLibrary.Search(new MediaItemQuery(thumbGuids, filter), false, null, true);
@@ -74,42 +71,9 @@ namespace MediaPortal.Extensions.UserServices.FanArtService
       if (!MediaItemAspect.TryGetAttribute(mediaItem.Aspects, ThumbnailLargeAspect.ATTR_THUMBNAIL, out textureData))
         return false;
 
-      if (isImage)
-        textureData = AutoRotateThumb(mediaItem, textureData);
-
       // Only one record required
       result = new List<FanArtImage> { new FanArtImage(name, textureData) };
       return true;
-    }
-
-    private static byte[] AutoRotateThumb(MediaItem mediaItem, byte[] textureData)
-    {
-      ImageRotation miRotation;
-      bool flipX;
-      bool flipY;
-      if (ImageAspect.GetOrientationMetadata(mediaItem, out miRotation, out flipX, out flipY) && (miRotation != ImageRotation.Rot_0))
-      {
-        try
-        {
-          using (MemoryStream rotatedStream = new MemoryStream())
-          using (MemoryStream inputStream = new MemoryStream(textureData))
-          using (Image bitmap = Image.FromStream(inputStream))
-          {
-            if (miRotation == ImageRotation.Rot_180)
-              bitmap.RotateFlip(RotateFlipType.Rotate180FlipNone);
-            if (miRotation == ImageRotation.Rot_90)
-              bitmap.RotateFlip(RotateFlipType.Rotate90FlipNone);
-            if (miRotation == ImageRotation.Rot_270)
-              bitmap.RotateFlip(RotateFlipType.Rotate270FlipNone);
-            bitmap.Save(rotatedStream, ImageFormat.Jpeg);
-            textureData = rotatedStream.ToArray();
-          }
-        }
-        catch (Exception)
-        {
-        }
-      }
-      return textureData;
     }
 
     public bool TryGetFanArt(string mediaType, string fanArtType, string name, int maxWidth, int maxHeight, bool singleRandom, out IList<IResourceLocator> result)

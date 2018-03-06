@@ -178,6 +178,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AspNetWebApi", "..\Incubato
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MP2Web", "..\Incubator\MP2Web\MP2Web.csproj", "{58847305-111B-4AE5-8B4A-BEE8297FCF78}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GDIThumbnailProvider", "Extensions\MetadataExtractors\GDIThumbnailProvider\GDIThumbnailProvider.csproj", "{65CF3575-AC34-4E46-92C3-84E6EDA9BACD}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -589,6 +591,10 @@ Global
 		{58847305-111B-4AE5-8B4A-BEE8297FCF78}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{58847305-111B-4AE5-8B4A-BEE8297FCF78}.Release|Any CPU.Build.0 = Release|Any CPU
 		{58847305-111B-4AE5-8B4A-BEE8297FCF78}.Release|x86.ActiveCfg = Release|x86
+		{65CF3575-AC34-4E46-92C3-84E6EDA9BACD}.Debug|x86.ActiveCfg = Debug|x86
+		{65CF3575-AC34-4E46-92C3-84E6EDA9BACD}.Debug|x86.Build.0 = Debug|x86
+		{65CF3575-AC34-4E46-92C3-84E6EDA9BACD}.Release|x86.ActiveCfg = Release|x86
+		{65CF3575-AC34-4E46-92C3-84E6EDA9BACD}.Release|x86.Build.0 = Release|x86
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -676,6 +682,7 @@ Global
 		{CBABFE65-97F7-499A-AD17-3AF345030CF2} = {34807E8F-6902-498A-AEDA-ABD62CFC26C9}
 		{B87CFFB4-5A4B-42F2-9A19-4F1999884C67} = {34807E8F-6902-498A-AEDA-ABD62CFC26C9}
 		{58847305-111B-4AE5-8B4A-BEE8297FCF78} = {34807E8F-6902-498A-AEDA-ABD62CFC26C9}
+		{65CF3575-AC34-4E46-92C3-84E6EDA9BACD} = {35DF0F35-CB07-4868-AD8B-146E5D5B5DB0}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {1EEA469D-E8FA-442D-A7DC-FA62A56A8808}

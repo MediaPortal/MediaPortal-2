@@ -39,6 +39,7 @@ namespace MediaPortal.Common.Services.Settings
   {
     #region Protected fields
 
+    protected string _currentUserName = null;
     protected bool _batchUpdate = false;
     protected SettingsCache _cache;
 
@@ -77,9 +78,10 @@ namespace MediaPortal.Common.Services.Settings
     /// <param name="settingsType">Type of the settings class to map to a filename.</param>
     /// <returns>File name without path of a file which will store the setting instance of the
     /// specified <paramref name="settingsType"/>.</returns>
-    protected static string GetUserFilePath(Type settingsType)
+    protected string GetUserFilePath(Type settingsType)
     {
-      string fullUserFileName = String.Format(@"<CONFIG>\{0}\{1}", Environment.UserName, settingsType.FullName + ".xml");
+      var userName = _currentUserName ?? Environment.UserName;
+      string fullUserFileName = String.Format(@"<CONFIG>\{0}\{1}", userName, settingsType.FullName + ".xml");
       return ServiceRegistration.Get<IPathManager>().GetPath(fullUserFileName);
     }
 
@@ -255,6 +257,12 @@ namespace MediaPortal.Common.Services.Settings
     public void ClearCache()
     {
       _cache.Clear();
+    }
+
+    public void ChangeUserContext(string userName)
+    {
+      _currentUserName = userName;
+      ClearCache();
     }
 
     public void RemoveSettingsData(Type settingsType, bool user, bool global)

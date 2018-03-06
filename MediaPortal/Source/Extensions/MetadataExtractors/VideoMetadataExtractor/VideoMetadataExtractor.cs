@@ -790,27 +790,6 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor
       }
     }
 
-    protected void ExtractThumbnailData(ILocalFsResourceAccessor lfsra, IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData, bool forceQuickMode)
-    {
-      try
-      {
-        // In quick mode only allow thumbs taken from cache.
-        bool cachedOnly = forceQuickMode;
-
-        // Thumbnail extraction
-        IThumbnailGenerator generator = ServiceRegistration.Get<IThumbnailGenerator>();
-        byte[] thumbData;
-        ImageType imageType;
-        using (lfsra.EnsureLocalFileSystemAccess())
-          if (generator.GetThumbnail(lfsra.LocalFileSystemPath, 256, 256, cachedOnly, out thumbData, out imageType))
-            MediaItemAspect.SetAttribute(extractedAspectData, ThumbnailLargeAspect.ATTR_THUMBNAIL, thumbData);
-      }
-      catch (Exception e)
-      {
-        ServiceRegistration.Get<ILogger>().Info("VideoMetadataExtractor: Exception reading thumbnail from resource '{0}' (Text: '{1}')", e, lfsra.CanonicalLocalResourcePath, e.Message);
-      }
-    }
-
     protected string GetSubtitleFormat(string subtitleSource)
     {
       if (string.Compare(Path.GetExtension(subtitleSource), ".srt", true, CultureInfo.InvariantCulture) == 0)
@@ -1290,7 +1269,6 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor
                 {
                   await ExtractMatroskaTagsAsync(lfsra, extractedAspectData).ConfigureAwait(false);
                   ExtractMp4Tags(lfsra, extractedAspectData);
-                  ExtractThumbnailData(lfsra, extractedAspectData, forceQuickMode);
                 }
                 catch (Exception ex)
                 {
@@ -1347,7 +1325,6 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor
                   {
                     await ExtractMatroskaTagsAsync(lfsra, extractedAspectData).ConfigureAwait(false);
                     ExtractMp4Tags(lfsra, extractedAspectData);
-                    ExtractThumbnailData(lfsra, extractedAspectData, forceQuickMode);
                   }
                   catch (Exception ex)
                   {

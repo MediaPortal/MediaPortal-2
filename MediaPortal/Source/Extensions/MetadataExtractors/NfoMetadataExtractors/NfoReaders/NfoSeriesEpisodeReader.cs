@@ -968,7 +968,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoRea
       if (_useSeriesStubs && _seriesStubs[0].Genres != null && _seriesStubs[0].Genres.Any())
       {
         List<GenreInfo> genres = _seriesStubs[0].Genres.Select(s => new GenreInfo { Name = s }).ToList();
-        GenreMapper.AssignMissingSeriesGenreIds(genres);
+        GenreMapper.AssignMissingSeriesGenreIds(genres, _settings.LanguageCulture);
         foreach(GenreInfo genre in genres)
         {
           MultipleMediaItemAspect genreAspect = MediaItemAspect.CreateAspect(extractedAspectData, GenreAspect.Metadata);
@@ -1156,7 +1156,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoRea
         return true;
       }
       //priority 2:
-      if ( _seriesStubs[0].Year != null)
+      if (_useSeriesStubs && _seriesStubs[0].Year != null)
       {
         MediaItemAspect.SetAttribute(extractedAspectData, MediaAspect.ATTR_RECORDINGTIME, _seriesStubs[0].Year);
         return true;

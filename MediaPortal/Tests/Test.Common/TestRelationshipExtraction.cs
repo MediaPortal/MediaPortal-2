@@ -6,9 +6,6 @@ using NUnit.Framework;
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Xml;
 
 namespace Test.Common
@@ -16,7 +13,7 @@ namespace Test.Common
   [TestFixture]
   public class TestRelationshipExtraction
   {
-    [TestFixtureSetUp]
+    [OneTimeSetUp]
     public void SetUp()
     {
       IMediaItemAspectTypeRegistration miatr = new TestMediaItemAspectTypeRegistration();

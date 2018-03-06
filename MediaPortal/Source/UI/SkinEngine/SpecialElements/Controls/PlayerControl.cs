@@ -525,15 +525,6 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
             ImageWidth = FixedImageHeight * pp.ImageSize.Width / pp.ImageSize.Height;
           }
           ImageSourceLocator = pp.CurrentImageResourceLocator;
-          ImageRotation rotation;
-          bool flipX;
-          bool flipY;
-          if (ImageAspect.GetOrientationMetadata(_currentMediaItem, out rotation, out flipX, out flipY))
-          {
-            ImageRotateDegrees = ImageAspect.RotationToDegrees(rotation);
-            ImageFlipX = flipX;
-            ImageFlipY = flipY;
-          }
         }
 
         SingleMediaItemAspect mediaAspect;
