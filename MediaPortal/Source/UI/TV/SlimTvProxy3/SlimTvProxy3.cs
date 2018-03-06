@@ -574,7 +574,6 @@ namespace MediaPortal.Plugins.SlimTv.Service
 
     public override Task<AsyncResult<ISchedule>> CreateScheduleAsync(IProgram program, ScheduleRecordingType recordingType)
     {
-      ISchedule schedule;
       var tvProgram = TvDatabase.Program.Retrieve(program.ProgramId);
       ISchedule schedule;
       if (tvProgram == null)
