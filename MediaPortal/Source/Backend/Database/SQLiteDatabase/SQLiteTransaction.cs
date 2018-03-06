@@ -63,14 +63,11 @@ namespace MediaPortal.Database.SQLite
       // Dispose the System.Data.SQLite.SQLiteTransaction. If neither Commit nor Rollback was
       // called before, the standard behaviour of System.Data.SQLite.SQLiteTransaction is to
       // issue a Rollback during disposing.
-      if (_transaction != null)
-      {
-        _transaction.Dispose();
-        _transaction = null;
-      }
+      _transaction?.Dispose();
+      _transaction = null;
 #if NO_POOL
-      _connection.Close();
-      _connection.Dispose();
+      _connection?.Dispose();
+      _connection = null;
 #else
       // Return the underlying connection to the connection pool without closing it
       if (_connection != null)
