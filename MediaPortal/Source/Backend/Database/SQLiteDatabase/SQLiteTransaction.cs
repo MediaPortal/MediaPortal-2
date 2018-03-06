@@ -46,7 +46,11 @@ namespace MediaPortal.Database.SQLite
     {
       _database = database;
       _settings = settings;
+#if NO_POOL
+      _connection = _database.CreateOpenAndInitializeConnection();
+#else
       _connection = _database.ConnectionPool.GetConnection();
+#endif
       _transaction = _connection.BeginTransaction(level);
     }
 
@@ -64,13 +68,17 @@ namespace MediaPortal.Database.SQLite
         _transaction.Dispose();
         _transaction = null;
       }
-
+#if NO_POOL
+      _connection.Close();
+      _connection.Dispose();
+#else
       // Return the underlying connection to the connection pool without closing it
       if (_connection != null)
       {
         _database.ConnectionPool.PutConnection(_connection);
         _connection = null;
       }
+#endif
     }
 
     #endregion
