@@ -125,7 +125,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
       if (!seriesInfo.FromMetadata(extractedAspectData))
         return false;
 
-      GenreMapper.AssignMissingSeriesGenreIds(seriesInfo.Genres);
+      GenreMapper.AssignMissingSeriesGenreIds(seriesInfo.Genres, NfoSeriesMetadataExtractor.LanguageCulture);
       seriesInfo.SetMetadata(extractedAspectData);
       if (!extractedAspectData.ContainsKey(ExternalIdentifierAspect.ASPECT_ID))
         return false;

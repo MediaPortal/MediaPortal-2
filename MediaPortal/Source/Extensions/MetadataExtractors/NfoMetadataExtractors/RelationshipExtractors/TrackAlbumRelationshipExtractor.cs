@@ -124,7 +124,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
       if (!albumInfo.FromMetadata(extractedAspectData))
         return false;
       
-      GenreMapper.AssignMissingMusicGenreIds(albumInfo.Genres);
+      GenreMapper.AssignMissingMusicGenreIds(albumInfo.Genres, NfoAudioMetadataExtractor.LanguageCulture);
       albumInfo.SetMetadata(extractedAspectData);
 
       if (!extractedAspectData.ContainsKey(ExternalIdentifierAspect.ASPECT_ID))
