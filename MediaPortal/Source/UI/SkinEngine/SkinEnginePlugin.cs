@@ -119,7 +119,8 @@ namespace MediaPortal.UI.SkinEngine
       logger.Info("SkinEnginePlugin: Startup");
 #if DEBUG
       // Enable object tracking only in debug builds, as it adds overhead to each object creation.
-      SharpDX.Configuration.EnableObjectTracking = true;
+      // Commented out for newer SharpDX versions, as the performance impact is too high. Enable only for DX debugging.
+      //SharpDX.Configuration.EnableObjectTracking = true;
 #endif
 
       logger.Debug("SkinEnginePlugin: Create DirectX main window");
