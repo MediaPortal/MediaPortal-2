@@ -38,9 +38,9 @@ namespace MediaPortal.Common.Genres
     public const int HISTORY = 10;
     public const int HORROR = 11;
     public const int MUSIC = 12;
+    public const int MYSTERY = 13;
     public const int ROMANCE = 14;
     public const int SCIENCE_FICTION = 15;
-    public const int MYSTERY = 16;
     public const int THRILLER = 17;
     public const int WAR = 18;
     public const int WESTERN = 19;
