@@ -518,7 +518,7 @@
 
   <string name="RestrictionGroup.Media.DeleteMediaItem">Media: Delete items from storage</string>
 
-  <!-- Genres -->
+  <!-- Video Genres -->
   <string name="Genre.Action">Action</string>
   <string name="Genre.Adventure">Adventure</string>
   <string name="Genre.Animation">Animation</string>
@@ -543,5 +543,28 @@
   <string name="Genre.Soap">Soap</string>
   <string name="Genre.Talk">Talk</string>
   <string name="Genre.Politics">Politics</string>
-  
+
+  <!-- Music Genres -->
+  <string name="Genre.Classic">Classic</string>
+  <string name="Genre.Soundtrack">Soundtrack</string>
+  <string name="Genre.New_Age">New Age</string>
+  <string name="Genre.Rock">Rock</string>
+  <string name="Genre.Metal">Metal</string>
+  <string name="Genre.Country">Country</string>
+  <string name="Genre.Jazz">Jazz</string>
+  <string name="Genre.Rb_Soul">RB, Soul</string>
+  <string name="Genre.Hip_Hop_Rap">Hip Hop, Rap</string>
+  <string name="Genre.Raggae">Raggae</string>
+  <string name="Genre.Pop">Pop</string>
+  <string name="Genre.Dance">Dance</string>
+  <string name="Genre.Electronic">Electronic</string>
+  <string name="Genre.Comedy">Comedy</string>
+  <string name="Genre.Folk">Folk</string>
+  <string name="Genre.Easy_Listening">Easy Listening</string>
+  <string name="Genre.Holiday">Holiday</string>
+  <string name="Genre.World">World</string>
+  <string name="Genre.Alternative">Alternative</string>
+  <string name="Genre.Compilation">Compilation</string>
+
+
 </resources>
