@@ -344,5 +344,20 @@ namespace Test.MediaServer
     {
       throw new NotImplementedException();
     }
+
+    public IList<MediaItem> ReconcileMediaItemRelationships(Guid mediaItemId, IEnumerable<MediaItemAspect> mediaItemAspects, IEnumerable<RelationshipItem> relationshipItems)
+    {
+      throw new NotImplementedException();
+    }
+
+    public void ReserveAccess(int duration)
+    {
+      throw new NotImplementedException();
+    }
+
+    public IDisposable RequestImporterAccess()
+    {
+      throw new NotImplementedException();
+    }
   }
 }

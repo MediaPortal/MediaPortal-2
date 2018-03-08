@@ -25,8 +25,6 @@
 using System;
 using System.Collections.Generic;
 using System.Net;
-using HttpServer.Authentication;
-using HttpServer.HttpModules;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.MediaManagement;
@@ -41,141 +39,136 @@ using NUnit.Framework;
 
 namespace Test.MediaServer
 {
-    internal class ResourceServer : IResourceServer
+  internal class ResourceServer : IResourceServer
+  {
+
+    public string AddressIPv4
     {
-
-      public string AddressIPv4
-      {
-        get { return "localhost"; }
-      }
-
-      public int PortIPv4
-      {
-        get { return 0; }
-      }
-
-      public string AddressIPv6
-      {
-        get { return null; }
-      }
-
-      public int PortIPv6
-      {
-          get { return -1; }
-      }
-
-      public void Startup()
-      {
-          throw new NotImplementedException();
-      }
-
-      public void Shutdown()
-      {
-          throw new NotImplementedException();
-      }
-
-      public void RestartHttpServers()
-      {
-          throw new NotImplementedException();
-      }
-
-      public void AddAuthenticationModule(AuthenticationModule module)
-      {
-        throw new NotImplementedException();
-      }
-
-      public void RemoveHttpModule(HttpModule module)
-      {
-          throw new NotImplementedException();
-      }
-
-      public void AddHttpModule(HttpModule module)
-      {
-          throw new NotImplementedException();
-      }
-
-      public int GetPortForIP(IPAddress ipAddress)
-      {
-        throw new NotImplementedException();
-      }
+      get { return "localhost"; }
     }
 
-    class TestMediaLibraryAlbumItem : MediaLibraryAlbumItem
+    public int PortIPv4
     {
-        public TestMediaLibraryAlbumItem(MediaItem item, EndPointSettings settings) : base(item, settings) {}
+      get { return 0; }
     }
 
-    [TestFixture]
-    class TestMessageBuilder
+    public string AddressIPv6
     {
-        [TestFixtureSetUp]
-        public void OneTimeSetUp()
-        {
-            ServiceRegistration.Set<ILogger>(new ConsoleLogger(LogLevel.All, true));
-            ServiceRegistration.Set<IResourceServer>(new ResourceServer());
-        }
-
-        [Test]
-        public void TestAudioItem()
-        {
-            IList<IDirectoryObject> objects = new List<IDirectoryObject>();
-
-            Guid id = new Guid("11111111-aaaa-aaaa-aaaa-111111111111");
-            IDictionary<Guid, IList<MediaItemAspect>> aspects = new Dictionary<Guid, IList<MediaItemAspect>>();
-
-            SingleMediaItemAspect aspect1 = new SingleMediaItemAspect(MediaAspect.Metadata);
-            aspect1.SetAttribute(MediaAspect.ATTR_TITLE, "The Track");
-            MediaItemAspect.SetAspect(aspects, aspect1);
-
-            MultipleMediaItemAspect aspect2 = new MultipleMediaItemAspect(ProviderResourceAspect.Metadata);
-            aspect2.SetAttribute(ProviderResourceAspect.ATTR_RESOURCE_ACCESSOR_PATH, "c:\\file.mp3");
-            MediaItemAspect.AddOrUpdateAspect(aspects, aspect2);
-
-            SingleMediaItemAspect aspect3 = new SingleMediaItemAspect(AudioAspect.Metadata);
-            MediaItemAspect.SetAspect(aspects, aspect3);
-
-            MediaItem item = new MediaItem(id, aspects);
-
-            objects.Add(MediaLibraryHelper.InstansiateMediaLibraryObject(item, null, null));
-
-            GenericDidlMessageBuilder builder = new GenericDidlMessageBuilder();
-            builder.BuildAll("*", objects);
-
-            string xml = builder.ToString();
-            Console.WriteLine("XML: {0}", xml);
-        }
-
-        [Test]
-        public void TestAlbumItem()
-        {
-            EndPointSettings settings = new EndPointSettings
-            {
-              PreferredSubtitleLanguages = "EN",
-              PreferredAudioLanguages = "EN",
-              DefaultSubtitleEncodings = ""
-            };
-
-            IList<IDirectoryObject> objects = new List<IDirectoryObject>();
-
-            Guid albumId = new Guid("11111111-aaaa-aaaa-aaaa-100000000001");
-
-            IDictionary<Guid, IList<MediaItemAspect>> aspects = new Dictionary<Guid, IList<MediaItemAspect>>();
-
-            SingleMediaItemAspect aspect = new SingleMediaItemAspect(MediaAspect.Metadata);
-            aspect.SetAttribute(MediaAspect.ATTR_TITLE, "The Album");
-            MediaItemAspect.SetAspect(aspects, aspect);
-
-            MediaItem album = new MediaItem(albumId, aspects);
-
-            MediaLibraryAlbumItem item = new TestMediaLibraryAlbumItem(album, settings);
-            item.Initialise();
-            objects.Add(item);
-
-            GenericDidlMessageBuilder builder = new GenericDidlMessageBuilder();
-            builder.BuildAll("*", objects);
-
-            string xml = builder.ToString();
-            Console.WriteLine("XML: {0}", xml);
-        }
+      get { return null; }
     }
+
+    public int PortIPv6
+    {
+      get { return -1; }
+    }
+
+    public void Startup()
+    {
+      throw new NotImplementedException();
+    }
+
+    public void Shutdown()
+    {
+      throw new NotImplementedException();
+    }
+
+    public void RestartHttpServers()
+    {
+      throw new NotImplementedException();
+    }
+
+    public string GetServiceUrl(IPAddress ipAddress)
+    {
+      throw new NotImplementedException();
+    }
+
+    public void AddHttpModule(Type moduleType)
+    {
+      throw new NotImplementedException();
+    }
+
+    public void RemoveHttpModule(Type moduleType)
+    {
+      throw new NotImplementedException();
+    }
+  }
+
+  class TestMediaLibraryAlbumItem : MediaLibraryAlbumItem
+  {
+    public TestMediaLibraryAlbumItem(MediaItem item, EndPointSettings settings) : base(item, settings) { }
+  }
+
+  [TestFixture]
+  class TestMessageBuilder
+  {
+    [TestFixtureSetUp]
+    public void OneTimeSetUp()
+    {
+      ServiceRegistration.Set<ILogger>(new ConsoleLogger(LogLevel.All, true));
+      ServiceRegistration.Set<IResourceServer>(new ResourceServer());
+    }
+
+    [Test]
+    public void TestAudioItem()
+    {
+      IList<IDirectoryObject> objects = new List<IDirectoryObject>();
+
+      Guid id = new Guid("11111111-aaaa-aaaa-aaaa-111111111111");
+      IDictionary<Guid, IList<MediaItemAspect>> aspects = new Dictionary<Guid, IList<MediaItemAspect>>();
+
+      SingleMediaItemAspect aspect1 = new SingleMediaItemAspect(MediaAspect.Metadata);
+      aspect1.SetAttribute(MediaAspect.ATTR_TITLE, "The Track");
+      MediaItemAspect.SetAspect(aspects, aspect1);
+
+      MultipleMediaItemAspect aspect2 = new MultipleMediaItemAspect(ProviderResourceAspect.Metadata);
+      aspect2.SetAttribute(ProviderResourceAspect.ATTR_RESOURCE_ACCESSOR_PATH, "c:\\file.mp3");
+      MediaItemAspect.AddOrUpdateAspect(aspects, aspect2);
+
+      SingleMediaItemAspect aspect3 = new SingleMediaItemAspect(AudioAspect.Metadata);
+      MediaItemAspect.SetAspect(aspects, aspect3);
+
+      MediaItem item = new MediaItem(id, aspects);
+
+      objects.Add(MediaLibraryHelper.InstansiateMediaLibraryObject(item, null, null));
+
+      GenericDidlMessageBuilder builder = new GenericDidlMessageBuilder();
+      builder.BuildAll("*", objects);
+
+      string xml = builder.ToString();
+      Console.WriteLine("XML: {0}", xml);
+    }
+
+    [Test]
+    public void TestAlbumItem()
+    {
+      EndPointSettings settings = new EndPointSettings
+      {
+        PreferredSubtitleLanguages = "EN",
+        PreferredAudioLanguages = "EN",
+        DefaultSubtitleEncodings = ""
+      };
+
+      IList<IDirectoryObject> objects = new List<IDirectoryObject>();
+
+      Guid albumId = new Guid("11111111-aaaa-aaaa-aaaa-100000000001");
+
+      IDictionary<Guid, IList<MediaItemAspect>> aspects = new Dictionary<Guid, IList<MediaItemAspect>>();
+
+      SingleMediaItemAspect aspect = new SingleMediaItemAspect(MediaAspect.Metadata);
+      aspect.SetAttribute(MediaAspect.ATTR_TITLE, "The Album");
+      MediaItemAspect.SetAspect(aspects, aspect);
+
+      MediaItem album = new MediaItem(albumId, aspects);
+
+      MediaLibraryAlbumItem item = new TestMediaLibraryAlbumItem(album, settings);
+      item.Initialise();
+      objects.Add(item);
+
+      GenericDidlMessageBuilder builder = new GenericDidlMessageBuilder();
+      builder.BuildAll("*", objects);
+
+      string xml = builder.ToString();
+      Console.WriteLine("XML: {0}", xml);
+    }
+  }
 }

@@ -1,12 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
-using HttpServer;
 using MediaPortal.Backend.MediaLibrary;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.Services.Logging;
 using MediaPortal.Plugins.MediaServer;
 using MediaPortal.Plugins.MediaServer.Profiles;
+using Microsoft.Owin;
 using NUnit.Framework;
 using UPnP.Infrastructure.Common;
 using UPnP.Infrastructure.Dv;
@@ -35,7 +35,7 @@ namespace Test.MediaServer
 
     private CallContext CreateContext()
     {
-      IHttpRequest request = new HttpRequest();
+      IOwinRequest request = new OwinRequest();
       CallContext context = new CallContext(request, null, null);
       return context;
     }
