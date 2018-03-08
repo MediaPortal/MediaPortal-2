@@ -311,7 +311,7 @@ namespace UPnP.Infrastructure.CP
       }
     }
 
-    protected async Task HandleHTTPRequest(IOwinContext context)
+    protected Task HandleHTTPRequest(IOwinContext context)
     {
       var request = context.Request;
       var response = context.Response;
@@ -331,14 +331,14 @@ namespace UPnP.Infrastructure.CP
             if (pathAndQuery == connection.GENAClientController.EventNotificationPath)
             {
               response.StatusCode = (int)connection.GENAClientController.HandleUnicastEventNotification(request);
-              return;
+              return Task.CompletedTask;
             }
           }
         }
         else
         {
           response.StatusCode = (int)HttpStatusCode.MethodNotAllowed;
-          return;
+          return Task.CompletedTask;
         }
         // Url didn't match
         response.StatusCode = (int)HttpStatusCode.NotFound;
@@ -347,6 +347,7 @@ namespace UPnP.Infrastructure.CP
       {
         response.StatusCode = (int)HttpStatusCode.InternalServerError;
       }
+      return Task.CompletedTask;
     }
 
     #endregion

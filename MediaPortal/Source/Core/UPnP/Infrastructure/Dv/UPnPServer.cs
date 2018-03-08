@@ -316,9 +316,6 @@ namespace UPnP.Infrastructure.Dv
     /// Handles all kinds of HTTP over TCP requests - Description, Control and Event subscriptions.
     /// </summary>
     /// <param name="context">HTTP client context of the current request.</param>
-    /// <param name="request">HTTP request to handle.</param>
-    //protected void HandleHTTPRequest_NoLock(IHttpClientContext context, IHttpRequest request)
-    //protected async Task Invoke(AppFunc next, IDictionary<string, object> environment)
     protected async Task HandleHTTPRequest(IOwinContext context)
     {
       var request = context.Request;
@@ -362,8 +359,7 @@ namespace UPnP.Infrastructure.Dv
                 if (!string.IsNullOrEmpty(acceptLanguage))
                   response.Headers["CONTENT-LANGUAGE"] = culture.ToString();
                 using (MemoryStream responseStream = new MemoryStream(UPnPConsts.UTF8_NO_BOM.GetBytes(description)))
-                  CompressionHelper.WriteCompressedStream(acceptEncoding, response, responseStream);
-                //SafeSendResponse(response);
+                  await CompressionHelper.WriteCompressedStream(acceptEncoding, response, responseStream);
                 return;
               }
             }
@@ -380,7 +376,6 @@ namespace UPnP.Infrastructure.Dv
               else if (!ParserHelper.ParseUserAgentUPnP1MinorVersion(userAgentStr, out minorVersion))
               {
                 response.StatusCode = (int)HttpStatusCode.BadRequest;
-                //SafeSendResponse(response);
                 return;
               }
               string mediaType;
@@ -390,7 +385,6 @@ namespace UPnP.Infrastructure.Dv
               if (mediaType != "text/xml")
               { // As specified in (DevArch), 3.2.1
                 response.StatusCode = (int)HttpStatusCode.UnsupportedMediaType;
-                //SafeSendResponse(response);
                 return;
               }
               response.Headers["DATE"] = DateTime.Now.ToUniversalTime().ToString("R");
@@ -411,8 +405,7 @@ namespace UPnP.Infrastructure.Dv
               }
               response.StatusCode = (int)status;
               using (MemoryStream responseStream = new MemoryStream(encoding.GetBytes(result)))
-                CompressionHelper.WriteCompressedStream(acceptEncoding, response, responseStream);
-              //SafeSendResponse(response);
+                await CompressionHelper.WriteCompressedStream(acceptEncoding, response, responseStream);
               return;
             }
           }
@@ -439,18 +432,8 @@ namespace UPnP.Infrastructure.Dv
       {
         UPnPConfiguration.LOGGER.Error("UPnPServer: Error handling HTTP request '{0}'", e, uri);
         response.StatusCode = (int)HttpStatusCode.InternalServerError;
-        //SafeSendResponse(response);
       }
     }
-
-    //protected void SafeSendResponse(IHttpResponse response)
-    //{
-    //  try
-    //  {
-    //    response.Send();
-    //  }
-    //  catch (IOException) { }
-    //}
 
     protected void GenerateObjectURLs(EndpointConfiguration config)
     {
