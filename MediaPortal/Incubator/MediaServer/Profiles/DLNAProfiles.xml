@@ -9,20 +9,29 @@
       <MediaFormat mime="audio/L16;rate=44100;channels=2" name="LPCM">LPCM16_44_STEREO</MediaFormat>
       <MediaFormat mime="audio/L16;rate=48000;channels=1" name="LPCM">LPCM16_48_MONO</MediaFormat>
       <MediaFormat mime="audio/L16;rate=48000;channels=2" name="LPCM">LPCM16_48_STEREO</MediaFormat>
-      <MediaFormat mime="audio/x-ms-wma">WMA_BASE</MediaFormat>
-      <MediaFormat mime="audio/x-ms-wma">WMA_FULL</MediaFormat>
+      <MediaFormat mime="audio/x-ms-wma">WMABASE</MediaFormat>
+      <MediaFormat mime="audio/x-ms-wma">WMAFULL</MediaFormat>
+      <MediaFormat mime="audio/x-ms-wma">WMAPRO</MediaFormat>
+      <MediaFormat mime="audio/x-ms-wma">WMALSL</MediaFormat>
+      <MediaFormat mime="audio/x-ms-wma">WMALSL_MULT5</MediaFormat>
       <MediaFormat mime="audio/mp4">AAC_ISO</MediaFormat>
       <MediaFormat mime="audio/mp4">AAC_ISO_320</MediaFormat>
       <MediaFormat mime="audio/vnd.dlna.adts">AAC_ADTS</MediaFormat>
       <MediaFormat mime="audio/vnd.dlna.adts">AAC_ADTS_320</MediaFormat>
       <MediaFormat mime="audio/flac">FLAC</MediaFormat>
       <MediaFormat mime="audio/ogg">OGG</MediaFormat>
+      <MediaFormat mime="audio/dsd">DSF</MediaFormat>
+      <MediaFormat mime="audio/wav">WAV</MediaFormat>
       <MediaFormat mime="image/jpeg">JPEG_SM</MediaFormat>
       <MediaFormat mime="image/jpeg">JPEG_MED</MediaFormat>
       <MediaFormat mime="image/jpeg">JPEG_LRG</MediaFormat>
       <MediaFormat mime="image/jpeg">JPEG_TN</MediaFormat>
+      <MediaFormat mime="image/jpeg">JPEG_SM_ICO</MediaFormat>
+      <MediaFormat mime="image/jpeg">JPEG_LRG_ICO</MediaFormat>
       <MediaFormat mime="image/png">PNG_LRG</MediaFormat>
       <MediaFormat mime="image/png">PNG_TN</MediaFormat>
+      <MediaFormat mime="image/png">PNG_SM_ICO</MediaFormat>
+      <MediaFormat mime="image/png">PNG_LRG_ICO</MediaFormat>
       <MediaFormat mime="image/gif">GIF_LRG</MediaFormat>
       <MediaFormat mime="video/mpeg">MPEG1</MediaFormat>
       <MediaFormat mime="video/mpeg">MPEG_PS_PAL</MediaFormat>
@@ -45,6 +54,8 @@
       <MediaFormat mime="video/ogg">OGV</MediaFormat>
       <MediaFormat mime="application/vnd.apple.mpegurl">HLS</MediaFormat>
       <MediaFormat mime="video/vnd.rn-realvideo">REAL_VIDEO</MediaFormat>
+      <MediaFormat mime="video/mp4">HEVC_MP4</MediaFormat>
+      <MediaFormat mime="video/mpeg">HEVC_TS</MediaFormat>
       <MediaFormat mime="video/mp4">AVC_MP4_MP_SD_AAC_MULT5</MediaFormat>
       <MediaFormat mime="video/mp4">AVC_MP4_MP_SD_MPEG1_L3</MediaFormat>
       <MediaFormat mime="video/mp4">AVC_MP4_MP_SD_AC3</MediaFormat>
@@ -94,12 +105,12 @@
       <MediaFormat mime="video/vnd.dlna.mpeg-tts">AVC_TS_DTSHD_MA_T</MediaFormat>
       <MediaFormat mime="video/mpeg">AVC_TS_DTSHD_MA_ISO</MediaFormat>
       <MediaFormat mime="video/vnd.dlna.mpeg-tts">AVC_TS_HD_50_LPCM_T</MediaFormat>
+      <MediaFormat mime="video/vnd.dlna.mpeg-tts">AVC_TS_HD_60_LPCM_T</MediaFormat>
       <MediaFormat mime="video/mpeg">AVC_TS_HP_SD_MPEG1_L2_ISO</MediaFormat>
       <MediaFormat mime="video/vnd.dlna.mpeg-tts">AVC_TS_HP_SD_MPEG1_L2_T</MediaFormat>
       <MediaFormat mime="video/mpeg">AVC_TS_HP_HD_MPEG1_L2_ISO</MediaFormat>
       <MediaFormat mime="video/vnd.dlna.mpeg-tts">AVC_TS_HP_HD_MPEG1_L2_T</MediaFormat>
       <MediaFormat mime="video/x-ms-wmv">WMVMED_BASE</MediaFormat>
-      <MediaFormat mime="video/x-ms-wmv">WMVHIGH_BASE</MediaFormat>      
       <MediaFormat mime="video/x-ms-wmv">WMVMED_FULL</MediaFormat>
       <MediaFormat mime="video/x-ms-wmv">WMVHIGH_FULL</MediaFormat>
       <MediaFormat mime="video/x-ms-wmv">WMVMED_PRO</MediaFormat>
@@ -138,8 +149,11 @@
       <Audio defaultStereo="false" defaultBitrate="192" />
       <Communication allowChunckedTransfer="true" initialBufferSize="0" defaultBufferSize="1500" />
       <Metadata delivery="All" />
-      <Subtitles support="None" />
+      <Subtitles bitmapBasedSupported="true" textBasedSupported="true" support="None" />
     </Settings>
+    <GenericTranscoding>
+      <VideoTarget container="Mpeg2Ps" videoCodec="Mpeg2" audioCodec="Ac3" audioBitrate="384" />
+    </GenericTranscoding>
     <MediaTranscoding>
       <ImageTarget container="Jpeg" forceInheritance="true">
         <ImageSource container="Raw" />
@@ -172,7 +186,8 @@
     <Settings>
       <H264Video levelCheck="RefFramesLevel" />
       <Images autoRotate="true" />
-      <Subtitles support="SoftCoded">
+      <Subtitles bitmapBasedSupported="false" textBasedSupported="false" support="SoftCoded">
+        <Subtitle format="Srt" mime="text/srt" />
         <Subtitle format="Srt" mime="smi/caption" />
       </Subtitles>
     </Settings>
@@ -202,6 +217,7 @@
         <VideoSource container="Asf" videoCodec="Wmv" />
         <VideoSource container="Matroska" videoCodec="Mpeg2" />
         <VideoSource container="Matroska" videoCodec="Vp8" />
+        <VideoSource container="Matroska" videoCodec="Vp9" />
         <VideoSource videoCodec="H265" />
         <VideoSource container="Avi" videoCodec="MJpeg" />
         <VideoSource container="Avi" videoCodec="DvVideo" />
@@ -210,8 +226,6 @@
         <VideoSource container="Flv" />
         <VideoSource container="Ogg" />
         <VideoSource container="RealMedia" />
-        <VideoSource container="Rtp" />
-        <VideoSource container="Rtsp" />
       </VideoTarget>
       <VideoTarget container="M2Ts" audioCodec="Ac3" forceTranscoding="true">
         <VideoSource container="Asf" videoCodec="Mpeg2" />
@@ -229,12 +243,13 @@
         <AudioSource container="Flac" />
         <AudioSource container="Ogg" />
         <AudioSource container="Adts" />
-        <AudioSource container="Mp2" />
+        <AudioSource container="Mp3" />
         <AudioSource container="WavPack" />
         <AudioSource container="MusePack" />
         <AudioSource container="Ape" />
-        <AudioSource container="Rtp" />
-        <AudioSource container="Rtsp" />
+        <AudioSource container="Dsf" />
+        <AudioSource container="Wav" />
+        <AudioSource container="Mp4" />
       </AudioTarget>
     </MediaTranscoding>
   </Profile>
@@ -264,6 +279,9 @@
       <Thumbnails maxWidth="320" maxHeight="320" />
       <Subtitles support="HardCoded" />
     </Settings>
+    <GenericTranscoding>
+      <VideoTarget container="Asf" videoCodec="Wmv" videoMaxBitrate="15360" audioCodec="Wma" forceStereo="true" />
+    </GenericTranscoding>
     <MediaTranscoding>
       <VideoTarget container="Asf" videoCodec="Wmv" videoMaxBitrate="15360" audioCodec="Wma" forceStereo="true">
         <VideoSource container="Matroska" />
@@ -282,20 +300,19 @@
         <VideoSource container="Flv" />
         <VideoSource container="RealMedia" />
         <VideoSource container="Mp4" videoCodec="H264" audioCodec="Aac" />
-        <VideoSource container="Rtp" />
-        <VideoSource container="Rtsp" />
       </VideoTarget>
       <AudioTarget container="Mp3">
         <AudioSource container="Flac" />
         <AudioSource container="Ogg" />
         <AudioSource container="Adts" />
         <AudioSource container="Mp4" />
-        <AudioSource container="Mp2" />
+        <AudioSource container="Mp3" />
         <AudioSource container="WavPack" />
         <AudioSource container="MusePack" />
         <AudioSource container="Ape" />
-        <AudioSource container="Rtp" />
-        <AudioSource container="Rtsp" />
+        <AudioSource container="Dsf" />
+        <AudioSource container="Wav" />
+        <AudioSource container="Mp4" />
       </AudioTarget>
     </MediaTranscoding>
   </Profile>
@@ -318,12 +335,16 @@
       <Images autoRotate="true" />
       <Subtitles support="HardCoded" />
     </Settings>
+    <GenericTranscoding>
+      <VideoTarget container="Mpeg2Ts" videoCodec="Mpeg2" audioCodec="Ac3" audioBitrate="384" />
+    </GenericTranscoding>
     <MediaTranscoding>
       <VideoTarget container="Mpeg2Ts" videoCodec="Mpeg2" audioCodec="Ac3" audioBitrate="384">
         <VideoSource videoCodec="H264" videoProfile="High" videoLevel="4.1" />
         <VideoSource videoCodec="H264" videoProfile="Main" videoLevel="4.1" />
         <VideoSource container="Avi" videoCodec="DvVideo" />
         <VideoSource container="Matroska" videoCodec="Vp8" />
+        <VideoSource container="Matroska" videoCodec="Vp9" />
         <VideoSource videoCodec="H265" />
       </VideoTarget>
       <VideoTarget container="Mpeg2Ts" audioCodec="Ac3" audioBitrate="384">
@@ -344,19 +365,88 @@
         <VideoSource container="Asf" videoCodec="Vc1" audioCodec="WmaPro" />
         <VideoSource container="Asf" videoCodec="Wmv" />
         <VideoSource container="RealMedia" />
-        <VideoSource container="Rtp" />
-        <VideoSource container="Rtsp" />
       </VideoTarget>
       <AudioTarget container="Lpcm" audioFrequency="48000">
         <AudioSource container="Flac" />
         <AudioSource container="Ogg" />
         <AudioSource container="Adts" />
         <AudioSource container="WavPack" />
-        <AudioSource container="Mp2" />
+        <AudioSource container="Mp3" />
         <AudioSource container="MusePack" />
         <AudioSource container="Ape" />
-        <AudioSource container="Rtp" />
-        <AudioSource container="Rtsp" />
+        <AudioSource container="Dsf" />
+        <AudioSource container="Wav" />
+        <AudioSource container="Mp4" />
+      </AudioTarget>
+    </MediaTranscoding>
+  </Profile>
+  <Profile id="PS4" name="Playstation 4" baseProfile="DLNADefault" active="true">
+    <DLNAMediaFormats>
+      <MediaFormat mime="video/x-ms-wmv">VC1_ASF_AP_L1_WMA</MediaFormat>
+      <MediaFormat mime="video/x-ms-wmv">VC1_ASF_AP_L2_WMA</MediaFormat>
+      <MediaFormat mime="video/x-ms-wmv">VC1_ASF_AP_L3_WMA</MediaFormat>
+      <MediaFormat mime="video/mp4" name="">MPEG4_P2_MP4_ASP_AAC</MediaFormat>
+    </DLNAMediaFormats>
+    <Detections>
+      <Detection>
+        <HttpSearch>
+          <User-Agent>.*PlayStation 4.*</User-Agent>
+        </HttpSearch>
+      </Detection>
+    </Detections>
+    <Settings>
+      <Thumbnails maxWidth="320" maxHeight="320" />
+      <Images autoRotate="true" />
+      <Subtitles support="HardCoded" />
+    </Settings>
+    <GenericTranscoding>
+      <VideoTarget container="Mpeg2Ts" videoCodec="Mpeg2" audioCodec="Ac3" audioBitrate="384" />
+    </GenericTranscoding>
+    <MediaTranscoding>
+      <VideoTarget container="Mpeg2Ts" videoCodec="Mpeg2" audioCodec="Ac3" audioBitrate="384">
+        <VideoSource videoCodec="H264" videoProfile="High10" />
+        <VideoSource videoCodec="H264" videoProfile="High" videoLevel="4.2" />
+        <VideoSource videoCodec="H264" videoProfile="Main" videoLevel="4.2" />
+      </VideoTarget>
+      <VideoTarget container="Mpeg2Ts" audioCodec="Ac3" audioBitrate="384">
+        <VideoSource videoCodec="H264" audioCodec="Dts" />
+        <VideoSource videoCodec="H264" audioCodec="DtsHd" />
+        <VideoSource videoCodec="H264" audioCodec="Flac" />
+        <VideoSource videoCodec="H264" audioCodec="TrueHd" />
+        <VideoSource videoCodec="H264" audioCodec="Vorbis" />
+        <VideoSource container="Flv" videoCodec="H264" />
+        <VideoSource container="Gp3" videoCodec="H264" />
+        <VideoSource container="Asf" videoCodec="H264" />
+      </VideoTarget>
+      <VideoTarget container="Mpeg2Ts" videoCodec="Mpeg2" audioCodec="Ac3" audioBitrate="384">
+        <VideoSource container="Asf" />
+        <VideoSource container="Wtv" />
+        <VideoSource container="Flv" />
+        <VideoSource container="Ogg" />
+        <VideoSource container="Gp3" />
+        <VideoSource container="RealMedia" />
+        <VideoSource container="Avi" videoFourCC="div3,div4,div5,divx,dm4v,dx50,xvid" />
+        <VideoSource container="Matroska" videoCodec="Vp8" />
+        <VideoSource container="Matroska" videoCodec="Vp9" />
+        <VideoSource videoCodec="H263" />
+        <VideoSource videoCodec="H265" />
+        <VideoSource videoCodec="DvVideo" />
+        <VideoSource videoCodec="MJpeg" />
+        <VideoSource videoCodec="Mpeg1" />
+        <VideoSource audioCodec="Lpcm" />
+      </VideoTarget>
+      <AudioTarget container="Mp3" audioFrequency="48000">
+        <AudioSource container="Flac" />
+        <AudioSource container="Ogg" />
+        <AudioSource container="Adts" />
+        <AudioSource container="WavPack" />
+        <AudioSource container="Mp3" />
+        <AudioSource container="MusePack" />
+        <AudioSource container="Ape" />
+        <AudioSource container="Lpcm" />
+        <AudioSource container="Dsf" />
+        <AudioSource container="Wav" />
+        <AudioSource container="Mp4" />
       </AudioTarget>
     </MediaTranscoding>
   </Profile>
@@ -390,12 +480,13 @@
         <AudioSource container="Flac" />
         <AudioSource container="Ogg" />
         <AudioSource container="Adts" />
-        <AudioSource container="Mp2" />
+        <AudioSource container="Mp3" />
         <AudioSource container="WavPack" />
         <AudioSource container="MusePack" />
         <AudioSource container="Ape" />
-        <AudioSource container="Rtp" />
-        <AudioSource container="Rtsp" />
+        <AudioSource container="Dsf" />
+        <AudioSource container="Wav" />
+        <AudioSource container="Mp4" />
       </AudioTarget>
     </MediaTranscoding>
   </Profile>
@@ -413,6 +504,9 @@
     <Settings>
       <Subtitles support="HardCoded" />
     </Settings>
+    <GenericTranscoding>
+      <VideoTarget container="Mpeg2Ps" videoCodec="Mpeg2" videoAR="1.777778" videoMaxBitrate="8192" audioCodec="Mp2" forceStereo="true" />
+    </GenericTranscoding>
     <MediaTranscoding>
       <VideoTarget container="Mpeg2Ps" videoCodec="Mpeg2" videoAR="1.777778" videoMaxBitrate="8192" audioCodec="Mp2" forceStereo="true">
         <VideoSource container="Matroska" />
@@ -423,20 +517,19 @@
         <VideoSource container="Flv" />
         <VideoSource container="Gp3" />
         <VideoSource container="RealMedia" />
-        <VideoSource container="Rtp" />
-        <VideoSource container="Rtsp" />
       </VideoTarget>
       <AudioTarget container="Mp3">
         <AudioSource container="Flac" />
         <AudioSource container="Ogg" />
         <AudioSource container="Adts" />
         <AudioSource container="Mp4" />
-        <AudioSource container="Mp2" />
+        <AudioSource container="Mp3" />
         <AudioSource container="WavPack" />
         <AudioSource container="MusePack" />
         <AudioSource container="Ape" />
-        <AudioSource container="Rtp" />
-        <AudioSource container="Rtsp" />
+        <AudioSource container="Dsf" />
+        <AudioSource container="Wav" />
+        <AudioSource container="Mp4" />
       </AudioTarget>
     </MediaTranscoding>
   </Profile>
@@ -445,6 +538,7 @@
       <MediaFormat mime="video/x-mkv">MATROSKA</MediaFormat>
       <MediaFormat mime="video/x-msvideo" name="">AVI</MediaFormat>
       <MediaFormat mime="audio/x-flac">FLAC</MediaFormat>
+      <MediaFormat mime="audio/x-wav">WAV</MediaFormat>
     </DLNAMediaFormats>
     <DirectoryContentBuilder>SamsungContentBuilder</DirectoryContentBuilder>
     <DirectoryContentFilter>SamsungContentFilter</DirectoryContentFilter>
@@ -461,7 +555,7 @@
           <User-Agent>(.*SEC_HHP_BD-H.*)|(.*SEC_HHP_\[(HT|BD)\]H.*)|(\[BD\]H.*)</User-Agent>
         </HttpSearch>
         <UPnPSearch>
-          <FriendlyName>(^\[TV\][A-Z]{2}\d{2}H[A-Z]?\d{3,4}.*)</FriendlyName>
+          <FriendlyName>(^\[TV\]\s?[A-Z]{2}\d{2}H[A-Z]?\d{3,4}.*)</FriendlyName>
           <ModelNumber>(1\.0)|(AllShare1\.0)</ModelNumber>
         </UPnPSearch>
       </Detection>
@@ -469,13 +563,16 @@
     <Settings>
       <H264Video levelCheck="RefFramesLevel" />
       <Images autoRotate="true" />
-      <Communication allowChunckedTransfer="false" />
-      <Subtitles support="SoftCoded">
+      <Subtitles bitmapBasedSupported="false" textBasedSupported="false" support="SoftCoded">
+        <Subtitle format="Srt" mime="text/srt" />
         <Subtitle format="Srt" mime="smi/caption" />
       </Subtitles>
     </Settings>
+    <GenericTranscoding>
+      <VideoTarget container="Mpeg2Ts" videoCodec="Mpeg2" audioCodec="Ac3" audioBitrate="384" />
+    </GenericTranscoding>
     <MediaTranscoding>
-      <VideoTarget container="Mpeg2Ts" videoCodec="Mpeg2" audioCodec="Ac3" audioBitrate="192" forceInheritance="true">
+      <VideoTarget container="Mpeg2Ts" videoCodec="Mpeg2" videoMaxBitrate="15360" audioCodec="Ac3" audioBitrate="192" forceInheritance="true">
         <VideoSource videoCodec="H264" videoProfile="High10" />
         <VideoSource videoCodec="H264" videoProfile="High" videoLevel="4.2" />
         <VideoSource videoCodec="H264" videoProfile="Main" videoLevel="4.2" />
@@ -483,6 +580,8 @@
         <VideoSource container="Mp4" videoCodec="Mpeg4" audioCodec="Lpcm" />
         <VideoSource container="Mp4" videoCodec="DvVideo" />
         <VideoSource container="Mp4" videoCodec="MJpeg" />
+        <VideoSource container="Matroska" videoCodec="Vp8" />
+        <VideoSource container="Matroska" videoCodec="Vp9" />
       </VideoTarget>
       <VideoTarget container="Mpeg2Ts" audioCodec="Ac3" forceInheritance="true">
         <VideoSource container="Wtv" videoCodec="H264" />
@@ -492,20 +591,79 @@
       </VideoTarget>
       <VideoTarget container="Mpeg2Ts" videoCodec="Mpeg2" audioCodec="Ac3" forceInheritance="true">
         <VideoSource container="Asf" videoCodec="Wmv" />
-        <VideoSource container="Rtp" />
-        <VideoSource container="Rtsp" />
       </VideoTarget>
       <AudioTarget container="Lpcm" forceInheritance="true">
         <AudioSource container="Mp4" />
         <AudioSource container="Ogg" />
         <AudioSource container="Adts" />
-        <AudioSource container="Mp2" />
+        <AudioSource container="Mp3" />
         <AudioSource container="WavPack" />
         <AudioSource container="MusePack" />
         <AudioSource container="Ape" />
         <AudioSource container="Asf" />
-        <AudioSource container="Rtp" />
-        <AudioSource container="Rtsp" />
+        <AudioSource container="Dsf" />
+        <AudioSource container="Mp4" />
+      </AudioTarget>
+    </MediaTranscoding>
+  </Profile>
+  <Profile id="SamsungJ" name="Samsung TV / player (J-series)" baseProfile="DLNADefault" active="true">
+    <DLNAMediaFormats>
+      <MediaFormat mime="video/x-matroska">MATROSKA</MediaFormat>
+      <MediaFormat mime="audio/x-flac">FLAC</MediaFormat>
+      <MediaFormat mime="audio/x-wav">WAV</MediaFormat>
+    </DLNAMediaFormats>
+    <DirectoryContentBuilder>SamsungTizenContentBuilder</DirectoryContentBuilder>
+    <DirectoryContentFilter>SamsungContentFilter</DirectoryContentFilter>
+    <ResourceAccessProtocol>SamsungAccessProtocol</ResourceAccessProtocol>
+    <Detections>
+      <Detection>
+        <HttpSearch>
+          <User-Agent>(.*SEC_HHP_\[TV\] [A-Z]{2}\d{2}J[A-Z]?\d{3,4}.*)</User-Agent>
+        </HttpSearch>
+        <UPnPSearch>
+          <ModelName>(^[A-Z]{2}\d{2}J[A-Z]?\d{3,4}.*)</ModelName>
+          <ModelNumber>(1\.0)|(AllShare1\.0)</ModelNumber>
+        </UPnPSearch>
+      </Detection>
+    </Detections>
+    <Settings>
+      <H264Video levelCheck="RefFramesLevel" />
+      <Images autoRotate="true" />
+      <Subtitles bitmapBasedSupported="false" textBasedSupported="false" support="SoftCoded">
+        <Subtitle format="Srt" mime="text/srt" />
+        <Subtitle format="Srt" mime="smi/caption" />
+      </Subtitles>
+    </Settings>
+    <GenericTranscoding>
+      <VideoTarget container="Mpeg2Ts" videoCodec="Mpeg2" audioCodec="Ac3" audioBitrate="384" />
+    </GenericTranscoding>
+    <MediaTranscoding>
+      <VideoTarget container="Mpeg2Ts" videoCodec="Mpeg2" videoMaxBitrate="15360" audioCodec="Ac3" audioBitrate="192" forceInheritance="true">
+        <VideoSource videoCodec="H264" videoProfile="High10" />
+        <VideoSource videoCodec="H264" videoProfile="High" videoLevel="4.2" />
+        <VideoSource videoCodec="H264" videoProfile="Main" videoLevel="4.2" />
+        <VideoSource container="Mp4" videoCodec="Mpeg4" audioCodec="Lpcm" />
+        <VideoSource videoCodec="DvVideo" />
+        <VideoSource container="Mp4" videoCodec="MJpeg" />
+        <VideoSource container="Matroska" videoCodec="Vp9" />
+      </VideoTarget>
+      <VideoTarget container="Mpeg2Ts" audioCodec="Ac3" forceInheritance="true">
+        <VideoSource container="Wtv" videoCodec="H264" />
+      </VideoTarget>
+      <VideoTarget container="Mpeg2Ts" forceInheritance="true">
+        <VideoSource container="Wtv" />
+      </VideoTarget>
+      <AudioTarget container="Mp3" forceInheritance="true">
+        <AudioSource container="Mp4" />
+        <AudioSource container="Ogg" />
+        <AudioSource container="Adts" />
+        <AudioSource container="Mp3" />
+        <AudioSource container="WavPack" />
+        <AudioSource container="MusePack" />
+        <AudioSource container="Ape" />
+        <AudioSource container="Asf" />
+        <AudioSource container="Dsf" />
+        <AudioSource container="Mp4" />
       </AudioTarget>
     </MediaTranscoding>
   </Profile>
@@ -570,6 +728,7 @@
       </VideoTarget>
       <AudioTarget container="Lpcm">
         <AudioSource container="Flac" />
+        <AudioSource container="Wav" />
       </AudioTarget>
     </MediaTranscoding>
   </Profile>
@@ -585,15 +744,14 @@
       </Detection>
     </Detections>
     <Settings>
-      <Subtitles support="SoftCoded">
-        <Subtitle format="Srt" mime="text/srt" />
-      </Subtitles>
+      <Subtitles support="HardCoded" />
     </Settings>
+    <GenericTranscoding>
+      <VideoTarget container="Mpeg2Ts" videoCodec="Mpeg2" audioCodec="Ac3" />
+    </GenericTranscoding>
   </Profile>
   <Profile id="Sony2012" name="Sony Bravia TV (2012)" baseProfile="DLNADefault" active="true">
     <DLNAMediaFormats>
-      <MediaFormat mime="audio/x-ms-wma" name="WMABASE">WMA_BASE</MediaFormat>
-      <MediaFormat mime="audio/x-ms-wma" name="WMAFULL">WMA_FULL</MediaFormat>
       <MediaFormat mime="video/mp4" name="AVC_MP4_MP_SD_AAC_MULT5">AVC_3GPP_BL_QCIF15_AAC</MediaFormat>
       <MediaFormat mime="video/avi" name="">AVI</MediaFormat>
       <MediaFormat mime="video/vnd.dlna.mpeg-tts" name="AVC_TS_HD_24_AC3,AVC_TS_HD_50_AC3,AVC_TS_HD_60_AC3,AVC_TS_HD_EU">AVC_TS_MP_HD_AC3</MediaFormat>
@@ -633,8 +791,12 @@
     <Settings>
       <Subtitles support="HardCoded" />
     </Settings>
+    <GenericTranscoding>
+      <VideoTarget container="Mpeg2Ts" videoCodec="Mpeg2" videoAR="1.777778" videoMaxBitrate="17000" audioCodec="Ac3" audioBitrate="384" />
+    </GenericTranscoding>
     <MediaTranscoding>
       <VideoTarget container="Mpeg2Ts" videoCodec="Mpeg2" videoAR="1.777778" videoMaxBitrate="17000" audioCodec="Ac3" audioBitrate="384" forceInheritance="true">
+        <VideoSource videoCodec="H265" />
         <VideoSource videoCodec="H264" videoProfile="High10" />
         <VideoSource videoCodec="H264" videoProfile="High422" />
         <VideoSource videoCodec="H264" videoProfile="High444" />
@@ -642,6 +804,10 @@
         <VideoSource videoCodec="H264" videoProfile="Main" videoLevel="4.1" />
       </VideoTarget>
       <VideoTarget container="Mpeg2Ts" forceInheritance="true">
+        <VideoSource container="Avi" videoCodec="H264" audioCodec="Ac3" />
+        <VideoSource container="Matroska" videoCodec="H264" audioCodec="Ac3" />
+        <VideoSource container="Flv" videoCodec="H264" audioCodec="Ac3" />
+        <VideoSource container="Wtv" videoCodec="H264" audioCodec="Ac3" />
         <VideoSource container="Avi" videoCodec="H264" audioCodec="Ac3" />
         <VideoSource container="Matroska" videoCodec="H264" audioCodec="Ac3" />
         <VideoSource container="Flv" videoCodec="H264" audioCodec="Ac3" />
@@ -681,29 +847,26 @@
         <VideoSource container="Asf" videoCodec="Vc1" audioCodec="WmaPro" />
         <VideoSource container="Avi" videoCodec="DvVideo" />
         <VideoSource container="Mp4" videoCodec="DvVideo" />
-        <VideoSource container="Rtp" />
-        <VideoSource container="Rtsp" />
       </VideoTarget>
       <AudioTarget container="Lpcm" forceInheritance="true">
         <AudioSource container="Flac" />
         <AudioSource container="Ogg" />
         <AudioSource container="Adts" />
-        <AudioSource container="Mp2" />
+        <AudioSource container="Mp3" />
         <AudioSource container="WavPack" />
         <AudioSource container="MusePack" />
         <AudioSource container="Ape" />
-        <AudioSource container="Rtp" />
-        <AudioSource container="Rtsp" />
+        <AudioSource container="Dsf" />
+        <AudioSource container="Wav" />
+        <AudioSource container="Mp4" />
       </AudioTarget>
-      <ImageTarget container="Jpeg" pixelFormat="Yuv420" forceInheritance="true">
+      <ImageTarget container="Jpeg" forceInheritance="true">
         <ImageSource container="Jpeg" pixelFormat="Yuv444" />
       </ImageTarget>
     </MediaTranscoding>
   </Profile>
   <Profile id="Sony2013" name="Sony Bravia TV (2013/14)" baseProfile="DLNADefault" active="true">
     <DLNAMediaFormats>
-      <MediaFormat mime="audio/x-ms-wma" name="WMABASE">WMA_BASE</MediaFormat>
-      <MediaFormat mime="audio/x-ms-wma" name="WMAFULL">WMA_FULL</MediaFormat>
       <MediaFormat mime="video/mp4" name="AVC_MP4_MP_SD_AAC_MULT5">AVC_3GPP_BL_QCIF15_AAC</MediaFormat>
       <MediaFormat mime="video/avi" name="">AVI</MediaFormat>
       <MediaFormat mime="video/vnd.dlna.mpeg-tts" name="AVC_TS_HD_50_AC3,AVC_TS_HD_24_AC3,AVC_TS_HD_60_AC3,AVC_TS_HD_EU">AVC_TS_MP_HD_AC3</MediaFormat>
@@ -744,6 +907,9 @@
       <H264Video levelCheck="RefFramesLevel" />
       <Subtitles support="HardCoded" />
     </Settings>
+    <GenericTranscoding>
+      <VideoTarget container="Mpeg2Ts" videoCodec="Mpeg2" videoAR="1.777778" audioCodec="Ac3" />
+    </GenericTranscoding>
     <MediaTranscoding>
       <VideoTarget container="Mpeg2Ts" videoCodec="Mpeg2" videoAR="1.777778" audioCodec="Ac3" forceInheritance="true">
         <VideoSource videoCodec="H265" />
@@ -752,8 +918,14 @@
         <VideoSource videoCodec="H264" videoProfile="High422" />
         <VideoSource videoCodec="H264" videoProfile="High" videoLevel="4.2" />
         <VideoSource videoCodec="H264" videoProfile="Main" videoLevel="4.2" />
+        <VideoSource container="Matroska" videoCodec="Vp8" />
+        <VideoSource container="Matroska" videoCodec="Vp9" />
       </VideoTarget>
       <VideoTarget container="Mpeg2Ts" forceInheritance="true">
+        <VideoSource container="Avi" videoCodec="H264" audioCodec="Ac3" />
+        <VideoSource container="Flv" videoCodec="H264" audioCodec="Ac3" />
+        <VideoSource container="Wtv" videoCodec="H264" audioCodec="Ac3" />
+        <VideoSource container="Matroska" videoCodec="Mpeg2" audioCodec="Ac3" />
         <VideoSource container="Avi" videoCodec="H264" audioCodec="Ac3" />
         <VideoSource container="Flv" videoCodec="H264" audioCodec="Ac3" />
         <VideoSource container="Wtv" videoCodec="H264" audioCodec="Ac3" />
@@ -767,8 +939,6 @@
         <VideoSource container="Wtv" videoCodec="H264" />
         <VideoSource container="Matroska" videoCodec="Mpeg2" />
         <VideoSource container="Mpeg2Ts" videoCodec="H264" audioCodec="Mp3" />
-        <VideoSource container="Rtp" />
-        <VideoSource container="Rtsp" />
       </VideoTarget>
       <VideoTarget container="Mpeg2Ts" videoCodec="Mpeg2" videoAR="1.777778" audioCodec="Ac3" forceInheritance="true">
         <VideoSource container="Mpeg2Ts" videoCodec="Vc1" />
@@ -789,15 +959,14 @@
         <AudioSource container="Flac" />
         <AudioSource container="Ogg" />
         <AudioSource container="Adts" />
-        <AudioSource container="Rtp" />
-        <AudioSource container="Rtsp" />
+        <AudioSource container="Dsf" />
+        <AudioSource container="Wav" />
+        <AudioSource container="Mp4" />
       </AudioTarget>
     </MediaTranscoding>
   </Profile>
   <Profile id="Bdp2013" name="Sony BDP-Sx100 (2013)" baseProfile="DLNADefault" active="true">
     <DLNAMediaFormats>
-      <MediaFormat mime="audio/x-ms-wma" name="WMABASE">WMA_BASE</MediaFormat>
-      <MediaFormat mime="audio/x-ms-wma" name="WMAFULL">WMA_FULL</MediaFormat>
       <MediaFormat mime="video/mp4" name="AVC_MP4_MP_SD_AAC_MULT5">AVC_3GPP_BL_QCIF15_AAC</MediaFormat>
     </DLNAMediaFormats>
     <DirectoryContentBuilder>SonyContentBuilder</DirectoryContentBuilder>
@@ -811,6 +980,9 @@
       <H264Video levelCheck="RefFramesLevel" />
       <Subtitles support="HardCoded" />
     </Settings>
+    <GenericTranscoding>
+      <VideoTarget container="Mpeg2Ts" videoCodec="Mpeg2" videoMaxBitrate="17000" audioCodec="Ac3" audioBitrate="320" />
+    </GenericTranscoding>
     <MediaTranscoding>
       <VideoTarget container="Mpeg2Ts" audioCodec="Ac3" forceTranscoding="true" forceInheritance="true">
         <VideoSource container="Asf" videoCodec="Mpeg2" />
@@ -824,6 +996,7 @@
         <VideoSource videoCodec="H264" videoProfile="High" videoLevel="4.2" />
         <VideoSource videoCodec="H264" videoProfile="Main" videoLevel="4.2" />
         <VideoSource container="Matroska" videoCodec="Vp8" />
+        <VideoSource container="Matroska" videoCodec="Vp9" />
       </VideoTarget>
       <VideoTarget container="Mpeg2Ts" forceInheritance="true">
         <VideoSource container="Flv" videoCodec="H264" />
@@ -837,23 +1010,22 @@
         <VideoSource container="Mp4" videoCodec="DvVideo" />
         <VideoSource container="Avi" videoCodec="MJpeg" />
         <VideoSource container="Mp4" videoCodec="MJpeg" />
-        <VideoSource container="Rtp" />
-        <VideoSource container="Rtsp" />
       </VideoTarget>
       <AudioTarget container="Lpcm" forceInheritance="true">
         <AudioSource container="Ogg" />
-        <AudioSource container="Mp2" />
+        <AudioSource container="Mp3" />
         <AudioSource container="WavPack" />
         <AudioSource container="MusePack" />
         <AudioSource container="Ape" />
-        <AudioSource container="Rtp" />
-        <AudioSource container="Rtsp" />
+        <AudioSource container="Dsf" />
+        <AudioSource container="Mp4" />
       </AudioTarget>
     </MediaTranscoding>
   </Profile>
   <Profile id="Bdp2012" name="Sony BDP-Sx90 (2012)" baseProfile="Bdp2013" active="true">
     <MediaTranscoding>
       <VideoTarget container="Mpeg2Ts" videoCodec="Mpeg2" videoMaxBitrate="17000" audioCodec="Ac3" audioBitrate="320" forceInheritance="true">
+        <VideoSource videoCodec="H265" />
         <VideoSource videoCodec="H264" videoProfile="High10" />
         <VideoSource videoCodec="H264" videoProfile="High444" />
         <VideoSource videoCodec="H264" videoProfile="High422" />
@@ -876,7 +1048,7 @@
       <AudioTarget container="Lpcm" forceInheritance="true">
         <AudioSource container="Flac" />
       </AudioTarget>
-      <ImageTarget container="Jpeg" pixelFormat="Yuv420" forceInheritance="true">
+      <ImageTarget container="Jpeg" forceInheritance="true">
         <ImageSource container="Jpeg" pixelFormat="Yuv444" />
       </ImageTarget>
     </MediaTranscoding>
@@ -948,6 +1120,15 @@
       </Detection>
     </Detections>
     <MediaTranscoding>
+      <VideoTarget container="Mpeg2Ts" videoCodec="Mpeg2" videoMaxBitrate="17000" audioCodec="Ac3" audioBitrate="320" forceInheritance="true">
+        <VideoSource videoCodec="H265" />
+        <VideoSource videoCodec="H264" videoProfile="High10" />
+        <VideoSource videoCodec="H264" videoProfile="High444" />
+        <VideoSource videoCodec="H264" videoProfile="High422" />
+        <VideoSource videoCodec="H264" videoProfile="High" videoLevel="4.1" />
+        <VideoSource videoCodec="H264" videoProfile="Main" videoLevel="4.1" />
+        <VideoSource container="Matroska" videoCodec="Vp8" />
+      </VideoTarget>
       <VideoTarget container="Mpeg2Ts" audioCodec="Ac3" audioBitrate="320" forceInheritance="true">
         <VideoSource container="Matroska" audioCodec="DtsHd" />
         <VideoSource container="Matroska" audioCodec="Vorbis" />
@@ -956,8 +1137,6 @@
         <VideoSource container="Mpeg2Ps" audioCodec="Lpcm" />
         <VideoSource container="Ogg" videoCodec="Mpeg4" />
         <VideoSource container="Mp4" audioCodec="Lpcm" />
-        <VideoSource container="Rtp" />
-        <VideoSource container="Rtsp" />
       </VideoTarget>
       <VideoTarget container="Mpeg2Ts" forceInheritance="true">
         <VideoSource container="Matroska" />
@@ -971,6 +1150,7 @@
       <AudioTarget container="Lpcm" forceInheritance="true">
         <AudioSource container="Mp4" />
         <AudioSource container="Adts" />
+        <AudioSource container="Wav" />
       </AudioTarget>
     </MediaTranscoding>
   </Profile>
@@ -992,6 +1172,9 @@
     <Settings>
       <Subtitles support="HardCoded" />
     </Settings>
+    <GenericTranscoding>
+      <VideoTarget container="Mpeg2Ps" videoCodec="Mpeg2" audioCodec="Ac3" />
+    </GenericTranscoding>
     <MediaTranscoding>
       <VideoTarget container="Mpeg2Ps" videoCodec="Mpeg2" audioCodec="Ac3">
         <VideoSource container="Mp4" />
@@ -1008,27 +1191,24 @@
         <VideoSource container="Mpeg2Ps" audioCodec="Mp3" />
         <VideoSource container="Mpeg2Ps" audioCodec="Dts" />
         <VideoSource container="Mpeg2Ps" audioCodec="DtsHd" />
-        <VideoSource container="Rtp" />
-        <VideoSource container="Rtsp" />
       </VideoTarget>
       <AudioTarget container="Mp3">
         <AudioSource container="Mp4" />
         <AudioSource container="Flac" />
         <AudioSource container="Ogg" />
         <AudioSource container="Asf" />
-        <AudioSource container="Mp2" />
+        <AudioSource container="Mp3" />
         <AudioSource container="WavPack" />
         <AudioSource container="MusePack" />
         <AudioSource container="Ape" />
-        <AudioSource container="Rtp" />
-        <AudioSource container="Rtsp" />
+        <AudioSource container="Dsf" />
+        <AudioSource container="Wav" />
+        <AudioSource container="Mp4" />
       </AudioTarget>
     </MediaTranscoding>
   </Profile>
   <Profile id="Toshiba2012" name="Toshiba REGZA 2012-" baseProfile="DLNADefault" active="true">
     <DLNAMediaFormats>
-      <MediaFormat mime="audio/x-ms-wma" name="WMABASE">WMA_BASE</MediaFormat>
-      <MediaFormat mime="audio/x-ms-wma" name="WMAFULL">WMA_FULL</MediaFormat>
       <MediaFormat mime="audio/mp4" name="AAC_ISO_320">AAC_ISO</MediaFormat>
       <MediaFormat mime="audio/x-hx-aac-adts" name="">AAC_ADTS</MediaFormat>
       <MediaFormat mime="audio/x-hx-aac-adts" name="">AAC_ADTS_320</MediaFormat>
@@ -1105,6 +1285,9 @@
     </Settings>
   </Profile>
   <Profile id="Wdtv" name="WDTV Live" baseProfile="DLNADefault" active="true">
+    <DLNAMediaFormats>
+      <MediaFormat mime="audio/x-wav">WAV</MediaFormat>
+    </DLNAMediaFormats>
     <DirectoryContentBuilder>PacketContentBuilder</DirectoryContentBuilder>
     <Detections>
       <Detection>
@@ -1114,9 +1297,7 @@
       </Detection>
     </Detections>
     <Settings>
-      <Subtitles support="SoftCoded">
-        <Subtitle format="Srt" mime="text/srt" />
-      </Subtitles>
+      <Subtitles support="HardCoded" />
     </Settings>
     <MediaTranscoding>
       <VideoTarget container="Mpeg2Ps">
@@ -1125,10 +1306,12 @@
       <VideoTarget container="Mpeg2Ps" videoCodec="Mpeg2" audioCodec="Ac3" audioBitrate="384">
         <VideoSource container="Flv" />
         <VideoSource container="Matroska" videoCodec="Vp8" />
+        <VideoSource container="Matroska" videoCodec="Vp9" />
         <VideoSource videoCodec="H265" />
         <VideoSource container="RealMedia" />
-        <VideoSource container="Rtp" />
-        <VideoSource container="Rtsp" />
+      </VideoTarget>
+      <VideoTarget container="Mpeg2Ts" audioCodec="Ac3" audioBitrate="384">
+        <VideoSource audioCodec="Ac3" />
       </VideoTarget>
     </MediaTranscoding>
   </Profile>
@@ -1142,9 +1325,7 @@
       </Detection>
     </Detections>
     <Settings>
-      <Subtitles support="SoftCoded">
-        <Subtitle format="Srt" mime="text/srt" />
-      </Subtitles>
+      <Subtitles support="HardCoded" />
     </Settings>
   </Profile>
   <Profile id="Manta" name="Manta WIFI Centre" baseProfile="DLNADefault" active="true">
@@ -1165,8 +1346,6 @@
         <VideoSource container="Asf" />
         <VideoSource container="Avi" />
         <VideoSource container="RealMedia" />
-        <VideoSource container="Rtp" />
-        <VideoSource container="Rtsp" />
       </VideoTarget>
       <AudioTarget container="Mp3">
         <AudioSource container="Mp4" />
@@ -1174,12 +1353,13 @@
         <AudioSource container="Ogg" />
         <AudioSource container="Lpcm" />
         <AudioSource container="Adts" />
-        <AudioSource container="Mp2" />
+        <AudioSource container="Mp3" />
         <AudioSource container="WavPack" />
         <AudioSource container="MusePack" />
         <AudioSource container="Ape" />
-        <AudioSource container="Rtp" />
-        <AudioSource container="Rtsp" />
+        <AudioSource container="Dsf" />
+        <AudioSource container="Wav" />
+        <AudioSource container="Mp4" />
       </AudioTarget>
     </MediaTranscoding>
   </Profile>
@@ -1202,8 +1382,9 @@
         <AudioSource container="WavPack" />
         <AudioSource container="MusePack" />
         <AudioSource container="Ape" />
-        <AudioSource container="Rtp" />
-        <AudioSource container="Rtsp" />
+        <AudioSource container="Dsf" />
+        <AudioSource container="Wav" />
+        <AudioSource container="Mp4" />
       </AudioTarget>
     </MediaTranscoding>
   </Profile>
@@ -1236,10 +1417,9 @@
         <VideoSource container="Flv" />
         <VideoSource container="Wtv" />
         <VideoSource container="Mp4" audioCodec="Ac3" />
+        <VideoSource container="Mp4" audioCodec="Ac3" />
         <VideoSource container="Asf" />
         <VideoSource container="RealMedia" />
-        <VideoSource container="Rtp" />
-        <VideoSource container="Rtsp" />
       </VideoTarget>
       <AudioTarget container="Lpcm">
         <AudioSource container="Asf" />
@@ -1248,8 +1428,9 @@
         <AudioSource container="WavPack" />
         <AudioSource container="MusePack" />
         <AudioSource container="Ape" />
-        <AudioSource container="Rtp" />
-        <AudioSource container="Rtsp" />
+        <AudioSource container="Dsf" />
+        <AudioSource container="Wav" />
+        <AudioSource container="Mp4" />
       </AudioTarget>
     </MediaTranscoding>
   </Profile>
@@ -1286,6 +1467,8 @@
       <VideoTarget container="Mpeg2Ts" forceInheritance="true">
         <VideoSource container="Mp4" videoCodec="H264" audioCodec="Ac3" />
         <VideoSource container="Gp3" videoCodec="H264" audioCodec="Ac3" />
+        <VideoSource container="Mp4" videoCodec="H264" audioCodec="Ac3" />
+        <VideoSource container="Gp3" videoCodec="H264" audioCodec="Ac3" />
       </VideoTarget>
       <VideoTarget container="Mpeg2Ts" audioCodec="Ac3" audioBitrate="384" forceInheritance="true">
         <VideoSource container="Mp4" videoCodec="H264" audioCodec="Aac" />
@@ -1319,8 +1502,8 @@
       <MediaFormat mime="video/h264" name="">MPEG4_P2_MP4_SP_L6_AAC</MediaFormat>
       <MediaFormat mime="video/h264" name="">MPEG4_P2_MP4_NDSD</MediaFormat>
       <MediaFormat mime="video/h264" name="">FLV</MediaFormat>
-      <MediaFormat mime="audio/x-ms-wma" name="">WMA_BASE</MediaFormat>
-      <MediaFormat mime="audio/x-ms-wma" name="">WMA_FULL</MediaFormat>
+      <MediaFormat mime="audio/x-ms-wma" name="">WMABASE</MediaFormat>
+      <MediaFormat mime="audio/x-ms-wma" name="">WMAFULL</MediaFormat>
       <MediaFormat mime="video/x-ms-asf" name="">VC1_ASF_AP_L1_WMA</MediaFormat>
       <MediaFormat mime="video/x-ms-asf" name="">VC1_ASF_AP_L2_WMA</MediaFormat>
       <MediaFormat mime="video/x-ms-asf" name="">VC1_ASF_AP_L3_WMA</MediaFormat>
@@ -1338,8 +1521,6 @@
     <MediaTranscoding>
       <VideoTarget container="Mpeg2Ps" videoCodec="Mpeg2" audioCodec="Ac3">
         <VideoSource container="Ogg" />
-        <VideoSource container="Rtp" />
-        <VideoSource container="Rtsp" />
       </VideoTarget>
       <VideoTarget container="Mpeg2Ts" audioCodec="Ac3">
         <VideoSource audioCodec="Dts" />
@@ -1362,8 +1543,6 @@
         <VideoSource container="Mpeg2Ps" audioCodec="Mp3" />
         <VideoSource container="Mpeg2Ps" audioCodec="Dts" />
         <VideoSource container="Mpeg2Ps" audioCodec="DtsHd" />
-        <VideoSource container="Rtp" />
-        <VideoSource container="Rtsp" />
       </VideoTarget>
     </MediaTranscoding>
   </Profile>
@@ -1407,8 +1586,8 @@
         <AudioSource container="WavPack" />
         <AudioSource container="MusePack" />
         <AudioSource container="Ape" />
-        <AudioSource container="Rtp" />
-        <AudioSource container="Rtsp" />
+        <AudioSource container="Dsf" />
+        <AudioSource container="Mp4" />
       </AudioTarget>
     </MediaTranscoding>
   </Profile>
@@ -1427,10 +1606,14 @@
     </Detections>
     <Settings>
       <Thumbnails maxWidth="320" maxHeight="320" />
-      <Subtitles support="SoftCoded">
+      <Subtitles bitmapBasedSupported="false" support="SoftCoded">
         <Subtitle format="Srt" mime="text/srt" />
+        <Subtitle format="Srt" mime="text/srt" encoding="utf-8" />
       </Subtitles>
     </Settings>
+    <GenericTranscoding>
+      <VideoTarget container="Mpeg2Ps" videoCodec="Mpeg2" videoAR="1.777778" audioCodec="Ac3" audioBitrate="384" />
+    </GenericTranscoding>
     <MediaTranscoding>
       <VideoTarget container="Mpeg2Ts" videoCodec="Mpeg2" videoAR="1.777778" audioCodec="Ac3" audioBitrate="384" forceInheritance="true">
         <VideoSource videoCodec="H264" videoProfile="High10" />
@@ -1454,12 +1637,11 @@
         <VideoSource container="Mpeg2Ps" videoCodec="Mpeg1" />
         <VideoSource container="Matroska" videoCodec="Mpeg4" />
         <VideoSource container="Matroska" videoCodec="Vp8" />
+        <VideoSource container="Matroska" videoCodec="Vp9" />
         <VideoSource videoCodec="H265" />
         <VideoSource container="Asf" />
         <VideoSource container="Ogg" />
         <VideoSource container="RealMedia" />
-        <VideoSource container="Rtp" />
-        <VideoSource container="Rtsp" />
       </VideoTarget>
       <VideoTarget container="Mpeg2Ts" videoCodec="Mpeg2" audioCodec="Ac3" audioBitrate="384">
         <VideoSource container="Avi" />
@@ -1474,8 +1656,9 @@
         <AudioSource container="WavPack" />
         <AudioSource container="MusePack" />
         <AudioSource container="Ape" />
-        <AudioSource container="Rtp" />
-        <AudioSource container="Rtsp" />
+        <AudioSource container="Dsf" />
+        <AudioSource container="Wav" />
+        <AudioSource container="Mp4" />
       </AudioTarget>
     </MediaTranscoding>
   </Profile>
@@ -1543,6 +1726,25 @@
       </AudioTarget>
     </MediaTranscoding>
   </Profile>
+  <Profile id="Viera2009" name="Panasonic Viera (2009)" baseProfile="Viera2011A" active="true">
+    <MediaTranscoding>
+      <VideoTarget container="Mpeg2Ps" videoCodec="Mpeg2" videoAR="1.777778" videoMaxBitrate="12000" audioCodec="Ac3">
+        <VideoSource container="Matroska" />
+        <VideoSource container="Mp4" />
+        <VideoSource container="Mpeg2Ts" />
+        <VideoSource container="Asf" />
+        <VideoSource container="Avi" />
+        <VideoSource container="Ogg" />
+        <VideoSource container="Flv" />
+        <VideoSource container="Gp3" />
+        <VideoSource container="RealMedia" />
+        <VideoSource container="Mpeg2Ps" audioCodec="Aac" />
+        <VideoSource container="Mpeg2Ps" audioCodec="Mp2" />
+        <VideoSource container="Mpeg2Ps" audioCodec="Mp3" />
+        <VideoSource container="Mpeg2Ps" audioCodec="Dts" />
+      </VideoTarget>
+    </MediaTranscoding>
+  </Profile>
   <Profile id="Sony2012US" name="Sony Bravia TV (2012) - US" baseProfile="Sony2012" active="true">
     <MediaTranscoding>
       <VideoTarget container="Mpeg2Ts" videoCodec="Mpeg2" videoMaxBitrate="17000" audioCodec="Ac3" audioBitrate="384" forceInheritance="true">
@@ -1561,7 +1763,6 @@
   </Profile>
   <Profile id="SonySTR" name="Sony AVReceiver STR" baseProfile="DLNADefault" active="true">
     <DLNAMediaFormats>
-      <MediaFormat mime="audio/x-ms-wma" name="WMABASE">WMA_BASE</MediaFormat>
       <MediaFormat mime="video/vnd.dlna.mpeg-tts" name="AVC_TS_HD_24_AC3_T,AVC_TS_HD_50_AC3_T,AVC_TS_HD_60_AC3_T">AVC_TS_MP_HD_AC3_T</MediaFormat>
       <MediaFormat mime="video/vnd.dlna.mpeg-tts" name="AVC_TS_HD_24_AC3_T,AVC_TS_HD_50_AC3_T,AVC_TS_HD_60_AC3_T">AVC_TS_MP_SD_AC3_T</MediaFormat>
       <MediaFormat mime="video/vnd.dlna.mpeg-tts" name="AVC_TS_HD_24_AC3_T,AVC_TS_HD_50_AC3_T,AVC_TS_HD_60_AC3_T">AVC_TS_HP_HD_MPEG1_L2_T</MediaFormat>
@@ -1572,6 +1773,7 @@
       <MediaFormat mime="video/x-ms-wmv" name="WMVSPLL_BASE,WMVSPML_MP3,WMVSPML_BASE,WMVHM_BASE">WMVHIGH_FULL</MediaFormat>
       <MediaFormat mime="video/x-ms-wmv" name="WMVSPLL_BASE,WMVSPML_MP3,WMVSPML_BASE,WMVHM_BASE">WMVMED_PRO</MediaFormat>
       <MediaFormat mime="video/x-ms-wmv" name="WMVSPLL_BASE,WMVSPML_MP3,WMVSPML_BASE,WMVHM_BASE">WMVHIGH_PRO</MediaFormat>
+      <MediaFormat mime="video/x-wav">WAV</MediaFormat>
     </DLNAMediaFormats>
     <DirectoryContentBuilder>SonyContentBuilder</DirectoryContentBuilder>
     <DirectoryContentFilter>WMPContentFilter</DirectoryContentFilter>
@@ -1599,16 +1801,12 @@
         <AudioSource container="Rtsp" />
         <AudioSource container="Flac" />
         <AudioSource container="Ogg" />
-        <AudioSource container="Rtp" />
-        <AudioSource container="Rtsp" />
+        <AudioSource container="Dsf" />
+        <AudioSource container="Mp4" />
       </AudioTarget>
     </MediaTranscoding>
   </Profile>
   <Profile id="SonyCMT" name="Sony Audio CMT" baseProfile="DLNADefault" active="true">
-    <DLNAMediaFormats>
-      <MediaFormat mime="audio/x-ms-wma" name="WMABASE">WMA_BASE</MediaFormat>
-      <MediaFormat mime="audio/x-ms-wma" name="WMAFULL">WMA_FULL</MediaFormat>
-    </DLNAMediaFormats>
     <Detections>
       <Detection>
         <UPnPSearch>
@@ -1631,6 +1829,8 @@
         <AudioSource container="WavPack" />
         <AudioSource container="MusePack" />
         <AudioSource container="Ape" />
+        <AudioSource container="Dsf" />
+        <AudioSource container="Mp4" />
       </AudioTarget>
     </MediaTranscoding>
   </Profile>
@@ -1649,100 +1849,7 @@
         <VideoSource container="Gp3" />
         <VideoSource container="RealMedia" />
         <VideoSource container="Mpeg2Ts" />
-        <VideoSource container="Rtp" />
-        <VideoSource container="Rtsp" />
       </VideoTarget>
-    </MediaTranscoding>
-  </Profile>
-  <Profile id="Win8Metro" name="Windows 8/RT" baseProfile="DLNADefault" active="true">
-    <DLNAMediaFormats>
-      <MediaFormat mime="video/vnd.dlna.mpeg-tts" name="MPEG_TS_SD_EU,MPEG_TS_SD_NA,MPEG_TS_SD_KO">AVC_TS_MP_SD_AAC_MULT5</MediaFormat>
-      <MediaFormat mime="video/vnd.dlna.mpeg-tts" name="MPEG_TS_SD_EU,MPEG_TS_SD_NA,MPEG_TS_SD_KO">AVC_TS_MP_SD_AAC_MULT5_T</MediaFormat>
-      <MediaFormat mime="video/vnd.dlna.mpeg-tts" name="MPEG_TS_SD_EU,MPEG_TS_SD_NA,MPEG_TS_SD_KO">AVC_TS_MP_SD_AAC_MULT5_ISO</MediaFormat>
-      <MediaFormat mime="video/vnd.dlna.mpeg-tts" name="MPEG_TS_SD_EU,MPEG_TS_SD_NA,MPEG_TS_SD_KO">AVC_TS_MP_SD_MPEG1_L3</MediaFormat>
-      <MediaFormat mime="video/vnd.dlna.mpeg-tts" name="MPEG_TS_SD_EU,MPEG_TS_SD_NA,MPEG_TS_SD_KO">AVC_TS_MP_SD_MPEG1_L3_T</MediaFormat>
-      <MediaFormat mime="video/vnd.dlna.mpeg-tts" name="MPEG_TS_SD_EU,MPEG_TS_SD_NA,MPEG_TS_SD_KO">AVC_TS_MP_SD_MPEG1_L3_ISO</MediaFormat>
-      <MediaFormat mime="video/vnd.dlna.mpeg-tts" name="MPEG_TS_SD_EU,MPEG_TS_SD_NA,MPEG_TS_SD_KO">AVC_TS_MP_SD_AC3</MediaFormat>
-      <MediaFormat mime="video/vnd.dlna.mpeg-tts" name="MPEG_TS_SD_EU,MPEG_TS_SD_NA,MPEG_TS_SD_KO">AVC_TS_MP_SD_AC3_T</MediaFormat>
-      <MediaFormat mime="video/vnd.dlna.mpeg-tts" name="MPEG_TS_SD_EU,MPEG_TS_SD_NA,MPEG_TS_SD_KO">AVC_TS_MP_SD_AC3_ISO</MediaFormat>
-      <MediaFormat mime="video/vnd.dlna.mpeg-tts" name="MPEG_TS_SD_EU,MPEG_TS_SD_NA,MPEG_TS_SD_KO">AVC_TS_HP_SD_MPEG1_L2_T</MediaFormat>
-      <MediaFormat mime="video/vnd.dlna.mpeg-tts" name="MPEG_TS_SD_EU,MPEG_TS_SD_NA,MPEG_TS_SD_KO">AVC_TS_HP_SD_MPEG1_L2_ISO</MediaFormat>
-      <MediaFormat mime="video/vnd.dlna.mpeg-tts" name="MPEG_TS_SD_EU,MPEG_TS_SD_NA,MPEG_TS_SD_KO">AVC_TS_MP_HD_AAC_MULT5</MediaFormat>
-      <MediaFormat mime="video/vnd.dlna.mpeg-tts" name="MPEG_TS_SD_EU,MPEG_TS_SD_NA,MPEG_TS_SD_KO">AVC_TS_MP_HD_AAC_MULT5_T</MediaFormat>
-      <MediaFormat mime="video/vnd.dlna.mpeg-tts" name="MPEG_TS_SD_EU,MPEG_TS_SD_NA,MPEG_TS_SD_KO">AVC_TS_MP_HD_AAC_MULT5_ISO</MediaFormat>
-      <MediaFormat mime="video/vnd.dlna.mpeg-tts" name="MPEG_TS_SD_EU,MPEG_TS_SD_NA,MPEG_TS_SD_KO">AVC_TS_MP_HD_MPEG1_L3</MediaFormat>
-      <MediaFormat mime="video/vnd.dlna.mpeg-tts" name="MPEG_TS_SD_EU,MPEG_TS_SD_NA,MPEG_TS_SD_KO">AVC_TS_MP_HD_MPEG1_L3_T</MediaFormat>
-      <MediaFormat mime="video/vnd.dlna.mpeg-tts" name="MPEG_TS_SD_EU,MPEG_TS_SD_NA,MPEG_TS_SD_KO">AVC_TS_MP_HD_MPEG1_L3_ISO</MediaFormat>
-      <MediaFormat mime="video/vnd.dlna.mpeg-tts" name="MPEG_TS_SD_EU,MPEG_TS_SD_NA,MPEG_TS_SD_KO">AVC_TS_MP_HD_AC3</MediaFormat>
-      <MediaFormat mime="video/vnd.dlna.mpeg-tts" name="MPEG_TS_SD_EU,MPEG_TS_SD_NA,MPEG_TS_SD_KO">AVC_TS_MP_HD_AC3_T</MediaFormat>
-      <MediaFormat mime="video/vnd.dlna.mpeg-tts" name="MPEG_TS_SD_EU,MPEG_TS_SD_NA,MPEG_TS_SD_KO">AVC_TS_MP_HD_AC3_ISO</MediaFormat>
-      <MediaFormat mime="video/vnd.dlna.mpeg-tts" name="MPEG_TS_SD_EU,MPEG_TS_SD_NA,MPEG_TS_SD_KO">AVC_TS_HD_DTS_T</MediaFormat>
-      <MediaFormat mime="video/vnd.dlna.mpeg-tts" name="MPEG_TS_SD_EU,MPEG_TS_SD_NA,MPEG_TS_SD_KO">AVC_TS_HD_DTS_ISO</MediaFormat>
-      <MediaFormat mime="video/vnd.dlna.mpeg-tts" name="MPEG_TS_SD_EU,MPEG_TS_SD_NA,MPEG_TS_SD_KO">AVC_TS_HD_50_LPCM_T</MediaFormat>
-      <MediaFormat mime="video/vnd.dlna.mpeg-tts" name="MPEG_TS_SD_EU,MPEG_TS_SD_NA,MPEG_TS_SD_KO">AVC_TS_HP_HD_MPEG1_L2_ISO</MediaFormat>
-      <MediaFormat mime="video/vnd.dlna.mpeg-tts" name="MPEG_TS_SD_EU,MPEG_TS_SD_NA,MPEG_TS_SD_KO">AVC_TS_HP_HD_MPEG1_L2_T</MediaFormat>
-      <MediaFormat mime="video/vnd.dlna.mpeg-tts" name="MPEG_TS_SD_EU,MPEG_TS_SD_NA,MPEG_TS_SD_KO">MPEG4_P2_TS_ASP_AAC</MediaFormat>
-      <MediaFormat mime="video/vnd.dlna.mpeg-tts" name="MPEG_TS_SD_EU,MPEG_TS_SD_NA,MPEG_TS_SD_KO">MPEG4_P2_TS_ASP_AAC_T</MediaFormat>
-      <MediaFormat mime="video/vnd.dlna.mpeg-tts" name="MPEG_TS_SD_EU,MPEG_TS_SD_NA,MPEG_TS_SD_KO">MPEG4_P2_TS_ASP_AAC_ISO</MediaFormat>
-      <MediaFormat mime="video/vnd.dlna.mpeg-tts" name="MPEG_TS_SD_EU,MPEG_TS_SD_NA,MPEG_TS_SD_KO">MPEG4_P2_TS_ASP_AC3</MediaFormat>
-      <MediaFormat mime="video/vnd.dlna.mpeg-tts" name="MPEG_TS_SD_EU,MPEG_TS_SD_NA,MPEG_TS_SD_KO">MPEG4_P2_TS_ASP_AC3_T</MediaFormat>
-      <MediaFormat mime="video/vnd.dlna.mpeg-tts" name="MPEG_TS_SD_EU,MPEG_TS_SD_NA,MPEG_TS_SD_KO">MPEG4_P2_TS_ASP_AC3_ISO</MediaFormat>
-      <MediaFormat mime="video/vnd.dlna.mpeg-tts" name="MPEG_TS_SD_EU,MPEG_TS_SD_NA,MPEG_TS_SD_KO">MPEG4_P2_TS_ASP_MPEG1_L3</MediaFormat>
-      <MediaFormat mime="video/vnd.dlna.mpeg-tts" name="MPEG_TS_SD_EU,MPEG_TS_SD_NA,MPEG_TS_SD_KO">MPEG4_P2_TS_ASP_MPEG1_L3_T</MediaFormat>
-      <MediaFormat mime="video/vnd.dlna.mpeg-tts" name="MPEG_TS_SD_EU,MPEG_TS_SD_NA,MPEG_TS_SD_KO">MPEG4_P2_TS_ASP_MPEG1_L3_ISO</MediaFormat>
-      <MediaFormat mime="video/vnd.dlna.mpeg-tts" name="MPEG_TS_SD_EU,MPEG_TS_SD_NA,MPEG_TS_SD_KO">MPEG4_P2_TS_ASP_MPEG2_L2</MediaFormat>
-      <MediaFormat mime="video/vnd.dlna.mpeg-tts" name="MPEG_TS_SD_EU,MPEG_TS_SD_NA,MPEG_TS_SD_KO">MPEG4_P2_TS_ASP_MPEG2_L2_T</MediaFormat>
-      <MediaFormat mime="video/vnd.dlna.mpeg-tts" name="MPEG_TS_SD_EU,MPEG_TS_SD_NA,MPEG_TS_SD_KO">MPEG4_P2_TS_ASP_MPEG2_L2_ISO</MediaFormat>
-      <MediaFormat mime="video/vnd.dlna.mpeg-tts" name="MPEG_TS_SD_EU,MPEG_TS_SD_NA,MPEG_TS_SD_KO">VC1_TS_AP_L1_AC3_ISO</MediaFormat>
-      <MediaFormat mime="video/vnd.dlna.mpeg-tts" name="MPEG_TS_SD_EU,MPEG_TS_SD_NA,MPEG_TS_SD_KO">VC1_TS_AP_L2_AC3_ISO</MediaFormat>
-      <MediaFormat mime="video/vnd.dlna.mpeg-tts" name="MPEG_TS_SD_EU,MPEG_TS_SD_NA,MPEG_TS_SD_KO">VC1_TS_HD_DTS_T</MediaFormat>
-      <MediaFormat mime="video/vnd.dlna.mpeg-tts" name="MPEG_TS_SD_EU,MPEG_TS_SD_NA,MPEG_TS_SD_KO">VC1_TS_HD_DTS_ISO</MediaFormat>
-    </DLNAMediaFormats>
-    <Detections>
-      <Detection>
-        <UPnPSearch>
-          <Manufacturer>Microsoft SDK Customer</Manufacturer>
-        </UPnPSearch>
-      </Detection>
-    </Detections>
-    <Settings>
-      <Subtitles support="SoftCoded">
-        <Subtitle format="Srt" mime="text/srt" />
-      </Subtitles>
-    </Settings>
-    <MediaTranscoding>
-      <VideoTarget container="Mpeg2Ts" audioCodec="Ac3" audioBitrate="320">
-        <VideoSource container="Matroska" audioCodec="Dts" />
-        <VideoSource container="Matroska" audioCodec="DtsHd" />
-        <VideoSource container="Matroska" audioCodec="Vorbis" />
-        <VideoSource container="Ogg" videoCodec="Mpeg4" />
-        <VideoSource container="Mp4" audioCodec="Lpcm" />
-        <VideoSource container="Rtp" />
-        <VideoSource container="Rtsp" />
-      </VideoTarget>
-      <VideoTarget container="Mpeg2Ts">
-        <VideoSource container="Matroska" videoCodec="H264" />
-        <VideoSource container="Flv" videoCodec="H264" />
-      </VideoTarget>
-      <VideoTarget container="Asf" videoCodec="Wmv" videoMaxBitrate="15360" audioCodec="Wma" forceStereo="true">
-        <VideoSource videoCodec="Mpeg2" />
-        <VideoSource videoCodec="DvVideo" />
-        <VideoSource container="Wtv" />
-        <VideoSource container="Ogg" />
-        <VideoSource container="Flv" />
-        <VideoSource container="RealMedia" />
-      </VideoTarget>
-      <AudioTarget container="Mp3">
-        <AudioSource container="Flac" />
-        <AudioSource container="Ogg" />
-        <AudioSource container="Adts" />
-        <AudioSource container="Mp4" />
-        <AudioSource container="WavPack" />
-        <AudioSource container="MusePack" />
-        <AudioSource container="Ape" />
-        <AudioSource container="Rtp" />
-        <AudioSource container="Rtsp" />
-      </AudioTarget>
     </MediaTranscoding>
   </Profile>
   <Profile id="PanasonicBDT220" name="Panasonic BD player" baseProfile="DLNADefault" active="true">
@@ -1764,6 +1871,8 @@
     </Settings>
     <MediaTranscoding>
       <VideoTarget container="Mpeg2Ts" videoAR="1.777778" videoMaxBitrate="15360">
+        <VideoSource videoCodec="Mpeg2" audioCodec="Ac3" />
+        <VideoSource container="Matroska" videoCodec="H264" audioCodec="Ac3" />
         <VideoSource videoCodec="Mpeg2" audioCodec="Ac3" />
         <VideoSource container="Matroska" videoCodec="H264" audioCodec="Ac3" />
       </VideoTarget>
@@ -1837,6 +1946,9 @@
       <Images autoRotate="true" />
       <Subtitles support="HardCoded" />
     </Settings>
+    <GenericTranscoding>
+      <VideoTarget container="Hls" videoCodec="H264" audioCodec="Aac" />
+    </GenericTranscoding>
     <MediaTranscoding>
       <VideoTarget container="Hls" videoCodec="H264" audioCodec="Aac">
         <VideoSource container="Asf" />
@@ -1921,21 +2033,22 @@
       </Detection>
     </Detections>
     <Settings>
-      <Subtitles support="SoftCoded">
-        <Subtitle format="Srt" mime="text/srt" />
-      </Subtitles>
+      <Subtitles support="HardCoded" />
     </Settings>
+    <GenericTranscoding>
+      <VideoTarget container="Mpeg2Ts" videoCodec="H264" videoMaxBitrate="12000" audioCodec="Ac3" audioBitrate="320" forceTranscoding="true" />
+    </GenericTranscoding>
     <MediaTranscoding>
       <VideoTarget container="Mpeg2Ts" videoCodec="H264" videoMaxBitrate="12000" audioCodec="Ac3" audioBitrate="320" forceTranscoding="true">
         <VideoSource videoCodec="H264" videoProfile="High10" />
         <VideoSource videoCodec="H264" videoProfile="High" videoLevel="4.1" />
         <VideoSource videoCodec="H264" videoProfile="Main" videoLevel="4.1" />
-        <VideoSource container="Rtp" />
-        <VideoSource container="Rtsp" />
       </VideoTarget>
       <VideoTarget container="Mpeg2Ts">
         <VideoSource videoCodec="Mpeg4" audioCodec="Aac" />
         <VideoSource videoCodec="MsMpeg4" audioCodec="Aac" />
+        <VideoSource videoCodec="Mpeg4" audioCodec="Ac3" />
+        <VideoSource videoCodec="MsMpeg4" audioCodec="Ac3" />
         <VideoSource videoCodec="Mpeg4" audioCodec="Ac3" />
         <VideoSource videoCodec="MsMpeg4" audioCodec="Ac3" />
       </VideoTarget>
@@ -1945,7 +2058,9 @@
       </VideoTarget>
       <VideoTarget container="Mpeg2Ts" videoCodec="H264" videoMaxBitrate="12000">
         <VideoSource videoCodec="H264" audioCodec="Ac3" />
+        <VideoSource videoCodec="H264" audioCodec="Ac3" />
         <VideoSource videoCodec="H264" audioCodec="Dts" />
+        <VideoSource videoCodec="Mpeg2" audioCodec="Ac3" />
         <VideoSource videoCodec="Mpeg2" audioCodec="Ac3" />
         <VideoSource videoCodec="Mpeg2" audioCodec="Dts" />
         <VideoSource videoCodec="H264" audioCodec="Aac" />
@@ -1956,6 +2071,125 @@
       <AudioTarget container="Mp3">
         <AudioSource />
       </AudioTarget>
+    </MediaTranscoding>
+  </Profile>
+  <Profile id="Roku4kMPApp" name="Roku 4K Media Player (2016+)" baseProfile="RokuMPApp" active="true">
+    <GenericTranscoding>
+      <VideoTarget container="Mpeg2Ts" videoCodec="H264" audioCodec="Ac3" />
+    </GenericTranscoding>
+    <MediaTranscoding>
+      <VideoTarget container="Mpeg2Ts" videoCodec="H264" audioCodec="Ac3" audioBitrate="512">
+        <VideoSource videoCodec="Vc1" />
+      </VideoTarget>
+      <VideoTarget container="Mpeg2Ts" audioCodec="Ac3" audioBitrate="512">
+        <VideoSource videoCodec="H264" audioCodec="TrueHd" />
+      </VideoTarget>
+      <VideoTarget container="Mpeg2Ts" videoCodec="H264" audioCodec="Ac3">
+        <VideoSource videoCodec="Wmv" />
+        <VideoSource audioCodec="Flac" />
+        <VideoSource videoCodec="Mpeg1" />
+        <VideoSource videoCodec="Mpeg2" />
+        <VideoSource container="Wtv" />
+        <VideoSource container="Avi" />
+        <VideoSource container="Mpeg1" />
+        <VideoSource container="Mpeg2Ps" />
+      </VideoTarget>
+      <VideoTarget container="Mpeg2Ts">
+        <VideoSource videoCodec="Mpeg4" audioCodec="Aac" />
+        <VideoSource videoCodec="MsMpeg4" audioCodec="Aac" />
+      </VideoTarget>
+    </MediaTranscoding>
+  </Profile>
+  <Profile id="RokuNo4kApp" name="Roku 1080 Media Player (2016+)" baseProfile="RokuMPApp" active="true">
+    <GenericTranscoding>
+      <VideoTarget container="Mpeg2Ts" videoCodec="H264" audioCodec="Ac3" />
+    </GenericTranscoding>
+    <MediaTranscoding>
+      <VideoTarget container="Mpeg2Ts" videoCodec="H264" audioCodec="Ac3" audioBitrate="512">
+        <VideoSource videoCodec="Vc1" />
+        <VideoSource videoCodec="H265" />
+      </VideoTarget>
+      <VideoTarget container="Mpeg2Ts" audioCodec="Ac3" audioBitrate="512">
+        <VideoSource videoCodec="H264" audioCodec="TrueHd" />
+      </VideoTarget>
+      <VideoTarget container="Mpeg2Ts" videoCodec="H264" audioCodec="Ac3">
+        <VideoSource videoCodec="Wmv" />
+        <VideoSource audioCodec="Flac" />
+        <VideoSource videoCodec="Mpeg1" />
+        <VideoSource videoCodec="Mpeg2" />
+        <VideoSource container="Wtv" />
+        <VideoSource container="Avi" />
+        <VideoSource container="Mpeg1" />
+        <VideoSource container="Mpeg2Ps" />
+      </VideoTarget>
+      <VideoTarget container="Mpeg2Ts">
+        <VideoSource videoCodec="Mpeg4" audioCodec="Aac" />
+        <VideoSource videoCodec="MsMpeg4" audioCodec="Aac" />
+      </VideoTarget>
+    </MediaTranscoding>
+  </Profile>
+  <Profile id="RokuTV" name="Roku TV (non 4K)" baseProfile="RokuMPApp" active="true">
+    <Detections>
+      <Detection>
+        <HttpSearch>
+          <User-Agent>.*Roku/5000X.*</User-Agent>
+        </HttpSearch>
+      </Detection>
+    </Detections>
+    <GenericTranscoding>
+      <VideoTarget container="Mpeg2Ts" videoCodec="H264" audioCodec="Ac3" audioBitrate="512" />
+    </GenericTranscoding>
+    <MediaTranscoding>
+      <VideoTarget container="Mpeg2Ts" videoCodec="H264" videoMaxBitrate="20000" audioCodec="Ac3" audioBitrate="512" forceTranscoding="true">
+        <VideoSource videoCodec="Vc1" />
+        <VideoSource videoCodec="H265" />
+      </VideoTarget>
+      <VideoTarget container="Mpeg2Ts" videoCodec="H264" videoMaxBitrate="20000" audioCodec="Ac3" audioBitrate="512" forceTranscoding="true">
+        <VideoSource videoCodec="H264" audioCodec="TrueHd" />
+        <VideoSource videoCodec="H264" audioCodec="DtsHd" />
+      </VideoTarget>
+      <VideoTarget container="Mpeg2Ts" videoCodec="H264" audioCodec="Ac3">
+        <VideoSource videoCodec="Wmv" />
+        <VideoSource audioCodec="Flac" />
+        <VideoSource videoCodec="Mpeg1" />
+      </VideoTarget>
+      <VideoTarget container="Mpeg2Ts">
+        <VideoSource container="Wtv" />
+        <VideoSource container="Avi" />
+        <VideoSource container="Mpeg1" />
+        <VideoSource container="Mpeg2Ps" />
+      </VideoTarget>
+    </MediaTranscoding>
+  </Profile>
+  <Profile id="Roku4kTV" name="Roku 4K TV" baseProfile="RokuMPApp" active="true">
+    <Detections>
+      <Detection>
+        <HttpSearch>
+          <User-Agent>.*Roku/6000X.*</User-Agent>
+        </HttpSearch>
+      </Detection>
+    </Detections>
+    <GenericTranscoding>
+      <VideoTarget container="Mpeg2Ts" videoCodec="H264" audioCodec="Ac3" audioBitrate="512" />
+    </GenericTranscoding>
+    <MediaTranscoding>
+      <VideoTarget container="Mpeg2Ts" videoCodec="H264" audioCodec="Ac3" audioBitrate="512">
+        <VideoSource videoCodec="Vc1" />
+      </VideoTarget>
+      <VideoTarget container="Mpeg2Ts" videoCodec="H264" audioCodec="Ac3" audioBitrate="512">
+        <VideoSource videoCodec="H264" audioCodec="TrueHd" />
+        <VideoSource videoCodec="H264" audioCodec="DtsHd" />
+      </VideoTarget>
+      <VideoTarget container="Mpeg2Ts" videoCodec="H264" audioCodec="Ac3">
+        <VideoSource videoCodec="Wmv" />
+        <VideoSource videoCodec="Mpeg1" />
+      </VideoTarget>
+      <VideoTarget container="Mpeg2Ts">
+        <VideoSource container="Wtv" />
+        <VideoSource container="Avi" />
+        <VideoSource container="Mpeg1" />
+        <VideoSource container="Mpeg2Ps" />
+      </VideoTarget>
     </MediaTranscoding>
   </Profile>
   <Profile id="YamahaBD" name="Yamaha BD-A1020/BD-A1010" baseProfile="DLNADefault" active="true">
@@ -1981,6 +2215,8 @@
         <AudioSource container="MusePack" />
         <AudioSource container="Ape" />
         <AudioSource container="Ogg" />
+        <AudioSource container="Dsf" />
+        <AudioSource container="Mp4" />
       </AudioTarget>
     </MediaTranscoding>
   </Profile>
@@ -1996,6 +2232,9 @@
       <Images autoRotate="true" />
       <Subtitles support="HardCoded" />
     </Settings>
+    <GenericTranscoding>
+      <VideoTarget container="Mpeg2Ts" videoCodec="Mpeg2" audioCodec="Aac" />
+    </GenericTranscoding>
     <MediaTranscoding>
       <VideoTarget container="Mpeg2Ts" videoCodec="Mpeg2" audioCodec="Aac">
         <VideoSource container="Matroska" />
@@ -2010,6 +2249,7 @@
         <VideoSource videoCodec="Theora" />
         <VideoSource videoCodec="Real" />
         <VideoSource audioCodec="Ac3" />
+        <VideoSource audioCodec="Ac3" />
         <VideoSource audioCodec="Wma" />
         <VideoSource audioCodec="WmaPro" />
         <VideoSource audioCodec="Flac" />
@@ -2020,19 +2260,18 @@
         <VideoSource audioCodec="Dts" />
         <VideoSource audioCodec="DtsHd" />
         <VideoSource videoCodec="H264" videoLevel="4.1" />
-        <VideoSource container="Rtp" />
-        <VideoSource container="Rtsp" />
       </VideoTarget>
       <AudioTarget container="Mp3" audioBitrate="320">
         <AudioSource container="Flac" />
         <AudioSource container="Ogg" />
         <AudioSource container="Adts" />
-        <AudioSource container="Mp2" />
+        <AudioSource container="Mp3" />
         <AudioSource container="WavPack" />
         <AudioSource container="MusePack" />
         <AudioSource container="Ape" />
-        <AudioSource container="Rtp" />
-        <AudioSource container="Rtsp" />
+        <AudioSource container="Dsf" />
+        <AudioSource container="Wav" />
+        <AudioSource container="Mp4" />
       </AudioTarget>
     </MediaTranscoding>
   </Profile>
@@ -2048,6 +2287,9 @@
       <Thumbnails maxWidth="320" maxHeight="320" />
       <Subtitles support="HardCoded" />
     </Settings>
+    <GenericTranscoding>
+      <VideoTarget container="Mpeg2Ts" videoCodec="Mpeg2" audioCodec="Ac3" />
+    </GenericTranscoding>
     <MediaTranscoding>
       <VideoTarget container="Mpeg2Ts" audioCodec="Ac3">
         <VideoSource videoCodec="H264" audioCodec="Dts" />
@@ -2057,8 +2299,6 @@
         <VideoSource videoCodec="H264" audioCodec="Flac" />
         <VideoSource container="Gp3" videoCodec="Mpeg4" audioCodec="Amr" />
         <VideoSource container="Flv" videoCodec="H264" />
-        <VideoSource container="Rtp" />
-        <VideoSource container="Rtsp" />
       </VideoTarget>
       <VideoTarget container="Mpeg2Ts">
         <VideoSource container="Matroska" videoCodec="Vc1" />
@@ -2084,136 +2324,122 @@
         <AudioSource container="MusePack" />
         <AudioSource container="Ogg" />
         <AudioSource container="WavPack" />
-        <AudioSource container="Rtp" />
-        <AudioSource container="Rtsp" />
-      </AudioTarget>
-    </MediaTranscoding>
-  </Profile>
-  <Profile id="MobileVlc" name="Mobile VLC" baseProfile="DLNADefault" active="true">
-    <Detections>
-      <Detection>
-        <HttpSearch>
-          <User-Agent>.*LibVLC*</User-Agent>
-        </HttpSearch>
-      </Detection>
-    </Detections>
-    <Settings>
-      <Subtitles support="SoftCoded">
-        <Subtitle format="Srt" mime="text/srt" />
-      </Subtitles>
-    </Settings>
-    <MediaTranscoding>
-      <VideoTarget container="Mpeg2Ts" audioCodec="Mp3">
-        <VideoSource container="Rtp" />
-        <VideoSource container="Rtsp" />
-      </VideoTarget>
-      <VideoTarget audioCodec="Mp3">
-        <VideoSource audioCodec="Dts" />
-        <VideoSource audioCodec="DtsHd" />
-        <VideoSource audioCodec="Ac3" />
-      </VideoTarget>
-      <AudioTarget container="Mp3">
-        <AudioSource container="Lpcm" />
-        <AudioSource container="Rtp" />
-        <AudioSource container="Rtsp" />
-        <AudioSource container="WavPack" />
-        <AudioSource container="MusePack" />
-        <AudioSource container="Ape" />
-      </AudioTarget>
-    </MediaTranscoding>
-  </Profile>
-  <Profile id="8player" name="8player" baseProfile="DLNADefault" active="true">
-    <Detections>
-      <Detection>
-        <HttpSearch>
-          <User-Agent>.*8player*</User-Agent>
-        </HttpSearch>
-      </Detection>
-    </Detections>
-    <Settings>
-      <Subtitles support="SoftCoded">
-        <Subtitle format="Srt" mime="text/srt" />
-      </Subtitles>
-    </Settings>
-    <MediaTranscoding>
-      <VideoTarget container="Mpeg2Ts" audioCodec="Mp3">
-        <VideoSource container="Rtp" />
-        <VideoSource container="Rtsp" />
-      </VideoTarget>
-      <VideoTarget audioCodec="Mp3">
-        <VideoSource audioCodec="Dts" />
-        <VideoSource audioCodec="DtsHd" />
-        <VideoSource audioCodec="Ac3" />
-      </VideoTarget>
-      <AudioTarget container="Mp3">
-        <AudioSource container="Lpcm" />
-        <AudioSource container="Rtp" />
-        <AudioSource container="Rtsp" />
-        <AudioSource container="WavPack" />
-        <AudioSource container="MusePack" />
-        <AudioSource container="Ape" />
-      </AudioTarget>
-    </MediaTranscoding>
-  </Profile>
-<Profile id="WMP" name="Windows Media Player" baseProfile="DLNADefault" active="true">
-    <DLNAMediaFormats>
-      <MediaFormat mime="video/avi">AVI</MediaFormat>
-      <MediaFormat mime="video/x-ms-wmv">VC1_ASF_AP_L1_WMA</MediaFormat>
-      <MediaFormat mime="video/x-ms-wmv">VC1_ASF_AP_L2_WMA</MediaFormat>
-      <MediaFormat mime="video/x-ms-wmv">VC1_ASF_AP_L3_WMA</MediaFormat>
-    </DLNAMediaFormats>
-    <DLNAProtocolInfo>Simple</DLNAProtocolInfo>
-    <DirectoryContentFilter>WMPContentFilter</DirectoryContentFilter>
-    <UPNPDeviceDescription>
-      <FriendlyName>MediaPortal ({computerName}): 1</FriendlyName>
-      <ModelName>Windows Media Player Sharing</ModelName>
-      <ModelNumber>12.0</ModelNumber>
-    </UPNPDeviceDescription>
-    <Detections>
-      <Detection>
-        <UPnPSearch>
-          <ModelName>Windows Media Player</ModelName>
-          <Manufacturer>Microsoft Corporation</Manufacturer>
-        </UPnPSearch>
-      </Detection>
-    </Detections>
-    <Settings>
-      <Thumbnails maxWidth="320" maxHeight="320" />
-      <Subtitles support="HardCoded" />
-    </Settings>
-    <MediaTranscoding>
-      <VideoTarget container="Asf" videoCodec="Wmv" videoMaxBitrate="15360" audioCodec="Wma" forceStereo="true">
-        <VideoSource container="Matroska" />
-        <VideoSource container="Mpeg2Ps" />
-        <VideoSource container="Mpeg2Ts" />
-        <VideoSource container="Mpeg1" />
-        <VideoSource container="Avi" videoCodec="H264" />
-        <VideoSource container="Avi" videoCodec="MsMpeg4" />
-        <VideoSource container="Avi" videoCodec="Wmv" />
-        <VideoSource container="Avi" videoCodec="DvVideo" />
-        <VideoSource container="Mp4" videoCodec="DvVideo" />
-        <VideoSource container="Mp4" videoCodec="H265" />
-        <VideoSource container="Wtv" />
-        <VideoSource container="Ogg" />
-        <VideoSource container="Gp3" />
-        <VideoSource container="Flv" />
-        <VideoSource container="RealMedia" />
-        <VideoSource container="Mp4" videoCodec="H264" audioCodec="Aac" />
-        <VideoSource container="Rtp" />
-        <VideoSource container="Rtsp" />
-      </VideoTarget>
-      <AudioTarget container="Mp3">
-        <AudioSource container="Flac" />
-        <AudioSource container="Ogg" />
-        <AudioSource container="Adts" />
+        <AudioSource container="Dsf" />
+        <AudioSource container="Asf" />
         <AudioSource container="Mp4" />
-        <AudioSource container="Mp2" />
-        <AudioSource container="WavPack" />
-        <AudioSource container="MusePack" />
-        <AudioSource container="Ape" />
-        <AudioSource container="Rtp" />
-        <AudioSource container="Rtsp" />
       </AudioTarget>
+    </MediaTranscoding>
+  </Profile>
+      <Profile id="MobileVlc" name="Mobile VLC" baseProfile="DLNADefault" active="true">
+        <Detections>
+          <Detection>
+            <HttpSearch>
+              <User-Agent>.*LibVLC*</User-Agent>
+            </HttpSearch>
+          </Detection>
+        </Detections>
+        <Settings>
+          <Subtitles support="SoftCoded">
+            <Subtitle format="Srt" mime="text/srt" />
+          </Subtitles>
+        </Settings>
+        <MediaTranscoding>
+          <VideoTarget audioCodec="Mp3">
+            <VideoSource audioCodec="Dts" />
+            <VideoSource audioCodec="DtsHd" />
+            <VideoSource audioCodec="Ac3" />
+          </VideoTarget>
+          <AudioTarget container="Mp3">
+            <AudioSource container="Lpcm" />
+            <AudioSource container="WavPack" />
+            <AudioSource container="MusePack" />
+            <AudioSource container="Ape" />
+          </AudioTarget>
+        </MediaTranscoding>
+      </Profile>
+      <Profile id="8player" name="8player" baseProfile="DLNADefault" active="true">
+        <Detections>
+          <Detection>
+            <HttpSearch>
+              <User-Agent>.*8player*</User-Agent>
+            </HttpSearch>
+          </Detection>
+        </Detections>
+        <Settings>
+          <Subtitles support="SoftCoded">
+            <Subtitle format="Srt" mime="text/srt" />
+          </Subtitles>
+        </Settings>
+        <MediaTranscoding>
+          <VideoTarget audioCodec="Mp3">
+            <VideoSource audioCodec="Dts" />
+            <VideoSource audioCodec="DtsHd" />
+            <VideoSource audioCodec="Ac3" />
+          </VideoTarget>
+          <AudioTarget container="Mp3">
+            <AudioSource container="Lpcm" />
+            <AudioSource container="WavPack" />
+            <AudioSource container="MusePack" />
+            <AudioSource container="Ape" />
+          </AudioTarget>
+        </MediaTranscoding>
+      </Profile>
+      <Profile id="WMP" name="Windows Media Player" baseProfile="DLNADefault" active="true">
+        <DLNAMediaFormats>
+          <MediaFormat mime="video/avi">AVI</MediaFormat>
+          <MediaFormat mime="video/x-ms-wmv">VC1_ASF_AP_L1_WMA</MediaFormat>
+          <MediaFormat mime="video/x-ms-wmv">VC1_ASF_AP_L2_WMA</MediaFormat>
+          <MediaFormat mime="video/x-ms-wmv">VC1_ASF_AP_L3_WMA</MediaFormat>
+        </DLNAMediaFormats>
+        <DLNAProtocolInfo>Simple</DLNAProtocolInfo>
+        <DirectoryContentFilter>WMPContentFilter</DirectoryContentFilter>
+        <UPNPDeviceDescription>
+          <FriendlyName>MediaPortal ({computerName}): 1</FriendlyName>
+          <ModelName>Windows Media Player Sharing</ModelName>
+          <ModelNumber>12.0</ModelNumber>
+        </UPNPDeviceDescription>
+        <Detections>
+          <Detection>
+            <UPnPSearch>
+              <ModelName>Windows Media Player</ModelName>
+              <Manufacturer>Microsoft Corporation</Manufacturer>
+            </UPnPSearch>
+          </Detection>
+        </Detections>
+        <Settings>
+          <Thumbnails maxWidth="320" maxHeight="320" />
+          <Subtitles support="HardCoded" />
+        </Settings>
+        <MediaTranscoding>
+          <VideoTarget container="Asf" videoCodec="Wmv" videoMaxBitrate="15360" audioCodec="Wma" forceStereo="true">
+            <VideoSource container="Matroska" />
+            <VideoSource container="Mpeg2Ps" />
+            <VideoSource container="Mpeg2Ts" />
+            <VideoSource container="Mpeg1" />
+            <VideoSource container="Avi" videoCodec="H264" />
+            <VideoSource container="Avi" videoCodec="MsMpeg4" />
+            <VideoSource container="Avi" videoCodec="Wmv" />
+            <VideoSource container="Avi" videoCodec="DvVideo" />
+            <VideoSource container="Mp4" videoCodec="DvVideo" />
+            <VideoSource container="Mp4" videoCodec="H265" />
+            <VideoSource container="Wtv" />
+            <VideoSource container="Ogg" />
+            <VideoSource container="Gp3" />
+            <VideoSource container="Flv" />
+            <VideoSource container="RealMedia" />
+            <VideoSource container="Mp4" videoCodec="H264" audioCodec="Aac" />
+          </VideoTarget>
+          <AudioTarget container="Mp3">
+            <AudioSource container="Flac" />
+            <AudioSource container="Ogg" />
+            <AudioSource container="Adts" />
+            <AudioSource container="Mp4" />
+            <AudioSource container="Mp2" />
+            <AudioSource container="WavPack" />
+            <AudioSource container="MusePack" />
+            <AudioSource container="Ape" />
+          </AudioTarget>
+        </MediaTranscoding>
     </MediaTranscoding>
   </Profile>
 </Profiles>
