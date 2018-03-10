@@ -295,6 +295,7 @@
     <Compile Include="MpfElements\Converters\CommaSeparatedValuesConverter.cs" />
     <Compile Include="MpfElements\Converters\AbstractSingleDirectionConverter.cs" />
     <Compile Include="MpfElements\Converters\BoolToFocusPriorityConverter.cs" />
+    <Compile Include="MpfElements\Converters\GenreNameConverter.cs" />
     <Compile Include="MpfElements\Converters\EmptyString2FalseConverter.cs" />
     <Compile Include="MpfElements\Converters\DateFormatConverter.cs" />
     <Compile Include="MpfElements\Converters\ExpressionMultiValueConverter.cs" />
