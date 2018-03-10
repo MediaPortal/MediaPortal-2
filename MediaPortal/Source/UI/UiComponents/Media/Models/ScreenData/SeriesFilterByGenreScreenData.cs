@@ -24,14 +24,13 @@
 
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.UiComponents.Media.FilterCriteria;
-using MediaPortal.UiComponents.Media.FilterTrees;
 using MediaPortal.UiComponents.Media.General;
 using MediaPortal.UiComponents.Media.Models.Navigation;
 using System.Linq;
 
 namespace MediaPortal.UiComponents.Media.Models.ScreenData
 {
-  public class SeriesFilterByGenreScreenData : AbstractSeriesFilterScreenData<SeriesGenreFilterItem>
+  public class SeriesFilterByGenreScreenData : AbstractSeriesGenreFilterScreenData<SeriesGenreFilterItem>
   {
     public SeriesFilterByGenreScreenData() :
         base(Consts.SCREEN_SERIES_FILTER_BY_GENRE, Consts.RES_COMMON_BY_GENRE_MENU_ITEM,

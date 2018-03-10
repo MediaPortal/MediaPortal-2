@@ -40,6 +40,9 @@ using MediaPortal.Utilities;
 using MediaPortal.Common.Messaging;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.UiComponents.Media.FilterTrees;
+using MediaPortal.Common.Services.GenreConverter;
+using MediaPortal.UiComponents.Media.Settings;
+using MediaPortal.Common.Settings;
 
 namespace MediaPortal.UiComponents.Media.Models.ScreenData
 {
@@ -219,6 +222,7 @@ namespace MediaPortal.UiComponents.Media.Models.ScreenData
             fv = await _filterCriterion.GetAvailableValuesAsync(necessaryMIAs, _clusterFilter, filter);
             grouping = false;
           }
+          fv = ProcessFilterValues(fv);
           if (fv.Count > Consts.MAX_NUM_ITEMS_VISIBLE)
             Display_TooManyItems(fv.Count);
           else
@@ -291,6 +295,11 @@ namespace MediaPortal.UiComponents.Media.Models.ScreenData
         lock (_syncObj)
           _buildingList = false;
       }
+    }
+
+    protected virtual ICollection<FilterValue> ProcessFilterValues(ICollection<FilterValue> filterValues)
+    {
+      return filterValues;
     }
 
     protected void SortFilterValuesList()
@@ -374,6 +383,38 @@ namespace MediaPortal.UiComponents.Media.Models.ScreenData
     protected void NavigateToSubView(ViewSpecification subViewSpecification)
     {
       _navigationData.StackAutonomousNavigationContext(subViewSpecification, MenuItemLabel, GetNavbarDisplayLabel(subViewSpecification));
+    }
+
+    protected ICollection<FilterValue> GetProcessedGenreFilterValues(ICollection<FilterValue> filterValues, string genreCategory)
+    {
+      if (string.IsNullOrEmpty(genreCategory))
+        return filterValues;
+
+      ViewSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<ViewSettings>();
+      if (!settings.UseLocalizedGenres)
+        return filterValues;
+
+      IGenreConverter converter = ServiceRegistration.Get<IGenreConverter>();
+      Dictionary<string, FilterValue> genredFilters = new Dictionary<string, FilterValue>();
+      List<FilterValue> ungenredFilters = new List<FilterValue>();
+      foreach (var filterValue in filterValues)
+      {
+        if (string.IsNullOrEmpty(filterValue.Id))
+        {
+          ungenredFilters.Add(filterValue);
+        }
+        else if (!genredFilters.ContainsKey(filterValue.Id))
+        {
+          if (converter.GetGenreName(Convert.ToInt32(filterValue.Id), genreCategory, null, out string genreName))
+            filterValue.ChangeTitle(genreName);
+          genredFilters.Add(filterValue.Id, filterValue);
+        }
+        else
+        {
+          genredFilters[filterValue.Id].MergeFilters(filterValue);
+        }
+      }
+      return genredFilters.Values.Union(ungenredFilters).ToList();
     }
   }
 }

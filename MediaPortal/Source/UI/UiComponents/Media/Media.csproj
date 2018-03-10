@@ -272,6 +272,9 @@
     <Compile Include="Models\MediaItemsActionModel.cs" />
     <Compile Include="Models\ScreenData\AbstractAlbumFilterScreenData.cs" />
     <Compile Include="Models\ScreenData\AbstractBrowseMediaNavigationScreenData.cs" />
+    <Compile Include="Models\ScreenData\AbstractAudioGenreFilterScreenData.cs" />
+    <Compile Include="Models\ScreenData\AbstractSeriesGenreFilterScreenData.cs" />
+    <Compile Include="Models\ScreenData\AbstractMovieGenreFilterScreenData.cs" />
     <Compile Include="Models\ScreenData\AbstractSeriesFilterScreenData.cs" />
     <Compile Include="Models\ScreenData\AbstractMovieFilterScreenData.cs" />
     <Compile Include="Models\ScreenData\MovieFilterByCertificationScreenData.cs" />

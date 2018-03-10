@@ -3699,10 +3699,13 @@
       <Label HorizontalAlignment="Center" VerticalAlignment="Bottom" Margin="5,7,5,3" Color="{ThemeResource TextColor}" Height="35"
              TextTrimming="CharacterEllipsis" Content="{Binding SimpleTitle}" FontSize="{ThemeResource SmallerFontSize}"
              IsVisible="{Binding Path=!Id,Converter={StaticResource EmptyStringToFalseConverter}}"/>
-      
+
       <Label x:Name="ItemLabel" HorizontalAlignment="Center" VerticalAlignment="Bottom" Margin="5,7,5,3" Color="{ThemeResource TextColor}" Height="35"
              TextTrimming="CharacterEllipsis" FontSize="{ThemeResource SmallerFontSize}"
-             Content="{Binding Path=GenreID, Converter={StaticResource GenreNameConverter}, ConverterParameter=Movie}">
+             Content="{Binding Path=SimpleTitle}">
+        <!--<Label x:Name="ItemLabel" HorizontalAlignment="Center" VerticalAlignment="Bottom" Margin="5,7,5,3" Color="{ThemeResource TextColor}" Height="35"
+             TextTrimming="CharacterEllipsis" FontSize="{ThemeResource SmallerFontSize}"
+             Content="{Binding Path=Id, Converter={StaticResource GenreNameConverter}, ConverterParameter=Movie}">-->
         <!--Label.Resources>
           <ResourceWrapper x:Key="Action_String" Resource="[Genre.Action]"/>
           <ResourceWrapper x:Key="Adventure_String" Resource="[Genre.Adventure]"/>

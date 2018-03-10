@@ -93,5 +93,11 @@ namespace MediaPortal.UiComponents.Media.Settings
     /// </summary>
     [Setting(SettingScope.User, DefaultValue = false)]
     public bool ShowVirtualAudioMedia { get; set; }
+
+    /// <summary>
+    /// Default setting for showing genre names localized.
+    /// </summary>
+    [Setting(SettingScope.User, DefaultValue = true)]
+    public bool UseLocalizedGenres { get; set; }
   }
 }

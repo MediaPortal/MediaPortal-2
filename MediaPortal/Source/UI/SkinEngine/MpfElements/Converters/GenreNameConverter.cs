@@ -44,7 +44,7 @@ namespace MediaPortal.UI.SkinEngine.MpfElements.Converters
         return false;
 
       string genreCategory = parameter as string;
-      if (val is int genreId && genreCategory != null)
+      if (int.TryParse(val.ToString(), out int genreId) && genreCategory != null)
       {
         IGenreConverter converter = ServiceRegistration.Get<IGenreConverter>();
         if(converter.GetGenreName(genreId, genreCategory, culture.Name, out string genreName))
