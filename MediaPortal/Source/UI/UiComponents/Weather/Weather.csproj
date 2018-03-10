@@ -65,7 +65,7 @@
       <Link>Properties\VersionInfo.cs</Link>
     </Compile>
     <Compile Include="Grabbers\OpenWeatherMap.cs" />
-    <Compile Include="Grabbers\WorldWeatherOnlineCatcher.cs" />
+    <Compile Include="Grabbers\SynchronizationContextRemover.cs" />
     <Compile Include="Models\CurrentWeatherModel.cs" />
     <Compile Include="Models\WeatherModel.cs" />
   </ItemGroup>

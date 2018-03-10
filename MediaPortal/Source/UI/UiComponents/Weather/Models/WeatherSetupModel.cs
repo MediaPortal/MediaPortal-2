@@ -27,6 +27,7 @@ using System.Collections.Generic;
 using System.Device.Location;
 using System.Globalization;
 using System.Linq;
+using System.Threading.Tasks;
 using MediaPortal.Common;
 using MediaPortal.Common.General;
 using MediaPortal.Common.Settings;
@@ -85,9 +86,10 @@ namespace MediaPortal.UiComponents.Weather.Models
     /// Search for a location name and fill up the _locationsSearch list.
     /// </summary>
     /// <param name="name"></param>
-    public void SearchLocations(string name)
+    public async Task SearchLocations(string name)
     {
-      LocationsSearch = ServiceRegistration.Get<IWeatherCatcher>().FindLocationsByName(name);
+      var citySetupInfos = await ServiceRegistration.Get<IWeatherCatcher>().FindLocationsByName(name).ConfigureAwait(false);
+      LocationsSearch = citySetupInfos;
     }
 
     /// <summary>
@@ -148,16 +150,16 @@ namespace MediaPortal.UiComponents.Weather.Models
       }
     }
 
-    public void Detect()
+    public async Task Detect()
     {
       GeoCoordinate coordinates;
       CivicAddress address;
 
       if (GeoLocationService.Instance.TryLookup(out coordinates, out address))
       {
-        SearchLocations(String.Format("{0}, {1}",
+        await SearchLocations(String.Format("{0}, {1}",
                                       coordinates.Latitude.ToString(CultureInfo.InvariantCulture),
-                                      coordinates.Longitude.ToString(CultureInfo.InvariantCulture)));
+                                      coordinates.Longitude.ToString(CultureInfo.InvariantCulture))).ConfigureAwait(false);
 
         ServiceRegistration.Get<IScreenManager>().ShowDialog("dialogWeatherSearchResult");
       }
