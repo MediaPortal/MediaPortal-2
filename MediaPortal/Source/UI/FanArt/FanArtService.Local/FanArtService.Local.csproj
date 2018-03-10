@@ -44,7 +44,6 @@
       <Link>Properties\VersionInfo.cs</Link>
     </Compile>
     <Compile Include="LocalContainerFanartProvider.cs" />
-    <Compile Include="LocalFanartHelper.cs" />
     <Compile Include="LocalMovieActorFanartProvider.cs" />
     <Compile Include="LocalSeriesActorFanartProvider.cs" />
     <Compile Include="LocalMovieCollectionFanartProvider.cs" />

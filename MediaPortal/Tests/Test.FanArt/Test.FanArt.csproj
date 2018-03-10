@@ -4,11 +4,11 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{D88FE0C5-43D2-4138-9E80-5264E558A279}</ProjectGuid>
+    <ProjectGuid>{720F1FEA-5B1F-4713-BC72-F045FABEF214}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Test.Utilities</RootNamespace>
-    <AssemblyName>Test.Utilities</AssemblyName>
+    <RootNamespace>Test.FanArt</RootNamespace>
+    <AssemblyName>Test.FanArt</AssemblyName>
     <TargetFrameworkVersion>v4.7</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <TargetFrameworkProfile />
@@ -34,6 +34,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
+    <Reference Include="System.Configuration" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
@@ -43,16 +44,50 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="TestTimeoutCache.cs" />
+    <Compile Include="FanArtHandlersForTests\VideoFanArtHandlerForTests.cs" />
+    <Compile Include="FanArtHandlersForTests\MovieFanArtHandlerForTests.cs" />
+    <Compile Include="FanArtHandlersForTests\BaseFanArtHandlerForTests.cs" />
+    <Compile Include="MockFanArtAccess\MockFanArtCache.cs" />
+    <Compile Include="FanArtHandlersForTests\SeriesFanArtHandlerForTests.cs" />
+    <Compile Include="FanArtHandlersForTests\AudioFanArtHandlerForTests.cs" />
+    <Compile Include="MockFanArtAccess\MockResourceAccess.cs" />
+    <Compile Include="TestBaseFanArt.cs" />
+    <Compile Include="TestLocalVideoFanArt.cs" />
+    <Compile Include="TestLocalMovieFanArt.cs" />
+    <Compile Include="TestLocalSeriesFanArt.cs" />
+    <Compile Include="TestLocalAudioFanArt.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\Source\Core\MediaPortal.Common\MediaPortal.Common.csproj">
+      <Project>{ecf060e7-caa1-4466-851f-f80b857641ea}</Project>
+      <Name>MediaPortal.Common</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\Source\Core\MediaPortal.Utilities\MediaPortal.Utilities.csproj">
-      <Project>{4fe7b8ae-1330-424a-91a1-c68d7abf9cb8}</Project>
+      <Project>{4FE7B8AE-1330-424A-91A1-C68D7ABF9CB8}</Project>
       <Name>MediaPortal.Utilities</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\Source\Extensions\MetadataExtractors\AudioMetadataExtractor\AudioMetadataExtractor.csproj">
+      <Project>{11fd64f0-97c0-40b5-8aaa-1e56255d3ef7}</Project>
+      <Name>AudioMetadataExtractor</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\Source\Extensions\MetadataExtractors\MovieMetadataExtractor\MovieMetadataExtractor.csproj">
+      <Project>{e73c038e-fd47-40ad-9256-4457316f8a97}</Project>
+      <Name>MovieMetadataExtractor</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\Source\Extensions\MetadataExtractors\SeriesMetadataExtractor\SeriesMetadataExtractor.csproj">
+      <Project>{ddd5112c-87ce-4228-9ee4-f78bdba8da12}</Project>
+      <Name>SeriesMetadataExtractor</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\Source\Extensions\MetadataExtractors\VideoMetadataExtractor\VideoMetadataExtractor.csproj">
+      <Project>{000c12a6-9734-4acb-99e9-d3f726c5858f}</Project>
+      <Name>VideoMetadataExtractor</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <PackageReference Include="Moq">
+      <Version>4.5.28</Version>
+    </PackageReference>
     <PackageReference Include="NUnit">
       <Version>3.9.0</Version>
     </PackageReference>

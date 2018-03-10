@@ -63,9 +63,12 @@
     <Compile Include="Certifications\CertificationMapper.cs" />
     <Compile Include="Certifications\CetificationMapping.cs" />
     <Compile Include="Exceptions\LauncherExceptionHandling.cs" />
+    <Compile Include="FanArt\BaseFanArtHandler.cs" />
     <Compile Include="FanArt\FanArtCache.cs" />
     <Compile Include="FanArt\FanArtConstants.cs" />
+    <Compile Include="FanArt\FanArtPathCollection.cs" />
     <Compile Include="FanArt\FanArtSettings.cs" />
+    <Compile Include="FanArt\LocalFanartHelper.cs" />
     <Compile Include="FanArt\IFanArtCache.cs" />
     <Compile Include="Genres\GenreMapper.cs" />
     <Compile Include="Genres\SeriesGenre.cs" />

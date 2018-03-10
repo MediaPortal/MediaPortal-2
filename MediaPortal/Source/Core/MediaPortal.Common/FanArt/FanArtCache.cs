@@ -117,6 +117,40 @@ namespace MediaPortal.Common.FanArt
       return false;
     }
 
+    public async Task<bool> TrySaveFanArt<T>(Guid mediaItemId, string title, string fanArtType, ICollection<T> files, TrySaveMultipleFanArtAsyncDelegate<T> saveDlgt)
+    {
+      if (files == null || files.Count == 0)
+        return false;
+
+      string fanArtCacheDirectory = GetFanArtDirectory(mediaItemId);
+      string fanArtTypeSubDirectory = GetFanArtTypeDirectory(fanArtCacheDirectory, fanArtType);
+
+      bool result = false;
+
+      using (var writer = await _fanArtSync.WriterLockAsync(mediaItemId).ConfigureAwait(false))
+      {
+        if (!await InitCache(fanArtCacheDirectory, fanArtTypeSubDirectory, title).ConfigureAwait(false))
+          return result;
+
+        int maxCount = GetMaxFanArtCount(fanArtType);
+        FanArtCount currentCount = await _fanArtCounts.GetValue(CreateFanArtTypeId(mediaItemId, fanArtType), _ => CreateFanArtCount(mediaItemId, fanArtType)).ConfigureAwait(false);
+        if (currentCount.Count >= maxCount)
+          return result;
+
+        foreach (T file in files)
+        {
+          if (await saveDlgt(fanArtTypeSubDirectory, file).ConfigureAwait(false))
+          {
+            result = true;
+            currentCount.Count++;
+            if (currentCount.Count >= maxCount)
+              break;
+          }
+        }
+      }
+      return result;
+    }
+
     public IList<string> GetFanArtFiles(Guid mediaItemId, string fanArtType)
     {
       string fanArtId = CreateFanArtId(mediaItemId);
