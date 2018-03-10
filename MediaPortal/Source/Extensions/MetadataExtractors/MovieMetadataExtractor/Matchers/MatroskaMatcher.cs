@@ -22,11 +22,12 @@
 
 #endregion
 
-using MediaPortal.Common.Genres;
+using MediaPortal.Common;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Common.MediaManagement.Helpers;
 using MediaPortal.Common.ResourceAccess;
+using MediaPortal.Common.Services.GenreConverter;
 using MediaPortal.Extensions.MetadataExtractors.MatroskaLib;
 using MediaPortal.Utilities;
 using System.Collections.Generic;
@@ -113,7 +114,12 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor.Match
       if (tags != null)
       {
         List<GenreInfo> genreList = tags.Select(s => new GenreInfo { Name = s }).ToList();
-        GenreMapper.AssignMissingMovieGenreIds(genreList);
+        IGenreConverter converter = ServiceRegistration.Get<IGenreConverter>();
+        foreach (var genre in genreList)
+        {
+          if (!genre.Id.HasValue && converter.GetGenreId(genre.Name, GenreCategory.Movie, null, out int genreId))
+            genre.Id = genreId;
+        }
         movieInfo.HasChanged |= MetadataUpdater.SetOrUpdateList(movieInfo.Genres, genreList, movieInfo.Genres.Count == 0);
       }
 

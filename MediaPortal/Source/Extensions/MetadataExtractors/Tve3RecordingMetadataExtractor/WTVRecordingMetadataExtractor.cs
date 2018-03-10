@@ -24,12 +24,12 @@
 
 using MCEBuddy.MetaData;
 using MediaPortal.Common;
-using MediaPortal.Common.Genres;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Common.MediaManagement.Helpers;
 using MediaPortal.Common.ResourceAccess;
+using MediaPortal.Common.Services.GenreConverter;
 using MediaPortal.Extensions.MetadataExtractors.Aspects;
 using MediaPortal.Extensions.OnlineLibraries;
 using MediaPortal.Utilities;
@@ -93,7 +93,12 @@ namespace MediaPortal.Extensions.MetadataExtractors
       if (TryGet(metadata, TAG_GENRE, out tmpString))
       {
         episodeInfo.Genres = new List<GenreInfo>(tmpString.Split(new[] { ";" }, StringSplitOptions.RemoveEmptyEntries).Select(s => new GenreInfo { Name = s }));
-        GenreMapper.AssignMissingSeriesGenreIds(episodeInfo.Genres);
+        IGenreConverter converter = ServiceRegistration.Get<IGenreConverter>();
+        foreach (var genre in episodeInfo.Genres)
+        {
+          if (!genre.Id.HasValue && converter.GetGenreId(genre.Name, GenreCategory.Series, null, out int genreId))
+            genre.Id = genreId;
+        }
       }
 
       episodeInfo.HasChanged = true;
@@ -270,7 +275,12 @@ namespace MediaPortal.Extensions.MetadataExtractors
         if (TryGet(tags, TAG_GENRE, out value))
         {
           List<GenreInfo> genreList = new List<GenreInfo>(value.Split(new[] { ";" }, StringSplitOptions.RemoveEmptyEntries).Select(s => new GenreInfo { Name = s }));
-          GenreMapper.AssignMissingMovieGenreIds(genreList);
+          IGenreConverter converter = ServiceRegistration.Get<IGenreConverter>();
+          foreach (var genre in genreList)
+          {
+            if (!genre.Id.HasValue && converter.GetGenreId(genre.Name, GenreCategory.Movie, null, out int genreId))
+              genre.Id = genreId;
+          }
           foreach (GenreInfo genre in genreList)
           {
             MultipleMediaItemAspect genreAspect = MediaItemAspect.CreateAspect(extractedAspectData, GenreAspect.Metadata);

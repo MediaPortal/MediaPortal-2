@@ -23,12 +23,12 @@
 #endregion
 
 using MediaPortal.Common;
-using MediaPortal.Common.Genres;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Common.MediaManagement.Helpers;
 using MediaPortal.Common.ResourceAccess;
+using MediaPortal.Common.Services.GenreConverter;
 using MediaPortal.Extensions.MetadataExtractors.Aspects;
 using MediaPortal.Extensions.OnlineLibraries;
 using MediaPortal.Utilities;
@@ -208,7 +208,12 @@ namespace MediaPortal.Extensions.MetadataExtractors
       if (!string.IsNullOrEmpty(recording.Category))
       {
         episodeInfo.Genres.Add(new GenreInfo { Name = recording.Category });
-        GenreMapper.AssignMissingSeriesGenreIds(episodeInfo.Genres);
+        IGenreConverter converter = ServiceRegistration.Get<IGenreConverter>();
+        foreach (var genre in episodeInfo.Genres)
+        {
+          if (!genre.Id.HasValue && converter.GetGenreId(genre.Name, GenreCategory.Series, null, out int genreId))
+            genre.Id = genreId;
+        }
       }
 
       episodeInfo.HasChanged = true;
@@ -254,8 +259,12 @@ namespace MediaPortal.Extensions.MetadataExtractors
         if (!string.IsNullOrEmpty(recording.Category))
         {
           List<GenreInfo> genreList = new List<GenreInfo>(new GenreInfo[] { new GenreInfo { Name = recording.Category } });
-          GenreMapper.AssignMissingMovieGenreIds(genreList);
-
+          IGenreConverter converter = ServiceRegistration.Get<IGenreConverter>();
+          foreach (var genre in genreList)
+          {
+            if (!genre.Id.HasValue && converter.GetGenreId(genre.Name, GenreCategory.Movie, null, out int genreId))
+              genre.Id = genreId;
+          }
           if (genreList.Count > 0)
           {
             MultipleMediaItemAspect genreAspect = MediaItemAspect.CreateAspect(extractedAspectData, GenreAspect.Metadata);

@@ -24,10 +24,10 @@
 
 using MediaPortal.Common;
 using MediaPortal.Common.FanArt;
-using MediaPortal.Common.Genres;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Common.MediaManagement.Helpers;
+using MediaPortal.Common.Services.GenreConverter;
 using MediaPortal.Common.Threading;
 using MediaPortal.Extensions.OnlineLibraries.Libraries;
 using MediaPortal.Extensions.OnlineLibraries.Libraries.Common;
@@ -315,7 +315,15 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
 
           if (movieInfo.Genres.Count > 0)
           {
-            movieInfo.HasChanged |= GenreMapper.AssignMissingMovieGenreIds(movieInfo.Genres, language.ToString());
+            IGenreConverter converter = ServiceRegistration.Get<IGenreConverter>();
+            foreach (var genre in movieInfo.Genres)
+            {
+              if (!genre.Id.HasValue && converter.GetGenreId(genre.Name, GenreCategory.Movie, null, out int genreId))
+              {
+                genre.Id = genreId;
+                movieInfo.HasChanged = true;
+              }
+            }
           }
 
           //Store person matches
@@ -780,7 +788,14 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
           if (updateMovieList)
           {
             foreach (MovieInfo movie in movieCollectionMatch.Movies)
-              GenreMapper.AssignMissingMovieGenreIds(movie.Genres, language.ToString());
+            {
+              IGenreConverter converter = ServiceRegistration.Get<IGenreConverter>();
+              foreach (var genre in movie.Genres)
+              {
+                if (!genre.Id.HasValue && converter.GetGenreId(genre.Name, GenreCategory.Movie, null, out int genreId))
+                  genre.Id = genreId;
+              }
+            }
           }
         }
 

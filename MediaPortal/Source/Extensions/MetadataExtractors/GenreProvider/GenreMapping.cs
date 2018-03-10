@@ -22,31 +22,25 @@
 
 #endregion
 
-namespace MediaPortal.Common.Genres
+using System.Text.RegularExpressions;
+
+namespace MediaPortal.Extensions.MetadataExtractors.GenreProvider
 {
-  public class MusicGenre
+  public class GenreMapping
   {
-    public const int CLASSIC = 1;
-    public const int SOUNDTRACK = 2;
-    public const int NEW_AGE = 3;
-    public const int ROCK = 4;
-    public const int METAL = 5;
-    public const int COUNTRY = 6;
-    public const int JAZZ = 7;
-    public const int RB_SOUL = 8;
-    public const int HIP_HOP_RAP = 9;
-    public const int RAGGAE = 10;
-    public const int POP = 11;
-    public const int DANCE = 12;
-    public const int ELECTRONIC = 13;
-    public const int COMEDY = 14;
-    public const int FOLK = 15;
-    public const int EASY_LISTENING = 16;
-    public const int HOLIDAY = 17;
-    public const int WORLD = 18;
-    public const int ALTERNATIVE = 19;
-    public const int COMPILATION = 20;
-    public const int AUDIOBOOK = 21;
-    public const int KARAOKE = 22;
+    public int GenreId { get; set; }
+    public Regex GenrePattern { get; set; }
+
+    public GenreMapping()
+    {
+      GenreId = 0;
+      GenrePattern = null;
+    }
+
+    public GenreMapping(int genreId, Regex genrePattern)
+    {
+      GenreId = genreId;
+      GenrePattern = genrePattern;
+    }
   }
 }

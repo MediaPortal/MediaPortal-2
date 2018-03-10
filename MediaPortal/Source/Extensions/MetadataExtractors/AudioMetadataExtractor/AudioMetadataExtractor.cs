@@ -23,7 +23,6 @@
 #endregion
 
 using MediaPortal.Common;
-using MediaPortal.Common.Genres;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
@@ -31,8 +30,8 @@ using MediaPortal.Common.MediaManagement.Helpers;
 using MediaPortal.Common.MediaManagement.TransientAspects;
 using MediaPortal.Common.Messaging;
 using MediaPortal.Common.ResourceAccess;
+using MediaPortal.Common.Services.GenreConverter;
 using MediaPortal.Common.Services.Settings;
-using MediaPortal.Common.Services.ThumbnailGenerator;
 using MediaPortal.Common.Settings;
 using MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor.Matchers;
 using MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor.Settings;
@@ -686,7 +685,15 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
                 if ((tag.TagTypes & TagTypes.Id3v2) != 0)
                   genres = PatchID3v23Enumeration(genres);
                 trackInfo.Genres = ApplyAdditionalSeparator(genres).Select(s => new GenreInfo { Name = s.Trim() }).ToList();
-                GenreMapper.AssignMissingMusicGenreIds(trackInfo.Genres);
+                IGenreConverter converter = ServiceRegistration.Get<IGenreConverter>();
+                foreach (var genre in trackInfo.Genres)
+                {
+                  int genreId = 0;
+                  if (!genre.Id.HasValue && converter.GetGenreId(genre.Name, GenreCategory.Music, null, out genreId))
+                  {
+                    genre.Id = genreId;
+                  }
+                }
               }
 
               int year = (int)tag.Tag.Year;

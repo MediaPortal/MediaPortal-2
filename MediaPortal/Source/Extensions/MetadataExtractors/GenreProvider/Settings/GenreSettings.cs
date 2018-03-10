@@ -24,7 +24,7 @@
 
 using MediaPortal.Common.Settings;
 
-namespace MediaPortal.Common.Genres
+namespace MediaPortal.Extensions.MetadataExtractors.GenreProvider
 {
   public class GenreSettings
   {

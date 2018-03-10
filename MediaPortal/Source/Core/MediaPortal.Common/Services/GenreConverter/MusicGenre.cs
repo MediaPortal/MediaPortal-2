@@ -22,25 +22,32 @@
 
 #endregion
 
-using System.Text.RegularExpressions;
-
-namespace MediaPortal.Common.Genres
+namespace MediaPortal.Common.Services.GenreConverter
 {
-  public class GenreMapping
+  public enum MusicGenre
   {
-    public int GenreId { get; set; }
-    public Regex GenrePattern { get; set; }
-
-    public GenreMapping()
-    {
-      GenreId = 0;
-      GenrePattern = null;
-    }
-
-    public GenreMapping(int genreId, Regex genrePattern)
-    {
-      GenreId = genreId;
-      GenrePattern = genrePattern;
-    }
+    Unnown,
+    Classic,
+    Soundtrack,
+    NewAge,
+    Rock,
+    Metal,
+    Country,
+    Jazz,
+    Soul,
+    Rap,
+    Raggae,
+    Pop,
+    Dance,
+    Electronic,
+    Comedy,
+    Folk,
+    EasyListening,
+    Holiday,
+    World,
+    Alternative,
+    Compilation,
+    Audiobook,
+    Karaoke
   }
 }

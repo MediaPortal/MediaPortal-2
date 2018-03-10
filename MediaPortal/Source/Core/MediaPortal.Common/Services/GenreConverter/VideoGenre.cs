@@ -12,7 +12,7 @@
     (at your option) any later version.
 
     MediaPortal 2 is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    but WITHOUT ANY WARRANTY, without even the implied warranty of
     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
     GNU General Public License for more details.
 
@@ -22,28 +22,40 @@
 
 #endregion
 
-namespace MediaPortal.Common.Genres
+namespace MediaPortal.Common.Services.GenreConverter
 {
-  public class MovieGenre
+  public enum VideoGenre
   {
-    public const int ACTION = 1;
-    public const int ADVENTURE = 2;
-    public const int ANIMATION = 3;
-    public const int COMEDY = 4;
-    public const int CRIME = 5;
-    public const int DOCUMENTARY = 6;
-    public const int DRAMA = 7;
-    public const int FAMILY = 8;
-    public const int FANTASY = 9;
-    public const int HISTORY = 10;
-    public const int HORROR = 11;
-    public const int MUSIC = 12;
-    public const int MYSTERY = 13;
-    public const int ROMANCE = 14;
-    public const int SCIENCE_FICTION = 15;
-    public const int TV_MOVIE = 16;
-    public const int THRILLER = 17;
-    public const int WAR = 18;
-    public const int WESTERN = 19;
+    Unknown,
+    Action,
+    Adventure,
+    Animation,
+    Comedy,
+    Crime,
+    Documentary,
+    Biography,
+    Drama,
+    Family,
+    Fantasy,
+    History,
+    Horror,
+    Music,
+    Romance,
+    ScienceFiction,
+    Mystery,
+    Thriller,
+    War,
+    Western,
+    Kids,
+    News,
+    Reality,
+    Soap,
+    Talk,
+    Politics,
+    TvMovie,
+    Noir,
+    Sport,
+    Superhero,
+    Game
   }
 }

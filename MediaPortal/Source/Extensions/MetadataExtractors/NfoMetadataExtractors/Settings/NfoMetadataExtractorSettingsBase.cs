@@ -105,16 +105,6 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.Settin
     [Setting(SettingScope.Global, false)]
     public bool WriteStubObjectIntoDebugLog { get; set; }
 
-    /// <summary>
-    /// Language culture for the language in the nfo files.
-    /// </summary>
-    [Setting(SettingScope.Global)]
-    public string LanguageCulture
-    {
-      get { return _languageCulture; }
-      set { _languageCulture = value; }
-    }
-
     #endregion
   }
 }

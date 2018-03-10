@@ -25,9 +25,9 @@
 using System.Globalization;
 using System.Collections.Generic;
 using MediaPortal.Common.Services.Localization;
-using MediaPortal.Common.PathManager;
+using MediaPortal.Utilities.FileSystem;
 
-namespace MediaPortal.Common.Genres
+namespace MediaPortal.Extensions.MetadataExtractors.GenreProvider
 {
   /// <summary>
   /// This class manages genre matching strings.
@@ -45,8 +45,7 @@ namespace MediaPortal.Common.Genres
     public GenreStringManager()
     {
       _languageDirectories = new List<string>();
-      IPathManager pathManager = ServiceRegistration.Get<IPathManager>();
-      _languageDirectories.Add(pathManager.GetPath(@"<APPLICATION_ROOT>\Genres\"));
+      _languageDirectories.Add(FileUtils.BuildAssemblyRelativePath(@"Genres\"));
       ReLoad();
     }
 
