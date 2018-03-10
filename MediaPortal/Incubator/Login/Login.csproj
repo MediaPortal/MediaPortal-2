@@ -60,7 +60,6 @@
     <Compile Include="Settings\Configuration\AutoLogoutSettings.cs" />
     <Compile Include="Settings\Configuration\UserLoginScreenSettings.cs" />
     <Compile Include="Settings\UserTemplateSettings.cs" />
-    <Compile Include="Settings\UserSettings.cs" />
     <Compile Include="Settings\UserSettingStorage.cs" />
     <Compile Include="Settings\Configuration\UserConfigSettings.cs" />
     <Compile Include="Settings\Configuration\UserManagementSetting.cs" />
