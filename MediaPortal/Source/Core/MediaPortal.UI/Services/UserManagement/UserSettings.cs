@@ -22,10 +22,10 @@
 
 #endregion
 
-using MediaPortal.Common.Settings;
 using System;
+using MediaPortal.Common.Settings;
 
-namespace MediaPortal.UiComponents.Login.Settings
+namespace MediaPortal.UI.Services.UserManagement
 {
   public class UserSettings
   {
