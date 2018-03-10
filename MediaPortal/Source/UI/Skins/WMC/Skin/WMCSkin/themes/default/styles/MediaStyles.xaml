@@ -19,6 +19,7 @@
   <Model x:Key="SkinSettingsModel" Id="13961014-16C4-4361-9751-8E2C585EFD44"/>
 
   <MultiAspectAttributeConverter x:Key="MultiAspectAttributeConverter"/>
+  <GenreNameConverter x:Key="GenreNameConverter"/>
   <wmc_converters:RoundingFormatConverter x:Key="RoundingFormatConverter"/>
 
   <!-- ***************************************** OSD ************************************************** -->
@@ -3700,8 +3701,9 @@
              IsVisible="{Binding Path=!Id,Converter={StaticResource EmptyStringToFalseConverter}}"/>
       
       <Label x:Name="ItemLabel" HorizontalAlignment="Center" VerticalAlignment="Bottom" Margin="5,7,5,3" Color="{ThemeResource TextColor}" Height="35"
-             TextTrimming="CharacterEllipsis" FontSize="{ThemeResource SmallerFontSize}">
-        <Label.Resources>
+             TextTrimming="CharacterEllipsis" FontSize="{ThemeResource SmallerFontSize}"
+             Content="{Binding Path=GenreID, Converter={StaticResource GenreNameConverter}, ConverterParameter=Movie}">
+        <!--Label.Resources>
           <ResourceWrapper x:Key="Action_String" Resource="[Genre.Action]"/>
           <ResourceWrapper x:Key="Adventure_String" Resource="[Genre.Adventure]"/>
           <ResourceWrapper x:Key="Animation_String" Resource="[Genre.Animation]"/>
@@ -3726,7 +3728,7 @@
           <ResourceWrapper x:Key="Soap_String" Resource="[Genre.Soap]"/>
           <ResourceWrapper x:Key="Talk_String" Resource="[Genre.Talk]"/>
           <ResourceWrapper x:Key="Politics_String" Resource="[Genre.Politics]"/>
-        </Label.Resources>
+        </Label.Resources/>
         <Label.Content>
           <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" 
                         ConverterParameter="{}{0} == 1 ? {1} : ({0} == 2 ? {2} : ({0} == 3 ? {3} : ({0} == 4 ? {4} : ({0} == 5 ? {5} : ({0} == 6 ? {6} : ({0} == 7 ? {7} : ({0} == 8 ? {8} : ({0} == 9 ? {9} : ({0} == 10 ? {10} : ({0} == 11 ? {11} : ({0} == 12 ? {12} : ({0} == 13 ? {13} : ({0} == 14 ? {14} : ({0} == 15 ? {15} : ({0} == 16 ? {16} : ({0} == 17 ? {17} : ({0} == 18 ? {18} : ({0} == 19 ? {19} : ({0} == 20 ? {20} : ({0} == 21 ? {21} : ({0} == 22 ? {22} : ({0} == 23 ? {23} : ({0} == 24 ? {24} : ({0} == 25 ? {25} : {26}))))))))))))))))))))))))">
@@ -3756,8 +3758,8 @@
             <Binding Source="{StaticResource Soap_String}" Path="Resource" />
             <Binding Source="{StaticResource Talk_String}" Path="Resource" />
             <Binding Source="{StaticResource Politics_String}" Path="Resource" />
-          </MultiBinding>
-        </Label.Content>
+          </Multibinding>
+        </Label.Content!-->
       </Label>
     </Grid>
   </ControlTemplate>
