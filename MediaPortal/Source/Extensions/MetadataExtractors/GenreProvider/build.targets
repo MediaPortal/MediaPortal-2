@@ -10,8 +10,13 @@
     <PluginFiles Include="$(ProjectDir)plugin.xml" />
   </ItemGroup>
 
+  <ItemGroup>
+    <LanguageFiles Include="$(ProjectDir)Language\*.*" />
+  </ItemGroup>
+
   <Target Name="AfterBuild">
     <Copy SourceFiles="@(PluginFiles)" DestinationFolder="$(PluginDestination)" />
+    <Copy SourceFiles="@(LanguageFiles)" DestinationFolder="$(PluginDestination)Language\" />
   </Target>
 
 </Project>
