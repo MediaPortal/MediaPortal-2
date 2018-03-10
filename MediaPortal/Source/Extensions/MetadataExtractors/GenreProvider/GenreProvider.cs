@@ -25,6 +25,7 @@
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Text.RegularExpressions;
 using MediaPortal.Common;
@@ -41,33 +42,33 @@ namespace MediaPortal.Extensions.MetadataExtractors.GenreProvider
   /// </summary>
   public class GenreProvider : IGenreProvider
   {
-    private static readonly ConcurrentDictionary<string, List<GenreMapping>> MusicGenreMap = new ConcurrentDictionary<string, List<GenreMapping>>();
-    private static readonly ConcurrentDictionary<string, List<GenreMapping>> MovieGenreMap = new ConcurrentDictionary<string, List<GenreMapping>>();
-    private static readonly ConcurrentDictionary<string, List<GenreMapping>> SeriesGenreMap = new ConcurrentDictionary<string, List<GenreMapping>>();
-    private static SettingsChangeWatcher<RegionSettings> SettingChangeWatcher = null;
-    private static string DEFAULT_LANGUAGE = "en-US";
-    private static GenreStringManager GenreStringManager = new GenreStringManager();
+    private readonly ConcurrentDictionary<string, List<GenreMapping>> MusicGenreMap = new ConcurrentDictionary<string, List<GenreMapping>>();
+    private readonly ConcurrentDictionary<string, List<GenreMapping>> MovieGenreMap = new ConcurrentDictionary<string, List<GenreMapping>>();
+    private readonly ConcurrentDictionary<string, List<GenreMapping>> SeriesGenreMap = new ConcurrentDictionary<string, List<GenreMapping>>();
+    private SettingsChangeWatcher<RegionSettings> SettingChangeWatcher = null;
+    private string DEFAULT_LANGUAGE = "en";
+    private GenreStringManager GenreStringManager = new GenreStringManager();
 
-    static GenreProvider()
+    public GenreProvider()
     {
       SettingChangeWatcher = new SettingsChangeWatcher<RegionSettings>();
       SettingChangeWatcher.SettingsChanged += SettingsChanged;
       LoadDefaultLanguage();
     }
 
-    private static void SettingsChanged(object sender, EventArgs e)
+    private void SettingsChanged(object sender, EventArgs e)
     {
       LoadDefaultLanguage();
     }
 
-    private static void LoadDefaultLanguage()
+    private void LoadDefaultLanguage()
     {
       RegionSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<RegionSettings>();
       if (!string.IsNullOrEmpty(settings.Culture))
         DEFAULT_LANGUAGE = settings.Culture;
     }
 
-    private static void InitMusicGenre(string language)
+    private void InitMusicGenre(string language)
     {
       if (MusicGenreMap.ContainsKey(language))
         return;
@@ -108,7 +109,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.GenreProvider
       MusicGenreMap.TryAdd(language, list);
     }
 
-    private static void InitMovieGenre(string language)
+    private void InitMovieGenre(string language)
     {
       if (MovieGenreMap.ContainsKey(language))
         return;
@@ -150,7 +151,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.GenreProvider
       MovieGenreMap.TryAdd(language, list);
     }
 
-    private static void InitSeriesGenre(string language)
+    private void InitSeriesGenre(string language)
     {
       if (SeriesGenreMap.ContainsKey(language))
         return;
@@ -204,9 +205,15 @@ namespace MediaPortal.Extensions.MetadataExtractors.GenreProvider
       {
         List<string> langs = new List<string>();
         if (string.IsNullOrEmpty(genreCulture))
+        {
           langs.AddRange(GenreStringManager.AvailableLanguages.Select(c => c.Name));
+        }
         else
+        {
+          if (genreCulture.Contains("-"))
+            genreCulture = new CultureInfo(genreCulture).Parent.Name;
           langs.Add(genreCulture);
+        }
 
         if (string.IsNullOrEmpty(genreName))
           return false;
@@ -216,16 +223,19 @@ namespace MediaPortal.Extensions.MetadataExtractors.GenreProvider
           List<GenreMapping> genreMap = null;
           if (GenreCategory.Movie == genreCategory)
           {
+            InitMovieGenre(lang);
             if (!MovieGenreMap.TryGetValue(lang, out genreMap))
               continue;
           }
           else if (GenreCategory.Series == genreCategory)
           {
+            InitSeriesGenre(lang);
             if (!SeriesGenreMap.TryGetValue(lang, out genreMap))
               continue;
           }
           else if (GenreCategory.Music == genreCategory)
           {
+            InitMusicGenre(lang);
             if (!MusicGenreMap.TryGetValue(lang, out genreMap))
               continue;
           }
@@ -234,16 +244,11 @@ namespace MediaPortal.Extensions.MetadataExtractors.GenreProvider
             return false;
           }
 
-          if (genreMap != null)
+          GenreMapping map = genreMap?.FirstOrDefault(g => g.GenrePattern.IsMatch(genreName));
+          if (map != null)
           {
-            foreach (GenreMapping map in genreMap)
-            {
-              if (map.GenrePattern.IsMatch(genreName))
-              {
-                genreId = map.GenreId;
-                return true;
-              }
-            }
+            genreId = map.GenreId;
+            return true;
           }
         }
         return false;
@@ -275,7 +280,16 @@ namespace MediaPortal.Extensions.MetadataExtractors.GenreProvider
         {
           return false;
         }
-        return GenreStringManager.TryGetGenreString("Label", labelName, genreCulture ?? DEFAULT_LANGUAGE, out genreName);
+
+        if (string.IsNullOrEmpty(genreCulture))
+        {
+          genreCulture = DEFAULT_LANGUAGE;
+        }
+        else if (genreCulture.Contains("-"))
+        {
+          genreCulture = new CultureInfo(genreCulture).Parent.Name;
+        }
+        return GenreStringManager.TryGetGenreString("Label", labelName, genreCulture, out genreName);
       }
       catch (Exception ex)
       {

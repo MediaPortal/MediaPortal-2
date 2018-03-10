@@ -45,7 +45,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.GenreProvider
     public GenreStringManager()
     {
       _languageDirectories = new List<string>();
-      _languageDirectories.Add(FileUtils.BuildAssemblyRelativePath(@"Genres\"));
+      AddLanguageDirectory(FileUtils.BuildAssemblyRelativePath(@"Language\"));
       ReLoad();
     }
 
