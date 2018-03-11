@@ -79,18 +79,6 @@ namespace MediaPortal.UiComponents.Media.FilterCriteria
         _linkedId = item.MediaItemId;
     }
 
-    public bool MergeFilters(FilterValue filterValue)
-    {
-      _filter = BooleanCombinationFilter.CombineFilters(BooleanOperator.Or, _filter, filterValue.Filter);
-      _numItems += filterValue.NumItems;
-      return true;
-    }
-
-    public void ChangeTitle(string title)
-    {
-      _title = title;
-    }
-
     public string Id
     {
       get { return _id == null ? null : _id.ToString(); }
