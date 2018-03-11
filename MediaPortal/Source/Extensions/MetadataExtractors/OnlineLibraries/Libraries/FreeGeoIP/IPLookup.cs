@@ -22,11 +22,13 @@
 
 #endregion
 
+using System;
 using MediaPortal.Extensions.OnlineLibraries.Libraries.Common;
-using MediaPortal.Extensions.OnlineLibraries.Libraries.Common.Data;
 using MediaPortal.Extensions.OnlineLibraries.Libraries.FreeGeoIP.Data;
 using System.Device.Location;
 using System.Net;
+using System.Threading.Tasks;
+using MediaPortal.Common.Services.ServerCommunication;
 
 namespace MediaPortal.Extensions.OnlineLibraries.Libraries.FreeGeoIP
 {
@@ -50,32 +52,38 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.FreeGeoIP
       return string.Format("http://freegeoip.net/json/{0}", address);
     }
 
-    private bool TryLookupInternal(out CivicAddress address, out GeoCoordinate coordinates)
+    private async Task<AsyncResult<Tuple<CivicAddress, GeoCoordinate>>> TryLookupInternal()
     {
-      address = null;
-      coordinates = null;
-      IPAddress ip;
-      return ExternalIPResolver.GetExternalIPAddress(out ip) && TryLookupInternal(ip, out address, out coordinates);
+      var ipResult = await ExternalIPResolver.GetExternalIPAddressAsync().ConfigureAwait(false);
+      if (!ipResult.Success)
+        return new AsyncResult<Tuple<CivicAddress, GeoCoordinate>>(false, null);
+
+      return await TryLookupInternal(ipResult.Result).ConfigureAwait(false);
     }
 
-    private bool TryLookupInternal(IPAddress ip, out CivicAddress address, out GeoCoordinate coordinates)
+    private async Task<AsyncResult<Tuple<CivicAddress, GeoCoordinate>>> TryLookupInternal(IPAddress ip)
     {
       var downloader = new Downloader { EnableCompression = true };
       downloader.Headers["Accept"] = "application/json";
       downloader.Headers["User-Agent"] = "Mozilla/5.0 (Windows NT 6.1; WOW64; rv:17.0) Gecko/20100101 Firefox/17.0";
-      FreeGeoIPResponse result = downloader.Download<FreeGeoIPResponse>(BuildUrl(ip));
+      FreeGeoIPResponse result = await downloader.DownloadAsync<FreeGeoIPResponse>(BuildUrl(ip)).ConfigureAwait(false);
 
+      bool success;
+      CivicAddress address;
+      GeoCoordinate coordinates;
       if (result == null)
       {
         address = null;
         coordinates = null;
-        return false;
+        success = false;
       }
-
-      address = result.ToCivicAddress();
-      coordinates = result.ToGeoCoordinates();
-
-      return true;
+      else
+      {
+        address = result.ToCivicAddress();
+        coordinates = result.ToGeoCoordinates();
+        success = true;
+      }
+      return new AsyncResult<Tuple<CivicAddress, GeoCoordinate>>(success, new Tuple<CivicAddress, GeoCoordinate>(address, coordinates));
     }
 
     #endregion Private methods
@@ -86,12 +94,13 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.FreeGeoIP
     /// Determine the address at the specified coordinates.
     /// </summary>
     /// <param name="coordinates">Coordinates to lookup.</param>
-    /// <param name="address">Resultant address.</param>
-    /// <returns>If lookup is successful.</returns>
-    public bool TryResolveCivicAddress(GeoCoordinate coordinates, out CivicAddress address)
+    /// <returns>Address corresponding to the coordinates or <c>null</c>.</returns>
+    public async Task<CivicAddress> TryResolveCivicAddressAsync(GeoCoordinate coordinates)
     {
-      GeoCoordinate temp;
-      return TryLookupInternal(out address, out temp);
+      var result = await TryLookupInternal().ConfigureAwait(false);
+      if (result.Success)
+        return result.Result.Item1;
+      return null;
     }
 
     #endregion IAddressResolver implementation
@@ -101,12 +110,13 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.FreeGeoIP
     /// <summary>
     /// Determine the current location of the device.
     /// </summary>
-    /// <param name="coordinates">Coordinates of the device.</param>
-    /// <returns>If lookup is successful.</returns>
-    public bool TryResolveCoordinates(out GeoCoordinate coordinates)
+    /// <returns>Coordinates of the device if successful.</returns>
+    public async Task<GeoCoordinate> TryResolveCoordinatesAsync()
     {
-      CivicAddress temp;
-      return TryLookupInternal(out temp, out coordinates);
+      var result = await TryLookupInternal().ConfigureAwait(false);
+      if (result.Success)
+        return result.Result.Item2;
+      return null;
     }
 
     #endregion ICoordinateResolver implementation

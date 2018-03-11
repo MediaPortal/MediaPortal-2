@@ -152,11 +152,10 @@ namespace MediaPortal.UiComponents.Weather.Models
 
     public async Task Detect()
     {
-      GeoCoordinate coordinates;
-      CivicAddress address;
-
-      if (GeoLocationService.Instance.TryLookup(out coordinates, out address))
+      var lookupResult = await GeoLocationService.Instance.TryLookupAsync().ConfigureAwait(false);
+      if (lookupResult.Success)
       {
+        GeoCoordinate coordinates = lookupResult.Result.Item1;
         await SearchLocations(String.Format("{0}, {1}",
                                       coordinates.Latitude.ToString(CultureInfo.InvariantCulture),
                                       coordinates.Longitude.ToString(CultureInfo.InvariantCulture))).ConfigureAwait(false);

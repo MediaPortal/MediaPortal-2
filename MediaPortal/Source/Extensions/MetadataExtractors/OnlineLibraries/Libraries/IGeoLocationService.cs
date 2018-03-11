@@ -22,7 +22,10 @@
 
 #endregion
 
+using System;
 using System.Device.Location;
+using System.Threading.Tasks;
+using MediaPortal.Common.Services.ServerCommunication;
 
 namespace MediaPortal.Extensions.OnlineLibraries.Libraries
 {
@@ -34,17 +37,21 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries
     /// <summary>
     /// Lookup the location of the current device.
     /// </summary>
-    /// <param name="coordinates">Coordinates of the device.</param>
-    /// <param name="address">Address of the device.</param>
-    /// <returns>If lookup is successful.</returns>
-    bool TryLookup(out GeoCoordinate coordinates, out CivicAddress address);
+    /// <returns>
+    /// AsyncResult.Success = <c>true</c> if successful.
+    /// AsyncResult.Result.Item1 : Coordinates of the device.
+    /// AsyncResult.Result.Item2 : Address of the device.
+    /// </returns>
+    Task<AsyncResult<Tuple<GeoCoordinate, CivicAddress>>> TryLookupAsync();
 
     /// <summary>
     /// Lookup the address of a given location.
     /// </summary>
     /// <param name="coordinates">Coordinates to the location to lookup.</param>
-    /// <param name="address">Address to the coordinates passed.</param>
-    /// <returns>If lookup is successful.</returns>
-    bool TryLookup(GeoCoordinate coordinates, out CivicAddress address);
+    /// <returns>
+    /// AsyncResult.Success = <c>true</c> if successful.
+    /// AsyncResult.Result : Address of the device.
+    /// </returns>
+    Task<AsyncResult<CivicAddress>> TryLookupAsync(GeoCoordinate coordinates);
   }
 }

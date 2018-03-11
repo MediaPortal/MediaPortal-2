@@ -28,6 +28,7 @@ using MediaPortal.Extensions.OnlineLibraries.Libraries.Common;
 using MediaPortal.Extensions.OnlineLibraries.Libraries.Google.Data;
 using System.Device.Location;
 using System.Globalization;
+using System.Threading.Tasks;
 
 namespace MediaPortal.Extensions.OnlineLibraries.Libraries.Google
 {
@@ -63,22 +64,19 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.Google
     /// Determine the address of the given coordinates.
     /// </summary>
     /// <param name="coordinates">Coordinates to lookup.</param>
-    /// <param name="address">Address corresponding to the coordinates.</param>
-    /// <returns>If lookup is successful.</returns>
-    public bool TryResolveCivicAddress(GeoCoordinate coordinates, out CivicAddress address)
+    /// <returns>Address corresponding to the coordinates or <c>null</c>.</returns>
+    public async Task<CivicAddress> TryResolveCivicAddressAsync(GeoCoordinate coordinates)
     {
       var downloader = new Downloader { EnableCompression = true };
       downloader.Headers["Accept"] = "application/json";
       // Google enables compressed output only, if a valid User-Agent is sent!
       downloader.Headers["User-Agent"] = "Mozilla/5.0 (Windows NT 6.1; WOW64; rv:17.0) Gecko/20100101 Firefox/17.0";
-      MapsApiGeocodeResponse results = downloader.Download<MapsApiGeocodeResponse>(BuildUrl(coordinates.Latitude, coordinates.Longitude));
+      MapsApiGeocodeResponse results = await downloader.DownloadAsync<MapsApiGeocodeResponse>(BuildUrl(coordinates.Latitude, coordinates.Longitude)).ConfigureAwait(false);
       if (results == null || results.Results == null || results.Results.Count == 0)
       {
-        address = null;
-        return false;
+        return null;
       }
-      address = results.Results[0].ToCivicAddress();
-      return true;
+      return results.Results[0].ToCivicAddress();
     }
 
     #endregion IAddressResolver implementation

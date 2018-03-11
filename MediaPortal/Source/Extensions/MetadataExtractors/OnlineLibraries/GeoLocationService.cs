@@ -28,13 +28,14 @@ using MediaPortal.Common.Logging;
 using MediaPortal.Extensions.OnlineLibraries.Libraries;
 using MediaPortal.Extensions.OnlineLibraries.Libraries.FreeGeoIP;
 using MediaPortal.Extensions.OnlineLibraries.Libraries.Google;
-using MediaPortal.Extensions.OnlineLibraries.Libraries.Microsoft;
 using MediaPortal.Extensions.OnlineLibraries.Libraries.OpenStreetMap;
 using MediaPortal.Utilities.Network;
 using System;
 using System.Collections.Generic;
 using System.Device.Location;
 using System.Linq;
+using System.Threading.Tasks;
+using MediaPortal.Common.Services.ServerCommunication;
 
 namespace MediaPortal.Extensions.OnlineLibraries
 {
@@ -157,33 +158,37 @@ namespace MediaPortal.Extensions.OnlineLibraries
     /// <summary>
     /// Lookup the location of the current device.
     /// </summary>
-    /// <param name="coordinates">Coordinates of the device.</param>
-    /// <param name="address">Address of the device.</param>
-    /// <returns>If lookup is successful.</returns>
-    public bool TryLookup(out GeoCoordinate coordinates, out CivicAddress address)
+    /// <returns>
+    /// AsyncResult.Success = <c>true</c> if successful.
+    /// AsyncResult.Result.Item1 : Coordinates of the device.
+    /// AsyncResult.Result.Item2 : Address of the device.
+    /// </returns>
+    public async Task<AsyncResult<Tuple<GeoCoordinate, CivicAddress>>> TryLookupAsync()
     {
-      coordinates = null;
-      address = null;
+      var falseResult = new AsyncResult<Tuple<GeoCoordinate, CivicAddress>>(false, null);
       if (!NetworkConnectionTracker.IsNetworkConnected)
-        return false;
+        return falseResult;
 
       foreach (ICoordinateResolver coordinateResolverService in GetCoordinateResolverServices())
       {
         try
         {
-          if (coordinateResolverService.TryResolveCoordinates(out coordinates))
+          var coordinates = await coordinateResolverService.TryResolveCoordinatesAsync().ConfigureAwait(false);
+          if (coordinates != null)
           {
+            CivicAddress address;
             if (GetFromCache(coordinates, out address))
-              return true;
+              return new AsyncResult<Tuple<GeoCoordinate, CivicAddress>>(true, new Tuple<GeoCoordinate, CivicAddress>(coordinates, address));
 
             foreach (IAddressResolver civicResolverService in GetCivicResolverServices())
             {
               try
               {
-                if (civicResolverService.TryResolveCivicAddress(coordinates, out address))
+                address = await civicResolverService.TryResolveCivicAddressAsync(coordinates).ConfigureAwait(false);
+                if (address != null)
                 {
                   _locationCache[coordinates] = address;
-                  return true;
+                  return new AsyncResult<Tuple<GeoCoordinate, CivicAddress>>(true, new Tuple<GeoCoordinate, CivicAddress>(coordinates, address));
                 }
               }
               catch (Exception ex)
@@ -198,28 +203,34 @@ namespace MediaPortal.Extensions.OnlineLibraries
           ServiceRegistration.Get<ILogger>().Error("Error while executing ICoordinateResolver {0}.", ex, coordinateResolverService.GetType().Name);
         }
       }
-      return false;
+      return falseResult;
     }
 
     /// <summary>
     /// Lookup the address of a given location.
     /// </summary>
     /// <param name="coordinates">Coordinates to the location to lookup.</param>
-    /// <param name="address">Address to the coordinates passed.</param>
-    /// <returns>If lookup is successful.</returns>
-    public bool TryLookup(GeoCoordinate coordinates, out CivicAddress address)
+    /// <returns>
+    /// AsyncResult.Success = <c>true</c> if successful.
+    /// AsyncResult.Result : Address of the device.
+    /// </returns>
+    public async Task<AsyncResult<CivicAddress>> TryLookupAsync(GeoCoordinate coordinates)
     {
+      CivicAddress address;
       try
       {
         if (GetFromCache(coordinates, out address))
-          return true;
+          return new AsyncResult<CivicAddress>(true, address);
 
         foreach (IAddressResolver civicResolverService in GetCivicResolverServices())
-          if (civicResolverService.TryResolveCivicAddress(coordinates, out address))
+        {
+          address = await civicResolverService.TryResolveCivicAddressAsync(coordinates).ConfigureAwait(false);
+          if (address != null)
           {
             _locationCache[coordinates] = address;
-            return true;
+            return new AsyncResult<CivicAddress>(true, address);
           }
+        }
       }
       catch (Exception ex)
       {
@@ -227,8 +238,7 @@ namespace MediaPortal.Extensions.OnlineLibraries
         throw;
       }
 
-      address = null;
-      return false;
+      return new AsyncResult<CivicAddress>(false, null);
     }
 
     #endregion IGeoLocationService implemention

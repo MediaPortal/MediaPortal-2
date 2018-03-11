@@ -1,11 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Net;
-using System.Text;
+using System.Net.Http;
 using System.Threading.Tasks;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
+using MediaPortal.Common.Services.ServerCommunication;
 
 namespace MediaPortal.Extensions.OnlineLibraries.Libraries.Common
 {
@@ -24,22 +24,20 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.Common
     /// <summary>
     /// Tries to lookup the external IP address.
     /// </summary>
-    /// <param name="ip">IP</param>
-    /// <returns><c>true</c> if successful.</returns>
-    public static bool GetExternalIPAddress(out IPAddress ip)
+    /// <returns>AsyncResult.Success = <c>true</c> if successful.</returns>
+    public static async Task<AsyncResult<IPAddress>> GetExternalIPAddressAsync()
     {
-      using (var client = new WebClient())
+      IPAddress ip;
+      using (var client = new HttpClient())
       {
-        client.Headers["User-Agent"] = "Mozilla/4.0 (Compatible; Windows NT 5.1; MSIE 6.0) (compatible; MSIE 6.0; Windows NT 5.1; .NET CLR 1.1.4322; .NET CLR 2.0.50727)";
-
         foreach (var site in LOOKUP_SITES)
         {
           try
           {
-            string response = client.DownloadString(site);
+            string response = await client.GetStringAsync(site).ConfigureAwait(false);
             var result = response.Trim(' ', '\r', '\n');
             if (IPAddress.TryParse(result, out ip))
-              return true;
+              return new AsyncResult<IPAddress>(true, ip);
           }
           catch (Exception ex)
           {
@@ -47,8 +45,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.Common
           }
         }
       }
-      ip = null;
-      return false;
+      return new AsyncResult<IPAddress>(false, null);
     }
   }
 }
