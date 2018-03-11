@@ -120,6 +120,7 @@
     <Compile Include="FilterCriteria\FilterByAlbumArtistCriterion.cs" />
     <Compile Include="FilterCriteria\FilterByAlbumCompilationCriterion.cs" />
     <Compile Include="FilterCriteria\FilterByMovieCertificationCriterion.cs" />
+    <Compile Include="FilterCriteria\FilterByGenreCriterion.cs" />
     <Compile Include="FilterCriteria\FilterBySeriesCertificationCriterion.cs" />
     <Compile Include="FilterCriteria\FilterByConductorCriterion.cs" />
     <Compile Include="FilterCriteria\FilterByCharacterCriterion.cs" />
@@ -272,9 +273,6 @@
     <Compile Include="Models\MediaItemsActionModel.cs" />
     <Compile Include="Models\ScreenData\AbstractAlbumFilterScreenData.cs" />
     <Compile Include="Models\ScreenData\AbstractBrowseMediaNavigationScreenData.cs" />
-    <Compile Include="Models\ScreenData\AbstractAudioGenreFilterScreenData.cs" />
-    <Compile Include="Models\ScreenData\AbstractSeriesGenreFilterScreenData.cs" />
-    <Compile Include="Models\ScreenData\AbstractMovieGenreFilterScreenData.cs" />
     <Compile Include="Models\ScreenData\AbstractSeriesFilterScreenData.cs" />
     <Compile Include="Models\ScreenData\AbstractMovieFilterScreenData.cs" />
     <Compile Include="Models\ScreenData\MovieFilterByCertificationScreenData.cs" />
