@@ -28,6 +28,7 @@ using MediaPortal.Extensions.OnlineLibraries.Libraries.FreeGeoIP.Data;
 using System.Device.Location;
 using System.Net;
 using System.Threading.Tasks;
+using MediaPortal.Common.Async;
 using MediaPortal.Common.Services.ServerCommunication;
 
 namespace MediaPortal.Extensions.OnlineLibraries.Libraries.FreeGeoIP

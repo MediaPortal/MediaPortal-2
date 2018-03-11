@@ -28,6 +28,7 @@ using MediaPortal.Common.SystemCommunication;
 using MediaPortal.UI.ServerCommunication;
 using System;
 using System.Threading.Tasks;
+using MediaPortal.Common.Async;
 using MediaPortal.Common.Services.ServerCommunication;
 
 namespace MediaPortal.UiComponents.Media.MediaItemActions

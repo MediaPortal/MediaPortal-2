@@ -26,7 +26,7 @@ using System;
 using System.Runtime.CompilerServices;
 using System.Threading;
 
-namespace MediaPortal.UiComponents.Weather.Grabbers
+namespace MediaPortal.Common.Async
 {
   public struct SynchronizationContextRemover : INotifyCompletion
   {

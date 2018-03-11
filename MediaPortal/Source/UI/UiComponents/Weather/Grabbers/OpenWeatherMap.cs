@@ -28,6 +28,7 @@ using System.Globalization;
 using System.Threading;
 using System.Threading.Tasks;
 using MediaPortal.Common;
+using MediaPortal.Common.Async;
 using MediaPortal.Common.Localization;
 using OpenWeatherMap;
 
