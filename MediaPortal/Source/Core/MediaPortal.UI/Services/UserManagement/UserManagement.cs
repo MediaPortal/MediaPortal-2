@@ -24,11 +24,13 @@
 
 using System;
 using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using MediaPortal.Common;
 using MediaPortal.Common.Services.ServerCommunication;
 using MediaPortal.Common.Settings;
+using MediaPortal.Common.SystemResolver;
 using MediaPortal.Common.UserManagement;
 using MediaPortal.Common.UserProfileDataManagement;
 using MediaPortal.UI.General;
@@ -43,6 +45,7 @@ namespace MediaPortal.UI.Services.UserManagement
     private UserProfile _currentUser = null;
     private bool _applyRestrictions = false;
     private ICollection<string> _restrictionGroups = new HashSet<string>(StringComparer.CurrentCultureIgnoreCase);
+    private SemaphoreSlim _lock = new SemaphoreSlim(1, 1);
 
     public bool IsValidUser
     {
@@ -109,20 +112,30 @@ namespace MediaPortal.UI.Services.UserManagement
 
     public async Task<UserProfile> GetOrCreateDefaultUser()
     {
-      string profileName = SystemInformation.ComputerName;
-      IUserProfileDataManagement updm = UserProfileDataManagement;
-      if (updm == null)
+      await _lock.WaitAsync();
+      try
+      {
+        Guid systemId = Guid.Parse(ServiceRegistration.Get<ISystemResolver>().LocalSystemId);
+        IUserProfileDataManagement updm = UserProfileDataManagement;
+        if (updm == null)
+          return null;
+
+        var result = await updm.GetProfileAsync(systemId);
+        if (result.Success)
+          return result.Result;
+
+        // Create a login profile which uses the LocalSystemId and the associated ComputerName
+        string profileName = SystemInformation.ComputerName;
+        Guid profileId = await updm.CreateClientProfileAsync(systemId, profileName);
+        result = await updm.GetProfileAsync(profileId);
+        if (result.Success)
+          return result.Result;
         return null;
-
-      var result = await updm.GetProfileByNameAsync(profileName);
-      if (result.Success)
-        return result.Result;
-
-      Guid profileId = await updm.CreateProfileAsync(profileName);
-      result = await updm.GetProfileAsync(profileId);
-      if (result.Success)
-        return result.Result;
-      return null;
+      }
+      finally
+      {
+        _lock.Release();
+      }
     }
   }
 }

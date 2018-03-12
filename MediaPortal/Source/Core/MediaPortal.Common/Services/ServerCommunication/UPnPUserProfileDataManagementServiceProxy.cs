@@ -76,6 +76,14 @@ namespace MediaPortal.Common.Services.ServerCommunication
       return MarshallingHelper.DeserializeGuid((string)outParameters[0]);
     }
 
+    public async Task<Guid> CreateClientProfileAsync(Guid profileId, string profileName)
+    {
+      CpAction action = GetAction("CreateClientProfile");
+      IList<object> inParameters = new List<object> { MarshallingHelper.SerializeGuid(profileId), profileName };
+      IList<object> outParameters = await action.InvokeAsync(inParameters);
+      return MarshallingHelper.DeserializeGuid((string)outParameters[0]);
+    }
+
     public async Task<Guid> CreateProfileAsync(string profileName, UserProfileType profileType, string profilePassword)
     {
       CpAction action = GetAction("CreateUserProfile");
