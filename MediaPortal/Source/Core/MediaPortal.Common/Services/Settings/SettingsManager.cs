@@ -27,6 +27,7 @@ using System.IO;
 using System.Reflection;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.PathManager;
+using MediaPortal.Common.Services.SystemResolver.Settings;
 using MediaPortal.Common.Settings;
 
 
@@ -42,6 +43,7 @@ namespace MediaPortal.Common.Services.Settings
     protected string _currentUserName = null;
     protected bool _batchUpdate = false;
     protected SettingsCache _cache;
+    protected readonly object _syncObj = new object();
 
     #endregion
 
@@ -67,7 +69,7 @@ namespace MediaPortal.Common.Services.Settings
       // Get the info stored in the SettingAttribute, if available
       object[] attributes = property.GetCustomAttributes(typeof(SettingAttribute), false);
       if (attributes.Length != 0)
-        return (SettingAttribute) attributes[0];
+        return (SettingAttribute)attributes[0];
       return null;
     }
 
@@ -80,9 +82,29 @@ namespace MediaPortal.Common.Services.Settings
     /// specified <paramref name="settingsType"/>.</returns>
     protected string GetUserFilePath(Type settingsType)
     {
-      var userName = _currentUserName ?? Environment.UserName;
+      var userName = _currentUserName ?? (_currentUserName = GetDefaultUserName());
       string fullUserFileName = String.Format(@"<CONFIG>\{0}\{1}", userName, settingsType.FullName + ".xml");
       return ServiceRegistration.Get<IPathManager>().GetPath(fullUserFileName);
+    }
+
+    /// <summary>
+    /// Returns the default user name which will be used if no other user is logged in. By default this will be the SystemID.
+    /// </summary>
+    /// <returns></returns>
+    private string GetDefaultUserName()
+    {
+      lock (_syncObj)
+      {
+        // Load only system scope settings, as we need this information already to reach user scope
+        SystemResolverSettings settings = (SystemResolverSettings)LoadSettingsObject(typeof(SystemResolverSettings), true, false);
+        if (string.IsNullOrEmpty(settings.SystemId))
+        {
+          // Create a new id for our local system
+          settings.SystemId = Guid.NewGuid().ToString("D");
+          SaveSettingsObject(settings, true, false);
+        }
+        return settings.SystemId;
+      }
     }
 
     /// <summary>
@@ -102,27 +124,40 @@ namespace MediaPortal.Common.Services.Settings
 
     protected object LoadSettingsObject(Type settingsType)
     {
-      SettingsFileHandler globalHandler = new SettingsFileHandler(GetGlobalFilePath(settingsType));
-      SettingsFileHandler userHandler = new SettingsFileHandler(GetUserFilePath(settingsType));
-      try
+      return LoadSettingsObject(settingsType, true, true);
+    }
+
+    protected object LoadSettingsObject(Type settingsType, bool useGlobaleScope, bool useUserScope)
+    {
+      SettingsFileHandler globalHandler = null;
+      SettingsFileHandler userHandler = null;
+      if (useGlobaleScope)
       {
-        globalHandler.Load();
+        globalHandler = new SettingsFileHandler(GetGlobalFilePath(settingsType));
+        try
+        {
+          globalHandler.Load();
+        }
+        catch (Exception e)
+        {
+          ServiceRegistration.Get<ILogger>().Error("SettingsManager: Error loading global settings file for setting type '{0}'... Will clear this settings file.", e, settingsType.Name);
+          globalHandler.Clear();
+          RemoveSettingsData(settingsType, false, true);
+        }
       }
-      catch (Exception e)
+      if (useUserScope)
       {
-        ServiceRegistration.Get<ILogger>().Error("SettingsManager: Error loading global settings file for setting type '{0}'... Will clear this settings file.", e, settingsType.Name);
-        globalHandler.Clear();
-        RemoveSettingsData(settingsType, false, true);
-      }
-      try
-      {
-        userHandler.Load();
-      }
-      catch (Exception e)
-      {
-        ServiceRegistration.Get<ILogger>().Error("SettingsManager: Error loading user settings file for setting type '{0}'... Will clear this settings file.", e, settingsType.Name);
-        userHandler.Clear();
-        RemoveSettingsData(settingsType, true, false);
+        userHandler = new SettingsFileHandler(GetUserFilePath(settingsType));
+        try
+        {
+          userHandler.Load();
+        }
+        catch (Exception e)
+        {
+          ServiceRegistration.Get<ILogger>().Error("SettingsManager: Error loading user settings file for setting type '{0}'... Will clear this settings file.", e, settingsType.Name);
+          userHandler.Clear();
+          RemoveSettingsData(settingsType, true, false);
+        }
       }
       try
       {
@@ -131,6 +166,9 @@ namespace MediaPortal.Common.Services.Settings
         {
           SettingAttribute att = GetSettingAttribute(property);
           if (att == null) continue;
+          if (att.SettingScope == SettingScope.Global && !useGlobaleScope) continue;
+          if (att.SettingScope == SettingScope.User && !useUserScope) continue;
+
           SettingsFileHandler s = (att.SettingScope == SettingScope.Global ? globalHandler : userHandler);
           try
           {
@@ -150,8 +188,11 @@ namespace MediaPortal.Common.Services.Settings
               property.SetValue(result, att.DefaultValue, null);
           }
         }
-        if (!globalHandler.SettingsFileExists && !userHandler.SettingsFileExists)
-          SaveSettingsObject(result);
+        if (
+          useGlobaleScope && !globalHandler.SettingsFileExists &&
+          useUserScope && !userHandler.SettingsFileExists
+          )
+          SaveSettingsObject(result, useGlobaleScope, useUserScope);
         return result;
       }
       catch (Exception e)
@@ -163,22 +204,33 @@ namespace MediaPortal.Common.Services.Settings
 
     protected void SaveSettingsObject(object settingsObject)
     {
+      SaveSettingsObject(settingsObject, true, true);
+    }
+    protected void SaveSettingsObject(object settingsObject, bool useGlobaleScope, bool useUserScope)
+    {
       try
       {
         Type t = settingsObject.GetType();
-        SettingsFileHandler globalSerializer = new SettingsFileHandler(GetGlobalFilePath(t));
-        SettingsFileHandler userSerializer = new SettingsFileHandler(GetUserFilePath(t));
+        SettingsFileHandler globalSerializer = null;
+        SettingsFileHandler userSerializer = null;
+
+        if (useGlobaleScope)
+          globalSerializer = new SettingsFileHandler(GetGlobalFilePath(t));
+        if (useUserScope)
+          userSerializer = new SettingsFileHandler(GetUserFilePath(t));
         foreach (PropertyInfo property in t.GetProperties())
         {
           SettingAttribute att = GetSettingAttribute(property);
           if (att == null) continue;
+          if (att.SettingScope == SettingScope.Global && !useGlobaleScope) continue;
+          if (att.SettingScope == SettingScope.User && !useUserScope) continue;
           SettingsFileHandler s = (att.SettingScope == SettingScope.Global ? globalSerializer : userSerializer);
           object value = property.GetValue(settingsObject, null);
           s.SetValue(property.Name, value);
         }
-        globalSerializer.Close();
-        userSerializer.Close();
-        
+        globalSerializer?.Close();
+        userSerializer?.Close();
+
         // Send a message that the setting has been changed.
         SettingsManagerMessaging.SendSettingsChangeMessage(t);
       }
@@ -193,7 +245,7 @@ namespace MediaPortal.Common.Services.Settings
 
     public SettingsType Load<SettingsType>() where SettingsType : class
     {
-      return (SettingsType) Load(typeof(SettingsType));
+      return (SettingsType)Load(typeof(SettingsType));
     }
 
     public object Load(Type settingsType)
