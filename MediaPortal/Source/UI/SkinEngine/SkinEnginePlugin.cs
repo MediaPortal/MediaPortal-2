@@ -36,13 +36,19 @@ using MediaPortal.UI.SkinEngine.DirectX;
 using MediaPortal.UI.SkinEngine.Geometry;
 using MediaPortal.UI.SkinEngine.GUI;
 using MediaPortal.Common.PluginManager;
+using MediaPortal.Common.Settings;
+using MediaPortal.Common.TaskScheduler;
+using MediaPortal.UI.Services.UserManagement;
 using MediaPortal.UI.SkinEngine.InputManagement;
 using MediaPortal.UI.SkinEngine.ScreenManagement;
+using MediaPortal.UI.SkinEngine.Settings;
 using MediaPortal.Utilities.SystemAPI;
+using System.Threading.Tasks;
+using Task = System.Threading.Tasks.Task;
 
 namespace MediaPortal.UI.SkinEngine
 {
-  public class SkinEnginePlugin: IPluginStateTracker, ISkinEngine
+  public class SkinEnginePlugin : IPluginStateTracker, ISkinEngine
   {
     #region Protected fields
 
@@ -51,6 +57,8 @@ namespace MediaPortal.UI.SkinEngine
     protected MainForm _mainForm = null;
     protected ScreenManager _screenManager = null;
     protected bool _screenSaverWasEnabled = false;
+    protected UserMessageHandler _userMessageHandler;
+
 
     #endregion
 
@@ -184,6 +192,7 @@ namespace MediaPortal.UI.SkinEngine
       _mainForm.Dispose();
       _screenManager = null;
       _mainForm = null;
+      _userMessageHandler.Dispose();
     }
 
     #endregion
@@ -195,6 +204,32 @@ namespace MediaPortal.UI.SkinEngine
       ServiceRegistration.Set<ISkinEngine>(this);
       _screenSaverWasEnabled = WindowsAPI.ScreenSaverEnabled;
       WindowsAPI.ScreenSaverEnabled = false;
+      _userMessageHandler = new UserMessageHandler(true);
+      _userMessageHandler.UserChanged += UserChanged;
+    }
+
+    private void UserChanged(object sender, EventArgs e)
+    {
+      ScreenManager screenManager = ServiceRegistration.Get<IScreenManager>() as ScreenManager;
+      if (screenManager == null)
+        return;
+
+      var skinSettings = ServiceRegistration.Get<ISettingsManager>().Load<SkinSettings>();
+      if (screenManager.SkinName != skinSettings.Skin || screenManager.ThemeName != skinSettings.Theme)
+      {
+        IWorkflowManager workflowManager = ServiceRegistration.Get<IWorkflowManager>();
+        // Exclusively lock WF manager while changing skin, otherwise it will fail when models try to get lock.
+        if (!workflowManager.Lock.TryEnterWriteLock(2000))
+          return;
+        try
+        {
+          screenManager.DoSwitchSkinAndTheme_NoLock(skinSettings.Skin, skinSettings.Theme);
+        }
+        finally
+        {
+          workflowManager.Lock.ExitWriteLock();
+        }
+      }
     }
 
     public bool RequestEnd()

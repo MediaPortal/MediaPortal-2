@@ -61,11 +61,12 @@ namespace MediaPortal.UI.Services.UserManagement
         _currentUser = value;
         if (changed)
         {
-          UserMessaging.SendUserMessage(UserMessaging.MessageType.UserChanged);
           // Set new user name to allow overriding settings, but only if explicit user management is enabled
           var settingsManager = ServiceRegistration.Get<ISettingsManager>();
           if (settingsManager.Load<UserSettings>().EnableUserLogin)
             settingsManager.ChangeUserContext(_currentUser?.ProfileId.ToString());
+
+          UserMessaging.SendUserMessage(UserMessaging.MessageType.UserChanged);
         }
       }
     }

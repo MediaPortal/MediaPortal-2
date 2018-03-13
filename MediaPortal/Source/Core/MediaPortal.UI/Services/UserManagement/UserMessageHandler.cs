@@ -42,10 +42,13 @@ namespace MediaPortal.UI.Services.UserManagement
 
     #endregion
 
-    public UserMessageHandler()
+    public UserMessageHandler(bool asyncMode = false)
     {
       _messageQueue = new AsynchronousMessageQueue(this, new string[] { UserMessaging.CHANNEL });
-      _messageQueue.PreviewMessage += PreviewMessage; // Synchronous
+      if (asyncMode)
+        _messageQueue.MessageReceived += PreviewMessage; // Asynchronous
+      else
+          _messageQueue.PreviewMessage += PreviewMessage; // Synchronous
       _messageQueue.Start();
     }
 
