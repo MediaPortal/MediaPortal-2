@@ -37,14 +37,11 @@ using MediaPortal.UI.SkinEngine.Geometry;
 using MediaPortal.UI.SkinEngine.GUI;
 using MediaPortal.Common.PluginManager;
 using MediaPortal.Common.Settings;
-using MediaPortal.Common.TaskScheduler;
 using MediaPortal.UI.Services.UserManagement;
 using MediaPortal.UI.SkinEngine.InputManagement;
 using MediaPortal.UI.SkinEngine.ScreenManagement;
 using MediaPortal.UI.SkinEngine.Settings;
 using MediaPortal.Utilities.SystemAPI;
-using System.Threading.Tasks;
-using Task = System.Threading.Tasks.Task;
 
 namespace MediaPortal.UI.SkinEngine
 {
