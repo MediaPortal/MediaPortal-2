@@ -153,6 +153,7 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Test.NfoMetadataExtractor", "..\Tests\Test.NfoMetadataExtractor\Test.NfoMetadataExtractor.csproj", "{F1E39B0C-451F-4F77-A948-AF2C33CBB921}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GDIThumbnailProvider", "Extensions\MetadataExtractors\GDIThumbnailProvider\GDIThumbnailProvider.csproj", "{65CF3575-AC34-4E46-92C3-84E6EDA9BACD}"
+EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Test.Utilities", "..\Tests\Test.Utilities\Test.Utilities.csproj", "{D88FE0C5-43D2-4138-9E80-5264E558A279}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Test.FanArt", "..\Tests\Test.FanArt\Test.FanArt.csproj", "{720F1FEA-5B1F-4713-BC72-F045FABEF214}"
