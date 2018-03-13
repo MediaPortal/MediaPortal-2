@@ -26,7 +26,7 @@ using MediaPortal.Common.Configuration.ConfigurationClasses;
 
 namespace MediaPortal.UiComponents.Login.Settings.Configuration
 {
-  public class AutoLoginUsertSetting : CustomConfigSetting
+  public class AutoLoginUserSetting : CustomConfigSetting
   {
   }
 }

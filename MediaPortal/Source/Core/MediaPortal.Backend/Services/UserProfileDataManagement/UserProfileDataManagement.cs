@@ -179,6 +179,12 @@ namespace MediaPortal.Backend.Services.UserProfileDataManagement
       return profileId;
     }
 
+    public Task<Guid> CreateClientProfileAsync(Guid profileId, string profileName)
+    {
+      var guid = CreateProfileInternal(profileId, profileName, UserProfileType.ClientProfile, null);
+      return  Task.FromResult(guid);
+    }
+
     public async Task<Guid> CreateProfileAsync(string profileName, UserProfileType profileType, string profilePassword)
     {
       //Profile might already exist.
@@ -186,9 +192,14 @@ namespace MediaPortal.Backend.Services.UserProfileDataManagement
       if (result.Success)
         return result.Result.ProfileId;
 
+      Guid profileId = Guid.NewGuid();
+      return CreateProfileInternal(profileId, profileName, profileType, profilePassword);
+    }
+
+    private Guid CreateProfileInternal(Guid profileId, string profileName, UserProfileType profileType, string profilePassword)
+    {
       ISQLDatabase database = ServiceRegistration.Get<ISQLDatabase>();
       ITransaction transaction = database.BeginTransaction();
-      Guid profileId = Guid.NewGuid();
       try
       {
         using (IDbCommand command = UserProfileDataManagement_SubSchema.CreateUserProfileCommand(transaction, profileId, profileName, profileType, profilePassword))
