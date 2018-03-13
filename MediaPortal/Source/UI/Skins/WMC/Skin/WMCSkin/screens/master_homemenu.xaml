@@ -57,6 +57,13 @@ Parameters which have to be accessible by a DynamicResource lookup:
           <RowDefinition Height="80*"/>
           <RowDefinition Height="20*"/>
         </Grid.RowDefinitions>
+
+        <Grid Grid.Column="1" Grid.Row="0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+          <Grid.Background>
+            <VideoBrush Stream="0"/>
+          </Grid.Background>
+        </Grid>
+
         <Image x:Name="FanArtImageBackground" Stretch="UniformToFill" Grid.Column="1" Grid.Row="0"
                IsVisible="{Binding Source={StaticResource SkinSettingsModel}, Path=[WMC].EnableFanart}">
           <Image.Source>
