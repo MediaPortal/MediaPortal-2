@@ -27,6 +27,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using MediaPortal.Common;
+using MediaPortal.Common.Async;
 using MediaPortal.Common.Services.ServerCommunication;
 using MediaPortal.Common.Settings;
 using MediaPortal.Common.UserManagement;

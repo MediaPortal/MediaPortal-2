@@ -34,6 +34,7 @@ using MediaPortal.Backend.Database;
 using MediaPortal.Common.UserProfileDataManagement;
 using MediaPortal.Utilities.Exceptions;
 using MediaPortal.Backend.Services.MediaLibrary.QueryEngine;
+using MediaPortal.Common.Async;
 using MediaPortal.Common.MediaManagement.MLQueries;
 using MediaPortal.Common.Services.ServerCommunication;
 

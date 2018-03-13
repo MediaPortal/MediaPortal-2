@@ -30,6 +30,7 @@ using MediaPortal.Utilities.UPnP;
 using UPnP.Infrastructure.CP.DeviceTree;
 using System.Linq;
 using System.Threading.Tasks;
+using MediaPortal.Common.Async;
 using MediaPortal.Common.MediaManagement.MLQueries;
 
 namespace MediaPortal.Common.Services.ServerCommunication

@@ -1,4 +1,4 @@
-#region Copyright (C) 2007-2017 Team MediaPortal
+﻿#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
     Copyright (C) 2007-2017 Team MediaPortal
@@ -22,16 +22,40 @@
 
 #endregion
 
-using System.Device.Location;
-using System.Threading.Tasks;
+using System;
+using System.Runtime.CompilerServices;
+using System.Threading;
 
-namespace MediaPortal.Extensions.OnlineLibraries.Libraries
+namespace MediaPortal.Common.Async
 {
-  /// <summary>
-  /// Resolve geolocation coordinates to an address.
-  /// </summary>
-  public interface IAddressResolver
+  public struct SynchronizationContextRemover : INotifyCompletion
   {
-    Task<CivicAddress> TryResolveCivicAddressAsync(GeoCoordinate coordinates);
+    public bool IsCompleted
+    {
+      get { return SynchronizationContext.Current == null; }
+    }
+
+    public void OnCompleted(Action continuation)
+    {
+      var prevContext = SynchronizationContext.Current;
+      try
+      {
+        SynchronizationContext.SetSynchronizationContext(null);
+        continuation();
+      }
+      finally
+      {
+        SynchronizationContext.SetSynchronizationContext(prevContext);
+      }
+    }
+
+    public SynchronizationContextRemover GetAwaiter()
+    {
+      return this;
+    }
+
+    public void GetResult()
+    {
+    }
   }
 }
