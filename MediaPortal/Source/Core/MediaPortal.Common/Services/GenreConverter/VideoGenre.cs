@@ -41,7 +41,7 @@ namespace MediaPortal.Common.Services.GenreConverter
     Horror,
     Music,
     Romance,
-    ScienceFiction,
+    SciFi,
     Mystery,
     Thriller,
     War,

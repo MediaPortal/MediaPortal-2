@@ -880,7 +880,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
         else if (genre.Id == 10749)           
           movieGenres.Add(new GenreInfo { Id = (int)VideoGenre.Romance, Name = genre.Name });
         else if (genre.Id == 878)             
-          movieGenres.Add(new GenreInfo { Id = (int)VideoGenre.ScienceFiction, Name = genre.Name });
+          movieGenres.Add(new GenreInfo { Id = (int)VideoGenre.SciFi, Name = genre.Name });
         else if (genre.Id == 10770)            
           movieGenres.Add(new GenreInfo { Id = (int)VideoGenre.TvMovie, Name = genre.Name });
         else if (genre.Id == 53)              
@@ -925,7 +925,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
           seriesGenres.Add(new GenreInfo { Id = (int)VideoGenre.Reality, Name = genre.Name });
         else if (genre.Id == 10765)
         {
-          seriesGenres.Add(new GenreInfo { Id = (int)VideoGenre.ScienceFiction, Name = genre.Name });
+          seriesGenres.Add(new GenreInfo { Id = (int)VideoGenre.SciFi, Name = genre.Name });
           seriesGenres.Add(new GenreInfo { Id = (int)VideoGenre.Fantasy, Name = genre.Name });
         }
         else if (genre.Id == 9648)
