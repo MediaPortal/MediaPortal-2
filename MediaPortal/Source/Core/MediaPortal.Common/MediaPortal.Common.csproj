@@ -139,7 +139,7 @@
     <Compile Include="Services\GenreConverter\GenreProviderBuilder.cs" />
     <Compile Include="Services\GenreConverter\IGenreConverter.cs" />
     <Compile Include="Services\GenreConverter\GenreConverter.cs" />
-    <Compile Include="Services\GenreConverter\MusicGenre.cs" />
+    <Compile Include="Services\GenreConverter\AudioGenre.cs" />
     <Compile Include="Services\GenreConverter\VideoGenre.cs" />
     <Compile Include="Services\Logging\LoggerConfig.cs" />
     <Compile Include="Services\Logging\LogSettings.cs" />

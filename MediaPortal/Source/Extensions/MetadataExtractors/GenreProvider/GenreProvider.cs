@@ -82,28 +82,28 @@ namespace MediaPortal.Extensions.MetadataExtractors.GenreProvider
       string genreRegex;
       list.AddRange(new GenreMapping[]
       {
-        new GenreMapping((int)MusicGenre.Classic, new Regex(GenreStringManager.TryGetGenreString("Match", "Music.Classic", language, out genreRegex) ? genreRegex : @"Classic", RegexOptions.IgnoreCase)),
-        new GenreMapping((int)MusicGenre.Soundtrack, new Regex(GenreStringManager.TryGetGenreString("Match", "Music.Soundtrack", language, out genreRegex) ? genreRegex : @"Soundtrack", RegexOptions.IgnoreCase)),
-        new GenreMapping((int)MusicGenre.NewAge, new Regex(GenreStringManager.TryGetGenreString("Match", "Music.NewAge", language, out genreRegex) ? genreRegex : @"New Age", RegexOptions.IgnoreCase)),
-        new GenreMapping((int)MusicGenre.Rock, new Regex(GenreStringManager.TryGetGenreString("Match", "Music.Rock", language, out genreRegex) ? genreRegex : @"Rock", RegexOptions.IgnoreCase)),
-        new GenreMapping((int)MusicGenre.Metal, new Regex(GenreStringManager.TryGetGenreString("Match", "Music.Metal", language, out genreRegex) ? genreRegex : @"Metal", RegexOptions.IgnoreCase)),
-        new GenreMapping((int)MusicGenre.Country, new Regex(GenreStringManager.TryGetGenreString("Match", "Music.Classic", language, out genreRegex) ? genreRegex : @"Country", RegexOptions.IgnoreCase)),
-        new GenreMapping((int)MusicGenre.Jazz, new Regex(GenreStringManager.TryGetGenreString("Match", "Music.Jazz", language, out genreRegex) ? genreRegex : @"Jazz", RegexOptions.IgnoreCase)),
-        new GenreMapping((int)MusicGenre.Soul, new Regex(GenreStringManager.TryGetGenreString("Match", "Music.RbSoul", language, out genreRegex) ? genreRegex : @"Soul", RegexOptions.IgnoreCase)),
-        new GenreMapping((int)MusicGenre.Rap, new Regex(GenreStringManager.TryGetGenreString("Match", "Music.HipHopRap", language, out genreRegex) ? genreRegex : @"Rap", RegexOptions.IgnoreCase)),
-        new GenreMapping((int)MusicGenre.Raggae, new Regex(GenreStringManager.TryGetGenreString("Match", "Music.Raggae", language, out genreRegex) ? genreRegex : @"Reggae", RegexOptions.IgnoreCase)),
-        new GenreMapping((int)MusicGenre.Pop, new Regex(GenreStringManager.TryGetGenreString("Match", "Music.Pop", language, out genreRegex) ? genreRegex : @"Pop", RegexOptions.IgnoreCase)),
-        new GenreMapping((int)MusicGenre.Dance, new Regex(GenreStringManager.TryGetGenreString("Match", "Music.Dance", language, out genreRegex) ? genreRegex : @"Dance", RegexOptions.IgnoreCase)),
-        new GenreMapping((int)MusicGenre.Electronic, new Regex(GenreStringManager.TryGetGenreString("Match", "Music.Electronic", language, out genreRegex) ? genreRegex : @"Electronic", RegexOptions.IgnoreCase)),
-        new GenreMapping((int)MusicGenre.Comedy, new Regex(GenreStringManager.TryGetGenreString("Match", "Music.Comedy", language, out genreRegex) ? genreRegex : @"Comedy", RegexOptions.IgnoreCase)),
-        new GenreMapping((int)MusicGenre.Folk, new Regex(GenreStringManager.TryGetGenreString("Match", "Music.Folk", language, out genreRegex) ? genreRegex : @"Folk", RegexOptions.IgnoreCase)),
-        new GenreMapping((int)MusicGenre.EasyListening, new Regex(GenreStringManager.TryGetGenreString("Match", "Music.EasyListening", language, out genreRegex) ? genreRegex : @"Easy", RegexOptions.IgnoreCase)),
-        new GenreMapping((int)MusicGenre.Holiday, new Regex(GenreStringManager.TryGetGenreString("Match", "Music.Holiday", language, out genreRegex) ? genreRegex : @"Holiday", RegexOptions.IgnoreCase)),
-        new GenreMapping((int)MusicGenre.World, new Regex(GenreStringManager.TryGetGenreString("Match", "Music.World", language, out genreRegex) ? genreRegex : @"World", RegexOptions.IgnoreCase)),
-        new GenreMapping((int)MusicGenre.Alternative, new Regex(GenreStringManager.TryGetGenreString("Match", "Music.Alternative", language, out genreRegex) ? genreRegex : @"Alternative", RegexOptions.IgnoreCase)),
-        new GenreMapping((int)MusicGenre.Compilation, new Regex(GenreStringManager.TryGetGenreString("Match", "Music.Compilation", language, out genreRegex) ? genreRegex : @"Compilation", RegexOptions.IgnoreCase)),
-        new GenreMapping((int)MusicGenre.Audiobook, new Regex(GenreStringManager.TryGetGenreString("Match", "Music.Audiobook", language, out genreRegex) ? genreRegex : @"Audiobook", RegexOptions.IgnoreCase)),
-        new GenreMapping((int)MusicGenre.Karaoke, new Regex(GenreStringManager.TryGetGenreString("Match", "Music.Karaoke", language, out genreRegex) ? genreRegex : @"Karaoke", RegexOptions.IgnoreCase)),
+        new GenreMapping((int)AudioGenre.Classic, new Regex(GenreStringManager.TryGetGenreString("Match", "Audio.Classic", language, out genreRegex) ? genreRegex : @"Classic", RegexOptions.IgnoreCase)),
+        new GenreMapping((int)AudioGenre.Soundtrack, new Regex(GenreStringManager.TryGetGenreString("Match", "Audio.Soundtrack", language, out genreRegex) ? genreRegex : @"Soundtrack", RegexOptions.IgnoreCase)),
+        new GenreMapping((int)AudioGenre.NewAge, new Regex(GenreStringManager.TryGetGenreString("Match", "Audio.NewAge", language, out genreRegex) ? genreRegex : @"New Age", RegexOptions.IgnoreCase)),
+        new GenreMapping((int)AudioGenre.Rock, new Regex(GenreStringManager.TryGetGenreString("Match", "Audio.Rock", language, out genreRegex) ? genreRegex : @"Rock", RegexOptions.IgnoreCase)),
+        new GenreMapping((int)AudioGenre.Metal, new Regex(GenreStringManager.TryGetGenreString("Match", "Audio.Metal", language, out genreRegex) ? genreRegex : @"Metal", RegexOptions.IgnoreCase)),
+        new GenreMapping((int)AudioGenre.Country, new Regex(GenreStringManager.TryGetGenreString("Match", "Audio.Classic", language, out genreRegex) ? genreRegex : @"Country", RegexOptions.IgnoreCase)),
+        new GenreMapping((int)AudioGenre.Jazz, new Regex(GenreStringManager.TryGetGenreString("Match", "Audio.Jazz", language, out genreRegex) ? genreRegex : @"Jazz", RegexOptions.IgnoreCase)),
+        new GenreMapping((int)AudioGenre.Soul, new Regex(GenreStringManager.TryGetGenreString("Match", "Audio.RbSoul", language, out genreRegex) ? genreRegex : @"Soul", RegexOptions.IgnoreCase)),
+        new GenreMapping((int)AudioGenre.Rap, new Regex(GenreStringManager.TryGetGenreString("Match", "Audio.HipHopRap", language, out genreRegex) ? genreRegex : @"Rap", RegexOptions.IgnoreCase)),
+        new GenreMapping((int)AudioGenre.Raggae, new Regex(GenreStringManager.TryGetGenreString("Match", "Audio.Raggae", language, out genreRegex) ? genreRegex : @"Reggae", RegexOptions.IgnoreCase)),
+        new GenreMapping((int)AudioGenre.Pop, new Regex(GenreStringManager.TryGetGenreString("Match", "Audio.Pop", language, out genreRegex) ? genreRegex : @"Pop", RegexOptions.IgnoreCase)),
+        new GenreMapping((int)AudioGenre.Dance, new Regex(GenreStringManager.TryGetGenreString("Match", "Audio.Dance", language, out genreRegex) ? genreRegex : @"Dance", RegexOptions.IgnoreCase)),
+        new GenreMapping((int)AudioGenre.Electronic, new Regex(GenreStringManager.TryGetGenreString("Match", "Audio.Electronic", language, out genreRegex) ? genreRegex : @"Electronic", RegexOptions.IgnoreCase)),
+        new GenreMapping((int)AudioGenre.Comedy, new Regex(GenreStringManager.TryGetGenreString("Match", "Audio.Comedy", language, out genreRegex) ? genreRegex : @"Comedy", RegexOptions.IgnoreCase)),
+        new GenreMapping((int)AudioGenre.Folk, new Regex(GenreStringManager.TryGetGenreString("Match", "Audio.Folk", language, out genreRegex) ? genreRegex : @"Folk", RegexOptions.IgnoreCase)),
+        new GenreMapping((int)AudioGenre.EasyListening, new Regex(GenreStringManager.TryGetGenreString("Match", "Audio.EasyListening", language, out genreRegex) ? genreRegex : @"Easy", RegexOptions.IgnoreCase)),
+        new GenreMapping((int)AudioGenre.Holiday, new Regex(GenreStringManager.TryGetGenreString("Match", "Audio.Holiday", language, out genreRegex) ? genreRegex : @"Holiday", RegexOptions.IgnoreCase)),
+        new GenreMapping((int)AudioGenre.World, new Regex(GenreStringManager.TryGetGenreString("Match", "Audio.World", language, out genreRegex) ? genreRegex : @"World", RegexOptions.IgnoreCase)),
+        new GenreMapping((int)AudioGenre.Alternative, new Regex(GenreStringManager.TryGetGenreString("Match", "Audio.Alternative", language, out genreRegex) ? genreRegex : @"Alternative", RegexOptions.IgnoreCase)),
+        new GenreMapping((int)AudioGenre.Compilation, new Regex(GenreStringManager.TryGetGenreString("Match", "Audio.Compilation", language, out genreRegex) ? genreRegex : @"Compilation", RegexOptions.IgnoreCase)),
+        new GenreMapping((int)AudioGenre.Audiobook, new Regex(GenreStringManager.TryGetGenreString("Match", "Audio.Audiobook", language, out genreRegex) ? genreRegex : @"Audiobook", RegexOptions.IgnoreCase)),
+        new GenreMapping((int)AudioGenre.Karaoke, new Regex(GenreStringManager.TryGetGenreString("Match", "Audio.Karaoke", language, out genreRegex) ? genreRegex : @"Karaoke", RegexOptions.IgnoreCase)),
       });
 
       MusicGenreMap.TryAdd(language, list);
@@ -273,8 +273,8 @@ namespace MediaPortal.Extensions.MetadataExtractors.GenreProvider
         }
         else if (GenreCategory.Music == genreCategory)
         {
-          MusicGenre genre = (MusicGenre)genreId;
-          labelName = $"Music.{genre.ToString()}";
+          AudioGenre genre = (AudioGenre)genreId;
+          labelName = $"Audio.{genre.ToString()}";
         }
         else
         {
@@ -306,7 +306,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.GenreProvider
         if ((GenreCategory.Movie == genreCategory || GenreCategory.Series == genreCategory) && Enum.IsDefined(typeof(VideoGenre), genreId))
           genreType = $"Video.{((VideoGenre)genreId).ToString()}";
         else if (GenreCategory.Music == genreCategory)
-          genreType = $"Music.{((MusicGenre)genreId).ToString()}";
+          genreType = $"Audio.{((AudioGenre)genreId).ToString()}";
 
         return !string.IsNullOrEmpty(genreType);
       }

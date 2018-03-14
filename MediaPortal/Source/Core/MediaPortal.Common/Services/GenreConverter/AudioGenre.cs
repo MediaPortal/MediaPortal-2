@@ -24,7 +24,7 @@
 
 namespace MediaPortal.Common.Services.GenreConverter
 {
-  public enum MusicGenre
+  public enum AudioGenre
   {
     Unnown,
     Classic,
