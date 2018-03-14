@@ -293,7 +293,26 @@ namespace MediaPortal.Extensions.MetadataExtractors.GenreProvider
       }
       catch (Exception ex)
       {
-        ServiceRegistration.Get<ILogger>().Warn("GenreProvider: Error getting genre name {0}", ex, genreName);
+        ServiceRegistration.Get<ILogger>().Warn("GenreProvider: Error getting genre name {0}", ex, genreId);
+        return false;
+      }
+    }
+
+    public bool GetGenreType(int genreId, string genreCategory, out string genreType)
+    {
+      genreType = null;
+      try
+      {
+        if ((GenreCategory.Movie == genreCategory || GenreCategory.Series == genreCategory) && Enum.IsDefined(typeof(VideoGenre), genreId))
+          genreType = $"Video.{((VideoGenre)genreId).ToString()}";
+        else if (GenreCategory.Music == genreCategory)
+          genreType = $"Music.{((MusicGenre)genreId).ToString()}";
+
+        return !string.IsNullOrEmpty(genreType);
+      }
+      catch (Exception ex)
+      {
+        ServiceRegistration.Get<ILogger>().Warn("GenreProvider: Error getting genre type {0}", ex, genreId);
         return false;
       }
     }

@@ -31,9 +31,9 @@ using MediaPortal.UI.SkinEngine.MarkupExtensions;
 namespace MediaPortal.UI.SkinEngine.MpfElements.Converters
 {
   /// <summary>
-  /// GenreNameConverter converts a genre id to a genre name.
+  /// GenreTypeConverter converts a genre id to a genre type string.
   /// </summary>
-  public class GenreNameConverter : IValueConverter
+  public class GenreTypeConverter : IValueConverter
   {
     #region IValueConverter implementation
 
@@ -46,6 +46,7 @@ namespace MediaPortal.UI.SkinEngine.MpfElements.Converters
       string genreCategory = parameter as string;
       if (int.TryParse(val.ToString(), out int genreId) && genreCategory != null)
       {
+
         IGenreConverter converter = ServiceRegistration.Get<IGenreConverter>();
         if(converter.GetGenreName(genreId, genreCategory, culture.Name, out string genreName))
         {

@@ -61,8 +61,8 @@
   <string name="Label.Music.Metal">Metal</string>
   <string name="Label.Music.Country">Country</string>
   <string name="Label.Music.Jazz">Jazz</string>
-  <string name="Label.Music.Soul">Soul</string>
-  <string name="Label.Music.Rap">Rap</string>
+  <string name="Label.Music.Soul">R&amp;B, Soul</string>
+  <string name="Label.Music.Rap">Hip Hop, Rap</string>
   <string name="Label.Music.Raggae">Reggae</string>
   <string name="Label.Music.Pop">Pop</string>
   <string name="Label.Music.Dance">Dance</string>

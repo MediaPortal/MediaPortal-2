@@ -55,5 +55,14 @@ namespace MediaPortal.Common.Services.GenreConverter
     /// <param name="genreName">The genre name determined from the specified parameters.</param>
     /// <returns><c>true</c>, if the genre name was successfully found, else <c>false</c>.</returns>
     bool GetGenreName(int genreId, string genreCategory, string genreCulture, out string genreName);
+
+    /// <summary>
+    /// Determines a genre type for the specified <paramref name="genreId"/>.
+    /// </summary>
+    /// <param name="genreId">The genre to fine a name for.</param>
+    /// <param name="genreCategory">The type of category to use for detecting the genre like e.g. Movie, Series or Music.</param>
+    /// <param name="genreType">The genre type determined from the specified parameters formatted so it identifies a unique genre type.</param>
+    /// <returns><c>true</c>, if the genre type was successfully found, else <c>false</c>.</returns>
+    bool GetGenreType(int genreId, string genreCategory, out string genreType);
   }
 }

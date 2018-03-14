@@ -138,6 +138,25 @@ namespace MediaPortal.Common.Services.GenreConverter
       return false;
     }
 
+    public bool GetGenreType(int genreId, string genreCategory, out string genreType)
+    {
+      InitProviders();
+      genreType = null;
+      foreach (var genreProvider in _providerList)
+      {
+        try
+        {
+          if (genreProvider.Provider.GetGenreType(genreId, genreCategory, out genreType))
+            return true;
+        }
+        catch (Exception ex)
+        {
+          ServiceRegistration.Get<ILogger>().Error("Error converting to genre type using provider '{0}", ex, genreProvider.GetType().Name);
+        }
+      }
+      return false;
+    }
+
     #endregion
   }
 }
