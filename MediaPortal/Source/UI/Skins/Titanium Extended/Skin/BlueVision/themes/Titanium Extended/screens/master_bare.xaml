@@ -184,7 +184,7 @@ Parameters which have to be accessible by a DynamicResource lookup:
     <Control x:Name="ClientArea" Height="580" Width="1795" Canvas.Left="66" Canvas.Bottom="952"
              Template="{DynamicResource ResourceKey=Client_Template}"/>
 
-    <Grid Canvas.Top="-32" Canvas.Left="0" Width="1920" Height="120" IsVisible="{Binding Source={StaticResource MenuModel},Path=IsHomeScreen}">
+    <Grid Canvas.Top="-32" Canvas.Left="400" Width="1120" Height="120" IsVisible="{Binding Source={StaticResource MenuModel},Path=IsHomeScreen}">
       <Grid.RowDefinitions>
         <RowDefinition Height="*"/>
       </Grid.RowDefinitions>
