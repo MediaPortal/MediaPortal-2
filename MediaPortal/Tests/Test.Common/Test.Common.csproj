@@ -46,15 +46,6 @@
     <Compile Include="..\..\Source\Core\MediaPortal.Common\VersionInfo\VersionInfo.cs">
       <Link>Properties\VersionInfo.cs</Link>
     </Compile>
-    <Compile Include="TestMediaItemAspectTypeRegistration.cs" />
-    <Compile Include="MultipleTestMIA.cs" />
-    <Compile Include="SingleTestMIA.cs" />
-    <Compile Include="TestRelationshipExtraction.cs" />
-    <Compile Include="Thumbnailer.cs" />
-    <Compile Include="TestUtils.cs" />
-    <Compile Include="TestMediaItemAspectMetadata.cs" />
-    <Compile Include="TestMediaItemQuery.cs" />
-    <Compile Include="TestMediaItem.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

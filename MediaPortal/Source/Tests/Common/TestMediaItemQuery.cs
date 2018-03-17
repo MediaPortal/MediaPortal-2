@@ -22,18 +22,14 @@
 
 #endregion
 
+using System;
+using System.IO;
+using System.Xml;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Common.MediaManagement.MLQueries;
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Xml;
 using NUnit.Framework;
 
-namespace Test.Common
+namespace Tests.Common
 {
   [TestFixture]
   public class TestMediaItemQuery

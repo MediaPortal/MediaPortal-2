@@ -29,7 +29,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using MediaPortal.Common.MediaManagement;
 
-namespace Test.Common
+namespace Tests.Common
 {
   public class TestMediaItemAspectTypeRegistration : IMediaItemAspectTypeRegistration
   {

@@ -33,7 +33,7 @@ using MediaPortal.Extensions.MetadataExtractors.GDIThumbnailProvider;
 using MediaPortal.Extensions.MetadataExtractors.WICThumbnailProvider;
 using NUnit.Framework;
 
-namespace Test.Common
+namespace Tests.Common
 {
   [TestFixture]
   public class WicThumbnailer : Thumbnailer
@@ -77,15 +77,15 @@ namespace Test.Common
     public void SetUp()
     {
       var contextTestDirectory = TestContext.CurrentContext.TestDirectory;
-      Console.WriteLine("Test setup: Current test folder {0}", contextTestDirectory);
+      Console.WriteLine((string)"Test setup: Current test folder {0}", (object)contextTestDirectory);
 
       // Workaround for TeamCity build failure, where the test is executed inside another folder.
-      if (!contextTestDirectory.Contains("Test.Common"))
+      if (!contextTestDirectory.Contains("Tests"))
       {
         var testRoot = @"MediaPortal\Tests\";
         var pos = contextTestDirectory.IndexOf(testRoot);
-        contextTestDirectory = contextTestDirectory.Substring(0, pos) + testRoot + @"Test.Common\bin\x86\Release";
-        Console.WriteLine("Test setup: Remapped folder for image test to {0}", contextTestDirectory);
+        contextTestDirectory = contextTestDirectory.Substring(0, pos) + testRoot + @"Tests\bin\x86\Release";
+        Console.WriteLine((string)"Test setup: Remapped folder for image test to {0}", (object)contextTestDirectory);
       }
 
       IMAGE_FOLDER = contextTestDirectory + "\\Images\\";

@@ -27,7 +27,7 @@ using System.Collections.Generic;
 using System.Linq;
 using MediaPortal.Common.MediaManagement;
 
-namespace Test.Common
+namespace Tests.Common
 {
   public class TestCommonUtils
   {

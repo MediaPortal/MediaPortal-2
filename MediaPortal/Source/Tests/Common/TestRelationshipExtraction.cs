@@ -1,14 +1,14 @@
-﻿using MediaPortal.Common;
+﻿using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Xml;
+using MediaPortal.Common;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Common.MediaManagement.MLQueries;
 using NUnit.Framework;
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Xml;
 
-namespace Test.Common
+namespace Tests.Common
 {
   [TestFixture]
   public class TestRelationshipExtraction

@@ -30,7 +30,7 @@ using System.Xml;
 using MediaPortal.Common.MediaManagement;
 using NUnit.Framework;
 
-namespace Test.Common
+namespace Tests.Common
 {
   [TestFixture]
   public class TestMediaItemAspectMetadata

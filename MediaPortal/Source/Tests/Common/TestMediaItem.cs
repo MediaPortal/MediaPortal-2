@@ -31,7 +31,7 @@ using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using NUnit.Framework;
 
-namespace Test.Common
+namespace Tests.Common
 {
   [TestFixture]
   public class TestMediaItem
