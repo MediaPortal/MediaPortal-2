@@ -45,6 +45,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.GenreProvider
     private readonly ConcurrentDictionary<string, List<GenreMapping>> MusicGenreMap = new ConcurrentDictionary<string, List<GenreMapping>>();
     private readonly ConcurrentDictionary<string, List<GenreMapping>> MovieGenreMap = new ConcurrentDictionary<string, List<GenreMapping>>();
     private readonly ConcurrentDictionary<string, List<GenreMapping>> SeriesGenreMap = new ConcurrentDictionary<string, List<GenreMapping>>();
+    private readonly ConcurrentDictionary<string, List<GenreMapping>> TvGenreMap = new ConcurrentDictionary<string, List<GenreMapping>>();
     private SettingsChangeWatcher<RegionSettings> SettingChangeWatcher = null;
     private string DEFAULT_LANGUAGE = "en";
     private GenreStringManager GenreStringManager = new GenreStringManager();
@@ -198,6 +199,54 @@ namespace MediaPortal.Extensions.MetadataExtractors.GenreProvider
       SeriesGenreMap.TryAdd(language, list);
     }
 
+    private void InitTvGenre(string language)
+    {
+      if (TvGenreMap.ContainsKey(language))
+        return;
+
+      var list = new List<GenreMapping>();
+
+      var settings = ServiceRegistration.Get<ISettingsManager>().Load<GenreSettings>();
+      if (settings.TvGenreMappings?.Length > 0)
+        list.AddRange(settings.TvGenreMappings);
+
+      string genreRegex;
+      list.AddRange(new GenreMapping[]
+      {
+        new GenreMapping((int)VideoGenre.Action, new Regex(GenreStringManager.TryGetGenreString("Match", "Tv.Action", language, out genreRegex) ? genreRegex : @"Action", RegexOptions.IgnoreCase)),
+        new GenreMapping((int)VideoGenre.Adventure, new Regex(GenreStringManager.TryGetGenreString("Match", "Tv.Adventure", language, out genreRegex) ? genreRegex : @"Adventure", RegexOptions.IgnoreCase)),
+        new GenreMapping((int)VideoGenre.Animation, new Regex(GenreStringManager.TryGetGenreString("Match", "Tv.Animation", language, out genreRegex) ? genreRegex : @"Animation|Cartoon|Anime", RegexOptions.IgnoreCase)),
+        new GenreMapping((int)VideoGenre.Comedy, new Regex(GenreStringManager.TryGetGenreString("Match", "Tv.Comedy", language, out genreRegex) ? genreRegex : @"Comedy", RegexOptions.IgnoreCase)),
+        new GenreMapping((int)VideoGenre.Crime, new Regex(GenreStringManager.TryGetGenreString("Match", "Tv.Crime", language, out genreRegex) ? genreRegex : @"Crime", RegexOptions.IgnoreCase)),
+        new GenreMapping((int)VideoGenre.Documentary, new Regex(GenreStringManager.TryGetGenreString("Match", "Tv.Documentary", language, out genreRegex) ? genreRegex : @"Documentary", RegexOptions.IgnoreCase)),
+        new GenreMapping((int)VideoGenre.Biography, new Regex(GenreStringManager.TryGetGenreString("Match", "Tv.Biography", language, out genreRegex) ? genreRegex : @"Biography", RegexOptions.IgnoreCase)),
+        new GenreMapping((int)VideoGenre.Drama, new Regex(GenreStringManager.TryGetGenreString("Match", "Tv.Drama", language, out genreRegex) ? genreRegex : @"Drama", RegexOptions.IgnoreCase)),
+        new GenreMapping((int)VideoGenre.Family, new Regex(GenreStringManager.TryGetGenreString("Match", "Tv.Family", language, out genreRegex) ? genreRegex : @"Family", RegexOptions.IgnoreCase)),
+        new GenreMapping((int)VideoGenre.Fantasy, new Regex(GenreStringManager.TryGetGenreString("Match", "Tv.Fantasy", language, out genreRegex) ? genreRegex : @"Fantasy", RegexOptions.IgnoreCase)),
+        new GenreMapping((int)VideoGenre.History, new Regex(GenreStringManager.TryGetGenreString("Match", "Tv.History", language, out genreRegex) ? genreRegex : @"History", RegexOptions.IgnoreCase)),
+        new GenreMapping((int)VideoGenre.Horror, new Regex(GenreStringManager.TryGetGenreString("Match", "Tv.Horror", language, out genreRegex) ? genreRegex : @"Horror", RegexOptions.IgnoreCase)),
+        new GenreMapping((int)VideoGenre.Music, new Regex(GenreStringManager.TryGetGenreString("Match", "Tv.Music", language, out genreRegex) ? genreRegex : @"Music", RegexOptions.IgnoreCase)),
+        new GenreMapping((int)VideoGenre.Mystery, new Regex(GenreStringManager.TryGetGenreString("Match", "Tv.Mystery", language, out genreRegex) ? genreRegex : @"Mystery", RegexOptions.IgnoreCase)),
+        new GenreMapping((int)VideoGenre.Romance, new Regex(GenreStringManager.TryGetGenreString("Match", "Tv.Romance", language, out genreRegex) ? genreRegex : @"Romance", RegexOptions.IgnoreCase)),
+        new GenreMapping((int)VideoGenre.SciFi, new Regex(GenreStringManager.TryGetGenreString("Match", "Tv.ScienceFiction", language, out genreRegex) ? genreRegex : @"Science Fiction|Science-Fiction|Sci-Fi", RegexOptions.IgnoreCase)),
+        new GenreMapping((int)VideoGenre.Thriller, new Regex(GenreStringManager.TryGetGenreString("Match", "Tv.Thriller", language, out genreRegex) ? genreRegex : @"Thriller|Disaster|Suspense", RegexOptions.IgnoreCase)),
+        new GenreMapping((int)VideoGenre.War, new Regex(GenreStringManager.TryGetGenreString("Match", "Tv.War", language, out genreRegex) ? genreRegex : @"War", RegexOptions.IgnoreCase)),
+        new GenreMapping((int)VideoGenre.Western, new Regex(GenreStringManager.TryGetGenreString("Match", "Tv.Western", language, out genreRegex) ? genreRegex : @"Western", RegexOptions.IgnoreCase)),
+        new GenreMapping((int)VideoGenre.Kids, new Regex(GenreStringManager.TryGetGenreString("Match", "Tv.Kids", language, out genreRegex) ? genreRegex : @"Kids|Children|Teen", RegexOptions.IgnoreCase)),
+        new GenreMapping((int)VideoGenre.News, new Regex(GenreStringManager.TryGetGenreString("Match", "Tv.News", language, out genreRegex) ? genreRegex : @"News", RegexOptions.IgnoreCase)),
+        new GenreMapping((int)VideoGenre.Reality, new Regex(GenreStringManager.TryGetGenreString("Match", "Tv.Reality", language, out genreRegex) ? genreRegex : @"Reality", RegexOptions.IgnoreCase)),
+        new GenreMapping((int)VideoGenre.Soap, new Regex(GenreStringManager.TryGetGenreString("Match", "Tv.Soap", language, out genreRegex) ? genreRegex : @"Soap", RegexOptions.IgnoreCase)),
+        new GenreMapping((int)VideoGenre.Talk, new Regex(GenreStringManager.TryGetGenreString("Match", "Tv.Talk", language, out genreRegex) ? genreRegex : @"Talk", RegexOptions.IgnoreCase)),
+        new GenreMapping((int)VideoGenre.TvMovie, new Regex(GenreStringManager.TryGetGenreString("Match", "Tv.TVMovie", language, out genreRegex) ? genreRegex : @"TV", RegexOptions.IgnoreCase)),
+        new GenreMapping((int)VideoGenre.Politics, new Regex(GenreStringManager.TryGetGenreString("Match", "Tv.Politics", language, out genreRegex) ? genreRegex : @"Politic", RegexOptions.IgnoreCase)),
+        new GenreMapping((int)VideoGenre.Sport, new Regex(GenreStringManager.TryGetGenreString("Match", "Tv.Sport", language, out genreRegex) ? genreRegex : @"Sport", RegexOptions.IgnoreCase)),
+        new GenreMapping((int)VideoGenre.Superhero, new Regex(GenreStringManager.TryGetGenreString("Match", "Tv.Superhero", language, out genreRegex) ? genreRegex : @"Superhero", RegexOptions.IgnoreCase)),
+        new GenreMapping((int)VideoGenre.Game, new Regex(GenreStringManager.TryGetGenreString("Match", "Tv.Game", language, out genreRegex) ? genreRegex : @"Game", RegexOptions.IgnoreCase)),
+      });
+
+      TvGenreMap.TryAdd(language, list);
+    }
+
     public bool GetGenreId(string genreName, string genreCategory, string genreCulture, out int genreId)
     {
       genreId = 0;
@@ -239,6 +288,12 @@ namespace MediaPortal.Extensions.MetadataExtractors.GenreProvider
             if (!MusicGenreMap.TryGetValue(lang, out genreMap))
               continue;
           }
+          else if (GenreCategory.Tv == genreCategory)
+          {
+            InitTvGenre(lang);
+            if (!TvGenreMap.TryGetValue(lang, out genreMap))
+              continue;
+          }
           else
           {
             return false;
@@ -276,6 +331,11 @@ namespace MediaPortal.Extensions.MetadataExtractors.GenreProvider
           AudioGenre genre = (AudioGenre)genreId;
           labelName = $"Audio.{genre.ToString()}";
         }
+        else if (GenreCategory.Tv == genreCategory)
+        {
+          VideoGenre genre = (VideoGenre)genreId;
+          labelName = $"Tv.{genre.ToString()}";
+        }
         else
         {
           return false;
@@ -307,6 +367,8 @@ namespace MediaPortal.Extensions.MetadataExtractors.GenreProvider
           genreType = $"Video.{((VideoGenre)genreId).ToString()}";
         else if (GenreCategory.Music == genreCategory)
           genreType = $"Audio.{((AudioGenre)genreId).ToString()}";
+        else if (GenreCategory.Tv == genreCategory)
+          genreType = $"Tv.{((AudioGenre)genreId).ToString()}";
 
         return !string.IsNullOrEmpty(genreType);
       }

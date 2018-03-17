@@ -25,6 +25,7 @@
 using System;
 using MediaPortal.Common;
 using MediaPortal.Common.General;
+using MediaPortal.Common.Services.GenreConverter;
 using MediaPortal.Plugins.SlimTv.Interfaces;
 using MediaPortal.Plugins.SlimTv.Interfaces.Items;
 
@@ -45,6 +46,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Helpers
     public AbstractProperty StartTimeProperty { get; set; }
     public AbstractProperty EndTimeProperty { get; set; }
     public AbstractProperty RemainingDurationProperty { get; set; }
+    public AbstractProperty GenreIdProperty { get; set; }
     public AbstractProperty GenreProperty { get; set; }
     public AbstractProperty SeasonNumberProperty { get; set; }
     public AbstractProperty EpisodeNumberProperty { get; set; }
@@ -69,6 +71,15 @@ namespace MediaPortal.Plugins.SlimTv.Client.Helpers
     {
       get { return (String)DescriptionProperty.GetValue(); }
       set { DescriptionProperty.SetValue(value); }
+    }
+
+    /// <summary>
+    /// Gets or Sets the Genre Id.
+    /// </summary>
+    public int GenreId
+    {
+      get { return (int)GenreIdProperty.GetValue(); }
+      set { GenreIdProperty.SetValue(value); }
     }
 
     /// <summary>
@@ -196,6 +207,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Helpers
       IsSeriesScheduledProperty = new WProperty(typeof(bool), false);
       TitleProperty = new WProperty(typeof(String), String.Empty);
       DescriptionProperty = new WProperty(typeof(String), String.Empty);
+      GenreIdProperty = new WProperty(typeof(int), 0);
       GenreProperty = new WProperty(typeof(String), String.Empty);
       StartTimeProperty = new WProperty(typeof(DateTime), DateTime.MinValue);
       EndTimeProperty = new WProperty(typeof(DateTime), DateTime.MinValue);
@@ -276,6 +288,12 @@ namespace MediaPortal.Plugins.SlimTv.Client.Helpers
           StartTime = program.StartTime;
           EndTime = program.EndTime;
           Genre = program.Genre;
+          if (GenreId == 0 && !string.IsNullOrEmpty(Genre))
+          {
+            IGenreConverter converter = ServiceRegistration.Get<IGenreConverter>();
+            if (converter != null && converter.GetGenreId(Genre, GenreCategory.Tv, null, out int genreId))
+              GenreId = genreId;
+          }
         }
         else
         {

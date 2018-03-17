@@ -31,6 +31,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.GenreProvider
     protected GenreMapping[] _musicGenreMap = new GenreMapping[0];
     protected GenreMapping[] _seriesGenreMap = new GenreMapping[0];
     protected GenreMapping[] _movieGenreMap = new GenreMapping[0];
+    protected GenreMapping[] _tvGenreMap = new GenreMapping[0];
 
     public GenreSettings()
     {
@@ -55,6 +56,13 @@ namespace MediaPortal.Extensions.MetadataExtractors.GenreProvider
     {
       get { return _movieGenreMap; }
       set { _movieGenreMap = value; }
+    }
+
+    [Setting(SettingScope.Global)]
+    public GenreMapping[] TvGenreMappings
+    {
+      get { return _tvGenreMap; }
+      set { _tvGenreMap = value; }
     }
   }
 }

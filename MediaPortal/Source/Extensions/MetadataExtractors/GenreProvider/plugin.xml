@@ -4,7 +4,7 @@
     PluginId="{367C772E-DFC5-4BE1-B292-7FB6A2D08097}"
     Author = "Henso"
     Copyright="GPL"
-    Description="Genre converter for movies, series and music.">
+    Description="Genre converter for tv, movies, series and music.">
 
   <Version
     PluginVersion="1.0"
