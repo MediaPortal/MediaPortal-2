@@ -572,7 +572,6 @@ namespace MediaPortal.Plugins.SlimTv.Service
     {
       ISchedule schedule;
       var tvProgram = TvDatabase.Program.Retrieve(program.ProgramId);
-      ISchedule schedule;
       if (tvProgram == null)
       {
         return Task.FromResult(new AsyncResult<ISchedule>(false, null));
