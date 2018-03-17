@@ -194,6 +194,17 @@ namespace MediaPortal.Extensions.OnlineLibraries
       }
     }
 
+    public async Task<IEnumerable<TrackInfo>> FindMatchingTracksAsync(TrackInfo trackInfo)
+    {
+      List<Task<IEnumerable<TrackInfo>>> tasks = new List<Task<IEnumerable<TrackInfo>>>();
+      foreach (IMusicMatcher matcher in MUSIC_MATCHERS.Where(m => m.Enabled))
+      {
+        tasks.Add(matcher.FindMatchingTracksAsync(trackInfo));
+      }
+      await Task.WhenAll(tasks);
+      return tasks.Where(t => t.Result != null).SelectMany(t => t.Result);
+    }
+
     public async Task<bool> FindAndUpdateTrackAsync(TrackInfo trackInfo)
     {
       bool success = false;
@@ -255,6 +266,16 @@ namespace MediaPortal.Extensions.OnlineLibraries
           //  matcher.FindAndUpdateTrack(trackInfo, importOnly);
           //}
         }
+      }
+      return success;
+    }
+
+    public async Task<bool> ClearTrackMatchAsync(TrackInfo trackInfo)
+    {
+      bool success = false;
+      foreach (IMusicMatcher matcher in MUSIC_MATCHERS.Where(m => m.Enabled))
+      {
+        success |= await matcher.ClearTrackMatchAsync(trackInfo).ConfigureAwait(false);
       }
       return success;
     }
@@ -349,6 +370,17 @@ namespace MediaPortal.Extensions.OnlineLibraries
       }
     }
 
+    public async Task<IEnumerable<MovieInfo>> FindMatchingMoviesAsync(MovieInfo movieInfo)
+    {
+      List<Task<IEnumerable<MovieInfo>>> tasks = new List<Task<IEnumerable<MovieInfo>>>();
+      foreach (IMovieMatcher matcher in MOVIE_MATCHERS.Where(m => m.Enabled))
+      {
+        tasks.Add(matcher.FindMatchingMoviesAsync(movieInfo));
+      }
+      await Task.WhenAll(tasks);
+      return tasks.Where(t => t.Result != null).SelectMany(t => t.Result);
+    }
+
     public async Task<bool> FindAndUpdateMovieAsync(MovieInfo movieInfo)
     {
       bool success = false;
@@ -410,6 +442,16 @@ namespace MediaPortal.Extensions.OnlineLibraries
       foreach (IMovieMatcher matcher in MOVIE_MATCHERS.Where(m => m.Enabled))
       {
         success |= await matcher.UpdateCompaniesAsync(movieInfo, companyType).ConfigureAwait(false);
+      }
+      return success;
+    }
+
+    public async Task<bool> ClearMovieMatchAsync(MovieInfo movieInfo)
+    {
+      bool success = false;
+      foreach (IMovieMatcher matcher in MOVIE_MATCHERS.Where(m => m.Enabled))
+      {
+        success |= await matcher.ClearMovieMatchAsync(movieInfo).ConfigureAwait(false);
       }
       return success;
     }
@@ -509,6 +551,17 @@ namespace MediaPortal.Extensions.OnlineLibraries
       }
     }
 
+    public async Task<IEnumerable<EpisodeInfo>> FindMatchingEpisodesAsync(EpisodeInfo episodeInfo)
+    {
+      List<Task<IEnumerable<EpisodeInfo>>> tasks = new List<Task<IEnumerable<EpisodeInfo>>>();
+      foreach (ISeriesMatcher matcher in SERIES_MATCHERS.Where(m => m.Enabled))
+      {
+        tasks.Add(matcher.FindMatchingEpisodesAsync(episodeInfo));
+      }
+      await Task.WhenAll(tasks);
+      return tasks.Where(t => t.Result != null).SelectMany(t => t.Result);
+    }
+
     public async Task<bool> FindAndUpdateEpisodeAsync(EpisodeInfo episodeInfo)
     {
       bool success = false;
@@ -601,6 +654,16 @@ namespace MediaPortal.Extensions.OnlineLibraries
       foreach (ISeriesMatcher matcher in SERIES_MATCHERS.Where(m => m.Enabled))
       {
         success |= await matcher.UpdateSeriesCompaniesAsync(seriesInfo, companyType).ConfigureAwait(false);
+      }
+      return success;
+    }
+
+    public async Task<bool> ClearEpisodeMatchAsync(EpisodeInfo episodeInfo)
+    {
+      bool success = false;
+      foreach (ISeriesMatcher matcher in SERIES_MATCHERS.Where(m => m.Enabled))
+      {
+        success |= await matcher.ClearEpisodeMatchAsync(episodeInfo).ConfigureAwait(false);
       }
       return success;
     }

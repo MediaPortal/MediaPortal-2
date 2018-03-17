@@ -239,6 +239,64 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
 
     #region Metadata updaters
 
+    private SeriesMatch GetStroredMatch(SeriesInfo episodeSeries)
+    {
+      // Load cache or create new list
+      List<SeriesMatch> matches = _storage.GetMatches();
+
+      // Use cached values before doing online query
+      SeriesMatch match = matches.Find(m =>
+        (string.Equals(m.ItemName, episodeSeries.SeriesName.ToString(), StringComparison.OrdinalIgnoreCase) || string.Equals(m.OnlineName, episodeSeries.SeriesName.ToString(), StringComparison.OrdinalIgnoreCase)) &&
+        ((episodeSeries.FirstAired.HasValue && m.Year == episodeSeries.FirstAired.Value.Year) || !episodeSeries.FirstAired.HasValue));
+
+      return match;
+    }
+
+    public virtual async Task<IEnumerable<EpisodeInfo>> FindMatchingEpisodesAsync(EpisodeInfo episodeInfo)
+    {
+      List<EpisodeInfo> matches = new List<EpisodeInfo>() { episodeInfo };
+
+      try
+      {
+        // Try online lookup
+        if (!await InitAsync().ConfigureAwait(false))
+          return matches;
+
+        EpisodeInfo episodeSearch = episodeInfo.Clone();
+        SeriesInfo seriesMatch = null;
+        SeriesInfo episodeSeries = episodeInfo.CloneBasicInstance<SeriesInfo>();
+        string seriesId = null;
+        TLang language = FindBestMatchingLanguage(episodeInfo.Languages);
+
+        if (GetSeriesId(episodeSeries, out seriesId))
+        {
+          CheckCacheAndRefresh();
+          if (_memoryCache.TryGetValue(seriesId, out seriesMatch))
+          {
+            if (episodeInfo.SeriesName.IsEmpty)
+              episodeInfo.SeriesName = seriesMatch.SeriesName;
+          }
+        }
+
+        SeriesMatch match = GetStroredMatch(episodeSeries);
+        if (match != null)
+          SetSeriesId(episodeSearch, match.Id);
+
+        Logger.Debug(_id + ": Search for episode {0} online", episodeInfo.ToString());
+        GetSeriesEpisodeId(episodeInfo, out string episodeId);
+        var onlineMatches = await _wrapper.SearchSeriesEpisodeMatchesAsync(episodeSearch, language).ConfigureAwait(false);
+        if (onlineMatches?.Count() > 0)
+          matches.AddRange(onlineMatches.Where(m => (GetSeriesEpisodeId(m, out string matchEpisodeId) && matchEpisodeId != episodeId) || episodeId == null));
+
+        return matches;
+      }
+      catch (Exception ex)
+      {
+        Logger.Debug(_id + ": Exception while matching episode {0}", ex, episodeInfo.ToString());
+        return matches;
+      }
+    }
+
     /// <summary>
     /// Tries to lookup the Episode online.
     /// </summary>
@@ -291,13 +349,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
 
         if (!matchFound)
         {
-          // Load cache or create new list
-          List<SeriesMatch> matches = _storage.GetMatches();
-
-          // Use cached values before doing online query
-          SeriesMatch match = matches.Find(m =>
-            (string.Equals(m.ItemName, episodeSeries.SeriesName.ToString(), StringComparison.OrdinalIgnoreCase) || string.Equals(m.OnlineName, episodeSeries.SeriesName.ToString(), StringComparison.OrdinalIgnoreCase)) &&
-            ((episodeSeries.FirstAired.HasValue && m.Year == episodeSeries.FirstAired.Value.Year) || !episodeSeries.FirstAired.HasValue));
+          SeriesMatch match = GetStroredMatch(episodeSeries);
           Logger.Debug(_id + ": Try to lookup series \"{0}\" from cache: {1}", episodeSeries, match != null && !string.IsNullOrEmpty(match.Id));
 
           episodeMatch = episodeInfo.Clone();
@@ -1193,6 +1245,12 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
         Logger.Debug(_id + ": Exception while processing characters {0}", ex, episodeInfo.ToString());
         return false;
       }
+    }
+
+    public virtual Task<bool> ClearEpisodeMatchAsync(EpisodeInfo episodeInfo)
+    {
+      //Only series is stored so no match to clear for an episode
+      return Task.FromResult(true);
     }
 
     #endregion

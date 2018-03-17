@@ -268,9 +268,44 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
     /// <param name="movieSearch">Movie search parameters</param>
     /// <param name="language">Language, if <c>null</c> it takes the <see cref="PreferredLanguage"/></param>
     /// <returns>A list of matches..</returns>
-    public virtual Task<IList<MovieInfo>> SearchMovieAsync(MovieInfo movieSearch, TLang language)
+    public virtual Task<List<MovieInfo>> SearchMovieAsync(MovieInfo movieSearch, TLang language)
     {
-      return Task.FromResult<IList<MovieInfo>>(null);
+      return Task.FromResult<List<MovieInfo>>(null);
+    }
+
+    /// <summary>
+    /// Search for matches of Movie. This method tries to find the any matching Movies in following order:
+    /// - Exact match using PreferredLanguage
+    /// - Exact match using DefaultLanguage
+    /// - If movies name contains " - ", it splits on this and tries to runs again using the first part (combined titles)
+    /// </summary>
+    /// <param name="movieSearch">Movie search parameters</param>
+    /// <param name="language">Language, if <c>null</c> it takes the <see cref="PreferredLanguage"/></param>
+    /// <returns>A list of all matching movies found.</returns>
+    public async Task<IEnumerable<MovieInfo>> SearchMovieMatchesAsync(MovieInfo movieSearch, TLang language)
+    {
+      language = language != null ? language : PreferredLanguage;
+      List<MovieInfo> movies = await SearchMovieAsync(movieSearch, language).ConfigureAwait(false);
+      if (movies?.Count > 0)
+        return movies;
+
+      if (!language.Equals(_defaultLanguage))
+      {
+        movies = await SearchMovieAsync(movieSearch, _defaultLanguage).ConfigureAwait(false);
+        if (movies?.Count > 0)
+          return movies;
+
+        // If also no match in default language is found, we will look for combined movies names:
+        // i.e. "Sanctuary - Wächter der Kreaturen" is not found, but "Sanctuary" is.
+        SimpleTitle originalName = movieSearch.MovieName;
+        string namePart = movieSearch.MovieName.Text.Split(new[] { '-' })[0].Trim();
+        movieSearch.MovieName = new SimpleTitle(namePart);
+        movies = await SearchMovieAsync(movieSearch, _defaultLanguage).ConfigureAwait(false);
+        movieSearch.MovieName = originalName;
+        if (movies?.Count > 0)
+          return movies;
+      }
+      return null;
     }
 
     /// <summary>
@@ -285,7 +320,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
     public async Task<bool> SearchMovieUniqueAndUpdateAsync(MovieInfo movieSearch, TLang language)
     {
       language = language != null ? language : PreferredLanguage;
-      IList<MovieInfo> movies = await SearchMovieAsync(movieSearch, language).ConfigureAwait(false);
+      List<MovieInfo> movies = await SearchMovieAsync(movieSearch, language).ConfigureAwait(false);
       if (movies == null)
         return false;
       if (TestMovieMatch(movieSearch, ref movies))
@@ -327,7 +362,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
     /// <param name="movieSearch">Movie search parameters</param>
     /// <param name="movies">Potential online matches. The collection will be modified inside this method.</param>
     /// <returns><c>true</c> if unique match</returns>
-    protected virtual bool TestMovieMatch(MovieInfo movieSearch, ref IList<MovieInfo> movies)
+    protected virtual bool TestMovieMatch(MovieInfo movieSearch, ref List<MovieInfo> movies)
     {
       // Exact match in preferred language
       ServiceRegistration.Get<ILogger>().Debug(GetType().Name + ": Test Match for \"{0}\"", movieSearch);
@@ -434,6 +469,41 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
     public virtual Task<List<EpisodeInfo>> SearchSeriesEpisodeAsync(EpisodeInfo episodeSearch, TLang language)
     {
       return Task.FromResult<List<EpisodeInfo>>(null);
+    }
+
+    /// <summary>
+    /// Search for any matches of Series episode names. This method tries to find the best matching Series episode in following order:
+    /// - Exact match using PreferredLanguage
+    /// - Exact match using DefaultLanguage
+    /// - If series name contains " - ", it splits on this and tries to runs again using the first part (combined titles)
+    /// </summary>
+    /// <param name="episodeSearch">Episode search parameters.</param>
+    /// <param name = "language" > Language, if <c>null</c> it takes the<see cref="PreferredLanguage"/></param>
+    /// <returns>List of matching episodes found.</returns>
+    public async Task<List<EpisodeInfo>> SearchSeriesEpisodeMatchesAsync(EpisodeInfo episodeSearch, TLang language)
+    {
+      language = language != null ? language : PreferredLanguage;
+      List<EpisodeInfo> episodes = await SearchSeriesEpisodeAsync(episodeSearch, language).ConfigureAwait(false);
+      if (episodes?.Count > 0)
+        return episodes;
+
+      if (!language.Equals(_defaultLanguage))
+      {
+        episodes = await SearchSeriesEpisodeAsync(episodeSearch, _defaultLanguage).ConfigureAwait(false);
+        if (episodes?.Count > 0)
+          return episodes;
+
+        // If also no match in default language is found, we will look for combined movies names:
+        // i.e. "Sanctuary - Wächter der Kreaturen" is not found, but "Sanctuary" is.
+        SimpleTitle originalName = episodeSearch.SeriesName;
+        string namePart = episodeSearch.SeriesName.Text.Split(new[] { '-' })[0].Trim();
+        episodeSearch.SeriesName = new SimpleTitle(namePart);
+        episodes = await SearchSeriesEpisodeAsync(episodeSearch, _defaultLanguage).ConfigureAwait(false);
+        episodeSearch.SeriesName = originalName;
+        if (episodes?.Count > 0)
+          return episodes;
+      }
+      return null;
     }
 
     /// <summary>
@@ -1252,6 +1322,27 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
     public virtual Task<List<TrackInfo>> SearchTrackAsync(TrackInfo trackSearch, TLang language)
     {
       return Task.FromResult<List<TrackInfo>>(null);
+    }
+
+    public async Task<List<TrackInfo>> SearchTrackMatchesAsync(TrackInfo trackSearch, TLang language)
+    {
+      //Don't try to search for a track without artists
+      if (trackSearch.AlbumArtists.Count == 0 && trackSearch.Artists.Count == 0)
+        return null;
+
+      language = language != null ? language : PreferredLanguage;
+
+      List<TrackInfo> tracks = await SearchTrackAsync(trackSearch, language).ConfigureAwait(false);
+      if (tracks?.Count == 0)
+        return tracks;
+
+      if (!language.Equals(_defaultLanguage))
+      {
+        tracks = await SearchTrackAsync(trackSearch, _defaultLanguage).ConfigureAwait(false);
+        if (tracks?.Count == 0)
+          return tracks;
+      }
+      return null;
     }
 
     public async Task<bool> SearchTrackUniqueAndUpdateAsync(TrackInfo trackSearch, TLang language)

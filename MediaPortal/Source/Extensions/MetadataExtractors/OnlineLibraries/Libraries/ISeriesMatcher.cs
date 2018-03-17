@@ -36,6 +36,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries
     List<EpisodeInfo> GetLastChangedEpisodes();
     void ResetLastChangedEpisodes();
 
+    Task<IEnumerable<EpisodeInfo>> FindMatchingEpisodesAsync(EpisodeInfo episodeInfo);
     Task<bool> FindAndUpdateEpisodeAsync(EpisodeInfo episodeInfo);
     Task<bool> UpdateSeriesAsync(SeriesInfo seriesInfo, bool updateEpisodeList);
     Task<bool> UpdateSeasonAsync(SeasonInfo seasonInfo);
@@ -44,6 +45,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries
     Task<bool> UpdateSeriesCompaniesAsync(SeriesInfo seriesInfo, string companyType);
     Task<bool> UpdateEpisodePersonsAsync(EpisodeInfo episodeInfo, string occupation);
     Task<bool> UpdateEpisodeCharactersAsync(EpisodeInfo episodeInfo);
+    Task<bool> ClearEpisodeMatchAsync(EpisodeInfo episodeInfo);
 
     void StoreActorMatch(PersonInfo person);
     void StoreDirectorMatch(PersonInfo person);

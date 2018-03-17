@@ -227,6 +227,49 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
 
     #region Metadata updaters
 
+    private TrackMatch GetStroredMatch(TrackInfo trackInfo)
+    {
+      // Load cache or create new list
+      List<TrackMatch> matches = _storage.GetMatches();
+
+      // Use cached values before doing online query
+      TrackMatch match = matches.Find(m =>
+        (string.Equals(m.ItemName, GetUniqueTrackName(trackInfo), StringComparison.OrdinalIgnoreCase) || string.Equals(m.TrackName, trackInfo.TrackName, StringComparison.OrdinalIgnoreCase)) &&
+        ((trackInfo.Artists.Count > 0 && !string.IsNullOrEmpty(m.ArtistName) ? trackInfo.Artists[0].Name.Equals(m.ArtistName, StringComparison.OrdinalIgnoreCase) : false) || trackInfo.Artists.Count == 0) &&
+        ((!string.IsNullOrEmpty(trackInfo.Album) && !string.IsNullOrEmpty(m.AlbumName) ? trackInfo.Album.Equals(m.AlbumName, StringComparison.OrdinalIgnoreCase) : false) || string.IsNullOrEmpty(trackInfo.Album)) &&
+        ((trackInfo.TrackNum > 0 && m.TrackNum > 0 && int.Equals(m.TrackNum, trackInfo.TrackNum)) || trackInfo.TrackNum <= 0));
+
+      return match;
+    }
+
+    public virtual async Task<IEnumerable<TrackInfo>> FindMatchingTracksAsync(TrackInfo trackInfo)
+    {
+      List<TrackInfo> matches = new List<TrackInfo>() { trackInfo };
+
+      try
+      {
+        // Try online lookup
+        if (!await InitAsync().ConfigureAwait(false))
+          return matches;
+
+        TrackInfo trackSearch = trackInfo.Clone();
+        TLang language = FindBestMatchingLanguage(trackInfo.Languages);
+
+        Logger.Debug(_id + ": Search for track {0} online", trackInfo.ToString());
+        GetTrackId(trackInfo, out string trackId);
+        var onlineMatches = await _wrapper.SearchTrackMatchesAsync(trackSearch, language).ConfigureAwait(false);
+        if (onlineMatches?.Count() > 0)
+          matches.AddRange(onlineMatches.Where(m => (GetTrackId(m, out string matchTrackId) && matchTrackId != trackId) || trackId == null));
+
+        return matches;
+      }
+      catch (Exception ex)
+      {
+        Logger.Debug(_id + ": Exception while matching track {0}", ex, trackInfo.ToString());
+        return matches;
+      }
+    }
+
     /// <summary>
     /// Tries to lookup the music track online and downloads images.
     /// </summary>
@@ -257,15 +300,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
 
         if (!matchFound)
         {
-          // Load cache or create new list
-          List<TrackMatch> matches = _storage.GetMatches();
-
-          // Use cached values before doing online query
-          TrackMatch match = matches.Find(m =>
-            (string.Equals(m.ItemName, GetUniqueTrackName(trackInfo), StringComparison.OrdinalIgnoreCase) || string.Equals(m.TrackName, trackInfo.TrackName, StringComparison.OrdinalIgnoreCase)) &&
-            ((trackInfo.Artists.Count > 0 && !string.IsNullOrEmpty(m.ArtistName) ? trackInfo.Artists[0].Name.Equals(m.ArtistName, StringComparison.OrdinalIgnoreCase) : false) || trackInfo.Artists.Count == 0) &&
-            ((!string.IsNullOrEmpty(trackInfo.Album) && !string.IsNullOrEmpty(m.AlbumName) ? trackInfo.Album.Equals(m.AlbumName, StringComparison.OrdinalIgnoreCase) : false) || string.IsNullOrEmpty(trackInfo.Album)) &&
-            ((trackInfo.TrackNum > 0 && m.TrackNum > 0 && int.Equals(m.TrackNum, trackInfo.TrackNum)) || trackInfo.TrackNum <= 0));
+          TrackMatch match = GetStroredMatch(trackInfo);
           Logger.Debug(_id + ": Try to lookup track \"{0}\" from cache: {1}", trackInfo, match != null && !string.IsNullOrEmpty(match.Id));
 
           trackMatch = trackInfo.Clone();
@@ -920,6 +955,15 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
         Logger.Debug(_id + ": Exception while processing album {0}", ex, albumInfo.ToString());
         return false;
       }
+    }
+
+    public virtual Task<bool> ClearTrackMatchAsync(TrackInfo trackInfo)
+    {
+      TrackMatch match = GetStroredMatch(trackInfo);
+      if (match == null)
+        return Task.FromResult(true);
+
+      return Task.FromResult(_storage.TryRemoveMatch(match));
     }
 
     #endregion

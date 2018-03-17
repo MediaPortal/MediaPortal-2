@@ -225,6 +225,51 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
 
     #region Metadata updaters
 
+    private MovieMatch GetStroredMatch(MovieInfo movieInfo)
+    {
+      // Load cache or create new list
+      List<MovieMatch> matches = _storage.GetMatches();
+
+      // Use cached values before doing online query
+      MovieMatch match = matches.Find(m =>
+        (string.Equals(m.ItemName, movieInfo.MovieName.ToString(), StringComparison.OrdinalIgnoreCase) || string.Equals(m.OnlineName, movieInfo.MovieName.ToString(), StringComparison.OrdinalIgnoreCase)) &&
+        ((movieInfo.ReleaseDate.HasValue && m.Year == movieInfo.ReleaseDate.Value.Year) || !movieInfo.ReleaseDate.HasValue));
+
+      return match;
+    }
+
+    /// <summary>
+    /// Tries to lookup the Movie online and downloads images.
+    /// </summary>
+    /// <param name="movieInfo">Movie to check</param>
+    /// <returns><c>true</c> if successful</returns>
+    public virtual async Task<IEnumerable<MovieInfo>> FindMatchingMoviesAsync(MovieInfo movieInfo)
+    {
+      List<MovieInfo> matches = new List<MovieInfo>() { movieInfo };
+      try
+      {
+        // Try online lookup
+        if (!await InitAsync().ConfigureAwait(false))
+          return matches;
+
+        MovieInfo movieSearch = movieInfo.Clone();
+        TLang language = FindBestMatchingLanguage(movieInfo.Languages);
+
+        Logger.Debug(_id + ": Search for movie {0} online", movieInfo.ToString());
+        GetMovieId(movieInfo, out string movieId);
+        var onlineMatches = await _wrapper.SearchMovieMatchesAsync(movieSearch, language).ConfigureAwait(false);
+        if (onlineMatches?.Count() > 0)
+          matches.AddRange(onlineMatches.Where(m => GetMovieId(m, out string matchMovieId) && matchMovieId != movieId));
+
+        return matches;
+      }
+      catch (Exception ex)
+      {
+        Logger.Debug(_id + ": Exception while matching movie {0}", ex, movieInfo.ToString());
+        return matches;
+      }
+    }
+
     /// <summary>
     /// Tries to lookup the Movie online and downloads images.
     /// </summary>
@@ -255,13 +300,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
 
         if (!matchFound)
         {
-          // Load cache or create new list
-          List<MovieMatch> matches = _storage.GetMatches();
-
-          // Use cached values before doing online query
-          MovieMatch match = matches.Find(m =>
-            (string.Equals(m.ItemName, movieInfo.MovieName.ToString(), StringComparison.OrdinalIgnoreCase) || string.Equals(m.OnlineName, movieInfo.MovieName.ToString(), StringComparison.OrdinalIgnoreCase)) &&
-            ((movieInfo.ReleaseDate.HasValue && m.Year == movieInfo.ReleaseDate.Value.Year) || !movieInfo.ReleaseDate.HasValue));
+          MovieMatch match = GetStroredMatch(movieInfo);
           Logger.Debug(_id + ": Try to lookup movie \"{0}\" from cache: {1}", movieInfo, match != null && !string.IsNullOrEmpty(match.Id));
 
           movieMatch = movieInfo.Clone();
@@ -791,6 +830,15 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
         Logger.Debug(_id + ": Exception while processing collection {0}", ex, movieCollectionInfo.ToString());
         return false;
       }
+    }
+
+    public virtual Task<bool> ClearMovieMatchAsync(MovieInfo movieInfo)
+    {
+      MovieMatch match = GetStroredMatch(movieInfo);
+      if(match == null)
+        return Task.FromResult(true);
+
+      return Task.FromResult(_storage.TryRemoveMatch(match));
     }
 
     #endregion

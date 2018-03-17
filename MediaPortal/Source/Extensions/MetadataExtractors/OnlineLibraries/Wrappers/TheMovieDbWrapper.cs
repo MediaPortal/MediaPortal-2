@@ -60,7 +60,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
 
     #region Search
 
-    public override async Task<IList<MovieInfo>> SearchMovieAsync(MovieInfo movieSearch, string language)
+    public override async Task<List<MovieInfo>> SearchMovieAsync(MovieInfo movieSearch, string language)
     {
       List<MovieSearchResult> foundMovies = await _movieDbHandler.SearchMovieAsync(movieSearch.MovieName.Text, language).ConfigureAwait(false);
       if (foundMovies == null) return null;
