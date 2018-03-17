@@ -33,13 +33,14 @@ using MediaPortal.Common.Services.Logging;
 using MediaPortal.Common.Settings;
 using MediaPortal.UI.Presentation.Geometries;
 using Moq;
-using Xunit;
+using NUnit.Framework;
 
 namespace Tests
 {
+  [TestFixture]
   public class ComSkipChaptersTests
   {
-    [Fact]
+    [Test]
     public void Chapters_Should_Be_Set()
     {
       // Arrange
@@ -65,12 +66,12 @@ namespace Tests
 
       // Assert
       Assert.NotNull(availableChapters);
-      Assert.Equal(expectedComSkipChapters, availableChapters);
+      Assert.AreEqual(expectedComSkipChapters, availableChapters);
     }
 
     [Theory]
-    [InlineData("Video.With.Invalid.ComSkip.Chapters")]
-    [InlineData("Video.With.Missing.ComSkip.Chapters")]
+    [TestCase("Video.With.Invalid.ComSkip.Chapters")]
+    [TestCase("Video.With.Missing.ComSkip.Chapters")]
     public void Chapters_Shuld_Be_Null(string resource)
     {
       // Arrange
