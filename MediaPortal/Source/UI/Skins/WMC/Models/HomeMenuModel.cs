@@ -218,6 +218,22 @@ namespace MediaPortal.UiComponents.WMCSkin.Models
 
     #region Public Methods
 
+    /// <summary>
+    /// Sets the focus on the currently selected sub-item.
+    /// </summary>
+    public void SetFocus()
+    {
+      ListItem selectedItem;
+      lock (_homeMenuSyncObj)
+        selectedItem = _subItems.FirstOrDefault(i => i.Selected);
+
+      if (selectedItem != null)
+      {
+        selectedItem.Selected = false;
+        selectedItem.Selected = true;
+      }
+    }
+
     public void MoveNext()
     {
       _navigationList.MoveNext();

@@ -34,15 +34,23 @@ namespace MediaPortal.UiComponents.WMCSkin.Models
 {
   public class HomeContentModel
   {
+    //Intermediate value for focused content index to ensure that
+    //a changed event is always fired when toggling focus
+    protected const int NO_FOCUS = -2;
+    //Focused content index that indicates that the content
+    //does not have focus
+    protected const int UNFOCUSED = -1;
+
     public const string STR_MODEL_ID = "24BB1BBE-A3B3-474A-8D55-C37EBE182F6C";
     public static readonly Guid MODEL_ID = new Guid(STR_MODEL_ID);
 
     protected const int UPDATE_DELAY_MS = 500;
     
     protected AbstractProperty _currentContentIndexProperty;
+    protected AbstractProperty _isContentFocusedProperty;
+    protected AbstractProperty _focusedContentIndexProperty;
     protected AbstractProperty _content0ActionIdProperty;
     protected AbstractProperty _content1ActionIdProperty;
-    
     protected WorkflowAction _nextAction;
     protected DelayedEvent _updateEvent;
 
@@ -55,6 +63,8 @@ namespace MediaPortal.UiComponents.WMCSkin.Models
     protected void Init()
     {
       _currentContentIndexProperty = new WProperty(typeof(int), 0);
+      _isContentFocusedProperty = new WProperty(typeof(bool), false);
+      _focusedContentIndexProperty = new WProperty(typeof(int), -1);
       _content0ActionIdProperty = new WProperty(typeof(string), null);
       _content1ActionIdProperty = new WProperty(typeof(string), null);
       _updateEvent = new DelayedEvent(UPDATE_DELAY_MS);
@@ -63,8 +73,17 @@ namespace MediaPortal.UiComponents.WMCSkin.Models
 
     protected void Attach()
     {
+      _isContentFocusedProperty.Attach(OnIsContentFocusedChanged);
+
       HomeMenuModel homeModel = (HomeMenuModel)ServiceRegistration.Get<IWorkflowManager>().GetModel(HomeMenuModel.MODEL_ID);
       homeModel.CurrentSubItemProperty.Attach(OnCurrentHomeItemChanged);
+    }
+
+    private void OnIsContentFocusedChanged(AbstractProperty property, object oldValue)
+    {
+      //Reset focused content index when the focus changes
+      //so a changed event is always fired when ToggleFocus is called
+      FocusedContentIndex = NO_FOCUS;
     }
 
     public AbstractProperty CurrentContentIndexProperty
@@ -76,6 +95,28 @@ namespace MediaPortal.UiComponents.WMCSkin.Models
     {
       get { return (int)_currentContentIndexProperty.GetValue(); }
       set { _currentContentIndexProperty.SetValue(value); }
+    }
+
+    public AbstractProperty IsContentFocusedProperty
+    {
+      get { return _isContentFocusedProperty; }
+    }
+
+    public bool IsContentFocused
+    {
+      get { return (bool)_isContentFocusedProperty.GetValue(); }
+      set { _isContentFocusedProperty.SetValue(value); }
+    }
+
+    public AbstractProperty FocusedContentIndexProperty
+    {
+      get { return _focusedContentIndexProperty; }
+    }
+
+    public int FocusedContentIndex
+    {
+      get { return (int)_focusedContentIndexProperty.GetValue(); }
+      set { _focusedContentIndexProperty.SetValue(value); }
     }
 
     public AbstractProperty Content0ActionIdProperty
@@ -98,6 +139,17 @@ namespace MediaPortal.UiComponents.WMCSkin.Models
     {
       get { return (string)_content1ActionIdProperty.GetValue(); }
       set { _content1ActionIdProperty.SetValue(value); }
+    }
+
+    /// <summary>
+    /// Toggles the focus on the home content.
+    /// </summary>
+    public void ToggleFocus()
+    {
+      if (IsContentFocused)
+        FocusedContentIndex = UNFOCUSED;
+      else
+        FocusedContentIndex = CurrentContentIndex;
     }
 
     private void EnqueueUpdate(WorkflowAction action)
@@ -139,6 +191,7 @@ namespace MediaPortal.UiComponents.WMCSkin.Models
         nextContentIndex = 0;
         nextContentActionIdProperty = _content0ActionIdProperty;
       }
+      FocusedContentIndex = NO_FOCUS;
       nextContentActionIdProperty.SetValue(nextContentActionId);
       CurrentContentIndex = nextContentIndex;
     }
