@@ -22,7 +22,6 @@
 
 #endregion
 
-using System;
 using System.Globalization;
 using MediaPortal.Common;
 using MediaPortal.Common.Localization;
@@ -35,7 +34,7 @@ using MediaPortal.UI.Presentation.Geometries;
 using Moq;
 using NUnit.Framework;
 
-namespace Tests
+namespace Tests.VideoPlayers.ComSkip
 {
   [TestFixture]
   public class ComSkipChaptersTests

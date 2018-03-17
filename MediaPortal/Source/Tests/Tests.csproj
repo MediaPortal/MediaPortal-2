@@ -42,18 +42,18 @@
     <Reference Include="System" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="ComSkipChaptersTests.cs" />
+    <Compile Include="VideoPlayers\ComSkip\ComSkipChaptersTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="VideoPlayerForComSkipTests.cs" />
+    <Compile Include="VideoPlayers\ComSkip\VideoPlayerForComSkipTests.cs" />
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="TestData\ComSkip\Video.With.Invalid.ComSkip.Chapters.zip">
+    <Content Include="VideoPlayers\ComSkip\TestData\Video.With.Invalid.ComSkip.Chapters.zip">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </EmbeddedResource>
-    <EmbeddedResource Include="TestData\ComSkip\Video.With.Missing.ComSkip.Chapters.zip">
+    </Content>
+    <Content Include="VideoPlayers\ComSkip\TestData\Video.With.Missing.ComSkip.Chapters.zip">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </EmbeddedResource>
-    <Content Include="TestData\ComSkip\Video.With.Valid.ComSkip.Chapters.zip">
+    </Content>
+    <Content Include="VideoPlayers\ComSkip\TestData\Video.With.Valid.ComSkip.Chapters.zip">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
