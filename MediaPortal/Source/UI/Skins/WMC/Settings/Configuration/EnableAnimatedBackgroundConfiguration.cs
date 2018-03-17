@@ -32,9 +32,9 @@ using System.Threading.Tasks;
 
 namespace MediaPortal.UiComponents.WMCSkin.Settings.Configuration
 {
-  public class EnableAnimatedBackgroundConfiguration : YesNo, IDisposable
+  public class EnableHomeContentConfiguration : YesNo, IDisposable
   {
-    public EnableAnimatedBackgroundConfiguration()
+    public EnableHomeContentConfiguration()
     {
       SkinChangeMonitor.Instance.RegisterConfiguration(WMCSkinSettings.SKIN_NAME, this);
     }
@@ -42,14 +42,14 @@ namespace MediaPortal.UiComponents.WMCSkin.Settings.Configuration
     public override void Load()
     {
       base.Load();
-      _yes = SettingsManager.Load<WMCSkinSettings>().EnableAnimatedBackground;
+      _yes = SettingsManager.Load<WMCSkinSettings>().EnableHomeContent;
     }
 
     public override void Save()
     {
       base.Save();
       var settings = SettingsManager.Load<WMCSkinSettings>();
-      settings.EnableAnimatedBackground = _yes;
+      settings.EnableHomeContent = _yes;
       SettingsManager.Save(settings);
     }
 
