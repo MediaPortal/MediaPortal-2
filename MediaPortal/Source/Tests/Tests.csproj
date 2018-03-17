@@ -42,6 +42,8 @@
     <Reference Include="System" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Media\TestMediaViews.cs" />
+    <Compile Include="UPnP\HttpHeaders.cs" />
     <Compile Include="VideoPlayers\ComSkip\ComSkipChaptersTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="VideoPlayers\ComSkip\VideoPlayerForComSkipTests.cs" />
@@ -66,6 +68,10 @@
       <Project>{52e587d0-a274-44da-8846-8eeaf5414923}</Project>
       <Name>MediaPortal.UI</Name>
     </ProjectReference>
+    <ProjectReference Include="..\Core\UPnP\UPnP.csproj">
+      <Project>{455e7d70-1c85-4d7f-9f01-dc801b8b8c34}</Project>
+      <Name>UPnP</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Extensions\ResourceProviders\ZipResourceProvider\ZipResourceProvider.csproj">
       <Project>{33721bc7-193a-4b80-9cff-dc8a50700443}</Project>
       <Name>ZipResourceProvider</Name>
@@ -82,6 +88,10 @@
       <Project>{7e943389-3589-40c9-b481-2e223554cc49}</Project>
       <Name>SkinEngine</Name>
     </ProjectReference>
+    <ProjectReference Include="..\UI\UiComponents\Media\Media.csproj">
+      <Project>{cd37e2ff-4cf7-4f96-8c73-c6764988d408}</Project>
+      <Name>Media</Name>
+    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Moq">
@@ -91,6 +101,7 @@
       <Version>3.10.1</Version>
     </PackageReference>
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(VSToolsPath)\TeamTest\Microsoft.TestTools.targets" Condition="Exists('$(VSToolsPath)\TeamTest\Microsoft.TestTools.targets')" />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
