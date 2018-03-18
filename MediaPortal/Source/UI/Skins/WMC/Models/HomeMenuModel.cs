@@ -75,6 +75,7 @@ namespace MediaPortal.UiComponents.WMCSkin.Models
     protected HomeMenuActionProxy _homeProxy;
     protected bool _updatingMenu;
     protected bool _attachedToMenuItems;
+    protected bool _hasRestoredFocus = false;
     protected NavigationList<ListItem> _navigationList;
     protected ItemsList _mainItems;
     protected ItemsList _subItems;
@@ -133,7 +134,9 @@ namespace MediaPortal.UiComponents.WMCSkin.Models
       if (message.ChannelName == WorkflowManagerMessaging.CHANNEL)
       {
         WorkflowManagerMessaging.MessageType messageType = (WorkflowManagerMessaging.MessageType)message.MessageType;
-        if (messageType == WorkflowManagerMessaging.MessageType.NavigationComplete)
+        if (messageType == WorkflowManagerMessaging.MessageType.StatePushed)
+          _hasRestoredFocus = false;
+        else if (messageType == WorkflowManagerMessaging.MessageType.NavigationComplete)
         {
           var context = ServiceRegistration.Get<IWorkflowManager>().CurrentNavigationContext;
           if (context != null && context.WorkflowState.StateId == HOME_STATE_ID)
@@ -374,7 +377,7 @@ namespace MediaPortal.UiComponents.WMCSkin.Models
 
     private void OnCurrentSubItemIndexChanged(AbstractProperty property, object oldValue)
     {
-      if (_updatingMenu)
+      if (_updatingMenu || !_hasRestoredFocus)
         return;
 
       int newIndex = CurrentSubItemIndex;
@@ -562,6 +565,7 @@ namespace MediaPortal.UiComponents.WMCSkin.Models
         subItem.Selected = selected;
         if (selected)
         {
+          _hasRestoredFocus = true;
           CurrentSubItemIndex = index;
           CurrentSubItem = subItem;
         }
