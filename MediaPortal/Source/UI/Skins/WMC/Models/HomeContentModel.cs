@@ -147,7 +147,10 @@ namespace MediaPortal.UiComponents.WMCSkin.Models
     public void ToggleFocus()
     {
       if (IsContentFocused)
+      {
+        IsContentFocused = false;
         FocusedContentIndex = UNFOCUSED;
+      }
       else
         FocusedContentIndex = CurrentContentIndex;
     }

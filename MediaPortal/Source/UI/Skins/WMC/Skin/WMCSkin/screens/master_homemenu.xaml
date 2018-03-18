@@ -168,7 +168,7 @@ Parameters which have to be accessible by a DynamicResource lookup:
 
           </Grid.Triggers>
 
-          <ListView Margin="-1240,0,0,0" x:Name="SubItemsListViewHome" 
+          <ListView Margin="-1240,0,0,0" x:Name="SubItemsListViewHome" IsEnabled="{Binding Source={StaticResource HomeContentModel}, Path=!IsContentFocused}"
                     ItemsSource="{Binding Source={StaticResource HomeMenuModel},Path=SubItems,Mode=OneTime}"
                     Style="{ThemeResource SubMenuListViewStyle}"
                     SelectionChanged="{CommandStencil Source={StaticResource HomeMenuModel}, Path=SetSelectedItem}">
@@ -295,15 +295,25 @@ Parameters which have to be accessible by a DynamicResource lookup:
                   <StopStoryboard BeginStoryboardName="Content0BeginSlideInStoryboard"/>
                 </DataTrigger.ExitActions>
               </DataTrigger>
-              
-              <!-- Trigger that sets the focus on the home content if the focus toggle command is executed from the main menu -->
-              <DataTrigger Binding="{Binding FocusedContentIndex}" Value="0">
-                <Setter TargetName="HomeContent0Control" Property="SetFocusPrio" Value="Default"/>
-              </DataTrigger>
             </Grid.Triggers>
 
-            <Control x:Name="HomeContent0Control" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" SetFocusPrio="None"
-                     Template="{wmc_markup_extensions:DynamicResourceBindingExtension ResourceKey={Binding Content0ActionId}}"/>
+            <Control x:Name="HomeContent0Control" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+                     SetFocusPrio="None" IsEnabled="False"
+                     Template="{wmc_markup_extensions:DynamicResourceBindingExtension ResourceKey={Binding Content0ActionId}}">
+              <Control.Triggers>
+
+                <!-- Only enable the content when visible to prevent hidden content from getting focus -->
+                <DataTrigger Binding="{Binding CurrentContentIndex}" Value="0">
+                  <Setter Property="IsEnabled" Value="True"/>
+                </DataTrigger>
+
+                <!-- Trigger that sets the focus on the home content if the focus toggle command is executed from the main menu -->
+                <DataTrigger Binding="{Binding FocusedContentIndex}" Value="0">
+                  <Setter Property="SetFocusPrio" Value="Default"/>
+                </DataTrigger>
+
+              </Control.Triggers>
+            </Control>
             
           </Grid>
 
@@ -330,15 +340,25 @@ Parameters which have to be accessible by a DynamicResource lookup:
                   <StopStoryboard BeginStoryboardName="Content1BeginSlideInStoryboard"/>
                 </DataTrigger.ExitActions>
               </DataTrigger>
-              
-              <!-- Trigger that sets the focus on the home content if the focus toggle command is executed from the main menu -->
-              <DataTrigger Binding="{Binding FocusedContentIndex}" Value="1">
-                <Setter TargetName="HomeContent1Control" Property="SetFocusPrio" Value="Default"/>
-              </DataTrigger>
             </Grid.Triggers>
 
-            <Control x:Name="HomeContent1Control" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" SetFocusPrio="None"
-                     Template="{wmc_markup_extensions:DynamicResourceBindingExtension ResourceKey={Binding Content1ActionId}}"/>
+            <Control x:Name="HomeContent1Control" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+                     SetFocusPrio="None" IsEnabled="False"
+                     Template="{wmc_markup_extensions:DynamicResourceBindingExtension ResourceKey={Binding Content1ActionId}}">
+              <Control.Triggers>
+
+                <!-- Only enable the content when visible to prevent hidden content from getting focus -->
+                <DataTrigger Binding="{Binding CurrentContentIndex}" Value="1">
+                  <Setter Property="IsEnabled" Value="True"/>
+                </DataTrigger>
+
+                <!-- Trigger that sets the focus on the home content if the focus toggle command is executed from the main menu -->
+                <DataTrigger Binding="{Binding FocusedContentIndex}" Value="1">
+                  <Setter Property="SetFocusPrio" Value="Default"/>
+                </DataTrigger>
+
+              </Control.Triggers>
+            </Control>
             
           </Grid>
 
@@ -391,7 +411,7 @@ Parameters which have to be accessible by a DynamicResource lookup:
         <KeyBinding Key="Up" Command="{Command Source={StaticResource HomeMenuModel},Path=MovePrevious}" IsEnabled="{Binding ElementName=HomeContentGrid, Path=!IsKeyboardFocusWithin}"/>
         <KeyBinding Key="Down" Command="{Command Source={StaticResource HomeMenuModel},Path=MoveNext}" IsEnabled="{Binding ElementName=HomeContentGrid, Path=!IsKeyboardFocusWithin}"/>
         <!-- Toggles focus between the main menu and the home content -->
-        <KeyBinding Key="i" Command="{Command Source={StaticResource HomeContentModel},Path=ToggleFocus}"/>
+        <KeyBinding Key="Info" Command="{Command Source={StaticResource HomeContentModel},Path=ToggleFocus}"/>
 
       </Grid>
     </ControlTemplate>
