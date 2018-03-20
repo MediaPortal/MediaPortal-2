@@ -38,6 +38,7 @@ using MediaPortal.UiComponents.Media.Models;
 using MediaPortal.UiComponents.Media.Settings;
 using MediaPortal.UiComponents.SkinBase.General;
 using MediaPortal.UiComponents.SkinBase.Models;
+using MediaPortal.UiComponents.WMCSkin.Messaging;
 using MediaPortal.Utilities;
 using MediaPortal.Utilities.Events;
 using System;
@@ -100,12 +101,25 @@ namespace MediaPortal.UiComponents.WMCSkin.Models
       _mainItems = new ItemsList();
       _subItems = new ItemsList();
       _delayedMenuUpdateEvent = new DelayedEvent(200); // Update menu items only if no more requests are following after 200 ms
-      _delayedMenuUpdateEvent.OnEventHandler += OnUpdateMenu;
       _delayedAnimationEnableEvent = new DelayedEvent(200);
+      SubscribeToMessages();
+
+      Attach();
+    }
+
+    private void Attach()
+    {
+      _delayedMenuUpdateEvent.OnEventHandler += OnUpdateMenu;
       _delayedAnimationEnableEvent.OnEventHandler += OnEnableAnimations;
       _navigationList.OnCurrentChanged += OnNavigationListCurrentChanged;
       _currentSubItemIndexProperty.Attach(OnCurrentSubItemIndexChanged);
-      SubscribeToMessages();
+      CurrentSubItemProperty.Attach(OnCurrentSubItemChanged);
+    }
+
+    private void OnCurrentSubItemChanged(AbstractProperty property, object oldValue)
+    {
+      //Notify listeners that the current item has changed
+      HomeMenuMessaging.SendCurrentItemChangeMessage(CurrentSubItem);
     }
 
     #endregion

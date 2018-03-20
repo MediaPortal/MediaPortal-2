@@ -22,11 +22,12 @@
 
 #endregion
 
-using MediaPortal.Common;
 using MediaPortal.Common.General;
+using MediaPortal.Common.Messaging;
 using MediaPortal.UI.Presentation.DataObjects;
 using MediaPortal.UI.Presentation.Workflow;
 using MediaPortal.UiComponents.SkinBase.General;
+using MediaPortal.UiComponents.WMCSkin.Messaging;
 using MediaPortal.Utilities.Events;
 using System;
 
@@ -53,6 +54,7 @@ namespace MediaPortal.UiComponents.WMCSkin.Models
     protected AbstractProperty _content1ActionIdProperty;
     protected WorkflowAction _nextAction;
     protected DelayedEvent _updateEvent;
+    protected AsynchronousMessageQueue _messageQueue;
 
     public HomeContentModel()
     {
@@ -69,15 +71,37 @@ namespace MediaPortal.UiComponents.WMCSkin.Models
       _content1ActionIdProperty = new WProperty(typeof(string), null);
       _updateEvent = new DelayedEvent(UPDATE_DELAY_MS);
       _updateEvent.OnEventHandler += OnUpdate;
+
+      SubscribeToMessages();
     }
 
     protected void Attach()
     {
       _isContentFocusedProperty.Attach(OnIsContentFocusedChanged);
-
-      HomeMenuModel homeModel = (HomeMenuModel)ServiceRegistration.Get<IWorkflowManager>().GetModel(HomeMenuModel.MODEL_ID);
-      homeModel.CurrentSubItemProperty.Attach(OnCurrentHomeItemChanged);
     }
+
+    #region Message Handling
+
+    private void SubscribeToMessages()
+    {
+      if (_messageQueue != null)
+        return;
+      _messageQueue = new AsynchronousMessageQueue(this, new[] { HomeMenuMessaging.CHANNEL });
+      _messageQueue.MessageReceived += OnMessageReceived;
+      _messageQueue.Start();
+    }
+
+    private void OnMessageReceived(AsynchronousMessageQueue queue, SystemMessage message)
+    {
+      if (message.ChannelName == HomeMenuMessaging.CHANNEL)
+      {
+        HomeMenuMessaging.MessageType messageType = (HomeMenuMessaging.MessageType)message.MessageType;
+        if (messageType == HomeMenuMessaging.MessageType.CurrentItemChanged)
+          OnCurrentHomeItemChanged(message.MessageData[HomeMenuMessaging.NEW_ITEM] as ListItem);
+      }
+    }
+
+    #endregion
 
     private void OnIsContentFocusedChanged(AbstractProperty property, object oldValue)
     {
@@ -166,10 +190,10 @@ namespace MediaPortal.UiComponents.WMCSkin.Models
       UpdateContent(_nextAction);
     }
 
-    private void OnCurrentHomeItemChanged(AbstractProperty property, object oldValue)
+    private void OnCurrentHomeItemChanged(ListItem newItem)
     {
       WorkflowAction action;
-      if (!TryGetAction(property.GetValue() as ListItem, out action))
+      if (!TryGetAction(newItem, out action))
         action = null;
       EnqueueUpdate(action);
     }
