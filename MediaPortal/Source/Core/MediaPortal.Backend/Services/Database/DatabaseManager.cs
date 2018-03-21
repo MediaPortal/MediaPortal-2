@@ -227,11 +227,23 @@ namespace MediaPortal.Backend.Services.Database
         foreach (string instr in instructions)
           using (IDbCommand cmd = transaction.CreateCommand())
           {
-            cmd.CommandText = instr;
+            string sql = instr;
+            DatabaseManager.AppendStorageClause(database, ref sql);
+            cmd.CommandText = sql;
             cmd.ExecuteNonQuery();
           }
         transaction.Commit();
       }
+    }
+
+    public static void AppendStorageClause(ISQLDatabase database, ref string createTableStatement)
+    {
+      ISQLDatabaseStorage storage = database as ISQLDatabaseStorage;
+      if (storage == null || string.IsNullOrEmpty(createTableStatement))
+        return;
+
+      // Process statement and append clause
+      createTableStatement += storage.GetStorageClause(createTableStatement);
     }
 
     #endregion
