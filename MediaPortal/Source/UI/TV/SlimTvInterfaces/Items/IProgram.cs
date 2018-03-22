@@ -57,6 +57,16 @@ namespace MediaPortal.Plugins.SlimTv.Interfaces.Items
     String Genre { get; set; }
 
     /// <summary>
+    /// Gets or Sets the EPG Genre Id.
+    /// </summary>
+    int EpgGenreId { get; set; }
+
+    /// <summary>
+    /// Gets or Sets the EPG Genre Color.
+    /// </summary>
+    string EpgGenreColor { get; set; }
+
+    /// <summary>
     /// Gets or Sets the Start time.
     /// </summary>
     DateTime StartTime { get; set; }

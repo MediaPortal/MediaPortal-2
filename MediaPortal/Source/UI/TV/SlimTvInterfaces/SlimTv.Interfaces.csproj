@@ -78,6 +78,7 @@
     <Compile Include="ResourceProvider\SlimTvFsResourceAccessor.cs" />
     <Compile Include="ResourceProvider\SlimTvResourceAccessor.cs" />
     <Compile Include="ResourceProvider\SlimTvResourceProvider.cs" />
+    <Compile Include="Settings\SlimTvGenreColorSettings.cs" />
     <Compile Include="Settings\SlimTvLogoSettings.cs" />
     <Compile Include="UPnP\Consts.cs" />
     <Compile Include="UPnP\DataTypes\UPnPDtChannelGroupList.cs" />

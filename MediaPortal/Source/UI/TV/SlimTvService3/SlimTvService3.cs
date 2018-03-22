@@ -52,6 +52,8 @@ using TvLibrary.Interfaces;
 using TvService;
 using MediaPortal.Backend.ClientCommunication;
 using MediaPortal.Common.Services.ServerCommunication;
+using System.Collections.Concurrent;
+using MediaPortal.Common.Services.GenreConverter;
 
 namespace MediaPortal.Plugins.SlimTv.Service
 {
@@ -62,6 +64,7 @@ namespace MediaPortal.Plugins.SlimTv.Service
     protected IController _tvControl;
     protected TvBusinessLayer _tvBusiness;
     protected Thread _serviceThread;
+    protected readonly ConcurrentDictionary<EpgGenre, IEnumerable<string>> _tvGenres = new ConcurrentDictionary<EpgGenre, IEnumerable<string>>();
 
     public SlimTvService()
     {
@@ -377,6 +380,102 @@ namespace MediaPortal.Plugins.SlimTv.Service
         .FirstOrDefault(u => u.Name == userName);
     }
 
+    private void InitGenreMap()
+    {
+      if (_tvGenres.Count > 0)
+        return;
+
+      string genre;
+      bool enabled;
+      IGenreConverter converter = ServiceRegistration.Get<IGenreConverter>();
+      if (converter == null)
+        return;
+
+      // Get the id of the mp genre identified as the movie genre.
+      int genreMapMovieGenreId;
+      if (!int.TryParse(_tvBusiness.GetSetting("genreMapMovieGenreId").Value, out genreMapMovieGenreId))
+      {
+        genreMapMovieGenreId = -1;
+      }
+
+      // Each genre map value is a '{' delimited list of "program" genre names (those that may be compared with the genre from the program listings).
+      // It is an error if a single "program" genre is mapped to more than one guide genre; behavior is undefined for this condition.
+      int genreIndex = 0;
+      while (true)
+      {
+        // The genremap key is an integer value that is added to a base value in order to locate the correct localized genre name string.
+        genre = _tvBusiness.GetSetting("genreMapName" + genreIndex).Value;
+        if (string.IsNullOrEmpty(genre))
+          break;
+
+        // Get the status of the mp genre.
+        if (!bool.TryParse(_tvBusiness.GetSetting("genreMapNameEnabled" + genreIndex).Value, out enabled))
+        {
+          enabled = true;
+        }
+        EpgGenre? epgGenre = null;
+        if (enabled && genreIndex == genreMapMovieGenreId)
+        {
+          epgGenre = EpgGenre.Movie;
+        }
+        else if (enabled && !string.IsNullOrEmpty(genre))
+        {
+          if (converter.GetGenreId(genre, GenreCategory.Epg, null, out int genreId))
+            epgGenre = (EpgGenre)genreId;
+        }
+        if (epgGenre.HasValue)
+        {
+          string genreMapEntry = _tvBusiness.GetSetting("genreMapEntry" + genreIndex).Value;
+          if (!string.IsNullOrEmpty(genreMapEntry))
+            _tvGenres.TryAdd(epgGenre.Value, genreMapEntry.Split(new char[] { '{' }, StringSplitOptions.RemoveEmptyEntries));
+        }
+        genreIndex++;
+      }
+    }
+
+    private IProgram GetProgram(TvDatabase.Program program, bool includeRecordingStatus = false)
+    {
+      InitGenreMap();
+
+      IProgram prog = program.ToProgram(includeRecordingStatus);
+      if (!string.IsNullOrEmpty(prog?.Genre))
+      {
+        var genre = _tvGenres.FirstOrDefault(g => g.Value.Any(e => prog.Genre.Equals(e, StringComparison.InvariantCultureIgnoreCase)));
+        if (genre.Key != EpgGenre.Unknown)
+        {
+          prog.EpgGenreId = (int)genre.Key;
+          switch (genre.Key)
+          {
+            case EpgGenre.Movie:
+              prog.EpgGenreColor = _epgColorSettings.MovieGenreColor;
+              break;
+            case EpgGenre.Series:
+              prog.EpgGenreColor = _epgColorSettings.SeriesGenreColor;
+              break;
+            case EpgGenre.Documentary:
+              prog.EpgGenreColor = _epgColorSettings.DocumentaryGenreColor;
+              break;
+            case EpgGenre.Music:
+              prog.EpgGenreColor = _epgColorSettings.MusicGenreColor;
+              break;
+            case EpgGenre.Kids:
+              prog.EpgGenreColor = _epgColorSettings.KidsGenreColor;
+              break;
+            case EpgGenre.News:
+              prog.EpgGenreColor = _epgColorSettings.NewsGenreColor;
+              break;
+            case EpgGenre.Sport:
+              prog.EpgGenreColor = _epgColorSettings.SportGenreColor;
+              break;
+            case EpgGenre.Special:
+              prog.EpgGenreColor = _epgColorSettings.SpecialGenreColor;
+              break;
+          }
+        }
+      }
+      return prog;
+    }
+
     public override Task<bool> StopTimeshiftAsync(string userName, int slotIndex)
     {
       IUser user;
@@ -397,8 +496,8 @@ namespace MediaPortal.Plugins.SlimTv.Service
     public override Task<AsyncResult<IProgram[]>> GetNowNextProgramAsync(IChannel channel)
     {
       var tvChannel = TvDatabase.Channel.Retrieve(channel.ChannelId);
-      var programNow = tvChannel.CurrentProgram.ToProgram();
-      var programNext = tvChannel.NextProgram.ToProgram();
+      var programNow = GetProgram(tvChannel.CurrentProgram);
+      var programNext = GetProgram(tvChannel.NextProgram);
       var success = programNow != null || programNext != null;
       return Task.FromResult(new AsyncResult<IProgram[]>(success, new[] { programNow, programNext }));
     }
@@ -423,7 +522,7 @@ namespace MediaPortal.Plugins.SlimTv.Service
     public override Task<AsyncResult<IList<IProgram>>> GetProgramsAsync(IChannel channel, DateTime from, DateTime to)
     {
       var programs = _tvBusiness.GetPrograms(TvDatabase.Channel.Retrieve(channel.ChannelId), from, to)
-        .Select(tvProgram => tvProgram.ToProgram(true))
+        .Select(tvProgram => GetProgram(tvProgram, true))
         .Distinct(ProgramComparer.Instance)
         .ToList();
       var success = programs.Count > 0;
@@ -433,7 +532,7 @@ namespace MediaPortal.Plugins.SlimTv.Service
     public override Task<AsyncResult<IList<IProgram>>> GetProgramsAsync(string title, DateTime from, DateTime to)
     {
       var programs = _tvBusiness.SearchPrograms(title).Where(p => p.StartTime >= from && p.StartTime <= to || p.EndTime >= from && p.EndTime <= to)
-        .Select(tvProgram => tvProgram.ToProgram(true))
+        .Select(tvProgram => GetProgram(tvProgram, true))
         .Distinct(ProgramComparer.Instance)
         .ToList();
       var success = programs.Count > 0;
@@ -446,12 +545,12 @@ namespace MediaPortal.Plugins.SlimTv.Service
       if (channelGroup.ChannelGroupId < 0)
       {
         foreach (var channel in _tvBusiness.GetRadioGuideChannelsForGroup(-channelGroup.ChannelGroupId))
-          CollectionUtils.AddAll(programs, _tvBusiness.GetPrograms(TvDatabase.Channel.Retrieve(channel.IdChannel), from, to).Select(p => p.ToProgram()));
+          CollectionUtils.AddAll(programs, _tvBusiness.GetPrograms(TvDatabase.Channel.Retrieve(channel.IdChannel), from, to).Select(p => GetProgram(p)));
       }
       else
       {
         foreach (var channel in _tvBusiness.GetTVGuideChannelsForGroup(channelGroup.ChannelGroupId))
-          CollectionUtils.AddAll(programs, _tvBusiness.GetPrograms(TvDatabase.Channel.Retrieve(channel.IdChannel), from, to).Select(p => p.ToProgram()));
+          CollectionUtils.AddAll(programs, _tvBusiness.GetPrograms(TvDatabase.Channel.Retrieve(channel.IdChannel), from, to).Select(p => GetProgram(p)));
       }
       var success = programs.Count > 0;
       return Task.FromResult(new AsyncResult<IList<IProgram>>(success, programs));
@@ -464,7 +563,7 @@ namespace MediaPortal.Plugins.SlimTv.Service
       if (tvSchedule == null)
         return Task.FromResult(new AsyncResult<IList<IProgram>>(false, null));
 
-      programs = TvDatabase.Schedule.GetProgramsForSchedule(tvSchedule).Select(p => p.ToProgram()).ToList();
+      programs = TvDatabase.Schedule.GetProgramsForSchedule(tvSchedule).Select(p => GetProgram(p)).ToList();
       var success = programs.Count > 0;
       return Task.FromResult(new AsyncResult<IList<IProgram>>(success, programs));
     }
@@ -477,7 +576,7 @@ namespace MediaPortal.Plugins.SlimTv.Service
 
     public override bool GetProgram(int programId, out IProgram program)
     {
-      program = TvDatabase.Program.Retrieve(programId).ToProgram();
+      program = GetProgram(TvDatabase.Program.Retrieve(programId));
       return program != null;
     }
 
@@ -689,7 +788,7 @@ namespace MediaPortal.Plugins.SlimTv.Service
 
     public override Task<AsyncResult<RecordingStatus>> GetRecordingStatusAsync(IProgram program)
     {
-      var tvProgram = (IProgramRecordingStatus)TvDatabase.Program.Retrieve(program.ProgramId).ToProgram(true);
+      var tvProgram = (IProgramRecordingStatus)GetProgram(TvDatabase.Program.Retrieve(program.ProgramId), true);
       var recordingStatus = tvProgram.RecordingStatus;
       return Task.FromResult(new AsyncResult<RecordingStatus>(true, recordingStatus));
     }

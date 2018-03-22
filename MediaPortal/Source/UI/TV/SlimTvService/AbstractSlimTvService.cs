@@ -47,6 +47,8 @@ using ScheduleRecordingType = MediaPortal.Plugins.SlimTv.Interfaces.ScheduleReco
 using MediaPortal.Common.Runtime;
 using MediaPortal.Common.Messaging;
 using MediaPortal.Common.Services.ServerCommunication;
+using MediaPortal.Common.Services.Settings;
+using MediaPortal.Plugins.SlimTv.Interfaces.Settings;
 
 namespace MediaPortal.Plugins.SlimTv.Service
 {
@@ -63,6 +65,13 @@ namespace MediaPortal.Plugins.SlimTv.Service
     protected string _providerName;
     protected string _serviceName;
     private bool _abortInit = false;
+    protected SettingsChangeWatcher<SlimTvGenreColorSettings> _settingWatcher;
+    protected SlimTvGenreColorSettings _epgColorSettings = null;
+
+    private void SettingsChanged(object sender, EventArgs e)
+    {
+      _epgColorSettings = _settingWatcher.Settings;
+    }
 
     public string Name
     {
@@ -72,6 +81,10 @@ namespace MediaPortal.Plugins.SlimTv.Service
     public bool Init()
     {
       ServiceRegistration.Get<IMessageBroker>().RegisterMessageReceiver(SystemMessaging.CHANNEL, this);
+
+      _settingWatcher = new SettingsChangeWatcher<SlimTvGenreColorSettings>();
+      _settingWatcher.SettingsChanged += SettingsChanged;
+      _settingWatcher.Refresh();
       return true;
     }
 

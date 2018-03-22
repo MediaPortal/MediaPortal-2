@@ -163,6 +163,7 @@
     <Compile Include="Player\LiveTvPlayer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Models\SlimTvClientModel.cs" />
+    <Compile Include="Settings\Configuration\EpgGenreColor.cs" />
     <Compile Include="Settings\Configuration\ChannelLogoStyle.cs" />
     <Compile Include="Settings\Configuration\RecordingNotificationDuration.cs" />
     <Compile Include="Settings\Configuration\ShowRecordingEndedNotifications.cs" />
