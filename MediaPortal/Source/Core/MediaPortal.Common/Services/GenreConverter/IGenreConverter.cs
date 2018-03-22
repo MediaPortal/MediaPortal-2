@@ -29,7 +29,7 @@ namespace MediaPortal.Common.Services.GenreConverter
     public const string Movie = "Movie";
     public const string Series = "Series";
     public const string Music = "Music";
-    public const string Tv = "Tv";
+    public const string Epg = "Epg";
   }
 
   /// <summary>
