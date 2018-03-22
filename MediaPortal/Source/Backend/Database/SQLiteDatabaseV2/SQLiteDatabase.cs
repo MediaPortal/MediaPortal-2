@@ -450,6 +450,16 @@ namespace MediaPortal.Database.SQLite
         command.Parameters.Add(result);
         return result;
       }
+      if (type == typeof(char))
+      {
+        var result = (SqliteParameter)command.CreateParameter();
+        result.ParameterName = name;
+        result.Value = value ?? DBNull.Value;
+        result.DbType = DbType.StringFixedLength;
+        result.Size = 1;
+        command.Parameters.Add(result);
+        return result;
+      }
 
       return DBUtils.AddSimpleParameter(command, name, value, type);
     }
