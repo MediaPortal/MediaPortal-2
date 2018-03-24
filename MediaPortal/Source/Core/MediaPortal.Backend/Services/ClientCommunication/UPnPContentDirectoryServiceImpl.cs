@@ -1074,6 +1074,16 @@ namespace MediaPortal.Backend.Services.ClientCommunication
           });
       AddAction(mpnp11RefreshMediaItemAction);
 
+      DvAction mpnp11ReimportMediaItemAction = new DvAction("X_MediaPortal_ReimportMediaItem", OnMPnP11ReimportMediaItem,
+          new DvArgument[] {
+            new DvArgument("SystemId", A_ARG_TYPE_SystemId, ArgumentDirection.In),
+            new DvArgument("MediaItemId", A_ARG_TYPE_Uuid, ArgumentDirection.In),
+            new DvArgument("MatchedAspects", A_ARG_TYPE_MediaItemAspects, ArgumentDirection.In),
+          },
+          new DvArgument[] {
+          });
+      AddAction(mpnp11ReimportMediaItemAction);
+
       // Media playback
 
       DvAction mpnp11NotifyPlaybackAction = new DvAction("X_MediaPortal_NotifyPlayback", OnMPnP11NotifyPlayback,
@@ -2086,6 +2096,17 @@ namespace MediaPortal.Backend.Services.ClientCommunication
       Guid mediaItemId = MarshallingHelper.DeserializeGuid((string)inParams[1]);
       bool clearMetadata = (bool)inParams[2];
       MediaLibrary.RefreshMediaItemMetadata(systemId, mediaItemId, clearMetadata);
+      outParams = null;
+      return null;
+    }
+
+    static UPnPError OnMPnP11ReimportMediaItem(DvAction action, IList<object> inParams, out IList<object> outParams,
+        CallContext context)
+    {
+      string systemId = (string)inParams[0];
+      Guid mediaItemId = MarshallingHelper.DeserializeGuid((string)inParams[1]);
+      IEnumerable<MediaItemAspect> matchedAspects = (IEnumerable<MediaItemAspect>)inParams[2];
+      MediaLibrary.ReimportMediaItemMetadata(systemId, mediaItemId, matchedAspects);
       outParams = null;
       return null;
     }

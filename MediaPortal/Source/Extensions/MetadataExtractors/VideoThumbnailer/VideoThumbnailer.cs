@@ -237,6 +237,11 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoThumbnailer
       return false;
     }
 
+    public Task<bool> TryClearCachedMetadataAsync(IDictionary<Guid, IList<MediaItemAspect>> currentAspectData)
+    {
+      return Task.FromResult(false);
+    }
+
     #endregion
   }
 }

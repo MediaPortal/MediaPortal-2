@@ -134,6 +134,14 @@ namespace MediaPortal.Backend.MediaLibrary
     void RefreshMediaItemMetadata(string systemId, Guid mediaItemId, bool clearMetadata);
 
     /// <summary>
+    /// Reimports the meta-data of the media item with the given <paramref name="mediaItemId"/> based on a matched media item.
+    /// </summary>
+    /// <param name="systemId">Id of the system where the given media item <paramref name="mediaItemId"/> is located.</param>
+    /// <param name="mediaItemId">Id of the item to reimport.</param>
+    /// <param name="mediaItem">The matched aspects primarily containing external ids to be used during the reimport.</param>
+    void ReimportMediaItemMetadata(string systemId, Guid mediaItemId, IEnumerable<MediaItemAspect> matchedAspects);
+
+    /// <summary>
     /// Lists all media items with the given parent directory.
     /// </summary>
     /// <param name="parentDirectoryId">Media item id of the parent directory item to browse.</param>

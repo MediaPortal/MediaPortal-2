@@ -441,6 +441,17 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
       return false;
     }
 
+    public Task<bool> TryClearCachedMetadataAsync(IDictionary<Guid, IList<MediaItemAspect>> currentAspectData)
+    {
+      if (currentAspectData.ContainsKey(MovieAspect.ASPECT_ID))
+      {
+        MovieInfo info = new MovieInfo();
+        info.FromMetadata(currentAspectData);
+        return OnlineMatcherService.Instance.ClearMovieMatchAsync(info);
+      }
+      return Task.FromResult(false);
+    }
+
     #endregion
   }
 }

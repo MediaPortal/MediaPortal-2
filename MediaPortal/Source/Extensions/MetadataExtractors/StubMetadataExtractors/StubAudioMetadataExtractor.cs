@@ -290,6 +290,11 @@ namespace MediaPortal.Extensions.MetadataExtractors.StubMetadataExtractors
       }
     }
 
+    public Task<bool> TryClearCachedMetadataAsync(IDictionary<Guid, IList<MediaItemAspect>> currentAspectData)
+    {
+      return Task.FromResult(false);
+    }
+
     #endregion
   }
 }

@@ -857,6 +857,17 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
       return false;
     }
 
+    public Task<bool> TryClearCachedMetadataAsync(IDictionary<Guid, IList<MediaItemAspect>> currentAspectData)
+    {
+      if (currentAspectData.ContainsKey(AudioAspect.ASPECT_ID))
+      {
+        TrackInfo info = new TrackInfo();
+        info.FromMetadata(currentAspectData);
+        return OnlineMatcherService.Instance.ClearTrackMatchAsync(info);
+      }
+      return Task.FromResult(false);
+    }
+
     #endregion
   }
 }

@@ -325,6 +325,17 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
       return false;
     }
 
+    public Task<bool> TryClearCachedMetadataAsync(IDictionary<Guid, IList<MediaItemAspect>> currentAspectData)
+    {
+      if(currentAspectData.ContainsKey(EpisodeAspect.ASPECT_ID))
+      {
+        EpisodeInfo info = new EpisodeInfo();
+        info.FromMetadata(currentAspectData);
+        return OnlineMatcherService.Instance.ClearEpisodeMatchAsync(info);
+      }
+      return Task.FromResult(false);
+    }
+
     #endregion
   }
 }

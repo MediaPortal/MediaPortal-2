@@ -939,7 +939,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
             }
 
             //Remove MIAs
-            foreach (Guid aspect in items[0].Aspects.Keys)
+            foreach (Guid aspect in items.First().Aspects.Keys)
             {
               _miaManagement.RemoveMIA(transaction, mediaItemId, aspect);
             }
@@ -952,7 +952,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
 
           //Find share
           var shares = GetShares(transaction, systemId);
-          var resources = items[0].PrimaryResources;
+          var resources = items.First().PrimaryResources;
           if (resources.Count > 0)
           {
             foreach (var share in shares.Values)
@@ -975,6 +975,127 @@ namespace MediaPortal.Backend.Services.MediaLibrary
       catch (Exception e)
       {
         Logger.Error("MediaLibrary: Error refreshing media item {0}", e, mediaItemId);
+        throw;
+      }
+      finally
+      {
+        transaction.Commit();
+      }
+    }
+
+    public void ReimportMediaItemMetadata(string systemId, Guid mediaItemId, IEnumerable<MediaItemAspect> matchedAspects)
+    {
+      ISQLDatabase database = ServiceRegistration.Get<ISQLDatabase>();
+      ITransaction transaction = database.BeginTransaction();
+
+      try
+      {
+        List<Guid> necessaryAspects = new List<Guid>();
+        necessaryAspects.Add(ProviderResourceAspect.ASPECT_ID);
+
+        List<Guid> optionalAspects = new List<Guid>(GetManagedMediaItemAspectMetadata().Keys);
+        optionalAspects.Remove(ProviderResourceAspect.ASPECT_ID);
+
+        //Find media item
+        var loadItemQuery = BuildLoadItemQuery(systemId, mediaItemId);
+        loadItemQuery.SetNecessaryRequestedMIATypeIDs(necessaryAspects);
+        loadItemQuery.SetOptionalRequestedMIATypeIDs(optionalAspects);
+        CompiledMediaItemQuery cmiq = CompiledMediaItemQuery.Compile(_miaManagement, loadItemQuery);
+        var items = cmiq.QueryList(database, transaction);
+
+        if (items != null && items.Count == 1)
+        {
+          //Clear cached matches to force new searches
+          var aspects = items.First().Aspects;
+          var mediaAccessor = ServiceRegistration.Get<IMediaAccessor>();
+          foreach (IMetadataExtractor extractor in mediaAccessor.LocalMetadataExtractors.Values)
+          {
+            try
+            {
+              extractor.TryClearCachedMetadataAsync(aspects).Wait();
+            }
+            catch (Exception ex)
+            {
+              MetadataExtractorMetadata mem = extractor.Metadata;
+              Logger.Error("MediaLibrary: Error clearing cached metadata from metadata extractor '{0}' (Id: '{1}')",
+                  ex, mem.Name, mem.MetadataExtractorId);
+            }
+          }
+
+          //Remove relationships
+          using (IDbCommand command = transaction.CreateCommand())
+          {
+            database.AddParameter(command, "ITEM_ID", mediaItemId, typeof(Guid));
+
+            //Find relations
+            List<Guid> relations = new List<Guid>();
+            command.CommandText = _preparedStatements.SelectMediaItemRelationshipsFromIdSQL;
+            using (IDataReader reader = command.ExecuteReader())
+            {
+              while (reader.Read())
+              {
+                Guid relationId = database.ReadDBValue<Guid>(reader, 0);
+                if (!relations.Contains(relationId))
+                  relations.Add(relationId);
+              }
+            }
+            Logger.Debug("MediaLibrary: Delete media item {0} relations {1}", mediaItemId, relations.Count);
+
+            //Delete relations
+            command.CommandText = _preparedStatements.DeleteMediaItemRelationshipsFromIdSQL;
+            command.ExecuteNonQuery();
+
+            //Delete orphaned relations
+            foreach (Guid relationId in relations)
+              DeleteOrphan(database, transaction, relationId);
+
+            _miaManagement.CleanupAllOrphanedAttributeValues(transaction);
+          }
+
+          //Remove MIAs
+          foreach (Guid aspect in items.First().Aspects.Keys)
+          {
+            if (aspect != MediaAspect.ASPECT_ID && aspect != ImporterAspect.ASPECT_ID)
+              _miaManagement.RemoveMIA(transaction, mediaItemId, aspect);
+          }
+
+          //Add matched MIAs
+          foreach (var aspect in matchedAspects)
+          {
+            if (aspect.Metadata.AspectId == ExternalIdentifierAspect.ASPECT_ID)
+              _miaManagement.AddOrUpdateMIA(transaction, mediaItemId, aspect);
+          }
+
+          //Set media item as changed
+          MediaItemAspect importerAspect = _miaManagement.GetMediaItemAspect(transaction, mediaItemId, ImporterAspect.ASPECT_ID);
+          importerAspect.SetAttribute(ImporterAspect.ATTR_DIRTY, true);
+          _miaManagement.AddOrUpdateMIA(transaction, mediaItemId, importerAspect, false);
+
+          //Find share
+          var shares = GetShares(transaction, systemId);
+          var resources = items.First().PrimaryResources;
+          if (resources.Count > 0)
+          {
+            foreach (var share in shares.Values)
+            {
+              foreach (var resource in resources)
+              {
+                string accessorPath = (string)resource.GetAttributeValue(ProviderResourceAspect.ATTR_RESOURCE_ACCESSOR_PATH);
+                ResourcePath resourcePath = ResourcePath.Deserialize(accessorPath);
+
+                if (share.BaseResourcePath.IsParentOf(resourcePath))
+                {
+                  TryScheduleLocalShareRefresh(share);
+                  return;
+                }
+              }
+            }
+          }
+        }
+      }
+      catch (Exception e)
+      {
+        Logger.Error("MediaLibrary: Error reimporting media item {0}", e, mediaItemId);
         throw;
       }
       finally

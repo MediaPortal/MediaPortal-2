@@ -295,6 +295,13 @@ namespace MediaPortal.Common.Services.ServerCommunication
       await action.InvokeAsync(inParameters);
     }
 
+    public async Task ReimportMediaItemMetadataAsync(string systemId, Guid mediaItemId, IEnumerable<MediaItemAspect> matchedAspects)
+    {
+      CpAction action = GetAction("X_MediaPortal_ReimportMediaItem");
+      IList<object> inParameters = new List<object> { systemId, MarshallingHelper.SerializeGuid(mediaItemId), matchedAspects };
+      await action.InvokeAsync(inParameters);
+    }
+
     public async Task<IList<MediaItem>> BrowseAsync(Guid parentDirectoryId,
         IEnumerable<Guid> necessaryMIATypes, IEnumerable<Guid> optionalMIATypes,
         Guid? userProfile, bool includeVirtual, uint? offset = null, uint? limit = null)

@@ -499,6 +499,11 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
       return false;
     }
 
+    public Task<bool> TryClearCachedMetadataAsync(IDictionary<Guid, IList<MediaItemAspect>> currentAspectData)
+    {
+      return Task.FromResult(false);
+    }
+
     #endregion
   }
 }
