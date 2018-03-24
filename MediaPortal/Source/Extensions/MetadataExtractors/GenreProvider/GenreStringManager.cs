@@ -26,6 +26,7 @@ using System.Globalization;
 using System.Collections.Generic;
 using MediaPortal.Common.Services.Localization;
 using MediaPortal.Utilities.FileSystem;
+using System.IO;
 
 namespace MediaPortal.Extensions.MetadataExtractors.GenreProvider
 {
@@ -45,7 +46,9 @@ namespace MediaPortal.Extensions.MetadataExtractors.GenreProvider
     public GenreStringManager()
     {
       _languageDirectories = new List<string>();
-      AddLanguageDirectory(FileUtils.BuildAssemblyRelativePath(@"Language\"));
+      var path = FileUtils.BuildAssemblyRelativePath(@"Language\");
+      if (Directory.Exists(path))
+        AddLanguageDirectory(path);
       ReLoad();
     }
 
@@ -55,10 +58,15 @@ namespace MediaPortal.Extensions.MetadataExtractors.GenreProvider
 
     public bool TryGetGenreString(string section, string name, string language, out string genreString)
     {
+      genreString = null;
+      var bestLang = GetBestLanguage(language);
+      if (bestLang == null)
+        return false;
+
       lock (_syncObj)
       {
         if(!_strings.ContainsKey(language))
-          _strings[language] = new LocalizationStrings(_languageDirectories, GetBestLanguage(language));
+          _strings[language] = new LocalizationStrings(_languageDirectories, bestLang);
       }
 
       genreString = _strings[language].ToString(section, name);

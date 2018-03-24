@@ -64,9 +64,12 @@ namespace MediaPortal.Extensions.MetadataExtractors.GenreProvider
 
     private void LoadDefaultLanguage()
     {
-      RegionSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<RegionSettings>();
-      if (!string.IsNullOrEmpty(settings.Culture))
-        DEFAULT_LANGUAGE = settings.Culture;
+      if (ServiceRegistration.IsRegistered<ISettingsManager>())
+      {
+        RegionSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<RegionSettings>();
+        if (!string.IsNullOrEmpty(settings.Culture))
+          DEFAULT_LANGUAGE = settings.Culture;
+      }
     }
 
     private void InitMusicGenre(string language)
@@ -76,9 +79,12 @@ namespace MediaPortal.Extensions.MetadataExtractors.GenreProvider
 
       var list = new List<GenreMapping>();
 
-      var settings = ServiceRegistration.Get<ISettingsManager>().Load<GenreSettings>();
-      if (settings.MusicGenreMappings?.Length > 0)
-        list.AddRange(settings.MusicGenreMappings);
+      if (ServiceRegistration.IsRegistered<ISettingsManager>())
+      {
+        var settings = ServiceRegistration.Get<ISettingsManager>().Load<GenreSettings>();
+        if (settings.MusicGenreMappings?.Length > 0)
+          list.AddRange(settings.MusicGenreMappings);
+      }
 
       string genreRegex;
       list.AddRange(new GenreMapping[]
@@ -92,7 +98,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.GenreProvider
         new GenreMapping((int)AudioGenre.Jazz, new Regex(GenreStringManager.TryGetGenreString("Match", "Audio.Jazz", language, out genreRegex) ? genreRegex : @"Jazz", RegexOptions.IgnoreCase)),
         new GenreMapping((int)AudioGenre.Soul, new Regex(GenreStringManager.TryGetGenreString("Match", "Audio.RbSoul", language, out genreRegex) ? genreRegex : @"Soul", RegexOptions.IgnoreCase)),
         new GenreMapping((int)AudioGenre.Rap, new Regex(GenreStringManager.TryGetGenreString("Match", "Audio.HipHopRap", language, out genreRegex) ? genreRegex : @"Rap", RegexOptions.IgnoreCase)),
-        new GenreMapping((int)AudioGenre.Raggae, new Regex(GenreStringManager.TryGetGenreString("Match", "Audio.Raggae", language, out genreRegex) ? genreRegex : @"Reggae", RegexOptions.IgnoreCase)),
+        new GenreMapping((int)AudioGenre.Reggae, new Regex(GenreStringManager.TryGetGenreString("Match", "Audio.Raggae", language, out genreRegex) ? genreRegex : @"Reggae", RegexOptions.IgnoreCase)),
         new GenreMapping((int)AudioGenre.Pop, new Regex(GenreStringManager.TryGetGenreString("Match", "Audio.Pop", language, out genreRegex) ? genreRegex : @"Pop", RegexOptions.IgnoreCase)),
         new GenreMapping((int)AudioGenre.Dance, new Regex(GenreStringManager.TryGetGenreString("Match", "Audio.Dance", language, out genreRegex) ? genreRegex : @"Dance", RegexOptions.IgnoreCase)),
         new GenreMapping((int)AudioGenre.Electronic, new Regex(GenreStringManager.TryGetGenreString("Match", "Audio.Electronic", language, out genreRegex) ? genreRegex : @"Electronic", RegexOptions.IgnoreCase)),
@@ -117,9 +123,12 @@ namespace MediaPortal.Extensions.MetadataExtractors.GenreProvider
 
       var list = new List<GenreMapping>();
 
-      var settings = ServiceRegistration.Get<ISettingsManager>().Load<GenreSettings>();
-      if (settings.MovieGenreMappings?.Length > 0)
-        list.AddRange(settings.MovieGenreMappings);
+      if (ServiceRegistration.IsRegistered<ISettingsManager>())
+      {
+        var settings = ServiceRegistration.Get<ISettingsManager>().Load<GenreSettings>();
+        if (settings.MovieGenreMappings?.Length > 0)
+          list.AddRange(settings.MovieGenreMappings);
+      }
 
       string genreRegex;
       list.AddRange(new GenreMapping[]
@@ -144,6 +153,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.GenreProvider
           new GenreMapping((int)VideoGenre.Thriller, new Regex(GenreStringManager.TryGetGenreString("Match", "Video.Thriller", language, out genreRegex) ? genreRegex : @"Thriller", RegexOptions.IgnoreCase)),
           new GenreMapping((int)VideoGenre.War, new Regex(GenreStringManager.TryGetGenreString("Match", "Video.War", language, out genreRegex) ? genreRegex : @"War", RegexOptions.IgnoreCase)),
           new GenreMapping((int)VideoGenre.Western, new Regex(GenreStringManager.TryGetGenreString("Match", "Video.Western", language, out genreRegex) ? genreRegex : @"Western", RegexOptions.IgnoreCase)),
+          new GenreMapping((int)VideoGenre.Kids, new Regex(GenreStringManager.TryGetGenreString("Match", "Video.Kids", language, out genreRegex) ? genreRegex : @"Kids|Children|Teen", RegexOptions.IgnoreCase)),
           new GenreMapping((int)VideoGenre.Noir, new Regex(GenreStringManager.TryGetGenreString("Match", "Video.Noir", language, out genreRegex) ? genreRegex : @"Noir", RegexOptions.IgnoreCase)),
           new GenreMapping((int)VideoGenre.Sport, new Regex(GenreStringManager.TryGetGenreString("Match", "Video.Sport", language, out genreRegex) ? genreRegex : @"Sport", RegexOptions.IgnoreCase)),
           new GenreMapping((int)VideoGenre.Superhero, new Regex(GenreStringManager.TryGetGenreString("Match", "Video.Superhero", language, out genreRegex) ? genreRegex : @"Superhero", RegexOptions.IgnoreCase)),
@@ -159,9 +169,12 @@ namespace MediaPortal.Extensions.MetadataExtractors.GenreProvider
 
       var list = new List<GenreMapping>();
 
-      var settings = ServiceRegistration.Get<ISettingsManager>().Load<GenreSettings>();
-      if (settings.SeriesGenreMappings?.Length > 0)
-        list.AddRange(settings.SeriesGenreMappings);
+      if (ServiceRegistration.IsRegistered<ISettingsManager>())
+      {
+        var settings = ServiceRegistration.Get<ISettingsManager>().Load<GenreSettings>();
+        if (settings.SeriesGenreMappings?.Length > 0)
+          list.AddRange(settings.SeriesGenreMappings);
+      }
 
       string genreRegex;
       list.AddRange(new GenreMapping[]
@@ -206,9 +219,12 @@ namespace MediaPortal.Extensions.MetadataExtractors.GenreProvider
 
       var list = new List<GenreMapping>();
 
-      var settings = ServiceRegistration.Get<ISettingsManager>().Load<GenreSettings>();
-      if (settings.EpgGenreMappings?.Length > 0)
-        list.AddRange(settings.EpgGenreMappings);
+      if (ServiceRegistration.IsRegistered<ISettingsManager>())
+      {
+        var settings = ServiceRegistration.Get<ISettingsManager>().Load<GenreSettings>();
+        if (settings.EpgGenreMappings?.Length > 0)
+          list.AddRange(settings.EpgGenreMappings);
+      }
 
       string genreRegex;
       list.AddRange(new GenreMapping[]

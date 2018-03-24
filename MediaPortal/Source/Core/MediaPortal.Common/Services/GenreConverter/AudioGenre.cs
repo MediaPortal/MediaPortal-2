@@ -36,7 +36,7 @@ namespace MediaPortal.Common.Services.GenreConverter
     Jazz,
     Soul,
     Rap,
-    Raggae,
+    Reggae,
     Pop,
     Dance,
     Electronic,
