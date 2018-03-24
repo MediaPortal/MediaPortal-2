@@ -471,7 +471,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
       GuideStartTime = DateTime.Now.RoundDateTime(15, DateFormatExtension.RoundingDirection.Down);
       var settings = ServiceRegistration.Get<ISettingsManager>().Load<SlimTvClientSettings>();
       VisibleHours = settings.EpgVisibleHours;
-      ShowChannelLogos = settings.EpgShowGenreColors;
+      ShowGenreColors = settings.EpgShowGenreColors;
       _bufferStartTime = _bufferEndTime = DateTime.MinValue;
     }
 
