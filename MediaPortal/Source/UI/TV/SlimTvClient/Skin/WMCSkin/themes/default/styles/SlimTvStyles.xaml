@@ -302,7 +302,8 @@
         <ControlTemplate>
           <DockPanel Name="ButtonControlRectangle">
             <Rectangle DockPanel.Dock="Center" RadiusX="3" RadiusY="3" Name="ButtonBase" Fill="{ThemeResource ProgramBaseFill}" StrokeThickness="0"/>
-            <Rectangle DockPanel.Dock="Center" RadiusX="3" RadiusY="3" Name="ButtonGenre" Fill="{Binding Program.EpgGenreColor}" StrokeThickness="0"/>
+            <Rectangle DockPanel.Dock="Center" RadiusX="3" RadiusY="3" Name="ButtonGenre" Fill="{Binding Program.EpgGenreColor}"
+                       StrokeThickness="0" IsVisible="{Binding ShowGenreColors}"/>
             <Rectangle DockPanel.Dock="Center" Name="ButtonHover" Fill=""/>
             <Rectangle DockPanel.Dock="Center" Name="ButtonOverlay" Fill=""/>
           </DockPanel>
@@ -497,7 +498,14 @@
           </Grid>
           <ControlTemplate.Triggers>
             <!-- Handling of different program states -->
-            <!--DataTrigger Binding="{Binding IsRunning}" Value="True">
+            <MultiTrigger>
+              <MultiTrigger.Conditions>
+                <Condition Binding="{Binding IsRunning}" Value="True" />
+                <Condition Binding="{Binding ShowGenreColors}" Value="False" />
+              </MultiTrigger.Conditions>
+              <Setter TargetName="ButtonBase" Property="Fill" Value="{ThemeResource ProgramRunningFill}"/>
+            </MultiTrigger>
+            <!--DataTrigger Binding="{Binding IsRunning}" Value="True"> IsVisible="{Binding ShowGenreColors}"
               <Setter TargetName="ButtonBase" Property="Fill" Value="{ThemeResource ProgramRunningFill}"/>
             </DataTrigger-->
             <DataTrigger Binding="{Binding Program.IsSeriesScheduled}" Value="True">
