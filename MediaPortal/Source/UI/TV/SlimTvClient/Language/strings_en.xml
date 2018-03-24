@@ -111,6 +111,8 @@
   <string name="SlimTvClient.ShowRecordingStartedNotifications.Help">Whether to show a notification when a recording has started.</string>
   <string name="SlimTvClient.ShowRecordingEndedNotifications">Show recording ended notifications</string>
   <string name="SlimTvClient.ShowRecordingEndedNotifications.Help">Whether to show a notification when a recording has ended.</string>
+  <string name="SlimTvClient.ShowEpgGenreColors">Show genre colors in EPG</string>
+  <string name="SlimTvClient.ShowEpgGenreColors.Help">Whether to show genre colors when browsing the EPG.</string>
 
   <string name="SlimTvClient.EpgGenreColors">EPG genre colors</string>
   <string name="SlimTvClient.EpgMovieGenreColor">Movie genre color</string>

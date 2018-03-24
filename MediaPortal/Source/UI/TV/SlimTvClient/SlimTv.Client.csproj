@@ -168,6 +168,7 @@
     <Compile Include="Settings\Configuration\RecordingNotificationDuration.cs" />
     <Compile Include="Settings\Configuration\ShowRecordingEndedNotifications.cs" />
     <Compile Include="Settings\Configuration\ShowRecordingStartedNotifications.cs" />
+    <Compile Include="Settings\Configuration\ShowEpgGenreColors.cs" />
     <Compile Include="Settings\Configuration\ZapFromGuide.cs" />
     <Compile Include="Settings\Configuration\EpgVisibleChannelInfoSetting.cs" />
     <Compile Include="Settings\Configuration\ZapByChannelIndex.cs" />

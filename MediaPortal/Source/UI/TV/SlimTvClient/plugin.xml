@@ -223,6 +223,11 @@
         HelpText="[SlimTvClient.EpgNumberOfHours.Help]"
         ClassName="MediaPortal.Plugins.SlimTv.Client.Settings.Configuration.EpgNumberOfHoursSetting"/>
     <ConfigSetting
+        Id="ShowEpgGenreColorsSetting"
+        Text="[SlimTvClient.ShowEpgGenreColors]"
+        HelpText="[SlimTvClient.ShowEpgGenreColors.Help]"
+        ClassName="MediaPortal.Plugins.SlimTv.Client.Settings.Configuration.ShowEpgGenreColorsSetting"/>
+    <ConfigSetting
         Id="EpgVisibleChannelInfoSetting"
         Text="[SlimTvClient.EpgVisibleChannelInfo]"
         HelpText="[SlimTvClient.EpgVisibleChannelInfo.Help]"
@@ -274,7 +279,7 @@
         Id="EpgSeriesGenreColor"
         Text="[SlimTvClient.EpgSeriesGenreColor]"
         HelpText="[SlimTvClient.EpgSeriesGenreColor.Help]"
-        ClassName="MediaPortal.Plugins.SlimTv.Client.Settings.Configuration.EpgGenreGenreColorSetting"/>
+        ClassName="MediaPortal.Plugins.SlimTv.Client.Settings.Configuration.EpgSeriesGenreColorSetting"/>
     <ConfigSetting
         Id="EpgDocumentaryGenreColor"
         Text="[SlimTvClient.EpgDocumentaryGenreColor]"
