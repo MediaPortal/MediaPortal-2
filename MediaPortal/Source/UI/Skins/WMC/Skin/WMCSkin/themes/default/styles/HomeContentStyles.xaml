@@ -15,10 +15,39 @@
   <Model x:Key="CurrentWeatherModel" Id="FC57FF5C-F72F-47E9-B973-338E31FF7FF1"/>
   <Model x:Key="CurrentNewsModel" Id="EE1BBF83-AE5C-491C-9978-14737A2B0883"/>
   <Model x:Key="MediaListModel" Id="6121E6CC-EB66-4ABC-8AA0-D952B64C0414"/>
+  <Model x:Key="HomeMenuModel" Id="2EAA2DAB-241F-432F-A487-CDD35CCD4309"/>
+  <Model x:Key="HomeContentModel" Id="24BB1BBE-A3B3-474A-8D55-C37EBE182F6C"/>
 
   <!--++++++++++++++++++++++++++++++++++-->
   <!--++++ HOME CONTENT ITEM STYLES ++++-->
   <!--++++++++++++++++++++++++++++++++++-->
+
+  <ControlTemplate x:Key="ContentIndicator_Template">
+    <Image IsVisible="{Binding Source={StaticResource HomeContentModel}, Path=!IsContentFocused}"
+           Stretch="Uniform" Width="40" Source="i-indicator.png" Opacity="0.35">
+      <Image.Resources>
+        <Storyboard x:Key="InfoBlinkStoryboard" RepeatBehavior="Forever" >
+          <DoubleAnimationUsingKeyFrames Storyboard.TargetProperty="Opacity"
+                                         AccelerationRatio="0.2" DecelerationRatio="0.2"
+                                         BeginTime="00:00:00" RepeatBehavior="Forever" FillBehavior="HoldEnd">
+            <SplineDoubleKeyFrame KeyTime="00:00:00" Value="0"/>
+            <SplineDoubleKeyFrame KeyTime="00:00:01.5" Value="0.35"/>
+            <SplineDoubleKeyFrame KeyTime="00:00:03" Value="0"/>
+          </DoubleAnimationUsingKeyFrames>
+        </Storyboard>
+      </Image.Resources>
+      <Image.Triggers>
+        <Trigger Property="IsVisible" Value="True">
+          <Trigger.EnterActions>
+            <BeginStoryboard x:Name="Disabled_BeginStoryBoard" Storyboard="{ThemeResource InfoBlinkStoryboard}"/>
+          </Trigger.EnterActions>
+          <Trigger.ExitActions>
+            <StopStoryboard BeginStoryboardName="Disabled_BeginStoryBoard"/>
+          </Trigger.ExitActions>
+        </Trigger>
+      </Image.Triggers>
+    </Image>
+  </ControlTemplate>
 
   <Style x:Key="HomeMediaListGridViewContainerStyle" BasedOn="{ThemeResource DefaultItemContainerStyle}">
     <Setter Property="Template">
@@ -423,32 +452,79 @@
   <!--++++++++++ Movies +++++++++++-->
 
   <ControlTemplate x:Key="80d2e2cc-baaa-4750-807b-f37714153751">
-    <ListView Style="{ThemeResource MainMediaListListViewStyle}"
+    <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+      <Grid.ColumnDefinitions>
+        <ColumnDefinition Width="*"/>
+      </Grid.ColumnDefinitions>
+      <Grid.RowDefinitions>
+        <RowDefinition Height="*"/>
+      </Grid.RowDefinitions>
+      <ListView Style="{ThemeResource MainMediaListListViewStyle}"
               IsEnabled="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=IsEnabled}">
-      <ListView.Resources>
-        <DataTemplate DataType="{x:Type navitems:MovieItem}">
-          <Control Template="{StaticResource GridViewMovieItemSmallTemplate}"/>
-        </DataTemplate>
-      </ListView.Resources>
-      <ListViewItem DataContext="{Binding Source={StaticResource MediaListModel}, Path=Lists[LatestMovies]}"
+        <ListView.Resources>
+          <DataTemplate DataType="{x:Type navitems:MovieItem}">
+            <Control Template="{StaticResource GridViewMovieItemSmallTemplate}"/>
+          </DataTemplate>
+        </ListView.Resources>
+        <ListViewItem x:Name="LatestMovies" DataContext="{Binding Source={StaticResource MediaListModel}, Path=Lists[LatestMovies]}"
                     Style="{ThemeResource LatestAddedListViewItemStyle}"
-                    Visibility="{Binding Source={Binding AllItems}, Converter={StaticResource MediaListVisibilityConverter}}"/>      
-      <ListViewItem DataContext="{Binding Source={StaticResource MediaListModel}, Path=Lists[ContinuePlayMovies]}"
+                    Visibility="{Binding Source={Binding AllItems}, Converter={StaticResource MediaListVisibilityConverter}}"/>
+        <ListViewItem x:Name="ContinuePlayMovies" DataContext="{Binding Source={StaticResource MediaListModel}, Path=Lists[ContinuePlayMovies]}"
                     Style="{ThemeResource ContinuePlayedListViewItemStyle}"
                     Visibility="{Binding Source={Binding AllItems}, Converter={StaticResource MediaListVisibilityConverter}}"/>
-      <ListViewItem DataContext="{Binding Source={StaticResource MediaListModel}, Path=Lists[FavoriteMovies]}"
+        <ListViewItem x:Name="FavoriteMovies" DataContext="{Binding Source={StaticResource MediaListModel}, Path=Lists[FavoriteMovies]}"
                     Style="{ThemeResource FavoriteListViewItemStyle}"
                     Visibility="{Binding Source={Binding AllItems}, Converter={StaticResource MediaListVisibilityConverter}}"/>
-      <ListViewItem DataContext="{Binding Source={StaticResource MediaListModel}, Path=Lists[UnplayedMovies]}"
+        <ListViewItem x:Name="UnplayedMovies" DataContext="{Binding Source={StaticResource MediaListModel}, Path=Lists[UnplayedMovies]}"
                     Style="{ThemeResource UnplayedListViewItemStyle}"
                     Visibility="{Binding Source={Binding AllItems}, Converter={StaticResource MediaListVisibilityConverter}}"/>
-    </ListView>
+      </ListView>
+      <Grid HorizontalAlignment="Left" VerticalAlignment="Top" Margin="-30,80,0,0">
+        <Control Template="{StaticResource ResourceKey=ContentIndicator_Template}"/>
+        <Grid.IsVisible>
+          <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" 
+                        ConverterParameter="{}(({0}=!{VisibilityEnum}.{Visible})||({1}=!{VisibilityEnum}.{Visible})||({2}=!{VisibilityEnum}.{Visible})||({3}=!{VisibilityEnum}.{Visible}))">
+            <Binding ElementName="LatestMovies" Path="Visibility" />
+            <Binding ElementName="ContinuePlayMovies" Path="Visibility" />
+            <Binding ElementName="FavoriteMovies" Path="Visibility" />
+            <Binding ElementName="UnplayedMovies" Path="Visibility" />
+          </MultiBinding>
+        </Grid.IsVisible>
+        <Grid.Resources>
+          <Storyboard x:Key="DelayStoryboard">
+            <DoubleAnimationUsingKeyFrames Storyboard.TargetProperty="Opacity" RepeatBehavior="None"
+                                           BeginTime="00:00:00" FillBehavior="Stop">
+              <SplineDoubleKeyFrame KeyTime="00:00:00" Value="0"/>
+              <SplineDoubleKeyFrame KeyTime="00:00:04.0" Value="0"/>
+              <SplineDoubleKeyFrame KeyTime="00:00:04.1" Value="1"/>
+            </DoubleAnimationUsingKeyFrames>
+          </Storyboard>
+        </Grid.Resources>
+        <Grid.Triggers>
+          <Trigger Property="IsVisible" Value="True">
+            <Trigger.EnterActions>
+              <BeginStoryboard x:Name="Delay_BeginStoryBoard" Storyboard="{ThemeResource DelayStoryboard}"/>
+            </Trigger.EnterActions>
+            <Trigger.ExitActions>
+              <StopStoryboard BeginStoryboardName="Delay_BeginStoryBoard"/>
+            </Trigger.ExitActions>
+          </Trigger>
+        </Grid.Triggers>
+      </Grid>
+    </Grid>
   </ControlTemplate>
 
   <!--++++++++++ Audio +++++++++++-->
 
   <ControlTemplate x:Key="30715d73-4205-417f-80aa-e82f0834171f">
-    <ListView Style="{ThemeResource MainMediaListListViewStyle}"
+    <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+      <Grid.ColumnDefinitions>
+        <ColumnDefinition Width="*"/>
+      </Grid.ColumnDefinitions>
+      <Grid.RowDefinitions>
+        <RowDefinition Height="*"/>
+      </Grid.RowDefinitions>
+      <ListView Style="{ThemeResource MainMediaListListViewStyle}"
               IsEnabled="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=IsEnabled}">
       <ListView.Resources>
         <DataTemplate DataType="{x:Type navitems:AudioItem}">
@@ -458,24 +534,64 @@
           <Control Template="{StaticResource GridViewAlbumItemSmallTemplate}"/>
         </DataTemplate>
       </ListView.Resources>
-      <ListViewItem DataContext="{Binding Source={StaticResource MediaListModel}, Path=Lists[LatestAudio]}"
+      <ListViewItem x:Name="LatestAudio" DataContext="{Binding Source={StaticResource MediaListModel}, Path=Lists[LatestAudio]}"
                     Style="{ThemeResource LatestAddedListViewItemStyle}"
                     Visibility="{Binding Source={Binding AllItems}, Converter={StaticResource MediaListVisibilityConverter}}"/>
-      <ListViewItem DataContext="{Binding Source={StaticResource MediaListModel}, Path=Lists[LastPlayAudio]}"
+      <ListViewItem x:Name="LastPlayAudio" DataContext="{Binding Source={StaticResource MediaListModel}, Path=Lists[LastPlayAudio]}"
                     Style="{ThemeResource LatestPlayedListViewItemStyle}"
                     Visibility="{Binding Source={Binding AllItems}, Converter={StaticResource MediaListVisibilityConverter}}"/>
-      <ListViewItem DataContext="{Binding Source={StaticResource MediaListModel}, Path=Lists[FavoriteAlbum]}"
+      <ListViewItem x:Name="FavoriteAlbum" DataContext="{Binding Source={StaticResource MediaListModel}, Path=Lists[FavoriteAlbum]}"
                     Style="{ThemeResource FavoriteListViewItemStyle}"
                     Visibility="{Binding Source={Binding AllItems}, Converter={StaticResource MediaListVisibilityConverter}}"/>
-      <ListViewItem DataContext="{Binding Source={StaticResource MediaListModel}, Path=Lists[UnplayedAlbum]}"
+      <ListViewItem x:Name="UnplayedAlbum" DataContext="{Binding Source={StaticResource MediaListModel}, Path=Lists[UnplayedAlbum]}"
                     Style="{ThemeResource UnplayedListViewItemStyle}"
                     Visibility="{Binding Source={Binding AllItems}, Converter={StaticResource MediaListVisibilityConverter}}"/>
     </ListView>
+      <Grid HorizontalAlignment="Left" VerticalAlignment="Top" Margin="-30,80,0,0">
+        <Control Template="{StaticResource ResourceKey=ContentIndicator_Template}"/>
+        <Grid.IsVisible>
+          <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" 
+                        ConverterParameter="{}(({0}=!{VisibilityEnum}.{Visible})||({1}=!{VisibilityEnum}.{Visible})||({2}=!{VisibilityEnum}.{Visible})||({3}=!{VisibilityEnum}.{Visible}))">
+            <Binding ElementName="LatestAudio" Path="Visibility" />
+            <Binding ElementName="LastPlayAudio" Path="Visibility" />
+            <Binding ElementName="FavoriteAlbum" Path="Visibility" />
+            <Binding ElementName="UnplayedAlbum" Path="Visibility" />
+          </MultiBinding>
+        </Grid.IsVisible>
+        <Grid.Resources>
+          <Storyboard x:Key="DelayStoryboard">
+            <DoubleAnimationUsingKeyFrames Storyboard.TargetProperty="Opacity" RepeatBehavior="None"
+                                           BeginTime="00:00:00" FillBehavior="Stop">
+              <SplineDoubleKeyFrame KeyTime="00:00:00" Value="0"/>
+              <SplineDoubleKeyFrame KeyTime="00:00:04.0" Value="0"/>
+              <SplineDoubleKeyFrame KeyTime="00:00:04.1" Value="1"/>
+            </DoubleAnimationUsingKeyFrames>
+          </Storyboard>
+        </Grid.Resources>
+        <Grid.Triggers>
+          <Trigger Property="IsVisible" Value="True">
+            <Trigger.EnterActions>
+              <BeginStoryboard x:Name="Delay_BeginStoryBoard" Storyboard="{ThemeResource DelayStoryboard}"/>
+            </Trigger.EnterActions>
+            <Trigger.ExitActions>
+              <StopStoryboard BeginStoryboardName="Delay_BeginStoryBoard"/>
+            </Trigger.ExitActions>
+          </Trigger>
+        </Grid.Triggers>
+      </Grid>
+    </Grid>
   </ControlTemplate>
 
   <!--++++++++++ Episodes +++++++++++-->
 
   <ControlTemplate x:Key="30f57cba-459c-4202-a587-09fff5098251">
+    <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+      <Grid.ColumnDefinitions>
+        <ColumnDefinition Width="*"/>
+      </Grid.ColumnDefinitions>
+      <Grid.RowDefinitions>
+        <RowDefinition Height="*"/>
+      </Grid.RowDefinitions>
     <ListView Style="{ThemeResource MainMediaListListViewStyle}"
               IsEnabled="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=IsEnabled}">
       <ListView.Resources>
@@ -487,123 +603,382 @@
         </DataTemplate>
       </ListView.Resources>
       <ListViewItem DataContext="{Binding Source={StaticResource MediaListModel}, Path=Lists[LatestEpisodes]}"
-                    Style="{ThemeResource LatestAddedListViewItemStyle}"
+                    x:Name="LatestEpisodes" Style="{ThemeResource LatestAddedListViewItemStyle}"
                     Visibility="{Binding Source={Binding AllItems}, Converter={StaticResource MediaListVisibilityConverter}}"/>
       <ListViewItem DataContext="{Binding Source={StaticResource MediaListModel}, Path=Lists[ContinuePlayEpisodes]}"
-                    Style="{ThemeResource ContinuePlayedListViewItemStyle}"
+                    x:Name="ContinuePlayEpisodes" Style="{ThemeResource ContinuePlayedListViewItemStyle}"
                     Visibility="{Binding Source={Binding AllItems}, Converter={StaticResource MediaListVisibilityConverter}}"/>
       <ListViewItem DataContext="{Binding Source={StaticResource MediaListModel}, Path=Lists[FavoriteSeries]}"
-                    Style="{ThemeResource FavoriteListViewItemStyle}"
+                    x:Name="FavoriteSeries" Style="{ThemeResource FavoriteListViewItemStyle}"
                     Visibility="{Binding Source={Binding AllItems}, Converter={StaticResource MediaListVisibilityConverter}}"/>
       <ListViewItem DataContext="{Binding Source={StaticResource MediaListModel}, Path=Lists[UnplayedSeries]}"
-                    Style="{ThemeResource UnplayedListViewItemStyle}"
+                    x:Name="UnplayedSeries" Style="{ThemeResource UnplayedListViewItemStyle}"
                     Visibility="{Binding Source={Binding AllItems}, Converter={StaticResource MediaListVisibilityConverter}}"/>
     </ListView>
+      <Grid HorizontalAlignment="Left" VerticalAlignment="Top" Margin="-30,80,0,0">
+        <Control Template="{StaticResource ResourceKey=ContentIndicator_Template}"/>
+        <Grid.IsVisible>
+          <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" 
+                        ConverterParameter="{}(({0}=!{VisibilityEnum}.{Visible})||({1}=!{VisibilityEnum}.{Visible})||({2}=!{VisibilityEnum}.{Visible})||({3}=!{VisibilityEnum}.{Visible}))">
+            <Binding ElementName="LatestEpisodes" Path="Visibility" />
+            <Binding ElementName="ContinuePlayEpisodes" Path="Visibility" />
+            <Binding ElementName="FavoriteSeries" Path="Visibility" />
+            <Binding ElementName="UnplayedSeries" Path="Visibility" />
+          </MultiBinding>
+        </Grid.IsVisible>
+        <Grid.Resources>
+          <Storyboard x:Key="DelayStoryboard">
+            <DoubleAnimationUsingKeyFrames Storyboard.TargetProperty="Opacity" RepeatBehavior="None"
+                                           BeginTime="00:00:00" FillBehavior="Stop">
+              <SplineDoubleKeyFrame KeyTime="00:00:00" Value="0"/>
+              <SplineDoubleKeyFrame KeyTime="00:00:04.0" Value="0"/>
+              <SplineDoubleKeyFrame KeyTime="00:00:04.1" Value="1"/>
+            </DoubleAnimationUsingKeyFrames>
+          </Storyboard>
+        </Grid.Resources>
+        <Grid.Triggers>
+          <Trigger Property="IsVisible" Value="True">
+            <Trigger.EnterActions>
+              <BeginStoryboard x:Name="Delay_BeginStoryBoard" Storyboard="{ThemeResource DelayStoryboard}"/>
+            </Trigger.EnterActions>
+            <Trigger.ExitActions>
+              <StopStoryboard BeginStoryboardName="Delay_BeginStoryBoard"/>
+            </Trigger.ExitActions>
+          </Trigger>
+        </Grid.Triggers>
+      </Grid>
+    </Grid>
   </ControlTemplate>
 
   <!--++++++++++ Recordings +++++++++++-->
 
   <ControlTemplate x:Key="7f52d0a1-b7f8-46a1-a56b-1110bbfb7d51">
+    <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+      <Grid.ColumnDefinitions>
+        <ColumnDefinition Width="*"/>
+      </Grid.ColumnDefinitions>
+      <Grid.RowDefinitions>
+        <RowDefinition Height="*"/>
+      </Grid.RowDefinitions>
     <ListView Style="{ThemeResource MainMediaListListViewStyle}"
               IsEnabled="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=IsEnabled}">
       <ListViewItem DataContext="{Binding Source={StaticResource MediaListModel}, Path=Lists[LatestRecordings]}"
-                    Style="{ThemeResource LatestAddedListViewItemStyle}"
+                    x:Name="LatestRecordings" Style="{ThemeResource LatestAddedListViewItemStyle}"
                     Visibility="{Binding Source={Binding AllItems}, Converter={StaticResource MediaListVisibilityConverter}}"/>
       <ListViewItem DataContext="{Binding Source={StaticResource MediaListModel}, Path=Lists[LastPlayRecordings]}"
-                    Style="{ThemeResource LatestPlayedListViewItemStyle}"
+                    x:Name="LastPlayRecordings" Style="{ThemeResource LatestPlayedListViewItemStyle}"
                     Visibility="{Binding Source={Binding AllItems}, Converter={StaticResource MediaListVisibilityConverter}}"/>
       <ListViewItem DataContext="{Binding Source={StaticResource MediaListModel}, Path=Lists[FavoriteRecordings]}"
-                    Style="{ThemeResource FavoriteListViewItemStyle}"
+                    x:Name="FavoriteRecordings" Style="{ThemeResource FavoriteListViewItemStyle}"
                     Visibility="{Binding Source={Binding AllItems}, Converter={StaticResource MediaListVisibilityConverter}}"/>
       <ListViewItem DataContext="{Binding Source={StaticResource MediaListModel}, Path=Lists[UnplayedRecordings]}"
-                    Style="{ThemeResource UnplayedListViewItemStyle}"
+                    x:Name="UnplayedRecordings" Style="{ThemeResource UnplayedListViewItemStyle}"
                     Visibility="{Binding Source={Binding AllItems}, Converter={StaticResource MediaListVisibilityConverter}}"/>
     </ListView>
+      <Grid HorizontalAlignment="Left" VerticalAlignment="Top" Margin="-30,80,0,0">
+        <Control Template="{StaticResource ResourceKey=ContentIndicator_Template}"/>
+        <Grid.IsVisible>
+          <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" 
+                        ConverterParameter="{}(({0}=!{VisibilityEnum}.{Visible})||({1}=!{VisibilityEnum}.{Visible})||({2}=!{VisibilityEnum}.{Visible})||({3}=!{VisibilityEnum}.{Visible}))">
+            <Binding ElementName="LatestRecordings" Path="Visibility" />
+            <Binding ElementName="LastPlayRecordings" Path="Visibility" />
+            <Binding ElementName="FavoriteRecordings" Path="Visibility" />
+            <Binding ElementName="UnplayedRecordings" Path="Visibility" />
+          </MultiBinding>
+        </Grid.IsVisible>
+        <Grid.Resources>
+          <Storyboard x:Key="DelayStoryboard">
+            <DoubleAnimationUsingKeyFrames Storyboard.TargetProperty="Opacity" RepeatBehavior="None"
+                                           BeginTime="00:00:00" FillBehavior="Stop">
+              <SplineDoubleKeyFrame KeyTime="00:00:00" Value="0"/>
+              <SplineDoubleKeyFrame KeyTime="00:00:04.0" Value="0"/>
+              <SplineDoubleKeyFrame KeyTime="00:00:04.1" Value="1"/>
+            </DoubleAnimationUsingKeyFrames>
+          </Storyboard>
+        </Grid.Resources>
+        <Grid.Triggers>
+          <Trigger Property="IsVisible" Value="True">
+            <Trigger.EnterActions>
+              <BeginStoryboard x:Name="Delay_BeginStoryBoard" Storyboard="{ThemeResource DelayStoryboard}"/>
+            </Trigger.EnterActions>
+            <Trigger.ExitActions>
+              <StopStoryboard BeginStoryboardName="Delay_BeginStoryBoard"/>
+            </Trigger.ExitActions>
+          </Trigger>
+        </Grid.Triggers>
+      </Grid>
+    </Grid>
   </ControlTemplate>
 
   <!--++++++++++ Images +++++++++++-->
 
   <ControlTemplate x:Key="55556593-9fe9-436c-a3b6-a971e10c9d44">
-    <ListView Style="{ThemeResource MainMediaListListViewStyle}">
-      <ListView.Resources>
-        <DataTemplate DataType="{x:Type navitems:ImageItem}">
-          <Control Template="{StaticResource GridViewImageItemSmallTemplate}"/>
-        </DataTemplate>
-      </ListView.Resources>
-      <ListViewItem DataContext="{Binding Source={StaticResource MediaListModel}, Path=Lists[LatestImages]}"
-                    Style="{ThemeResource LatestAddedListViewItemStyle}"
-                    Visibility="{Binding Source={Binding AllItems}, Converter={StaticResource MediaListVisibilityConverter}}"/>
-      <ListViewItem DataContext="{Binding Source={StaticResource MediaListModel}, Path=Lists[LastPlayImages]}"
-                    Style="{ThemeResource LatestPlayedListViewItemStyle}"
-                    Visibility="{Binding Source={Binding AllItems}, Converter={StaticResource MediaListVisibilityConverter}}"/>
-      <ListViewItem DataContext="{Binding Source={StaticResource MediaListModel}, Path=Lists[FavoriteImages]}"
-                    Style="{ThemeResource FavoriteListViewItemStyle}"
-                    Visibility="{Binding Source={Binding AllItems}, Converter={StaticResource MediaListVisibilityConverter}}"/>
-      <ListViewItem DataContext="{Binding Source={StaticResource MediaListModel}, Path=Lists[UnplayedImages]}"
-                    Style="{ThemeResource UnplayedListViewItemStyle}"
-                    Visibility="{Binding Source={Binding AllItems}, Converter={StaticResource MediaListVisibilityConverter}}"/>
-    </ListView>
+    <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+      <Grid.ColumnDefinitions>
+        <ColumnDefinition Width="*"/>
+      </Grid.ColumnDefinitions>
+      <Grid.RowDefinitions>
+        <RowDefinition Height="*"/>
+      </Grid.RowDefinitions>
+      <ListView Style="{ThemeResource MainMediaListListViewStyle}">
+        <ListView.Resources>
+          <DataTemplate DataType="{x:Type navitems:ImageItem}">
+            <Control Template="{StaticResource GridViewImageItemSmallTemplate}"/>
+          </DataTemplate>
+        </ListView.Resources>
+        <ListViewItem DataContext="{Binding Source={StaticResource MediaListModel}, Path=Lists[LatestImages]}"
+                      x:Name="LatestImages" Style="{ThemeResource LatestAddedListViewItemStyle}"
+                      Visibility="{Binding Source={Binding AllItems}, Converter={StaticResource MediaListVisibilityConverter}}"/>
+        <ListViewItem DataContext="{Binding Source={StaticResource MediaListModel}, Path=Lists[LastPlayImages]}"
+                      x:Name="LastPlayImages" Style="{ThemeResource LatestPlayedListViewItemStyle}"
+                      Visibility="{Binding Source={Binding AllItems}, Converter={StaticResource MediaListVisibilityConverter}}"/>
+        <ListViewItem DataContext="{Binding Source={StaticResource MediaListModel}, Path=Lists[FavoriteImages]}"
+                      x:Name="FavoriteImages" Style="{ThemeResource FavoriteListViewItemStyle}"
+                      Visibility="{Binding Source={Binding AllItems}, Converter={StaticResource MediaListVisibilityConverter}}"/>
+        <ListViewItem DataContext="{Binding Source={StaticResource MediaListModel}, Path=Lists[UnplayedImages]}"
+                      x:Name="UnplayedImages" Style="{ThemeResource UnplayedListViewItemStyle}"
+                      Visibility="{Binding Source={Binding AllItems}, Converter={StaticResource MediaListVisibilityConverter}}"/>
+      </ListView>
+      <Grid HorizontalAlignment="Left" VerticalAlignment="Top" Margin="-30,80,0,0">
+        <Control Template="{StaticResource ResourceKey=ContentIndicator_Template}"/>
+        <Grid.IsVisible>
+          <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" 
+                        ConverterParameter="{}(({0}=!{VisibilityEnum}.{Visible})||({1}=!{VisibilityEnum}.{Visible})||({2}=!{VisibilityEnum}.{Visible})||({3}=!{VisibilityEnum}.{Visible}))">
+            <Binding ElementName="LatestImages" Path="Visibility" />
+            <Binding ElementName="LastPlayImages" Path="Visibility" />
+            <Binding ElementName="FavoriteImages" Path="Visibility" />
+            <Binding ElementName="UnplayedImages" Path="Visibility" />
+          </MultiBinding>
+        </Grid.IsVisible>
+        <Grid.Resources>
+          <Storyboard x:Key="DelayStoryboard">
+            <DoubleAnimationUsingKeyFrames Storyboard.TargetProperty="Opacity" RepeatBehavior="None"
+                                           BeginTime="00:00:00" FillBehavior="Stop">
+              <SplineDoubleKeyFrame KeyTime="00:00:00" Value="0"/>
+              <SplineDoubleKeyFrame KeyTime="00:00:04.0" Value="0"/>
+              <SplineDoubleKeyFrame KeyTime="00:00:04.1" Value="1"/>
+            </DoubleAnimationUsingKeyFrames>
+          </Storyboard>
+        </Grid.Resources>
+        <Grid.Triggers>
+          <Trigger Property="IsVisible" Value="True">
+            <Trigger.EnterActions>
+              <BeginStoryboard x:Name="Delay_BeginStoryBoard" Storyboard="{ThemeResource DelayStoryboard}"/>
+            </Trigger.EnterActions>
+            <Trigger.ExitActions>
+              <StopStoryboard BeginStoryboardName="Delay_BeginStoryBoard"/>
+            </Trigger.ExitActions>
+          </Trigger>
+        </Grid.Triggers>
+      </Grid>
+    </Grid>
   </ControlTemplate>
 
   <!--++++++++++ Video +++++++++++-->
 
   <ControlTemplate x:Key="a4df2df6-8d66-479a-9930-d7106525eb07">
-    <ListView Style="{ThemeResource MainMediaListListViewStyle}"
-              IsEnabled="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=IsEnabled}">
-      <ListView.Resources>
-        <DataTemplate DataType="{x:Type navitems:VideoItem}">
-          <Control Template="{StaticResource GridViewVideoItemSmallTemplate}"/>
-        </DataTemplate>
-      </ListView.Resources>
-      <ListViewItem DataContext="{Binding Source={StaticResource MediaListModel}, Path=Lists[LatestVideo]}"
-                    Style="{ThemeResource LatestAddedListViewItemStyle}"
-                    Visibility="{Binding Source={Binding AllItems}, Converter={StaticResource MediaListVisibilityConverter}}"/>
-      <ListViewItem DataContext="{Binding Source={StaticResource MediaListModel}, Path=Lists[LastPlayVideo]}"
-                    Style="{ThemeResource LatestPlayedListViewItemStyle}"
-                    Visibility="{Binding Source={Binding AllItems}, Converter={StaticResource MediaListVisibilityConverter}}"/>
-      <ListViewItem DataContext="{Binding Source={StaticResource MediaListModel}, Path=Lists[FavoriteVideo]}"
-                    Style="{ThemeResource FavoriteListViewItemStyle}"
-                    Visibility="{Binding Source={Binding AllItems}, Converter={StaticResource MediaListVisibilityConverter}}"/>
-      <ListViewItem DataContext="{Binding Source={StaticResource MediaListModel}, Path=Lists[UnplayedVideo]}"
-                    Style="{ThemeResource UnplayedListViewItemStyle}"
-                    Visibility="{Binding Source={Binding AllItems}, Converter={StaticResource MediaListVisibilityConverter}}"/>
-    </ListView>
+    <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+      <Grid.ColumnDefinitions>
+        <ColumnDefinition Width="*"/>
+      </Grid.ColumnDefinitions>
+      <Grid.RowDefinitions>
+        <RowDefinition Height="*"/>
+      </Grid.RowDefinitions>
+      <ListView Style="{ThemeResource MainMediaListListViewStyle}"
+                IsEnabled="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=IsEnabled}">
+        <ListView.Resources>
+          <DataTemplate DataType="{x:Type navitems:VideoItem}">
+            <Control Template="{StaticResource GridViewVideoItemSmallTemplate}"/>
+          </DataTemplate>
+        </ListView.Resources>
+        <ListViewItem DataContext="{Binding Source={StaticResource MediaListModel}, Path=Lists[LatestVideo]}"
+                      x:Name="LatestVideo" Style="{ThemeResource LatestAddedListViewItemStyle}"
+                      Visibility="{Binding Source={Binding AllItems}, Converter={StaticResource MediaListVisibilityConverter}}"/>
+        <ListViewItem DataContext="{Binding Source={StaticResource MediaListModel}, Path=Lists[LastPlayVideo]}"
+                      x:Name="LastPlayVideo" Style="{ThemeResource LatestPlayedListViewItemStyle}"
+                      Visibility="{Binding Source={Binding AllItems}, Converter={StaticResource MediaListVisibilityConverter}}"/>
+        <ListViewItem DataContext="{Binding Source={StaticResource MediaListModel}, Path=Lists[FavoriteVideo]}"
+                      x:Name="FavoriteVideo" Style="{ThemeResource FavoriteListViewItemStyle}"
+                      Visibility="{Binding Source={Binding AllItems}, Converter={StaticResource MediaListVisibilityConverter}}"/>
+        <ListViewItem DataContext="{Binding Source={StaticResource MediaListModel}, Path=Lists[UnplayedVideo]}"
+                      x:Name="UnplayedVideo" Style="{ThemeResource UnplayedListViewItemStyle}"
+                      Visibility="{Binding Source={Binding AllItems}, Converter={StaticResource MediaListVisibilityConverter}}"/>
+      </ListView>
+      <Grid HorizontalAlignment="Left" VerticalAlignment="Top" Margin="-30,80,0,0">
+        <Control Template="{StaticResource ResourceKey=ContentIndicator_Template}"/>
+        <Grid.IsVisible>
+          <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" 
+                        ConverterParameter="{}(({0}=!{VisibilityEnum}.{Visible})||({1}=!{VisibilityEnum}.{Visible})||({2}=!{VisibilityEnum}.{Visible})||({3}=!{VisibilityEnum}.{Visible}))">
+            <Binding ElementName="LatestVideo" Path="Visibility" />
+            <Binding ElementName="LastPlayVideo" Path="Visibility" />
+            <Binding ElementName="FavoriteVideo" Path="Visibility" />
+            <Binding ElementName="UnplayedVideo" Path="Visibility" />
+          </MultiBinding>
+        </Grid.IsVisible>
+        <Grid.Resources>
+          <Storyboard x:Key="DelayStoryboard">
+            <DoubleAnimationUsingKeyFrames Storyboard.TargetProperty="Opacity" RepeatBehavior="None"
+                                           BeginTime="00:00:00" FillBehavior="Stop">
+              <SplineDoubleKeyFrame KeyTime="00:00:00" Value="0"/>
+              <SplineDoubleKeyFrame KeyTime="00:00:04.0" Value="0"/>
+              <SplineDoubleKeyFrame KeyTime="00:00:04.1" Value="1"/>
+            </DoubleAnimationUsingKeyFrames>
+          </Storyboard>
+        </Grid.Resources>
+        <Grid.Triggers>
+          <Trigger Property="IsVisible" Value="True">
+            <Trigger.EnterActions>
+              <BeginStoryboard x:Name="Delay_BeginStoryBoard" Storyboard="{ThemeResource DelayStoryboard}"/>
+            </Trigger.EnterActions>
+            <Trigger.ExitActions>
+              <StopStoryboard BeginStoryboardName="Delay_BeginStoryBoard"/>
+            </Trigger.ExitActions>
+          </Trigger>
+        </Grid.Triggers>
+      </Grid>
+    </Grid>
   </ControlTemplate>
 
   <!--++++++++++ TV +++++++++++-->
 
   <ControlTemplate x:Key="b4a9199f-6dd4-4bda-a077-de9c081f7703">
-    <ListView Style="{ThemeResource MainMediaListListViewStyle}"
-              IsEnabled="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=IsEnabled}">
-      <ListViewItem DataContext="{Binding Source={StaticResource MediaListModel}, Path=Lists[LastPlayTV]}"
-                    Style="{ThemeResource LatestPlayedChannelListViewItemStyle}"
-                    Visibility="{Binding Source={Binding AllItems}, Converter={StaticResource MediaListVisibilityConverter}}"/>
-      <ListViewItem DataContext="{Binding Source={StaticResource MediaListModel}, Path=Lists[FavoriteTV]}"
-                    Style="{ThemeResource FavoriteChannelListViewItemStyle}"
-                    Visibility="{Binding Source={Binding AllItems}, Converter={StaticResource MediaListVisibilityConverter}}"/>
-    </ListView>
+    <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+      <Grid.ColumnDefinitions>
+        <ColumnDefinition Width="*"/>
+      </Grid.ColumnDefinitions>
+      <Grid.RowDefinitions>
+        <RowDefinition Height="*"/>
+      </Grid.RowDefinitions>
+      <ListView Style="{ThemeResource MainMediaListListViewStyle}"
+                IsEnabled="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=IsEnabled}">
+        <ListViewItem x:Name="LastPlayTV" DataContext="{Binding Source={StaticResource MediaListModel}, Path=Lists[LastPlayTV]}"
+                      Style="{ThemeResource LatestPlayedChannelListViewItemStyle}"
+                      Visibility="{Binding Source={Binding AllItems}, Converter={StaticResource MediaListVisibilityConverter}}"/>
+        <ListViewItem x:Name="FavoriteTV" DataContext="{Binding Source={StaticResource MediaListModel}, Path=Lists[FavoriteTV]}"
+                      Style="{ThemeResource FavoriteChannelListViewItemStyle}"
+                      Visibility="{Binding Source={Binding AllItems}, Converter={StaticResource MediaListVisibilityConverter}}"/>
+      </ListView>
+      <Grid HorizontalAlignment="Left" VerticalAlignment="Top" Margin="-30,80,0,0">
+        <Control Template="{StaticResource ResourceKey=ContentIndicator_Template}"/>
+        <Grid.IsVisible>
+          <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" 
+                        ConverterParameter="{}(({0}=!{VisibilityEnum}.{Visible})||({1}=!{VisibilityEnum}.{Visible}))">
+            <Binding ElementName="LastPlayTV" Path="Visibility" />
+            <Binding ElementName="FavoriteTV" Path="Visibility" />
+          </MultiBinding>
+        </Grid.IsVisible>
+        <Grid.Resources>
+          <Storyboard x:Key="DelayStoryboard">
+            <DoubleAnimationUsingKeyFrames Storyboard.TargetProperty="Opacity" RepeatBehavior="None"
+                                           BeginTime="00:00:00" FillBehavior="Stop">
+              <SplineDoubleKeyFrame KeyTime="00:00:00" Value="0"/>
+              <SplineDoubleKeyFrame KeyTime="00:00:04.0" Value="0"/>
+              <SplineDoubleKeyFrame KeyTime="00:00:04.1" Value="1"/>
+            </DoubleAnimationUsingKeyFrames>
+          </Storyboard>
+        </Grid.Resources>
+        <Grid.Triggers>
+          <Trigger Property="IsVisible" Value="True">
+            <Trigger.EnterActions>
+              <BeginStoryboard x:Name="Delay_BeginStoryBoard" Storyboard="{ThemeResource DelayStoryboard}"/>
+            </Trigger.EnterActions>
+            <Trigger.ExitActions>
+              <StopStoryboard BeginStoryboardName="Delay_BeginStoryBoard"/>
+            </Trigger.ExitActions>
+          </Trigger>
+        </Grid.Triggers>
+      </Grid>
+    </Grid>
   </ControlTemplate>
 
   <!--++++++++++ TV Guide +++++++++++-->
 
   <ControlTemplate x:Key="a298dfbe-9da8-4c16-a3ea-a9b354f3910c">
-    <ListView Style="{ThemeResource MainMediaListListViewStyle}"
-              IsEnabled="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=IsEnabled}">
-      <ListViewItem DataContext="{Binding Source={StaticResource MediaListModel}, Path=Lists[CurrentPrograms]}"
+    <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+      <Grid.ColumnDefinitions>
+        <ColumnDefinition Width="*"/>
+      </Grid.ColumnDefinitions>
+      <Grid.RowDefinitions>
+        <RowDefinition Height="*"/>
+      </Grid.RowDefinitions>
+      <ListView Style="{ThemeResource MainMediaListListViewStyle}"
+                IsEnabled="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=IsEnabled}">
+      <ListViewItem x:Name="CurrentPrograms" DataContext="{Binding Source={StaticResource MediaListModel}, Path=Lists[CurrentPrograms]}"
                     Style="{ThemeResource CurrentProgramListViewItemStyle}"
                     Visibility="{Binding Source={Binding AllItems}, Converter={StaticResource MediaListVisibilityConverter}}"/>
     </ListView>
+      <Grid HorizontalAlignment="Left" VerticalAlignment="Top" Margin="-30,80,0,0">
+        <Control Template="{StaticResource ResourceKey=ContentIndicator_Template}"/>
+        <Grid.IsVisible>
+          <Binding ElementName="CurrentProgram" Path="Visibility" Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0} == {VisibilityEnum}.{Visible}"/>
+        </Grid.IsVisible>
+        <Grid.Resources>
+          <Storyboard x:Key="DelayStoryboard">
+            <DoubleAnimationUsingKeyFrames Storyboard.TargetProperty="Opacity" RepeatBehavior="None"
+                                           BeginTime="00:00:00" FillBehavior="Stop">
+              <SplineDoubleKeyFrame KeyTime="00:00:00" Value="0"/>
+              <SplineDoubleKeyFrame KeyTime="00:00:04.0" Value="0"/>
+              <SplineDoubleKeyFrame KeyTime="00:00:04.1" Value="1"/>
+            </DoubleAnimationUsingKeyFrames>
+          </Storyboard>
+        </Grid.Resources>
+        <Grid.Triggers>
+          <Trigger Property="IsVisible" Value="True">
+            <Trigger.EnterActions>
+              <BeginStoryboard x:Name="Delay_BeginStoryBoard" Storyboard="{ThemeResource DelayStoryboard}"/>
+            </Trigger.EnterActions>
+            <Trigger.ExitActions>
+              <StopStoryboard BeginStoryboardName="Delay_BeginStoryBoard"/>
+            </Trigger.ExitActions>
+          </Trigger>
+        </Grid.Triggers>
+      </Grid>
+    </Grid>
   </ControlTemplate>
 
   <!--++++++++++ Schedules +++++++++++-->
 
   <ControlTemplate x:Key="87355e05-a15b-452a-85b8-98d4fc80034e">
-    <ListView Style="{ThemeResource MainMediaListListViewStyle}"
+    <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+      <Grid.ColumnDefinitions>
+        <ColumnDefinition Width="*"/>
+      </Grid.ColumnDefinitions>
+      <Grid.RowDefinitions>
+        <RowDefinition Height="*"/>
+      </Grid.RowDefinitions>
+      <ListView Style="{ThemeResource MainMediaListListViewStyle}"
               IsEnabled="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=IsEnabled}">
-      <ListViewItem DataContext="{Binding Source={StaticResource MediaListModel}, Path=Lists[CurrentSchedules]}"
+      <ListViewItem x:Name="CurrentSchedules" DataContext="{Binding Source={StaticResource MediaListModel}, Path=Lists[CurrentSchedules]}"
                     Style="{ThemeResource CurrentScheduleListViewItemStyle}"
                     Visibility="{Binding Source={Binding AllItems}, Converter={StaticResource MediaListVisibilityConverter}}"/>
     </ListView>
+      <Grid HorizontalAlignment="Left" VerticalAlignment="Top" Margin="-30,80,0,0">
+        <Control Template="{StaticResource ResourceKey=ContentIndicator_Template}"/>
+        <Grid.IsVisible>
+          <Binding ElementName="CurrentSchedules" Path="Visibility" Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0} == {VisibilityEnum}.{Visible}"/>
+        </Grid.IsVisible>
+        <Grid.Resources>
+          <Storyboard x:Key="DelayStoryboard">
+            <DoubleAnimationUsingKeyFrames Storyboard.TargetProperty="Opacity" RepeatBehavior="None"
+                                           BeginTime="00:00:00" FillBehavior="Stop">
+              <SplineDoubleKeyFrame KeyTime="00:00:00" Value="0"/>
+              <SplineDoubleKeyFrame KeyTime="00:00:04.0" Value="0"/>
+              <SplineDoubleKeyFrame KeyTime="00:00:04.1" Value="1"/>
+            </DoubleAnimationUsingKeyFrames>
+          </Storyboard>
+        </Grid.Resources>
+        <Grid.Triggers>
+          <Trigger Property="IsVisible" Value="True">
+            <Trigger.EnterActions>
+              <BeginStoryboard x:Name="Delay_BeginStoryBoard" Storyboard="{ThemeResource DelayStoryboard}"/>
+            </Trigger.EnterActions>
+            <Trigger.ExitActions>
+              <StopStoryboard BeginStoryboardName="Delay_BeginStoryBoard"/>
+            </Trigger.ExitActions>
+          </Trigger>
+        </Grid.Triggers>
+      </Grid>
+    </Grid>
   </ControlTemplate>
 
   <!--++++++++++ Weather +++++++++++-->
