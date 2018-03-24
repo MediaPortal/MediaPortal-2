@@ -472,6 +472,11 @@ namespace MediaPortal.Plugins.SlimTv.Service
               break;
           }
         }
+        else if (!string.IsNullOrWhiteSpace(program.SeriesNum) || !string.IsNullOrWhiteSpace(program.EpisodeNum) || !string.IsNullOrWhiteSpace(program.EpisodeNumber) || !string.IsNullOrWhiteSpace(program.EpisodePart))
+        {
+          prog.EpgGenreId = (int)EpgGenre.Series;
+          prog.EpgGenreColor = _epgColorSettings.SeriesGenreColor;
+        }
       }
       return prog;
     }
