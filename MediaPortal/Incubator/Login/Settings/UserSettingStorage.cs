@@ -29,6 +29,7 @@ using System.Collections.Generic;
 using System.Linq;
 using MediaPortal.Common.UserManagement;
 using MediaPortal.Common.UserProfileDataManagement;
+using MediaPortal.UI.Services.UserManagement;
 
 namespace MediaPortal.UiComponents.Login.Settings
 {

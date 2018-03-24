@@ -112,10 +112,10 @@
         ClassName="MediaPortal.UiComponents.WMCSkin.Settings.Configuration.SeasonGridViewTypeConfiguration"/>
 
     <ConfigSetting
-        Id="EnableAnimatedBackground"
-        Text="[WMC.Configuration.EnableAnimatedBackground]"
-        HelpText="[WMC.Configuration.EnableAnimatedBackground.Help]"
-        ClassName="MediaPortal.UiComponents.WMCSkin.Settings.Configuration.EnableAnimatedBackgroundConfiguration"/>
+        Id="EnableHomeContent"
+        Text="[WMC.Configuration.EnableHomeContent]"
+        HelpText="[WMC.Configuration.EnableHomeContent.Help]"
+        ClassName="MediaPortal.UiComponents.WMCSkin.Settings.Configuration.EnableHomeContentConfiguration"/>
 
     <ConfigSetting
         Id="EnableMediaItemDetailsView"

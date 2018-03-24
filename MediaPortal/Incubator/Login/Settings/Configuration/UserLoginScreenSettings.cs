@@ -25,6 +25,7 @@
 using MediaPortal.Common;
 using MediaPortal.Common.Configuration.ConfigurationClasses;
 using MediaPortal.Common.Settings;
+using MediaPortal.UI.Services.UserManagement;
 
 namespace MediaPortal.UiComponents.Login.Settings.Configuration
 {

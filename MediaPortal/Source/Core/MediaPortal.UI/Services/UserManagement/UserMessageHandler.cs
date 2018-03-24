@@ -33,7 +33,6 @@ namespace MediaPortal.UI.Services.UserManagement
   /// <summary>
   /// <see cref="UserMessageHandler"/> provides a simple handler for user change messages.
   /// </summary>
-  /// <typeparam name="T">Settings type.</typeparam>
   public class UserMessageHandler : IDisposable
   {
     #region Fields
@@ -42,10 +41,13 @@ namespace MediaPortal.UI.Services.UserManagement
 
     #endregion
 
-    public UserMessageHandler()
+    public UserMessageHandler(bool asyncMode = false)
     {
       _messageQueue = new AsynchronousMessageQueue(this, new string[] { UserMessaging.CHANNEL });
-      _messageQueue.PreviewMessage += PreviewMessage; // Synchronous
+      if (asyncMode)
+        _messageQueue.MessageReceived += PreviewMessage; // Asynchronous
+      else
+        _messageQueue.PreviewMessage += PreviewMessage; // Synchronous
       _messageQueue.Start();
     }
 

@@ -30,6 +30,7 @@ using MediaPortal.Utilities.UPnP;
 using UPnP.Infrastructure.CP.DeviceTree;
 using System.Linq;
 using System.Threading.Tasks;
+using MediaPortal.Common.Async;
 using MediaPortal.Common.MediaManagement.MLQueries;
 
 namespace MediaPortal.Common.Services.ServerCommunication
@@ -72,6 +73,14 @@ namespace MediaPortal.Common.Services.ServerCommunication
     {
       CpAction action = GetAction("CreateProfile");
       IList<object> inParameters = new List<object> { profileName };
+      IList<object> outParameters = await action.InvokeAsync(inParameters);
+      return MarshallingHelper.DeserializeGuid((string)outParameters[0]);
+    }
+
+    public async Task<Guid> CreateClientProfileAsync(Guid profileId, string profileName)
+    {
+      CpAction action = GetAction("CreateClientProfile");
+      IList<object> inParameters = new List<object> { MarshallingHelper.SerializeGuid(profileId), profileName };
       IList<object> outParameters = await action.InvokeAsync(inParameters);
       return MarshallingHelper.DeserializeGuid((string)outParameters[0]);
     }

@@ -683,8 +683,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
 
     public override async Task<bool> DownloadFanArtAsync(string id, TvdbBanner image, string folderPath)
     {
-      image.CachePath = folderPath;
-      bool result = await image.LoadBannerAsync().ConfigureAwait(false);
+      bool result = await image.LoadBannerAsync(true, folderPath).ConfigureAwait(false);
       image.UnloadBanner(true);
       return result;
     }

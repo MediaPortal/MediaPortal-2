@@ -51,6 +51,7 @@ using TvEngine.Events;
 using TvLibrary.Interfaces;
 using TvService;
 using MediaPortal.Backend.ClientCommunication;
+using MediaPortal.Common.Async;
 using MediaPortal.Common.Services.ServerCommunication;
 
 namespace MediaPortal.Plugins.SlimTv.Service
