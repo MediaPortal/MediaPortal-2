@@ -92,11 +92,6 @@
       <Version>3.9.0</Version>
     </PackageReference>
   </ItemGroup>
-  <ItemGroup>
-    <Content Include="Language\strings_en.xml">
-      <SubType>Designer</SubType>
-    </Content>
-  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
