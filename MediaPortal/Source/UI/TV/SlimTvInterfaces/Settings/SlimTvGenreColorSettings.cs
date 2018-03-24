@@ -28,25 +28,25 @@ namespace MediaPortal.Plugins.SlimTv.Interfaces.Settings
 {
   public class SlimTvGenreColorSettings
   {
-    [Setting(SettingScope.Global)]
+    [Setting(SettingScope.Global, DefaultValue = "#7532a8")]
     public string MovieGenreColor { get; set; }
 
-    [Setting(SettingScope.Global)]
+    [Setting(SettingScope.Global, DefaultValue = "#ed7d31")]
     public string SeriesGenreColor { get; set; }
 
-    [Setting(SettingScope.Global)]
+    [Setting(SettingScope.Global, DefaultValue = "#4f7a32")]
     public string DocumentaryGenreColor { get; set; }
 
-    [Setting(SettingScope.Global)]
+    [Setting(SettingScope.Global, DefaultValue = "#c89800")]
     public string MusicGenreColor { get; set; }
 
-    [Setting(SettingScope.Global)]
+    [Setting(SettingScope.Global, DefaultValue = "#4e93d2")]
     public string KidsGenreColor { get; set; }
 
-    [Setting(SettingScope.Global)]
+    [Setting(SettingScope.Global, DefaultValue = "#c03636")]
     public string NewsGenreColor { get; set; }
 
-    [Setting(SettingScope.Global)]
+    [Setting(SettingScope.Global, DefaultValue = "#00817e")]
     public string SportGenreColor { get; set; }
 
     [Setting(SettingScope.Global)]
