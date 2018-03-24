@@ -23,30 +23,42 @@
   <!--++++++++++++++++++++++++++++++++++-->
 
   <ControlTemplate x:Key="ContentIndicator_Template">
-    <Image IsVisible="{Binding Source={StaticResource HomeContentModel}, Path=!IsContentFocused}"
+    <Grid x:Name="IndicatorGrid">
+      <Image IsVisible="{Binding Source={StaticResource HomeContentModel}, Path=!IsContentFocused}"
            Stretch="Uniform" Width="40" Source="i-indicator.png" Opacity="0.35">
-      <Image.Resources>
-        <Storyboard x:Key="InfoBlinkStoryboard" RepeatBehavior="Forever" >
-          <DoubleAnimationUsingKeyFrames Storyboard.TargetProperty="Opacity"
+        <Image.Resources>
+          <Storyboard x:Key="InfoBlinkStoryboard">
+            <DoubleAnimationUsingKeyFrames Storyboard.TargetProperty="Opacity"
                                          AccelerationRatio="0.2" DecelerationRatio="0.2"
                                          BeginTime="00:00:00" RepeatBehavior="Forever" FillBehavior="HoldEnd">
-            <SplineDoubleKeyFrame KeyTime="00:00:00" Value="0"/>
-            <SplineDoubleKeyFrame KeyTime="00:00:01.5" Value="0.35"/>
-            <SplineDoubleKeyFrame KeyTime="00:00:03" Value="0"/>
-          </DoubleAnimationUsingKeyFrames>
-        </Storyboard>
-      </Image.Resources>
-      <Image.Triggers>
-        <Trigger Property="IsVisible" Value="True">
-          <Trigger.EnterActions>
-            <BeginStoryboard x:Name="Disabled_BeginStoryBoard" Storyboard="{ThemeResource InfoBlinkStoryboard}"/>
-          </Trigger.EnterActions>
-          <Trigger.ExitActions>
-            <StopStoryboard BeginStoryboardName="Disabled_BeginStoryBoard"/>
-          </Trigger.ExitActions>
-        </Trigger>
-      </Image.Triggers>
-    </Image>
+              <SplineDoubleKeyFrame KeyTime="00:00:00" Value="0"/>
+              <SplineDoubleKeyFrame KeyTime="00:00:01.5" Value="0.35"/>
+              <SplineDoubleKeyFrame KeyTime="00:00:03" Value="0"/>
+            </DoubleAnimationUsingKeyFrames>
+          </Storyboard>
+          <Storyboard x:Key="DelayStoryboard">
+            <DoubleAnimationUsingKeyFrames Storyboard.TargetName="IndicatorGrid" Storyboard.TargetProperty="Opacity" RepeatBehavior="None"
+                                           BeginTime="00:00:00" FillBehavior="Stop">
+              <SplineDoubleKeyFrame KeyTime="00:00:00" Value="0"/>
+              <SplineDoubleKeyFrame KeyTime="00:00:04.0" Value="0"/>
+              <SplineDoubleKeyFrame KeyTime="00:00:04.1" Value="1"/>
+            </DoubleAnimationUsingKeyFrames>
+          </Storyboard>
+        </Image.Resources>
+        <Image.Triggers>
+          <Trigger Property="IsVisible" Value="True">
+            <Trigger.EnterActions>
+              <BeginStoryboard x:Name="Disabled_BeginStoryBoard" Storyboard="{ThemeResource InfoBlinkStoryboard}"/>
+              <BeginStoryboard x:Name="Delay_BeginStoryBoard" Storyboard="{ThemeResource DelayStoryboard}"/>
+            </Trigger.EnterActions>
+            <Trigger.ExitActions>
+              <StopStoryboard BeginStoryboardName="Disabled_BeginStoryBoard"/>
+              <StopStoryboard BeginStoryboardName="Delay_BeginStoryBoard"/>
+            </Trigger.ExitActions>
+          </Trigger>
+        </Image.Triggers>
+      </Image>
+    </Grid>
   </ControlTemplate>
 
   <Style x:Key="HomeMediaListGridViewContainerStyle" BasedOn="{ThemeResource DefaultItemContainerStyle}">
@@ -490,26 +502,6 @@
             <Binding ElementName="UnplayedMovies" Path="Visibility" />
           </MultiBinding>
         </Grid.IsVisible>
-        <Grid.Resources>
-          <Storyboard x:Key="DelayStoryboard">
-            <DoubleAnimationUsingKeyFrames Storyboard.TargetProperty="Opacity" RepeatBehavior="None"
-                                           BeginTime="00:00:00" FillBehavior="Stop">
-              <SplineDoubleKeyFrame KeyTime="00:00:00" Value="0"/>
-              <SplineDoubleKeyFrame KeyTime="00:00:04.0" Value="0"/>
-              <SplineDoubleKeyFrame KeyTime="00:00:04.1" Value="1"/>
-            </DoubleAnimationUsingKeyFrames>
-          </Storyboard>
-        </Grid.Resources>
-        <Grid.Triggers>
-          <Trigger Property="IsVisible" Value="True">
-            <Trigger.EnterActions>
-              <BeginStoryboard x:Name="Delay_BeginStoryBoard" Storyboard="{ThemeResource DelayStoryboard}"/>
-            </Trigger.EnterActions>
-            <Trigger.ExitActions>
-              <StopStoryboard BeginStoryboardName="Delay_BeginStoryBoard"/>
-            </Trigger.ExitActions>
-          </Trigger>
-        </Grid.Triggers>
       </Grid>
     </Grid>
   </ControlTemplate>
@@ -558,26 +550,6 @@
             <Binding ElementName="UnplayedAlbum" Path="Visibility" />
           </MultiBinding>
         </Grid.IsVisible>
-        <Grid.Resources>
-          <Storyboard x:Key="DelayStoryboard">
-            <DoubleAnimationUsingKeyFrames Storyboard.TargetProperty="Opacity" RepeatBehavior="None"
-                                           BeginTime="00:00:00" FillBehavior="Stop">
-              <SplineDoubleKeyFrame KeyTime="00:00:00" Value="0"/>
-              <SplineDoubleKeyFrame KeyTime="00:00:04.0" Value="0"/>
-              <SplineDoubleKeyFrame KeyTime="00:00:04.1" Value="1"/>
-            </DoubleAnimationUsingKeyFrames>
-          </Storyboard>
-        </Grid.Resources>
-        <Grid.Triggers>
-          <Trigger Property="IsVisible" Value="True">
-            <Trigger.EnterActions>
-              <BeginStoryboard x:Name="Delay_BeginStoryBoard" Storyboard="{ThemeResource DelayStoryboard}"/>
-            </Trigger.EnterActions>
-            <Trigger.ExitActions>
-              <StopStoryboard BeginStoryboardName="Delay_BeginStoryBoard"/>
-            </Trigger.ExitActions>
-          </Trigger>
-        </Grid.Triggers>
       </Grid>
     </Grid>
   </ControlTemplate>
@@ -626,26 +598,6 @@
             <Binding ElementName="UnplayedSeries" Path="Visibility" />
           </MultiBinding>
         </Grid.IsVisible>
-        <Grid.Resources>
-          <Storyboard x:Key="DelayStoryboard">
-            <DoubleAnimationUsingKeyFrames Storyboard.TargetProperty="Opacity" RepeatBehavior="None"
-                                           BeginTime="00:00:00" FillBehavior="Stop">
-              <SplineDoubleKeyFrame KeyTime="00:00:00" Value="0"/>
-              <SplineDoubleKeyFrame KeyTime="00:00:04.0" Value="0"/>
-              <SplineDoubleKeyFrame KeyTime="00:00:04.1" Value="1"/>
-            </DoubleAnimationUsingKeyFrames>
-          </Storyboard>
-        </Grid.Resources>
-        <Grid.Triggers>
-          <Trigger Property="IsVisible" Value="True">
-            <Trigger.EnterActions>
-              <BeginStoryboard x:Name="Delay_BeginStoryBoard" Storyboard="{ThemeResource DelayStoryboard}"/>
-            </Trigger.EnterActions>
-            <Trigger.ExitActions>
-              <StopStoryboard BeginStoryboardName="Delay_BeginStoryBoard"/>
-            </Trigger.ExitActions>
-          </Trigger>
-        </Grid.Triggers>
       </Grid>
     </Grid>
   </ControlTemplate>
@@ -686,26 +638,6 @@
             <Binding ElementName="UnplayedRecordings" Path="Visibility" />
           </MultiBinding>
         </Grid.IsVisible>
-        <Grid.Resources>
-          <Storyboard x:Key="DelayStoryboard">
-            <DoubleAnimationUsingKeyFrames Storyboard.TargetProperty="Opacity" RepeatBehavior="None"
-                                           BeginTime="00:00:00" FillBehavior="Stop">
-              <SplineDoubleKeyFrame KeyTime="00:00:00" Value="0"/>
-              <SplineDoubleKeyFrame KeyTime="00:00:04.0" Value="0"/>
-              <SplineDoubleKeyFrame KeyTime="00:00:04.1" Value="1"/>
-            </DoubleAnimationUsingKeyFrames>
-          </Storyboard>
-        </Grid.Resources>
-        <Grid.Triggers>
-          <Trigger Property="IsVisible" Value="True">
-            <Trigger.EnterActions>
-              <BeginStoryboard x:Name="Delay_BeginStoryBoard" Storyboard="{ThemeResource DelayStoryboard}"/>
-            </Trigger.EnterActions>
-            <Trigger.ExitActions>
-              <StopStoryboard BeginStoryboardName="Delay_BeginStoryBoard"/>
-            </Trigger.ExitActions>
-          </Trigger>
-        </Grid.Triggers>
       </Grid>
     </Grid>
   </ControlTemplate>
@@ -750,26 +682,6 @@
             <Binding ElementName="UnplayedImages" Path="Visibility" />
           </MultiBinding>
         </Grid.IsVisible>
-        <Grid.Resources>
-          <Storyboard x:Key="DelayStoryboard">
-            <DoubleAnimationUsingKeyFrames Storyboard.TargetProperty="Opacity" RepeatBehavior="None"
-                                           BeginTime="00:00:00" FillBehavior="Stop">
-              <SplineDoubleKeyFrame KeyTime="00:00:00" Value="0"/>
-              <SplineDoubleKeyFrame KeyTime="00:00:04.0" Value="0"/>
-              <SplineDoubleKeyFrame KeyTime="00:00:04.1" Value="1"/>
-            </DoubleAnimationUsingKeyFrames>
-          </Storyboard>
-        </Grid.Resources>
-        <Grid.Triggers>
-          <Trigger Property="IsVisible" Value="True">
-            <Trigger.EnterActions>
-              <BeginStoryboard x:Name="Delay_BeginStoryBoard" Storyboard="{ThemeResource DelayStoryboard}"/>
-            </Trigger.EnterActions>
-            <Trigger.ExitActions>
-              <StopStoryboard BeginStoryboardName="Delay_BeginStoryBoard"/>
-            </Trigger.ExitActions>
-          </Trigger>
-        </Grid.Triggers>
       </Grid>
     </Grid>
   </ControlTemplate>
@@ -815,26 +727,6 @@
             <Binding ElementName="UnplayedVideo" Path="Visibility" />
           </MultiBinding>
         </Grid.IsVisible>
-        <Grid.Resources>
-          <Storyboard x:Key="DelayStoryboard">
-            <DoubleAnimationUsingKeyFrames Storyboard.TargetProperty="Opacity" RepeatBehavior="None"
-                                           BeginTime="00:00:00" FillBehavior="Stop">
-              <SplineDoubleKeyFrame KeyTime="00:00:00" Value="0"/>
-              <SplineDoubleKeyFrame KeyTime="00:00:04.0" Value="0"/>
-              <SplineDoubleKeyFrame KeyTime="00:00:04.1" Value="1"/>
-            </DoubleAnimationUsingKeyFrames>
-          </Storyboard>
-        </Grid.Resources>
-        <Grid.Triggers>
-          <Trigger Property="IsVisible" Value="True">
-            <Trigger.EnterActions>
-              <BeginStoryboard x:Name="Delay_BeginStoryBoard" Storyboard="{ThemeResource DelayStoryboard}"/>
-            </Trigger.EnterActions>
-            <Trigger.ExitActions>
-              <StopStoryboard BeginStoryboardName="Delay_BeginStoryBoard"/>
-            </Trigger.ExitActions>
-          </Trigger>
-        </Grid.Triggers>
       </Grid>
     </Grid>
   </ControlTemplate>
@@ -867,26 +759,6 @@
             <Binding ElementName="FavoriteTV" Path="Visibility" />
           </MultiBinding>
         </Grid.IsVisible>
-        <Grid.Resources>
-          <Storyboard x:Key="DelayStoryboard">
-            <DoubleAnimationUsingKeyFrames Storyboard.TargetProperty="Opacity" RepeatBehavior="None"
-                                           BeginTime="00:00:00" FillBehavior="Stop">
-              <SplineDoubleKeyFrame KeyTime="00:00:00" Value="0"/>
-              <SplineDoubleKeyFrame KeyTime="00:00:04.0" Value="0"/>
-              <SplineDoubleKeyFrame KeyTime="00:00:04.1" Value="1"/>
-            </DoubleAnimationUsingKeyFrames>
-          </Storyboard>
-        </Grid.Resources>
-        <Grid.Triggers>
-          <Trigger Property="IsVisible" Value="True">
-            <Trigger.EnterActions>
-              <BeginStoryboard x:Name="Delay_BeginStoryBoard" Storyboard="{ThemeResource DelayStoryboard}"/>
-            </Trigger.EnterActions>
-            <Trigger.ExitActions>
-              <StopStoryboard BeginStoryboardName="Delay_BeginStoryBoard"/>
-            </Trigger.ExitActions>
-          </Trigger>
-        </Grid.Triggers>
       </Grid>
     </Grid>
   </ControlTemplate>
@@ -912,26 +784,6 @@
         <Grid.IsVisible>
           <Binding ElementName="CurrentProgram" Path="Visibility" Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0} == {VisibilityEnum}.{Visible}"/>
         </Grid.IsVisible>
-        <Grid.Resources>
-          <Storyboard x:Key="DelayStoryboard">
-            <DoubleAnimationUsingKeyFrames Storyboard.TargetProperty="Opacity" RepeatBehavior="None"
-                                           BeginTime="00:00:00" FillBehavior="Stop">
-              <SplineDoubleKeyFrame KeyTime="00:00:00" Value="0"/>
-              <SplineDoubleKeyFrame KeyTime="00:00:04.0" Value="0"/>
-              <SplineDoubleKeyFrame KeyTime="00:00:04.1" Value="1"/>
-            </DoubleAnimationUsingKeyFrames>
-          </Storyboard>
-        </Grid.Resources>
-        <Grid.Triggers>
-          <Trigger Property="IsVisible" Value="True">
-            <Trigger.EnterActions>
-              <BeginStoryboard x:Name="Delay_BeginStoryBoard" Storyboard="{ThemeResource DelayStoryboard}"/>
-            </Trigger.EnterActions>
-            <Trigger.ExitActions>
-              <StopStoryboard BeginStoryboardName="Delay_BeginStoryBoard"/>
-            </Trigger.ExitActions>
-          </Trigger>
-        </Grid.Triggers>
       </Grid>
     </Grid>
   </ControlTemplate>
@@ -957,26 +809,6 @@
         <Grid.IsVisible>
           <Binding ElementName="CurrentSchedules" Path="Visibility" Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0} == {VisibilityEnum}.{Visible}"/>
         </Grid.IsVisible>
-        <Grid.Resources>
-          <Storyboard x:Key="DelayStoryboard">
-            <DoubleAnimationUsingKeyFrames Storyboard.TargetProperty="Opacity" RepeatBehavior="None"
-                                           BeginTime="00:00:00" FillBehavior="Stop">
-              <SplineDoubleKeyFrame KeyTime="00:00:00" Value="0"/>
-              <SplineDoubleKeyFrame KeyTime="00:00:04.0" Value="0"/>
-              <SplineDoubleKeyFrame KeyTime="00:00:04.1" Value="1"/>
-            </DoubleAnimationUsingKeyFrames>
-          </Storyboard>
-        </Grid.Resources>
-        <Grid.Triggers>
-          <Trigger Property="IsVisible" Value="True">
-            <Trigger.EnterActions>
-              <BeginStoryboard x:Name="Delay_BeginStoryBoard" Storyboard="{ThemeResource DelayStoryboard}"/>
-            </Trigger.EnterActions>
-            <Trigger.ExitActions>
-              <StopStoryboard BeginStoryboardName="Delay_BeginStoryBoard"/>
-            </Trigger.ExitActions>
-          </Trigger>
-        </Grid.Triggers>
       </Grid>
     </Grid>
   </ControlTemplate>
