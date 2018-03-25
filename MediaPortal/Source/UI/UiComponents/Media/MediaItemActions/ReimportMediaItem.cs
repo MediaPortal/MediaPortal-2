@@ -31,6 +31,7 @@ using MediaPortal.UI.ServerCommunication;
 using MediaPortal.UiComponents.Media.Extensions;
 using MediaPortal.UiComponents.Media.Models;
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace MediaPortal.UiComponents.Media.MediaItemActions
@@ -69,11 +70,14 @@ namespace MediaPortal.UiComponents.Media.MediaItemActions
 
         MediaItemMatchModel mimm = ServiceRegistration.Get<IWorkflowManager>().GetModel(MediaItemMatchModel.MODEL_ID_MIMATCH) as MediaItemMatchModel;
         await mimm.OpenSelectMatchDialogAsync(mediaItem.Aspects);
-        var aspects = await mimm.WaitForMatchSelectionAsync();
-
-        var rl = mediaItem.GetResourceLocator();
-        await cd.ReimportMediaItemMetadataAsync(rl.NativeSystemId, mediaItem.MediaItemId, aspects);
-        return new AsyncResult<ContentDirectoryMessaging.MediaItemChangeType>(true, ContentDirectoryMessaging.MediaItemChangeType.Updated);
+        IEnumerable<MediaItemAspect> aspects = null;
+        //aspects = await mimm.WaitForMatchSelectionAsync();
+        if (aspects != null)
+        {
+          var rl = mediaItem.GetResourceLocator();
+          await cd.ReimportMediaItemMetadataAsync(rl.NativeSystemId, mediaItem.MediaItemId, aspects);
+          return new AsyncResult<ContentDirectoryMessaging.MediaItemChangeType>(true, ContentDirectoryMessaging.MediaItemChangeType.Updated);
+        }
       }
       return new AsyncResult<ContentDirectoryMessaging.MediaItemChangeType>(false, ContentDirectoryMessaging.MediaItemChangeType.None);
     }

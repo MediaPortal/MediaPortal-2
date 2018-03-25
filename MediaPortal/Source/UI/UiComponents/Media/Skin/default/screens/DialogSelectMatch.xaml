@@ -7,20 +7,20 @@
   <Include.Resources>
 
     <!-- Header -->
-    <ResourceWrapper x:Key="Header_Text" Resource="[Settings.Users.Config.AutoLoginUser.Title]"/>
+    <ResourceWrapper x:Key="Header_Text" Resource="[Media.ReimportMediaItem.Title]"/>
 
     <!-- Login model -->
-    <Model x:Key="Model" Id="82582433-FD64-41bd-9059-7F662DBDA713"/>
+    <Model x:Key="Model" Id="692FA8C3-41A5-43DD-8C12-C857C9C75E72"/>
 
     <!-- Contents -->
     <ControlTemplate x:Key="Contents_Template">
       <DockPanel DataContext="{Binding Source={StaticResource Model}}">
-        <!-- User profile list -->
+        <!-- Match list -->
         <ListView Margin="10" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" SetFocus="True"
-                    Style="{ThemeResource SingleMarkableListViewStyle}" RestoreFocus="True"
-                    ItemsSource="{Binding Path=AutoLoginUsers}" >
+                    Style="{ThemeResource MenuListViewStyle}" RestoreFocus="True"
+                    ItemsSource="{Binding Path=MatchList}" >
           <ListView.Resources>
-            <Command x:Key="Menu_Command" Source="{StaticResource Model}" Path="SelectAutoUser"
+            <Command x:Key="Menu_Command" Source="{StaticResource Model}" Path="SelectMatch"
                        Parameters="{LateBoundValue BindingValue={Binding}}"/>
           </ListView.Resources>
         </ListView>

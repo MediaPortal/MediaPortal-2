@@ -52,6 +52,10 @@ namespace MediaPortal.UiComponents.Media.Models
     public const string STR_MODEL_ID_MIMATCH = "692FA8C3-41A5-43DD-8C12-C857C9C75E72";
     public static readonly Guid MODEL_ID_MIMATCH = new Guid(STR_MODEL_ID_MIMATCH);
 
+    public const string KEY_NAME = "Name";
+    public const string KEY_INFO = "Info";
+    public const string KEY_ASPECTS = "Aspects";
+
     #endregion
 
     #region Protected fields
@@ -59,9 +63,13 @@ namespace MediaPortal.UiComponents.Media.Models
     protected object _syncObj = new object();
     protected bool _updatingProperties = false;
     protected ItemsList _matchList = null;
+    protected ListItem _matchedItem = null;
 
     protected AbstractProperty _isSearchingProperty;
+    protected AbstractProperty _selectedInfoProperty;
     protected AsynchronousMessageQueue _messageQueue = null;
+
+    protected TaskCompletionSource<IEnumerable<MediaItemAspect>> _selectionComplete = null;
 
     #endregion
 
@@ -70,8 +78,10 @@ namespace MediaPortal.UiComponents.Media.Models
     public MediaItemMatchModel()
     {
       _isSearchingProperty = new WProperty(typeof(bool), false);
+      _selectedInfoProperty = new WProperty(typeof(string), String.Empty);
 
       _matchList = new ItemsList();
+      _selectionComplete = new TaskCompletionSource<IEnumerable<MediaItemAspect>>();
     }
 
     public void Dispose()
@@ -83,7 +93,7 @@ namespace MediaPortal.UiComponents.Media.Models
 
     #region Public properties (Also accessed from the GUI)
 
-    public ItemsList OnlineMatchList
+    public ItemsList MatchList
     {
       get
       {
@@ -103,43 +113,144 @@ namespace MediaPortal.UiComponents.Media.Models
       set { _isSearchingProperty.SetValue(value); }
     }
 
+    public AbstractProperty SelectedInformationProperty
+    {
+      get { return _selectedInfoProperty; }
+    }
+
+    public string SelectedInformation
+    {
+      get { return (string)_selectedInfoProperty.GetValue(); }
+      set { _selectedInfoProperty.SetValue(value); }
+    }
+
     #endregion
 
     #region Public methods
 
     public async Task OpenSelectMatchDialogAsync(IDictionary<Guid, IList<MediaItemAspect>> aspects)
     {
+      if(!aspects.ContainsKey(MovieAspect.ASPECT_ID) && !aspects.ContainsKey(EpisodeAspect.ASPECT_ID) && !aspects.ContainsKey(AudioAspect.ASPECT_ID))
+      {
+        _selectionComplete.SetResult(null);
+        return;
+      }
+
       IsSearching = true;
       ServiceRegistration.Get<IScreenManager>().ShowDialog("DialogSelectMatch",
         (string name, System.Guid id) =>
         {
-          ListItem matchItem = _matchList.FirstOrDefault(i => i.Selected);
-
+          _selectionComplete.SetResult((IEnumerable<MediaItemAspect>)_matchedItem?.AdditionalProperties[KEY_ASPECTS]);
         });
 
+      IEnumerable<object> matches  = new List<object>();
       if (aspects.ContainsKey(MovieAspect.ASPECT_ID))
       {
         MovieInfo info = new MovieInfo();
         info.FromMetadata(aspects);
-        var matches = await OnlineMatcherService.Instance.FindMatchingMoviesAsync(info);
-        IsSearching = false;
+        matches = await OnlineMatcherService.Instance.FindMatchingMoviesAsync(info);
       }
+      else if (aspects.ContainsKey(EpisodeAspect.ASPECT_ID))
+      {
+        EpisodeInfo info = new EpisodeInfo();
+        info.FromMetadata(aspects);
+        matches = await OnlineMatcherService.Instance.FindMatchingEpisodesAsync(info);
+      }
+      else if (aspects.ContainsKey(AudioAspect.ASPECT_ID))
+      {
+        TrackInfo info = new TrackInfo();
+        info.FromMetadata(aspects);
+        matches = await OnlineMatcherService.Instance.FindMatchingTracksAsync(info);
+      }
+
+      IsSearching = false;
+      foreach(BaseInfo info in matches)
+      {
+        var item = CreateItem(info);
+        if (item != null)
+          _matchList.Add(item);
+      }
+      _matchList.FireChange();
+    }
+
+    public void SelectMatch(ListItem item)
+    {
+      if (item == null)
+        return;
+
+      _matchedItem = item;
     }
 
     public Task<IEnumerable<MediaItemAspect>> WaitForMatchSelectionAsync()
     {
-      return Task.FromResult((IEnumerable<MediaItemAspect>)new List<MediaItemAspect>());
+      return _selectionComplete.Task;
     }
 
     #endregion
 
     #region Private and protected methods
 
+    protected ListItem CreateItem(BaseInfo item)
+    {
+      ListItem listItem = new ListItem();
+      listItem.SelectedProperty.Attach(OnItemSelectionChanged);
+      if (item is MovieInfo movie)
+      {
+        listItem.SetLabel(KEY_NAME, $"{movie.MovieName.Text}{(movie.ReleaseDate ==  null ? "" : $" ({movie.ReleaseDate.Value.Year})")}" +
+          $"{(string.IsNullOrWhiteSpace(movie.OriginalName) || string.Compare(movie.MovieName.Text, movie.OriginalName, true) == 0 ? "" : $" [{movie.OriginalName}]")}");
+        listItem.SetLabel(KEY_INFO, movie.Summary.Text);
+        IDictionary<Guid, IList<MediaItemAspect>> aspects = new Dictionary<Guid, IList<MediaItemAspect>>();
+        movie.SetMetadata(aspects);
+        if (aspects.ContainsKey(ExternalIdentifierAspect.ASPECT_ID))
+        {
+          listItem.AdditionalProperties[KEY_ASPECTS] = aspects[ExternalIdentifierAspect.ASPECT_ID].AsEnumerable();
+          return listItem;
+        }
+      }
+      else if (item is EpisodeInfo episode)
+      {
+        listItem.SetLabel(KEY_NAME, $"{episode.SeriesName}{(episode.SeriesFirstAired == null ? "" : $" ({episode.SeriesFirstAired.Value.Year})")}" +
+          $" S{(episode.SeasonNumber.HasValue ? episode.SeasonNumber.Value.ToString("00") : "??")}{(episode.EpisodeNumbers.Count > 0 ? string.Join("", episode.EpisodeNumbers.Select(e => "E" + e.ToString("00"))) : "E??")}" +
+          $"{(episode.EpisodeName.IsEmpty ? "" : $": {episode.EpisodeName.Text}" )}");
+        listItem.SetLabel(KEY_INFO, episode.Summary.Text);
+        IDictionary<Guid, IList<MediaItemAspect>> aspects = new Dictionary<Guid, IList<MediaItemAspect>>();
+        episode.SetMetadata(aspects);
+        if (aspects.ContainsKey(ExternalIdentifierAspect.ASPECT_ID))
+        {
+          listItem.AdditionalProperties[KEY_ASPECTS] = aspects[ExternalIdentifierAspect.ASPECT_ID].AsEnumerable();
+          return listItem;
+        }
+      }
+      else if (item is TrackInfo track)
+      {
+        listItem.SetLabel(KEY_NAME, $"{(string.IsNullOrWhiteSpace(track.Album) ? "" : $"{track.Album}: ")}{track.TrackName}" +
+          $"{(track.Artists.Count > 0 ? $" ({string.Join(", ", track.Artists)})" : "")}");
+        listItem.SetLabel(KEY_INFO, track.ReleaseDate.HasValue ? track.ReleaseDate.Value.ToShortDateString() : "");
+        IDictionary<Guid, IList<MediaItemAspect>> aspects = new Dictionary<Guid, IList<MediaItemAspect>>();
+        track.SetMetadata(aspects);
+        if (aspects.ContainsKey(ExternalIdentifierAspect.ASPECT_ID))
+        {
+          listItem.AdditionalProperties[KEY_ASPECTS] = aspects[ExternalIdentifierAspect.ASPECT_ID].AsEnumerable();
+          return listItem;
+        }
+      }
+      return null;
+    }
+
+    void OnItemSelectionChanged(AbstractProperty prop, object oldVal)
+    {
+      ListItem selectedItem = _matchList.FirstOrDefault(i => i.Selected);
+      SelectedInformation = selectedItem?.Labels[KEY_INFO].Evaluate() ?? "";
+    }
+
     protected void ClearData()
     {
       lock (_syncObj)
       {
-        _matchList = new ItemsList();
+        _matchList.Clear();
+        _matchedItem = null;
+        SelectedInformation = String.Empty;
+        _selectionComplete = new TaskCompletionSource<IEnumerable<MediaItemAspect>>();
       }
     }
 
