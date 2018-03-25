@@ -22,7 +22,13 @@
 
 #endregion
 
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
+using System.Threading.Tasks;
 using MediaPortal.Common;
+using MediaPortal.Common.Localization;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
@@ -37,14 +43,8 @@ using MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.Settings;
 using MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.Stubs;
 using Moq;
 using NUnit.Framework;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
-using System.Threading.Tasks;
-using MediaPortal.Common.Localization;
 
-namespace Test.NfoMetadataExtractor
+namespace Tests.Server.NfoMetadataExtractor
 {
   [TestFixture]
   public class TestNfoMovieReader
@@ -64,7 +64,7 @@ namespace Test.NfoMetadataExtractor
       var resourceProviders = new Dictionary<Guid, IResourceProvider>();
       resourceProviders.Add(LocalFsResourceProviderBase.LOCAL_FS_RESOURCE_PROVIDER_ID, new LocalFsResourceProvider());
       var mockMediaAccessor = new Mock<IMediaAccessor>();
-      ServiceRegistration.Set(mockMediaAccessor.Object);
+      ServiceRegistration.Set<IMediaAccessor>(mockMediaAccessor.Object);
       mockMediaAccessor.Setup(x => x.LocalResourceProviders).Returns(resourceProviders);
 
       Mock<IFileSystemResourceAccessor> mockRA = new Mock<IFileSystemResourceAccessor>();

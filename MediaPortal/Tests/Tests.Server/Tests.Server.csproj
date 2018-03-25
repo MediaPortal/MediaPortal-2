@@ -69,6 +69,7 @@
     <Reference Include="System" />
     <Reference Include="System.Configuration" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Net.Http" />
     <Reference Include="System.Threading.Tasks.Extensions, Version=4.1.0.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
       <HintPath>..\..\Packages\System.Threading.Tasks.Extensions.4.3.0\lib\portable-net45+win8+wp8+wpa81\System.Threading.Tasks.Extensions.dll</HintPath>
     </Reference>
@@ -93,10 +94,16 @@
     <Compile Include="FanArt\TestLocalMovieFanArt.cs" />
     <Compile Include="FanArt\TestLocalSeriesFanArt.cs" />
     <Compile Include="FanArt\TestLocalVideoFanArt.cs" />
+    <Compile Include="NfoMetadataExtractor\NfoEpisodeReaderForTests.cs" />
+    <Compile Include="NfoMetadataExtractor\TestNfoArtistReader.cs" />
+    <Compile Include="NfoMetadataExtractor\TestNfoMovieReader.cs" />
+    <Compile Include="NfoMetadataExtractor\TestNfoSeriesReader.cs" />
+    <Compile Include="NfoMetadataExtractor\TestUtils.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup />
   <ItemGroup>
+    <EmbeddedResource Include="NfoMetadataExtractor\TestData\MovieNfo\movie.nfo" />
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
@@ -119,6 +126,10 @@
     <ProjectReference Include="..\..\Source\Extensions\MetadataExtractors\MovieMetadataExtractor\MovieMetadataExtractor.csproj">
       <Project>{e73c038e-fd47-40ad-9256-4457316f8a97}</Project>
       <Name>MovieMetadataExtractor</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\Source\Extensions\MetadataExtractors\NfoMetadataExtractors\NfoMetadataExtractors.csproj">
+      <Project>{e34b06d1-8dcd-4027-9c2f-26fb29eb58a7}</Project>
+      <Name>NfoMetadataExtractors</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\Source\Extensions\MetadataExtractors\SeriesMetadataExtractor\SeriesMetadataExtractor.csproj">
       <Project>{ddd5112c-87ce-4228-9ee4-f78bdba8da12}</Project>

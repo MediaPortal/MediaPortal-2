@@ -1,12 +1,12 @@
-﻿using MediaPortal.Common.Logging;
+﻿using System;
+using System.Collections.Generic;
+using MediaPortal.Common.Logging;
 using MediaPortal.Common.Services.Logging;
 using MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoReaders;
 using MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.Settings;
 using MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.Stubs;
-using System;
-using System.Collections.Generic;
 
-namespace Test.NfoMetadataExtractor
+namespace Tests.Server.NfoMetadataExtractor
 {
   class NfoEpisodeReaderForTests : NfoSeriesEpisodeReader
   {

@@ -22,12 +22,12 @@
 
 #endregion
 
-using MediaPortal.Common.MediaManagement;
-using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using System.Collections.Generic;
 using System.Linq;
+using MediaPortal.Common.MediaManagement;
+using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 
-namespace Test.NfoMetadataExtractor
+namespace Tests.Server.NfoMetadataExtractor
 {
   static class TestUtils
   {

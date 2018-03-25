@@ -22,16 +22,16 @@
 
 #endregion
 
-using MediaPortal.Common.MediaManagement;
-using MediaPortal.Common.MediaManagement.DefaultItemAspects;
-using NUnit.Framework;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using MediaPortal.Common;
 using MediaPortal.Common.Localization;
+using MediaPortal.Common.MediaManagement;
+using MediaPortal.Common.MediaManagement.DefaultItemAspects;
+using NUnit.Framework;
 
-namespace Test.NfoMetadataExtractor
+namespace Tests.Server.NfoMetadataExtractor
 {
   [TestFixture]
   public class TestNfoSeriesReader
