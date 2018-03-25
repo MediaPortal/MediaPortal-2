@@ -131,6 +131,8 @@
   <string name="SlimTvClient.EpgSportGenreColor.Help">The color to use for sport programs in the EPG.</string>
   <string name="SlimTvClient.EpgSpecialGenreColor">Special genre color</string>
   <string name="SlimTvClient.EpgSpecialGenreColor.Help">The color to use for EPG programs manually marked as special.</string>
+
+  <string name="SlimTvClient.NoColor">None</string>
   
   <string name="SlimTvClient.RecordingsMenuItem">Recordings</string>
   <string name="SlimTvClient.ChannelsMenuItem">Channels</string>

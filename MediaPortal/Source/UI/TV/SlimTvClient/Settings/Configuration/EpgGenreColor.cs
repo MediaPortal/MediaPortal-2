@@ -23,8 +23,10 @@
 #endregion
 
 using System;
+using System.Collections.Generic;
 using System.Drawing;
 using MediaPortal.Common;
+using MediaPortal.Common.Configuration;
 using MediaPortal.Common.Configuration.ConfigurationClasses;
 using MediaPortal.Common.Localization;
 using MediaPortal.Common.Services.GenreConverter;
@@ -33,10 +35,29 @@ using MediaPortal.Plugins.SlimTv.Interfaces.Settings;
 
 namespace MediaPortal.Plugins.SlimTv.Client.Settings.Configuration
 {
-  public class EpgGenreColorSetting : SingleSelectionList
+  public class EpgGenreColorSetting : SingleSelectionColoredList
   {
+    public const string RES_COLOR_NONE = "[SlimTvClient.NoColor]";
     protected EpgGenre _genre = EpgGenre.Unknown;
-    protected string _none = "None";
+    protected readonly List<string> _epgColors = new List<string>
+      {
+        "#7532A8",
+        "#4F7A32",
+        "#4E93D2",
+        "#ED7D31",
+        "#7C7C7C",
+        "#C03636",
+        "#00817E",
+        "#C89800",
+        "#481F67",
+        "#4F7A32",
+        "#2B4D89",
+        "#B1510F",
+        "#404040",
+        "#7B2323",
+        "#004442",
+        "#8E6C00",
+      };
 
     public EpgGenreColorSetting(EpgGenre genre)
     {
@@ -81,12 +102,12 @@ namespace MediaPortal.Plugins.SlimTv.Client.Settings.Configuration
       }
 
       int selected = 0;
-      _items.Add(LocalizationHelper.CreateStaticString(_none));
-      foreach (var color in Enum.GetValues(typeof(KnownColor)))
+      _items.Add(new ColoredSelectionItem(Color.Empty, LocalizationHelper.CreateResourceString(RES_COLOR_NONE)));
+      foreach (var color in _epgColors)
       {
-        if (!string.IsNullOrEmpty(genreColor) && ColorTranslator.FromHtml(genreColor).ToArgb() == Color.FromKnownColor((KnownColor)color).ToArgb())
+        if (!string.IsNullOrEmpty(genreColor) && genreColor.ToUpperInvariant() == color.ToUpperInvariant())
           selected = _items.Count;
-        _items.Add(LocalizationHelper.CreateStaticString(color.ToString()));
+        _items.Add(new ColoredSelectionItem(ColorTranslator.FromHtml(color), LocalizationHelper.CreateStaticString("")));
       }
       Selected = selected;
     }
@@ -99,10 +120,11 @@ namespace MediaPortal.Plugins.SlimTv.Client.Settings.Configuration
 
       SlimTvGenreColorSettings settings = serverSettings.Load<SlimTvGenreColorSettings>();
       string genreColor = null;
-      string colorName = _items[Selected].Evaluate();
-      if(_none != colorName && Enum.TryParse(colorName, out KnownColor selColor))
+      string colorName = _items[Selected].ResourceString.Evaluate();
+      string none = LocalizationHelper.Translate(RES_COLOR_NONE);
+      if(none != colorName)
       {
-        genreColor = ColorTranslator.ToHtml(Color.FromArgb(Color.FromKnownColor(selColor).ToArgb()));
+        genreColor = ColorTranslator.ToHtml(_items[Selected].BackgroundColor);
       }
       switch (_genre)
       {
