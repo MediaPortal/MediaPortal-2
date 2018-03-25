@@ -32,9 +32,8 @@ using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Common.MediaManagement.MLQueries;
 using MediaPortal.Mock;
 using NUnit.Framework;
-using Test.Common;
 
-namespace Test.Backend
+namespace Tests.Server.Backend
 {
   [TestFixture]
   public class TestQueryEngine

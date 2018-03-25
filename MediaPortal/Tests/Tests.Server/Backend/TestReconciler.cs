@@ -34,7 +34,7 @@ using MediaPortal.Common.ResourceAccess;
 using MediaPortal.Mock;
 using NUnit.Framework;
 
-namespace Test.Backend
+namespace Tests.Server.Backend
 {
   [TestFixture]
   public class TestReconciler

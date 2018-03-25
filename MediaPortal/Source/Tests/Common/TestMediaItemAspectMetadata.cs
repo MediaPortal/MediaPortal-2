@@ -28,6 +28,7 @@ using System.IO;
 using System.Linq;
 using System.Xml;
 using MediaPortal.Common.MediaManagement;
+using MediaPortal.Mock;
 using NUnit.Framework;
 
 namespace Tests.Common

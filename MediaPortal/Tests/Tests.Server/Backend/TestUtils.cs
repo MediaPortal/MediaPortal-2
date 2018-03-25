@@ -22,16 +22,10 @@
 
 #endregion
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Mock;
-using Test.Common;
 
-namespace Test.Backend
+namespace Tests.Server.Backend
 {
   public class TestBackendUtils
   {

@@ -43,14 +43,11 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Common\MultipleTestMIA.cs" />
-    <Compile Include="Common\SingleTestMIA.cs" />
     <Compile Include="Common\TestMediaItem.cs" />
     <Compile Include="Common\TestMediaItemAspectMetadata.cs" />
     <Compile Include="Common\TestMediaItemAspectTypeRegistration.cs" />
     <Compile Include="Common\TestMediaItemQuery.cs" />
     <Compile Include="Common\TestRelationshipExtraction.cs" />
-    <Compile Include="Common\TestUtils.cs" />
     <Compile Include="Common\Thumbnailer.cs" />
     <Compile Include="Media\TestMediaViews.cs" />
     <Compile Include="UPnP\HttpHeaders.cs" />
@@ -70,6 +67,10 @@
     </Content>
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\Tests\MediaPortal.Mock\MediaPortal.Mock.csproj">
+      <Project>{f1a04140-5c63-4688-8a9e-a195aaf95de1}</Project>
+      <Name>MediaPortal.Mock</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Core\MediaPortal.Common\MediaPortal.Common.csproj">
       <Project>{ecf060e7-caa1-4466-851f-f80b857641ea}</Project>
       <Name>MediaPortal.Common</Name>

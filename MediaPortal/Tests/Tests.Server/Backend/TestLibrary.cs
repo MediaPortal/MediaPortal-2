@@ -32,9 +32,8 @@ using MediaPortal.Common.MediaManagement.MLQueries;
 using MediaPortal.Common.ResourceAccess;
 using MediaPortal.Mock;
 using NUnit.Framework;
-using Test.Common;
 
-namespace Test.Backend
+namespace Tests.Server.Backend
 {
   [TestFixture]
   public class TestLibrary
