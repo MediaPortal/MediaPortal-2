@@ -199,7 +199,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Titanium Extended", "UI\Ski
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UPnPRenderer", "..\Incubator\UPnPRenderer\UPnPRenderer.csproj", "{89526B39-E674-4618-807A-7D3D11F48098}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tests", "Tests\Tests.csproj", "{9B2DA988-87CE-421F-A4A3-679A45163599}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tests.Client", "Tests\Tests.Client.csproj", "{9B2DA988-87CE-421F-A4A3-679A45163599}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WMCSkin", "UI\Skins\WMC\WMCSkin.csproj", "{874401F8-1283-4C20-8EFA-FD0EE7AD53A8}"
 EndProject
