@@ -76,6 +76,10 @@
     <Reference Include="System.ValueTuple, Version=4.0.2.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
       <HintPath>..\..\Packages\System.ValueTuple.4.4.0\lib\net47\System.ValueTuple.dll</HintPath>
     </Reference>
+    <Reference Include="System.Xml" />
+    <Reference Include="taglib-sharp, Version=2.1.0.4, Culture=neutral, PublicKeyToken=db62eba44689b5b0, processorArchitecture=x86">
+      <HintPath>..\..\Packages\MediaPortal.TagLib.2.1.0.4\lib\net45\taglib-sharp.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Backend\TestLibrary.cs" />
@@ -99,6 +103,8 @@
     <Compile Include="NfoMetadataExtractor\TestNfoMovieReader.cs" />
     <Compile Include="NfoMetadataExtractor\TestNfoSeriesReader.cs" />
     <Compile Include="NfoMetadataExtractor\TestUtils.cs" />
+    <Compile Include="OnlineLibraries\Program.cs" />
+    <Compile Include="OnlineLibraries\TestMediaAccessor.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup />
@@ -131,9 +137,17 @@
       <Project>{e34b06d1-8dcd-4027-9c2f-26fb29eb58a7}</Project>
       <Name>NfoMetadataExtractors</Name>
     </ProjectReference>
+    <ProjectReference Include="..\..\Source\Extensions\MetadataExtractors\OnlineLibraries\OnlineLibraries.csproj">
+      <Project>{dca4d19e-75f4-4a8a-b70a-f3f4291dc62b}</Project>
+      <Name>OnlineLibraries</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\Source\Extensions\MetadataExtractors\SeriesMetadataExtractor\SeriesMetadataExtractor.csproj">
       <Project>{ddd5112c-87ce-4228-9ee4-f78bdba8da12}</Project>
       <Name>SeriesMetadataExtractor</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\Source\Extensions\MetadataExtractors\Tve3RecordingMetadataExtractor\Tve3RecordingMetadataExtractor.csproj">
+      <Project>{bd0ad1e7-48a9-404e-9c82-291ce3b41657}</Project>
+      <Name>Tve3RecordingMetadataExtractor</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\Source\Extensions\MetadataExtractors\VideoMetadataExtractor\VideoMetadataExtractor.csproj">
       <Project>{000c12a6-9734-4acb-99e9-d3f726c5858f}</Project>

@@ -22,14 +22,14 @@
 
 #endregion
 
-using MediaPortal.Common.MediaManagement;
-using MediaPortal.Common.ResourceAccess;
-using MediaPortal.Common.Services.ResourceAccess.LocalFsResourceProvider;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using MediaPortal.Common.MediaManagement;
+using MediaPortal.Common.ResourceAccess;
+using MediaPortal.Common.Services.ResourceAccess.LocalFsResourceProvider;
 
-namespace Test.OnlineLibraries
+namespace Tests.Server.OnlineLibraries
 {
   public class TestMediaAccessor : IMediaAccessor
   {

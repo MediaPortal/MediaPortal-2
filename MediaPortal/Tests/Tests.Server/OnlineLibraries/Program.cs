@@ -26,6 +26,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
+using System.Threading;
 using System.Xml.Serialization;
 using MediaPortal.Common;
 using MediaPortal.Common.Localization;
@@ -38,12 +39,12 @@ using MediaPortal.Common.ResourceAccess;
 using MediaPortal.Common.Services.Logging;
 using MediaPortal.Common.Services.PathManager;
 using MediaPortal.Extensions.MetadataExtractors;
+using MediaPortal.Extensions.OnlineLibraries.Matchers;
 using MediaPortal.Mock;
 using MediaPortal.Utilities;
-using System.Threading;
-using MediaPortal.Extensions.OnlineLibraries.Matchers;
+using Test.OnlineLibraries;
 
-namespace Test.OnlineLibraries
+namespace Tests.Server.OnlineLibraries
 {
   class Program
   {
