@@ -22,6 +22,12 @@
 
 #endregion
 
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Net;
+using System.Threading.Tasks;
 using MediaPortal.Common;
 using MediaPortal.Common.General;
 using MediaPortal.Common.MediaManagement;
@@ -29,14 +35,8 @@ using MediaPortal.Common.ResourceAccess;
 using MediaPortal.Common.SystemResolver;
 using MediaPortal.Utilities;
 using Moq;
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Net;
-using System.Threading.Tasks;
 
-namespace Test.FanArt.MockFanArtAccess
+namespace Tests.Server.FanArt.MockFanArtAccess
 {
   class MockResourceAccess
   {
@@ -55,8 +55,8 @@ namespace Test.FanArt.MockFanArtAccess
       var mockSystemResolver = new Mock<ISystemResolver>();
       mockSystemResolver.Setup(s => s.GetSystemNameForSystemId(It.IsAny<string>())).Returns(new SystemName(IPAddress.Loopback.ToString()));
       
-      ServiceRegistration.Set(mockMediaAccessor.Object);
-      ServiceRegistration.Set(mockSystemResolver.Object);
+      ServiceRegistration.Set<IMediaAccessor>(mockMediaAccessor.Object);
+      ServiceRegistration.Set<ISystemResolver>(mockSystemResolver.Object);
     }
 
     public MockResourceProvider Provider => _provider;

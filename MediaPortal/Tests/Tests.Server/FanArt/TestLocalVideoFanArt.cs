@@ -22,17 +22,17 @@
 
 #endregion
 
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using MediaPortal.Common;
 using MediaPortal.Common.FanArt;
 using MediaPortal.Common.ResourceAccess;
 using NUnit.Framework;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using Test.FanArt.FanArtHandlersForTests;
-using Test.FanArt.MockFanArtAccess;
+using Tests.Server.FanArt.FanArtHandlersForTests;
+using Tests.Server.FanArt.MockFanArtAccess;
 
-namespace Test.FanArt
+namespace Tests.Server.FanArt
 {
   [TestFixture]
   public class TestLocalVideoFanArt

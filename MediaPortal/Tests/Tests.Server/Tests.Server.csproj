@@ -57,17 +57,42 @@
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Castle.Core, Version=4.0.0.0, Culture=neutral, PublicKeyToken=407dd0808d44fbdc, processorArchitecture=MSIL">
+      <HintPath>..\..\Packages\Castle.Core.4.2.1\lib\net45\Castle.Core.dll</HintPath>
+    </Reference>
+    <Reference Include="Moq, Version=4.8.0.0, Culture=neutral, PublicKeyToken=69f491c39445e920, processorArchitecture=MSIL">
+      <HintPath>..\..\Packages\Moq.4.8.2\lib\net45\Moq.dll</HintPath>
+    </Reference>
     <Reference Include="nunit.framework, Version=3.10.1.0, Culture=neutral, PublicKeyToken=2638cd05610744eb, processorArchitecture=MSIL">
       <HintPath>..\..\Packages\NUnit.3.10.1\lib\net45\nunit.framework.dll</HintPath>
     </Reference>
     <Reference Include="System" />
+    <Reference Include="System.Configuration" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Threading.Tasks.Extensions, Version=4.1.0.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>..\..\Packages\System.Threading.Tasks.Extensions.4.3.0\lib\portable-net45+win8+wp8+wpa81\System.Threading.Tasks.Extensions.dll</HintPath>
+    </Reference>
+    <Reference Include="System.ValueTuple, Version=4.0.2.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>..\..\Packages\System.ValueTuple.4.4.0\lib\net47\System.ValueTuple.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Backend\TestLibrary.cs" />
     <Compile Include="Backend\TestQueryEngine.cs" />
     <Compile Include="Backend\TestReconciler.cs" />
     <Compile Include="Backend\TestUtils.cs" />
+    <Compile Include="FanArt\FanArtHandlersForTests\AudioFanArtHandlerForTests.cs" />
+    <Compile Include="FanArt\FanArtHandlersForTests\BaseFanArtHandlerForTests.cs" />
+    <Compile Include="FanArt\FanArtHandlersForTests\MovieFanArtHandlerForTests.cs" />
+    <Compile Include="FanArt\FanArtHandlersForTests\SeriesFanArtHandlerForTests.cs" />
+    <Compile Include="FanArt\FanArtHandlersForTests\VideoFanArtHandlerForTests.cs" />
+    <Compile Include="FanArt\MockFanArtAccess\MockFanArtCache.cs" />
+    <Compile Include="FanArt\MockFanArtAccess\MockResourceAccess.cs" />
+    <Compile Include="FanArt\TestBaseFanArt.cs" />
+    <Compile Include="FanArt\TestLocalAudioFanArt.cs" />
+    <Compile Include="FanArt\TestLocalMovieFanArt.cs" />
+    <Compile Include="FanArt\TestLocalSeriesFanArt.cs" />
+    <Compile Include="FanArt\TestLocalVideoFanArt.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup />
@@ -86,6 +111,22 @@
     <ProjectReference Include="..\..\Source\Core\MediaPortal.Utilities\MediaPortal.Utilities.csproj">
       <Project>{4fe7b8ae-1330-424a-91a1-c68d7abf9cb8}</Project>
       <Name>MediaPortal.Utilities</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\Source\Extensions\MetadataExtractors\AudioMetadataExtractor\AudioMetadataExtractor.csproj">
+      <Project>{11fd64f0-97c0-40b5-8aaa-1e56255d3ef7}</Project>
+      <Name>AudioMetadataExtractor</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\Source\Extensions\MetadataExtractors\MovieMetadataExtractor\MovieMetadataExtractor.csproj">
+      <Project>{e73c038e-fd47-40ad-9256-4457316f8a97}</Project>
+      <Name>MovieMetadataExtractor</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\Source\Extensions\MetadataExtractors\SeriesMetadataExtractor\SeriesMetadataExtractor.csproj">
+      <Project>{ddd5112c-87ce-4228-9ee4-f78bdba8da12}</Project>
+      <Name>SeriesMetadataExtractor</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\Source\Extensions\MetadataExtractors\VideoMetadataExtractor\VideoMetadataExtractor.csproj">
+      <Project>{000c12a6-9734-4acb-99e9-d3f726c5858f}</Project>
+      <Name>VideoMetadataExtractor</Name>
     </ProjectReference>
     <ProjectReference Include="..\MediaPortal.Mock\MediaPortal.Mock.csproj">
       <Project>{f1a04140-5c63-4688-8a9e-a195aaf95de1}</Project>

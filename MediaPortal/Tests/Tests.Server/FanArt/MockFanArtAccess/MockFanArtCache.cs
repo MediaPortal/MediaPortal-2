@@ -22,13 +22,13 @@
 
 #endregion
 
-using MediaPortal.Common.FanArt;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using MediaPortal.Common.FanArt;
 
-namespace Test.FanArt.MockFanArtAccess
+namespace Tests.Server.FanArt.MockFanArtAccess
 {
   class MockFanArtCache : IFanArtCache
   {

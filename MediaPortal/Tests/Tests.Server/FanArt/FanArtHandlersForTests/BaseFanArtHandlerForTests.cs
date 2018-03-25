@@ -22,14 +22,14 @@
 
 #endregion
 
-using MediaPortal.Common.FanArt;
-using MediaPortal.Common.MediaManagement;
-using MediaPortal.Common.ResourceAccess;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using MediaPortal.Common.FanArt;
+using MediaPortal.Common.MediaManagement;
+using MediaPortal.Common.ResourceAccess;
 
-namespace Test.FanArt.FanArtHandlersForTests
+namespace Tests.Server.FanArt.FanArtHandlersForTests
 {
   class BaseFanArtHandlerForTests : BaseFanArtHandler
   {

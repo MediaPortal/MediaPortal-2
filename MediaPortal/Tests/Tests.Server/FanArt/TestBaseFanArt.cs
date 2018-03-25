@@ -22,14 +22,14 @@
 
 #endregion
 
-using MediaPortal.Common.ResourceAccess;
-using NUnit.Framework;
 using System.Collections.Generic;
 using System.Linq;
-using Test.FanArt.FanArtHandlersForTests;
-using Test.FanArt.MockFanArtAccess;
+using MediaPortal.Common.ResourceAccess;
+using NUnit.Framework;
+using Tests.Server.FanArt.FanArtHandlersForTests;
+using Tests.Server.FanArt.MockFanArtAccess;
 
-namespace Test.FanArt
+namespace Tests.Server.FanArt
 {
   [TestFixture]
   public class TestBaseFanArt

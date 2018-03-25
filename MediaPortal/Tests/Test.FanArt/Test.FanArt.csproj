@@ -44,18 +44,6 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="FanArtHandlersForTests\VideoFanArtHandlerForTests.cs" />
-    <Compile Include="FanArtHandlersForTests\MovieFanArtHandlerForTests.cs" />
-    <Compile Include="FanArtHandlersForTests\BaseFanArtHandlerForTests.cs" />
-    <Compile Include="MockFanArtAccess\MockFanArtCache.cs" />
-    <Compile Include="FanArtHandlersForTests\SeriesFanArtHandlerForTests.cs" />
-    <Compile Include="FanArtHandlersForTests\AudioFanArtHandlerForTests.cs" />
-    <Compile Include="MockFanArtAccess\MockResourceAccess.cs" />
-    <Compile Include="TestBaseFanArt.cs" />
-    <Compile Include="TestLocalVideoFanArt.cs" />
-    <Compile Include="TestLocalMovieFanArt.cs" />
-    <Compile Include="TestLocalSeriesFanArt.cs" />
-    <Compile Include="TestLocalAudioFanArt.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -94,6 +82,10 @@
   </ItemGroup>
   <ItemGroup>
     <Service Include="{82A7F48D-3B50-4B1E-B82E-3ADA8210C358}" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="FanArtHandlersForTests\" />
+    <Folder Include="MockFanArtAccess\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

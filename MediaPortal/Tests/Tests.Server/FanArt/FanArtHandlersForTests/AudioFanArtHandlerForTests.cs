@@ -22,27 +22,24 @@
 
 #endregion
 
-using MediaPortal.Common.ResourceAccess;
-using MediaPortal.Common.Services.ResourceAccess;
-using MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using MediaPortal.Common.ResourceAccess;
+using MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor;
 
-namespace Test.FanArt.FanArtHandlersForTests
+namespace Tests.Server.FanArt.FanArtHandlersForTests
 {
-  class MovieFanArtHandlerForTests : MovieFanArtHandler
+  class AudioFanArtHandlerForTests : AudioFanArtHandler
   {
-    public Task TestExtractMovieFolderFanArt(Guid mediaItemId, ResourcePath path, IList<Tuple<Guid, string>> actors = null)
+    public Task TestExtractAlbumFolderFanArt(Guid mediaItemId, ResourcePath albumDirectory, IList<Tuple<Guid, string>> artists = null)
     {
-      IResourceLocator locator = new ResourceLocator("test", path);
-      return ExtractMovieFolderFanArt(locator, mediaItemId, "movie", actors);
+      return ExtractAlbumFolderFanArt("test", albumDirectory, mediaItemId, "album", artists);
     }
 
-    public Task TestExtractCollectionFolderFanArt(Guid mediaItemId, ResourcePath path)
+    public Task TestExtractArtistFolderFanArt(ResourcePath albumDirectory, IList<Tuple<Guid, string>> artists = null)
     {
-      IResourceLocator locator = new ResourceLocator("test", path);
-      return ExtractCollectionFolderFanArt(locator, mediaItemId, "collection");
+      return ExtractArtistFolderFanArt("test", albumDirectory, artists);
     }
   }
 }

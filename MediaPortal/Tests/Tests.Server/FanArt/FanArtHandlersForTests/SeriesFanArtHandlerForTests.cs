@@ -22,15 +22,15 @@
 
 #endregion
 
+using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 using MediaPortal.Common.FanArt;
 using MediaPortal.Common.ResourceAccess;
 using MediaPortal.Common.Services.ResourceAccess;
 using MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor;
-using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 
-namespace Test.FanArt.FanArtHandlersForTests
+namespace Tests.Server.FanArt.FanArtHandlersForTests
 {
   class SeriesFanArtHandlerForTests : SeriesFanArtHandler
   {
