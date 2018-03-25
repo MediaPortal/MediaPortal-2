@@ -22,12 +22,12 @@
 
 #endregion
 
-using MediaPortal.Utilities.Cache;
-using NUnit.Framework;
 using System;
 using System.Threading.Tasks;
+using MediaPortal.Utilities.Cache;
+using NUnit.Framework;
 
-namespace Test.Utilities
+namespace Tests.Server.Utilities
 {
   [TestFixture]
   public class TestTimeoutCache
