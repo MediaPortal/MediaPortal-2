@@ -22,13 +22,65 @@
 
 #endregion
 
+using MediaPortal.Common;
+using MediaPortal.Common.Async;
+using MediaPortal.Common.MediaManagement;
+using MediaPortal.Common.SystemCommunication;
+using MediaPortal.UI.Presentation.Workflow;
+using MediaPortal.UI.ServerCommunication;
+using MediaPortal.UiComponents.Media.Extensions;
+using MediaPortal.UiComponents.Media.Models;
+using System;
+using System.Threading.Tasks;
+
 namespace MediaPortal.UiComponents.Media.MediaItemActions
 {
-  public class ReimportMediaItem : AbstractRefeshMediaItemAction
+  public class ReimportMediaItem : AbstractMediaItemAction, IMediaItemActionConfirmation
   {
     public ReimportMediaItem()
     {
-      _clearMetadata = true;
+    }
+
+    public override Task<bool> IsAvailableAsync(MediaItem mediaItem)
+    {
+      try
+      {
+        if (mediaItem.PrimaryResources.Count > 0 || mediaItem.IsStub)
+        {
+          var rl = mediaItem.GetResourceLocator();
+          return Task.FromResult(rl != null);
+        }
+        return Task.FromResult(false);
+      }
+      catch (Exception)
+      {
+        return Task.FromResult(false);
+      }
+    }
+
+    public override async Task<AsyncResult<ContentDirectoryMessaging.MediaItemChangeType>> ProcessAsync(MediaItem mediaItem)
+    {
+      // If the MediaItem was loaded from ML, remove it there as well.
+      if (IsManagedByMediaLibrary(mediaItem))
+      {
+        IContentDirectory cd = ServiceRegistration.Get<IServerConnectionManager>().ContentDirectory;
+        if (cd == null)
+          return new AsyncResult<ContentDirectoryMessaging.MediaItemChangeType>(true, ContentDirectoryMessaging.MediaItemChangeType.None);
+
+        MediaItemMatchModel mimm = ServiceRegistration.Get<IWorkflowManager>().GetModel(MediaItemMatchModel.MODEL_ID_MIMATCH) as MediaItemMatchModel;
+        await mimm.OpenSelectMatchDialogAsync(mediaItem.Aspects);
+        var aspects = await mimm.WaitForMatchSelectionAsync();
+
+        var rl = mediaItem.GetResourceLocator();
+        await cd.ReimportMediaItemMetadataAsync(rl.NativeSystemId, mediaItem.MediaItemId, aspects);
+        return new AsyncResult<ContentDirectoryMessaging.MediaItemChangeType>(true, ContentDirectoryMessaging.MediaItemChangeType.Updated);
+      }
+      return new AsyncResult<ContentDirectoryMessaging.MediaItemChangeType>(false, ContentDirectoryMessaging.MediaItemChangeType.None);
+    }
+
+    public virtual string ConfirmationMessage
+    {
+      get { return "[Media.ReimportMediaItem.Confirmation]"; }
     }
   }
 }
