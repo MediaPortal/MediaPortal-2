@@ -52,7 +52,6 @@ using MediaPortal.UiComponents.Media.Models;
 using MediaPortal.UI.ServerCommunication;
 using MediaPortal.UI.SkinEngine.MpfElements;
 using MediaPortal.Utilities.Events;
-using MediaPortal.UI.Services.UserManagement;
 using MediaPortal.Common.UserProfileDataManagement;
 using Task = System.Threading.Tasks.Task;
 
@@ -92,7 +91,6 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
     protected AbstractProperty _selectedChannelNameProperty = null;
     protected AbstractProperty _selectedChannelLogoTypeProperty = null;
     protected AbstractProperty _selectedProgramProgressProperty = null;
-    protected AbstractProperty _showGenreColorsProperty = null;
 
     // properties for playing channel and program (OSD)
     protected AbstractProperty _currentProgramProperty = null;
@@ -388,17 +386,6 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
     public AbstractProperty PiPEnabledProperty
     {
       get { return _piPEnabledProperty; }
-    }
-
-    public bool ShowGenreColors
-    {
-      get { return (bool)_showGenreColorsProperty.GetValue(); }
-      set { _showGenreColorsProperty.SetValue(value); }
-    }
-
-    public AbstractProperty ShowGenreColorsProperty
-    {
-      get { return _showGenreColorsProperty; }
     }
 
     public void UpdateProgram(object sender, SelectionChangedEventArgs e)
@@ -748,7 +735,6 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
         _selectedCurrentProgramProperty = new WProperty(typeof(ProgramProperties), new ProgramProperties());
         _selectedNextProgramProperty = new WProperty(typeof(ProgramProperties), new ProgramProperties());
         _selectedProgramProgressProperty = new WProperty(typeof(double), 0d);
-        _showGenreColorsProperty = new WProperty(typeof(bool), false);
 
         _currentChannelNameProperty = new WProperty(typeof(string), string.Empty);
         _currentChannelLogoTypeProperty = new WProperty(typeof(string), string.Empty);
@@ -963,9 +949,6 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
 
     protected async Task UpdateChannels()
     {
-      var settings = ServiceRegistration.Get<ISettingsManager>().Load<SlimTvClientSettings>();
-      ShowGenreColors = settings.EpgShowGenreColors;
-
       UpdateGuiProperties();
 
       bool isOneSelected = false;

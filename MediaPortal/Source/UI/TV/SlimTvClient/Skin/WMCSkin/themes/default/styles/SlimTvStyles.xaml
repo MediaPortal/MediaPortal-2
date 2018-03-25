@@ -11,6 +11,7 @@
     >
   <!-- SlimTvClient model -->
   <Model x:Key="SlimTvClient" Id="8BEC1372-1C76-484c-8A69-C7F3103708EC"/>
+  <Model x:Key="SlimTvMultiChannelGuide" Id="5054408D-C2A9-451f-A702-E84AFCD29C10"/>
   <Model x:Key="TimeModel" Id="E821B1C8-0666-4339-8027-AA45A4F6F107"/>
   <tv:SlimTvDateFormatConverter x:Key="SlimTvDateFormatConverter" />
 
@@ -303,7 +304,7 @@
           <DockPanel Name="ButtonControlRectangle">
             <Rectangle DockPanel.Dock="Center" RadiusX="3" RadiusY="3" Name="ButtonBase" Fill="{ThemeResource ProgramBaseFill}" StrokeThickness="0"/>
             <Rectangle DockPanel.Dock="Center" RadiusX="3" RadiusY="3" Name="ButtonGenre" Fill="{Binding Program.EpgGenreColor}"
-                       StrokeThickness="0" IsVisible="{Binding ShowGenreColors}"/>
+                       StrokeThickness="0" IsVisible="{Binding Source={StaticResource SlimTvMultiChannelGuide}, Path=ShowGenreColors}"/>
             <Rectangle DockPanel.Dock="Center" Name="ButtonHover" Fill=""/>
             <Rectangle DockPanel.Dock="Center" Name="ButtonOverlay" Fill=""/>
           </DockPanel>
@@ -501,7 +502,7 @@
             <MultiTrigger>
               <MultiTrigger.Conditions>
                 <Condition Binding="{Binding IsRunning}" Value="True" />
-                <Condition Binding="{Binding ShowGenreColors}" Value="False" />
+                <Condition Binding="{Binding Source={StaticResource SlimTvMultiChannelGuide}, Path=ShowGenreColors}" Value="False" />
               </MultiTrigger.Conditions>
               <Setter TargetName="ButtonBase" Property="Fill" Value="{ThemeResource ProgramRunningFill}"/>
             </MultiTrigger>
@@ -678,9 +679,6 @@
       </Setter.Value>
     </Setter>
   </Style>
-
-  <!-- SlimTvClient model -->
-  <Model x:Key="SlimTvMultiChannelGuide" Id="5054408D-C2A9-451f-A702-E84AFCD29C10"/>
 
   <!-- 
   DataTemplate for ChannelWithLogoDataTemplate

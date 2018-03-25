@@ -69,7 +69,6 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
     protected AbstractProperty _visibleHoursProperty = null;
     protected AbstractProperty _channelNameProperty = null;
     protected AbstractProperty _channelLogoTypeProperty = null;
-    protected AbstractProperty _showGenreColorsProperty = null;
 
     protected DateTime _bufferStartTime;
     protected DateTime _bufferEndTime;
@@ -155,17 +154,6 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
       get { return _visibleHoursProperty; }
     }
 
-    public bool ShowGenreColors
-    {
-      get { return (bool)_showGenreColorsProperty.GetValue(); }
-      set { _showGenreColorsProperty.SetValue(value); }
-    }
-
-    public AbstractProperty ShowGenreColorsProperty
-    {
-      get { return _showGenreColorsProperty; }
-    }
-
     public void ScrollForward()
     {
       Scroll(TimeSpan.FromDays(1));
@@ -199,7 +187,6 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
         _visibleHoursProperty = new WProperty(typeof(double), settings.EpgVisibleHours);
         _channelNameProperty = new WProperty(typeof(string), string.Empty);
         _channelLogoTypeProperty = new WProperty(typeof(string), string.Empty);
-        _showGenreColorsProperty = new WProperty(typeof(bool), settings.EpgShowGenreColors);
       }
       base.InitModel();
     }
