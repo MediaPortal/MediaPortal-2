@@ -46,6 +46,7 @@
     <Compile Include="..\..\Source\Core\MediaPortal.Common\VersionInfo\VersionInfo.cs">
       <Link>Properties\VersionInfo.cs</Link>
     </Compile>
+    <Compile Include="TestHelpers.cs" />
     <Compile Include="TestMediaItemAspectTypeRegistration.cs" />
     <Compile Include="MultipleTestMIA.cs" />
     <Compile Include="SingleTestMIA.cs" />
