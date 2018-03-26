@@ -103,13 +103,13 @@ namespace MediaPortal.Plugins.SlimTv.Client.Settings.Configuration
       }
 
       int selected = 0;
-      _items.Add(new ColoredSelectionItem(Color.Empty, LocalizationHelper.CreateResourceString(RES_COLOR_NONE)));
       foreach (var color in _epgColors)
       {
         if (!string.IsNullOrEmpty(genreColor) && genreColor.ToUpperInvariant() == color.ToUpperInvariant())
           selected = _items.Count;
         _items.Add(new ColoredSelectionItem(ColorTranslator.FromHtml(color), LocalizationHelper.CreateStaticString("")));
       }
+      _items.Add(new ColoredSelectionItem(Color.Empty, LocalizationHelper.CreateResourceString(RES_COLOR_NONE)));
       Selected = selected;
     }
 
