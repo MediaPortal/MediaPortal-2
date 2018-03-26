@@ -35,7 +35,7 @@ using MediaPortal.Plugins.SlimTv.Interfaces.Settings;
 
 namespace MediaPortal.Plugins.SlimTv.Client.Settings.Configuration
 {
-  public class EpgGenreColorSetting : SingleSelectionColoredList
+  public abstract class EpgGenreColorSettingBase : SingleSelectionColoredList
   {
     public const string RES_COLOR_NONE = "[SlimTvClient.NoColor]";
     protected EpgGenre _genre = EpgGenre.Unknown;
@@ -59,7 +59,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Settings.Configuration
         "#8E6C00",
       };
 
-    public EpgGenreColorSetting(EpgGenre genre)
+    public EpgGenreColorSettingBase(EpgGenre genre)
     {
       _genre = genre;
     }
@@ -157,49 +157,49 @@ namespace MediaPortal.Plugins.SlimTv.Client.Settings.Configuration
     }
   }
 
-  public class EpgMovieGenreColorSetting : EpgGenreColorSetting
+  public class EpgMovieGenreColorSetting : EpgGenreColorSettingBase
   {
     public EpgMovieGenreColorSetting() : base(EpgGenre.Movie)
     {}
   }
 
-  public class EpgSeriesGenreColorSetting : EpgGenreColorSetting
+  public class EpgSeriesGenreColorSetting : EpgGenreColorSettingBase
   {
     public EpgSeriesGenreColorSetting() : base(EpgGenre.Series)
     { }
   }
 
-  public class EpgDocumentaryGenreColorSetting : EpgGenreColorSetting
+  public class EpgDocumentaryGenreColorSetting : EpgGenreColorSettingBase
   {
     public EpgDocumentaryGenreColorSetting() : base(EpgGenre.Documentary)
     { }
   }
 
-  public class EpgMusicGenreColorSetting : EpgGenreColorSetting
+  public class EpgMusicGenreColorSetting : EpgGenreColorSettingBase
   {
     public EpgMusicGenreColorSetting() : base(EpgGenre.Music)
     { }
   }
 
-  public class EpgKidsGenreColorSetting : EpgGenreColorSetting
+  public class EpgKidsGenreColorSetting : EpgGenreColorSettingBase
   {
     public EpgKidsGenreColorSetting() : base(EpgGenre.Kids)
     { }
   }
 
-  public class EpgNewsGenreColorSetting : EpgGenreColorSetting
+  public class EpgNewsGenreColorSetting : EpgGenreColorSettingBase
   {
     public EpgNewsGenreColorSetting() : base(EpgGenre.News)
     { }
   }
 
-  public class EpgSportGenreColorSetting : EpgGenreColorSetting
+  public class EpgSportGenreColorSetting : EpgGenreColorSettingBase
   {
     public EpgSportGenreColorSetting() : base(EpgGenre.Sport)
     { }
   }
 
-  public class EpgSpecialGenreColorSetting : EpgGenreColorSetting
+  public class EpgSpecialGenreColorSetting : EpgGenreColorSettingBase
   {
     public EpgSpecialGenreColorSetting() : base(EpgGenre.Special)
     { }
