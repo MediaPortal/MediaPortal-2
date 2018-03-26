@@ -100,22 +100,27 @@ namespace MediaPortal.Common.MediaManagement.Helpers
       return clone;
     }
 
-    public void MergeWith(MovieCollectionInfo other, bool overwriteShorterStrings = true, bool updateMovieList = false)
+    public override bool MergeWith(object other, bool overwriteShorterStrings = true, bool updateMovieList = false)
     {
-      HasChanged |= MetadataUpdater.SetOrUpdateId(ref MovieDbId, other.MovieDbId);
-
-      HasChanged |= MetadataUpdater.SetOrUpdateString(ref CollectionName, other.CollectionName, overwriteShorterStrings);
-
-      if (TotalMovies < other.TotalMovies)
+      if (other is MovieCollectionInfo collection)
       {
-        HasChanged = true;
-        TotalMovies = other.TotalMovies;
-      }
+        HasChanged |= MetadataUpdater.SetOrUpdateId(ref MovieDbId, collection.MovieDbId);
 
-      if (updateMovieList) //Comparing all movies can be quite time consuming
-      {
-        MetadataUpdater.SetOrUpdateList(Movies, other.Movies.Distinct().ToList(), true, overwriteShorterStrings);
+        HasChanged |= MetadataUpdater.SetOrUpdateString(ref CollectionName, collection.CollectionName, overwriteShorterStrings);
+
+        if (TotalMovies < collection.TotalMovies)
+        {
+          HasChanged = true;
+          TotalMovies = collection.TotalMovies;
+        }
+
+        if (updateMovieList) //Comparing all movies can be quite time consuming
+        {
+          MetadataUpdater.SetOrUpdateList(Movies, collection.Movies.Distinct().ToList(), true, overwriteShorterStrings);
+        }
+        return true;
       }
+      return false;
     }
 
     #region Members

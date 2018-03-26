@@ -124,6 +124,26 @@ namespace MediaPortal.Common.MediaManagement.Helpers
       return (CharacterInfo)this.MemberwiseClone();
     }
 
+    public override bool MergeWith(object other, bool overwriteShorterStrings = true, bool updatePrimaryChildList = false)
+    {
+      if (other is CharacterInfo character)
+      {
+        HasChanged |= MetadataUpdater.SetOrUpdateId(ref TvdbId, character.TvdbId);
+        HasChanged |= MetadataUpdater.SetOrUpdateId(ref MovieDbId, character.MovieDbId);
+        HasChanged |= MetadataUpdater.SetOrUpdateId(ref TvMazeId, character.TvMazeId);
+        HasChanged |= MetadataUpdater.SetOrUpdateId(ref ActorTvdbId, character.ActorTvdbId);
+        HasChanged |= MetadataUpdater.SetOrUpdateId(ref ActorMovieDbId, character.ActorMovieDbId);
+        HasChanged |= MetadataUpdater.SetOrUpdateId(ref ActorTvMazeId, character.ActorTvMazeId);
+        HasChanged |= MetadataUpdater.SetOrUpdateId(ref ActorTvRageId, character.ActorTvRageId);
+
+        HasChanged |= MetadataUpdater.SetOrUpdateString(ref Name, character.Name, overwriteShorterStrings);
+        HasChanged |= MetadataUpdater.SetOrUpdateString(ref ActorName, character.ActorName, overwriteShorterStrings);
+
+        return true;
+      }
+      return false;
+    }
+
     #region Members
 
     /// <summary>

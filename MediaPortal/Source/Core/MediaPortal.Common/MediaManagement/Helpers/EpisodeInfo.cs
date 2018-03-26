@@ -257,55 +257,60 @@ namespace MediaPortal.Common.MediaManagement.Helpers
       return clone;
     }
 
-    public void MergeWith(EpisodeInfo other, bool overwriteShorterStrings = true)
+    public override bool MergeWith(object other, bool overwriteShorterStrings = true, bool updatePrimaryChildList = false)
     {
-      HasChanged |= MetadataUpdater.SetOrUpdateId(ref ImdbId, other.ImdbId);
-      HasChanged |= MetadataUpdater.SetOrUpdateId(ref MovieDbId, other.MovieDbId);
-      HasChanged |= MetadataUpdater.SetOrUpdateId(ref TvdbId, other.TvdbId);
-      HasChanged |= MetadataUpdater.SetOrUpdateId(ref TvMazeId, other.TvMazeId);
-      HasChanged |= MetadataUpdater.SetOrUpdateId(ref TvRageId, other.TvRageId);
-
-      HasChanged |= MetadataUpdater.SetOrUpdateId(ref SeriesImdbId, other.SeriesImdbId);
-      HasChanged |= MetadataUpdater.SetOrUpdateId(ref SeriesMovieDbId, other.SeriesMovieDbId);
-      HasChanged |= MetadataUpdater.SetOrUpdateId(ref SeriesTvdbId, other.SeriesTvdbId);
-      HasChanged |= MetadataUpdater.SetOrUpdateId(ref SeriesTvMazeId, other.SeriesTvMazeId);
-      HasChanged |= MetadataUpdater.SetOrUpdateId(ref SeriesTvRageId, other.SeriesTvRageId);
-
-      HasChanged |= MetadataUpdater.SetOrUpdateString(ref EpisodeName, other.EpisodeName, overwriteShorterStrings);
-      HasChanged |= MetadataUpdater.SetOrUpdateString(ref Summary, other.Summary, overwriteShorterStrings);
-      HasChanged |= MetadataUpdater.SetOrUpdateString(ref SeriesName, other.SeriesName, overwriteShorterStrings);
-
-      HasChanged |= MetadataUpdater.SetOrUpdateValue(ref FirstAired, other.FirstAired);
-      HasChanged |= MetadataUpdater.SetOrUpdateValue(ref SeasonNumber, other.SeasonNumber);
-      MetadataUpdater.SetOrUpdateValue(ref SeriesFirstAired, other.SeriesFirstAired);
-
-      HasChanged |= MetadataUpdater.SetOrUpdateRatings(ref Rating, other.Rating);
-
-      if (EpisodeNumbers.Count == 0)
+      if (other is EpisodeInfo episode)
       {
-        List<int> tmpList = EpisodeNumbers.ToList();
-        HasChanged |= MetadataUpdater.SetOrUpdateList(tmpList, other.EpisodeNumbers.Distinct().ToList(), true);
-        EpisodeNumbers = new HashSet<int>(tmpList);
-      }
-      if (DvdEpisodeNumbers.Count == 0)
-        HasChanged |= MetadataUpdater.SetOrUpdateList(DvdEpisodeNumbers, other.DvdEpisodeNumbers.Distinct().ToList(), true);
-      if (Genres.Count == 0)
-      {
-        HasChanged |= MetadataUpdater.SetOrUpdateList(Genres, other.Genres.Distinct().ToList(), true);
-      }
+        HasChanged |= MetadataUpdater.SetOrUpdateId(ref ImdbId, episode.ImdbId);
+        HasChanged |= MetadataUpdater.SetOrUpdateId(ref MovieDbId, episode.MovieDbId);
+        HasChanged |= MetadataUpdater.SetOrUpdateId(ref TvdbId, episode.TvdbId);
+        HasChanged |= MetadataUpdater.SetOrUpdateId(ref TvMazeId, episode.TvMazeId);
+        HasChanged |= MetadataUpdater.SetOrUpdateId(ref TvRageId, episode.TvRageId);
 
-      if (!HasThumbnail && other.HasThumbnail)
-      {
-        Thumbnail = other.Thumbnail;
-        HasChanged = true;
-      }
+        HasChanged |= MetadataUpdater.SetOrUpdateId(ref SeriesImdbId, episode.SeriesImdbId);
+        HasChanged |= MetadataUpdater.SetOrUpdateId(ref SeriesMovieDbId, episode.SeriesMovieDbId);
+        HasChanged |= MetadataUpdater.SetOrUpdateId(ref SeriesTvdbId, episode.SeriesTvdbId);
+        HasChanged |= MetadataUpdater.SetOrUpdateId(ref SeriesTvMazeId, episode.SeriesTvMazeId);
+        HasChanged |= MetadataUpdater.SetOrUpdateId(ref SeriesTvRageId, episode.SeriesTvRageId);
 
-      //These lists contain Ids and other properties that are not persisted, so they will always appear changed.
-      //So changes to these lists will only be stored if something else has changed.
-      MetadataUpdater.SetOrUpdateList(Actors, other.Actors.Where(p => !string.IsNullOrEmpty(p.Name)).Distinct().ToList(), Actors.Count == 0, overwriteShorterStrings);
-      MetadataUpdater.SetOrUpdateList(Characters, other.Characters.Where(p => !string.IsNullOrEmpty(p.Name)).Distinct().ToList(), Characters.Count == 0, overwriteShorterStrings);
-      MetadataUpdater.SetOrUpdateList(Directors, other.Directors.Where(p => !string.IsNullOrEmpty(p.Name)).Distinct().ToList(), Directors.Count == 0, overwriteShorterStrings);
-      MetadataUpdater.SetOrUpdateList(Writers, other.Writers.Where(p => !string.IsNullOrEmpty(p.Name)).Distinct().ToList(), Writers.Count == 0, overwriteShorterStrings);
+        HasChanged |= MetadataUpdater.SetOrUpdateString(ref EpisodeName, episode.EpisodeName, overwriteShorterStrings);
+        HasChanged |= MetadataUpdater.SetOrUpdateString(ref Summary, episode.Summary, overwriteShorterStrings);
+        HasChanged |= MetadataUpdater.SetOrUpdateString(ref SeriesName, episode.SeriesName, overwriteShorterStrings);
+
+        HasChanged |= MetadataUpdater.SetOrUpdateValue(ref FirstAired, episode.FirstAired);
+        HasChanged |= MetadataUpdater.SetOrUpdateValue(ref SeasonNumber, episode.SeasonNumber);
+        MetadataUpdater.SetOrUpdateValue(ref SeriesFirstAired, episode.SeriesFirstAired);
+
+        HasChanged |= MetadataUpdater.SetOrUpdateRatings(ref Rating, episode.Rating);
+
+        if (EpisodeNumbers.Count == 0)
+        {
+          List<int> tmpList = EpisodeNumbers.ToList();
+          HasChanged |= MetadataUpdater.SetOrUpdateList(tmpList, episode.EpisodeNumbers.Distinct().ToList(), true);
+          EpisodeNumbers = new HashSet<int>(tmpList);
+        }
+        if (DvdEpisodeNumbers.Count == 0)
+          HasChanged |= MetadataUpdater.SetOrUpdateList(DvdEpisodeNumbers, episode.DvdEpisodeNumbers.Distinct().ToList(), true);
+        if (Genres.Count == 0)
+        {
+          HasChanged |= MetadataUpdater.SetOrUpdateList(Genres, episode.Genres.Distinct().ToList(), true);
+        }
+
+        if (!HasThumbnail && episode.HasThumbnail)
+        {
+          Thumbnail = episode.Thumbnail;
+          HasChanged = true;
+        }
+
+        //These lists contain Ids and other properties that are not persisted, so they will always appear changed.
+        //So changes to these lists will only be stored if something else has changed.
+        MetadataUpdater.SetOrUpdateList(Actors, episode.Actors.Where(p => !string.IsNullOrEmpty(p.Name)).Distinct().ToList(), Actors.Count == 0, overwriteShorterStrings);
+        MetadataUpdater.SetOrUpdateList(Characters, episode.Characters.Where(p => !string.IsNullOrEmpty(p.Name)).Distinct().ToList(), Characters.Count == 0, overwriteShorterStrings);
+        MetadataUpdater.SetOrUpdateList(Directors, episode.Directors.Where(p => !string.IsNullOrEmpty(p.Name)).Distinct().ToList(), Directors.Count == 0, overwriteShorterStrings);
+        MetadataUpdater.SetOrUpdateList(Writers, episode.Writers.Where(p => !string.IsNullOrEmpty(p.Name)).Distinct().ToList(), Writers.Count == 0, overwriteShorterStrings);
+        return true;
+      }
+      return false;
     }
 
     #region Members

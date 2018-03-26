@@ -121,6 +121,32 @@ namespace MediaPortal.Common.MediaManagement.Helpers
       return clone;
     }
 
+    public override bool MergeWith(object other, bool overwriteShorterStrings = true, bool updatePrimaryChildList = false)
+    {
+      if (other is PersonInfo person)
+      {
+        HasChanged |= MetadataUpdater.SetOrUpdateId(ref ImdbId, person.ImdbId);
+        HasChanged |= MetadataUpdater.SetOrUpdateId(ref TvdbId, person.TvdbId);
+        HasChanged |= MetadataUpdater.SetOrUpdateId(ref MovieDbId, person.MovieDbId);
+        HasChanged |= MetadataUpdater.SetOrUpdateId(ref TvMazeId, person.TvMazeId);
+        HasChanged |= MetadataUpdater.SetOrUpdateId(ref TvRageId, person.TvRageId);
+        HasChanged |= MetadataUpdater.SetOrUpdateId(ref MusicBrainzId, person.MusicBrainzId);
+        HasChanged |= MetadataUpdater.SetOrUpdateId(ref AudioDbId, person.AudioDbId);
+
+        HasChanged |= MetadataUpdater.SetOrUpdateString(ref Name, person.Name, overwriteShorterStrings);
+        HasChanged |= MetadataUpdater.SetOrUpdateString(ref AlternateName, person.AlternateName, overwriteShorterStrings);
+        HasChanged |= MetadataUpdater.SetOrUpdateString(ref Biography, person.Biography, overwriteShorterStrings);
+        HasChanged |= MetadataUpdater.SetOrUpdateString(ref Orign, person.Orign, overwriteShorterStrings);
+        HasChanged |= MetadataUpdater.SetOrUpdateString(ref Occupation, person.Occupation, overwriteShorterStrings);
+
+        HasChanged |= MetadataUpdater.SetOrUpdateValue(ref DateOfBirth, person.DateOfBirth);
+        HasChanged |= MetadataUpdater.SetOrUpdateValue(ref DateOfDeath, person.DateOfDeath);
+
+        return true;
+      }
+      return false;
+    }
+
     #region Members
 
     /// <summary>

@@ -165,69 +165,74 @@ namespace MediaPortal.Common.MediaManagement.Helpers
       return clone;
     }
 
-    public void MergeWith(AlbumInfo other, bool overwriteShorterStrings = false, bool updateTrackList = false)
+    public override bool MergeWith(object other, bool overwriteShorterStrings = false, bool updateTrackList = false)
     {
-      HasChanged |= MetadataUpdater.SetOrUpdateId(ref AudioDbId, other.AudioDbId);
-      HasChanged |= MetadataUpdater.SetOrUpdateId(ref CdDdId, other.CdDdId);
-      HasChanged |= MetadataUpdater.SetOrUpdateId(ref MusicBrainzDiscId, other.MusicBrainzDiscId);
-      HasChanged |= MetadataUpdater.SetOrUpdateId(ref MusicBrainzGroupId, other.MusicBrainzGroupId);
-      HasChanged |= MetadataUpdater.SetOrUpdateId(ref MusicBrainzId, other.MusicBrainzId);
-      HasChanged |= MetadataUpdater.SetOrUpdateId(ref AmazonId, other.AmazonId);
-      HasChanged |= MetadataUpdater.SetOrUpdateId(ref ItunesId, other.ItunesId);
-      HasChanged |= MetadataUpdater.SetOrUpdateId(ref UpcEanId, other.UpcEanId);
-
-      HasChanged |= MetadataUpdater.SetOrUpdateString(ref Album, other.Album, overwriteShorterStrings);
-      HasChanged |= MetadataUpdater.SetOrUpdateString(ref Description, other.Description, overwriteShorterStrings);
-
-      if (TotalTracks < other.TotalTracks)
+      if (other is AlbumInfo album)
       {
-        HasChanged = true;
-        TotalTracks = other.TotalTracks;
-      }
+        HasChanged |= MetadataUpdater.SetOrUpdateId(ref AudioDbId, album.AudioDbId);
+        HasChanged |= MetadataUpdater.SetOrUpdateId(ref CdDdId, album.CdDdId);
+        HasChanged |= MetadataUpdater.SetOrUpdateId(ref MusicBrainzDiscId, album.MusicBrainzDiscId);
+        HasChanged |= MetadataUpdater.SetOrUpdateId(ref MusicBrainzGroupId, album.MusicBrainzGroupId);
+        HasChanged |= MetadataUpdater.SetOrUpdateId(ref MusicBrainzId, album.MusicBrainzId);
+        HasChanged |= MetadataUpdater.SetOrUpdateId(ref AmazonId, album.AmazonId);
+        HasChanged |= MetadataUpdater.SetOrUpdateId(ref ItunesId, album.ItunesId);
+        HasChanged |= MetadataUpdater.SetOrUpdateId(ref UpcEanId, album.UpcEanId);
 
-      HasChanged |= MetadataUpdater.SetOrUpdateValue(ref Compilation, other.Compilation);
-      HasChanged |= MetadataUpdater.SetOrUpdateValue(ref DiscNum, other.DiscNum);
-      HasChanged |= MetadataUpdater.SetOrUpdateValue(ref ReleaseDate, other.ReleaseDate);
-      HasChanged |= MetadataUpdater.SetOrUpdateValue(ref Sales, other.Sales);
-      HasChanged |= MetadataUpdater.SetOrUpdateValue(ref TotalDiscs, other.TotalDiscs);
+        HasChanged |= MetadataUpdater.SetOrUpdateString(ref Album, album.Album, overwriteShorterStrings);
+        HasChanged |= MetadataUpdater.SetOrUpdateString(ref Description, album.Description, overwriteShorterStrings);
 
-      HasChanged |= MetadataUpdater.SetOrUpdateRatings(ref Rating, other.Rating);
-
-      if (Genres.Count == 0)
-      {
-        HasChanged |= MetadataUpdater.SetOrUpdateList(Genres, other.Genres.Distinct().ToList(), true);
-      }
-      HasChanged |= MetadataUpdater.SetOrUpdateList(Awards, other.Awards.Distinct().ToList(), true);
-
-      //These lists contain Ids and other properties that are not persisted, so they will always appear changed.
-      //So changes to these lists will only be stored if something else has changed.
-      MetadataUpdater.SetOrUpdateList(Artists, other.Artists.Where(p => !string.IsNullOrEmpty(p.Name)).Distinct().ToList(), Artists.Count == 0, overwriteShorterStrings);
-      MetadataUpdater.SetOrUpdateList(MusicLabels, other.MusicLabels.Where(c => !string.IsNullOrEmpty(c.Name)).Distinct().ToList(), MusicLabels.Count == 0, overwriteShorterStrings);
-
-      if (updateTrackList) //Comparing all tracks can be quite time consuming
-      {
-        MetadataUpdater.SetOrUpdateList(Tracks, other.Tracks.Distinct().ToList(), true, overwriteShorterStrings);
-        List<string> artists = new List<string>();
-        foreach (TrackInfo track in other.Tracks)
+        if (TotalTracks < album.TotalTracks)
         {
-          if (track.Artists.Count > 0)
-            if (!artists.Contains(track.Artists[0].Name))
-              artists.Add(track.Artists[0].Name);
+          HasChanged = true;
+          TotalTracks = album.TotalTracks;
         }
-        if (other.Tracks.Count > 5 && (float)artists.Count > (float)other.Tracks.Count * 0.6 && !Compilation)
+
+        HasChanged |= MetadataUpdater.SetOrUpdateValue(ref Compilation, album.Compilation);
+        HasChanged |= MetadataUpdater.SetOrUpdateValue(ref DiscNum, album.DiscNum);
+        HasChanged |= MetadataUpdater.SetOrUpdateValue(ref ReleaseDate, album.ReleaseDate);
+        HasChanged |= MetadataUpdater.SetOrUpdateValue(ref Sales, album.Sales);
+        HasChanged |= MetadataUpdater.SetOrUpdateValue(ref TotalDiscs, album.TotalDiscs);
+
+        HasChanged |= MetadataUpdater.SetOrUpdateRatings(ref Rating, album.Rating);
+
+        if (Genres.Count == 0)
+        {
+          HasChanged |= MetadataUpdater.SetOrUpdateList(Genres, album.Genres.Distinct().ToList(), true);
+        }
+        HasChanged |= MetadataUpdater.SetOrUpdateList(Awards, album.Awards.Distinct().ToList(), true);
+
+        //These lists contain Ids and other properties that are not persisted, so they will always appear changed.
+        //So changes to these lists will only be stored if something else has changed.
+        MetadataUpdater.SetOrUpdateList(Artists, album.Artists.Where(p => !string.IsNullOrEmpty(p.Name)).Distinct().ToList(), Artists.Count == 0, overwriteShorterStrings);
+        MetadataUpdater.SetOrUpdateList(MusicLabels, album.MusicLabels.Where(c => !string.IsNullOrEmpty(c.Name)).Distinct().ToList(), MusicLabels.Count == 0, overwriteShorterStrings);
+
+        if (updateTrackList) //Comparing all tracks can be quite time consuming
+        {
+          MetadataUpdater.SetOrUpdateList(Tracks, album.Tracks.Distinct().ToList(), true, overwriteShorterStrings);
+          List<string> artists = new List<string>();
+          foreach (TrackInfo track in album.Tracks)
+          {
+            if (track.Artists.Count > 0)
+              if (!artists.Contains(track.Artists[0].Name))
+                artists.Add(track.Artists[0].Name);
+          }
+          if (album.Tracks.Count > 5 && (float)artists.Count > (float)album.Tracks.Count * 0.6 && !Compilation)
+          {
+            Compilation = true;
+            HasChanged = true;
+          }
+        }
+
+        if (Artists.Count > 0 && !Compilation &&
+          (Artists[0].Name.IndexOf("Various", StringComparison.InvariantCultureIgnoreCase) >= 0 ||
+          Artists[0].Name.Equals("VA", StringComparison.InvariantCultureIgnoreCase)))
         {
           Compilation = true;
           HasChanged = true;
         }
+        return true;
       }
-
-      if (Artists.Count > 0 && !Compilation &&
-        (Artists[0].Name.IndexOf("Various", StringComparison.InvariantCultureIgnoreCase) >= 0 ||
-        Artists[0].Name.Equals("VA", StringComparison.InvariantCultureIgnoreCase)))
-      {
-        Compilation = true;
-        HasChanged = true;
-      }
+      return false;
     }
 
     #region Members

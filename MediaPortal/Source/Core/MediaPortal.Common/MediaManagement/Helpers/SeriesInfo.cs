@@ -196,89 +196,94 @@ namespace MediaPortal.Common.MediaManagement.Helpers
       return clone;
     }
 
-    public void MergeWith(SeriesInfo other, bool overwriteShorterStrings = true, bool updateEpisodeList = false)
+    public override bool MergeWith(object other, bool overwriteShorterStrings = true, bool updateEpisodeList = false)
     {
-      //Reset next episode data because it was already aired
-      if (NextEpisodeAirDate.HasValue && NextEpisodeAirDate.Value < DateTime.Now)
+      if (other is SeriesInfo series)
       {
-        NextEpisodeAirDate = null;
-        NextEpisodeNumber = null;
-        NextEpisodeSeasonNumber = null;
-        NextEpisodeName = null;
-        HasChanged = true;
-      }
-
-      HasChanged |= MetadataUpdater.SetOrUpdateId(ref TvdbId, other.TvdbId);
-      HasChanged |= MetadataUpdater.SetOrUpdateId(ref ImdbId, other.ImdbId);
-      HasChanged |= MetadataUpdater.SetOrUpdateId(ref MovieDbId, other.MovieDbId);
-      HasChanged |= MetadataUpdater.SetOrUpdateId(ref TvMazeId, other.TvMazeId);
-      HasChanged |= MetadataUpdater.SetOrUpdateId(ref TvRageId, other.TvRageId);
-
-      HasChanged |= MetadataUpdater.SetOrUpdateString(ref SeriesName, other.SeriesName, overwriteShorterStrings);
-      HasChanged |= MetadataUpdater.SetOrUpdateString(ref OriginalName, other.OriginalName);
-      HasChanged |= MetadataUpdater.SetOrUpdateString(ref Description, other.Description, overwriteShorterStrings);
-      HasChanged |= MetadataUpdater.SetOrUpdateString(ref Certification, other.Certification);
-      HasChanged |= MetadataUpdater.SetOrUpdateString(ref NextEpisodeName, other.NextEpisodeName);
-
-      if (TotalSeasons < other.TotalSeasons)
-      {
-        HasChanged = true;
-        TotalSeasons = other.TotalSeasons;
-      }
-
-      if (TotalEpisodes < other.TotalEpisodes)
-      {
-        HasChanged = true;
-        TotalEpisodes = other.TotalEpisodes;
-      }
-
-      HasChanged |= MetadataUpdater.SetOrUpdateValue(ref FirstAired, other.FirstAired);
-      HasChanged |= MetadataUpdater.SetOrUpdateValue(ref Popularity, other.Popularity);
-      HasChanged |= MetadataUpdater.SetOrUpdateValue(ref IsEnded, other.IsEnded);
-      HasChanged |= MetadataUpdater.SetOrUpdateValue(ref NextEpisodeAirDate, other.NextEpisodeAirDate);
-      HasChanged |= MetadataUpdater.SetOrUpdateValue(ref NextEpisodeNumber, other.NextEpisodeNumber);
-      HasChanged |= MetadataUpdater.SetOrUpdateValue(ref NextEpisodeSeasonNumber, other.NextEpisodeSeasonNumber);
-      HasChanged |= MetadataUpdater.SetOrUpdateValue(ref Score, other.Score);
-
-      HasChanged |= MetadataUpdater.SetOrUpdateRatings(ref Rating, other.Rating);
-      if (Genres.Count == 0)
-      {
-        HasChanged |= MetadataUpdater.SetOrUpdateList(Genres, other.Genres.Distinct().ToList(), true);
-      }
-      HasChanged |= MetadataUpdater.SetOrUpdateList(Awards, other.Awards.Distinct().ToList(), true);
-
-      //These lists contain Ids and other properties that are not persisted, so they will always appear changed.
-      //So changes to these lists will only be stored if something else has changed.
-      MetadataUpdater.SetOrUpdateList(Networks, other.Networks.Where(c => !string.IsNullOrEmpty(c.Name)).Distinct().ToList(), Networks.Count == 0, overwriteShorterStrings);
-      MetadataUpdater.SetOrUpdateList(ProductionCompanies, other.ProductionCompanies.Where(c => !string.IsNullOrEmpty(c.Name)).Distinct().ToList(), ProductionCompanies.Count == 0, overwriteShorterStrings);
-      MetadataUpdater.SetOrUpdateList(Actors, other.Actors.Where(p => !string.IsNullOrEmpty(p.Name)).Distinct().ToList(), Actors.Count == 0, overwriteShorterStrings);
-      MetadataUpdater.SetOrUpdateList(Characters, other.Characters.Where(p => !string.IsNullOrEmpty(p.Name)).Distinct().ToList(), Characters.Count == 0, overwriteShorterStrings);
-
-      MetadataUpdater.SetOrUpdateList(Seasons, other.Seasons, true, overwriteShorterStrings);
-
-      if (updateEpisodeList) //Comparing all episodes can be quite time consuming
-      {
-        //Only allow new episodes if empty. Online sources might have different names for same series so season name would look strange.
-        bool allowAdd = Episodes.Count == 0;
-        for (int matchIndex = 0; matchIndex < other.Episodes.Count; matchIndex++)
+        //Reset next episode data because it was already aired
+        if (NextEpisodeAirDate.HasValue && NextEpisodeAirDate.Value < DateTime.Now)
         {
-          int existing = Episodes.IndexOf(other.Episodes[matchIndex]);
-          if (existing >= 0)
+          NextEpisodeAirDate = null;
+          NextEpisodeNumber = null;
+          NextEpisodeSeasonNumber = null;
+          NextEpisodeName = null;
+          HasChanged = true;
+        }
+
+        HasChanged |= MetadataUpdater.SetOrUpdateId(ref TvdbId, series.TvdbId);
+        HasChanged |= MetadataUpdater.SetOrUpdateId(ref ImdbId, series.ImdbId);
+        HasChanged |= MetadataUpdater.SetOrUpdateId(ref MovieDbId, series.MovieDbId);
+        HasChanged |= MetadataUpdater.SetOrUpdateId(ref TvMazeId, series.TvMazeId);
+        HasChanged |= MetadataUpdater.SetOrUpdateId(ref TvRageId, series.TvRageId);
+
+        HasChanged |= MetadataUpdater.SetOrUpdateString(ref SeriesName, series.SeriesName, overwriteShorterStrings);
+        HasChanged |= MetadataUpdater.SetOrUpdateString(ref OriginalName, series.OriginalName);
+        HasChanged |= MetadataUpdater.SetOrUpdateString(ref Description, series.Description, overwriteShorterStrings);
+        HasChanged |= MetadataUpdater.SetOrUpdateString(ref Certification, series.Certification);
+        HasChanged |= MetadataUpdater.SetOrUpdateString(ref NextEpisodeName, series.NextEpisodeName);
+
+        if (TotalSeasons < series.TotalSeasons)
+        {
+          HasChanged = true;
+          TotalSeasons = series.TotalSeasons;
+        }
+
+        if (TotalEpisodes < series.TotalEpisodes)
+        {
+          HasChanged = true;
+          TotalEpisodes = series.TotalEpisodes;
+        }
+
+        HasChanged |= MetadataUpdater.SetOrUpdateValue(ref FirstAired, series.FirstAired);
+        HasChanged |= MetadataUpdater.SetOrUpdateValue(ref Popularity, series.Popularity);
+        HasChanged |= MetadataUpdater.SetOrUpdateValue(ref IsEnded, series.IsEnded);
+        HasChanged |= MetadataUpdater.SetOrUpdateValue(ref NextEpisodeAirDate, series.NextEpisodeAirDate);
+        HasChanged |= MetadataUpdater.SetOrUpdateValue(ref NextEpisodeNumber, series.NextEpisodeNumber);
+        HasChanged |= MetadataUpdater.SetOrUpdateValue(ref NextEpisodeSeasonNumber, series.NextEpisodeSeasonNumber);
+        HasChanged |= MetadataUpdater.SetOrUpdateValue(ref Score, series.Score);
+
+        HasChanged |= MetadataUpdater.SetOrUpdateRatings(ref Rating, series.Rating);
+        if (Genres.Count == 0)
+        {
+          HasChanged |= MetadataUpdater.SetOrUpdateList(Genres, series.Genres.Distinct().ToList(), true);
+        }
+        HasChanged |= MetadataUpdater.SetOrUpdateList(Awards, series.Awards.Distinct().ToList(), true);
+
+        //These lists contain Ids and other properties that are not persisted, so they will always appear changed.
+        //So changes to these lists will only be stored if something else has changed.
+        MetadataUpdater.SetOrUpdateList(Networks, series.Networks.Where(c => !string.IsNullOrEmpty(c.Name)).Distinct().ToList(), Networks.Count == 0, overwriteShorterStrings);
+        MetadataUpdater.SetOrUpdateList(ProductionCompanies, series.ProductionCompanies.Where(c => !string.IsNullOrEmpty(c.Name)).Distinct().ToList(), ProductionCompanies.Count == 0, overwriteShorterStrings);
+        MetadataUpdater.SetOrUpdateList(Actors, series.Actors.Where(p => !string.IsNullOrEmpty(p.Name)).Distinct().ToList(), Actors.Count == 0, overwriteShorterStrings);
+        MetadataUpdater.SetOrUpdateList(Characters, series.Characters.Where(p => !string.IsNullOrEmpty(p.Name)).Distinct().ToList(), Characters.Count == 0, overwriteShorterStrings);
+
+        MetadataUpdater.SetOrUpdateList(Seasons, series.Seasons, true, overwriteShorterStrings);
+
+        if (updateEpisodeList) //Comparing all episodes can be quite time consuming
+        {
+          //Only allow new episodes if empty. Online sources might have different names for same series so season name would look strange.
+          bool allowAdd = Episodes.Count == 0;
+          for (int matchIndex = 0; matchIndex < series.Episodes.Count; matchIndex++)
           {
-            //Don't merge with existing specials. They seem to be different on various online sources.
-            if ((Episodes[existing].SeasonNumber.HasValue && Episodes[existing].SeasonNumber.Value > 0) &&
-              (other.Episodes[matchIndex].SeasonNumber.HasValue && other.Episodes[matchIndex].SeasonNumber.Value > 0))
+            int existing = Episodes.IndexOf(series.Episodes[matchIndex]);
+            if (existing >= 0)
             {
-              Episodes[existing].MergeWith(other.Episodes[matchIndex], overwriteShorterStrings);
+              //Don't merge with existing specials. They seem to be different on various online sources.
+              if ((Episodes[existing].SeasonNumber.HasValue && Episodes[existing].SeasonNumber.Value > 0) &&
+                (series.Episodes[matchIndex].SeasonNumber.HasValue && series.Episodes[matchIndex].SeasonNumber.Value > 0))
+              {
+                Episodes[existing].MergeWith(series.Episodes[matchIndex], overwriteShorterStrings);
+              }
+            }
+            else if (allowAdd)
+            {
+              Episodes.Add(series.Episodes[matchIndex]);
             }
           }
-          else if (allowAdd)
-          {
-            Episodes.Add(other.Episodes[matchIndex]);
-          }
+          Episodes.Sort();
         }
-        Episodes.Sort();
+        return true;
       }
+      return false;
     }
 
     #region Members

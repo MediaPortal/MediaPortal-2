@@ -177,31 +177,36 @@ namespace MediaPortal.Common.MediaManagement.Helpers
       return clone;
     }
 
-    public void MergeWith(SeasonInfo other, bool overwriteShorterStrings = true)
+    public override bool MergeWith(object other, bool overwriteShorterStrings = true, bool updatePrimaryChildList = false)
     {
-      HasChanged |= MetadataUpdater.SetOrUpdateId(ref TvdbId, other.TvdbId);
-      HasChanged |= MetadataUpdater.SetOrUpdateId(ref ImdbId, other.ImdbId);
-      HasChanged |= MetadataUpdater.SetOrUpdateId(ref MovieDbId, other.MovieDbId);
-      HasChanged |= MetadataUpdater.SetOrUpdateId(ref TvMazeId, other.TvMazeId);
-      HasChanged |= MetadataUpdater.SetOrUpdateId(ref TvRageId, other.TvRageId);
-
-      HasChanged |= MetadataUpdater.SetOrUpdateId(ref SeriesImdbId, other.SeriesImdbId);
-      HasChanged |= MetadataUpdater.SetOrUpdateId(ref SeriesMovieDbId, other.SeriesMovieDbId);
-      HasChanged |= MetadataUpdater.SetOrUpdateId(ref SeriesTvdbId, other.SeriesTvdbId);
-      HasChanged |= MetadataUpdater.SetOrUpdateId(ref SeriesTvMazeId, other.SeriesTvMazeId);
-      HasChanged |= MetadataUpdater.SetOrUpdateId(ref SeriesTvRageId, other.SeriesTvRageId);
-
-      HasChanged |= MetadataUpdater.SetOrUpdateString(ref SeriesName, other.SeriesName, overwriteShorterStrings);
-      HasChanged |= MetadataUpdater.SetOrUpdateString(ref Description, other.Description, overwriteShorterStrings);
-
-      if (TotalEpisodes < other.TotalEpisodes)
+      if (other is SeasonInfo season)
       {
-        HasChanged = true;
-        TotalEpisodes = other.TotalEpisodes;
-      }
+        HasChanged |= MetadataUpdater.SetOrUpdateId(ref TvdbId, season.TvdbId);
+        HasChanged |= MetadataUpdater.SetOrUpdateId(ref ImdbId, season.ImdbId);
+        HasChanged |= MetadataUpdater.SetOrUpdateId(ref MovieDbId, season.MovieDbId);
+        HasChanged |= MetadataUpdater.SetOrUpdateId(ref TvMazeId, season.TvMazeId);
+        HasChanged |= MetadataUpdater.SetOrUpdateId(ref TvRageId, season.TvRageId);
 
-      HasChanged |= MetadataUpdater.SetOrUpdateValue(ref FirstAired, other.FirstAired);
-      HasChanged |= MetadataUpdater.SetOrUpdateValue(ref SeasonNumber, other.SeasonNumber);
+        HasChanged |= MetadataUpdater.SetOrUpdateId(ref SeriesImdbId, season.SeriesImdbId);
+        HasChanged |= MetadataUpdater.SetOrUpdateId(ref SeriesMovieDbId, season.SeriesMovieDbId);
+        HasChanged |= MetadataUpdater.SetOrUpdateId(ref SeriesTvdbId, season.SeriesTvdbId);
+        HasChanged |= MetadataUpdater.SetOrUpdateId(ref SeriesTvMazeId, season.SeriesTvMazeId);
+        HasChanged |= MetadataUpdater.SetOrUpdateId(ref SeriesTvRageId, season.SeriesTvRageId);
+
+        HasChanged |= MetadataUpdater.SetOrUpdateString(ref SeriesName, season.SeriesName, overwriteShorterStrings);
+        HasChanged |= MetadataUpdater.SetOrUpdateString(ref Description, season.Description, overwriteShorterStrings);
+
+        if (TotalEpisodes < season.TotalEpisodes)
+        {
+          HasChanged = true;
+          TotalEpisodes = season.TotalEpisodes;
+        }
+
+        HasChanged |= MetadataUpdater.SetOrUpdateValue(ref FirstAired, season.FirstAired);
+        HasChanged |= MetadataUpdater.SetOrUpdateValue(ref SeasonNumber, season.SeasonNumber);
+        return true;
+      }
+      return false;
     }
 
     #region Members
