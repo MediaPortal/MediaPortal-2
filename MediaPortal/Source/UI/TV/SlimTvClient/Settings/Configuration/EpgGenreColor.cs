@@ -50,13 +50,14 @@ namespace MediaPortal.Plugins.SlimTv.Client.Settings.Configuration
         "#00817E",
         "#C89800",
         "#481F67",
-        "#4F7A32",
+        "#324d1f",
         "#2B4D89",
         "#B1510F",
         "#404040",
         "#7B2323",
         "#004442",
         "#8E6C00",
+        "#000000",
       };
 
     public EpgGenreColorSettingBase(EpgGenre genre)
