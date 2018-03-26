@@ -44,14 +44,15 @@
 
         <!-- Match list -->
         <ListView x:Name="Match_List" Grid.Column="0" Margin="10" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" SetFocus="True"
-                  Style="{ThemeResource MenuListViewStyle}" RestoreFocus="True" ItemsSource="{Binding Path=MatchList}" >
+                  Style="{ThemeResource MenuListViewStyle}" RestoreFocus="True" CurrentItem="{Binding Path=FocusedItem,Mode=OneWayToSource}" 
+                  ItemsSource="{Binding Path=MatchList}" >
           <ListView.Resources>
             <Command x:Key="Menu_Command" Source="{StaticResource Model}" Path="SelectMatch"
                        Parameters="{LateBoundValue BindingValue={Binding}}"/>
           </ListView.Resources>
         </ListView>
 
-        <Label Grid.Column="1" DataContext="{Binding ElementName=Match_List,Path=MatchedItem}" Content="{Binding SelectedInformation}"
+        <Label Grid.Column="1" Content="{Binding Source={StaticResource Model}, Path=SelectedInformation}"
                TextTrimming="WordEllipsis" Color="{ThemeResource TextColor}" Margin="20,10,10,10"/>
 
       </Grid>

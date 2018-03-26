@@ -25,6 +25,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
 using MediaPortal.Common;
 using MediaPortal.Common.Exceptions;
@@ -61,12 +62,12 @@ namespace MediaPortal.UiComponents.Media.Models
     #region Protected fields
 
     protected object _syncObj = new object();
-    protected bool _updatingProperties = false;
     protected ItemsList _matchList = null;
     protected ListItem _matchedItem = null;
 
     protected AbstractProperty _isSearchingProperty;
     protected AbstractProperty _selectedInfoProperty;
+    protected AbstractProperty _focusedItemProperty;
     protected AsynchronousMessageQueue _messageQueue = null;
 
     protected TaskCompletionSource<IEnumerable<MediaItemAspect>> _selectionComplete = null;
@@ -79,6 +80,8 @@ namespace MediaPortal.UiComponents.Media.Models
     {
       _isSearchingProperty = new WProperty(typeof(bool), false);
       _selectedInfoProperty = new WProperty(typeof(string), String.Empty);
+      _focusedItemProperty = new SProperty(typeof(object), null);
+      _focusedItemProperty.Attach(OnItemFocusedChanged);
 
       _matchList = new ItemsList();
       _selectionComplete = new TaskCompletionSource<IEnumerable<MediaItemAspect>>();
@@ -124,12 +127,24 @@ namespace MediaPortal.UiComponents.Media.Models
       set { _selectedInfoProperty.SetValue(value); }
     }
 
+    public AbstractProperty FocusedItemProperty
+    {
+      get { return _focusedItemProperty; }
+    }
+
+    public object FocusedItem
+    {
+      get { return _focusedItemProperty.GetValue(); }
+      set { _focusedItemProperty.SetValue(value); }
+    }
+
     #endregion
 
     #region Public methods
 
     public async Task OpenSelectMatchDialogAsync(IDictionary<Guid, IList<MediaItemAspect>> aspects)
     {
+      ClearData();
       if(!aspects.ContainsKey(MovieAspect.ASPECT_ID) && !aspects.ContainsKey(EpisodeAspect.ASPECT_ID) && !aspects.ContainsKey(AudioAspect.ASPECT_ID))
       {
         _selectionComplete.SetResult(null);
@@ -179,6 +194,7 @@ namespace MediaPortal.UiComponents.Media.Models
         return;
 
       _matchedItem = item;
+      ServiceRegistration.Get<IScreenManager>().CloseTopmostDialog();
     }
 
     public Task<IEnumerable<MediaItemAspect>> WaitForMatchSelectionAsync()
@@ -193,17 +209,27 @@ namespace MediaPortal.UiComponents.Media.Models
     protected ListItem CreateItem(BaseInfo item)
     {
       ListItem listItem = new ListItem();
-      listItem.SelectedProperty.Attach(OnItemSelectionChanged);
       if (item is MovieInfo movie)
       {
         listItem.SetLabel(KEY_NAME, $"{movie.MovieName.Text}{(movie.ReleaseDate ==  null ? "" : $" ({movie.ReleaseDate.Value.Year})")}" +
           $"{(string.IsNullOrWhiteSpace(movie.OriginalName) || string.Compare(movie.MovieName.Text, movie.OriginalName, true) == 0 ? "" : $" [{movie.OriginalName}]")}");
-        listItem.SetLabel(KEY_INFO, movie.Summary.Text);
+        StringBuilder infoText = new StringBuilder();
+        if (!string.IsNullOrEmpty(movie.ImdbId))
+          infoText.AppendLine($"imdb.com: {movie.ImdbId}");
+        if (movie.MovieDbId > 0)
+          infoText.AppendLine($"themoviedb.org: {movie.MovieDbId}");
+        if (!movie.Summary.IsEmpty)
+        {
+          infoText.AppendLine("");
+          infoText.AppendLine(movie.Summary.Text);
+        }
+        listItem.SetLabel(KEY_INFO, infoText.ToString());
         IDictionary<Guid, IList<MediaItemAspect>> aspects = new Dictionary<Guid, IList<MediaItemAspect>>();
         movie.SetMetadata(aspects);
         if (aspects.ContainsKey(ExternalIdentifierAspect.ASPECT_ID))
         {
-          listItem.AdditionalProperties[KEY_ASPECTS] = aspects[ExternalIdentifierAspect.ASPECT_ID].Union(aspects[MovieAspect.ASPECT_ID]).AsEnumerable();
+          listItem.AdditionalProperties[KEY_ASPECTS] = aspects.Where(a => a.Key == ExternalIdentifierAspect.ASPECT_ID || a.Key == MovieAspect.ASPECT_ID).
+            SelectMany(a => a.Value).AsEnumerable();
           return listItem;
         }
       }
@@ -212,12 +238,35 @@ namespace MediaPortal.UiComponents.Media.Models
         listItem.SetLabel(KEY_NAME, $"{episode.SeriesName}{(episode.SeriesFirstAired == null ? "" : $" ({episode.SeriesFirstAired.Value.Year})")}" +
           $" S{(episode.SeasonNumber.HasValue ? episode.SeasonNumber.Value.ToString("00") : "??")}{(episode.EpisodeNumbers.Count > 0 ? string.Join("", episode.EpisodeNumbers.Select(e => "E" + e.ToString("00"))) : "E??")}" +
           $"{(episode.EpisodeName.IsEmpty ? "" : $": {episode.EpisodeName.Text}" )}");
-        listItem.SetLabel(KEY_INFO, episode.Summary.Text);
+        StringBuilder infoText = new StringBuilder();
+        if (!string.IsNullOrEmpty(episode.SeriesImdbId))
+          infoText.AppendLine($"imdb.com: {episode.SeriesImdbId}");
+        if (!string.IsNullOrEmpty(episode.ImdbId))
+          infoText.AppendLine($"imdb.com: {episode.ImdbId}");
+        if (episode.SeriesMovieDbId > 0)
+          infoText.AppendLine($"themoviedb.org: {episode.SeriesMovieDbId}");
+        if (episode.MovieDbId > 0)
+          infoText.AppendLine($"themoviedb.org: {episode.MovieDbId}");
+        if (episode.SeriesTvdbId > 0)
+          infoText.AppendLine($"thetvdb.com: {episode.SeriesTvdbId}");
+        if (episode.TvdbId > 0)
+          infoText.AppendLine($"thetvdb.com: {episode.TvdbId}");
+        if (episode.SeriesTvMazeId > 0)
+          infoText.AppendLine($"tvmaze.com: {episode.SeriesTvMazeId}");
+        if (episode.TvMazeId > 0)
+          infoText.AppendLine($"tvmaze.com: {episode.TvMazeId}");
+        if (!episode.Summary.IsEmpty)
+        {
+          infoText.AppendLine("");
+          infoText.AppendLine(episode.Summary.Text);
+        }
+        listItem.SetLabel(KEY_INFO, infoText.ToString());
         IDictionary<Guid, IList<MediaItemAspect>> aspects = new Dictionary<Guid, IList<MediaItemAspect>>();
         episode.SetMetadata(aspects);
         if (aspects.ContainsKey(ExternalIdentifierAspect.ASPECT_ID))
         {
-          listItem.AdditionalProperties[KEY_ASPECTS] = aspects[ExternalIdentifierAspect.ASPECT_ID].Union(aspects[EpisodeAspect.ASPECT_ID]).AsEnumerable();
+          listItem.AdditionalProperties[KEY_ASPECTS] = aspects.Where(a => a.Key == ExternalIdentifierAspect.ASPECT_ID || a.Key == EpisodeAspect.ASPECT_ID).
+            SelectMany(a => a.Value).AsEnumerable();
           return listItem;
         }
       }
@@ -225,22 +274,37 @@ namespace MediaPortal.UiComponents.Media.Models
       {
         listItem.SetLabel(KEY_NAME, $"{(string.IsNullOrWhiteSpace(track.Album) ? "" : $"{track.Album}: ")}{track.TrackName}" +
           $"{(track.Artists.Count > 0 ? $" ({string.Join(", ", track.Artists)})" : "")}");
-        listItem.SetLabel(KEY_INFO, track.ReleaseDate.HasValue ? track.ReleaseDate.Value.ToShortDateString() : "");
+        StringBuilder infoText = new StringBuilder();
+        if (!string.IsNullOrEmpty(track.AlbumMusicBrainzId))
+          infoText.AppendLine($"musicbrainz.org: {track.AlbumMusicBrainzId}");
+        if (!string.IsNullOrEmpty(track.MusicBrainzId))
+          infoText.AppendLine($"musicbrainz.org: {track.MusicBrainzId}");
+        if (track.AlbumAudioDbId > 0)
+          infoText.AppendLine($"theaudiodb.com: {track.AlbumAudioDbId}");
+        if (track.AudioDbId > 0)
+          infoText.AppendLine($"theaudiodb.com: {track.AudioDbId}");
+        if (track.ReleaseDate.HasValue)
+        {
+          infoText.AppendLine("");
+          infoText.AppendLine(track.ReleaseDate.Value.ToShortDateString());
+        }
+        listItem.SetLabel(KEY_INFO, infoText.ToString());
         IDictionary<Guid, IList<MediaItemAspect>> aspects = new Dictionary<Guid, IList<MediaItemAspect>>();
         track.SetMetadata(aspects);
         if (aspects.ContainsKey(ExternalIdentifierAspect.ASPECT_ID))
         {
-          listItem.AdditionalProperties[KEY_ASPECTS] = aspects[ExternalIdentifierAspect.ASPECT_ID].Union(aspects[AudioAspect.ASPECT_ID]).AsEnumerable();
+          listItem.AdditionalProperties[KEY_ASPECTS] = aspects.Where(a => a.Key == ExternalIdentifierAspect.ASPECT_ID || a.Key == AudioAspect.ASPECT_ID).
+            SelectMany(a => a.Value).AsEnumerable();
           return listItem;
         }
       }
       return null;
     }
 
-    void OnItemSelectionChanged(AbstractProperty prop, object oldVal)
+    void OnItemFocusedChanged(AbstractProperty prop, object oldVal)
     {
-      ListItem selectedItem = _matchList.FirstOrDefault(i => i.Selected);
-      SelectedInformation = selectedItem?.Labels[KEY_INFO].Evaluate() ?? "";
+      if (prop.HasValue())
+        SelectedInformation = ((ListItem)prop.GetValue())?.Labels[KEY_INFO].Evaluate() ?? "";
     }
 
     protected void ClearData()

@@ -71,7 +71,7 @@ namespace MediaPortal.UiComponents.Media.MediaItemActions
         MediaItemMatchModel mimm = ServiceRegistration.Get<IWorkflowManager>().GetModel(MediaItemMatchModel.MODEL_ID_MIMATCH) as MediaItemMatchModel;
         await mimm.OpenSelectMatchDialogAsync(mediaItem.Aspects);
         IEnumerable<MediaItemAspect> aspects = null;
-        //aspects = await mimm.WaitForMatchSelectionAsync();
+        aspects = await mimm.WaitForMatchSelectionAsync();
         if (aspects != null)
         {
           var rl = mediaItem.GetResourceLocator();
