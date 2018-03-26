@@ -217,7 +217,7 @@ namespace MediaPortal.UiComponents.Media.Models
         episode.SetMetadata(aspects);
         if (aspects.ContainsKey(ExternalIdentifierAspect.ASPECT_ID))
         {
-          listItem.AdditionalProperties[KEY_ASPECTS] = aspects[ExternalIdentifierAspect.ASPECT_ID].AsEnumerable();
+          listItem.AdditionalProperties[KEY_ASPECTS] = aspects[ExternalIdentifierAspect.ASPECT_ID].Union(aspects[EpisodeAspect.ASPECT_ID]).AsEnumerable();
           return listItem;
         }
       }
@@ -230,7 +230,7 @@ namespace MediaPortal.UiComponents.Media.Models
         track.SetMetadata(aspects);
         if (aspects.ContainsKey(ExternalIdentifierAspect.ASPECT_ID))
         {
-          listItem.AdditionalProperties[KEY_ASPECTS] = aspects[ExternalIdentifierAspect.ASPECT_ID].AsEnumerable();
+          listItem.AdditionalProperties[KEY_ASPECTS] = aspects[ExternalIdentifierAspect.ASPECT_ID].Union(aspects[AudioAspect.ASPECT_ID]).AsEnumerable();
           return listItem;
         }
       }
