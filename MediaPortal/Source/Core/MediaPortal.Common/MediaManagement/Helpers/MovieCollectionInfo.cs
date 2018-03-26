@@ -88,7 +88,16 @@ namespace MediaPortal.Common.MediaManagement.Helpers
 
     public MovieCollectionInfo Clone()
     {
-      return CloneProperties(this);
+      MovieCollectionInfo clone = (MovieCollectionInfo)this.MemberwiseClone();
+      clone.CollectionName = new SimpleTitle(CollectionName.Text, CollectionName.DefaultLanguage);
+      clone.Languages = new List<string>();
+      foreach (var l in Languages)
+        clone.Languages.Add(l);
+      clone.Movies = new List<MovieInfo>();
+      foreach (var m in Movies)
+        clone.Movies.Add(m.Clone());
+
+      return clone;
     }
 
     public void MergeWith(MovieCollectionInfo other, bool overwriteShorterStrings = true, bool updateMovieList = false)

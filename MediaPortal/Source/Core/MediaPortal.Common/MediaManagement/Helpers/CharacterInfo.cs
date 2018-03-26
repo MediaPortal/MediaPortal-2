@@ -121,7 +121,7 @@ namespace MediaPortal.Common.MediaManagement.Helpers
 
     public CharacterInfo Clone()
     {
-      return CloneProperties(this);
+      return (CharacterInfo)this.MemberwiseClone();
     }
 
     #region Members
