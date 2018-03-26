@@ -30,10 +30,6 @@ using MediaPortal.Utilities.Graphics;
 using System.Drawing.Imaging;
 using System.Text.RegularExpressions;
 using DuoVia.FuzzyStrings;
-using MediaPortal.Common.Services.ResourceAccess.VirtualResourceProvider;
-using MediaPortal.Common.ResourceAccess;
-using System.Reflection;
-using System.Text;
 using MediaPortal.Utilities;
 
 namespace MediaPortal.Common.MediaManagement.Helpers
