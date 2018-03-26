@@ -39,7 +39,7 @@
               </Trigger>
             </Image.Triggers>
           </Image>
-          <Label Content="Searching..." Color="{ThemeResource TextColor}" Margin="10" HorizontalAlignment="Center"/>
+          <Label Content="[Media.SearchResultIsBeingBuiltHint]" Color="{ThemeResource TextColor}" Margin="10" HorizontalAlignment="Center"/>
         </StackPanel>
 
         <!-- Match list -->
