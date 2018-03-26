@@ -159,7 +159,41 @@ namespace MediaPortal.Common.MediaManagement.Helpers
 
     public SeriesInfo Clone()
     {
-      return CloneProperties(this);
+      SeriesInfo clone = (SeriesInfo)this.MemberwiseClone();
+      clone.SeriesName = new SimpleTitle(SeriesName.Text, SeriesName.DefaultLanguage);
+      clone.SeriesNameSort = new SimpleTitle(SeriesNameSort.Text, SeriesNameSort.DefaultLanguage);
+      clone.Description = new SimpleTitle(Description.Text, Description.DefaultLanguage);
+      clone.NextEpisodeName = new SimpleTitle(NextEpisodeName.Text, NextEpisodeName.DefaultLanguage);
+      clone.Rating = new SimpleRating(Rating.RatingValue, Rating.VoteCount);
+      clone.Languages = new List<string>();
+      foreach (var l in Languages)
+        clone.Languages.Add(l);
+      clone.Awards = new List<string>();
+      foreach (var a in Awards)
+        clone.Awards.Add(a);
+      clone.Actors = new List<PersonInfo>();
+      foreach (var a in Actors)
+        clone.Actors.Add(a.Clone());
+      clone.Seasons = new List<SeasonInfo>();
+      foreach (var s in Seasons)
+        clone.Seasons.Add(s.Clone());
+      clone.Episodes = new List<EpisodeInfo>();
+      foreach (var e in Episodes)
+        clone.Episodes.Add(e.Clone());
+      clone.Characters = new List<CharacterInfo>();
+      foreach (var c in Characters)
+        clone.Characters.Add(c.Clone());
+      clone.Networks = new List<CompanyInfo>();
+      foreach (var n in Networks)
+        clone.Networks.Add(n.Clone());
+      clone.ProductionCompanies = new List<CompanyInfo>();
+      foreach (var p in ProductionCompanies)
+        clone.ProductionCompanies.Add(p.Clone());
+      clone.Genres = new List<GenreInfo>();
+      foreach (var g in Genres)
+        clone.Genres.Add(new GenreInfo() { Id = g.Id, Name = g.Name });
+
+      return clone;
     }
 
     public void MergeWith(SeriesInfo other, bool overwriteShorterStrings = true, bool updateEpisodeList = false)

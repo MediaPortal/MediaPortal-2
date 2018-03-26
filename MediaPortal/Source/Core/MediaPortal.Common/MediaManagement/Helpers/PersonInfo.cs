@@ -116,7 +116,9 @@ namespace MediaPortal.Common.MediaManagement.Helpers
 
     public PersonInfo Clone()
     {
-      return CloneProperties(this);
+      PersonInfo clone = (PersonInfo)this.MemberwiseClone();
+      clone.Biography = new SimpleTitle(Biography.Text, Biography.DefaultLanguage);
+      return clone;
     }
 
     #region Members

@@ -188,7 +188,31 @@ namespace MediaPortal.Common.MediaManagement.Helpers
 
     public TrackInfo Clone()
     {
-      return CloneProperties(this);
+      TrackInfo clone = (TrackInfo)this.MemberwiseClone();
+      clone.Rating = new SimpleRating(Rating.RatingValue, Rating.VoteCount);
+      clone.Languages = new List<string>();
+      foreach (var l in Languages)
+        clone.Languages.Add(l);
+      clone.Artists = new List<PersonInfo>();
+      foreach (var a in Artists)
+        clone.Artists.Add(a.Clone());
+      clone.AlbumArtists = new List<PersonInfo>();
+      foreach (var a in AlbumArtists)
+        clone.AlbumArtists.Add(a.Clone());
+      clone.Composers = new List<PersonInfo>();
+      foreach (var c in Composers)
+        clone.Composers.Add(c.Clone());
+      clone.Conductors = new List<PersonInfo>();
+      foreach (var c in Conductors)
+        clone.Conductors.Add(c.Clone());
+      clone.MusicLabels = new List<CompanyInfo>();
+      foreach (var l in MusicLabels)
+        clone.MusicLabels.Add(l.Clone());
+      clone.Genres = new List<GenreInfo>();
+      foreach (var g in Genres)
+        clone.Genres.Add(new GenreInfo() { Id = g.Id, Name = g.Name });
+
+      return clone;
     }
 
     public void MergeWith(TrackInfo other, bool overwriteShorterStrings = false, bool updateDiscInfo = false)

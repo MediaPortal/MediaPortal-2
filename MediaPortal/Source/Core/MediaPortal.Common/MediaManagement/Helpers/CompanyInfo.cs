@@ -101,7 +101,9 @@ namespace MediaPortal.Common.MediaManagement.Helpers
 
     public CompanyInfo Clone()
     {
-      return CloneProperties(this);
+      CompanyInfo clone = (CompanyInfo)this.MemberwiseClone();
+      clone.Description = new SimpleTitle(Description.Text, Description.DefaultLanguage);
+      return clone;
     }
 
     #region Members

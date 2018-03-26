@@ -150,7 +150,38 @@ namespace MediaPortal.Common.MediaManagement.Helpers
 
     public MovieInfo Clone()
     {
-      return CloneProperties(this);
+      MovieInfo clone = (MovieInfo)this.MemberwiseClone();
+      clone.MovieName = new SimpleTitle(MovieName.Text, MovieName.DefaultLanguage);
+      clone.MovieNameSort = new SimpleTitle(MovieNameSort.Text, MovieNameSort.DefaultLanguage);
+      clone.Summary = new SimpleTitle(Summary.Text, Summary.DefaultLanguage);
+      clone.CollectionName = new SimpleTitle(CollectionName.Text, CollectionName.DefaultLanguage);
+      clone.Rating = new SimpleRating(Rating.RatingValue, Rating.VoteCount);
+      clone.Languages = new List<string>();
+      foreach (var l in Languages)
+        clone.Languages.Add(l);
+      clone.Awards = new List<string>();
+      foreach (var a in Awards)
+        clone.Awards.Add(a);
+      clone.Actors = new List<PersonInfo>();
+      foreach (var a in Actors)
+        clone.Actors.Add(a.Clone());
+      clone.Directors = new List<PersonInfo>();
+      foreach (var d in Directors)
+        clone.Directors.Add(d.Clone());
+      clone.Writers = new List<PersonInfo>();
+      foreach (var w in Writers)
+        clone.Writers.Add(w.Clone());
+      clone.Characters = new List<CharacterInfo>();
+      foreach (var c in Characters)
+        clone.Characters.Add(c.Clone());
+      clone.ProductionCompanies = new List<CompanyInfo>();
+      foreach (var p in ProductionCompanies)
+        clone.ProductionCompanies.Add(p.Clone());
+      clone.Genres = new List<GenreInfo>();
+      foreach (var g in Genres)
+        clone.Genres.Add(new GenreInfo() { Id = g.Id, Name = g.Name });
+
+      return clone;
     }
 
     public void MergeWith(MovieInfo other, bool overwriteShorterStrings = true)
@@ -215,7 +246,7 @@ namespace MediaPortal.Common.MediaManagement.Helpers
       if (!MovieNameSort.IsEmpty) MediaItemAspect.SetAttribute(aspectData, MediaAspect.ATTR_SORT_TITLE, MovieNameSort.Text);
       MediaItemAspect.SetAttribute(aspectData, MediaAspect.ATTR_ISVIRTUAL, IsVirtualResource(aspectData));
       MediaItemAspect.SetAttribute(aspectData, MovieAspect.ATTR_MOVIE_NAME, MovieName.Text);
-      if(!string.IsNullOrEmpty(OriginalName)) MediaItemAspect.SetAttribute(aspectData, MovieAspect.ATTR_ORIG_MOVIE_NAME, OriginalName);
+      if (!string.IsNullOrEmpty(OriginalName)) MediaItemAspect.SetAttribute(aspectData, MovieAspect.ATTR_ORIG_MOVIE_NAME, OriginalName);
       if (ReleaseDate.HasValue) MediaItemAspect.SetAttribute(aspectData, MediaAspect.ATTR_RECORDINGTIME, ReleaseDate.Value);
       if (!Summary.IsEmpty) MediaItemAspect.SetAttribute(aspectData, VideoAspect.ATTR_STORYPLOT, CleanString(Summary.Text));
       if (!string.IsNullOrEmpty(Tagline)) MediaItemAspect.SetAttribute(aspectData, MovieAspect.ATTR_TAGLINE, Tagline);
@@ -386,7 +417,7 @@ namespace MediaPortal.Common.MediaManagement.Helpers
             {
               string language = audioAspect.GetAttributeValue<string>(VideoAudioStreamAspect.ATTR_AUDIOLANGUAGE);
               if (!string.IsNullOrEmpty(language) && !Languages.Contains(language))
-              { 
+              {
                 Languages.Add(language);
               }
             }
@@ -431,7 +462,7 @@ namespace MediaPortal.Common.MediaManagement.Helpers
             {
               string language = audioAspect.GetAttributeValue<string>(VideoAudioStreamAspect.ATTR_AUDIOLANGUAGE);
               if (!string.IsNullOrEmpty(language) && !Languages.Contains(language))
-              { 
+              {
                 Languages.Add(language);
               }
             }

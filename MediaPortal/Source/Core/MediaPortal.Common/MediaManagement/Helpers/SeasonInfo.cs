@@ -167,7 +167,14 @@ namespace MediaPortal.Common.MediaManagement.Helpers
 
     public SeasonInfo Clone()
     {
-      return CloneProperties(this);
+      SeasonInfo clone = (SeasonInfo)this.MemberwiseClone();
+      clone.SeriesName = new SimpleTitle(SeriesName.Text, SeriesName.DefaultLanguage);
+      clone.Description = new SimpleTitle(Description.Text, Description.DefaultLanguage);
+      clone.Languages = new List<string>();
+      foreach (var l in Languages)
+        clone.Languages.Add(l);
+
+      return clone;
     }
 
     public void MergeWith(SeasonInfo other, bool overwriteShorterStrings = true)
