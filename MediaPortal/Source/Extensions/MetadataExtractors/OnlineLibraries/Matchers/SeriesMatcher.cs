@@ -349,31 +349,34 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
 
         if (!matchFound)
         {
-          SeriesMatch match = GetStroredMatch(episodeSeries);
-          Logger.Debug(_id + ": Try to lookup series \"{0}\" from cache: {1}", episodeSeries, match != null && !string.IsNullOrEmpty(match.Id));
-
           episodeMatch = episodeInfo.Clone();
-          if (match != null)
+          if (string.IsNullOrEmpty(seriesId))
           {
-            if (SetSeriesId(episodeMatch, match.Id))
-            {
-              seriesMatchFound = true;
-            }
-            else if (string.IsNullOrEmpty(seriesId))
-            {
-              //Match was found but with invalid Id probably to avoid a retry
-              //No Id is available so online search will probably fail again
-              return false;
-            }
-          }
+            SeriesMatch match = GetStroredMatch(episodeSeries);
+            Logger.Debug(_id + ": Try to lookup series \"{0}\" from cache: {1}", episodeSeries, match != null && !string.IsNullOrEmpty(match.Id));
 
-          if (seriesMatchFound)
-          {
-            //If Id was found in cache the online movie info is probably also in the cache
-            if (await _wrapper.UpdateFromOnlineSeriesEpisodeAsync(episodeMatch, language, true).ConfigureAwait(false))
+            if (match != null)
             {
-              Logger.Debug(_id + ": Found episode {0} in cache", episodeInfo.ToString());
-              matchFound = true;
+              if (SetSeriesId(episodeMatch, match.Id))
+              {
+                seriesMatchFound = true;
+              }
+              else if (string.IsNullOrEmpty(seriesId))
+              {
+                //Match was found but with invalid Id probably to avoid a retry
+                //No Id is available so online search will probably fail again
+                return false;
+              }
+            }
+
+            if (seriesMatchFound)
+            {
+              //If Id was found in cache the online movie info is probably also in the cache
+              if (await _wrapper.UpdateFromOnlineSeriesEpisodeAsync(episodeMatch, language, true).ConfigureAwait(false))
+              {
+                Logger.Debug(_id + ": Found episode {0} in cache", episodeInfo.ToString());
+                matchFound = true;
+              }
             }
           }
 
@@ -1245,12 +1248,6 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
         Logger.Debug(_id + ": Exception while processing characters {0}", ex, episodeInfo.ToString());
         return false;
       }
-    }
-
-    public virtual Task<bool> ClearEpisodeMatchAsync(EpisodeInfo episodeInfo)
-    {
-      //Only series is stored so no match to clear for an episode
-      return Task.FromResult(true);
     }
 
     #endregion

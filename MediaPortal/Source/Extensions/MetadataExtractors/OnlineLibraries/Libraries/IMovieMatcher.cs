@@ -42,7 +42,6 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries
     Task<bool> UpdateCharactersAsync(MovieInfo movieInfo);
     Task<bool> UpdateCompaniesAsync(MovieInfo movieInfo, string companyType);
     Task<bool> UpdateCollectionAsync(MovieCollectionInfo movieCollectionInfo, bool updateMovieList);
-    Task<bool> ClearMovieMatchAsync(MovieInfo movieInfo);
 
     void StoreActorMatch(PersonInfo person);
     void StoreDirectorMatch(PersonInfo person);

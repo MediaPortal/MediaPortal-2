@@ -270,16 +270,6 @@ namespace MediaPortal.Extensions.OnlineLibraries
       return success;
     }
 
-    public async Task<bool> ClearTrackMatchAsync(TrackInfo trackInfo)
-    {
-      bool success = false;
-      foreach (IMusicMatcher matcher in MUSIC_MATCHERS.Where(m => m.Enabled))
-      {
-        success |= await matcher.ClearTrackMatchAsync(trackInfo).ConfigureAwait(false);
-      }
-      return success;
-    }
-
     public async Task<bool> DownloadAudioFanArtAsync(Guid mediaItemId, BaseInfo mediaItemInfo)
     {
       bool success = false;
@@ -442,16 +432,6 @@ namespace MediaPortal.Extensions.OnlineLibraries
       foreach (IMovieMatcher matcher in MOVIE_MATCHERS.Where(m => m.Enabled))
       {
         success |= await matcher.UpdateCompaniesAsync(movieInfo, companyType).ConfigureAwait(false);
-      }
-      return success;
-    }
-
-    public async Task<bool> ClearMovieMatchAsync(MovieInfo movieInfo)
-    {
-      bool success = false;
-      foreach (IMovieMatcher matcher in MOVIE_MATCHERS.Where(m => m.Enabled))
-      {
-        success |= await matcher.ClearMovieMatchAsync(movieInfo).ConfigureAwait(false);
       }
       return success;
     }
@@ -654,16 +634,6 @@ namespace MediaPortal.Extensions.OnlineLibraries
       foreach (ISeriesMatcher matcher in SERIES_MATCHERS.Where(m => m.Enabled))
       {
         success |= await matcher.UpdateSeriesCompaniesAsync(seriesInfo, companyType).ConfigureAwait(false);
-      }
-      return success;
-    }
-
-    public async Task<bool> ClearEpisodeMatchAsync(EpisodeInfo episodeInfo)
-    {
-      bool success = false;
-      foreach (ISeriesMatcher matcher in SERIES_MATCHERS.Where(m => m.Enabled))
-      {
-        success |= await matcher.ClearEpisodeMatchAsync(episodeInfo).ConfigureAwait(false);
       }
       return success;
     }

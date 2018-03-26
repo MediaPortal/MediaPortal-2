@@ -46,7 +46,6 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries
     Task<bool> UpdateTrackPersonsAsync(TrackInfo trackInfo, string occupation, bool forAlbum);
     Task<bool> UpdateAlbumCompaniesAsync(AlbumInfo albumInfo, string companyType);
     Task<bool> UpdateAlbumAsync(AlbumInfo albumInfo, bool updateTrackList);
-    Task<bool> ClearTrackMatchAsync(TrackInfo trackInfo);
     Task<bool> DownloadAudioFanArtAsync(Guid mediaItemId, BaseInfo mediaItemInfo);
     void StoreAudioPersonMatch(PersonInfo person);
     void StoreAudioCompanyMatch(CompanyInfo company);
@@ -65,7 +64,6 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries
     Task<bool> UpdateCharactersAsync(MovieInfo movieInfo);
     Task<bool> UpdateCollectionAsync(MovieCollectionInfo collectionInfo, bool updateMovieList);
     Task<bool> UpdateCompaniesAsync(MovieInfo movieInfo, string companyType);
-    Task<bool> ClearMovieMatchAsync(MovieInfo movieInfo);
     Task<bool> DownloadMovieFanArtAsync(Guid mediaItemId, BaseInfo mediaItemInfo);
     void StoreMoviePersonMatch(PersonInfo person);
     void StoreMovieCharacterMatch(CharacterInfo character);
@@ -88,7 +86,6 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries
     Task<bool> UpdateSeriesPersonsAsync(SeriesInfo seriesInfo, string occupation);
     Task<bool> UpdateSeriesCharactersAsync(SeriesInfo seriesInfo);
     Task<bool> UpdateSeriesCompaniesAsync(SeriesInfo seriesInfo, string companyType);
-    Task<bool> ClearEpisodeMatchAsync(EpisodeInfo episodeInfo);
     Task<bool> DownloadSeriesFanArtAsync(Guid mediaItemId, BaseInfo mediaItemInfo);
     void StoreSeriesPersonMatch(PersonInfo person);
     void StoreSeriesCharacterMatch(CharacterInfo character);

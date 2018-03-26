@@ -42,7 +42,6 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries
     Task<bool> UpdateAlbumPersonsAsync(AlbumInfo albumInfo, string occupation);
     Task<bool> UpdateAlbumCompaniesAsync(AlbumInfo albumInfo, string companyType);
     Task<bool> UpdateAlbumAsync(AlbumInfo albumInfo, bool updateTrackList);
-    Task<bool> ClearTrackMatchAsync(TrackInfo trackInfo);
 
     void StoreArtistMatch(PersonInfo person);
     void StoreComposerMatch(PersonInfo person);

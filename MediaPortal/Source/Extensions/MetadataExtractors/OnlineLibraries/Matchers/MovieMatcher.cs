@@ -301,25 +301,36 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
         if (!matchFound)
         {
           MovieMatch match = GetStroredMatch(movieInfo);
-          Logger.Debug(_id + ": Try to lookup movie \"{0}\" from cache: {1}", movieInfo, match != null && !string.IsNullOrEmpty(match.Id));
-
           movieMatch = movieInfo.Clone();
-          if (match != null)
+          if (string.IsNullOrEmpty(movieId))
           {
-            if (SetMovieId(movieMatch, match.Id))
+            Logger.Debug(_id + ": Try to lookup movie \"{0}\" from cache: {1}", movieInfo, match != null && !string.IsNullOrEmpty(match.Id));
+
+            if (match != null)
             {
-              //If Id was found in cache the online movie info is probably also in the cache
-              if (await _wrapper.UpdateFromOnlineMovieAsync(movieMatch, language, true).ConfigureAwait(false))
+              if (SetMovieId(movieMatch, match.Id))
               {
-                Logger.Debug(_id + ": Found movie {0} in cache", movieInfo.ToString());
-                matchFound = true;
+                //If Id was found in cache the online movie info is probably also in the cache
+                if (await _wrapper.UpdateFromOnlineMovieAsync(movieMatch, language, true).ConfigureAwait(false))
+                {
+                  Logger.Debug(_id + ": Found movie {0} in cache", movieInfo.ToString());
+                  matchFound = true;
+                }
+              }
+              else if (string.IsNullOrEmpty(movieId))
+              {
+                //Match was found but with invalid Id probably to avoid a retry
+                //No Id is available so online search will probably fail again
+                return false;
               }
             }
-            else if (string.IsNullOrEmpty(movieId))
+          }
+          else
+          {
+            if (movieId != match.Id)
             {
-              //Match was found but with invalid Id probably to avoid a retry
-              //No Id is available so online search will probably fail again
-              return false;
+              //Id was changed so remove it so it can be updated
+              _storage.TryRemoveMatch(match);
             }
           }
 
@@ -830,15 +841,6 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
         Logger.Debug(_id + ": Exception while processing collection {0}", ex, movieCollectionInfo.ToString());
         return false;
       }
-    }
-
-    public virtual Task<bool> ClearMovieMatchAsync(MovieInfo movieInfo)
-    {
-      MovieMatch match = GetStroredMatch(movieInfo);
-      if(match == null)
-        return Task.FromResult(true);
-
-      return Task.FromResult(_storage.TryRemoveMatch(match));
     }
 
     #endregion

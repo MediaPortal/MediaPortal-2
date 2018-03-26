@@ -97,14 +97,5 @@ namespace MediaPortal.Common.MediaManagement
     /// <returns><c>true</c> if stubs could be extracted from the specified media item, else <c>false</c>.
     /// If the return value is <c>true</c>, the extractedStubAspectData collection was filled by this metadata extractor.
     bool TryExtractStubItems(IResourceAccessor mediaItemAccessor, ICollection<IDictionary<Guid, IList<MediaItemAspect>>> extractedStubAspectData);
-
-    /// <summary>
-    /// Method to clear any metadata that was cached during import that is used to get a faster import on a subsequent import.
-    /// This could be necessary if the cached metadata is not correct and therefore needs be cleared so a fresh import can be done.
-    /// <param name="currentAspectData">Dictionary containing a mapping of media item aspect ids to
-    /// already present media item aspects, this metadata extractor can use to clear the cached metadata.</param>
-    /// 
-    /// <returns><c>true</c> if any cached metadata was cleared, else <c>false</c>.
-    Task<bool> TryClearCachedMetadataAsync(IDictionary<Guid, IList<MediaItemAspect>> currentAspectData);
   }
 }

@@ -301,25 +301,36 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
         if (!matchFound)
         {
           TrackMatch match = GetStroredMatch(trackInfo);
-          Logger.Debug(_id + ": Try to lookup track \"{0}\" from cache: {1}", trackInfo, match != null && !string.IsNullOrEmpty(match.Id));
-
           trackMatch = trackInfo.Clone();
-          if (match != null)
+          if (string.IsNullOrEmpty(trackId))
           {
-            if (SetTrackId(trackMatch, match.Id))
+            Logger.Debug(_id + ": Try to lookup track \"{0}\" from cache: {1}", trackInfo, match != null && !string.IsNullOrEmpty(match.Id));
+
+            if (match != null)
             {
-              //If Id was found in cache the online track info is probably also in the cache
-              if (await _wrapper.UpdateFromOnlineMusicTrackAsync(trackMatch, language, true).ConfigureAwait(false))
+              if (SetTrackId(trackMatch, match.Id))
               {
-                Logger.Debug(_id + ": Found track {0} in cache", trackInfo.ToString());
-                matchFound = true;
+                //If Id was found in cache the online track info is probably also in the cache
+                if (await _wrapper.UpdateFromOnlineMusicTrackAsync(trackMatch, language, true).ConfigureAwait(false))
+                {
+                  Logger.Debug(_id + ": Found track {0} in cache", trackInfo.ToString());
+                  matchFound = true;
+                }
+              }
+              else if (string.IsNullOrEmpty(trackId))
+              {
+                //Match was found but with invalid Id probably to avoid a retry
+                //No Id is available so online search will probably fail again
+                return false;
               }
             }
-            else if (string.IsNullOrEmpty(trackId))
+          }
+          else
+          {
+            if (trackId != match.Id)
             {
-              //Match was found but with invalid Id probably to avoid a retry
-              //No Id is available so online search will probably fail again
-              return false;
+              //Id was changed so remove it so it can be updated
+              _storage.TryRemoveMatch(match);
             }
           }
 
@@ -955,15 +966,6 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
         Logger.Debug(_id + ": Exception while processing album {0}", ex, albumInfo.ToString());
         return false;
       }
-    }
-
-    public virtual Task<bool> ClearTrackMatchAsync(TrackInfo trackInfo)
-    {
-      TrackMatch match = GetStroredMatch(trackInfo);
-      if (match == null)
-        return Task.FromResult(true);
-
-      return Task.FromResult(_storage.TryRemoveMatch(match));
     }
 
     #endregion

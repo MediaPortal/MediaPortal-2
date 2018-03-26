@@ -1005,23 +1005,6 @@ namespace MediaPortal.Backend.Services.MediaLibrary
 
         if (items != null && items.Count == 1)
         {
-          //Clear cached matches to force new searches
-          var aspects = items.First().Aspects;
-          var mediaAccessor = ServiceRegistration.Get<IMediaAccessor>();
-          foreach (IMetadataExtractor extractor in mediaAccessor.LocalMetadataExtractors.Values)
-          {
-            try
-            {
-              extractor.TryClearCachedMetadataAsync(aspects).Wait();
-            }
-            catch (Exception ex)
-            {
-              MetadataExtractorMetadata mem = extractor.Metadata;
-              Logger.Error("MediaLibrary: Error clearing cached metadata from metadata extractor '{0}' (Id: '{1}')",
-                  ex, mem.Name, mem.MetadataExtractorId);
-            }
-          }
-
           //Remove relationships
           using (IDbCommand command = transaction.CreateCommand())
           {
@@ -1062,8 +1045,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
           //Add matched MIAs
           foreach (var aspect in matchedAspects)
           {
-            if (aspect.Metadata.AspectId == ExternalIdentifierAspect.ASPECT_ID)
-              _miaManagement.AddOrUpdateMIA(transaction, mediaItemId, aspect);
+            _miaManagement.AddOrUpdateMIA(transaction, mediaItemId, aspect);
           }
 
           //Set media item as changed
