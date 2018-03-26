@@ -203,7 +203,7 @@ namespace MediaPortal.UiComponents.Media.Models
         movie.SetMetadata(aspects);
         if (aspects.ContainsKey(ExternalIdentifierAspect.ASPECT_ID))
         {
-          listItem.AdditionalProperties[KEY_ASPECTS] = aspects[ExternalIdentifierAspect.ASPECT_ID].AsEnumerable();
+          listItem.AdditionalProperties[KEY_ASPECTS] = aspects[ExternalIdentifierAspect.ASPECT_ID].Union(aspects[MovieAspect.ASPECT_ID]).AsEnumerable();
           return listItem;
         }
       }
