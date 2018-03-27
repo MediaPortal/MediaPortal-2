@@ -30,6 +30,7 @@ using MediaPortal.Backend.Services.Database;
 using MediaPortal.Backend.Services.MediaLibrary.QueryEngine;
 using MediaPortal.Backend.Services.UserProfileDataManagement;
 using MediaPortal.Common;
+using MediaPortal.Common.FanArt;
 using MediaPortal.Common.General;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.MediaManagement;
@@ -885,6 +886,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
     {
       ISQLDatabase database = ServiceRegistration.Get<ISQLDatabase>();
       ITransaction transaction = database.BeginTransaction();
+      Share importShare = null;
 
       try
       {
@@ -941,7 +943,9 @@ namespace MediaPortal.Backend.Services.MediaLibrary
             //Remove MIAs
             foreach (Guid aspect in items.First().Aspects.Keys)
             {
-              _miaManagement.RemoveMIA(transaction, mediaItemId, aspect);
+              if (aspect != MediaAspect.ASPECT_ID && aspect != ImporterAspect.ASPECT_ID &&
+                aspect != ProviderResourceAspect.ASPECT_ID && aspect != ExternalIdentifierAspect.ASPECT_ID)
+                _miaManagement.RemoveMIA(transaction, mediaItemId, aspect);
             }
           }
 
@@ -964,10 +968,13 @@ namespace MediaPortal.Backend.Services.MediaLibrary
 
                 if (share.BaseResourcePath.IsParentOf(resourcePath))
                 {
-                  TryScheduleLocalShareRefresh(share);
-                  return;
+                  importShare = share;
+                  break;
                 }
               }
+
+              if (importShare != null)
+                break;
             }
           }
         }
@@ -981,12 +988,24 @@ namespace MediaPortal.Backend.Services.MediaLibrary
       {
         transaction.Commit();
       }
+
+      try
+      {
+        if (importShare != null)
+          TryScheduleLocalShareRefresh(importShare);
+      }
+      catch (Exception e)
+      {
+        Logger.Error("MediaLibrary: Error scheduling import for refreshing media item {0}", e, mediaItemId);
+        throw;
+      }
     }
 
     public void ReimportMediaItemMetadata(string systemId, Guid mediaItemId, IEnumerable<MediaItemAspect> matchedAspects)
     {
       ISQLDatabase database = ServiceRegistration.Get<ISQLDatabase>();
       ITransaction transaction = database.BeginTransaction();
+      Share importShare = null;
 
       try
       {
@@ -1035,10 +1054,13 @@ namespace MediaPortal.Backend.Services.MediaLibrary
             _miaManagement.CleanupAllOrphanedAttributeValues(transaction);
           }
 
+          //Delete fanart because it might be for the wrong media
+          ServiceRegistration.Get<IFanArtCache>().DeleteFanArtFiles(mediaItemId);
+
           //Remove MIAs
           foreach (Guid aspect in items.First().Aspects.Keys)
           {
-            if (aspect != MediaAspect.ASPECT_ID && aspect != ImporterAspect.ASPECT_ID)
+            if (aspect != ImporterAspect.ASPECT_ID && aspect != ProviderResourceAspect.ASPECT_ID)
               _miaManagement.RemoveMIA(transaction, mediaItemId, aspect);
           }
 
@@ -1067,10 +1089,13 @@ namespace MediaPortal.Backend.Services.MediaLibrary
 
                 if (share.BaseResourcePath.IsParentOf(resourcePath))
                 {
-                  TryScheduleLocalShareRefresh(share);
-                  return;
+                  importShare = share;
+                  break;
                 }
               }
+
+              if (importShare != null)
+                break;
             }
           }
         }
@@ -1083,6 +1108,17 @@ namespace MediaPortal.Backend.Services.MediaLibrary
       finally
       {
         transaction.Commit();
+      }
+
+      try
+      {
+        if (importShare != null)
+          TryScheduleLocalShareRefresh(importShare);
+      }
+      catch (Exception e)
+      {
+        Logger.Error("MediaLibrary: Error scheduling import for reimporting media item {0}", e, mediaItemId);
+        throw;
       }
     }
 

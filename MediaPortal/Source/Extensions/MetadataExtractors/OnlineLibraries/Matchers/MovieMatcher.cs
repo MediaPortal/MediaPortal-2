@@ -327,7 +327,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
           }
           else
           {
-            if (movieId != match.Id)
+            if (match != null && movieId != match.Id)
             {
               //Id was changed so remove it so it can be updated
               _storage.TryRemoveMatch(match);

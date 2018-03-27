@@ -327,7 +327,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
           }
           else
           {
-            if (trackId != match.Id)
+            if (match != null && trackId != match.Id)
             {
               //Id was changed so remove it so it can be updated
               _storage.TryRemoveMatch(match);
