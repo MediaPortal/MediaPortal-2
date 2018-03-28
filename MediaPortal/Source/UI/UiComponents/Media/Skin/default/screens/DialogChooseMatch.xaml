@@ -48,7 +48,7 @@
                TextTrimming="WordEllipsis" Color="{ThemeResource TextColor}" Margin="20,10,10,10"/>
         <TextBox Grid.Row="0" Grid.Column="1" Margin="0,10,0,0" Text="{Binding Source={StaticResource Model}, Path=ManualId, Mode=OneWayToSource}" PreferredTextLength="40"/>
 
-        <Button Grid.Row="1" Grid.Column="1" Style="{ThemeResource DialogButtonStyle}" Content="[Media.ReimportMediaItem.Ok]"
+        <Button Grid.Row="1" Grid.Column="1" Style="{ThemeResource DialogButtonStyle}" Content="[Media.ReimportMediaItem.Done]"
             Command="{Command SetManualMatch}"/>
 
         <!-- Match list -->
