@@ -47,7 +47,9 @@ using System.Data;
 using System.IO;
 using System.Xml;
 using System.Xml.Serialization;
+using MediaPortal.Backend.Services.Database;
 using MediaPortal.Common.MediaManagement.MLQueries;
+using MediaPortal.Utilities.DB;
 
 namespace MediaPortal.DevTools
 {
@@ -66,6 +68,7 @@ namespace MediaPortal.DevTools
     {
       Console.Error.WriteLine("Usage: DevTools [Args] <command> [options]");
       Console.Error.WriteLine("       --direct sources [list|export] <datastore file>");
+      Console.Error.WriteLine("       --direct sql <datastore file>");
       Console.Error.WriteLine("       sources [list|export]");
       Console.Error.WriteLine("       sources add <name> <LOCAL|NETWORK> <path> <categories (comma separated)>");
       Console.Error.WriteLine("       sources refresh <ID ID ...>");
@@ -105,27 +108,17 @@ namespace MediaPortal.DevTools
           if (argList.Count == 3 && argList[0] == "sources" && (argList[1] == "list" || argList[1] == "export"))
           {
             string file = argList[2];
-            if (!File.Exists(file))
-            {
-              Console.Error.WriteLine("Datastore {0} does not exist", argList[2]);
-              Exit(1);
-            }
-
-            ServiceRegistration.Get<IPathManager>().SetPath("DATABASE", Path.GetDirectoryName(file));
-
-            ServiceRegistration.Set<IMessageBroker>(new MessageBroker());
-            ServiceRegistration.Set<ISettingsManager>(new SettingsManager());
-
-            SQLiteSettings settings = new SQLiteSettings();
-            settings.PageSize = 4096;
-            settings.DatabaseFileName = Path.GetFileName(file);
-            ServiceRegistration.Get<ISettingsManager>().Save(settings);
-
-            ISQLDatabase database = new SQLiteDatabase();
+            var database = GetSqlDatabase(file);
             if (argList[1] == "list")
               ListMediaSources(GetMediaSources(database));
             else if (argList[1] == "export")
               ExportMediaSources(GetMediaSources(database));
+          }
+          else if (argList.Count == 2 && argList[0] == "sql")
+          {
+            string file = argList[1];
+            SQLiteDatabase database = GetSqlDatabase(file);
+            ShowSqlConsole(database);
           }
           else
           {
@@ -289,9 +282,78 @@ namespace MediaPortal.DevTools
       Exit(0);
     }
 
+    private static void ShowSqlConsole(SQLiteDatabase database)
+    {
+      Console.WriteLine("Direct SQL interface to SQLite. Enter query. Leave with 'exit' command.");
+      var instructionList = new InstructionList();
+      foreach (var query in instructionList.ParseStream(Console.In))
+      {
+        if (query == "exit")
+          return;
+        // Note: we need the direct connection to DB, not a transaction. 
+        // This is because some instructions can't be done inside transaction scope (like vacuum, reindex)
+        using (var connection = database.CreateOpenAndInitializeConnection())
+        {
+          using (var cmd = connection.CreateCommand())
+          {
+            cmd.CommandType = CommandType.Text;
+            cmd.CommandText = query;
+
+            try
+            {
+              using (var reader = cmd.ExecuteReader())
+              {
+                if (reader.HasRows)
+                {
+                  for (int c = 0; c < reader.FieldCount; c++)
+                    Console.Write(reader.GetName(c).PadRight(10) + "|");
+                  Console.WriteLine();
+                }
+                while (reader.Read())
+                {
+                  for (int c = 0; c < reader.FieldCount; c++)
+                  {
+                    object value = reader.GetValue(c);
+                    string formatted = string.Format("{0}", value).PadRight(10).Substring(0, 10);
+                    Console.Write(formatted + "|");
+                  }
+                  Console.WriteLine();
+                }
+              }
+            }
+            catch (Exception ex)
+            {
+              Console.WriteLine("Error: {0}", ex);
+            }
+          }
+        }
+      }
+    }
+
+    private static SQLiteDatabase GetSqlDatabase(string file)
+    {
+      if (!File.Exists(file))
+      {
+        Console.Error.WriteLine("Datastore {0} does not exist", file);
+        Exit(1);
+      }
+
+      ServiceRegistration.Get<IPathManager>().SetPath("DATABASE", Path.GetDirectoryName(file));
+
+      ServiceRegistration.Set<IMessageBroker>(new MessageBroker());
+      ServiceRegistration.Set<ISettingsManager>(new SettingsManager());
+
+      SQLiteSettings settings = new SQLiteSettings();
+      settings.PageSize = 4096;
+      settings.DatabaseFileName = Path.GetFileName(file);
+      ServiceRegistration.Get<ISettingsManager>().Save(settings);
+
+      return new SQLiteDatabase();
+    }
+
     private static string GetValue(MediaItemAspectMetadata.AttributeSpecification spec, object value)
     {
-      if(value == null)
+      if (value == null)
         return null;
 
       if (spec.ParentMIAM.AspectId == RelationshipAspect.ASPECT_ID && (RelationshipAspect.ATTR_ROLE.Equals(spec) || RelationshipAspect.ATTR_LINKED_ROLE.Equals(spec)))

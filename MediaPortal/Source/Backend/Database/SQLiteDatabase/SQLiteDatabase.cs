@@ -253,7 +253,7 @@ namespace MediaPortal.Database.SQLite
     /// InitializationCommand via ExecuteNonQuery()
     /// </summary>
     /// <returns>Newly created and initialized <see cref="SQLiteConnection"/></returns>
-    internal SQLiteConnection CreateOpenAndInitializeConnection()
+    public SQLiteConnection CreateOpenAndInitializeConnection()
     {
       var connection = new SQLiteConnection(_connectionString);
       connection.Open();
