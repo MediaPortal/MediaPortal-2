@@ -26,6 +26,7 @@ using MediaPortal.Common;
 using MediaPortal.Common.General;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.MediaManagement;
+using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Common.MediaManagement.Helpers;
 using MediaPortal.Common.Messaging;
 using MediaPortal.Common.ResourceAccess;
@@ -320,6 +321,18 @@ namespace MediaPortal.UI.Services.ServerCommunication
             {
               UpdateCurrentlyImportingShares(shareStates.Where(s => s.IsImporting).Select(s => s.ShareId).ToList());
               UpdateCurrentlyImportingSharesProgresses(shareStates.Where(s => s.IsImporting).ToDictionary(s => s.ShareId, s => s.Progress));
+            }
+          }
+          if (states != null && states.ContainsKey(ContentDirectoryServerState.STATE_ID))
+          {
+            ContentDirectoryServerState contentState = states[ContentDirectoryServerState.STATE_ID] as ContentDirectoryServerState;
+            lock (_syncObj)
+            {
+              IContentDirectory cd = ContentDirectory;
+              List<Guid> necessaryAspects = new List<Guid> { ProviderResourceAspect.ASPECT_ID, MediaAspect.ASPECT_ID, };
+              List<Guid> optionalAspects = new List<Guid> { MovieAspect.ASPECT_ID, EpisodeAspect.ASPECT_ID, AudioAspect.ASPECT_ID };
+              MediaItem mi = cd.LoadItemAsync(contentState.SystemId, contentState.MediaItemId, necessaryAspects, optionalAspects, null).Result;
+              ContentDirectoryMessaging.SendMediaItemChangedMessage(mi, contentState.ChangeType);
             }
           }
         }

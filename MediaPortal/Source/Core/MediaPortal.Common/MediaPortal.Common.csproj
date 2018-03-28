@@ -172,6 +172,7 @@
     <Compile Include="Services\MediaManagement\ImportJobController.cs" />
     <Compile Include="Services\MediaManagement\PendingImportResourceNewGen.cs" />
     <Compile Include="Services\MediaManagement\PendingResourcesSettings.cs" />
+    <Compile Include="Services\MediaManagement\ContentDirectoryServerState.cs" />
     <Compile Include="Services\MediaManagement\ShareImportServerState.cs" />
     <Compile Include="Services\ResourceAccess\ImpersonationService\AsyncImpersonationProcess.cs">
       <SubType>Component</SubType>

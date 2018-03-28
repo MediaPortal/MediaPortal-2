@@ -378,6 +378,8 @@ namespace MediaPortal.Backend.Services.MediaLibrary
     protected readonly Dictionary<Guid, ShareWatcher> _shareWatchers = new Dictionary<Guid, ShareWatcher>();
     // Should be accessed only by GetResourcePathLock
     private readonly Dictionary<ResourcePath, object> _shareDeleteSync = new Dictionary<ResourcePath, object>();
+    protected object _mediaItemRefreshSync = new object();
+    protected readonly Dictionary<ResourcePath, Guid> _mediaItemRefreshList = new Dictionary<ResourcePath, Guid>();
     protected object _shareImportSync = new object();
     protected Dictionary<Guid, ShareImportState> _shareImportStates = new Dictionary<Guid, ShareImportState>();
     protected object _shareImportCacheSync = new object();
@@ -492,6 +494,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
                 {
                   await Task.Delay(1000);
                   UpdateServerState();
+                  CheckRefreshedMediaItems(path);
                 });
               }
             }
@@ -570,6 +573,51 @@ namespace MediaPortal.Backend.Services.MediaLibrary
       catch (Exception ex)
       {
         Logger.Warn("MediaLibrary: Error sending import progress", ex);
+      }
+    }
+
+    protected void CheckRefreshedMediaItems(ResourcePath importedPath)
+    {
+      try
+      {
+        lock (_mediaItemRefreshSync)
+        {
+          var finishedMis = _mediaItemRefreshList.Where(p => importedPath.IsSameOrParentOf(p.Key))?.ToList();
+          for (int miIdx = 0; miIdx < (finishedMis?.Count ?? 0); miIdx++)
+          {
+            var miPath = finishedMis[miIdx].Key;
+            Guid miId = finishedMis[miIdx].Value;
+            _mediaItemRefreshList.Remove(miPath);
+
+            List<Guid> necessaryAspects = new List<Guid>();
+            necessaryAspects.Add(ProviderResourceAspect.ASPECT_ID);
+            necessaryAspects.Add(MediaAspect.ASPECT_ID);
+
+            List<Guid> optionalAspects = new List<Guid>();
+            optionalAspects.Add(MovieAspect.ASPECT_ID);
+            optionalAspects.Add(EpisodeAspect.ASPECT_ID);
+            optionalAspects.Add(AudioAspect.ASPECT_ID);
+
+            //Find media item
+            var loadItemQuery = BuildLoadItemQuery(_localSystemId, miId);
+            loadItemQuery.SetNecessaryRequestedMIATypeIDs(necessaryAspects);
+            loadItemQuery.SetOptionalRequestedMIATypeIDs(optionalAspects);
+            CompiledMediaItemQuery cmiq = CompiledMediaItemQuery.Compile(_miaManagement, loadItemQuery);
+
+            //Send message to client
+            var state = new ContentDirectoryServerState
+            {
+              ChangeType = ContentDirectoryMessaging.MediaItemChangeType.Updated,
+              MediaItemId = miId,
+              SystemId = _localSystemId
+            };
+            ServiceRegistration.Get<IServerStateService>().UpdateState(ContentDirectoryServerState.STATE_ID, state);
+          }
+        }
+      }
+      catch (Exception ex)
+      {
+        Logger.Warn("MediaLibrary: Error sending updated media item message for path {0}", ex, importedPath);
       }
     }
 
@@ -767,6 +815,22 @@ namespace MediaPortal.Backend.Services.MediaLibrary
         command.ExecuteNonQuery();
     }
 
+    protected void TryScheduleLocalMediaItemRefresh(Share share, ResourcePath path, Guid mediaItemId, bool sendUpdatedMessage = true)
+    {
+      if (share != null && path != null && share.SystemId == _localSystemId)
+      {
+        if (sendUpdatedMessage)
+        {
+          lock (_mediaItemRefreshSync)
+          {
+            _mediaItemRefreshList.Add(path, mediaItemId);
+          }
+        }
+        IImporterWorker importerWorker = ServiceRegistration.Get<IImporterWorker>();
+        importerWorker.ScheduleRefresh(path, share.MediaCategories, false);
+      }
+    }
+
     protected void TryScheduleLocalShareRefresh(Share share)
     {
       IImporterWorker importerWorker = ServiceRegistration.Get<IImporterWorker>();
@@ -887,6 +951,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
       ISQLDatabase database = ServiceRegistration.Get<ISQLDatabase>();
       ITransaction transaction = database.BeginTransaction();
       Share importShare = null;
+      ResourcePath importPath = null;
 
       try
       {
@@ -968,6 +1033,8 @@ namespace MediaPortal.Backend.Services.MediaLibrary
 
                 if (share.BaseResourcePath.IsParentOf(resourcePath))
                 {
+                  //Only refresh from primary resource because only metadata is updated
+                  importPath = resourcePath;
                   importShare = share;
                   break;
                 }
@@ -991,13 +1058,11 @@ namespace MediaPortal.Backend.Services.MediaLibrary
 
       try
       {
-        if (importShare != null)
-          TryScheduleLocalShareRefresh(importShare);
+        TryScheduleLocalMediaItemRefresh(importShare, importPath, mediaItemId);
       }
       catch (Exception e)
       {
-        Logger.Error("MediaLibrary: Error scheduling import for refreshing media item {0}", e, mediaItemId);
-        throw;
+        Logger.Error("MediaLibrary: Error scheduling refresh for refreshing media item {0}", e, mediaItemId);
       }
     }
 
@@ -1006,6 +1071,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
       ISQLDatabase database = ServiceRegistration.Get<ISQLDatabase>();
       ITransaction transaction = database.BeginTransaction();
       Share importShare = null;
+      ResourcePath importPath = null;
 
       try
       {
@@ -1060,7 +1126,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
           //Remove MIAs
           foreach (Guid aspect in items.First().Aspects.Keys)
           {
-            if (aspect != ImporterAspect.ASPECT_ID && aspect != ProviderResourceAspect.ASPECT_ID)
+            if (aspect != ImporterAspect.ASPECT_ID && aspect != MediaAspect.ASPECT_ID && aspect != ProviderResourceAspect.ASPECT_ID)
               _miaManagement.RemoveMIA(transaction, mediaItemId, aspect);
           }
 
@@ -1069,6 +1135,13 @@ namespace MediaPortal.Backend.Services.MediaLibrary
           {
             _miaManagement.AddOrUpdateMIA(transaction, mediaItemId, aspect);
           }
+
+          //Reset media aspect
+          MediaItemAspect mediaAspect = _miaManagement.GetMediaItemAspect(transaction, mediaItemId, MediaAspect.ASPECT_ID);
+          mediaAspect.SetAttribute(MediaAspect.ATTR_TITLE, null);
+          mediaAspect.SetAttribute(MediaAspect.ATTR_SORT_TITLE, null);
+          mediaAspect.SetAttribute(MediaAspect.ATTR_RECORDINGTIME, null);
+          _miaManagement.AddOrUpdateMIA(transaction, mediaItemId, mediaAspect, false);
 
           //Set media item as changed
           MediaItemAspect importerAspect = _miaManagement.GetMediaItemAspect(transaction, mediaItemId, ImporterAspect.ASPECT_ID);
@@ -1087,8 +1160,12 @@ namespace MediaPortal.Backend.Services.MediaLibrary
                 string accessorPath = (string)resource.GetAttributeValue(ProviderResourceAspect.ATTR_RESOURCE_ACCESSOR_PATH);
                 ResourcePath resourcePath = ResourcePath.Deserialize(accessorPath);
 
-                if (share.BaseResourcePath.IsParentOf(resourcePath))
+                if (share.BaseResourcePath.IsParentOf(resourcePath) && share.SystemId == _localSystemId)
                 {
+                  //Only refresh from 1 primary resource or else a secondary resource could load the delete/reset metadata 
+                  //and overwrite the newly refreshed metadata found by the primary resource. The same goes for media items with 
+                  //multiple primary resources.
+                  importPath = resourcePath;
                   importShare = share;
                   break;
                 }
@@ -1112,13 +1189,11 @@ namespace MediaPortal.Backend.Services.MediaLibrary
 
       try
       {
-        if (importShare != null)
-          TryScheduleLocalShareRefresh(importShare);
+        TryScheduleLocalMediaItemRefresh(importShare, importPath, mediaItemId);
       }
       catch (Exception e)
       {
-        Logger.Error("MediaLibrary: Error scheduling import for reimporting media item {0}", e, mediaItemId);
-        throw;
+        Logger.Error("MediaLibrary: Error scheduling refresh for reimporting media item {0}", e, mediaItemId);
       }
     }
 
@@ -1728,14 +1803,15 @@ namespace MediaPortal.Backend.Services.MediaLibrary
       {
         importerAspect = _miaManagement.GetMediaItemAspect(transaction, mediaItemId, ImporterAspect.ASPECT_ID);
       }
-
       importerAspect.SetAttribute(ImporterAspect.ATTR_DIRTY, false);
       importerAspect.SetAttribute(ImporterAspect.ATTR_LAST_IMPORT_DATE, now);
       _miaManagement.AddOrUpdateMIA(transaction, mediaItemId, importerAspect, wasCreated);
       
       MergeProviderResourceAspects(pra, mediaItemAspects);
 
-      // Update
+      // Check
+      int? playCount = null;
+      bool dirtyMetadata = false;
       foreach (MediaItemAspect mia in mediaItemAspects)
       {
         if (!_miaManagement.ManagedMediaItemAspectTypes.ContainsKey(mia.Metadata.AspectId))
@@ -1750,6 +1826,10 @@ namespace MediaPortal.Backend.Services.MediaLibrary
           bool? isStub = mia.GetAttributeValue<bool?>(MediaAspect.ATTR_ISSTUB);
           if (!isStub.HasValue)
             mia.SetAttribute(MediaAspect.ATTR_ISSTUB, false);
+          playCount = mia.GetAttributeValue<int?>(MediaAspect.ATTR_PLAYCOUNT);
+
+          if (string.IsNullOrWhiteSpace(mia.GetAttributeValue<string>(MediaAspect.ATTR_TITLE)))
+            dirtyMetadata = true; //The metadata is dirty and all but the importer related aspects should be ignored. This happens if the metadata is currently being updated.
         }
         else if (mia.Metadata.AspectId == ProviderResourceAspect.ASPECT_ID)
         {
@@ -1762,7 +1842,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
         }
       }
 
-      int? playCount = null;
+      //Update
       foreach (MediaItemAspect mia in mediaItemAspects)
       {
         if (!_miaManagement.ManagedMediaItemAspectTypes.ContainsKey(mia.Metadata.AspectId))
@@ -1780,13 +1860,8 @@ namespace MediaPortal.Backend.Services.MediaLibrary
           _miaManagement.RemoveMIA(transaction, mediaItemId, mia.Metadata.AspectId);
         else if (wasCreated)
           _miaManagement.AddOrUpdateMIA(transaction, mediaItemId, mia, true);
-        else
+        else if (!dirtyMetadata)
           _miaManagement.AddOrUpdateMIA(transaction, mediaItemId, mia);
-
-        if (mia.Metadata.AspectId == MediaAspect.ASPECT_ID)
-        {
-          playCount = mia.GetAttributeValue<int?>(MediaAspect.ATTR_PLAYCOUNT);
-        }
       }
 
       //Check if user watch count need to be updated
