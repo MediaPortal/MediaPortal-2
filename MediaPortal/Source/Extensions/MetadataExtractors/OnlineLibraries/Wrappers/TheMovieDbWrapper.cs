@@ -1061,13 +1061,15 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
           changedItems.Clear();
           changes = _movieDbHandler.GetMovieChanges(page, lastRefresh);
           foreach (Change change in changes.Changes)
-            changedItems.Add(change.Id);
+            if (change.Id.HasValue)
+            changedItems.Add(change.Id.Value);
           while (page < changes.TotalPages)
           {
             page++;
             changes = _movieDbHandler.GetMovieChanges(page, lastRefresh);
             foreach (Change change in changes.Changes)
-              changedItems.Add(change.Id);
+              if (change.Id.HasValue)
+                changedItems.Add(change.Id.Value);
           }
           foreach (int movieId in changedItems)
             _movieDbHandler.DeleteMovieCache(movieId);
@@ -1079,13 +1081,15 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
           changedItems.Clear();
           changes = _movieDbHandler.GetPersonChanges(page, lastRefresh);
           foreach (Change change in changes.Changes)
-            changedItems.Add(change.Id);
+            if (change.Id.HasValue)
+              changedItems.Add(change.Id.Value);
           while (page < changes.TotalPages)
           {
             page++;
             changes = _movieDbHandler.GetPersonChanges(page, lastRefresh);
             foreach (Change change in changes.Changes)
-              changedItems.Add(change.Id);
+              if (change.Id.HasValue)
+                changedItems.Add(change.Id.Value);
           }
           foreach (int movieId in changedItems)
             _movieDbHandler.DeletePersonCache(movieId);
@@ -1099,13 +1103,15 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
           changedItems.Clear();
           changes = _movieDbHandler.GetSeriesChanges(page, lastRefresh);
           foreach (Change change in changes.Changes)
-            changedItems.Add(change.Id);
+            if (change.Id.HasValue)
+              changedItems.Add(change.Id.Value);
           while (page < changes.TotalPages)
           {
             page++;
             changes = _movieDbHandler.GetSeriesChanges(page, lastRefresh);
             foreach (Change change in changes.Changes)
-              changedItems.Add(change.Id);
+              if (change.Id.HasValue)
+                changedItems.Add(change.Id.Value);
           }
           foreach (int movieId in changedItems)
             _movieDbHandler.DeleteSeriesCache(movieId);
