@@ -66,7 +66,7 @@ namespace MediaPortal.UiComponents.Media.MediaItemActions
       {
         IContentDirectory cd = ServiceRegistration.Get<IServerConnectionManager>().ContentDirectory;
         if (cd == null)
-          return new AsyncResult<ContentDirectoryMessaging.MediaItemChangeType>(true, ContentDirectoryMessaging.MediaItemChangeType.None);
+          return new AsyncResult<ContentDirectoryMessaging.MediaItemChangeType>(false, ContentDirectoryMessaging.MediaItemChangeType.None);
 
         MediaItemMatchModel mimm = ServiceRegistration.Get<IWorkflowManager>().GetModel(MediaItemMatchModel.MODEL_ID_MIMATCH) as MediaItemMatchModel;
         await mimm.OpenSelectMatchDialogAsync(mediaItem.Aspects);
@@ -76,7 +76,9 @@ namespace MediaPortal.UiComponents.Media.MediaItemActions
         {
           var rl = mediaItem.GetResourceLocator();
           await cd.ReimportMediaItemMetadataAsync(rl.NativeSystemId, mediaItem.MediaItemId, aspects);
-          return new AsyncResult<ContentDirectoryMessaging.MediaItemChangeType>(true, ContentDirectoryMessaging.MediaItemChangeType.Updated);
+
+          //After refresh is completed on server a change message will be fired
+          return new AsyncResult<ContentDirectoryMessaging.MediaItemChangeType>(true, ContentDirectoryMessaging.MediaItemChangeType.None);
         }
       }
       return new AsyncResult<ContentDirectoryMessaging.MediaItemChangeType>(false, ContentDirectoryMessaging.MediaItemChangeType.None);

@@ -220,7 +220,7 @@ namespace MediaPortal.UiComponents.Media.Models
       if (_searchItem is MovieInfo movie)
       {
         MovieInfo cleanMovie = new MovieInfo();
-        cleanMovie.MovieName = "?";
+        cleanMovie.MovieName = " "; //To make SetMetadata store the aspects
         if (ManualId.StartsWith("tt", StringComparison.InvariantCultureIgnoreCase))
           cleanMovie.ImdbId = ManualId;
         else if (int.TryParse(ManualId, out int movieDbId))
@@ -231,7 +231,7 @@ namespace MediaPortal.UiComponents.Media.Models
       else if (_searchItem is EpisodeInfo episode)
       {
         EpisodeInfo cleanEpisode = new EpisodeInfo();
-        cleanEpisode.SeriesName = "?";
+        cleanEpisode.SeriesName = " "; //To make SetMetadata store the aspects
         cleanEpisode.SeasonNumber = episode.SeasonNumber;
         cleanEpisode.EpisodeNumbers = episode.EpisodeNumbers;
         if (int.TryParse(ManualId, out int tvDbSeriesId))
@@ -242,7 +242,7 @@ namespace MediaPortal.UiComponents.Media.Models
       else if (_searchItem is TrackInfo track)
       {
         TrackInfo cleanTrack = new TrackInfo();
-        cleanTrack.TrackName = "?";
+        cleanTrack.TrackName = " "; //To make SetMetadata store the aspects
         if (ManualId.IndexOf("-", StringComparison.InvariantCultureIgnoreCase) > 2)
           cleanTrack.MusicBrainzId = ManualId;
         else if (int.TryParse(ManualId, out int audioDbId))
