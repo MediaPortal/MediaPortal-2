@@ -49,6 +49,26 @@ namespace MediaPortal.UI.Services.ServerCommunication
 {
   public class ServerConnectionManager : IServerConnectionManager
   {
+    public static readonly Guid[] NECESSARY_MIAS = new Guid[]
+      {
+          ProviderResourceAspect.ASPECT_ID,
+          MediaAspect.ASPECT_ID,
+      };
+
+    public static readonly Guid[] OPTIONAL_MIAS = new Guid[]
+      {
+          MovieAspect.ASPECT_ID,
+          EpisodeAspect.ASPECT_ID,
+          AudioAspect.ASPECT_ID,
+          VideoAspect.ASPECT_ID,
+          ImageAspect.ASPECT_ID,
+          VideoStreamAspect.ASPECT_ID,
+          VideoAudioStreamAspect.ASPECT_ID,
+          SubtitleAspect.ASPECT_ID,
+          GenreAspect.ASPECT_ID,
+          StubAspect.ASPECT_ID
+      };
+
     /// <summary>
     /// Callback instance for the importer worker, implementing the callback interfaces
     /// <see cref="IMediaBrowsing"/> and <see cref="IImportResultHandler"/>.
@@ -329,9 +349,7 @@ namespace MediaPortal.UI.Services.ServerCommunication
             lock (_syncObj)
             {
               IContentDirectory cd = ContentDirectory;
-              List<Guid> necessaryAspects = new List<Guid> { ProviderResourceAspect.ASPECT_ID, MediaAspect.ASPECT_ID, };
-              List<Guid> optionalAspects = new List<Guid> { MovieAspect.ASPECT_ID, EpisodeAspect.ASPECT_ID, AudioAspect.ASPECT_ID };
-              MediaItem mi = cd.LoadItemAsync(contentState.SystemId, contentState.MediaItemId, necessaryAspects, optionalAspects, null).Result;
+              MediaItem mi = cd.LoadItemAsync(contentState.SystemId, contentState.MediaItemId, NECESSARY_MIAS, OPTIONAL_MIAS, null).Result;
               ContentDirectoryMessaging.SendMediaItemChangedMessage(mi, contentState.ChangeType);
             }
           }
