@@ -63,11 +63,12 @@ namespace MediaPortal.UiComponents.Media.Models
 
     protected object _syncObj = new object();
     protected ItemsList _matchList = null;
-    protected ListItem _matchedItem = null;
+    protected object _searchItem = null;
 
     protected AbstractProperty _isSearchingProperty;
     protected AbstractProperty _selectedInfoProperty;
     protected AbstractProperty _focusedItemProperty;
+    protected AbstractProperty _manualIdProperty;
     protected AsynchronousMessageQueue _messageQueue = null;
 
     protected TaskCompletionSource<IEnumerable<MediaItemAspect>> _selectionComplete = null;
@@ -80,6 +81,7 @@ namespace MediaPortal.UiComponents.Media.Models
     {
       _isSearchingProperty = new WProperty(typeof(bool), false);
       _selectedInfoProperty = new WProperty(typeof(string), String.Empty);
+      _manualIdProperty = new WProperty(typeof(string), String.Empty);
       _focusedItemProperty = new SProperty(typeof(object), null);
       _focusedItemProperty.Attach(OnItemFocusedChanged);
 
@@ -127,6 +129,17 @@ namespace MediaPortal.UiComponents.Media.Models
       set { _selectedInfoProperty.SetValue(value); }
     }
 
+    public AbstractProperty ManualIdProperty
+    {
+      get { return _manualIdProperty; }
+    }
+
+    public string ManualId
+    {
+      get { return (string)_manualIdProperty.GetValue(); }
+      set { _manualIdProperty.SetValue(value); }
+    }
+
     public AbstractProperty FocusedItemProperty
     {
       get { return _focusedItemProperty; }
@@ -152,29 +165,28 @@ namespace MediaPortal.UiComponents.Media.Models
       }
 
       IsSearching = true;
-      ServiceRegistration.Get<IScreenManager>().ShowDialog("DialogSelectMatch",
-        (string name, System.Guid id) =>
-        {
-          _selectionComplete.SetResult((IEnumerable<MediaItemAspect>)_matchedItem?.AdditionalProperties[KEY_ASPECTS]);
-        });
+      ServiceRegistration.Get<IScreenManager>().ShowDialog("DialogChooseMatch");
 
       IEnumerable<object> matches  = new List<object>();
       if (aspects.ContainsKey(MovieAspect.ASPECT_ID))
       {
         MovieInfo info = new MovieInfo();
         info.FromMetadata(aspects);
+        _searchItem = info;
         matches = await OnlineMatcherService.Instance.FindMatchingMoviesAsync(info);
       }
       else if (aspects.ContainsKey(EpisodeAspect.ASPECT_ID))
       {
         EpisodeInfo info = new EpisodeInfo();
         info.FromMetadata(aspects);
+        _searchItem = info;
         matches = await OnlineMatcherService.Instance.FindMatchingEpisodesAsync(info);
       }
       else if (aspects.ContainsKey(AudioAspect.ASPECT_ID))
       {
         TrackInfo info = new TrackInfo();
         info.FromMetadata(aspects);
+        _searchItem = info;
         matches = await OnlineMatcherService.Instance.FindMatchingTracksAsync(info);
       }
 
@@ -188,13 +200,63 @@ namespace MediaPortal.UiComponents.Media.Models
       _matchList.FireChange();
     }
 
-    public void SelectMatch(ListItem item)
+    public void SetAutoMatch(ListItem item)
     {
       if (item == null)
         return;
 
-      _matchedItem = item;
       ServiceRegistration.Get<IScreenManager>().CloseTopmostDialog();
+      _selectionComplete.SetResult((IEnumerable<MediaItemAspect>)item.AdditionalProperties[KEY_ASPECTS]);
+      ClearData();
+    }
+
+    public void SetManualMatch()
+    {
+      if (string.IsNullOrWhiteSpace(ManualId))
+        return;
+
+      IDictionary<Guid, IList<MediaItemAspect>> aspects = new Dictionary<Guid, IList<MediaItemAspect>>();
+      Guid mediaAspectId = Guid.Empty;
+      if (_searchItem is MovieInfo movie)
+      {
+        MovieInfo cleanMovie = new MovieInfo();
+        cleanMovie.MovieName = "?";
+        if (ManualId.StartsWith("tt", StringComparison.InvariantCultureIgnoreCase))
+          cleanMovie.ImdbId = ManualId;
+        else if (int.TryParse(ManualId, out int movieDbId))
+          cleanMovie.MovieDbId = movieDbId;
+        cleanMovie.SetMetadata(aspects);
+        mediaAspectId = MovieAspect.ASPECT_ID;
+      }
+      else if (_searchItem is EpisodeInfo episode)
+      {
+        EpisodeInfo cleanEpisode = new EpisodeInfo();
+        cleanEpisode.SeriesName = "?";
+        cleanEpisode.SeasonNumber = episode.SeasonNumber;
+        cleanEpisode.EpisodeNumbers = episode.EpisodeNumbers;
+        if (int.TryParse(ManualId, out int tvDbSeriesId))
+          cleanEpisode.SeriesTvdbId = tvDbSeriesId;
+        cleanEpisode.SetMetadata(aspects);
+        mediaAspectId = EpisodeAspect.ASPECT_ID;
+      }
+      else if (_searchItem is TrackInfo track)
+      {
+        TrackInfo cleanTrack = new TrackInfo();
+        cleanTrack.TrackName = "?";
+        if (ManualId.IndexOf("-", StringComparison.InvariantCultureIgnoreCase) > 2)
+          cleanTrack.MusicBrainzId = ManualId;
+        else if (int.TryParse(ManualId, out int audioDbId))
+          cleanTrack.AudioDbId = audioDbId;
+        cleanTrack.SetMetadata(aspects);
+        mediaAspectId = AudioAspect.ASPECT_ID;
+      }
+      if (aspects?.ContainsKey(ExternalIdentifierAspect.ASPECT_ID) ?? false)
+      {
+        _selectionComplete.SetResult(aspects.Where(a => a.Key == ExternalIdentifierAspect.ASPECT_ID || a.Key == mediaAspectId).
+          SelectMany(a => a.Value));
+        ServiceRegistration.Get<IScreenManager>().CloseTopmostDialog();
+        ClearData();
+      }
     }
 
     public Task<IEnumerable<MediaItemAspect>> WaitForMatchSelectionAsync()
@@ -229,7 +291,7 @@ namespace MediaPortal.UiComponents.Media.Models
         if (aspects.ContainsKey(ExternalIdentifierAspect.ASPECT_ID))
         {
           listItem.AdditionalProperties[KEY_ASPECTS] = aspects.Where(a => a.Key == ExternalIdentifierAspect.ASPECT_ID || a.Key == MovieAspect.ASPECT_ID).
-            SelectMany(a => a.Value).AsEnumerable();
+            SelectMany(a => a.Value);
           return listItem;
         }
       }
@@ -266,7 +328,7 @@ namespace MediaPortal.UiComponents.Media.Models
         if (aspects.ContainsKey(ExternalIdentifierAspect.ASPECT_ID))
         {
           listItem.AdditionalProperties[KEY_ASPECTS] = aspects.Where(a => a.Key == ExternalIdentifierAspect.ASPECT_ID || a.Key == EpisodeAspect.ASPECT_ID).
-            SelectMany(a => a.Value).AsEnumerable();
+            SelectMany(a => a.Value);
           return listItem;
         }
       }
@@ -294,7 +356,7 @@ namespace MediaPortal.UiComponents.Media.Models
         if (aspects.ContainsKey(ExternalIdentifierAspect.ASPECT_ID))
         {
           listItem.AdditionalProperties[KEY_ASPECTS] = aspects.Where(a => a.Key == ExternalIdentifierAspect.ASPECT_ID || a.Key == AudioAspect.ASPECT_ID).
-            SelectMany(a => a.Value).AsEnumerable();
+            SelectMany(a => a.Value);
           return listItem;
         }
       }
@@ -312,7 +374,7 @@ namespace MediaPortal.UiComponents.Media.Models
       lock (_syncObj)
       {
         _matchList.Clear();
-        _matchedItem = null;
+        _searchItem = null;
         SelectedInformation = String.Empty;
         _selectionComplete = new TaskCompletionSource<IEnumerable<MediaItemAspect>>();
       }

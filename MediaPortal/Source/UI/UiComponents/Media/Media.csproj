@@ -735,7 +735,7 @@
     </PackageReference>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Skin\default\screens\DialogSelectMatch.xaml">
+    <Content Include="Skin\default\screens\DialogChooseMatch.xaml">
       <SubType>Designer</SubType>
     </Content>
   </ItemGroup>
