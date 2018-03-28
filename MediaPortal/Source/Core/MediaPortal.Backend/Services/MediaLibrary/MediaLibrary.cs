@@ -975,35 +975,8 @@ namespace MediaPortal.Backend.Services.MediaLibrary
         {
           if (clearMetadata)
           {
-            //Remove relationships
-            using (IDbCommand command = transaction.CreateCommand())
-            {
-              database.AddParameter(command, "ITEM_ID", mediaItemId, typeof(Guid));
-
-              //Find relations
-              List<Guid> relations = new List<Guid>();
-              command.CommandText = _preparedStatements.SelectMediaItemRelationshipsFromIdSQL;
-              using (IDataReader reader = command.ExecuteReader())
-              {
-                while (reader.Read())
-                {
-                  Guid relationId = database.ReadDBValue<Guid>(reader, 0);
-                  if (!relations.Contains(relationId))
-                    relations.Add(relationId);
-                }
-              }
-              Logger.Debug("MediaLibrary: Delete media item {0} relations {1}", mediaItemId, relations.Count);
-
-              //Delete relations
-              command.CommandText = _preparedStatements.DeleteMediaItemRelationshipsFromIdSQL;
-              command.ExecuteNonQuery();
-
-              //Delete orphaned relations
-              foreach (Guid relationId in relations)
-                DeleteOrphan(database, transaction, relationId);
-
-              _miaManagement.CleanupAllOrphanedAttributeValues(transaction);
-            }
+            //Remove relationships so they can be refreshed
+            _relationshipManagement.DeleteAllMediaItemRelationships(transaction, mediaItemId);
 
             //Remove MIAs
             foreach (Guid aspect in items.First().Aspects.Keys)
@@ -1090,35 +1063,10 @@ namespace MediaPortal.Backend.Services.MediaLibrary
 
         if (items != null && items.Count == 1)
         {
-          //Remove relationships
-          using (IDbCommand command = transaction.CreateCommand())
-          {
-            database.AddParameter(command, "ITEM_ID", mediaItemId, typeof(Guid));
+          //Remove relationships because they may no longer be valid
+          _relationshipManagement.DeleteAllMediaItemRelationships(transaction, mediaItemId);
 
-            //Find relations
-            List<Guid> relations = new List<Guid>();
-            command.CommandText = _preparedStatements.SelectMediaItemRelationshipsFromIdSQL;
-            using (IDataReader reader = command.ExecuteReader())
-            {
-              while (reader.Read())
-              {
-                Guid relationId = database.ReadDBValue<Guid>(reader, 0);
-                if (!relations.Contains(relationId))
-                  relations.Add(relationId);
-              }
-            }
-            Logger.Debug("MediaLibrary: Delete media item {0} relations {1}", mediaItemId, relations.Count);
-
-            //Delete relations
-            command.CommandText = _preparedStatements.DeleteMediaItemRelationshipsFromIdSQL;
-            command.ExecuteNonQuery();
-
-            //Delete orphaned relations
-            foreach (Guid relationId in relations)
-              DeleteOrphan(database, transaction, relationId);
-
-            _miaManagement.CleanupAllOrphanedAttributeValues(transaction);
-          }
+          //TODO: What to do about pure virtual hierarchies left after delete?
 
           //Delete fanart because it might be for the wrong media
           ServiceRegistration.Get<IFanArtCache>().DeleteFanArtFiles(mediaItemId);
@@ -1136,7 +1084,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
             _miaManagement.AddOrUpdateMIA(transaction, mediaItemId, aspect);
           }
 
-          //Reset media aspect
+          //Reset media aspect to indicate meta data is dirty
           MediaItemAspect mediaAspect = _miaManagement.GetMediaItemAspect(transaction, mediaItemId, MediaAspect.ASPECT_ID);
           mediaAspect.SetAttribute(MediaAspect.ATTR_TITLE, null);
           mediaAspect.SetAttribute(MediaAspect.ATTR_SORT_TITLE, null);

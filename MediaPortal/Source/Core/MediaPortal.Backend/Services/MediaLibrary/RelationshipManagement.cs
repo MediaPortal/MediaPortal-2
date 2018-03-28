@@ -153,6 +153,44 @@ namespace MediaPortal.Backend.Services.MediaLibrary
     }
 
     /// <summary>
+    /// Deletes all the media item relationships.
+    /// </summary>
+    /// <param name="transaction"></param>
+    /// <param name="mediaItemId"></param>
+    /// <returns></returns>
+    public int DeleteAllMediaItemRelationships(ITransaction transaction, Guid mediaItemId)
+    {
+      int numDeleted;
+
+      ICollection<RelationshipType> hierarchies = _miaManagement.LocallyKnownHierarchicalRelationshipTypes;
+
+      //Map of affected parent ids and their hierarchies
+      IDictionary<Guid, ICollection<RelationshipType>> affectedParents = new Dictionary<Guid, ICollection<RelationshipType>>();
+
+      GetParents(transaction, mediaItemId, hierarchies, affectedParents);
+
+      //Delete all relationships
+      using (IDbCommand command = DeleteAllRelationshipsCommand(transaction, mediaItemId))
+        numDeleted = command.ExecuteNonQuery();
+
+      //Delete orphaned direct relationships of media item
+      using (IDbCommand command = DeleteOrphanedRelationsCommand(transaction, mediaItemId))
+        numDeleted += command.ExecuteNonQuery();
+
+      //Delete orphaned descendent relationships
+      IEnumerable<Guid> primaryChildRoles = hierarchies.Where(h => h.IsPrimaryParent).Select(h => h.ChildRole).Distinct();
+      numDeleted += DeleteOrphanedRelations(transaction, primaryChildRoles);
+
+      //Update remaining parents
+      UpdateParentState(transaction, affectedParents);
+
+      //Delete all orphaned ReationshipAspects and attribute values
+      Cleanup(transaction);
+
+      return numDeleted;
+    }
+
+    /// <summary>
     /// Updates the virtual and playback state of the parents of the media item with the specified <paramref name="mediaItemId"/>.
     /// </summary>
     /// <param name="transaction"></param>
@@ -865,6 +903,27 @@ namespace MediaPortal.Backend.Services.MediaLibrary
             " AND(" + hierarchyCondition + ")" +
           ")" +
         ")";
+
+      //Add the bind vars to the command
+      AddCommandParameters(transaction.Database, result, bindVars);
+
+      return result;
+    }
+
+    protected IDbCommand DeleteAllRelationshipsCommand(ITransaction transaction, Guid mediaItemId)
+    {
+      string relationshipTable = _miaManagement.GetMIATableName(RelationshipAspect.Metadata);
+      string linkedIdAttribute = _miaManagement.GetMIAAttributeColumnName(RelationshipAspect.ATTR_LINKED_ID);
+      string mediaItemIdAttribute = MediaLibrary_SubSchema.MEDIA_ITEMS_ITEM_ID_COL_NAME;
+
+      BindVarNamespace bvNamespace = new BindVarNamespace();
+      IList<BindVar> bindVars = new List<BindVar>();
+      BindVar idVar = new BindVar(bvNamespace.CreateNewBindVarName("MEDIA_ITEM_ID"), mediaItemId, typeof(Guid));
+      bindVars.Add(idVar);
+
+      IDbCommand result = transaction.CreateCommand();
+      result.CommandText = "DELETE FROM " + relationshipTable + " WHERE " + linkedIdAttribute + " = @" + idVar.Name + " OR " +
+          mediaItemIdAttribute + " = @" + idVar.Name;
 
       //Add the bind vars to the command
       AddCommandParameters(transaction.Database, result, bindVars);
