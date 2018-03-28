@@ -184,7 +184,7 @@ namespace MediaPortal.Common.MediaManagement.Helpers
 
       string tempString;
       MediaItemAspect.TryGetAttribute(aspectData, CompanyAspect.ATTR_DESCRIPTION, out tempString);
-      Description = new SimpleTitle(tempString, false);
+      Description = new SimpleTitle(tempString, string.IsNullOrWhiteSpace(tempString));
 
       if (Type == CompanyAspect.COMPANY_TV_NETWORK)
       {

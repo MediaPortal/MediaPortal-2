@@ -259,9 +259,9 @@ namespace MediaPortal.Common.MediaManagement.Helpers
 
         string tempString;
         MediaItemAspect.TryGetAttribute(aspectData, SeasonAspect.ATTR_SERIES_NAME, out tempString);
-        SeriesName = new SimpleTitle(tempString, false);
+        SeriesName = new SimpleTitle(tempString, string.IsNullOrWhiteSpace(tempString));
         MediaItemAspect.TryGetAttribute(aspectData, SeasonAspect.ATTR_DESCRIPTION, out tempString);
-        Description = new SimpleTitle(tempString, false);
+        Description = new SimpleTitle(tempString, string.IsNullOrWhiteSpace(tempString));
 
         int? count;
         if (MediaItemAspect.TryGetAttribute(aspectData, SeasonAspect.ATTR_NUM_EPISODES, out count))

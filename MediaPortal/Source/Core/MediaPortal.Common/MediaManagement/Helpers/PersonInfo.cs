@@ -204,7 +204,7 @@ namespace MediaPortal.Common.MediaManagement.Helpers
 
       string tempString;
       MediaItemAspect.TryGetAttribute(aspectData, PersonAspect.ATTR_BIOGRAPHY, out tempString);
-      Biography = new SimpleTitle(tempString, false);
+      Biography = new SimpleTitle(tempString, string.IsNullOrWhiteSpace(tempString));
 
       string id;
       if (MediaItemAspect.TryGetExternalAttribute(aspectData, ExternalIdentifierAspect.SOURCE_TMDB, ExternalIdentifierAspect.TYPE_PERSON, out id))

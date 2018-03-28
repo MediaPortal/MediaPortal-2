@@ -158,7 +158,7 @@ namespace MediaPortal.Common.MediaManagement.Helpers
       {
         string tempString;
         MediaItemAspect.TryGetAttribute(aspectData, MovieCollectionAspect.ATTR_COLLECTION_NAME, out tempString);
-        CollectionName = new SimpleTitle(tempString, false);
+        CollectionName = new SimpleTitle(tempString, string.IsNullOrWhiteSpace(tempString));
 
         int? count;
         if (MediaItemAspect.TryGetAttribute(aspectData, MovieCollectionAspect.ATTR_NUM_MOVIES, out count))

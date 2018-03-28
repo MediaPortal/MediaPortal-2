@@ -202,7 +202,14 @@ namespace MediaPortal.Common.MediaManagement.Helpers
         HasChanged |= MetadataUpdater.SetOrUpdateValue(ref Budget, movie.Budget);
         HasChanged |= MetadataUpdater.SetOrUpdateValue(ref Revenue, movie.Revenue);
         HasChanged |= MetadataUpdater.SetOrUpdateValue(ref Runtime, movie.Runtime);
-        HasChanged |= MetadataUpdater.SetOrUpdateValue(ref ReleaseDate, movie.ReleaseDate);
+        if (movie.ReleaseDate.HasValue && movie.ReleaseDate.Value.Year > 1800)
+        { 
+          if (ReleaseDate > movie.ReleaseDate)
+          {
+            ReleaseDate = movie.ReleaseDate;
+            HasChanged = true;
+          }
+        }
         HasChanged |= MetadataUpdater.SetOrUpdateValue(ref Popularity, movie.Popularity);
         HasChanged |= MetadataUpdater.SetOrUpdateValue(ref Score, movie.Score);
 
@@ -330,13 +337,13 @@ namespace MediaPortal.Common.MediaManagement.Helpers
 
         string tempString;
         MediaItemAspect.TryGetAttribute(aspectData, MovieAspect.ATTR_MOVIE_NAME, out tempString);
-        MovieName = new SimpleTitle(tempString, false);
+        MovieName = new SimpleTitle(tempString, string.IsNullOrWhiteSpace(tempString));
         MediaItemAspect.TryGetAttribute(aspectData, MediaAspect.ATTR_SORT_TITLE, out tempString);
-        MovieNameSort = new SimpleTitle(tempString, false);
+        MovieNameSort = new SimpleTitle(tempString, string.IsNullOrWhiteSpace(tempString));
         MediaItemAspect.TryGetAttribute(aspectData, VideoAspect.ATTR_STORYPLOT, out tempString);
-        Summary = new SimpleTitle(tempString, false);
+        Summary = new SimpleTitle(tempString, string.IsNullOrWhiteSpace(tempString));
         MediaItemAspect.TryGetAttribute(aspectData, MovieAspect.ATTR_COLLECTION_NAME, out tempString);
-        CollectionName = new SimpleTitle(tempString, false);
+        CollectionName = new SimpleTitle(tempString, string.IsNullOrWhiteSpace(tempString));
         MediaItemAspect.TryGetAttribute(aspectData, MovieAspect.ATTR_ORIG_MOVIE_NAME, out tempString);
         OriginalName = tempString;
 

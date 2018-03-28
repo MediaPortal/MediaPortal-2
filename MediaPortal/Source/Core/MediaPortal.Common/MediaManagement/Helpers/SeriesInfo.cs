@@ -380,11 +380,11 @@ namespace MediaPortal.Common.MediaManagement.Helpers
 
         string tempString;
         MediaItemAspect.TryGetAttribute(aspectData, SeriesAspect.ATTR_SERIES_NAME, out tempString);
-        SeriesName = new SimpleTitle(tempString, false);
+        SeriesName = new SimpleTitle(tempString, string.IsNullOrWhiteSpace(tempString));
         MediaItemAspect.TryGetAttribute(aspectData, MediaAspect.ATTR_SORT_TITLE, out tempString);
-        SeriesNameSort = new SimpleTitle(tempString, false);
+        SeriesNameSort = new SimpleTitle(tempString, string.IsNullOrWhiteSpace(tempString));
         MediaItemAspect.TryGetAttribute(aspectData, SeriesAspect.ATTR_DESCRIPTION, out tempString);
-        Description = new SimpleTitle(tempString, false);
+        Description = new SimpleTitle(tempString, string.IsNullOrWhiteSpace(tempString));
 
         int? count;
         if (MediaItemAspect.TryGetAttribute(aspectData, SeriesAspect.ATTR_NUM_SEASONS, out count))

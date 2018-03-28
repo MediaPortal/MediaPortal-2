@@ -396,13 +396,13 @@ namespace MediaPortal.Common.MediaManagement.Helpers
 
       string tempString;
       MediaItemAspect.TryGetAttribute(aspectData, EpisodeAspect.ATTR_SERIES_NAME, out tempString);
-      SeriesName = new SimpleTitle(tempString, false);
+      SeriesName = new SimpleTitle(tempString, string.IsNullOrWhiteSpace(tempString));
       MediaItemAspect.TryGetAttribute(aspectData, EpisodeAspect.ATTR_EPISODE_NAME, out tempString);
-      EpisodeName = new SimpleTitle(tempString, false);
+      EpisodeName = new SimpleTitle(tempString, string.IsNullOrWhiteSpace(tempString));
       MediaItemAspect.TryGetAttribute(aspectData, MediaAspect.ATTR_SORT_TITLE, out tempString);
-      EpisodeNameSort = new SimpleTitle(tempString, false);
+      EpisodeNameSort = new SimpleTitle(tempString, string.IsNullOrWhiteSpace(tempString));
       MediaItemAspect.TryGetAttribute(aspectData, VideoAspect.ATTR_STORYPLOT, out tempString);
-      Summary = new SimpleTitle(tempString, false);
+      Summary = new SimpleTitle(tempString, string.IsNullOrWhiteSpace(tempString));
 
       double value;
       if (MediaItemAspect.TryGetAttribute(aspectData, EpisodeAspect.ATTR_TOTAL_RATING, out value))
