@@ -433,9 +433,9 @@ namespace MediaPortal.Common.MediaManagement
       IList<MediaItemAspect> otherProviderAspect;
       if (!other._aspects.TryGetValue(ProviderResourceAspect.ASPECT_ID, out otherProviderAspect))
         return false;
-      // TODO: FIX THIS
-      return myProviderAspect[0][ProviderResourceAspect.ATTR_RESOURCE_ACCESSOR_PATH] ==
-          otherProviderAspect[0][ProviderResourceAspect.ATTR_RESOURCE_ACCESSOR_PATH];
+
+      return myProviderAspect.Any(ma => otherProviderAspect.Any(oa => string.Compare(oa.GetAttributeValue<string>(ProviderResourceAspect.ATTR_RESOURCE_ACCESSOR_PATH),
+        ma.GetAttributeValue<string>(ProviderResourceAspect.ATTR_RESOURCE_ACCESSOR_PATH), true) == 0));
     }
 
     #endregion
