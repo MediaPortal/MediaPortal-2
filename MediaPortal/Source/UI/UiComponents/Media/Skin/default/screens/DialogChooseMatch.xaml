@@ -16,8 +16,8 @@
     <ControlTemplate x:Key="Contents_Template">
       <Grid DataContext="{Binding Source={StaticResource Model}}" MinHeight="550">
         <Grid.ColumnDefinitions>
-          <ColumnDefinition Width="Auto"/>
           <ColumnDefinition Width="500"/>
+          <ColumnDefinition Width="600"/>
         </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
           <RowDefinition Height="Auto"/>
@@ -48,13 +48,13 @@
           <Label Content="[Media.SearchResultIsBeingBuiltHint]" Color="{ThemeResource TextColor}" Margin="10" HorizontalAlignment="Center"/>
         </StackPanel>
 
-        <Label Grid.Row="0" Grid.Column="0" Content="Search Result" IsVisible="{Binding !IsSearching}"
+        <Label Grid.Row="0" Grid.Column="0" Content="[Media.ReimportMediaItem.SearchResultHeader]" IsVisible="{Binding !IsSearching}"
                TextTrimming="WordEllipsis" Color="{ThemeResource TextColor}" Margin="10,0,10,5"/>
-        <Label Grid.Row="0" Grid.Column="1" Content="Search Type" IsVisible="{Binding !IsSearching}"
+        <Label Grid.Row="0" Grid.Column="1" Content="[Media.ReimportMediaItem.SearchTypeHeader]" IsVisible="{Binding !IsSearching}"
                TextTrimming="WordEllipsis" Color="{ThemeResource TextColor}" Margin="10,0,10,5"/>
 
         <RadioButton Grid.Row="1" Grid.Column="1" x:Name="AutoSearch" Margin="10,1,0,1" VerticalAlignment="Center" IsVisible="{Binding !IsSearching}"
-                     IsChecked="{Binding Path=Selected,Mode=TwoWay}" GroupName="RadioButtonGroup" Content="Auto Match">
+                     IsChecked="{Binding Path=Selected,Mode=TwoWay}" GroupName="RadioButtonGroup" Content="[Media.ReimportMediaItem.AutoMatch]">
           <RadioButton.Triggers>
             <Trigger Property="IsVisible" Value="True">
               <Setter TargetName="AutoSearch" Property="IsChecked" Value="True"/>
@@ -69,10 +69,11 @@
           </RadioButton.Triggers>
         </RadioButton>
         <RadioButton Grid.Row="2" Grid.Column="1" x:Name="ManualSearch" Margin="10,1,0,1" VerticalAlignment="Center" IsEnabled="True" IsVisible="{Binding !IsSearching}"
-                     IsChecked="{Binding Path=Selected,Mode=TwoWay}" GroupName="RadioButtonGroup" Content="Manual Search">
+                     IsChecked="{Binding Path=Selected,Mode=TwoWay}" GroupName="RadioButtonGroup" Content="[Media.ReimportMediaItem.ManualSearch]">
           <RadioButton.Triggers>
             <Trigger Property="IsChecked" Value="False">
               <Setter TargetName="TextBox" Property="IsEnabled" Value="False"/>
+              <Setter TargetName="DoneButton" Property="IsEnabled" Value="False"/>
               <Setter TargetName="ManualSearch" Property="Color" Value="{ThemeResource MenuTextBackground}"/>
               <Setter TargetName="AutoSearch" Property="Color" Value="{ThemeResource TextColor}"/>
             </Trigger>
@@ -83,9 +84,8 @@
                TextTrimming="WordEllipsis" Color="{ThemeResource TextColor}" Margin="70,5,20,0"/>
         <TextBox x:Name="TextBox" Grid.Row="3" Grid.Column="1" Margin="60,5,20,10" Text="{Binding Source={StaticResource Model}, Path=ManualId, Mode=OneWayToSource}" 
                  PreferredTextLength="10" IsVisible="{Binding !IsSearching}"/>
-
-        <Button Grid.Row="4" Grid.Column="1" Style="{ThemeResource DialogButtonStyle}" Content="[Media.ReimportMediaItem.Done]"
-                Command="{Command SetManualMatch}" IsVisible="{Binding !IsSearching}"/>
+        <Button x:Name="DoneButton" Grid.Row="4" Grid.Column="1" Style="{ThemeResource WizardButtonStyle}" Content="[Media.ReimportMediaItem.Done]" Margin="60,5,20,10"
+                Command="{Command SetManualMatch}" IsVisible="{Binding !IsSearching}" IsEnabled="True"/>
 
         <!-- Match list -->
         <ListView x:Name="Match_List" Grid.Row="1" Grid.RowSpan="6" Grid.Column="0" Margin="10,10,20,10" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" SetFocus="True"
@@ -96,7 +96,7 @@
           </ListView.Resources>
         </ListView>
 
-        <Label Grid.Row="5" Grid.Column="1" Content="Description" IsVisible="{Binding !IsSearching}"
+        <Label Grid.Row="5" Grid.Column="1" Content="[Media.ReimportMediaItem.Description]" IsVisible="{Binding !IsSearching}"
                TextTrimming="WordEllipsis" Color="{ThemeResource TextColor}" Margin="10,20,5,5"/>
         <Label Grid.Row="6" Grid.Column="1" Content="{Binding Source={StaticResource Model}, Path=SelectedInformation}" IsVisible="{Binding !IsSearching}"
                TextTrimming="WordEllipsis" Color="{ThemeResource TextColor}" Margin="30,5,10,10"/>

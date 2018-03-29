@@ -306,6 +306,11 @@
   <string name="Media.ReimportMediaItem.Title">Select the correct match</string>
   <string name="Media.ReimportMediaItem.Id">Id</string>
   <string name="Media.ReimportMediaItem.Done">Done</string>
+  <string name="Media.ReimportMediaItem.SearchResultHeader">Search Result</string>
+  <string name="Media.ReimportMediaItem.SearchTypeHeader">Search Type</string>
+  <string name="Media.ReimportMediaItem.AutoMatch">Auto Match</string>
+  <string name="Media.ReimportMediaItem.ManualSearch">Manual Search</string>
+  <string name="Media.ReimportMediaItem.Description">Description</string>
   
   <!-- Play items dialog -->
   <string name="Media.PlayItemDialogHeader">Play item</string>
