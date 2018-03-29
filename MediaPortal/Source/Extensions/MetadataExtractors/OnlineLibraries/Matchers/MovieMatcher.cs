@@ -245,7 +245,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
     /// <returns><c>true</c> if successful</returns>
     public virtual async Task<IEnumerable<MovieInfo>> FindMatchingMoviesAsync(MovieInfo movieInfo)
     {
-      List<MovieInfo> matches = new List<MovieInfo>() { movieInfo };
+      List<MovieInfo> matches = new List<MovieInfo>();
       try
       {
         // Try online lookup
@@ -255,11 +255,20 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
         MovieInfo movieSearch = movieInfo.Clone();
         TLang language = FindBestMatchingLanguage(movieInfo.Languages);
 
-        Logger.Debug(_id + ": Search for movie {0} online", movieInfo.ToString());
-        GetMovieId(movieInfo, out string movieId);
-        var onlineMatches = await _wrapper.SearchMovieMatchesAsync(movieSearch, language).ConfigureAwait(false);
+        IEnumerable<MovieInfo> onlineMatches = null;
+        if (GetMovieId(movieInfo, out string movieId))
+        {
+          Logger.Debug(_id + ": Get movie from id {0} online", movieId);
+          if (await _wrapper.UpdateFromOnlineMovieAsync(movieSearch, language, false))
+            onlineMatches = new MovieInfo[] { movieSearch };
+        }
+        if (onlineMatches == null)
+        {
+          Logger.Debug(_id + ": Search for movie {0} online", movieInfo.ToString());
+          onlineMatches = await _wrapper.SearchMovieMatchesAsync(movieSearch, language).ConfigureAwait(false);
+        }
         if (onlineMatches?.Count() > 0)
-          matches.AddRange(onlineMatches.Where(m => GetMovieId(m, out string matchMovieId) && matchMovieId != movieId));
+          matches.AddRange(onlineMatches.Where(m => m.IsBaseInfoPresent));
 
         return matches;
       }

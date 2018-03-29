@@ -244,7 +244,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
 
     public virtual async Task<IEnumerable<TrackInfo>> FindMatchingTracksAsync(TrackInfo trackInfo)
     {
-      List<TrackInfo> matches = new List<TrackInfo>() { trackInfo };
+      List<TrackInfo> matches = new List<TrackInfo>();
 
       try
       {
@@ -255,11 +255,20 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
         TrackInfo trackSearch = trackInfo.Clone();
         TLang language = FindBestMatchingLanguage(trackInfo.Languages);
 
-        Logger.Debug(_id + ": Search for track {0} online", trackInfo.ToString());
-        GetTrackId(trackInfo, out string trackId);
-        var onlineMatches = await _wrapper.SearchTrackMatchesAsync(trackSearch, language).ConfigureAwait(false);
+        IEnumerable<TrackInfo> onlineMatches = null;
+        if (GetTrackId(trackInfo, out string trackId))
+        {
+          Logger.Debug(_id + ": Get track from id {0} online", trackId);
+          if (await _wrapper.UpdateFromOnlineMusicTrackAsync(trackSearch, language, false))
+            onlineMatches = new TrackInfo[] { trackSearch };
+        }
+        if (onlineMatches == null)
+        {
+          Logger.Debug(_id + ": Search for track {0} online", trackInfo.ToString());
+          onlineMatches = await _wrapper.SearchTrackMatchesAsync(trackSearch, language).ConfigureAwait(false);
+        }
         if (onlineMatches?.Count() > 0)
-          matches.AddRange(onlineMatches.Where(m => (GetTrackId(m, out string matchTrackId) && matchTrackId != trackId) || trackId == null));
+          matches.AddRange(onlineMatches.Where(m => m.IsBaseInfoPresent));
 
         return matches;
       }

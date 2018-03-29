@@ -254,7 +254,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
 
     public virtual async Task<IEnumerable<EpisodeInfo>> FindMatchingEpisodesAsync(EpisodeInfo episodeInfo)
     {
-      List<EpisodeInfo> matches = new List<EpisodeInfo>() { episodeInfo };
+      List<EpisodeInfo> matches = new List<EpisodeInfo>();
 
       try
       {
@@ -282,11 +282,21 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
         if (match != null)
           SetSeriesId(episodeSearch, match.Id);
 
-        Logger.Debug(_id + ": Search for episode {0} online", episodeInfo.ToString());
+        IEnumerable<EpisodeInfo> onlineMatches = null;
+        if (GetSeriesId(episodeSearch.CloneBasicInstance<SeriesInfo>(), out string searchSeriesId))
+        {
+          Logger.Debug(_id + ": Get episode from id {0} online", searchSeriesId);
+          if (await _wrapper.UpdateFromOnlineSeriesEpisodeAsync(episodeSearch, language, false))
+            onlineMatches = new EpisodeInfo[] { episodeSearch };
+        }
+        if (onlineMatches == null)
+        {
+          Logger.Debug(_id + ": Search for episode {0} online", episodeInfo.ToString());
+          onlineMatches = await _wrapper.SearchSeriesEpisodeMatchesAsync(episodeSearch, language).ConfigureAwait(false);
+        }
         GetSeriesEpisodeId(episodeInfo, out string episodeId);
-        var onlineMatches = await _wrapper.SearchSeriesEpisodeMatchesAsync(episodeSearch, language).ConfigureAwait(false);
         if (onlineMatches?.Count() > 0)
-          matches.AddRange(onlineMatches.Where(m => (GetSeriesEpisodeId(m, out string matchEpisodeId) && matchEpisodeId != episodeId) || episodeId == null));
+          matches.AddRange(onlineMatches.Where(m => m.IsBaseInfoPresent));
 
         return matches;
       }

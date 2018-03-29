@@ -54,13 +54,13 @@
                TextTrimming="WordEllipsis" Color="{ThemeResource TextColor}" Margin="10,0,10,5"/>
 
         <RadioButton Grid.Row="1" Grid.Column="1" x:Name="AutoSearch" Margin="10,1,0,1" VerticalAlignment="Center" IsVisible="{Binding !IsSearching}"
-                     IsChecked="{Binding Path=Selected,Mode=TwoWay}" GroupName="RadioButtonGroup" Content="[Media.ReimportMediaItem.AutoMatch]">
+                     IsChecked="{Binding Path=IsAutomaticSearch,Mode=TwoWay}" GroupName="RadioButtonGroup" Content="[Media.ReimportMediaItem.AutoMatch]">
           <RadioButton.Triggers>
             <Trigger Property="IsVisible" Value="True">
               <Setter TargetName="AutoSearch" Property="IsChecked" Value="True"/>
             </Trigger>
             <Trigger Property="IsChecked" Value="False">
-              <Setter TargetName="AutoSearch" Property="Color" Value="{ThemeResource MenuTextBackground}"/>
+              <Setter TargetName="AutoSearch" Property="Color" Value="{ThemeResource TextColor}"/>
               <Setter TargetName="ManualSearch" Property="Color" Value="{ThemeResource TextColor}"/>
             </Trigger>
             <Trigger Property="IsChecked" Value="True">
@@ -69,12 +69,12 @@
           </RadioButton.Triggers>
         </RadioButton>
         <RadioButton Grid.Row="2" Grid.Column="1" x:Name="ManualSearch" Margin="10,1,0,1" VerticalAlignment="Center" IsEnabled="True" IsVisible="{Binding !IsSearching}"
-                     IsChecked="{Binding Path=Selected,Mode=TwoWay}" GroupName="RadioButtonGroup" Content="[Media.ReimportMediaItem.ManualSearch]">
+                     IsChecked="{Binding Path=IsManualSearch,Mode=TwoWay}" GroupName="RadioButtonGroup" Content="[Media.ReimportMediaItem.ManualSearch]">
           <RadioButton.Triggers>
             <Trigger Property="IsChecked" Value="False">
               <Setter TargetName="TextBox" Property="IsEnabled" Value="False"/>
               <Setter TargetName="DoneButton" Property="IsEnabled" Value="False"/>
-              <Setter TargetName="ManualSearch" Property="Color" Value="{ThemeResource MenuTextBackground}"/>
+              <Setter TargetName="ManualSearch" Property="Color" Value="{ThemeResource TextColor}"/>
               <Setter TargetName="AutoSearch" Property="Color" Value="{ThemeResource TextColor}"/>
             </Trigger>
           </RadioButton.Triggers>
@@ -84,15 +84,13 @@
                TextTrimming="WordEllipsis" Color="{ThemeResource TextColor}" Margin="70,5,20,0"/>
         <TextBox x:Name="TextBox" Grid.Row="3" Grid.Column="1" Margin="60,5,20,10" Text="{Binding Source={StaticResource Model}, Path=ManualId, Mode=OneWayToSource}" 
                  PreferredTextLength="10" IsVisible="{Binding !IsSearching}"/>
-        <Button x:Name="DoneButton" Grid.Row="4" Grid.Column="1" Style="{ThemeResource WizardButtonStyle}" Content="[Media.ReimportMediaItem.Done]" Margin="60,5,20,10"
-                Command="{Command SetManualMatch}" IsVisible="{Binding !IsSearching}" IsEnabled="True"/>
 
         <!-- Match list -->
         <ListView x:Name="Match_List" Grid.Row="1" Grid.RowSpan="6" Grid.Column="0" Margin="10,10,20,10" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" SetFocus="True"
                   Style="{ThemeResource MenuListViewStyle}" RestoreFocus="True" CurrentItem="{Binding Path=FocusedItem,Mode=OneWayToSource}" 
                   ItemsSource="{Binding Path=MatchList}" IsVisible="{Binding !IsSearching}">
           <ListView.Resources>
-            <Command x:Key="Menu_Command" Source="{StaticResource Model}" Path="SetAutoMatch" Parameters="{LateBoundValue BindingValue={Binding}}"/>
+            <Command x:Key="Menu_Command" Source="{StaticResource Model}" Path="SetMatch" Parameters="{LateBoundValue BindingValue={Binding}}"/>
           </ListView.Resources>
         </ListView>
 

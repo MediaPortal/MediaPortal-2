@@ -46,7 +46,7 @@ namespace MediaPortal.UiComponents.Media.Models
   /// <summary>
   /// Provides a workflow model for selecting matching media items.
   /// </summary>
-  public class MediaItemMatchModel : IWorkflowModel, IDisposable
+  public class MediaItemMatchModel : IDisposable
   {
     #region Consts
 
@@ -64,8 +64,11 @@ namespace MediaPortal.UiComponents.Media.Models
     protected object _syncObj = new object();
     protected ItemsList _matchList = null;
     protected object _searchItem = null;
+    protected System.Timers.Timer _liveSearchTimer = new System.Timers.Timer(3000);
 
     protected AbstractProperty _isSearchingProperty;
+    protected AbstractProperty _isManualSearchProperty;
+    protected AbstractProperty _isAutomaticSearchProperty;
     protected AbstractProperty _selectedInfoProperty;
     protected AbstractProperty _focusedItemProperty;
     protected AbstractProperty _manualIdProperty;
@@ -80,13 +83,24 @@ namespace MediaPortal.UiComponents.Media.Models
     public MediaItemMatchModel()
     {
       _isSearchingProperty = new WProperty(typeof(bool), false);
+      _isManualSearchProperty = new WProperty(typeof(bool), false);
+      _isAutomaticSearchProperty = new WProperty(typeof(bool), true);
+      _isAutomaticSearchProperty.Attach(OnAutomaticSearchChanged);
       _selectedInfoProperty = new WProperty(typeof(string), String.Empty);
       _manualIdProperty = new WProperty(typeof(string), String.Empty);
+      _manualIdProperty.Attach(OnManualIdChanged);
       _focusedItemProperty = new SProperty(typeof(object), null);
       _focusedItemProperty.Attach(OnItemFocusedChanged);
 
+      _liveSearchTimer.AutoReset = false;
+      _liveSearchTimer.Elapsed += LiveSearchTimeout_Elapsed;
       _matchList = new ItemsList();
       _selectionComplete = new TaskCompletionSource<IEnumerable<MediaItemAspect>>();
+    }
+
+    private void LiveSearchTimeout_Elapsed(object sender, System.Timers.ElapsedEventArgs e)
+    {
+      SetManualMatch();
     }
 
     public void Dispose()
@@ -116,6 +130,28 @@ namespace MediaPortal.UiComponents.Media.Models
     {
       get { return (bool)_isSearchingProperty.GetValue(); }
       set { _isSearchingProperty.SetValue(value); }
+    }
+
+    public AbstractProperty IsManualSearchProperty
+    {
+      get { return _isManualSearchProperty; }
+    }
+
+    public bool IsManualSearch
+    {
+      get { return (bool)_isManualSearchProperty.GetValue(); }
+      set { _isManualSearchProperty.SetValue(value); }
+    }
+
+    public AbstractProperty IsAutomaticSearchProperty
+    {
+      get { return _isAutomaticSearchProperty; }
+    }
+
+    public bool IsAutomaticSearch
+    {
+      get { return (bool)_isAutomaticSearchProperty.GetValue(); }
+      set { _isAutomaticSearchProperty.SetValue(value); }
     }
 
     public AbstractProperty SelectedInformationProperty
@@ -164,34 +200,95 @@ namespace MediaPortal.UiComponents.Media.Models
         return;
       }
 
-      IsSearching = true;
-      ServiceRegistration.Get<IScreenManager>().ShowDialog("DialogChooseMatch");
-
-      IEnumerable<object> matches  = new List<object>();
       if (aspects.ContainsKey(MovieAspect.ASPECT_ID))
       {
         MovieInfo info = new MovieInfo();
         info.FromMetadata(aspects);
         _searchItem = info;
-        matches = await OnlineMatcherService.Instance.FindMatchingMoviesAsync(info);
       }
       else if (aspects.ContainsKey(EpisodeAspect.ASPECT_ID))
       {
         EpisodeInfo info = new EpisodeInfo();
         info.FromMetadata(aspects);
         _searchItem = info;
-        matches = await OnlineMatcherService.Instance.FindMatchingEpisodesAsync(info);
       }
       else if (aspects.ContainsKey(AudioAspect.ASPECT_ID))
       {
         TrackInfo info = new TrackInfo();
         info.FromMetadata(aspects);
         _searchItem = info;
-        matches = await OnlineMatcherService.Instance.FindMatchingTracksAsync(info);
       }
 
+      ServiceRegistration.Get<IScreenManager>().ShowDialog("DialogChooseMatch");
+      await DoSearchAsync();
+    }
+
+    protected async Task DoSearchAsync()
+    {
+      IsSearching = true;
+      
+      MovieInfo movieSearchinfo = null;
+      EpisodeInfo episodeSearchinfo = null;
+      TrackInfo trackSearchinfo = null;
+      if (IsManualSearch)
+      {
+        if (_searchItem is MovieInfo movie)
+        {
+          movieSearchinfo = new MovieInfo();
+          movieSearchinfo.MovieName = " "; //To make SetMetadata store the aspects
+          if (ManualId.StartsWith("tt", StringComparison.InvariantCultureIgnoreCase))
+            movieSearchinfo.ImdbId = ManualId;
+          else if (int.TryParse(ManualId, out int movieDbId))
+            movieSearchinfo.MovieDbId = movieDbId;
+        }
+        else if (_searchItem is EpisodeInfo episode)
+        {
+          episodeSearchinfo = new EpisodeInfo();
+          episodeSearchinfo.SeriesName = " "; //To make SetMetadata store the aspects
+          episodeSearchinfo.SeasonNumber = episode.SeasonNumber;
+          episodeSearchinfo.EpisodeNumbers = episode.EpisodeNumbers;
+          if (int.TryParse(ManualId, out int tvDbSeriesId))
+            episodeSearchinfo.SeriesTvdbId = tvDbSeriesId;
+        }
+        else if (_searchItem is TrackInfo track)
+        {
+          trackSearchinfo = new TrackInfo();
+          trackSearchinfo.TrackName = " "; //To make SetMetadata store the aspects
+          if (ManualId.IndexOf("-", StringComparison.InvariantCultureIgnoreCase) > 2)
+            trackSearchinfo.MusicBrainzId = ManualId;
+          else if (int.TryParse(ManualId, out int audioDbId))
+            trackSearchinfo.AudioDbId = audioDbId;
+        }
+      }
+      else
+      {
+        if (_searchItem is MovieInfo)
+        {
+          movieSearchinfo = (MovieInfo)_searchItem;
+        }
+        else if (_searchItem is EpisodeInfo)
+        {
+          episodeSearchinfo = (EpisodeInfo)_searchItem;
+        }
+        else if (_searchItem is TrackInfo)
+        {
+          trackSearchinfo = (TrackInfo)_searchItem;
+        }
+      }
+
+      IEnumerable<object> matches = new List<object>();
+      if (_searchItem is MovieInfo)
+        matches = await OnlineMatcherService.Instance.FindMatchingMoviesAsync(movieSearchinfo);
+      else if (_searchItem is EpisodeInfo)
+        matches = await OnlineMatcherService.Instance.FindMatchingEpisodesAsync(episodeSearchinfo);
+      else if (_searchItem is TrackInfo)
+        matches = await OnlineMatcherService.Instance.FindMatchingTracksAsync(trackSearchinfo);
+
       IsSearching = false;
-      foreach(BaseInfo info in matches)
+
+      _matchList.Clear();
+      SelectedInformation = "";
+      foreach (BaseInfo info in matches)
       {
         var item = CreateItem(info);
         if (item != null)
@@ -200,7 +297,7 @@ namespace MediaPortal.UiComponents.Media.Models
       _matchList.FireChange();
     }
 
-    public void SetAutoMatch(ListItem item)
+    public void SetMatch(ListItem item)
     {
       if (item == null)
         return;
@@ -210,53 +307,12 @@ namespace MediaPortal.UiComponents.Media.Models
       ClearData();
     }
 
-    public void SetManualMatch()
+    public async void SetManualMatch()
     {
       if (string.IsNullOrWhiteSpace(ManualId))
         return;
 
-      IDictionary<Guid, IList<MediaItemAspect>> aspects = new Dictionary<Guid, IList<MediaItemAspect>>();
-      Guid mediaAspectId = Guid.Empty;
-      if (_searchItem is MovieInfo movie)
-      {
-        MovieInfo cleanMovie = new MovieInfo();
-        cleanMovie.MovieName = " "; //To make SetMetadata store the aspects
-        if (ManualId.StartsWith("tt", StringComparison.InvariantCultureIgnoreCase))
-          cleanMovie.ImdbId = ManualId;
-        else if (int.TryParse(ManualId, out int movieDbId))
-          cleanMovie.MovieDbId = movieDbId;
-        cleanMovie.SetMetadata(aspects);
-        mediaAspectId = MovieAspect.ASPECT_ID;
-      }
-      else if (_searchItem is EpisodeInfo episode)
-      {
-        EpisodeInfo cleanEpisode = new EpisodeInfo();
-        cleanEpisode.SeriesName = " "; //To make SetMetadata store the aspects
-        cleanEpisode.SeasonNumber = episode.SeasonNumber;
-        cleanEpisode.EpisodeNumbers = episode.EpisodeNumbers;
-        if (int.TryParse(ManualId, out int tvDbSeriesId))
-          cleanEpisode.SeriesTvdbId = tvDbSeriesId;
-        cleanEpisode.SetMetadata(aspects);
-        mediaAspectId = EpisodeAspect.ASPECT_ID;
-      }
-      else if (_searchItem is TrackInfo track)
-      {
-        TrackInfo cleanTrack = new TrackInfo();
-        cleanTrack.TrackName = " "; //To make SetMetadata store the aspects
-        if (ManualId.IndexOf("-", StringComparison.InvariantCultureIgnoreCase) > 2)
-          cleanTrack.MusicBrainzId = ManualId;
-        else if (int.TryParse(ManualId, out int audioDbId))
-          cleanTrack.AudioDbId = audioDbId;
-        cleanTrack.SetMetadata(aspects);
-        mediaAspectId = AudioAspect.ASPECT_ID;
-      }
-      if (aspects?.ContainsKey(ExternalIdentifierAspect.ASPECT_ID) ?? false)
-      {
-        _selectionComplete.SetResult(aspects.Where(a => a.Key == ExternalIdentifierAspect.ASPECT_ID || a.Key == mediaAspectId).
-          SelectMany(a => a.Value));
-        ServiceRegistration.Get<IScreenManager>().CloseTopmostDialog();
-        ClearData();
-      }
+      await DoSearchAsync();
     }
 
     public Task<IEnumerable<MediaItemAspect>> WaitForMatchSelectionAsync()
@@ -363,6 +419,23 @@ namespace MediaPortal.UiComponents.Media.Models
       return null;
     }
 
+    async void OnAutomaticSearchChanged(AbstractProperty prop, object oldVal)
+    {
+      if (prop.HasValue() && (bool)prop.GetValue() && (bool)oldVal == false)
+      {
+        await DoSearchAsync();
+      }
+    }
+
+    void OnManualIdChanged(AbstractProperty prop, object oldVal)
+    {
+      if (prop.HasValue() && !string.IsNullOrWhiteSpace((string)prop.GetValue()))
+      {
+        _liveSearchTimer.Stop();
+        _liveSearchTimer.Start();
+      }
+    }
+
     void OnItemFocusedChanged(AbstractProperty prop, object oldVal)
     {
       if (prop.HasValue())
@@ -384,55 +457,6 @@ namespace MediaPortal.UiComponents.Media.Models
     {
       // Called when a remote call crashes because the server was disconnected. We don't do anything here because
       // we automatically move to the overview state in the OnMessageReceived method when the server disconnects.
-    }
-
-    #endregion
-
-    #region IWorkflowModel implementation
-
-    public Guid ModelId
-    {
-      get { return MODEL_ID_MIMATCH; }
-    }
-
-    public bool CanEnterState(NavigationContext oldContext, NavigationContext newContext)
-    {
-      return true;
-    }
-
-    public void EnterModelContext(NavigationContext oldContext, NavigationContext newContext)
-    {
-      ClearData();
-    }
-
-    public void ExitModelContext(NavigationContext oldContext, NavigationContext newContext)
-    {
-      ClearData();
-    }
-
-    public void ChangeModelContext(NavigationContext oldContext, NavigationContext newContext, bool push)
-    {
-
-    }
-
-    public void Deactivate(NavigationContext oldContext, NavigationContext newContext)
-    {
-      // Nothing to do here
-    }
-
-    public void Reactivate(NavigationContext oldContext, NavigationContext newContext)
-    {
-
-    }
-
-    public void UpdateMenuActions(NavigationContext context, IDictionary<Guid, WorkflowAction> actions)
-    {
-      // Perhaps we'll add menu actions later for different convenience procedures.
-    }
-
-    public ScreenUpdateMode UpdateScreen(NavigationContext context, ref string screen)
-    {
-      return ScreenUpdateMode.AutoWorkflowManager;
     }
 
     #endregion
