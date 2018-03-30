@@ -74,7 +74,7 @@
     <Compile Include="Models\ScreenModeModel.cs" />
     <Compile Include="Models\SubItem.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Settings\Configuration\EnableAnimatedBackgroundConfiguration.cs" />
+    <Compile Include="Settings\Configuration\EnableHomeContentConfiguration.cs" />
     <Compile Include="Settings\Configuration\EnableCertificationLogosConfiguration.cs" />
     <Compile Include="Settings\Configuration\BaseGridViewTypeConfiguration.cs" />
     <Compile Include="Settings\Configuration\FanartOverlayOpacityConfiguration.cs" />

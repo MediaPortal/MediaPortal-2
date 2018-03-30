@@ -239,6 +239,7 @@ Parameters which have to be accessible by a DynamicResource lookup:
         </Control>
 
         <Grid x:Name="HomeContentGrid" Grid.Row="1" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,-150,50,0"
+              IsVisible="{Binding Source={StaticResource SkinSettingsModel}, Path=[WMC].EnableHomeContent}"
               DataContext="{Binding Source={StaticResource HomeContentModel}}"
               IsKeyboardFocusWithin="{Binding Source={StaticResource HomeContentModel}, Path=IsContentFocused, Mode=OneWayToSource}">
           <Grid.ColumnDefinitions>
@@ -407,7 +408,7 @@ Parameters which have to be accessible by a DynamicResource lookup:
           </Button>
         </Grid>
 
-        <Grid x:Name="TopButtonGrid" Grid.Row="1" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="160,10,0,0" Panel.ZIndex="1000"
+        <Grid x:Name="TopButtonGrid" Grid.Row="1" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="160,30,0,-20" Panel.ZIndex="1000"
               IsEnabled="{Binding Source={StaticResource HomeContentModel}, Path=!IsContentFocused}"
               IsVisible="{Binding Source={StaticResource MouseModel},Path=IsMouseUsed}">
           <Grid.ColumnDefinitions>

@@ -430,121 +430,21 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor
           videoStreamAspects.SetAttribute(VideoStreamAspect.ATTR_RESOURCE_INDEX, 0);
           videoStreamAspects.SetAttribute(VideoStreamAspect.ATTR_STREAM_INDEX, streamId++);
 
-          string stereoscopic = null;
           Match match = REGEXP_STEREOSCOPICFILE.Match(lfsra.LocalFileSystemPath);
-          if (match.Groups[GROUP_STEREO_MODE].Length > 0 && match.Groups[GROUP_STEREO].Length > 0)
+          string videoType = VideoStreamAspect.GetVideoType(match.Groups[GROUP_STEREO_MODE].Value, match.Groups[GROUP_STEREO].Value, _height, _width);
+          if(!string.IsNullOrWhiteSpace(videoType))
+            videoStreamAspects.SetAttribute(VideoStreamAspect.ATTR_VIDEO_TYPE, videoType);
+          if (videoType == VideoStreamAspect.TYPE_SBS || videoType == VideoStreamAspect.TYPE_HSBS)
           {
-            if (match.Groups[GROUP_STEREO_MODE].Value.StartsWith("H", StringComparison.InvariantCultureIgnoreCase))
-            {
-              if (match.Groups[GROUP_STEREO].Value.EndsWith("SBS", StringComparison.InvariantCultureIgnoreCase))
-              {
-                stereoscopic = VideoStreamAspect.TYPE_HSBS;
-              }
-              else if (match.Groups[GROUP_STEREO].Value.EndsWith("TAB", StringComparison.InvariantCultureIgnoreCase))
-              {
-                stereoscopic = VideoStreamAspect.TYPE_HTAB;
-              }
-              else if (match.Groups[GROUP_STEREO].Value.EndsWith("OU", StringComparison.InvariantCultureIgnoreCase))
-              {
-                stereoscopic = VideoStreamAspect.TYPE_HTAB;
-              }
-            }
-            else
-            {
-              if (match.Groups[GROUP_STEREO].Value.EndsWith("SBS", StringComparison.InvariantCultureIgnoreCase))
-              {
-                stereoscopic = VideoStreamAspect.TYPE_SBS;
-              }
-              else if (match.Groups[GROUP_STEREO].Value.EndsWith("TAB", StringComparison.InvariantCultureIgnoreCase))
-              {
-                stereoscopic = VideoStreamAspect.TYPE_TAB;
-              }
-              else if (match.Groups[GROUP_STEREO].Value.EndsWith("OU", StringComparison.InvariantCultureIgnoreCase))
-              {
-                stereoscopic = VideoStreamAspect.TYPE_TAB;
-              }
-            }
+            _width = _width.Value / 2;
+            _ar = (float)_width.Value / (float)_height.Value;
           }
-          else if (match.Groups[GROUP_STEREO].Length > 0)
+          else if (videoType == VideoStreamAspect.TYPE_TAB || videoType == VideoStreamAspect.TYPE_HTAB)
           {
-            if (match.Groups[GROUP_STEREO].Value.EndsWith("SBS", StringComparison.InvariantCultureIgnoreCase))
-            {
-              stereoscopic = VideoStreamAspect.TYPE_SBS;
-            }
-            else if (match.Groups[GROUP_STEREO].Value.EndsWith("TAB", StringComparison.InvariantCultureIgnoreCase))
-            {
-              stereoscopic = VideoStreamAspect.TYPE_TAB;
-            }
-            else if (match.Groups[GROUP_STEREO].Value.EndsWith("OU", StringComparison.InvariantCultureIgnoreCase))
-            {
-              stereoscopic = VideoStreamAspect.TYPE_TAB;
-            }
-            else if (match.Groups[GROUP_STEREO].Value.EndsWith("MVC", StringComparison.InvariantCultureIgnoreCase))
-            {
-              stereoscopic = VideoStreamAspect.TYPE_MVC;
-            }
-            else if (match.Groups[GROUP_STEREO].Value.EndsWith("ANAGLYPH", StringComparison.InvariantCultureIgnoreCase))
-            {
-              stereoscopic = VideoStreamAspect.TYPE_ANAGLYPH;
-            }
+            _height = _height.Value / 2;
+            _ar = (float)_width.Value / (float)_height.Value;
           }
-
-          int full3DTABMinHeight = 720 * 2;
-          int full3DSBSMinWidth = 1280 * 2;
-          if (_height.HasValue && _width.HasValue)
-          {
-            if (((double)_width.Value / (float)_height.Value >= 2.5) && (_width.Value >= full3DSBSMinWidth)) // we have Full HD SBS 
-            {
-              videoStreamAspects.SetAttribute(VideoStreamAspect.ATTR_VIDEO_TYPE, VideoStreamAspect.TYPE_SBS);
-              _width = _width.Value / 2;
-              _ar = (float)_width.Value / (float)_height.Value;
-            }
-            else if (((double)_width.Value / (float)_height.Value <= 1.5) && (_height.Value >= full3DTABMinHeight)) // we have Full HD TAB
-            {
-              videoStreamAspects.SetAttribute(VideoStreamAspect.ATTR_VIDEO_TYPE, VideoStreamAspect.TYPE_TAB);
-              _height = _height.Value / 2;
-              _ar = (float)_width.Value / (float)_height.Value;
-            }
-            else if (stereoscopic == VideoStreamAspect.TYPE_SBS || stereoscopic == VideoStreamAspect.TYPE_HSBS)
-            {
-              //Cannot be full SBS because of resolution
-              videoStreamAspects.SetAttribute(VideoStreamAspect.ATTR_VIDEO_TYPE, VideoStreamAspect.TYPE_HSBS);
-              _width = _width.Value / 2;
-              _ar = (float)_width.Value / (float)_height.Value;
-            }
-            else if (stereoscopic == VideoStreamAspect.TYPE_TAB || stereoscopic == VideoStreamAspect.TYPE_HTAB)
-            {
-              //Cannot be full TAB because of resolution
-              videoStreamAspects.SetAttribute(VideoStreamAspect.ATTR_VIDEO_TYPE, VideoStreamAspect.TYPE_HTAB);
-              _height = _height.Value / 2;
-              _ar = (float)_width.Value / (float)_height.Value;
-            }
-            else if (stereoscopic != null)
-              videoStreamAspects.SetAttribute(VideoStreamAspect.ATTR_VIDEO_TYPE, stereoscopic);
-            else if (_height.Value > 2000)
-              videoStreamAspects.SetAttribute(VideoStreamAspect.ATTR_VIDEO_TYPE, VideoStreamAspect.TYPE_UHD);
-            else if (_height.Value > 700)
-              videoStreamAspects.SetAttribute(VideoStreamAspect.ATTR_VIDEO_TYPE, VideoStreamAspect.TYPE_HD);
-            else
-              videoStreamAspects.SetAttribute(VideoStreamAspect.ATTR_VIDEO_TYPE, VideoStreamAspect.TYPE_SD);
-          }
-          else if (_height.HasValue)
-          {
-            if (stereoscopic != null)
-              videoStreamAspects.SetAttribute(VideoStreamAspect.ATTR_VIDEO_TYPE, stereoscopic);
-            else if (_height.Value > 2000)
-              videoStreamAspects.SetAttribute(VideoStreamAspect.ATTR_VIDEO_TYPE, VideoStreamAspect.TYPE_UHD);
-            else if (_height.Value > 700)
-              videoStreamAspects.SetAttribute(VideoStreamAspect.ATTR_VIDEO_TYPE, VideoStreamAspect.TYPE_HD);
-            else
-              videoStreamAspects.SetAttribute(VideoStreamAspect.ATTR_VIDEO_TYPE, VideoStreamAspect.TYPE_SD);
-          }
-          else
-          {
-            if (stereoscopic != null)
-              videoStreamAspects.SetAttribute(VideoStreamAspect.ATTR_VIDEO_TYPE, stereoscopic);
-          }
-
+          
           if (_ar.HasValue)
             videoStreamAspects.SetAttribute(VideoStreamAspect.ATTR_ASPECTRATIO, _ar.Value);
           if (_frameRate.HasValue)
@@ -589,20 +489,9 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor
             subtitleAspect.SetAttribute(SubtitleAspect.ATTR_STREAM_INDEX, streamId++);
             if (_subCodecs[i] != null)
             {
-              if (_subCodecs[i].Equals("VOBSUB", StringComparison.InvariantCultureIgnoreCase))
-                subtitleAspect.SetAttribute(SubtitleAspect.ATTR_SUBTITLE_FORMAT, SubtitleAspect.FORMAT_VOBSUB);
-              else if (_subCodecs[i].Equals("PGS", StringComparison.InvariantCultureIgnoreCase))
-                subtitleAspect.SetAttribute(SubtitleAspect.ATTR_SUBTITLE_FORMAT, SubtitleAspect.FORMAT_PGS);
-              else if (_subCodecs[i].Equals("ASS", StringComparison.InvariantCultureIgnoreCase))
-                subtitleAspect.SetAttribute(SubtitleAspect.ATTR_SUBTITLE_FORMAT, SubtitleAspect.FORMAT_ASS);
-              else if (_subCodecs[i].Equals("SSA", StringComparison.InvariantCultureIgnoreCase))
-                subtitleAspect.SetAttribute(SubtitleAspect.ATTR_SUBTITLE_FORMAT, SubtitleAspect.FORMAT_SSA);
-              else if (_subCodecs[i].Equals("UTF-8", StringComparison.InvariantCultureIgnoreCase))
-                subtitleAspect.SetAttribute(SubtitleAspect.ATTR_SUBTITLE_FORMAT, SubtitleAspect.FORMAT_SRT);
-              else if (_subCodecs[i].IndexOf("TELETEXT", StringComparison.InvariantCultureIgnoreCase) >= 0)
-                subtitleAspect.SetAttribute(SubtitleAspect.ATTR_SUBTITLE_FORMAT, SubtitleAspect.FORMAT_TELETEXT);
-              else if (_subCodecs[i].IndexOf("DVB", StringComparison.InvariantCultureIgnoreCase) >= 0)
-                subtitleAspect.SetAttribute(SubtitleAspect.ATTR_SUBTITLE_FORMAT, SubtitleAspect.FORMAT_DVBTEXT);
+              string subType = SubtitleAspect.GetSubtitleType(_subCodecs[i]);
+              if (!string.IsNullOrWhiteSpace(subType))
+                subtitleAspect.SetAttribute(SubtitleAspect.ATTR_SUBTITLE_FORMAT, subType);
             }
             subtitleAspect.SetAttribute(SubtitleAspect.ATTR_DEFAULT, _subDefaults[i]);
             subtitleAspect.SetAttribute(SubtitleAspect.ATTR_FORCED, _subForceds[i]);

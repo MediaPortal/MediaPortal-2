@@ -62,7 +62,7 @@ namespace MediaPortal.UiComponents.WMCSkin.Settings
     public GridViewType SeasonGridViewType { get; set; }
 
     [Setting(SettingScope.User, true)]
-    public bool EnableAnimatedBackground { get; set; }
+    public bool EnableHomeContent { get; set; }
 
     [Setting(SettingScope.User, false)]
     public bool EnableMediaItemDetailsView { get; set; }

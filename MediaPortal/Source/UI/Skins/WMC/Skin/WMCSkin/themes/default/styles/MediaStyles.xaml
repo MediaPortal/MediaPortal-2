@@ -42,7 +42,6 @@
                    Margin="10,0,10,10">
             <Control.Resources>
               <ControlTemplate x:Key="OSD_InfoArea_Template">
-
                 <Grid x:Name="PlayerGrid" Margin="5,0,5,0"
                       HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
                   <Grid.ColumnDefinitions>
@@ -50,10 +49,10 @@
                   </Grid.ColumnDefinitions>
                   <Grid.RowDefinitions>
                     <RowDefinition Height="Auto"/>
-                    <RowDefinition Height="Auto"/>
-                    <RowDefinition Height="Auto"/>
-                    <RowDefinition Height="*"/>
                   </Grid.RowDefinitions>
+                  <Label x:Name="VideoName" Content="{Binding Path=MediaItemTitle}" Color="{ThemeResource TextColor}"
+                         FontFamily="SegoeUIBold" MaxWidth="700" Margin="20,5,10,-30"
+                         HorizontalAlignment="Left" VerticalAlignment="Bottom"/>
                 </Grid>
               </ControlTemplate>
 
