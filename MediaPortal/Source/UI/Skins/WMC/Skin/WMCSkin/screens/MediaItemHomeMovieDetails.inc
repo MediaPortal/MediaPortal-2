@@ -20,7 +20,7 @@
   </Grid.ColumnDefinitions>
 
   <media:MovieAspectWrapper MediaItem="{Binding Source={StaticResource FanArtBackgroundModel},Path=MediaItem}"
-                            Grid.Column="0" Grid.Row="0" Margin="0,-15,0,0">
+                            Grid.Column="0" Grid.Row="0" Margin="0,-15,-200,0">
     <media:MovieAspectWrapper.Template>
       <ControlTemplate>
         <Grid DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}">
