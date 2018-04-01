@@ -117,38 +117,38 @@ namespace MediaPortal.Common.FanArt
       return false;
     }
 
-    public async Task<bool> TrySaveFanArt<T>(Guid mediaItemId, string title, string fanArtType, ICollection<T> files, TrySaveMultipleFanArtAsyncDelegate<T> saveDlgt)
+    public async Task<int> TrySaveFanArt<T>(Guid mediaItemId, string title, string fanArtType, ICollection<T> files, TrySaveMultipleFanArtAsyncDelegate<T> saveDlgt)
     {
       if (files == null || files.Count == 0)
-        return false;
+        return 0;
 
       string fanArtCacheDirectory = GetFanArtDirectory(mediaItemId);
       string fanArtTypeSubDirectory = GetFanArtTypeDirectory(fanArtCacheDirectory, fanArtType);
 
-      bool result = false;
+      int savedCount = 0;
 
       using (var writer = await _fanArtSync.WriterLockAsync(mediaItemId).ConfigureAwait(false))
       {
         if (!await InitCache(fanArtCacheDirectory, fanArtTypeSubDirectory, title).ConfigureAwait(false))
-          return result;
+          return savedCount;
 
         int maxCount = GetMaxFanArtCount(fanArtType);
         FanArtCount currentCount = await _fanArtCounts.GetValue(CreateFanArtTypeId(mediaItemId, fanArtType), _ => CreateFanArtCount(mediaItemId, fanArtType)).ConfigureAwait(false);
         if (currentCount.Count >= maxCount)
-          return result;
+          return savedCount;
 
         foreach (T file in files)
         {
           if (await saveDlgt(fanArtTypeSubDirectory, file).ConfigureAwait(false))
           {
-            result = true;
+            savedCount++;
             currentCount.Count++;
             if (currentCount.Count >= maxCount)
               break;
           }
         }
       }
-      return result;
+      return savedCount;
     }
 
     public IList<string> GetFanArtFiles(Guid mediaItemId, string fanArtType)

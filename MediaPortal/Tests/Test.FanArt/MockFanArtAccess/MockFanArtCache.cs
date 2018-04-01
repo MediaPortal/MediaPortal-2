@@ -61,14 +61,11 @@ namespace Test.FanArt.MockFanArtAccess
       throw new NotImplementedException();
     }
 
-    public Task<bool> TrySaveFanArt<T>(Guid mediaItemId, string title, string fanArtType, ICollection<T> files, TrySaveMultipleFanArtAsyncDelegate<T> saveDlgt)
+    public Task<int> TrySaveFanArt<T>(Guid mediaItemId, string title, string fanArtType, ICollection<T> files, TrySaveMultipleFanArtAsyncDelegate<T> saveDlgt)
     {
-      bool result = true;
       if (files != null && files.Count > 0)
         GetOrAddFanArtPathList(mediaItemId).AddRange(files.Select(f => f.ToString()));
-      else
-        result = false;
-      return Task.FromResult(result);
+      return Task.FromResult(files != null ? files.Count : 0);
     }
 
     protected List<string> GetOrAddFanArtPathList(Guid mediaItemId)
