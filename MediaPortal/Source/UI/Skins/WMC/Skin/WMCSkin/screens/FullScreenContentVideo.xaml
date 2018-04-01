@@ -91,7 +91,7 @@
     </Grid>
 
     <Grid x:Name="TimeGrid" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,20,30,0" 
-          Height="105" Width="210" IsVisible="{Binding IsOSDVisible}">
+          Height="105" Width="220" IsVisible="{Binding IsOSDVisible}">
       <Grid.Resources>
         <Model x:Key="TimeModel" Id="E821B1C8-0666-4339-8027-AA45A4F6F107"/>
       </Grid.Resources>
