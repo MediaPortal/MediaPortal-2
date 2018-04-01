@@ -95,7 +95,7 @@
       <Grid.Resources>
         <Model x:Key="TimeModel" Id="E821B1C8-0666-4339-8027-AA45A4F6F107"/>
       </Grid.Resources>
-      <Label x:Name="TimeLabel" Content="{Binding Source={StaticResource TimeModel}, Path=CurrentTime}" Panel.ZIndex="100"
+      <Label x:Name="TimeLabel" Content="{Binding Source={StaticResource TimeModel}, Path=CurrentTime}" Panel.ZIndex="101"
              FontSize="{ThemeResource NormalFontSize}" Color="{ThemeResource TextColor}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
       <Image Source="PlayerControl\Time.shadow.PNG" HorizontalAlignment="Center" VerticalAlignment="Center" Stretch="Fill" 
              Margin="0,0,0,-10" Panel.ZIndex="100">
