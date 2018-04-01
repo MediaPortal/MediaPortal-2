@@ -446,6 +446,7 @@ Parameters which have to be accessible by a DynamicResource lookup:
         <KeyBinding Key="Down" Command="{Command Source={StaticResource HomeMenuModel},Path=MoveNext}" IsEnabled="{Binding ElementName=HomeContentGrid, Path=!IsKeyboardFocusWithin}"/>
         <!-- Toggles focus between the main menu and the home content -->
         <KeyBinding Key="Info" Command="{Command Source={StaticResource HomeContentModel},Path=ToggleFocus}"/>
+        <KeyBinding Key="i" Command="{Command Source={StaticResource HomeContentModel},Path=ToggleFocus}"/>
 
       </Grid>
     </ControlTemplate>
