@@ -106,8 +106,6 @@ namespace MediaPortal.Common.MediaManagement.Helpers
       {
         if (MovieName.IsEmpty)
           return false;
-        if (Runtime == 0)
-          return false;
         if (!ReleaseDate.HasValue)
           return false;
 

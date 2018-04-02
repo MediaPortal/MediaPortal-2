@@ -225,76 +225,87 @@ namespace MediaPortal.UiComponents.Media.Models
 
     protected async Task DoSearchAsync()
     {
-      IsSearching = true;
-      
-      MovieInfo movieSearchinfo = null;
-      EpisodeInfo episodeSearchinfo = null;
-      TrackInfo trackSearchinfo = null;
-      if (IsManualSearch)
+      try
       {
-        if (_searchItem is MovieInfo movie)
+        IsSearching = true;
+        _matchList.Clear();
+        SelectedInformation = "";
+
+        MovieInfo movieSearchinfo = null;
+        EpisodeInfo episodeSearchinfo = null;
+        TrackInfo trackSearchinfo = null;
+        if (IsManualSearch)
         {
-          movieSearchinfo = new MovieInfo();
-          movieSearchinfo.MovieName = " "; //To make SetMetadata store the aspects
-          if (ManualId.StartsWith("tt", StringComparison.InvariantCultureIgnoreCase))
-            movieSearchinfo.ImdbId = ManualId;
-          else if (int.TryParse(ManualId, out int movieDbId))
-            movieSearchinfo.MovieDbId = movieDbId;
+          if (_searchItem is MovieInfo movie)
+          {
+            movieSearchinfo = new MovieInfo();
+            movieSearchinfo.MovieName = " "; //To make SetMetadata store the aspects
+            if (ManualId.StartsWith("tt", StringComparison.InvariantCultureIgnoreCase))
+              movieSearchinfo.ImdbId = ManualId;
+            else if (int.TryParse(ManualId, out int movieDbId))
+              movieSearchinfo.MovieDbId = movieDbId;
+          }
+          else if (_searchItem is EpisodeInfo episode)
+          {
+            episodeSearchinfo = new EpisodeInfo();
+            episodeSearchinfo.SeriesName = " "; //To make SetMetadata store the aspects
+            episodeSearchinfo.SeasonNumber = episode.SeasonNumber;
+            episodeSearchinfo.EpisodeNumbers = episode.EpisodeNumbers;
+            if (int.TryParse(ManualId, out int tvDbSeriesId))
+              episodeSearchinfo.SeriesTvdbId = tvDbSeriesId;
+          }
+          else if (_searchItem is TrackInfo track)
+          {
+            trackSearchinfo = new TrackInfo();
+            trackSearchinfo.TrackName = " "; //To make SetMetadata store the aspects
+            if (ManualId.IndexOf("-", StringComparison.InvariantCultureIgnoreCase) > 2)
+              trackSearchinfo.MusicBrainzId = ManualId;
+            else if (int.TryParse(ManualId, out int audioDbId))
+              trackSearchinfo.AudioDbId = audioDbId;
+          }
         }
-        else if (_searchItem is EpisodeInfo episode)
+        else
         {
-          episodeSearchinfo = new EpisodeInfo();
-          episodeSearchinfo.SeriesName = " "; //To make SetMetadata store the aspects
-          episodeSearchinfo.SeasonNumber = episode.SeasonNumber;
-          episodeSearchinfo.EpisodeNumbers = episode.EpisodeNumbers;
-          if (int.TryParse(ManualId, out int tvDbSeriesId))
-            episodeSearchinfo.SeriesTvdbId = tvDbSeriesId;
+          if (_searchItem is MovieInfo)
+          {
+            movieSearchinfo = (MovieInfo)_searchItem;
+          }
+          else if (_searchItem is EpisodeInfo)
+          {
+            episodeSearchinfo = (EpisodeInfo)_searchItem;
+          }
+          else if (_searchItem is TrackInfo)
+          {
+            trackSearchinfo = (TrackInfo)_searchItem;
+          }
         }
-        else if (_searchItem is TrackInfo track)
-        {
-          trackSearchinfo = new TrackInfo();
-          trackSearchinfo.TrackName = " "; //To make SetMetadata store the aspects
-          if (ManualId.IndexOf("-", StringComparison.InvariantCultureIgnoreCase) > 2)
-            trackSearchinfo.MusicBrainzId = ManualId;
-          else if (int.TryParse(ManualId, out int audioDbId))
-            trackSearchinfo.AudioDbId = audioDbId;
-        }
-      }
-      else
-      {
+
+        IEnumerable<object> matches = new List<object>();
         if (_searchItem is MovieInfo)
-        {
-          movieSearchinfo = (MovieInfo)_searchItem;
-        }
+          matches = await OnlineMatcherService.Instance.FindMatchingMoviesAsync(movieSearchinfo);
         else if (_searchItem is EpisodeInfo)
-        {
-          episodeSearchinfo = (EpisodeInfo)_searchItem;
-        }
+          matches = await OnlineMatcherService.Instance.FindMatchingEpisodesAsync(episodeSearchinfo);
         else if (_searchItem is TrackInfo)
+          matches = await OnlineMatcherService.Instance.FindMatchingTracksAsync(trackSearchinfo);
+
+        IsSearching = false;
+
+        foreach (BaseInfo info in matches)
         {
-          trackSearchinfo = (TrackInfo)_searchItem;
+          var item = CreateItem(info);
+          if (item != null)
+            _matchList.Add(item);
         }
       }
-
-      IEnumerable<object> matches = new List<object>();
-      if (_searchItem is MovieInfo)
-        matches = await OnlineMatcherService.Instance.FindMatchingMoviesAsync(movieSearchinfo);
-      else if (_searchItem is EpisodeInfo)
-        matches = await OnlineMatcherService.Instance.FindMatchingEpisodesAsync(episodeSearchinfo);
-      else if (_searchItem is TrackInfo)
-        matches = await OnlineMatcherService.Instance.FindMatchingTracksAsync(trackSearchinfo);
-
-      IsSearching = false;
-
-      _matchList.Clear();
-      SelectedInformation = "";
-      foreach (BaseInfo info in matches)
+      catch (Exception ex)
       {
-        var item = CreateItem(info);
-        if (item != null)
-          _matchList.Add(item);
+        ServiceRegistration.Get<ILogger>().Error("Error reimporting media item '{0}'", ex, _searchItem?.ToString() ?? "?");
       }
-      _matchList.FireChange();
+      finally
+      {
+        IsSearching = false;
+        _matchList.FireChange();
+      }
     }
 
     public void SetMatch(ListItem item)
