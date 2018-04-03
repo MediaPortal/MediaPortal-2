@@ -149,7 +149,7 @@
                   <RowDefinition Height="Auto"/>
                 </Grid.RowDefinitions>
 
-                <Image Source="PlayerControl\BOTTOM.SHADOW.PNG" Stretch="Fill" Height="90" Margin="-155,-10,-20,-20" Opacity="0.8" Grid.ColumnSpan="2" Grid.Row="1" Panel.ZIndex="0" />
+                <Image Source="PlayerControl\BOTTOM.SHADOW.PNG" Stretch="Fill" Height="90" Margin="-190,-10,-20,-20" Opacity="0.8" Grid.ColumnSpan="2" Grid.Row="1" Panel.ZIndex="0" />
 
                 <StackPanel x:Name="PlayControlsPanel" Orientation="Horizontal" Grid.Column="1" Grid.Row="1" Margin="0"
                             VerticalAlignment="Center" HorizontalAlignment="Right">
