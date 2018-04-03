@@ -226,12 +226,12 @@
   <DataTemplate x:Key="SingleChannelProgramGuideDataTemplate" DataType="{x:Type collections:ListItem}">
     <Grid x:Name="ItemControl" VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
       <Grid.ColumnDefinitions>
-        <ColumnDefinition Width="110"/>
+        <ColumnDefinition Width="150"/>
         <ColumnDefinition Width="280"/>
         <ColumnDefinition Width="Auto"/>
         <ColumnDefinition Width="*"/>
       </Grid.ColumnDefinitions>
-      <Image x:Name="ChannelLogo" Grid.Column="0" Grid.Row="0" Width="74" Height="50.5" Stretch="Uniform" HorizontalAlignment="Left" Margin="5,1,0,1">
+      <Image x:Name="ChannelLogo" Height="48" Stretch="Uniform" HorizontalAlignment="Left" Margin="6,2,8,2">
         <Image.Source>
           <fanart:FanArtImageSource fanart:FanArtMediaType="{Binding Program.ChannelLogoType}" fanart:FanArtType="Banner" fanart:FanArtName="{Binding Program.ChannelName}"
                                     fanart:MaxWidth="0" fanart:MaxHeight="0"/>
@@ -241,15 +241,27 @@
              Color="{ThemeResource ProgramLabelNoFocus}" FontSize="{ThemeResource SmallFontSize}"/>
       <Label x:Name="ItemLabel" VerticalAlignment="Center" Grid.Column="2" Content="{Binding [Name]}" 
              Color="{ThemeResource ProgramLabelNoFocus}" FontSize="{ThemeResource SmallFontSize}" Margin="0,0,0,0"/>
-      <Label x:Name="SeriesLabel" VerticalAlignment="Center" Grid.Column="3" Content="{Binding [Series]}" 
-             Color="{ThemeResource ProgramLabelNoFocus}" FontSize="{ThemeResource SmallFontSize}" Margin="5,0,0,0"/>
+      <Label x:Name="SeriesLabel" VerticalAlignment="Center" Grid.Column="3" Content="{Binding [Series]}" ScrollDelay="0"
+             Color="{ThemeResource ProgramLabelNoFocus}" FontSize="{ThemeResource SmallFontSize}" Margin="5,0,0,0">
+        <Label.Triggers>
+          <DataTrigger Binding="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Button}, Path=HasFocus}" Value="True">
+            <Setter TargetName="SeriesLabel" Property="Scroll" Value="Auto"/>
+          </DataTrigger>
+        </Label.Triggers>
+      </Label>
 
       <Label x:Name="StartTime2" VerticalAlignment="Center" Grid.Column="1" Content="{Binding [StartTime]}" IsVisible="{Binding IsRunning}"
              Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}"/>
       <Label x:Name="ItemLabel2" VerticalAlignment="Center" Grid.Column="2" Content="{Binding [Name]}" IsVisible="{Binding IsRunning}"
              Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}" Margin="0,0,0,0"/>
       <Label x:Name="SeriesLabel2" VerticalAlignment="Center" Grid.Column="3" Content="{Binding [Series]}" IsVisible="{Binding IsRunning}"
-             Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}" Margin="5,0,0,0"/>
+             Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}" Margin="5,0,0,0" ScrollDelay="0">
+        <Label.Triggers>
+          <DataTrigger Binding="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Button}, Path=HasFocus}" Value="True">
+            <Setter TargetName="SeriesLabel2" Property="Scroll" Value="Auto"/>
+          </DataTrigger>
+        </Label.Triggers>
+      </Label>
     </Grid>
   </DataTemplate>
 
@@ -354,7 +366,7 @@
       <Setter.Value>
         <ControlTemplate>
           <DockPanel Name="ButtonControlRectangle">
-            <Rectangle DockPanel.Dock="Center" RadiusX="0" RadiusY="0" Name="ButtonBase" StrokeThickness="0">
+            <Rectangle DockPanel.Dock="Center" RadiusX="3" RadiusY="3" Name="ButtonBase" StrokeThickness="0">
               <Rectangle.Fill>
                 <LinearGradientBrush StartPoint="0,0.5" EndPoint="1,0.5">
                   <GradientStop Color="{ThemeResource ProgramChannelBaseFill}" Offset="0"/>
@@ -623,9 +635,9 @@
       <Setter.Value>
         <ControlTemplate TargetType="{x:Type ListViewItem}">
           <Button Style="{ThemeResource ProgramGuideSingleButtonStyle}"
-              Command="{DynamicResource ResourceKey=Menu_Command}"
-              IsEnabled="{Binding Enabled}"
-              SetFocus="{Binding Path=Selected,Mode=OneTime}">
+                  Command="{DynamicResource ResourceKey=Menu_Command}"
+                  IsEnabled="{Binding Enabled}"
+                  SetFocus="{Binding Path=Selected,Mode=OneTime}">
             <Button.Triggers>
               <Trigger Property="HasFocus" Value="True">
                 <Setter TargetName="ItemLabel" Property="Scroll" Value="Auto"/>
@@ -644,8 +656,8 @@
     <Setter Property="Template">
       <Setter.Value>
         <ControlTemplate TargetType="{x:Type ListView}">
-          <ScrollViewer CanContentScroll="True" Margin="0" 
-              HorizontalScrollBarVisibility="Hidden" VerticalScrollBarVisibility="Hidden" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+          <ScrollViewer CanContentScroll="True" HorizontalScrollBarVisibility="Hidden" VerticalScrollBarVisibility="Hidden"
+                        HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
             <ItemsPresenter VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
           </ScrollViewer>
         </ControlTemplate>
@@ -752,8 +764,8 @@
   <DataTemplate x:Key="ChannelWithCurrentProgramDataTemplate" DataType="{x:Type collections:ListItem}">
     <Grid x:Name="ItemControl" VerticalAlignment="Center" HorizontalAlignment="Stretch" RenderTransformOrigin="0.5,0.5" Margin="{ThemeResource ChannelWithLogoAndProgramMargin}">
       <Grid.ColumnDefinitions>
-        <ColumnDefinition Width="110"/>
-        <ColumnDefinition Width="380"/>
+        <ColumnDefinition Width="150"/>
+        <ColumnDefinition Width="400"/>
         <ColumnDefinition Width="*"/>
         <ColumnDefinition Width="230"/>
         <ColumnDefinition Width="Auto"/>
@@ -762,27 +774,31 @@
         <RowDefinition Height="Auto"/>
       </Grid.RowDefinitions>
 
-      <Image x:Name="ChannelLogo" Grid.Column="0" Width="74" Height="50.5" Stretch="Uniform" HorizontalAlignment="Left" Margin="5,1,0,1">
+      <Image x:Name="ChannelLogo" Grid.Column="0" Height="48" Stretch="Uniform" HorizontalAlignment="Left" Margin="6,2,8,2">
         <Image.Source>
           <fanart:FanArtImageSource fanart:FanArtMediaType="{Binding ChannelLogoType}" fanart:FanArtType="Banner" fanart:FanArtName="{Binding ChannelLogoPath}"
                                     fanart:MaxWidth="0" fanart:MaxHeight="0"/>
         </Image.Source>
       </Image>
-      <Label x:Name="NameLabel" Grid.Column="1" Content="{Binding [Name]}" FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColor}"/>
-      <Label x:Name="CurrentProgramLabel" Grid.Column="2" Content="{Binding Programs[0].Program.Title}" FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColor}"  Margin="5,0,0,0"/>
+      <Label x:Name="NameLabel" Grid.Column="1" Content="{Binding [Name]}" FontSize="{ThemeResource SmallFontSize}" 
+             Color="{ThemeResource TextColor}" Margin="10,0,10,0" ScrollDelay="0">
+        <Label.Triggers>
+          <DataTrigger Binding="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Button}, Path=HasFocus}" Value="True">
+            <Setter TargetName="NameLabel" Property="Scroll" Value="Auto"/>
+          </DataTrigger>
+        </Label.Triggers>
+      </Label>
+      <Label x:Name="CurrentProgramLabel" Grid.Column="2" Content="{Binding Programs[0].Program.Title}" 
+             FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColor}" ScrollDelay="0" Margin="5,0,0,0">
+        <Label.Triggers>
+          <DataTrigger Binding="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Button}, Path=HasFocus}" Value="True">
+            <Setter TargetName="CurrentProgramLabel" Property="Scroll" Value="Auto"/>
+          </DataTrigger>
+        </Label.Triggers>
+      </Label>
       <!-- Shows the progress of current time in relation to the current playing program -->
       <ProgressBar x:Name="CurrentProgramProgress" Grid.Column="3" Grid.Row="0" Height="16" HorizontalAlignment="Stretch" VerticalAlignment="Center"
-                    Value="{Binding Programs[0].Progress}" Margin="15,0,15,0"/>
-      <!--StackPanel Orientation="Horizontal" Grid.Column="4" Grid.Row="0" Margin="0,0,15,0">
-        <Label x:Name="ProgressLabel" FontSize="{ThemeResource SmallerFontSize}" Color="{ThemeResource ProgressBarFillColor}"
-             VerticalAlignment="Center">
-          <Label.Content>
-            <Binding Path="Programs[0].Progress" Converter="{StaticResource StringFormatConverter}" ConverterParameter="{}{0:F0}"/>
-          </Label.Content>  
-        </Label>
-        <Label Content=" % " FontSize="{ThemeResource SmallerFontSize}" Color="{ThemeResource ProgressBarFillColor}"
-             VerticalAlignment="Center" />
-      </-->
+                   Value="{Binding Programs[0].Progress}" Margin="15,0,15,0"/>
     </Grid>
   </DataTemplate>
 
