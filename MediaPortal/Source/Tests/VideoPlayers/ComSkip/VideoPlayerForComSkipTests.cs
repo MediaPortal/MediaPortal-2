@@ -32,6 +32,7 @@ using MediaPortal.Common.Services.ResourceAccess.LocalFsResourceProvider;
 using MediaPortal.Extensions.ResourceProviders.ZipResourceProvider;
 using MediaPortal.UI.Players.Video;
 using Moq;
+using NUnit.Framework;
 
 namespace Tests.VideoPlayers.ComSkip
 {
@@ -49,7 +50,8 @@ namespace Tests.VideoPlayers.ComSkip
     public VideoPlayerForComSkipTests(string zipResource)
     {
       _zipResource = zipResource;
-      _localRsAccessor = new LocalFsResourceAccessor(_localRsProvider, "/" + Path.Combine(@"VideoPlayers\ComSkip\TestData\", _zipResource + ".zip"));
+      string testDataDir = TestContext.CurrentContext.TestDirectory + "\\VideoPlayers\\ComSkip\\TestData\\";
+      _localRsAccessor = new LocalFsResourceAccessor(_localRsProvider, "/" + Path.Combine(testDataDir, _zipResource + ".zip"));
     }
 
     public string[] GetComSkipChapters()

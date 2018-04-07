@@ -56,15 +56,15 @@
     <Compile Include="VideoPlayers\ComSkip\VideoPlayerForComSkipTests.cs" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="VideoPlayers\ComSkip\TestData\Video.With.Invalid.ComSkip.Chapters.zip">
+    <EmbeddedResource Include="VideoPlayers\ComSkip\TestData\Video.With.Invalid.ComSkip.Chapters.zip">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="VideoPlayers\ComSkip\TestData\Video.With.Missing.ComSkip.Chapters.zip">
+    </EmbeddedResource>
+    <EmbeddedResource Include="VideoPlayers\ComSkip\TestData\Video.With.Missing.ComSkip.Chapters.zip">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="VideoPlayers\ComSkip\TestData\Video.With.Valid.ComSkip.Chapters.zip">
+    </EmbeddedResource>
+    <EmbeddedResource Include="VideoPlayers\ComSkip\TestData\Video.With.Valid.ComSkip.Chapters.zip">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
+    </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\Tests\MediaPortal.Mock\MediaPortal.Mock.csproj">
