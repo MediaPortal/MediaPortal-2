@@ -104,7 +104,9 @@
     <Compile Include="NfoMetadataExtractor\TestNfoSeriesReader.cs" />
     <Compile Include="NfoMetadataExtractor\TestUtils.cs" />
     <Compile Include="OnlineLibraries\Program.cs" />
+    <Compile Include="OnlineLibraries\SeriesNameMatcher.cs" />
     <Compile Include="OnlineLibraries\TestMediaAccessor.cs" />
+    <Compile Include="OnlineLibraries\TheMovieDb.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Utilities\TestTimeoutCache.cs" />
   </ItemGroup>
