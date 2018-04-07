@@ -29,10 +29,12 @@ using System.IO;
 using System.IO.Compression;
 using System.Linq;
 using System.Threading.Tasks;
+using MediaPortal.Backend.ClientCommunication;
 using MediaPortal.Backend.Database;
 using MediaPortal.Backend.MediaLibrary;
 using MediaPortal.Common;
 using MediaPortal.Common.Async;
+using MediaPortal.Common.General;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.ResourceAccess;
 using MediaPortal.Common.SystemResolver;
@@ -47,7 +49,7 @@ using IPathManager = MediaPortal.Common.PathManager.IPathManager;
 using ScheduleRecordingType = MediaPortal.Plugins.SlimTv.Interfaces.ScheduleRecordingType;
 using MediaPortal.Common.Runtime;
 using MediaPortal.Common.Messaging;
-using MediaPortal.Common.Services.ServerCommunication;
+using MediaPortal.Common.SystemCommunication;
 
 namespace MediaPortal.Plugins.SlimTv.Service
 {
@@ -64,6 +66,8 @@ namespace MediaPortal.Plugins.SlimTv.Service
     protected string _providerName;
     protected string _serviceName;
     private bool _abortInit = false;
+    // Stores a list of connected MP2-Clients. If one disconnects, we can cleanup resources like stopping timeshifting for this client
+    protected List<string> _connectedClients = new List<string>();
 
     public string Name
     {
@@ -73,6 +77,7 @@ namespace MediaPortal.Plugins.SlimTv.Service
     public bool Init()
     {
       ServiceRegistration.Get<IMessageBroker>().RegisterMessageReceiver(SystemMessaging.CHANNEL, this);
+      ServiceRegistration.Get<IMessageBroker>().RegisterMessageReceiver(ClientManagerMessaging.CHANNEL, this);
       return true;
     }
 
@@ -90,7 +95,76 @@ namespace MediaPortal.Plugins.SlimTv.Service
           _abortInit = true;
         }
       }
+      if (message.ChannelName == ClientManagerMessaging.CHANNEL)
+      {
+        ClientManagerMessaging.MessageType messageType = (ClientManagerMessaging.MessageType)message.MessageType;
+        switch (messageType)
+        {
+          case ClientManagerMessaging.MessageType.ClientAttached:
+          case ClientManagerMessaging.MessageType.ClientOnline:
+            UpdateClientList();
+            break;
+          case ClientManagerMessaging.MessageType.ClientDetached:
+          case ClientManagerMessaging.MessageType.ClientOffline:
+            CheckOrphanedTimeshift();
+            break;
+        }
+      }
     }
+
+    #region Handling of client diconnections
+
+    private void CheckOrphanedTimeshift()
+    {
+      List<string> disconnectedClients;
+      if (UpdateClientList(out disconnectedClients))
+      {
+        StopTimeshiftForClients(disconnectedClients);
+      }
+    }
+
+    protected virtual void StopTimeshiftForClients(List<string> disconnectedClients)
+    {
+      foreach (string disconnectedClient in disconnectedClients)
+      {
+        string client = disconnectedClient;
+        if (IsLocal(client))
+          client = LOCAL_USERNAME;
+
+        for (int slotIndex = 0; slotIndex <= 1; slotIndex++)
+        {
+          if (StopTimeshiftAsync(client, slotIndex).Result)
+          {
+            ServiceRegistration.Get<ILogger>().Info("SlimTvService: Stopping timeshift for disconnected client '{0}' ({1})", client, slotIndex);
+          }
+        }
+      }
+    }
+
+    private void UpdateClientList()
+    {
+      List<string> disconnectedClients;
+      UpdateClientList(out disconnectedClients);
+    }
+
+    private bool UpdateClientList(out List<string> disconnectedClients)
+    {
+      IClientManager clientManager = ServiceRegistration.Get<IClientManager>();
+      ICollection<ClientConnection> clients = clientManager.ConnectedClients;
+      ICollection<string> connectedClientSystemIDs = new List<string>(clients.Count);
+      foreach (ClientConnection clientConnection in clients)
+        connectedClientSystemIDs.Add(clientConnection.Descriptor.System.Address);
+      disconnectedClients = _connectedClients.Except(connectedClientSystemIDs).ToList();
+      _connectedClients = connectedClientSystemIDs.ToList();
+      return disconnectedClients.Count > 0;
+    }
+
+    protected static bool IsLocal(string client)
+    {
+      return client == "127.0.0.1" || client == "::1";
+    }
+
+    #endregion
 
     #region Database and program data initialization
 
@@ -120,6 +194,9 @@ namespace MediaPortal.Plugins.SlimTv.Service
 
       // Register required filters
       PrepareFilterRegistrations();
+
+      // Get all current connected clients, so we can later detect disconnections
+      UpdateClientList();
 
       // Run the actual TV core thread(s)
       InitTvCore();

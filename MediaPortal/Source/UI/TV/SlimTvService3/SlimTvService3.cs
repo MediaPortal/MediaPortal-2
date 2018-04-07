@@ -22,6 +22,18 @@
 
 #endregion
 
+using Mediaportal.TV.Server.TVLibrary.IntegrationProvider.Interfaces;
+using MediaPortal.Backend.ClientCommunication;
+using MediaPortal.Backend.Database;
+using MediaPortal.Common;
+using MediaPortal.Common.Async;
+using MediaPortal.Common.MediaManagement;
+using MediaPortal.Plugins.SlimTv.Interfaces;
+using MediaPortal.Plugins.SlimTv.Interfaces.Items;
+using MediaPortal.Plugins.SlimTv.Interfaces.UPnP.Items;
+using MediaPortal.Plugins.SlimTv.Service3;
+using MediaPortal.Utilities;
+using MediaPortal.Utilities.FileSystem;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -29,30 +41,17 @@ using System.Linq;
 using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
-using MediaPortal.Backend.Database;
-using MediaPortal.Common;
-using MediaPortal.Common.MediaManagement;
-using MediaPortal.Plugins.SlimTv.Interfaces;
-using MediaPortal.Plugins.SlimTv.Interfaces.Items;
-using MediaPortal.Plugins.SlimTv.Interfaces.UPnP.Items;
-using Mediaportal.TV.Server.TVLibrary.IntegrationProvider.Interfaces;
-using MediaPortal.Utilities.FileSystem;
+using TvControl;
+using TvDatabase;
+using TvEngine.Events;
+using TvLibrary.Implementations.DVB;
+using TvLibrary.Interfaces;
 using TvLibrary.Interfaces.Integration;
+using TvService;
 using IChannel = MediaPortal.Plugins.SlimTv.Interfaces.Items.IChannel;
 using ILogger = MediaPortal.Common.Logging.ILogger;
 using IPathManager = MediaPortal.Common.PathManager.IPathManager;
 using ScheduleRecordingType = MediaPortal.Plugins.SlimTv.Interfaces.ScheduleRecordingType;
-using MediaPortal.Plugins.SlimTv.Service3;
-using MediaPortal.Utilities;
-using TvLibrary.Implementations.DVB;
-using TvControl;
-using TvDatabase;
-using TvEngine.Events;
-using TvLibrary.Interfaces;
-using TvService;
-using MediaPortal.Backend.ClientCommunication;
-using MediaPortal.Common.Async;
-using MediaPortal.Common.Services.ServerCommunication;
 
 namespace MediaPortal.Plugins.SlimTv.Service
 {
@@ -249,6 +248,24 @@ namespace MediaPortal.Plugins.SlimTv.Service
         }
       }
       return true;
+    }
+
+    protected override void StopTimeshiftForClients(List<string> disconnectedClients)
+    {
+      foreach (string disconnectedClient in disconnectedClients)
+      {
+        string client = disconnectedClient;
+        if (IsLocal(client))
+          client = LOCAL_USERNAME;
+
+        for (int slotIndex = 0; slotIndex <= 1; slotIndex++)
+        {
+          if (StopTimeshiftAsync(client, slotIndex).Result)
+          {
+            ServiceRegistration.Get<ILogger>().Info("SlimTvService: Stopping timeshift for disconnected client '{0}' ({1})", client, slotIndex);
+          }
+        }
+      }
     }
 
     #endregion
