@@ -71,43 +71,43 @@
       <Project>{f1a04140-5c63-4688-8a9e-a195aaf95de1}</Project>
       <Name>MediaPortal.Mock</Name>
     </ProjectReference>
-    <ProjectReference Include="..\Core\MediaPortal.Common\MediaPortal.Common.csproj">
+    <ProjectReference Include="..\..\Source\Core\MediaPortal.Common\MediaPortal.Common.csproj">
       <Project>{ecf060e7-caa1-4466-851f-f80b857641ea}</Project>
       <Name>MediaPortal.Common</Name>
     </ProjectReference>
-    <ProjectReference Include="..\Core\MediaPortal.UI\MediaPortal.UI.csproj">
+    <ProjectReference Include="..\..\Source\Core\MediaPortal.UI\MediaPortal.UI.csproj">
       <Project>{52e587d0-a274-44da-8846-8eeaf5414923}</Project>
       <Name>MediaPortal.UI</Name>
     </ProjectReference>
-    <ProjectReference Include="..\Core\UPnP\UPnP.csproj">
+    <ProjectReference Include="..\..\Source\Core\UPnP\UPnP.csproj">
       <Project>{455e7d70-1c85-4d7f-9f01-dc801b8b8c34}</Project>
       <Name>UPnP</Name>
     </ProjectReference>
-    <ProjectReference Include="..\Extensions\MetadataExtractors\GDIThumbnailProvider\GDIThumbnailProvider.csproj">
+    <ProjectReference Include="..\..\Source\Extensions\MetadataExtractors\GDIThumbnailProvider\GDIThumbnailProvider.csproj">
       <Project>{65cf3575-ac34-4e46-92c3-84e6eda9bacd}</Project>
       <Name>GDIThumbnailProvider</Name>
     </ProjectReference>
-    <ProjectReference Include="..\Extensions\MetadataExtractors\WICThumbnailProvider\WICThumbnailProvider.csproj">
+    <ProjectReference Include="..\..\Source\Extensions\MetadataExtractors\WICThumbnailProvider\WICThumbnailProvider.csproj">
       <Project>{7f790d8d-3a5a-499f-b9d3-8d9a1ef4f73a}</Project>
       <Name>WICThumbnailProvider</Name>
     </ProjectReference>
-    <ProjectReference Include="..\Extensions\ResourceProviders\ZipResourceProvider\ZipResourceProvider.csproj">
+    <ProjectReference Include="..\..\Source\Extensions\ResourceProviders\ZipResourceProvider\ZipResourceProvider.csproj">
       <Project>{33721bc7-193a-4b80-9cff-dc8a50700443}</Project>
       <Name>ZipResourceProvider</Name>
     </ProjectReference>
-    <ProjectReference Include="..\UI\Players\DirectShowWrapper\DirectShowWrapper.csproj">
+    <ProjectReference Include="..\..\Source\UI\Players\DirectShowWrapper\DirectShowWrapper.csproj">
       <Project>{c4a45fa7-bcd1-4b14-b6d5-051a780eb83b}</Project>
       <Name>DirectShowWrapper</Name>
     </ProjectReference>
-    <ProjectReference Include="..\UI\Players\VideoPlayer\VideoPlayers.csproj">
+    <ProjectReference Include="..\..\Source\UI\Players\VideoPlayer\VideoPlayers.csproj">
       <Project>{ed9a8a29-91dd-4b21-8cb8-a8b0f3eff61c}</Project>
       <Name>VideoPlayers</Name>
     </ProjectReference>
-    <ProjectReference Include="..\UI\SkinEngine\SkinEngine.csproj">
+    <ProjectReference Include="..\..\Source\UI\SkinEngine\SkinEngine.csproj">
       <Project>{7e943389-3589-40c9-b481-2e223554cc49}</Project>
       <Name>SkinEngine</Name>
     </ProjectReference>
-    <ProjectReference Include="..\UI\UiComponents\Media\Media.csproj">
+    <ProjectReference Include="..\..\Source\UI\UiComponents\Media\Media.csproj">
       <Project>{cd37e2ff-4cf7-4f96-8c73-c6764988d408}</Project>
       <Name>Media</Name>
     </ProjectReference>
