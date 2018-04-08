@@ -69,7 +69,7 @@ namespace Tests.Server.NfoMetadataExtractor
 
       Mock<IFileSystemResourceAccessor> mockRA = new Mock<IFileSystemResourceAccessor>();
       mockRA.Setup(r => r.OpenReadAsync()).Returns(Task.FromResult(
-        Assembly.GetExecutingAssembly().GetManifestResourceStream("Test.NfoMetadataExtractor.TestData.MovieNfo.movie.nfo")));
+        Assembly.GetExecutingAssembly().GetManifestResourceStream("Tests.Server.NfoMetadataExtractor.TestData.MovieNfo.movie.nfo")));
       mockRA.SetupGet(t => t.CanonicalLocalResourcePath).Returns(ResourcePath.BuildBaseProviderPath(LocalFsResourceProviderBase.LOCAL_FS_RESOURCE_PROVIDER_ID, @"TestData\MovieNfo\movie.nfo"));
       NfoMovieReader reader = new NfoMovieReader(new ConsoleLogger(LogLevel.All, true), 1, false, false, false, null, new NfoMovieMetadataExtractorSettings());
 
