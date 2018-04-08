@@ -205,6 +205,17 @@ namespace MediaPortal.Extensions.OnlineLibraries
       return tasks.Where(t => t.Result != null).SelectMany(t => t.Result);
     }
 
+    public async Task<IEnumerable<AlbumInfo>> FindMatchingAlbumsAsync(AlbumInfo albumInfo)
+    {
+      List<Task<IEnumerable<AlbumInfo>>> tasks = new List<Task<IEnumerable<AlbumInfo>>>();
+      foreach (IMusicMatcher matcher in MUSIC_MATCHERS.Where(m => m.Enabled))
+      {
+        tasks.Add(matcher.FindMatchingAlbumsAsync(albumInfo));
+      }
+      await Task.WhenAll(tasks);
+      return tasks.Where(t => t.Result != null).SelectMany(t => t.Result);
+    }
+
     public async Task<bool> FindAndUpdateTrackAsync(TrackInfo trackInfo)
     {
       bool success = false;
@@ -537,6 +548,17 @@ namespace MediaPortal.Extensions.OnlineLibraries
       foreach (ISeriesMatcher matcher in SERIES_MATCHERS.Where(m => m.Enabled))
       {
         tasks.Add(matcher.FindMatchingEpisodesAsync(episodeInfo));
+      }
+      await Task.WhenAll(tasks);
+      return tasks.Where(t => t.Result != null).SelectMany(t => t.Result);
+    }
+
+    public async Task<IEnumerable<SeriesInfo>> FindMatchingSeriesAsync(SeriesInfo seriesInfo)
+    {
+      List<Task<IEnumerable<SeriesInfo>>> tasks = new List<Task<IEnumerable<SeriesInfo>>>();
+      foreach (ISeriesMatcher matcher in SERIES_MATCHERS.Where(m => m.Enabled))
+      {
+        tasks.Add(matcher.FindMatchingSeriesAsync(seriesInfo));
       }
       await Task.WhenAll(tasks);
       return tasks.Where(t => t.Result != null).SelectMany(t => t.Result);

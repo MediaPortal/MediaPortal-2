@@ -128,18 +128,16 @@ namespace MediaPortal.Backend.MediaLibrary
     /// If <paramref name="clearMetadata"/> is set to <c>true</c>, the media item meta-data will be deleted too.
     /// This makes it possible to completely recreate the meta-data by doing a new import.
     /// </summary>
-    /// <param name="systemId">Id of the system where the given media item <paramref name="mediaItemId"/> is located.</param>
     /// <param name="mediaItemId">Id of the item to refresh.</param>
     /// <param name="clearMetadata">If set to <c>true</c>, the media item meta-data will be deleted before the refresh.</param>
-    void RefreshMediaItemMetadata(string systemId, Guid mediaItemId, bool clearMetadata);
+    void RefreshMediaItemMetadata(Guid mediaItemId, bool clearMetadata);
 
     /// <summary>
     /// Reimports the meta-data of the media item with the given <paramref name="mediaItemId"/> based on a matched media item.
     /// </summary>
-    /// <param name="systemId">Id of the system where the given media item <paramref name="mediaItemId"/> is located.</param>
     /// <param name="mediaItemId">Id of the item to reimport.</param>
     /// <param name="mediaItem">The matched aspects primarily containing external ids to be used during the reimport.</param>
-    void ReimportMediaItemMetadata(string systemId, Guid mediaItemId, IEnumerable<MediaItemAspect> matchedAspects);
+    void ReimportMediaItemMetadata(Guid mediaItemId, IEnumerable<MediaItemAspect> matchedAspects);
 
     /// <summary>
     /// Lists all media items with the given parent directory.

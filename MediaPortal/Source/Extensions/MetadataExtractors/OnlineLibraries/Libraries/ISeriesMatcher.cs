@@ -37,6 +37,8 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries
     void ResetLastChangedEpisodes();
 
     Task<IEnumerable<EpisodeInfo>> FindMatchingEpisodesAsync(EpisodeInfo episodeInfo);
+    Task<IEnumerable<SeriesInfo>> FindMatchingSeriesAsync(SeriesInfo seriesInfo);
+
     Task<bool> FindAndUpdateEpisodeAsync(EpisodeInfo episodeInfo);
     Task<bool> UpdateSeriesAsync(SeriesInfo seriesInfo, bool updateEpisodeList);
     Task<bool> UpdateSeasonAsync(SeasonInfo seasonInfo);

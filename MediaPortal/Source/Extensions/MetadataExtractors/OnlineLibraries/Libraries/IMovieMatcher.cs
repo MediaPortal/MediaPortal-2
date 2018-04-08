@@ -37,6 +37,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries
     void ResetLastChangedMovieCollections();
 
     Task<IEnumerable<MovieInfo>> FindMatchingMoviesAsync(MovieInfo movieInfo);
+
     Task<bool> FindAndUpdateMovieAsync(MovieInfo movieInfo);
     Task<bool> UpdatePersonsAsync(MovieInfo movieInfo, string occupation);
     Task<bool> UpdateCharactersAsync(MovieInfo movieInfo);

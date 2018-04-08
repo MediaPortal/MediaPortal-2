@@ -307,6 +307,42 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
       }
     }
 
+    public virtual async Task<IEnumerable<SeriesInfo>> FindMatchingSeriesAsync(SeriesInfo seriesInfo)
+    {
+      List<SeriesInfo> matches = new List<SeriesInfo>();
+      try
+      {
+        // Try online lookup
+        if (!await InitAsync().ConfigureAwait(false))
+          return matches;
+
+        SeriesInfo seriesSearch = seriesInfo.Clone();
+        TLang language = FindBestMatchingLanguage(seriesInfo.Languages);
+
+        IEnumerable<SeriesInfo> onlineMatches = null;
+        if (GetSeriesId(seriesInfo, out string seriesId))
+        {
+          Logger.Debug(_id + ": Get series from id {0} online", seriesId);
+          if (await _wrapper.UpdateFromOnlineSeriesAsync(seriesSearch, language, false))
+            onlineMatches = new SeriesInfo[] { seriesSearch };
+        }
+        if (onlineMatches == null)
+        {
+          Logger.Debug(_id + ": Search for series {0} online", seriesInfo.ToString());
+          onlineMatches = await _wrapper.SearchSeriesMatchesAsync(seriesSearch, language).ConfigureAwait(false);
+        }
+        if (onlineMatches?.Count() > 0)
+          matches.AddRange(onlineMatches.Where(m => m.IsBaseInfoPresent));
+
+        return matches;
+      }
+      catch (Exception ex)
+      {
+        Logger.Debug(_id + ": Exception while matching series {0}", ex, seriesInfo.ToString());
+        return matches;
+      }
+    }
+
     /// <summary>
     /// Tries to lookup the Episode online.
     /// </summary>

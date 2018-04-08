@@ -140,6 +140,7 @@ namespace MediaPortal.UiComponents.Media.Models.ScreenData
           if (existingItem != null)
           {
             existingItem.Update(mediaItem);
+            Reload();
           }
         }
       }

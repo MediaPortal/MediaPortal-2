@@ -30,6 +30,7 @@ using MediaPortal.Common;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
+using MediaPortal.Common.MediaManagement.Helpers;
 using MediaPortal.Common.ResourceAccess;
 using MediaPortal.Common.Services.ResourceAccess.VirtualResourceProvider;
 using MediaPortal.Common.UserProfileDataManagement;
@@ -78,6 +79,83 @@ namespace MediaPortal.Backend.Services.MediaLibrary
     #endregion
 
     #region Public Methods
+
+    /// <summary>
+    /// Returns the role of a parent from its aspects.
+    /// </summary>
+    /// <param name="parentAspects"></param>
+    /// <returns>The role guid of the parent if found.</returns>
+    public Guid? GetParentRoleFromAspects(IEnumerable<Guid> parentAspects)
+    {
+      if (parentAspects.Contains(SeriesAspect.ASPECT_ID))
+        return SeriesAspect.ROLE_SERIES;
+      else if (parentAspects.Contains(SeasonAspect.ASPECT_ID))
+        return SeasonAspect.ROLE_SEASON;
+      else if (parentAspects.Contains(MovieCollectionAspect.ASPECT_ID))
+        return MovieCollectionAspect.ROLE_MOVIE_COLLECTION;
+      else if (parentAspects.Contains(AudioAlbumAspect.ASPECT_ID))
+        return AudioAlbumAspect.ROLE_ALBUM;
+
+      return null;
+    }
+
+    /// <summary>
+    /// Returns basic aspects for a child of the parent aspects.
+    /// </summary>
+    /// <param name="childAspects"></param>
+    /// <param name="parentAspects"></param>
+    /// <returns>The basic child aspects.</returns>
+    public IDictionary<Guid, IList<MediaItemAspect>> GetBaseChildAspectsFromParentAspects(IDictionary<Guid, IList<MediaItemAspect>> childAspects, IDictionary<Guid, IList<MediaItemAspect>> parentAspects)
+    {
+      if (parentAspects.ContainsKey(SeriesAspect.ASPECT_ID))
+      {
+        SeriesInfo series = new SeriesInfo();
+        series.FromMetadata(parentAspects);
+
+        if (childAspects.ContainsKey(SeasonAspect.ASPECT_ID))
+        {
+          SeasonInfo season = new SeasonInfo();
+          season.FromMetadata(childAspects);
+
+          SeasonInfo basicSeason = series.CloneBasicInstance<SeasonInfo>();
+          basicSeason.SeasonNumber = season.SeasonNumber;
+          IDictionary<Guid, IList<MediaItemAspect>> aspects = new Dictionary<Guid, IList<MediaItemAspect>>();
+          basicSeason.SetMetadata(aspects);
+          return aspects;
+        }
+        else if (childAspects.ContainsKey(EpisodeAspect.ASPECT_ID))
+        {
+          EpisodeInfo episode = new EpisodeInfo();
+          episode.FromMetadata(childAspects);
+
+          EpisodeInfo basicEpisode = series.CloneBasicInstance<EpisodeInfo>();
+          basicEpisode.SeasonNumber = episode.SeasonNumber;
+          basicEpisode.EpisodeNumbers = episode.EpisodeNumbers;
+          IDictionary<Guid, IList<MediaItemAspect>> aspects = new Dictionary<Guid, IList<MediaItemAspect>>();
+          basicEpisode.SetMetadata(aspects);
+          return aspects;
+        }
+      }
+      else if (parentAspects.ContainsKey(AudioAlbumAspect.ASPECT_ID))
+      {
+        AlbumInfo album = new AlbumInfo();
+        album.FromMetadata(parentAspects);
+
+        if (childAspects.ContainsKey(AudioAspect.ASPECT_ID))
+        {
+          TrackInfo track = new TrackInfo();
+          track.FromMetadata(childAspects);
+
+          TrackInfo basicTrack = album.CloneBasicInstance<TrackInfo>();
+          basicTrack.TrackNum = track.TrackNum;
+          IDictionary<Guid, IList<MediaItemAspect>> aspects = new Dictionary<Guid, IList<MediaItemAspect>>();
+          basicTrack.SetMetadata(aspects);
+          return aspects;
+        }
+      }
+
+      return null;
+    }
 
     /// <summary>
     /// Deletes all resources in the specified path, deletes any orphaned relationships and updates the state of any remaining parent items.
@@ -153,44 +231,6 @@ namespace MediaPortal.Backend.Services.MediaLibrary
     }
 
     /// <summary>
-    /// Deletes all the media item relationships.
-    /// </summary>
-    /// <param name="transaction"></param>
-    /// <param name="mediaItemId"></param>
-    /// <returns></returns>
-    public int DeleteAllMediaItemRelationships(ITransaction transaction, Guid mediaItemId)
-    {
-      int numDeleted;
-
-      ICollection<RelationshipType> hierarchies = _miaManagement.LocallyKnownHierarchicalRelationshipTypes;
-
-      //Map of affected parent ids and their hierarchies
-      IDictionary<Guid, ICollection<RelationshipType>> affectedParents = new Dictionary<Guid, ICollection<RelationshipType>>();
-
-      GetParents(transaction, mediaItemId, hierarchies, affectedParents);
-
-      //Delete all relationships
-      using (IDbCommand command = DeleteAllRelationshipsCommand(transaction, mediaItemId))
-        numDeleted = command.ExecuteNonQuery();
-
-      //Delete orphaned direct relationships of media item
-      using (IDbCommand command = DeleteOrphanedRelationsCommand(transaction, mediaItemId))
-        numDeleted += command.ExecuteNonQuery();
-
-      //Delete orphaned descendent relationships
-      IEnumerable<Guid> primaryChildRoles = hierarchies.Where(h => h.IsPrimaryParent).Select(h => h.ChildRole).Distinct();
-      numDeleted += DeleteOrphanedRelations(transaction, primaryChildRoles);
-
-      //Update remaining parents
-      UpdateParentState(transaction, affectedParents);
-
-      //Delete all orphaned ReationshipAspects and attribute values
-      Cleanup(transaction);
-
-      return numDeleted;
-    }
-
-    /// <summary>
     /// Updates the virtual and playback state of the parents of the media item with the specified <paramref name="mediaItemId"/>.
     /// </summary>
     /// <param name="transaction"></param>
@@ -228,6 +268,52 @@ namespace MediaPortal.Backend.Services.MediaLibrary
 
       //Update descendent play state
       UpdateDescendantPlayState(transaction, affectedParents, hierarchies);
+    }
+
+    /// <summary>
+    /// Returns the children for the parent.
+    /// </summary>
+    /// <param name="transaction"></param>
+    /// <param name="parentId"></param>
+    /// <returns>The children of the specified parent.</returns>
+    public IEnumerable<Guid> GetPlayableChildren(ITransaction transaction, Guid parentId)
+    {
+      IEnumerable<RelationshipType> hierarchies = _miaManagement.LocallyKnownHierarchicalRelationshipTypes.Where(h => h.UpdatePlayPercentage);
+
+      List<Guid> childIds = new List<Guid>();
+      ISQLDatabase database = transaction.Database;
+      using (IDbCommand command = SelectChildrenCommand(transaction, parentId, hierarchies))
+      {
+        using (IDataReader reader = command.ExecuteReader())
+        {
+          while (reader.Read())
+          {
+            childIds.Add(database.ReadDBValue<Guid>(reader, 0));
+          }
+        }
+      }
+      return childIds;
+    }
+
+    /// <summary>
+    /// Returns the parent with specified role for the child.
+    /// </summary>
+    /// <param name="transaction"></param>
+    /// <param name="childId"></param>
+    /// <param name="parentRole"></param>
+    /// <returns>The parent of the specified child.</returns>
+    public Guid? GetParent(ITransaction transaction, Guid childId, Guid parentRole)
+    {
+      IEnumerable<RelationshipType> hierarchies = _miaManagement.LocallyKnownHierarchicalRelationshipTypes.Where(h => h.ParentRole == parentRole);
+
+      //Map of parent ids and their hierarchies
+      IDictionary<Guid, ICollection<RelationshipType>> parents = new Dictionary<Guid, ICollection<RelationshipType>>();
+      GetParents(transaction, childId, hierarchies, parents);
+
+      if (parents?.Count > 0)
+        return parents.First().Key;
+
+      return null;
     }
 
     #endregion
@@ -910,27 +996,6 @@ namespace MediaPortal.Backend.Services.MediaLibrary
       return result;
     }
 
-    protected IDbCommand DeleteAllRelationshipsCommand(ITransaction transaction, Guid mediaItemId)
-    {
-      string relationshipTable = _miaManagement.GetMIATableName(RelationshipAspect.Metadata);
-      string linkedIdAttribute = _miaManagement.GetMIAAttributeColumnName(RelationshipAspect.ATTR_LINKED_ID);
-      string mediaItemIdAttribute = MediaLibrary_SubSchema.MEDIA_ITEMS_ITEM_ID_COL_NAME;
-
-      BindVarNamespace bvNamespace = new BindVarNamespace();
-      IList<BindVar> bindVars = new List<BindVar>();
-      BindVar idVar = new BindVar(bvNamespace.CreateNewBindVarName("MEDIA_ITEM_ID"), mediaItemId, typeof(Guid));
-      bindVars.Add(idVar);
-
-      IDbCommand result = transaction.CreateCommand();
-      result.CommandText = "DELETE FROM " + relationshipTable + " WHERE " + linkedIdAttribute + " = @" + idVar.Name + " OR " +
-          mediaItemIdAttribute + " = @" + idVar.Name;
-
-      //Add the bind vars to the command
-      AddCommandParameters(transaction.Database, result, bindVars);
-
-      return result;
-    }
-
     /// <summary>
     /// Command to delete all media items that are not a primary child, only have virtual resources and do not have any children.
     /// </summary>
@@ -1108,6 +1173,48 @@ namespace MediaPortal.Backend.Services.MediaLibrary
         " FROM " + relationshipTable + " R" +
         " INNER JOIN " + providerTable + " P ON R." + mediaItemIdAttribute + " = P." + mediaItemIdAttribute +
         " WHERE (" + pathCondition + ")" +
+        " AND (" + hierarchyCondition + ")";
+
+      //Add the bind vars to the command
+      AddCommandParameters(transaction.Database, result, bindVars);
+
+      return result;
+    }
+
+    /// <summary>
+    /// Command to select all media item id and resource path of children of
+    /// the media item with the specified <paramref name="mediaItemId"/> in the specified <paramref name="hierarchies"/>.
+    /// </summary>
+    /// <param name="transaction"></param>
+    /// <param name="mediaItemId"></param>
+    /// <param name="hierarchies"></param>
+    /// <returns></returns>
+    protected IDbCommand SelectChildrenCommand(ITransaction transaction, Guid mediaItemId, IEnumerable<RelationshipType> hierarchies)
+    {
+      string mediaItemIdAttribute = MediaLibrary_SubSchema.MEDIA_ITEMS_ITEM_ID_COL_NAME;
+      string relationshipTable = _miaManagement.GetMIATableName(RelationshipAspect.Metadata);
+      string linkedIdAttribute = _miaManagement.GetMIAAttributeColumnName(RelationshipAspect.ATTR_LINKED_ID);
+      string mediaTable = _miaManagement.GetMIATableName(MediaAspect.Metadata);
+      string isVirtualAttribute = _miaManagement.GetMIAAttributeColumnName(MediaAspect.ATTR_ISVIRTUAL);
+
+      BindVarNamespace bvNamespace = new BindVarNamespace();
+      IList<BindVar> bindVars = new List<BindVar>();
+
+      //Condition for all RelationshipAspects in the given hierarchies
+      string hierarchyCondition = CreateHierarchyCondition("R.", hierarchies, bvNamespace, bindVars);
+
+      //Parent id
+      BindVar parentIdVar = new BindVar(bvNamespace.CreateNewBindVarName("PARENT_ID"), mediaItemId, typeof(Guid));
+      bindVars.Add(parentIdVar);
+
+      IDbCommand result = transaction.CreateCommand();
+      //Select all child user play data
+      result.CommandText =
+        "SELECT M." + mediaItemIdAttribute + 
+        " FROM " + mediaTable + " M" +
+        " INNER JOIN " + relationshipTable + " R ON R." + mediaItemIdAttribute + " = M." + mediaItemIdAttribute +
+        " WHERE M." + isVirtualAttribute + " = 0" +
+        " AND R." + linkedIdAttribute + " = @" + parentIdVar.Name +
         " AND (" + hierarchyCondition + ")";
 
       //Add the bind vars to the command

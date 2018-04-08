@@ -46,12 +46,8 @@ namespace MediaPortal.UiComponents.Media.MediaItemActions
     {
       try
       {
-        if (mediaItem.PrimaryResources.Count > 0 || mediaItem.IsStub)
-        {
-          var rl = mediaItem.GetResourceLocator();
-          return Task.FromResult(rl != null);
-        }
-        return Task.FromResult(false);
+        MediaItemMatchModel mimm = ServiceRegistration.Get<IWorkflowManager>().GetModel(MediaItemMatchModel.MODEL_ID_MIMATCH) as MediaItemMatchModel;
+        return Task.FromResult(mimm?.IsValidMediaItem(mediaItem) ?? false);
       }
       catch (Exception)
       {
@@ -69,13 +65,12 @@ namespace MediaPortal.UiComponents.Media.MediaItemActions
           return new AsyncResult<ContentDirectoryMessaging.MediaItemChangeType>(false, ContentDirectoryMessaging.MediaItemChangeType.None);
 
         MediaItemMatchModel mimm = ServiceRegistration.Get<IWorkflowManager>().GetModel(MediaItemMatchModel.MODEL_ID_MIMATCH) as MediaItemMatchModel;
-        await mimm.OpenSelectMatchDialogAsync(mediaItem.Aspects);
+        await mimm.OpenSelectMatchDialogAsync(mediaItem);
         IEnumerable<MediaItemAspect> aspects = null;
         aspects = await mimm.WaitForMatchSelectionAsync();
         if (aspects != null)
         {
-          var rl = mediaItem.GetResourceLocator();
-          await cd.ReimportMediaItemMetadataAsync(rl.NativeSystemId, mediaItem.MediaItemId, aspects);
+          await cd.ReimportMediaItemMetadataAsync(mediaItem.MediaItemId, aspects);
 
           //After refresh is completed on server a change message will be fired
           return new AsyncResult<ContentDirectoryMessaging.MediaItemChangeType>(true, ContentDirectoryMessaging.MediaItemChangeType.None);

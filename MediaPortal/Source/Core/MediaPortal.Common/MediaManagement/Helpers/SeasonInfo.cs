@@ -426,9 +426,9 @@ namespace MediaPortal.Common.MediaManagement.Helpers
         info.SeasonNumber = SeasonNumber;
         return (T)(object)info;
       }
-      else if (typeof(T) == typeof(SeasonInfo))
+      else if (typeof(T) == typeof(EpisodeInfo))
       {
-        SeasonInfo info = new SeasonInfo();
+        EpisodeInfo info = new EpisodeInfo();
         info.CopyIdsFrom(this);
         info.SeriesName = SeriesName;
         info.SeasonNumber = SeasonNumber;

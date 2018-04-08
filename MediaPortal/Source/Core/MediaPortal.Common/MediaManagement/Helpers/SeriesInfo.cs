@@ -700,6 +700,20 @@ namespace MediaPortal.Common.MediaManagement.Helpers
         info.FirstAired = FirstAired;
         return (T)(object)info;
       }
+      else if (typeof(T) == typeof(SeasonInfo))
+      {
+        SeasonInfo info = new SeasonInfo();
+        info.CopyIdsFrom(this);
+        info.SeriesName = SeriesName;
+        return (T)(object)info;
+      }
+      else if (typeof(T) == typeof(EpisodeInfo))
+      {
+        EpisodeInfo info = new EpisodeInfo();
+        info.CopyIdsFrom(this);
+        info.SeriesName = SeriesName;
+        return (T)(object)info;
+      }
       return default(T);
     }
 

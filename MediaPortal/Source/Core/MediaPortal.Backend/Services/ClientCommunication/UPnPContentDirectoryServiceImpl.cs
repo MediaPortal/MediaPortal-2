@@ -1066,7 +1066,6 @@ namespace MediaPortal.Backend.Services.ClientCommunication
 
       DvAction mpnp11RefreshMediaItemAction = new DvAction("X_MediaPortal_RefreshMediaItem", OnMPnP11RefreshMediaItem,
           new DvArgument[] {
-            new DvArgument("SystemId", A_ARG_TYPE_SystemId, ArgumentDirection.In),
             new DvArgument("MediaItemId", A_ARG_TYPE_Uuid, ArgumentDirection.In),
             new DvArgument("ClearMetadata", A_ARG_TYPE_Bool, ArgumentDirection.In),
           },
@@ -1076,7 +1075,6 @@ namespace MediaPortal.Backend.Services.ClientCommunication
 
       DvAction mpnp11ReimportMediaItemAction = new DvAction("X_MediaPortal_ReimportMediaItem", OnMPnP11ReimportMediaItem,
           new DvArgument[] {
-            new DvArgument("SystemId", A_ARG_TYPE_SystemId, ArgumentDirection.In),
             new DvArgument("MediaItemId", A_ARG_TYPE_Uuid, ArgumentDirection.In),
             new DvArgument("MatchedAspects", A_ARG_TYPE_MediaItemAspects, ArgumentDirection.In),
           },
@@ -2092,10 +2090,9 @@ namespace MediaPortal.Backend.Services.ClientCommunication
     static UPnPError OnMPnP11RefreshMediaItem(DvAction action, IList<object> inParams, out IList<object> outParams,
         CallContext context)
     {
-      string systemId = (string)inParams[0];
-      Guid mediaItemId = MarshallingHelper.DeserializeGuid((string)inParams[1]);
-      bool clearMetadata = (bool)inParams[2];
-      MediaLibrary.RefreshMediaItemMetadata(systemId, mediaItemId, clearMetadata);
+      Guid mediaItemId = MarshallingHelper.DeserializeGuid((string)inParams[0]);
+      bool clearMetadata = (bool)inParams[1];
+      MediaLibrary.RefreshMediaItemMetadata(mediaItemId, clearMetadata);
       outParams = null;
       return null;
     }
@@ -2103,10 +2100,9 @@ namespace MediaPortal.Backend.Services.ClientCommunication
     static UPnPError OnMPnP11ReimportMediaItem(DvAction action, IList<object> inParams, out IList<object> outParams,
         CallContext context)
     {
-      string systemId = (string)inParams[0];
-      Guid mediaItemId = MarshallingHelper.DeserializeGuid((string)inParams[1]);
-      IEnumerable<MediaItemAspect> matchedAspects = (IEnumerable<MediaItemAspect>)inParams[2];
-      MediaLibrary.ReimportMediaItemMetadata(systemId, mediaItemId, matchedAspects);
+      Guid mediaItemId = MarshallingHelper.DeserializeGuid((string)inParams[0]);
+      IEnumerable<MediaItemAspect> matchedAspects = (IEnumerable<MediaItemAspect>)inParams[1];
+      MediaLibrary.ReimportMediaItemMetadata(mediaItemId, matchedAspects);
       outParams = null;
       return null;
     }

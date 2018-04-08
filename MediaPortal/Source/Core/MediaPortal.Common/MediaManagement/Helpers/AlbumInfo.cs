@@ -575,6 +575,13 @@ namespace MediaPortal.Common.MediaManagement.Helpers
         info.ReleaseDate = ReleaseDate;
         return (T)(object)info;
       }
+      else if (typeof(T) == typeof(TrackInfo))
+      {
+        TrackInfo info = new TrackInfo();
+        info.CopyIdsFrom(this);
+        info.Album = Album;
+        return (T)(object)info;
+      }
       return default(T);
     }
 

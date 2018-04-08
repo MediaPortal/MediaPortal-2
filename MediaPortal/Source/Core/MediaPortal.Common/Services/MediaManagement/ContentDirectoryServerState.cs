@@ -36,7 +36,9 @@ namespace MediaPortal.Common.Services.MediaManagement
     public string SystemId { get; set; }
     [XmlAttribute("ChangeType")]
     public ContentDirectoryMessaging.MediaItemChangeType ChangeType { get; set; }
-    [XmlAttribute("MediaItemId")]
-    public Guid MediaItemId { get; set; }
+    [XmlAttribute("MediaItemPath")]
+    public string MediaItemPath { get; set; }
+    [XmlAttribute("OldPath")]
+    public string OldPath { get; set; }
   }
 }

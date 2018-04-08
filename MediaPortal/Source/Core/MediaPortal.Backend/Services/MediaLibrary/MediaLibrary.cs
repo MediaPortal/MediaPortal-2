@@ -379,7 +379,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
     // Should be accessed only by GetResourcePathLock
     private readonly Dictionary<ResourcePath, object> _shareDeleteSync = new Dictionary<ResourcePath, object>();
     protected object _mediaItemRefreshSync = new object();
-    protected readonly Dictionary<ResourcePath, Guid> _mediaItemRefreshList = new Dictionary<ResourcePath, Guid>();
+    protected readonly Dictionary<ResourcePath, (ResourcePath ChildPath, Guid? ParentRole)> _mediaItemRefreshList = new Dictionary<ResourcePath, (ResourcePath ChildPath, Guid? ParentRole)>();
     protected object _shareImportSync = new object();
     protected Dictionary<Guid, ShareImportState> _shareImportStates = new Dictionary<Guid, ShareImportState>();
     protected object _shareImportCacheSync = new object();
@@ -582,36 +582,43 @@ namespace MediaPortal.Backend.Services.MediaLibrary
       {
         lock (_mediaItemRefreshSync)
         {
-          var finishedMis = _mediaItemRefreshList.Where(p => importedPath.IsSameOrParentOf(p.Key))?.ToList();
+          var finishedMis = _mediaItemRefreshList.Where(p => importedPath.IsSameOrParentOf(p.Key) || importedPath.IsSameOrParentOf(p.Value.ChildPath))?.ToList();
+          if (_shareImportStates.Count == 0) //No imports are running send all remaining updates
+            finishedMis = _mediaItemRefreshList.ToList();
           for (int miIdx = 0; miIdx < (finishedMis?.Count ?? 0); miIdx++)
           {
-            var miPath = finishedMis[miIdx].Key;
-            Guid miId = finishedMis[miIdx].Value;
-            _mediaItemRefreshList.Remove(miPath);
+            var miInfo = finishedMis[miIdx];
+            _mediaItemRefreshList.Remove(miInfo.Key);
 
-            List<Guid> necessaryAspects = new List<Guid>();
-            necessaryAspects.Add(ProviderResourceAspect.ASPECT_ID);
-            necessaryAspects.Add(MediaAspect.ASPECT_ID);
-
-            List<Guid> optionalAspects = new List<Guid>();
-            optionalAspects.Add(MovieAspect.ASPECT_ID);
-            optionalAspects.Add(EpisodeAspect.ASPECT_ID);
-            optionalAspects.Add(AudioAspect.ASPECT_ID);
-
-            //Find media item
-            var loadItemQuery = BuildLoadItemQuery(_localSystemId, miId);
-            loadItemQuery.SetNecessaryRequestedMIATypeIDs(necessaryAspects);
-            loadItemQuery.SetOptionalRequestedMIATypeIDs(optionalAspects);
-            CompiledMediaItemQuery cmiq = CompiledMediaItemQuery.Compile(_miaManagement, loadItemQuery);
-
-            //Send message to client
-            var state = new ContentDirectoryServerState
+            ResourcePath replacePath = null;
+            ResourcePath miPath = miInfo.Key;
+            if (miInfo.Value.ChildPath != null && miInfo.Value.ParentRole != null)
             {
-              ChangeType = ContentDirectoryMessaging.MediaItemChangeType.Updated,
-              MediaItemId = miId,
-              SystemId = _localSystemId
-            };
-            ServiceRegistration.Get<IServerStateService>().UpdateState(ContentDirectoryServerState.STATE_ID, state);
+              miPath = null;
+              replacePath = miInfo.Key;
+              var child = LoadItem(_localSystemId, miInfo.Value.ChildPath, new Guid[] { ProviderResourceAspect.ASPECT_ID }, null);
+              Guid? parentId = null;
+              ISQLDatabase database = ServiceRegistration.Get<ISQLDatabase>();
+              using (ITransaction transaction = database.BeginTransaction())
+              {
+                parentId = _relationshipManagement.GetParent(transaction, child.MediaItemId, miInfo.Value.ParentRole.Value);
+              }
+              if (parentId.HasValue)
+                miPath = VirtualResourceProvider.ToResourcePath(parentId.Value);
+            }
+
+            if (miPath != null)
+            {
+              //Send message to client
+              var state = new ContentDirectoryServerState
+              {
+                ChangeType = ContentDirectoryMessaging.MediaItemChangeType.Updated,
+                MediaItemPath = miPath.Serialize(),
+                OldPath = replacePath?.Serialize(),
+                SystemId = _localSystemId
+              };
+              ServiceRegistration.Get<IServerStateService>().UpdateState(ContentDirectoryServerState.STATE_ID, state);
+            }
           }
         }
       }
@@ -815,19 +822,12 @@ namespace MediaPortal.Backend.Services.MediaLibrary
         command.ExecuteNonQuery();
     }
 
-    protected void TryScheduleLocalMediaItemRefresh(Share share, ResourcePath path, Guid mediaItemId, bool sendUpdatedMessage = true)
+    protected void TryScheduleLocalMediaItemRefresh(Share share, ResourcePath importPath)
     {
-      if (share != null && path != null && share.SystemId == _localSystemId)
+      if (share != null && importPath != null && share.SystemId == _localSystemId)
       {
-        if (sendUpdatedMessage)
-        {
-          lock (_mediaItemRefreshSync)
-          {
-            _mediaItemRefreshList.Add(path, mediaItemId);
-          }
-        }
         IImporterWorker importerWorker = ServiceRegistration.Get<IImporterWorker>();
-        importerWorker.ScheduleRefresh(path, share.MediaCategories, false);
+        importerWorker.ScheduleRefresh(importPath, share.MediaCategories, true);
       }
     }
 
@@ -946,12 +946,12 @@ namespace MediaPortal.Backend.Services.MediaLibrary
       return new MediaItemQuery(necessaryMIATypes, optionalMIATypes, resultFilter);
     }
 
-    public void RefreshMediaItemMetadata(string systemId, Guid mediaItemId, bool clearMetadata)
+    public void RefreshMediaItemMetadata(Guid mediaItemId, bool clearMetadata)
     {
       ISQLDatabase database = ServiceRegistration.Get<ISQLDatabase>();
       ITransaction transaction = database.BeginTransaction();
-      Share importShare = null;
-      ResourcePath importPath = null;
+      Dictionary<ResourcePath, Share> importPaths = new Dictionary<ResourcePath, Share>();
+      ResourcePath mediaItemPath = null;
 
       try
       {
@@ -965,7 +965,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
         optionalAspects.Remove(ImporterAspect.ASPECT_ID);
 
         //Find media item
-        var loadItemQuery = BuildLoadItemQuery(systemId, mediaItemId);
+        var loadItemQuery = BuildLoadItemQuery(_localSystemId, mediaItemId);
         loadItemQuery.SetNecessaryRequestedMIATypeIDs(necessaryAspects);
         loadItemQuery.SetOptionalRequestedMIATypeIDs(optionalAspects);
         CompiledMediaItemQuery cmiq = CompiledMediaItemQuery.Compile(_miaManagement, loadItemQuery);
@@ -975,9 +975,6 @@ namespace MediaPortal.Backend.Services.MediaLibrary
         {
           if (clearMetadata)
           {
-            //Remove relationships so they can be refreshed
-            _relationshipManagement.DeleteAllMediaItemRelationships(transaction, mediaItemId);
-
             //Remove MIAs
             foreach (Guid aspect in items.First().Aspects.Keys)
             {
@@ -992,46 +989,36 @@ namespace MediaPortal.Backend.Services.MediaLibrary
           importerAspect.SetAttribute(ImporterAspect.ATTR_DIRTY, true);
           _miaManagement.AddOrUpdateMIA(transaction, mediaItemId, importerAspect, false);
 
-          //Find share
-          var shares = GetShares(transaction, systemId);
-          var resources = items.First().PrimaryResources;
-          if (resources.Count > 0)
+          //Find share and import path
+          var shares = GetShares(transaction, _localSystemId);
+          var primaryResource = items.First().PrimaryResources.First();
+          string accessorPath = primaryResource.GetAttributeValue<string>(ProviderResourceAspect.ATTR_RESOURCE_ACCESSOR_PATH);
+          mediaItemPath = ResourcePath.Deserialize(accessorPath);
+          Share share = shares.Values.FirstOrDefault(s => s.BaseResourcePath.IsSameOrParentOf(mediaItemPath));
+          if (share != null)
+            importPaths.Add(mediaItemPath, share);
+
+          transaction.Commit();
+
+          lock (_mediaItemRefreshSync)
           {
-            foreach (var share in shares.Values)
-            {
-              foreach (var resource in resources)
-              {
-                string accessorPath = (string)resource.GetAttributeValue(ProviderResourceAspect.ATTR_RESOURCE_ACCESSOR_PATH);
-                ResourcePath resourcePath = ResourcePath.Deserialize(accessorPath);
-
-                if (share.BaseResourcePath.IsParentOf(resourcePath))
-                {
-                  //Only refresh from primary resource because only metadata is updated
-                  importPath = resourcePath;
-                  importShare = share;
-                  break;
-                }
-              }
-
-              if (importShare != null)
-                break;
-            }
+            if (mediaItemPath != null)
+              _mediaItemRefreshList.Add(mediaItemPath, (null, null));
           }
         }
       }
       catch (Exception e)
       {
+        transaction.Rollback();
         Logger.Error("MediaLibrary: Error refreshing media item {0}", e, mediaItemId);
         throw;
       }
-      finally
-      {
-        transaction.Commit();
-      }
 
+      //Schedule imports
       try
       {
-        TryScheduleLocalMediaItemRefresh(importShare, importPath, mediaItemId);
+        foreach (var import in importPaths)
+          TryScheduleLocalMediaItemRefresh(import.Value, import.Key);
       }
       catch (Exception e)
       {
@@ -1039,105 +1026,167 @@ namespace MediaPortal.Backend.Services.MediaLibrary
       }
     }
 
-    public void ReimportMediaItemMetadata(string systemId, Guid mediaItemId, IEnumerable<MediaItemAspect> matchedAspects)
+    public void ReimportMediaItemMetadata(Guid mediaItemId, IEnumerable<MediaItemAspect> matchedAspects)
     {
       ISQLDatabase database = ServiceRegistration.Get<ISQLDatabase>();
       ITransaction transaction = database.BeginTransaction();
-      Share importShare = null;
-      ResourcePath importPath = null;
+      Dictionary<ResourcePath, Share> importPaths = new Dictionary<ResourcePath, Share>();
+      List<ResourcePath> basePaths = new List<ResourcePath>();
+      ResourcePath mediaItemUpdatePath = null;
+      ResourcePath childPath = null;
+      Guid? parentRole = null;
 
       try
       {
         List<Guid> necessaryAspects = new List<Guid>();
         necessaryAspects.Add(ProviderResourceAspect.ASPECT_ID);
 
-        List<Guid> optionalAspects = new List<Guid>(GetManagedMediaItemAspectMetadata().Keys);
-        optionalAspects.Remove(ProviderResourceAspect.ASPECT_ID);
+        List<Guid> optionalAspects = new List<Guid>();
+        optionalAspects.Add(EpisodeAspect.ASPECT_ID);
+        optionalAspects.Add(AudioAspect.ASPECT_ID);
+        optionalAspects.Add(MovieAspect.ASPECT_ID);
 
-        //Find media item
-        var loadItemQuery = BuildLoadItemQuery(systemId, mediaItemId);
-        loadItemQuery.SetNecessaryRequestedMIATypeIDs(necessaryAspects);
-        loadItemQuery.SetOptionalRequestedMIATypeIDs(optionalAspects);
-        CompiledMediaItemQuery cmiq = CompiledMediaItemQuery.Compile(_miaManagement, loadItemQuery);
-        var items = cmiq.QueryList(database, transaction);
+        IEnumerable<Guid> mediaItems;
 
-        if (items != null && items.Count == 1)
+        //Find any children
+        IEnumerable<Guid> children = _relationshipManagement.GetPlayableChildren(transaction, mediaItemId);
+
+        //If no children then it is a child else use children instead
+        if (children.Count() == 0)
         {
-          //Remove relationships because they may no longer be valid
-          _relationshipManagement.DeleteAllMediaItemRelationships(transaction, mediaItemId);
+          mediaItems = new Guid[] { mediaItemId };
+        }
+        else
+        {
+          mediaItems = children;
 
-          //TODO: What to do about pure virtual hierarchies left after delete?
+          //Path the client will use to update the media item
+          mediaItemUpdatePath = VirtualResourceProvider.ToResourcePath(mediaItemId);
+          parentRole = _relationshipManagement.GetParentRoleFromAspects(matchedAspects.Select(a => a.Metadata.AspectId));
+        }
 
-          //Delete fanart because it might be for the wrong media
-          ServiceRegistration.Get<IFanArtCache>().DeleteFanArtFiles(mediaItemId);
-
-          //Remove MIAs
-          foreach (Guid aspect in items.First().Aspects.Keys)
+        foreach (var id in mediaItems)
+        {
+          //Find media item
+          var loadItemQuery = BuildLoadItemQuery(_localSystemId, id);
+          loadItemQuery.SetNecessaryRequestedMIATypeIDs(necessaryAspects);
+          loadItemQuery.SetOptionalRequestedMIATypeIDs(optionalAspects);
+          CompiledMediaItemQuery cmiq = CompiledMediaItemQuery.Compile(_miaManagement, loadItemQuery);
+          var items = cmiq.QueryList(database, transaction);
+          if (items != null && items.Count == 1)
           {
-            if (aspect != ImporterAspect.ASPECT_ID && aspect != MediaAspect.ASPECT_ID && aspect != ProviderResourceAspect.ASPECT_ID)
-              _miaManagement.RemoveMIA(transaction, mediaItemId, aspect);
-          }
+            var item = items.First();
 
-          //Add matched MIAs
-          foreach (var aspect in matchedAspects)
-          {
-            _miaManagement.AddOrUpdateMIA(transaction, mediaItemId, aspect);
-          }
-
-          //Reset media aspect to indicate meta data is dirty
-          MediaItemAspect mediaAspect = _miaManagement.GetMediaItemAspect(transaction, mediaItemId, MediaAspect.ASPECT_ID);
-          mediaAspect.SetAttribute(MediaAspect.ATTR_TITLE, null);
-          mediaAspect.SetAttribute(MediaAspect.ATTR_SORT_TITLE, null);
-          mediaAspect.SetAttribute(MediaAspect.ATTR_RECORDINGTIME, null);
-          _miaManagement.AddOrUpdateMIA(transaction, mediaItemId, mediaAspect, false);
-
-          //Set media item as changed
-          MediaItemAspect importerAspect = _miaManagement.GetMediaItemAspect(transaction, mediaItemId, ImporterAspect.ASPECT_ID);
-          importerAspect.SetAttribute(ImporterAspect.ATTR_DIRTY, true);
-          _miaManagement.AddOrUpdateMIA(transaction, mediaItemId, importerAspect, false);
-
-          //Find share
-          var shares = GetShares(transaction, systemId);
-          var resources = items.First().PrimaryResources;
-          if (resources.Count > 0)
-          {
-            foreach (var share in shares.Values)
+            if (mediaItemUpdatePath == null && children.Count() == 0)
             {
-              foreach (var resource in resources)
-              {
-                string accessorPath = (string)resource.GetAttributeValue(ProviderResourceAspect.ATTR_RESOURCE_ACCESSOR_PATH);
-                ResourcePath resourcePath = ResourcePath.Deserialize(accessorPath);
+              //Path the client will use to update the media item
+              var primaryResource = item.PrimaryResources.First();
+              string accessorPath = primaryResource.GetAttributeValue<string>(ProviderResourceAspect.ATTR_RESOURCE_ACCESSOR_PATH);
+              mediaItemUpdatePath = ResourcePath.Deserialize(accessorPath);
+            }
 
-                if (share.BaseResourcePath.IsParentOf(resourcePath) && share.SystemId == _localSystemId)
-                {
-                  //Only refresh from 1 primary resource or else a secondary resource could load the delete/reset metadata 
-                  //and overwrite the newly refreshed metadata found by the primary resource. The same goes for media items with 
-                  //multiple primary resources.
-                  importPath = resourcePath;
-                  importShare = share;
-                  break;
-                }
+            IEnumerable<MediaItemAspect> mediaItemAspects = matchedAspects;
+            if (children.Count() > 0)
+            {
+              //Convert to client aspects
+              mediaItemAspects = MediaItemAspect.GetAspects(_relationshipManagement.GetBaseChildAspectsFromParentAspects(item.Aspects, MediaItemAspect.GetAspects(matchedAspects)));
+            }
+
+            IList<MultipleMediaItemAspect> providerAspects;
+            if (!MediaItemAspect.TryGetAspects(item.Aspects, ProviderResourceAspect.Metadata, out providerAspects))
+              continue;
+
+            //Delete the media item so it can be reimported
+            foreach (var pra in providerAspects.Where(p => p.GetAttributeValue<int>(ProviderResourceAspect.ATTR_TYPE) == ProviderResourceAspect.TYPE_PRIMARY))
+            {
+              var path = pra.GetAttributeValue<string>(ProviderResourceAspect.ATTR_RESOURCE_ACCESSOR_PATH);
+              var sysId = pra.GetAttributeValue<string>(ProviderResourceAspect.ATTR_SYSTEM_ID);
+              var resPath = ResourcePath.Deserialize(path);
+
+              _relationshipManagement.DeletePathAndRelationships(transaction, sysId, resPath, true);
+            }
+
+            //Reimport each path so it can be potentially be merged with already existing media items
+            foreach (var pra in providerAspects.Where(p => p.GetAttributeValue<int>(ProviderResourceAspect.ATTR_TYPE) == ProviderResourceAspect.TYPE_PRIMARY))
+            {
+              var parentDir = pra.GetAttributeValue<Guid>(ProviderResourceAspect.ATTR_PARENT_DIRECTORY_ID);
+              var path = pra.GetAttributeValue<string>(ProviderResourceAspect.ATTR_RESOURCE_ACCESSOR_PATH);
+              var sysId = pra.GetAttributeValue<string>(ProviderResourceAspect.ATTR_SYSTEM_ID);
+              var resPath = ResourcePath.Deserialize(path);
+
+              //Import as new item
+              var newId = AddOrUpdateMediaItem(database, transaction, parentDir, sysId, resPath, null, null, mediaItemAspects, false);
+
+              //Set media item as changed to force update
+              MediaItemAspect importerAspect = _miaManagement.GetMediaItemAspect(transaction, newId, ImporterAspect.ASPECT_ID);
+              importerAspect.SetAttribute(ImporterAspect.ATTR_DIRTY, true);
+              _miaManagement.AddOrUpdateMIA(transaction, newId, importerAspect, false);
+
+              if (childPath == null && children.Count() > 0)
+              {
+                //Path used to find the parent after import
+                childPath = resPath;
               }
 
-              if (importShare != null)
-                break;
+              //Determine base import path
+              if (basePaths.Count == 0)
+              {
+                //Add as a base import path
+                basePaths.Add(resPath);
+              }
+              else if (!basePaths.Any(p => p.IsSameOrParentOf(resPath)))
+              {
+                //There no parent or same paths as this
+                //Find a parent that contains most or all current base paths
+                string pathDir = ResourcePathHelper.GetDirectoryName(path);
+                while (pathDir != null)
+                {
+                  ResourcePath resPathDir = ResourcePath.Deserialize(pathDir);
+                  if (basePaths.Any(p => resPathDir.IsSameOrParentOf(p)))
+                  {
+                    basePaths.RemoveAll(p => resPathDir.IsSameOrParentOf(p));
+                    basePaths.Add(resPathDir);
+                    break;
+                  }
+                  pathDir = ResourcePathHelper.GetDirectoryName(pathDir);
+                }
+
+                //If no new parent base path was found add it as a new base path
+                if(pathDir == null)
+                  basePaths.Add(resPath);
+              }
             }
           }
+        }
+        transaction.Commit();
+
+        lock (_mediaItemRefreshSync)
+        {
+          if(mediaItemUpdatePath != null)
+            _mediaItemRefreshList.Add(mediaItemUpdatePath, (childPath, parentRole));
         }
       }
       catch (Exception e)
       {
+        transaction.Rollback();
         Logger.Error("MediaLibrary: Error reimporting media item {0}", e, mediaItemId);
         throw;
       }
-      finally
+
+      //Find shares for base paths
+      var shares = GetShares(_localSystemId);
+      foreach (var basePath in basePaths)
       {
-        transaction.Commit();
+        Share share = shares.Values.FirstOrDefault(s => s.BaseResourcePath.IsSameOrParentOf(basePath));
+        if (share != null)
+          importPaths.Add(basePath, share);
       }
 
+      //Schedule imports
       try
       {
-        TryScheduleLocalMediaItemRefresh(importShare, importPath, mediaItemId);
+        foreach (var import in importPaths)
+          TryScheduleLocalMediaItemRefresh(import.Value, import.Key);
       }
       catch (Exception e)
       {
@@ -1682,49 +1731,15 @@ namespace MediaPortal.Backend.Services.MediaLibrary
 
     private Guid AddOrUpdateMediaItem(Guid parentDirectoryId, string systemId, ResourcePath path, Guid? existingMediaItemId, Guid? newMediaItemId, IEnumerable<MediaItemAspect> mediaItemAspects, bool isRefresh)
     {
-      Stopwatch swImport = new Stopwatch();
-      swImport.Start();
-
-      string name = GetMediaItemTitle(mediaItemAspects, path.FileName);
       // TODO: Avoid multiple write operations to the same media item
       ISQLDatabase database = ServiceRegistration.Get<ISQLDatabase>();
       ITransaction transaction = database.BeginTransaction();
       try
       {
         Guid? mediaItemId = null;
-        if (existingMediaItemId.HasValue || !HasStubResource(mediaItemAspects))
-          mediaItemId = existingMediaItemId.HasValue ? existingMediaItemId : GetMediaItemId(transaction, systemId, path);
-
-        bool wasCreated = !mediaItemId.HasValue;
-        Logger.Debug("Adding media item {0} with name {1} ({2})", wasCreated ? newMediaItemId : mediaItemId, name, Path.GetFileName(path.FileName));
-
-        MediaItemAspect pra;
-        if (wasCreated)
-        {
-          mediaItemId = newMediaItemId ?? NewMediaItemId();
-          pra = CreateProviderResourceAspect(parentDirectoryId, systemId, path);
-          //Try and merge into an existing item
-          if (TryMergeMediaItem(database, transaction, pra, mediaItemAspects, out Guid mergedMediaItemId))
-          {
-            if (mergedMediaItemId == Guid.Empty)
-              Logger.Debug("Media item {0} with name {1} ({2}) cannot be saved. Needs to be merged ({3} ms)",
-                mediaItemId.HasValue ? mediaItemId : newMediaItemId, name, Path.GetFileName(path.FileName), swImport.ElapsedMilliseconds);
-            else
-              Logger.Info("Media item {0} with name {1} ({2}) was merged into {3} ({4} ms)",
-                mediaItemId.HasValue ? mediaItemId : newMediaItemId, name, Path.GetFileName(path.FileName), mergedMediaItemId, swImport.ElapsedMilliseconds);
-            transaction.Commit();
-            return mergedMediaItemId;
-          }
-        }
-        else
-        {
-          pra = _miaManagement.GetMediaItemAspect(transaction, mediaItemId.Value, ProviderResourceAspect.ASPECT_ID);
-        }
-
-        mediaItemId = AddOrUpdateMediaItem(database, transaction, pra, mediaItemId.Value, mediaItemAspects, wasCreated);
+        mediaItemId = AddOrUpdateMediaItem(database, transaction, parentDirectoryId, systemId, path, existingMediaItemId, newMediaItemId, mediaItemAspects, isRefresh);
         transaction.Commit();
         MediaLibraryMessaging.SendMediaItemsAddedOrUpdatedMessage(new MediaItem(mediaItemId.Value, MediaItemAspect.GetAspects(mediaItemAspects)));
-        Logger.Info("Media item {0} with name {1} ({2}) imported ({3} ms)", mediaItemId.Value, name, Path.GetFileName(path.FileName), swImport.ElapsedMilliseconds);
         return mediaItemId.Value;
       }
       catch (Exception e)
@@ -1733,6 +1748,46 @@ namespace MediaPortal.Backend.Services.MediaLibrary
         transaction.Rollback();
         return Guid.Empty;
       }
+    }
+
+    private Guid AddOrUpdateMediaItem(ISQLDatabase database, ITransaction transaction, Guid parentDirectoryId, string systemId, ResourcePath path, Guid? existingMediaItemId, Guid? newMediaItemId, IEnumerable<MediaItemAspect> mediaItemAspects, bool isRefresh)
+    {
+      Stopwatch swImport = new Stopwatch();
+      swImport.Start();
+
+      string name = GetMediaItemTitle(mediaItemAspects, path.FileName);
+      Guid? mediaItemId = null;
+      if (existingMediaItemId.HasValue || !HasStubResource(mediaItemAspects))
+        mediaItemId = existingMediaItemId.HasValue ? existingMediaItemId : GetMediaItemId(transaction, systemId, path);
+
+      bool wasCreated = !mediaItemId.HasValue;
+      Logger.Debug("Adding media item {0} with name {1} ({2})", wasCreated ? newMediaItemId : mediaItemId, name, Path.GetFileName(path.FileName));
+
+      MediaItemAspect pra;
+      if (wasCreated)
+      {
+        mediaItemId = newMediaItemId ?? NewMediaItemId();
+        pra = CreateProviderResourceAspect(parentDirectoryId, systemId, path);
+        //Try and merge into an existing item
+        if (TryMergeMediaItem(database, transaction, pra, mediaItemAspects, out Guid mergedMediaItemId))
+        {
+          if (mergedMediaItemId == Guid.Empty)
+            Logger.Debug("Media item {0} with name {1} ({2}) cannot be saved. Needs to be merged ({3} ms)",
+              mediaItemId.HasValue ? mediaItemId : newMediaItemId, name, Path.GetFileName(path.FileName), swImport.ElapsedMilliseconds);
+          else
+            Logger.Info("Media item {0} with name {1} ({2}) was merged into {3} ({4} ms)",
+              mediaItemId.HasValue ? mediaItemId : newMediaItemId, name, Path.GetFileName(path.FileName), mergedMediaItemId, swImport.ElapsedMilliseconds);
+          return mergedMediaItemId;
+        }
+      }
+      else
+      {
+        pra = _miaManagement.GetMediaItemAspect(transaction, mediaItemId.Value, ProviderResourceAspect.ASPECT_ID);
+      }
+
+      mediaItemId = AddOrUpdateMediaItem(database, transaction, pra, mediaItemId.Value, mediaItemAspects, wasCreated);
+      Logger.Info("Media item {0} with name {1} ({2}) imported ({3} ms)", mediaItemId.Value, name, Path.GetFileName(path.FileName), swImport.ElapsedMilliseconds);
+      return mediaItemId.Value;
     }
 
     private Guid AddOrUpdateMediaItem(ISQLDatabase database, ITransaction transaction, MediaItemAspect pra,

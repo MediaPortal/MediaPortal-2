@@ -279,6 +279,43 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
       }
     }
 
+    public virtual async Task<IEnumerable<AlbumInfo>> FindMatchingAlbumsAsync(AlbumInfo albumInfo)
+    {
+      List<AlbumInfo> matches = new List<AlbumInfo>();
+
+      try
+      {
+        // Try online lookup
+        if (!await InitAsync().ConfigureAwait(false))
+          return matches;
+
+        AlbumInfo albumSearch = albumInfo.Clone();
+        TLang language = FindBestMatchingLanguage(albumInfo.Languages);
+
+        IEnumerable<AlbumInfo> onlineMatches = null;
+        if (GetTrackAlbumId(albumInfo, out string albumId))
+        {
+          Logger.Debug(_id + ": Get album from id {0} online", albumId);
+          if (await _wrapper.UpdateFromOnlineMusicTrackAlbumAsync(albumSearch, language, false))
+            onlineMatches = new AlbumInfo[] { albumSearch };
+        }
+        if (onlineMatches == null)
+        {
+          Logger.Debug(_id + ": Search for album {0} online", albumInfo.ToString());
+          onlineMatches = await _wrapper.SearchTrackAlbumMacthesAsync(albumSearch, language).ConfigureAwait(false);
+        }
+        if (onlineMatches?.Count() > 0)
+          matches.AddRange(onlineMatches.Where(m => m.IsBaseInfoPresent));
+
+        return matches;
+      }
+      catch (Exception ex)
+      {
+        Logger.Debug(_id + ": Exception while matching album {0}", ex, albumInfo.ToString());
+        return matches;
+      }
+    }
+
     /// <summary>
     /// Tries to lookup the music track online and downloads images.
     /// </summary>
