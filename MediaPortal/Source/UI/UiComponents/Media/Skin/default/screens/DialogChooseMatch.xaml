@@ -80,10 +80,16 @@
           </RadioButton.Triggers>
         </RadioButton>
 
-        <Label Grid.Row="3" Grid.Column="1" Content="[Media.ReimportMediaItem.Id]" IsVisible="{Binding !IsSearching}"
-               TextTrimming="WordEllipsis" Color="{ThemeResource TextColor}" Margin="70,5,20,0"/>
-        <TextBox x:Name="TextBox" Grid.Row="3" Grid.Column="1" Margin="60,5,20,10" Text="{Binding Source={StaticResource Model}, Path=ManualId, Mode=OneWayToSource}" 
-                 PreferredTextLength="10" IsVisible="{Binding !IsSearching}"/>
+        <Grid Grid.Row="3" Grid.Column="1" Margin="60,5,20,10">
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="Auto"/>
+            <ColumnDefinition Width="*"/>
+          </Grid.ColumnDefinitions>
+          <Label Content="[Media.ReimportMediaItem.Id]" IsVisible="{Binding !IsSearching}"
+                 TextTrimming="WordEllipsis" Color="{ThemeResource TextColor}" Margin="0,0,15,0"/>
+          <TextBox x:Name="TextBox" Text="{Binding Source={StaticResource Model}, Path=ManualId, Mode=OneWayToSource}" TextAlign="Center"
+                   Grid.Column="1" PreferredTextLength="10" IsVisible="{Binding !IsSearching}"/>
+        </Grid>
 
         <!-- Match list -->
         <ListView x:Name="Match_List" Grid.Row="1" Grid.RowSpan="6" Grid.Column="0" Margin="10,10,20,10" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" SetFocus="True"
