@@ -100,7 +100,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
       language = language ?? PreferredLanguage;
       
       SeriesInfo seriesSearch = episodeSearch.CloneBasicInstance<SeriesInfo>();
-      if (episodeSearch.SeriesTvdbId <= 0)
+      if (episodeSearch.SeriesTvdbId <= 0 && string.IsNullOrEmpty(episodeSearch.SeriesImdbId))
       {
         if (!await SearchSeriesUniqueAndUpdateAsync(seriesSearch, language).ConfigureAwait(false))
           return null;
@@ -108,9 +108,20 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
       }
 
       List<EpisodeInfo> episodes = null;
-      if (episodeSearch.SeriesTvdbId > 0 && episodeSearch.SeasonNumber.HasValue)
+      if ((episodeSearch.SeriesTvdbId > 0 || !string.IsNullOrEmpty(episodeSearch.SeriesImdbId)) && episodeSearch.SeasonNumber.HasValue)
       {
-        TvdbSeries seriesDetail = await _tvdbHandler.GetSeriesAsync(episodeSearch.SeriesTvdbId, language, true, false, false).ConfigureAwait(false);
+        int seriesId = 0;
+        if (episodeSearch.SeriesTvdbId > 0)
+          seriesId = episodeSearch.SeriesTvdbId;
+        else if (!string.IsNullOrEmpty(episodeSearch.SeriesImdbId))
+        {
+          TvdbSearchResult searchResult = await _tvdbHandler.GetSeriesByRemoteIdAsync(ExternalId.ImdbId, episodeSearch.SeriesImdbId);
+          if (searchResult?.Id > 0)
+            seriesId = searchResult.Id;
+        }
+        TvdbSeries seriesDetail = await _tvdbHandler.GetSeriesAsync(seriesId, language, true, false, false).ConfigureAwait(false);
+        if (seriesDetail == null)
+          return null;
 
         foreach (TvdbEpisode episode in seriesDetail.Episodes.OrderByDescending(e => e.Id))
         {
@@ -383,9 +394,10 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
         TvdbSeries seriesDetail = null;
         TvdbEpisode episodeDetail = null;
 
-        if (episode.SeriesTvdbId > 0 && episode.SeasonNumber.HasValue && episode.EpisodeNumbers.Count > 0)
+        if ((episode.SeriesTvdbId > 0 || !string.IsNullOrEmpty(episode.SeriesImdbId)) && episode.SeasonNumber.HasValue && episode.EpisodeNumbers.Count > 0)
         {
-          seriesDetail = await _tvdbHandler.GetSeriesAsync(episode.SeriesTvdbId, language, true, true, true).ConfigureAwait(false);
+          if (episode.SeriesTvdbId > 0)
+            seriesDetail = await _tvdbHandler.GetSeriesAsync(episode.SeriesTvdbId, language, true, true, true).ConfigureAwait(false);
           if (seriesDetail == null && !cacheOnly && !string.IsNullOrEmpty(episode.SeriesImdbId))
           {
             TvdbSearchResult foundSeries = await _tvdbHandler.GetSeriesByRemoteIdAsync(ExternalId.ImdbId, episode.SeriesImdbId).ConfigureAwait(false);
@@ -705,9 +717,19 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
 
     protected async Task<ApiWrapperImageCollection<TvdbBanner>> GetSeasonFanArtAsync(SeasonInfo season, TvdbLanguage language)
     {
-      if (season == null || season.SeriesTvdbId < 1 || !season.SeasonNumber.HasValue)
+      if (season == null || (season.SeriesTvdbId < 1 && string.IsNullOrEmpty(season.SeriesImdbId)) || !season.SeasonNumber.HasValue)
         return null;
-      TvdbSeries seriesDetail = await _tvdbHandler.GetSeriesAsync(season.SeriesTvdbId, language, false, false, true).ConfigureAwait(false);
+      TvdbSeries seriesDetail = null;
+      if (season.SeriesTvdbId > 0)
+        seriesDetail = await _tvdbHandler.GetSeriesAsync(season.SeriesTvdbId, language, false, false, true).ConfigureAwait(false);
+      if (seriesDetail == null && !string.IsNullOrEmpty(season.SeriesImdbId))
+      {
+        TvdbSearchResult foundSeries = await _tvdbHandler.GetSeriesByRemoteIdAsync(ExternalId.ImdbId, season.SeriesImdbId).ConfigureAwait(false);
+        if (foundSeries != null)
+        {
+          seriesDetail = await _tvdbHandler.GetSeriesAsync(foundSeries.Id, language, false, false, true).ConfigureAwait(false);
+        }
+      }
       if (seriesDetail == null)
         return null;
       ApiWrapperImageCollection<TvdbBanner> images = new ApiWrapperImageCollection<TvdbBanner>();
@@ -723,9 +745,19 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
 
     protected async Task<ApiWrapperImageCollection<TvdbBanner>> GetEpisodeFanArtAsync(EpisodeInfo episode, TvdbLanguage language)
     {
-      if (episode == null || episode.SeriesTvdbId < 1 || !episode.SeasonNumber.HasValue || episode.EpisodeNumbers.Count == 0)
+      if (episode == null || (episode.SeriesTvdbId < 1 && string.IsNullOrEmpty(episode.SeriesImdbId)) || !episode.SeasonNumber.HasValue || episode.EpisodeNumbers.Count == 0)
         return null;
-      TvdbSeries seriesDetail = await _tvdbHandler.GetSeriesAsync(episode.SeriesTvdbId, language, true, false, true).ConfigureAwait(false);
+      TvdbSeries seriesDetail = null;
+      if (episode.SeriesTvdbId > 0)
+        seriesDetail = await _tvdbHandler.GetSeriesAsync(episode.SeriesTvdbId, language, true, false, true).ConfigureAwait(false);
+      if (seriesDetail == null && !string.IsNullOrEmpty(episode.SeriesImdbId))
+      {
+        TvdbSearchResult foundSeries = await _tvdbHandler.GetSeriesByRemoteIdAsync(ExternalId.ImdbId, episode.SeriesImdbId).ConfigureAwait(false);
+        if (foundSeries != null)
+        {
+          seriesDetail = await _tvdbHandler.GetSeriesAsync(foundSeries.Id, language, true, false, true).ConfigureAwait(false);
+        }
+      }
       if (seriesDetail == null)
         return null;
       TvdbEpisode episodeDetail = seriesDetail.Episodes.Find(e => e.SeasonNumber == episode.SeasonNumber.Value && e.EpisodeNumber == episode.FirstEpisodeNumber);
