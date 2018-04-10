@@ -102,8 +102,8 @@
 
         <Label Grid.Row="5" Grid.Column="1" Content="[Media.ReimportMediaItem.Description]" IsVisible="{Binding !IsSearching}"
                TextTrimming="WordEllipsis" Color="{ThemeResource TextColor}" Margin="10,20,5,5"/>
-        <Label Grid.Row="6" Grid.Column="1" Content="{Binding Source={StaticResource Model}, Path=SelectedInformation}" IsVisible="{Binding !IsSearching}"
-               TextTrimming="WordEllipsis" Color="{ThemeResource TextColor}" Margin="30,5,10,10"/>
+        <Label Grid.Row="6" Grid.Column="1" Content="{Binding Source={StaticResource Model}, Path=SelectedInformation}" IsVisible="{Binding !IsSearching}" Wrap="True"
+               Color="{ThemeResource TextColor}" Margin="30,5,10,10" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" TextTrimming="WordEllipsis"/>
 
       </Grid>
     </ControlTemplate>
