@@ -50,13 +50,14 @@ namespace MediaPortal.Plugins.SlimTv.Client.Settings.Configuration
         "#00817E",
         "#C89800",
         "#481F67",
-        "#4F7A32",
+        "#324d1f",
         "#2B4D89",
         "#B1510F",
         "#404040",
         "#7B2323",
         "#004442",
         "#8E6C00",
+        "#000000",
       };
 
     public EpgGenreColorSettingBase(EpgGenre genre)
@@ -102,13 +103,13 @@ namespace MediaPortal.Plugins.SlimTv.Client.Settings.Configuration
       }
 
       int selected = 0;
-      _items.Add(new ColoredSelectionItem(Color.Empty, LocalizationHelper.CreateResourceString(RES_COLOR_NONE)));
       foreach (var color in _epgColors)
       {
         if (!string.IsNullOrEmpty(genreColor) && genreColor.ToUpperInvariant() == color.ToUpperInvariant())
           selected = _items.Count;
         _items.Add(new ColoredSelectionItem(ColorTranslator.FromHtml(color), LocalizationHelper.CreateStaticString("")));
       }
+      _items.Add(new ColoredSelectionItem(Color.Empty, LocalizationHelper.CreateResourceString(RES_COLOR_NONE)));
       Selected = selected;
     }
 
