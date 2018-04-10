@@ -64,7 +64,6 @@ namespace MediaPortal.Plugins.SlimTv.Service
     protected IController _tvControl;
     protected TvBusinessLayer _tvBusiness;
     protected Thread _serviceThread;
-    protected readonly ConcurrentDictionary<EpgGenre, IEnumerable<string>> _tvGenres = new ConcurrentDictionary<EpgGenre, IEnumerable<string>>();
 
     public SlimTvService()
     {
@@ -380,10 +379,12 @@ namespace MediaPortal.Plugins.SlimTv.Service
         .FirstOrDefault(u => u.Name == userName);
     }
 
-    private void InitGenreMap()
+    protected override void InitGenreMap()
     {
-      if (_tvGenres.Count > 0)
+      if (_tvGenresInited)
         return;
+
+      _tvGenresInited = true;
 
       string genre;
       bool enabled;
@@ -431,54 +432,6 @@ namespace MediaPortal.Plugins.SlimTv.Service
         }
         genreIndex++;
       }
-    }
-
-    private IProgram GetProgram(TvDatabase.Program program, bool includeRecordingStatus = false)
-    {
-      InitGenreMap();
-
-      IProgram prog = program.ToProgram(includeRecordingStatus);
-      if (!string.IsNullOrEmpty(prog?.Genre))
-      {
-        var genre = _tvGenres.FirstOrDefault(g => g.Value.Any(e => prog.Genre.Equals(e, StringComparison.InvariantCultureIgnoreCase)));
-        if (genre.Key != EpgGenre.Unknown)
-        {
-          prog.EpgGenreId = (int)genre.Key;
-          switch (genre.Key)
-          {
-            case EpgGenre.Movie:
-              prog.EpgGenreColor = _epgColorSettings.MovieGenreColor;
-              break;
-            case EpgGenre.Series:
-              prog.EpgGenreColor = _epgColorSettings.SeriesGenreColor;
-              break;
-            case EpgGenre.Documentary:
-              prog.EpgGenreColor = _epgColorSettings.DocumentaryGenreColor;
-              break;
-            case EpgGenre.Music:
-              prog.EpgGenreColor = _epgColorSettings.MusicGenreColor;
-              break;
-            case EpgGenre.Kids:
-              prog.EpgGenreColor = _epgColorSettings.KidsGenreColor;
-              break;
-            case EpgGenre.News:
-              prog.EpgGenreColor = _epgColorSettings.NewsGenreColor;
-              break;
-            case EpgGenre.Sport:
-              prog.EpgGenreColor = _epgColorSettings.SportGenreColor;
-              break;
-            case EpgGenre.Special:
-              prog.EpgGenreColor = _epgColorSettings.SpecialGenreColor;
-              break;
-          }
-        }
-        else if (!string.IsNullOrWhiteSpace(program.SeriesNum) || !string.IsNullOrWhiteSpace(program.EpisodeNum) || !string.IsNullOrWhiteSpace(program.EpisodeNumber) || !string.IsNullOrWhiteSpace(program.EpisodePart))
-        {
-          prog.EpgGenreId = (int)EpgGenre.Series;
-          prog.EpgGenreColor = _epgColorSettings.SeriesGenreColor;
-        }
-      }
-      return prog;
     }
 
     public override Task<bool> StopTimeshiftAsync(string userName, int slotIndex)
