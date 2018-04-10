@@ -281,6 +281,8 @@ namespace MediaPortal.UiComponents.Media.Models
               movieSearchinfo.ImdbId = ManualId;
             else if (int.TryParse(ManualId, out int movieDbId))
               movieSearchinfo.MovieDbId = movieDbId;
+            else //Fallabck to name search
+              movieSearchinfo.MovieName = ManualId;
           }
           else if (_searchItem is EpisodeInfo episode)
           {
@@ -288,8 +290,12 @@ namespace MediaPortal.UiComponents.Media.Models
             episodeSearchinfo.SeriesName = " "; //To make SetMetadata store the aspects
             episodeSearchinfo.SeasonNumber = episode.SeasonNumber;
             episodeSearchinfo.EpisodeNumbers = episode.EpisodeNumbers;
-            if (int.TryParse(ManualId, out int tvDbSeriesId))
+            if (ManualId.StartsWith("tt", StringComparison.InvariantCultureIgnoreCase))
+              episodeSearchinfo.SeriesImdbId = ManualId;
+            else if (int.TryParse(ManualId, out int tvDbSeriesId))
               episodeSearchinfo.SeriesTvdbId = tvDbSeriesId;
+            else //Fallabck to name search
+              episodeSearchinfo.SeriesName = ManualId;
           }
           else if (_searchItem is TrackInfo track)
           {
@@ -299,13 +305,19 @@ namespace MediaPortal.UiComponents.Media.Models
               trackSearchinfo.MusicBrainzId = ManualId;
             else if (int.TryParse(ManualId, out int audioDbId))
               trackSearchinfo.AudioDbId = audioDbId;
+            else //Fallabck to name search
+              trackSearchinfo.TrackName = ManualId;
           }
           else if (_searchItem is SeriesInfo series)
           {
             seriesSearchinfo = new SeriesInfo();
             seriesSearchinfo.SeriesName = " "; //To make SetMetadata store the aspects
-            if (int.TryParse(ManualId, out int tvDbSeriesId))
+            if (ManualId.StartsWith("tt", StringComparison.InvariantCultureIgnoreCase))
+              seriesSearchinfo.ImdbId = ManualId;
+            else if (int.TryParse(ManualId, out int tvDbSeriesId))
               seriesSearchinfo.TvdbId = tvDbSeriesId;
+            else //Fallabck to name search
+              seriesSearchinfo.SeriesName = ManualId;
           }
           else if (_searchItem is AlbumInfo album)
           {
@@ -315,6 +327,8 @@ namespace MediaPortal.UiComponents.Media.Models
               albumSearchinfo.MusicBrainzId = ManualId;
             else if (int.TryParse(ManualId, out int audioDbId))
               albumSearchinfo.AudioDbId = audioDbId;
+            else //Fallabck to name search
+              albumSearchinfo.Album = ManualId;
           }
         }
         else
