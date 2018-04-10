@@ -582,7 +582,8 @@ namespace MediaPortal.Backend.Services.MediaLibrary
       {
         lock (_mediaItemRefreshSync)
         {
-          var finishedMis = _mediaItemRefreshList.Where(p => importedPath.IsSameOrParentOf(p.Key) || importedPath.IsSameOrParentOf(p.Value.ChildPath))?.ToList();
+          var finishedMis = _mediaItemRefreshList.Where(p => importedPath.IsSameOrParentOf(p.Key) || 
+            (p.Value.ChildPath != null && importedPath.IsSameOrParentOf(p.Value.ChildPath)))?.ToList();
           if (_shareImportStates.Count == 0) //No imports are running send all remaining updates
             finishedMis = _mediaItemRefreshList.ToList();
           for (int miIdx = 0; miIdx < (finishedMis?.Count ?? 0); miIdx++)
