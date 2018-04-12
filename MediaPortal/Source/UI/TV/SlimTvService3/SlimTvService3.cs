@@ -51,6 +51,7 @@ using TvEngine.Events;
 using TvLibrary.Interfaces;
 using TvService;
 using MediaPortal.Backend.ClientCommunication;
+using MediaPortal.Common.Async;
 using MediaPortal.Common.Services.ServerCommunication;
 using System.Collections.Concurrent;
 using MediaPortal.Common.Services.GenreConverter;

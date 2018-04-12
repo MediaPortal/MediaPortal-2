@@ -57,15 +57,20 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ApplicationCore.cs" />
+    <Compile Include="Async\AsyncResult.cs" />
+    <Compile Include="Async\SynchronizationContextRemover.cs" />
     <Compile Include="Commands\AsyncMethodDelegateCommand.cs" />
     <Compile Include="Certifications\CertificationMapper.cs" />
     <Compile Include="Certifications\CetificationMapping.cs" />
     <Compile Include="Configuration\ConfigColoredItemList.cs" />
     <Compile Include="Configuration\ConfigurationClasses\SingleSelectionColoredList.cs" />
     <Compile Include="Exceptions\LauncherExceptionHandling.cs" />
+    <Compile Include="FanArt\BaseFanArtHandler.cs" />
     <Compile Include="FanArt\FanArtCache.cs" />
     <Compile Include="FanArt\FanArtConstants.cs" />
+    <Compile Include="FanArt\FanArtPathCollection.cs" />
     <Compile Include="FanArt\FanArtSettings.cs" />
+    <Compile Include="FanArt\LocalFanartHelper.cs" />
     <Compile Include="FanArt\IFanArtCache.cs" />
     <Compile Include="Logging\ILoggerConfig.cs" />
     <Compile Include="MediaManagement\DefaultItemAspects\StubAspect.cs" />
@@ -184,7 +189,7 @@
     <Compile Include="Services\ResourceAccess\RawUrlResourceProvider\RawUrlResourceProvider.cs" />
     <Compile Include="Services\ResourceAccess\RawUrlResourceProvider\RawUrlResourceAccessor.cs" />
     <Compile Include="Services\Runtime\PowerEventHandler.cs" />
-    <Compile Include="Services\ServerCommunication\AsyncExtensions.cs" />
+    <Compile Include="Async\AsyncExtensions.cs" />
     <Compile Include="Services\ServerCommunication\UPnPServerWatcher.cs" />
     <Compile Include="Services\Settings\SettingsChangeWatcher.cs" />
     <Compile Include="Services\Settings\SettingsManagerMessaging.cs" />

@@ -103,7 +103,7 @@
         RestrictionGroup="Settings.UserProfile"
         Text="[Settings.Users.Config.AutoLoginUser]"
         HelpText="[Settings.Users.Config.AutoLoginUser.Help]"
-        ClassName="MediaPortal.UiComponents.Login.Settings.Configuration.AutoLoginUsertSetting"
+        ClassName="MediaPortal.UiComponents.Login.Settings.Configuration.AutoLoginUserSetting"
         AdditionalData="WorkflowState=D3C5EC78-F901-4851-8DB8-83CF27E80EA8,ConfAppPanel=..."/>
 
     <CustomConfigSetting

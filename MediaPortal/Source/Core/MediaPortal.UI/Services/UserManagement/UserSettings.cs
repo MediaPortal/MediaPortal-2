@@ -22,11 +22,26 @@
 
 #endregion
 
-using MediaPortal.Common.Configuration.ConfigurationClasses;
+using System;
+using MediaPortal.Common.Settings;
 
-namespace MediaPortal.UiComponents.Login.Settings.Configuration
+namespace MediaPortal.UI.Services.UserManagement
 {
-  public class AutoLoginUsertSetting : CustomConfigSetting
+  public class UserSettings
   {
+    [Setting(SettingScope.Global, DefaultValue = false)]
+    public bool EnableUserLogin { get; set; }
+
+    [Setting(SettingScope.Global, DefaultValue = false)]
+    public bool EnableUserLoginScreen { get; set; }
+
+    [Setting(SettingScope.Global)]
+    public Guid AutoLoginUser { get; set; }
+
+    [Setting(SettingScope.Global, DefaultValue = false)]
+    public bool AutoLogoutEnabled { get; set; }
+
+    [Setting(SettingScope.Global, DefaultValue = 30)]
+    public int AutoLogoutIdleTimeoutInMin { get; set; }
   }
 }

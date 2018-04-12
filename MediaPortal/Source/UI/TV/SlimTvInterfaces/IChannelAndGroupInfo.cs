@@ -24,6 +24,7 @@
 
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using MediaPortal.Common.Async;
 using MediaPortal.Common.Services.ServerCommunication;
 using MediaPortal.Plugins.SlimTv.Interfaces.Items;
 

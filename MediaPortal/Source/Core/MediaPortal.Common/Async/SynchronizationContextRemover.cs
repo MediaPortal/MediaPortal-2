@@ -22,40 +22,40 @@
 
 #endregion
 
-using MediaPortal.Common.Configuration.ConfigurationClasses;
-using SkinSettings;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.Runtime.CompilerServices;
+using System.Threading;
 
-namespace MediaPortal.UiComponents.WMCSkin.Settings.Configuration
+namespace MediaPortal.Common.Async
 {
-  public class EnableAnimatedBackgroundConfiguration : YesNo, IDisposable
+  public struct SynchronizationContextRemover : INotifyCompletion
   {
-    public EnableAnimatedBackgroundConfiguration()
+    public bool IsCompleted
     {
-      SkinChangeMonitor.Instance.RegisterConfiguration(WMCSkinSettings.SKIN_NAME, this);
+      get { return SynchronizationContext.Current == null; }
     }
 
-    public override void Load()
+    public void OnCompleted(Action continuation)
     {
-      base.Load();
-      _yes = SettingsManager.Load<WMCSkinSettings>().EnableAnimatedBackground;
+      var prevContext = SynchronizationContext.Current;
+      try
+      {
+        SynchronizationContext.SetSynchronizationContext(null);
+        continuation();
+      }
+      finally
+      {
+        SynchronizationContext.SetSynchronizationContext(prevContext);
+      }
     }
 
-    public override void Save()
+    public SynchronizationContextRemover GetAwaiter()
     {
-      base.Save();
-      var settings = SettingsManager.Load<WMCSkinSettings>();
-      settings.EnableAnimatedBackground = _yes;
-      SettingsManager.Save(settings);
+      return this;
     }
 
-    public void Dispose()
+    public void GetResult()
     {
-      SkinChangeMonitor.Instance.UnregisterConfiguration(WMCSkinSettings.SKIN_NAME, this);
     }
   }
 }

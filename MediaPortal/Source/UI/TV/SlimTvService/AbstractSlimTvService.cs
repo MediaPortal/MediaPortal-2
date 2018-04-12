@@ -32,6 +32,7 @@ using System.Threading.Tasks;
 using MediaPortal.Backend.Database;
 using MediaPortal.Backend.MediaLibrary;
 using MediaPortal.Common;
+using MediaPortal.Common.Async;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.ResourceAccess;
 using MediaPortal.Common.SystemResolver;

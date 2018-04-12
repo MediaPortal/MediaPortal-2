@@ -26,6 +26,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using MediaPortal.Common;
+using MediaPortal.Common.Async;
 using MediaPortal.Common.Commands;
 using MediaPortal.Common.General;
 using MediaPortal.Common.Localization;

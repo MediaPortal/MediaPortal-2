@@ -34,6 +34,7 @@ using MediaPortal.UI.Presentation.Models;
 using MediaPortal.UI.Presentation.Workflow;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using MediaPortal.Common.Async;
 using MediaPortal.UI.Presentation.Screens;
 using MediaPortal.UiComponents.Login.General;
 using MediaPortal.Common.Messaging;
@@ -42,6 +43,7 @@ using MediaPortal.UI.Control.InputManager;
 using MediaPortal.UI.Presentation.Players;
 using MediaPortal.Common.Localization;
 using MediaPortal.Common.Services.ServerCommunication;
+using MediaPortal.Common.Services.SystemResolver.Settings;
 using MediaPortal.Common.Settings;
 using MediaPortal.Common.UserManagement;
 using MediaPortal.UI.ServerCommunication;
@@ -323,7 +325,7 @@ namespace MediaPortal.UiComponents.Login.Models
     {
       TimeSpan idleTimeout = TimeSpan.FromMinutes(UserSettingStorage.AutoLogoutIdleTimeoutInMin);
       IInputManager inputManager = ServiceRegistration.Get<IInputManager>();
-      if((_lastActivity - inputManager.LastMouseUsageTime) < idleTimeout ||
+      if ((_lastActivity - inputManager.LastMouseUsageTime) < idleTimeout ||
               (_lastActivity - inputManager.LastInputTime) < idleTimeout)
       {
         _lastActivity = DateTime.Now;
@@ -352,7 +354,7 @@ namespace MediaPortal.UiComponents.Login.Models
         {
           case SystemMessaging.MessageType.SystemStateChanged:
             SystemState newState = (SystemState)message.MessageData[SystemMessaging.NEW_STATE];
-            if(newState == SystemState.Running)
+            if (newState == SystemState.Running)
             {
               StartTimer();
               if (UserSettingStorage.AutoLoginUser == Guid.Empty && UserSettingStorage.UserLoginScreenEnabled && UserSettingStorage.UserLoginEnabled)
@@ -371,7 +373,7 @@ namespace MediaPortal.UiComponents.Login.Models
             break;
         }
       }
-      else if(message.ChannelName == ServerConnectionMessaging.CHANNEL)
+      else if (message.ChannelName == ServerConnectionMessaging.CHANNEL)
       {
         ServerConnectionMessaging.MessageType messageType = (ServerConnectionMessaging.MessageType)message.MessageType;
         switch (messageType)
@@ -402,7 +404,7 @@ namespace MediaPortal.UiComponents.Login.Models
             }
           }
         }
-        if(userProfile == null)
+        if (userProfile == null)
         {
           // Init with system default
           userProfileDataManagement.CurrentUser = null;
@@ -442,29 +444,16 @@ namespace MediaPortal.UiComponents.Login.Models
       if (userManagement.UserProfileDataManagement == null)
         return;
 
-      UserProfile defaultProfile = new UserProfile(Guid.Empty, 
-        LocalizationHelper.Translate(Consts.RES_SYSTEM_DEFAULT_TEXT) + " (" + System.Windows.Forms.SystemInformation.ComputerName + ")", 
-        UserProfileType.ClientProfile);
-      UserProxy proxy = new UserProxy();
-      proxy.SetLabel(Consts.KEY_NAME, defaultProfile.Name);
-      proxy.SetUserProfile(defaultProfile);
-      proxy.Selected = true;
-      proxy.SelectedProperty.Attach(OnAutoLoginUserSelectionChanged);
-      _autoLoginUserList.Add(proxy);
+      // Get our local client profile, it will be available for local login
+      var localSystemGuid = Guid.Parse(ServiceRegistration.Get<ISettingsManager>().Load<SystemResolverSettings>().SystemId);
 
+      UserProxy proxy;
       // add users to expose them
       var users = await userManagement.UserProfileDataManagement.GetProfilesAsync();
       foreach (UserProfile user in users)
       {
-        if (user.ProfileType != UserProfileType.ClientProfile)
-        {
-          proxy = new UserProxy();
-          proxy.SetLabel(Consts.KEY_NAME, user.Name);
-          proxy.SetUserProfile(user);
-          _loginUserList.Add(proxy);
-        }
-
-        if (!user.Name.Equals(System.Windows.Forms.SystemInformation.ComputerName, StringComparison.InvariantCultureIgnoreCase))
+        var isCurrentClient = user.ProfileId == localSystemGuid;
+        if (user.ProfileType != UserProfileType.ClientProfile || isCurrentClient)
         {
           proxy = new UserProxy();
           proxy.SetLabel(Consts.KEY_NAME, user.Name);
@@ -473,6 +462,8 @@ namespace MediaPortal.UiComponents.Login.Models
             proxy.Selected = true;
           proxy.SelectedProperty.Attach(OnAutoLoginUserSelectionChanged);
           _autoLoginUserList.Add(proxy);
+          if (!isCurrentClient)
+            _loginUserList.Add(proxy);
         }
       }
 

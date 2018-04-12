@@ -24,6 +24,7 @@ using MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib.Data;
 using MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib.Data.Banner;
 using MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib.Data.Comparer;
 using MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib.Exceptions;
+using MediaPortal.Utilities.Cache;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -42,6 +43,18 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib
   public class TvdbHandler
   {
     #region private fields
+
+    /// <summary>
+    /// Default timeout for the cache is 2 minutes
+    /// </summary>
+    private static readonly TimeSpan CACHE_TIMEOUT = new TimeSpan(0, 2, 0);
+
+    /// <summary>
+    /// Cache used to temporarily store <see cref="TvdbSeries"/> objects so that the same cache file
+    /// doesn't have to be parsed every time a series is loaded.
+    /// </summary>
+    private readonly AsyncStaticTimeoutCache<int, TvdbSeries> _memoryCache = new AsyncStaticTimeoutCache<int, TvdbSeries>(CACHE_TIMEOUT);
+
     private SemaphoreSlim _seriesLoadingSync = new SemaphoreSlim(1, 1);
     private readonly ICacheProvider _cacheProvider;
     private readonly String _apiKey;
@@ -372,6 +385,19 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib
       return GetSeriesAsync(seriesId, language, true, true, true, true);
     }
 
+    protected async Task<TvdbSeries> GetSeriesAsync(int seriesId, TvdbLanguage language, bool loadEpisodes, bool loadActors, bool loadBanners, bool useZip)
+    {
+      // First try and get the series from the memory cache, or add it if not yet cached
+      TvdbSeries series = await _memoryCache.GetValue(seriesId, _ => LoadSeriesAsync(seriesId, language, loadEpisodes, loadActors, loadBanners, useZip));
+      if (series == null)
+        return null;
+      // If the cached series has all requested info return it
+      if (series.Language == language && (series.EpisodesLoaded || !loadEpisodes) && (series.TvdbActorsLoaded || !loadActors) && (series.BannersLoaded || !loadBanners))
+        return series;
+      // Some info was missing, load all requested info and update the cache
+      return await _memoryCache.UpdateValue(seriesId, _ => LoadSeriesAsync(seriesId, language, loadEpisodes, loadActors, loadBanners, useZip));
+    }
+
     /// <summary>
     /// Gets the series with the given id either from cache (if it has already been loaded) or from 
     /// the selected tvdb mirror. If you use zip the request automatically downloads the episodes, the actors and the banners, so you should also select those features.
@@ -392,9 +418,10 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib
     ///                                           or http://forums.thetvdb.com/</para></exception>  
     /// <exception cref="TvdbInvalidApiKeyException">The stored api key is invalid</exception>
     /// <exception cref="TvdbNotAvailableException">The tvdb database is unavailable</exception>
-    public async Task<TvdbSeries> GetSeriesAsync(int seriesId, TvdbLanguage language, bool loadEpisodes,
+    public async Task<TvdbSeries> LoadSeriesAsync(int seriesId, TvdbLanguage language, bool loadEpisodes,
                                 bool loadActors, bool loadBanners, bool useZip)
     {
+      Log.Info($"TvdbHandler: Loading series {seriesId}");
       Stopwatch watch = new Stopwatch();
       watch.Start();
       TvdbSeries series = null;

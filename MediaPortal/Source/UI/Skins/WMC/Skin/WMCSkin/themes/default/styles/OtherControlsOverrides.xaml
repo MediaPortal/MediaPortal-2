@@ -347,8 +347,9 @@
           <ScaleTransform ScaleX="1.0" ScaleY="1.0"></ScaleTransform>
         </Image.RenderTransform>
         <Image.Source>
-          <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
+          <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1}+{2} : {1}+{3}">
             <Binding Path="Selected"/>
+            <Binding Source="HomeMenu\"/>
             <Binding Source="{Binding Converter={StaticResource ListItemActionIdConverter}, ConverterParameter=focus.png}"/>
             <Binding Source="{Binding Converter={StaticResource ListItemActionIdConverter}, ConverterParameter=nofocus.png}"/>
           </MultiBinding>

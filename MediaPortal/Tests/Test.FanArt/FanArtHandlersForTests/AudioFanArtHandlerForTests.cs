@@ -1,4 +1,4 @@
-#region Copyright (C) 2007-2017 Team MediaPortal
+﻿#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
     Copyright (C) 2007-2017 Team MediaPortal
@@ -22,26 +22,24 @@
 
 #endregion
 
-using MediaPortal.Common.Settings;
+using MediaPortal.Common.ResourceAccess;
+using MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor;
 using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
-namespace MediaPortal.UiComponents.Login.Settings
+namespace Test.FanArt.FanArtHandlersForTests
 {
-  public class UserSettings
+  class AudioFanArtHandlerForTests : AudioFanArtHandler
   {
-    [Setting(SettingScope.Global, DefaultValue = false)]
-    public bool EnableUserLogin { get; set; }
+    public Task TestExtractAlbumFolderFanArt(Guid mediaItemId, ResourcePath albumDirectory, IList<Tuple<Guid, string>> artists = null)
+    {
+      return ExtractAlbumFolderFanArt("test", albumDirectory, mediaItemId, "album", artists);
+    }
 
-    [Setting(SettingScope.Global, DefaultValue = false)]
-    public bool EnableUserLoginScreen { get; set; }
-
-    [Setting(SettingScope.Global)]
-    public Guid AutoLoginUser { get; set; }
-
-    [Setting(SettingScope.Global, DefaultValue = false)]
-    public bool AutoLogoutEnabled { get; set; }
-
-    [Setting(SettingScope.Global, DefaultValue = 30)]
-    public int AutoLogoutIdleTimeoutInMin { get; set; }
+    public Task TestExtractArtistFolderFanArt(ResourcePath albumDirectory, IList<Tuple<Guid, string>> artists = null)
+    {
+      return ExtractArtistFolderFanArt("test", albumDirectory, artists);
+    }
   }
 }
