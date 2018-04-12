@@ -678,9 +678,12 @@ namespace MediaPortal.Common.MediaManagement.Helpers
         string.Equals(NameId, other.NameId, StringComparison.InvariantCultureIgnoreCase))
         return true;
 
+      if (FirstAired.HasValue && other.FirstAired.HasValue &&
+        FirstAired.Value.Year != other.FirstAired.Value.Year)
+        return false;
       if (!SeriesName.IsEmpty && !other.SeriesName.IsEmpty &&
         MatchNames(SeriesName.Text, other.SeriesName.Text) && FirstAired.HasValue && other.FirstAired.HasValue &&
-        FirstAired.Value == other.FirstAired.Value)
+        FirstAired.Value.Year == other.FirstAired.Value.Year)
         return true;
       if (!SeriesName.IsEmpty && !other.SeriesName.IsEmpty &&
         MatchNames(SeriesName.Text, other.SeriesName.Text))
