@@ -52,7 +52,6 @@ using MediaPortal.UiComponents.Media.Models;
 using MediaPortal.UI.ServerCommunication;
 using MediaPortal.UI.SkinEngine.MpfElements;
 using MediaPortal.Utilities.Events;
-using MediaPortal.UI.Services.UserManagement;
 using MediaPortal.Common.UserProfileDataManagement;
 using Task = System.Threading.Tasks.Task;
 

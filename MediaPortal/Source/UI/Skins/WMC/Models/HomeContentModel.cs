@@ -22,11 +22,12 @@
 
 #endregion
 
-using MediaPortal.Common;
 using MediaPortal.Common.General;
+using MediaPortal.Common.Messaging;
 using MediaPortal.UI.Presentation.DataObjects;
 using MediaPortal.UI.Presentation.Workflow;
 using MediaPortal.UiComponents.SkinBase.General;
+using MediaPortal.UiComponents.WMCSkin.Messaging;
 using MediaPortal.Utilities.Events;
 using System;
 
@@ -34,17 +35,26 @@ namespace MediaPortal.UiComponents.WMCSkin.Models
 {
   public class HomeContentModel
   {
+    //Intermediate value for focused content index to ensure that
+    //a changed event is always fired when toggling focus
+    protected const int NO_FOCUS = -2;
+    //Focused content index that indicates that the content
+    //does not have focus
+    protected const int UNFOCUSED = -1;
+
     public const string STR_MODEL_ID = "24BB1BBE-A3B3-474A-8D55-C37EBE182F6C";
     public static readonly Guid MODEL_ID = new Guid(STR_MODEL_ID);
 
     protected const int UPDATE_DELAY_MS = 500;
     
     protected AbstractProperty _currentContentIndexProperty;
+    protected AbstractProperty _isContentFocusedProperty;
+    protected AbstractProperty _focusedContentIndexProperty;
     protected AbstractProperty _content0ActionIdProperty;
     protected AbstractProperty _content1ActionIdProperty;
-    
     protected WorkflowAction _nextAction;
     protected DelayedEvent _updateEvent;
+    protected AsynchronousMessageQueue _messageQueue;
 
     public HomeContentModel()
     {
@@ -55,16 +65,49 @@ namespace MediaPortal.UiComponents.WMCSkin.Models
     protected void Init()
     {
       _currentContentIndexProperty = new WProperty(typeof(int), 0);
+      _isContentFocusedProperty = new WProperty(typeof(bool), false);
+      _focusedContentIndexProperty = new WProperty(typeof(int), -1);
       _content0ActionIdProperty = new WProperty(typeof(string), null);
       _content1ActionIdProperty = new WProperty(typeof(string), null);
       _updateEvent = new DelayedEvent(UPDATE_DELAY_MS);
       _updateEvent.OnEventHandler += OnUpdate;
+
+      SubscribeToMessages();
     }
 
     protected void Attach()
     {
-      HomeMenuModel homeModel = (HomeMenuModel)ServiceRegistration.Get<IWorkflowManager>().GetModel(HomeMenuModel.MODEL_ID);
-      homeModel.CurrentSubItemProperty.Attach(OnCurrentHomeItemChanged);
+      _isContentFocusedProperty.Attach(OnIsContentFocusedChanged);
+    }
+
+    #region Message Handling
+
+    private void SubscribeToMessages()
+    {
+      if (_messageQueue != null)
+        return;
+      _messageQueue = new AsynchronousMessageQueue(this, new[] { HomeMenuMessaging.CHANNEL });
+      _messageQueue.MessageReceived += OnMessageReceived;
+      _messageQueue.Start();
+    }
+
+    private void OnMessageReceived(AsynchronousMessageQueue queue, SystemMessage message)
+    {
+      if (message.ChannelName == HomeMenuMessaging.CHANNEL)
+      {
+        HomeMenuMessaging.MessageType messageType = (HomeMenuMessaging.MessageType)message.MessageType;
+        if (messageType == HomeMenuMessaging.MessageType.CurrentItemChanged)
+          OnCurrentHomeItemChanged(message.MessageData[HomeMenuMessaging.NEW_ITEM] as ListItem);
+      }
+    }
+
+    #endregion
+
+    private void OnIsContentFocusedChanged(AbstractProperty property, object oldValue)
+    {
+      //Reset focused content index when the focus changes
+      //so a changed event is always fired when ToggleFocus is called
+      FocusedContentIndex = NO_FOCUS;
     }
 
     public AbstractProperty CurrentContentIndexProperty
@@ -76,6 +119,28 @@ namespace MediaPortal.UiComponents.WMCSkin.Models
     {
       get { return (int)_currentContentIndexProperty.GetValue(); }
       set { _currentContentIndexProperty.SetValue(value); }
+    }
+
+    public AbstractProperty IsContentFocusedProperty
+    {
+      get { return _isContentFocusedProperty; }
+    }
+
+    public bool IsContentFocused
+    {
+      get { return (bool)_isContentFocusedProperty.GetValue(); }
+      set { _isContentFocusedProperty.SetValue(value); }
+    }
+
+    public AbstractProperty FocusedContentIndexProperty
+    {
+      get { return _focusedContentIndexProperty; }
+    }
+
+    public int FocusedContentIndex
+    {
+      get { return (int)_focusedContentIndexProperty.GetValue(); }
+      set { _focusedContentIndexProperty.SetValue(value); }
     }
 
     public AbstractProperty Content0ActionIdProperty
@@ -100,6 +165,20 @@ namespace MediaPortal.UiComponents.WMCSkin.Models
       set { _content1ActionIdProperty.SetValue(value); }
     }
 
+    /// <summary>
+    /// Toggles the focus on the home content.
+    /// </summary>
+    public void ToggleFocus()
+    {
+      if (IsContentFocused)
+      {
+        IsContentFocused = false;
+        FocusedContentIndex = UNFOCUSED;
+      }
+      else
+        FocusedContentIndex = CurrentContentIndex;
+    }
+
     private void EnqueueUpdate(WorkflowAction action)
     {
       _nextAction = action;
@@ -111,10 +190,10 @@ namespace MediaPortal.UiComponents.WMCSkin.Models
       UpdateContent(_nextAction);
     }
 
-    private void OnCurrentHomeItemChanged(AbstractProperty property, object oldValue)
+    private void OnCurrentHomeItemChanged(ListItem newItem)
     {
       WorkflowAction action;
-      if (!TryGetAction(property.GetValue() as ListItem, out action))
+      if (!TryGetAction(newItem, out action))
         action = null;
       EnqueueUpdate(action);
     }
@@ -139,6 +218,7 @@ namespace MediaPortal.UiComponents.WMCSkin.Models
         nextContentIndex = 0;
         nextContentActionIdProperty = _content0ActionIdProperty;
       }
+      FocusedContentIndex = NO_FOCUS;
       nextContentActionIdProperty.SetValue(nextContentActionId);
       CurrentContentIndex = nextContentIndex;
     }

@@ -24,13 +24,14 @@
 
 using MediaPortal.Common.Settings;
 
-namespace MediaPortal.Common.Genres
+namespace MediaPortal.Extensions.MetadataExtractors.GenreProvider
 {
   public class GenreSettings
   {
     protected GenreMapping[] _musicGenreMap = new GenreMapping[0];
     protected GenreMapping[] _seriesGenreMap = new GenreMapping[0];
     protected GenreMapping[] _movieGenreMap = new GenreMapping[0];
+    protected GenreMapping[] _epgGenreMap = new GenreMapping[0];
 
     public GenreSettings()
     {
@@ -55,6 +56,13 @@ namespace MediaPortal.Common.Genres
     {
       get { return _movieGenreMap; }
       set { _movieGenreMap = value; }
+    }
+
+    [Setting(SettingScope.Global)]
+    public GenreMapping[] EpgGenreMappings
+    {
+      get { return _epgGenreMap; }
+      set { _epgGenreMap = value; }
     }
   }
 }

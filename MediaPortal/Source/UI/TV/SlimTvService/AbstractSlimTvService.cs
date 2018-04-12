@@ -48,6 +48,10 @@ using ScheduleRecordingType = MediaPortal.Plugins.SlimTv.Interfaces.ScheduleReco
 using MediaPortal.Common.Runtime;
 using MediaPortal.Common.Messaging;
 using MediaPortal.Common.Services.ServerCommunication;
+using MediaPortal.Common.Services.Settings;
+using MediaPortal.Plugins.SlimTv.Interfaces.Settings;
+using System.Collections.Concurrent;
+using MediaPortal.Common.Services.GenreConverter;
 
 namespace MediaPortal.Plugins.SlimTv.Service
 {
@@ -64,6 +68,15 @@ namespace MediaPortal.Plugins.SlimTv.Service
     protected string _providerName;
     protected string _serviceName;
     private bool _abortInit = false;
+    protected SettingsChangeWatcher<SlimTvGenreColorSettings> _settingWatcher;
+    protected SlimTvGenreColorSettings _epgColorSettings = null;
+    protected readonly ConcurrentDictionary<EpgGenre, IEnumerable<string>> _tvGenres = new ConcurrentDictionary<EpgGenre, IEnumerable<string>>();
+    protected bool _tvGenresInited = false;
+
+    private void SettingsChanged(object sender, EventArgs e)
+    {
+      _epgColorSettings = _settingWatcher.Settings;
+    }
 
     public string Name
     {
@@ -73,6 +86,10 @@ namespace MediaPortal.Plugins.SlimTv.Service
     public bool Init()
     {
       ServiceRegistration.Get<IMessageBroker>().RegisterMessageReceiver(SystemMessaging.CHANNEL, this);
+
+      _settingWatcher = new SettingsChangeWatcher<SlimTvGenreColorSettings>();
+      _settingWatcher.SettingsChanged += SettingsChanged;
+      _settingWatcher.Refresh();
       return true;
     }
 
@@ -177,6 +194,79 @@ namespace MediaPortal.Plugins.SlimTv.Service
       }
     }
 
+    /// <summary>
+    /// Initializes genre mapping defined in the server settings if any. Needs to be overridden by plug-ins for which the server setup 
+    /// supports genre mapping.
+    /// </summary>
+    protected virtual void InitGenreMap()
+    {
+      if (_tvGenresInited)
+        return;
+
+      _tvGenresInited = true;
+    }
+
+    /// <summary>
+    /// Returns a program with assigned EPG genre data if possible.
+    /// </summary>
+#if TVE3
+    protected virtual IProgram GetProgram(TvDatabase.Program tvProgram, bool includeRecordingStatus = false)
+#else
+    protected virtual IProgram GetProgram(Mediaportal.TV.Server.TVDatabase.Entities.Program tvProgram, bool includeRecordingStatus = false)
+#endif
+    {
+      InitGenreMap();
+
+      //Convert to IProgram
+      IProgram prog = tvProgram.ToProgram(includeRecordingStatus);
+
+      //Map genre color if possible
+      if (_tvGenres.Count > 0 && !string.IsNullOrEmpty(prog?.Genre))
+      {
+        var genre = _tvGenres.FirstOrDefault(g => g.Value.Any(e => prog.Genre.Equals(e, StringComparison.InvariantCultureIgnoreCase)));
+        if (genre.Key != EpgGenre.Unknown)
+        {
+          prog.EpgGenreId = (int)genre.Key;
+          switch (genre.Key)
+          {
+            case EpgGenre.Movie:
+              prog.EpgGenreColor = _epgColorSettings.MovieGenreColor;
+              break;
+            case EpgGenre.Series:
+              prog.EpgGenreColor = _epgColorSettings.SeriesGenreColor;
+              break;
+            case EpgGenre.Documentary:
+              prog.EpgGenreColor = _epgColorSettings.DocumentaryGenreColor;
+              break;
+            case EpgGenre.Music:
+              prog.EpgGenreColor = _epgColorSettings.MusicGenreColor;
+              break;
+            case EpgGenre.Kids:
+              prog.EpgGenreColor = _epgColorSettings.KidsGenreColor;
+              break;
+            case EpgGenre.News:
+              prog.EpgGenreColor = _epgColorSettings.NewsGenreColor;
+              break;
+            case EpgGenre.Sport:
+              prog.EpgGenreColor = _epgColorSettings.SportGenreColor;
+              break;
+            case EpgGenre.Special:
+              prog.EpgGenreColor = _epgColorSettings.SpecialGenreColor;
+              break;
+          }
+        }
+      }
+
+      //If genre is unknown and the program contains series info, mark it as a series genre
+      if (prog.EpgGenreId == (int)EpgGenre.Unknown && 
+        (!string.IsNullOrWhiteSpace(tvProgram.SeriesNum) || !string.IsNullOrWhiteSpace(tvProgram.EpisodeNum) || !string.IsNullOrWhiteSpace(tvProgram.EpisodePart)))
+      {
+        prog.EpgGenreId = (int)EpgGenre.Series;
+        prog.EpgGenreColor = _epgColorSettings.SeriesGenreColor;
+      }
+      return prog;
+    }
+
 
     /// <summary>
     /// Gets a TV core-version specific folder. This allow to use both TVE3 and TVE3.5 in parallel (only one enabled ofc).
@@ -232,9 +322,9 @@ namespace MediaPortal.Plugins.SlimTv.Service
 
     public abstract bool DeInit();
 
-    #endregion
+#endregion
 
-    #region Recordings / MediaLibrary synchronization
+#region Recordings / MediaLibrary synchronization
 
     protected abstract bool RegisterEvents();
 
@@ -378,9 +468,9 @@ namespace MediaPortal.Plugins.SlimTv.Service
       return string.Join("\\", fixedFolderParts);
     }
 
-    #endregion
+#endregion
 
-    #region ITvProvider implementation
+#region ITvProvider implementation
 
     public Task<AsyncResult<MediaItem>> StartTimeshiftAsync(int slotIndex, IChannel channel)
     {
@@ -498,6 +588,6 @@ namespace MediaPortal.Plugins.SlimTv.Service
       return string.Format("{0}-{1}", clientName, slotIndex);
     }
 
-    #endregion
+#endregion
   }
 }

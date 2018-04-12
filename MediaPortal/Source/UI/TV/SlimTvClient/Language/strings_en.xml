@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-  <string name="SlimTvClient.Title">Slim TV Client</string>
+  <string name="SlimTvClient.Title">TV Guide</string>
   <string name="SlimTvClient.Main">TV</string>
   <string name="SlimTvClient.Main.Help">Here you can watch your favourite TV and Radio programs and switch between the channels.</string>
   <string name="SlimTvClient.TvGuide">TV Guide</string>
@@ -111,7 +111,29 @@
   <string name="SlimTvClient.ShowRecordingStartedNotifications.Help">Whether to show a notification when a recording has started.</string>
   <string name="SlimTvClient.ShowRecordingEndedNotifications">Show recording ended notifications</string>
   <string name="SlimTvClient.ShowRecordingEndedNotifications.Help">Whether to show a notification when a recording has ended.</string>
+  <string name="SlimTvClient.ShowEpgGenreColors">Show genre colors in EPG</string>
+  <string name="SlimTvClient.ShowEpgGenreColors.Help">Whether to show genre colors when browsing the EPG.</string>
 
+  <string name="SlimTvClient.EpgGenreColors">EPG genre colors</string>
+  <string name="SlimTvClient.EpgMovieGenreColor">Movie genre color</string>
+  <string name="SlimTvClient.EpgMovieGenreColor.Help">The color to use for movie programs in the EPG.</string>
+  <string name="SlimTvClient.EpgSeriesGenreColor">Series genre color</string>
+  <string name="SlimTvClient.EpgSeriesGenreColor.Help">The color to use for EPG programs that are part of a series.</string>
+  <string name="SlimTvClient.EpgDocumentaryGenreColor">Documentary genre color</string>
+  <string name="SlimTvClient.EpgDocumentaryGenreColor.Help">The color to use for documentary programs in the EPG.</string>
+  <string name="SlimTvClient.EpgMusicGenreColor">Music genre color</string>
+  <string name="SlimTvClient.EpgMusicGenreColor.Help">The color to use for music programs in the EPG.</string>
+  <string name="SlimTvClient.EpgKidsGenreColor">Kids genre color</string>
+  <string name="SlimTvClient.EpgKidsGenreColor.Help">The color to use for EPG programs that are appropriate for kids.</string>
+  <string name="SlimTvClient.EpgNewsGenreColor">News genre color</string>
+  <string name="SlimTvClient.EpgNewsGenreColor.Help">The color to use for news programs in the EPG.</string>
+  <string name="SlimTvClient.EpgSportGenreColor">Sport genre color</string>
+  <string name="SlimTvClient.EpgSportGenreColor.Help">The color to use for sport programs in the EPG.</string>
+  <string name="SlimTvClient.EpgSpecialGenreColor">Special genre color</string>
+  <string name="SlimTvClient.EpgSpecialGenreColor.Help">The color to use for EPG programs manually marked as special.</string>
+
+  <string name="SlimTvClient.NoColor">None</string>
+  
   <string name="SlimTvClient.RecordingsMenuItem">Recordings</string>
   <string name="SlimTvClient.ChannelsMenuItem">Channels</string>
   <string name="SlimTvClient.Recordings.Help">Here you can find a list of your recorded programs for playback.</string>

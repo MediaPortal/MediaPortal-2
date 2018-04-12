@@ -190,25 +190,26 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matches
       if (images == null || !images.Any())
         return 0;
 
+      var validImages = images.Where(i => VerifyFanArtImage(i, language, fanArtType)).ToList();      
       IFanArtCache fanArtCache = ServiceRegistration.Get<IFanArtCache>();
-      int currentCount = 0;
-      foreach (TImg img in images)
+      int count = await fanArtCache.TrySaveFanArt(mediaItemId, name, fanArtType, validImages, (p, i) => SaveFanArtImageAsync(id, i, p, mediaItemId, name)).ConfigureAwait(false);
+
+      Logger.Debug(_id + @" Download: Saved {0} for media item {1} ({2}) of type {3}", count, mediaItemId, name, fanArtType);
+      return count;
+    }
+
+    private async Task<bool> SaveFanArtImageAsync(string id, TImg image, string path, Guid mediaItemId, string name)
+    {
+      try
       {
-        try
-        {
-          if (!VerifyFanArtImage(img, language, fanArtType))
-            continue;
-          if (await fanArtCache.TrySaveFanArt(mediaItemId, name, fanArtType,
-              p => _wrapper.DownloadFanArtAsync(id, img, p)).ConfigureAwait(false))
-            currentCount++;
-        }
-        catch (Exception ex)
-        {
-          Logger.Debug(_id + " Download: Exception downloading images for ID {0} [{1} ({2})]", ex, id, mediaItemId, name);
-        }
+        await _wrapper.DownloadFanArtAsync(id, image, path).ConfigureAwait(false);
+        return true;
       }
-      Logger.Debug(_id + @" Download: Saved {0} for media item {1} ({2}) of type {3}", currentCount, mediaItemId, name, fanArtType);
-      return currentCount;
+      catch (Exception ex)
+      {
+        Logger.Debug(_id + " Download: Exception downloading images for ID {0} [{1} ({2})]", ex, id, mediaItemId, name);
+        return false;
+      }
     }
 
     #region IDisposable members

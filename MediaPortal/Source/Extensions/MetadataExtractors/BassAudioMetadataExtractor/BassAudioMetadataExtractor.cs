@@ -23,13 +23,12 @@
 #endregion
 
 using MediaPortal.Common;
-using MediaPortal.Common.Genres;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Common.MediaManagement.Helpers;
 using MediaPortal.Common.ResourceAccess;
-using MediaPortal.Common.Services.ThumbnailGenerator;
+using MediaPortal.Common.Services.GenreConverter;
 using MediaPortal.Extensions.BassLibraries;
 using MediaPortal.Extensions.OnlineLibraries;
 using MediaPortal.Utilities;
@@ -218,7 +217,12 @@ namespace MediaPortal.Extensions.MetadataExtractors.BassAudioMetadataExtractor
           IEnumerable<string> genres = SplitTagEnum(tags.genre);
           genres = PatchID3v23Enumeration(genres);
           trackInfo.Genres = ApplyAdditionalSeparator(genres).Select(s => new GenreInfo { Name = s }).ToList();
-          GenreMapper.AssignMissingMusicGenreIds(trackInfo.Genres);
+          IGenreConverter converter = ServiceRegistration.Get<IGenreConverter>();
+          foreach (var genre in trackInfo.Genres)
+          {
+            if (!genre.Id.HasValue && converter.GetGenreId(genre.Name, GenreCategory.Music, null, out int genreId))
+              genre.Id = genreId;
+          }
 
           int year;
           if (int.TryParse(tags.year, out year))

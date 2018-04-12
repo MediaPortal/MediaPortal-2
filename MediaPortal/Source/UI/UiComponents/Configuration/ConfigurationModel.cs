@@ -119,6 +119,7 @@ namespace MediaPortal.UiComponents.Configuration
     {
       Register(new YesNoController());
       Register(new EntryController());
+      Register(new SingleSelectionColoredListController());
       Register(new SingleSelectionListController());
       Register(new MultiSelectionListController());
       Register(new NumberSelectController());

@@ -22,25 +22,22 @@
 
 #endregion
 
-using System.Text.RegularExpressions;
+using MediaPortal.Common.Configuration.ConfigurationClasses;
 
-namespace MediaPortal.Common.Genres
+namespace MediaPortal.Plugins.SlimTv.Client.Settings.Configuration
 {
-  public class GenreMapping
+  public class ShowEpgGenreColorsSetting : YesNo
   {
-    public int GenreId { get; set; }
-    public Regex GenrePattern { get; set; }
-
-    public GenreMapping()
+    public override void Load()
     {
-      GenreId = 0;
-      GenrePattern = null;
+      Yes = SettingsManager.Load<SlimTvClientSettings>().EpgShowGenreColors;
     }
 
-    public GenreMapping(int genreId, Regex genrePattern)
+    public override void Save()
     {
-      GenreId = genreId;
-      GenrePattern = genrePattern;
+      SlimTvClientSettings settings = SettingsManager.Load<SlimTvClientSettings>();
+      settings.EpgShowGenreColors = Yes;
+      SettingsManager.Save(settings);
     }
   }
 }

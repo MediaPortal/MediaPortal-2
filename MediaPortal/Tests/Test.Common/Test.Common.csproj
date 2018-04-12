@@ -51,6 +51,7 @@
     <Compile Include="MultipleTestMIA.cs" />
     <Compile Include="SingleTestMIA.cs" />
     <Compile Include="TestRelationshipExtraction.cs" />
+    <Compile Include="TestGenres.cs" />
     <Compile Include="Thumbnailer.cs" />
     <Compile Include="TestUtils.cs" />
     <Compile Include="TestMediaItemAspectMetadata.cs" />
@@ -74,6 +75,10 @@
     <ProjectReference Include="..\..\Source\Extensions\MetadataExtractors\GDIThumbnailProvider\GDIThumbnailProvider.csproj">
       <Project>{65CF3575-AC34-4E46-92C3-84E6EDA9BACD}</Project>
       <Name>GDIThumbnailProvider</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\Source\Extensions\MetadataExtractors\GenreProvider\GenreProvider.csproj">
+      <Project>{1973AD5B-EF7E-41DA-A668-58AC37E1154E}</Project>
+      <Name>GenreProvider</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\Source\Extensions\MetadataExtractors\WICThumbnailProvider\WICThumbnailProvider.csproj">
       <Project>{7F790D8D-3A5A-499F-B9D3-8D9A1EF4F73A}</Project>

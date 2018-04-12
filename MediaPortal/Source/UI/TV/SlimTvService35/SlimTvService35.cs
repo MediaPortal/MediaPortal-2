@@ -234,7 +234,7 @@ namespace MediaPortal.Plugins.SlimTv.Service
       IProgram programNow = null;
       IProgram programNext = null;
       IProgramService programService = GlobalServiceProvider.Instance.Get<IProgramService>();
-      var programs = programService.GetNowAndNextProgramsForChannel(channel.ChannelId).Select(p => p.ToProgram()).Distinct(ProgramComparer.Instance).ToList();
+      var programs = programService.GetNowAndNextProgramsForChannel(channel.ChannelId).Select(p => GetProgram(p)).Distinct(ProgramComparer.Instance).ToList();
       var count = programs.Count;
       if (count >= 1)
         programNow = programs[0];
@@ -249,7 +249,7 @@ namespace MediaPortal.Plugins.SlimTv.Service
     {
       IProgramService programService = GlobalServiceProvider.Instance.Get<IProgramService>();
       var programs = programService.GetProgramsByChannelAndStartEndTimes(channel.ChannelId, from, to)
-        .Select(tvProgram => tvProgram.ToProgram(true))
+        .Select(tvProgram => GetProgram(tvProgram, true))
         .Distinct(ProgramComparer.Instance)
         .ToList();
       var success = programs.Count > 0;
@@ -260,7 +260,7 @@ namespace MediaPortal.Plugins.SlimTv.Service
     {
       IProgramService programService = GlobalServiceProvider.Instance.Get<IProgramService>();
       var programs = programService.GetProgramsByTitleAndStartEndTimes(title, from, to)
-        .Select(tvProgram => tvProgram.ToProgram(true))
+        .Select(tvProgram => GetProgram(tvProgram, true))
         .Distinct(ProgramComparer.Instance)
         .ToList();
       var success = programs.Count > 0;
@@ -275,7 +275,7 @@ namespace MediaPortal.Plugins.SlimTv.Service
       var channels = channelGroupService.GetChannelGroup(channelGroup.ChannelGroupId).GroupMaps.Select(groupMap => groupMap.Channel);
       IDictionary<int, IList<Program>> programEntities = programService.GetProgramsForAllChannels(from, to, channels);
 
-      var programs = programEntities.Values.SelectMany(x => x).Select(p => p.ToProgram()).Distinct(ProgramComparer.Instance).ToList();
+      var programs = programEntities.Values.SelectMany(x => x).Select(p => GetProgram(p)).Distinct(ProgramComparer.Instance).ToList();
       var success = programs.Count > 0;
       return Task.FromResult(new AsyncResult<IList<IProgram>>(success, programs));
     }
@@ -287,7 +287,7 @@ namespace MediaPortal.Plugins.SlimTv.Service
       if (scheduleEntity == null)
         return Task.FromResult(new AsyncResult<IList<IProgram>>(false, null));
       IList<Program> programEntities = ProgramManagement.GetProgramsForSchedule(scheduleEntity);
-      programs = programEntities.Select(p => p.ToProgram()).Distinct(ProgramComparer.Instance).ToList();
+      programs = programEntities.Select(p => GetProgram(p)).Distinct(ProgramComparer.Instance).ToList();
       var success = programs.Count > 0;
       return Task.FromResult(new AsyncResult<IList<IProgram>>(success, programs));
     }
@@ -302,7 +302,7 @@ namespace MediaPortal.Plugins.SlimTv.Service
     public override bool GetProgram(int programId, out IProgram program)
     {
       IProgramService programService = GlobalServiceProvider.Instance.Get<IProgramService>();
-      program = programService.GetProgram(programId).ToProgram();
+      program = GetProgram(programService.GetProgram(programId));
       return program != null;
     }
 
@@ -493,7 +493,7 @@ namespace MediaPortal.Plugins.SlimTv.Service
     public override Task<AsyncResult<RecordingStatus>> GetRecordingStatusAsync(IProgram program)
     {
       IProgramService programService = GlobalServiceProvider.Instance.Get<IProgramService>();
-      IProgramRecordingStatus recProgram = (IProgramRecordingStatus)programService.GetProgram(program.ProgramId).ToProgram(true);
+      IProgramRecordingStatus recProgram = (IProgramRecordingStatus)GetProgram(programService.GetProgram(program.ProgramId), true);
       return Task.FromResult(new AsyncResult<RecordingStatus>(true,  recProgram.RecordingStatus));
     }
 

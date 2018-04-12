@@ -41,22 +41,6 @@
           <Control Style="{ThemeResource OSDContainer}" HorizontalAlignment="Stretch" DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}"
                    Margin="10,0,10,10">
             <Control.Resources>
-              <ControlTemplate x:Key="OSD_InfoArea_Template">
-
-                <Grid x:Name="PlayerGrid" Margin="5,0,5,0"
-                      HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
-                  <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="*"/>
-                  </Grid.ColumnDefinitions>
-                  <Grid.RowDefinitions>
-                    <RowDefinition Height="Auto"/>
-                    <RowDefinition Height="Auto"/>
-                    <RowDefinition Height="Auto"/>
-                    <RowDefinition Height="*"/>
-                  </Grid.RowDefinitions>
-                </Grid>
-              </ControlTemplate>
-
               <ControlTemplate x:Key="OSD_Progress_Template">
                 <DockPanel LastChildFill="true" Margin="100,10,100,10">
                   <Grid DockPanel.Dock="Center" HorizontalAlignment="Stretch">
@@ -86,13 +70,13 @@
                     <!--Label Grid.Column="1" x:Name="VideoName" Content="{Binding Path=MediaItemTitle}" Color="{ThemeResource TextColor}"
                            FontFamily="SegoeUIBold" MaxWidth="900" Margin="20,5,10,-30" Panel.ZIndex="1"
                            HorizontalAlignment="Left" VerticalAlignment="Bottom"/-->
-                    
+
                   </Grid>
                   <!-- PlayerGrid -->
                 </DockPanel>
               </ControlTemplate>
 
-        <ControlTemplate x:Key="OSD_Controls_Template">
+              <ControlTemplate x:Key="OSD_Controls_Template">
                 <DockPanel Margin="0" HorizontalAlignment="Right">
                   <Grid DockPanel.Dock="Right">
                     <Grid.ColumnDefinitions>
@@ -156,6 +140,28 @@
                   <!-- PlayerGrid -->
                 </DockPanel>
               </ControlTemplate>
+
+              <ControlTemplate x:Key="OSD_InfoArea_Template">
+                <Grid x:Name="PlayerGrid" Margin="5,0,5,0"
+                      HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+                  <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                  </Grid.ColumnDefinitions>
+                  <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                  </Grid.RowDefinitions>
+                  <Label x:Name="VideoName" Content="{Binding Path=MediaItemTitle}" Color="{ThemeResource TextColor}"
+                         FontFamily="SegoeUIBold" MaxWidth="900" Margin="20,5,10,-30" ScrollDelay="0" Scroll="Auto"
+                         HorizontalAlignment="Left" VerticalAlignment="Bottom">
+                    <Label.Width>
+                      <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}1930-{0}">
+                        <Binding Source="{Binding ElementName=PlayControlsPanel, Path=ActualWidth}"/>
+                      </MultiBinding>
+                    </Label.Width>
+                  </Label>
+                </Grid>
+              </ControlTemplate>
+
             </Control.Resources>
           </Control>
         </ControlTemplate>
@@ -3698,66 +3704,10 @@
       <Label HorizontalAlignment="Center" VerticalAlignment="Bottom" Margin="5,7,5,3" Color="{ThemeResource TextColor}" Height="35"
              TextTrimming="CharacterEllipsis" Content="{Binding SimpleTitle}" FontSize="{ThemeResource SmallerFontSize}"
              IsVisible="{Binding Path=!Id,Converter={StaticResource EmptyStringToFalseConverter}}"/>
-      
+
       <Label x:Name="ItemLabel" HorizontalAlignment="Center" VerticalAlignment="Bottom" Margin="5,7,5,3" Color="{ThemeResource TextColor}" Height="35"
-             TextTrimming="CharacterEllipsis" FontSize="{ThemeResource SmallerFontSize}">
-        <Label.Resources>
-          <ResourceWrapper x:Key="Action_String" Resource="[Genre.Action]"/>
-          <ResourceWrapper x:Key="Adventure_String" Resource="[Genre.Adventure]"/>
-          <ResourceWrapper x:Key="Animation_String" Resource="[Genre.Animation]"/>
-          <ResourceWrapper x:Key="Comedy_String" Resource="[Genre.Comedy]"/>
-          <ResourceWrapper x:Key="Crime_String" Resource="[Genre.Crime]"/>
-          <ResourceWrapper x:Key="Documentary_String" Resource="[Genre.Documentary]"/>
-          <ResourceWrapper x:Key="Drama_String" Resource="[Genre.Drama]"/>
-          <ResourceWrapper x:Key="Family_String" Resource="[Genre.Family]"/>
-          <ResourceWrapper x:Key="Fantasy_String" Resource="[Genre.Fantasy]"/>
-          <ResourceWrapper x:Key="History_String" Resource="[Genre.History]"/>
-          <ResourceWrapper x:Key="Horror_String" Resource="[Genre.Horror]"/>
-          <ResourceWrapper x:Key="Music_String" Resource="[Genre.Music]"/>
-          <ResourceWrapper x:Key="Romance_String" Resource="[Genre.Romance]"/>
-          <ResourceWrapper x:Key="Science_Fiction_String" Resource="[Genre.Science_Fiction]"/>
-          <ResourceWrapper x:Key="Mystery_String" Resource="[Genre.Mystery]"/>
-          <ResourceWrapper x:Key="Thriller_String" Resource="[Genre.Thriller]"/>
-          <ResourceWrapper x:Key="War_String" Resource="[Genre.War]"/>
-          <ResourceWrapper x:Key="Western_String" Resource="[Genre.Western]"/>
-          <ResourceWrapper x:Key="Kids_String" Resource="[Genre.Kids]"/>
-          <ResourceWrapper x:Key="News_String" Resource="[Genre.News]"/>
-          <ResourceWrapper x:Key="Reality_String" Resource="[Genre.Reality]"/>
-          <ResourceWrapper x:Key="Soap_String" Resource="[Genre.Soap]"/>
-          <ResourceWrapper x:Key="Talk_String" Resource="[Genre.Talk]"/>
-          <ResourceWrapper x:Key="Politics_String" Resource="[Genre.Politics]"/>
-        </Label.Resources>
-        <Label.Content>
-          <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" 
-                        ConverterParameter="{}{0} == 1 ? {1} : ({0} == 2 ? {2} : ({0} == 3 ? {3} : ({0} == 4 ? {4} : ({0} == 5 ? {5} : ({0} == 6 ? {6} : ({0} == 7 ? {7} : ({0} == 8 ? {8} : ({0} == 9 ? {9} : ({0} == 10 ? {10} : ({0} == 11 ? {11} : ({0} == 12 ? {12} : ({0} == 13 ? {13} : ({0} == 14 ? {14} : ({0} == 15 ? {15} : ({0} == 16 ? {16} : ({0} == 17 ? {17} : ({0} == 18 ? {18} : ({0} == 19 ? {19} : ({0} == 20 ? {20} : ({0} == 21 ? {21} : ({0} == 22 ? {22} : ({0} == 23 ? {23} : ({0} == 24 ? {24} : ({0} == 25 ? {25} : {26}))))))))))))))))))))))))">
-            <Binding Path="Id"/>
-            <Binding Source="{StaticResource Action_String}" Path="Resource" />
-            <Binding Source="{StaticResource Adventure_String}" Path="Resource" />
-            <Binding Source="{StaticResource Animation_String}" Path="Resource" />
-            <Binding Source="{StaticResource Comedy_String}" Path="Resource" />
-            <Binding Source="{StaticResource Crime_String}" Path="Resource" />
-            <Binding Source="{StaticResource Documentary_String}" Path="Resource" />
-            <Binding Source="{StaticResource Drama_String}" Path="Resource" />
-            <Binding Source="{StaticResource Family_String}" Path="Resource" />
-            <Binding Source="{StaticResource Fantasy_String}" Path="Resource" />
-            <Binding Source="{StaticResource History_String}" Path="Resource" />
-            <Binding Source="{StaticResource Horror_String}" Path="Resource" />
-            <Binding Source="{StaticResource Music_String}" Path="Resource" />
-            <Binding Source="{StaticResource Mystery_String}" Path="Resource" />
-            <Binding Source="{StaticResource Romance_String}" Path="Resource" />
-            <Binding Source="{StaticResource Science_Fiction_String}" Path="Resource" />
-            <Binding Source="{StaticResource Mystery_String}" Path="Resource" />
-            <Binding Source="{StaticResource Thriller_String}" Path="Resource" />
-            <Binding Source="{StaticResource War_String}" Path="Resource" />
-            <Binding Source="{StaticResource Western_String}" Path="Resource" />
-            <Binding Source="{StaticResource Kids_String}" Path="Resource" />
-            <Binding Source="{StaticResource News_String}" Path="Resource" />
-            <Binding Source="{StaticResource Reality_String}" Path="Resource" />
-            <Binding Source="{StaticResource Soap_String}" Path="Resource" />
-            <Binding Source="{StaticResource Talk_String}" Path="Resource" />
-            <Binding Source="{StaticResource Politics_String}" Path="Resource" />
-          </MultiBinding>
-        </Label.Content>
+             TextTrimming="CharacterEllipsis" FontSize="{ThemeResource SmallerFontSize}"
+             Content="{Binding Path=SimpleTitle}">
       </Label>
     </Grid>
   </ControlTemplate>
