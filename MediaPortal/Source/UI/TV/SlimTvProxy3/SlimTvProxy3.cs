@@ -53,11 +53,10 @@ using VirtualCard = TvControl.VirtualCard;
 using System.Globalization;
 using Gentle.Framework;
 using System.Collections;
-using MediaPortal.Common.Services.ServerCommunication;
 using MediaPortal.Common.Settings;
 using MediaPortal.Plugins.SlimTv.Proxy.Settings;
 using MediaPortal.Common.Services.GenreConverter;
-using System.Collections.Concurrent;
+using MediaPortal.Common.Async;
 
 namespace MediaPortal.Plugins.SlimTv.Service
 {
@@ -71,7 +70,6 @@ namespace MediaPortal.Plugins.SlimTv.Service
     private object _recordingSync = new object();
 
     protected readonly Dictionary<string, IUser> _tvUsers = new Dictionary<string, IUser>();
-    protected readonly ConcurrentDictionary<EpgGenre, IEnumerable<string>> _tvGenres = new ConcurrentDictionary<EpgGenre, IEnumerable<string>>();
 
     public SlimTvService()
     {
