@@ -68,8 +68,8 @@ namespace MediaPortal.Common.FanArt
     /// <param name="fanArtType">The type of fanart.</param>
     /// <param name="files">Collection of fanart files to save.</param>
     /// <param name="saveDlgt"><see cref="TrySaveMultipleFanArtAsyncDelegate<typeparamref name="T"/> that saves each image file.</param>
-    /// <returns><c>true</c> if any image was succesfully saved to the cache.</returns>
-    Task<bool> TrySaveFanArt<T>(Guid mediaItemId, string title, string fanArtType, ICollection<T> files, TrySaveMultipleFanArtAsyncDelegate<T> saveDlgt);
+    /// <returns>The number of images that were succesfully saved to the cache.</returns>
+    Task<int> TrySaveFanArt<T>(Guid mediaItemId, string title, string fanArtType, ICollection<T> files, TrySaveMultipleFanArtAsyncDelegate<T> saveDlgt);
 
     /// <summary>
     /// Gets a list of paths to all fanart of the specified type for the specified media item.

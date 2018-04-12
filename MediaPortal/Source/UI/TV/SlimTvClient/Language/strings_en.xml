@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-  <string name="SlimTvClient.Title">Slim TV Client</string>
+  <string name="SlimTvClient.Title">TV Guide</string>
   <string name="SlimTvClient.Main">TV</string>
   <string name="SlimTvClient.Main.Help">Here you can watch your favourite TV and Radio programs and switch between the channels.</string>
   <string name="SlimTvClient.TvGuide">TV Guide</string>

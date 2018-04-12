@@ -91,13 +91,20 @@
     </Grid>
 
     <Grid x:Name="TimeGrid" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,20,30,0" 
-          Height="100" Width="160" IsVisible="{Binding IsOSDVisible}">
+          Height="105" IsVisible="{Binding IsOSDVisible}">
       <Grid.Resources>
         <Model x:Key="TimeModel" Id="E821B1C8-0666-4339-8027-AA45A4F6F107"/>
       </Grid.Resources>
-      <Image Source="PlayerControl\Time.shadow.PNG" HorizontalAlignment="Center" VerticalAlignment="Center" Stretch="Uniform" Margin="0,0,0,-10"/>
-      <Label x:Name="TimeLabel" Content="{Binding Source={StaticResource TimeModel}, Path=CurrentTime}"
+      <Label x:Name="TimeLabel" Content="{Binding Source={StaticResource TimeModel}, Path=CurrentTime}" Panel.ZIndex="101"
              FontSize="{ThemeResource NormalFontSize}" Color="{ThemeResource TextColor}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+      <Image Source="PlayerControl\Time.shadow.PNG" HorizontalAlignment="Center" VerticalAlignment="Center" Stretch="Fill" 
+             Margin="0,0,0,-10" Panel.ZIndex="100">
+        <Image.Width>
+          <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0}+60">
+            <Binding Source="{Binding ElementName=TimeLabel, Path=ActualWidth}"/>
+          </MultiBinding>
+        </Image.Width>
+      </Image>
     </Grid>
 
     <!-- Mouse control buttons -->
