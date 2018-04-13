@@ -52,8 +52,6 @@ using TvLibrary.Interfaces;
 using TvService;
 using MediaPortal.Backend.ClientCommunication;
 using MediaPortal.Common.Async;
-using MediaPortal.Common.Services.ServerCommunication;
-using System.Collections.Concurrent;
 using MediaPortal.Common.Services.GenreConverter;
 
 namespace MediaPortal.Plugins.SlimTv.Service
@@ -382,6 +380,9 @@ namespace MediaPortal.Plugins.SlimTv.Service
 
     protected override void InitGenreMap()
     {
+      if (!_initComplete.Task.Result)
+        return;
+
       if (_tvGenresInited)
         return;
 
@@ -435,13 +436,16 @@ namespace MediaPortal.Plugins.SlimTv.Service
       }
     }
 
-    public override Task<bool> StopTimeshiftAsync(string userName, int slotIndex)
+    public override async Task<bool> StopTimeshiftAsync(string userName, int slotIndex)
     {
+      if (!await _initComplete.Task)
+        return false;
+
       IUser user;
       user = GetUserByUserName(GetUserName(userName, slotIndex));
       if (user == null)
-        return Task.FromResult(false);
-      return Task.FromResult(_tvControl.StopTimeShifting(ref user));
+        return false;
+      return _tvControl.StopTimeShifting(ref user);
     }
 
     public override async Task<MediaItem> CreateMediaItem(int slotIndex, string streamUrl, IChannel channel)
@@ -478,28 +482,37 @@ namespace MediaPortal.Plugins.SlimTv.Service
     //  return true;
     //}
 
-    public override Task<AsyncResult<IList<IProgram>>> GetProgramsAsync(IChannel channel, DateTime from, DateTime to)
+    public override async Task<AsyncResult<IList<IProgram>>> GetProgramsAsync(IChannel channel, DateTime from, DateTime to)
     {
+      if (!await _initComplete.Task)
+        return new AsyncResult<IList<IProgram>>(false, null);
+
       var programs = _tvBusiness.GetPrograms(TvDatabase.Channel.Retrieve(channel.ChannelId), from, to)
         .Select(tvProgram => GetProgram(tvProgram, true))
         .Distinct(ProgramComparer.Instance)
         .ToList();
       var success = programs.Count > 0;
-      return Task.FromResult(new AsyncResult<IList<IProgram>>(success, programs));
+      return new AsyncResult<IList<IProgram>>(success, programs);
     }
 
-    public override Task<AsyncResult<IList<IProgram>>> GetProgramsAsync(string title, DateTime from, DateTime to)
+    public override async Task<AsyncResult<IList<IProgram>>> GetProgramsAsync(string title, DateTime from, DateTime to)
     {
+      if (!await _initComplete.Task)
+        return new AsyncResult<IList<IProgram>>(false, null);
+
       var programs = _tvBusiness.SearchPrograms(title).Where(p => p.StartTime >= from && p.StartTime <= to || p.EndTime >= from && p.EndTime <= to)
         .Select(tvProgram => GetProgram(tvProgram, true))
         .Distinct(ProgramComparer.Instance)
         .ToList();
       var success = programs.Count > 0;
-      return Task.FromResult(new AsyncResult<IList<IProgram>>(success, programs));
+      return new AsyncResult<IList<IProgram>>(success, programs);
     }
 
-    public override Task<AsyncResult<IList<IProgram>>> GetProgramsGroupAsync(IChannelGroup channelGroup, DateTime from, DateTime to)
+    public override async Task<AsyncResult<IList<IProgram>>> GetProgramsGroupAsync(IChannelGroup channelGroup, DateTime from, DateTime to)
     {
+      if (!await _initComplete.Task)
+        return new AsyncResult<IList<IProgram>>(false, null);
+
       var programs = new List<IProgram>();
       if (channelGroup.ChannelGroupId < 0)
       {
@@ -512,7 +525,7 @@ namespace MediaPortal.Plugins.SlimTv.Service
           CollectionUtils.AddAll(programs, _tvBusiness.GetPrograms(TvDatabase.Channel.Retrieve(channel.IdChannel), from, to).Select(p => GetProgram(p)));
       }
       var success = programs.Count > 0;
-      return Task.FromResult(new AsyncResult<IList<IProgram>>(success, programs));
+      return new AsyncResult<IList<IProgram>>(success, programs);
     }
 
     public override Task<AsyncResult<IList<IProgram>>> GetProgramsForScheduleAsync(ISchedule schedule)
@@ -560,8 +573,11 @@ namespace MediaPortal.Plugins.SlimTv.Service
       return Task.FromResult(new AsyncResult<IChannel>(success, channel));
     }
 
-    public override Task<AsyncResult<IList<IChannel>>> GetChannelsAsync(IChannelGroup group)
+    public override async Task<AsyncResult<IList<IChannel>>> GetChannelsAsync(IChannelGroup group)
     {
+      if (!await _initComplete.Task)
+        return new AsyncResult<IList<IChannel>>(false, null);
+
       List<IChannel> channels;
       if (group.ChannelGroupId < 0)
       {
@@ -576,14 +592,14 @@ namespace MediaPortal.Plugins.SlimTv.Service
       else
       {
         channels = _tvBusiness.GetChannelsInGroup(TvDatabase.ChannelGroup.Retrieve(group.ChannelGroupId))
+          .Where(c => c != null)
           // Bug? SortOrder contains logical channel number, not the group sort order?
           // .OrderBy(c => c.SortOrder)
           .Where(c => c.VisibleInGuide)
           .Select(c => c.ToChannel())
-          .Where(c => c != null)
           .ToList();
       }
-      return Task.FromResult(new AsyncResult<IList<IChannel>>(true, channels));
+      return new AsyncResult<IList<IChannel>>(true, channels);
     }
 
     public override Task<AsyncResult<IList<ISchedule>>> GetSchedulesAsync()
