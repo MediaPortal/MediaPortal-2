@@ -1,14 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- News workflow state actions -->
+<!-- Login workflow state actions -->
 <Workflow DescriptorVersion="1.0">
   <MenuActions>
-    <PushNavigationTransition Id="ABEDFC40-7F02-4FBB-AA1E-9F57B131BBB6"
+    <WorkflowContributorAction Id="ABEDFC40-7F02-4FBB-AA1E-9F57B131BBB6"
         Name="Home->Login"
         DisplayCategory="z-Login"
         SortOrder="z"
         SourceStates="7F702D9C-F2DD-42da-9ED8-0BA92F07787F"
-        TargetState="2529B0F0-8415-4A4E-971B-38D6CDD2406A"
-        DisplayTitle="[Login.Title]"
+        ContributorModelId="D5CA9E6F-8639-4D2F-B94A-FEE7A69A87C4"
         HelpText="[Login.Title.Help]"/>
   </MenuActions>
 </Workflow>
