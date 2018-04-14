@@ -276,7 +276,6 @@ namespace MediaPortal.UiComponents.Media.Models
           if (_searchItem is MovieInfo movie)
           {
             movieSearchinfo = new MovieInfo();
-            movieSearchinfo.MovieName = " "; //To make SetMetadata store the aspects
             if (ManualId.StartsWith("tt", StringComparison.InvariantCultureIgnoreCase))
               movieSearchinfo.ImdbId = ManualId;
             else if (int.TryParse(ManualId, out int movieDbId))
@@ -287,7 +286,6 @@ namespace MediaPortal.UiComponents.Media.Models
           else if (_searchItem is EpisodeInfo episode)
           {
             episodeSearchinfo = new EpisodeInfo();
-            episodeSearchinfo.SeriesName = " "; //To make SetMetadata store the aspects
             episodeSearchinfo.SeasonNumber = episode.SeasonNumber;
             episodeSearchinfo.EpisodeNumbers = episode.EpisodeNumbers;
             if (ManualId.StartsWith("tt", StringComparison.InvariantCultureIgnoreCase))
@@ -300,8 +298,7 @@ namespace MediaPortal.UiComponents.Media.Models
           else if (_searchItem is TrackInfo track)
           {
             trackSearchinfo = new TrackInfo();
-            trackSearchinfo.TrackName = " "; //To make SetMetadata store the aspects
-            if (ManualId.IndexOf("-", StringComparison.InvariantCultureIgnoreCase) > 2)
+            if (Guid.TryParse(ManualId, out Guid guid))
               trackSearchinfo.MusicBrainzId = ManualId;
             else if (int.TryParse(ManualId, out int audioDbId))
               trackSearchinfo.AudioDbId = audioDbId;
@@ -311,7 +308,6 @@ namespace MediaPortal.UiComponents.Media.Models
           else if (_searchItem is SeriesInfo series)
           {
             seriesSearchinfo = new SeriesInfo();
-            seriesSearchinfo.SeriesName = " "; //To make SetMetadata store the aspects
             if (ManualId.StartsWith("tt", StringComparison.InvariantCultureIgnoreCase))
               seriesSearchinfo.ImdbId = ManualId;
             else if (int.TryParse(ManualId, out int tvDbSeriesId))
@@ -322,9 +318,8 @@ namespace MediaPortal.UiComponents.Media.Models
           else if (_searchItem is AlbumInfo album)
           {
             albumSearchinfo = new AlbumInfo();
-            albumSearchinfo.Album = " "; //To make SetMetadata store the aspects
-            if (ManualId.IndexOf("-", StringComparison.InvariantCultureIgnoreCase) > 2)
-              albumSearchinfo.MusicBrainzId = ManualId;
+            if (Guid.TryParse(ManualId, out Guid guid))
+              albumSearchinfo.MusicBrainzGroupId = ManualId;
             else if (int.TryParse(ManualId, out int audioDbId))
               albumSearchinfo.AudioDbId = audioDbId;
             else //Fallabck to name search
@@ -431,7 +426,7 @@ namespace MediaPortal.UiComponents.Media.Models
           infoText.Append(movie.Summary.Text);
 
         listItem.SetLabel(KEY_INFO, infoText.ToString());
-        movie.SetMetadata(aspects);
+        movie.SetMetadata(aspects, true);
       }
       else if (item is EpisodeInfo episode)
       {
@@ -439,17 +434,17 @@ namespace MediaPortal.UiComponents.Media.Models
           $" S{(episode.SeasonNumber.HasValue ? episode.SeasonNumber.Value.ToString("00") : "??")}{(episode.EpisodeNumbers.Count > 0 ? string.Join("", episode.EpisodeNumbers.Select(e => "E" + e.ToString("00"))) : "E??")}" +
           $"{(episode.EpisodeName.IsEmpty ? "" : $": {episode.EpisodeName.Text}" )}");
         StringBuilder infoText = new StringBuilder();
-        if (episode.SeriesTvdbId > 0)
-          infoText.Append($"thetvdb.com: {episode.SeriesTvdbId}\n");
-        if (!string.IsNullOrEmpty(episode.SeriesImdbId))
-          infoText.Append($"imdb.com: {episode.SeriesImdbId}\n");
-        if (episode.SeriesMovieDbId > 0)
-          infoText.Append($"themoviedb.org: {episode.SeriesMovieDbId}\n");
+        if (episode.TvdbId > 0)
+          infoText.Append($"thetvdb.com: {episode.TvdbId}\n");
+        if (!string.IsNullOrEmpty(episode.ImdbId))
+          infoText.Append($"imdb.com: {episode.ImdbId}\n");
+        if (episode.MovieDbId > 0)
+          infoText.Append($"themoviedb.org: {episode.MovieDbId}\n");
         if (!episode.Summary.IsEmpty)
           infoText.Append(episode.Summary.Text);
 
         listItem.SetLabel(KEY_INFO, infoText.ToString());
-        episode.SetMetadata(aspects);
+        episode.SetMetadata(aspects, true);
       }
       else if (item is TrackInfo track)
       {
@@ -464,7 +459,7 @@ namespace MediaPortal.UiComponents.Media.Models
           infoText.Append(track.ReleaseDate.Value.ToShortDateString());
         
         listItem.SetLabel(KEY_INFO, infoText.ToString());
-        track.SetMetadata(aspects);
+        track.SetMetadata(aspects, true);
       }
       else if (item is SeriesInfo series)
       {
@@ -480,22 +475,22 @@ namespace MediaPortal.UiComponents.Media.Models
           infoText.Append(series.Description.Text);
 
         listItem.SetLabel(KEY_INFO, infoText.ToString());
-        series.SetMetadata(aspects);
+        series.SetMetadata(aspects, true);
       }
       else if (item is AlbumInfo album)
       {
         listItem.SetLabel(KEY_NAME, $"{album.Album}{(album.ReleaseDate.HasValue ? $" ({album.ReleaseDate.Value.Year})" : "")}" +
           $"{(album.Artists.Count > 0 ? $" [{string.Join(", ", album.Artists)}]" : "")}");
         StringBuilder infoText = new StringBuilder();
-        if (!string.IsNullOrEmpty(album.MusicBrainzId))
-          infoText.Append($"musicbrainz.org: {album.MusicBrainzId}\n");
+        if (!string.IsNullOrEmpty(album.MusicBrainzGroupId))
+          infoText.Append($"musicbrainz.org: {album.MusicBrainzGroupId}\n");
         if (album.AudioDbId > 0)
           infoText.Append($"theaudiodb.com: {album.AudioDbId}\n");
         if (!album.Description.IsEmpty)
           infoText.Append(album.Description.Text);
 
         listItem.SetLabel(KEY_INFO, infoText.ToString());
-        album.SetMetadata(aspects);
+        album.SetMetadata(aspects, true);
       }
       if (aspects.ContainsKey(ExternalIdentifierAspect.ASPECT_ID))
       {

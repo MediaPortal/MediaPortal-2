@@ -1439,11 +1439,10 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
         }
         else
         {
-          tracks = tracks.FindAll(t => NamesAreMostlyEqual(t, trackSearch));
-          if (tracks.Count == 0)
+          exactMatches = tracks.FindAll(t => NamesAreMostlyEqual(t, trackSearch));
+          if (exactMatches.Count > 0)
           {
-            tracks.Clear();
-            return false;
+            tracks = exactMatches;
           }
         }
 

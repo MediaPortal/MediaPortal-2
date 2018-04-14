@@ -131,10 +131,10 @@ namespace MediaPortal.Common.MediaManagement.Helpers
     /// Copies the contained company information into MediaItemAspect.
     /// </summary>
     /// <param name="aspectData">Dictionary with extracted aspects.</param>
-    public override bool SetMetadata(IDictionary<Guid, IList<MediaItemAspect>> aspectData)
+    public override bool SetMetadata(IDictionary<Guid, IList<MediaItemAspect>> aspectData, bool force = false)
     {
-      if (string.IsNullOrEmpty(Name)) return false;
-      if (string.IsNullOrEmpty(Type)) return false;
+      if (!force && !IsBaseInfoPresent)
+        return false;
 
       AssignNameId();
       SetMetadataChanged(aspectData);

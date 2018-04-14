@@ -589,7 +589,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
               if (id3Tag != null && !id3Tag.IsEmpty)
                 trackInfo.Compilation = id3Tag.IsCompilation;
 
-              trackInfo.Album = !string.IsNullOrEmpty(tag.Tag.Album) ? tag.Tag.Album.Trim() : null;
+              trackInfo.Album = !string.IsNullOrEmpty(tag.Tag.Album) ? tag.Tag.Album.Trim() : trackInfo.Album;
 
               if (trackNo.HasValue)
                 trackInfo.TrackNum = (int)trackNo.Value;

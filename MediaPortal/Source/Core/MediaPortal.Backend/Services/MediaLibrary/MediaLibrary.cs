@@ -1103,6 +1103,15 @@ namespace MediaPortal.Backend.Services.MediaLibrary
               var path = pra.GetAttributeValue<string>(ProviderResourceAspect.ATTR_RESOURCE_ACCESSOR_PATH);
               var sysId = pra.GetAttributeValue<string>(ProviderResourceAspect.ATTR_SYSTEM_ID);
               var resPath = ResourcePath.Deserialize(path);
+              bool pathExists = resPath.TryCreateLocalResourceAccessor(out IResourceAccessor resAccessor);
+              resAccessor?.Dispose();
+
+              if(!pathExists)
+              {
+                transaction.Rollback();
+                Logger.Error("MediaLibrary: Error reimporting media item {0}. File {1} no longer exists", mediaItemId, resPath.FileName);
+                return;
+              }
 
               _relationshipManagement.DeletePathAndRelationships(transaction, sysId, resPath, true);
             }

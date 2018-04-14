@@ -237,7 +237,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
         }
       }
 
-      if (!movieInfo.IsBaseInfoPresent)
+      if (!movieInfo.IsBaseInfoPresent || !movieInfo.ReleaseDate.HasValue)
       {
         // Also test the full path year. This is useful if the path contains the real name and year.
         foreach (string path in pathsToTest)

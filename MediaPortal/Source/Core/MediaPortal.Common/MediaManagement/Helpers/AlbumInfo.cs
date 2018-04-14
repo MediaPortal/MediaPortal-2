@@ -241,9 +241,10 @@ namespace MediaPortal.Common.MediaManagement.Helpers
     /// Copies the contained track information into MediaItemAspect.
     /// </summary>
     /// <param name="aspectData">Dictionary with extracted aspects.</param>
-    public override bool SetMetadata(IDictionary<Guid, IList<MediaItemAspect>> aspectData)
+    public override bool SetMetadata(IDictionary<Guid, IList<MediaItemAspect>> aspectData, bool force = false)
     {
-      if (string.IsNullOrEmpty(Album)) return false;
+      if (!force && !IsBaseInfoPresent)
+        return false;
 
       AssignNameId();
       SetMetadataChanged(aspectData);

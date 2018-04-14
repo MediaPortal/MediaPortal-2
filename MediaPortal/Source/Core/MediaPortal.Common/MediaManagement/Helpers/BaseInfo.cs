@@ -283,7 +283,7 @@ namespace MediaPortal.Common.MediaManagement.Helpers
       }
     }
 
-    public abstract bool SetMetadata(IDictionary<Guid, IList<MediaItemAspect>> aspectData);
+    public abstract bool SetMetadata(IDictionary<Guid, IList<MediaItemAspect>> aspectData, bool force = false);
 
     public abstract bool FromMetadata(IDictionary<Guid, IList<MediaItemAspect>> aspectData);
 

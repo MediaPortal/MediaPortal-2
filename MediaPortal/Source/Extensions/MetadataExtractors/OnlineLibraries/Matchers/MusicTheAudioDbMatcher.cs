@@ -124,6 +124,8 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
       id = null;
       if (album.AudioDbId > 0)
         id = album.AudioDbId.ToString();
+      if (!string.IsNullOrEmpty(album.MusicBrainzGroupId))
+        id = album.MusicBrainzGroupId;
       return id != null;
     }
 
@@ -131,7 +133,10 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
     {
       if (!string.IsNullOrEmpty(id))
       {
-        album.AudioDbId = Convert.ToInt64(id);
+        if (Guid.TryParse(id, out Guid guid))
+          album.MusicBrainzGroupId = id;
+        else
+          album.AudioDbId = Convert.ToInt64(id);
         return true;
       }
       return false;

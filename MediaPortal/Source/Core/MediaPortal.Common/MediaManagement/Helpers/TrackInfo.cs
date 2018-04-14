@@ -115,7 +115,7 @@ namespace MediaPortal.Common.MediaManagement.Helpers
     {
       get
       {
-        if (string.IsNullOrEmpty(TrackName))
+        if (string.IsNullOrEmpty(TrackName) && (string.IsNullOrEmpty(Album) || TrackNum <= 0))
           return false;
 
         return true;
@@ -171,6 +171,11 @@ namespace MediaPortal.Common.MediaManagement.Helpers
         if (!string.IsNullOrEmpty(TrackName))
         {
           NameId = Album + ":" + TrackName;
+          NameId = GetNameId(NameId);
+        }
+        else if (TrackNum > 0)
+        {
+          NameId = Album + "_" + TrackNum.ToString();
           NameId = GetNameId(NameId);
         }
       }
@@ -280,9 +285,10 @@ namespace MediaPortal.Common.MediaManagement.Helpers
     /// Copies the contained track information into MediaItemAspect.
     /// </summary>
     /// <param name="aspectData">Dictionary with extracted aspects.</param>
-    public override bool SetMetadata(IDictionary<Guid, IList<MediaItemAspect>> aspectData)
+    public override bool SetMetadata(IDictionary<Guid, IList<MediaItemAspect>> aspectData, bool force = false)
     {
-      if (string.IsNullOrEmpty(TrackName)) return false;
+      if (!force && !IsBaseInfoPresent)
+        return false;
 
       SetMetadataChanged(aspectData);
 
@@ -505,6 +511,19 @@ namespace MediaPortal.Common.MediaManagement.Helpers
         MvDbId = otherTrack.MvDbId;
         LyricId = otherTrack.LyricId;
         NameId = otherTrack.NameId;
+        return true;
+      }
+      else if (otherInstance is AlbumInfo)
+      {
+        AlbumInfo otherAlbum = otherInstance as AlbumInfo;
+        AlbumAudioDbId = otherAlbum.AudioDbId;
+        AlbumCdDdId = otherAlbum.CdDdId;
+        AlbumMusicBrainzDiscId = otherAlbum.MusicBrainzDiscId;
+        AlbumMusicBrainzGroupId = otherAlbum.MusicBrainzGroupId;
+        AlbumMusicBrainzId = otherAlbum.MusicBrainzId;
+        AlbumAmazonId = otherAlbum.AmazonId;
+        AlbumItunesId = otherAlbum.ItunesId;
+        AlbumNameId = otherAlbum.NameId;
         return true;
       }
       return false;

@@ -120,7 +120,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
           SeasonInfo basicSeason = series.CloneBasicInstance<SeasonInfo>();
           basicSeason.SeasonNumber = season.SeasonNumber;
           IDictionary<Guid, IList<MediaItemAspect>> aspects = new Dictionary<Guid, IList<MediaItemAspect>>();
-          basicSeason.SetMetadata(aspects);
+          basicSeason.SetMetadata(aspects, true);
           return aspects;
         }
         else if (childAspects.ContainsKey(EpisodeAspect.ASPECT_ID))
@@ -132,7 +132,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
           basicEpisode.SeasonNumber = episode.SeasonNumber;
           basicEpisode.EpisodeNumbers = episode.EpisodeNumbers;
           IDictionary<Guid, IList<MediaItemAspect>> aspects = new Dictionary<Guid, IList<MediaItemAspect>>();
-          basicEpisode.SetMetadata(aspects);
+          basicEpisode.SetMetadata(aspects, true);
           return aspects;
         }
       }
@@ -149,7 +149,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
           TrackInfo basicTrack = album.CloneBasicInstance<TrackInfo>();
           basicTrack.TrackNum = track.TrackNum;
           IDictionary<Guid, IList<MediaItemAspect>> aspects = new Dictionary<Guid, IList<MediaItemAspect>>();
-          basicTrack.SetMetadata(aspects);
+          basicTrack.SetMetadata(aspects, true);
           return aspects;
         }
       }
