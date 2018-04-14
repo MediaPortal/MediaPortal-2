@@ -56,7 +56,10 @@
     <Compile Include="MockRelationshipExtractor.cs" />
     <Compile Include="MockTransaction.cs" />
     <Compile Include="MockCore.cs" />
+    <Compile Include="MultipleTestMIA.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="SingleTestMIA.cs" />
+    <Compile Include="TestUtils.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\Source\Core\MediaPortal.Backend\MediaPortal.Backend.csproj">

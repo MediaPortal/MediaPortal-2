@@ -72,6 +72,7 @@ namespace MediaPortal.Plugins.SlimTv.Service
     protected SlimTvGenreColorSettings _epgColorSettings = null;
     protected readonly ConcurrentDictionary<EpgGenre, IEnumerable<string>> _tvGenres = new ConcurrentDictionary<EpgGenre, IEnumerable<string>>();
     protected bool _tvGenresInited = false;
+    protected TaskCompletionSource<bool> _initComplete = new TaskCompletionSource<bool>();
 
     private void SettingsChanged(object sender, EventArgs e)
     {
@@ -85,6 +86,8 @@ namespace MediaPortal.Plugins.SlimTv.Service
 
     public bool Init()
     {
+      Task.Delay(MAX_WAIT_MS).ContinueWith((t) => _initComplete.TrySetResult(false));
+
       ServiceRegistration.Get<IMessageBroker>().RegisterMessageReceiver(SystemMessaging.CHANNEL, this);
 
       _settingWatcher = new SettingsChangeWatcher<SlimTvGenreColorSettings>();
@@ -119,6 +122,7 @@ namespace MediaPortal.Plugins.SlimTv.Service
       if (database == null)
       {
         ServiceRegistration.Get<ILogger>().Error("SlimTvService: Database not available.");
+        _initComplete.TrySetResult(false);
         return;
       }
 
@@ -142,6 +146,7 @@ namespace MediaPortal.Plugins.SlimTv.Service
       InitTvCore();
       if (_abortInit)
       {
+        _initComplete.TrySetResult(false);
         DeInit();
         return;
       }
@@ -150,6 +155,7 @@ namespace MediaPortal.Plugins.SlimTv.Service
       PrepareMediaSources();
 
       ServiceRegistration.Get<ILogger>().Info("SlimTvService: Initialised");
+      _initComplete.TrySetResult(true);
     }
 
     /// <summary>
@@ -258,7 +264,7 @@ namespace MediaPortal.Plugins.SlimTv.Service
       }
 
       //If genre is unknown and the program contains series info, mark it as a series genre
-      if (prog.EpgGenreId == (int)EpgGenre.Unknown && 
+      if (prog.EpgGenreId == (int)EpgGenre.Unknown &&
         (!string.IsNullOrWhiteSpace(tvProgram.SeriesNum) || !string.IsNullOrWhiteSpace(tvProgram.EpisodeNum) || !string.IsNullOrWhiteSpace(tvProgram.EpisodePart)))
       {
         prog.EpgGenreId = (int)EpgGenre.Series;
@@ -322,9 +328,9 @@ namespace MediaPortal.Plugins.SlimTv.Service
 
     public abstract bool DeInit();
 
-#endregion
+    #endregion
 
-#region Recordings / MediaLibrary synchronization
+    #region Recordings / MediaLibrary synchronization
 
     protected abstract bool RegisterEvents();
 
@@ -468,9 +474,9 @@ namespace MediaPortal.Plugins.SlimTv.Service
       return string.Join("\\", fixedFolderParts);
     }
 
-#endregion
+    #endregion
 
-#region ITvProvider implementation
+    #region ITvProvider implementation
 
     public Task<AsyncResult<MediaItem>> StartTimeshiftAsync(int slotIndex, IChannel channel)
     {
@@ -588,6 +594,6 @@ namespace MediaPortal.Plugins.SlimTv.Service
       return string.Format("{0}-{1}", clientName, slotIndex);
     }
 
-#endregion
+    #endregion
   }
 }

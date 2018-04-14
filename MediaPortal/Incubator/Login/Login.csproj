@@ -50,6 +50,7 @@
     <Compile Include="..\..\Source\Core\MediaPortal.Common\VersionInfo\VersionInfo.cs">
       <Link>Properties\VersionInfo.cs</Link>
     </Compile>
+    <Compile Include="Actions\UserLoginAction.cs" />
     <Compile Include="General\Consts.cs" />
     <Compile Include="General\Utils.cs" />
     <Compile Include="LoginPlugin.cs" />
