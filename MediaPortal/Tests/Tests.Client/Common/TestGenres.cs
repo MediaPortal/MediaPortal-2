@@ -30,7 +30,7 @@ using MediaPortal.Common.Services.GenreConverter;
 using MediaPortal.Extensions.MetadataExtractors.GenreProvider;
 using NUnit.Framework;
 
-namespace Test.Common
+namespace Tests.Server.Backend
 {
   [TestFixture]
   public class TestGenres
