@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ResourceDictionary
+    xmlns="www.team-mediaportal.com/2008/mpf/directx"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    >
+
+  <ResourceWrapper x:Key="NextProgramLabelColor" Resource="#FF66b1d8"/>
+
+  <!-- Program guide colors -->
+  <ResourceWrapper x:Key="ProgramBaseFill">
+  <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+    <GradientStop Color="#1A1cade5" Offset="0"/>
+    <GradientStop Color="#4D026891" Offset="1"/>
+  </LinearGradientBrush>
+  </ResourceWrapper>
+  
+  <ResourceWrapper x:Key="ProgramFocusedFill">
+    <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+      <GradientStop Color="#FF1cade5" Offset="0"/>
+      <GradientStop Color="#FF026891" Offset="1"/>
+    </LinearGradientBrush>
+  </ResourceWrapper>    
+  
+  <ResourceWrapper x:Key="ProgramRunningFill">
+    <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+      <GradientStop Color="#4D66CCFF" Offset="0"/>
+      <GradientStop Color="#8066CCFF" Offset="1"/>
+    </LinearGradientBrush>
+  </ResourceWrapper>
+  
+  <ResourceWrapper x:Key="ProgramRecordFill" Resource="#8F0000"/>
+  <ResourceWrapper x:Key="ProgramScheduledFill">
+    <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
+      <GradientStop Color="Transparent" Offset="0"/>
+      <GradientStop Color="#8F0000" Offset="1"/>
+    </LinearGradientBrush>
+  </ResourceWrapper>
+
+  <ResourceWrapper x:Key="MiniguideDetailBackground" Resource="#A0000000"/>
+  <ResourceWrapper x:Key="ButtonStrokeColor" Resource="Blue"/>
+
+</ResourceDictionary>

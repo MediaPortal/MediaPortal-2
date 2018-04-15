@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2015 Team MediaPortal
+#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2015 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -24,187 +24,117 @@
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Net;
 using System.Net.Sockets;
-using HttpServer;
-using HttpServer.HttpModules;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.ResourceAccess;
 using MediaPortal.Common.Services.ResourceAccess.Settings;
 using MediaPortal.Common.Settings;
-using UPnP.Infrastructure.Utils;
+using Microsoft.Owin.Hosting;
+using UPnP.Infrastructure.Dv;
 
 namespace MediaPortal.Common.Services.ResourceAccess
 {
   public class ResourceServer : IResourceServer, IDisposable
   {
-    internal class HttpLogWriter : ILogWriter
-    {
-      public void Write(object source, LogPrio priority, string message)
-      {
-        string msg = source + ": " + message;
-        ILogger logger = ServiceRegistration.Get<ILogger>();
-        switch (priority)
-        {
-          case LogPrio.Trace:
-            // Don't write trace messages (we don't support a trace level in MP - would have to map it to debug level)
-            break;
-          case LogPrio.Debug:
-            logger.Debug(msg);
-            break;
-          case LogPrio.Info:
-            logger.Info(msg);
-            break;
-          case LogPrio.Warning:
-            logger.Warn(msg);
-            break;
-          case LogPrio.Error:
-            logger.Error(msg);
-            break;
-          case LogPrio.Fatal:
-            logger.Critical(msg);
-            break;
-        }
-      }
-    }
-
-    protected readonly IDictionary<IPAddress, HttpServer.HttpServer> _httpServers;
+    protected readonly List<Type> _middleWares = new List<Type>();
+    protected IDisposable _httpServer;
+    protected int _serverPort = UPnPServer.DEFAULT_UPNP_AND_SERVICE_PORT_NUMBER;
+    protected readonly object _syncObj = new object();
+    protected string _servicePrefix;
 
     public ResourceServer()
     {
-      _httpServers = new Dictionary<IPAddress, HttpServer.HttpServer>();
-      CreateServers();
-      ResourceAccessModule module = new ResourceAccessModule();
-      AddHttpModule(module);
+      AddHttpModule(typeof(ResourceAccessModule));
+      CreateAndStartServer();
     }
 
-    private void CreateServers()
+    private void CreateAndStartServer()
     {
       ServerSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<ServerSettings>();
       List<string> filters = settings.IPAddressBindingsList;
-      List<IPAddress> validAddresses = new List<IPAddress>();
 
-      if (settings.UseIPv4)
-        validAddresses.AddRange(NetworkHelper.GetBindableIPAddresses(AddressFamily.InterNetwork, filters));
-      if (settings.UseIPv6)
-        validAddresses.AddRange(NetworkHelper.GetBindableIPAddresses(AddressFamily.InterNetworkV6, filters));
+      _servicePrefix = ResourceHttpAccessUrlUtils.RESOURCE_SERVER_BASE_PATH + Guid.NewGuid().GetHashCode().ToString("X");
+      var startOptions = UPnPServer.BuildStartOptions(_servicePrefix, filters);
 
-      foreach (IPAddress address in validAddresses)
+      lock (_syncObj)
       {
-        HttpServer.HttpServer httpServer = new HttpServer.HttpServer(new HttpLogWriter());
-        _httpServers[address] = httpServer;
+        _httpServer = WebApp.Start(startOptions, builder =>
+        {
+          foreach (Type middleWareType in _middleWares)
+          {
+            builder.Use(middleWareType);
+          }
+        });
       }
     }
 
     public void Dispose()
     {
-      StopServers();
-      DisposeServers();
+      StopServer();
     }
 
-    public void StartServers()
-    {
-      ServerSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<ServerSettings>();
-      string addressType = string.Empty;
-      foreach (KeyValuePair<IPAddress, HttpServer.HttpServer> addressServerPair in _httpServers)
-      {
-        try
-        {
-          var address = addressServerPair.Key;
-          var server = addressServerPair.Value;
-          addressType = address.AddressFamily == AddressFamily.InterNetwork ? "IPv4" : "IPv6";
-          server.Start(address, settings.HttpServerPort);
-          ServiceRegistration.Get<ILogger>().Info("ResourceServer: Started HTTP server ({0}) on address {1} at port {2}", addressType, address, server.Port);
-        }
-        catch (SocketException e)
-        {
-          ServiceRegistration.Get<ILogger>().Warn("ResourceServer: Error starting HTTP server ({0})", addressType, e);
-        }
-      }
-    }
-
-    private void StopServer(HttpServer.HttpServer server)
+    private void StopServer()
     {
       try
       {
-        server.Stop();
+        lock (_syncObj)
+        {
+          _httpServer?.Dispose();
+          _httpServer = null;
+        }
       }
       catch (SocketException e)
       {
         ServiceRegistration.Get<ILogger>().Warn("ResourceServer: Error stopping HTTP server", e);
       }
-    }
-
-    public void StopServers()
-    {
-      _httpServers.Values.ToList().ForEach(StopServer);
-    }
-
-    public void DisposeServer(HttpServer.HttpServer server)
-    {
-      try
-      {
-        server.Dispose();
-      }
-      catch (SocketException e)
-      {
-        ServiceRegistration.Get<ILogger>().Warn("ResourceServer: Error stopping HTTP server", e);
-      }
-    }
-
-    public void DisposeServers()
-    {
-      _httpServers.Values.ToList().ForEach(DisposeServer);
-      _httpServers.Clear();
     }
 
     #region IResourceServer implementation
 
-    public int PortIPv4
+    public string GetServiceUrl(IPAddress ipAddress)
     {
-      get
-      {
-        var server = _httpServers.Values.FirstOrDefault(s => s.IsIPv4);
-        return server != null ? server.Port : 0;
-      }
+      return string.Format("http://{0}:{1}{2}", ipAddress, _serverPort, _servicePrefix);
     }
 
-    public int PortIPv6
+    public int GetPortForIP(IPAddress ipAddress)
     {
-      get
-      {
-        var server = _httpServers.Values.FirstOrDefault(s => s.IsIPv6);
-        return server != null ? server.Port : 0;
-      }
+      // We use only one server that binds to multiple addresses
+      return _serverPort;
     }
 
     public void Startup()
     {
-      StartServers();
+      CreateAndStartServer();
     }
 
     public void Shutdown()
     {
       ServiceRegistration.Get<ILogger>().Info("ResourceServer: Shutting down HTTP servers");
-      StopServers();
+      StopServer();
     }
 
     public void RestartHttpServers()
     {
       ServiceRegistration.Get<ILogger>().Info("ResourceServer: Restarting HTTP servers");
-      StopServers();
-      StartServers();
+      StopServer();
+      CreateAndStartServer();
     }
 
-    public void AddHttpModule(HttpModule module)
+    public void AddHttpModule(Type moduleType)
     {
-      _httpServers.Values.ToList().ForEach(x => x.Add(module));
+      _middleWares.Add(moduleType);
+      if (_httpServer != null)
+      {
+        // Note: the Owin pipeline is not designed to allow dynamic changes, so we have to rebuild it completely.
+        StopServer();
+        CreateAndStartServer();
+      }
     }
 
-    public void RemoveHttpModule(HttpModule module)
+    public void RemoveHttpModule(Type moduleType)
     {
-      _httpServers.Values.ToList().ForEach(x => x.Remove(module));
+      _middleWares.Remove(moduleType);
     }
 
     #endregion

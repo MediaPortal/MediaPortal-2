@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Include
+    xmlns="www.team-mediaportal.com/2008/mpf/directx"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    Source="screens\master_configuration_menu.xaml"
+    >
+  <Include.Resources>
+
+    <!-- Header -->
+    <ResourceWrapper x:Key="Header_Text" Resource="[SharesConfig.ShareInformationHeader]"/>
+
+    <!-- Shares configuration model -->
+    <Model x:Key="Model" Id="1768FC91-86B9-4f78-8A4C-E204F0D51502"/>
+
+    <!-- Contents -->
+    <ControlTemplate x:Key="Contents_Template">
+      <Grid DataContext="{Binding Source={StaticResource Model}}">
+        <Grid.RowDefinitions>
+          <RowDefinition Height="Auto"/>
+          <RowDefinition Height="Auto"/>
+          <RowDefinition Height="Auto"/>
+          <RowDefinition Height="Auto"/>
+          <RowDefinition Height="Auto"/>
+          <RowDefinition Height="Auto"/>
+          <RowDefinition Height="*"/>
+          <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+          <ColumnDefinition Width="Auto"/>
+          <ColumnDefinition Width="10"/>
+          <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+
+        <Label Grid.Row="0" Grid.Column="0" Margin="5"
+            Content="[SharesConfig.ShareNameInfo]" Color="{ThemeResource TextColor}"/>
+        <Label Grid.Row="0" Grid.Column="2" Margin="5"
+            Content="{Binding ShareProxy.ShareName}" Color="{ThemeResource TextColor}" Scroll="Auto"/>
+
+        <Label Grid.Row="1" Grid.Column="0" Margin="5"
+            Content="[SharesConfig.ShareResourceProviderInfo]" Color="{ThemeResource TextColor}"/>
+        <Label Grid.Row="1" Grid.Column="2" Margin="5"
+            Content="{Binding ShareProxy.BaseResourceProvider.Name}" Color="{ThemeResource TextColor}" Scroll="Auto"/>
+
+        <Label Grid.Row="2" Grid.Column="0" Margin="5"
+            Content="[SharesConfig.ShareMediaCategoriesInfo]" Color="{ThemeResource TextColor}"/>
+        <Label Grid.Row="2" Grid.Column="2" Margin="5"
+            Content="{Binding ShareProxy.MediaCategories}" Color="{ThemeResource TextColor}" Scroll="Auto"/>
+
+        <Label Grid.Row="3" Grid.Column="0" Margin="5"
+            Content="[SharesConfig.ShareSystem]" Color="{ThemeResource TextColor}"/>
+        <Label Grid.Row="3" Grid.Column="2" Margin="5"
+            Content="{Binding ShareProxy.NativeSystem}" Color="{ThemeResource TextColor}" Scroll="Auto"/>
+
+        <Label Grid.Row="4" Grid.Column="0" Margin="5"
+            Content="[SharesConfig.SharePathInfo]" Color="{ThemeResource TextColor}"/>
+        <Label Grid.Row="4" Grid.Column="2" Margin="5"
+            Content="{Binding ShareProxy.ChoosenResourcePathDisplayName}" Color="{ThemeResource TextColor}" Scroll="Auto"/>
+
+        <Label Grid.Row="5" Grid.Column="0" Margin="5"
+            Content="[SharesConfig.UseShareWatcher]" Color="{ThemeResource TextColor}"/>
+        <Label Grid.Row="5" Grid.Column="2" Margin="5"
+            Content="{Binding ShareProxy.UseShareWatcher}" Color="{ThemeResource TextColor}" Scroll="Auto"/>
+
+        <Label Grid.Row="6" Grid.Column="0" Margin="5"
+            Content="[SharesConfig.ShareResourcePathInfo]" Color="{ThemeResource TextColor}"/>
+        <!-- Attention: In the current implementation of the Grid's layouting code, the row for the following label might be layouted
+             too narrow. The problem is the label's wrapping, which cannot correctly be assessed by the grid. That's why we put it at
+             the bottom in a very high cell; here, the layout problem won't show up. -->
+        <Label Grid.Row="6" Grid.Column="2" Margin="5"
+            Content="{Binding ShareProxy.ChoosenResourcePath}" Color="{ThemeResource TextColor}" Wrap="True"/>
+
+        <Grid Grid.Row="7" Grid.Column="0" Grid.ColumnSpan="3" Margin="10,10,10,0">
+          <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+          </Grid.RowDefinitions>
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="10"/>
+            <ColumnDefinition Width="*"/>
+          </Grid.ColumnDefinitions>
+          <Button x:Name="ReImportButton" Grid.Row="0" Grid.Column="0" Style="{ThemeResource MenuButtonWideStyle}"
+              Content="[SharesConfig.ReImportShare]"
+              Command="{Command ReImportShare}"/>
+          <Button x:Name="EditButton" Grid.Row="0" Grid.Column="2" Style="{ThemeResource MenuButtonWideStyle}"
+              Content="[SharesConfig.EditShare]"
+              Command="{Command Source={StaticResource Model},Path=EditCurrentShare}"/>
+        </Grid>
+      </Grid>
+    </ControlTemplate>
+
+  </Include.Resources>
+</Include>

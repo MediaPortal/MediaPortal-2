@@ -6,6 +6,6 @@
   <string name="Network.Disconnect">Koppla ifrån</string>
   <string name="Network.EnterWifiPassword">Skriv in lösenord för wifi</string>
   <string name="Network.DeleteProfile">Ta bort wifi profil</string>
-  <string name="Settings.General.Connectivity.WifiConnection">Wifi uppkoppling</string>
-  <string name="Settings.General.Connectivity.WifiConnection.Help">Koppla upp till trådlöst nätverk</string>
+  <string name="Settings.General.Connectivity.WifiConnection">Wifi-uppkoppling</string>
+  <string name="Settings.General.Connectivity.WifiConnection.Help">Anslut till ett trådlöst nätverk</string>
 </resources>

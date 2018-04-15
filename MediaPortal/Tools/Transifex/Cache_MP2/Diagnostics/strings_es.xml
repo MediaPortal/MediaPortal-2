@@ -1,0 +1,7 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="Diagnostics.Settings.Diagnostics">Diagnóstico</string>
+    <string name="Diagnostics.Settings.Diagnostics.AllLogsHelpText">Aumentar detalle del registro</string>
+    <string name="Diagnostics.Settings.Collectlogs">Recoger archivos de registro</string>
+    <string name="Diagnostics.Settings.ShowLogs">Mostrar registros</string>
+    </resources>

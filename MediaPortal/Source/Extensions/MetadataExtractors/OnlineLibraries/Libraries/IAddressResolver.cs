@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2015 Team MediaPortal
+#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2015 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -23,6 +23,7 @@
 #endregion
 
 using System.Device.Location;
+using System.Threading.Tasks;
 
 namespace MediaPortal.Extensions.OnlineLibraries.Libraries
 {
@@ -31,6 +32,6 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries
   /// </summary>
   public interface IAddressResolver
   {
-    bool TryResolveCivicAddress(GeoCoordinate coordinates, out CivicAddress address);
+    Task<CivicAddress> TryResolveCivicAddressAsync(GeoCoordinate coordinates);
   }
 }

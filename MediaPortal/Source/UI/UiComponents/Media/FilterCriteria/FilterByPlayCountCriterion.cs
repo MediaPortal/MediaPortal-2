@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2015 Team MediaPortal
+#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2015 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -25,13 +25,17 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using MediaPortal.Common;
 using MediaPortal.Common.Exceptions;
-using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Common.MediaManagement.MLQueries;
 using MediaPortal.Common.SystemCommunication;
+using MediaPortal.Common.UserManagement;
 using MediaPortal.UI.ServerCommunication;
 using MediaPortal.UiComponents.Media.General;
+using MediaPortal.UI.Services.UserManagement;
+using MediaPortal.Common.UserProfileDataManagement;
+using MediaPortal.UiComponents.Media.Helpers;
 
 namespace MediaPortal.UiComponents.Media.FilterCriteria
 {
@@ -39,31 +43,36 @@ namespace MediaPortal.UiComponents.Media.FilterCriteria
   {
     #region Base overrides
 
-    public override ICollection<FilterValue> GetAvailableValues(IEnumerable<Guid> necessaryMIATypeIds, IFilter selectAttributeFilter, IFilter filter)
+    public override async Task<ICollection<FilterValue>> GetAvailableValuesAsync(IEnumerable<Guid> necessaryMIATypeIds, IFilter selectAttributeFilter, IFilter filter)
     {
       IContentDirectory cd = ServiceRegistration.Get<IServerConnectionManager>().ContentDirectory;
       if (cd == null)
         throw new NotConnectedException("The MediaLibrary is not connected");
 
+      IUserManagement userProfileDataManagement = ServiceRegistration.Get<IUserManagement>();
+      if (!userProfileDataManagement.IsValidUser)
+        return new List<FilterValue>();
+
       IFilter unwatchedFilter = BooleanCombinationFilter.CombineFilters(BooleanOperator.Or,
-        new EmptyFilter(MediaAspect.ATTR_PLAYCOUNT),
-        new RelationalFilter(MediaAspect.ATTR_PLAYCOUNT, RelationalOperator.EQ, 0));
+        new EmptyUserDataFilter(userProfileDataManagement.CurrentUser.ProfileId, UserDataKeysKnown.KEY_PLAY_PERCENTAGE),
+        new RelationalUserDataFilter(userProfileDataManagement.CurrentUser.ProfileId, UserDataKeysKnown.KEY_PLAY_PERCENTAGE, RelationalOperator.EQ, UserDataKeysKnown.GetSortablePlayPercentageString(0)));
 
-      IFilter watchedFilter = new RelationalFilter(MediaAspect.ATTR_PLAYCOUNT, RelationalOperator.GT, 0);
-
-      int numUnwatchedItems = cd.CountMediaItems(necessaryMIATypeIds, unwatchedFilter, true);
-      int numWatchedItems = cd.CountMediaItems(necessaryMIATypeIds, watchedFilter, true);
+      IFilter watchedFilter = new RelationalUserDataFilter(userProfileDataManagement.CurrentUser.ProfileId, UserDataKeysKnown.KEY_PLAY_PERCENTAGE, RelationalOperator.GT, UserDataKeysKnown.GetSortablePlayPercentageString(0));
+      bool showVirtual = VirtualMediaHelper.ShowVirtualMedia(necessaryMIATypeIds);
+      var taskUnwatched = cd.CountMediaItemsAsync(necessaryMIATypeIds, BooleanCombinationFilter.CombineFilters(BooleanOperator.And, filter, unwatchedFilter), true, showVirtual);
+      var taskWatched = cd.CountMediaItemsAsync(necessaryMIATypeIds, BooleanCombinationFilter.CombineFilters(BooleanOperator.And, filter, watchedFilter), true, showVirtual);
+      var counts = await Task.WhenAll(taskUnwatched, taskWatched);
 
       return new List<FilterValue>(new FilterValue[]
         {
-            new FilterValue(Consts.RES_VALUE_UNWATCHED, unwatchedFilter, null, numUnwatchedItems, this),
-            new FilterValue(Consts.RES_VALUE_WATCHED, watchedFilter, null, numWatchedItems, this),
+            new FilterValue(Consts.RES_VALUE_UNWATCHED, unwatchedFilter, null, counts[0], this),
+            new FilterValue(Consts.RES_VALUE_WATCHED, watchedFilter, null, counts[1], this),
         }.Where(fv => !fv.NumItems.HasValue || fv.NumItems.Value > 0));
     }
 
-    public override ICollection<FilterValue> GroupValues(ICollection<Guid> necessaryMIATypeIds, IFilter selectAttributeFilter, IFilter filter)
+    public override Task<ICollection<FilterValue>> GroupValuesAsync(ICollection<Guid> necessaryMIATypeIds, IFilter selectAttributeFilter, IFilter filter)
     {
-      return null;
+      return Task.FromResult((ICollection<FilterValue>)null);
     }
 
     #endregion

@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2015 Team MediaPortal
+#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2015 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -27,6 +27,7 @@ using MediaPortal.UI.PluginItemBuilders;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.MediaManagement;
+using MediaPortal.Common.UserManagement;
 using MediaPortal.UI.FrontendServer;
 using MediaPortal.UI.Presentation.Players;
 using MediaPortal.UI.Presentation.UiNotifications;
@@ -77,6 +78,9 @@ namespace MediaPortal.UI
 
       logger.Debug("UiExtension: Registering IMediaItemAspectTypeRegistration service");
       ServiceRegistration.Set<IMediaItemAspectTypeRegistration>(new MediaItemAspectTypeRegistration());
+
+      logger.Debug("UiExtension: Registering IRelationshipTypeRegistration service");
+      ServiceRegistration.Set<IRelationshipTypeRegistration>(new RelationshipTypeRegistration());
 
       logger.Debug("UiExtension: Registering IFrontendServer service");
       ServiceRegistration.Set<IFrontendServer>(new Services.FrontendServer.FrontendServer());

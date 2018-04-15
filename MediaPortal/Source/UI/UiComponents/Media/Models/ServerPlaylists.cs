@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2015 Team MediaPortal
+#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2015 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -46,20 +46,20 @@ namespace MediaPortal.UiComponents.Media.Models
     {
       IContentDirectory contentDirectory = GetContentDirectoryService();
       return contentDirectory == null ? new List<PlaylistInformationData>(0) :
-          contentDirectory.GetPlaylists();
+          contentDirectory.GetPlaylistsAsync().Result;
     }
 
     public static void SavePlaylist(PlaylistRawData playlistData)
     {
       IContentDirectory contentDirectory = GetContentDirectoryService();
-      contentDirectory.SavePlaylist(playlistData);
+      contentDirectory.SavePlaylistAsync(playlistData);
     }
 
     public static void RemovePlaylists(ICollection<Guid> playlistIds)
     {
       IContentDirectory contentDirectory = GetContentDirectoryService();
       foreach (Guid playlistId in playlistIds)
-        contentDirectory.DeletePlaylist(playlistId);
+        contentDirectory.DeletePlaylistAsync(playlistId);
     }
   }
 }

@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2015 Team MediaPortal
+#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2015 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -26,7 +26,6 @@ using MediaPortal.Common;
 using MediaPortal.Common.General;
 using MediaPortal.Common.Localization;
 using MediaPortal.Common.Logging;
-using MediaPortal.Common.Services.Settings;
 using MediaPortal.Common.Settings;
 using MediaPortal.Common.Threading;
 using MediaPortal.UI.Presentation.DataObjects;
@@ -38,6 +37,7 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Threading;
+using System.Threading.Tasks;
 
 namespace MediaPortal.UiComponents.Weather.Models
 {
@@ -71,20 +71,12 @@ namespace MediaPortal.UiComponents.Weather.Models
 
     protected String _preferredLocationCode = null;
     protected int? _refreshIntervalSec = null;
+    // Current refresh work thread, used to avoid repeated refresh calls
+    protected IWork _work = null;
     protected IIntervalWork _refreshIntervalWork = null;
     protected ManualResetEvent _updateFinished = new ManualResetEvent(true);
-    protected readonly SettingsChangeWatcher<WeatherSettings> _settings = new SettingsChangeWatcher<WeatherSettings>();
 
     #endregion Protected fields
-
-    #region Constructor
-
-    public WeatherModel()
-    {
-      _settings.SettingsChanged += SettingsChanged;
-    }
-
-    #endregion
 
     #region Public properties
 
@@ -101,7 +93,7 @@ namespace MediaPortal.UiComponents.Weather.Models
     /// </summary>
     public City CurrentLocation
     {
-      get { return (City) _currentLocationProperty.GetValue(); }
+      get { return (City)_currentLocationProperty.GetValue(); }
     }
 
     /// <summary>
@@ -133,7 +125,7 @@ namespace MediaPortal.UiComponents.Weather.Models
     /// </summary>
     public bool IsUpdating
     {
-      get { return (bool) _isUpdatingProperty.GetValue(); }
+      get { return (bool)_isUpdatingProperty.GetValue(); }
       set { _isUpdatingProperty.SetValue(value); }
     }
 
@@ -150,7 +142,7 @@ namespace MediaPortal.UiComponents.Weather.Models
     /// </summary>
     public string LastUpdateTime
     {
-      get { return (string) _lastUpdateTimeProperty.GetValue(); }
+      get { return (string)_lastUpdateTimeProperty.GetValue(); }
       set { _lastUpdateTimeProperty.SetValue(value); }
     }
 
@@ -171,7 +163,7 @@ namespace MediaPortal.UiComponents.Weather.Models
     /// <returns></returns>
     public void Refresh()
     {
-      StartBackgroundRefresh(CurrentLocation);
+      _ = StartBackgroundRefresh(CurrentLocation);
     }
 
     /// <summary>
@@ -180,10 +172,10 @@ namespace MediaPortal.UiComponents.Weather.Models
     /// <param name="item">The location item.</param>
     public void ChangeLocation(ListItem item)
     {
-      City city = (City) item.AdditionalProperties[KEY_CITY];
+      City city = (City)item.AdditionalProperties[KEY_CITY];
 
       _preferredLocationCode = city.Id;
-      StartBackgroundRefresh(city);
+      _ = StartBackgroundRefresh(city);
 
       // also save the last selected city to settings
       WeatherSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<WeatherSettings>();
@@ -218,28 +210,12 @@ namespace MediaPortal.UiComponents.Weather.Models
 
     #region Private members
 
-    protected void IncUpdateCount()
-    {
-      lock (_syncObj)
-      {
-        _updateCount += 1;
-        IsUpdating = _updateCount > 0;
-      }
-    }
-
-    protected void DecUpdateCount()
-    {
-      lock (_syncObj)
-      {
-        _updateCount -= 1;
-        IsUpdating = _updateCount > 0;
-      }
-    }
-
     protected void SetLastUpdateTime(DateTime? updateTime)
     {
-      _settings.Settings.LastUpdate = updateTime;
-      ServiceRegistration.Get<ISettingsManager>().Save(_settings.Settings);
+      var settingsManager = ServiceRegistration.Get<ISettingsManager>();
+      var settings = settingsManager.Load<WeatherSettings>();
+      settings.LastUpdate = updateTime;
+      settingsManager.Save(settings);
 
       ILocalization localization = ServiceRegistration.Get<ILocalization>();
       CultureInfo culture = localization.CurrentCulture;
@@ -249,39 +225,44 @@ namespace MediaPortal.UiComponents.Weather.Models
       LastUpdateTime = lastUpdate;
     }
 
-    protected void ReadSettings(bool updateCityChanged)
+    protected async Task ReadSettings(bool updateCityChanged)
     {
       // Add citys from settings to the locations list
-      if (_settings.Settings.LocationsList == null || _settings.Settings.LocationsList.Count == 0)
+      var settingsManager = ServiceRegistration.Get<ISettingsManager>();
+      var settings = settingsManager.Load<WeatherSettings>();
+      if (settings.LocationsList == null || settings.LocationsList.Count == 0)
       {
         CurrentLocation.Copy(City.NoData);
         return;
       }
 
-      _preferredLocationCode = _settings.Settings.LocationCode;
+      _preferredLocationCode = settings.LocationCode;
       // Only do further updates if city was changed
       if (updateCityChanged && _preferredLocationCode == CurrentLocation.Id)
         return;
 
-      _refreshIntervalSec = _settings.Settings.RefreshInterval;
-      SetLastUpdateTime(_settings.Settings.LastUpdate);
+      _refreshIntervalSec = settings.RefreshInterval;
+      SetLastUpdateTime(settings.LastUpdate);
 
       _locations.Clear();
       _locationsList.Clear();
-      foreach (CitySetupInfo loc in _settings.Settings.LocationsList)
+      City cityToSet = null;
+      foreach (CitySetupInfo loc in settings.LocationsList)
       {
         City city = AddCityToLocations(loc);
         if (loc.Id == _preferredLocationCode)
-          StartBackgroundRefresh(city);
+          cityToSet = city;
       }
 
       // if there is no city selected until yet, choose the first one
-      if (_settings.Settings.LocationCode.Equals("<none>") && _locations.Count > 0)
+      if (cityToSet == null && settings.LocationCode.Equals("<none>") && _locations.Count > 0)
       {
         // Fetch data in background
         _preferredLocationCode = _locations[0].Id;
-        StartBackgroundRefresh(_locations[0]);
+        cityToSet = _locations[0];
       }
+
+      await StartBackgroundRefresh(cityToSet);
 
       // we've added new citys, so update the locations collection
       _locationsList.FireChange();
@@ -291,34 +272,28 @@ namespace MediaPortal.UiComponents.Weather.Models
     /// Starts the refresh of weather data in a background thread.
     /// </summary>
     /// <param name="cityToRefresh">City which should be refreshed.</param>
-    private void StartBackgroundRefresh(City cityToRefresh)
+    private async Task StartBackgroundRefresh(City cityToRefresh)
     {
       // Avoid additional refreshs while one is active
-      if (!IsUpdating)
-        ThreadPool.QueueUserWorkItem(BackgroundRefresh, cityToRefresh);
-      else
-        ServiceRegistration.Get<ILogger>().Debug("WeatherModel: Skipping refresh, it's already running in background.");
-    }
-
-    /// <summary>
-    /// Updates the given location with new data.
-    /// </summary>
-    /// <param name="threadArgument">City which should be refreshed.</param>
-    private void BackgroundRefresh(object threadArgument)
-    {
       if (!NetworkConnectionTracker.IsNetworkConnected)
       {
         ServiceRegistration.Get<ILogger>().Debug("WeatherModel: Background refresh - No Network connected");
         return;
       }
       ServiceRegistration.Get<ILogger>().Debug("WeatherModel: Background refresh");
+      lock (_syncObj)
+      {
+        if (IsUpdating)
+        {
+          ServiceRegistration.Get<ILogger>().Warn("WeatherModel: Background refresh re-entrance detected");
+          return;
+        }
+        IsUpdating = true;
+      }
       _updateFinished.Reset();
-      IncUpdateCount();
       try
       {
-        City cityToRefresh = (City) threadArgument;
-
-        bool result = ServiceRegistration.Get<IWeatherCatcher>().GetLocationData(cityToRefresh);
+        bool result = await ServiceRegistration.Get<IWeatherCatcher>().GetLocationData(cityToRefresh).ConfigureAwait(false);
 
         ServiceRegistration.Get<ILogger>().Info(result ?
             "WeatherModel: Loaded weather data for {0}, {1}" : "WeatherModel: Failed to load weather data for {0}, {1}",
@@ -335,12 +310,12 @@ namespace MediaPortal.UiComponents.Weather.Models
       }
       catch (Exception e)
       {
-        ServiceRegistration.Get<ILogger>().Warn("WeatherModel: Error refreshing city '{0}'", e, threadArgument);
+        ServiceRegistration.Get<ILogger>().Warn("WeatherModel: Error refreshing city '{0}'", e, cityToRefresh);
       }
       finally
       {
-        DecUpdateCount();
         _updateFinished.Set();
+        IsUpdating = false;
       }
     }
 
@@ -358,6 +333,7 @@ namespace MediaPortal.UiComponents.Weather.Models
 
       ListItem item = new ListItem();
       item.SetLabel("Name", loc.Name);
+      item.SetLabel("Grabber", loc.Grabber);
       item.SetLabel("Id", loc.Id);
       item.AdditionalProperties[KEY_CITY] = city;
       _locationsList.Add(item);
@@ -378,7 +354,7 @@ namespace MediaPortal.UiComponents.Weather.Models
       if (_refreshIntervalWork != null)
         return;
 
-      _refreshIntervalWork = new IntervalWork(Refresh, TimeSpan.FromSeconds((int) _refreshIntervalSec));
+      _refreshIntervalWork = new IntervalWork(Refresh, TimeSpan.FromSeconds((int)_refreshIntervalSec));
       ServiceRegistration.Get<IThreadPool>().AddIntervalWork(_refreshIntervalWork, false);
     }
 
@@ -391,11 +367,6 @@ namespace MediaPortal.UiComponents.Weather.Models
         return;
       ServiceRegistration.Get<IThreadPool>().RemoveIntervalWork(_refreshIntervalWork);
       _refreshIntervalWork = null;
-    }
-
-    private void SettingsChanged(object sender, EventArgs eventArgs)
-    {
-      ReadSettings(true); // Refresh only after location has changed
     }
 
     #endregion Message and Tasks handling
@@ -415,7 +386,7 @@ namespace MediaPortal.UiComponents.Weather.Models
     public void EnterModelContext(NavigationContext oldContext, NavigationContext newContext)
     {
       // Add citys from settings to the locations list
-      ReadSettings(false);
+      ReadSettings(false).Wait();
       StartRefreshTask();
     }
 

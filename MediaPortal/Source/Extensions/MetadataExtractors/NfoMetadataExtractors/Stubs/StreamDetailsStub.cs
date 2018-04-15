@@ -1,7 +1,7 @@
-﻿#region Copyright (C) 2007-2015 Team MediaPortal
+﻿#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2014 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -31,6 +31,12 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.Stubs
   /// </summary>
   public class StreamDetailsStub
   {
+    /// <summary>
+    /// Extension of the container file
+    /// </summary>
+    /// <example>".avi"</example>
+    public string Container { get; set; }
+
     /// <summary>
     /// Details of the video stream(s)
     /// </summary>

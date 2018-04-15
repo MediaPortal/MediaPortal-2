@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2015 Team MediaPortal
+#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2015 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -24,6 +24,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace MediaPortal.Utilities.UPnP
 {
@@ -37,6 +38,16 @@ namespace MediaPortal.Utilities.UPnP
     public static string SerializeStringEnumerationToCsv(IEnumerable<string> values)
     {
       return StringUtils.Join(",", values);
+    }
+
+    public static string SerializeTuple2EnumerationToCsv(IEnumerable<Tuple<string, string>> values)
+    {
+      return StringUtils.Join(",", values.Select(t => string.Format("{0};{1}", t.Item1, t.Item2)));
+    }
+
+    public static string SerializeTuple3EnumerationToCsv(IEnumerable<Tuple<string, string, string>> values)
+    {
+      return StringUtils.Join(",", values.Select(t => string.Format("{0};{1};{2}", t.Item1, t.Item2, t.Item3)));
     }
 
     public static IList<Guid> ParseCsvGuidCollection(string csvGuids)
@@ -53,6 +64,34 @@ namespace MediaPortal.Utilities.UPnP
     public static IList<string> ParseCsvStringCollection(string csvValues)
     {
       return string.IsNullOrEmpty(csvValues) ? null : new List<string>(csvValues.Split(','));
+    }
+
+    public static IList<Tuple<string, string>> ParseCsvTuple2Collection(string csvTupleValues)
+    {
+      if(string.IsNullOrEmpty(csvTupleValues))
+        return null;
+      string[] tuples = csvTupleValues.Split(',');
+      IList<Tuple<string, string>> result = new List<Tuple<string, string>>(tuples.Length);
+      foreach (string tupleStr in tuples)
+      {
+        string[] tupleSplit = tupleStr.Split(';');
+        result.Add(new Tuple<string, string>(tupleSplit[0], tupleSplit[1]));
+      }
+      return result;
+    }
+
+    public static IList<Tuple<string, string, string>> ParseCsvTuple3Collection(string csvTupleValues)
+    {
+      if (string.IsNullOrEmpty(csvTupleValues))
+        return null;
+      string[] tuples = csvTupleValues.Split(',');
+      IList<Tuple<string, string, string>> result = new List<Tuple<string, string, string>>(tuples.Length);
+      foreach (string tupleStr in tuples)
+      {
+        string[] tupleSplit = tupleStr.Split(';');
+        result.Add(new Tuple<string, string, string>(tupleSplit[0], tupleSplit[1], tupleSplit[2]));
+      }
+      return result;
     }
 
     public static string SerializeGuid(Guid guid)

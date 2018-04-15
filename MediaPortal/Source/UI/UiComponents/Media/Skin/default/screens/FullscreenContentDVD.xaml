@@ -20,6 +20,9 @@
     <Grid.RowDefinitions>
       <RowDefinition Height="*"/>
     </Grid.RowDefinitions>
+
+    <Include Source="screens\FullScreenContentDVDKeyBindings.inc"/>
+
     <Grid x:Name="BackgroundPipLayoutGrid" Grid.Row="0" Grid.Column="0" VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
       <Grid.ColumnDefinitions>
         <ColumnDefinition Width="*"/>
@@ -71,7 +74,5 @@
             AutoVisibility="true"/>
       </DockPanel> <!-- OSD_RightPanel -->
     </DockPanel> <!-- OSD_LayoutPanel -->
-    <KeyBinding Key="Info" Command="{Command ShowVideoInfo}"/>
-    <KeyBinding Key="ZoomMode" Command="{Command PlayerUIContributor.ShowZoomModeDialog}"/>
   </Grid>
 </Screen>

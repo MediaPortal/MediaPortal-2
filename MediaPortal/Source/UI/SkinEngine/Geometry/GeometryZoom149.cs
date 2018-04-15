@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2015 Team MediaPortal
+#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2015 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -57,7 +57,7 @@ namespace MediaPortal.UI.SkinEngine.Geometry
     public SizeF Transform(SizeF inputSize, SizeF targetSize)
     {
       // Increase the image size by 12.5%
-      float ratio = 1.125f * System.Math.Max(targetSize.Width / inputSize.Width, targetSize.Height / inputSize.Height);
+      float ratio = 1.125f * System.Math.Min(targetSize.Width / inputSize.Width, targetSize.Height / inputSize.Height);
       return new SizeF(inputSize.Width * ratio, inputSize.Height * ratio);
     }
 

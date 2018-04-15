@@ -35,27 +35,37 @@
   <Register Location="/Configuration/Settings">
     <ConfigSection
         Id="Players"
+        Sort="E100"
         Redundant="true"
         Text="[Settings.Players]"/>
   </Register>
 
   <!-- Contents of '/Players' section -->
-  <Register Location="/Configuration/Settings/Players">
+  <Register Location="/Configuration/Settings/Players/">
+    <ConfigSection
+        Id="VideoPlayer"
+        Sort="E130"
+        Redundant="true"
+        Text="[Settings.Players.VideoPlayer]"/>
+  </Register>
+
+  <!-- Contents of '/Players/VideoPlayer/Codecs' section -->
+  <Register Location="/Configuration/Settings/Players/VideoPlayer">
     <ConfigSection
         Id="Codecs"
+        Sort="E170"
         Redundant="true"
         Text="[Settings.Players.Codecs]"/>
   </Register>
 
-  <!-- Contents of '/Players/Codecs' section -->
-  <Register Location="/Configuration/Settings/Players/Codecs">
-    <ConfigGroup
+  <Register Location="/Configuration/Settings/Players/VideoPlayer/Codecs">
+    <ConfigSection
         Id="VideoCodecs"
         Redundant="true"
         Text="[Settings.Players.Codecs.VideoCodecs]"/>
   </Register>
 
-  <Register Location="/Configuration/Settings/Players/Codecs/VideoCodecs">
+  <Register Location="/Configuration/Settings/Players/VideoPlayer/Codecs/VideoCodecs">
     <ConfigSetting
         Id="VideoVC1Codec"
         Text="[Settings.Players.Codecs.VideoCodecs.VC1]"

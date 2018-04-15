@@ -12,8 +12,6 @@
   <string name="Settings.Appearance.System.ScreenSaverEnabled.Help">Ekran Koruyucunun gösterilmesini ayarla</string>
   <string name="Settings.Appearance.System.ScreenSaverTimeout">Ekran Koruyucu zaman aşımı</string>
   <string name="Settings.Appearance.System.ScreenSaverTimeout.Help">Ekran Koruyucunun son kullanıcı işleminden sonra devreye girme süresi</string>
-  <string name="Settings.Appearance.System.Antialiasing">GUI keskinlik giderme</string>
-  <string name="Settings.Appearance.System.Antialiasing.Help">Keskinlik giderme GUI görüntü kalitesini arttırır ancak video performans problemlerine sebep olabilir</string>
   <string name="Settings.Appearance.Skin">Skin</string>
   <string name="Settings.Appearance.Skin.SkinAndTheme">Skin ve Tema</string>
   <string name="Settings.Appearance.Skin.SkinAndTheme.ChangeSkin">Skin değiştir</string>

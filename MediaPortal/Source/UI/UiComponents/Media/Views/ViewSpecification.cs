@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2015 Team MediaPortal
+#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2015 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -22,11 +22,14 @@
 
 #endregion
 
+using MediaPortal.Common.MediaManagement;
+using MediaPortal.Common.MediaManagement.DefaultItemAspects;
+using MediaPortal.UI.Presentation.DataObjects;
+using MediaPortal.UiComponents.Media.Models.Sorting;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using MediaPortal.Common.MediaManagement;
-using MediaPortal.Common.MediaManagement.DefaultItemAspects;
+using System.Threading.Tasks;
 
 namespace MediaPortal.UiComponents.Media.Views
 {
@@ -51,6 +54,14 @@ namespace MediaPortal.UiComponents.Media.Views
     protected string _viewDisplayName;
     protected ICollection<Guid> _necessaryMIATypeIds;
     protected ICollection<Guid> _optionalMIATypeIds;
+
+    public delegate void ItemsListSortingDelegate(ItemsList itemsList, Sorting sorting);
+
+    /// <summary>
+    /// Provides a way for sorting the final result list, which can consist of both MediaItems and SubViews.
+    /// This delegate needs to be set by a ViewSpecification, if a custom logic is required.
+    /// </summary>
+    public ItemsListSortingDelegate CustomItemsListSorting { get; protected set; }
 
     protected ViewSpecification(string viewDisplayName,
         IEnumerable<Guid> necessaryMIATypeIds, IEnumerable<Guid> optionalMIATypeIds)
@@ -113,12 +124,19 @@ namespace MediaPortal.UiComponents.Media.Views
     /// Returns all media items of this view and all sub views. Can be overridden to provide a more efficient implementation.
     /// </summary>
     /// <returns>Enumeration of all media items of this and all sub views.</returns>
-    public virtual IEnumerable<MediaItem> GetAllMediaItems()
+    public virtual async Task<IEnumerable<MediaItem>> GetAllMediaItems()
     {
       IList<MediaItem> mis;
       IList<ViewSpecification> vss;
       ReLoadItemsAndSubViewSpecifications(out mis, out vss);
-      return vss.SelectMany(subViewSpecification => subViewSpecification.GetAllMediaItems()).Union(mis);
+      IEnumerable<MediaItem> combinedItems = new List<MediaItem>();
+      foreach (var subViewSpecification in vss)
+      {
+        IEnumerable<MediaItem> mi = await subViewSpecification.GetAllMediaItems();
+        combinedItems = combinedItems.Union(mi);
+      }
+      combinedItems = combinedItems.Union(mis);
+      return combinedItems;
     }
 
     /// <summary>
@@ -142,6 +160,7 @@ namespace MediaPortal.UiComponents.Media.Views
     /// <param name="subViewSpecifications">Sub view specifications to this view specification. <c>null</c> if the loading of sub views didn't succeed.</param>
     /// <exception cref="Exception">If there are problems accessing the datasource of this view. Exceptions in reading
     /// and/or parsing media items should not be thrown; those media items should simply be ignored.</exception>
+    //protected internal abstract Task<Tuple<IList<MediaItem>, IList<ViewSpecification>>> ReLoadItemsAndSubViewSpecifications(); //out IList<MediaItem> mediaItems, out IList<ViewSpecification> subViewSpecifications
     protected internal abstract void ReLoadItemsAndSubViewSpecifications(out IList<MediaItem> mediaItems, out IList<ViewSpecification> subViewSpecifications);
 
     public virtual IViewChangeNotificator CreateChangeNotificator()

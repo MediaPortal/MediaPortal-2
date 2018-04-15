@@ -6,6 +6,7 @@
   <string name="Weather.WeatherLocationStateDisplayLabel">Välj plats</string>
   <!--Dialog state, doesn't appear at the UI-->
   <string name="Weather.Title">Väder</string>
+  <string name="Weather.Title.Help">Se aktuellt väder och prognos för olika platser.</string>
   <string name="Weather.ChooseLocation">Välj plats</string>
   <string name="Weather.Refresh">Uppdatera</string>
   <string name="Weather.Updating">Uppdaterar...</string>

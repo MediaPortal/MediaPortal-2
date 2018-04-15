@@ -1,9 +1,9 @@
-﻿MediaPortal\Incubator\BluRayMetadaExtractor\Metadata\BDROM
-MediaPortal\Source\Core\HttpServer
+﻿MediaPortal\Source\Core\HttpServer
 MediaPortal\Source\Core\MediaPortal.Utilities\CommandLine
 MediaPortal\Source\Extensions\DiscUtils
 MediaPortal\Source\Extensions\MetadataExtractors\OnlineLibraries\Libraries\TvdbLib
 MediaPortal\Source\Extensions\MetadataExtractors\TagLib
+MediaPortal\Source\Extensions\MetadataExtractors\BluRayMetadaExtractor\Metadata\BDROM
 MediaPortal\Source\External\Dokan
 MediaPortal\Source\UI\SkinEngine\MpfElements\Converters\expr
 MediaPortal\Incubator\WifiConfiguration\Models\NativeWifiWrapper

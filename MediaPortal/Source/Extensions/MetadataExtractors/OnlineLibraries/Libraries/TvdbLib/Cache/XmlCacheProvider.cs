@@ -29,6 +29,7 @@ using System.IO;
 using System.Drawing;
 using System.Text.RegularExpressions;
 using System.Xml.Linq;
+using System.Threading;
 
 namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib.Cache
 {
@@ -39,9 +40,17 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib.Cache
   {
     #region private fields
 
-    readonly TvdbXmlWriter _xmlWriter;
-    readonly TvdbXmlReader _xmlReader;
-    readonly String _rootFolder;
+    private readonly TvdbXmlWriter _xmlWriter;
+    private readonly TvdbXmlReader _xmlReader;
+    private readonly String _rootFolder;
+
+    // TODO: Lock on file level instead of on type level
+    private ReaderWriterLockSlim _languageLock = new ReaderWriterLockSlim();
+    private ReaderWriterLockSlim _mirrorLock = new ReaderWriterLockSlim();
+    private ReaderWriterLockSlim _seriesLock = new ReaderWriterLockSlim();
+    private ReaderWriterLockSlim _imageLock = new ReaderWriterLockSlim();
+    private ReaderWriterLockSlim _dataLock = new ReaderWriterLockSlim();
+    private ReaderWriterLockSlim _userLock = new ReaderWriterLockSlim();
 
     #endregion
 
@@ -54,7 +63,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib.Cache
       Initialised = false;
       _xmlWriter = new TvdbXmlWriter();
       _xmlReader = new TvdbXmlReader();
-      _rootFolder = rootFolder;
+      _rootFolder = rootFolder.TrimEnd(Path.DirectorySeparatorChar).TrimEnd(Path.AltDirectorySeparatorChar);
     }
 
     /// <summary>
@@ -124,13 +133,21 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib.Cache
         return;
       SaveToCache(content.LanguageList);
 
-      //store additional information
-      //- time of last update
-      //- more to come (eventually)
-      XElement xml = new XElement("Data");
-      xml.Add(new XElement("LastUpdated", Util.DotNetToUnix(content.LastUpdated)));
-      String data = xml.ToString();
-      File.WriteAllText(_rootFolder + Path.DirectorySeparatorChar + "data.xml", data);
+      _dataLock.EnterWriteLock();
+      try
+      {
+        //store additional information
+        //- time of last update
+        //- more to come (eventually)
+        XElement xml = new XElement("Data");
+        xml.Add(new XElement("LastUpdated", Util.DotNetToUnix(content.LastUpdated)));
+        String data = xml.ToString();
+        File.WriteAllText(_rootFolder + Path.DirectorySeparatorChar + "data.xml", data);
+      }
+      finally
+      {
+        _dataLock.ExitWriteLock();
+      }
     }
 
     /// <summary>
@@ -142,7 +159,15 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib.Cache
       if (languageList != null && languageList.Count > 0)
       {
         if (!Directory.Exists(_rootFolder)) Directory.CreateDirectory(_rootFolder);
-        _xmlWriter.WriteLanguageFile(languageList, _rootFolder + Path.DirectorySeparatorChar + "languages.xml");
+        _languageLock.EnterWriteLock();
+        try
+        {
+          _xmlWriter.WriteLanguageFile(languageList, _rootFolder + Path.DirectorySeparatorChar + "languages.xml");
+        }
+        finally
+        {
+          _languageLock.ExitWriteLock();
+        }
       }
     }
 
@@ -156,7 +181,15 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib.Cache
       if (mirrorInfo != null && mirrorInfo.Count > 0)
       {
         if (!Directory.Exists(_rootFolder)) Directory.CreateDirectory(_rootFolder);
-        _xmlWriter.WriteMirrorFile(mirrorInfo, _rootFolder + Path.DirectorySeparatorChar + "mirrors.xml");
+        _mirrorLock.EnterWriteLock();
+        try
+        {
+          _xmlWriter.WriteMirrorFile(mirrorInfo, _rootFolder + Path.DirectorySeparatorChar + "mirrors.xml");
+        }
+        finally
+        {
+          _mirrorLock.ExitWriteLock();
+        }
       }
     }
 
@@ -169,38 +202,46 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib.Cache
     {
       String root = _rootFolder + Path.DirectorySeparatorChar + series.Id;
       if (!Directory.Exists(root)) Directory.CreateDirectory(root);
+      _seriesLock.EnterWriteLock();
       try
       {
-        //delete old cached content
-        String[] files = Directory.GetFiles(root, "*.xml");
-        foreach (String f in files)
+        try
         {
-          File.Delete(f);
+          //delete old cached content
+          String[] files = Directory.GetFiles(root, "*.xml");
+          foreach (String f in files)
+          {
+            File.Delete(f);
+          }
+        }
+        catch (Exception ex)
+        {
+          Log.Warn("Couldn't delete old cache files", ex);
+        }
+
+        foreach (KeyValuePair<TvdbLanguage, TvdbSeriesFields> kvp in series.SeriesTranslations)
+        {
+          //write all languages to file
+          String fName = root + Path.DirectorySeparatorChar + kvp.Key.Abbriviation +
+                         (kvp.Value.EpisodesLoaded ? "_full" : "") + ".xml";
+          _xmlWriter.WriteSeriesContent(new TvdbSeries(kvp.Value), fName);
+        }
+
+        if (series.BannersLoaded)
+        {
+          //write the banners file 
+          _xmlWriter.WriteSeriesBannerContent(series.Banners, root + Path.DirectorySeparatorChar + "banners.xml");
+        }
+
+        if (series.TvdbActorsLoaded)
+        {
+          //write the actors file
+          _xmlWriter.WriteActorFile(series.TvdbActors, root + Path.DirectorySeparatorChar + "actors.xml");
         }
       }
-      catch (Exception ex)
+      finally
       {
-        Log.Warn("Couldn't delete old cache files", ex);
-      }
-
-      foreach (KeyValuePair<TvdbLanguage, TvdbSeriesFields> kvp in series.SeriesTranslations)
-      {
-        //write all languages to file
-        String fName = root + Path.DirectorySeparatorChar + kvp.Key.Abbriviation +
-                       (kvp.Value.EpisodesLoaded ? "_full" : "") + ".xml";
-        _xmlWriter.WriteSeriesContent(new TvdbSeries(kvp.Value), fName);
-      }
-
-      if (series.BannersLoaded)
-      {
-        //write the banners file 
-        _xmlWriter.WriteSeriesBannerContent(series.Banners, root + Path.DirectorySeparatorChar + "banners.xml");
-      }
-
-      if (series.TvdbActorsLoaded)
-      {
-        //write the actors file
-        _xmlWriter.WriteActorFile(series.TvdbActors, root + Path.DirectorySeparatorChar + "actors.xml");
+        _seriesLock.ExitWriteLock();
       }
     }
 
@@ -211,34 +252,41 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib.Cache
     public TvdbData LoadUserDataFromCache()
     {
       String fName = _rootFolder + Path.DirectorySeparatorChar + "data.xml";
-      if (File.Exists(fName))
+      _dataLock.EnterReadLock();
+      try
       {
-        String xmlData = File.ReadAllText(fName);
-        XDocument xml = XDocument.Parse(xmlData);
-
-        var info = from dataNode in xml.Descendants("Data")
-                   select new
-                   {
-                     lu = dataNode.Element("LastUpdated").Value
-                   };
-        if (info.Count() == 1)
+        if (File.Exists(fName))
         {
-          TvdbData data = new TvdbData();
-          DateTime lastUpdated = new DateTime();
-          try
-          {
-            lastUpdated = Util.UnixToDotNet(info.First().lu);
-          }
-          catch (FormatException ex)
-          {
-            Log.Warn("Couldn't parse date of last update", ex);
-          }
-          data.LastUpdated = lastUpdated;
-          data.LanguageList = LoadLanguageListFromCache();
-          //if (data.SeriesList == null) data.SeriesList = new List<TvdbSeries>();
-          return data;
-        }
+          String xmlData = File.ReadAllText(fName);
+          XDocument xml = XDocument.Parse(xmlData);
 
+          var info = from dataNode in xml.Descendants("Data")
+                     select new
+                     {
+                       lu = dataNode.Element("LastUpdated").Value
+                     };
+          if (info.Count() == 1)
+          {
+            TvdbData data = new TvdbData();
+            DateTime lastUpdated = new DateTime();
+            try
+            {
+              lastUpdated = Util.UnixToDotNet(info.First().lu);
+            }
+            catch (FormatException ex)
+            {
+              Log.Warn("Couldn't parse date of last update", ex);
+            }
+            data.LastUpdated = lastUpdated;
+            data.LanguageList = LoadLanguageListFromCache();
+            //if (data.SeriesList == null) data.SeriesList = new List<TvdbSeries>();
+            return data;
+          }
+        }
+      }
+      finally
+      {
+        _dataLock.ExitReadLock();
       }
 
       return null;
@@ -252,7 +300,15 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib.Cache
     public List<TvdbLanguage> LoadLanguageListFromCache()
     {
       String file = _rootFolder + Path.DirectorySeparatorChar + "languages.xml";
-      return File.Exists(file) ? _xmlReader.ExtractLanguages(File.ReadAllText(file)) : null;
+      _languageLock.EnterReadLock();
+      try
+      {
+        return File.Exists(file) ? _xmlReader.ExtractLanguages(File.ReadAllText(file)) : null;
+      }
+      finally
+      {
+        _languageLock.ExitReadLock();
+      }
     }
 
     /// <summary>
@@ -263,7 +319,15 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib.Cache
     public List<TvdbMirror> LoadMirrorListFromCache()
     {
       String file = _rootFolder + Path.DirectorySeparatorChar + "mirrors.xml";
-      return File.Exists(file) ? _xmlReader.ExtractMirrors(File.ReadAllText(file)) : null;
+      _mirrorLock.EnterReadLock();
+      try
+      {
+        return File.Exists(file) ? _xmlReader.ExtractMirrors(File.ReadAllText(file)) : null;
+      }
+      finally
+      {
+        _mirrorLock.ExitReadLock();
+      }
     }
 
     /// <summary>
@@ -301,139 +365,154 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib.Cache
       if (!Directory.Exists(seriesRoot)) return null;
       TvdbSeries series = new TvdbSeries();
 
-      #region load series in all available languages
-      String[] seriesLanguages = Directory.GetFiles(seriesRoot, "*.xml");
-      foreach (String l in seriesLanguages)
+      _seriesLock.EnterReadLock();
+
+      try
       {
-        if (!l.EndsWith("actors.xml") && !l.EndsWith("banners.xml"))
+        #region load series in all available languages
+        String[] seriesLanguages = Directory.GetFiles(seriesRoot, "*.xml");
+        foreach (String l in seriesLanguages)
         {
-          String content = File.ReadAllText(l);
-          List<TvdbSeriesFields> seriesList = _xmlReader.ExtractSeriesFields(content);
-          if (seriesList != null && seriesList.Count == 1)
+          if (!l.EndsWith("actors.xml") && !l.EndsWith("banners.xml"))
           {
-            TvdbSeriesFields s = seriesList[0];
-            //Load episodes
-            if (l.EndsWith("full.xml"))
+            String content = File.ReadAllText(l);
+            List<TvdbSeriesFields> seriesList = _xmlReader.ExtractSeriesFields(content);
+            if (seriesList != null && seriesList.Count == 1)
             {
-              List<TvdbEpisode> epList = _xmlReader.ExtractEpisodes(content);
-              s.EpisodesLoaded = true;
-              s.Episodes.Clear();
-              s.Episodes.AddRange(epList);
-            }
-            series.AddLanguage(s);
-          }
-        }
-      }
-
-      if (series.SeriesTranslations.Count > 0)
-      {
-        //change language of the series to the default language
-        series.SetLanguage(series.SeriesTranslations.Keys.First());
-      }
-      else
-      {
-        //no series info could be loaded
-        return null;
-      }
-
-      if (!series.BannerPath.Equals(""))
-        series.Banners.Add(new TvdbSeriesBanner(series.Id, series.BannerPath, series.Language, TvdbSeriesBanner.Type.Graphical));
-
-      if (!series.PosterPath.Equals(""))
-        series.Banners.Add(new TvdbPosterBanner(series.Id, series.PosterPath, series.Language));
-
-      if (!series.FanartPath.Equals(""))
-        series.Banners.Add(new TvdbFanartBanner(series.Id, series.FanartPath, series.Language));
-
-      Regex rex = new Regex("S(\\d+)E(\\d+)");
-      if (Directory.Exists(seriesRoot + Path.DirectorySeparatorChar + "EpisodeImages"))
-      {
-        String[] episodeFiles = Directory.GetFiles(seriesRoot + Path.DirectorySeparatorChar + "EpisodeImages", "ep_*.jpg");
-        foreach (String epImageFile in episodeFiles)
-        {
-          try
-          {
-            Match match = rex.Match(epImageFile);
-            int season = Int32.Parse(match.Groups[1].Value);
-            int episode = Int32.Parse(match.Groups[2].Value);
-            foreach (TvdbEpisode e in series.Episodes.Where(e => e.SeasonNumber == season && e.EpisodeNumber == episode))
-            {
-              if (epImageFile.Contains("thumb"))
-                e.Banner.LoadThumb(Image.FromFile(epImageFile));
-              else
-                e.Banner.LoadBanner(Image.FromFile(epImageFile));
-              break;
+              TvdbSeriesFields s = seriesList[0];
+              //Load episodes
+              if (l.EndsWith("full.xml"))
+              {
+                List<TvdbEpisode> epList = _xmlReader.ExtractEpisodes(content);
+                s.EpisodesLoaded = true;
+                s.Episodes.Clear();
+                s.Episodes.AddRange(epList);
+              }
+              series.AddLanguage(s);
             }
           }
-          catch (Exception)
-          {
-            Log.Warn("Couldn't load episode image file " + epImageFile);
-          }
         }
-      }
 
-      #endregion
-
-      #region Banner loading
-      String bannerFile = seriesRoot + Path.DirectorySeparatorChar + "banners.xml";
-      //load cached banners
-      if (File.Exists(bannerFile))
-      {
-        //banners have been already loaded
-        List<TvdbBanner> bannerList = _xmlReader.ExtractBanners(File.ReadAllText(bannerFile));
-
-        String[] banners = Directory.GetFiles(seriesRoot, "banner*.jpg");
-        foreach (String b in banners)
+        if (series.SeriesTranslations.Count > 0)
         {
-          try
+          //change language of the series to the default language
+          series.SetLanguage(series.SeriesTranslations.Keys.First());
+        }
+        else
+        {
+          //no series info could be loaded
+          return null;
+        }
+
+        if (!series.BannerPath.Equals(""))
+          series.Banners.Add(new TvdbSeriesBanner(series.Id, series.BannerPath, series.Language, TvdbSeriesBanner.Type.Graphical));
+
+        if (!series.PosterPath.Equals(""))
+          series.Banners.Add(new TvdbPosterBanner(series.Id, series.PosterPath, series.Language));
+
+        if (!series.FanartPath.Equals(""))
+          series.Banners.Add(new TvdbFanartBanner(series.Id, series.FanartPath, series.Language));
+
+        Regex rex = new Regex("S(\\d+)E(\\d+)");
+        if (Directory.Exists(seriesRoot + Path.DirectorySeparatorChar + "EpisodeImages"))
+        {
+          String[] episodeFiles = Directory.GetFiles(seriesRoot + Path.DirectorySeparatorChar + "EpisodeImages", "ep_*.jpg");
+          foreach (String epImageFile in episodeFiles)
           {
-            int bannerId = Int32.Parse(b.Remove(b.IndexOf(".")).Remove(0, b.LastIndexOf("_") + 1));
-            foreach (TvdbBanner banner in bannerList.Where(banner => banner.Id == bannerId))
+            try
             {
-              if (b.Contains("thumb") && banner.GetType().BaseType == typeof(TvdbBannerWithThumb))
-                ((TvdbBannerWithThumb)banner).LoadThumb(Image.FromFile(b));
-              else if (b.Contains("vignette") && banner.GetType() == typeof(TvdbFanartBanner))
-                ((TvdbFanartBanner)banner).LoadVignette(Image.FromFile(b));
-              else
-                banner.LoadBanner(Image.FromFile(b));
+              Match match = rex.Match(epImageFile);
+              int season = Int32.Parse(match.Groups[1].Value);
+              int episode = Int32.Parse(match.Groups[2].Value);
+              foreach (TvdbEpisode e in series.Episodes.Where(e => e.SeasonNumber == season && e.EpisodeNumber == episode))
+              {
+                if (epImageFile.Contains("thumb"))
+                  e.Banner.LoadThumb(Image.FromFile(epImageFile));
+                else
+                  e.Banner.LoadBanner(Image.FromFile(epImageFile));
+                break;
+              }
+            }
+            catch (Exception)
+            {
+              Log.Warn("Couldn't load episode image file " + epImageFile);
             }
           }
-          catch (Exception)
-          {
-            Log.Warn("Couldn't load image file " + b);
-          }
         }
-        series.Banners = bannerList;
-      }
-      #endregion
 
-      #region actor loading
-      //load actor info
-      String actorFile = seriesRoot + Path.DirectorySeparatorChar + "actors.xml";
-      if (File.Exists(actorFile))
-      {
-        List<TvdbActor> actorList = _xmlReader.ExtractActors(File.ReadAllText(actorFile));
+        #endregion
 
-        String[] banners = Directory.GetFiles(seriesRoot, "actor_*.jpg");
-        foreach (String b in banners)
+        #region Banner loading
+        String bannerFile = seriesRoot + Path.DirectorySeparatorChar + "banners.xml";
+        //load cached banners
+        if (File.Exists(bannerFile))
         {
-          try
+          //banners have been already loaded
+          List<TvdbBanner> bannerList = _xmlReader.ExtractBanners(File.ReadAllText(bannerFile));
+
+          String[] banners = Directory.GetFiles(seriesRoot, "banner*.jpg");
+          foreach (String b in banners)
           {
-            int actorId = Int32.Parse(b.Remove(b.IndexOf(".")).Remove(0, b.LastIndexOf("_") + 1));
-            foreach (TvdbActor actor in actorList.Where(actor => actor.Id == actorId))
-              actor.ActorImage.LoadBanner(Image.FromFile(b));
+            try
+            {
+              int bannerId = Int32.Parse(b.Remove(b.IndexOf(".")).Remove(0, b.LastIndexOf("_") + 1));
+              foreach (TvdbBanner banner in bannerList.Where(banner => banner.Id == bannerId))
+              {
+                if (b.Contains("thumb") && banner.GetType().BaseType == typeof(TvdbBannerWithThumb))
+                  ((TvdbBannerWithThumb)banner).LoadThumb(Image.FromFile(b));
+                else if (b.Contains("vignette") && banner.GetType() == typeof(TvdbFanartBanner))
+                  ((TvdbFanartBanner)banner).LoadVignette(Image.FromFile(b));
+                else
+                  banner.LoadBanner(Image.FromFile(b));
+              }
+            }
+            catch (Exception)
+            {
+              Log.Warn("Couldn't load image file " + b);
+            }
           }
-          catch (Exception)
-          {
-            Log.Warn("Couldn't load image file " + b);
-          }
+          series.Banners = bannerList;
         }
-        series.TvdbActors = actorList;
+        #endregion
+
+        #region actor loading
+        //load actor info
+        String actorFile = seriesRoot + Path.DirectorySeparatorChar + "actors.xml";
+        if (File.Exists(actorFile))
+        {
+          List<TvdbActor> actorList = _xmlReader.ExtractActors(File.ReadAllText(actorFile));
+
+          String[] banners = Directory.GetFiles(seriesRoot, "actor_*.jpg");
+          foreach (String b in banners)
+          {
+            try
+            {
+              int actorId = Int32.Parse(b.Remove(b.IndexOf(".")).Remove(0, b.LastIndexOf("_") + 1));
+              foreach (TvdbActor actor in actorList.Where(actor => actor.Id == actorId))
+                actor.ActorImage.LoadBanner(Image.FromFile(b));
+            }
+            catch (Exception)
+            {
+              Log.Warn("Couldn't load image file " + b);
+            }
+          }
+          series.TvdbActors = actorList;
+        }
+        #endregion
       }
-      #endregion
+      finally
+      {
+        _seriesLock.ExitReadLock();
+      }
 
       return series;
 
+    }
+
+    public string[] GetSeriesCacheFiles(int seriesId)
+    {
+      String seriesRoot = _rootFolder + Path.DirectorySeparatorChar + seriesId;
+      return Directory.GetFiles(seriesRoot, "*.xml");
     }
 
     /// <summary>
@@ -446,9 +525,18 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib.Cache
       String seriesRoot = _rootFolder;
       String xmlFile = seriesRoot + Path.DirectorySeparatorChar + "user_" + userId + ".xml";
       if (!File.Exists(xmlFile)) return null;
-      String content = File.ReadAllText(xmlFile);
-      List<TvdbUser> userList = _xmlReader.ExtractUser(content);
-      return userList != null && userList.Count == 1 ? userList[0] : null;
+
+      _userLock.EnterReadLock();
+      try
+      {
+        String content = File.ReadAllText(xmlFile);
+        List<TvdbUser> userList = _xmlReader.ExtractUser(content);
+        return userList != null && userList.Count == 1 ? userList[0] : null;
+      }
+      finally
+      {
+        _userLock.ExitReadLock();
+      }
     }
 
     /// <summary>
@@ -460,7 +548,16 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib.Cache
       if (user == null)
         return;
       if (!Directory.Exists(_rootFolder)) Directory.CreateDirectory(_rootFolder);
-      _xmlWriter.WriteUserData(user, _rootFolder + Path.DirectorySeparatorChar + "user_" + user.UserIdentifier + ".xml");
+
+      _userLock.EnterWriteLock();
+      try
+      {
+        _xmlWriter.WriteUserData(user, _rootFolder + Path.DirectorySeparatorChar + "user_" + user.UserIdentifier + ".xml");
+      }
+      finally
+      {
+        _userLock.ExitWriteLock();
+      }
     }
 
 
@@ -539,49 +636,73 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib.Cache
     {
       //Delete all series info
       Log.Info("Attempting to delete all series");
-      string[] folders = Directory.GetDirectories(_rootFolder);
-      foreach (String f in folders)
+      _seriesLock.EnterWriteLock();
+      try
       {
-        try
+        string[] folders = Directory.GetDirectories(_rootFolder);
+        foreach (String f in folders)
         {
-          Directory.Delete(f, true);
-        }
-        catch (Exception ex)
-        {
-          Log.Warn("Error deleting series " + f + ", please manually delete the " +
-                   "cache folder since it's now inconsistent", ex);
-          return false;
+          try
+          {
+            Directory.Delete(f, true);
+          }
+          catch (Exception ex)
+          {
+            Log.Warn("Error deleting series " + f + ", please manually delete the " +
+                     "cache folder since it's now inconsistent", ex);
+            return false;
+          }
         }
       }
-
-      if (File.Exists(_rootFolder + Path.DirectorySeparatorChar + "languages.xml"))
+      finally
       {
-        Log.Info("Attempting to delete cached languages");
-        try
-        {
-          File.Delete(_rootFolder + Path.DirectorySeparatorChar + "languages.xml");
-        }
-        catch (Exception ex)
-        {
-          Log.Warn("Error deleting cached languages, please manually delete the " +
-                   "cache folder since it's now inconsistent", ex);
-          return false;
-        }
+        _seriesLock.ExitWriteLock();
       }
 
-      if (File.Exists(_rootFolder + Path.DirectorySeparatorChar + "data.xml"))
+      _languageLock.EnterWriteLock();
+      try
       {
-        Log.Info("Attempting to delete cache settings");
-        try
+        if (File.Exists(_rootFolder + Path.DirectorySeparatorChar + "languages.xml"))
         {
-          File.Delete(_rootFolder + Path.DirectorySeparatorChar + "data.xml");
+          Log.Info("Attempting to delete cached languages");
+          try
+          {
+            File.Delete(_rootFolder + Path.DirectorySeparatorChar + "languages.xml");
+          }
+          catch (Exception ex)
+          {
+            Log.Warn("Error deleting cached languages, please manually delete the " +
+                     "cache folder since it's now inconsistent", ex);
+            return false;
+          }
         }
-        catch (Exception ex)
+      }
+      finally
+      {
+        _languageLock.ExitWriteLock();
+      }
+
+      _dataLock.EnterWriteLock();
+      try
+      {
+        if (File.Exists(_rootFolder + Path.DirectorySeparatorChar + "data.xml"))
         {
-          Log.Warn("Error deleting cached cache settings, please manually delete the " +
-                   "cache folder since it's now inconsistent", ex);
-          return false;
+          Log.Info("Attempting to delete cache settings");
+          try
+          {
+            File.Delete(_rootFolder + Path.DirectorySeparatorChar + "data.xml");
+          }
+          catch (Exception ex)
+          {
+            Log.Warn("Error deleting cached cache settings, please manually delete the " +
+                     "cache folder since it's now inconsistent", ex);
+            return false;
+          }
         }
+      }
+      finally
+      {
+        _dataLock.ExitWriteLock();
       }
 
       Log.Info("Successfully deleted cache");
@@ -597,18 +718,26 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib.Cache
     public bool RemoveFromCache(int seriesId)
     {
       String seriesRoot = _rootFolder + Path.DirectorySeparatorChar + seriesId;
-      if (Directory.Exists(seriesRoot))
+      _seriesLock.EnterWriteLock();
+      try
       {
-        try
+        if (Directory.Exists(seriesRoot))
         {
-          Directory.Delete(seriesRoot, true);
-          return true;
+          try
+          {
+            Directory.Delete(seriesRoot, true);
+            return true;
+          }
+          catch (Exception ex)
+          {
+            Log.Error("Couldn't delete series " + seriesId + " from cache ", ex);
+            return false;
+          }
         }
-        catch (Exception ex)
-        {
-          Log.Error("Couldn't delete series " + seriesId + " from cache ", ex);
-          return false;
-        }
+      }
+      finally
+      {
+        _seriesLock.ExitWriteLock();
       }
       //the series wasn't cached in the first place
       return false;
@@ -620,17 +749,31 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib.Cache
     /// <param name="image">banner to save</param>
     /// <param name="seriesId">id of series</param>
     /// <param name="fileName">filename (will be the same name used by LoadImageFromCache)</param>
-    public void SaveToCache(Image image, int seriesId, string fileName)
+    public void SaveToCache(Image image, int seriesId, string folderName, string fileName)
     {
-      String seriesRoot = _rootFolder + Path.DirectorySeparatorChar + seriesId;
-      if (Directory.Exists(seriesRoot))
+      String imageRoot = _rootFolder + Path.DirectorySeparatorChar + seriesId;
+      if (!string.IsNullOrEmpty(folderName))
       {
-        if (image != null)
-          image.Save(seriesRoot + Path.DirectorySeparatorChar + fileName);
+        imageRoot = folderName;
+        if (!Directory.Exists(imageRoot))
+          Directory.CreateDirectory(imageRoot);
       }
-      else
+      _imageLock.EnterWriteLock();
+      try
       {
-        Log.Warn("Couldn't save image " + fileName + " for series " + seriesId + " because the series directory doesn't exist yet");
+        if (Directory.Exists(imageRoot))
+        {
+          if (image != null)
+            image.Save(imageRoot + Path.DirectorySeparatorChar + fileName);
+        }
+        else
+        {
+          Log.Warn("Couldn't save image " + fileName + " for series " + seriesId + " because the series directory doesn't exist yet");
+        }
+      }
+      finally
+      {
+        _imageLock.ExitWriteLock();
       }
     }
 
@@ -640,23 +783,33 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib.Cache
     /// <param name="seriesId">series id</param>
     /// <param name="fileName">filename of the image (same one as used by SaveToCache)</param>
     /// <returns>The loaded image or null if the image wasn't found</returns>
-    public Image LoadImageFromCache(int seriesId, string fileName)
+    public Image LoadImageFromCache(int seriesId, string folderName, string fileName)
     {
-      String seriesRoot = _rootFolder + Path.DirectorySeparatorChar + seriesId;
-      if (Directory.Exists(seriesRoot))
+      String imageRoot = _rootFolder + Path.DirectorySeparatorChar + seriesId;
+      if (!string.IsNullOrEmpty(folderName))
+        imageRoot = folderName;
+      _imageLock.EnterReadLock();
+      try
       {
-        String fName = seriesRoot + Path.DirectorySeparatorChar + fileName;
-        if (File.Exists(fName))
+        if (Directory.Exists(imageRoot))
         {
-          try
+          String fName = imageRoot + Path.DirectorySeparatorChar + fileName;
+          if (File.Exists(fName))
           {
-            return Image.FromFile(fName);
-          }
-          catch (Exception ex)
-          {
-            Log.Warn("Couldn't load image " + fName + " for series " + seriesId, ex);
+            try
+            {
+              return Image.FromFile(fName);
+            }
+            catch (Exception ex)
+            {
+              Log.Warn("Couldn't load image " + fName + " for series " + seriesId, ex);
+            }
           }
         }
+      }
+      finally
+      {
+        _imageLock.ExitReadLock();
       }
       return null;
     }
@@ -667,26 +820,36 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib.Cache
     /// <param name="seriesId">id of series</param>
     /// <param name="fileName">name of image</param>
     /// <returns>true if image was removed successfully, false otherwise (e.g. image didn't exist)</returns>
-    public bool RemoveImageFromCache(int seriesId, string fileName)
+    public bool RemoveImageFromCache(int seriesId, string folderName, string fileName)
     {
-      String fName = _rootFolder + Path.DirectorySeparatorChar + seriesId +
-                     Path.DirectorySeparatorChar + fileName;
+      string imageRoot = _rootFolder + Path.DirectorySeparatorChar + seriesId;
+      if (!string.IsNullOrEmpty(folderName))
+        imageRoot = folderName;
+      string fName = imageRoot + Path.DirectorySeparatorChar + fileName;
 
-      if (File.Exists(fName))
+      _imageLock.EnterWriteLock();
+      try
       {
-        //the image is cached
-        try
+        if (File.Exists(fName))
         {
-          //trying to delete the file
-          File.Delete(fName);
-          return true;
+          //the image is cached
+          try
+          {
+            //trying to delete the file
+            File.Delete(fName);
+            return true;
+          }
+          catch (Exception ex)
+          {
+            //error while deleting the image
+            Log.Warn("Couldn't delete image " + fileName + " for series " + seriesId, ex);
+            return false;
+          }
         }
-        catch (Exception ex)
-        {
-          //error while deleting the image
-          Log.Warn("Couldn't delete image " + fileName + " for series " + seriesId, ex);
-          return false;
-        }
+      }
+      finally
+      {
+        _imageLock.ExitWriteLock();
       }
       //image isn't cached in the first place
       return false;

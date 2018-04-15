@@ -98,18 +98,15 @@
   <!--for example "Close video player"-->
   <string name="Players.ChoosePlayerGeometry">Modo de zoom</string>
   <string name="Players.ChoosePlayerEffect">Efeito</string>
+  <string name="Players.ChoosePlayerSubtitle">Legendas</string>
   <string name="Settings.Appearance">Aparência</string>
   <string name="Settings.Appearance.Skin">Capa</string>
   <string name="Settings.Appearance.Skin.Formats.DateFormat">Formato de data</string>
-  <string name="Settings.Appearance.Skin.Formats.DateFormat.Help">Formato de data utilizado na capa. Use a especificação de formato da classe DateTime do .net.</string>
   <string name="Settings.Appearance.Skin.Formats.TimeFormat">Formato de tempo</string>
-  <string name="Settings.Appearance.Skin.Formats.TimeFormat.Help">Formato de tempo utilizado na capa. Use a especificação de formato da classe DateTime do .net.</string>
   <string name="Settings.General">Geral</string>
   <string name="Settings.General.System">Systema</string>
   <string name="Settings.General.System.Autostart">Autoiniciar</string>
   <string name="Settings.General.System.Autostart.Help">Iniciar MediaPortal automaticamente ao iniciar o Windows</string>
-  <string name="Settings.General.System.ClientDOKANDrive">Letra da unidade para montar o recurso</string>
-  <string name="Settings.General.System.ClientDOKANDrive.Help">Configura a letra da unidade para montar recursos remotos neste cliente.</string>
   <string name="Settings.General.Connectivity">Conectividade</string>
   <string name="Settings.General.Connectivity.HomeServer">Servidor local</string>
   <string name="Settings.General.Connectivity.HomeServer.Help">Informações do servidor local, conectar e desconectar do servidor local</string>

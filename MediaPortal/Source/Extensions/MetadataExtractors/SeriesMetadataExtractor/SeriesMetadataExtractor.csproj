@@ -10,7 +10,7 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor</RootNamespace>
     <AssemblyName>SeriesMetadataExtractor</AssemblyName>
-    <TargetFrameworkVersion>v4.5.1</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.7</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <TargetFrameworkProfile />
   </PropertyGroup>
@@ -51,6 +51,8 @@
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.ServiceModel" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="System.Data" />
@@ -60,12 +62,26 @@
     <Compile Include="..\..\..\Core\MediaPortal.Common\VersionInfo\VersionInfo.cs">
       <Link>Properties\VersionInfo.cs</Link>
     </Compile>
-    <Compile Include="FanartProvider\SeriesFanartProvider.cs" />
-    <Compile Include="SeriesMetadataExtractorSettings.cs" />
+    <Compile Include="FanArtHandlers\SeriesFanArtHandler.cs" />
+    <Compile Include="MergeHandlers\EpisodeMergeHandler.cs" />
+    <Compile Include="RelationshipExtractors\SeasonSeriesRelationshipExtractor.cs" />
+    <Compile Include="RelationshipExtractors\SeriesCharacterRelationshipExtractor.cs" />
+    <Compile Include="RelationshipExtractors\SeriesEpisodeRelationshipExtractor.cs" />
+    <Compile Include="RelationshipExtractors\SeriesProductionRelationshipExtractor.cs" />
+    <Compile Include="RelationshipExtractors\SeriesNetworkRelationshipExtractor.cs" />
+    <Compile Include="RelationshipExtractors\SeriesActorRelationshipExtractor.cs" />
+    <Compile Include="RelationshipExtractors\EpisodeCharacterRelationshipExtractor.cs" />
+    <Compile Include="RelationshipExtractors\EpisodeWriterRelationshipExtractor.cs" />
+    <Compile Include="RelationshipExtractors\EpisodeDirectorRelationshipExtractor.cs" />
+    <Compile Include="RelationshipExtractors\EpisodeActorRelationshipExtractor.cs" />
+    <Compile Include="RelationshipExtractors\EpisodeSeriesRelationshipExtractor.cs" />
+    <Compile Include="RelationshipExtractors\SeriesRelationshipExtractor.cs" />
+    <Compile Include="Settings\SeriesMetadataExtractorSettings.cs" />
     <Compile Include="NameMatchers\MatroskaMatcher.cs" />
     <Compile Include="NameMatchers\SeriesMatcher.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SeriesMetadataExtractor.cs" />
+    <Compile Include="RelationshipExtractors\EpisodeSeasonRelationshipExtractor.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="plugin.xml">
@@ -73,10 +89,6 @@
     </Content>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\..\..\Incubator\FanArtService.Interfaces\FanArtService.Interfaces.csproj">
-      <Project>{587B806E-9AFC-47D7-A024-1CEC38C4D1D3}</Project>
-      <Name>FanArtService.Interfaces</Name>
-    </ProjectReference>
     <ProjectReference Include="..\..\..\Core\MediaPortal.Common\MediaPortal.Common.csproj">
       <Project>{ECF060E7-CAA1-4466-851F-F80B857641EA}</Project>
       <Name>MediaPortal.Common</Name>
@@ -84,6 +96,10 @@
     <ProjectReference Include="..\..\..\Core\MediaPortal.Utilities\MediaPortal.Utilities.csproj">
       <Project>{4FE7B8AE-1330-424A-91A1-C68D7ABF9CB8}</Project>
       <Name>MediaPortal.Utilities</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\UI\FanArt\FanArtService.Interfaces\FanArtService.Interfaces.csproj">
+      <Project>{587B806E-9AFC-47D7-A024-1CEC38C4D1D3}</Project>
+      <Name>FanArtService.Interfaces</Name>
     </ProjectReference>
     <ProjectReference Include="..\MatroskaLib\MatroskaLib.csproj">
       <Project>{0DCFE91A-60DE-42BF-A5F9-A925AA45ECD4}</Project>
@@ -97,6 +113,7 @@
   <ItemGroup>
     <None Include="build.targets" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="build.targets" />
 </Project>

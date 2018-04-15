@@ -1,7 +1,7 @@
-﻿#region Copyright (C) 2007-2015 Team MediaPortal
+﻿#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2014 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -38,12 +38,22 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.Stubs
     /// <summary>
     /// Language of the audio stream
     /// </summary>
-    /// <example>"deutsch"</example>
+    /// <example>"deutsch", "ger"</example>
     public string Language { get; set; }
 
     /// <summary>
     /// Number of channels in the audio stream
     /// </summary>
     public int? Channels { get; set; }
+
+    /// <summary>
+    /// Bitrate of the audio stream in bps
+    /// </summary>
+    public long? Bitrate { get; set; }
+
+    /// <summary>
+    /// Bitrate mode of the audio stream (Constant, Variable)
+    /// </summary>
+    public string BitrateMode { get; set; }
   }
 }

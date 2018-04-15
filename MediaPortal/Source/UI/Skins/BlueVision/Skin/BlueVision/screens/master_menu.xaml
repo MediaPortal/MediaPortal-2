@@ -1,0 +1,350 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<!--
+This is the master template for standard menu screens:
+On top the window buttons, the player controls and the notification symbol,
+at the left side the menu,
+at the right side the content pane and
+at the bottom the navbar.
+
+The contents (Contents_Template) are displayed inside a GroupBox.
+If an alternative contents display should be used,
+the element Alternative_Contents_Element can be used; in that case, no
+surrounding GroupBox will be used.
+
+Usage:
+
+  <Include
+      xmlns="www.team-mediaportal.com/2008/mpf/directx"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      Source="screens\master_menu.xaml">
+    <Include.Resources>
+      <ResourceWrapper x:Key="Header_Text">
+        [Header text]
+      </ResourceWrapper>
+
+      <!- Either ->
+      <ControlTemplate x:Key="Contents_Template">
+        [UI element to be displayed in the content area]
+      </ControlTemplate>
+      <!- Or ->
+      <ControlTemplate x:Key="Alternative_Contents_Template">
+        [UI element to be displayed in the content area]
+      </ControlTemplate>
+
+    </Include.Resources>
+  </Include>
+
+Parameters which have to be accessible by a DynamicResource lookup:
+ - Header_Text (String): The text to be displayed as header. Only used when Contents_Template is given.
+ - Contents_Template (ConrolTemplate): Template for the contents to be displayed
+   in the content area at the right side, inside a GroupBox.
+ - Alternative_Contents_Template (ControlTemplate): Template of the contents to be displayed
+   in the content area at the right side, without a GroupBox.
+-->
+
+<Include
+    xmlns="www.team-mediaportal.com/2008/mpf/directx"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    Source="screens\master_bare.xaml"
+    xmlns:mp_special_controls="clr-namespace:MediaPortal.UI.SkinEngine.SpecialElements.Controls;assembly=SkinEngine"
+    >
+  <Include.Resources>
+    
+    <Model x:Key="MenuModel" Id="A6C6D5DA-55FE-4b5f-AE83-B03E8BBFA177"/>
+
+    <!--Common animations for the FadeBackground when the hidden menu is shown-->    
+    <Storyboard x:Key="FadeInStoryboard" FillBehavior="HoldEnd">
+      <ObjectAnimationUsingKeyFrames BeginTime="00:00:00" FillBehavior="HoldEnd" Storyboard.TargetName="FadeBackground" Storyboard.TargetProperty="IsVisible">
+        <DiscreteObjectKeyFrame KeyTime="00:00:00" Value="True"/>
+      </ObjectAnimationUsingKeyFrames>
+      <DoubleAnimationUsingKeyFrames BeginTime="00:00:00.01" FillBehavior="HoldEnd" Storyboard.TargetName="FadeBackground" Storyboard.TargetProperty="Opacity">
+        <SplineDoubleKeyFrame KeyTime="00:00:00.01" Value="0"/>
+        <SplineDoubleKeyFrame KeyTime="00:00:00.65" Value="0.6"/>
+      </DoubleAnimationUsingKeyFrames>
+    </Storyboard>
+    <Storyboard x:Key="FadeOutStoryboard" FillBehavior="HoldEnd">
+      <DoubleAnimationUsingKeyFrames BeginTime="00:00:00" FillBehavior="HoldEnd" Storyboard.TargetName="FadeBackground" Storyboard.TargetProperty="Opacity">
+        <SplineDoubleKeyFrame KeyTime="00:00:00" Value="0.6"/>
+        <SplineDoubleKeyFrame KeyTime="00:00:00.65" Value="0"/>
+      </DoubleAnimationUsingKeyFrames>
+      <ObjectAnimationUsingKeyFrames BeginTime="00:00:00" FillBehavior="Stop" Storyboard.TargetName="FadeBackground" Storyboard.TargetProperty="IsVisible">
+        <DiscreteObjectKeyFrame KeyTime="00:00:00" Value="True"/>
+        <DiscreteObjectKeyFrame KeyTime="00:00:00.65" Value="False"/>
+      </ObjectAnimationUsingKeyFrames>
+    </Storyboard>
+
+    <ControlTemplate x:Key="Header_Text_Template">
+      <Label x:Name="HeaderLabel" FontFamily="DefaultBold" FontSize="{ThemeResource BiggerFontSize}"
+               VerticalAlignment="Center" HorizontalAlignment="Left" Color="{ThemeResource TextColor}"
+               Content="{Binding Source={DynamicResource Header_Text},Path=Resource}">
+      </Label>
+    </ControlTemplate>
+
+    <ControlTemplate x:Key="Menu_Button_Placeholder">
+      <Button x:Name="MenuButton" Style="{ThemeResource MenuButtonStyle}"
+              HorizontalAlignment="Right" VerticalAlignment="Center"
+              IsEnabled="{Binding Source={StaticResource MenuModel},Path=!IsMenuOpen}"
+              Command="{Command Source={StaticResource MenuModel}, Path=ToggleMenu}">
+        <Button.Triggers>
+          <Trigger Property="HasFocus" Value="True">
+            <Trigger.Setters>
+              <Setter Property="Opacity" Value="2"/>
+            </Trigger.Setters>
+          </Trigger>
+        </Button.Triggers>
+      </Button>
+    </ControlTemplate>
+
+    <!-- Header has to be defined by the includer: "Header_Text" -->
+
+    <ControlTemplate x:Key="Client_Template">
+      <Grid Margin="10" VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
+        <Grid.ColumnDefinitions>
+          <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+          <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <!-- Order matters here: The content control has to be the last control to fill the rest of the space -->
+        <Grid x:Name="ContentPanel" SetFocusPrio="DefaultLow">
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>
+          </Grid.ColumnDefinitions>
+          <Grid.RowDefinitions>
+            <RowDefinition Height="*"/>
+          </Grid.RowDefinitions>
+
+          <!--Container for content templates to handle common triggers-->
+          <Grid Grid.Row="0" Grid.Column="0" VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
+            <Grid.Triggers>
+              <!--Close the hidden menu when the main content gets focus-->
+              <EventTrigger RoutedEvent="FrameworkElement.GotFocus">
+                <TriggerCommand Command="{Command Source={StaticResource MenuModel}, Path=CloseMenu}"/>
+              </EventTrigger>
+            </Grid.Triggers>
+            
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+              <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+
+            <Control x:Name="ContentControl" SetFocusPrio="DefaultLow" Template="{DynamicResource ResourceKey=Contents_Template}"  Grid.Row="0" Grid.Column="0" Margin="10,0,10,10"
+                     IsVisible="{Binding ElementName=ContentControl,Path=Template,Converter={StaticResource ReferenceToBoolConverter}}"/>
+
+            <Control x:Name="AlternativeContentControl" Grid.Row="0" Grid.Column="0"
+                     VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
+                     Template="{DynamicResource ResourceKey=Alternative_Contents_Template}"
+                     IsVisible="{Binding RelativeSource={RelativeSource Self},Path=Template,Converter={StaticResource ReferenceToBoolConverter}}"/>
+          </Grid>
+
+          <!--Overlay to darken the content when the hidden menu is shown-->
+          <Grid x:Name="FadeBackground" Background="Black" IsVisible="False"
+                VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Margin="-200,-500,-200,-500" Opacity="0"/>
+          
+          <!--
+          This control captures when the mouse moves over the content when the menu is open as the fade background above
+          covers the content preventing it from getting mouse focus. It has a right margin the same width as the menu so
+          it is not accidently hit whilst the menu is opened with the mouse.
+          -->
+          <Grid x:Name="MouseCaptureControl" IsVisible="{Binding Source={StaticResource MenuModel}, Path=IsMenuOpen}"
+                  VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Margin="-200,-500, 500,-500">
+            <Grid.Triggers>
+              <!--Close the menu when the mouse moves over this control as the fade background above covers the main content and prevents it getting focus-->
+              <EventTrigger RoutedEvent="FrameworkElement.MouseMove">
+                <TriggerCommand Command="{Command Source={StaticResource MenuModel}, Path=CloseMenu}"/>
+              </EventTrigger>
+            </Grid.Triggers>
+          </Grid>
+
+          <Grid x:Name="RightPanel" Margin="50,-230,-730,-300" VerticalAlignment="Stretch"
+                Width="645" HorizontalAlignment="Right">
+            <Grid.IsVisible>
+              <Binding Source="{StaticResource ViewModeModel}" Path="LayoutType"
+                     Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0} != {LayoutType}.{CoverLayout}"/>
+            </Grid.IsVisible>
+            <Grid.Resources>
+              <Storyboard x:Key="SlideInStoryboard" FillBehavior="HoldEnd">
+                <StaticResource ResourceKey="FadeInStoryboard"/>
+                <DoubleAnimationUsingKeyFrames BeginTime="00:00:00" FillBehavior="HoldEnd" Storyboard.TargetName="RightPanel" Storyboard.TargetProperty="RenderTransform.X">
+                  <SplineDoubleKeyFrame KeyTime="00:00:00" Value="0"/>
+                  <SplineDoubleKeyFrame KeyTime="00:00:00.65" Value="-600"/>
+                </DoubleAnimationUsingKeyFrames>
+                <DoubleAnimationUsingKeyFrames BeginTime="00:00:00" FillBehavior="HoldEnd" Storyboard.TargetName="SlideMenuBackground" Storyboard.TargetProperty="Opacity">
+                  <SplineDoubleKeyFrame KeyTime="00:00:00.4" Value="0"/>
+                  <SplineDoubleKeyFrame KeyTime="00:00:00.8" Value="1"/>
+                </DoubleAnimationUsingKeyFrames>
+              </Storyboard>
+              <Storyboard x:Key="SlideOutStoryboard" FillBehavior="HoldEnd">
+                <StaticResource ResourceKey="FadeOutStoryboard"/>
+                <DoubleAnimationUsingKeyFrames BeginTime="00:00:00" FillBehavior="HoldEnd" Storyboard.TargetName="RightPanel" Storyboard.TargetProperty="RenderTransform.X">
+                  <SplineDoubleKeyFrame KeyTime="00:00:00" Value="-600"/>
+                  <SplineDoubleKeyFrame KeyTime="00:00:00.65" Value="0"/>
+                </DoubleAnimationUsingKeyFrames>
+                <DoubleAnimationUsingKeyFrames BeginTime="00:00:00" FillBehavior="HoldEnd" Storyboard.TargetName="SlideMenuBackground" Storyboard.TargetProperty="Opacity">
+                  <SplineDoubleKeyFrame KeyTime="00:00:00" Value="1"/>
+                  <SplineDoubleKeyFrame KeyTime="00:00:00.35" Value="0"/>
+                </DoubleAnimationUsingKeyFrames>
+              </Storyboard>
+            </Grid.Resources>
+            
+            <Grid.Triggers>
+              <!--Open the menu when the grid gets focus-->
+              <EventTrigger RoutedEvent="FrameworkElement.GotFocus">
+                <TriggerCommand Command="{Command Source={StaticResource MenuModel}, Path=OpenMenu}"/>
+              </EventTrigger>
+              <!-- Slide-In animation when the MenuModel.ShowMenu gets true -->
+              <DataTrigger Binding="{Binding Source={StaticResource MenuModel},Path=IsMenuOpen}" Value="True">
+                <DataTrigger.EnterActions>
+                  <BeginStoryboard x:Name="SlideIn_BeginStoryboard" Storyboard="{ThemeResource SlideInStoryboard}"/>
+                </DataTrigger.EnterActions>
+                <DataTrigger.ExitActions>
+                  <BeginStoryboard x:Name="SlideOut_BeginStoryboard" Storyboard="{ThemeResource SlideOutStoryboard}"/>
+                  <StopStoryboard BeginStoryboardName="SlideIn_BeginStoryboard"/>
+                </DataTrigger.ExitActions>
+                <Setter TargetName="MainListMenu" Property="SetFocusPrio" Value="Highest" />
+              </DataTrigger>
+            </Grid.Triggers>
+            
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="45"/>
+              <ColumnDefinition Width="550"/>
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+              <RowDefinition Height="100"/>
+              <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+            <Grid.RenderTransform>
+              <TranslateTransform X="0"/>
+            </Grid.RenderTransform>
+
+            <Border x:Name="SlideMenuBackground" Grid.Row="1" Grid.Column="1" CornerRadius="{ThemeResource DialogBorderCornerRadius}" Opacity="0"
+                    HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="-54,76,-34,257">
+              <Border.Background>
+                <ImageBrush Stretch="Fill" ImageSource="SlideMenuBackground.png"/>
+              </Border.Background>
+            </Border>
+            <Border Grid.Row="1" Grid.Column="1" CornerRadius="{ThemeResource DialogBorderCornerRadius}" Background="Black"
+                    HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="10,140,30,328">
+            </Border>
+
+            <ListView x:Name="MainListMenu" Grid.Row="1" Grid.Column="1" Style="{ThemeResource PopupMenuListViewStyle}" Margin="30,120,50,345"
+              HorizontalAlignment="Stretch" VerticalAlignment="Center" SetFocusPrio="Default"
+              ItemsSource="{Binding Source={StaticResource MenuModel},Path=MenuItems,Mode=OneTime}"
+              IsEnabled="{Binding Source={StaticResource MenuModel},Path=IsMenuOpen}">
+              <ListView.Resources>
+                <CommandBridge x:Key="Menu_Command" Command="{Binding Path=Command,Mode=OneTime}"/>
+              </ListView.Resources>
+              <ListView.Triggers>
+                <Trigger Property="IsEmpty" Value="True">
+                  <Setter TargetName="RightPanel" Property="Visibility" Value="Hidden" />
+                </Trigger>
+              </ListView.Triggers>
+            </ListView>
+            <Button x:Name="MenuShowButton" Content="Menu" Style="{ThemeResource MenuButtonWideStyle}"
+                    Grid.Row="1" Grid.Column="0" HorizontalAlignment="Stretch" VerticalAlignment="Center" Height="180" Margin="0,0,0,240"
+                    IsEnabled="{Binding Source={StaticResource MenuModel},Path=!IsMenuOpen}"
+                    Command="{Command Source={StaticResource MenuModel}, Path=ToggleMenu}">
+              <Image Source="hiddenmenu_tab.png" Stretch="Uniform" Width="35" Margin="-5,10,-15,-10"/>
+            </Button>
+          </Grid>
+
+          <Grid x:Name="TopPanel" Margin="0,-45,-130,-1100" VerticalAlignment="Bottom"
+              Width="600" Height="1150" HorizontalAlignment="Right">
+            <Grid.IsVisible>
+              <Binding Source="{StaticResource ViewModeModel}" Path="LayoutType"
+                     Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0} == {LayoutType}.{CoverLayout}"/>
+            </Grid.IsVisible>
+            <Grid.Resources>
+              <Storyboard x:Key="SlideDownStoryboard" FillBehavior="HoldEnd">
+                <StaticResource ResourceKey="FadeInStoryboard"/>
+                <DoubleAnimationUsingKeyFrames BeginTime="00:00:00" FillBehavior="HoldEnd" Storyboard.TargetName="TopPanel" Storyboard.TargetProperty="RenderTransform.Y">
+                  <SplineDoubleKeyFrame KeyTime="00:00:00" Value="0"/>
+                  <SplineDoubleKeyFrame KeyTime="00:00:00.65" Value="-796"/>
+                </DoubleAnimationUsingKeyFrames>
+                <DoubleAnimationUsingKeyFrames BeginTime="00:00:00" FillBehavior="HoldEnd" Storyboard.TargetName="SlideMenuBackground_Top" Storyboard.TargetProperty="Opacity">
+                  <SplineDoubleKeyFrame KeyTime="00:00:00.4" Value="0"/>
+                  <SplineDoubleKeyFrame KeyTime="00:00:00.8" Value="1"/>
+                </DoubleAnimationUsingKeyFrames>
+              </Storyboard>
+              <Storyboard x:Key="SlideUpStoryboard" FillBehavior="HoldEnd">
+                <StaticResource ResourceKey="FadeOutStoryboard"/>
+                <DoubleAnimationUsingKeyFrames BeginTime="00:00:00" FillBehavior="HoldEnd" Storyboard.TargetName="TopPanel" Storyboard.TargetProperty="RenderTransform.Y">
+                  <SplineDoubleKeyFrame KeyTime="00:00:00" Value="-796"/>
+                  <SplineDoubleKeyFrame KeyTime="00:00:00.65" Value="0"/>
+                </DoubleAnimationUsingKeyFrames>
+                <DoubleAnimationUsingKeyFrames BeginTime="00:00:00" FillBehavior="HoldEnd" Storyboard.TargetName="SlideMenuBackground_Top" Storyboard.TargetProperty="Opacity">
+                  <SplineDoubleKeyFrame KeyTime="00:00:00" Value="1"/>
+                  <SplineDoubleKeyFrame KeyTime="00:00:00.35" Value="0"/>
+                </DoubleAnimationUsingKeyFrames>
+              </Storyboard>
+            </Grid.Resources>
+            
+            <Grid.Triggers>
+              <!--Open the menu when the grid gets focus-->
+              <EventTrigger RoutedEvent="FrameworkElement.GotFocus">
+                <TriggerCommand Command="{Command Source={StaticResource MenuModel}, Path=OpenMenu}"/>
+              </EventTrigger>
+              <!-- Slide-In animation when the MenuModel.ShowMenu gets true -->
+              <DataTrigger Binding="{Binding Source={StaticResource MenuModel},Path=IsMenuOpen}" Value="True">
+                <DataTrigger.EnterActions>
+                  <BeginStoryboard x:Name="SlideDown_BeginStoryboard" Storyboard="{ThemeResource SlideDownStoryboard}"/>
+                </DataTrigger.EnterActions>
+                <DataTrigger.ExitActions>
+                  <BeginStoryboard x:Name="Slideup_BeginStoryboard" Storyboard="{ThemeResource SlideUpStoryboard}"/>
+                  <StopStoryboard BeginStoryboardName="SlideDown_BeginStoryboard"/>
+                </DataTrigger.ExitActions>
+                <Setter TargetName="TopMenu" Property="SetFocusPrio" Value="Highest" />
+              </DataTrigger>
+            </Grid.Triggers>
+            
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="550"/>
+              <ColumnDefinition Width="50"/>
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+              <RowDefinition Height="250"/>
+              <RowDefinition Height="45"/>
+              <RowDefinition Height="*"/>
+              <RowDefinition Height="300"/>
+            </Grid.RowDefinitions>
+            <Grid.RenderTransform>
+              <TranslateTransform Y="0"/>
+            </Grid.RenderTransform>
+            <Border x:Name="SlideMenuBackground_Top" Grid.Row="2" CornerRadius="{ThemeResource DialogBorderCornerRadius}" Opacity="0"
+                    HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="-64,-44,-24,-51">
+              <Border.Background>
+                <ImageBrush Stretch="Fill" ImageSource="SlideMenuBackground.png"/>
+              </Border.Background>
+            </Border>
+            <Border Grid.Row="2" CornerRadius="{ThemeResource DialogBorderCornerRadius}" Background="Black"
+                    HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="0,20,40,20">
+            </Border>
+            <ListView x:Name="TopMenu" Grid.Row="2" Style="{ThemeResource PopupMenuListViewStyle}" Margin="20,40,60,40"
+              HorizontalAlignment="Stretch" VerticalAlignment="Stretch" SetFocusPrio="Default"
+              ItemsSource="{Binding Source={StaticResource MenuModel},Path=MenuItems,Mode=OneTime}"
+              IsEnabled="{Binding Source={StaticResource MenuModel},Path=IsMenuOpen}">
+              <ListView.Resources>
+                <CommandBridge x:Key="Menu_Command" Command="{Binding Path=Command,Mode=OneTime}"/>
+              </ListView.Resources>
+            </ListView>
+            <Button x:Name="MenuShowTopButton" Content="Menu" Style="{ThemeResource MenuButtonWideStyle}"
+                  Grid.Row="1" Grid.Column="0" VerticalAlignment="Bottom" Width="180" Margin="0,0,0,0"
+                  IsEnabled="{Binding Source={StaticResource MenuModel},Path=!IsMenuOpen}"
+                  IsVisible="{Binding Source={StaticResource MenuModel},Path=!IsMenuOpen}"
+                  Command="{Command Source={StaticResource MenuModel}, Path=ToggleMenu}">
+              <Image Source="hiddenmenu_tab_up.png" Stretch="Uniform" Height="40" Margin="0,15,0,-30"/>
+            </Button>
+          </Grid>
+
+          <KeyBinding Key="Info" Command="{Command Source={StaticResource MenuModel}, Path=ToggleMenu}"/>
+          <KeyBinding Key="Escape" Command="{Command Source={StaticResource MenuModel}, Path=ToggleMenu}" IsEnabled="{Binding Source={StaticResource MenuModel},Path=IsMenuOpen}"/>
+
+        </Grid>
+      </Grid>
+    </ControlTemplate>
+  </Include.Resources>
+</Include>

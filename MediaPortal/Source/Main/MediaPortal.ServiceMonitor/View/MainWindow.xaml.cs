@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2015 Team MediaPortal
+#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2015 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -23,6 +23,7 @@
 #endregion
 
 using System;
+using System.ComponentModel;
 using System.Windows;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
@@ -60,6 +61,13 @@ namespace MediaPortal.ServiceMonitor.View
     private void OnClosed(object sender, EventArgs e)
     {
       SaveSettings();
+    }
+
+    protected override void OnClosing(CancelEventArgs e)
+    {
+      // We don't want to close the window, just minimize to tray
+      e.Cancel = true;
+      WindowState = WindowState.Minimized;
     }
 
     #endregion

@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Include
+    xmlns="www.team-mediaportal.com/2008/mpf/directx"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    Source="screens\master_dialog_bare.xaml"
+    >
+  <Include.Resources>
+
+    <!-- Header -->
+    <ResourceWrapper x:Key="Dialog_Header_Text" Resource="[Settings.Plugins.Trakt.TraktSetup]"/>
+
+    <!-- NewsSetup model -->
+    <Model x:Key="Model" Id="65E4F7CA-3C9C-4538-966D-2A896BFEF4D3"/>
+
+    <!-- Contents -->
+    <ControlTemplate x:Key="Contents_Template">
+
+      <Grid DataContext="{Binding Source={StaticResource Model}}">
+        <Grid.ColumnDefinitions>
+          <ColumnDefinition Width="*"/>
+          <ColumnDefinition Width="*"/>
+          <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+          <RowDefinition Height="Auto"/>
+          <RowDefinition Height="Auto"/>
+          <RowDefinition Height="Auto"/>
+          <RowDefinition Height="Auto"/>
+          <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <StackPanel Orientation="Horizontal" Grid.Row="0" Grid.ColumnSpan="3">
+          <CheckBox x:Name="UseCredentials" Margin="5" Style="{ThemeResource DefaultCheckBoxStyle}"
+              IsChecked="{Binding Path=IsEnabled,Mode=TwoWay}"
+              IsEnabled="{Binding Path=!IsSynchronizing}"
+              Content="{Binding}" />
+          <Label Content="[Trakt.Enable]" Color="{ThemeResource MenuTextColor}" Margin="5"/>
+        </StackPanel>
+
+        <GroupBox x:Name="UsernamePasswordGroup" Header="[Trakt.UsernamePasswordGroup]" Grid.Row="1" Grid.ColumnSpan="3" Margin="10"
+                  Style="{ThemeResource ContentGroupBoxStyle}" IsVisible="{Binding Path=IsEnabled}">
+
+          <Grid Margin="5" HorizontalAlignment="Stretch">
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="Auto"/>
+              <ColumnDefinition Width="345"/>
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+              <RowDefinition Height="Auto"/>
+              <RowDefinition Height="Auto"/>
+              <RowDefinition Height="Auto"/>
+              <RowDefinition Height="Auto"/>
+              <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+
+            <Label Content="[Trakt.Username]" Color="{ThemeResource TextColor}" Margin="5"/>
+            <TextBox Text="{Binding Path=Username,Mode=TwoWay}" Margin="5"
+                     Style="{ThemeResource DefaultTextBoxStyle}" Grid.Row="1" Height="50"/>
+
+            <Label Content="[Trakt.PinUrl]" Color="{ThemeResource TextColor}" Margin="5,35,5,5" Grid.Row="2"/>
+            <Image x:Name="ItemTypeImage" Stretch="Uniform" Source="qr.png" Grid.RowSpan="5" Grid.Column="1" HorizontalAlignment="Right" 
+                   Height="{ResolutionResource QRHeight}" Margin="10,0,0,0"/>
+            <Label Content="[Trakt.PinCode]" Color="{ThemeResource TextColor}" Margin="5" Grid.Row="3"/>
+            <TextBox Text="{Binding Path=PinCode,Mode=TwoWay}" Margin="5"
+                     Style="{ThemeResource DefaultTextBoxStyle}" Grid.Row="4" Height="50"/>
+          </Grid>
+        </GroupBox>
+
+        <Label Content="{Binding Path=TestStatus}" Color="{ThemeResource EmphasisTextColor}" Grid.Row="3" Grid.ColumnSpan="2"/>
+
+        <Button x:Name="Authorize" Content="[Trakt.Authorize]" HorizontalAlignment="Center" VerticalAlignment="Center" 
+                Grid.Row="4" Grid.Column="0" Command="{Command AuthorizeUser}"/>
+
+        <Button x:Name="Sync" Content="[Trakt.Sync]" HorizontalAlignment="Center" VerticalAlignment="Center" Grid.Row="4" 
+                Grid.Column="1" Command="{Command SyncMediaToTrakt}">
+          <Button.IsEnabled>
+            <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} &amp;&amp; {1}">
+              <Binding Path="IsEnabled"/>
+              <Binding Path="!IsSynchronizing"/>
+            </MultiBinding>
+          </Button.IsEnabled>
+        </Button>
+
+        <Button x:Name="Ok" Content="[Trakt.Close]" HorizontalAlignment="Center" Grid.Column="2" Grid.Row="4" VerticalAlignment="Center">
+          <Button.Command>
+            <CommandList x:Key="Menu_Command">
+              <Command Source="{Service ScreenManager}" Path="CloseTopmostDialog"/>
+            </CommandList>
+          </Button.Command>
+        </Button>
+
+      </Grid>
+
+    </ControlTemplate>
+
+  </Include.Resources>
+</Include>

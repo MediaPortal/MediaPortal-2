@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2015 Team MediaPortal
+#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2015 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -120,9 +120,9 @@ namespace MediaPortal.UI.SkinEngine.Controls.Animations
     #region Protected fields
 
     protected AbstractProperty _beginTimeProperty;
-    protected AbstractProperty _accellerationProperty;
-    protected AbstractProperty _autoReverseProperty;
+    protected AbstractProperty _accelerationRatioProperty;
     protected AbstractProperty _decelerationRatioProperty;
+    protected AbstractProperty _autoReverseProperty;
     protected AbstractProperty _durationProperty;
     protected AbstractProperty _repeatBehaviourProperty;
     protected AbstractProperty _fillBehaviourProperty;
@@ -140,9 +140,9 @@ namespace MediaPortal.UI.SkinEngine.Controls.Animations
     void Init()
     {
       _beginTimeProperty = new SProperty(typeof(TimeSpan), new TimeSpan(0, 0, 0));
-      _accellerationProperty = new SProperty(typeof(double), 1.0);
+      _accelerationRatioProperty = new SProperty(typeof(double), 0.0);
       _autoReverseProperty = new SProperty(typeof(bool), false);
-      _decelerationRatioProperty = new SProperty(typeof(double), 1.0);
+      _decelerationRatioProperty = new SProperty(typeof(double), 0.0);
       _durationProperty = new SProperty(typeof(TimeSpan?), null);
       _repeatBehaviourProperty = new SProperty(typeof(RepeatBehavior), RepeatBehavior.None);
       _fillBehaviourProperty = new SProperty(typeof(FillBehavior), FillBehavior.HoldEnd);
@@ -153,7 +153,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Animations
       base.DeepCopy(source, copyManager);
       Timeline t = (Timeline) source;
       BeginTime = t.BeginTime;
-      Accelleration = t.Accelleration;
+      AccelerationRatio = t.AccelerationRatio;
       AutoReverse = t.AutoReverse;
       DecelerationRatio = t.DecelerationRatio;
       _durationProperty.SetValue(t._durationProperty.GetValue()); // Copying of a Nullable<TimeSpan>
@@ -178,15 +178,43 @@ namespace MediaPortal.UI.SkinEngine.Controls.Animations
       set { _beginTimeProperty.SetValue(value); }
     }
 
-    public AbstractProperty AccellerationProperty
+    public AbstractProperty AccelerationRatioProperty
     {
-      get { return _accellerationProperty; }
+      get { return _accelerationRatioProperty; }
     }
 
-    public double Accelleration
+    /// <summary>
+    /// Gets or sets a value indicating the percentage of the duration
+    /// to spend accelerating the passage of time from zero to the maximum rate.
+    /// </summary>
+    /// <remarks>
+    /// This property must be set to a value between 0 and 1, inclusive, and the sum of
+    /// this property and Deceleration ratio cannot be greater than 1/
+    /// </remarks>
+    public double AccelerationRatio
     {
-      get { return (double) _accellerationProperty.GetValue(); }
-      set { _accellerationProperty.SetValue(value); }
+      get { return (double) _accelerationRatioProperty.GetValue(); }
+      set { _accelerationRatioProperty.SetValue(value); }
+    }
+
+    public AbstractProperty DecelerationRatioProperty
+    {
+      get { return _decelerationRatioProperty; }
+      set { _decelerationRatioProperty = value; }
+    }
+
+    /// <summary>
+    /// Gets or sets a value indicating the percentage of the duration
+    /// to spend decelerating the passage of time from the maximum rate to zero.
+    /// </summary>
+    /// <remarks>
+    /// This property must be set to a value between 0 and 1, inclusive, and the sum of
+    /// this property and AccelerationRatio cannot be greater than 1.
+    /// </remarks>
+    public double DecelerationRatio
+    {
+      get { return (double)_decelerationRatioProperty.GetValue(); }
+      set { _decelerationRatioProperty.SetValue(value); }
     }
 
     public AbstractProperty AutoReverseProperty
@@ -198,18 +226,6 @@ namespace MediaPortal.UI.SkinEngine.Controls.Animations
     {
       get { return (bool) _autoReverseProperty.GetValue(); }
       set { _autoReverseProperty.SetValue(value); }
-    }
-
-    public AbstractProperty DecelerationRatioProperty
-    {
-      get { return _decelerationRatioProperty; }
-      set { _decelerationRatioProperty = value; }
-    }
-
-    public double DecelerationRatio
-    {
-      get { return (double) _decelerationRatioProperty.GetValue(); }
-      set { _decelerationRatioProperty.SetValue(value); }
     }
 
     public AbstractProperty DurationProperty
@@ -347,7 +363,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Animations
     {
       try
       {
-        uint passed = (timePassed - context.TimeStarted);
+        uint passed = timePassed - context.TimeStarted;
 
         switch (context.State)
         {
@@ -364,7 +380,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Animations
           case State.Running:
             if (!DurationSet)
             {
-              DoAnimation(context, passed);
+              DoAnimation(context, GetCurrentAnimationTime(passed));
               if (HasEnded(context)) // Check the state of the children and propagate it to this timeline
                 if (FillBehavior == FillBehavior.Stop)
                   Stop(context);
@@ -373,7 +389,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Animations
             }
             else if (passed < Duration.TotalMilliseconds)
             {
-              DoAnimation(context, passed);
+              DoAnimation(context, GetCurrentAnimationTime(passed));
             }
             else
             {
@@ -387,7 +403,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Animations
               if (RepeatBehavior == RepeatBehavior.Forever)
               {
                 context.TimeStarted = timePassed;
-                DoAnimation(context, timePassed - context.TimeStarted);
+                DoAnimation(context, GetCurrentAnimationTime(timePassed - context.TimeStarted));
               }
               else
               {
@@ -404,14 +420,14 @@ namespace MediaPortal.UI.SkinEngine.Controls.Animations
             if (!DurationSet)
               Ended(context); // This is an error case - we cannot reverse if we don't know at which point in time
             if (passed < Duration.TotalMilliseconds)
-              DoAnimation(context, (uint) (Duration.TotalMilliseconds - passed));
+              DoAnimation(context, GetCurrentAnimationTime((uint) (Duration.TotalMilliseconds - passed)));
             else
             {
               if (RepeatBehavior == RepeatBehavior.Forever)
               {
                 context.State = State.Running;
                 context.TimeStarted = timePassed;
-                DoAnimation(context, timePassed - context.TimeStarted);
+                DoAnimation(context, GetCurrentAnimationTime(timePassed - context.TimeStarted));
               }
               else
               {
@@ -424,7 +440,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Animations
             }
             break;
           case State.Ended:
-            DoAnimation(context, passed);
+            DoAnimation(context, GetCurrentAnimationTime(passed));
             break;
         }
       }
@@ -432,6 +448,56 @@ namespace MediaPortal.UI.SkinEngine.Controls.Animations
       {
         ServiceRegistration.Get<ILogger>().Error("Error executing animation", ex);
       }
+    }
+
+    /// <summary>
+    /// Caclulates the current animation time adjusted for any acceleration and deceleration ratios.
+    /// </summary>
+    /// <param name="passed">Actual time passed since the start of the timeline.</param>
+    /// <returns>The current animation time in milliseconds.</returns>
+    protected uint GetCurrentAnimationTime(uint passed)
+    {
+      if (!DurationSet)
+        return passed;
+
+      TimeSpan duration = Duration;
+      //If this timeline is set to HoldEnd then passed continues to grow.
+      //If passed is greater than duration then the deceleration phase will overflow
+      //and start decreasing time, simply return passed in this case.
+      if (passed >= duration.TotalMilliseconds)
+        return passed;
+
+      double durationTicks = duration.Ticks;
+      double accelerationRatio = AccelerationRatio;
+      double decelerationRatio = DecelerationRatio;
+      if (accelerationRatio == 0 && decelerationRatio == 0)
+        return passed;
+
+      double transitionTime = accelerationRatio + decelerationRatio;
+      if (transitionTime < 0 || transitionTime > 1)
+        throw new ArgumentException(string.Format("Sum of acceleration and deceleration ratio must be between 0 and 1 inclusive"));
+
+      double t = passed / duration.TotalMilliseconds; //progress within duration
+      double maxRate = 2 / (2 - transitionTime); //max rate after acceleration/before deceleration
+
+      if (t < accelerationRatio)
+        //acceleration phase
+        t = maxRate * t * t / (2 * accelerationRatio);
+      else if (t <= (1 - decelerationRatio))
+        //max speed phase
+        t = maxRate * (t - accelerationRatio / 2);
+      else
+      {
+        //deceleration phase
+        double tc = 1 - t; //remaining deceleration
+        t = 1 - maxRate * tc * tc / (2 * decelerationRatio);
+      }
+
+      long currentTicks = (long)((t * durationTicks) + 0.5);
+      if (currentTicks > durationTicks)
+        //rounding has taken us over duration, clip at duration
+        return passed;
+      return (uint)TimeSpan.FromTicks(currentTicks).TotalMilliseconds;
     }
 
     #endregion
@@ -520,6 +586,10 @@ namespace MediaPortal.UI.SkinEngine.Controls.Animations
     void IBindingContainer.AddBindings(IEnumerable<IBinding> bindings)
     {
       // We don't bind bindings - simply ignore them
+      foreach (IBinding binding in bindings)
+        AddDeferredBinding(binding);
+      //if (PreparingOrRunning)
+        ActivateBindings();
     }
 
     #endregion

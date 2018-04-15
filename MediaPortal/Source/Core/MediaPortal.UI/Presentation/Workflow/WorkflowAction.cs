@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2015 Team MediaPortal
+#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2015 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -25,6 +25,7 @@
 using System;
 using System.Collections.Generic;
 using MediaPortal.Common.Localization;
+using MediaPortal.Common.UserProfileDataManagement;
 
 namespace MediaPortal.UI.Presentation.Workflow
 {
@@ -35,7 +36,7 @@ namespace MediaPortal.UI.Presentation.Workflow
   /// Typically, a workflow state action will provide the data for a menu item at the GUI.
   /// Sub classes will implement the abstract properties and methods of this class.
   /// </summary>
-  public abstract class WorkflowAction
+  public abstract class WorkflowAction: IUserRestriction
   {
     #region Protected fields
 
@@ -45,8 +46,15 @@ namespace MediaPortal.UI.Presentation.Workflow
     protected string _name;
     protected ICollection<Guid> _sourceStateIds;
     protected IResourceString _displayTitle;
+    protected IResourceString _helpText;
 
     #endregion
+
+    protected WorkflowAction(Guid actionId, string name, IEnumerable<Guid> sourceStateIds, IResourceString displayTitle, IResourceString helpText)
+      :this(actionId, name, sourceStateIds, displayTitle)
+    {
+      _helpText = helpText;
+    }
 
     protected WorkflowAction(Guid actionId, string name, IEnumerable<Guid> sourceStateIds, IResourceString displayTitle)
     {
@@ -125,6 +133,14 @@ namespace MediaPortal.UI.Presentation.Workflow
     }
 
     /// <summary>
+    /// Returns the localized help string for this action. It can be used to give an explanation for the current action.
+    /// </summary>
+    public virtual IResourceString HelpText
+    {
+      get { return _helpText; }
+    }
+
+    /// <summary>
     /// This event will be triggered when the <see cref="IsVisible"/> or <see cref="IsEnabled"/> states of this
     /// action have changed.
     /// </summary>
@@ -157,6 +173,12 @@ namespace MediaPortal.UI.Presentation.Workflow
     /// Can be overridden in sub classes to track a usage counter. See <see cref="AddRef"/>.
     /// </summary>
     public virtual void RemoveRef() { }
+
+    #region IUserRestriction members
+
+    public string RestrictionGroup { get; set; }
+
+    #endregion
 
     public override string ToString()
     {

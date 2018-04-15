@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2015 Team MediaPortal
+#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2015 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -39,7 +39,7 @@ namespace MediaPortal.Common.Configuration
     protected IDictionary<string, Type> _additionalTypes = null;
 
     public ConfigSettingMetadata(string location, string text, string sort, string className,
-        string helpText, ICollection<string> listenTo) : base(location, text, sort)
+        string helpText, ICollection<string> listenTo, string restrictionGroup) : base(location, text, sort, restrictionGroup)
     {
       _className = className;
       _helpText = helpText;

@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2015 Team MediaPortal
+#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2015 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -26,18 +26,22 @@ using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.UiComponents.Media.FilterCriteria;
 using MediaPortal.UiComponents.Media.General;
 using MediaPortal.UiComponents.Media.Models.Navigation;
+using System.Linq;
 
 namespace MediaPortal.UiComponents.Media.Models.ScreenData
 {
-  public class VideosFilterByDirectorScreenData : AbstractVideosFilterScreenData
+  public class VideosFilterByDirectorScreenData : AbstractVideosFilterScreenData<SimplePersonFilterItem>
   {
     public VideosFilterByDirectorScreenData() :
-        base(Consts.SCREEN_VIDEOS_FILTER_BY_DIRECTOR, Consts.RES_FILTER_BY_DIRECTOR_MENU_ITEM,
+        base(Consts.SCREEN_VIDEOS_FILTER_BY_DIRECTOR, Consts.RES_COMMON_BY_DIRECTOR_MENU_ITEM,
         Consts.RES_FILTER_DIRECTOR_NAVBAR_DISPLAY_LABEL, new SimpleMLFilterCriterion(VideoAspect.ATTR_DIRECTORS))
     {
+      _availableMias = Consts.NECESSARY_PERSON_MIAS;
+      if (Consts.OPTIONAL_PERSON_MIAS != null)
+        _availableMias = _availableMias.Union(Consts.OPTIONAL_PERSON_MIAS);
     }
 
-    public override AbstractFiltersScreenData<FilterItem> Derive()
+    public override AbstractFiltersScreenData<SimplePersonFilterItem> Derive()
     {
       return new VideosFilterByDirectorScreenData();
     }

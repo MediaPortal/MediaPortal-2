@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2015 Team MediaPortal
+#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2015 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -28,6 +28,7 @@ using System.Linq;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.MediaManagement;
+using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Common.PluginItemBuilders;
 using MediaPortal.Common.PluginManager;
 using MediaPortal.UI.Presentation.Screens;
@@ -39,6 +40,7 @@ using MediaPortal.UI.Presentation.Players;
 using MediaPortal.UI.Presentation.Workflow;
 using MediaPortal.UiComponents.Media.General;
 using MediaPortal.UiComponents.Media.Models.ScreenData;
+using MediaPortal.UI.SkinEngine.ScreenManagement;
 
 namespace MediaPortal.UiComponents.Media.Models
 {
@@ -172,6 +174,11 @@ namespace MediaPortal.UiComponents.Media.Models
     /// </remarks>
     public static void AddCurrentViewToPlaylist()
     {
+      AddCurrentViewToPlaylist(null);
+    }
+
+    public static void AddCurrentViewToPlaylist(MediaItem selectedMediaItem)
+    {
       MediaNavigationModel model = GetCurrentInstance();
       NavigationData navigationData = model.NavigationData;
       if (navigationData == null || !navigationData.IsEnabled)
@@ -184,7 +191,7 @@ namespace MediaPortal.UiComponents.Media.Models
         ServiceRegistration.Get<IDialogManager>().ShowDialog(Consts.RES_NO_ITEMS_TO_ADD_HEADER, Consts.RES_NO_ITEMS_TO_ADD_TEXT, DialogType.OkDialog, false, DialogButtonType.Ok);
         return;
       }
-      model.AddCurrentViewToPlaylistInternal();
+      model.AddCurrentViewToPlaylistInternal(selectedMediaItem);
     }
 
     /// <summary>
@@ -219,6 +226,27 @@ namespace MediaPortal.UiComponents.Media.Models
       navigationContext.SetContextVariable(Consts.KEY_NAVIGATION_DATA, navigationData);
     }
 
+    protected IEnumerable<MediaItem> GetMediaItemsFromCurrentView(MediaItem selectedMediaItem)
+    {
+      foreach (var mediaItem in GetMediaItemsFromCurrentView())
+      {
+        if (selectedMediaItem != null && IsSameMediaItem(mediaItem, selectedMediaItem))
+          mediaItem.Aspects[SelectionMarkerAspect.ASPECT_ID] = null;
+        yield return mediaItem;
+      }
+    }
+
+    /// <summary>
+    /// Helper method to check MediaItems for "identity". For MediaLibrary managed items the <see cref="MediaItem.MediaItemId"/> will be checked, otherwise the object reference.
+    /// </summary>
+    /// <param name="m1">MediaItem</param>
+    /// <param name="m2">MediaItem</param>
+    /// <returns><c>true</c> if equal</returns>
+    protected bool IsSameMediaItem(MediaItem m1, MediaItem m2)
+    {
+      return m1 == m2 || m1.MediaItemId != Guid.Empty && m1.MediaItemId == m2.MediaItemId;
+    }
+
     protected IEnumerable<MediaItem> GetMediaItemsFromCurrentView()
     {
       NavigationData navigationData = NavigationData;
@@ -228,7 +256,7 @@ namespace MediaPortal.UiComponents.Media.Models
         yield return mediaItem;
     }
 
-    protected void AddCurrentViewToPlaylistInternal()
+    protected void AddCurrentViewToPlaylistInternal(MediaItem selectedMediaItem)
     {
       NavigationData navigationData = NavigationData;
       if (navigationData == null || !navigationData.IsEnabled)
@@ -236,20 +264,22 @@ namespace MediaPortal.UiComponents.Media.Models
         ServiceRegistration.Get<ILogger>().Error("MediaNavigationModel: Cannot add current view to playlist - There is no enabled navigation data available");
       }
       string mode = Mode;
+      GetMediaItemsDlgt getMediaItemsWithSelection = () => GetMediaItemsFromCurrentView(selectedMediaItem);
+
       switch (mode)
       {
         case MediaNavigationMode.Audio:
-          PlayItemsModel.CheckQueryPlayAction(GetMediaItemsFromCurrentView, AVType.Audio);
+          PlayItemsModel.CheckQueryPlayAction(getMediaItemsWithSelection, AVType.Audio);
           break;
         case MediaNavigationMode.Movies:
         case MediaNavigationMode.Series:
         case MediaNavigationMode.Videos:
         case MediaNavigationMode.Images:
-          PlayItemsModel.CheckQueryPlayAction(GetMediaItemsFromCurrentView, AVType.Video);
+          PlayItemsModel.CheckQueryPlayAction(getMediaItemsWithSelection, AVType.Video);
           break;
         case MediaNavigationMode.BrowseLocalMedia:
         case MediaNavigationMode.BrowseMediaLibrary:
-          PlayItemsModel.CheckQueryPlayAction(GetMediaItemsFromCurrentView);
+          PlayItemsModel.CheckQueryPlayAction(getMediaItemsWithSelection);
           break;
       }
     }
@@ -347,6 +377,36 @@ namespace MediaPortal.UiComponents.Media.Models
       _currentNavigationContext = null;
     }
 
+    /// <summary>
+    /// Custom handling of UI state: because the layout changes before the screen tranition happens, the UI state will not be stored
+    /// at correct time (see WorkflowSaveRestoreStateAction). So we save it here before changing the layout and leaving the screen.
+    /// </summary>
+    /// <param name="context">NavigationContext</param>
+    protected void SaveUIState(NavigationContext context)
+    {
+      // Mapping of context variable name -> UI state
+      string contextVariable = "Root";
+      IDictionary<string, IDictionary<string, object>> state =
+          (IDictionary<string, IDictionary<string, object>>)context.GetContextVariable(contextVariable, false) ??
+          new Dictionary<string, IDictionary<string, object>>(10);
+
+      var sm = ServiceRegistration.Get<IScreenManager>() as ScreenManager;
+      if (sm == null)
+        return;
+      var screen = sm.FocusedScreen;
+      if (screen == null)
+        return;
+
+      // Mapping of element paths -> element states
+      IDictionary<string, object> screenStateDictionary = new Dictionary<string, object>(1000);
+      string screenName = screen.ResourceName;
+      state[screenName] = screenStateDictionary;
+      screen.SaveUIState(screenStateDictionary, string.Empty);
+      context.SetContextVariable(contextVariable, state);
+      // Indicate that state is already persisted
+      context.SetContextVariable("Root_persisted", (bool?)true);
+    }
+
     #endregion
 
     #region IWorkflowModel implementation
@@ -382,6 +442,7 @@ namespace MediaPortal.UiComponents.Media.Models
       {
         NavigationData navigationData = GetNavigationData(oldContext, false);
         navigationData.Disable();
+        SaveUIState(oldContext);
         navigationData = GetNavigationData(newContext, false);
         navigationData.Enable();
       }

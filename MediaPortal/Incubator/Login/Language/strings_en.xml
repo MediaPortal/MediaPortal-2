@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  
+  <!--Login-->
+  <string name="Login.Title">User login</string>
+  <string name="Login.Title.Help">Login a specific user</string>
+  <string name="Login.IncorrectPassword">Incorrect password, please try again</string>
+  <string name="Login.PasswordOk">OK</string>
+  <string name="Login.EnterPassword">Enter user password</string>
+  <string name="Login.Logout">Logout</string>
+
+  <!--User Settings-->
+  <string name="Settings.Users">Users</string> <!-- Section name -->
+  <string name="Settings.Users.Config">User management</string> <!-- Group name -->
+  <string name="Settings.Users.Config.UserManagement">User management</string> <!-- Setting -->
+  <string name="Settings.Users.Config.UserManagement.Help">Manage the users on the home server</string>
+  <string name="Settings.Users.Config.UserEnable">Enable user logins and restrictions</string> <!-- Setting -->
+  <string name="Settings.Users.Config.UserEnable.Help">Enable users to login, change the current user and apply user specific settings</string>
+  <string name="Settings.Users.Config.UserEnableScreen">Enable login screen</string> <!-- Setting -->
+  <string name="Settings.Users.Config.UserEnableScreen.Help">Show the login screen when no user is logged in</string>
+  <string name="Settings.Users.Config.AutoLogout">Automatic logout</string> <!-- Setting -->
+  <string name="Settings.Users.Config.AutoLogout.Help">Enable automatic logout of a user after a period of idling</string>
+  <string name="Settings.Users.Config.AutoLogoutTimeout">Automatic logout idle timeout</string> <!-- Setting -->
+  <string name="Settings.Users.Config.AutoLogoutTimeout.Help">The period of idling allowed before the user is logged out</string>
+  <string name="Settings.Users.Config.AutoLoginUser">Automatic login</string> <!-- Setting -->
+  <string name="Settings.Users.Config.AutoLoginUser.Help">The user to use for automatic login</string>
+  <string name="Settings.Users.Config.SystemDefault">System default</string>
+  <string name="Settings.Users.Config.AutoLoginUser.Title">Automatic login user</string>
+
+  <!-- User configuration workflow -->
+  <string name="UserConfig.UserOverviewWorkflowNavigationContextDisplayLabel">User management</string>
+  <string name="UserConfig.UserConfiguration.Title">User management</string>
+  <string name="UserConfig.Users">Users</string>
+  <string name="UserConfig.NoConfigUserHomeServerNotConnected">The home server is currently not connected, so server users cannot be managed at the moment.</string>
+  <string name="UserConfig.UserName">User Name</string>
+  <string name="UserConfig.Password">Password</string>
+  <string name="UserConfig.ProfileType">Profile type</string>
+  <string name="UserConfig.AgeFilter">Enable age filter</string>
+  <string name="UserConfig.ShareRestrictions">Limit share access</string>
+  <string name="UserConfig.IncludePGContent">Include PG content</string>
+  <string name="UserConfig.IncludeUnratedContent">Include unrated content</string>
+  <string name="UserConfig.LastLogin">Last login</string>
+  <string name="UserConfig.NewUserText">New User</string>
+  <string name="UserConfig.AddUser">Add</string>
+  <string name="UserConfig.CopyUser">Copy</string>
+  <string name="UserConfig.DeleteUser">Delete</string>
+  <string name="UserConfig.SaveUser">Save</string>
+  <string name="UserConfig.SelectImage">Select image for the user</string>
+  <string name="UserConfig.DeleteConfirmation.Title">Delete confirmation</string>
+  <string name="UserConfig.DeleteConfirmation">Are you sure you want to delete the selected user?</string>
+  <string name="UserConfig.Yes">Yes</string>
+  <string name="UserConfig.No">No</string>
+  <string name="UserConfig.Ok">OK</string>
+
+  <string name="UserConfig.SelectProfileTemplate">Select profile template</string>
+  <string name="UserConfig.ClientProfile">Client profile</string>
+  <string name="UserConfig.UserProfile">User profile</string>
+
+  <string name="UserConfig.RestrictionGroups">Restrict actions</string>
+  <string name="UserConfig.RestrictedAll">All allowed</string>
+  <string name="UserConfig.RestrictedNone">None allowed</string>
+  <string name="UserConfig.RestrictedNumbers">{0} / {1} allowed</string>
+  <string name="UserConfig.SelectRestrictions">Select allowed features for user</string>
+
+  <string name="UserConfig.SharesText">Shares</string>
+  <string name="UserConfig.SelectShares">Select share access</string>
+  <string name="UserConfig.LocalShare">Client media source</string>
+  <string name="UserConfig.LocalShares">Client media sources</string>
+  <string name="UserConfig.GlobalShare">Server media source</string>
+  <string name="UserConfig.GlobalShares">Server media sources</string>
+  <string name="UserConfig.NoConfigGlobalSharesHomeServerNotConnected">The home server is currently not connected, so server media sources cannot be managed at the moment.</string>
+  <string name="UserConfig.NoConfigLocalSharesHomeServerLocal">The home server is located at the same machine, so only server media sources can be configured.</string>
+
+  <string name="RestrictionGroup.Settings.UserProfile">Settings: Manage all user profiles</string>
+  <string name="RestrictionGroup.Settings.UserProfile.ManageOwn">Settings: Manage own profile</string>
+
+  <string name="UserProfileTemplate.Admin">Administrator</string>
+  <string name="UserProfileTemplate.Teenager">Teenager</string>
+  <string name="UserProfileTemplate.Child">Child</string>
+
+</resources>

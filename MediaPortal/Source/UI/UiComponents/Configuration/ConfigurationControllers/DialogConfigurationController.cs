@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2015 Team MediaPortal
+#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2015 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -45,7 +45,7 @@ namespace MediaPortal.UiComponents.Configuration.ConfigurationControllers
 
     public override bool IsSettingSupported(ConfigSetting setting)
     {
-      return setting != null && !string.IsNullOrEmpty(DialogScreen);
+      return base.IsSettingSupported(setting) && !string.IsNullOrEmpty(DialogScreen);
     }
 
     protected abstract string DialogScreen { get; }

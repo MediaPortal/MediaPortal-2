@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2015 Team MediaPortal
+#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2015 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -43,6 +43,20 @@ namespace MediaPortal.UI.SkinEngine.Rendering
     HalfPi,
     Pi,
     ThreeHalfPi
+  }
+
+  public enum HorizontalTextureAlignmentEnum
+  {
+    Left,
+    Right,
+    Center
+  }
+
+  public enum VerticalTextureAlignmentEnum
+  {
+    Top,
+    Bottom,
+    Center
   }
 
   /// <summary>
@@ -92,7 +106,9 @@ namespace MediaPortal.UI.SkinEngine.Rendering
     protected string _shaderTransformName = null;
     protected string _shaderTransitionName = null;
     protected RightAngledRotation _rotation = RightAngledRotation.Zero;
-    
+    protected HorizontalTextureAlignmentEnum _horizontalTextureAlignment = HorizontalTextureAlignmentEnum.Center;
+    protected VerticalTextureAlignmentEnum _verticalTextureAlignment = VerticalTextureAlignmentEnum.Center;
+
     #endregion
 
     #region Public properties
@@ -183,6 +199,24 @@ namespace MediaPortal.UI.SkinEngine.Rendering
         _rotatedFrameSize = GetRotatedSize(_frameSize);
         _refresh = true;
       }
+    }
+
+    /// <summary>
+    /// Gets or sets the horizonatal alignment of the texture within the target rectangle.
+    /// </summary>
+    public HorizontalTextureAlignmentEnum HorizontalTextureAlignment
+    {
+      get { return _horizontalTextureAlignment; }
+      set { _horizontalTextureAlignment = value; }
+    }
+
+    /// <summary>
+    /// Gets or sets the vertical alignment of the texture within the target rectangle.
+    /// </summary>
+    public VerticalTextureAlignmentEnum VerticalTextureAlignment
+    {
+      get { return _verticalTextureAlignment; }
+      set { _verticalTextureAlignment = value; }
     }
 
     #endregion
@@ -315,10 +349,12 @@ namespace MediaPortal.UI.SkinEngine.Rendering
         Vector4 textureRect = new Vector4(0.0f, 0.0f,
             (targetImageSize.Width+1.0f) / _rotatedFrameSize.Width, (targetImageSize.Height+1.0f) / _rotatedFrameSize.Height);
 
-        // Center texture
-        textureRect.X = (1.0f - textureRect.Z) / 2.0f;
-        textureRect.Y = (1.0f - textureRect.W) / 2.0f;
-
+        //Set alignment of texture within target
+        textureRect.X = GetHorizontalAlignment(textureRect.Z);
+        textureRect.Y = GetVerticalAlignment(textureRect.W);
+        
+        //Brownard 30/01/16: Do we need to take into account in the calculations below that we now allow aligning of textures?
+         
         // Compensate for texture surface borders
         textureRect.Z /= textureClip.Width;
         textureRect.W /= textureClip.Height;
@@ -348,6 +384,32 @@ namespace MediaPortal.UI.SkinEngine.Rendering
 
         _lastImageSize = targetImageSize;
         _refresh = false;
+      }
+    }
+
+    protected float GetHorizontalAlignment(float targetX)
+    {
+      switch (_horizontalTextureAlignment)
+      {
+        case HorizontalTextureAlignmentEnum.Left:
+          return 0;
+        case HorizontalTextureAlignmentEnum.Right:
+          return 1.0f - targetX;
+        default:
+          return (1.0f - targetX) / 2.0f;
+      }
+    }
+
+    protected float GetVerticalAlignment(float targetY)
+    {
+      switch (_verticalTextureAlignment)
+      {
+        case VerticalTextureAlignmentEnum.Top:
+          return 0;
+        case VerticalTextureAlignmentEnum.Bottom:
+          return 1.0f - targetY;
+        default:
+          return (1.0f - targetY) / 2.0f;
       }
     }
 

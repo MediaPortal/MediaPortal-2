@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2015 Team MediaPortal
+#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2015 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -149,7 +149,7 @@ namespace MediaPortal.ServiceMonitor.ViewModel
     public void StartUp(CommandLineOptions mpArgs)
     {
       ServiceRegistration.Get<ILogger>().Debug("StartUp ({0})", mpArgs.IsMinimized);
-      InitMainWindow();
+      InitMainWindow(mpArgs.IsMinimized);
 
       InitSystemTray();
 
@@ -177,14 +177,15 @@ namespace MediaPortal.ServiceMonitor.ViewModel
       }
     }
 
-    protected void InitMainWindow()
+    protected void InitMainWindow(bool isMinimized)
     {
       ServiceRegistration.Get<ILogger>().Debug("InitMainWindow");
       Window mainWindow = new MainWindow
         {
           ShowActivated = false,
           ShowInTaskbar = false,
-          Visibility = Visibility.Collapsed
+          Visibility = Visibility.Collapsed,
+          WindowState =  isMinimized ? WindowState.Minimized : WindowState.Normal
         };
       mainWindow.Closed += OnMainWindowClosed;
       mainWindow.SourceInitialized += OnMainWindowSourceInitialized;
@@ -208,6 +209,8 @@ namespace MediaPortal.ServiceMonitor.ViewModel
       Window mainWindow = MainWindow;
       if (mainWindow == null)
         return;
+      if (!mainWindow.IsVisible)
+        mainWindow.Show();
       mainWindow.ShowInTaskbar = true;
       mainWindow.Visibility = Visibility.Visible;
 

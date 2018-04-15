@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2015 Team MediaPortal
+#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2015 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -22,13 +22,11 @@
 
 #endregion
 
-using System;
-using System.Collections.Generic;
-using MediaPortal.Common.Localization;
 using MediaPortal.Common.MediaManagement;
-using MediaPortal.Common.MediaManagement.DefaultItemAspects;
+using MediaPortal.Common.MediaManagement.Helpers;
 using MediaPortal.UiComponents.Media.General;
 using MediaPortal.Utilities;
+using System.Linq;
 
 namespace MediaPortal.UiComponents.Media.Models.Navigation
 {
@@ -42,22 +40,24 @@ namespace MediaPortal.UiComponents.Media.Models.Navigation
     public override void Update(MediaItem mediaItem)
     {
       base.Update(mediaItem);
-      MediaItemAspect audioAspect;
-      if (mediaItem.Aspects.TryGetValue(AudioAspect.ASPECT_ID, out audioAspect))
-      {
-        IEnumerable<string> artistsEnumer = audioAspect == null ? null : (IEnumerable<string>)audioAspect[AudioAspect.ATTR_ARTISTS];
-        string artists = artistsEnumer == null ? null : StringUtils.Join(", ", artistsEnumer);
-        SimpleTitle = Title + (string.IsNullOrEmpty(artists) ? string.Empty : (" (" + artists + ")"));
-        long? duration = audioAspect == null ? null : (long?)audioAspect[AudioAspect.ATTR_DURATION];
-        Duration = duration.HasValue ? FormattingUtils.FormatMediaDuration(TimeSpan.FromSeconds(duration.Value)) : string.Empty;
-      }
+      if (mediaItem == null)
+        return;
+
+      TrackInfo trackInfo = new TrackInfo();
+      if (!trackInfo.FromMetadata(mediaItem.Aspects))
+        return;
+
+      Album = trackInfo.Album;
+      string artists = StringUtils.Join(", ", trackInfo.Artists.Select(a => a.Name));
+      SimpleTitle = Title + (string.IsNullOrEmpty(artists) ? string.Empty : (" (" + artists + ")"));
+      
       FireChange();
     }
 
-    public string Duration
+    public string Album
     {
-      get { return this[Consts.KEY_DURATION]; }
-      set { SetLabel(Consts.KEY_DURATION, value); }
+      get { return this[Consts.KEY_ALBUM]; }
+      set { SetLabel(Consts.KEY_ALBUM, value); }
     }
   }
 }

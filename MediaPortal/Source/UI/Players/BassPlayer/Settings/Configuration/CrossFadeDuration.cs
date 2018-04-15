@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2015 Team MediaPortal
+#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2015 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -37,13 +37,6 @@ namespace MediaPortal.UI.Players.BassPlayer.Settings.Configuration
       _lowerLimit = 0.5;
       _upperLimit = 10;
       _value = SettingsManager.Load<BassPlayerSettings>().CrossFadeDurationSecs;
-    }
-
-    public override void Save()
-    {
-      BassPlayerSettings settings = SettingsManager.Load<BassPlayerSettings>();
-      settings.CrossFadeDurationSecs = _value;
-      SettingsManager.Save(settings);
     }
 
     #endregion

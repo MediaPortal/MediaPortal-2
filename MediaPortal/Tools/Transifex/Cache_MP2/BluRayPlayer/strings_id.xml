@@ -1,2 +1,4 @@
 <?xml version='1.0' encoding='UTF-8'?>
-<resources/>
+<resources>
+  <string name="Settings.Players.Codecs.VideoCodecs.VC1">VC1 Video Codec</string>
+</resources>

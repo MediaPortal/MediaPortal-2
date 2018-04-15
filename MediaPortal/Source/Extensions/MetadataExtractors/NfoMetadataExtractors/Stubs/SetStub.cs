@@ -1,7 +1,7 @@
-﻿#region Copyright (C) 2007-2015 Team MediaPortal
+﻿#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2014 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -62,6 +62,12 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.Stubs
     /// Order of the movie in the set
     /// </summary>
     /// <example>5</example>
-    public int? Order { get; set; }  
+    public int? Order { get; set; }
+
+    /// <summary>
+    /// Collection ID of this movie at www.themoviedb.org
+    /// </summary>
+    /// <example>675</example>
+    public int? TmdbId { get; set; }
   }
 }

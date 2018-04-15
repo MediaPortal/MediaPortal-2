@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2015 Team MediaPortal
+#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2015 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -22,16 +22,23 @@
 
 #endregion
 
+using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.MLQueries;
+using MediaPortal.UiComponents.Media.FilterTrees;
+using System;
 
 namespace MediaPortal.UiComponents.Media.FilterCriteria
 {
   public class FilterValue
   {
+    protected object _id = null;
     protected string _title;
+    protected FilterTreePath _relativeFilterPath;
     protected IFilter _filter;
+    protected Guid? _linkedId;
     protected IFilter _selectAttributeFilter;
     protected int? _numItems = null;
+    protected MediaItem _item = null;
     protected MLFilterCriterion _criterion;
 
     public FilterValue(string title, IFilter filter, IFilter selectAttributeFilter, MLFilterCriterion criterion)
@@ -51,6 +58,32 @@ namespace MediaPortal.UiComponents.Media.FilterCriteria
       _criterion = criterion;
     }
 
+    public FilterValue(object id, string title, IFilter filter, IFilter selectAttributeFilter, int numItems, MLFilterCriterion criterion)
+    {
+      _id = id;
+      _title = title;
+      _filter = filter;
+      _selectAttributeFilter = selectAttributeFilter;
+      _numItems = numItems;
+      _criterion = criterion;
+    }
+
+    public FilterValue(string title, FilterTreePath relativeFilterPath, IFilter selectAttributeFilter, MediaItem item, MLFilterCriterion criterion)
+    {
+      _title = title;
+      _relativeFilterPath = relativeFilterPath;
+      _selectAttributeFilter = selectAttributeFilter;
+      _item = item;
+      _criterion = criterion;
+      if (item != null)
+        _linkedId = item.MediaItemId;
+    }
+
+    public string Id
+    {
+      get { return _id == null ? null : _id.ToString(); }
+    }
+
     public string Title
     {
       get { return _title; }
@@ -59,6 +92,16 @@ namespace MediaPortal.UiComponents.Media.FilterCriteria
     public int? NumItems
     {
       get { return _numItems; }
+    }
+
+    public FilterTreePath RelativeFilterPath
+    {
+      get { return _relativeFilterPath; }
+    }
+
+    public MediaItem Item
+    {
+      get { return _item; }
     }
 
     public MLFilterCriterion Criterion
@@ -74,6 +117,11 @@ namespace MediaPortal.UiComponents.Media.FilterCriteria
     public IFilter SelectAttributeFilter
     {
       get { return _selectAttributeFilter; }
+    }
+
+    public Guid? LinkedId
+    {
+      get { return _linkedId; }
     }
   }
 }

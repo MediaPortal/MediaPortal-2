@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2015 Team MediaPortal
+#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2015 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -34,7 +34,8 @@ namespace MediaPortal.UiComponents.Weather
 
     public void Activated(PluginRuntime pluginRuntime)
     {
-      ServiceRegistration.Set<IWeatherCatcher>(new WorldWeatherOnlineCatcher());
+      //ServiceRegistration.Set<IWeatherCatcher>(new WorldWeatherOnlineCatcher());
+      ServiceRegistration.Set<IWeatherCatcher>(new OpenWeatherMapCatcher());
     }
 
     public bool RequestEnd()

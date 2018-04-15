@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2015 Team MediaPortal
+#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2015 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -96,7 +96,7 @@ namespace MediaPortal.UI.Players.Video
     int MouseMove(int x, int y);
 
     [PreserveSig]
-    int SetVideoDecoder(int format, ref Guid decoder);
+    int SetVideoDecoder(BluRayAPI.BluRayStreamFormats format, ref Guid decoder);
 
     [PreserveSig]
     int SetVC1Override(ref Guid decoder);

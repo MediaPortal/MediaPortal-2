@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2015 Team MediaPortal
+#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2015 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -23,7 +23,6 @@
 #endregion
 
 using MediaPortal.Common.MediaManagement;
-using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Common.MediaManagement.Helpers;
 using MediaPortal.UiComponents.Media.General;
 
@@ -39,13 +38,18 @@ namespace MediaPortal.UiComponents.Media.Models.Navigation
     public override void Update(MediaItem mediaItem)
     {
       base.Update(mediaItem);
-      MovieInfo movieInfo = new MovieInfo();
-      MediaItemAspect movieAspect;
-      if (!mediaItem.Aspects.TryGetValue(MovieAspect.ASPECT_ID, out movieAspect))
+      if (mediaItem == null)
         return;
 
-      MovieName = (string)movieAspect[MovieAspect.ATTR_MOVIE_NAME] ?? string.Empty;
-      CollectionName = movieInfo.CollectionName = (string)movieAspect[MovieAspect.ATTR_COLLECTION_NAME] ?? string.Empty;
+      MovieInfo movieInfo = new MovieInfo();
+      if (!movieInfo.FromMetadata(mediaItem.Aspects)) 
+        return;
+
+      MovieName = movieInfo.MovieName.Text ?? "";
+      CollectionName = movieInfo.CollectionName.Text ?? "";
+      StoryPlot = movieInfo.Summary.Text ?? "";
+      Year = movieInfo.ReleaseDate.HasValue ? movieInfo.ReleaseDate.Value.Year.ToString() : "";
+
       FireChange();
     }
 
@@ -53,6 +57,12 @@ namespace MediaPortal.UiComponents.Media.Models.Navigation
     {
       get { return this[Consts.KEY_SERIES_EPISODE_NAME]; }
       set { SetLabel(Consts.KEY_SERIES_EPISODE_NAME, value); }
+    }
+
+    public string Year
+    {
+      get { return this[Consts.KEY_YEAR]; }
+      set { SetLabel(Consts.KEY_YEAR, value); }
     }
 
     public string CollectionName

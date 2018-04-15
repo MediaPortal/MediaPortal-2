@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2015 Team MediaPortal
+#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2015 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -43,6 +43,11 @@ using RightAngledRotation = MediaPortal.UI.Presentation.Players.RightAngledRotat
 using Size = SharpDX.Size2;
 using SizeF = SharpDX.Size2F;
 using PointF = SharpDX.Vector2;
+using MediaPortal.UI.Services.UserManagement;
+using MediaPortal.Common.UserProfileDataManagement;
+using MediaPortal.Common.SystemCommunication;
+using MediaPortal.Common.UserManagement;
+using MediaPortal.UI.ServerCommunication;
 
 namespace MediaPortal.UI.Players.Image
 {
@@ -72,7 +77,8 @@ namespace MediaPortal.UI.Players.Image
     protected SizeF _textureMaxUV = new SizeF(1, 1);
     protected TimeSpan _slideShowImageDuration = TimeSpan.FromSeconds(10);
     protected Timer _slideShowTimer = null;
-    protected bool _slideShowEnabled = true;
+    protected bool _slideShowEnabled = false;
+    protected bool _isInitalResume = true;
     protected DateTime _playbackStartTime = DateTime.MinValue;
 
     // Data and events for the communication with the player manager.
@@ -159,7 +165,14 @@ namespace MediaPortal.UI.Players.Image
       double durationSec = settings.SlideShowImageDuration;
       _slideShowImageDuration = durationSec == 0 ? TS_INFINITE : TimeSpan.FromSeconds(durationSec);
 
-      _animator = settings.UseKenBurns ? new KenBurnsAnimator() : STILL_IMAGE_ANIMATION;
+      // Use animation only in slideshow mode
+      var newAnimator = _slideShowEnabled && settings.UseKenBurns ? new KenBurnsAnimator() : STILL_IMAGE_ANIMATION;
+      bool reInit = newAnimator != _animator;
+      _animator = newAnimator;
+      // Reset animation if the animator has been changed (i.e. toggling between single image/slideshow)
+      if (reInit)
+        _animator.Initialize();
+
     }
 
     protected void DisposeTimer()
@@ -237,7 +250,8 @@ namespace MediaPortal.UI.Players.Image
           return;
         using (Stream stream = fsra.OpenRead())
         {
-          string key = fsra.CanonicalLocalResourcePath.Serialize();
+          // Avoid caching of stream based textures
+          string key = Guid.NewGuid().ToString(); // fsra.CanonicalLocalResourcePath.Serialize();
           _texture = ContentManager.Instance.GetTexture(stream, key, true);
           if (_texture == null)
             return;
@@ -258,7 +272,7 @@ namespace MediaPortal.UI.Players.Image
         _flipX = flipX;
         _flipY = flipY;
         SurfaceDescription desc = _texture.Texture.GetLevelDescription(0);
-        _textureMaxUV = new SizeF(_texture.Width / (float) desc.Width, _texture.Height / (float) desc.Height);
+        _textureMaxUV = new SizeF(_texture.Width / (float)desc.Width, _texture.Height / (float)desc.Height);
 
         // Reset animation
         _animator.Initialize();
@@ -268,7 +282,7 @@ namespace MediaPortal.UI.Players.Image
         else
           CheckTimer();
         _playbackStartTime = DateTime.Now;
-        if (_pauseTime.HasValue)
+        if (!_slideShowEnabled || _pauseTime.HasValue)
           _pauseTime = _playbackStartTime;
       }
     }
@@ -376,16 +390,22 @@ namespace MediaPortal.UI.Players.Image
       RightAngledRotation rotation = RightAngledRotation.Zero;
       bool flipX = false;
       bool flipY = false;
-      MediaItemAspect imageAspect = mediaItem[ImageAspect.ASPECT_ID];
-      if (imageAspect != null)
-      {
-        int orientationInfo = (int) imageAspect[ImageAspect.ATTR_ORIENTATION];
-        ImageRotation imageRotation;
-        ImageAspect.OrientationToRotation(orientationInfo, out imageRotation);
-        rotation = PlayerRotationTranslator.TranslateToRightAngledRotation(imageRotation);
-        ImageAspect.OrientationToFlip(orientationInfo, out flipX, out flipY);
-      }
       SetMediaItemData(locator, title, rotation, flipX, flipY);
+
+      IServerConnectionManager scm = ServiceRegistration.Get<IServerConnectionManager>();
+      IContentDirectory cd = scm.ContentDirectory;
+      if (cd != null)
+      {
+        IUserManagement userProfileDataManagement = ServiceRegistration.Get<IUserManagement>();
+        if (userProfileDataManagement.IsValidUser)
+        {
+          cd.NotifyUserPlaybackAsync(userProfileDataManagement.CurrentUser.ProfileId, mediaItem.MediaItemId, 100, true);
+        }
+        else
+        {
+          cd.NotifyPlaybackAsync(mediaItem.MediaItemId, true);
+        }
+      }
       return true;
     }
 
@@ -461,7 +481,7 @@ namespace MediaPortal.UI.Players.Image
       lock (_syncObj)
       {
         _animator = _animator ?? STILL_IMAGE_ANIMATION;
-        DateTime displayTime = _pauseTime.HasValue ? _pauseTime.Value : DateTime.Now;
+        DateTime displayTime = _pauseTime ?? DateTime.Now;
         RectangleF textureClip = _animator.GetZoomRect(ImageSize.ToSize2(), outputSize, displayTime);
         return new RectangleF(textureClip.X * _textureMaxUV.Width, textureClip.Y * _textureMaxUV.Height, textureClip.Width * _textureMaxUV.Width, textureClip.Height * _textureMaxUV.Height);
       }
@@ -538,6 +558,8 @@ namespace MediaPortal.UI.Players.Image
       lock (_syncObj)
       {
         _pauseTime = DateTime.Now;
+        SlideShowEnabled = false;
+        ReloadSettings();
         DisposeTimer();
       }
     }
@@ -546,9 +568,15 @@ namespace MediaPortal.UI.Players.Image
     {
       lock (_syncObj)
       {
+        if (_isInitalResume)
+        {
+          _isInitalResume = false;
+          return;
+        }
         _pauseTime = null;
+        SlideShowEnabled = true;
+        ReloadSettings();
         CurrentTime = TimeSpan.Zero;
-        CheckTimer();
       }
     }
 

@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2015 Team MediaPortal
+#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2015 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -110,8 +110,12 @@ namespace MediaPortal.Common.MediaManagement.MLQueries
     [XmlArrayItem("Not", typeof(NotFilter))]
     [XmlArrayItem("Relational", typeof(RelationalFilter))]
     [XmlArrayItem("Empty", typeof(EmptyFilter))]
+    [XmlArrayItem("RelationalUserData", typeof(RelationalUserDataFilter))]
+    [XmlArrayItem("EmptyUserData", typeof(EmptyUserDataFilter))]
     [XmlArrayItem("False", typeof(FalseFilter))]
     [XmlArrayItem("MediaItemIds", typeof(MediaItemIdFilter))]
+    [XmlArrayItem("Relationship", typeof(RelationshipFilter))]
+    [XmlArrayItem("FilterRelationship", typeof(FilteredRelationshipFilter))]
     // Necessary to have an object ARRAY here, else the serialization algorithm cannot cope with polymorph values
     public object[] XML_Operands
     {

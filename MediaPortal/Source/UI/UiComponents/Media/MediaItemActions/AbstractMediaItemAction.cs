@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2015 Team MediaPortal
+#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2015 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -23,7 +23,11 @@
 #endregion
 
 using System;
+using System.Threading.Tasks;
+using MediaPortal.Common.Async;
 using MediaPortal.Common.MediaManagement;
+using MediaPortal.Common.Services.ServerCommunication;
+using MediaPortal.Common.UserProfileDataManagement;
 using MediaPortal.UiComponents.Media.Extensions;
 
 namespace MediaPortal.UiComponents.Media.MediaItemActions
@@ -31,7 +35,7 @@ namespace MediaPortal.UiComponents.Media.MediaItemActions
   /// <summary>
   /// Base class for all <see cref="IMediaItemAction"/>s.
   /// </summary>
-  public abstract class AbstractMediaItemAction : IMediaItemAction
+  public abstract class AbstractMediaItemAction : IMediaItemAction, IUserRestriction
   {
     /// <summary>
     /// Indicates if the given <paramref name="mediaItem"/> is managed by the MediaLibrary. That's the case if it has a <see cref="MediaItem.MediaItemId"/> other than <see cref="Guid.Empty"/>.
@@ -43,7 +47,8 @@ namespace MediaPortal.UiComponents.Media.MediaItemActions
       return mediaItem != null && mediaItem.MediaItemId != Guid.Empty;
     }
 
-    public abstract bool IsAvailable(MediaItem mediaItem);
-    public abstract bool Process(MediaItem mediaItem, out ContentDirectoryMessaging.MediaItemChangeType changeType);
+    public abstract Task<bool> IsAvailableAsync(MediaItem mediaItem);
+    public abstract Task<AsyncResult<ContentDirectoryMessaging.MediaItemChangeType>> ProcessAsync(MediaItem mediaItem);
+    public string RestrictionGroup { get; set; }
   }
 }

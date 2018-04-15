@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2015 Team MediaPortal
+#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2015 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -23,9 +23,13 @@
 #endregion
 
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using MediaPortal.UiComponents.Media.General;
 using MediaPortal.UiComponents.Media.Models.ScreenData;
 using MediaPortal.UiComponents.Media.Models.Sorting;
+using MediaPortal.Common.MediaManagement.DefaultItemAspects;
+using MediaPortal.Common.MediaManagement.MLQueries;
+using MediaPortal.UiComponents.Media.Helpers;
 
 namespace MediaPortal.UiComponents.Media.Models.NavigationModel
 {
@@ -39,23 +43,40 @@ namespace MediaPortal.UiComponents.Media.Models.NavigationModel
       _mediaNavigationRootState = Consts.WF_STATE_ID_MOVIES_NAVIGATION_ROOT;
       _viewName = Consts.RES_MOVIES_VIEW_NAME;
       _necessaryMias = Consts.NECESSARY_MOVIES_MIAS;
+      _optionalMias = Consts.OPTIONAL_MOVIES_MIAS;
       _restrictedMediaCategories = RESTRICTED_MEDIA_CATEGORIES;
+      _rootRole = MovieAspect.ROLE_MOVIE;
     }
 
-    protected override void Prepare()
+    protected override async Task PrepareAsync()
     {
-      base.Prepare();
+      await base.PrepareAsync();
 
-      _defaultScreen = new VideosFilterByGenreScreenData();
+      //Update filter by adding the user filter to the already loaded filters
+      IFilter userFilter = await CertificationHelper.GetUserCertificateFilter(_necessaryMias);
+      if (userFilter != null)
+      {
+        _filter = BooleanCombinationFilter.CombineFilters(BooleanOperator.And, userFilter,
+          BooleanCombinationFilter.CombineFilters(BooleanOperator.And, _filters));
+      }
+      else
+      {
+         _filter = BooleanCombinationFilter.CombineFilters(BooleanOperator.And, _filters);
+      }
+
+      _defaultScreen = new MovieFilterByGenreScreenData();
       _availableScreens = new List<AbstractScreenData>
         {
           new MoviesShowItemsScreenData(_genericPlayableItemCreatorDelegate),
           new MovieFilterByCollectionScreenData(),
           new VideosFilterByPlayCountScreenData(),
-          new VideosFilterByActorScreenData(),
-          new VideosFilterByDirectorScreenData(),
-          new VideosFilterByWriterScreenData(),
           _defaultScreen,
+          new MovieFilterByCertificationScreenData(),
+          new MovieFilterByActorScreenData(),
+          new MovieFilterByCharacterScreenData(),
+          new MovieFilterByDirectorScreenData(),
+          new MovieFilterByWriterScreenData(),
+          new MovieFilterByCompanyScreenData(),
           new VideosFilterByYearScreenData(),
           new VideosFilterBySystemScreenData(),
           new VideosSimpleSearchScreenData(_genericPlayableItemCreatorDelegate),
@@ -65,14 +86,38 @@ namespace MediaPortal.UiComponents.Media.Models.NavigationModel
       _availableSortings = new List<Sorting.Sorting>
         {
           _defaultSorting,
+          new SortBySortTitle(),
+          new SortByName(),
           new SortByYear(),
           new VideoSortByFirstGenre(),
+          new MovieSortByCertification(),
           new VideoSortByDuration(),
           new VideoSortByFirstActor(),
           new VideoSortByFirstDirector(),
           new VideoSortByFirstWriter(),
           new VideoSortBySize(),
           new VideoSortByAspectRatio(),
+          new SortByAddedDate(),
+          new SortBySystem(),
+        };
+
+      _defaultGrouping = null;
+      _availableGroupings = new List<Sorting.Sorting>
+        {
+          //_defaultGrouping,
+          new SortByTitle(),
+          new SortBySortTitle(),
+          new SortByName(),
+          new SortByYear(),
+          new VideoSortByFirstGenre(),
+          new MovieSortByCertification(),
+          new VideoSortByDuration(),
+          new VideoSortByFirstActor(),
+          new VideoSortByFirstDirector(),
+          new VideoSortByFirstWriter(),
+          new VideoSortBySize(),
+          new VideoSortByAspectRatio(),
+          new SortByAddedDate(),
           new SortBySystem(),
         };
     }

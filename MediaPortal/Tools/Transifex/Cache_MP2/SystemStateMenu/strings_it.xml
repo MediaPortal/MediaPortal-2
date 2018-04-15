@@ -1,0 +1,29 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<resources>
+  <string name="Settings.General.System.SystemStateDialog">Menu spegnimento</string>
+  <string name="Settings.General.System.SystemStateDialog.Help">Configura la visibilità e la posizione degli elementi del menu spegnimento</string>
+  <string name="SystemState.Configuration.Dialog.Title">Configura gli elementi</string>
+  <string name="SystemState.Title">Menu spegnimento</string>
+  <string name="SystemState.Hibernate">Iberna</string>
+  <string name="SystemState.Shutdown">Spegni</string>
+  <string name="SystemState.Suspend">Sospendi</string>
+  <string name="SystemState.Restart">Riavvia</string>
+  <string name="SystemState.Logoff">Esci</string>
+  <string name="SystemState.SleepTimerConfig">Imposta conto alla rovescia spegnimento</string>
+  <string name="SystemState.SleepTimerStop">Arresta conto alla rovescia spegnimento</string>
+  <string name="SystemState.MinimizeMP">Minimizza MediaPortal</string>
+  <string name="SystemState.ShutdownMP">Chiudi MediaPortal</string>
+  <string name="SystemState.ShutdownDialogStateDisplayLabel">Menu spegnimento</string>
+  <string name="SystemState.ShutdownConfigurationDialogStateDisplayLabel">Configurazione menu spegnimento</string>
+  <string name="SleepTimer.Title">Conto alla rovescia spegnimento</string>
+  <string name="SleepTimer.Start">Avvio</string>
+  <string name="SleepTimer.Stop">Arresto</string>
+  <string name="SleepTimer.Action">Azione:</string>
+  <string name="SleepTimer.TimeStr">Ora:</string>
+  <string name="SleepTimer.Minutes">min.</string>
+  <string name="SleepTimer.MediaItem">Dopo la riproduzione del contenuto multimediale in corso</string>
+  <string name="SleepTimer.Playlist">Dopo la riproduzione della playlist in corso</string>
+  <string name="SleepTimer.ShutdownTextSingle">{0} in meno di un minuto</string>
+  <string name="SleepTimer.ShutdownTextMulti">{0} in {1} minuti</string>
+  <string name="SleepTimer.MaxMinutes">Durata massima massima conto alla rovescia, min:</string>
+</resources>

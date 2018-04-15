@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2015 Team MediaPortal
+#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2015 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -23,6 +23,7 @@
 #endregion
 
 using MediaPortal.UiComponents.Media.General;
+using System.Linq;
 
 namespace MediaPortal.UiComponents.Media.Models.ScreenData
 {
@@ -31,6 +32,9 @@ namespace MediaPortal.UiComponents.Media.Models.ScreenData
     public VideosSimpleSearchScreenData(PlayableItemCreatorDelegate playableItemCreator) :
         base(Consts.SCREEN_VIDEOS_SIMPLE_SEARCH, Consts.RES_SIMPLE_SEARCH_FILTER_MENU_ITEM, playableItemCreator)
     {
+      _availableMias = Consts.NECESSARY_VIDEO_MIAS;
+      if (Consts.OPTIONAL_VIDEO_MIAS != null)
+        _availableMias = _availableMias.Union(Consts.OPTIONAL_VIDEO_MIAS);
     }
 
     public override AbstractItemsScreenData Derive()

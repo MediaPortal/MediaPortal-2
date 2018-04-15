@@ -6,7 +6,7 @@
   <string name="Settings.Plugins.TV.MPExtendedUsername">MPExtended-Dienst-Benutzername</string>
   <string name="Settings.Plugins.TV.MPExtendedUsername.Help">Geben Sie einen Benutzernamen ein. Ein leerer Eintrag verwendet eine anonyme Verbindung.</string>
   <string name="Settings.Plugins.TV.MPExtendedPassword">MPExtended-Dienst-Passwort</string>
-  <string name="Settings.Plugins.TV.MPExtendedPassword.Help">Geben Sie ein Passwort ein. Ein leerer Eintrag verwendet eine anonyme Verbindung.</string>
+  <string name="Settings.Plugins.TV.MPExtendedPassword.Help">Passwort eingeben. Ein leerer Eintrag verwendet eine anonyme Verbindung.</string>
   <string name="Settings.Plugins.TV.ConnectionErrorTitle">Verbindungsfehler</string>
   <string name="Settings.Plugins.TV.ConnectionErrorText">Es konnte keine Verbindung mit dem MPExtended-Dienst {0} hergestellt werden.</string>
 </resources>

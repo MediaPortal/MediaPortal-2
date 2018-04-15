@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2015 Team MediaPortal
+#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2015 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -31,7 +31,10 @@ namespace MediaPortal.UiComponents.Media.Models.ScreenData
   {
     public BrowseMediaNavigationScreenData(PlayableItemCreatorDelegate playableItemCreator) :
         base(Consts.SCREEN_BROWSE_MEDIA_NAVIGATION, null, Consts.RES_BROWSE_MEDIA_NAVIGATION_NAVBAR_DISPLAY_LABEL,
-        playableItemCreator, true) { }
+        playableItemCreator, true)
+    {
+      _availableMias = Consts.NECESSARY_BROWSING_MIAS;
+    }
 
     public override string MoreThanMaxItemsHint
     {

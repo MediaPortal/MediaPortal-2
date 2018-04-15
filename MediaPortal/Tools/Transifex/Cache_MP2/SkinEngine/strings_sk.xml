@@ -12,8 +12,6 @@
   <string name="Settings.Appearance.System.ScreenSaverEnabled.Help">Nastavenie zobrazovania šetriča</string>
   <string name="Settings.Appearance.System.ScreenSaverTimeout">Počkať pre spustením šetriča</string>
   <string name="Settings.Appearance.System.ScreenSaverTimeout.Help">Nastavenie času v minútach, po ktorom sa zobrazí šetrič obrazovky</string>
-  <string name="Settings.Appearance.System.Antialiasing">GUI antialiasing</string>
-  <string name="Settings.Appearance.System.Antialiasing.Help">Antialiasing robí skvalitňuje zobrazenie GUI ale znižuje výkon videa</string>
   <string name="Settings.Appearance.Skin">Vzhľad</string>
   <string name="Settings.Appearance.Skin.SkinAndTheme">Vzhľad a téma</string>
   <string name="Settings.Appearance.Skin.SkinAndTheme.ChangeSkin">Zmeniť vzhľad</string>

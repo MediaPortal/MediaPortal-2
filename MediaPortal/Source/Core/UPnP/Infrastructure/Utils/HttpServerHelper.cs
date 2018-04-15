@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2015 Team MediaPortal
+#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2015 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -23,7 +23,7 @@
 #endregion
 
 using System.Net;
-using HttpServer;
+using Microsoft.Owin;
 
 namespace UPnP.Infrastructure.Utils
 {
@@ -35,7 +35,7 @@ namespace UPnP.Infrastructure.Utils
     /// <param name="request">Http client request.</param>
     /// <returns><see cref="string"/> instance containing the client's IP address. The returned IP address can be
     /// parsed by calling <see cref="IPAddress.Parse"/>.</returns>
-    public static string GetRemoteAddress(IHttpRequest request)
+    public static string GetRemoteAddress(IOwinRequest request)
     {
       return request.Headers["remote_addr"];
     }

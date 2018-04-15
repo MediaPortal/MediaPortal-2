@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2015 Team MediaPortal
+#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2015 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -94,6 +94,12 @@ namespace MediaPortal.UiComponents.SkinBase.Models
     protected IPlayerContext _playerEffectMenuPlayerContext = null;
     protected ItemsList _playerChooseEffectMenu = new ItemsList();
     protected string _playerChooseEffectHeader = null;
+
+    // Mode 6: Choose subtitle for a special player slot
+    protected bool _inPlayerChooseSubtitleMenuDialog = false;
+    protected IPlayerContext _playerSubtitleMenuPlayerContext = null;
+    protected ItemsList _playerChooseSubtitleMenu = new ItemsList();
+    protected string _playerChooseSubtitleHeader = null;
 
     #endregion
 
@@ -238,6 +244,20 @@ namespace MediaPortal.UiComponents.SkinBase.Models
           ListItem item = new ListItem(Consts.KEY_NAME, entryName)
           {
             Command = new MethodDelegateCommand(() => OpenChooseEffectDialog(pc))
+          };
+          item.AdditionalProperties[Consts.KEY_NAVIGATION_MODE] = NavigationMode.SuccessorDialog;
+          _playerConfigurationMenu.Add(item);
+        }
+        // Subtitle streams
+        for (int i = 0; i < videoPCs.Count; i++)
+        {
+          IPlayerContext pc = videoPCs[i];
+          string sub = LocalizationHelper.CreateResourceString(Consts.RES_CHOOSE_PLAYER_SUBTITLE).Evaluate();
+          string entryName = videoPCs.Count > 1 ?
+              string.Format("{0} ({1})", sub, GetNameForPlayerContext(pc, i)) : sub;
+          ListItem item = new ListItem(Consts.KEY_NAME, entryName)
+          {
+            Command = new MethodDelegateCommand(() => OpenChooseSubtitleDialog(pc))
           };
           item.AdditionalProperties[Consts.KEY_NAVIGATION_MODE] = NavigationMode.SuccessorDialog;
           _playerConfigurationMenu.Add(item);
@@ -488,6 +508,40 @@ namespace MediaPortal.UiComponents.SkinBase.Models
       }
     }
 
+    protected void UpdatePlayerChooseSubtitleMenu()
+    {
+      if (_playerChooseSubtitleMenu.Count == 0)
+      {        
+        IPlayerContext pc = _playerSubtitleMenuPlayerContext;
+        if (pc == null || !pc.IsActive)
+        {
+          LeaveChooseSubtitleWorkflow();
+          return;
+        }
+
+        string subtitleStr = LocalizationHelper.CreateResourceString(Consts.RES_CHOOSE_PLAYER_SUBTITLE).Evaluate();
+        IList<IPlayerContext> videoPCs = GetVideoPlayerContexts();
+        _playerChooseSubtitleHeader = videoPCs.Count > 1 ?
+          string.Format("{0} ({1})", subtitleStr, GetNameForPlayerContext(pc, pc.IsPrimaryPlayerContext ? 0 : 1))
+          : subtitleStr;
+        ISubtitlePlayer subtitlePlayer = pc.CurrentPlayer as ISubtitlePlayer;
+        if(subtitlePlayer != null) // should not be happen, but we get sure :)
+        {
+          string[] subtitles = subtitlePlayer.Subtitles;
+          foreach(string subtitle in subtitles)
+          {
+            ListItem item = new ListItem(Consts.KEY_NAME, subtitle)
+            {
+              Command = new MethodDelegateCommand(() => SetSubtitle(_playerSubtitleMenuPlayerContext, subtitle)),
+              Selected = subtitlePlayer.CurrentSubtitle == subtitle,
+            };
+            item.AdditionalProperties[Consts.KEY_NAVIGATION_MODE] = NavigationMode.ExitPCWorkflow;
+            _playerChooseSubtitleMenu.Add(item);
+          }
+        }
+      }
+    }
+
     /// <summary>
     /// Updates the menu items for the dialogs "DialogPlayerConfiguration" and "DialogChooseAudioStream"
     /// and closes the dialogs when their entries are not valid any more.
@@ -540,6 +594,17 @@ namespace MediaPortal.UiComponents.SkinBase.Models
           else
             UpdatePlayerChooseEffectMenu();
         }
+        if (_inPlayerChooseSubtitleMenuDialog)
+        {
+          // Automatically close Subtitle choice dialog if current player is no video player
+          if (_playerSubtitleMenuPlayerContext == null || !_playerSubtitleMenuPlayerContext.IsActive ||
+              !(_playerSubtitleMenuPlayerContext.CurrentPlayer is ISubtitlePlayer))
+            // Automatically close effect stream choice dialog
+            while (_inPlayerChooseSubtitleMenuDialog)
+              workflowManager.NavigatePop(1);
+          else
+            UpdatePlayerChooseSubtitleMenu();
+        }
       }
     }
 
@@ -559,6 +624,12 @@ namespace MediaPortal.UiComponents.SkinBase.Models
     {
       IWorkflowManager workflowManager = ServiceRegistration.Get<IWorkflowManager>();
       workflowManager.NavigatePopToStateAsync(Consts.WF_STATE_ID_PLAYER_CHOOSE_EFFECT_MENU_DIALOG, true);
+    }
+
+    protected static void LeaveChooseSubtitleWorkflow()
+    {
+      IWorkflowManager workflowManager = ServiceRegistration.Get<IWorkflowManager>();
+      workflowManager.NavigatePopToStateAsync(Consts.WF_STATE_ID_PLAYER_CHOOSE_SUBTITLE_MENU_DIALOG, true);
     }
 
     /// <summary>
@@ -605,6 +676,12 @@ namespace MediaPortal.UiComponents.SkinBase.Models
         UpdatePlayerChooseEffectMenu();
         _inPlayerChooseEffectMenuDialog = true;
       }
+      else if (newContext.WorkflowState.StateId == Consts.WF_STATE_ID_PLAYER_CHOOSE_SUBTITLE_MENU_DIALOG)
+      {
+        _playerSubtitleMenuPlayerContext = newContext.GetContextVariable(Consts.KEY_PLAYER_CONTEXT, false) as IPlayerContext;
+        UpdatePlayerChooseSubtitleMenu();
+        _inPlayerChooseSubtitleMenuDialog = true;
+      }
     }
 
     protected void ExitContext(NavigationContext oldContext)
@@ -635,6 +712,11 @@ namespace MediaPortal.UiComponents.SkinBase.Models
         _inPlayerChooseEffectMenuDialog = false;
         _playerChooseEffectMenu.Clear();
       }
+      else if (oldContext.WorkflowState.StateId == Consts.WF_STATE_ID_PLAYER_CHOOSE_SUBTITLE_MENU_DIALOG)
+      {
+        _inPlayerChooseSubtitleMenuDialog = false;
+        _playerChooseSubtitleMenu.Clear();
+      }
     }
 
     #endregion
@@ -657,6 +739,18 @@ namespace MediaPortal.UiComponents.SkinBase.Models
     {
       IWorkflowManager workflowManager = ServiceRegistration.Get<IWorkflowManager>();
       workflowManager.NavigatePush(Consts.WF_STATE_ID_PLAYER_CHOOSE_EFFECT_MENU_DIALOG, new NavigationContextConfig
+      {
+        AdditionalContextVariables = new Dictionary<string, object>
+          {
+              {Consts.KEY_PLAYER_CONTEXT, playerContext},
+          }
+      });
+    }
+
+    public static void OpenChooseSubtitleDialog(IPlayerContext playerContext)
+    {
+      IWorkflowManager workflowManager = ServiceRegistration.Get<IWorkflowManager>();
+      workflowManager.NavigatePush(Consts.WF_STATE_ID_PLAYER_CHOOSE_SUBTITLE_MENU_DIALOG, new NavigationContextConfig
       {
         AdditionalContextVariables = new Dictionary<string, object>
           {
@@ -718,6 +812,11 @@ namespace MediaPortal.UiComponents.SkinBase.Models
       get { return _playerChooseEffectMenu; }
     }
 
+    public ItemsList PlayerChooseSubtitleMenu
+    {
+      get { return _playerChooseSubtitleMenu; }
+    }
+
     public string PlayerChooseGeometryHeader
     {
       get { return _playerChooseGeometryHeader; }
@@ -726,6 +825,11 @@ namespace MediaPortal.UiComponents.SkinBase.Models
     public string PlayerChooseEffectHeader
     {
       get { return _playerChooseEffectHeader; }
+    }
+
+    public string PlayerChooseSubtitleHeader
+    {
+      get { return _playerChooseSubtitleHeader; }
     }
 
     public void Select(ListItem item)
@@ -796,6 +900,16 @@ namespace MediaPortal.UiComponents.SkinBase.Models
         playerContext.OverrideEffect(effect);
     }
 
+    public void SetSubtitle(IPlayerContext playerContext, string subtitle)
+    {
+      if (playerContext != null)
+      {
+        ISubtitlePlayer sp = playerContext.CurrentPlayer as ISubtitlePlayer;
+        if (sp != null)
+          sp.SetSubtitle(subtitle);
+      }
+    }
+
     #endregion
 
     #region IWorkflowModel implementation
@@ -830,6 +944,12 @@ namespace MediaPortal.UiComponents.SkinBase.Models
           return true;
       }
       else if (newContext.WorkflowState.StateId == Consts.WF_STATE_ID_PLAYER_CHOOSE_EFFECT_MENU_DIALOG)
+      {
+        // Check if we got our necessary player context parameter
+        if (newContext.GetContextVariable(Consts.KEY_PLAYER_CONTEXT, false) != null)
+          return true;
+      }
+      else if (newContext.WorkflowState.StateId == Consts.WF_STATE_ID_PLAYER_CHOOSE_SUBTITLE_MENU_DIALOG)
       {
         // Check if we got our necessary player context parameter
         if (newContext.GetContextVariable(Consts.KEY_PLAYER_CONTEXT, false) != null)

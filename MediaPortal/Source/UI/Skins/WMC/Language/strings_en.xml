@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <string name="WMC.Configuration.EnableFanart">Enable Fanart</string>
+  <string name="WMC.Configuration.EnableFanart.Help">Whether to display background fanart.</string>
+  <string name="WMC.Configuration.FanartOverlayOpacity">Fanart Visibility</string>
+  <string name="WMC.Configuration.FanartOverlayOpacity.Help">Adjust the opacity of the background fanart overlay. A lower value increases the visibility of fanart (default is 1.0).</string>
+  <string name="WMC.Configuration.EnableWatchedFlags">Enable Watched Flags</string>
+  <string name="WMC.Configuration.EnableWatchedFlags.Help">Whether to display watched icons in the selected views.</string>
+  <string name="WMC.Configuration.EnableWatchedFlags.ListView">List View</string>
+  <string name="WMC.Configuration.EnableWatchedFlags.GridView">Grid View</string>
+  <string name="WMC.Configuration.EnableWatchedFlags.CoverView">Cover View</string>
+  <string name="WMC.Configuration.EnableAgeCertificationLogos">Enable Age Certification Logos</string>
+  <string name="WMC.Configuration.EnableAgeCertificationLogos.Help">Whether to display age certification logos in media screens.</string>  
+  <string name="WMC.Configuration.MovieGridViewType">Movie grid layout</string>
+  <string name="WMC.Configuration.MovieGridViewType.Help">Select the layout used in movie grid views.</string>
+  <string name="WMC.Configuration.SeriesGridViewType">Series grid layout</string>
+  <string name="WMC.Configuration.SeriesGridViewType.Help">Select the layout used in series grid views.</string>
+  <string name="WMC.Configuration.SeasonGridViewType">Season grid layout</string>
+  <string name="WMC.Configuration.SeasonGridViewType.Help">Select the layout used in season grid views.</string>
+  <string name="WMC.Configuration.GridViewType.Poster">Posters</string>
+  <string name="WMC.Configuration.GridViewType.Banner">Banners</string>
+  <string name="WMC.Configuration.GridViewType.Thumbnail">Thumbnails</string>  
+  <string name="WMC.Configuration.EnableHomeContent">Enable Home Content</string>
+  <string name="WMC.Configuration.EnableHomeContent.Help">Whether to enable to show Home Content on the home screen.</string>
+  <string name="WMC.Configuration.EnableMediaItemDetailsView">Enable Media Item Details View</string>
+  <string name="WMC.Configuration.EnableMediaItemDetailsView.Help">Whether to show media item details instead of playing media item directly.</string>
+
+  <string name="WMC.Home.LatestAdded">Latest Added</string>
+  <string name="WMC.Home.LatestPlayed">Latest Played</string>
+  <string name="WMC.Home.ContinuePlayed">Continue Playing</string>
+  <string name="WMC.Home.CurrentPrograms">Current Programs</string>
+  <string name="WMC.Home.CurrentSchedules">Current Schedules</string>
+  <string name="WMC.Home.Favorites">Favorites</string>
+  <string name="WMC.Home.Unplayed">Unplayed</string>
+
+</resources>

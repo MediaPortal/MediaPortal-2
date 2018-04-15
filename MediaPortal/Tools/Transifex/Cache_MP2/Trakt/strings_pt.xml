@@ -1,2 +1,16 @@
 <?xml version='1.0' encoding='UTF-8'?>
-<resources/>
+<resources>
+  <string name="Trakt.Close">Fechar</string>
+  <string name="Trakt.UsernamePasswordGroup">Detalhes da conta</string>
+  <string name="Trakt.Username">Utilizador</string>
+  <string name="Trakt.PinUrl">http://trakt.tv/pin/6601</string>
+  <string name="Trakt.PinCode">Receber código PIN</string>
+  <string name="Trakt.Authorize">Autorizar</string>
+  <string name="Trakt.SyncMovies">A sincronizar filmes...</string>
+  <string name="Trakt.SyncSeries">A sincronizar séries...</string>
+  <string name="Trakt.SyncFinished">Sincronização completa!</string>
+  <string name="Trakt.EmptyUsername">Por favor insira o nome de utilizador</string>
+  <string name="Trakt.CheckPin">Não foi possível ligar ao trakt, será o PIN errado?</string>
+  <string name="Settings.Plugins.Trakt">Trakt.tv</string>
+  <string name="Settings.Plugins.Trakt.TraktSetup">Instalar Trakt.tv</string>
+</resources>

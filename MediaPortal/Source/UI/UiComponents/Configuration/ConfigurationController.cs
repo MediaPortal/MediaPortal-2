@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2015 Team MediaPortal
+#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2015 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -23,9 +23,12 @@
 #endregion
 
 using System;
+using MediaPortal.Common;
 using MediaPortal.Common.Configuration;
 using MediaPortal.Common.General;
 using MediaPortal.Common.Localization;
+using MediaPortal.Common.UserManagement;
+using MediaPortal.UI.Services.UserManagement;
 
 namespace MediaPortal.UiComponents.Configuration
 {
@@ -97,7 +100,13 @@ namespace MediaPortal.UiComponents.Configuration
 
     public abstract void ExecuteConfiguration();
 
-    public abstract bool IsSettingSupported(ConfigSetting setting);
+    public virtual bool IsSettingSupported(ConfigSetting setting)
+    {
+      if (setting == null)
+        return false;
+      IUserManagement userManagement = ServiceRegistration.Get<IUserManagement>();
+      return userManagement.CheckUserAccess(setting);
+    }
 
     public abstract Type ConfigSettingType { get; }
 

@@ -137,7 +137,7 @@ namespace HttpServer.HttpModules
       DateTime modifiedTime = DateTime.MinValue;
       if (!string.IsNullOrEmpty(request.Headers["if-Modified-Since"]))
       {
-        DateTime lastRequest = DateTime.Parse(request.Headers["if-Modified-Since"]);
+        DateTime lastRequest = DateTime.Parse(request.Headers["if-Modified-Since"], System.Globalization.CultureInfo.InvariantCulture);
         if (lastRequest.CompareTo(modifiedTime) <= 0)
           response.Status = HttpStatusCode.NotModified;
       }

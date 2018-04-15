@@ -8,13 +8,14 @@
     Description="DirectX Window Manager">
 
   <Version
-    PluginVersion="1.0"
-    ReleaseDate="2013-11-11 01:00:00 GMT+01:00"
-    CurrentAPI="1"/>
+    PluginVersion="1.0.1"
+    ReleaseDate="2016-12-20 01:00:00 GMT+01:00"
+    MinCompatibleAPI="1"
+    CurrentAPI="4"/>
 
   <DependsOn>
-    <CoreDependency Name="MediaPortal.Common" CompatibleAPI="1" />
-    <CoreDependency Name="MediaPortal.UI" CompatibleAPI="1" />
+    <CoreDependency Name="MediaPortal.Common" CompatibleAPI="2" />
+    <CoreDependency Name="MediaPortal.UI" CompatibleAPI="2" />
     <CoreDependency Name="MediaPortal.Utilities" CompatibleAPI="1" />
     <PluginReference PluginId="{1AFF4467-64B0-4ca1-AF28-9AEDF3525BCE}" CompatibleAPI="1"/> <!-- ConfigurationManager -->
     <PluginReference PluginId="{B765A4B6-F455-4941-BDAE-2CE45208BFEB}" CompatibleAPI="1"/> <!-- Configuration plugin -->
@@ -43,6 +44,7 @@
   <Register Location="/Configuration/Settings">
     <ConfigSection
         Id="Players"
+        Sort="E100"
         Redundant="true"
         Text="[Settings.Players]"/>
     <ConfigSection
@@ -72,10 +74,10 @@
 
   <!-- Contents of '/Appearance' section -->
   <Register Location="/Configuration/Settings/Appearance">
-    <ConfigGroup
-        Id="System"
+    <ConfigSection
+        Id="General"
         Redundant="true"
-        Text="[Settings.Appearance.System]"/>
+        Text="[Settings.General]"/>
     <ConfigSection
         Id="Skin"
         Redundant="true"
@@ -83,7 +85,7 @@
   </Register>
 
   <!-- Contents of '/Appearance/System' group -->
-  <Register Location="/Configuration/Settings/Appearance/System">
+  <Register Location="/Configuration/Settings/Appearance/General">
     <ConfigSetting
         Id="Fullscreen"
         Text="[Settings.Appearance.System.Fullscreen]"
@@ -99,11 +101,6 @@
         Text="[Settings.Appearance.System.CellPhoneInputStyle]"
         HelpText="[Settings.Appearance.System.CellPhoneInputStyle.Help]"
         ClassName="MediaPortal.UI.SkinEngine.Settings.Configuration.Appearance.CellPhoneInputStyle"/>
-    <ConfigSetting
-        Id="Antialiasing"
-        Text="[Settings.Appearance.System.Antialiasing]"
-        HelpText="[Settings.Appearance.System.Antialiasing.Help]"
-        ClassName="MediaPortal.UI.SkinEngine.Settings.Configuration.Appearance.Antialiasing"/>
 
     <ConfigSetting
         Id="ScreenSaverEnabled"
@@ -149,15 +146,16 @@
   </Register>
 
   <!-- Contents of '/Players' section -->
-  <Register Location="/Configuration/Settings/Players">
+  <Register Location="/Configuration/Settings/Players/">
     <ConfigSection
-        Id="Rendering"
+        Id="VideoPlayer"
+        Sort="E130"
         Redundant="true"
-        Text="[Settings.Players.Rendering]"/>
+        Text="[Settings.Players.VideoPlayer]"/>
   </Register>
 
   <!-- Contents of '/Players/Rendering' section -->
-  <Register Location="/Configuration/Settings/Players/Rendering">
+  <Register Location="/Configuration/Settings/Players/VideoPlayer">
     <ConfigSetting
         Id="DefaultGeometry"
         Text="[Settings.Players.Rendering.DefaultGeometry]"

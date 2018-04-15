@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2015 Team MediaPortal
+#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2015 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -21,8 +21,8 @@
 */
 
 #endregion
+
 using MediaPortal.Common.General;
-using MediaPortal.UiComponents.Weather.Grabbers;
 
 namespace MediaPortal.UiComponents.Weather
 {
@@ -42,10 +42,6 @@ namespace MediaPortal.UiComponents.Weather
       Id = id;
       _grabber = grabber;
     }
-
-    public CitySetupInfo(string name, string id) :
-      this(name, id, WorldWeatherOnlineCatcher.SERVICE_NAME)
-    { }
 
     public CitySetupInfo() {}
 

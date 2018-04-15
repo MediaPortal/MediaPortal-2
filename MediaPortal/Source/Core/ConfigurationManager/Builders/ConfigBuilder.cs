@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2015 Team MediaPortal
+#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2015 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -24,8 +24,10 @@
 
 using System;
 using System.Collections.Generic;
+using MediaPortal.Common;
 using MediaPortal.Common.Configuration;
 using MediaPortal.Common.PluginManager;
+using MediaPortal.Common.UserManagement;
 
 namespace MediaPortal.Configuration.Builders
 {
@@ -43,6 +45,7 @@ namespace MediaPortal.Configuration.Builders
       string sort = null;
       string iconSmallPath = null;
       string iconLargePath = null;
+      string restrictionGroup = null;
       foreach (KeyValuePair<string, string> attr in itemData.Attributes)
       {
         switch (attr.Key)
@@ -59,6 +62,9 @@ namespace MediaPortal.Configuration.Builders
           case "IconLargePath":
             iconLargePath = attr.Value;
             break;
+          case "RestrictionGroup":
+            SetValueAndRegister(ref restrictionGroup, attr.Value);
+            break;
           default:
             throw new ArgumentException("'ConfigSection' builder doesn't define an attribute '" + attr.Key + "'");
         }
@@ -67,7 +73,8 @@ namespace MediaPortal.Configuration.Builders
         throw new ArgumentException("'ConfigSection' item needs an attribute 'Text'");
       return new ConfigSectionMetadata(location, text, sort,
                                        plugin.Metadata.GetAbsolutePath(iconSmallPath),
-                                       plugin.Metadata.GetAbsolutePath(iconLargePath));
+                                       plugin.Metadata.GetAbsolutePath(iconLargePath),
+                                       restrictionGroup);
     }
 
     protected static ConfigGroupMetadata BuildGroup(
@@ -76,6 +83,7 @@ namespace MediaPortal.Configuration.Builders
       string location = ConfigBaseMetadata.ConcatLocations(itemData.RegistrationLocation, itemData.Id);
       string text = null;
       string sort = null;
+      string restrictionGroup = null;
       foreach (KeyValuePair<string, string> attr in itemData.Attributes)
       {
         switch (attr.Key)
@@ -86,13 +94,16 @@ namespace MediaPortal.Configuration.Builders
           case "Sort":
             sort = attr.Value;
             break;
+          case "RestrictionGroup":
+            SetValueAndRegister(ref restrictionGroup, attr.Value);
+            break;
           default:
             throw new ArgumentException("'ConfigGroup' builder doesn't define an attribute '" + attr.Key + "'");
         }
       }
       if (text == null)
         throw new ArgumentException("'ConfigGroup' item needs an attribute 'Text'");
-      return new ConfigGroupMetadata(location, text, sort);
+      return new ConfigGroupMetadata(location, text, sort, restrictionGroup);
     }
 
     protected static ConfigSettingMetadata BuildSetting(
@@ -104,6 +115,7 @@ namespace MediaPortal.Configuration.Builders
       string className = null;
       string helpText = null;
       ICollection<string> listenTo = null;
+      string restrictionGroup = null;
       foreach (KeyValuePair<string, string> attr in itemData.Attributes)
       {
         switch (attr.Key)
@@ -123,13 +135,16 @@ namespace MediaPortal.Configuration.Builders
           case "ListenTo":
             listenTo = ParseListenTo(attr.Value);
             break;
+          case "RestrictionGroup":
+            SetValueAndRegister(ref restrictionGroup, attr.Value);
+            break;
           default:
             throw new ArgumentException("'ConfigSetting' builder doesn't define an attribute '" + attr.Key+ "'");
         }
       }
       if (text == null)
         throw new ArgumentException("'ConfigSetting' item needs an attribute 'Text'");
-      return new ConfigSettingMetadata(location, text, sort, className, helpText, listenTo);
+      return new ConfigSettingMetadata(location, text, sort, className, helpText, listenTo, restrictionGroup);
     }
 
     protected static ConfigSettingMetadata BuildCustomSetting(
@@ -143,6 +158,7 @@ namespace MediaPortal.Configuration.Builders
       IDictionary<string, string> additionalData = null;
       IDictionary<string, Type> additionalTypes = null;
       ICollection<string> listenTo = null;
+      string restrictionGroup = null;
       foreach (KeyValuePair<string, string> attr in itemData.Attributes)
       {
         switch (attr.Key)
@@ -168,13 +184,16 @@ namespace MediaPortal.Configuration.Builders
           case "AdditionalTypes":
             additionalTypes = ParseAdditionalTypes(attr.Value, plugin);
             break;
+          case "RestrictionGroup":
+            SetValueAndRegister(ref restrictionGroup, attr.Value);
+            break;
           default:
             throw new ArgumentException("'ConfigSetting' builder doesn't define an attribute '" + attr.Key + "'");
         }
       }
       if (text == null)
         throw new ArgumentException("'ConfigSetting' item needs an attribute 'Text'");
-      ConfigSettingMetadata result = new ConfigSettingMetadata(location, text, sort, className, helpText, listenTo)
+      ConfigSettingMetadata result = new ConfigSettingMetadata(location, text, sort, className, helpText, listenTo, restrictionGroup)
         {
             AdditionalData = additionalData,
             AdditionalTypes = additionalTypes
@@ -224,6 +243,13 @@ namespace MediaPortal.Configuration.Builders
         }
       }
       return result;
+    }
+
+    private static void SetValueAndRegister(ref string restrictionGroup, string attrValue)
+    {
+      restrictionGroup = attrValue;
+      var userManagement = ServiceRegistration.Get<IUserManagement>(false);
+      userManagement?.RegisterRestrictionGroup(restrictionGroup);
     }
 
     #endregion

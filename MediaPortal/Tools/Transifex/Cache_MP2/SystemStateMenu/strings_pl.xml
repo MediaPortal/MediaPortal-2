@@ -11,4 +11,6 @@
   <string name="SystemState.Logoff">Wyloguj</string>
   <string name="SystemState.MinimizeMP">Minimalizuj MediaPortal</string>
   <string name="SystemState.ShutdownMP">Zamknij MediaPortal</string>
+  <string name="SystemState.ShutdownDialogStateDisplayLabel">Zamknij system</string>
+  <string name="SleepTimer.Stop">Zatrzymaj</string>
 </resources>

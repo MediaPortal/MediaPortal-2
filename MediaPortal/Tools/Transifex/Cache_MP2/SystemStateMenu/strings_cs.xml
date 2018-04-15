@@ -11,4 +11,7 @@
   <string name="SystemState.Logoff">Odhlásit</string>
   <string name="SystemState.MinimizeMP">Minimalizovat MediaPortal</string>
   <string name="SystemState.ShutdownMP">Zavřít MediaPortal</string>
+  <string name="SystemState.ShutdownDialogStateDisplayLabel">Vypínací menu</string>
+  <string name="SleepTimer.Start">Začátek</string>
+  <string name="SleepTimer.Stop">Zastavit</string>
 </resources>

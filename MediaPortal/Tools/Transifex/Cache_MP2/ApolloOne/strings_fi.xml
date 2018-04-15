@@ -2,9 +2,11 @@
 <resources>
   <string name="Menu.Audio">Ääni</string>
   <string name="Menu.Image">Kuvat</string>
+  <string name="Menu.MediaHub">Media hubi</string>
   <string name="Menu.TV">TV</string>
   <string name="Menu.News">Uutiset</string>
   <string name="Menu.Weather">Sää</string>
   <string name="Menu.Settings">Asetukset</string>
   <string name="Menu.Others">Muut</string>
+  <string name="Menu.Main">Päävalikko</string>
 </resources>

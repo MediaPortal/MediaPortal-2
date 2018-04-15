@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Workflow DescriptorVersion="1.0">
+  <MenuActions>
+    <WorkflowContributorAction Id="8BC5045B-61F4-4F7F-B360-A2C6E55F06DB"
+        Name="GroupOverview->AddGroup"
+        DisplayCategory="a-GroupConfig"
+        SortOrder="a"
+        SourceStates="BF7E11F6-87DE-4CB6-9A94-1A738CC52710"
+        ContributorModelId="891A326C-DD9A-492F-9129-E8B169C54CCC"
+        DisplayTitle="[HomeEditor.Configuration.AddGroup]"/>
+
+    <PushNavigationTransition Id="6F55EB30-6137-417E-92B1-CADED68DE80A"
+        Name="Group->RemoveGroup"
+        DisplayCategory="a-GroupConfig"
+        SortOrder="b"
+        SourceStates="BF7E11F6-87DE-4CB6-9A94-1A738CC52710"
+        TargetState="0D4B781F-700D-4F23-BEE5-816D0FE2E3CB"
+        DisplayTitle="[HomeEditor.Configuration.GroupRemove.Header]"/>
+
+    <WorkflowContributorAction Id="2E2DDEB5-5A7E-4B58-A755-A8B14D428444"
+        Name="GroupOverview->RestoreDefaults"
+        DisplayCategory="a-GroupConfig"
+        SortOrder="c"
+        SourceStates="BF7E11F6-87DE-4CB6-9A94-1A738CC52710"
+        ContributorModelId="6427AA6F-8463-4C79-9C91-C21A332F7032"
+        DisplayTitle="[HomeEditor.Configuration.RestoreDefaults]"/>
+    
+    <WorkflowContributorAction Id="6C19972A-47C3-4BFC-BBB9-B9ED7B1E9AA3"
+        Name="Group->AddAction"
+        DisplayCategory="a-GroupConfig"
+        SortOrder="a"
+        SourceStates="BE8E74DE-2008-4398-831A-626A5DC074AA"
+        ContributorModelId="A26F3E44-7692-4A53-8CC5-6F77D6C9A53A"
+        DisplayTitle="[HomeEditor.Configuration.AddAction]"/>
+
+    <PushNavigationTransition Id="419EF76A-A7A6-418F-B37A-521DEC95C64C"
+        Name="Group->RemoveAction"
+        DisplayCategory="a-GroupConfig"
+        SortOrder="b"
+        SourceStates="BE8E74DE-2008-4398-831A-626A5DC074AA"
+        TargetState="94D9D1D3-6E96-46AC-BD9B-25D58C50913D"
+        DisplayTitle="[HomeEditor.Configuration.ActionRemove.Header]"/>
+
+    <!-- Custom home actions, only displayed by supported skins -->
+    <PushNavigationTransition Id="C5B14E9C-7F54-4B75-BEB0-8BE2EA1F4394"
+      Name="Home->PowerMenu"
+      DisplayCategory="A-HomeEditor"
+      SortOrder="a"
+      SourceStates="B285DC02-AA8C-47F2-8795-0B13B6E66306"
+      TargetState="BBFA7DB7-5055-48D5-A904-0F0C79849369"
+      DisplayTitle="[SystemState.ShutdownDialogStateDisplayLabel]"/>    <!-- Power Menu -->
+
+    <PushNavigationTransition Id="AEBAE6B5-71B3-4164-992F-296E2ACF8E5C"
+      Name="Home->HomeEditor"
+      DisplayCategory="A-HomeEditor"
+      SortOrder="b"
+      SourceStates="B285DC02-AA8C-47F2-8795-0B13B6E66306"
+      TargetState="BF7E11F6-87DE-4CB6-9A94-1A738CC52710"
+      DisplayTitle="[HomeEditor.Configuration]"/>    <!-- Home Editor -->
+
+    <WorkflowContributorAction Id="0983AB07-5EC6-4F38-B657-F07FF0819A4E"
+        Name="Home->SkinSettings"
+        DisplayCategory="B-SkinSettings"
+        SortOrder="a"
+        SourceStates="B285DC02-AA8C-47F2-8795-0B13B6E66306"
+        ContributorModelId="762EC648-AA64-42A4-9401-59FDB2FBF18C"
+        DisplayTitle="[SkinSettings.Configuration.SkinSettings]"/>    <!-- Skin Settings -->
+  </MenuActions>
+</Workflow>

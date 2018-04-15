@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2015 Team MediaPortal
+#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2015 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -23,6 +23,7 @@
 #endregion
 
 using System;
+using System.Threading.Tasks;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.MediaManagement;
@@ -32,6 +33,12 @@ using MediaPortal.UI.Players.BassPlayer.Interfaces;
 using MediaPortal.UI.Players.BassPlayer.PlayerComponents;
 using MediaPortal.UI.Presentation.Players;
 using Un4seen.Bass.AddOn.Tags;
+using MediaPortal.UI.Services.UserManagement;
+using MediaPortal.Common.SystemCommunication;
+using MediaPortal.UI.ServerCommunication;
+using MediaPortal.Common.Settings;
+using MediaPortal.Common.UserManagement;
+using MediaPortal.UI.Services.Players.Settings;
 
 namespace MediaPortal.UI.Players.BassPlayer
 {
@@ -55,6 +62,9 @@ namespace MediaPortal.UI.Players.BassPlayer
   /// </remarks>
   public class BassPlayer : IDisposable, IAudioPlayer, IAudioPlayerAnalyze, IMediaPlaybackControl, IPlayerEvents, IReusablePlayer, ITagSource
   {
+    const double PLAY_THRESHOLD_PERCENT = 0.5;
+    const double PLAY_THRESHOLD_SEC = 30;
+
     #region Protected fields
 
     protected readonly object _syncObj = new object();
@@ -67,6 +77,7 @@ namespace MediaPortal.UI.Players.BassPlayer
     protected volatile PlayerState _externalState;
     protected InputSourceFactory _inputSourceFactory;
     protected string _mediaItemTitle = string.Empty;
+    protected Guid? _mediaItemId;
 
     // Spectrum related fields
     protected int _sampleFrequency = 0;
@@ -99,10 +110,10 @@ namespace MediaPortal.UI.Players.BassPlayer
     {
       Log.Debug("Disposing BassPlayer");
 
-      _inputSourceFactory.Dispose();
-      _inputSourceFactory = null;
       _controller.Dispose();
       _controller = null;
+      _inputSourceFactory.Dispose();
+      _inputSourceFactory = null;
     }
 
     #endregion
@@ -145,6 +156,7 @@ namespace MediaPortal.UI.Players.BassPlayer
       lock (_syncObj)
         if (_externalState != PlayerState.Active)
           return;
+      _ = NotifyPlayback();
       // Just make MP come up with the next item on its playlist
       FireNextItemRequest();
     }
@@ -206,6 +218,41 @@ namespace MediaPortal.UI.Players.BassPlayer
         dlgt(this);
     }
 
+    protected async Task NotifyPlayback()
+    {
+      IUserManagement userProfileDataManagement = ServiceRegistration.Get<IUserManagement>();
+      ISettingsManager settingsManager = ServiceRegistration.Get<ISettingsManager>();
+      PlayerManagerSettings settings = settingsManager.Load<PlayerManagerSettings>();
+      int playPercentage = GetCurrentPlayPercentage();
+      bool played = playPercentage >= settings.WatchedPlayPercentage;
+      if (played)
+        playPercentage = 100;
+
+      IServerConnectionManager scm = ServiceRegistration.Get<IServerConnectionManager>();
+      IContentDirectory cd = scm.ContentDirectory;
+      if (_mediaItemId.HasValue && _mediaItemId.Value != Guid.Empty && cd != null)
+      {
+        if (userProfileDataManagement.IsValidUser)
+        {
+          bool updateLastPlayed = (played || playPercentage >= PLAY_THRESHOLD_PERCENT || CurrentTime.TotalSeconds >= PLAY_THRESHOLD_SEC);
+          await cd.NotifyUserPlaybackAsync(userProfileDataManagement.CurrentUser.ProfileId, _mediaItemId.Value, playPercentage, updateLastPlayed);
+        }
+        else
+        {
+          await cd.NotifyPlaybackAsync(_mediaItemId.Value, played);
+        }
+      }
+    }
+
+    protected int GetCurrentPlayPercentage()
+    {
+      double total = Duration.TotalSeconds;
+      if (total == 0)
+        return 0;
+      double current = CurrentTime.TotalSeconds;
+      return (int)(100 * current / total);
+    }
+
     #endregion
 
     #region Public methods
@@ -213,25 +260,38 @@ namespace MediaPortal.UI.Players.BassPlayer
     /// <summary>
     /// Enqueues a play workitem for the given mediaitem.
     /// </summary>
-    /// <param name="locator">Resource locator of the to-be-played item.</param>
-    /// <param name="mimeType">Mime type of the media item to be played, if given. May be <c>null</c>.</param>
-    /// <param name="mediaItemTitle">Title of the media item to be played.</param>
+    /// <param name="mediaItem">MediaItem to-be-played item.</param>
     /// <remarks>
     /// The workitem will actually be executed on the controller's mainthread.
     /// </remarks>
-    public void SetMediaItemLocator(IResourceLocator locator, string mimeType, string mediaItemTitle)
+    public bool SetMediaItem(MediaItem mediaItem)
     {
+      string mimeType;
+      string title;
+      if (!GetMediaItemPlayData(mediaItem, out mimeType, out title))
+        return false;
+      IResourceLocator locator = mediaItem.GetResourceLocator();
+      if (!InputSourceFactory.CanPlay(locator, mimeType))
+        return false;
+
       if (_externalState != PlayerState.Stopped)
         Stop();
       IInputSource inputSource = _inputSourceFactory.CreateInputSource(locator, mimeType);
       if (inputSource == null)
       {
         ServiceRegistration.Get<ILogger>().Warn("Unable to play '{0}'", locator);
-        return;
+        return false;
       }
-      _mediaItemTitle = mediaItemTitle;
+      _mediaItemTitle = title;
+      _mediaItemId = mediaItem.MediaItemId;
       _externalState = PlayerState.Active;
       _controller.MoveToNextItem_Async(inputSource, StartTime.AtOnce);
+      return true;
+    }
+
+    protected virtual bool GetMediaItemPlayData(MediaItem mediaItem, out string mimeType, out string title)
+    {
+      return mediaItem.GetPlayData(out mimeType, out title);
     }
 
     #endregion
@@ -263,6 +323,7 @@ namespace MediaPortal.UI.Players.BassPlayer
 
     public void Stop()
     {
+      _ = NotifyPlayback();
       lock (_syncObj)
       {
         if (_externalState != PlayerState.Active)

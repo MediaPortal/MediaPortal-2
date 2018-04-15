@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2015 Team MediaPortal
+#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2015 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -91,7 +91,7 @@ namespace MediaPortal.UI.Services.Shares
     {
       IMediaAccessor mediaAccessor = ServiceRegistration.Get<IMediaAccessor>();
       foreach (Share share in mediaAccessor.CreateDefaultShares())
-        RegisterShare(share.BaseResourcePath, share.Name, share.MediaCategories);
+        RegisterShare(share.BaseResourcePath, share.Name, share.UseShareWatcher, share.MediaCategories);
     }
 
     public Share GetShare(Guid shareId)
@@ -99,10 +99,9 @@ namespace MediaPortal.UI.Services.Shares
       return _shares.ContainsKey(shareId) ? _shares[shareId] : null;
     }
 
-    public Share RegisterShare(ResourcePath baseResourcePath, string shareName, IEnumerable<string> mediaCategories)
+    public Share RegisterShare(ResourcePath baseResourcePath, string shareName, bool useShareWatcher, IEnumerable<string> mediaCategories)
     {
-      Share sd = Share.CreateNewLocalShare(baseResourcePath,
-          shareName, mediaCategories);
+      Share sd = Share.CreateNewLocalShare(baseResourcePath, shareName, useShareWatcher, mediaCategories);
       _shares.Add(sd.ShareId, sd);
       SaveSharesToSettings();
       SharesMessaging.SendShareMessage(SharesMessaging.MessageType.ShareAdded, sd);
@@ -119,7 +118,7 @@ namespace MediaPortal.UI.Services.Shares
       SharesMessaging.SendShareMessage(SharesMessaging.MessageType.ShareRemoved, share);
     }
 
-    public Share UpdateShare(Guid shareId, ResourcePath baseResourcePath, string shareName,
+    public Share UpdateShare(Guid shareId, ResourcePath baseResourcePath, string shareName, bool useShareWatcher,
         IEnumerable<string> mediaCategories, RelocationMode relocationMode)
     {
       Share result = GetShare(shareId);
@@ -127,6 +126,7 @@ namespace MediaPortal.UI.Services.Shares
         return null;
       result.BaseResourcePath = baseResourcePath;
       result.Name = shareName;
+      result.UseShareWatcher = useShareWatcher;
       result.MediaCategories.Clear();
       CollectionUtils.AddAll(result.MediaCategories, mediaCategories);
       SaveSharesToSettings();

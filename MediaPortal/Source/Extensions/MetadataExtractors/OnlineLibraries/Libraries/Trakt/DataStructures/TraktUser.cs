@@ -1,4 +1,28 @@
-﻿using System.Runtime.Serialization;
+﻿#region Copyright (C) 2007-2017 Team MediaPortal
+
+/*
+    Copyright (C) 2007-2017 Team MediaPortal
+    http://www.team-mediaportal.com
+
+    This file is part of MediaPortal 2
+
+    MediaPortal 2 is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    MediaPortal 2 is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with MediaPortal 2. If not, see <http://www.gnu.org/licenses/>.
+*/
+
+#endregion
+
+using System.Runtime.Serialization;
 
 namespace MediaPortal.Extensions.OnlineLibraries.Libraries.Trakt.DataStructures
 {
@@ -8,34 +32,16 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.Trakt.DataStructures
     [DataMember(Name = "username")]
     public string Username { get; set; }
 
-    [DataMember(Name = "protected")]
-    public bool Protected { get; set; }
-
-    [DataMember(Name = "full_name")]
+    [DataMember(Name = "name")]
     public string FullName { get; set; }
 
-    [DataMember(Name = "gender")]
-    public string Gender { get; set; }
-
-    [DataMember(Name = "age")]
-    public string Age { get; set; }
-
-    [DataMember(Name = "location")]
-    public string Location { get; set; }
-
-    [DataMember(Name = "about")]
-    public string About { get; set; }
-
-    [DataMember(Name = "joined")]
-    public long JoinDate { get; set; }
-
-    [DataMember(Name = "avatar")]
-    public string Avatar { get; set; }
-
-    [DataMember(Name = "url")]
-    public string Url { get; set; }
-
     [DataMember(Name = "vip")]
-    public bool VIP { get; set; }
+    public bool IsVip { get; set; }
+
+    [DataMember(Name = "vip_ep")]
+    public bool IsVipEP { get; set; }
+
+    [DataMember(Name = "private")]
+    public bool IsPrivate { get; set; }
   }
 }

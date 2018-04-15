@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2015 Team MediaPortal
+#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2015 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -78,9 +78,7 @@ namespace MediaPortal.UI.Players.BassPlayer.PlayerComponents
       _controller = controller;
       _silence = new Silence();
 
-      BassPlayerSettings settings = Controller.GetSettings();
-
-      _bufferSize = settings.PlaybackBufferSize;
+      _bufferSize = TimeSpan.FromMilliseconds(Controller.GetSettings().PlaybackBufferSizeMilliSecs);
 
       _streamWriteProcDelegate = OutputStreamWriteProc;
       _vizRawStreamWriteProcDelegate = VizRawStreamWriteProc;
@@ -139,19 +137,29 @@ namespace MediaPortal.UI.Players.BassPlayer.PlayerComponents
 
       _inputStream = stream;
 
-      _buffer = new AudioRingBuffer(stream.SampleRate, stream.Channels, _bufferSize);
-      _streamEnded = false;
-      _buffer.ResetPointers();
+      // If a Mixer has been created before, e.g. because of UpDownMixing,
+      // use the mixer as output stream instead of using a Ringbuffer
+      if (stream.BassInfo.ctype == BASSChannelType.BASS_CTYPE_STREAM_MIXER)
+      {
+        _outputStream = stream;
+      }
+      else
+      {
+        _buffer = new AudioRingBuffer(stream.SampleRate, stream.Channels, _bufferSize);
+        _streamEnded = false;
+        _buffer.ResetPointers();
 
-      CreateOutputStream();
+        CreateOutputStream();
+
+        // Ensure prebuffering
+        _updateThreadFinished.Reset();
+
+        StartBufferUpdateThread();
+        _updateThreadFinished.WaitOne();
+      }
+
       CreateVizStream();
       _inputStreamInitialized = true;
-
-      // Ensure prebuffering
-      _updateThreadFinished.Reset();
-
-      StartBufferUpdateThread();
-      _updateThreadFinished.WaitOne();
     }
 
     /// <summary>

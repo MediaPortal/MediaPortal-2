@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2015 Team MediaPortal
+#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2015 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -73,6 +73,11 @@ namespace MediaPortal.UiComponents.Media.Views
     public override bool CanBeBuilt
     {
       get { return true; }
+    }
+
+    public override int? AbsNumItems
+    {
+      get { return _subViewSpecifications.Count + _mediaItems.Count;  }
     }
 
     protected internal override void ReLoadItemsAndSubViewSpecifications(out IList<MediaItem> mediaItems, out IList<ViewSpecification> subViewSpecifications)

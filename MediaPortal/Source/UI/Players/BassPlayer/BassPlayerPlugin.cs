@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2015 Team MediaPortal
+#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2015 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -26,9 +26,7 @@ using System;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.MediaManagement;
-using MediaPortal.Common.ResourceAccess;
 using MediaPortal.Common.PluginManager;
-using MediaPortal.UI.Players.BassPlayer.PlayerComponents;
 using MediaPortal.UI.Presentation.Players;
 
 namespace MediaPortal.UI.Players.BassPlayer
@@ -58,27 +56,22 @@ namespace MediaPortal.UI.Players.BassPlayer
 
     public IPlayer GetPlayer(MediaItem mediaItem)
     {
-      string mimeType;
-      string title;
-      if (!mediaItem.GetPlayData(out mimeType, out title))
-        return null;
-      IResourceLocator locator = mediaItem.GetResourceLocator();
-      if (InputSourceFactory.CanPlay(locator, mimeType))
+      BassPlayer player = new BassPlayer();
+      try
       {
-        BassPlayer player = new BassPlayer();
-        try
+        if (!player.SetMediaItem(mediaItem))
         {
-          player.SetMediaItemLocator(locator, mimeType, title);
-        }
-        catch (Exception e)
-        {
-          ServiceRegistration.Get<ILogger>().Warn("BassPlayerPlugin: Error playing media item '{0}'", e, locator);
           player.Dispose();
           return null;
         }
-        return player;
       }
-      return null;
+      catch (Exception e)
+      {
+        ServiceRegistration.Get<ILogger>().Warn("BassPlayerPlugin: Error playing media item '{0}'", e, mediaItem.ToString());
+        player.Dispose();
+        return null;
+      }
+      return player;
     }
 
     #endregion

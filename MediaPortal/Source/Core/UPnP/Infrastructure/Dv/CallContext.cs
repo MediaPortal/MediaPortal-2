@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2015 Team MediaPortal
+#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2015 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -22,30 +22,28 @@
 
 #endregion
 
-using HttpServer;
+using Microsoft.Owin;
 using UPnP.Infrastructure.Utils;
 
 namespace UPnP.Infrastructure.Dv
 {
   public class CallContext
   {
-    protected IHttpRequest _request;
-    protected IHttpClientContext _httpContext;
+    protected IOwinContext _httpContext;
     protected EndpointConfiguration _endpoint;
 
-    public CallContext(IHttpRequest request, IHttpClientContext httpContext, EndpointConfiguration endpoint)
+    public CallContext(IOwinRequest request, IOwinContext httpContext, EndpointConfiguration endpoint)
     {
-      _request = request;
       _httpContext = httpContext;
       _endpoint = endpoint;
     }
 
-    public IHttpRequest Request
+    public IOwinRequest Request
     {
-      get { return _request; }
+      get { return _httpContext.Request; }
     }
 
-    public IHttpClientContext HttpContext
+    public IOwinContext HttpContext
     {
       get { return _httpContext; }
     }
@@ -57,7 +55,7 @@ namespace UPnP.Infrastructure.Dv
 
     public string RemoteAddress
     {
-      get { return HttpServerHelper.GetRemoteAddress(_request); }
+      get { return HttpServerHelper.GetRemoteAddress(Request); }
     }
   }
 }

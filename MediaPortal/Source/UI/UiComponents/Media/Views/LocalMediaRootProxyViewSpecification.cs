@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2015 Team MediaPortal
+#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2015 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -115,7 +115,7 @@ namespace MediaPortal.UiComponents.Media.Views
       bool isLocalHomeServer = homeServerSystem != null && homeServerSystem.IsLocalSystem();
       IContentDirectory cd = serverConnectionManager.ContentDirectory;
       ILocalSharesManagement localSharesManagement = ServiceRegistration.Get<ILocalSharesManagement>();
-      localServerShares = (isLocalHomeServer && cd != null) ? cd.GetShares(serverConnectionManager.HomeServerSystemId, SharesFilter.All) : new List<Share>();
+      localServerShares = (isLocalHomeServer && cd != null) ? cd.GetSharesAsync(serverConnectionManager.HomeServerSystemId, SharesFilter.All).Result : new List<Share>();
       localClientShares = localSharesManagement.Shares.Values;
     }
 

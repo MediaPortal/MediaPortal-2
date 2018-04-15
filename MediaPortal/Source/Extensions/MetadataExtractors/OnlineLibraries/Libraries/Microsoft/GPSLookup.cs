@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2015 Team MediaPortal
+#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2015 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -24,7 +24,10 @@
 
 using System;
 using System.Device.Location;
+using System.Net;
 using System.Threading.Tasks;
+using MediaPortal.Common.Async;
+using MediaPortal.Common.Services.ServerCommunication;
 
 namespace MediaPortal.Extensions.OnlineLibraries.Libraries.Microsoft
 {
@@ -61,17 +64,13 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.Microsoft
       }
     }
 
-    private bool TryGPSLookupInternal(out GeoCoordinate coordinates, out CivicAddress address)
+    private async Task<AsyncResult<Tuple<CivicAddress, GeoCoordinate>>> TryLookupInternal()
     {
       // Check if we've already looked up the location.
       if (_coordinates != null && _address != null)
       {
         if (!_coordinates.IsUnknown && !_address.IsUnknown)
-        {
-          coordinates = _coordinates;
-          address = _address;
-          return true;
-        }
+          return new AsyncResult<Tuple<CivicAddress, GeoCoordinate>>(true, new Tuple<CivicAddress, GeoCoordinate>(_address, _coordinates));
       }
 
       TaskCompletionSource<GeoCoordinate> tcs = new TaskCompletionSource<GeoCoordinate>();
@@ -94,16 +93,12 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.Microsoft
         CivicAddressResolver resolver = new CivicAddressResolver();
         _address = resolver.ResolveAddress(_coordinates);
 
-        coordinates = _coordinates;
-        address = _address;
-        return true;
+        return new AsyncResult<Tuple<CivicAddress, GeoCoordinate>>(true, new Tuple<CivicAddress, GeoCoordinate>(_address, _coordinates));
       }
 
       _gps.Stop();
 
-      coordinates = null;
-      address = null;
-      return false;
+      return new AsyncResult<Tuple<CivicAddress, GeoCoordinate>>(false, null);
     }
 
     #endregion Private methods
@@ -113,19 +108,17 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.Microsoft
     /// <summary>
     /// Retrieve the Address based on the coordinates given.
     /// </summary>
-    /// <param name="coordinates">Location to lookup.</param>
-    /// <param name="address">Resultant address of the lookup.</param>
-    /// <returns>If lookup is successful.</returns>
-    public bool TryResolveCivicAddress(GeoCoordinate coordinates, out CivicAddress address)
+    /// <param name="coordinates">Coordinates to lookup.</param>
+    /// <returns>Address corresponding to the coordinates or <c>null</c>.</returns>
+    public async Task<CivicAddress> TryResolveCivicAddressAsync(GeoCoordinate coordinates)
     {
       if (_address != null)
-      {
-        address = _address;
-        return true;
-      }
+        return _address;
 
-      GeoCoordinate temp;
-      return TryGPSLookupInternal(out temp, out address);
+      var result = await TryLookupInternal().ConfigureAwait(false);
+      if (result.Success)
+        return result.Result.Item1;
+      return null;
     }
 
     #endregion IAddressResolver implementation
@@ -135,21 +128,16 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.Microsoft
     /// <summary>
     /// Lookup the coordinates of the current device.
     /// </summary>
-    /// <param name="coordinates">Location of the device.</param>
-    /// <returns>If lookup is successful.</returns>
-    public bool TryResolveCoordinates(out GeoCoordinate coordinates)
+    /// <returns>Location of the device if successful.</returns>
+    public async Task<GeoCoordinate> TryResolveCoordinatesAsync()
     {
-      if (_coordinates != null)
-      {
-        if (!_coordinates.IsUnknown)
-        {
-          coordinates = _coordinates;
-          return true;
-        }
-      }
+      if (_coordinates != null && !_coordinates.IsUnknown)
+        return _coordinates;
 
-      CivicAddress temp;
-      return TryGPSLookupInternal(out coordinates, out temp);
+      var result = await TryLookupInternal().ConfigureAwait(false);
+      if (result.Success)
+        return result.Result.Item2;
+      return null;
     }
 
     #endregion ICoordinateResolver implementation

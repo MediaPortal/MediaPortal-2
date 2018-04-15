@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2015 Team MediaPortal
+#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2015 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -28,6 +28,7 @@ using MediaPortal.Extensions.OnlineLibraries.Libraries.Common;
 using MediaPortal.Extensions.OnlineLibraries.Libraries.OpenStreetMap.Data;
 using System.Device.Location;
 using System.Globalization;
+using System.Threading.Tasks;
 
 namespace MediaPortal.Extensions.OnlineLibraries.Libraries.OpenStreetMap
 {
@@ -63,21 +64,12 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.OpenStreetMap
     /// Lookup the address at the given coordinates.
     /// </summary>
     /// <param name="coordinates">Coordinates to lookup.</param>
-    /// <param name="address">Address of the coordinates given.</param>
-    /// <returns>If lookup is successful.</returns>
-    public bool TryResolveCivicAddress(GeoCoordinate coordinates, out CivicAddress address)
+    /// <returns>Address corresponding to the coordinates or <c>null</c>.</returns>
+    public async Task<CivicAddress> TryResolveCivicAddressAsync(GeoCoordinate coordinates)
     {
       var downloader = new Downloader { EnableCompression = true };
-      GeocoderResponse result = downloader.Download<GeocoderResponse>(BuildUrl(coordinates.Latitude, coordinates.Longitude));
-      if (result == null)
-      {
-        address = null;
-        return false;
-      }
-      address = result.ToCivicAddress();
-      return !string.IsNullOrWhiteSpace(address.CountryRegion) ||
-             !string.IsNullOrWhiteSpace(address.StateProvince) ||
-             !string.IsNullOrWhiteSpace(address.City);
+      GeocoderResponse result = await downloader.DownloadAsync<GeocoderResponse>(BuildUrl(coordinates.Latitude, coordinates.Longitude)).ConfigureAwait(false);
+      return result?.ToCivicAddress();
     }
 
     #endregion IAddressResolver implementation

@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2015 Team MediaPortal
+#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2015 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -49,7 +49,7 @@ namespace MediaPortal.Utilities.Graphics
       // Get accessor that creates the dictionary on demand
       get
       {
-        if (_encoders != null) 
+        if (_encoders != null)
           return _encoders;
         // If the quick lookup isn't initialised, initialise it
         return _encoders = ImageCodecInfo.GetImageEncoders().ToDictionary(codec => codec.MimeType.ToLower());
@@ -106,6 +106,45 @@ namespace MediaPortal.Utilities.Graphics
 
       using (fullsizeImage)
         return ResizeImageExact(fullsizeImage, maxWidth, newHeight);
+    }
+
+    /// <summary>
+    /// Checks the given <paramref name="image"/> for contained EXIF orientation tags and automatically rotates the image if required.
+    /// </summary>
+    /// <param name="image">Image</param>
+    /// <returns><c>true</c> if image got rotated</returns>
+    public static bool ExifAutoRotate(this Image image)
+    {
+      PropertyItem exifOrientation = null;
+      try
+      {
+        // Accessing property items can fail for some image types. In this case we assume
+        // all images as correctly rotated already.
+        exifOrientation = image.PropertyItems.FirstOrDefault(p => p.Id == 0x0112);
+      }
+      catch { }
+
+      RotateFlipType rotate = RotateFlipType.RotateNoneFlipNone;
+      if (exifOrientation == null)
+        return false;
+
+      var value = (int)exifOrientation.Value[0];
+      if (value == 6)
+        rotate = RotateFlipType.Rotate90FlipNone;
+      else if (value == 8)
+        rotate = RotateFlipType.Rotate270FlipNone;
+      else if (value == 3)
+        rotate = RotateFlipType.Rotate180FlipNone;
+
+      if (rotate != RotateFlipType.RotateNoneFlipNone)
+      {
+        image.RotateFlip(rotate);
+        // Reset the information to avoid duplicated rotations.
+        exifOrientation.Value[0] = 0;
+        image.SetPropertyItem(exifOrientation);
+        return true;
+      }
+      return false;
     }
 
     /// <summary> 
@@ -165,6 +204,30 @@ namespace MediaPortal.Utilities.Graphics
     }
 
     /// <summary> 
+    /// Saves an image as a png image.
+    /// </summary> 
+    /// <param name="path">Path to which the image would be saved.</param>
+    /// <param name="image">Image to save.</param>
+    public static void SavePng(string path, Image image)
+    {
+      //png is lossless so there is no quality setting and it doesn't seem that .net
+      //supports setting the compression ratio so we can't do much else but save it
+      image.Save(path, ImageFormat.Png);
+    }
+
+    /// <summary> 
+    /// Saves an image as a png image into the given <paramref name="stream"/>.
+    /// </summary> 
+    /// <param name="stream">Stream to save the image into.</param>
+    /// <param name="image">Image to save.</param>
+    public static void SavePng(Stream stream, Image image)
+    {
+      //png is lossless so there is no quality setting and it doesn't seem that .net
+      //supports setting the compression ratio so we can't do much else but save it
+      image.Save(stream, ImageFormat.Png);
+    }
+
+    /// <summary> 
     /// Returns the image codec with the given mime type 
     /// </summary> 
     public static ImageCodecInfo GetEncoderInfo(string mimeType)
@@ -188,6 +251,8 @@ namespace MediaPortal.Utilities.Graphics
     /// <returns>Stream containing the resized image</returns>
     public static Stream ResizeImage(Stream sourceStream, ImageFormat targetFormat, int maxWidth, int maxHeight)
     {
+      if (sourceStream.CanSeek && sourceStream.Length == 0)
+        return null;
       using (Image bitmap = ResizeImage(Image.FromStream(sourceStream), maxWidth, maxHeight))
       {
         MemoryStream tmpImageStream = new MemoryStream();

@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2015 Team MediaPortal
+#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2015 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -31,6 +31,9 @@ namespace MediaPortal.Client
   {
     [Option('d', "data", Required = false, HelpText = "Overrides the default application data directory.")]
     public string DataDirectory { get; set; }
+
+    [Option('a', "Autostart", Required = false, HelpText = "Indicates that program was started via Windows auto start.")]
+    public bool AutoStart { get; set; }
 
     [HelpOption]
     public string GetUsage()

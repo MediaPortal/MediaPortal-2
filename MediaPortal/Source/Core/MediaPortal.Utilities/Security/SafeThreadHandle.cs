@@ -1,7 +1,7 @@
-﻿#region Copyright (C) 2007-2014 Team MediaPortal
+﻿#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2014 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -53,7 +53,7 @@ namespace MediaPortal.Utilities.Security
     [SuppressUnmanagedCodeSecurity]
     private static extern bool CloseHandle(IntPtr handle);
 
-    override protected bool ReleaseHandle()
+    protected override bool ReleaseHandle()
     {
       return CloseHandle(handle);
     }

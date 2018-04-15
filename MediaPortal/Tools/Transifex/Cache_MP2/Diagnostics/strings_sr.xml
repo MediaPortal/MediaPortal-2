@@ -1,0 +1,12 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="Diagnostics.Settings.Diagnostics">Дијагностика</string>
+    <string name="Diagnostics.Settings.Diagnostics.AllLogs">Омогући дијагностички извештај</string>
+    <string name="Diagnostics.Settings.Diagnostics.AllLogsHelpText">Повећај опширност извештаја</string>
+    <string name="Diagnostics.Settings.Image.FocusStealing">Омогући извештај о промени фокуса слике</string>
+    <string name="Diagnostics.Settings.Image.FocusStealingHelpText">Омогући извештај о промени фокуса слике</string>
+    <string name="Diagnostics.Settings.Collectlogs">Сакупи све извештаје</string>
+    <string name="Diagnostics.Settings.CollectlogsHelpText">Сакупљање свих извештаја у ZIP фајл</string>
+    <string name="Diagnostics.Settings.ShowLogs">Прикажи извештаје</string>
+    <string name="Diagnostics.Settings.ShowLogsHelpText">Прикажи извештаје у одвојеним прозорима</string>
+</resources>

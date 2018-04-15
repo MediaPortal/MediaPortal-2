@@ -24,6 +24,8 @@ using System.Net;
 using System.IO;
 using MediaPortal.Extensions.OnlineLibraries.Libraries.Common;
 using MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib.Cache;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib.Data.Banner
 {
@@ -58,7 +60,8 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib.Data.Banner
   {
     #region private/protected fields
 
-    private readonly object _bannerLoadingLock = new object();
+    private readonly SemaphoreSlim _bannerLoadingLock = new SemaphoreSlim(1, 1);
+    private const int _bannerLoadTimeout = 2000;
 
     public TvdbBanner ()
     {
@@ -108,6 +111,11 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib.Data.Banner
     public string BannerPath { get; set; }
 
     /// <summary>
+    /// Path to the cache folder
+    /// </summary>
+    public string CachePath { get; set; }
+
+    /// <summary>
     /// When was the banner updated the last time
     /// </summary>
     public DateTime LastUpdated { get; set; }
@@ -121,9 +129,9 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib.Data.Banner
     /// Loads the actual image data of the banner
     /// </summary>
     /// <returns>true if the banner could be loaded successfully, false otherwise</returns>
-    public bool LoadBanner()
+    public Task<bool> LoadBannerAsync()
     {
-      return LoadBanner(false);
+      return LoadBannerAsync(false, CachePath);
     }
 
     /// <summary>
@@ -131,10 +139,11 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib.Data.Banner
     /// </summary>
     /// <param name="replaceOld">If true will replace an old image (if one exists already)</param>
     /// <returns>true if the banner could be loaded successfully, false otherwise</returns>
-    public bool LoadBanner(bool replaceOld)
+    public async Task<bool> LoadBannerAsync(bool replaceOld, string cachePath)
     {
       bool wasLoaded = IsLoaded;//is the banner already loaded at this point
-      lock (_bannerLoadingLock)
+      await _bannerLoadingLock.WaitAsync().ConfigureAwait(false);
+      try
       {//if another thread is already loading THIS banner, the lock will block this thread until the other thread
         //has finished loading
         if (!wasLoaded && !replaceOld && IsLoaded)
@@ -147,19 +156,19 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib.Data.Banner
         try
         {
           Image img = null;
-          String cacheName = CreateCacheName(BannerPath, false);
+          String cacheName = CreateCacheName(Id, BannerPath);
           if (CacheProvider != null && CacheProvider.Initialised)
           {//try to load the image from cache first
-            img = CacheProvider.LoadImageFromCache(SeriesId, cacheName);
+            img = CacheProvider.LoadImageFromCache(SeriesId, cachePath, cacheName);
           }
 
           if (img == null)
           {//couldn't load image from cache -> load it from http://thetvdb.com
-            img = LoadImage(TvdbLinkCreator.CreateBannerLink(BannerPath));
+            img = await LoadImageAsync(TvdbLinkCreator.CreateBannerLink(BannerPath)).ConfigureAwait(false);
 
             if (img != null && CacheProvider != null && CacheProvider.Initialised)
             {//store the image to cache
-              CacheProvider.SaveToCache(img, SeriesId, cacheName);
+              CacheProvider.SaveToCache(img, SeriesId, cachePath, cacheName);
             }
           }
 
@@ -178,6 +187,10 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib.Data.Banner
         IsLoaded = false;
         BannerLoading = false;
         return false;
+      }
+      finally
+      {
+        _bannerLoadingLock.Release();
       }
     }
 
@@ -198,9 +211,13 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib.Data.Banner
     public bool UnloadBanner(bool saveToCache)
     {
       if (BannerLoading)
-      {//banner is currently loading
-        Log.Warn("Can't remove banner while it's loading");
-        return false;
+      {
+        if (!SpinWait.SpinUntil(BannerIsLoading, _bannerLoadTimeout))
+        {
+          //banner is currently loading
+          Log.Warn("Can't remove banner while it's loading");
+          return false;
+        }
       }
       try
       {
@@ -210,10 +227,10 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib.Data.Banner
         }
         if (!saveToCache)
         {//we don't want the image in cache -> if we already cached it it should be deleted
-          String cacheName = CreateCacheName(BannerPath, false);
+          String cacheName = CreateCacheName(Id, BannerPath);
           if (CacheProvider != null && CacheProvider.Initialised)
           {//try to load the image from cache first
-            CacheProvider.RemoveImageFromCache(SeriesId, cacheName);
+            CacheProvider.RemoveImageFromCache(SeriesId, CachePath, cacheName);
           }
         }
       }
@@ -224,22 +241,27 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib.Data.Banner
       return true;
     }
 
+    private bool BannerIsLoading()
+    {
+      return BannerLoading;
+    }
+
     /// <summary>
     /// Creates the name used to store images in cache
     /// </summary>
     /// <param name="path">Path of the image</param>
     /// <param name="thumb">Is the image a thumbnail</param>
     /// <returns>Name used for caching image</returns>
-    protected String CreateCacheName(String path, bool thumb)
+    protected String CreateCacheName(int id, string bannerPath)
     {
-      if (path.Contains("_cache/"))
-        path = path.Replace("_cache/", "");
-      if (path.Contains("fanart/original/"))
-        path = path.Replace("fanart/original/", "fan-");
-      else if (path.Contains("fanart/vignette/"))
-        path = path.Replace("fanart/vignette/", "fan-vig-");
-      path = path.Replace('/', '_');
-      return (thumb ? "thumb_": "img_") + path;
+      if (bannerPath.Contains("_cache/"))
+        bannerPath = bannerPath.Replace("_cache/", "");
+      if (bannerPath.Contains("fanart/original/"))
+        bannerPath = bannerPath.Replace("fanart/original/", "");
+      else if (bannerPath.Contains("fanart/vignette/"))
+        bannerPath = bannerPath.Replace("fanart/vignette/", "");
+      bannerPath = bannerPath.Replace('/', '_');
+      return "TVDB(" + id + ")_" + bannerPath;
     }
 
     /// <summary>
@@ -255,9 +277,31 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib.Data.Banner
         IsLoaded = true;
         return true;
       }
+      if (BannerImage != null)
+        BannerImage.Dispose();
       BannerImage = null;
       IsLoaded = false;
       return false;
+    }
+
+    public async Task<byte[]> LoadImageDataAsync()
+    {
+      string url = TvdbLinkCreator.CreateBannerLink(BannerPath);
+      try
+      {
+        WebClient client = new CompressionWebClient();
+        return await client.DownloadDataTaskAsync(url).ConfigureAwait(false);
+      }
+      catch (WebException ex)
+      {
+        //Server probably returned an error/not found, just log at debug level
+        Log.Debug($"TvdbBanner: WebException while loading image from '{url}' - {ex.Message}");
+      }
+      catch (Exception ex)
+      {
+        Log.Error($"TvdbBanner: Error while loading image from '{url}'", ex);
+      }
+      return null;
     }
 
     /// <summary>
@@ -265,12 +309,13 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib.Data.Banner
     /// </summary>
     /// <param name="path">Path of image that should be used for this banner</param>
     /// <returns>True if successful, false otherwise</returns>
-    protected Image LoadImage(String path)
+    protected async Task<Image> LoadImageAsync(String path)
     {
       try
       {
         WebClient client = new CompressionWebClient();
-        byte[] imgData = client.DownloadData(path);
+        byte[] imgData = await client.DownloadDataTaskAsync(path).ConfigureAwait(false);
+
         MemoryStream ms = new MemoryStream(imgData);
         Image img = Image.FromStream(ms, true, true);
         return img;

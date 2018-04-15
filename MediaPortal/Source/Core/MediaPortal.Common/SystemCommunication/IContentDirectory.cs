@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2015 Team MediaPortal
+#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2015 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -24,6 +24,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using MediaPortal.Common.General;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.MLQueries;
@@ -66,13 +67,13 @@ namespace MediaPortal.Common.SystemCommunication
     /// Adds an existing share to the media librarie's collection of registered shares.
     /// </summary>
     /// <param name="share">Share to be added.</param>
-    void RegisterShare(Share share);
+    Task RegisterShareAsync(Share share);
 
     /// <summary>
     /// Removes the share with the specified id.
     /// </summary>
     /// <param name="shareId">Id of the share to be removed.</param>
-    void RemoveShare(Guid shareId);
+    Task RemoveShareAsync(Guid shareId);
 
     /// <summary>
     /// Reconfigures the share with the specified <paramref name="shareId"/>.
@@ -83,6 +84,7 @@ namespace MediaPortal.Common.SystemCommunication
     /// <param name="shareId">Id of the share to be changed.</param>
     /// <param name="baseResourcePath">Lookup path for the provider resource chain in the share's system.</param>
     /// <param name="shareName">Name of the share.</param>
+    /// <param name="useShareWatcher">Indicates if changes on share should be monitored by a share watcher.</param>
     /// <param name="mediaCategories">Categories of media items which are supposed to be contained in
     /// the share. If set to <c>null</c>, the new share is a general share without attached media
     /// categories.</param>
@@ -90,11 +92,11 @@ namespace MediaPortal.Common.SystemCommunication
     /// specified share will be adapted to the new base path. If set to <see cref="RelocationMode.Remove"/>,
     /// all media items from the specified share will be removed from the media library.</param>
     /// <returns>Number of relocated or removed media items.</returns>
-    int UpdateShare(Guid shareId, ResourcePath baseResourcePath, string shareName,
+    Task<int> UpdateShareAsync(Guid shareId, ResourcePath baseResourcePath, string shareName, bool useShareWatcher,
         IEnumerable<string> mediaCategories, RelocationMode relocationMode);
 
 
-    ICollection<Share> GetShares(string systemId, SharesFilter sharesFilter);
+    Task<ICollection<Share>> GetSharesAsync(string systemId, SharesFilter sharesFilter);
 
     /// <summary>
     /// Returns the share descriptor for the share with the specified <paramref name="shareId"/>.
@@ -102,29 +104,29 @@ namespace MediaPortal.Common.SystemCommunication
     /// <param name="shareId">Id of the share to return.</param>
     /// <returns>Descriptor of the share with the specified <paramref name="shareId"/>. If the specified
     /// share doesn't exist, the method returns <c>null</c>.</returns>
-    Share GetShare(Guid shareId);
+    Task<Share> GetShareAsync(Guid shareId);
 
-    void ReImportShare(Guid guid);
+    Task ReImportShareAsync(Guid guid);
 
     /// <summary>
     /// Tries to create default shares for the local system. Typically, this are the shares for the system's
     /// MyMusic, MyVideos and MyPictures directories.
     /// </summary>
-    void SetupDefaultServerShares();
+    Task SetupDefaultServerSharesAsync();
 
     #endregion
 
     #region Media item aspect storage management
 
-    void AddMediaItemAspectStorage(MediaItemAspectMetadata miam);
+    Task AddMediaItemAspectStorageAsync(MediaItemAspectMetadata miam);
 
-    void RemoveMediaItemAspectStorage(Guid aspectId);
+    Task RemoveMediaItemAspectStorageAsync(Guid aspectId);
 
-    IDictionary<Guid, DateTime> GetAllManagedMediaItemAspectCreationDates();
+    Task<IDictionary<Guid, DateTime>> GetAllManagedMediaItemAspectCreationDatesAsync();
 
-    ICollection<Guid> GetAllManagedMediaItemAspectTypes();
+    Task<ICollection<Guid>> GetAllManagedMediaItemAspectTypesAsync();
 
-    MediaItemAspectMetadata GetMediaItemAspectMetadata(Guid miamId);
+    Task<MediaItemAspectMetadata> GetMediaItemAspectMetadataAsync(Guid miamId);
 
     #endregion
 
@@ -138,9 +140,33 @@ namespace MediaPortal.Common.SystemCommunication
     /// <param name="necessaryMIATypes">IDs of media item aspect types which need to be present in the result.
     /// If the media item at the given location doesn't contain one of those media item aspects, it won't be returned.</param>
     /// <param name="optionalMIATypes">IDs of media item aspect types which will be returned if present.</param>
+    /// <param name="userProfile">User profile to load any user specific media item data for.</param>
     /// <returns></returns>
-    MediaItem LoadItem(string systemId, ResourcePath path,
-        IEnumerable<Guid> necessaryMIATypes, IEnumerable<Guid> optionalMIATypes);
+    Task<MediaItem> LoadItemAsync(string systemId, ResourcePath path,
+        IEnumerable<Guid> necessaryMIATypes, IEnumerable<Guid> optionalMIATypes, Guid? userProfile);
+
+    /// <summary>
+    /// Loads the media item at the given <paramref name="systemId"/> and <paramref name="mediItemId"/>.
+    /// </summary>
+    /// <param name="systemId">System id of the item to load.</param>
+    /// <param name="mediItemId">Id of the item to load.</param>
+    /// <param name="necessaryMIATypes">IDs of media item aspect types which need to be present in the result.
+    /// If the media item at the given location doesn't contain one of those media item aspects, it won't be returned.</param>
+    /// <param name="optionalMIATypes">IDs of media item aspect types which will be returned if present.</param>
+    /// <param name="userProfile">User profile to load any user specific media item data for.</param>
+    /// <returns></returns>
+    Task<MediaItem> LoadItemAsync(string systemId, Guid mediItemId,
+        IEnumerable<Guid> necessaryMIATypes, IEnumerable<Guid> optionalMIATypes, Guid? userProfile);
+
+    /// <summary>
+    /// Refreshes the meta-data of the media item with the given <paramref name="mediaItemId"/>.
+    /// If <paramref name="clearMetadata"/> is set to <c>true</c>, the media item meta-data will be deleted too.
+    /// This makes it possible to completely recreate the meta-data by doing a new import.
+    /// </summary>
+    /// <param name="systemId">Id of the system where the given media item <paramref name="mediaItemId"/> is located.</param>
+    /// <param name="mediaItemId">Id of the item to refresh.</param>
+    /// <param name="clearMetadata">If set to <c>true</c>, the media item meta-data will be deleted before the refresh.</param>
+    Task RefreshMediaItemMetadataAsync(string systemId, Guid mediaItemId, bool clearMetadata);
 
     /// <summary>
     /// Lists all media items with the given parent directory.
@@ -149,23 +175,29 @@ namespace MediaPortal.Common.SystemCommunication
     /// <param name="necessaryMIATypes">IDs of media item aspect types which need to be present in the result.
     /// If a media item at the given location doesn't contain one of those media item aspects, it won't be returned.</param>
     /// <param name="optionalMIATypes">IDs of media item aspect types which will be returned if present.</param>
+    /// <param name="userProfile">User profile to load any user specific media item data for.</param>
+    /// <param name="includeVirtual">Specifies if virtual media items should be included.</param>
     /// <param name="offset">Number of items to skip when retrieving MediaItems.</param>
     /// <param name="limit">Maximum number of items to return.</param>
     /// <returns>Result collection of media items at the given location.</returns>
-    IList<MediaItem> Browse(Guid parentDirectoryId,
+    Task<IList<MediaItem>> BrowseAsync(Guid parentDirectoryId,
         IEnumerable<Guid> necessaryMIATypes, IEnumerable<Guid> optionalMIATypes,
-      uint? offset = null, uint? limit = null);
+        Guid? userProfile, bool includeVirtual, uint? offset = null, uint? limit = null);
 
     /// <summary>
-    /// Starts a search for media items.
+    /// Starts a search for media items asynchronously.
     /// </summary>
     /// <param name="query">Query object which specifies the search parameters.</param>
     /// <param name="onlyOnline">If this parameter is set to <c>true</c>, only media items which are hosted by systems which
     /// are currently online are returned.</param>
+    /// <param name="userProfile">User profile to load any user specific media item data for.</param>
+    /// <param name="includeVirtual">Specifies if virtual media items should be included.</param>
+    /// <param name="offset">Number of items to skip when retrieving MediaItems.</param>
+    /// <param name="limit">Maximum number of items to return.</param>
     /// <returns>List of matching media items with the media item aspects of the given
     /// <see cref="MediaItemQuery.NecessaryRequestedMIATypeIDs"/> and <see cref="MediaItemQuery.OptionalRequestedMIATypeIDs"/>,
     /// in the given sorting given by <see cref="MediaItemQuery.SortInformation"/>.</returns>
-    IList<MediaItem> Search(MediaItemQuery query, bool onlyOnline);
+    Task<IList<MediaItem>> SearchAsync(MediaItemQuery query, bool onlyOnline, Guid? userProfile, bool includeVirtual, uint? offset = null, uint? limit = null);
 
     /// <summary>
     /// Starts a search for media items which searches items by a given <paramref name="searchText"/> and which is constrained
@@ -180,12 +212,14 @@ namespace MediaPortal.Common.SystemCommunication
     /// are currently online are returned.</param>
     /// <param name="caseSensitive">If set to <c>true</c>, the query is done case sensitive, else it is done case
     /// insensitive.</param>
+    /// <param name="userProfile">User profile to load any user specific media item data for.</param>
+    /// <param name="includeVirtual">Specifies if virtual media items should be included.</param>
     /// <param name="offset">Number of items to skip when retrieving MediaItems.</param>
     /// <param name="limit">Maximum number of items to return.</param>
     /// <returns>List of matching media items.</returns>
-    IList<MediaItem> SimpleTextSearch(string searchText, IEnumerable<Guid> necessaryMIATypes, IEnumerable<Guid> optionalMIATypes,
+    Task<IList<MediaItem>> SimpleTextSearch(string searchText, IEnumerable<Guid> necessaryMIATypes, IEnumerable<Guid> optionalMIATypes,
         IFilter filter, bool excludeCLOBs, bool onlyOnline, bool caseSensitive,
-      uint? offset = null, uint? limit = null);
+      Guid? userProfile, bool includeVirtual, uint? offset = null, uint? limit = null);
 
     /// <summary>
     /// Returns a map of existing attribute values mapped to their occurence count for the given
@@ -201,28 +235,52 @@ namespace MediaPortal.Common.SystemCommunication
     /// <param name="filter">Filter specifying the media items whose attribute values will be returned.</param>
     /// <param name="onlyOnline">If this parameter is set to <c>true</c>, only value groups are returned with items hosted by
     /// systems which are currently online.</param>
+    /// <param name="includeVirtual">Specifies if virtual media items should be included.</param>
     /// <returns>Mapping set of existing attribute values to their occurence count for the given
     /// <paramref name="attributeType"/> (long).</returns>
-    HomogenousMap GetValueGroups(MediaItemAspectMetadata.AttributeSpecification attributeType, IFilter selectAttributeFilter,
-        ProjectionFunction projectionFunction, IEnumerable<Guid> necessaryMIATypes, IFilter filter, bool onlyOnline);
+    Task<HomogenousMap> GetValueGroupsAsync(MediaItemAspectMetadata.AttributeSpecification attributeType, IFilter selectAttributeFilter,
+        ProjectionFunction projectionFunction, IEnumerable<Guid> necessaryMIATypes, IFilter filter, bool onlyOnline, bool includeVirtual);
 
     /// <summary>
-    /// Executes <see cref="GetValueGroups"/> and groups the resulting values by the given <paramref name="groupingFunction"/>.
+    /// Returns a map of existing attribute values mapped to their occurence count for the given
+    /// <paramref name="keyAttributeType"/> for the media items specified by the <paramref name="filter"/>.
     /// </summary>
-    /// <param name="attributeType">Attribute type, whose values will be returned. See method <see cref="GetValueGroups"/>.</param>
+    /// <param name="keyAttributeType">Attribute type, whose keys will be returned.</param>
+    /// <param name="valueAttributeType">Attribute type, whose values will be returned.</param>
+    /// <param name="selectAttributeFilter">Filter which is defined on the given <paramref name="attributeType"/> to restrict the
+    /// result values.</param>
+    /// <param name="projectionFunction">Function used to build the group name from the values of the given
+    /// <paramref name="keyAttributeType"/>.</param>
+    /// <param name="necessaryMIATypes">IDs of media item aspect types, which need to be present in each media item
+    /// whose attribute values are part of the result collection.</param>
+    /// <param name="filter">Filter specifying the media items whose attribute values will be returned.</param>
+    /// <param name="onlyOnline">If this parameter is set to <c>true</c>, only value groups are returned with items hosted by
+    /// systems which are currently online.</param>
+    /// <param name="includeVirtual">Specifies if virtual media items should be included.</param>
+    /// <returns>Mapping set of existing attribute values to their occurence count for the given
+    /// <paramref name="valueAttributeType"/> (long) in Item1 and values to their keys
+    /// for the given <paramref name="valueAttributeType"/> in Item2.</returns>
+    Task<Tuple<HomogenousMap, HomogenousMap>> GetKeyValueGroupsAsync(MediaItemAspectMetadata.AttributeSpecification keyAttributeType, MediaItemAspectMetadata.AttributeSpecification valueAttributeType, 
+      IFilter selectAttributeFilter, ProjectionFunction projectionFunction, IEnumerable<Guid> necessaryMIATypes, IFilter filter, bool onlyOnline, bool includeVirtual);
+
+    /// <summary>
+    /// Executes <see cref="GetValueGroupsAsync"/> and groups the resulting values by the given <paramref name="groupingFunction"/>.
+    /// </summary>
+    /// <param name="attributeType">Attribute type, whose values will be returned. See method <see cref="GetValueGroupsAsync"/>.</param>
     /// <param name="selectAttributeFilter">Filter which is defined on the given <paramref name="attributeType"/> to restrict the
     /// result value groups.</param>
     /// <param name="projectionFunction">Function used to build the group name from the values of the given
     /// <paramref name="attributeType"/>.</param>
-    /// <param name="necessaryMIATypes">Necessary media item types. See method <see cref="GetValueGroups"/>.</param>
-    /// <param name="filter">Filter specifying the base media items for the query. See method <see cref="GetValueGroups"/>.</param>
+    /// <param name="necessaryMIATypes">Necessary media item types. See method <see cref="GetValueGroupsAsync"/>.</param>
+    /// <param name="filter">Filter specifying the base media items for the query. See method <see cref="GetValueGroupsAsync"/>.</param>
     /// <param name="onlyOnline">If this parameter is set to <c>true</c>, only value groups are returned with items hosted by
     /// systems which are currently online.</param>
     /// <param name="groupingFunction">Determines, how result values are grouped.</param>
+    /// <param name="includeVirtual">Specifies if virtual media items should be included.</param>
     /// <returns>List of value groups for the given query.</returns>
-    IList<MLQueryResultGroup> GroupValueGroups(MediaItemAspectMetadata.AttributeSpecification attributeType,
+    Task<IList<MLQueryResultGroup>> GroupValueGroupsAsync(MediaItemAspectMetadata.AttributeSpecification attributeType,
         IFilter selectAttributeFilter, ProjectionFunction projectionFunction, IEnumerable<Guid> necessaryMIATypes,
-        IFilter filter, bool onlyOnline, GroupingFunction groupingFunction);
+        IFilter filter, bool onlyOnline, GroupingFunction groupingFunction, bool includeVirtual);
 
     /// <summary>
     /// Counts the count of media items matching the given criteria.
@@ -232,8 +290,9 @@ namespace MediaPortal.Common.SystemCommunication
     /// <param name="filter">Filter specifying the media items which will be counted.</param>
     /// <param name="onlyOnline">If this parameter is set to <c>true</c>, only items hosted by systems which are currently online
     /// are counted.</param>
+    /// <param name="includeVirtual">Specifies if virtual media items should be included.</param>
     /// <returns>Number of matching media items.</returns>
-    int CountMediaItems(IEnumerable<Guid> necessaryMIATypes, IFilter filter, bool onlyOnline);
+    Task<int> CountMediaItemsAsync(IEnumerable<Guid> necessaryMIATypes, IFilter filter, bool onlyOnline, bool includeVirtual);
 
     #endregion
 
@@ -243,20 +302,20 @@ namespace MediaPortal.Common.SystemCommunication
     /// Returns the ids and names of all playlists that are stored at the server.
     /// </summary>
     /// <returns>Collection of playlist data.</returns>
-    ICollection<PlaylistInformationData> GetPlaylists();
+    Task<ICollection<PlaylistInformationData>> GetPlaylistsAsync();
 
     /// <summary>
     /// Saves a playlist at the server.
     /// </summary>
     /// <param name="playlistData">Raw data of the playlist to store.</param>
-    void SavePlaylist(PlaylistRawData playlistData);
+    Task SavePlaylistAsync(PlaylistRawData playlistData);
 
     /// <summary>
     /// Deletes a playlist at the server.
     /// </summary>
     /// <param name="playlistId">Id of the playlist to delete.</param>
     /// <returns><c>true</c>, if the playlist could successfully be deleted, else <c>false</c>.</returns>
-    bool DeletePlaylist(Guid playlistId);
+    Task<bool> DeletePlaylistAsync(Guid playlistId);
 
     /// <summary>
     /// Loads the raw data of a server-side playlist.
@@ -264,7 +323,7 @@ namespace MediaPortal.Common.SystemCommunication
     /// <param name="playlistId">Id of the playlist to load.</param>
     /// <returns>Raw playlist data of the requested playlist or <c>null</c>, if there is no playlist with the
     /// given <paramref name="playlistId"/>.</returns>
-    PlaylistRawData ExportPlaylist(Guid playlistId);
+    Task<PlaylistRawData> ExportPlaylistAsync(Guid playlistId);
 
     /// <summary>
     /// Loads a client-side playlist.
@@ -275,7 +334,7 @@ namespace MediaPortal.Common.SystemCommunication
     /// <param name="offset">Number of items to skip when retrieving MediaItems.</param>
     /// <param name="limit">Maximum number of items to return.</param>
     /// <returns>List of media items matching the given <paramref name="mediaItemIds"/> and <paramref name="necessaryMIATypes"/>.</returns>
-    IList<MediaItem> LoadCustomPlaylist(IList<Guid> mediaItemIds,
+    Task<IList<MediaItem>> LoadCustomPlaylistAsync(IList<Guid> mediaItemIds,
         ICollection<Guid> necessaryMIATypes, ICollection<Guid> optionalMIATypes, uint? offset = null, uint? limit = null);
 
     #endregion
@@ -292,8 +351,31 @@ namespace MediaPortal.Common.SystemCommunication
     /// <param name="path">Path of the media item to be added or updated.</param>
     /// <param name="mediaItemAspects">Enumeration of media item aspects to be assigned to the media item.</param>
     /// <returns>Id of the added or updated media item.</returns>
-    Guid AddOrUpdateMediaItem(Guid parentDirectoryId, string systemId, ResourcePath path,
+    Task<Guid> AddOrUpdateMediaItemAsync(Guid parentDirectoryId, string systemId, ResourcePath path,
         IEnumerable<MediaItemAspect> mediaItemAspects);
+
+    /// <summary>
+    /// Adds the media item with the given path or updates it if it already exists.
+    /// </summary>
+    /// <param name="parentDirectoryId">Id of the parent directory media item.</param>
+    /// <param name="systemId">Id of the system where the given <paramref name="path"/> is located.</param>
+    /// <param name="path">Path of the media item to be added or updated.</param>
+    /// <param name="mediaItemId">Id of the media item to be added or updated.</param>
+    /// <param name="mediaItemAspects">Enumeration of media item aspects to be assigned to the media item.</param>
+    /// <returns>Id of the added or updated media item.</returns>
+    Task<Guid> AddOrUpdateMediaItemAsync(Guid parentDirectoryId, string systemId, ResourcePath path,
+        Guid mediaItemId, IEnumerable<MediaItemAspect> mediaItemAspects);
+
+    /// <summary>
+    /// Reconciles the relationshipItemsand adds a RelationshipAspect for each reconciled item to aspects and adds them to
+    /// the database.
+    /// </summary>
+    /// <param name="mediaItemId">Id of the media item to add the relationships to.</param>
+    /// <param name="mediaItemAspects">Aspects to add the relationships to.</param>
+    /// <param name="relationshipItems">Enumeration of relations to reconcile and add relationships for.</param>
+    /// <returns></returns>
+    Task<IList<MediaItem>> ReconcileMediaItemRelationshipsAsync(Guid mediaItemId, IEnumerable<MediaItemAspect> mediaItemAspects,
+      IEnumerable<RelationshipItem> relationshipItems);
 
     /// <summary>
     /// Deletes all media items in the content directory whose resource path starts with the given <paramref name="path"/>.
@@ -304,31 +386,32 @@ namespace MediaPortal.Common.SystemCommunication
     /// <param name="path">Path to be deleted. All items whose path starts with this path are deleted.</param>
     /// <param name="inclusive">If set to <c>true</c>, the media item with the given <paramref name="path"/> is deleted too, else,
     /// only the children of the <paramref name="path"/> are deleted.</param>
-    void DeleteMediaItemOrPath(string systemId, ResourcePath path, bool inclusive);
+    Task DeleteMediaItemOrPathAsync(string systemId, ResourcePath path, bool inclusive);
 
     /// <summary>
     /// Notifies the content directory about a start of a share import which is done by an MP2 client.
     /// </summary>
     /// <param name="shareId">Id of the share which is being imported.</param>
-    void ClientStartedShareImport(Guid shareId);
+    Task ClientStartedShareImportAsync(Guid shareId);
 
     /// <summary>
     /// Notifies the content directory about the completion of a share import which was done by an MP2 client.
     /// </summary>
     /// <param name="shareId">Id of the share which has been imported.</param>
-    void ClientCompletedShareImport(Guid shareId);
+    Task ClientCompletedShareImportAsync(Guid shareId);
 
     /// <summary>
     /// Returns all shares which are marked as currently being imported.
     /// </summary>
     /// <returns>Collection of share ids.</returns>
-    ICollection<Guid> GetCurrentlyImportingShares();
+    Task<ICollection<Guid>> GetCurrentlyImportingSharesAsync();
 
     #endregion
 
     #region Playback
 
-    void NotifyPlayback(Guid mediaItemId);
+    Task NotifyPlaybackAsync(Guid mediaItemId, bool watched);
+    Task NotifyUserPlaybackAsync(Guid userId, Guid mediaItemId, int percentage, bool updatePlayDate);
 
     #endregion
   }

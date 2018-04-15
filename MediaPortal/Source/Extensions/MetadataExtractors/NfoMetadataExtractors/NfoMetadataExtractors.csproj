@@ -10,9 +10,11 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors</RootNamespace>
     <AssemblyName>NfoMetadataExtractors</AssemblyName>
-    <TargetFrameworkVersion>v4.5.1</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.7</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <TargetFrameworkProfile />
+    <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\..\..\</SolutionDir>
+    <RestoreProjectStyle>PackageReference</RestoreProjectStyle>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x86'">
     <DebugSymbols>true</DebugSymbols>
@@ -47,10 +49,6 @@
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Newtonsoft.Json, Version=6.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\..\Packages\Newtonsoft.Json.6.0.3\lib\net45\Newtonsoft.Json.dll</HintPath>
-    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Net.Http" />
@@ -62,6 +60,33 @@
     <Compile Include="..\..\..\Core\MediaPortal.Common\VersionInfo\VersionInfo.cs">
       <Link>Properties\VersionInfo.cs</Link>
     </Compile>
+    <Compile Include="Extractors\NfoExtractorBase.cs" />
+    <Compile Include="Extractors\NfoAudioExtractorBase.cs" />
+    <Compile Include="Extractors\NfoMovieExtractorBase.cs" />
+    <Compile Include="Extractors\NfoSeriesExtractorBase.cs" />
+    <Compile Include="NfoAudioMetadataExtractor.cs" />
+    <Compile Include="NfoReaders\NfoArtistReader.cs" />
+    <Compile Include="NfoReaders\NfoAlbumReader.cs" />
+    <Compile Include="NfoVideoMetadataExtractor.cs" />
+    <Compile Include="RelationshipExtractors\AlbumArtistRelationshipExtractor.cs" />
+    <Compile Include="RelationshipExtractors\MovieActorRelationshipExtractor.cs" />
+    <Compile Include="RelationshipExtractors\MovieCharacterRelationshipExtractor.cs" />
+    <Compile Include="RelationshipExtractors\MovieCollectionRelationshipExtractor.cs" />
+    <Compile Include="RelationshipExtractors\MovieDirectorRelationshipExtractor.cs" />
+    <Compile Include="RelationshipExtractors\MovieRelationshipExtractor.cs" />
+    <Compile Include="RelationshipExtractors\EpisodeActorRelationshipExtractor.cs" />
+    <Compile Include="RelationshipExtractors\EpisodeCharacterRelationshipExtractor.cs" />
+    <Compile Include="RelationshipExtractors\EpisodeSeriesRelationshipExtractor.cs" />
+    <Compile Include="RelationshipExtractors\SeriesActorRelationshipExtractor.cs" />
+    <Compile Include="RelationshipExtractors\SeriesCharacterRelationshipExtractor.cs" />
+    <Compile Include="RelationshipExtractors\AudioRelationshipExtractor.cs" />
+    <Compile Include="RelationshipExtractors\SeriesRelationshipExtractor.cs" />
+    <Compile Include="RelationshipExtractors\TrackAlbumArtistRelationshipExtractor.cs" />
+    <Compile Include="RelationshipExtractors\TrackAlbumRelationshipExtractor.cs" />
+    <Compile Include="Settings\NfoAudioMetadataExtractorSettings.cs" />
+    <Compile Include="Stubs\AlbumTrackStub.cs" />
+    <Compile Include="Stubs\AlbumStub.cs" />
+    <Compile Include="Stubs\ArtistStub.cs" />
     <Compile Include="Utilities\JsonByteArrayConverter.cs" />
     <Compile Include="Settings\NfoMetadataExtractorSettingsBase.cs" />
     <Compile Include="NfoReaders\NfoSeriesEpisodeReader.cs" />
@@ -83,6 +108,7 @@
     <Compile Include="Stubs\StreamDetailsStub.cs" />
     <Compile Include="Stubs\SubtitleStreamDetailsStub.cs" />
     <Compile Include="Stubs\VideoStreamDetailsStub.cs" />
+    <Compile Include="Utilities\StubParser.cs" />
     <Compile Include="Utilities\XmlNfoReader.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -99,10 +125,18 @@
       <Project>{4fe7b8ae-1330-424a-91a1-c68d7abf9cb8}</Project>
       <Name>MediaPortal.Utilities</Name>
     </ProjectReference>
+    <ProjectReference Include="..\OnlineLibraries\OnlineLibraries.csproj">
+      <Project>{dca4d19e-75f4-4a8a-b70a-f3f4291dc62b}</Project>
+      <Name>OnlineLibraries</Name>
+    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <None Include="build.targets" />
-    <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Newtonsoft.Json">
+      <Version>10.0.3</Version>
+    </PackageReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="build.targets" />

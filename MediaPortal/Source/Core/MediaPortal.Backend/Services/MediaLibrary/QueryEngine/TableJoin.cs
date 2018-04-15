@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2015 Team MediaPortal
+#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2015 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -22,6 +22,7 @@
 
 #endregion
 
+using System.Collections.Generic;
 using System.Text;
 
 namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
@@ -33,18 +34,17 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
   {
     protected string _joinType;
     protected TableQueryData _table;
-    protected object _joinAttr1;
-    protected object _joinAttr2;
+    protected Dictionary<object, object> _conditionPairs = new Dictionary<object, object>();
 
     public TableJoin(string joinType, TableQueryData table, RequestedAttribute joinAttr1, RequestedAttribute joinAttr2) :
-        this(joinType, table, (object) joinAttr1, (object) joinAttr2) { }
+      this(joinType, table, (object) joinAttr1, (object) joinAttr2) { }
 
     public TableJoin(string joinType, TableQueryData table, object joinAttr1, object joinAttr2)
     {
       _joinType = joinType;
       _table = table;
-      _joinAttr1 = joinAttr1;
-      _joinAttr2 = joinAttr2;
+      if(joinAttr1 != null && joinAttr2 != null)
+        _conditionPairs.Add(joinAttr1, joinAttr2);
     }
 
     /// <summary>
@@ -63,24 +63,44 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
       get { return _table; }
     }
 
+    /// <summary>
+    /// Add additional conditions
+    /// </summary>
+    public void AddCondition(object joinAttr1, object joinAttr2)
+    {
+      _conditionPairs.Add(joinAttr1, joinAttr2);
+    }
+
     public string GetJoinDeclaration(Namespace ns)
     {
       StringBuilder result = new StringBuilder(100);
       result.Append(_joinType);
       result.Append(" ");
       result.Append(_table.GetDeclarationWithAlias(ns));
-      result.Append(" ON ");
-      RequestedAttribute ra = _joinAttr1 as RequestedAttribute;
-      if (ra != null)
-        result.Append(ra.GetQualifiedName(ns));
-      else
-        result.Append(_joinAttr1);
-      result.Append(" = ");
-      ra = _joinAttr2 as RequestedAttribute;
-      if (ra != null)
-        result.Append(ra.GetQualifiedName(ns));
-      else
-        result.Append(_joinAttr2);
+      if (_conditionPairs.Count > 0)
+      {
+        result.Append(" ON ");
+        bool firstCondition = true;
+        foreach (var condition in _conditionPairs)
+        {
+          if (!firstCondition)
+            result.Append(" AND ");
+
+          RequestedAttribute ra = condition.Key as RequestedAttribute;
+          if (ra != null)
+            result.Append(ra.GetQualifiedName(ns));
+          else
+            result.Append(condition.Key);
+          result.Append(" = ");
+          ra = condition.Value as RequestedAttribute;
+          if (ra != null)
+            result.Append(ra.GetQualifiedName(ns));
+          else
+            result.Append(condition.Value);
+
+          firstCondition = false;
+        }
+      }
       return result.ToString();
     }
 

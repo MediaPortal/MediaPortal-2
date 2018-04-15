@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2015 Team MediaPortal
+#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2015 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -29,8 +29,11 @@ using System.Xml.XPath;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.Localization;
+using MediaPortal.Common.UserManagement;
+using MediaPortal.Common.UserProfileDataManagement;
 using MediaPortal.UI.Presentation.SkinResources;
 using MediaPortal.UI.Presentation.Workflow;
+using MediaPortal.UI.Services.UserManagement;
 using MediaPortal.Utilities;
 
 namespace MediaPortal.UI.Services.Workflow
@@ -164,10 +167,12 @@ namespace MediaPortal.UI.Services.Workflow
       string name = null;
       string displayTitle = null;
       string displayCategory = null;
+      string helpText = null;
       string sortOrder = null;
       string sourceStates = null;
       string targetState = null;
       string navigationContextDisplayLabel = null;
+      string restrictionGroup = null;
       XPathNavigator attrNav = actionNav.Clone();
       if (attrNav.MoveToFirstAttribute())
         do
@@ -198,6 +203,12 @@ namespace MediaPortal.UI.Services.Workflow
             case "DisplayTitle":
               displayTitle = attrNav.Value;
               break;
+            case "HelpText":
+              helpText = attrNav.Value;
+              break;
+            case "RestrictionGroup":
+              SetValueAndRegister(ref restrictionGroup, attrNav.Value);
+              break;
             default:
               throw new ArgumentException("'" + actionNav.Name + "' element doesn't support an attribute '" + attrNav.Name + "'");
           }
@@ -210,11 +221,14 @@ namespace MediaPortal.UI.Services.Workflow
         throw new ArgumentException(string.Format("{0} '{1}': 'SourceStates' attribute missing", actionNav.Name, name));
       if (string.IsNullOrEmpty(targetState))
         throw new ArgumentException(string.Format("{0} '{1}': 'TargetState' attribute missing", actionNav.Name, name));
+
       PushNavigationTransition result = new PushNavigationTransition(new Guid(id), name, ParseActionSourceStates(sourceStates),
-          LocalizationHelper.CreateResourceString(displayTitle), new Guid(targetState), navigationContextDisplayLabel)
+          LocalizationHelper.CreateResourceString(displayTitle), LocalizationHelper.CreateResourceString(helpText),
+          new Guid(targetState), navigationContextDisplayLabel)
         {
             DisplayCategory = displayCategory,
-            SortOrder = sortOrder
+            SortOrder = sortOrder,
+            RestrictionGroup = restrictionGroup
         };
       return result;
     }
@@ -225,8 +239,10 @@ namespace MediaPortal.UI.Services.Workflow
       string name = null;
       string displayTitle = null;
       string displayCategory = null;
+      string helpText = null;
       string sortOrder = null;
       string sourceStates = null;
+      string restrictionGroup = null;
       int numPop = -1;
       XPathNavigator attrNav = actionNav.Clone();
       if (attrNav.MoveToFirstAttribute())
@@ -256,6 +272,12 @@ namespace MediaPortal.UI.Services.Workflow
             case "DisplayTitle":
               displayTitle = attrNav.Value;
               break;
+            case "HelpText":
+              helpText = attrNav.Value;
+              break;
+            case "RestrictionGroup":
+              SetValueAndRegister(ref restrictionGroup, attrNav.Value);
+              break;
             default:
               throw new ArgumentException("'" + actionNav.Name + "' element doesn't support an attribute '" + attrNav.Name + "'");
           }
@@ -269,11 +291,12 @@ namespace MediaPortal.UI.Services.Workflow
       if (numPop == -1)
         throw new ArgumentException(string.Format("{0} '{1}': 'NumPop' attribute missing", actionNav.Name, name));
       PopNavigationTransition result = new PopNavigationTransition(new Guid(id), name, ParseActionSourceStates(sourceStates),
-          LocalizationHelper.CreateResourceString(displayTitle), numPop)
+          LocalizationHelper.CreateResourceString(displayTitle), LocalizationHelper.CreateResourceString(helpText), numPop)
         {
             DisplayCategory = displayCategory,
-            SortOrder = sortOrder
-        };
+            SortOrder = sortOrder,
+            RestrictionGroup = restrictionGroup
+      };
       return result;
     }
 
@@ -283,9 +306,11 @@ namespace MediaPortal.UI.Services.Workflow
       string name = null;
       string displayTitle = null;
       string displayCategory = null;
+      string helpText = null;
       string sortOrder = null;
       string sourceStates = null;
       string contributorModel = null;
+      string restrictionGroup = null;
       XPathNavigator attrNav = actionNav.Clone();
       if (attrNav.MoveToFirstAttribute())
         do
@@ -313,6 +338,12 @@ namespace MediaPortal.UI.Services.Workflow
             case "DisplayTitle":
               displayTitle = attrNav.Value;
               break;
+            case "HelpText":
+              helpText = attrNav.Value;
+              break;
+            case "RestrictionGroup":
+              SetValueAndRegister(ref restrictionGroup, attrNav.Value);
+              break;
             default:
               throw new ArgumentException("'" + actionNav.Name + "' element doesn't support an attribute '" + attrNav.Name + "'");
           }
@@ -326,11 +357,12 @@ namespace MediaPortal.UI.Services.Workflow
       if (string.IsNullOrEmpty(contributorModel))
         throw new ArgumentException(string.Format("{0} '{1}': 'ContributorModelId' attribute missing", actionNav.Name, name));
       WorkflowContributorAction result = new WorkflowContributorAction(new Guid(id), name, ParseActionSourceStates(sourceStates),
-          LocalizationHelper.CreateResourceString(displayTitle), new Guid(contributorModel))
+          LocalizationHelper.CreateResourceString(displayTitle), LocalizationHelper.CreateResourceString(helpText), new Guid(contributorModel))
         {
             DisplayCategory = displayCategory,
-            SortOrder = sortOrder
-        };
+            SortOrder = sortOrder,
+            RestrictionGroup = restrictionGroup
+      };
       return result;
     }
 
@@ -340,10 +372,12 @@ namespace MediaPortal.UI.Services.Workflow
       string name = null;
       string displayTitle = null;
       string displayCategory = null;
+      string helpText = null;
       string sortOrder = null;
       string sourceStates = null;
       string modelId = null;
       string methodName = null;
+      string restrictionGroup = null;
       XPathNavigator attrNav = actionNav.Clone();
       if (attrNav.MoveToFirstAttribute())
         do
@@ -362,6 +396,9 @@ namespace MediaPortal.UI.Services.Workflow
             case "DisplayCategory":
               displayCategory = attrNav.Value;
               break;
+            case "HelpText":
+              helpText = attrNav.Value;
+              break;
             case "SortOrder":
               sortOrder = attrNav.Value;
               break;
@@ -373,6 +410,9 @@ namespace MediaPortal.UI.Services.Workflow
               break;
             case "MethodName":
               methodName = attrNav.Value;
+              break;
+            case "RestrictionGroup":
+              SetValueAndRegister(ref restrictionGroup, attrNav.Value);
               break;
             default:
               throw new ArgumentException("'" + actionNav.Name + "' element doesn't support an attribute '" + attrNav.Name + "'");
@@ -389,12 +429,30 @@ namespace MediaPortal.UI.Services.Workflow
       if (string.IsNullOrEmpty(methodName))
         throw new ArgumentException(string.Format("{0} '{1}': 'MethodName' attribute missing", actionNav.Name, name));
       MethodCallAction result = new MethodCallAction(new Guid(id), name, ParseActionSourceStates(sourceStates),
-          LocalizationHelper.CreateResourceString(displayTitle), new Guid(modelId), methodName)
+          LocalizationHelper.CreateResourceString(displayTitle), LocalizationHelper.CreateResourceString(helpText),
+          new Guid(modelId), methodName)
         {
             DisplayCategory = displayCategory,
-            SortOrder = sortOrder
-        };
+            SortOrder = sortOrder,
+            RestrictionGroup = restrictionGroup
+      };
       return result;
+    }
+
+    protected static UserProfileType? ParseOptionalProfileType(string actionNavName, string minUserProfile, string name)
+    {
+      if (string.IsNullOrEmpty(minUserProfile)) return null;
+
+      UserProfileType tmpValue;
+      if (!Enum.TryParse(minUserProfile, out tmpValue))
+        throw new ArgumentException(string.Format("{0} '{1}': Invalid value '{2}' for 'RestrictionGroup'", actionNavName, name, minUserProfile));
+      return tmpValue;
+    }
+
+    private static void SetValueAndRegister(ref string restrictionGroup, string attrValue)
+    {
+      restrictionGroup = attrValue;
+      ServiceRegistration.Get<IUserManagement>().RegisterRestrictionGroup(restrictionGroup);
     }
   }
 }

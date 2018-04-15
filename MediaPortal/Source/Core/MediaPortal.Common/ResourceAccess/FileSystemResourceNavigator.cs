@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2015 Team MediaPortal
+#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2015 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -112,9 +112,10 @@ namespace MediaPortal.Common.ResourceAccess
     /// <see cref="IResourceMountingService"/> will also be returned, else removed from the result value.</param>
     /// <returns>Collection of accessors for all files or <c>null</c>,
     /// if the given <paramref name="directoryAccessor"/> is not a <see cref="IFileSystemResourceAccessor"/>.</returns>
-    public static ICollection<IFileSystemResourceAccessor> GetFiles(IFileSystemResourceAccessor directoryAccessor, bool showSystemResources)
+    public static ICollection<IFileSystemResourceAccessor> GetFiles(IFileSystemResourceAccessor directoryAccessor, bool showSystemResources, bool showChainedDirectories = true)
     {
       IResourceMountingService resourceMountingService = ServiceRegistration.Get<IResourceMountingService>();
+      IFileSystemResourceAccessor chainedResourceAccesor; // Needed in multiple source locations, that's why we declare it here
       ICollection<IFileSystemResourceAccessor> result = new List<IFileSystemResourceAccessor>();
       foreach (IFileSystemResourceAccessor fileAccessor in directoryAccessor.GetFiles())
       {
@@ -123,7 +124,19 @@ namespace MediaPortal.Common.ResourceAccess
           fileAccessor.Dispose();
           continue;
         }
-        result.Add(fileAccessor);
+        // We try to chain up chained resource providers
+        if (!showChainedDirectories && TryUnfold(fileAccessor, out chainedResourceAccesor))
+        {
+          if (chainedResourceAccesor.IsFile)
+            result.Add(chainedResourceAccesor);
+          else
+            chainedResourceAccesor.Dispose();
+          fileAccessor.Dispose();
+        }
+        else
+        {
+          result.Add(fileAccessor);
+        }
       }
       return result;
     }

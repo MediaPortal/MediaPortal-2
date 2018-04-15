@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2015 Team MediaPortal
+#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2015 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -22,13 +22,18 @@
 
 #endregion
 
+using MediaPortal.Common;
+using MediaPortal.Common.MediaManagement;
+using MediaPortal.Common.MediaManagement.DefaultItemAspects;
+using MediaPortal.Common.MediaManagement.Helpers;
+using MediaPortal.Common.ResourceAccess;
+using MediaPortal.Common.Services.GenreConverter;
+using MediaPortal.Extensions.MetadataExtractors.MatroskaLib;
+using MediaPortal.Utilities;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using MediaPortal.Common.MediaManagement.Helpers;
-using MediaPortal.Common.ResourceAccess;
-using MediaPortal.Extensions.MetadataExtractors.MatroskaLib;
-using MediaPortal.Utilities;
+using System.Threading.Tasks;
 
 namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor.Matchers
 {
@@ -37,32 +42,125 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor.Match
   /// </summary>
   public class MatroskaMatcher
   {
-    public static bool TryMatchImdbId(ILocalFsResourceAccessor folderOrFileLfsra, out string imdbId)
+    public static async Task<string> TryMatchImdbIdAsync(ILocalFsResourceAccessor folderOrFileLfsra)
     {
       // Calling EnsureLocalFileSystemAccess not necessary; only string operation
       string extensionLower = StringUtils.TrimToEmpty(Path.GetExtension(folderOrFileLfsra.LocalFileSystemPath)).ToLower();
       if (!MatroskaConsts.MATROSKA_VIDEO_EXTENSIONS.Contains(extensionLower))
-      {
-        imdbId = null;
-        return false;
-      }
+        return null;
 
       MatroskaInfoReader mkvReader = new MatroskaInfoReader(folderOrFileLfsra);
       // Add keys to be extracted to tags dictionary, matching results will returned as value
       Dictionary<string, IList<string>> tagsToExtract = MatroskaConsts.DefaultTags;
-      mkvReader.ReadTags(tagsToExtract);
+      await mkvReader.ReadTagsAsync(tagsToExtract).ConfigureAwait(false);
 
       if (tagsToExtract[MatroskaConsts.TAG_MOVIE_IMDB_ID] != null)
       {
         foreach (string candidate in tagsToExtract[MatroskaConsts.TAG_MOVIE_IMDB_ID])
         {
-          if (ImdbIdMatcher.TryMatchImdbId(candidate, out imdbId))
-            return true;
+          if (ImdbIdMatcher.TryMatchImdbId(candidate, out string imdbId))
+            return imdbId;
         }
       }
 
-      imdbId = null;
-      return false;
+      return null;
+    }
+
+    public static async Task<string> TryMatchTmdbIdAsync(ILocalFsResourceAccessor folderOrFileLfsra)
+    {
+      // Calling EnsureLocalFileSystemAccess not necessary; only string operation
+      string extensionLower = StringUtils.TrimToEmpty(Path.GetExtension(folderOrFileLfsra.LocalFileSystemPath)).ToLower();
+      if (!MatroskaConsts.MATROSKA_VIDEO_EXTENSIONS.Contains(extensionLower))
+        return null;
+
+      MatroskaInfoReader mkvReader = new MatroskaInfoReader(folderOrFileLfsra);
+      // Add keys to be extracted to tags dictionary, matching results will returned as value
+      Dictionary<string, IList<string>> tagsToExtract = MatroskaConsts.DefaultTags;
+      await mkvReader.ReadTagsAsync(tagsToExtract).ConfigureAwait(false);
+
+      if (tagsToExtract[MatroskaConsts.TAG_MOVIE_TMDB_ID] != null)
+      {
+        foreach (string candidate in tagsToExtract[MatroskaConsts.TAG_MOVIE_TMDB_ID])
+        {
+          if (int.TryParse(candidate, out int tmdbIdInt))
+            return tmdbIdInt.ToString();
+        }
+      }
+      
+      return null;
+    }
+
+    public static async Task<bool> ExtractFromTagsAsync(ILocalFsResourceAccessor folderOrFileLfsra, MovieInfo movieInfo)
+    {
+      // Calling EnsureLocalFileSystemAccess not necessary; only string operation
+      string extensionLower = StringUtils.TrimToEmpty(Path.GetExtension(folderOrFileLfsra.LocalFileSystemPath)).ToLower();
+      if (!MatroskaConsts.MATROSKA_VIDEO_EXTENSIONS.Contains(extensionLower))
+        return false;
+
+      // Try to get extended information out of matroska files)
+      MatroskaInfoReader mkvReader = new MatroskaInfoReader(folderOrFileLfsra);
+      // Add keys to be extracted to tags dictionary, matching results will returned as value
+      Dictionary<string, IList<string>> tagsToExtract = MatroskaConsts.DefaultTags;
+      await mkvReader.ReadTagsAsync(tagsToExtract).ConfigureAwait(false);
+
+      // Read plot
+      IList<string> tags = tagsToExtract[MatroskaConsts.TAG_EPISODE_SUMMARY];
+      string plot = tags != null ? tags.FirstOrDefault() : string.Empty;
+      if (!string.IsNullOrEmpty(plot))
+        movieInfo.HasChanged |= MetadataUpdater.SetOrUpdateString(ref movieInfo.Summary, plot, true);
+
+      // Read genre
+      tags = tagsToExtract[MatroskaConsts.TAG_SERIES_GENRE];
+      if (tags != null)
+      {
+        List<GenreInfo> genreList = tags.Select(s => new GenreInfo { Name = s }).ToList();
+        IGenreConverter converter = ServiceRegistration.Get<IGenreConverter>();
+        foreach (var genre in genreList)
+        {
+          if (!genre.Id.HasValue && converter.GetGenreId(genre.Name, GenreCategory.Movie, null, out int genreId))
+            genre.Id = genreId;
+        }
+        movieInfo.HasChanged |= MetadataUpdater.SetOrUpdateList(movieInfo.Genres, genreList, movieInfo.Genres.Count == 0);
+      }
+
+      // Read actors
+      tags = tagsToExtract[MatroskaConsts.TAG_ACTORS];
+      if (tags != null)
+        movieInfo.HasChanged |= MetadataUpdater.SetOrUpdateList(movieInfo.Actors,
+          tags.Select(t => new PersonInfo() { Name = t, Occupation = PersonAspect.OCCUPATION_ACTOR, MediaName = movieInfo.MovieName.Text }).ToList(), false);
+
+      tags = tagsToExtract[MatroskaConsts.TAG_DIRECTORS];
+      if (tags != null)
+        movieInfo.HasChanged |= MetadataUpdater.SetOrUpdateList(movieInfo.Directors,
+          tags.Select(t => new PersonInfo() { Name = t, Occupation = PersonAspect.OCCUPATION_DIRECTOR, MediaName = movieInfo.MovieName.Text }).ToList(), false);
+
+      tags = tagsToExtract[MatroskaConsts.TAG_WRITTEN_BY];
+      if (tags != null)
+        movieInfo.HasChanged |= MetadataUpdater.SetOrUpdateList(movieInfo.Writers,
+          tags.Select(t => new PersonInfo() { Name = t, Occupation = PersonAspect.OCCUPATION_WRITER, MediaName = movieInfo.MovieName.Text }).ToList(), false);
+
+      if (tagsToExtract[MatroskaConsts.TAG_MOVIE_IMDB_ID] != null)
+      {
+        string imdbId;
+        foreach (string candidate in tagsToExtract[MatroskaConsts.TAG_MOVIE_IMDB_ID])
+          if (ImdbIdMatcher.TryMatchImdbId(candidate, out imdbId))
+          {
+            movieInfo.HasChanged |= MetadataUpdater.SetOrUpdateId(ref movieInfo.ImdbId, imdbId);
+            break;
+          }
+      }
+      if (tagsToExtract[MatroskaConsts.TAG_MOVIE_TMDB_ID] != null)
+      {
+        int tmp;
+        foreach (string candidate in tagsToExtract[MatroskaConsts.TAG_MOVIE_TMDB_ID])
+          if (int.TryParse(candidate, out tmp) == true)
+          {
+            movieInfo.HasChanged |= MetadataUpdater.SetOrUpdateId(ref movieInfo.MovieDbId, tmp);
+            break;
+          }
+      }
+
+      return true;
     }
   }
 }

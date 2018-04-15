@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2015 Team MediaPortal
+#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2015 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -22,10 +22,17 @@
 
 #endregion
 
-using System.Collections.Generic;
+using System;
+using System.Linq;
 using System.Text.RegularExpressions;
+using MediaPortal.Common;
 using MediaPortal.Common.MediaManagement.Helpers;
 using MediaPortal.Common.ResourceAccess;
+using MediaPortal.Common.Settings;
+using System.Collections.Generic;
+using System.Globalization;
+using MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor.Settings;
+using MediaPortal.Common.MediaManagement;
 
 namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor.NameMatchers
 {
@@ -38,91 +45,163 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor.Name
     private const string GROUP_SERIES = "series";
     private const string GROUP_SEASONNUM = "seasonnum";
     private const string GROUP_EPISODENUM = "episodenum";
+    private const string GROUP_ENDEPISODENUM = "endepisodenum";
     private const string GROUP_EPISODE = "episode";
-
-    protected static List<Regex> _matchers = new List<Regex>
-        {
-          // Filename only pattern
-          // Series\Season...\S01E01* or Series\Season...\1x01*
-          new Regex(@"(?<series>[^\\]*)\\[^\\]*(?<seasonnum>\d+)[^\\]*\\S*(?<seasonnum>\d+)[EX](?<episodenum>\d+)*(?<episode>.*)\.", RegexOptions.IgnoreCase),
-          // MP1 EpisodeScanner recommendations for recordings: Series - (Episode) S1E1, also "S1 E1", "S1-E1", "S1.E1", "S1_E1"
-          new Regex(@"(?<series>[^\\]+) - \((?<episode>.*)\) S(?<seasonnum>[0-9]+?)[\s|\.|\-|_]{0,1}E(?<episodenum>[0-9]+?)", RegexOptions.IgnoreCase),
-          // "Series 1x1 - Episode" and multi-episodes "Series 1x1_2 - Episodes"
-          new Regex(@"(?<series>[^\\]+)\W(?<seasonnum>\d+)x((?<episodenum>\d+)_?)+ - (?<episode>.*)\.", RegexOptions.IgnoreCase),
-          // "Series S1E01 - Episode" and multi-episodes "Series S1E01_02 - Episodes", also "S1 E1", "S1-E1", "S1.E1", "S1_E1"
-          new Regex(@"(?<series>[^\\]+)\WS(?<seasonnum>\d+)[\s|\.|\-|_]{0,1}E((?<episodenum>\d+)_?)+ - (?<episode>.*)\.", RegexOptions.IgnoreCase),
-          // "Series.Name.1x01.Episode.Or.Release.Info"
-          new Regex(@"(?<series>[^\\]+).(?<seasonnum>\d+)x((?<episodenum>\d+)_?)+(?<episode>.*)\.", RegexOptions.IgnoreCase),
-          // "Series.Name.S01E01.Episode.Or.Release.Info", also "S1 E1", "S1-E1", "S1.E1", "S1_E1"
-          new Regex(@"(?<series>[^\\]+).S(?<seasonnum>\d+)[\s|\.|\-|_]{0,1}E((?<episodenum>\d+)_?)+(?<episode>.*)\.", RegexOptions.IgnoreCase),
-          // Folder + filename pattern
-          // "Series\1\11 - Episode" "Series\Staffel 2\11 - Episode" "Series\Season 3\12 Episode" "Series\3. Season\13-Episode"
-          new Regex(@"(?<series>[^\\]*)\\[^\\|\d]*(?<seasonnum>\d+)\D*\\(?<episodenum>\d+)\s*-\s*(?<episode>[^\\]+)\.", RegexOptions.IgnoreCase),
-          // "Series.Name.101.Episode.Or.Release.Info", attention: this expression can lead to false matches for every filename with nnn included
-          new Regex(@"(?<series>[^\\]+).\W(?<seasonnum>\d{1})(?<episodenum>\d{2})\W(?<episode>.*)\.", RegexOptions.IgnoreCase),
-        };
+    private const string GROUP_YEAR = "year";
 
     /// <summary>
     /// Tries to match series by checking the <paramref name="folderOrFileLfsra"/> for known patterns. The match is only successful,
-    /// if the <see cref="SeriesInfo.IsCompleteMatch"/> is <c>true</c>.
+    /// if the <see cref="EpisodeInfo.IsBaseInfoPresent"/> is <c>true</c>.
     /// </summary>
     /// <param name="folderOrFileLfsra"><see cref="ILocalFsResourceAccessor"/> to file</param>
-    /// <param name="seriesInfo">Returns the parsed SeriesInfo</param>
+    /// <param name="episodeInfo">Returns the parsed EpisodeInfo</param>
     /// <returns><c>true</c> if successful.</returns>
-    public bool MatchSeries(ILocalFsResourceAccessor folderOrFileLfsra, out SeriesInfo seriesInfo)
+    public bool MatchSeries(ILocalFsResourceAccessor folderOrFileLfsra, EpisodeInfo episodeInfo)
     {
-      return MatchSeries(folderOrFileLfsra.LocalFileSystemPath, out seriesInfo);
+      return MatchSeries(folderOrFileLfsra.LocalFileSystemPath, episodeInfo);
     }
 
     /// <summary>
     /// Tries to match series by checking the <paramref name="folderOrFileName"/> for known patterns. The match is only successful,
-    /// if the <see cref="SeriesInfo.IsCompleteMatch"/> is <c>true</c>.
+    /// if the <see cref="EpisodeInfo.IsBaseInfoPresent"/> is <c>true</c>.
     /// </summary>
     /// <param name="folderOrFileName">Full path to file</param>
-    /// <param name="seriesInfo">Returns the parsed SeriesInfo</param>
+    /// <param name="episodeInfo">Returns the parsed EpisodeInfo</param>
     /// <returns><c>true</c> if successful.</returns>
-    public bool MatchSeries(string folderOrFileName, out SeriesInfo seriesInfo)
+    public bool MatchSeries(string folderOrFileName, EpisodeInfo episodeInfo)
     {
-      foreach (Regex matcher in _matchers)
+      var settings = ServiceRegistration.Get<ISettingsManager>().Load<SeriesMetadataExtractorSettings>();
+
+      // General cleanup for remote mounted resources (will be a local path)
+      string remoteResourcePattern = @".*\\RemoteResources\\[A-F0-9]{8}(?:-[A-F0-9]{4}){3}-[A-F0-9]{12}\\";
+      Regex re = new Regex(remoteResourcePattern, RegexOptions.IgnoreCase | RegexOptions.Multiline);
+      folderOrFileName = re.Replace(folderOrFileName, "");
+
+      // First do replacements before match
+      foreach (var replacement in settings.Replacements.Where(r => r.BeforeMatch))
+      {
+        replacement.Replace(ref folderOrFileName);
+      }
+
+      foreach (var pattern in settings.SeriesPatterns)
       {
         // Calling EnsureLocalFileSystemAccess not necessary; only string operation
-        Match ma = matcher.Match(folderOrFileName);
-        seriesInfo = ParseSeries(ma);
-        if (seriesInfo.IsCompleteMatch)
-          return true;
+        Regex matcher;
+        if (pattern.GetRegex(out matcher))
+        {
+          Match ma = matcher.Match(folderOrFileName);
+          ParseSeries(ma, episodeInfo);
+          if (episodeInfo.IsBaseInfoPresent)
+          {
+            // Do replacements after successful match
+            foreach (var replacement in settings.Replacements.Where(r => !r.BeforeMatch))
+            {
+              string tmp;
+              if (!episodeInfo.SeriesName.IsEmpty)
+              {
+                tmp = episodeInfo.SeriesName.Text;
+                replacement.Replace(ref tmp);
+                episodeInfo.SeriesName.Text = tmp;
+              }
+
+              if (!episodeInfo.EpisodeName.IsEmpty)
+              {
+                tmp = episodeInfo.EpisodeName.Text;
+                replacement.Replace(ref tmp);
+                episodeInfo.EpisodeName.Text = tmp;
+              }
+            }
+            if (!episodeInfo.SeriesName.IsEmpty)
+            {
+              Match yearMa = settings.SeriesYearPattern.Regex.Match(episodeInfo.SeriesName.Text);
+              if (yearMa.Success)
+              {
+                //episodeInfo.SeriesName = new SimpleTitle(EpisodeInfo.CleanupWhiteSpaces(yearMa.Groups[GROUP_SERIES].Value), episodeInfo.SeriesName.DefaultLanguage);
+                MetadataUpdater.SetOrUpdateValue(ref episodeInfo.SeriesFirstAired, new DateTime(Convert.ToInt32(yearMa.Groups[GROUP_YEAR].Value), 1, 1));
+              }
+              yearMa = settings.SeriesYearPattern.Regex.Match(folderOrFileName);
+              if (yearMa.Success)
+              {
+                MetadataUpdater.SetOrUpdateValue(ref episodeInfo.SeriesFirstAired, new DateTime(Convert.ToInt32(yearMa.Groups[GROUP_YEAR].Value), 1, 1));
+              }
+            }
+            if (!episodeInfo.SeriesName.IsEmpty)
+            {
+              episodeInfo.SeriesName.Text = CultureInfo.InvariantCulture.TextInfo.ToTitleCase(episodeInfo.SeriesName.Text);
+            }
+            if (!episodeInfo.EpisodeName.IsEmpty)
+            {
+              episodeInfo.EpisodeName.Text = CultureInfo.InvariantCulture.TextInfo.ToTitleCase(episodeInfo.EpisodeName.Text);
+            }
+            return true;
+          }
+        }
       }
-      seriesInfo = null;
       return false;
     }
 
-    static SeriesInfo ParseSeries(Match ma)
+    static bool ParseSeries(Match ma, EpisodeInfo episodeInfo)
     {
-      SeriesInfo info = new SeriesInfo();
+      if (!ma.Success)
+        return false;
+
       Group group = ma.Groups[GROUP_SERIES];
       if (group.Length > 0)
-        info.Series = SeriesInfo.CleanupWhiteSpaces(group.Value);
+        episodeInfo.HasChanged |= MetadataUpdater.SetOrUpdateString(ref episodeInfo.SeriesName, EpisodeInfo.CleanupWhiteSpaces(group.Value), true);
 
       group = ma.Groups[GROUP_EPISODE];
       if (group.Length > 0)
-        info.Episode = SeriesInfo.CleanupWhiteSpaces(group.Value);
+        episodeInfo.HasChanged |= MetadataUpdater.SetOrUpdateString(ref episodeInfo.EpisodeName, EpisodeInfo.CleanupWhiteSpaces(group.Value), true);
 
       group = ma.Groups[GROUP_SEASONNUM];
       int tmpInt;
       if (group.Length > 0 && int.TryParse(group.Value, out tmpInt))
-        info.SeasonNumber = tmpInt;
+        episodeInfo.SeasonNumber = tmpInt;
 
-      // There can be multipe episode numbers in one file
+      // There can be multiple episode numbers in one file
       group = ma.Groups[GROUP_EPISODENUM];
       if (group.Length > 0)
       {
-        foreach (Capture capture in group.Captures)
+        List<int> episodeNums = new List<int>();
+        if (group.Captures.Count > 1)
         {
-          int episodeNum;
-          if (int.TryParse(capture.Value, out episodeNum))
-            info.EpisodeNumbers.Add(episodeNum);
+          foreach (Capture capture in group.Captures)
+          {
+            int episodeNum;
+            if (int.TryParse(capture.Value, out episodeNum))
+              episodeNums.Add(episodeNum);
+          }
         }
+        else if(ma.Groups[GROUP_ENDEPISODENUM].Length > 0)
+        {
+          int start;
+          if (int.TryParse(group.Value, out start))
+          {
+            int end;
+            group = ma.Groups[GROUP_ENDEPISODENUM];
+            if (group.Length > 0 && int.TryParse(group.Value, out end))
+            {
+              for(int episode = start; episode <= end; episode++)
+              {
+                episodeNums.Add(episode);
+              }
+            }
+          }
+        }
+        else
+        {
+          foreach (Capture capture in group.Captures)
+          {
+            int episodeNum;
+            if (int.TryParse(capture.Value, out episodeNum))
+              episodeNums.Add(episodeNum);
+          }
+        }
+        List<int> tmpList = episodeInfo.EpisodeNumbers.ToList();
+        episodeInfo.HasChanged |= MetadataUpdater.SetOrUpdateList(tmpList, episodeNums, true);
+        episodeInfo.EpisodeNumbers = new HashSet<int>(tmpList);
       }
-      return info;
+      return true;
     }
   }
 }

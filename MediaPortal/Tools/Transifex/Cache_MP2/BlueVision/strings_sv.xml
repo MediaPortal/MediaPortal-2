@@ -33,4 +33,5 @@
   <string name="BlueVision.DisableHomeTab">Inaktivera startfliken</string>
   <string name="BlueVision.DisableAutoSelection">Inaktivera automatisk flikval</string>
   <string name="BlueVision.UseAlternativeSplashscreen">Använd BlueVision startbakgrund</string>
+  <string name="BlueVision.ResetMenuLayout">Återställ menyn till den förvalda layouten </string>
 </resources>

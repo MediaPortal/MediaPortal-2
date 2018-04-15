@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2015 Team MediaPortal
+#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2015 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -37,11 +37,19 @@ namespace TransifexHelper
   {
     #region struct transifex project
 
+    [DebuggerDisplay("{GetProjectAndResourceCombined()} ({LanguageDirectory})")]
     private class TransifexResource
     {
-      public string Name;
-      public string ProjectSlug;
-      public string LanguageDirectory;
+      private string _name;
+
+      public string Name
+      {
+        get { return _name; }
+        set { _name = value.Replace(".", ""); } // Cleanup invalid characters from resource names (no dots)
+      }
+
+      public string ProjectSlug { get; set; }
+      public string LanguageDirectory { get; set; }
 
       public string GetCacheSubDirectory()
       {
@@ -99,10 +107,16 @@ namespace TransifexHelper
         ExecutePush();
 
       if (mpOptions.Pull)
+      {
         ExecutePull();
+        WritePullMarkerFile();
+      }
 
       if (mpOptions.Fix)
+      {
+        DeleteEmptyFiles();
         FixEncodings();
+      }
 
       if (mpOptions.FromCache)
         CopyFromCache();
@@ -123,6 +137,11 @@ namespace TransifexHelper
     private static string TransifexClientExeFile
     {
       get { return TransifexRootFolder + @"\tx.exe"; }
+    }
+
+    private static string TransifexPullCacheMarker
+    {
+      get { return TransifexRootFolder + @"\Cache_MP2\Force_Update_Done.DO_NOT_COMMIT"; }
     }
 
     #endregion
@@ -208,9 +227,16 @@ namespace TransifexHelper
     /// </summary>
     private static void ExecutePull()
     {
+      // Check for marker file
+      var forcePullDone = File.Exists(TransifexPullCacheMarker);
+
       ProcessStartInfo processStartInfo = new ProcessStartInfo();
       processStartInfo.FileName = TransifexClientExeFile;
-      processStartInfo.Arguments = " pull -f";
+      // Note: we had used " -f" (force) argument before. This always downloads every resources, no matter if empty or unchanged (many traffic/duration).
+      // In favour of speed we use the default now. If there are problems with missing new translations, we could switch back to forced mode.
+      processStartInfo.Arguments = " pull";
+      if (!forcePullDone)
+        processStartInfo.Arguments += " -f";
       processStartInfo.WorkingDirectory = TransifexRootFolder;
       processStartInfo.RedirectStandardOutput = true;
       processStartInfo.UseShellExecute = false;
@@ -218,6 +244,12 @@ namespace TransifexHelper
       Process process = Process.Start(processStartInfo);
       Console.Write(process.StandardOutput.ReadToEnd());
       process.WaitForExit();
+    }
+
+    private static void WritePullMarkerFile()
+    {
+      if (!File.Exists(TransifexPullCacheMarker))
+        File.WriteAllText(TransifexPullCacheMarker, "Marker file to avoid duplicate 'force' pull actions. Do not commit this file to Git!");
     }
 
     /// <summary>
@@ -357,6 +389,29 @@ namespace TransifexHelper
     }
 
     /// <summary>
+    /// Deletes empty translation files (unfortunately saved by TX client).
+    /// </summary>
+    private static void DeleteEmptyFiles()
+    {
+      Console.WriteLine("Checking for empty language files...");
+      foreach (var res in TransifexResources)
+      {
+        string inputDir = res.GetCacheFullDirectory();
+        if (!Directory.Exists(inputDir))
+          continue;
+
+        foreach (FileInfo langFile in new DirectoryInfo(inputDir).GetFiles())
+        {
+          if (langFile.Length < 100)
+          {
+            Console.WriteLine("Delete empty file {0} (size less than 100 bytes)", langFile.FullName);
+            langFile.Delete();
+          }
+        }
+      }
+    }
+
+    /// <summary>
     /// Temporary workaround: Open all language xml and replace &lt; and &gt; tags by valid xml encodings.
     /// </summary>
     private static void FixEncodings()
@@ -406,38 +461,38 @@ namespace TransifexHelper
     /// <returns>String with normalized CR+LF-linebreaks.</returns>
     private static string NormalizeLineBreaks(string input)
     {
-        // Allow 10% as a rough guess of how much the string may grow.
-        // If we're wrong we'll either waste space or have extra copies -
-        // it will still work
-        StringBuilder builder = new StringBuilder((int) (input.Length * 1.1));
+      // Allow 10% as a rough guess of how much the string may grow.
+      // If we're wrong we'll either waste space or have extra copies -
+      // it will still work
+      StringBuilder builder = new StringBuilder((int)(input.Length * 1.1));
 
-        bool lastWasCR = false;
+      bool lastWasCR = false;
 
-        foreach (char c in input)
+      foreach (char c in input)
+      {
+        if (lastWasCR)
         {
-            if (lastWasCR)
-            {
-                lastWasCR = false;
-                if (c == '\n')
-                {
-                    continue; // Already written \r\n
-                }
-            }
-            switch (c)
-            {
-                case '\r':
-                    builder.Append("\r\n");
-                    lastWasCR = true;
-                    break;
-                case '\n':
-                    builder.Append("\r\n");
-                    break;
-                default:
-                    builder.Append(c);
-                    break;
-            }
+          lastWasCR = false;
+          if (c == '\n')
+          {
+            continue; // Already written \r\n
+          }
         }
-        return builder.ToString();
+        switch (c)
+        {
+          case '\r':
+            builder.Append("\r\n");
+            lastWasCR = true;
+            break;
+          case '\n':
+            builder.Append("\r\n");
+            break;
+          default:
+            builder.Append(c);
+            break;
+        }
+      }
+      return builder.ToString();
     }
 
     #endregion

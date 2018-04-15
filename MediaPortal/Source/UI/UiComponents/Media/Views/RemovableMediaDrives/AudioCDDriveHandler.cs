@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2015 Team MediaPortal
+#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2015 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -25,6 +25,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.MediaManagement;
@@ -33,6 +34,7 @@ using MediaPortal.Common.SystemResolver;
 using MediaPortal.Extensions.BassLibraries;
 using MediaPortal.Extensions.ResourceProviders.AudioCDResourceProvider;
 using MediaPortal.Utilities.FileSystem;
+using Un4seen.Bass.AddOn.Cd;
 
 namespace MediaPortal.UiComponents.Media.Views.RemovableMediaDrives
 {
@@ -67,6 +69,7 @@ namespace MediaPortal.UiComponents.Media.Views.RemovableMediaDrives
       }
       _audioCDSubViewSpecification = new StaticViewSpecification(
           volumeLabel + " (" + DriveUtils.GetDriveNameWithoutRootDirectory(driveInfo) + ")", new Guid[] {}, new Guid[] {});
+      MatchWithStubs(driveInfo, tracks);
       foreach (MediaItem track in tracks)
         _audioCDSubViewSpecification.AddMediaItem(track);
     }
@@ -81,7 +84,7 @@ namespace MediaPortal.UiComponents.Media.Views.RemovableMediaDrives
     {
       ICollection<MediaItem> tracks;
       ICollection<Guid> extractedMIATypeIDs;
-      return DetectAudioCD(driveInfo.Name, out tracks, out extractedMIATypeIDs) ? new AudioCDDriveHandler(driveInfo, tracks) : null;
+      return DetectAudioCD(driveInfo, out tracks, out extractedMIATypeIDs) ? new AudioCDDriveHandler(driveInfo, tracks) : null;
     }
 
     /// <summary>
@@ -91,10 +94,11 @@ namespace MediaPortal.UiComponents.Media.Views.RemovableMediaDrives
     /// <param name="tracks">Returns a collection of audio tracks for the audio CD in the given <paramref name="drive"/>.</param>
     /// <param name="extractedMIATypeIDs">IDs of the media item aspect types which were extracted from the returned <paramref name="tracks"/>.</param>
     /// <returns><c>true</c>, if an audio CD was identified, else <c>false</c>.</returns>
-    public static bool DetectAudioCD(string drive, out ICollection<MediaItem> tracks, out ICollection<Guid> extractedMIATypeIDs)
+    public static bool DetectAudioCD(DriveInfo driveInfo, out ICollection<MediaItem> tracks, out ICollection<Guid> extractedMIATypeIDs)
     {
       tracks = null;
       extractedMIATypeIDs = null;
+      string drive = driveInfo.Name;
       if (string.IsNullOrEmpty(drive) || drive.Length < 2)
         return false;
       drive = drive.Substring(0, 2); // Clip potential '\\' at the end
@@ -102,20 +106,51 @@ namespace MediaPortal.UiComponents.Media.Views.RemovableMediaDrives
       try
       {
         IList<BassUtils.AudioTrack> audioTracks = BassUtils.GetAudioTracks(drive);
+        // BassUtils can report wrong audio tracks for some devices, we filter out "Duration = -1" here
+        audioTracks = audioTracks?.Where(t => t.Duration > 0).ToList();
         if (audioTracks == null || audioTracks.Count == 0)
           return false;
         ISystemResolver systemResolver = ServiceRegistration.Get<ISystemResolver>();
         string systemId = systemResolver.LocalSystemId;
         tracks = new List<MediaItem>(audioTracks.Count);
         char driveChar = drive[0];
-        foreach (BassUtils.AudioTrack track in audioTracks)
-          tracks.Add(CreateMediaItem(track, driveChar, audioTracks.Count, systemId));
-        extractedMIATypeIDs = new List<Guid>
+        int driveId = BassUtils.Drive2BassID(driveChar);
+        if (driveId > -1)
+        {
+          BASS_CD_INFO info = BassCd.BASS_CD_GetInfo(driveId);
+          if(info.cdtext)
           {
-              ProviderResourceAspect.ASPECT_ID,
-              MediaAspect.ASPECT_ID,
-              AudioAspect.ASPECT_ID,
-          };
+            string[] tags = BassCd.BASS_CD_GetIDText(driveId);
+            string album = GetCDText(tags, "TITLE");
+            string albumArtist = GetCDText(tags, "PERFORMER");
+            foreach (BassUtils.AudioTrack track in audioTracks)
+            {
+              tracks.Add(CreateMediaItem(track, driveChar, audioTracks.Count, systemId, album, albumArtist, 
+                album, albumArtist, irsc: BassCd.BASS_CD_GetISRC(driveId, track.TrackNo - 1)));
+            }
+          }
+          else
+          {
+            foreach (BassUtils.AudioTrack track in audioTracks)
+            {
+              tracks.Add(CreateMediaItem(track, driveChar, audioTracks.Count, systemId, 
+                irsc: BassCd.BASS_CD_GetISRC(driveId, track.TrackNo - 1)));
+            }
+          }
+          BassCd.BASS_CD_Release(driveId);
+        }
+        else
+        {
+          foreach (BassUtils.AudioTrack track in audioTracks)
+            tracks.Add(CreateMediaItem(track, driveChar, audioTracks.Count, systemId));
+        }
+        extractedMIATypeIDs = new List<Guid>
+        {
+            ProviderResourceAspect.ASPECT_ID,
+            MediaAspect.ASPECT_ID,
+            AudioAspect.ASPECT_ID,
+            ExternalIdentifierAspect.ASPECT_ID,
+        };
       }
       catch (IOException)
       {
@@ -126,23 +161,69 @@ namespace MediaPortal.UiComponents.Media.Views.RemovableMediaDrives
       return true;
     }
 
-    protected static MediaItem CreateMediaItem(BassUtils.AudioTrack track, char drive, int numTracks, string systemId)
+    private static string GetCDText(string[] tagValues, string tag, int track = 0)
     {
-      IDictionary<Guid, MediaItemAspect> aspects = new Dictionary<Guid, MediaItemAspect>();
-      MediaItemAspect providerResourceAspect = MediaItemAspect.GetOrCreateAspect(aspects, ProviderResourceAspect.Metadata);
+      try
+      {
+        if (tagValues == null)
+          return "";
+
+        foreach (string tagValue in tagValues)
+        {
+          if (tagValue.StartsWith(tag))
+          {
+            string remainingTagValue = tagValue.Substring(tag.Length);
+            int equalIndex = remainingTagValue.IndexOf('=');
+            int trackId = int.Parse(remainingTagValue.Substring(0, equalIndex));
+            if (trackId == track)
+              return remainingTagValue.Substring(equalIndex + 1);
+          }
+        }
+      }
+      catch { }
+      return "";
+    }
+
+    private static string GetTrackTitle(string album, int trackNo, string trackTitle)
+    {
+      if (!string.IsNullOrEmpty(album) && trackNo > 0)
+        return string.Format("{0}: {1} - {2}", album, trackNo, string.IsNullOrEmpty(trackTitle) ? "Track " + trackNo : trackTitle);
+
+      if (trackNo > 0)
+        return string.Format("{0} - {1}", trackNo, string.IsNullOrEmpty(trackTitle) ? "Track " + trackNo : trackTitle);
+
+      return string.IsNullOrEmpty(trackTitle) ? "Track " + trackNo : trackTitle;
+    }
+
+    protected static MediaItem CreateMediaItem(BassUtils.AudioTrack track, char drive, int numTracks, string systemId, string title = null, string artist = null, string album = null, string albumArtist = null, string cdDbId = null, string upc = null, string irsc = null)
+    {
+      IDictionary<Guid, IList<MediaItemAspect>> aspects = new Dictionary<Guid, IList<MediaItemAspect>>();
+      MediaItemAspect providerResourceAspect = MediaItemAspect.CreateAspect(aspects, ProviderResourceAspect.Metadata);
+      providerResourceAspect.SetAttribute(ProviderResourceAspect.ATTR_RESOURCE_INDEX, 0);
+      providerResourceAspect.SetAttribute(ProviderResourceAspect.ATTR_TYPE, ProviderResourceAspect.TYPE_PRIMARY);
       MediaItemAspect mediaAspect = MediaItemAspect.GetOrCreateAspect(aspects, MediaAspect.Metadata);
       MediaItemAspect audioAspect = MediaItemAspect.GetOrCreateAspect(aspects, AudioAspect.Metadata);
+
+      if (!string.IsNullOrEmpty(irsc)) MediaItemAspect.AddOrUpdateExternalIdentifier(aspects, ExternalIdentifierAspect.SOURCE_ISRC, ExternalIdentifierAspect.TYPE_TRACK, irsc);
+      if (!string.IsNullOrEmpty(cdDbId)) MediaItemAspect.AddOrUpdateExternalIdentifier(aspects, ExternalIdentifierAspect.SOURCE_CDDB, ExternalIdentifierAspect.TYPE_ALBUM, cdDbId);
+      if (!string.IsNullOrEmpty(upc)) MediaItemAspect.AddOrUpdateExternalIdentifier(aspects, ExternalIdentifierAspect.SOURCE_UPCEAN, ExternalIdentifierAspect.TYPE_ALBUM, upc);
 
       // TODO: Collect data from internet for the current audio CD
       providerResourceAspect.SetAttribute(ProviderResourceAspect.ATTR_RESOURCE_ACCESSOR_PATH,
           AudioCDResourceProvider.ToResourcePath(drive, track.TrackNo).Serialize());
       providerResourceAspect.SetAttribute(ProviderResourceAspect.ATTR_SYSTEM_ID, systemId);
-      mediaAspect.SetAttribute(MediaAspect.ATTR_TITLE, "Track " + track.TrackNo);
+      mediaAspect.SetAttribute(MediaAspect.ATTR_TITLE, GetTrackTitle(album, (int)track.TrackNo, title));
       audioAspect.SetAttribute(AudioAspect.ATTR_TRACK, (int) track.TrackNo);
       audioAspect.SetAttribute(AudioAspect.ATTR_DURATION, (long) track.Duration);
       audioAspect.SetAttribute(AudioAspect.ATTR_ENCODING, "PCM");
-      audioAspect.SetAttribute(AudioAspect.ATTR_BITRATE, 1411200); // 44.1 kHz * 16 bit * 2 channel
+      audioAspect.SetAttribute(AudioAspect.ATTR_BITRATE, 1411); // 44.1 kHz * 16 bit * 2 channel
+      audioAspect.SetAttribute(AudioAspect.ATTR_CHANNELS, 2);
       audioAspect.SetAttribute(AudioAspect.ATTR_NUMTRACKS, numTracks);
+
+      if (!string.IsNullOrEmpty(album)) audioAspect.SetAttribute(AudioAspect.ATTR_ALBUM, album);
+      if (!string.IsNullOrEmpty(title)) audioAspect.SetAttribute(AudioAspect.ATTR_TRACKNAME, title);
+      if (!string.IsNullOrEmpty(artist)) audioAspect.SetCollectionAttribute(AudioAspect.ATTR_ARTISTS, new string[] { artist });
+      if (!string.IsNullOrEmpty(albumArtist)) audioAspect.SetCollectionAttribute(AudioAspect.ATTR_ALBUMARTISTS, new string[] { albumArtist });
 
       return new MediaItem(Guid.Empty, aspects);
     }
@@ -161,7 +242,7 @@ namespace MediaPortal.UiComponents.Media.Views.RemovableMediaDrives
 
     public override IEnumerable<MediaItem> GetAllMediaItems()
     {
-      return _audioCDSubViewSpecification.GetAllMediaItems();
+      return _audioCDSubViewSpecification.GetAllMediaItems().Result;
     }
 
     #endregion

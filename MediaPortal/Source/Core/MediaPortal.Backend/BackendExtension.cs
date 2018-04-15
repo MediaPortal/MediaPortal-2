@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2015 Team MediaPortal
+#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2015 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -55,6 +55,9 @@ namespace MediaPortal.Backend
 
       logger.Debug("BackendExtension: Registering IMediaItemAspectTypeRegistration service");
       ServiceRegistration.Set<IMediaItemAspectTypeRegistration>(new MediaItemAspectTypeRegistration());
+
+      logger.Debug("BackendExtension: Registering IRelationshipTypeRegistration service");
+      ServiceRegistration.Set<IRelationshipTypeRegistration>(new RelationshipTypeRegistration());
 
       logger.Debug("BackendExtension: Registering IBackendServer service");
       ServiceRegistration.Set<IBackendServer>(new Services.BackendServer.BackendServer());

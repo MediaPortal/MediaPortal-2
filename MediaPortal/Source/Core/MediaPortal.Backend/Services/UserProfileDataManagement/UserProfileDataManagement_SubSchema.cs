@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2015 Team MediaPortal
+#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2015 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -29,6 +29,8 @@ using MediaPortal.Common;
 using MediaPortal.Common.PathManager;
 using MediaPortal.Backend.Database;
 using MediaPortal.Utilities;
+using MediaPortal.Common.UserProfileDataManagement;
+using MediaPortal.Common.MediaManagement.MLQueries;
 
 namespace MediaPortal.Backend.Services.UserProfileDataManagement
 {
@@ -42,7 +44,16 @@ namespace MediaPortal.Backend.Services.UserProfileDataManagement
     public const string SUBSCHEMA_NAME = "UserProfileDataManagement";
 
     public const int EXPECTED_SCHEMA_VERSION_MAJOR = 1;
-    public const int EXPECTED_SCHEMA_VERSION_MINOR = 0;
+    public const int EXPECTED_SCHEMA_VERSION_MINOR = 1;
+
+    internal const string USER_TABLE_NAME = "USER_PROFILES";
+    internal const string USER_DATA_TABLE_NAME = "USER_ADDITIONAL_DATA";
+    internal const string USER_MEDIA_ITEM_DATA_TABLE_NAME = "USER_MEDIA_ITEM_DATA";
+    internal const string USER_PROFILE_ID_COL_NAME = "PROFILE_ID";
+    internal const string USER_DATA_KEY_COL_NAME = "DATA_KEY";
+    internal const string USER_DATA_VALUE_COL_NAME = "MEDIA_ITEM_DATA";
+    internal const string USER_DATA_VALUE_NO_COL_NAME = "DATA_NO";
+    internal const string USER_ADDITIONAL_DATA_VALUE_COL_NAME = "ADDITIONAL_DATA";
 
     #endregion
 
@@ -58,11 +69,11 @@ namespace MediaPortal.Backend.Services.UserProfileDataManagement
     // User profiles
 
     public static IDbCommand SelectUserProfilesCommand(ITransaction transaction, Guid? profileId, string name,
-        out int profileIdIndex, out int nameIndex)
+        out int profileIdIndex, out int nameIndex, out int profileTypeIndex, out int passwordIndex, out int lastLoginIndex, out int imageIndex)
     {
       ISQLDatabase database = transaction.Database;
       IDbCommand result = transaction.CreateCommand();
-      result.CommandText = "SELECT PROFILE_ID, NAME FROM USER_PROFILES";
+      result.CommandText = "SELECT PROFILE_ID, NAME, PROFILE_TYPE, PASSWORD, LAST_LOGIN, IMAGE FROM USER_PROFILES";
 
       IList<string> filters = new List<string>(2);
       if (profileId.HasValue)
@@ -80,16 +91,36 @@ namespace MediaPortal.Backend.Services.UserProfileDataManagement
 
       profileIdIndex = 0;
       nameIndex = 1;
+      profileTypeIndex = 2;
+      passwordIndex = 3;
+      lastLoginIndex = 4;
+      imageIndex = 5;
       return result;
     }
 
-    public static IDbCommand CreateUserProfileCommand(ITransaction transaction, Guid profileId, string name)
+    public static IDbCommand CreateUserProfileCommand(ITransaction transaction, Guid profileId, string name, UserProfileType profileType = UserProfileType.ClientProfile, string password = null, byte[] image = null)
     {
       IDbCommand result = transaction.CreateCommand();
-      result.CommandText = "INSERT INTO USER_PROFILES (PROFILE_ID, NAME) VALUES (@PROFILE_ID, @NAME)";
+      result.CommandText = "INSERT INTO USER_PROFILES (PROFILE_ID, NAME, PROFILE_TYPE, PASSWORD, LAST_LOGIN, IMAGE) VALUES (@PROFILE_ID, @NAME, @PROFILE_TYPE, @PASSWORD, @LAST_LOGIN, @IMAGE)";
       ISQLDatabase database = transaction.Database;
       database.AddParameter(result, "PROFILE_ID", profileId, typeof(Guid));
       database.AddParameter(result, "NAME", name, typeof(string));
+      database.AddParameter(result, "PROFILE_TYPE", (int)profileType, typeof(int));
+      database.AddParameter(result, "PASSWORD", password, typeof(string));
+      database.AddParameter(result, "LAST_LOGIN", DateTime.Now, typeof(DateTime));
+      database.AddParameter(result, "IMAGE", image, typeof(byte[]));
+      return result;
+    }
+
+    public static IDbCommand UpdateUserProfileCommand(ITransaction transaction, Guid profileId, string name, UserProfileType profileType = UserProfileType.ClientProfile, string password = null)
+    {
+      IDbCommand result = transaction.CreateCommand();
+      result.CommandText = "UPDATE USER_PROFILES SET NAME=@NAME, PROFILE_TYPE=@PROFILE_TYPE, PASSWORD=@PASSWORD WHERE PROFILE_ID=@PROFILE_ID";
+      ISQLDatabase database = transaction.Database;
+      database.AddParameter(result, "PROFILE_ID", profileId, typeof(Guid));
+      database.AddParameter(result, "NAME", name, typeof(string));
+      database.AddParameter(result, "PROFILE_TYPE", (int)profileType, typeof(int));
+      database.AddParameter(result, "PASSWORD", password, typeof(string));
       return result;
     }
 
@@ -99,6 +130,37 @@ namespace MediaPortal.Backend.Services.UserProfileDataManagement
       result.CommandText = "UPDATE USER_PROFILES SET NAME=@NAME WHERE PROFILE_ID=@PROFILE_ID";
       ISQLDatabase database = transaction.Database;
       database.AddParameter(result, "NAME", newName, typeof(string));
+      database.AddParameter(result, "PROFILE_ID", profileId, typeof(Guid));
+      return result;
+    }
+
+    public static IDbCommand UpdateUserProfileCommand(ITransaction transaction, Guid profileId, string newName, string newPassword)
+    {
+      IDbCommand result = transaction.CreateCommand();
+      result.CommandText = "UPDATE USER_PROFILES SET NAME=@NAME, PASSWORD=@PASSWORD WHERE PROFILE_ID=@PROFILE_ID";
+      ISQLDatabase database = transaction.Database;
+      database.AddParameter(result, "NAME", newName, typeof(string));
+      database.AddParameter(result, "PROFILE_ID", profileId, typeof(Guid));
+      database.AddParameter(result, "PASSWORD", newPassword, typeof(string));
+      return result;
+    }
+
+    public static IDbCommand SetUserProfileImageCommand(ITransaction transaction, Guid profileId, byte[] newImage)
+    {
+      IDbCommand result = transaction.CreateCommand();
+      result.CommandText = "UPDATE USER_PROFILES SET IMAGE=@IMAGE WHERE PROFILE_ID=@PROFILE_ID";
+      ISQLDatabase database = transaction.Database;
+      database.AddParameter(result, "PROFILE_ID", profileId, typeof(Guid));
+      database.AddParameter(result, "IMAGE", newImage, typeof(byte[]));
+      return result;
+    }
+
+    public static IDbCommand LoginUserProfileCommand(ITransaction transaction, Guid profileId)
+    {
+      IDbCommand result = transaction.CreateCommand();
+      result.CommandText = "UPDATE USER_PROFILES SET LAST_LOGIN=@LAST_LOGIN WHERE PROFILE_ID=@PROFILE_ID";
+      ISQLDatabase database = transaction.Database;
+      database.AddParameter(result, "LAST_LOGIN", DateTime.Now, typeof(DateTime));
       database.AddParameter(result, "PROFILE_ID", profileId, typeof(Guid));
       return result;
     }
@@ -184,6 +246,20 @@ namespace MediaPortal.Backend.Services.UserProfileDataManagement
       return result;
     }
 
+    public static IDbCommand SelectAllUserMediaItemDataCommand(ITransaction transaction, Guid profileId, Guid mediaItemId, out int mediaItemDataKeyIndex, out int mediaItemDataIndex)
+    {
+      IDbCommand result = transaction.CreateCommand();
+      result.CommandText = "SELECT DATA_KEY, MEDIA_ITEM_DATA FROM USER_MEDIA_ITEM_DATA WHERE PROFILE_ID=@PROFILE_ID AND MEDIA_ITEM_ID=@MEDIA_ITEM_ID";
+
+      ISQLDatabase database = transaction.Database;
+      database.AddParameter(result, "PROFILE_ID", profileId, typeof(Guid));
+      database.AddParameter(result, "MEDIA_ITEM_ID", mediaItemId, typeof(Guid));
+
+      mediaItemDataKeyIndex = 0;
+      mediaItemDataIndex = 1;
+      return result;
+    }
+
     public static IDbCommand CreateUserMediaItemDataCommand(ITransaction transaction, Guid profileId, Guid mediaItemId, string dataKey, string mediaItemData)
     {
       IDbCommand result = transaction.CreateCommand();
@@ -218,39 +294,81 @@ namespace MediaPortal.Backend.Services.UserProfileDataManagement
     }
 
     // User additional data
-
-    public static IDbCommand SelectUserAdditionalDataCommand(ITransaction transaction, Guid profileId, string dataKey, out int additionalDataIndex)
+    public static IDbCommand SelectUserAdditionalDataCommand(ITransaction transaction, Guid profileId, string dataKey, int dataNo, out int additionalDataIndex)
     {
       IDbCommand result = transaction.CreateCommand();
-      result.CommandText = "SELECT ADDITIONAL_DATA FROM USER_ADDITIONAL_DATA WHERE PROFILE_ID=@PROFILE_ID AND DATA_KEY=@DATA_KEY";
+      result.CommandText = "SELECT ADDITIONAL_DATA FROM USER_ADDITIONAL_DATA WHERE PROFILE_ID=@PROFILE_ID AND DATA_KEY=@DATA_KEY AND DATA_NO=@DATA_NO";
       ISQLDatabase database = transaction.Database;
       database.AddParameter(result, "PROFILE_ID", profileId, typeof(Guid));
       database.AddParameter(result, "DATA_KEY", dataKey, typeof(string));
+      database.AddParameter(result, "DATA_NO", dataNo, typeof(int));
 
       additionalDataIndex = 0;
       return result;
     }
 
-    public static IDbCommand CreateUserAdditionalDataCommand(ITransaction transaction, Guid profileId, string dataKey, string additionalData)
+    public static IDbCommand SelectUserAdditionalDataListCommand(ITransaction transaction, Guid profileId, string dataKey, bool sortByKey, SortDirection sortDirection,
+      out int dataNoIndex, out int additionalDataIndex)
     {
       IDbCommand result = transaction.CreateCommand();
-      result.CommandText = "INSERT INTO USER_ADDITIONAL_DATA (PROFILE_ID, DATA_KEY, ADDITIONAL_DATA) VALUES (@PROFILE_ID, @DATA_KEY, @ADDITIONAL_DATA)";
+      ISQLDatabase database = transaction.Database;
+      result.CommandText = "SELECT DATA_NO, ADDITIONAL_DATA FROM USER_ADDITIONAL_DATA WHERE PROFILE_ID=@PROFILE_ID AND DATA_KEY=@DATA_KEY";
+      result.CommandText += sortByKey ? " ORDER BY ADDITIONAL_DATA" : " ORDER BY DATA_NO";
+      result.CommandText += sortDirection == SortDirection.Descending ? " DESC" : " ASC";
+
+      database.AddParameter(result, "PROFILE_ID", profileId, typeof(Guid));
+      database.AddParameter(result, "DATA_KEY", dataKey, typeof(string));
+
+      dataNoIndex = 0;
+      additionalDataIndex = 1;
+      return result;
+    }
+
+    public static IDbCommand SelectUserAdditionalDataListCommand(ITransaction transaction, Guid profileId, string[] dataKeys, bool sortByKey, SortDirection sortDirection,
+      out int additionalDataKeyIndex, out int dataNoIndex, out int additionalDataIndex)
+    {
+      IDbCommand result = transaction.CreateCommand();
+      ISQLDatabase database = transaction.Database;
+      result.CommandText = @"SELECT DATA_KEY, DATA_NO, ADDITIONAL_DATA FROM USER_ADDITIONAL_DATA WHERE PROFILE_ID=@PROFILE_ID";
+      if(dataKeys != null && dataKeys.Length > 0)
+        result.CommandText += " AND DATA_KEY IN ('" + string.Join("','", dataKeys) + "')";
+      result.CommandText += sortByKey ? " ORDER BY DATA_KEY, ADDITIONAL_DATA" : " ORDER BY DATA_KEY, DATA_NO";
+      result.CommandText += sortDirection == SortDirection.Descending ? " DESC" : " ASC";
+
+      database.AddParameter(result, "PROFILE_ID", profileId, typeof(Guid));
+
+      additionalDataKeyIndex = 0;
+      dataNoIndex = 1;
+      additionalDataIndex = 2;
+      return result;
+    }
+
+    public static IDbCommand CreateUserAdditionalDataCommand(ITransaction transaction, Guid profileId, string dataKey, int dataNo, string additionalData)
+    {
+      IDbCommand result = transaction.CreateCommand();
+      result.CommandText = "INSERT INTO USER_ADDITIONAL_DATA (PROFILE_ID, DATA_KEY, DATA_NO, ADDITIONAL_DATA) VALUES (@PROFILE_ID, @DATA_KEY, @DATA_NO, @ADDITIONAL_DATA)";
       ISQLDatabase database = transaction.Database;
       database.AddParameter(result, "PROFILE_ID", profileId, typeof(Guid));
       database.AddParameter(result, "DATA_KEY", dataKey, typeof(string));
+      database.AddParameter(result, "DATA_NO", dataNo, typeof(int));
       database.AddParameter(result, "ADDITIONAL_DATA", additionalData, typeof(string));
       return result;
     }
 
-    public static IDbCommand DeleteUserAdditionalDataCommand(ITransaction transaction, Guid profileId, string dataKey)
+    public static IDbCommand DeleteUserAdditionalDataCommand(ITransaction transaction, Guid profileId, int? dataNo, string dataKey)
     {
       IDbCommand result = transaction.CreateCommand();
       result.CommandText = "DELETE FROM USER_ADDITIONAL_DATA WHERE PROFILE_ID=@PROFILE_ID";
+      if (dataNo.HasValue)
+        result.CommandText += " AND DATA_NO=@DATA_NO";
       if (!string.IsNullOrEmpty(dataKey))
         result.CommandText += " AND DATA_KEY=@DATA_KEY";
 
       ISQLDatabase database = transaction.Database;
       database.AddParameter(result, "PROFILE_ID", profileId, typeof(Guid));
+
+      if (dataNo.HasValue)
+        database.AddParameter(result, "DATA_NO", dataNo.Value, typeof(int));
 
       if (!string.IsNullOrEmpty(dataKey))
         database.AddParameter(result, "DATA_KEY", dataKey, typeof(string));

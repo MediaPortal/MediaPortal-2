@@ -12,8 +12,8 @@
     CurrentAPI="1"/>
 
   <DependsOn>
-    <CoreDependency Name="MediaPortal.Common" CompatibleAPI="1" />
-    <CoreDependency Name="MediaPortal.UI" CompatibleAPI="1" />
+    <CoreDependency Name="MediaPortal.Common" CompatibleAPI="2" />
+    <CoreDependency Name="MediaPortal.UI" CompatibleAPI="2" />
     <CoreDependency Name="MediaPortal.Utilities" CompatibleAPI="1" />
     <PluginReference PluginId="{1AFF4467-64B0-4ca1-AF28-9AEDF3525BCE}" CompatibleAPI="1"/> <!-- ConfigurationManager -->
     <PluginReference PluginId="{B765A4B6-F455-4941-BDAE-2CE45208BFEB}" CompatibleAPI="1"/> <!-- Configuration plugin -->
@@ -161,7 +161,10 @@
         Name="PlayerChooseGeometryDialog" DisplayLabel="[Players.ChoosePlayerGeometry]" DialogScreen="DialogPlayerChooseGeometry"
         WorkflowModel="58A7F9E3-1514-47af-8E83-2AD60BA8A037"/> <!-- Workflow model = PlayerConfigurationDialogModel -->
     <DialogState Id="DAD585DF-16FC-45AB-A6D7-FE5600080C7A"
-        Name="PlayerChooseGeometryDialog" DisplayLabel="[Players.ChoosePlayerEffect]" DialogScreen="DialogPlayerChooseEffect"
+        Name="PlayerChooseEffectDialog" DisplayLabel="[Players.ChoosePlayerEffect]" DialogScreen="DialogPlayerChooseEffect"
+        WorkflowModel="58A7F9E3-1514-47af-8E83-2AD60BA8A037"/> <!-- Workflow model = PlayerConfigurationDialogModel -->
+   <DialogState Id="29907D7A-2507-41C8-B082-D4BDA0728885"
+        Name="PlayerChooseSubtitleDialog" DisplayLabel="[Players.ChoosePlayerSubtitle]" DialogScreen="DialogPlayerChooseSubtitle"
         WorkflowModel="58A7F9E3-1514-47af-8E83-2AD60BA8A037"/> <!-- Workflow model = PlayerConfigurationDialogModel -->
 
     <!-- Notification states -->
@@ -227,27 +230,25 @@
     <ConfigSection
         Id="Appearance"
         Redundant="true"
+        Sort="D100"
         Text="[Settings.Appearance]"
         IconSmallPath="Resources\ConfigurationImages\skin-22.png"
         IconLargePath="Resources\ConfigurationImages\skin-48.png"/>
     <ConfigSection
         Id="General"
         Redundant="true"
+        Sort="A100"
         Text="[Settings.General]"
         IconSmallPath="Resources\ConfigurationImages\general-22.png"
         IconLargePath="Resources\ConfigurationImages\general-48.png"/>
     <ConfigSection
-        Id="Regional"
-        Redundant="true"
-        Text="[Settings.Regional]"
-        IconSmallPath="Resources\ConfigurationImages\globe-22.png"
-        IconLargePath="Resources\ConfigurationImages\globe-48.png"/>
-    <ConfigSection
         Id="Shares"
+        Sort="C100"
         Redundant="true"
         Text="[Settings.Shares]"/>
     <ConfigSection
         Id="Plugins"
+        Sort="G100"
         Redundant="true"
         Text="[Settings.Plugins]"/>
   </Register>
@@ -260,16 +261,8 @@
         Text="[Settings.Appearance.Skin]"/>
   </Register>
 
-  <!-- Contents of '/Appearance/Skin' section -->
-  <Register Location="/Configuration/Settings/Appearance/Skin">
-    <ConfigGroup
-        Id="Formats"
-        Redundant="true"
-        Text="[Settings.Appearance.Skin.Formats]"/>
-  </Register>
-
-  <!-- Contents of '/Appearance/Skin/Formats' group -->
-  <Register Location="/Configuration/Settings/Appearance/Skin/Formats">
+  <!-- Contents of '/Appearance/Skin/Regional' group -->
+  <Register Location="/Configuration/Settings/General/Regional">
     <ConfigSetting
         Id="TimeFormat"
         Text="[Settings.Appearance.Skin.Formats.TimeFormat]"
@@ -286,12 +279,19 @@
   <Register Location="/Configuration/Settings/General">
     <ConfigSection
         Id="System"
+        Sort="A110"
         Redundant="true"
         Text="[Settings.General.System]"/>
     <ConfigSection
         Id="Connectivity"
+        Sort="A150"
         Redundant="true"
         Text="[Settings.General.Connectivity]"/>
+    <ConfigSection
+        Id="Regional"
+        Sort="A130"
+        Redundant="true"
+        Text="[Settings.Regional]"/>
   </Register>
 
   <!-- Contents of '/General/Connectivity' group -->
@@ -341,23 +341,10 @@
         Text="[Settings.General.System.Autostart]"
         HelpText="[Settings.General.System.Autostart.Help]"
         ClassName="MediaPortal.UiComponents.SkinBase.Settings.Configuration.General.Autostart"/>
-    <ConfigSetting
-        Id="ClientDOKANDrive"
-        Text="[Settings.General.System.ClientDOKANDrive]"
-        HelpText="[Settings.General.System.ClientDOKANDrive.Help]"
-        ClassName="MediaPortal.UiComponents.SkinBase.Settings.Configuration.General.ClientDOKANDrive"/>
   </Register>
 
-  <!-- Contents of '/Regional' section -->
-  <Register Location="/Configuration/Settings/Regional">
-    <ConfigGroup
-        Id="Language"
-        Redundant="true"
-        Text="[Settings.Regional.Language]"/>
-  </Register>
-
-  <!-- Contents of '/Regional/Language' group -->
-  <Register Location="/Configuration/Settings/Regional/Language">
+  <!-- Contents of '/General/Regional/Language' group -->
+  <Register Location="/Configuration/Settings/General/Regional">
     <ConfigSetting
         Id="MainLanguage"
         Text="[Settings.Regional.Language.Main]"
@@ -367,30 +354,17 @@
 
   <!-- Contents of '/Shares' section -->
   <Register Location="/Configuration/Settings/Shares">
-    <ConfigGroup
-        Id="ConfigureShares"
-        Redundant="true"
-        Text="[Settings.Shares.Configure]"/>
-    <ConfigGroup
-        Id="Overview"
-        Redundant="true"
-        Text="[Settings.Shares.Overview]"/>
-  </Register>
-
-  <!-- Contents of '/Shares/ConfigureShares' group -->
-  <Register Location="/Configuration/Settings/Shares/ConfigureShares">
     <CustomConfigSetting
         Id="SharesConfiguration"
+        RestrictionGroup="Settings.MediaSources"
         Text="[Settings.Shares.ConfigureShares.SharesConfiguration]"
         HelpText="[Settings.Shares.ConfigureShares.SharesConfiguration.Help]"
         ClassName="MediaPortal.UiComponents.SkinBase.Settings.Configuration.Shares.SharesConfigSetting"
         AdditionalData="WorkflowState=36B3F24A-29B4-4cb4-BC7D-434C51491CD2,ConfAppPanel=..."/>
-  </Register>
 
-  <!-- Contents of '/Shares/Import' group -->
-  <Register Location="/Configuration/Settings/Shares/Overview">
     <CustomConfigSetting
         Id="SharesOverview"
+        RestrictionGroup="Settings.MediaSources"
         Text="[Settings.Shares.Overview.SharesOverview]"
         HelpText="[Settings.Shares.Overview.SharesOverview.Help]"
         ClassName="MediaPortal.UiComponents.SkinBase.Settings.Configuration.Shares.SharesOverviewSetting"

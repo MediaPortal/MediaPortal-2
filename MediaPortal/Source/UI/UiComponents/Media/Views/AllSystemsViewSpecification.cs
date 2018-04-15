@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2015 Team MediaPortal
+#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2015 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -131,7 +131,7 @@ namespace MediaPortal.UiComponents.Media.Views
         };
       foreach (KeyValuePair<string, string> kvp in BuildSystemsDictNames2Ids(systems))
       {
-        var clientShares = cd.GetShares(kvp.Value, SharesFilter.All);
+        var clientShares = cd.GetSharesAsync(kvp.Value, SharesFilter.All).Result;
         if (clientShares.Count == 0)
           continue;
       

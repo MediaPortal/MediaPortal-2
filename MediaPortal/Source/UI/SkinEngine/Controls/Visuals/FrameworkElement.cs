@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2015 Team MediaPortal
+#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2015 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -49,6 +49,7 @@ using SharpDX.Direct3D9;
 using MediaPortal.UI.SkinEngine.DirectX;
 using MediaPortal.UI.SkinEngine.Controls.Visuals.Styles;
 using MediaPortal.Utilities.DeepCopy;
+using SharpDX.Mathematics.Interop;
 using Effect = MediaPortal.UI.SkinEngine.Controls.Visuals.Effects.Effect;
 using Size = SharpDX.Size2;
 using SizeF = SharpDX.Size2F;
@@ -1912,11 +1913,11 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
         // Fill the background of the texture with an alpha value of 0
         GraphicsDevice.Device.Clear(ClearFlags.Target, ColorConverter.FromArgb(0, Color.Black), 1.0f, 0,
-          new [] { new Rectangle(
-              (int)Math.Floor(bounds.X),
-              (int)Math.Floor(bounds.Y),
-              (int)Math.Ceiling(bounds.Width),
-              (int)Math.Ceiling(bounds.Height))});
+          new [] { new RawRectangle(
+              (int)Math.Floor(bounds.Left),
+              (int)Math.Floor(bounds.Top),
+              (int)Math.Ceiling(bounds.Right),
+              (int)Math.Ceiling(bounds.Bottom))});
 
         // Render the control into the given texture
         RenderOverride(renderContext);
@@ -2105,7 +2106,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       col.Alpha *= (float) Opacity;
 
       PositionColoredTextured[] verts = PositionColoredTextured.CreateQuad_Fan(
-          bounds.Left - 0.5f, bounds.Top - 0.5f, bounds.Right - 0.5f, bounds.Bottom - 0.5f,
+          bounds.Left /*- 0.5f*/, bounds.Top /*- 0.5f*/, bounds.Right /*- 0.5f*/, bounds.Bottom /*- 0.5f*/,
           bounds.Left / width, bounds.Top / height, bounds.Right / width, bounds.Bottom / height,
           zPos, col);
 
@@ -2156,7 +2157,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       col.Alpha *= (float) Opacity;
 
       PositionColoredTextured[] verts = PositionColoredTextured.CreateQuad_Fan(
-          bounds.Left - 0.5f, bounds.Top - 0.5f, bounds.Right - 0.5f, bounds.Bottom - 0.5f,
+          bounds.Left /*- 0.5f*/, bounds.Top /*- 0.5f*/, bounds.Right /*- 0.5f*/, bounds.Bottom /*- 0.5f*/,
           0.0f, 0.0f, 1.0f, 1.0f,
           zPos, col);
 

@@ -1,6 +1,8 @@
 ﻿
-Microsoft Visual Studio Solution File, Format Version 11.00
-# Visual Studio 2010
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 14
+VisualStudioVersion = 14.0.25420.1
+MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MediaItemAspectModelBuilder", "MediaItemAspectModelBuilder\MediaItemAspectModelBuilder.csproj", "{634C0633-0C9D-4408-B2CB-AA026AAF4A28}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MediaPortal.Common", "..\..\Source\Core\MediaPortal.Common\MediaPortal.Common.csproj", "{ECF060E7-CAA1-4466-851F-F80B857641EA}"
@@ -12,6 +14,14 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HttpServer", "..\..\Source\Core\HttpServer\HttpServer.csproj", "{B1C97BB7-8E27-4C1B-B086-A1204EF8FB79}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "MP2-References", "MP2-References", "{F8D87D2D-4FCE-4179-81D9-077D0A0406A5}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tve3RecordingMetadataExtractor", "..\..\Source\Extensions\MetadataExtractors\Tve3RecordingMetadataExtractor\Tve3RecordingMetadataExtractor.csproj", "{BD0AD1E7-48A9-404E-9C82-291CE3B41657}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OnlineLibraries", "..\..\Source\Extensions\MetadataExtractors\OnlineLibraries\OnlineLibraries.csproj", "{DCA4D19E-75F4-4A8A-B70A-F3F4291DC62B}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FanArtService.Interfaces", "..\..\Source\UI\FanArt\FanArtService.Interfaces\FanArtService.Interfaces.csproj", "{587B806E-9AFC-47D7-A024-1CEC38C4D1D3}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MediaInfoLib", "..\..\Source\Extensions\MetadataExtractors\MediaInfoLib\MediaInfoLib.csproj", "{7280C551-DCE2-46B7-943E-8C0D90CDC22C}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -50,14 +60,41 @@ Global
 		{B1C97BB7-8E27-4C1B-B086-A1204EF8FB79}.Release|x86.Build.0 = Release|x86
 		{B1C97BB7-8E27-4C1B-B086-A1204EF8FB79}.Test|x86.ActiveCfg = Test|x86
 		{B1C97BB7-8E27-4C1B-B086-A1204EF8FB79}.Test|x86.Build.0 = Test|x86
+		{BD0AD1E7-48A9-404E-9C82-291CE3B41657}.Debug|x86.ActiveCfg = Debug|x86
+		{BD0AD1E7-48A9-404E-9C82-291CE3B41657}.Debug|x86.Build.0 = Debug|x86
+		{BD0AD1E7-48A9-404E-9C82-291CE3B41657}.Release|x86.ActiveCfg = Release|x86
+		{BD0AD1E7-48A9-404E-9C82-291CE3B41657}.Release|x86.Build.0 = Release|x86
+		{BD0AD1E7-48A9-404E-9C82-291CE3B41657}.Test|x86.ActiveCfg = Release|x86
+		{BD0AD1E7-48A9-404E-9C82-291CE3B41657}.Test|x86.Build.0 = Release|x86
+		{DCA4D19E-75F4-4A8A-B70A-F3F4291DC62B}.Debug|x86.ActiveCfg = Debug|x86
+		{DCA4D19E-75F4-4A8A-B70A-F3F4291DC62B}.Debug|x86.Build.0 = Debug|x86
+		{DCA4D19E-75F4-4A8A-B70A-F3F4291DC62B}.Release|x86.ActiveCfg = Release|x86
+		{DCA4D19E-75F4-4A8A-B70A-F3F4291DC62B}.Release|x86.Build.0 = Release|x86
+		{DCA4D19E-75F4-4A8A-B70A-F3F4291DC62B}.Test|x86.ActiveCfg = Release|x86
+		{DCA4D19E-75F4-4A8A-B70A-F3F4291DC62B}.Test|x86.Build.0 = Release|x86
+		{587B806E-9AFC-47D7-A024-1CEC38C4D1D3}.Debug|x86.ActiveCfg = Debug|x86
+		{587B806E-9AFC-47D7-A024-1CEC38C4D1D3}.Debug|x86.Build.0 = Debug|x86
+		{587B806E-9AFC-47D7-A024-1CEC38C4D1D3}.Release|x86.ActiveCfg = Release|x86
+		{587B806E-9AFC-47D7-A024-1CEC38C4D1D3}.Release|x86.Build.0 = Release|x86
+		{587B806E-9AFC-47D7-A024-1CEC38C4D1D3}.Test|x86.ActiveCfg = Release|x86
+		{587B806E-9AFC-47D7-A024-1CEC38C4D1D3}.Test|x86.Build.0 = Release|x86
+		{7280C551-DCE2-46B7-943E-8C0D90CDC22C}.Debug|x86.ActiveCfg = Debug|x86
+		{7280C551-DCE2-46B7-943E-8C0D90CDC22C}.Debug|x86.Build.0 = Debug|x86
+		{7280C551-DCE2-46B7-943E-8C0D90CDC22C}.Release|x86.ActiveCfg = Release|x86
+		{7280C551-DCE2-46B7-943E-8C0D90CDC22C}.Release|x86.Build.0 = Release|x86
+		{7280C551-DCE2-46B7-943E-8C0D90CDC22C}.Test|x86.ActiveCfg = Release|x86
+		{7280C551-DCE2-46B7-943E-8C0D90CDC22C}.Test|x86.Build.0 = Release|x86
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
-		{B1C97BB7-8E27-4C1B-B086-A1204EF8FB79} = {F8D87D2D-4FCE-4179-81D9-077D0A0406A5}
-		{455E7D70-1C85-4D7F-9F01-DC801B8B8C34} = {F8D87D2D-4FCE-4179-81D9-077D0A0406A5}
 		{ECF060E7-CAA1-4466-851F-F80B857641EA} = {F8D87D2D-4FCE-4179-81D9-077D0A0406A5}
+		{455E7D70-1C85-4D7F-9F01-DC801B8B8C34} = {F8D87D2D-4FCE-4179-81D9-077D0A0406A5}
 		{4FE7B8AE-1330-424A-91A1-C68D7ABF9CB8} = {F8D87D2D-4FCE-4179-81D9-077D0A0406A5}
+		{B1C97BB7-8E27-4C1B-B086-A1204EF8FB79} = {F8D87D2D-4FCE-4179-81D9-077D0A0406A5}
+		{BD0AD1E7-48A9-404E-9C82-291CE3B41657} = {F8D87D2D-4FCE-4179-81D9-077D0A0406A5}
+		{DCA4D19E-75F4-4A8A-B70A-F3F4291DC62B} = {F8D87D2D-4FCE-4179-81D9-077D0A0406A5}
+		{7280C551-DCE2-46B7-943E-8C0D90CDC22C} = {F8D87D2D-4FCE-4179-81D9-077D0A0406A5}
 	EndGlobalSection
 EndGlobal

@@ -1,0 +1,250 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<!--
+This is the master template for standard menu screens:
+On top the window buttons, the player controls and the notification symbol,
+at the middle the client area and
+at the bottom the navbar.
+
+Usage:
+
+  <Include
+      xmlns="www.team-mediaportal.com/2008/mpf/directx"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      Source="screens\master_bare.xaml">
+    <Include.Resources>
+      <ControlTemplate x:Key="Client_Template">
+        [UI element to be displayed in the client area]
+      </ControlTemplate>
+    </Include.Resources>
+  </Include>
+
+Parameters which have to be accessible by a DynamicResource lookup:
+ - Client_Template (ConrolTemplate): Template for element to be shown in the client area.
+-->
+
+<Screen
+    xmlns="www.team-mediaportal.com/2008/mpf/directx"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:mp_special_workflow="clr-namespace:MediaPortal.UI.SkinEngine.SpecialElements.Workflow;assembly=SkinEngine"
+    xmlns:mp_special_controls="clr-namespace:MediaPortal.UI.SkinEngine.SpecialElements.Controls;assembly=SkinEngine"
+    xmlns:bvc="clr-namespace:MediaPortal.UiComponents.BlueVision.Converters;assembly=BlueVision"
+    xmlns:bvm="clr-namespace:MediaPortal.UiComponents.BlueVision.Models;assembly=BlueVision"
+    mp_special_workflow:WorkflowContext.StateSlot="Root"
+    x:Name="Screen"
+    >
+  <Screen.Resources>
+    <Model x:Key="MouseModel" Id="CA6428A7-A6E2-4dd3-9661-F89CEBAF8E62"/>
+    <Model x:Key="HomeServerModel" Id="854ABA9A-71A1-420b-A657-9641815F9C01"/>
+    <Model x:Key="MenuModel" Id="A6C6D5DA-55FE-4b5f-AE83-B03E8BBFA177"/>
+    <Model x:Key="TimeModel" Id="E821B1C8-0666-4339-8027-AA45A4F6F107"/>
+    <Model x:Key="StateModel" Id="B23D8DC1-405E-4564-92D0-E247C299FFAE"/>
+    <Storyboard x:Key="SlideInStoryboard" FillBehavior="HoldEnd">
+      <DoubleAnimationUsingKeyFrames BeginTime="00:00:00" FillBehavior="HoldEnd" Storyboard.TargetName="FooterPanel" Storyboard.TargetProperty="RenderTransform.Y">
+        <SplineDoubleKeyFrame KeyTime="00:00:00" Value="200"/>
+        <SplineDoubleKeyFrame KeyTime="00:00:00.07" Value="50"/>
+        <SplineDoubleKeyFrame KeyTime="00:00:00.2" Value="0"/>
+      </DoubleAnimationUsingKeyFrames>
+    </Storyboard>
+  </Screen.Resources>
+  <Screen.Triggers>
+    <EventTrigger RoutedEvent="Screen.Show">
+      <EventTrigger.Actions>
+        <TriggerCommand Command="{Command Source={StaticResource MenuModel}, Path=CloseMenu}"/>
+        <BeginStoryboard Storyboard="{ThemeResource ShowScreenStoryboard}"/>
+      </EventTrigger.Actions>
+    </EventTrigger>
+    <EventTrigger RoutedEvent="Screen.Hide">
+      <EventTrigger.Actions>
+        <TriggerCommand Command="{Command Source={StaticResource MenuModel}, Path=CloseMenu}"/>
+        <BeginStoryboard Storyboard="{ThemeResource HideScreenStoryboard}"/>
+      </EventTrigger.Actions>
+    </EventTrigger>
+  </Screen.Triggers>
+
+  <Grid x:Name="ScreenAnimationElement" RenderTransformOrigin="0.5,0.5">
+    <Grid.RenderTransform>
+      <TransformGroup>
+        <ScaleTransform CenterX="0.5" CenterY="0.5" ScaleX="1" ScaleY="1"/>
+        <SkewTransform CenterX="0.5" CenterY="0.5" AngleX="0" AngleY="0"/>
+        <RotateTransform CenterX="0.5" CenterY="0.5" Angle="0"/>
+        <TranslateTransform X="0" Y="0"/>
+      </TransformGroup>
+    </Grid.RenderTransform>
+
+    <Grid.ColumnDefinitions>
+      <ColumnDefinition Width="*"/>
+    </Grid.ColumnDefinitions>
+
+    <Grid.RowDefinitions>
+      <!-- Header -->
+      <RowDefinition Height="Auto"/>
+      <!-- Breadcrumb -->
+      <RowDefinition Height="30"/>
+      <!-- Content -->
+      <RowDefinition Height="*"/>
+      <!-- Shadow -->
+      <RowDefinition Height="Auto"/>
+      <!-- Footer -->
+      <RowDefinition Height="230"/>
+    </Grid.RowDefinitions>
+
+    <Control x:Name="FanArtBackground" Grid.RowSpan="5" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="-1"
+             Template="{DynamicResource ResourceKey=FanArtBackground_Template}"/>
+
+    <Border Grid.Row="0" Grid.Column="0" BorderThickness="0" >
+      <Border.Background>
+        <LinearGradientBrush StartPoint="0.5,0" EndPoint="0.5,1">
+          <LinearGradientBrush.GradientStops>
+            <GradientStop Color="#B3000000" Offset="0"  />
+            <GradientStop Color="#B3000000" Offset="0.95"  />
+            <GradientStop Color="#00000000" Offset="1"  />
+          </LinearGradientBrush.GradientStops>
+        </LinearGradientBrush>
+      </Border.Background>
+    </Border>
+
+    <Border Grid.Row="2" Grid.RowSpan="3" Grid.Column="0" Margin="0,-10,0,0" BorderThickness="0">
+      <Border.Background>
+        <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+          <LinearGradientBrush.GradientStops>
+            <GradientStop Color="#00000000" Offset="0"  />
+            <GradientStop Color="#0A000000" Offset="0.3"  />
+            <GradientStop Color="#CC000000" Offset="0.7"  />
+            <GradientStop Color="#CC000000" Offset="1"  />
+          </LinearGradientBrush.GradientStops>
+        </LinearGradientBrush>
+      </Border.Background>
+    </Border>
+
+    <!-- HeaderPanel -->
+
+    <Grid HorizontalAlignment="Stretch" Margin="0,40,0,0">
+      <Grid.RowDefinitions>
+        <RowDefinition Height="Auto"/>
+        <RowDefinition Height="Auto"/>
+      </Grid.RowDefinitions>
+      <Grid.ColumnDefinitions>
+        <ColumnDefinition Width="Auto"/>
+        <ColumnDefinition Width="*"/>
+        <ColumnDefinition Width="Auto"/>
+        <ColumnDefinition Width="*"/>
+        <ColumnDefinition Width="Auto"/>
+      </Grid.ColumnDefinitions>
+
+      <Button x:Name="PowerButton" Style="{ThemeResource PowerButtonStyle}" Margin="60,-5,20,35" 
+              IsEnabled="{Binding Source={StaticResource MenuModel},Path=!IsMenuOpen}"
+              Command="{Command Source={Service WorkflowManager},Path=NavigatePush,Parameters=BBFA7DB7-5055-48D5-A904-0F0C79849369}">
+      </Button>
+
+      <Border Height="74" Grid.Row="0" Grid.Column="1" VerticalAlignment="Center" Margin="0,-20,5,20" >
+        <StackPanel VerticalAlignment="Center" HorizontalAlignment="Left">
+          <Control x:Name="HeaderControl" Grid.Row="0" Grid.Column="0" Margin="10,0,10,0" VerticalAlignment="Top"
+               Template="{DynamicResource ResourceKey=Header_Text_Template}">
+          </Control>
+          <!--Label x:Name="SelectedItem" Margin="10,0,10,0"
+                  Content="{Binding Source={StaticResource MenuModel}, Path=LastSelectedItemName}"
+                  VerticalAlignment="Center" HorizontalAlignment="Left" FontSize="32" FontFamily="DefaultBold"
+                  Color="{ThemeResource TextColor}">
+          </Label-->
+          <Control HorizontalAlignment="Left" VerticalAlignment="Bottom" Margin="10,-8,0,0">
+            <Control.TemplateControl>
+              <Include Source="screens\MediaItemsListHeader.inc"/>
+            </Control.TemplateControl>
+          </Control>
+        </StackPanel>
+      </Border>
+
+      <!-- Main Menu Group tabs -->
+      <!-- use custom ListView to modify focus behavior -->
+
+      <bvm:GroupMenuListView x:Name="GroupList" Style="{ThemeResource HomeGroupListViewStyle}" Grid.Row="0" Grid.Column="2"
+                               VerticalAlignment="Center" HorizontalAlignment="Center"
+                               IsEnabled="{Binding Source={StaticResource MenuModel},Path=!IsMenuOpen}"
+                               HomeMenuModel="{StaticResource MenuModel}" Margin="0,-25,0,0"
+                               ItemsSource="{Binding Source={StaticResource MenuModel},Path=MainMenuGroupList,Mode=OneTime}"
+                               SelectionChanged="{CommandStencil Source={StaticResource MenuModel},Path=OnGroupItemSelectionChanged}">
+        <bvm:GroupMenuListView.Resources>
+          <CommandBridge x:Key="Menu_Command" Command="{Binding Path=Command,Mode=OneTime}"/>
+        </bvm:GroupMenuListView.Resources>
+      </bvm:GroupMenuListView>
+
+      <!-- Time & Date -->
+      <Border Height="74" Grid.Row="0" Grid.Column="3" VerticalAlignment="Center" Margin="-10,-20,0,20" >
+        <StackPanel HorizontalAlignment="Right" Margin="10,0,10,0" VerticalAlignment="Center">
+          <StackPanel Orientation="Horizontal" VerticalAlignment="Center" HorizontalAlignment="Right">
+            <StackPanel Orientation="Horizontal" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="0,0,10,0"
+                        DataContext="{Binding Source={StaticResource StateModel}, Path=[C37B62D0-8E87-42A4-877E-B41944DA9FC9]}"
+                        IsVisible="{Binding Converter={StaticResource ReferenceToBoolConverter}}">
+              <Label FontSize="{ThemeResource TinyFontSize}" Margin="10,-5,0,-10"
+                     Color="{ThemeResource TextColor}" VerticalAlignment="Center" HorizontalAlignment="Right">
+                <Label.IsVisible>
+                  <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0}>=0">
+                    <Binding Path="Progress"/>
+                  </MultiBinding>
+                </Label.IsVisible>
+                <Label.Content>
+                  <Binding Path="Progress" Converter="{StaticResource StringFormatConverter}" ConverterParameter="{}{0}%"/>
+                </Label.Content>
+              </Label>
+              <Button Style="{ThemeResource ImportingButtonStyle}" IsVisible="{Binding IsImporting}" VerticalAlignment="Center"
+                      HorizontalAlignment="Left" Margin="0,-6,0,-9"/>
+            </StackPanel>
+            <StackPanel Orientation="Horizontal" VerticalAlignment="Center" HorizontalAlignment="Right"
+                        DataContext="{Binding Source={StaticResource StateModel}, Path=[2A58935C-3363-4FA1-B48D-1EF0E81F830D]}"
+                        IsVisible="{Binding Converter={StaticResource ReferenceToBoolConverter}}">
+              <Button Style="{ThemeResource RecordingButtonStyle}" IsVisible="{Binding IsRecording}" VerticalAlignment="Center" Margin="0,-4,0,-16"/>
+            </StackPanel>
+            <Label x:Name="TimeLabel" Content="{Binding Source={StaticResource TimeModel}, Path=CurrentTime}" FontSize="32" FontFamily="DefaultBold"
+                   Color="{ThemeResource TextColor}" VerticalAlignment="Center" HorizontalAlignment="Right"/>
+          </StackPanel>
+
+          <Label x:Name="DateLabel" Content="{Binding Source={StaticResource TimeModel}, Path=CurrentDate}" FontSize="{ThemeResource SmallFontSize}" FontFamily="DefaultBold"
+                 Color="{ThemeResource TextColor}" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="0,-8,0,0"/>
+        </StackPanel>
+      </Border>
+      <Button x:Name="MenuButton" Style="{ThemeResource MenuButtonStyle}" Grid.Row="0" Grid.Column="4" Margin="10,-5,60,35"
+              HorizontalAlignment="Center" VerticalAlignment="Center" IsEnabled="False">
+      </Button>
+    </Grid>
+
+    <!-- Order matters here: The client area control has to be the last control (LastChildFill) -->
+    <Control x:Name="ClientArea" Grid.Row="2" Template="{DynamicResource ResourceKey=Client_Template}" Margin="115,17,115,-3"/>
+
+    <Grid Margin="115,10,115,0" Grid.Row="4" VerticalAlignment="Top">
+      <Grid.RowDefinitions>
+        <RowDefinition Height="*"/>
+      </Grid.RowDefinitions>
+      <Grid.ColumnDefinitions>
+        <ColumnDefinition Width="*"/>
+      </Grid.ColumnDefinitions>
+
+      <!-- MediaItem related: title and description -->
+      <Control x:Name="AlternativeFooterControl"
+         HorizontalAlignment="Stretch"
+         Template="{DynamicResource ResourceKey=Alternative_Footer_Template}">
+      </Control>
+
+      <!-- PlayerControlsPanel Focusable="True"-->
+      <Grid x:Name="FooterPanel" Height="{ThemeResource FooterPanelHeight}" VerticalAlignment="Top" HorizontalAlignment="Stretch"
+            Margin="-55,0,-55,0" IsEnabled="{Binding Source={StaticResource MenuModel},Path=!IsMenuOpen}">
+        <Grid.RowDefinitions>
+          <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+          <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+        <DockPanel x:Name="PlayerControlPanel" DockPanel.Dock="Bottom" LastChildFill="False">
+          <mp_special_controls:PlayerControl x:Name="PrimaryPlayerControl" Margin="3" Style="{ThemeResource NavigationScreenPlayerControlStyle}" Width="710" DockPanel.Dock="Left"
+                HorizontalAlignment="Left" VerticalAlignment="Top" Height="205"
+                AutoVisibility="True" PlayerContext="PrimaryPlayer"/>
+          <mp_special_controls:PlayerControl x:Name="SecondaryPlayerControl" Margin="3" Style="{ThemeResource NavigationScreenPlayerControlStyleSecondary}" Width="710" DockPanel.Dock="Right"
+                HorizontalAlignment="Right" VerticalAlignment="Top"
+                AutoVisibility="True" PlayerContext="SecondaryPlayer"/>
+        </DockPanel>
+      </Grid>
+      
+    </Grid>
+    <!-- FooterPanel -->
+  </Grid>
+</Screen>

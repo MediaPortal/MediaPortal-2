@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2015 Team MediaPortal
+#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2015 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -22,16 +22,21 @@
 
 #endregion
 
+using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.UiComponents.Media.General;
+using System.Linq;
 
 namespace MediaPortal.UiComponents.Media.Models.ScreenData
 {
   public class MoviesShowItemsScreenData : AbstractItemsScreenData
   {
     public MoviesShowItemsScreenData(PlayableItemCreatorDelegate playableItemCreator) :
-      base(Consts.SCREEN_MOVIES_SHOW_ITEMS, Consts.RES_SHOW_ALL_MOVIES_MENU_ITEM,
+      base(Consts.SCREEN_MOVIES_SHOW_ITEMS, Consts.RES_COMMON_SHOW_ALL_MENU_ITEM,
         Consts.RES_FILTER_MOVIES_NAVBAR_DISPLAY_LABEL, playableItemCreator, true)
     {
+      _availableMias = Consts.NECESSARY_MOVIES_MIAS;
+      if (Consts.OPTIONAL_MOVIES_MIAS != null)
+        _availableMias = _availableMias.Union(Consts.OPTIONAL_MOVIES_MIAS);
     }
 
     public override AbstractItemsScreenData Derive()

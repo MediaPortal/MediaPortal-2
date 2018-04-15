@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2015 Team MediaPortal
+#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2015 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -22,32 +22,18 @@
 
 #endregion
 
-using System;
-
 namespace MediaPortal.Extensions.OnlineLibraries.Matches
 {
-  /// <summary>
-  /// Base class for matches of Series or Movies. It contains required fields for the <see cref="BaseMatcher{TMatch,TId}"/> download management feature.
-  /// </summary>
-  /// <typeparam name="T"></typeparam>
-  public abstract class BaseMatch<T>
+  public class BaseMatch<T>
   {
     /// <summary>
-    /// Item name (Series, Movie)
-    /// </summary>
-    public string ItemName;
-    /// <summary>
-    /// ID of the online library, type is specified by <typeparamref name="T"/>.
+    /// Id of the online library, type is specified by <typeparamref name="T"/>.
     /// </summary>
     public T Id;
+
     /// <summary>
-    /// Contains the start time of download. If it is not <c>null</c> and <see cref="FanArtDownloadFinished"/> is <c>null</c>, download should be still
-    /// in progress.
+    /// Item name
     /// </summary>
-    public DateTime? FanArtDownloadStarted;
-    /// <summary>
-    /// Contains the end time of download. If it is not <c>null</c>, download has been completed.
-    /// </summary>
-    public DateTime? FanArtDownloadFinished;
+    public string ItemName;
   }
 }

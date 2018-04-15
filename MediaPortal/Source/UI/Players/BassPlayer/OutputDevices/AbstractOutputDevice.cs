@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2015 Team MediaPortal
+#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2015 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -26,7 +26,6 @@ using System;
 using System.Collections.Generic;
 using MediaPortal.Extensions.BassLibraries;
 using MediaPortal.UI.Players.BassPlayer.Interfaces;
-using MediaPortal.UI.Players.BassPlayer.PlayerComponents;
 using MediaPortal.UI.Players.BassPlayer.Utils;
 using Un4seen.Bass;
 
@@ -53,6 +52,9 @@ namespace MediaPortal.UI.Players.BassPlayer.OutputDevices
     protected BassStream _inputStream = null;
     protected BassStreamFader _fader = null;
     protected volatile bool _outputStreamEnded = false;
+
+    protected volatile bool _isMuted = false;
+    protected volatile int _volume = 100;
 
     #endregion
 
@@ -111,7 +113,7 @@ namespace MediaPortal.UI.Players.BassPlayer.OutputDevices
 
     public TimeSpan Latency
     {
-      get { return _deviceInfos[_deviceNo].Latency + Controller.GetSettings().DirectSoundBufferSize; }
+      get { return _deviceInfos[_deviceNo].Latency + TimeSpan.FromMilliseconds(Controller.GetSettings().DirectSoundBufferSizeMilliSecs); }
     }
 
     /// <summary>
@@ -152,6 +154,10 @@ namespace MediaPortal.UI.Players.BassPlayer.OutputDevices
     public virtual void ClearBuffers()
     {
     }
+
+    public abstract int Volume { get; set; }
+
+    public abstract bool Mute { get; set; }
 
     #endregion
 

@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2015 Team MediaPortal
+#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2015 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -28,6 +28,7 @@ using System.Threading.Tasks;
 using System.Threading.Tasks.Dataflow;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.MediaManagement;
+using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 
 namespace MediaPortal.Common.Services.MediaManagement.ImportDataflowBlocks
 {
@@ -48,6 +49,12 @@ namespace MediaPortal.Common.Services.MediaManagement.ImportDataflowBlocks
 
     #endregion
 
+    #region Variables
+
+    private readonly CancellationToken _ct;
+
+    #endregion
+
     #region Constructor
 
     /// <summary>
@@ -56,9 +63,8 @@ namespace MediaPortal.Common.Services.MediaManagement.ImportDataflowBlocks
     /// <remarks>
     /// The preceding MetadataExtractorBlock has a BoundedCapacity. To avoid that this limitation does not have any effect
     /// because all the items are immediately passed to an unbounded InputBlock of this MediaItemSaveBlock, we
-    /// have to set the BoundedCapacity of the InputBlock to 1. The BoundedCapacity of the InnerBlock is set to 500,
-    /// which is a good trade-off between speed and memory usage. The OutputBlock disposes the PendingImportResources and 
-    /// therefore does not need a BoundedCapacity.
+    /// have to set the BoundedCapacity of the InputBlock to 1. The BoundedCapacity of the InnerBlock is set to 50,
+    /// which is a good trade-off between speed and memory usage.
     /// </remarks>
     /// <param name="ct">CancellationToken used to cancel this DataflowBlock</param>
     /// <param name="importJobInformation"><see cref="ImportJobInformation"/> of the ImportJob this DataflowBlock belongs to</param>
@@ -66,10 +72,11 @@ namespace MediaPortal.Common.Services.MediaManagement.ImportDataflowBlocks
     public MediaItemSaveBlock(CancellationToken ct, ImportJobInformation importJobInformation, ImportJobController parentImportJobController)
       : base(importJobInformation,
       new ExecutionDataflowBlockOptions { CancellationToken = ct, BoundedCapacity = 1 },
-      new ExecutionDataflowBlockOptions { CancellationToken = ct, BoundedCapacity = 500 },
-      new ExecutionDataflowBlockOptions { CancellationToken = ct },
+      new ExecutionDataflowBlockOptions { CancellationToken = ct, BoundedCapacity = 50 },
+      new ExecutionDataflowBlockOptions { CancellationToken = ct, BoundedCapacity = 1 },
       BLOCK_NAME, false, parentImportJobController)
     {
+      _ct = ct;
     }
 
     #endregion
@@ -91,13 +98,16 @@ namespace MediaPortal.Common.Services.MediaManagement.ImportDataflowBlocks
       try
       {
         // ReSharper disable once PossibleInvalidOperationException
-        await UpdateMediaItem(importResource.ParentDirectoryId.Value, importResource.PendingResourcePath, importResource.Aspects.Values);
+        if(importResource.MediaItemId.HasValue)
+          importResource.MediaItemId = await UpdateMediaItem(importResource.ParentDirectoryId.Value, importResource.PendingResourcePath, importResource.MediaItemId.Value, MediaItemAspect.GetAspects(importResource.Aspects), ImportJobInformation, true, _ct);
+        else
+          importResource.MediaItemId = await UpdateMediaItem(importResource.ParentDirectoryId.Value, importResource.PendingResourcePath, MediaItemAspect.GetAspects(importResource.Aspects), ImportJobInformation, false, _ct);
 
         if (ImportJobInformation.JobType == ImportJobType.Refresh)
-          if(importResource.IsSingleResource)
+        {
+          if (importResource.IsSingleResource && importResource.Aspects.ContainsKey(DirectoryAspect.ASPECT_ID))
             await DeleteUnderPath(importResource.PendingResourcePath);
-
-        importResource.IsValid = false;
+        }
         return importResource;
       }
       catch (TaskCanceledException)
@@ -107,6 +117,7 @@ namespace MediaPortal.Common.Services.MediaManagement.ImportDataflowBlocks
       catch (Exception ex)
       {
         ServiceRegistration.Get<ILogger>().Warn("ImporterWorker.{0}.{1}: Error while processing {2}", ex, ParentImportJobController, ToString(), importResource);
+        importResource.Aspects.Clear();
         importResource.IsValid = false;
         return importResource;
       }

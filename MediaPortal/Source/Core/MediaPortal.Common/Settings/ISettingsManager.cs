@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2015 Team MediaPortal
+#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2015 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -103,6 +103,14 @@ namespace MediaPortal.Common.Settings
     /// Used by the setup application to be able to load settings from both server and client.
     /// </remarks>
     void ClearCache();
+
+    /// <summary>
+    /// Overrides the default user name (Windows account). When set to another value, settings will get reloaded
+    /// from the new profile location.
+    /// Setting the value to <c>null</c> restores the default behavior.
+    /// </summary>
+    /// <param name="userName">User name or profile id</param>
+    void ChangeUserContext(string userName);
 
     /// <summary>
     /// Removes the application setting with the specified <paramref name="settingsType"/> from the system.

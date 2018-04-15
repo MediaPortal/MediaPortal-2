@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2015 Team MediaPortal
+#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2015 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -22,6 +22,7 @@
 
 #endregion
 
+using MediaPortal.Common.MediaManagement;
 using MediaPortal.UiComponents.Media.General;
 
 namespace MediaPortal.UiComponents.Media.Models.Navigation
@@ -39,10 +40,22 @@ namespace MediaPortal.UiComponents.Media.Models.Navigation
       NumItems = absNumItems;
     }
 
+    public string Id
+    {
+      get { return (string)AdditionalProperties[Consts.KEY_ID]; }
+      set { AdditionalProperties[Consts.KEY_ID] = value; }
+    }
+
     public int? NumItems
     {
       get { return (int?) AdditionalProperties[Consts.KEY_NUM_ITEMS]; }
       set { AdditionalProperties[Consts.KEY_NUM_ITEMS] = value; }
+    }
+
+    public MediaItem FirstMediaItem
+    {
+      get { return (MediaItem)AdditionalProperties[Consts.KEY_MEDIA_ITEM]; }
+      set { AdditionalProperties[Consts.KEY_MEDIA_ITEM] = value; }
     }
   }
 }

@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2015 Team MediaPortal
+#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2015 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -49,7 +49,7 @@ namespace MediaPortal.UiComponents.SkinBase.Settings.Configuration.General
       {
         try
         {
-          string applicationPath = ServiceRegistration.Get<IPathManager>().GetPath("<APPLICATION_PATH>");
+          string applicationPath = string.Format("\"{0}\" -a", ServiceRegistration.Get<IPathManager>().GetPath("<APPLICATION_PATH>"));
           if (value)
             WindowsAPI.AddAutostartApplication(applicationPath, AUTOSTART_REGISTER_NAME, true);
           else

@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2015 Team MediaPortal
+#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2015 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -91,12 +91,20 @@ namespace MediaPortal.Common.MediaManagement
       /// This message will be sent when a loaded MediaItem was create, changed or deleted. The affected MediaItem is contained in message parameters.
       /// </summary>
       /// This message has parameters <see cref="MEDIA_ITEM"/> and <see cref="MEDIA_ITEM_CHANGE_TYPE"/>.
-      MediaItemChanged
+      MediaItemChanged,
+
+      /// <summary>
+      /// This message will be sent from the media library when it is notified that a client share import progressed and when
+      /// the local importer import progress changes.
+      /// This message has two parameters <see cref="SHARE_ID"/> and <see cref="PROGRESS"/>.
+      /// </summary>
+      ShareImportProgress,
     }
 
     public const string SHARE_ID = "ShareId"; // Parameter type: Guid
     public const string MEDIA_ITEM = "MediaItem"; // Parameter type: MediaItem
     public const string MEDIA_ITEM_CHANGE_TYPE = "MediaItemChangeType"; // Parameter type: MediaItemChangeType
+    public const string PROGRESS = "Progress"; // Parameter type: int
 
     public static void SendPlaylistsChangedMessage()
     {
@@ -128,6 +136,14 @@ namespace MediaPortal.Common.MediaManagement
     {
       SystemMessage msg = new SystemMessage(messageType);
       msg.MessageData[SHARE_ID] = shareId;
+      ServiceRegistration.Get<IMessageBroker>().Send(CHANNEL, msg);
+    }
+
+    public static void SendShareImportProgressMessage(Guid shareId, int progress)
+    {
+      SystemMessage msg = new SystemMessage(MessageType.ShareImportProgress);
+      msg.MessageData[SHARE_ID] = shareId;
+      msg.MessageData[PROGRESS] = progress;
       ServiceRegistration.Get<IMessageBroker>().Send(CHANNEL, msg);
     }
   }

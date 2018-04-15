@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2015 Team MediaPortal
+#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2014 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -24,6 +24,7 @@
 
 using System.Collections.Generic;
 using MediaPortal.Common.Settings;
+using MediaPortal.Extensions.OnlineLibraries;
 
 namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.Settings
 {
@@ -35,6 +36,13 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.Settin
   /// </remarks>
   public class NfoMovieMetadataExtractorSettings : NfoMetadataExtractorSettingsBase
   {
+    #region Consts
+
+    // A valid IMDB-ID starts with "tt" followed by exactly 7 digits
+    private const string REGEX_STRING_IMDBID = @"(tt\d{7})";
+
+    #endregion
+
     #region Ctor
 
     /// <summary>
@@ -43,6 +51,8 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.Settin
     public NfoMovieMetadataExtractorSettings()
     {
       MovieNfoFileNames = new HashSet<string> { "movie" };
+      ImdbIdRegex = new SerializableRegex(REGEX_STRING_IMDBID);
+      PreferredCertificationCountry = ""; //Use first available
     }
 
     #endregion
@@ -54,6 +64,36 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.Settin
     /// </summary>
     [Setting(SettingScope.Global)]
     public HashSet<string> MovieNfoFileNames { get; set; }
+
+    /// <summary>
+    /// Regular expression used to find an IMDB-ID
+    /// </summary>
+    [Setting(SettingScope.Global)]
+    public SerializableRegex ImdbIdRegex { get; set; }
+
+    /// <summary>
+    /// The preferred certification region (ISO 2 letters) if multiple are available.
+    /// </summary>
+    [Setting(SettingScope.Global)]
+    public string PreferredCertificationCountry { get; set; }
+
+    /// <summary>
+    /// If <c>true</c>, Actor details will be created.
+    /// </summary>
+    [Setting(SettingScope.Global, true)]
+    public bool IncludeActorDetails { get; set; }
+
+    /// <summary>
+    /// If <c>true</c>, Character details will be created.
+    /// </summary>
+    [Setting(SettingScope.Global, true)]
+    public bool IncludeCharacterDetails { get; set; }
+
+    /// <summary>
+    /// If <c>true</c>, Director details will be created.
+    /// </summary>
+    [Setting(SettingScope.Global, true)]
+    public bool IncludeDirectorDetails { get; set; }
 
     #endregion
   }

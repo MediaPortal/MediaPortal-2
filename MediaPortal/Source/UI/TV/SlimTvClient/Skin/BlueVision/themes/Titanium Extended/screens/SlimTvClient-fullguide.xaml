@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Include
+    xmlns="www.team-mediaportal.com/2008/mpf/directx"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    Source="screens\master_bare.xaml"
+    xmlns:mp_special_controls="clr-namespace:MediaPortal.UI.SkinEngine.SpecialElements.Controls;assembly=SkinEngine"
+    xmlns:fanart="clr-namespace:MediaPortal.Extensions.UserServices.FanArtService.Client;assembly=FanArtService.Client"
+    xmlns:tv="clr-namespace:MediaPortal.Plugins.SlimTv.Client.Controls;assembly=SlimTv.Client"
+    >
+  <Include.Resources>
+
+    <!-- Header -->
+    <!--ResourceWrapper x:Key="Header_Text" Resource="[SlimTvClient.Guide]"/-->
+
+    <!-- SlimTvClient model -->
+    <Model x:Key="SlimTvMultiChannelGuide" Id="5054408D-C2A9-451f-A702-E84AFCD29C10"/>
+    <tv:SlimTvGuideTimeFormatConverter x:Key="SlimTvGuideTimeFormatConverter" />
+
+    <!-- Contents -->
+    <ControlTemplate x:Key="Client_Template">
+      <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch" 
+            DataContext="{Binding Source={StaticResource SlimTvMultiChannelGuide}}" Margin="0,-180,0,0">
+        <Grid.ColumnDefinitions>
+          <ColumnDefinition Width="{ThemeResource MultiGuideHeaderWidth}"/>
+          <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+
+        <Grid.RowDefinitions>
+          <RowDefinition Height="{ThemeResource MultiGuideProgramPreviewHeight}"/>
+          <RowDefinition Height="Auto"/>
+          <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <Image Stretch="Fill" Source="panel_tv_guide.png" Grid.Row="1" Grid.RowSpan="2" 
+               Grid.Column="0" Grid.ColumnSpan="2" Margin="-45,0,-40,-90" ></Image>
+
+        <Image Stretch="Fill" Source="tv_guide_description_bg.png" Grid.Row="0" 
+               Grid.Column="0" Grid.ColumnSpan="2" Margin="-45,-60,-40,0" ></Image>
+
+        <StackPanel x:Name="Groups" Margin="20,12,20,10" Grid.Column="0" Grid.Row="1"
+              HorizontalAlignment="Left" VerticalAlignment="Center" Orientation="Horizontal">
+          <Button x:Name="PrevGroupButton" Style="{StaticResource PreviousButtonStyle}" Content=" &lt; "
+              Command="{Command PrevGroup}" Margin="0,0,5,0" />
+          <Button x:Name="NextGroupButton" Style="{StaticResource NextButtonStyle}" Content=" &gt; "
+              Command="{Command NextGroup}" Margin="0,0,5,0" />
+          <Label x:Name="GroupNameLabel" Color="Black" Content="{Binding GroupName}"/>
+        </StackPanel>
+        
+        <Grid x:Name="EpgTimeGrid" Grid.Column="1" Grid.Row="1" HorizontalAlignment="Stretch" 
+              VerticalAlignment="Center" Margin="0,12,20,10">
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="*"/>
+          </Grid.ColumnDefinitions>
+          <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+          </Grid.RowDefinitions>
+
+          <Label Grid.Column="0" Content="{Binding Path=GuideStartTime, Converter={StaticResource SlimTvDateFormatConverter}}"
+              Color="Black" VerticalAlignment="Center" Margin="7,0,0,0"/>
+          <Label Grid.Column="1" Color="Black"
+                 VerticalAlignment="Center" Margin="7,0,0,0">
+            <Label.Content>
+              <MultiBinding Converter="{StaticResource SlimTvGuideTimeFormatConverter}" ConverterParameter="0.25">
+                <Binding Path="GuideStartTime"/>
+                <Binding Path="VisibleHours" />
+              </MultiBinding>
+            </Label.Content>
+          </Label>
+          <Label Grid.Column="2" Color="Black"
+                 VerticalAlignment="Center" Margin="7,0,0,0">
+            <Label.Content>
+              <MultiBinding Converter="{StaticResource SlimTvGuideTimeFormatConverter}" ConverterParameter="0.5">
+                <Binding Path="GuideStartTime"/>
+                <Binding Path="VisibleHours" />
+              </MultiBinding>
+            </Label.Content>
+          </Label>
+          <Label Grid.Column="3" Color="Black"
+                 VerticalAlignment="Center" Margin="7,0,0,0">
+            <Label.Content>
+              <MultiBinding Converter="{StaticResource SlimTvGuideTimeFormatConverter}" ConverterParameter="0.75">
+                <Binding Path="GuideStartTime"/>
+                <Binding Path="VisibleHours" />
+              </MultiBinding>
+            </Label.Content>
+          </Label>
+
+          <StackPanel x:Name="TimeControls" Margin="0,0,10,0" Grid.Column="3"
+                     HorizontalAlignment="Right" VerticalAlignment="Center" Orientation="Horizontal">
+            <Button x:Name="ScrollBackwardButton" Style="{StaticResource PreviousButtonStyle}" Content=" - "
+                  Command="{Command ScrollBackward}">
+              <Image Source="details_arrow_left.png" HorizontalAlignment="Center" VerticalAlignment="Center"
+                   Height="20" Stretch="Uniform" Margin="5"/>
+            </Button>
+            <Button x:Name="ScrollForwardButton" Style="{StaticResource NextButtonStyle}" Content=" + "
+                  Command="{Command ScrollForward}" Margin="5,0,5,0">
+              <Image Source="details_arrow_right.png" HorizontalAlignment="Center" VerticalAlignment="Center"
+                   Height="20" Stretch="Uniform" Margin="5"/>
+            </Button>
+          </StackPanel>
+        </Grid>
+
+        <tv:EpgGrid x:Name="EpgGrid" Grid.Column="0" Grid.Row="2" Grid.ColumnSpan="2" Style="{ThemeResource EpgGridStyle}" Margin="2,30,4,-30" />
+
+          <Control Grid.Column="0" Grid.Row="0" Grid.ColumnSpan="2" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Margin="0,0,0,30">
+            <Control.TemplateControl>
+              <Include Source="screens\ProgramInfoSlim.inc"/>
+            </Control.TemplateControl>
+          </Control>
+
+        <KeyBinding Key="Yellow" Command="{Command Path=NextGroup}"/>
+        <KeyBinding Key="Green" Command="{Command Path=PrevGroup}"/>
+        <KeyBinding Key="Guide" Command="{Command Source={Service WorkflowManager},Path=TryExecuteAction,Parameters=9C3E6701-6856-49ec-A4CD-0CEB15F385F6}" />
+      </Grid>
+    </ControlTemplate>
+  </Include.Resources>
+</Include>

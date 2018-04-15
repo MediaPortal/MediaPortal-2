@@ -3,11 +3,11 @@
   <string name="ServerStatus.NotStarted">Server nicht gestartet</string>
   <string name="ServerStatus.Attached">An Server angebunden</string>
   <string name="ServerStatus.Connected">Mit Server verbunden</string>
-  <string name="ServerStatus.Detached">Vom Server getrennt</string>
+  <string name="ServerStatus.Detached">Server abgekoppelt</string>
   <string name="ServerStatus.Disconnected">Vom Server getrennt</string>
   <string name="ServerStatus.ClientConnected">Client(s) mit dem Server verbunden</string>
   <string name="MainWindow.ServerStatus">Serverstatus</string>
-  <string name="MainWindow.AttachedClients">Verbundene Clients:</string>
+  <string name="MainWindow.AttachedClients">Angebundene Clients:</string>
   <string name="ContextMenu.ShowWin">Fenster anzeigen</string>
   <string name="ContextMenu.HideWin">Fenster ausblenden</string>
   <string name="ContextMenu.StartService">Dienst starten</string>

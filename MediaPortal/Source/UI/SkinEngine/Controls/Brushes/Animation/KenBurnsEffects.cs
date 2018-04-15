@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2015 Team MediaPortal
+#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2015 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -96,7 +96,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes.Animation
 
     public static RectangleF GetKenBurnsZoomRectangle(float zoomFactor, int zoomCenterPoint, SizeF imageSize, SizeF outputSize)
     {
-      float normalizationFactor = NormalizeOutputSizeToImageSize(imageSize, outputSize, Stretch.UniformToFill);
+      float normalizationFactor = NormalizeOutputSizeToImageSize(imageSize, outputSize, Stretch.Uniform);
       
       float scaledOutputWidth = outputSize.Width * normalizationFactor / zoomFactor;
       float scaledOutputHeight = outputSize.Height * normalizationFactor / zoomFactor;
@@ -106,7 +106,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes.Animation
 
     public static RectangleF GetKenBurnsPanRectangle(float zoomFactor, float panX, float panY, SizeF imageSize, SizeF outputSize)
     {
-      float normalizationFactor = NormalizeOutputSizeToImageSize(imageSize, outputSize, Stretch.UniformToFill);
+      float normalizationFactor = NormalizeOutputSizeToImageSize(imageSize, outputSize, Stretch.Uniform);
       
       float scaledOutputWidth = outputSize.Width * normalizationFactor / zoomFactor;
       float scaledOutputHeight = outputSize.Height * normalizationFactor / zoomFactor;

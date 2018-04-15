@@ -1,0 +1,8 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<resources>
+  <string name="Settings.General.System.SystemStateDialog">Menu mati</string>
+  <string name="SystemState.Title">Menu mati</string>
+  <string name="SystemState.ShutdownDialogStateDisplayLabel">Menu mati</string>
+  <string name="SleepTimer.Start">Mulai</string>
+  <string name="SleepTimer.Stop">Berhenti</string>
+</resources>

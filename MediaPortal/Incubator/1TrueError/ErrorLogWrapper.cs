@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2015 Team MediaPortal
+#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2015 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -27,11 +27,11 @@ using System.Collections.Generic;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.Services.Settings;
 using MediaPortal.Plugins.OneTrueError.Settings;
-using OneTrueError.Reporting;
+using OneTrueError.Client;
 
 namespace MediaPortal.Plugins.OneTrueError
 {
-  public class ErrorLogWrapper : ILogger
+  public class ErrorLogWrapper : ILogger, ILoggerConfig
   {
     private readonly ILogger _logger;
     private SettingsChangeWatcher<ErrorReportingServiceSettings> _settings = new SettingsChangeWatcher<ErrorReportingServiceSettings>();
@@ -168,5 +168,17 @@ namespace MediaPortal.Plugins.OneTrueError
     }
 
     #endregion
+
+    public LogLevel GetLogLevel()
+    {
+      ILoggerConfig loggerConfig = _logger as ILoggerConfig;
+      return loggerConfig != null ? loggerConfig.GetLogLevel() : LogLevel.Information;
+    }
+
+    public void SetLogLevel(LogLevel level)
+    {
+      ILoggerConfig loggerConfig = _logger as ILoggerConfig;
+      if (loggerConfig != null) loggerConfig.SetLogLevel(level);
+    }
   }
 }

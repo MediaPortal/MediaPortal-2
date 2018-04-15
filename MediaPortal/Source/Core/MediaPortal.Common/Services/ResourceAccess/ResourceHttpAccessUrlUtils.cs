@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2015 Team MediaPortal
+#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2015 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -38,6 +38,11 @@ namespace MediaPortal.Common.Services.ResourceAccess
     /// Base HTTP path for resource access, e.g. "/GetResource".
     /// </summary>
     public const string RESOURCE_ACCESS_PATH = "/GetResource";
+
+    /// <summary>
+    /// Base HTTP path for resource server.
+    /// </summary>
+    public const string RESOURCE_SERVER_BASE_PATH = "/MediaPortal/ResourceServer_";
 
     /// <summary>
     /// Argument name for the resource path argument, e.g. "ResourcePath".

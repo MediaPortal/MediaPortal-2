@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2015 Team MediaPortal
+#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2015 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -72,6 +72,7 @@ namespace MediaPortal.Common.MediaManagement
     protected string _systemId;
     protected ResourcePath _baseResourcePath;
     protected string _name;
+    protected bool _useShareWatcher = false;
     protected HashSet<string> _mediaCategories;
 
     // We could use some cache for this instance, if we would have one...
@@ -90,10 +91,11 @@ namespace MediaPortal.Common.MediaManagement
     /// <param name="baseResourcePath">Description of the resource provider chain for the share's base directory.</param>
     /// <param name="name">Name of the share. This name will be shown at the GUI. The string might be
     /// localized using a "[[Section-Name].[String-Name]]" syntax, for example "[Media.MyMusic]".</param>
+    /// <param name="useShareWatcher">Indicates if changes on share should be monitored by a share watcher.</param>
     /// <param name="mediaCategories">Categories of media in this share. If set, the categories describe
     /// the desired contents of this share. If set to <c>null</c>, the share has no explicit media categories,
     /// i.e. it is a general share.</param>
-    public Share(Guid shareId, string systemId, ResourcePath baseResourcePath, string name,
+    public Share(Guid shareId, string systemId, ResourcePath baseResourcePath, string name, bool useShareWatcher,
         IEnumerable<string> mediaCategories)
     {
       if (baseResourcePath == null)
@@ -105,6 +107,7 @@ namespace MediaPortal.Common.MediaManagement
       _systemId = systemId;
       _baseResourcePath = baseResourcePath;
       _name = name;
+      _useShareWatcher = useShareWatcher;
       _mediaCategories = mediaCategories == null ? new HashSet<string>() : new HashSet<string>(mediaCategories);
     }
 
@@ -116,14 +119,15 @@ namespace MediaPortal.Common.MediaManagement
     /// <param name="baseResourcePath">Description of the resource provider chain for the share's base directory.</param>
     /// <param name="name">Name of the share. This name will be shown at the GUI. The string might be
     /// localized using a "[[Section-Name].[String-Name]]" syntax, for example "[Media.MyMusic]".</param>
+    /// <param name="useShareWatcher">Indicates if changes on share should be monitored by a share watcher.</param>
     /// <param name="mediaCategories">Media content categories of this share. If set, the category
     /// describes the desired contents of this share. If set to <c>null</c>, this share has no explicit
     /// media categories, i.e. it is a general share.</param>
     /// <returns>Created <see cref="Share"/> with a new share id.</returns>
-    public static Share CreateNewShare(string systemId, ResourcePath baseResourcePath, string name,
+    public static Share CreateNewShare(string systemId, ResourcePath baseResourcePath, string name, bool useShareWatcher,
         IEnumerable<string> mediaCategories)
     {
-      return new Share(Guid.NewGuid(), systemId, baseResourcePath, name, mediaCategories);
+      return new Share(Guid.NewGuid(), systemId, baseResourcePath, name, useShareWatcher, mediaCategories);
     }
 
     /// <summary>
@@ -132,14 +136,15 @@ namespace MediaPortal.Common.MediaManagement
     /// <param name="baseResourcePath">Description of the resource provider chain for the share's base directory.</param>
     /// <param name="name">Name of the share. This name will be shown at the GUI. The string might be
     /// localized using a "[[Section-Name].[String-Name]]" syntax, for example "[Media.MyMusic]".</param>
+    /// <param name="useShareWatcher">Indicates if changes on share should be monitored by a share watcher.</param>
     /// <param name="mediaCategories">Media content categories of this share. If set, the category
     /// describes the desired contents of this share. If set to <c>null</c>, this share has no explicit
     /// media categories, i.e. it is a general share.</param>
     /// <returns>Created <see cref="Share"/> with a new share id.</returns>
-    public static Share CreateNewLocalShare(ResourcePath baseResourcePath, string name, IEnumerable<string> mediaCategories)
+    public static Share CreateNewLocalShare(ResourcePath baseResourcePath, string name, bool useShareWatcher, IEnumerable<string> mediaCategories)
     {
       ISystemResolver systemResolver = ServiceRegistration.Get<ISystemResolver>();
-      return CreateNewShare(systemResolver.LocalSystemId, baseResourcePath, name, mediaCategories);
+      return CreateNewShare(systemResolver.LocalSystemId, baseResourcePath, name, useShareWatcher, mediaCategories);
     }
 
     /// <summary>
@@ -189,6 +194,17 @@ namespace MediaPortal.Common.MediaManagement
     public ICollection<string> MediaCategories
     {
       get { return _mediaCategories; }
+    }
+
+    /// <summary>
+    /// Indicates if a ShareWatcher should monitor the source for changes (create, update, delete). Not all filesystems support this and
+    /// also some share kinds might handle the refreshing logic on their own (i.e. recordings)
+    /// </summary>
+    [XmlIgnore]
+    public bool UseShareWatcher
+    {
+      get { return _useShareWatcher; }
+      set { _useShareWatcher = value; }
     }
 
     /// <summary>
@@ -316,6 +332,16 @@ namespace MediaPortal.Common.MediaManagement
     {
       get { return _mediaCategories; }
       set { _mediaCategories = value; }
+    }
+
+    /// <summary>
+    /// For internal use of the XML serialization system only.
+    /// </summary>
+    [XmlElement("UseShareWatcher", IsNullable = false)]
+    public bool XML_UseShareWatcher
+    {
+      get { return _useShareWatcher; }
+      set { _useShareWatcher = value; }
     }
 
     #endregion

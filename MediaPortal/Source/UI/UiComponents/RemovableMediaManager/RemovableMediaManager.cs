@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2015 Team MediaPortal
+#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2015 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -102,7 +102,7 @@ namespace MediaPortal.UiComponents.RemovableMediaManager
       VideoDriveHandler vdh;
       AudioCDDriveHandler acddh;
       MultimediaDriveHandler mcddh;
-      if ((vdh = VideoDriveHandler.TryCreateVideoDriveHandler(driveInfo, Consts.NECESSARY_AUDIO_MIAS)) != null)
+      if ((vdh = VideoDriveHandler.TryCreateVideoDriveHandler(driveInfo, Consts.NECESSARY_VIDEO_MIAS)) != null)
         PlayItemsModel.CheckQueryPlayAction(vdh.VideoItem);
       else if ((acddh = AudioCDDriveHandler.TryCreateAudioCDDriveHandler(driveInfo)) != null)
         PlayItemsModel.CheckQueryPlayAction(() => acddh.GetAllMediaItems(), AVType.Audio);

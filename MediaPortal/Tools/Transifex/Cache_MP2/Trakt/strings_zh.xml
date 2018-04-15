@@ -1,2 +1,13 @@
 <?xml version='1.0' encoding='UTF-8'?>
-<resources/>
+<resources>
+  <string name="Trakt.Enable">启用scrobbling</string>
+  <string name="Trakt.UsernamePasswordGroup">账号详情</string>
+  <string name="Trakt.Username">用户名</string>
+  <string name="Trakt.SyncMovies">同步电影......</string>
+  <string name="Trakt.SyncSeries">同步系列剧......</string>
+  <string name="Trakt.SyncFinished">同步完成！</string>
+  <string name="Trakt.MediaLibraryNotConnected">服务器目前不能连接，不能同步！</string>
+  <string name="Settings.Plugins.Trakt">Trakt.tv</string>
+  <string name="Settings.Plugins.Trakt.TraktSetup">设置Trakt.tv</string>
+  <string name="Settings.Plugins.Trakt.TraktSetup.Help">配置Trakt.tv服务账号详情</string>
+</resources>

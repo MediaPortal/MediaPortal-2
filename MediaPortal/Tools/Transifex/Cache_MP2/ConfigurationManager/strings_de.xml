@@ -1,9 +1,9 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
   <!--FIXME: Move those language resources to Manager application (or to a support plugin)-->
-  <string name="configuration.save_on_exit">Möchten Sie die Änderungen vor dem Schließen speichern?</string>
-  <string name="configuration.unsaved_warning">Warnung: Ungespeicherte Änderungen</string>
+  <string name="configuration.save_on_exit">Änderungen vor dem Schließen speichern?</string>
+  <string name="configuration.unsaved_warning">Achtung: Ungespeicherte Änderungen</string>
   <string name="configuration.browse">Durchsuchen</string>
   <string name="configuration.areas.settings">Einstellungen</string>
-  <string name="configuration.areas.logs">Protokolle</string>
+  <string name="configuration.areas.logs">Logs</string>
 </resources>

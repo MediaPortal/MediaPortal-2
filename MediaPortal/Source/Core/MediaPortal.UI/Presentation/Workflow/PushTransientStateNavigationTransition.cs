@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2015 Team MediaPortal
+#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2015 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -45,7 +45,13 @@ namespace MediaPortal.UI.Presentation.Workflow
 
     public PushTransientStateNavigationTransition(Guid actionId, string name, string displayLabel, IEnumerable<Guid> sourceStateIds,
         WorkflowState transientTargetState, IResourceString displayTitle) :
-        base(actionId, name, sourceStateIds, displayTitle)
+      this(actionId, name, displayLabel, sourceStateIds, transientTargetState, displayTitle, null)
+    {
+    }
+
+    public PushTransientStateNavigationTransition(Guid actionId, string name, string displayLabel, IEnumerable<Guid> sourceStateIds,
+        WorkflowState transientTargetState, IResourceString displayTitle, IResourceString helpText) :
+        base(actionId, name, sourceStateIds, displayTitle, helpText)
     {
       _displayLabel = displayLabel;
       _transientState = transientTargetState;

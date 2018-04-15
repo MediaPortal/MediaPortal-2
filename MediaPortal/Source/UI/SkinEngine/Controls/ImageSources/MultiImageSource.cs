@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2015 Team MediaPortal
+#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2015 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -288,7 +288,9 @@ namespace MediaPortal.UI.SkinEngine.Controls.ImageSources
         {
             FrameSize = _frameSize,
             ShaderEffect = Effect,
-            Rotation = rotation
+            Rotation = rotation,
+            HorizontalTextureAlignment = HorizontalTextureAlignment,
+            VerticalTextureAlignment = VerticalTextureAlignment
         };
       // Clear next
       _nextTexture = null;

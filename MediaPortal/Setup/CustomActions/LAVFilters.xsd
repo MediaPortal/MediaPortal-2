@@ -1,0 +1,19 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<xs:schema xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+  <xsd:element name="LAVFilters">
+    <xsd:complexType>
+      <xsd:sequence>
+        <xsd:element name="Version">
+          <xsd:complexType>
+            <xsd:sequence>
+              <xsd:element name="Major" type="xsd:unsignedInt" />
+              <xsd:element name="Minor" type="xsd:unsignedInt" />
+              <xsd:element name="Build" type="xsd:unsignedInt" />
+              <xsd:element name="Private" type="xsd:unsignedInt" />
+            </xsd:sequence>
+          </xsd:complexType>
+        </xsd:element>
+      </xsd:sequence>
+    </xsd:complexType>
+  </xsd:element>
+</xs:schema>

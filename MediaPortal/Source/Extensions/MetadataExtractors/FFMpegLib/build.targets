@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="4.0">
+
+  <PropertyGroup>
+    <PluginDestination>$(SolutionDir)..\Bin\$(SolutionName)\$(OutDir)Plugins\$(ProjectName)\</PluginDestination>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PluginFiles Include="$(TargetDir)$(ProjectName).dll" />
+    <PluginFiles Include="$(ProjectDir)plugin.xml" />
+  </ItemGroup>
+
+  <Target Name="AfterBuild">
+    <!-- This position is required to capture newly copied package references -->
+    <ItemGroup>
+      <ReferencesX86 Include="$(TargetDir)x86\*.*" />
+      <ReferencesX64 Include="$(TargetDir)x64\*.*" />
+      <Fonts Include="$(TargetDir)fonts\**\*.*" />
+    </ItemGroup>
+    <Copy SourceFiles="@(PluginFiles)" DestinationFolder="$(PluginDestination)" />
+    <Copy SourceFiles="@(ReferencesX86)" DestinationFolder="$(PluginDestination)\x86" />
+    <Copy SourceFiles="@(ReferencesX64)" DestinationFolder="$(PluginDestination)\x64" />
+    <Copy SourceFiles="@(Fonts)" DestinationFiles="@(Fonts->'$(PluginDestination)\fonts\%(RecursiveDir)%(Filename)%(Extension)')" />
+  </Target>
+
+</Project>

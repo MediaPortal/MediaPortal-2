@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2015 Team MediaPortal
+#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2015 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -73,6 +73,7 @@ namespace MediaPortal.UiComponents.Media.Views
       return CombinedViewChangeNotificator.CombineViewChangeNotificators(_delegateVS.CreateChangeNotificator(), new RemovableDriveChangeNotificator(null));
     }
 
+    //protected internal override void ReLoadItemsAndSubViewSpecifications(out IList<MediaItem> mediaItems, out IList<ViewSpecification> subViewSpecifications)
     protected internal override void ReLoadItemsAndSubViewSpecifications(out IList<MediaItem> mediaItems, out IList<ViewSpecification> subViewSpecifications)
     {
       _delegateVS.ReLoadItemsAndSubViewSpecifications(out mediaItems, out subViewSpecifications);

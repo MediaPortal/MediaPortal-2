@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2015 Team MediaPortal
+#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2015 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -25,6 +25,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using MediaPortal.Common;
 using MediaPortal.Common.Commands;
 using MediaPortal.Common.General;
@@ -116,7 +117,7 @@ namespace MediaPortal.UiComponents.SkinBase.Models
           case ServerConnectionMessaging.MessageType.HomeServerDisconnected:
           case ServerConnectionMessaging.MessageType.ClientsOnlineStateChanged:
             UpdateProperties_NoLock();
-            UpdateSharesList_NoLock(false);
+            _ = UpdateSharesList_NoLock(false);
             break;
         }
       }
@@ -126,16 +127,31 @@ namespace MediaPortal.UiComponents.SkinBase.Models
         switch (messageType)
         {
           case ContentDirectoryMessaging.MessageType.RegisteredSharesChanged:
-            UpdateSharesList_NoLock(false);
+            _ = UpdateSharesList_NoLock(false);
             break;
           case ContentDirectoryMessaging.MessageType.ShareImportStarted:
           case ContentDirectoryMessaging.MessageType.ShareImportCompleted:
-            Guid shareId = (Guid) message.MessageData[ContentDirectoryMessaging.SHARE_ID];
-            IServerConnectionManager scm = ServiceRegistration.Get<IServerConnectionManager>();
-            IContentDirectory cd = scm.ContentDirectory;
-            if (cd == null)
-              break;
-            UpdateShareImportState_NoLock(shareId, messageType == ContentDirectoryMessaging.MessageType.ShareImportStarted);
+            {
+              Guid shareId = (Guid)message.MessageData[ContentDirectoryMessaging.SHARE_ID];
+              IServerConnectionManager scm = ServiceRegistration.Get<IServerConnectionManager>();
+              IContentDirectory cd = scm.ContentDirectory;
+              if (cd == null)
+                break;
+              UpdateShareImportState_NoLock(shareId, messageType == ContentDirectoryMessaging.MessageType.ShareImportStarted, null);
+            }
+            break;
+          case ContentDirectoryMessaging.MessageType.ShareImportProgress:
+            {
+              Guid shareId = (Guid)message.MessageData[ContentDirectoryMessaging.SHARE_ID];
+              int? progress = (int)message.MessageData[ContentDirectoryMessaging.PROGRESS];
+              if (progress < 0)
+                progress = null;
+              IServerConnectionManager scm = ServiceRegistration.Get<IServerConnectionManager>();
+              IContentDirectory cd = scm.ContentDirectory;
+              if (cd == null)
+                break;
+              UpdateShareImportState_NoLock(shareId, true, progress);
+            }
             break;
         }
       }
@@ -173,7 +189,7 @@ namespace MediaPortal.UiComponents.SkinBase.Models
       IServerController sc = scm.ServerController;
       if (cd == null || sc == null)
         return;
-      sc.ScheduleImports(cd.GetShares(null, SharesFilter.All).Select(share => share.ShareId), ImportJobType.Refresh);
+      sc.ScheduleImports(cd.GetSharesAsync(null, SharesFilter.All).Result.Select(share => share.ShareId), ImportJobType.Refresh);
     }
 
     public void ReImportShare(Share share)
@@ -189,7 +205,7 @@ namespace MediaPortal.UiComponents.SkinBase.Models
 
     #region Protected methods
 
-    protected void UpdateSharesList_NoLock(bool create)
+    protected async Task UpdateSharesList_NoLock(bool create)
     {
       lock (_syncObj)
         if (create)
@@ -204,7 +220,7 @@ namespace MediaPortal.UiComponents.SkinBase.Models
         if (cd == null || sc == null)
           return;
         IRemoteResourceInformationService rris = ServiceRegistration.Get<IRemoteResourceInformationService>();
-        ICollection<Share> allShares = cd.GetShares(null, SharesFilter.All);
+        ICollection<Share> allShares = await cd.GetSharesAsync(null, SharesFilter.All);
         IDictionary<string, ICollection<Share>> systems2Shares = new Dictionary<string, ICollection<Share>>();
         foreach (Share share in allShares)
         {
@@ -214,7 +230,7 @@ namespace MediaPortal.UiComponents.SkinBase.Models
           else
             systems2Shares[share.SystemId] = new List<Share> { share };
         }
-        ICollection<Guid> importingShares = cd.GetCurrentlyImportingShares() ?? new List<Guid>();
+        ICollection<Guid> importingShares = await cd.GetCurrentlyImportingSharesAsync() ?? new List<Guid>();
         ICollection<string> onlineSystems = sc.GetConnectedClients();
         onlineSystems = onlineSystems == null ? new List<string> { scm.HomeServerSystemId } : new List<string>(onlineSystems) { scm.HomeServerSystemId };
         foreach (KeyValuePair<string, ICollection<Share>> system2Shares in systems2Shares)
@@ -273,7 +289,7 @@ namespace MediaPortal.UiComponents.SkinBase.Models
             shareItem.SetLabel(Consts.KEY_PATH, resourcePathName);
             string categories = StringUtils.Join(", ", share.MediaCategories);
             shareItem.SetLabel(Consts.KEY_MEDIA_CATEGORIES, categories);
-            UpdateShareImportState_NoLock(shareItem, importingShares.Contains(share.ShareId));
+            UpdateShareImportState_NoLock(shareItem, importingShares.Contains(share.ShareId), null);
             Share shareCopy = share;
             shareItem.Command = new MethodDelegateCommand(() => ReImportShare(shareCopy));
             shareItem.AdditionalProperties[Consts.KEY_REIMPORT_ENABLED] = isConnected;
@@ -290,7 +306,7 @@ namespace MediaPortal.UiComponents.SkinBase.Models
       }
     }
 
-    protected void UpdateShareImportState_NoLock(Guid shareId, bool isImporting)
+    protected void UpdateShareImportState_NoLock(Guid shareId, bool isImporting, int? progress)
     {
       ListItem itemToUpdate = null;
       lock (_syncObj)
@@ -309,12 +325,13 @@ namespace MediaPortal.UiComponents.SkinBase.Models
       }
       if (itemToUpdate == null)
         return;
-      UpdateShareImportState_NoLock(itemToUpdate, isImporting);
+      UpdateShareImportState_NoLock(itemToUpdate, isImporting, progress);
     }
 
-    protected void UpdateShareImportState_NoLock(ListItem shareItem, bool isImporting)
+    protected void UpdateShareImportState_NoLock(ListItem shareItem, bool isImporting, int? progress)
     {
       shareItem.AdditionalProperties[Consts.KEY_IS_IMPORTING] = isImporting;
+      shareItem.AdditionalProperties[Consts.KEY_IMPORTING_PROGRESS] = progress;
       shareItem.FireChange();
     }
 
@@ -335,7 +352,7 @@ namespace MediaPortal.UiComponents.SkinBase.Models
       if (workflowState == Consts.WF_STATE_ID_IMPORT_OVERVIEW)
       {
         UpdateProperties_NoLock();
-        UpdateSharesList_NoLock(true);
+        _ = UpdateSharesList_NoLock(true);
       }
     }
 

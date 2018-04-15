@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2015 Team MediaPortal
+#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2015 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -26,6 +26,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Text;
 using MediaPortal.Utilities;
 using MediaPortal.Utilities.Cache;
@@ -473,6 +474,19 @@ namespace MediaPortal.Common.ResourceAccess
       return thisPathSegments.Count < thatPathSegments.Count && thatPathSegments.StartsWith(thisPathSegments, StringComparer.InvariantCulture);
     }
 
+    public static string GetFileNameWithoutExtension(ResourcePath rp)
+    {
+      return GetFileNameWithoutExtension(UnrollPathSegments(rp).Last());
+    }
+
+    public static string GetFileNameWithoutExtension(string lastPart)
+    {
+      int lastIndex = lastPart.LastIndexOf('.');
+      if (lastIndex > 0)
+        return lastPart.Substring(0, lastIndex);
+      return lastPart;
+    }
+
     #region IEnumerable<ProviderPathSegment> implementation
 
     public IEnumerator<ProviderPathSegment> GetEnumerator()
@@ -508,7 +522,7 @@ namespace MediaPortal.Common.ResourceAccess
       if (!(obj is ResourcePath))
         return false;
       ResourcePath other = (ResourcePath) obj;
-      return Serialize() == other.Serialize();
+      return string.Compare(Serialize(), other.Serialize(), true) == 0;
     }
 
     public static bool operator ==(ResourcePath path1, ResourcePath path2)

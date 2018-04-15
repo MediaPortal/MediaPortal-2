@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Skin Name="WMCSkin" Version="1.0">
+  <ShortDescription>WMC</ShortDescription>
+  <UsageNote></UsageNote>
+  <Preview>images\preview.png</Preview>
+  <Author>Morpheus_xx, Ge2301, Brownard</Author>
+  <SkinVersion>1.0</SkinVersion>
+  <SkinEngine>1.0</SkinEngine>
+
+  <NativeWidth>1920</NativeWidth>
+  <NativeHeight>1080</NativeHeight>
+  <DefaultTheme>default</DefaultTheme>
+</Skin>

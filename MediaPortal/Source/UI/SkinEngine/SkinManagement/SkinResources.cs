@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2015 Team MediaPortal
+#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2015 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -27,6 +27,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
 using MediaPortal.Common;
+using MediaPortal.Common.Localization;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.PluginManager;
 using MediaPortal.UI.Presentation.SkinResources;
@@ -169,10 +170,10 @@ namespace MediaPortal.UI.SkinEngine.SkinManagement
     {
       _name = name;
       _modelItemStateTracker = new DefaultItemStateTracker("SkinResources: Usage of model in style resources")
-        {
-            EndRequested = itemRegistration => !StyleGUIModels.ContainsKey(new Guid(itemRegistration.Metadata.Id)),
-            Stopped = itemRegistration => Release()
-        };
+      {
+        EndRequested = itemRegistration => !StyleGUIModels.ContainsKey(new Guid(itemRegistration.Metadata.Id)),
+        Stopped = itemRegistration => Release()
+      };
     }
 
     /// <summary>
@@ -465,6 +466,53 @@ namespace MediaPortal.UI.SkinEngine.SkinManagement
       foreach (KeyValuePair<string, string> resource in GetResourceFilePaths(
           "^" + STYLES_DIRECTORY + "\\\\.*\\.xaml$", false))
         _pendingStyleResources[resource.Key] = new PendingResource(resource.Value);
+
+      MergeLanguageResources();
+    }
+
+    /// <summary>
+    /// Checks for localized resource files and selects the best matching one depending on current culture.
+    /// </summary>
+    private void MergeLanguageResources()
+    {
+      var twoLetterISOLanguageName = ServiceRegistration.Get<ILocalization>().CurrentCulture.TwoLetterISOLanguageName;
+      // Example style names:
+      // styles\VirtualKeyboardStyle.xaml    <- fallback for all other languages
+      // styles\VirtualKeyboardStyle_de.xaml
+      // styles\VirtualKeyboardStyle_fr.xaml
+
+      Regex reLangMatch = new Regex(@"^(.*)(_\w{2})(.xaml)$", RegexOptions.IgnoreCase);
+      Dictionary<string, ICollection<string>> mergeDictionary = new Dictionary<string, ICollection<string>>();
+      foreach (var key in _pendingStyleResources.Keys)
+      {
+        if (!reLangMatch.IsMatch(key))
+          continue;
+
+        string baseKey = reLangMatch.Replace(key, "$1$3");
+        if (!_pendingStyleResources.ContainsKey(baseKey))
+          continue;
+
+        // Base resource file found, collect all related ones
+        if (!mergeDictionary.ContainsKey(baseKey))
+          mergeDictionary[baseKey] = new List<string>();
+        mergeDictionary[baseKey].Add(key);
+      }
+
+      foreach (string mergeKey in mergeDictionary.Keys)
+      {
+        // Test if current language is contained in the localized resources
+        var mergeCollection = mergeDictionary[mergeKey];
+        var matchingResource = mergeCollection.FirstOrDefault(r => r.EndsWith("_" + twoLetterISOLanguageName + ".xaml"));
+
+        // Default condition, "always true" filter to remove all other resources
+        Func<string, bool> removeFilter = r => true;
+        if (matchingResource != null)
+          removeFilter = r => r != matchingResource; // Only remove others but keep matchingResource
+
+        // Remove all other keys but the current one.
+        foreach (var key in mergeCollection.Where(removeFilter))
+          _pendingStyleResources.Remove(key);
+      }
     }
 
     /// <summary>

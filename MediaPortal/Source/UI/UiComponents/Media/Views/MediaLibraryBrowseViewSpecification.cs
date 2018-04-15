@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2015 Team MediaPortal
+#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2015 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -24,6 +24,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.MediaManagement;
@@ -31,9 +32,13 @@ using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Common.MediaManagement.MLQueries;
 using MediaPortal.Common.ResourceAccess;
 using MediaPortal.Common.SystemCommunication;
+using MediaPortal.Common.UserManagement;
 using MediaPortal.UI.ServerCommunication;
 using MediaPortal.Utilities.DB;
 using UPnP.Infrastructure.CP;
+using MediaPortal.UI.Services.UserManagement;
+using MediaPortal.UiComponents.Media.Settings;
+using MediaPortal.UiComponents.Media.Helpers;
 
 namespace MediaPortal.UiComponents.Media.Views
 {
@@ -115,11 +120,12 @@ namespace MediaPortal.UiComponents.Media.Views
       return new ServerConnectionChangeNotificator();
     }
 
-    public override IEnumerable<MediaItem> GetAllMediaItems()
+    public override async Task<IEnumerable<MediaItem>> GetAllMediaItems()
     {
       IContentDirectory cd = ServiceRegistration.Get<IServerConnectionManager>().ContentDirectory;
       if (cd == null)
         return new List<MediaItem>();
+
       MediaItemQuery query = new MediaItemQuery(
           _necessaryMIATypeIds,
           _optionalMIATypeIds,
@@ -129,7 +135,16 @@ namespace MediaPortal.UiComponents.Media.Views
                 new RelationalFilter(ProviderResourceAspect.ATTR_SYSTEM_ID, RelationalOperator.EQ, _systemId),
                 new LikeFilter(ProviderResourceAspect.ATTR_RESOURCE_ACCESSOR_PATH, SqlUtils.LikeEscape(_basePath.Serialize(), '\\') + "%", '\\', true)
               }));
-      return cd.Search(query, false);
+
+      Guid? userProfile = null;
+      IUserManagement userProfileDataManagement = ServiceRegistration.Get<IUserManagement>();
+      if (userProfileDataManagement != null && userProfileDataManagement.IsValidUser)
+      {
+        userProfile = userProfileDataManagement.CurrentUser.ProfileId;
+      }
+      bool showVirtual = VirtualMediaHelper.ShowVirtualMedia(_necessaryMIATypeIds);
+
+      return await cd.SearchAsync(query, false, userProfile, showVirtual);
     }
 
     protected internal override void ReLoadItemsAndSubViewSpecifications(out IList<MediaItem> mediaItems, out IList<ViewSpecification> subViewSpecifications)
@@ -139,21 +154,36 @@ namespace MediaPortal.UiComponents.Media.Views
       IContentDirectory cd = ServiceRegistration.Get<IServerConnectionManager>().ContentDirectory;
       if (cd == null)
         return;
+
+      Guid? userProfile = null;
+      IUserManagement userProfileDataManagement = ServiceRegistration.Get<IUserManagement>();
+      if (userProfileDataManagement != null && userProfileDataManagement.IsValidUser)
+      {
+        userProfile = userProfileDataManagement.CurrentUser.ProfileId;
+      }
+
       try
       {
-        mediaItems = new List<MediaItem>(cd.Browse(_directoryId, _necessaryMIATypeIds, _optionalMIATypeIds));
-        ICollection<MediaItem> childDirectories = cd.Browse(_directoryId, DIRECTORY_MIA_ID_ENUMERATION, EMPTY_ID_ENUMERATION);
+        bool showVirtual = VirtualMediaHelper.ShowVirtualMedia(_necessaryMIATypeIds);
+        mediaItems = new List<MediaItem>(cd.BrowseAsync(_directoryId, _necessaryMIATypeIds, _optionalMIATypeIds, userProfile, showVirtual).Result);
+        ICollection<MediaItem> childDirectories = cd.BrowseAsync(_directoryId, DIRECTORY_MIA_ID_ENUMERATION, EMPTY_ID_ENUMERATION, userProfile, showVirtual).Result;
         subViewSpecifications = new List<ViewSpecification>(childDirectories.Count);
         foreach (MediaItem childDirectory in childDirectories)
         {
-          MediaItemAspect ma = childDirectory.Aspects[MediaAspect.ASPECT_ID];
-          MediaItemAspect pra = childDirectory.Aspects[ProviderResourceAspect.ASPECT_ID];
-          MediaLibraryBrowseViewSpecification subViewSpecification = new MediaLibraryBrowseViewSpecification(
-              (string) ma.GetAttributeValue(MediaAspect.ATTR_TITLE), childDirectory.MediaItemId,
-              (string) pra.GetAttributeValue(ProviderResourceAspect.ATTR_SYSTEM_ID),
-              ResourcePath.Deserialize((string) pra.GetAttributeValue(ProviderResourceAspect.ATTR_RESOURCE_ACCESSOR_PATH)),
-              _necessaryMIATypeIds, _optionalMIATypeIds);
-          subViewSpecifications.Add(subViewSpecification);
+          SingleMediaItemAspect ma = null;
+          MediaItemAspect.TryGetAspect(childDirectory.Aspects, MediaAspect.Metadata, out ma);
+          IList<MultipleMediaItemAspect> pras = null;
+
+          MediaItemAspect.TryGetAspects(childDirectory.Aspects, ProviderResourceAspect.Metadata, out pras);
+          foreach (MultipleMediaItemAspect pra in pras)
+          {
+            MediaLibraryBrowseViewSpecification subViewSpecification = new MediaLibraryBrowseViewSpecification(
+                (string)ma.GetAttributeValue(MediaAspect.ATTR_TITLE), childDirectory.MediaItemId,
+                (string)pra.GetAttributeValue(ProviderResourceAspect.ATTR_SYSTEM_ID),
+                ResourcePath.Deserialize((string)pra.GetAttributeValue(ProviderResourceAspect.ATTR_RESOURCE_ACCESSOR_PATH)),
+                _necessaryMIATypeIds, _optionalMIATypeIds);
+            subViewSpecifications.Add(subViewSpecification);
+          }
         }
       }
       catch (UPnPRemoteException e)

@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2015 Team MediaPortal
+#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2015 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -23,8 +23,12 @@
 #endregion
 
 using System;
+using MediaPortal.Common;
 using MediaPortal.Common.PluginManager;
 using MediaPortal.Common.Services.PluginManager.Builders;
+using MediaPortal.Common.UserManagement;
+using MediaPortal.Common.UserProfileDataManagement;
+using MediaPortal.UI.Services.UserManagement;
 
 namespace MediaPortal.UiComponents.Media.Extensions
 {
@@ -42,7 +46,11 @@ namespace MediaPortal.UiComponents.Media.Extensions
       BuilderHelper.CheckParameter("ClassName", itemData);
       BuilderHelper.CheckParameter("Caption", itemData);
       BuilderHelper.CheckParameter("Sort", itemData);
-      return new MediaItemActionExtension(plugin.GetPluginType(itemData.Attributes["ClassName"]), itemData.Attributes["Caption"], itemData.Attributes["Sort"], itemData.Id);
+      string restrictionGroup; // optional
+      if (itemData.Attributes.TryGetValue("RestrictionGroup", out restrictionGroup))
+        ServiceRegistration.Get<IUserManagement>().RegisterRestrictionGroup(restrictionGroup);
+
+      return new MediaItemActionExtension(plugin.GetPluginType(itemData.Attributes["ClassName"]), itemData.Attributes["Caption"], itemData.Attributes["Sort"], restrictionGroup, itemData.Id);
     }
 
     public void RevokeItem(object item, PluginItemMetadata itemData, PluginRuntime plugin)
@@ -61,7 +69,7 @@ namespace MediaPortal.UiComponents.Media.Extensions
   /// <summary>
   /// <see cref="MediaItemActionExtension"/> holds extension metadata.
   /// </summary>
-  public class MediaItemActionExtension
+  public class MediaItemActionExtension : IUserRestriction
   {
     /// <summary>
     /// Gets the registered type.
@@ -79,6 +87,11 @@ namespace MediaPortal.UiComponents.Media.Extensions
     public string Sort { get; private set; }
 
     /// <summary>
+    /// Gets an optional user restriction group to allow limiting user access.
+    /// </summary>
+    public string RestrictionGroup { get; set; }
+
+    /// <summary>
     /// Unique ID of extension.
     /// </summary>
     public Guid Id { get; private set; }
@@ -88,11 +101,12 @@ namespace MediaPortal.UiComponents.Media.Extensions
     /// </summary>
     public IMediaItemAction Action { get; set; }
 
-    public MediaItemActionExtension(Type type, string caption, string sort, string id)
+    public MediaItemActionExtension(Type type, string caption, string sort, string restrictionGroup, string id)
     {
       ExtensionClass = type;
       Caption = caption;
       Sort = sort;
+      RestrictionGroup = restrictionGroup;
       Id = new Guid(id);
     }
   }

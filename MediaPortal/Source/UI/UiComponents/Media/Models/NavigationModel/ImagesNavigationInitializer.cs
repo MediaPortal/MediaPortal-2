@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2015 Team MediaPortal
+#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2015 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -23,6 +23,7 @@
 #endregion
 
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using MediaPortal.UiComponents.Media.General;
 using MediaPortal.UiComponents.Media.Models.ScreenData;
 using MediaPortal.UiComponents.Media.Models.Sorting;
@@ -39,12 +40,13 @@ namespace MediaPortal.UiComponents.Media.Models.NavigationModel
       _mediaNavigationRootState = Consts.WF_STATE_ID_IMAGES_NAVIGATION_ROOT;
       _viewName = Consts.RES_IMAGES_VIEW_NAME;
       _necessaryMias = Consts.NECESSARY_IMAGE_MIAS;
+      _optionalMias = Consts.OPTIONAL_IMAGE_MIAS;
       _restrictedMediaCategories = RESTRICTED_MEDIA_CATEGORIES;
     }
 
-    protected override void Prepare()
+    protected override async Task PrepareAsync()
     {
-      base.Prepare();
+      await base.PrepareAsync();
 
       _defaultScreen = new ImagesFilterByYearScreenData();
       _availableScreens = new List<AbstractScreenData>
@@ -65,6 +67,18 @@ namespace MediaPortal.UiComponents.Media.Models.NavigationModel
           _defaultSorting,
           new SortByTitle(),
           new ImageSortBySize(),
+          new SortByAddedDate(),
+          new SortBySystem(),
+        };
+
+      _defaultGrouping = null;
+      _availableGroupings = new List<Sorting.Sorting>
+        {
+          //_defaultGrouping,
+          new SortByYear(),
+          new SortByTitle(),
+          new ImageSortBySize(),
+          new SortByAddedDate(),
           new SortBySystem(),
         };
     }

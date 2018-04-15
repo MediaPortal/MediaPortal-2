@@ -1,6 +1,7 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
   <string name="PartyMusicPlayer.MenuItem">Reproductor de música de fiesta</string>
+  <string name="PartyMusicPlayer.MenuItem.Help">Iniciar la lista de reproducción y prevenir el uso de MediaPortal media hora.</string>
   <string name="PartyMusicPlayer.ConfigWorkflowNavigationContextDisplayLabel">Reproductor de música de fiesta</string>
   <string name="PartyMusicPlayer.PlayerWorkflowNavigationContextDisplayLabel">Reproductor de música de fiesta</string>
   <string name="PartyMusicPlayer.ConfigScreenTitle">Configuración del reproductor de música de fiesta</string>

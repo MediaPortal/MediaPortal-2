@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2015 Team MediaPortal
+#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2015 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -37,11 +37,13 @@ using MediaPortal.Common.Logging;
 using MediaPortal.Common.Messaging;
 using MediaPortal.Common.PluginManager;
 using MediaPortal.Common.Threading;
+using MediaPortal.Common.UserProfileDataManagement;
 using MediaPortal.UI.Control.InputManager;
 using MediaPortal.UI.Presentation.Models;
 using MediaPortal.UI.Presentation.Screens;
 using MediaPortal.UI.Presentation.SkinResources;
 using MediaPortal.UI.Presentation.Workflow;
+using MediaPortal.UI.Services.UserManagement;
 using MediaPortal.Utilities;
 using MediaPortal.Utilities.Exceptions;
 
@@ -1049,6 +1051,20 @@ namespace MediaPortal.UI.Services.Workflow
     public IDictionary<Guid, WorkflowAction> MenuStateActions
     {
       get { return _menuActions; }
+    }
+
+    public bool TryExecuteAction(Guid actionId)
+    {
+      WorkflowAction action;
+      if (!MenuStateActions.TryGetValue(actionId, out action))
+        return false;
+
+      if (action.IsEnabled(CurrentNavigationContext) && action.IsVisible(CurrentNavigationContext))
+      {
+        action.Execute();
+        return true;
+      }
+      return false;
     }
 
     public Stack<NavigationContext> NavigationContextStack

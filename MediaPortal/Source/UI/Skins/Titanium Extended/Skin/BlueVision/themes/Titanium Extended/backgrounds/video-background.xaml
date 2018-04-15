@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Screen
+    xmlns="www.team-mediaportal.com/2008/mpf/directx"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    x:Name="VideoBackgroundScreen"
+    >
+  <Grid>
+    <Grid.Background>
+      <VideoBrush Stream="0"/>
+    </Grid.Background>
+    <Grid.ColumnDefinitions>
+      <ColumnDefinition Width="*"/>
+      <ColumnDefinition Width="Auto"/>
+      <ColumnDefinition Width="{ThemeResource FullScreenContentVideoSecondaryPlayerOSDRightMargin}"/>
+    </Grid.ColumnDefinitions>
+    <Grid.RowDefinitions>
+      <RowDefinition Height="{ThemeResource FullScreenContentVideoSecondaryPlayerOSDBottomMargin}"/>
+      <RowDefinition Height="Auto"/>
+      <RowDefinition Height="*"/>
+    </Grid.RowDefinitions>
+    <Control x:Name="BackgroundPiP" Grid.Column="1" Grid.Row="1" Style="{ThemeResource PipControlStyle}"/>
+  </Grid>
+</Screen>

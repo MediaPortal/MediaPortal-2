@@ -1,5 +1,5 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
-  <string name="Settings.Players.Codecs.VideoCodecs.BDSourceFilter">BluRay Quellfilter</string>
-  <string name="Settings.Players.Codecs.VideoCodecs.BDSourceFilter.Help">Legt den Quellfilter für die Wiedergabe von BluRays fest. Derzeit werden nur Gabest und LAV Splitter unterstützt.</string>
+  <string name="Settings.Players.Codecs.VideoCodecs.BDSourceFilter">BluRay-Quellfilter</string>
+  <string name="Settings.Players.Codecs.VideoCodecs.BDSourceFilter.Help">Quellfilter für BluRay-Wiedergabe. Derzeit wird nur Gabest und LAV Splitter unterstützt.</string>
 </resources>

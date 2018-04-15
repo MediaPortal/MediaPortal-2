@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2015 Team MediaPortal
+#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2015 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -48,6 +48,7 @@ namespace MediaPortal.UI.SkinEngine.Utils
       RegisterCustomImageSource(CreateMediaItemThumbnailAspectSource);
       RegisterCustomImageSource(ResourceLocatorSource);
       RegisterCustomImageSource(ImageSource);
+      RegisterCustomImageSource(CreateBinaryImageSource);
     }
 
     /// <summary>
@@ -127,15 +128,22 @@ namespace MediaPortal.UI.SkinEngine.Utils
 
       // Each resolution is cached separately. If we read cache only and our favourite resolution is not yet in cache,
       // we try to find any other existing.
-      if (mediaItem.Aspects.ContainsKey(ThumbnailLargeAspect.ASPECT_ID))
-        textureData = (byte[])mediaItem.Aspects[ThumbnailLargeAspect.ASPECT_ID].GetAttributeValue(ThumbnailLargeAspect.ATTR_THUMBNAIL);
+      SingleMediaItemAspect mediaAspect;
+      if (!MediaItemAspect.TryGetAspect(mediaItem.Aspects, ThumbnailLargeAspect.Metadata, out mediaAspect))
+        return null;
 
-      ImageRotation miRotation;
-      bool flipX;
-      bool flipY;
-      ImageAspect.GetOrientationMetadata(mediaItem, out miRotation, out flipX, out flipY);
-      RightAngledRotation rotation = RotationTranslator.TranslateToRightAngledRotation(miRotation);
-      return new BinaryTextureImageSource(textureData, rotation, key);
+      textureData = (byte[])mediaAspect.GetAttributeValue(ThumbnailLargeAspect.ATTR_THUMBNAIL);
+
+      return new BinaryTextureImageSource(textureData, RightAngledRotation.Zero, key);
+    }
+
+    /// <summary>
+    /// Constructs a <see cref="BinaryTextureImageSource"/> for any given byte[].
+    /// </summary>
+    public static ImageSource CreateBinaryImageSource(object source, int width, int height)
+    {
+      byte[] binary = source as byte[];
+      return binary != null ? new BinaryTextureImageSource(binary, RightAngledRotation.Zero) : null;
     }
 
     #endregion

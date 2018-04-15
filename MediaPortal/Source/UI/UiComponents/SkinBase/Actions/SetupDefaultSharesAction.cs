@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2015 Team MediaPortal
+#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2015 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -121,7 +121,7 @@ namespace MediaPortal.UiComponents.SkinBase.Actions
         bool localHomeServer = homeServerSystem != null && homeServerSystem.IsLocalSystem();
         bool homeServerConncted = contentDirectory != null;
         ILocalSharesManagement localSharesManagement = ServiceRegistration.Get<ILocalSharesManagement>();
-        return localHomeServer ? (homeServerConncted && contentDirectory.GetShares(null, SharesFilter.All).Count == 0) :
+        return localHomeServer ? (homeServerConncted && contentDirectory.GetSharesAsync(null, SharesFilter.All).Result.Count == 0) :
             localSharesManagement.Shares.Count == 0;
       }
     }
@@ -172,7 +172,7 @@ namespace MediaPortal.UiComponents.SkinBase.Actions
       ILocalSharesManagement localSharesManagement = ServiceRegistration.Get<ILocalSharesManagement>();
       if (localHomeServer)
       {
-        if (homeServerConncted && contentDirectory.GetShares(null, SharesFilter.All).Count == 0)
+        if (homeServerConncted && contentDirectory.GetSharesAsync(null, SharesFilter.All).Result.Count == 0)
         {
           IMediaAccessor mediaAccessor = ServiceRegistration.Get<IMediaAccessor>();
           foreach (Share share in mediaAccessor.CreateDefaultShares())

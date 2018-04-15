@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2015 Team MediaPortal
+#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2015 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -28,6 +28,10 @@ using MediaPortal.Common.UPnP;
 using MediaPortal.Common.UserProfileDataManagement;
 using MediaPortal.Utilities.UPnP;
 using UPnP.Infrastructure.CP.DeviceTree;
+using System.Linq;
+using System.Threading.Tasks;
+using MediaPortal.Common.Async;
+using MediaPortal.Common.MediaManagement.MLQueries;
 
 namespace MediaPortal.Common.Services.ServerCommunication
 {
@@ -40,60 +44,100 @@ namespace MediaPortal.Common.Services.ServerCommunication
 
     #region User profiles management
 
-    public ICollection<UserProfile> GetProfiles()
+    public async Task<ICollection<UserProfile>> GetProfilesAsync()
     {
       CpAction action = GetAction("GetProfiles");
-      IList<object> outParameters = action.InvokeAction(null);
-      return new List<UserProfile>((IEnumerable<UserProfile>) outParameters[0]);
+      IList<object> outParameters = await action.InvokeAsync(null);
+      return new List<UserProfile>((IEnumerable<UserProfile>)outParameters[0]);
     }
 
-    public bool GetProfile(Guid profileId, out UserProfile userProfile)
+    public async Task<AsyncResult<UserProfile>> GetProfileAsync(Guid profileId)
     {
       CpAction action = GetAction("GetProfile");
-      IList<object> inParameters = new List<object> {MarshallingHelper.SerializeGuid(profileId)};
-      IList<object> outParameters = action.InvokeAction(inParameters);
-      userProfile = (UserProfile) outParameters[0];
-      return userProfile != null;
+      IList<object> inParameters = new List<object> { MarshallingHelper.SerializeGuid(profileId) };
+      IList<object> outParameters = await action.InvokeAsync(inParameters);
+      var userProfile = (UserProfile)outParameters[0];
+      return new AsyncResult<UserProfile>(userProfile != null, userProfile);
     }
 
-    public bool GetProfileByName(string profileName, out UserProfile userProfile)
+    public async Task<AsyncResult<UserProfile>> GetProfileByNameAsync(string profileName)
     {
       CpAction action = GetAction("GetProfileByName");
-      IList<object> inParameters = new List<object> {profileName};
-      IList<object> outParameters = action.InvokeAction(inParameters);
-      userProfile = (UserProfile) outParameters[0];
-      return userProfile != null;
+      IList<object> inParameters = new List<object> { profileName };
+      IList<object> outParameters = await action.InvokeAsync(inParameters);
+      var userProfile = (UserProfile)outParameters[0];
+      return new AsyncResult<UserProfile>(userProfile != null, userProfile);
     }
 
-    public Guid CreateProfile(string profileName)
+    public async Task<Guid> CreateProfileAsync(string profileName)
     {
       CpAction action = GetAction("CreateProfile");
-      IList<object> inParameters = new List<object> {profileName};
-      IList<object> outParameters = action.InvokeAction(inParameters);
-      return MarshallingHelper.DeserializeGuid((string) outParameters[0]);
+      IList<object> inParameters = new List<object> { profileName };
+      IList<object> outParameters = await action.InvokeAsync(inParameters);
+      return MarshallingHelper.DeserializeGuid((string)outParameters[0]);
     }
 
-    public bool RenameProfile(Guid profileId, string newName)
+    public async Task<Guid> CreateClientProfileAsync(Guid profileId, string profileName)
+    {
+      CpAction action = GetAction("CreateClientProfile");
+      IList<object> inParameters = new List<object> { MarshallingHelper.SerializeGuid(profileId), profileName };
+      IList<object> outParameters = await action.InvokeAsync(inParameters);
+      return MarshallingHelper.DeserializeGuid((string)outParameters[0]);
+    }
+
+    public async Task<Guid> CreateProfileAsync(string profileName, UserProfileType profileType, string profilePassword)
+    {
+      CpAction action = GetAction("CreateUserProfile");
+      IList<object> inParameters = new List<object> { profileName, (int)profileType, profilePassword };
+      IList<object> outParameters = await action.InvokeAsync(inParameters);
+      return MarshallingHelper.DeserializeGuid((string)outParameters[0]);
+    }
+
+    public async Task<bool> UpdateProfileAsync(Guid profileId, string profileName, UserProfileType profileType, string profilePassword)
+    {
+      CpAction action = GetAction("UpdateUserProfile");
+      IList<object> inParameters = new List<object> { MarshallingHelper.SerializeGuid(profileId), profileName, (int)profileType, profilePassword };
+      IList<object> outParameters = await action.InvokeAsync(inParameters);
+      return (bool)outParameters[0];
+    }
+
+    public async Task<bool> SetProfileImageAsync(Guid profileId, byte[] profileImage)
+    {
+      CpAction action = GetAction("SetProfileImage");
+      IList<object> inParameters = new List<object> { MarshallingHelper.SerializeGuid(profileId), profileImage != null && profileImage.Length > 0 ? Convert.ToBase64String(profileImage) : "" };
+      IList<object> outParameters = await action.InvokeAsync(inParameters);
+      return (bool)outParameters[0];
+    }
+
+    public async Task<bool> RenameProfileAsync(Guid profileId, string newName)
     {
       CpAction action = GetAction("RenameProfile");
-      IList<object> inParameters = new List<object> {MarshallingHelper.SerializeGuid(profileId), newName};
-      IList<object> outParameters = action.InvokeAction(inParameters);
-      return (bool) outParameters[0];
+      IList<object> inParameters = new List<object> { MarshallingHelper.SerializeGuid(profileId), newName };
+      IList<object> outParameters = await action.InvokeAsync(inParameters);
+      return (bool)outParameters[0];
     }
 
-    public bool DeleteProfile(Guid profileId)
+    public async Task<bool> DeleteProfileAsync(Guid profileId)
     {
       CpAction action = GetAction("DeleteProfile");
-      IList<object> inParameters = new List<object> {MarshallingHelper.SerializeGuid(profileId)};
-      IList<object> outParameters = action.InvokeAction(inParameters);
-      return (bool) outParameters[0];
+      IList<object> inParameters = new List<object> { MarshallingHelper.SerializeGuid(profileId) };
+      IList<object> outParameters = await action.InvokeAsync(inParameters);
+      return (bool)outParameters[0];
+    }
+
+    public async Task<bool> LoginProfileAsync(Guid profileId)
+    {
+      CpAction action = GetAction("LoginProfile");
+      IList<object> inParameters = new List<object> { MarshallingHelper.SerializeGuid(profileId) };
+      IList<object> outParameters = await action.InvokeAsync(inParameters);
+      return (bool)outParameters[0];
     }
 
     #endregion
 
     #region User playlist data
 
-    public bool GetUserPlaylistData(Guid profileId, Guid playlistId, string key, out string data)
+    public async Task<AsyncResult<string>> GetUserPlaylistDataAsync(Guid profileId, Guid playlistId, string key)
     {
       CpAction action = GetAction("GetUserPlaylistData");
       IList<object> inParameters = new List<object>
@@ -102,12 +146,11 @@ namespace MediaPortal.Common.Services.ServerCommunication
             MarshallingHelper.SerializeGuid(playlistId),
             key
         };
-      IList<object> outParameters = action.InvokeAction(inParameters);
-      data = (string) outParameters[0];
-      return (bool) outParameters[1];
+      IList<object> outParameters = await action.InvokeAsync(inParameters);
+      return new AsyncResult<string>((bool)outParameters[1], (string)outParameters[0]);
     }
 
-    public bool SetUserPlaylistData(Guid profileId, Guid playlistId, string key, string data)
+    public async Task<bool> SetUserPlaylistDataAsync(Guid profileId, Guid playlistId, string key, string data)
     {
       CpAction action = GetAction("SetUserPlaylistData");
       IList<object> inParameters = new List<object>
@@ -117,15 +160,15 @@ namespace MediaPortal.Common.Services.ServerCommunication
             key,
             data
         };
-      IList<object> outParameters = action.InvokeAction(inParameters);
-      return (bool) outParameters[0];
+      IList<object> outParameters = await action.InvokeAsync(inParameters);
+      return (bool)outParameters[0];
     }
 
     #endregion
 
     #region User media item data
 
-    public bool GetUserMediaItemData(Guid profileId, Guid mediaItemId, string key, out string data)
+    public async Task<AsyncResult<string>> GetUserMediaItemDataAsync(Guid profileId, Guid mediaItemId, string key)
     {
       CpAction action = GetAction("GetUserMediaItemData");
       IList<object> inParameters = new List<object>
@@ -134,12 +177,11 @@ namespace MediaPortal.Common.Services.ServerCommunication
             MarshallingHelper.SerializeGuid(mediaItemId),
             key
         };
-      IList<object> outParameters = action.InvokeAction(inParameters);
-      data = (string) outParameters[0];
-      return (bool) outParameters[1];
+      IList<object> outParameters = await action.InvokeAsync(inParameters);
+      return new AsyncResult<string>((bool)outParameters[1], (string)outParameters[0]);
     }
 
-    public bool SetUserMediaItemData(Guid profileId, Guid mediaItemId, string key, string data)
+    public async Task<bool> SetUserMediaItemDataAsync(Guid profileId, Guid mediaItemId, string key, string data)
     {
       CpAction action = GetAction("SetUserMediaItemData");
       IList<object> inParameters = new List<object>
@@ -149,50 +191,105 @@ namespace MediaPortal.Common.Services.ServerCommunication
             key,
             data
         };
-      IList<object> outParameters = action.InvokeAction(inParameters);
-      return (bool) outParameters[0];
+      IList<object> outParameters = await action.InvokeAsync(inParameters);
+      return (bool)outParameters[0];
     }
 
     #endregion
 
     #region User additional data
 
-    public bool GetUserAdditionalData(Guid profileId, string key, out string data)
+    public async Task<AsyncResult<string>> GetUserAdditionalDataAsync(Guid profileId, string key, int dataNo = 0)
     {
       CpAction action = GetAction("GetUserAdditionalData");
       IList<object> inParameters = new List<object>
         {
             MarshallingHelper.SerializeGuid(profileId),
-            key
+            key,
+            dataNo
         };
-      IList<object> outParameters = action.InvokeAction(inParameters);
-      data = (string) outParameters[0];
-      return (bool) outParameters[1];
+      IList<object> outParameters = await action.InvokeAsync(inParameters);
+      return new AsyncResult<string>((bool)outParameters[1], (string)outParameters[0]);
     }
 
-    public bool SetUserAdditionalData(Guid profileId, string key, string data)
+    public async Task<bool> SetUserAdditionalDataAsync(Guid profileId, string key, string data, int dataNo = 0)
     {
       CpAction action = GetAction("SetUserAdditionalData");
       IList<object> inParameters = new List<object>
         {
             MarshallingHelper.SerializeGuid(profileId),
             key,
+            dataNo,
             data
         };
-      IList<object> outParameters = action.InvokeAction(inParameters);
-      return (bool) outParameters[0];
+      IList<object> outParameters = await action.InvokeAsync(inParameters);
+      return (bool)outParameters[0];
+    }
+
+    public async Task<AsyncResult<IEnumerable<Tuple<int, string>>>> GetUserAdditionalDataListAsync(Guid profileId, string key, bool sortByKey = false, SortDirection sortDirection = SortDirection.Ascending, uint? offset = null, uint? limit = null)
+    {
+      CpAction action = GetAction("GetUserAdditionalDataList");
+      IList<object> inParameters = new List<object>
+        {
+            MarshallingHelper.SerializeGuid(profileId),
+            key,
+            sortByKey,
+            (int)sortDirection,
+            offset,
+            limit
+        };
+      IList<object> outParameters = await action.InvokeAsync(inParameters);
+      IEnumerable<Tuple<int, string>> data = null;
+      if (outParameters[0] != null)
+        data = MarshallingHelper.ParseCsvTuple2Collection((string)outParameters[0]).Select(t => new Tuple<int, string>(Convert.ToInt32(t.Item1), t.Item2));
+      return new AsyncResult<IEnumerable<Tuple<int, string>>>((bool)outParameters[1], data);
+    }
+
+    public async Task<AsyncResult<IEnumerable<Tuple<string, int, string>>>> GetUserSelectedAdditionalDataListAsync(Guid profileId, string[] keys, bool sortByKey = false, SortDirection sortDirection = SortDirection.Ascending, uint? offset = null, uint? limit = null)
+    {
+      CpAction action = GetAction("GetUserSelectedAdditionalDataList");
+      IList<object> inParameters = new List<object>
+        {
+            MarshallingHelper.SerializeGuid(profileId),
+            MarshallingHelper.SerializeStringEnumerationToCsv(keys),
+            sortByKey,
+            (int)sortDirection,
+            offset,
+            limit
+        };
+      IList<object> outParameters = await action.InvokeAsync(inParameters);
+      IEnumerable<Tuple<string, int, string>> data = null;
+      if (outParameters[0] != null)
+        data = MarshallingHelper.ParseCsvTuple3Collection((string)outParameters[0]).Select(t => new Tuple<string, int, string>(t.Item1, Convert.ToInt32(t.Item2), t.Item3));
+      return new AsyncResult<IEnumerable<Tuple<string, int, string>>>((bool)outParameters[1], data);
     }
 
     #endregion
 
     #region Cleanup user data
 
-    public bool ClearAllUserData(Guid profileId)
+    public async Task<bool> ClearAllUserDataAsync(Guid profileId)
     {
       CpAction action = GetAction("ClearAllUserData");
-      IList<object> inParameters = new List<object> {MarshallingHelper.SerializeGuid(profileId)};
-      IList<object> outParameters = action.InvokeAction(inParameters);
-      return (bool) outParameters[0];
+      IList<object> inParameters = new List<object> { MarshallingHelper.SerializeGuid(profileId) };
+      IList<object> outParameters = await action.InvokeAsync(inParameters);
+      return (bool)outParameters[0];
+    }
+
+    public async Task<bool> ClearUserMediaItemDataKeyAsync(Guid profileId, string key)
+    {
+      CpAction action = GetAction("ClearUserMediaItemDataKey");
+      IList<object> inParameters = new List<object> { MarshallingHelper.SerializeGuid(profileId), key };
+      IList<object> outParameters = await action.InvokeAsync(inParameters);
+      return (bool)outParameters[0];
+    }
+
+    public async Task<bool> ClearUserAdditionalDataKeyAsync(Guid profileId, string key)
+    {
+      CpAction action = GetAction("ClearUserAdditionalDataKey");
+      IList<object> inParameters = new List<object> { MarshallingHelper.SerializeGuid(profileId), key };
+      IList<object> outParameters = await action.InvokeAsync(inParameters);
+      return (bool)outParameters[0];
     }
 
     #endregion

@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2015 Team MediaPortal
+#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2015 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -42,6 +42,7 @@ namespace MediaPortal.Common.Services.Logging
     protected static readonly object _syncObject = new object();
     protected bool _logMethodNames = false;
     protected readonly string _myClassName;
+    protected readonly string _baseClassName = "DefaultLogger";
     protected bool _alwaysFlush;
 
     /// <summary>
@@ -116,23 +117,43 @@ namespace MediaPortal.Common.Services.Logging
       messageBuilder.Append("]");
       if (_logMethodNames)
       {
+#if DEBUG
+        StackTrace trace = new StackTrace(true);
+#else
         StackTrace trace = new StackTrace(false);
+#endif
         int step = 1;
         string className;
         string methodName;
+#if DEBUG
+        string filename;
+        int line;
+#endif
         do
         {
-          MethodBase method = trace.GetFrame(step++).GetMethod();
+          StackFrame frame = trace.GetFrame(step++);
+          MethodBase method = frame.GetMethod();
           className = method.DeclaringType.Name;
           methodName = method.Name;
-        } while (className.Equals(_myClassName));
+#if DEBUG
+          filename = Path.GetFileName(frame.GetFileName());
+          line = frame.GetFileLineNumber();
+#endif
+        } while (className.Equals(_myClassName) || className.Equals(_baseClassName));
         messageBuilder.Append("[");
         messageBuilder.Append(className);
         messageBuilder.Append(".");
         messageBuilder.Append(methodName);
+#if DEBUG
+        messageBuilder.Append("(");
+        messageBuilder.Append(filename);
+        messageBuilder.Append(":");
+        messageBuilder.Append(line);
+        messageBuilder.Append(")");
         messageBuilder.Append("]");
+#endif
       }
-      messageBuilder.Append(": ");
+      messageBuilder.Append(" - ");
       messageBuilder.Append(message);
 
       Write(messageBuilder.ToString(), _alwaysFlush || messageLevel == LogLevel.Critical);
@@ -203,7 +224,7 @@ namespace MediaPortal.Common.Services.Logging
         _writer.Flush();
     }
 
-    #region ILogger implementation
+#region ILogger implementation
 
     public void Debug(string format, params object[] args)
     {
@@ -279,6 +300,6 @@ namespace MediaPortal.Common.Services.Logging
       Flush();
     }
 
-    #endregion
+#endregion
   }
 }

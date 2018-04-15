@@ -12,14 +12,14 @@
   <string name="Settings.Appearance.System.ScreenSaverEnabled.Help">设置是否显示屏保</string>
   <string name="Settings.Appearance.System.ScreenSaverTimeout">屏保超时</string>
   <string name="Settings.Appearance.System.ScreenSaverTimeout.Help">配置启动屏保的时间(分钟)</string>
-  <string name="Settings.Appearance.System.Antialiasing">用户图形界面抗锯齿</string>
-  <string name="Settings.Appearance.System.Antialiasing.Help">抗锯齿能够提高显示效果但是会降低视频效果</string>
   <string name="Settings.Appearance.Skin">皮肤</string>
   <string name="Settings.Appearance.Skin.SkinAndTheme">皮肤和主题</string>
   <string name="Settings.Appearance.Skin.SkinAndTheme.ChangeSkin">改变皮肤</string>
   <string name="Settings.Appearance.Skin.SkinAndTheme.ChangeSkin.Help">改变的MediaPortal2的外观和感觉</string>
   <string name="Settings.Appearance.Skin.SkinAndTheme.ChangeTheme">改变主题</string>
   <string name="Settings.Appearance.Skin.SkinAndTheme.ChangeTheme.Help">改变当前皮肤图像</string>
+  <string name="Settings.Appearance.Skin.SkinAndTheme.SkinSounds">启用皮肤声音</string>
+  <string name="Settings.Appearance.Skin.SkinAndTheme.SkinSounds.Help">设置是否配置皮肤声音</string>
   <string name="Settings.Players">播放器</string>
   <string name="Settings.Players.Rendering">渲染</string>
   <string name="Settings.Players.Rendering.DefaultGeometry">默认缩放模式</string>

@@ -320,6 +320,7 @@
 
   <Style x:Key="WizardButtonStyle" BasedOn="{ThemeResource ButtonWideStyle}" TargetType="{x:Type Button}">
     <Setter Property="HorizontalAlignment" Value="Stretch"/>
+    <Setter Property="HorizontalContentAlignment" Value="Center"/>
   </Style>
 
   <Style x:Key="DialogButtonStyle" BasedOn="{ThemeResource ButtonWideStyle}" TargetType="{x:Type Button}">
@@ -1014,6 +1015,32 @@
               </Trigger.ExitActions>
             </Trigger>
           </ControlTemplate.Triggers>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+
+  <!-- Virtual Keyboard Styles -->
+  <ResourceWrapper x:Key="VKMargin" Resource="5"/>
+
+  <Style x:Key="VKButtonStyle" BasedOn="{ThemeResource DefaultButtonStyle}">
+    <Setter Property="HorizontalContentAlignment" Value="Center"/>
+    <Setter Property="VerticalContentAlignment" Value="Center"/>
+  </Style>
+
+  <Style x:Key="VirtualKeyboardControlStyle" TargetType="{x:Type VirtualKeyboardControl}">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate>
+          <Border Background="{ThemeResource VirtualKeyboardBackgroundColor}" BorderBrush="{ThemeResource VirtualKeyboardBorderColor}"
+                  BorderThickness="{ThemeResource VirtualKeyboardBorderThickness}" CornerRadius="{ThemeResource VirtualKeyboardCornerRadius}">
+            <StackPanel>
+              <Label Content="{Binding RelativeSource={RelativeSource TemplatedParent},Path=VisibleText}"
+                     IsVisible="{Binding RelativeSource={RelativeSource TemplatedParent},Path=ShowVisibleText}"
+                     Color="{ThemeResource TextColor}" HorizontalAlignment="Center"/>
+              <VirtualKeyboardPresenter/>
+            </StackPanel>
+          </Border>
         </ControlTemplate>
       </Setter.Value>
     </Setter>

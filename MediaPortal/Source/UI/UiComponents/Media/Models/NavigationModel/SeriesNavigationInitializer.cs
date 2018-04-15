@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2015 Team MediaPortal
+#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2015 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -23,9 +23,14 @@
 #endregion
 
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using MediaPortal.UiComponents.Media.General;
 using MediaPortal.UiComponents.Media.Models.ScreenData;
 using MediaPortal.UiComponents.Media.Models.Sorting;
+using MediaPortal.Common.MediaManagement.DefaultItemAspects;
+using MediaPortal.Common.MediaManagement.MLQueries;
+using MediaPortal.UiComponents.Media.Helpers;
+using MediaPortal.UiComponents.Media.FilterTrees;
 
 namespace MediaPortal.UiComponents.Media.Models.NavigationModel
 {
@@ -33,19 +38,38 @@ namespace MediaPortal.UiComponents.Media.Models.NavigationModel
   {
     internal static IEnumerable<string> RESTRICTED_MEDIA_CATEGORIES = new List<string> { Models.MediaNavigationMode.Series }; // "Series"
 
+    protected SeriesFilterByNameScreenData _seriesScreen;
+
     public SeriesNavigationInitializer()
     {
       _mediaNavigationMode = Models.MediaNavigationMode.Series;
       _mediaNavigationRootState = Consts.WF_STATE_ID_SERIES_NAVIGATION_ROOT;
       _viewName = Consts.RES_SERIES_VIEW_NAME;
-      _necessaryMias = Consts.NECESSARY_SERIES_MIAS;
+      _necessaryMias = Consts.NECESSARY_EPISODE_MIAS;
+      _optionalMias = Consts.OPTIONAL_EPISODE_MIAS;
       _restrictedMediaCategories = RESTRICTED_MEDIA_CATEGORIES;
+      _rootRole = EpisodeAspect.ROLE_EPISODE;
     }
 
-    protected override void Prepare()
+    protected override async Task PrepareAsync()
     {
-      base.Prepare();
-      _defaultScreen = new SeriesFilterByNameScreenData();
+      await base.PrepareAsync();
+
+      if (_rootRole.HasValue)
+      {
+        _customFilterTree = new RelationshipFilterTree(_rootRole.Value);
+
+        //Update filter by adding the user filter to the already loaded filters
+        IFilter userFilter = await CertificationHelper.GetUserCertificateFilter(_necessaryMias);
+        if (userFilter != null)
+          _customFilterTree.AddFilter(userFilter);
+
+        userFilter = await CertificationHelper.GetUserCertificateFilter(new[] { SeriesAspect.ASPECT_ID });
+        if (userFilter != null)
+          _customFilterTree.AddFilter(userFilter, new FilterTreePath(SeriesAspect.ROLE_SERIES));
+      }
+
+      _defaultScreen = _seriesScreen = new SeriesFilterByNameScreenData();
       _availableScreens = new List<AbstractScreenData>
       {
         new SeriesShowItemsScreenData(_genericPlayableItemCreatorDelegate),
@@ -54,16 +78,61 @@ namespace MediaPortal.UiComponents.Media.Models.NavigationModel
         new SeriesFilterBySeasonScreenData(),
         new VideosFilterByLanguageScreenData(),
         new VideosFilterByPlayCountScreenData(),
-        new VideosFilterByGenreScreenData(),
-        new VideosSimpleSearchScreenData(_genericPlayableItemCreatorDelegate),
+        new SeriesFilterByGenreScreenData(),
+        new SeriesFilterByCertificationScreenData(),
+        new SeriesEpisodeFilterByActorScreenData(),
+        new SeriesEpisodeFilterByCharacterScreenData(),
+        new SeriesFilterByCompanyScreenData(),
+        new SeriesFilterByTvNetworkScreenData(),
+        new SeriesSimpleSearchScreenData(_genericPlayableItemCreatorDelegate),
       };
       _defaultSorting = new SeriesSortByEpisode();
       _availableSortings = new List<Sorting.Sorting>
       {
         _defaultSorting,
+        new SeriesSortByDVDEpisode(),
+        new VideoSortByFirstGenre(),
+        new SeriesSortByCertification(),
+        new SeriesSortByFirstActor(),
+        new SeriesSortByFirstCharacter(),
+        new VideoSortByFirstActor(),
+        new VideoSortByFirstCharacter(),
+        new VideoSortByFirstDirector(),
+        new VideoSortByFirstWriter(),
+        new SeriesSortByFirstTvNetwork(),
+        new SeriesSortByFirstProductionStudio(),
+        new SeriesSortBySeasonTitle(),
+        new SeriesSortByEpisodeTitle(),
         new SortByTitle(),
+        new SortBySortTitle(),
+        new SortByName(),
         new SortByFirstAiredDate(),
-        new SortByDate(),
+        new SortByAddedDate(),
+        new SortBySystem(),
+      };
+      _defaultGrouping = null;
+      _availableGroupings = new List<Sorting.Sorting>
+      {
+        //_defaultGrouping,
+        new SeriesSortByEpisode(),
+        new SeriesSortByDVDEpisode(),
+        new VideoSortByFirstGenre(),
+        new SeriesSortByCertification(),
+        new SeriesSortByFirstActor(),
+        new SeriesSortByFirstCharacter(),
+        new VideoSortByFirstActor(),
+        new VideoSortByFirstCharacter(),
+        new VideoSortByFirstDirector(),
+        new VideoSortByFirstWriter(),
+        new SeriesSortByFirstTvNetwork(),
+        new SeriesSortByFirstProductionStudio(),
+        new SeriesSortBySeasonTitle(),
+        new SeriesSortByEpisodeTitle(),
+        new SortByTitle(),
+        new SortBySortTitle(),
+        new SortByName(),
+        new SortByFirstAiredDate(),
+        new SortByAddedDate(),
         new SortBySystem(),
       };
     }

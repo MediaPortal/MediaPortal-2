@@ -102,9 +102,7 @@
   <string name="Settings.Appearance">Görünüm</string>
   <string name="Settings.Appearance.Skin">Kabuk</string>
   <string name="Settings.Appearance.Skin.Formats.DateFormat">Tarih biçimi</string>
-  <string name="Settings.Appearance.Skin.Formats.DateFormat.Help">Kabukta kullanılan tarih biçimi.  .net DateTime sınıfında tanımlanan biçimi kullanın.</string>
   <string name="Settings.Appearance.Skin.Formats.TimeFormat">Saat biçimi</string>
-  <string name="Settings.Appearance.Skin.Formats.TimeFormat.Help">Kabukta kullanılan saat biçimi.  .net DateTime sınıfında tanımlanan biçimi kullanın.</string>
   <string name="Settings.General">Genel</string>
   <string name="Settings.General.System">Sistem</string>
   <string name="Settings.General.System.Autostart">Otomatik başlat</string>

@@ -1,23 +1,24 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
-  <string name="PartyMusicPlayer.MenuItem">Party-Musikabspieler</string>
-  <string name="PartyMusicPlayer.ConfigWorkflowNavigationContextDisplayLabel">Party-Musikabspieler</string>
-  <string name="PartyMusicPlayer.PlayerWorkflowNavigationContextDisplayLabel">Party-Musikabspieler</string>
-  <string name="PartyMusicPlayer.ConfigScreenTitle">Party-Musikabspieler-Konfiguration</string>
-  <string name="PartyMusicPlayer.Playlist">Wiedergabeliste</string>
-  <string name="PartyMusicPlayer.ChoosePlaylist">Wiedergabeliste auswählen</string>
+  <string name="PartyMusicPlayer.MenuItem">Party-Musikplayer</string>
+  <string name="PartyMusicPlayer.MenuItem.Help">Party-Modus: Abspielen einer Playlist und den sonstigen Gebrauch von MediaPortal unterbinden. </string>
+  <string name="PartyMusicPlayer.ConfigWorkflowNavigationContextDisplayLabel">Party-Musikplayer</string>
+  <string name="PartyMusicPlayer.PlayerWorkflowNavigationContextDisplayLabel">Party-Musikplayer</string>
+  <string name="PartyMusicPlayer.ConfigScreenTitle">Party-Musikplayer Einrichtung</string>
+  <string name="PartyMusicPlayer.Playlist">Playlist</string>
+  <string name="PartyMusicPlayer.ChoosePlaylist">Playlist auswählen</string>
   <string name="PartyMusicPlayer.UseEscapePassword">Exit-Passwort verwenden</string>
   <string name="PartyMusicPlayer.DisableScreenSaver">Bildschirmschoner deaktivieren</string>
   <string name="PartyMusicPlayer.StartPartyMode">Party-Modus starten</string>
-  <string name="PartyMusicPlayer.ChoosePlaylistDialogHeader">Wiedergabeliste auswählen</string>
+  <string name="PartyMusicPlayer.ChoosePlaylistDialogHeader">Playlist auswählen</string>
   <string name="PartyMusicPlayer.EnterEscapePasswordDialogHeader">Passwort zum Verlassen</string>
   <string name="PartyMusicPlayer.EnterEscapePasswordDialogText">Bitte das Exit-Passwort zum Verlassen des Party-Modus eingeben</string>
-  <string name="PartyMusicPlayer.WrongEscapePasswordDialogHeader">Falsches ExitPasswort</string>
+  <string name="PartyMusicPlayer.WrongEscapePasswordDialogHeader">Falsches Exit-Passwort</string>
   <string name="PartyMusicPlayer.WrongEscapePasswordDialogText">Entschuldigung, aber das ist das falsche Exit-Passwort!</string>
-  <string name="PartyMusicPlayer.ServerNotConnectedDialogHeader">Server nicht verbunden</string>
-  <string name="PartyMusicPlayer.ServerNotConnectedDialogText">Für diese Aktion muss der Heimserver verbunden sein</string>
-  <string name="PartyMusicPlayer.PlayerContextName">Party-Musikabspieler</string>
-  <string name="PartyMusicPlayer.AudioArtistLabel">Künstler</string>
+  <string name="PartyMusicPlayer.ServerNotConnectedDialogHeader">MP2-Server nicht verbunden</string>
+  <string name="PartyMusicPlayer.ServerNotConnectedDialogText">Für diese Aktion ist eine Verbindung mit dem MP2-Server erforderlich</string>
+  <string name="PartyMusicPlayer.PlayerContextName">Party-Musikplayer</string>
+  <string name="PartyMusicPlayer.AudioArtistLabel">Interpret</string>
   <string name="PartyMusicPlayer.AudioTitleLabel">Titel</string>
-  <string name="PartyMusicPlayer.ShowPlaylist">Wiedergabeliste anzeigen</string>
+  <string name="PartyMusicPlayer.ShowPlaylist">Playlist anzeigen</string>
 </resources>

@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2015 Team MediaPortal
+#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2015 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -29,6 +29,7 @@ using System.Diagnostics;
 using MediaPortal.Common;
 using MediaPortal.Common.General;
 using MediaPortal.Common.Logging;
+using MediaPortal.UI.Presentation.DataObjects;
 using MediaPortal.UI.Presentation.Models;
 using MediaPortal.UI.Presentation.Workflow;
 using MediaPortal.UI.SkinEngine.Controls.Visuals;
@@ -50,6 +51,9 @@ namespace MediaPortal.Test.GUITest
     protected AbstractProperty _mouseCaptureTestMousePosProperty = new WProperty(typeof(string), "?/?");
     protected AbstractProperty _mouseCaptureTestCaptureSubTreeProperty = new WProperty(typeof(bool), false);
     protected AbstractProperty _mouseCaptureTestCaptureOriginalSourceProperty = new WProperty(typeof(bool), false);
+
+    protected AbstractProperty _itemsProperty = new WProperty(typeof(ItemsList), new ItemsList());
+    protected AbstractProperty _layoutTypeProperty = new WProperty(typeof(int), 0);
 
     #endregion
 
@@ -100,6 +104,28 @@ namespace MediaPortal.Test.GUITest
     {
       get { return (bool) _mouseCaptureTestCaptureOriginalSourceProperty.GetValue(); }
       set { _mouseCaptureTestCaptureOriginalSourceProperty.SetValue(value); }
+    }
+
+    public AbstractProperty ItemsProperty
+    {
+      get { return _itemsProperty; }
+    }
+
+    public ItemsList Items
+    {
+      get { return (ItemsList)_itemsProperty.GetValue(); }
+      set { _itemsProperty.SetValue(value); }
+    }
+
+    public AbstractProperty LayoutTypeProperty
+    {
+      get { return _layoutTypeProperty; }
+    }
+
+    public int LayoutType
+    {
+      get { return (int)_layoutTypeProperty.GetValue(); }
+      set { _layoutTypeProperty.SetValue(value); }
     }
 
     #endregion
@@ -206,11 +232,13 @@ namespace MediaPortal.Test.GUITest
     public void EnterModelContext(NavigationContext oldContext, NavigationContext newContext)
     {
       // We could initialize some data here when entering the media navigation state
+      InitGroupingTestItems();
     }
 
     public void ExitModelContext(NavigationContext oldContext, NavigationContext newContext)
     {
       // We could dispose some data here when exiting media navigation context
+      CleanupGroupingTestItems();
     }
 
     public void ChangeModelContext(NavigationContext oldContext, NavigationContext newContext, bool push)
@@ -236,5 +264,38 @@ namespace MediaPortal.Test.GUITest
     }
 
     #endregion
+
+    private void InitGroupingTestItems()
+    {
+      Items.Clear();
+      int year = 1977;
+      var random = new Random(1);
+      int next = random.Next(0, 100);
+      for (int n = 0; n < 1000; ++n)
+      {
+        var item = new ListItem("Name", String.Format("Item {0}", n + 1));
+        item.AdditionalProperties.Add("Year", year);
+
+        if (n == next)
+        {
+          next = random.Next(n + 1, n + 100);
+          ++year;
+        }
+
+        Items.Add(item);
+      }
+      Items.FireChange();
+    }
+
+    private void CleanupGroupingTestItems()
+    {
+      Items.Clear();
+      Items.FireChange();
+    }
+
+    public void SetLayoutType(int layoutType)
+    {
+      LayoutType = layoutType;
+    }
   }
 }

@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2015 Team MediaPortal
+#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2015 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -60,8 +60,9 @@ namespace MediaPortal.Common.Services.MediaManagement
     private int _pendingImportResourceNumber;
     private ImportJobController _parentImportJobController;
     private bool _isValid;
-    private IDictionary<Guid, MediaItemAspect> _aspects;
-    
+    private IDictionary<Guid, IList<MediaItemAspect>> _aspects;
+    private IDictionary<Guid, IList<MediaItemAspect>> _existingAspects;
+
     // Resource data recreated after deserialization
     // The _resourceAccessor will after deserialization only be created from the _resourcePathString
     // on demand, i.e. if the ResourceAccessor property is accessed
@@ -73,6 +74,7 @@ namespace MediaPortal.Common.Services.MediaManagement
     private String _parentDirectoryResourcePathString;
     private Guid? _parentDirectoryId;
     private bool _isSingleResource = true;
+    private bool _isStubResource = false;
     private String _currentBlock;
     private DateTime _dateOfLastImport; // only valid for refresh imports
 
@@ -80,7 +82,7 @@ namespace MediaPortal.Common.Services.MediaManagement
 
     #region Constructor
 
-    public PendingImportResourceNewGen(ResourcePath parentDirectory, IFileSystemResourceAccessor resourceAccessor, String currentBlock, ImportJobController parentImportJobController, Guid? parentDirectoryId = null, Guid? mediaItemId = null)
+    public PendingImportResourceNewGen(ResourcePath parentDirectory, IFileSystemResourceAccessor resourceAccessor, String currentBlock, ImportJobController parentImportJobController, Guid? parentDirectoryId = null, Guid? mediaItemId = null, bool isStubResource = false)
     {
       _parentDirectoryId = parentDirectoryId;
       _mediaItemId = mediaItemId;
@@ -89,6 +91,7 @@ namespace MediaPortal.Common.Services.MediaManagement
       _currentBlock = currentBlock;
       _parentImportJobController = parentImportJobController;
       _pendingImportResourceNumber = _parentImportJobController.GetNumberOfNextPendingImportResource();
+      _isStubResource = isStubResource;
 
       _isValid = (_resourceAccessor != null);
 
@@ -160,6 +163,13 @@ namespace MediaPortal.Common.Services.MediaManagement
     }
 
     [XmlIgnore]
+    public bool IsStubResource
+    {
+      get { return _isStubResource; }
+      set { _isStubResource = value; }
+    }
+
+    [XmlIgnore]
     public String CurrentBlock
     {
       get { return _currentBlock; }
@@ -188,10 +198,17 @@ namespace MediaPortal.Common.Services.MediaManagement
     }
 
     [XmlIgnore]
-    public IDictionary<Guid, MediaItemAspect> Aspects
+    public IDictionary<Guid, IList<MediaItemAspect>> Aspects
     {
       get { return _aspects; }
       set { _aspects = value; }
+    }
+
+    [XmlIgnore]
+    public IDictionary<Guid, IList<MediaItemAspect>> ExistingAspects
+    {
+      get { return _existingAspects; }
+      set { _existingAspects = value; }
     }
 
     [XmlIgnore]
@@ -344,6 +361,16 @@ namespace MediaPortal.Common.Services.MediaManagement
     {
       get { return _isSingleResource; }
       set { _isSingleResource = value; }
+    }
+
+    /// <summary>
+    /// For internal use of the XML serialization system only.
+    /// </summary>
+    [XmlAttribute("IsStubResource")]
+    public bool XmlIsStubResource
+    {
+      get { return _isStubResource; }
+      set { _isStubResource = value; }
     }
 
     /// <summary>

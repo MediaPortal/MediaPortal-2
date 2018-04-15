@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2015 Team MediaPortal
+#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2015 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -27,14 +27,16 @@ using MediaPortal.Common;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.PluginManager;
 using MediaPortal.Common.SystemResolver;
-using OneTrueError.Reporting;
+using OneTrueError.Client;
+using OneTrueError.Client.Uploaders;
 
 namespace MediaPortal.Plugins.OneTrueError
 {
   public class ErrorReportingService : IPluginStateTracker
   {
-    private static Tuple<string, string> KEY_SERVER = new Tuple<string, string>("f2f6310b-1714-4112-bd6d-ec9df98ade37", "814a5a92-c6b7-473e-af9e-59bcd1d5ee35");
-    private static Tuple<string, string> KEY_CLIENT = new Tuple<string, string>("9f39363e-e7c7-4e42-acc7-914ec41a52eb", "93dec981-b867-4adb-8e80-6cb86f52c034");
+    private static Uri REPO_URL = new Uri("http://onetrueerror.team-mediaportal.com/");
+    private static Tuple<string, string> KEY_SERVER = new Tuple<string, string>("e654596f1e404cd7a2e6a618c60ec70d", "d3972498eb514abea732b85cb4c9c65d");
+    private static Tuple<string, string> KEY_CLIENT = new Tuple<string, string>("a2c3c73343e3490ba897ff3cf7837add", "a0252fe0f059427e8161e7290e0e5060");
     private DateTime _lastErrorTime = DateTime.MinValue;
     private TimeSpan _reportTreshold = TimeSpan.FromHours(1);
 
@@ -44,9 +46,10 @@ namespace MediaPortal.Plugins.OneTrueError
       var appKey = systemResolver.SystemType == SystemType.Server ? KEY_SERVER : KEY_CLIENT;
 
       // The appkey and shared key can be found in onetrueeror.com
-      OneTrue.Configuration.Credentials(appKey.Item1, appKey.Item2);
+      OneTrue.Configuration.Credentials(REPO_URL, appKey.Item1, appKey.Item2);
       OneTrue.Configuration.CatchWinFormsExceptions();
-      OneTrue.Configuration.Advanced.UploadReportFailed += OnUploadReportFailed;
+      OneTrue.Configuration.QueueReports = true;
+      //OneTrue.Configuration.Advanced.UploadReportFailed += OnUploadReportFailed;
 
       // Exchange the logger by the error reporting wrapper
       var currentLogger = ServiceRegistration.Get<ILogger>();

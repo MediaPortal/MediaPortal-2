@@ -1,0 +1,175 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ResourceDictionary
+    xmlns="www.team-mediaportal.com/2008/mpf/directx"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:mp_special_controls="clr-namespace:MediaPortal.UI.SkinEngine.SpecialElements.Controls;assembly=SkinEngine"
+    DependsOnStyleResources="Colors,Consts,Brushes"
+    >
+
+  <!-- *************************** Play control graphics ****************************** -->
+  <ControlTemplate x:Key="AudioActiveControlTemplate">
+    <Canvas Height="167" Width="167">
+      <Path Data="F1M1050,354L1050,381L1059,381L1085,408L1095,408L1095,327L1086,327L1059,354" Fill="Black" Height="81" Canvas.Left="42.932" Opacity="0.75" Stretch="Fill" Canvas.Top="42.578" Width="45"/>
+      <Path Data="M1102,341.5439C1124.07,363.6139,1108.07,386.3859,1102,392.4559" Height="53.912" Canvas.Left="93.432" Opacity="0.75" Stretch="Fill" Stroke="Black" StrokeThickness="3" StrokeLineJoin="Miter" Canvas.Top="55.622" Width="14.302"/>
+      <Path Data="M1111,327C1133.386,349.386,1133.386,385.614,1111,408" Height="86" Canvas.Left="101.432" Opacity="0.75" Stretch="Fill"  Stroke="Black" StrokeThickness="5" StrokeLineJoin="Miter" Canvas.Top="40.078" Width="21.79"/>
+    </Canvas>
+  </ControlTemplate>
+
+  <ControlTemplate x:Key="AudioInactiveControlTemplate">
+    <Canvas Height="167" Width="167">
+      <Path Data="F1M1050,354L1050,381L1059,381L1085,408L1095,408L1095,327L1086,327L1059,354" Fill="Black" Height="81" Canvas.Left="42.932" Opacity="0.75" Stretch="Fill" Canvas.Top="42.578" Width="45"/>
+      <Path Data="M1102,341.5439C1124.07,363.6139,1108.07,386.3859,1102,392.4559" Height="53.912" Canvas.Left="93.432" Opacity="0.75" Stretch="Fill" Stroke="Black" StrokeThickness="3" StrokeLineJoin="Miter" Canvas.Top="55.622" Width="14.302"/>
+      <Path Data="M1111,327C1133.386,349.386,1133.386,385.614,1111,408" Height="86" Canvas.Left="101.432" Opacity="0.75" Stretch="Fill"  Stroke="Black" StrokeThickness="5" StrokeLineJoin="Miter" Canvas.Top="40.078" Width="21.79"/>
+    </Canvas>
+  </ControlTemplate>
+
+  <ControlTemplate x:Key="MuteOnOffControlTemplate">
+    <Canvas Height="167" Width="167">
+      <Path Data="F1M1137.8418,600.5068L1130.2018,606.9598L1054.1758,516.9818L1061.8148,510.5278z" Fill="Red" Height="96.432" Canvas.Left="43.108" Opacity="0.75" Stretch="Fill" Canvas.Top="36.106" Width="83.666"/>
+    </Canvas>
+  </ControlTemplate>
+
+  <ControlTemplate x:Key="PlayControlTemplate">
+    <Canvas Height="167" Width="167">
+      <Path Data="F1M850.3047,141.0825C845.7377,138.0185,841.9997,140.0115,841.9997,145.5115L841.9997,221.9995C841.9997,227.4995,845.7377,229.4935,850.3047,226.4285L905.6067,189.3275C910.1737,186.2625,910.1737,181.2495,905.6067,178.1845z" 
+          Fill="Black" Height="88.224" Canvas.Left="56.932" Opacity="0.75" Stretch="Fill" Canvas.Top="41.222" Width="67.032"/>
+    </Canvas>
+  </ControlTemplate>
+
+  <ControlTemplate x:Key="PauseControlTemplate">
+    <Canvas Height="167" Width="167">
+      <Path Data="F1M612,222.1362C612,227.5842,607.584,232.0002,602.136,232.0002L601.864,232.0002C596.416,232.0002,592,227.5842,592,222.1362L592,145.8642C592,140.4162,596.416,136.0002,601.864,136.0002L602.136,136.0002C607.584,136.0002,612,140.4162,612,145.8642z" Fill="Black" Height="96" Canvas.Left="59.932" Opacity="0.75" Stretch="Fill" Canvas.Top="36.578" Width="20"/>
+      <Path Data="F1M641,222.1367C641,227.5837,636.584,231.9997,631.136,231.9997L630.864,231.9997C625.416,231.9997,621,227.5837,621,222.1367L621,145.8637C621,140.4157,625.416,135.9997,630.864,135.9997L631.136,135.9997C636.584,135.9997,641,140.4157,641,145.8637z" Fill="Black" Height="96" Canvas.Left="88.932" Opacity="0.75" Stretch="Fill" Canvas.Top="36.578" Width="20"/>
+    </Canvas>
+  </ControlTemplate>
+
+  <ControlTemplate x:Key="StopControlTemplate">
+    <Canvas Height="167" Width="167">
+      <Path Data="F1M404,394.1201C404,399.0241,400.024,403.0001,395.12,403.0001L352.88,403.0001C347.976,403.0001,344,399.0241,344,394.1201L344,351.8801C344,346.9751,347.976,343.0001,352.88,343.0001L395.12,343.0001C400.024,343.0001,404,346.9751,404,351.8801z" 
+            Fill="Black" Height="60" Canvas.Left="53.932" Opacity="0.75" Stretch="Fill" Canvas.Top="55.578" Width="60"/>
+    </Canvas>
+  </ControlTemplate>
+
+  <ControlTemplate x:Key="ForwardControlTemplate">
+    <Canvas Height="167" Width="167">
+      <Path Data="F1M885.6436,593.8633C881.4446,597.4153,877.9996,595.8213,877.9996,590.3213L877.9996,525.3363C877.9996,519.8363,881.4446,518.2423,885.6436,521.7943L920.6196,551.3713C924.8186,554.9233,924.8156,560.7353,920.6166,564.2873z" 
+            Fill="Black" Height="75.855" Canvas.Left="92.932" Opacity="0.75" Stretch="Fill" Canvas.Top="47.479" Width="45.768"/>
+      <Path Data="F1M835.6436,593.8633C831.4446,597.4153,827.9996,595.8213,827.9996,590.3213L827.9996,525.3363C827.9996,519.8363,831.4446,518.2423,835.6436,521.7943L870.6196,551.3713C874.8186,554.9233,874.8156,560.7353,870.6166,564.2873z" 
+            Fill="Black" Height="75.855" Canvas.Left="42.932" Opacity="0.75" Stretch="Fill" Canvas.Top="47.479" Width="45.768"/>
+    </Canvas>
+  </ControlTemplate>
+
+  <ControlTemplate x:Key="RewindControlTemplate">
+    <Canvas Height="167" Width="167">
+      <Path Data="F1M603.5967,591.8633C607.7957,595.4153,610.9997,593.8213,610.9997,588.3213L610.9997,523.3363C610.9997,517.8363,607.7957,516.2423,603.5967,519.7943L568.7437,549.3713C564.5447,552.9233,564.4867,558.7353,568.6857,562.2873z" 
+            Fill="Black" Height="75.855" Canvas.Left="28.497" Opacity="0.75" Stretch="Fill" Canvas.Top="47.479" Width="45.434"/>
+      <Path Data="F1M653.5967,591.8633C657.7967,595.4153,660.9997,593.8213,660.9997,588.3213L660.9997,523.3363C660.9997,517.8363,657.7967,516.2423,653.5977,519.7943L618.7437,549.3713C614.5447,552.9233,614.4867,558.7353,618.6857,562.2873z" 
+            Fill="Black" Height="75.855" Canvas.Left="78.497" Opacity="0.75" Stretch="Fill" Canvas.Top="47.479" Width="45.434"/>
+    </Canvas>
+
+  </ControlTemplate>
+
+  <ControlTemplate x:Key="SkipForwardControlTemplate">
+    <Canvas Height="167" Width="167">
+      <Path Data="F1M844.5039,329.1206C840.3769,325.4856,836.9999,327.0116,836.9999,332.5116L836.9999,408.9996C836.9999,414.4996,840.3769,416.0256,844.5039,412.3906L884.2719,377.3656C888.3989,373.7306,888.3989,367.7816,884.2719,364.1466z" 
+            Fill="Black" Height="87.221" Canvas.Left="51.932" Opacity="0.75" Stretch="Fill" Canvas.Top="40.723" Width="50.367"/>
+      <Path Data="F1M901,406.8486C901,411.0986,898.389,414.9996,895.143,414.9996L894.878,414.9996C891.632,414.9996,889,411.0986,889,406.8486L889,334.6986C889,330.4486,891.632,326.9996,894.878,326.9996L895.143,326.9996C898.389,326.9996,901,330.4486,901,334.6986z" 
+            Fill="Black" Height="88" Canvas.Left="103.932" Opacity="0.75" Stretch="Fill" Canvas.Top="40.578" Width="12"/>
+    </Canvas>
+  </ControlTemplate>
+
+  <ControlTemplate x:Key="SkipBackControlTemplate">
+    <Canvas Height="167" Width="167">
+      <Path Data="F1M646.4961,412.3906C650.6231,416.0256,654.0001,414.4996,654.0001,408.9996L654.0001,332.5116C654.0001,327.0116,650.6231,325.4856,646.4961,329.1206L606.7291,364.1466C602.6011,367.7816,602.6011,373.7306,606.7291,377.3656z" 
+            Fill="Black" Height="87.221" Canvas.Left="66.565" Opacity="0.75" Stretch="Fill" Canvas.Top="40.723" Width="50.367"/>
+      <Path Data="F1M590,334.6631C590,330.4131,592.611,327.0001,595.857,327.0001L596.122,327.0001C599.368,327.0001,602,330.4131,602,334.6631L602,406.8131C602,411.0631,599.368,415.0001,596.122,415.0001L595.857,415.0001C592.611,415.0001,590,411.0631,590,406.8131z" 
+            Fill="Black" Height="88" Canvas.Left="52.932" Opacity="0.75" Stretch="Fill" Canvas.Top="40.578" Width="12"/>
+    </Canvas>
+  </ControlTemplate>
+
+  <ControlTemplate x:Key="PowerControlTemplate">
+    <Grid>
+      <Grid.ColumnDefinitions>
+        <ColumnDefinition Width="25"/>
+      </Grid.ColumnDefinitions>
+      <Grid.RowDefinitions>
+        <RowDefinition Height="25"/>
+      </Grid.RowDefinitions>
+      <Label Content="P" FontSize="15" Margin="3" Color="{ThemeResource WindowButtonColor}"
+          HorizontalAlignment="Center" VerticalAlignment="Center"/>
+    </Grid>
+  </ControlTemplate>
+
+  <ControlTemplate x:Key="WindowCloseControlTemplate">
+    <Grid>
+      <Grid.ColumnDefinitions>
+        <ColumnDefinition Width="25"/>
+      </Grid.ColumnDefinitions>
+      <Grid.RowDefinitions>
+        <RowDefinition Height="25"/>
+      </Grid.RowDefinitions>
+      <Label Content="X" FontSize="15" Margin="3" Color="{ThemeResource WindowButtonColor}"
+          HorizontalAlignment="Center" VerticalAlignment="Center"/>
+    </Grid>
+  </ControlTemplate>
+
+  <ControlTemplate x:Key="WindowMinimizeControlTemplate">
+    <Grid>
+      <Grid.ColumnDefinitions>
+        <ColumnDefinition Width="25"/>
+      </Grid.ColumnDefinitions>
+      <Grid.RowDefinitions>
+        <RowDefinition Height="25"/>
+      </Grid.RowDefinitions>
+      <Label Content="M" FontSize="15" Margin="3" Color="{ThemeResource WindowButtonColor}"
+          HorizontalAlignment="Center" VerticalAlignment="Center"/>
+    </Grid>
+  </ControlTemplate>
+
+  <ControlTemplate x:Key="SuspendControlTemplate">
+    <Grid>
+      <Grid.ColumnDefinitions>
+        <ColumnDefinition Width="25"/>
+      </Grid.ColumnDefinitions>
+      <Grid.RowDefinitions>
+        <RowDefinition Height="25"/>
+      </Grid.RowDefinitions>
+      <Label Content="S" FontSize="15" Margin="3" Color="{ThemeResource WindowButtonColor}"
+          HorizontalAlignment="Center" VerticalAlignment="Center"/>
+    </Grid>
+  </ControlTemplate>
+
+  <ControlTemplate x:Key="NavigateBackControlTemplate">
+    <Grid>
+      <Grid.ColumnDefinitions>
+        <ColumnDefinition Width="25"/>
+      </Grid.ColumnDefinitions>
+      <Grid.RowDefinitions>
+        <RowDefinition Height="25"/>
+      </Grid.RowDefinitions>
+      <Path x:Name="Play" Fill="{ThemeResource WindowButtonColor}" Stretch="Fill" Stroke="{ThemeResource WindowButtonColor}"
+          HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="5,5,5,5"
+          Data="F1 M22.0,0.0 L11,11.5 22.0,22.0 z"/>
+    </Grid>
+  </ControlTemplate>
+
+  <!-- Unselected stars-->
+  <ControlTemplate x:Key="StarPolygonTemplate">
+    <Canvas x:Name="star">
+      <Path Width="18" Height="18" Stretch="Fill" Opacity="0.8" Fill="{ThemeResource StarRatingBackgroundColor}" Data="F1M15.5,1.001C15.5,1.001 20.279,9.8 20.279,9.8 20.279,9.8 29.998,11.695 29.998,11.695 29.998,11.695 23.232,19.029 23.232,19.029 23.232,19.029 24.46,28.999 24.46,28.999 24.46,28.999 15.5,24.732 15.5,24.732 15.5,24.732 6.539,28.999 6.539,28.999 6.539,28.999 7.768,19.029 7.768,19.029 7.768,19.029 1.002,11.695 1.002,11.695 1.002,11.695 10.721,9.8 10.721,9.8 10.721,9.8 15.5,1.001 15.5,1.001"/>
+    </Canvas>
+  </ControlTemplate>
+  <!-- Selected stars-->
+  <ControlTemplate x:Key="StarPolygonSelectedTemplate">
+    <Canvas x:Name="star">
+      <Path Width="18" Height="18" Stretch="Fill" Fill="{ThemeResource StarRatingSelectedColor}" Data="F1M15.5,1.001C15.5,1.001 20.279,9.8 20.279,9.8 20.279,9.8 29.998,11.695 29.998,11.695 29.998,11.695 23.232,19.029 23.232,19.029 23.232,19.029 24.46,28.999 24.46,28.999 24.46,28.999 15.5,24.732 15.5,24.732 15.5,24.732 6.539,28.999 6.539,28.999 6.539,28.999 7.768,19.029 7.768,19.029 7.768,19.029 1.002,11.695 1.002,11.695 1.002,11.695 10.721,9.8 10.721,9.8 10.721,9.8 15.5,1.001 15.5,1.001"/>
+    </Canvas>
+  </ControlTemplate>
+  <!-- Black Selected stars-->
+  <ControlTemplate x:Key="StarPolygonBlackSelectedTemplate">
+    <Canvas x:Name="star">
+      <Path Width="18" Height="18" Stretch="Fill" Fill="Black" Data="F1M15.5,1.001C15.5,1.001 20.279,9.8 20.279,9.8 20.279,9.8 29.998,11.695 29.998,11.695 29.998,11.695 23.232,19.029 23.232,19.029 23.232,19.029 24.46,28.999 24.46,28.999 24.46,28.999 15.5,24.732 15.5,24.732 15.5,24.732 6.539,28.999 6.539,28.999 6.539,28.999 7.768,19.029 7.768,19.029 7.768,19.029 1.002,11.695 1.002,11.695 1.002,11.695 10.721,9.8 10.721,9.8 10.721,9.8 15.5,1.001 15.5,1.001"/>
+    </Canvas>
+  </ControlTemplate>
+
+</ResourceDictionary>

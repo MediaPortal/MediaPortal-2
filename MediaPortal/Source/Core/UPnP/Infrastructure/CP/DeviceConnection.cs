@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2015 Team MediaPortal
+#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2015 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -315,9 +315,7 @@ namespace UPnP.Infrastructure.CP
     {
       try
       {
-        DeviceDisconnectedDlgt dlgt = DeviceDisconnected;
-        if (dlgt != null)
-          dlgt(this);
+        DeviceDisconnected?.Invoke(this);
       }
       catch (Exception e)
       {
@@ -329,9 +327,7 @@ namespace UPnP.Infrastructure.CP
     {
       try
       {
-        DeviceRebootedDlgt dlgt = DeviceRebooted;
-        if (dlgt != null)
-          dlgt(this);
+        DeviceRebooted?.Invoke(this);
       }
       catch (Exception e)
       {

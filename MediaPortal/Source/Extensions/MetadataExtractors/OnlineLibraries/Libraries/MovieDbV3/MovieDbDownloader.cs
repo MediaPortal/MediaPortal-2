@@ -1,7 +1,7 @@
-﻿#region Copyright (C) 2007-2015 Team MediaPortal
+#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2015 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -22,9 +22,10 @@
 
 #endregion
 
+using MediaPortal.Extensions.OnlineLibraries.Libraries.Common;
 using System;
 using System.Text;
-using MediaPortal.Extensions.OnlineLibraries.Libraries.Common;
+using System.Threading.Tasks;
 
 namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MovieDbV3
 {
@@ -42,16 +43,16 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MovieDbV3
   {
     private static readonly IRequestRateLimiter LIMITER = new RequestRatePerTimeSpanLimiter(40, TimeSpan.FromSeconds(10));
 
-    protected override string DownloadJSON(string url)
+    protected override async Task<string> DownloadJSON(string url)
     {
       var webClient = new CompressionWebClient(EnableCompression) { Encoding = Encoding.UTF8 };
       foreach (var headerEntry in Headers)
         webClient.Headers[headerEntry.Key] = headerEntry.Value;
 
-      LIMITER.RateLimit().Wait();
+      await LIMITER.RateLimit().ConfigureAwait(false);
       try
       {
-        return webClient.DownloadString(url);
+        return await webClient.DownloadStringTaskAsync(url).ConfigureAwait(false);
       }
       finally
       {

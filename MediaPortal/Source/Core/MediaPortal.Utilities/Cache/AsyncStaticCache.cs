@@ -1,7 +1,7 @@
-﻿#region Copyright (C) 2007-2015 Team MediaPortal
+﻿#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2014 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -85,6 +85,19 @@ namespace MediaPortal.Utilities.Cache
     {
       var value = new Lazy<Task<TValue>>(() => valueFactory(key));
       return _cache.GetOrAdd(key, value).Value;
+    }
+
+    /// <summary>
+    /// Gets a Task representing the value for the specified key
+    /// </summary>
+    /// <param name="key">Key to get a value for</param>
+    /// <param name="valueFactory">Factory used to create a task representing the value if it doesn't exist in the cache, yet</param>
+    /// <returns>A Task for the value of the specified key</returns>
+    public virtual Task<TValue> UpdateValue(TKey key, Func<TKey, Task<TValue>> valueFactory)
+    {
+      var value = new Lazy<Task<TValue>>(() => valueFactory(key));
+      _cache[key] = value;
+      return value.Value;
     }
 
     #endregion

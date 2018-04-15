@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2015 Team MediaPortal
+#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2015 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -25,6 +25,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using MediaPortal.Common;
 using MediaPortal.Common.Exceptions;
 using MediaPortal.Common.General;
@@ -95,11 +96,11 @@ namespace MediaPortal.UiComponents.SkinBase.Models
       throw new NotConnectedException();
     }
 
-    public static IEnumerable<Share> GetShares()
+    public static async Task<IEnumerable<Share>> GetSharesAsync()
     {
       IServerConnectionManager serverConnectionManager = ServiceRegistration.Get<IServerConnectionManager>();
       IContentDirectory contentDirectory = GetContentDirectoryService();
-      _serverSharesCache = new List<Share>(contentDirectory.GetShares(serverConnectionManager.HomeServerSystemId, SharesFilter.All));
+      _serverSharesCache = new List<Share>(await contentDirectory.GetSharesAsync(serverConnectionManager.HomeServerSystemId, SharesFilter.All));
       return _serverSharesCache;
     }
 
@@ -113,7 +114,7 @@ namespace MediaPortal.UiComponents.SkinBase.Models
         return;
       }
       foreach (Share share in shares)
-        contentDirectory.RemoveShare(share.ShareId);
+        contentDirectory.RemoveShareAsync(share.ShareId);
       _serverSharesCache = null;
     }
 
@@ -121,22 +122,22 @@ namespace MediaPortal.UiComponents.SkinBase.Models
     {
       IServerConnectionManager serverConnectionManager = ServiceRegistration.Get<IServerConnectionManager>();
       IContentDirectory contentDirectory = GetContentDirectoryService();
-      Share share = Share.CreateNewShare(serverConnectionManager.HomeServerSystemId, ChoosenResourcePath, ShareName, MediaCategories);
-      contentDirectory.RegisterShare(share);
+      Share share = Share.CreateNewShare(serverConnectionManager.HomeServerSystemId, ChoosenResourcePath, ShareName, UseShareWatcher, MediaCategories);
+      contentDirectory.RegisterShareAsync(share);
       _serverSharesCache = null;
     }
 
     public override void UpdateShare(RelocationMode relocationMode)
     {
       IContentDirectory contentDirectory = GetContentDirectoryService();
-      contentDirectory.UpdateShare(_origShare.ShareId, ChoosenResourcePath, ShareName, GetMediaCategoriesCleanedUp(), relocationMode);
+      contentDirectory.UpdateShareAsync(_origShare.ShareId, ChoosenResourcePath, ShareName, UseShareWatcher, GetMediaCategoriesCleanedUp(), relocationMode);
       _serverSharesCache = null;
     }
 
     public override void ReImportShare()
     {
       IContentDirectory contentDirectory = GetContentDirectoryService();
-      contentDirectory.ReImportShare(_origShare.ShareId);
+      contentDirectory.ReImportShareAsync(_origShare.ShareId);
     }
 
     protected override string SuggestShareName()
@@ -160,7 +161,7 @@ namespace MediaPortal.UiComponents.SkinBase.Models
     protected override bool ShareNameExists(string shareName)
     {
       if (_serverSharesCache == null)
-        GetShares();
+        GetSharesAsync().Wait();
       Guid origShareId = _origShare == null ? Guid.Empty : _origShare.ShareId;
       return _serverSharesCache.Any(share => share.ShareId != origShareId && share.Name == shareName);
     }
@@ -168,7 +169,7 @@ namespace MediaPortal.UiComponents.SkinBase.Models
     protected override bool SharePathExists(ResourcePath sharePath)
     {
       if (_serverSharesCache == null)
-        GetShares();
+        GetSharesAsync().Wait();
       Guid origShareId = _origShare == null ? Guid.Empty : _origShare.ShareId;
       return _serverSharesCache.Any(serverShare => serverShare.ShareId != origShareId && serverShare.BaseResourcePath == sharePath);
     }

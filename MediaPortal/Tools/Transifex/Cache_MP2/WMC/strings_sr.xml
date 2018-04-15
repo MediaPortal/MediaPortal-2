@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <string name="WMC.Configuration.EnableFanart">Омогући ФанАрт</string>
+  <string name="WMC.Configuration.EnableFanart.Help">Да ли да се прикаже позадински ФанАрт</string>
+  <string name="WMC.Configuration.FanartOverlayOpacity">Видљивост ФанАрт-а</string>
+  <string name="WMC.Configuration.FanartOverlayOpacity.Help">Подеси видљивост ФанАрт-а. Мање вредности повећавају видљивост ФанАрт-а (подразумевана вредност је 1.0).</string>
+  <string name="WMC.Configuration.EnableWatchedFlags">Омогући обележавање одгледаног садржаја</string>
+  <string name="WMC.Configuration.EnableWatchedFlags.Help">Приказати иконе за одгледано у одабраном прозору</string>
+  <string name="WMC.Configuration.EnableWatchedFlags.ListView">Преглед по листи</string>
+  <string name="WMC.Configuration.EnableWatchedFlags.GridView">Мрежни поглед</string>
+  <string name="WMC.Configuration.EnableWatchedFlags.CoverView">Насловна страна</string>
+  <string name="WMC.Configuration.EnableAgeCertificationLogos">Омогући лого сертификата за годиште</string>
+  <string name="WMC.Configuration.EnableAgeCertificationLogos.Help">Да ли приказати лого за сертификат годишта на медија екрану</string>
+  <string name="WMC.Configuration.EnableBanners">Прикажи банере</string>
+  <string name="WMC.Configuration.EnableBanners.Help">Приказивање банера и мрежи уместо на насловној страни</string>
+  <string name="WMC.Configuration.EnableBanners.Movies">Филмови</string>
+  <string name="WMC.Configuration.EnableBanners.Series">Серије</string>
+  <string name="WMC.Configuration.EnableBanners.Seasons">Сезоне</string>
+  <string name="WMC.Configuration.EnableAnimatedBackground">Омогући анимирану позадину.</string>
+  <string name="WMC.Configuration.EnableAnimatedBackground.Help">Да ли да се омогући Аурора анимација на главном екрану.</string>
+  <string name="WMC.Configuration.EnableMediaItemDetailsView">Омогући ставке за медија детаље</string>
+  <string name="WMC.Configuration.EnableMediaItemDetailsView.Help">Да ли да се прикажу детаљи ставке медија уместо да се пусти медија директно</string>
+</resources>

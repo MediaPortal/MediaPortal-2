@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2015 Team MediaPortal
+#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2015 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -47,6 +47,10 @@ using MediaPortal.Common.Services.ThumbnailGenerator;
 using MediaPortal.Common.Settings;
 using MediaPortal.Common.TaskScheduler;
 using MediaPortal.Common.Threading;
+using MediaPortal.Common.FileEventNotification;
+using MediaPortal.Common.Services.FileEventNotification;
+using MediaPortal.Common.FanArt;
+using MediaPortal.Common.Services.GenreConverter;
 
 namespace MediaPortal.Common
 {
@@ -59,38 +63,60 @@ namespace MediaPortal.Common
     /// Creates vital core service instances and registers them in <see cref="ServiceRegistration"/>. The optional <paramref name="dataDirectory"/> argument can
     /// be used to startup the application using a custom directory for data storage.
     /// </summary>
+    /// <param name="paths"><c>true</c> if the <paramref name="dataDirectory"/> should be set as <c>DATA</c> path</param>
     /// <param name="dataDirectory">Path to custom data directory</param>
-    public static void RegisterVitalCoreServices(string dataDirectory = null)
+    public static void RegisterVitalCoreServices(bool paths, string dataDirectory = null)
     {
       // Insert a dummy while loading the path manager to break circular dependency of logger and path manager. This should not
       // be considered as a hack - simply the logger needs a path managed by the path manager and I don't want to remove log
       // output from the path manager only to prevent the dependency. Maybe we have a better solution in the future.
       ServiceRegistration.Set<ILogger>(new NoLogger());
 
-      Services.PathManager.PathManager pathManager = new Services.PathManager.PathManager();
-      pathManager.InitializeDefaults();
-      if (!string.IsNullOrEmpty(dataDirectory))
-        pathManager.SetPath("DATA", dataDirectory);
+      // First register settings manager to allow the logger to access settings already
+      ServiceRegistration.Set<ISettingsManager>(new SettingsManager());
 
-      ServiceRegistration.Set<IPathManager>(pathManager);
+      ILogger logger = null;
+      if (paths)
+      {
+        Services.PathManager.PathManager pathManager = new Services.PathManager.PathManager();
+        pathManager.InitializeDefaults();
+        if (!string.IsNullOrEmpty(dataDirectory))
+          pathManager.SetPath("DATA", dataDirectory);
 
-      ILogger logger = new Log4NetLogger(pathManager.GetPath(@"<LOG>"));
+        ServiceRegistration.Set<IPathManager>(pathManager);
+
+        logger = new Log4NetLogger(pathManager.GetPath(@"<LOG>"));
+      }
+      else
+      {
+        logger = ServiceRegistration.Get<ILogger>();
+      }
 
       logger.Info("ApplicationCore: Launching in AppDomain {0}...", AppDomain.CurrentDomain.FriendlyName);
 
       // Assembly and build information
       FileVersionInfo fileVersionInfo = FileVersionInfo.GetVersionInfo(System.Reflection.Assembly.GetCallingAssembly().Location);
-      logger.Info("ApplicationCore: Comments:   {0}", fileVersionInfo.Comments);
-      logger.Info("ApplicationCore: Copyright:  {0}", fileVersionInfo.LegalCopyright);
-      logger.Info("ApplicationCore: Version:    {0}", fileVersionInfo.FileVersion);
-      logger.Info("ApplicationCore: Source:     {0}", fileVersionInfo.ProductVersion);
+      logger.Info("ApplicationCore: Comments:         {0}", fileVersionInfo.Comments);
+      logger.Info("ApplicationCore: Copyright:        {0}", fileVersionInfo.LegalCopyright);
+      logger.Info("ApplicationCore: Version:          {0}", fileVersionInfo.FileVersion);
+      logger.Info("ApplicationCore: Source:           {0}", fileVersionInfo.ProductVersion);
+      // Operating system info
+      logger.Info("ApplicationCore: OS version:       {0}", Environment.OSVersion);
+      foreach (string key in new[] { "ProductName", "ReleaseId", "BuildLab", "InstallationType", "EditionID", "EditionSubstring" })
+      {
+        try
+        {
+          var value = Microsoft.Win32.Registry.GetValue(@"HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion", key, string.Empty).ToString();
+          logger.Info("ApplicationCore: {0,-18}{1}", key + ":", value);
+        }
+        catch { break; }
+      }
       logger.Info("ApplicationCore: ----------------------------------------------------------");
 
       logger.Debug("ApplicationCore: Registering ILogger service");
       ServiceRegistration.Set<ILogger>(logger);
 
-      logger.Debug("ApplicationCore: Registering ISettingsManager service");
-      ServiceRegistration.Set<ISettingsManager>(new SettingsManager());
+      logger.Debug("ApplicationCore: Registered ISettingsManager service");
     }
 
     /// <summary>
@@ -112,6 +138,9 @@ namespace MediaPortal.Common
       logger.Debug("ApplicationCore: Registering IMessageBroker service");
       ServiceRegistration.Set<IMessageBroker>(new MessageBroker());
 
+      logger.Debug("ApplicationCore: Registering ILoggerConfig service");
+      ServiceRegistration.Set<ILoggerConfig>(new LoggerConfig());
+
       logger.Debug("ApplicationCore: Registering IPluginManager service");
       ServiceRegistration.Set<IPluginManager>(new Services.PluginManager.PluginManager());
 
@@ -124,6 +153,9 @@ namespace MediaPortal.Common
       logger.Debug("ApplicationCore: Registering IMediaAccessor service");
       ServiceRegistration.Set<IMediaAccessor>(new MediaAccessor());
 
+      logger.Debug("ApplicationCore: Registering IFileEventNotifier service");
+      ServiceRegistration.Set<IFileEventNotifier>(new FileEventNotifier());
+
       // ToDo: Remove the old ImporterWorker and this setting once the NewGen ImporterWorker actually works
       var importerWorkerSettings = ServiceRegistration.Get<ISettingsManager>().Load<ImporterWorkerSettings>();
       if (importerWorkerSettings.UseNewImporterWorker)
@@ -134,7 +166,7 @@ namespace MediaPortal.Common
       else
       {
         logger.Debug("ApplicationCore: Registering IImporterWorker service");
-        ServiceRegistration.Set<IImporterWorker>(new ImporterWorker());        
+        ServiceRegistration.Set<IImporterWorker>(new ImporterWorker());
       }
 
       logger.Debug("ApplicationCore: Registering IResourceServer service");
@@ -148,6 +180,12 @@ namespace MediaPortal.Common
 
       logger.Debug("ApplicationCore: Registering IThumbnailGenerator service");
       ServiceRegistration.Set<IThumbnailGenerator>(new ThumbnailGenerator());
+
+      logger.Debug("ApplicationCore: Registering IGenreConverter service");
+      ServiceRegistration.Set<IGenreConverter>(new GenreConverter());
+
+      logger.Debug("ApplicationCore: Registering IFanArtCache service");
+      ServiceRegistration.Set<IFanArtCache>(new FanArtCache());
 
       AdditionalPluginItemBuilders.Register();
     }
@@ -172,19 +210,38 @@ namespace MediaPortal.Common
       ServiceRegistration.Get<IThreadPool>().Shutdown();
     }
 
-    public static void RegisterDefaultMediaItemAspectTypes()
+    public static async System.Threading.Tasks.Task RegisterDefaultMediaItemAspectTypes()
     {
       IMediaItemAspectTypeRegistration miatr = ServiceRegistration.Get<IMediaItemAspectTypeRegistration>();
-      miatr.RegisterLocallyKnownMediaItemAspectType(ProviderResourceAspect.Metadata);
-      miatr.RegisterLocallyKnownMediaItemAspectType(ImporterAspect.Metadata);
-      miatr.RegisterLocallyKnownMediaItemAspectType(DirectoryAspect.Metadata);
-      miatr.RegisterLocallyKnownMediaItemAspectType(MediaAspect.Metadata);
-      miatr.RegisterLocallyKnownMediaItemAspectType(VideoAspect.Metadata);
-      miatr.RegisterLocallyKnownMediaItemAspectType(AudioAspect.Metadata);
-      miatr.RegisterLocallyKnownMediaItemAspectType(ImageAspect.Metadata);
-      miatr.RegisterLocallyKnownMediaItemAspectType(SeriesAspect.Metadata);
-      miatr.RegisterLocallyKnownMediaItemAspectType(MovieAspect.Metadata);
-      miatr.RegisterLocallyKnownMediaItemAspectType(ThumbnailLargeAspect.Metadata);
+
+      var knownAspects = new List<MediaItemAspectMetadata>
+      {
+        ProviderResourceAspect.Metadata,
+        ImporterAspect.Metadata,
+        DirectoryAspect.Metadata,
+        MediaAspect.Metadata,
+        VideoAspect.Metadata,
+        GenreAspect.Metadata,
+        VideoStreamAspect.Metadata,
+        VideoAudioStreamAspect.Metadata,
+        SubtitleAspect.Metadata,
+        AudioAspect.Metadata,
+        AudioAlbumAspect.Metadata,
+        ImageAspect.Metadata,
+        EpisodeAspect.Metadata,
+        SeasonAspect.Metadata,
+        SeriesAspect.Metadata,
+        MovieAspect.Metadata,
+        MovieCollectionAspect.Metadata,
+        CompanyAspect.Metadata,
+        PersonAspect.Metadata,
+        CharacterAspect.Metadata,
+        ThumbnailLargeAspect.Metadata,
+        ExternalIdentifierAspect.Metadata,
+        RelationshipAspect.Metadata,
+        StubAspect.Metadata
+      };
+      await miatr.RegisterLocallyKnownMediaItemAspectTypeAsync(knownAspects);
     }
 
     public static void DisposeCoreServices()
@@ -193,6 +250,9 @@ namespace MediaPortal.Common
 
       logger.Debug("ApplicationCore: Removing IThumbnailGenerator service");
       ServiceRegistration.RemoveAndDispose<IThumbnailGenerator>();
+
+      logger.Debug("ApplicationCore: Removing IGenreConverter service");
+      ServiceRegistration.RemoveAndDispose<IGenreConverter>();
 
       logger.Debug("ApplicationCore: Removing IRemoteResourceInformationService");
       ServiceRegistration.RemoveAndDispose<IRemoteResourceInformationService>();
@@ -209,6 +269,9 @@ namespace MediaPortal.Common
       logger.Debug("ApplicationCore: Removing IMediaAccessor service");
       ServiceRegistration.RemoveAndDispose<IMediaAccessor>();
 
+      logger.Debug("ApplicationCore: Removing IFileEventNotifier service");
+      ServiceRegistration.RemoveAndDispose<IFileEventNotifier>();
+
       logger.Debug("ApplicationCore: Removing ITaskScheduler service");
       ServiceRegistration.RemoveAndDispose<ITaskScheduler>();
 
@@ -220,6 +283,9 @@ namespace MediaPortal.Common
 
       logger.Debug("ApplicationCore: Removing IPluginManager service");
       ServiceRegistration.RemoveAndDispose<IPluginManager>();
+
+      logger.Debug("ApplicationCore: Removing ILoggerConfig service");
+      ServiceRegistration.RemoveAndDispose<ILoggerConfig>();
 
       logger.Debug("ApplicationCore: Removing IMessageBroker service");
       ServiceRegistration.RemoveAndDispose<IMessageBroker>();

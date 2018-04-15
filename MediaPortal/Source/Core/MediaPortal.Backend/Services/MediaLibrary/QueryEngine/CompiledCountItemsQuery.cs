@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2015 Team MediaPortal
+#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2015 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -42,12 +42,15 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
     protected readonly MIA_Management _miaManagement;
     protected readonly IEnumerable<MediaItemAspectMetadata> _necessaryRequestedMIATypes;
     protected readonly IFilter _filter;
+    protected readonly IFilter _subqueryFilter;
 
-    public CompiledCountItemsQuery(MIA_Management miaManagement, IEnumerable<MediaItemAspectMetadata> necessaryRequestedMIATypes, IFilter filter)
+    public CompiledCountItemsQuery(MIA_Management miaManagement, IEnumerable<MediaItemAspectMetadata> necessaryRequestedMIATypes,
+      IFilter filter, IFilter subqueryFilter)
     {
       _miaManagement = miaManagement;
       _necessaryRequestedMIATypes = necessaryRequestedMIATypes;
       _filter = filter;
+      _subqueryFilter = subqueryFilter;
     }
 
     public IFilter Filter
@@ -56,7 +59,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
     }
 
     public static CompiledCountItemsQuery Compile(MIA_Management miaManagement,
-        IEnumerable<Guid> necessaryRequestedMIATypeIDs, IFilter filter)
+        IEnumerable<Guid> necessaryRequestedMIATypeIDs, IFilter filter, IFilter subqueryFilter)
     {
       IDictionary<Guid, MediaItemAspectMetadata> availableMIATypes = miaManagement.ManagedMediaItemAspectTypes;
       ICollection<MediaItemAspectMetadata> necessaryMIATypes = new List<MediaItemAspectMetadata>();
@@ -68,7 +71,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
           throw new InvalidDataException("Necessary requested MIA type of ID '{0}' is not present in the media library", miaTypeID);
         necessaryMIATypes.Add(miam);
       }
-      return new CompiledCountItemsQuery(miaManagement, necessaryMIATypes, filter);
+      return new CompiledCountItemsQuery(miaManagement, necessaryMIATypes, filter, subqueryFilter);
     }
 
     public int Execute()
@@ -82,8 +85,8 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
           string countAlias;
           string statementStr;
           IList<BindVar> bindVars;
-          MainQueryBuilder builder = new MainQueryBuilder(_miaManagement, new QueryAttribute[] {}, null,
-              _necessaryRequestedMIATypes, new MediaItemAspectMetadata[] {}, _filter, null);
+          MIAQueryBuilder builder = new MIAQueryBuilder(_miaManagement, new QueryAttribute[] { }, null,
+              _necessaryRequestedMIATypes, new MediaItemAspectMetadata[] {}, _filter, _subqueryFilter, null);
           IDictionary<QueryAttribute, string> qa2a;
           builder.GenerateSqlGroupByStatement(out countAlias, out qa2a, out statementStr, out bindVars);
 

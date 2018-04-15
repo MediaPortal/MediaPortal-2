@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2015 Team MediaPortal
+#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2015 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -30,8 +30,10 @@ using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.ResourceAccess;
 using MediaPortal.Common.SystemCommunication;
 using MediaPortal.Common.SystemResolver;
+using MediaPortal.Common.UserManagement;
 using MediaPortal.UI.ServerCommunication;
 using MediaPortal.UI.Shares;
+using MediaPortal.UI.Services.UserManagement;
 
 namespace MediaPortal.UiComponents.Media.Views
 {
@@ -136,8 +138,13 @@ namespace MediaPortal.UiComponents.Media.Views
       if (cd == null)
         return;
 
-      MediaItem parentDirectory = cd.LoadItem(localShare.SystemId, localShare.BaseResourcePath,
-          SystemSharesViewSpecification.DIRECTORY_MIA_ID_ENUMERATION, SystemSharesViewSpecification.EMPTY_ID_ENUMERATION);
+      Guid? userProfile = null;
+      IUserManagement userProfileDataManagement = ServiceRegistration.Get<IUserManagement>();
+      if (userProfileDataManagement != null && userProfileDataManagement.IsValidUser)
+        userProfile = userProfileDataManagement.CurrentUser.ProfileId;
+
+      MediaItem parentDirectory = cd.LoadItemAsync(localShare.SystemId, localShare.BaseResourcePath,
+          SystemSharesViewSpecification.DIRECTORY_MIA_ID_ENUMERATION, SystemSharesViewSpecification.EMPTY_ID_ENUMERATION, userProfile).Result;
       if (parentDirectory == null)
         return;
       navigateToViewDlgt(new MediaLibraryBrowseViewSpecification(localShare.Name, parentDirectory.MediaItemId,
@@ -152,9 +159,14 @@ namespace MediaPortal.UiComponents.Media.Views
       if (cd == null)
         return null;
 
+      Guid? userProfile = null;
+      IUserManagement userProfileDataManagement = ServiceRegistration.Get<IUserManagement>();
+      if (userProfileDataManagement != null && userProfileDataManagement.IsValidUser)
+        userProfile = userProfileDataManagement.CurrentUser.ProfileId;
+
       ResourcePath directoryPath = viewRA.CanonicalLocalResourcePath;
-      MediaItem directoryItem = cd.LoadItem(systemId, directoryPath,
-          SystemSharesViewSpecification.DIRECTORY_MIA_ID_ENUMERATION, SystemSharesViewSpecification.EMPTY_ID_ENUMERATION);
+      MediaItem directoryItem = cd.LoadItemAsync(systemId, directoryPath,
+          SystemSharesViewSpecification.DIRECTORY_MIA_ID_ENUMERATION, SystemSharesViewSpecification.EMPTY_ID_ENUMERATION, userProfile).Result;
       if (directoryItem == null)
         return null;
       return new MediaLibraryBrowseViewSpecification(viewRA.ResourceName, directoryItem.MediaItemId, systemId,

@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2015 Team MediaPortal
+#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2015 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -61,7 +61,7 @@ namespace MediaPortal.Plugins.OneTrueError.Settings
       ExceptionExcludedList = EXCEPTION_EXCLUDE_FILTERS;
     }
 
-    [Setting(SettingScope.Global, LogLevel.Information)]
+    [Setting(SettingScope.Global, LogLevel.Error)]
     public LogLevel MinReportLevel { get; set; }
 
     [Setting(SettingScope.Global)]

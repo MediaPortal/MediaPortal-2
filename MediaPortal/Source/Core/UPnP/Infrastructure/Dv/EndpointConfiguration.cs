@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2015 Team MediaPortal
+#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2015 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -78,7 +78,7 @@ namespace UPnP.Infrastructure.Dv
     protected IDictionary<string, DvService> _controlPathsToServices = new Dictionary<string, DvService>(StringComparer.InvariantCultureIgnoreCase);
     protected IDictionary<string, DvService> _eventSubPathsToServices = new Dictionary<string, DvService>(StringComparer.InvariantCultureIgnoreCase);
     protected IDictionary<DvService, ServicePaths> _servicePaths = new Dictionary<DvService, ServicePaths>();
-    
+
     protected ICollection<EventSubscription> _eventSubscriptions = new List<EventSubscription>();
     protected Int32 _configId = 0;
 
@@ -125,16 +125,7 @@ namespace UPnP.Infrastructure.Dv
       get { return _endpointIPAddress; }
       internal set { _endpointIPAddress = value; }
     }
-
-    /// <summary>
-    /// The port where the HTTP server, which corresponds to this endpoint, listens.
-    /// </summary>
-    public int HTTPServerPort
-    {
-      get { return _httpServerPort; }
-      internal set { _httpServerPort = value; }
-    }
-
+    
     /// <summary>
     /// Returns the information if the <see cref="SSDPSearchPort"/> is another port than
     /// <see cref="UPnPConsts.DEFAULT_SSDP_SEARCH_PORT"/>.
@@ -283,7 +274,8 @@ namespace UPnP.Infrastructure.Dv
 
     public string GetEndpointHttpPrefixString()
     {
-      return "http://" + NetworkHelper.IPEndPointToString(EndPointIPAddress, HTTPServerPort);
+      var httpServerPort = UPnPServer.DEFAULT_UPNP_AND_SERVICE_PORT_NUMBER;
+      return "http://" + NetworkHelper.IPEndPointToString(EndPointIPAddress, httpServerPort);
     }
   }
 }

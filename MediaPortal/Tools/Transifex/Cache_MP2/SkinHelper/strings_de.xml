@@ -1,9 +1,9 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
-  <string name="SkinHelper.ThemeColorsWorkflowNavigationContextDisplayLabel">Themenfarben</string>
-  <string name="SkinHelper.MenuShowThemeColors">Themenfarben anzeigen</string>
-  <string name="SkinHelper.ShowThemeColorsTitle">Themenfarben</string>
+  <string name="SkinHelper.ThemeColorsWorkflowNavigationContextDisplayLabel">Themen-Farben</string>
+  <string name="SkinHelper.MenuShowThemeColors">Zeigt verfügbare Farben des Themas an</string>
+  <string name="SkinHelper.ShowThemeColorsTitle">Themen Farben</string>
   <string name="SkinHelper.ShowThemeColorsText">Dieser Bildschirm zeigt alle Farb-Ressourcen des aktuellen Themas an (auch vererbte)</string>
-  <string name="SkinHelper.LoadSkinTitle">Oberfläche laden</string>
+  <string name="SkinHelper.LoadSkinTitle">Skin laden</string>
   <string name="SkinHelper.LoadThemeTitle">Thema laden</string>
 </resources>

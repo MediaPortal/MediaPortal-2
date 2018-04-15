@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2015 Team MediaPortal
+#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2015 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -32,6 +32,12 @@ using MediaPortal.UI.Players.Video.Interfaces;
 using MediaPortal.UI.Presentation.Players;
 using MediaPortal.Common.PluginManager;
 using MediaPortal.Common.Services.PluginManager.Builders;
+using MediaPortal.Common.PathManager;
+using System.IO;
+using System.Collections.Generic;
+using MediaPortal.Common.MediaManagement.DefaultItemAspects;
+using MediaPortal.Utilities.SystemAPI;
+using MediaPortal.Common.SystemResolver;
 
 namespace MediaPortal.UI.Players.Video
 {
@@ -118,7 +124,7 @@ namespace MediaPortal.UI.Players.Video
         }
       }
     }
-    
+
     #endregion
 
     #region IPlayerBuilder implementation
@@ -129,6 +135,7 @@ namespace MediaPortal.UI.Players.Video
       string title;
       if (!mediaItem.GetPlayData(out mimeType, out title))
         return null;
+
       IResourceLocator locator = mediaItem.GetResourceLocator();
       Type playerType = PlayerRegistration.GetPlayerTypeForMediaItem(locator, mimeType);
       if (playerType == null)
@@ -136,7 +143,7 @@ namespace MediaPortal.UI.Players.Video
       IInitializablePlayer player = (IInitializablePlayer) Activator.CreateInstance(playerType);
       try
       {
-        player.SetMediaItem(locator, title);
+        player.SetMediaItem(locator, title, mediaItem);
       }
       catch (Exception e)
       { // The file might be broken, so the player wasn't able to play it

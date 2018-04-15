@@ -1,7 +1,7 @@
-﻿#region Copyright (C) 2007-2015 Team MediaPortal
+﻿#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2014 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -37,6 +37,8 @@ using MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.Stubs;
 using MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.Utilities;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
+using System.Globalization;
+using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 
 namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoReaders
 {
@@ -76,12 +78,26 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoRea
     /// </summary>
     /// <param name="extractedAspectData">Dictionary of MediaItemAspects to write the Attribute to</param>
     /// <returns><c>true</c> if metadata was written to the Attribute; else <c>false</c></returns>
-    protected delegate bool TryWriteAttributeDelegate(IDictionary<Guid, MediaItemAspect> extractedAspectData);
+    protected delegate bool TryWriteAttributeDelegate(IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData);
+
+    /// <summary>
+    /// Delegate used to write metadata for a relation into a dictionary of MediaItemAspect
+    /// </summary>
+    /// <typeparam name="T">The type of the stub item to write metadata for</typeparam>
+    /// <param name="relationshipStub">The stub item to write metadata for</param>
+    /// <param name="extractedAspectData">Dictionary of MediaItemAspects to write the MediaItemAspects to</param>
+    /// <returns><c>true</c> if MediaItemAspects were added to the MediaItemAspect dictionary; else <c>false</c></returns>
+    protected delegate bool TryWriteRelationshipDelegate<T>(T relationshipStub, IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData);
 
     #endregion
 
     #region Protected fields
 
+    /// <summary>
+    /// After a successful call to <see cref="TryReadNfoFileAsync"/> the content of the nfo-file is in this byte array
+    /// </summary>
+    protected byte[] _nfoBytes;
+    
     /// <summary>
     /// After a call to <see cref="TryReadMetadataAsync"/> all parsed stub objects are contained in this list
     /// </summary>
@@ -107,6 +123,11 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoRea
     protected long _miNumber;
 
     /// <summary>
+    /// If true, this is an import only cycle meaning no refresh of existing media
+    /// </summary>
+    protected bool _importOnly;
+
+    /// <summary>
     /// If true, no long lasting operations such as parsing pictures are performed
     /// </summary>
     protected bool _forceQuickMode;
@@ -126,10 +147,6 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoRea
     /// </summary>
     protected readonly HttpClient _httpDownloadClient;
 
-    #endregion
-
-    #region Private fields
-
     /// <summary>
     /// Settings of the NfoMetadataExtractor
     /// </summary>
@@ -138,7 +155,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoRea
     /// Properties defined in a settings class derived from <see cref="NfoMetadataExtractorSettingsBase"/> can only be accessed by the
     /// respective derived reader class.
     /// </remarks>
-    private readonly NfoMetadataExtractorSettingsBase _settings;
+    protected NfoMetadataExtractorSettingsBase _settings;
 
     #endregion
 
@@ -152,6 +169,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoRea
     /// <param name="forceQuickMode">If <c>true</c>, no long lasting operations such as parsing pictures are performed</param>
     /// <param name="httpClient"><see cref="HttpClient"/> used to download from http URLs contained in nfo-files</param>
     /// <param name="settings">Settings of the NfoMetadataExtractor</param>
+    /// 
     protected NfoReaderBase(ILogger debugLogger, long miNumber, bool forceQuickMode, HttpClient httpClient, NfoMetadataExtractorSettingsBase settings)
     {
       _debugLogger = debugLogger;
@@ -172,38 +190,28 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoRea
     /// <returns><c>true</c> if any usable metadata was found; else <c>false</c></returns>
     public virtual async Task<bool> TryReadMetadataAsync(IFileSystemResourceAccessor nfoFsra)
     {
-      byte[] nfoBytes;
       var nfoFileWrittenToDebugLog = false;
-      try
-      {
-        using (var nfoStream = await nfoFsra.OpenReadAsync().ConfigureAwait(false))
-        {
-          // For xml-files it is recommended to read them as byte array. Reason is that reading as byte array does
-          // not yet consider any encoding. After that, it is recommended to use the XmlReader (instead of a StreamReader)
-          // because the XmlReader first considers the "Byte Order Mark" ("BOM"). If such is not present, UTF-8 is used.
-          // If the XML declaration contains an encoding attribute (which is optional), the XmlReader (contrary to the
-          // StreamReader) automatically switches to the enconding specified by the XML declaration.
-          nfoBytes = new byte[nfoStream.Length];
-          await nfoStream.ReadAsync(nfoBytes, 0, (int)nfoStream.Length).ConfigureAwait(false);
-          if (_settings.EnableDebugLogging && _settings.WriteRawNfoFileIntoDebugLog)
-            using (var nfoMemoryStream = new MemoryStream(nfoBytes))
-            using (var nfoReader = new StreamReader(nfoMemoryStream, true))
-            {
-              var nfoString = nfoReader.ReadToEnd();
-              _debugLogger.Debug("[#{0}]: Nfo-file (Encoding: {1}):{2}{3}", _miNumber, nfoReader.CurrentEncoding, Environment.NewLine, nfoString);
-              nfoFileWrittenToDebugLog = true;
-            }
-        }
-      }
-      catch (Exception e)
-      {
-        _debugLogger.Error("[#{0}]: Cannot extract metadata; cannot read nfo-file", e, _miNumber);
+
+      // Make sure the nfo-file was read into _nfoBytes as byte array
+      if (_nfoBytes == null && !await TryReadNfoFileAsync(nfoFsra).ConfigureAwait(false))
         return false;
-      }
+
+      if (_settings.EnableDebugLogging && _settings.WriteRawNfoFileIntoDebugLog)
+        // ReSharper disable once AssignNullToNotNullAttribute
+        // TryReadNfoFileAsync makes sure that _nfoBytes is not null
+        using (var nfoMemoryStream = new MemoryStream(_nfoBytes))
+        using (var nfoReader = new StreamReader(nfoMemoryStream, true))
+        {
+          var nfoString = nfoReader.ReadToEnd();
+          _debugLogger.Debug("[#{0}]: Nfo-file (Encoding: {1}):{2}{3}", _miNumber, nfoReader.CurrentEncoding, Environment.NewLine, nfoString);
+          nfoFileWrittenToDebugLog = true;
+        }
       
       try
       {
-        using(var memoryNfoStream = new MemoryStream(nfoBytes))
+        // ReSharper disable once AssignNullToNotNullAttribute
+        // TryReadNfoFileAsync makes sure that _nfoBytes is not null
+        using (var memoryNfoStream = new MemoryStream(_nfoBytes))
         using (var xmlReader = new XmlNfoReader(memoryNfoStream))
         {
           var nfoDocument = XDocument.Load(xmlReader);
@@ -212,7 +220,9 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoRea
       }
       catch (Exception e)
       {
-        using(var nfoMemoryStream = new MemoryStream(nfoBytes))
+        // ReSharper disable once AssignNullToNotNullAttribute
+        // TryReadNfoFileAsync makes sure that _nfoBytes is not null
+        using (var nfoMemoryStream = new MemoryStream(_nfoBytes))
         using (var nfoReader = new StreamReader(nfoMemoryStream, true))
         {
           try
@@ -220,12 +230,12 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoRea
             if (!nfoFileWrittenToDebugLog)
             {
               var nfoString = nfoReader.ReadToEnd();
-              _debugLogger.Warn("[#{0}]: Cannot extract metadata; cannot parse nfo-file with XMLReader (Encoding: {1}):{2}{3}", e, _miNumber, nfoReader.CurrentEncoding, Environment.NewLine, nfoString);
+              _debugLogger.Warn("[#{0}]: Cannot parse nfo-file with XMLReader (Encoding: {1}):{2}{3}", e, _miNumber, nfoReader.CurrentEncoding, Environment.NewLine, nfoString);
             }
           }
-          catch (Exception)
+          catch (Exception ex)
           {
-            _debugLogger.Error("[#{0}]: Cannot extract metadata; neither XMLReader can parse nor StreamReader can read the bytes read from the nfo-file", e, _miNumber);
+            _debugLogger.Error("[#{0}]: Cannot extract metadata; neither XMLReader can parse nor StreamReader can read the bytes read from the nfo-file", ex, _miNumber);
           }
         }
         return false;
@@ -243,7 +253,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoRea
     /// <param name="extractedAspectData"></param> must not be <c>null</c>. If it does not contain a MediaItemAspect, in which this method wants
     /// to store metadata, this MediaItemAspect is added to <param name="extractedAspectData"></param>.
     /// </remarks>
-    public bool TryWriteMetadata(IDictionary<Guid, MediaItemAspect> extractedAspectData)
+    public bool TryWriteMetadata(IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData)
     {
       var stubObjectsLogged = false;
       var result = false;
@@ -268,6 +278,83 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoRea
         }
       }
       return result;
+    }
+
+    #endregion
+
+    #region Protected methods
+
+    protected bool TryWriteRelationshipMetadata<T>(TryWriteRelationshipDelegate<T> writeDelegate, T relationshipStub, IList<IDictionary<Guid, IList<MediaItemAspect>>> extractedAspects)
+    {
+      var result = false;
+      try
+      {
+        IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData = new Dictionary<Guid, IList<MediaItemAspect>>();
+        if (writeDelegate.Invoke(relationshipStub, extractedAspectData))
+        {
+          extractedAspects.Add(extractedAspectData);
+          result = true;
+        }
+      }
+      catch (Exception e)
+      {
+        _debugLogger.Error("[#{0}]: Error writing relationship metadata into the MediaItemAspects (delegate: {1})", e, _miNumber, writeDelegate);
+      }
+      return result;
+    }
+
+    protected bool TryWriteRelationshipMetadata<T>(TryWriteRelationshipDelegate<T> writeDelegate, IEnumerable<T> relationshipStubs, IList<IDictionary<Guid, IList<MediaItemAspect>>> extractedAspects)
+    {
+      var result = false;
+      try
+      {
+        foreach (T relationshipStub in relationshipStubs)
+        {
+          IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData = new Dictionary<Guid, IList<MediaItemAspect>>();
+          if (writeDelegate.Invoke(relationshipStub, extractedAspectData))
+          {
+            extractedAspects.Add(extractedAspectData);
+            result = true;
+          }
+        }
+      }
+      catch (Exception e)
+      {
+        _debugLogger.Error("[#{0}]: Error writing relationship metadata into the MediaItemAspects (delegate: {1})", e, _miNumber, writeDelegate);
+      }
+      return result;
+    }
+
+    protected bool TryWritePersonAspect(PersonStub person, string occupation, IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData)
+    {
+      if (person == null)
+        return false;
+      if (!string.IsNullOrEmpty(person.ImdbId))
+        MediaItemAspect.AddOrUpdateExternalIdentifier(extractedAspectData, ExternalIdentifierAspect.SOURCE_IMDB, ExternalIdentifierAspect.TYPE_PERSON, person.ImdbId);
+      MediaItemAspect personAspect = MediaItemAspect.GetOrCreateAspect(extractedAspectData, PersonAspect.Metadata);
+      if (person.Name != null)
+        personAspect.SetAttribute(PersonAspect.ATTR_PERSON_NAME, person.Name);
+      if (person.Biography != null || person.MiniBiography != null)
+        personAspect.SetAttribute(PersonAspect.ATTR_BIOGRAPHY, string.IsNullOrEmpty(person.Biography) ? person.MiniBiography : person.Biography);
+      if (person.Birthdate.HasValue)
+        personAspect.SetAttribute(PersonAspect.ATTR_DATEOFBIRTH, person.Birthdate);
+      if (person.Deathdate.HasValue)
+        personAspect.SetAttribute(PersonAspect.ATTR_DATEOFDEATH, person.Deathdate);
+      personAspect.SetAttribute(PersonAspect.ATTR_OCCUPATION, occupation);
+      return true;
+    }
+
+    protected bool TryWriteCharacterAspect(PersonStub person, IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData)
+    {
+      if (person == null)
+        return false;
+      if (!string.IsNullOrEmpty(person.ImdbId))
+        MediaItemAspect.AddOrUpdateExternalIdentifier(extractedAspectData, ExternalIdentifierAspect.SOURCE_IMDB, ExternalIdentifierAspect.TYPE_CHARACTER, person.ImdbId);
+      MediaItemAspect characterAspect = MediaItemAspect.GetOrCreateAspect(extractedAspectData, CharacterAspect.Metadata);
+      if(person.Name != null)
+      characterAspect.SetAttribute(CharacterAspect.ATTR_ACTOR_NAME, person.Name);
+      characterAspect.SetAttribute(CharacterAspect.ATTR_CHARACTER_NAME, person.Role);
+      return true;
     }
 
     #endregion
@@ -338,6 +425,41 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoRea
       return result;
     }
 
+    public async Task<bool> TryReadElementAsync(XElement nfoElement, IFileSystemResourceAccessor nfoDirectoryFsra)
+    {
+      _stubs.Clear();
+      var result = false;
+
+      _currentStub = new TStub();
+      var metadataFound = false;
+      foreach (var element in nfoElement.Elements())
+      {
+        Delegate readDelegate;
+        if (_supportedElements.TryGetValue(element.Name, out readDelegate))
+        {
+          try
+          {
+            if ((readDelegate is TryReadElementDelegate && (readDelegate as TryReadElementDelegate).Invoke(element)) ||
+                (readDelegate is TryReadElementAsyncDelegate && await (readDelegate as TryReadElementAsyncDelegate).Invoke(element, nfoDirectoryFsra).ConfigureAwait(false)))
+              metadataFound = true;
+          }
+          catch (Exception e)
+          {
+            _debugLogger.Error("[#{0}]: Exception while reading element {1}", e, _miNumber, element);
+          }
+        }
+        else
+          _debugLogger.Warn("[#{0}]: Unknown element {1}", _miNumber, element);
+      }
+      if (metadataFound)
+      {
+        _stubs.Add(_currentStub);
+        result = true;
+      }
+      _currentStub = default(TStub);
+      return result;
+    }
+
     /// <summary>
     /// Checks if the nfoDocument has a root element with the name "root" and at least one child element
     /// </summary>
@@ -376,6 +498,34 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoRea
     #region Protected methods
 
     /// <summary>
+    /// Tries to read an nfo-file into a byte array (<see cref="_nfoBytes"/>)
+    /// </summary>
+    /// <param name="nfoFsra">FileSystemResourceAccessor pointing to the nfo-file</param>
+    /// <returns><c>true</c>, if the file was successfully read; otherwise <c>false</c></returns>
+    protected async Task<bool> TryReadNfoFileAsync(IFileSystemResourceAccessor nfoFsra)
+    {
+      try
+      {
+        using (var nfoStream = await nfoFsra.OpenReadAsync().ConfigureAwait(false))
+        {
+          // For xml-files it is recommended to read them as byte array. Reason is that reading as byte array does
+          // not yet consider any encoding. After that, it is recommended to use the XmlReader (instead of a StreamReader)
+          // because the XmlReader first considers the "Byte Order Mark" ("BOM"). If such is not present, UTF-8 is used.
+          // If the XML declaration contains an encoding attribute (which is optional), the XmlReader (contrary to the
+          // StreamReader) automatically switches to the enconding specified by the XML declaration.
+          _nfoBytes = new byte[nfoStream.Length];
+          await nfoStream.ReadAsync(_nfoBytes, 0, (int)nfoStream.Length).ConfigureAwait(false);
+        }
+      }
+      catch (Exception e)
+      {
+        _debugLogger.Error("[#{0}]: Cannot extract metadata; cannot read nfo-file", e, _miNumber);
+        return false;
+      }
+      return true;
+    }
+
+    /// <summary>
     /// Writes the <see cref="_stubs"/> object including its metadata into the debug log in Json form
     /// </summary>
     protected void LogStubObjects()
@@ -402,7 +552,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoRea
         _debugLogger.Warn("[#{0}]: The following element was supposed to contain a simple value, but it contains child elements: {1}", _miNumber, element);
         return null;
       }
-      var result = element.Value.Trim();
+      var result = element.Value.Trim().Trim(new char[] { '|' });
       if (_settings.IgnoreStrings != null && _settings.IgnoreStrings.Contains(result, StringComparer.OrdinalIgnoreCase))
         return null;
       return String.IsNullOrEmpty(result) ? null : result;
@@ -435,20 +585,83 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoRea
     }
 
     /// <summary>
+    /// Tries to read a simple long? from <paramref name="element"/>.Value
+    /// </summary>
+    /// <param name="element"><see cref="XElement"/> to read from</param>
+    /// <returns>
+    /// <c>null</c> if <see cref="ParseSimpleString"/> returns <c>null</c> for <paramref name="element"/>
+    /// or <see cref="ParseSimpleString"/> for <paramref name="element"/> does not contain a valid <see cref="long"/> value;
+    /// otherwise (long?)<paramref name="element"/>
+    /// </returns>
+    protected long? ParseSimpleLong(XElement element)
+    {
+      var longString = ParseSimpleString(element);
+      if (longString == null)
+        return null;
+      long? result = null;
+      try
+      {
+        result = (long?)element;
+      }
+      catch (Exception)
+      {
+        _debugLogger.Warn("[#{0}]: The following element was supposed to contain an long value, but it does not: {1}", _miNumber, element);
+      }
+      return result;
+    }
+
+    /// <summary>
     /// Tries to read a simple decimal? from <paramref name="element"/>.Value
     /// </summary>
     /// <param name="element"><see cref="XElement"/> to read from</param>
     /// <returns>
     /// <c>null</c> if <see cref="ParseSimpleString"/> returns <c>null</c> for <paramref name="element"/>
     /// or <see cref="ParseSimpleString"/> for <paramref name="element"/> does not contain a valid <see cref="decimal"/> value;
-    /// otherwise (decimal?)<paramref name="element"/>
+    /// otherwise (decimal?)<paramref name="element"/>.
+    /// If a fraction or ratio is found it will try to convert those to a decimal value.
     /// </returns>
     protected decimal? ParseSimpleDecimal(XElement element)
     {
       var decimalString = ParseSimpleString(element);
       if (decimalString == null)
         return null;
+
       decimal? result = null;
+      try
+      {
+        //Decimal defined as fraction
+        if (decimalString.Contains("/"))
+        {
+          string[] numbers = decimalString.Split('/');
+          return decimal.Parse(numbers[0]) / decimal.Parse(numbers[1]);
+        }
+
+        //Decimal defined as ratio
+        if (decimalString.Contains(":"))
+        {
+          string[] numbers = decimalString.Split(':');
+          return decimal.Parse(numbers[0]) / decimal.Parse(numbers[1]);
+        }
+      }
+      catch (Exception)
+      {
+        _debugLogger.Warn("[#{0}]: The following element was supposed to contain a decimal value, but it does not: {1}", _miNumber, element);
+        return result;
+      }
+
+      decimal val;
+      //Decimal defined as neutral localized string
+      if (decimal.TryParse(decimalString, NumberStyles.Float, CultureInfo.InvariantCulture, out val))
+      {
+        return val;
+      }
+
+      //Decimal defined as localized string
+      if (decimal.TryParse(decimalString, NumberStyles.Float, CultureInfo.CurrentCulture, out val))
+      {
+        return val;
+      }
+
       try
       {
         result = (decimal?)element;
@@ -502,6 +715,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoRea
     /// <param name="nfoDirectoryFsra"><see cref="IFileSystemResourceAccessor"/> pointing to the parent directory of the nfo-file</param>
     /// <returns>
     /// <c>null</c> if
+    ///   - <see cref="_importOnly"/> is <c>true</c>; or
     ///   - <see cref="_forceQuickMode"/> is <c>true</c>; or
     ///   - a call to <see cref="ParseSimpleString"/> for <paramref name="element"/> returns <c>null</c>
     ///   - <paramref name="element"/>.Value does not contain a valid and existing (absolute) http URL to an image; or
@@ -545,25 +759,28 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoRea
       else
         _debugLogger.Error("[#{0}]: The nfo-file's parent directory's fsra could not be created", _miNumber);
 
-      // Then check if we have a valid http URL
-      Uri imageFileUri;
-      if (!Uri.TryCreate(imageFileString, UriKind.Absolute, out imageFileUri) || imageFileUri.Scheme != Uri.UriSchemeHttp)
+      if (!_settings.SkipFanArtDownload)
       {
-        _debugLogger.Warn("[#{0}]: The following element does neither contain an exsisting file name nor a valid http URL: {1}", _miNumber, element);
-        return null;
-      }
+        // Then check if we have a valid http URL
+        Uri imageFileUri;
+        if (!Uri.TryCreate(imageFileString, UriKind.Absolute, out imageFileUri) || imageFileUri.Scheme != Uri.UriSchemeHttp)
+        {
+          _debugLogger.Warn("[#{0}]: The following element does neither contain an exsisting file name nor a valid http URL: {1}", _miNumber, element);
+          return null;
+        }
 
-      // Finally try to download the image from the internet
-      try
-      {
-        var response = await _httpDownloadClient.GetAsync(imageFileUri).ConfigureAwait(false);
-        if (response.IsSuccessStatusCode)
-          return await response.Content.ReadAsByteArrayAsync().ConfigureAwait(false);
-        _debugLogger.Warn("[#{0}]: Http status code {1} ({2}) when trying to download image file: {3}", _miNumber, (int)response.StatusCode, response.StatusCode, element);
-      }
-      catch (Exception e)
-      {
-        _debugLogger.Warn("[#{0}]: The following image file could not be downloaded: {1}", e, _miNumber, element);
+        // Finally try to download the image from the internet
+        try
+        {
+          var response = await _httpDownloadClient.GetAsync(imageFileUri).ConfigureAwait(false);
+          if (response.IsSuccessStatusCode)
+            return await response.Content.ReadAsByteArrayAsync().ConfigureAwait(false);
+          _debugLogger.Warn("[#{0}]: Http status code {1} ({2}) when trying to download image file: {3}", _miNumber, (int)response.StatusCode, response.StatusCode, element);
+        }
+        catch (Exception e)
+        {
+          _debugLogger.Warn("[#{0}]: The following image file could not be downloaded: {1}", e, _miNumber, element);
+        }
       }
       return null;
     }
@@ -704,6 +921,246 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoRea
     }
 
     /// <summary>
+    /// Tries to read a simple duration in minutes from <paramref name="element"/>.Value
+    /// </summary>
+    /// <param name="element"><see cref="XElement"/> to read from</param>
+    /// <returns>
+    /// <c>null</c> if <see cref="ParseSimpleString"/> returns <c>null</c> for <paramref name="element"/>
+    /// or <see cref="ParseSimpleString"/> for <paramref name="element"/> does not contain a valid <see cref="double"/> or <see cref="TimeSpan"/> value;
+    /// otherwise (double?)<paramref name="element"/>.
+    /// </returns>
+    protected TimeSpan? ParseSimpleDuration(XElement element, bool inSeconds = false)
+    {
+      var durationString = ParseSimpleString(element);
+      if (durationString == null)
+        return null;
+
+      TimeSpan? result = null;
+      try
+      {
+        //Decimal defined as time span
+        if (durationString.Contains(":"))
+        {
+          TimeSpan ts;
+          if (TimeSpan.TryParseExact(durationString, @"h\:mm\:ss", CultureInfo.InvariantCulture, out ts))
+            return ts;
+          if (TimeSpan.TryParseExact(durationString, @"m\:ss", CultureInfo.InvariantCulture, out ts))
+            return ts;
+        }
+
+        //Nfo format 1h 43mn 36s
+        if (durationString.Contains("mn"))
+        {
+          TimeSpan ts;
+          if (TimeSpan.TryParseExact(durationString, @"h\h\ m\m\n\ s\s", CultureInfo.InvariantCulture, out ts))
+            return ts;
+          if (TimeSpan.TryParseExact(durationString, @"h\hm\m\ns\s", CultureInfo.InvariantCulture, out ts))
+            return ts;
+          if (TimeSpan.TryParseExact(durationString, @"m\m\n\ s\s", CultureInfo.InvariantCulture, out ts))
+            return ts;
+          if (TimeSpan.TryParseExact(durationString, @"m\m\ns\s", CultureInfo.InvariantCulture, out ts))
+            return ts;
+        }
+      }
+      catch (Exception)
+      {
+        _debugLogger.Warn("[#{0}]: The following element was supposed to contain a duration value, but it does not: {1}", _miNumber, element);
+        return result;
+      }
+
+      double val;
+      //Decimal defined as neutral localized string
+      if (double.TryParse(durationString, NumberStyles.Float, CultureInfo.InvariantCulture, out val))
+      {
+        if(inSeconds)
+          return TimeSpan.FromSeconds(val);
+        return TimeSpan.FromMinutes(val);
+      }
+
+      //Decimal defined as localized string
+      if (double.TryParse(durationString, NumberStyles.Float, CultureInfo.CurrentCulture, out val))
+      {
+        if (inSeconds)
+          return TimeSpan.FromSeconds(val);
+        return TimeSpan.FromMinutes(val);
+      }
+
+      try
+      {
+        result = TimeSpan.FromMinutes((double)element);
+      }
+      catch (Exception)
+      {
+        _debugLogger.Warn("[#{0}]: The following element was supposed to contain a duration value, but it does not: {1}", _miNumber, element);
+      }
+      return result;
+    }
+
+    /// <summary>
+    /// Tries to read the fileinfo value
+    /// </summary>
+    /// <param name="element"><see cref="XElement"/> to read from</param>
+    /// <param name="currentStreamDetails">Current list of <see cref="StreamDetailsStub"/> details</param>
+    /// <returns><c>true</c> if a value was found in <paramref name="element"/>; otherwise <c>false</c></returns>
+    protected HashSet<StreamDetailsStub> ParseFileInfo(XElement element)
+    {
+      // Example of a valid element:
+      // <fileinfo>
+      //   <container>.avi</container>
+      //   <streamdetails>
+      //     <video>
+      //       <codec>h264</codec>
+      //       <aspect>2.4</aspect>
+      //       <width>1280</width>
+      //       <height>534</height>
+      //       <duration>149</duration>
+      //       <durationinseconds>8940</durationinseconds>
+      //       <stereomode></stereomode>
+      //     </video>
+      //     <audio>
+      //       <codec>ac3</codec>
+      //       <language>French</language>
+      //       <channels>6</channels>
+      //     </audio>
+      //     <subtitle>
+      //       <language>French</language>
+      //     </subtitle>
+      //   </streamdetails>
+      // </fileinfo>
+      // There can be multiple <streamdetails> elements in the <fileinfo> element.
+      // There can be multiple <video>, <audio> and/or <subtitle> elements in one <streamdetails> element.
+      // the <durationinseconds> element is preferred over the <duration> element.
+      if (element == null || !element.HasElements)
+        return null;
+
+      var fileInfoFound = false;
+      string container = null;
+      HashSet<StreamDetailsStub> streamDetailStubs = new HashSet<StreamDetailsStub>();
+      foreach (var stream in element.Elements())
+      {
+        if (stream.Name == "container")
+        {
+          container = ParseSimpleString(stream);
+          continue;
+        }
+        if (stream.Name != "streamdetails" || !stream.HasElements)
+        {
+          _debugLogger.Warn("[#{0}]: Unknown or empty child element {1}", _miNumber, stream);
+          continue;
+        }
+        var streamDetails = new StreamDetailsStub();
+        streamDetails.Container = container;
+        var streamValueFound = false;
+        foreach (var streamDetail in stream.Elements())
+        {
+          switch (streamDetail.Name.ToString())
+          {
+            case "video":
+              var videoDetails = new VideoStreamDetailsStub();
+              var videoDetailValueFound = ((videoDetails.Codec = ParseSimpleString(streamDetail.Element("codec"))) != null);
+              if(string.IsNullOrEmpty(videoDetails.Codec))
+                videoDetailValueFound = ((videoDetails.Codec = ParseSimpleString(streamDetail.Element("format"))) != null) || videoDetailValueFound;
+              if (string.IsNullOrEmpty(videoDetails.Codec))
+                videoDetailValueFound = ((videoDetails.Codec = ParseSimpleString(streamDetail.Element("codecid"))) != null) || videoDetailValueFound;
+              string videoCodecInfo = ParseSimpleString(streamDetail.Element("codecidinfo"));
+              if(!string.IsNullOrEmpty(videoCodecInfo))
+              {
+                videoDetails.Codec = videoCodecInfo;
+                videoDetailValueFound = true;
+              }
+              videoDetailValueFound = ((videoDetails.Aspect = ParseSimpleDecimal(streamDetail.Element("aspect"))) != null) || videoDetailValueFound;
+              videoDetailValueFound = ((videoDetails.Width = ParseSimpleInt(streamDetail.Element("width"))) != null) || videoDetailValueFound;
+              videoDetailValueFound = ((videoDetails.Height = ParseSimpleInt(streamDetail.Element("height"))) != null) || videoDetailValueFound;
+              string videoBitrate = ParseSimpleString(streamDetail.Element("bitrate"));
+              if(videoBitrate != null)
+              {
+                long br = 0;
+                if (videoBitrate.EndsWith(" kbps", StringComparison.InvariantCultureIgnoreCase) && long.TryParse(videoBitrate.Substring(0, videoBitrate.Length - 5).Replace(" ", ""), out br))
+                  videoDetails.Bitrate = br * 1024;
+                else if (videoBitrate.EndsWith(" bps", StringComparison.InvariantCultureIgnoreCase) && long.TryParse(videoBitrate.Substring(0, videoBitrate.Length - 4).Replace(" ", ""), out br))
+                  videoDetails.Bitrate = br;
+                videoDetailValueFound  = br > 0 || videoDetailValueFound;
+              }
+              videoDetailValueFound = ((videoDetails.BitrateMode = ParseSimpleString(streamDetail.Element("bitratemode"))) != null) || videoDetailValueFound;
+              var duration = ParseSimpleDuration(streamDetail.Element("duration"));
+              if (duration != null)
+              {
+                videoDetails.Duration = duration;
+                videoDetailValueFound = true;
+              }
+              var durationSeconds = ParseSimpleInt(streamDetail.Element("durationinseconds"));
+              if (durationSeconds != null && durationSeconds > 0)
+              {
+                videoDetails.Duration = TimeSpan.FromSeconds(durationSeconds.Value);
+                videoDetailValueFound = true;
+              }
+              videoDetailValueFound = ((videoDetails.StereoMode = ParseSimpleString(streamDetail.Element("stereomode"))) != null) || videoDetailValueFound;
+              videoDetailValueFound = ((videoDetails.ScanType = ParseSimpleString(streamDetail.Element("scantype"))) != null) || videoDetailValueFound;
+
+              if (videoDetailValueFound)
+              {
+                if (streamDetails.VideoStreams == null)
+                  streamDetails.VideoStreams = new HashSet<VideoStreamDetailsStub>();
+                streamDetails.VideoStreams.Add(videoDetails);
+                streamValueFound = true;
+              }
+              break;
+            case "audio":
+              var audioDetails = new AudioStreamDetailsStub();
+              var audioDetailValueFound = ((audioDetails.Codec = ParseSimpleString(streamDetail.Element("codec"))) != null);
+              audioDetailValueFound = ((audioDetails.Language = ParseSimpleString(streamDetail.Element("language"))) != null) || audioDetailValueFound;
+              audioDetailValueFound = ((audioDetails.Channels = ParseSimpleInt(streamDetail.Element("channels"))) != null) || audioDetailValueFound;
+              string audioCodecInfo = ParseSimpleString(streamDetail.Element("codecidinfo"));
+              if (!string.IsNullOrEmpty(audioCodecInfo))
+              {
+                audioDetails.Codec = audioCodecInfo;
+                audioDetailValueFound = true;
+              }
+              string audioBitrate = ParseSimpleString(streamDetail.Element("bitrate"));
+              if (audioBitrate != null)
+              {
+                long br = 0;
+                if (audioBitrate.EndsWith(" kbps", StringComparison.InvariantCultureIgnoreCase) && long.TryParse(audioBitrate.Substring(0, audioBitrate.Length - 5).Replace(" ", ""), out br))
+                  audioDetails.Bitrate = br * 1000;
+                else if (audioBitrate.EndsWith(" bps", StringComparison.InvariantCultureIgnoreCase) && long.TryParse(audioBitrate.Substring(0, audioBitrate.Length - 4).Replace(" ", ""), out br))
+                  audioDetails.Bitrate = br;
+                audioDetailValueFound = br > 0 || audioDetailValueFound;
+              }
+              audioDetailValueFound = ((audioDetails.BitrateMode = ParseSimpleString(streamDetail.Element("bitratemode"))) != null) || audioDetailValueFound;
+              if (audioDetailValueFound)
+              {
+                if (streamDetails.AudioStreams == null)
+                  streamDetails.AudioStreams = new HashSet<AudioStreamDetailsStub>();
+                streamDetails.AudioStreams.Add(audioDetails);
+                streamValueFound = true;
+              }
+              break;
+            case "subtitle":
+              var subtitleDetails = new SubtitleStreamDetailsStub();
+              var subtitleDetailValueFound = ((subtitleDetails.Language = ParseSimpleString(streamDetail.Element("language"))) != null);
+              if (subtitleDetailValueFound)
+              {
+                if (streamDetails.SubtitleStreams == null)
+                  streamDetails.SubtitleStreams = new HashSet<SubtitleStreamDetailsStub>();
+                streamDetails.SubtitleStreams.Add(subtitleDetails);
+                streamValueFound = true;
+              }
+              break;
+            default:
+              _debugLogger.Warn("[#{0}]: Unknown child element: {1}", _miNumber, streamDetail);
+              break;
+          }
+        }
+        if (streamValueFound)
+        {
+          streamDetailStubs.Add(streamDetails);
+          fileInfoFound = true;
+        }
+      }
+      return fileInfoFound ? streamDetailStubs : null;
+    }
+
+    /// <summary>
     /// Tries to parse a <see cref="PersonStub"/> object
     /// </summary>
     /// <param name="element"><see cref="XElement"/> to read from</param>
@@ -755,6 +1212,46 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoRea
       return value;
     }
 
+    /// <summary>
+    /// Tries to parse a <see cref="AlbumTrackStub"/> object
+    /// </summary>
+    /// <param name="element"><see cref="XElement"/> to read from</param>
+    /// <returns>
+    /// The filled <see cref="AlbumTrackStub"/> object or <c>null</c> if
+    /// - element is null
+    /// - element does not contain child elements
+    /// - element does not contain a child element with the name "title" or such child element is empty or contains a value from _settings.IgnoreStrings
+    /// </returns>
+    protected AlbumTrackStub ParseTrack(XElement element, bool readFileDetails)
+    {
+      // Example of a valid element:
+      //<track>
+      //  <position>1</position>
+      //  <title>Title of first track</title>
+      //  <duration>Length of first track (XXX min, MM:SS)</duration>
+      //</track>
+      // The <title> child element is mandatory, all other child elements are optional
+      if (element == null)
+        return null;
+      if (!element.HasElements)
+      {
+        _debugLogger.Warn("[#{0}]: The following element was supposed to contain track data in child elements, but it doesn't contain child elements: {1}", _miNumber, element);
+        return null;
+      }
+      var value = new AlbumTrackStub();
+      if ((value.Title = ParseSimpleString(element.Element("title"))) == null)
+        return null;
+      value.AudioDbId = ParseSimpleLong(element.Element("audioDbID"));
+      value.MusicBrainzId = ParseSimpleString(element.Element("musicBrainzID"));
+      value.Isrc = ParseSimpleString(element.Element("isrc"));
+      value.TrackNumber = ParseSimpleInt(element.Element("position"));
+      value.Duration = ParseSimpleDuration(element.Element("duration"), true);
+      value.Artists = ParseCharacterSeparatedStrings(element.Element("artist"), value.Artists);
+      if(readFileDetails)
+        value.FileInfo = ParseFileInfo(element.Element("fileinfo"));
+      return value;
+    }
+    
     #endregion
 
     #region Abstract methods

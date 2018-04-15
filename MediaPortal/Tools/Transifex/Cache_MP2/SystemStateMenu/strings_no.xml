@@ -11,4 +11,7 @@
   <string name="SystemState.Logoff">Logg av</string>
   <string name="SystemState.MinimizeMP">Minimer MediaPortal</string>
   <string name="SystemState.ShutdownMP">Lukk MediaPortal</string>
+  <string name="SystemState.ShutdownDialogStateDisplayLabel">Avslutningsmeny</string>
+  <string name="SleepTimer.Start">Start</string>
+  <string name="SleepTimer.Stop">Stopp</string>
 </resources>

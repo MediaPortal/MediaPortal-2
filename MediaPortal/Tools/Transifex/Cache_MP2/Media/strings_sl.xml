@@ -8,32 +8,22 @@
   <string name="Media.SeriesMenuItem">Nanizanke</string>
   <string name="Media.MoviesMenuItem">Filmi</string>
   <string name="Media.ImagesMenuItem">Slike</string>
-  <!--Filter titles-->
-  <string name="Media.FilterByArtistMenuItem">Omeji po izvajalcu</string>
-  <string name="Media.FilterByAlbumMenuItem">Omeji po albumu</string>
-  <string name="Media.FilterByAudioGenreMenuItem">Omeji po žanru</string>
-  <string name="Media.FilterByDecadeMenuItem">Omeji po desetletju</string>
-  <string name="Media.FilterByActorMenuItem">Omeji po igralcu</string>
-  <string name="Media.FilterByDirectorMenuItem">Filtriraj po režiserju</string>
-  <string name="Media.FilterByWriterMenuItem">Filtriraj po pisatelju</string>
-  <string name="Media.FilterByVideoGenreMenuItem">Omeji po žanru</string>
-  <string name="Media.FilterByVideoYearMenuItem">Omeji po letu</string>
-  <string name="Media.FilterByAudioLanguageMenuItem">Omeji po jeziku</string>
-  <string name="Media.FilterByImageSizeMenuItem">Omeji po velikosti</string>
-  <string name="Media.FilterByImageYearMenuItem">Omeji po letu</string>
-  <string name="Media.FilterByImageCountryMenuItem">Omeji po državi</string>
-  <string name="Media.FilterByImageStateMenuItem">Omeji po regiji</string>
-  <string name="Media.FilterByImageCityMenuItem">Omeji po mestu</string>
-  <string name="Media.FilterBySystemMenuItem">Omeji po sistemu</string>
-  <string name="Media.FilterByMoviesCollectionMenuItem">Filtriraj po zbirki</string>
-  <string name="Media.FilterBySeriesNameMenuItem">Omeji po seriji</string>
-  <string name="Media.FilterBySeriesSeasonMenuItem">Omeji po sezoni</string>
-  <string name="Media.FilterBySeriesEpisodeMenuItem">Omeji po epizodi</string>
+  <!--General strings used in filter/sort/group menus-->
+  <string name="Media.NameMenuItem">Ime</string>
+  <string name="Media.TitleMenuItem">Naslov</string>
+  <string name="Media.ArtistMenuItem">Izvajalec</string>
+  <string name="Media.GenreMenuItem">Žanr</string>
+  <string name="Media.SizeMenuItem">Velikost</string>
+  <string name="Media.SystemMenuItem">Sistem</string>
+  <string name="Media.EpisodeMenuItem">Epizoda</string>
+  <string name="Media.AudioLanguageMenuItem">Jezik</string>
+  <string name="Media.ImageCountryMenuItem">Država</string>
+  <string name="Media.ImageStateMenuItem">Država</string>
+  <string name="Media.ImageCityMenuItem">Mesto</string>
+  <string name="Media.SeriesNameMenuItem">Nanizanke</string>
   <string name="Media.SimpleSearchFilterMenuItem">Išči</string>
-  <string name="Media.ShowAllAudioItemsMenuItem">Prikaži vse</string>
-  <string name="Media.ShowAllVideoItemsMenuItem">Prikaži vse</string>
-  <string name="Media.ShowAllImageItemsMenuItem">Prikaži vse</string>
-  <string name="Media.ShowAllMoviesMenuItem">Prikaži vse</string>
+  <!--Filter titles-->
+  <string name="Media.SwitchFilterMenuItem">Filter</string>
   <!--Special filters names-->
   <string name="Media.ImageFilterSmall">Male</string>
   <string name="Media.ImageFilterMedium">Srednje</string>
@@ -98,32 +88,18 @@
   <!--Screen headers-->
   <string name="Media.BrowseMediaNavigationHeader">Pregledovanje vsebin</string>
   <string name="Media.LocalMediaNavigationHeader">Pregledovanje lokalnih vsebin</string>
-  <string name="Media.MediaItemsHeader">Vsebine</string>
-  <string name="Media.VideoItemsHeader">Filmi</string>
-  <string name="Media.AudioItemsHeader">Audio datoteke</string>
-  <string name="Media.SeriesItemsHeader">Epizode</string>
-  <string name="Media.MoviesItemsHeader">Filmi</string>
-  <string name="Media.ImageItemsHeader">Slike</string>
   <string name="Media.SimpleSearchHeader">Preprosto iskanje</string>
-  <string name="Media.ChooseCollectionHeader">Izberi zbirko</string>
-  <string name="Media.ChooseActorHeader">Izberi igralca</string>
-  <string name="Media.ChooseDirectorHeader">Izberite režiserja</string>
-  <string name="Media.ChooseWriterHeader">Izberite pisatelja</string>
-  <string name="Media.ChooseVideoGenreHeader">Izberi žanr</string>
-  <string name="Media.ChooseVideoYearHeader">Izberi leto</string>
-  <string name="Media.ChooseSeriesHeader">Izberi serijo</string>
-  <string name="Media.ChooseSeasonHeader">Izberi sezono</string>
-  <string name="Media.ChooseAudioDecadeHeader">Izberi desteletje</string>
-  <string name="Media.ChooseAlbumHeader">Izberi album</string>
-  <string name="Media.ChooseArtistHeader">Izberi izvajalca</string>
-  <string name="Media.ChooseAudioGenreHeader">Izberi žanr</string>
-  <string name="Media.ChooseImageYearHeader">Izberi leto</string>
-  <string name="Media.ChooseImageSizeHeader">Izberi velikost</string>
-  <string name="Media.ChooseImageCountryHeader">Izberi državo</string>
-  <string name="Media.ChooseImageStateHeader">Izberi regijo</string>
-  <string name="Media.ChooseImageCityHeader">Izberi mesto</string>
-  <string name="Media.ChooseSystemHeader">Izberi sistem</string>
-  <string name="Media.ChooseVideoLanguageHeader">Izberi jezik</string>
+  <string name="Media.ChooseActorHeader">Igralci</string>
+  <string name="Media.ChooseDirectorHeader">Režiserji</string>
+  <string name="Media.ChooseMovieHeader">Filmi</string>
+  <string name="Media.ChooseWriterHeader">Pisci</string>
+  <string name="Media.ChooseVideoGenreHeader">Žanri</string>
+  <string name="Media.ChooseImageHeader">Slike</string>
+  <string name="Media.ChooseSeriesHeader">Nanizanke</string>
+  <string name="Media.ChooseEpisodeHeader">Epizode</string>
+  <string name="Media.ChooseAudioHeader">Audio datoteke</string>
+  <string name="Media.ChooseAudioGenreHeader">Žanri</string>
+  <string name="Media.ChooseVideoHeader">Videi</string>
   <string name="Media.PlaylistsOverviewHeader">Seznami predvajanja</string>
   <string name="Media.SavePlaylistEditNameHeader">Shrani seznam predvajanja</string>
   <string name="Media.SavePlaylistFailedHeader">Shrani seznam predvajanja</string>
@@ -133,6 +109,8 @@
   <string name="Media.PlaylistLoadNoPlaylistText">Ni seznama, ki bi ga lahko naložil</string>
   <string name="Media.PlaylistLoadErrorLoadingPlaylist">Napaka pri nalaganju seznama predvajanja</string>
   <string name="Media.CannotSavePlaylistWithLocalMediaItems">Seznam predvajanja se lahko shrani le, če so vse vsebine na njem iz strežnika in ne iz izključenega lokalnega računalnika.</string>
+  <!--View occupation names-->
+  <string name="Media.ArtistOccupationName">Izvajalec</string>
   <!--View names (names for the view instances)-->
   <string name="Media.BrowseMediaRootViewName">Pregleduj vsebine</string>
   <string name="Media.LocalMediaRootViewName">Lokalne vsebine</string>
@@ -141,6 +119,7 @@
   <string name="Media.AudioRootViewName">Audio</string>
   <string name="Media.VideosRootViewName">Filmi</string>
   <string name="Media.SeriesRootViewName">Nanizanke</string>
+  <string name="Media.EpisodeRootViewName">Epizoda</string>
   <string name="Media.ImagesRootViewName">Slike</string>
   <string name="Media.SimpleSearchViewName">Preprosto iskanje</string>
   <!--General strings used in views-->
@@ -224,6 +203,7 @@
   <string name="Media.VideoDurationLabel">Trajanje: </string>
   <string name="Media.VideoActorsLabel">Igralci: </string>
   <string name="Media.VideoStoryPlotLabel">Zgodba: </string>
+  <!--Person currently playing-->
   <!--Series currently playing-->
   <string name="Media.SeriesTitleLabel">Nanizanka:</string>
   <string name="Media.SeriesSeasonLabel">Sezona:</string>
@@ -300,27 +280,8 @@
   <string name="Media.LargeGrid">Mreža</string>
   <string name="Media.CoverLayout">Ovitki</string>
   <string name="Media.SwitchSortingMenuItem">Urejanje</string>
-  <string name="Media.SwitchSortingDialogTitle">Urejanje</string>
-  <string name="Media.SortByTitle">Uredi po naslovu</string>
-  <string name="Media.SortByAlbumTrack">Uredi po albumu in pesmi</string>
-  <string name="Media.SortByGenre">Uredi po žanru</string>
-  <string name="Media.SortByAlbum">Uredi po albumu in naslovu</string>
-  <string name="Media.SortByTrack">Uredi po pesmi</string>
-  <string name="Media.SortByArtist">Uredi po izvajalcu</string>
-  <string name="Media.SortByYear">Uredi po letu</string>
-  <string name="Media.SortBySize">Uredi po velikosti</string>
-  <string name="Media.SortBySystem">Uredi po sistemu</string>
-  <string name="Media.SortByActor">Uredi po igralcu</string>
-  <string name="Media.SortByDirector">Uredi po režiserju</string>
-  <string name="Media.SortByWriter">Sortiraj po pisatelju</string>
-  <string name="Media.SortByDuration">Uredi po trajanju</string>
-  <string name="Media.SortByAspectRatio">Uredi po razmerju slike</string>
-  <string name="Media.SortByFirstAiredDate">Sortiraj po datumu predvajanja</string>
-  <string name="Media.SortByDate">Uredi po datumu snemanja</string>
-  <string name="Media.SortByEpisode">Uredi po epizodah</string>
-  <string name="Media.SortingBrowseDefault">Privzeto urejanje</string>
-  <string name="Media.SwitchFilterMenuItem">Filter</string>
-  <string name="Media.SwitchFilterDialogTitle">Filter</string>
+  <string name="Media.SortByDate">Datum</string>
+  <string name="Media.GroupingBrowseDefault">Privzeto</string>
   <string name="Settings.Players">Predvajalniki</string>
   <string name="Settings.Players.ClosePlayersWhenFinished">Zapri predvajalnike ob koncu</string>
   <string name="Settings.Players.ClosePlayersWhenFinished.Help">Vključi to nastavitev, da bo MediaPortal ob koncu zaprl predvajalnike</string>
@@ -332,4 +293,7 @@
   <string name="Settings.Players.SkipStepList.Help">Vnesi čase preskoka v sekundah, ločene z \",\"</string>
   <string name="Settings.Players.OpenPlayerStrategy">Strategija odpiranja predvajalnikov</string>
   <string name="Settings.Players.OpenPlayerStrategy.Help">Kako se bodo novi predvajalniki odpirali poleg že odprtih predvajalnikov</string>
+  <!--Secondary filters-->
+  <string name="Filter.RemoteNumericAlphabet0"></string>
+  <string name="Filter.RemoteNumericAlphabet1"></string>
 </resources>

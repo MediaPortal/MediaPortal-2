@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="4.0">
+
+  <PropertyGroup>
+    <PluginDestination>$(SolutionDir)..\Bin\$(SolutionName)\$(OutDir)Plugins\$(ProjectName)\</PluginDestination>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PluginFiles Include="$(TargetDir)$(ProjectName).dll" />
+    <PluginFiles Include="$(ProjectDir)plugin.xml" />
+  </ItemGroup>
+
+  <ItemGroup Condition=" '$(Configuration)' == 'Debug'">
+    <PluginFiles Include="$(TargetDir)$(ProjectName).pdb" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <References Include="$(TargetDir)System.Data.SQLite.dll" />
+    <References Include="$(TargetDir)System.Data.SQLite.Linq.dll" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <SQLiteInterop64 Include="$(TargetDir)x64\SQLite.Interop.dll" />
+  </ItemGroup>
+  <ItemGroup>
+    <SQLiteInterop86 Include="$(TargetDir)x86\SQLite.Interop.dll" />
+  </ItemGroup>
+
+  <Target Name="AfterBuild">
+    <!-- The following target is imported by (and defined in) the System.Data.SQLite Core NuGet package.
+         It needs to be called here, because by default it is executed only after the AfterBuild event-->
+    <CallTarget Targets="CopySQLiteInteropFiles" />
+    <Copy SourceFiles="@(PluginFiles)" DestinationFolder="$(PluginDestination)" />
+    <Copy SourceFiles="@(References)" DestinationFolder="$(PluginDestination)" />
+    <Copy SourceFiles="@(SQLiteInterop64)" DestinationFolder="$(PluginDestination)x64\" />
+    <Copy SourceFiles="@(SQLiteInterop86)" DestinationFolder="$(PluginDestination)x86\" />
+  </Target>
+
+</Project>

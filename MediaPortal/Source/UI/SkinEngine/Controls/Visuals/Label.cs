@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2015 Team MediaPortal
+#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2015 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -48,6 +48,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     protected AbstractProperty _scrollSpeedProperty;
     protected AbstractProperty _scrollDelayProperty;
     protected AbstractProperty _wrapProperty;
+    protected AbstractProperty _textTrimmingProperty;
     protected TextBuffer _asset = null;
     protected string _resourceString;
 
@@ -69,6 +70,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       _scrollSpeedProperty = new SProperty(typeof(double), DEFAULT_SCROLL_SPEED);
       _scrollDelayProperty = new SProperty(typeof(double), DEFAULT_SCROLL_DELAY);
       _wrapProperty = new SProperty(typeof(bool), false);
+      _textTrimmingProperty = new SProperty(typeof(TextTrimming), TextTrimming.None);
 
       HorizontalAlignment = HorizontalAlignmentEnum.Left;
       InitializeResourceString();
@@ -78,6 +80,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     {
       _contentProperty.Attach(OnContentChanged);
       _wrapProperty.Attach(OnLayoutPropertyChanged);
+      _textTrimmingProperty.Attach(OnLayoutPropertyChanged);
       _scrollProperty.Attach(OnLayoutPropertyChanged);
       _scrollSpeedProperty.Attach(OnLayoutPropertyChanged);
       _scrollDelayProperty.Attach(OnLayoutPropertyChanged);
@@ -95,6 +98,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     {
       _contentProperty.Detach(OnContentChanged);
       _wrapProperty.Detach(OnLayoutPropertyChanged);
+      _textTrimmingProperty.Detach(OnLayoutPropertyChanged);
       _scrollProperty.Detach(OnLayoutPropertyChanged);
       _scrollSpeedProperty.Detach(OnLayoutPropertyChanged);
       _scrollDelayProperty.Detach(OnLayoutPropertyChanged);
@@ -121,6 +125,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       ScrollDelay = l.ScrollDelay;
       ScrollSpeed = l.ScrollSpeed;
       Wrap = l.Wrap;
+      TextTrimming = l.TextTrimming;
 
       InitializeResourceString();
       Attach();
@@ -246,6 +251,20 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       get { return _wrapProperty; }
     }
 
+    /// <summary>
+    /// Gets or sets whether content text should be trimmed if it does not fit within the available space and any remaining text replaced with an ellipsis (...) 
+    /// </summary>
+    public TextTrimming TextTrimming
+    {
+      get { return (TextTrimming)_textTrimmingProperty.GetValue(); }
+      set { _textTrimmingProperty.SetValue(value); }
+    }
+
+    public AbstractProperty TextTrimmingProperty
+    {
+      get { return _textTrimmingProperty; }
+    }
+
     #endregion
 
     void AllocFont()
@@ -264,11 +283,15 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       if (!double.IsNaN(Width))
         totalWidth = (float) Width;
 
+      float totalHeight = totalSize.Height;
+      if (!double.IsNaN(Height))
+        totalHeight = (float)Height;
+
       SizeF size = new SizeF();
       var textBuffer = _asset;
       if (textBuffer == null)
         return size;
-      string[] lines = textBuffer.GetLines(totalWidth, Wrap);
+      string[] lines = textBuffer.GetLines(totalWidth, totalHeight, Wrap, TextTrimming);
       size.Width = 0;
       foreach (string line in lines)
         size.Width = Math.Max(size.Width, textBuffer.TextWidth(line));
@@ -301,7 +324,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       Color4 color = ColorConverter.FromColor(Color);
       color.Alpha *= (float) localRenderContext.Opacity;
 
-      _asset.Render(_innerRect, horzAlign, vertAlign, color, Wrap, true, localRenderContext.ZOrder, 
+      _asset.Render(_innerRect, horzAlign, vertAlign, color, Wrap, TextTrimming, true, localRenderContext.ZOrder, 
         Scroll, (float) ScrollSpeed, (float) ScrollDelay, localRenderContext.Transform);
     }
 

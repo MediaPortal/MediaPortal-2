@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2015 Team MediaPortal
+#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2015 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -32,35 +32,74 @@ namespace MediaPortal.Common.MediaManagement.DefaultItemAspects
   /// </summary>
   public static class ProviderResourceAspect
   {
+    // TODO: Put this somewhere else?
+    public static readonly int TYPE_PRIMARY = 0;
+    public static readonly int TYPE_SECONDARY = 1;
+    public static readonly int TYPE_VIRTUAL = 2;
+    public static readonly int TYPE_STUB = 3;
+
     /// <summary>
     /// Media item aspect id of the provider resource aspect.
     /// </summary>
-    public static readonly Guid ASPECT_ID = new Guid("0A296ACD-F95B-4a28-90A2-E4FD2A4CC4ED");
+    public static readonly Guid ASPECT_ID = new Guid("B05EE7E4-087E-4958-B05B-E73D5B1DAACA");
 
     /// <summary>
     /// Contains UPnP device UUID of the system where the media item is located.
     /// </summary>
-    public static readonly MediaItemAspectMetadata.AttributeSpecification ATTR_SYSTEM_ID =
-        MediaItemAspectMetadata.CreateStringAttributeSpecification("System-Id", 100, Cardinality.Inline, true);
+    public static readonly MediaItemAspectMetadata.MultipleAttributeSpecification ATTR_SYSTEM_ID =
+        MediaItemAspectMetadata.CreateMultipleStringAttributeSpecification("System-Id", 100, Cardinality.Inline, true);
+
+    /// <summary>
+    /// Resource index for this resource.
+    /// </summary>
+    public static readonly MediaItemAspectMetadata.MultipleAttributeSpecification ATTR_RESOURCE_INDEX =
+        MediaItemAspectMetadata.CreateMultipleAttributeSpecification("ResourceIndex", typeof(int), Cardinality.Inline, false);
+
+    /// <summary>
+    /// Marks the resource type as none, virtual, playable or stub
+    /// </summary>
+    public static readonly MediaItemAspectMetadata.MultipleAttributeSpecification ATTR_TYPE =
+        MediaItemAspectMetadata.CreateMultipleAttributeSpecification("Type", typeof(int), Cardinality.Inline, true);
+
+    /// <summary>
+    /// Contains the mime type of the resource.
+    /// </summary>
+    public static readonly MediaItemAspectMetadata.MultipleAttributeSpecification ATTR_MIME_TYPE =
+        MediaItemAspectMetadata.CreateMultipleStringAttributeSpecification("MimeType", 50, Cardinality.Inline, false);
+
+    /// <summary>
+    /// Contains a media size. For regular files this is the file size, directories might contain the total size of all content.
+    /// Online resources like streams might have <c>0</c> as size.
+    /// </summary>
+    public static readonly MediaItemAspectMetadata.MultipleAttributeSpecification ATTR_SIZE =
+        MediaItemAspectMetadata.CreateMultipleAttributeSpecification("Size", typeof(long), Cardinality.Inline, true);
 
     /// <summary>
     /// Contains the path of the item in its provider.
     /// </summary>
-    public static readonly MediaItemAspectMetadata.AttributeSpecification ATTR_RESOURCE_ACCESSOR_PATH =
-        MediaItemAspectMetadata.CreateStringAttributeSpecification("Path", 1000, Cardinality.Inline, true);
+    public static readonly MediaItemAspectMetadata.MultipleAttributeSpecification ATTR_RESOURCE_ACCESSOR_PATH =
+        MediaItemAspectMetadata.CreateMultipleStringAttributeSpecification("Path", 1000, Cardinality.Inline, true);
 
     /// <summary>
     /// Contains id of the parent directory item.
     /// </summary>
-    public static readonly MediaItemAspectMetadata.AttributeSpecification ATTR_PARENT_DIRECTORY_ID =
-        MediaItemAspectMetadata.CreateAttributeSpecification("ParentDirectory", typeof(Guid), Cardinality.Inline, true);
+    public static readonly MediaItemAspectMetadata.MultipleAttributeSpecification ATTR_PARENT_DIRECTORY_ID =
+        MediaItemAspectMetadata.CreateMultipleAttributeSpecification("ParentDirectory", typeof(Guid), Cardinality.Inline, true);
 
-    public static readonly MediaItemAspectMetadata Metadata = new MediaItemAspectMetadata(
+    public static readonly MultipleMediaItemAspectMetadata Metadata = new MultipleMediaItemAspectMetadata(
         // TODO: Localize name
         ASPECT_ID, "ProviderResource", new[] {
             ATTR_SYSTEM_ID,
+            ATTR_RESOURCE_INDEX,
+            ATTR_TYPE,
+            ATTR_MIME_TYPE,
+            ATTR_SIZE,
             ATTR_RESOURCE_ACCESSOR_PATH,
             ATTR_PARENT_DIRECTORY_ID,
-        });
+        },
+        new[] {
+            ATTR_RESOURCE_INDEX
+        }
+        );
   }
 }

@@ -66,6 +66,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.Common
   internal class Util
   {
     public const int NO_VALUE = -99;
+    public static readonly DateTime UNIX_EPOCH = new DateTime(1970, 1, 1); 
 
     /// <summary>
     /// Type when handling user favorites
@@ -161,8 +162,6 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.Common
     /// <returns>.net DateTime object</returns>
     internal static DateTime UnixToDotNet(String unixTimestamp)
     {
-      DateTime date = DateTime.Parse("1/1/1970");
-
       //remove , of float values
       int index = unixTimestamp.IndexOf(',');
       if (index != -1) unixTimestamp = unixTimestamp.Remove(index);
@@ -173,7 +172,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.Common
 
       int seconds;
       if (Int32.TryParse(unixTimestamp, out seconds))
-        return date.AddSeconds(seconds);
+        return UNIX_EPOCH.AddSeconds(seconds);
 
       Log.Warn("Couldn't convert " + unixTimestamp + " to DateTime");
       return new DateTime();
@@ -186,7 +185,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.Common
     /// <returns>Unix timestamp</returns>
     internal static String DotNetToUnix(DateTime date)
     {
-      TimeSpan span = new TimeSpan(DateTime.Parse("1/1/1970").Ticks);
+      TimeSpan span = new TimeSpan(UNIX_EPOCH.Ticks);
       DateTime time = date.Subtract(span);
       int t = (int)(time.Ticks / 10000000);
 
@@ -242,11 +241,16 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.Common
     /// <returns></returns>
     internal static List<Color> ParseColors(String text)
     {
+      if (string.IsNullOrEmpty(text))
+        return null;
       List<Color> retList = new List<Color>();
       List<String> colorList = SplitTvdbString(text);
       for (int i = 0; i < colorList.Count; i++)
       {
         String[] color = colorList[i].Split(',');
+        if (color.Length != 3)
+          continue;
+
         int red;
         int green;
         int blue;
@@ -256,6 +260,10 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.Common
           retList.Add(Color.FromArgb(red, green, blue));
         }
       }
+
+      if (retList.Count > 0)
+        return retList;
+      Log.Warn("Couldn't parse colors: " + text);
       return null;
     }
 
@@ -267,12 +275,14 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.Common
     internal static Point ParseResolution(String text)
     {
       String[] res = text.Split('x');
-      int x;
-      int y;
-      if (Int32.TryParse(res[0], out x) && Int32.TryParse(res[1], out y))
-        return new Point(x, y);
-
-      Log.Warn("Couldn't parse resolution" + text);
+      if (res.Length == 2)
+      {
+        int x;
+        int y;
+        if (Int32.TryParse(res[0], out x) && Int32.TryParse(res[1], out y))
+          return new Point(x, y);
+      }
+      Log.Warn("Couldn't parse resolution: " + text);
       return new Point();
     }
 
@@ -286,7 +296,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.Common
       bool value;
       if (Boolean.TryParse(boolean, out value))
         return value;
-      Log.Warn("Couldn't parse bool value of string " + boolean);
+      Log.Warn("Couldn't parse bool value of string: " + boolean);
       return false;
     }
 

@@ -1,7 +1,7 @@
-﻿#region Copyright (C) 2007-2015 Team MediaPortal
+﻿#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2014 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -27,7 +27,7 @@ using System;
 namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.Stubs
 {
   /// <summary>
-  /// This stub class is used to store inforation about a video stream
+  /// This stub class is used to store information about a video stream
   /// </summary>
   public class VideoStreamDetailsStub
   {
@@ -63,6 +63,29 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.Stubs
     /// <summary>
     /// Stereomode of this particular stream
     /// </summary>
-    public string Stereomode { get; set; }
+    public string StereoMode { get; set; }
+
+    /// <summary>
+    /// Container extension of the file
+    /// </summary>
+    /// <example>.mkv</example>
+    public string Container { get; set; }
+
+    /// <summary>
+    /// Bitrate of the video stream in bps
+    /// </summary>
+    public long? Bitrate { get; set; }
+
+    /// <summary>
+    /// Bitrate mode of the video stream
+    /// </summary>
+    /// <example>"Constant", "Variable"</example>
+    public string BitrateMode { get; set; }
+
+    /// <summary>
+    /// Scan type of the video stream
+    /// </summary>
+    /// <example>"Progressive", "Interlaced"</example>
+    public string ScanType { get; set; }
   }
 }

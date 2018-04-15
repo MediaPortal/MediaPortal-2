@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2015 Team MediaPortal
+#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2015 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -177,6 +177,26 @@ namespace MediaPortal.Common.Services.ThumbnailGenerator
       return false;
     }
 
+    protected bool GetThumbnailInternal(Stream stream, int width, int height, bool cachedOnly, out byte[] imageData, out ImageType imageType)
+    {
+      InitProviders();
+      imageType = ImageType.Jpeg;
+      foreach (var thumbnailProvider in _providerList)
+      {
+        try
+        {
+          if (thumbnailProvider.Provider.GetThumbnail(stream, width, height, cachedOnly, out imageData, out imageType))
+            return true;
+        }
+        catch (Exception ex)
+        {
+          ServiceRegistration.Get<ILogger>().Error("Error creating thumbnail for Stream using provider '{0}", ex, thumbnailProvider.GetType().Name);
+        }
+      }
+      imageData = null;
+      return false;
+    }
+
     public bool IsCreating(string fileOrFolderPath)
     {
       lock (_syncObj)
@@ -199,6 +219,11 @@ namespace MediaPortal.Common.Services.ThumbnailGenerator
     public bool GetThumbnail(string fileOrFolderPath, int width, int height, bool cacheOnly, out byte[] imageData, out ImageType imageType)
     {
       return GetThumbnailInternal(fileOrFolderPath, width, height, cacheOnly, out imageData, out imageType);
+    }
+
+    public bool GetThumbnail(Stream stream, int width, int height, bool cacheOnly, out byte[] imageData, out ImageType imageType)
+    {
+      return GetThumbnailInternal(stream, width, height, cacheOnly, out imageData, out imageType);
     }
 
     public void GetThumbnail_Async(string fileOrFolderPath, CreatedDelegate createdDelegate)

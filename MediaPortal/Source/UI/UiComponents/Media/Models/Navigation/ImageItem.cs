@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2015 Team MediaPortal
+#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2015 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -26,6 +26,7 @@ using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Common.ResourceAccess;
 using MediaPortal.UiComponents.Media.General;
+using System.Collections.Generic;
 
 namespace MediaPortal.UiComponents.Media.Models.Navigation
 {
@@ -39,8 +40,11 @@ namespace MediaPortal.UiComponents.Media.Models.Navigation
     public override void Update(MediaItem mediaItem)
     {
       base.Update(mediaItem);
-      MediaItemAspect imageAspect;
-      if (mediaItem.Aspects.TryGetValue(ImageAspect.ASPECT_ID, out imageAspect))
+      if (mediaItem == null)
+        return;
+
+      SingleMediaItemAspect imageAspect;
+      if (MediaItemAspect.TryGetAspect(mediaItem.Aspects, ImageAspect.Metadata, out imageAspect))
       {
         SimpleTitle = Title;
         int? width = (int?)imageAspect[ImageAspect.ATTR_WIDTH];
@@ -52,20 +56,16 @@ namespace MediaPortal.UiComponents.Media.Models.Navigation
           Size = width + " x " + height;
         }
       }
-      MediaItemAspect resourceAspect;
-      if (mediaItem.Aspects.TryGetValue(ProviderResourceAspect.ASPECT_ID, out resourceAspect))
+      IList<MultipleMediaItemAspect> resourceAspects;
+      if (MediaItemAspect.TryGetAspects(mediaItem.Aspects, ProviderResourceAspect.Metadata, out resourceAspects))
       {
-        ResourcePath rp = ResourcePath.Deserialize((string)resourceAspect[ProviderResourceAspect.ATTR_RESOURCE_ACCESSOR_PATH]);
+        ResourcePath rp = ResourcePath.Deserialize((string)resourceAspects[0][ProviderResourceAspect.ATTR_RESOURCE_ACCESSOR_PATH]);
         string ext = ProviderPathHelper.GetExtension(rp.FileName);
         if (ext.Length > 1)
           // remove leading '.'
           ext = ext.Substring(1);
         Extension = ext;
-      }
-      MediaItemAspect mediaAspect;
-      if (mediaItem.Aspects.TryGetValue(MediaAspect.ASPECT_ID, out mediaAspect))
-      {
-        MimeType = (string)mediaAspect[MediaAspect.ATTR_MIME_TYPE];
+        MimeType = (string)resourceAspects[0][ProviderResourceAspect.ATTR_MIME_TYPE];
       }
       FireChange();
     }

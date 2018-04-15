@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2015 Team MediaPortal
+#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2015 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -24,16 +24,16 @@
 
 namespace MediaPortal.UiComponents.Media.MediaItemActions
 {
-  public class SetUnwatched : AbstractPlayCountAction
+  public class SetUnwatched : AbstractWatchedAction
   {
-    protected override bool AppliesForPlayCount(int playCount)
+    protected override bool AppliesForWatchedState(bool watched)
     {
-      return playCount > 0;
+      return watched;
     }
 
-    protected override int GetNewPlayCount()
+    protected override bool GetNewWatchedState()
     {
-      return 0;
+      return false;
     }
   }
 }

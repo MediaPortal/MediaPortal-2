@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2015 Team MediaPortal
+#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2015 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -22,6 +22,7 @@
 
 #endregion
 
+using System.Linq;
 using MediaPortal.UiComponents.Media.Views;
 
 namespace MediaPortal.UiComponents.Media.Models.Navigation
@@ -38,7 +39,18 @@ namespace MediaPortal.UiComponents.Media.Models.Navigation
   {
     public ViewItem(View view, string overrideName, int? absNumItems) : base(absNumItems)
     {
+      if (view.Specification is MediaLibraryBrowseViewSpecification mlbvs)
+      {
+        Id = mlbvs.DirectoryId.ToString();
+      }
       SimpleTitle = string.IsNullOrEmpty(overrideName) ? view.DisplayName : overrideName;
+      var itemCount = view.MediaItems.Count;
+      if (itemCount > 0)
+      {
+        FirstMediaItem = view.MediaItems.FirstOrDefault();
+        if (!NumItems.HasValue)
+          NumItems = itemCount;
+      }
     }
   }
 }

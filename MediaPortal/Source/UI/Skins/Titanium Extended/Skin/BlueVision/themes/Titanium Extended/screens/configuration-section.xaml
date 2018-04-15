@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Include
+    xmlns="www.team-mediaportal.com/2008/mpf/directx"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    Source="screens\master_configuration_menu.xaml"
+    >
+  <Include.Resources>
+
+    <!-- Configuration model -->
+    <Model x:Key="Model" Id="545674F1-D92A-4383-B6C1-D758CECDBDF5"/>
+
+    <!-- Header -->
+    <ResourceWrapper x:Key="Header_Text" EnableBindings="True" Resource="{Binding Source={StaticResource Model},Path=HeaderText,Mode=OneTime}"/>
+
+    <!-- Contents -->
+    <ControlTemplate x:Key="Contents_Template">
+      <DockPanel LastChildFill="False">
+        <DockPanel LastChildFill="True" DockPanel.Dock="Bottom" Height="120" Margin="20,0,20,20"
+            HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+          <Label Color="{ThemeResource HintTextColor}" DockPanel.Dock="Center"
+              HorizontalAlignment="Stretch"
+              DataContext="{Binding ElementName=ConfigItemsList,Path=CurrentItem}"
+              Content="{Binding [Help]}" Wrap="True"
+              IsVisible="{Binding Converter={StaticResource ReferenceToBoolConverter}}"/>
+        </DockPanel>
+
+        <ListView x:Name="ConfigItemsList"
+            DockPanel.Dock="Center"
+            HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+            Style="{ThemeResource MainMenuListViewStyle}"
+            DataContext="{Binding Source={StaticResource Model}}"
+            ItemsSource="{Binding ConfigSettings}">
+          <ListView.Resources>
+            <CommandBridge x:Key="Menu_Command" Command="{Binding Path=Command,Mode=OneTime}"/>
+          </ListView.Resources>
+        </ListView>
+        <Label DockPanel.Dock="Center" Content="[Configuration.NoSettingsInThisSection]" IsVisible="{Binding ElementName=ConfigItemsList,Path=IsEmpty}"
+            HorizontalAlignment="Center" VerticalAlignment="Center"
+            Color="{ThemeResource HintTextColor}" FontSize="{ThemeResource SmallFontSize}"/>
+      </DockPanel>
+    </ControlTemplate>
+
+  </Include.Resources>
+</Include>

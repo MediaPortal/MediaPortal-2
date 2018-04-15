@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2015 Team MediaPortal
+#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2015 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -22,18 +22,20 @@
 
 #endregion
 
+using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.UiComponents.Media.FilterCriteria;
 using MediaPortal.UiComponents.Media.General;
 using MediaPortal.UiComponents.Media.Models.Navigation;
 
 namespace MediaPortal.UiComponents.Media.Models.ScreenData
 {
-  public class AudioFilterByDecadeScreenData : AbstractAudioFilterScreenData
+  public class AudioFilterByDecadeScreenData : AbstractAudioFilterScreenData<FilterItem>
   {
     public AudioFilterByDecadeScreenData() :
-        base(Consts.SCREEN_AUDIO_FILTER_BY_DECADE, Consts.RES_FILTER_BY_DECADE_MENU_ITEM,
+        base(Consts.SCREEN_AUDIO_FILTER_BY_DECADE, Consts.RES_COMMON_BY_DECADE_MENU_ITEM,
         Consts.RES_FILTER_DECADE_NAVBAR_DISPLAY_LABEL, new FilterByDecadeCriterion())
     {
+      _availableMias = new[] { MediaAspect.ASPECT_ID };
     }
 
     public override AbstractFiltersScreenData<FilterItem> Derive()

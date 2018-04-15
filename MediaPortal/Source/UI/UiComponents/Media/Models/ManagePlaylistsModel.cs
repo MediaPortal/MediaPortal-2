@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2015 Team MediaPortal
+#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2015 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -26,6 +26,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
+using System.Threading.Tasks;
 using MediaPortal.Common;
 using MediaPortal.Common.Commands;
 using MediaPortal.Common.Exceptions;
@@ -290,7 +291,7 @@ namespace MediaPortal.UiComponents.Media.Models
       }
     }
 
-    public void LoadPlaylist()
+    public async Task LoadPlaylist()
     {
       IDialogManager dialogManager = ServiceRegistration.Get<IDialogManager>();
       if (_playlist == null)
@@ -324,9 +325,9 @@ namespace MediaPortal.UiComponents.Media.Models
       // For that reason, we load the playlist in two steps:
       // 1) Load media item ids in the playlist
       // 2) Load media items in clusters - for each cluster, an own query will be executed at the content directory
-      PlaylistRawData playlistData = cd.ExportPlaylist(_playlist.PlaylistId);
+      PlaylistRawData playlistData = await cd.ExportPlaylistAsync(_playlist.PlaylistId);
       PlayItemsModel.CheckQueryPlayAction(() => CollectionUtils.Cluster(playlistData.MediaItemIds, 1000).SelectMany(itemIds =>
-            cd.LoadCustomPlaylist(itemIds, necessaryMIATypes, optionalMIATypes)), avType.Value);
+            cd.LoadCustomPlaylistAsync(itemIds, necessaryMIATypes, optionalMIATypes).Result), avType.Value);
     }
 
     public void NavigateRemovePlaylistSaveWorkflow()

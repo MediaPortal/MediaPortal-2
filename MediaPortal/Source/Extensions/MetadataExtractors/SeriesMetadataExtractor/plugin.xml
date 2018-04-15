@@ -7,21 +7,19 @@
     Description="Metadata extractor to detect and lookup Series information">
 
   <Version
-    PluginVersion="1.0"
-    ReleaseDate="2013-11-11 01:00:00 GMT+01:00"
-    CurrentAPI="1"/>
+    PluginVersion="1.1"
+    ReleaseDate="2016-12-20 01:00:00 GMT+01:00"
+    CurrentAPI="2"/>
 
   <DependsOn>
-    <CoreDependency Name="MediaPortal.Common" CompatibleAPI="1" />
+    <CoreDependency Name="MediaPortal.Common" CompatibleAPI="2" />
     <CoreDependency Name="MediaPortal.Utilities" CompatibleAPI="1" />
-    <PluginReference PluginId="{D418C9C9-6D2A-44ed-ADC2-16345294B019}" CompatibleAPI="1"/> <!-- MediaInfoPlugin -->
     <PluginReference PluginId="{3F5077F0-16E8-47E7-AD4B-E295812C174A}" CompatibleAPI="1"/> <!-- MatroskaLib -->
-    <PluginReference PluginId="{B32504F3-4374-4640-94A1-16E1DEE84C3C}" CompatibleAPI="1"/> <!-- OnlineLibraries -->
+    <PluginReference PluginId="{B32504F3-4374-4640-94A1-16E1DEE84C3C}" CompatibleAPI="2"/> <!-- OnlineLibraries -->
   </DependsOn>
 
   <Runtime>
     <Assembly FileName="SeriesMetadataExtractor.dll"/>
-    <Assembly FileName="FanArtService.Interfaces.dll"/>
   </Runtime>
 
   <Register Location="/Media/MetadataExtractors">
@@ -30,10 +28,21 @@
         ClassName="MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor.SeriesMetadataExtractor"/>
   </Register>
 
-  <!-- We use our own local name here to avoid circular references to FanArtService -->
-  <Builder Name="SeriesFanartProviderBuilder" ClassName="MediaPortal.Extensions.UserServices.FanArtService.Interfaces.Providers.FanartProviderBuilder"/>
-  <Register Location="/Fanart/Providers">
-    <SeriesFanartProviderBuilder Id="{73520BB9-112F-4208-90A8-C406E00AC192}" MediaTypes="Series" ClassName="MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor.FanartProvider.SeriesFanartProvider"/>
+  <Register Location="/Media/RelationshipExtractors">
+    <Instance
+        Id="SeriesRelationshipExtractor"
+        ClassName="MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor.SeriesRelationshipExtractor"/>
   </Register>
 
+  <Register Location="/Media/MergeHandlers">
+    <Instance
+        Id="EpisodeMergeHandler"
+        ClassName="MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor.EpisodeMergeHandler"/>
+  </Register>
+
+  <Register Location="/Media/FanArtHandlers">
+    <Instance
+        Id="SeriesFanArtHandler"
+        ClassName="MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor.SeriesFanArtHandler"/>
+  </Register>
 </Plugin>

@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2015 Team MediaPortal
+#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2015 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -99,15 +99,15 @@ namespace MediaPortal.Extensions.ResourceProviders.NetworkNeighborhoodResourcePr
     {
       var result = new HashSet<IPHostEntry>();
       if (collections == null)
+      {
         return result;
+      }
       foreach (var collection in collections.Where(collection => collection != null))
-        foreach (var host in collection.Where(host => host != null))
+      {
+        foreach (var host in collection.Where(host => host?.AddressList != null && host.AddressList.Any()))
         {
           if (String.IsNullOrEmpty(host.HostName))
-          {
-            if (host.AddressList == null || !host.AddressList.Any())
-              continue;
-            
+          { 
             // We only have one or more IP addresses - no HostName. We consider this host the same as a host we
             // already have in our result, when at least one IP address in this host equals one IP address of the result host.
             host.HostName = String.Empty;
@@ -120,55 +120,48 @@ namespace MediaPortal.Extensions.ResourceProviders.NetworkNeighborhoodResourcePr
           }
           else
           {
-            host.HostName = host.HostName.ToUpperInvariant();
-            if (host.AddressList == null || !host.AddressList.Any())
+            // We have both, HostName and one or more IP addresses.
+            // If there is already a host with the same HostName, we combine the IP addresses.
+            // If there is a host with a different HostName, but at least one identical IP address,
+            //   if the already present HostName is String.Empty, we replace the empty string with the new HostName
+            //     and combine the IP addresses;
+            //   if the already present HostName is not String.Empty, we log a warning,
+            //     combine the IP addresses of the already present host and discard the HostName of the new host.
+            // If there is no host with the same HostName and no host with one or more identical IP addresses, we
+            //   add the new host to the result.
+            host.AddressList = host.AddressList.Where(address => address != null).ToArray();
+            var alreadyPresentHost = result.FirstOrDefault(presentHost => presentHost.HostName == host.HostName);
+            if (alreadyPresentHost != null)
             {
-              // We only have a HostName - no IP addresses. We consider this host the same as a host we already have in our
-              // result, wenn the HostName is the same
-              host.AddressList = new IPAddress[0];
-              if (result.All(presentHost => presentHost.HostName != host.HostName))
-                result.Add(host);
+              alreadyPresentHost.AddressList = alreadyPresentHost.AddressList.Union(host.AddressList).ToArray();
             }
             else
             {
-              // We have both, HostName and one or more IP addresses.
-              // If there is already a host with the same HostName, we combine the IP addresses.
-              // If there is a host with a different HostName, but at least one identical IP address,
-              //   if the already present HostName is String.Empty, we replace the empty string with the new HostName
-              //     and combine the IP addresses;
-              //   if the already present HostName is not String.Empty, we log a warning,
-              //     combine the IP addresses of the already present host and discard the HostName of the new host.
-              // If there is no host with the same HostName and no host with one or more identical IP addresses, we
-              //   add the new host to the result.
-              host.AddressList = host.AddressList.Where(address => address != null).ToArray();
-              var alreadyPresentHost = result.FirstOrDefault(presentHost => presentHost.HostName == host.HostName);
+              alreadyPresentHost = result.FirstOrDefault(presentHost => presentHost.AddressList.Intersect(host.AddressList).Any());
               if (alreadyPresentHost != null)
-                alreadyPresentHost.AddressList = alreadyPresentHost.AddressList.Union(host.AddressList).ToArray();
-              else
               {
-                alreadyPresentHost = result.FirstOrDefault(presentHost => presentHost.AddressList.Intersect(host.AddressList).Any());
-                if (alreadyPresentHost != null)
+                if (alreadyPresentHost.HostName == String.Empty)
                 {
-                  if (alreadyPresentHost.HostName == String.Empty)
-                  {
-                    alreadyPresentHost.HostName = host.HostName;
-                    alreadyPresentHost.AddressList = alreadyPresentHost.AddressList.Union(host.AddressList).ToArray();
-                  }
-                  else
-                  {
-                    ServiceRegistration.Get<ILogger>().Warn("NeighborhoodBrowserService: Found two computers with different HostNames but at least one identical IP-Address:");
-                    ServiceRegistration.Get<ILogger>().Warn("NeighborhoodBrowserService:   HostName: '{0}', IP-Addresses {1}", alreadyPresentHost.HostName, String.Join(" / ", alreadyPresentHost.AddressList.Select(adress => adress.ToString())));
-                    ServiceRegistration.Get<ILogger>().Warn("NeighborhoodBrowserService:   HostName: '{0}', IP-Addresses {1}", host.HostName, String.Join(" / ", host.AddressList.Select(adress => adress.ToString())));
-                    ServiceRegistration.Get<ILogger>().Warn("NeighborhoodBrowserService:   Discarding the second HostName and adding its IP-Addresses to the first host.");
-                    alreadyPresentHost.AddressList = alreadyPresentHost.AddressList.Union(host.AddressList).ToArray();
-                  }
+                  alreadyPresentHost.HostName = host.HostName;
+                  alreadyPresentHost.AddressList = alreadyPresentHost.AddressList.Union(host.AddressList).ToArray();
                 }
                 else
-                  result.Add(host);
+                {
+                  ServiceRegistration.Get<ILogger>().Warn("NeighborhoodBrowserService: Found two computers with different HostNames but at least one identical IP-Address:");
+                  ServiceRegistration.Get<ILogger>().Warn("NeighborhoodBrowserService:   HostName: '{0}', IP-Addresses {1}", alreadyPresentHost.HostName, String.Join(" / ", alreadyPresentHost.AddressList.Select(adress => adress.ToString())));
+                  ServiceRegistration.Get<ILogger>().Warn("NeighborhoodBrowserService:   HostName: '{0}', IP-Addresses {1}", host.HostName, String.Join(" / ", host.AddressList.Select(adress => adress.ToString())));
+                  ServiceRegistration.Get<ILogger>().Warn("NeighborhoodBrowserService:   Discarding the second HostName and adding its IP-Addresses to the first host.");
+                  alreadyPresentHost.AddressList = alreadyPresentHost.AddressList.Union(host.AddressList).ToArray();
+                }
+              }
+              else
+              {
+                result.Add(host);
               }
             }
           }
         }
+      }
       return result;
     }
 

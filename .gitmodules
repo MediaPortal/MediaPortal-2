@@ -1,0 +1,4 @@
+[submodule "OnlineVideos"]
+	path = OnlineVideos
+	url = https://github.com/offbyoneBB/mp-onlinevideos2.git
+	branch = master

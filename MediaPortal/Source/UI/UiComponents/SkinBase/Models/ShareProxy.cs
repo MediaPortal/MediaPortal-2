@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2015 Team MediaPortal
+#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2015 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -66,6 +66,7 @@ namespace MediaPortal.UiComponents.SkinBase.Models
     protected ItemsList _resourceProviderPathsTree;
     protected AbstractProperty _shareNameProperty;
     protected AbstractProperty _isShareNameValidProperty;
+    protected AbstractProperty _useShareWatcherProperty;
     protected AbstractProperty _invalidShareHintProperty;
     protected AbstractProperty _isMediaCategoriesSelectedProperty;
     protected ItemsList _allMediaCategoriesTree;
@@ -92,6 +93,7 @@ namespace MediaPortal.UiComponents.SkinBase.Models
       _resourceProviderPathsTree = new ItemsList();
       _shareNameProperty = new WProperty(typeof(string), string.Empty);
       _shareNameProperty.Attach(OnShareNameChanged);
+      _useShareWatcherProperty = new WProperty(typeof(bool), false);
       _isShareNameValidProperty = new WProperty(typeof(bool), true);
       _invalidShareHintProperty = new WProperty(typeof(string), null);
       _allMediaCategoriesTree = new ItemsList();
@@ -358,6 +360,20 @@ namespace MediaPortal.UiComponents.SkinBase.Models
     }
 
     /// <summary>
+    /// Indicates if a share watcher should monitor changes.
+    /// </summary>
+    public bool UseShareWatcher
+    {
+      get { return (bool)_useShareWatcherProperty.GetValue(); }
+      set { _useShareWatcherProperty.SetValue(value); }
+    }
+
+    public AbstractProperty UseShareWatcherProperty
+    {
+      get { return _useShareWatcherProperty; }
+    }
+
+    /// <summary>
     /// <c>true</c> if the edited share name is a valid string for a share name.
     /// </summary>
     public bool IsShareNameValid
@@ -415,6 +431,7 @@ namespace MediaPortal.UiComponents.SkinBase.Models
       BaseResourceProvider = null;
       ChoosenResourcePath = null;
       ShareName = string.Empty;
+      UseShareWatcher = false;
       UpdateMediaCategories(null);
       NativeSystem = null;
       ClearTimer();
@@ -427,6 +444,7 @@ namespace MediaPortal.UiComponents.SkinBase.Models
       NativeSystem = nativeSystem;
       ChoosenResourcePath = share.BaseResourcePath;
       ShareName = share.Name;
+      UseShareWatcher = share.UseShareWatcher;
       UpdateMediaCategories(share.MediaCategories);
       return true;
     }

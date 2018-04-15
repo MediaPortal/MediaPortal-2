@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2015 Team MediaPortal
+#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2015 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -33,7 +33,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matches
 {
   // TODO: implement lookup table and download stats in database
   /// <summary>
-  /// Storage class for loading and saving <see cref="BaseMatch{T}"/> into storage, which is currently 
+  /// Storage class for loading and saving <see cref="BaseFanArtMatch{T}"/> into storage, which is currently 
   /// a XML serialized file in the data folder of the application.
   /// </summary>
   /// <typeparam name="TMatch">Type of match</typeparam>

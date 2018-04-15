@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2015 Team MediaPortal
+#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2015 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -22,6 +22,8 @@
 
 #endregion
 
+using System;
+using System.Runtime.InteropServices;
 using System.Windows.Forms;
 using MediaPortal.UI.Control.InputManager;
 
@@ -35,6 +37,47 @@ namespace MediaPortal.UI.SkinEngine.InputManagement
     public static Key MapSpecialKey(KeyEventArgs args)
     {
       return MapSpecialKey(args.KeyCode, args.Alt, args.Shift, args.Control);
+    }
+
+    private static class Keyboard
+    {
+      [Flags]
+      private enum KeyStates
+      {
+        None = 0,
+        Down = 1,
+        Toggled = 2
+      }
+
+      [DllImport("user32.dll", CharSet = CharSet.Auto, ExactSpelling = true)]
+      private static extern short GetKeyState(int keyCode);
+
+      private static KeyStates GetKeyState(Keys key)
+      {
+        KeyStates state = KeyStates.None;
+
+        short retVal = GetKeyState((int)key);
+
+        // If the high-order bit is 1, the key is down, otherwise, it is up.
+        if ((retVal & 0x8000) == 0x8000)
+          state |= KeyStates.Down;
+
+        // If the low-order bit is 1, the key is toggled.
+        if ((retVal & 1) == 1)
+          state |= KeyStates.Toggled;
+
+        return state;
+      }
+
+      public static bool IsKeyDown(Keys key)
+      {
+        return GetKeyState(key).HasFlag(KeyStates.Down);
+      }
+
+      public static bool IsKeyToggled(Keys key)
+      {
+        return GetKeyState(key).HasFlag(KeyStates.Toggled);
+      }
     }
 
     public static Key MapSpecialKey(Keys keycode, bool alt, bool shift, bool control)
@@ -58,9 +101,13 @@ namespace MediaPortal.UI.SkinEngine.InputManagement
         case Keys.Insert:
           return Key.Insert;
         case Keys.Enter:
-          if (alt)
-            return Key.Fullscreen;
-          return Key.Ok;
+          if (!Keyboard.IsKeyDown(Keys.LWin))
+          {
+            if (alt)
+              return Key.Fullscreen;
+            return Key.Ok;
+          }
+          break;
         case Keys.Back:
           return Key.BackSpace;
         case Keys.Escape:
@@ -182,7 +229,7 @@ namespace MediaPortal.UI.SkinEngine.InputManagement
 
     public static Key MapPrintableKeys(char keyChar)
     {
-      if (keyChar >= (char) 32)
+      if (keyChar >= (char)32)
         return new Key(keyChar);
       return Key.None;
     }

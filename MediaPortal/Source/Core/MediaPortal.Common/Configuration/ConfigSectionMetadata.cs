@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2015 Team MediaPortal
+#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2015 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -32,8 +32,8 @@ namespace MediaPortal.Common.Configuration
     protected string _iconSmallFilePath;
     protected string _iconLargeFilePath;
 
-    public ConfigSectionMetadata(string location, string text, string sort, string iconSmall, string iconLarge)
-      : base(location, text, sort)
+    public ConfigSectionMetadata(string location, string text, string sort, string iconSmall, string iconLarge, string restrictionGroup)
+      : base(location, text, sort, restrictionGroup)
     {
       _iconSmallFilePath = iconSmall;
       _iconLargeFilePath = iconLarge;

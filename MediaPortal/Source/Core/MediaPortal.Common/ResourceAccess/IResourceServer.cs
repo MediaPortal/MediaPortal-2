@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2015 Team MediaPortal
+#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2015 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -22,15 +22,17 @@
 
 #endregion
 
-using HttpServer.HttpModules;
+using System;
+using System.Net;
 
 namespace MediaPortal.Common.ResourceAccess
 {
   public interface IResourceServer
   {
-    int PortIPv4 { get; }
-
-    int PortIPv6 { get; }
+    /// <summary>
+    /// Gets the service base url.
+    /// </summary>
+    string GetServiceUrl(IPAddress ipAddress);
 
     void Startup();
 
@@ -45,19 +47,18 @@ namespace MediaPortal.Common.ResourceAccess
     void RestartHttpServers();
 
     /// <summary>
-    /// Adds a new HTTP module to the HTTP server.
+    /// Adds a new HTTP middleware to the HTTP server.
     /// </summary>
     /// <remarks>
-    /// The HTTP module approach is implemented by our <see cref="HttpServer.HttpServer"/> and fits very well into
-    /// the MediaPortal concept: Plugins simply can add a module to the HTTP server.
+    /// The HTTP module approach is implemented by Owin self host which allows to add a OwinMiddleware to the HTTP server.
     /// </remarks>
-    /// <param name="module"></param>
-    void AddHttpModule(HttpModule module);
+    /// <param name="moduleType">Type of OwinMiddleware</param>
+    void AddHttpModule(Type moduleType);
 
     /// <summary>
     /// Removes an HTTP module from the HTTP server.
     /// </summary>
-    /// <param name="module">Module to remove.</param>
-    void RemoveHttpModule(HttpModule module);
+    /// <param name="moduleType">Type of OwinMiddleware to remove.</param>
+    void RemoveHttpModule(Type moduleType);
   }
 }

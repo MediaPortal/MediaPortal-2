@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2015 Team MediaPortal
+#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2015 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -23,6 +23,7 @@
 #endregion
 
 using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace MediaPortal.UiComponents.Weather
 {
@@ -38,7 +39,7 @@ namespace MediaPortal.UiComponents.Weather
     /// </summary>
     /// <param name="city">City object to populate</param>
     /// <returns><c>true</c>, if the update was successful, else <c>false</c>.</returns>
-    bool GetLocationData(City city);
+    Task<bool> GetLocationData(City city);
 
     /// <summary>
     /// Returns a new List of City objects for the searched location. The unique id (City.Id) and the
@@ -46,12 +47,23 @@ namespace MediaPortal.UiComponents.Weather
     /// </summary>
     /// <param name="name">Name of the location to search for.</param>
     /// <returns>New City List.</returns>
-    List<CitySetupInfo> FindLocationsByName(string name);
+    Task<List<CitySetupInfo>> FindLocationsByName(string name);
 
     /// <summary>
     /// Teturns the name of the service used to fetch data, e.g. weather.com (used in configuration).
     /// </summary>
     /// <returns></returns>
     string GetServiceName();
+  }
+
+  /// <summary>
+  /// Interface for web APIs to provide a custom token for authentication.
+  /// </summary>
+  public interface IApiToken
+  {
+    /// <summary>
+    /// Gets or sets a token to be used for this service.
+    /// </summary>
+    string ApiToken { get; set; }
   }
 }

@@ -1,6 +1,7 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
   <string name="News.Title">Noticias</string>
+  <string name="News.Title.Help">Lee tus lugares favoritos de noticias.</string>
   <string name="News.FeedsStateDisplayLabel">Noticias</string>
   <string name="News.Published">Publicado</string>
   <string name="News.ConfiguredFeeds">RSS Configurados</string>

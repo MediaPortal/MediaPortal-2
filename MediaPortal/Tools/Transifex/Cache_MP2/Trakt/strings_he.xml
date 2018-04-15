@@ -1,5 +1,4 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
   <string name="Trakt.Username">שם משתמש</string>
-  <string name="Trakt.Password">סיסמה</string>
 </resources>

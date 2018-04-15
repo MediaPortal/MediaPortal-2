@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2015 Team MediaPortal
+#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2015 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -28,6 +28,7 @@ using System.Text;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.MLQueries;
 using MediaPortal.Utilities;
+using System;
 
 namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
 {
@@ -35,7 +36,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
   /// Builds the SQL statement for the main media item query. The main query requests all Inline and MTO attributes of
   /// media item aspects, filtered by a <see cref="CompiledFilter"/>.
   /// </summary>
-  public class MainQueryBuilder : BaseQueryBuilder
+  public abstract class MainQueryBuilder : BaseQueryBuilder
   {
     #region Inner classes
 
@@ -83,9 +84,11 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
     protected readonly IList<QueryAttribute> _selectAttributes;
     protected readonly SelectProjectionFunction _selectProjectionFunction;
     protected readonly IFilter _filter;
-    protected readonly IList<SortInformation> _sortInformation;
+    protected readonly IFilter _subqueryFilter;
+    protected readonly IList<ISortInformation> _sortInformation;
     protected readonly uint? _offset;
     protected readonly uint? _limit;
+    protected readonly Guid? _userProfileId;
 
     /// <summary>
     /// Creates a new <see cref="MainQueryBuilder"/> instance.
@@ -106,7 +109,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
     public MainQueryBuilder(MIA_Management miaManagement, IEnumerable<QueryAttribute> simpleSelectAttributes,
         SelectProjectionFunction selectProjectionFunction,
         IEnumerable<MediaItemAspectMetadata> necessaryRequestedMIAs, IEnumerable<MediaItemAspectMetadata> optionalRequestedMIAs,
-        IFilter filter, IList<SortInformation> sortInformation, uint? limit = null, uint? offset = null)
+        IFilter filter, IFilter subqueryFilter, IList<ISortInformation> sortInformation, Guid? userProfileId = null, uint? limit = null, uint? offset = null)
       : base(miaManagement)
     {
       _necessaryRequestedMIAs = necessaryRequestedMIAs;
@@ -114,9 +117,11 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
       _selectAttributes = new List<QueryAttribute>(simpleSelectAttributes);
       _selectProjectionFunction = selectProjectionFunction;
       _filter = filter;
+      _subqueryFilter = subqueryFilter;
       _sortInformation = sortInformation;
       _limit = limit;
       _offset = offset;
+      _userProfileId = userProfileId;
     }
 
     protected void GenerateSqlStatement(bool groupByValues,
@@ -163,12 +168,17 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
       // Contains CompiledSortInformation instances for each sort information instance
       IList<CompiledSortInformation> compiledSortInformation = null;
 
+      List<BindVar> sqlVars = new List<BindVar>();
+
       // Ensure that the tables for all necessary MIAs are requested first (INNER JOIN)
       foreach (MediaItemAspectMetadata miaType in _necessaryRequestedMIAs)
       {
+        if (miaType.IsTransientAspect)
+          continue;
         if (tableQueries.ContainsKey(miaType))
           // We only come here if miaType was already queried as necessary MIA, so optimize redundant entry
           continue;
+
         TableQueryData tqd = tableQueries[miaType] = TableQueryData.CreateTableQueryOfMIATable(_miaManagement, miaType);
         miaTypeTableQueries.Add(miaType, tqd);
         RequestedAttribute ra;
@@ -191,6 +201,8 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
       // That is necessary to make empty optional MIA types available in the result
       foreach (MediaItemAspectMetadata miaType in _optionalRequestedMIAs)
       {
+        if (miaType.IsTransientAspect)
+          continue;
         if (tableQueries.ContainsKey(miaType))
           // We only come here if miaType was already queried as necessary or optional MIA, so optimize redundant entry
           continue;
@@ -205,6 +217,8 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
       // + add alias to selectAttributeDeclarations
       foreach (QueryAttribute attr in _selectAttributes)
       {
+        if (attr.Attr.ParentMIAM.IsTransientAspect)
+          continue;
         RequestedAttribute ra;
         RequestSimpleAttribute(attr, tableQueries, tableJoins, "LEFT OUTER JOIN", requestedAttributes, miaTypeTableQueries,
             miaIdAttribute, out ra);
@@ -216,12 +230,14 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
         qualifiedGroupByAliases.Add(ra.GetAlias(ns));
       }
 
-      CompiledFilter compiledFilter = new CompiledFilter(_miaManagement, _filter, ns, bvNamespace, miaIdAttribute.GetQualifiedName(ns), tableJoins);
+      CompiledFilter compiledFilter = CreateCompiledFilter(ns, bvNamespace, miaIdAttribute.GetQualifiedName(ns), tableJoins);
 
       // Build table query data for each Inline attribute which is part of a filter
       // + compile query attribute
       foreach (QueryAttribute attr in compiledFilter.RequiredAttributes)
       {
+        if (attr.Attr.ParentMIAM.IsTransientAspect)
+          continue;
         if (attr.Attr.Cardinality != Cardinality.Inline && attr.Attr.Cardinality != Cardinality.ManyToOne)
           continue;
         // Tables of Inline and MTO attributes, which are part of a filter, are joined with main table
@@ -233,16 +249,42 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
       if (_sortInformation != null)
       {
         compiledSortInformation = new List<CompiledSortInformation>();
-        foreach (SortInformation sortInformation in _sortInformation)
+        BindVar userVar = null;
+        foreach (ISortInformation sortInformation in _sortInformation)
         {
-          MediaItemAspectMetadata.AttributeSpecification attr = sortInformation.AttributeType;
-          if (attr.Cardinality != Cardinality.Inline && attr.Cardinality != Cardinality.ManyToOne)
-            // Sorting can only be done for Inline and MTO attributes
+          AttributeSortInformation attributeSort = sortInformation as AttributeSortInformation;
+          if (attributeSort != null)
+          {
+            if (attributeSort.AttributeType.ParentMIAM.IsTransientAspect)
+              continue;
+            MediaItemAspectMetadata.AttributeSpecification attr = attributeSort.AttributeType;
+            if (attr.Cardinality != Cardinality.Inline && attr.Cardinality != Cardinality.ManyToOne)
+              // Sorting can only be done for Inline and MTO attributes
+              continue;
+            RequestedAttribute ra;
+            RequestSimpleAttribute(new QueryAttribute(attr), tableQueries, tableJoins, "LEFT OUTER JOIN", requestedAttributes,
+                miaTypeTableQueries, miaIdAttribute, out ra);
+            compiledSortInformation.Add(new CompiledSortInformation(ra, attributeSort.Direction));
             continue;
-          RequestedAttribute ra;
-          RequestSimpleAttribute(new QueryAttribute(attr), tableQueries, tableJoins, "LEFT OUTER JOIN", requestedAttributes,
-              miaTypeTableQueries, miaIdAttribute, out ra);
-          compiledSortInformation.Add(new CompiledSortInformation(ra, sortInformation.Direction));
+          }
+
+          DataSortInformation dataSort = sortInformation as DataSortInformation;
+          if (dataSort != null && _userProfileId.HasValue)
+          {
+            TableQueryData tqd = new TableQueryData(UserProfileDataManagement.UserProfileDataManagement_SubSchema.USER_MEDIA_ITEM_DATA_TABLE_NAME);
+            RequestedAttribute ra = new RequestedAttribute(tqd, UserProfileDataManagement.UserProfileDataManagement_SubSchema.USER_DATA_VALUE_COL_NAME);
+            compiledSortInformation.Add(new CompiledSortInformation(ra, dataSort.Direction));
+
+            if (userVar == null)
+            {
+              userVar = new BindVar("UID", _userProfileId.Value, typeof(Guid));
+              sqlVars.Add(userVar);
+            }
+            TableJoin join = new TableJoin("LEFT OUTER JOIN", tqd, new RequestedAttribute(tqd, UserProfileDataManagement.UserProfileDataManagement_SubSchema.USER_PROFILE_ID_COL_NAME), "@" + userVar.Name);
+            join.AddCondition(new RequestedAttribute(tqd, MIA_Management.MIA_MEDIA_ITEM_ID_COL_NAME), miaIdAttribute);
+            join.AddCondition(new RequestedAttribute(tqd, UserProfileDataManagement.UserProfileDataManagement_SubSchema.USER_DATA_KEY_COL_NAME), $"'{dataSort.UserDataKey}'");
+            tableJoins.Add(join);
+          }
         }
       }
       StringBuilder result = new StringBuilder("SELECT ");
@@ -291,6 +333,8 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
       }
 
       string whereStr = compiledFilter.CreateSqlFilterCondition(ns, requestedAttributes, out bindVars);
+      foreach(BindVar bv in sqlVars)
+        bindVars.Add(bv);
 
       result.Append(" FROM ");
 
@@ -331,23 +375,12 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
           result.Append(StringUtils.Join(", ", sortCriteria));
         }
       }
-
-
       statementStr = result.ToString();
     }
 
-    /// <summary>
-    /// Generates an SQL statement for the underlaying query specification which contains groups of the same attribute
-    /// values and a count column containing the size of each group.
-    /// </summary>
-    /// <param name="groupSizeAlias">Alias of the groups sizes in the result set.</param>
-    /// <param name="attributeAliases">Returns the aliases for all selected attributes.</param>
-    /// <param name="statementStr">SQL statement which was built by this method.</param>
-    /// <param name="bindVars">Bind variables to be inserted into the returned <paramref name="statementStr"/>.</param>
-    public void GenerateSqlGroupByStatement(out string groupSizeAlias, out IDictionary<QueryAttribute, string> attributeAliases,
-        out string statementStr, out IList<BindVar> bindVars)
+    protected virtual CompiledFilter CreateCompiledFilter(Namespace ns, BindVarNamespace bvNamespace, string outerMIIDJoinVariable, IList<TableJoin> tableJoins)
     {
-      GenerateSqlStatement(true, null, out groupSizeAlias, out attributeAliases, out statementStr, out bindVars);
+      return new CompiledFilter(_miaManagement, _filter, _subqueryFilter, ns, bvNamespace, outerMIIDJoinVariable, tableJoins);
     }
 
     /// <summary>

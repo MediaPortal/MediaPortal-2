@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2015 Team MediaPortal
+#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2015 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -33,7 +33,16 @@ using MediaPortal.Common.PluginManager;
 using MediaPortal.Common.PluginManager.Exceptions;
 using MediaPortal.Common.Settings;
 using MediaPortal.UI.Presentation.Players;
+using MediaPortal.UI.Services.Players.Builders;
 using MediaPortal.UI.Services.Players.Settings;
+using MediaPortal.UI.Presentation.Screens;
+using MediaPortal.Common.MediaManagement.DefaultItemAspects;
+using MediaPortal.Common.PathManager;
+using System.IO;
+using MediaPortal.Common.ResourceAccess;
+using MediaPortal.Utilities.SystemAPI;
+using MediaPortal.Common.SystemResolver;
+using MediaPortal.Common.Localization;
 
 namespace MediaPortal.UI.Services.Players
 {
@@ -104,7 +113,7 @@ namespace MediaPortal.UI.Services.Players
     /// <summary>
     /// Maps player builder plugin item ids to player builders.
     /// </summary>
-    internal IDictionary<string, IPlayerBuilder> _playerBuilders = new Dictionary<string, IPlayerBuilder>();
+    internal IDictionary<string, PlayerBuilderWrapper> _playerBuilders = new Dictionary<string, PlayerBuilderWrapper>();
     protected int _volume = 100;
     protected bool _isMuted = false;
     protected AsynchronousMessageQueue _messageQueue = null;
@@ -227,10 +236,10 @@ namespace MediaPortal.UI.Services.Players
     protected void LoadPlayerBuilder(string playerBuilderId)
     {
       IPluginManager pluginManager = ServiceRegistration.Get<IPluginManager>();
-      IPlayerBuilder playerBuilder;
+      PlayerBuilderWrapper playerBuilder;
       try
       {
-        playerBuilder = pluginManager.RequestPluginItem<IPlayerBuilder>(PLAYERBUILDERS_REGISTRATION_PATH,
+        playerBuilder = pluginManager.RequestPluginItem<PlayerBuilderWrapper>(PLAYERBUILDERS_REGISTRATION_PATH,
                 playerBuilderId, _playerBuilderPluginItemStateTracker);
         if (playerBuilder == null)
         {
@@ -249,6 +258,64 @@ namespace MediaPortal.UI.Services.Players
 
     #endregion
 
+    #region Helpers
+
+    private bool TryCreateInsertAudioMediaMediaItem(MediaItem origMi, out MediaItem subMi)
+    {
+      subMi = null;
+      IPathManager pathManager = ServiceRegistration.Get<IPathManager>();
+      string resourceDirectory = pathManager.GetPath(@"<DATA>\Resources\");
+      string[] files = Directory.GetFiles(resourceDirectory, "InsertAudioMedia.*");
+      if (files == null || files.Length == 0)
+        return false;
+
+      IDictionary<Guid, IList<MediaItemAspect>> aspects = new Dictionary<Guid, IList<MediaItemAspect>>();
+      foreach (var aspect in origMi.Aspects)
+      {
+        if (aspect.Key != ProviderResourceAspect.ASPECT_ID)
+          aspects.Add(aspect.Key, aspect.Value);
+      }
+
+      MediaItemAspect providerResourceAspect = MediaItemAspect.CreateAspect(aspects, ProviderResourceAspect.Metadata);
+      providerResourceAspect.SetAttribute(ProviderResourceAspect.ATTR_RESOURCE_INDEX, 0);
+      providerResourceAspect.SetAttribute(ProviderResourceAspect.ATTR_TYPE, ProviderResourceAspect.TYPE_PRIMARY);
+      providerResourceAspect.SetAttribute(ProviderResourceAspect.ATTR_RESOURCE_ACCESSOR_PATH, ResourcePath.BuildBaseProviderPath(LocalFsResourceProviderBase.LOCAL_FS_RESOURCE_PROVIDER_ID, files[0]).Serialize());
+      providerResourceAspect.SetAttribute(ProviderResourceAspect.ATTR_MIME_TYPE, MimeTypeDetector.GetMimeType(files[0], "audio/unknown"));
+      providerResourceAspect.SetAttribute(ProviderResourceAspect.ATTR_SYSTEM_ID, ServiceRegistration.Get<ISystemResolver>().LocalSystemId);
+
+      subMi = new MediaItem(Guid.Empty, aspects);
+      return true;
+    }
+
+    private bool TryCreateInsertVideoMediaMediaItem(MediaItem origMi, out MediaItem subMi)
+    {
+      subMi = null;
+      IPathManager pathManager = ServiceRegistration.Get<IPathManager>();
+      string resourceDirectory = pathManager.GetPath(@"<DATA>\Resources\");
+      string[] files = Directory.GetFiles(resourceDirectory, "InsertVideoMedia.*");
+      if (files == null || files.Length == 0)
+        return false;
+
+      IDictionary<Guid, IList<MediaItemAspect>> aspects = new Dictionary<Guid, IList<MediaItemAspect>>();
+      foreach (var aspect in origMi.Aspects)
+      {
+        if (aspect.Key != ProviderResourceAspect.ASPECT_ID)
+          aspects.Add(aspect.Key, aspect.Value);
+      }
+
+      MediaItemAspect providerResourceAspect = MediaItemAspect.CreateAspect(aspects, ProviderResourceAspect.Metadata);
+      providerResourceAspect.SetAttribute(ProviderResourceAspect.ATTR_RESOURCE_INDEX, 0);
+      providerResourceAspect.SetAttribute(ProviderResourceAspect.ATTR_TYPE, ProviderResourceAspect.TYPE_PRIMARY);
+      providerResourceAspect.SetAttribute(ProviderResourceAspect.ATTR_RESOURCE_ACCESSOR_PATH, ResourcePath.BuildBaseProviderPath(LocalFsResourceProviderBase.LOCAL_FS_RESOURCE_PROVIDER_ID, files[0]).Serialize());
+      providerResourceAspect.SetAttribute(ProviderResourceAspect.ATTR_MIME_TYPE, MimeTypeDetector.GetMimeType(files[0], "video/unknown"));
+      providerResourceAspect.SetAttribute(ProviderResourceAspect.ATTR_SYSTEM_ID, ServiceRegistration.Get<ISystemResolver>().LocalSystemId);
+
+      subMi = new MediaItem(Guid.Empty, aspects);
+      return true;
+    }
+
+    #endregion
+
     /// <summary>
     /// Tries to build a player for the given <paramref name="mediaItem"/>.
     /// </summary>
@@ -259,8 +326,40 @@ namespace MediaPortal.UI.Services.Players
     {
       ICollection<IPlayerBuilder> builders;
       lock (_syncObj)
-        builders = new List<IPlayerBuilder>(_playerBuilders.Values);
+        builders = new List<IPlayerBuilder>(_playerBuilders.Values.OrderByDescending(w => w.Priority).ThenBy(w => w.Id).Select(w => w.PlayerBuilder));
       exceptions = new List<Exception>();
+
+      if (mediaItem.IsStub)
+      {
+        MediaItem stubMI = null;
+        if (mediaItem.Aspects.ContainsKey(MovieAspect.ASPECT_ID) || mediaItem.Aspects.ContainsKey(EpisodeAspect.ASPECT_ID))
+        {
+          if (TryCreateInsertVideoMediaMediaItem(mediaItem, out stubMI))
+            mediaItem = stubMI;
+        }
+        else if (mediaItem.Aspects.ContainsKey(AudioAspect.ASPECT_ID))
+        {
+          if (TryCreateInsertVideoMediaMediaItem(mediaItem, out stubMI))
+            mediaItem = stubMI;
+        }
+
+        if (stubMI == null)
+        {
+          string header = LocalizationHelper.Translate("[Media.Stub.Title]");
+          string text = LocalizationHelper.Translate("[Media.Stub.Message]");
+          if (mediaItem.Aspects.ContainsKey(StubAspect.ASPECT_ID))
+          {
+            string message;
+            if (MediaItemAspect.TryGetAttribute(mediaItem.Aspects, StubAspect.ATTR_MESSAGE, out message))
+              text = message;
+          }
+          IDialogManager dialogManager = ServiceRegistration.Get<IDialogManager>();
+          dialogManager.ShowDialog(header, text, DialogType.OkDialog, false, DialogButtonType.Ok);
+          return null;
+        }
+      }
+
+
       foreach (IPlayerBuilder playerBuilder in builders)
       {
         try

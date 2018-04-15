@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2015 Team MediaPortal
+#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2015 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -24,6 +24,7 @@
 
 using System;
 using MediaPortal.Common.General;
+using MediaPortal.UI.SkinEngine.Controls.Animations.EasingFunctions;
 using MediaPortal.UI.SkinEngine.Controls.Brushes;
 using MediaPortal.UI.SkinEngine.Xaml;
 using MediaPortal.Utilities.DeepCopy;
@@ -39,6 +40,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Animations
     protected AbstractProperty _fromProperty;
     protected AbstractProperty _toProperty;
     protected AbstractProperty _byProperty;
+    protected AbstractProperty _easingFunctionProperty;
 
     #endregion
 
@@ -54,6 +56,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Animations
       _fromProperty = new SProperty(typeof(Color?), null);
       _toProperty = new SProperty(typeof(Color?), null);
       _byProperty = new SProperty(typeof(Color?), null);
+      _easingFunctionProperty = new SProperty(typeof(IEasingFunction), null);
     }
 
     public override void DeepCopy(IDeepCopyable source, ICopyManager copyManager)
@@ -63,6 +66,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Animations
       From = a.From;
       To = a.To;
       By = a.By;
+      EasingFunction = copyManager.GetCopy(a.EasingFunction);
     }
 
     #endregion
@@ -102,6 +106,17 @@ namespace MediaPortal.UI.SkinEngine.Controls.Animations
       set { _byProperty.SetValue(value); }
     }
 
+    public AbstractProperty EasingFunctionProperty
+    {
+      get { return _easingFunctionProperty; }
+    }
+
+    public IEasingFunction EasingFunction
+    {
+      get { return (IEasingFunction)_easingFunctionProperty.GetValue(); }
+      set { _easingFunctionProperty.SetValue(value); }
+    }
+
     #endregion
 
     public static Color ConvertToColor(object value)
@@ -137,8 +152,13 @@ namespace MediaPortal.UI.SkinEngine.Controls.Animations
         return;
       }
 
-      float progress = timepassed / (float)duration;
-      object value = Color.SmoothStep(from, to, progress);
+      double progress = timepassed / duration;
+
+      IEasingFunction easingFunction = EasingFunction;
+      if (easingFunction != null)
+        progress = easingFunction.Ease(progress);
+
+      object value = Color.SmoothStep(from, to, (float)progress);
       if (TypeConverter.Convert(value, patc.DataDescriptor.DataType, out value))
         patc.DataDescriptor.Value = value;
       else

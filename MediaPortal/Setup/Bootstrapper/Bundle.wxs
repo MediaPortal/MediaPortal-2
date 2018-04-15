@@ -10,15 +10,18 @@
     <BootstrapperApplicationRef Id="WixStandardBootstrapperApplication.HyperlinkLicense">
       <bal:WixStandardBootstrapperApplication LicenseFile="..\..\Source\Base\Client\Docs\MediaPortal License.rtf"
                                               LogoFile="..\..\Setup\MP2-Setup\Resources\MP2_Icon_48.png"
+                                              ThemeFile="Theme\CustomTheme.xml"
+                                              LocalizationFile="Theme\CustomTheme.wxl"
                                               SuppressOptionsUI="yes"
                                               LicenseUrl="http://www.team-mediaportal.com"/>
     </BootstrapperApplicationRef>
 
     <Chain>
 
-      <PackageGroupRef Id="NetFx451Web"/>
+      <PackageGroupRef Id="NetFx47Web"/>
       <PackageGroupRef Id="redist"/>
       <PackageGroupRef Id="directx9"/>
+      <PackageGroupRef Id="dokan"/>
 
       <RollbackBoundary />
 

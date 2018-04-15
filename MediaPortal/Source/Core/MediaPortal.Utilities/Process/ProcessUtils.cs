@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2015 Team MediaPortal
+#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2015 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -34,7 +34,6 @@ namespace MediaPortal.Utilities.Process
   public class ProcessUtils
   {
     public static readonly Encoding CONSOLE_ENCODING = Encoding.UTF8;
-    [Obsolete("This field will be removed. The functionality is contained in ImpersonationService")]
     private static readonly string CONSOLE_ENCODING_PREAMBLE = CONSOLE_ENCODING.GetString(CONSOLE_ENCODING.GetPreamble());
 
     public const int INFINITE = -1;
@@ -61,6 +60,7 @@ namespace MediaPortal.Utilities.Process
     public static Task<ProcessExecutionResult> ExecuteAsync(string executable, string arguments, ProcessPriorityClass priorityClass = ProcessPriorityClass.Normal, int maxWaitMs = DEFAULT_TIMEOUT)
     {
       var tcs = new TaskCompletionSource<ProcessExecutionResult>();
+      bool exited = false;
       var process = new System.Diagnostics.Process
       {
         StartInfo = new ProcessStartInfo(executable, arguments)
@@ -78,21 +78,39 @@ namespace MediaPortal.Utilities.Process
       // We need to read standardOutput and standardError asynchronously to avoid a deadlock
       // when the buffer is not big enough to receive all the respective output. Otherwise the
       // process may block because the buffer is full and the Exited event below is never raised.
-      Task<string> standardOutputTask = null;
-      Task<string> standardErrorTask = null;
-      var standardStreamTasksReady = new ManualResetEventSlim();
+      var standardOutput = new StringBuilder();
+      var standardOutputResults = new TaskCompletionSource<string>();
+      process.OutputDataReceived += (sender, args) =>
+      {
+        if (args.Data != null)
+          standardOutput.AppendLine(args.Data);
+        else
+          standardOutputResults.SetResult(standardOutput.Length > 0 ? RemoveEncodingPreamble(standardOutput.ToString()) : null);
+      };
 
+      var standardError = new StringBuilder();
+      var standardErrorResults = new TaskCompletionSource<string>();
+      process.ErrorDataReceived += (sender, args) =>
+      {
+        if (args.Data != null)
+          standardError.AppendLine(args.Data);
+        else
+          standardErrorResults.SetResult(standardError.Length > 0 ? RemoveEncodingPreamble(standardError.ToString()) : null);
+      };
+
+      var processStart = new TaskCompletionSource<bool>();
       // The Exited event is raised in any case when the process has finished, i.e. when it gracefully
       // finished (ExitCode = 0), finished with an error (ExitCode != 0) and when it was killed below.
       // That ensures disposal of the process object.
-      process.Exited += (sender, args) =>
+      process.Exited += async (sender, args) =>
       {
+        exited = true;
         try
         {
+          await processStart.Task;
           // standardStreamTasksReady is only disposed when starting the process was not successful,
           // in which case the Exited event is never raised.
           // ReSharper disable once AccessToDisposedClosure
-          standardStreamTasksReady.Wait();
           tcs.TrySetResult(new ProcessExecutionResult
           {
             ExitCode = process.ExitCode,
@@ -103,8 +121,8 @@ namespace MediaPortal.Utilities.Process
             // sure that this method waits until the tasks are initialized before they are accessed.
             // ReSharper disable PossibleNullReferenceException
             // ReSharper disable AccessToModifiedClosure
-            StandardOutput = standardOutputTask.Result,
-            StandardError = standardErrorTask.Result
+            StandardOutput = await standardOutputResults.Task,
+            StandardError = await standardErrorResults.Task
             // ReSharper restore AccessToModifiedClosure
             // ReSharper restore PossibleNullReferenceException
           });
@@ -119,34 +137,54 @@ namespace MediaPortal.Utilities.Process
         }
       };
 
-      process.Start();
-      try
+      bool processStarted = process.Start();
+      processStart.SetResult(processStarted);
+      if (processStarted)
       {
-        // This call may throw an exception if the process has already exited when we get here.
-        // In that case the Exited event has already set tcs to RanToCompletion state so that
-        // the TrySetException call below does not change the state of tcs anymore. This is correct
-        // as it doesn't make sense to change the priority of the process if it is already finished.
-        // Any other "real" error sets the state of tcs to Faulted below.
-        process.PriorityClass = priorityClass;
+        process.BeginOutputReadLine();
+        process.BeginErrorReadLine();
+        try
+        {
+          // This call may throw an exception if the process has already exited when we get here.
+          // In that case the Exited event has already set tcs to RanToCompletion state so that
+          // the TrySetException call below does not change the state of tcs anymore. This is correct
+          // as it doesn't make sense to change the priority of the process if it is already finished.
+          // Any other "real" error sets the state of tcs to Faulted below.
+          process.PriorityClass = priorityClass;
+        }
+        catch (InvalidOperationException e)
+        {
+          // This exception indicates that the process is no longer available which is probably 
+          // because the process has exited already. The exception should not be logged because 
+          // there is no guarantee that the exited event has finished setting the task to the 
+          // RanToCompletion state before this exception sets it to the Faulted state.
+          if (!exited && !process.HasExited)
+            tcs.TrySetException(e);
+        }
+        catch (Exception e)
+        {
+          tcs.TrySetException(e);
+        }
       }
-      catch (Exception e)
+      else
       {
-        tcs.TrySetException(e);
+        exited = true;
+        standardOutputResults.SetResult(null);
+        standardErrorResults.SetResult(null);
+
+        return Task.FromResult(new ProcessExecutionResult { ExitCode = Int32.MinValue });
       }
 
-      standardOutputTask = process.StandardOutput.ReadToEndAsync();
-      standardErrorTask = process.StandardError.ReadToEndAsync();
-      standardStreamTasksReady.Set();
-
-      // Here we take care of the maximum time to wait for the process if such was requested.
       if (maxWaitMs != INFINITE)
         Task.Delay(maxWaitMs).ContinueWith(task =>
         {
           try
           {
-            // We only kill the process if the state of tcs was not set to Faulted or
+            // Cancel the state of tcs if it was not set to Faulted or
             // RanToCompletion before.
-            if (tcs.TrySetCanceled())
+            tcs.TrySetCanceled();
+            // Always kill the process if is running.
+            if (!exited && !process.HasExited)
               process.Kill();
           }
           // ReSharper disable once EmptyGeneralCatchClause
@@ -156,6 +194,7 @@ namespace MediaPortal.Utilities.Process
           catch
           { }
         });
+
       return tcs.Task;
     }
 
@@ -416,10 +455,9 @@ namespace MediaPortal.Utilities.Process
     /// </summary>
     /// <param name="rawString">Raw string that might include the preamble (BOM).</param>
     /// <returns>String without preamble.</returns>
-    [Obsolete("This method will be removed. The functionality is contained in ImpersonationService")]
-    private static string RemoveEncodingPreamble(string rawString)
+    public static string RemoveEncodingPreamble(string rawString)
     {
-      if (!string.IsNullOrWhiteSpace(rawString) && rawString.StartsWith(CONSOLE_ENCODING_PREAMBLE))
+      if (!string.IsNullOrWhiteSpace(rawString) && rawString.StartsWith(CONSOLE_ENCODING_PREAMBLE, StringComparison.Ordinal))
         return rawString.Substring(CONSOLE_ENCODING_PREAMBLE.Length);
       return rawString;
     }

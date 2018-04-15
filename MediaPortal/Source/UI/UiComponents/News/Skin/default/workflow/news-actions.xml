@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- News workflow state actions -->
+<Workflow DescriptorVersion="1.0">
+  <MenuActions>
+    <PushNavigationTransition Id="BB49A591-7705-408F-8177-45D633FDFAD0"
+        Name="Home->News"
+        DisplayCategory="a-News"
+        SortOrder="a"
+        SourceStates="7F702D9C-F2DD-42da-9ED8-0BA92F07787F"
+        TargetState="7A8AB062-07E9-4727-B9C5-05A65CDD6F12"
+        DisplayTitle="[News.Title]"
+        HelpText="[News.Title.Help]"/>
+  </MenuActions>
+</Workflow>

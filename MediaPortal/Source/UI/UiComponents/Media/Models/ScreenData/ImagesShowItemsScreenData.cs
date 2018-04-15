@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2015 Team MediaPortal
+#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2015 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -29,7 +29,7 @@ namespace MediaPortal.UiComponents.Media.Models.ScreenData
   public class ImagesShowItemsScreenData : AbstractItemsScreenData
   {
     public ImagesShowItemsScreenData(PlayableItemCreatorDelegate playableItemCreator) :
-        base(Consts.SCREEN_IMAGE_SHOW_ITEMS, Consts.RES_SHOW_ALL_IMAGE_ITEMS_MENU_ITEM,
+        base(Consts.SCREEN_IMAGE_SHOW_ITEMS, Consts.RES_COMMON_SHOW_ALL_MENU_ITEM,
         Consts.RES_FILTER_IMAGE_ITEMS_NAVBAR_DISPLAY_LABEL, playableItemCreator, true)
     {
     }

@@ -1,7 +1,7 @@
-﻿#region Copyright (C) 2007-2015 Team MediaPortal
+﻿#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2014 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -23,7 +23,8 @@
 #endregion
 
 using System.Collections.Generic;
-using MediaPortal.Common.Services.Settings;
+using MediaPortal.Common;
+using MediaPortal.Common.Localization;
 using MediaPortal.Common.Settings;
 
 namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.Settings
@@ -42,6 +43,8 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.Settin
   /// </remarks>
   public abstract class NfoMetadataExtractorSettingsBase
   {
+    protected string _languageCulture = ServiceRegistration.Get<ILocalization>().CurrentCulture.Name;
+
     #region Ctor
 
     protected NfoMetadataExtractorSettingsBase()
@@ -73,6 +76,12 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.Settin
     /// </summary>
     [Setting(SettingScope.Global)]
     public HashSet<string> IgnoreStrings { get; set; }
+
+    /// <summary>
+    /// If <c>true</c>, no FanArt is downloaded.
+    /// </summary>
+    [Setting(SettingScope.Global, false)]
+    public bool SkipFanArtDownload { get; set; }
 
     /// <summary>
     /// Indicates whether a very detailed Nfo[...]MetadataExtractorDebug.log is created.

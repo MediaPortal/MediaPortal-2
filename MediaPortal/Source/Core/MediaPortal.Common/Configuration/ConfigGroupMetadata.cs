@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2015 Team MediaPortal
+#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2015 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -29,6 +29,6 @@ namespace MediaPortal.Common.Configuration
   /// </summary>
   public class ConfigGroupMetadata : ConfigBaseMetadata
   {
-    public ConfigGroupMetadata(string location, string text, string sort) : base(location, text, sort) { }
+    public ConfigGroupMetadata(string location, string text, string sort, string restrictionGroup) : base(location, text, sort, restrictionGroup) { }
   }
 }

@@ -1,0 +1,12 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="Diagnostics.Settings.Diagnostics">Diagnostics</string>
+    <string name="Diagnostics.Settings.Diagnostics.AllLogs">Enable DEBUG logging</string>
+    <string name="Diagnostics.Settings.Diagnostics.AllLogsHelpText">Increase logs verbosity</string>
+    <string name="Diagnostics.Settings.Image.FocusStealing">Enable logging of potential focus stealing</string>
+    <string name="Diagnostics.Settings.Image.FocusStealingHelpText">Enable logging of potential focus stealing</string>
+    <string name="Diagnostics.Settings.Collectlogs">Collect log files</string>
+    <string name="Diagnostics.Settings.CollectlogsHelpText">Executes the Log Collector which creates a zip containing all log files</string>
+    <string name="Diagnostics.Settings.ShowLogs">Show logs</string>
+    <string name="Diagnostics.Settings.ShowLogsHelpText">Show logs in a separate window</string>
+</resources>

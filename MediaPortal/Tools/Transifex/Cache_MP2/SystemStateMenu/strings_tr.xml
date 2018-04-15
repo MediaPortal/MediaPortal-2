@@ -1,0 +1,25 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<resources>
+  <string name="Settings.General.System.SystemStateDialog">Kapatma Menüsü</string>
+  <string name="Settings.General.System.SystemStateDialog.Help">Kapatma menü öğelerinin görünürlüğünü ve konumunu yapılandırma</string>
+  <string name="SystemState.Configuration.Dialog.Title">Kapatma öğelerini yapılandır</string>
+  <string name="SystemState.Title">Kapatma Menüsü</string>
+  <string name="SystemState.Hibernate">Hazırda Bekle</string>
+  <string name="SystemState.Shutdown">Kapat</string>
+  <string name="SystemState.Suspend">Askıya Al</string>
+  <string name="SystemState.Restart">Yeniden Başlat</string>
+  <string name="SystemState.Logoff">Çıkış</string>
+  <string name="SystemState.SleepTimerConfig">Uyku zamanlayıcıyı ayarla</string>
+  <string name="SystemState.SleepTimerStop">Uyku zamanlayıcıyı durdur</string>
+  <string name="SystemState.MinimizeMP">MediaPortal\'ı küçült</string>
+  <string name="SystemState.ShutdownMP">MediaPortal\'ı Kapat</string>
+  <string name="SystemState.ShutdownDialogStateDisplayLabel">Kapatma Menüsü</string>
+  <string name="SystemState.ShutdownConfigurationDialogStateDisplayLabel">Kapatma menüsü yapılandırması</string>
+  <string name="SleepTimer.Title">Uyku Zamanlayıcı</string>
+  <string name="SleepTimer.Start">Başlangıç</string>
+  <string name="SleepTimer.Stop">Dur</string>
+  <string name="SleepTimer.TimeStr">Süre:</string>
+  <string name="SleepTimer.MediaItem">Mevcut öğeden sonra</string>
+  <string name="SleepTimer.Playlist">Mevcut çalma listesinden sonra</string>
+  <string name="SleepTimer.ShutdownTextSingle">{0} bir dakikadan az bir süre içinde</string>
+</resources>

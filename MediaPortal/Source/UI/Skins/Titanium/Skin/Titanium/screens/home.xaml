@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Include
+    xmlns="www.team-mediaportal.com/2008/mpf/directx"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    Source="screens\master_homemenu.xaml"
+    >
+  <Include.Resources>
+    <!-- Header -->
+    <ResourceWrapper x:Key="Header_Text" Resource=""/>
+
+    <!-- Contents -->
+    <ControlTemplate x:Key="Contents_Template">
+    </ControlTemplate>
+
+  </Include.Resources>
+</Include>

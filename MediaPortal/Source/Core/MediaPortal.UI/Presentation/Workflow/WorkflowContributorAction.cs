@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2015 Team MediaPortal
+#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2015 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -55,7 +55,11 @@ namespace MediaPortal.UI.Presentation.Workflow
     #endregion
 
     public WorkflowContributorAction(Guid actionId, string name, IEnumerable<Guid> sourceStateIds, IResourceString displayTitle,
-        Guid contributorModelId) : base(actionId, name, sourceStateIds, displayTitle)
+        Guid contributorModelId) : this(actionId, name, sourceStateIds, displayTitle, null, contributorModelId)
+    { }
+
+    public WorkflowContributorAction(Guid actionId, string name, IEnumerable<Guid> sourceStateIds, IResourceString displayTitle, IResourceString helpText,
+        Guid contributorModelId) : base(actionId, name, sourceStateIds, displayTitle, helpText)
     {
       _modelItemStateTracker = new DefaultItemStateTracker("WorkflowContributorAction: Usage of workflow action contributor model")
         {

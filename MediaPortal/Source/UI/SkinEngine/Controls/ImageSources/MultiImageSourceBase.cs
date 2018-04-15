@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2015 Team MediaPortal
+#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2015 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -310,6 +310,18 @@ namespace MediaPortal.UI.SkinEngine.Controls.ImageSources
     {
       base.OnEffectChanged(prop, oldValue);
       _lastImageContext.ShaderEffect = Effect;
+    }
+
+    protected override void OnHorizontalTextureAlignmentChanged(AbstractProperty property, object oldValue)
+    {
+      base.OnHorizontalTextureAlignmentChanged(property, oldValue);
+      _lastImageContext.HorizontalTextureAlignment = HorizontalTextureAlignment;
+    }
+
+    protected override void OnVerticalTextureAlignmentChanged(AbstractProperty property, object oldValue)
+    {
+      base.OnVerticalTextureAlignmentChanged(property, oldValue);
+      _lastImageContext.VerticalTextureAlignment = VerticalTextureAlignment;
     }
 
     protected override void FreeData()

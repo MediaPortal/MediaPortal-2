@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2015 Team MediaPortal
+#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2015 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -312,6 +312,9 @@ namespace MediaPortal.Common.Services.MediaManagement
       Task.WhenAll(jobsToBeCancelled.Select(controller => controller.Completion)).Wait();
       foreach (var controller in jobsToBeCancelled)
         controller.Dispose();
+
+      //Set updated media items to changed
+      _mediaBrowsing.MarkUpdatableMediaItems();
 
       var importJobController = new ImportJobController(new ImportJobNewGen(importJobInformation, null), Interlocked.Increment(ref _numberOfLastImportJob), this);
       _importJobControllers[importJobInformation] = importJobController;

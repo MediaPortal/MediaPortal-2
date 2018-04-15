@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2015 Team MediaPortal
+#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2015 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -22,6 +22,7 @@
 
 #endregion
 
+using System.Collections.Generic;
 using DirectShow;
 using MediaPortal.Common;
 using MediaPortal.Common.Localization;
@@ -40,7 +41,14 @@ namespace MediaPortal.UI.Players.Video.Settings
   {
     public static CodecInfo DEFAULT_AUDIO_CODEC = new CodecInfo("LAV Audio Decoder", new DsGuid("e8e73b6b-4cb3-44a4-be99-4f7bcb96e491"));
     public static CodecInfo DEFAULT_VIDEO_CODEC = new CodecInfo("LAV Video Decoder", new DsGuid("ee30215d-164f-4a92-a4eb-9d4c13390f9f"));
+    public static CodecInfo DEFAULT_SPLITTER = new CodecInfo("LAV Splitter", new DsGuid("171252a0-8820-4afe-9df8-5c92b2d66b04"));
     public static CodecInfo DEFAULT_AUDIO_RENDERER = new CodecInfo("Default DirectSound Device", DsGuid.Empty);
+
+    public static CodecInfo MPEG_AUDIO_DECODER = new CodecInfo("MPEG Audio Decoder", new DsGuid("{4A2286E0-7BEF-11CE-9BD9-0000E202599C}"));
+    /// <summary>
+    /// Contains a list of codecs that will be set to "Disabled" for automatic graph building. This is only a per process setting.
+    /// </summary>
+    public static List<CodecInfo> DEFAULT_DISABLED_CODECS = new List<CodecInfo> { MPEG_AUDIO_DECODER };
 
     #region Private variables
 
@@ -56,6 +64,8 @@ namespace MediaPortal.UI.Players.Video.Settings
     private CodecInfo _hevcCodec = null;
     private CodecInfo _divXCodec = null;
     private CodecInfo _mpeg2Codec = null;
+    private CodecInfo _splitter = null;
+    private List<CodecInfo> _disabledCodecs = null;
 
     #endregion
 
@@ -70,6 +80,19 @@ namespace MediaPortal.UI.Players.Video.Settings
     /// </summary>
     [Setting(SettingScope.User, "")]
     public string Geometry { get; set; }
+
+    /// <summary>
+    /// Gets or Sets a list of codecs to disable. If user didn't select a codec, this value will return <see cref="DEFAULT_DISABLED_CODECS"/>.
+    /// <remarks>
+    /// Without default preferred codecs, the DirectShow graph will use intelligent connect.
+    /// </remarks>
+    /// </summary>
+    [Setting(SettingScope.User)]
+    public List<CodecInfo> DisabledCodecs
+    {
+      get { return _disabledCodecs ?? DEFAULT_DISABLED_CODECS; }
+      set { _disabledCodecs = value; }
+    }
 
     /// <summary>
     /// Gets or Sets the preferred audio codec. If user didn't select a codec, this value will return <see cref="DEFAULT_AUDIO_CODEC"/>.
@@ -137,6 +160,19 @@ namespace MediaPortal.UI.Players.Video.Settings
     }
 
     /// <summary>
+    /// Gets or sets the preferred splitter. If user didn't select a codec, this value will return <see cref="DEFAULT_SPLITTER"/>.
+    /// <remarks>
+    /// Without default preferred codecs, the DirectShow graph will use intelligent connect.
+    /// </remarks>
+    /// </summary>
+    [Setting(SettingScope.User)]
+    public CodecInfo Splitter
+    {
+      get { return _splitter ?? DEFAULT_SPLITTER; }
+      set { _splitter = value; }
+    }
+
+    /// <summary>
     /// Gets or Sets the preferred AVC codec. If user didn't select a codec, this value will return <see cref="DEFAULT_VIDEO_CODEC"/>.
     /// <remarks>
     /// Without default preferred codecs, the DirectShow graph will use intelligent connect.
@@ -150,19 +186,6 @@ namespace MediaPortal.UI.Players.Video.Settings
     }
 
     /// <summary>
-    /// Gets or sets the preferred HEVC (H265) codec. If user didn't select a codec, this value will return <see cref="DEFAULT_VIDEO_CODEC"/>.
-    /// <remarks>
-    /// Without default preferred codecs, the DirectShow graph will use intelligent connect.
-    /// </remarks>
-    /// </summary>
-    [Setting(SettingScope.User)]
-    public CodecInfo HEVCCodec
-    {
-      get { return _hevcCodec ?? DEFAULT_VIDEO_CODEC; }
-      set { _hevcCodec = value; }
-    }
-
-    /// <summary>
     /// Gets or sets the preferred DivX codec. If user didn't select a codec, this value will return <see cref="DEFAULT_VIDEO_CODEC"/>.
     /// <remarks>
     /// Without default preferred codecs, the DirectShow graph will use intelligent connect.
@@ -173,6 +196,19 @@ namespace MediaPortal.UI.Players.Video.Settings
     {
       get { return _divXCodec ?? DEFAULT_VIDEO_CODEC; }
       set { _divXCodec = value; }
+    }
+
+    /// <summary>
+    /// Gets or sets the preferred HEVC (H265) codec. If user didn't select a codec, this value will return <see cref="DEFAULT_VIDEO_CODEC"/>.
+    /// <remarks>
+    /// Without default preferred codecs, the DirectShow graph will use intelligent connect.
+    /// </remarks>
+    /// </summary>
+    [Setting(SettingScope.User)]
+    public CodecInfo HEVCCodec
+    {
+      get { return _hevcCodec ?? DEFAULT_VIDEO_CODEC; }
+      set { _hevcCodec = value; }
     }
 
     /// <summary>

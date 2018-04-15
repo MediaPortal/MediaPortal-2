@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2015 Team MediaPortal
+#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2015 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -75,21 +75,21 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       Attach();
     }
 
-    protected void Init()
+    void Init()
     {
       _autoCenteringProperty = new SProperty(typeof(ScrollAutoCenteringEnum), ScrollAutoCenteringEnum.None);
       _horizontalFitToSpaceProperty = new SProperty(typeof(bool), false);
       _verticalFitToSpaceProperty = new SProperty(typeof(bool), false);
     }
 
-    protected void Attach()
+    void Attach()
     {
       _autoCenteringProperty.Attach(OnArrangeGetsInvalid);
       _horizontalFitToSpaceProperty.Attach(OnScrollDisabledChanged);
       _verticalFitToSpaceProperty.Attach(OnScrollDisabledChanged);
     }
 
-    protected void Detach()
+    void Detach()
     {
       _autoCenteringProperty.Detach(OnArrangeGetsInvalid);
       _horizontalFitToSpaceProperty.Detach(OnScrollDisabledChanged);
@@ -123,7 +123,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       if (dlgt != null) dlgt(this);
     }
 
-    public void SetScrollOffset(float scrollOffsetX, float scrollOffsetY)
+    public virtual void SetScrollOffset(float scrollOffsetX, float scrollOffsetY)
     {
       if (_scrollOffsetX == scrollOffsetX && _scrollOffsetY == scrollOffsetY)
         return;
@@ -162,7 +162,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
           differenceX = CalculateVisibleScrollDifference(elementBounds.X, elementBounds.Width, ActualPosition.X, ActualWidth);
 
         if (IsVertCentering)
-          differenceY = CalculateCenteredScrollPos(elementBounds.Y, elementBounds.Height, ActualPosition.Y, ActualHeight) - _actualScrollOffsetY;
+          differenceY = CalculateCenteredScrollPos(elementBounds.Y, elementBounds.Height, ActualPosition.Y, ActualHeight);
         else if (_doScroll)
           differenceY = CalculateVisibleScrollDifference(elementBounds.Y, elementBounds.Height, ActualPosition.Y, ActualHeight);
 
@@ -292,7 +292,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     {
       base.SaveUIState(state, prefix);
       state[prefix + "/ScrollOffsetX"] = _scrollOffsetX;
-      state[prefix + "/ScrollOffsetY"] = _scrollOffsetX;
+      state[prefix + "/ScrollOffsetY"] = _scrollOffsetY;
     }
 
     public override void RestoreUIState(IDictionary<string, object> state, string prefix)

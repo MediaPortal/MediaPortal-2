@@ -1,0 +1,44 @@
+<Plugin
+    DescriptorVersion="1.0"
+    Name="UPnP Renderer"
+    PluginId="6E9B1302-9B93-4059-A53B-33A6B6A515BF"
+    Author="FreakyJ"
+    Copyright="GPL"
+    AutoActivate="true"
+    Description="UPnP Renderer">
+
+  <Version
+   PluginVersion="0.1"
+   ReleaseDate="2015-08-26 01:00:00 GMT+01:00"
+   CurrentAPI="1"/>
+
+  <DependsOn>
+    <CoreDependency Name="MediaPortal.Common" CompatibleAPI="2" />
+    <CoreDependency Name="MediaPortal.UI" CompatibleAPI="2" />
+
+    <PluginReference PluginId="{1AFF4467-64B0-4ca1-AF28-9AEDF3525BCE}" CompatibleAPI="1"/>
+    <!-- ConfigurationManager -->
+    <PluginReference PluginId="{B765A4B6-F455-4941-BDAE-2CE45208BFEB}" CompatibleAPI="1"/>
+    <!-- Configuration plugin -->
+    <PluginReference PluginId="{D87D92F0-5E71-470a-A2A4-430F90A28BF3}" CompatibleAPI="1"/>
+    <!-- SkinEngine -->
+    <PluginReference PluginId="{A965AFE5-44F9-46e0-980E-40BBE17F25CA}" CompatibleAPI="1"/>
+    <!-- VideoPlayers -->
+    <PluginReference PluginId="{15FB35F7-8C85-4404-BC67-BFF28446158A}" CompatibleAPI="2"/>
+    <!-- Media -->
+  </DependsOn>
+
+  <Runtime>
+    <Assembly FileName="UPnPRenderer.dll"/>
+    <PluginStateTracker ClassName="MediaPortal.UPnPRenderer.UPnP.UPnPRendererPlugin"/>
+  </Runtime>
+
+  <Register Location="/Players/Builders">
+    <PlayerBuilder Id="1BC2FC01-60EA-459C-9F91-65A2050A078F" ClassName="MediaPortal.UPnPRenderer.Players.UPnPRendererPlayerBuilder"/>
+  </Register>
+
+  <Register Location="/VideoPlayers/MimeTypeRegistrations">
+    <VideoPlayerMimeTypeMapping Id="447D629E-278C-4D30-B272-151DBFA10361" ClassName="MediaPortal.UPnPRenderer.Players.UPnPRendererVideoPlayer" MimeType="upnpvideo/upnprenderer"/>
+    <VideoPlayerMimeTypeMapping Id="BE9E8B7F-09A6-4B89-8B08-C9D41DD2838F" ClassName="MediaPortal.UPnPRenderer.Players.UPnPRendererAudioPlayer" MimeType="upnpaudio/upnprenderer"/>
+  </Register>
+</Plugin>

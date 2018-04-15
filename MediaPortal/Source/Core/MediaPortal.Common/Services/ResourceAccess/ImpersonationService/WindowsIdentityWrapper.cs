@@ -1,7 +1,7 @@
-﻿#region Copyright (C) 2007-2014 Team MediaPortal
+﻿#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2014 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -152,7 +152,7 @@ namespace MediaPortal.Common.Services.ResourceAccess.ImpersonationService
     {
       WindowsImpersonationContext ctx = null;
       if(Interlocked.Increment(ref _usageCount) > 0)
-        ctx = _identity.Impersonate();
+        ctx = WindowsIdentity.Impersonate(_identity.Token);
       return new WindowsImpersonationContextWrapper(ctx, DecrementUsageCount);
     }
 

@@ -1,2 +1,4 @@
 <?xml version='1.0' encoding='UTF-8'?>
-<resources/>
+<resources>
+  <string name="VEC.Enable">Aktifkan seleksi efek video auto</string>
+</resources>

@@ -8,6 +8,10 @@
   <string name="Settings.Players.Codecs.VideoCodecs.MPEG4.Help">Подеси кодек за MPEG4 видео (H.264, x264)</string>
   <string name="Settings.Players.Codecs.VideoCodecs.AVC">AVC видео кодек</string>
   <string name="Settings.Players.Codecs.VideoCodecs.AVC.Help">Подеси кодек за AVC видео (HDTV, BluRay)</string>
+  <string name="Settings.Players.Codecs.VideoCodecs.HEVC">HEVC видео кодек</string>
+  <string name="Settings.Players.Codecs.VideoCodecs.HEVC.Help">Подеси коришћење кодека за HEVC видео (HD, UHD)</string>
+  <string name="Settings.Players.Codecs.VideoCodecs.Splitter">Делиоц</string>
+  <string name="Settings.Players.Codecs.VideoCodecs.Splitter.Help">Подеси делилац</string>
   <string name="Settings.Players.Codecs.AudioCodecs">Аудио кодеци</string>
   <string name="Settings.Players.Codecs.AudioRenderer">Аудио рендерер</string>
   <string name="Settings.Players.Codecs.AudioCodecs.AudioCodec">MPEG1/2 Аудио кодек</string>

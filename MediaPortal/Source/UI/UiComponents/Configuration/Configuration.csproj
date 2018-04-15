@@ -10,7 +10,7 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>MediaPortal.UiComponents.Configuration</RootNamespace>
     <AssemblyName>Configuration</AssemblyName>
-    <TargetFrameworkVersion>v4.5.1</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.7</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <FileUpgradeFlags>
     </FileUpgradeFlags>
@@ -46,6 +46,7 @@
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Data" />
+    <Reference Include="System.Drawing" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="..\..\..\Core\MediaPortal.Common\VersionInfo\VersionInfo.cs">
@@ -54,6 +55,7 @@
     <Compile Include="ConfigurationControllers\AbstractEntryController.cs" />
     <Compile Include="ConfigurationControllers\MultipleEntryListController.cs" />
     <Compile Include="ConfigurationControllers\PathSelectionController.cs" />
+    <Compile Include="ConfigurationControllers\SingleSelectionColoredListController.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -105,6 +107,11 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Skin\default\screens\dialog_configuration_multipleentrylist.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\default\screens\dialog_configuration_coloredsingleselectionlist.xaml">
       <SubType>Designer</SubType>
     </Content>
   </ItemGroup>

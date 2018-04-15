@@ -6,12 +6,11 @@
   <string name="Media.AudioMenuItem">دەنگ</string>
   <string name="Media.VideosMenuItem">ڤیدیۆ</string>
   <string name="Media.ImagesMenuItem">وێنە</string>
-  <!--Filter titles-->
+  <!--General strings used in filter/sort/group menus-->
+  <string name="Media.GenreMenuItem">جۆر</string>
+  <string name="Media.EpisodeMenuItem">زنجیرە</string>
   <string name="Media.SimpleSearchFilterMenuItem">گەڕان</string>
-  <string name="Media.ShowAllAudioItemsMenuItem">پیشاندانی هەمووی</string>
-  <string name="Media.ShowAllVideoItemsMenuItem">پیشاندانی هەمووی</string>
-  <string name="Media.ShowAllImageItemsMenuItem">پیشاندانی هەمووی</string>
-  <string name="Media.ShowAllMoviesMenuItem">پیشاندانی هەمووی</string>
+  <!--Filter titles-->
   <!--Special filters names-->
   <string name="Media.ImageFilterSmall">بچووک</string>
   <string name="Media.ImageFilterMedium">مامناوەند</string>
@@ -32,13 +31,15 @@
   <string name="Media.BrowseMediaNavigationRootWorkflowNavigationContextDisplayLabel">کردنەوەی فایل</string>
   <string name="Media.LocalMediaNavigationRootWorkflowNavigationContextDisplayLabel">فایلی ناوەکی</string>
   <!--Screen headers-->
-  <string name="Media.VideoItemsHeader">ڤیدیۆ</string>
-  <string name="Media.ImageItemsHeader">وێنە</string>
+  <string name="Media.ChooseImageHeader">وێنە</string>
+  <string name="Media.ChooseVideoHeader">ڤیدیۆ</string>
+  <!--View occupation names-->
   <!--View names (names for the view instances)-->
   <string name="Media.BrowseMediaRootViewName">کردنەوەی فایل</string>
   <string name="Media.LocalMediaRootViewName">فایلی ناوەکی</string>
   <string name="Media.AudioRootViewName">دەنگ</string>
   <string name="Media.VideosRootViewName">ڤیدیۆ</string>
+  <string name="Media.EpisodeRootViewName">زنجیرە</string>
   <string name="Media.ImagesRootViewName">وێنە</string>
   <!--General strings used in views-->
   <!--Shown in the header of an items list-->
@@ -54,10 +55,14 @@
   <!--Player context names-->
   <string name="Media.AudioContextName">دەنگ</string>
   <!--Video currently playing-->
+  <!--Person currently playing-->
   <!--Series currently playing-->
   <!--Image currently playing-->
   <!--DVD currently playing-->
   <!--Audio currently playing-->
   <!--VideoPlayerUIContributor-->
   <!--Video Player time units-->
+  <!--Secondary filters-->
+  <string name="Filter.RemoteNumericAlphabet0"></string>
+  <string name="Filter.RemoteNumericAlphabet1"></string>
 </resources>
