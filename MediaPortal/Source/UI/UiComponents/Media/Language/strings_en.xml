@@ -295,8 +295,8 @@
 
   <!-- MediaItemAction dialog-->
   <string name="Media.MediaItemsActionDialogHeader">Media item actions</string>
-  <string name="Media.SetWatched">Set watched</string>
-  <string name="Media.SetUnwatched">Set unwatched</string>
+  <string name="Media.SetPlayed">Set played</string>
+  <string name="Media.SetUnplayed">Set unplayed</string>
   <string name="Media.Refresh">Refresh</string>
   <string name="Media.Reimport">Reimport</string>
   <string name="Media.DeleteFromStorage">Delete from storage</string>

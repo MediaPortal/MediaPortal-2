@@ -61,6 +61,7 @@ namespace MediaPortal.Plugins.SlimTv.Service
     public static readonly MediaCategory Movie = new MediaCategory("Movie", null);
 
     protected const int MAX_WAIT_MS = 10000;
+    protected const int MAX_INIT_MS = 10000;
     public const string LOCAL_USERNAME = "Local";
     public const string TVDB_NAME = "MP2TVE";
     protected DbProviderFactory _dbProviderFactory;
@@ -86,8 +87,6 @@ namespace MediaPortal.Plugins.SlimTv.Service
 
     public bool Init()
     {
-      Task.Delay(MAX_WAIT_MS).ContinueWith((t) => _initComplete.TrySetResult(false));
-
       ServiceRegistration.Get<IMessageBroker>().RegisterMessageReceiver(SystemMessaging.CHANNEL, this);
 
       _settingWatcher = new SettingsChangeWatcher<SlimTvGenreColorSettings>();
@@ -117,6 +116,7 @@ namespace MediaPortal.Plugins.SlimTv.Service
     private void InitAsync()
     {
       ServiceRegistration.Get<ILogger>().Info("SlimTvService: Initialising");
+      Task.Delay(MAX_INIT_MS).ContinueWith((t) => _initComplete.TrySetResult(false));
 
       ISQLDatabase database = ServiceRegistration.Get<ISQLDatabase>(false);
       if (database == null)

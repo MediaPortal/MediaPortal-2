@@ -27,7 +27,7 @@
     <Compile Include="Bundle.wxs" />
     <Compile Include="Fragments\DirectX9.wxs" />
     <Compile Include="Fragments\Dokan.wxs" />
-    <Compile Include="Fragments\NetFx47Web.wxs" />
+    <Compile Include="Fragments\NetFx471Web.wxs" />
     <Compile Include="Fragments\VCRedists.wxs" />
   </ItemGroup>
   <ItemGroup>

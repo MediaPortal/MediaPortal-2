@@ -18,7 +18,7 @@
 
     <Chain>
 
-      <PackageGroupRef Id="NetFx47Web"/>
+      <PackageGroupRef Id="NetFx471Web"/>
       <PackageGroupRef Id="redist"/>
       <PackageGroupRef Id="directx9"/>
       <PackageGroupRef Id="dokan"/>
