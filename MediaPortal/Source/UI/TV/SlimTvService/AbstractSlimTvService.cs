@@ -225,9 +225,11 @@ namespace MediaPortal.Plugins.SlimTv.Service
 
       //Convert to IProgram
       IProgram prog = tvProgram.ToProgram(includeRecordingStatus);
+      if (prog == null)
+        return null;
 
       //Map genre color if possible
-      if (_tvGenres.Count > 0 && !string.IsNullOrEmpty(prog?.Genre))
+      if (_tvGenres.Count > 0 && !string.IsNullOrEmpty(prog.Genre))
       {
         var genre = _tvGenres.FirstOrDefault(g => g.Value.Any(e => prog.Genre.Equals(e, StringComparison.InvariantCultureIgnoreCase)));
         if (genre.Key != EpgGenre.Unknown)
