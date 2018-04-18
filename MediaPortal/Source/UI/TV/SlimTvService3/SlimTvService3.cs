@@ -50,6 +50,8 @@ using TvLibrary.Interfaces;
 using TvLibrary.Interfaces.Integration;
 using TvService;
 using IChannel = MediaPortal.Plugins.SlimTv.Interfaces.Items.IChannel;
+using ILogger = MediaPortal.Common.Logging.ILogger;
+using IPathManager = MediaPortal.Common.PathManager.IPathManager;
 using ScheduleRecordingType = MediaPortal.Plugins.SlimTv.Interfaces.ScheduleRecordingType;
 
 namespace MediaPortal.Plugins.SlimTv.Service
