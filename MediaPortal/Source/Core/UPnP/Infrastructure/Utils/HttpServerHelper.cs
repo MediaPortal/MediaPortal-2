@@ -37,7 +37,7 @@ namespace UPnP.Infrastructure.Utils
     /// parsed by calling <see cref="IPAddress.Parse"/>.</returns>
     public static string GetRemoteAddress(IOwinRequest request)
     {
-      return request.Headers["remote_addr"];
+      return request.RemoteIpAddress;
     }
   }
 }
