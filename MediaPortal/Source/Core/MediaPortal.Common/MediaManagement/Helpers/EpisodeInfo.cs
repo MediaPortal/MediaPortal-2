@@ -324,6 +324,7 @@ namespace MediaPortal.Common.MediaManagement.Helpers
       if (!force && !IsBaseInfoPresent)
         return false;
 
+      AssignNameId();
       SetMetadataChanged(aspectData);
       EpisodeName.Text = CleanString(EpisodeName.Text);
 

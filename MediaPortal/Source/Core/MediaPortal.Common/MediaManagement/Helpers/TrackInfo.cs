@@ -290,6 +290,7 @@ namespace MediaPortal.Common.MediaManagement.Helpers
       if (!force && !IsBaseInfoPresent)
         return false;
 
+      AssignNameId();
       SetMetadataChanged(aspectData);
 
       MediaItemAspect.SetAttribute(aspectData, MediaAspect.ATTR_TITLE, ToString());
