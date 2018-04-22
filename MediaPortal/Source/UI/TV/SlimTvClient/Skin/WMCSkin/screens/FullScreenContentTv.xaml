@@ -63,7 +63,7 @@
       </StackPanel>
     </Grid>
 
-    <Grid x:Name="TimeGrid" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,20,30,0" 
+    <!--Grid x:Name="TimeGrid" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,20,30,0" 
           Height="105" IsVisible="{Binding IsOSDVisible}">
       <Grid.Resources>
         <Model x:Key="TimeModel" Id="E821B1C8-0666-4339-8027-AA45A4F6F107"/>
@@ -78,7 +78,7 @@
           </MultiBinding>
         </Image.Width>
       </Image>
-    </Grid>
+    </Grid-->
 
     <!-- Mouse control buttons -->
     <Grid x:Name="MouseButtonsPanel" Grid.Column="0" Grid.Row="0" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,0,5,0">
