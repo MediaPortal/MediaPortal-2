@@ -34,7 +34,7 @@ namespace MediaPortal.UiComponents.Media.Models.ScreenData
   {
     public MovieFilterByGenreScreenData() :
         base(Consts.SCREEN_MOVIES_FILTER_BY_GENRE, Consts.RES_COMMON_BY_GENRE_MENU_ITEM,
-        Consts.RES_FILTER_VIDEO_GENRE_NAVBAR_DISPLAY_LABEL, new FilterByGenreCriterion(Consts.NECESSARY_MOVIE_GENRE_MIAS, GenreCategory.Movie))
+        Consts.RES_FILTER_VIDEO_GENRE_NAVBAR_DISPLAY_LABEL, new FilterByGenreCriterion(Consts.NECESSARY_MOVIES_MIAS, GenreCategory.Movie))
     {
       _availableMias = Consts.NECESSARY_MOVIES_MIAS;
       if (Consts.OPTIONAL_MOVIES_MIAS != null)
