@@ -24,6 +24,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using MediaPortal.Common;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.UI.Presentation.Geometries;
@@ -473,6 +474,30 @@ namespace MediaPortal.UI.Services.Players
         return;
 
       player.CurrentTime = player.Duration;
+    }
+
+    public bool PreviousChapter()
+    {
+      IChapterPlayer player = GetCurrentPlayer() as IChapterPlayer;
+      if (player == null || !player.ChaptersAvailable)
+        return false;
+      // Can skip to previous only if current chapter is not the first
+      if (player.CurrentChapter == player.Chapters.First())
+        return false;
+      player.PrevChapter();
+      return true;
+    }
+
+    public bool NextChapter()
+    {
+      IChapterPlayer player = GetCurrentPlayer() as IChapterPlayer;
+      if (player == null || !player.ChaptersAvailable)
+        return false;
+      // Can skip to next only if current chapter is not the last
+      if (player.CurrentChapter == player.Chapters.Last())
+        return false;
+      player.NextChapter();
+      return true;
     }
 
     public bool PreviousItem()
