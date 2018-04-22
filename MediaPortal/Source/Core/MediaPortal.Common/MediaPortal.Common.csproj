@@ -73,6 +73,7 @@
     <Compile Include="FanArt\LocalFanartHelper.cs" />
     <Compile Include="FanArt\IFanArtCache.cs" />
     <Compile Include="Logging\ILoggerConfig.cs" />
+    <Compile Include="MediaManagement\DefaultItemAspects\ReimportAspect.cs" />
     <Compile Include="MediaManagement\DefaultItemAspects\StubAspect.cs" />
     <Compile Include="MediaManagement\DefaultItemAspects\GenreAspect.cs" />
     <Compile Include="MediaManagement\DefaultItemAspects\SelectionMarkerAspect.cs" />

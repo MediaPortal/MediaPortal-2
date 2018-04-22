@@ -26,6 +26,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using MediaPortal.Common;
 using MediaPortal.Common.General;
@@ -34,9 +35,12 @@ using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Common.MediaManagement.Helpers;
 using MediaPortal.Common.Messaging;
+using MediaPortal.Common.ResourceAccess;
+using MediaPortal.Common.SystemCommunication;
 using MediaPortal.Extensions.OnlineLibraries;
 using MediaPortal.UI.Presentation.DataObjects;
 using MediaPortal.UI.Presentation.Screens;
+using MediaPortal.UI.ServerCommunication;
 
 namespace MediaPortal.UiComponents.Media.Models
 {
@@ -72,10 +76,17 @@ namespace MediaPortal.UiComponents.Media.Models
     protected AbstractProperty _manualIdProperty;
     protected AsynchronousMessageQueue _messageQueue = null;
 
+    protected List<Regex> _episodeRegEx = new List<Regex>
+    {
+      new Regex(@"(?<series>[^\\]+)\WS(?<seasonnum>\d+)[\s|\.|\-|_]{0,1}E((?<episodenum>\d+)[\-_]?)+", RegexOptions.IgnoreCase),
+      new Regex(@"(?<series>[^\\]+)\WS(?<seasonnum>\d+)[\s|\.|\-|_]{0,1}E((?<episodenum>\d+)[\-_]?)+E(?<endepisodenum>\d+)+", RegexOptions.IgnoreCase),
+    };
+    protected Regex _titleYearRegEx = new Regex(@"(?<title>[^\\|\/]+?)\s*[\[\(]?(?<year>(19|20)\d{2})", RegexOptions.IgnoreCase);
+
     protected TaskCompletionSource<IEnumerable<MediaItemAspect>> _selectionComplete = null;
     protected IEnumerable<MediaItemAspect> _matchedAspects = null;
     protected readonly IEnumerable<Guid> _wantedAspects = new Guid[] { ExternalIdentifierAspect.ASPECT_ID, MediaAspect.ASPECT_ID, MovieAspect.ASPECT_ID,
-      SeriesAspect.ASPECT_ID, EpisodeAspect.ASPECT_ID, AudioAlbumAspect.ASPECT_ID, AudioAspect.ASPECT_ID, VideoAspect.ASPECT_ID };
+      SeriesAspect.ASPECT_ID, EpisodeAspect.ASPECT_ID, AudioAlbumAspect.ASPECT_ID, AudioAspect.ASPECT_ID, VideoAspect.ASPECT_ID, ReimportAspect.ASPECT_ID };
 
     #endregion
 
@@ -200,9 +211,8 @@ namespace MediaPortal.UiComponents.Media.Models
       if (mediaItem.IsStub)
         return false;
 
-      if (mediaItem.Aspects.ContainsKey(MovieAspect.ASPECT_ID) || mediaItem.Aspects.ContainsKey(AudioAlbumAspect.ASPECT_ID) ||
-        mediaItem.Aspects.ContainsKey(AudioAspect.ASPECT_ID) || mediaItem.Aspects.ContainsKey(SeriesAspect.ASPECT_ID) ||
-        mediaItem.Aspects.ContainsKey(EpisodeAspect.ASPECT_ID))
+      if (mediaItem.Aspects.ContainsKey(VideoAspect.ASPECT_ID) || mediaItem.Aspects.ContainsKey(AudioAlbumAspect.ASPECT_ID) ||
+        mediaItem.Aspects.ContainsKey(AudioAspect.ASPECT_ID) || mediaItem.Aspects.ContainsKey(SeriesAspect.ASPECT_ID))
         return true;
 
       return false;
@@ -217,6 +227,7 @@ namespace MediaPortal.UiComponents.Media.Models
         return;
       }
 
+      _searchItem = null;
       if (mediaItem.Aspects.ContainsKey(MovieAspect.ASPECT_ID))
       {
         MovieInfo info = new MovieInfo();
@@ -246,6 +257,42 @@ namespace MediaPortal.UiComponents.Media.Models
         SeriesInfo info = new SeriesInfo();
         info.FromMetadata(mediaItem.Aspects);
         _searchItem = info;
+      }
+      else if (mediaItem.Aspects.ContainsKey(VideoAspect.ASPECT_ID))
+      {
+        IServerConnectionManager scm = ServiceRegistration.Get<IServerConnectionManager>();
+        IContentDirectory cd = scm?.ContentDirectory;
+        var shares = await cd?.GetSharesAsync(null, SharesFilter.All);
+        IList<MultipleMediaItemAspect> providerResourceAspects;
+        if (shares != null && MediaItemAspect.TryGetAspects(mediaItem.Aspects, ProviderResourceAspect.Metadata, out providerResourceAspects))
+        {
+          var pra = providerResourceAspects.FirstOrDefault(p => p.GetAttributeValue<int>(ProviderResourceAspect.ATTR_TYPE) == ProviderResourceAspect.TYPE_PRIMARY);
+          if (pra != null)
+          {
+            var resPath = ResourcePath.Deserialize(pra.GetAttributeValue<string>(ProviderResourceAspect.ATTR_RESOURCE_ACCESSOR_PATH));
+            var share = shares.FirstOrDefault(s => s.BaseResourcePath.IsSameOrParentOf(resPath));
+            if (share?.MediaCategories?.Contains("Movie") ?? false)
+            {
+              MovieInfo info = new MovieInfo();
+              info.FromMetadata(mediaItem.Aspects);
+              _searchItem = info;
+              ServiceRegistration.Get<ILogger>().Info("MediaItemMatchModel: Found video item '{0}' to be a movie", resPath);
+            }
+            else if (share?.MediaCategories?.Contains("Series") ?? false)
+            {
+              EpisodeInfo info = new EpisodeInfo();
+              info.FromMetadata(mediaItem.Aspects);
+              _searchItem = info;
+              ServiceRegistration.Get<ILogger>().Info("MediaItemMatchModel: Found video item '{0}' to be a series episode", resPath);
+            }
+          }
+        }
+      }
+      if(_searchItem == null)
+      {
+        ServiceRegistration.Get<ILogger>().Error("Error reimporting media item '{0}'. No valid aspects found.", mediaItem.MediaItemId);
+        _selectionComplete.SetResult(null);
+        return;
       }
       _isVirtual = mediaItem.IsVirtual;
 
@@ -281,7 +328,19 @@ namespace MediaPortal.UiComponents.Media.Models
             else if (int.TryParse(ManualId, out int movieDbId))
               movieSearchinfo.MovieDbId = movieDbId;
             else //Fallabck to name search
-              movieSearchinfo.MovieName = ManualId;
+            {
+              var match = _titleYearRegEx.Match(ManualId);
+              if (match.Success)
+              {
+                movieSearchinfo.MovieName = match.Groups["title"].Value;
+                if (int.TryParse(match.Groups["year"].Value, out int year))
+                  movieSearchinfo.ReleaseDate = new DateTime(year, 1, 1);
+              }
+              else
+              {
+                movieSearchinfo.MovieName = ManualId;
+              }
+            }
           }
           else if (_searchItem is EpisodeInfo episode)
           {
@@ -293,7 +352,53 @@ namespace MediaPortal.UiComponents.Media.Models
             else if (int.TryParse(ManualId, out int tvDbSeriesId))
               episodeSearchinfo.SeriesTvdbId = tvDbSeriesId;
             else //Fallabck to name search
-              episodeSearchinfo.SeriesName = ManualId;
+            {
+              var match = _episodeRegEx.FirstOrDefault(r => r.IsMatch(ManualId))?.Match(ManualId);
+              if (match?.Success == true)
+              {
+                episodeSearchinfo.SeriesName = match.Groups["series"].Value;
+                if (int.TryParse(match.Groups["seasonnum"].Value, out int season))
+                  episodeSearchinfo.SeasonNumber = season;
+                var group = match.Groups["episodenum"];
+                if (group.Length > 0)
+                {
+                  episodeSearchinfo.EpisodeNumbers.Clear();
+                  if (group.Captures.Count > 1)
+                  {
+                    foreach (Capture capture in group.Captures)
+                    {
+                      if (int.TryParse(capture.Value, out int episodeNum))
+                        episodeSearchinfo.EpisodeNumbers.Add(episodeNum);
+                    }
+                  }
+                  else if (match.Groups["endepisodenum"].Length > 0)
+                  {
+                    int start;
+                    if (int.TryParse(group.Value, out start))
+                    {
+                      group = match.Groups["endepisodenum"];
+                      if (group.Length > 0 && int.TryParse(group.Value, out int end))
+                      {
+                        for (int e = start; e <= end; e++)
+                          episodeSearchinfo.EpisodeNumbers.Add(e);
+                      }
+                    }
+                  }
+                  else
+                  {
+                    foreach (Capture capture in group.Captures)
+                    {
+                      if (int.TryParse(capture.Value, out int episodeNum))
+                        episodeSearchinfo.EpisodeNumbers.Add(episodeNum);
+                    }
+                  }
+                }
+                else
+                {
+                  episodeSearchinfo.SeriesName = ManualId;
+                }
+              }
+            }
           }
           else if (_searchItem is TrackInfo track)
           {
@@ -313,7 +418,19 @@ namespace MediaPortal.UiComponents.Media.Models
             else if (int.TryParse(ManualId, out int tvDbSeriesId))
               seriesSearchinfo.TvdbId = tvDbSeriesId;
             else //Fallabck to name search
-              seriesSearchinfo.SeriesName = ManualId;
+            {
+              var match = _titleYearRegEx.Match(ManualId);
+              if (match.Success)
+              {
+                seriesSearchinfo.SeriesName = match.Groups["title"].Value;
+                if (int.TryParse(match.Groups["year"].Value, out int year))
+                  seriesSearchinfo.FirstAired = new DateTime(year, 1, 1);
+              }
+              else
+              {
+                seriesSearchinfo.SeriesName = ManualId;
+              }
+            }
           }
           else if (_searchItem is AlbumInfo album)
           {
@@ -323,7 +440,19 @@ namespace MediaPortal.UiComponents.Media.Models
             else if (int.TryParse(ManualId, out int audioDbId))
               albumSearchinfo.AudioDbId = audioDbId;
             else //Fallabck to name search
-              albumSearchinfo.Album = ManualId;
+            {
+              var match = _titleYearRegEx.Match(ManualId);
+              if (match.Success)
+              {
+                albumSearchinfo.Album = match.Groups["title"].Value;
+                if (int.TryParse(match.Groups["year"].Value, out int year))
+                  albumSearchinfo.ReleaseDate = new DateTime(year, 1, 1);
+              }
+              else
+              {
+                albumSearchinfo.Album = ManualId;
+              }
+            }
           }
         }
         else
@@ -496,6 +625,8 @@ namespace MediaPortal.UiComponents.Media.Models
       {
         if (_wantedAspects.Contains(MediaAspect.ASPECT_ID))
           MediaItemAspect.SetAttribute(aspects, MediaAspect.ATTR_ISVIRTUAL, _isVirtual);
+        var reimportAspect = MediaItemAspect.GetOrCreateAspect(aspects, ReimportAspect.Metadata);
+        reimportAspect.SetAttribute(ReimportAspect.ATTR_SEARCH, ManualId);
         listItem.AdditionalProperties[KEY_ASPECTS] = aspects.Where(a => _wantedAspects.Contains(a.Key)).SelectMany(a => a.Value);
         return listItem;
       }

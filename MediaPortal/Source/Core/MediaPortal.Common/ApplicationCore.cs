@@ -239,7 +239,8 @@ namespace MediaPortal.Common
         ThumbnailLargeAspect.Metadata,
         ExternalIdentifierAspect.Metadata,
         RelationshipAspect.Metadata,
-        StubAspect.Metadata
+        StubAspect.Metadata,
+        ReimportAspect.Metadata
       };
       await miatr.RegisterLocallyKnownMediaItemAspectTypeAsync(knownAspects);
     }
