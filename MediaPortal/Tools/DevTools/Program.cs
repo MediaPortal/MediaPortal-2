@@ -348,7 +348,7 @@ namespace MediaPortal.DevTools
       settings.DatabaseFileName = Path.GetFileName(file);
       ServiceRegistration.Get<ISettingsManager>().Save(settings);
 
-      return new SQLiteDatabase();
+      return new SQLiteDatabase(true);
     }
 
     private static string GetValue(MediaItemAspectMetadata.AttributeSpecification spec, object value)

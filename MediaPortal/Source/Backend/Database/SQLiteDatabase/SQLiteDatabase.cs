@@ -76,9 +76,17 @@ namespace MediaPortal.Database.SQLite
     #region Constructors/Destructors
 
     public SQLiteDatabase()
+      : this(false)
+    {
+    }
+    /// <summary>
+    /// Creates a new SQLiteDatabase instance.
+    /// </summary>
+    /// <param name="skipUpgrades"><c>true</c> to skip version check and use the database as it is.</param>
+    public SQLiteDatabase(bool skipUpgrades)
     {
       VersionUpgrade upgrade = new VersionUpgrade();
-      if (!upgrade.Upgrade())
+      if (!skipUpgrades && !upgrade.Upgrade())
       {
         ServiceRegistration.Get<ILogger>().Warn("SQLiteDatabase: Could not upgrade existing database");
       }
