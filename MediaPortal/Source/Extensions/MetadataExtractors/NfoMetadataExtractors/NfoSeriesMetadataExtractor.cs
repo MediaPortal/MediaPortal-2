@@ -368,6 +368,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
         }
 
         _debugLogger.Info("[#{0}]: Successfully finished extracting metadata", miNumber);
+        ServiceRegistration.Get<ILogger>().Debug("NfoSeriesMetadataExtractor: Assigned nfo episode metadata for resource '{0}'", mediaItemAccessor);
         return true;
       }
       catch (Exception e)
@@ -431,6 +432,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
         }
 
         _debugLogger.Info("[#{0}]: Successfully finished extracting series metadata", miNumber);
+        ServiceRegistration.Get<ILogger>().Debug("NfoSeriesMetadataExtractor: Assigned nfo series metadata for resource '{0}'", mediaItemAccessor);
         return true;
       }
       catch (Exception e)
@@ -478,7 +480,9 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
     {
       //if (extractedAspectData.ContainsKey(EpisodeAspect.ASPECT_ID))
       //  return false;
-      
+      if (extractedAspectData.ContainsKey(ReimportAspect.ASPECT_ID)) //Ignore for reimports because the nfo might be the cause of the wrong match
+        return Task.FromResult(false);
+
       return TryExtractEpsiodeMetadataAsync(mediaItemAccessor, extractedAspectData, forceQuickMode);
     }
 

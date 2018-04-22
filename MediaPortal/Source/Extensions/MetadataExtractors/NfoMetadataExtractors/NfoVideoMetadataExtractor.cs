@@ -54,7 +54,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
     public static readonly Guid PLUGIN_ID = new Guid(PLUGIN_ID_STR);
 
     /// <summary>
-    /// GUID for the NfoMovieMetadataExtractor
+    /// GUID for the NfoVideoMetadataExtractor
     /// </summary>
     public const string METADATAEXTRACTOR_ID_STR = "183DBA7C-666A-4BBD-BCE8-AD0924B4FEF1";
     public static readonly Guid METADATAEXTRACTOR_ID = new Guid(METADATAEXTRACTOR_ID_STR);
@@ -183,11 +183,12 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
         }
 
         _debugLogger.Info("[#{0}]: Successfully finished extracting metadata", miNumber);
+        ServiceRegistration.Get<ILogger>().Debug("NfoVideoMetadataExtractor: Assigned nfo video metadata for resource '{0}'", mediaItemAccessor);
         return true;
       }
       catch (Exception e)
       {
-        ServiceRegistration.Get<ILogger>().Warn("NfoMovieMetadataExtractor: Exception while extracting metadata for resource '{0}'; enable debug logging for more details.", mediaItemAccessor);
+        ServiceRegistration.Get<ILogger>().Warn("NfoVideoMetadataExtractor: Exception while extracting metadata for resource '{0}'; enable debug logging for more details.", mediaItemAccessor);
         _debugLogger.Error("[#{0}]: Exception while extracting metadata", e, miNumber);
         return false;
       }
@@ -335,7 +336,9 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
     {
       if (extractedAspectData.ContainsKey(MovieAspect.ASPECT_ID) || extractedAspectData.ContainsKey(EpisodeAspect.ASPECT_ID))
         return Task.FromResult(false);
-      
+      if (extractedAspectData.ContainsKey(ReimportAspect.ASPECT_ID)) //Ignore for reimports because the nfo might be the cause of the wrong match
+        return Task.FromResult(false);
+
       return TryExtractVideoMetadataAsync(mediaItemAccessor, extractedAspectData, forceQuickMode);
     }
 

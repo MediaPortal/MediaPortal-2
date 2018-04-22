@@ -510,6 +510,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
         return false;
       string fileName = fsra.ResourceName;
       bool isStub = extractedAspectData.ContainsKey(StubAspect.ASPECT_ID);
+      bool isReimport = extractedAspectData.ContainsKey(ReimportAspect.ASPECT_ID);
       if (!HasAudioExtension(fileName) && !isStub)
         return false;
 
@@ -517,7 +518,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
       {
         TrackInfo trackInfo = new TrackInfo();
         trackInfo.FromMetadata(extractedAspectData);
-        if (!trackInfo.IsBaseInfoPresent)
+        if (string.IsNullOrEmpty(trackInfo.TrackName))
         {
           if (!isStub)
           {
@@ -531,49 +532,188 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
               if (tag.Properties.VideoHeight > 0 && tag.Properties.VideoWidth > 0)
                 return false;
 
-              fileName = ProviderPathHelper.GetFileNameWithoutExtension(fileName) ?? string.Empty;
-              string title;
-              string artist;
-              uint? trackNo;
-              GuessMetadataFromFileName(fileName, out title, out artist, out trackNo);
-              if (!string.IsNullOrEmpty(title))
-                title = CultureInfo.InvariantCulture.TextInfo.ToTitleCase(title.ToLowerInvariant());
-              if (!string.IsNullOrEmpty(artist))
-                artist = CultureInfo.InvariantCulture.TextInfo.ToTitleCase(artist.ToLowerInvariant());
-
-              if (!string.IsNullOrEmpty(tag.Tag.Title))
-                title = tag.Tag.Title.Trim();
-
-              IEnumerable<string> artists;
-              if (tag.Tag.Performers.Length > 0)
+              if (!isReimport) //Don't assign metadata for reimports because they might be the cause of the wrong import
               {
-                artists = tag.Tag.Performers;
+                fileName = ProviderPathHelper.GetFileNameWithoutExtension(fileName) ?? string.Empty;
+                string title;
+                string artist;
+                uint? trackNo;
+                GuessMetadataFromFileName(fileName, out title, out artist, out trackNo);
+                if (!string.IsNullOrEmpty(title))
+                  title = CultureInfo.InvariantCulture.TextInfo.ToTitleCase(title.ToLowerInvariant());
+                if (!string.IsNullOrEmpty(artist))
+                  artist = CultureInfo.InvariantCulture.TextInfo.ToTitleCase(artist.ToLowerInvariant());
+
+                if (!string.IsNullOrEmpty(tag.Tag.Title))
+                  title = tag.Tag.Title.Trim();
+
+                IEnumerable<string> artists;
+                if (tag.Tag.Performers.Length > 0)
+                {
+                  artists = tag.Tag.Performers;
+                  if ((tag.TagTypes & TagTypes.Id3v2) != 0)
+                    artists = PatchID3v23Enumeration(artists);
+                }
+                else
+                  artists = artist == null ? null : new string[] { artist.Trim() };
+                if (tag.Tag.Track != 0)
+                  trackNo = tag.Tag.Track;
+
+                MultipleMediaItemAspect providerResourceAspect = MediaItemAspect.CreateAspect(extractedAspectData, ProviderResourceAspect.Metadata);
+                providerResourceAspect.SetAttribute(ProviderResourceAspect.ATTR_RESOURCE_INDEX, 0);
+                providerResourceAspect.SetAttribute(ProviderResourceAspect.ATTR_TYPE, ProviderResourceAspect.TYPE_PRIMARY);
+                providerResourceAspect.SetAttribute(ProviderResourceAspect.ATTR_SIZE, fsra.Size);
+                providerResourceAspect.SetAttribute(ProviderResourceAspect.ATTR_RESOURCE_ACCESSOR_PATH, fsra.CanonicalLocalResourcePath.Serialize());
+                // FIXME Albert: tag.MimeType returns taglib/mp3 for an MP3 file. This is not what we want and collides with the
+                // mimetype handling in the BASS player, which expects audio/xxx.
+                if (!string.IsNullOrWhiteSpace(tag.MimeType))
+                  providerResourceAspect.SetAttribute(ProviderResourceAspect.ATTR_MIME_TYPE, tag.MimeType.Replace("taglib/", "audio/"));
+
+                MediaItemAspect.SetAttribute(extractedAspectData, MediaAspect.ATTR_TITLE, title);
+                MediaItemAspect.SetAttribute(extractedAspectData, MediaAspect.ATTR_ISVIRTUAL, false);
+                MediaItemAspect.SetAttribute(extractedAspectData, MediaAspect.ATTR_COMMENT, StringUtils.TrimToNull(tag.Tag.Comment));
+                MediaItemAspect.SetAttribute(extractedAspectData, MediaAspect.ATTR_RECORDINGTIME, fsra.LastChanged);
+
+                trackInfo.TrackName = title;
+                if (!string.IsNullOrEmpty(tag.Tag.TitleSort))
+                  trackInfo.TrackNameSort = tag.Tag.TitleSort.Trim();
+                TagLib.Id3v2.Tag id3Tag = (TagLib.Id3v2.Tag)tag.GetTag(TagTypes.Id3v2, false);
+                if (id3Tag != null && !id3Tag.IsEmpty)
+                  trackInfo.Compilation = id3Tag.IsCompilation;
+
+                trackInfo.Album = !string.IsNullOrEmpty(tag.Tag.Album) ? tag.Tag.Album.Trim() : trackInfo.Album;
+
+                if (trackNo.HasValue)
+                  trackInfo.TrackNum = (int)trackNo.Value;
+                if (tag.Tag.Disc != 0)
+                  trackInfo.DiscNum = (int)tag.Tag.Disc;
+                if (tag.Tag.DiscCount != 0)
+                  trackInfo.TotalDiscs = (int)tag.Tag.DiscCount;
+                if (!string.IsNullOrEmpty(tag.Tag.Lyrics))
+                  trackInfo.TrackLyrics = tag.Tag.Lyrics;
+                if (!string.IsNullOrEmpty(tag.Tag.Grouping))
+                  trackInfo.ContentGroup = tag.Tag.Grouping;
+
+                if (tag.Tag.TrackCount != 0)
+                  trackInfo.TotalTracks = (int)tag.Tag.TrackCount;
+
+                if (!string.IsNullOrEmpty(tag.Tag.MusicBrainzTrackId))
+                  trackInfo.MusicBrainzId = tag.Tag.MusicBrainzTrackId;
+                if (!string.IsNullOrEmpty(tag.Tag.MusicBrainzReleaseId))
+                  trackInfo.AlbumMusicBrainzId = tag.Tag.MusicBrainzReleaseId;
+                if (!string.IsNullOrEmpty(tag.Tag.MusicBrainzDiscId))
+                  trackInfo.AlbumMusicBrainzDiscId = tag.Tag.MusicBrainzDiscId;
+                if (!string.IsNullOrEmpty(tag.Tag.AmazonId))
+                  trackInfo.AlbumAmazonId = tag.Tag.AmazonId;
+                if (!string.IsNullOrEmpty(tag.Tag.MusicIpId))
+                  trackInfo.MusicIpId = tag.Tag.MusicIpId;
+
+                trackInfo.Artists = new List<PersonInfo>();
+                if (artists != null)
+                {
+                  foreach (string artistName in ApplyAdditionalSeparator(artists))
+                  {
+                    trackInfo.Artists.Add(new PersonInfo()
+                    {
+                      Name = artistName.Trim(),
+                      Occupation = PersonAspect.OCCUPATION_ARTIST,
+                      ParentMediaName = trackInfo.Album,
+                      MediaName = trackInfo.TrackName
+                    });
+                  }
+                }
+
+                IEnumerable<string> albumArtists = tag.Tag.AlbumArtists;
                 if ((tag.TagTypes & TagTypes.Id3v2) != 0)
-                  artists = PatchID3v23Enumeration(artists);
+                  albumArtists = PatchID3v23Enumeration(albumArtists);
+                trackInfo.AlbumArtists = new List<PersonInfo>();
+                if (albumArtists != null)
+                {
+                  foreach (string artistName in ApplyAdditionalSeparator(albumArtists))
+                  {
+                    trackInfo.AlbumArtists.Add(new PersonInfo()
+                    {
+                      Name = artistName.Trim(),
+                      Occupation = PersonAspect.OCCUPATION_ARTIST,
+                      ParentMediaName = trackInfo.Album,
+                      MediaName = trackInfo.TrackName
+                    });
+                  }
+                }
+
+                IEnumerable<string> composers = tag.Tag.Composers;
+                if ((tag.TagTypes & TagTypes.Id3v2) != 0)
+                  composers = PatchID3v23Enumeration(composers);
+                trackInfo.Composers = new List<PersonInfo>();
+                if (composers != null)
+                {
+                  foreach (string composerName in ApplyAdditionalSeparator(composers))
+                  {
+                    trackInfo.Composers.Add(new PersonInfo()
+                    {
+                      Name = composerName.Trim(),
+                      Occupation = PersonAspect.OCCUPATION_COMPOSER,
+                      ParentMediaName = trackInfo.Album,
+                      MediaName = trackInfo.TrackName
+                    });
+                  }
+                }
+
+                trackInfo.Conductors = new List<PersonInfo>();
+                if (!string.IsNullOrEmpty(tag.Tag.Conductor?.Trim()))
+                {
+                  trackInfo.Conductors.Add(new PersonInfo()
+                  {
+                    Name = tag.Tag.Conductor.Trim(),
+                    Occupation = PersonAspect.OCCUPATION_CONDUCTOR,
+                    ParentMediaName = trackInfo.Album,
+                    MediaName = trackInfo.TrackName
+                  });
+                }
+
+                if (tag.Tag.Genres.Length > 0)
+                {
+                  IEnumerable<string> genres = tag.Tag.Genres;
+                  if ((tag.TagTypes & TagTypes.Id3v2) != 0)
+                    genres = PatchID3v23Enumeration(genres);
+                  trackInfo.Genres = ApplyAdditionalSeparator(genres).Select(s => new GenreInfo { Name = s.Trim() }).ToList();
+                  IGenreConverter converter = ServiceRegistration.Get<IGenreConverter>();
+                  foreach (var genre in trackInfo.Genres)
+                  {
+                    int genreId = 0;
+                    if (!genre.Id.HasValue && converter.GetGenreId(genre.Name, GenreCategory.Music, null, out genreId))
+                    {
+                      genre.Id = genreId;
+                    }
+                  }
+                }
+
+                int year = (int)tag.Tag.Year;
+                if (year >= 30 && year <= 99)
+                  year += 1900;
+                if (year >= 1930 && year <= 2030)
+                  trackInfo.ReleaseDate = new DateTime(year, 1, 1);
+
+                if (!trackInfo.HasThumbnail)
+                {
+                  // The following code gets cover art images from file (embedded) or from windows explorer cache (supports folder.jpg).
+                  IPicture[] pics = tag.Tag.Pictures;
+                  if (pics.Length > 0)
+                  {
+                    try
+                    {
+                      using (MemoryStream stream = new MemoryStream(pics[0].Data.Data))
+                      {
+                        trackInfo.Thumbnail = stream.ToArray();
+                        trackInfo.HasChanged = true;
+                      }
+                    }
+                    // Decoding of invalid image data can fail, but main MediaItem is correct.
+                    catch { }
+                  }
+                }
               }
-              else
-                artists = artist == null ? null : new string[] { artist.Trim() };
-              if (tag.Tag.Track != 0)
-                trackNo = tag.Tag.Track;
 
-              MultipleMediaItemAspect providerResourceAspect = MediaItemAspect.CreateAspect(extractedAspectData, ProviderResourceAspect.Metadata);
-              providerResourceAspect.SetAttribute(ProviderResourceAspect.ATTR_RESOURCE_INDEX, 0);
-              providerResourceAspect.SetAttribute(ProviderResourceAspect.ATTR_TYPE, ProviderResourceAspect.TYPE_PRIMARY);
-              providerResourceAspect.SetAttribute(ProviderResourceAspect.ATTR_SIZE, fsra.Size);
-              providerResourceAspect.SetAttribute(ProviderResourceAspect.ATTR_RESOURCE_ACCESSOR_PATH, fsra.CanonicalLocalResourcePath.Serialize());
-              // FIXME Albert: tag.MimeType returns taglib/mp3 for an MP3 file. This is not what we want and collides with the
-              // mimetype handling in the BASS player, which expects audio/xxx.
-              if (!string.IsNullOrWhiteSpace(tag.MimeType))
-                providerResourceAspect.SetAttribute(ProviderResourceAspect.ATTR_MIME_TYPE, tag.MimeType.Replace("taglib/", "audio/"));
-
-              MediaItemAspect.SetAttribute(extractedAspectData, MediaAspect.ATTR_TITLE, title);
-              MediaItemAspect.SetAttribute(extractedAspectData, MediaAspect.ATTR_ISVIRTUAL, false);
-              MediaItemAspect.SetAttribute(extractedAspectData, MediaAspect.ATTR_COMMENT, StringUtils.TrimToNull(tag.Tag.Comment));
-              MediaItemAspect.SetAttribute(extractedAspectData, MediaAspect.ATTR_RECORDINGTIME, fsra.LastChanged);
-
-              trackInfo.TrackName = title;
-              if (!string.IsNullOrEmpty(tag.Tag.TitleSort))
-                trackInfo.TrackNameSort = tag.Tag.TitleSort.Trim();
               if (tag.Properties.Codecs.Count() > 0)
                 trackInfo.Encoding = tag.Properties.Codecs.First().Description;
               if (tag.Properties.Duration.TotalSeconds != 0)
@@ -584,146 +724,10 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
                 trackInfo.Channels = (int)tag.Properties.AudioChannels;
               if (tag.Properties.AudioSampleRate != 0)
                 trackInfo.SampleRate = (int)tag.Properties.AudioSampleRate;
-
-              TagLib.Id3v2.Tag id3Tag = (TagLib.Id3v2.Tag)tag.GetTag(TagTypes.Id3v2, false);
-              if (id3Tag != null && !id3Tag.IsEmpty)
-                trackInfo.Compilation = id3Tag.IsCompilation;
-
-              trackInfo.Album = !string.IsNullOrEmpty(tag.Tag.Album) ? tag.Tag.Album.Trim() : trackInfo.Album;
-
-              if (trackNo.HasValue)
-                trackInfo.TrackNum = (int)trackNo.Value;
-              if (tag.Tag.Disc != 0)
-                trackInfo.DiscNum = (int)tag.Tag.Disc;
-              if (tag.Tag.DiscCount != 0)
-                trackInfo.TotalDiscs = (int)tag.Tag.DiscCount;
-              if (!string.IsNullOrEmpty(tag.Tag.Lyrics))
-                trackInfo.TrackLyrics = tag.Tag.Lyrics;
-              if (!string.IsNullOrEmpty(tag.Tag.Grouping))
-                trackInfo.ContentGroup = tag.Tag.Grouping;
-
-              if (tag.Tag.TrackCount != 0)
-                trackInfo.TotalTracks = (int)tag.Tag.TrackCount;
-
-              if (!string.IsNullOrEmpty(tag.Tag.MusicBrainzTrackId))
-                trackInfo.MusicBrainzId = tag.Tag.MusicBrainzTrackId;
-              if (!string.IsNullOrEmpty(tag.Tag.MusicBrainzReleaseId))
-                trackInfo.AlbumMusicBrainzId = tag.Tag.MusicBrainzReleaseId;
-              if (!string.IsNullOrEmpty(tag.Tag.MusicBrainzDiscId))
-                trackInfo.AlbumMusicBrainzDiscId = tag.Tag.MusicBrainzDiscId;
-              if (!string.IsNullOrEmpty(tag.Tag.AmazonId))
-                trackInfo.AlbumAmazonId = tag.Tag.AmazonId;
-              if (!string.IsNullOrEmpty(tag.Tag.MusicIpId))
-                trackInfo.MusicIpId = tag.Tag.MusicIpId;
-
-              trackInfo.Artists = new List<PersonInfo>();
-              if (artists != null)
-              {
-                foreach (string artistName in ApplyAdditionalSeparator(artists))
-                {
-                  trackInfo.Artists.Add(new PersonInfo()
-                  {
-                    Name = artistName.Trim(),
-                    Occupation = PersonAspect.OCCUPATION_ARTIST,
-                    ParentMediaName = trackInfo.Album,
-                    MediaName = trackInfo.TrackName
-                  });
-                }
-              }
-
-              IEnumerable<string> albumArtists = tag.Tag.AlbumArtists;
-              if ((tag.TagTypes & TagTypes.Id3v2) != 0)
-                albumArtists = PatchID3v23Enumeration(albumArtists);
-              trackInfo.AlbumArtists = new List<PersonInfo>();
-              if (albumArtists != null)
-              {
-                foreach (string artistName in ApplyAdditionalSeparator(albumArtists))
-                {
-                  trackInfo.AlbumArtists.Add(new PersonInfo()
-                  {
-                    Name = artistName.Trim(),
-                    Occupation = PersonAspect.OCCUPATION_ARTIST,
-                    ParentMediaName = trackInfo.Album,
-                    MediaName = trackInfo.TrackName
-                  });
-                }
-              }
-
-              IEnumerable<string> composers = tag.Tag.Composers;
-              if ((tag.TagTypes & TagTypes.Id3v2) != 0)
-                composers = PatchID3v23Enumeration(composers);
-              trackInfo.Composers = new List<PersonInfo>();
-              if (composers != null)
-              {
-                foreach (string composerName in ApplyAdditionalSeparator(composers))
-                {
-                  trackInfo.Composers.Add(new PersonInfo()
-                  {
-                    Name = composerName.Trim(),
-                    Occupation = PersonAspect.OCCUPATION_COMPOSER,
-                    ParentMediaName = trackInfo.Album,
-                    MediaName = trackInfo.TrackName
-                  });
-                }
-              }
-
-              trackInfo.Conductors = new List<PersonInfo>();
-              if (!string.IsNullOrEmpty(tag.Tag.Conductor?.Trim()))
-              {
-                trackInfo.Conductors.Add(new PersonInfo()
-                {
-                  Name = tag.Tag.Conductor.Trim(),
-                  Occupation = PersonAspect.OCCUPATION_CONDUCTOR,
-                  ParentMediaName = trackInfo.Album,
-                  MediaName = trackInfo.TrackName
-                });
-              }
-
-              if (tag.Tag.Genres.Length > 0)
-              {
-                IEnumerable<string> genres = tag.Tag.Genres;
-                if ((tag.TagTypes & TagTypes.Id3v2) != 0)
-                  genres = PatchID3v23Enumeration(genres);
-                trackInfo.Genres = ApplyAdditionalSeparator(genres).Select(s => new GenreInfo { Name = s.Trim() }).ToList();
-                IGenreConverter converter = ServiceRegistration.Get<IGenreConverter>();
-                foreach (var genre in trackInfo.Genres)
-                {
-                  int genreId = 0;
-                  if (!genre.Id.HasValue && converter.GetGenreId(genre.Name, GenreCategory.Music, null, out genreId))
-                  {
-                    genre.Id = genreId;
-                  }
-                }
-              }
-
-              int year = (int)tag.Tag.Year;
-              if (year >= 30 && year <= 99)
-                year += 1900;
-              if (year >= 1930 && year <= 2030)
-                trackInfo.ReleaseDate = new DateTime(year, 1, 1);
-
-              if (!trackInfo.HasThumbnail)
-              {
-                // The following code gets cover art images from file (embedded) or from windows explorer cache (supports folder.jpg).
-                IPicture[] pics = tag.Tag.Pictures;
-                if (pics.Length > 0)
-                {
-                  try
-                  {
-                    using (MemoryStream stream = new MemoryStream(pics[0].Data.Data))
-                    {
-                      trackInfo.Thumbnail = stream.ToArray();
-                      trackInfo.HasChanged = true;
-                    }
-                  }
-                  // Decoding of invalid image data can fail, but main MediaItem is correct.
-                  catch { }
-                }
-              }
             }
           }
 
-          if (string.IsNullOrEmpty(trackInfo.Album) || trackInfo.Artists.Count == 0)
+          if (string.IsNullOrEmpty(trackInfo.Album) || (trackInfo.Artists.Count == 0 && trackInfo.AlbumArtists.Count == 0))
           {
             MusicNameMatcher.MatchTrack(fileName, trackInfo);
           }
@@ -773,8 +777,6 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
         //Check artists
         trackInfo.Artists = GetCorrectedArtistsList(trackInfo, trackInfo.Artists);
         trackInfo.AlbumArtists = GetCorrectedArtistsList(trackInfo, trackInfo.AlbumArtists);
-
-        trackInfo.AssignNameId();
 
         if (!forceQuickMode)
         {

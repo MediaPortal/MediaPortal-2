@@ -114,6 +114,8 @@ namespace MediaPortal.Extensions.MetadataExtractors.BassAudioMetadataExtractor
       string fileName = fsra.ResourceName;
       if (!HasAudioExtension(fileName))
         return false;
+      if (extractedAspectData.ContainsKey(ReimportAspect.ASPECT_ID)) //Ignore for reimports because the tags might be the cause of the wrong match
+        return false;
 
       try
       {

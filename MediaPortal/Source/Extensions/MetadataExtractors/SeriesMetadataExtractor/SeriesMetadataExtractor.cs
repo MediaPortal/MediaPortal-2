@@ -188,49 +188,54 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
       if (!extractedAspectData.ContainsKey(VideoAspect.ASPECT_ID) && !extractedAspectData.ContainsKey(SubtitleAspect.ASPECT_ID))
         return false;
 
+      bool isReimport = extractedAspectData.ContainsKey(ReimportAspect.ASPECT_ID);
+
       EpisodeInfo episodeInfo = new EpisodeInfo();
       episodeInfo.FromMetadata(extractedAspectData);
 
-      // If there was no complete match, yet, try to get extended information out of matroska files)
-      if (!episodeInfo.IsBaseInfoPresent || !episodeInfo.HasExternalId)
+      if (!isReimport) //Ignore file based information for reimports because they might be the cause of the wrong match
       {
-        try
+        // If there was no complete match, yet, try to get extended information out of matroska files)
+        if (!episodeInfo.IsBaseInfoPresent || !episodeInfo.HasExternalId)
         {
-          MatroskaMatcher matroskaMatcher = new MatroskaMatcher();
-          if (await matroskaMatcher.MatchSeriesAsync(lfsra, episodeInfo).ConfigureAwait(false))
+          try
           {
-            ServiceRegistration.Get<ILogger>().Debug("ExtractSeriesData: Found EpisodeInfo by MatroskaMatcher for {0}, IMDB {1}, TVDB {2}, TMDB {3}, AreReqiredFieldsFilled {4}",
-              episodeInfo.SeriesName, episodeInfo.SeriesImdbId, episodeInfo.SeriesTvdbId, episodeInfo.SeriesMovieDbId, episodeInfo.IsBaseInfoPresent);
+            MatroskaMatcher matroskaMatcher = new MatroskaMatcher();
+            if (await matroskaMatcher.MatchSeriesAsync(lfsra, episodeInfo).ConfigureAwait(false))
+            {
+              ServiceRegistration.Get<ILogger>().Debug("ExtractSeriesData: Found EpisodeInfo by MatroskaMatcher for {0}, IMDB {1}, TVDB {2}, TMDB {3}, AreReqiredFieldsFilled {4}",
+                episodeInfo.SeriesName, episodeInfo.SeriesImdbId, episodeInfo.SeriesTvdbId, episodeInfo.SeriesMovieDbId, episodeInfo.IsBaseInfoPresent);
+            }
+          }
+          catch (Exception ex)
+          {
+            ServiceRegistration.Get<ILogger>().Debug("ExtractSeriesData: Exception reading matroska tags for '{0}'", ex, lfsra.CanonicalLocalResourcePath);
           }
         }
-        catch(Exception ex)
+
+        // If no information was found before, try name matching
+        if (!episodeInfo.IsBaseInfoPresent)
         {
-          ServiceRegistration.Get<ILogger>().Debug("ExtractSeriesData: Exception reading matroska tags for '{0}'", ex, lfsra.CanonicalLocalResourcePath);
+          // Try to match series from folder and file naming
+          SeriesMatcher seriesMatcher = new SeriesMatcher();
+          seriesMatcher.MatchSeries(lfsra, episodeInfo);
         }
-      }
 
-      // If no information was found before, try name matching
-      if (!episodeInfo.IsBaseInfoPresent)
-      {
-        // Try to match series from folder and file naming
-        SeriesMatcher seriesMatcher = new SeriesMatcher();
-        seriesMatcher.MatchSeries(lfsra, episodeInfo);
-      }
-
-      //Prepare online search improvements
-      if (episodeInfo.SeriesFirstAired == null)
-      {
-        EpisodeInfo tempEpisodeInfo = new EpisodeInfo();
-        SeriesMatcher seriesMatcher = new SeriesMatcher();
-        seriesMatcher.MatchSeries(lfsra, tempEpisodeInfo);
-        if (tempEpisodeInfo.SeriesFirstAired.HasValue)
-          episodeInfo.SeriesFirstAired = tempEpisodeInfo.SeriesFirstAired;
-      }
-      if (string.IsNullOrEmpty(episodeInfo.SeriesAlternateName))
-      {
-        var mediaItemPath = lfsra.CanonicalLocalResourcePath;
-        var seriesMediaItemDirectoryPath = ResourcePathHelper.Combine(mediaItemPath, "../../");
-        episodeInfo.SeriesAlternateName = seriesMediaItemDirectoryPath.FileName;
+        //Prepare online search improvements
+        if (episodeInfo.SeriesFirstAired == null)
+        {
+          EpisodeInfo tempEpisodeInfo = new EpisodeInfo();
+          SeriesMatcher seriesMatcher = new SeriesMatcher();
+          seriesMatcher.MatchSeries(lfsra, tempEpisodeInfo);
+          if (tempEpisodeInfo.SeriesFirstAired.HasValue)
+            episodeInfo.SeriesFirstAired = tempEpisodeInfo.SeriesFirstAired;
+        }
+        if (string.IsNullOrEmpty(episodeInfo.SeriesAlternateName))
+        {
+          var mediaItemPath = lfsra.CanonicalLocalResourcePath;
+          var seriesMediaItemDirectoryPath = ResourcePathHelper.Combine(mediaItemPath, "../../");
+          episodeInfo.SeriesAlternateName = seriesMediaItemDirectoryPath.FileName;
+        }
       }
 
       if (episodeInfo.Languages.Count == 0)
@@ -246,8 +251,6 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
           }
         }
       }
-
-      episodeInfo.AssignNameId();
 
       if (SkipOnlineSearches && !SkipFanArtDownload)
       {

@@ -574,6 +574,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor
         // Add keys to be extracted to tags dictionary, matching results will returned as value
         Dictionary<string, IList<string>> tagsToExtract = MatroskaConsts.DefaultTags;
         await mkvReader.ReadTagsAsync(tagsToExtract).ConfigureAwait(false);
+        bool assignedValue = false;
 
         // Read title
         string title = string.Empty;
@@ -583,6 +584,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor
         if (!string.IsNullOrEmpty(title))
         {
           MediaItemAspect.SetAttribute(extractedAspectData, MediaAspect.ATTR_TITLE, title);
+          assignedValue = true;
         }
 
         // Read release date
@@ -593,7 +595,10 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor
           yearCandidate = (tags.FirstOrDefault() ?? string.Empty).Substring(0, 4);
 
         if (int.TryParse(yearCandidate, out year))
+        {
           MediaItemAspect.SetAttribute(extractedAspectData, MediaAspect.ATTR_RECORDINGTIME, new DateTime(year, 1, 1));
+          assignedValue = true;
+        }
 
         IList<MultipleMediaItemAspect> videoStreamAspects;
         if (MediaItemAspect.TryGetAspects(extractedAspectData, VideoStreamAspect.Metadata, out videoStreamAspects))
@@ -607,7 +612,10 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor
 
             MatroskaInfoReader.StereoMode mode = await mkvReader.ReadStereoModeAsync().ConfigureAwait(false);
             if (mode == MatroskaInfoReader.StereoMode.AnaglyphCyanRed || mode == MatroskaInfoReader.StereoMode.AnaglyphGreenMagenta)
+            {
               videoStreamAspects[0].SetAttribute(VideoStreamAspect.ATTR_VIDEO_TYPE, VideoStreamAspect.TYPE_ANAGLYPH);
+              assignedValue = true;
+            }
             else if (mode == MatroskaInfoReader.StereoMode.SBSLeftEyeFirst || mode == MatroskaInfoReader.StereoMode.SBSRightEyeFirst)
             {
               //If it was not detected as SBS by resolution it's probably Half SBS
@@ -618,6 +626,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor
                 float ar = (float)width.Value / (float)height.Value;
                 videoStreamAspects[0].SetAttribute(VideoStreamAspect.ATTR_WIDTH, width.Value);
                 videoStreamAspects[0].SetAttribute(VideoStreamAspect.ATTR_ASPECTRATIO, ar);
+                assignedValue = true;
               }
             }
             else if (mode == MatroskaInfoReader.StereoMode.TABLeftEyeFirst || mode == MatroskaInfoReader.StereoMode.TABRightEyeFirst)
@@ -630,12 +639,18 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor
                 float ar = (float)width.Value / (float)height.Value;
                 videoStreamAspects[0].SetAttribute(VideoStreamAspect.ATTR_HEIGHT, height.Value);
                 videoStreamAspects[0].SetAttribute(VideoStreamAspect.ATTR_ASPECTRATIO, ar);
+                assignedValue = true;
               }
             }
             else if (mode == MatroskaInfoReader.StereoMode.FieldSequentialModeLeftEyeFirst || mode == MatroskaInfoReader.StereoMode.FieldSequentialModeRightEyeFirst)
+            {
               videoStreamAspects[0].SetAttribute(VideoStreamAspect.ATTR_VIDEO_TYPE, VideoStreamAspect.TYPE_MVC);
+              assignedValue = true;
+            }
           }
         }
+        if (assignedValue)
+          ServiceRegistration.Get<ILogger>().Debug("VideoMetadataExtractor: Assigned matroska tags from resource '{0}'", lfsra.CanonicalLocalResourcePath);
       }
       catch (Exception e)
       {
@@ -649,6 +664,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor
       {
         // Calling EnsureLocalFileSystemAccess not necessary; only string operation
         string extensionUpper = StringUtils.TrimToEmpty(Path.GetExtension(lfsra.LocalFileSystemPath)).ToUpper();
+        bool assignedValue = false;
 
         // Try to get extended information out of MP4 files)
         if (extensionUpper != ".MP4") return;
@@ -663,14 +679,25 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor
 
           string title = tag.Title;
           if (!string.IsNullOrEmpty(title))
+          {
             MediaItemAspect.SetAttribute(extractedAspectData, MediaAspect.ATTR_TITLE, title);
+            assignedValue = true;
+          }
           title = tag.TitleSort;
           if (!string.IsNullOrEmpty(title))
+          {
             MediaItemAspect.SetAttribute(extractedAspectData, MediaAspect.ATTR_SORT_TITLE, title);
+            assignedValue = true;
+          }
 
           int year = (int)tag.Year;
           if (year != 0)
+          {
             MediaItemAspect.SetAttribute(extractedAspectData, MediaAspect.ATTR_RECORDINGTIME, new DateTime(year, 1, 1));
+            assignedValue = true;
+          }
+          if (assignedValue)
+            ServiceRegistration.Get<ILogger>().Debug("VideoMetadataExtractor: Assigned mp4 tags from resource '{0}'", lfsra.CanonicalLocalResourcePath);
         }
       }
       catch (Exception e)
@@ -1154,14 +1181,17 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor
               if (lfsra != null)
               {
                 result.UpdateMetadata(extractedAspectData, lfsra, -1, 0, false);
-                try
+                if (!extractedAspectData.ContainsKey(ReimportAspect.ASPECT_ID)) //Ignore tags for reimports because they might be the cause of the wrong match
                 {
-                  await ExtractMatroskaTagsAsync(lfsra, extractedAspectData).ConfigureAwait(false);
-                  ExtractMp4Tags(lfsra, extractedAspectData);
-                }
-                catch (Exception ex)
-                {
-                  ServiceRegistration.Get<ILogger>().Debug("VideoMetadataExtractor: Exception reading tags for '{0}'", ex, lfsra.CanonicalLocalResourcePath);
+                  try
+                  {
+                    await ExtractMatroskaTagsAsync(lfsra, extractedAspectData).ConfigureAwait(false);
+                    ExtractMp4Tags(lfsra, extractedAspectData);
+                  }
+                  catch (Exception ex)
+                  {
+                    ServiceRegistration.Get<ILogger>().Debug("VideoMetadataExtractor: Exception reading tags for '{0}'", ex, lfsra.CanonicalLocalResourcePath);
+                  }
                 }
                 UpdateSetName(lfsra, extractedAspectData, -1);
               }
@@ -1210,14 +1240,17 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor
                 if (lfsra != null)
                 {
                   result.UpdateMetadata(extractedAspectData, lfsra, multipart, multipartSet, false);
-                  try
+                  if (!extractedAspectData.ContainsKey(ReimportAspect.ASPECT_ID)) //Ignore tags for reimports because they might be the cause of the wrong match
                   {
-                    await ExtractMatroskaTagsAsync(lfsra, extractedAspectData).ConfigureAwait(false);
-                    ExtractMp4Tags(lfsra, extractedAspectData);
-                  }
-                  catch (Exception ex)
-                  {
-                    ServiceRegistration.Get<ILogger>().Debug("VideoMetadataExtractor: Exception reading tags for '{0}'", ex, lfsra.CanonicalLocalResourcePath);
+                    try
+                    {
+                      await ExtractMatroskaTagsAsync(lfsra, extractedAspectData).ConfigureAwait(false);
+                      ExtractMp4Tags(lfsra, extractedAspectData);
+                    }
+                    catch (Exception ex)
+                    {
+                      ServiceRegistration.Get<ILogger>().Debug("VideoMetadataExtractor: Exception reading tags for '{0}'", ex, lfsra.CanonicalLocalResourcePath);
+                    }
                   }
                   UpdateSetName(lfsra, extractedAspectData, multipart);
 

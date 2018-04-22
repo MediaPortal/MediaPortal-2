@@ -181,8 +181,9 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
       string[] pathsToTest = new[] { lfsra.LocalFileSystemPath, lfsra.CanonicalLocalResourcePath.ToString() };
       string title = null;
       string sortTitle = null;
+      bool isReimport = extractedAspectData.ContainsKey(ReimportAspect.ASPECT_ID);
 
-      MovieInfo movieInfo = new MovieInfo();
+        MovieInfo movieInfo = new MovieInfo();
       if (extractedAspectData.ContainsKey(MovieAspect.ASPECT_ID))
         movieInfo.FromMetadata(extractedAspectData);
 
@@ -205,60 +206,73 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
         }
       }
 
-      if (movieInfo.MovieDbId == 0)
+      if (!isReimport) //Ignore tags or file based information for reimport because they might be the cause of the wrong import
       {
+        if (movieInfo.MovieDbId == 0)
+        {
+          try
+          {
+            // Try to use an existing TMDB id for exact mapping
+            string tmdbId = await MatroskaMatcher.TryMatchTmdbIdAsync(lfsra).ConfigureAwait(false);
+            if (!string.IsNullOrEmpty(tmdbId))
+              movieInfo.MovieDbId = Convert.ToInt32(tmdbId);
+          }
+          catch (Exception ex)
+          {
+            ServiceRegistration.Get<ILogger>().Debug("MoviesMetadataExtractor: Exception reading TMDB ID for '{0}'", ex, lfsra.CanonicalLocalResourcePath);
+          }
+        }
+
+        if (string.IsNullOrEmpty(movieInfo.ImdbId))
+        {
+          try
+          {
+            // Try to use an existing IMDB id for exact mapping
+            string imdbId = await MatroskaMatcher.TryMatchImdbIdAsync(lfsra).ConfigureAwait(false);
+            if (!string.IsNullOrEmpty(imdbId))
+              movieInfo.ImdbId = imdbId;
+            else if (pathsToTest.Any(path => ImdbIdMatcher.TryMatchImdbId(path, out imdbId)))
+              movieInfo.ImdbId = imdbId;
+          }
+          catch (Exception ex)
+          {
+            ServiceRegistration.Get<ILogger>().Debug("MoviesMetadataExtractor: Exception reading IMDB ID for '{0}'", ex, lfsra.CanonicalLocalResourcePath);
+          }
+        }
+
+        if (!movieInfo.IsBaseInfoPresent || !movieInfo.ReleaseDate.HasValue)
+        {
+          // Also test the full path year. This is useful if the path contains the real name and year.
+          foreach (string path in pathsToTest)
+          {
+            if (MovieNameMatcher.MatchTitleYear(path, movieInfo))
+              break;
+          }
+          //Fall back to MediaAspect.ATTR_TITLE
+          if (movieInfo.MovieName.IsEmpty && !string.IsNullOrEmpty(title))
+            movieInfo.MovieName = title;
+
+          /* Clear the names from unwanted strings */
+          MovieNameMatcher.CleanupTitle(movieInfo);
+        }
+
+        if (!movieInfo.ReleaseDate.HasValue && !movieInfo.HasExternalId)
+        {
+          // When searching movie title, the year can be relevant for multiple titles with same name but different years
+          DateTime recordingDate;
+          if (MediaItemAspect.TryGetAttribute(extractedAspectData, MediaAspect.ATTR_RECORDINGTIME, out recordingDate))
+            movieInfo.ReleaseDate = recordingDate;
+        }
+
         try
         {
-          // Try to use an existing TMDB id for exact mapping
-          string tmdbId = await MatroskaMatcher.TryMatchTmdbIdAsync(lfsra).ConfigureAwait(false);
-          if (!string.IsNullOrEmpty(tmdbId))
-            movieInfo.MovieDbId = Convert.ToInt32(tmdbId);
+          await MatroskaMatcher.ExtractFromTagsAsync(lfsra, movieInfo).ConfigureAwait(false);
+          MP4Matcher.ExtractFromTags(lfsra, movieInfo);
         }
         catch (Exception ex)
         {
-          ServiceRegistration.Get<ILogger>().Debug("MoviesMetadataExtractor: Exception reading TMDB ID for '{0}'", ex, lfsra.CanonicalLocalResourcePath);
+          ServiceRegistration.Get<ILogger>().Debug("MoviesMetadataExtractor: Exception reading tags for '{0}'", ex, lfsra.CanonicalLocalResourcePath);
         }
-      }
-
-      if (string.IsNullOrEmpty(movieInfo.ImdbId))
-      {
-        try
-        {
-          // Try to use an existing IMDB id for exact mapping
-          string imdbId = await MatroskaMatcher.TryMatchImdbIdAsync(lfsra).ConfigureAwait(false);
-          if (!string.IsNullOrEmpty(imdbId))
-            movieInfo.ImdbId = imdbId;
-          else if (pathsToTest.Any(path => ImdbIdMatcher.TryMatchImdbId(path, out imdbId)))
-            movieInfo.ImdbId = imdbId;
-        }
-        catch (Exception ex)
-        {
-          ServiceRegistration.Get<ILogger>().Debug("MoviesMetadataExtractor: Exception reading IMDB ID for '{0}'", ex, lfsra.CanonicalLocalResourcePath);
-        }
-      }
-
-      if (!movieInfo.IsBaseInfoPresent || !movieInfo.ReleaseDate.HasValue)
-      {
-        // Also test the full path year. This is useful if the path contains the real name and year.
-        foreach (string path in pathsToTest)
-        {
-          if (MovieNameMatcher.MatchTitleYear(path, movieInfo))
-            break;
-        }
-        //Fall back to MediaAspect.ATTR_TITLE
-        if (movieInfo.MovieName.IsEmpty && !string.IsNullOrEmpty(title))
-          movieInfo.MovieName = title;
-
-        /* Clear the names from unwanted strings */
-        MovieNameMatcher.CleanupTitle(movieInfo);
-      }
-
-      if (!movieInfo.ReleaseDate.HasValue && !movieInfo.HasExternalId)
-      {
-        // When searching movie title, the year can be relevant for multiple titles with same name but different years
-        DateTime recordingDate;
-        if (MediaItemAspect.TryGetAttribute(extractedAspectData, MediaAspect.ATTR_RECORDINGTIME, out recordingDate))
-          movieInfo.ReleaseDate = recordingDate;
       }
 
       // Allow the online lookup to choose best matching language for metadata
@@ -274,16 +288,6 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
               movieInfo.Languages.Add(language);
           }
         }
-      }
-
-      try
-      {
-        await MatroskaMatcher.ExtractFromTagsAsync(lfsra, movieInfo).ConfigureAwait(false);
-        MP4Matcher.ExtractFromTags(lfsra, movieInfo);
-      }
-      catch (Exception ex)
-      {
-        ServiceRegistration.Get<ILogger>().Debug("MoviesMetadataExtractor: Exception reading tags for '{0}'", ex, lfsra.CanonicalLocalResourcePath);
       }
 
       if (SkipOnlineSearches && !SkipFanArtDownload)
@@ -318,7 +322,6 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
           movieInfo.HasChanged = true;
         }
       }
-      movieInfo.AssignNameId();
 
       if (movieInfo.MovieNameSort.IsEmpty)
       {

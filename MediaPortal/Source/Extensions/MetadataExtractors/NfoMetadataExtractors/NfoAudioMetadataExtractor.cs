@@ -307,7 +307,6 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
                         trackInfo.Compilation = true;
                       }
                     }
-                    trackInfo.AssignNameId();
                     trackInfo.SetMetadata(extractedAspectData);
                   }
                 }
@@ -319,6 +318,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
         }
 
         _debugLogger.Info("[#{0}]: Successfully finished extracting metadata", miNumber);
+        ServiceRegistration.Get<ILogger>().Debug("NfoAudioMetadataExtractor: Assigned nfo audio metadata for resource '{0}'", mediaItemAccessor);
         return true;
       }
       catch (Exception e)
@@ -367,7 +367,9 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
     {
       //if (extractedAspectData.ContainsKey(AudioAspect.ASPECT_ID))
       //  return false;
-      
+      if (extractedAspectData.ContainsKey(ReimportAspect.ASPECT_ID)) //Ignore for reimports because the nfo might be the cause of the wrong match
+        return Task.FromResult(false);
+
       return TryExtractAudioMetadataAsync(mediaItemAccessor, extractedAspectData, forceQuickMode);
     }
 
