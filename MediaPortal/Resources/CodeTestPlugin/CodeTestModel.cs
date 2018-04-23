@@ -48,7 +48,7 @@ namespace MediaPortal.Test.CodeTest
     public void ShowScreenInTransientState(string screen)
     {
       IWorkflowManager workflowManager = ServiceRegistration.Get<IWorkflowManager>();
-      workflowManager.NavigatePushTransient(new WorkflowState(Guid.NewGuid(), screen, screen, true, screen, false, true, ModelId, WorkflowType.Workflow), null);
+      workflowManager.NavigatePushTransient(new WorkflowState(Guid.NewGuid(), screen, screen, true, screen, false, true, ModelId, WorkflowType.Workflow, null), null);
     }
 
     public void ContextMenuTest_Command()

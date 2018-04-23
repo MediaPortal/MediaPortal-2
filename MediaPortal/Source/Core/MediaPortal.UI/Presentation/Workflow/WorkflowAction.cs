@@ -44,6 +44,7 @@ namespace MediaPortal.UI.Presentation.Workflow
     protected string _sortOrder = null;
     protected Guid _actionId;
     protected string _name;
+    protected string _group;
     protected ICollection<Guid> _sourceStateIds;
     protected IResourceString _displayTitle;
     protected IResourceString _helpText;
@@ -173,6 +174,11 @@ namespace MediaPortal.UI.Presentation.Workflow
     /// Can be overridden in sub classes to track a usage counter. See <see cref="AddRef"/>.
     /// </summary>
     public virtual void RemoveRef() { }
+
+    /// <summary>
+    /// Action group definition. This can be used to filter them out in specific workflow states.
+    /// </summary>
+    public string Group { get; set; }
 
     #region IUserRestriction members
 
