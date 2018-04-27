@@ -73,6 +73,24 @@ namespace MediaPortal.Database.MSSQL
       }
     }
 
+    private bool TestConnection(string connection, out string version)
+    {
+      version = "";
+      try
+      {
+        SqlConnection sqlTestConn = new SqlConnection(connection);
+        sqlTestConn.Open();
+        version = sqlTestConn.ServerVersion;
+        sqlTestConn.Close();
+        return true;
+      }
+      catch (Exception ex)
+      {
+        ServiceRegistration.Get<ILogger>().Error("Unable to connect to database '{0}'.", ex, _dbSchema);
+      }
+      return false;
+    }
+
     private string CreateDatabaseConnection(out string version)
     {
       string connection = "";
@@ -92,17 +110,8 @@ namespace MediaPortal.Database.MSSQL
       sqlStr.InitialCatalog = _dbSchema;
       connection = sqlStr.ConnectionString;
 
-      try
-      {
-        SqlConnection sqlTestConn = new SqlConnection(sqlStr.ConnectionString);
-        sqlTestConn.Open();
-        version = sqlTestConn.ServerVersion;
-        sqlTestConn.Close();
-
-        //If connection successful presume that database is initialized
-        return connection;
-      }
-      catch { }
+      if (TestConnection(connection, out version))
+        return connection; //If connection successful presume that database is initialized
 
       //Init connection string for initialization
       sqlStr.IntegratedSecurity = true;
@@ -118,7 +127,7 @@ namespace MediaPortal.Database.MSSQL
         sqlCmd.CommandTimeout = DEFAULT_QUERY_TIMEOUT;
         sqlCmd.Connection = sqlConn;
         sqlCmd.CommandType = System.Data.CommandType.Text;
-        sqlCmd.CommandText = "SELECT COUNT(*) FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = '" + _dbSchema + "'";
+        sqlCmd.CommandText = "SELECT COUNT(*) FROM SYSDATABASES WHERE NAME = '" + _dbSchema + "'";
         int _tableCount = Convert.ToInt32(sqlCmd.ExecuteScalar());
         if (_tableCount == 0)
         {
@@ -146,7 +155,7 @@ namespace MediaPortal.Database.MSSQL
         if (_userCount == 0)
         {
           //Create MP user
-          sqlCmd.CommandText = "CREATE LOGIN [" + _username + "] WITH PASSWORD=N'" + _password + "', DEFAULT_LANGUAGE=[us_english], CHECK_EXPIRATION=OFF, CHECK_POLICY=OFF";
+          sqlCmd.CommandText = "CREATE LOGIN [" + _username + "] WITH PASSWORD=N'" + _password + "', DEFAULT_DATABASE=["+ _dbSchema + "], DEFAULT_LANGUAGE=[us_english], CHECK_EXPIRATION=OFF, CHECK_POLICY=OFF";
           sqlCmd.ExecuteNonQuery();
 
           //Give user the necessary rights
@@ -166,6 +175,9 @@ namespace MediaPortal.Database.MSSQL
       {
         sqlConn.Close();
       }
+
+      //Try connecting again
+      TestConnection(connection, out version);
       return connection;
     }
 
@@ -199,9 +211,9 @@ namespace MediaPortal.Database.MSSQL
       if (dotNetType == typeof(Double))
         return "FLOAT";
       if (dotNetType == typeof(Byte) || dotNetType == typeof(SByte))
-        return "TINYINT";
+        return "INTEGER";
       if (dotNetType == typeof(UInt16) || dotNetType == typeof(Int16))
-        return "SMALLINT";
+        return "INTEGER";
       if (dotNetType == typeof(UInt32) || dotNetType == typeof(Int32))
         return "INTEGER";
       if (dotNetType == typeof(UInt64) || dotNetType == typeof(Int64))

@@ -9,8 +9,6 @@
     <PluginFiles Include="$(TargetDir)$(ProjectName).dll" />
     <PluginFiles Include="$(ProjectDir)plugin.xml" />
     <PluginFiles Include="$(ProjectDir)MSSQLSettings.xml" />
-    <PluginFiles Include="$(ProjectDir)Create_Default_Database.bat" />
-    <PluginFiles Include="$(ProjectDir)Database-create-script.sql" />
   </ItemGroup>
 
   <Target Name="AfterBuild">

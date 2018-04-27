@@ -1,1 +1,1 @@
-﻿<MSSQLSettings Server=".\SQLExpress" UserName="MPUser" Password="MediaPortal" Database="MP2Server" />
+﻿<MSSQLSettings Server=".\SQLExpress" UserName="MPUser" Password="MediaPortal" Database="MP2Datastore" />
