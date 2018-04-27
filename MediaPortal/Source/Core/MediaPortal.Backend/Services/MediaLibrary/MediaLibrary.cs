@@ -1091,6 +1091,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
             {
               //Convert to client aspects
               mediaItemAspects = MediaItemAspect.GetAspects(_relationshipManagement.GetBaseChildAspectsFromParentAspects(item.Aspects, MediaItemAspect.GetAspects(matchedAspects)));
+              mediaItemAspects = mediaItemAspects.Union(matchedAspects.Where(a => a.Metadata.AspectId == ReimportAspect.ASPECT_ID));
             }
 
             IList<MultipleMediaItemAspect> providerAspects;
