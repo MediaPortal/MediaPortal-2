@@ -86,7 +86,8 @@ namespace MediaPortal.UiComponents.Media.Models
     protected TaskCompletionSource<IEnumerable<MediaItemAspect>> _selectionComplete = null;
     protected IEnumerable<MediaItemAspect> _matchedAspects = null;
     protected readonly IEnumerable<Guid> _wantedAspects = new Guid[] { ExternalIdentifierAspect.ASPECT_ID, MediaAspect.ASPECT_ID, MovieAspect.ASPECT_ID,
-      SeriesAspect.ASPECT_ID, EpisodeAspect.ASPECT_ID, AudioAlbumAspect.ASPECT_ID, AudioAspect.ASPECT_ID, VideoAspect.ASPECT_ID, ReimportAspect.ASPECT_ID };
+      SeriesAspect.ASPECT_ID, EpisodeAspect.ASPECT_ID, AudioAlbumAspect.ASPECT_ID, AudioAspect.ASPECT_ID, VideoAspect.ASPECT_ID, ReimportAspect.ASPECT_ID,
+      GenreAspect.ASPECT_ID };
 
     #endregion
 

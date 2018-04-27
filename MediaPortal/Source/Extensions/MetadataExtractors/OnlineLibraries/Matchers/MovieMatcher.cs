@@ -372,19 +372,6 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
         {
           movieInfo.MergeWith(movieMatch, true);
 
-          if (movieInfo.Genres.Count > 0)
-          {
-            IGenreConverter converter = ServiceRegistration.Get<IGenreConverter>();
-            foreach (var genre in movieInfo.Genres)
-            {
-              if (!genre.Id.HasValue && converter.GetGenreId(genre.Name, GenreCategory.Movie, null, out int genreId))
-              {
-                genre.Id = genreId;
-                movieInfo.HasChanged = true;
-              }
-            }
-          }
-
           //Store person matches
           foreach (PersonInfo person in movieInfo.Actors)
           {

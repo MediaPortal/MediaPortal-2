@@ -114,12 +114,6 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor.Match
       if (tags != null)
       {
         List<GenreInfo> genreList = tags.Select(s => new GenreInfo { Name = s }).ToList();
-        IGenreConverter converter = ServiceRegistration.Get<IGenreConverter>();
-        foreach (var genre in genreList)
-        {
-          if (!genre.Id.HasValue && converter.GetGenreId(genre.Name, GenreCategory.Movie, null, out int genreId))
-            genre.Id = genreId;
-        }
         movieInfo.HasChanged |= MetadataUpdater.SetOrUpdateList(movieInfo.Genres, genreList, movieInfo.Genres.Count == 0);
       }
 

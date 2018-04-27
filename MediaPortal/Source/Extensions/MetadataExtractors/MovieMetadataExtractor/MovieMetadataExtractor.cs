@@ -29,6 +29,7 @@ using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Common.MediaManagement.Helpers;
 using MediaPortal.Common.Messaging;
 using MediaPortal.Common.ResourceAccess;
+using MediaPortal.Common.Services.GenreConverter;
 using MediaPortal.Common.Services.Settings;
 using MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor.Matchers;
 using MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor.Settings;
@@ -302,6 +303,20 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
       else if (!SkipOnlineSearches)
       {
         await OnlineMatcherService.Instance.FindAndUpdateMovieAsync(movieInfo).ConfigureAwait(false);
+      }
+
+      //Asign genre ids
+      if (movieInfo.Genres.Count > 0)
+      {
+        IGenreConverter converter = ServiceRegistration.Get<IGenreConverter>();
+        foreach (var genre in movieInfo.Genres)
+        {
+          if (!genre.Id.HasValue && converter.GetGenreId(genre.Name, GenreCategory.Movie, null, out int genreId))
+          {
+            genre.Id = genreId;
+            movieInfo.HasChanged = true;
+          }
+        }
       }
 
       //Send it to the videos section

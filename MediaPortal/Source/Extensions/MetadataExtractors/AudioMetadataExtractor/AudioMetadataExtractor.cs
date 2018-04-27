@@ -516,6 +516,9 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
 
       try
       {
+        string title = null;
+        string artist = null;
+        uint? trackNo = null;
         TrackInfo trackInfo = new TrackInfo();
         trackInfo.FromMetadata(extractedAspectData);
         if (string.IsNullOrEmpty(trackInfo.TrackName))
@@ -532,21 +535,18 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
               if (tag.Properties.VideoHeight > 0 && tag.Properties.VideoWidth > 0)
                 return false;
 
+              fileName = ProviderPathHelper.GetFileNameWithoutExtension(fileName) ?? string.Empty;
+              GuessMetadataFromFileName(fileName, out title, out artist, out trackNo);
+              if (!string.IsNullOrEmpty(title))
+                title = CultureInfo.InvariantCulture.TextInfo.ToTitleCase(title.ToLowerInvariant());
+              if (!string.IsNullOrEmpty(artist))
+                artist = CultureInfo.InvariantCulture.TextInfo.ToTitleCase(artist.ToLowerInvariant());
+
+              if (!string.IsNullOrEmpty(tag.Tag.Title))
+                title = tag.Tag.Title.Trim();
+
               if (!isReimport) //Don't assign metadata for reimports because they might be the cause of the wrong import
               {
-                fileName = ProviderPathHelper.GetFileNameWithoutExtension(fileName) ?? string.Empty;
-                string title;
-                string artist;
-                uint? trackNo;
-                GuessMetadataFromFileName(fileName, out title, out artist, out trackNo);
-                if (!string.IsNullOrEmpty(title))
-                  title = CultureInfo.InvariantCulture.TextInfo.ToTitleCase(title.ToLowerInvariant());
-                if (!string.IsNullOrEmpty(artist))
-                  artist = CultureInfo.InvariantCulture.TextInfo.ToTitleCase(artist.ToLowerInvariant());
-
-                if (!string.IsNullOrEmpty(tag.Tag.Title))
-                  title = tag.Tag.Title.Trim();
-
                 IEnumerable<string> artists;
                 if (tag.Tag.Performers.Length > 0)
                 {
@@ -574,6 +574,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
                 MediaItemAspect.SetAttribute(extractedAspectData, MediaAspect.ATTR_COMMENT, StringUtils.TrimToNull(tag.Tag.Comment));
                 MediaItemAspect.SetAttribute(extractedAspectData, MediaAspect.ATTR_RECORDINGTIME, fsra.LastChanged);
 
+                trackInfo.HasChanged = true;
                 trackInfo.TrackName = title;
                 if (!string.IsNullOrEmpty(tag.Tag.TitleSort))
                   trackInfo.TrackNameSort = tag.Tag.TitleSort.Trim();
@@ -677,15 +678,6 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
                   if ((tag.TagTypes & TagTypes.Id3v2) != 0)
                     genres = PatchID3v23Enumeration(genres);
                   trackInfo.Genres = ApplyAdditionalSeparator(genres).Select(s => new GenreInfo { Name = s.Trim() }).ToList();
-                  IGenreConverter converter = ServiceRegistration.Get<IGenreConverter>();
-                  foreach (var genre in trackInfo.Genres)
-                  {
-                    int genreId = 0;
-                    if (!genre.Id.HasValue && converter.GetGenreId(genre.Name, GenreCategory.Music, null, out genreId))
-                    {
-                      genre.Id = genreId;
-                    }
-                  }
                 }
 
                 int year = (int)tag.Tag.Year;
@@ -715,15 +707,30 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
               }
 
               if (tag.Properties.Codecs.Count() > 0)
+              {
                 trackInfo.Encoding = tag.Properties.Codecs.First().Description;
+                trackInfo.HasChanged = true;
+              }
               if (tag.Properties.Duration.TotalSeconds != 0)
+              {
                 trackInfo.Duration = (long)tag.Properties.Duration.TotalSeconds;
+                trackInfo.HasChanged = true;
+              }
               if (tag.Properties.AudioBitrate != 0)
+              {
                 trackInfo.BitRate = (int)tag.Properties.AudioBitrate;
+                trackInfo.HasChanged = true;
+              }
               if (tag.Properties.AudioChannels != 0)
+              {
                 trackInfo.Channels = (int)tag.Properties.AudioChannels;
+                trackInfo.HasChanged = true;
+              }
               if (tag.Properties.AudioSampleRate != 0)
+              {
                 trackInfo.SampleRate = (int)tag.Properties.AudioSampleRate;
+                trackInfo.HasChanged = true;
+              }
             }
           }
 
@@ -741,6 +748,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
               trackInfo.AlbumArtists[0].Name.Equals("VA", StringComparison.InvariantCultureIgnoreCase)))
           {
             trackInfo.Compilation = true;
+            trackInfo.HasChanged = true;
           }
           else
           {
@@ -759,21 +767,11 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
               artistMediaItemDirectoryPath.FileName.IndexOf("Compilation", StringComparison.InvariantCultureIgnoreCase) >= 0)
             {
               trackInfo.Compilation = true;
+              trackInfo.HasChanged = true;
             }
           }
         }
 
-        if (string.IsNullOrEmpty(trackInfo.TrackNameSort))
-        {
-          if (!string.IsNullOrEmpty(trackInfo.Album) && trackInfo.ReleaseDate.HasValue && trackInfo.DiscNum > 0 && trackInfo.TrackNum > 0)
-            trackInfo.TrackNameSort = $"{trackInfo.Album} {trackInfo.ReleaseDate.Value.Year}  D{trackInfo.DiscNum.ToString("00")}T{trackInfo.TrackNum.ToString("00")}";
-          else if (!string.IsNullOrEmpty(trackInfo.Album) && trackInfo.DiscNum > 0 && trackInfo.TrackNum > 0)
-            trackInfo.TrackNameSort = $"{trackInfo.Album}  D{trackInfo.DiscNum.ToString("00")}T{trackInfo.TrackNum.ToString("00")}";
-          else if (!string.IsNullOrEmpty(trackInfo.Album) && trackInfo.TrackNum > 0)
-            trackInfo.TrackNameSort = $"{trackInfo.Album}  D00T{trackInfo.TrackNum.ToString("00")}";
-          else
-            trackInfo.TrackNameSort = BaseInfo.GetSortTitle(trackInfo.TrackName);
-        }
         //Check artists
         trackInfo.Artists = GetCorrectedArtistsList(trackInfo, trackInfo.Artists);
         trackInfo.AlbumArtists = GetCorrectedArtistsList(trackInfo, trackInfo.AlbumArtists);
@@ -793,6 +791,41 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
           {
             await OnlineMatcherService.Instance.FindAndUpdateTrackAsync(trackInfo).ConfigureAwait(false);
           }
+        }
+
+        if (trackInfo.Genres.Count > 0)
+        {
+          IGenreConverter converter = ServiceRegistration.Get<IGenreConverter>();
+          foreach (var genre in trackInfo.Genres)
+          {
+            if (!genre.Id.HasValue && converter.GetGenreId(genre.Name, GenreCategory.Music, null, out int genreId))
+            {
+              genre.Id = genreId;
+              trackInfo.HasChanged = true;
+            }
+          }
+        }
+
+        if (isReimport)
+        {
+          if (string.IsNullOrEmpty(trackInfo.TrackName))
+          {
+            trackInfo.TrackName = title;
+            trackInfo.HasChanged = true;
+          }
+        }
+
+        if (string.IsNullOrEmpty(trackInfo.TrackNameSort))
+        {
+          if (!string.IsNullOrEmpty(trackInfo.Album) && trackInfo.ReleaseDate.HasValue && trackInfo.DiscNum > 0 && trackInfo.TrackNum > 0)
+            trackInfo.TrackNameSort = $"{trackInfo.Album} {trackInfo.ReleaseDate.Value.Year}  D{trackInfo.DiscNum.ToString("00")}T{trackInfo.TrackNum.ToString("00")}";
+          else if (!string.IsNullOrEmpty(trackInfo.Album) && trackInfo.DiscNum > 0 && trackInfo.TrackNum > 0)
+            trackInfo.TrackNameSort = $"{trackInfo.Album}  D{trackInfo.DiscNum.ToString("00")}T{trackInfo.TrackNum.ToString("00")}";
+          else if (!string.IsNullOrEmpty(trackInfo.Album) && trackInfo.TrackNum > 0)
+            trackInfo.TrackNameSort = $"{trackInfo.Album}  D00T{trackInfo.TrackNum.ToString("00")}";
+          else
+            trackInfo.TrackNameSort = BaseInfo.GetSortTitle(trackInfo.TrackName);
+          trackInfo.HasChanged = true;
         }
 
         if (!trackInfo.HasChanged)

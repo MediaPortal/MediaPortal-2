@@ -401,22 +401,21 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor
         }
       }
 
-      public void UpdateMetadata(IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData, ILocalFsResourceAccessor lfsra, int partNum, int partSet, bool refresh)
+      public void UpdateMetadata(IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData, ILocalFsResourceAccessor lfsra, int partNum, int partSet, bool refresh, bool reimport)
       {
+        MediaItemAspect.SetAttribute(extractedAspectData, MediaAspect.ATTR_ISVIRTUAL, false);
+
         if (!refresh)
         {
           //VideoAspect required to mark this media item as a video
           SingleMediaItemAspect videoAspect = MediaItemAspect.GetOrCreateAspect(extractedAspectData, VideoAspect.Metadata);
           videoAspect.SetAttribute(VideoAspect.ATTR_ISDVD, IsDVD);
 
-          MediaItemAspect.SetAttribute(extractedAspectData, MediaAspect.ATTR_TITLE, _title);
-        }
-
-        MediaItemAspect.SetAttribute(extractedAspectData, MediaAspect.ATTR_ISVIRTUAL, false);
-
-        if (!refresh)
-        {
-          MediaItemAspect.SetAttribute(extractedAspectData, MediaAspect.ATTR_RECORDINGTIME, lfsra.LastChanged);
+          if (!reimport)
+          {
+            MediaItemAspect.SetAttribute(extractedAspectData, MediaAspect.ATTR_TITLE, _title);
+            MediaItemAspect.SetAttribute(extractedAspectData, MediaAspect.ATTR_RECORDINGTIME, lfsra.LastChanged);
+          }
 
           MultipleMediaItemAspect providerResourceAspect = MediaItemAspect.CreateAspect(extractedAspectData, ProviderResourceAspect.Metadata);
           providerResourceAspect.SetAttribute(ProviderResourceAspect.ATTR_RESOURCE_INDEX, 0);
@@ -1142,6 +1141,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor
         if (fsra == null)
           return false;
 
+        bool isReimport = extractedAspectData.ContainsKey(ReimportAspect.ASPECT_ID);
         VideoResult result = null;
         if (!fsra.IsFile && fsra.ResourceExists("VIDEO_TS"))
         {
@@ -1180,8 +1180,8 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor
               ILocalFsResourceAccessor lfsra = rah.LocalFsResourceAccessor;
               if (lfsra != null)
               {
-                result.UpdateMetadata(extractedAspectData, lfsra, -1, 0, false);
-                if (!extractedAspectData.ContainsKey(ReimportAspect.ASPECT_ID)) //Ignore tags for reimports because they might be the cause of the wrong match
+                result.UpdateMetadata(extractedAspectData, lfsra, -1, 0, false, isReimport);
+                if (!isReimport) //Ignore tags for reimports because they might be the cause of the wrong match
                 {
                   try
                   {
@@ -1239,8 +1239,8 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor
                 ILocalFsResourceAccessor lfsra = rah.LocalFsResourceAccessor;
                 if (lfsra != null)
                 {
-                  result.UpdateMetadata(extractedAspectData, lfsra, multipart, multipartSet, false);
-                  if (!extractedAspectData.ContainsKey(ReimportAspect.ASPECT_ID)) //Ignore tags for reimports because they might be the cause of the wrong match
+                  result.UpdateMetadata(extractedAspectData, lfsra, multipart, multipartSet, false, isReimport);
+                  if (!isReimport) //Ignore tags for reimports because they might be the cause of the wrong match
                   {
                     try
                     {

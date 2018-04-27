@@ -583,19 +583,6 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
         {
           seriesInfo.MergeWith(seriesMatch, true, updateEpisodeList);
 
-          if (seriesInfo.Genres.Count > 0)
-          {
-            IGenreConverter converter = ServiceRegistration.Get<IGenreConverter>();
-            foreach (var genre in seriesInfo.Genres)
-            {
-              if (!genre.Id.HasValue && converter.GetGenreId(genre.Name, GenreCategory.Series, null, out int genreId))
-              {
-                genre.Id = genreId;
-                seriesInfo.HasChanged = true;
-              }
-            }
-          }
-
           //Store person matches
           foreach (PersonInfo person in seriesInfo.Actors)
           {

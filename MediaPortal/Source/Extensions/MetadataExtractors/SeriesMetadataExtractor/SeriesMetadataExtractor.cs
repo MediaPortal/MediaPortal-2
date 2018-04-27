@@ -264,6 +264,12 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
         await OnlineMatcherService.Instance.FindAndUpdateEpisodeAsync(episodeInfo).ConfigureAwait(false);
       }
 
+      if (episodeInfo.EpisodeName.IsEmpty)
+      {
+        if (episodeInfo.EpisodeNumbers.Any())
+          episodeInfo.EpisodeName = $"E{episodeInfo.EpisodeNumbers.First().ToString("000")}";
+      }
+
       //Send it to the videos section
       if (!SkipOnlineSearches && !episodeInfo.HasExternalId)
         return false;

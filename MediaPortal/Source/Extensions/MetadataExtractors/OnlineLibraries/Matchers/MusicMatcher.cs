@@ -411,19 +411,6 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
             //as the unmatched tracks may be set to disc 0, whilst the matched set to disc 1
           trackInfo.MergeWith(trackMatch, false, false);
 
-          if (trackInfo.Genres.Count > 0)
-          {
-            IGenreConverter converter = ServiceRegistration.Get<IGenreConverter>();
-            foreach (var genre in trackInfo.Genres)
-            {
-              if (!genre.Id.HasValue && converter.GetGenreId(genre.Name, GenreCategory.Music, null, out int genreId))
-              {
-                genre.Id = genreId;
-                trackInfo.HasChanged = true;
-              }
-            }
-          }
-
           //Store person matches
           foreach (PersonInfo person in trackInfo.AlbumArtists)
           {
