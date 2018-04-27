@@ -298,9 +298,40 @@ namespace MediaPortal.UiComponents.Media.Models
 
       _matchedAspects = null;
       _selectionComplete = new TaskCompletionSource<IEnumerable<MediaItemAspect>>();
-      ServiceRegistration.Get<IScreenManager>().ShowDialog("DialogChooseMatch", (s, g) =>
+      ServiceRegistration.Get<IScreenManager>().ShowDialog("DialogChooseMatch", async(s, g) =>
       {
-        _selectionComplete.SetResult(_matchedAspects);
+        if (_matchedAspects != null)
+        {
+          IDictionary<Guid, IList<MediaItemAspect>> aspects = MediaItemAspect.GetAspects(_matchedAspects);
+
+          //Download detailed information if possible. The server might no be allowed to use online sources.
+          if (mediaItem.Aspects.ContainsKey(MovieAspect.ASPECT_ID))
+          {
+            MovieInfo info = new MovieInfo();
+            info.FromMetadata(MediaItemAspect.GetAspects(_matchedAspects));
+            await OnlineMatcherService.Instance.FindAndUpdateMovieAsync(info);
+            info.SetMetadata(aspects, true);
+          }
+          else if (mediaItem.Aspects.ContainsKey(EpisodeAspect.ASPECT_ID))
+          {
+            EpisodeInfo info = new EpisodeInfo();
+            info.FromMetadata(MediaItemAspect.GetAspects(_matchedAspects));
+            await OnlineMatcherService.Instance.FindAndUpdateEpisodeAsync(info);
+            info.SetMetadata(aspects, true);
+          }
+          else if (mediaItem.Aspects.ContainsKey(AudioAspect.ASPECT_ID))
+          {
+            TrackInfo info = new TrackInfo();
+            info.FromMetadata(MediaItemAspect.GetAspects(_matchedAspects));
+            await OnlineMatcherService.Instance.FindAndUpdateTrackAsync(info);
+            info.SetMetadata(aspects, true);
+          }
+          _selectionComplete.SetResult(aspects.Where(a => _wantedAspects.Contains(a.Key)).SelectMany(a => a.Value));
+        }
+        else
+        {
+          _selectionComplete.SetResult(null);
+        }
       });
       await DoSearchAsync();
     }
