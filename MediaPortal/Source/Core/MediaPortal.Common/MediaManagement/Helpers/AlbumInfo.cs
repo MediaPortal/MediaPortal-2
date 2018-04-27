@@ -574,6 +574,8 @@ namespace MediaPortal.Common.MediaManagement.Helpers
         info.Album = Album;
         info.AlbumSort = AlbumSort;
         info.ReleaseDate = ReleaseDate;
+        foreach(var artist in Artists)
+          info.Artists.Add(artist.Clone());
         return (T)(object)info;
       }
       else if (typeof(T) == typeof(TrackInfo))
@@ -581,6 +583,8 @@ namespace MediaPortal.Common.MediaManagement.Helpers
         TrackInfo info = new TrackInfo();
         info.CopyIdsFrom(this);
         info.Album = Album;
+        foreach (var artist in Artists)
+          info.AlbumArtists.Add(artist.Clone());
         return (T)(object)info;
       }
       return default(T);

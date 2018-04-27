@@ -327,6 +327,20 @@ namespace MediaPortal.UiComponents.Media.Models
             await OnlineMatcherService.Instance.FindAndUpdateTrackAsync(info);
             info.SetMetadata(aspects, true);
           }
+          else if (mediaItem.Aspects.ContainsKey(SeriesAspect.ASPECT_ID))
+          {
+            SeriesInfo info = new SeriesInfo();
+            info.FromMetadata(MediaItemAspect.GetAspects(_matchedAspects));
+            await OnlineMatcherService.Instance.UpdateSeriesAsync(info, false);
+            info.SetMetadata(aspects, true);
+          }
+          else if (mediaItem.Aspects.ContainsKey(AudioAlbumAspect.ASPECT_ID))
+          {
+            AlbumInfo info = new AlbumInfo();
+            info.FromMetadata(MediaItemAspect.GetAspects(_matchedAspects));
+            await OnlineMatcherService.Instance.UpdateAlbumAsync(info, false);
+            info.SetMetadata(aspects, true);
+          }
           _selectionComplete.SetResult(aspects.Where(a => _wantedAspects.Contains(a.Key)).SelectMany(a => a.Value));
         }
         else
