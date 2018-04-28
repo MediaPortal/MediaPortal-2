@@ -34,7 +34,7 @@ namespace MediaPortal.UiComponents.Media.Models.ScreenData
   {
     public AudioFilterByGenreScreenData() :
         base(Consts.SCREEN_AUDIO_FILTER_BY_GENRE, Consts.RES_COMMON_BY_GENRE_MENU_ITEM,
-        Consts.RES_FILTER_AUDIO_GENRE_NAVBAR_DISPLAY_LABEL, new FilterByGenreCriterion(Consts.NECESSARY_AUDIO_GENRE_MIAS, GenreCategory.Music))
+        Consts.RES_FILTER_AUDIO_GENRE_NAVBAR_DISPLAY_LABEL, new FilterByGenreCriterion(Consts.NECESSARY_AUDIO_MIAS, GenreCategory.Music))
     {
       _availableMias = Consts.NECESSARY_AUDIO_MIAS;
       if (Consts.OPTIONAL_AUDIO_MIAS != null)
