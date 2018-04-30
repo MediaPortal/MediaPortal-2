@@ -99,14 +99,14 @@ namespace MediaPortal.Common.Services.MediaManagement.ImportDataflowBlocks
       {
         // ReSharper disable once PossibleInvalidOperationException
         if(importResource.MediaItemId.HasValue)
-          importResource.MediaItemId = await UpdateMediaItem(importResource.ParentDirectoryId.Value, importResource.PendingResourcePath, importResource.MediaItemId.Value, MediaItemAspect.GetAspects(importResource.Aspects), ImportJobInformation, true, _ct);
+          importResource.MediaItemId = await UpdateMediaItem(importResource.ParentDirectoryId.Value, importResource.PendingResourcePath, importResource.MediaItemId.Value, MediaItemAspect.GetAspects(importResource.Aspects), ImportJobInformation, true, _ct).ConfigureAwait(false);
         else
-          importResource.MediaItemId = await UpdateMediaItem(importResource.ParentDirectoryId.Value, importResource.PendingResourcePath, MediaItemAspect.GetAspects(importResource.Aspects), ImportJobInformation, false, _ct);
+          importResource.MediaItemId = await UpdateMediaItem(importResource.ParentDirectoryId.Value, importResource.PendingResourcePath, MediaItemAspect.GetAspects(importResource.Aspects), ImportJobInformation, false, _ct).ConfigureAwait(false);
 
         if (ImportJobInformation.JobType == ImportJobType.Refresh)
         {
           if (importResource.IsSingleResource && importResource.Aspects.ContainsKey(DirectoryAspect.ASPECT_ID))
-            await DeleteUnderPath(importResource.PendingResourcePath);
+            await DeleteUnderPath(importResource.PendingResourcePath).ConfigureAwait(false);
         }
         return importResource;
       }

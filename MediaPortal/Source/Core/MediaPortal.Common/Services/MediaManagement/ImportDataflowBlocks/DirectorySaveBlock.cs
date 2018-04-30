@@ -91,7 +91,7 @@ namespace MediaPortal.Common.Services.MediaManagement.ImportDataflowBlocks
     {
       try
       {
-        importResource.ParentDirectoryId = await GetParentDirectoryId(importResource.ParentDirectory);
+        importResource.ParentDirectoryId = await GetParentDirectoryId(importResource.ParentDirectory).ConfigureAwait(false);
         
         // Directories that are single resources (such as DVD directories) are not saved in this DataflowBlock
         // We just pass them to the next DataflowBlock.
@@ -100,7 +100,7 @@ namespace MediaPortal.Common.Services.MediaManagement.ImportDataflowBlocks
           // We only save to the MediaLibrary if
           // (a) this is a FirstTimeImport (i.e. not a RefreshImport), or
           // (b) this is a RefreshImport and the respective directory MediaItem is not yet in the MediaLibrary
-          if (ImportJobInformation.JobType == ImportJobType.Import || await IsRefreshNeeded(importResource))
+          if (ImportJobInformation.JobType == ImportJobType.Import || await IsRefreshNeeded(importResource).ConfigureAwait(false))
           {
             if (importResource.ParentDirectoryId == null)
             {
@@ -109,7 +109,7 @@ namespace MediaPortal.Common.Services.MediaManagement.ImportDataflowBlocks
               importResource.IsValid = false;
               return importResource;
             }
-            Guid newId = await AddDirectory(importResource.ResourceAccessor, importResource.ParentDirectoryId.Value);
+            Guid newId = await AddDirectory(importResource.ResourceAccessor, importResource.ParentDirectoryId.Value).ConfigureAwait(false);
             importResource.MediaItemId = newId;
             _parentDirectoryIds[importResource.PendingResourcePath] = newId;
           }
@@ -136,7 +136,7 @@ namespace MediaPortal.Common.Services.MediaManagement.ImportDataflowBlocks
     private async Task<bool> IsRefreshNeeded(PendingImportResourceNewGen importResource)
     {
       var directoryPath = importResource.ResourceAccessor.CanonicalLocalResourcePath;
-      var directoryItem = await LoadLocalItem(directoryPath, EMPTY_MIA_ID_ENUMERATION, DIRECTORY_MIA_ID_ENUMERATION);
+      var directoryItem = await LoadLocalItem(directoryPath, EMPTY_MIA_ID_ENUMERATION, DIRECTORY_MIA_ID_ENUMERATION).ConfigureAwait(false);
       if (directoryItem != null)
       {
         SingleMediaItemAspect directoryAspect;
@@ -144,7 +144,7 @@ namespace MediaPortal.Common.Services.MediaManagement.ImportDataflowBlocks
         {
           // This is the case if the parentResourcePath was formerly imported as a single resource.
           // We cannot reuse it and it is necessary to delete this old MediaItem.
-          await DeleteMediaItem(directoryPath);
+          await DeleteMediaItem(directoryPath).ConfigureAwait(false);
           directoryItem = null;
         }
         else
@@ -182,7 +182,7 @@ namespace MediaPortal.Common.Services.MediaManagement.ImportDataflowBlocks
       // the MediaLibrary to get its ID. This should only be necessary if the ImportJob was
       // persisted to disk before and resumed after a restart of the application. In this
       // case we don't have the parent directory IDs cached in _parentDirectoryIds.
-      var parentDirectoryMediaItem = await LoadLocalItem(parentResourcePath, DIRECTORY_MIA_ID_ENUMERATION, EMPTY_MIA_ID_ENUMERATION);
+      var parentDirectoryMediaItem = await LoadLocalItem(parentResourcePath, DIRECTORY_MIA_ID_ENUMERATION, EMPTY_MIA_ID_ENUMERATION).ConfigureAwait(false);
       if (parentDirectoryMediaItem == null)
       {
         // If the parent directory ID could not be found in the MediaLibrary, this is an error
@@ -205,7 +205,7 @@ namespace MediaPortal.Common.Services.MediaManagement.ImportDataflowBlocks
     /// <returns></returns>
     private async Task<Guid> AddDirectory(IFileSystemResourceAccessor directoryAccessor, Guid parentDirectoryId)
     {
-      var directoryMediaItem = await LoadLocalItem(directoryAccessor.CanonicalLocalResourcePath, PROVIDERRESOURCE_DIRECTORY_MIA_ID_ENUMERATION, EMPTY_MIA_ID_ENUMERATION);
+      var directoryMediaItem = await LoadLocalItem(directoryAccessor.CanonicalLocalResourcePath, PROVIDERRESOURCE_DIRECTORY_MIA_ID_ENUMERATION, EMPTY_MIA_ID_ENUMERATION).ConfigureAwait(false);
       if (directoryMediaItem == null)
       {
         var directoryPath = directoryAccessor.CanonicalLocalResourcePath;
@@ -223,7 +223,7 @@ namespace MediaPortal.Common.Services.MediaManagement.ImportDataflowBlocks
             mediaAspect,
             directoryAspect
         });
-        return await UpdateMediaItem(parentDirectoryId, directoryPath, aspects, ImportJobInformation, false, _ct);
+        return await UpdateMediaItem(parentDirectoryId, directoryPath, aspects, ImportJobInformation, false, _ct).ConfigureAwait(false);
       }
       return directoryMediaItem.MediaItemId;
     }

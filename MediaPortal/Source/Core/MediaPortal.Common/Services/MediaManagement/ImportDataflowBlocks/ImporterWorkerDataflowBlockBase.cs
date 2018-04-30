@@ -292,15 +292,15 @@ namespace MediaPortal.Common.Services.MediaManagement.ImportDataflowBlocks
       {
         try
         {
-          await Activated.WaitAsync();
+          await Activated.WaitAsync().ConfigureAwait(false);
           // ReSharper disable PossibleMultipleEnumeration
-          return await _mediaBrowsingCallback.LoadLocalItemAsync(path, necessaryRequestedMiaTypeIds, optionalRequestedMiaTypeIds);
+          return await _mediaBrowsingCallback.LoadLocalItemAsync(path, necessaryRequestedMiaTypeIds, optionalRequestedMiaTypeIds).ConfigureAwait(false);
           // ReSharper restore PossibleMultipleEnumeration
         }
         catch (DisconnectedException)
         {
           ServiceRegistration.Get<ILogger>().Info("ImporterWorker.{0}.{1}: MediaLibrary disconnected. Requesting suspension...", ParentImportJobController, _blockName);
-          ParentImportJobController.ParentImporterWorker.RequestAction(new ImporterWorkerAction(ImporterWorkerAction.ActionType.Suspend)).Wait();
+          await ParentImportJobController.ParentImporterWorker.RequestAction(new ImporterWorkerAction(ImporterWorkerAction.ActionType.Suspend));
         }
       }
     }
@@ -311,15 +311,15 @@ namespace MediaPortal.Common.Services.MediaManagement.ImportDataflowBlocks
       {
         try
         {
-          await Activated.WaitAsync();
+          await Activated.WaitAsync().ConfigureAwait(false);
           // ReSharper disable PossibleMultipleEnumeration
-          return await _mediaBrowsingCallback.LoadLocalItemAsync(mediaItemId, necessaryRequestedMiaTypeIds, optionalRequestedMiaTypeIds);
+          return await _mediaBrowsingCallback.LoadLocalItemAsync(mediaItemId, necessaryRequestedMiaTypeIds, optionalRequestedMiaTypeIds).ConfigureAwait(false);
           // ReSharper restore PossibleMultipleEnumeration
         }
         catch (DisconnectedException)
         {
           ServiceRegistration.Get<ILogger>().Info("ImporterWorker.{0}.{1}: MediaLibrary disconnected. Requesting suspension...", ParentImportJobController, _blockName);
-          ParentImportJobController.ParentImporterWorker.RequestAction(new ImporterWorkerAction(ImporterWorkerAction.ActionType.Suspend)).Wait();
+          await ParentImportJobController.ParentImporterWorker.RequestAction(new ImporterWorkerAction(ImporterWorkerAction.ActionType.Suspend));
         }
       }
     }
@@ -330,15 +330,15 @@ namespace MediaPortal.Common.Services.MediaManagement.ImportDataflowBlocks
       {
         try
         {
-          await Activated.WaitAsync();
+          await Activated.WaitAsync().ConfigureAwait(false);
           // ReSharper disable PossibleMultipleEnumeration
-          return await _mediaBrowsingCallback.BrowseAsync(parentDirectoryId, necessaryRequestedMiaTypeIds, optionalRequestedMiaTypeIds, null, false);
+          return await _mediaBrowsingCallback.BrowseAsync(parentDirectoryId, necessaryRequestedMiaTypeIds, optionalRequestedMiaTypeIds, null, false).ConfigureAwait(false);
           // ReSharper restore PossibleMultipleEnumeration
         }
         catch (DisconnectedException)
         {
           ServiceRegistration.Get<ILogger>().Info("ImporterWorker.{0}.{1}: MediaLibrary disconnected. Requesting suspension...", ParentImportJobController, _blockName);
-          ParentImportJobController.ParentImporterWorker.RequestAction(new ImporterWorkerAction(ImporterWorkerAction.ActionType.Suspend)).Wait();
+          await ParentImportJobController.ParentImporterWorker.RequestAction(new ImporterWorkerAction(ImporterWorkerAction.ActionType.Suspend));
         }
       }
     }
@@ -349,13 +349,13 @@ namespace MediaPortal.Common.Services.MediaManagement.ImportDataflowBlocks
       {
         try
         {
-          await Activated.WaitAsync();
-          return await _mediaBrowsingCallback.GetManagedMediaItemAspectCreationDatesAsync();
+          await Activated.WaitAsync().ConfigureAwait(false);
+          return await _mediaBrowsingCallback.GetManagedMediaItemAspectCreationDatesAsync().ConfigureAwait(false);
         }
         catch (DisconnectedException)
         {
           ServiceRegistration.Get<ILogger>().Info("ImporterWorker.{0}.{1}: MediaLibrary disconnected. Requesting suspension...", ParentImportJobController, _blockName);
-          ParentImportJobController.ParentImporterWorker.RequestAction(new ImporterWorkerAction(ImporterWorkerAction.ActionType.Suspend)).Wait();
+          await ParentImportJobController.ParentImporterWorker.RequestAction(new ImporterWorkerAction(ImporterWorkerAction.ActionType.Suspend));
         }
       }
     }
@@ -366,13 +366,13 @@ namespace MediaPortal.Common.Services.MediaManagement.ImportDataflowBlocks
       {
         try
         {
-          await Activated.WaitAsync();
-          return await _mediaBrowsingCallback.GetAllManagedMediaItemAspectTypesAsync();
+          await Activated.WaitAsync().ConfigureAwait(false);
+          return await _mediaBrowsingCallback.GetAllManagedMediaItemAspectTypesAsync().ConfigureAwait(false);
         }
         catch (DisconnectedException)
         {
           ServiceRegistration.Get<ILogger>().Info("ImporterWorker.{0}.{1}: MediaLibrary disconnected. Requesting suspension...", ParentImportJobController, _blockName);
-          ParentImportJobController.ParentImporterWorker.RequestAction(new ImporterWorkerAction(ImporterWorkerAction.ActionType.Suspend)).Wait();
+          await ParentImportJobController.ParentImporterWorker.RequestAction(new ImporterWorkerAction(ImporterWorkerAction.ActionType.Suspend));
         }
       }
     }
@@ -383,15 +383,15 @@ namespace MediaPortal.Common.Services.MediaManagement.ImportDataflowBlocks
       {
         try
         {
-          await Activated.WaitAsync();
+          await Activated.WaitAsync().ConfigureAwait(false);
           // ReSharper disable PossibleMultipleEnumeration
-          return await _importResultHandler.UpdateMediaItemAsync(parentDirectoryId, path, updatedAspects, isRefresh, jobInfo.BasePath);
+          return await _importResultHandler.UpdateMediaItemAsync(parentDirectoryId, path, updatedAspects, isRefresh, jobInfo.BasePath).ConfigureAwait(false);
           // ReSharper restore PossibleMultipleEnumeration
         }
         catch (DisconnectedException)
         {
           ServiceRegistration.Get<ILogger>().Info("ImporterWorker.{0}.{1}: MediaLibrary disconnected. Requesting suspension...", ParentImportJobController, _blockName);
-          ParentImportJobController.ParentImporterWorker.RequestAction(new ImporterWorkerAction(ImporterWorkerAction.ActionType.Suspend)).Wait();
+          await ParentImportJobController.ParentImporterWorker.RequestAction(new ImporterWorkerAction(ImporterWorkerAction.ActionType.Suspend));
         }
       }
     }
@@ -402,15 +402,15 @@ namespace MediaPortal.Common.Services.MediaManagement.ImportDataflowBlocks
       {
         try
         {
-          await Activated.WaitAsync();
+          await Activated.WaitAsync().ConfigureAwait(false);
           // ReSharper disable PossibleMultipleEnumeration
-          return await _importResultHandler.UpdateMediaItemAsync(parentDirectoryId, path, mediaItemId, updatedAspects, isRefresh, jobInfo.BasePath);
+          return await _importResultHandler.UpdateMediaItemAsync(parentDirectoryId, path, mediaItemId, updatedAspects, isRefresh, jobInfo.BasePath).ConfigureAwait(false);
           // ReSharper restore PossibleMultipleEnumeration
         }
         catch (DisconnectedException)
         {
           ServiceRegistration.Get<ILogger>().Info("ImporterWorker.{0}.{1}: MediaLibrary disconnected. Requesting suspension...", ParentImportJobController, _blockName);
-          ParentImportJobController.ParentImporterWorker.RequestAction(new ImporterWorkerAction(ImporterWorkerAction.ActionType.Suspend)).Wait();
+          await ParentImportJobController.ParentImporterWorker.RequestAction(new ImporterWorkerAction(ImporterWorkerAction.ActionType.Suspend));
         }
       }
     }
@@ -422,15 +422,15 @@ namespace MediaPortal.Common.Services.MediaManagement.ImportDataflowBlocks
       {
         try
         {
-          await Activated.WaitAsync();
+          await Activated.WaitAsync().ConfigureAwait(false);
           // ReSharper disable PossibleMultipleEnumeration
-          return await _importResultHandler.ReconcileMediaItemRelationshipsAsync(mediaItemId, mediaItemAspects, relationshipItems);
+          return await _importResultHandler.ReconcileMediaItemRelationshipsAsync(mediaItemId, mediaItemAspects, relationshipItems).ConfigureAwait(false);
           // ReSharper restore PossibleMultipleEnumeration
         }
         catch (DisconnectedException)
         {
           ServiceRegistration.Get<ILogger>().Info("ImporterWorker.{0}.{1}: MediaLibrary disconnected. Requesting suspension...", ParentImportJobController, _blockName);
-          ParentImportJobController.ParentImporterWorker.RequestAction(new ImporterWorkerAction(ImporterWorkerAction.ActionType.Suspend)).Wait();
+          await ParentImportJobController.ParentImporterWorker.RequestAction(new ImporterWorkerAction(ImporterWorkerAction.ActionType.Suspend));
         }
       }
     }
@@ -441,14 +441,14 @@ namespace MediaPortal.Common.Services.MediaManagement.ImportDataflowBlocks
       {
         try
         {
-          await Activated.WaitAsync();
-          await _importResultHandler.DeleteMediaItemAsync(path);
+          await Activated.WaitAsync().ConfigureAwait(false);
+          await _importResultHandler.DeleteMediaItemAsync(path).ConfigureAwait(false);
           return;
         }
         catch (DisconnectedException)
         {
           ServiceRegistration.Get<ILogger>().Info("ImporterWorker.{0}.{1}: MediaLibrary disconnected. Requesting suspension...", ParentImportJobController, _blockName);
-          ParentImportJobController.ParentImporterWorker.RequestAction(new ImporterWorkerAction(ImporterWorkerAction.ActionType.Suspend)).Wait();
+          await ParentImportJobController.ParentImporterWorker.RequestAction(new ImporterWorkerAction(ImporterWorkerAction.ActionType.Suspend));
         }
       }
     }
@@ -459,14 +459,14 @@ namespace MediaPortal.Common.Services.MediaManagement.ImportDataflowBlocks
       {
         try
         {
-          await Activated.WaitAsync();
-          await _importResultHandler.DeleteUnderPathAsync(path);
+          await Activated.WaitAsync().ConfigureAwait(false);
+          await _importResultHandler.DeleteUnderPathAsync(path).ConfigureAwait(false);
           return;
         }
         catch (DisconnectedException)
         {
           ServiceRegistration.Get<ILogger>().Info("ImporterWorker.{0}.{1}: MediaLibrary disconnected. Requesting suspension...", ParentImportJobController, _blockName);
-          ParentImportJobController.ParentImporterWorker.RequestAction(new ImporterWorkerAction(ImporterWorkerAction.ActionType.Suspend)).Wait();
+          await ParentImportJobController.ParentImporterWorker.RequestAction(new ImporterWorkerAction(ImporterWorkerAction.ActionType.Suspend));
         }
       }
     }
@@ -486,7 +486,7 @@ namespace MediaPortal.Common.Services.MediaManagement.ImportDataflowBlocks
           {
             IFileSystemResourceAccessor fssra = ra as IFileSystemResourceAccessor;
             if (fssra != null)
-              return await IsSingleResource(fssra);
+              return await IsSingleResource(fssra).ConfigureAwait(false);
           }
       }
       catch { }
