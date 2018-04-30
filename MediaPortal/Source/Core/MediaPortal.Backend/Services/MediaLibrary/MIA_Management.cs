@@ -1284,18 +1284,21 @@ namespace MediaPortal.Backend.Services.MediaLibrary
         }
 
         // Composite indexes
-        var indexIds = miam.AttributeSpecifications.Values.SelectMany(a => a.CompositeIndexIds).Distinct();
-        foreach (int indexId in indexIds)
+        var indexIds = miam.AttributeSpecifications.Values.Where(a => a.CompositeIndexIds?.Count() > 0).SelectMany(a => a.CompositeIndexIds).Distinct();
+        if (indexIds?.Count() > 0)
         {
-          IEnumerable<string> indexColumns = miam.AttributeSpecifications.Values.Where(a => a.CompositeIndexIds?.Contains(indexId) ?? false).Select(a => GenerateMIAAttributeColumnName(transaction, a));
-          indexName = GenerateDBObjectName(transaction, miam.AspectId, $"COMPOSITE_CI{indexId}_IDX", "IDX");
-          ServiceRegistration.Get<ILogger>().Debug("MIA_Management: Creating composite index '{0}' for media item aspect '{1}'",
-              indexName, miam.AspectId);
-
-          using (IDbCommand command = transaction.CreateCommand())
+          foreach (int indexId in indexIds)
           {
-            command.CommandText = "CREATE INDEX " + indexName + " ON " + miaTableName + "(" + string.Join(",", indexColumns) + ")";
-            command.ExecuteNonQuery();
+            IEnumerable<string> indexColumns = miam.AttributeSpecifications.Values.Where(a => a.CompositeIndexIds?.Contains(indexId) ?? false).Select(a => GetMIAAttributeColumnName(a));
+            indexName = GenerateDBObjectName(transaction, miam.AspectId, $"{miaTableName}_CI{indexId}_IDX", "IDX");
+            ServiceRegistration.Get<ILogger>().Debug("MIA_Management: Creating composite index '{0}' for media item aspect '{1}'",
+                indexName, miam.AspectId);
+
+            using (IDbCommand command = transaction.CreateCommand())
+            {
+              command.CommandText = "CREATE INDEX " + indexName + " ON " + miaTableName + "(" + string.Join(",", indexColumns) + ")";
+              command.ExecuteNonQuery();
+            }
           }
         }
 

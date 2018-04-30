@@ -316,7 +316,7 @@ namespace MediaPortal.Common.MediaManagement
       [XmlArray("CompositeIndexIds", IsNullable = true)]
       public int[] XML_CompositeIndexIds
       {
-        get { return _compositeIndexIds.ToArray(); }
+        get { return _compositeIndexIds?.ToArray(); }
         set
         {
           if (value.Length > 0)
