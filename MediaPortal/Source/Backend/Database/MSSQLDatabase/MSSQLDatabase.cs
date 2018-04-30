@@ -30,6 +30,7 @@ using System;
 using System.Data;
 using System.Data.SqlClient;
 using System.Data.SqlTypes;
+using System.Threading;
 
 namespace MediaPortal.Database.MSSQL
 {
@@ -56,6 +57,12 @@ namespace MediaPortal.Database.MSSQL
     protected readonly string _server;
     protected readonly string _username;
     protected readonly string _password;
+
+    //Synchronization of transactions to avoid deadlocks
+    //The current strategies for fetching/storing data during import seems
+    //to make possible that shared locks that need to excalate to exclusive locks
+    //can cause deadlocks
+    protected SemaphoreSlim _access = new SemaphoreSlim(1, 1);
 
     #endregion
 
@@ -282,12 +289,12 @@ namespace MediaPortal.Database.MSSQL
 
     public ITransaction BeginTransaction(IsolationLevel level)
     {
-      return MSSQLTransaction.BeginTransaction(this, _connectionString, level);
+      return MSSQLTransaction.BeginTransaction(this, _connectionString, IsolationLevel.Serializable, _access);
     }
 
     public ITransaction BeginTransaction()
     {
-      return BeginTransaction(IsolationLevel.ReadCommitted);
+      return BeginTransaction(IsolationLevel.Serializable);
     }
 
     public bool TableExists(string tableName)

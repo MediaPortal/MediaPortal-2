@@ -26,81 +26,86 @@ using System.Data;
 using MediaPortal.Backend.Database;
 using MediaPortal.Backend.Services.Database;
 using System.Data.SqlClient;
+using System.Threading;
 
 namespace MediaPortal.Database.MSSQL
 {
-    public class MSSQLTransaction : ITransaction
+  public class MSSQLTransaction : ITransaction
+  {
+    #region Protected fields
+
+    protected SqlTransaction _transaction;
+    protected ISQLDatabase _database;
+    protected IDbConnection _connection;
+    protected SemaphoreSlim _access;
+
+    #endregion
+
+    #region ITransaction Member
+
+    public ISQLDatabase Database
     {
-      #region Protected fields
+      get { return _database; }
+    }
 
-      protected SqlTransaction _transaction;
-      protected ISQLDatabase _database;
-      protected IDbConnection _connection;
+    public IDbConnection Connection
+    {
+      get { return _connection; }
+    }
 
-      #endregion
+    public void Commit()
+    {
+      _transaction.Commit();
+      Dispose();
+    }
 
-      #region ITransaction Member
+    public void Rollback()
+    {
+      _transaction.Rollback();
+      Dispose();
+    }
 
-      public ISQLDatabase Database
-      {
-        get { return _database; }
-      }
-
-      public IDbConnection Connection
-      {
-        get { return _connection; }
-      }
-
-      public void Commit()
-      {
-        _transaction.Commit();
-        Dispose();
-      }
-
-      public void Rollback()
-      {
-        _transaction.Rollback();
-        Dispose();
-      }
-
-      public IDbCommand CreateCommand()
-      {
-        IDbCommand result = _connection.CreateCommand();
+    public IDbCommand CreateCommand()
+    {
+      IDbCommand result = _connection.CreateCommand();
 #if DEBUG
-        // Return a LoggingDbCommandWrapper to log all CommandText to logfile in DEBUG mode.
-        result = new LoggingDbCommandWrapper(result);
+      // Return a LoggingDbCommandWrapper to log all CommandText to logfile in DEBUG mode.
+      result = new LoggingDbCommandWrapper(result);
 #endif
-        result.Transaction = _transaction;
-        return result;
-      }
+      result.Transaction = _transaction;
+      return result;
+    }
 
-      #endregion
+    #endregion
 
-      #region IDisposable Member
+    #region IDisposable Member
 
-      public void Dispose()
+    public void Dispose()
+    {
+      if (_connection != null)
       {
-        if (_connection != null)
-        {
-          _connection.Close();
-          _connection = null;
-        }
-      }
-
-      #endregion
-
-      public static ITransaction BeginTransaction(MSSQLDatabase database, string connectionString, IsolationLevel level)
-      {
-        SqlConnection connection = new SqlConnection(connectionString);
-        connection.Open();
-        return new MSSQLTransaction(database, connection, connection.BeginTransaction(level));
-      }
-
-      public MSSQLTransaction(ISQLDatabase database, IDbConnection connection, SqlTransaction transaction)
-      {
-        _database = database;
-        _connection = connection;
-        _transaction = transaction;
+        _connection.Close();
+        _connection = null;
+        _access?.Release();
       }
     }
+
+    #endregion
+
+    public static ITransaction BeginTransaction(MSSQLDatabase database, string connectionString, IsolationLevel level, SemaphoreSlim access)
+    {
+      SqlConnection connection = new SqlConnection(connectionString);
+      connection.Open();
+      return new MSSQLTransaction(database, connection, connection.BeginTransaction(level), access);
+    }
+
+    public MSSQLTransaction(ISQLDatabase database, IDbConnection connection, SqlTransaction transaction, SemaphoreSlim access)
+    {
+      _access = access;
+      _database = database;
+      _connection = connection;
+      _transaction = transaction;
+      _access?.Wait();
+    }
+  }
 }
