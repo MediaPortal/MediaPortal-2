@@ -1117,6 +1117,14 @@ namespace MediaPortal.Backend.Services.MediaLibrary
               _relationshipManagement.DeletePathAndRelationships(transaction, sysId, resPath, true);
             }
 
+            //Reimport the parent to store the metadata
+            if (children.Count() > 0)
+            {
+              var parentId = NewMediaItemId();
+              MediaItemAspect pra = CreateProviderResourceAspect(Guid.Empty, _localSystemId, VirtualResourceProvider.ToResourcePath(parentId));
+              AddOrUpdateMediaItem(database, transaction, pra, parentId, matchedAspects, true);
+            }
+
             //Reimport each path so it can be potentially be merged with already existing media items
             foreach (var pra in providerAspects.Where(p => p.GetAttributeValue<int>(ProviderResourceAspect.ATTR_TYPE) == ProviderResourceAspect.TYPE_PRIMARY))
             {
