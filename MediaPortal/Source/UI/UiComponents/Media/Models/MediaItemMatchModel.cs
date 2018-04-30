@@ -487,6 +487,7 @@ namespace MediaPortal.UiComponents.Media.Models
               albumSearchinfo.AudioDbId = audioDbId;
             else //Fallabck to name search
             {
+              albumSearchinfo.Artists = new List<PersonInfo>(album.Artists);
               var match = _titleYearRegEx.Match(ManualId);
               if (match.Success)
               {
