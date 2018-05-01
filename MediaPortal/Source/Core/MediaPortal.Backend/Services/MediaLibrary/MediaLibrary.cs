@@ -1120,9 +1120,22 @@ namespace MediaPortal.Backend.Services.MediaLibrary
             //Reimport the parent to store the metadata
             if (children.Count() > 0)
             {
-              var parentId = NewMediaItemId();
-              MediaItemAspect pra = CreateProviderResourceAspect(Guid.Empty, _localSystemId, VirtualResourceProvider.ToResourcePath(parentId));
-              AddOrUpdateMediaItem(database, transaction, pra, parentId, matchedAspects, true);
+              //Check if parent exists and add it if not
+              IFilter existsFilter = BooleanCombinationFilter.CombineFilters(BooleanOperator.Or, 
+                matchedAspects.Where(a => a.Metadata.AspectId == ExternalIdentifierAspect.ASPECT_ID).Select(a => new BooleanCombinationFilter(BooleanOperator.And, new[]
+                {
+                  new RelationalFilter(ExternalIdentifierAspect.ATTR_SOURCE, RelationalOperator.EQ, a.GetAttributeValue(ExternalIdentifierAspect.ATTR_SOURCE)),
+                  new RelationalFilter(ExternalIdentifierAspect.ATTR_TYPE, RelationalOperator.EQ, a.GetAttributeValue(ExternalIdentifierAspect.ATTR_TYPE)),
+                  new RelationalFilter(ExternalIdentifierAspect.ATTR_ID, RelationalOperator.EQ, a.GetAttributeValue(ExternalIdentifierAspect.ATTR_ID)),
+                })).ToArray());
+
+              IList<MediaItem> existingItems = Search(database, transaction, new MediaItemQuery(new Guid[] { ProviderResourceAspect.ASPECT_ID }, null, existsFilter), false, null, true);
+              if (existingItems.Count == 0)
+              {
+                var parentId = NewMediaItemId();
+                MediaItemAspect pra = CreateProviderResourceAspect(Guid.Empty, _localSystemId, VirtualResourceProvider.ToResourcePath(parentId));
+                AddOrUpdateMediaItem(database, transaction, pra, parentId, matchedAspects, true);
+              }
             }
 
             //Reimport each path so it can be potentially be merged with already existing media items
