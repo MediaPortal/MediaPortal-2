@@ -200,6 +200,20 @@ namespace MediaPortal.UiComponents.SkinBase.Models
       playerContextManager.NextItem();
     }
 
+    public static void PreviousChapterOrTitle()
+    {
+      IPlayerContextManager playerContextManager = ServiceRegistration.Get<IPlayerContextManager>();
+      if (!playerContextManager.PreviousChapter())
+        playerContextManager.PreviousItem();
+    }
+
+    public static void NextChapterOrTitle()
+    {
+      IPlayerContextManager playerContextManager = ServiceRegistration.Get<IPlayerContextManager>();
+      if (!playerContextManager.NextChapter())
+        playerContextManager.NextItem();
+    }
+
     public static void VolumeUp()
     {
       ChangeVolume(VOLUME_INCREMENT);
