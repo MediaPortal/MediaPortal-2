@@ -124,7 +124,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
       id = null;
       if (album.AudioDbId > 0)
         id = album.AudioDbId.ToString();
-      if (!string.IsNullOrEmpty(album.MusicBrainzGroupId))
+      else if (!string.IsNullOrEmpty(album.MusicBrainzGroupId))
         id = album.MusicBrainzGroupId;
       return id != null;
     }
