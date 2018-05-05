@@ -139,8 +139,8 @@
   <Register Location="/Configuration/Settings/Media/VideoMDESettings">
     <ConfigSetting
         Id="ServerVideoMDEBrowseOffline"
-        Text="[Settings.ServerSettings.VideoMDESettings.ServerVideoMDEBrowseOffline]"
-        HelpText="[Settings.ServerSettings.VideoMDESettings.ServerVideoMDEBrowseOffline.Help]"
+        Text="[Settings.ServerSettings.MDESettings.MDEBrowseOffline]"
+        HelpText="[Settings.ServerSettings.MDESettings.MDEBrowseOffline.Help]"
         ClassName="MediaPortal.Plugins.ServerSettings.Settings.Configuration.ServerVideoMDEBrowseOffline"/>
   </Register>
 
