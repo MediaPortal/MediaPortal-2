@@ -1884,18 +1884,6 @@ namespace MediaPortal.Backend.Services.MediaLibrary
       catch (Exception e)
       {
         Logger.Error("MediaLibrary: Error updating merged media item with id '{0}'", e, mediaItemId);
-        using (var stringWriter = new StringWriter())
-        {
-          using (var xmlTextWriter = System.Xml.XmlWriter.Create(stringWriter, new System.Xml.XmlWriterSettings { ConformanceLevel = System.Xml.ConformanceLevel.Auto, Indent = true }))
-          {
-            foreach (var aspect in mediaItemAspects.Where(a => a.Metadata.AspectId == ProviderResourceAspect.ASPECT_ID || a.Metadata.AspectId == VideoStreamAspect.ASPECT_ID ||
-            a.Metadata.AspectId == VideoAudioStreamAspect.ASPECT_ID || a.Metadata.AspectId == SubtitleAspect.ASPECT_ID))
-            {
-              aspect.Serialize(xmlTextWriter);
-            }
-            Logger.Error("MediaLibrary: Failed data: {0}", stringWriter.ToString());
-          }
-        }
         throw;
       }
     }
