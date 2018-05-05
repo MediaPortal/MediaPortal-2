@@ -24,9 +24,7 @@
 
 using System.Data;
 using MediaPortal.Backend.Database;
-using MediaPortal.Backend.Services.Database;
 using System.Data.SqlClient;
-using System.Threading;
 
 namespace MediaPortal.Database.MSSQL
 {
@@ -37,7 +35,6 @@ namespace MediaPortal.Database.MSSQL
     protected SqlTransaction _transaction;
     protected ISQLDatabase _database;
     protected IDbConnection _connection;
-    protected SemaphoreSlim _access;
 
     #endregion
 
@@ -68,11 +65,8 @@ namespace MediaPortal.Database.MSSQL
     public IDbCommand CreateCommand()
     {
       IDbCommand result = _connection.CreateCommand();
-#if DEBUG
-      // Return a LoggingDbCommandWrapper to log all CommandText to logfile in DEBUG mode.
-      result = new LoggingDbCommandWrapper(result);
-#endif
       result.Transaction = _transaction;
+      result.CommandTimeout = MSSQLDatabase.DEFAULT_QUERY_TIMEOUT;
       return result;
     }
 
@@ -86,26 +80,23 @@ namespace MediaPortal.Database.MSSQL
       {
         _connection.Close();
         _connection = null;
-        _access?.Release();
       }
     }
 
     #endregion
 
-    public static ITransaction BeginTransaction(MSSQLDatabase database, string connectionString, IsolationLevel level, SemaphoreSlim access)
+    public static ITransaction BeginTransaction(MSSQLDatabase database, string connectionString, IsolationLevel level)
     {
       SqlConnection connection = new SqlConnection(connectionString);
       connection.Open();
-      return new MSSQLTransaction(database, connection, connection.BeginTransaction(level), access);
+      return new MSSQLTransaction(database, connection, connection.BeginTransaction(level));
     }
 
-    public MSSQLTransaction(ISQLDatabase database, IDbConnection connection, SqlTransaction transaction, SemaphoreSlim access)
+    public MSSQLTransaction(ISQLDatabase database, IDbConnection connection, SqlTransaction transaction)
     {
-      _access = access;
       _database = database;
       _connection = connection;
       _transaction = transaction;
-      _access?.Wait();
     }
   }
 }

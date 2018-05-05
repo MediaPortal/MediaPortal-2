@@ -54,13 +54,10 @@
     </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="MSSQLDatabase.cs" />
-    <Compile Include="MSSQLSettingsReader.cs" />
     <Compile Include="MSSQLTransaction.cs" />
+    <Compile Include="MSSQLSettings.cs" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="MSSQLSettings.xml">
-      <SubType>Designer</SubType>
-    </Content>
     <Content Include="plugin.xml" />
   </ItemGroup>
   <ItemGroup>

@@ -8,7 +8,10 @@
   <ItemGroup>
     <PluginFiles Include="$(TargetDir)$(ProjectName).dll" />
     <PluginFiles Include="$(ProjectDir)plugin.xml" />
-    <PluginFiles Include="$(ProjectDir)MSSQLSettings.xml" />
+  </ItemGroup>
+
+  <ItemGroup Condition=" '$(Configuration)' == 'Debug'">
+    <PluginFiles Include="$(TargetDir)$(ProjectName).pdb" />
   </ItemGroup>
 
   <Target Name="AfterBuild">

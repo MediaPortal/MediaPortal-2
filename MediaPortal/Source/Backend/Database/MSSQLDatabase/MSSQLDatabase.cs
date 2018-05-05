@@ -26,43 +26,32 @@ using MediaPortal.Backend.Database;
 using MediaPortal.Backend.Services.Database;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
+using MediaPortal.Common.Settings;
 using System;
 using System.Data;
 using System.Data.SqlClient;
 using System.Data.SqlTypes;
-using System.Threading;
 
 namespace MediaPortal.Database.MSSQL
 {
   public class MSSQLDatabase : ISQLDatabase
   {
+    #region Constants
+
     public const string MSSQL_DATABASE_TYPE = "MSSQL";
     public const int MAX_NUM_CHARS_CHAR_VARCHAR = 4000;
-    public const int MAX_CONNECTION_POOL_SIZE = 5000;
-    public const bool USE_CONNECTION_POOL = true;
     public const int DEFAULT_CONNECTION_TIMEOUT = 15;
-    public const int DEFAULT_QUERY_TIMEOUT = 30;
+    public const int DEFAULT_QUERY_TIMEOUT = 600;
     public const int INITIAL_LOG_SIZE = 50;
     public const int INITIAL_DATA_SIZE = 200;
-    public const int LOG_GROWTH_SIZE = 25;
-    public const int DATA_GROWTH_SIZE = 100;
-    public const string DEFAULT_DATABASE_FILE = "MP2Datastore.mdf";
-    public const string DEFAULT_DATABASE_LOG = "MP2Datastore.ldf";
 
-    #region Fields
+    #endregion
 
-    protected readonly string _connectionString;
-    protected readonly string _version;
-    protected readonly string _dbSchema;
-    protected readonly string _server;
-    protected readonly string _username;
-    protected readonly string _password;
+    #region Variables
 
-    //Synchronization of transactions to avoid deadlocks
-    //The current strategies for fetching/storing data during import seems
-    //to make possible that shared locks that need to excalate to exclusive locks
-    //can cause deadlocks
-    protected SemaphoreSlim _access = new SemaphoreSlim(1, 1);
+    private readonly string _connectionString;
+    private readonly MSSQLDatabaseSettings _settings;
+    private string _version;
 
     #endregion
 
@@ -70,8 +59,12 @@ namespace MediaPortal.Database.MSSQL
     {
       try
       {
-        MSSQLSettingsReader.Read(out _server, out _username, out _password, out _dbSchema);
-        _connectionString = CreateDatabaseConnection(out _version);
+        _settings = ServiceRegistration.Get<ISettingsManager>().Load<MSSQLDatabaseSettings>();
+        _settings.LogSettings();
+
+        _connectionString = CreateDatabaseConnection();
+
+        LogVersionInformation();
       }
       catch (Exception e)
       {
@@ -80,44 +73,44 @@ namespace MediaPortal.Database.MSSQL
       }
     }
 
-    private bool TestConnection(string connection, out string version)
+    #region Private Methods
+
+    private bool TestConnection(string connection)
     {
-      version = "";
       try
       {
         SqlConnection sqlTestConn = new SqlConnection(connection);
         sqlTestConn.Open();
-        version = sqlTestConn.ServerVersion;
+        _version = sqlTestConn.ServerVersion;
         sqlTestConn.Close();
         return true;
       }
       catch (Exception ex)
       {
-        ServiceRegistration.Get<ILogger>().Error("Unable to connect to database '{0}'.", ex, _dbSchema);
+        ServiceRegistration.Get<ILogger>().Error("Unable to connect to database {0}@{1}.", ex, _settings.DatabaseName, _settings.DatabaseInstance == "." ? "(local)" : _settings.DatabaseInstance);
       }
       return false;
     }
 
-    private string CreateDatabaseConnection(out string version)
+    private string CreateDatabaseConnection()
     {
       string connection = "";
-      version = "";
 
       //Init connection string
       SqlConnectionStringBuilder sqlStr = new SqlConnectionStringBuilder();
-      sqlStr.DataSource = _server;
+      sqlStr.DataSource = _settings.DatabaseInstance;
       sqlStr.PersistSecurityInfo = true;
       sqlStr.WorkstationID = Environment.MachineName;
       sqlStr.ConnectTimeout = DEFAULT_CONNECTION_TIMEOUT;
-      sqlStr.MaxPoolSize = MAX_CONNECTION_POOL_SIZE;
-      sqlStr.Pooling = USE_CONNECTION_POOL;
+      sqlStr.MaxPoolSize = _settings.MaxConnectionPoolSize;
+      sqlStr.Pooling = _settings.UseConnectionPool;
       sqlStr.ApplicationName = "MP2 Server";
-      sqlStr.UserID = _username;
-      sqlStr.Password = _password;
-      sqlStr.InitialCatalog = _dbSchema;
+      sqlStr.UserID = _settings.DatabaseUser;
+      sqlStr.Password = _settings.DatabasePassword;
+      sqlStr.InitialCatalog = _settings.DatabaseName;
       connection = sqlStr.ConnectionString;
 
-      if (TestConnection(connection, out version))
+      if (TestConnection(connection))
         return connection; //If connection successful presume that database is initialized
 
       //Init connection string for initialization
@@ -127,55 +120,60 @@ namespace MediaPortal.Database.MSSQL
       //Open connection
       SqlConnection sqlConn = new SqlConnection(sqlStr.ConnectionString);
       sqlConn.Open();
-      version = sqlConn.ServerVersion;
+      _version = sqlConn.ServerVersion;
       try
       {
         SqlCommand sqlCmd = new SqlCommand();
         sqlCmd.CommandTimeout = DEFAULT_QUERY_TIMEOUT;
         sqlCmd.Connection = sqlConn;
         sqlCmd.CommandType = System.Data.CommandType.Text;
-        sqlCmd.CommandText = "SELECT COUNT(*) FROM SYSDATABASES WHERE NAME = '" + _dbSchema + "'";
+        sqlCmd.CommandText = "SELECT COUNT(*) FROM SYSDATABASES WHERE NAME = '" + _settings.DatabaseName + "'";
         int _tableCount = Convert.ToInt32(sqlCmd.ExecuteScalar());
         if (_tableCount == 0)
         {
           ServiceRegistration.Get<ILogger>().Info("Database not found. Creating database.");
 
           //Create the database
-          sqlCmd.CommandText = "CREATE DATABASE [" + _dbSchema + "] COLLATE Latin1_General_CI_AS";
+          sqlCmd.CommandText = "CREATE DATABASE [" + _settings.DatabaseName + "] COLLATE Latin1_General_CI_AS";
           sqlCmd.ExecuteNonQuery();
-          sqlCmd.CommandText = "ALTER DATABASE [" + _dbSchema + "] MODIFY FILE (NAME = N'" + _dbSchema + "', SIZE = " + INITIAL_DATA_SIZE + "MB, FILEGROWTH = " + DATA_GROWTH_SIZE + "MB, MAXSIZE = UNLIMITED)";
+          sqlCmd.CommandText = "ALTER DATABASE [" + _settings.DatabaseName + "] MODIFY FILE (NAME = N'" + _settings.DatabaseName + "', SIZE = " + INITIAL_DATA_SIZE + "MB, FILEGROWTH = " + _settings.DatabaseFileGrowSize + "MB, MAXSIZE = UNLIMITED)";
           sqlCmd.ExecuteNonQuery();
-          sqlCmd.CommandText = "ALTER DATABASE [" + _dbSchema + "] MODIFY FILE (NAME = N'" + _dbSchema + "_Log', SIZE = " + INITIAL_LOG_SIZE + "MB, FILEGROWTH = " + LOG_GROWTH_SIZE + "MB, MAXSIZE = UNLIMITED)";
+          sqlCmd.CommandText = "ALTER DATABASE [" + _settings.DatabaseName + "] MODIFY FILE (NAME = N'" + _settings.DatabaseName + "_Log', SIZE = " + INITIAL_LOG_SIZE + "MB, FILEGROWTH = " + _settings.DatabaseLogFileGrowSize + "MB, MAXSIZE = UNLIMITED)";
           sqlCmd.ExecuteNonQuery();
 
           //Ensure that transaction logging is set to simple
-          sqlCmd.CommandText = "ALTER DATABASE [" + _dbSchema + "] SET RECOVERY SIMPLE";
+          sqlCmd.CommandText = "ALTER DATABASE [" + _settings.DatabaseName + "] SET RECOVERY SIMPLE";
           sqlCmd.ExecuteNonQuery();
 
           //Ensure that database is always available
-          sqlCmd.CommandText = "ALTER DATABASE [" + _dbSchema + "] SET AUTO_CLOSE OFF";
+          sqlCmd.CommandText = "ALTER DATABASE [" + _settings.DatabaseName + "] SET AUTO_CLOSE OFF";
           sqlCmd.ExecuteNonQuery();
         }
 
-        sqlCmd.CommandText = "SELECT COUNT(*) FROM SYSLOGINS WHERE LOGINNAME = N'" + _username + "'";
+        sqlCmd.CommandText = "SELECT COUNT(*) FROM SYSLOGINS WHERE LOGINNAME = N'" + _settings.DatabaseUser + "'";
         int _userCount = Convert.ToInt32(sqlCmd.ExecuteScalar());
         if (_userCount == 0)
         {
           //Create MP user
-          sqlCmd.CommandText = "CREATE LOGIN [" + _username + "] WITH PASSWORD=N'" + _password + "', DEFAULT_DATABASE=["+ _dbSchema + "], DEFAULT_LANGUAGE=[us_english], CHECK_EXPIRATION=OFF, CHECK_POLICY=OFF";
+          sqlCmd.CommandText = "CREATE LOGIN [" + _settings.DatabaseUser + "] WITH PASSWORD=N'" + _settings.DatabasePassword + "', DEFAULT_DATABASE=["+ _settings.DatabaseName + "], DEFAULT_LANGUAGE=[us_english], CHECK_EXPIRATION=OFF, CHECK_POLICY=OFF";
           sqlCmd.ExecuteNonQuery();
 
           //Give user the necessary rights
-          sqlCmd.CommandText = "GRANT VIEW ANY DEFINITION TO [" + _username + "]";
+          sqlCmd.CommandText = "GRANT VIEW ANY DEFINITION TO [" + _settings.DatabaseUser + "]";
           sqlCmd.ExecuteNonQuery();
-          sqlCmd.CommandText = "USE [" + _dbSchema + "]";
+          sqlCmd.CommandText = "USE [" + _settings.DatabaseName + "]";
           sqlCmd.ExecuteNonQuery();
-          sqlCmd.CommandText = "CREATE USER [" + _username + "] FOR LOGIN [" + _username + "] WITH DEFAULT_SCHEMA=dbo";
+          sqlCmd.CommandText = "CREATE USER [" + _settings.DatabaseUser + "] FOR LOGIN [" + _settings.DatabaseUser + "] WITH DEFAULT_SCHEMA=dbo";
           sqlCmd.ExecuteNonQuery();
-          sqlCmd.CommandText = "EXEC SP_DEFAULTDB N'" + _username + "', N'" + _dbSchema + "'";
+          sqlCmd.CommandText = "EXEC SP_ADDROLEMEMBER N'db_owner', N'" + _settings.DatabaseUser + "'";
           sqlCmd.ExecuteNonQuery();
-          sqlCmd.CommandText = "EXEC SP_ADDROLEMEMBER N'db_owner', N'" + _username + "'";
+          sqlCmd.CommandText = "ALTER LOGIN ["+ _settings.DatabaseUser + "] ENABLE";
           sqlCmd.ExecuteNonQuery();
+
+          sqlCmd.CommandText = "EXEC master.sys.xp_loginconfig 'login mode'";
+          string loginMode = (string)sqlCmd.ExecuteScalar();
+          if (loginMode.IndexOf("mixed", StringComparison.InvariantCultureIgnoreCase) == -1)
+            ServiceRegistration.Get<ILogger>().Warn("Mixed mode login must be enabled");
         }
       }
       finally
@@ -183,10 +181,22 @@ namespace MediaPortal.Database.MSSQL
         sqlConn.Close();
       }
 
-      //Try connecting again
-      TestConnection(connection, out version);
+      //Try connecting again with admin connection because user login won't work yet
+      sqlStr.InitialCatalog = _settings.DatabaseName;
+      connection = sqlStr.ConnectionString;
+      TestConnection(connection);
       return connection;
     }
+
+    /// <summary>
+    /// Logs version information about the used database
+    /// </summary>
+    private void LogVersionInformation()
+    {
+      ServiceRegistration.Get<ILogger>().Info("MSSQLDatabase: Version: {0}", _version);
+    }
+
+    #endregion
 
     #region ISQLDatabase implementation
 
@@ -289,7 +299,7 @@ namespace MediaPortal.Database.MSSQL
 
     public ITransaction BeginTransaction(IsolationLevel level)
     {
-      return MSSQLTransaction.BeginTransaction(this, _connectionString, IsolationLevel.Serializable, _access);
+      return MSSQLTransaction.BeginTransaction(this, _connectionString, level);
     }
 
     public ITransaction BeginTransaction()
