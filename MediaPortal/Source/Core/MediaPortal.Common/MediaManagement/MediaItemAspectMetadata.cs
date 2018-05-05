@@ -319,7 +319,7 @@ namespace MediaPortal.Common.MediaManagement
         get { return _compositeIndexIds?.ToArray(); }
         set
         {
-          if (value.Length > 0)
+          if (value?.Length > 0)
           {
             _compositeIndexIds = new List<int>(value.Length);
             foreach (int id in value)
