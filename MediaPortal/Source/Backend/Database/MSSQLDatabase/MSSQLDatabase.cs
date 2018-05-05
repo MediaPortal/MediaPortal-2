@@ -299,7 +299,7 @@ namespace MediaPortal.Database.MSSQL
 
     public ITransaction BeginTransaction(IsolationLevel level)
     {
-      return MSSQLTransaction.BeginTransaction(this, _connectionString, level);
+      return new MSSQLTransaction(this, level, _settings);
     }
 
     public ITransaction BeginTransaction()
@@ -339,6 +339,21 @@ namespace MediaPortal.Database.MSSQL
     public string CreateDateToYearProjectionExpression(string selectExpression)
     {
       return "DATEPART(YEAR, " + selectExpression + ")";
+    }
+
+    #endregion
+
+    #region Private methods
+
+    /// <summary>
+    /// Creates a new <see cref="SqlConnection"/> object and opens it
+    /// </summary>
+    /// <returns>Newly created and opened <see cref="SqlConnection"/></returns>
+    internal SqlConnection CreateOpenConnection()
+    {
+      SqlConnection connection = new SqlConnection(_connectionString);
+      connection.Open();
+      return connection;
     }
 
     #endregion

@@ -25,6 +25,7 @@
 using System.Data;
 using MediaPortal.Backend.Database;
 using System.Data.SqlClient;
+using MediaPortal.Backend.Services.Database;
 
 namespace MediaPortal.Database.MSSQL
 {
@@ -33,10 +34,19 @@ namespace MediaPortal.Database.MSSQL
     #region Protected fields
 
     protected SqlTransaction _transaction;
-    protected ISQLDatabase _database;
-    protected IDbConnection _connection;
+    protected readonly MSSQLDatabase _database;
+    protected SqlConnection _connection;
+    protected readonly MSSQLDatabaseSettings _settings;
 
     #endregion
+
+    public MSSQLTransaction(MSSQLDatabase database, IsolationLevel level, MSSQLDatabaseSettings settings)
+    {
+      _database = database;
+      _connection = database.CreateOpenConnection();
+      _transaction = _connection.BeginTransaction(level);
+      _settings = settings;
+    }
 
     #region ITransaction Member
 
@@ -65,6 +75,8 @@ namespace MediaPortal.Database.MSSQL
     public IDbCommand CreateCommand()
     {
       IDbCommand result = _connection.CreateCommand();
+      if (_settings.EnableDebugLogging)
+        result = new LoggingDbCommandWrapper(result);
       result.Transaction = _transaction;
       result.CommandTimeout = MSSQLDatabase.DEFAULT_QUERY_TIMEOUT;
       return result;
@@ -76,27 +88,12 @@ namespace MediaPortal.Database.MSSQL
 
     public void Dispose()
     {
-      if (_connection != null)
-      {
-        _connection.Close();
-        _connection = null;
-      }
+      _transaction?.Dispose();
+      _transaction = null;
+      _connection?.Dispose();
+      _connection = null;
     }
 
     #endregion
-
-    public static ITransaction BeginTransaction(MSSQLDatabase database, string connectionString, IsolationLevel level)
-    {
-      SqlConnection connection = new SqlConnection(connectionString);
-      connection.Open();
-      return new MSSQLTransaction(database, connection, connection.BeginTransaction(level));
-    }
-
-    public MSSQLTransaction(ISQLDatabase database, IDbConnection connection, SqlTransaction transaction)
-    {
-      _database = database;
-      _connection = connection;
-      _transaction = transaction;
-    }
   }
 }

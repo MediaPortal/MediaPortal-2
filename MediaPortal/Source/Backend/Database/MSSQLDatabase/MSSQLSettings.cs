@@ -83,6 +83,9 @@ namespace MediaPortal.Database.MSSQL
     [Setting(SettingScope.Global, DEFAULT_DATABASE_NAME)]
     public string DatabaseName { get; set; }
 
+    [Setting(SettingScope.Global, false)]
+    public bool EnableDebugLogging { get; set; }
+
     #endregion
 
     #region Public methods
