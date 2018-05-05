@@ -67,10 +67,12 @@ namespace MediaPortal.Backend.Services.MediaLibrary
     protected class MediaBrowsingCallback : IMediaBrowsing
     {
       protected MediaLibrary _parent;
+      protected object _importerThreadSyncLock;
 
-      public MediaBrowsingCallback(MediaLibrary parent)
+      public MediaBrowsingCallback(MediaLibrary parent, object importerThreadSyncLock)
       {
         _parent = parent;
+        _importerThreadSyncLock = importerThreadSyncLock;
       }
 
       public async Task<MediaItem> LoadLocalItemAsync(ResourcePath path,
@@ -79,7 +81,8 @@ namespace MediaPortal.Backend.Services.MediaLibrary
         try
         {
           using (var lck = await _parent.RequestImporterAccessAsync())
-            return _parent.LoadItem(_parent.LocalSystemId, path, necessaryRequestedMIATypeIDs, optionalRequestedMIATypeIDs, userProfileId);
+            lock(_importerThreadSyncLock)
+              return _parent.LoadItem(_parent.LocalSystemId, path, necessaryRequestedMIATypeIDs, optionalRequestedMIATypeIDs, userProfileId);
         }
         catch (Exception)
         {
@@ -93,7 +96,8 @@ namespace MediaPortal.Backend.Services.MediaLibrary
         try
         {
           using (var lck = await _parent.RequestImporterAccessAsync())
-            return _parent.LoadItem(_parent.LocalSystemId, mediaItemId, necessaryRequestedMIATypeIDs, optionalRequestedMIATypeIDs, userProfileId);
+            lock (_importerThreadSyncLock)
+              return _parent.LoadItem(_parent.LocalSystemId, mediaItemId, necessaryRequestedMIATypeIDs, optionalRequestedMIATypeIDs, userProfileId);
         }
         catch (Exception)
         {
@@ -108,7 +112,8 @@ namespace MediaPortal.Backend.Services.MediaLibrary
         try
         {
           using (var lck = await _parent.RequestImporterAccessAsync())
-            return _parent.Browse(parentDirectoryId, necessaryRequestedMIATypeIDs, optionalRequestedMIATypeIDs, userProfileId, includeVirtual, offset, limit);
+            lock (_importerThreadSyncLock)
+              return _parent.Browse(parentDirectoryId, necessaryRequestedMIATypeIDs, optionalRequestedMIATypeIDs, userProfileId, includeVirtual, offset, limit);
         }
         catch (Exception)
         {
@@ -146,7 +151,8 @@ namespace MediaPortal.Backend.Services.MediaLibrary
         try
         {
           using (var lck = _parent.RequestImporterAccess())
-            _parent.MarkUpdatableMediaItems();
+            lock (_importerThreadSyncLock)
+              _parent.MarkUpdatableMediaItems();
         }
         catch (Exception)
         {
@@ -158,10 +164,12 @@ namespace MediaPortal.Backend.Services.MediaLibrary
     protected class ImportResultHandler : IImportResultHandler
     {
       protected MediaLibrary _parent;
+      protected object _importerThreadSyncLock;
 
-      public ImportResultHandler(MediaLibrary parent)
+      public ImportResultHandler(MediaLibrary parent, object importerThreadSyncLock)
       {
         _parent = parent;
+        _importerThreadSyncLock = importerThreadSyncLock;
       }
 
       public async Task<Guid> UpdateMediaItemAsync(Guid parentDirectoryId, ResourcePath path, IEnumerable<MediaItemAspect> updatedAspects, bool isRefresh, ResourcePath basePath)
@@ -172,7 +180,8 @@ namespace MediaPortal.Backend.Services.MediaLibrary
           {
             lock (_parent.GetResourcePathLock(basePath))
             {
-              return _parent.AddOrUpdateMediaItem(parentDirectoryId, _parent.LocalSystemId, path, null, null, updatedAspects, isRefresh);
+              lock(_importerThreadSyncLock)
+                return _parent.AddOrUpdateMediaItem(parentDirectoryId, _parent.LocalSystemId, path, null, null, updatedAspects, isRefresh);
             }
           }
         }
@@ -190,7 +199,8 @@ namespace MediaPortal.Backend.Services.MediaLibrary
           {
             lock (_parent.GetResourcePathLock(basePath))
             {
-              return _parent.AddOrUpdateMediaItem(parentDirectoryId, _parent.LocalSystemId, path, mediaItemId, null, updatedAspects, isRefresh);
+              lock (_importerThreadSyncLock)
+                return _parent.AddOrUpdateMediaItem(parentDirectoryId, _parent.LocalSystemId, path, mediaItemId, null, updatedAspects, isRefresh);
             }
           }
         }
@@ -205,7 +215,8 @@ namespace MediaPortal.Backend.Services.MediaLibrary
         try
         {
           using (var lck = await _parent.RequestImporterAccessAsync())
-            return _parent.ReconcileMediaItemRelationships(mediaItemId, mediaItemAspects, relationshipItems);
+            lock (_importerThreadSyncLock)
+              return _parent.ReconcileMediaItemRelationships(mediaItemId, mediaItemAspects, relationshipItems);
         }
         catch (Exception)
         {
@@ -218,7 +229,8 @@ namespace MediaPortal.Backend.Services.MediaLibrary
         try
         {
           using (var lck = await _parent.RequestImporterAccessAsync())
-            _parent.DeleteMediaItemOrPath(_parent.LocalSystemId, path, true);
+            lock (_importerThreadSyncLock)
+              _parent.DeleteMediaItemOrPath(_parent.LocalSystemId, path, true);
         }
         catch (Exception)
         {
@@ -231,7 +243,8 @@ namespace MediaPortal.Backend.Services.MediaLibrary
         try
         {
           using (var lck = await _parent.RequestImporterAccessAsync())
-            _parent.DeleteMediaItemOrPath(_parent.LocalSystemId, path, false);
+            lock (_importerThreadSyncLock)
+              _parent.DeleteMediaItemOrPath(_parent.LocalSystemId, path, false);
         }
         catch (Exception)
         {
@@ -383,6 +396,8 @@ namespace MediaPortal.Backend.Services.MediaLibrary
     protected ICollection<Share> _importingSharesCache;
     protected CancellationTokenSource _accessLockCancel = new CancellationTokenSource();
     protected AsyncPriorityLock _accessLock = new AsyncPriorityLock();
+    //Multiple threads trying to store at the same time can cause various issues like database deadlocks
+    protected object _importerThreadSyncLock = new object();
 
     #endregion
 
@@ -393,8 +408,8 @@ namespace MediaPortal.Backend.Services.MediaLibrary
       ISystemResolver systemResolver = ServiceRegistration.Get<ISystemResolver>();
       _localSystemId = systemResolver.LocalSystemId;
 
-      _mediaBrowsingCallback = new MediaBrowsingCallback(this);
-      _importResultHandler = new ImportResultHandler(this);
+      _mediaBrowsingCallback = new MediaBrowsingCallback(this, _importerThreadSyncLock);
+      _importResultHandler = new ImportResultHandler(this, _importerThreadSyncLock);
       _messageQueue = new AsynchronousMessageQueue(this, new string[]
         {
             ImporterWorkerMessaging.CHANNEL,
@@ -540,28 +555,15 @@ namespace MediaPortal.Backend.Services.MediaLibrary
     {
       try
       {
-        double? progress = null;
-        double count = 0;
-        bool importing = false;
         List<ShareImportState> shareStates = new List<ShareImportState>();
         lock (_shareImportSync)
           shareStates.AddRange(_shareImportStates.Values);
-        foreach (ShareImportState shareSate in shareStates)
-        {
-          importing |= shareSate.IsImporting;
-          if (shareSate.Progress >= 0)
-          {
-            if (!progress.HasValue)
-              progress = 0;
-            progress += shareSate.Progress;
-            count++;
-          }
-        }
-
+        bool importing = shareStates.Any(s => s.IsImporting);
+        int? progress = importing ? shareStates.Where(s => s.IsImporting).Min(s => s.Progress) : (int?)null;
         var state = new ShareImportServerState
         {
           IsImporting = importing,
-          Progress = (progress.HasValue && importing) ? Convert.ToInt32(progress / count) : -1,
+          Progress = (progress.HasValue && importing) ? progress.Value : -1,
           Shares = shareStates.ToArray()
         };
         ServiceRegistration.Get<IServerStateService>().UpdateState(ShareImportServerState.STATE_ID, state);
@@ -1152,10 +1154,13 @@ namespace MediaPortal.Backend.Services.MediaLibrary
       try
       {
         CompiledMediaItemQuery cmiq = CompiledMediaItemQuery.Compile(_miaManagement, executeQuery, userProfileId);
-        items = cmiq.QueryList(database, searchTransaction);
-        //Logger.Debug("Found media items {0}", string.Join(",", items.Select(x => x.MediaItemId)));
-        //TODO: Remove movies/series found through optional aspects that are not allowed according to user rating filter
-        LoadUserDataForMediaItems(database, searchTransaction, userProfileId, items);
+        lock (_importerThreadSyncLock)
+        {
+          items = cmiq.QueryList(database, searchTransaction);
+          //Logger.Debug("Found media items {0}", string.Join(",", items.Select(x => x.MediaItemId)));
+          //TODO: Remove movies/series found through optional aspects that are not allowed according to user rating filter
+          LoadUserDataForMediaItems(database, searchTransaction, userProfileId, items);
+        }
       }
       finally
       {
@@ -1775,6 +1780,8 @@ namespace MediaPortal.Backend.Services.MediaLibrary
     private void UpdateMediaItem(ISQLDatabase database, ITransaction transaction, Guid mediaItemId, IEnumerable<MediaItemAspect> mediaItemAspects)
     {
       mediaItemAspects = RemoveInverseRelationships(mediaItemAspects);
+
+      //Update vital aspects first
       foreach (MediaItemAspect mia in mediaItemAspects)
       {
         if (mia.Metadata.IsTransientAspect)
@@ -1782,9 +1789,27 @@ namespace MediaPortal.Backend.Services.MediaLibrary
         if (!_miaManagement.ManagedMediaItemAspectTypes.ContainsKey(mia.Metadata.AspectId))
           // Simply skip unknown MIA types. All types should have been added before update.
           continue;
+        if (mia.Metadata.AspectId == MediaAspect.ASPECT_ID || mia.Metadata.AspectId == ProviderResourceAspect.ASPECT_ID)
+          _miaManagement.AddOrUpdateMIA(transaction, mediaItemId, mia); // Let MIA management decide if it's and add or update
         if (mia.Metadata.AspectId == ImporterAspect.ASPECT_ID)
-        { // Those aspects are managed by the MediaLibrary
+        {
+          // Those aspects are managed by the MediaLibrary
           //Logger.Warn("MediaLibrary.AddOrUpdateMediaItem: Client tried to update ImporterAspect");
+          continue;
+        }
+      }
+
+      foreach (MediaItemAspect mia in mediaItemAspects)
+      {
+        if (mia.Metadata.IsTransientAspect)
+          continue;
+        if (!_miaManagement.ManagedMediaItemAspectTypes.ContainsKey(mia.Metadata.AspectId))
+          // Simply skip unknown MIA types. All types should have been added before update.
+          continue;
+        if (mia.Metadata.AspectId == MediaAspect.ASPECT_ID || mia.Metadata.AspectId == ProviderResourceAspect.ASPECT_ID ||
+          mia.Metadata.AspectId == ImporterAspect.ASPECT_ID)
+        { 
+          // Those aspects are already updated
           continue;
         }
         // Let MIA management decide if it's and add or update
@@ -1824,13 +1849,33 @@ namespace MediaPortal.Backend.Services.MediaLibrary
       try
       {
         mediaItemAspects = RemoveInverseRelationships(mediaItemAspects);
+
+        //Update vital aspects first
         foreach (MediaItemAspect mia in mediaItemAspects)
         {
           if (!_miaManagement.ManagedMediaItemAspectTypes.ContainsKey(mia.Metadata.AspectId))
             // Simply skip unknown MIA types. All types should have been added before update.
             continue;
+          if (mia.Metadata.AspectId == MediaAspect.ASPECT_ID || mia.Metadata.AspectId == ProviderResourceAspect.ASPECT_ID || mia.Metadata.AspectId == ImporterAspect.ASPECT_ID)
+          {
+            // For multiple MIAs let MIA management decide if it's and add or update
+            if (mia is MultipleMediaItemAspect)
+              _miaManagement.AddOrUpdateMIA(transaction, mediaItemId, mia);
+            else
+              _miaManagement.AddOrUpdateMIA(transaction, mediaItemId, mia, false);
+          }
+        }
+
+        foreach (MediaItemAspect mia in mediaItemAspects)
+        {
+          if (!_miaManagement.ManagedMediaItemAspectTypes.ContainsKey(mia.Metadata.AspectId))
+            // Simply skip unknown MIA types. All types should have been added before update.
+            continue;
+          if (mia.Metadata.AspectId == MediaAspect.ASPECT_ID || mia.Metadata.AspectId == ProviderResourceAspect.ASPECT_ID || mia.Metadata.AspectId == ImporterAspect.ASPECT_ID)
+            // Already handled
+            continue;
           // For multiple MIAs let MIA management decide if it's and add or update
-          if (mia is MultipleMediaItemAspect)
+            if (mia is MultipleMediaItemAspect)
             _miaManagement.AddOrUpdateMIA(transaction, mediaItemId, mia);
           else
             _miaManagement.AddOrUpdateMIA(transaction, mediaItemId, mia, false);
@@ -1839,6 +1884,18 @@ namespace MediaPortal.Backend.Services.MediaLibrary
       catch (Exception e)
       {
         Logger.Error("MediaLibrary: Error updating merged media item with id '{0}'", e, mediaItemId);
+        using (var stringWriter = new StringWriter())
+        {
+          using (var xmlTextWriter = System.Xml.XmlWriter.Create(stringWriter, new System.Xml.XmlWriterSettings { ConformanceLevel = System.Xml.ConformanceLevel.Auto, Indent = true }))
+          {
+            foreach (var aspect in mediaItemAspects.Where(a => a.Metadata.AspectId == ProviderResourceAspect.ASPECT_ID || a.Metadata.AspectId == VideoStreamAspect.ASPECT_ID ||
+            a.Metadata.AspectId == VideoAudioStreamAspect.ASPECT_ID || a.Metadata.AspectId == SubtitleAspect.ASPECT_ID))
+            {
+              aspect.Serialize(xmlTextWriter);
+            }
+            Logger.Error("MediaLibrary: Failed data: {0}", stringWriter.ToString());
+          }
+        }
         throw;
       }
     }
