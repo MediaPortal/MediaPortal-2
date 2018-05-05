@@ -20,4 +20,6 @@
   <KeyBinding Key="Right" Command="{Command Source={StaticResource ExtendedVideoSkip},Path=SkipStepForward}" IsEnabled="{Binding !IsOSDVisible}"/>
   <KeyBinding Key="Left" Command="{Command Source={StaticResource ExtendedVideoSkip},Path=SkipStepBackward}" IsEnabled="{Binding !IsOSDVisible}"/>
 
+  <KeyBinding Key="PageUp" Command="{Command Source={Service PlayerContextManager},Path=NextItem}"/>
+  <KeyBinding Key="PageDown" Command="{Command Source={Service PlayerContextManager},Path=PreviousItem}"/>
 </Grid>

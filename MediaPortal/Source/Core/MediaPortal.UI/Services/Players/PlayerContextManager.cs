@@ -999,6 +999,22 @@ namespace MediaPortal.UI.Services.Players
       playerContext.SeekBackward();
     }
 
+    public bool PreviousChapter()
+    {
+      IPlayerContext playerContext = CurrentPlayerContext;
+      if (playerContext == null)
+        return false;
+      return playerContext.PreviousChapter();
+    }
+
+    public bool NextChapter()
+    {
+      IPlayerContext playerContext = CurrentPlayerContext;
+      if (playerContext == null)
+        return false;
+      return playerContext.NextChapter();
+    }
+
     public bool PreviousItem()
     {
       IPlayerContext playerContext = CurrentPlayerContext;

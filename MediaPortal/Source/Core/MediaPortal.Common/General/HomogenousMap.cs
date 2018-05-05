@@ -124,6 +124,8 @@ namespace MediaPortal.Common.General
 
     public bool ContainsKey(object key)
     {
+      if (key == null)
+        return false;
       return _values.ContainsKey(key);
     }
 
