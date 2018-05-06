@@ -70,6 +70,7 @@ namespace MediaPortal.Database.SQLite
     private readonly ILogger _sqliteDebugLogger;
     private readonly AsynchronousMessageQueue _messageQueue;
     private readonly ActionBlock<bool> _maintenanceScheduler;
+    private readonly ICollection<Guid> _importingShareIds;
 
     #endregion
 
@@ -93,6 +94,7 @@ namespace MediaPortal.Database.SQLite
 
       try
       {
+        _importingShareIds = new HashSet<Guid>();
         _maintenanceScheduler = new ActionBlock<bool>(async _ => await PerformDatabaseMaintenanceAsync(), new ExecutionDataflowBlockOptions { BoundedCapacity = 2 });
         _messageQueue = new AsynchronousMessageQueue(this, new[] { ContentDirectoryMessaging.CHANNEL });
         _messageQueue.MessageReceived += OnMessageReceived;
@@ -319,9 +321,15 @@ namespace MediaPortal.Database.SQLite
       var messageType = (ContentDirectoryMessaging.MessageType)message.MessageType;
       switch (messageType)
       {
+        case ContentDirectoryMessaging.MessageType.ShareImportStarted:
+          // Count all importing shares to know if all are finished before we run the maintenance task
+          _importingShareIds.Add((Guid)message.MessageData[ContentDirectoryMessaging.SHARE_ID]);
+          break;
         case ContentDirectoryMessaging.MessageType.ShareImportCompleted:
-          if (!_maintenanceScheduler.Post(true))
-            ServiceRegistration.Get<ILogger>().Info("SQLiteDatabase: Skipping additional database maintenance. There is already a maintenance run in the works and another one scheduled.");
+          _importingShareIds.Remove((Guid)message.MessageData[ContentDirectoryMessaging.SHARE_ID]);
+          if (_importingShareIds.Count == 0)
+            if (!_maintenanceScheduler.Post(true))
+              ServiceRegistration.Get<ILogger>().Info("SQLiteDatabase: Skipping additional database maintenance. There is already a maintenance run in the works and another one scheduled.");
           break;
       }
     }
@@ -526,7 +534,7 @@ namespace MediaPortal.Database.SQLite
     public string GetStorageClause(string statementStr)
     {
       // We can only append the "WITHOUT ROWID" to tables that are defining a primary key inside the "CREATE TABLE" statement.
-      if (string.IsNullOrEmpty(statementStr) 
+      if (string.IsNullOrEmpty(statementStr)
         || statementStr.IndexOf("create table", StringComparison.InvariantCultureIgnoreCase) == -1
         || statementStr.IndexOf("primary key", StringComparison.InvariantCultureIgnoreCase) == -1)
         return null;
