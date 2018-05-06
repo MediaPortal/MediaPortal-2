@@ -113,10 +113,6 @@ namespace MediaPortal.Database.SQLite
           SQLiteLog.Log += MPSQLiteLogEventHandler;
         }
 
-        // We use our own collation sequence which is registered here to be able
-        // to sort items taking into account culture specifics
-        SQLiteFunction.RegisterFunction(typeof(SQLiteCultureSensitiveCollation));
-
         var pathManager = ServiceRegistration.Get<IPathManager>();
         string dataDirectory = pathManager.GetPath("<DATABASE>");
         string databaseFile = Path.Combine(dataDirectory, _settings.DatabaseFileName);
@@ -159,7 +155,11 @@ namespace MediaPortal.Database.SQLite
 
           // Do not use the inbuilt connection pooling of System.Data.SQLite
           // We use our own connection pool which is faster.
+#if NO_POOL
+          Pooling = true,
+#else
           Pooling = false,
+#endif
 
           // Sychronization Mode "Normal" enables parallel database access while at the same time preventing database
           // corruption and is therefore a good compromise between "Off" (more performance) and "On"
