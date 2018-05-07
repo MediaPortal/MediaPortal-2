@@ -22,23 +22,22 @@
 
 #endregion
 
-using System.Collections.Generic;
-using System.Threading.Tasks;
-using MediaPortal.UiComponents.Media.General;
-using MediaPortal.UiComponents.Media.Models.ScreenData;
-using MediaPortal.UiComponents.Media.Models.Sorting;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Common.MediaManagement.MLQueries;
-using MediaPortal.UiComponents.Media.Helpers;
 using MediaPortal.UiComponents.Media.FilterTrees;
+using MediaPortal.UiComponents.Media.General;
+using MediaPortal.UiComponents.Media.Helpers;
+using MediaPortal.UiComponents.Media.Models.ScreenData;
+using MediaPortal.UiComponents.Media.Models.Sorting;
+using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace MediaPortal.UiComponents.Media.Models.NavigationModel
 {
   internal class SeriesNavigationInitializer : BaseNavigationInitializer
   {
     internal static IEnumerable<string> RESTRICTED_MEDIA_CATEGORIES = new List<string> { Models.MediaNavigationMode.Series }; // "Series"
-
-    protected SeriesFilterByNameScreenData _seriesScreen;
 
     public SeriesNavigationInitializer()
     {
@@ -50,26 +49,54 @@ namespace MediaPortal.UiComponents.Media.Models.NavigationModel
       _restrictedMediaCategories = RESTRICTED_MEDIA_CATEGORIES;
       _rootRole = EpisodeAspect.ROLE_EPISODE;
     }
+    
+    public static void NavigateToSeries(Guid seriesId)
+    {
+      MediaNavigationConfiguration configuration = new MediaNavigationConfiguration
+      {
+        RootScreenType = typeof(SeriesFilterByNameScreenData),
+        DefaultScreenType = typeof(SeriesFilterBySeasonScreenData),
+        FilterPath = new FilterTreePath(SeriesAspect.ROLE_SERIES),
+        LinkedId = seriesId
+      };
+      MediaNavigationModel.NavigateToMedia(Consts.WF_STATE_ID_SERIES_NAVIGATION_ROOT, configuration);
+    }
+
+    public static void NavigateToSeason(Guid seasonId)
+    {
+      MediaNavigationConfiguration configuration = new MediaNavigationConfiguration
+      {
+        RootScreenType = typeof(SeriesFilterBySeasonScreenData),
+        DefaultScreenType = typeof(SeriesShowItemsScreenData),
+        FilterPath = new FilterTreePath(SeasonAspect.ROLE_SEASON),
+        LinkedId = seasonId
+      };
+      MediaNavigationModel.NavigateToMedia(Consts.WF_STATE_ID_SERIES_NAVIGATION_ROOT, configuration);
+    }
+
+    protected virtual async Task PrepareFilterTree()
+    {
+      if (!_rootRole.HasValue)
+        return;
+
+      _customFilterTree = new RelationshipFilterTree(_rootRole.Value);
+
+      //Update filter by adding the user filter to the already loaded filters
+      IFilter userFilter = await CertificationHelper.GetUserCertificateFilter(_necessaryMias);
+      if (userFilter != null)
+        _customFilterTree.AddFilter(userFilter);
+
+      userFilter = await CertificationHelper.GetUserCertificateFilter(new[] { SeriesAspect.ASPECT_ID });
+      if (userFilter != null)
+        _customFilterTree.AddFilter(userFilter, new FilterTreePath(SeriesAspect.ROLE_SERIES));
+    }
 
     protected override async Task PrepareAsync()
     {
       await base.PrepareAsync();
-
-      if (_rootRole.HasValue)
-      {
-        _customFilterTree = new RelationshipFilterTree(_rootRole.Value);
-
-        //Update filter by adding the user filter to the already loaded filters
-        IFilter userFilter = await CertificationHelper.GetUserCertificateFilter(_necessaryMias);
-        if (userFilter != null)
-          _customFilterTree.AddFilter(userFilter);
-
-        userFilter = await CertificationHelper.GetUserCertificateFilter(new[] { SeriesAspect.ASPECT_ID });
-        if (userFilter != null)
-          _customFilterTree.AddFilter(userFilter, new FilterTreePath(SeriesAspect.ROLE_SERIES));
-      }
-
-      _defaultScreen = _seriesScreen = new SeriesFilterByNameScreenData();
+      await PrepareFilterTree();
+      
+      _defaultScreen = new SeriesFilterByNameScreenData();
       _availableScreens = new List<AbstractScreenData>
       {
         new SeriesShowItemsScreenData(_genericPlayableItemCreatorDelegate),

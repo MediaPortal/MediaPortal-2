@@ -22,10 +22,6 @@
 
 #endregion
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using MediaPortal.Common;
 using MediaPortal.Common.Commands;
 using MediaPortal.Common.Logging;
@@ -34,12 +30,16 @@ using MediaPortal.Common.MediaManagement.MLQueries;
 using MediaPortal.Common.PluginManager;
 using MediaPortal.Common.PluginManager.Exceptions;
 using MediaPortal.UiComponents.Media.Extensions;
+using MediaPortal.UiComponents.Media.FilterTrees;
 using MediaPortal.UiComponents.Media.General;
 using MediaPortal.UiComponents.Media.Models.Navigation;
 using MediaPortal.UiComponents.Media.Models.ScreenData;
 using MediaPortal.UiComponents.Media.Settings;
 using MediaPortal.UiComponents.Media.Views;
-using MediaPortal.UiComponents.Media.FilterTrees;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace MediaPortal.UiComponents.Media.Models.NavigationModel
 {
@@ -113,26 +113,53 @@ namespace MediaPortal.UiComponents.Media.Models.NavigationModel
       return Task.CompletedTask;
     }
 
-    public virtual void InitMediaNavigation(out string mediaNavigationMode, out NavigationData navigationData)
+    public virtual void InitMediaNavigation(MediaNavigationConfiguration configuration, out string mediaNavigationMode, out NavigationData navigationData)
     {
-      PrepareAsync();
+      PrepareAsync().Wait();
+
+      string viewName = null;
+      AbstractScreenData defaultScreen = null;
+      ICollection<AbstractScreenData> availableScreens = null;
+
+      //Apply any screen configurations
+      if (configuration?.RootScreenType != null)
+      {
+        //If specified, the parent screen becomes the root view so use it to load the next screen from the hierarchy
+        //and remove it from the list of available screens
+        AbstractScreenData parentScreen = _availableScreens?.FirstOrDefault(s => s.GetType() == configuration.RootScreenType);
+        if (parentScreen != null)
+        {
+          viewName = configuration.RootScreenType.ToString();
+          if (_availableScreens != null)
+            availableScreens = _availableScreens.Where(s => s != parentScreen).ToList();
+        }
+      }
+      if (configuration?.DefaultScreenType != null)
+        defaultScreen = _availableScreens?.FirstOrDefault(s => s.GetType() == configuration.DefaultScreenType);
+
+      if (viewName == null)
+        viewName = _viewName;
+      if (defaultScreen == null)
+        defaultScreen = _defaultScreen;
+      if (availableScreens == null)
+        availableScreens = _availableScreens;
 
       string nextScreenName;
       AbstractScreenData nextScreen = null;
 
       // Try to load the prefered next screen from settings.
-      if (NavigationData.LoadScreenHierarchy(_viewName, out nextScreenName))
+      if (NavigationData.LoadScreenHierarchy(viewName, out nextScreenName))
       {
         // Support for browsing mode.
         if (nextScreenName == Consts.USE_BROWSE_MODE)
           SetBrowseMode();
 
-        if (_availableScreens != null)
-          nextScreen = _availableScreens.FirstOrDefault(s => s.GetType().ToString() == nextScreenName);
+        if (availableScreens != null)
+          nextScreen = availableScreens.FirstOrDefault(s => s.GetType().ToString() == nextScreenName);
       }
 
       IEnumerable<Guid> optionalMIATypeIDs = MediaNavigationModel.GetMediaSkinOptionalMIATypes(MediaNavigationMode);
-      if(_optionalMias != null)
+      if (_optionalMias != null)
       {
         optionalMIATypeIDs = optionalMIATypeIDs.Union(_optionalMias);
         optionalMIATypeIDs = optionalMIATypeIDs.Except(_necessaryMias);
@@ -141,15 +168,21 @@ namespace MediaPortal.UiComponents.Media.Models.NavigationModel
       IFilterTree filterTree = _customFilterTree ?? (_rootRole.HasValue ? new RelationshipFilterTree(_rootRole.Value) : (IFilterTree)new SimpleFilterTree());
       filterTree.AddFilter(_filter);
 
+      //Apply any custom filters
+      if (configuration?.LinkedId != null)
+        filterTree.AddLinkedId(configuration.LinkedId.Value, configuration.FilterPath);
+      if (configuration?.Filter != null)
+        filterTree.AddFilter(configuration.Filter, configuration.FilterPath);
+
       // Prefer custom view specification.
       ViewSpecification rootViewSpecification = _customRootViewSpecification ??
-        new MediaLibraryQueryViewSpecification(_viewName, filterTree, _necessaryMias, optionalMIATypeIDs, true)
+        new MediaLibraryQueryViewSpecification(viewName, filterTree, _necessaryMias, optionalMIATypeIDs, true)
         {
           MaxNumItems = Consts.MAX_NUM_ITEMS_VISIBLE,
         };
 
       if (nextScreen == null)
-        nextScreen = _defaultScreen;
+        nextScreen = defaultScreen;
 
       ScreenConfig nextScreenConfig;
       NavigationData.LoadLayoutSettings(nextScreen.GetType().ToString(), out nextScreenConfig);
@@ -157,8 +190,8 @@ namespace MediaPortal.UiComponents.Media.Models.NavigationModel
       Sorting.Sorting nextSortingMode = _availableSortings.FirstOrDefault(sorting => sorting.GetType().ToString() == nextScreenConfig.Sorting) ?? _defaultSorting;
       Sorting.Sorting nextGroupingMode = _availableGroupings == null || String.IsNullOrEmpty(nextScreenConfig.Grouping) ? null : _availableGroupings.FirstOrDefault(grouping => grouping.GetType().ToString() == nextScreenConfig.Grouping) ?? _defaultGrouping;
 
-      navigationData = new NavigationData(null, _viewName, MediaNavigationRootState,
-        MediaNavigationRootState, rootViewSpecification, nextScreen, _availableScreens, nextSortingMode, nextGroupingMode)
+      navigationData = new NavigationData(null, viewName, MediaNavigationRootState,
+        MediaNavigationRootState, rootViewSpecification, nextScreen, availableScreens, nextSortingMode, nextGroupingMode)
       {
         AvailableSortings = _availableSortings,
         AvailableGroupings = _availableGroupings,

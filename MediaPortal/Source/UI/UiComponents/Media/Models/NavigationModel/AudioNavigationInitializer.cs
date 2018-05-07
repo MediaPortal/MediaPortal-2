@@ -28,6 +28,8 @@ using MediaPortal.UiComponents.Media.General;
 using MediaPortal.UiComponents.Media.Models.ScreenData;
 using MediaPortal.UiComponents.Media.Models.Sorting;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
+using System;
+using MediaPortal.UiComponents.Media.FilterTrees;
 
 namespace MediaPortal.UiComponents.Media.Models.NavigationModel
 {
@@ -46,6 +48,18 @@ namespace MediaPortal.UiComponents.Media.Models.NavigationModel
       _optionalMias = Consts.OPTIONAL_AUDIO_MIAS;
       _restrictedMediaCategories = RESTRICTED_MEDIA_CATEGORIES;
       _rootRole = AudioAspect.ROLE_TRACK;
+    }
+
+    public static void NavigateToAlbum(Guid albumId)
+    {
+      MediaNavigationConfiguration configuration = new MediaNavigationConfiguration
+      {
+        RootScreenType = typeof(AudioFilterByAlbumScreenData),
+        DefaultScreenType = typeof(AudioShowItemsScreenData),
+        FilterPath = new FilterTreePath(AudioAlbumAspect.ROLE_ALBUM),
+        LinkedId = albumId
+      };
+      MediaNavigationModel.NavigateToMedia(Consts.WF_STATE_ID_AUDIO_NAVIGATION_ROOT, configuration);
     }
 
     protected override async Task PrepareAsync()

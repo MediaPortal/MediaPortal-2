@@ -22,6 +22,7 @@
 
 #endregion
 
+using MediaPortal.Common.MediaManagement;
 using System;
 
 namespace MediaPortal.UiComponents.Media.Models.NavigationModel
@@ -46,6 +47,6 @@ namespace MediaPortal.UiComponents.Media.Models.NavigationModel
     /// </summary>
     /// <param name="mediaNavigationMode">MediaNavigationMode</param>
     /// <param name="navigationData">NavigationData</param>
-    void InitMediaNavigation(out string mediaNavigationMode, out NavigationData navigationData);
+    void InitMediaNavigation(MediaNavigationConfiguration configuration, out string mediaNavigationMode, out NavigationData navigationData);
   }
 }
