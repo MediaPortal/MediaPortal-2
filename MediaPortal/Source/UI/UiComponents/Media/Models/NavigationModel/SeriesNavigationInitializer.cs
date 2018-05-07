@@ -49,29 +49,29 @@ namespace MediaPortal.UiComponents.Media.Models.NavigationModel
       _restrictedMediaCategories = RESTRICTED_MEDIA_CATEGORIES;
       _rootRole = EpisodeAspect.ROLE_EPISODE;
     }
-    
+
     public static void NavigateToSeries(Guid seriesId)
     {
-      MediaNavigationConfiguration configuration = new MediaNavigationConfiguration
+      MediaNavigationConfig config = new MediaNavigationConfig
       {
         RootScreenType = typeof(SeriesFilterByNameScreenData),
         DefaultScreenType = typeof(SeriesFilterBySeasonScreenData),
         FilterPath = new FilterTreePath(SeriesAspect.ROLE_SERIES),
         LinkedId = seriesId
       };
-      MediaNavigationModel.NavigateToMedia(Consts.WF_STATE_ID_SERIES_NAVIGATION_ROOT, configuration);
+      MediaNavigationModel.NavigateToRootState(Consts.WF_STATE_ID_SERIES_NAVIGATION_ROOT, config);
     }
 
     public static void NavigateToSeason(Guid seasonId)
     {
-      MediaNavigationConfiguration configuration = new MediaNavigationConfiguration
+      MediaNavigationConfig config = new MediaNavigationConfig
       {
         RootScreenType = typeof(SeriesFilterBySeasonScreenData),
         DefaultScreenType = typeof(SeriesShowItemsScreenData),
         FilterPath = new FilterTreePath(SeasonAspect.ROLE_SEASON),
         LinkedId = seasonId
       };
-      MediaNavigationModel.NavigateToMedia(Consts.WF_STATE_ID_SERIES_NAVIGATION_ROOT, configuration);
+      MediaNavigationModel.NavigateToRootState(Consts.WF_STATE_ID_SERIES_NAVIGATION_ROOT, config);
     }
 
     protected virtual async Task PrepareFilterTree()
@@ -95,7 +95,7 @@ namespace MediaPortal.UiComponents.Media.Models.NavigationModel
     {
       await base.PrepareAsync();
       await PrepareFilterTree();
-      
+
       _defaultScreen = new SeriesFilterByNameScreenData();
       _availableScreens = new List<AbstractScreenData>
       {

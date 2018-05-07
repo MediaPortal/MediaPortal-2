@@ -585,7 +585,7 @@ namespace MediaPortal.UiComponents.Media.General
     // Keys for workflow state variables
     public const string KEY_NAVIGATION_MODE = "MediaNavigationModel: NAVIGATION_MODE";
     public const string KEY_NAVIGATION_DATA = "MediaNavigationModel: NAVIGATION_DATA";
-    public const string KEY_NAVIGATION_CONFIGURATION = "MediaNavigationModel: NAVIGATION_CONFIGURATION";
+    public const string KEY_NAVIGATION_CONFIG = "MediaNavigationModel: NAVIGATION_CONFIG";
 
     public static float DEFAULT_PIP_HEIGHT = 108;
     public static float DEFAULT_PIP_WIDTH = 192;

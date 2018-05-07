@@ -52,14 +52,14 @@ namespace MediaPortal.UiComponents.Media.Models.NavigationModel
 
     public static void NavigateToAlbum(Guid albumId)
     {
-      MediaNavigationConfiguration configuration = new MediaNavigationConfiguration
+      MediaNavigationConfig config = new MediaNavigationConfig
       {
         RootScreenType = typeof(AudioFilterByAlbumScreenData),
         DefaultScreenType = typeof(AudioShowItemsScreenData),
         FilterPath = new FilterTreePath(AudioAlbumAspect.ROLE_ALBUM),
         LinkedId = albumId
       };
-      MediaNavigationModel.NavigateToMedia(Consts.WF_STATE_ID_AUDIO_NAVIGATION_ROOT, configuration);
+      MediaNavigationModel.NavigateToRootState(Consts.WF_STATE_ID_AUDIO_NAVIGATION_ROOT, config);
     }
 
     protected override async Task PrepareAsync()

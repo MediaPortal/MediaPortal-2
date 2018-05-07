@@ -45,8 +45,9 @@ namespace MediaPortal.UiComponents.Media.Models.NavigationModel
     /// <summary>
     /// Initializes the media navigation, returns the required <see cref="NavigationData"/>.
     /// </summary>
+    /// <param name="config">Configuration for the media navigation</param>
     /// <param name="mediaNavigationMode">MediaNavigationMode</param>
     /// <param name="navigationData">NavigationData</param>
-    void InitMediaNavigation(MediaNavigationConfiguration configuration, out string mediaNavigationMode, out NavigationData navigationData);
+    void InitMediaNavigation(MediaNavigationConfig config, out string mediaNavigationMode, out NavigationData navigationData);
   }
 }

@@ -140,13 +140,18 @@ namespace MediaPortal.UiComponents.Media.Models
     #endregion
 
     #region Static members which also can be used from other models
-    
-    public static void NavigateToMedia(Guid workflowStateId, MediaNavigationConfiguration configuration)
+
+    /// <summary>
+    /// Navigates to the specified media navigation root state.
+    /// </summary>
+    /// <param name="mediaNavigationRootState">The root workflow state.</param>
+    /// <param name="config">Configuration for the media navigation or <c>null</c> to use the default configuration.</param>
+    public static void NavigateToRootState(Guid mediaNavigationRootState, MediaNavigationConfig config)
     {
       Dictionary<string, object> contextVariables = new Dictionary<string, object>();
-      contextVariables.Add(Consts.KEY_NAVIGATION_CONFIGURATION, configuration);
+      contextVariables.Add(Consts.KEY_NAVIGATION_CONFIG, config);
       var wf = ServiceRegistration.Get<IWorkflowManager>();
-      wf.NavigatePushAsync(workflowStateId, new NavigationContextConfig() { AdditionalContextVariables = contextVariables });
+      wf.NavigatePushAsync(mediaNavigationRootState, new NavigationContextConfig() { AdditionalContextVariables = contextVariables });
     }
 
     public static MediaNavigationModel GetCurrentInstance()
@@ -344,8 +349,9 @@ namespace MediaPortal.UiComponents.Media.Models
     /// Returns context variables to be set for the given workflow state id.
     /// </summary>
     /// <param name="workflowStateId">Workflow state which determines the root media navigation state.</param>
+    /// <param name="config">Configuration for the media navigation</param>
     /// <returns>Mapping of context variable keys to values.</returns>
-    protected static IDictionary<string, object> PrepareRootState(Guid workflowStateId, MediaNavigationConfiguration configuration)
+    protected static IDictionary<string, object> PrepareRootState(Guid workflowStateId, MediaNavigationConfig config)
     {
       IDictionary<string, object> result = new Dictionary<string, object>();
       // The initial state ID determines the media model "part" to initialize: Browse local media, browse media library, audio, videos or images.
@@ -357,7 +363,7 @@ namespace MediaPortal.UiComponents.Media.Models
       IMediaNavigationInitializer initializer = _initializers[workflowStateId];
       string mode;
       NavigationData navigationData;
-      initializer.InitMediaNavigation(configuration, out mode, out navigationData);
+      initializer.InitMediaNavigation(config, out mode, out navigationData);
       result.Add(Consts.KEY_NAVIGATION_MODE, mode);
       result.Add(Consts.KEY_NAVIGATION_DATA, navigationData);
       return result;
@@ -374,10 +380,10 @@ namespace MediaPortal.UiComponents.Media.Models
       if (navigationData != null)
         return;
 
-      MediaNavigationConfiguration configuration = context.GetContextVariable(Consts.KEY_NAVIGATION_CONFIGURATION, false) as MediaNavigationConfiguration;
+      MediaNavigationConfig config = context.GetContextVariable(Consts.KEY_NAVIGATION_CONFIG, false) as MediaNavigationConfig;
       // Initialize root media navigation state. We will set up all sub processes for each media model "part", i.e.
       // audio, videos, images, browse local media and browse media library.
-      IDictionary<string, object> contextVariables = PrepareRootState(context.WorkflowState.StateId, configuration);
+      IDictionary<string, object> contextVariables = PrepareRootState(context.WorkflowState.StateId, config);
       foreach (KeyValuePair<string, object> variable in contextVariables)
         context.SetContextVariable(variable.Key, variable.Value);
     }

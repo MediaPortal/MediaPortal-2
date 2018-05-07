@@ -113,36 +113,46 @@ namespace MediaPortal.UiComponents.Media.Models.NavigationModel
       return Task.CompletedTask;
     }
 
-    public virtual void InitMediaNavigation(MediaNavigationConfiguration configuration, out string mediaNavigationMode, out NavigationData navigationData)
+    public virtual void InitMediaNavigation(MediaNavigationConfig config, out string mediaNavigationMode, out NavigationData navigationData)
     {
       PrepareAsync().Wait();
 
-      string viewName = null;
-      AbstractScreenData defaultScreen = null;
-      ICollection<AbstractScreenData> availableScreens = null;
+      IFilterTree filterTree = _customFilterTree ?? (_rootRole.HasValue ? new RelationshipFilterTree(_rootRole.Value) : (IFilterTree)new SimpleFilterTree());
+      filterTree.AddFilter(_filter);
 
-      //Apply any screen configurations
-      if (configuration?.RootScreenType != null)
+      //Default configuration
+      string viewName = _viewName;
+      AbstractScreenData defaultScreen = _defaultScreen;
+      ICollection<AbstractScreenData> availableScreens = _availableScreens;
+
+      //Apply any custom configuration
+      if (config != null)
       {
-        //If specified, the parent screen becomes the root view so use it to load the next screen from the hierarchy
-        //and remove it from the list of available screens
-        AbstractScreenData parentScreen = _availableScreens?.FirstOrDefault(s => s.GetType() == configuration.RootScreenType);
-        if (parentScreen != null)
+        if (availableScreens != null)
         {
-          viewName = configuration.RootScreenType.ToString();
-          if (_availableScreens != null)
-            availableScreens = _availableScreens.Where(s => s != parentScreen).ToList();
-        }
-      }
-      if (configuration?.DefaultScreenType != null)
-        defaultScreen = _availableScreens?.FirstOrDefault(s => s.GetType() == configuration.DefaultScreenType);
+          //Use the configured root screen to load the next screen from the hierarchy
+          //and remove it from the list of available screens
+          AbstractScreenData configRoot = config.RootScreenType != null ? availableScreens.FirstOrDefault(s => s.GetType() == config.RootScreenType) : null;
+          if (configRoot != null)
+          {
+            viewName = configRoot.GetType().ToString();
+            //don't modify the existing list
+            availableScreens = new List<AbstractScreenData>(availableScreens);
+            availableScreens.Remove(configRoot);
+          }
 
-      if (viewName == null)
-        viewName = _viewName;
-      if (defaultScreen == null)
-        defaultScreen = _defaultScreen;
-      if (availableScreens == null)
-        availableScreens = _availableScreens;
+          //Use the configured default screen if there is no saved screen hierarchy
+          AbstractScreenData configDefault = config.DefaultScreenType != null ? availableScreens.FirstOrDefault(s => s.GetType() == config.DefaultScreenType) : null;
+          if (configDefault != null)
+            defaultScreen = configDefault;
+        }
+
+        //Apply any additional filters
+        if (config.LinkedId.HasValue)
+          filterTree.AddLinkedId(config.LinkedId.Value, config.FilterPath);
+        if (config.Filter != null)
+          filterTree.AddFilter(config.Filter, config.FilterPath);
+      }
 
       string nextScreenName;
       AbstractScreenData nextScreen = null;
@@ -164,15 +174,6 @@ namespace MediaPortal.UiComponents.Media.Models.NavigationModel
         optionalMIATypeIDs = optionalMIATypeIDs.Union(_optionalMias);
         optionalMIATypeIDs = optionalMIATypeIDs.Except(_necessaryMias);
       }
-
-      IFilterTree filterTree = _customFilterTree ?? (_rootRole.HasValue ? new RelationshipFilterTree(_rootRole.Value) : (IFilterTree)new SimpleFilterTree());
-      filterTree.AddFilter(_filter);
-
-      //Apply any custom filters
-      if (configuration?.LinkedId != null)
-        filterTree.AddLinkedId(configuration.LinkedId.Value, configuration.FilterPath);
-      if (configuration?.Filter != null)
-        filterTree.AddFilter(configuration.Filter, configuration.FilterPath);
 
       // Prefer custom view specification.
       ViewSpecification rootViewSpecification = _customRootViewSpecification ??
