@@ -8,6 +8,7 @@
   <ItemGroup>
     <PluginFiles Include="$(TargetDir)$(ProjectName).dll" />
     <PluginFiles Include="$(ProjectDir)plugin.xml" />
+    <PluginFiles Include="$(TargetDir)NEbml.Core.dll" />
   </ItemGroup>
 
   <ItemGroup Condition=" '$(Configuration)' == 'Debug'">

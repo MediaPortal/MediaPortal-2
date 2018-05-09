@@ -570,9 +570,9 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor
           return;
 
         // Try to get extended information out of matroska files)
-        MatroskaInfoReader mkvReader = new MatroskaInfoReader(lfsra);
+        MatroskaBinaryReader mkvReader = new MatroskaBinaryReader(lfsra);
         // Add keys to be extracted to tags dictionary, matching results will returned as value
-        Dictionary<string, IList<string>> tagsToExtract = MatroskaConsts.DefaultTags;
+        Dictionary<string, IList<string>> tagsToExtract = MatroskaConsts.DefaultVideoTags;
         await mkvReader.ReadTagsAsync(tagsToExtract).ConfigureAwait(false);
 
         // Read title
@@ -605,10 +605,10 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor
             int? height = videoStreamAspects[0].GetAttributeValue<int?>(VideoStreamAspect.ATTR_HEIGHT);
             int? width = videoStreamAspects[0].GetAttributeValue<int?>(VideoStreamAspect.ATTR_WIDTH);
 
-            MatroskaInfoReader.StereoMode mode = await mkvReader.ReadStereoModeAsync().ConfigureAwait(false);
-            if (mode == MatroskaInfoReader.StereoMode.AnaglyphCyanRed || mode == MatroskaInfoReader.StereoMode.AnaglyphGreenMagenta)
+            MatroskaBinaryReader.StereoMode mode = await mkvReader.ReadStereoModeAsync().ConfigureAwait(false);
+            if (mode == MatroskaBinaryReader.StereoMode.AnaglyphCyanRed || mode == MatroskaBinaryReader.StereoMode.AnaglyphGreenMagenta)
               videoStreamAspects[0].SetAttribute(VideoStreamAspect.ATTR_VIDEO_TYPE, VideoStreamAspect.TYPE_ANAGLYPH);
-            else if (mode == MatroskaInfoReader.StereoMode.SBSLeftEyeFirst || mode == MatroskaInfoReader.StereoMode.SBSRightEyeFirst)
+            else if (mode == MatroskaBinaryReader.StereoMode.SBSLeftEyeFirst || mode == MatroskaBinaryReader.StereoMode.SBSRightEyeFirst)
             {
               //If it was not detected as SBS by resolution it's probably Half SBS
               videoStreamAspects[0].SetAttribute(VideoStreamAspect.ATTR_VIDEO_TYPE, VideoStreamAspect.TYPE_HSBS);
@@ -620,7 +620,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor
                 videoStreamAspects[0].SetAttribute(VideoStreamAspect.ATTR_ASPECTRATIO, ar);
               }
             }
-            else if (mode == MatroskaInfoReader.StereoMode.TABLeftEyeFirst || mode == MatroskaInfoReader.StereoMode.TABRightEyeFirst)
+            else if (mode == MatroskaBinaryReader.StereoMode.TABLeftEyeFirst || mode == MatroskaBinaryReader.StereoMode.TABRightEyeFirst)
             {
               //If it was not detected as TAB by resolution it's probably Half TAB
               videoStreamAspects[0].SetAttribute(VideoStreamAspect.ATTR_VIDEO_TYPE, VideoStreamAspect.TYPE_HTAB);
@@ -632,7 +632,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor
                 videoStreamAspects[0].SetAttribute(VideoStreamAspect.ATTR_ASPECTRATIO, ar);
               }
             }
-            else if (mode == MatroskaInfoReader.StereoMode.FieldSequentialModeLeftEyeFirst || mode == MatroskaInfoReader.StereoMode.FieldSequentialModeRightEyeFirst)
+            else if (mode == MatroskaBinaryReader.StereoMode.FieldSequentialModeLeftEyeFirst || mode == MatroskaBinaryReader.StereoMode.FieldSequentialModeRightEyeFirst)
               videoStreamAspects[0].SetAttribute(VideoStreamAspect.ATTR_VIDEO_TYPE, VideoStreamAspect.TYPE_MVC);
           }
         }
