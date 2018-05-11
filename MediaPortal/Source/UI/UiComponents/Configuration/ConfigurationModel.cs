@@ -471,7 +471,7 @@ namespace MediaPortal.UiComponents.Configuration
           // Create transient state for new config section
           WorkflowState newState = WorkflowState.CreateTransientState(
               string.Format("Config: '{0}'", childNode.Location), section.SectionMetadata.Text, false, CONFIGURATION_SECTION_SCREEN,
-              false, WorkflowType.Workflow);
+              false, WorkflowType.Workflow, context.WorkflowState.HideGroups);
           // Add action for menu
           IResourceString res = LocalizationHelper.CreateResourceString(section.Metadata.Text);
           WorkflowAction wa = new PushTransientStateNavigationTransition(
