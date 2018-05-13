@@ -797,7 +797,7 @@
       </Grid.RowDefinitions>
       
       <Image x:Name="ItemImage" Grid.RowSpan="2" HorizontalAlignment="Center" VerticalAlignment="Center" Opacity="1"
-             Stretch="Fill" Source="{Binding Converter={StaticResource ListItemActionIdConverter}, ConverterParameter=.png}">
+             Stretch="Fill" Source="{Binding Converter={StaticResource ListItemActionIdConverter}, ConverterParameter=.jpg}">
       </Image>
       <Grid x:Name="ItemBandGrid" Grid.Row="1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" RenderTransformOrigin="0.5,1">
         <Grid.ColumnDefinitions>
