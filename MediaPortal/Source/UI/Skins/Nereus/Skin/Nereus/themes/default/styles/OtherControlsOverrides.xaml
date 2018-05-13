@@ -792,17 +792,32 @@
         <ColumnDefinition Width="170"/>
       </Grid.ColumnDefinitions>
       <Grid.RowDefinitions>
-        <RowDefinition Height="135"/>
-        <RowDefinition Height="35"/>
+        <RowDefinition Height="130"/>
+        <RowDefinition Height="Auto"/>
       </Grid.RowDefinitions>
       
       <Image x:Name="ItemImage" Grid.RowSpan="2" HorizontalAlignment="Center" VerticalAlignment="Center" Opacity="1"
              Stretch="Fill" Source="{Binding Converter={StaticResource ListItemActionIdConverter}, ConverterParameter=.png}">
       </Image>
-      <Rectangle x:Name="ItemBand" Grid.Row="1" Fill="Black" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Opacity="0"/>
-      <Label Grid.Row="1" Grid.Column="0" x:Name="ItemLabel" HorizontalAlignment="Center" VerticalAlignment="Center" Content="{Binding [Name]}" 
-             FontSize="{ThemeResource SmallerFontSize}" Color="{ThemeResource MenuTextBackground}" Opacity="0" Margin="5,-5,5,1"
-             ScrollDelay="0" Scroll="None" FontFamily="SegoeUIBold"/>
+      <Grid x:Name="ItemBandGrid" Grid.Row="1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" RenderTransformOrigin="0.5,1">
+        <Grid.ColumnDefinitions>
+          <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+          <RowDefinition Height="40"/>
+        </Grid.RowDefinitions>
+        <Grid.RenderTransform>
+          <TransformGroup>
+            <ScaleTransform ScaleX="1" ScaleY="0"/>
+          </TransformGroup>
+        </Grid.RenderTransform>
+
+        <Rectangle x:Name="ItemBand" Fill="Black" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Opacity="0.4"/>
+        <Label x:Name="ItemLabel" HorizontalAlignment="Center" VerticalAlignment="Center" Content="{Binding [Name]}" 
+               FontSize="{ThemeResource SmallerFontSize}" Color="{ThemeResource MenuTextForeground}" Margin="5,-5,5,1"
+               ScrollDelay="0" Scroll="None" FontFamily="SegoeUIBold"/>        
+      </Grid>
+
       <Image x:Name="ItemFrame" Grid.RowSpan="2" HorizontalAlignment="Center" VerticalAlignment="Center" Opacity="0"
              Stretch="Fill" Source="TileFrameOverlay.png">
       </Image>
@@ -818,12 +833,46 @@
                   IsEnabled="{Binding Enabled}" SetFocus="{Binding Path=Selected,Mode=OneTime}">
             <Button.Triggers>
               <Trigger Property="HasFocus" Value="True">
-                <Setter TargetName="ItemBand" Property="Opacity" Value="0.4"/>
-                <Setter TargetName="ItemLabel" Property="Opacity" Value="1.2"/>
-                <Setter TargetName="ItemLabel" Property="Color" Value="{ThemeResource MenuTextForeground}"/>
-                <!--Setter TargetName="ItemImage" Property="Opacity" Value="1.2"/-->
+                <!--Setter TargetName="ItemBand" Property="Opacity" Value="0.4"/-->
+                <!--Setter TargetName="ItemLabel" Property="Opacity" Value="1.2"/-->
                 <Setter TargetName="ItemLabel" Property="Scroll" Value="Auto"/>
                 <Setter TargetName="ItemFrame" Property="Opacity" Value="1.2"/>
+                <Trigger.EnterActions>
+                  <BeginStoryboard x:Name="SlideOut">
+                    <BeginStoryboard.Storyboard>
+                      <Storyboard>
+                        <DoubleAnimationUsingKeyFrames BeginTime="00:00:00" Duration="00:00:00.50" FillBehavior="HoldEnd" 
+                                                       Storyboard.TargetName="ItemBandGrid"  Storyboard.TargetProperty="RenderTransform.Children[0].ScaleY">
+                          <SplineDoubleKeyFrame KeyTime="00:00:00" Value="0"/>
+                          <EasingDoubleKeyFrame KeyTime="00:00:00.50" Value="1">
+                            <EasingDoubleKeyFrame.EasingFunction>
+                              <BackEase Amplitude="0.4" EasingMode="EaseOut"/>
+                            </EasingDoubleKeyFrame.EasingFunction>
+                          </EasingDoubleKeyFrame>
+                        </DoubleAnimationUsingKeyFrames>
+                        
+                        <!--DoubleAnimation
+                           Storyboard.TargetName="ItemBandGrid"
+                           Storyboard.TargetProperty="RenderTransform.Children[0].ScaleY"
+                           From="0" To="1" BeginTime="0:0:0" Duration="00:00:00.35"
+                           FillBehavior="HoldEnd"/-->
+                      </Storyboard>
+                    </BeginStoryboard.Storyboard>
+                  </BeginStoryboard>
+                </Trigger.EnterActions>
+                <Trigger.ExitActions>
+                  <BeginStoryboard x:Name="SlideBack">
+                    <BeginStoryboard.Storyboard>
+                      <Storyboard>
+                        <DoubleAnimation
+                           Storyboard.TargetName="ItemBandGrid"
+                           Storyboard.TargetProperty="RenderTransform.Children[0].ScaleY"
+                           From="1" To="0" BeginTime="0:0:0" Duration="00:00:00.35"
+                           FillBehavior="HoldEnd"/>
+                      </Storyboard>
+                    </BeginStoryboard.Storyboard>
+                  </BeginStoryboard>
+                </Trigger.ExitActions>
               </Trigger>
               <!--DataTrigger Binding="{Binding Path=AdditionalProperties[MenuModel: Item-Action].ActionId}" Value="BB49A591-7705-408F-8177-45D633FDFAD0">
                 <Setter Property="Fill" Value="#345678"/>
