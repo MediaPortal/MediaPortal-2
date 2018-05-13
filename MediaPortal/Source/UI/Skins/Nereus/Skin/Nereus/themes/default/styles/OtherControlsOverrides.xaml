@@ -841,16 +841,13 @@
                   <BeginStoryboard x:Name="SlideOut">
                     <BeginStoryboard.Storyboard>
                       <Storyboard>
-                        <DoubleAnimationUsingKeyFrames BeginTime="00:00:00" Duration="00:00:00.50" FillBehavior="HoldEnd" 
-                                                       Storyboard.TargetName="ItemBandGrid"  Storyboard.TargetProperty="RenderTransform.Children[0].ScaleY">
-                          <SplineDoubleKeyFrame KeyTime="00:00:00" Value="0"/>
-                          <EasingDoubleKeyFrame KeyTime="00:00:00.50" Value="1">
-                            <EasingDoubleKeyFrame.EasingFunction>
-                              <BackEase Amplitude="0.4" EasingMode="EaseOut"/>
-                            </EasingDoubleKeyFrame.EasingFunction>
-                          </EasingDoubleKeyFrame>
-                        </DoubleAnimationUsingKeyFrames>
-                        
+                        <DoubleAnimation BeginTime="00:00:00" From="0" To="1" Duration="00:00:00.7" DecelerationRatio="1"
+                                FillBehavior="HoldEnd" Storyboard.TargetName="ItemBandGrid" Storyboard.TargetProperty="RenderTransform.Children[0].ScaleY">
+                          <DoubleAnimation.EasingFunction>
+                            <BackEase Amplitude="0.6" EasingMode="EaseOut"/>
+                          </DoubleAnimation.EasingFunction>
+                        </DoubleAnimation>
+
                         <!--DoubleAnimation
                            Storyboard.TargetName="ItemBandGrid"
                            Storyboard.TargetProperty="RenderTransform.Children[0].ScaleY"
