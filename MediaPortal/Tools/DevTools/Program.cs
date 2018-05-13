@@ -27,6 +27,7 @@ using MediaPortal.Common;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
+using MediaPortal.Common.MediaManagement.MLQueries;
 using MediaPortal.Common.Messaging;
 using MediaPortal.Common.PathManager;
 using MediaPortal.Common.ResourceAccess;
@@ -39,17 +40,15 @@ using MediaPortal.Common.Settings;
 using MediaPortal.Common.SystemCommunication;
 using MediaPortal.Database.SQLite;
 using MediaPortal.Extensions.ResourceProviders.NetworkNeighborhoodResourceProvider;
+using MediaPortal.Utilities.DB;
 using System;
 using System.Collections;
-using System.Linq;
 using System.Collections.Generic;
 using System.Data;
 using System.IO;
+using System.Linq;
 using System.Xml;
 using System.Xml.Serialization;
-using MediaPortal.Backend.Services.Database;
-using MediaPortal.Common.MediaManagement.MLQueries;
-using MediaPortal.Utilities.DB;
 
 namespace MediaPortal.DevTools
 {
@@ -98,9 +97,18 @@ namespace MediaPortal.DevTools
           Usage();
         }
 
-        ServiceRegistration.Set<IPathManager>(new PathManager());
-        ServiceRegistration.Get<IPathManager>().SetPath("CONFIG", "_DevTools/config");
-        ServiceRegistration.Get<IPathManager>().SetPath("LOG", "_DevTools/log");
+        var pathManager = new PathManager();
+        pathManager.InitializeDefaults();
+        // Override data path which could be read from MP2-Server install folder
+        pathManager.SetPath("DATA", "<COMMON_APPLICATION_DATA>\\Team MediaPortal\\MP2-DevTools");
+
+        // Set defaults if running from VS debug console (not inside MP2-Server install folder)
+        if (!pathManager.Exists("CONFIG"))
+        {
+          pathManager.SetPath("CONFIG", "<DATA>\\Config");
+          pathManager.SetPath("LOG", "<DATA>\\Log");
+        }
+        ServiceRegistration.Set<IPathManager>(pathManager);
         ServiceRegistration.Set(_logger = new Log4NetLogger(ServiceRegistration.Get<IPathManager>().GetPath(@"<LOG>")));
 
         if (direct)
@@ -338,12 +346,13 @@ namespace MediaPortal.DevTools
         Exit(1);
       }
 
-      ServiceRegistration.Get<IPathManager>().SetPath("DATABASE", Path.GetDirectoryName(file));
+      var directoryName = Path.GetDirectoryName(file);
+      ServiceRegistration.Get<IPathManager>().SetPath("DATABASE", directoryName);
 
       ServiceRegistration.Set<IMessageBroker>(new MessageBroker());
       ServiceRegistration.Set<ISettingsManager>(new SettingsManager());
 
-      SQLiteSettings settings = new SQLiteSettings();
+      var settings = ServiceRegistration.Get<ISettingsManager>().Load<SQLiteSettings>();
       settings.PageSize = 4096;
       settings.DatabaseFileName = Path.GetFileName(file);
       ServiceRegistration.Get<ISettingsManager>().Save(settings);
