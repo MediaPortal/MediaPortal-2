@@ -67,6 +67,8 @@ namespace MediaPortal.Common.MediaManagement.DefaultItemAspects
     public static readonly string TYPE_COMPANY = "COMPANY";
     public static readonly string TYPE_NETWORK = "NETWORK";
 
+    private const int SOURCE_SEARCH_INDEX_ID = 1;
+
     /// <summary>
     /// Media item aspect id of the relationship aspect.
     /// </summary>
@@ -76,19 +78,19 @@ namespace MediaPortal.Common.MediaManagement.DefaultItemAspects
     /// Source of the identifier
     /// </summary>
     public static readonly MediaItemAspectMetadata.MultipleAttributeSpecification ATTR_SOURCE =
-        MediaItemAspectMetadata.CreateMultipleStringAttributeSpecification("Source", 100, Cardinality.Inline, true);
+        MediaItemAspectMetadata.CreateMultipleStringAttributeSpecification("Source", 100, Cardinality.Inline, true, SOURCE_SEARCH_INDEX_ID);
 
     /// <summary>
     /// The type of identifier
     /// </summary>
     public static readonly MediaItemAspectMetadata.MultipleAttributeSpecification ATTR_TYPE =
-        MediaItemAspectMetadata.CreateMultipleStringAttributeSpecification("Type", 100, Cardinality.Inline, true);
+        MediaItemAspectMetadata.CreateMultipleStringAttributeSpecification("Type", 100, Cardinality.Inline, true, SOURCE_SEARCH_INDEX_ID);
 
     /// <summary>
     /// Source type's unique id
     /// </summary>
     public static readonly MediaItemAspectMetadata.MultipleAttributeSpecification ATTR_ID =
-        MediaItemAspectMetadata.CreateMultipleStringAttributeSpecification("Id", 100, Cardinality.Inline, false);
+        MediaItemAspectMetadata.CreateMultipleStringAttributeSpecification("Id", 100, Cardinality.Inline, false, SOURCE_SEARCH_INDEX_ID);
 
     public static readonly MultipleMediaItemAspectMetadata Metadata = new MultipleMediaItemAspectMetadata(
       // TODO: Localize name

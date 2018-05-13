@@ -1293,6 +1293,26 @@ namespace MediaPortal.Backend.Services.MediaLibrary
                   spec.Cardinality, miam.AspectId, spec.AttributeName));
           }
         }
+
+        // Composite indexes
+        var indexIds = miam.AttributeSpecifications.Values.Where(a => a.CompositeIndexIds?.Count() > 0).SelectMany(a => a.CompositeIndexIds).Distinct();
+        if (indexIds?.Count() > 0)
+        {
+          foreach (int indexId in indexIds)
+          {
+            IEnumerable<string> indexColumns = miam.AttributeSpecifications.Values.Where(a => a.CompositeIndexIds?.Contains(indexId) ?? false).Select(a => GetMIAAttributeColumnName(a));
+            indexName = GenerateDBObjectName(transaction, miam.AspectId, $"{miaTableName}_CI{indexId}_IDX", "IDX");
+            ServiceRegistration.Get<ILogger>().Debug("MIA_Management: Creating composite index '{0}' for media item aspect '{1}'",
+                indexName, miam.AspectId);
+
+            using (IDbCommand command = transaction.CreateCommand())
+            {
+              command.CommandText = "CREATE INDEX " + indexName + " ON " + miaTableName + "(" + string.Join(",", indexColumns) + ")";
+              command.ExecuteNonQuery();
+            }
+          }
+        }
+
         transaction.Commit();
       }
       catch (Exception e)

@@ -104,7 +104,7 @@ namespace MediaPortal.Common.Services.MediaManagement.ImportDataflowBlocks
           // and there were no new relevant MIAs added since then.
           // ToDo: We should only omit MDEs that get their data from the file or directory itself. All others should be called anyway.
           if (importResource.DateOfLastImport > importResource.ResourceAccessor.LastChanged &&
-              importResource.DateOfLastImport > await _mostRecentMiaCreationDate.Value  &&
+              importResource.DateOfLastImport > await _mostRecentMiaCreationDate.Value.ConfigureAwait(false) &&
               importResource.MediaItemId.HasValue)
           {
             importResource.IsValid = false;
@@ -120,7 +120,7 @@ namespace MediaPortal.Common.Services.MediaManagement.ImportDataflowBlocks
           //else if (!importResource.MediaItemId.HasValue)
           //  ServiceRegistration.Get<ILogger>().Info("File {0} needs import", importResource.PendingResourcePath);
 
-          ICollection<Guid> aspects = await GetAllManagedMediaItemAspectTypes();
+          ICollection<Guid> aspects = await GetAllManagedMediaItemAspectTypes().ConfigureAwait(false);
 
           List<Guid> optionalAspects = new List<Guid>(aspects);
           if (optionalAspects.Contains(ProviderResourceAspect.ASPECT_ID))
@@ -132,9 +132,9 @@ namespace MediaPortal.Common.Services.MediaManagement.ImportDataflowBlocks
           // ReSharper disable once PossibleInvalidOperationException
           MediaItem mediaItem = null;
           if(importResource.MediaItemId.HasValue)
-            mediaItem = await LoadLocalItem(importResource.MediaItemId.Value, requiredAspects.AsEnumerable(), optionalAspects.AsEnumerable());
+            mediaItem = await LoadLocalItem(importResource.MediaItemId.Value, requiredAspects.AsEnumerable(), optionalAspects.AsEnumerable()).ConfigureAwait(false);
           else if(!importResource.IsStubResource)
-            mediaItem = await LoadLocalItem(importResource.PendingResourcePath, requiredAspects.AsEnumerable(), optionalAspects.AsEnumerable());
+            mediaItem = await LoadLocalItem(importResource.PendingResourcePath, requiredAspects.AsEnumerable(), optionalAspects.AsEnumerable()).ConfigureAwait(false);
           if (mediaItem != null)
           {
             SingleMediaItemAspect directoryAspect;
@@ -179,7 +179,7 @@ namespace MediaPortal.Common.Services.MediaManagement.ImportDataflowBlocks
       var relevantMdes = mediaAccessor.LocalMetadataExtractors.Where(kvp => ImportJobInformation.MetadataExtractorIds.Contains(kvp.Key)).Select(kvp => kvp.Value).ToList();
       var relevantMiaIds = relevantMdes.SelectMany(mde => mde.Metadata.ExtractedAspectTypes.Keys).Distinct();
 
-      var creationDates = await GetManagedMediaItemAspectCreationDates();
+      var creationDates = await GetManagedMediaItemAspectCreationDates().ConfigureAwait(false);
 
       var mostRecentRelevantDate = creationDates.Where(kvp => relevantMiaIds.Contains(kvp.Key)).Select(kvp => kvp.Value).Max();
       ServiceRegistration.Get<ILogger>().Debug("ImporterWorker.{0}.{1}: Most recent creation date of the MIAs relevant to this ImportJob: {2}", ParentImportJobController, ToString(), mostRecentRelevantDate);

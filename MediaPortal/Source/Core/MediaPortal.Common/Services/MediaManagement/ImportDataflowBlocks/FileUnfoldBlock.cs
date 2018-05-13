@@ -104,7 +104,7 @@ namespace MediaPortal.Common.Services.MediaManagement.ImportDataflowBlocks
         if (importResource.IsSingleResource)
         {
           files = new HashSet<IFileSystemResourceAccessor> { importResource.ResourceAccessor };
-          MediaItem mi = await LoadLocalItem(importResource.PendingResourcePath, PROVIDERRESOURCE_IMPORTER_MIA_ID_ENUMERATION, null);
+          MediaItem mi = await LoadLocalItem(importResource.PendingResourcePath, PROVIDERRESOURCE_IMPORTER_MIA_ID_ENUMERATION, null).ConfigureAwait(false);
           if (mi != null)
           {
             mediaItems = new List<MediaItem>(new MediaItem[] { mi });
@@ -117,7 +117,7 @@ namespace MediaPortal.Common.Services.MediaManagement.ImportDataflowBlocks
           SingleMediaItemAspect directoryAspect;
           // ReSharper disable once PossibleInvalidOperationException
           // TODO: Rework this
-          mediaItems = (await Browse(importResource.MediaItemId.Value, PROVIDERRESOURCE_IMPORTER_MIA_ID_ENUMERATION, DIRECTORY_MIA_ID_ENUMERATION))
+          mediaItems = (await Browse(importResource.MediaItemId.Value, PROVIDERRESOURCE_IMPORTER_MIA_ID_ENUMERATION, DIRECTORY_MIA_ID_ENUMERATION).ConfigureAwait(false))
             .Where(mi => !MediaItemAspect.TryGetAspect(mi.Aspects, DirectoryAspect.Metadata, out directoryAspect));
         }
         if (mediaItems != null)
@@ -183,18 +183,18 @@ namespace MediaPortal.Common.Services.MediaManagement.ImportDataflowBlocks
               }
             }
           }
-          await DeleteNoLongerExistingFilesFromMediaLibrary(files, path2LastImportDate.Keys);
+          await DeleteNoLongerExistingFilesFromMediaLibrary(files, path2LastImportDate.Keys).ConfigureAwait(false);
         }
 
         //Add new stub items
         foreach (var file in files.Where(f => !path2LastImportDate.Keys.Contains(f.CanonicalLocalResourcePath)))
         {
-          if (await IsStubResource(file))
+          if (await IsStubResource(file).ConfigureAwait(false))
           {
             stubFiles.Add(file);
 
             DateTime dateTime;
-            var stubAspects = await ExtractStubItems(file);
+            var stubAspects = await ExtractStubItems(file).ConfigureAwait(false);
             if (stubAspects != null)
             {
               foreach (var aspects in stubAspects)
@@ -282,14 +282,14 @@ namespace MediaPortal.Common.Services.MediaManagement.ImportDataflowBlocks
         // Existing media items can have chained resource paths (i.e. BD ISO, or video inside .zip archive)
         if (fileResourcePathsInFileSystem.Any(fsResource => mlResource == fsResource || mlResource.BasePathSegment == fsResource.BasePathSegment))
           continue;
-        if (await IsSingleResourcePath(mlResource))
+        if (await IsSingleResourcePath(mlResource).ConfigureAwait(false))
           continue;
 
         noLongerExistingFileResourcePaths.Add(mlResource);
       }
 
       foreach (var noLongerExistingFileResourcePath in noLongerExistingFileResourcePaths)
-        await DeleteMediaItem(noLongerExistingFileResourcePath);
+        await DeleteMediaItem(noLongerExistingFileResourcePath).ConfigureAwait(false);
     }
 
     #endregion

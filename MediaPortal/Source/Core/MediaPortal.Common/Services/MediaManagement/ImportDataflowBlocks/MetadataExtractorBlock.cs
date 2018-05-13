@@ -101,7 +101,7 @@ namespace MediaPortal.Common.Services.MediaManagement.ImportDataflowBlocks
     {
       try
       {
-        importResource.Aspects = await ExtractMetadata(importResource.ResourceAccessor, importResource.ExistingAspects, _forceQuickMode);
+        importResource.Aspects = await ExtractMetadata(importResource.ResourceAccessor, importResource.ExistingAspects, _forceQuickMode).ConfigureAwait(false);
         if (importResource.Aspects == null)
           importResource.Aspects = importResource.ExistingAspects;
         if (importResource.Aspects == null)

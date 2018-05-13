@@ -152,6 +152,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "GenreProviders", "GenreProv
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GenreProvider", "Extensions\MetadataExtractors\GenreProvider\GenreProvider.csproj", "{1973AD5B-EF7E-41DA-A668-58AC37E1154E}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MSSQLDatabase", "Backend\Database\MSSQLDatabase\MSSQLDatabase.csproj", "{EA2BA37F-8DC9-4AB3-A8B9-49C7E66692D2}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x86 = Debug|x86
@@ -371,6 +373,8 @@ Global
 		{1973AD5B-EF7E-41DA-A668-58AC37E1154E}.Debug|x86.Build.0 = Debug|x86
 		{1973AD5B-EF7E-41DA-A668-58AC37E1154E}.Release|x86.ActiveCfg = Release|x86
 		{1973AD5B-EF7E-41DA-A668-58AC37E1154E}.Release|x86.Build.0 = Release|x86
+		{EA2BA37F-8DC9-4AB3-A8B9-49C7E66692D2}.Debug|x86.ActiveCfg = Debug|x86
+		{EA2BA37F-8DC9-4AB3-A8B9-49C7E66692D2}.Release|x86.ActiveCfg = Release|x86
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -445,6 +449,7 @@ Global
 		{0C1B59BA-BF96-4803-B83D-9E42C1A3A8C6} = {4B3FDD47-818E-455A-B3AD-5AFDDABFA4D5}
 		{176E2429-8E3B-4557-A16A-253EBF2196E2} = {26B21F24-5C09-4F49-ABE3-C1B3F9059D2B}
 		{1973AD5B-EF7E-41DA-A668-58AC37E1154E} = {176E2429-8E3B-4557-A16A-253EBF2196E2}
+		{EA2BA37F-8DC9-4AB3-A8B9-49C7E66692D2} = {EFC339EB-9F75-4E5A-937A-A8BECA514715}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {1EEA469D-E8FA-442D-A7DC-FA62A56A8808}
