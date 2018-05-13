@@ -37,7 +37,7 @@
         </Control>
 
         <!---Space for Listview Details-->
-        <Grid Grid.Column="1" Width="1000" Height="900">
+        <Grid Grid.Column="1" Width="1000" Height="1200" Background="#33000000" Margin="40,-90,-220,-270">
           <Grid.RowDefinitions>
             <RowDefinition Height="*"/>
           </Grid.RowDefinitions>
@@ -57,11 +57,6 @@
             </Control.TemplateControl>
           </Control>
           
-          <!--Control Grid.Column="0" Grid.Row="0" VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
-            <Control.TemplateControl>
-              <Include Source="screens\MultiListDetails.inc"/>
-            </Control.TemplateControl>
-          </-->
         </Grid>
       </Grid>
     </ControlTemplate>

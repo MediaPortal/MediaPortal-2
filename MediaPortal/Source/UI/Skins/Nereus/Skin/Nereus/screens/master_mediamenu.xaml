@@ -127,13 +127,11 @@ Parameters which have to be accessible by a DynamicResource lookup:
 
           <Control x:Name="ContentControl" SetFocusPrio="DefaultLow" Template="{DynamicResource ResourceKey=Contents_Template}"  Grid.Row="0" Grid.Column="0" Margin="10,0,10,10"
                     IsVisible="{Binding ElementName=ContentControl,Path=Template,Converter={StaticResource ReferenceToBoolConverter}}"/>
-
           <Control x:Name="AlternativeContentControl" Grid.Row="0" Grid.Column="0"
                     VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
                     Template="{DynamicResource ResourceKey=Alternative_Contents_Template}"
                     IsVisible="{Binding RelativeSource={RelativeSource Self},Path=Template,Converter={StaticResource ReferenceToBoolConverter}}"/>
         </Grid>
-
 
         <Grid x:Name="SlideMenuPanel" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Margin="0,-100,0,-270">
           <Grid.Triggers>
@@ -154,9 +152,9 @@ Parameters which have to be accessible by a DynamicResource lookup:
           <Image Source="LeftMenuIndicator.PNG" HorizontalAlignment="Right" Stretch="Fill" Width="25" Height="45" 
                  Opacity="0.9" VerticalAlignment="Center" Margin="0,0,-25,0"/>
 
-          <ListView x:Name="MainListMenu" Style="{ThemeResource MenuListViewStyle}" Margin="-15,0,-32,0"
-             HorizontalAlignment="Stretch" VerticalAlignment="Center"
-             ItemsSource="{Binding Source={StaticResource MenuModel},Path=MenuItems,Mode=OneTime}">
+          <ListView x:Name="MainListMenu" Style="{ThemeResource MediaMenuListViewStyle}"
+                    HorizontalAlignment="Stretch" VerticalAlignment="Center" RestoreFocus="True"
+                    ItemsSource="{Binding Source={StaticResource MenuModel},Path=MenuItems,Mode=OneTime}">
             <ListView.Resources>
               <CommandBridge x:Key="Menu_Command" Command="{Binding Path=Command,Mode=OneTime}"/>
             </ListView.Resources>
