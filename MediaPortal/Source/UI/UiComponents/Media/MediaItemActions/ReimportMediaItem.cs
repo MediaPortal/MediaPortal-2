@@ -36,7 +36,7 @@ using System.Threading.Tasks;
 
 namespace MediaPortal.UiComponents.Media.MediaItemActions
 {
-  public class ReimportMediaItem : AbstractMediaItemAction, IMediaItemActionConfirmation
+  public class ReimportMediaItem : AbstractMediaItemAction //, IMediaItemActionConfirmation
   {
     public ReimportMediaItem()
     {
@@ -79,9 +79,9 @@ namespace MediaPortal.UiComponents.Media.MediaItemActions
       return new AsyncResult<ContentDirectoryMessaging.MediaItemChangeType>(false, ContentDirectoryMessaging.MediaItemChangeType.None);
     }
 
-    public virtual string ConfirmationMessage
-    {
-      get { return "[Media.ReimportMediaItem.Confirmation]"; }
-    }
+    //public virtual string ConfirmationMessage
+    //{
+    //  get { return "[Media.ReimportMediaItem.Confirmation]"; }
+    //}
   }
 }
