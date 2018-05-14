@@ -336,8 +336,8 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
     {
       if (extractedAspectData.ContainsKey(MovieAspect.ASPECT_ID) || extractedAspectData.ContainsKey(EpisodeAspect.ASPECT_ID))
         return Task.FromResult(false);
-      if (extractedAspectData.ContainsKey(ReimportAspect.ASPECT_ID)) //Ignore for reimports because the nfo might be the cause of the wrong match
-        return Task.FromResult(false);
+      //if (extractedAspectData.ContainsKey(ReimportAspect.ASPECT_ID)) //Ignore for reimports because the nfo might be the cause of the wrong match
+      //  return Task.FromResult(false);
 
       return TryExtractVideoMetadataAsync(mediaItemAccessor, extractedAspectData, forceQuickMode);
     }

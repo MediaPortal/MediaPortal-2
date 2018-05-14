@@ -1181,7 +1181,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor
               if (lfsra != null)
               {
                 result.UpdateMetadata(extractedAspectData, lfsra, -1, 0, false, isReimport);
-                if (!isReimport) //Ignore tags for reimports because they might be the cause of the wrong match
+                //if (!isReimport) //Ignore tags for reimports because they might be the cause of the wrong match
                 {
                   try
                   {
@@ -1240,7 +1240,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor
                 if (lfsra != null)
                 {
                   result.UpdateMetadata(extractedAspectData, lfsra, multipart, multipartSet, false, isReimport);
-                  if (!isReimport) //Ignore tags for reimports because they might be the cause of the wrong match
+                  //if (!isReimport) //Ignore tags for reimports because they might be the cause of the wrong match
                   {
                     try
                     {
