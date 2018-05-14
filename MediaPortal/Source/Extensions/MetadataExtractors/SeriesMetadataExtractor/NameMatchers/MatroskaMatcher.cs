@@ -60,7 +60,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor.Name
         return false;
       }
 
-      MatroskaBinaryReader mkvReader = new MatroskaBinaryReader(folderOrFileLfsra);
+      MatroskaInfoReader mkvReader = new MatroskaInfoReader(folderOrFileLfsra);
       // Add keys to be extracted to tags dictionary, matching results will returned as value
       Dictionary<string, IList<string>> tagsToExtract = MatroskaConsts.DefaultVideoTags;
       await mkvReader.ReadTagsAsync(tagsToExtract).ConfigureAwait(false);

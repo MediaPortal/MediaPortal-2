@@ -64,9 +64,9 @@
     <Compile Include="..\..\..\Core\MediaPortal.Common\VersionInfo\VersionInfo.cs">
       <Link>Properties\VersionInfo.cs</Link>
     </Compile>
-    <Compile Include="MatroskaBinaryReader.cs" />
-    <Compile Include="MatroskaConsts.cs" />
     <Compile Include="MatroskaInfoReader.cs" />
+    <Compile Include="MatroskaConsts.cs" />
+    <Compile Include="MatroskaInfoReaderOld.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

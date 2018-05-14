@@ -49,7 +49,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor.Match
       if (!MatroskaConsts.MATROSKA_VIDEO_EXTENSIONS.Contains(extensionLower))
         return null;
 
-      MatroskaBinaryReader mkvReader = new MatroskaBinaryReader(folderOrFileLfsra);
+      MatroskaInfoReader mkvReader = new MatroskaInfoReader(folderOrFileLfsra);
       // Add keys to be extracted to tags dictionary, matching results will returned as value
       Dictionary<string, IList<string>> tagsToExtract = MatroskaConsts.DefaultVideoTags;
       await mkvReader.ReadTagsAsync(tagsToExtract).ConfigureAwait(false);
@@ -73,7 +73,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor.Match
       if (!MatroskaConsts.MATROSKA_VIDEO_EXTENSIONS.Contains(extensionLower))
         return null;
 
-      MatroskaBinaryReader mkvReader = new MatroskaBinaryReader(folderOrFileLfsra);
+      MatroskaInfoReader mkvReader = new MatroskaInfoReader(folderOrFileLfsra);
       // Add keys to be extracted to tags dictionary, matching results will returned as value
       Dictionary<string, IList<string>> tagsToExtract = MatroskaConsts.DefaultVideoTags;
       await mkvReader.ReadTagsAsync(tagsToExtract).ConfigureAwait(false);
@@ -98,7 +98,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor.Match
         return false;
 
       // Try to get extended information out of matroska files)
-      MatroskaBinaryReader mkvReader = new MatroskaBinaryReader(folderOrFileLfsra);
+      MatroskaInfoReader mkvReader = new MatroskaInfoReader(folderOrFileLfsra);
       // Add keys to be extracted to tags dictionary, matching results will returned as value
       Dictionary<string, IList<string>> tagsToExtract = MatroskaConsts.DefaultVideoTags;
       await mkvReader.ReadTagsAsync(tagsToExtract).ConfigureAwait(false);

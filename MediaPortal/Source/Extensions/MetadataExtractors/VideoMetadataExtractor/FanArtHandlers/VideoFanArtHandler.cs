@@ -157,7 +157,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor
       if (lfsra == null)
         return;
 
-      MatroskaBinaryReader mkvReader = new MatroskaBinaryReader(lfsra);
+      MatroskaInfoReader mkvReader = new MatroskaInfoReader(lfsra);
       IFanArtCache fanArtCache = ServiceRegistration.Get<IFanArtCache>();
       foreach (var pattern in MKV_PATTERNS)
       {

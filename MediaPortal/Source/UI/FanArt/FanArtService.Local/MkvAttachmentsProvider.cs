@@ -117,7 +117,7 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Local
             if (!SUPPORTED_EXTENSIONS.Contains(ext))
               return false;
 
-            MatroskaBinaryReader mkvReader = new MatroskaBinaryReader(fsra);
+            MatroskaInfoReader mkvReader = new MatroskaInfoReader(fsra);
             foreach (string pattern in patterns)
             {
               byte[] binaryData = mkvReader.GetAttachmentByNameAsync(pattern).Result;
