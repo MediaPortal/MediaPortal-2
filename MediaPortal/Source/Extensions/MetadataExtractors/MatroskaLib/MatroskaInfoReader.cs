@@ -1,4 +1,6 @@
-﻿using MediaPortal.Common.ResourceAccess;
+﻿using MediaPortal.Common;
+using MediaPortal.Common.Logging;
+using MediaPortal.Common.ResourceAccess;
 using NEbml.Core;
 using System;
 using System.Collections.Generic;
@@ -53,7 +55,17 @@ namespace MediaPortal.Extensions.MetadataExtractors.MatroskaLib
 
     private static readonly ElementDescriptor SegmentElement = new ElementDescriptor(0x18538067, "Segment", ElementType.MasterElement);
     private static readonly ElementDescriptor SegmentInfoElement = new ElementDescriptor(0x1549a966, "Info", ElementType.MasterElement);
+    private static readonly ElementDescriptor SeekHeadElement = new ElementDescriptor(0x114d9b74, "SeekHead", ElementType.MasterElement);
     private static readonly ElementDescriptor ClusterElement = new ElementDescriptor(0x1f43b675, "Cluster", ElementType.MasterElement);
+    private static readonly ElementDescriptor TracksElement = new ElementDescriptor(0x1654ae6b, "Tracks", ElementType.MasterElement);
+    private static readonly ElementDescriptor VideoElement = new ElementDescriptor(0xe0, "Video", ElementType.MasterElement);
+    private static readonly ElementDescriptor AudioElement = new ElementDescriptor(0xe1, "Audio", ElementType.MasterElement);
+    private static readonly ElementDescriptor CuesElement = new ElementDescriptor(0x1c53bb6b, "Cues", ElementType.MasterElement);
+    private static readonly ElementDescriptor ContentEncodingsElement = new ElementDescriptor(0x6d80, "ContentEncodings", ElementType.MasterElement);
+    private static readonly ElementDescriptor AttachmentsElement = new ElementDescriptor(0x1941a469, "Attachments", ElementType.MasterElement);
+    private static readonly ElementDescriptor ChaptersElement = new ElementDescriptor(0x1043a770, "Chapters", ElementType.MasterElement);
+    private static readonly ElementDescriptor TagsElement = new ElementDescriptor(0x1254c367, "Tags", ElementType.MasterElement);
+
     private static readonly ElementDescriptor TitleElement = new ElementDescriptor(0x7ba9, "Title", ElementType.Utf8String);
     private static readonly ElementDescriptor MuxingAppElement = new ElementDescriptor(0x4d80, "MuxingApp", ElementType.Utf8String);
     private static readonly ElementDescriptor WritingAppElement = new ElementDescriptor(0x5741, "WritingApp", ElementType.Utf8String);
@@ -67,13 +79,13 @@ namespace MediaPortal.Extensions.MetadataExtractors.MatroskaLib
     private IDictionary<string, IList<string>> _videoProps = null;
     private IDictionary<string, byte[]> _attachments = null;
     private List<MatroskaAttachment> _attachmentList;
-    private List<string> _elementsRead = new List<string>();
+    private List<ulong> _elementsRead = new List<ulong>();
     private readonly IDictionary<ulong, ElementDescriptor> _descriptorsMap;
     private readonly ElementDescriptor[] _elementDescriptors =
     {
             SegmentElement,
 
-            new ElementDescriptor(0x114d9b74, "SeekHead", ElementType.MasterElement),
+            SeekHeadElement,
             new ElementDescriptor(0x4dbb, "Seek", ElementType.MasterElement),
             new ElementDescriptor(0x53ab, "SeekID", ElementType.Binary),
             new ElementDescriptor(0x53ac, "SeekPosition", ElementType.UnsignedInteger),
@@ -125,7 +137,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.MatroskaLib
             new ElementDescriptor(0xa3, "SimpleBlock", ElementType.Binary),
             new ElementDescriptor(0xaf, "EncryptedBlock", ElementType.Binary),
 
-            new ElementDescriptor(0x1654ae6b, "Tracks", ElementType.MasterElement),
+            TracksElement,
             new ElementDescriptor(0xae, "TrackEntry", ElementType.MasterElement),
             new ElementDescriptor(0xd7, "TrackNumber", ElementType.UnsignedInteger),
             new ElementDescriptor(0x73c5, "TrackUID", ElementType.UnsignedInteger),
@@ -156,7 +168,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.MatroskaLib
             new ElementDescriptor(0x66bf, "TrackTranslateCodec", ElementType.UnsignedInteger),
             new ElementDescriptor(0x66a5, "TrackTranslateTrackID", ElementType.Binary),
 
-            new ElementDescriptor(0xe0, "Video", ElementType.MasterElement),
+            VideoElement,
             new ElementDescriptor(0x9a, "FlagInterlaced", ElementType.UnsignedInteger),
             new ElementDescriptor(0x53b8, "StereoMode", ElementType.UnsignedInteger),
             new ElementDescriptor(0xb0, "PixelWidth", ElementType.UnsignedInteger),
@@ -172,14 +184,14 @@ namespace MediaPortal.Extensions.MetadataExtractors.MatroskaLib
             new ElementDescriptor(0x2eb524, "ColourSpace", ElementType.Binary),
             new ElementDescriptor(0x2fb523, "GammaValue", ElementType.Float),
 
-            new ElementDescriptor(0xe1, "Audio", ElementType.MasterElement),
+            AudioElement,
             new ElementDescriptor(0xb5, "SamplingFrequency", ElementType.Float),
             new ElementDescriptor(0x78b5, "OutputSamplingFrequency", ElementType.Float),
             new ElementDescriptor(0x9f, "Channels", ElementType.UnsignedInteger),
             new ElementDescriptor(0x7d7b, "ChannelPositions", ElementType.Binary),
             new ElementDescriptor(0x6264, "BitDepth", ElementType.UnsignedInteger),
 
-            new ElementDescriptor(0x6d80, "ContentEncodings", ElementType.MasterElement),
+            ContentEncodingsElement,
             new ElementDescriptor(0x6240, "ContentEncoding", ElementType.MasterElement),
             new ElementDescriptor(0x5031, "ContentEncodingOrder", ElementType.UnsignedInteger),
             new ElementDescriptor(0x5032, "ContentEncodingScope", ElementType.UnsignedInteger),
@@ -195,7 +207,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.MatroskaLib
             new ElementDescriptor(0x47e5, "ContentSigAlgo", ElementType.UnsignedInteger),
             new ElementDescriptor(0x47e6, "ContentSigHashAlgo", ElementType.UnsignedInteger),
 
-            new ElementDescriptor(0x1c53bb6b, "Cues", ElementType.MasterElement),
+            CuesElement,
             new ElementDescriptor(0xbb, "CuePoint", ElementType.MasterElement),
             new ElementDescriptor(0xb3, "CueTime", ElementType.UnsignedInteger),
             new ElementDescriptor(0xb7, "CueTrackPositions", ElementType.MasterElement),
@@ -209,7 +221,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.MatroskaLib
             new ElementDescriptor(0x535f, "CueRefNumber", ElementType.UnsignedInteger),
             new ElementDescriptor(0xeb, "CueRefCodecState", ElementType.UnsignedInteger),
 
-            new ElementDescriptor(0x1941a469, "Attachments", ElementType.MasterElement),
+            AttachmentsElement,
             new ElementDescriptor(0x61a7, "AttachedFile", ElementType.MasterElement),
             new ElementDescriptor(0x467e, "FileDescription", ElementType.Utf8String),
             new ElementDescriptor(0x466e, "FileName", ElementType.Utf8String),
@@ -218,7 +230,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.MatroskaLib
             new ElementDescriptor(0x46ae, "FileUID", ElementType.UnsignedInteger),
             new ElementDescriptor(0x4675, "FileReferral", ElementType.Binary),
 
-            new ElementDescriptor(0x1043a770, "Chapters", ElementType.MasterElement),
+            ChaptersElement,
             new ElementDescriptor(0x45b9, "EditionEntry", ElementType.MasterElement),
             new ElementDescriptor(0x45bc, "EditionUID", ElementType.UnsignedInteger),
             new ElementDescriptor(0x45bd, "EditionFlagHidden", ElementType.UnsignedInteger),
@@ -246,7 +258,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.MatroskaLib
             new ElementDescriptor(0x6922, "ChapProcessTime", ElementType.UnsignedInteger),
             new ElementDescriptor(0x6933, "ChapProcessData", ElementType.Binary),
 
-            new ElementDescriptor(0x1254c367, "Tags", ElementType.MasterElement),
+            TagsElement,
             new ElementDescriptor(0x7373, "Tag", ElementType.MasterElement),
             new ElementDescriptor(0x63c0, "Targets", ElementType.MasterElement),
             new ElementDescriptor(0x68ca, "TargetTypeValue", ElementType.UnsignedInteger),
@@ -302,7 +314,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.MatroskaLib
     /// <param name="tagsToExtract">Dictionary with tag names as keys.</param>
     public Task ReadTagsAsync(IDictionary<string, IList<string>> tagsToExtract)
     {
-      ReadFile("Info", "Tags", "Tracks");
+      ReadFile(SegmentInfoElement, TagsElement, TracksElement);
       string[] keys = tagsToExtract.Keys.ToArray();
       foreach (var tag in keys)
       {
@@ -329,9 +341,9 @@ namespace MediaPortal.Extensions.MetadataExtractors.MatroskaLib
     /// </summary>
     public Task<StereoMode> ReadStereoModeAsync()
     {
-      ReadFile("Tracks");
+      ReadFile(TracksElement);
       string val = null;
-      if(_videoProps?.ContainsKey("StereoMode") ?? false)
+      if (_videoProps?.ContainsKey("StereoMode") ?? false)
         val = _videoProps["StereoMode"].FirstOrDefault();
 
       if (!string.IsNullOrEmpty(val))
@@ -345,7 +357,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.MatroskaLib
     /// </summary>
     public Task ReadAttachmentsAsync()
     {
-      ReadFile("Attachments");
+      ReadFile(AttachmentsElement);
       return Task.CompletedTask;
     }
 
@@ -393,54 +405,151 @@ namespace MediaPortal.Extensions.MetadataExtractors.MatroskaLib
 
     #region Private methods
 
-    private bool ShouldReadElement(string element, params string[] wantedElements)
+    private bool ShouldReadElement(VInt element, params ElementDescriptor[] wantedElements)
     {
-      if (_elementsRead.Contains(element))
+      if (_elementsRead.Contains(element.EncodedValue))
         return false;
-      if ((wantedElements.Length == 0 || wantedElements.Contains(element)))
+      if ((wantedElements.Length == 0 || wantedElements.Any(e => e.Identifier.EncodedValue == element.EncodedValue)))
         return true;
 
       return false;
     }
 
-    private void ReadFile(params string[] elements)
+    private void ReadFile(params ElementDescriptor[] elements)
     {
-      if (elements.All(e => _elementsRead.Contains(e)))
+      IEnumerable<ElementDescriptor> wantedElements = elements;
+      if (wantedElements.Count() > 0 && wantedElements.All(e => _elementsRead.Contains(e.Identifier.EncodedValue)))
         return;
 
-      ElementDescriptor desc;
+      SortedSet<long> wantedElementPositions = new SortedSet<long>();
       using (_lfsra.EnsureLocalFileSystemAccess())
       using (var fs = new FileStream(_lfsra.LocalFileSystemPath, FileMode.Open, FileAccess.Read))
       using (EbmlReader ebmlReader = new EbmlReader(fs))
       {
-        while (ebmlReader.ReadNext())
+        if (fs.Length == 0)
+          return;
+
+        try
         {
-          if (ebmlReader.ElementId == SegmentElement.Identifier)
+          while (ebmlReader.ReadNext())
           {
-            ebmlReader.EnterContainer();
-            while (ebmlReader.ReadNext())
+            //Segment element contains all the data we need
+            if (ebmlReader.ElementId == SegmentElement.Identifier)
             {
-              if (_descriptorsMap.TryGetValue(ebmlReader.ElementId.EncodedValue, out desc))
+              ebmlReader.EnterContainer();
+              while (ebmlReader.ReadNext())
               {
-                if (ShouldReadElement(desc.Name, elements))
+                //Find file position of relevant elements via seek heads
+                if (ebmlReader.ElementId == SeekHeadElement.Identifier)
                 {
-                  if (desc.Name == "Info")
-                    ReadInfo(ebmlReader);
-                  if (desc.Name == "Tags")
-                    ReadTags(ebmlReader);
-                  if (desc.Name == "Tracks")
-                    ReadTracks(ebmlReader);
-                  if (desc.Name == "Attachments")
-                    ReadAttachments(ebmlReader);
+                  long elementOffset = ebmlReader.ElementPosition;
+                  var seekElements = ReadSeekHeads(ebmlReader);
+                  if (seekElements?.Count > 0)
+                  {
+                    //Find all the wanted or possible elements
+                    var availableSegments = seekElements.Select(a => a.Element);
+                    var newElements = wantedElements.Count() > 0 ? wantedElements.Intersect(availableSegments) : availableSegments.AsEnumerable();
+                    if (newElements != null)
+                      wantedElements = newElements;
+
+                    //Find file positions of wanted elements
+                    foreach (var e in seekElements.Where(e => wantedElements.Any(n => n.Identifier == e.Element.Identifier)))
+                      wantedElementPositions.Add(Convert.ToInt64(e.Position) + elementOffset);
+                  }
                 }
+                else if (ShouldReadElement(ebmlReader.ElementId, wantedElements.ToArray()))
+                {
+                  //Read wanted elements
+                  if (ebmlReader.ElementId == SegmentInfoElement.Identifier)
+                    ReadInfo(ebmlReader);
+                  else if (ebmlReader.ElementId == TagsElement.Identifier)
+                    ReadTags(ebmlReader);
+                  else if (ebmlReader.ElementId == TracksElement.Identifier)
+                    ReadTracks(ebmlReader);
+                  else if (ebmlReader.ElementId == AttachmentsElement.Identifier)
+                    ReadAttachments(ebmlReader);
+
+                  _elementsRead.Add(ebmlReader.ElementId.EncodedValue);
+                }
+
+                //All wanted elements read so exit
+                if (wantedElements.Count() == 0 || wantedElements.All(e => _elementsRead.Contains(e.Identifier.EncodedValue)))
+                  return;
+
+                //Skip to next position in file if possible
+                wantedElementPositions.RemoveWhere(p => p < (fs.Position));
+                if (fs.Position < wantedElementPositions.FirstOrDefault())
+                  fs.Position = wantedElementPositions.First();
+                
+                //Exit if we reading past the file length
+                if ((fs.Position + ebmlReader.ElementSize) >= fs.Length)
+                  return;
               }
+              ebmlReader.LeaveContainer();
+              break;
             }
-            ebmlReader.LeaveContainer();
-            break;
+            //Exit if we reading past the file length
+            if ((fs.Position + ebmlReader.ElementSize) >= fs.Length)
+              break;
           }
         }
+        catch (EbmlDataFormatException)
+        {
+          //Rest of the EBML seems to be invalid so ignore it
+          ServiceRegistration.Get<ILogger>().Warn("MatroskaInfoReader: Matroska file '{0}' has invalid EBML elements", _lfsra.LocalFileSystemPath);
+        }
       }
-      _elementsRead.AddRange(elements);
+    }
+
+    private List<(ElementDescriptor Element, ulong Position)> ReadSeekHeads(EbmlReader ebmlReader)
+    {
+      List<(ElementDescriptor, ulong)> availableElements = null;
+      ElementDescriptor desc;
+      ElementDescriptor availDesc = null;
+      ulong pos = 0;
+      ebmlReader.EnterContainer();
+      while (ebmlReader.ReadNext())
+      {
+        if (_descriptorsMap.TryGetValue(ebmlReader.ElementId.EncodedValue, out desc))
+        {
+          if (desc.Name == "Seek")
+          {
+            ebmlReader.EnterContainer();
+            try
+            {
+              while (ebmlReader.ReadNext())
+              {
+
+                if (_descriptorsMap.TryGetValue(ebmlReader.ElementId.EncodedValue, out desc))
+                {
+                  if (desc.Name == "SeekID")
+                  {
+                    byte[] data = new byte[ebmlReader.ElementSize];
+                    ebmlReader.ReadBinary(data, 0, data.Length);
+                    MemoryStream mem = new MemoryStream(data);
+                    byte[] temp = new byte[data.Length];
+                    VInt id = VInt.Read(mem, data.Length, temp);
+                    _descriptorsMap.TryGetValue(id.EncodedValue, out availDesc);
+                  }
+                  else if (desc.Name == "SeekPosition")
+                  {
+                    pos = ebmlReader.ReadUInt();
+                  }
+                }
+              }
+
+              if (availableElements == null)
+                availableElements = new List<(ElementDescriptor, ulong)>();
+              if (availDesc != null && pos > 0)
+                availableElements.Add((availDesc, pos));
+            }
+            catch { }
+          }
+          ebmlReader.LeaveContainer();
+        }
+      }
+      ebmlReader.LeaveContainer();
+      return availableElements;
     }
 
     private void ReadInfo(EbmlReader ebmlReader)
@@ -551,60 +660,57 @@ namespace MediaPortal.Extensions.MetadataExtractors.MatroskaLib
       ebmlReader.EnterContainer();
       while (ebmlReader.ReadNext())
       {
-        if (_descriptorsMap.TryGetValue(ebmlReader.ElementId.EncodedValue, out desc))
+        if (ebmlReader.ElementId == VideoElement.Identifier)
         {
-          if (desc.Name == "Video")
+          ebmlReader.EnterContainer();
+          while (ebmlReader.ReadNext())
           {
-            ebmlReader.EnterContainer();
-            while (ebmlReader.ReadNext())
+            if (_descriptorsMap.TryGetValue(ebmlReader.ElementId.EncodedValue, out desc))
             {
-              if (_descriptorsMap.TryGetValue(ebmlReader.ElementId.EncodedValue, out desc))
-              {
-                if (!_videoProps.ContainsKey(desc.Name))
-                  _videoProps.Add(desc.Name, new List<string>());
+              if (!_videoProps.ContainsKey(desc.Name))
+                _videoProps.Add(desc.Name, new List<string>());
 
-                if (desc.Type == ElementType.AsciiString)
-                  _videoProps[desc.Name].Add(ebmlReader.ReadAscii());
-                else if (desc.Type == ElementType.Date)
-                  _videoProps[desc.Name].Add(ebmlReader.ReadDate().ToString(CultureInfo.InvariantCulture));
-                else if (desc.Type == ElementType.Float)
-                  _videoProps[desc.Name].Add(ebmlReader.ReadFloat().ToString(CultureInfo.InvariantCulture));
-                else if (desc.Type == ElementType.SignedInteger)
-                  _videoProps[desc.Name].Add(ebmlReader.ReadInt().ToString(CultureInfo.InvariantCulture));
-                else if (desc.Type == ElementType.UnsignedInteger)
-                  _videoProps[desc.Name].Add(ebmlReader.ReadUInt().ToString(CultureInfo.InvariantCulture));
-                else if (desc.Type == ElementType.Utf8String)
-                  _videoProps[desc.Name].Add(ebmlReader.ReadUtf());
-              }
+              if (desc.Type == ElementType.AsciiString)
+                _videoProps[desc.Name].Add(ebmlReader.ReadAscii());
+              else if (desc.Type == ElementType.Date)
+                _videoProps[desc.Name].Add(ebmlReader.ReadDate().ToString(CultureInfo.InvariantCulture));
+              else if (desc.Type == ElementType.Float)
+                _videoProps[desc.Name].Add(ebmlReader.ReadFloat().ToString(CultureInfo.InvariantCulture));
+              else if (desc.Type == ElementType.SignedInteger)
+                _videoProps[desc.Name].Add(ebmlReader.ReadInt().ToString(CultureInfo.InvariantCulture));
+              else if (desc.Type == ElementType.UnsignedInteger)
+                _videoProps[desc.Name].Add(ebmlReader.ReadUInt().ToString(CultureInfo.InvariantCulture));
+              else if (desc.Type == ElementType.Utf8String)
+                _videoProps[desc.Name].Add(ebmlReader.ReadUtf());
             }
-            ebmlReader.LeaveContainer();
           }
-          else if (desc.Name == "Audio")
+          ebmlReader.LeaveContainer();
+        }
+        else if (ebmlReader.ElementId == AudioElement.Identifier)
+        {
+          ebmlReader.EnterContainer();
+          while (ebmlReader.ReadNext())
           {
-            ebmlReader.EnterContainer();
-            while (ebmlReader.ReadNext())
+            if (_descriptorsMap.TryGetValue(ebmlReader.ElementId.EncodedValue, out desc))
             {
-              if (_descriptorsMap.TryGetValue(ebmlReader.ElementId.EncodedValue, out desc))
-              {
-                if (!_audioProps.ContainsKey(desc.Name))
-                  _audioProps.Add(desc.Name, new List<string>());
+              if (!_audioProps.ContainsKey(desc.Name))
+                _audioProps.Add(desc.Name, new List<string>());
 
-                if (desc.Type == ElementType.AsciiString)
-                  _audioProps[desc.Name].Add(ebmlReader.ReadAscii());
-                else if (desc.Type == ElementType.Date)
-                  _audioProps[desc.Name].Add(ebmlReader.ReadDate().ToString(CultureInfo.InvariantCulture));
-                else if (desc.Type == ElementType.Float)
-                  _audioProps[desc.Name].Add(ebmlReader.ReadFloat().ToString(CultureInfo.InvariantCulture));
-                else if (desc.Type == ElementType.SignedInteger)
-                  _audioProps[desc.Name].Add(ebmlReader.ReadInt().ToString(CultureInfo.InvariantCulture));
-                else if (desc.Type == ElementType.UnsignedInteger)
-                  _audioProps[desc.Name].Add(ebmlReader.ReadUInt().ToString(CultureInfo.InvariantCulture));
-                else if (desc.Type == ElementType.Utf8String)
-                  _audioProps[desc.Name].Add(ebmlReader.ReadUtf());
-              }
+              if (desc.Type == ElementType.AsciiString)
+                _audioProps[desc.Name].Add(ebmlReader.ReadAscii());
+              else if (desc.Type == ElementType.Date)
+                _audioProps[desc.Name].Add(ebmlReader.ReadDate().ToString(CultureInfo.InvariantCulture));
+              else if (desc.Type == ElementType.Float)
+                _audioProps[desc.Name].Add(ebmlReader.ReadFloat().ToString(CultureInfo.InvariantCulture));
+              else if (desc.Type == ElementType.SignedInteger)
+                _audioProps[desc.Name].Add(ebmlReader.ReadInt().ToString(CultureInfo.InvariantCulture));
+              else if (desc.Type == ElementType.UnsignedInteger)
+                _audioProps[desc.Name].Add(ebmlReader.ReadUInt().ToString(CultureInfo.InvariantCulture));
+              else if (desc.Type == ElementType.Utf8String)
+                _audioProps[desc.Name].Add(ebmlReader.ReadUtf());
             }
-            ebmlReader.LeaveContainer();
           }
+          ebmlReader.LeaveContainer();
         }
       }
       ebmlReader.LeaveContainer();
