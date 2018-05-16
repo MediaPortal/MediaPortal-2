@@ -53,7 +53,6 @@
     <Compile Include="Common\TestMediaItemQuery.cs" />
     <Compile Include="Common\TestRelationshipExtraction.cs" />
     <Compile Include="Common\Thumbnailer.cs" />
-    <Compile Include="Libraries\MatroskaLib\TestMatroskaLib.cs" />
     <Compile Include="Media\TestMediaViews.cs" />
     <Compile Include="UPnP\HttpHeaders.cs" />
     <Compile Include="VideoPlayers\ComSkip\ComSkipChaptersTests.cs" />
@@ -72,10 +71,6 @@
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\Source\Extensions\MetadataExtractors\MatroskaLib\MatroskaLib.csproj">
-      <Project>{0dcfe91a-60de-42bf-a5f9-a925aa45ecd4}</Project>
-      <Name>MatroskaLib</Name>
-    </ProjectReference>
     <ProjectReference Include="..\..\Tests\MediaPortal.Mock\MediaPortal.Mock.csproj">
       <Project>{f1a04140-5c63-4688-8a9e-a195aaf95de1}</Project>
       <Name>MediaPortal.Mock</Name>
@@ -131,11 +126,6 @@
     <PackageReference Include="NUnit">
       <Version>3.10.1</Version>
     </PackageReference>
-  </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="Libraries\MatroskaLib\TestData\big-buck-bunny_trailer.webm">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </EmbeddedResource>
   </ItemGroup>
   <Import Project="$(VSToolsPath)\TeamTest\Microsoft.TestTools.targets" Condition="Exists('$(VSToolsPath)\TeamTest\Microsoft.TestTools.targets')" />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

@@ -85,6 +85,7 @@
     <Compile Include="OnlineLibraries\TheMovieDb.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Utilities\TestTimeoutCache.cs" />
+    <Compile Include="Libraries\MatroskaLib\TestMatroskaLib.cs" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="NfoMetadataExtractor\TestData\MovieNfo\movie.nfo" />
@@ -109,6 +110,10 @@
     <ProjectReference Include="..\..\Source\Extensions\MetadataExtractors\GenreProvider\GenreProvider.csproj">
       <Project>{1973ad5b-ef7e-41da-a668-58ac37e1154e}</Project>
       <Name>GenreProvider</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\Source\Extensions\MetadataExtractors\MatroskaLib\MatroskaLib.csproj">
+      <Project>{0dcfe91a-60de-42bf-a5f9-a925aa45ecd4}</Project>
+      <Name>MatroskaLib</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\Source\Extensions\MetadataExtractors\MovieMetadataExtractor\MovieMetadataExtractor.csproj">
       <Project>{e73c038e-fd47-40ad-9256-4457316f8a97}</Project>
@@ -138,6 +143,11 @@
       <Project>{f1a04140-5c63-4688-8a9e-a195aaf95de1}</Project>
       <Name>MediaPortal.Mock</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Libraries\MatroskaLib\TestData\Test Media.mkv">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </EmbeddedResource>
   </ItemGroup>
   <Import Project="$(VSToolsPath)\TeamTest\Microsoft.TestTools.targets" Condition="Exists('$(VSToolsPath)\TeamTest\Microsoft.TestTools.targets')" />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
