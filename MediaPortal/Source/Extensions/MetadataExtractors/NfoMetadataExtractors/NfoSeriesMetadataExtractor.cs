@@ -211,6 +211,18 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
           {
             if (await seriesNfoReader.TryReadMetadataAsync(seriesNfoFsra).ConfigureAwait(false))
             {
+              //Check reimport
+              if (extractedAspectData.ContainsKey(ReimportAspect.ASPECT_ID))
+              {
+                SeriesInfo reimport = new SeriesInfo();
+                reimport.FromMetadata(extractedAspectData);
+                if(!VerifySeriesReimport(seriesNfoReader, reimport))
+                {
+                  ServiceRegistration.Get<ILogger>().Info("NfoSeriesMetadataExtractor: Nfo series metadata from resource '{0}' ignored because it does not match reimport {1}", mediaItemAccessor, reimport);
+                  return false;
+                }
+              }
+
               Stubs.SeriesStub series = seriesNfoReader.GetSeriesStubs().FirstOrDefault();
 
               // Check if episode should be found
@@ -255,34 +267,35 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
                       }
                       else
                       {
+                        Stubs.SeriesEpisodeStub episode = episodeStubs.First();
                         mergedEpisode = new Stubs.SeriesEpisodeStub();
-                        mergedEpisode.Actors = episodeStubs.First().Actors;
-                        mergedEpisode.Aired = episodeStubs.First().Aired;
-                        mergedEpisode.Credits = episodeStubs.First().Credits;
-                        mergedEpisode.Director = episodeStubs.First().Director;
-                        mergedEpisode.DisplayEpisode = episodeStubs.First().DisplayEpisode;
-                        mergedEpisode.DisplaySeason = episodeStubs.First().DisplaySeason;
-                        mergedEpisode.EpBookmark = episodeStubs.First().EpBookmark;
-                        mergedEpisode.FileInfo = episodeStubs.First().FileInfo;
-                        mergedEpisode.LastPlayed = episodeStubs.First().LastPlayed;
-                        mergedEpisode.Mpaa = episodeStubs.First().Mpaa;
-                        mergedEpisode.PlayCount = episodeStubs.First().PlayCount;
-                        mergedEpisode.Premiered = episodeStubs.First().Premiered;
-                        mergedEpisode.ProductionCodeNumber = episodeStubs.First().ProductionCodeNumber;
-                        mergedEpisode.ResumePosition = episodeStubs.First().ResumePosition;
-                        mergedEpisode.Season = episodeStubs.First().Season;
-                        mergedEpisode.Sets = episodeStubs.First().Sets;
-                        mergedEpisode.ShowTitle = episodeStubs.First().ShowTitle;
-                        mergedEpisode.Status = episodeStubs.First().Status;
-                        mergedEpisode.Studio = episodeStubs.First().Studio;
-                        mergedEpisode.Tagline = episodeStubs.First().Tagline;
-                        mergedEpisode.Thumb = episodeStubs.First().Thumb;
-                        mergedEpisode.Top250 = episodeStubs.First().Top250;
-                        mergedEpisode.Trailer = episodeStubs.First().Trailer;
-                        mergedEpisode.Watched = episodeStubs.First().Watched;
-                        mergedEpisode.Year = episodeStubs.First().Year;
-                        mergedEpisode.Id = episodeStubs.First().Id;
-                        mergedEpisode.UniqueId = episodeStubs.First().UniqueId;
+                        mergedEpisode.Actors = episode.Actors;
+                        mergedEpisode.Aired = episode.Aired;
+                        mergedEpisode.Credits = episode.Credits;
+                        mergedEpisode.Director = episode.Director;
+                        mergedEpisode.DisplayEpisode = episode.DisplayEpisode;
+                        mergedEpisode.DisplaySeason = episode.DisplaySeason;
+                        mergedEpisode.EpBookmark = episode.EpBookmark;
+                        mergedEpisode.FileInfo = episode.FileInfo;
+                        mergedEpisode.LastPlayed = episode.LastPlayed;
+                        mergedEpisode.Mpaa = episode.Mpaa;
+                        mergedEpisode.PlayCount = episode.PlayCount;
+                        mergedEpisode.Premiered = episode.Premiered;
+                        mergedEpisode.ProductionCodeNumber = episode.ProductionCodeNumber;
+                        mergedEpisode.ResumePosition = episode.ResumePosition;
+                        mergedEpisode.Season = episode.Season;
+                        mergedEpisode.Sets = episode.Sets;
+                        mergedEpisode.ShowTitle = episode.ShowTitle;
+                        mergedEpisode.Status = episode.Status;
+                        mergedEpisode.Studio = episode.Studio;
+                        mergedEpisode.Tagline = episode.Tagline;
+                        mergedEpisode.Thumb = episode.Thumb;
+                        mergedEpisode.Top250 = episode.Top250;
+                        mergedEpisode.Trailer = episode.Trailer;
+                        mergedEpisode.Watched = episode.Watched;
+                        mergedEpisode.Year = episode.Year;
+                        mergedEpisode.Id = episode.Id;
+                        mergedEpisode.UniqueId = episode.UniqueId;
 
                         //Merge episodes
                         mergedEpisode.Title = string.Join("; ", episodeStubs.OrderBy(e => e.Episodes.First()).Select(e => e.Title).ToArray());
@@ -358,6 +371,18 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
         }
         else if (episodeNfoReader != null)
         {
+          //Check reimport
+          if (extractedAspectData.ContainsKey(ReimportAspect.ASPECT_ID))
+          {
+            EpisodeInfo reimport = new EpisodeInfo();
+            reimport.FromMetadata(extractedAspectData);
+            if (!VerifyEpisodeReimport(episodeNfoReader, reimport))
+            {
+              ServiceRegistration.Get<ILogger>().Info("NfoSeriesMetadataExtractor: Nfo episode metadata from resource '{0}' ignored because it does not match reimport {1}", mediaItemAccessor, reimport);
+              return false;
+            }
+          }
+
           // Then we store the found metadata in the MediaItemAspects. If we only found metadata that is
           // not (yet) supported by our MediaItemAspects, this MetadataExtractor returns false.
           if (!episodeNfoReader.TryWriteMetadata(extractedAspectData))
@@ -480,8 +505,6 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
     {
       //if (extractedAspectData.ContainsKey(EpisodeAspect.ASPECT_ID))
       //  return false;
-      //if (extractedAspectData.ContainsKey(ReimportAspect.ASPECT_ID)) //Ignore for reimports because the nfo might be the cause of the wrong match
-      //  return Task.FromResult(false);
 
       return TryExtractEpsiodeMetadataAsync(mediaItemAccessor, extractedAspectData, forceQuickMode);
     }

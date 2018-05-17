@@ -53,12 +53,18 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
     /// </summary>
     /// <param name="mediaItemAccessor">Points to the resource for which we try to extract metadata</param>
     /// <param name="extractedAspectData">Dictionary of MediaItemAspect to update with metadata</param>
+    /// <param name="reimport">During reimport only allow if nfo is for same media as this</param>
     /// <returns><c>true</c> if metadata was found and stored into the <paramref name="extractedAspectData"/>, else <c>false</c></returns>
-    protected async Task<bool> TryExtractAlbumMetadataAsync(IResourceAccessor mediaItemAccessor, IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData)
+    protected async Task<bool> TryExtractAlbumMetadataAsync(IResourceAccessor mediaItemAccessor, IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData, AlbumInfo reimport)
     {
       NfoAlbumReader albumNfoReader = await TryGetNfoAlbumReaderAsync(mediaItemAccessor).ConfigureAwait(false);
-      if (albumNfoReader != null)
+      if(albumNfoReader != null)
+      {
+        if (reimport != null && !VerifyAlbumReimport(albumNfoReader, reimport))
+          return false;
+
         return albumNfoReader.TryWriteMetadata(extractedAspectData);
+      }
       return false;
     }
 
@@ -112,16 +118,17 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
 
     public async Task<bool> TryExtractRelationshipsAsync(IResourceAccessor mediaItemAccessor, IDictionary<Guid, IList<MediaItemAspect>> aspects, IList<IDictionary<Guid, IList<MediaItemAspect>>> extractedLinkedAspects)
     {
-      //if (aspects.ContainsKey(ReimportAspect.ASPECT_ID)) //Ignore for reimports because the nfo might be the cause of the wrong match
-      //  return false;
-
       TrackInfo trackInfo = new TrackInfo();
       if (!trackInfo.FromMetadata(aspects))
         return false;
 
+      AlbumInfo reimport = null;
+      if (aspects.ContainsKey(ReimportAspect.ASPECT_ID))
+        reimport = trackInfo.CloneBasicInstance<AlbumInfo>();
+
       IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData = extractedLinkedAspects.Count > 0 ?
         extractedLinkedAspects[0] : new Dictionary<Guid, IList<MediaItemAspect>>();
-      if (!await TryExtractAlbumMetadataAsync(mediaItemAccessor, extractedAspectData).ConfigureAwait(false))
+      if (!await TryExtractAlbumMetadataAsync(mediaItemAccessor, extractedAspectData, reimport).ConfigureAwait(false))
         return false;
 
       AlbumInfo albumInfo = new AlbumInfo();

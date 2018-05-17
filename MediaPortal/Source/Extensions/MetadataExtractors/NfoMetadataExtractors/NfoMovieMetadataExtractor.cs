@@ -234,6 +234,18 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
           }
         }
 
+        //Check reimport
+        if (extractedAspectData.ContainsKey(ReimportAspect.ASPECT_ID))
+        {
+          MovieInfo reimport = new MovieInfo();
+          reimport.FromMetadata(extractedAspectData);
+          if (!VerifyMovieReimport(nfoReader, reimport))
+          {
+            ServiceRegistration.Get<ILogger>().Info("NfoMovieMetadataExtractor: Nfo movie metadata from resource '{0}' ignored because it does not match reimport {1}", mediaItemAccessor, reimport);
+            return false;
+          }
+        }
+
         // Then we store the found metadata in the MediaItemAspects. If we only found metadata that is
         // not (yet) supported by our MediaItemAspects, this MetadataExtractor returns false.
         if (!nfoReader.TryWriteMetadata(extractedAspectData))
@@ -291,8 +303,6 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
     {
       //if (extractedAspectData.ContainsKey(MovieAspect.ASPECT_ID))
       //  return false;
-      //if (extractedAspectData.ContainsKey(ReimportAspect.ASPECT_ID)) //Ignore for reimports because the nfo might be the cause of the wrong match
-      //  return Task.FromResult(false);
 
       return TryExtractMovieMetadataAsync(mediaItemAccessor, extractedAspectData, forceQuickMode);
     }

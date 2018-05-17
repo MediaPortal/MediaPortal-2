@@ -55,12 +55,18 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
     /// </summary>
     /// <param name="mediaItemAccessor">Points to the resource for which we try to extract metadata</param>
     /// <param name="extractedAspects">List of MediaItemAspect dictionaries to update with metadata</param>
+    /// <param name="reimport">During reimport only allow if nfo is for same media as this</param>
     /// <returns><c>true</c> if metadata was found and stored into the <paramref name="extractedAspects"/>, else <c>false</c></returns>
-    protected async Task<bool> TryExtractSeriesCharactersMetadataAsync(IResourceAccessor mediaItemAccessor, IList<IDictionary<Guid, IList<MediaItemAspect>>> extractedAspects)
+    protected async Task<bool> TryExtractSeriesCharactersMetadataAsync(IResourceAccessor mediaItemAccessor, IList<IDictionary<Guid, IList<MediaItemAspect>>> extractedAspects, SeriesInfo reimport)
     {
       NfoSeriesReader seriesNfoReader = await TryGetNfoSeriesReaderAsync(mediaItemAccessor).ConfigureAwait(false);
       if (seriesNfoReader != null)
+      {
+        if (reimport != null && !VerifySeriesReimport(seriesNfoReader, reimport))
+          return false;
+
         return seriesNfoReader.TryWriteCharacterMetadata(extractedAspects);
+      }
       return false;
     }
 
@@ -120,11 +126,15 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
 
     public async Task<bool> TryExtractRelationshipsAsync(IResourceAccessor mediaItemAccessor, IDictionary<Guid, IList<MediaItemAspect>> aspects, IList<IDictionary<Guid, IList<MediaItemAspect>>> extractedLinkedAspects)
     {
-      //if (aspects.ContainsKey(ReimportAspect.ASPECT_ID)) //Ignore for reimports because the nfo might be the cause of the wrong match
-      //  return false;
+      SeriesInfo reimport = null;
+      if (aspects.ContainsKey(ReimportAspect.ASPECT_ID))
+      {
+        reimport = new SeriesInfo();
+        reimport.FromMetadata(aspects);
+      }
 
       IList<IDictionary<Guid, IList<MediaItemAspect>>> nfoLinkedAspects = new List<IDictionary<Guid, IList<MediaItemAspect>>>();
-      if (!await TryExtractSeriesCharactersMetadataAsync(mediaItemAccessor, nfoLinkedAspects).ConfigureAwait(false))
+      if (!await TryExtractSeriesCharactersMetadataAsync(mediaItemAccessor, nfoLinkedAspects, reimport).ConfigureAwait(false))
         return false;
 
       List<CharacterInfo> characters;

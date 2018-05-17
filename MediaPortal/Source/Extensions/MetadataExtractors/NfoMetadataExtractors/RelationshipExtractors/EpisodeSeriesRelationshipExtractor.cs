@@ -56,11 +56,16 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
     /// <param name="mediaItemAccessor">Points to the resource for which we try to extract metadata</param>
     /// <param name="extractedAspectData">Dictionary of MediaItemAspect to update with metadata</param>
     /// <returns><c>true</c> if metadata was found and stored into the <paramref name="extractedAspectData"/>, else <c>false</c></returns>
-    protected async Task<bool> TryExtractSeriesMetadataAsync(IResourceAccessor mediaItemAccessor, IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData)
+    protected async Task<bool> TryExtractSeriesMetadataAsync(IResourceAccessor mediaItemAccessor, IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData, SeriesInfo reimport)
     {
       NfoSeriesReader seriesNfoReader = await TryGetNfoSeriesReaderAsync(mediaItemAccessor).ConfigureAwait(false);
       if (seriesNfoReader != null)
+      {
+        if (reimport != null && !VerifySeriesReimport(seriesNfoReader, reimport))
+          return false;
+
         return seriesNfoReader.TryWriteMetadata(extractedAspectData);
+      }
       return false;
     }
 
@@ -114,13 +119,18 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
 
     public async Task<bool> TryExtractRelationshipsAsync(IResourceAccessor mediaItemAccessor, IDictionary<Guid, IList<MediaItemAspect>> aspects, IList<IDictionary<Guid, IList<MediaItemAspect>>> extractedLinkedAspects)
     {
-      //if (aspects.ContainsKey(ReimportAspect.ASPECT_ID)) //Ignore for reimports because the nfo might be the cause of the wrong match
-      //  return false;
+      SeriesInfo reimport = null;
+      if (aspects.ContainsKey(ReimportAspect.ASPECT_ID))
+      {
+        EpisodeInfo episode = new EpisodeInfo();
+        episode.FromMetadata(aspects);
+        reimport = episode.CloneBasicInstance<SeriesInfo>();
+      }
 
       IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData = extractedLinkedAspects.Count > 0 ?
         extractedLinkedAspects[0] : new Dictionary<Guid, IList<MediaItemAspect>>();
 
-      if (!await TryExtractSeriesMetadataAsync(mediaItemAccessor, extractedAspectData).ConfigureAwait(false))
+      if (!await TryExtractSeriesMetadataAsync(mediaItemAccessor, extractedAspectData, reimport).ConfigureAwait(false))
         return false;
 
       SeriesInfo seriesInfo = new SeriesInfo();

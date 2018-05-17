@@ -187,6 +187,18 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
           {
             if (await albumNfoReader.TryReadMetadataAsync(albumNfoFsra).ConfigureAwait(false))
             {
+              //Check reimport
+              if (extractedAspectData.ContainsKey(ReimportAspect.ASPECT_ID))
+              {
+                AlbumInfo reimport = new AlbumInfo();
+                reimport.FromMetadata(extractedAspectData);
+                if (!VerifyAlbumReimport(albumNfoReader, reimport))
+                {
+                  ServiceRegistration.Get<ILogger>().Info("NfoMovieMetadataExtractor: Nfo album metadata from resource '{0}' ignored because it does not match reimport {1}", mediaItemAccessor, reimport);
+                  return false;
+                }
+              }
+
               Stubs.AlbumStub album = albumNfoReader.GetAlbumStubs().FirstOrDefault();
               if (album != null)
               {
@@ -367,8 +379,6 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
     {
       //if (extractedAspectData.ContainsKey(AudioAspect.ASPECT_ID))
       //  return false;
-      //if (extractedAspectData.ContainsKey(ReimportAspect.ASPECT_ID)) //Ignore for reimports because the nfo might be the cause of the wrong match
-      //  return Task.FromResult(false);
 
       return TryExtractAudioMetadataAsync(mediaItemAccessor, extractedAspectData, forceQuickMode);
     }

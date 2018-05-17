@@ -56,11 +56,16 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
     /// <param name="mediaItemAccessor">Points to the resource for which we try to extract metadata</param>
     /// <param name="extractedAspects">List of MediaItemAspect dictionaries to update with metadata</param>
     /// <returns><c>true</c> if metadata was found and stored into the <paramref name="extractedAspects"/>, else <c>false</c></returns>
-    protected async Task<bool> TryExtractEpisodeActorsMetadataAsync(IResourceAccessor mediaItemAccessor, IList<IDictionary<Guid, IList<MediaItemAspect>>> extractedAspects, int? season, int? episode)
+    protected async Task<bool> TryExtractEpisodeActorsMetadataAsync(IResourceAccessor mediaItemAccessor, IList<IDictionary<Guid, IList<MediaItemAspect>>> extractedAspects, int? season, int? episode, EpisodeInfo reimport)
     {
       NfoSeriesEpisodeReader episodeNfoReader = await TryGetNfoSeriesEpisodeReaderAsync(mediaItemAccessor, season, episode).ConfigureAwait(false);
       if (episodeNfoReader != null)
+      {
+        if (reimport != null && !VerifyEpisodeReimport(episodeNfoReader, reimport))
+          return false;
+
         return episodeNfoReader.TryWriteActorMetadata(extractedAspects);
+      }
       return false;
     }
 
@@ -114,18 +119,19 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
 
     public async Task<bool> TryExtractRelationshipsAsync(IResourceAccessor mediaItemAccessor, IDictionary<Guid, IList<MediaItemAspect>> aspects, IList<IDictionary<Guid, IList<MediaItemAspect>>> extractedLinkedAspects)
     {
-      //if (aspects.ContainsKey(ReimportAspect.ASPECT_ID)) //Ignore for reimports because the nfo might be the cause of the wrong match
-      //  return false;
-
       EpisodeInfo episodeInfo = new EpisodeInfo();
       if (!episodeInfo.FromMetadata(aspects))
         return false;
+
+      EpisodeInfo reimport = null;
+      if (aspects.ContainsKey(ReimportAspect.ASPECT_ID))
+        reimport = episodeInfo;
 
       int? season = episodeInfo.SeasonNumber;
       int? episode = episodeInfo.EpisodeNumbers != null && episodeInfo.EpisodeNumbers.Any() ? episodeInfo.EpisodeNumbers.First() : (int?)null;
       
       IList<IDictionary<Guid, IList<MediaItemAspect>>> nfoLinkedAspects = new List<IDictionary<Guid, IList<MediaItemAspect>>>();
-      if (!await TryExtractEpisodeActorsMetadataAsync(mediaItemAccessor, nfoLinkedAspects, season, episode).ConfigureAwait(false))
+      if (!await TryExtractEpisodeActorsMetadataAsync(mediaItemAccessor, nfoLinkedAspects, season, episode, reimport).ConfigureAwait(false))
         return false;
 
       List<PersonInfo> actors;
