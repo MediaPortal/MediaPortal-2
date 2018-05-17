@@ -418,6 +418,15 @@ namespace MediaPortal.UI.Services.Workflow
       return actions.Where(action => action.SourceStateIds == null || action.SourceStateIds.Contains(sourceState));
     }
 
+    protected static IEnumerable<WorkflowAction> FilterHiddenGroups(string hideGroups, IEnumerable<WorkflowAction> actions)
+    {
+      // If there is not filter, just return all.
+      if (string.IsNullOrEmpty(hideGroups))
+        return actions;
+      var groups = hideGroups.Split(',').ToArray();
+      return actions.Where(action => action.Group == null || !groups.Contains(action.Group));
+    }
+
     protected WorkflowState FindLastNonTransientState()
     {
       EnterReadLock("FindLastNonTransientState");
@@ -589,7 +598,10 @@ namespace MediaPortal.UI.Services.Workflow
           // Compile menu actions
           logger.Debug("WorkflowManager: Compiling menu actions for workflow state '{0}'", state.Name);
           IDictionary<Guid, WorkflowAction> menuActions = new Dictionary<Guid, WorkflowAction>();
-          foreach (WorkflowAction action in FilterActionsBySourceState(state.StateId, _menuActions.Values))
+          // Filter actions by source state
+          IEnumerable<WorkflowAction> filteredActions = FilterActionsBySourceState(state.StateId, _menuActions.Values);
+          filteredActions = FilterHiddenGroups(state.HideGroups, filteredActions);
+          foreach (WorkflowAction action in filteredActions)
             menuActions.Add(action.ActionId, action);
           if (workflowModel != null)
             try

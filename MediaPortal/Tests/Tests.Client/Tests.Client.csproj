@@ -50,7 +50,6 @@
     <Compile Include="Common\TestGenres.cs" />
     <Compile Include="Common\TestHelpers.cs" />
     <Compile Include="Common\TestMediaItem.cs" />
-    <Compile Include="Common\TestMediaItemAspectMetadata.cs" />
     <Compile Include="Common\TestMediaItemAspectTypeRegistration.cs" />
     <Compile Include="Common\TestMediaItemQuery.cs" />
     <Compile Include="Common\TestRelationshipExtraction.cs" />
@@ -73,14 +72,6 @@
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\Source\Extensions\MetadataExtractors\GenreProvider\GenreProvider.csproj">
-      <Project>{1973ad5b-ef7e-41da-a668-58ac37e1154e}</Project>
-      <Name>GenreProvider</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\Tests\MediaPortal.Mock\MediaPortal.Mock.csproj">
-      <Project>{f1a04140-5c63-4688-8a9e-a195aaf95de1}</Project>
-      <Name>MediaPortal.Mock</Name>
-    </ProjectReference>
     <ProjectReference Include="..\..\Source\Core\MediaPortal.Common\MediaPortal.Common.csproj">
       <Project>{ecf060e7-caa1-4466-851f-f80b857641ea}</Project>
       <Name>MediaPortal.Common</Name>
