@@ -28,7 +28,6 @@ using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.SystemCommunication;
 using MediaPortal.UI.Presentation.Workflow;
 using MediaPortal.UI.ServerCommunication;
-using MediaPortal.UiComponents.Media.Extensions;
 using MediaPortal.UiComponents.Media.Models;
 using System;
 using System.Collections.Generic;
@@ -36,7 +35,7 @@ using System.Threading.Tasks;
 
 namespace MediaPortal.UiComponents.Media.MediaItemActions
 {
-  public class ReimportMediaItem : AbstractMediaItemAction //, IMediaItemActionConfirmation
+  public class ReimportMediaItem : AbstractMediaItemAction
   {
     public ReimportMediaItem()
     {
@@ -78,10 +77,5 @@ namespace MediaPortal.UiComponents.Media.MediaItemActions
       }
       return new AsyncResult<ContentDirectoryMessaging.MediaItemChangeType>(false, ContentDirectoryMessaging.MediaItemChangeType.None);
     }
-
-    //public virtual string ConfirmationMessage
-    //{
-    //  get { return "[Media.ReimportMediaItem.Confirmation]"; }
-    //}
   }
 }

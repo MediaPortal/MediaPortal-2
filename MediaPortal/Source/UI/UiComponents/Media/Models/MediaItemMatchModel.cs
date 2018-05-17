@@ -30,6 +30,7 @@ using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using MediaPortal.Common;
 using MediaPortal.Common.General;
+using MediaPortal.Common.Localization;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
@@ -67,6 +68,8 @@ namespace MediaPortal.UiComponents.Media.Models
     protected object _searchItem = null;
     protected bool _isVirtual = false;
     protected System.Timers.Timer _liveSearchTimer = new System.Timers.Timer(3000);
+    protected DialogCloseWatcher _dialogCloseWatcher = null;
+    protected Guid? _matchDialogHandle = null;
 
     protected AbstractProperty _isSearchingProperty;
     protected AbstractProperty _isManualSearchProperty;
@@ -299,7 +302,7 @@ namespace MediaPortal.UiComponents.Media.Models
 
       _matchedAspects = null;
       _selectionComplete = new TaskCompletionSource<IEnumerable<MediaItemAspect>>();
-      ServiceRegistration.Get<IScreenManager>().ShowDialog("DialogChooseMatch", async(s, g) =>
+      _matchDialogHandle = ServiceRegistration.Get<IScreenManager>().ShowDialog("DialogChooseMatch", async(s, g) =>
       {
         if (_matchedAspects != null)
         {
@@ -563,9 +566,22 @@ namespace MediaPortal.UiComponents.Media.Models
       if (item == null)
         return;
 
-      _matchedAspects = (IEnumerable<MediaItemAspect>)item.AdditionalProperties[KEY_ASPECTS];
-      ServiceRegistration.Get<IScreenManager>().CloseTopmostDialog();
-      ClearData();
+      IDialogManager dialogManager = ServiceRegistration.Get<IDialogManager>();
+      string header = LocalizationHelper.Translate("[Media.ConfirmAction]");
+      string text = LocalizationHelper.Translate("[Media.ReimportMediaItem.Confirmation]");
+      Guid handle = dialogManager.ShowDialog(header, text, DialogType.YesNoDialog, false, DialogButtonType.No);
+      _dialogCloseWatcher = new DialogCloseWatcher(this, handle,
+        dialogResult =>
+        {
+          if (dialogResult == DialogResult.Yes)
+          {
+            _matchedAspects = (IEnumerable<MediaItemAspect>)item.AdditionalProperties[KEY_ASPECTS];
+          }
+          if(_matchDialogHandle.HasValue)
+            ServiceRegistration.Get<IScreenManager>().CloseDialog(_matchDialogHandle.Value);
+          _dialogCloseWatcher?.Dispose();
+          ClearData();
+        });
     }
 
     public async void SetManualMatch()
@@ -710,6 +726,7 @@ namespace MediaPortal.UiComponents.Media.Models
         _matchList.Clear();
         _searchItem = null;
         SelectedInformation = String.Empty;
+        _matchDialogHandle = null;
       }
     }
 
