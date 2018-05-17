@@ -46,11 +46,13 @@ namespace MediaPortal.UI.Services.Workflow
         string displayLabel;
         bool isTemporary = false;
         string mainScreen = null;
+        string hideGroups = null;
         bool inheritMenu = false;
         Guid? workflowModelId = null;
         if (string.IsNullOrEmpty(itemData.Id))
           throw new ArgumentException(string.Format("WorkflowState: Id must be specified"));
         id = new Guid(itemData.Id);
+        attributes.TryGetValue("HideGroups", out hideGroups);
         if (!attributes.TryGetValue("Name", out name))
           throw new ArgumentException(string.Format("WorkflowState with id '{0}': 'Name' attribute missing", id));
         if (!attributes.TryGetValue("DisplayLabel", out displayLabel))
@@ -69,7 +71,7 @@ namespace MediaPortal.UI.Services.Workflow
         if (attributes.TryGetValue("InheritMenu", out tmpStr) && !bool.TryParse(tmpStr, out inheritMenu))
           throw new ArgumentException("'InheritMenu' attribute has to be of type bool");
         return new WorkflowState(id, name, displayLabel, isTemporary, mainScreen, inheritMenu, false,
-            workflowModelId, WorkflowType.Workflow);
+            workflowModelId, WorkflowType.Workflow, hideGroups);
       }
       catch (Exception e)
       {
@@ -108,7 +110,7 @@ namespace MediaPortal.UI.Services.Workflow
         if (attributes.TryGetValue("Temporary", out tmpStr) && !bool.TryParse(tmpStr, out isTemporary))
           throw new ArgumentException("'Temporary' attribute has to be of type bool");
         return new WorkflowState(id, name, displayLabel, isTemporary, dialogScreen, false, false,
-            workflowModelId, WorkflowType.Dialog);
+            workflowModelId, WorkflowType.Dialog, null);
       }
       catch (Exception e)
       {

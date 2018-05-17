@@ -55,6 +55,7 @@ namespace MediaPortal.UI.Presentation.Workflow
     protected string _displayLabel;
     protected bool _isTemporary;
     protected string _mainScreen;
+    protected string _hideGroups;
     protected bool _isTransient;
     protected bool _inheritMenu;
     protected Guid? _workflowModelId;
@@ -79,14 +80,16 @@ namespace MediaPortal.UI.Presentation.Workflow
     /// <see cref="IsTransient"/> property.</param>
     /// <param name="workflowModelId">The id of the workflow model which attends the workflow state.</param>
     /// <param name="type">The type of the new workflow state.</param>
+    /// <param name="hideGroups">Optional comma-separated list of workflow groups to filter out in this state.</param>
     public WorkflowState(Guid stateId, string name, string displayLabel, bool isTemporary, string mainScreen, bool inheritMenu, bool isTransient,
-        Guid? workflowModelId, WorkflowType type)
+        Guid? workflowModelId, WorkflowType type, string hideGroups)
     {
       _stateId = stateId;
       _name = name;
       _displayLabel = displayLabel;
       _isTemporary = isTemporary;
       _mainScreen = mainScreen;
+      _hideGroups = hideGroups;
       _inheritMenu = inheritMenu;
       _isTransient = isTransient;
       _workflowModelId = workflowModelId;
@@ -174,6 +177,31 @@ namespace MediaPortal.UI.Presentation.Workflow
     }
 
     /// <summary>
+    /// Returns a co
+    /// </summary>
+    public string HideGroups
+    {
+      get { return _hideGroups; }
+    }
+
+    /// <summary>
+    /// Creates a new transient state. In transient states, some variables like the models are automatically
+    /// inherited from the parent state.
+    /// </summary>
+    /// <param name="name">The human-readable name of the new state.</param>
+    /// <param name="displayLabel">A human-readable label for the new state, to be used in the GUI.</param>
+    /// <param name="mainScreen">The main screen to be shown in the new state.</param>
+    /// <param name="inheritMenu">If set to <c>true</c>, the menu items of the parent state will be
+    /// inherited.</param>
+    /// <param name="workflowType">The workflow type of the new transient state.</param>
+    /// <param name="hideGroups">Optional comma-separated list of workflow groups to filter out in this state.</param>
+    /// <returns>New transient workflow state.</returns>
+    public static WorkflowState CreateTransientState(string name, string displayLabel, bool isTemporary, string mainScreen, bool inheritMenu, WorkflowType workflowType, string hideGroups)
+    {
+      return new WorkflowState(Guid.NewGuid(), name, displayLabel, isTemporary, mainScreen, inheritMenu, true, null, workflowType, hideGroups);
+    }
+
+    /// <summary>
     /// Creates a new transient state. In transient states, some variables like the models are automatically
     /// inherited from the parent state.
     /// </summary>
@@ -186,7 +214,7 @@ namespace MediaPortal.UI.Presentation.Workflow
     /// <returns>New transient workflow state.</returns>
     public static WorkflowState CreateTransientState(string name, string displayLabel, bool isTemporary, string mainScreen, bool inheritMenu, WorkflowType workflowType)
     {
-      return new WorkflowState(Guid.NewGuid(), name, displayLabel, isTemporary, mainScreen, inheritMenu, true, null, workflowType);
+      return new WorkflowState(Guid.NewGuid(), name, displayLabel, isTemporary, mainScreen, inheritMenu, true, null, workflowType, null);
     }
 
     public override string ToString()
