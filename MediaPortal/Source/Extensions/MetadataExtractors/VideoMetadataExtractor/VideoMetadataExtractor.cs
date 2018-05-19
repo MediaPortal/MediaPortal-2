@@ -39,6 +39,7 @@ using MediaPortal.Utilities;
 using MediaPortal.Utilities.SystemAPI;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Globalization;
 using System.IO;
 using System.Linq;
@@ -569,6 +570,9 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor
         if (!MatroskaConsts.MATROSKA_VIDEO_EXTENSIONS.Contains(extensionLower))
           return;
 
+        Stopwatch sw = new Stopwatch();
+        sw.Start();
+
         // Try to get extended information out of matroska files)
         MatroskaInfoReader mkvReader = new MatroskaInfoReader(lfsra);
         // Add keys to be extracted to tags dictionary, matching results will returned as value
@@ -636,6 +640,9 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor
               videoStreamAspects[0].SetAttribute(VideoStreamAspect.ATTR_VIDEO_TYPE, VideoStreamAspect.TYPE_MVC);
           }
         }
+
+        sw.Stop();
+        ServiceRegistration.Get<ILogger>().Debug("VideoMetadataExtractor: Completed reading matroska tags from resource '{0}' (Time: {1} ms)", lfsra.CanonicalLocalResourcePath, sw.ElapsedMilliseconds);
       }
       catch (Exception e)
       {

@@ -4,6 +4,7 @@ using MediaPortal.Common.ResourceAccess;
 using NEbml.Core;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Globalization;
 using System.IO;
 using System.Linq;
@@ -314,6 +315,9 @@ namespace MediaPortal.Extensions.MetadataExtractors.MatroskaLib
     /// <param name="tagsToExtract">Dictionary with tag names as keys.</param>
     public Task ReadTagsAsync(IDictionary<string, IList<string>> tagsToExtract)
     {
+      Stopwatch sw = new Stopwatch();
+      sw.Start();
+
       ReadFile(SegmentInfoElement, TagsElement, TracksElement);
       string[] keys = tagsToExtract.Keys.ToArray();
       foreach (var tag in keys)
@@ -333,6 +337,9 @@ namespace MediaPortal.Extensions.MetadataExtractors.MatroskaLib
           tagsToExtract[tag] = new List<string>(_tags[tag]);
         }
       }
+
+      sw.Stop();
+      ServiceRegistration.Get<ILogger>().Debug("MatroskaInfoReader: Matroska file '{0}' tags extracted in {1} ms", _lfsra.LocalFileSystemPath, sw.ElapsedMilliseconds);
       return Task.CompletedTask;
     }
 
@@ -341,10 +348,16 @@ namespace MediaPortal.Extensions.MetadataExtractors.MatroskaLib
     /// </summary>
     public Task<StereoMode> ReadStereoModeAsync()
     {
+      Stopwatch sw = new Stopwatch();
+      sw.Start();
+
       ReadFile(TracksElement);
       string val = null;
       if (_videoProps?.ContainsKey("StereoMode") ?? false)
         val = _videoProps["StereoMode"].FirstOrDefault();
+
+      sw.Stop();
+      ServiceRegistration.Get<ILogger>().Debug("MatroskaInfoReader: Matroska file '{0}' stereoscopic mode extracted in {1} ms", _lfsra.LocalFileSystemPath, sw.ElapsedMilliseconds);
 
       if (!string.IsNullOrEmpty(val))
         return Task.FromResult((StereoMode)Convert.ToInt32(val));
@@ -357,7 +370,13 @@ namespace MediaPortal.Extensions.MetadataExtractors.MatroskaLib
     /// </summary>
     public Task ReadAttachmentsAsync()
     {
+      Stopwatch sw = new Stopwatch();
+      sw.Start();
+
       ReadFile(AttachmentsElement);
+
+      sw.Stop();
+      ServiceRegistration.Get<ILogger>().Debug("MatroskaInfoReader: Matroska file '{0}' attachments extracted in {1} ms", _lfsra.LocalFileSystemPath, sw.ElapsedMilliseconds);
       return Task.CompletedTask;
     }
 
