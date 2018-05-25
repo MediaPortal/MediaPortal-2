@@ -22,7 +22,7 @@
     </Grid.ColumnDefinitions>
 
     <ListView x:Name="MediaItemsList" Style="{ThemeResource MediaItemsListListViewStyle}" ItemsSource="{Binding Items}"
-        HorizontalAlignment="Stretch" VerticalAlignment="Stretch" IsVisible="{Binding ShowList}" RestoreFocus="True"
+              HorizontalAlignment="Stretch" VerticalAlignment="Stretch" IsVisible="{Binding ShowList}" RestoreFocus="True"
               GroupingValueProvider="{Binding Source={Model 4CDD601F-E280-43b9-AD0A-6D7B2403C856},Path=NavigationData}">
       <ListView.Resources>
         <ResourceWrapper x:Key="VerticalScrollbarRenderTransform">

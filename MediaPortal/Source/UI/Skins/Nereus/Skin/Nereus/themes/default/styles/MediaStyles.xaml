@@ -4233,12 +4233,12 @@
       <Setter.Value>
         <ControlTemplate TargetType="{x:Type ListViewItem}">
           <Button Style="{ThemeResource ButtonWideStyle_List}"
-                            Command="{DynamicResource ResourceKey=Menu_Command}"
-                            IsEnabled="{Binding Enabled}" SetFocus="{Binding Path=Selected,Mode=OneTime}">
+                  Command="{DynamicResource ResourceKey=Menu_Command}"
+                  IsEnabled="{Binding Enabled}" SetFocus="{Binding Path=Selected,Mode=OneTime}">
             <Button.Triggers>
               <Trigger Property="HasFocus" Value="True">
                 <Setter TargetName="ItemLabel" Property="Scroll" Value="Auto"/>
-                <Setter TargetName="ItemLabel" Property="Color" Value="{ThemeResource MediaItemFocussedColor}"/>
+                <Setter TargetName="ItemLabel" Property="Color" Value="Black"/>
                 <Setter TargetName="NumberLabel" Property="Color" Value="{ThemeResource MediaItemFocussedColor}"/>
                 <Setter TargetName="PartlyWatchedLabel" Property="Opacity" Value="1"/>
                 <Setter TargetName="WatchedLabel" Property="Opacity" Value="1"/>
@@ -4322,7 +4322,7 @@
             <ScrollViewer.Style>
               <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} == {LayoutType}.{GridLayout} ? {1} : ({0} == {LayoutType}.{ListLayout} ? {2} : {3})">
                 <Binding Source="{StaticResource ViewModeModel}" Path="LayoutType"/>
-                <Binding Source="{ThemeResource HorizontalMediaScrollViewerStyle}"/>
+                <Binding Source="{ThemeResource VerticalMediaScrollViewerStyle}"/>
                 <!--Grid-->
                 <Binding Source="{ThemeResource VerticalMediaScrollViewerStyle}"/>
                 <!--List-->
@@ -4416,25 +4416,11 @@
                 <Binding.Source>
                   <ItemsPanelTemplate>
                     <!--VirtualizingWrapPanel x:Name="GridItemsHost" IsItemsHost="True" Orientation="Vertical"/-->
-                    <AnimatedWrapPanel x:Name="GridItemsHost" IsItemsHost="True" Orientation="Vertical" ScrollMargin="500,500" Margin="-240,0,-290,0">
+                    <AnimatedWrapPanel x:Name="GridItemsHost" IsItemsHost="True" Orientation="Horizontal" ScrollMargin="400,400" Margin="40,-260,0,-290">
                       <AnimatedWrapPanel.Resources>
                         <Storyboard x:Key="ScrollAnimation" FillBehavior="HoldEnd">
                           <DoubleAnimation BeginTime="00:00:00" From="0" To="1" Duration="00:00:00.300" 
                                            FillBehavior="HoldEnd" Storyboard.TargetName="GridItemsHost" Storyboard.TargetProperty="ScrollOffsetMultiplier" />
-                          <!--DoubleAnimationUsingKeyFrames BeginTime="00:00:00" FillBehavior="HoldEnd" 
-                                                         Storyboard.TargetName="GridItemsHost" Storyboard.TargetProperty="ScrollOffsetMultiplier">
-                            <SplineDoubleKeyFrame KeyTime="00:00:00" Value="0"/>
-                            <SplineDoubleKeyFrame KeyTime="00:00:00.30" Value="0.03"/>
-                            <SplineDoubleKeyFrame KeyTime="00:00:00.60" Value="0.1"/>
-                            <SplineDoubleKeyFrame KeyTime="00:00:00.90" Value="0.19"/>
-                            <SplineDoubleKeyFrame KeyTime="00:00:00.120" Value="0.35"/>
-                            <SplineDoubleKeyFrame KeyTime="00:00:00.150" Value="0.5"/>
-                            <SplineDoubleKeyFrame KeyTime="00:00:00.180" Value="0.65"/>
-                            <SplineDoubleKeyFrame KeyTime="00:00:00.210" Value="0.81"/>
-                            <SplineDoubleKeyFrame KeyTime="00:00:00.240" Value="0.9"/>
-                            <SplineDoubleKeyFrame KeyTime="00:00:00.270" Value="0.97"/>
-                            <SplineDoubleKeyFrame KeyTime="00:00:00.300" Value="1"/>
-                          </-->
                         </Storyboard>
                       </AnimatedWrapPanel.Resources>
                       <AnimatedWrapPanel.Triggers>

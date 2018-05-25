@@ -287,26 +287,12 @@
     </Setter>
   </Style>
 
-  <!--Because of an opacity bug in skin engine the overlay darkens the button frame in listviews. To compensate a temporal control style with more opacity is used-->
   <Style x:Key="ButtonListViewControlStyle" TargetType="{x:Type Control}">
     <Setter Property="Template">
       <Setter.Value>
         <ControlTemplate>
-          <DockPanel Name="ButtonControlRectangle" Margin="2" IsVisible="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}},Path=HasFocus}">
-            <Rectangle Name="ButtonFrame" DockPanel.Dock="Center" RadiusX="4" RadiusY="4" StrokeThickness="3">
-              <Rectangle.Stroke>
-                <LinearGradientBrush StartPoint="0,0" EndPoint="0.02,1.4">
-                  <GradientStop Color="#E6FFFFFF" Offset="0"/>
-                  <GradientStop Color="#E6FFFFFF" Offset="0.7"/>
-                  <GradientStop Color="#8CFFFFFF" Offset="1"/>
-                </LinearGradientBrush>
-              </Rectangle.Stroke>
-            </Rectangle>
-            <Rectangle Name="ButtonUpperShine" DockPanel.Dock="Center" RadiusX="4.5" RadiusY="4.5" StrokeThickness="0" Margin="2">
-              <Rectangle.Fill>
-                <ImageBrush ImageSource="Glass_frame.PNG" Stretch="Fill" Opacity="1.8"/>
-              </Rectangle.Fill>
-            </Rectangle>
+          <DockPanel Name="ButtonControlRectangle" Background="#009999"
+                     IsVisible="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}},Path=HasFocus}">
           </DockPanel>
         </ControlTemplate>
       </Setter.Value>
@@ -409,47 +395,29 @@
     <Setter Property="Template">
       <Setter.Value>
         <ControlTemplate>
-          <Grid x:Name="GrowControl" RenderTransformOrigin="0.5,0.5" Margin="0">
+          <Grid x:Name="GrowControl" RenderTransformOrigin="0.5,0.5">
             <Grid.ColumnDefinitions>
               <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
             <Grid.RowDefinitions>
               <RowDefinition Height="*"/>
             </Grid.RowDefinitions>
-            <Grid.RenderTransform>
-              <TransformGroup>
-                <ScaleTransform ScaleX="1" ScaleY="1"/>
-              </TransformGroup>
-            </Grid.RenderTransform>
-            <Control Style="{ThemeResource ButtonListViewControlStyle}" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Grid.ZIndex="100"/>
-            <Control Style="{ThemeResource ButtonBaseControlStyle}" Margin="3" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Grid.ZIndex="0"/>
-            <ContentPresenter x:Name="ButtonContentPresenter" Margin="4" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Grid.ZIndex="1"/>
+            <Control Style="{ThemeResource ButtonListViewControlStyle}" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Grid.ZIndex="0"/>
+            <ContentPresenter x:Name="ButtonContentPresenter" Margin="30,4,30,4" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Grid.ZIndex="1"/>
           </Grid>
           <ControlTemplate.Triggers>
             <Trigger Property="HasFocus" Value="True">
               <Trigger.EnterActions>
-                <!--BeginStoryboard x:Name="Focused_BeginStoryboard" Storyboard="{ThemeResource FocusedButtonWideStoryboard_Poster}"/-->
                 <SoundPlayerAction Source="navigate.wav" DisableOnAudioOutput="True"/>
               </Trigger.EnterActions>
               <Trigger.ExitActions>
-                <!--StopStoryboard BeginStoryboardName="Focused_BeginStoryboard"/-->
               </Trigger.ExitActions>
             </Trigger>
             <Trigger Property="IsPressed" Value="True">
               <Trigger.EnterActions>
-                <BeginStoryboard x:Name="Pressed_BeginStoryboard" Storyboard="{ThemeResource PressedButtonWideStoryboard_Poster}"/>
                 <SoundPlayerAction Source="click.wav" DisableOnAudioOutput="True"/>
               </Trigger.EnterActions>
               <Trigger.ExitActions>
-                <!--StopStoryboard BeginStoryboardName="Pressed_BeginStoryboard"/-->
-              </Trigger.ExitActions>
-            </Trigger>
-            <Trigger Property="IsEnabled" Value="False">
-              <Trigger.EnterActions>
-                <BeginStoryboard x:Name="Disabled_BeginStoryBoard" Storyboard="{ThemeResource DisabledButtonStoryboard}"/>
-              </Trigger.EnterActions>
-              <Trigger.ExitActions>
-                <StopStoryboard BeginStoryboardName="Disabled_BeginStoryBoard"/>
               </Trigger.ExitActions>
             </Trigger>
           </ControlTemplate.Triggers>

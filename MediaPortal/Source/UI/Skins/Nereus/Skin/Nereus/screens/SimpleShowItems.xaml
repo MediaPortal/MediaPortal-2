@@ -4,11 +4,10 @@
 <Include
     xmlns="www.team-mediaportal.com/2008/mpf/directx"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:fanart="clr-namespace:MediaPortal.Extensions.UserServices.FanArtService.Client;assembly=FanArtService.Client"
     Source="screens\master_mediamenu.xaml"
     >
   <Include.Resources>
-
-    <!-- Header_Text resource has to be added by including screen -->
 
     <!-- Contents -->
     <ControlTemplate x:Key="Contents_Template">
@@ -28,9 +27,9 @@
             <Include Source="screens\MediaItemsList.inc"/>
           </Control.TemplateControl>
           <Control.Margin>
-            <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} == {LayoutType}.{ListLayout} ? {1} : {2}">
+            <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} != {LayoutType}.{CoverLayout} ? {1} : {2}">
               <Binding Source="{StaticResource ViewModeModel}" Path="LayoutType"/>
-              <Binding Source="40,-50,0,-210"/>
+              <Binding Source="-15,-80,-50,-240"/>
               <Binding Source="0"/>
             </MultiBinding>
           </Control.Margin>
@@ -46,8 +45,37 @@
           </Grid.ColumnDefinitions>
           <Grid.IsVisible>
             <Binding Source="{StaticResource ViewModeModel}" Path="LayoutType"
-                     Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0} == {LayoutType}.{ListLayout}"/>
+                     Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0} != {LayoutType}.{CoverLayout}"/>
           </Grid.IsVisible>
+
+          <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+            <Grid.Resources>
+              <fanart:FanArtImageSourceConverter x:Key="FanArtImageSourceConverter"/>
+              <Model x:Key="FanArtBackgroundModel" Id="8F42C8E9-E8A3-475C-A50A-99E1E644DC91"/>
+              <Model x:Key="SkinSettingsModel" Id="13961014-16C4-4361-9751-8E2C585EFD44"/>
+            </Grid.Resources>
+            <Image x:Name="FanArtImageBackground" Stretch="Uniform" Grid.Column="1" VerticalAlignment="Top"
+               IsVisible="{Binding Source={StaticResource SkinSettingsModel}, Path=[WMC].EnableFanart}">
+              <Image.Source>
+                <ImageSourceWrapper Delay="0.5" DelayInOut="true" Transition="transitions\dissolve" TransitionDuration="0.5"
+                   Source="{Binding Source={StaticResource FanArtBackgroundModel}, Path=ImageSource, Converter={StaticResource FanArtImageSourceConverter}, ConverterParameter=FanArt;1920;1080;False}"/>
+              </Image.Source>
+            </Image>
+            <Image Stretch="Fill" Opacity="{Binding Source={StaticResource SkinSettingsModel}, Path=[WMC].FanartOverlayOpacity}">
+              <Image.Source>
+                <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} == {LayoutType}.{GridLayout} ? {1} : ({0} == {LayoutType}.{ListLayout} ? {2} : {3})">
+                  <Binding Source="{StaticResource ViewModeModel}" Path="LayoutType"/>
+                  <Binding Source="List_overlay.png"/>
+                  <!--Grid-->
+                  <Binding Source="List_overlay.png"/>
+                  <!--List-->
+                  <Binding Source="Background_GridView.png"/>
+                  <!--Cover-->
+                </MultiBinding>
+              </Image.Source>
+            </Image>
+            <Border Background="#44000000" BorderThickness="0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
+          </Grid>
 
           <!---Listview Details-->
           <Control x:Name="ListDetails" Grid.Column="0" Grid.Row="0" Template="{DynamicResource ResourceKey=ListDetails_Template}"
@@ -76,7 +104,7 @@
           </Control.TemplateControl>
           <Control.IsVisible>
             <Binding Source="{StaticResource ViewModeModel}" Path="LayoutType"
-                     Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0} != {LayoutType}.{ListLayout}"/>
+                     Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0} == {LayoutType}.{CoverLayout}"/>
           </Control.IsVisible>
         </Control>
       </Grid>
