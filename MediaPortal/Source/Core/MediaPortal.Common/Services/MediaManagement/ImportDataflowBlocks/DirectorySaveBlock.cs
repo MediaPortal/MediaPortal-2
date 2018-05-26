@@ -49,7 +49,6 @@ namespace MediaPortal.Common.Services.MediaManagement.ImportDataflowBlocks
     #region Variables
 
     private readonly ConcurrentDictionary<ResourcePath, Guid> _parentDirectoryIds = new ConcurrentDictionary<ResourcePath, Guid>();
-    private readonly CancellationToken _ct;
 
     #endregion
 
@@ -66,9 +65,8 @@ namespace MediaPortal.Common.Services.MediaManagement.ImportDataflowBlocks
       new ExecutionDataflowBlockOptions { CancellationToken = ct },
       new ExecutionDataflowBlockOptions { CancellationToken = ct },
       new ExecutionDataflowBlockOptions { CancellationToken = ct },
-      BLOCK_NAME, true, parentImportJobController)
+      BLOCK_NAME, true, parentImportJobController, ct)
     {
-      _ct = ct;
     }
 
     #endregion
@@ -223,7 +221,7 @@ namespace MediaPortal.Common.Services.MediaManagement.ImportDataflowBlocks
             mediaAspect,
             directoryAspect
         });
-        return await UpdateMediaItem(parentDirectoryId, directoryPath, aspects, ImportJobInformation, false, _ct).ConfigureAwait(false);
+        return await UpdateMediaItem(parentDirectoryId, directoryPath, aspects, ImportJobInformation, false).ConfigureAwait(false);
       }
       return directoryMediaItem.MediaItemId;
     }
