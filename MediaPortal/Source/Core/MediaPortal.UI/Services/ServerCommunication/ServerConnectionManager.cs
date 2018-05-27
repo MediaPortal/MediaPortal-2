@@ -343,34 +343,6 @@ namespace MediaPortal.UI.Services.ServerCommunication
               UpdateCurrentlyImportingSharesProgresses(shareStates.Where(s => s.IsImporting).ToDictionary(s => s.ShareId, s => s.Progress));
             }
           }
-          if (states != null && states.ContainsKey(ContentDirectoryServerState.STATE_ID))
-          {
-            ContentDirectoryServerState contentState = states[ContentDirectoryServerState.STATE_ID] as ContentDirectoryServerState;
-            lock (_syncObj)
-            {
-              IContentDirectory cd = ContentDirectory;
-              MediaItem mi = cd.LoadItemAsync(contentState.SystemId, ResourcePath.Deserialize(contentState.MediaItemPath), NECESSARY_MIAS, OPTIONAL_MIAS, null).Result;
-              if (mi == null)
-              {
-                mi = new MediaItem(Guid.Empty);
-
-                SingleMediaItemAspect mediaAspect = MediaItemAspect.GetAspect(mi.Aspects, MediaAspect.Metadata);
-                mediaAspect.SetAttribute(MediaAspect.ATTR_ISVIRTUAL, true);
-                mediaAspect.SetAttribute(MediaAspect.ATTR_TITLE, "<Deleted>");
-              }
-              if (!string.IsNullOrEmpty(contentState.OldPath))
-              {
-                //Add replacement path so it can be found in any lists
-                MultipleMediaItemAspect aspect = new MultipleMediaItemAspect(ProviderResourceAspect.Metadata);
-                aspect.SetAttribute(ProviderResourceAspect.ATTR_SYSTEM_ID, contentState.SystemId);
-                aspect.SetAttribute(ProviderResourceAspect.ATTR_TYPE, ProviderResourceAspect.TYPE_SECONDARY);
-                aspect.SetAttribute(ProviderResourceAspect.ATTR_RESOURCE_INDEX, -1);
-                aspect.SetAttribute(ProviderResourceAspect.ATTR_RESOURCE_ACCESSOR_PATH, contentState.OldPath);
-                MediaItemAspect.AddOrUpdateAspect(mi.Aspects, aspect);
-              }
-              ContentDirectoryMessaging.SendMediaItemChangedMessage(mi, contentState.ChangeType);
-            }
-          }
         }
       }
     }

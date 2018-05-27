@@ -87,73 +87,11 @@ namespace MediaPortal.Backend.Services.MediaLibrary
     /// <returns>The role guid of the parent if found.</returns>
     public Guid? GetParentRoleFromAspects(IEnumerable<Guid> parentAspects)
     {
-      if (parentAspects.Contains(SeriesAspect.ASPECT_ID))
-        return SeriesAspect.ROLE_SERIES;
-      else if (parentAspects.Contains(SeasonAspect.ASPECT_ID))
-        return SeasonAspect.ROLE_SEASON;
-      else if (parentAspects.Contains(MovieCollectionAspect.ASPECT_ID))
-        return MovieCollectionAspect.ROLE_MOVIE_COLLECTION;
-      else if (parentAspects.Contains(AudioAlbumAspect.ASPECT_ID))
-        return AudioAlbumAspect.ROLE_ALBUM;
-
-      return null;
-    }
-
-    /// <summary>
-    /// Returns basic aspects for a child of the parent aspects.
-    /// </summary>
-    /// <param name="childAspects"></param>
-    /// <param name="parentAspects"></param>
-    /// <returns>The basic child aspects.</returns>
-    public IDictionary<Guid, IList<MediaItemAspect>> GetBaseChildAspectsFromParentAspects(IDictionary<Guid, IList<MediaItemAspect>> childAspects, IDictionary<Guid, IList<MediaItemAspect>> parentAspects)
-    {
-      if (parentAspects.ContainsKey(SeriesAspect.ASPECT_ID))
+      foreach(var knownType in ServiceRegistration.Get<IRelationshipTypeRegistration>().LocallyKnownHierarchicalRelationshipTypes)
       {
-        SeriesInfo series = new SeriesInfo();
-        series.FromMetadata(parentAspects);
-
-        if (childAspects.ContainsKey(SeasonAspect.ASPECT_ID))
-        {
-          SeasonInfo season = new SeasonInfo();
-          season.FromMetadata(childAspects);
-
-          SeasonInfo basicSeason = series.CloneBasicInstance<SeasonInfo>();
-          basicSeason.SeasonNumber = season.SeasonNumber;
-          IDictionary<Guid, IList<MediaItemAspect>> aspects = new Dictionary<Guid, IList<MediaItemAspect>>();
-          basicSeason.SetMetadata(aspects, true);
-          return aspects;
-        }
-        else if (childAspects.ContainsKey(EpisodeAspect.ASPECT_ID))
-        {
-          EpisodeInfo episode = new EpisodeInfo();
-          episode.FromMetadata(childAspects);
-
-          EpisodeInfo basicEpisode = series.CloneBasicInstance<EpisodeInfo>();
-          basicEpisode.SeasonNumber = episode.SeasonNumber;
-          basicEpisode.EpisodeNumbers = episode.EpisodeNumbers;
-          IDictionary<Guid, IList<MediaItemAspect>> aspects = new Dictionary<Guid, IList<MediaItemAspect>>();
-          basicEpisode.SetMetadata(aspects, true);
-          return aspects;
-        }
+        if (parentAspects.Any(a => a == knownType.ParentAspectId))
+          return knownType.ParentRole;
       }
-      else if (parentAspects.ContainsKey(AudioAlbumAspect.ASPECT_ID))
-      {
-        AlbumInfo album = new AlbumInfo();
-        album.FromMetadata(parentAspects);
-
-        if (childAspects.ContainsKey(AudioAspect.ASPECT_ID))
-        {
-          TrackInfo track = new TrackInfo();
-          track.FromMetadata(childAspects);
-
-          TrackInfo basicTrack = album.CloneBasicInstance<TrackInfo>();
-          basicTrack.TrackNum = track.TrackNum;
-          IDictionary<Guid, IList<MediaItemAspect>> aspects = new Dictionary<Guid, IList<MediaItemAspect>>();
-          basicTrack.SetMetadata(aspects, true);
-          return aspects;
-        }
-      }
-
       return null;
     }
 

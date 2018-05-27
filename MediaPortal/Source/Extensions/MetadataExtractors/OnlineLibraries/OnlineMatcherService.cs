@@ -154,9 +154,11 @@ namespace MediaPortal.Extensions.OnlineLibraries
 
     private async Task MergeResults<T>(List<T> list, List<Task<IEnumerable<T>>> results) where T: BaseInfo
     {
+      await Task.WhenAny(Task.WhenAll(results.ToArray()), Task.Delay(10000));
       foreach (var task in results)
       {
-        await task;
+        if (!task.IsCompleted)
+          continue;
         if (list.Count == 0)
         {
           list.AddRange(task.Result);

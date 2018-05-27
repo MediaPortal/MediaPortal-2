@@ -80,6 +80,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
     protected static char ADDITIONAL_SEPARATOR;
     protected static ICollection<string> UNSPLITTABLE_ADDITIONAL_SEPARATOR_VALUES = new List<string>();
 
+    protected readonly Regex _titleYearRegEx = new Regex(@"(?<title>[^\\|\/]+?)\s*[\[\(]?(?<year>(19|20)\d{2})", RegexOptions.IgnoreCase);
     protected SettingsChangeWatcher<AudioMetadataExtractorSettings> _settingWatcher;
     protected AsynchronousMessageQueue _messageQueue;
     protected int _importerCount;
@@ -136,6 +137,10 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
       IMediaItemAspectTypeRegistration miatr = ServiceRegistration.Get<IMediaItemAspectTypeRegistration>();
       miatr.RegisterLocallyKnownMediaItemAspectTypeAsync(TempAlbumAspect.Metadata);
       miatr.RegisterLocallyKnownMediaItemAspectTypeAsync(TempArtistAspect.Metadata);
+
+      // Register reimport support
+      miatr.RegisterLocallySupportedReimportMediaItemAspectTypeAsync(AudioAlbumAspect.Metadata);
+      miatr.RegisterLocallySupportedReimportMediaItemAspectTypeAsync(AudioAspect.Metadata);
 
       AudioMetadataExtractorSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<AudioMetadataExtractorSettings>();
       InitializeExtensions(settings);
@@ -897,6 +902,174 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
     public bool TryExtractStubItems(IResourceAccessor mediaItemAccessor, ICollection<IDictionary<Guid, IList<MediaItemAspect>>> extractedStubAspectData)
     {
       return false;
+    }
+
+    public async Task<IList<MediaItemSearchResult>> SearchForMatchesAsync(IDictionary<Guid, IList<MediaItemAspect>> searchAspectData, ICollection<string> searchCategories)
+    {
+      try
+      {
+        if (!(searchCategories?.Contains(DefaultMediaCategories.Audio.CategoryName) ?? true))
+          return null;
+
+        string searchData = null;
+        var reimportAspect = MediaItemAspect.GetAspect(searchAspectData, ReimportAspect.Metadata);
+        if (reimportAspect != null)
+          searchData = reimportAspect.GetAttributeValue<string>(ReimportAspect.ATTR_SEARCH);
+
+        //Prepare search info
+        TrackInfo trackSearchinfo = null;
+        AlbumInfo albumSearchinfo = null;
+        List<MediaItemSearchResult> searchResults = new List<MediaItemSearchResult>();
+        if (!string.IsNullOrEmpty(searchData))
+        {
+          if (searchAspectData.ContainsKey(AudioAspect.ASPECT_ID))
+          {
+            trackSearchinfo = new TrackInfo();
+            if (Guid.TryParse(searchData, out Guid guid))
+              trackSearchinfo.MusicBrainzId = searchData;
+            else if (int.TryParse(searchData, out int audioDbId))
+              trackSearchinfo.AudioDbId = audioDbId;
+            else //Fallabck to name search
+              trackSearchinfo.TrackName = searchData;
+          }
+          else if (searchAspectData.ContainsKey(AudioAlbumAspect.ASPECT_ID))
+          {
+            AlbumInfo album = new AlbumInfo();
+            album.FromMetadata(searchAspectData);
+
+            albumSearchinfo = new AlbumInfo();
+            if (Guid.TryParse(searchData, out Guid guid))
+              albumSearchinfo.MusicBrainzGroupId = searchData;
+            else if (int.TryParse(searchData, out int audioDbId))
+              albumSearchinfo.AudioDbId = audioDbId;
+            else //Fallabck to name search
+            {
+              albumSearchinfo.Artists = new List<PersonInfo>(album.Artists);
+              var match = _titleYearRegEx.Match(searchData);
+              if (match.Success)
+              {
+                albumSearchinfo.Album = match.Groups["title"].Value;
+                if (int.TryParse(match.Groups["year"].Value, out int year))
+                  albumSearchinfo.ReleaseDate = new DateTime(year, 1, 1);
+              }
+              else
+              {
+                albumSearchinfo.Album = searchData;
+              }
+            }
+          }
+        }
+        else
+        {
+          if (searchAspectData.ContainsKey(AudioAspect.ASPECT_ID))
+          {
+            trackSearchinfo = new TrackInfo();
+            trackSearchinfo.FromMetadata(searchAspectData);
+          }
+          else if (searchAspectData.ContainsKey(AudioAlbumAspect.ASPECT_ID))
+          {
+            albumSearchinfo = new AlbumInfo();
+            albumSearchinfo.FromMetadata(searchAspectData);
+          }
+        }
+
+        //Perform online search
+        if (trackSearchinfo != null)
+        {
+          var matches = await OnlineMatcherService.Instance.FindMatchingTracksAsync(trackSearchinfo);
+          foreach (var match in matches)
+          {
+            var result = new MediaItemSearchResult
+            {
+              Name = $"{(string.IsNullOrWhiteSpace(match.Album) ? "" : $"{match.Album}: ")}{match.TrackName}" +
+                $"{(match.Artists.Count > 0 ? $" [{string.Join(", ", match.Artists)}]" : "")}",
+              Description = match.ReleaseDate.HasValue ? "" : match.ReleaseDate.Value.ToShortDateString(),
+            };
+
+            //Add external Ids
+            if (!string.IsNullOrEmpty(match.MusicBrainzId))
+              result.ExternalIds.Add("musicbrainz.org", match.MusicBrainzId);
+            if (match.AudioDbId > 0)
+              result.ExternalIds.Add("theaudiodb.com", match.AudioDbId.ToString());
+            
+            //Assign aspects and remove unwanted aspects
+            match.SetMetadata(result.AspectData, true);
+            CleanReimportAspects(result.AspectData);
+
+            searchResults.Add(result);
+          }
+          return searchResults;
+        }
+        else if (albumSearchinfo != null)
+        {
+          var matches = await OnlineMatcherService.Instance.FindMatchingAlbumsAsync(albumSearchinfo);
+          foreach (var match in matches)
+          {
+            var result = new MediaItemSearchResult
+            {
+              Name = $"{match.Album}{(match.ReleaseDate.HasValue ? $" ({match.ReleaseDate.Value.Year})" : "")}" +
+                $"{(match.Artists.Count > 0 ? $" [{string.Join(", ", match.Artists)}]" : "")}",
+              Description = match.Description.IsEmpty ? "" : match.Description.Text,
+            };
+
+            //Add external Ids
+            if (!string.IsNullOrEmpty(match.MusicBrainzGroupId))
+              result.ExternalIds.Add("musicbrainz.org", match.MusicBrainzGroupId);
+            if (match.AudioDbId > 0)
+              result.ExternalIds.Add("theaudiodb.com", match.AudioDbId.ToString());
+
+            //Assign aspects and remove unwanted aspects
+            match.SetMetadata(result.AspectData, true);
+            CleanReimportAspects(result.AspectData);
+
+            searchResults.Add(result);
+          }
+          return searchResults;
+        }
+      }
+      catch (Exception e)
+      {
+        ServiceRegistration.Get<ILogger>().Info("AudioMetadataExtractor: Exception searching for matches (Text: '{0}')", e.Message);
+      }
+      return null;
+    }
+
+    public async Task<bool> AddMatchedAspectDetailsAsync(IDictionary<Guid, IList<MediaItemAspect>> matchedAspectData)
+    {
+      try
+      {
+        if (matchedAspectData.ContainsKey(AudioAspect.ASPECT_ID))
+        {
+          TrackInfo info = new TrackInfo();
+          info.FromMetadata(matchedAspectData);
+          await OnlineMatcherService.Instance.FindAndUpdateTrackAsync(info);
+          info.SetMetadata(matchedAspectData, true);
+          CleanReimportAspects(matchedAspectData);
+          return true;
+        }
+        else if (matchedAspectData.ContainsKey(AudioAlbumAspect.ASPECT_ID))
+        {
+          AlbumInfo info = new AlbumInfo();
+          info.FromMetadata(matchedAspectData);
+          await OnlineMatcherService.Instance.UpdateAlbumAsync(info, false);
+          info.SetMetadata(matchedAspectData, true);
+          CleanReimportAspects(matchedAspectData);
+          return true;
+        }
+      }
+      catch (Exception e)
+      {
+        ServiceRegistration.Get<ILogger>().Info("AudioMetadataExtractor: Exception adding match details (Text: '{0}')", e.Message);
+      }
+      return false;
+    }
+
+    private void CleanReimportAspects(IDictionary<Guid, IList<MediaItemAspect>> aspectData)
+    {
+      IEnumerable<Guid> reimportAspects = new Guid[] { ExternalIdentifierAspect.ASPECT_ID, MediaAspect.ASPECT_ID,
+          AudioAlbumAspect.ASPECT_ID, AudioAspect.ASPECT_ID, ReimportAspect.ASPECT_ID, GenreAspect.ASPECT_ID };
+      foreach (var aspect in aspectData.Where(a => !reimportAspects.Contains(a.Key)).ToList())
+        aspectData.Remove(aspect.Key);
     }
 
     #endregion

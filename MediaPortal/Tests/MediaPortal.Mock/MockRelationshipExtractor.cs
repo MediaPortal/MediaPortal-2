@@ -179,5 +179,10 @@ namespace MediaPortal.Mock
     public void ResetLastChangedItems()
     {
     }
+
+    public IDictionary<Guid, IList<MediaItemAspect>> GetBaseChildAspectsFromExistingAspects(IDictionary<Guid, IList<MediaItemAspect>> existingChildAspects, IDictionary<Guid, IList<MediaItemAspect>> existingParentAspects)
+    {
+      return null;
+    }
   }
 }

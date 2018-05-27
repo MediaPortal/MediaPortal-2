@@ -86,6 +86,11 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
       if (!mediaAccessor.MediaCategories.TryGetValue(MEDIA_CATEGORY_NAME_MOVIE, out movieCategory))
         movieCategory = mediaAccessor.RegisterMediaCategory(MEDIA_CATEGORY_NAME_MOVIE, new List<MediaCategory> { DefaultMediaCategories.Video });
       MEDIA_CATEGORIES.Add(movieCategory);
+
+      // Register reimport support
+      IMediaItemAspectTypeRegistration miatr = ServiceRegistration.Get<IMediaItemAspectTypeRegistration>();
+      miatr.RegisterLocallySupportedReimportMediaItemAspectTypeAsync(MovieAspect.Metadata);
+      miatr.RegisterLocallySupportedReimportMediaItemAspectTypeAsync(VideoAspect.Metadata);
     }
 
     public MovieMetadataExtractor()
@@ -457,6 +462,110 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
     public bool TryExtractStubItems(IResourceAccessor mediaItemAccessor, ICollection<IDictionary<Guid, IList<MediaItemAspect>>> extractedStubAspectData)
     {
       return false;
+    }
+
+    public async Task<IList<MediaItemSearchResult>> SearchForMatchesAsync(IDictionary<Guid, IList<MediaItemAspect>> searchAspectData, ICollection<string> searchCategories)
+    {
+      try
+      {
+        if (!(searchCategories?.Contains(MEDIA_CATEGORY_NAME_MOVIE) ?? true))
+          return null;
+
+        string searchData = null;
+        var reimportAspect = MediaItemAspect.GetAspect(searchAspectData, ReimportAspect.Metadata);
+        if (reimportAspect != null)
+          searchData = reimportAspect.GetAttributeValue<string>(ReimportAspect.ATTR_SEARCH);
+
+        //Prepare search info
+        MovieInfo movieSearchinfo = null;
+        List<MediaItemSearchResult> searchResults = new List<MediaItemSearchResult>();
+        if (!string.IsNullOrEmpty(searchData))
+        {
+          if (searchAspectData.ContainsKey(MovieAspect.ASPECT_ID))
+          {
+            movieSearchinfo = new MovieInfo();
+            if (searchData.StartsWith("tt", StringComparison.InvariantCultureIgnoreCase))
+              movieSearchinfo.ImdbId = searchData;
+            else if (int.TryParse(searchData, out int movieDbId))
+              movieSearchinfo.MovieDbId = movieDbId;
+            else //Fallabck to name search
+            {
+              if (!MovieNameMatcher.MatchTitleYear(searchData, movieSearchinfo))
+                movieSearchinfo.MovieName = searchData;
+            }
+          }
+        }
+        else
+        {
+          if (searchAspectData.ContainsKey(MovieAspect.ASPECT_ID))
+          {
+            movieSearchinfo = new MovieInfo();
+            movieSearchinfo.FromMetadata(searchAspectData);
+          }
+        }
+
+        //Perform online search
+        if (movieSearchinfo != null)
+        {
+          var matches = await OnlineMatcherService.Instance.FindMatchingMoviesAsync(movieSearchinfo);
+          foreach (var match in matches)
+          {
+            var result = new MediaItemSearchResult
+            {
+              Name = $"{match.MovieName.Text}{(match.ReleaseDate == null ? "" : $" ({match.ReleaseDate.Value.Year})")}" +
+                $"{(string.IsNullOrWhiteSpace(match.OriginalName) || string.Compare(match.MovieName.Text, match.OriginalName, true) == 0 ? "" : $" [{match.OriginalName}]")}",
+              Description = match.Summary.IsEmpty ? "" : match.Summary.Text,
+            };
+
+            //Add external Ids
+            if (!string.IsNullOrEmpty(match.ImdbId))
+              result.ExternalIds.Add("imdb.com", match.ImdbId);
+            if (match.MovieDbId > 0)
+              result.ExternalIds.Add("themoviedb.org", match.MovieDbId.ToString());
+
+            //Assign aspects and remove unwanted aspects
+            match.SetMetadata(result.AspectData, true);
+            CleanReimportAspects(result.AspectData);
+
+            searchResults.Add(result);
+          }
+          return searchResults;
+        }
+      }
+      catch (Exception e)
+      {
+        ServiceRegistration.Get<ILogger>().Info("MoviesMetadataExtractor: Exception searching for matches (Text: '{0}')", e.Message);
+      }
+      return null;
+    }
+
+    public async Task<bool> AddMatchedAspectDetailsAsync(IDictionary<Guid, IList<MediaItemAspect>> matchedAspectData)
+    {
+      try
+      {
+        if (matchedAspectData.ContainsKey(MovieAspect.ASPECT_ID))
+        {
+          MovieInfo info = new MovieInfo();
+          info.FromMetadata(matchedAspectData);
+          await OnlineMatcherService.Instance.FindAndUpdateMovieAsync(info);
+          info.SetMetadata(matchedAspectData, true);
+          CleanReimportAspects(matchedAspectData);
+          return true;
+        }
+      }
+      catch (Exception e)
+      {
+        ServiceRegistration.Get<ILogger>().Info("MoviesMetadataExtractor: Exception adding match details (Text: '{0}')", e.Message);
+      }
+      return false;
+    }
+
+    private void CleanReimportAspects(IDictionary<Guid, IList<MediaItemAspect>> aspectData)
+    {
+      IEnumerable<Guid> reimportAspects = new Guid[] { ExternalIdentifierAspect.ASPECT_ID, MediaAspect.ASPECT_ID,
+        MovieAspect.ASPECT_ID, VideoAspect.ASPECT_ID, ReimportAspect.ASPECT_ID, GenreAspect.ASPECT_ID };
+      foreach (var aspect in aspectData.Where(a => !reimportAspects.Contains(a.Key)).ToList())
+        aspectData.Remove(aspect.Key);
     }
 
     #endregion

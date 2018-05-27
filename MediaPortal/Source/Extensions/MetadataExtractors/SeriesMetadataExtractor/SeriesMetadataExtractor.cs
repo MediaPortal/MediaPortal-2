@@ -89,6 +89,11 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
       // All non-default media item aspects must be registered
       IMediaItemAspectTypeRegistration miatr = ServiceRegistration.Get<IMediaItemAspectTypeRegistration>();
       miatr.RegisterLocallyKnownMediaItemAspectTypeAsync(TempSeriesAspect.Metadata);
+
+      // Register reimport support
+      miatr.RegisterLocallySupportedReimportMediaItemAspectTypeAsync(SeriesAspect.Metadata);
+      miatr.RegisterLocallySupportedReimportMediaItemAspectTypeAsync(EpisodeAspect.Metadata);
+      miatr.RegisterLocallySupportedReimportMediaItemAspectTypeAsync(VideoAspect.Metadata);
     }
 
     public SeriesMetadataExtractor()
@@ -332,6 +337,186 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
     public bool TryExtractStubItems(IResourceAccessor mediaItemAccessor, ICollection<IDictionary<Guid, IList<MediaItemAspect>>> extractedStubAspectData)
     {
       return false;
+    }
+
+    public async Task<IList<MediaItemSearchResult>> SearchForMatchesAsync(IDictionary<Guid, IList<MediaItemAspect>> searchAspectData, ICollection<string> searchCategories)
+    {
+      try
+      {
+        if (!(searchCategories?.Contains(MEDIA_CATEGORY_NAME_SERIES) ?? true))
+          return null;
+
+        string searchData = null;
+        var reimportAspect = MediaItemAspect.GetAspect(searchAspectData, ReimportAspect.Metadata);
+        if (reimportAspect != null)
+          searchData = reimportAspect.GetAttributeValue<string>(ReimportAspect.ATTR_SEARCH);
+        
+        //Prepare search info
+        EpisodeInfo episodeSearchinfo = null;
+        SeriesInfo seriesSearchinfo = null;
+        List<MediaItemSearchResult> searchResults = new List<MediaItemSearchResult>();
+        if (!string.IsNullOrEmpty(searchData))
+        {
+          if (searchAspectData.ContainsKey(EpisodeAspect.ASPECT_ID))
+          {
+            EpisodeInfo episode = new EpisodeInfo();
+            episode.FromMetadata(searchAspectData);
+
+            episodeSearchinfo = new EpisodeInfo();
+            episodeSearchinfo.SeasonNumber = episode.SeasonNumber;
+            episodeSearchinfo.EpisodeNumbers = episode.EpisodeNumbers;
+            if (searchData.StartsWith("tt", StringComparison.InvariantCultureIgnoreCase))
+              episodeSearchinfo.SeriesImdbId = searchData;
+            else if (int.TryParse(searchData, out int tvDbSeriesId))
+              episodeSearchinfo.SeriesTvdbId = tvDbSeriesId;
+            else //Fallabck to name search
+            {
+              SeriesMatcher seriesMatcher = new SeriesMatcher();
+              if (!seriesMatcher.MatchSeries(searchData, episodeSearchinfo))
+                episodeSearchinfo.SeriesName = searchData;
+            }
+          }
+          else if (searchAspectData.ContainsKey(SeriesAspect.ASPECT_ID))
+          {
+            seriesSearchinfo = new SeriesInfo();
+            if (searchData.StartsWith("tt", StringComparison.InvariantCultureIgnoreCase))
+              seriesSearchinfo.ImdbId = searchData;
+            else if (int.TryParse(searchData, out int tvDbSeriesId))
+              seriesSearchinfo.TvdbId = tvDbSeriesId;
+            else //Fallabck to name search
+            {
+              EpisodeInfo tempEpisodeInfo = new EpisodeInfo();
+              tempEpisodeInfo.SeasonNumber = 1;
+              tempEpisodeInfo.EpisodeNumbers.Add(1);
+              SeriesMatcher seriesMatcher = new SeriesMatcher();
+              seriesMatcher.MatchSeries(searchData, tempEpisodeInfo);
+              if (tempEpisodeInfo.SeriesFirstAired.HasValue)
+              {
+                seriesSearchinfo.SeriesName = tempEpisodeInfo.SeriesName;
+                seriesSearchinfo.FirstAired = tempEpisodeInfo.SeriesFirstAired;
+              }
+              else
+              {
+                seriesSearchinfo.SeriesName = searchData;
+              }
+            }
+          }
+        }
+        else
+        {
+          if (searchAspectData.ContainsKey(EpisodeAspect.ASPECT_ID))
+          {
+            episodeSearchinfo = new EpisodeInfo();
+            episodeSearchinfo.FromMetadata(searchAspectData);
+          }
+          else if (searchAspectData.ContainsKey(SeriesAspect.ASPECT_ID))
+          {
+            seriesSearchinfo = new SeriesInfo();
+            seriesSearchinfo.FromMetadata(searchAspectData);
+          }
+        }
+
+        //Perform online search
+        if (episodeSearchinfo != null)
+        {
+          var matches = await OnlineMatcherService.Instance.FindMatchingEpisodesAsync(episodeSearchinfo);
+          foreach (var match in matches)
+          {
+            var result = new MediaItemSearchResult
+            {
+              Name = $"{match.SeriesName}{(match.SeriesFirstAired == null || match.SeriesName.Text.EndsWith($"({match.SeriesFirstAired.Value.Year})") ? "" : $" ({match.SeriesFirstAired.Value.Year})")}" +
+                $" S{(match.SeasonNumber.HasValue ? match.SeasonNumber.Value.ToString("00") : "??")}{(match.EpisodeNumbers.Count > 0 ? string.Join("", match.EpisodeNumbers.Select(e => "E" + e.ToString("00"))) : "E??")}" +
+                $"{(match.EpisodeName.IsEmpty ? "" : $": {match.EpisodeName.Text}")}",
+              Description = match.Summary.IsEmpty ? "" : match.Summary.Text,
+            };
+
+            //Add external Ids
+            if (match.TvdbId > 0)
+              result.ExternalIds.Add("thetvdb.com", match.TvdbId.ToString());
+            if (!string.IsNullOrEmpty(match.ImdbId))
+              result.ExternalIds.Add("imdb.com", match.ImdbId);
+            if (match.MovieDbId > 0)
+              result.ExternalIds.Add("themoviedb.org", match.MovieDbId.ToString());
+
+            //Assign aspects and remove unwanted aspects
+            match.SetMetadata(result.AspectData, true);
+            CleanReimportAspects(result.AspectData);
+
+            searchResults.Add(result);
+          }
+          return searchResults;
+        }
+        else if (seriesSearchinfo != null)
+        {
+          var matches = await OnlineMatcherService.Instance.FindMatchingSeriesAsync(seriesSearchinfo);
+          foreach (var match in matches)
+          {
+            var result = new MediaItemSearchResult
+            {
+              Name = $"{match.SeriesName}{(match.FirstAired == null || match.SeriesName.Text.EndsWith($"({match.FirstAired.Value.Year})") ? "" : $" ({match.FirstAired.Value.Year})")}",
+              Description = match.Description.IsEmpty ? "" : match.Description.Text,
+            };
+
+            //Add external Ids
+            if (match.TvdbId > 0)
+              result.ExternalIds.Add("thetvdb.com", match.TvdbId.ToString());
+            if (!string.IsNullOrEmpty(match.ImdbId))
+              result.ExternalIds.Add("imdb.com", match.ImdbId);
+            if (match.MovieDbId > 0)
+              result.ExternalIds.Add("themoviedb.org", match.MovieDbId.ToString());
+
+            //Assign aspects and remove unwanted aspects
+            match.SetMetadata(result.AspectData, true);
+            CleanReimportAspects(result.AspectData);
+
+            searchResults.Add(result);
+          }
+          return searchResults;
+        }
+      }
+      catch (Exception e)
+      {
+        ServiceRegistration.Get<ILogger>().Info("SeriesMetadataExtractor: Exception searching for matches (Text: '{0}')", e.Message);
+      }
+      return null;
+    }
+
+    public async Task<bool> AddMatchedAspectDetailsAsync(IDictionary<Guid, IList<MediaItemAspect>> matchedAspectData)
+    {
+      try
+      {
+        if (matchedAspectData.ContainsKey(EpisodeAspect.ASPECT_ID))
+        {
+          EpisodeInfo info = new EpisodeInfo();
+          info.FromMetadata(matchedAspectData);
+          await OnlineMatcherService.Instance.FindAndUpdateEpisodeAsync(info);
+          info.SetMetadata(matchedAspectData, true);
+          CleanReimportAspects(matchedAspectData);
+          return true;
+        }
+        else if (matchedAspectData.ContainsKey(SeriesAspect.ASPECT_ID))
+        {
+          SeriesInfo info = new SeriesInfo();
+          info.FromMetadata(matchedAspectData);
+          await OnlineMatcherService.Instance.UpdateSeriesAsync(info, false);
+          info.SetMetadata(matchedAspectData, true);
+          CleanReimportAspects(matchedAspectData);
+          return true;
+        }
+      }
+      catch (Exception e)
+      {
+        ServiceRegistration.Get<ILogger>().Info("SeriesMetadataExtractor: Exception adding match details (Text: '{0}')", e.Message);
+      }
+      return false;
+    }
+
+    private void CleanReimportAspects(IDictionary<Guid, IList<MediaItemAspect>> aspectData)
+    {
+      IEnumerable<Guid> reimportAspects = new Guid[] { ExternalIdentifierAspect.ASPECT_ID, MediaAspect.ASPECT_ID,
+        SeriesAspect.ASPECT_ID, EpisodeAspect.ASPECT_ID, VideoAspect.ASPECT_ID, ReimportAspect.ASPECT_ID, GenreAspect.ASPECT_ID };
+      foreach (var aspect in aspectData.Where(a => !reimportAspects.Contains(a.Key)).ToList())
+        aspectData.Remove(aspect.Key);
     }
 
     #endregion

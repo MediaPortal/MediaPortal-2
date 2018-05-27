@@ -88,6 +88,10 @@
       <Project>{65cf3575-ac34-4e46-92c3-84e6eda9bacd}</Project>
       <Name>GDIThumbnailProvider</Name>
     </ProjectReference>
+    <ProjectReference Include="..\..\Source\Extensions\MetadataExtractors\GenreProvider\GenreProvider.csproj">
+      <Project>{1973ad5b-ef7e-41da-a668-58ac37e1154e}</Project>
+      <Name>GenreProvider</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\Source\Extensions\MetadataExtractors\WICThumbnailProvider\WICThumbnailProvider.csproj">
       <Project>{7f790d8d-3a5a-499f-b9d3-8d9a1ef4f73a}</Project>
       <Name>WICThumbnailProvider</Name>

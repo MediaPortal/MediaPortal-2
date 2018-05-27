@@ -81,7 +81,7 @@ namespace MediaPortal.UiComponents.Media.Models.ScreenData
     {
       _messageQueue = new AsynchronousMessageQueue(this, new string[]
         {
-            ContentDirectoryMessaging.CHANNEL
+            ContentDirectoryMessaging.CHANNEL,
         });
       _messageQueue.MessageReceived += OnMessageReceived;
       _messageQueue.Start();
@@ -106,6 +106,9 @@ namespace MediaPortal.UiComponents.Media.Models.ScreenData
             MediaItem mediaItem = (MediaItem)message.MessageData[ContentDirectoryMessaging.MEDIA_ITEM];
             ContentDirectoryMessaging.MediaItemChangeType changeType = (ContentDirectoryMessaging.MediaItemChangeType)message.MessageData[ContentDirectoryMessaging.MEDIA_ITEM_CHANGE_TYPE];
             UpdateLoadedMediaItems(mediaItem, changeType);
+            break;
+          case ContentDirectoryMessaging.MessageType.ShareImportCompleted:
+            Reload();
             break;
         }
       }
@@ -229,10 +232,7 @@ namespace MediaPortal.UiComponents.Media.Models.ScreenData
         {
           PlayableMediaItem existingItem = _items.OfType<PlayableMediaItem>().FirstOrDefault(pmi => pmi.MediaItem.Equals(mediaItem));
           if (existingItem != null)
-          {
             existingItem.Update(mediaItem);
-            Reload();
-          }
         }
       }
       if (changed)

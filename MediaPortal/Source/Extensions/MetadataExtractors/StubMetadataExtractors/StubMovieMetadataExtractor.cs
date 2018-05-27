@@ -200,6 +200,16 @@ namespace MediaPortal.Extensions.MetadataExtractors.StubMetadataExtractors
       return false;
     }
 
+    public Task<IList<MediaItemSearchResult>> SearchForMatchesAsync(IDictionary<Guid, IList<MediaItemAspect>> searchAspectData, ICollection<string> searchCategories)
+    {
+      return Task.FromResult<IList<MediaItemSearchResult>>(null);
+    }
+
+    public Task<bool> AddMatchedAspectDetailsAsync(IDictionary<Guid, IList<MediaItemAspect>> matchedAspectData)
+    {
+      return Task.FromResult(false);
+    }
+
     public bool IsStubResource(IResourceAccessor mediaItemAccessor)
     {
       if (IsDvd(mediaItemAccessor))
