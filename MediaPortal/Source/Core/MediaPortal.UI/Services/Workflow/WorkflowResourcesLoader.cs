@@ -311,6 +311,7 @@ namespace MediaPortal.UI.Services.Workflow
       string sourceStates = null;
       string contributorModel = null;
       string restrictionGroup = null;
+      string group = null; // Group definition for filtering actions
       XPathNavigator attrNav = actionNav.Clone();
       if (attrNav.MoveToFirstAttribute())
         do
@@ -344,6 +345,9 @@ namespace MediaPortal.UI.Services.Workflow
             case "RestrictionGroup":
               SetValueAndRegister(ref restrictionGroup, attrNav.Value);
               break;
+            case "Group":
+              group = attrNav.Value;
+              break;
             default:
               throw new ArgumentException("'" + actionNav.Name + "' element doesn't support an attribute '" + attrNav.Name + "'");
           }
@@ -361,7 +365,8 @@ namespace MediaPortal.UI.Services.Workflow
         {
             DisplayCategory = displayCategory,
             SortOrder = sortOrder,
-            RestrictionGroup = restrictionGroup
+            RestrictionGroup = restrictionGroup,
+            Group = group
       };
       return result;
     }

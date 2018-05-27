@@ -52,7 +52,7 @@ namespace MediaPortal.Database.SQLite
   /// (such as MSSQLCE with a maximum database size of 2GB). The limitations of SQLite are much less
   /// restrictive (e.g. a maximum database size of about 140TB, for details see http://www.sqlite.org/limits.html)
   /// </remarks>
-  public class SQLiteDatabase : ISQLDatabasePaging, IDisposable
+  public class SQLiteDatabase : ISQLDatabasePaging, ISQLDatabaseStorage, IDisposable
   {
     #region Constants
 
@@ -70,21 +70,31 @@ namespace MediaPortal.Database.SQLite
     private readonly ILogger _sqliteDebugLogger;
     private readonly AsynchronousMessageQueue _messageQueue;
     private readonly ActionBlock<bool> _maintenanceScheduler;
+    private readonly ICollection<Guid> _importingShareIds;
 
     #endregion
 
     #region Constructors/Destructors
 
     public SQLiteDatabase()
+      : this(false)
+    {
+    }
+    /// <summary>
+    /// Creates a new SQLiteDatabase instance.
+    /// </summary>
+    /// <param name="skipUpgrades"><c>true</c> to skip version check and use the database as it is.</param>
+    public SQLiteDatabase(bool skipUpgrades)
     {
       VersionUpgrade upgrade = new VersionUpgrade();
-      if (!upgrade.Upgrade())
+      if (!skipUpgrades && !upgrade.Upgrade())
       {
         ServiceRegistration.Get<ILogger>().Warn("SQLiteDatabase: Could not upgrade existing database");
       }
 
       try
       {
+        _importingShareIds = new HashSet<Guid>();
         _maintenanceScheduler = new ActionBlock<bool>(async _ => await PerformDatabaseMaintenanceAsync(), new ExecutionDataflowBlockOptions { BoundedCapacity = 2 });
         _messageQueue = new AsynchronousMessageQueue(this, new[] { ContentDirectoryMessaging.CHANNEL });
         _messageQueue.MessageReceived += OnMessageReceived;
@@ -102,10 +112,6 @@ namespace MediaPortal.Database.SQLite
           SQLiteLog.RemoveDefaultHandler();
           SQLiteLog.Log += MPSQLiteLogEventHandler;
         }
-
-        // We use our own collation sequence which is registered here to be able
-        // to sort items taking into account culture specifics
-        SQLiteFunction.RegisterFunction(typeof(SQLiteCultureSensitiveCollation));
 
         var pathManager = ServiceRegistration.Get<IPathManager>();
         string dataDirectory = pathManager.GetPath("<DATABASE>");
@@ -149,7 +155,11 @@ namespace MediaPortal.Database.SQLite
 
           // Do not use the inbuilt connection pooling of System.Data.SQLite
           // We use our own connection pool which is faster.
+#if NO_POOL
+          Pooling = true,
+#else
           Pooling = false,
+#endif
 
           // Sychronization Mode "Normal" enables parallel database access while at the same time preventing database
           // corruption and is therefore a good compromise between "Off" (more performance) and "On"
@@ -253,7 +263,7 @@ namespace MediaPortal.Database.SQLite
     /// InitializationCommand via ExecuteNonQuery()
     /// </summary>
     /// <returns>Newly created and initialized <see cref="SQLiteConnection"/></returns>
-    internal SQLiteConnection CreateOpenAndInitializeConnection()
+    public SQLiteConnection CreateOpenAndInitializeConnection()
     {
       var connection = new SQLiteConnection(_connectionString);
       connection.Open();
@@ -311,9 +321,15 @@ namespace MediaPortal.Database.SQLite
       var messageType = (ContentDirectoryMessaging.MessageType)message.MessageType;
       switch (messageType)
       {
+        case ContentDirectoryMessaging.MessageType.ShareImportStarted:
+          // Count all importing shares to know if all are finished before we run the maintenance task
+          _importingShareIds.Add((Guid)message.MessageData[ContentDirectoryMessaging.SHARE_ID]);
+          break;
         case ContentDirectoryMessaging.MessageType.ShareImportCompleted:
-          if (!_maintenanceScheduler.Post(true))
-            ServiceRegistration.Get<ILogger>().Info("SQLiteDatabase: Skipping additional database maintenance. There is already a maintenance run in the works and another one scheduled.");
+          _importingShareIds.Remove((Guid)message.MessageData[ContentDirectoryMessaging.SHARE_ID]);
+          if (_importingShareIds.Count == 0)
+            if (!_maintenanceScheduler.Post(true))
+              ServiceRegistration.Get<ILogger>().Info("SQLiteDatabase: Skipping additional database maintenance. There is already a maintenance run in the works and another one scheduled.");
           break;
       }
     }
@@ -513,6 +529,17 @@ namespace MediaPortal.Database.SQLite
       // a TEXT value and SQLite refuses to convert TEXT to INT without an
       // explicit CAST.
       return "CAST(strftime('%Y', " + selectExpression + ") AS INTEGER)";
+    }
+
+    public string GetStorageClause(string statementStr)
+    {
+      // We can only append the "WITHOUT ROWID" to tables that are defining a primary key inside the "CREATE TABLE" statement.
+      if (string.IsNullOrEmpty(statementStr)
+        || statementStr.IndexOf("create table", StringComparison.InvariantCultureIgnoreCase) == -1
+        || statementStr.IndexOf("primary key", StringComparison.InvariantCultureIgnoreCase) == -1)
+        return null;
+
+      return " WITHOUT ROWID";
     }
 
     public bool Process(ref string statementStr, ref IList<BindVar> bindVars, ref uint? offset, ref uint? limit)

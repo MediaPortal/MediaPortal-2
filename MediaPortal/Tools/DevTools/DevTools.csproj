@@ -78,7 +78,7 @@
       <Name>MediaPortal.Common</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\Source\Core\MediaPortal.Utilities\MediaPortal.Utilities.csproj">
-      <Project>{4fe7b8ae-1330-424a-91a1-c68d7abf9cb8}</Project>
+      <Project>{4FE7B8AE-1330-424A-91A1-C68D7ABF9CB8}</Project>
       <Name>MediaPortal.Utilities</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\Source\Core\UPnP\UPnP.csproj">
@@ -95,10 +95,10 @@
       <Version>4.5.24</Version>
     </PackageReference>
     <PackageReference Include="System.Data.SQLite.Core">
-      <Version>1.0.104</Version>
+      <Version>1.0.108</Version>
     </PackageReference>
     <PackageReference Include="System.Data.SQLite.Linq">
-      <Version>1.0.104</Version>
+      <Version>1.0.108</Version>
     </PackageReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

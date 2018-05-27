@@ -986,12 +986,14 @@ namespace MediaPortal.Backend.Services.MediaLibrary
 
               using (IDbCommand command = transaction.CreateCommand())
               {
-                command.CommandText = "CREATE TABLE " + collectionAttributeTableName + " (" +
+                var sql = "CREATE TABLE " + collectionAttributeTableName + " (" +
                     FOREIGN_COLL_ATTR_ID_COL_NAME + " " + database.GetSQLType(typeof(Guid)) + ", " +
                     COLL_ATTR_VALUE_COL_NAME + " " + sqlType + ", " +
                     COLL_ATTR_VALUE_ORDER_COL_NAME + " " + database.GetSQLType(typeof(int)) + ", " +
                     "CONSTRAINT " + pkConstraintName + " PRIMARY KEY (" + FOREIGN_COLL_ATTR_ID_COL_NAME + ")" +
                     ")";
+                DatabaseManager.AppendStorageClause(database, ref sql);
+                command.CommandText = sql;
                 ServiceRegistration.Get<ILogger>().Debug("MIA_Management: Creating MTO table '{0}' for attribute '{1}' in media item aspect '{2}'",
                     collectionAttributeTableName, spec.AttributeName, miam.AspectId);
                 command.ExecuteNonQuery();
@@ -1080,7 +1082,10 @@ namespace MediaPortal.Backend.Services.MediaLibrary
         mainStatementBuilder.Append(")");
         using (IDbCommand command = transaction.CreateCommand())
         {
-          command.CommandText = mainStatementBuilder.ToString();
+          var sql = mainStatementBuilder.ToString();
+          DatabaseManager.AppendStorageClause(database, ref sql);
+          command.CommandText = sql;
+
           ServiceRegistration.Get<ILogger>().Debug(
               "MIA_Management: Creating main table '{0}' for media item aspect '{1}'", miaTableName, miam.AspectId);
           command.ExecuteNonQuery();
@@ -1127,7 +1132,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
 
               using (IDbCommand command = transaction.CreateCommand())
               {
-                command.CommandText = "CREATE TABLE " + collectionAttributeTableName + " (" +
+                var sql = "CREATE TABLE " + collectionAttributeTableName + " (" +
                     MIA_MEDIA_ITEM_ID_COL_NAME + " " + database.GetSQLType(typeof(Guid)) + ", " +
                     COLL_ATTR_VALUE_COL_NAME + " " + sqlType + ", " +
                     COLL_ATTR_VALUE_ORDER_COL_NAME + " " + database.GetSQLType(typeof(int)) + ", " +
@@ -1136,6 +1141,8 @@ namespace MediaPortal.Backend.Services.MediaLibrary
                     " FOREIGN KEY (" + MIA_MEDIA_ITEM_ID_COL_NAME + ")" +
                     " REFERENCES " + MediaLibrary_SubSchema.MEDIA_ITEMS_TABLE_NAME + " (" + MediaLibrary_SubSchema.MEDIA_ITEMS_ITEM_ID_COL_NAME + ") ON DELETE CASCADE" +
                     ")";
+                DatabaseManager.AppendStorageClause(database, ref sql);
+                command.CommandText = sql;
                 ServiceRegistration.Get<ILogger>().Debug(
                     "MIA_Management: Creating OTM table '{0}' for attribute '{1}' in media item aspect '{2}'",
                     collectionAttributeTableName, spec.AttributeName, miam.AspectId);
@@ -1209,11 +1216,13 @@ namespace MediaPortal.Backend.Services.MediaLibrary
 
               using (IDbCommand command = transaction.CreateCommand())
               {
-                command.CommandText = "CREATE TABLE " + collectionAttributeTableName + " (" +
+                var sql = "CREATE TABLE " + collectionAttributeTableName + " (" +
                     FOREIGN_COLL_ATTR_ID_COL_NAME + " " + database.GetSQLType(typeof(Guid)) + ", " +
                     COLL_ATTR_VALUE_COL_NAME + " " + sqlType + ", " +
                     COLL_ATTR_VALUE_ORDER_COL_NAME + " " + database.GetSQLType(typeof(int)) + ", " +
                     "CONSTRAINT " + pkConstraintName + " PRIMARY KEY (" + FOREIGN_COLL_ATTR_ID_COL_NAME + ")" + ")";
+                DatabaseManager.AppendStorageClause(database, ref sql);
+                command.CommandText = sql;
                 ServiceRegistration.Get<ILogger>().Debug(
                     "MIA_Management: Creating MTM value table '{0}' for attribute '{1}' in media item aspect '{2}'",
                     collectionAttributeTableName, spec.AttributeName, miam.AspectId);
@@ -1222,7 +1231,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
 
               using (IDbCommand command = transaction.CreateCommand())
               {
-                command.CommandText = "CREATE TABLE " + nmTableName + " (" +
+                var sql = "CREATE TABLE " + nmTableName + " (" +
                     MIA_MEDIA_ITEM_ID_COL_NAME + " " + database.GetSQLType(typeof(Guid)) + ", " +
                     FOREIGN_COLL_ATTR_ID_COL_NAME + " " + database.GetSQLType(typeof(Guid)) + ", " +
                     COLL_ATTR_VALUE_ORDER_COL_NAME + " " + database.GetSQLType(typeof(int)) + ", " +
@@ -1232,6 +1241,8 @@ namespace MediaPortal.Backend.Services.MediaLibrary
                     "CONSTRAINT " + fkForeignTableConstraintName + " FOREIGN KEY (" + FOREIGN_COLL_ATTR_ID_COL_NAME + ")" +
                     " REFERENCES " + collectionAttributeTableName + " (" + FOREIGN_COLL_ATTR_ID_COL_NAME + ") ON DELETE CASCADE" +
                     ")";
+                DatabaseManager.AppendStorageClause(database, ref sql);
+                command.CommandText = sql;
                 ServiceRegistration.Get<ILogger>().Debug(
                     "MIA_Management: Creating N:M table '{0}' for MTM attribute '{1}' in media item aspect '{2}'",
                     nmTableName, spec.AttributeName, miam.AspectId);

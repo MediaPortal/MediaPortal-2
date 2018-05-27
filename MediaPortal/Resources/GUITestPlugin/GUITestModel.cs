@@ -135,7 +135,7 @@ namespace MediaPortal.Test.GUITest
     public void ShowScreenInTransientState(string screen)
     {
       IWorkflowManager workflowManager = ServiceRegistration.Get<IWorkflowManager>();
-      workflowManager.NavigatePushTransient(new WorkflowState(Guid.NewGuid(), screen, screen, true, screen, false, true, ModelId, WorkflowType.Workflow), null);
+      workflowManager.NavigatePushTransient(new WorkflowState(Guid.NewGuid(), screen, screen, true, screen, false, true, ModelId, WorkflowType.Workflow, null), null);
     }
 
     public void RoutedEventHandler(object sender, MouseButtonEventArgs e)
