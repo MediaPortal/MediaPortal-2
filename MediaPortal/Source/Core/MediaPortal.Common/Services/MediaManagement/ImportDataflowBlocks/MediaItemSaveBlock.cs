@@ -49,12 +49,6 @@ namespace MediaPortal.Common.Services.MediaManagement.ImportDataflowBlocks
 
     #endregion
 
-    #region Variables
-
-    private readonly CancellationToken _ct;
-
-    #endregion
-
     #region Constructor
 
     /// <summary>
@@ -74,9 +68,8 @@ namespace MediaPortal.Common.Services.MediaManagement.ImportDataflowBlocks
       new ExecutionDataflowBlockOptions { CancellationToken = ct, BoundedCapacity = 1 },
       new ExecutionDataflowBlockOptions { CancellationToken = ct, BoundedCapacity = 50 },
       new ExecutionDataflowBlockOptions { CancellationToken = ct, BoundedCapacity = 1 },
-      BLOCK_NAME, false, parentImportJobController)
+      BLOCK_NAME, false, parentImportJobController, ct)
     {
-      _ct = ct;
     }
 
     #endregion
@@ -99,9 +92,9 @@ namespace MediaPortal.Common.Services.MediaManagement.ImportDataflowBlocks
       {
         // ReSharper disable once PossibleInvalidOperationException
         if(importResource.MediaItemId.HasValue)
-          importResource.MediaItemId = await UpdateMediaItem(importResource.ParentDirectoryId.Value, importResource.PendingResourcePath, importResource.MediaItemId.Value, MediaItemAspect.GetAspects(importResource.Aspects), ImportJobInformation, true, _ct).ConfigureAwait(false);
+          importResource.MediaItemId = await UpdateMediaItem(importResource.ParentDirectoryId.Value, importResource.PendingResourcePath, importResource.MediaItemId.Value, MediaItemAspect.GetAspects(importResource.Aspects), ImportJobInformation, true).ConfigureAwait(false);
         else
-          importResource.MediaItemId = await UpdateMediaItem(importResource.ParentDirectoryId.Value, importResource.PendingResourcePath, MediaItemAspect.GetAspects(importResource.Aspects), ImportJobInformation, false, _ct).ConfigureAwait(false);
+          importResource.MediaItemId = await UpdateMediaItem(importResource.ParentDirectoryId.Value, importResource.PendingResourcePath, MediaItemAspect.GetAspects(importResource.Aspects), ImportJobInformation, false).ConfigureAwait(false);
 
         if (ImportJobInformation.JobType == ImportJobType.Refresh)
         {

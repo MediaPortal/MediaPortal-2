@@ -74,7 +74,7 @@ namespace MediaPortal.Common.Services.MediaManagement.ImportDataflowBlocks
       new ExecutionDataflowBlockOptions { CancellationToken = ct },
       new ExecutionDataflowBlockOptions { CancellationToken = ct, BoundedCapacity = 1 },
       new ExecutionDataflowBlockOptions { CancellationToken = ct },
-      BLOCK_NAME, true, parentImportJobController)
+      BLOCK_NAME, true, parentImportJobController, ct)
     {
     }
 

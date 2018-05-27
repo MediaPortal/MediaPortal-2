@@ -47,6 +47,7 @@ using MediaPortal.Utilities.DB;
 using MediaPortal.Utilities.Exceptions;
 using MediaPortal.Utilities.Threading;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Data;
 using System.Diagnostics;
@@ -168,11 +169,17 @@ namespace MediaPortal.Backend.Services.MediaLibrary
       {
         try
         {
-          using (var lck = await _parent.RequestImporterAccessAsync())
+          using (var access = await _parent.RequestImporterAccessAsync())
           {
-            lock (_parent.GetResourcePathLock(basePath))
+            var lck = _parent.GetResourcePathLock(basePath);
+            try
             {
+              lck.EnterReadLock();
               return _parent.AddOrUpdateMediaItem(parentDirectoryId, _parent.LocalSystemId, path, null, null, updatedAspects, isRefresh);
+            }
+            finally
+            {
+              lck.ExitReadLock();
             }
           }
         }
@@ -186,11 +193,17 @@ namespace MediaPortal.Backend.Services.MediaLibrary
       {
         try
         {
-          using (var lck = await _parent.RequestImporterAccessAsync())
+          using (var access = await _parent.RequestImporterAccessAsync())
           {
-            lock (_parent.GetResourcePathLock(basePath))
+            var lck = _parent.GetResourcePathLock(basePath);
+            try
             {
+              lck.EnterReadLock();
               return _parent.AddOrUpdateMediaItem(parentDirectoryId, _parent.LocalSystemId, path, mediaItemId, null, updatedAspects, isRefresh);
+            }
+            finally
+            {
+              lck.ExitReadLock();
             }
           }
         }
@@ -376,7 +389,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
     protected bool _shutdown = false;
     protected readonly Dictionary<Guid, ShareWatcher> _shareWatchers = new Dictionary<Guid, ShareWatcher>();
     // Should be accessed only by GetResourcePathLock
-    private readonly Dictionary<ResourcePath, object> _shareDeleteSync = new Dictionary<ResourcePath, object>();
+    private readonly ConcurrentDictionary<ResourcePath, ReaderWriterLockSlim> _shareDeleteSync = new ConcurrentDictionary<ResourcePath, ReaderWriterLockSlim>();
     protected object _shareImportSync = new object();
     protected Dictionary<Guid, ShareImportState> _shareImportStates = new Dictionary<Guid, ShareImportState>();
     protected object _shareImportCacheSync = new object();
@@ -398,7 +411,8 @@ namespace MediaPortal.Backend.Services.MediaLibrary
       _messageQueue = new AsynchronousMessageQueue(this, new string[]
         {
             ImporterWorkerMessaging.CHANNEL,
-            ContentDirectoryMessaging.CHANNEL
+            ContentDirectoryMessaging.CHANNEL,
+            ClientManagerMessaging.CHANNEL
         });
       _messageQueue.MessageReceived += OnMessageReceived;
       _messageQueue.Start();
@@ -449,14 +463,24 @@ namespace MediaPortal.Backend.Services.MediaLibrary
             break;
         }
       }
-
-      if (message.ChannelName == ImporterWorkerMessaging.CHANNEL)
+      else if (message.ChannelName == ClientManagerMessaging.CHANNEL)
+      {
+        ClientManagerMessaging.MessageType messageType = (ClientManagerMessaging.MessageType)message.MessageType;
+        switch (messageType)
+        {
+          case ClientManagerMessaging.MessageType.ClientOnline:
+            UpdateServerState();
+            break;
+        }
+      }
+      else if (message.ChannelName == ImporterWorkerMessaging.CHANNEL)
       {
         ImporterWorkerMessaging.MessageType messageType = (ImporterWorkerMessaging.MessageType)message.MessageType;
         switch (messageType)
         {
           case ImporterWorkerMessaging.MessageType.ImportStarted:
           case ImporterWorkerMessaging.MessageType.ImportCompleted:
+          case ImporterWorkerMessaging.MessageType.ImportScheduleCanceled:
             {
               ResourcePath path = (ResourcePath)message.MessageData[ImporterWorkerMessaging.RESOURCE_PATH];
               Share share = null;
@@ -568,14 +592,9 @@ namespace MediaPortal.Backend.Services.MediaLibrary
 
     #region Protected methods
 
-    protected object GetResourcePathLock(ResourcePath path)
+    protected ReaderWriterLockSlim GetResourcePathLock(ResourcePath path)
     {
-      lock (_syncObj)
-      {
-        if (!_shareDeleteSync.ContainsKey(path))
-          _shareDeleteSync.Add(path, new object());
-        return _shareDeleteSync[path];
-      }
+      return _shareDeleteSync.AddOrUpdate(path, new ReaderWriterLockSlim(), (p, v) => v);
     }
 
     protected MediaItemQuery BuildLoadItemQuery(string systemId, ResourcePath path)
@@ -1197,10 +1216,10 @@ namespace MediaPortal.Backend.Services.MediaLibrary
     {
       try
       {
+        Stopwatch swImport = new Stopwatch();
+        swImport.Start();
         lock (_syncObj)
         {
-          Stopwatch swImport = new Stopwatch();
-          swImport.Start();
           ISQLDatabase database = ServiceRegistration.Get<ISQLDatabase>();
           IMediaAccessor mediaAccessor = ServiceRegistration.Get<IMediaAccessor>();
           List<Guid> requiredAspects = new List<Guid>(new Guid[] { MediaAspect.ASPECT_ID });
@@ -1860,7 +1879,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
             {
               //new item, add it
               linkedId = NewMediaItemId();
-              Logger.Debug("Adding new media item for extracted item {0}", linkedId);
+              Logger.Debug("MediaLibrary: Adding new media item for extracted item {0}", linkedId);
               IEnumerable<MediaItemAspect> extractedAspects = MediaItemAspect.GetAspects(item.Aspects);
               MediaItemAspect pra = CreateProviderResourceAspect(Guid.Empty, _localSystemId, VirtualResourceProvider.ToResourcePath(linkedId));
               linkedId = AddOrUpdateMediaItem(database, transaction, pra, linkedId, extractedAspects, true);
@@ -2840,31 +2859,32 @@ namespace MediaPortal.Backend.Services.MediaLibrary
       Share share = GetShare(shareId);
       TryCancelLocalImportJobs(share);
 
-      lock (GetResourcePathLock(share.BaseResourcePath))
+      var read = GetResourcePathLock(share.BaseResourcePath);
+      read.EnterWriteLock();
+      ISQLDatabase database = ServiceRegistration.Get<ISQLDatabase>();
+      ITransaction transaction = database.BeginTransaction();
+      try
       {
-        ISQLDatabase database = ServiceRegistration.Get<ISQLDatabase>();
-        ITransaction transaction = database.BeginTransaction();
-        try
-        {
-          using (IDbCommand command = MediaLibrary_SubSchema.DeleteSharesCommand(transaction, new Guid[] { shareId }))
-            command.ExecuteNonQuery();
+        using (IDbCommand command = MediaLibrary_SubSchema.DeleteSharesCommand(transaction, new Guid[] { shareId }))
+          command.ExecuteNonQuery();
 
-          _relationshipManagement.DeletePathAndRelationships(transaction, share.SystemId, share.BaseResourcePath, true);
+        _relationshipManagement.DeletePathAndRelationships(transaction, share.SystemId, share.BaseResourcePath, true);
 
-          transaction.Commit();
+        transaction.Commit();
 
-          MediaLibraryMessaging.SendMediaItemsDeletedMessage();
-          ContentDirectoryMessaging.SendRegisteredSharesChangedMessage();
-        }
-        catch (Exception e)
-        {
-          Logger.Error("MediaLibrary: Error removing share '{0}'", e, shareId);
-          transaction.Rollback();
-          throw;
-        }
+        MediaLibraryMessaging.SendMediaItemsDeletedMessage();
+        ContentDirectoryMessaging.SendRegisteredSharesChangedMessage();
       }
-      lock (_syncObj)
-        _shareDeleteSync.Remove(share.BaseResourcePath);
+      catch (Exception e)
+      {
+        Logger.Error("MediaLibrary: Error removing share '{0}'", e, shareId);
+        transaction.Rollback();
+        throw;
+      }
+      finally
+      {
+        read.ExitWriteLock();
+      }
       Logger.Info("MediaLibrary: Share '{0}' removed ({1} ms)", shareId, swDelete.ElapsedMilliseconds);
     }
 

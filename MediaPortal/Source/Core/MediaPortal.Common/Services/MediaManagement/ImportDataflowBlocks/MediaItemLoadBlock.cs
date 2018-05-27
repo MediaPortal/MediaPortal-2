@@ -77,7 +77,7 @@ namespace MediaPortal.Common.Services.MediaManagement.ImportDataflowBlocks
       new ExecutionDataflowBlockOptions { CancellationToken = ct },
       new ExecutionDataflowBlockOptions { CancellationToken = ct, BoundedCapacity = 500 },
       new ExecutionDataflowBlockOptions { CancellationToken = ct, BoundedCapacity = 1 },
-      BLOCK_NAME, false, parentImportJobController)
+      BLOCK_NAME, false, parentImportJobController, ct)
     {
       _mostRecentMiaCreationDate = new Lazy<Task<DateTime>>(GetMostRecentMiaCreationDate);
     }

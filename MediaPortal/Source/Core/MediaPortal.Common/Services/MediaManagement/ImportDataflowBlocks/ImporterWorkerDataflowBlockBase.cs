@@ -129,6 +129,8 @@ namespace MediaPortal.Common.Services.MediaManagement.ImportDataflowBlocks
     private IMediaBrowsing _mediaBrowsingCallback;
     private IImportResultHandler _importResultHandler;
 
+    protected readonly CancellationToken _ct;
+
     protected readonly ImportJobInformation ImportJobInformation;
     protected readonly ExecutionDataflowBlockOptions InputBlockOptions;
     protected readonly ExecutionDataflowBlockOptions InnerBlockOptions;
@@ -156,10 +158,11 @@ namespace MediaPortal.Common.Services.MediaManagement.ImportDataflowBlocks
     /// this block. If <c>false</c>, they are restored to the last passed DataflowBlock having this parameter set to <c>true</c>
     /// </param>
     /// <param name="parentImportJobController">ImportJobController to which this DataflowBlock belongs</param>
-    protected ImporterWorkerDataflowBlockBase(ImportJobInformation importJobInformation, ExecutionDataflowBlockOptions inputBlockOptions, ExecutionDataflowBlockOptions innerBlockOptions, ExecutionDataflowBlockOptions outputBlockOptions, String blockname, bool isRestorePointAfterDeserialization, ImportJobController parentImportJobController)
+    protected ImporterWorkerDataflowBlockBase(ImportJobInformation importJobInformation, ExecutionDataflowBlockOptions inputBlockOptions, ExecutionDataflowBlockOptions innerBlockOptions, ExecutionDataflowBlockOptions outputBlockOptions, String blockname, bool isRestorePointAfterDeserialization, ImportJobController parentImportJobController, CancellationToken ct)
     {
       _blockName = blockname;
       _isRestorePointAfterDeserialization = isRestorePointAfterDeserialization;
+      _ct = ct;
       ImportJobInformation = importJobInformation;
       InputBlockOptions = inputBlockOptions;
       InnerBlockOptions = innerBlockOptions;
@@ -282,6 +285,17 @@ namespace MediaPortal.Common.Services.MediaManagement.ImportDataflowBlocks
       }
     }
 
+    private async Task MedialibraryDisconnectedSuspend()
+    {
+      if (_ct != null && _ct.IsCancellationRequested)
+      {
+        ServiceRegistration.Get<ILogger>().Debug("ImporterWorker.{0}.{1}: Suspension was requested although it is already being canceled", ParentImportJobController, _blockName);
+        throw new TaskCanceledException("ImporterWorker: Import was canceled");
+      }
+      ServiceRegistration.Get<ILogger>().Info("ImporterWorker.{0}.{1}: MediaLibrary disconnected. Requesting suspension...", ParentImportJobController, _blockName);
+      await ParentImportJobController.ParentImporterWorker.RequestAction(new ImporterWorkerAction(ImporterWorkerAction.ActionType.Suspend));
+    }
+
     #endregion
 
     #region Protected methods
@@ -299,8 +313,7 @@ namespace MediaPortal.Common.Services.MediaManagement.ImportDataflowBlocks
         }
         catch (DisconnectedException)
         {
-          ServiceRegistration.Get<ILogger>().Info("ImporterWorker.{0}.{1}: MediaLibrary disconnected. Requesting suspension...", ParentImportJobController, _blockName);
-          await ParentImportJobController.ParentImporterWorker.RequestAction(new ImporterWorkerAction(ImporterWorkerAction.ActionType.Suspend));
+          await MedialibraryDisconnectedSuspend();
         }
       }
     }
@@ -318,8 +331,7 @@ namespace MediaPortal.Common.Services.MediaManagement.ImportDataflowBlocks
         }
         catch (DisconnectedException)
         {
-          ServiceRegistration.Get<ILogger>().Info("ImporterWorker.{0}.{1}: MediaLibrary disconnected. Requesting suspension...", ParentImportJobController, _blockName);
-          await ParentImportJobController.ParentImporterWorker.RequestAction(new ImporterWorkerAction(ImporterWorkerAction.ActionType.Suspend));
+          await MedialibraryDisconnectedSuspend();
         }
       }
     }
@@ -337,8 +349,7 @@ namespace MediaPortal.Common.Services.MediaManagement.ImportDataflowBlocks
         }
         catch (DisconnectedException)
         {
-          ServiceRegistration.Get<ILogger>().Info("ImporterWorker.{0}.{1}: MediaLibrary disconnected. Requesting suspension...", ParentImportJobController, _blockName);
-          await ParentImportJobController.ParentImporterWorker.RequestAction(new ImporterWorkerAction(ImporterWorkerAction.ActionType.Suspend));
+          await MedialibraryDisconnectedSuspend();
         }
       }
     }
@@ -354,8 +365,7 @@ namespace MediaPortal.Common.Services.MediaManagement.ImportDataflowBlocks
         }
         catch (DisconnectedException)
         {
-          ServiceRegistration.Get<ILogger>().Info("ImporterWorker.{0}.{1}: MediaLibrary disconnected. Requesting suspension...", ParentImportJobController, _blockName);
-          await ParentImportJobController.ParentImporterWorker.RequestAction(new ImporterWorkerAction(ImporterWorkerAction.ActionType.Suspend));
+          await MedialibraryDisconnectedSuspend();
         }
       }
     }
@@ -371,13 +381,12 @@ namespace MediaPortal.Common.Services.MediaManagement.ImportDataflowBlocks
         }
         catch (DisconnectedException)
         {
-          ServiceRegistration.Get<ILogger>().Info("ImporterWorker.{0}.{1}: MediaLibrary disconnected. Requesting suspension...", ParentImportJobController, _blockName);
-          await ParentImportJobController.ParentImporterWorker.RequestAction(new ImporterWorkerAction(ImporterWorkerAction.ActionType.Suspend));
+          await MedialibraryDisconnectedSuspend();
         }
       }
     }
 
-    protected async Task<Guid> UpdateMediaItem(Guid parentDirectoryId, ResourcePath path, IEnumerable<MediaItemAspect> updatedAspects, ImportJobInformation jobInfo, bool isRefresh, CancellationToken cancelToken)
+    protected async Task<Guid> UpdateMediaItem(Guid parentDirectoryId, ResourcePath path, IEnumerable<MediaItemAspect> updatedAspects, ImportJobInformation jobInfo, bool isRefresh)
     {
       while (true)
       {
@@ -390,13 +399,12 @@ namespace MediaPortal.Common.Services.MediaManagement.ImportDataflowBlocks
         }
         catch (DisconnectedException)
         {
-          ServiceRegistration.Get<ILogger>().Info("ImporterWorker.{0}.{1}: MediaLibrary disconnected. Requesting suspension...", ParentImportJobController, _blockName);
-          await ParentImportJobController.ParentImporterWorker.RequestAction(new ImporterWorkerAction(ImporterWorkerAction.ActionType.Suspend));
+          await MedialibraryDisconnectedSuspend();
         }
       }
     }
 
-    protected async Task<Guid> UpdateMediaItem(Guid parentDirectoryId, ResourcePath path, Guid mediaItemId, IEnumerable<MediaItemAspect> updatedAspects, ImportJobInformation jobInfo, bool isRefresh, CancellationToken cancelToken)
+    protected async Task<Guid> UpdateMediaItem(Guid parentDirectoryId, ResourcePath path, Guid mediaItemId, IEnumerable<MediaItemAspect> updatedAspects, ImportJobInformation jobInfo, bool isRefresh)
     {
       while (true)
       {
@@ -409,14 +417,12 @@ namespace MediaPortal.Common.Services.MediaManagement.ImportDataflowBlocks
         }
         catch (DisconnectedException)
         {
-          ServiceRegistration.Get<ILogger>().Info("ImporterWorker.{0}.{1}: MediaLibrary disconnected. Requesting suspension...", ParentImportJobController, _blockName);
-          await ParentImportJobController.ParentImporterWorker.RequestAction(new ImporterWorkerAction(ImporterWorkerAction.ActionType.Suspend));
+          await MedialibraryDisconnectedSuspend();
         }
       }
     }
 
-    protected async Task<ICollection<MediaItem>> ReconcileMediaItemRelationships(Guid mediaItemId, IEnumerable<MediaItemAspect> mediaItemAspects,
-      IEnumerable<RelationshipItem> relationshipItems)
+    protected async Task<ICollection<MediaItem>> ReconcileMediaItemRelationships(Guid mediaItemId, IEnumerable<MediaItemAspect> mediaItemAspects, IEnumerable<RelationshipItem> relationshipItems)
     {
       while (true)
       {
@@ -429,8 +435,7 @@ namespace MediaPortal.Common.Services.MediaManagement.ImportDataflowBlocks
         }
         catch (DisconnectedException)
         {
-          ServiceRegistration.Get<ILogger>().Info("ImporterWorker.{0}.{1}: MediaLibrary disconnected. Requesting suspension...", ParentImportJobController, _blockName);
-          await ParentImportJobController.ParentImporterWorker.RequestAction(new ImporterWorkerAction(ImporterWorkerAction.ActionType.Suspend));
+          await MedialibraryDisconnectedSuspend();
         }
       }
     }
@@ -447,8 +452,7 @@ namespace MediaPortal.Common.Services.MediaManagement.ImportDataflowBlocks
         }
         catch (DisconnectedException)
         {
-          ServiceRegistration.Get<ILogger>().Info("ImporterWorker.{0}.{1}: MediaLibrary disconnected. Requesting suspension...", ParentImportJobController, _blockName);
-          await ParentImportJobController.ParentImporterWorker.RequestAction(new ImporterWorkerAction(ImporterWorkerAction.ActionType.Suspend));
+          await MedialibraryDisconnectedSuspend();
         }
       }
     }
@@ -465,8 +469,7 @@ namespace MediaPortal.Common.Services.MediaManagement.ImportDataflowBlocks
         }
         catch (DisconnectedException)
         {
-          ServiceRegistration.Get<ILogger>().Info("ImporterWorker.{0}.{1}: MediaLibrary disconnected. Requesting suspension...", ParentImportJobController, _blockName);
-          await ParentImportJobController.ParentImporterWorker.RequestAction(new ImporterWorkerAction(ImporterWorkerAction.ActionType.Suspend));
+          await MedialibraryDisconnectedSuspend();
         }
       }
     }

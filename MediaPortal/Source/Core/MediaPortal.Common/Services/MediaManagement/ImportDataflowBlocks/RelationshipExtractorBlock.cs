@@ -74,7 +74,6 @@ namespace MediaPortal.Common.Services.MediaManagement.ImportDataflowBlocks
 
     protected SemaphoreSlim _cacheSync;
     protected IRelationshipCache _relationshipCache;
-    protected CancellationToken _ct;
     //Used as a ConcurrentHashSet to avoid processing items with the same media item id
     protected ConcurrentDictionary<Guid, byte> _processedMediaItemIds;
 
@@ -100,10 +99,9 @@ namespace MediaPortal.Common.Services.MediaManagement.ImportDataflowBlocks
       new ExecutionDataflowBlockOptions { CancellationToken = ct, BoundedCapacity = 1 },
       new ExecutionDataflowBlockOptions { CancellationToken = ct, MaxDegreeOfParallelism = Environment.ProcessorCount * 5, BoundedCapacity = 50 },
       new ExecutionDataflowBlockOptions { CancellationToken = ct },
-      BLOCK_NAME, true, parentImportJobController)
+      BLOCK_NAME, true, parentImportJobController, ct)
     {
       _relationshipCache = new LRURelationshipCache();
-      _ct = ct;
       _cacheSync = new SemaphoreSlim(1, 1);
       _processedMediaItemIds = new ConcurrentDictionary<Guid, byte>();
     }
