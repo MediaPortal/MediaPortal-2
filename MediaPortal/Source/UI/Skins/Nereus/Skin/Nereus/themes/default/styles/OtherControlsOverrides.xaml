@@ -828,6 +828,17 @@
         <RowDefinition Height="130"/>
         <RowDefinition Height="Auto"/>
       </Grid.RowDefinitions>
+      
+      <Image x:Name="ItemBackground" Grid.RowSpan="2" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Stretch="Fill">
+        <Image.Source>
+          <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? ({3}+{1}) : ({3}+{2})">
+            <Binding RelativeSource="{RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}}" Path="HasFocus"/>
+            <Binding Source="tile_background_focus.jpg"/>
+            <Binding Source="tile_background_nofocus.jpg"/>
+            <Binding Source="MediaMenu\"/>
+          </MultiBinding>
+        </Image.Source>
+      </Image>
       <Image x:Name="ItemImage" Grid.RowSpan="2" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Stretch="Fill" FallbackSource="MediaMenu\Search.png">
         <Image.Source>
           <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0}+{1}">
@@ -836,6 +847,7 @@
           </MultiBinding>
         </Image.Source>
       </Image>
+      
       <Grid x:Name="ItemBandGrid" Grid.Row="1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" RenderTransformOrigin="0.5,1">
         <Grid.ColumnDefinitions>
           <ColumnDefinition Width="*"/>
@@ -853,8 +865,8 @@
                FontSize="{ThemeResource SmallerFontSize}" Color="{ThemeResource MenuTextForeground}" Margin="5,-5,5,1"
                ScrollDelay="0" Scroll="None" FontFamily="SegoeUIBold"/>
       </Grid>
-      <Image x:Name="ItemFrame" Grid.RowSpan="2" HorizontalAlignment="Center" VerticalAlignment="Center" Opacity="0"
-             Stretch="Fill" Source="TileFrameOverlay.png"/>
+      <!--Image x:Name="ItemFrame" Grid.RowSpan="2" HorizontalAlignment="Center" VerticalAlignment="Center" Opacity="0"
+             Stretch="Fill" Source="TileFrameOverlay.png"/-->
     </Grid>
   </DataTemplate>
 

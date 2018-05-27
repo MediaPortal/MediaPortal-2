@@ -4,6 +4,15 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     >
 
+  <!-- ************************** Nereus colors start ****************************** -->
+  <ResourceWrapper x:Key="MainColorForeground" Resource="#009999"/>
+  <ResourceWrapper x:Key="TextColorForeground" Resource="#00CCCC"/>
+
+  <ResourceWrapper x:Key="StarRatingSelectedColor" Resource="#FFFFFFFF"/>
+  <ResourceWrapper x:Key="StarRatingBackgroundColor" Resource="#009999"/>
+
+  <!-- ************************** Nereus colors end ****************************** -->
+  
   <ResourceWrapper x:Key="MenuTextForeground" Resource="White"/> 
   <ResourceWrapper x:Key="MenuTextBackground" Resource="#FF757575"/>
   <ResourceWrapper x:Key="SlideMenuUnfocusedColor" Resource="#66000000"/>
@@ -49,8 +58,6 @@
   <ResourceWrapper x:Key="ProgressBarBorderColor" Resource="#80000000"/>
   <ResourceWrapper x:Key="ProgressBarBackgroundColor" Resource="#FFc1c1c1"/>
   <ResourceWrapper x:Key="ProgressBarFillColor" Resource="#FF4b76a0"/>
-
-  <ResourceWrapper x:Key="StarRatingSelectedColor" Resource="#FFFFFFFF"/>
 
   <ResourceWrapper x:Key="DialogHeaderColor" Resource="#80FFFFFF"/>
   <ResourceWrapper x:Key="TextColor" Resource="White"/>

@@ -74,7 +74,16 @@
                 </MultiBinding>
               </Image.Source>
             </Image>
-            <Border Background="#44000000" BorderThickness="0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
+            <Border Background="#44000000" BorderThickness="0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="-10,0,0,0">
+              <Border.Background>
+                <LinearGradientBrush StartPoint="1,0.5" EndPoint="0,0.5">
+                  <GradientStop Color="#44000000" Offset="0.0"/>
+                  <GradientStop Color="#44000000" Offset="0.991"/>
+                  <GradientStop Color="#44000000" Offset="0.991"/>
+                  <GradientStop Color="#00000000" Offset="1.0"/>
+                </LinearGradientBrush>
+              </Border.Background>
+            </Border>
           </Grid>
 
           <!---Listview Details-->

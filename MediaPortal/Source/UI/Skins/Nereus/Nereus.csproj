@@ -94,8 +94,6 @@
     <Content Include="Skin\Nereus\fonts\default-font.xml">
       <SubType>Designer</SubType>
     </Content>
-    <Content Include="Skin\Nereus\images\0983AB07-5EC6-4F38-B657-F07FF0819A4EFocus.png" />
-    <Content Include="Skin\Nereus\images\0983AB07-5EC6-4F38-B657-F07FF0819A4ENofocus.png" />
     <Content Include="Skin\Nereus\images\Background_GridView.png" />
     <Content Include="Skin\Nereus\images\Certification\AU_G.png" />
     <Content Include="Skin\Nereus\images\Certification\AU_M.png" />
@@ -119,6 +117,7 @@
     <Content Include="Skin\Nereus\images\Certification\US_TVY.png" />
     <Content Include="Skin\Nereus\images\Certification\US_TVY7.png" />
     <Content Include="Skin\Nereus\images\Certification\US_TVY7FV.png" />
+    <Content Include="Skin\Nereus\images\D91738E9-3F85-443B-ABBD-EF01731734AD.png" />
     <Content Include="Skin\Nereus\images\Effects\Layer1.png" />
     <Content Include="Skin\Nereus\images\Effects\Layer2.png" />
     <Content Include="Skin\Nereus\images\Effects\Layer3.png" />
