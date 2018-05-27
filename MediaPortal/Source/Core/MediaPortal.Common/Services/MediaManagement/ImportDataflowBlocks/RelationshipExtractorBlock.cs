@@ -125,12 +125,12 @@ namespace MediaPortal.Common.Services.MediaManagement.ImportDataflowBlocks
       try
       {
         //Check if we can extract relations for this import resource
-        if (await ValidateImportResource(importResource))
+        if (await ValidateImportResource(importResource).ConfigureAwait(false))
         {
           //Try to cache the resource as a matching item might get extracted later, e.g. the SeriesEpisodeExtractor
           //might extract a matching episode and we should avoid processing the item again.
-          await CacheImportResource(importResource);
-          await ExtractRelationships(importResource.ResourceAccessor, importResource.MediaItemId.Value, importResource.Aspects);
+          await CacheImportResource(importResource).ConfigureAwait(false);
+          await ExtractRelationships(importResource.ResourceAccessor, importResource.MediaItemId.Value, importResource.Aspects).ConfigureAwait(false);
         }
 
         importResource.IsValid = false;
@@ -172,11 +172,11 @@ namespace MediaPortal.Common.Services.MediaManagement.ImportDataflowBlocks
 
       //No aspects, this resource was restored from disk, try and restore the aspects from the media library.
       //Throttle the number of concurrent database connections to avoid a spike during startup.
-      await _loadItemThrottle.WaitAsync(_ct);
+      await _loadItemThrottle.WaitAsync(_ct).ConfigureAwait(false);
       try
       {
         //Try and restore the aspects
-        MediaItem loadItem = await LoadLocalItem(importResource.MediaItemId.Value, null, await GetAllManagedMediaItemAspectTypes());
+        MediaItem loadItem = await LoadLocalItem(importResource.MediaItemId.Value, null, await GetAllManagedMediaItemAspectTypes().ConfigureAwait(false)).ConfigureAwait(false);
         if (loadItem == null)
           return false;
         importResource.Aspects = loadItem.Aspects;
@@ -201,20 +201,20 @@ namespace MediaPortal.Common.Services.MediaManagement.ImportDataflowBlocks
     protected async Task ExtractRelationships(IResourceAccessor mediaItemAccessor, Guid mediaItemId, IDictionary<Guid, IList<MediaItemAspect>> aspects)
     {
       //Get the relations
-      ICollection<ExtractedRelation> relations = await ExtractRelationshipMetadata(mediaItemAccessor, mediaItemId, aspects);
+      ICollection<ExtractedRelation> relations = await ExtractRelationshipMetadata(mediaItemAccessor, mediaItemId, aspects).ConfigureAwait(false);
 
       if (relations.Count == 0)
         return;
 
       //Update the item and add any new relations to the database
-      ICollection<MediaItem> updatedMediaItems = await ReconcileRelationships(mediaItemId, aspects, relations);
+      ICollection<MediaItem> updatedMediaItems = await ReconcileRelationships(mediaItemId, aspects, relations).ConfigureAwait(false);
 
       //Extract relationships for any new relations
       //if (updatedMediaItems != null && updatedMediaItems.Count > 0)
       //  await Task.WhenAll(updatedMediaItems.Select(i => ExtractChildRelationships(mediaItemAccessor, i.MediaItemId, i.Aspects)));
       if (updatedMediaItems != null)
         foreach (MediaItem updatedItem in updatedMediaItems)
-          await ExtractRelationships(mediaItemAccessor, updatedItem.MediaItemId, updatedItem.Aspects);
+          await ExtractRelationships(mediaItemAccessor, updatedItem.MediaItemId, updatedItem.Aspects).ConfigureAwait(false);
     }
 
     /// <summary>
@@ -228,7 +228,7 @@ namespace MediaPortal.Common.Services.MediaManagement.ImportDataflowBlocks
     {
       ICollection<ExtractedRelation> relations = new List<ExtractedRelation>();
       foreach (IList<IRelationshipRoleExtractor> extractorList in GetExtractorsByRoleLinkedRole(aspects).Values)
-        await ExtractRelationshipMetadata(extractorList, mediaItemAccessor, mediaItemId, aspects, relations);
+        await ExtractRelationshipMetadata(extractorList, mediaItemAccessor, mediaItemId, aspects, relations).ConfigureAwait(false);
       return relations;
     }
 
@@ -244,7 +244,7 @@ namespace MediaPortal.Common.Services.MediaManagement.ImportDataflowBlocks
     {
       IList<IDictionary<Guid, IList<MediaItemAspect>>> extractedItems = new List<IDictionary<Guid, IList<MediaItemAspect>>>();
       foreach (IRelationshipRoleExtractor roleExtractor in roleExtractors)
-        await roleExtractor.TryExtractRelationshipsAsync(mediaItemAccessor, aspects, extractedItems);
+        await roleExtractor.TryExtractRelationshipsAsync(mediaItemAccessor, aspects, extractedItems).ConfigureAwait(false);
 
       foreach (IDictionary<Guid, IList<MediaItemAspect>> extractedItem in extractedItems)
         relations.Add(new ExtractedRelation(roleExtractors[0], extractedItem));
@@ -264,7 +264,7 @@ namespace MediaPortal.Common.Services.MediaManagement.ImportDataflowBlocks
     {
       ICollection<MediaItem> newMediaItems = new List<MediaItem>();
       int cacheMisses = 0;
-      await _cacheSync.WaitAsync(_ct);
+      await _cacheSync.WaitAsync(_ct).ConfigureAwait(false);
       try
       {
         //Add relationship aspects for any cached relations, and get a collection of uncached relations.
@@ -273,7 +273,7 @@ namespace MediaPortal.Common.Services.MediaManagement.ImportDataflowBlocks
         //Add new relations to the MediaLibrary and update the relationship aspects of the parent item.
         //The MediaLibrary will handle adding the relationship aspects for the new relations. 
         ICollection<MediaItem> updatedMediaItems = await ReconcileMediaItemRelationships(mediaItemId, MediaItemAspect.GetAspects(aspects),
-          newRelations.Select(r => new RelationshipItem(r.Extractor.Role, r.Extractor.LinkedRole, r.Aspects)));
+          newRelations.Select(r => new RelationshipItem(r.Extractor.Role, r.Extractor.LinkedRole, r.Aspects))).ConfigureAwait(false);
         
         //Cache all newly added/updated relations
         foreach (MediaItem updatedMediaItem in updatedMediaItems)
@@ -343,7 +343,7 @@ namespace MediaPortal.Common.Services.MediaManagement.ImportDataflowBlocks
     {
       MediaItem item = new MediaItem(importResource.MediaItemId.Value, importResource.Aspects);
       bool result = false;
-      await _cacheSync.WaitAsync();
+      await _cacheSync.WaitAsync().ConfigureAwait(false);
       try
       {
         foreach (IRelationshipRoleExtractor roleExtractor in GetLinkedRoleExtractors(importResource.Aspects))

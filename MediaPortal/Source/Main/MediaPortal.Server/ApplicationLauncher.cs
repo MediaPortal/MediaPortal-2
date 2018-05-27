@@ -134,7 +134,6 @@ namespace MediaPortal.Server
           ApplicationCore.StartCoreServices();
           InitIpc();
           BackendExtension.StartupBackendServices();
-          _ = ApplicationCore.RegisterDefaultMediaItemAspectTypes(); // To be done after backend services are running
 
           mediaAccessor.Initialize();
 

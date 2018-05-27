@@ -99,7 +99,7 @@ namespace MediaPortal.Common.Services.MediaManagement.ImportDataflowBlocks
     {
       try
       {
-        importResource.IsSingleResource = await IsSingleResource(importResource.ResourceAccessor);
+        importResource.IsSingleResource = await IsSingleResource(importResource.ResourceAccessor).ConfigureAwait(false);
 
         if (!importResource.IsSingleResource && ImportJobInformation.IncludeSubDirectories)
         {
@@ -109,7 +109,7 @@ namespace MediaPortal.Common.Services.MediaManagement.ImportDataflowBlocks
           // posting the subdirectories to the InputBufferBlock to avoid duplicate ImportResources when
           // reactivating this block after it has been deserialized from disk.
           if (ImportJobInformation.JobType == ImportJobType.Refresh)
-            await DeleteNoLongerExistingSubdirectoriesFromMediaLibrary(importResource, subDirectories);
+            await DeleteNoLongerExistingSubdirectoriesFromMediaLibrary(importResource, subDirectories).ConfigureAwait(false);
 
           foreach (var subDirectory in subDirectories)
             this.Post(new PendingImportResourceNewGen(importResource.ResourceAccessor.CanonicalLocalResourcePath, subDirectory, ToString(), ParentImportJobController));
@@ -143,7 +143,7 @@ namespace MediaPortal.Common.Services.MediaManagement.ImportDataflowBlocks
     /// <returns></returns>
     private async Task DeleteNoLongerExistingSubdirectoriesFromMediaLibrary(PendingImportResourceNewGen importResource, IEnumerable<IFileSystemResourceAccessor> subDirectories)
     {
-      var mediaItem = await LoadLocalItem(importResource.PendingResourcePath, EMPTY_MIA_ID_ENUMERATION, EMPTY_MIA_ID_ENUMERATION);
+      var mediaItem = await LoadLocalItem(importResource.PendingResourcePath, EMPTY_MIA_ID_ENUMERATION, EMPTY_MIA_ID_ENUMERATION).ConfigureAwait(false);
       
       // If the currently processed directory does not yet exist in the MediaLibrary,
       // there is no need to check for existing subdirectories in the MediaLibrary.
@@ -153,7 +153,7 @@ namespace MediaPortal.Common.Services.MediaManagement.ImportDataflowBlocks
       
       // Get the subdirectories stored in the MediaLibrary for the currently procesed directory
     // TODO: Rework this
-      var subDirectoryResourcePathsInMediaLibrary = (await Browse(directoryId, PROVIDERRESOURCE_DIRECTORY_MIA_ID_ENUMERATION, EMPTY_MIA_ID_ENUMERATION)).Select(mi => ResourcePath.Deserialize(mi[ProviderResourceAspect.ASPECT_ID][0].GetAttributeValue<String>(ProviderResourceAspect.ATTR_RESOURCE_ACCESSOR_PATH))).ToList();
+      var subDirectoryResourcePathsInMediaLibrary = (await Browse(directoryId, PROVIDERRESOURCE_DIRECTORY_MIA_ID_ENUMERATION, EMPTY_MIA_ID_ENUMERATION).ConfigureAwait(false)).Select(mi => ResourcePath.Deserialize(mi[ProviderResourceAspect.ASPECT_ID][0].GetAttributeValue<String>(ProviderResourceAspect.ATTR_RESOURCE_ACCESSOR_PATH))).ToList();
       
       // If there are no subdirectories stored in the MediaLibrary, there is no need to delete anything
       if (!subDirectoryResourcePathsInMediaLibrary.Any())
@@ -164,7 +164,7 @@ namespace MediaPortal.Common.Services.MediaManagement.ImportDataflowBlocks
       var subDirectoryResourcePathsInFileSystem = subDirectories.Select(ra => ra.CanonicalLocalResourcePath);
       var noLongerExistingSubdirectoryResourcePaths = subDirectoryResourcePathsInMediaLibrary.Except(subDirectoryResourcePathsInFileSystem).ToList();
       foreach (var noLongerExistingSubdirectoryResourcePath in noLongerExistingSubdirectoryResourcePaths)
-        await DeleteMediaItem(noLongerExistingSubdirectoryResourcePath);
+        await DeleteMediaItem(noLongerExistingSubdirectoryResourcePath).ConfigureAwait(false);
     }
 
     #endregion

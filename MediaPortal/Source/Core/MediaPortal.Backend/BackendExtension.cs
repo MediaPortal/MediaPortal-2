@@ -76,6 +76,7 @@ namespace MediaPortal.Backend
     {
       ServiceRegistration.Get<IDatabaseManager>().Startup();
       ServiceRegistration.Get<IMediaLibrary>().Startup();
+      ApplicationCore.RegisterDefaultMediaItemAspectTypes().Wait(); // Must be done before a client starts doing searches or exceptions can happen for missing Aspects
       ServiceRegistration.Get<IClientManager>().Startup();
       ServiceRegistration.Get<IBackendServer>().Startup();
       ((UserProfileDataManagement)ServiceRegistration.Get<IUserProfileDataManagement>()).Startup();
