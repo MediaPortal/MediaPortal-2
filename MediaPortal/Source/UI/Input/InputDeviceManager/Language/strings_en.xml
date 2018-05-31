@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <string name="Settings.InputDeviceManager.Section">Input Management</string>
+  <string name="Settings.InputDeviceManager.EnterConfig">Input Device Manager</string>
+  <string name="Settings.InputDeviceManager.EnterConfigHelp">This allows you to map HID devices to different actions.</string>
+
+  <string name="InputDeviceManager.SelectDevice.Header">Press a button on the input device you would like to configure.</string>
+
+  <string name="InputDeviceManager.AddKey.Header">Press the desired key combination on the input device!</string>
+  <string name="InputDeviceManager.Screen">Screen</string>
+  <string name="InputDeviceManager.Key">Key</string>
+
+  <string name="InputDeviceManager.KeyMapping.Button.AddMapping">Add mapping</string>
+  <string name="InputDeviceManager.KeyMapping.Button.Done">Done</string>
+
+  <string name="InputDeviceManager.KeyMapping.Dialog.RemoveMapping">Remove mapping?</string>
+</resources>
