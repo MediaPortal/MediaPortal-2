@@ -114,13 +114,14 @@ namespace MediaPortal.Plugins.InputDeviceManager
             }
             else if (keyMapping.Key.StartsWith(InputDeviceModel.MENU_PREFIX, StringComparison.InvariantCultureIgnoreCase))
             {
-              WorkflowAction action;
-              if (ServiceRegistration.Get<IWorkflowManager>().CurrentNavigationContext.MenuActions.TryGetValue(Guid.Parse(actionArray[1]), out action))
+              WorkflowAction action = FindAction(actionArray[1]);
+              if (action != null)
               {
                 ServiceRegistration.Get<ILogger>().Debug("Executing menu action: " + actionArray[1]);
                 action.Execute();
                 e.Handled = true;
               }
+              //ServiceRegistration.Get<IWorkflowManager>().CurrentNavigationContext.MenuActions.TryGetValue(Guid.Parse(actionArray[1]), out action)
               //ServiceRegistration.Get<IWorkflowManager>().NavigatePush(Guid.Parse(actionArray[1]));
             }
           }
@@ -136,6 +137,24 @@ namespace MediaPortal.Plugins.InputDeviceManager
       //ServiceRegistration.Get<ILogger>().Debug(e.KeyPressEvent.Source);
       //ServiceRegistration.Get<ILogger>().Debug(e.KeyPressEvent.KeyPressState);
       //ServiceRegistration.Get<ILogger>().Debug("0x{0:X4} ({0})", e.KeyPressEvent.Message);
+    }
+
+    private static WorkflowAction FindAction(string id)
+    {
+      if (Guid.TryParse(id, out Guid g))
+      {
+        IWorkflowManager workflowManager = ServiceRegistration.Get<IWorkflowManager>();
+        if (workflowManager != null)
+        {
+          foreach (NavigationContext context in workflowManager.NavigationContextStack)
+          {
+            var action = context.MenuActions.Values.FirstOrDefault(a => a.ActionId == g);
+            if (action != null)
+              return action;
+          }
+        }
+      }
+      return null;
     }
 
     public static void ThreadProc()

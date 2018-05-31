@@ -199,7 +199,7 @@ namespace MediaPortal.Plugins.InputDeviceManager.Models
       get { return _selectedItemProperty; }
     }
 
-    private async void InitModel()
+    private async Task InitModel()
     {
       _inputDevicesProperty = new WProperty(typeof(string), "TEST");
       _addKeyLabelProperty = new WProperty(typeof(string), "No Keys");
@@ -210,21 +210,26 @@ namespace MediaPortal.Plugins.InputDeviceManager.Models
       _showAddActionProperty = new WProperty(typeof(bool), false);
       _selectedItemProperty = new WProperty(typeof(ListItem), null);
       _items = new ItemsList();
-      _actionItems = new ItemsList();
 
-      foreach (var key in Key.NAME2SPECIALKEY)
+      if (_actionItems == null)
       {
-        var listItem = new ListItem(Consts.KEY_NAME, key.Key) { Command = new MethodDelegateCommand(() => ChooseKeyAction(KEY_PREFIX + key.Key)) };
-        listItem.AdditionalProperties[KEY_KEYMAP] = KEY_PREFIX + key.Key;
-        _actionItems.Add(listItem);
-      }
+        _actionItems = new ItemsList();
+        _timer.Elapsed += timer_Tick;
 
-      // TODO: Add more actions?
-      IWorkflowManager workflowManager = ServiceRegistration.Get<IWorkflowManager>();
-      foreach (NavigationContext context in workflowManager.NavigationContextStack)
-      {
-        var itemsList = UpdateMenu(context);
-        if (itemsList != null) CollectionUtils.AddAll(_actionItems, itemsList);
+        foreach (var key in Key.NAME2SPECIALKEY)
+        {
+          var listItem = new ListItem(Consts.KEY_NAME, key.Key) { Command = new MethodDelegateCommand(() => ChooseKeyAction(KEY_PREFIX + key.Key)) };
+          listItem.AdditionalProperties[KEY_KEYMAP] = KEY_PREFIX + key.Key;
+          _actionItems.Add(listItem);
+        }
+
+        // TODO: Add more actions?
+        IWorkflowManager workflowManager = ServiceRegistration.Get<IWorkflowManager>();
+        foreach (NavigationContext context in workflowManager.NavigationContextStack)
+        {
+          var itemsList = UpdateMenu(context);
+          if (itemsList != null) CollectionUtils.AddAll(_actionItems, itemsList.Except(_actionItems));
+        }
       }
 
       await Task.WhenAny(InputDeviceManager.InitComplete, Task.Delay(20000));
@@ -241,9 +246,9 @@ namespace MediaPortal.Plugins.InputDeviceManager.Models
       foreach (var item in context.MenuActions.Values.ToList())
       {
         //ServiceRegistration.Get<ILogger>().Info("MenuActions - Name: {0}, DisplayTitle: {1}, ActionId: {2}", item.Name, item.DisplayTitle, item.ActionId);
-        if (item.SourceStateIds?.Contains(HOME_STATE_ID) == true || item.SourceStateIds?.Contains(CONFIGURATION_STATE_ID) == true)
+        if (item.SourceStateIds?.Contains(HOME_STATE_ID) == true)
         {
-          //Only add home and config menus
+          //Only add home menus for now. Other menus seem to have a dependency on the previews screen
           ListItem listItem = new ListItem(Consts.KEY_NAME, item.DisplayTitle) { Command = new MethodDelegateCommand(() => ChooseKeyAction(MENU_PREFIX + item.ActionId)) };
           listItem.AdditionalProperties[KEY_KEYMAP] = MENU_PREFIX + item.ActionId;
           result.Add(listItem);
@@ -301,9 +306,7 @@ namespace MediaPortal.Plugins.InputDeviceManager.Models
             _pressedAddKeyCombo = _pressedKeys.ToDictionary(pair => pair.Key, pair => pair.Value);
             _maxPressedKeys = _pressedKeys.Count;
             //ServiceRegistration.Get<ILogger>().Info("pressedKeys: {0}, maxPressedKEys: {1}, _pressedAddKeyCombo: {2}", _pressedKeys.Count, _maxPressedKeys, _pressedAddKeyCombo.Count);
-            _timer.Elapsed += timer_Tick;
-            _timer.Interval = 500;
-            _timer.AutoReset = true;
+            
             _endTime = DateTime.Now.AddSeconds(5);
             if (!_timer.Enabled)
               _timer.Start();
@@ -433,6 +436,7 @@ namespace MediaPortal.Plugins.InputDeviceManager.Models
     /// </summary>
     private void ResetAddKey()
     {
+      _timer.Stop();
       _maxPressedKeys = 0;
       _pressedKeys.Clear();
       _pressedAddKeyCombo.Clear();
@@ -458,28 +462,30 @@ namespace MediaPortal.Plugins.InputDeviceManager.Models
 
     private void ShowKeyMappingScreen()
     {
+      ResetAddKey();
+
       ShowInputDeviceSelection = false;
-      ShowAddKey = false;
-      ShowAddAction = false;
       ShowKeyMapping = true;
       if (_addKeyDialogHandle.HasValue)
         ServiceRegistration.Get<IScreenManager>().CloseDialog(_addKeyDialogHandle.Value);
-      _addKeyDialogHandle = null;
     }
 
     private void ShowAddKeyScreen()
     {
-      ShowInputDeviceSelection = false;
-      ShowKeyMapping = true;
+      ResetAddKey();
+      _inWorkflowAddKey = true;
+
       ShowAddAction = false;
       ShowAddKey = true;
-      _addKeyDialogHandle = ServiceRegistration.Get<IScreenManager>().ShowDialog("ConfigScreenAddKey");
+      _addKeyDialogHandle = ServiceRegistration.Get<IScreenManager>().ShowDialog("ConfigScreenAddKey", (s,g) =>
+      {
+        _addKeyDialogHandle = null;
+        _timer.Stop();
+      });
     }
 
     private void ShowAddActionScreen()
     {
-      ShowInputDeviceSelection = false;
-      ShowKeyMapping = true;
       ShowAddKey = false;
       ShowAddAction = true;
     }
@@ -490,9 +496,7 @@ namespace MediaPortal.Plugins.InputDeviceManager.Models
 
     public void AddKeyMapping()
     {
-      ResetAddKey();
       ShowAddKeyScreen();
-      _inWorkflowAddKey = true;
     }
 
     public void CancelMapping()
@@ -567,7 +571,7 @@ namespace MediaPortal.Plugins.InputDeviceManager.Models
 
     public void EnterModelContext(NavigationContext oldContext, NavigationContext newContext)
     {
-      InitModel();
+      InitModel().Wait();
     }
 
     public void ExitModelContext(NavigationContext oldContext, NavigationContext newContext)
