@@ -54,10 +54,11 @@ namespace MediaPortal.Plugins.InputDeviceManager.Models
     public const string KEY_KEYMAP = "KeyMapData";
     public const string KEY_MENU_MODEL = "MenuModel: Item-Action";
     public const string KEY_PREFIX = "Key.";
-    public const string MENU_PREFIX = "Menu.";
+    public const string HOME_PREFIX = "Home.";
+    public const string CONFIG_PREFIX = "Config.";
 
-    private static readonly Guid HOME_STATE_ID = new Guid("7F702D9C-F2DD-42da-9ED8-0BA92F07787F");
-    private static readonly Guid CONFIGURATION_STATE_ID = new Guid("E7422BB8-2779-49ab-BC99-E3F56138061B");
+    public static readonly Guid HOME_STATE_ID = new Guid("7F702D9C-F2DD-42da-9ED8-0BA92F07787F");
+    public static readonly Guid CONFIGURATION_STATE_ID = new Guid("E7422BB8-2779-49ab-BC99-E3F56138061B");
 
     protected AbstractProperty _inputDevicesProperty;
     protected AbstractProperty _addKeyLabelProperty;
@@ -75,7 +76,7 @@ namespace MediaPortal.Plugins.InputDeviceManager.Models
     private static ConcurrentDictionary<string, int> _pressedKeys = new ConcurrentDictionary<string, int>();
     private static Dictionary<string, int> _pressedAddKeyCombo = new Dictionary<string, int>();
     private static int _maxPressedKeys = 0;
-    private static readonly Timer _timer = new Timer(500);
+    private static readonly Timer _timer = new Timer(100);
     private DateTime _endTime;
     private Guid? _addKeyDialogHandle = null;
     private DialogCloseWatcher _dialogCloseWatcher = null;
@@ -131,13 +132,14 @@ namespace MediaPortal.Plugins.InputDeviceManager.Models
       }
     }
 
-    public ItemsList MenuItems
+    public ItemsList ScreenItems
     {
       get
       {
         ItemsList menuList = new ItemsList();
         foreach (var item in _actionItems.
-          Where(i => ((string)i.AdditionalProperties[KEY_KEYMAP]).StartsWith(MENU_PREFIX, StringComparison.InvariantCultureIgnoreCase)).
+          Where(i => ((string)i.AdditionalProperties[KEY_KEYMAP]).StartsWith(HOME_PREFIX, StringComparison.InvariantCultureIgnoreCase) ||
+            ((string)i.AdditionalProperties[KEY_KEYMAP]).StartsWith(CONFIG_PREFIX, StringComparison.InvariantCultureIgnoreCase)).
           OrderBy(i => i.Labels[Consts.KEY_NAME].Evaluate()))
           menuList.Add(item);
         return menuList;
@@ -227,8 +229,27 @@ namespace MediaPortal.Plugins.InputDeviceManager.Models
         IWorkflowManager workflowManager = ServiceRegistration.Get<IWorkflowManager>();
         foreach (NavigationContext context in workflowManager.NavigationContextStack)
         {
-          var itemsList = UpdateMenu(context);
-          if (itemsList != null) CollectionUtils.AddAll(_actionItems, itemsList.Except(_actionItems));
+          foreach (var item in context.MenuActions.Values.ToList())
+          {
+            //ServiceRegistration.Get<ILogger>().Info("MenuActions - Name: {0}, DisplayTitle: {1}, ActionId: {2}", item.Name, item.DisplayTitle, item.ActionId);
+            //Add home menu items
+            if (item.SourceStateIds?.Contains(HOME_STATE_ID) == true)
+            {
+              ListItem listItem = new ListItem(Consts.KEY_NAME, item.DisplayTitle) { Command = new MethodDelegateCommand(() => ChooseKeyAction(HOME_PREFIX + item.Name)) };
+              listItem.AdditionalProperties[KEY_KEYMAP] = HOME_PREFIX + item.Name;
+              if(!_actionItems.Any(i => string.Compare((string)i.AdditionalProperties[KEY_KEYMAP], (string)listItem.AdditionalProperties[KEY_KEYMAP], true) == 0))
+                _actionItems.Add(listItem);
+            }
+            //Add config menu items
+            else if (item.SourceStateIds?.Contains(CONFIGURATION_STATE_ID) == true)
+            {
+              //Only add home menus for now. Other menus seem to have a dependency on the previews screen
+              ListItem listItem = new ListItem(Consts.KEY_NAME, item.DisplayTitle) { Command = new MethodDelegateCommand(() => ChooseKeyAction(CONFIG_PREFIX + item.Name)) };
+              listItem.AdditionalProperties[KEY_KEYMAP] = CONFIG_PREFIX + item.Name;
+              if (!_actionItems.Any(i => string.Compare((string)i.AdditionalProperties[KEY_KEYMAP], (string)listItem.AdditionalProperties[KEY_KEYMAP], true) == 0))
+                _actionItems.Add(listItem);
+            }
+          }
         }
       }
 
@@ -242,45 +263,45 @@ namespace MediaPortal.Plugins.InputDeviceManager.Models
     protected List<ListItem> UpdateMenu(NavigationContext context)
     {
       List<ListItem> result = new List<ListItem>();
-      
       foreach (var item in context.MenuActions.Values.ToList())
       {
         //ServiceRegistration.Get<ILogger>().Info("MenuActions - Name: {0}, DisplayTitle: {1}, ActionId: {2}", item.Name, item.DisplayTitle, item.ActionId);
-        if (item.SourceStateIds?.Contains(HOME_STATE_ID) == true)
-        {
-          //Only add home menus for now. Other menus seem to have a dependency on the previews screen
-          ListItem listItem = new ListItem(Consts.KEY_NAME, item.DisplayTitle) { Command = new MethodDelegateCommand(() => ChooseKeyAction(MENU_PREFIX + item.ActionId)) };
-          listItem.AdditionalProperties[KEY_KEYMAP] = MENU_PREFIX + item.ActionId;
-          result.Add(listItem);
-        }
+        //  if (item.SourceStateIds?.Contains(HOME_STATE_ID) == true || item.SourceStateIds?.Contains(CONFIGURATION_STATE_ID) == true)
+        //  {
+        //    //Only add home menus for now. Other menus seem to have a dependency on the previews screen
+        //    ListItem listItem = new ListItem(Consts.KEY_NAME, item.DisplayTitle) { Command = new MethodDelegateCommand(() => ChooseKeyAction(MENU_PREFIX + item.ActionId)) };
+        //    listItem.AdditionalProperties[KEY_KEYMAP] = MENU_PREFIX + item.ActionId;
+        //    result.Add(listItem);
+        //  }
+        //}
+
+        //var menuItems = (ItemsList)context.GetContextVariable(Consts.KEY_MENU_ITEMS, false);
+        //if (menuItems != null)
+        //  foreach (var item in menuItems.ToList())
+        //  {
+        //    //ServiceRegistration.Get<ILogger>().Info(String.Join(" + ", string.Join(" + ", item.Labels.Select(kv => kv.Key.ToString() + "=" + kv.Value?.ToString() ?? "").ToArray())));
+        //    if (item.AdditionalProperties.Keys.Contains(KEY_MENU_MODEL) && item.AdditionalProperties[KEY_MENU_MODEL] is WorkflowAction action)
+        //    {
+        //      ListItem listItem = new ListItem(Consts.KEY_NAME, action.DisplayTitle) { Command = new MethodDelegateCommand(() => ChooseKeyAction(MENU_PREFIX + action.ActionId)) };
+        //      listItem.AdditionalProperties[KEY_KEYMAP] = MENU_PREFIX + action.ActionId;
+        //      result.Add(listItem);
+        //    }
+        //  }
+
+        //var temp4 = (ICollection<WorkflowAction>)context.GetContextVariable(Consts.KEY_ITEM_ACTION, false);
+        //if (temp4 != null)
+        //  foreach (var item in temp4.ToList())
+        //  {
+        //    ServiceRegistration.Get<ILogger>().Info("Temp4 - Name: {0}, ActionId: {1}, DisplayTitle: {2}", item.Name, item.ActionId.ToString(), item.DisplayTitle);
+        //  }
+
+        //var temp2 = (ICollection<WorkflowAction>)context.GetContextVariable(Consts.KEY_REGISTERED_ACTIONS, false);
+        //if (temp2 != null)
+        //  foreach (var item in temp2)
+        //  {
+        //    ServiceRegistration.Get<ILogger>().Info("Name: {0}, ActionId: {1}, DisplayTitle: {2}", item.Name, item.ActionId.ToString(), item.DisplayTitle);
+        //  }
       }
-
-      //var menuItems = (ItemsList)context.GetContextVariable(Consts.KEY_MENU_ITEMS, false);
-      //if (menuItems != null)
-      //  foreach (var item in menuItems.ToList())
-      //  {
-      //    //ServiceRegistration.Get<ILogger>().Info(String.Join(" + ", string.Join(" + ", item.Labels.Select(kv => kv.Key.ToString() + "=" + kv.Value?.ToString() ?? "").ToArray())));
-      //    if (item.AdditionalProperties.Keys.Contains(KEY_MENU_MODEL) && item.AdditionalProperties[KEY_MENU_MODEL] is WorkflowAction action)
-      //    {
-      //      ListItem listItem = new ListItem(Consts.KEY_NAME, action.DisplayTitle) { Command = new MethodDelegateCommand(() => ChooseKeyAction(MENU_PREFIX + action.ActionId)) };
-      //      listItem.AdditionalProperties[KEY_KEYMAP] = MENU_PREFIX + action.ActionId;
-      //      result.Add(listItem);
-      //    }
-      //  }
-
-      //var temp4 = (ICollection<WorkflowAction>)context.GetContextVariable(Consts.KEY_ITEM_ACTION, false);
-      //if (temp4 != null)
-      //  foreach (var item in temp4.ToList())
-      //  {
-      //    ServiceRegistration.Get<ILogger>().Info("Temp4 - Name: {0}, ActionId: {1}, DisplayTitle: {2}", item.Name, item.ActionId.ToString(), item.DisplayTitle);
-      //  }
-
-      //var temp2 = (ICollection<WorkflowAction>)context.GetContextVariable(Consts.KEY_REGISTERED_ACTIONS, false);
-      //if (temp2 != null)
-      //  foreach (var item in temp2)
-      //  {
-      //    ServiceRegistration.Get<ILogger>().Info("Name: {0}, ActionId: {1}, DisplayTitle: {2}", item.Name, item.ActionId.ToString(), item.DisplayTitle);
-      //  }
       return result;
     }
 
@@ -344,7 +365,7 @@ namespace MediaPortal.Plugins.InputDeviceManager.Models
           _inWorkflowAddKey = false;
           ShowAddActionScreen();
         }
-        else
+        else if(AddKeyCountdownLabel != leftTime.Seconds.ToString("0"))
         {
           AddKeyCountdownLabel = leftTime.Seconds.ToString("0");
         }
@@ -371,7 +392,7 @@ namespace MediaPortal.Plugins.InputDeviceManager.Models
           {
             text = $"{LocalizationHelper.Translate(RES_KEY_TEXT)} \"{text}\"";
           }
-          else if(keyMapping.Key.StartsWith(MENU_PREFIX))
+          else if(keyMapping.Key.StartsWith(HOME_PREFIX) || keyMapping.Key.StartsWith(CONFIG_PREFIX))
           {
             text = $"{LocalizationHelper.Translate(RES_SCREEN_TEXT)} \"{text}\"";
           }

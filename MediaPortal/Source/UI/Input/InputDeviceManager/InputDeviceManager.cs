@@ -112,17 +112,21 @@ namespace MediaPortal.Plugins.InputDeviceManager
               ServiceRegistration.Get<IInputManager>().KeyPress(Key.GetSpecialKeyByName(actionArray[1]));
               e.Handled = true;
             }
-            else if (keyMapping.Key.StartsWith(InputDeviceModel.MENU_PREFIX, StringComparison.InvariantCultureIgnoreCase))
+            else if (keyMapping.Key.StartsWith(InputDeviceModel.HOME_PREFIX, StringComparison.InvariantCultureIgnoreCase))
             {
-              WorkflowAction action = FindAction(actionArray[1]);
-              if (action != null)
+              ServiceRegistration.Get<ILogger>().Debug("Executing home action: " + actionArray[1]);
+              if (NavigateToScreen(actionArray[1]))
               {
-                ServiceRegistration.Get<ILogger>().Debug("Executing menu action: " + actionArray[1]);
-                action.Execute();
                 e.Handled = true;
               }
-              //ServiceRegistration.Get<IWorkflowManager>().CurrentNavigationContext.MenuActions.TryGetValue(Guid.Parse(actionArray[1]), out action)
-              //ServiceRegistration.Get<IWorkflowManager>().NavigatePush(Guid.Parse(actionArray[1]));
+            }
+            else if (keyMapping.Key.StartsWith(InputDeviceModel.CONFIG_PREFIX, StringComparison.InvariantCultureIgnoreCase))
+            {
+              ServiceRegistration.Get<ILogger>().Debug("Executing config action: " + actionArray[1]);
+              if (NavigateToScreen(actionArray[1], InputDeviceModel.CONFIGURATION_STATE_ID))
+              {
+                e.Handled = true;
+              }
             }
           }
         }
@@ -139,22 +143,25 @@ namespace MediaPortal.Plugins.InputDeviceManager
       //ServiceRegistration.Get<ILogger>().Debug("0x{0:X4} ({0})", e.KeyPressEvent.Message);
     }
 
-    private static WorkflowAction FindAction(string id)
+    private static bool NavigateToScreen(string name, Guid? requiredState = null)
     {
-      if (Guid.TryParse(id, out Guid g))
+      IWorkflowManager workflowManager = ServiceRegistration.Get<IWorkflowManager>();
+      if (workflowManager != null)
       {
-        IWorkflowManager workflowManager = ServiceRegistration.Get<IWorkflowManager>();
-        if (workflowManager != null)
+        if (requiredState.HasValue && workflowManager.CurrentNavigationContext.WorkflowState.StateId != requiredState.Value)
+          workflowManager.NavigatePush(requiredState.Value);
+
+        foreach (NavigationContext context in workflowManager.NavigationContextStack.ToList())
         {
-          foreach (NavigationContext context in workflowManager.NavigationContextStack)
+          var action = context.MenuActions.Values.FirstOrDefault(a => a.Name == name);
+          if (action != null)
           {
-            var action = context.MenuActions.Values.FirstOrDefault(a => a.ActionId == g);
-            if (action != null)
-              return action;
+            action.Execute();
+            return true;
           }
         }
       }
-      return null;
+      return false;
     }
 
     public static void ThreadProc()

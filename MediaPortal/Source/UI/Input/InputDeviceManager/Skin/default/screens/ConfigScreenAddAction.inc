@@ -27,7 +27,7 @@
     </ListView>
 
     <Label Content="[InputDeviceManager.Screen]" Grid.Column="1" Grid.Row="0" Color="{ThemeResource TextColor}" FontSize="36" DockPanel.Dock="Top" HorizontalAlignment="Left"/>
-    <ListView Style="{StaticResource ContentsMenuListViewStyle}" Grid.Column="1" Grid.Row="1" ItemsSource="{Binding Path=MenuItems,Mode=OneTime}" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" IsVisible="true">
+    <ListView Style="{StaticResource ContentsMenuListViewStyle}" Grid.Column="1" Grid.Row="1" ItemsSource="{Binding Path=ScreenItems,Mode=OneTime}" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" IsVisible="true">
       <ListView.Resources>
         <CommandBridge x:Key="Menu_Command" Command="{Binding Path=Command,Mode=OneTime}" />
       </ListView.Resources>
