@@ -80,6 +80,7 @@ namespace MediaPortal.Plugins.InputDeviceManager.Models
     private DateTime _endTime;
     private Guid? _addKeyDialogHandle = null;
     private DialogCloseWatcher _dialogCloseWatcher = null;
+    private string _chosenAction = null;
 
     public string AddKeyLabel
     {
@@ -363,7 +364,52 @@ namespace MediaPortal.Plugins.InputDeviceManager.Models
           AddKeyCountdownLabel = "0";
           _timer.Stop();
           _inWorkflowAddKey = false;
-          ShowAddActionScreen();
+
+          List<int> keys = _pressedAddKeyCombo.Select(key => key.Value).ToList();
+          if (keys.Count > 0 && _chosenAction != null)
+          {
+            ISettingsManager settingsManager = ServiceRegistration.Get<ISettingsManager>();
+            InputManagerSettings settings = settingsManager.Load<InputManagerSettings>();
+            List<InputDevice> inputDevices = new List<InputDevice>();
+            if (settings != null)
+            {
+              try
+              {
+                inputDevices = settings.InputDevices.ToList();
+              }
+              catch { }
+            }
+
+            var device = inputDevices.FirstOrDefault(d => d.DeviceID == _currentInputDevice);
+            if (device != null)
+            {
+              device.KeyMap.Add(new MappedKeyCode(_chosenAction, keys));
+            }
+            else
+            {
+              var inputDevice = new InputDevice
+              {
+                DeviceID = _currentInputDevice,
+                Name = _currentInputDevice,
+                KeyMap = new List<MappedKeyCode> { new MappedKeyCode(_chosenAction, keys) }
+              };
+              inputDevices.Add(inputDevice);
+            }
+            if (settings != null)
+              settings.InputDevices = inputDevices;
+            else
+              settings = new InputManagerSettings { InputDevices = inputDevices };
+            settingsManager.Save(settings);
+
+            // update settings in the main plugin
+            InputDeviceManager.Instance.UpdateLoadedSettings(settings);
+          }
+
+          ResetAddKey();
+          _chosenAction = null;
+
+          // this brings us back to the add key menu
+          UpdateKeymapping();
         }
         else if(AddKeyCountdownLabel != leftTime.Seconds.ToString("0"))
         {
@@ -498,17 +544,18 @@ namespace MediaPortal.Plugins.InputDeviceManager.Models
 
       ShowAddAction = false;
       ShowAddKey = true;
-      _addKeyDialogHandle = ServiceRegistration.Get<IScreenManager>().ShowDialog("ConfigScreenAddKey", (s,g) =>
-      {
-        _addKeyDialogHandle = null;
-        _timer.Stop();
-      });
     }
 
     private void ShowAddActionScreen()
     {
+      _chosenAction = null;
       ShowAddKey = false;
       ShowAddAction = true;
+      _addKeyDialogHandle = ServiceRegistration.Get<IScreenManager>().ShowDialog("ConfigScreenAddKey", (s, g) =>
+      {
+        _addKeyDialogHandle = null;
+        _timer.Stop();
+      });
     }
 
     #endregion Screen switching functions
@@ -517,7 +564,7 @@ namespace MediaPortal.Plugins.InputDeviceManager.Models
 
     public void AddKeyMapping()
     {
-      ShowAddKeyScreen();
+      ShowAddActionScreen();
     }
 
     public void CancelMapping()
@@ -531,49 +578,8 @@ namespace MediaPortal.Plugins.InputDeviceManager.Models
 
     public void ChooseKeyAction(string chosenAction)
     {
-      List<int> keys = _pressedAddKeyCombo.Select(key => key.Value).ToList();
-      ISettingsManager settingsManager = ServiceRegistration.Get<ISettingsManager>();
-      InputManagerSettings settings = settingsManager.Load<InputManagerSettings>();
-
-      List<InputDevice> inputDevices = new List<InputDevice>();
-
-      if (settings != null)
-      {
-        try
-        {
-          inputDevices = settings.InputDevices.ToList();
-        }
-        catch { }
-      }
-
-      var device = inputDevices.FirstOrDefault(d => d.DeviceID == _currentInputDevice);
-      if (device != null)
-      {
-        device.KeyMap.Add(new MappedKeyCode(chosenAction, keys));
-      }
-      else
-      {
-        var inputDevice = new InputDevice
-        {
-          DeviceID = _currentInputDevice,
-          Name = _currentInputDevice,
-          KeyMap = new List<MappedKeyCode> { new MappedKeyCode(chosenAction, keys) }
-        };
-        inputDevices.Add(inputDevice);
-      }
-      if (settings != null)
-        settings.InputDevices = inputDevices;
-      else
-        settings = new InputManagerSettings { InputDevices = inputDevices };
-      settingsManager.Save(settings);
-
-      // update settings in the main plugin
-      InputDeviceManager.Instance.UpdateLoadedSettings(settings);
-
-      ResetAddKey();
-
-      // this brings us back to the add key menu
-      UpdateKeymapping();
+      _chosenAction = chosenAction;
+      ShowAddKeyScreen();
     }
 
     #endregion ListViewActions
