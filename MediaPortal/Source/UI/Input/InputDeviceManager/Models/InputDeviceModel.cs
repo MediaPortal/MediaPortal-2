@@ -53,6 +53,7 @@ namespace MediaPortal.Plugins.InputDeviceManager.Models
     public const string RES_SCREEN_TEXT = "[InputDeviceManager.Screen]";
     public const string KEY_KEYMAP_DATA = "KeyMapData";
     public const string KEY_KEYMAP = "KeyMap";
+    public const string KEY_KEYMAP_NAME = "MapName";
     public const string KEY_MENU_MODEL = "MenuModel: Item-Action";
     public const string KEY_PREFIX = "Key.";
     public const string HOME_PREFIX = "Home.";
@@ -188,6 +189,7 @@ namespace MediaPortal.Plugins.InputDeviceManager.Models
         {
           var listItem = new ListItem(Consts.KEY_NAME, $"{LocalizationHelper.Translate(RES_KEY_TEXT)} \"{key.Key}\"") { Command = new MethodDelegateCommand(() => ChooseKeyAction(KEY_PREFIX + key.Key)) };
           listItem.SetLabel(KEY_KEYMAP, "");
+          listItem.SetLabel(KEY_KEYMAP_NAME, key.Key);
           listItem.AdditionalProperties[KEY_KEYMAP_DATA] = KEY_PREFIX + key.Key;
           _items.Add(listItem);
         }
@@ -213,18 +215,14 @@ namespace MediaPortal.Plugins.InputDeviceManager.Models
           }
         }
       }
-
-      await Task.WhenAny(InputDeviceManager.InitComplete, Task.Delay(20000));
-      if (InputDeviceManager.InitComplete.IsCompleted)
-        InputDeviceManager.RawInput.KeyPressed += OnKeyPressed;
-      else
-        ServiceRegistration.Get<ILogger>().Error("InputDeviceModel: Timeout waiting for Input Manager");
+      InputDeviceManager.Instance.RegisterExternalKeyHandling(OnKeyPressed);
     }
 
     protected void AddScreen(WorkflowAction item, string prefix)
     {
       ListItem listItem = new ListItem(Consts.KEY_NAME, $"{LocalizationHelper.Translate(RES_SCREEN_TEXT)} \"{item.DisplayTitle}\"") { Command = new MethodDelegateCommand(() => ChooseKeyAction(prefix + item.Name)) };
       listItem.SetLabel(KEY_KEYMAP, "");
+      listItem.SetLabel(KEY_KEYMAP_NAME, item.DisplayTitle);
       listItem.AdditionalProperties[KEY_KEYMAP_DATA] = prefix + item.Name;
       if (!_items.Any(i => string.Compare((string)i.AdditionalProperties[KEY_KEYMAP_DATA], (string)listItem.AdditionalProperties[KEY_KEYMAP_DATA], true) == 0))
         _items.Add(listItem);
@@ -287,6 +285,7 @@ namespace MediaPortal.Plugins.InputDeviceManager.Models
           _pressedKeys.TryRemove(e.KeyPressEvent.VKeyName, out int tmp);
           break;
       }
+      e.Handled = true;
 
       if (ShowKeyMapping || _inWorkflowAddKey)
       {
@@ -454,7 +453,7 @@ namespace MediaPortal.Plugins.InputDeviceManager.Models
       ShowInputDeviceSelection = false;
       ShowKeyMapping = false;
       if (removeOnKeyPressed)
-        InputDeviceManager.RawInput.KeyPressed -= OnKeyPressed;
+        InputDeviceManager.Instance.UnRegisterExternalKeyHandling(OnKeyPressed);
     }
 
     #region Screen switching functions
