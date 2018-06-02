@@ -12,7 +12,7 @@
   </Grid.ColumnDefinitions>
 
   <!--Column 1 is "Name" and Column 2 is "KeyMap"-->
-  <ListView Grid.Row="0" Style="{StaticResource ContentsMenuListViewStyle}"
+  <ListView Grid.Row="0" Style="{StaticResource InputManagerListViewStyle}"
             ItemsSource="{Binding Path=KeyItems,Mode=OneTime}" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" IsVisible="true"
             CurrentItem="{Binding Path=SelectedItem, Mode=TwoWay}">
     <ListView.Resources>
