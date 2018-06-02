@@ -1687,22 +1687,28 @@ namespace MediaPortal.Backend.Services.MediaLibrary
 
     private Guid AddOrUpdateMediaItem(Guid parentDirectoryId, string systemId, ResourcePath path, Guid? existingMediaItemId, Guid? newMediaItemId, IEnumerable<MediaItemAspect> mediaItemAspects, bool isRefresh)
     {
-      // TODO: Avoid multiple write operations to the same media item
-      ISQLDatabase database = ServiceRegistration.Get<ISQLDatabase>();
-      ITransaction transaction = database.BeginTransaction();
-      try
+      Stopwatch swImport = new Stopwatch();
+      swImport.Start();
+      lock (_syncObj)
       {
-        Guid? mediaItemId = null;
-        mediaItemId = AddOrUpdateMediaItem(database, transaction, parentDirectoryId, systemId, path, existingMediaItemId, newMediaItemId, mediaItemAspects, isRefresh);
-        transaction.Commit();
-        MediaLibraryMessaging.SendMediaItemsAddedOrUpdatedMessage(new MediaItem(mediaItemId.Value, MediaItemAspect.GetAspects(mediaItemAspects)));
-        return mediaItemId.Value;
-      }
-      catch (Exception e)
-      {
-        Logger.Error("MediaLibrary: Error adding or updating media item(s) in path '{0}'", e, (path != null ? path.Serialize() : null));
-        transaction.Rollback();
-        return Guid.Empty;
+        // TODO: Avoid multiple write operations to the same media item
+        ISQLDatabase database = ServiceRegistration.Get<ISQLDatabase>();
+        ITransaction transaction = database.BeginTransaction();
+        try
+        {
+          Guid? mediaItemId = null;
+          mediaItemId = AddOrUpdateMediaItem(database, transaction, parentDirectoryId, systemId, path, existingMediaItemId, newMediaItemId, mediaItemAspects, isRefresh);
+          transaction.Commit();
+          MediaLibraryMessaging.SendMediaItemsAddedOrUpdatedMessage(new MediaItem(mediaItemId.Value, MediaItemAspect.GetAspects(mediaItemAspects)));
+          Logger.Info("Media item {0} ({1}) added successfully ({2} ms)", mediaItemId.Value, Path.GetFileName(path.FileName), swImport.ElapsedMilliseconds);
+          return mediaItemId.Value;
+        }
+        catch (Exception e)
+        {
+          Logger.Error("MediaLibrary: Error adding or updating media item(s) in path '{0}'", e, (path != null ? path.Serialize() : null));
+          transaction.Rollback();
+          return Guid.Empty;
+        }
       }
     }
 
