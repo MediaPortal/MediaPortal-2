@@ -120,18 +120,12 @@ namespace MediaPortal.Plugins.InputDeviceManager.Models
 
     public ItemsList KeyItems
     {
-      get
-      {
-        return _keyItems;
-      }
+      get { return _keyItems; }
     }
 
     public ItemsList ScreenItems
     {
-      get
-      {
-        return _screenItems;
-      }
+      get { return _screenItems; }
     }
 
     public bool ShowInputDeviceSelection
@@ -416,12 +410,14 @@ namespace MediaPortal.Plugins.InputDeviceManager.Models
       }
       _items.FireChange();
 
+      _keyItems.Clear();
       foreach (var item in _items.
           Where(i => ((string)i.AdditionalProperties[KEY_KEYMAP_DATA]).StartsWith(KEY_PREFIX, StringComparison.InvariantCultureIgnoreCase)).
           OrderBy(i => i.Labels[Consts.KEY_NAME].Evaluate()))
         _keyItems.Add(item);
       _keyItems.FireChange();
 
+      _screenItems.Clear();
       foreach (var item in _items.
           Where(i => !((string)i.AdditionalProperties[KEY_KEYMAP_DATA]).StartsWith(KEY_PREFIX, StringComparison.InvariantCultureIgnoreCase)).
           OrderBy(i => i.Labels[Consts.KEY_NAME].Evaluate()))
