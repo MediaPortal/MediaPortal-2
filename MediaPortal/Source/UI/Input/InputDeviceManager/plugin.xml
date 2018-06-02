@@ -43,9 +43,14 @@
 
   <Register Location="/Workflow/States">
     <WorkflowState Id="CB09DF01-65FA-4550-977C-B685C237ED3D"
-        Name="InputDeviceManagerConfigScreen"
-        MainScreen="ConfigScreen"
-        DisplayLabel="InputDevices"
+        Name="InputDeviceManagerConfigScreenKeys"
+        MainScreen="ConfigScreenKeys"
+        DisplayLabel="Input Devices Keys"
+        WorkflowModel="CC11183C-01A9-4F96-AF90-FAA046981006"/>
+    <WorkflowState Id="A1399A7B-AD02-4F72-8F80-F0C43362953E"
+        Name="InputDeviceManagerConfigScreenScreens"
+        MainScreen="ConfigScreenScreens"
+        DisplayLabel="Input Devices Screens"
         WorkflowModel="CC11183C-01A9-4F96-AF90-FAA046981006"/>
   </Register>
 
@@ -58,10 +63,16 @@
 
   <Register Location="/Configuration/Settings/InputDevices">
     <CustomConfigSetting
-        Id="InputDevicesConf"
-        Text="[Settings.InputDeviceManager.EnterConfig]"
-        HelpText="[Settings.InputDeviceManager.EnterConfigHelp]"
-        ClassName="MediaPortal.Plugins.InputDeviceManager.Settings.ConfigScreen"
+        Id="InputDevicesConfKeys"
+        Text="[Settings.InputDeviceManager.EnterKeyConfig]"
+        HelpText="[Settings.InputDeviceManager.EnterKeyConfigHelp]"
+        ClassName="MediaPortal.Plugins.InputDeviceManager.Settings.ConfigScreenKeys"
         AdditionalData="WorkflowState=CB09DF01-65FA-4550-977C-B685C237ED3D,ConfAppPanel=..."/>
+    <CustomConfigSetting
+        Id="InputDevicesConfScreens"
+        Text="[Settings.InputDeviceManager.EnterScreenConfig]"
+        HelpText="[Settings.InputDeviceManager.EnterScreenConfigHelp]"
+        ClassName="MediaPortal.Plugins.InputDeviceManager.Settings.ConfigScreenScreens"
+        AdditionalData="WorkflowState=A1399A7B-AD02-4F72-8F80-F0C43362953E,ConfAppPanel=..."/>
   </Register>
 </Plugin>

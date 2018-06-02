@@ -58,7 +58,8 @@
     <Compile Include="RawInput\RawKeyboard.cs" />
     <Compile Include="RawInput\RegistryAccess.cs" />
     <Compile Include="RawInput\Win32.cs" />
-    <Compile Include="Settings\ConfigScreen.cs" />
+    <Compile Include="Settings\ConfigScreenKeys.cs" />
+    <Compile Include="Settings\ConfigScreenScreens.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Language\strings_en.xml">
@@ -66,6 +67,9 @@
     </Content>
     <Content Include="plugin.xml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Skin\default\screens\ConfigScreenScreenMapping.inc">
+      <SubType>Designer</SubType>
     </Content>
     <Content Include="Skin\default\screens\ConfigScreenSelectDevice.inc" />
   </ItemGroup>
@@ -95,7 +99,7 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Skin\default\screens\ConfigScreen.xaml">
+    <Content Include="Skin\default\screens\ConfigScreenKeys.xaml">
       <SubType>Designer</SubType>
     </Content>
   </ItemGroup>
@@ -111,7 +115,7 @@
     </Content>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Skin\default\screens\ConfigScreenAddAction.inc">
+    <Content Include="Skin\default\screens\ConfigScreenScreens.xaml">
       <SubType>Designer</SubType>
     </Content>
   </ItemGroup>

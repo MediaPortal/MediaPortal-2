@@ -7,7 +7,7 @@
   <Include.Resources>
 
     <!-- Header -->
-    <ResourceWrapper x:Key="Dialog_Header_Text" Resource="[InputDeviceManager.KeyMapping.Button.AddMapping]"/>
+    <ResourceWrapper x:Key="Dialog_Header_Text" Resource="[InputDeviceManager.KeyMapping.Dialog.AddMapping]"/>
 
     <!-- Input Manager model -->
     <Model x:Key="InputManagerModel" Id="CC11183C-01A9-4F96-AF90-FAA046981006"/>
@@ -15,9 +15,7 @@
     <ControlTemplate x:Key="Contents_Template">
       <DockPanel Context="{Binding Source={StaticResource InputManagerModel}}">
         <!--Context="{Model Id=CC11183C-01A9-4F96-AF90-FAA046981006}">-->
-        <!-- Screen for adding a Action to the Key combination -->
-        <Include Source="screens\ConfigScreenAddAction.inc"/>
-        <DockPanel IsVisible="{Binding ShowAddKey}" LastChildFill="False">
+        <DockPanel LastChildFill="False">
           <Label Content="[InputDeviceManager.AddKey.Header]" Color="{ThemeResource TextColor}" FontSize="36" DockPanel.Dock="Top" HorizontalAlignment="Center"
                Wrap="True"/>
           <Label Content="{Binding AddKeyLabel}" Color="{ThemeResource TextColor}" FontSize="36" DockPanel.Dock="Top" HorizontalAlignment="Center"/>

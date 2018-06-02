@@ -27,9 +27,9 @@ using MediaPortal.Common.Configuration.ConfigurationClasses;
 
 namespace MediaPortal.Plugins.InputDeviceManager.Settings
 {
-  public class ConfigScreen : CustomConfigSetting, IDisposable
+  public class ConfigScreenScreens : CustomConfigSetting, IDisposable
   {
-    public ConfigScreen() { }
+    public ConfigScreenScreens() { }
 
     public void Dispose() { }
   }

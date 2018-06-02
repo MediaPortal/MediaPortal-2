@@ -51,7 +51,8 @@ namespace MediaPortal.Plugins.InputDeviceManager.Models
     public const string RES_REMOVE_MAPPING_TEXT = "[InputDeviceManager.KeyMapping.Dialog.RemoveMapping]";
     public const string RES_KEY_TEXT = "[InputDeviceManager.Key]";
     public const string RES_SCREEN_TEXT = "[InputDeviceManager.Screen]";
-    public const string KEY_KEYMAP = "KeyMapData";
+    public const string KEY_KEYMAP_DATA = "KeyMapData";
+    public const string KEY_KEYMAP = "KeyMap";
     public const string KEY_MENU_MODEL = "MenuModel: Item-Action";
     public const string KEY_PREFIX = "Key.";
     public const string HOME_PREFIX = "Home.";
@@ -69,7 +70,8 @@ namespace MediaPortal.Plugins.InputDeviceManager.Models
     protected AbstractProperty _showAddActionProperty;
     protected AbstractProperty _selectedItemProperty;
     protected ItemsList _items;
-    protected ItemsList _actionItems;
+    protected ItemsList _keyItems;
+    protected ItemsList _screenItems;
 
     private static string _currentInputDevice;
     private static bool _inWorkflowAddKey = false;
@@ -115,21 +117,11 @@ namespace MediaPortal.Plugins.InputDeviceManager.Models
       get { return _items; }
     }
 
-    public ItemsList ActionItems
-    {
-      get { return _actionItems; }
-    }
-
     public ItemsList KeyItems
     {
       get
       {
-        ItemsList keyList = new ItemsList();
-        foreach (var item in _actionItems.
-          Where(i => ((string)i.AdditionalProperties[KEY_KEYMAP]).StartsWith(KEY_PREFIX, StringComparison.InvariantCultureIgnoreCase)).
-          OrderBy(i => i.Labels[Consts.KEY_NAME].Evaluate()))
-          keyList.Add(item);
-        return keyList;
+        return _keyItems;
       }
     }
 
@@ -137,13 +129,7 @@ namespace MediaPortal.Plugins.InputDeviceManager.Models
     {
       get
       {
-        ItemsList menuList = new ItemsList();
-        foreach (var item in _actionItems.
-          Where(i => ((string)i.AdditionalProperties[KEY_KEYMAP]).StartsWith(HOME_PREFIX, StringComparison.InvariantCultureIgnoreCase) ||
-            ((string)i.AdditionalProperties[KEY_KEYMAP]).StartsWith(CONFIG_PREFIX, StringComparison.InvariantCultureIgnoreCase)).
-          OrderBy(i => i.Labels[Consts.KEY_NAME].Evaluate()))
-          menuList.Add(item);
-        return menuList;
+        return _screenItems;
       }
     }
 
@@ -169,28 +155,6 @@ namespace MediaPortal.Plugins.InputDeviceManager.Models
       get { return _showKeyMappingProperty; }
     }
 
-    public bool ShowAddKey
-    {
-      get { return (bool)_showAddKeyProperty.GetValue(); }
-      set { _showAddKeyProperty.SetValue(value); }
-    }
-
-    public AbstractProperty ShowAddKeyProperty
-    {
-      get { return _showAddKeyProperty; }
-    }
-
-    public bool ShowAddAction
-    {
-      get { return (bool)_showAddActionProperty.GetValue(); }
-      set { _showAddActionProperty.SetValue(value); }
-    }
-
-    public AbstractProperty ShowAddActionProperty
-    {
-      get { return _showAddActionProperty; }
-    }
-
     public ListItem SelectedItem
     {
       get { return (ListItem)_selectedItemProperty.GetValue(); }
@@ -212,20 +176,22 @@ namespace MediaPortal.Plugins.InputDeviceManager.Models
       _showAddKeyProperty = new WProperty(typeof(bool), false);
       _showAddActionProperty = new WProperty(typeof(bool), false);
       _selectedItemProperty = new WProperty(typeof(ListItem), null);
-      _items = new ItemsList();
 
-      if (_actionItems == null)
+      if (_items == null)
       {
-        _actionItems = new ItemsList();
+        _items = new ItemsList();
+        _keyItems = new ItemsList();
+        _screenItems = new ItemsList();
         _timer.Elapsed += timer_Tick;
 
         foreach (var key in Key.NAME2SPECIALKEY)
         {
-          var listItem = new ListItem(Consts.KEY_NAME, key.Key) { Command = new MethodDelegateCommand(() => ChooseKeyAction(KEY_PREFIX + key.Key)) };
-          listItem.AdditionalProperties[KEY_KEYMAP] = KEY_PREFIX + key.Key;
-          _actionItems.Add(listItem);
+          var listItem = new ListItem(Consts.KEY_NAME, $"{LocalizationHelper.Translate(RES_KEY_TEXT)} \"{key.Key}\"") { Command = new MethodDelegateCommand(() => ChooseKeyAction(KEY_PREFIX + key.Key)) };
+          listItem.SetLabel(KEY_KEYMAP, "");
+          listItem.AdditionalProperties[KEY_KEYMAP_DATA] = KEY_PREFIX + key.Key;
+          _items.Add(listItem);
         }
-
+        
         // TODO: Add more actions?
         IWorkflowManager workflowManager = ServiceRegistration.Get<IWorkflowManager>();
         foreach (NavigationContext context in workflowManager.NavigationContextStack)
@@ -236,19 +202,13 @@ namespace MediaPortal.Plugins.InputDeviceManager.Models
             //Add home menu items
             if (item.SourceStateIds?.Contains(HOME_STATE_ID) == true)
             {
-              ListItem listItem = new ListItem(Consts.KEY_NAME, item.DisplayTitle) { Command = new MethodDelegateCommand(() => ChooseKeyAction(HOME_PREFIX + item.Name)) };
-              listItem.AdditionalProperties[KEY_KEYMAP] = HOME_PREFIX + item.Name;
-              if(!_actionItems.Any(i => string.Compare((string)i.AdditionalProperties[KEY_KEYMAP], (string)listItem.AdditionalProperties[KEY_KEYMAP], true) == 0))
-                _actionItems.Add(listItem);
+              AddScreen(item, HOME_PREFIX);
             }
             //Add config menu items
             else if (item.SourceStateIds?.Contains(CONFIGURATION_STATE_ID) == true)
             {
               //Only add home menus for now. Other menus seem to have a dependency on the previews screen
-              ListItem listItem = new ListItem(Consts.KEY_NAME, item.DisplayTitle) { Command = new MethodDelegateCommand(() => ChooseKeyAction(CONFIG_PREFIX + item.Name)) };
-              listItem.AdditionalProperties[KEY_KEYMAP] = CONFIG_PREFIX + item.Name;
-              if (!_actionItems.Any(i => string.Compare((string)i.AdditionalProperties[KEY_KEYMAP], (string)listItem.AdditionalProperties[KEY_KEYMAP], true) == 0))
-                _actionItems.Add(listItem);
+              AddScreen(item, CONFIG_PREFIX);
             }
           }
         }
@@ -259,6 +219,15 @@ namespace MediaPortal.Plugins.InputDeviceManager.Models
         InputDeviceManager.RawInput.KeyPressed += OnKeyPressed;
       else
         ServiceRegistration.Get<ILogger>().Error("InputDeviceModel: Timeout waiting for Input Manager");
+    }
+
+    protected void AddScreen(WorkflowAction item, string prefix)
+    {
+      ListItem listItem = new ListItem(Consts.KEY_NAME, $"{LocalizationHelper.Translate(RES_SCREEN_TEXT)} \"{item.DisplayTitle}\"") { Command = new MethodDelegateCommand(() => ChooseKeyAction(prefix + item.Name)) };
+      listItem.SetLabel(KEY_KEYMAP, "");
+      listItem.AdditionalProperties[KEY_KEYMAP_DATA] = prefix + item.Name;
+      if (!_items.Any(i => string.Compare((string)i.AdditionalProperties[KEY_KEYMAP_DATA], (string)listItem.AdditionalProperties[KEY_KEYMAP_DATA], true) == 0))
+        _items.Add(listItem);
     }
 
     protected List<ListItem> UpdateMenu(NavigationContext context)
@@ -427,43 +396,113 @@ namespace MediaPortal.Plugins.InputDeviceManager.Models
     /// </summary>
     private void UpdateKeymapping()
     {
-      _items.Clear();
       InputDevice device;
       if (InputDeviceManager.InputDevices.TryGetValue(_currentInputDevice, out device))
       {
         foreach (var keyMapping in device.KeyMap)
         {
-          string text = (string)_actionItems.FirstOrDefault(i => string.Compare((string)i.AdditionalProperties[KEY_KEYMAP], keyMapping.Key, true) == 0)?.Labels[Consts.KEY_NAME]?.Evaluate() ?? keyMapping.Key;
-          if (keyMapping.Key.StartsWith(KEY_PREFIX))
+          var item = _items.FirstOrDefault(i => string.Compare((string)i.AdditionalProperties[KEY_KEYMAP_DATA], keyMapping.Key, true) == 0);
+          if (item == null)
           {
-            text = $"{LocalizationHelper.Translate(RES_KEY_TEXT)} \"{text}\"";
+            item = new ListItem(Consts.KEY_NAME, keyMapping.Key) { Command = new MethodDelegateCommand(() => ChooseKeyAction(keyMapping.Key)) };
+            item.SetLabel(KEY_KEYMAP, "");
+            item.AdditionalProperties[KEY_KEYMAP_DATA] = keyMapping.Key;
+            _items.Add(item);
           }
-          else if(keyMapping.Key.StartsWith(HOME_PREFIX) || keyMapping.Key.StartsWith(CONFIG_PREFIX))
-          {
-            text = $"{LocalizationHelper.Translate(RES_SCREEN_TEXT)} \"{text}\"";
-          }
-          var item = new ListItem(Consts.KEY_NAME, String.Format("{0}: {1}", text, String.Join(" + ", string.Join(" + ", keyMapping.Code.Select(KeyMapper.GetKeyName)))))
-          {
-            Command = new MethodDelegateCommand(MappingCommand)
-          };
-          item.AdditionalProperties.Add(KEY_KEYMAP, keyMapping);
-          _items.Add(item);
+          if (keyMapping.Code?.Count > 0)
+            item.SetLabel(KEY_KEYMAP, string.Join(" + ", keyMapping.Code.Select(KeyMapper.GetKeyName)));
+          else
+            item.SetLabel(KEY_KEYMAP, "");
         }
       }
-
       _items.FireChange();
+
+      foreach (var item in _items.
+          Where(i => ((string)i.AdditionalProperties[KEY_KEYMAP_DATA]).StartsWith(KEY_PREFIX, StringComparison.InvariantCultureIgnoreCase)).
+          OrderBy(i => i.Labels[Consts.KEY_NAME].Evaluate()))
+        _keyItems.Add(item);
+      _keyItems.FireChange();
+
+      foreach (var item in _items.
+          Where(i => !((string)i.AdditionalProperties[KEY_KEYMAP_DATA]).StartsWith(KEY_PREFIX, StringComparison.InvariantCultureIgnoreCase)).
+          OrderBy(i => i.Labels[Consts.KEY_NAME].Evaluate()))
+        _screenItems.Add(item);
+      _screenItems.FireChange();
 
       ShowKeyMappingScreen();
     }
 
-    private void MappingCommand()
+    /// <summary>
+    /// This function makes us ready to accept new key mappings
+    /// </summary>
+    private void ResetAddKey()
+    {
+      _timer.Stop();
+      _maxPressedKeys = 0;
+      _pressedKeys.Clear();
+      _pressedAddKeyCombo.Clear();
+      AddKeyLabel = "";
+      AddKeyCountdownLabel = "5";
+      _inWorkflowAddKey = false;
+    }
+
+    private void ResetCompleteModel(bool removeOnKeyPressed = true)
+    {
+      ResetAddKey();
+
+      // Reset screens
+      ShowInputDeviceSelection = false;
+      ShowKeyMapping = false;
+      if (removeOnKeyPressed)
+        InputDeviceManager.RawInput.KeyPressed -= OnKeyPressed;
+    }
+
+    #region Screen switching functions
+
+    private void ShowKeyMappingScreen()
+    {
+      ResetAddKey();
+
+      ShowInputDeviceSelection = false;
+      ShowKeyMapping = true;
+      if (_addKeyDialogHandle.HasValue)
+        ServiceRegistration.Get<IScreenManager>().CloseDialog(_addKeyDialogHandle.Value);
+    }
+
+    private void ShowAddKeyScreen()
+    {
+      ResetAddKey();
+      _inWorkflowAddKey = true;
+
+      _addKeyDialogHandle = ServiceRegistration.Get<IScreenManager>().ShowDialog("ConfigScreenAddKey", (s, g) =>
+      {
+        _addKeyDialogHandle = null;
+        _timer.Stop();
+      });
+    }
+
+    #endregion Screen switching functions
+
+    #region Button Actions
+
+    public void AddKeyMapping()
+    {
+      ShowAddKeyScreen();
+    }
+
+    public void CancelMapping()
+    {
+      ResetCompleteModel(false);
+    }
+
+    public void DeleteKeyMapping()
     {
       if (SelectedItem != null)
       {
         var selectedItem = SelectedItem;
         var dialogManager = ServiceRegistration.Get<IDialogManager>();
         Guid handle = dialogManager.ShowDialog(selectedItem.Label(Consts.KEY_NAME, selectedItem.ToString()).ToString(),
-          LocalizationHelper.Translate(RES_REMOVE_MAPPING_TEXT), 
+          LocalizationHelper.Translate(RES_REMOVE_MAPPING_TEXT),
           DialogType.YesNoDialog, false, DialogButtonType.No);
         _dialogCloseWatcher = new DialogCloseWatcher(this, handle,
         dialogResult =>
@@ -473,7 +512,7 @@ namespace MediaPortal.Plugins.InputDeviceManager.Models
             InputDevice device;
             if (InputDeviceManager.InputDevices.TryGetValue(_currentInputDevice, out device))
             {
-              MappedKeyCode mappedKeyCode = device.KeyMap.FirstOrDefault(k => ReferenceEquals(k, selectedItem.AdditionalProperties[KEY_KEYMAP]));
+              MappedKeyCode mappedKeyCode = device.KeyMap.FirstOrDefault(k => ReferenceEquals(k, selectedItem.AdditionalProperties[KEY_KEYMAP_DATA]));
               if (mappedKeyCode != null)
               {
                 device.KeyMap.Remove(mappedKeyCode);
@@ -498,83 +537,9 @@ namespace MediaPortal.Plugins.InputDeviceManager.Models
       }
     }
 
-    /// <summary>
-    /// This function makes us ready to accept new key mappings
-    /// </summary>
-    private void ResetAddKey()
-    {
-      _timer.Stop();
-      _maxPressedKeys = 0;
-      _pressedKeys.Clear();
-      _pressedAddKeyCombo.Clear();
-      AddKeyLabel = "";
-      AddKeyCountdownLabel = "5";
-      _inWorkflowAddKey = false;
-    }
-
-    private void ResetCompleteModel(bool removeOnKeyPressed = true)
-    {
-      ResetAddKey();
-
-      // Reset screens
-      ShowInputDeviceSelection = false;
-      ShowAddKey = false;
-      ShowAddAction = false;
-      ShowKeyMapping = false;
-      if (removeOnKeyPressed)
-        InputDeviceManager.RawInput.KeyPressed -= OnKeyPressed;
-    }
-
-    #region Screen switching functions
-
-    private void ShowKeyMappingScreen()
-    {
-      ResetAddKey();
-
-      ShowInputDeviceSelection = false;
-      ShowKeyMapping = true;
-      if (_addKeyDialogHandle.HasValue)
-        ServiceRegistration.Get<IScreenManager>().CloseDialog(_addKeyDialogHandle.Value);
-    }
-
-    private void ShowAddKeyScreen()
-    {
-      ResetAddKey();
-      _inWorkflowAddKey = true;
-
-      ShowAddAction = false;
-      ShowAddKey = true;
-    }
-
-    private void ShowAddActionScreen()
-    {
-      _chosenAction = null;
-      ShowAddKey = false;
-      ShowAddAction = true;
-      _addKeyDialogHandle = ServiceRegistration.Get<IScreenManager>().ShowDialog("ConfigScreenAddKey", (s, g) =>
-      {
-        _addKeyDialogHandle = null;
-        _timer.Stop();
-      });
-    }
-
-    #endregion Screen switching functions
-
-    #region buttonActions
-
-    public void AddKeyMapping()
-    {
-      ShowAddActionScreen();
-    }
-
-    public void CancelMapping()
-    {
-      ResetCompleteModel(false);
-    }
-
     #endregion buttonActions
 
-    #region ListViewActions
+    #region List View Actions
 
     public void ChooseKeyAction(string chosenAction)
     {
@@ -582,7 +547,7 @@ namespace MediaPortal.Plugins.InputDeviceManager.Models
       ShowAddKeyScreen();
     }
 
-    #endregion ListViewActions
+    #endregion List View Actions
 
     #region IWorkflowModel implementation
 
