@@ -42,34 +42,21 @@ namespace MediaPortal.Plugins.InputDeviceManager
 {
   public class InputDeviceManager : IPluginStateTracker
   {
-    private static InputDeviceManager _instance;
-    private static RawInputHandler _rawInput;
     private const bool CAPTURE_ONLY_IN_FOREGROUND = false;
     private static readonly Dictionary<string, InputDevice> _inputDevices = new Dictionary<string, InputDevice>();
     private Thread _startupThread;
     private static IScreenControl _screenControl;
     private static readonly ConcurrentDictionary<string, int> _pressedKeys = new ConcurrentDictionary<string, int>();
-    private static readonly TaskCompletionSource<bool> _initComplete = new TaskCompletionSource<bool>();
+    private static RawInputHandler _rawInput;
+    private static List<Action<object, RawInputEventArg>> _externalKeyPressHandlers = new List<Action<object, RawInputEventArg>>();
+    private static object _listSyncObject = new object();
 
     public InputDeviceManager()
     {
-      _instance = this;
+      Instance = this;
     }
 
-    public static InputDeviceManager Instance
-    {
-      get { return _instance; }
-    }
-
-    public static RawInputHandler RawInput
-    {
-      get { return _rawInput; }
-    }
-
-    public static Task InitComplete
-    {
-      get { return _initComplete.Task; }
-    }
+    public static InputDeviceManager Instance { get; private set; }
 
     public static IDictionary<string, InputDevice> InputDevices
     {
@@ -97,38 +84,52 @@ namespace MediaPortal.Plugins.InputDeviceManager
         ServiceRegistration.Get<ILogger>().Debug("stateNr {0}", e.KeyPressEvent.Message);
       }
 
-      InputDevice device;
-      if (_inputDevices.TryGetValue(e.KeyPressEvent.Source, out device))
+      if (_externalKeyPressHandlers.Count == 0)
       {
-        var keyMapping = device.KeyMap.FirstOrDefault(m => m.Code.SequenceEqual(_pressedKeys.Values));
-        if(keyMapping != null)
+        InputDevice device;
+        if (_inputDevices.TryGetValue(e.KeyPressEvent.Source, out device))
         {
-          string[] actionArray = keyMapping.Key.Split('.');
-          if (actionArray.Length >= 2)
+          var keyMappings = device.KeyMap.Where(m => m.Code.SequenceEqual(_pressedKeys.Values));
+          if (keyMappings?.Count() > 0)
           {
-            if (keyMapping.Key.StartsWith(InputDeviceModel.KEY_PREFIX, StringComparison.InvariantCultureIgnoreCase))
+            foreach (var keyMapping in keyMappings)
             {
-              ServiceRegistration.Get<ILogger>().Debug("Executing key action: " + actionArray[1]);
-              ServiceRegistration.Get<IInputManager>().KeyPress(Key.GetSpecialKeyByName(actionArray[1]));
-              e.Handled = true;
-            }
-            else if (keyMapping.Key.StartsWith(InputDeviceModel.HOME_PREFIX, StringComparison.InvariantCultureIgnoreCase))
-            {
-              ServiceRegistration.Get<ILogger>().Debug("Executing home action: " + actionArray[1]);
-              if (NavigateToScreen(actionArray[1]))
+              string[] actionArray = keyMapping.Key.Split('.');
+              if (actionArray.Length >= 2)
               {
-                e.Handled = true;
-              }
-            }
-            else if (keyMapping.Key.StartsWith(InputDeviceModel.CONFIG_PREFIX, StringComparison.InvariantCultureIgnoreCase))
-            {
-              ServiceRegistration.Get<ILogger>().Debug("Executing config action: " + actionArray[1]);
-              if (NavigateToScreen(actionArray[1], InputDeviceModel.CONFIGURATION_STATE_ID))
-              {
-                e.Handled = true;
+                if (keyMapping.Key.StartsWith(InputDeviceModel.KEY_PREFIX, StringComparison.InvariantCultureIgnoreCase))
+                {
+                  ServiceRegistration.Get<ILogger>().Debug("Executing key action: " + actionArray[1]);
+                  ServiceRegistration.Get<IInputManager>().KeyPress(Key.GetSpecialKeyByName(actionArray[1]));
+                  e.Handled = true;
+                }
+                else if (keyMapping.Key.StartsWith(InputDeviceModel.HOME_PREFIX, StringComparison.InvariantCultureIgnoreCase))
+                {
+                  ServiceRegistration.Get<ILogger>().Debug("Executing home action: " + actionArray[1]);
+                  if (NavigateToScreen(actionArray[1]))
+                  {
+                    e.Handled = true;
+                  }
+                }
+                else if (keyMapping.Key.StartsWith(InputDeviceModel.CONFIG_PREFIX, StringComparison.InvariantCultureIgnoreCase))
+                {
+                  ServiceRegistration.Get<ILogger>().Debug("Executing config action: " + actionArray[1]);
+                  if (NavigateToScreen(actionArray[1], InputDeviceModel.CONFIGURATION_STATE_ID))
+                  {
+                    e.Handled = true;
+                  }
+                }
               }
             }
           }
+        }
+      }
+      else
+      {
+        lock (_listSyncObject)
+        {
+          foreach (var action in _externalKeyPressHandlers)
+            action.Invoke(sender, e);
         }
       }
       //ServiceRegistration.Get<ILogger>().Debug(e.KeyPressEvent.DeviceHandle.ToString());
@@ -164,7 +165,7 @@ namespace MediaPortal.Plugins.InputDeviceManager
       return false;
     }
 
-    public static void ThreadProc()
+    private static void ThreadProc()
     {
       while (_screenControl == null)
       {
@@ -177,7 +178,6 @@ namespace MediaPortal.Plugins.InputDeviceManager
             _rawInput = new RawInputHandler(_screenControl.MainWindowHandle, CAPTURE_ONLY_IN_FOREGROUND);
             _rawInput.AddMessageFilter(); // Adding a message filter will cause keypresses to be handled
             _rawInput.KeyPressed += OnKeyPressed;
-            _initComplete.SetResult(true);
           }
         }
         catch
@@ -188,7 +188,7 @@ namespace MediaPortal.Plugins.InputDeviceManager
       }
     }
 
-    public void LoadSettings()
+    private void LoadSettings()
     {
       ISettingsManager settingsManager = ServiceRegistration.Get<ISettingsManager>();
       InputManagerSettings settings = settingsManager.Load<InputManagerSettings>();
@@ -213,6 +213,40 @@ namespace MediaPortal.Plugins.InputDeviceManager
         {
           // ignored
         }
+    }
+
+    public bool RegisterExternalKeyHandling(Action<object, RawInputEventArg> keyPressed)
+    {
+      lock (_listSyncObject)
+      {
+        if (!_externalKeyPressHandlers.Contains(keyPressed))
+        {
+          _externalKeyPressHandlers.Add(keyPressed);
+          return true;
+        }
+      }
+      return false;
+    }
+
+    public bool UnRegisterExternalKeyHandling(Action<object, RawInputEventArg> keyPressed)
+    {
+      lock (_listSyncObject)
+      {
+        if (_externalKeyPressHandlers.Contains(keyPressed))
+        {
+          _externalKeyPressHandlers.Remove(keyPressed);
+          return true;
+        }
+      }
+      return false;
+    }
+
+    public void RemoveAllExternalKeyHandling()
+    {
+      lock (_listSyncObject)
+      {
+        _externalKeyPressHandlers.Clear();
+      }
     }
 
     #region Implementation of IPluginStateTracker

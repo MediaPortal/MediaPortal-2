@@ -213,12 +213,7 @@ namespace MediaPortal.Plugins.InputDeviceManager.Models
           }
         }
       }
-
-      await Task.WhenAny(InputDeviceManager.InitComplete, Task.Delay(20000));
-      if (InputDeviceManager.InitComplete.IsCompleted)
-        InputDeviceManager.RawInput.KeyPressed += OnKeyPressed;
-      else
-        ServiceRegistration.Get<ILogger>().Error("InputDeviceModel: Timeout waiting for Input Manager");
+      InputDeviceManager.Instance.RegisterExternalKeyHandling(OnKeyPressed);
     }
 
     protected void AddScreen(WorkflowAction item, string prefix)
@@ -287,6 +282,7 @@ namespace MediaPortal.Plugins.InputDeviceManager.Models
           _pressedKeys.TryRemove(e.KeyPressEvent.VKeyName, out int tmp);
           break;
       }
+      e.Handled = true;
 
       if (ShowKeyMapping || _inWorkflowAddKey)
       {
@@ -454,7 +450,7 @@ namespace MediaPortal.Plugins.InputDeviceManager.Models
       ShowInputDeviceSelection = false;
       ShowKeyMapping = false;
       if (removeOnKeyPressed)
-        InputDeviceManager.RawInput.KeyPressed -= OnKeyPressed;
+        InputDeviceManager.Instance.UnRegisterExternalKeyHandling(OnKeyPressed);
     }
 
     #region Screen switching functions
