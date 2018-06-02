@@ -6,6 +6,9 @@
     >
   <Include.Resources>
 
+    <!-- Header -->
+    <ResourceWrapper x:Key="Header_Text" Resource="[Settings.InputDeviceManager.Section]"/>
+
     <Model x:Key="InputManagerModel" Id="CC11183C-01A9-4F96-AF90-FAA046981006"/>
     
     <ControlTemplate x:Key="Contents_Template">
