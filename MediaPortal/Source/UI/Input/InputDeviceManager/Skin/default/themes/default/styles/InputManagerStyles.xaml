@@ -19,8 +19,11 @@
         <ColumnDefinition Width="*"/>
         <ColumnDefinition Width="*"/>
       </Grid.ColumnDefinitions>
-      <Image Thumbnail="True" Stretch="Uniform" Height="32" Width="32"
-             Source="{Binding [ImageSrc]}" FallbackSource="{Binding [DefaultIconSrc]}"/>
+      <Image Thumbnail="True" Stretch="Uniform" Height="40" Width="40" Margin="0,-1,4,-3">
+        <Image.Source>
+          <Binding Path="[MapName]" Converter="{StaticResource SafeFilenameConverter}" ConverterParameter="{}{0}.png"/>
+        </Image.Source>
+      </Image>
       <Label x:Name="ItemLabel" Content="{Binding [Name]}" Grid.Column="1"
              HorizontalAlignment="Left" VerticalAlignment="Center" FontSize="{ThemeResource SmallFontSize}"
              Color="{ThemeResource TextColor}"/>
