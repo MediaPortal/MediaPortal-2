@@ -33,20 +33,33 @@
     </Grid>
   </DataTemplate>
 
+  <EmptyString2FalseConverter x:Key="EmptyStringToFalseConverter"/>
+  
   <Style x:Key="InputManagerItemContainerStyle" BasedOn="{ThemeResource DefaultItemContainerStyle}">
     <Setter Property="Template">
       <Setter.Value>
         <ControlTemplate TargetType="{x:Type ListViewItem}">
-          <Button Style="{ThemeResource ButtonWideStyle}" Command="{DynamicResource ResourceKey=Menu_Command}"
-                  IsEnabled="{Binding Enabled}" SetFocus="{Binding Path=Selected,Mode=OneTime}">
-            <Button.Triggers>
-              <Trigger Property="HasFocus" Value="True">
-                <Setter TargetName="ItemLabel" Property="Scroll" Value="Auto"/>
-                <Setter TargetName="ItemLabel2" Property="Scroll" Value="Auto"/>
-                <Setter Property="StackPanel.ZIndex" Value="100.0"/>
-              </Trigger>
-            </Button.Triggers>
-          </Button>
+          <Grid x:Name="ItemControl">
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="*"/>
+              <ColumnDefinition Width="200"/>
+            </Grid.ColumnDefinitions>
+            <Button Grid.Column="0" Style="{ThemeResource ButtonWideStyle}" Command="{DynamicResource ResourceKey=Menu_Command}"
+                    IsEnabled="{Binding Enabled}" SetFocus="{Binding Path=Selected,Mode=OneTime}">
+              <Button.Triggers>
+                <Trigger Property="HasFocus" Value="True">
+                  <Setter TargetName="ItemLabel" Property="Scroll" Value="Auto"/>
+                  <Setter TargetName="ItemLabel2" Property="Scroll" Value="Auto"/>
+                  <Setter Property="StackPanel.ZIndex" Value="100.0"/>
+                </Trigger>
+              </Button.Triggers>
+            </Button>
+            <Button Grid.Column="1" Content="[InputDeviceManager.KeyMapping.Button.ClearMapping]"
+                    Style="{ThemeResource ButtonWideStyle}" Margin="10,0,0,0"
+                    HorizontalAlignment="Right" VerticalAlignment="Center" Command="{Command DeleteKeyMapping}"
+                    IsVisible="{Binding Path=[KeyMap],Converter={StaticResource ReferenceToBoolConverter}}"/>
+                    <!--IsVisible="{Binding Source={StaticResource SlimTvClient},Path=[KeyMap], Converter={StaticResource EmptyStringToFalseConverter}}"/-->
+          </Grid>
         </ControlTemplate>
       </Setter.Value>
     </Setter>
