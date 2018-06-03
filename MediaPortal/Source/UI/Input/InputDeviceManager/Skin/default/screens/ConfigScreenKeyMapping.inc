@@ -29,10 +29,5 @@
       <ColumnDefinition Width="*"/>
     </Grid.ColumnDefinitions>
 
-    <!--Column 3 button here for reference -->
-    <Button Grid.Column="1"  Content="[InputDeviceManager.KeyMapping.Button.ClearMapping]"
-            Style="{ThemeResource ButtonWideStyle}" Margin="10"
-            HorizontalAlignment="Right" VerticalAlignment="Center"
-            Command="{Command DeleteKeyMapping}"/>
   </Grid>
 </Grid>

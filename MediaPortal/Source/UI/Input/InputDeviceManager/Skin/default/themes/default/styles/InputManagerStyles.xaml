@@ -19,7 +19,7 @@
         <ColumnDefinition Width="*"/>
         <ColumnDefinition Width="*"/>
       </Grid.ColumnDefinitions>
-      <Image Thumbnail="True" Stretch="Uniform" Height="45" Width="45" Margin="0,-2,4,-5" VerticalAlignment="Center">
+      <Image Thumbnail="True" Stretch="Uniform" Height="45" Width="45" Margin="0,-2,4,-5" VerticalAlignment="Center" FallbackSource="keys\fallback.png">
         <Image.Source>
           <Binding Path="[MapName]" Converter="{StaticResource SafeFilenameConverter}" ConverterParameter="{}keys\{0}.png"/>
         </Image.Source>
