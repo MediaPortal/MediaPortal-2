@@ -281,7 +281,7 @@ namespace MediaPortal.UiComponents.Media.Models
         IMediaAccessor mediaAccessor = ServiceRegistration.Get<IMediaAccessor>();
         foreach (IMetadataExtractor extractor in mediaAccessor.LocalMetadataExtractors.Values)
         {
-          var results = await extractor.SearchForMatchesAsync(_searchAspects, validCategories);
+          var results = await extractor.SearchForMatchesAsync(_searchAspects, validCategories).ConfigureAwait(false);
           if (results != null)
             searchResults.AddRange(results);
         }

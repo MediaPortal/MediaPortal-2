@@ -152,9 +152,11 @@ namespace MediaPortal.Extensions.OnlineLibraries
       LoadSettings();
     }
 
-    private async Task MergeResults<T>(List<T> list, List<Task<IEnumerable<T>>> results) where T: BaseInfo
+    private async Task<IList<T>> MergeResults<T>(List<Task<IEnumerable<T>>> results) where T: BaseInfo
     {
-      await Task.WhenAny(Task.WhenAll(results.ToArray()), Task.Delay(10000));
+      await Task.WhenAny(Task.WhenAll(results), Task.Delay(10000)).ConfigureAwait(false);
+
+      List<T> list = new List<T>();
       foreach (var task in results)
       {
         if (!task.IsCompleted)
@@ -175,6 +177,7 @@ namespace MediaPortal.Extensions.OnlineLibraries
           }
         }
       }
+      return list;
     }
 
     #region Audio
@@ -221,28 +224,18 @@ namespace MediaPortal.Extensions.OnlineLibraries
 
     public async Task<IEnumerable<TrackInfo>> FindMatchingTracksAsync(TrackInfo trackInfo)
     {
-      List<Task<IEnumerable<TrackInfo>>> tasks = new List<Task<IEnumerable<TrackInfo>>>();
-      foreach (IMusicMatcher matcher in MUSIC_MATCHERS.Where(m => m.Enabled))
-      {
-        tasks.Add(matcher.FindMatchingTracksAsync(trackInfo));
-      }
+      var tasks = MUSIC_MATCHERS.Where(m => m.Enabled)
+        .Select(m => m.FindMatchingTracksAsync(trackInfo)).ToList();
       //Merge results
-      List<TrackInfo> list = new List<TrackInfo>();
-      await MergeResults(list, tasks);
-      return list;
+      return await MergeResults(tasks).ConfigureAwait(false);
     }
 
     public async Task<IEnumerable<AlbumInfo>> FindMatchingAlbumsAsync(AlbumInfo albumInfo)
     {
-      List<Task<IEnumerable<AlbumInfo>>> tasks = new List<Task<IEnumerable<AlbumInfo>>>();
-      foreach (IMusicMatcher matcher in MUSIC_MATCHERS.Where(m => m.Enabled))
-      {
-        tasks.Add(matcher.FindMatchingAlbumsAsync(albumInfo));
-      }
+      var tasks = MUSIC_MATCHERS.Where(m => m.Enabled)
+        .Select(m => m.FindMatchingAlbumsAsync(albumInfo)).ToList();
       //Merge results
-      List<AlbumInfo> list = new List<AlbumInfo>();
-      await MergeResults(list, tasks);
-      return list;
+      return await MergeResults(tasks).ConfigureAwait(false);
     }
 
     public async Task<bool> FindAndUpdateTrackAsync(TrackInfo trackInfo)
@@ -402,15 +395,10 @@ namespace MediaPortal.Extensions.OnlineLibraries
 
     public async Task<IEnumerable<MovieInfo>> FindMatchingMoviesAsync(MovieInfo movieInfo)
     {
-      List<Task<IEnumerable<MovieInfo>>> tasks = new List<Task<IEnumerable<MovieInfo>>>();
-      foreach (IMovieMatcher matcher in MOVIE_MATCHERS.Where(m => m.Enabled))
-      {
-        tasks.Add(matcher.FindMatchingMoviesAsync(movieInfo));
-      }
+      var tasks = MOVIE_MATCHERS.Where(m => m.Enabled)
+        .Select(m => m.FindMatchingMoviesAsync(movieInfo)).ToList();
       //Merge results
-      List<MovieInfo> list = new List<MovieInfo>();
-      await MergeResults(list, tasks);
-      return list;
+      return await MergeResults(tasks).ConfigureAwait(false);
     }
 
     public async Task<bool> FindAndUpdateMovieAsync(MovieInfo movieInfo)
@@ -575,28 +563,18 @@ namespace MediaPortal.Extensions.OnlineLibraries
 
     public async Task<IEnumerable<EpisodeInfo>> FindMatchingEpisodesAsync(EpisodeInfo episodeInfo)
     {
-      List<Task<IEnumerable<EpisodeInfo>>> tasks = new List<Task<IEnumerable<EpisodeInfo>>>();
-      foreach (ISeriesMatcher matcher in SERIES_MATCHERS.Where(m => m.Enabled))
-      {
-        tasks.Add(matcher.FindMatchingEpisodesAsync(episodeInfo));
-      }
+      var tasks = SERIES_MATCHERS.Where(m => m.Enabled)
+        .Select(m => m.FindMatchingEpisodesAsync(episodeInfo)).ToList();
       //Merge results
-      List<EpisodeInfo> list = new List<EpisodeInfo>();
-      await MergeResults(list, tasks);
-      return list;
+      return await MergeResults(tasks).ConfigureAwait(false);
     }
 
     public async Task<IEnumerable<SeriesInfo>> FindMatchingSeriesAsync(SeriesInfo seriesInfo)
     {
-      List<Task<IEnumerable<SeriesInfo>>> tasks = new List<Task<IEnumerable<SeriesInfo>>>();
-      foreach (ISeriesMatcher matcher in SERIES_MATCHERS.Where(m => m.Enabled))
-      {
-        tasks.Add(matcher.FindMatchingSeriesAsync(seriesInfo));
-      }
+      var tasks = SERIES_MATCHERS.Where(m => m.Enabled)
+        .Select(m => m.FindMatchingSeriesAsync(seriesInfo)).ToList();
       //Merge results
-      List<SeriesInfo> list = new List<SeriesInfo>();
-      await MergeResults(list, tasks);
-      return list;
+      return await MergeResults(tasks).ConfigureAwait(false);
     }
 
     public async Task<bool> FindAndUpdateEpisodeAsync(EpisodeInfo episodeInfo)
