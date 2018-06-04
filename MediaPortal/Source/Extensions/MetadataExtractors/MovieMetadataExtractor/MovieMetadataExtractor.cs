@@ -507,7 +507,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
         //Perform online search
         if (movieSearchinfo != null)
         {
-          var matches = await OnlineMatcherService.Instance.FindMatchingMoviesAsync(movieSearchinfo);
+          var matches = await OnlineMatcherService.Instance.FindMatchingMoviesAsync(movieSearchinfo).ConfigureAwait(false);
           foreach (var match in matches)
           {
             var result = new MediaItemSearchResult
@@ -547,7 +547,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
         {
           MovieInfo info = new MovieInfo();
           info.FromMetadata(matchedAspectData);
-          await OnlineMatcherService.Instance.FindAndUpdateMovieAsync(info);
+          await OnlineMatcherService.Instance.FindAndUpdateMovieAsync(info).ConfigureAwait(false);
           info.SetMetadata(matchedAspectData, true);
           CleanReimportAspects(matchedAspectData);
           return true;

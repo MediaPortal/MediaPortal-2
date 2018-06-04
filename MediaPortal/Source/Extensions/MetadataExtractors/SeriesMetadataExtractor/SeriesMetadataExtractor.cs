@@ -419,7 +419,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
         //Perform online search
         if (episodeSearchinfo != null)
         {
-          var matches = await OnlineMatcherService.Instance.FindMatchingEpisodesAsync(episodeSearchinfo);
+          var matches = await OnlineMatcherService.Instance.FindMatchingEpisodesAsync(episodeSearchinfo).ConfigureAwait(false);
           foreach (var match in matches)
           {
             var result = new MediaItemSearchResult
@@ -448,7 +448,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
         }
         else if (seriesSearchinfo != null)
         {
-          var matches = await OnlineMatcherService.Instance.FindMatchingSeriesAsync(seriesSearchinfo);
+          var matches = await OnlineMatcherService.Instance.FindMatchingSeriesAsync(seriesSearchinfo).ConfigureAwait(false);
           foreach (var match in matches)
           {
             var result = new MediaItemSearchResult
@@ -489,7 +489,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
         {
           EpisodeInfo info = new EpisodeInfo();
           info.FromMetadata(matchedAspectData);
-          await OnlineMatcherService.Instance.FindAndUpdateEpisodeAsync(info);
+          await OnlineMatcherService.Instance.FindAndUpdateEpisodeAsync(info).ConfigureAwait(false);
           info.SetMetadata(matchedAspectData, true);
           CleanReimportAspects(matchedAspectData);
           return true;
@@ -498,7 +498,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
         {
           SeriesInfo info = new SeriesInfo();
           info.FromMetadata(matchedAspectData);
-          await OnlineMatcherService.Instance.UpdateSeriesAsync(info, false);
+          await OnlineMatcherService.Instance.UpdateSeriesAsync(info, false).ConfigureAwait(false);
           info.SetMetadata(matchedAspectData, true);
           CleanReimportAspects(matchedAspectData);
           return true;

@@ -976,7 +976,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
         //Perform online search
         if (trackSearchinfo != null)
         {
-          var matches = await OnlineMatcherService.Instance.FindMatchingTracksAsync(trackSearchinfo);
+          var matches = await OnlineMatcherService.Instance.FindMatchingTracksAsync(trackSearchinfo).ConfigureAwait(false);
           foreach (var match in matches)
           {
             var result = new MediaItemSearchResult
@@ -1002,7 +1002,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
         }
         else if (albumSearchinfo != null)
         {
-          var matches = await OnlineMatcherService.Instance.FindMatchingAlbumsAsync(albumSearchinfo);
+          var matches = await OnlineMatcherService.Instance.FindMatchingAlbumsAsync(albumSearchinfo).ConfigureAwait(false);
           foreach (var match in matches)
           {
             var result = new MediaItemSearchResult
@@ -1042,7 +1042,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
         {
           TrackInfo info = new TrackInfo();
           info.FromMetadata(matchedAspectData);
-          await OnlineMatcherService.Instance.FindAndUpdateTrackAsync(info);
+          await OnlineMatcherService.Instance.FindAndUpdateTrackAsync(info).ConfigureAwait(false);
           info.SetMetadata(matchedAspectData, true);
           CleanReimportAspects(matchedAspectData);
           return true;
@@ -1051,7 +1051,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
         {
           AlbumInfo info = new AlbumInfo();
           info.FromMetadata(matchedAspectData);
-          await OnlineMatcherService.Instance.UpdateAlbumAsync(info, false);
+          await OnlineMatcherService.Instance.UpdateAlbumAsync(info, false).ConfigureAwait(false);
           info.SetMetadata(matchedAspectData, true);
           CleanReimportAspects(matchedAspectData);
           return true;
