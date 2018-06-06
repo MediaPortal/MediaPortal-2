@@ -33,8 +33,6 @@
     </Grid>
   </DataTemplate>
 
-  <EmptyString2FalseConverter x:Key="EmptyStringToFalseConverter"/>
-  
   <Style x:Key="InputManagerItemContainerStyle" BasedOn="{ThemeResource DefaultItemContainerStyle}">
     <Setter Property="Template">
       <Setter.Value>
@@ -56,8 +54,8 @@
             </Button>
             <Button Grid.Column="1" Content="[InputDeviceManager.KeyMapping.Button.ClearMapping]"
                     Style="{ThemeResource ButtonWideStyle}" Margin="10,0,0,0"
-                    HorizontalAlignment="Right" VerticalAlignment="Center" Command="{Command DeleteKeyMapping}"
-                    IsVisible="{Binding Path=[KeyMap],Converter={StaticResource ReferenceToBoolConverter}}"/>
+                    HorizontalAlignment="Right" VerticalAlignment="Center" Command="{Command Source={StaticResource InputManagerModel}, Path=DeleteKeyMapping}"
+                    IsVisible="{Binding Path=[KeyMap],Converter={StaticResource EmptyStringToFalseConverter}}"/>
                     <!--IsVisible="{Binding Source={StaticResource SlimTvClient},Path=[KeyMap], Converter={StaticResource EmptyStringToFalseConverter}}"/-->
           </Grid>
         </ControlTemplate>
