@@ -392,6 +392,13 @@ namespace MediaPortal.Plugins.InputDeviceManager.Models
       InputDevice device;
       if (InputDeviceManager.InputDevices.TryGetValue(_currentInputDevice, out device))
       {
+        //Clear
+        foreach(var item in _items)
+        {
+          if (!device.KeyMap.Any(k => string.Compare((string)item.AdditionalProperties[KEY_KEYMAP_DATA], k.Key, true) == 0))
+            item.SetLabel(KEY_KEYMAP, "");
+        }
+        //Assign
         foreach (var keyMapping in device.KeyMap)
         {
           var item = _items.FirstOrDefault(i => string.Compare((string)i.AdditionalProperties[KEY_KEYMAP_DATA], keyMapping.Key, true) == 0);
@@ -507,7 +514,7 @@ namespace MediaPortal.Plugins.InputDeviceManager.Models
             InputDevice device;
             if (InputDeviceManager.InputDevices.TryGetValue(_currentInputDevice, out device))
             {
-              MappedKeyCode mappedKeyCode = device.KeyMap.FirstOrDefault(k => ReferenceEquals(k, selectedItem.AdditionalProperties[KEY_KEYMAP_DATA]));
+              MappedKeyCode mappedKeyCode = device.KeyMap.FirstOrDefault(k => k.Key == (string)selectedItem.AdditionalProperties[KEY_KEYMAP_DATA]);
               if (mappedKeyCode != null)
               {
                 device.KeyMap.Remove(mappedKeyCode);
