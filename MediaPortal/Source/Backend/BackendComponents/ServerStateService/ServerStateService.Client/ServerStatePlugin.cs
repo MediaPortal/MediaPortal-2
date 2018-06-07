@@ -80,6 +80,9 @@ namespace MediaPortal.Plugins.ServerStateService.Client
           case ServerConnectionMessaging.MessageType.HomeServerDetached:
             _proxyRegistration.UnregisterService();
             break;
+          case ServerConnectionMessaging.MessageType.HomeServerDisconnected:
+            _proxyRegistration.ClearStates();
+            break;
         }
       }
     }

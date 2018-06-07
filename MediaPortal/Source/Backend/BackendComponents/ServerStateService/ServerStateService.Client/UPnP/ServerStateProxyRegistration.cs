@@ -60,6 +60,13 @@ namespace MediaPortal.Plugins.ServerStateService.Client.UPnP
       return false;
     }
 
+    public void ClearStates()
+    {
+      var proxy = _proxy;
+      if (proxy != null)
+        proxy.ClearStates();
+    }
+
     public void RegisterService()
     {
       UPnPClientControlPoint controlPoint = ServiceRegistration.Get<IServerConnectionManager>().ControlPoint;
