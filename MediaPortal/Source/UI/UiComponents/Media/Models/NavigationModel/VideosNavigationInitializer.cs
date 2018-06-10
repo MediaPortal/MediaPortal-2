@@ -48,16 +48,16 @@ namespace MediaPortal.UiComponents.Media.Models.NavigationModel
     {
       await base.PrepareAsync();
 
-      _defaultScreen = new VideosFilterByGenreScreenData();
+      _defaultScreen = new VideosShowItemsScreenData(_genericPlayableItemCreatorDelegate);
       _availableScreens = new List<AbstractScreenData>
         {
-          new VideosShowItemsScreenData(_genericPlayableItemCreatorDelegate),
+          _defaultScreen,
+          new VideosFilterByGenreScreenData(),
           new VideosFilterByLanguageScreenData(),
           new VideosFilterByActorScreenData(),
           new VideosFilterByCharacterScreenData(),
           new VideosFilterByDirectorScreenData(),
           new VideosFilterByWriterScreenData(),
-          _defaultScreen,
           new VideosFilterByYearScreenData(),
           new VideosFilterBySystemScreenData(),
           new VideosSimpleSearchScreenData(_genericPlayableItemCreatorDelegate),
