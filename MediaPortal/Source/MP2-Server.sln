@@ -106,7 +106,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SQLiteDatabase", "Backend\D
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FanArtService.Local", "UI\FanArt\FanArtService.Local\FanArtService.Local.csproj", "{CCF5076B-FDA7-4174-BBAF-E73EBD96B8B1}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "1TrueError", "..\Incubator\1TrueError\1TrueError.csproj", "{7625B1CE-577D-4E56-83DD-08C6EE9984D4}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "1TrueError", "..\Incubator\1TrueError\codeRR.csproj", "{7625B1CE-577D-4E56-83DD-08C6EE9984D4}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BassAudioMetadataExtractor", "Extensions\MetadataExtractors\BassAudioMetadataExtractor\BassAudioMetadataExtractor.csproj", "{192EEFB8-DCE7-4B4A-87A4-C1AD63FFF8DD}"
 EndProject
