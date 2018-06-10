@@ -392,27 +392,27 @@ namespace MediaPortal.Plugins.InputDeviceManager.Models
       InputDevice device;
       if (InputDeviceManager.InputDevices.TryGetValue(_currentInputDevice, out device))
       {
-        //Clear
-        foreach(var item in _items)
+        List<MappedKeyCode> mappedKeys = device.KeyMap.ToList();
+
+        //Update labels
+        foreach (var item in _items)
         {
-          if (!device.KeyMap.Any(k => string.Compare((string)item.AdditionalProperties[KEY_KEYMAP_DATA], k.Key, true) == 0))
-            item.SetLabel(KEY_KEYMAP, "");
-        }
-        //Assign
-        foreach (var keyMapping in device.KeyMap)
-        {
-          var item = _items.FirstOrDefault(i => string.Compare((string)i.AdditionalProperties[KEY_KEYMAP_DATA], keyMapping.Key, true) == 0);
-          if (item == null)
-          {
-            item = new ListItem(Consts.KEY_NAME, keyMapping.Key) { Command = new MethodDelegateCommand(() => ChooseKeyAction(keyMapping.Key)) };
-            item.SetLabel(KEY_KEYMAP, "");
-            item.AdditionalProperties[KEY_KEYMAP_DATA] = keyMapping.Key;
-            _items.Add(item);
-          }
-          if (keyMapping.Code?.Count > 0)
+          var itemMap = (string)item.AdditionalProperties[KEY_KEYMAP_DATA];
+          var keyMapping = device.KeyMap.FirstOrDefault(k => k.Key.Equals(itemMap, StringComparison.InvariantCultureIgnoreCase));
+          if (keyMapping?.Code?.Count > 0)
             item.SetLabel(KEY_KEYMAP, string.Join(" + ", keyMapping.Code.Select(KeyMapper.GetKeyName)));
           else
             item.SetLabel(KEY_KEYMAP, "");
+          if (keyMapping != null)
+            mappedKeys.RemoveAll(k => k.Key.Equals(itemMap, StringComparison.InvariantCultureIgnoreCase));
+        }
+        //Add items for unknown key mappings
+        foreach (var keyMapping in mappedKeys)
+        {
+          var item = new ListItem(Consts.KEY_NAME, keyMapping.Key) { Command = new MethodDelegateCommand(() => ChooseKeyAction(keyMapping.Key)) };
+          item.SetLabel(KEY_KEYMAP, "");
+          item.AdditionalProperties[KEY_KEYMAP_DATA] = keyMapping.Key;
+          _items.Add(item);
         }
       }
       _items.FireChange();
