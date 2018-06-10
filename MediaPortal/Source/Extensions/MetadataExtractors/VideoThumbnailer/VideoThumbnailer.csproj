@@ -77,14 +77,6 @@
       <Project>{ECF060E7-CAA1-4466-851F-F80B857641EA}</Project>
       <Name>MediaPortal.Common</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\..\Core\MediaPortal.Utilities\MediaPortal.Utilities.csproj">
-      <Project>{4FE7B8AE-1330-424A-91A1-C68D7ABF9CB8}</Project>
-      <Name>MediaPortal.Utilities</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\FFMpegLib\FFMpegLib.csproj">
-      <Project>{d2416e5a-cf6a-4b45-836d-02300d666127}</Project>
-      <Name>FFMpegLib</Name>
-    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <Content Include="plugin.xml">
@@ -95,8 +87,8 @@
     <None Include="build.targets" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="ffmpeg">
-      <Version>3.4.2</Version>
+    <PackageReference Include="OpenCvSharp3-AnyCPU">
+      <Version>3.4.1.20180319</Version>
     </PackageReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
