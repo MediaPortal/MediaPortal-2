@@ -140,15 +140,18 @@ namespace MediaPortal.Common.MediaManagement
       protected Cardinality _cardinality;
       protected uint _maxNumChars;
       protected bool _indexed;
+      protected ICollection<int> _compositeIndexIds;
 
       #endregion
 
-      internal AttributeSpecification(string name, Type type, Cardinality cardinality, bool indexed)
+      internal AttributeSpecification(string name, Type type, Cardinality cardinality, bool indexed, params int[] compositeIndexIds)
       {
         _attributeName = name;
         _attributeType = type;
         _cardinality = cardinality;
         _indexed = indexed;
+        if (compositeIndexIds?.Count() > 0)
+          _compositeIndexIds = new List<int>(compositeIndexIds);
       }
 
       internal IList CreateValuesCollection()
@@ -203,6 +206,15 @@ namespace MediaPortal.Common.MediaManagement
       public bool IsIndexed
       {
         get { return _indexed; }
+      }
+
+      /// <summary>
+      /// Gets the ids for the indexes of which this attribute is part of the index.
+      /// </summary>
+      [XmlIgnore]
+      public ICollection<int> CompositeIndexIds
+      {
+        get { return _compositeIndexIds; }
       }
 
       /// <summary>
@@ -298,12 +310,30 @@ namespace MediaPortal.Common.MediaManagement
         set { _maxNumChars = value; }
       }
 
+      /// <summary>
+      /// For internal use of the XML serialization system only.
+      /// </summary>
+      [XmlArray("CompositeIndexIds", IsNullable = true)]
+      public int[] XML_CompositeIndexIds
+      {
+        get { return _compositeIndexIds?.ToArray(); }
+        set
+        {
+          if (value?.Length > 0)
+          {
+            _compositeIndexIds = new List<int>(value.Length);
+            foreach (int id in value)
+              _compositeIndexIds.Add(id);
+          }
+        }
+      }
+
       #endregion
     }
 
     public class SingleAttributeSpecification : AttributeSpecification
     {
-      public SingleAttributeSpecification(string name, Type type, Cardinality cardinality, bool indexed) : base(name, type, cardinality, indexed)
+      public SingleAttributeSpecification(string name, Type type, Cardinality cardinality, bool indexed, params int[] compositeIndexIds) : base(name, type, cardinality, indexed, compositeIndexIds)
       {
       }
 
@@ -324,7 +354,7 @@ namespace MediaPortal.Common.MediaManagement
 
     public class MultipleAttributeSpecification : AttributeSpecification
     {
-      public MultipleAttributeSpecification(string name, Type type, Cardinality cardinality, bool indexed) : base(name, type, cardinality, indexed)
+      public MultipleAttributeSpecification(string name, Type type, Cardinality cardinality, bool indexed, params int[] compositeIndexIds) : base(name, type, cardinality, indexed, compositeIndexIds)
       {
       }
 
@@ -472,9 +502,9 @@ namespace MediaPortal.Common.MediaManagement
     /// <param name="indexed">Set to <c>true</c> if the new attribute should be indexed in the media library.
     /// This should only be done if the attribute will often occur in filter criteria.</param>
     public static SingleAttributeSpecification CreateSingleStringAttributeSpecification(string attributeName,
-        uint maxNumChars, Cardinality cardinality, bool indexed)
+        uint maxNumChars, Cardinality cardinality, bool indexed, params int[] compositeIndexIds)
     {
-      SingleAttributeSpecification result = new SingleAttributeSpecification(attributeName, typeof(string), cardinality, indexed)
+      SingleAttributeSpecification result = new SingleAttributeSpecification(attributeName, typeof(string), cardinality, indexed, compositeIndexIds)
         {MaxNumChars = maxNumChars};
       return result;
     }
@@ -491,9 +521,9 @@ namespace MediaPortal.Common.MediaManagement
     /// <param name="indexed">Set to <c>true</c> if the new attribute should be indexed in the media library.
     /// This should only be done if the attribute will often occur in filter criteria.</param>
     public static MultipleAttributeSpecification CreateMultipleStringAttributeSpecification(string attributeName,
-        uint maxNumChars, Cardinality cardinality, bool indexed)
+        uint maxNumChars, Cardinality cardinality, bool indexed, params int[] compositeIndexIds)
     {
-      MultipleAttributeSpecification result = new MultipleAttributeSpecification(attributeName, typeof(string), cardinality, indexed) { MaxNumChars = maxNumChars };
+      MultipleAttributeSpecification result = new MultipleAttributeSpecification(attributeName, typeof(string), cardinality, indexed, compositeIndexIds) { MaxNumChars = maxNumChars };
       return result;
     }
 
@@ -509,12 +539,12 @@ namespace MediaPortal.Common.MediaManagement
     /// <param name="indexed">Set to <c>true</c> if the new attribute should be indexed in the media library.
     /// This should only be done if the attribute will often occur in filter criteria.</param>
     public static SingleAttributeSpecification CreateSingleAttributeSpecification(string attributeName,
-        Type attributeType, Cardinality cardinality, bool indexed)
+        Type attributeType, Cardinality cardinality, bool indexed, params int[] compositeIndexIds)
     {
       if (!SUPPORTED_BASIC_TYPES.Contains(attributeType))
         throw new ArgumentException(string.Format("Attribute type {0} is not supported for media item aspect attributes",
             attributeType.Name));
-      return new SingleAttributeSpecification(attributeName, attributeType, cardinality, indexed);
+      return new SingleAttributeSpecification(attributeName, attributeType, cardinality, indexed, compositeIndexIds);
     }
 
     /// <summary>
@@ -529,12 +559,12 @@ namespace MediaPortal.Common.MediaManagement
     /// <param name="indexed">Set to <c>true</c> if the new attribute should be indexed in the media library.
     /// This should only be done if the attribute will often occur in filter criteria.</param>
     public static MultipleAttributeSpecification CreateMultipleAttributeSpecification(string attributeName,
-        Type attributeType, Cardinality cardinality, bool indexed)
+        Type attributeType, Cardinality cardinality, bool indexed, params int[] compositeIndexIds)
     {
       if (!SUPPORTED_BASIC_TYPES.Contains(attributeType))
         throw new ArgumentException(string.Format("Attribute type {0} is not supported for media item aspect attributes",
             attributeType.Name));
-      return new MultipleAttributeSpecification(attributeName, attributeType, cardinality, indexed);
+      return new MultipleAttributeSpecification(attributeName, attributeType, cardinality, indexed, compositeIndexIds);
     }
 
     /// <summary>
