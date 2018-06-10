@@ -4,7 +4,6 @@ using MediaPortal.Common.ResourceAccess;
 using NEbml.Core;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Globalization;
 using System.IO;
 using System.Linq;
