@@ -561,7 +561,7 @@ namespace MediaPortal.UiComponents.BlueVision.Models
       list.Clear();
 
       int x = 0;
-      ItemsList menuItems = MenuItems;
+      ItemsList menuItems = GetHomeMenuItems();
       lock (menuItems.SyncRoot)
       {
         foreach (var menuItem in menuItems)
@@ -608,6 +608,30 @@ namespace MediaPortal.UiComponents.BlueVision.Models
         }
       }
       list.FireChange();
+    }
+
+    protected ItemsList GetHomeMenuItems()
+    {
+      NavigationContext homeContext;
+      IWorkflowManager workflowManager = ServiceRegistration.Get<IWorkflowManager>();
+      workflowManager.Lock.EnterReadLock();
+      try
+      {
+        homeContext = workflowManager.NavigationContextStack.FirstOrDefault(c => c.WorkflowState.StateId == HOME_STATE_ID);
+      }
+      finally
+      {
+        workflowManager.Lock.ExitReadLock();
+      }
+
+      if (homeContext == null)
+      {
+        ServiceRegistration.Get<ILogger>().Warn("HomeMenuModel: Unable to get menu items for home state");
+        return new ItemsList();
+      }
+
+      // Force a refresh here because we need to update items after changing user profile.
+      return UpdateMenu(homeContext);
     }
 
     private bool IsManuallyPositioned(WorkflowAction wfAction)

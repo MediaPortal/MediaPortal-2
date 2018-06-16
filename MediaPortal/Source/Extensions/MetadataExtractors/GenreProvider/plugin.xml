@@ -1,0 +1,33 @@
+<Plugin
+    DescriptorVersion="1.0"
+    Name="GenreProvider"
+    PluginId="{367C772E-DFC5-4BE1-B292-7FB6A2D08097}"
+    Author = "Henso"
+    Copyright="GPL"
+    Description="Genre converter for tv, movies, series and music.">
+
+  <Version
+    PluginVersion="1.0"
+    ReleaseDate="2018-03-10 01:00:00 GMT+01:00"
+    CurrentAPI="1"/>
+
+  <DependsOn>
+    <CoreDependency Name="MediaPortal.Common" CompatibleAPI="2" />
+    <CoreDependency Name="MediaPortal.Utilities" CompatibleAPI="1" />
+  </DependsOn>
+
+  <Runtime>
+    <Assembly FileName="GenreProvider.dll"/>
+    <Assembly FileName="..\..\MediaPortal.Common.dll"/>
+    <Assembly FileName="..\..\MediaPortal.Utilities.dll"/>
+  </Runtime>
+
+  <Builder Name="GenreProviderBuilder" ClassName="MediaPortal.Common.Services.GenreConverter.GenreProviderBuilder"/>
+  <Register Location="/Genres/Providers">
+    <GenreProviderBuilder
+      Id="{42905EC0-8467-4DB1-88CE-2BC0AF5AF448}"
+      ClassName="MediaPortal.Extensions.MetadataExtractors.GenreProvider.GenreProvider"
+      ProviderName="GenreProvider"
+      Priority="100"/>
+  </Register>
+</Plugin>

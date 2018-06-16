@@ -22,16 +22,17 @@
 
 #endregion
 
-using System;
-using System.Linq;
-using System.Collections.Generic;
+using MediaPortal.Common;
+using MediaPortal.Common.FanArt;
+using MediaPortal.Common.Logging;
+using MediaPortal.Common.MediaManagement.DefaultItemAspects;
+using MediaPortal.Common.MediaManagement.Helpers;
 using MediaPortal.Extensions.OnlineLibraries.Libraries.MusicBrainzV2;
 using MediaPortal.Extensions.OnlineLibraries.Libraries.MusicBrainzV2.Data;
-using MediaPortal.Common.MediaManagement.Helpers;
-using MediaPortal.Common.MediaManagement.DefaultItemAspects;
-using MediaPortal.Common;
-using MediaPortal.Common.Logging;
-using MediaPortal.Common.FanArt;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
 {
@@ -54,22 +55,22 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
 
     #region Search
 
-    public override bool SearchTrack(TrackInfo trackSearch, string language, out List<TrackInfo> tracks)
+    public override async Task<List<TrackInfo>> SearchTrackAsync(TrackInfo trackSearch, string language)
     {
-      tracks = null;
       language = language ?? PreferredLanguage;
 
-      List<TrackResult> foundTracks = _musicBrainzHandler.SearchTrack(trackSearch.TrackName, trackSearch.Artists.Select(a => a.Name).ToList(),
+      List<TrackResult> foundTracks = await _musicBrainzHandler.SearchTrackAsync(trackSearch.TrackName, trackSearch.Artists.Select(a => a.Name).ToList(),
         trackSearch.Album, trackSearch.ReleaseDate.HasValue ? trackSearch.ReleaseDate.Value.Year : default(int?),
-        trackSearch.TrackNum > 0 ? trackSearch.TrackNum : default(int?));
+        trackSearch.TrackNum > 0 ? trackSearch.TrackNum : default(int?)).ConfigureAwait(false);
       if (foundTracks == null && trackSearch.AlbumArtists.Count > 0)
       {
-        foundTracks = _musicBrainzHandler.SearchTrack(trackSearch.TrackName, trackSearch.AlbumArtists.Select(a => a.Name).ToList(),
+        foundTracks = await _musicBrainzHandler.SearchTrackAsync(trackSearch.TrackName, trackSearch.AlbumArtists.Select(a => a.Name).ToList(),
           trackSearch.Album, trackSearch.ReleaseDate.HasValue ? trackSearch.ReleaseDate.Value.Year : default(int?),
-          trackSearch.TrackNum > 0 ? trackSearch.TrackNum : default(int?));
+          trackSearch.TrackNum > 0 ? trackSearch.TrackNum : default(int?)).ConfigureAwait(false);
       }
-      if (foundTracks == null) return false;
+      if (foundTracks == null) return null;
 
+      List<TrackInfo> tracks = null;
       foreach (TrackResult track in foundTracks)
       {
         if (tracks == null)
@@ -93,18 +94,18 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
         tracks.Add(info);
       }
 
-      return tracks != null;
+      return tracks;
     }
 
-    public override bool SearchTrackAlbum(AlbumInfo albumSearch, string language, out List<AlbumInfo> albums)
+    public override async Task<List<AlbumInfo>> SearchTrackAlbumAsync(AlbumInfo albumSearch, string language)
     {
-      albums = null;
       language = language ?? PreferredLanguage;
 
-      List<TrackRelease> foundReleases = _musicBrainzHandler.SearchRelease(albumSearch.Album, albumSearch.Artists.Select(a => a.Name).ToList(),
-        albumSearch.ReleaseDate.HasValue ? albumSearch.ReleaseDate.Value.Year : default(int?), albumSearch.TotalTracks > 0 ? albumSearch.TotalTracks : default(int?));
-      if (foundReleases == null) return false;
+      List<TrackRelease> foundReleases = await _musicBrainzHandler.SearchReleaseAsync(albumSearch.Album, albumSearch.Artists.Select(a => a.Name).ToList(),
+        albumSearch.ReleaseDate.HasValue ? albumSearch.ReleaseDate.Value.Year : default(int?), albumSearch.TotalTracks > 0 ? albumSearch.TotalTracks : default(int?)).ConfigureAwait(false);
+      if (foundReleases == null) return null;
 
+      List<AlbumInfo> albums = null;
       foreach (TrackRelease album in foundReleases)
       {
         if (albums == null)
@@ -127,20 +128,20 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
         albums.Add(info);
       }
 
-      return albums != null;
+      return albums;
     }
 
-    public override bool SearchPerson(PersonInfo personSearch, string language, out List<PersonInfo> persons)
+    public override async Task<List<PersonInfo>> SearchPersonAsync(PersonInfo personSearch, string language)
     {
-      persons = null;
       language = language ?? PreferredLanguage;
 
       if (personSearch.Occupation != PersonAspect.OCCUPATION_ARTIST)
-        return false;
+        return null;
 
-      List<TrackArtist> foundArtists = _musicBrainzHandler.SearchArtist(personSearch.Name);
-      if (foundArtists == null) return false;
+      List<TrackArtist> foundArtists = await _musicBrainzHandler.SearchArtistAsync(personSearch.Name).ConfigureAwait(false);
+      if (foundArtists == null) return null;
 
+      List<PersonInfo> persons = null;
       foreach (TrackArtist artist in foundArtists)
       {
         if (persons == null)
@@ -156,20 +157,20 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
         persons.Add(info);
       }
 
-      return persons != null;
+      return persons;
     }
 
-    public override bool SearchCompany(CompanyInfo companySearch, string language, out List<CompanyInfo> companies)
+    public override async Task<List<CompanyInfo>> SearchCompanyAsync(CompanyInfo companySearch, string language)
     {
-      companies = null;
       language = language ?? PreferredLanguage;
 
       if (companySearch.Type != CompanyAspect.COMPANY_MUSIC_LABEL)
-        return false;
+        return null;
 
-      List<TrackLabelSearchResult> foundLabels = _musicBrainzHandler.SearchLabel(companySearch.Name);
-      if (foundLabels == null) return false;
+      List<TrackLabelSearchResult> foundLabels = await _musicBrainzHandler.SearchLabelAsync(companySearch.Name).ConfigureAwait(false);
+      if (foundLabels == null) return null;
 
+      List<CompanyInfo> companies = null;
       foreach (TrackLabelSearchResult company in foundLabels)
       {
         if (companies == null)
@@ -184,7 +185,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
         companies.Add(info);
       }
 
-      return companies != null;
+      return companies;
     }
 
     #endregion
@@ -251,13 +252,13 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
 
     #region Update
 
-    public override bool UpdateFromOnlineMusicTrackAlbumCompany(AlbumInfo album, CompanyInfo company, string language, bool cacheOnly)
+    public override async Task<bool> UpdateFromOnlineMusicTrackAlbumCompanyAsync(AlbumInfo album, CompanyInfo company, string language, bool cacheOnly)
     {
       try
       {
         TrackLabel labelDetail = null;
         if (!string.IsNullOrEmpty(company.MusicBrainzId))
-          labelDetail = _musicBrainzHandler.GetLabel(company.MusicBrainzId, cacheOnly);
+          labelDetail = await _musicBrainzHandler.GetLabelAsync(company.MusicBrainzId, cacheOnly).ConfigureAwait(false);
         if (labelDetail == null) return false;
         if (labelDetail.Label == null) return false;
 
@@ -274,13 +275,13 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
       }
     }
 
-    public override bool UpdateFromOnlineMusicTrackAlbumPerson(AlbumInfo albumInfo, PersonInfo person, string language, bool cacheOnly)
+    public override async Task<bool> UpdateFromOnlineMusicTrackAlbumPersonAsync(AlbumInfo albumInfo, PersonInfo person, string language, bool cacheOnly)
     {
       try
       {
         TrackArtist artistDetail = null;
         if (!string.IsNullOrEmpty(person.MusicBrainzId))
-          artistDetail = _musicBrainzHandler.GetArtist(person.MusicBrainzId, cacheOnly);
+          artistDetail = await _musicBrainzHandler.GetArtistAsync(person.MusicBrainzId, cacheOnly).ConfigureAwait(false);
         if (artistDetail == null) return false;
 
         person.Name = artistDetail.Name;
@@ -298,25 +299,25 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
       }
     }
 
-    public override bool UpdateFromOnlineMusicTrackPerson(TrackInfo trackInfo, PersonInfo person, string language, bool cacheOnly)
+    public override Task<bool> UpdateFromOnlineMusicTrackPersonAsync(TrackInfo trackInfo, PersonInfo person, string language, bool cacheOnly)
     {
-      return UpdateFromOnlineMusicTrackAlbumPerson(trackInfo.CloneBasicInstance<AlbumInfo>(), person, language, cacheOnly);
+      return UpdateFromOnlineMusicTrackAlbumPersonAsync(trackInfo.CloneBasicInstance<AlbumInfo>(), person, language, cacheOnly);
     }
 
-    public override bool UpdateFromOnlineMusicTrack(TrackInfo track, string language, bool cacheOnly)
+    public override async Task<bool> UpdateFromOnlineMusicTrackAsync(TrackInfo track, string language, bool cacheOnly)
     {
       try
       {
         Track trackDetail = null;
         if (!string.IsNullOrEmpty(track.MusicBrainzId))
-          trackDetail = _musicBrainzHandler.GetTrack(track.MusicBrainzId, cacheOnly);
+          trackDetail = await _musicBrainzHandler.GetTrackAsync(track.MusicBrainzId, cacheOnly).ConfigureAwait(false);
 
         if (trackDetail == null && !cacheOnly && !string.IsNullOrEmpty(track.IsrcId))
         {
-          List<TrackResult> foundTracks = _musicBrainzHandler.SearchTrackFromIsrc(track.IsrcId);
+          List<TrackResult> foundTracks = await _musicBrainzHandler.SearchTrackFromIsrcAsync(track.IsrcId).ConfigureAwait(false);
           if (foundTracks != null && foundTracks.Count == 1)
           {
-            trackDetail = _musicBrainzHandler.GetTrack(foundTracks[0].Id, cacheOnly);
+            trackDetail = await _musicBrainzHandler.GetTrackAsync(foundTracks[0].Id, cacheOnly).ConfigureAwait(false);
           }
         }
         if (trackDetail == null) return false;
@@ -362,7 +363,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
         //Try to find album from group
         if (string.IsNullOrEmpty(track.AlbumMusicBrainzId) && !string.IsNullOrEmpty(track.AlbumMusicBrainzGroupId))
         {
-          TrackReleaseGroup trackReleaseGroup = _musicBrainzHandler.GetReleaseGroup(track.AlbumMusicBrainzGroupId, cacheOnly);
+          TrackReleaseGroup trackReleaseGroup = await _musicBrainzHandler.GetReleaseGroupAsync(track.AlbumMusicBrainzGroupId, cacheOnly).ConfigureAwait(false);
           if (trackReleaseGroup != null && !string.IsNullOrEmpty(track.Album))
           {
             if (!trackReleaseGroup.InitPropertiesFromAlbum(null, track.Album, PreferredLanguage))
@@ -385,7 +386,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
 
         if (!string.IsNullOrEmpty(track.AlbumMusicBrainzId))
         {
-          TrackRelease trackRelease = _musicBrainzHandler.GetAlbum(track.AlbumMusicBrainzId, cacheOnly);
+          TrackRelease trackRelease = await _musicBrainzHandler.GetAlbumAsync(track.AlbumMusicBrainzId, cacheOnly).ConfigureAwait(false);
           if (trackRelease != null)
           {
             track.AlbumMusicBrainzGroupId = trackRelease.ReleaseGroup != null ? trackRelease.ReleaseGroup.Id : null;
@@ -402,13 +403,13 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
       }
     }
 
-    public override bool UpdateFromOnlineMusicTrackAlbum(AlbumInfo album, string language, bool cacheOnly)
+    public override async Task<bool> UpdateFromOnlineMusicTrackAlbumAsync(AlbumInfo album, string language, bool cacheOnly)
     {
       try
       {
         TrackRelease albumDetail = null;
         if (!string.IsNullOrEmpty(album.MusicBrainzId))
-          albumDetail = _musicBrainzHandler.GetAlbum(album.MusicBrainzId, cacheOnly);
+          albumDetail = await _musicBrainzHandler.GetAlbumAsync(album.MusicBrainzId, cacheOnly).ConfigureAwait(false);
         if (albumDetail == null) return false;
 
         album.MusicBrainzId = albumDetail.Id;
@@ -469,51 +470,30 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
 
     #region FanArt
 
-    public override bool GetFanArt<T>(T infoObject, string language, string fanartMediaType, out ApiWrapperImageCollection<TrackImage> images)
+    public override Task<ApiWrapperImageCollection<TrackImage>> GetFanArtAsync<T>(T infoObject, string language, string fanartMediaType)
     {
-      images = new ApiWrapperImageCollection<TrackImage>();
-
-      try
-      {
-        if (fanartMediaType == FanArtMediaTypes.Album)
-        {
-          TrackInfo track = infoObject as TrackInfo;
-          AlbumInfo album = infoObject as AlbumInfo;
-          if (album == null && track != null)
-          {
-            album = track.CloneBasicInstance<AlbumInfo>();
-          }
-          if (album != null && !string.IsNullOrEmpty(album.MusicBrainzId))
-          {
-            // Download all image information, filter later!
-            TrackImageCollection albumImages = _musicBrainzHandler.GetImages(album.MusicBrainzId);
-            if (albumImages != null)
-            {
-              images.Id = album.MusicBrainzId;
-              images.Covers.AddRange(albumImages.Images);
-              return true;
-            }
-          }
-        }
-        else
-        {
-          return true;
-        }
-      }
-      catch (Exception ex)
-      {
-        ServiceRegistration.Get<ILogger>().Debug(GetType().Name + ": Exception downloading images", ex);
-      }
-      return false;
+      if (fanartMediaType == FanArtMediaTypes.Album)
+        return GetAlbumFanArtAsync(infoObject.AsAlbum());
+      return Task.FromResult<ApiWrapperImageCollection<TrackImage>>(null);
     }
 
-    public override bool DownloadFanArt(string id, TrackImage image, string folderPath)
+    public override Task<bool> DownloadFanArtAsync(string id, TrackImage image, string folderPath)
     {
-      if (!string.IsNullOrEmpty(id))
-      {
-        return _musicBrainzHandler.DownloadImage(id, image, folderPath);
-      }
-      return false;
+      return !string.IsNullOrEmpty(id) ? _musicBrainzHandler.DownloadImageAsync(id, image, folderPath) : Task.FromResult(false);
+    }
+
+    protected async Task<ApiWrapperImageCollection<TrackImage>> GetAlbumFanArtAsync(AlbumInfo album)
+    {
+      if (album == null || string.IsNullOrEmpty(album.MusicBrainzId))
+        return null;
+      // Download all image information, filter later!
+      TrackImageCollection albumImages = await _musicBrainzHandler.GetImagesAsync(album.MusicBrainzId).ConfigureAwait(false);
+      if (albumImages == null)
+        return null;
+      ApiWrapperImageCollection<TrackImage> images = new ApiWrapperImageCollection<TrackImage>();
+      images.Id = album.MusicBrainzId;
+      images.Covers.AddRange(albumImages.Images);
+      return images;
     }
 
     #endregion

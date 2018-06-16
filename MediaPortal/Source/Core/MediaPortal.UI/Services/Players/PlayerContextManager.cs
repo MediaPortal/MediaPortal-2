@@ -44,6 +44,7 @@ using MediaPortal.UI.Services.UserManagement;
 using MediaPortal.Utilities;
 using MediaPortal.UI.ServerCommunication;
 using MediaPortal.Common.SystemCommunication;
+using MediaPortal.Common.UserManagement;
 using MediaPortal.Common.UserProfileDataManagement;
 
 namespace MediaPortal.UI.Services.Players
@@ -996,6 +997,22 @@ namespace MediaPortal.UI.Services.Players
       if (playerContext == null)
         return;
       playerContext.SeekBackward();
+    }
+
+    public bool PreviousChapter()
+    {
+      IPlayerContext playerContext = CurrentPlayerContext;
+      if (playerContext == null)
+        return false;
+      return playerContext.PreviousChapter();
+    }
+
+    public bool NextChapter()
+    {
+      IPlayerContext playerContext = CurrentPlayerContext;
+      if (playerContext == null)
+        return false;
+      return playerContext.NextChapter();
     }
 
     public bool PreviousItem()

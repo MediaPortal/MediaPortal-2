@@ -15,7 +15,6 @@
   <DependsOn>
     <CoreDependency Name="MediaPortal.Backend" CompatibleAPI="2" />
     <CoreDependency Name="MediaPortal.Common" CompatibleAPI="2" />
-    <CoreDependency Name="HttpServer" CompatibleAPI="1" />
     <CoreDependency Name="UPnP" CompatibleAPI="1" />
     <PluginReference PluginId="{B32504F3-4374-4640-94A1-16E1DEE84C3C}" CompatibleAPI="2"/> <!-- OnlineLibraries -->
   </DependsOn>

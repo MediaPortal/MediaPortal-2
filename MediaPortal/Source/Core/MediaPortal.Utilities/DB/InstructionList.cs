@@ -44,6 +44,18 @@ namespace MediaPortal.Utilities.DB
       Parse(reader.ReadToEnd());
     }
 
+    public IEnumerable<string> ParseStream(TextReader reader)
+    {
+      string line;
+      while ((line = reader.ReadLine()) != "exit")
+      {
+        Parse(line);
+        foreach (var instruction in _instructions)
+          yield return instruction;
+        _instructions.Clear();
+      }
+    }
+
     public InstructionList() { }
 
     public void AddInstruction(string instruction)

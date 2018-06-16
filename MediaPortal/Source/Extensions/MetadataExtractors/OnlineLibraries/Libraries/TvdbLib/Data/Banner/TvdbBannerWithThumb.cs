@@ -21,6 +21,8 @@
 using System;
 using System.Drawing;
 using System.Net;
+using System.Threading;
+using System.Threading.Tasks;
 using MediaPortal.Extensions.OnlineLibraries.Libraries.Common;
 
 namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib.Data.Banner
@@ -35,7 +37,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib.Data.Banner
   {
     #region private fields
 
-    private readonly object _thumbLoadingLock = new object();
+    private readonly SemaphoreSlim _thumbLoadingLock = new SemaphoreSlim(1, 1);
     #endregion
 
     /// <summary>
@@ -58,11 +60,11 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib.Data.Banner
     /// Load the thumb from tvdb, if there isn't already a thumb loaded,
     /// (an existing one will NOT be replaced)
     /// </summary>
-    /// <see cref="LoadThumb(bool)"/>
+    /// <see cref="LoadThumbAsync(bool)"/>
     /// <returns>true if the loading completed sccessfully, false otherwise</returns>
-    public bool LoadThumb()
+    public Task<bool> LoadThumbAsync()
     {
-      return LoadThumb(false);
+      return LoadThumbAsync(false);
     }
 
     /// <summary>
@@ -71,10 +73,11 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib.Data.Banner
     /// <param name="replaceOld">if true, an existing banner will be replaced, 
     /// if false the banner will only be loaded if there is no existing banner</param>
     /// <returns>true if the loading completed sccessfully, false otherwise</returns>
-    public bool LoadThumb(bool replaceOld)
+    public async Task<bool> LoadThumbAsync(bool replaceOld)
     {
       bool wasLoaded = IsThumbLoaded;//is the banner already loaded at this point
-      lock (_thumbLoadingLock)
+      await _thumbLoadingLock.WaitAsync().ConfigureAwait(false);
+      try
       {//if another thread is already loading THIS banner, the lock will block this thread until the other thread
         //has finished loading
         if (!wasLoaded && !replaceOld && IsThumbLoaded)
@@ -107,7 +110,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib.Data.Banner
 
             if (img == null)
             {
-              img = LoadImage(TvdbLinkCreator.CreateBannerLink(ThumbPath));
+              img = await LoadImageAsync(TvdbLinkCreator.CreateBannerLink(ThumbPath)).ConfigureAwait(false);
 
               if (img != null && CacheProvider != null && CacheProvider.Initialised)
               {//store the image to cache
@@ -131,6 +134,10 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib.Data.Banner
         IsThumbLoaded = false;
         ThumbLoading = false;
         return false;
+      }
+      finally
+      {
+        _thumbLoadingLock.Release();
       }
     }
 

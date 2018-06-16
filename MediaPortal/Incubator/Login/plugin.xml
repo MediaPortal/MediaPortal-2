@@ -28,6 +28,7 @@
   <Register Location="/Models">
     <Model Id="82582433-FD64-41bd-9059-7F662DBDA713" Name="LoginModel" ClassName="MediaPortal.UiComponents.Login.Models.LoginModel"/>
     <Model Id="9B20B421-DF2E-42B6-AFF2-7EB6B60B601D" Name="UserConfigModel" ClassName="MediaPortal.UiComponents.Login.Models.UserConfigModel"/>
+    <Model Id="D5CA9E6F-8639-4D2F-B94A-FEE7A69A87C4" Name="UserLoginContributorModel" ClassName="MediaPortal.UiComponents.Login.Actions.UserLoginAction"/>
   </Register>
 
   <Register Location="/Workflow/States">
@@ -37,15 +38,15 @@
         DisplayLabel="[UserConfig.UserOverviewWorkflowNavigationContextDisplayLabel]"
         MainScreen="UserManagement"
         WorkflowModel="9B20B421-DF2E-42B6-AFF2-7EB6B60B601D"/> <!-- User config model -->
-    
-    <WorkflowState Id="2529B0F0-8415-4A4E-971B-38D6CDD2406A" 
-        Name="Login" 
+
+    <WorkflowState Id="2529B0F0-8415-4A4E-971B-38D6CDD2406A"
+        Name="Login"
         MainScreen="Login"
         DisplayLabel="[Login.Title]"
         WorkflowModel="82582433-FD64-41bd-9059-7F662DBDA713"/> <!-- Login model -->/>
-                
-    <WorkflowState Id="D3C5EC78-F901-4851-8DB8-83CF27E80EA8" 
-        Name="AutoLoginUser" 
+
+    <WorkflowState Id="D3C5EC78-F901-4851-8DB8-83CF27E80EA8"
+        Name="AutoLoginUser"
         MainScreen="AutoLoginUser"
         DisplayLabel="[Login.Title]"
         WorkflowModel="82582433-FD64-41bd-9059-7F662DBDA713"/> <!-- Login model -->/>
@@ -72,37 +73,43 @@
   <Register Location="/Configuration/Settings/Users">
     <ConfigSetting
         Id="EnableUserLogin"
+        RestrictionGroup="Settings.UserProfile"
         Text="[Settings.Users.Config.UserEnable]"
         HelpText="[Settings.Users.Config.UserEnable.Help]"
         ClassName="MediaPortal.UiComponents.Login.Settings.Configuration.UserConfigSettings"/>
-    
+
     <ConfigSetting
         Id="EnableUserLoginScreen"
+        RestrictionGroup="Settings.UserProfile"
         Text="[Settings.Users.Config.UserEnableScreen]"
         HelpText="[Settings.Users.Config.UserEnableScreen.Help]"
         ClassName="MediaPortal.UiComponents.Login.Settings.Configuration.UserLoginScreenSettings"/>
-    
+
     <ConfigSetting
         Id="AutoLogout"
+        RestrictionGroup="Settings.UserProfile"
         Text="[Settings.Users.Config.AutoLogout]"
         HelpText="[Settings.Users.Config.AutoLogout.Help]"
         ClassName="MediaPortal.UiComponents.Login.Settings.Configuration.AutoLogoutSettings"/>
-    
+
     <ConfigSetting
         Id="AutoLogoutTimeout"
+        RestrictionGroup="Settings.UserProfile"
         Text="[Settings.Users.Config.AutoLogoutTimeout]"
         HelpText="[Settings.Users.Config.AutoLogoutTimeout.Help]"
         ClassName="MediaPortal.UiComponents.Login.Settings.Configuration.AutoLogoutTimeoutSetting"/>
 
     <CustomConfigSetting
         Id="AutoLoginUser"
+        RestrictionGroup="Settings.UserProfile"
         Text="[Settings.Users.Config.AutoLoginUser]"
         HelpText="[Settings.Users.Config.AutoLoginUser.Help]"
-        ClassName="MediaPortal.UiComponents.Login.Settings.Configuration.AutoLoginUsertSetting"
+        ClassName="MediaPortal.UiComponents.Login.Settings.Configuration.AutoLoginUserSetting"
         AdditionalData="WorkflowState=D3C5EC78-F901-4851-8DB8-83CF27E80EA8,ConfAppPanel=..."/>
 
     <CustomConfigSetting
         Id="UserOverview"
+        RestrictionGroup="Settings.UserProfile,Settings.UserProfile.ManageOwn"
         Text="[Settings.Users.Config.UserManagement]"
         HelpText="[Settings.Users.Config.UserManagement.Help]"
         ClassName="MediaPortal.UiComponents.Login.Settings.Configuration.UserManagementSetting"

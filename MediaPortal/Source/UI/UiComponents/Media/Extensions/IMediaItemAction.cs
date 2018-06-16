@@ -23,6 +23,7 @@
 #endregion
 
 using System.Threading.Tasks;
+using MediaPortal.Common.Async;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.Services.ServerCommunication;
 

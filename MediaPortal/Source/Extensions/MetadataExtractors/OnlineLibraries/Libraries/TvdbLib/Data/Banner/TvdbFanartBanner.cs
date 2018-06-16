@@ -22,6 +22,8 @@ using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Net;
+using System.Threading;
+using System.Threading.Tasks;
 using MediaPortal.Extensions.OnlineLibraries.Libraries.Common;
 
 namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib.Data.Banner
@@ -40,7 +42,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib.Data.Banner
   {
     #region private fields
 
-    private readonly object _vignetteLoadingLock = new object();
+    private readonly SemaphoreSlim _vignetteLoadingLock = new SemaphoreSlim(1, 1);
 
     #endregion
 
@@ -119,19 +121,20 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib.Data.Banner
     /// Load the vignette from tvdb
     /// </summary>
     /// <returns>True if successful, false otherwise</returns>
-    public bool LoadVignette()
+    public Task<bool> LoadVignetteAsync()
     {
-      return LoadVignette(false);
+      return LoadVignetteAsync(false);
     }
 
     /// <summary>
     /// Load the vignette from tvdb
     /// </summary>
     /// <returns>True if successful, false otherwise</returns>
-    public bool LoadVignette(bool replaceOld)
+    public async Task<bool> LoadVignetteAsync(bool replaceOld)
     {
       bool wasLoaded = IsVignetteLoaded;//is the banner already loaded at this point
-      lock (_vignetteLoadingLock)
+      await _vignetteLoadingLock.WaitAsync().ConfigureAwait(false);
+      try
       {//if another thread is already loading THIS banner, the lock will block this thread until the other thread
         //has finished loading
         if (!wasLoaded && !replaceOld && IsVignetteLoaded)
@@ -150,7 +153,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib.Data.Banner
 
           if (img == null)
           {
-            img = LoadImage(TvdbLinkCreator.CreateBannerLink(VignettePath));
+            img = await LoadImageAsync(TvdbLinkCreator.CreateBannerLink(VignettePath)).ConfigureAwait(false);
 
             if (img != null && CacheProvider != null && CacheProvider.Initialised)
             {//store the image to cache
@@ -173,6 +176,10 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib.Data.Banner
         IsVignetteLoaded = false;
         VignetteLoading = false;
         return false;
+      }
+      finally
+      {
+        _vignetteLoadingLock.Release();
       }
     }
 

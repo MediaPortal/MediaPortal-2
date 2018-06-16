@@ -22,26 +22,24 @@
 
 #endregion
 
+using MediaPortal.Common;
+using MediaPortal.Common.Logging;
+using MediaPortal.Common.MediaManagement;
+using MediaPortal.Common.MediaManagement.DefaultItemAspects;
+using MediaPortal.Common.MediaManagement.Helpers;
+using MediaPortal.Common.ResourceAccess;
+using MediaPortal.Common.Services.GenreConverter;
+using MediaPortal.Extensions.BassLibraries;
+using MediaPortal.Extensions.OnlineLibraries;
+using MediaPortal.Utilities;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
-using MediaPortal.Common;
-using MediaPortal.Common.Logging;
-using MediaPortal.Common.MediaManagement;
-using MediaPortal.Common.MediaManagement.DefaultItemAspects;
-using MediaPortal.Common.ResourceAccess;
-using MediaPortal.Common.Services.ThumbnailGenerator;
-using MediaPortal.Extensions.BassLibraries;
-using MediaPortal.Utilities;
-using MediaPortal.Utilities.Graphics;
-using Un4seen.Bass.AddOn.Tags;
-using MediaPortal.Common.MediaManagement.Helpers;
-using MediaPortal.Extensions.OnlineLibraries.Matchers;
-using MediaPortal.Extensions.OnlineLibraries;
 using System.Linq;
-using MediaPortal.Common.Genres;
+using System.Threading.Tasks;
+using Un4seen.Bass.AddOn.Tags;
 
 namespace MediaPortal.Extensions.MetadataExtractors.BassAudioMetadataExtractor
 {
@@ -102,7 +100,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.BassAudioMetadataExtractor
       return tags.Split(';', '/');
     }
 
-    public new bool TryExtractMetadata(IResourceAccessor mediaItemAccessor, IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData, bool importOnly, bool forceQuickMode)
+    public override async Task<bool> TryExtractMetadataAsync(IResourceAccessor mediaItemAccessor, IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData, bool forceQuickMode)
     {
       // If the base AudioMDE already extracted metadata, don't try here again to avoid conflicts.
       if (extractedAspectData.ContainsKey(AudioAspect.ASPECT_ID))
@@ -219,7 +217,12 @@ namespace MediaPortal.Extensions.MetadataExtractors.BassAudioMetadataExtractor
           IEnumerable<string> genres = SplitTagEnum(tags.genre);
           genres = PatchID3v23Enumeration(genres);
           trackInfo.Genres = ApplyAdditionalSeparator(genres).Select(s => new GenreInfo { Name = s }).ToList();
-          GenreMapper.AssignMissingMusicGenreIds(trackInfo.Genres);
+          IGenreConverter converter = ServiceRegistration.Get<IGenreConverter>();
+          foreach (var genre in trackInfo.Genres)
+          {
+            if (!genre.Id.HasValue && converter.GetGenreId(genre.Name, GenreCategory.Music, null, out int genreId))
+              genre.Id = genreId;
+          }
 
           int year;
           if (int.TryParse(tags.year, out year))
@@ -248,29 +251,13 @@ namespace MediaPortal.Extensions.MetadataExtractors.BassAudioMetadataExtractor
               // Decoding of invalid image data can fail, but main MediaItem is correct.
               catch { }
             }
-            else
-            {
-              // In quick mode only allow thumbs taken from cache.
-              bool cachedOnly = importOnly | forceQuickMode;
-
-              // Thumbnail extraction
-              fileName = mediaItemAccessor.ResourcePathName;
-              IThumbnailGenerator generator = ServiceRegistration.Get<IThumbnailGenerator>();
-              byte[] thumbData;
-              ImageType imageType;
-              if (generator.GetThumbnail(fileName, cachedOnly, out thumbData, out imageType))
-              {
-                trackInfo.Thumbnail = thumbData;
-                trackInfo.HasChanged = true;
-              }
-            }
           }
         }
 
         if(!SkipOnlineSearches && !forceQuickMode)
-          OnlineMatcherService.Instance.FindAndUpdateTrack(trackInfo, importOnly);
+          await OnlineMatcherService.Instance.FindAndUpdateTrackAsync(trackInfo).ConfigureAwait(false);
 
-        if (!trackInfo.HasChanged && !importOnly)
+        if (!trackInfo.HasChanged)
           return false;
 
         trackInfo.SetMetadata(extractedAspectData);

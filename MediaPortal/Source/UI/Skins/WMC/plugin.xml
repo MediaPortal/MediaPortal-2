@@ -94,16 +94,28 @@
         ClassName="MediaPortal.UiComponents.WMCSkin.Settings.Configuration.EnableAgeCertificationLogosConfiguration"/>
 
     <ConfigSetting
-        Id="EnableBanners"
-        Text="[WMC.Configuration.EnableBanners]"
-        HelpText="[WMC.Configuration.EnableBanners.Help]"
-        ClassName="MediaPortal.UiComponents.WMCSkin.Settings.Configuration.EnableBannersConfiguration"/>
+        Id="MovieGridViewType"
+        Text="[WMC.Configuration.MovieGridViewType]"
+        HelpText="[WMC.Configuration.MovieGridViewType.Help]"
+        ClassName="MediaPortal.UiComponents.WMCSkin.Settings.Configuration.MovieGridViewTypeConfiguration"/>
+    
+    <ConfigSetting
+        Id="SeriesGridViewType"
+        Text="[WMC.Configuration.SeriesGridViewType]"
+        HelpText="[WMC.Configuration.SeriesGridViewType.Help]"
+        ClassName="MediaPortal.UiComponents.WMCSkin.Settings.Configuration.SeriesGridViewTypeConfiguration"/>
+    
+    <ConfigSetting
+        Id="SeasonGridViewType"
+        Text="[WMC.Configuration.SeasonGridViewType]"
+        HelpText="[WMC.Configuration.SeasonGridViewType.Help]"
+        ClassName="MediaPortal.UiComponents.WMCSkin.Settings.Configuration.SeasonGridViewTypeConfiguration"/>
 
     <ConfigSetting
-        Id="EnableAnimatedBackground"
-        Text="[WMC.Configuration.EnableAnimatedBackground]"
-        HelpText="[WMC.Configuration.EnableAnimatedBackground.Help]"
-        ClassName="MediaPortal.UiComponents.WMCSkin.Settings.Configuration.EnableAnimatedBackgroundConfiguration"/>
+        Id="EnableHomeContent"
+        Text="[WMC.Configuration.EnableHomeContent]"
+        HelpText="[WMC.Configuration.EnableHomeContent.Help]"
+        ClassName="MediaPortal.UiComponents.WMCSkin.Settings.Configuration.EnableHomeContentConfiguration"/>
 
     <ConfigSetting
         Id="EnableMediaItemDetailsView"

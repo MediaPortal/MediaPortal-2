@@ -310,6 +310,16 @@ namespace MediaPortal.Backend.MediaLibrary
     /// <param name="isRefresh">Is the media item being added/updated because of a refresh cycle.</param>
     /// <returns>Id of the media item which has been added or updated.</returns>
     Guid AddOrUpdateMediaItem(Guid parentDirectoryId, string systemId, ResourcePath path, Guid mediaItemId, IEnumerable<MediaItemAspect> mediaItemAspects, bool isRefresh);
+    
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="mediaItemId"></param>
+    /// <param name="mediaItemAspects"></param>
+    /// <param name="relationshipItems"></param>
+    /// <param name="updateParents"></param>
+    /// <returns></returns>
+    IList<MediaItem> ReconcileMediaItemRelationships(Guid mediaItemId, IEnumerable<MediaItemAspect> mediaItemAspects, IEnumerable<RelationshipItem> relationshipItems);
 
     /// <summary>
     /// Writes some media item aspects of an existing media item to the media library.
@@ -492,6 +502,22 @@ namespace MediaPortal.Backend.MediaLibrary
     /// </summary>
     /// <param name="systemId">System id of the client which switched offline.</param>
     void NotifySystemOffline(string systemId);
+
+    #endregion
+
+    #region Access
+
+    /// <summary>
+    /// Reserve access to the media library by blocking any import for the specified duration.
+    /// </summary>
+    /// <param name="duration">THe duration in ms to block the importer from accessing the media library.</param>
+    void ReserveAccess(int duration);
+
+    /// <summary>
+    /// Access request for any importer wanting access to media library.
+    /// </summary>
+    /// <returns>A lock that must be disposed when access is complete.</returns>
+    IDisposable RequestImporterAccess();
 
     #endregion
   }

@@ -22,15 +22,16 @@
 
 #endregion
 
-using System;
-using System.Collections.Generic;
-using System.IO;
 using MediaInfoLib;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Common.ResourceAccess;
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Threading.Tasks;
 
 namespace MediaPortal.Extensions.MetadataExtractors
 {
@@ -79,25 +80,25 @@ namespace MediaPortal.Extensions.MetadataExtractors
       return false;
     }
 
-    public bool TryExtractMetadata(IResourceAccessor mediaItemAccessor, IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData, bool importOnly, bool forceQuickMode)
+    public Task<bool> TryExtractMetadataAsync(IResourceAccessor mediaItemAccessor, IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData, bool forceQuickMode)
     {
       IFileSystemResourceAccessor fsra = mediaItemAccessor as IFileSystemResourceAccessor;
       if (fsra == null || !fsra.IsFile)
-        return false;
+        return Task.FromResult(false);
       if (extractedAspectData.ContainsKey(AudioAspect.ASPECT_ID))
-        return false;
+        return Task.FromResult(false);
 
       try
       {
         var extension = DosPathHelper.GetExtension(fsra.ResourceName).ToLowerInvariant();
         if (extension != ".ts")
-          return false;
+          return Task.FromResult(false);
 
         using (MediaInfoWrapper mediaInfo = ReadMediaInfo(fsra))
         {
           // Before we start evaluating the file, check if it is not a video file (
           if (mediaInfo.IsValid && (mediaInfo.GetVideoCount() != 0 || mediaInfo.GetAudioCount() == 0))
-            return false;
+            return Task.FromResult(false);
           string fileName = ProviderPathHelper.GetFileNameWithoutExtension(fsra.Path) ?? string.Empty;
           MediaItemAspect.SetAttribute(extractedAspectData, MediaAspect.ATTR_TITLE, fileName);
           MultipleMediaItemAspect providerResourceAspect = MediaItemAspect.CreateAspect(extractedAspectData, ProviderResourceAspect.Metadata);
@@ -120,14 +121,14 @@ namespace MediaPortal.Extensions.MetadataExtractors
           if (time.HasValue && time > 1000)
             MediaItemAspect.SetAttribute(extractedAspectData, AudioAspect.ATTR_DURATION, time.Value / 1000);
         }
-        return true;
+        return Task.FromResult(true);
       }
       catch (Exception e)
       {
         // Only log at the info level here - And simply return false. This makes the importer know that we
         // couldn't perform our task here
         ServiceRegistration.Get<ILogger>().Info("RadioRecordingMetadataExtractor: Exception reading resource '{0}' (Text: '{1}')", fsra.CanonicalLocalResourcePath, e.Message);
-        return false;
+        return Task.FromResult(false);
       }
     }
 

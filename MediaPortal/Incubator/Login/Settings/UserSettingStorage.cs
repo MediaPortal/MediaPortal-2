@@ -23,10 +23,13 @@
 #endregion
 
 using MediaPortal.Common;
-using MediaPortal.Common.Services.Settings;
 using MediaPortal.Common.Settings;
-using MediaPortal.UI.Services.UserManagement;
 using System;
+using System.Collections.Generic;
+using System.Linq;
+using MediaPortal.Common.UserManagement;
+using MediaPortal.Common.UserProfileDataManagement;
+using MediaPortal.UI.Services.UserManagement;
 
 namespace MediaPortal.UiComponents.Login.Settings
 {
@@ -44,6 +47,11 @@ namespace MediaPortal.UiComponents.Login.Settings
       AutoLogoutEnabled = settings.AutoLogoutEnabled;
       AutoLogoutIdleTimeoutInMin = settings.AutoLogoutIdleTimeoutInMin;
 
+      var templates = localSettings.Load<UserTemplateSettings>();
+      UserProfileTemplates = templates.UserProfileTemplates?.Count > 0 ? 
+        templates.UserProfileTemplates :
+        UserTemplateSettings.DEFAULT_USER_PROFILE_TEMPLATES;
+
       IUserManagement userManagement = ServiceRegistration.Get<IUserManagement>();
       if (userManagement != null)
         userManagement.ApplyUserRestriction = UserLoginEnabled;
@@ -57,7 +65,7 @@ namespace MediaPortal.UiComponents.Login.Settings
       }
       set
       {
-        if(_userLoginEnabled != value)
+        if (_userLoginEnabled != value)
         {
           IUserManagement userManagement = ServiceRegistration.Get<IUserManagement>();
           if (userManagement != null)
@@ -70,5 +78,6 @@ namespace MediaPortal.UiComponents.Login.Settings
     public static bool AutoLogoutEnabled { get; set; }
     public static int AutoLogoutIdleTimeoutInMin { get; set; }
     public static bool UserLoginScreenEnabled { get; set; }
+    public static ICollection<UserProfileTemplate> UserProfileTemplates { get; set; }
   }
 }

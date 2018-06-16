@@ -22,16 +22,16 @@
 
 #endregion
 
+using MediaPortal.Common;
+using MediaPortal.Common.Logging;
+using MediaPortal.Extensions.OnlineLibraries.Libraries.Common;
+using MediaPortal.Extensions.OnlineLibraries.Libraries.TvMazeV1.Data;
+using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Web;
-using MediaPortal.Extensions.OnlineLibraries.Libraries.Common;
-using Newtonsoft.Json;
-using MediaPortal.Common.Logging;
-using MediaPortal.Common;
-using MediaPortal.Extensions.OnlineLibraries.Libraries.TvMazeV1.Data;
 using System.Linq;
-using System;
+using System.Threading.Tasks;
+using System.Web;
 
 namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvMazeV1
 {
@@ -79,10 +79,10 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvMazeV1
     /// <summary>
     /// Return the last change date of all series.
     /// </summary>
-    public Dictionary<int, DateTime> GetSeriesChangeDates()
+    public async Task<Dictionary<int, DateTime>> GetSeriesChangeDatesAsync()
     {
       string url = GetUrl(URL_GETSERIESCHANGES);
-      Dictionary<string, long> results = _downloader.Download<Dictionary<string, long>>(url);
+      Dictionary<string, long> results = await _downloader.DownloadAsync<Dictionary<string, long>>(url).ConfigureAwait(false);
       if (results == null) return null;
       return results.ToDictionary(entry => Convert.ToInt32(entry.Key), entry => Util.UnixToDotNet(entry.Value.ToString()));
     }
@@ -92,7 +92,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvMazeV1
     /// </summary>
     /// <param name="id">TvMaze id of series</param>
     /// <returns></returns>
-    public void DeleteSeriesCache(int id)
+    public async Task DeleteSeriesCacheAsync(int id)
     {
       string folder = Path.Combine(_cachePath, id.ToString());
       if (!Directory.Exists(folder))
@@ -104,7 +104,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvMazeV1
       {
         try
         {
-          _downloader.DeleteCache(file);
+          await _downloader.DeleteCacheAsync(file).ConfigureAwait(false);
         }
         catch
         { }
@@ -116,7 +116,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvMazeV1
       {
         try
         {
-          _downloader.DeleteCache(file);
+          await _downloader.DeleteCacheAsync(file).ConfigureAwait(false);
         }
         catch
         { }
@@ -128,10 +128,10 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvMazeV1
     /// </summary>
     /// <param name="title">Full or partly name of series</param>
     /// <returns>List of possible matches</returns>
-    public List<TvMazeSeries> SearchSeries(string title)
+    public async Task<List<TvMazeSeries>> SearchSeriesAsync(string title)
     {
       string url = GetUrl(URL_QUERYSERIES, HttpUtility.UrlEncode(title));
-      List<TvMazeSeriesSearchResult> results = _downloader.Download<List<TvMazeSeriesSearchResult>>(url);
+      List<TvMazeSeriesSearchResult> results = await _downloader.DownloadAsync<List<TvMazeSeriesSearchResult>>(url).ConfigureAwait(false);
       if (results == null) return null;
       return results.Select(e => e.Series).ToList();
     }
@@ -141,10 +141,10 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvMazeV1
     /// </summary>
     /// <param name="name">Full or partly name of person</param>
     /// <returns>List of possible matches</returns>
-    public List<TvMazePerson> SearchPerson(string name)
+    public async Task<List<TvMazePerson>> SearchPersonAsync(string name)
     {
       string url = GetUrl(URL_QUERYPEOPLE, HttpUtility.UrlEncode(name));
-      List<TvMazePersonSearchResult> results = _downloader.Download<List<TvMazePersonSearchResult>>(url);
+      List<TvMazePersonSearchResult> results = await _downloader.DownloadAsync<List<TvMazePersonSearchResult>>(url).ConfigureAwait(false);
       if (results == null) return null;
       return results.Select(e => e.Person).ToList();
     }
@@ -155,16 +155,16 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvMazeV1
     /// </summary>
     /// <param name="id">TvMaze id of Series</param>
     /// <returns>Series information</returns>
-    public TvMazeSeries GetSeries(int id, bool cacheOnly)
+    public Task<TvMazeSeries> GetSeriesAsync(int id, bool cacheOnly)
     {
       string cache = CreateAndGetCacheName(id, "Series");
       if (!string.IsNullOrEmpty(cache) && File.Exists(cache))
       {
-        return _downloader.ReadCache<TvMazeSeries>(cache);
+        return _downloader.ReadCacheAsync<TvMazeSeries>(cache);
       }
-      if (cacheOnly) return null;
+      if (cacheOnly) return Task.FromResult<TvMazeSeries>(null);
       string url = GetUrl(URL_GETSERIES, id);
-      return _downloader.Download<TvMazeSeries>(url, cache);
+      return _downloader.DownloadAsync<TvMazeSeries>(url, cache);
     }
 
     /// <summary>
@@ -183,16 +183,16 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvMazeV1
     /// </summary>
     /// <param name="id">IMDB id of Series</param>
     /// <returns>Series information</returns>
-    public TvMazeSeries GetSeriesByImDb(string id, bool cacheOnly)
+    public Task<TvMazeSeries> GetSeriesByImDbAsync(string id, bool cacheOnly)
     {
       string cache = CreateAndGetCacheName(id, "Series");
       if (!string.IsNullOrEmpty(cache) && File.Exists(cache))
       {
-        return _downloader.ReadCache<TvMazeSeries>(cache);
+        return _downloader.ReadCacheAsync<TvMazeSeries>(cache);
       }
-      if (cacheOnly) return null;
+      if (cacheOnly) return Task.FromResult<TvMazeSeries>(null);
       string url = GetUrl(URL_GETIMDBIDSERIES, id);
-      return _downloader.Download<TvMazeSeries>(url, cache);
+      return _downloader.DownloadAsync<TvMazeSeries>(url, cache);
     }
 
     /// <summary>
@@ -211,16 +211,16 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvMazeV1
     /// </summary>
     /// <param name="id">TvDB id of Series</param>
     /// <returns>Series information</returns>
-    public TvMazeSeries GetSeriesByTvDb(int id, bool cacheOnly)
+    public Task<TvMazeSeries> GetSeriesByTvDbAsync(int id, bool cacheOnly)
     {
       string cache = CreateAndGetCacheName(id, "Series");
       if (!string.IsNullOrEmpty(cache) && File.Exists(cache))
       {
-        return _downloader.ReadCache<TvMazeSeries>(cache);
+        return _downloader.ReadCacheAsync<TvMazeSeries>(cache);
       }
-      if (cacheOnly) return null;
+      if (cacheOnly) return Task.FromResult<TvMazeSeries>(null);
       string url = GetUrl(URL_GETTVDBSERIES, id);
-      return _downloader.Download<TvMazeSeries>(url, cache);
+      return _downloader.DownloadAsync<TvMazeSeries>(url, cache);
     }
 
     /// <summary>
@@ -239,21 +239,20 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvMazeV1
     /// </summary>
     /// <param name="id">TvMaze id of series</param>
     /// <returns>Season information</returns>
-    public List<TvMazeSeason> GetSeriesSeasons(int id, bool cacheOnly)
+    public async Task<List<TvMazeSeason>> GetSeriesSeasonsAsync(int id, bool cacheOnly)
     {
       string cache = CreateAndGetCacheName(id, "Seasons");
       TvMazeSeriesSeasonSearch returnValue = null;
       if (!string.IsNullOrEmpty(cache) && File.Exists(cache))
       {
-        returnValue = _downloader.ReadCache<TvMazeSeriesSeasonSearch>(cache);
+        returnValue = await _downloader.ReadCacheAsync<TvMazeSeriesSeasonSearch>(cache).ConfigureAwait(false);
       }
       else
       {
         if (cacheOnly) return null;
         string url = GetUrl(URL_GETSEASONS, id);
-        returnValue = _downloader.Download<TvMazeSeriesSeasonSearch>(url, cache);
+        returnValue = await _downloader.DownloadAsync<TvMazeSeriesSeasonSearch>(url, cache).ConfigureAwait(false);
       }
-      if (returnValue.Results == null) return null;
       return returnValue.Results;
     }
 
@@ -275,24 +274,19 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvMazeV1
     /// <param name="season">Season number</param>
     /// <param name="episode">Episode number</param>
     /// <returns>Episode information</returns>
-    public TvMazeEpisode GetSeriesEpisode(int id, int season, int episode, bool cacheOnly)
+    public Task<TvMazeEpisode> GetSeriesEpisodeAsync(int id, int season, int episode, bool cacheOnly)
     {
       if (season == 0) //Does not support special episode requests
-        return null;
+        return Task.FromResult<TvMazeEpisode>(null);
 
       string cache = CreateAndGetCacheName(id, string.Format("Season{0}_Episode{1}", season, episode));
-      TvMazeEpisode returnValue = null;
       if (!string.IsNullOrEmpty(cache) && File.Exists(cache))
       {
-        returnValue = _downloader.ReadCache<TvMazeEpisode>(cache);
+        return _downloader.ReadCacheAsync<TvMazeEpisode>(cache);
       }
-      else
-      {
-        if (cacheOnly) return null;
-        string url = GetUrl(URL_GETEPISODE, id, season, episode);
-        returnValue = _downloader.Download<TvMazeEpisode>(url, cache);
-      }
-      return returnValue;
+      if (cacheOnly) return Task.FromResult<TvMazeEpisode>(null);
+      string url = GetUrl(URL_GETEPISODE, id, season, episode);
+      return _downloader.DownloadAsync<TvMazeEpisode>(url, cache);
     }
 
     /// <summary>
@@ -311,16 +305,16 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvMazeV1
     /// </summary>
     /// <param name="id">TvMaze id of person</param>
     /// <returns>Person information</returns>
-    public TvMazePerson GetPerson(int id, bool cacheOnly)
+    public Task<TvMazePerson> GetPersonAsync(int id, bool cacheOnly)
     {
       string cache = CreateAndGetCacheName(id, "Person");
       if (!string.IsNullOrEmpty(cache) && File.Exists(cache))
       {
-        return _downloader.ReadCache<TvMazePerson>(cache);
+        return _downloader.ReadCacheAsync<TvMazePerson>(cache);
       }
-      if (cacheOnly) return null;
+      if (cacheOnly) return Task.FromResult<TvMazePerson>(null);
       string url = GetUrl(URL_GETPERSON, id);
-      return _downloader.Download<TvMazePerson>(url, cache);
+      return _downloader.DownloadAsync<TvMazePerson>(url, cache);
     }
 
     /// <summary>
@@ -339,16 +333,16 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvMazeV1
     /// </summary>
     /// <param name="id">TvMaze id of character</param>
     /// <returns>Character information</returns>
-    public TvMazePerson GetCharacter(int id, bool cacheOnly)
+    public Task<TvMazePerson> GetCharacterAsync(int id, bool cacheOnly)
     {
       string cache = CreateAndGetCacheName(id, "Character");
       if (!string.IsNullOrEmpty(cache) && File.Exists(cache))
       {
-        return _downloader.ReadCache<TvMazePerson>(cache);
+        return _downloader.ReadCacheAsync<TvMazePerson>(cache);
       }
-      if (cacheOnly) return null;
+      if (cacheOnly) return Task.FromResult<TvMazePerson>(null);
       string url = GetUrl(URL_GETCHARACTER, id);
-      return _downloader.Download<TvMazePerson>(url, cache);
+      return _downloader.DownloadAsync<TvMazePerson>(url, cache);
     }
 
     /// <summary>
@@ -367,7 +361,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvMazeV1
     /// <param name="image">Image to download</param>
     /// <param name="folderPath">The folder to store the image</param>
     /// <returns><c>true</c> if successful</returns>
-    public bool DownloadImage(int id, TvMazeImageCollection image, string folderPath)
+    public async Task<bool> DownloadImageAsync(int id, TvMazeImageCollection image, string folderPath)
     {
       string imageUrl = image.OriginalUrl ?? image.MediumUrl;
       string cacheFileName = CreateAndGetCacheName(id, imageUrl, folderPath);
@@ -375,18 +369,17 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvMazeV1
         return false;
 
       string sourceUri = imageUrl;
-      _downloader.DownloadFile(sourceUri, cacheFileName);
-      return true;
+      return await _downloader.DownloadFileAsync(sourceUri, cacheFileName).ConfigureAwait(false);
     }
 
-    public byte[] GetImage(int id, TvMazeImageCollection image, string folderPath)
+    public Task<byte[]> GetImageAsync(int id, TvMazeImageCollection image, string folderPath)
     {
       string imageUrl = image.OriginalUrl ?? image.MediumUrl;
       string cacheFileName = CreateAndGetCacheName(id, imageUrl, folderPath);
       if (string.IsNullOrEmpty(cacheFileName))
-        return null;
+        return Task.FromResult<byte[]>(null);
 
-      return _downloader.ReadDownloadedFile(cacheFileName);
+      return _downloader.ReadDownloadedFileAsync(cacheFileName);
     }
 
     #endregion

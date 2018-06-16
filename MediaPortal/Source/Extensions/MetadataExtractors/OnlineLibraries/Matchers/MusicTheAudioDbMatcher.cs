@@ -22,15 +22,15 @@
 
 #endregion
 
-using System;
-using System.Globalization;
 using MediaPortal.Common;
-using MediaPortal.Common.Localization;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.MediaManagement.Helpers;
 using MediaPortal.Common.PathManager;
 using MediaPortal.Extensions.OnlineLibraries.Wrappers;
+using System;
 using System.Collections.Generic;
+using System.Globalization;
+using System.Threading.Tasks;
 
 namespace MediaPortal.Extensions.OnlineLibraries.Matchers
 {
@@ -57,9 +57,11 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
     public MusicTheAudioDbMatcher() : 
       base(CACHE_PATH, MAX_MEMCACHE_DURATION, false)
     {
+      //Will be overridden if the user enables it in setttings
+      Enabled = false;
     }
 
-    public override bool InitWrapper(bool useHttps)
+    public override Task<bool> InitWrapperAsync(bool useHttps)
     {
       try
       {
@@ -75,23 +77,23 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
         if (wrapper.Init(CACHE_PATH))
         {
           _wrapper = wrapper;
-          return true;
+          return Task.FromResult(true);
         }
       }
       catch (Exception ex)
       {
         ServiceRegistration.Get<ILogger>().Error("MusicTheAudioDbMatcher: Error initializing wrapper", ex);
       }
-      return false;
+      return Task.FromResult(false);
     }
 
     #endregion
 
     #region Overrides
 
-    public override bool FindAndUpdateTrack(TrackInfo trackInfo, bool importOnly)
+    public override async Task<bool> FindAndUpdateTrackAsync(TrackInfo trackInfo)
     {
-      if (!Init())
+      if (!await InitAsync().ConfigureAwait(false))
         return false;
 
       //Try and find the album and match the track against the album tracks as the track name search can be a bit hit and miss.
@@ -99,14 +101,14 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
       //search won't be
       //TODO: Handle this better in the wrapper.
       if (trackInfo.AudioDbId == 0)
-        FindTrackFromAlbum(trackInfo, importOnly);
-      return base.FindAndUpdateTrack(trackInfo, importOnly);
+        await FindTrackFromAlbum(trackInfo);
+      return await base.FindAndUpdateTrackAsync(trackInfo);
     }
 
-    protected void FindTrackFromAlbum(TrackInfo trackInfo, bool importOnly)
+    protected async Task FindTrackFromAlbum(TrackInfo trackInfo)
     {
       AlbumInfo album = trackInfo.CloneBasicInstance<AlbumInfo>();
-      if (!UpdateAlbum(album, true, importOnly))
+      if (!await UpdateAlbumAsync(album, true).ConfigureAwait(false))
         return;
       List<TrackInfo> tracks = new List<TrackInfo>(album.Tracks);
       if (_wrapper.TestTrackMatch(trackInfo, ref tracks))

@@ -623,38 +623,6 @@ namespace MediaPortal.UiComponents.Media.General
           StubAspect.ASPECT_ID
       };
 
-    public static readonly Guid[] NECESSARY_MOVIE_GENRE_MIAS = new Guid[]
-      {
-          ProviderResourceAspect.ASPECT_ID,
-          MediaAspect.ASPECT_ID,
-          GenreAspect.ASPECT_ID,
-          MovieAspect.ASPECT_ID
-      };
-
-    public static readonly Guid[] NECESSARY_SERIES_GENRE_MIAS = new Guid[]
-      {
-          ProviderResourceAspect.ASPECT_ID,
-          MediaAspect.ASPECT_ID,
-          GenreAspect.ASPECT_ID,
-          SeriesAspect.ASPECT_ID
-      };
-
-    public static readonly Guid[] NECESSARY_AUDIO_GENRE_MIAS = new Guid[]
-      {
-          ProviderResourceAspect.ASPECT_ID,
-          MediaAspect.ASPECT_ID,
-          GenreAspect.ASPECT_ID,
-          AudioAspect.ASPECT_ID
-      };
-
-    public static readonly Guid[] NECESSARY_VIDEO_GENRE_MIAS = new Guid[]
-      {
-          ProviderResourceAspect.ASPECT_ID,
-          MediaAspect.ASPECT_ID,
-          GenreAspect.ASPECT_ID,
-          VideoAspect.ASPECT_ID
-      };
-
     public static readonly Guid[] NECESSARY_VIDEO_MIAS = new Guid[]
       {
           ProviderResourceAspect.ASPECT_ID,

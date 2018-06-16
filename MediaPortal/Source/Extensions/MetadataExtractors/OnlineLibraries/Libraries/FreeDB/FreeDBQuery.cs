@@ -22,13 +22,14 @@
 
 #endregion
 
+using MediaPortal.Extensions.OnlineLibraries.Libraries.Freedb.Data;
 using System;
+using System.Collections;
+using System.Collections.Generic;
 using System.IO;
 using System.Net;
 using System.Text;
-using System.Collections;
-using System.Collections.Generic;
-using MediaPortal.Extensions.OnlineLibraries.Libraries.Freedb.Data;
+using System.Threading.Tasks;
 
 namespace MediaPortal.Extensions.OnlineLibraries.Libraries.Freedb
 {
@@ -82,12 +83,12 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.Freedb
       return true;
     }
 
-    public FreeDBSite[] GetFreedbSites()
+    public async Task<FreeDBSite[]> GetFreedbSitesAsync()
     {
       FreeDBSite[] retval = null;
       // FIXME: Close reader
-      StreamReader urlRdr = GetStreamFromSite("sites");
-      m_message = urlRdr.ReadLine();
+      StreamReader urlRdr = await GetStreamFromSiteAsync("sites").ConfigureAwait(false);
+      m_message = await urlRdr.ReadLineAsync().ConfigureAwait(false);
       int code = GetCode(m_message);
       m_message = m_message.Substring(4);  // remove the code...
       char[] sep = {' '};
@@ -96,7 +97,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.Freedb
       {
         case 210: // OK, Site Information Follows.
           // Read in all sites.
-          string[] sites = ParseMultiLine(urlRdr);
+          string[] sites = await ParseMultiLineAsync(urlRdr).ConfigureAwait(false);
           retval = new FreeDBSite[sites.Length];
           int index =0;
           // Loop through server list and extract different parts.
@@ -131,53 +132,53 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.Freedb
       return m_message;
     }
 
-    public string[] GetListOfGenres()
+    public Task<string[]> GetListOfGenresAsync()
     {
-      return GetInfo("cddb+lscat");
+      return GetInfoAsync("cddb+lscat");
     }
 
-    public string[] GetHelp(string topic)
+    public Task<string[]> GetHelpAsync(string topic)
     {
-      return GetInfo("help " + topic);
+      return GetInfoAsync("help " + topic);
     }
 
-    public string[] GetLog()
+    public Task<string[]> GetLogAsync()
     {
-      return GetInfo("log");
+      return GetInfoAsync("log");
     }
 
-    public string[] GetMessageOfTheDay()
+    public Task<string[]> GetMessageOfTheDayAsync()
     {
-      return GetInfo("motd");
+      return GetInfoAsync("motd");
     }
 
-    public string[] GetStatus()
+    public Task<string[]> GetStatusAsync()
     {
-      return GetInfo("stat");
+      return GetInfoAsync("stat");
     }
 
-    public string[] GetUsers()
+    public Task<string[]> GetUsersAsync()
     {
-      return GetInfo("whom");
+      return GetInfoAsync("whom");
     }
 
-    public string GetVersion()
+    public async Task<string> GetVersionAsync()
     {
-      GetInfo("ver", false);
+      await GetInfoAsync("ver", false).ConfigureAwait(false);
       return GetServerMessage();
     }
 
-    public FreeDBCDInfoDetail GetDiscDetails(string category, string discid)
+    public async Task<FreeDBCDInfoDetail> GetDiscDetailsAsync(string category, string discid)
     {
-      string[] content = GetInfo("cddb+read+" + category + "+" + discid);
+      string[] content = await GetInfoAsync("cddb+read+" + category + "+" + discid).ConfigureAwait(false);
       XMCDParser parser = new XMCDParser();
       FreeDBCDInfoDetail cdInfo = parser.Parse2(content);
       return cdInfo;
     }
 
-    public string[] GetDiscDetailsXMCD(string category, string discid)
+    public Task<string[]> GetDiscDetailsXMCDAsync(string category, string discid)
     {
-      return GetInfo("cddb+read+" + category + "+" + discid);
+      return GetInfoAsync("cddb+read+" + category + "+" + discid);
     }
 
     public FreeDBCDInfoDetail GetDiscDetailsFromXMCD(string[] xmcd)
@@ -187,28 +188,28 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.Freedb
       return cdInfo;
     }
 
-    public Dictionary<string, string[]> GetDiscDetailsXMCDFromId(string discid)
+    public async Task<Dictionary<string, string[]>> GetDiscDetailsXMCDFromIdAsync(string discid)
     {
       //Getting disc is not possible with only disc id
       //Category is needed too
       Dictionary<string, string[]> retValue = new Dictionary<string, string[]>();
-      string[] genres = GetListOfGenres();
+      string[] genres = await GetListOfGenresAsync().ConfigureAwait(false);
       foreach (string genre in genres)
       {
-        string[] xmcd = GetDiscDetailsXMCD(genre, discid);
+        string[] xmcd = await GetDiscDetailsXMCDAsync(genre, discid).ConfigureAwait(false);
         if (xmcd != null) retValue.Add(genre, xmcd);
       }
       return retValue;
     }
 
-    public FreeDBCDInfo[] GetDiscInfoByQuery(string cddbQuery)
+    public async Task<FreeDBCDInfo[]> GetDiscInfoByQueryAsync(string cddbQuery)
     {
       FreeDBCDInfo[] retval = null;
       string command = "cddb+query+" + cddbQuery.Replace(" ", "+");
-      StreamReader urlRdr = GetStreamFromSite(command);
+      StreamReader urlRdr = await GetStreamFromSiteAsync(command).ConfigureAwait(false);
       try
       {
-        m_message = urlRdr.ReadLine();
+        m_message = await urlRdr.ReadLineAsync().ConfigureAwait(false);
         int code = GetCode(m_message);
         m_message = m_message.Substring(4);  // remove the code...
 
@@ -235,7 +236,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.Freedb
             break;
           case 211: // Found Inexact Matches. List Follows.
           case 210: // Found Exact Matches. List Follows.
-            matches = ParseMultiLine(urlRdr);
+            matches = await ParseMultiLineAsync(urlRdr).ConfigureAwait(false);
             retval = new FreeDBCDInfo[matches.Length];
             foreach (string line in matches)
             {
@@ -268,15 +269,15 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.Freedb
       return retval;
     }
 
-    private string[] GetInfo(string command)
+    private Task<string[]> GetInfoAsync(string command)
     {
-      return GetInfo(command, true);
+      return GetInfoAsync(command, true);
     }
 
-    private string[] GetInfo(string command, bool multipleLine)
+    private async Task<string[]> GetInfoAsync(string command, bool multipleLine)
     {
       string[] retval = null;
-      StreamReader urlRdr = GetStreamFromSite(command);
+      StreamReader urlRdr = await GetStreamFromSiteAsync(command).ConfigureAwait(false);
       try
       {
         m_message = urlRdr.ReadLine();
@@ -286,7 +287,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.Freedb
         switch (code / 100)
         {
           case 2: // no problem
-            retval = ParseMultiLine(urlRdr);
+            retval = await ParseMultiLineAsync(urlRdr).ConfigureAwait(false);
             break;
           case 4: // no permission
             retval = null;
@@ -306,11 +307,11 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.Freedb
       return retval;
     }
 
-    private StreamReader GetStreamFromSite(string command)
+    private async Task<StreamReader> GetStreamFromSiteAsync(string command)
     {
       System.Uri url = new System.Uri(m_serverURL + "?cmd=" + command +  m_idStr);
       WebRequest req = WebRequest.Create(url);
-      WebResponse resp = req.GetResponse();
+      WebResponse resp = await req.GetResponseAsync().ConfigureAwait(false);
       StreamReader urlRdr = new StreamReader(new StreamReader(resp.GetResponseStream()).BaseStream, Encoding.UTF8);
 
       return urlRdr;
@@ -322,17 +323,17 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.Freedb
       return m_code;
     }
 
-    private string ParseSingleLine(StreamReader streamReader)
+    private async Task<string> ParseSingleLineAsync(StreamReader streamReader)
     {
-      return streamReader.ReadLine().Trim();
+      return (await streamReader.ReadLineAsync().ConfigureAwait(false)).Trim();
     }
 
-    private string[] ParseMultiLine(StreamReader streamReader)
+    private async Task<string[]> ParseMultiLineAsync(StreamReader streamReader)
     {
       ArrayList strarray = new ArrayList();
       string curLine;
 
-      while ((curLine = streamReader.ReadLine()) != null) 
+      while ((curLine = await streamReader.ReadLineAsync().ConfigureAwait(false)) != null) 
       {
         curLine = curLine.Trim();
         if(curLine.Trim().Length > 0 && !curLine.Trim().Equals("."))

@@ -134,12 +134,7 @@ namespace MediaPortal.UI.SkinEngine.Utils
 
       textureData = (byte[])mediaAspect.GetAttributeValue(ThumbnailLargeAspect.ATTR_THUMBNAIL);
 
-      ImageRotation miRotation;
-      bool flipX;
-      bool flipY;
-      ImageAspect.GetOrientationMetadata(mediaItem, out miRotation, out flipX, out flipY);
-      RightAngledRotation rotation = RotationTranslator.TranslateToRightAngledRotation(miRotation);
-      return new BinaryTextureImageSource(textureData, rotation, key);
+      return new BinaryTextureImageSource(textureData, RightAngledRotation.Zero, key);
     }
 
     /// <summary>

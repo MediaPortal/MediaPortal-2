@@ -315,9 +315,7 @@ namespace UPnP.Infrastructure.CP
     {
       try
       {
-        DeviceDisconnectedDlgt dlgt = DeviceDisconnected;
-        if (dlgt != null)
-          dlgt(this);
+        DeviceDisconnected?.Invoke(this);
       }
       catch (Exception e)
       {
@@ -329,9 +327,7 @@ namespace UPnP.Infrastructure.CP
     {
       try
       {
-        DeviceRebootedDlgt dlgt = DeviceRebooted;
-        if (dlgt != null)
-          dlgt(this);
+        DeviceRebooted?.Invoke(this);
       }
       catch (Exception e)
       {

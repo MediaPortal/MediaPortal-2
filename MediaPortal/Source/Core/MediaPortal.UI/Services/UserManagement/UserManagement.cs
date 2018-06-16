@@ -23,11 +23,18 @@
 #endregion
 
 using System;
+using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using MediaPortal.Common;
+using MediaPortal.Common.Async;
 using MediaPortal.Common.Services.ServerCommunication;
+using MediaPortal.Common.Settings;
+using MediaPortal.Common.SystemResolver;
+using MediaPortal.Common.UserManagement;
 using MediaPortal.Common.UserProfileDataManagement;
+using MediaPortal.UI.General;
 using MediaPortal.UI.ServerCommunication;
 
 namespace MediaPortal.UI.Services.UserManagement
@@ -38,6 +45,8 @@ namespace MediaPortal.UI.Services.UserManagement
 
     private UserProfile _currentUser = null;
     private bool _applyRestrictions = false;
+    private ICollection<string> _restrictionGroups = new HashSet<string>(StringComparer.CurrentCultureIgnoreCase);
+    private SemaphoreSlim _lock = new SemaphoreSlim(1, 1);
 
     public bool IsValidUser
     {
@@ -46,8 +55,21 @@ namespace MediaPortal.UI.Services.UserManagement
 
     public UserProfile CurrentUser
     {
-      get { return _currentUser ?? (_currentUser = GetOrCreateDefaultUser().Result ?? UNKNOWN_USER); }
-      set { _currentUser = value; }
+      get { return _currentUser ?? (_currentUser = GetOrCreateDefaultUser().TryWait() ?? UNKNOWN_USER); }
+      set
+      {
+        bool changed = _currentUser != value;
+        _currentUser = value;
+        if (changed)
+        {
+          // Set new user name to allow overriding settings, but only if explicit user management is enabled
+          var settingsManager = ServiceRegistration.Get<ISettingsManager>();
+          if (settingsManager.Load<UserSettings>().EnableUserLogin)
+            settingsManager.ChangeUserContext(_currentUser?.ProfileId.ToString());
+
+          UserMessaging.SendUserMessage(UserMessaging.MessageType.UserChanged);
+        }
+      }
     }
 
     public IUserProfileDataManagement UserProfileDataManagement
@@ -59,6 +81,31 @@ namespace MediaPortal.UI.Services.UserManagement
       }
     }
 
+    public void RegisterRestrictionGroup(string restrictionGroup)
+    {
+      if (!string.IsNullOrWhiteSpace(restrictionGroup))
+        foreach (var group in restrictionGroup.Split(new[] { "," }, StringSplitOptions.RemoveEmptyEntries))
+        {
+          _restrictionGroups.Add(group);
+        }
+    }
+
+    public ICollection<string> RestrictionGroups
+    {
+      get { return _restrictionGroups; }
+    }
+
+    public bool CheckUserAccess(IUserRestriction restrictedElement)
+    {
+      if (!IsValidUser || !CurrentUser.EnableRestrictionGroups || string.IsNullOrEmpty(restrictedElement.RestrictionGroup))
+        return true;
+
+      foreach (var group in restrictedElement.RestrictionGroup.Split(new[] { "," }, StringSplitOptions.RemoveEmptyEntries))
+        if (CurrentUser.RestrictionGroups.Contains(group))
+          return true;
+      return false;
+    }
+
     public bool ApplyUserRestriction
     {
       get { return _applyRestrictions; }
@@ -67,20 +114,37 @@ namespace MediaPortal.UI.Services.UserManagement
 
     public async Task<UserProfile> GetOrCreateDefaultUser()
     {
-      string profileName = SystemInformation.ComputerName;
-      IUserProfileDataManagement updm = UserProfileDataManagement;
-      if (updm == null)
+      await _lock.WaitAsync();
+      try
+      {
+        Guid systemId = Guid.Parse(ServiceRegistration.Get<ISystemResolver>().LocalSystemId);
+        IUserProfileDataManagement updm = UserProfileDataManagement;
+        if (updm == null)
+          return null;
+
+        var result = await updm.GetProfileAsync(systemId);
+        if (result.Success)
+          return result.Result;
+
+        // First check if there is an "old" client profile with same name but different ID. This happens only for older versions.
+        // This needs to be done to avoid unique constraint violations when creating the new profile by name.
+        string profileName = SystemInformation.ComputerName;
+        var existingProfile = await updm.GetProfileByNameAsync(profileName);
+        if (existingProfile.Success && existingProfile.Result.ProfileId != systemId)
+          if (!await updm.UpdateProfileAsync(existingProfile.Result.ProfileId, profileName + "_old", existingProfile.Result.ProfileType, null))
+            return null;
+
+        // Create a login profile which uses the LocalSystemId and the associated ComputerName
+        Guid profileId = await updm.CreateClientProfileAsync(systemId, profileName);
+        result = await updm.GetProfileAsync(profileId);
+        if (result.Success)
+          return result.Result;
         return null;
-
-      var result = await updm.GetProfileByNameAsync(profileName);
-      if (result.Success)
-        return result.Result;
-
-      Guid profileId = await updm.CreateProfileAsync(profileName);
-      result = await updm.GetProfileAsync(profileId);
-      if (result.Success)
-        return result.Result;
-      return null;
+      }
+      finally
+      {
+        _lock.Release();
+      }
     }
   }
 }

@@ -55,7 +55,7 @@ namespace MediaPortal.Plugins.ServerSettings.Settings.Configuration
           if (setting.Enabled)
             _selected.Add(_items.Count - 1);
         }
-        else if (setting.Id.Equals("CDFreeDbMatcher", StringComparison.InvariantCultureIgnoreCase))
+        else if (setting.Id.Equals("MusicFreeDbMatcher", StringComparison.InvariantCultureIgnoreCase))
         {
           _items.Add(LocalizationHelper.CreateStaticString("FreeDB.org"));
           if (setting.Enabled)

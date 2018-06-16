@@ -22,11 +22,12 @@
 
 #endregion
 
-using System;
-using System.Text;
 using MediaPortal.Extensions.OnlineLibraries.Libraries.Common;
-using System.Net;
+using System;
 using System.Collections.Generic;
+using System.Net;
+using System.Text;
+using System.Threading.Tasks;
 
 namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MusicBrainzV2
 {
@@ -74,7 +75,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MusicBrainzV2
       }
     }
 
-    protected override string DownloadJSON(string url)
+    protected override async Task<string> DownloadJSON(string url)
     {
       bool retry = false;
       lock (_requestSync)
@@ -91,11 +92,11 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MusicBrainzV2
       foreach (var headerEntry in Headers)
         webClient.Headers[headerEntry.Key] = headerEntry.Value;
 
-      LIMITER.RateLimit().Wait();
+      await LIMITER.RateLimit().ConfigureAwait(false);
       try
       {
         string fullUrl = Mirrors[_currentMirror] + url;
-        string json = webClient.DownloadString(fullUrl);
+        string json = await webClient.DownloadStringTaskAsync(fullUrl).ConfigureAwait(false);
         if (_failedRequests > 0)
           _failedRequests--;
         return json;
@@ -130,7 +131,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MusicBrainzV2
       }
 
       if(retry)
-        return DownloadJSON(url);
+        return await DownloadJSON(url).ConfigureAwait(false);
       return null;
     }
   }

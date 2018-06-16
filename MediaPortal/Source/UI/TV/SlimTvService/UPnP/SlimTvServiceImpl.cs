@@ -26,6 +26,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using MediaPortal.Common;
+using MediaPortal.Common.Async;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.Services.ServerCommunication;
 using MediaPortal.Plugins.SlimTv.Interfaces;
@@ -388,12 +389,12 @@ namespace MediaPortal.Plugins.SlimTv.Service.UPnP
 
     private string BuildUserName(CallContext context)
     {
-      return IsLocalClient(context) ? SlimTvService.LOCAL_USERNAME : context.RemoteAddress;
+      return IsLocalClient(context) ? AbstractSlimTvService.LOCAL_USERNAME : context.RemoteAddress;
     }
 
     private static bool IsLocalClient(CallContext context)
     {
-      return context.RemoteAddress == context.Endpoint.EndPointIPAddress.ToString();
+      return String.Equals(context.RemoteAddress, context.Endpoint.EndPointIPAddress.ToString(), StringComparison.InvariantCultureIgnoreCase);
     }
 
     private UPnPError OnDeInit(DvAction action, IList<object> inParams, out IList<object> outParams, CallContext context)

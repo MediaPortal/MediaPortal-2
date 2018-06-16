@@ -33,6 +33,7 @@ using MediaPortal.Extensions.OnlineLibraries.Matchers;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace MediaPortal.Extensions.OnlineLibraries
 {
@@ -104,12 +105,10 @@ namespace MediaPortal.Extensions.OnlineLibraries
         IMatcher matcher = matchers.FirstOrDefault(m => m.Id.Equals(setting.Id, StringComparison.OrdinalIgnoreCase));
         if (matcher != null)
         {
-          matcher.Primary = setting.Primary;
           matcher.Enabled = setting.Enabled;
           matcher.PreferredLanguageCulture = languageCulture;
         }
       }
-      matchers = matchers.Where(m => m.Primary).Union(matchers.Where(m => !m.Primary)).ToList();
     }
 
     private void SaveSettings()
@@ -121,7 +120,6 @@ namespace MediaPortal.Extensions.OnlineLibraries
         MatcherSetting setting = new MatcherSetting();
         setting.Id = matcher.Id;
         setting.Enabled = matcher.Enabled;
-        setting.Primary = matcher.Primary;
         list.Add(setting);
       }
       settings.MusicMatchers = list.ToArray();
@@ -132,7 +130,6 @@ namespace MediaPortal.Extensions.OnlineLibraries
         MatcherSetting setting = new MatcherSetting();
         setting.Id = matcher.Id;
         setting.Enabled = matcher.Enabled;
-        setting.Primary = matcher.Primary;
         list.Add(setting);
       }
       settings.MovieMatchers = list.ToArray();
@@ -143,7 +140,6 @@ namespace MediaPortal.Extensions.OnlineLibraries
         MatcherSetting setting = new MatcherSetting();
         setting.Id = matcher.Id;
         setting.Enabled = matcher.Enabled;
-        setting.Primary = matcher.Primary;
         list.Add(setting);
       }
       settings.SeriesMatchers = list.ToArray();
@@ -198,52 +194,52 @@ namespace MediaPortal.Extensions.OnlineLibraries
       }
     }
 
-    public bool FindAndUpdateTrack(TrackInfo trackInfo, bool importOnly)
+    public async Task<bool> FindAndUpdateTrackAsync(TrackInfo trackInfo)
     {
       bool success = false;
       foreach (IMusicMatcher matcher in MUSIC_MATCHERS.Where(m => m.Enabled))
       {
-        success |= matcher.FindAndUpdateTrack(trackInfo, matcher.Primary ? false : importOnly);
+        success |= await matcher.FindAndUpdateTrackAsync(trackInfo).ConfigureAwait(false);
       }
       return success;
     }
 
-    public bool UpdateAlbumPersons(AlbumInfo albumInfo, string occupation, bool importOnly)
+    public async Task<bool> UpdateAlbumPersonsAsync(AlbumInfo albumInfo, string occupation)
     {
       bool success = false;
       foreach (IMusicMatcher matcher in MUSIC_MATCHERS.Where(m => m.Enabled))
       {
-        success |= matcher.UpdateAlbumPersons(albumInfo, occupation, importOnly);
+        success |= await matcher.UpdateAlbumPersonsAsync(albumInfo, occupation).ConfigureAwait(false);
       }
       return success;
     }
 
-    public bool UpdateTrackPersons(TrackInfo trackInfo, string occupation, bool forAlbum, bool importOnly)
+    public async Task<bool> UpdateTrackPersonsAsync(TrackInfo trackInfo, string occupation, bool forAlbum)
     {
       bool success = false;
       foreach (IMusicMatcher matcher in MUSIC_MATCHERS.Where(m => m.Enabled))
       {
-        success |= matcher.UpdateTrackPersons(trackInfo, occupation, forAlbum, importOnly);
+        success |= await matcher.UpdateTrackPersonsAsync(trackInfo, occupation, forAlbum).ConfigureAwait(false);
       }
       return success;
     }
 
-    public bool UpdateAlbumCompanies(AlbumInfo albumInfo, string companyType, bool importOnly)
+    public async Task<bool> UpdateAlbumCompaniesAsync(AlbumInfo albumInfo, string companyType)
     {
       bool success = false;
       foreach (IMusicMatcher matcher in MUSIC_MATCHERS.Where(m => m.Enabled))
       {
-        success |= matcher.UpdateAlbumCompanies(albumInfo, companyType, importOnly);
+        success |= await matcher.UpdateAlbumCompaniesAsync(albumInfo, companyType).ConfigureAwait(false);
       }
       return success;
     }
 
-    public bool UpdateAlbum(AlbumInfo albumInfo, bool updateTrackList, bool importOnly)
+    public async Task<bool> UpdateAlbumAsync(AlbumInfo albumInfo, bool updateTrackList)
     {
       bool success = false;
       foreach (IMusicMatcher matcher in MUSIC_MATCHERS.Where(m => m.Enabled))
       {
-        success |= matcher.UpdateAlbum(albumInfo, updateTrackList, matcher.Primary ? false : importOnly);
+        success |= await matcher.UpdateAlbumAsync(albumInfo, updateTrackList).ConfigureAwait(false);
       }
 
       if (updateTrackList)
@@ -263,12 +259,12 @@ namespace MediaPortal.Extensions.OnlineLibraries
       return success;
     }
 
-    public bool DownloadAudioFanArt(Guid mediaItemId, BaseInfo mediaItemInfo, bool force)
+    public async Task<bool> DownloadAudioFanArtAsync(Guid mediaItemId, BaseInfo mediaItemInfo)
     {
       bool success = false;
       foreach (IMusicMatcher matcher in MUSIC_MATCHERS.Where(m => m.Enabled))
       {
-        success |= matcher.ScheduleFanArtDownload(mediaItemId, mediaItemInfo, force);
+        success |= await matcher.DownloadFanArtAsync(mediaItemId, mediaItemInfo).ConfigureAwait(false);
       }
       return success;
     }
@@ -353,42 +349,42 @@ namespace MediaPortal.Extensions.OnlineLibraries
       }
     }
 
-    public bool FindAndUpdateMovie(MovieInfo movieInfo, bool importOnly)
+    public async Task<bool> FindAndUpdateMovieAsync(MovieInfo movieInfo)
     {
       bool success = false;
       foreach (IMovieMatcher matcher in MOVIE_MATCHERS.Where(m => m.Enabled))
       {
-        success |= matcher.FindAndUpdateMovie(movieInfo, matcher.Primary ? false : importOnly);
+        success |= await matcher.FindAndUpdateMovieAsync(movieInfo).ConfigureAwait(false);
       }
       return success;
     }
 
-    public bool UpdatePersons(MovieInfo movieInfo, string occupation, bool importOnly)
+    public async Task<bool> UpdatePersonsAsync(MovieInfo movieInfo, string occupation)
     {
       bool success = false;
       foreach (IMovieMatcher matcher in MOVIE_MATCHERS.Where(m => m.Enabled))
       {
-        success |= matcher.UpdatePersons(movieInfo, occupation, importOnly);
+        success |= await matcher.UpdatePersonsAsync(movieInfo, occupation).ConfigureAwait(false);
       }
       return success;
     }
 
-    public bool UpdateCharacters(MovieInfo movieInfo, bool importOnly)
+    public async Task<bool> UpdateCharactersAsync(MovieInfo movieInfo)
     {
       bool success = false;
       foreach (IMovieMatcher matcher in MOVIE_MATCHERS.Where(m => m.Enabled))
       {
-        success |= matcher.UpdateCharacters(movieInfo, importOnly);
+        success |= await matcher.UpdateCharactersAsync(movieInfo).ConfigureAwait(false);
       }
       return success;
     }
 
-    public bool UpdateCollection(MovieCollectionInfo collectionInfo, bool updateMovieList, bool importOnly)
+    public async Task<bool> UpdateCollectionAsync(MovieCollectionInfo collectionInfo, bool updateMovieList)
     {
       bool success = false;
       foreach (IMovieMatcher matcher in MOVIE_MATCHERS.Where(m => m.Enabled))
       {
-        success |= matcher.UpdateCollection(collectionInfo, updateMovieList, importOnly);
+        success |= await matcher.UpdateCollectionAsync(collectionInfo, updateMovieList).ConfigureAwait(false);
       }
 
       if (updateMovieList)
@@ -408,22 +404,22 @@ namespace MediaPortal.Extensions.OnlineLibraries
       return success;
     }
 
-    public bool UpdateCompanies(MovieInfo movieInfo, string companyType, bool importOnly)
+    public async Task<bool> UpdateCompaniesAsync(MovieInfo movieInfo, string companyType)
     {
       bool success = false;
       foreach (IMovieMatcher matcher in MOVIE_MATCHERS.Where(m => m.Enabled))
       {
-        success |= matcher.UpdateCompanies(movieInfo, companyType, importOnly);
+        success |= await matcher.UpdateCompaniesAsync(movieInfo, companyType).ConfigureAwait(false);
       }
       return success;
     }
 
-    public bool DownloadMovieFanArt(Guid mediaItemId, BaseInfo mediaItemInfo, bool force)
+    public async Task<bool> DownloadMovieFanArtAsync(Guid mediaItemId, BaseInfo mediaItemInfo)
     {
       bool success = false;
       foreach (IMovieMatcher matcher in MOVIE_MATCHERS.Where(m => m.Enabled))
       {
-        success |= matcher.ScheduleFanArtDownload(mediaItemId, mediaItemInfo, force);
+        success |= await matcher.DownloadFanArtAsync(mediaItemId, mediaItemInfo).ConfigureAwait(false);
       }
       return success;
     }
@@ -513,52 +509,52 @@ namespace MediaPortal.Extensions.OnlineLibraries
       }
     }
 
-    public bool FindAndUpdateEpisode(EpisodeInfo episodeInfo, bool importOnly)
+    public async Task<bool> FindAndUpdateEpisodeAsync(EpisodeInfo episodeInfo)
     {
       bool success = false;
       foreach (ISeriesMatcher matcher in SERIES_MATCHERS.Where(m => m.Enabled))
       {
-        success |= matcher.FindAndUpdateEpisode(episodeInfo, matcher.Primary ? false : importOnly);
+        success |= await matcher.FindAndUpdateEpisodeAsync(episodeInfo).ConfigureAwait(false);
       }
       return success;
     }
 
-    public bool UpdateEpisodePersons(EpisodeInfo episodeInfo, string occupation, bool importOnly)
+    public async Task<bool> UpdateEpisodePersonsAsync(EpisodeInfo episodeInfo, string occupation)
     {
       bool success = false;
       foreach (ISeriesMatcher matcher in SERIES_MATCHERS.Where(m => m.Enabled))
       {
-        success |= matcher.UpdateEpisodePersons(episodeInfo, occupation, importOnly);
+        success |= await matcher.UpdateEpisodePersonsAsync(episodeInfo, occupation).ConfigureAwait(false);
       }
       return success;
     }
 
-    public bool UpdateEpisodeCharacters(EpisodeInfo episodeInfo, bool importOnly)
+    public async Task<bool> UpdateEpisodeCharactersAsync(EpisodeInfo episodeInfo)
     {
       bool success = false;
       foreach (ISeriesMatcher matcher in SERIES_MATCHERS.Where(m => m.Enabled))
       {
-        success |= matcher.UpdateEpisodeCharacters(episodeInfo, importOnly);
+        success |= await matcher.UpdateEpisodeCharactersAsync(episodeInfo).ConfigureAwait(false);
       }
       return success;
     }
 
-    public bool UpdateSeason(SeasonInfo seasonInfo, bool importOnly)
+    public async Task<bool> UpdateSeasonAsync(SeasonInfo seasonInfo)
     {
       bool success = false;
       foreach (ISeriesMatcher matcher in SERIES_MATCHERS.Where(m => m.Enabled))
       {
-        success |= matcher.UpdateSeason(seasonInfo, importOnly);
+        success |= await matcher.UpdateSeasonAsync(seasonInfo).ConfigureAwait(false);
       }
       return success;
     }
 
-    public bool UpdateSeries(SeriesInfo seriesInfo, bool updateEpisodeList, bool importOnly)
+    public async Task<bool> UpdateSeriesAsync(SeriesInfo seriesInfo, bool updateEpisodeList)
     {
       bool success = false;
       foreach (ISeriesMatcher matcher in SERIES_MATCHERS.Where(m => m.Enabled))
       {
-        success |= matcher.UpdateSeries(seriesInfo, updateEpisodeList, matcher.Primary ? false : importOnly);
+        success |= await matcher.UpdateSeriesAsync(seriesInfo, updateEpisodeList).ConfigureAwait(false);
       }
 
       if (updateEpisodeList)
@@ -579,42 +575,42 @@ namespace MediaPortal.Extensions.OnlineLibraries
       return success;
     }
 
-    public bool UpdateSeriesPersons(SeriesInfo seriesInfo, string occupation, bool importOnly)
+    public async Task<bool> UpdateSeriesPersonsAsync(SeriesInfo seriesInfo, string occupation)
     {
       bool success = false;
       foreach (ISeriesMatcher matcher in SERIES_MATCHERS.Where(m => m.Enabled))
       {
-        success |= matcher.UpdateSeriesPersons(seriesInfo, occupation, importOnly);
+        success |= await matcher.UpdateSeriesPersonsAsync(seriesInfo, occupation).ConfigureAwait(false);
       }
       return success;
     }
 
-    public bool UpdateSeriesCharacters(SeriesInfo seriesInfo, bool importOnly)
+    public async Task<bool> UpdateSeriesCharactersAsync(SeriesInfo seriesInfo)
     {
       bool success = false;
       foreach (ISeriesMatcher matcher in SERIES_MATCHERS.Where(m => m.Enabled))
       {
-        success |= matcher.UpdateSeriesCharacters(seriesInfo, importOnly);
+        success |= await matcher.UpdateSeriesCharactersAsync(seriesInfo).ConfigureAwait(false);
       }
       return success;
     }
 
-    public bool UpdateSeriesCompanies(SeriesInfo seriesInfo, string companyType, bool importOnly)
+    public async Task<bool> UpdateSeriesCompaniesAsync(SeriesInfo seriesInfo, string companyType)
     {
       bool success = false;
       foreach (ISeriesMatcher matcher in SERIES_MATCHERS.Where(m => m.Enabled))
       {
-        success |= matcher.UpdateSeriesCompanies(seriesInfo, companyType, importOnly);
+        success |= await matcher.UpdateSeriesCompaniesAsync(seriesInfo, companyType).ConfigureAwait(false);
       }
       return success;
     }
 
-    public bool DownloadSeriesFanArt(Guid mediaItemId, BaseInfo mediaItemInfo, bool force)
+    public async Task<bool> DownloadSeriesFanArtAsync(Guid mediaItemId, BaseInfo mediaItemInfo)
     {
       bool success = false;
       foreach (ISeriesMatcher matcher in SERIES_MATCHERS.Where(m => m.Enabled))
       {
-        success |= matcher.ScheduleFanArtDownload(mediaItemId, mediaItemInfo, force);
+        success |= await matcher.DownloadFanArtAsync(mediaItemId, mediaItemInfo).ConfigureAwait(false);
       }
       return success;
     }

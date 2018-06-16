@@ -66,7 +66,7 @@
     <DependsOnTargets Include="WriteAssemblyInfo" Condition="$(WriteAssemblyInfo) == 'true'" />
   </ItemGroup>
 
-  <!-- This item group holds the MP2 solutions that should acutally being built. -->
+  <!-- This item group holds the MP2 solutions that should actually being built. -->
   <ItemGroup>
     <ProjectsToBuild Include="$(ProjectRoot)\Source\MP2-Client.sln" Condition="$(BuildClient) == 'true'" />
     <ProjectsToBuild Include="$(ProjectRoot)\Source\MP2-Server.sln" Condition="$(BuildServer) == 'true'" />
@@ -103,10 +103,8 @@
     <Exec Command='"$(NuGetExePath)" restore "$(OnlineVideosDir)\OnlineVideos.MediaPortal2.sln"'/>
   </Target>
   
-  <Target Name="BuildAssemblyInfoHelper"
-          DependsOnTargets="DownloadNuGet">
-    <Exec Command='"$(NuGetExePath)" restore "$(AssemblyInfoHelperDir)\AssemblyInfoHelper.sln"'/>
-    <MSBuild Projects="$(AssemblyInfoHelperDir)\AssemblyInfoHelper.sln" Properties="Configuration=Release;Platform=Any CPU" Targets="Rebuild"/>
+  <Target Name="BuildAssemblyInfoHelper">
+    <MSBuild Projects="$(AssemblyInfoHelperDir)\AssemblyInfoHelper.sln" Properties="Configuration=Release;Platform=Any CPU" Targets="Restore;Rebuild"/>
   </Target>
 
   <Target Name="WriteAssemblyInfo"

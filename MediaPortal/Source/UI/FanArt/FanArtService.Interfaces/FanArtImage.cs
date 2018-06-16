@@ -31,6 +31,7 @@ using System.Xml.Serialization;
 using MediaPortal.Common;
 using MediaPortal.Common.PathManager;
 using MediaPortal.Common.ResourceAccess;
+using MediaPortal.Common.Services.ThumbnailGenerator;
 using MediaPortal.Utilities.Graphics;
 
 namespace MediaPortal.Extensions.UserServices.FanArtService.Interfaces
@@ -189,9 +190,6 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Interfaces
     /// <param name="originalStream">Image to resize</param>
     /// <param name="maxWidth">Maximum image width</param>
     /// <param name="maxHeight">Maximum image height</param>
-    /// <param name="mediaType">MediaType</param>
-    /// <param name="fanArtType">FanArtType</param>
-    /// <param name="fanArtName">Fanart name</param>
     /// <param name="originalFile">Original Filename</param>
     /// <returns></returns>
     protected static Stream ResizeImage(Stream originalStream, int maxWidth, int maxHeight, string originalFile)
@@ -213,45 +211,25 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Interfaces
           using (originalStream)
             return new FileStream(cachedFilenameWithExtension, FileMode.Open, FileAccess.Read);
 
-        Image fullsizeImage = Image.FromStream(originalStream);
-        //Image doesn't need resizing, just return the original
-        if (fullsizeImage.Width <= maxSize && fullsizeImage.Height <= maxSize)
+        // Thumbnail extraction
+        ImageType imageType;
+        byte[] thumbData;
+        IThumbnailGenerator generator = ServiceRegistration.Get<IThumbnailGenerator>();
+        if (generator.GetThumbnail(originalStream, maxSize, maxSize, false, out thumbData, out imageType))
         {
-          fullsizeImage.Dispose();
+          File.WriteAllBytes(thumbFilenameWithoutExtension + (imageType == ImageType.Png ? ".png" : ".jpg"), thumbData);
+          MemoryStream resizedStream = new MemoryStream(thumbData);
+          originalStream.Dispose();
+          return resizedStream;
+        }
+
+        if (originalStream.CanSeek)
           originalStream.Position = 0;
-          return originalStream;
-        }
-
-        //Check whether the image has an alpha channel to determine whether to save it as a png or jpg
-        //Must be done before resizing as resizing disposes the fullsizeImage
-        bool isAlphaPixelFormat = Image.IsAlphaPixelFormat(fullsizeImage.PixelFormat);
-
-        MemoryStream resizedStream = new MemoryStream();
-        using (originalStream)
-        using (fullsizeImage)
-        using (Image newImage = ImageUtilities.ResizeImage(fullsizeImage, maxSize, maxSize))
-        {
-          if (isAlphaPixelFormat)
-          {
-            //Image supports an alpha channel, save as a png and add the appropriate extension
-            ImageUtilities.SavePng(thumbFilenameWithoutExtension + ".png", newImage);
-            ImageUtilities.SavePng(resizedStream, newImage);
-          }
-          else
-          {
-            //No alpha channel, save as a jpg and add the appropriate extension
-            ImageUtilities.SaveJpeg(thumbFilenameWithoutExtension + ".jpg", newImage, 95);
-            ImageUtilities.SaveJpeg(resizedStream, newImage, 95);
-          }
-        }
-
-        resizedStream.Position = 0;
-        return resizedStream;
       }
       catch (Exception)
       {
-        return originalStream;
       }
+      return originalStream;
     }
 
     /// <summary>

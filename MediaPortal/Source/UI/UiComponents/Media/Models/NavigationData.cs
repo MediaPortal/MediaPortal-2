@@ -367,7 +367,7 @@ namespace MediaPortal.UiComponents.Media.Models
     {
       WorkflowState newState = WorkflowState.CreateTransientState(
           "View: " + subViewSpecification.ViewDisplayName, subViewSpecification.ViewDisplayName,
-          false, null, true, WorkflowType.Workflow);
+          false, null, true, WorkflowType.Workflow, null);
 
       ScreenConfig nextScreenConfig;
       LoadLayoutSettings(visibleScreen.ToString(), out nextScreenConfig);
@@ -402,7 +402,7 @@ namespace MediaPortal.UiComponents.Media.Models
 
       WorkflowState newState = WorkflowState.CreateTransientState(
           "View: " + subViewSpecification.ViewDisplayName, subViewSpecification.ViewDisplayName,
-          false, null, false, WorkflowType.Workflow);
+          false, null, false, WorkflowType.Workflow, null);
 
       string nextScreenName;
       AbstractScreenData nextScreen = null;

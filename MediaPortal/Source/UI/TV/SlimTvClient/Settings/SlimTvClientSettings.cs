@@ -59,6 +59,12 @@ namespace MediaPortal.Plugins.SlimTv.Client.Settings
     public bool EpgShowChannelLogos { get; set; }
 
     /// <summary>
+    /// Whether to show genre colors in EPG.
+    /// </summary>
+    [Setting(SettingScope.User, DefaultValue = true)]
+    public bool EpgShowGenreColors { get; set; }
+
+    /// <summary>
     /// Defines the zapping timeout in seconds.
     /// </summary>
     [Setting(SettingScope.User, DefaultValue = 2d)]

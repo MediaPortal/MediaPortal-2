@@ -236,4 +236,18 @@ namespace MediaPortal.Backend.Database
     /// <returns></returns>
     bool Process(ref string statementStr, ref IList<BindVar> bindVars, ref uint? offset, ref uint? limit);
   }
+
+  /// <summary>
+  /// Extension interface for customization of table creation.
+  /// </summary>
+  public interface ISQLDatabaseStorage : ISQLDatabase
+  {
+    /// <summary>
+    /// Gets an optional storage clause for create table statements. This allows DB plugins to force specific behaviors.
+    /// For example this can be a "WITHOUT ROWID" clause for SQLite.
+    /// </summary>
+    /// <param name="statementStr">Current create table statement</param>
+    /// <returns>Storage clause or <c>null</c></returns>
+    string GetStorageClause(string statementStr);
+  }
 }

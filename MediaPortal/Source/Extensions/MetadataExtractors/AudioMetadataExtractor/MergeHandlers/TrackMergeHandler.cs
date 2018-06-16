@@ -81,7 +81,21 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
 
     public IFilter GetSearchFilter(IDictionary<Guid, IList<MediaItemAspect>> extractedAspects)
     {
-      return IAudioRelationshipExtractor.GetTrackSearchFilter(extractedAspects);
+      SingleMediaItemAspect audioAspect;
+      if (!MediaItemAspect.TryGetAspect(extractedAspects, AudioAspect.Metadata, out audioAspect))
+        return null;
+
+      IFilter trackFilter = RelationshipExtractorUtils.CreateExternalItemFilter(extractedAspects, ExternalIdentifierAspect.TYPE_TRACK);
+      IFilter albumFilter = RelationshipExtractorUtils.CreateExternalItemFilter(extractedAspects, ExternalIdentifierAspect.TYPE_ALBUM);
+      if (albumFilter == null)
+        return trackFilter;
+
+      int? trackNumber = audioAspect.GetAttributeValue<int?>(AudioAspect.ATTR_TRACK);
+      if (trackNumber.HasValue)
+        albumFilter = BooleanCombinationFilter.CombineFilters(BooleanOperator.And, albumFilter,
+          new RelationalFilter(AudioAspect.ATTR_TRACK, RelationalOperator.EQ, trackNumber.Value));
+
+      return BooleanCombinationFilter.CombineFilters(BooleanOperator.Or, trackFilter, albumFilter);
     }
 
     public bool TryMatch(IDictionary<Guid, IList<MediaItemAspect>> extractedAspects, IDictionary<Guid, IList<MediaItemAspect>> existingAspects)

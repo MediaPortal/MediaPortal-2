@@ -218,6 +218,7 @@ namespace MediaPortal.Common.MediaManagement.Helpers
     {
       if (string.IsNullOrEmpty(Album)) return false;
 
+      AssignNameId();
       SetMetadataChanged(aspectData);
 
       MediaItemAspect.SetAttribute(aspectData, MediaAspect.ATTR_TITLE, ToString());

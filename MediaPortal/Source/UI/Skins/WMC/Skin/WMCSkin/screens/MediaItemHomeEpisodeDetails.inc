@@ -23,7 +23,7 @@
   <StackPanel Orientation="Vertical" Margin="0,0,30,0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
   
   <media:EpisodeAspectWrapper MediaItem="{Binding Source={StaticResource FanArtBackgroundModel},Path=MediaItem}" 
-                              Grid.Column="0" Grid.Row="0" Margin="0,-15,10,0">
+                              Grid.Column="0" Grid.Row="0" Margin="0,-15,-200,0">
     <media:EpisodeAspectWrapper.Template>
       <ControlTemplate> 
           <Grid VerticalAlignment="Stretch" HorizontalAlignment="Stretch">

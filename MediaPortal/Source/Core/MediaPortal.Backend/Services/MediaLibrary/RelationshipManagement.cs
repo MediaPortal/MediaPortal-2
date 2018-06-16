@@ -766,7 +766,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
       bindVars.Add(idVar);
       
       IDbCommand result = transaction.CreateCommand();
-      result.CommandText = "DELETE FROM " + mediaItemTable + "WHERE " + mediaItemIdAttribute + " = @" + idVar.Name;
+      result.CommandText = "DELETE FROM " + mediaItemTable + " WHERE " + mediaItemIdAttribute + " = @" + idVar.Name;
 
       AddCommandParameters(transaction.Database, result, bindVars);
       return result;

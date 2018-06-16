@@ -22,13 +22,13 @@
 
 #endregion
 
-using System;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.MediaManagement.Helpers;
 using MediaPortal.Common.PathManager;
-using MediaPortal.Extensions.OnlineLibraries.Matches;
 using MediaPortal.Extensions.OnlineLibraries.Wrappers;
+using System;
+using System.Threading.Tasks;
 
 namespace MediaPortal.Extensions.OnlineLibraries.Matchers
 {
@@ -59,7 +59,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
       Enabled = false;
     }
 
-    public override bool InitWrapper(bool useHttps)
+    public override Task<bool> InitWrapperAsync(bool useHttps)
     {
       try
       {
@@ -67,14 +67,14 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
         if (wrapper.Init(CACHE_PATH, useHttps))
         {
           _wrapper = wrapper;
-          return true;
+          return Task.FromResult(true);
         }
       }
       catch (Exception ex)
       {
         ServiceRegistration.Get<ILogger>().Error("SeriesOmDbMatcher: Error initializing wrapper", ex);
       }
-      return false;
+      return Task.FromResult(false);
     }
 
     #endregion
@@ -109,65 +109,29 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
 
     #region Metadata updaters
 
-    public override bool FindAndUpdateEpisode(EpisodeInfo episodeInfo, bool importOnly)
+    public override Task<bool> UpdateSeriesPersonsAsync(SeriesInfo seriesInfo, string occupation)
     {
-      // Don't allow OMDB during first import cycle because it is english only
-      // If it was allowed it would prevent the update of metadata with preffered language
-      // during refresh cycle that also allows searches which might be needed to find metadata 
-      // in the preferred language
-      if (importOnly && !Primary)
-        return false;
-
-      return base.FindAndUpdateEpisode(episodeInfo, importOnly);
+      return Task.FromResult(false);
     }
 
-    public override bool UpdateSeries(SeriesInfo seriesInfo, bool updateEpisodeList, bool importOnly)
+    public override Task<bool> UpdateSeriesCharactersAsync(SeriesInfo seriesInfo)
     {
-      // Don't allow OMDB during first import cycle because it is english only
-      // If it was allowed it would prevent the update of metadata with preffered language
-      // during refresh cycle that also allows searches which might be needed to find metadata 
-      // in the preferred language
-      if (importOnly && !Primary)
-        return false;
-
-      return base.UpdateSeries(seriesInfo, updateEpisodeList, importOnly);
+      return Task.FromResult(false);
     }
 
-    public override bool UpdateSeason(SeasonInfo seasonInfo, bool importOnly)
+    public override Task<bool> UpdateSeriesCompaniesAsync(SeriesInfo seriesInfo, string companyType)
     {
-      // Don't allow OMDB during first import cycle because it is english only
-      // If it was allowed it would prevent the update of metadata with preffered language
-      // during refresh cycle that also allows searches which might be needed to find metadata 
-      // in the preferred language
-      if (importOnly && !Primary)
-        return false;
-
-      return base.UpdateSeason(seasonInfo, importOnly);
+      return Task.FromResult(false);
     }
 
-    public override bool UpdateSeriesPersons(SeriesInfo seriesInfo, string occupation, bool importOnly)
+    public override Task<bool> UpdateEpisodePersonsAsync(EpisodeInfo episodeInfo, string occupation)
     {
-      return false;
+      return Task.FromResult(false);
     }
 
-    public override bool UpdateSeriesCharacters(SeriesInfo seriesInfo, bool importOnly)
+    public override Task<bool> UpdateEpisodeCharactersAsync(EpisodeInfo episodeInfo)
     {
-      return false;
-    }
-
-    public override bool UpdateSeriesCompanies(SeriesInfo seriesInfo, string companyType, bool importOnly)
-    {
-      return false;
-    }
-
-    public override bool UpdateEpisodePersons(EpisodeInfo episodeInfo, string occupation, bool importOnly)
-    {
-      return false;
-    }
-
-    public override bool UpdateEpisodeCharacters(EpisodeInfo episodeInfo, bool importOnly)
-    {
-      return false;
+      return Task.FromResult(false);
     }
 
     #endregion
@@ -221,16 +185,6 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
         return true;
       }
       return false;
-    }
-
-    #endregion
-
-    #region FanArt
-
-    protected override void DownloadFanArt(FanartDownload<string> fanartDownload)
-    {
-      // No fanart to download
-      FinishDownloadFanArt(fanartDownload);
     }
 
     #endregion
