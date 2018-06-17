@@ -794,7 +794,6 @@
     <Content Include="Skin\Nereus\fonts\SansBetween.ttf" />
     <Content Include="Skin\Nereus\fonts\SketchyTimes.desc" />
     <Content Include="Skin\Nereus\fonts\SketchyTimes.ttf" />
-    <None Include="app.config" />
     <None Include="Skin\Nereus\fonts\seguisb.ttf" />
     <Content Include="Skin\Nereus\fonts\seguisb.desc" />
     <Content Include="Skin\Nereus\screens\InfoMovieGeneral.inc" />
