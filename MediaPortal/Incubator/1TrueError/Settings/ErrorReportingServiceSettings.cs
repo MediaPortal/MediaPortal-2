@@ -26,7 +26,7 @@ using System.Collections.Generic;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.Settings;
 
-namespace MediaPortal.Plugins.OneTrueError.Settings
+namespace MediaPortal.Plugins.CodeRR.Settings
 {
   public class ErrorReportingServiceSettings
   {
