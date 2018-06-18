@@ -74,5 +74,10 @@
         HelpText="[Settings.Plugins.Weather.LocationSetup.Help]"
         ClassName="MediaPortal.UiComponents.Weather.Settings.Configuration.WeatherConfigSetting"
         AdditionalData="WorkflowState=F1CE62B4-32CA-46e8-BCFB-250FE07911B2,ConfAppPanel=..."/>
+    <ConfigSetting
+      Id="WeatherApiKey"
+      Text="[Settings.Plugins.Weather.ApiKey]"
+      HelpText="[Settings.Plugins.Weather.ApiKey.Help]"
+      ClassName="MediaPortal.UiComponents.Weather.Settings.Configuration.ApiKey" />
   </Register>
 </Plugin>

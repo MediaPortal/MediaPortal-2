@@ -76,5 +76,12 @@ namespace MediaPortal.UiComponents.Weather.Settings
     /// </summary>
     [Setting(SettingScope.User, null)]
     public List<CitySetupInfo> LocationsList { get; set; }
+
+    /// <summary>
+    /// Optional ApiKey for the weather provider. Currently this can be used for <c>https://openweathermap.org/api</c>. Users can register their own key so there is no request limit hit.
+    /// If this property is <c>null</c> the inbuilt keys are used, but those can expire or get limited.
+    /// </summary>
+    [Setting(SettingScope.User, null)]
+    public string ApiKey { get; set; }
   }
 }
