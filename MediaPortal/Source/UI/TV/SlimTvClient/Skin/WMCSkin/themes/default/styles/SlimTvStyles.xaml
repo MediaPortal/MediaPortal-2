@@ -124,7 +124,7 @@
               </Grid>
             </DockPanel>
 
-            <StackPanel Grid.Column="1" Grid.Row="1" Grid.RowSpan="2" Orientation="Vertical" MaxWidth="900" Margin="20,-5,750,-5" Panel.ZIndex="1" VerticalAlignment="Bottom">
+            <StackPanel Grid.Column="1" Grid.Row="1" Grid.RowSpan="2" Orientation="Vertical" MaxWidth="900" Margin="20,-5,750,10" Panel.ZIndex="1" VerticalAlignment="Bottom">
               <StackPanel Orientation="Horizontal">
                 <Label x:Name="CurrentProgramTitleLabel" Content="{Binding Source={StaticResource SlimTvClient},Path=CurrentProgram.Title}" Scroll="Auto"
                        HorizontalAlignment="Left" VerticalAlignment="Center" FontFamily="SegoeUIBold"
