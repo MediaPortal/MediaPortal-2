@@ -8,7 +8,6 @@
   <ItemGroup>
     <PluginFiles Include="$(TargetDir)$(ProjectName).dll" />
     <PluginFiles Include="$(ProjectDir)plugin.xml" />
-    
   </ItemGroup>
 
   <ItemGroup Condition=" '$(Configuration)' == 'Debug'">
@@ -16,17 +15,8 @@
   </ItemGroup>
 
   <Target Name="AfterBuild">
-    <!-- This position is required to capture newly copied package references -->
-    <ItemGroup>
-      <Dlls Include="$(TargetDir)dll\**\*.*" />
-      <References Include="$(TargetDir)OpenCvSharp.dll" />
-    </ItemGroup>
-    <ItemGroup Condition=" '$(Configuration)' == 'Debug'">
-      <PluginFiles Include="$(TargetDir)OpenCvSharp.pdb" />
-    </ItemGroup>
     <Copy SourceFiles="@(PluginFiles)" DestinationFolder="$(PluginDestination)" />
     <Copy SourceFiles="@(References)" DestinationFolder="$(PluginDestination)" />
-    <Copy SourceFiles="@(Dlls)" DestinationFiles="@(Dlls->'$(PluginDestination)\dll\%(RecursiveDir)%(Filename)%(Extension)')" />
   </Target>
 
 </Project>

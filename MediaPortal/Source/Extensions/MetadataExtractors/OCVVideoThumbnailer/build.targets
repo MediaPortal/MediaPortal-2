@@ -8,6 +8,7 @@
   <ItemGroup>
     <PluginFiles Include="$(TargetDir)$(ProjectName).dll" />
     <PluginFiles Include="$(ProjectDir)plugin.xml" />
+    
   </ItemGroup>
 
   <ItemGroup Condition=" '$(Configuration)' == 'Debug'">
@@ -17,13 +18,15 @@
   <Target Name="AfterBuild">
     <!-- This position is required to capture newly copied package references -->
     <ItemGroup>
-      <References Include="$(TargetDir)NEbml.Core.dll" />
-      <ReferencesX86 Include="$(TargetDir)x86\*.*" />
-      <ReferencesX64 Include="$(TargetDir)x64\*.*" />
+      <Dlls Include="$(TargetDir)dll\**\*.*" />
+      <References Include="$(TargetDir)OpenCvSharp.dll" />
+    </ItemGroup>
+    <ItemGroup Condition=" '$(Configuration)' == 'Debug'">
+      <PluginFiles Include="$(TargetDir)OpenCvSharp.pdb" />
     </ItemGroup>
     <Copy SourceFiles="@(PluginFiles)" DestinationFolder="$(PluginDestination)" />
     <Copy SourceFiles="@(References)" DestinationFolder="$(PluginDestination)" />
-    <Copy SourceFiles="@(ReferencesX86)" DestinationFolder="$(PluginDestination)\x86" />
-    <Copy SourceFiles="@(ReferencesX64)" DestinationFolder="$(PluginDestination)\x64" />
+    <Copy SourceFiles="@(Dlls)" DestinationFiles="@(Dlls->'$(PluginDestination)\dll\%(RecursiveDir)%(Filename)%(Extension)')" />
   </Target>
+
 </Project>

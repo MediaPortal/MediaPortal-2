@@ -61,6 +61,36 @@ namespace MediaPortal.Extensions.MetadataExtractors.MatroskaLib
     public const string TAG_MOVIE_TMDB_ID = "50.TMDB";
     public const string TAG_SERIES_TVDB_ID = "70.TVDB";
 
+    public enum StereoMode
+    {
+      Mono,
+      SBSLeftEyeFirst,
+      TABRightEyeFirst,
+      TABLeftEyeFirst,
+      CheckboardRightEyeFirst,
+      CheckboardLeftEyeFirst,
+      RowInterleavedRightEyeFirst,
+      RowInterleavedLeftEyeFirst,
+      ColumnInterleavedRightEyeFirst,
+      ColumnInterleavedLeftEyeFirst,
+      AnaglyphCyanRed,
+      SBSRightEyeFirst,
+      AnaglyphGreenMagenta,
+      FieldSequentialModeLeftEyeFirst,
+      FieldSequentialModeRightEyeFirst,
+    }
+
+    public class MatroskaAttachment
+    {
+      public string FileName;
+      public string MimeType;
+      public long FileSize;
+      public override string ToString()
+      {
+        return string.Format("{0} [{1}, {2}]", FileName, MimeType, FileSize);
+      }
+    }
+
     public static Dictionary<string, IList<string>> DefaultVideoTags
     {
       get

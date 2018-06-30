@@ -7,7 +7,7 @@ using NUnit.Framework;
 using System.Linq;
 using MediaPortal.Common.Logging;
 
-namespace Tests.Client.Libraries.MatroskaLib
+namespace Tests.Server.Libraries.MatroskaLib
 {
   [TestFixture]
   public class TestMatroskaLib
@@ -18,19 +18,19 @@ namespace Tests.Client.Libraries.MatroskaLib
       ServiceRegistration.Set<ILogger>(new NoLogger());
     }
 
-    private MatroskaInfoReader GetFileReader()
+    private MatroskaBinaryReader GetMatroskaBinaryFileReader()
     {
       string testFileName = "Test Media.mkv";
       string testDataDir = TestContext.CurrentContext.TestDirectory + "\\Libraries\\MatroskaLib\\TestData\\";
       ILocalFsResourceAccessor lfsra = new LocalFsResourceAccessor(new LocalFsResourceProvider(), "/" + Path.Combine(testDataDir, testFileName));
-      return new MatroskaInfoReader(lfsra);
+      return new MatroskaBinaryReader(lfsra);
     }
 
     [Test]
-    public void TestMatroskaTagInfo()
+    public void TestMatroskaBinaryTagInfo()
     {
       // Arrange
-      MatroskaInfoReader matroskaInfoReader = GetFileReader();
+      MatroskaBinaryReader matroskaInfoReader = GetMatroskaBinaryFileReader();
       var tags = MatroskaConsts.DefaultVideoTags;
 
       // Act
@@ -48,23 +48,23 @@ namespace Tests.Client.Libraries.MatroskaLib
     }
 
     [Test]
-    public void TestMatroskaStereoscopicInfo()
+    public void TestMatroskaBinaryStereoscopicInfo()
     {
       // Arrange
-      MatroskaInfoReader matroskaInfoReader = GetFileReader();
+      MatroskaBinaryReader matroskaInfoReader = GetMatroskaBinaryFileReader();
 
       // Act
-      MatroskaInfoReader.StereoMode actualStereoMode = matroskaInfoReader.ReadStereoModeAsync().Result;
+      MatroskaConsts.StereoMode actualStereoMode = matroskaInfoReader.ReadStereoModeAsync().Result;
 
       // Assert
-      Assert.AreEqual(MatroskaInfoReader.StereoMode.SBSLeftEyeFirst, actualStereoMode);
+      Assert.AreEqual(MatroskaConsts.StereoMode.SBSLeftEyeFirst, actualStereoMode);
     }
 
     [Test]
-    public void TestMatroskaAttachmentInfo()
+    public void TestMatroskaBinaryAttachmentInfo()
     {
       // Arrange
-      MatroskaInfoReader matroskaInfoReader = GetFileReader();
+      MatroskaBinaryReader matroskaInfoReader = GetMatroskaBinaryFileReader();
 
       // Act
       matroskaInfoReader.ReadAttachmentsAsync().Wait();
