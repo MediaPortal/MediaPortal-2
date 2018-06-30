@@ -357,7 +357,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
         List<MediaItemSearchResult> searchResults = new List<MediaItemSearchResult>();
         if (!string.IsNullOrEmpty(searchData))
         {
-          if (searchAspectData.ContainsKey(EpisodeAspect.ASPECT_ID))
+          if (searchAspectData.ContainsKey(VideoAspect.ASPECT_ID))
           {
             EpisodeInfo episode = new EpisodeInfo();
             episode.FromMetadata(searchAspectData);
@@ -404,7 +404,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
         }
         else
         {
-          if (searchAspectData.ContainsKey(EpisodeAspect.ASPECT_ID))
+          if (searchAspectData.ContainsKey(VideoAspect.ASPECT_ID))
           {
             episodeSearchinfo = new EpisodeInfo();
             episodeSearchinfo.FromMetadata(searchAspectData);

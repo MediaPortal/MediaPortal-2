@@ -481,7 +481,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
         List<MediaItemSearchResult> searchResults = new List<MediaItemSearchResult>();
         if (!string.IsNullOrEmpty(searchData))
         {
-          if (searchAspectData.ContainsKey(MovieAspect.ASPECT_ID))
+          if (searchAspectData.ContainsKey(VideoAspect.ASPECT_ID))
           {
             movieSearchinfo = new MovieInfo();
             if (searchData.StartsWith("tt", StringComparison.InvariantCultureIgnoreCase))
@@ -497,7 +497,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
         }
         else
         {
-          if (searchAspectData.ContainsKey(MovieAspect.ASPECT_ID))
+          if (searchAspectData.ContainsKey(VideoAspect.ASPECT_ID))
           {
             movieSearchinfo = new MovieInfo();
             movieSearchinfo.FromMetadata(searchAspectData);
