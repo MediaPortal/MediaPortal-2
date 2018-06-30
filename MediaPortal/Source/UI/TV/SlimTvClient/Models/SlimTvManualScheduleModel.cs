@@ -111,7 +111,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
       IChannelGroup channelGroup = ChannelGroup;
       if (channelGroup == null)
         ChannelGroup = _channelGroups.FirstOrDefault();
-      Channel = _channels.FirstOrDefault();
+      Channel = _channels?.FirstOrDefault();
       RecordingType = ScheduleRecordingType.Once;
 
       DateTime now = DateTime.Now;
@@ -126,7 +126,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
 
     protected void UpdateFromProgram(IProgram program)
     {
-      Channel = _channels.FirstOrDefault(c => c.ChannelId == program.ChannelId);
+      Channel = _channels?.FirstOrDefault(c => c.ChannelId == program.ChannelId);
       RecordingType = ScheduleRecordingType.Once;
       StartTime = program.StartTime;
       EndTime = program.EndTime;
@@ -164,9 +164,9 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
 
       IChannel channel = Channel;
       if (channel != null)
-        channel = _channels.FirstOrDefault(c => c.ChannelId == channel.ChannelId);
+        channel = _channels?.FirstOrDefault(c => c.ChannelId == channel.ChannelId);
       if (channel == null)
-        channel = _channels.FirstOrDefault();
+        channel = _channels?.FirstOrDefault();
       Channel = channel;
       return;
     }
@@ -477,16 +477,17 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
       DialogHeader = "[SlimTvClient.ChannelLabel]";
       IChannel previousChannel = Channel;
       _dialogActionsList.Clear();
-      foreach (IChannel channel in _channels)
-      {
-        IChannel currentChannel = channel;
-        ListItem channelItem = new ListItem(Consts.KEY_NAME, channel.Name)
+      if (_channels != null)
+        foreach (IChannel channel in _channels)
         {
-          Command = new MethodDelegateCommand(() => Channel = currentChannel),
-          Selected = previousChannel != null && previousChannel.ChannelId == currentChannel.ChannelId
-        };
-        _dialogActionsList.Add(channelItem);
-      }
+          IChannel currentChannel = channel;
+          ListItem channelItem = new ListItem(Consts.KEY_NAME, channel.Name)
+          {
+            Command = new MethodDelegateCommand(() => Channel = currentChannel),
+            Selected = previousChannel != null && previousChannel.ChannelId == currentChannel.ChannelId
+          };
+          _dialogActionsList.Add(channelItem);
+        }
       _dialogActionsList.FireChange();
     }
 
