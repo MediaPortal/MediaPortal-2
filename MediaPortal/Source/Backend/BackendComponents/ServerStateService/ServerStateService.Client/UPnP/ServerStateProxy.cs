@@ -66,50 +66,71 @@ namespace MediaPortal.Plugins.ServerStateService.Client.UPnP
       return false;
     }
 
+    public void ClearStates()
+    {
+      Dictionary<Guid, object> updatedStates = new Dictionary<Guid, object>();
+      lock (_syncObj)
+      {
+        _currentCacheKey = 0;
+        foreach (Guid key in _currentStates.Keys)
+          updatedStates[key] = null;
+        _currentStates = new Dictionary<Guid, object>(updatedStates);
+      }
+      ServerStateMessaging.SendStatesChangedMessage(updatedStates);
+    }
+
     private void OnStateVariableChanged(CpStateVariable stateVariable, object newValue)
     {
       if (stateVariable.Name == Consts.STATE_PENDING_SERVER_STATES)
         //Calling GetStates on the callback thread seems to cause a timeout/possible deadlock
         //during startup in some cases so call on a different thread.
-        ServiceRegistration.Get<IThreadPool>().Add(GetStates);
+        ServiceRegistration.Get<IThreadPool>().Add(UpdateStates);
     }
 
-    protected void GetStates()
+    protected void UpdateStates()
+    {
+      uint cacheKey;
+      lock (_syncObj)
+        cacheKey = _currentCacheKey;
+
+      uint newCacheKey;
+      var states = GetServerStates(cacheKey, out newCacheKey);
+      if (states == null || states.Count == 0)
+        return;
+
+      var updatedStates = new Dictionary<Guid, object>();
+      lock (_syncObj)
+      {
+        //Due to threading the update might be being done out of order. e.g. a different thread has already updated with newer states.
+        //Check if the current key has been modified and whether our key is newer.
+        if (_currentCacheKey != cacheKey && newCacheKey <= _currentCacheKey)
+          return;
+        _currentCacheKey = newCacheKey;
+        foreach (ServerState state in states)
+        {
+          object stateObject = state.DeserializeState();
+          _currentStates[state.Id] = stateObject;
+          updatedStates[state.Id] = stateObject;
+        }
+      }
+      ServerStateMessaging.SendStatesChangedMessage(updatedStates);
+    }
+
+    protected IList<ServerState> GetServerStates(uint cacheKey, out uint newCacheKey)
     {
       try
       {
-        uint cacheKey;
-        lock (_syncObj)
-          cacheKey = _currentCacheKey;
-
         CpAction action = GetAction(Consts.ACTION_GET_STATES);
         IList<object> inParameters = new List<object> { cacheKey };
         IList<object> outParameters = action.InvokeAction(inParameters);
-        var states = ServerStateSerializer.Deserialize<List<ServerState>>((string)outParameters[0]);
-        if (states == null || states.Count == 0)
-          return;
-
-        var updatedStates = new Dictionary<Guid, object>();
-        lock (_syncObj)
-        {
-          uint newCacheKey = (uint)outParameters[1];
-          //Due to threading the update might be being done out of order. e.g. a different thread has already updated with newer states.
-          //Check if the current key has been modified and whether our key is newer.
-          if (_currentCacheKey != cacheKey && newCacheKey <= _currentCacheKey)
-            return;
-          _currentCacheKey = newCacheKey;
-          foreach (ServerState state in states)
-          {
-            object stateObject = state.DeserializeState();
-            _currentStates[state.Id] = stateObject;
-            updatedStates[state.Id] = stateObject;
-          }
-        }
-        ServerStateMessaging.SendStatesChangedMessage(updatedStates);
+        newCacheKey = (uint)outParameters[1];
+        return ServerStateSerializer.Deserialize<List<ServerState>>((string)outParameters[0]);
       }
       catch (Exception ex)
       {
         ServiceRegistration.Get<ILogger>().Warn("ServerStateService: Error getting states from the server", ex);
+        newCacheKey = 0;
+        return null;
       }
     }
   }

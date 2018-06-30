@@ -275,12 +275,12 @@ namespace MediaPortal.Common.Services.MediaManagement.ImportDataflowBlocks
       }
       else if (finishedTask.IsCanceled)
       {
-        ServiceRegistration.Get<ILogger>().Debug("ImporterWorker.{0}.{1}: Canceled after processing {2} MediaItems; time elapsed: {3}; MaxDegreeOfParallelism(InnerBlock) = {4}", ParentImportJobController, _blockName, _mediaItemsProcessed, _stopWatch.Elapsed, InnerBlockOptions.MaxDegreeOfParallelism);
+        ServiceRegistration.Get<ILogger>().Info("ImporterWorker.{0}.{1}: Canceled after processing {2} MediaItems; time elapsed: {3}; MaxDegreeOfParallelism(InnerBlock) = {4}", ParentImportJobController, _blockName, _mediaItemsProcessed, _stopWatch.Elapsed, InnerBlockOptions.MaxDegreeOfParallelism);
         _tcs.SetCanceled();
       }
       else
       {
-        ServiceRegistration.Get<ILogger>().Debug("ImporterWorker.{0}.{1}: Successfully processed {2} MediaItems; time elapsed: {3}; MaxDegreeOfParallelism(InnerBlock) = {4}", ParentImportJobController, _blockName, _mediaItemsProcessed, _stopWatch.Elapsed, InnerBlockOptions.MaxDegreeOfParallelism);
+        ServiceRegistration.Get<ILogger>().Info("ImporterWorker.{0}.{1}: Successfully processed {2} MediaItems; time elapsed: {3}; MaxDegreeOfParallelism(InnerBlock) = {4}", ParentImportJobController, _blockName, _mediaItemsProcessed, _stopWatch.Elapsed, InnerBlockOptions.MaxDegreeOfParallelism);
         _tcs.SetResult(null);
       }
     }

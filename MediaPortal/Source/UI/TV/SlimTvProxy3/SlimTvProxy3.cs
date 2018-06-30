@@ -797,7 +797,13 @@ namespace MediaPortal.Plugins.SlimTv.Service
       // delete canceled schedules first
       foreach (var cs in CanceledSchedule.ListAll().Where(x => x.IdSchedule == tvSchedule.IdSchedule))
         cs.Remove();
-      tvSchedule.Remove();
+      try
+      {
+        // can fail if "StopRecordingSchedule" already deleted the entry
+        TvDatabase.Schedule.ResetProgramStates(tvSchedule.IdSchedule);
+        tvSchedule.Remove();
+      }
+      catch { }
       RemoteControl.Instance.OnNewSchedule(); // I don't think this is needed, but doesn't hurt either
       return true;
     }

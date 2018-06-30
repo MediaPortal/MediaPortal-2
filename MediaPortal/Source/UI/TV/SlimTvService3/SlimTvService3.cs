@@ -764,6 +764,7 @@ namespace MediaPortal.Plugins.SlimTv.Service
       try
       {
         // can fail if "StopRecordingSchedule" already deleted the entry
+        TvDatabase.Schedule.ResetProgramStates(tvSchedule.IdSchedule);
         tvSchedule.Remove();
       }
       catch { }

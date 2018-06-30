@@ -153,11 +153,11 @@ Parameters which have to be accessible by a DynamicResource lookup:
       </StackPanel>
 
       <!-- Menu button -->
-      <Control Grid.Row="0" Grid.Column="3" Margin="15,0,0,0" VerticalAlignment="Center"
+      <Control Grid.Row="0" Grid.Column="3" Margin="15,0,0,0" VerticalAlignment="Center" HorizontalAlignment="Left"
                x:Name="MenuButtonDummy" Template="{DynamicResource ResourceKey=Menu_Button_Dummy}"></Control>
-      <Control Grid.Row="0" Grid.Column="3" Margin="15,0,0,0" VerticalAlignment="Center"
+      <Control Grid.Row="0" Grid.Column="3" Margin="15,0,0,0" VerticalAlignment="Center" HorizontalAlignment="Left"
                x:Name="MenuButtonDummyConfig" Template="{DynamicResource ResourceKey=Menu_Button_DummyConfig}"></Control>
-      <Control Grid.Row="0" Grid.Column="3" Margin="15,0,0,0" VerticalAlignment="Center"
+      <Control Grid.Row="0" Grid.Column="3" Margin="15,0,0,0" VerticalAlignment="Center" HorizontalAlignment="Left"
                x:Name="MenuButtonPlaceholder" Template="{DynamicResource ResourceKey=Menu_Button_Placeholder}"></Control>
 
       <StackPanel Orientation="Horizontal" Grid.Row="0" Grid.Column="2" Margin="0,-55,-75,0" VerticalAlignment="Top" HorizontalAlignment="Right">
