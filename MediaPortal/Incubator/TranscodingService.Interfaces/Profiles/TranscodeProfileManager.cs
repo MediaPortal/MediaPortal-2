@@ -493,6 +493,8 @@ namespace MediaPortal.Plugins.Transcoding.Interfaces.Profiles
           }
           while (await reader.ReadAsync())
           {
+            if (reader.Name == elementName && reader.NodeType == XmlNodeType.EndElement)
+              break;
             if (reader.Name == "VideoTarget" && reader.NodeType == XmlNodeType.EndElement)
             {
               vList.Add(vTranscoding);
@@ -609,6 +611,8 @@ namespace MediaPortal.Plugins.Transcoding.Interfaces.Profiles
           }
           while (await reader.ReadAsync())
           {
+            if (reader.Name == elementName && reader.NodeType == XmlNodeType.EndElement)
+              break;
             if (reader.Name == "AudioTarget" && reader.NodeType == XmlNodeType.EndElement)
             {
               aList.Add(aTranscoding);
@@ -673,6 +677,8 @@ namespace MediaPortal.Plugins.Transcoding.Interfaces.Profiles
           }
           while (await reader.ReadAsync())
           {
+            if (reader.Name == elementName && reader.NodeType == XmlNodeType.EndElement)
+              break;
             if (reader.Name == "ImageTarget" && reader.NodeType == XmlNodeType.EndElement)
             {
               iList.Add(iTranscoding);
@@ -756,7 +762,7 @@ namespace MediaPortal.Plugins.Transcoding.Interfaces.Profiles
 
     private int GetPreferredAudioStream(MetadataContainer info, string preferredAudioLanguages)
     {
-      int matchedAudioStream = info.FirstAudioStream.StreamIndex;
+      int matchedAudioStream = info.FirstAudioStream?.StreamIndex ?? -1;
       if (string.IsNullOrEmpty(preferredAudioLanguages) == false)
       {
         List<string> valuesLangs = new List<string>(preferredAudioLanguages.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries));

@@ -57,7 +57,8 @@ namespace MediaPortal.Plugins.Transcoding.Interfaces.Profiles.MediaInfo
       bool bPass = true;
       bPass &= (VideoContainerType == VideoContainer.Unknown || VideoContainerType == info.Metadata.VideoContainerType);
       bPass &= (VideoCodecType == VideoCodec.Unknown || VideoCodecType == info.Video.Codec);
-      bPass &= (AudioCodecType == AudioCodec.Unknown || AudioCodecType == info.Audio.First(s => s.StreamIndex == audioStreamIndex).Codec);
+      if(info.Audio.Count > 0)
+        bPass &= (AudioCodecType == AudioCodec.Unknown || AudioCodecType == info.Audio.FirstOrDefault(s => s.StreamIndex == audioStreamIndex).Codec);
       if (SquarePixels == true)
       {
         bPass &= (info.Video.HasSquarePixels == true);
