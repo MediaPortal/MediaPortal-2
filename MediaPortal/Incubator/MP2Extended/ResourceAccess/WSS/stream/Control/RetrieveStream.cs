@@ -302,7 +302,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.stream.Control
             }
             else if (containerEnum is SubtitleCodec)
             {
-              httpContext.Response.ContentType = Subtitles.GetSubtitleMime((SubtitleCodec)containerEnum);
+              httpContext.Response.ContentType = SubtitleHelper.GetSubtitleMime((SubtitleCodec)containerEnum);
             }
             bool onlyHeaders = httpContext.Request.Method == Method.Header || httpContext.Response.StatusCode == StatusCodes.Status304NotModified;
             Logger.Debug("RetrieveStream: Sending file header only: {0}", onlyHeaders.ToString());

@@ -187,7 +187,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.json.StreamInfo
               if (fsra.IsFile)
                 using (var lfsra = StreamedResourceToLocalFsAccessBridge.GetLocalFsResourceAccessor(fsra))
                 {
-                  List<SubtitleStream> externalSubtitles = Subtitles.FindExternalSubtitles(lfsra, null, "EN");
+                  List<SubtitleStream> externalSubtitles = SubtitleHelper.FindExternalSubtitles(lfsra, null, "EN");
                   if (externalSubtitles != null)
                     for (int i = 0; i < externalSubtitles.Count; i++)
                     {

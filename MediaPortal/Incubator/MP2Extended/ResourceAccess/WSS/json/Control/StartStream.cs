@@ -84,7 +84,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.json.Control
       if ((streamItem.TranscoderObject.TranscodingParameter is VideoTranscoding))
       {
         ((VideoTranscoding)streamItem.TranscoderObject.TranscodingParameter).HlsBaseUrl = string.Format("RetrieveStream?identifier={0}&hls=", identifier);
-        ((VideoTranscoding)streamItem.TranscoderObject.TranscodingParameter).SourceSubtitleStreamIndex = Subtitles.NO_SUBTITLE;
+        ((VideoTranscoding)streamItem.TranscoderObject.TranscodingParameter).SourceSubtitleStreamIndex = SubtitleHelper.NO_SUBTITLE;
       }
 
       StreamControl.StartStreaming(identifier, startPosition);

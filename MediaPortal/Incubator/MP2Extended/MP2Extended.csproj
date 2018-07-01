@@ -28,7 +28,6 @@
   <ItemGroup>
     <ProjectReference Include="..\..\Source\Core\MediaPortal.Backend\MediaPortal.Backend.csproj" />
     <ProjectReference Include="..\AspNetServer\AspNetServer.csproj" />
-    <ProjectReference Include="..\..\Source\Core\HttpServer\HttpServer.csproj" />
     <ProjectReference Include="..\..\Source\Core\MediaPortal.Common\MediaPortal.Common.csproj" />
     <ProjectReference Include="..\..\Source\Extensions\MetadataExtractors\Tve3RecordingMetadataExtractor\Tve3RecordingMetadataExtractor.csproj" />
     <ProjectReference Include="..\..\Source\UI\FanArt\FanArtService.Interfaces\FanArtService.Interfaces.csproj" />
