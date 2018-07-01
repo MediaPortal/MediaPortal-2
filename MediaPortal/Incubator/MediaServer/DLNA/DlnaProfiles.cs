@@ -31,12 +31,12 @@ namespace MediaPortal.Plugins.MediaServer.DLNA
 {
   public static class DlnaProfiles
   {
-    public static List<string> ResolveImageProfile(ImageContainer container, int width, int height)
+    public static List<string> ResolveImageProfile(ImageContainer container, int? width, int? height)
     {
       List<string> valuesProfiles = new List<string>();
       if (container == ImageContainer.Jpeg)
       {
-        if (width == 0 || height == 0)
+        if (width == null || height == null)
         {
           valuesProfiles.Add("JPEG_LRG");
         }
@@ -48,10 +48,6 @@ namespace MediaPortal.Plugins.MediaServer.DLNA
         else if (width == 120 && height == 120)
         {
           valuesProfiles.Add("JPEG_LRG_ICO");
-          valuesProfiles.Add("JPEG_TN");
-        }
-        else if (width <= 160 && height <= 160)
-        {
           valuesProfiles.Add("JPEG_TN");
         }
         else if (width <= 160 && height <= 160)
@@ -73,7 +69,7 @@ namespace MediaPortal.Plugins.MediaServer.DLNA
       }
       else if (container == ImageContainer.Png)
       {
-        if (width == 0 || height == 0)
+        if (width == null || height == null)
         {
           valuesProfiles.Add("PNG_LRG");
         }
@@ -111,33 +107,40 @@ namespace MediaPortal.Plugins.MediaServer.DLNA
       return valuesProfiles;
     }
 
-    public static List<string> ResolveAudioProfile(AudioContainer container, AudioCodec audioCodec, long bitrate, long frequency, int channels)
+    public static List<string> ResolveAudioProfile(AudioContainer container, AudioCodec audioCodec, long? bitrate, long? frequency, int? channels)
     {
       List<string> valuesProfiles = new List<string>();
-      if (container == AudioContainer.Ac3)
+      if (container == AudioContainer.Asf)
       {
-        valuesProfiles.Add("AC3");
-      }
-      else if (container == AudioContainer.Asf)
-      {
-        if (audioCodec == AudioCodec.WmaPro)
+        if (audioCodec == AudioCodec.WmaLossless)
         {
-          valuesProfiles.Add("WMA_PRO");
+          if (channels > 0 && channels > 2)
+          {
+            valuesProfiles.Add("WMALSL_MULT5");
+          }
+          else
+          {
+            valuesProfiles.Add("WMALSL");
+          }
         }
-        else if (bitrate != 0 && bitrate < 193)
+        else if (audioCodec == AudioCodec.WmaPro)
         {
-          valuesProfiles.Add("WMA_BASE");
+          valuesProfiles.Add("WMAPRO");
+        }
+        else if (bitrate > 0 && bitrate < 193)
+        {
+          valuesProfiles.Add("WMABASE");
         }
         else
         {
-          valuesProfiles.Add("WMA_FULL");
+          valuesProfiles.Add("WMAFULL");
         }
       }
       else if (container == AudioContainer.Mp3)
       {
-        if (frequency < 32000)
+        if (audioCodec == AudioCodec.Mp2)
         {
-          valuesProfiles.Add("MP3X");
+          valuesProfiles.Add("MP2_MPS");
         }
         else
         {
@@ -150,7 +153,7 @@ namespace MediaPortal.Plugins.MediaServer.DLNA
       }
       else if (container == AudioContainer.Lpcm)
       {
-        if (frequency != 0 && channels != 0)
+        if (frequency > 0 && channels > 0)
         {
           if (frequency == 44100 && channels == 1)
           {
@@ -181,7 +184,7 @@ namespace MediaPortal.Plugins.MediaServer.DLNA
       else if (container == AudioContainer.Mp4)
       {
         //AAC stereo only
-        if (bitrate != 0 && bitrate <= 320)
+        if (bitrate > 0 && bitrate <= 320)
         {
           valuesProfiles.Add("AAC_ISO_320");
         }
@@ -193,7 +196,7 @@ namespace MediaPortal.Plugins.MediaServer.DLNA
       else if (container == AudioContainer.Adts)
       {
         //AAC stereo only
-        if (bitrate != 0 && bitrate <= 320)
+        if (bitrate > 0 && bitrate <= 320)
         {
           valuesProfiles.Add("AAC_ADTS_320");
         }
@@ -218,6 +221,14 @@ namespace MediaPortal.Plugins.MediaServer.DLNA
       {
         valuesProfiles.Add("RTP");
       }
+      else if (container == AudioContainer.Wav)
+      {
+        valuesProfiles.Add("WAV");
+      }
+      else if (container == AudioContainer.Dsf)
+      {
+        valuesProfiles.Add("DSF");
+      }
       else
       {
         throw new Exception("Audio does not match any supported DLNA profile");
@@ -225,7 +236,7 @@ namespace MediaPortal.Plugins.MediaServer.DLNA
       return valuesProfiles;
     }
 
-    public static List<string> ResolveVideoProfile(VideoContainer container, VideoCodec videoCodec, AudioCodec audioCodec, EncodingProfile h264Profile, float h264Level, float fps, int width, int height, long videoBitrate, long audioBitrate, Timestamp timestampType)
+    public static List<string> ResolveVideoProfile(VideoContainer container, VideoCodec videoCodec, AudioCodec audioCodec, EncodingProfile h264Profile, float? h264Level, float? fps, int? width, int? height, long? videoBitrate, long? audioBitrate, Timestamp timestampType)
     {
       List<string> valuesProfiles = new List<string>();
       if (container == VideoContainer.Asf)
@@ -263,7 +274,7 @@ namespace MediaPortal.Plugins.MediaServer.DLNA
           {
             if (audioCodec == AudioCodec.Unknown || audioCodec == AudioCodec.Wma)
             {
-              if (audioBitrate != 0 && audioBitrate < 193)
+              if (audioBitrate > 0 && audioBitrate < 193)
               {
                 valuesProfiles.Add("WMVSPML_BASE");
 
@@ -288,7 +299,7 @@ namespace MediaPortal.Plugins.MediaServer.DLNA
           {
             if (audioCodec == AudioCodec.Unknown || audioCodec == AudioCodec.Wma)
             {
-              if (audioBitrate != 0 && audioBitrate < 193)
+              if (audioBitrate > 0 && audioBitrate < 193)
               {
                 valuesProfiles.Add("WMVMED_BASE");
               }
@@ -304,7 +315,7 @@ namespace MediaPortal.Plugins.MediaServer.DLNA
           }
           else if (audioCodec == AudioCodec.Unknown || audioCodec == AudioCodec.Wma)
           {
-            if (audioBitrate != 0 && audioBitrate < 193)
+            if (audioBitrate > 0 && audioBitrate < 193)
             {
               valuesProfiles.Add("WMVHIGH_BASE");
             }
@@ -360,12 +371,12 @@ namespace MediaPortal.Plugins.MediaServer.DLNA
         long bitrate = 0;
         if (videoBitrate > 0 && audioBitrate > 0)
         {
-          bitrate = videoBitrate + audioBitrate;
+          bitrate = videoBitrate.Value + audioBitrate.Value;
         }
 
         if (videoCodec == VideoCodec.H264)
         {
-          if (audioCodec == AudioCodec.Unknown || audioCodec == AudioCodec.Ac3)
+          if (audioCodec == AudioCodec.Unknown || audioCodec == AudioCodec.Ac3 || audioCodec == AudioCodec.EAc3)
           {
             if (h264Profile == EncodingProfile.Baseline)
             {
@@ -385,6 +396,11 @@ namespace MediaPortal.Plugins.MediaServer.DLNA
           }
           else if (audioCodec == AudioCodec.Mp3)
           {
+            if (isHD)
+            {
+              valuesProfiles.Add("AVC_MP4_MP_HD_MPEG1_L3");
+            }
+
             valuesProfiles.Add("AVC_MP4_MP_SD_MPEG1_L3");
           }
           else if (audioCodec == AudioCodec.Lpcm)
@@ -486,6 +502,10 @@ namespace MediaPortal.Plugins.MediaServer.DLNA
             }
           }
         }
+        else if (videoCodec == VideoCodec.H265)
+        {
+          valuesProfiles.Add("HEVC_MP4");
+        }
         else if (videoCodec == VideoCodec.MsMpeg4 || videoCodec == VideoCodec.Mpeg4)
         {
           if (Convert.ToInt32(width) <= 720 && Convert.ToInt32(height) <= 576)
@@ -585,7 +605,7 @@ namespace MediaPortal.Plugins.MediaServer.DLNA
         }
         else if (videoCodec == VideoCodec.H264)
         {
-          if (audioCodec == AudioCodec.Unknown || audioCodec == AudioCodec.Ac3)
+          if (audioCodec == AudioCodec.Unknown || audioCodec == AudioCodec.Ac3 || audioCodec == AudioCodec.EAc3)
           {
             if (timestampType == Timestamp.None)
             {
@@ -924,10 +944,25 @@ namespace MediaPortal.Plugins.MediaServer.DLNA
               valuesProfiles.Add("VC1_TS_HD_DTSHD_MA_T");
             }
           }
+          else
+          {
+            if (isHD)
+            {
+              valuesProfiles.Add("VC1_TS_AP_L2_AC3_ISO");
+            }
+            else
+            {
+              valuesProfiles.Add("VC1_TS_AP_L1_AC3_ISO");
+            }
+          }
+        }
+        else if (videoCodec == VideoCodec.H265)
+        {
+          valuesProfiles.Add("HEVC_TS");
         }
         else if (videoCodec == VideoCodec.MsMpeg4 || videoCodec == VideoCodec.Mpeg4)
         {
-          if (audioCodec == AudioCodec.Unknown || audioCodec == AudioCodec.Ac3)
+          if (audioCodec == AudioCodec.Unknown || audioCodec == AudioCodec.Ac3 || audioCodec == AudioCodec.EAc3)
           {
             if (timestampType == Timestamp.None)
             {
@@ -1060,7 +1095,7 @@ namespace MediaPortal.Plugins.MediaServer.DLNA
       return valuesProfiles;
     }
 
-    public static bool FindCompatibleProfile(EndPointSettings client, List<string> resolvedList, ref string DlnaProfile, ref string Mime)
+    public static bool TryFindCompatibleProfile(EndPointSettings client, List<string> resolvedList, ref string DlnaProfile, ref string Mime)
     {
       foreach (MediaMimeMapping map in client.Profile.MediaMimeMap.Values)
       {

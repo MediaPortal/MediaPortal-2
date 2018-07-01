@@ -205,12 +205,15 @@ namespace MediaPortal.Plugins.MediaServer.Objects.Basic
       IMediaLibrary library = ServiceRegistration.Get<IMediaLibrary>();
       ICollection<Share> shares = library.GetShares(null)?.Values;
       IUserProfileDataManagement userProfileDataManagement = ServiceRegistration.Get<IUserProfileDataManagement>();
-      UserProfile userProfile;
-      if (!_userId.HasValue || !userProfileDataManagement.GetProfile(_userId.Value, out userProfile))
-      {
+      
+      if (!_userId.HasValue)
         return null;
-      }
 
+      var res = userProfileDataManagement.GetProfileAsync(_userId.Value).Result;
+      if (!res.Success)
+        return null;
+
+      var userProfile = res.Result;
       int? allowedAge = null;
       bool? includeParentalGuidedContent = null;
       bool? includeUnratedContent = null;
@@ -353,28 +356,32 @@ namespace MediaPortal.Plugins.MediaServer.Objects.Basic
     {
       IMediaLibrary library = ServiceRegistration.Get<IMediaLibrary>();
       IUserProfileDataManagement userProfileDataManagement = ServiceRegistration.Get<IUserProfileDataManagement>();
-      UserProfile userProfile;
       bool allowAllShares = true;
       ICollection<Guid> allowedShares = new List<Guid>();
-      if (_userId.HasValue && userProfileDataManagement.GetProfile(_userId.Value, out userProfile))
+      if (!_userId.HasValue)
+        return null;
+
+      var res = userProfileDataManagement.GetProfileAsync(_userId.Value).Result;
+      if (!res.Success)
+        return null;
+
+      var userProfile = res.Result;
+      foreach (var key in userProfile.AdditionalData)
       {
-        foreach (var key in userProfile.AdditionalData)
+        foreach (var val in key.Value)
         {
-          foreach (var val in key.Value)
+          if (key.Key == UserDataKeysKnown.KEY_ALLOW_ALL_SHARES)
           {
-            if (key.Key == UserDataKeysKnown.KEY_ALLOW_ALL_SHARES)
+            string allow = val.Value;
+            if (!string.IsNullOrEmpty(allow) && Convert.ToInt32(allow) >= 0)
             {
-              string allow = val.Value;
-              if (!string.IsNullOrEmpty(allow) && Convert.ToInt32(allow) >= 0)
-              {
-                allowAllShares = Convert.ToInt32(allow) > 0;
-              }
+              allowAllShares = Convert.ToInt32(allow) > 0;
             }
-            else if (key.Key == UserDataKeysKnown.KEY_ALLOWED_SHARE)
-            {
-              Guid shareId = new Guid(val.Value);
-              allowedShares.Add(shareId);
-            }
+          }
+          else if (key.Key == UserDataKeysKnown.KEY_ALLOWED_SHARE)
+          {
+            Guid shareId = new Guid(val.Value);
+            allowedShares.Add(shareId);
           }
         }
       }

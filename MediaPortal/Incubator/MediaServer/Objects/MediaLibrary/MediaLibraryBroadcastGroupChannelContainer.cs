@@ -44,13 +44,12 @@ namespace MediaPortal.Plugins.MediaServer.Objects.MediaLibrary
     {
       if (ServiceRegistration.IsRegistered<ITvProvider>())
       {
-        IChannelAndGroupInfo channelAndGroupInfo = ServiceRegistration.Get<ITvProvider>() as IChannelAndGroupInfo;
-
+        IChannelAndGroupInfoAsync channelAndGroupInfo = ServiceRegistration.Get<ITvProvider>() as IChannelAndGroupInfoAsync;
         IChannelGroup group = new ChannelGroup() { ChannelGroupId = GroupId };
-        IList<IChannel> channels = new List<IChannel>();
-        if (channelAndGroupInfo.GetChannels(group, out channels))
+        var res = channelAndGroupInfo.GetChannelsAsync(group).Result;
+        if (res.Success)
         {
-          return channels;
+          return res.Result;
         }
       }
       return null;

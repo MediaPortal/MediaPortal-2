@@ -24,51 +24,50 @@
 
 using System;
 using System.IO;
-using HttpServer;
-using HttpServer.Sessions;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Plugins.MediaServer.DLNA;
 using MediaPortal.Plugins.MediaServer.ResourceAccess;
 using System.Collections.Generic;
 using System.Linq;
+using Microsoft.Owin;
 
 namespace MediaPortal.Plugins.MediaServer.Protocols
 {
   public class SamsungProtocolHandler : GenericAccessProtocol
   {
-    public override bool HandleRequest(IHttpRequest request, IHttpResponse response, IHttpSession session, DlnaMediaItem item)
+    public override bool HandleRequest(IOwinContext context, DlnaMediaItem item)
     {
       bool bHandled = false;
-      if (!string.IsNullOrEmpty(request.Headers["getCaptionInfo.sec"]))
+      if (!string.IsNullOrEmpty(context.Request.Headers["getCaptionInfo.sec"]))
       {
-        if (request.Headers["getCaptionInfo.sec"] == "1")
+        if (context.Request.Headers["getCaptionInfo.sec"] == "1")
         {
-          if (request.Uri.ToString().ToUpperInvariant().Contains("LOCALHOST"))
+          if (context.Request.Uri.ToString().ToUpperInvariant().Contains("LOCALHOST"))
           {
             bHandled = true;
           }
           string mime = "";
           string type = "";
-          response.AddHeader("CaptionInfo.sec", DlnaResourceAccessUtils.GetSubtitleBaseURL(item.MediaSource, item.Client, out mime, out type));
+          context.Response.Headers["CaptionInfo.sec"] = DlnaResourceAccessUtils.GetSubtitleBaseURL(item.MediaSource, item.Client, out mime, out type);
         }
       }
 
-      if (!string.IsNullOrEmpty(request.Headers["getMediaInfo.sec"]))
+      if (!string.IsNullOrEmpty(context.Request.Headers["getMediaInfo.sec"]))
       {
-        if (request.Headers["getMediaInfo.sec"] == "1")
+        if (context.Request.Headers["getMediaInfo.sec"] == "1")
         {
           //TODO: How to handle multiple video streams?
           if (MediaItemAspect.TryGetAttribute(item.MediaSource.Aspects, VideoStreamAspect.ATTR_DURATION, out List<long> durations))
           {
-            response.AddHeader("MediaInfo.sec", string.Format("SEC_Duration={0};", Convert.ToInt32(durations.First()) * 1000));
+            context.Response.Headers["MediaInfo.sec"] = $"SEC_Duration={Convert.ToInt32(durations.First()) * 1000};";
           }
         }
       }
       return bHandled;
     }
 
-    public override bool CanHandleRequest(IHttpRequest request)
+    public override bool CanHandleRequest(IOwinRequest request)
     {
       if (!string.IsNullOrEmpty(request.Headers["getCaptionInfo.sec"]))
       {
@@ -87,7 +86,7 @@ namespace MediaPortal.Plugins.MediaServer.Protocols
       return false;
     }
 
-    public override Stream HandleResourceRequest(IHttpRequest request, IHttpResponse response, IHttpSession session, DlnaMediaItem item)
+    public override Stream HandleResourceRequest(IOwinContext context, DlnaMediaItem item)
     {
       //if (item.DlnaProfile == "JPEG_SM")
       //{

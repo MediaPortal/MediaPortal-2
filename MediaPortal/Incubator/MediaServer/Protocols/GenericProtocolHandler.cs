@@ -23,11 +23,10 @@
 #endregion
 
 using System.IO;
-using HttpServer;
-using HttpServer.Sessions;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
 using MediaPortal.Plugins.MediaServer.DLNA;
+using Microsoft.Owin;
 
 namespace MediaPortal.Plugins.MediaServer.Protocols
 {
@@ -52,17 +51,17 @@ namespace MediaPortal.Plugins.MediaServer.Protocols
       return new GenericAccessProtocol();
     }
 
-    public virtual bool HandleRequest(IHttpRequest request, IHttpResponse response, IHttpSession session, DlnaMediaItem item)
+    public virtual bool HandleRequest(IOwinContext context, DlnaMediaItem item)
     {
       return false;
     }
 
-    public virtual bool CanHandleRequest(IHttpRequest request)
+    public virtual bool CanHandleRequest(IOwinRequest request)
     {
       return false;
     }
 
-    public virtual Stream HandleResourceRequest(IHttpRequest request, IHttpResponse response, IHttpSession session, DlnaMediaItem item)
+    public virtual Stream HandleResourceRequest(IOwinContext context, DlnaMediaItem item)
     {
       return null;
     }

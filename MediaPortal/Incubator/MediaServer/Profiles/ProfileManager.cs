@@ -24,7 +24,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Collections.Specialized;
 using System.Text.RegularExpressions;
 using System.Linq;
 using System.Net;
@@ -40,9 +39,12 @@ using MediaPortal.Plugins.MediaServer.Filters;
 using MediaPortal.Plugins.MediaServer.Protocols;
 using MediaPortal.Plugins.MediaServer.Settings;
 using MediaPortal.Utilities.FileSystem;
-using MediaPortal.Plugins.Transcoding.Interfaces.Profiles;
 using MediaPortal.Common.UserProfileDataManagement;
 using MediaPortal.Common.Services.Settings;
+using Microsoft.Owin;
+using System.Collections.Concurrent;
+using MediaPortal.Plugins.Transcoding.Interfaces;
+using System.Threading.Tasks;
 
 namespace MediaPortal.Plugins.MediaServer.Profiles
 {
@@ -56,8 +58,8 @@ namespace MediaPortal.Plugins.MediaServer.Profiles
 
     public const string TRANSCODE_PROFILE_SECTION = "DLNA";
 
-    public static Dictionary<IPAddress, EndPointSettings> ProfileLinks = new Dictionary<IPAddress, EndPointSettings>();
-    public static Dictionary<string, EndPointProfile> Profiles = new Dictionary<string, EndPointProfile>();
+    public static ConcurrentDictionary<IPAddress, EndPointSettings> ProfileLinks = new ConcurrentDictionary<IPAddress, EndPointSettings>();
+    public static ConcurrentDictionary<string, EndPointProfile> Profiles = new ConcurrentDictionary<string, EndPointProfile>();
 
     static ProfileManager()
     {
@@ -74,7 +76,7 @@ namespace MediaPortal.Plugins.MediaServer.Profiles
       //Save any new links
       SaveProfileLinks();
       //Reload all links
-      LoadProfileLinks();
+      LoadProfileLinksAsync().Wait();
 
       UpdatingProfileLinks = false;
     }
@@ -106,26 +108,26 @@ namespace MediaPortal.Plugins.MediaServer.Profiles
       return IPAddress.Parse(address);
     }
 
-    public static EndPointSettings DetectProfile(NameValueCollection headers)
+    public static async Task<EndPointSettings> DetectProfileAsync(IOwinRequest request)
     {
       //Lazy load profiles. Needed because of localized strings in profiles
       if(Profiles.Count == 0)
       {
         Logger.Info("DetectProfile: Loading profiles and links");
 
-        LoadProfiles(false);
-        LoadProfiles(true);
+        await LoadProfilesAsync(false);
+        await LoadProfilesAsync(true);
 
-        LoadProfileLinks();
+        await LoadProfileLinksAsync();
       }
 
-      if (headers["remote_addr"] == null)
+      if (request.RemoteIpAddress == null)
       {
-        Logger.Error("DetectProfile: Couldn't find Header 'remote_addr'!");
+        Logger.Error("DetectProfile: Couldn't find remote address!");
         return null;
       }
 
-      IPAddress ip = ResolveIpAddress(headers["remote_addr"]);
+      IPAddress ip = ResolveIpAddress(request.RemoteIpAddress);
 
       // Overwrite the automatic profile detection
       if (ProfileLinks.ContainsKey(ip))
@@ -154,7 +156,7 @@ namespace MediaPortal.Plugins.MediaServer.Profiles
 
             foreach (KeyValuePair<string, string> header in detection.HttpHeaders)
             {
-              if (header.Value != null && (headers[header.Key] == null || !Regex.IsMatch(headers[header.Key], header.Value, RegexOptions.IgnoreCase)))
+              if (header.Value != null && (request.Headers[header.Key] == null || !Regex.IsMatch(request.Headers[header.Key], header.Value, RegexOptions.IgnoreCase)))
               {
                 match = false;
                 break;
@@ -238,26 +240,26 @@ namespace MediaPortal.Plugins.MediaServer.Profiles
 
           if (match)
           {
-            Logger.Info("DetectProfile: Profile found => using {0}, headers={1}", profile.Value.ID, string.Join(", ", headers.AllKeys.Select(key => key + ": " + headers[key]).ToArray()));
+            Logger.Info("DetectProfile: Profile found => using {0}, headers={1}", profile.Value.ID, string.Join(", ", request.Headers.Select(h => h.Key + ": " + string.Join(";", h.Value)).ToArray()));
             if (ProfileLinks.ContainsKey(ip) == false)
-              ProfileLinks.Add(ip, GetEndPointSettings(ip.ToString(), profile.Value.ID));
+              ProfileLinks.TryAdd(ip, await GetEndPointSettingsAsync(ip.ToString(), profile.Value.ID));
             else
-              ProfileLinks[ip] = GetEndPointSettings(ip.ToString(), profile.Value.ID);
+              ProfileLinks[ip] = await GetEndPointSettingsAsync(ip.ToString(), profile.Value.ID);
             return ProfileLinks[ip];
           }
         }
       }
 
       // no match => return Default Profile
-      Logger.Info("DetectProfile: No profile found => using {0}, headers={1}", DLNA_DEFAULT_PROFILE_ID, string.Join(", ", headers.AllKeys.Select(key => key + ": " + headers[key]).ToArray()));
+      Logger.Info("DetectProfile: No profile found => using {0}, headers={1}", DLNA_DEFAULT_PROFILE_ID, string.Join(", ", request.Headers.Select(h => h.Key + ": " + string.Join(";", h.Value)).ToArray()));
       if (ProfileLinks.ContainsKey(ip) == false)
-        ProfileLinks.Add(ip, GetEndPointSettings(ip.ToString(), DLNA_DEFAULT_PROFILE_ID));
+        ProfileLinks.TryAdd(ip, await GetEndPointSettingsAsync(ip.ToString(), DLNA_DEFAULT_PROFILE_ID));
       else
-        ProfileLinks[ip] = GetEndPointSettings(ip.ToString(), DLNA_DEFAULT_PROFILE_ID);
+        ProfileLinks[ip] = await GetEndPointSettingsAsync(ip.ToString(), DLNA_DEFAULT_PROFILE_ID);
       return ProfileLinks[ip];
     }
 
-    public static void LoadProfiles(bool userProfiles)
+    public static async Task LoadProfilesAsync(bool userProfiles)
     {
       try
       {
@@ -576,13 +578,13 @@ namespace MediaPortal.Plugins.MediaServer.Profiles
               }
               else
               {
-                Profiles.Add(profile.ID, profile);
+                Profiles.TryAdd(profile.ID, profile);
               }
             }
           }
           reader.Close();
 
-          TranscodeProfileManager.LoadTranscodeProfiles(TRANSCODE_PROFILE_SECTION, profileFile);
+          await TranscodeProfileManager.LoadTranscodeProfilesAsync(TRANSCODE_PROFILE_SECTION, profileFile);
         }
       }
       catch (Exception e)
@@ -591,7 +593,7 @@ namespace MediaPortal.Plugins.MediaServer.Profiles
       }
     }
 
-    public static EndPointSettings GetEndPointSettings(string clientIp, string profileId)
+    public static async Task<EndPointSettings> GetEndPointSettingsAsync(string clientIp, string profileId)
     {
       EndPointSettings settings = new EndPointSettings
       {
@@ -615,7 +617,7 @@ namespace MediaPortal.Plugins.MediaServer.Profiles
         }
 
         IUserProfileDataManagement userManager = ServiceRegistration.Get<IUserProfileDataManagement>();
-        settings.ClientId = userManager.CreateProfile($"DLNA ({clientIp})", UserProfile.CLIENT_PROFILE, "");
+        settings.ClientId = await userManager.CreateProfileAsync($"DLNA ({clientIp})", UserProfileType.ClientProfile, "");
 
         settings.InitialiseContainerTree();
       }
@@ -626,7 +628,7 @@ namespace MediaPortal.Plugins.MediaServer.Profiles
       return settings;
     }
 
-    public static void LoadProfileLinks()
+    public static async Task LoadProfileLinksAsync()
     {
       try
       {
@@ -683,14 +685,14 @@ namespace MediaPortal.Plugins.MediaServer.Profiles
           {
             settings.Profile = Profiles[DLNA_DEFAULT_PROFILE_ID];
           }
-          settings.ClientId = userManager.CreateProfile($"DLNA ({ip.ToString()})", UserProfile.CLIENT_PROFILE, "");
+          settings.ClientId = await userManager.CreateProfileAsync($"DLNA ({ip.ToString()})", UserProfileType.ClientProfile, "");
 
           settings.InitialiseContainerTree();
           if (settings.Profile == null)
             Logger.Info("DlnaMediaServer: IP: {0}, using profile: None", ip);
           else
             Logger.Info("DlnaMediaServer: IP: {0}, using profile: {1}", ip, settings.Profile.ID);
-          ProfileLinks.Add(ip, settings);
+          ProfileLinks.TryAdd(ip, settings);
         }
       }
       catch (Exception e)
@@ -746,6 +748,11 @@ namespace MediaPortal.Plugins.MediaServer.Profiles
       {
         Logger.Info("DlnaMediaServer: Exception saving profile links (Text: '{0}')", e.Message);
       }
+    }
+
+    private static ITranscodeProfileManager TranscodeProfileManager
+    {
+      get { return ServiceRegistration.Get<ITranscodeProfileManager>(); }
     }
 
     private static ILogger Logger

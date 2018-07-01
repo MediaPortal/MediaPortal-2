@@ -28,8 +28,8 @@ using MediaPortal.Plugins.MediaServer.Objects.Basic;
 using MediaPortal.Plugins.MediaServer.Profiles;
 using MediaPortal.Plugins.SlimTv.Interfaces.Items;
 using MediaPortal.Plugins.SlimTv.Interfaces;
-using MediaPortal.Common.MediaManagement;
 using MediaPortal.Plugins.Transcoding.Interfaces;
+using MediaPortal.Plugins.SlimTv.Interfaces.LiveTvMediaItem;
 
 namespace MediaPortal.Plugins.MediaServer.Objects.MediaLibrary
 {
@@ -45,21 +45,23 @@ namespace MediaPortal.Plugins.MediaServer.Objects.MediaLibrary
     {
       if (ServiceRegistration.IsRegistered<ITvProvider>())
       {
-        MediaItem mediaItem = null;
+        LiveTvMediaItem mediaItem = null;
         if (ServiceRegistration.IsRegistered<IMediaAnalyzer>())
         {
           IMediaAnalyzer analyzer = ServiceRegistration.Get<IMediaAnalyzer>() as IMediaAnalyzer;
-          if(analyzer.ParseChannelStream(ChannelId, out mediaItem) == null)
+          var analysis = analyzer.ParseChannelStreamAsync(ChannelId, mediaItem).Result;
+          if (analysis == null)
           {
             Logger.Error("MediaServer: Error analyzing channel {0} stream", ChannelId);
             return;
           }
         }
 
-        IChannelAndGroupInfo channelAndGroupInfo = ServiceRegistration.Get<ITvProvider>() as IChannelAndGroupInfo;
-        IChannel channel;
-        if (channelAndGroupInfo.GetChannel(ChannelId, out channel))
+        IChannelAndGroupInfoAsync channelAndGroupInfo = ServiceRegistration.Get<ITvProvider>() as IChannelAndGroupInfoAsync;
+        var res = channelAndGroupInfo.GetChannelAsync(ChannelId).Result;
+        if (res.Success)
         {
+          IChannel channel = res.Result;
           try
           {
             if (channel.MediaType == MediaType.TV)

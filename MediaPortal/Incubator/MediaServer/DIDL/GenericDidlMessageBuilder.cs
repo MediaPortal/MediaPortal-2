@@ -40,7 +40,8 @@ namespace MediaPortal.Plugins.MediaServer.DIDL
       GenericContentBuilder,
       SamsungContentBuilder,
       SonyContentBuilder,
-      PacketContentBuilder
+      PacketContentBuilder,
+      SamsungTizenContentBuilder
     }
 
     public static GenericDidlMessageBuilder GetDidlMessageBuilder(ContentBuilder Builder)
@@ -56,6 +57,10 @@ namespace MediaPortal.Plugins.MediaServer.DIDL
       else if (Builder == ContentBuilder.PacketContentBuilder)
       {
         return new PacketVideoDidlMessageBuilder();
+      }
+      else if (Builder == ContentBuilder.SamsungTizenContentBuilder)
+      {
+        return new SamsungTizenDidlMessageBuilder();
       }
       return new GenericDidlMessageBuilder();
     }

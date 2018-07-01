@@ -60,7 +60,7 @@ namespace MediaPortal.Plugins.MediaServer
       ServiceRegistration.Get<IBackendServer>().UPnPBackendServer.AddRootDevice(_device);
 
       Logger.Debug("MediaServerPlugin: Registering DLNA HTTP resource access module");
-      ServiceRegistration.Get<IResourceServer>().AddHttpModule(new DlnaResourceAccessModule());
+      ServiceRegistration.Get<IResourceServer>().AddHttpModule(typeof(DlnaResourceAccessModule));
 
       LoadSettings();
     }

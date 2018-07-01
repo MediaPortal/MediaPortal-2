@@ -25,10 +25,9 @@
 using System;
 using System.IO;
 using System.Net;
-using HttpServer;
-using HttpServer.Sessions;
 using MediaPortal.Plugins.MediaServer.DLNA;
 using MediaPortal.Plugins.MediaServer.Objects.MediaLibrary;
+using Microsoft.Owin;
 
 namespace MediaPortal.Plugins.MediaServer.Protocols
 {
@@ -36,16 +35,16 @@ namespace MediaPortal.Plugins.MediaServer.Protocols
   {
     private static string ALBUM_ART_TRUE = "?albumArt=true";
 
-    public override Stream HandleResourceRequest(IHttpRequest request, IHttpResponse response, IHttpSession session, DlnaMediaItem item)
+    public override Stream HandleResourceRequest(IOwinContext context, DlnaMediaItem item)
     {
-      if (request.Uri.AbsolutePath.EndsWith(ALBUM_ART_TRUE, StringComparison.InvariantCultureIgnoreCase))
+      if (context.Request.Uri.AbsolutePath.EndsWith(ALBUM_ART_TRUE, StringComparison.InvariantCultureIgnoreCase))
       {
         // Get album art from FanArt
         MediaLibraryAlbumArt albumArt = new MediaLibraryAlbumArt(item.MediaSource, item.Client);
         albumArt.Initialise();
         WebRequest imageRequest = WebRequest.Create(albumArt.Uri);
         WebResponse imageResponse = imageRequest.GetResponse();
-        response.ContentType = albumArt.MimeType;
+        context.Response.ContentType = albumArt.MimeType;
         return imageResponse.GetResponseStream();
 
         //if (item.MediaSource.Aspects.ContainsKey(ThumbnailLargeAspect.ASPECT_ID))

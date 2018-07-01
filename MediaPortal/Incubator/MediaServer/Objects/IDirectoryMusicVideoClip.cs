@@ -66,11 +66,5 @@ namespace MediaPortal.Plugins.MediaServer.Objects
     /// </summary>
     [DirectoryProperty("dc:contributor", Required = false)]
     IList<string> Contributor { get; set; }
-
-    /// <summary>
-    /// ISO 8601, of the form "YYYY-MM-DD",
-    /// </summary>
-    [DirectoryProperty("dc:date", Required = false)]
-    string Date { get; set; }
   }
 }

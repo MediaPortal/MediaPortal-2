@@ -41,7 +41,7 @@ namespace MediaPortal.Plugins.MediaServer.Objects.MediaLibrary
       get { return "object.item.playlistItem"; }
     }
 
-    public IList<MediaItem> GetItems()
+    public override IList<MediaItem> GetItems()
     {
       throw new NotImplementedException("Playlists don't work");
     }

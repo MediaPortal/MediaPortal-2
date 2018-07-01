@@ -159,18 +159,7 @@ namespace MediaPortal.Plugins.MediaServer.DLNA
         else if (item.IsVideo || item.IsAudio)
         {
           dlnaField.OperationsParameter.Show = true;
-          double duration = 0;
-          if (item != null)
-          {
-            try
-            {
-              duration = item.DlnaMetadata.Metadata.Duration;
-            }
-            catch
-            {
-              duration = 0;
-            }
-          }
+          double duration = item?.DlnaMetadata?.Metadata?.Duration ?? 0;
           if (duration > 0 && live == false)
           {
             dlnaField.OperationsParameter.TimeSeekRangeSupport = true;

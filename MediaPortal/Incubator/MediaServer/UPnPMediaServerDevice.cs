@@ -25,11 +25,11 @@
 using System.Collections.Generic;
 using System.Globalization;
 using System.Xml;
-using HttpServer;
 using MediaPortal.Backend.Services.ClientCommunication;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
 using MediaPortal.Plugins.MediaServer.Profiles;
+using Microsoft.Owin;
 using UPnP.Infrastructure.Dv;
 using UPnP.Infrastructure.Dv.DeviceTree;
 
@@ -65,12 +65,11 @@ namespace MediaPortal.Plugins.MediaServer
       AddService(new UPnPMediaReceiverRegistrarServiceImpl());
     }
 
-    private static void GenerateDescriptionFunc(IHttpRequest request, XmlWriter writer, DvDevice device, GenerationPosition pos, EndpointConfiguration config, CultureInfo culture)
+    private static void GenerateDescriptionFunc(IOwinRequest request, XmlWriter writer, DvDevice device, GenerationPosition pos, EndpointConfiguration config, CultureInfo culture)
     {
       if (request == null) return;
 
-      EndPointSettings client = ProfileManager.DetectProfile(request.Headers);
-
+      EndPointSettings client = ProfileManager.DetectProfileAsync(request).Result;
       if (client == null || client.Profile == null)
       {
         return;
@@ -93,11 +92,11 @@ namespace MediaPortal.Plugins.MediaServer
       }
     }
 
-    private static void DeviceInfoFunc(IHttpRequest request, ILocalizedDeviceInformation deviceInfo, ref ILocalizedDeviceInformation overriddenDeviceInfo)
+    private static void DeviceInfoFunc(IOwinRequest request, ILocalizedDeviceInformation deviceInfo, ref ILocalizedDeviceInformation overriddenDeviceInfo)
     {
       if (request == null) return;
-      string clientID = request.Headers["remote_addr"];
-      EndPointSettings client = ProfileManager.DetectProfile(request.Headers);
+      string clientID = request.RemoteIpAddress;
+      EndPointSettings client = ProfileManager.DetectProfileAsync(request).Result;
 
       if (client != null && client.Profile != null)
       {

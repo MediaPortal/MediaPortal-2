@@ -16,7 +16,6 @@
     <CoreDependency Name="MediaPortal.Backend" CompatibleAPI="2" />
     <CoreDependency Name="MediaPortal.Common" CompatibleAPI="2" />
     <CoreDependency Name="MediaPortal.Utilities" CompatibleAPI="1" />
-    <CoreDependency Name="HttpServer" CompatibleAPI="1" />
     <CoreDependency Name="UPnP" CompatibleAPI="1" />
     <PluginReference PluginId="{AC708DE3-2E9B-4EFA-BB2F-8DD9456F2FF8}" CompatibleAPI="1"/> <!-- Transcoding Service -->
   </DependsOn>

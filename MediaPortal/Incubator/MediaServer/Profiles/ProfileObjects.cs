@@ -33,13 +33,13 @@ using MediaPortal.Plugins.MediaServer.Filters;
 using MediaPortal.Plugins.MediaServer.Objects.Basic;
 using MediaPortal.Plugins.MediaServer.Objects.MediaLibrary;
 using MediaPortal.Plugins.MediaServer.Protocols;
-using MediaPortal.Plugins.Transcoding.Interfaces.Profiles;
 using MediaPortal.Plugins.Transcoding.Interfaces.Profiles.Setup;
 using MediaPortal.Common;
 using MediaPortal.Plugins.SlimTv.Interfaces;
 using MediaPortal.Common.Localization;
 using MediaPortal.Utilities;
 using System.Collections.Concurrent;
+using MediaPortal.Plugins.Transcoding.Interfaces;
 
 namespace MediaPortal.Plugins.MediaServer.Profiles
 {
@@ -291,6 +291,11 @@ namespace MediaPortal.Plugins.MediaServer.Profiles
     public override string ToString()
     {
       return ID + " - " + Name;
+    }
+
+    private ITranscodeProfileManager TranscodeProfileManager
+    {
+      get { return ServiceRegistration.Get<ITranscodeProfileManager>(); }
     }
   }
 

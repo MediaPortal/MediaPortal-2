@@ -24,7 +24,6 @@
 
 using System;
 using System.Collections.Generic;
-using HttpServer.Exceptions;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
 using MediaPortal.Plugins.MediaServer.DLNA;
@@ -68,14 +67,14 @@ namespace MediaPortal.Plugins.MediaServer.ResourceAccess
         {
           if (_streamItems.ContainsKey(client.ClientId) == false)
           {
-            throw new BadRequestException(string.Format("Illegal request syntax. Correct syntax is '{0}'", DlnaResourceAccessUtils.SYNTAX));
+            throw new InvalidOperationException(string.Format("Illegal request syntax. Correct syntax is '{0}'", DlnaResourceAccessUtils.SYNTAX));
           }
           else
           {
             mediaItemGuid = _streamItems[client.ClientId].RequestedMediaItem;
             if (mediaItemGuid == Guid.Empty)
             {
-              throw new BadRequestException(string.Format("Illegal request syntax. Correct syntax is '{0}'", DlnaResourceAccessUtils.SYNTAX));
+              throw new InvalidOperationException(string.Format("Illegal request syntax. Correct syntax is '{0}'", DlnaResourceAccessUtils.SYNTAX));
             }
             Logger.Debug("StreamControl: Attempting to reload last mediaitem {0}", mediaItemGuid.ToString());
           }
@@ -87,7 +86,7 @@ namespace MediaPortal.Plugins.MediaServer.ResourceAccess
         // Attempt to grab the media item from the database.
         MediaItem item = MediaLibraryHelper.GetMediaItem(mediaItemGuid);
         if (item == null)
-          throw new BadRequestException(string.Format("Media item '{0}' not found.", mediaItemGuid));
+          throw new Exception(string.Format("Media item '{0}' not found.", mediaItemGuid));
 
         dlnaItem = client.GetDlnaItem(item, false);
       }
@@ -97,7 +96,7 @@ namespace MediaPortal.Plugins.MediaServer.ResourceAccess
       }
 
       if (dlnaItem == null)
-        throw new BadRequestException(string.Format("DLNA media item '{0}' not found.", mediaItemGuid));
+        throw new Exception(string.Format("DLNA media item '{0}' not found.", mediaItemGuid));
 
       if (channel > 0)
       {
@@ -164,11 +163,11 @@ namespace MediaPortal.Plugins.MediaServer.ResourceAccess
           _streamItems[client.ClientId].TranscoderObject.StartStreaming();
           if (_streamItems[client.ClientId].IsLive == true)
           {
-            _streamItems[client.ClientId].StreamContext = MediaConverter.GetLiveStream(client.ClientId.ToString(), _streamItems[client.ClientId].TranscoderObject.TranscodingParameter, _streamItems[client.ClientId].LiveChannelId, true);
+            _streamItems[client.ClientId].StreamContext = MediaConverter.GetLiveStreamAsync(client.ClientId.ToString(), _streamItems[client.ClientId].TranscoderObject.TranscodingParameter, _streamItems[client.ClientId].LiveChannelId, true).Result;
           }
           else
           {
-            _streamItems[client.ClientId].StreamContext = MediaConverter.GetMediaStream(client.ClientId.ToString(), _streamItems[client.ClientId].TranscoderObject.TranscodingParameter, startTime, lengthTime, true);
+            _streamItems[client.ClientId].StreamContext = MediaConverter.GetMediaStreamAsync(client.ClientId.ToString(), _streamItems[client.ClientId].TranscoderObject.TranscodingParameter, startTime, lengthTime, true).Result;
           }
           _streamItems[client.ClientId].StreamContext.InUse = true;
           _streamItems[client.ClientId].IsActive = true;

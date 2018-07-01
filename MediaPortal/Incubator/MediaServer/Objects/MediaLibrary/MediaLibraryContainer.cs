@@ -59,7 +59,7 @@ namespace MediaPortal.Plugins.MediaServer.Objects.MediaLibrary
       Item = item;
     }
 
-    public IList<MediaItem> GetItems()
+    public virtual IList<MediaItem> GetItems()
     {
       IMediaLibrary library = ServiceRegistration.Get<IMediaLibrary>();
       //TODO: Check if this is correct handling of missing filter

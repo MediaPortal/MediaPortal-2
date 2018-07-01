@@ -136,7 +136,7 @@ namespace MediaPortal.Plugins.MediaServer.ResourceAccess
         if (string.IsNullOrEmpty(client.Profile.MediaTranscoding.SubtitleSettings.SubtitlesSupported[0].Mime) == false)
           targetMime = client.Profile.MediaTranscoding.SubtitleSettings.SubtitlesSupported[0].Mime;
         else
-          targetMime = Subtitles.GetSubtitleMime(targetCodec);
+          targetMime = SubtitleHelper.GetSubtitleMime(targetCodec);
         return true;
       }
       return false;
@@ -189,12 +189,12 @@ namespace MediaPortal.Plugins.MediaServer.ResourceAccess
       if (dlnaItem.IsTranscoded && dlnaItem.IsVideo)
       {
         VideoTranscoding video = (VideoTranscoding)dlnaItem.TranscodingParameter;
-        if (Subtitles.IsSubtitleAvailable(video)) return true;
+        return video.PreferredSourceSubtitles.Count > 0;
       }
       else if (dlnaItem.IsVideo)
       {
-        VideoTranscoding subtitle = (VideoTranscoding)dlnaItem.SubtitleTranscodingParameter;
-        if (Subtitles.IsSubtitleAvailable(subtitle)) return true;
+        VideoTranscoding subtitleVideo = (VideoTranscoding)dlnaItem.SubtitleTranscodingParameter;
+        return subtitleVideo.PreferredSourceSubtitles.Count > 0;
       }
       return false;
     }
@@ -276,7 +276,7 @@ namespace MediaPortal.Plugins.MediaServer.ResourceAccess
     public static string GetBaseResourceURL()
     {
       var rs = ServiceRegistration.Get<IResourceServer>();
-      return "http://" + NetworkUtils.IPAddrToString(GetLocalIp()) + ":" + rs.GetPortForIP(GetLocalIp());
+      return rs.GetServiceUrl(GetLocalIp());
     }
   }
 }

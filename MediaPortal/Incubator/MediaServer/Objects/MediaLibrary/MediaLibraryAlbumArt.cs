@@ -47,7 +47,7 @@ namespace MediaPortal.Plugins.MediaServer.Objects.MediaLibrary
 
       string profileId = "JPEG_TN";
       string mimeType = "image/jpeg";
-      DlnaProfiles.FindCompatibleProfile(Client, DlnaProfiles.ResolveImageProfile(ImageContainer.Jpeg, Client.Profile.Settings.Thumbnails.MaxWidth, Client.Profile.Settings.Thumbnails.MaxHeight),
+      DlnaProfiles.TryFindCompatibleProfile(Client, DlnaProfiles.ResolveImageProfile(ImageContainer.Jpeg, Client.Profile.Settings.Thumbnails.MaxWidth, Client.Profile.Settings.Thumbnails.MaxHeight),
         ref profileId, ref mimeType);
 
       ProfileId = profileId;

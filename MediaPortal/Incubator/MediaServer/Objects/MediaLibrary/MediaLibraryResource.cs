@@ -80,7 +80,7 @@ namespace MediaPortal.Plugins.MediaServer.Objects.MediaLibrary
             NumberOfAudioChannels = Convert.ToUInt32(dlnaItem.DlnaMetadata.Audio[0].Channels);
         }
         if(dlnaItem.DlnaMetadata.Metadata.Duration > 0)
-          Duration = TimeSpan.FromSeconds(dlnaItem.DlnaMetadata.Metadata.Duration).ToString(@"hh\:mm\:ss\.fff");
+          Duration = TimeSpan.FromSeconds(dlnaItem.DlnaMetadata.Metadata.Duration.Value).ToString(@"hh\:mm\:ss\.fff");
       }
       if(dlnaItem.IsVideo == true)
       {

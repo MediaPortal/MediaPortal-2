@@ -29,7 +29,6 @@ using MediaPortal.Plugins.MediaServer.Profiles;
 using MediaPortal.Plugins.SlimTv.Interfaces;
 using MediaPortal.Plugins.SlimTv.Interfaces.Items;
 using MediaPortal.Common.Localization;
-using MediaPortal.Utilities;
 
 namespace MediaPortal.Plugins.MediaServer.Objects.MediaLibrary
 {
@@ -44,11 +43,12 @@ namespace MediaPortal.Plugins.MediaServer.Objects.MediaLibrary
     {
       if (ServiceRegistration.IsRegistered<ITvProvider>())
       {
-        IChannelAndGroupInfo channelAndGroupInfo = ServiceRegistration.Get<ITvProvider>() as IChannelAndGroupInfo;
+        IChannelAndGroupInfoAsync channelAndGroupInfo = ServiceRegistration.Get<ITvProvider>() as IChannelAndGroupInfoAsync;
 
         IList<IChannelGroup> channelGroups = new List<IChannelGroup>();
-        channelAndGroupInfo.GetChannelGroups(out channelGroups);
-        return channelGroups;
+        var result = channelAndGroupInfo.GetChannelGroupsAsync().Result;
+        if(result.Success)
+          return result.Result;
       }
       return null;
     }

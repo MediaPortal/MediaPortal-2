@@ -312,7 +312,7 @@ namespace MediaPortal.Plugins.MediaServer
       int totalMatches = 0;
       int containterUpdateId;
 
-      EndPointSettings deviceClient = ProfileManager.DetectProfile(context.Request.Headers);
+      EndPointSettings deviceClient = ProfileManager.DetectProfileAsync(context.Request).Result;
 
       if (deviceClient == null || deviceClient.Profile == null)
       {
@@ -447,7 +447,7 @@ namespace MediaPortal.Plugins.MediaServer
       int numberReturned = 0;
       int totalMatches = 0;
 
-      EndPointSettings deviceClient = ProfileManager.DetectProfile(context.Request.Headers);
+      EndPointSettings deviceClient = ProfileManager.DetectProfileAsync(context.Request).Result;
 
       if (deviceClient == null || deviceClient.Profile == null)
       {
