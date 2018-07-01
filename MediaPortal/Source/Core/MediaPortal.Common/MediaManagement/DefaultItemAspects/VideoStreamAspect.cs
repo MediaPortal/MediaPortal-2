@@ -159,5 +159,166 @@ namespace MediaPortal.Common.MediaManagement.DefaultItemAspects
             ATTR_RESOURCE_INDEX
         }
         );
+
+    public static string GetVideoType(string stereoscopicMode, string stereoscopicType, double? videoHeight, double? videoWidth)
+    {
+      if (!string.IsNullOrWhiteSpace(stereoscopicMode) && !string.IsNullOrWhiteSpace(stereoscopicType))
+      {
+        if (stereoscopicMode.StartsWith("H", StringComparison.InvariantCultureIgnoreCase))
+        {
+          if (stereoscopicType.EndsWith("SBS", StringComparison.InvariantCultureIgnoreCase))
+          {
+            stereoscopicType = TYPE_HSBS;
+          }
+          else if (stereoscopicType.EndsWith("TAB", StringComparison.InvariantCultureIgnoreCase))
+          {
+            stereoscopicType = TYPE_HTAB;
+          }
+          else if (stereoscopicType.EndsWith("OU", StringComparison.InvariantCultureIgnoreCase))
+          {
+            stereoscopicType = TYPE_HTAB;
+          }
+        }
+        else
+        {
+          if (stereoscopicType.EndsWith("SBS", StringComparison.InvariantCultureIgnoreCase))
+          {
+            stereoscopicType = TYPE_SBS;
+          }
+          else if (stereoscopicType.EndsWith("TAB", StringComparison.InvariantCultureIgnoreCase))
+          {
+            stereoscopicType = TYPE_TAB;
+          }
+          else if (stereoscopicType.EndsWith("OU", StringComparison.InvariantCultureIgnoreCase))
+          {
+            stereoscopicType = TYPE_TAB;
+          }
+        }
+      }
+      else if (!string.IsNullOrWhiteSpace(stereoscopicType))
+      {
+        if (stereoscopicType.StartsWith("H", StringComparison.InvariantCultureIgnoreCase))
+        {
+          if (stereoscopicType.EndsWith("SBS", StringComparison.InvariantCultureIgnoreCase))
+          {
+            stereoscopicType = TYPE_HSBS;
+          }
+          else if (stereoscopicType.EndsWith("TAB", StringComparison.InvariantCultureIgnoreCase))
+          {
+            stereoscopicType = TYPE_HTAB;
+          }
+          else if (stereoscopicType.EndsWith("OU", StringComparison.InvariantCultureIgnoreCase))
+          {
+            stereoscopicType = TYPE_HTAB;
+          }
+        }
+        else
+        {
+          if (stereoscopicType.EndsWith("SBS", StringComparison.InvariantCultureIgnoreCase))
+          {
+            stereoscopicType = TYPE_SBS;
+          }
+          else if (stereoscopicType.EndsWith("TAB", StringComparison.InvariantCultureIgnoreCase))
+          {
+            stereoscopicType = TYPE_TAB;
+          }
+          else if (stereoscopicType.EndsWith("OU", StringComparison.InvariantCultureIgnoreCase))
+          {
+            stereoscopicType = TYPE_TAB;
+          }
+        }
+      }
+      if (!string.IsNullOrWhiteSpace(stereoscopicType))
+      {
+        if (stereoscopicType.EndsWith("MVC", StringComparison.InvariantCultureIgnoreCase))
+        {
+          stereoscopicType = TYPE_MVC;
+        }
+        else if (stereoscopicType.EndsWith("ANAGLYPH", StringComparison.InvariantCultureIgnoreCase))
+        {
+          stereoscopicType = TYPE_ANAGLYPH;
+        }
+      }
+
+      int full3DTABMinHeight = 720 * 2;
+      int full3DSBSMinWidth = 1280 * 2;
+      string videoType = null;
+      if (videoHeight.HasValue && videoWidth.HasValue)
+      {
+        if ((videoWidth / videoHeight >= 2.5) && (videoWidth >= full3DSBSMinWidth)) // we have Full HD SBS 
+        {
+          videoType = TYPE_SBS;
+          videoWidth = videoWidth / 2;
+        }
+        else if ((videoWidth / videoHeight <= 1.5) && (videoHeight >= full3DTABMinHeight)) // we have Full HD TAB
+        {
+          videoType = TYPE_TAB;
+          videoHeight = videoHeight / 2;
+        }
+        else if (stereoscopicType == TYPE_SBS || stereoscopicType == TYPE_HSBS)
+        {
+          //Cannot be full SBS because of resolution
+          videoType = TYPE_HSBS;
+          videoWidth = videoWidth / 2;
+        }
+        else if (stereoscopicType == TYPE_TAB || stereoscopicType == TYPE_HTAB)
+        {
+          //Cannot be full TAB because of resolution
+          videoType = TYPE_HTAB;
+          videoHeight = videoHeight / 2;
+        }
+        else if (!string.IsNullOrWhiteSpace(stereoscopicType))
+        {
+          videoType = stereoscopicType;
+        }
+        else if (videoWidth > 3800 && videoHeight > 1500)
+        {
+          videoType = TYPE_UHD;
+        }
+        else if (videoWidth > 1250 && videoHeight > 500)
+        {
+          videoType = TYPE_HD;
+        }
+        else
+        {
+          videoType = TYPE_SD;
+        }
+      }
+      else if (!string.IsNullOrWhiteSpace(stereoscopicType))
+      {
+        videoType = stereoscopicType;
+      }
+      else if (videoWidth.HasValue)
+      {
+        if (videoWidth > 3800)
+        {
+          videoType = TYPE_UHD;
+        }
+        else if (videoWidth > 1250)
+        {
+          videoType = TYPE_HD;
+        }
+        else
+        {
+          videoType = TYPE_SD;
+        }
+      }
+      else if (videoHeight.HasValue)
+      {
+        if (videoHeight > 1570)
+        {
+          videoType = TYPE_UHD;
+        }
+        else if (videoHeight > 580)
+        {
+          videoType = TYPE_HD;
+        }
+        else
+        {
+          videoType = TYPE_SD;
+        }
+      }
+      return videoType;
+    }
   }
 }

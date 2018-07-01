@@ -23,7 +23,6 @@
 #endregion
 
 using MediaPortal.Common;
-using MediaPortal.Common.Genres;
 using MediaPortal.Common.Localization;
 using MediaPortal.Common.Settings;
 using System.Text.RegularExpressions;

@@ -21,8 +21,8 @@
 */
 
 #endregion
+
 using MediaPortal.Common.General;
-using MediaPortal.UiComponents.Weather.Grabbers;
 
 namespace MediaPortal.UiComponents.Weather
 {

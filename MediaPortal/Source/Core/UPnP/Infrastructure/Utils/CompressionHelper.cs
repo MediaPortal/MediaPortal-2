@@ -30,6 +30,7 @@ using System.IO;
 using System.IO.Compression;
 using System.Net;
 using System.Linq;
+using System.Threading.Tasks;
 using Microsoft.Owin;
 
 namespace UPnP.Infrastructure.Utils
@@ -143,7 +144,7 @@ namespace UPnP.Infrastructure.Utils
     /// <param name="acceptEncoding">The Request's accepted encodings.</param>
     /// <param name="response">Response to be written.</param>
     /// <param name="inputStream">The input stream the will be written into the Response.</param>
-    public static void WriteCompressedStream(string acceptEncoding, IOwinResponse response, MemoryStream inputStream)
+    public static async Task WriteCompressedStream(string acceptEncoding, IOwinResponse response, MemoryStream inputStream)
     {
       IDeCompressor compressor = CheckSupportedCompression(acceptEncoding);
 
@@ -154,7 +155,7 @@ namespace UPnP.Infrastructure.Utils
 #endif
         buffer = inputStream.ToArray();
         response.ContentLength = buffer.Length;
-        response.Body.Write(buffer, 0, buffer.Length);
+        await response.Body.WriteAsync(buffer, 0, buffer.Length);
         return;
 #if !DISABLE_COMPRESSION
       }
@@ -169,7 +170,7 @@ namespace UPnP.Infrastructure.Utils
         response.Headers["Vary"] = "Accept-Encoding";
 
       response.ContentLength = buffer.Length;
-      response.Body.Write(buffer, 0, buffer.Length);
+      await response.Body.WriteAsync(buffer, 0, buffer.Length);
     }
   }
 

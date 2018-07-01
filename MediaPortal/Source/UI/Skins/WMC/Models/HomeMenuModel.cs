@@ -38,6 +38,7 @@ using MediaPortal.UiComponents.Media.Models;
 using MediaPortal.UiComponents.Media.Settings;
 using MediaPortal.UiComponents.SkinBase.General;
 using MediaPortal.UiComponents.SkinBase.Models;
+using MediaPortal.UiComponents.WMCSkin.Messaging;
 using MediaPortal.Utilities;
 using MediaPortal.Utilities.Events;
 using System;
@@ -75,6 +76,7 @@ namespace MediaPortal.UiComponents.WMCSkin.Models
     protected HomeMenuActionProxy _homeProxy;
     protected bool _updatingMenu;
     protected bool _attachedToMenuItems;
+    protected bool _hasRestoredFocus = false;
     protected NavigationList<ListItem> _navigationList;
     protected ItemsList _mainItems;
     protected ItemsList _subItems;
@@ -99,12 +101,25 @@ namespace MediaPortal.UiComponents.WMCSkin.Models
       _mainItems = new ItemsList();
       _subItems = new ItemsList();
       _delayedMenuUpdateEvent = new DelayedEvent(200); // Update menu items only if no more requests are following after 200 ms
-      _delayedMenuUpdateEvent.OnEventHandler += OnUpdateMenu;
       _delayedAnimationEnableEvent = new DelayedEvent(200);
+      SubscribeToMessages();
+
+      Attach();
+    }
+
+    private void Attach()
+    {
+      _delayedMenuUpdateEvent.OnEventHandler += OnUpdateMenu;
       _delayedAnimationEnableEvent.OnEventHandler += OnEnableAnimations;
       _navigationList.OnCurrentChanged += OnNavigationListCurrentChanged;
       _currentSubItemIndexProperty.Attach(OnCurrentSubItemIndexChanged);
-      SubscribeToMessages();
+      CurrentSubItemProperty.Attach(OnCurrentSubItemChanged);
+    }
+
+    private void OnCurrentSubItemChanged(AbstractProperty property, object oldValue)
+    {
+      //Notify listeners that the current item has changed
+      HomeMenuMessaging.SendCurrentItemChangeMessage(CurrentSubItem);
     }
 
     #endregion
@@ -133,7 +148,9 @@ namespace MediaPortal.UiComponents.WMCSkin.Models
       if (message.ChannelName == WorkflowManagerMessaging.CHANNEL)
       {
         WorkflowManagerMessaging.MessageType messageType = (WorkflowManagerMessaging.MessageType)message.MessageType;
-        if (messageType == WorkflowManagerMessaging.MessageType.NavigationComplete)
+        if (messageType == WorkflowManagerMessaging.MessageType.StatePushed)
+          _hasRestoredFocus = false;
+        else if (messageType == WorkflowManagerMessaging.MessageType.NavigationComplete)
         {
           var context = ServiceRegistration.Get<IWorkflowManager>().CurrentNavigationContext;
           if (context != null && context.WorkflowState.StateId == HOME_STATE_ID)
@@ -217,6 +234,22 @@ namespace MediaPortal.UiComponents.WMCSkin.Models
     #endregion
 
     #region Public Methods
+
+    /// <summary>
+    /// Sets the focus on the currently selected sub-item.
+    /// </summary>
+    public void SetFocus()
+    {
+      ListItem selectedItem;
+      lock (_homeMenuSyncObj)
+        selectedItem = _subItems.FirstOrDefault(i => i.Selected);
+
+      if (selectedItem != null)
+      {
+        selectedItem.Selected = false;
+        selectedItem.Selected = true;
+      }
+    }
 
     public void MoveNext()
     {
@@ -358,7 +391,7 @@ namespace MediaPortal.UiComponents.WMCSkin.Models
 
     private void OnCurrentSubItemIndexChanged(AbstractProperty property, object oldValue)
     {
-      if (_updatingMenu)
+      if (_updatingMenu || !_hasRestoredFocus)
         return;
 
       int newIndex = CurrentSubItemIndex;
@@ -546,6 +579,7 @@ namespace MediaPortal.UiComponents.WMCSkin.Models
         subItem.Selected = selected;
         if (selected)
         {
+          _hasRestoredFocus = true;
           CurrentSubItemIndex = index;
           CurrentSubItem = subItem;
         }

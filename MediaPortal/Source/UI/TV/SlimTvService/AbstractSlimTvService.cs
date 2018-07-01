@@ -29,9 +29,12 @@ using System.IO;
 using System.IO.Compression;
 using System.Linq;
 using System.Threading.Tasks;
+using MediaPortal.Backend.ClientCommunication;
 using MediaPortal.Backend.Database;
 using MediaPortal.Backend.MediaLibrary;
 using MediaPortal.Common;
+using MediaPortal.Common.Async;
+using MediaPortal.Common.General;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.ResourceAccess;
 using MediaPortal.Common.SystemResolver;
@@ -46,7 +49,11 @@ using IPathManager = MediaPortal.Common.PathManager.IPathManager;
 using ScheduleRecordingType = MediaPortal.Plugins.SlimTv.Interfaces.ScheduleRecordingType;
 using MediaPortal.Common.Runtime;
 using MediaPortal.Common.Messaging;
-using MediaPortal.Common.Services.ServerCommunication;
+using MediaPortal.Common.SystemCommunication;
+using MediaPortal.Common.Services.Settings;
+using MediaPortal.Plugins.SlimTv.Interfaces.Settings;
+using System.Collections.Concurrent;
+using MediaPortal.Common.Services.GenreConverter;
 
 namespace MediaPortal.Plugins.SlimTv.Service
 {
@@ -56,6 +63,7 @@ namespace MediaPortal.Plugins.SlimTv.Service
     public static readonly MediaCategory Movie = new MediaCategory("Movie", null);
 
     protected const int MAX_WAIT_MS = 10000;
+    protected const int MAX_INIT_MS = 10000;
     public const string LOCAL_USERNAME = "Local";
     public const string TVDB_NAME = "MP2TVE";
     protected DbProviderFactory _dbProviderFactory;
@@ -63,6 +71,18 @@ namespace MediaPortal.Plugins.SlimTv.Service
     protected string _providerName;
     protected string _serviceName;
     private bool _abortInit = false;
+    // Stores a list of connected MP2-Clients. If one disconnects, we can cleanup resources like stopping timeshifting for this client
+    protected List<string> _connectedClients = new List<string>();
+    protected SettingsChangeWatcher<SlimTvGenreColorSettings> _settingWatcher;
+    protected SlimTvGenreColorSettings _epgColorSettings = null;
+    protected readonly ConcurrentDictionary<EpgGenre, IEnumerable<string>> _tvGenres = new ConcurrentDictionary<EpgGenre, IEnumerable<string>>();
+    protected bool _tvGenresInited = false;
+    protected TaskCompletionSource<bool> _initComplete = new TaskCompletionSource<bool>();
+
+    private void SettingsChanged(object sender, EventArgs e)
+    {
+      _epgColorSettings = _settingWatcher.Settings;
+    }
 
     public string Name
     {
@@ -72,6 +92,11 @@ namespace MediaPortal.Plugins.SlimTv.Service
     public bool Init()
     {
       ServiceRegistration.Get<IMessageBroker>().RegisterMessageReceiver(SystemMessaging.CHANNEL, this);
+      ServiceRegistration.Get<IMessageBroker>().RegisterMessageReceiver(ClientManagerMessaging.CHANNEL, this);
+
+      _settingWatcher = new SettingsChangeWatcher<SlimTvGenreColorSettings>();
+      _settingWatcher.SettingsChanged += SettingsChanged;
+      _settingWatcher.Refresh();
       return true;
     }
 
@@ -89,18 +114,89 @@ namespace MediaPortal.Plugins.SlimTv.Service
           _abortInit = true;
         }
       }
+      if (message.ChannelName == ClientManagerMessaging.CHANNEL)
+      {
+        ClientManagerMessaging.MessageType messageType = (ClientManagerMessaging.MessageType)message.MessageType;
+        switch (messageType)
+        {
+          case ClientManagerMessaging.MessageType.ClientAttached:
+          case ClientManagerMessaging.MessageType.ClientOnline:
+            UpdateClientList();
+            break;
+          case ClientManagerMessaging.MessageType.ClientDetached:
+          case ClientManagerMessaging.MessageType.ClientOffline:
+            CheckOrphanedTimeshift();
+            break;
+        }
+      }
     }
+
+    #region Handling of client diconnections
+
+    private void CheckOrphanedTimeshift()
+    {
+      List<string> disconnectedClients;
+      if (UpdateClientList(out disconnectedClients))
+      {
+        StopTimeshiftForClients(disconnectedClients);
+      }
+    }
+
+    protected virtual void StopTimeshiftForClients(List<string> disconnectedClients)
+    {
+      foreach (string disconnectedClient in disconnectedClients)
+      {
+        string client = disconnectedClient;
+        if (IsLocal(client))
+          client = LOCAL_USERNAME;
+
+        for (int slotIndex = 0; slotIndex <= 1; slotIndex++)
+        {
+          if (StopTimeshiftAsync(client, slotIndex).Result)
+          {
+            ServiceRegistration.Get<ILogger>().Info("SlimTvService: Stopping timeshift for disconnected client '{0}' ({1})", client, slotIndex);
+          }
+        }
+      }
+    }
+
+    private void UpdateClientList()
+    {
+      List<string> disconnectedClients;
+      UpdateClientList(out disconnectedClients);
+    }
+
+    private bool UpdateClientList(out List<string> disconnectedClients)
+    {
+      IClientManager clientManager = ServiceRegistration.Get<IClientManager>();
+      ICollection<ClientConnection> clients = clientManager.ConnectedClients;
+      ICollection<string> connectedClientSystemIDs = new List<string>(clients.Count);
+      foreach (ClientConnection clientConnection in clients)
+        connectedClientSystemIDs.Add(clientConnection.Descriptor.System.Address);
+      disconnectedClients = _connectedClients.Except(connectedClientSystemIDs).ToList();
+      _connectedClients = connectedClientSystemIDs.ToList();
+      return disconnectedClients.Count > 0;
+    }
+
+    protected static bool IsLocal(string client)
+    {
+      return client == "127.0.0.1" || client == "::1";
+    }
+
+    #endregion
 
     #region Database and program data initialization
 
     private void InitAsync()
     {
       ServiceRegistration.Get<ILogger>().Info("SlimTvService: Initialising");
+      Task.Delay(MAX_INIT_MS).ContinueWith((t) => _initComplete.TrySetResult(false));
 
       ISQLDatabase database = ServiceRegistration.Get<ISQLDatabase>(false);
       if (database == null)
       {
         ServiceRegistration.Get<ILogger>().Error("SlimTvService: Database not available.");
+        _initComplete.TrySetResult(false);
         return;
       }
 
@@ -120,10 +216,14 @@ namespace MediaPortal.Plugins.SlimTv.Service
       // Register required filters
       PrepareFilterRegistrations();
 
+      // Get all current connected clients, so we can later detect disconnections
+      UpdateClientList();
+
       // Run the actual TV core thread(s)
       InitTvCore();
       if (_abortInit)
       {
+        _initComplete.TrySetResult(false);
         DeInit();
         return;
       }
@@ -132,6 +232,7 @@ namespace MediaPortal.Plugins.SlimTv.Service
       PrepareMediaSources();
 
       ServiceRegistration.Get<ILogger>().Info("SlimTvService: Initialised");
+      _initComplete.TrySetResult(true);
     }
 
     /// <summary>
@@ -174,6 +275,81 @@ namespace MediaPortal.Plugins.SlimTv.Service
       {
         ServiceRegistration.Get<ILogger>().Error("SlimTvService: Failed to extract Tuningdetails!", ex);
       }
+    }
+
+    /// <summary>
+    /// Initializes genre mapping defined in the server settings if any. Needs to be overridden by plug-ins for which the server setup 
+    /// supports genre mapping.
+    /// </summary>
+    protected virtual void InitGenreMap()
+    {
+      if (_tvGenresInited)
+        return;
+
+      _tvGenresInited = true;
+    }
+
+    /// <summary>
+    /// Returns a program with assigned EPG genre data if possible.
+    /// </summary>
+#if TVE3
+    protected virtual IProgram GetProgram(TvDatabase.Program tvProgram, bool includeRecordingStatus = false)
+#else
+    protected virtual IProgram GetProgram(Mediaportal.TV.Server.TVDatabase.Entities.Program tvProgram, bool includeRecordingStatus = false)
+#endif
+    {
+      InitGenreMap();
+
+      //Convert to IProgram
+      IProgram prog = tvProgram.ToProgram(includeRecordingStatus);
+      if (prog == null)
+        return null;
+
+      //Map genre color if possible
+      if (_tvGenres.Count > 0 && !string.IsNullOrEmpty(prog?.Genre))
+      {
+        var genre = _tvGenres.FirstOrDefault(g => g.Value.Any(e => prog.Genre.Equals(e, StringComparison.InvariantCultureIgnoreCase)));
+        if (genre.Key != EpgGenre.Unknown)
+        {
+          prog.EpgGenreId = (int)genre.Key;
+          switch (genre.Key)
+          {
+            case EpgGenre.Movie:
+              prog.EpgGenreColor = _epgColorSettings.MovieGenreColor;
+              break;
+            case EpgGenre.Series:
+              prog.EpgGenreColor = _epgColorSettings.SeriesGenreColor;
+              break;
+            case EpgGenre.Documentary:
+              prog.EpgGenreColor = _epgColorSettings.DocumentaryGenreColor;
+              break;
+            case EpgGenre.Music:
+              prog.EpgGenreColor = _epgColorSettings.MusicGenreColor;
+              break;
+            case EpgGenre.Kids:
+              prog.EpgGenreColor = _epgColorSettings.KidsGenreColor;
+              break;
+            case EpgGenre.News:
+              prog.EpgGenreColor = _epgColorSettings.NewsGenreColor;
+              break;
+            case EpgGenre.Sport:
+              prog.EpgGenreColor = _epgColorSettings.SportGenreColor;
+              break;
+            case EpgGenre.Special:
+              prog.EpgGenreColor = _epgColorSettings.SpecialGenreColor;
+              break;
+          }
+        }
+      }
+
+      //If genre is unknown and the program contains series info, mark it as a series genre
+      if (prog.EpgGenreId == (int)EpgGenre.Unknown &&
+        (!string.IsNullOrWhiteSpace(tvProgram.SeriesNum) || !string.IsNullOrWhiteSpace(tvProgram.EpisodeNum) || !string.IsNullOrWhiteSpace(tvProgram.EpisodePart)))
+      {
+        prog.EpgGenreId = (int)EpgGenre.Series;
+        prog.EpgGenreColor = _epgColorSettings.SeriesGenreColor;
+      }
+      return prog;
     }
 
 

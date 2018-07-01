@@ -22,12 +22,13 @@
 
 #endregion
 
-using MediaPortal.Common.Genres;
+using MediaPortal.Common;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Common.MediaManagement.Helpers;
 using MediaPortal.Common.MediaManagement.MLQueries;
 using MediaPortal.Common.ResourceAccess;
+using MediaPortal.Common.Services.GenreConverter;
 using MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.Extractors;
 using MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoReaders;
 using System;
@@ -123,8 +124,13 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
       AlbumInfo albumInfo = new AlbumInfo();
       if (!albumInfo.FromMetadata(extractedAspectData))
         return false;
-      
-      GenreMapper.AssignMissingMusicGenreIds(albumInfo.Genres, NfoAudioMetadataExtractor.LanguageCulture);
+
+      IGenreConverter converter = ServiceRegistration.Get<IGenreConverter>();
+      foreach (var genre in albumInfo.Genres)
+      {
+        if (!genre.Id.HasValue && converter.GetGenreId(genre.Name, GenreCategory.Music, null, out int genreId))
+          genre.Id = genreId;
+      }
       albumInfo.SetMetadata(extractedAspectData);
 
       if (!extractedAspectData.ContainsKey(ExternalIdentifierAspect.ASPECT_ID))

@@ -41,22 +41,6 @@
           <Control Style="{ThemeResource OSDContainer}" HorizontalAlignment="Stretch" DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}"
                    Margin="10,0,10,10">
             <Control.Resources>
-              <ControlTemplate x:Key="OSD_InfoArea_Template">
-
-                <Grid x:Name="PlayerGrid" Margin="5,0,5,0"
-                      HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
-                  <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="*"/>
-                  </Grid.ColumnDefinitions>
-                  <Grid.RowDefinitions>
-                    <RowDefinition Height="Auto"/>
-                    <RowDefinition Height="Auto"/>
-                    <RowDefinition Height="Auto"/>
-                    <RowDefinition Height="*"/>
-                  </Grid.RowDefinitions>
-                </Grid>
-              </ControlTemplate>
-
               <ControlTemplate x:Key="OSD_Progress_Template">
                 <DockPanel LastChildFill="true" Margin="100,10,100,10">
                   <Grid DockPanel.Dock="Center" HorizontalAlignment="Stretch">
@@ -86,13 +70,13 @@
                     <!--Label Grid.Column="1" x:Name="VideoName" Content="{Binding Path=MediaItemTitle}" Color="{ThemeResource TextColor}"
                            FontFamily="SegoeUIBold" MaxWidth="900" Margin="20,5,10,-30" Panel.ZIndex="1"
                            HorizontalAlignment="Left" VerticalAlignment="Bottom"/-->
-                    
+
                   </Grid>
                   <!-- PlayerGrid -->
                 </DockPanel>
               </ControlTemplate>
 
-        <ControlTemplate x:Key="OSD_Controls_Template">
+              <ControlTemplate x:Key="OSD_Controls_Template">
                 <DockPanel Margin="0" HorizontalAlignment="Right">
                   <Grid DockPanel.Dock="Right">
                     <Grid.ColumnDefinitions>
@@ -156,6 +140,28 @@
                   <!-- PlayerGrid -->
                 </DockPanel>
               </ControlTemplate>
+
+              <ControlTemplate x:Key="OSD_InfoArea_Template">
+                <Grid x:Name="PlayerGrid" Margin="5,0,5,0"
+                      HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+                  <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                  </Grid.ColumnDefinitions>
+                  <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                  </Grid.RowDefinitions>
+                  <Label x:Name="VideoName" Content="{Binding Path=MediaItemTitle}" Color="{ThemeResource TextColor}"
+                         FontFamily="SegoeUIBold" MaxWidth="900" Margin="20,5,10,-30" ScrollDelay="0" Scroll="Auto"
+                         HorizontalAlignment="Left" VerticalAlignment="Bottom">
+                    <Label.Width>
+                      <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}1930-{0}">
+                        <Binding Source="{Binding ElementName=PlayControlsPanel, Path=ActualWidth}"/>
+                      </MultiBinding>
+                    </Label.Width>
+                  </Label>
+                </Grid>
+              </ControlTemplate>
+
             </Control.Resources>
           </Control>
         </ControlTemplate>
@@ -3695,7 +3701,8 @@
       </Image>
       <Border VerticalAlignment="Bottom" HorizontalAlignment="Stretch" BorderThickness="0" Background="Black" Opacity="0.5" Height="37"/>
       <Label x:Name="ItemLabel" HorizontalAlignment="Center" VerticalAlignment="Bottom" Margin="5,7,5,3" Color="{ThemeResource TextColor}" Height="35"
-             TextTrimming="CharacterEllipsis" Content="{Binding SimpleTitle}" FontSize="{ThemeResource SmallerFontSize}" />
+             TextTrimming="CharacterEllipsis" FontSize="{ThemeResource SmallerFontSize}"
+             Content="{Binding Path=SimpleTitle}"/>
     </Grid>
   </ControlTemplate>
 
@@ -3860,8 +3867,8 @@
         </Image.Source>
       </Image>
       <Border VerticalAlignment="Bottom" HorizontalAlignment="Stretch" BorderThickness="0" Background="Black" Opacity="0.5" Height="37"/>
-      <Label x:Name="ItemLabel" HorizontalAlignment="Center" VerticalAlignment="Bottom" Margin="5,7,5,3" Color="{ThemeResource TextColor}" Height="35"
-             TextTrimming="CharacterEllipsis" Content="{Binding SimpleTitle}" FontSize="{ThemeResource SmallerFontSize}" />
+      <Label HorizontalAlignment="Center" VerticalAlignment="Bottom" Margin="5,7,5,3" Color="{ThemeResource TextColor}" Height="35"
+             TextTrimming="CharacterEllipsis" Content="{Binding SimpleTitle}" FontSize="{ThemeResource SmallerFontSize}"/>
     </Grid>
   </ControlTemplate>
 
@@ -4026,8 +4033,9 @@
         </Image.Source>
       </Image>
       <Border VerticalAlignment="Bottom" HorizontalAlignment="Stretch" BorderThickness="0" Background="Black" Opacity="0.5" Height="35"/>
-      <Label x:Name="ItemLabel" HorizontalAlignment="Center" VerticalAlignment="Bottom" Margin="5,7,5,3" Color="{ThemeResource TextColor}" Height="35"
-             TextTrimming="CharacterEllipsis" Content="{Binding SimpleTitle}" FontSize="{ThemeResource SmallerFontSize}" />
+
+      <Label HorizontalAlignment="Center" VerticalAlignment="Bottom" Margin="5,7,5,3" Color="{ThemeResource TextColor}" Height="35"
+             TextTrimming="CharacterEllipsis" Content="{Binding SimpleTitle}" FontSize="{ThemeResource SmallerFontSize}"/>
     </Grid>
   </ControlTemplate>
 

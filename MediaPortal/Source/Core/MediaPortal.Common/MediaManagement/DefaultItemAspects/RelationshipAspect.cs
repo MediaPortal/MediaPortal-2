@@ -32,6 +32,8 @@ namespace MediaPortal.Common.MediaManagement.DefaultItemAspects
   /// </summary>
   public static class RelationshipAspect
   {
+    private const int LINKED_SEARCH_INDEX_ID = 1;
+
     /// <summary>
     /// Media item aspect id of the relationship aspect.
     /// </summary>
@@ -47,7 +49,7 @@ namespace MediaPortal.Common.MediaManagement.DefaultItemAspects
     /// If set to <c>true</c>, this media item is playable. Used for updating parent after playback.
     /// </summary>
     public static readonly MediaItemAspectMetadata.MultipleAttributeSpecification ATTR_PLAYABLE =
-        MediaItemAspectMetadata.CreateMultipleAttributeSpecification("IsPlayable", typeof(bool), Cardinality.Inline, true);
+        MediaItemAspectMetadata.CreateMultipleAttributeSpecification("IsPlayable", typeof(bool), Cardinality.Inline, true, LINKED_SEARCH_INDEX_ID);
 
     /// <summary>
     /// The role played by the media item being linked to
@@ -59,13 +61,13 @@ namespace MediaPortal.Common.MediaManagement.DefaultItemAspects
     /// The media item being linked to
     /// </summary>
     public static readonly MediaItemAspectMetadata.MultipleAttributeSpecification ATTR_LINKED_ID =
-        MediaItemAspectMetadata.CreateMultipleAttributeSpecification("LinkedID", typeof(Guid), Cardinality.Inline, true);
+        MediaItemAspectMetadata.CreateMultipleAttributeSpecification("LinkedID", typeof(Guid), Cardinality.Inline, true, LINKED_SEARCH_INDEX_ID);
 
     /// <summary>
     /// The index of the media item being linked to
     /// </summary>
     public static readonly MediaItemAspectMetadata.MultipleAttributeSpecification ATTR_RELATIONSHIP_INDEX =
-        MediaItemAspectMetadata.CreateMultipleAttributeSpecification("RelationshipIndex", typeof(int), Cardinality.Inline, false);
+        MediaItemAspectMetadata.CreateMultipleAttributeSpecification("RelationshipIndex", typeof(int), Cardinality.Inline, false, LINKED_SEARCH_INDEX_ID);
 
     public static readonly MultipleMediaItemAspectMetadata Metadata = new MultipleMediaItemAspectMetadata(
         // TODO: Localize name

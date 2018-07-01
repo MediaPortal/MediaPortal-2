@@ -36,6 +36,15 @@ namespace MediaPortal.Common.FanArt
   public delegate Task<bool> TrySaveFanArtAsyncDelegate(string saveDirectory);
 
   /// <summary>
+  /// Delegate that tries to download an image to the specified directory.
+  /// </summary>
+  /// <typeparam name="T">The type of the image file to save.</typeparam>
+  /// <param name="saveDirectory">The directory where the image should be saved.</param>
+  /// <param name="fanArtFile">The image file to save.</param>
+  /// <returns><c>true</c> if the image was saved successfully.</returns>
+  public delegate Task<bool> TrySaveMultipleFanArtAsyncDelegate<T>(string saveDirectory, T fanArtFile);
+
+  /// <summary>
   /// Interface for storage and retrieval of fanart images for media items.
   /// </summary>
   public interface IFanArtCache
@@ -49,6 +58,18 @@ namespace MediaPortal.Common.FanArt
     /// <param name="saveDlgt"><see cref="TrySaveFanArtAsyncDelegate"/> that saves an image to the cache directory.</param>
     /// <returns><c>true</c> if the image was succesfully saved to the cache.</returns>
     Task<bool> TrySaveFanArt(Guid mediaItemId, string title, string fanArtType, TrySaveFanArtAsyncDelegate saveDlgt);
+
+    /// <summary>
+    /// Tries to save multiple fanart images to the cache using the specified <see cref="TrySaveMultipleFanArtAsyncDelegate<typeparamref name="T"/>"/>.
+    /// </summary>
+    /// <typeparam name="T">The type of the image file to save.</typeparam>
+    /// <param name="mediaItemId">The id of the media item.</param>
+    /// <param name="title">The title to use for the cache directory.</param>
+    /// <param name="fanArtType">The type of fanart.</param>
+    /// <param name="files">Collection of fanart files to save.</param>
+    /// <param name="saveDlgt"><see cref="TrySaveMultipleFanArtAsyncDelegate<typeparamref name="T"/> that saves each image file.</param>
+    /// <returns>The number of images that were succesfully saved to the cache.</returns>
+    Task<int> TrySaveFanArt<T>(Guid mediaItemId, string title, string fanArtType, ICollection<T> files, TrySaveMultipleFanArtAsyncDelegate<T> saveDlgt);
 
     /// <summary>
     /// Gets a list of paths to all fanart of the specified type for the specified media item.

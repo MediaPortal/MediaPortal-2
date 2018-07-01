@@ -24,10 +24,10 @@
 
 using MediaPortal.Common;
 using MediaPortal.Common.FanArt;
-using MediaPortal.Common.Genres;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Common.MediaManagement.Helpers;
+using MediaPortal.Common.Services.GenreConverter;
 using MediaPortal.Common.Threading;
 using MediaPortal.Extensions.OnlineLibraries.Libraries;
 using MediaPortal.Extensions.OnlineLibraries.Libraries.Common;
@@ -484,7 +484,15 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
 
           if (seriesInfo.Genres.Count > 0)
           {
-            seriesInfo.HasChanged |= GenreMapper.AssignMissingSeriesGenreIds(seriesInfo.Genres, language.ToString());
+            IGenreConverter converter = ServiceRegistration.Get<IGenreConverter>();
+            foreach (var genre in seriesInfo.Genres)
+            {
+              if (!genre.Id.HasValue && converter.GetGenreId(genre.Name, GenreCategory.Series, null, out int genreId))
+              {
+                genre.Id = genreId;
+                seriesInfo.HasChanged = true;
+              }
+            }
           }
 
           //Store person matches

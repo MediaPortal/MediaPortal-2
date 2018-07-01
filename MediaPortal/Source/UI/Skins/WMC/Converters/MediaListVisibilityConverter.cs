@@ -24,6 +24,7 @@
 
 using MediaPortal.UI.Presentation.DataObjects;
 using MediaPortal.UI.SkinEngine.Controls.Visuals;
+using MediaPortal.UI.SkinEngine.MarkupExtensions;
 using MediaPortal.UI.SkinEngine.MpfElements.Converters;
 using MediaPortal.UI.SkinEngine.Xaml;
 using System;
@@ -38,6 +39,22 @@ namespace MediaPortal.UiComponents.WMCSkin.Converters
       ItemsList mediaList = val as ItemsList;
       VisibilityEnum visibility = mediaList != null && mediaList.Count > 0 ? VisibilityEnum.Visible : VisibilityEnum.Collapsed;
       result = TypeConverter.Convert(visibility, targetType);
+      return true;
+    }
+  }
+
+  public class MultiMediaListIsVisibleConverter : IMultiValueConverter
+  {
+    public bool Convert(IDataDescriptor[] values, Type targetType, object parameter, out object result)
+    {
+      bool visible = false;
+      foreach (var value in values)
+        if (value.Value is ItemsList mediaList && mediaList != null && mediaList.Count > 0)
+        {
+          visible = true;
+          break;
+        }
+      result = TypeConverter.Convert(visible, targetType);
       return true;
     }
   }

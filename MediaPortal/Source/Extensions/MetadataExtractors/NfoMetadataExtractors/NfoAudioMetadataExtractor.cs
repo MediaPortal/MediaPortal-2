@@ -23,13 +23,13 @@
 #endregion
 
 using MediaPortal.Common;
-using MediaPortal.Common.Genres;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Common.MediaManagement.Helpers;
 using MediaPortal.Common.PluginManager;
 using MediaPortal.Common.ResourceAccess;
+using MediaPortal.Common.Services.GenreConverter;
 using MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.Extractors;
 using MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoReaders;
 using MediaPortal.Utilities.SystemAPI;
@@ -124,13 +124,11 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
 
     public static bool IncludeArtistDetails { get; private set; }
     public static bool IncludeAlbumDetails { get; private set; }
-    public static string LanguageCulture { get; private set; }
 
     protected override void LoadSettings()
     {
       IncludeArtistDetails = _settingWatcher.Settings.IncludeArtistDetails;
       IncludeAlbumDetails = _settingWatcher.Settings.IncludeAlbumDetails;
-      LanguageCulture = _settingWatcher.Settings.LanguageCulture;
     }
 
     #endregion
@@ -270,7 +268,12 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
                     if (album.Genres != null && album.Genres.Count > 0)
                     {
                       trackInfo.Genres = album.Genres.Select(s => new GenreInfo { Name = s.Trim() }).ToList();
-                        GenreMapper.AssignMissingMusicGenreIds(trackInfo.Genres, _settings.LanguageCulture);
+                      IGenreConverter converter = ServiceRegistration.Get<IGenreConverter>();
+                      foreach (var genre in trackInfo.Genres)
+                      {
+                        if (!genre.Id.HasValue && converter.GetGenreId(genre.Name, GenreCategory.Music, null, out int genreId))
+                          genre.Id = genreId;
+                      }
                     }
 
                     if (album.Thumb != null && album.Thumb.Length > 0)

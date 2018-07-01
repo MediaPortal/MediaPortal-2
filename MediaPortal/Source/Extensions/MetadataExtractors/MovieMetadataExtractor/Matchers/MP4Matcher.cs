@@ -28,10 +28,10 @@ using System.Linq;
 using MediaPortal.Common.MediaManagement.Helpers;
 using MediaPortal.Common.ResourceAccess;
 using MediaPortal.Utilities;
-using MediaPortal.Extensions.OnlineLibraries;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Common.MediaManagement;
-using MediaPortal.Common.Genres;
+using MediaPortal.Common.Services.GenreConverter;
+using MediaPortal.Common;
 
 namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor.Matchers
 {
@@ -59,7 +59,12 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor.Match
         if (!ReferenceEquals(tag.Genres, null) && tag.Genres.Length > 0)
         {
           List<GenreInfo> genreList = tag.Genres.Select(s => new GenreInfo { Name = s }).ToList();
-          GenreMapper.AssignMissingMovieGenreIds(genreList);
+          IGenreConverter converter = ServiceRegistration.Get<IGenreConverter>();
+          foreach (var genre in genreList)
+          {
+            if (!genre.Id.HasValue && converter.GetGenreId(genre.Name, GenreCategory.Movie, null, out int genreId))
+              genre.Id = genreId;
+          }
           movieInfo.HasChanged |= MetadataUpdater.SetOrUpdateList(movieInfo.Genres, genreList, movieInfo.Genres.Count == 0);
         }
 

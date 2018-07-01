@@ -314,7 +314,7 @@ namespace MediaPortal.Common.Services.MediaManagement
         controller.Dispose();
 
       //Set updated media items to changed
-      _mediaBrowsing.MarkUpdatableMediaItems();
+      _mediaBrowsing?.MarkUpdatableMediaItems();
 
       var importJobController = new ImportJobController(new ImportJobNewGen(importJobInformation, null), Interlocked.Increment(ref _numberOfLastImportJob), this);
       _importJobControllers[importJobInformation] = importJobController;

@@ -23,13 +23,12 @@
 #endregion
 
 using MediaPortal.Common;
-using MediaPortal.Common.Genres;
-using MediaPortal.Common.Logging;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Common.MediaManagement.Helpers;
 using MediaPortal.Common.MediaManagement.MLQueries;
 using MediaPortal.Common.ResourceAccess;
+using MediaPortal.Common.Services.GenreConverter;
 using MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.Extractors;
 using MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoReaders;
 using MediaPortal.Utilities.Collections;
@@ -125,7 +124,12 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
       if (!seriesInfo.FromMetadata(extractedAspectData))
         return false;
 
-      GenreMapper.AssignMissingSeriesGenreIds(seriesInfo.Genres, NfoSeriesMetadataExtractor.LanguageCulture);
+      IGenreConverter converter = ServiceRegistration.Get<IGenreConverter>();
+      foreach (var genre in seriesInfo.Genres)
+      {
+        if (!genre.Id.HasValue && converter.GetGenreId(genre.Name, GenreCategory.Series, null, out int genreId))
+          genre.Id = genreId;
+      }
       seriesInfo.SetMetadata(extractedAspectData);
       if (!extractedAspectData.ContainsKey(ExternalIdentifierAspect.ASPECT_ID))
         return false;

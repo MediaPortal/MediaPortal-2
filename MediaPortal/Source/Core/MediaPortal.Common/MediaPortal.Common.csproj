@@ -57,19 +57,21 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ApplicationCore.cs" />
+    <Compile Include="Async\AsyncResult.cs" />
+    <Compile Include="Async\SynchronizationContextRemover.cs" />
     <Compile Include="Commands\AsyncMethodDelegateCommand.cs" />
     <Compile Include="Certifications\CertificationMapper.cs" />
     <Compile Include="Certifications\CetificationMapping.cs" />
+    <Compile Include="Configuration\ConfigColoredItemList.cs" />
+    <Compile Include="Configuration\ConfigurationClasses\SingleSelectionColoredList.cs" />
     <Compile Include="Exceptions\LauncherExceptionHandling.cs" />
+    <Compile Include="FanArt\BaseFanArtHandler.cs" />
     <Compile Include="FanArt\FanArtCache.cs" />
     <Compile Include="FanArt\FanArtConstants.cs" />
+    <Compile Include="FanArt\FanArtPathCollection.cs" />
     <Compile Include="FanArt\FanArtSettings.cs" />
+    <Compile Include="FanArt\LocalFanartHelper.cs" />
     <Compile Include="FanArt\IFanArtCache.cs" />
-    <Compile Include="Genres\GenreMapper.cs" />
-    <Compile Include="Genres\SeriesGenre.cs" />
-    <Compile Include="Genres\MovieGenre.cs" />
-    <Compile Include="Genres\MusicGenre.cs" />
-    <Compile Include="Genres\GenreStringManager.cs" />
     <Compile Include="Logging\ILoggerConfig.cs" />
     <Compile Include="MediaManagement\DefaultItemAspects\StubAspect.cs" />
     <Compile Include="MediaManagement\DefaultItemAspects\GenreAspect.cs" />
@@ -85,7 +87,6 @@
     <Compile Include="MediaManagement\DefaultItemAspects\SubtitleAspect.cs" />
     <Compile Include="MediaManagement\DefaultItemAspects\VideoStreamAspect.cs" />
     <Compile Include="MediaManagement\DefaultItemAspects\VideoAudioStreamAspect.cs" />
-    <Compile Include="Genres\GenreMapping.cs" />
     <Compile Include="MediaManagement\Helpers\GenreInfo.cs" />
     <Compile Include="MediaManagement\Helpers\BaseInfo.cs" />
     <Compile Include="MediaManagement\Helpers\HelperExtensionMethods.cs" />
@@ -116,7 +117,6 @@
     <Compile Include="MediaManagement\MLQueries\RelationshipFilter.cs" />
     <Compile Include="MediaManagement\MLQueries\IUserDataFilter.cs" />
     <Compile Include="MediaManagement\MLQueries\RelationalUserDataFilter.cs" />
-    <Compile Include="Genres\GenreSettings.cs" />
     <Compile Include="MediaManagement\RelationshipExtractorMetadata.cs" />
     <Compile Include="MediaManagement\RelationshipExtractorUtils.cs" />
     <Compile Include="MediaManagement\RelationshipType.cs" />
@@ -142,6 +142,13 @@
     <Compile Include="Services\Dokan\Native\WIN32_FIND_DATA.cs" />
     <Compile Include="Services\Dokan\Native\WIN32_FIND_STREAM_DATA.cs" />
     <Compile Include="Services\Dokan\NTStatus.cs" />
+    <Compile Include="Services\GenreConverter\IGenreProvider.cs" />
+    <Compile Include="Services\GenreConverter\GenreProviderBuilder.cs" />
+    <Compile Include="Services\GenreConverter\IGenreConverter.cs" />
+    <Compile Include="Services\GenreConverter\GenreConverter.cs" />
+    <Compile Include="Services\GenreConverter\AudioGenre.cs" />
+    <Compile Include="Services\GenreConverter\EpgGenre.cs" />
+    <Compile Include="Services\GenreConverter\VideoGenre.cs" />
     <Compile Include="Services\Logging\LoggerConfig.cs" />
     <Compile Include="Services\Logging\LogSettings.cs" />
     <Compile Include="Services\MediaManagement\ImportDataflowBlocks\AsyncManualResetEvent.cs" />
@@ -182,7 +189,7 @@
     <Compile Include="Services\ResourceAccess\RawUrlResourceProvider\RawUrlResourceProvider.cs" />
     <Compile Include="Services\ResourceAccess\RawUrlResourceProvider\RawUrlResourceAccessor.cs" />
     <Compile Include="Services\Runtime\PowerEventHandler.cs" />
-    <Compile Include="Services\ServerCommunication\AsyncExtensions.cs" />
+    <Compile Include="Async\AsyncExtensions.cs" />
     <Compile Include="Services\ServerCommunication\UPnPServerWatcher.cs" />
     <Compile Include="Services\Settings\SettingsChangeWatcher.cs" />
     <Compile Include="Services\Settings\SettingsManagerMessaging.cs" />
@@ -502,9 +509,6 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Genres\Language\strings_en.xml">
-      <SubType>Designer</SubType>
-    </Content>
     <Content Include="References\log4net.dll" />
   </ItemGroup>
   <ItemGroup>

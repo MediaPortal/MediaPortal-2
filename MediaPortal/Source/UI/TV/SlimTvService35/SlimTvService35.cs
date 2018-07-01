@@ -51,6 +51,8 @@ using Mediaportal.TV.Server.TVDatabase.TVBusinessLayer;
 using Mediaportal.TV.Server.TVDatabase.TVBusinessLayer.Entities;
 using Mediaportal.TV.Server.TVLibrary;
 using Mediaportal.TV.Server.TVLibrary.Interfaces.Integration;
+using Mediaportal.TV.Server.TVService.Interfaces;
+using Mediaportal.TV.Server.TVService.Interfaces.CardHandler;
 using Mediaportal.TV.Server.TVService.Interfaces.Enums;
 using CamType = Mediaportal.TV.Server.TVLibrary.Interfaces.CamType;
 using Card = Mediaportal.TV.Server.TVDatabase.Entities.Card;
@@ -66,6 +68,7 @@ using IUser = Mediaportal.TV.Server.TVService.Interfaces.Services.IUser;
 using VirtualCard = Mediaportal.TV.Server.TVControl.VirtualCard;
 using IVirtualCard = Mediaportal.TV.Server.TVService.Interfaces.IVirtualCard;
 using MediaPortal.Backend.ClientCommunication;
+using MediaPortal.Common.Async;
 using System.Threading.Tasks;
 using MediaPortal.Common.Services.ServerCommunication;
 
@@ -157,7 +160,7 @@ namespace MediaPortal.Plugins.SlimTv.Service
       IList<ISchedule> currentlyRecordingSchedules = recordings.ListAllActiveRecordingsByMediaType(MediaTypeEnum.TV)
         .Union(recordings.ListAllActiveRecordingsByMediaType(MediaTypeEnum.Radio))
         .Select(r => r.Schedule.ToSchedule()).ToList();
-      
+
       TvServerState state = new TvServerState
       {
         IsRecording = controller.IsAnyCardRecording(),
@@ -241,7 +244,7 @@ namespace MediaPortal.Plugins.SlimTv.Service
       IProgram programNow = null;
       IProgram programNext = null;
       IProgramService programService = GlobalServiceProvider.Instance.Get<IProgramService>();
-      var programs = programService.GetNowAndNextProgramsForChannel(channel.ChannelId).Select(p => p.ToProgram()).Distinct(ProgramComparer.Instance).ToList();
+      var programs = programService.GetNowAndNextProgramsForChannel(channel.ChannelId).Select(p => GetProgram(p)).Distinct(ProgramComparer.Instance).ToList();
       var count = programs.Count;
       if (count >= 1)
         programNow = programs[0];
@@ -255,7 +258,7 @@ namespace MediaPortal.Plugins.SlimTv.Service
     {
       IProgramService programService = GlobalServiceProvider.Instance.Get<IProgramService>();
       var programs = programService.GetProgramsByChannelAndStartEndTimes(channel.ChannelId, from, to)
-        .Select(tvProgram => tvProgram.ToProgram(true))
+        .Select(tvProgram => GetProgram(tvProgram, true))
         .Distinct(ProgramComparer.Instance)
         .ToList();
       var success = programs.Count > 0;
@@ -266,7 +269,7 @@ namespace MediaPortal.Plugins.SlimTv.Service
     {
       IProgramService programService = GlobalServiceProvider.Instance.Get<IProgramService>();
       var programs = programService.GetProgramsByTitleAndStartEndTimes(title, from, to)
-        .Select(tvProgram => tvProgram.ToProgram(true))
+        .Select(tvProgram => GetProgram(tvProgram, true))
         .Distinct(ProgramComparer.Instance)
         .ToList();
       var success = programs.Count > 0;
@@ -281,7 +284,7 @@ namespace MediaPortal.Plugins.SlimTv.Service
       var channels = channelGroupService.GetChannelGroup(channelGroup.ChannelGroupId).GroupMaps.Select(groupMap => groupMap.Channel);
       IDictionary<int, IList<Program>> programEntities = programService.GetProgramsForAllChannels(from, to, channels);
 
-      var programs = programEntities.Values.SelectMany(x => x).Select(p => p.ToProgram()).Distinct(ProgramComparer.Instance).ToList();
+      var programs = programEntities.Values.SelectMany(x => x).Select(p => GetProgram(p)).Distinct(ProgramComparer.Instance).ToList();
       var success = programs.Count > 0;
       return Task.FromResult(new AsyncResult<IList<IProgram>>(success, programs));
     }
@@ -293,7 +296,7 @@ namespace MediaPortal.Plugins.SlimTv.Service
       if (scheduleEntity == null)
         return Task.FromResult(new AsyncResult<IList<IProgram>>(false, null));
       IList<Program> programEntities = ProgramManagement.GetProgramsForSchedule(scheduleEntity);
-      programs = programEntities.Select(p => p.ToProgram()).Distinct(ProgramComparer.Instance).ToList();
+      programs = programEntities.Select(p => GetProgram(p)).Distinct(ProgramComparer.Instance).ToList();
       var success = programs.Count > 0;
       return Task.FromResult(new AsyncResult<IList<IProgram>>(success, programs));
     }
@@ -308,7 +311,7 @@ namespace MediaPortal.Plugins.SlimTv.Service
     public override bool GetProgram(int programId, out IProgram program)
     {
       IProgramService programService = GlobalServiceProvider.Instance.Get<IProgramService>();
-      program = programService.GetProgram(programId).ToProgram();
+      program = GetProgram(programService.GetProgram(programId));
       return program != null;
     }
 
@@ -339,7 +342,6 @@ namespace MediaPortal.Plugins.SlimTv.Service
         .Select(groupMap => groupMap.Channel.ToChannel())
         .ToList();
       return Task.FromResult(new AsyncResult<IList<IChannel>>(true, channels));
-
     }
 
     public override Task<AsyncResult<IList<ISchedule>>> GetSchedulesAsync()
@@ -347,7 +349,6 @@ namespace MediaPortal.Plugins.SlimTv.Service
       IScheduleService scheduleService = GlobalServiceProvider.Instance.Get<IScheduleService>();
       var schedules = scheduleService.ListAllSchedules().Select(s => s.ToSchedule()).ToList();
       return Task.FromResult(new AsyncResult<IList<ISchedule>>(true, schedules));
-
     }
 
     public override Task<AsyncResult<ISchedule>> IsCurrentlyRecordingAsync(string fileName)
@@ -607,8 +608,8 @@ namespace MediaPortal.Plugins.SlimTv.Service
     public override Task<AsyncResult<RecordingStatus>> GetRecordingStatusAsync(IProgram program)
     {
       IProgramService programService = GlobalServiceProvider.Instance.Get<IProgramService>();
-      IProgramRecordingStatus recProgram = (IProgramRecordingStatus)programService.GetProgram(program.ProgramId).ToProgram(true);
-      return Task.FromResult(new AsyncResult<RecordingStatus>(true,  recProgram.RecordingStatus));
+      IProgramRecordingStatus recProgram = (IProgramRecordingStatus)GetProgram(programService.GetProgram(program.ProgramId), true);
+      return Task.FromResult(new AsyncResult<RecordingStatus>(true, recProgram.RecordingStatus));
     }
 
     public override Task<AsyncResult<string>> GetRecordingFileOrStreamAsync(IProgram program)

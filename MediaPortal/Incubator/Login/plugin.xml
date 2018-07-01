@@ -28,6 +28,7 @@
   <Register Location="/Models">
     <Model Id="82582433-FD64-41bd-9059-7F662DBDA713" Name="LoginModel" ClassName="MediaPortal.UiComponents.Login.Models.LoginModel"/>
     <Model Id="9B20B421-DF2E-42B6-AFF2-7EB6B60B601D" Name="UserConfigModel" ClassName="MediaPortal.UiComponents.Login.Models.UserConfigModel"/>
+    <Model Id="D5CA9E6F-8639-4D2F-B94A-FEE7A69A87C4" Name="UserLoginContributorModel" ClassName="MediaPortal.UiComponents.Login.Actions.UserLoginAction"/>
   </Register>
 
   <Register Location="/Workflow/States">
@@ -103,7 +104,7 @@
         RestrictionGroup="Settings.UserProfile"
         Text="[Settings.Users.Config.AutoLoginUser]"
         HelpText="[Settings.Users.Config.AutoLoginUser.Help]"
-        ClassName="MediaPortal.UiComponents.Login.Settings.Configuration.AutoLoginUsertSetting"
+        ClassName="MediaPortal.UiComponents.Login.Settings.Configuration.AutoLoginUserSetting"
         AdditionalData="WorkflowState=D3C5EC78-F901-4851-8DB8-83CF27E80EA8,ConfAppPanel=..."/>
 
     <CustomConfigSetting

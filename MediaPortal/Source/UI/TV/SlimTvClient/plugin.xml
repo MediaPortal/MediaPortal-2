@@ -185,6 +185,12 @@
         Sort="F100"
         Redundant="true"
         Text="[SlimTvClient.Notifications]"/>
+
+    <ConfigSection
+        Id="EpgGenreColors"
+        Sort="F101"
+        Redundant="true"
+        Text="[SlimTvClient.EpgGenreColors]"/>
     
     <ConfigSetting
         Id="AutoStartTvSetting"
@@ -216,6 +222,11 @@
         Text="[SlimTvClient.EpgNumberOfHours]"
         HelpText="[SlimTvClient.EpgNumberOfHours.Help]"
         ClassName="MediaPortal.Plugins.SlimTv.Client.Settings.Configuration.EpgNumberOfHoursSetting"/>
+    <ConfigSetting
+        Id="ShowEpgGenreColorsSetting"
+        Text="[SlimTvClient.ShowEpgGenreColors]"
+        HelpText="[SlimTvClient.ShowEpgGenreColors.Help]"
+        ClassName="MediaPortal.Plugins.SlimTv.Client.Settings.Configuration.ShowEpgGenreColorsSetting"/>
     <ConfigSetting
         Id="EpgVisibleChannelInfoSetting"
         Text="[SlimTvClient.EpgVisibleChannelInfo]"
@@ -255,6 +266,50 @@
         Text="[SlimTvClient.RecordingNotificationDuration]"
         HelpText="[SlimTvClient.RecordingNotificationDuration.Help]"
         ClassName="MediaPortal.Plugins.SlimTv.Client.Settings.Configuration.RecordingNotificationDuration"/>
+  </Register>
+
+  <!--EPG Genre Colors-->
+  <Register Location="/Configuration/Settings/TV/EpgGenreColors">
+    <ConfigSetting
+        Id="EpgMovieGenreColor"
+        Text="[SlimTvClient.EpgMovieGenreColor]"
+        HelpText="[SlimTvClient.EpgMovieGenreColor.Help]"
+        ClassName="MediaPortal.Plugins.SlimTv.Client.Settings.Configuration.EpgMovieGenreColorSetting"/>
+    <ConfigSetting
+        Id="EpgSeriesGenreColor"
+        Text="[SlimTvClient.EpgSeriesGenreColor]"
+        HelpText="[SlimTvClient.EpgSeriesGenreColor.Help]"
+        ClassName="MediaPortal.Plugins.SlimTv.Client.Settings.Configuration.EpgSeriesGenreColorSetting"/>
+    <ConfigSetting
+        Id="EpgDocumentaryGenreColor"
+        Text="[SlimTvClient.EpgDocumentaryGenreColor]"
+        HelpText="[SlimTvClient.EpgDocumentaryGenreColor.Help]"
+        ClassName="MediaPortal.Plugins.SlimTv.Client.Settings.Configuration.EpgDocumentaryGenreColorSetting"/>
+    <ConfigSetting
+        Id="EpgMusicGenreColor"
+        Text="[SlimTvClient.EpgMusicGenreColor]"
+        HelpText="[SlimTvClient.EpgMusicGenreColor.Help]"
+        ClassName="MediaPortal.Plugins.SlimTv.Client.Settings.Configuration.EpgMusicGenreColorSetting"/>
+    <ConfigSetting
+        Id="EpgKidsGenreColor"
+        Text="[SlimTvClient.EpgKidsGenreColor]"
+        HelpText="[SlimTvClient.EpgKidsGenreColor.Help]"
+        ClassName="MediaPortal.Plugins.SlimTv.Client.Settings.Configuration.EpgKidsGenreColorSetting"/>
+    <ConfigSetting
+        Id="EpgNewsGenreColor"
+        Text="[SlimTvClient.EpgNewsGenreColor]"
+        HelpText="[SlimTvClient.EpgNewsGenreColor.Help]"
+        ClassName="MediaPortal.Plugins.SlimTv.Client.Settings.Configuration.EpgNewsGenreColorSetting"/>
+    <ConfigSetting
+        Id="EpgSportGenreColor"
+        Text="[SlimTvClient.EpgSportGenreColor]"
+        HelpText="[SlimTvClient.EpgSportGenreColor.Help]"
+        ClassName="MediaPortal.Plugins.SlimTv.Client.Settings.Configuration.EpgSportGenreColorSetting"/>
+    <ConfigSetting
+        Id="EpgSpecialGenreColor"
+        Text="[SlimTvClient.EpgSpecialGenreColor]"
+        HelpText="[SlimTvClient.EpgSpecialGenreColor.Help]"
+        ClassName="MediaPortal.Plugins.SlimTv.Client.Settings.Configuration.EpgSpecialGenreColorSetting"/>
   </Register>
 
 </Plugin>

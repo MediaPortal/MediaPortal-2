@@ -120,6 +120,7 @@
     <Compile Include="FilterCriteria\FilterByAlbumArtistCriterion.cs" />
     <Compile Include="FilterCriteria\FilterByAlbumCompilationCriterion.cs" />
     <Compile Include="FilterCriteria\FilterByMovieCertificationCriterion.cs" />
+    <Compile Include="FilterCriteria\FilterByGenreCriterion.cs" />
     <Compile Include="FilterCriteria\FilterBySeriesCertificationCriterion.cs" />
     <Compile Include="FilterCriteria\FilterByConductorCriterion.cs" />
     <Compile Include="FilterCriteria\FilterByCharacterCriterion.cs" />

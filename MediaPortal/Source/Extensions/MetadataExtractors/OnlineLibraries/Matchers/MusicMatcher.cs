@@ -24,11 +24,10 @@
 
 using MediaPortal.Common;
 using MediaPortal.Common.FanArt;
-using MediaPortal.Common.Genres;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Common.MediaManagement.Helpers;
-using MediaPortal.Common.PathManager;
+using MediaPortal.Common.Services.GenreConverter;
 using MediaPortal.Common.Threading;
 using MediaPortal.Extensions.OnlineLibraries.Libraries;
 using MediaPortal.Extensions.OnlineLibraries.Libraries.Common;
@@ -322,7 +321,15 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
 
           if (trackInfo.Genres.Count > 0)
           {
-            trackInfo.HasChanged |= GenreMapper.AssignMissingMusicGenreIds(trackInfo.Genres, language.ToString());
+            IGenreConverter converter = ServiceRegistration.Get<IGenreConverter>();
+            foreach (var genre in trackInfo.Genres)
+            {
+              if (!genre.Id.HasValue && converter.GetGenreId(genre.Name, GenreCategory.Music, null, out int genreId))
+              {
+                genre.Id = genreId;
+                trackInfo.HasChanged = true;
+              }
+            }
           }
 
           //Store person matches
@@ -886,15 +893,32 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
         {
           albumInfo.MergeWith(albumMatch, false, updateTrackList);
 
+          IGenreConverter converter = ServiceRegistration.Get<IGenreConverter>();
           if (albumInfo.Genres.Count > 0)
           {
-            albumInfo.HasChanged |= GenreMapper.AssignMissingMusicGenreIds(albumInfo.Genres, language.ToString());
+            foreach (var genre in albumInfo.Genres)
+            {
+              if (!genre.Id.HasValue && converter.GetGenreId(genre.Name, GenreCategory.Music, language.ToString(), out int genreId))
+              {
+                genre.Id = genreId;
+                albumInfo.HasChanged = true;
+              }
+            }
           }
 
           if (updateTrackList)
           {
             foreach (TrackInfo track in albumMatch.Tracks)
-              GenreMapper.AssignMissingMusicGenreIds(track.Genres, language.ToString());
+            {
+              foreach (var genre in track.Genres)
+              {
+                if (!genre.Id.HasValue && converter.GetGenreId(genre.Name, GenreCategory.Music, language.ToString(), out int genreId))
+                {
+                  genre.Id = genreId;
+                  albumInfo.HasChanged = true;
+                }
+              }
+            }
           }
 
           //Store person matches

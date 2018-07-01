@@ -528,6 +528,15 @@
     </DockPanel>
   </DataTemplate>
 
+  <DataTemplate x:Key="ColoredItemDataTemplate" DataType="{x:Type collections:ListItem}">
+    <DockPanel x:Name="ItemControl" LastChildFill="False" Width="120" Margin="0,0,30,0">
+      <Label x:Name="ItemLabel" DockPanel.Dock="Center" Content="{Binding [Name]}"
+             HorizontalAlignment="Stretch" VerticalAlignment="Center"
+             FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColor}"
+             Background="{Binding [Color]}"/>
+    </DockPanel>
+  </DataTemplate>
+
   <DataStringProvider x:Key="DefaultItemDataStringProvider" Path="[Name]"/>
 
   <DataTemplate x:Key="MainMenuItemDataTemplate">
@@ -992,6 +1001,21 @@
     <Setter Property="DataStringProvider" Value="{ThemeResource DefaultItemDataStringProvider}"/>
     <Setter Property="ItemContainerStyle" Value="{ThemeResource DefaultSingleMarkableItemContainerStyle}"/>
     <Setter Property="Background" Value="{ThemeResource ItemsControlShadowBackgroundColor}"/>
+  </Style>
+
+  <!-- ListView style to be used for lists where a single item can be marked -->
+  <Style x:Key="ColoredSingleMarkableListViewStyle" BasedOn="{ThemeResource ContentsMenuListViewStyle}"> 
+    <Setter Property="ItemTemplate" Value="{ThemeResource ColoredItemDataTemplate}"/>
+    <Setter Property="DataStringProvider" Value="{ThemeResource DefaultItemDataStringProvider}"/>
+    <Setter Property="ItemContainerStyle" Value="{ThemeResource DefaultSingleMarkableItemContainerStyle}"/>
+    <Setter Property="Background" Value="{ThemeResource ItemsControlShadowBackgroundColor}"/>
+    <Setter Property="ItemsPanel">
+      <Setter.Value>
+        <ItemsPanelTemplate>
+          <VirtualizingWrapPanel x:Name="ListItemsHost" IsItemsHost="True"/>
+        </ItemsPanelTemplate>
+      </Setter.Value>
+    </Setter>
   </Style>
 
   <!-- ListView style to be used for menus which display an image with a label -->
