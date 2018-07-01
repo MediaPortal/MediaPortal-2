@@ -32,12 +32,15 @@ namespace MediaPortal.Plugins.MediaServer.Settings
       PreferredSubtitleLanguages = "EN";
       DefaultSubtitleEncodings = "";
       PreferredAudioLanguages = "EN";
+      ShowUserLogin = true;
     }
 
     [Setting(SettingScope.Global)]
     public bool TranscodingAllowed { get; private set; }
     [Setting(SettingScope.Global)]
     public bool HardcodedSubtitlesAllowed { get; private set; }
+    [Setting(SettingScope.Global)]
+    public bool ShowUserLogin { get; private set; }
     [Setting(SettingScope.Global)]
     public bool UpdateWatchCount { get; private set; }
     [Setting(SettingScope.Global)]
