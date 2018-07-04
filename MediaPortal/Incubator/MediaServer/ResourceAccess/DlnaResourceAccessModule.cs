@@ -353,6 +353,7 @@ namespace MediaPortal.Plugins.MediaServer.ResourceAccess
           Logger.Warn("DlnaResourceAccessModule: Client {0} has no valid link or profile", clientIp);
           return;
         }
+
         Logger.Debug("DlnaResourceAccessModule: Using profile {0} for client {1}", deviceClient.Profile.Name, clientIp);
         GenericAccessProtocol protocolResource = GenericAccessProtocol.GetProtocolResourceHandler(deviceClient.Profile.ResourceAccessHandler);
 
@@ -391,6 +392,8 @@ namespace MediaPortal.Plugins.MediaServer.ResourceAccess
 
         if (bHandled == false)
         {
+          await deviceClient.InitializeAsync(clientIp);
+
           #region Determine media item and DLNA media item
 
           DlnaMediaItem dlnaItem = StreamControl.GetStreamMedia(deviceClient, uri);

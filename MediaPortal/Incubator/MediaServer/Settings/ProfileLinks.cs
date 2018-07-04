@@ -41,6 +41,6 @@ namespace MediaPortal.Plugins.MediaServer.Settings
     public string PreferredSubtitleLanguages { get; set; }
     public string DefaultSubtitleEncodings { get; set; }
     public string PreferredAudioLanguages { get; set; }
-    public string DefaultUserProfileId { get; set; }
+    public string DefaultUserProfile { get; set; }
     }
 }

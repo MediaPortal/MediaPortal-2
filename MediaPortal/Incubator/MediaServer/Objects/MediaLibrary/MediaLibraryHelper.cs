@@ -41,6 +41,7 @@ namespace MediaPortal.Plugins.MediaServer.Objects.MediaLibrary
     public const string CONTAINER_IMAGES_KEY = "I";
     public const string CONTAINER_MEDIA_SHARES_KEY = "M";
     public const string CONTAINER_BROADCAST_KEY = "B";
+    public const string CONTAINER_USERS_KEY = "U";
 
     public static MediaItem GetMediaItem(Guid id)
     {

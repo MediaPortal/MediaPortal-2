@@ -615,11 +615,6 @@ namespace MediaPortal.Plugins.MediaServer.Profiles
         {
           settings.Profile = Profiles[DLNA_DEFAULT_PROFILE_ID];
         }
-
-        IUserProfileDataManagement userManager = ServiceRegistration.Get<IUserProfileDataManagement>();
-        settings.ClientId = await userManager.CreateProfileAsync($"DLNA ({clientIp})", UserProfileType.ClientProfile, "");
-
-        settings.InitialiseContainerTree();
       }
       catch (Exception e)
       {
@@ -685,9 +680,9 @@ namespace MediaPortal.Plugins.MediaServer.Profiles
           {
             settings.Profile = Profiles[DLNA_DEFAULT_PROFILE_ID];
           }
-          settings.ClientId = await userManager.CreateProfileAsync($"DLNA ({ip.ToString()})", UserProfileType.ClientProfile, "");
+          //settings.ClientId = await userManager.CreateProfileAsync($"DLNA ({ip.ToString()})", UserProfileType.ClientProfile, "");
+          settings.UserId = Guid.TryParse(link.DefaultUserProfile, out Guid g) ? g : (Guid?)null;
 
-          settings.InitialiseContainerTree();
           if (settings.Profile == null)
             Logger.Info("DlnaMediaServer: IP: {0}, using profile: None", ip);
           else

@@ -859,7 +859,9 @@ namespace MediaPortal.Plugins.Transcoding.Interfaces.Profiles
           if (info.Metadata.Source != null)
             video.SourceMedia.Add(infoIndex, info.Metadata.Source);
 
-          video.SourceAudioStreams.Add(infoIndex, new List<AudioStream>() { info.Audio.First(s => s.StreamIndex == srcVideo.MatchedAudioStream) });
+          var audioStream = info.Audio.FirstOrDefault(s => s.StreamIndex == srcVideo.MatchedAudioStream);
+          if (audioStream != null)
+            video.SourceAudioStreams.Add(infoIndex, new List<AudioStream>() { audioStream });
           if (transSetup.VideoSettings.MultipleAudioTracksSupported)
           {
             video.TargetAudioMultiTrackSupport = true;

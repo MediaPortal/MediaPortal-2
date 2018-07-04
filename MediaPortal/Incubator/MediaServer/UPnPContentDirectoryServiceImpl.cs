@@ -41,6 +41,7 @@ using MediaPortal.Plugins.MediaServer.Objects.Basic;
 using MediaPortal.Plugins.MediaServer.Objects.MediaLibrary;
 using MediaPortal.Plugins.MediaServer.Parser;
 using MediaPortal.Plugins.MediaServer.Profiles;
+using System.Net;
 
 namespace MediaPortal.Plugins.MediaServer
 {
@@ -312,13 +313,18 @@ namespace MediaPortal.Plugins.MediaServer
       int totalMatches = 0;
       int containterUpdateId;
 
+      IPAddress ip = ProfileManager.ResolveIpAddress(context.Request.RemoteIpAddress);
       EndPointSettings deviceClient = ProfileManager.DetectProfileAsync(context.Request).Result;
+      deviceClient.InitializeAsync(ip.ToString()).Wait();
 
       if (deviceClient == null || deviceClient.Profile == null)
       {
         outParams = null;
         return null;
       }
+
+      //Check if user login
+      CheckUserLogin(objectId, deviceClient);
 
       GenericContentDirectoryFilter deviceFilter = GenericContentDirectoryFilter.GetContentFilter(deviceClient.Profile.DirectoryContentFilter);
       var newObjectId = deviceFilter.FilterObjectId(objectId, false);
@@ -447,7 +453,9 @@ namespace MediaPortal.Plugins.MediaServer
       int numberReturned = 0;
       int totalMatches = 0;
 
+      IPAddress ip = ProfileManager.ResolveIpAddress(context.Request.RemoteIpAddress);
       EndPointSettings deviceClient = ProfileManager.DetectProfileAsync(context.Request).Result;
+      deviceClient.InitializeAsync(ip.ToString()).Wait();
 
       if (deviceClient == null || deviceClient.Profile == null)
       {
@@ -542,6 +550,14 @@ namespace MediaPortal.Plugins.MediaServer
 
       outParams = new List<object> { 0 };
       return null;
+    }
+
+    private static void CheckUserLogin(string objectId, EndPointSettings deviceClient)
+    {
+      if (objectId.StartsWith($"{MediaLibraryHelper.CONTAINER_USERS_KEY}>"))
+      {
+        deviceClient.UserId = Guid.TryParse(objectId.Substring(MediaLibraryHelper.CONTAINER_USERS_KEY.Length + 1), out Guid g) ? g : (Guid?)null;
+      }
     }
 
     internal static ILogger Logger

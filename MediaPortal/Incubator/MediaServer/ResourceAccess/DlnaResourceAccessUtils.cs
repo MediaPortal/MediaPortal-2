@@ -239,33 +239,8 @@ namespace MediaPortal.Plugins.MediaServer.ResourceAccess
 
       if (UseSoftCodedSubtitle(client, out codec, out subMime) == true)
       {
-        subExtension = "srt";
+        subExtension = SubtitleHelper.GetSubtitleExtension(codec);
         string subType = codec.ToString();
-        switch (codec)
-        {
-          case SubtitleCodec.Ass:
-            subExtension = "ass";
-            break;
-          case SubtitleCodec.Ssa:
-            subExtension = "ssa";
-            break;
-          case SubtitleCodec.Smi:
-            subExtension = "smi";
-            break;
-          case SubtitleCodec.Srt:
-            subExtension = "srt";
-            break;
-          case SubtitleCodec.MicroDvd:
-            subExtension = "sub";
-            break;
-          case SubtitleCodec.SubView:
-            subExtension = "sub";
-            break;
-          case SubtitleCodec.WebVtt:
-            subExtension = "vtt";
-            break;
-        }
-
         return string.Format(GetBaseResourceURL()
                     + GetResourceUrl(item.MediaItemId.ToString())
                     + "?aspect=SUBTITLE&type={0}&file=subtitle.{1}", subType, subExtension);

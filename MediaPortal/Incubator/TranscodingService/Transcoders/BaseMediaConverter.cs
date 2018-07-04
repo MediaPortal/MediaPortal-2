@@ -372,6 +372,19 @@ namespace MediaPortal.Plugins.Transcoding.Service.Transcoders
       VideoContainer srcContainer = TranscodingInfo.FirstSourceVideoContainer;
       VideoStream srcVideo = TranscodingInfo.FirstSourceVideoStream;
       AudioStream srcAudio = TranscodingInfo.FirstSourceAudioStream;
+      
+      //Handle video without audio track
+      if (srcAudio == null)
+      {
+        srcAudio = new AudioStream
+        {
+          Codec = AudioCodec.Unknown,
+          Channels = 0,
+          Frequency = 0,
+          Bitrate = 0
+        };
+      }
+
       TranscodedVideoMetadata metadata = new TranscodedVideoMetadata
       {
         TargetAudioBitrate = TranscodingInfo.TargetAudioBitrate ?? srcAudio.Bitrate,
