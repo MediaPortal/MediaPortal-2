@@ -18,7 +18,8 @@ namespace Tests.Server.MediaServer
   public class TestActions
   {
     private TestMediaLibrary _library;
-    [TestFixtureSetUp]
+
+    [OneTimeSetUp]
     public void Init()
     {
       ServiceRegistration.Set<ILogger>(new ConsoleLogger(LogLevel.All, true));

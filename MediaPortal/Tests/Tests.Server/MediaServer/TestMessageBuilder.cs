@@ -101,7 +101,7 @@ namespace Tests.Server.MediaServer
   [TestFixture]
   class TestMessageBuilder
   {
-    [TestFixtureSetUp]
+    [OneTimeSetUp]
     public void OneTimeSetUp()
     {
       ServiceRegistration.Set<ILogger>(new ConsoleLogger(LogLevel.All, true));

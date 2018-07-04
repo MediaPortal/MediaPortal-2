@@ -166,11 +166,10 @@ namespace MediaPortal.Common.MediaManagement
         return providerAspects.Where(pra =>
             pra.GetAttributeValue<int>(ProviderResourceAspect.ATTR_TYPE) == ProviderResourceAspect.TYPE_PRIMARY &&
             // ... and only part sets of the selected edition
-            (!nonPartSets.Contains(pra.GetAttributeValue<int>(ProviderResourceAspect.ATTR_RESOURCE_INDEX)) &&
+            ((!nonPartSets.Contains(pra.GetAttributeValue<int>(ProviderResourceAspect.ATTR_RESOURCE_INDEX)) &&
             (selectedEdition.HasValue && pra.GetAttributeValue<int>(ProviderResourceAspect.ATTR_RESOURCE_INDEX) == selectedEdition.Value)) ||
-            // ... or only non-part sets (single file items) and one of the main media types
-            (!selectedEdition.HasValue &&
-            (_aspects.ContainsKey(AudioAspect.ASPECT_ID) || _aspects.ContainsKey(ImageAspect.ASPECT_ID) || _aspects.ContainsKey(VideoAspect.ASPECT_ID)))
+            // ... or only non-part sets (single file items)
+            (!selectedEdition.HasValue || pra.GetAttributeValue<int>(ProviderResourceAspect.ATTR_RESOURCE_INDEX) == selectedEdition.Value))
           ).ToList();
       }
     }

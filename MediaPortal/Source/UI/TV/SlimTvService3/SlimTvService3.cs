@@ -32,7 +32,6 @@ using MediaPortal.Common.Services.GenreConverter;
 using MediaPortal.Plugins.SlimTv.Interfaces;
 using MediaPortal.Plugins.SlimTv.Interfaces.Items;
 using MediaPortal.Plugins.SlimTv.Interfaces.UPnP.Items;
-using Mediaportal.TV.Server.TVLibrary.IntegrationProvider.Interfaces;
 using MediaPortal.Utilities.FileSystem;
 using TvLibrary.Interfaces.Integration;
 using IChannel = MediaPortal.Plugins.SlimTv.Interfaces.Items.IChannel;
@@ -41,7 +40,6 @@ using IPathManager = MediaPortal.Common.PathManager.IPathManager;
 using ScheduleRecordingType = MediaPortal.Plugins.SlimTv.Interfaces.ScheduleRecordingType;
 using MediaPortal.Plugins.SlimTv.Service3;
 using MediaPortal.Utilities;
-using MediaPortal.Utilities.FileSystem;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -54,7 +52,6 @@ using TvDatabase;
 using TvEngine.Events;
 using TvLibrary.Implementations.DVB;
 using TvLibrary.Interfaces;
-using TvLibrary.Interfaces.Integration;
 using TvService;
 using Card = TvDatabase.Card;
 using SlimTvCard = MediaPortal.Plugins.SlimTv.Interfaces.UPnP.Items.Card;
@@ -63,9 +60,7 @@ using SlimTvUser = MediaPortal.Plugins.SlimTv.Interfaces.UPnP.Items.User;
 using IUser = TvControl.IUser;
 using User = TvControl.User;
 using VirtualCard = TvControl.VirtualCard;
-using MediaPortal.Backend.ClientCommunication;
 using MediaPortal.Common.Services.ServerCommunication;
-using ScheduleRecordingType = MediaPortal.Plugins.SlimTv.Interfaces.ScheduleRecordingType;
 
 namespace MediaPortal.Plugins.SlimTv.Service
 {
@@ -723,7 +718,7 @@ namespace MediaPortal.Plugins.SlimTv.Service
       return false;
     }
 
-    public override async Task<AsyncResult<ISchedule>> CreateScheduleByTimeAsync(IChannel channel, DateTime from, DateTime to, ScheduleRecordingType recordingType)
+    public override Task<AsyncResult<ISchedule>> CreateScheduleByTimeAsync(IChannel channel, DateTime from, DateTime to, ScheduleRecordingType recordingType)
     {
       return CreateScheduleByTimeAsync(channel, "Manual", from, to, recordingType);
     }
@@ -739,7 +734,7 @@ namespace MediaPortal.Plugins.SlimTv.Service
       tvSchedule.Persist();
       _tvControl.OnNewSchedule();
       var schedule = tvSchedule.ToSchedule();
-      return Task.FromResult(new AsyncResult<ISchedule>(true, schedule));
+      return new AsyncResult<ISchedule>(true, schedule);
     }
 
     public override Task<AsyncResult<ISchedule>> CreateScheduleDetailedAsync(IChannel channel, string title, DateTime from, DateTime to, ScheduleRecordingType recordingType, int preRecordInterval, int postRecordInterval, string directory, int priority)
