@@ -971,12 +971,15 @@ namespace MediaPortal.Plugins.Transcoding.Service.Transcoders.FFMpeg
             data.OutputArguments.Add(string.Format("-map 0:a:{0}", audio.Key));
           }
 
-          foreach (var sub in video.PreferredSourceSubtitles.SelectMany(s => s.Value).Where(s => !s.IsPartial))
+          if (video.PreferredSourceSubtitles?.Count > 0)
           {
-            if (sub.IsEmbedded)
+            foreach (var sub in video.PreferredSourceSubtitles.SelectMany(s => s.Value).Where(s => !s.IsPartial))
             {
-              data.AddSubtitle(-1, sub.Source);
-              data.OutputArguments.Add(string.Format("-map {0}:s:{1}", data.InputResourceAccessor.Count + data.InputSubtitleFilePaths.Count - 1, sub.StreamIndex));
+              if (sub.IsEmbedded)
+              {
+                data.AddSubtitle(-1, sub.Source);
+                data.OutputArguments.Add(string.Format("-map {0}:s:{1}", data.InputResourceAccessor.Count + data.InputSubtitleFilePaths.Count - 1, sub.StreamIndex));
+              }
             }
           }
         }
@@ -1008,6 +1011,9 @@ namespace MediaPortal.Plugins.Transcoding.Service.Transcoders.FFMpeg
     {
       int mediaStreamIndex = video.FirstAudioStreamIndex;
       int inputNo = 0;
+      if (mediaStreamIndex < 0)
+        return;
+
       foreach (var audio in video.SourceAudioStreams[mediaStreamIndex])
       {
         if (audio.Codec == AudioCodec.Unknown)

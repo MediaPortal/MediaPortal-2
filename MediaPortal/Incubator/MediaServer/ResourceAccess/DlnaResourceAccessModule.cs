@@ -364,7 +364,7 @@ namespace MediaPortal.Plugins.MediaServer.ResourceAccess
         context.Response.Headers["Connection"] = "close";
 
         // Check the request path to see if it's for us.
-        if (!uri.AbsolutePath.StartsWith(DlnaResourceAccessUtils.RESOURCE_ACCESS_PATH))
+        if (!context.Request.Path.Value.StartsWith(DlnaResourceAccessUtils.RESOURCE_ACCESS_PATH))
         {
           if (protocolResource.CanHandleRequest(context.Request) == false)
             return;
@@ -908,10 +908,11 @@ namespace MediaPortal.Plugins.MediaServer.ResourceAccess
 
       context.Response.StatusCode = (int)HttpStatusCode.PartialContent;
 
-      if (item.IsLive || timeRange.Length == 0)
+      if (item.IsLive || timeRange.Length == 0 || 
+        (mediaTransferMode == TransferMode.Streaming && context.Request.Protocol == "HTTP/1.1" && client.Profile.Settings.Communication.AllowChunckedTransfer))
       {
         context.Response.Headers["TimeSeekRange.dlna.org"] = $"npt={timeRange.From}-";
-        context.Response.ContentLength = 0;
+        context.Response.ContentLength = null;
       }
       else if (duration == 0)
       {
@@ -927,11 +928,6 @@ namespace MediaPortal.Plugins.MediaServer.ResourceAccess
       {
         context.Response.Headers["X-Content-Duration"] = Convert.ToDouble(item.DlnaMetadata.Metadata.Duration).ToString("0.00", CultureInfo.InvariantCulture);
         context.Response.Headers["Content-Duration"] = Convert.ToDouble(item.DlnaMetadata.Metadata.Duration).ToString("0.00", CultureInfo.InvariantCulture);
-      }
-
-      if (mediaTransferMode == TransferMode.Streaming && context.Request.Protocol == "HTTP/1.1" && client.Profile.Settings.Communication.AllowChunckedTransfer)
-      {
-        context.Response.ContentLength = null;
       }
 
       await SendAsync(context, resourceStream, item, client, onlyHeaders, partialResource, fileRange);
@@ -977,10 +973,11 @@ namespace MediaPortal.Plugins.MediaServer.ResourceAccess
 
       context.Response.StatusCode = (int)HttpStatusCode.PartialContent;
 
-      if (item.IsLive || range.Length == 0)
+      if (item.IsLive || range.Length == 0 || 
+        (mediaTransferMode == TransferMode.Streaming && context.Request.Protocol == "HTTP/1.1" && client.Profile.Settings.Communication.AllowChunckedTransfer))
       {
         context.Response.Headers["Content-Range"] = $"bytes {range.From}-";
-        context.Response.ContentLength = 0;
+        context.Response.ContentLength = null;
       }
       else if (length <= 0)
       {
@@ -996,11 +993,6 @@ namespace MediaPortal.Plugins.MediaServer.ResourceAccess
       {
         context.Response.Headers["X-Content-Duration"] = Convert.ToDouble(item.DlnaMetadata.Metadata.Duration).ToString("0.00", CultureInfo.InvariantCulture);
         context.Response.Headers["Content-Duration"] = Convert.ToDouble(item.DlnaMetadata.Metadata.Duration).ToString("0.00", CultureInfo.InvariantCulture);
-      }
-
-      if (mediaTransferMode == TransferMode.Streaming && context.Request.Protocol == "HTTP/1.1" && client.Profile.Settings.Communication.AllowChunckedTransfer)
-      {
-        context.Response.ContentLength = null;
       }
 
       await SendAsync(context, resourceStream, item, client, onlyHeaders, partialResource, fileRange);
@@ -1144,7 +1136,7 @@ namespace MediaPortal.Plugins.MediaServer.ResourceAccess
             else
               length = bufferSize; //Keep stream alive
           }
-          bytesRead = resourceStream.Read(buffer, 0, length > bufferSize ? bufferSize : (int)length);
+          bytesRead = await resourceStream.ReadAsync(buffer, 0, length > bufferSize ? bufferSize : (int)length);
           count += bytesRead;
 
           if (bytesRead > 0)

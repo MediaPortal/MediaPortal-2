@@ -1184,7 +1184,8 @@ namespace MediaPortal.Plugins.Transcoding.Service.Transcoders
       }
       else
       {
-        transcodingFile += ".A" + video.FirstSourceAudioStream.StreamIndex;
+        if (video.FirstSourceAudioStream != null)
+          transcodingFile += ".A" + video.FirstSourceAudioStream.StreamIndex;
         if (video.TargetAudioMultiTrackSupport && video.SourceAudioStreams.Count > 1)
           transcodingFile += ".MultiA";
         if ((video.PreferredSourceSubtitles?.Any() ?? false) && video.TargetSubtitleSupport == SubtitleSupport.HardCoded)
