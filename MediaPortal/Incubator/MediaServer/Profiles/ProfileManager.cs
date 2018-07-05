@@ -64,10 +64,10 @@ namespace MediaPortal.Plugins.MediaServer.Profiles
     static ProfileManager()
     {
       ProfileLinkChangeWatcher = new SettingsChangeWatcher<ProfileLinks>();
-      ProfileLinkChangeWatcher.SettingsChanged += ProfileLinkChangedChanged;
+      ProfileLinkChangeWatcher.SettingsChanged += ProfileLinkChanged;
     }
 
-    private static void ProfileLinkChangedChanged(object sender, EventArgs e)
+    private static async void ProfileLinkChanged(object sender, EventArgs e)
     {
       if (UpdatingProfileLinks)
         return;
@@ -76,7 +76,7 @@ namespace MediaPortal.Plugins.MediaServer.Profiles
       //Save any new links
       SaveProfileLinks();
       //Reload all links
-      LoadProfileLinksAsync().Wait();
+      await LoadProfileLinksAsync();
 
       UpdatingProfileLinks = false;
     }
