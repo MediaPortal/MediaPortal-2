@@ -700,18 +700,23 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
 
     protected async Task UpdateForChannel(IChannel channel, ProgramProperties current, ProgramProperties next, AbstractProperty channelNameProperty, AbstractProperty progressProperty)
     {
-      channelNameProperty.SetValue(channel.Name);
-      var result = await _tvHandler.ProgramInfo.GetNowNextProgramAsync(channel);
-      if (result.Success)
+      bool success = channel != null;
+      if (success)
       {
-        var currentProgram = result.Result[0];
-        var nextProgram = result.Result[1];
-        current.SetProgram(currentProgram, channel);
-        next.SetProgram(nextProgram, channel);
-        double progress = (DateTime.Now - currentProgram.StartTime).TotalSeconds / (currentProgram.EndTime - currentProgram.StartTime).TotalSeconds * 100;
-        progressProperty.SetValue(progress);
+        channelNameProperty.SetValue(channel.Name);
+        var result = await _tvHandler.ProgramInfo.GetNowNextProgramAsync(channel);
+        success = result.Success;
+        if (success)
+        {
+          var currentProgram = result.Result[0];
+          var nextProgram = result.Result[1];
+          current.SetProgram(currentProgram, channel);
+          next.SetProgram(nextProgram, channel);
+          double progress = currentProgram == null ? 100d : (DateTime.Now - currentProgram.StartTime).TotalSeconds / (currentProgram.EndTime - currentProgram.StartTime).TotalSeconds * 100;
+          progressProperty.SetValue(progress);
+        }
       }
-      else
+      if (!success)
       {
         current.SetProgram(null);
         next.SetProgram(null);
