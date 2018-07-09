@@ -30,7 +30,7 @@
             <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} != {LayoutType}.{CoverLayout} ? {1} : {2}">
               <Binding Source="{StaticResource ViewModeModel}" Path="LayoutType"/>
               <Binding Source="-15,-80,-50,-240"/>
-              <Binding Source="0"/>
+              <Binding Source="0,350,-180,-250"/>
             </MultiBinding>
           </Control.Margin>
         </Control>
@@ -74,13 +74,13 @@
                 </MultiBinding>
               </Image.Source>
             </Image>
-            <Border Background="#44000000" BorderThickness="0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="-10,0,0,0">
+            <Border Background="#44000000" BorderThickness="0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="0,0,0,0">
               <Border.Background>
-                <LinearGradientBrush StartPoint="1,0.5" EndPoint="0,0.5">
+                <LinearGradientBrush StartPoint="1,0.3" EndPoint="0,1">
                   <GradientStop Color="#44000000" Offset="0.0"/>
-                  <GradientStop Color="#44000000" Offset="0.991"/>
-                  <GradientStop Color="#44000000" Offset="0.991"/>
-                  <GradientStop Color="#00000000" Offset="1.0"/>
+                  <!--GradientStop Color="#44000000" Offset="0.991"/-->
+                  <GradientStop Color="#77000000" Offset="1"/>
+                  <!--GradientStop Color="#00000000" Offset="1.0"/-->
                 </LinearGradientBrush>
               </Border.Background>
             </Border>
@@ -98,16 +98,16 @@
       </Grid>
     </ControlTemplate>
     
-    <ControlTemplate x:Key="Alternative_Footer_Template">
+    <!--ControlTemplate x:Key="Alternative_Footer_Template">
       <Grid VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
         <Grid.RowDefinitions>
           <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
           <ColumnDefinition Width="*"/>
-        </Grid.ColumnDefinitions>
-        <!---Gridview and Coverview Details-->
-        <Control Grid.Column="0" Grid.Row="0" VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
+        </Grid.ColumnDefinitions-->
+        <!--Gridview and Listview Details-->
+        <!--Control Grid.Column="0" Grid.Row="0" VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
           <Control.TemplateControl>
             <Include Source="screens\MultiDetails.inc"/>
           </Control.TemplateControl>
@@ -115,8 +115,8 @@
             <Binding Source="{StaticResource ViewModeModel}" Path="LayoutType"
                      Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0} == {LayoutType}.{CoverLayout}"/>
           </Control.IsVisible>
-        </Control>
+        </>
       </Grid>
-    </ControlTemplate>
+    </-->
   </Include.Resources>
 </Include>

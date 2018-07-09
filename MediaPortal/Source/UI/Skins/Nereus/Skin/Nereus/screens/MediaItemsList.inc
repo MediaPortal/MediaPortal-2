@@ -27,6 +27,7 @@
       <ListView.Resources>
         <ResourceWrapper x:Key="VerticalScrollbarRenderTransform">
           <TranslateTransform X="0" />
+          <TranslateTransform Y="0" />
         </ResourceWrapper>
         <Command x:Key="Menu_Command" Source="{StaticResource MediaModel}" Path="Select"
             Parameters="{LateBoundValue BindingValue={Binding}}"/>
@@ -36,7 +37,7 @@
     <DockPanel DataContext="{Binding Source={Model 4CDD601F-E280-43b9-AD0A-6D7B2403C856},Path=NavigationData.CurrentScreenData}"
                VerticalAlignment="Bottom" HorizontalAlignment="Right" LastChildFill="false"
                IsVisible="{Binding IsItemsValid}"> 
-      <!---Grid+CoverView-->
+      <!---Grid+ListView-->
       <StackPanel DockPanel.Dock="Right" Margin="0,60,15,-60" Orientation="Horizontal">
         <Label HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0,0,10,0"
                Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallerFontSize}">
@@ -53,7 +54,7 @@
                Opacity="0.4"/>
         <StackPanel.IsVisible>
           <Binding Source="{StaticResource ViewModeModel}" Path="LayoutType"
-                   Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0} != {LayoutType}.{ListLayout}"/>
+                   Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0} != {LayoutType}.{CoverLayout}"/>
         </StackPanel.IsVisible>
       </StackPanel>
     </DockPanel>
@@ -62,7 +63,7 @@
         HorizontalAlignment="Center" VerticalAlignment="Center" Wrap="true"
         Content="{Binding ListHint}" Color="{ThemeResource HintTextColor}"/>
 
-    <!---ListView-->
+    <!---CoverView-->
     <StackPanel HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="0,0,-950,20" Orientation="Horizontal">
       <Label HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0,0,10,0"
              Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallerFontSize}">
@@ -77,7 +78,7 @@
       <Label Content="{Binding NumItems}" FontSize="{ThemeResource SmallerFontSize}" Opacity="1.3" Color="{ThemeResource MenuTextBackground}"/>
       <StackPanel.IsVisible>
         <Binding Source="{StaticResource ViewModeModel}" Path="LayoutType"
-                 Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0} == {LayoutType}.{ListLayout}"/>
+                 Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0} == {LayoutType}.{CoverLayout}"/>
       </StackPanel.IsVisible>
     </StackPanel>
 

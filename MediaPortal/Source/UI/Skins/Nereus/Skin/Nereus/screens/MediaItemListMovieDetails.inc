@@ -22,7 +22,7 @@
   </Grid.ColumnDefinitions>
 
   <Image Grid.Row="1" Grid.Column="1" HorizontalAlignment="Right" VerticalAlignment="Stretch" Stretch="Fill"
-       Margin="-35,-15,-25,-25" Width="350" Height="470">
+       Margin="-35,-15,-23,-25" Width="350" Height="470">
     <Image.Source>
       <ImageSourceWrapper Delay="0.5" DelayInOut="true" Transition="transitions\dissolve" TransitionDuration="0.5"
                      Source="Poster_Shadow_large.png"/>
