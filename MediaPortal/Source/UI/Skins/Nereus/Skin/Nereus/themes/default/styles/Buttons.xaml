@@ -504,7 +504,7 @@
                 <ScaleTransform ScaleX="1" ScaleY="1"/>
               </TransformGroup>
             </Grid.RenderTransform>
-            <Control Style="{ThemeResource EmptyButtonControlStyle}" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
+            <!--Control Style="{ThemeResource EmptyButtonControlStyle}" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/-->
             <ContentPresenter x:Name="ButtonContentPresenter" Margin="4" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
           </Grid>
           <ControlTemplate.Triggers>
