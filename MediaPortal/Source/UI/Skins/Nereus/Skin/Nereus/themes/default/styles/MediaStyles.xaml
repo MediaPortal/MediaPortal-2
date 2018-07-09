@@ -873,7 +873,7 @@
   <ControlTemplate x:Key="Cover_WatchedFlag_Template">
     <Grid>
       <Grid>
-        <Image Source="flag.png" Height="90" Stretch="Uniform">
+        <Image Source="flag.png" Height="90" Stretch="Uniform" Margin="0,-3,1,0" HorizontalAlignment="Right" VerticalAlignment="Top">
           <Image.IsVisible>
             <Binding Path="WatchPercentage" Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0} > 0"/>
           </Image.IsVisible>
