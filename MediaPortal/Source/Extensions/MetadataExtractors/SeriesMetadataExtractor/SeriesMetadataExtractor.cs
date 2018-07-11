@@ -372,7 +372,8 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
             else //Fallabck to name search
             {
               SeriesMatcher seriesMatcher = new SeriesMatcher();
-              if (!seriesMatcher.MatchSeries(searchData, episodeSearchinfo))
+              //Add extension to simulate a file name which the matcher expects
+              if (!seriesMatcher.MatchSeries(searchData + ".ext", episodeSearchinfo))
                 episodeSearchinfo.SeriesName = searchData;
             }
           }
@@ -389,7 +390,8 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
               tempEpisodeInfo.SeasonNumber = 1;
               tempEpisodeInfo.EpisodeNumbers.Add(1);
               SeriesMatcher seriesMatcher = new SeriesMatcher();
-              seriesMatcher.MatchSeries(searchData, tempEpisodeInfo);
+              //Add extension to simulate a file name which the matcher expects
+              seriesMatcher.MatchSeries(searchData + " S01E01.ext", tempEpisodeInfo);
               if (tempEpisodeInfo.SeriesFirstAired.HasValue)
               {
                 seriesSearchinfo.SeriesName = tempEpisodeInfo.SeriesName;
@@ -420,6 +422,49 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
         if (episodeSearchinfo != null)
         {
           var matches = await OnlineMatcherService.Instance.FindMatchingEpisodesAsync(episodeSearchinfo).ConfigureAwait(false);
+          if (episodeSearchinfo.EpisodeNumbers.Count > 1)
+          {
+            //Check if double episode is in the search results
+            if(!matches.Any(e => e.EpisodeNumbers.SequenceEqual(episodeSearchinfo.EpisodeNumbers)))
+            {
+              //Add a double episode if it's not
+              var potentialEpisodes = new Dictionary<int, List<EpisodeInfo>>();
+              foreach(var episodeNo in episodeSearchinfo.EpisodeNumbers)
+                potentialEpisodes[episodeNo] = matches.Where(e => e.FirstEpisodeNumber == episodeNo && e.EpisodeNumbers.Count == 1).ToList();
+              //Merge fitting episodes
+              var mergedEpisodes = new List<EpisodeInfo>();
+              foreach (var episodeNo in episodeSearchinfo.EpisodeNumbers.OrderBy(e => e))
+              {
+                if (episodeNo == episodeSearchinfo.FirstEpisodeNumber)
+                {
+                  foreach (var episode in potentialEpisodes[episodeNo])
+                  {
+                    mergedEpisodes.Add(episode.Clone());
+                  }
+                }
+                else
+                {
+                  foreach(var mergedEpisode in mergedEpisodes)
+                  {
+                    var nextEpisode = potentialEpisodes[episodeNo].FirstOrDefault(e => e.SeriesTvdbId > 0 && e.SeriesTvdbId == mergedEpisode.SeriesTvdbId && 
+                      e.SeasonNumber == mergedEpisode.SeasonNumber);
+                    if (nextEpisode == null)
+                      nextEpisode = potentialEpisodes[episodeNo].FirstOrDefault(e => !string.IsNullOrEmpty(e.SeriesImdbId) && e.SeriesImdbId.Equals(mergedEpisode.SeriesImdbId, StringComparison.InvariantCultureIgnoreCase) && 
+                        e.SeasonNumber == mergedEpisode.SeasonNumber);
+                    if (nextEpisode == null)
+                      nextEpisode = potentialEpisodes[episodeNo].FirstOrDefault(e => e.SeriesMovieDbId > 0 && e.SeriesMovieDbId == mergedEpisode.SeriesMovieDbId && 
+                        e.SeasonNumber == mergedEpisode.SeasonNumber);
+                    if (nextEpisode != null)
+                      MergeEpisodeDetails(mergedEpisode, nextEpisode);
+                  }
+                }
+              }
+              //Add valid merged episodes to search result
+              var list = matches.ToList();
+              list.AddRange(mergedEpisodes.Where(e => e.EpisodeNumbers.SequenceEqual(episodeSearchinfo.EpisodeNumbers)));
+              matches = list.AsEnumerable();
+            }
+          }
           foreach (var match in matches)
           {
             var result = new MediaItemSearchResult
@@ -479,6 +524,25 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
         ServiceRegistration.Get<ILogger>().Info("SeriesMetadataExtractor: Exception searching for matches (Text: '{0}')", e.Message);
       }
       return null;
+    }
+
+    private void MergeEpisodeDetails(EpisodeInfo episodeInfo, EpisodeInfo mergeEpisodeInfo)
+    {
+      MetadataUpdater.SetOrUpdateId(ref episodeInfo.SeriesImdbId, mergeEpisodeInfo.SeriesImdbId);
+      MetadataUpdater.SetOrUpdateId(ref episodeInfo.SeriesMovieDbId, mergeEpisodeInfo.SeriesMovieDbId);
+      MetadataUpdater.SetOrUpdateId(ref episodeInfo.SeriesTvdbId, mergeEpisodeInfo.SeriesTvdbId);
+      MetadataUpdater.SetOrUpdateId(ref episodeInfo.SeriesTvRageId, mergeEpisodeInfo.SeriesTvRageId);
+      MetadataUpdater.SetOrUpdateId(ref episodeInfo.SeriesTvMazeId, mergeEpisodeInfo.SeriesTvMazeId);
+
+      MetadataUpdater.SetOrUpdateValue(ref episodeInfo.SeriesFirstAired, mergeEpisodeInfo.SeriesFirstAired);
+      MetadataUpdater.SetOrUpdateString(ref episodeInfo.SeriesName, mergeEpisodeInfo.SeriesName);
+
+      episodeInfo.EpisodeNumbers = episodeInfo.EpisodeNumbers.Union(mergeEpisodeInfo.EpisodeNumbers).ToList();
+      episodeInfo.DvdEpisodeNumbers = episodeInfo.DvdEpisodeNumbers.Union(mergeEpisodeInfo.DvdEpisodeNumbers).ToList();
+      episodeInfo.EpisodeName.Text += "; " + mergeEpisodeInfo.EpisodeName.Text;
+      episodeInfo.Summary.Text += "\r\n\r\n" + mergeEpisodeInfo.Summary.Text;
+
+      episodeInfo.Genres = episodeInfo.Genres.Union(mergeEpisodeInfo.Genres).ToList();
     }
 
     public async Task<bool> AddMatchedAspectDetailsAsync(IDictionary<Guid, IList<MediaItemAspect>> matchedAspectData)
