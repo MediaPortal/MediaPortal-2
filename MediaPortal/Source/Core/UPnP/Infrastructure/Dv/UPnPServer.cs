@@ -238,6 +238,13 @@ namespace UPnP.Infrastructure.Dv
         startOptions.Urls.Add(formattedAddress);
       }
 
+      // If no explicit url bindings defined, use the wildcard binding
+      if (startOptions.Urls.Count == 0)
+      {
+        var formattedAddress = $"http://+:{port}{servicePrefix}";
+        startOptions.Urls.Add(formattedAddress);
+      }
+
       // Disable built-in owin tracing by using a null traceoutput. It causes crashes by concurrency issues.
       // See: https://stackoverflow.com/questions/17948363/tracelistener-in-owin-self-hosting
       startOptions.Settings.Add(
