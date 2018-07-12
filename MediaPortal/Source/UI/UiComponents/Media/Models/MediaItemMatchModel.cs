@@ -253,11 +253,17 @@ namespace MediaPortal.UiComponents.Media.Models
         SelectedInformation = "";
 
         //Update reimport aspect
-        var reimportAspect = MediaItemAspect.GetOrCreateAspect(_searchAspects, ReimportAspect.Metadata);         
+        var reimportAspect = MediaItemAspect.GetOrCreateAspect(_searchAspects, ReimportAspect.Metadata);
         if (IsManualSearch)
+        {
           reimportAspect.SetAttribute(ReimportAspect.ATTR_SEARCH, ManualId);
+          ServiceRegistration.Get<ILogger>().Info("Re-import: Performing manual search on '{0}'", ManualId);
+        }
         else
+        {
           reimportAspect.SetAttribute(ReimportAspect.ATTR_SEARCH, null);
+          ServiceRegistration.Get<ILogger>().Info("Re-import: Performing automatic search");
+        }
 
         //Restrict possible MDEs by category if possible
         ICollection<string> validCategories = null;
@@ -276,6 +282,8 @@ namespace MediaPortal.UiComponents.Media.Models
           }
         }
 
+        ServiceRegistration.Get<ILogger>().Info("Re-import: Valid search categories found: '{0}'", validCategories == null ? "Any" : string.Join(", ", validCategories));
+
         //Search for matches
         List<MediaItemSearchResult> searchResults = new List<MediaItemSearchResult>();
         IMediaAccessor mediaAccessor = ServiceRegistration.Get<IMediaAccessor>();
@@ -285,6 +293,8 @@ namespace MediaPortal.UiComponents.Media.Models
           if (results != null)
             searchResults.AddRange(results);
         }
+
+        ServiceRegistration.Get<ILogger>().Info("Re-import: Search returned {0} matches", searchResults.Count);
 
         IsSearching = false;
 
@@ -321,6 +331,8 @@ namespace MediaPortal.UiComponents.Media.Models
           if (dialogResult == DialogResult.Yes)
           {
             _matchedAspects = (IDictionary<Guid, IList<MediaItemAspect>>)item.AdditionalProperties[KEY_ASPECTS];
+
+            ServiceRegistration.Get<ILogger>().Info("Re-import: Setting matched aspects");
           }
           if(_matchDialogHandle.HasValue)
             ServiceRegistration.Get<IScreenManager>().CloseDialog(_matchDialogHandle.Value);

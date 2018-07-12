@@ -493,6 +493,8 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
               if (!MovieNameMatcher.MatchTitleYear(searchData, movieSearchinfo))
                 movieSearchinfo.MovieName = searchData;
             }
+
+            ServiceRegistration.Get<ILogger>().Info("MovieMetadataExtractor: Searching for movie matches on search: '{0}'", searchData);
           }
         }
         else
@@ -501,6 +503,8 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
           {
             movieSearchinfo = new MovieInfo();
             movieSearchinfo.FromMetadata(searchAspectData);
+
+            ServiceRegistration.Get<ILogger>().Info("MovieMetadataExtractor: Searching for movie matches on aspects");
           }
         }
 
@@ -508,6 +512,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
         if (movieSearchinfo != null)
         {
           var matches = await OnlineMatcherService.Instance.FindMatchingMoviesAsync(movieSearchinfo).ConfigureAwait(false);
+          ServiceRegistration.Get<ILogger>().Info("MoviesMetadataExtractor: Movie search returned {0} matches", matches.Count());
           foreach (var match in matches)
           {
             var result = new MediaItemSearchResult
@@ -534,7 +539,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
       }
       catch (Exception e)
       {
-        ServiceRegistration.Get<ILogger>().Info("MoviesMetadataExtractor: Exception searching for matches (Text: '{0}')", e.Message);
+        ServiceRegistration.Get<ILogger>().Info("MovieMetadataExtractor: Exception searching for matches (Text: '{0}')", e.Message);
       }
       return null;
     }

@@ -376,6 +376,8 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
               if (!seriesMatcher.MatchSeries(searchData + ".ext", episodeSearchinfo))
                 episodeSearchinfo.SeriesName = searchData;
             }
+
+            ServiceRegistration.Get<ILogger>().Info("SeriesMetadataExtractor: Searching for episode matches on search: '{0}'", searchData);
           }
           else if (searchAspectData.ContainsKey(SeriesAspect.ASPECT_ID))
           {
@@ -401,6 +403,8 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
               {
                 seriesSearchinfo.SeriesName = searchData;
               }
+
+              ServiceRegistration.Get<ILogger>().Info("SeriesMetadataExtractor: Searching for series matches on search: '{0}'", searchData);
             }
           }
         }
@@ -410,11 +414,15 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
           {
             episodeSearchinfo = new EpisodeInfo();
             episodeSearchinfo.FromMetadata(searchAspectData);
+
+            ServiceRegistration.Get<ILogger>().Info("SeriesMetadataExtractor: Searching for episode matches on aspects");
           }
           else if (searchAspectData.ContainsKey(SeriesAspect.ASPECT_ID))
           {
             seriesSearchinfo = new SeriesInfo();
             seriesSearchinfo.FromMetadata(searchAspectData);
+
+            ServiceRegistration.Get<ILogger>().Info("SeriesMetadataExtractor: Searching for series matches on aspects");
           }
         }
 
@@ -422,6 +430,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
         if (episodeSearchinfo != null)
         {
           var matches = await OnlineMatcherService.Instance.FindMatchingEpisodesAsync(episodeSearchinfo).ConfigureAwait(false);
+          ServiceRegistration.Get<ILogger>().Info("SeriesMetadataExtractor: Episode search returned {0} matches", matches.Count());
           if (episodeSearchinfo.EpisodeNumbers.Count > 1)
           {
             //Check if double episode is in the search results
@@ -461,8 +470,12 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
               }
               //Add valid merged episodes to search result
               var list = matches.ToList();
-              list.AddRange(mergedEpisodes.Where(e => e.EpisodeNumbers.SequenceEqual(episodeSearchinfo.EpisodeNumbers)));
+              var validMergedEpisodes = mergedEpisodes.Where(e => e.EpisodeNumbers.SequenceEqual(episodeSearchinfo.EpisodeNumbers));
+              list.AddRange(validMergedEpisodes);
               matches = list.AsEnumerable();
+
+              if(validMergedEpisodes.Count() > 0)
+                ServiceRegistration.Get<ILogger>().Info("SeriesMetadataExtractor: Added {0} multi-episodes to matches", validMergedEpisodes.Count());
             }
           }
           foreach (var match in matches)
@@ -494,6 +507,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
         else if (seriesSearchinfo != null)
         {
           var matches = await OnlineMatcherService.Instance.FindMatchingSeriesAsync(seriesSearchinfo).ConfigureAwait(false);
+          ServiceRegistration.Get<ILogger>().Info("SeriesMetadataExtractor: Series search returned {0} matches", matches.Count());
           foreach (var match in matches)
           {
             var result = new MediaItemSearchResult

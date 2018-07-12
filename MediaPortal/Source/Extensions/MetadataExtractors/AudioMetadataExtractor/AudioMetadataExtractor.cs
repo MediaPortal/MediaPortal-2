@@ -931,6 +931,8 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
               trackSearchinfo.AudioDbId = audioDbId;
             else //Fallabck to name search
               trackSearchinfo.TrackName = searchData;
+
+            ServiceRegistration.Get<ILogger>().Info("AudioMetadataExtractor: Searching for audio matches on search: '{0}'", searchData);
           }
           else if (searchAspectData.ContainsKey(AudioAlbumAspect.ASPECT_ID))
           {
@@ -957,6 +959,8 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
                 albumSearchinfo.Album = searchData;
               }
             }
+
+            ServiceRegistration.Get<ILogger>().Info("AudioMetadataExtractor: Searching for album matches on search: '{0}'", searchData);
           }
         }
         else
@@ -965,11 +969,15 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
           {
             trackSearchinfo = new TrackInfo();
             trackSearchinfo.FromMetadata(searchAspectData);
+
+            ServiceRegistration.Get<ILogger>().Info("AudioMetadataExtractor: Searching for audio matches on aspects");
           }
           else if (searchAspectData.ContainsKey(AudioAlbumAspect.ASPECT_ID))
           {
             albumSearchinfo = new AlbumInfo();
             albumSearchinfo.FromMetadata(searchAspectData);
+
+            ServiceRegistration.Get<ILogger>().Info("AudioMetadataExtractor: Searching for album matches on aspects");
           }
         }
 
@@ -977,6 +985,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
         if (trackSearchinfo != null)
         {
           var matches = await OnlineMatcherService.Instance.FindMatchingTracksAsync(trackSearchinfo).ConfigureAwait(false);
+          ServiceRegistration.Get<ILogger>().Info("AudioMetadataExtractor: Audio search returned {0} matches", matches.Count());
           foreach (var match in matches)
           {
             var result = new MediaItemSearchResult
@@ -1003,6 +1012,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
         else if (albumSearchinfo != null)
         {
           var matches = await OnlineMatcherService.Instance.FindMatchingAlbumsAsync(albumSearchinfo).ConfigureAwait(false);
+          ServiceRegistration.Get<ILogger>().Info("AudioMetadataExtractor: Album search returned {0} matches", matches.Count());
           foreach (var match in matches)
           {
             var result = new MediaItemSearchResult

@@ -126,7 +126,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
 
               EpisodeInfo info = new EpisodeInfo()
               {
-                SeriesName = seriesSearch.SeriesName,
+                SeriesName = seriesSearch?.SeriesName ?? episodeSearch.SeriesName,
                 SeasonNumber = episode.SeasonNumber,
                 EpisodeName = new SimpleTitle(episode.Name, false),
               };
@@ -143,7 +143,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
         episodes = new List<EpisodeInfo>();
         EpisodeInfo info = new EpisodeInfo()
         {
-          SeriesName = seriesSearch.SeriesName,
+          SeriesName = seriesSearch?.SeriesName ?? episodeSearch.SeriesName,
           SeasonNumber = episodeSearch.SeasonNumber,
           EpisodeName = episodeSearch.EpisodeName,
         };
