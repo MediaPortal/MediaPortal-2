@@ -916,6 +916,8 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
         if (reimportAspect != null)
           searchData = reimportAspect.GetAttributeValue<string>(ReimportAspect.ATTR_SEARCH);
 
+        ServiceRegistration.Get<ILogger>().Info("AudioMetadataExtractor: Search aspects to use: '{0}'", string.Join(",", searchAspectData.Keys));
+
         //Prepare search info
         TrackInfo trackSearchinfo = null;
         AlbumInfo albumSearchinfo = null;
@@ -925,12 +927,15 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
           if (searchAspectData.ContainsKey(AudioAspect.ASPECT_ID))
           {
             trackSearchinfo = new TrackInfo();
-            if (Guid.TryParse(searchData, out Guid guid))
+            if (!searchData.Contains(" ") && Guid.TryParse(searchData, out Guid guid))
               trackSearchinfo.MusicBrainzId = searchData;
-            else if (int.TryParse(searchData, out int audioDbId))
+            else if (!searchData.Contains(" ") && int.TryParse(searchData, out int audioDbId))
               trackSearchinfo.AudioDbId = audioDbId;
             else //Fallabck to name search
+            {
+              searchData = searchData.Trim();
               trackSearchinfo.TrackName = searchData;
+            }
 
             ServiceRegistration.Get<ILogger>().Info("AudioMetadataExtractor: Searching for audio matches on search: '{0}'", searchData);
           }
@@ -940,12 +945,13 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
             album.FromMetadata(searchAspectData);
 
             albumSearchinfo = new AlbumInfo();
-            if (Guid.TryParse(searchData, out Guid guid))
+            if (!searchData.Contains(" ") && Guid.TryParse(searchData, out Guid guid))
               albumSearchinfo.MusicBrainzGroupId = searchData;
-            else if (int.TryParse(searchData, out int audioDbId))
+            else if (!searchData.Contains(" ") && int.TryParse(searchData, out int audioDbId))
               albumSearchinfo.AudioDbId = audioDbId;
             else //Fallabck to name search
             {
+              searchData = searchData.Trim();
               albumSearchinfo.Artists = new List<PersonInfo>(album.Artists);
               var match = _titleYearRegEx.Match(searchData);
               if (match.Success)

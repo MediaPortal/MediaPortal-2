@@ -350,7 +350,9 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
         var reimportAspect = MediaItemAspect.GetAspect(searchAspectData, ReimportAspect.Metadata);
         if (reimportAspect != null)
           searchData = reimportAspect.GetAttributeValue<string>(ReimportAspect.ATTR_SEARCH);
-        
+
+        ServiceRegistration.Get<ILogger>().Info("SeriesMetadataExtractor: Search aspects to use: '{0}'", string.Join(",", searchAspectData.Keys));
+
         //Prepare search info
         EpisodeInfo episodeSearchinfo = null;
         SeriesInfo seriesSearchinfo = null;
@@ -365,16 +367,23 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
             episodeSearchinfo = new EpisodeInfo();
             episodeSearchinfo.SeasonNumber = episode.SeasonNumber;
             episodeSearchinfo.EpisodeNumbers = episode.EpisodeNumbers;
-            if (searchData.StartsWith("tt", StringComparison.InvariantCultureIgnoreCase))
+            if (searchData.StartsWith("tt", StringComparison.InvariantCultureIgnoreCase) && !searchData.Contains(" ") && int.TryParse(searchData.Substring(2), out int id))
               episodeSearchinfo.SeriesImdbId = searchData;
-            else if (int.TryParse(searchData, out int tvDbSeriesId))
+            else if (!searchData.Contains(" ") && int.TryParse(searchData, out int tvDbSeriesId))
               episodeSearchinfo.SeriesTvdbId = tvDbSeriesId;
             else //Fallabck to name search
             {
+              searchData = searchData.Trim();
               SeriesMatcher seriesMatcher = new SeriesMatcher();
               //Add extension to simulate a file name which the matcher expects
-              if (!seriesMatcher.MatchSeries(searchData + ".ext", episodeSearchinfo))
-                episodeSearchinfo.SeriesName = searchData;
+              EpisodeInfo tempEpisodeInfo = new EpisodeInfo();
+              tempEpisodeInfo.SeasonNumber = episode.SeasonNumber;
+              if (seriesMatcher.MatchSeries(searchData + ".ext", tempEpisodeInfo))
+              {
+                episodeSearchinfo.SeriesName = tempEpisodeInfo.SeriesName;
+                episodeSearchinfo.SeasonNumber = tempEpisodeInfo.SeasonNumber;
+                episodeSearchinfo.EpisodeNumbers = tempEpisodeInfo.EpisodeNumbers;
+              }
             }
 
             ServiceRegistration.Get<ILogger>().Info("SeriesMetadataExtractor: Searching for episode matches on search: '{0}'", searchData);
@@ -382,15 +391,15 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
           else if (searchAspectData.ContainsKey(SeriesAspect.ASPECT_ID))
           {
             seriesSearchinfo = new SeriesInfo();
-            if (searchData.StartsWith("tt", StringComparison.InvariantCultureIgnoreCase))
+            if (searchData.StartsWith("tt", StringComparison.InvariantCultureIgnoreCase) && !searchData.Contains(" ") && int.TryParse(searchData.Substring(2), out int id))
               seriesSearchinfo.ImdbId = searchData;
-            else if (int.TryParse(searchData, out int tvDbSeriesId))
+            else if (!searchData.Contains(" ") && int.TryParse(searchData, out int tvDbSeriesId))
               seriesSearchinfo.TvdbId = tvDbSeriesId;
             else //Fallabck to name search
             {
+              searchData = searchData.Trim();
               EpisodeInfo tempEpisodeInfo = new EpisodeInfo();
               tempEpisodeInfo.SeasonNumber = 1;
-              tempEpisodeInfo.EpisodeNumbers.Add(1);
               SeriesMatcher seriesMatcher = new SeriesMatcher();
               //Add extension to simulate a file name which the matcher expects
               seriesMatcher.MatchSeries(searchData + " S01E01.ext", tempEpisodeInfo);
@@ -429,20 +438,21 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
         //Perform online search
         if (episodeSearchinfo != null)
         {
+          List<int> epNos = new List<int>(episodeSearchinfo.EpisodeNumbers.OrderBy(e => e));
           var matches = await OnlineMatcherService.Instance.FindMatchingEpisodesAsync(episodeSearchinfo).ConfigureAwait(false);
           ServiceRegistration.Get<ILogger>().Info("SeriesMetadataExtractor: Episode search returned {0} matches", matches.Count());
-          if (episodeSearchinfo.EpisodeNumbers.Count > 1)
+          if (epNos.Count > 1)
           {
             //Check if double episode is in the search results
-            if(!matches.Any(e => e.EpisodeNumbers.SequenceEqual(episodeSearchinfo.EpisodeNumbers)))
+            if(!matches.Any(e => e.EpisodeNumbers.SequenceEqual(epNos)))
             {
               //Add a double episode if it's not
               var potentialEpisodes = new Dictionary<int, List<EpisodeInfo>>();
-              foreach(var episodeNo in episodeSearchinfo.EpisodeNumbers)
+              foreach(var episodeNo in epNos)
                 potentialEpisodes[episodeNo] = matches.Where(e => e.FirstEpisodeNumber == episodeNo && e.EpisodeNumbers.Count == 1).ToList();
               //Merge fitting episodes
               var mergedEpisodes = new List<EpisodeInfo>();
-              foreach (var episodeNo in episodeSearchinfo.EpisodeNumbers.OrderBy(e => e))
+              foreach (var episodeNo in epNos)
               {
                 if (episodeNo == episodeSearchinfo.FirstEpisodeNumber)
                 {
@@ -470,7 +480,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
               }
               //Add valid merged episodes to search result
               var list = matches.ToList();
-              var validMergedEpisodes = mergedEpisodes.Where(e => e.EpisodeNumbers.SequenceEqual(episodeSearchinfo.EpisodeNumbers));
+              var validMergedEpisodes = mergedEpisodes.Where(e => e.EpisodeNumbers.SequenceEqual(epNos));
               list.AddRange(validMergedEpisodes);
               matches = list.AsEnumerable();
 

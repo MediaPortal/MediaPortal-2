@@ -476,6 +476,8 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
         if (reimportAspect != null)
           searchData = reimportAspect.GetAttributeValue<string>(ReimportAspect.ATTR_SEARCH);
 
+        ServiceRegistration.Get<ILogger>().Info("MovieMetadataExtractor: Search aspects to use: '{0}'", string.Join(",", searchAspectData.Keys));
+
         //Prepare search info
         MovieInfo movieSearchinfo = null;
         List<MediaItemSearchResult> searchResults = new List<MediaItemSearchResult>();
@@ -484,12 +486,13 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
           if (searchAspectData.ContainsKey(VideoAspect.ASPECT_ID))
           {
             movieSearchinfo = new MovieInfo();
-            if (searchData.StartsWith("tt", StringComparison.InvariantCultureIgnoreCase))
+            if (searchData.StartsWith("tt", StringComparison.InvariantCultureIgnoreCase) && !searchData.Contains(" ") && int.TryParse(searchData.Substring(2), out int id))
               movieSearchinfo.ImdbId = searchData;
-            else if (int.TryParse(searchData, out int movieDbId))
+            else if (!searchData.Contains(" ") && int.TryParse(searchData, out int movieDbId))
               movieSearchinfo.MovieDbId = movieDbId;
             else //Fallabck to name search
             {
+              searchData = searchData.Trim();
               if (!MovieNameMatcher.MatchTitleYear(searchData, movieSearchinfo))
                 movieSearchinfo.MovieName = searchData;
             }
