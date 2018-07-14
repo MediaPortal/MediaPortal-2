@@ -1987,6 +1987,11 @@ namespace MediaPortal.Backend.Services.MediaLibrary
     {
       mergedMediaItemId = Guid.Empty;
       IDictionary<Guid, IList<MediaItemAspect>> extractedAspects = MediaItemAspect.GetAspects(mediaItemAspects);
+      if (!extractedAspects.ContainsKey(ProviderResourceAspect.ASPECT_ID))
+      {
+        //Add resource aspect so it can be used during merging
+        MediaItemAspect.AddOrUpdateAspect(extractedAspects, (MultipleMediaItemAspect)providerResourceAspect);
+      }
       IMediaAccessor mediaAccessor = ServiceRegistration.Get<IMediaAccessor>();
       IEnumerable<IMediaMergeHandler> mergeHandlers = mediaAccessor.LocalMergeHandlers.Values;
       foreach (IMediaMergeHandler mergeHandler in mergeHandlers.Where(m => m.MergeableAspects.All(a => extractedAspects.ContainsKey(a))))
@@ -1994,7 +1999,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
         MediaItem mergedItem = MatchExistingItem(database, transaction, mergeHandler, extractedAspects);
         if (mergedItem != null)
         {
-          MergeProviderResourceAspects(providerResourceAspect, mediaItemAspects);
+          MergeProviderResourceAspects(providerResourceAspect, MediaItemAspect.GetAspects(extractedAspects));
           if (mergeHandler.TryMerge(extractedAspects, mergedItem.Aspects))
           {
             Logger.Debug("Found mergeable media item {0}", mergedItem.MediaItemId);
