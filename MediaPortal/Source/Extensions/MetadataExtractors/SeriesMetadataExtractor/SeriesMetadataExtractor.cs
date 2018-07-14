@@ -351,7 +351,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
         if (reimportAspect != null)
           searchData = reimportAspect.GetAttributeValue<string>(ReimportAspect.ATTR_SEARCH);
 
-        ServiceRegistration.Get<ILogger>().Info("SeriesMetadataExtractor: Search aspects to use: '{0}'", string.Join(",", searchAspectData.Keys));
+        ServiceRegistration.Get<ILogger>().Debug("SeriesMetadataExtractor: Search aspects to use: '{0}'", string.Join(",", searchAspectData.Keys));
 
         //Prepare search info
         EpisodeInfo episodeSearchinfo = null;
@@ -386,7 +386,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
               }
             }
 
-            ServiceRegistration.Get<ILogger>().Info("SeriesMetadataExtractor: Searching for episode matches on search: '{0}'", searchData);
+            ServiceRegistration.Get<ILogger>().Debug("SeriesMetadataExtractor: Searching for episode matches on search: '{0}'", searchData);
           }
           else if (searchAspectData.ContainsKey(SeriesAspect.ASPECT_ID))
           {
@@ -413,7 +413,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
                 seriesSearchinfo.SeriesName = searchData;
               }
 
-              ServiceRegistration.Get<ILogger>().Info("SeriesMetadataExtractor: Searching for series matches on search: '{0}'", searchData);
+              ServiceRegistration.Get<ILogger>().Debug("SeriesMetadataExtractor: Searching for series matches on search: '{0}'", searchData);
             }
           }
         }
@@ -424,14 +424,14 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
             episodeSearchinfo = new EpisodeInfo();
             episodeSearchinfo.FromMetadata(searchAspectData);
 
-            ServiceRegistration.Get<ILogger>().Info("SeriesMetadataExtractor: Searching for episode matches on aspects");
+            ServiceRegistration.Get<ILogger>().Debug("SeriesMetadataExtractor: Searching for episode matches on aspects");
           }
           else if (searchAspectData.ContainsKey(SeriesAspect.ASPECT_ID))
           {
             seriesSearchinfo = new SeriesInfo();
             seriesSearchinfo.FromMetadata(searchAspectData);
 
-            ServiceRegistration.Get<ILogger>().Info("SeriesMetadataExtractor: Searching for series matches on aspects");
+            ServiceRegistration.Get<ILogger>().Debug("SeriesMetadataExtractor: Searching for series matches on aspects");
           }
         }
 
@@ -440,7 +440,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
         {
           List<int> epNos = new List<int>(episodeSearchinfo.EpisodeNumbers.OrderBy(e => e));
           var matches = await OnlineMatcherService.Instance.FindMatchingEpisodesAsync(episodeSearchinfo).ConfigureAwait(false);
-          ServiceRegistration.Get<ILogger>().Info("SeriesMetadataExtractor: Episode search returned {0} matches", matches.Count());
+          ServiceRegistration.Get<ILogger>().Debug("SeriesMetadataExtractor: Episode search returned {0} matches", matches.Count());
           if (epNos.Count > 1)
           {
             //Check if double episode is in the search results
@@ -485,7 +485,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
               matches = list.AsEnumerable();
 
               if(validMergedEpisodes.Count() > 0)
-                ServiceRegistration.Get<ILogger>().Info("SeriesMetadataExtractor: Added {0} multi-episodes to matches", validMergedEpisodes.Count());
+                ServiceRegistration.Get<ILogger>().Debug("SeriesMetadataExtractor: Added {0} multi-episodes to matches", validMergedEpisodes.Count());
             }
           }
           foreach (var match in matches)
@@ -517,7 +517,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
         else if (seriesSearchinfo != null)
         {
           var matches = await OnlineMatcherService.Instance.FindMatchingSeriesAsync(seriesSearchinfo).ConfigureAwait(false);
-          ServiceRegistration.Get<ILogger>().Info("SeriesMetadataExtractor: Series search returned {0} matches", matches.Count());
+          ServiceRegistration.Get<ILogger>().Debug("SeriesMetadataExtractor: Series search returned {0} matches", matches.Count());
           foreach (var match in matches)
           {
             var result = new MediaItemSearchResult

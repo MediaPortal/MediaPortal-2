@@ -476,7 +476,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
         if (reimportAspect != null)
           searchData = reimportAspect.GetAttributeValue<string>(ReimportAspect.ATTR_SEARCH);
 
-        ServiceRegistration.Get<ILogger>().Info("MovieMetadataExtractor: Search aspects to use: '{0}'", string.Join(",", searchAspectData.Keys));
+        ServiceRegistration.Get<ILogger>().Debug("MovieMetadataExtractor: Search aspects to use: '{0}'", string.Join(",", searchAspectData.Keys));
 
         //Prepare search info
         MovieInfo movieSearchinfo = null;
@@ -497,7 +497,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
                 movieSearchinfo.MovieName = searchData;
             }
 
-            ServiceRegistration.Get<ILogger>().Info("MovieMetadataExtractor: Searching for movie matches on search: '{0}'", searchData);
+            ServiceRegistration.Get<ILogger>().Debug("MovieMetadataExtractor: Searching for movie matches on search: '{0}'", searchData);
           }
         }
         else
@@ -507,7 +507,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
             movieSearchinfo = new MovieInfo();
             movieSearchinfo.FromMetadata(searchAspectData);
 
-            ServiceRegistration.Get<ILogger>().Info("MovieMetadataExtractor: Searching for movie matches on aspects");
+            ServiceRegistration.Get<ILogger>().Debug("MovieMetadataExtractor: Searching for movie matches on aspects");
           }
         }
 
@@ -515,7 +515,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
         if (movieSearchinfo != null)
         {
           var matches = await OnlineMatcherService.Instance.FindMatchingMoviesAsync(movieSearchinfo).ConfigureAwait(false);
-          ServiceRegistration.Get<ILogger>().Info("MoviesMetadataExtractor: Movie search returned {0} matches", matches.Count());
+          ServiceRegistration.Get<ILogger>().Debug("MoviesMetadataExtractor: Movie search returned {0} matches", matches.Count());
           foreach (var match in matches)
           {
             var result = new MediaItemSearchResult
