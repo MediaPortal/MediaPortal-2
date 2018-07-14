@@ -211,11 +211,14 @@ namespace MediaPortal.UiComponents.Media.Models
 
     public async Task OpenSelectMatchDialogAsync(MediaItem mediaItem)
     {
+      _selectionComplete.TrySetResult(null);
+      _selectionComplete = new TaskCompletionSource<IEnumerable<MediaItemAspect>>();
+
       ClearData();
       if (!IsValidMediaItem(mediaItem))
       {
         ServiceRegistration.Get<ILogger>().Error("Error reimporting media item '{0}'. No valid aspects found.", mediaItem.MediaItemId);
-        _selectionComplete.SetResult(null);
+        _selectionComplete.TrySetResult(null);
         return;
       }
 
@@ -223,7 +226,6 @@ namespace MediaPortal.UiComponents.Media.Models
       _isVirtual = mediaItem.IsVirtual;
 
       _matchedAspects = null;
-      _selectionComplete = new TaskCompletionSource<IEnumerable<MediaItemAspect>>();
       _matchDialogHandle = ServiceRegistration.Get<IScreenManager>().ShowDialog("DialogChooseMatch", async(s, g) =>
       {
         if (_matchedAspects != null)
@@ -234,11 +236,11 @@ namespace MediaPortal.UiComponents.Media.Models
           {
             await extractor.AddMatchedAspectDetailsAsync(_matchedAspects);
           }
-          _selectionComplete.SetResult(MediaItemAspect.GetAspects(_matchedAspects));
+          _selectionComplete.TrySetResult(MediaItemAspect.GetAspects(_matchedAspects));
         }
         else
         {
-          _selectionComplete.SetResult(null);
+          _selectionComplete.TrySetResult(null);
         }
       });
       await DoSearchAsync();
@@ -248,6 +250,9 @@ namespace MediaPortal.UiComponents.Media.Models
     {
       try
       {
+        if (IsSearching)
+          return;
+
         IsSearching = true;
         _matchList.Clear();
         SelectedInformation = "";

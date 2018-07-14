@@ -64,9 +64,9 @@ namespace MediaPortal.UiComponents.Media.MediaItemActions
           return new AsyncResult<ContentDirectoryMessaging.MediaItemChangeType>(false, ContentDirectoryMessaging.MediaItemChangeType.None);
 
         MediaItemMatchModel mimm = ServiceRegistration.Get<IWorkflowManager>().GetModel(MediaItemMatchModel.MODEL_ID_MIMATCH) as MediaItemMatchModel;
-        await mimm.OpenSelectMatchDialogAsync(mediaItem);
+        await mimm.OpenSelectMatchDialogAsync(mediaItem).ConfigureAwait(false);
         IEnumerable<MediaItemAspect> aspects = null;
-        aspects = await mimm.WaitForMatchSelectionAsync();
+        aspects = await mimm.WaitForMatchSelectionAsync().ConfigureAwait(false);
         if (aspects != null)
         {
           await cd.ReimportMediaItemMetadataAsync(mediaItem.MediaItemId, aspects);
