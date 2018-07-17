@@ -22,9 +22,7 @@
 
 #endregion
 
-using System;
 using System.Collections.Generic;
-using MediaPortal.Backend.Services.Database;
 using MediaPortal.Utilities.DB;
 
 namespace MediaPortal.Backend.Database
@@ -113,10 +111,40 @@ namespace MediaPortal.Backend.Database
     void DeleteSubSchema(string subSchemaName, int currentVersionMajor, int currentVersionMinor, string deleteScriptFilePath);
 
     /// <summary>
+    /// Migrates the sub schema data of the given <paramref name="subSchemaName"/>.
+    /// </summary>
+    /// <param name="transaction">Transaction to use for migrating data.</param>
+    /// <param name="dataOwner">Owner of the data which will be migrated.</param>
+    /// <param name="migrateScriptFilePath">Path to a file containing the script to migrate the data of the given
+    /// <paramref name="dataOwner"/>.</param>
+    /// <param name="migrationPlaceholders">Script placeholders that must be replaced during script execution.</param>
+    /// <exception cref="Exception">All exceptions in lower DB layers, which are caused by problems in the
+    /// DB connection or malformed scripts, will be re-thrown by this method.</exception>
+    void MigrateData(ITransaction transaction, string dataOwner, string migrateScriptFilePath, IDictionary<string, string> migrationPlaceholders);
+
+    /// <summary>
     /// Executes an SQL script provided by the given <paramref name="instructions"/>.
     /// </summary>
-    /// <param name="database">Database to execute the batch.</param>
+    /// <param name="transaction">Transaction to use for executing the batch.</param>
     /// <param name="instructions">Instructions to execute in batch mode.</param>
-    void ExecuteBatch(ISQLDatabase database, InstructionList instructions);
+    void ExecuteBatch(ITransaction transaction, InstructionList instructions);
+
+    /// <summary>
+    /// Executes an upgrade of the database if needed.
+    /// Normally this involves the following steps:
+    /// 1. Make a backup of the database
+    /// 2. Backup all tables by renaming them so data is available for migration
+    /// </summary>
+    /// <returns><c>true</c>, if the database was updated, else <c>false</c>.</returns>
+    bool UpgradeDatabase();
+
+    /// <summary>
+    /// Executes a migration of the database data if possible. This requires the old data to be present in the form of renamed tables. 
+    /// Normally this involves the following steps:
+    /// 1. Execute update scripts that will copy data from the old tables to the new tables
+    /// 2. Drop all backup tables
+    /// </summary>
+    /// <returns><c>true</c>, if the data was migrated, else <c>false</c>.</returns>
+    bool MigrateDatabaseData();
   }
 }

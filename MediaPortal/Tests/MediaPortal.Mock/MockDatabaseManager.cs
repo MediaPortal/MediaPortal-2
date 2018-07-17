@@ -25,6 +25,7 @@
 using System;
 using System.Collections.Generic;
 using MediaPortal.Backend.Database;
+using MediaPortal.Utilities.DB;
 
 namespace MediaPortal.Mock
 {
@@ -62,7 +63,22 @@ namespace MediaPortal.Mock
       throw new NotImplementedException();
     }
 
-    public void ExecuteBatch(ISQLDatabase database, Utilities.DB.InstructionList instructions)
+    public bool UpgradeDatabase()
+    {
+      throw new NotImplementedException();
+    }
+
+    public bool MigrateDatabaseData()
+    {
+      throw new NotImplementedException();
+    }
+
+    public void MigrateData(ITransaction transaction, string dataOwner, string migrateScriptFilePath, IDictionary<string, string> migrationPlaceholders)
+    {
+      throw new NotImplementedException();
+    }
+
+    public void ExecuteBatch(ITransaction transaction, InstructionList instructions)
     {
       throw new NotImplementedException();
     }

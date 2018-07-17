@@ -64,7 +64,6 @@
     <Compile Include="SQLiteDatabase.cs" />
     <Compile Include="SQLiteSettings.cs" />
     <Compile Include="SQLiteTransaction.cs" />
-    <Compile Include="VersionUpgrade.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="plugin.xml" />

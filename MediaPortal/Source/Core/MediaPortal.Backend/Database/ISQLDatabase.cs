@@ -206,6 +206,27 @@ namespace MediaPortal.Backend.Database
     bool TableExists(string tableName);
 
     /// <summary>
+    /// Creates a backup of the current database that can be used to restore data in case of a failed upgrade.
+    /// </summary>
+    /// <param name="backupVersion">The name of the backup version. Usually based on the MediaPortal version.</param>
+    /// <returns><c>true</c>, if the database was backed up successfully, else <c>false</c>.</returns>
+    bool BackupDatabase(string backupVersion);
+
+    /// <summary>
+    /// Renames all tables so they can be used for restoring data to new tables.
+    /// </summary>
+    /// <param name="tableSuffix">The suffix to use on all tables when renaming them.</param>
+    /// <returns><c>true</c>, if all tables were renamed successfully, else <c>false</c>.</returns>
+    bool BackupTables(string tableSuffix);
+
+    /// <summary>
+    /// Drops all tables with the <paramref name="tableSuffix"/> table name suffix.
+    /// </summary>
+    /// <param name="tableSuffix">The suffix to use to find all tables to be dropped.</param>
+    /// <returns><c>true</c>, if all tables were dropped successfully, else <c>false</c>.</returns>
+    bool DropBackupTables(string tableSuffix);
+
+    /// <summary>
     /// Creates an expression to concatenate the two given string expressions. For Oracle, that will be
     /// <c>str1 + "||" + str2</c>, for example. For MS SQL Server, that will be <c>str1 + "+" + str2</c>.
     /// </summary>

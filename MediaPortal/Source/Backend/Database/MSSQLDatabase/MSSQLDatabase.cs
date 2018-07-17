@@ -28,6 +28,7 @@ using MediaPortal.Common;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.Settings;
 using System;
+using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
 using System.Data.SqlTypes;
@@ -317,6 +318,141 @@ namespace MediaPortal.Database.MSSQL
           cmd.CommandText = @"SELECT COUNT(*) FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME=N'" + tableName + "'";
           int cnt = (int)cmd.ExecuteScalar();
           return (cnt == 1);
+        }
+      }
+    }
+
+    public bool BackupDatabase(string backupVersion)
+    {
+      using (SqlConnection conn = new SqlConnection(_connectionString))
+      {
+        conn.Open();
+        using (IDbCommand cmd = conn.CreateCommand())
+        {
+          cmd.CommandText = $"BACKUP DATABASE {_settings.DatabaseName} TO DISK='{_settings.DatabaseName}.{backupVersion}.bak' WITH NAME='MediaPortal Database {backupVersion}'";
+          cmd.ExecuteNonQuery();
+          return true;
+        }
+      }
+    }
+
+    public bool BackupTables(string tableSuffix)
+    {
+      bool result = false;
+      List<string> tables = new List<string>();
+      using (var transaction = BeginTransaction())
+      {
+        using (var cmd = transaction.CreateCommand())
+        {
+          //Find all tables
+          cmd.CommandText = @"SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_TYPE='BASE TABLE' AND TABLE_NAME <> 'sysdiagrams'";
+          using (IDataReader reader = cmd.ExecuteReader())
+          {
+            while (reader.Read())
+            {
+              string table = reader.GetString(0);
+              if (!table.EndsWith(tableSuffix, StringComparison.InvariantCultureIgnoreCase))
+              {
+                tables.Add(table);
+              }
+            }
+          }
+
+          //Drop all foreign keys
+          List<string> dropSqls = new List<string>();
+          cmd.CommandText = @"SELECT TABLE_NAME,CONSTRAINT_NAME FROM INFORMATION_SCHEMA.TABLE_CONSTRAINTS WHERE CONSTRAINT_TYPE = 'FOREIGN KEY'";
+          using (IDataReader reader = cmd.ExecuteReader())
+          {
+            while (reader.Read())
+            {
+              string table = reader.GetString(0);
+              if (tables.Contains(table))
+              {
+                dropSqls.Add($"ALTER TABLE [{table}] DROP CONSTRAINT [{reader.GetString(1)}]");
+              }
+            }
+          }
+          foreach(string dropSql in dropSqls)
+          {
+            cmd.CommandText = dropSql;
+            cmd.ExecuteNonQuery();
+          }
+
+          //Rename all primary keys
+          List<string> renameSqls = new List<string>();
+          cmd.CommandText = @"SELECT TABLE_NAME,CONSTRAINT_NAME FROM INFORMATION_SCHEMA.TABLE_CONSTRAINTS WHERE CONSTRAINT_TYPE='PRIMARY KEY' OR CONSTRAINT_TYPE='UNIQUE'";
+          using (IDataReader reader = cmd.ExecuteReader())
+          {
+            while (reader.Read())
+            {
+              string table = reader.GetString(0);
+              if (tables.Contains(table))
+              {
+                renameSqls.Add($"EXEC sp_rename '{table}.{reader.GetString(1)}', 'PK_{renameSqls.Count + 1}{tableSuffix}'");
+              }
+            }
+          }
+          foreach (string renameSql in renameSqls)
+          {
+            cmd.CommandText = renameSql;
+            cmd.ExecuteNonQuery();
+          }
+
+          //Rename all tables and remove constraints
+          foreach (var table in tables)
+          {
+            //Check if backup table exists
+            cmd.CommandText = $"SELECT COUNT(*) FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_TYPE='BASE TABLE' AND TABLE_NAME='{table + tableSuffix}'";
+            var cnt = Convert.ToInt64(cmd.ExecuteScalar());
+            if (cnt == 0)
+            {
+              //Rename table
+              cmd.CommandText = $"EXEC sp_rename '{table}','{table + tableSuffix}'";
+              cmd.ExecuteNonQuery();
+
+              result = true;
+            }
+            else
+            {
+              result = true;
+            }
+          }
+
+          transaction.Commit();
+        }
+      }
+      return result;
+    }
+
+    public bool DropBackupTables(string tableSuffix)
+    {
+      List<string> tables = new List<string>();
+      using (var transaction = BeginTransaction())
+      {
+        using (var cmd = transaction.CreateCommand())
+        {
+          //Find all tables
+          cmd.CommandText = @"SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_TYPE='BASE TABLE' AND TABLE_NAME <> 'sysdiagrams'";
+          using (IDataReader reader = cmd.ExecuteReader())
+          {
+            while (reader.Read())
+            {
+              string table = reader.GetString(0);
+              if (table.EndsWith(tableSuffix, StringComparison.InvariantCultureIgnoreCase))
+                tables.Add(table);
+            }
+          }
+
+          //Drop all backup tables as they are no longer needed
+          foreach (var table in tables)
+          {
+            //Drop table
+            cmd.CommandText = $"DROP TABLE {table}";
+            cmd.ExecuteNonQuery();
+          }
+
+          transaction.Commit();
+          return true;
         }
       }
     }

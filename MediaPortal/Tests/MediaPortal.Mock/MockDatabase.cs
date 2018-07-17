@@ -156,5 +156,20 @@ namespace MediaPortal.Mock
 
       return command;
     }
+
+    public bool BackupDatabase(string backupVersion)
+    {
+      throw new NotImplementedException();
+    }
+
+    public bool BackupTables(string tableSuffix)
+    {
+      throw new NotImplementedException();
+    }
+
+    public bool DropBackupTables(string tableSuffix)
+    {
+      throw new NotImplementedException();
+    }
   }
 }
