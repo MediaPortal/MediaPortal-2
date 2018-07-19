@@ -1209,15 +1209,11 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor
               return false;
 
             int multipart = -1;
-            int multipartSet = 0;
+            int multipartSet = -1;
             Match match = REGEXP_MULTIFILE.Match(filePath);
             if (match.Groups[GROUP_DISC].Length > 0)
             {
-              if (int.TryParse(match.Groups[GROUP_DISC].Value, out multipart))
-              {
-                //Will be merged so indicate that is it a set
-                multipartSet = -1;
-              }
+              int.TryParse(match.Groups[GROUP_DISC].Value, out multipart);
             }
 
             using (MediaInfoWrapper fileInfo = ReadMediaInfo(fsra))

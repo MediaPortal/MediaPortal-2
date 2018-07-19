@@ -123,6 +123,7 @@
     <Compile Include="MediaManagement\RelationshipType.cs" />
     <Compile Include="MediaManagement\MLQueries\FilteredRelationshipFilter.cs" />
     <Compile Include="MediaManagement\RelationshipItem.cs" />
+    <Compile Include="MediaManagement\ResourceAspectMerger.cs" />
     <Compile Include="MediaManagement\TransientAspects\TempAlbumAspect.cs" />
     <Compile Include="MediaManagement\TransientAspects\TempActorAspect.cs" />
     <Compile Include="MediaManagement\TransientAspects\TempArtistAspect.cs" />
