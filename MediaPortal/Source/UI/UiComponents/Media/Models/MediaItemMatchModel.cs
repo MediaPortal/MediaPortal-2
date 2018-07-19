@@ -76,7 +76,6 @@ namespace MediaPortal.UiComponents.Media.Models
     protected AbstractProperty _manualIdProperty;
     protected AsynchronousMessageQueue _messageQueue = null;
 
-    protected TaskCompletionSource<IEnumerable<MediaItemAspect>> _selectionComplete = null;
     protected IDictionary<Guid, IList<MediaItemAspect>> _matchedAspects = null;
 
     #endregion
@@ -98,7 +97,6 @@ namespace MediaPortal.UiComponents.Media.Models
       _liveSearchTimer.AutoReset = false;
       _liveSearchTimer.Elapsed += LiveSearchTimeout_Elapsed;
       _matchList = new ItemsList();
-      _selectionComplete = new TaskCompletionSource<IEnumerable<MediaItemAspect>>();
     }
 
     private void LiveSearchTimeout_Elapsed(object sender, System.Timers.ElapsedEventArgs e)
@@ -209,41 +207,42 @@ namespace MediaPortal.UiComponents.Media.Models
       return false;
     }
 
-    public async Task OpenSelectMatchDialogAsync(MediaItem mediaItem)
+    public async Task<IEnumerable<MediaItemAspect>> OpenSelectMatchDialogAsync(MediaItem mediaItem)
     {
-      _selectionComplete.TrySetResult(null);
-      _selectionComplete = new TaskCompletionSource<IEnumerable<MediaItemAspect>>();
-
       ClearData();
       if (!IsValidMediaItem(mediaItem))
       {
         ServiceRegistration.Get<ILogger>().Error("Error reimporting media item '{0}'. No valid aspects found.", mediaItem.MediaItemId);
-        _selectionComplete.TrySetResult(null);
-        return;
+        return null;
       }
 
       _searchAspects = mediaItem.Aspects;
       _isVirtual = mediaItem.IsVirtual;
 
       _matchedAspects = null;
+      var selectionComplete = new TaskCompletionSource<IEnumerable<MediaItemAspect>>();
       _matchDialogHandle = ServiceRegistration.Get<IScreenManager>().ShowDialog("DialogChooseMatch", async(s, g) =>
       {
-        if (_matchedAspects != null)
+        try
         {
-          //Download detailed information if possible. The server might no be allowed to use online sources.
-          IMediaAccessor mediaAccessor = ServiceRegistration.Get<IMediaAccessor>();
-          foreach (IMetadataExtractor extractor in mediaAccessor.LocalMetadataExtractors.Values)
+          if (_matchedAspects != null)
           {
-            await extractor.AddMatchedAspectDetailsAsync(_matchedAspects);
+            //Download detailed information if possible. The server might no be allowed to use online sources.
+            IMediaAccessor mediaAccessor = ServiceRegistration.Get<IMediaAccessor>();
+            foreach (IMetadataExtractor extractor in mediaAccessor.LocalMetadataExtractors.Values)
+            {
+              await extractor.AddMatchedAspectDetailsAsync(_matchedAspects);
+            }
+            selectionComplete.SetResult(MediaItemAspect.GetAspects(_matchedAspects));
           }
-          _selectionComplete.TrySetResult(MediaItemAspect.GetAspects(_matchedAspects));
         }
-        else
+        finally
         {
-          _selectionComplete.TrySetResult(null);
+          selectionComplete.TrySetResult(null);
         }
       });
       await DoSearchAsync();
+      return await selectionComplete.Task;
     }
 
     protected async Task DoSearchAsync()
@@ -352,11 +351,6 @@ namespace MediaPortal.UiComponents.Media.Models
         return;
 
       await DoSearchAsync();
-    }
-
-    public Task<IEnumerable<MediaItemAspect>> WaitForMatchSelectionAsync()
-    {
-      return _selectionComplete.Task;
     }
 
     #endregion

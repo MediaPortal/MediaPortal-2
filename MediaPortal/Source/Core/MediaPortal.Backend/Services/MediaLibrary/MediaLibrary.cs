@@ -1081,8 +1081,12 @@ namespace MediaPortal.Backend.Services.MediaLibrary
               var sysId = pra.GetAttributeValue<string>(ProviderResourceAspect.ATTR_SYSTEM_ID);
               var resPath = ResourcePath.Deserialize(path);
 
+              //Add resource aspect so it can be merged if needed
+              var reimportAspects = MediaItemAspect.GetAspects(mediaItemAspects);
+              MediaItemAspect.AddOrUpdateAspect(reimportAspects, pra);
+
               //Import as new item
-              var newId = AddOrUpdateMediaItem(database, transaction, parentDir, sysId, resPath, null, null, mediaItemAspects, false);
+              var newId = AddOrUpdateMediaItem(database, transaction, parentDir, sysId, resPath, null, null, MediaItemAspect.GetAspects(reimportAspects), false);
 
               //Set media item as changed to force update
               MediaItemAspect importerAspect = _miaManagement.GetMediaItemAspect(transaction, newId, ImporterAspect.ASPECT_ID);
@@ -1987,11 +1991,6 @@ namespace MediaPortal.Backend.Services.MediaLibrary
     {
       mergedMediaItemId = Guid.Empty;
       IDictionary<Guid, IList<MediaItemAspect>> extractedAspects = MediaItemAspect.GetAspects(mediaItemAspects);
-      if (!extractedAspects.ContainsKey(ProviderResourceAspect.ASPECT_ID))
-      {
-        //Add resource aspect so it can be used during merging
-        MediaItemAspect.AddOrUpdateAspect(extractedAspects, (MultipleMediaItemAspect)providerResourceAspect);
-      }
       IMediaAccessor mediaAccessor = ServiceRegistration.Get<IMediaAccessor>();
       IEnumerable<IMediaMergeHandler> mergeHandlers = mediaAccessor.LocalMergeHandlers.Values;
       foreach (IMediaMergeHandler mergeHandler in mergeHandlers.Where(m => m.MergeableAspects.All(a => extractedAspects.ContainsKey(a))))
@@ -2240,6 +2239,42 @@ namespace MediaPortal.Backend.Services.MediaLibrary
       }
     }
 
+    private void UpdateAllSetNumbers(ISQLDatabase database, ITransaction transaction)
+    {
+      try
+      {
+        using (IDbCommand command = transaction.CreateCommand())
+        {
+          command.CommandText = _preparedStatements.UpdateSetsSQL;
+          command.ExecuteNonQuery();
+        }
+      }
+      catch (Exception e)
+      {
+        Logger.Error("MediaLibrary: Error updating all set numbers", e);
+        throw;
+      }
+    }
+
+    private void UpdateMediaItemSetNumbers(ISQLDatabase database, ITransaction transaction, Guid mediaItemId)
+    {
+      try
+      {
+        using (IDbCommand command = transaction.CreateCommand())
+        {
+          database.AddParameter(command, "ITEM_ID", mediaItemId, typeof(Guid));
+
+          command.CommandText = _preparedStatements.UpdateSetsForIdSQL;
+          command.ExecuteNonQuery();
+        }
+      }
+      catch (Exception e)
+      {
+        Logger.Error("MediaLibrary: Error updating media item {0} set numbers", e, mediaItemId);
+        throw;
+      }
+    }
+
     private bool UpdateParentPlayUserData(Guid userProfileId, Guid[] mediaItemIds, bool updatePlayDate)
     {
       try
@@ -2463,6 +2498,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
         try
         {
           _relationshipManagement.DeletePathAndRelationships(transaction, systemId, path, inclusive);
+          UpdateAllSetNumbers(database, transaction);
           transaction.Commit();
           MediaLibraryMessaging.SendMediaItemsDeletedMessage();
         }
@@ -2867,6 +2903,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
           command.ExecuteNonQuery();
 
         _relationshipManagement.DeletePathAndRelationships(transaction, share.SystemId, share.BaseResourcePath, true);
+        UpdateAllSetNumbers(database, transaction);
 
         transaction.Commit();
 
@@ -2903,6 +2940,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
           command.ExecuteNonQuery();
 
         _relationshipManagement.DeletePathAndRelationships(transaction, systemId, null, true);
+        UpdateAllSetNumbers(database, transaction);
 
         transaction.Commit();
 
