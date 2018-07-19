@@ -23,14 +23,14 @@
 #endregion
 
 using System;
+using codeRR.Client;
+using codeRR.Client.Uploaders;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.PluginManager;
 using MediaPortal.Common.SystemResolver;
-using OneTrueError.Client;
-using OneTrueError.Client.Uploaders;
 
-namespace MediaPortal.Plugins.OneTrueError
+namespace MediaPortal.Plugins.CodeRR
 {
   public class ErrorReportingService : IPluginStateTracker
   {
@@ -46,9 +46,9 @@ namespace MediaPortal.Plugins.OneTrueError
       var appKey = systemResolver.SystemType == SystemType.Server ? KEY_SERVER : KEY_CLIENT;
 
       // The appkey and shared key can be found in onetrueeror.com
-      OneTrue.Configuration.Credentials(REPO_URL, appKey.Item1, appKey.Item2);
-      OneTrue.Configuration.CatchWinFormsExceptions();
-      OneTrue.Configuration.QueueReports = true;
+      Err.Configuration.Credentials(REPO_URL, appKey.Item1, appKey.Item2);
+      Err.Configuration.CatchWinFormsExceptions();
+      Err.Configuration.QueueReports = true;
       //OneTrue.Configuration.Advanced.UploadReportFailed += OnUploadReportFailed;
 
       // Exchange the logger by the error reporting wrapper

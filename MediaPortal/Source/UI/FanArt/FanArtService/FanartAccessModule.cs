@@ -82,6 +82,7 @@ namespace MediaPortal.Extensions.UserServices.FanArtService
 #if DEBUG
         ServiceRegistration.Get<ILogger>().Debug("No FanArt for {0} '{1}' of type '{2}'", name, fanArtType, mediaType);
 #endif
+        response.StatusCode = (int)HttpStatusCode.NotFound;
         return;
       }
 

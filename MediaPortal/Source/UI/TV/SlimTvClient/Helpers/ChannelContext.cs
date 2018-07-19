@@ -46,6 +46,8 @@ namespace MediaPortal.Plugins.SlimTv.Client.Helpers
     protected static ChannelContext _channelContext;
 
     private UserMessageHandler _userMessageHandler;
+    protected bool _isChannelGroupsInitialized = false;
+    protected NavigationList<IChannelGroup> _channelGroups;
 
     #region Static instance
 
@@ -65,14 +67,23 @@ namespace MediaPortal.Plugins.SlimTv.Client.Helpers
 
     #endregion
 
-    public NavigationList<IChannelGroup> ChannelGroups { get; internal set; }
+    public NavigationList<IChannelGroup> ChannelGroups
+    {
+      get
+      {
+        if (!_isChannelGroupsInitialized)
+          InitChannelGroups().Wait();
+        return _channelGroups;
+      }
+    }
+
     public NavigationList<IChannel> Channels { get; internal set; }
 
     public ChannelContext()
     {
-      ChannelGroups = new NavigationList<IChannelGroup>();
       Channels = new NavigationList<IChannel>();
-      ChannelGroups.OnCurrentChanged += ReloadChannels;
+      _channelGroups = new NavigationList<IChannelGroup>();
+      _channelGroups.OnCurrentChanged += ReloadChannels;
       _userMessageHandler = new UserMessageHandler();
       _userMessageHandler.RequestRestrictions += OnRegisterRestrictions;
       _userMessageHandler.UserChanged += OnUserChanged;
@@ -84,8 +95,12 @@ namespace MediaPortal.Plugins.SlimTv.Client.Helpers
       var tvHandler = ServiceRegistration.Get<ITvHandler>(false);
       if (tvHandler != null && tvHandler.ChannelAndGroupInfo != null)
       {
+        _channelGroups.Clear();
         var result = await tvHandler.ChannelAndGroupInfo.GetChannelGroupsAsync();
-        if (!result.Success)
+
+        //Reset initialized statue on failure so we can retry later 
+        _isChannelGroupsInitialized = result.Success && result.Result != null && result.Result.Count > 0;
+        if (!_isChannelGroupsInitialized)
           return;
 
         var channelGroups = result.Result;
@@ -93,15 +108,14 @@ namespace MediaPortal.Plugins.SlimTv.Client.Helpers
         RegisterRestrictions(channelGroups);
 
         Channels?.Clear();
-        ChannelGroups.Clear();
-        ChannelGroups.AddRange(FilterGroups(channelGroups));
-        ChannelGroups.FireListChanged();
+        _channelGroups.AddRange(FilterGroups(channelGroups));
+        _channelGroups.FireListChanged();
 
         int selectedChannelGroupId = tvHandler.ChannelAndGroupInfo.SelectedChannelGroupId;
         if (tvHandler.ChannelAndGroupInfo != null && selectedChannelGroupId != 0)
-          ChannelGroups.MoveTo(group => group.ChannelGroupId == selectedChannelGroupId);
+          _channelGroups.MoveTo(group => group.ChannelGroupId == selectedChannelGroupId);
 
-        ChannelGroups.FireCurrentChanged(-1);
+        _channelGroups.FireCurrentChanged(-1);
       }
     }
 
@@ -166,7 +180,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Helpers
       var tvHandler = ServiceRegistration.Get<ITvHandler>(false);
       if (tvHandler != null)
       {
-        var result = await tvHandler.ChannelAndGroupInfo.GetChannelsAsync(ChannelGroups.Current);
+        var result = await tvHandler.ChannelAndGroupInfo.GetChannelsAsync(_channelGroups.Current);
         if (!result.Success)
           return;
 

@@ -315,11 +315,14 @@ namespace MediaPortal.UI.Services.ServerCommunication
           if (states != null && states.ContainsKey(ShareImportServerState.STATE_ID))
           {
             ShareImportServerState importState = states[ShareImportServerState.STATE_ID] as ShareImportServerState;
-            List<ShareImportState> shareStates = new List<ShareImportState>(importState.Shares);
-            lock (_syncObj)
+            if (importState != null)
             {
-              UpdateCurrentlyImportingShares(shareStates.Where(s => s.IsImporting).Select(s => s.ShareId).ToList());
-              UpdateCurrentlyImportingSharesProgresses(shareStates.Where(s => s.IsImporting).ToDictionary(s => s.ShareId, s => s.Progress));
+              List<ShareImportState> shareStates = new List<ShareImportState>(importState.Shares);
+              lock (_syncObj)
+              {
+                UpdateCurrentlyImportingShares(shareStates.Where(s => s.IsImporting).Select(s => s.ShareId).ToList());
+                UpdateCurrentlyImportingSharesProgresses(shareStates.Where(s => s.IsImporting).ToDictionary(s => s.ShareId, s => s.Progress));
+              }
             }
           }
         }

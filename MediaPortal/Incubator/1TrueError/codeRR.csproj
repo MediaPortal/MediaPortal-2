@@ -7,8 +7,8 @@
     <ProjectGuid>{7625B1CE-577D-4E56-83DD-08C6EE9984D4}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>MediaPortal.Plugins.OneTrueError</RootNamespace>
-    <AssemblyName>1TrueError</AssemblyName>
+    <RootNamespace>MediaPortal.Plugins.CodeRR</RootNamespace>
+    <AssemblyName>codeRR</AssemblyName>
     <TargetFrameworkVersion>v4.7</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\..\Source\</SolutionDir>
@@ -64,14 +64,11 @@
     <Content Include="plugin.xml" />
   </ItemGroup>
   <ItemGroup>
+    <PackageReference Include="Coderr.Client.WinForms">
+      <Version>1.0.5</Version>
+    </PackageReference>
     <PackageReference Include="Newtonsoft.Json">
       <Version>10.0.3</Version>
-    </PackageReference>
-    <PackageReference Include="OneTrueError.Client">
-      <Version>1.0.1</Version>
-    </PackageReference>
-    <PackageReference Include="OneTrueError.Client.WinForms">
-      <Version>1.0.3</Version>
     </PackageReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

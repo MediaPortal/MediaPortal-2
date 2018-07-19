@@ -61,20 +61,69 @@ namespace MediaPortal.UiComponents.Media.Settings
 
   public class ViewSettings
   {
-    public const LayoutType DEFAULT_LAYOUT_TYPE = LayoutType.ListLayout;
-    public const LayoutSize DEFAULT_LAYOUT_SIZE = LayoutSize.Small;
-
-    public ViewSettings()
+    private static readonly MediaDictionary<string, ScreenConfig> DEFAULT_SCREEN_CONFIGS = new MediaDictionary<string, ScreenConfig>
     {
-      ScreenConfigs = new MediaDictionary<string, ScreenConfig>();
-      ScreenHierarchy = new MediaDictionary<string, string>();
+      {
+        typeof(Models.ScreenData.SeriesFilterByNameScreenData).FullName,
+        new ScreenConfig
+        {
+          LayoutSize = LayoutSize.Large,
+          LayoutType = LayoutType.GridLayout,
+          Sorting = typeof(Models.Sorting.SeriesSortByEpisode).FullName
+        }
+      },
+      {
+        typeof(Models.ScreenData.SeriesFilterBySeasonScreenData).FullName,
+        new ScreenConfig
+        {
+          LayoutSize = LayoutSize.Large,
+          LayoutType = LayoutType.GridLayout,
+          Sorting = typeof(Models.Sorting.SeriesSortByEpisode).FullName
+        }
+      },
+      {
+        typeof(Models.ScreenData.SeriesShowItemsScreenData).FullName,
+        new ScreenConfig
+        {
+          LayoutSize = LayoutSize.Large,
+          LayoutType = LayoutType.GridLayout,
+          Sorting = typeof(Models.Sorting.SeriesSortByEpisode).FullName
+        }
+      },
+      {
+        typeof(Models.ScreenData.MoviesShowItemsScreenData).FullName,
+        new ScreenConfig
+        {
+          LayoutSize = LayoutSize.Large,
+          LayoutType = LayoutType.GridLayout,
+          Sorting = typeof(Models.Sorting.SortByTitle).FullName
+        }
+      }
+    };
+
+    private static readonly MediaDictionary<string, string> DEFAULT_SCREEN_HIERARCHY = new MediaDictionary<string, string>
+    {
+      { typeof(Models.ScreenData.SeriesFilterByNameScreenData).FullName, typeof(Models.ScreenData.SeriesFilterBySeasonScreenData).FullName }
+    };
+
+    private MediaDictionary<string, ScreenConfig> _screenConfigs;
+    private MediaDictionary<string, string> _screenHierarchy;
+    public const LayoutType DEFAULT_LAYOUT_TYPE = LayoutType.GridLayout;
+    public const LayoutSize DEFAULT_LAYOUT_SIZE = LayoutSize.Large;
+
+    [Setting(SettingScope.User)]
+    public MediaDictionary<string, ScreenConfig> ScreenConfigs
+    {
+      get { return _screenConfigs ?? DEFAULT_SCREEN_CONFIGS; }
+      set { _screenConfigs = value; }
     }
 
     [Setting(SettingScope.User)]
-    public MediaDictionary<string, ScreenConfig> ScreenConfigs { get; set; }
-
-    [Setting(SettingScope.User)]
-    public MediaDictionary<string, string> ScreenHierarchy { get; set; }
+    public MediaDictionary<string, string> ScreenHierarchy
+    {
+      get { return _screenHierarchy ?? DEFAULT_SCREEN_HIERARCHY; }
+      set { _screenHierarchy = value; }
+    }
 
     /// <summary>
     /// Default setting for showing virtual series related media items.
