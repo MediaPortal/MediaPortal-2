@@ -168,9 +168,9 @@ Parameters which have to be accessible by a DynamicResource lookup:
               </Rectangle.Fill>
             </Rectangle>
             <ListView x:Name="MainListMenu" Grid.Row="1" Grid.Column="0" Style="{ThemeResource SlideMenuListViewStyle}" Margin="10,40,10,360"
-              HorizontalAlignment="Stretch" VerticalAlignment="Center" SetFocusPrio="Default"
-              ItemsSource="{Binding Source={StaticResource MenuModel},Path=MenuItems,Mode=OneTime}"
-              IsEnabled="{Binding Source={StaticResource MenuModel},Path=IsMenuOpen}">
+                      HorizontalAlignment="Stretch" VerticalAlignment="Center" SetFocusPrio="Default"
+                      ItemsSource="{Binding Source={StaticResource MenuModel},Path=MenuItems,Mode=OneTime}"
+                      IsEnabled="{Binding Source={StaticResource MenuModel},Path=IsMenuOpen}">
               <ListView.Resources>
                 <CommandBridge x:Key="Menu_Command" Command="{Binding Path=Command,Mode=OneTime}"/>
               </ListView.Resources>
@@ -229,16 +229,14 @@ Parameters which have to be accessible by a DynamicResource lookup:
               <ColumnDefinition Width="550"/>
             </Grid.ColumnDefinitions>
             <Grid.RowDefinitions>
-              <RowDefinition Height="100"/>
+              <RowDefinition Height="105"/>
               <RowDefinition Height="*"/>
               <RowDefinition Height="0"/>
             </Grid.RowDefinitions>
             <Grid.RenderTransform>
               <TranslateTransform Y="0"/>
             </Grid.RenderTransform>
-            <!--Image Source="menu_fade.png" Stretch="Fill" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="-65,-168,-50,-50">
-          </Image-->
-            
+
             <Rectangle Grid.Row="1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="0,0,65,140">
               <Rectangle.Fill>
                 <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
@@ -269,52 +267,6 @@ Parameters which have to be accessible by a DynamicResource lookup:
           <KeyBinding Key="Escape" Command="{Command Source={StaticResource MenuModel}, Path=ToggleMenu}" IsEnabled="{Binding Source={StaticResource MenuModel},Path=IsMenuOpen}"/>
         </Grid>
 
-        <!-- Menu items are presented same way as dialogs. That's why the layout is nearly identical. Changes to style need to be done in both places ! -->
-
-        <!--Grid x:Name="MainMenu" VerticalAlignment="Center" HorizontalAlignment="Center" DockPanel.Dock="Center" IsVisible="{Binding Source={StaticResource MenuModel},Path=IsMenuOpen}"
-              Margin="0,45,0,0">
-          <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="Auto"/>
-          </Grid.ColumnDefinitions>
-          <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"/>
-          </Grid.RowDefinitions>
-
-          <Border Grid.Row="0" Grid.Column="0" x:Name="DialogBorder"
-            VerticalAlignment="Center" HorizontalAlignment="Center" Opacity="1">
-            <DockPanel x:Name="DialogBackgroundPanel" LastChildFill="True" Background="#666666">
-              <Grid x:Name="DialogHeaderGrid" DockPanel.Dock="Top" Margin="0,5,5,5"
-                 VerticalAlignment="Top" HorizontalAlignment="Stretch">
-                <Grid.ColumnDefinitions>
-                  <ColumnDefinition Width="*"/>
-                  <ColumnDefinition Width="Auto"/>
-                </Grid.ColumnDefinitions>
-                <Grid.RowDefinitions>
-                  <RowDefinition Height="Auto"/>
-                </Grid.RowDefinitions>
-                <Label x:Name="DialogTitle" Grid.Column="0" Grid.Row="0" FontSize="{ThemeResource DialogTitleFontSize}" Margin="20,0,10,0"
-                  Content="[Menu.Main]" Color="{ThemeResource DialogHeaderColor}"
-                  VerticalAlignment="Center" HorizontalAlignment="Left"
-                  IsVisible="{Binding RelativeSource={RelativeSource Self},Path=Content,Converter={StaticResource ReferenceToBoolConverter}}"/>
-              </Grid>
-
-              <ListView x:Name="DialogMenu" Style="{ThemeResource PopupMenuListViewStyle}" DockPanel.Dock="Center" Margin="10"
-                ItemsSource="{Binding Source={StaticResource MenuModel},Path=MenuItems,Mode=OneTime}" SetFocusPrio="DefaultLow"
-                HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
-                <ListView.Resources>
-                  <CommandBridge x:Key="Menu_Command" Command="{Binding Path=Command,Mode=OneTime}"/>
-                </ListView.Resources>
-              </ListView>
-            </DockPanel>
-          </Border>
-
-          <Grid.Triggers>
-            <DataTrigger Binding="{Binding Source={StaticResource MenuModel},Path=IsMenuOpen}" Value="True">
-              <Setter TargetName="MainMenu" Property="SetFocusPrio" Value="Highest" />
-              <Setter TargetName="MainMenu" Property="SetFocus" Value="True" />
-            </DataTrigger>
-          </Grid.Triggers>
-        </-->
       </Grid>
     </ControlTemplate>
 
