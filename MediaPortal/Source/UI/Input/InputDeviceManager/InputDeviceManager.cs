@@ -37,6 +37,7 @@ using MediaPortal.Plugins.InputDeviceManager.RawInput;
 using MediaPortal.UI.Control.InputManager;
 using MediaPortal.UI.Presentation.Screens;
 using MediaPortal.UI.Presentation.Workflow;
+using MediaPortal.UI.Services.UserManagement;
 
 namespace MediaPortal.Plugins.InputDeviceManager
 {
@@ -44,12 +45,14 @@ namespace MediaPortal.Plugins.InputDeviceManager
   {
     private const bool CAPTURE_ONLY_IN_FOREGROUND = false;
     private static readonly Dictionary<string, InputDevice> _inputDevices = new Dictionary<string, InputDevice>();
-    private Thread _startupThread;
     private static IScreenControl _screenControl;
     private static readonly ConcurrentDictionary<string, int> _pressedKeys = new ConcurrentDictionary<string, int>();
     private static RawInputHandler _rawInput;
     private static List<Action<object, RawInputEventArg>> _externalKeyPressHandlers = new List<Action<object, RawInputEventArg>>();
     private static object _listSyncObject = new object();
+
+    private Thread _startupThread;
+    private UserMessageHandler _userMessageHandler;
 
     public InputDeviceManager()
     {
@@ -249,6 +252,11 @@ namespace MediaPortal.Plugins.InputDeviceManager
       }
     }
 
+    private void UserChanged(object sender, EventArgs e)
+    {
+      LoadSettings();
+    }
+
     #region Implementation of IPluginStateTracker
 
     /// <summary>
@@ -258,7 +266,8 @@ namespace MediaPortal.Plugins.InputDeviceManager
     /// </summary>
     public void Activated(PluginRuntime pluginRuntime)
     {
-      LoadSettings();
+      _userMessageHandler = new UserMessageHandler();
+      _userMessageHandler.UserChanged += UserChanged;
       _startupThread = new Thread(ThreadProc);
       _startupThread.Start();
     }
