@@ -439,6 +439,8 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
       IFileSystemResourceAccessor fsra = mediaItemAccessor as IFileSystemResourceAccessor;
       if (fsra == null)
         return false;
+      if (!HasAudioExtension(mediaItemAccessor.ResourceName))
+        return false;
 
       File tag = LoadTag(fsra);
       if (tag == null)
@@ -469,6 +471,9 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
       IFileSystemResourceAccessor fsra = mediaItemAccessor as IFileSystemResourceAccessor;
       if (fsra == null)
         return false;
+      if (!HasAudioExtension(mediaItemAccessor.ResourceName))
+        return false;
+
       File tag = LoadTag(fsra);
       if (tag == null)
         return false;
