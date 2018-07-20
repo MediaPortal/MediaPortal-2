@@ -2318,9 +2318,9 @@
       <Grid.RowDefinitions>
         <RowDefinition Height="{StaticResource MEDIA_VIDEO_HEIGHT}"/>
       </Grid.RowDefinitions>
-      <Grid Background="#FF50575c" >
+      <Grid Margin="1,0,1,0">
         <Grid.OpacityMask >
-          <ImageBrush ImageSource="video_thumb_mask.png"/>
+          <ImageBrush ImageSource="tvseries_thumb_mask.png"/>
         </Grid.OpacityMask>
         <Image x:Name="ItemTypeImage" Stretch="Fill">
           <Image.Source>
@@ -2360,7 +2360,7 @@
         </Grid>
       </Grid>
       <Image Source="episode_thumb_focus.png" HorizontalAlignment="Center" VerticalAlignment="Center" Stretch="Fill"
-             Width="{StaticResource MEDIA_VIDEO_WIDTH}" Margin="-8,-2,-6,-2"
+             Width="{StaticResource MEDIA_VIDEO_WIDTH}" Margin="-9,-4,-9,-4"
              IsVisible="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}},Path=HasFocus}">
       </Image>
     </Grid>
@@ -2453,6 +2453,15 @@
                 Height="{StaticResource COVERVIEW_WIDTH}" Width="{StaticResource MEDIA_COVER_WIDTH}"
                 IsVisible="{Binding ElementName=thumb, Path=!HasImage}" Background="#BF666666">
         </Border>
+        <Image Stretch="Uniform" Margin="25,0,25,25" IsVisible="{Binding ElementName=thumb, Path=!HasImage}" Source="genre.png" >
+          <Image.Opacity>
+            <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
+              <Binding RelativeSource="{RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}}" Path="HasFocus"/>
+              <Binding Source="1.0"/>
+              <Binding Source="0.85"/>
+            </MultiBinding>
+          </Image.Opacity>
+        </Image>
         <Grid Width="{StaticResource MEDIA_COVER_WIDTH}" VerticalAlignment="Bottom" Background="#66000000" HorizontalAlignment="Stretch">
           <Grid.ColumnDefinitions>
             <ColumnDefinition Width="*"/>
@@ -2478,9 +2487,9 @@
       <Grid.RowDefinitions>
         <RowDefinition Height="{StaticResource MEDIA_VIDEO_HEIGHT}"/>
       </Grid.RowDefinitions>
-      <Grid Background="#FF50575c" >
+      <Grid Margin="1,0,1,0">
         <Grid.OpacityMask >
-          <ImageBrush ImageSource="video_thumb_mask.png"/>
+          <ImageBrush ImageSource="tvseries_thumb_mask.png"/>
         </Grid.OpacityMask>
         <Image x:Name="ItemTypeImage" Stretch="Fill">
           <Image.Source>
@@ -2520,7 +2529,7 @@
         </Grid>
       </Grid>
       <Image Source="episode_thumb_focus.png" HorizontalAlignment="Center" VerticalAlignment="Center" Stretch="Fill"
-             Width="{StaticResource MEDIA_VIDEO_WIDTH}" Margin="-8,-2,-6,-2"
+             Width="{StaticResource MEDIA_VIDEO_WIDTH}" Margin="-9,-4,-9,-4"
              IsVisible="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}},Path=HasFocus}">
       </Image>
     </Grid>
@@ -2613,6 +2622,15 @@
                 Height="{StaticResource COVERVIEW_WIDTH}" Width="{StaticResource MEDIA_COVER_WIDTH}"
                 IsVisible="{Binding ElementName=thumb, Path=!HasImage}" Background="#BF666666">
         </Border>
+        <Image Stretch="Uniform" Margin="25,0,25,25" IsVisible="{Binding ElementName=thumb, Path=!HasImage}" Source="genre.png" >
+          <Image.Opacity>
+            <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
+              <Binding RelativeSource="{RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}}" Path="HasFocus"/>
+              <Binding Source="1.0"/>
+              <Binding Source="0.85"/>
+            </MultiBinding>
+          </Image.Opacity>
+        </Image>
         <Grid Width="{StaticResource MEDIA_COVER_WIDTH}" VerticalAlignment="Bottom" Background="#66000000" HorizontalAlignment="Stretch">
           <Grid.ColumnDefinitions>
             <ColumnDefinition Width="*"/>
@@ -2638,9 +2656,9 @@
       <Grid.RowDefinitions>
         <RowDefinition Height="{StaticResource MEDIA_VIDEO_HEIGHT}"/>
       </Grid.RowDefinitions>
-      <Grid Background="#FF50575c" >
+      <Grid Margin="1,0,1,0">
         <Grid.OpacityMask >
-          <ImageBrush ImageSource="video_thumb_mask.png"/>
+          <ImageBrush ImageSource="tvseries_thumb_mask.png"/>
         </Grid.OpacityMask>
         <Image x:Name="ItemTypeImage" Stretch="Fill">
           <Image.Source>
@@ -2657,8 +2675,7 @@
         <Image Stretch="Fill" Margin="0" IsVisible="{Binding ElementName=ItemTypeImage, Path=!HasImage}"
              Source="tvseries_thumb_background.png" Opacity="0.85">
         </Image>
-        <Image Stretch="Uniform" Margin="25,0,25,25" IsVisible="{Binding ElementName=ItemTypeImage, Path=!HasImage}"
-             Source="genre.png" >
+        <Image Stretch="Uniform" Margin="25,0,25,25" IsVisible="{Binding ElementName=ItemTypeImage, Path=!HasImage}" Source="genre.png" >
           <Image.Opacity>
             <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
               <Binding RelativeSource="{RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}}" Path="HasFocus"/>
@@ -2676,11 +2693,11 @@
             <RowDefinition Height="*"/>
           </Grid.RowDefinitions>
           <Label x:Name="ItemLabel" HorizontalAlignment="Center" VerticalAlignment="Bottom" TextTrimming="CharacterEllipsis"
-               Content="{Binding SimpleTitle}" Color="{ThemeResource TextColor}" Margin="3,0,3,5" FontSize="{ThemeResource SmallFontSize}"/>
+                 Content="{Binding SimpleTitle}" Color="{ThemeResource TextColor}" Margin="3,0,3,5" FontSize="{ThemeResource SmallFontSize}"/>
         </Grid>
       </Grid>
       <Image Source="episode_thumb_focus.png" HorizontalAlignment="Center" VerticalAlignment="Center" Stretch="Fill"
-             Width="{StaticResource MEDIA_VIDEO_WIDTH}" Margin="-8,-2,-6,-2"
+             Width="{StaticResource MEDIA_VIDEO_WIDTH}" Margin="-9,-4,-9,-4"
              IsVisible="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}},Path=HasFocus}">
       </Image>
     </Grid>
@@ -2773,6 +2790,15 @@
                 Height="{StaticResource COVERVIEW_WIDTH}" Width="{StaticResource MEDIA_COVER_WIDTH}"
                 IsVisible="{Binding ElementName=thumb, Path=!HasImage}" Background="#BF666666">
         </Border>
+        <Image Stretch="Uniform" Margin="25,0,25,25" IsVisible="{Binding ElementName=thumb, Path=!HasImage}" Source="genre.png" >
+          <Image.Opacity>
+            <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
+              <Binding RelativeSource="{RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}}" Path="HasFocus"/>
+              <Binding Source="1.0"/>
+              <Binding Source="0.85"/>
+            </MultiBinding>
+          </Image.Opacity>
+        </Image>
         <Grid Width="{StaticResource MEDIA_COVER_WIDTH}" VerticalAlignment="Bottom" Background="#66000000" HorizontalAlignment="Stretch">
           <Grid.ColumnDefinitions>
             <ColumnDefinition Width="*"/>
