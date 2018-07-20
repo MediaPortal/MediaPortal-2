@@ -149,7 +149,7 @@ namespace MediaPortal.Common.MediaManagement
           return new List<MultipleMediaItemAspect>();
 
         // If there are different Editions we need to filter the resources to the current selected edition
-        IList<int> selectedResources = HasEditions ? Editions[ActiveEditionIndex].ResourceIndexes :
+        IList<int> selectedResources = HasEditions ? Editions[ActiveEditionIndex].PrimaryResourceIndexes :
           providerAspects.Where(pra => pra.GetAttributeValue<int>(ProviderResourceAspect.ATTR_TYPE) == ProviderResourceAspect.TYPE_PRIMARY).
           Select(pra => pra.GetAttributeValue<int>(ProviderResourceAspect.ATTR_RESOURCE_INDEX)).OrderBy(i => i).ToList();
 
@@ -181,18 +181,28 @@ namespace MediaPortal.Common.MediaManagement
     /// <summary>
     /// Indicates if this <see cref="MediaItem"/> represents a multi-edition item.
     /// </summary>
-    public bool HasEditions { get { return Editions.Count > 1; } }
+    public bool HasEditions
+    {
+      get
+      {
+        IList<MultipleMediaItemAspect> videoStreamAspects;
+        if (!MediaItemAspect.TryGetAspects(_aspects, VideoStreamAspect.Metadata, out videoStreamAspects))
+          return false;
+
+        return videoStreamAspects.Select(pra => pra.GetAttributeValue<int>(VideoStreamAspect.ATTR_VIDEO_PART_SET)).Distinct().Count() > 1;
+      }
+    }
 
     /// <summary>
     /// Gets a map of sets and their primary resources indexes for the current MediaItem 
     /// (presents physical parts of multi-file items) that can be used to start playback.
     /// Secondary resources (like subtitles) are not considered here.
     /// </summary>
-    public IDictionary<int, (string Name, IList<int> ResourceIndexes)> Editions
+    public IDictionary<int, (string Name, IList<int> PrimaryResourceIndexes, TimeSpan Duration)> Editions
     {
       get
       {
-        var map = new Dictionary<int, (string Name, IList<int> ResourceIndexes)>();
+        var map = new Dictionary<int, (string, IList<int>, TimeSpan)>();
         IList<MultipleMediaItemAspect> videoStreamAspects;
         if (!MediaItemAspect.TryGetAspects(_aspects, VideoStreamAspect.Metadata, out videoStreamAspects))
           return map;
@@ -207,22 +217,22 @@ namespace MediaPortal.Common.MediaManagement
             continue;
 
           usedSets.Add(setNo);
-          (string Name, IList<int> ResourceIndexes) edition = (stream.GetAttributeValue<string>(VideoStreamAspect.ATTR_VIDEO_PART_SET_NAME), new List<int>());
+          (string Name, IList<int> PrimaryResourceIndexes, TimeSpan Duration) edition = 
+            (stream.GetAttributeValue<string>(VideoStreamAspect.ATTR_VIDEO_PART_SET_NAME), new List<int>(), new TimeSpan());
 
           bool durationIsValid = true;
-          TimeSpan duration = new TimeSpan();
           foreach (var res in videoStreamAspects.Where(v => v.GetAttributeValue<int>(VideoStreamAspect.ATTR_VIDEO_PART_SET) == setNo))
           {
             long? durSecs = res.GetAttributeValue<long?>(VideoStreamAspect.ATTR_DURATION);
             if (durSecs.HasValue)
-              duration = TimeSpan.FromSeconds(durSecs.Value + duration.TotalSeconds);
+              edition.Duration = edition.Duration.Add(TimeSpan.FromSeconds(durSecs.Value));
             else
               durationIsValid = false;
-            edition.ResourceIndexes.Add(res.GetAttributeValue<int>(VideoStreamAspect.ATTR_RESOURCE_INDEX));
+            edition.PrimaryResourceIndexes.Add(res.GetAttributeValue<int>(VideoStreamAspect.ATTR_RESOURCE_INDEX));
           }
 
           if (durationIsValid)
-            edition.Name += $": {duration.ToString()}";
+            edition.Name += $": {edition.Duration.ToString()}";
 
           map[editionIdx] = edition;
           editionIdx++;
@@ -296,7 +306,7 @@ namespace MediaPortal.Common.MediaManagement
         if (ActiveEditionIndex <= MaximumEditionIndex)
         {
           var currentEdition = Editions[ActiveEditionIndex];
-          var resourceIndex = Editions[ActiveEditionIndex].ResourceIndexes.First();
+          var resourceIndex = Editions[ActiveEditionIndex].PrimaryResourceIndexes.First();
           if (resourceIndex < providerAspects.Count)
             aspect = providerAspects.First(p => p.GetAttributeValue<int>(ProviderResourceAspect.ATTR_RESOURCE_INDEX) == resourceIndex);
         }
