@@ -527,7 +527,7 @@ namespace MediaPortal.UI.Services.Players
       bool playOk;
       do // Loop: Try until we find an item we can play
       {
-        if (--countLeft < 0 || !_playlist.HasNext) // Break loop if we don't have any more items left
+        if (--countLeft < 0 || !_playlist.HasNext || psc.IsClosed) // Break loop if we don't have any more items left or player is closed
         {
           _playlist.ResetStatus();
           return false;
