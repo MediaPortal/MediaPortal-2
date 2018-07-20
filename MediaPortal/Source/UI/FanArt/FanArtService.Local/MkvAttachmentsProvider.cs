@@ -105,7 +105,7 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Local
       // File based access
       try
       {
-        using (var accessor = resourceLocator.CreateAccessor())
+        using (var accessor = resourceLocator?.CreateAccessor())
         {
           ILocalFsResourceAccessor fsra = accessor as ILocalFsResourceAccessor;
           if (fsra != null)
