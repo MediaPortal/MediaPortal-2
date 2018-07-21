@@ -407,7 +407,6 @@ namespace MediaPortal.Backend.Services.Database
                   ServiceRegistration.Get<ILogger>().Info("DatabaseManager: Migrated subschema '{0}'", manager.MigrationOwnerName);
                 currentMigrationStep++;
                 SendUpgradeProgress(currentMigrationStep, totalMigrationSteps);
-                System.Threading.Thread.Sleep(1000);
               }
 
               //Migrate aspect data
@@ -419,7 +418,6 @@ namespace MediaPortal.Backend.Services.Database
                   ServiceRegistration.Get<ILogger>().Warn("DatabaseManager: Migration of aspect '{0}' failed", manager.MigrationOwnerName);
                 currentMigrationStep++;
                 SendUpgradeProgress(currentMigrationStep, totalMigrationSteps);
-                System.Threading.Thread.Sleep(1000);
               }
               transaction.Commit();
             }
