@@ -27,12 +27,12 @@ using System.Xml.Serialization;
 
 namespace MediaPortal.Backend.Services.Database
 {
-  public class DatabaseUgradeServerState
+  public class DatabaseUpgradeServerState
   {
     public static readonly Guid STATE_ID = new Guid("431528C9-5610-45CD-9807-0130AE1761DA");
 
     [XmlAttribute("IsUgrading")]
-    public bool IsImporting { get; set; }
+    public bool IsUpgrading { get; set; }
     [XmlAttribute("Progress")]
     public int Progress { get; set; }
   }

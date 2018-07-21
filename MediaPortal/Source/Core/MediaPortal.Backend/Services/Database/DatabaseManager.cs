@@ -240,12 +240,12 @@ namespace MediaPortal.Backend.Services.Database
         if (progress > 100)
           progress = 100;
 
-        var state = new DatabaseUgradeServerState
+        var state = new DatabaseUpgradeServerState
         {
-          IsImporting = progress < 100,
+          IsUpgrading = progress < 100,
           Progress = (progress < 100) ? Convert.ToInt32(progress) : -1
         };
-        ServiceRegistration.Get<IServerStateService>().UpdateState(DatabaseUgradeServerState.STATE_ID, state);
+        ServiceRegistration.Get<IServerStateService>().UpdateState(DatabaseUpgradeServerState.STATE_ID, state);
       }
       catch { }
     }
