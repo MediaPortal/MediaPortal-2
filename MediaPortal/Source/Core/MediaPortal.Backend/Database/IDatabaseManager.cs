@@ -47,6 +47,14 @@ namespace MediaPortal.Backend.Database
     string DummyTableName { get; }
 
     /// <summary>
+    /// Returns whether a database upgrade is currently in progress.
+    /// </summary>
+    /// <remarks>
+    /// When a database upgrade is in progress client queries should be avoided because data integrity is not garantued.
+    /// </remarks>
+    bool UpgradeInProgress { get; }
+
+    /// <summary>
     /// Starts the database manager. This must be done after the database service is available (i.e. after the database plugin
     /// was started).
     /// </summary>
@@ -117,17 +125,17 @@ namespace MediaPortal.Backend.Database
     /// <param name="dataOwner">Owner of the data which will be migrated.</param>
     /// <param name="migrateScriptFilePath">Path to a file containing the script to migrate the data of the given
     /// <paramref name="dataOwner"/>.</param>
-    /// <param name="migrationPlaceholders">Script placeholders that must be replaced during script execution.</param>
+    /// <param name="migrationPlaceholderTables">Script placeholders that must be replaced during script execution from a list of tables.</param>
     /// <exception cref="Exception">All exceptions in lower DB layers, which are caused by problems in the
     /// DB connection or malformed scripts, will be re-thrown by this method.</exception>
-    void MigrateData(ITransaction transaction, string dataOwner, string migrateScriptFilePath, IDictionary<string, string> migrationPlaceholders);
+    void MigrateData(ITransaction transaction, string dataOwner, string migrateScriptFilePath, IDictionary<string, IList<string>> migrationPlaceholderTables);
 
     /// <summary>
     /// Executes an SQL script provided by the given <paramref name="instructions"/>.
     /// </summary>
     /// <param name="transaction">Transaction to use for executing the batch.</param>
     /// <param name="instructions">Instructions to execute in batch mode.</param>
-    void ExecuteBatch(ITransaction transaction, InstructionList instructions);
+    void ExecuteBatch(ITransaction transaction, InstructionList instructions, IDictionary<string, IList<string>> migrationPlaceholderTables = null);
 
     /// <summary>
     /// Executes an upgrade of the database if needed.

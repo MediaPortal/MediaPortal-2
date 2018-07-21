@@ -91,7 +91,7 @@ namespace MediaPortal.Backend.Services.Database
 
     protected string _migrationOwnerName;
     protected string _migrationDefaultName;
-    protected IDictionary<string, string> _defaultScriptPlaceholders;
+    protected IDictionary<string, IList<string>> _defaultScriptPlaceholderTables;
     protected IList<MigrateOperation> _migrateOperations = new List<MigrateOperation>();
     protected IList<MigrateOperation> _defaultMigrateOperations = new List<MigrateOperation>();
 
@@ -102,11 +102,11 @@ namespace MediaPortal.Backend.Services.Database
     /// </summary>
     /// <param name="migrationOwnerName">Name of the object this class works on. This is the name which will be used
     /// as part of the file name search pattern for method <see cref="AddDirectory"/>.</param>
-    public DatabaseMigrationManager(string migrationOwnerName, string migrationDefaultName = null, IDictionary<string, string> defaultScriptPlaceholders = null)
+    public DatabaseMigrationManager(string migrationOwnerName, string migrationDefaultName = null, IDictionary<string, IList<string>> defaultScriptPlaceholderTables = null)
     {
       _migrationOwnerName = migrationOwnerName;
       _migrationDefaultName = migrationDefaultName;
-      _defaultScriptPlaceholders = defaultScriptPlaceholders;
+      _defaultScriptPlaceholderTables = defaultScriptPlaceholderTables;
     }
 
     /// <summary>
@@ -283,7 +283,7 @@ namespace MediaPortal.Backend.Services.Database
       MigrateOperation operation = GetMigrateOperation(curVersionMajor, curVersionMinor, targetVersionMajor, targetVersionMinor);
       if (operation == null)
         return false;
-      databaseManager.MigrateData(transaction, _migrationOwnerName, operation.MigrateScriptFilePath, _defaultScriptPlaceholders);
+      databaseManager.MigrateData(transaction, _migrationOwnerName, operation.MigrateScriptFilePath, _defaultScriptPlaceholderTables);
       return true;
     }
   }

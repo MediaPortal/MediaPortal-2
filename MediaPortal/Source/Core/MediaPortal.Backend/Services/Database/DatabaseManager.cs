@@ -33,6 +33,7 @@ using MediaPortal.Utilities.DB;
 using MediaPortal.Utilities.Exceptions;
 using MediaPortal.Backend.Services.MediaLibrary;
 using System.Linq;
+using MediaPortal.Backend.ClientCommunication;
 
 namespace MediaPortal.Backend.Services.Database
 {
@@ -40,15 +41,21 @@ namespace MediaPortal.Backend.Services.Database
   {
     public const string DUMMY_TABLE_NAME = "DUMMY";
     public const string BACKUP_TABLE_SUFFIX = "__OLD";
-    public const string IGNORE_TOKEN = "%%IGNORE%%";
 
     public const int DATABASE_VERSION_MAJOR = 2;
     public const int DATABASE_VERSION_MINOR = 2;
+
+    public const string MIA_TABLE_PLACEHOLDER = "%ASPECT_TABLE%";
+    public const string MIA_V_TABLE_PLACEHOLDER = "%ASPECT_V_TABLE%";
+    public const string MIA_NM_TABLE_PLACEHOLDER = "%ASPECT_NM_TABLE%";
 
     protected Dictionary<string, string> _migrationScriptPlaceholders = new Dictionary<string, string>()
     {
       { "%SUFFIX%", BACKUP_TABLE_SUFFIX }
     };
+
+    protected bool _upgradeInProgress = false;
+    protected MIA_Management _miaManagement = null;
 
     public DatabaseManager()
     {
@@ -166,31 +173,14 @@ namespace MediaPortal.Backend.Services.Database
       }
     }
 
-    protected IEnumerable<(Guid Id, string Name)> GetMiaObjects()
+    protected DatabaseMigrationManager GetMiaMigrationManager(Guid miaId, string miaName)
     {
-      ISQLDatabase database = ServiceRegistration.Get<ISQLDatabase>(false);
-      using (ITransaction transaction = database.BeginTransaction())
-      {
-        List<(Guid Id, string Name)> objects = new List<(Guid Id, string Name)>();
-        int idIndex;
-        int nameIndex;
-        int objectIndex;
-        IDbCommand command = MediaLibrary_SubSchema.SelectMIANameAliasesCommand(transaction, out idIndex, out nameIndex, out objectIndex);
-        using (command)
-        using (IDataReader reader = command.ExecuteReader())
-        {
-          ICollection<string> result = new List<string>();
-          while (reader.Read())
-            objects.Add((reader.GetGuid(idIndex), reader.GetString(objectIndex)));
-        }
-        return objects;
-      }
-    }
+      if(_miaManagement == null)
+        _miaManagement = new MIA_Management();
 
-    protected DatabaseMigrationManager GetMiaMigrationManager(string miaName, IEnumerable<string> miaObjects)
-    {
       //Check if table for mia can be found
-      string tableName = miaObjects.FirstOrDefault(o => o.StartsWith("M_") && !o.Contains("_PK"));
+      var metaData = _miaManagement.GetMediaItemAspectMetadata(miaId);
+      string tableName = _miaManagement.GetMIATableName(metaData);
       if (string.IsNullOrEmpty(tableName))
         return null;
 
@@ -200,34 +190,64 @@ namespace MediaPortal.Backend.Services.Database
         return null;
 
       //Add main table
-      Dictionary<string, string> defaultScriptPlaceholders = new Dictionary<string, string>();
-      defaultScriptPlaceholders.Add("%ASPECT_TABLE%", tableName);
+      IDictionary<string, IList<string>> defaultScriptPlaceholderTables = new Dictionary<string, IList<string>>();
+      defaultScriptPlaceholderTables.Add(MIA_TABLE_PLACEHOLDER, new List<string> { tableName });
 
       //Add collection tables
-      tableName = miaObjects.FirstOrDefault(o => o.StartsWith("V_") && !o.Contains("_PK"));
-      if (!string.IsNullOrEmpty(tableName) && database.TableExists($"{tableName}{BACKUP_TABLE_SUFFIX}"))
+      foreach(var attribute in metaData.AttributeSpecifications)
       {
-        defaultScriptPlaceholders.Add("%ASPECT_V_TABLE%", tableName);
-      }
-      else
-      {
-        //Add it so it gets ignored
-        defaultScriptPlaceholders.Add("%ASPECT_V_TABLE%", IGNORE_TOKEN);
-      }
-      tableName = miaObjects.FirstOrDefault(o => o.StartsWith("NM_") && !o.Contains("_PK"));
-      if (!string.IsNullOrEmpty(tableName) && database.TableExists($"{tableName}{BACKUP_TABLE_SUFFIX}"))
-      {
-        defaultScriptPlaceholders.Add("%ASPECT_NM_TABLE%", tableName);
-      }
-      else
-      {
-        //Add it so it gets ignored
-        defaultScriptPlaceholders.Add("%ASPECT_NM_TABLE%", IGNORE_TOKEN);
+        if (attribute.Value.IsCollectionAttribute)
+        {
+          if (attribute.Value.Cardinality == Common.MediaManagement.Cardinality.OneToMany ||
+            attribute.Value.Cardinality == Common.MediaManagement.Cardinality.ManyToMany)
+          {
+            tableName = _miaManagement.GetMIACollectionAttributeTableName(attribute.Value);
+            if (string.IsNullOrEmpty(tableName))
+              continue;
+            if (!database.TableExists($"{tableName}{BACKUP_TABLE_SUFFIX}"))
+              continue;
+
+            if (!defaultScriptPlaceholderTables.ContainsKey(MIA_V_TABLE_PLACEHOLDER))
+              defaultScriptPlaceholderTables.Add(MIA_V_TABLE_PLACEHOLDER, new List<string>());
+            defaultScriptPlaceholderTables[MIA_V_TABLE_PLACEHOLDER].Add(tableName);
+          }
+          if (attribute.Value.Cardinality == Common.MediaManagement.Cardinality.ManyToMany)
+          {
+            tableName = _miaManagement.GetMIACollectionAttributeNMTableName(attribute.Value);
+            if (string.IsNullOrEmpty(tableName))
+              continue;
+            if (!database.TableExists($"{tableName}{BACKUP_TABLE_SUFFIX}"))
+              continue;
+
+            if (!defaultScriptPlaceholderTables.ContainsKey(MIA_NM_TABLE_PLACEHOLDER))
+              defaultScriptPlaceholderTables.Add(MIA_NM_TABLE_PLACEHOLDER, new List<string>());
+            defaultScriptPlaceholderTables[MIA_NM_TABLE_PLACEHOLDER].Add(tableName);
+          }
+        }
       }
 
-      DatabaseMigrationManager manager = new DatabaseMigrationManager(miaName, "DefaultAspect", defaultScriptPlaceholders);
+      DatabaseMigrationManager manager = new DatabaseMigrationManager(miaName, "DefaultAspect", defaultScriptPlaceholderTables);
       manager.AddDirectory(MediaPortal_Basis_Schema.DatabaseUpgradeScriptDirectory);
       return manager;
+    }
+
+    protected void SendUpgradeProgress(double currentStep, double totalSteps)
+    {
+      try
+      {
+        double progress = (currentStep / totalSteps) * 100.0;
+
+        if (progress > 100)
+          progress = 100;
+
+        var state = new DatabaseUgradeServerState
+        {
+          IsImporting = progress < 100,
+          Progress = (progress < 100) ? Convert.ToInt32(progress) : -1
+        };
+        ServiceRegistration.Get<IServerStateService>().UpdateState(DatabaseUgradeServerState.STATE_ID, state);
+      }
+      catch { }
     }
 
     #endregion
@@ -270,10 +290,9 @@ namespace MediaPortal.Backend.Services.Database
 
     #region IDatabaseManager implementation
 
-    public string DummyTableName
-    {
-      get { return DUMMY_TABLE_NAME; }
-    }
+    public string DummyTableName => DUMMY_TABLE_NAME;
+
+    public bool UpgradeInProgress => _upgradeInProgress;
 
     public void Startup()
     {
@@ -312,6 +331,7 @@ namespace MediaPortal.Backend.Services.Database
         (curVersionMajor < DATABASE_VERSION_MAJOR ||
         (curVersionMajor == DATABASE_VERSION_MAJOR && curVersionMinor < DATABASE_VERSION_MINOR)))
       {
+        _upgradeInProgress = true;
         ServiceRegistration.Get<ILogger>().Info("DatabaseManager: Initiating update to database version {0}.{1}", DATABASE_VERSION_MAJOR, DATABASE_VERSION_MINOR);
         Version currrentVersion = new Version(curVersionMajor, curVersionMinor);
         if (database.BackupDatabase(currrentVersion.ToString(2)) && database.BackupTables(BACKUP_TABLE_SUFFIX))
@@ -336,70 +356,88 @@ namespace MediaPortal.Backend.Services.Database
       ISQLDatabase database = ServiceRegistration.Get<ISQLDatabase>(false);
       int curVersionMajor;
       int curVersionMinor;
-      if (GetDatabaseVersion(out curVersionMajor, out curVersionMinor, true))
+      int totalMigrationSteps = 1;
+      try
       {
-        if (curVersionMajor != DATABASE_VERSION_MAJOR || curVersionMinor != DATABASE_VERSION_MINOR)
+        if (GetDatabaseVersion(out curVersionMajor, out curVersionMinor, true))
         {
-          ServiceRegistration.Get<ILogger>().Info("DatabaseManager: Initiating data migration to database version {0}.{1}", DATABASE_VERSION_MAJOR, DATABASE_VERSION_MINOR);
-          //Database was not migratable before version 2.1
-          if (curVersionMajor == 2 && curVersionMinor == 0)
-            curVersionMinor = 1;
+          if (curVersionMajor != DATABASE_VERSION_MAJOR || curVersionMinor != DATABASE_VERSION_MINOR)
+          {
+            ServiceRegistration.Get<ILogger>().Info("DatabaseManager: Initiating data migration to database version {0}.{1}", DATABASE_VERSION_MAJOR, DATABASE_VERSION_MINOR);
+            //Database was not migratable before version 2.1
+            if (curVersionMajor == 2 && curVersionMinor == 0)
+              curVersionMinor = 1;
 
-          var miaTypes = GetMiaTypes().OrderBy(m => m.Date);
-          var oldMiaTypes = GetMiaTypes(true);
-          var miaObjects = GetMiaObjects();
+            var miaTypes = GetMiaTypes().OrderBy(m => m.Date);
+            var oldMiaTypes = GetMiaTypes(true);
 
-          //Add subschemas
-          List<DatabaseMigrationManager> schemaManagers = new List<DatabaseMigrationManager>();
-          foreach (string subSchema in GetDatabaseSubSchemas())
-          {
-            DatabaseMigrationManager manager = new DatabaseMigrationManager(subSchema);
-            manager.AddDirectory(MediaPortal_Basis_Schema.DatabaseUpgradeScriptDirectory);
-            schemaManagers.Add(manager);
-          }
-          //Add aspects
-          List<DatabaseMigrationManager> aspectManagers = new List<DatabaseMigrationManager>();
-          foreach (var mia in miaTypes)
-          {
-            DatabaseMigrationManager manager = GetMiaMigrationManager(mia.Name, miaObjects.Where(o => o.Id == mia.Id).Select(o => o.Name));
-            if(manager != null)
-              aspectManagers.Add(manager);
-            else
-              ServiceRegistration.Get<ILogger>().Warn("DatabaseManager: Migration of aspect '{0}' skipped because no migration manager was available", mia.Name);
-          }
-          foreach (var mia in oldMiaTypes.Where(o => !miaTypes.Any(m => m.Id == o.Id)))
-          {
-            ServiceRegistration.Get<ILogger>().Warn("DatabaseManager: Migration of aspect '{0}' skipped because it no longer exists", mia.Name);
-          }
-
-          using (ITransaction transaction = database.BeginTransaction())
-          {
-            //Migrate sub schema data. Note that not all sub schemas need to be migrated
-            foreach (var manager in schemaManagers)
+            //Add subschemas
+            List<DatabaseMigrationManager> schemaManagers = new List<DatabaseMigrationManager>();
+            foreach (string subSchema in GetDatabaseSubSchemas())
             {
-              if (manager.MigrateData(transaction, curVersionMajor, curVersionMinor, DATABASE_VERSION_MAJOR, DATABASE_VERSION_MINOR))
-                ServiceRegistration.Get<ILogger>().Info("DatabaseManager: Migrated subschema '{0}'", manager.MigrationOwnerName);
+              DatabaseMigrationManager manager = new DatabaseMigrationManager(subSchema);
+              manager.AddDirectory(MediaPortal_Basis_Schema.DatabaseUpgradeScriptDirectory);
+              schemaManagers.Add(manager);
             }
-
-            //Migrate aspect data
-            foreach (var manager in aspectManagers)
+            //Add aspects
+            List<DatabaseMigrationManager> aspectManagers = new List<DatabaseMigrationManager>();
+            foreach (var mia in miaTypes)
             {
-              if (manager.MigrateData(transaction, curVersionMajor, curVersionMinor, DATABASE_VERSION_MAJOR, DATABASE_VERSION_MINOR))
-                ServiceRegistration.Get<ILogger>().Info("DatabaseManager: Migrated aspect '{0}'", manager.MigrationOwnerName);
+              DatabaseMigrationManager manager = GetMiaMigrationManager(mia.Id, mia.Name);
+              if (manager != null)
+                aspectManagers.Add(manager);
               else
-                ServiceRegistration.Get<ILogger>().Warn("DatabaseManager: Migration of aspect '{0}' failed", manager.MigrationOwnerName);
+                ServiceRegistration.Get<ILogger>().Warn("DatabaseManager: Migration of aspect '{0}' skipped because no migration manager was available", mia.Name);
             }
-            transaction.Commit();
+            foreach (var mia in oldMiaTypes.Where(o => !miaTypes.Any(m => m.Id == o.Id)))
+            {
+              ServiceRegistration.Get<ILogger>().Warn("DatabaseManager: Migration of aspect '{0}' skipped because it no longer exists", mia.Name);
+            }
+
+            totalMigrationSteps = schemaManagers.Count + aspectManagers.Count; //All migrations
+            totalMigrationSteps += 2; //Add backup step that has already been completed
+            totalMigrationSteps += 2; //Add commit step that will be done after migration is complete
+            int currentMigrationStep = 2;
+            using (ITransaction transaction = database.BeginTransaction())
+            {
+              //Migrate sub schema data. Note that not all sub schemas need to be migrated
+              foreach (var manager in schemaManagers)
+              {
+                if (manager.MigrateData(transaction, curVersionMajor, curVersionMinor, DATABASE_VERSION_MAJOR, DATABASE_VERSION_MINOR))
+                  ServiceRegistration.Get<ILogger>().Info("DatabaseManager: Migrated subschema '{0}'", manager.MigrationOwnerName);
+                currentMigrationStep++;
+                SendUpgradeProgress(currentMigrationStep, totalMigrationSteps);
+                System.Threading.Thread.Sleep(1000);
+              }
+
+              //Migrate aspect data
+              foreach (var manager in aspectManagers)
+              {
+                if (manager.MigrateData(transaction, curVersionMajor, curVersionMinor, DATABASE_VERSION_MAJOR, DATABASE_VERSION_MINOR))
+                  ServiceRegistration.Get<ILogger>().Info("DatabaseManager: Migrated aspect '{0}'", manager.MigrationOwnerName);
+                else
+                  ServiceRegistration.Get<ILogger>().Warn("DatabaseManager: Migration of aspect '{0}' failed", manager.MigrationOwnerName);
+                currentMigrationStep++;
+                SendUpgradeProgress(currentMigrationStep, totalMigrationSteps);
+                System.Threading.Thread.Sleep(1000);
+              }
+              transaction.Commit();
+            }
+            SetDatabaseVersion(DATABASE_VERSION_MAJOR, DATABASE_VERSION_MINOR, true);
+            if (!GetDatabaseVersion(out curVersionMajor, out curVersionMinor, true) || curVersionMajor != DATABASE_VERSION_MAJOR || curVersionMinor != DATABASE_VERSION_MINOR)
+              throw new IllegalCallException(string.Format("Unable to migrate database data to version {0}.{1}", DATABASE_VERSION_MAJOR, DATABASE_VERSION_MINOR));
           }
-          SetDatabaseVersion(DATABASE_VERSION_MAJOR, DATABASE_VERSION_MINOR, true);
-          if (!GetDatabaseVersion(out curVersionMajor, out curVersionMinor, true) || curVersionMajor != DATABASE_VERSION_MAJOR || curVersionMinor != DATABASE_VERSION_MINOR)
-            throw new IllegalCallException(string.Format("Unable to migrate database data to version {0}.{1}", DATABASE_VERSION_MAJOR, DATABASE_VERSION_MINOR));
+          database.DropBackupTables(BACKUP_TABLE_SUFFIX);
+          ServiceRegistration.Get<ILogger>().Info("DatabaseManager: Successfully migrated database data to version {0}.{1}", DATABASE_VERSION_MAJOR, DATABASE_VERSION_MINOR);
+          SendUpgradeProgress(totalMigrationSteps, totalMigrationSteps);
+          return true;
         }
-        database.DropBackupTables(BACKUP_TABLE_SUFFIX);
-        ServiceRegistration.Get<ILogger>().Info("DatabaseManager: Successfully migrated database data to version {0}.{1}", DATABASE_VERSION_MAJOR, DATABASE_VERSION_MINOR);
-        return true;
+        return false;
       }
-      return false;
+      finally
+      {
+        _upgradeInProgress = false;
+      }
     }
 
     public ICollection<string> GetDatabaseSubSchemas()
@@ -534,29 +572,46 @@ namespace MediaPortal.Backend.Services.Database
       }
     }
 
-    public void MigrateData(ITransaction transaction, string subSchemaName, string migrateScriptFilePath, IDictionary<string, string> migrationPlaceholders)
+    public void MigrateData(ITransaction transaction, string subSchemaName, string migrateScriptFilePath, IDictionary<string, IList<string>> migrationPlaceholderTables)
     {
-      var placeholders = _migrationScriptPlaceholders.ToDictionary(p => p.Key, p => p.Value);
-      if (migrationPlaceholders != null)
-        placeholders = placeholders.Concat(migrationPlaceholders).ToDictionary(p => p.Key, p => p.Value);
-      using (TextReader reader = new SqlScriptPreprocessor(migrateScriptFilePath, placeholders))
-        ExecuteBatch(transaction, new InstructionList(reader));
+      using (TextReader reader = new SqlScriptPreprocessor(migrateScriptFilePath, _migrationScriptPlaceholders))
+        ExecuteBatch(transaction, new InstructionList(reader), migrationPlaceholderTables);
     }
 
-    public void ExecuteBatch(ITransaction transaction, InstructionList instructions)
+    public void ExecuteBatch(ITransaction transaction, InstructionList instructions, IDictionary<string, IList<string>> migrationPlaceholderTables = null)
     {
       ISQLDatabase database = ServiceRegistration.Get<ISQLDatabase>(false);
       foreach (string instr in instructions)
       {
-        if (instr.Contains(IGNORE_TOKEN))
-          continue;
-
-        using (IDbCommand cmd = transaction.CreateCommand())
+        List<string> subInstructions = new List<string>() { instr };
+        if (migrationPlaceholderTables != null)
         {
-          string sql = instr;
-          AppendStorageClause(database, ref sql);
-          cmd.CommandText = sql;
-          cmd.ExecuteNonQuery();
+          foreach (string placeholder in migrationPlaceholderTables.Keys)
+          {
+            if (instr.Contains(placeholder))
+            {
+              subInstructions = new List<string>();
+              foreach (string table in migrationPlaceholderTables[placeholder])
+              {
+                subInstructions.Add(instr.Replace(placeholder, table));
+              }
+            }
+          }
+        }
+
+        foreach (string subInstr in subInstructions)
+        {
+          //Ignore instructions with placeholders
+          if (subInstr.Contains(MIA_TABLE_PLACEHOLDER) || subInstr.Contains(MIA_V_TABLE_PLACEHOLDER) || subInstr.Contains(MIA_NM_TABLE_PLACEHOLDER))
+            continue;
+
+          using (IDbCommand cmd = transaction.CreateCommand())
+          {
+            string sql = subInstr;
+            AppendStorageClause(database, ref sql);
+            cmd.CommandText = sql;
+            cmd.ExecuteNonQuery();
+          }
         }
       }
     }

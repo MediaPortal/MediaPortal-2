@@ -55,6 +55,7 @@
     <Compile Include="ClientCommunication\IClientController.cs" />
     <Compile Include="ClientCommunication\IServerStateService.cs" />
     <Compile Include="Services\Database\DatabaseMigrationManager.cs" />
+    <Compile Include="Services\Database\DatabaseUgradeServerState.cs" />
     <Compile Include="Services\Database\DatabaseSubSchemaManager.cs" />
     <Compile Include="Database\IDatabaseManager.cs" />
     <Compile Include="Database\ISQLDatabase.cs" />
