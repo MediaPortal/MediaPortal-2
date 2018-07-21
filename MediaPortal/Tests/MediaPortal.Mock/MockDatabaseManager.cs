@@ -33,10 +33,9 @@ namespace MediaPortal.Mock
   {
     public const string DUMMY_TABLE_NAME = "DUMMY";
 
-    public string DummyTableName
-    {
-      get { return DUMMY_TABLE_NAME; }
-    }
+    public string DummyTableName => DUMMY_TABLE_NAME;
+
+    public bool UpgradeInProgress => false;
 
     public void Startup()
     {
@@ -73,12 +72,12 @@ namespace MediaPortal.Mock
       throw new NotImplementedException();
     }
 
-    public void MigrateData(ITransaction transaction, string dataOwner, string migrateScriptFilePath, IDictionary<string, string> migrationPlaceholders)
+    public void MigrateData(ITransaction transaction, string dataOwner, string migrateScriptFilePath, IDictionary<string, IList<string>> migrationPlaceholderTables)
     {
       throw new NotImplementedException();
     }
 
-    public void ExecuteBatch(ITransaction transaction, InstructionList instructions)
+    public void ExecuteBatch(ITransaction transaction, InstructionList instructions, IDictionary<string, IList<string>> migrationPlaceholderTables = null)
     {
       throw new NotImplementedException();
     }
