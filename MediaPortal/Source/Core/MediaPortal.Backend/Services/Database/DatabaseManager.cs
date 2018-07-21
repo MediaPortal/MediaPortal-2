@@ -608,6 +608,7 @@ namespace MediaPortal.Backend.Services.Database
             string sql = subInstr;
             AppendStorageClause(database, ref sql);
             cmd.CommandText = sql;
+            ServiceRegistration.Get<ILogger>().Debug("DatabaseManager: Executing command '{0}'", cmd.CommandText);
             cmd.ExecuteNonQuery();
           }
         }
