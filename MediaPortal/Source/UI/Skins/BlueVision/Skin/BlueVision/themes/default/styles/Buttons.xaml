@@ -1104,7 +1104,7 @@
     <Setter Property="Template">
       <Setter.Value>
         <ControlTemplate TargetType="{x:Type Button}">
-          <Grid DockPanel.Dock="Left" Height="42" Width="42">
+          <Grid DockPanel.Dock="Left" Height="45" Width="45">
             <Image x:Name="Icon" Source="Upgrading.png" Stretch="Uniform" Margin="5" 
                    HorizontalAlignment="Center" VerticalAlignment="Center">
               <Image.Triggers>
