@@ -25,13 +25,13 @@
 using System;
 using System.Xml.Serialization;
 
-namespace MediaPortal.Backend.Services.Database
+namespace MediaPortal.Common.Services.Database
 {
   public class DatabaseUpgradeServerState
   {
     public static readonly Guid STATE_ID = new Guid("431528C9-5610-45CD-9807-0130AE1761DA");
 
-    [XmlAttribute("IsUgrading")]
+    [XmlAttribute("IsUpgrading")]
     public bool IsUpgrading { get; set; }
     [XmlAttribute("Progress")]
     public int Progress { get; set; }
