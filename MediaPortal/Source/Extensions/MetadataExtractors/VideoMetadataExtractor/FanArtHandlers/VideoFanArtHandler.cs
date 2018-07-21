@@ -68,6 +68,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor
       new Tuple<string, string>("folder.", FanArtTypes.Poster),
       new Tuple<string, string>("backdrop.", FanArtTypes.FanArt),
       new Tuple<string, string>("fanart.", FanArtTypes.FanArt),
+      new Tuple<string, string>("clearlogo.", FanArtTypes.Logo),
     };
 
     #endregion
@@ -156,7 +157,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor
       if (lfsra == null)
         return;
 
-      MatroskaInfoReader mkvReader = new MatroskaInfoReader(lfsra);
+      MatroskaBinaryReader mkvReader = new MatroskaBinaryReader(lfsra);
       IFanArtCache fanArtCache = ServiceRegistration.Get<IFanArtCache>();
       foreach (var pattern in MKV_PATTERNS)
       {

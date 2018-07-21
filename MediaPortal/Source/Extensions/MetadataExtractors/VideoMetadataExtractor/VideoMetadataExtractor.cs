@@ -39,6 +39,7 @@ using MediaPortal.Utilities;
 using MediaPortal.Utilities.SystemAPI;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Globalization;
 using System.IO;
 using System.Linq;
@@ -568,10 +569,13 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor
         if (!MatroskaConsts.MATROSKA_VIDEO_EXTENSIONS.Contains(extensionLower))
           return;
 
+        Stopwatch sw = new Stopwatch();
+        sw.Start();
+
         // Try to get extended information out of matroska files)
-        MatroskaInfoReader mkvReader = new MatroskaInfoReader(lfsra);
+        MatroskaBinaryReader mkvReader = new MatroskaBinaryReader(lfsra);
         // Add keys to be extracted to tags dictionary, matching results will returned as value
-        Dictionary<string, IList<string>> tagsToExtract = MatroskaConsts.DefaultTags;
+        Dictionary<string, IList<string>> tagsToExtract = MatroskaConsts.DefaultVideoTags;
         await mkvReader.ReadTagsAsync(tagsToExtract).ConfigureAwait(false);
         bool assignedValue = false;
 
@@ -609,13 +613,13 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor
             int? height = videoStreamAspects[0].GetAttributeValue<int?>(VideoStreamAspect.ATTR_HEIGHT);
             int? width = videoStreamAspects[0].GetAttributeValue<int?>(VideoStreamAspect.ATTR_WIDTH);
 
-            MatroskaInfoReader.StereoMode mode = await mkvReader.ReadStereoModeAsync().ConfigureAwait(false);
-            if (mode == MatroskaInfoReader.StereoMode.AnaglyphCyanRed || mode == MatroskaInfoReader.StereoMode.AnaglyphGreenMagenta)
-            {
+            MatroskaConsts.StereoMode mode = await mkvReader.ReadStereoModeAsync().ConfigureAwait(false);
+            if (mode == MatroskaConsts.StereoMode.AnaglyphCyanRed || mode == MatroskaConsts.StereoMode.AnaglyphGreenMagenta)
+            { 
               videoStreamAspects[0].SetAttribute(VideoStreamAspect.ATTR_VIDEO_TYPE, VideoStreamAspect.TYPE_ANAGLYPH);
               assignedValue = true;
             }
-            else if (mode == MatroskaInfoReader.StereoMode.SBSLeftEyeFirst || mode == MatroskaInfoReader.StereoMode.SBSRightEyeFirst)
+            else if (mode == MatroskaConsts.StereoMode.SBSLeftEyeFirst || mode == MatroskaConsts.StereoMode.SBSRightEyeFirst)
             {
               //If it was not detected as SBS by resolution it's probably Half SBS
               videoStreamAspects[0].SetAttribute(VideoStreamAspect.ATTR_VIDEO_TYPE, VideoStreamAspect.TYPE_HSBS);
@@ -628,7 +632,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor
                 assignedValue = true;
               }
             }
-            else if (mode == MatroskaInfoReader.StereoMode.TABLeftEyeFirst || mode == MatroskaInfoReader.StereoMode.TABRightEyeFirst)
+            else if (mode == MatroskaConsts.StereoMode.TABLeftEyeFirst || mode == MatroskaConsts.StereoMode.TABRightEyeFirst)
             {
               //If it was not detected as TAB by resolution it's probably Half TAB
               videoStreamAspects[0].SetAttribute(VideoStreamAspect.ATTR_VIDEO_TYPE, VideoStreamAspect.TYPE_HTAB);
@@ -641,15 +645,16 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor
                 assignedValue = true;
               }
             }
-            else if (mode == MatroskaInfoReader.StereoMode.FieldSequentialModeLeftEyeFirst || mode == MatroskaInfoReader.StereoMode.FieldSequentialModeRightEyeFirst)
+            else if (mode == MatroskaConsts.StereoMode.FieldSequentialModeLeftEyeFirst || mode == MatroskaConsts.StereoMode.FieldSequentialModeRightEyeFirst)
             {
               videoStreamAspects[0].SetAttribute(VideoStreamAspect.ATTR_VIDEO_TYPE, VideoStreamAspect.TYPE_MVC);
               assignedValue = true;
             }
           }
         }
-        if (assignedValue)
-          ServiceRegistration.Get<ILogger>().Debug("VideoMetadataExtractor: Assigned matroska tags from resource '{0}'", lfsra.CanonicalLocalResourcePath);
+        
+        sw.Stop();
+        ServiceRegistration.Get<ILogger>().Debug("VideoMetadataExtractor: Completed reading {1}matroska tags from resource '{0}' (Time: {2} ms)", lfsra.CanonicalLocalResourcePath, assignedValue ? "and assigning " : "", sw.ElapsedMilliseconds);
       }
       catch (Exception e)
       {
@@ -666,7 +671,10 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor
         bool assignedValue = false;
 
         // Try to get extended information out of MP4 files)
-        if (extensionUpper != ".MP4") return;
+        if (extensionUpper != ".MP4" && extensionUpper != ".M4V") return;
+        
+        Stopwatch sw = new Stopwatch();
+        sw.Start();
 
         using (lfsra.EnsureLocalFileSystemAccess())
         {
@@ -695,8 +703,9 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor
             MediaItemAspect.SetAttribute(extractedAspectData, MediaAspect.ATTR_RECORDINGTIME, new DateTime(year, 1, 1));
             assignedValue = true;
           }
-          if (assignedValue)
-            ServiceRegistration.Get<ILogger>().Debug("VideoMetadataExtractor: Assigned mp4 tags from resource '{0}'", lfsra.CanonicalLocalResourcePath);
+
+          sw.Stop();
+          ServiceRegistration.Get<ILogger>().Debug("VideoMetadataExtractor: Completed reading {1}mp4 tags from resource '{0}' (Time: {2} ms)", lfsra.CanonicalLocalResourcePath, assignedValue ? "and assigning " : "", sw.ElapsedMilliseconds);
         }
       }
       catch (Exception e)

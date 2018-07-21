@@ -92,7 +92,9 @@
     </Content>
   </ItemGroup>
   <ItemGroup>
-    <None Include="build.targets" />
+    <None Include="build.targets">
+      <SubType>Designer</SubType>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="ffmpeg">
