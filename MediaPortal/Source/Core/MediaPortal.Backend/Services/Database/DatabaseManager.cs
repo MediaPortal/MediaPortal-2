@@ -34,6 +34,7 @@ using MediaPortal.Utilities.Exceptions;
 using MediaPortal.Backend.Services.MediaLibrary;
 using System.Linq;
 using MediaPortal.Backend.ClientCommunication;
+using MediaPortal.Common.Services.Database;
 
 namespace MediaPortal.Backend.Services.Database
 {
@@ -49,9 +50,13 @@ namespace MediaPortal.Backend.Services.Database
     public const string MIA_V_TABLE_PLACEHOLDER = "%ASPECT_V_TABLE%";
     public const string MIA_NM_TABLE_PLACEHOLDER = "%ASPECT_NM_TABLE%";
 
+    public const string MIGRATION_USER_PARAM = "MigrationUser";
+    public readonly Guid MIGRATION_USER_GUID = Guid.Empty;
+
     protected Dictionary<string, string> _migrationScriptPlaceholders = new Dictionary<string, string>()
     {
-      { "%SUFFIX%", BACKUP_TABLE_SUFFIX }
+      { "%SUFFIX%", BACKUP_TABLE_SUFFIX },
+      { "%MIGRATION_USER%", "@" + MIGRATION_USER_PARAM }
     };
 
     protected bool _upgradeInProgress = false;
@@ -59,6 +64,7 @@ namespace MediaPortal.Backend.Services.Database
 
     public DatabaseManager()
     {
+      MIGRATION_USER_GUID = Guid.NewGuid();
     }
 
     public void Dispose()
@@ -605,6 +611,9 @@ namespace MediaPortal.Backend.Services.Database
 
           using (IDbCommand cmd = transaction.CreateCommand())
           {
+            if (subInstr.Contains("@" + MIGRATION_USER_PARAM))
+              database.AddParameter(cmd, MIGRATION_USER_PARAM, MIGRATION_USER_GUID, typeof(Guid));
+
             string sql = subInstr;
             AppendStorageClause(database, ref sql);
             cmd.CommandText = sql;
