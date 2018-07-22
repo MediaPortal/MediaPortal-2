@@ -29,6 +29,7 @@ using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.Helpers;
 using MediaPortal.Common.Messaging;
 using MediaPortal.Common.ResourceAccess;
+using MediaPortal.Common.Runtime;
 using MediaPortal.Common.Services.MediaManagement;
 using MediaPortal.Common.Services.ServerCommunication;
 using MediaPortal.Common.Settings;
@@ -350,7 +351,7 @@ namespace MediaPortal.UI.Services.ServerCommunication
         SaveLastHomeServerData(serverDescriptor);
       }
 
-      ServerConnectionMessaging.SendServerConnectionStateChangedMessage(ServerConnectionMessaging.MessageType.HomeServerConnected);
+      //ServerConnectionMessaging.SendServerConnectionStateChangedMessage(ServerConnectionMessaging.MessageType.HomeServerConnected);
       //ServiceRegistration.Get<IThreadPool>().Add(CompleteServerConnection);
       _ = CompleteServerConnectionAsync();
     }
@@ -521,6 +522,31 @@ namespace MediaPortal.UI.Services.ServerCommunication
         importerWorker.Activate(ic, ic);
         foreach (Share share in newShares)
           importerWorker.ScheduleImport(share.BaseResourcePath, share.MediaCategories, true);
+      }
+
+      if (sc != null)
+      {
+        try
+        {
+          // Wait for server ready state
+          SystemState state = SystemState.Starting;
+          while (state <= SystemState.Initializing)
+          {
+            state = sc.GetServerState();
+            if (state == SystemState.Running)
+            {
+              ServerConnectionMessaging.SendServerConnectionStateChangedMessage(ServerConnectionMessaging.MessageType.HomeServerConnected);
+              return;
+            }
+            await Task.Delay(1000);
+          }
+        }
+        catch
+        { }
+      }
+      else
+      {
+        ServerConnectionMessaging.SendServerConnectionStateChangedMessage(ServerConnectionMessaging.MessageType.HomeServerConnected);
       }
     }
 
