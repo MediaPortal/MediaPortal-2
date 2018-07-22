@@ -61,6 +61,7 @@ namespace MediaPortal.Backend.Services.Database
 
     protected bool _upgradeInProgress = false;
     protected MIA_Management _miaManagement = null;
+    protected double _lastProgress = 0;
 
     public DatabaseManager()
     {
@@ -242,9 +243,12 @@ namespace MediaPortal.Backend.Services.Database
       try
       {
         double progress = (currentStep / totalSteps) * 100.0;
+        if (_lastProgress > progress)
+          return;
 
         if (progress > 100)
           progress = 100;
+        _lastProgress = progress;
 
         var state = new DatabaseUpgradeServerState
         {
@@ -338,20 +342,26 @@ namespace MediaPortal.Backend.Services.Database
         (curVersionMajor == DATABASE_VERSION_MAJOR && curVersionMinor < DATABASE_VERSION_MINOR)))
       {
         _upgradeInProgress = true;
+        SendUpgradeProgress(0, 100);
         ServiceRegistration.Get<ILogger>().Info("DatabaseManager: Initiating update to database version {0}.{1}", DATABASE_VERSION_MAJOR, DATABASE_VERSION_MINOR);
         Version currrentVersion = new Version(curVersionMajor, curVersionMinor);
-        if (database.BackupDatabase(currrentVersion.ToString(2)) && database.BackupTables(BACKUP_TABLE_SUFFIX))
+        if (database.BackupDatabase(currrentVersion.ToString(2)))
         {
-          using (ITransaction transaction = database.BeginTransaction())
+          SendUpgradeProgress(5, 100);
+          if (database.BackupTables(BACKUP_TABLE_SUFFIX))
           {
-            ServiceRegistration.Get<ILogger>().Info("DatabaseManager: Creating subschema '{0}'", MediaPortal_Basis_Schema.SUBSCHEMA_NAME);
-            using (TextReader reader = new SqlScriptPreprocessor(MediaPortal_Basis_Schema.SubSchemaCreateScriptPath))
-              ExecuteBatch(transaction, new InstructionList(reader));
-            transaction.Commit();
+            SendUpgradeProgress(10, 100);
+            using (ITransaction transaction = database.BeginTransaction())
+            {
+              ServiceRegistration.Get<ILogger>().Info("DatabaseManager: Creating subschema '{0}'", MediaPortal_Basis_Schema.SUBSCHEMA_NAME);
+              using (TextReader reader = new SqlScriptPreprocessor(MediaPortal_Basis_Schema.SubSchemaCreateScriptPath))
+                ExecuteBatch(transaction, new InstructionList(reader));
+              transaction.Commit();
+            }
+            //A newly created database will always be of the latest version
+            SetDatabaseVersion(DATABASE_VERSION_MAJOR, DATABASE_VERSION_MINOR);
+            return true;
           }
-          //A newly created database will always be of the latest version
-          SetDatabaseVersion(DATABASE_VERSION_MAJOR, DATABASE_VERSION_MINOR);
-          return true;
         }
       }
       return false;
@@ -401,9 +411,9 @@ namespace MediaPortal.Backend.Services.Database
             }
 
             totalMigrationSteps = schemaManagers.Count + aspectManagers.Count; //All migrations
-            totalMigrationSteps += 2; //Add backup step that has already been completed
-            totalMigrationSteps += 2; //Add commit step that will be done after migration is complete
-            int currentMigrationStep = 2;
+            totalMigrationSteps += 2; //Add backup steps that has already been completed
+            totalMigrationSteps += 2; //Add commit and drop steps that will be done after migration is complete
+            int currentMigrationStep = 2; //Backup is already complete
             using (ITransaction transaction = database.BeginTransaction())
             {
               //Migrate sub schema data. Note that not all sub schemas need to be migrated
@@ -411,8 +421,7 @@ namespace MediaPortal.Backend.Services.Database
               {
                 if (manager.MigrateData(transaction, curVersionMajor, curVersionMinor, DATABASE_VERSION_MAJOR, DATABASE_VERSION_MINOR))
                   ServiceRegistration.Get<ILogger>().Info("DatabaseManager: Migrated subschema '{0}'", manager.MigrationOwnerName);
-                currentMigrationStep++;
-                SendUpgradeProgress(currentMigrationStep, totalMigrationSteps);
+                SendUpgradeProgress(++currentMigrationStep, totalMigrationSteps);
               }
 
               //Migrate aspect data
@@ -422,10 +431,10 @@ namespace MediaPortal.Backend.Services.Database
                   ServiceRegistration.Get<ILogger>().Info("DatabaseManager: Migrated aspect '{0}'", manager.MigrationOwnerName);
                 else
                   ServiceRegistration.Get<ILogger>().Warn("DatabaseManager: Migration of aspect '{0}' failed", manager.MigrationOwnerName);
-                currentMigrationStep++;
-                SendUpgradeProgress(currentMigrationStep, totalMigrationSteps);
+                SendUpgradeProgress(++currentMigrationStep, totalMigrationSteps);
               }
               transaction.Commit();
+              SendUpgradeProgress(++currentMigrationStep, totalMigrationSteps);
             }
             SetDatabaseVersion(DATABASE_VERSION_MAJOR, DATABASE_VERSION_MINOR, true);
             if (!GetDatabaseVersion(out curVersionMajor, out curVersionMinor, true) || curVersionMajor != DATABASE_VERSION_MAJOR || curVersionMinor != DATABASE_VERSION_MINOR)
