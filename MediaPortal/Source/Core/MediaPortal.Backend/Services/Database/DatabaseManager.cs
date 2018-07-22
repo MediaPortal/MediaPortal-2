@@ -341,6 +341,10 @@ namespace MediaPortal.Backend.Services.Database
         (curVersionMajor < DATABASE_VERSION_MAJOR ||
         (curVersionMajor == DATABASE_VERSION_MAJOR && curVersionMinor < DATABASE_VERSION_MINOR)))
       {
+        //Database was not migratable before version 2.1
+        if (curVersionMajor == 2 && curVersionMinor == 0)
+          curVersionMinor = 1;
+
         _upgradeInProgress = true;
         SendUpgradeProgress(0, 100);
         ServiceRegistration.Get<ILogger>().Info("DatabaseManager: Initiating update to database version {0}.{1}", DATABASE_VERSION_MAJOR, DATABASE_VERSION_MINOR);
