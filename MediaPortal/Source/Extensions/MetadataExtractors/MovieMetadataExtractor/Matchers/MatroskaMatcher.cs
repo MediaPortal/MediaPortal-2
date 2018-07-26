@@ -113,7 +113,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor.Match
       tags = tagsToExtract[MatroskaConsts.TAG_SERIES_GENRE];
       if (tags != null)
       {
-        List<GenreInfo> genreList = tags.Select(s => new GenreInfo { Name = s }).ToList();
+        List<GenreInfo> genreList = tags.Where(s => !string.IsNullOrEmpty(s)).Select(s => new GenreInfo { Name = s }).ToList();
         IGenreConverter converter = ServiceRegistration.Get<IGenreConverter>();
         foreach (var genre in genreList)
         {

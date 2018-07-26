@@ -267,7 +267,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
                     }
                     if (album.Genres != null && album.Genres.Count > 0)
                     {
-                      trackInfo.Genres = album.Genres.Select(s => new GenreInfo { Name = s.Trim() }).ToList();
+                      trackInfo.Genres = album.Genres.Where(s => !string.IsNullOrEmpty(s)).Select(s => new GenreInfo { Name = s.Trim() }).ToList();
                       IGenreConverter converter = ServiceRegistration.Get<IGenreConverter>();
                       foreach (var genre in trackInfo.Genres)
                       {

@@ -684,7 +684,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
                 IEnumerable<string> genres = tag.Tag.Genres;
                 if ((tag.TagTypes & TagTypes.Id3v2) != 0)
                   genres = PatchID3v23Enumeration(genres);
-                trackInfo.Genres = ApplyAdditionalSeparator(genres).Select(s => new GenreInfo { Name = s.Trim() }).ToList();
+                trackInfo.Genres = ApplyAdditionalSeparator(genres).Where(s => !string.IsNullOrEmpty(s)).Select(s => new GenreInfo { Name = s.Trim() }).ToList();
                 IGenreConverter converter = ServiceRegistration.Get<IGenreConverter>();
                 foreach (var genre in trackInfo.Genres)
                 {

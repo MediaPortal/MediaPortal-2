@@ -111,7 +111,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
           MetadataUpdater.SetOrUpdateRatings(ref movie.Rating, new SimpleRating(movieDetail.ImdbRating, 1));
         }
 
-        movie.Genres = movieDetail.Genres.Select(s => new GenreInfo { Name = s }).ToList();
+        movie.Genres = movieDetail.Genres.Where(s => !string.IsNullOrEmpty(s)).Select(s => new GenreInfo { Name = s }).ToList();
 
         //Only use these if absolutely necessary because there is no way to ID them
         if (movie.Actors.Count == 0)
