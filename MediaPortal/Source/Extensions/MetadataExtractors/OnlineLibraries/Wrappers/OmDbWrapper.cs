@@ -201,7 +201,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
           MetadataUpdater.SetOrUpdateRatings(ref movie.Rating, new SimpleRating(movieDetail.TomatoUserRating, movieDetail.TomatoUserTotalReviews));
         }
 
-        movie.Genres = movieDetail.Genres.Where(s => !string.IsNullOrEmpty(s)).Select(s => new GenreInfo { Name = s }).ToList();
+        movie.Genres = movieDetail.Genres.Where(s => !string.IsNullOrEmpty(s?.Trim())).Select(s => new GenreInfo { Name = s.Trim() }).ToList();
 
         //Only use these if absolutely necessary because there is no way to ID them
         if (movie.Actors.Count == 0)
@@ -273,7 +273,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
         {
           MetadataUpdater.SetOrUpdateRatings(ref series.Rating, new SimpleRating(seriesDetail.TomatoUserRating, seriesDetail.TomatoUserTotalReviews));
         }
-        series.Genres = seriesDetail.Genres.Where(s => !string.IsNullOrEmpty(s)).Select(s => new GenreInfo { Name = s }).ToList();
+        series.Genres = seriesDetail.Genres.Where(s => !string.IsNullOrEmpty(s?.Trim())).Select(s => new GenreInfo { Name = s.Trim() }).ToList();
 
         //Only use these if absolutely necessary because there is no way to ID them
         if (seriesDetail.Actors == null || seriesDetail.Actors.Count == 0)
@@ -400,7 +400,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
               FirstAired = episodeDetail.Released,
               EpisodeName = new SimpleTitle(episodeDetail.Title, true),
               Summary = new SimpleTitle(episodeDetail.Plot, true),
-              Genres = episodeDetail.Genres.Where(s => !string.IsNullOrEmpty(s)).Select(s => new GenreInfo { Name = s }).ToList(),
+              Genres = episodeDetail.Genres.Where(s => !string.IsNullOrEmpty(s?.Trim())).Select(s => new GenreInfo { Name = s.Trim() }).ToList(),
             };
 
             if (episodeDetail.ImdbRating.HasValue)
