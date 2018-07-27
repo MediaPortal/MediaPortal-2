@@ -245,7 +245,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
         series.FirstAired = seriesDetail.FirstAired;
         series.Description = new SimpleTitle(seriesDetail.Overview, false);
         series.Rating = new SimpleRating(seriesDetail.Rating, seriesDetail.RatingCount);
-        series.Genres = seriesDetail.Genre.Select(s => new GenreInfo { Name = s }).ToList();
+        series.Genres = seriesDetail.Genre.Where(s => !string.IsNullOrEmpty(s?.Trim())).Select(s => new GenreInfo { Name = s.Trim() }).ToList();
         series.Networks = ConvertToCompanies(seriesDetail.NetworkID, seriesDetail.Network, CompanyAspect.COMPANY_TV_NETWORK);
         if (seriesDetail.Status.IndexOf("Ended", StringComparison.InvariantCultureIgnoreCase) >= 0)
         {
@@ -295,7 +295,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
             FirstAired = episodeDetail.FirstAired,
             EpisodeName = new SimpleTitle(episodeDetail.EpisodeName, false),
             Summary = new SimpleTitle(episodeDetail.Overview, false),
-            Genres = seriesDetail.Genre.Select(s => new GenreInfo { Name = s }).ToList(),
+            Genres = seriesDetail.Genre.Where(s => !string.IsNullOrEmpty(s?.Trim())).Select(s => new GenreInfo { Name = s.Trim() }).ToList(),
             Rating = new SimpleRating(episodeDetail.Rating, episodeDetail.RatingCount),
           };
 
@@ -430,7 +430,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
               FirstAired = episodeDetail.FirstAired,
               EpisodeName = new SimpleTitle(episodeDetail.EpisodeName, false),
               Summary = new SimpleTitle(episodeDetail.Overview, false),
-              Genres = seriesDetail.Genre.Select(s => new GenreInfo { Name = s }).ToList(),
+              Genres = seriesDetail.Genre.Where(s => !string.IsNullOrEmpty(s?.Trim())).Select(s => new GenreInfo { Name = s.Trim() }).ToList(),
               Rating = new SimpleRating(episodeDetail.Rating, episodeDetail.RatingCount),
             };
 

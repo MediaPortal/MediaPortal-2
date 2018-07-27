@@ -233,9 +233,9 @@ namespace MediaPortal.Extensions.MetadataExtractors
           episodeInfo.EpisodeNumbers.Add(episodeNum);
       }
 
-      if (TryGet(extractedTags, TAG_GENRE, out tmpString))
+      if (TryGet(extractedTags, TAG_GENRE, out tmpString) && !string.IsNullOrEmpty(tmpString?.Trim()))
       {
-        episodeInfo.Genres = new List<GenreInfo>(new GenreInfo[] { new GenreInfo { Name = tmpString } });
+        episodeInfo.Genres = new List<GenreInfo>(new GenreInfo[] { new GenreInfo { Name = tmpString.Trim() } });
         IGenreConverter converter = ServiceRegistration.Get<IGenreConverter>();
         foreach (var genre in episodeInfo.Genres)
         {
@@ -291,9 +291,9 @@ namespace MediaPortal.Extensions.MetadataExtractors
           MediaItemAspect.SetAttribute(extractedAspectData, MediaAspect.ATTR_SORT_TITLE, BaseInfo.GetSortTitle(value));
         }
 
-        if (TryGet(tags, TAG_GENRE, out value))
+        if (TryGet(tags, TAG_GENRE, out value) && !string.IsNullOrEmpty(value?.Trim()))
         {
-          List<GenreInfo> genreList = new List<GenreInfo>(new GenreInfo[] { new GenreInfo { Name = value } });
+          List<GenreInfo> genreList = new List<GenreInfo>(new GenreInfo[] { new GenreInfo { Name = value.Trim() } });
           IGenreConverter converter = ServiceRegistration.Get<IGenreConverter>();
           foreach (var genre in genreList)
           {

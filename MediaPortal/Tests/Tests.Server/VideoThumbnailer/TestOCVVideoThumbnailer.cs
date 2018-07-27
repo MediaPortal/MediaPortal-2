@@ -8,7 +8,7 @@ using System.Collections.Generic;
 using System;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
-using MediaPortal.Extensions.MetadataExtractors.VideoThumbnailer;
+using MediaPortal.Extensions.MetadataExtractors.OCVVideoThumbnailer;
 
 namespace Tests.Server.Libraries.MatroskaLib
 {

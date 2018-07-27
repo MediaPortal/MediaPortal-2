@@ -23,6 +23,6 @@
   <Register Location="/Media/MetadataExtractors">
     <Instance
         Id="OCVVideoThumbnailer"
-        ClassName="MediaPortal.Extensions.MetadataExtractors.VideoThumbnailer.OCVVideoThumbnailer"/>
+        ClassName="MediaPortal.Extensions.MetadataExtractors.OCVVideoThumbnailer.OCVVideoThumbnailer"/>
   </Register>
 </Plugin>

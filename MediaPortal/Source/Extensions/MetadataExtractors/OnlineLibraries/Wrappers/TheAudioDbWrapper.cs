@@ -338,8 +338,8 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
           track.AlbumArtists = ConvertToPersons(trackDetail.ArtistID.Value, trackDetail.MusicBrainzArtistID, trackDetail.Artist, PersonAspect.OCCUPATION_ARTIST, trackDetail.Track, trackDetail.Album);
         }
 
-        if (!string.IsNullOrEmpty(trackDetail.Genre))
-          track.Genres.Add(new GenreInfo { Name = trackDetail.Genre });
+        if (!string.IsNullOrEmpty(trackDetail.Genre?.Trim()))
+          track.Genres.Add(new GenreInfo { Name = trackDetail.Genre.Trim() });
 
         if (trackDetail.AlbumID.HasValue)
         {
@@ -389,8 +389,8 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
         album.Album = albumDetail.Album;
         album.Description = new SimpleTitle(albumDetail.Description, !languageSet);
 
-        if (!string.IsNullOrEmpty(albumDetail.Genre))
-          album.Genres.Add(new GenreInfo { Name = albumDetail.Genre });
+        if (!string.IsNullOrEmpty(albumDetail.Genre?.Trim()))
+          album.Genres.Add(new GenreInfo { Name = albumDetail.Genre.Trim() });
 
         album.Sales = albumDetail.Sales ?? 0;
         album.ReleaseDate = albumDetail.Year.HasValue && albumDetail.Year.Value > 1900 ? new DateTime(albumDetail.Year.Value, 1, 1) : default(DateTime?);
@@ -432,8 +432,8 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
             if (trackDetail.ArtistID.HasValue)
               track.Artists = ConvertToPersons(trackDetail.ArtistID.Value, trackDetail.MusicBrainzArtistID, trackDetail.Artist, PersonAspect.OCCUPATION_ARTIST, trackDetail.Track, albumDetail.Album);
 
-            if (!string.IsNullOrEmpty(trackDetail.Genre))
-              track.Genres.Add(new GenreInfo { Name = trackDetail.Genre });
+            if (!string.IsNullOrEmpty(trackDetail.Genre?.Trim()))
+              track.Genres.Add(new GenreInfo { Name = trackDetail.Genre.Trim() });
 
             track.AlbumArtists = album.Artists;
             track.MusicLabels = album.MusicLabels;

@@ -32,7 +32,7 @@ using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Common.ResourceAccess;
 using OpenCvSharp;
 
-namespace MediaPortal.Extensions.MetadataExtractors.VideoThumbnailer
+namespace MediaPortal.Extensions.MetadataExtractors.OCVVideoThumbnailer
 {
   /// <summary>
   /// MediaPortal 2 metadata extractor to exctract thumbnails from videos.
@@ -109,7 +109,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoThumbnailer
       {
         // Only log at the info level here - And simply return false. This lets the caller know that we
         // couldn't perform our task here.
-        ServiceRegistration.Get<ILogger>().Error("VideoThumbnailer: Exception reading resource '{0}' (Text: '{1}')", e, mediaItemAccessor.CanonicalLocalResourcePath, e.Message);
+        ServiceRegistration.Get<ILogger>().Error("OCVVideoThumbnailer: Exception reading resource '{0}' (Text: '{1}')", e, mediaItemAccessor.CanonicalLocalResourcePath, e.Message);
       }
       return false;
     }
@@ -121,7 +121,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoThumbnailer
       if (!lfsra.IsFile || !extractedAspectData.ContainsKey(VideoStreamAspect.ASPECT_ID))
         return Task.FromResult(false);
 
-      //ServiceRegistration.Get<ILogger>().Info("VideoThumbnailer: Evaluate {0}", lfsra.ResourceName);
+      //ServiceRegistration.Get<ILogger>().Info("OCVVideoThumbnailer: Evaluate {0}", lfsra.ResourceName);
 
       bool isPrimaryResource = false;
       IList<MultipleMediaItemAspect> resourceAspects;
@@ -165,22 +165,29 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoThumbnailer
 
       using (lfsra.EnsureLocalFileSystemAccess())
       {
-        VideoCapture capture = new VideoCapture();
-        capture.Open(lfsra.LocalFileSystemPath);
-        capture.PosMsec = defaultVideoOffset * 1000;
-        var mat = capture.RetrieveMat();
-        if (mat.Height > 0 && mat.Width > 0)
+        using (VideoCapture capture = new VideoCapture())
         {
-          double width = mat.Width;
-          double height = mat.Height;
-          mat = mat.Resize(new OpenCvSharp.Size(width / downscale, height / downscale));
-          var binary = mat.ToBytes();
-          MediaItemAspect.SetAttribute(extractedAspectData, ThumbnailLargeAspect.ATTR_THUMBNAIL, binary);
-          ServiceRegistration.Get<ILogger>().Info("VideoThumbnailer: Successfully created thumbnail for resource '{0}'", lfsra.LocalFileSystemPath);
-        }
-        else
-        {
-          ServiceRegistration.Get<ILogger>().Warn("VideoThumbnailer: Failed to create thumbnail for resource '{0}'", lfsra.LocalFileSystemPath);
+          capture.Open(lfsra.LocalFileSystemPath);
+          capture.PosMsec = defaultVideoOffset * 1000;
+          using (var mat = capture.RetrieveMat())
+          {
+            if (mat.Height > 0 && mat.Width > 0)
+            {
+              double width = mat.Width;
+              double height = mat.Height;
+              ServiceRegistration.Get<ILogger>().Debug("OCVVideoThumbnailer: Scaling thumbnail of size {1}x{2} for resource '{0}'", lfsra.LocalFileSystemPath, width, height);
+              using (var scaledMat = mat.Resize(new OpenCvSharp.Size(width / downscale, height / downscale)))
+              {
+                var binary = scaledMat.ToBytes();
+                MediaItemAspect.SetAttribute(extractedAspectData, ThumbnailLargeAspect.ATTR_THUMBNAIL, binary);
+                ServiceRegistration.Get<ILogger>().Info("OCVVideoThumbnailer: Successfully created thumbnail for resource '{0}'", lfsra.LocalFileSystemPath);
+              }
+            }
+            else
+            {
+              ServiceRegistration.Get<ILogger>().Warn("OCVVideoThumbnailer: Failed to create thumbnail for resource '{0}'", lfsra.LocalFileSystemPath);
+            }
+          }
         }
       }
       return Task.FromResult(true);
