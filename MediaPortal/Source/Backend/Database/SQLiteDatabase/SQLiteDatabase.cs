@@ -656,6 +656,18 @@ namespace MediaPortal.Database.SQLite
             cmd.CommandText = @"PRAGMA foreign_keys=ON";
             cmd.ExecuteNonQuery();
           }
+
+          try
+          {
+            //Shrink and optimize database
+            cmd.CommandText = "VACUUM";
+            cmd.ExecuteNonQuery();
+          }
+          catch (Exception e)
+          {
+            ServiceRegistration.Get<ILogger>().Error("SQLiteDatabase: Error shrinking database", e);
+          }
+
           transaction.Commit();
           return true;
         }

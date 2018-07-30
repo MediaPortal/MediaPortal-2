@@ -69,7 +69,7 @@ namespace MediaPortal.Database.MSSQL
       }
       catch (Exception e)
       {
-        ServiceRegistration.Get<ILogger>().Critical("Error establishing database connection", e);
+        ServiceRegistration.Get<ILogger>().Critical("MSSQLDatabase: Error establishing database connection", e);
         throw;
       }
     }
@@ -449,6 +449,17 @@ namespace MediaPortal.Database.MSSQL
             //Drop table
             cmd.CommandText = $"DROP TABLE {table}";
             cmd.ExecuteNonQuery();
+          }
+
+          try
+          {
+            //Shrink database
+            cmd.CommandText = "DBCC SHRINKDATABASE(0)";
+            cmd.ExecuteNonQuery();
+          }
+          catch (Exception e)
+          {
+            ServiceRegistration.Get<ILogger>().Error("MSSQLDatabase: Error shrinking database", e);
           }
 
           transaction.Commit();
