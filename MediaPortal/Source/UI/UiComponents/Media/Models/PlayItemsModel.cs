@@ -598,8 +598,8 @@ namespace MediaPortal.UiComponents.Media.Models
       _playMenuItems = new ItemsList();
       for (var editionIndex = 0; editionIndex < item.Editions.Count; editionIndex++)
       {
-        var editionAspects = item.Editions[editionIndex];
-        var label = editionAspects.GetAttributeValue<string>(VideoStreamAspect.ATTR_VIDEO_PART_SET_NAME);
+        var edition = item.Editions[editionIndex];
+        var label = edition.Name;
         var index = editionIndex;
         ListItem editionItem = new ListItem
         {

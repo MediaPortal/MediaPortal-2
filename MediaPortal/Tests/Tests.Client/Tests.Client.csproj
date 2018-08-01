@@ -47,6 +47,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Common\TestGenres.cs" />
+    <Compile Include="Common\TestHelpers.cs" />
     <Compile Include="Common\TestMediaItem.cs" />
     <Compile Include="Common\TestMediaItemAspectTypeRegistration.cs" />
     <Compile Include="Common\TestMediaItemQuery.cs" />
@@ -86,6 +88,10 @@
       <Project>{65cf3575-ac34-4e46-92c3-84e6eda9bacd}</Project>
       <Name>GDIThumbnailProvider</Name>
     </ProjectReference>
+    <ProjectReference Include="..\..\Source\Extensions\MetadataExtractors\GenreProvider\GenreProvider.csproj">
+      <Project>{1973ad5b-ef7e-41da-a668-58ac37e1154e}</Project>
+      <Name>GenreProvider</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\Source\Extensions\MetadataExtractors\WICThumbnailProvider\WICThumbnailProvider.csproj">
       <Project>{7f790d8d-3a5a-499f-b9d3-8d9a1ef4f73a}</Project>
       <Name>WICThumbnailProvider</Name>
@@ -122,7 +128,6 @@
       <Version>3.10.1</Version>
     </PackageReference>
   </ItemGroup>
-  <ItemGroup />
   <Import Project="$(VSToolsPath)\TeamTest\Microsoft.TestTools.targets" Condition="Exists('$(VSToolsPath)\TeamTest\Microsoft.TestTools.targets')" />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

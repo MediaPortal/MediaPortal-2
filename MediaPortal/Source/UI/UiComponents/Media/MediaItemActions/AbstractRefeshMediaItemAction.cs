@@ -61,11 +61,12 @@ namespace MediaPortal.UiComponents.Media.MediaItemActions
       {
         IContentDirectory cd = ServiceRegistration.Get<IServerConnectionManager>().ContentDirectory;
         if (cd == null)
-          return new AsyncResult<ContentDirectoryMessaging.MediaItemChangeType>(true, ContentDirectoryMessaging.MediaItemChangeType.None);
+          return new AsyncResult<ContentDirectoryMessaging.MediaItemChangeType>(false, ContentDirectoryMessaging.MediaItemChangeType.None);
 
-        var rl = mediaItem.GetResourceLocator();
-        await cd.RefreshMediaItemMetadataAsync(rl.NativeSystemId, mediaItem.MediaItemId, _clearMetadata);
-        return new AsyncResult<ContentDirectoryMessaging.MediaItemChangeType>(true, ContentDirectoryMessaging.MediaItemChangeType.Updated);
+        await cd.RefreshMediaItemMetadataAsync(mediaItem.MediaItemId, _clearMetadata);
+
+        //After refresh is completed on server a change message will be fired
+        return new AsyncResult<ContentDirectoryMessaging.MediaItemChangeType>(true, ContentDirectoryMessaging.MediaItemChangeType.None);
       }
       return new AsyncResult<ContentDirectoryMessaging.MediaItemChangeType>(false, ContentDirectoryMessaging.MediaItemChangeType.None);
     }

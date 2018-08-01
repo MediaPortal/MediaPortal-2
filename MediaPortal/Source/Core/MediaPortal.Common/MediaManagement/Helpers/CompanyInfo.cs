@@ -101,7 +101,28 @@ namespace MediaPortal.Common.MediaManagement.Helpers
 
     public CompanyInfo Clone()
     {
-      return CloneProperties(this);
+      CompanyInfo clone = (CompanyInfo)this.MemberwiseClone();
+      clone.Description = new SimpleTitle(Description.Text, Description.DefaultLanguage);
+      return clone;
+    }
+
+    public override bool MergeWith(object other, bool overwriteShorterStrings = true, bool updatePrimaryChildList = false)
+    {
+      if (other is CompanyInfo company)
+      {
+        HasChanged |= MetadataUpdater.SetOrUpdateId(ref ImdbId, company.ImdbId);
+        HasChanged |= MetadataUpdater.SetOrUpdateId(ref TvdbId, company.TvdbId);
+        HasChanged |= MetadataUpdater.SetOrUpdateId(ref MovieDbId, company.MovieDbId);
+        HasChanged |= MetadataUpdater.SetOrUpdateId(ref TvMazeId, company.TvMazeId);
+        HasChanged |= MetadataUpdater.SetOrUpdateId(ref MusicBrainzId, company.MusicBrainzId);
+        HasChanged |= MetadataUpdater.SetOrUpdateId(ref AudioDbId, company.AudioDbId);
+
+        HasChanged |= MetadataUpdater.SetOrUpdateString(ref Name, company.Name, overwriteShorterStrings);
+        HasChanged |= MetadataUpdater.SetOrUpdateString(ref Description, company.Description, overwriteShorterStrings);
+
+        return true;
+      }
+      return false;
     }
 
     #region Members
@@ -110,10 +131,10 @@ namespace MediaPortal.Common.MediaManagement.Helpers
     /// Copies the contained company information into MediaItemAspect.
     /// </summary>
     /// <param name="aspectData">Dictionary with extracted aspects.</param>
-    public override bool SetMetadata(IDictionary<Guid, IList<MediaItemAspect>> aspectData)
+    public override bool SetMetadata(IDictionary<Guid, IList<MediaItemAspect>> aspectData, bool force = false)
     {
-      if (string.IsNullOrEmpty(Name)) return false;
-      if (string.IsNullOrEmpty(Type)) return false;
+      if (!force && !IsBaseInfoPresent)
+        return false;
 
       AssignNameId();
       SetMetadataChanged(aspectData);
@@ -163,7 +184,7 @@ namespace MediaPortal.Common.MediaManagement.Helpers
 
       string tempString;
       MediaItemAspect.TryGetAttribute(aspectData, CompanyAspect.ATTR_DESCRIPTION, out tempString);
-      Description = new SimpleTitle(tempString, false);
+      Description = new SimpleTitle(tempString, string.IsNullOrWhiteSpace(tempString));
 
       if (Type == CompanyAspect.COMPANY_TV_NETWORK)
       {

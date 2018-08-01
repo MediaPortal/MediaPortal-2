@@ -24,6 +24,8 @@
 
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
+using MediaPortal.Common.MediaManagement;
+using MediaPortal.Common.MediaManagement.Helpers;
 using MediaPortal.Common.ResourceAccess;
 using MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoReaders;
 using MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.Settings;
@@ -133,6 +135,28 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.Extrac
     }
 
     /// <summary>
+    /// Verifies if the episode being reimported matches the episode in the nfo file
+    /// </summary>
+    /// <param name="reader">Reader used read the episode information from the nfo file</param>
+    /// <param name="reimport">The episode being reimported</param>
+    /// <returns>Result of the verification</returns>
+    protected bool VerifyEpisodeReimport(NfoSeriesEpisodeReader reader, EpisodeInfo reimport)
+    {
+      if (reimport == null)
+        return true;
+
+      IDictionary<Guid, IList<MediaItemAspect>> aspectData = new Dictionary<Guid, IList<MediaItemAspect>>();
+      if (reader.TryWriteMetadata(aspectData))
+      {
+        EpisodeInfo info = new EpisodeInfo();
+        info.FromMetadata(aspectData);
+        if (reimport.Equals(info))
+          return true;
+      }
+      return false;
+    }
+
+    /// <summary>
     /// Asynchronously creates an <see cref="NfoSeriesReader"/> for the given <param name="mediaItemAccessor"></param>
     /// </summary>
     /// <param name="mediaItemAccessor">Points to the resource for which we try to create an NfoSeriesReader</param>
@@ -177,6 +201,28 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.Extrac
         _debugLogger.Error("[#{0}]: Exception while extracting metadata", e, miNumber);
       }
       return null;
+    }
+
+    /// <summary>
+    /// Verifies if the series being reimported matches the series in the nfo file
+    /// </summary>
+    /// <param name="reader">Reader used read the series information from the nfo file</param>
+    /// <param name="reimport">The series being reimported</param>
+    /// <returns>Result of the verification</returns>
+    protected bool VerifySeriesReimport(NfoSeriesReader reader, SeriesInfo reimport)
+    {
+      if (reimport == null)
+        return true;
+
+      IDictionary<Guid, IList<MediaItemAspect>> aspectData = new Dictionary<Guid, IList<MediaItemAspect>>();
+      if (reader.TryWriteMetadata(aspectData))
+      {
+        SeriesInfo info = new SeriesInfo();
+        info.FromMetadata(aspectData);
+        if (reimport.Equals(info))
+          return true;
+      }
+      return false;
     }
 
     #endregion

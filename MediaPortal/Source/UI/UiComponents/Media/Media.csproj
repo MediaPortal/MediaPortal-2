@@ -361,6 +361,7 @@
     <Compile Include="Models\Sorting\SortByYear.cs" />
     <Compile Include="Models\Sorting\SortByTitle.cs" />
     <Compile Include="Models\Sorting\Sorting.cs" />
+    <Compile Include="Models\MediaItemMatchModel.cs" />
     <Compile Include="Models\ViewModeModel.cs" />
     <Compile Include="Models\ManagePlaylistsModel.cs" />
     <Compile Include="Models\Navigation\ContainerItem.cs" />
@@ -729,6 +730,11 @@
     <PackageReference Include="BASS.NET">
       <Version>2.4.12.5</Version>
     </PackageReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\default\screens\DialogChooseMatch.xaml">
+      <SubType>Designer</SubType>
+    </Content>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="build.targets" />

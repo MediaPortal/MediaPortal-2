@@ -205,9 +205,9 @@ namespace MediaPortal.Extensions.MetadataExtractors
         }
       }
 
-      if (!string.IsNullOrEmpty(recording.Category))
+      if (!string.IsNullOrEmpty(recording.Category?.Trim()))
       {
-        episodeInfo.Genres.Add(new GenreInfo { Name = recording.Category });
+        episodeInfo.Genres.Add(new GenreInfo { Name = recording.Category.Trim() });
         IGenreConverter converter = ServiceRegistration.Get<IGenreConverter>();
         foreach (var genre in episodeInfo.Genres)
         {
@@ -256,9 +256,9 @@ namespace MediaPortal.Extensions.MetadataExtractors
         MediaItemAspect.SetAttribute(extractedAspectData, MediaAspect.ATTR_TITLE, recording.Title);
         MediaItemAspect.SetAttribute(extractedAspectData, MediaAspect.ATTR_SORT_TITLE, BaseInfo.GetSortTitle(recording.Title));
 
-        if (!string.IsNullOrEmpty(recording.Category))
+        if (!string.IsNullOrEmpty(recording.Category?.Trim()))
         {
-          List<GenreInfo> genreList = new List<GenreInfo>(new GenreInfo[] { new GenreInfo { Name = recording.Category } });
+          List<GenreInfo> genreList = new List<GenreInfo>(new GenreInfo[] { new GenreInfo { Name = recording.Category.Trim() } });
           IGenreConverter converter = ServiceRegistration.Get<IGenreConverter>();
           foreach (var genre in genreList)
           {
@@ -337,6 +337,16 @@ namespace MediaPortal.Extensions.MetadataExtractors
     public bool TryExtractStubItems(IResourceAccessor mediaItemAccessor, ICollection<IDictionary<Guid, IList<MediaItemAspect>>> extractedStubAspectData)
     {
       return false;
+    }
+
+    public Task<IList<MediaItemSearchResult>> SearchForMatchesAsync(IDictionary<Guid, IList<MediaItemAspect>> searchAspectData, ICollection<string> searchCategories)
+    {
+      return Task.FromResult<IList<MediaItemSearchResult>>(null);
+    }
+
+    public Task<bool> AddMatchedAspectDetailsAsync(IDictionary<Guid, IList<MediaItemAspect>> matchedAspectData)
+    {
+      return Task.FromResult(false);
     }
 
     #endregion

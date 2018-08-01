@@ -476,7 +476,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoRea
     {
       if (_stubs[0].Genres != null && _stubs[0].Genres.Any())
       {
-        List<GenreInfo> genres = _stubs[0].Genres.Select(s => new GenreInfo { Name = s }).ToList();
+        List<GenreInfo> genres = _stubs[0].Genres.Where(s => !string.IsNullOrEmpty(s?.Trim())).Select(s => new GenreInfo { Name = s.Trim() }).ToList();
         IGenreConverter converter = ServiceRegistration.Get<IGenreConverter>();
         foreach (var genre in genres)
         {

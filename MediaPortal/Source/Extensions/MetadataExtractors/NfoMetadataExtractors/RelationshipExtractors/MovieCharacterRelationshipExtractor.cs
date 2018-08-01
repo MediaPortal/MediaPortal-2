@@ -53,12 +53,18 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
     /// </summary>
     /// <param name="mediaItemAccessor">Points to the resource for which we try to extract metadata</param>
     /// <param name="extractedAspects">List of MediaItemAspect dictionaries to update with metadata</param>
+    /// <param name="reimport">During reimport only allow if nfo is for same media as this</param>
     /// <returns><c>true</c> if metadata was found and stored into the <paramref name="extractedAspects"/>, else <c>false</c></returns>
-    protected async Task<bool> TryExtractMovieCharactersMetadataAsync(IResourceAccessor mediaItemAccessor, IList<IDictionary<Guid, IList<MediaItemAspect>>> extractedAspects)
+    protected async Task<bool> TryExtractMovieCharactersMetadataAsync(IResourceAccessor mediaItemAccessor, IList<IDictionary<Guid, IList<MediaItemAspect>>> extractedAspects, MovieInfo reimport)
     {
       NfoMovieReader movieNfoReader = await TryGetNfoMovieReaderAsync(mediaItemAccessor).ConfigureAwait(false);
       if (movieNfoReader != null)
+      {
+        if (reimport != null && !VerifyMovieReimport(movieNfoReader, reimport))
+          return false;
+
         return movieNfoReader.TryWriteCharacterMetadata(extractedAspects);
+      }
       return false;
     }
 
@@ -118,8 +124,15 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
 
     public async Task<bool> TryExtractRelationshipsAsync(IResourceAccessor mediaItemAccessor, IDictionary<Guid, IList<MediaItemAspect>> aspects, IList<IDictionary<Guid, IList<MediaItemAspect>>> extractedLinkedAspects)
     {
+      MovieInfo reimport = null;
+      if (aspects.ContainsKey(ReimportAspect.ASPECT_ID))
+      {
+        reimport = new MovieInfo();
+        reimport.FromMetadata(aspects);
+      }
+
       IList<IDictionary<Guid, IList<MediaItemAspect>>> nfoLinkedAspects = new List<IDictionary<Guid, IList<MediaItemAspect>>>();
-      if (!await TryExtractMovieCharactersMetadataAsync(mediaItemAccessor, nfoLinkedAspects).ConfigureAwait(false))
+      if (!await TryExtractMovieCharactersMetadataAsync(mediaItemAccessor, nfoLinkedAspects, reimport).ConfigureAwait(false))
         return false;
 
       List<CharacterInfo> characters;

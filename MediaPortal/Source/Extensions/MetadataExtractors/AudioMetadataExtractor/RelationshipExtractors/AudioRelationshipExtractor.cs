@@ -207,6 +207,28 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
       OnlineMatcherService.Instance.ResetLastChangedAudio();
     }
 
+    public IDictionary<Guid, IList<MediaItemAspect>> GetBaseChildAspectsFromExistingAspects(IDictionary<Guid, IList<MediaItemAspect>> existingChildAspects, IDictionary<Guid, IList<MediaItemAspect>> existingParentAspects)
+    {
+      if (existingParentAspects.ContainsKey(AudioAlbumAspect.ASPECT_ID))
+      {
+        AlbumInfo album = new AlbumInfo();
+        album.FromMetadata(existingParentAspects);
+
+        if (existingChildAspects.ContainsKey(AudioAspect.ASPECT_ID))
+        {
+          TrackInfo track = new TrackInfo();
+          track.FromMetadata(existingChildAspects);
+
+          TrackInfo basicTrack = album.CloneBasicInstance<TrackInfo>();
+          basicTrack.TrackNum = track.TrackNum;
+          IDictionary<Guid, IList<MediaItemAspect>> aspects = new Dictionary<Guid, IList<MediaItemAspect>>();
+          basicTrack.SetMetadata(aspects, true);
+          return aspects;
+        }
+      }
+      return null;
+    }
+
     public RelationshipExtractorMetadata Metadata
     {
       get { return _metadata; }
