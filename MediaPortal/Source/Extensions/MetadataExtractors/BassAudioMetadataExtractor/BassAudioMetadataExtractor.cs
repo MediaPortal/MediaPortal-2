@@ -216,7 +216,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.BassAudioMetadataExtractor
 
           IEnumerable<string> genres = SplitTagEnum(tags.genre);
           genres = PatchID3v23Enumeration(genres);
-          trackInfo.Genres = ApplyAdditionalSeparator(genres).Select(s => new GenreInfo { Name = s }).ToList();
+          trackInfo.Genres = ApplyAdditionalSeparator(genres).Where(s => !string.IsNullOrEmpty(s?.Trim())).Select(s => new GenreInfo { Name = s.Trim() }).ToList();
           IGenreConverter converter = ServiceRegistration.Get<IGenreConverter>();
           foreach (var genre in trackInfo.Genres)
           {

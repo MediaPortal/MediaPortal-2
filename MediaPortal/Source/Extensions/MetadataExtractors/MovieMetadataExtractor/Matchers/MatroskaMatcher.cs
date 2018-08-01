@@ -49,9 +49,9 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor.Match
       if (!MatroskaConsts.MATROSKA_VIDEO_EXTENSIONS.Contains(extensionLower))
         return null;
 
-      MatroskaInfoReader mkvReader = new MatroskaInfoReader(folderOrFileLfsra);
+      MatroskaBinaryReader mkvReader = new MatroskaBinaryReader(folderOrFileLfsra);
       // Add keys to be extracted to tags dictionary, matching results will returned as value
-      Dictionary<string, IList<string>> tagsToExtract = MatroskaConsts.DefaultTags;
+      Dictionary<string, IList<string>> tagsToExtract = MatroskaConsts.DefaultVideoTags;
       await mkvReader.ReadTagsAsync(tagsToExtract).ConfigureAwait(false);
 
       if (tagsToExtract[MatroskaConsts.TAG_MOVIE_IMDB_ID] != null)
@@ -73,9 +73,9 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor.Match
       if (!MatroskaConsts.MATROSKA_VIDEO_EXTENSIONS.Contains(extensionLower))
         return null;
 
-      MatroskaInfoReader mkvReader = new MatroskaInfoReader(folderOrFileLfsra);
+      MatroskaBinaryReader mkvReader = new MatroskaBinaryReader(folderOrFileLfsra);
       // Add keys to be extracted to tags dictionary, matching results will returned as value
-      Dictionary<string, IList<string>> tagsToExtract = MatroskaConsts.DefaultTags;
+      Dictionary<string, IList<string>> tagsToExtract = MatroskaConsts.DefaultVideoTags;
       await mkvReader.ReadTagsAsync(tagsToExtract).ConfigureAwait(false);
 
       if (tagsToExtract[MatroskaConsts.TAG_MOVIE_TMDB_ID] != null)
@@ -98,9 +98,9 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor.Match
         return false;
 
       // Try to get extended information out of matroska files)
-      MatroskaInfoReader mkvReader = new MatroskaInfoReader(folderOrFileLfsra);
+      MatroskaBinaryReader mkvReader = new MatroskaBinaryReader(folderOrFileLfsra);
       // Add keys to be extracted to tags dictionary, matching results will returned as value
-      Dictionary<string, IList<string>> tagsToExtract = MatroskaConsts.DefaultTags;
+      Dictionary<string, IList<string>> tagsToExtract = MatroskaConsts.DefaultVideoTags;
       await mkvReader.ReadTagsAsync(tagsToExtract).ConfigureAwait(false);
 
       // Read plot
@@ -113,7 +113,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor.Match
       tags = tagsToExtract[MatroskaConsts.TAG_SERIES_GENRE];
       if (tags != null)
       {
-        List<GenreInfo> genreList = tags.Select(s => new GenreInfo { Name = s }).ToList();
+        List<GenreInfo> genreList = tags.Where(s => !string.IsNullOrEmpty(s?.Trim())).Select(s => new GenreInfo { Name = s.Trim() }).ToList();
         IGenreConverter converter = ServiceRegistration.Get<IGenreConverter>();
         foreach (var genre in genreList)
         {
