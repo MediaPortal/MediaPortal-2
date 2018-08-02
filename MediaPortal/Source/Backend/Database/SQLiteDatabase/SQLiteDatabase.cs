@@ -657,6 +657,14 @@ namespace MediaPortal.Database.SQLite
             cmd.ExecuteNonQuery();
           }
 
+          transaction.Commit();
+        }
+      }
+
+      using (var connection = CreateOpenAndInitializeConnection())
+      {
+        using (var cmd = connection.CreateCommand())
+        {
           try
           {
             //Shrink and optimize database
@@ -667,11 +675,9 @@ namespace MediaPortal.Database.SQLite
           {
             ServiceRegistration.Get<ILogger>().Error("SQLiteDatabase: Error shrinking database", e);
           }
-
-          transaction.Commit();
-          return true;
         }
       }
+      return true;
     }
 
     public string CreateStringConcatenationExpression(string str1, string str2)

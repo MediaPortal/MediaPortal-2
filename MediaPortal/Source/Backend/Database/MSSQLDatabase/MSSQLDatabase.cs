@@ -451,6 +451,14 @@ namespace MediaPortal.Database.MSSQL
             cmd.ExecuteNonQuery();
           }
 
+          transaction.Commit();
+        }
+      }
+
+      using (var connection = new SqlConnection(_connectionString))
+      {
+        using (var cmd = connection.CreateCommand())
+        {
           try
           {
             //Shrink database
@@ -461,11 +469,9 @@ namespace MediaPortal.Database.MSSQL
           {
             ServiceRegistration.Get<ILogger>().Error("MSSQLDatabase: Error shrinking database", e);
           }
-
-          transaction.Commit();
-          return true;
         }
       }
+      return true;
     }
 
     public string CreateStringConcatenationExpression(string str1, string str2)
