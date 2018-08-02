@@ -252,6 +252,7 @@ namespace MediaPortal.UI.Services.Players
       Reset();
       InvokeSlotClosed_NoLock();
       PlayerManagerMessaging.SendPlayerMessage(PlayerManagerMessaging.MessageType.PlayerSlotClosed, this);
+      _isClosed = true;
     }
 
     protected void InvokeSlotClosed_NoLock()
@@ -462,6 +463,12 @@ namespace MediaPortal.UI.Services.Players
         player = _playerManager.BuildPlayer_NoLock(mediaItem, out exceptions);
         if (player == null)
         {
+          if (mediaItem.IsStub) //No player found for stub item which is expected
+          {
+            Close_NoLock();
+            return false;
+          }
+
           HandleUnableToPlay(mediaItem, exceptions);
           OnPlaybackError(null);
         }

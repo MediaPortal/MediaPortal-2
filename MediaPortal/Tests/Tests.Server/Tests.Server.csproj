@@ -57,7 +57,6 @@
     </PackageReference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Backend\TestGenres.cs" />
     <Compile Include="Backend\TestLibrary.cs" />
     <Compile Include="Backend\TestMediaItemAspectMetadata.cs" />
     <Compile Include="Backend\TestQueryEngine.cs" />

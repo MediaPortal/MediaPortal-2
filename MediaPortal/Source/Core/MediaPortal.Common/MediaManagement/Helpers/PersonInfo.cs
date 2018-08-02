@@ -116,7 +116,35 @@ namespace MediaPortal.Common.MediaManagement.Helpers
 
     public PersonInfo Clone()
     {
-      return CloneProperties(this);
+      PersonInfo clone = (PersonInfo)this.MemberwiseClone();
+      clone.Biography = new SimpleTitle(Biography.Text, Biography.DefaultLanguage);
+      return clone;
+    }
+
+    public override bool MergeWith(object other, bool overwriteShorterStrings = true, bool updatePrimaryChildList = false)
+    {
+      if (other is PersonInfo person)
+      {
+        HasChanged |= MetadataUpdater.SetOrUpdateId(ref ImdbId, person.ImdbId);
+        HasChanged |= MetadataUpdater.SetOrUpdateId(ref TvdbId, person.TvdbId);
+        HasChanged |= MetadataUpdater.SetOrUpdateId(ref MovieDbId, person.MovieDbId);
+        HasChanged |= MetadataUpdater.SetOrUpdateId(ref TvMazeId, person.TvMazeId);
+        HasChanged |= MetadataUpdater.SetOrUpdateId(ref TvRageId, person.TvRageId);
+        HasChanged |= MetadataUpdater.SetOrUpdateId(ref MusicBrainzId, person.MusicBrainzId);
+        HasChanged |= MetadataUpdater.SetOrUpdateId(ref AudioDbId, person.AudioDbId);
+
+        HasChanged |= MetadataUpdater.SetOrUpdateString(ref Name, person.Name, overwriteShorterStrings);
+        HasChanged |= MetadataUpdater.SetOrUpdateString(ref AlternateName, person.AlternateName, overwriteShorterStrings);
+        HasChanged |= MetadataUpdater.SetOrUpdateString(ref Biography, person.Biography, overwriteShorterStrings);
+        HasChanged |= MetadataUpdater.SetOrUpdateString(ref Orign, person.Orign, overwriteShorterStrings);
+        HasChanged |= MetadataUpdater.SetOrUpdateString(ref Occupation, person.Occupation, overwriteShorterStrings);
+
+        HasChanged |= MetadataUpdater.SetOrUpdateValue(ref DateOfBirth, person.DateOfBirth);
+        HasChanged |= MetadataUpdater.SetOrUpdateValue(ref DateOfDeath, person.DateOfDeath);
+
+        return true;
+      }
+      return false;
     }
 
     #region Members
@@ -125,10 +153,10 @@ namespace MediaPortal.Common.MediaManagement.Helpers
     /// Copies the contained person information into MediaItemAspect.
     /// </summary>
     /// <param name="aspectData">Dictionary with extracted aspects.</param>
-    public override bool SetMetadata(IDictionary<Guid, IList<MediaItemAspect>> aspectData)
+    public override bool SetMetadata(IDictionary<Guid, IList<MediaItemAspect>> aspectData, bool force = false)
     {
-      if (string.IsNullOrEmpty(Name)) return false;
-      if (string.IsNullOrEmpty(Occupation)) return false;
+      if (!force && !IsBaseInfoPresent)
+        return false;
 
       AssignNameId();
       SetMetadataChanged(aspectData);
@@ -176,7 +204,7 @@ namespace MediaPortal.Common.MediaManagement.Helpers
 
       string tempString;
       MediaItemAspect.TryGetAttribute(aspectData, PersonAspect.ATTR_BIOGRAPHY, out tempString);
-      Biography = new SimpleTitle(tempString, false);
+      Biography = new SimpleTitle(tempString, string.IsNullOrWhiteSpace(tempString));
 
       string id;
       if (MediaItemAspect.TryGetExternalAttribute(aspectData, ExternalIdentifierAspect.SOURCE_TMDB, ExternalIdentifierAspect.TYPE_PERSON, out id))

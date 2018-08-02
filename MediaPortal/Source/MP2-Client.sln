@@ -232,6 +232,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "GenreProviders", "GenreProv
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GenreProvider", "Extensions\MetadataExtractors\GenreProvider\GenreProvider.csproj", "{1973AD5B-EF7E-41DA-A668-58AC37E1154E}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "InputDeviceManager", "UI\Input\InputDeviceManager\InputDeviceManager.csproj", "{D1FAF942-00D0-4B71-859C-7D14E93B9286}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x86 = Debug|x86
@@ -576,6 +578,10 @@ Global
 		{1973AD5B-EF7E-41DA-A668-58AC37E1154E}.Debug|x86.Build.0 = Debug|x86
 		{1973AD5B-EF7E-41DA-A668-58AC37E1154E}.Release|x86.ActiveCfg = Release|x86
 		{1973AD5B-EF7E-41DA-A668-58AC37E1154E}.Release|x86.Build.0 = Release|x86
+		{D1FAF942-00D0-4B71-859C-7D14E93B9286}.Debug|x86.ActiveCfg = Debug|x86
+		{D1FAF942-00D0-4B71-859C-7D14E93B9286}.Debug|x86.Build.0 = Debug|x86
+		{D1FAF942-00D0-4B71-859C-7D14E93B9286}.Release|x86.ActiveCfg = Release|x86
+		{D1FAF942-00D0-4B71-859C-7D14E93B9286}.Release|x86.Build.0 = Release|x86
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -686,6 +692,7 @@ Global
 		{9B2DA988-87CE-421F-A4A3-679A45163599} = {6383E739-61E6-46EE-9B06-8940E50A13D3}
 		{6E3EFFC4-10AB-4685-B986-C3AD869637D6} = {26B21F24-5C09-4F49-ABE3-C1B3F9059D2B}
 		{1973AD5B-EF7E-41DA-A668-58AC37E1154E} = {6E3EFFC4-10AB-4685-B986-C3AD869637D6}
+		{D1FAF942-00D0-4B71-859C-7D14E93B9286} = {5C7EF6A4-14D2-4E7B-AF42-61E62B41DBAE}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {2EFE6986-DFCD-450F-BFEE-15D3F8642201}

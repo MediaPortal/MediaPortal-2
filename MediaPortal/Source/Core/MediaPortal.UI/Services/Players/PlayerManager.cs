@@ -339,7 +339,7 @@ namespace MediaPortal.UI.Services.Players
         }
         else if (mediaItem.Aspects.ContainsKey(AudioAspect.ASPECT_ID))
         {
-          if (TryCreateInsertVideoMediaMediaItem(mediaItem, out stubMI))
+          if (TryCreateInsertAudioMediaMediaItem(mediaItem, out stubMI))
             mediaItem = stubMI;
         }
 

@@ -300,11 +300,8 @@ namespace UPnP.Infrastructure.CP.GENA
 
           // The date header is not always available, and it is not always accurate either.
           DateTime date = DateTime.Now;
-          try
-          {
-            date = DateTime.ParseExact(dateStr, "R", CultureInfo.InvariantCulture).ToLocalTime();
-          }
-          catch { }
+          if (DateTime.TryParseExact(dateStr, "R", CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime parsedDate))
+            date = parsedDate.ToLocalTime();
 
           DateTime expiration = date.AddSeconds(timeout);
           if (expiration < DateTime.Now)

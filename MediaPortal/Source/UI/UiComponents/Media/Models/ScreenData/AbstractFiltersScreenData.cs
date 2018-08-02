@@ -123,6 +123,9 @@ namespace MediaPortal.UiComponents.Media.Models.ScreenData
             ContentDirectoryMessaging.MediaItemChangeType changeType = (ContentDirectoryMessaging.MediaItemChangeType)message.MessageData[ContentDirectoryMessaging.MEDIA_ITEM_CHANGE_TYPE];
             UpdateLoadedMediaItems(mediaItem, changeType);
             break;
+          case ContentDirectoryMessaging.MessageType.ShareImportCompleted:
+            Reload();
+            break;
         }
       }
     }
@@ -138,9 +141,7 @@ namespace MediaPortal.UiComponents.Media.Models.ScreenData
         {
           PlayableContainerMediaItem existingItem = _items.OfType<PlayableContainerMediaItem>().FirstOrDefault(pcm => pcm.MediaItem.Equals(mediaItem));
           if (existingItem != null)
-          {
             existingItem.Update(mediaItem);
-          }
         }
       }
     }

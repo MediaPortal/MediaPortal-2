@@ -234,6 +234,18 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
           }
         }
 
+        //Check reimport
+        if (extractedAspectData.ContainsKey(ReimportAspect.ASPECT_ID))
+        {
+          MovieInfo reimport = new MovieInfo();
+          reimport.FromMetadata(extractedAspectData);
+          if (!VerifyMovieReimport(nfoReader, reimport))
+          {
+            ServiceRegistration.Get<ILogger>().Info("NfoMovieMetadataExtractor: Nfo movie metadata from resource '{0}' ignored because it does not match reimport {1}", mediaItemAccessor, reimport);
+            return false;
+          }
+        }
+
         // Then we store the found metadata in the MediaItemAspects. If we only found metadata that is
         // not (yet) supported by our MediaItemAspects, this MetadataExtractor returns false.
         if (!nfoReader.TryWriteMetadata(extractedAspectData))
@@ -243,6 +255,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
         }
 
         _debugLogger.Info("[#{0}]: Successfully finished extracting metadata", miNumber);
+        ServiceRegistration.Get<ILogger>().Debug("NfoMovieMetadataExtractor: Assigned nfo movie metadata for resource '{0}'", mediaItemAccessor);
         return true;
       }
       catch (Exception e)
@@ -290,7 +303,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
     {
       //if (extractedAspectData.ContainsKey(MovieAspect.ASPECT_ID))
       //  return false;
-      
+
       return TryExtractMovieMetadataAsync(mediaItemAccessor, extractedAspectData, forceQuickMode);
     }
 
@@ -307,6 +320,16 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
     public bool TryExtractStubItems(IResourceAccessor mediaItemAccessor, ICollection<IDictionary<Guid, IList<MediaItemAspect>>> extractedStubAspectData)
     {
       return false;
+    }
+
+    public Task<IList<MediaItemSearchResult>> SearchForMatchesAsync(IDictionary<Guid, IList<MediaItemAspect>> searchAspectData, ICollection<string> searchCategories)
+    {
+      return Task.FromResult<IList<MediaItemSearchResult>>(null);
+    }
+
+    public Task<bool> AddMatchedAspectDetailsAsync(IDictionary<Guid, IList<MediaItemAspect>> matchedAspectData)
+    {
+      return Task.FromResult(false);
     }
 
     #endregion

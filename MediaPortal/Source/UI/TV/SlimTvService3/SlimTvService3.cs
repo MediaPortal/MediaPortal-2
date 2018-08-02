@@ -731,7 +731,23 @@ namespace MediaPortal.Plugins.SlimTv.Service
       var canceledProgram = TvDatabase.Program.Retrieve(program.ProgramId);
       if (canceledProgram == null)
         return false;
-      foreach (TvDatabase.Schedule schedule in TvDatabase.Schedule.ListAll().Where(schedule => schedule.IsRecordingProgram(canceledProgram, true)))
+      var allSchedules = TvDatabase.Schedule.ListAll();
+      var matchingSchedules = allSchedules.Where(schedule => schedule.IsRecordingProgram(canceledProgram, true));
+      if (matchingSchedules.Count() == 0)
+      {
+        List<TvDatabase.Schedule> manualSchedules = new List<TvDatabase.Schedule>();
+        //Check for matching manual recordings because they will not match any programs start and/or end times
+        foreach (TvDatabase.Schedule schedule in allSchedules.Where(schedule => schedule.IsManual || schedule.ProgramName == "Manual"))
+        {
+          if ((canceledProgram.StartTime <= schedule.StartTime && canceledProgram.EndTime >= schedule.StartTime) || //Recording was started during this program
+            (canceledProgram.StartTime <= schedule.EndTime && canceledProgram.EndTime >= schedule.EndTime) || //Recording is ending during this program
+            (canceledProgram.StartTime >= schedule.StartTime && canceledProgram.EndTime <= schedule.StartTime)) //The program is "inside" the recording
+            manualSchedules.Add(schedule);
+        }
+        matchingSchedules = manualSchedules;
+      }
+      //Delete matching schedules
+      foreach (TvDatabase.Schedule schedule in matchingSchedules)
       {
         switch (schedule.ScheduleType)
         {

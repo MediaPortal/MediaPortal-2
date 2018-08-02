@@ -226,6 +226,95 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
 
     #region Metadata updaters
 
+    private TrackMatch GetStroredMatch(TrackInfo trackInfo)
+    {
+      // Load cache or create new list
+      List<TrackMatch> matches = _storage.GetMatches();
+
+      // Use cached values before doing online query
+      TrackMatch match = matches.Find(m =>
+        (string.Equals(m.ItemName, GetUniqueTrackName(trackInfo), StringComparison.OrdinalIgnoreCase) || string.Equals(m.TrackName, trackInfo.TrackName, StringComparison.OrdinalIgnoreCase)) &&
+        ((trackInfo.Artists.Count > 0 && !string.IsNullOrEmpty(m.ArtistName) ? trackInfo.Artists[0].Name.Equals(m.ArtistName, StringComparison.OrdinalIgnoreCase) : false) || trackInfo.Artists.Count == 0) &&
+        ((!string.IsNullOrEmpty(trackInfo.Album) && !string.IsNullOrEmpty(m.AlbumName) ? trackInfo.Album.Equals(m.AlbumName, StringComparison.OrdinalIgnoreCase) : false) || string.IsNullOrEmpty(trackInfo.Album)) &&
+        ((trackInfo.TrackNum > 0 && m.TrackNum > 0 && int.Equals(m.TrackNum, trackInfo.TrackNum)) || trackInfo.TrackNum <= 0));
+
+      return match;
+    }
+
+    public virtual async Task<IEnumerable<TrackInfo>> FindMatchingTracksAsync(TrackInfo trackInfo)
+    {
+      List<TrackInfo> matches = new List<TrackInfo>();
+
+      try
+      {
+        // Try online lookup
+        if (!await InitAsync().ConfigureAwait(false))
+          return matches;
+
+        TrackInfo trackSearch = trackInfo.Clone();
+        TLang language = FindBestMatchingLanguage(trackInfo.Languages);
+
+        IEnumerable<TrackInfo> onlineMatches = null;
+        if (GetTrackId(trackInfo, out string trackId))
+        {
+          Logger.Debug(_id + ": Get track from id {0} online", trackId);
+          if (await _wrapper.UpdateFromOnlineMusicTrackAsync(trackSearch, language, false))
+            onlineMatches = new TrackInfo[] { trackSearch };
+        }
+        if (onlineMatches == null)
+        {
+          Logger.Debug(_id + ": Search for track {0} online", trackInfo.ToString());
+          onlineMatches = await _wrapper.SearchTrackMatchesAsync(trackSearch, language).ConfigureAwait(false);
+        }
+        if (onlineMatches?.Count() > 0)
+          matches.AddRange(onlineMatches.Where(m => m.IsBaseInfoPresent));
+
+        return matches;
+      }
+      catch (Exception ex)
+      {
+        Logger.Debug(_id + ": Exception while matching track {0}", ex, trackInfo.ToString());
+        return matches;
+      }
+    }
+
+    public virtual async Task<IEnumerable<AlbumInfo>> FindMatchingAlbumsAsync(AlbumInfo albumInfo)
+    {
+      List<AlbumInfo> matches = new List<AlbumInfo>();
+
+      try
+      {
+        // Try online lookup
+        if (!await InitAsync().ConfigureAwait(false))
+          return matches;
+
+        AlbumInfo albumSearch = albumInfo.Clone();
+        TLang language = FindBestMatchingLanguage(albumInfo.Languages);
+
+        IEnumerable<AlbumInfo> onlineMatches = null;
+        if (GetTrackAlbumId(albumInfo, out string albumId))
+        {
+          Logger.Debug(_id + ": Get album from id {0} online", albumId);
+          if (await _wrapper.UpdateFromOnlineMusicTrackAlbumAsync(albumSearch, language, false))
+            onlineMatches = new AlbumInfo[] { albumSearch };
+        }
+        if (onlineMatches == null)
+        {
+          Logger.Debug(_id + ": Search for album {0} online", albumInfo.ToString());
+          onlineMatches = await _wrapper.SearchTrackAlbumMacthesAsync(albumSearch, language).ConfigureAwait(false);
+        }
+        if (onlineMatches?.Count() > 0)
+          matches.AddRange(onlineMatches.Where(m => m.IsBaseInfoPresent));
+
+        return matches;
+      }
+      catch (Exception ex)
+      {
+        Logger.Debug(_id + ": Exception while matching album {0}", ex, albumInfo.ToString());
+        return matches;
+      }
+    }
+
     /// <summary>
     /// Tries to lookup the music track online and downloads images.
     /// </summary>
@@ -256,34 +345,37 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
 
         if (!matchFound)
         {
-          // Load cache or create new list
-          List<TrackMatch> matches = _storage.GetMatches();
-
-          // Use cached values before doing online query
-          TrackMatch match = matches.Find(m =>
-            (string.Equals(m.ItemName, GetUniqueTrackName(trackInfo), StringComparison.OrdinalIgnoreCase) || string.Equals(m.TrackName, trackInfo.TrackName, StringComparison.OrdinalIgnoreCase)) &&
-            ((trackInfo.Artists.Count > 0 && !string.IsNullOrEmpty(m.ArtistName) ? trackInfo.Artists[0].Name.Equals(m.ArtistName, StringComparison.OrdinalIgnoreCase) : false) || trackInfo.Artists.Count == 0) &&
-            ((!string.IsNullOrEmpty(trackInfo.Album) && !string.IsNullOrEmpty(m.AlbumName) ? trackInfo.Album.Equals(m.AlbumName, StringComparison.OrdinalIgnoreCase) : false) || string.IsNullOrEmpty(trackInfo.Album)) &&
-            ((trackInfo.TrackNum > 0 && m.TrackNum > 0 && int.Equals(m.TrackNum, trackInfo.TrackNum)) || trackInfo.TrackNum <= 0));
-          Logger.Debug(_id + ": Try to lookup track \"{0}\" from cache: {1}", trackInfo, match != null && !string.IsNullOrEmpty(match.Id));
-
+          TrackMatch match = GetStroredMatch(trackInfo);
           trackMatch = trackInfo.Clone();
-          if (match != null)
+          if (string.IsNullOrEmpty(trackId))
           {
-            if (SetTrackId(trackMatch, match.Id))
+            Logger.Debug(_id + ": Try to lookup track \"{0}\" from cache: {1}", trackInfo, match != null && !string.IsNullOrEmpty(match.Id));
+
+            if (match != null)
             {
-              //If Id was found in cache the online track info is probably also in the cache
-              if (await _wrapper.UpdateFromOnlineMusicTrackAsync(trackMatch, language, true).ConfigureAwait(false))
+              if (SetTrackId(trackMatch, match.Id))
               {
-                Logger.Debug(_id + ": Found track {0} in cache", trackInfo.ToString());
-                matchFound = true;
+                //If Id was found in cache the online track info is probably also in the cache
+                if (await _wrapper.UpdateFromOnlineMusicTrackAsync(trackMatch, language, true).ConfigureAwait(false))
+                {
+                  Logger.Debug(_id + ": Found track {0} in cache", trackInfo.ToString());
+                  matchFound = true;
+                }
+              }
+              else if (string.IsNullOrEmpty(trackId))
+              {
+                //Match was found but with invalid Id probably to avoid a retry
+                //No Id is available so online search will probably fail again
+                return false;
               }
             }
-            else if (string.IsNullOrEmpty(trackId))
+          }
+          else
+          {
+            if (match != null && trackId != match.Id)
             {
-              //Match was found but with invalid Id probably to avoid a retry
-              //No Id is available so online search will probably fail again
-              return false;
+              //Id was changed so remove it so it can be updated
+              _storage.TryRemoveMatch(match);
             }
           }
 
@@ -318,19 +410,6 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
             //matched and the disc numbers of the others have been updated the ordering of tracks becomes incorrect
             //as the unmatched tracks may be set to disc 0, whilst the matched set to disc 1
           trackInfo.MergeWith(trackMatch, false, false);
-
-          if (trackInfo.Genres.Count > 0)
-          {
-            IGenreConverter converter = ServiceRegistration.Get<IGenreConverter>();
-            foreach (var genre in trackInfo.Genres)
-            {
-              if (!genre.Id.HasValue && converter.GetGenreId(genre.Name, GenreCategory.Music, null, out int genreId))
-              {
-                genre.Id = genreId;
-                trackInfo.HasChanged = true;
-              }
-            }
-          }
 
           //Store person matches
           foreach (PersonInfo person in trackInfo.AlbumArtists)

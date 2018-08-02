@@ -148,6 +148,10 @@ namespace MediaPortal.Database.MSSQL
           //Ensure that database is always available
           sqlCmd.CommandText = "ALTER DATABASE [" + _settings.DatabaseName + "] SET AUTO_CLOSE OFF";
           sqlCmd.ExecuteNonQuery();
+
+          //Enable snapshot isolation so deadlocks can be avoided during import
+          sqlCmd.CommandText = "ALTER DATABASE [" + _settings.DatabaseName + "] SET ALLOW_SNAPSHOT_ISOLATION ON";
+          sqlCmd.ExecuteNonQuery();
         }
 
         sqlCmd.CommandText = "SELECT COUNT(*) FROM SYSLOGINS WHERE LOGINNAME = N'" + _settings.DatabaseUser + "'";
@@ -299,12 +303,16 @@ namespace MediaPortal.Database.MSSQL
 
     public ITransaction BeginTransaction(IsolationLevel level)
     {
-      return new MSSQLTransaction(this, level, _settings);
+      // Always use snapshot isolation level to avoid deadlocks in the database in multi-threaded scenarios like 
+      // MP2 does during import. If using other isolation levels where shared read locks are used during queries,
+      // the database will get into a deadlock when write locks need to escalate their locks on the same table/row,
+      // so we override any requested IsolationLevel other than Snapshot.
+      return new MSSQLTransaction(this, IsolationLevel.Snapshot, _settings);
     }
 
     public ITransaction BeginTransaction()
     {
-      return BeginTransaction(IsolationLevel.Serializable);
+      return BeginTransaction(IsolationLevel.Snapshot);
     }
 
     public bool TableExists(string tableName)

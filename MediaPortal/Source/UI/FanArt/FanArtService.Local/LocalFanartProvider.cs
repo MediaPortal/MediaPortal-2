@@ -81,6 +81,8 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Local
       if (mediaItem.IsVirtual)
         return false;
       var mediaIteamLocator = mediaItem.GetResourceLocator();
+      if (mediaIteamLocator == null)
+        return false;
       var fanArtPaths = new List<ResourcePath>();
       var files = new List<IResourceLocator>();
       // File based access

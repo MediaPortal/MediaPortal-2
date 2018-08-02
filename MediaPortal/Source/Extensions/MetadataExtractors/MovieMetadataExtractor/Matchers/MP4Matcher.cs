@@ -59,12 +59,6 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor.Match
         if (!ReferenceEquals(tag.Genres, null) && tag.Genres.Length > 0)
         {
           List<GenreInfo> genreList = tag.Genres.Where(s => !string.IsNullOrEmpty(s?.Trim())).Select(s => new GenreInfo { Name = s.Trim() }).ToList();
-          IGenreConverter converter = ServiceRegistration.Get<IGenreConverter>();
-          foreach (var genre in genreList)
-          {
-            if (!genre.Id.HasValue && converter.GetGenreId(genre.Name, GenreCategory.Movie, null, out int genreId))
-              genre.Id = genreId;
-          }
           movieInfo.HasChanged |= MetadataUpdater.SetOrUpdateList(movieInfo.Genres, genreList, movieInfo.Genres.Count == 0);
         }
 

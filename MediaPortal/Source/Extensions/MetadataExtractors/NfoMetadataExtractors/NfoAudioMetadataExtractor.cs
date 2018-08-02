@@ -187,6 +187,18 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
           {
             if (await albumNfoReader.TryReadMetadataAsync(albumNfoFsra).ConfigureAwait(false))
             {
+              //Check reimport
+              if (extractedAspectData.ContainsKey(ReimportAspect.ASPECT_ID))
+              {
+                AlbumInfo reimport = new AlbumInfo();
+                reimport.FromMetadata(extractedAspectData);
+                if (!VerifyAlbumReimport(albumNfoReader, reimport))
+                {
+                  ServiceRegistration.Get<ILogger>().Info("NfoMovieMetadataExtractor: Nfo album metadata from resource '{0}' ignored because it does not match reimport {1}", mediaItemAccessor, reimport);
+                  return false;
+                }
+              }
+
               Stubs.AlbumStub album = albumNfoReader.GetAlbumStubs().FirstOrDefault();
               if (album != null)
               {
@@ -307,7 +319,6 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
                         trackInfo.Compilation = true;
                       }
                     }
-                    trackInfo.AssignNameId();
                     trackInfo.SetMetadata(extractedAspectData);
                   }
                 }
@@ -319,6 +330,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
         }
 
         _debugLogger.Info("[#{0}]: Successfully finished extracting metadata", miNumber);
+        ServiceRegistration.Get<ILogger>().Debug("NfoAudioMetadataExtractor: Assigned nfo audio metadata for resource '{0}'", mediaItemAccessor);
         return true;
       }
       catch (Exception e)
@@ -367,7 +379,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
     {
       //if (extractedAspectData.ContainsKey(AudioAspect.ASPECT_ID))
       //  return false;
-      
+
       return TryExtractAudioMetadataAsync(mediaItemAccessor, extractedAspectData, forceQuickMode);
     }
 
@@ -384,6 +396,16 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
     public bool TryExtractStubItems(IResourceAccessor mediaItemAccessor, ICollection<IDictionary<Guid, IList<MediaItemAspect>>> extractedStubAspectData)
     {
       return false;
+    }
+
+    public Task<IList<MediaItemSearchResult>> SearchForMatchesAsync(IDictionary<Guid, IList<MediaItemAspect>> searchAspectData, ICollection<string> searchCategories)
+    {
+      return Task.FromResult<IList<MediaItemSearchResult>>(null);
+    }
+
+    public Task<bool> AddMatchedAspectDetailsAsync(IDictionary<Guid, IList<MediaItemAspect>> matchedAspectData)
+    {
+      return Task.FromResult(false);
     }
 
     #endregion

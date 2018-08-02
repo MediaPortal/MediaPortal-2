@@ -152,6 +152,34 @@ namespace MediaPortal.Extensions.OnlineLibraries
       LoadSettings();
     }
 
+    private async Task<IList<T>> MergeResults<T>(List<Task<IEnumerable<T>>> results) where T: BaseInfo
+    {
+      await Task.WhenAny(Task.WhenAll(results), Task.Delay(10000)).ConfigureAwait(false);
+
+      List<T> list = new List<T>();
+      foreach (var task in results)
+      {
+        if (!task.IsCompleted)
+          continue;
+        if (list.Count == 0)
+        {
+          list.AddRange(task.Result);
+        }
+        else if (task.Result != null)
+        {
+          foreach (var item in task.Result)
+          {
+            int idx = list.IndexOf(item);
+            if (idx >= 0)
+              list[idx].MergeWith(item);
+            else
+              list.Add(item);
+          }
+        }
+      }
+      return list;
+    }
+
     #region Audio
 
     public List<AlbumInfo> GetLastChangedAudioAlbums()
@@ -192,6 +220,22 @@ namespace MediaPortal.Extensions.OnlineLibraries
       {
         matcher.ResetLastChangedAudio();
       }
+    }
+
+    public async Task<IEnumerable<TrackInfo>> FindMatchingTracksAsync(TrackInfo trackInfo)
+    {
+      var tasks = MUSIC_MATCHERS.Where(m => m.Enabled)
+        .Select(m => m.FindMatchingTracksAsync(trackInfo)).ToList();
+      //Merge results
+      return await MergeResults(tasks).ConfigureAwait(false);
+    }
+
+    public async Task<IEnumerable<AlbumInfo>> FindMatchingAlbumsAsync(AlbumInfo albumInfo)
+    {
+      var tasks = MUSIC_MATCHERS.Where(m => m.Enabled)
+        .Select(m => m.FindMatchingAlbumsAsync(albumInfo)).ToList();
+      //Merge results
+      return await MergeResults(tasks).ConfigureAwait(false);
     }
 
     public async Task<bool> FindAndUpdateTrackAsync(TrackInfo trackInfo)
@@ -347,6 +391,14 @@ namespace MediaPortal.Extensions.OnlineLibraries
       {
         matcher.ResetLastChangedMovieCollections();
       }
+    }
+
+    public async Task<IEnumerable<MovieInfo>> FindMatchingMoviesAsync(MovieInfo movieInfo)
+    {
+      var tasks = MOVIE_MATCHERS.Where(m => m.Enabled)
+        .Select(m => m.FindMatchingMoviesAsync(movieInfo)).ToList();
+      //Merge results
+      return await MergeResults(tasks).ConfigureAwait(false);
     }
 
     public async Task<bool> FindAndUpdateMovieAsync(MovieInfo movieInfo)
@@ -507,6 +559,22 @@ namespace MediaPortal.Extensions.OnlineLibraries
       {
         matcher.ResetLastChangedEpisodes();
       }
+    }
+
+    public async Task<IEnumerable<EpisodeInfo>> FindMatchingEpisodesAsync(EpisodeInfo episodeInfo)
+    {
+      var tasks = SERIES_MATCHERS.Where(m => m.Enabled)
+        .Select(m => m.FindMatchingEpisodesAsync(episodeInfo)).ToList();
+      //Merge results
+      return await MergeResults(tasks).ConfigureAwait(false);
+    }
+
+    public async Task<IEnumerable<SeriesInfo>> FindMatchingSeriesAsync(SeriesInfo seriesInfo)
+    {
+      var tasks = SERIES_MATCHERS.Where(m => m.Enabled)
+        .Select(m => m.FindMatchingSeriesAsync(seriesInfo)).ToList();
+      //Merge results
+      return await MergeResults(tasks).ConfigureAwait(false);
     }
 
     public async Task<bool> FindAndUpdateEpisodeAsync(EpisodeInfo episodeInfo)

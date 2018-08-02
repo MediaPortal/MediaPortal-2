@@ -30,10 +30,6 @@ using MediaPortal.Utilities.Graphics;
 using System.Drawing.Imaging;
 using System.Text.RegularExpressions;
 using DuoVia.FuzzyStrings;
-using MediaPortal.Common.Services.ResourceAccess.VirtualResourceProvider;
-using MediaPortal.Common.ResourceAccess;
-using System.Reflection;
-using System.Text;
 using MediaPortal.Utilities;
 
 namespace MediaPortal.Common.MediaManagement.Helpers
@@ -287,9 +283,11 @@ namespace MediaPortal.Common.MediaManagement.Helpers
       }
     }
 
-    public abstract bool SetMetadata(IDictionary<Guid, IList<MediaItemAspect>> aspectData);
+    public abstract bool SetMetadata(IDictionary<Guid, IList<MediaItemAspect>> aspectData, bool force = false);
 
     public abstract bool FromMetadata(IDictionary<Guid, IList<MediaItemAspect>> aspectData);
+
+    public abstract bool MergeWith(object other, bool overwriteShorterStrings = true, bool updatePrimaryChildList = false);
 
     public virtual bool SetLinkedMetadata()
     {
@@ -336,44 +334,6 @@ namespace MediaPortal.Common.MediaManagement.Helpers
           return nameId;
       }
       return null;
-    }
-
-    protected T CloneProperties<T>(T obj)
-    {
-      if (obj == null)
-        return default(T);
-      Type type = obj.GetType();
-
-      if (type.IsValueType || type == typeof(string))
-      {
-        return obj;
-      }
-      else if (type.IsArray)
-      {
-        Type elementType = obj.GetType().GetElementType();
-        var array = obj as Array;
-        Array arrayCopy = Array.CreateInstance(elementType, array.Length);
-        for (int i = 0; i < array.Length; i++)
-        {
-          arrayCopy.SetValue(CloneProperties(array.GetValue(i)), i);
-        }
-        return (T)Convert.ChangeType(arrayCopy, obj.GetType());
-      }
-      else if (type.IsClass)
-      {
-        T newInstance = (T)Activator.CreateInstance(obj.GetType());
-        FieldInfo[] fields = type.GetFields(BindingFlags.Public |
-                    BindingFlags.NonPublic | BindingFlags.Instance);
-        foreach (FieldInfo field in fields)
-        {
-          object fieldValue = field.GetValue(obj);
-          if (fieldValue == null)
-            continue;
-          field.SetValue(newInstance, CloneProperties(fieldValue));
-        }
-        return newInstance;
-      }
-      return default(T);
     }
 
     #endregion
