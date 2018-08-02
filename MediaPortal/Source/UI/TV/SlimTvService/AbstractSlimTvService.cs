@@ -63,7 +63,7 @@ namespace MediaPortal.Plugins.SlimTv.Service
     public static readonly MediaCategory Movie = new MediaCategory("Movie", null);
 
     protected const int MAX_WAIT_MS = 10000;
-    protected const int MAX_INIT_MS = 10000;
+    protected const int MAX_INIT_MS = 20000;
     public const string LOCAL_USERNAME = "Local";
     public const string TVDB_NAME = "MP2TVE";
     protected DbProviderFactory _dbProviderFactory;
@@ -190,7 +190,11 @@ namespace MediaPortal.Plugins.SlimTv.Service
     private void InitAsync()
     {
       ServiceRegistration.Get<ILogger>().Info("SlimTvService: Initialising");
-      Task.Delay(MAX_INIT_MS).ContinueWith((t) => _initComplete.TrySetResult(false));
+      Task.Delay(MAX_INIT_MS).ContinueWith((t) =>
+      {
+        _initComplete.TrySetResult(false);
+        ServiceRegistration.Get<ILogger>().Error("SlimTvService: Initialization timed out.");
+      });
 
       ISQLDatabase database = ServiceRegistration.Get<ISQLDatabase>(false);
       if (database == null)
@@ -223,6 +227,7 @@ namespace MediaPortal.Plugins.SlimTv.Service
       InitTvCore();
       if (_abortInit)
       {
+        ServiceRegistration.Get<ILogger>().Error("SlimTvService: Initialization aborted.");
         _initComplete.TrySetResult(false);
         DeInit();
         return;
