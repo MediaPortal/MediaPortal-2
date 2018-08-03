@@ -179,6 +179,42 @@ namespace MediaPortal.Common.FanArt
     }
 
     /// <summary>
+    /// Populates the <paramref name="paths"/> with all matching image paths in <paramref name="potentialFanArtFiles"/>
+    /// including only image paths that start with the specified <paramref name="prefix"/>. 
+    /// </summary>
+    /// <param name="potentialFanArtFiles"><see cref="ResourcePath"/> collection containing potential fanart paths.</param>
+    /// <param name="paths"><see cref="FanArtPathCollection"/> to populate</param>
+    /// <param name="prefix">The filename prefix of the media item.</param>
+    protected void ExtractAllFanArtImagesByPrefix(ICollection<ResourcePath> potentialFanArtFiles, FanArtPathCollection paths, string prefix)
+    {
+      if (potentialFanArtFiles == null && potentialFanArtFiles.Count == 0)
+        return;
+
+      prefix = prefix.ToLowerInvariant();
+
+      paths.AddRange(FanArtTypes.Thumbnail, LocalFanartHelper.FilterPotentialFanArtFilesByNameOrPrefix(potentialFanArtFiles,
+        null, LocalFanartHelper.THUMB_FILENAMES.Select(f => prefix + "-" + f)));
+
+      paths.AddRange(FanArtTypes.Poster, LocalFanartHelper.FilterPotentialFanArtFilesByNameOrPrefix(potentialFanArtFiles,
+        null, LocalFanartHelper.POSTER_FILENAMES.Select(f => prefix + "-" + f)));
+
+      paths.AddRange(FanArtTypes.Logo, LocalFanartHelper.FilterPotentialFanArtFilesByNameOrPrefix(potentialFanArtFiles,
+        null, LocalFanartHelper.LOGO_FILENAMES.Select(f => prefix + "-" + f)));
+
+      paths.AddRange(FanArtTypes.ClearArt, LocalFanartHelper.FilterPotentialFanArtFilesByNameOrPrefix(potentialFanArtFiles,
+        null, LocalFanartHelper.CLEARART_FILENAMES.Select(f => prefix + "-" + f)));
+
+      paths.AddRange(FanArtTypes.DiscArt, LocalFanartHelper.FilterPotentialFanArtFilesByNameOrPrefix(potentialFanArtFiles,
+        null, LocalFanartHelper.DISCART_FILENAMES.Select(f => prefix + "-" + f)));
+
+      paths.AddRange(FanArtTypes.Banner, LocalFanartHelper.FilterPotentialFanArtFilesByNameOrPrefix(potentialFanArtFiles,
+        null, LocalFanartHelper.BANNER_FILENAMES.Select(f => prefix + "-" + f)));
+
+      paths.AddRange(FanArtTypes.FanArt, LocalFanartHelper.FilterPotentialFanArtFilesByNameOrPrefix(potentialFanArtFiles,
+        null, LocalFanartHelper.BACKDROP_FILENAMES.Select(f => prefix + "-" + f)));
+    }
+
+    /// <summary>
     /// Gets all actor folder images and caches them in the <see cref="IFanArtCache"/> service.
     /// </summary>
     /// <param name="mediaItemLocator"><see cref="IResourceLocator>"/> that points to the file.</param>

@@ -48,6 +48,18 @@ namespace MediaPortal.Common.FanArt
       typePaths.AddRange(paths);
     }
 
+    public void AddRange(FanArtPathCollection collection)
+    {
+      if (collection == null)
+        return;
+      foreach (var fanArtPath in collection.Paths)
+      {
+        string fanArtType = fanArtPath.Key;
+        List<ResourcePath> typePaths = GetOrAddPathList(fanArtType);
+        typePaths.AddRange(fanArtPath.Value);
+      }
+    }
+
     public int Count(string fanArtType)
     {
       List<ResourcePath> paths;
