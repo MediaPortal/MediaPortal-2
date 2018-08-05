@@ -46,7 +46,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor.Match
       string extensionUpper = StringUtils.TrimToEmpty(Path.GetExtension(folderOrFileLfsra.LocalFileSystemPath)).ToUpper();
 
       // Try to get extended information out of MP4 files)
-      if (extensionUpper != ".MP4") return false;
+      if (extensionUpper != ".MP4" || extensionUpper != ".M4V") return false;
 
       using (folderOrFileLfsra.EnsureLocalFileSystemAccess())
       {
