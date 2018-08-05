@@ -56,7 +56,7 @@ namespace MediaPortal.Plugins.SlimTv.SlimTvResources.FanartProvider
       _settings = ServiceRegistration.Get<ISettingsManager>().Load<SlimTvLogoSettings>();
       _dataFolder = ServiceRegistration.Get<IPathManager>().GetPath("<DATA>\\Logos\\");
       var currentCulture = ServiceRegistration.Get<ILocalization>().CurrentCulture;
-      _country = new RegionInfo(currentCulture.LCID);
+      _country = new RegionInfo(currentCulture.Name);
     }
 
     public FanArtProviderSource Source { get { return FanArtProviderSource.File; } }
