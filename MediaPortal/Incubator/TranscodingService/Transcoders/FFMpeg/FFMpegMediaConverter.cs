@@ -42,6 +42,7 @@ using MediaPortal.Common.MediaManagement;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using MediaPortal.Plugins.Transcoding.Interfaces.Settings;
 #if !TRANSCODE_CONSOLE_TEST
 using MediaPortal.Common;
 using MediaPortal.Utilities.Process;
@@ -61,21 +62,21 @@ namespace MediaPortal.Plugins.Transcoding.Service.Transcoders.FFMpeg
       _transcoderBinPath = FFMpegBinary.FFMpegPath;
 
       _ffMpegEncoderHandler = new FFMpegEncoderHandler();
-      if (TranscodingServicePlugin.Settings.HardwareAcceleration == Settings.HWAccelleration.Intel)
+      if (TranscodingServicePlugin.Settings.HardwareAcceleration == HWAccelleration.Intel)
       {
         if (RegisterHardwareEncoder(FFMpegEncoderHandler.EncoderHandler.HardwareIntel) == false)
         {
           _logger.Warn("MediaConverter: Failed to register Intel hardware acceleration");
         }
       }
-      else if (TranscodingServicePlugin.Settings.HardwareAcceleration == Settings.HWAccelleration.Nvidia)
+      else if (TranscodingServicePlugin.Settings.HardwareAcceleration == HWAccelleration.Nvidia)
       {
         if (RegisterHardwareEncoder(FFMpegEncoderHandler.EncoderHandler.HardwareNvidia) == false)
         {
           _logger.Warn("MediaConverter: Failed to register Nvidia hardware acceleration");
         }
       }
-      else if (TranscodingServicePlugin.Settings.HardwareAcceleration == Settings.HWAccelleration.Amd)
+      else if (TranscodingServicePlugin.Settings.HardwareAcceleration == HWAccelleration.Amd)
       {
         if (RegisterHardwareEncoder(FFMpegEncoderHandler.EncoderHandler.HardwareAmd) == false)
         {

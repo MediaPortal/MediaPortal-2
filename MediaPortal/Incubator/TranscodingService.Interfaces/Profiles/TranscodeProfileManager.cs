@@ -760,12 +760,12 @@ namespace MediaPortal.Plugins.Transcoding.Interfaces.Profiles
       return false;
     }
 
-    private int GetPreferredAudioStream(MetadataContainer info, string preferredAudioLanguages)
+    private int GetPreferredAudioStream(MetadataContainer info, IEnumerable<string> preferredAudioLanguages)
     {
       int matchedAudioStream = info.FirstAudioStream?.StreamIndex ?? -1;
-      if (string.IsNullOrEmpty(preferredAudioLanguages) == false)
+      if (preferredAudioLanguages.Any())
       {
-        List<string> valuesLangs = new List<string>(preferredAudioLanguages.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries));
+        List<string> valuesLangs = preferredAudioLanguages.ToList();
         int currentPriority = -1;
         for (int idx = 0; idx < info.Audio.Count; idx++)
         {
@@ -788,7 +788,7 @@ namespace MediaPortal.Plugins.Transcoding.Interfaces.Profiles
     /// <summary>
     /// Get the video transcoding profile that best matches the source video.
     /// </summary>
-    public VideoTranscoding GetVideoTranscoding(string section, string profile, IList<MetadataContainer> infos, string preferedAudioLanguages, bool liveStreaming, string transcodeId)
+    public VideoTranscoding GetVideoTranscoding(string section, string profile, IEnumerable<MetadataContainer> infos, IEnumerable<string> preferedAudioLanguages, bool liveStreaming, string transcodeId)
     {
       if (infos == null)
         return null;
@@ -831,7 +831,7 @@ namespace MediaPortal.Plugins.Transcoding.Interfaces.Profiles
         }
       }
 
-      if ((infos.Count > 1 || subMode == SubtitleSupport.HardCoded) && transSetup.GenericVideoTargets.Any())
+      if ((infos.Any() || subMode == SubtitleSupport.HardCoded) && transSetup.GenericVideoTargets.Any())
       {
         //Stacked files or hardcoded subs need generic transcoding
         srcVideo = new VideoMatch();
@@ -847,9 +847,10 @@ namespace MediaPortal.Plugins.Transcoding.Interfaces.Profiles
       if (srcVideo.MatchedVideoSource.Matches(dstVideo.Target) == false)
       {
         VideoTranscoding video = new VideoTranscoding();
-        for(int infoIndex = 0; infoIndex < infos.Count; infoIndex++)
+        List<MetadataContainer> infoList = infos.ToList();
+        for (int infoIndex = 0; infoIndex < infoList.Count; infoIndex++)
         {
-          MetadataContainer info = infos[infoIndex];
+          MetadataContainer info = infoList[infoIndex];
 
           video.SourceVideoStreams.Add(infoIndex, info.Video);
           video.SourceVideoContainers.Add(infoIndex, info.Metadata.VideoContainerType);
@@ -1105,7 +1106,7 @@ namespace MediaPortal.Plugins.Transcoding.Interfaces.Profiles
     /// <summary>
     /// Get a video transcoding profile that adds subtitles the source video.
     /// </summary>
-    public VideoTranscoding GetVideoSubtitleTranscoding(string section, string profile, IList<MetadataContainer> infos, bool live, string transcodeId)
+    public VideoTranscoding GetVideoSubtitleTranscoding(string section, string profile, IEnumerable<MetadataContainer> infos, bool live, string transcodeId)
     {
       if (infos == null)
         return null;
@@ -1119,9 +1120,10 @@ namespace MediaPortal.Plugins.Transcoding.Interfaces.Profiles
 
       int matchedAudioStream = 0;
       VideoTranscoding video = new VideoTranscoding();
-      for (int infoIndex = 0; infoIndex < infos.Count; infoIndex++)
+      List<MetadataContainer> infoList = infos.ToList();
+      for (int infoIndex = 0; infoIndex < infoList.Count; infoIndex++)
       {
-        MetadataContainer info = infos[infoIndex];
+        MetadataContainer info = infoList[infoIndex];
 
         video.SourceVideoStreams.Add(infoIndex, info.Video);
         video.SourceVideoContainers.Add(infoIndex, info.Metadata.VideoContainerType);
@@ -1164,7 +1166,7 @@ namespace MediaPortal.Plugins.Transcoding.Interfaces.Profiles
     /// <summary>
     /// Get a video transcoding profile that streams the live source video.
     /// </summary>
-    public VideoTranscoding GetLiveVideoTranscoding(MetadataContainer info, string preferedAudioLanguages, string transcodeId)
+    public VideoTranscoding GetLiveVideoTranscoding(MetadataContainer info, IEnumerable<string> preferedAudioLanguages, string transcodeId)
     {
       if (info == null)
         return null;

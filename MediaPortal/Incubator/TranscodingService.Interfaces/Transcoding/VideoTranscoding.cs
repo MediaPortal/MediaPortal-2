@@ -70,7 +70,7 @@ namespace MediaPortal.Plugins.Transcoding.Interfaces.Transcoding
     public SubtitleSupport TargetSubtitleSupport = SubtitleSupport.None;
     public SubtitleCodec TargetSubtitleCodec = SubtitleCodec.Srt;
     public string TargetSubtitleCharacterEncoding = null;
-    public string TargetSubtitleLanguages = "EN";
+    public IEnumerable<string> TargetSubtitleLanguages = new List<string>() { "EN" };
     public string TargetSubtitleMime = "text/srt";
     public string TargetSubtitleColor = null;
     public string TargetSubtitleFontSize = null;

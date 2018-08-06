@@ -557,6 +557,7 @@ namespace MediaPortal.Plugins.MediaServer
       if (objectId.StartsWith($"{MediaLibraryHelper.CONTAINER_USERS_KEY}>"))
       {
         deviceClient.UserId = Guid.TryParse(objectId.Substring(MediaLibraryHelper.CONTAINER_USERS_KEY.Length + 1), out Guid g) ? g : (Guid?)null;
+        deviceClient.InitializeUserAsync().Wait();
       }
     }
 

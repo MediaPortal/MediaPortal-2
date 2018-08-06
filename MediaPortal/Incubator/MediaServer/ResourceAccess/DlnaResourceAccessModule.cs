@@ -1201,7 +1201,7 @@ namespace MediaPortal.Plugins.MediaServer.ResourceAccess
           if (clientDisconnected == false)
           {
             //Everything sent to client so presume watched
-            if (MediaServerPlugin.Settings.UpdateWatchCount && item.IsLive == false)
+            if (item.IsLive == false)
             {
               IMediaLibrary library = ServiceRegistration.Get<IMediaLibrary>();
               library.NotifyUserPlayback(client.UserId.HasValue ? client.UserId.Value : client.ClientId, item.MediaSource.MediaItemId, 100, true);

@@ -169,8 +169,6 @@
     <Compile Include="ResourceAccess\DlnaResourceAccessModule.cs" />
     <Compile Include="ResourceAccess\StreamControl.cs" />
     <Compile Include="ResourceAccess\StreamItem.cs" />
-    <Compile Include="Settings\MediaServerSettings.cs" />
-    <Compile Include="Settings\ProfileLinks.cs" />
     <Compile Include="Parser\UPnP.g4.lexer.cs" />
     <Compile Include="Parser\UPnP.g4.parser.cs" />
     <Compile Include="UPnPConnectionManagerServiceImpl.cs" />
@@ -204,6 +202,10 @@
     <ProjectReference Include="..\..\Source\UI\TV\SlimTvInterfaces\SlimTv.Interfaces.csproj">
       <Project>{f31c71fa-4a24-4d33-b0ee-52cf667dcef4}</Project>
       <Name>SlimTv.Interfaces</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\MediaServer.Interfaces\MediaServer.Interfaces.csproj">
+      <Project>{F367E2D6-DDD7-4F44-AA45-F9BD4D61A4EC}</Project>
+      <Name>MediaServer.Interfaces</Name>
     </ProjectReference>
     <ProjectReference Include="..\TranscodingService.Interfaces\TranscodingService.Interfaces.csproj">
       <Project>{5057ebd5-a262-42a6-a975-360730cfe322}</Project>

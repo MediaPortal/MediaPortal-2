@@ -48,7 +48,6 @@
     <Compile Include="..\..\Source\Core\MediaPortal.Common\VersionInfo\VersionInfo.cs">
       <Link>Properties\VersionInfo.cs</Link>
     </Compile>
-    <Compile Include="Settings\TranscodingServiceSettings.cs" />
     <Compile Include="Transcoders\BaseMediaAnalyzer.cs" />
     <Compile Include="Transcoders\BaseMediaConverter.cs" />
     <Compile Include="Transcoders\TranscodeLiveAccessor.cs" />

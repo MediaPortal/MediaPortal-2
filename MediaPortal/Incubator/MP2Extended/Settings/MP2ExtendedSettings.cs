@@ -29,7 +29,7 @@ namespace MediaPortal.Plugins.MP2Extended.Settings
     {
       TranscodingAllowed = true;
       HardcodedSubtitlesAllowed = true;
-      PreferredAudioLanguages = "EN";
+      PreferredAudioLanguages = "en-US";
       PreRecordInterval = 5;
       PostRecordInterval = 5;
       UseAuth = false;

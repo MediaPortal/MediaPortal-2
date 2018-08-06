@@ -97,7 +97,6 @@ namespace MediaPortal.Plugins.Transcoding.Service.Transcoders
     protected int _transcoderTimeout;
     protected int _hlsSegmentTimeInSeconds;
     protected string _subtitleDefaultEncoding;
-    protected string _subtitleDefaultLanguage;
     protected ILogger _logger;
     protected SlimTvHandler _slimtTvHandler = null;
 
@@ -118,7 +117,6 @@ namespace MediaPortal.Plugins.Transcoding.Service.Transcoders
       _transcoderMaximumThreads = TranscodingServicePlugin.Settings.TranscoderMaximumThreads;
       _transcoderTimeout = TranscodingServicePlugin.Settings.TranscoderTimeout;
       _hlsSegmentTimeInSeconds = TranscodingServicePlugin.Settings.HLSSegmentTimeInSeconds;
-      _subtitleDefaultLanguage = TranscodingServicePlugin.Settings.SubtitleDefaultLanguage;
       _subtitleDefaultEncoding = TranscodingServicePlugin.Settings.SubtitleDefaultEncoding;
     }
 
@@ -759,10 +757,9 @@ namespace MediaPortal.Plugins.Transcoding.Service.Transcoders
             if (!englishEmbeddedSub.ContainsKey(mediaSourceIndex))
               englishEmbeddedSub.Add(mediaSourceIndex, sub);
           }
-          if (string.IsNullOrEmpty(video.TargetSubtitleLanguages) == false)
+          if (video.TargetSubtitleLanguages.Any())
           {
-            string[] langs = video.TargetSubtitleLanguages.Split(',');
-            foreach (string lang in langs)
+            foreach (string lang in video.TargetSubtitleLanguages)
             {
               if (string.IsNullOrEmpty(lang) == false && string.Compare(sub.Language, lang, true, CultureInfo.InvariantCulture) == 0)
               {
@@ -793,10 +790,9 @@ namespace MediaPortal.Plugins.Transcoding.Service.Transcoders
             if (!englishSub.ContainsKey(mediaSourceIndex))
               englishSub.Add(mediaSourceIndex, sub);
           }
-          if (string.IsNullOrEmpty(video.TargetSubtitleLanguages) == false)
+          if (video.TargetSubtitleLanguages.Any())
           {
-            string[] langs = video.TargetSubtitleLanguages.Split(',');
-            foreach (string lang in langs)
+            foreach (string lang in video.TargetSubtitleLanguages)
             {
               if (string.IsNullOrEmpty(lang) == false && string.Compare(sub.Language, lang, true, CultureInfo.InvariantCulture) == 0)
               {

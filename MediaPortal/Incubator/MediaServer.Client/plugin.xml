@@ -1,0 +1,119 @@
+<Plugin
+    DescriptorVersion="1.0"
+    Name="MediaServer Client"
+    PluginId="{11E1CEF0-1FE2-4571-96AE-5D309FC2D3C4}"
+    Author="Henso"
+    Copyright="GPL"
+    Description="Provides Client access to MediaServer settings stored in MP2 Server"
+    AutoActivate="True">
+
+  <Version
+    PluginVersion="1.0"
+    ReleaseDate="2018-09-01 12:00:00 GMT+01:00"
+    CurrentAPI="1"/>
+
+  <DependsOn>
+    <CoreDependency Name="MediaPortal.Common" CompatibleAPI="2" />
+    <CoreDependency Name="MediaPortal.UI" CompatibleAPI="2" />
+    <CoreDependency Name="MediaPortal.Utilities" CompatibleAPI="1" />
+    <PluginReference PluginId="{D87D92F0-5E71-470a-A2A4-430F90A28BF3}" CompatibleAPI="1"/> <!-- SkinEngine -->
+    <PluginReference PluginId="{1AFF4467-64B0-4ca1-AF28-9AEDF3525BCE}" CompatibleAPI="1"/> <!-- ConfigurationManager -->
+    <PluginReference PluginId="{B765A4B6-F455-4941-BDAE-2CE45208BFEB}" CompatibleAPI="1"/> <!-- Configuration plugin -->
+  </DependsOn>
+
+  <Runtime>
+    <Assembly FileName="MediaServer.Client.dll"/>
+    <PluginStateTracker ClassName="MediaPortal.UiComponents.MediaServer.Client.MediaServerPlugin"/>
+  </Runtime>
+
+  <Register Location="/Models">
+    <Model Id="82582433-FD64-41bd-9059-7F662DBDA713" Name="LoginModel" ClassName="MediaPortal.UiComponents.Login.Models.LoginModel"/>
+    <Model Id="9B20B421-DF2E-42B6-AFF2-7EB6B60B601D" Name="UserConfigModel" ClassName="MediaPortal.UiComponents.Login.Models.UserConfigModel"/>
+    <Model Id="D5CA9E6F-8639-4D2F-B94A-FEE7A69A87C4" Name="UserLoginContributorModel" ClassName="MediaPortal.UiComponents.Login.Actions.UserLoginAction"/>
+  </Register>
+
+  <Register Location="/Workflow/States">
+    <!-- Overview screen for all users at the server -->
+    <WorkflowState Id="75488A94-7BEC-44FF-836D-7A2A8C7AFEF0"
+        Name="UserManagement"
+        DisplayLabel="[UserConfig.UserOverviewWorkflowNavigationContextDisplayLabel]"
+        MainScreen="UserManagement"
+        WorkflowModel="9B20B421-DF2E-42B6-AFF2-7EB6B60B601D"/> <!-- User config model -->
+
+    <WorkflowState Id="2529B0F0-8415-4A4E-971B-38D6CDD2406A"
+        Name="Login"
+        MainScreen="Login"
+        DisplayLabel="[Login.Title]"
+        WorkflowModel="82582433-FD64-41bd-9059-7F662DBDA713"/> <!-- Login model -->/>
+
+    <WorkflowState Id="D3C5EC78-F901-4851-8DB8-83CF27E80EA8"
+        Name="AutoLoginUser"
+        MainScreen="AutoLoginUser"
+        DisplayLabel="[Login.Title]"
+        WorkflowModel="82582433-FD64-41bd-9059-7F662DBDA713"/> <!-- Login model -->/>
+  </Register>
+
+  <Register Location="/Resources/Language">
+    <Resource Id="LoginLanguage" Directory="Language" Type="Language"/>
+  </Register>
+
+  <Register Location = "/Resources/Skin">
+    <Resource Id="LoginSkin" Directory="Skin" Type="Skin"/>
+  </Register>
+
+  <!-- Root configuration sections -->
+  <Register Location="/Configuration/Settings">
+    <ConfigSection
+        Id="Users"
+        Sort="X100"
+        Redundant="true"
+        Text="[Settings.Users]"/>
+  </Register>
+
+  <!-- Contents of '/Users' section -->
+  <Register Location="/Configuration/Settings/Users">
+    <ConfigSetting
+        Id="EnableUserLogin"
+        RestrictionGroup="Settings.UserProfile"
+        Text="[Settings.Users.Config.UserEnable]"
+        HelpText="[Settings.Users.Config.UserEnable.Help]"
+        ClassName="MediaPortal.UiComponents.Login.Settings.Configuration.UserConfigSettings"/>
+
+    <ConfigSetting
+        Id="EnableUserLoginScreen"
+        RestrictionGroup="Settings.UserProfile"
+        Text="[Settings.Users.Config.UserEnableScreen]"
+        HelpText="[Settings.Users.Config.UserEnableScreen.Help]"
+        ClassName="MediaPortal.UiComponents.Login.Settings.Configuration.UserLoginScreenSettings"/>
+
+    <ConfigSetting
+        Id="AutoLogout"
+        RestrictionGroup="Settings.UserProfile"
+        Text="[Settings.Users.Config.AutoLogout]"
+        HelpText="[Settings.Users.Config.AutoLogout.Help]"
+        ClassName="MediaPortal.UiComponents.Login.Settings.Configuration.AutoLogoutSettings"/>
+
+    <ConfigSetting
+        Id="AutoLogoutTimeout"
+        RestrictionGroup="Settings.UserProfile"
+        Text="[Settings.Users.Config.AutoLogoutTimeout]"
+        HelpText="[Settings.Users.Config.AutoLogoutTimeout.Help]"
+        ClassName="MediaPortal.UiComponents.Login.Settings.Configuration.AutoLogoutTimeoutSetting"/>
+
+    <CustomConfigSetting
+        Id="AutoLoginUser"
+        RestrictionGroup="Settings.UserProfile"
+        Text="[Settings.Users.Config.AutoLoginUser]"
+        HelpText="[Settings.Users.Config.AutoLoginUser.Help]"
+        ClassName="MediaPortal.UiComponents.Login.Settings.Configuration.AutoLoginUserSetting"
+        AdditionalData="WorkflowState=D3C5EC78-F901-4851-8DB8-83CF27E80EA8,ConfAppPanel=..."/>
+
+    <CustomConfigSetting
+        Id="UserOverview"
+        RestrictionGroup="Settings.UserProfile,Settings.UserProfile.ManageOwn"
+        Text="[Settings.Users.Config.UserManagement]"
+        HelpText="[Settings.Users.Config.UserManagement.Help]"
+        ClassName="MediaPortal.UiComponents.Login.Settings.Configuration.UserManagementSetting"
+        AdditionalData="WorkflowState=75488A94-7BEC-44FF-836D-7A2A8C7AFEF0,ConfAppPanel=..."/>
+  </Register>
+</Plugin>

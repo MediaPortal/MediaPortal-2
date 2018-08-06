@@ -74,6 +74,7 @@
     <Compile Include="Profiles\MediaMatch\AudioMatch.cs" />
     <Compile Include="Profiles\MediaMatch\ImageMatch.cs" />
     <Compile Include="Profiles\MediaMatch\VideoMatch.cs" />
+    <Compile Include="Settings\TranscodingServiceSettings.cs" />
     <Compile Include="SlimTv\SlimTvHandler.cs" />
     <Compile Include="SlimTv\TranscodeChannel.cs" />
     <Compile Include="Transcoding\AudioTranscoding.cs" />

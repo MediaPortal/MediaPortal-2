@@ -37,7 +37,6 @@ using MediaPortal.Plugins.MediaServer.DIDL;
 using MediaPortal.Plugins.MediaServer.DLNA;
 using MediaPortal.Plugins.MediaServer.Filters;
 using MediaPortal.Plugins.MediaServer.Protocols;
-using MediaPortal.Plugins.MediaServer.Settings;
 using MediaPortal.Utilities.FileSystem;
 using MediaPortal.Common.UserProfileDataManagement;
 using MediaPortal.Common.Services.Settings;
@@ -45,6 +44,7 @@ using Microsoft.Owin;
 using System.Collections.Concurrent;
 using MediaPortal.Plugins.Transcoding.Interfaces;
 using System.Threading.Tasks;
+using MediaPortal.Plugins.MediaServer.Interfaces.Settings;
 
 namespace MediaPortal.Plugins.MediaServer.Profiles
 {
@@ -52,18 +52,20 @@ namespace MediaPortal.Plugins.MediaServer.Profiles
   {
     private const string DLNA_DEFAULT_PROFILE_ID = "DLNADefault";
     private const string PROFILE_FILE = "DLNAProfiles.xml";
+    private const string AUTO_PROFILE = "Auto";
+    private const string NO_PROFILE = "None";
 
-    private readonly static SettingsChangeWatcher<ProfileLinks> ProfileLinkChangeWatcher;
+    private readonly static SettingsChangeWatcher<ProfileLinkSettings> ProfileLinkChangeWatcher;
     private static bool UpdatingProfileLinks = false;
 
     public const string TRANSCODE_PROFILE_SECTION = "DLNA";
 
-    public static ConcurrentDictionary<IPAddress, EndPointSettings> ProfileLinks = new ConcurrentDictionary<IPAddress, EndPointSettings>();
+    public static ConcurrentDictionary<string, EndPointSettings> ProfileLinks = new ConcurrentDictionary<string, EndPointSettings>();
     public static ConcurrentDictionary<string, EndPointProfile> Profiles = new ConcurrentDictionary<string, EndPointProfile>();
 
     static ProfileManager()
     {
-      ProfileLinkChangeWatcher = new SettingsChangeWatcher<ProfileLinks>();
+      ProfileLinkChangeWatcher = new SettingsChangeWatcher<ProfileLinkSettings>();
       ProfileLinkChangeWatcher.SettingsChanged += ProfileLinkChanged;
     }
 
@@ -128,16 +130,17 @@ namespace MediaPortal.Plugins.MediaServer.Profiles
       }
 
       IPAddress ip = ResolveIpAddress(request.RemoteIpAddress);
+      string clientName = EndPointSettings.GetClientName(ip);
 
       // Overwrite the automatic profile detection
-      if (ProfileLinks.ContainsKey(ip))
+      if (ProfileLinks.ContainsKey(clientName))
       {
-        if (ProfileLinks[ip].Profile != null)
+        if (ProfileLinks[clientName].Profile != null)
         {
-          Logger.Debug("DetectProfile: Overwrite automatic profile detection for IP: {0}, using: {1}", ip, ProfileLinks[ip].Profile.ID);
-          return ProfileLinks[ip];
+          Logger.Debug("DetectProfile: Overwrite automatic profile detection for IP: {0}, using: {1}", ip, ProfileLinks[clientName].Profile.ID);
+          return ProfileLinks[clientName];
         }
-        else if(ProfileLinks[ip].AutoProfile == false)
+        else if(ProfileLinks[clientName].AutoProfile == false)
         {
           Logger.Debug("DetectProfile: Overwrite automatic profile detection for IP: {0}, using: None", ip);
           return null;
@@ -241,22 +244,22 @@ namespace MediaPortal.Plugins.MediaServer.Profiles
           if (match)
           {
             Logger.Info("DetectProfile: Profile found => using {0}, headers={1}", profile.Value.ID, string.Join(", ", request.Headers.Select(h => h.Key + ": " + string.Join(";", h.Value)).ToArray()));
-            if (ProfileLinks.ContainsKey(ip) == false)
-              ProfileLinks.TryAdd(ip, await GetEndPointSettingsAsync(ip.ToString(), profile.Value.ID));
+            if (ProfileLinks.ContainsKey(clientName) == false)
+              ProfileLinks.TryAdd(clientName, await GetEndPointSettingsAsync(ip.ToString(), profile.Value.ID));
             else
-              ProfileLinks[ip] = await GetEndPointSettingsAsync(ip.ToString(), profile.Value.ID);
-            return ProfileLinks[ip];
+              ProfileLinks[clientName] = await GetEndPointSettingsAsync(ip.ToString(), profile.Value.ID);
+            return ProfileLinks[clientName];
           }
         }
       }
 
       // no match => return Default Profile
       Logger.Info("DetectProfile: No profile found => using {0}, headers={1}", DLNA_DEFAULT_PROFILE_ID, string.Join(", ", request.Headers.Select(h => h.Key + ": " + string.Join(";", h.Value)).ToArray()));
-      if (ProfileLinks.ContainsKey(ip) == false)
-        ProfileLinks.TryAdd(ip, await GetEndPointSettingsAsync(ip.ToString(), DLNA_DEFAULT_PROFILE_ID));
+      if (ProfileLinks.ContainsKey(clientName) == false)
+        ProfileLinks.TryAdd(clientName, await GetEndPointSettingsAsync(ip.ToString(), DLNA_DEFAULT_PROFILE_ID));
       else
-        ProfileLinks[ip] = await GetEndPointSettingsAsync(ip.ToString(), DLNA_DEFAULT_PROFILE_ID);
-      return ProfileLinks[ip];
+        ProfileLinks[clientName] = await GetEndPointSettingsAsync(ip.ToString(), DLNA_DEFAULT_PROFILE_ID);
+      return ProfileLinks[clientName];
     }
 
     public static async Task LoadProfilesAsync(bool userProfiles)
@@ -586,6 +589,8 @@ namespace MediaPortal.Plugins.MediaServer.Profiles
 
           await TranscodeProfileManager.LoadTranscodeProfilesAsync(TRANSCODE_PROFILE_SECTION, profileFile);
         }
+
+        ProfileLinkSettings.Profiles = Profiles.ToDictionary(p => p.Key, p => p.Value.Name);
       }
       catch (Exception e)
       {
@@ -593,21 +598,16 @@ namespace MediaPortal.Plugins.MediaServer.Profiles
       }
     }
 
-    public static async Task<EndPointSettings> GetEndPointSettingsAsync(string clientIp, string profileId)
+    public static Task<EndPointSettings> GetEndPointSettingsAsync(string clientIp, string profileId)
     {
-      EndPointSettings settings = new EndPointSettings
-      {
-        PreferredSubtitleLanguages = MediaServerPlugin.Settings.PreferredSubtitleLanguages,
-        PreferredAudioLanguages = MediaServerPlugin.Settings.PreferredAudioLanguages,
-        DefaultSubtitleEncodings = MediaServerPlugin.Settings.DefaultSubtitleEncodings
-      };
+      EndPointSettings settings = new EndPointSettings();
       try
       {
         if (Profiles.ContainsKey(profileId) == true)
         {
           settings.Profile = Profiles[profileId];
         }
-        else if (profileId == "None")
+        else if (profileId == NO_PROFILE)
         {
           settings.Profile = null;
         }
@@ -620,58 +620,32 @@ namespace MediaPortal.Plugins.MediaServer.Profiles
       {
         Logger.Info("DlnaMediaServer: Exception reading profile links (Text: '{0}')", e.Message);
       }
-      return settings;
+      return Task.FromResult(settings);
     }
 
-    public static async Task LoadProfileLinksAsync()
+    public static Task LoadProfileLinksAsync()
     {
       try
       {
         ProfileLinks.Clear();
         IUserProfileDataManagement userManager = ServiceRegistration.Get<IUserProfileDataManagement>();
         ISettingsManager settingsManager = ServiceRegistration.Get<ISettingsManager>();
-        ProfileLinks profileLinks = settingsManager.Load<ProfileLinks>();
+        ProfileLinkSettings profileLinks = settingsManager.Load<ProfileLinkSettings>();
 
         foreach (ProfileLink link in profileLinks.Links)
         {
-          IPAddress ip = IPAddress.Parse(link.IP);
-
           EndPointSettings settings = new EndPointSettings();
           settings.AutoProfile = false;
-          if (string.IsNullOrEmpty(link.PreferredAudioLanguages) == false)
-          {
-            settings.PreferredAudioLanguages = link.PreferredAudioLanguages;
-          }
-          else
-          {
-            settings.PreferredAudioLanguages = MediaServerPlugin.Settings.PreferredAudioLanguages;
-          }
-          if (string.IsNullOrEmpty(link.PreferredSubtitleLanguages) == false)
-          {
-            settings.PreferredSubtitleLanguages = link.PreferredSubtitleLanguages;
-          }
-          else
-          {
-            settings.PreferredSubtitleLanguages = MediaServerPlugin.Settings.PreferredSubtitleLanguages;
-          }
-          if (string.IsNullOrEmpty(link.DefaultSubtitleEncodings) == false)
-          {
-            settings.DefaultSubtitleEncodings = link.DefaultSubtitleEncodings;
-          }
-          else
-          {
-            settings.DefaultSubtitleEncodings = MediaServerPlugin.Settings.DefaultSubtitleEncodings;
-          }
 
           if (Profiles.ContainsKey(link.Profile) == true)
           {
             settings.Profile = Profiles[link.Profile];
           }
-          else if (link.Profile == "None")
+          else if (link.Profile == NO_PROFILE)
           {
             settings.Profile = null;
           }
-          else if (link.Profile == "Auto")
+          else if (link.Profile == AUTO_PROFILE)
           {
             settings.Profile = null;
             settings.AutoProfile = true;
@@ -684,16 +658,17 @@ namespace MediaPortal.Plugins.MediaServer.Profiles
           settings.UserId = Guid.TryParse(link.DefaultUserProfile, out Guid g) ? g : (Guid?)null;
 
           if (settings.Profile == null)
-            Logger.Info("DlnaMediaServer: IP: {0}, using profile: None", ip);
+            Logger.Info("DlnaMediaServer: Client: {0}, using profile: {1}", link.ClientName, NO_PROFILE);
           else
-            Logger.Info("DlnaMediaServer: IP: {0}, using profile: {1}", ip, settings.Profile.ID);
-          ProfileLinks.TryAdd(ip, settings);
+            Logger.Info("DlnaMediaServer: Client: {0}, using profile: {1}", link.ClientName, settings.Profile.ID);
+          ProfileLinks.TryAdd(link.ClientName, settings);
         }
       }
       catch (Exception e)
       {
         Logger.Info("DlnaMediaServer: Exception reading profile links (Text: '{0}')", e.Message);
       }
+      return Task.CompletedTask;
     }
 
     public static void SaveProfileLinks()
@@ -701,19 +676,16 @@ namespace MediaPortal.Plugins.MediaServer.Profiles
       try
       {
         ISettingsManager settingsManager = ServiceRegistration.Get<ISettingsManager>();
-        ProfileLinks profileLinks = settingsManager.Load<ProfileLinks>();
+        ProfileLinkSettings profileLinks = settingsManager.Load<ProfileLinkSettings>();
         foreach (var pair in ProfileLinks)
         {
-          ProfileLink link = profileLinks.Links.FirstOrDefault(l => l.IP == pair.Key.ToString());
+          ProfileLink link = profileLinks.Links.FirstOrDefault(l => l.ClientName == pair.Key.ToString());
           if (link == null && pair.Value != null)
           {
             link = new ProfileLink
             {
-              IP = pair.Key.ToString(),
-              Profile = pair.Value.AutoProfile ? "Auto" : pair.Value.Profile.ID,
-              PreferredSubtitleLanguages = pair.Value.PreferredSubtitleLanguages,
-              PreferredAudioLanguages = pair.Value.PreferredAudioLanguages,
-              DefaultSubtitleEncodings = pair.Value.DefaultSubtitleEncodings
+              ClientName = pair.Key.ToString(),
+              Profile = pair.Value.AutoProfile ? AUTO_PROFILE : pair.Value.Profile.ID
             };
             profileLinks.Links.Add(link);
           }
@@ -721,11 +693,8 @@ namespace MediaPortal.Plugins.MediaServer.Profiles
           {
             link = new ProfileLink
             {
-              IP = pair.Key.ToString(),
-              Profile = "Auto",
-              PreferredSubtitleLanguages = MediaServerPlugin.Settings.PreferredSubtitleLanguages,
-              PreferredAudioLanguages = MediaServerPlugin.Settings.PreferredAudioLanguages,
-              DefaultSubtitleEncodings = MediaServerPlugin.Settings.DefaultSubtitleEncodings
+              ClientName = pair.Key.ToString(),
+              Profile = AUTO_PROFILE
             };
             profileLinks.Links.Add(link);
           }
@@ -733,7 +702,7 @@ namespace MediaPortal.Plugins.MediaServer.Profiles
           {
             if (pair.Value.AutoProfile == true)
             {
-              link.Profile = "Auto";
+              link.Profile = AUTO_PROFILE;
             }
           }
         }

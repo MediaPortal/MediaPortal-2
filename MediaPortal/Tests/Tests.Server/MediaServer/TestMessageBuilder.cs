@@ -143,8 +143,8 @@ namespace Tests.Server.MediaServer
     {
       EndPointSettings settings = new EndPointSettings
       {
-        PreferredSubtitleLanguages = "EN",
-        PreferredAudioLanguages = "EN",
+        PreferredSubtitleLanguages = "en-US",
+        PreferredAudioLanguages = "en-US",
         DefaultSubtitleEncodings = ""
       };
 

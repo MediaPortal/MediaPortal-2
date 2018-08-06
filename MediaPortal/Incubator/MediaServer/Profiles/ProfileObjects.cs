@@ -42,6 +42,8 @@ using System.Collections.Concurrent;
 using MediaPortal.Plugins.Transcoding.Interfaces;
 using MediaPortal.Common.UserProfileDataManagement;
 using System.Threading.Tasks;
+using MediaPortal.Plugins.MediaServer.Profiles;
+using System.Net;
 
 namespace MediaPortal.Plugins.MediaServer.Profiles
 {
@@ -141,15 +143,19 @@ namespace MediaPortal.Plugins.MediaServer.Profiles
   public class EndPointSettings
   {
     public EndPointProfile Profile { get; set; } = null;
-    public string PreferredSubtitleLanguages { get; set; } = null;
-    public string DefaultSubtitleEncodings { get; set; } = null;
-    public string PreferredAudioLanguages { get; set; } = null;
+    public IEnumerable<string> PreferredSubtitleLanguages { get; set; } = null;
+    public IEnumerable<string> PreferredAudioLanguages { get; set; } = null;
     public Guid ClientId { get; set; } = Guid.Empty;
     public Guid? UserId { get; set; } = null;
     public bool EstimateTransodedSize { get; set; } = true;
     public bool AutoProfile { get; set; } = true;
     public BasicContainer RootContainer { get; private set; } = null;
     public ConcurrentDictionary<Guid, DlnaMediaItem> DlnaMediaItems { get; } = new ConcurrentDictionary<Guid, DlnaMediaItem>();
+
+    public static string GetClientName(IPAddress ip)
+    {
+      return $"DLNA ({ip.ToString()})";
+    }
 
     public DlnaMediaItem GetDlnaItem(MediaItem item, bool isLive)
     {
@@ -299,7 +305,27 @@ namespace MediaPortal.Plugins.MediaServer.Profiles
         ClientId = await userManager.CreateProfileAsync($"DLNA ({id})", UserProfileType.ClientProfile, "");
         await userManager.LoginProfileAsync(ClientId);
 
+        if (UserId.HasValue)
+          await InitializeUserAsync();
+
         InitialiseContainerTree();
+      }
+    }
+
+    public async Task InitializeUserAsync()
+    {
+      IUserProfileDataManagement userManager = ServiceRegistration.Get<IUserProfileDataManagement>();
+      if (UserId.HasValue)
+      {
+        await userManager.LoginProfileAsync(UserId.Value);
+        var audioList = await userManager.GetUserAdditionalDataListAsync(UserId.Value, UserDataKeysKnown.KEY_PREFERRED_AUDIO_LANGUAGE);
+        PreferredAudioLanguages = audioList.Result.Select(l => l.Item2);
+        if (PreferredAudioLanguages.Count() == 0)
+          PreferredAudioLanguages = new List<string>() { "EN" };
+        var subtitleList = await userManager.GetUserAdditionalDataListAsync(UserId.Value, UserDataKeysKnown.KEY_PREFERRED_SUBTITLE_LANGUAGE);
+        PreferredSubtitleLanguages = subtitleList.Result.Select(l => l.Item2);
+        if (PreferredSubtitleLanguages.Count() == 0)
+          PreferredSubtitleLanguages = new List<string>() { "EN" };
       }
     }
   }
