@@ -94,7 +94,18 @@ namespace MediaPortal.Common.Services.ResourceAccess
 
     public string GetServiceUrl(IPAddress ipAddress)
     {
-      return string.Format("http://{0}:{1}{2}", ipAddress, _serverPort, _servicePrefix);
+      return ipAddress.AddressFamily == AddressFamily.InterNetworkV6 ?
+        string.Format("http://[{0}]:{1}{2}", RemoveScope(ipAddress.ToString()), _serverPort, _servicePrefix) :
+        string.Format("http://{0}:{1}{2}", ipAddress, _serverPort, _servicePrefix);
+    }
+
+    private string RemoveScope(string ipAddress)
+    {
+      // %x is appended, but if we like to connect this address, we need to remove this scope identifier
+      var SCOPE_DELIMITER = "%";
+      if (!ipAddress.Contains(SCOPE_DELIMITER))
+        return ipAddress;
+      return ipAddress.Substring(0, ipAddress.IndexOf(SCOPE_DELIMITER));
     }
 
     public int GetPortForIP(IPAddress ipAddress)

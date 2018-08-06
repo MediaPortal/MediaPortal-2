@@ -44,25 +44,6 @@ namespace MediaPortal.Extensions.MetadataExtractors.MatroskaLib
   /// </summary>
   public class MatroskaInfoReader
   {
-    public enum StereoMode
-    {
-      Mono,
-      SBSLeftEyeFirst,
-      TABRightEyeFirst,
-      TABLeftEyeFirst,
-      CheckboardRightEyeFirst,
-      CheckboardLeftEyeFirst,
-      RowInterleavedRightEyeFirst,
-      RowInterleavedLeftEyeFirst,
-      ColumnInterleavedRightEyeFirst,
-      ColumnInterleavedLeftEyeFirst,
-      AnaglyphCyanRed,
-      SBSRightEyeFirst,
-      AnaglyphGreenMagenta,
-      FieldSequentialModeLeftEyeFirst,
-      FieldSequentialModeRightEyeFirst,
-    }
-
     /// <summary>
     /// Maximum duration for creating a tag extraction.
     /// </summary>
@@ -73,7 +54,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.MatroskaLib
     #region Fields
 
     private readonly ILocalFsResourceAccessor _lfsra;
-    private List<MatroskaAttachment> _attachments;
+    private List<MatroskaConsts.MatroskaAttachment> _attachments;
     private readonly string _mkvInfoPath;
     private static readonly SemaphoreSlim MKVINFO_THROTTLE_LOCK = new SemaphoreSlim(MAX_CONCURRENT_MKVINFO, MAX_CONCURRENT_MKVINFO);
     private readonly string _mkvExtractPath;
@@ -82,27 +63,12 @@ namespace MediaPortal.Extensions.MetadataExtractors.MatroskaLib
 
     #endregion
 
-    #region Helper classes
-
-    public class MatroskaAttachment
-    {
-      public string FileName;
-      public string MimeType;
-      public int FileSize;
-      public override string ToString()
-      {
-        return string.Format("{0} [{1}, {2}]", FileName, MimeType, FileSize);
-      }
-    }
-
-    #endregion
-
     #region Properties
 
     /// <summary>
     /// Gets a list of attachments, is created after <see cref="ReadAttachmentsAsync"/> was called once.
     /// </summary>
-    public IList<MatroskaAttachment> Attachments
+    public IList<MatroskaConsts.MatroskaAttachment> Attachments
     {
       get { return _attachments; }
     }
@@ -191,7 +157,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.MatroskaLib
       if (_attachments != null)
         return;
 
-      _attachments = new List<MatroskaAttachment>();
+      _attachments = new List<MatroskaConsts.MatroskaAttachment>();
 
       // Structure of mkvinfo attachment output
       // |+ Attachments
@@ -224,7 +190,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.MatroskaLib
         {
           // Start of an attachment section
           if (line.Contains("Attached"))
-            _attachments.Add(new MatroskaAttachment());
+            _attachments.Add(new MatroskaConsts.MatroskaAttachment());
 
           if (line.Contains("File name"))
             _attachments[_attachments.Count - 1].FileName = line.Substring(line.LastIndexOf(": ") + 2);
@@ -241,7 +207,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.MatroskaLib
     /// <summary>
     /// Reads the stereoscopic information from the matroska file.
     /// </summary>
-    public async Task<StereoMode> ReadStereoModeAsync()
+    public async Task<MatroskaConsts.StereoMode> ReadStereoModeAsync()
     {
       // Structure of mkvinfo attachment output
       // |+ Attachments
@@ -277,12 +243,12 @@ namespace MediaPortal.Extensions.MetadataExtractors.MatroskaLib
             int stereoMode = 0;
             if (int.TryParse(line.Substring(line.LastIndexOf(": ") + 2, 2), out stereoMode))
             {
-              return (StereoMode)stereoMode;
+              return (MatroskaConsts.StereoMode)stereoMode;
             }
           }
         }
       }
-      return StereoMode.Mono;
+      return MatroskaConsts.StereoMode.Mono;
     }
 
     /// <summary>
@@ -326,7 +292,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.MatroskaLib
       for (int c = 0; c < Attachments.Count; c++)
         if (Attachments[c].FileName.ToLowerInvariant().StartsWith(fileNamePart))
           return await ExtractAttachmentAsync(c).ConfigureAwait(false);
-      
+
       return null;
     }
 
@@ -359,7 +325,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.MatroskaLib
       if (!success)
         return null;
 
-      int fileSize = _attachments[attachmentIndex].FileSize;
+      long fileSize = _attachments[attachmentIndex].FileSize;
       FileInfo fileInfo = new FileInfo(tempFileName);
       if (!fileInfo.Exists || fileInfo.Length != fileSize)
         return null;
@@ -372,7 +338,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.MatroskaLib
     #endregion
 
     #region Private methods
-    
+
     private static IEnumerable<XElement> GetTagsForTargetType(XDocument doc, int? targetTypeValue)
     {
       if (targetTypeValue.HasValue)

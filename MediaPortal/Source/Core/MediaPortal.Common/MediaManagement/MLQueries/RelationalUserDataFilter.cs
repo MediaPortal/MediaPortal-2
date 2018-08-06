@@ -34,12 +34,14 @@ namespace MediaPortal.Common.MediaManagement.MLQueries
   {
     protected RelationalOperator _operator;
     protected string _filterValue;
+    protected bool _includeEmpty;
 
-    public RelationalUserDataFilter(Guid userProfile, string userDataKey, RelationalOperator op, string filterValue) : 
+    public RelationalUserDataFilter(Guid userProfile, string userDataKey, RelationalOperator op, string filterValue, bool includeEmpty = false) : 
       base(userProfile, userDataKey)
     {
       _operator = op;
       _filterValue = filterValue;
+      _includeEmpty = includeEmpty;
     }
 
     [XmlIgnore]
@@ -56,9 +58,16 @@ namespace MediaPortal.Common.MediaManagement.MLQueries
       set { _filterValue = value; }
     }
 
+    [XmlIgnore]
+    public bool IncludeEmpty
+    {
+      get { return _includeEmpty; }
+      set { _includeEmpty = value; }
+    }
+
     public override string ToString()
     {
-      return _userDataKey + " " + _operator + " " + _filterValue;
+      return _userDataKey + " " + _operator + " " + _filterValue + (_includeEmpty ? "(and Empty)" : "");
     }
 
     #region Additional members for the XML serialization
@@ -83,6 +92,16 @@ namespace MediaPortal.Common.MediaManagement.MLQueries
     {
       get { return _filterValue; }
       set { _filterValue = value; }
+    }
+
+    /// <summary>
+    /// For internal use of the XML serialization system only.
+    /// </summary>
+    [XmlElement("IncludeEmpty", IsNullable = false)]
+    public bool XML_IncludeEmpty
+    {
+      get { return _includeEmpty; }
+      set { _includeEmpty = value; }
     }
 
     #endregion

@@ -233,7 +233,7 @@ Parameters which have to be accessible by a DynamicResource lookup:
             </ListView.Resources>
           </ListView>
           <Button x:Name="MenuShowTopButton" Content="Menu" Style="{ThemeResource ButtonWideStyle_GrowOnly}"
-                  Grid.Row="1" Grid.Column="0" VerticalAlignment="Bottom" Width="180" Margin="0,0,0,0"
+                  Grid.Row="1" Grid.Column="0" VerticalAlignment="Bottom" Width="180" Margin="0,-1,0,1"
                   IsEnabled="{Binding Source={StaticResource MenuModel},Path=!IsMenuOpen}"
                   Command="{Command Source={StaticResource MenuModel}, Path=ToggleMenu}">
             <Image Source="hiddenmenu_tab_up.png" Stretch="Uniform" Margin="-40,0,0,0"/>

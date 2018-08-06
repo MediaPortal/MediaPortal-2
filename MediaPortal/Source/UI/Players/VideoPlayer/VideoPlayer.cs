@@ -389,7 +389,7 @@ namespace MediaPortal.UI.Players.Video
     /// <param name="targetTexture"></param>
     protected virtual void PostProcessTexture(Texture targetTexture)
     {
-      _mpcSubsRenderer.DrawItem(targetTexture, false);
+      _mpcSubsRenderer?.DrawItem(targetTexture, false);
     }
 
     public IGeometry GeometryOverride

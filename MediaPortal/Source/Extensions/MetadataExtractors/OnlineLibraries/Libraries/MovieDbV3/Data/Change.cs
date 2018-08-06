@@ -34,7 +34,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MovieDbV3.Data
   public class Change
   {
     [DataMember(Name = "id")]
-    public int Id { get; set; }
+    public int? Id { get; set; }
 
     [DataMember(Name = "adult")]
     public bool? Adult { get; set; }

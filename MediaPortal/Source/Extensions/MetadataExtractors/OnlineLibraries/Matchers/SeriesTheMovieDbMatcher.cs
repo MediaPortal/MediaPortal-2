@@ -90,7 +90,10 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
     {
       if (!string.IsNullOrEmpty(id))
       {
-        series.MovieDbId = Convert.ToInt32(id);
+        if (id.StartsWith("tt", StringComparison.InvariantCultureIgnoreCase))
+          series.ImdbId = id;
+        else
+          series.MovieDbId = Convert.ToInt32(id);
         return true;
       }
       return false;
@@ -100,7 +103,10 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
     {
       if (!string.IsNullOrEmpty(id))
       {
-        episode.SeriesMovieDbId = Convert.ToInt32(id);
+        if (id.StartsWith("tt", StringComparison.InvariantCultureIgnoreCase))
+          episode.SeriesImdbId = id;
+        else
+          episode.SeriesMovieDbId = Convert.ToInt32(id);
         return true;
       }
       return false;
@@ -111,6 +117,8 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
       id = null;
       if (series.MovieDbId > 0)
         id = series.MovieDbId.ToString();
+      else if (!string.IsNullOrEmpty(series.ImdbId))
+        id = series.ImdbId;
       return id != null;
     }
 

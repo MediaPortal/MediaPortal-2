@@ -99,13 +99,16 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Local
           patterns.Add("backdrop.");
           patterns.Add("fanart.");
           break;
+        case FanArtTypes.Logo:
+          patterns.Add("clearlogo.");
+          break;
         default:
           return false;
       }
       // File based access
       try
       {
-        using (var accessor = resourceLocator.CreateAccessor())
+        using (var accessor = resourceLocator?.CreateAccessor())
         {
           ILocalFsResourceAccessor fsra = accessor as ILocalFsResourceAccessor;
           if (fsra != null)
@@ -114,7 +117,7 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Local
             if (!SUPPORTED_EXTENSIONS.Contains(ext))
               return false;
 
-            MatroskaInfoReader mkvReader = new MatroskaInfoReader(fsra);
+            MatroskaBinaryReader mkvReader = new MatroskaBinaryReader(fsra);
             foreach (string pattern in patterns)
             {
               byte[] binaryData = mkvReader.GetAttachmentByNameAsync(pattern).Result;

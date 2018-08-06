@@ -73,6 +73,7 @@
     <Compile Include="FanArt\LocalFanartHelper.cs" />
     <Compile Include="FanArt\IFanArtCache.cs" />
     <Compile Include="Logging\ILoggerConfig.cs" />
+    <Compile Include="MediaManagement\DefaultItemAspects\ReimportAspect.cs" />
     <Compile Include="MediaManagement\DefaultItemAspects\StubAspect.cs" />
     <Compile Include="MediaManagement\DefaultItemAspects\GenreAspect.cs" />
     <Compile Include="MediaManagement\DefaultItemAspects\SelectionMarkerAspect.cs" />
@@ -122,6 +123,7 @@
     <Compile Include="MediaManagement\RelationshipType.cs" />
     <Compile Include="MediaManagement\MLQueries\FilteredRelationshipFilter.cs" />
     <Compile Include="MediaManagement\RelationshipItem.cs" />
+    <Compile Include="MediaManagement\ResourceAspectMerger.cs" />
     <Compile Include="MediaManagement\TransientAspects\TempAlbumAspect.cs" />
     <Compile Include="MediaManagement\TransientAspects\TempActorAspect.cs" />
     <Compile Include="MediaManagement\TransientAspects\TempArtistAspect.cs" />

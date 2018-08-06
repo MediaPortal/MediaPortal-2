@@ -29,6 +29,7 @@ using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Common.MediaManagement.Helpers;
 using MediaPortal.Common.Messaging;
 using MediaPortal.Common.ResourceAccess;
+using MediaPortal.Common.Services.GenreConverter;
 using MediaPortal.Common.Services.Settings;
 using MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor.Matchers;
 using MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor.Settings;
@@ -85,6 +86,11 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
       if (!mediaAccessor.MediaCategories.TryGetValue(MEDIA_CATEGORY_NAME_MOVIE, out movieCategory))
         movieCategory = mediaAccessor.RegisterMediaCategory(MEDIA_CATEGORY_NAME_MOVIE, new List<MediaCategory> { DefaultMediaCategories.Video });
       MEDIA_CATEGORIES.Add(movieCategory);
+
+      // Register reimport support
+      IMediaItemAspectTypeRegistration miatr = ServiceRegistration.Get<IMediaItemAspectTypeRegistration>();
+      miatr.RegisterLocallySupportedReimportMediaItemAspectTypeAsync(MovieAspect.Metadata);
+      miatr.RegisterLocallySupportedReimportMediaItemAspectTypeAsync(VideoAspect.Metadata);
     }
 
     public MovieMetadataExtractor()
@@ -181,8 +187,9 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
       string[] pathsToTest = new[] { lfsra.LocalFileSystemPath, lfsra.CanonicalLocalResourcePath.ToString() };
       string title = null;
       string sortTitle = null;
+      bool isReimport = extractedAspectData.ContainsKey(ReimportAspect.ASPECT_ID);
 
-      MovieInfo movieInfo = new MovieInfo();
+        MovieInfo movieInfo = new MovieInfo();
       if (extractedAspectData.ContainsKey(MovieAspect.ASPECT_ID))
         movieInfo.FromMetadata(extractedAspectData);
 
@@ -205,60 +212,73 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
         }
       }
 
-      if (movieInfo.MovieDbId == 0)
+      if (!isReimport) //Ignore tags or file based information for reimport because they might be the cause of the wrong import
       {
+        if (movieInfo.MovieDbId == 0)
+        {
+          try
+          {
+            // Try to use an existing TMDB id for exact mapping
+            string tmdbId = await MatroskaMatcher.TryMatchTmdbIdAsync(lfsra).ConfigureAwait(false);
+            if (!string.IsNullOrEmpty(tmdbId))
+              movieInfo.MovieDbId = Convert.ToInt32(tmdbId);
+          }
+          catch (Exception ex)
+          {
+            ServiceRegistration.Get<ILogger>().Debug("MoviesMetadataExtractor: Exception reading TMDB ID for '{0}'", ex, lfsra.CanonicalLocalResourcePath);
+          }
+        }
+
+        if (string.IsNullOrEmpty(movieInfo.ImdbId))
+        {
+          try
+          {
+            // Try to use an existing IMDB id for exact mapping
+            string imdbId = await MatroskaMatcher.TryMatchImdbIdAsync(lfsra).ConfigureAwait(false);
+            if (!string.IsNullOrEmpty(imdbId))
+              movieInfo.ImdbId = imdbId;
+            else if (pathsToTest.Any(path => ImdbIdMatcher.TryMatchImdbId(path, out imdbId)))
+              movieInfo.ImdbId = imdbId;
+          }
+          catch (Exception ex)
+          {
+            ServiceRegistration.Get<ILogger>().Debug("MoviesMetadataExtractor: Exception reading IMDB ID for '{0}'", ex, lfsra.CanonicalLocalResourcePath);
+          }
+        }
+
+        if (!movieInfo.IsBaseInfoPresent || !movieInfo.ReleaseDate.HasValue)
+        {
+          // Also test the full path year. This is useful if the path contains the real name and year.
+          foreach (string path in pathsToTest)
+          {
+            if (MovieNameMatcher.MatchTitleYear(path, movieInfo))
+              break;
+          }
+          //Fall back to MediaAspect.ATTR_TITLE
+          if (movieInfo.MovieName.IsEmpty && !string.IsNullOrEmpty(title))
+            movieInfo.MovieName = title;
+
+          /* Clear the names from unwanted strings */
+          MovieNameMatcher.CleanupTitle(movieInfo);
+        }
+
+        if (!movieInfo.ReleaseDate.HasValue && !movieInfo.HasExternalId)
+        {
+          // When searching movie title, the year can be relevant for multiple titles with same name but different years
+          DateTime recordingDate;
+          if (MediaItemAspect.TryGetAttribute(extractedAspectData, MediaAspect.ATTR_RECORDINGTIME, out recordingDate))
+            movieInfo.ReleaseDate = recordingDate;
+        }
+
         try
         {
-          // Try to use an existing TMDB id for exact mapping
-          string tmdbId = await MatroskaMatcher.TryMatchTmdbIdAsync(lfsra).ConfigureAwait(false);
-          if (!string.IsNullOrEmpty(tmdbId))
-            movieInfo.MovieDbId = Convert.ToInt32(tmdbId);
+          await MatroskaMatcher.ExtractFromTagsAsync(lfsra, movieInfo).ConfigureAwait(false);
+          MP4Matcher.ExtractFromTags(lfsra, movieInfo);
         }
         catch (Exception ex)
         {
-          ServiceRegistration.Get<ILogger>().Debug("MoviesMetadataExtractor: Exception reading TMDB ID for '{0}'", ex, lfsra.CanonicalLocalResourcePath);
+          ServiceRegistration.Get<ILogger>().Debug("MoviesMetadataExtractor: Exception reading tags for '{0}'", ex, lfsra.CanonicalLocalResourcePath);
         }
-      }
-
-      if (string.IsNullOrEmpty(movieInfo.ImdbId))
-      {
-        try
-        {
-          // Try to use an existing IMDB id for exact mapping
-          string imdbId = await MatroskaMatcher.TryMatchImdbIdAsync(lfsra).ConfigureAwait(false);
-          if (!string.IsNullOrEmpty(imdbId))
-            movieInfo.ImdbId = imdbId;
-          else if (pathsToTest.Any(path => ImdbIdMatcher.TryMatchImdbId(path, out imdbId)))
-            movieInfo.ImdbId = imdbId;
-        }
-        catch (Exception ex)
-        {
-          ServiceRegistration.Get<ILogger>().Debug("MoviesMetadataExtractor: Exception reading IMDB ID for '{0}'", ex, lfsra.CanonicalLocalResourcePath);
-        }
-      }
-
-      if (!movieInfo.IsBaseInfoPresent)
-      {
-        // Also test the full path year. This is useful if the path contains the real name and year.
-        foreach (string path in pathsToTest)
-        {
-          if (MovieNameMatcher.MatchTitleYear(path, movieInfo))
-            break;
-        }
-        //Fall back to MediaAspect.ATTR_TITLE
-        if (movieInfo.MovieName.IsEmpty && !string.IsNullOrEmpty(title))
-          movieInfo.MovieName = title;
-
-        /* Clear the names from unwanted strings */
-        MovieNameMatcher.CleanupTitle(movieInfo);
-      }
-
-      if (!movieInfo.ReleaseDate.HasValue && !movieInfo.HasExternalId)
-      {
-        // When searching movie title, the year can be relevant for multiple titles with same name but different years
-        DateTime recordingDate;
-        if (MediaItemAspect.TryGetAttribute(extractedAspectData, MediaAspect.ATTR_RECORDINGTIME, out recordingDate))
-          movieInfo.ReleaseDate = recordingDate;
       }
 
       // Allow the online lookup to choose best matching language for metadata
@@ -276,16 +296,6 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
         }
       }
 
-      try
-      {
-        await MatroskaMatcher.ExtractFromTagsAsync(lfsra, movieInfo).ConfigureAwait(false);
-        MP4Matcher.ExtractFromTags(lfsra, movieInfo);
-      }
-      catch (Exception ex)
-      {
-        ServiceRegistration.Get<ILogger>().Debug("MoviesMetadataExtractor: Exception reading tags for '{0}'", ex, lfsra.CanonicalLocalResourcePath);
-      }
-
       if (SkipOnlineSearches && !SkipFanArtDownload)
       {
         MovieInfo tempInfo = movieInfo.Clone();
@@ -298,6 +308,20 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
       else if (!SkipOnlineSearches)
       {
         await OnlineMatcherService.Instance.FindAndUpdateMovieAsync(movieInfo).ConfigureAwait(false);
+      }
+
+      //Asign genre ids
+      if (movieInfo.Genres.Count > 0)
+      {
+        IGenreConverter converter = ServiceRegistration.Get<IGenreConverter>();
+        foreach (var genre in movieInfo.Genres)
+        {
+          if (!genre.Id.HasValue && converter.GetGenreId(genre.Name, GenreCategory.Movie, null, out int genreId))
+          {
+            genre.Id = genreId;
+            movieInfo.HasChanged = true;
+          }
+        }
       }
 
       //Send it to the videos section
@@ -318,7 +342,6 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
           movieInfo.HasChanged = true;
         }
       }
-      movieInfo.AssignNameId();
 
       if (movieInfo.MovieNameSort.IsEmpty)
       {
@@ -439,6 +462,118 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
     public bool TryExtractStubItems(IResourceAccessor mediaItemAccessor, ICollection<IDictionary<Guid, IList<MediaItemAspect>>> extractedStubAspectData)
     {
       return false;
+    }
+
+    public async Task<IList<MediaItemSearchResult>> SearchForMatchesAsync(IDictionary<Guid, IList<MediaItemAspect>> searchAspectData, ICollection<string> searchCategories)
+    {
+      try
+      {
+        if (!(searchCategories?.Contains(MEDIA_CATEGORY_NAME_MOVIE) ?? true))
+          return null;
+
+        string searchData = null;
+        var reimportAspect = MediaItemAspect.GetAspect(searchAspectData, ReimportAspect.Metadata);
+        if (reimportAspect != null)
+          searchData = reimportAspect.GetAttributeValue<string>(ReimportAspect.ATTR_SEARCH);
+
+        ServiceRegistration.Get<ILogger>().Debug("MovieMetadataExtractor: Search aspects to use: '{0}'", string.Join(",", searchAspectData.Keys));
+
+        //Prepare search info
+        MovieInfo movieSearchinfo = null;
+        List<MediaItemSearchResult> searchResults = new List<MediaItemSearchResult>();
+        if (!string.IsNullOrEmpty(searchData))
+        {
+          if (searchAspectData.ContainsKey(VideoAspect.ASPECT_ID))
+          {
+            movieSearchinfo = new MovieInfo();
+            if (searchData.StartsWith("tt", StringComparison.InvariantCultureIgnoreCase) && !searchData.Contains(" ") && int.TryParse(searchData.Substring(2), out int id))
+              movieSearchinfo.ImdbId = searchData;
+            else if (!searchData.Contains(" ") && int.TryParse(searchData, out int movieDbId))
+              movieSearchinfo.MovieDbId = movieDbId;
+            else //Fallabck to name search
+            {
+              searchData = searchData.Trim();
+              if (!MovieNameMatcher.MatchTitleYear(searchData, movieSearchinfo))
+                movieSearchinfo.MovieName = searchData;
+            }
+
+            ServiceRegistration.Get<ILogger>().Debug("MovieMetadataExtractor: Searching for movie matches on search: '{0}'", searchData);
+          }
+        }
+        else
+        {
+          if (searchAspectData.ContainsKey(VideoAspect.ASPECT_ID))
+          {
+            movieSearchinfo = new MovieInfo();
+            movieSearchinfo.FromMetadata(searchAspectData);
+
+            ServiceRegistration.Get<ILogger>().Debug("MovieMetadataExtractor: Searching for movie matches on aspects");
+          }
+        }
+
+        //Perform online search
+        if (movieSearchinfo != null)
+        {
+          var matches = await OnlineMatcherService.Instance.FindMatchingMoviesAsync(movieSearchinfo).ConfigureAwait(false);
+          ServiceRegistration.Get<ILogger>().Debug("MoviesMetadataExtractor: Movie search returned {0} matches", matches.Count());
+          foreach (var match in matches)
+          {
+            var result = new MediaItemSearchResult
+            {
+              Name = $"{match.MovieName.Text}{(match.ReleaseDate == null ? "" : $" ({match.ReleaseDate.Value.Year})")}" +
+                $"{(string.IsNullOrWhiteSpace(match.OriginalName) || string.Compare(match.MovieName.Text, match.OriginalName, true) == 0 ? "" : $" [{match.OriginalName}]")}",
+              Description = match.Summary.IsEmpty ? "" : match.Summary.Text,
+            };
+
+            //Add external Ids
+            if (!string.IsNullOrEmpty(match.ImdbId))
+              result.ExternalIds.Add("imdb.com", match.ImdbId);
+            if (match.MovieDbId > 0)
+              result.ExternalIds.Add("themoviedb.org", match.MovieDbId.ToString());
+
+            //Assign aspects and remove unwanted aspects
+            match.SetMetadata(result.AspectData, true);
+            CleanReimportAspects(result.AspectData);
+
+            searchResults.Add(result);
+          }
+          return searchResults;
+        }
+      }
+      catch (Exception e)
+      {
+        ServiceRegistration.Get<ILogger>().Info("MovieMetadataExtractor: Exception searching for matches (Text: '{0}')", e.Message);
+      }
+      return null;
+    }
+
+    public async Task<bool> AddMatchedAspectDetailsAsync(IDictionary<Guid, IList<MediaItemAspect>> matchedAspectData)
+    {
+      try
+      {
+        if (matchedAspectData.ContainsKey(MovieAspect.ASPECT_ID))
+        {
+          MovieInfo info = new MovieInfo();
+          info.FromMetadata(matchedAspectData);
+          await OnlineMatcherService.Instance.FindAndUpdateMovieAsync(info).ConfigureAwait(false);
+          info.SetMetadata(matchedAspectData, true);
+          CleanReimportAspects(matchedAspectData);
+          return true;
+        }
+      }
+      catch (Exception e)
+      {
+        ServiceRegistration.Get<ILogger>().Info("MoviesMetadataExtractor: Exception adding match details (Text: '{0}')", e.Message);
+      }
+      return false;
+    }
+
+    private void CleanReimportAspects(IDictionary<Guid, IList<MediaItemAspect>> aspectData)
+    {
+      IEnumerable<Guid> reimportAspects = new Guid[] { ExternalIdentifierAspect.ASPECT_ID, MediaAspect.ASPECT_ID,
+        MovieAspect.ASPECT_ID, VideoAspect.ASPECT_ID, ReimportAspect.ASPECT_ID, GenreAspect.ASPECT_ID };
+      foreach (var aspect in aspectData.Where(a => !reimportAspects.Contains(a.Key)).ToList())
+        aspectData.Remove(aspect.Key);
     }
 
     #endregion

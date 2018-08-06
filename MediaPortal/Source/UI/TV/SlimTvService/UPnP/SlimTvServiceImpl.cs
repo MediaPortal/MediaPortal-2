@@ -597,7 +597,7 @@ namespace MediaPortal.Plugins.SlimTv.Service.UPnP
           schedule = scheduleResult.Result;
       }
 
-      outParams = new List<object> { result, schedule };
+      outParams = new List<object> { result.Success, schedule };
       return null;
     }
 
