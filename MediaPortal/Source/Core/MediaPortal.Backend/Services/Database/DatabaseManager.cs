@@ -243,11 +243,11 @@ namespace MediaPortal.Backend.Services.Database
       try
       {
         double progress = (currentStep / totalSteps) * 100.0;
-        if (_lastProgress > progress)
-          return;
-
         if (progress > 100)
           progress = 100;
+
+        if (_lastProgress > progress)
+          return;
         _lastProgress = progress;
 
         var state = new DatabaseUpgradeServerState
@@ -255,6 +255,7 @@ namespace MediaPortal.Backend.Services.Database
           IsUpgrading = progress < 100,
           Progress = (progress < 100) ? Convert.ToInt32(progress) : -1
         };
+        ServiceRegistration.Get<ILogger>().Info("DatabaseManager: Database upgrade progress {0}%", progress);
         ServiceRegistration.Get<IServerStateService>().UpdateState(DatabaseUpgradeServerState.STATE_ID, state);
       }
       catch { }
