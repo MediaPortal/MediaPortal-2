@@ -22,7 +22,7 @@
 
 #endregion
 
-namespace MediaPortal.Plugins.Transcoding.Interfaces
+namespace MediaPortal.Extensions.TranscodingService.Interfaces
 {
   public enum QualityMode
   {

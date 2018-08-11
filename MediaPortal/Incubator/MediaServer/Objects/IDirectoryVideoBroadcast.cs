@@ -22,7 +22,7 @@
 
 #endregion
 
-namespace MediaPortal.Plugins.MediaServer.Objects
+namespace MediaPortal.Extensions.MediaServer.Objects
 {
   /// <summary>
   /// A ‘videoBroadcast’ instance is a continuus stream of video that should be interpreted as a broadcast (e.g., a convential TV channel or a Webcast).

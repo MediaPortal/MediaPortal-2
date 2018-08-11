@@ -29,26 +29,20 @@ using MediaPortal.Common;
 using MediaPortal.Common.Exceptions;
 using MediaPortal.Common.General;
 using MediaPortal.Common.Logging;
-using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.Messaging;
 using MediaPortal.UI.Presentation.DataObjects;
 using MediaPortal.UI.Presentation.Models;
 using MediaPortal.UI.Presentation.Screens;
 using MediaPortal.UI.Presentation.Workflow;
 using MediaPortal.UI.ServerCommunication;
-using MediaPortal.UI.Shares;
 using MediaPortal.Common.UserProfileDataManagement;
-using MediaPortal.Common.SystemCommunication;
-using MediaPortal.Common.Localization;
-using System.IO;
 using System.Threading.Tasks;
-using MediaPortal.Common.Async;
-using MediaPortal.Common.ResourceAccess;
 using MediaPortal.Common.UserManagement;
-using MediaPortal.UI.General;
-using MediaPortal.UI.Presentation.Utilities;
+using MediaPortal.Extensions.MediaServer.Client.General;
+using MediaPortal.Extensions.MediaServer.Interfaces.Settings;
+using MediaPortal.Plugins.ServerSettings;
 
-namespace MediaPortal.UiComponents.MediaServer.Client.Models
+namespace MediaPortal.Extensions.MediaServer.Client.Models
 {
   /// <summary>
   /// Provides a workflow model to attend the complex configuration process for server and client shares
@@ -67,12 +61,14 @@ namespace MediaPortal.UiComponents.MediaServer.Client.Models
 
     protected object _syncObj = new object();
     protected bool _updatingProperties = false;
+    protected ProfileLink _selectedClient = null;
+    protected ItemsList _clientList = null;
     protected ItemsList _profileList = null;
     protected ItemsList _userList = null;
-    protected ClientProxy _clientProxy = null; // Encapsulates state and communication of client configuration
     protected AbstractProperty _isClientSelectedProperty;
     protected AbstractProperty _selectedUserInfoProperty;
     protected AbstractProperty _selectedProfileInfoProperty;
+    protected AbstractProperty _selectedClientNameProperty;
     protected AsynchronousMessageQueue _messageQueue = null;
 
     #endregion
@@ -83,14 +79,14 @@ namespace MediaPortal.UiComponents.MediaServer.Client.Models
     {
       _selectedUserInfoProperty = new WProperty(typeof(string), string.Empty);
       _selectedProfileInfoProperty = new WProperty(typeof(string), string.Empty);
+      _selectedClientNameProperty = new WProperty(typeof(string), string.Empty);
       _isClientSelectedProperty = new WProperty(typeof(bool), false);
-
-      ClientProxy = new ClientProxy();
     }
 
     public void Dispose()
     {
-      ClientProxy = null;
+      _selectedClient = null;
+      _clientList = null;
       _userList = null;
       _profileList = null;
     }
@@ -101,7 +97,7 @@ namespace MediaPortal.UiComponents.MediaServer.Client.Models
     {
       AsynchronousMessageQueue messageQueue = new AsynchronousMessageQueue(this, new string[]
         {
-           ServerConnectionMessaging.CHANNEL
+           ServerConnectionMessaging.CHANNEL,
         });
       messageQueue.MessageReceived += OnMessageReceived;
       messageQueue.Start();
@@ -134,8 +130,8 @@ namespace MediaPortal.UiComponents.MediaServer.Client.Models
           case ServerConnectionMessaging.MessageType.HomeServerDetached:
           case ServerConnectionMessaging.MessageType.HomeServerConnected:
           case ServerConnectionMessaging.MessageType.HomeServerDisconnected:
-            //_ = UpdateUserLists_NoLock(false);
-            //_ = UpdateClientLists_NoLock(false);
+            _ = UpdateUserLists_NoLock(false);
+            UpdateClientLists_NoLock(false);
             break;
         }
       }
@@ -143,17 +139,12 @@ namespace MediaPortal.UiComponents.MediaServer.Client.Models
 
     #region Public properties (Also accessed from the GUI)
 
-    public ClientProxy ClientProxy
+    public ItemsList ClientList
     {
-      get { return _clientProxy; }
-      private set
+      get
       {
         lock (_syncObj)
-        {
-          if (_clientProxy != null)
-            _clientProxy.Dispose();
-          _clientProxy = value;
-        }
+          return _clientList;
       }
     }
 
@@ -175,39 +166,60 @@ namespace MediaPortal.UiComponents.MediaServer.Client.Models
       }
     }
 
-    //public string SelectedRestrictionGroupsInfo
-    //{
-    //  get { return (string)_selectedRestrictionGroupsInfoProperty.GetValue(); }
-    //  set { _selectedRestrictionGroupsInfoProperty.SetValue(value); }
-    //}
+    public AbstractProperty SelectedClientNameProperty
+    {
+      get { return _selectedClientNameProperty; }
+    }
 
-    //public AbstractProperty ProfileNameProperty
-    //{
-    //  get { return _profileTypeNameProperty; }
-    //}
+    public string SelectedClientName
+    {
+      get { return (string)SelectedClientNameProperty.GetValue(); }
+      set { SelectedClientNameProperty.SetValue(value); }
+    }
 
-    //public string ProfileName
-    //{
-    //  get { return (string)_profileTypeNameProperty.GetValue(); }
-    //  set { _profileTypeNameProperty.SetValue(value); }
-    //}
+    public AbstractProperty SelectedUserInfoProperty
+    {
+      get { return _selectedUserInfoProperty; }
+    }
 
-    //public AbstractProperty IsUserSelectedProperty
-    //{
-    //  get { return _isUserSelectedProperty; }
-    //}
+    public string SelectedUserInfo
+    {
+      get { return (string)SelectedUserInfoProperty.GetValue(); }
+      set { SelectedUserInfoProperty.SetValue(value); }
+    }
 
-    //public bool IsUserSelected
-    //{
-    //  get { return (bool)_isUserSelectedProperty.GetValue(); }
-    //  set { _isUserSelectedProperty.SetValue(value); }
-    //}
+    public AbstractProperty SelectedProfileInfoProperty
+    {
+      get { return _selectedProfileInfoProperty; }
+    }
+
+    public string SelectedProfileInfo
+    {
+      get { return (string)SelectedProfileInfoProperty.GetValue(); }
+      set { SelectedProfileInfoProperty.SetValue(value); }
+    }
+
+    public AbstractProperty IsClientSelectedProperty
+    {
+      get { return _isClientSelectedProperty; }
+    }
+
+    public bool IsClientSelected
+    {
+      get { return (bool)IsClientSelectedProperty.GetValue(); }
+      set { IsClientSelectedProperty.SetValue(value); }
+    }
 
     #endregion
 
     #region Public methods
 
-    public void OpenChooseProfileDialog()
+    public void OpenSelectUserDialog()
+    {
+      ServiceRegistration.Get<IScreenManager>().ShowDialog("DialogSelectUser");
+    }
+
+    public void OpenSelectProfileDialog()
     {
       ServiceRegistration.Get<IScreenManager>().ShowDialog("DialogSelectProfile");
     }
@@ -217,545 +229,227 @@ namespace MediaPortal.UiComponents.MediaServer.Client.Models
       ServiceRegistration.Get<IScreenManager>().ShowDialog("DialogDeleteConfirm");
     }
 
-    //public void OpenSelectSharesDialog()
-    //{
-    //  foreach (ListItem item in _serverSharesList)
-    //    item.Selected = UserProxy.SelectedShares.Contains(((Share)item.AdditionalProperties[Consts.KEY_SHARE]).ShareId);
-    //  foreach (ListItem item in _localSharesList)
-    //    item.Selected = UserProxy.SelectedShares.Contains(((Share)item.AdditionalProperties[Consts.KEY_SHARE]).ShareId);
-    //  ServiceRegistration.Get<IScreenManager>().ShowDialog("DialogSelectShares",
-    //    (string name, System.Guid id) =>
-    //    {
-    //      UserProxy.SelectedShares.Clear();
-    //      foreach (ListItem item in _serverSharesList.Where(i => i.Selected))
-    //        UserProxy.SelectedShares.Add(((Share)item.AdditionalProperties[Consts.KEY_SHARE]).ShareId);
-    //      foreach (ListItem item in _localSharesList.Where(i => i.Selected))
-    //        UserProxy.SelectedShares.Add(((Share)item.AdditionalProperties[Consts.KEY_SHARE]).ShareId);
-    //      SetSelectedShares();
-    //    });
-    //}
 
-    //public void OpenSelectUserImageDialog()
-    //{
-    //  string imageFilename = _imagePath;
-    //  string initialPath = string.IsNullOrEmpty(imageFilename) ? null : DosPathHelper.GetDirectory(imageFilename);
-    //  Guid dialogHandle = ServiceRegistration.Get<IPathBrowser>().ShowPathBrowser(Consts.RES_SELECT_USER_IMAGE, true, false,
-    //      string.IsNullOrEmpty(initialPath) ? null : LocalFsResourceProviderBase.ToResourcePath(initialPath),
-    //      path =>
-    //      {
-    //        string choosenPath = LocalFsResourceProviderBase.ToDosPath(path.LastPathSegment.Path);
-    //        if (string.IsNullOrEmpty(choosenPath))
-    //          return false;
+    public void DeleteClient()
+    {
+      try
+      {
+        ListItem item = _clientList.FirstOrDefault(i => i.Selected);
+        if (item == null)
+          return;
 
-    //        return IsValidImage(choosenPath);
-    //      });
+        int oldItemIndex = _clientList.IndexOf(item) - 1;
+        ProfileLink client = (ProfileLink)item.AdditionalProperties[Consts.KEY_CLIENT];
 
-    //  if (_pathBrowserCloseWatcher != null)
-    //    _pathBrowserCloseWatcher.Dispose();
+        item.SelectedProperty.Detach(OnClientItemSelectionChanged);
+        lock (_syncObj)
+          _clientList.Remove(item);
 
-    //  _pathBrowserCloseWatcher = new PathBrowserCloseWatcher(this, dialogHandle, choosenPath =>
-    //  {
-    //    ImagePath = LocalFsResourceProviderBase.ToDosPath(choosenPath);
-    //  }, null);
-    //}
+        // Set focus to first in list
+        if (oldItemIndex > 0 && oldItemIndex < _clientList.Count)
+          _clientList[oldItemIndex].Selected = true;
+        else
+        {
+          var firstItem = _clientList.FirstOrDefault();
+          if (firstItem != null)
+            firstItem.Selected = true;
+        }
 
-    //public void AddUser()
-    //{
-    //  OpenChooseProfileTypeDialog();
-    //}
+        _clientList.FireChange();
+      }
+      catch (NotConnectedException)
+      {
+        DisconnectedError();
+      }
+      catch (Exception e)
+      {
+        ServiceRegistration.Get<ILogger>().Error("ClientConfigModel: Problems deleting client", e);
+      }
+    }
 
-    //private void AddUser(UserProfileTemplate template)
-    //{
-    //  try
-    //  {
-    //    var userName = GetUniqueName(LocalizationHelper.Translate(template.TemplateName));
-    //    UserProfile user = new UserProfile(Guid.Empty, userName, UserProfileType.UserProfile);
-    //    user.LastLogin = DateTime.Now;
-    //    ApplyTemplate(user, template);
-    //    SetUser(user);
-    //    // Auto save to avoid unsaved user profiles
-    //    SaveUser().TryWait();
-    //    UpdateUserLists_NoLock(false, UserProxy.Id).TryWait();
-    //  }
-    //  catch (Exception e)
-    //  {
-    //    ServiceRegistration.Get<ILogger>().Error("UserConfigModel: Problems adding user", e);
-    //  }
-    //}
+    public void SaveClients()
+    {
+      try
+      {
+        ProfileLinkSettings settings = new ProfileLinkSettings();
+        foreach(var item in _clientList)
+          settings.Links.Add((ProfileLink)item.AdditionalProperties[Consts.KEY_CLIENT]);
 
-    ///// <summary>
-    ///// Returns an unique user name by adding a counter. This is required because user profiles have unique names, so an existing name would update the entry.
-    ///// </summary>
-    ///// <param name="baseName">Desired username</param>
-    ///// <returns></returns>
-    //private string GetUniqueName(string baseName)
-    //{
-    //  int counter = 0;
-    //  string testName = baseName;
-    //  do
-    //  {
-    //    if (_userList.Select(item => item.Labels[Consts.KEY_NAME]).All(name => name.Evaluate() != testName))
-    //      return testName;
-
-    //    testName = string.Format("{0} ({1})", baseName, ++counter);
-    //  } while (counter < 10);
-    //  return null;
-    //}
-
-    //public void CopyUser()
-    //{
-    //  try
-    //  {
-    //    int shareCount = 0;
-    //    string hash = UserProxy.Password;
-    //    if (UserProxy.IsPasswordChanged)
-    //      hash = Utils.HashPassword(UserProxy.Password);
-    //    UserProfile user = new UserProfile(Guid.Empty, GetUniqueName(UserProxy.Name), UserProxy.ProfileType, hash, DateTime.Now, UserProxy.Image);
-    //    user.AllowedAge = UserProxy.AllowedAge;
-    //    foreach (var shareId in UserProxy.SelectedShares)
-    //      user.AddAdditionalData(UserDataKeysKnown.KEY_ALLOWED_SHARE, ++shareCount, shareId.ToString());
-    //    user.RestrictAges = UserProxy.RestrictAges;
-    //    user.RestrictShares = UserProxy.RestrictShares;
-    //    user.IncludeParentGuidedContent = UserProxy.IncludeParentGuidedContent;
-    //    user.IncludeUnratedContent = UserProxy.IncludeUnratedContent;
-    //    user.EnableRestrictionGroups = UserProxy.EnableRestrictionGroups;
-    //    user.RestrictionGroups = UserProxy.RestrictionGroups;
-
-    //    SetUser(user);
-    //    // Auto save to avoid unsaved user profiles
-    //    SaveUser().TryWait();
-    //    UpdateUserLists_NoLock(false, UserProxy.Id).TryWait();
-    //  }
-    //  catch (Exception e)
-    //  {
-    //    ServiceRegistration.Get<ILogger>().Error("UserConfigModel: Problems adding user", e);
-    //  }
-    //}
-
-    //public async Task DeleteUser()
-    //{
-    //  try
-    //  {
-    //    ListItem item = _userList.FirstOrDefault(i => i.Selected);
-    //    if (item == null)
-    //      return;
-
-    //    int oldItemIndex = _userList.IndexOf(item) - 1;
-    //    UserProfile user = (UserProfile)item.AdditionalProperties[Consts.KEY_USER];
-
-    //    item.SelectedProperty.Detach(OnUserItemSelectionChanged);
-    //    lock (_syncObj)
-    //      _userList.Remove(item);
-
-    //    if (user.ProfileId != Guid.Empty)
-    //    {
-    //      IUserManagement userManagement = ServiceRegistration.Get<IUserManagement>();
-    //      if (userManagement != null && userManagement.UserProfileDataManagement != null)
-    //      {
-    //        if (!await userManagement.UserProfileDataManagement.DeleteProfileAsync(user.ProfileId))
-    //        {
-    //          ServiceRegistration.Get<ILogger>().Warn("UserConfigModel: Problems deleting user '{0}' (name '{1}')", user.ProfileId, user.Name);
-    //        }
-    //      }
-    //    }
-
-    //    // Set focus to first in list
-    //    if (oldItemIndex > 0 && oldItemIndex < _userList.Count)
-    //      _userList[oldItemIndex].Selected = true;
-    //    else
-    //    {
-    //      var firstItem = _userList.FirstOrDefault();
-    //      if (firstItem != null)
-    //        firstItem.Selected = true;
-    //    }
-
-    //    _userList.FireChange();
-    //  }
-    //  catch (NotConnectedException)
-    //  {
-    //    DisconnectedError();
-    //  }
-    //  catch (Exception e)
-    //  {
-    //    ServiceRegistration.Get<ILogger>().Error("UserConfigModel: Problems deleting user", e);
-    //  }
-    //}
-
-    //public async Task SaveUser()
-    //{
-    //  try
-    //  {
-    //    if (UserProxy.IsUserValid)
-    //    {
-    //      int shareCount = 0;
-    //      bool success = true;
-    //      string hash = UserProxy.Password;
-    //      bool wasCreated = false;
-    //      if (UserProxy.IsPasswordChanged)
-    //        hash = Utils.HashPassword(UserProxy.Password);
-    //      if (UserProxy.ProfileType == UserProfileType.ClientProfile)
-    //        hash = ""; //Client profiles can't have passwords
-    //      IUserManagement userManagement = ServiceRegistration.Get<IUserManagement>();
-    //      var userId = UserProxy.Id;
-    //      if (userManagement.UserProfileDataManagement != null)
-    //      {
-    //        if (userId == Guid.Empty)
-    //        {
-    //          userId = UserProxy.Id = await userManagement.UserProfileDataManagement.CreateProfileAsync(UserProxy.Name, UserProxy.ProfileType, hash);
-    //          wasCreated = true;
-    //        }
-    //        else
-    //        {
-    //          success = await userManagement.UserProfileDataManagement.UpdateProfileAsync(userId, UserProxy.Name, UserProxy.ProfileType, hash);
-    //        }
-    //        if (userId == Guid.Empty)
-    //        {
-    //          ServiceRegistration.Get<ILogger>().Error("UserConfigModel: Problems saving user '{0}'", UserProxy.Name);
-    //          return;
-    //        }
-
-    //        if (UserProxy.Image != null)
-    //          success &= await userManagement.UserProfileDataManagement.SetProfileImageAsync(userId, UserProxy.Image);
-
-    //        // If the current user is restricted to own profile, we skip all properties that would allow a "self unrestriction"
-    //        if (!IsRestrictedToOwn)
-    //        {
-    //          success &= await userManagement.UserProfileDataManagement.SetUserAdditionalDataAsync(userId, UserDataKeysKnown.KEY_ALLOWED_AGE, UserProxy.AllowedAge.ToString());
-    //          success &= await userManagement.UserProfileDataManagement.ClearUserAdditionalDataKeyAsync(userId, UserDataKeysKnown.KEY_ALLOWED_SHARE);
-    //          foreach (var shareId in UserProxy.SelectedShares)
-    //            success &= await userManagement.UserProfileDataManagement.SetUserAdditionalDataAsync(userId, UserDataKeysKnown.KEY_ALLOWED_SHARE, shareId.ToString(), ++shareCount);
-    //          success &= await userManagement.UserProfileDataManagement.SetUserAdditionalDataAsync(userId, UserDataKeysKnown.KEY_ALLOW_ALL_AGES, UserProxy.RestrictAges ? "0" : "1");
-    //          success &= await userManagement.UserProfileDataManagement.SetUserAdditionalDataAsync(userId, UserDataKeysKnown.KEY_ALLOW_ALL_SHARES, UserProxy.RestrictShares ? "0" : "1");
-    //          success &= await userManagement.UserProfileDataManagement.SetUserAdditionalDataAsync(userId, UserDataKeysKnown.KEY_INCLUDE_PARENT_GUIDED_CONTENT, UserProxy.IncludeParentGuidedContent ? "1" : "0");
-    //          success &= await userManagement.UserProfileDataManagement.SetUserAdditionalDataAsync(userId, UserDataKeysKnown.KEY_INCLUDE_UNRATED_CONTENT, UserProxy.IncludeUnratedContent ? "1" : "0");
-    //          success &= await userManagement.UserProfileDataManagement.SetUserAdditionalDataAsync(userId, UserDataKeysKnown.KEY_ENABLE_RESTRICTION_GROUPS, UserProxy.EnableRestrictionGroups ? "1" : "0");
-    //          success &= await userManagement.UserProfileDataManagement.SetUserAdditionalDataAsync(userId, UserDataKeysKnown.KEY_TEMPLATE_ID, UserProxy.TemplateId.ToString());
-    //          success &= await userManagement.UserProfileDataManagement.ClearUserAdditionalDataKeyAsync(userId, UserDataKeysKnown.KEY_RESTRICTION_GROUPS);
-    //          int groupCount = 0;
-    //          foreach (var group in UserProxy.RestrictionGroups)
-    //            success &= await userManagement.UserProfileDataManagement.SetUserAdditionalDataAsync(userId, UserDataKeysKnown.KEY_RESTRICTION_GROUPS, group, ++groupCount);
-    //        }
-
-    //        if (!success)
-    //        {
-    //          ServiceRegistration.Get<ILogger>().Error("UserConfigModel: Problems saving setup for user '{0}'", UserProxy.Name);
-    //          return;
-    //        }
-    //      }
-
-    //      ListItem item = _userList.FirstOrDefault(i => i.Selected);
-    //      if (item == null)
-    //        return;
-
-    //      shareCount = 0;
-    //      UserProfile user = new UserProfile(userId, UserProxy.Name, UserProxy.ProfileType, hash, UserProxy.LastLogin, UserProxy.Image);
-    //      if (wasCreated)
-    //        user.LastLogin = DateTime.Now;
-    //      user.RestrictAges = UserProxy.RestrictAges;
-    //      user.AllowedAge = UserProxy.AllowedAge;
-    //      user.RestrictShares = UserProxy.RestrictShares;
-    //      foreach (var shareId in UserProxy.SelectedShares)
-    //        user.AddAdditionalData(UserDataKeysKnown.KEY_ALLOWED_SHARE, ++shareCount, shareId.ToString());
-    //      user.IncludeParentGuidedContent = UserProxy.IncludeParentGuidedContent;
-    //      user.IncludeUnratedContent = UserProxy.IncludeUnratedContent;
-    //      user.EnableRestrictionGroups = UserProxy.EnableRestrictionGroups;
-    //      user.RestrictionGroups = UserProxy.RestrictionGroups;
-    //      user.TemplateId = UserProxy.TemplateId;
-
-    //      // Update current logged in user if the same
-    //      if (userManagement.CurrentUser.ProfileId == user.ProfileId)
-    //        userManagement.CurrentUser = user;
-
-    //      item.SetLabel(Consts.KEY_NAME, user.Name);
-    //      item.AdditionalProperties[Consts.KEY_USER] = user;
-    //      _userList.FireChange();
-
-    //      SetUser(user);
-    //    }
-    //  }
-    //  catch (NotConnectedException)
-    //  {
-    //    DisconnectedError();
-    //  }
-    //  catch (Exception e)
-    //  {
-    //    ServiceRegistration.Get<ILogger>().Error("UserConfigModel: Problems saving user", e);
-    //  }
-    //}
-
-    //public void SelectProfileTemplate(ListItem item)
-    //{
-    //  Guid templateId = (Guid)item.AdditionalProperties[Consts.KEY_PROFILE_TEMPLATE_ID];
-    //  var template = UserSettingStorage.UserProfileTemplates.FirstOrDefault(i => i.TemplateId == templateId);
-    //  AddUser(template);
-    //}
-
-    //public void OpenSelectRestrictionDialog()
-    //{
-    //  foreach (ListItem item in _restrictionGroupList)
-    //    item.Selected = UserProxy.RestrictionGroups.Contains(item.AdditionalProperties[Consts.KEY_RESTRICTION_GROUP]);
-    //  ServiceRegistration.Get<IScreenManager>().ShowDialog("DialogSelectRestrictions",
-    //    (string name, System.Guid id) =>
-    //    {
-    //      UserProxy.RestrictionGroups.Clear();
-    //      foreach (ListItem item in _restrictionGroupList.Where(i => i.Selected))
-    //        UserProxy.RestrictionGroups.Add((string)item.AdditionalProperties[Consts.KEY_RESTRICTION_GROUP]);
-    //      SetSelectedRestrictionGroups();
-    //    });
-    //}
+        IServerSettingsClient serverSettings = ServiceRegistration.Get<IServerSettingsClient>();
+        serverSettings.Save(settings);
+      }
+      catch (NotConnectedException)
+      {
+        DisconnectedError();
+      }
+      catch (Exception e)
+      {
+        ServiceRegistration.Get<ILogger>().Error("ClientConfigModel: Problems saving clients", e);
+      }
+    }
 
     #endregion
 
     #region Private and protected methods
 
-    //private void SetUser(UserProfile userProfile)
-    //{
-    //  try
-    //  {
-    //    if (userProfile != null && UserProxy != null)
-    //    {
-    //      UserProxy.SetUserProfile(userProfile, _localSharesList, _serverSharesList);
-    //    }
-    //    else
-    //    {
-    //      UserProxy?.Clear();
-    //    }
+    private void SetClient(ProfileLink client)
+    {
+      try
+      {
+        _selectedClient = client;
+        IsClientSelected = client != null;
+        SelectedClientName = client?.ClientName ?? "";
+        SelectedUserInfo = client?.DefaultUserProfile ?? "";
+        SelectedProfileInfo = client?.Profile ?? "";
+      }
+      catch (Exception e)
+      {
+        ServiceRegistration.Get<ILogger>().Error("ClientConfigModel: Error selecting client", e);
+      }
+    }
 
-    //    IsUserSelected = userProfile != null;
-    //    IsSystemUserSelected = userProfile?.ProfileType == UserProfileType.ClientProfile;
+    public void SelectProfile(ListItem item)
+    {
+      string profile = (string)item.AdditionalProperties[Consts.KEY_PROFILE];
+      if (_selectedClient != null)
+      {
+        _selectedClient.Profile = profile;
+        SetClient(_selectedClient);
+      }
+    }
 
-    //    IsRestrictedToOwn = CheckRestrictedToOwn();
+    public void SelectUser(ListItem item)
+    {
+      UserProfile user = (UserProfile)item.AdditionalProperties[Consts.KEY_USER];
+      if (_selectedClient != null)
+      {
+        _selectedClient.DefaultUserProfile = user.ProfileId.ToString();
+        SetClient(_selectedClient);
+      }
+    }
 
-    //    ProfileTypeName = userProfile != null ? LocalizationHelper.Translate("[UserConfig." + userProfile.ProfileType + "]") : string.Empty;
+    protected internal void UpdateClientLists_NoLock(bool create, string selectedClientName = null)
+    {
+      lock (_syncObj)
+      {
+        if (_updatingProperties)
+          return;
+        _updatingProperties = true;
+        if (create)
+          _clientList = new ItemsList();
+      }
+      try
+      {
+        IServerSettingsClient serverSettings = ServiceRegistration.Get<IServerSettingsClient>();
+        ProfileLinkSettings settings = serverSettings.Load<ProfileLinkSettings>();
 
-    //    SetSelectedShares();
-    //    SetSelectedRestrictionGroups();
-    //  }
-    //  catch (Exception e)
-    //  {
-    //    ServiceRegistration.Get<ILogger>().Error("UserConfigModel: Error selecting user", e);
-    //  }
-    //}
+        _clientList.Clear();
+        bool selectedOnce = false;
+        foreach (ProfileLink client in settings.Links)
+        {
+          ListItem item = new ListItem();
+          item.SetLabel(Consts.KEY_NAME, client.ClientName);
+          item.AdditionalProperties[Consts.KEY_CLIENT] = client;
+          if (!string.IsNullOrEmpty(selectedClientName))
+            selectedOnce |= item.Selected = client.ClientName == selectedClientName;
+          item.SelectedProperty.Attach(OnClientItemSelectionChanged);
+          lock (_syncObj)
+            _clientList.Add(item);
+        }
+        _clientList.FireChange();
 
-    //private void FillRestrictionGroupList()
-    //{
-    //  _restrictionGroupList = new ItemsList();
-    //  IUserManagement userManagement = ServiceRegistration.Get<IUserManagement>();
-    //  ILocalization loc = ServiceRegistration.Get<ILocalization>();
-    //  foreach (string restrictionGroup in userManagement.RestrictionGroups.OrderBy(r => r))
-    //  {
-    //    ListItem item = new ListItem();
-    //    // Try translation or use the orginal value
-    //    string labelResource;
-    //    if (!loc.TryTranslate("RestrictionGroup", restrictionGroup, out labelResource))
-    //      labelResource = restrictionGroup;
+        _profileList.Clear();
+        foreach (var profile in ProfileLinkSettings.Profiles)
+        {
+          ListItem item = new ListItem();
+          item.SetLabel(Consts.KEY_NAME, profile.Value);
+          item.AdditionalProperties[Consts.KEY_PROFILE] = profile.Key;
+          lock (_syncObj)
+            _profileList.Add(item);
+        }
+        _profileList.FireChange();
+      }
+      catch (NotConnectedException)
+      {
+        throw;
+      }
+      catch (Exception e)
+      {
+        ServiceRegistration.Get<ILogger>().Warn("ClientConfigModel: Problems updating clients", e);
+      }
+      finally
+      {
+        lock (_syncObj)
+          _updatingProperties = false;
+      }
+    }
 
-    //    item.SetLabel(Consts.KEY_NAME, labelResource);
-    //    item.AdditionalProperties[Consts.KEY_RESTRICTION_GROUP] = restrictionGroup;
-    //    lock (_syncObj)
-    //      _restrictionGroupList.Add(item);
-    //  }
-    //}
+    protected internal async Task UpdateUserLists_NoLock(bool create, Guid? selectedUserId = null)
+    {
+      lock (_syncObj)
+      {
+        if (_updatingProperties)
+          return;
+        _updatingProperties = true;
+        if (create)
+          _userList = new ItemsList();
+      }
+      try
+      {
+        IUserManagement userManagement = ServiceRegistration.Get<IUserManagement>();
+        if (userManagement == null || userManagement.UserProfileDataManagement == null)
+          return;
 
-    //private static void RequestRestrictions()
-    //{
-    //  // Request registration of groups from all components and plugins
-    //  UserMessaging.SendUserMessage(UserMessaging.MessageType.RequestRestrictions);
-    //}
+        // add users to expose them
+        var users = await userManagement.UserProfileDataManagement.GetProfilesAsync();
+        _userList.Clear();
+        foreach (UserProfile user in users)
+        {
+          ListItem item = new ListItem();
+          item.SetLabel(Consts.KEY_NAME, user.Name);
+          item.AdditionalProperties[Consts.KEY_USER] = user;
+          lock (_syncObj)
+            _userList.Add(item);
+        }
+        _userList.FireChange();
+      }
+      catch (NotConnectedException)
+      {
+        throw;
+      }
+      catch (Exception e)
+      {
+        ServiceRegistration.Get<ILogger>().Warn("ClientConfigModel: Problems updating users", e);
+      }
+      finally
+      {
+        lock (_syncObj)
+          _updatingProperties = false;
+      }
+    }
 
-    //private void SetSelectedShares()
-    //{
-    //  var totalShares = _serverSharesList.Count + _localSharesList.Count;
-    //  if (UserProxy != null)
-    //    SelectedSharesInfo = FormatLabel(UserProxy.SelectedShares.Count, totalShares);
-    //}
+    private void OnClientItemSelectionChanged(AbstractProperty property, object oldValue)
+    {
+      // Only handle the event if new item got selected. The unselected event can be ignored.
+      if (!(bool)property.GetValue())
+        return;
 
-    //private void SetSelectedRestrictionGroups()
-    //{
-    //  if (UserProxy != null)
-    //    SelectedRestrictionGroupsInfo = FormatLabel(UserProxy.RestrictionGroups.Count, _restrictionGroupList.Count);
-    //}
-
-    //private string FormatLabel(int selected, int total)
-    //{
-    //  if (selected == 0)
-    //    return LocalizationHelper.Translate(Consts.RES_RESTRICTIONS_NONE);
-    //  if (selected < total)
-    //    return LocalizationHelper.Translate(Consts.RES_RESTRICTIONS_NUMBERS, selected, total);
-    //  return LocalizationHelper.Translate(Consts.RES_RESTRICTIONS_ALL);
-    //}
-
-    //private bool CheckRestrictedToOwn()
-    //{
-    //  IUserManagement userManagement = ServiceRegistration.Get<IUserManagement>();
-    //  if (userManagement == null || userManagement.UserProfileDataManagement == null)
-    //    return true;
-
-    //  var hasSettings = userManagement.CheckUserAccess(new AccessCheck { RestrictionGroup = "Settings.UserProfile" });
-    //  var hasOwn = userManagement.CheckUserAccess(new AccessCheck { RestrictionGroup = "Settings.UserProfile.ManageOwn" });
-
-    //  // The restriction to own profile is only valid if the global user management is prohibited.
-    //  return !hasSettings && hasOwn;
-    //}
-
-    //protected internal async Task UpdateUserLists_NoLock(bool create, Guid? selectedUserId = null)
-    //{
-    //  lock (_syncObj)
-    //  {
-    //    if (_updatingProperties)
-    //      return;
-    //    _updatingProperties = true;
-    //    if (create)
-    //      _userList = new ItemsList();
-    //  }
-    //  try
-    //  {
-    //    IUserManagement userManagement = ServiceRegistration.Get<IUserManagement>();
-    //    if (userManagement == null || userManagement.UserProfileDataManagement == null)
-    //      return;
-
-    //    bool manageAllUsers = !CheckRestrictedToOwn();
-
-    //    // add users to expose them
-    //    var users = await userManagement.UserProfileDataManagement.GetProfilesAsync();
-    //    _userList.Clear();
-    //    bool selectedOnce = false;
-    //    foreach (UserProfile user in users)
-    //    {
-    //      if (!manageAllUsers && user.ProfileId != userManagement.CurrentUser.ProfileId)
-    //        continue;
-
-    //      ListItem item = new ListItem();
-    //      item.SetLabel(Consts.KEY_NAME, user.Name);
-    //      item.AdditionalProperties[Consts.KEY_USER] = user;
-    //      if (selectedUserId.HasValue)
-    //        selectedOnce |= item.Selected = user.ProfileId == selectedUserId;
-    //      item.SelectedProperty.Attach(OnUserItemSelectionChanged);
-    //      lock (_syncObj)
-    //        _userList.Add(item);
-    //    }
-    //    if (!selectedOnce && _userList.Count > 0)
-    //    {
-    //      _userList[0].Selected = true;
-    //    }
-    //    _userList.FireChange();
-    //  }
-    //  catch (NotConnectedException)
-    //  {
-    //    throw;
-    //  }
-    //  catch (Exception e)
-    //  {
-    //    ServiceRegistration.Get<ILogger>().Warn("Problems updating users", e);
-    //  }
-    //  finally
-    //  {
-    //    lock (_syncObj)
-    //      _updatingProperties = false;
-    //  }
-    //}
-
-    //private void OnUserItemSelectionChanged(AbstractProperty property, object oldValue)
-    //{
-    //  // Only handle the event if new item got selected. The unselected event can be ignored.
-    //  if (!(bool)property.GetValue())
-    //    return;
-
-    //  UserProfile userProfile = null;
-    //  lock (_syncObj)
-    //  {
-    //    userProfile = _userList.Where(i => i.Selected).Select(i => (UserProfile)i.AdditionalProperties[Consts.KEY_USER]).FirstOrDefault();
-    //  }
-    //  SetUser(userProfile);
-    //}
-
-    //private void ApplyTemplate(UserProfile userProfile, UserProfileTemplate template)
-    //{
-    //  if (template == null)
-    //    return;
-
-    //  userProfile.TemplateId = template.TemplateId;
-    //  userProfile.RestrictAges = template.RestrictAges;
-    //  userProfile.AllowedAge = template.AllowedAge;
-    //  userProfile.EnableRestrictionGroups = template.EnableRestrictionGroups;
-    //  userProfile.RestrictionGroups = template.RestrictionGroups;
-    //}
-
-    //protected internal async Task UpdateShareLists_NoLock(bool create)
-    //{
-    //  lock (_syncObj)
-    //  {
-    //    if (_updatingProperties)
-    //      return;
-    //    _updatingProperties = true;
-    //    if (create)
-    //    {
-    //      _serverSharesList = new ItemsList();
-    //      _localSharesList = new ItemsList();
-    //    }
-    //  }
-    //  try
-    //  {
-    //    ILocalSharesManagement sharesManagement = ServiceRegistration.Get<ILocalSharesManagement>();
-    //    var shares = sharesManagement.Shares.Values;
-    //    _localSharesList.Clear();
-    //    foreach (Share share in shares)
-    //    {
-    //      ListItem item = new ListItem();
-    //      item.SetLabel(Consts.KEY_NAME, share.Name);
-    //      item.AdditionalProperties[Consts.KEY_SHARE] = share;
-    //      if (UserProxy != null)
-    //        item.Selected = UserProxy.SelectedShares.Contains(share.ShareId);
-    //      lock (_syncObj)
-    //        _localSharesList.Add(item);
-    //    }
-
-    //    IServerConnectionManager scm = ServiceRegistration.Get<IServerConnectionManager>();
-    //    if (scm == null || scm.ContentDirectory == null)
-    //      return;
-
-    //    // add users to expose them
-    //    shares = await scm.ContentDirectory.GetSharesAsync(scm.HomeServerSystemId, SharesFilter.All);
-    //    _serverSharesList.Clear();
-    //    foreach (Share share in shares)
-    //    {
-    //      ListItem item = new ListItem();
-    //      item.SetLabel(Consts.KEY_NAME, share.Name);
-    //      item.AdditionalProperties[Consts.KEY_SHARE] = share;
-    //      if (UserProxy != null)
-    //        item.Selected = UserProxy.SelectedShares.Contains(share.ShareId);
-    //      lock (_syncObj)
-    //        _serverSharesList.Add(item);
-    //    }
-    //    SystemName homeServerSystem = scm.LastHomeServerSystem;
-    //    IsLocalHomeServer = homeServerSystem != null && homeServerSystem.IsLocalSystem();
-    //    IsHomeServerConnected = homeServerSystem != null;
-    //    ShowLocalShares = !IsLocalHomeServer || _localSharesList.Count > 0;
-    //    AnyShareAvailable = _serverSharesList.Count > 0 || _localSharesList.Count > 0;
-    //  }
-    //  catch (NotConnectedException)
-    //  {
-    //    throw;
-    //  }
-    //  catch (Exception e)
-    //  {
-    //    ServiceRegistration.Get<ILogger>().Error("Problems updating shares", e);
-    //  }
-    //  finally
-    //  {
-    //    lock (_syncObj)
-    //      _updatingProperties = false;
-    //  }
-    //}
+      ProfileLink client = null;
+      lock (_syncObj)
+      {
+        client = _clientList.Where(i => i.Selected).Select(i => (ProfileLink)i.AdditionalProperties[Consts.KEY_CLIENT]).FirstOrDefault();
+      }
+      SetClient(client);
+    }
 
     protected void ClearData()
     {
       lock (_syncObj)
       {
+        _selectedClient = null;
         _userList = null;
-        //_localSharesList = null;
-        //_serverSharesList = null;
-        //_restrictionGroupList = null;
+        _userList = null;
+        _profileList = null;
       }
     }
 
@@ -783,9 +477,8 @@ namespace MediaPortal.UiComponents.MediaServer.Client.Models
     {
       SubscribeToMessages();
       ClearData();
-      //FillRestrictionGroupList();
-      //_ = UpdateShareLists_NoLock(true);
-      //_ = UpdateUserLists_NoLock(true);
+      _ = UpdateUserLists_NoLock(true);
+      UpdateClientLists_NoLock(true);
     }
 
     public void ExitModelContext(NavigationContext oldContext, NavigationContext newContext)

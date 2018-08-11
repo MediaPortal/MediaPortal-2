@@ -25,7 +25,7 @@
 using MediaPortal.Backend.ClientCommunication;
 using System;
 
-namespace MediaPortal.Plugins.MediaServer
+namespace MediaPortal.Extensions.MediaServer
 {
   public class MediaServerClientManager
   {

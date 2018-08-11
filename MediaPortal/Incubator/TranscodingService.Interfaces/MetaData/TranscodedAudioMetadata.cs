@@ -22,7 +22,7 @@
 
 #endregion
 
-namespace MediaPortal.Plugins.Transcoding.Interfaces.Metadata
+namespace MediaPortal.Extensions.TranscodingService.Interfaces.Metadata
 {
   public class TranscodedAudioMetadata
   {

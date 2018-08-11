@@ -29,7 +29,7 @@ using System.Linq;
 //His code provided insights into the decoding of the Annex B header
 //The support classes in this class keep their properties named after the standard and do not follow MediaPortal naming conventions
 
-namespace MediaPortal.Plugins.Transcoding.Interfaces.Analyzers
+namespace MediaPortal.Extensions.TranscodingService.Interfaces.Analyzers
 {
   public class H264Analyzer
   {

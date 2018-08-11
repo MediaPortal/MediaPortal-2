@@ -24,13 +24,13 @@
 
 using System.Collections.Generic;
 using MediaPortal.Common;
-using MediaPortal.Plugins.MediaServer.Objects.Basic;
-using MediaPortal.Plugins.MediaServer.Profiles;
+using MediaPortal.Extensions.MediaServer.Objects.Basic;
+using MediaPortal.Extensions.MediaServer.Profiles;
 using MediaPortal.Plugins.SlimTv.Interfaces;
 using MediaPortal.Plugins.SlimTv.Interfaces.Items;
 using MediaPortal.Common.Localization;
 
-namespace MediaPortal.Plugins.MediaServer.Objects.MediaLibrary
+namespace MediaPortal.Extensions.MediaServer.Objects.MediaLibrary
 {
   internal class MediaLibraryBroadcastGroupContainer : BasicContainer
   {

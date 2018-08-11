@@ -23,11 +23,11 @@
 #endregion
 
 using MediaPortal.Common.MediaManagement;
-using MediaPortal.Plugins.MediaServer.Profiles;
-using MediaPortal.Plugins.MediaServer.ResourceAccess;
+using MediaPortal.Extensions.MediaServer.Profiles;
+using MediaPortal.Extensions.MediaServer.ResourceAccess;
 using System;
 
-namespace MediaPortal.Plugins.MediaServer.Objects.MediaLibrary
+namespace MediaPortal.Extensions.MediaServer.Objects.MediaLibrary
 {
   public class MediaLibraryAudioBroadcastItem : MediaLibraryItem, IDirectoryAudioBroadcast
   {

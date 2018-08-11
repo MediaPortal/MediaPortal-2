@@ -36,19 +36,19 @@ using MediaPortal.Common.Logging;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Common.ResourceAccess;
-using MediaPortal.Plugins.MediaServer.DLNA;
-using MediaPortal.Plugins.MediaServer.Profiles;
+using MediaPortal.Extensions.MediaServer.DLNA;
+using MediaPortal.Extensions.MediaServer.Profiles;
 using MediaPortal.Utilities.SystemAPI;
-using MediaPortal.Plugins.MediaServer.Protocols;
+using MediaPortal.Extensions.MediaServer.Protocols;
 using MediaPortal.Utilities.FileSystem;
-using MediaPortal.Plugins.Transcoding.Interfaces.Transcoding;
-using MediaPortal.Plugins.Transcoding.Interfaces;
-using MediaPortal.Plugins.Transcoding.Interfaces.Helpers;
+using MediaPortal.Extensions.TranscodingService.Interfaces.Transcoding;
+using MediaPortal.Extensions.TranscodingService.Interfaces;
+using MediaPortal.Extensions.TranscodingService.Interfaces.Helpers;
 using MediaPortal.Backend.MediaLibrary;
 using Microsoft.Owin;
 using System.Threading.Tasks;
 
-namespace MediaPortal.Plugins.MediaServer.ResourceAccess
+namespace MediaPortal.Extensions.MediaServer.ResourceAccess
 {
   public class DlnaResourceAccessModule : OwinMiddleware, IDisposable
   {

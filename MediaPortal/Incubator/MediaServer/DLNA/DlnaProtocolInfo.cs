@@ -22,7 +22,7 @@
 
 #endregion
 
-namespace MediaPortal.Plugins.MediaServer.DLNA
+namespace MediaPortal.Extensions.MediaServer.DLNA
 {
   public class DlnaProtocolInfo
   {

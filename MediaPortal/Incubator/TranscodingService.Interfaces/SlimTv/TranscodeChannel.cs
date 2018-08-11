@@ -25,10 +25,10 @@
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.ResourceAccess;
 using MediaPortal.Plugins.SlimTv.Interfaces.ResourceProvider;
-using MediaPortal.Plugins.Transcoding.Interfaces.MetaData;
+using MediaPortal.Extensions.TranscodingService.Interfaces.MetaData;
 using System;
 
-namespace MediaPortal.Plugins.Transcoding.Interfaces.SlimTv
+namespace MediaPortal.Extensions.TranscodingService.Interfaces.SlimTv
 {
   public class TranscodeChannel : IDisposable
   {

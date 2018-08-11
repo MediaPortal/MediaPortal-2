@@ -22,7 +22,7 @@
 
 #endregion
 
-namespace MediaPortal.Plugins.MediaServer.Objects
+namespace MediaPortal.Extensions.MediaServer.Objects
 {
   public interface IDirectoryResource
   {

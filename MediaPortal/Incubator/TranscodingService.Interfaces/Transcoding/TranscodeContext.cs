@@ -27,7 +27,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
 
-namespace MediaPortal.Plugins.Transcoding.Interfaces.Transcoding
+namespace MediaPortal.Extensions.TranscodingService.Interfaces.Transcoding
 {
   public class TranscodeContext : IDisposable
   {

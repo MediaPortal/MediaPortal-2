@@ -22,7 +22,7 @@
 
 #endregion
 
-namespace MediaPortal.Plugins.Transcoding.Interfaces.Helpers
+namespace MediaPortal.Extensions.TranscodingService.Interfaces.Helpers
 {
   public class AudioHelper
   {

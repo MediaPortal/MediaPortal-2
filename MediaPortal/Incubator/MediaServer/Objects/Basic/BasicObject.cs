@@ -24,12 +24,12 @@
 
 using System;
 using System.Collections.Generic;
-using MediaPortal.Plugins.MediaServer.Profiles;
+using MediaPortal.Extensions.MediaServer.Profiles;
 using MediaPortal.Utilities.Exceptions;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common;
 
-namespace MediaPortal.Plugins.MediaServer.Objects.Basic
+namespace MediaPortal.Extensions.MediaServer.Objects.Basic
 {
   public abstract class BasicObject : IEquatable<BasicObject>, IComparable<BasicObject>, IDirectoryObject
   {

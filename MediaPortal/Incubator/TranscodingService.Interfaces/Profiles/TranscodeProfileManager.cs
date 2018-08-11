@@ -29,22 +29,22 @@ using System.IO;
 using System.Xml;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
-using MediaPortal.Plugins.Transcoding.Interfaces.Profiles.Setup;
-using MediaPortal.Plugins.Transcoding.Interfaces.Profiles.Setup.Settings;
-using MediaPortal.Plugins.Transcoding.Interfaces.Profiles.Setup.Targets;
-using MediaPortal.Plugins.Transcoding.Interfaces.Profiles.MediaInfo;
-using MediaPortal.Plugins.Transcoding.Interfaces.Transcoding;
-using MediaPortal.Plugins.Transcoding.Interfaces.Metadata;
-using MediaPortal.Plugins.Transcoding.Interfaces.Profiles.MediaMatch;
-using MediaPortal.Plugins.Transcoding.Interfaces.Metadata.Streams;
+using MediaPortal.Extensions.TranscodingService.Interfaces.Profiles.Setup;
+using MediaPortal.Extensions.TranscodingService.Interfaces.Profiles.Setup.Settings;
+using MediaPortal.Extensions.TranscodingService.Interfaces.Profiles.Setup.Targets;
+using MediaPortal.Extensions.TranscodingService.Interfaces.Profiles.MediaInfo;
+using MediaPortal.Extensions.TranscodingService.Interfaces.Transcoding;
+using MediaPortal.Extensions.TranscodingService.Interfaces.Metadata;
+using MediaPortal.Extensions.TranscodingService.Interfaces.Profiles.MediaMatch;
+using MediaPortal.Extensions.TranscodingService.Interfaces.Metadata.Streams;
 using System.Linq;
-using MediaPortal.Plugins.Transcoding.Interfaces.Analyzers;
+using MediaPortal.Extensions.TranscodingService.Interfaces.Analyzers;
 using System.Threading.Tasks;
 
 //Thanks goes to the Serviio team over at http://www.serviio.org/
 //Their profile structure was inspiring and the community driven DLNA profiling is very effective 
 
-namespace MediaPortal.Plugins.Transcoding.Interfaces.Profiles
+namespace MediaPortal.Extensions.TranscodingService.Interfaces.Profiles
 {
   public class TranscodeProfileManager : ITranscodeProfileManager
   {

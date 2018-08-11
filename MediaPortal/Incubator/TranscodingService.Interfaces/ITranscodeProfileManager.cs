@@ -24,11 +24,11 @@
 
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using MediaPortal.Plugins.Transcoding.Interfaces.Metadata;
-using MediaPortal.Plugins.Transcoding.Interfaces.Profiles.Setup;
-using MediaPortal.Plugins.Transcoding.Interfaces.Transcoding;
+using MediaPortal.Extensions.TranscodingService.Interfaces.Metadata;
+using MediaPortal.Extensions.TranscodingService.Interfaces.Profiles.Setup;
+using MediaPortal.Extensions.TranscodingService.Interfaces.Transcoding;
 
-namespace MediaPortal.Plugins.Transcoding.Interfaces
+namespace MediaPortal.Extensions.TranscodingService.Interfaces
 {
   public interface ITranscodeProfileManager
   {

@@ -22,7 +22,7 @@
 
 #endregion
 
-namespace MediaPortal.Plugins.MediaServer.DIDL
+namespace MediaPortal.Extensions.MediaServer.DIDL
 {
   public class SamsungTizenDidlMessageBuilder : SamsungDidlMessageBuilder
   {

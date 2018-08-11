@@ -22,10 +22,10 @@
 
 #endregion
 
-using MediaPortal.Plugins.Transcoding.Interfaces;
-using MediaPortal.Plugins.Transcoding.Service.Transcoders.FFMpeg.Encoders;
+using MediaPortal.Extensions.TranscodingService.Interfaces;
+using MediaPortal.Extensions.TranscodingService.Service.Transcoders.FFMpeg.Encoders;
 
-namespace MediaPortal.Plugins.Transcoding.Service.Transcoders.FFMpeg.Converters
+namespace MediaPortal.Extensions.TranscodingService.Service.Transcoders.FFMpeg.Converters
 {
   internal class FFMpegGetVideoCodec
   {

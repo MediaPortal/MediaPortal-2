@@ -28,7 +28,7 @@ using MediaPortal.Plugins.SlimTv.Interfaces.LiveTvMediaItem;
 using System;
 using System.Collections.Generic;
 
-namespace MediaPortal.Plugins.Transcoding.Interfaces.MetaData
+namespace MediaPortal.Extensions.TranscodingService.Interfaces.MetaData
 {
   public static class ProviderResourceExtensions
   {

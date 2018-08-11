@@ -24,9 +24,9 @@
 
 using System;
 using System.Linq;
-using MediaPortal.Plugins.Transcoding.Interfaces.Transcoding;
+using MediaPortal.Extensions.TranscodingService.Interfaces.Transcoding;
 
-namespace MediaPortal.Plugins.Transcoding.Interfaces.Helpers
+namespace MediaPortal.Extensions.TranscodingService.Interfaces.Helpers
 {
   public class Checks
   {

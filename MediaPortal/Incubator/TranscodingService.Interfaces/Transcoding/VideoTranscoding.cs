@@ -25,9 +25,9 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using MediaPortal.Plugins.Transcoding.Interfaces.Metadata.Streams;
+using MediaPortal.Extensions.TranscodingService.Interfaces.Metadata.Streams;
 
-namespace MediaPortal.Plugins.Transcoding.Interfaces.Transcoding
+namespace MediaPortal.Extensions.TranscodingService.Interfaces.Transcoding
 {
   public class VideoTranscoding : BaseTranscoding
   {

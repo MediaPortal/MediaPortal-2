@@ -20,9 +20,10 @@
 
 using System.Collections;
 using System.Collections.Generic;
+using System.Xml.Serialization;
 using MediaPortal.Common.Settings;
 
-namespace MediaPortal.Plugins.MediaServer.Interfaces.Settings
+namespace MediaPortal.Extensions.MediaServer.Interfaces.Settings
 {
   public class ProfileLinkSettings
   {
@@ -45,6 +46,7 @@ namespace MediaPortal.Plugins.MediaServer.Interfaces.Settings
     /// <summary>
     /// Workaround property to enable automatic serialization because the <see cref="Dictionary{TKey,TValue}"/> cannot be serialized.
     /// </summary>
+    [XmlAttribute("Profiles")]
     public DictionaryEntry[] XML_Profiles
     {
       get

@@ -24,12 +24,12 @@
 
 using System;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
-using MediaPortal.Plugins.MediaServer.Profiles;
+using MediaPortal.Extensions.MediaServer.Profiles;
 using MediaPortal.Common.MediaManagement.MLQueries;
 using MediaPortal.Common.UserProfileDataManagement;
 using System.Collections.Generic;
 
-namespace MediaPortal.Plugins.MediaServer.Objects.MediaLibrary
+namespace MediaPortal.Extensions.MediaServer.Objects.MediaLibrary
 {
   internal class MediaLibraryUnwatchedContainer : MediaLibraryContainer
   {

@@ -20,7 +20,7 @@
 
 using MediaPortal.Common.Settings;
 
-namespace MediaPortal.Plugins.MediaServer.Interfaces.Settings.Configuration
+namespace MediaPortal.Extensions.MediaServer.Interfaces.Settings.Configuration
 {
   public class MediaServerSettings
   {

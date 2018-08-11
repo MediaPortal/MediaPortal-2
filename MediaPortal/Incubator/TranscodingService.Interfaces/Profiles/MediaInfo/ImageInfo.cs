@@ -22,9 +22,9 @@
 
 #endregion
 
-using MediaPortal.Plugins.Transcoding.Interfaces.Metadata;
+using MediaPortal.Extensions.TranscodingService.Interfaces.Metadata;
 
-namespace MediaPortal.Plugins.Transcoding.Interfaces.Profiles.MediaInfo
+namespace MediaPortal.Extensions.TranscodingService.Interfaces.Profiles.MediaInfo
 {
   public class ImageInfo
   {

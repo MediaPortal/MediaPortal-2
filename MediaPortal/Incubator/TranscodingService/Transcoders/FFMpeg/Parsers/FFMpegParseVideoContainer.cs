@@ -24,9 +24,9 @@
 
 using System;
 using MediaPortal.Common.ResourceAccess;
-using MediaPortal.Plugins.Transcoding.Interfaces;
+using MediaPortal.Extensions.TranscodingService.Interfaces;
 
-namespace MediaPortal.Plugins.Transcoding.Service.Transcoders.FFMpeg.Parsers
+namespace MediaPortal.Extensions.TranscodingService.Service.Transcoders.FFMpeg.Parsers
 {
   public class FFMpegParseVideoContainer
   {

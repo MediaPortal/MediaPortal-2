@@ -660,26 +660,34 @@ namespace MediaPortal.UiComponents.Login.Models
             return;
 
           shareCount = 0;
-          UserProfile user = new UserProfile(userId, UserProxy.Name, UserProxy.ProfileType, hash, UserProxy.LastLogin, UserProxy.Image);
-          if (wasCreated)
-            user.LastLogin = DateTime.Now;
-          user.RestrictAges = UserProxy.RestrictAges;
-          user.AllowedAge = UserProxy.AllowedAge;
-          user.RestrictShares = UserProxy.RestrictShares;
-          foreach (var shareId in UserProxy.SelectedShares)
-            user.AddAdditionalData(UserDataKeysKnown.KEY_ALLOWED_SHARE, ++shareCount, shareId.ToString());
-          user.IncludeParentGuidedContent = UserProxy.IncludeParentGuidedContent;
-          user.IncludeUnratedContent = UserProxy.IncludeUnratedContent;
-          user.EnableRestrictionGroups = UserProxy.EnableRestrictionGroups;
-          user.RestrictionGroups = UserProxy.RestrictionGroups;
-          user.TemplateId = UserProxy.TemplateId;
+          UserProfile user = null;
+          if (!IsRestrictedToOwn)
+          {
+            user = new UserProfile(userId, UserProxy.Name, UserProxy.ProfileType, hash, UserProxy.LastLogin, UserProxy.Image);
+            if (wasCreated)
+              user.LastLogin = DateTime.Now;
+            user.RestrictAges = UserProxy.RestrictAges;
+            user.AllowedAge = UserProxy.AllowedAge;
+            user.RestrictShares = UserProxy.RestrictShares;
+            foreach (var shareId in UserProxy.SelectedShares)
+              user.AddAdditionalData(UserDataKeysKnown.KEY_ALLOWED_SHARE, ++shareCount, shareId.ToString());
+            user.IncludeParentGuidedContent = UserProxy.IncludeParentGuidedContent;
+            user.IncludeUnratedContent = UserProxy.IncludeUnratedContent;
+            user.EnableRestrictionGroups = UserProxy.EnableRestrictionGroups;
+            user.RestrictionGroups = UserProxy.RestrictionGroups;
+            user.TemplateId = UserProxy.TemplateId;
 
-          // Update current logged in user if the same
-          if (userManagement.CurrentUser.ProfileId == user.ProfileId)
-            userManagement.CurrentUser = user;
+            // Update current logged in user if the same
+            if (userManagement.CurrentUser.ProfileId == user.ProfileId)
+              userManagement.CurrentUser = user;
 
-          item.SetLabel(Consts.KEY_NAME, user.Name);
-          item.AdditionalProperties[Consts.KEY_USER] = user;
+            item.SetLabel(Consts.KEY_NAME, user.Name);
+            item.AdditionalProperties[Consts.KEY_USER] = user;
+          }
+          else
+          {
+            user = item.AdditionalProperties[Consts.KEY_USER] as UserProfile;
+          }
           _userList.FireChange();
 
           SetUser(user);

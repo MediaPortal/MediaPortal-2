@@ -27,10 +27,10 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Text.RegularExpressions;
 using System.Linq;
-using MediaPortal.Plugins.Transcoding.Interfaces.Metadata.Streams;
-using MediaPortal.Plugins.Transcoding.Interfaces.Metadata;
+using MediaPortal.Extensions.TranscodingService.Interfaces.Metadata.Streams;
+using MediaPortal.Extensions.TranscodingService.Interfaces.Metadata;
 
-namespace MediaPortal.Plugins.Transcoding.Service.Transcoders.FFMpeg.Parsers
+namespace MediaPortal.Extensions.TranscodingService.Service.Transcoders.FFMpeg.Parsers
 {
   public class FFMpegParseStreamAudioLine
   {

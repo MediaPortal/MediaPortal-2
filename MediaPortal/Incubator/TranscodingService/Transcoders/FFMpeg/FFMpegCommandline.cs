@@ -32,19 +32,19 @@ using System.Diagnostics;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.ResourceAccess;
-using MediaPortal.Plugins.Transcoding.Service.Transcoders.FFMpeg.Converters;
-using MediaPortal.Plugins.Transcoding.Service.Transcoders.FFMpeg.Encoders;
+using MediaPortal.Extensions.TranscodingService.Service.Transcoders.FFMpeg.Converters;
+using MediaPortal.Extensions.TranscodingService.Service.Transcoders.FFMpeg.Encoders;
 using MediaPortal.Extensions.MetadataExtractors.FFMpegLib;
-using MediaPortal.Plugins.Transcoding.Interfaces.Metadata.Streams;
-using MediaPortal.Plugins.Transcoding.Interfaces.Analyzers;
-using MediaPortal.Plugins.Transcoding.Interfaces;
-using MediaPortal.Plugins.Transcoding.Interfaces.Transcoding;
-using MediaPortal.Plugins.Transcoding.Interfaces.Helpers;
+using MediaPortal.Extensions.TranscodingService.Interfaces.Metadata.Streams;
+using MediaPortal.Extensions.TranscodingService.Interfaces.Analyzers;
+using MediaPortal.Extensions.TranscodingService.Interfaces;
+using MediaPortal.Extensions.TranscodingService.Interfaces.Transcoding;
+using MediaPortal.Extensions.TranscodingService.Interfaces.Helpers;
 using System.Threading.Tasks;
 using MediaPortal.Utilities.Process;
-using MediaPortal.Plugins.Transcoding.Interfaces.Settings;
+using MediaPortal.Extensions.TranscodingService.Interfaces.Settings;
 
-namespace MediaPortal.Plugins.Transcoding.Service.Transcoders.FFMpeg
+namespace MediaPortal.Extensions.TranscodingService.Service.Transcoders.FFMpeg
 {
   internal class FFMpegCommandline
   {
@@ -187,23 +187,23 @@ namespace MediaPortal.Plugins.Transcoding.Service.Transcoders.FFMpeg
 
     private void AddInputOptions(ref FFMpegTranscodeData data)
     {
-      if(TranscodingServicePlugin.Settings.HardwareAcceleration == HWAccelleration.Auto)
+      if(TranscodingServicePlugin.Settings.HardwareAcceleration == HWAcceleration.Auto)
       {
         data.GlobalArguments.Add("-hwaccel auto");
       }
-      else if (TranscodingServicePlugin.Settings.HardwareAcceleration == HWAccelleration.DirectX11)
+      else if (TranscodingServicePlugin.Settings.HardwareAcceleration == HWAcceleration.DirectX11)
       {
         data.GlobalArguments.Add("-hwaccel d3d11va");
       }
-      else if (TranscodingServicePlugin.Settings.HardwareAcceleration == HWAccelleration.DXVA2)
+      else if (TranscodingServicePlugin.Settings.HardwareAcceleration == HWAcceleration.DXVA2)
       {
         data.GlobalArguments.Add("-hwaccel dxva2");
       }
-      else if (TranscodingServicePlugin.Settings.HardwareAcceleration == HWAccelleration.Intel)
+      else if (TranscodingServicePlugin.Settings.HardwareAcceleration == HWAcceleration.Intel)
       {
         data.GlobalArguments.Add("-hwaccel qsv");
       }
-      else if (TranscodingServicePlugin.Settings.HardwareAcceleration == HWAccelleration.Nvidia)
+      else if (TranscodingServicePlugin.Settings.HardwareAcceleration == HWAcceleration.Nvidia)
       {
         data.GlobalArguments.Add("-hwaccel cuvid");
       }

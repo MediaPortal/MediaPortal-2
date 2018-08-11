@@ -22,9 +22,9 @@
 
 #endregion
 
-using MediaPortal.Plugins.Transcoding.Interfaces.Profiles.MediaInfo;
+using MediaPortal.Extensions.TranscodingService.Interfaces.Profiles.MediaInfo;
 
-namespace MediaPortal.Plugins.Transcoding.Interfaces.Profiles.MediaMatch
+namespace MediaPortal.Extensions.TranscodingService.Interfaces.Profiles.MediaMatch
 {
   public class AudioMatch
   {

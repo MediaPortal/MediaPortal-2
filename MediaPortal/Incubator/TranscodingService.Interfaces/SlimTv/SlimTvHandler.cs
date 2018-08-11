@@ -31,11 +31,11 @@ using MediaPortal.Plugins.SlimTv.Interfaces;
 using MediaPortal.Plugins.SlimTv.Interfaces.ResourceProvider;
 using System;
 using System.Linq;
-using MediaPortal.Plugins.Transcoding.Interfaces.MetaData;
+using MediaPortal.Extensions.TranscodingService.Interfaces.MetaData;
 using System.Threading.Tasks;
 using System.Collections.Concurrent;
 
-namespace MediaPortal.Plugins.Transcoding.Interfaces.SlimTv
+namespace MediaPortal.Extensions.TranscodingService.Interfaces.SlimTv
 {
   public class SlimTvHandler : IDisposable
   {

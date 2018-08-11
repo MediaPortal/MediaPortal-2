@@ -26,7 +26,7 @@ using System.Collections.Generic;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
 using MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.stream;
-using MediaPortal.Plugins.Transcoding.Interfaces;
+using MediaPortal.Extensions.TranscodingService.Interfaces;
 
 namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS
 {

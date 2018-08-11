@@ -36,7 +36,7 @@ using MediaPortal.Plugins.SlimTv.Interfaces.Items;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Plugins.MP2Extended.ResourceAccess.TAS.Timeshiftings;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
-using MediaPortal.Plugins.Transcoding.Interfaces;
+using MediaPortal.Extensions.TranscodingService.Interfaces;
 
 namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.json.Control
 {

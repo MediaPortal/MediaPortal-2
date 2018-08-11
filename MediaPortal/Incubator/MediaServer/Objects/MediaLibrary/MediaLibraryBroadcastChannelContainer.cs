@@ -24,14 +24,14 @@
 
 using System;
 using MediaPortal.Common;
-using MediaPortal.Plugins.MediaServer.Objects.Basic;
-using MediaPortal.Plugins.MediaServer.Profiles;
+using MediaPortal.Extensions.MediaServer.Objects.Basic;
+using MediaPortal.Extensions.MediaServer.Profiles;
 using MediaPortal.Plugins.SlimTv.Interfaces.Items;
 using MediaPortal.Plugins.SlimTv.Interfaces;
-using MediaPortal.Plugins.Transcoding.Interfaces;
+using MediaPortal.Extensions.TranscodingService.Interfaces;
 using MediaPortal.Plugins.SlimTv.Interfaces.LiveTvMediaItem;
 
-namespace MediaPortal.Plugins.MediaServer.Objects.MediaLibrary
+namespace MediaPortal.Extensions.MediaServer.Objects.MediaLibrary
 {
   internal class MediaLibraryBroadcastChannelContainer : BasicContainer
   {

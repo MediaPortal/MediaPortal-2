@@ -24,10 +24,10 @@
 
 using System.Collections.Generic;
 using System.Linq;
-using MediaPortal.Plugins.Transcoding.Interfaces.Metadata.Streams;
+using MediaPortal.Extensions.TranscodingService.Interfaces.Metadata.Streams;
 using Newtonsoft.Json;
 
-namespace MediaPortal.Plugins.Transcoding.Interfaces.Metadata
+namespace MediaPortal.Extensions.TranscodingService.Interfaces.Metadata
 {
   public class MetadataContainer
   {

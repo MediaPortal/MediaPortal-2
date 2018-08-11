@@ -25,11 +25,11 @@
 using System;
 using System.IO;
 using System.Net;
-using MediaPortal.Plugins.MediaServer.DLNA;
-using MediaPortal.Plugins.MediaServer.Objects.MediaLibrary;
+using MediaPortal.Extensions.MediaServer.DLNA;
+using MediaPortal.Extensions.MediaServer.Objects.MediaLibrary;
 using Microsoft.Owin;
 
-namespace MediaPortal.Plugins.MediaServer.Protocols
+namespace MediaPortal.Extensions.MediaServer.Protocols
 {
   public class XBoxProtocolHandler : GenericAccessProtocol
   {

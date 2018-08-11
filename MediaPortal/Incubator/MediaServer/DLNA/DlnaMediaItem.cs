@@ -24,19 +24,19 @@
 
 using System;
 using System.Collections.Generic;
-using MediaPortal.Plugins.MediaServer.Profiles;
+using MediaPortal.Extensions.MediaServer.Profiles;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
-using MediaPortal.Plugins.Transcoding.Interfaces.Metadata;
-using MediaPortal.Plugins.Transcoding.Interfaces.Transcoding;
-using MediaPortal.Plugins.Transcoding.Interfaces.Profiles;
-using MediaPortal.Plugins.Transcoding.Interfaces;
-using MediaPortal.Plugins.Transcoding.Interfaces.Metadata.Streams;
+using MediaPortal.Extensions.TranscodingService.Interfaces.Metadata;
+using MediaPortal.Extensions.TranscodingService.Interfaces.Transcoding;
+using MediaPortal.Extensions.TranscodingService.Interfaces.Profiles;
+using MediaPortal.Extensions.TranscodingService.Interfaces;
+using MediaPortal.Extensions.TranscodingService.Interfaces.Metadata.Streams;
 using System.Linq;
 
-namespace MediaPortal.Plugins.MediaServer.DLNA
+namespace MediaPortal.Extensions.MediaServer.DLNA
 {
   public class DlnaMediaItem
   {
@@ -56,7 +56,7 @@ namespace MediaPortal.Plugins.MediaServer.DLNA
 
       int? edition = null;
       if (item.HasEditions)
-        edition = item.Editions.First().GetAttributeValue<int>(VideoStreamAspect.ATTR_VIDEO_PART_SET);
+        edition = item.Editions.First().Key;
 
       infos = MediaAnalyzer.ParseMediaItemAsync(item, edition).Result;
       if (infos == null || infos.Count == 0)

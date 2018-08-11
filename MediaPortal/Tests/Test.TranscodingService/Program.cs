@@ -12,10 +12,10 @@ using MediaPortal.Common.Services.ResourceAccess.LocalFsResourceProvider;
 using MediaPortal.Common.Services.Settings;
 using MediaPortal.Common.Settings;
 using MediaPortal.Common.SystemResolver;
-using MediaPortal.Plugins.Transcoding.Interfaces.Helpers;
-using MediaPortal.Plugins.Transcoding.Interfaces.Profiles;
-using MediaPortal.Plugins.Transcoding.Service.Settings;
-using MediaPortal.Plugins.Transcoding.Service.Transcoders.FFMpeg;
+using MediaPortal.Extensions.TranscodingService.Interfaces.Helpers;
+using MediaPortal.Extensions.TranscodingService.Interfaces.Profiles;
+using MediaPortal.Extensions.TranscodingService.Interfaces.Settings;
+using MediaPortal.Extensions.TranscodingService.Service.Transcoders.FFMpeg;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
@@ -851,7 +851,7 @@ namespace Test.TranscodingService
       if (mi.Aspects.ContainsKey(VideoAspect.ASPECT_ID))
       {
         var containers = await fFMpegMediaAnalyzer.ParseMediaItemAsync(mi, null);
-        var transcodeInfo = profileManager.GetVideoTranscoding(profileSection, profileName, containers, "EN", false, fileId);
+        var transcodeInfo = profileManager.GetVideoTranscoding(profileSection, profileName, containers, new string[] { "EN" }, false, fileId);
         if (transcodeInfo == null)
         {
           Console.WriteLine("No transoding needed!");

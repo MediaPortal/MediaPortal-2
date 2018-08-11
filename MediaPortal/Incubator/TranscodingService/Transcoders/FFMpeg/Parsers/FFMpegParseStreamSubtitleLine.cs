@@ -26,10 +26,10 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Text.RegularExpressions;
-using MediaPortal.Plugins.Transcoding.Interfaces.Metadata;
-using MediaPortal.Plugins.Transcoding.Interfaces.Metadata.Streams;
+using MediaPortal.Extensions.TranscodingService.Interfaces.Metadata;
+using MediaPortal.Extensions.TranscodingService.Interfaces.Metadata.Streams;
 
-namespace MediaPortal.Plugins.Transcoding.Service.Transcoders.FFMpeg.Parsers
+namespace MediaPortal.Extensions.TranscodingService.Service.Transcoders.FFMpeg.Parsers
 {
   public class FFMpegParseStreamSubtitleLine
   {

@@ -28,10 +28,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Xml;
-using MediaPortal.Plugins.MediaServer.Objects;
+using MediaPortal.Extensions.MediaServer.Objects;
 using System.Globalization;
 
-namespace MediaPortal.Plugins.MediaServer.DIDL
+namespace MediaPortal.Extensions.MediaServer.DIDL
 {
   public class ObjectRenderer
   {

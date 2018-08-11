@@ -29,12 +29,12 @@ using MediaPortal.Common.Logging;
 using MediaPortal.Common.PluginManager;
 using MediaPortal.Common.Threading;
 using MediaPortal.Common.Settings;
-using MediaPortal.Plugins.Transcoding.Interfaces;
-using MediaPortal.Plugins.Transcoding.Service.Transcoders.FFMpeg;
-using MediaPortal.Plugins.Transcoding.Interfaces.Profiles;
-using MediaPortal.Plugins.Transcoding.Interfaces.Settings;
+using MediaPortal.Extensions.TranscodingService.Interfaces;
+using MediaPortal.Extensions.TranscodingService.Service.Transcoders.FFMpeg;
+using MediaPortal.Extensions.TranscodingService.Interfaces.Profiles;
+using MediaPortal.Extensions.TranscodingService.Interfaces.Settings;
 
-namespace MediaPortal.Plugins.Transcoding.Service
+namespace MediaPortal.Extensions.TranscodingService.Service
 {
   public class TranscodingServicePlugin : IPluginStateTracker
   {

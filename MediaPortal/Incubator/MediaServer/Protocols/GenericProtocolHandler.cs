@@ -25,10 +25,10 @@
 using System.IO;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
-using MediaPortal.Plugins.MediaServer.DLNA;
+using MediaPortal.Extensions.MediaServer.DLNA;
 using Microsoft.Owin;
 
-namespace MediaPortal.Plugins.MediaServer.Protocols
+namespace MediaPortal.Extensions.MediaServer.Protocols
 {
   public class GenericAccessProtocol
   {

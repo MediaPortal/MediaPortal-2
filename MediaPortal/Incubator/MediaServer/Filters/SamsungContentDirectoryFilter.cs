@@ -22,7 +22,7 @@
 
 #endregion
 
-namespace MediaPortal.Plugins.MediaServer.Filters
+namespace MediaPortal.Extensions.MediaServer.Filters
 {
   public class SamsungContentDirectoryFilter : GenericContentDirectoryFilter
  {

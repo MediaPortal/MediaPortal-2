@@ -24,11 +24,11 @@
 
 using System;
 using MediaPortal.Common.MediaManagement;
-using MediaPortal.Plugins.MediaServer.Profiles;
+using MediaPortal.Extensions.MediaServer.Profiles;
 using MediaPortal.Plugins.SlimTv.Interfaces.LiveTvMediaItem;
-using MediaPortal.Plugins.MediaServer.ResourceAccess;
+using MediaPortal.Extensions.MediaServer.ResourceAccess;
 
-namespace MediaPortal.Plugins.MediaServer.Objects.MediaLibrary
+namespace MediaPortal.Extensions.MediaServer.Objects.MediaLibrary
 {
   public class MediaLibraryVideoBroadcastItem : MediaLibraryItem, IDirectoryVideoBroadcast
   {

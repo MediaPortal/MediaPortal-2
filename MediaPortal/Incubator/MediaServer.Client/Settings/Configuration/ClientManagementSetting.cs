@@ -24,7 +24,7 @@
 
 using MediaPortal.Common.Configuration.ConfigurationClasses;
 
-namespace MediaPortal.Plugins.MediaServer.Client.Settings
+namespace MediaPortal.Extensions.MediaServer.Client.Settings
 {
   public class ClientManagementSetting : CustomConfigSetting
   {

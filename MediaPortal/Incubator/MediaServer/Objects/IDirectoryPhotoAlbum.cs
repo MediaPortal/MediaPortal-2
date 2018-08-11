@@ -24,7 +24,7 @@
 
 using System.Collections.Generic;
 
-namespace MediaPortal.Plugins.MediaServer.Objects
+namespace MediaPortal.Extensions.MediaServer.Objects
 {
   public interface IDirectoryPhotoAlbum : IDirectoryAlbum
   {

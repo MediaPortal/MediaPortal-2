@@ -27,7 +27,7 @@ using System.Linq;
 using System.Net;
 using System.Net.Sockets;
 
-namespace MediaPortal.Plugins.Transcoding.Interfaces.Helpers
+namespace MediaPortal.Extensions.TranscodingService.Interfaces.Helpers
 {
   public class UrlHelper
   {

@@ -22,7 +22,7 @@
 
 #endregion
 
-namespace MediaPortal.Plugins.Transcoding.Interfaces.Profiles.Setup.Targets
+namespace MediaPortal.Extensions.TranscodingService.Interfaces.Profiles.Setup.Targets
 {
   public abstract class MediaTranscoding
   {

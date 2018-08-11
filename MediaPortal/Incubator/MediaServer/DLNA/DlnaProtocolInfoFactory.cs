@@ -22,9 +22,9 @@
 
 #endregion
 
-using MediaPortal.Plugins.Transcoding.Interfaces.Transcoding;
+using MediaPortal.Extensions.TranscodingService.Interfaces.Transcoding;
 
-namespace MediaPortal.Plugins.MediaServer.DLNA
+namespace MediaPortal.Extensions.MediaServer.DLNA
 {
   public enum ProtocolInfoFormat
   {

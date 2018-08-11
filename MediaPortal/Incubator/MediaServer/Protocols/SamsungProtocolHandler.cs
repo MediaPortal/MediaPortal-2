@@ -26,13 +26,13 @@ using System;
 using System.IO;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
-using MediaPortal.Plugins.MediaServer.DLNA;
-using MediaPortal.Plugins.MediaServer.ResourceAccess;
+using MediaPortal.Extensions.MediaServer.DLNA;
+using MediaPortal.Extensions.MediaServer.ResourceAccess;
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Owin;
 
-namespace MediaPortal.Plugins.MediaServer.Protocols
+namespace MediaPortal.Extensions.MediaServer.Protocols
 {
   public class SamsungProtocolHandler : GenericAccessProtocol
   {

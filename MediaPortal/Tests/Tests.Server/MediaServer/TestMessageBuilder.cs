@@ -31,10 +31,10 @@ using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Common.ResourceAccess;
 using MediaPortal.Common.Services.Logging;
-using MediaPortal.Plugins.MediaServer.DIDL;
-using MediaPortal.Plugins.MediaServer.Objects;
-using MediaPortal.Plugins.MediaServer.Objects.MediaLibrary;
-using MediaPortal.Plugins.MediaServer.Profiles;
+using MediaPortal.Extensions.MediaServer.DIDL;
+using MediaPortal.Extensions.MediaServer.Objects;
+using MediaPortal.Extensions.MediaServer.Objects.MediaLibrary;
+using MediaPortal.Extensions.MediaServer.Profiles;
 using NUnit.Framework;
 
 namespace Tests.Server.MediaServer
@@ -143,9 +143,8 @@ namespace Tests.Server.MediaServer
     {
       EndPointSettings settings = new EndPointSettings
       {
-        PreferredSubtitleLanguages = "en-US",
-        PreferredAudioLanguages = "en-US",
-        DefaultSubtitleEncodings = ""
+        PreferredSubtitleLanguages = new string[] { "EN" },
+        PreferredAudioLanguages = new string[] { "EN" },
       };
 
       IList<IDirectoryObject> objects = new List<IDirectoryObject>();

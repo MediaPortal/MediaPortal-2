@@ -28,9 +28,9 @@ using System.IO;
 using System.Text;
 using System.Threading;
 using System.Text.RegularExpressions;
-using MediaPortal.Plugins.Transcoding.Interfaces.Transcoding;
+using MediaPortal.Extensions.TranscodingService.Interfaces.Transcoding;
 
-namespace MediaPortal.Plugins.Transcoding.Service.Transcoders.FFMpeg
+namespace MediaPortal.Extensions.TranscodingService.Service.Transcoders.FFMpeg
 {
   public class FFMpegTranscodeContext : TranscodeContext
   {

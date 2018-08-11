@@ -25,11 +25,11 @@
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.ResourceAccess;
 using MediaPortal.Plugins.SlimTv.Interfaces.LiveTvMediaItem;
-using MediaPortal.Plugins.Transcoding.Interfaces.Metadata;
+using MediaPortal.Extensions.TranscodingService.Interfaces.Metadata;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
-namespace MediaPortal.Plugins.Transcoding.Interfaces
+namespace MediaPortal.Extensions.TranscodingService.Interfaces
 {
     public interface IMediaAnalyzer
     {

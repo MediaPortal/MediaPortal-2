@@ -25,9 +25,9 @@
 using System;
 using System.Collections.Generic;
 using MediaPortal.Common.MediaManagement;
-using MediaPortal.Plugins.MediaServer.Profiles;
+using MediaPortal.Extensions.MediaServer.Profiles;
 
-namespace MediaPortal.Plugins.MediaServer.Objects.MediaLibrary
+namespace MediaPortal.Extensions.MediaServer.Objects.MediaLibrary
 {
   public class MediaLibraryPlaylistItem : MediaLibraryContainer, IDirectoryPlaylistItem
   {

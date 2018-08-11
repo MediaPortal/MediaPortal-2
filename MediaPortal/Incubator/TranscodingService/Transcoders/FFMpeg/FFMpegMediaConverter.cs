@@ -32,24 +32,24 @@ using System.Drawing;
 using MediaPortal.Common.ResourceAccess;
 using MediaPortal.Common.Services.ResourceAccess.LocalFsResourceProvider;
 using MediaPortal.Extensions.MetadataExtractors.FFMpegLib;
-using MediaPortal.Plugins.Transcoding.Service.Transcoders.FFMpeg.Converters;
-using MediaPortal.Plugins.Transcoding.Service.Transcoders.FFMpeg.Encoders;
-using MediaPortal.Plugins.Transcoding.Interfaces;
-using MediaPortal.Plugins.Transcoding.Interfaces.Transcoding;
-using MediaPortal.Plugins.Transcoding.Interfaces.Helpers;
-using MediaPortal.Plugins.Transcoding.Interfaces.Metadata.Streams;
+using MediaPortal.Extensions.TranscodingService.Service.Transcoders.FFMpeg.Converters;
+using MediaPortal.Extensions.TranscodingService.Service.Transcoders.FFMpeg.Encoders;
+using MediaPortal.Extensions.TranscodingService.Interfaces;
+using MediaPortal.Extensions.TranscodingService.Interfaces.Transcoding;
+using MediaPortal.Extensions.TranscodingService.Interfaces.Helpers;
+using MediaPortal.Extensions.TranscodingService.Interfaces.Metadata.Streams;
 using MediaPortal.Common.MediaManagement;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using MediaPortal.Plugins.Transcoding.Interfaces.Settings;
+using MediaPortal.Extensions.TranscodingService.Interfaces.Settings;
 #if !TRANSCODE_CONSOLE_TEST
 using MediaPortal.Common;
 using MediaPortal.Utilities.Process;
 using MediaPortal.Utilities.SystemAPI;
 #endif
 
-namespace MediaPortal.Plugins.Transcoding.Service.Transcoders.FFMpeg
+namespace MediaPortal.Extensions.TranscodingService.Service.Transcoders.FFMpeg
 {
   public class FFMpegMediaConverter : BaseMediaConverter
   {
@@ -62,21 +62,21 @@ namespace MediaPortal.Plugins.Transcoding.Service.Transcoders.FFMpeg
       _transcoderBinPath = FFMpegBinary.FFMpegPath;
 
       _ffMpegEncoderHandler = new FFMpegEncoderHandler();
-      if (TranscodingServicePlugin.Settings.HardwareAcceleration == HWAccelleration.Intel)
+      if (TranscodingServicePlugin.Settings.HardwareAcceleration == HWAcceleration.Intel)
       {
         if (RegisterHardwareEncoder(FFMpegEncoderHandler.EncoderHandler.HardwareIntel) == false)
         {
           _logger.Warn("MediaConverter: Failed to register Intel hardware acceleration");
         }
       }
-      else if (TranscodingServicePlugin.Settings.HardwareAcceleration == HWAccelleration.Nvidia)
+      else if (TranscodingServicePlugin.Settings.HardwareAcceleration == HWAcceleration.Nvidia)
       {
         if (RegisterHardwareEncoder(FFMpegEncoderHandler.EncoderHandler.HardwareNvidia) == false)
         {
           _logger.Warn("MediaConverter: Failed to register Nvidia hardware acceleration");
         }
       }
-      else if (TranscodingServicePlugin.Settings.HardwareAcceleration == HWAccelleration.Amd)
+      else if (TranscodingServicePlugin.Settings.HardwareAcceleration == HWAcceleration.Amd)
       {
         if (RegisterHardwareEncoder(FFMpegEncoderHandler.EncoderHandler.HardwareAmd) == false)
         {

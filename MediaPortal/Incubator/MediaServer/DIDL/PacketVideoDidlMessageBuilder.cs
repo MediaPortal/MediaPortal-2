@@ -23,10 +23,10 @@
 #endregion
 
 using System;
-using MediaPortal.Plugins.MediaServer.Objects;
-using MediaPortal.Plugins.MediaServer.Objects.MediaLibrary;
+using MediaPortal.Extensions.MediaServer.Objects;
+using MediaPortal.Extensions.MediaServer.Objects.MediaLibrary;
 
-namespace MediaPortal.Plugins.MediaServer.DIDL
+namespace MediaPortal.Extensions.MediaServer.DIDL
 {
   public class PacketVideoDidlMessageBuilder : GenericDidlMessageBuilder
   {

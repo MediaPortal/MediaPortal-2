@@ -24,7 +24,7 @@
 
 using System.Collections.Generic;
 
-namespace MediaPortal.Plugins.MediaServer.DIDL
+namespace MediaPortal.Extensions.MediaServer.DIDL
 {
   public class PropertyFilter
   {

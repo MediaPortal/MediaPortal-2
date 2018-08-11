@@ -24,13 +24,13 @@
 
 using System;
 using System.Collections.Generic;
-using MediaPortal.Plugins.Transcoding.Interfaces.Metadata;
-using MediaPortal.Plugins.Transcoding.Interfaces.Profiles.MediaInfo;
-using MediaPortal.Plugins.Transcoding.Interfaces.Profiles.MediaMatch;
-using MediaPortal.Plugins.Transcoding.Interfaces.Profiles.Setup.Settings;
-using MediaPortal.Plugins.Transcoding.Interfaces.Profiles.Setup.Targets;
+using MediaPortal.Extensions.TranscodingService.Interfaces.Metadata;
+using MediaPortal.Extensions.TranscodingService.Interfaces.Profiles.MediaInfo;
+using MediaPortal.Extensions.TranscodingService.Interfaces.Profiles.MediaMatch;
+using MediaPortal.Extensions.TranscodingService.Interfaces.Profiles.Setup.Settings;
+using MediaPortal.Extensions.TranscodingService.Interfaces.Profiles.Setup.Targets;
 
-namespace MediaPortal.Plugins.Transcoding.Interfaces.Profiles.Setup
+namespace MediaPortal.Extensions.TranscodingService.Interfaces.Profiles.Setup
 {
   public class TranscodingSetup
   {

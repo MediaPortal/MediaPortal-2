@@ -24,11 +24,12 @@
 
 using MediaPortal.Common;
 using MediaPortal.Common.Configuration.ConfigurationClasses;
+using MediaPortal.Extensions.MediaServer.Interfaces.Settings.Configuration;
 using MediaPortal.Plugins.ServerSettings;
 using MediaPortal.Plugins.ServerSettings.Settings;
 using System;
 
-namespace MediaPortal.Plugins.MediaServer.Interfaces.Settings.Configuration
+namespace MediaPortal.Extensions.MediaServer.Client.Settings.Configuration
 {
   public class TranscodingAllowedSetting : YesNo, IDisposable
   {

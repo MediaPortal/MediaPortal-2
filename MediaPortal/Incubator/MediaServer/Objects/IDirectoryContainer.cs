@@ -24,7 +24,7 @@
 
 using System.Collections.Generic;
 
-namespace MediaPortal.Plugins.MediaServer.Objects
+namespace MediaPortal.Extensions.MediaServer.Objects
 {
   /// <summary>
   /// This is a derived class of object used to represent containers e.g. a music album.

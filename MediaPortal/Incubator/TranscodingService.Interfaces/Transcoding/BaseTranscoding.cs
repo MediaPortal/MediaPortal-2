@@ -27,7 +27,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace MediaPortal.Plugins.Transcoding.Interfaces.Transcoding
+namespace MediaPortal.Extensions.TranscodingService.Interfaces.Transcoding
 {
   public abstract class BaseTranscoding
   {

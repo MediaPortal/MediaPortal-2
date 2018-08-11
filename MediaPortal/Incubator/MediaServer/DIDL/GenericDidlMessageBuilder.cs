@@ -29,9 +29,9 @@ using System.Text;
 using System.Xml;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
-using MediaPortal.Plugins.MediaServer.Objects;
+using MediaPortal.Extensions.MediaServer.Objects;
 
-namespace MediaPortal.Plugins.MediaServer.DIDL
+namespace MediaPortal.Extensions.MediaServer.DIDL
 {
   public class GenericDidlMessageBuilder
   {

@@ -7,7 +7,7 @@
     <ProjectGuid>{F367E2D6-DDD7-4F44-AA45-F9BD4D61A4EC}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>MediaPortal.Plugins.MediaServer.Interfaces</RootNamespace>
+    <RootNamespace>MediaPortal.Extensions.MediaServer.Interfaces</RootNamespace>
     <AssemblyName>MediaServer.Interfaces</AssemblyName>
     <TargetFrameworkVersion>v4.7</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>

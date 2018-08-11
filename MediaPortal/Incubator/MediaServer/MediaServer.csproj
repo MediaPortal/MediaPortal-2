@@ -8,7 +8,7 @@
     <ProjectGuid>{1BA81EB2-6556-4213-A7A5-9E5B508F186F}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>MediaPortal.Plugins.MediaServer</RootNamespace>
+    <RootNamespace>MediaPortal.Extensions.MediaServer</RootNamespace>
     <AssemblyName>MediaServer</AssemblyName>
     <TargetFrameworkVersion>v4.7</TargetFrameworkVersion>
     <TargetFrameworkProfile>

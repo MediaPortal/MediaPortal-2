@@ -26,11 +26,11 @@ using System.Collections.Generic;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Common.MediaManagement.MLQueries;
-using MediaPortal.Plugins.MediaServer.Profiles;
+using MediaPortal.Extensions.MediaServer.Profiles;
 using MediaPortal.Utilities;
 using System.Linq;
 
-namespace MediaPortal.Plugins.MediaServer.Objects.MediaLibrary
+namespace MediaPortal.Extensions.MediaServer.Objects.MediaLibrary
 {
   public class MediaLibrarySeriesItem : MediaLibraryContainer, IDirectoryMusicAlbum
   {

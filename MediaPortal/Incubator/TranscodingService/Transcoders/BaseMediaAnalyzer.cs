@@ -28,24 +28,24 @@ using System.Linq;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.ResourceAccess;
-using MediaPortal.Plugins.Transcoding.Interfaces;
-using MediaPortal.Plugins.Transcoding.Interfaces.Metadata;
+using MediaPortal.Extensions.TranscodingService.Interfaces;
+using MediaPortal.Extensions.TranscodingService.Interfaces.Metadata;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Plugins.SlimTv.Interfaces.LiveTvMediaItem;
-using MediaPortal.Plugins.Transcoding.Interfaces.SlimTv;
+using MediaPortal.Extensions.TranscodingService.Interfaces.SlimTv;
 using MediaPortal.Plugins.SlimTv.Interfaces.Items;
 using MediaPortal.Common.PathManager;
 using Newtonsoft.Json;
 using System.IO;
 using System.Text;
-using MediaPortal.Plugins.Transcoding.Interfaces.MetaData;
+using MediaPortal.Extensions.TranscodingService.Interfaces.MetaData;
 using System.Threading.Tasks;
 using MediaPortal.Common.Services.ResourceAccess;
-using MediaPortal.Plugins.Transcoding.Interfaces.Metadata.Streams;
-using MediaPortal.Plugins.Transcoding.Interfaces.Helpers;
+using MediaPortal.Extensions.TranscodingService.Interfaces.Metadata.Streams;
+using MediaPortal.Extensions.TranscodingService.Interfaces.Helpers;
 
-namespace MediaPortal.Plugins.Transcoding.Service.Transcoders
+namespace MediaPortal.Extensions.TranscodingService.Service.Transcoders
 {
   public abstract class BaseMediaAnalyzer : IMediaAnalyzer
   {
@@ -158,7 +158,7 @@ namespace MediaPortal.Plugins.Transcoding.Service.Transcoders
       return null;
     }
 
-    public async Task<IList<MetadataContainer>> ParseMediaItemAsync(MediaItem Media, int? MediaPartSetId)
+    public async Task<IList<MetadataContainer>> ParseMediaItemAsync(MediaItem Media, int? editionId)
     {
       try
       {
@@ -202,10 +202,11 @@ namespace MediaPortal.Plugins.Transcoding.Service.Transcoders
         IDictionary<int, ResourceLocator> resources = null;
         if (Media.HasEditions)
         {
-          if (!MediaPartSetId.HasValue)
-            MediaPartSetId = Media.Editions.FirstOrDefault(vsa => vsa.GetAttributeValue<int>(VideoStreamAspect.ATTR_VIDEO_PART_SET) > -1)?.GetAttributeValue<int>(VideoStreamAspect.ATTR_VIDEO_PART_SET);
-
-          IEnumerable<int> praIdxs = Media.Editions.Where(vsa => vsa.GetAttributeValue<int>(VideoStreamAspect.ATTR_VIDEO_PART_SET) == MediaPartSetId.Value).Select(vsa => vsa.GetAttributeValue<int>(VideoStreamAspect.ATTR_RESOURCE_INDEX)).Distinct();
+          IEnumerable<int> praIdxs = null;
+          if (!editionId.HasValue)
+            praIdxs = Media.Editions.First(e => e.Key == editionId.Value).Value.PrimaryResourceIndexes;
+          else
+            praIdxs = Media.Editions.First().Value.PrimaryResourceIndexes;
 
           resources = providerAspects.Where(pra => praIdxs.Contains(pra.GetAttributeValue<int>(ProviderResourceAspect.ATTR_RESOURCE_INDEX))).
               ToDictionary(pra => pra.GetAttributeValue<int>(ProviderResourceAspect.ATTR_RESOURCE_INDEX), pra => new ResourceLocator(pra.GetAttributeValue<string>(ProviderResourceAspect.ATTR_SYSTEM_ID), ResourcePath.Deserialize(pra.GetAttributeValue<string>(ProviderResourceAspect.ATTR_RESOURCE_ACCESSOR_PATH))));

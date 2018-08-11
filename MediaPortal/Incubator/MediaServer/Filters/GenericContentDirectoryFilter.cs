@@ -24,9 +24,9 @@
 
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
-using MediaPortal.Plugins.MediaServer.Objects.Basic;
+using MediaPortal.Extensions.MediaServer.Objects.Basic;
 
-namespace MediaPortal.Plugins.MediaServer.Filters
+namespace MediaPortal.Extensions.MediaServer.Filters
 {
   public class GenericContentDirectoryFilter
   {

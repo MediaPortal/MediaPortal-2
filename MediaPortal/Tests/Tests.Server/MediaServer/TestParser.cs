@@ -27,7 +27,7 @@ using System.Collections;
 using System.Collections.Generic;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Common.MediaManagement.MLQueries;
-using MediaPortal.Plugins.MediaServer.Parser;
+using MediaPortal.Extensions.MediaServer.Parser;
 using NUnit.Framework;
 
 namespace Tests.Server.MediaServer

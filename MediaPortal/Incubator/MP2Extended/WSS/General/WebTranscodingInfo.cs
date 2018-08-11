@@ -23,7 +23,7 @@
 #endregion
 
 using System;
-using MediaPortal.Plugins.Transcoding.Interfaces.Transcoding;
+using MediaPortal.Extensions.TranscodingService.Interfaces.Transcoding;
 
 namespace MediaPortal.Plugins.MP2Extended.WSS.General
 {

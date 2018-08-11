@@ -22,7 +22,7 @@
 
 #endregion
 
-namespace MediaPortal.Plugins.Transcoding.Interfaces.Analyzers
+namespace MediaPortal.Extensions.TranscodingService.Interfaces.Analyzers
 {
   public class SubtitleAnalyzer
   {

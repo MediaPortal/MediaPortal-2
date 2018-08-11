@@ -25,7 +25,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace MediaPortal.Plugins.Transcoding.Interfaces.Helpers
+namespace MediaPortal.Extensions.TranscodingService.Interfaces.Helpers
 {
   public class Validators
   {

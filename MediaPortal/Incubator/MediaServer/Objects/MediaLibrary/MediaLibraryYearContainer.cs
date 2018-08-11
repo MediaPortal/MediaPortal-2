@@ -25,13 +25,13 @@
 using System;
 using System.Collections.Generic;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
-using MediaPortal.Plugins.MediaServer.Profiles;
-using MediaPortal.Plugins.MediaServer.Objects.Basic;
+using MediaPortal.Extensions.MediaServer.Profiles;
+using MediaPortal.Extensions.MediaServer.Objects.Basic;
 using MediaPortal.Common.General;
 using MediaPortal.Backend.MediaLibrary;
 using MediaPortal.Common;
 
-namespace MediaPortal.Plugins.MediaServer.Objects.MediaLibrary
+namespace MediaPortal.Extensions.MediaServer.Objects.MediaLibrary
 {
   internal class MediaLibraryYearContainer : BasicContainer
   {

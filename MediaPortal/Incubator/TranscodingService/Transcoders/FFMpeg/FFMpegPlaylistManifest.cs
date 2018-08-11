@@ -24,9 +24,9 @@
 
 using System.IO;
 using System.Threading.Tasks;
-using MediaPortal.Plugins.Transcoding.Interfaces.Helpers;
+using MediaPortal.Extensions.TranscodingService.Interfaces.Helpers;
 
-namespace MediaPortal.Plugins.Transcoding.Service.Transcoders.FFMpeg
+namespace MediaPortal.Extensions.TranscodingService.Service.Transcoders.FFMpeg
 {
   public class FFMpegPlaylistManifest : PlaylistManifest
   {

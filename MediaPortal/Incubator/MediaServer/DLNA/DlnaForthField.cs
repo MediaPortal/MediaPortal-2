@@ -25,7 +25,7 @@
 using System.Collections.Generic;
 using System.Linq;
 
-namespace MediaPortal.Plugins.MediaServer.DLNA
+namespace MediaPortal.Extensions.MediaServer.DLNA
 {
   /// <summary>
   /// DLNA Requirement [7.3.30-37]

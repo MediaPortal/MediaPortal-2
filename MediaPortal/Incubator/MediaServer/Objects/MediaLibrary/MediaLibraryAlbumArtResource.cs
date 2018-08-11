@@ -22,9 +22,9 @@
 
 #endregion
 
-using MediaPortal.Plugins.MediaServer.DLNA;
+using MediaPortal.Extensions.MediaServer.DLNA;
 
-namespace MediaPortal.Plugins.MediaServer.Objects.MediaLibrary
+namespace MediaPortal.Extensions.MediaServer.Objects.MediaLibrary
 {
   public class MediaLibraryAlbumArtResource : IDirectoryResource
   {

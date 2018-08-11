@@ -27,7 +27,7 @@ using System.Collections.Generic;
 using MediaPortal.Backend.MediaLibrary;
 using MediaPortal.Common.MediaManagement;
 
-namespace MediaPortal.Plugins.MediaServer.Objects.MediaLibrary
+namespace MediaPortal.Extensions.MediaServer.Objects.MediaLibrary
 {
   public static class Extensions
   {

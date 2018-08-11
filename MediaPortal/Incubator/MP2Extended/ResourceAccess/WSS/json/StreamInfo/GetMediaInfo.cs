@@ -36,11 +36,11 @@ using MediaPortal.Plugins.MP2Extended.Attributes;
 using MediaPortal.Plugins.MP2Extended.Exceptions;
 using MediaPortal.Plugins.MP2Extended.Utils;
 using MediaPortal.Plugins.MP2Extended.WSS.StreamInfo;
-using MediaPortal.Plugins.Transcoding.Interfaces.Metadata.Streams;
-using MediaPortal.Plugins.Transcoding.Interfaces.Metadata;
+using MediaPortal.Extensions.TranscodingService.Interfaces.Metadata.Streams;
+using MediaPortal.Extensions.TranscodingService.Interfaces.Metadata;
 using MediaPortal.Plugins.MP2Extended.Common;
-using MediaPortal.Plugins.Transcoding.Interfaces.Helpers;
-using MediaPortal.Plugins.Transcoding.Interfaces;
+using MediaPortal.Extensions.TranscodingService.Interfaces.Helpers;
+using MediaPortal.Extensions.TranscodingService.Interfaces;
 using MP2Extended.Extensions;
 using System.Linq;
 

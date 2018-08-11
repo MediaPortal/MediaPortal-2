@@ -22,7 +22,7 @@
 
 #endregion
 
-namespace MediaPortal.Plugins.Transcoding.Service.Transcoders.FFMpeg
+namespace MediaPortal.Extensions.TranscodingService.Service.Transcoders.FFMpeg
 {
   internal class FFMpegTranscodeThreadData
   {

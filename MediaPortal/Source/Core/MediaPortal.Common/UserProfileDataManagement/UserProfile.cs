@@ -104,6 +104,19 @@ namespace MediaPortal.Common.UserProfileDataManagement
       AdditionalData[key].Add(valueNo, value);
     }
 
+    public bool TryGetAdditionalData(string key, int valueNo, out string value)
+    {
+      if (AdditionalData.ContainsKey(key) &&
+          AdditionalData[key].ContainsKey(valueNo) &&
+          !string.IsNullOrEmpty(AdditionalData[key][valueNo]))
+      {
+        value = AdditionalData[key][valueNo];
+        return true;
+      }
+      value = null;
+      return false;
+    }
+
     /// <summary>
     /// Indicates if restrictions should be applied for this user.
     /// </summary>

@@ -20,7 +20,7 @@
 
   <Runtime>
     <Assembly FileName="TranscodingService.dll"/>
-    <PluginStateTracker ClassName="MediaPortal.Plugins.Transcoding.Service.TranscodingServicePlugin"/>
+    <PluginStateTracker ClassName="MediaPortal.Extensions.TranscodingService.Service.TranscodingServicePlugin"/>
   </Runtime>
 
 </Plugin>

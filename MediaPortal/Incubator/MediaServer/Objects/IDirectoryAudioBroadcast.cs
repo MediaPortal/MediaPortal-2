@@ -22,7 +22,7 @@
 
 #endregion
 
-namespace MediaPortal.Plugins.MediaServer.Objects
+namespace MediaPortal.Extensions.MediaServer.Objects
 {
   /// <summary>
   /// An ‘audioBroadcast’ instance is a continuus stream of audio that should be interpreted as an audio broadcast (as opposed to, for example, a song or an audio book).

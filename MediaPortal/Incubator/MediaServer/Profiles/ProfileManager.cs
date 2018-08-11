@@ -33,20 +33,20 @@ using MediaPortal.Common;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.PathManager;
 using MediaPortal.Common.Settings;
-using MediaPortal.Plugins.MediaServer.DIDL;
-using MediaPortal.Plugins.MediaServer.DLNA;
-using MediaPortal.Plugins.MediaServer.Filters;
-using MediaPortal.Plugins.MediaServer.Protocols;
+using MediaPortal.Extensions.MediaServer.DIDL;
+using MediaPortal.Extensions.MediaServer.DLNA;
+using MediaPortal.Extensions.MediaServer.Filters;
+using MediaPortal.Extensions.MediaServer.Protocols;
 using MediaPortal.Utilities.FileSystem;
 using MediaPortal.Common.UserProfileDataManagement;
 using MediaPortal.Common.Services.Settings;
 using Microsoft.Owin;
 using System.Collections.Concurrent;
-using MediaPortal.Plugins.Transcoding.Interfaces;
+using MediaPortal.Extensions.TranscodingService.Interfaces;
 using System.Threading.Tasks;
-using MediaPortal.Plugins.MediaServer.Interfaces.Settings;
+using MediaPortal.Extensions.MediaServer.Interfaces.Settings;
 
-namespace MediaPortal.Plugins.MediaServer.Profiles
+namespace MediaPortal.Extensions.MediaServer.Profiles
 {
   public class ProfileManager
   {

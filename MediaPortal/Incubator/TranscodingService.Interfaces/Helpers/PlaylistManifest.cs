@@ -26,14 +26,14 @@ using System;
 using System.Globalization;
 using System.IO;
 using System.Text;
-using MediaPortal.Plugins.Transcoding.Interfaces.Transcoding;
-using MediaPortal.Plugins.Transcoding.Interfaces.Metadata;
-using MediaPortal.Plugins.Transcoding.Interfaces.Metadata.Streams;
+using MediaPortal.Extensions.TranscodingService.Interfaces.Transcoding;
+using MediaPortal.Extensions.TranscodingService.Interfaces.Metadata;
+using MediaPortal.Extensions.TranscodingService.Interfaces.Metadata.Streams;
 using MediaPortal.Common;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace MediaPortal.Plugins.Transcoding.Interfaces.Helpers
+namespace MediaPortal.Extensions.TranscodingService.Interfaces.Helpers
 {
   public class PlaylistManifest
   {

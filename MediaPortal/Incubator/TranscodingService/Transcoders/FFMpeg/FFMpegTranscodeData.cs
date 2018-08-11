@@ -27,13 +27,13 @@ using System.IO;
 using System.Collections.Generic;
 using MediaPortal.Common.ResourceAccess;
 using MediaPortal.Extensions.MetadataExtractors.FFMpegLib;
-using MediaPortal.Plugins.Transcoding.Service.Transcoders.FFMpeg.Encoders;
-using MediaPortal.Plugins.Transcoding.Interfaces.Profiles;
+using MediaPortal.Extensions.TranscodingService.Service.Transcoders.FFMpeg.Encoders;
+using MediaPortal.Extensions.TranscodingService.Interfaces.Profiles;
 using System;
 using System.Linq;
-using MediaPortal.Plugins.Transcoding.Interfaces.Helpers;
+using MediaPortal.Extensions.TranscodingService.Interfaces.Helpers;
 
-namespace MediaPortal.Plugins.Transcoding.Service.Transcoders.FFMpeg
+namespace MediaPortal.Extensions.TranscodingService.Service.Transcoders.FFMpeg
 {
   internal class FFMpegTranscodeData
   {

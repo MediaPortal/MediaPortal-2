@@ -3,39 +3,21 @@
 <Include
     xmlns="www.team-mediaportal.com/2008/mpf/directx"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    Source="screens\master_dialog_bare.xaml"
+    Source="screens\simple_dialog_menu.xaml"
     >
   <Include.Resources>
     <Service x:Key="ScreenManager" InterfaceName="ScreenManager"/>
 
     <!-- Dialog title -->
-    <ResourceWrapper x:Key="Dialog_Header_Text" Resource="[UserConfig.SelectRestrictions]"/>
-    
-    <!-- Configuration model -->
-    <Model x:Key="Model" Id="9B20B421-DF2E-42B6-AFF2-7EB6B60B601D"/>
+    <ResourceWrapper x:Key="Dialog_Header_Text" Resource="[Settings.Clients.Config.SelectUser]"/>
 
-    <ControlTemplate x:Key="Contents_Template">
-      <Grid>
-        <Grid.RowDefinitions>
-          <RowDefinition Height="*"/>
-          <RowDefinition Height="Auto"/>
-        </Grid.RowDefinitions>
-        <Grid.ColumnDefinitions>
-          <ColumnDefinition Width="Auto"/>
-        </Grid.ColumnDefinitions>
-          <UniformGrid Grid.Row="0" Columns="1" DataContext="{Binding Source={StaticResource Model}}">
-            <ListView Name="ServerSharesList" Margin="10" Grid.Row="1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
-                Style="{ThemeResource MultiMarkableListViewStyle}"
-                ItemsSource="{Binding Path=RestrictionGroupList,Mode=OneTime}"/>
-        </UniformGrid>
-        <Button x:Name="Ok" Grid.Row="1" Content="[UserConfig.Ok]" HorizontalAlignment="Center" Margin="10,20,10,10">
-          <Button.Command>
-            <CommandList x:Key="Menu_Command">
-              <Command Source="{Service ScreenManager}" Path="CloseTopmostDialog"/>
-            </CommandList>
-          </Button.Command>
-        </Button>
-      </Grid>
-    </ControlTemplate>
+    <Model x:Key="Model" Id="A5E439BD-6A88-4B1B-9032-0C6F1CE9DD30"/>
+
+    <ResourceWrapper x:Key="Menu_Items" EnableBindings="True"
+        Resource="{Binding Source={StaticResource Model},Path=UserList,Mode=OneTime}"/>
+
+    <!-- Command -->
+    <CommandStencil x:Key="Execute_Command_Stencil"
+        Source="{StaticResource Model}" Path="SelectUser"/>
   </Include.Resources>
 </Include>

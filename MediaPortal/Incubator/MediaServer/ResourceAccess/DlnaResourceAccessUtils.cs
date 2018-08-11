@@ -32,16 +32,16 @@ using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.ResourceAccess;
 using MediaPortal.Common.Services.ResourceAccess.Settings;
 using MediaPortal.Common.Settings;
-using MediaPortal.Plugins.MediaServer.DLNA;
-using MediaPortal.Plugins.MediaServer.Profiles;
+using MediaPortal.Extensions.MediaServer.DLNA;
+using MediaPortal.Extensions.MediaServer.Profiles;
 using MediaPortal.Utilities.Network;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
-using MediaPortal.Plugins.Transcoding.Interfaces;
-using MediaPortal.Plugins.Transcoding.Interfaces.Helpers;
-using MediaPortal.Plugins.Transcoding.Interfaces.Transcoding;
+using MediaPortal.Extensions.TranscodingService.Interfaces;
+using MediaPortal.Extensions.TranscodingService.Interfaces.Helpers;
+using MediaPortal.Extensions.TranscodingService.Interfaces.Transcoding;
 using MediaPortal.Common.FanArt;
 
-namespace MediaPortal.Plugins.MediaServer.ResourceAccess
+namespace MediaPortal.Extensions.MediaServer.ResourceAccess
 {
   public static class DlnaResourceAccessUtils
   {

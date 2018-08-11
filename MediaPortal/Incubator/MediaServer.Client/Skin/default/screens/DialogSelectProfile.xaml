@@ -9,15 +9,15 @@
     <Service x:Key="ScreenManager" InterfaceName="ScreenManager"/>
 
     <!-- Dialog title -->
-    <ResourceWrapper x:Key="Dialog_Header_Text" Resource="[UserConfig.SelectProfileTemplate]"/>
+    <ResourceWrapper x:Key="Dialog_Header_Text" Resource="[Settings.Clients.Config.SelectProfile]"/>
 
-    <Model x:Key="UserConfigModel" Id="9B20B421-DF2E-42B6-AFF2-7EB6B60B601D"/>
+    <Model x:Key="Model" Id="A5E439BD-6A88-4B1B-9032-0C6F1CE9DD30"/>
 
     <ResourceWrapper x:Key="Menu_Items" EnableBindings="True"
-        Resource="{Binding Source={StaticResource UserConfigModel},Path=ProfileTemplateList,Mode=OneTime}"/>
+        Resource="{Binding Source={StaticResource Model},Path=ProfileList,Mode=OneTime}"/>
 
     <!-- Command -->
     <CommandStencil x:Key="Execute_Command_Stencil"
-        Source="{StaticResource UserConfigModel}" Path="SelectProfileTemplate"/>
+        Source="{StaticResource Model}" Path="SelectProfile"/>
   </Include.Resources>
 </Include>

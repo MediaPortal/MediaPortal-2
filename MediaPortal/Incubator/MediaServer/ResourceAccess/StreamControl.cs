@@ -26,14 +26,14 @@ using System;
 using System.Collections.Generic;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
-using MediaPortal.Plugins.MediaServer.DLNA;
-using MediaPortal.Plugins.MediaServer.Profiles;
+using MediaPortal.Extensions.MediaServer.DLNA;
+using MediaPortal.Extensions.MediaServer.Profiles;
 using MediaPortal.Common.MediaManagement;
-using MediaPortal.Plugins.MediaServer.Objects.MediaLibrary;
+using MediaPortal.Extensions.MediaServer.Objects.MediaLibrary;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
-using MediaPortal.Plugins.Transcoding.Interfaces;
+using MediaPortal.Extensions.TranscodingService.Interfaces;
 
-namespace MediaPortal.Plugins.MediaServer.ResourceAccess
+namespace MediaPortal.Extensions.MediaServer.ResourceAccess
 {
   static class StreamControl
   {

@@ -27,25 +27,25 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using MediaPortal.Common.MediaManagement;
-using MediaPortal.Plugins.MediaServer.DIDL;
-using MediaPortal.Plugins.MediaServer.DLNA;
-using MediaPortal.Plugins.MediaServer.Filters;
-using MediaPortal.Plugins.MediaServer.Objects.Basic;
-using MediaPortal.Plugins.MediaServer.Objects.MediaLibrary;
-using MediaPortal.Plugins.MediaServer.Protocols;
-using MediaPortal.Plugins.Transcoding.Interfaces.Profiles.Setup;
+using MediaPortal.Extensions.MediaServer.DIDL;
+using MediaPortal.Extensions.MediaServer.DLNA;
+using MediaPortal.Extensions.MediaServer.Filters;
+using MediaPortal.Extensions.MediaServer.Objects.Basic;
+using MediaPortal.Extensions.MediaServer.Objects.MediaLibrary;
+using MediaPortal.Extensions.MediaServer.Protocols;
+using MediaPortal.Extensions.TranscodingService.Interfaces.Profiles.Setup;
 using MediaPortal.Common;
 using MediaPortal.Plugins.SlimTv.Interfaces;
 using MediaPortal.Common.Localization;
 using MediaPortal.Utilities;
 using System.Collections.Concurrent;
-using MediaPortal.Plugins.Transcoding.Interfaces;
+using MediaPortal.Extensions.TranscodingService.Interfaces;
 using MediaPortal.Common.UserProfileDataManagement;
 using System.Threading.Tasks;
-using MediaPortal.Plugins.MediaServer.Profiles;
+using MediaPortal.Extensions.MediaServer.Profiles;
 using System.Net;
 
-namespace MediaPortal.Plugins.MediaServer.Profiles
+namespace MediaPortal.Extensions.MediaServer.Profiles
 {
   #region Profile
 

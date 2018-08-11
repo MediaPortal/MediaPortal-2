@@ -28,11 +28,11 @@ using MediaPortal.Common.Logging;
 using MediaPortal.Common.PluginManager;
 using MediaPortal.Common.ResourceAccess;
 using MediaPortal.Common.Settings;
-using MediaPortal.Plugins.MediaServer.Interfaces.Settings.Configuration;
-using MediaPortal.Plugins.MediaServer.Profiles;
-using MediaPortal.Plugins.MediaServer.ResourceAccess;
+using MediaPortal.Extensions.MediaServer.Interfaces.Settings.Configuration;
+using MediaPortal.Extensions.MediaServer.Profiles;
+using MediaPortal.Extensions.MediaServer.ResourceAccess;
 
-namespace MediaPortal.Plugins.MediaServer
+namespace MediaPortal.Extensions.MediaServer
 {
   public class MediaServerPlugin : IPluginStateTracker
   {

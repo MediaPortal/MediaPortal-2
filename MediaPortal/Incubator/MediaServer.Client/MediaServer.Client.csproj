@@ -7,7 +7,7 @@
     <ProjectGuid>{9CA4788B-F69E-4392-9A23-76A7E8531401}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>MediaServer.Client</RootNamespace>
+    <RootNamespace>MediaPortal.Extensions.MediaServer.Client</RootNamespace>
     <AssemblyName>MediaServer.Client</AssemblyName>
     <TargetFrameworkVersion>v4.7</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
@@ -41,9 +41,12 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="MediaServerPlugin.cs" />
+    <Compile Include="..\..\Source\Core\MediaPortal.Common\VersionInfo\VersionInfo.cs">
+      <Link>Properties\VersionInfo.cs</Link>
+    </Compile>
+    <Compile Include="General\Consts.cs" />
+    <Compile Include="MediaServerClientPlugin.cs" />
     <Compile Include="Models\ClientConfigModel.cs" />
-    <Compile Include="Models\ClientProxy.cs" />
     <Compile Include="Settings\Configuration\ShowUserLoginSetting.cs" />
     <Compile Include="Settings\Configuration\HardcodedSubtitlesAllowedSetting.cs" />
     <Compile Include="Settings\Configuration\TranscodingAllowedSetting.cs" />

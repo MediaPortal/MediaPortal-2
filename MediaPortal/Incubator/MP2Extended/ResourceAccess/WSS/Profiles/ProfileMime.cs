@@ -24,7 +24,7 @@
 
 using System;
 using System.Collections.Generic;
-using MediaPortal.Plugins.Transcoding.Interfaces;
+using MediaPortal.Extensions.TranscodingService.Interfaces;
 
 namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.Profiles
 {

@@ -24,10 +24,10 @@
 
 using System;
 using System.Collections.Generic;
-using MediaPortal.Plugins.MediaServer.Profiles;
-using MediaPortal.Plugins.Transcoding.Interfaces;
+using MediaPortal.Extensions.MediaServer.Profiles;
+using MediaPortal.Extensions.TranscodingService.Interfaces;
 
-namespace MediaPortal.Plugins.MediaServer.DLNA
+namespace MediaPortal.Extensions.MediaServer.DLNA
 {
   public static class DlnaProfiles
   {

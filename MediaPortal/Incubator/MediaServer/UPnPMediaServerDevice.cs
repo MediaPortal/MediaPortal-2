@@ -28,12 +28,12 @@ using System.Xml;
 using MediaPortal.Backend.Services.ClientCommunication;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
-using MediaPortal.Plugins.MediaServer.Profiles;
+using MediaPortal.Extensions.MediaServer.Profiles;
 using Microsoft.Owin;
 using UPnP.Infrastructure.Dv;
 using UPnP.Infrastructure.Dv.DeviceTree;
 
-namespace MediaPortal.Plugins.MediaServer
+namespace MediaPortal.Extensions.MediaServer
 {
   public class UPnPMediaServerDevice : DvDevice
   {

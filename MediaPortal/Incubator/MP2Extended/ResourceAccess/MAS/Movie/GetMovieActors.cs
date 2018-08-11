@@ -11,7 +11,7 @@ using MediaPortal.Plugins.MP2Extended.Extensions;
 using MediaPortal.Plugins.MP2Extended.MAS.General;
 using MediaPortal.Plugins.MP2Extended.MAS.TvShow;
 using MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.Movie.BaseClasses;
-using MediaPortal.Plugins.Transcoding.Interfaces.MetaData;
+using MediaPortal.Extensions.TranscodingService.Interfaces.MetaData;
 using System;
 using System.Collections.Generic;
 using System.Linq;

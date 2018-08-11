@@ -1,7 +1,7 @@
 ﻿using System;
 using MediaPortal.Common.ResourceAccess;
 
-namespace MediaPortal.Plugins.Transcoding.Service.Transcoders
+namespace MediaPortal.Extensions.TranscodingService.Service.Transcoders
 {
   public class TranscodeLiveAccessor : ITranscodeLiveAccessor
   {

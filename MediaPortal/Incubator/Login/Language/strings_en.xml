@@ -29,7 +29,9 @@
 
   <!-- User configuration workflow -->
   <string name="UserConfig.UserOverviewWorkflowNavigationContextDisplayLabel">User management</string>
+  <string name="UserConfig.UserLanguagewWorkflowNavigationContextDisplayLabel">User languages</string>
   <string name="UserConfig.UserConfiguration.Title">User management</string>
+  <string name="UserConfig.UserLanguages.Title">User languages</string>
   <string name="UserConfig.Users">Users</string>
   <string name="UserConfig.NoConfigUserHomeServerNotConnected">The home server is currently not connected, so server users cannot be managed at the moment.</string>
   <string name="UserConfig.UserName">User Name</string>
@@ -51,6 +53,15 @@
   <string name="UserConfig.Yes">Yes</string>
   <string name="UserConfig.No">No</string>
   <string name="UserConfig.Ok">OK</string>
+  
+  <string name="UserConfig.SelectLanguage">Select language</string>
+  <string name="UserConfig.Default">Default</string>
+  <string name="UserConfig.MainAudioLanguage">Main audio language</string>
+  <string name="UserConfig.SecondaryAudioLanguage">Secondary audio language</string>
+  <string name="UserConfig.MainSubtitleLanguage">Main subtitle language</string>
+  <string name="UserConfig.SecondarySubtitleLanguage">Secondary subtitle language</string>
+  <string name="UserConfig.MainMenuLanguage">Main menu language</string>
+  <string name="UserConfig.SecondaryMenuLanguage">Secondary menu language</string>
 
   <string name="UserConfig.SelectProfileTemplate">Select profile template</string>
   <string name="UserConfig.ClientProfile">Client profile</string>

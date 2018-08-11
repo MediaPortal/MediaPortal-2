@@ -22,14 +22,14 @@ using MediaPortal.Common.Settings;
 using MediaPortal.Common;
 using MediaPortal.Common.PathManager;
 
-namespace MediaPortal.Plugins.Transcoding.Interfaces.Settings
+namespace MediaPortal.Extensions.TranscodingService.Interfaces.Settings
 {
   public enum Transcoder
   {
     FFMpeg
   };
 
-  public enum HWAccelleration
+  public enum HWAcceleration
   {
     None,
     Auto,
@@ -66,6 +66,7 @@ namespace MediaPortal.Plugins.Transcoding.Interfaces.Settings
     {
       ".mkv",
       ".mk3d",
+      ".webm",
       ".ogm",
       ".avi",
       ".wmv",
@@ -108,8 +109,8 @@ namespace MediaPortal.Plugins.Transcoding.Interfaces.Settings
       TranscoderMaximumThreads = 0; //Auto
       TranscoderTimeout = 5000;
       HLSSegmentTimeInSeconds = 10;
-      SubtitleDefaultEncoding = "";
-      HardwareAcceleration = HWAccelleration.Auto;
+      SubtitleDefaultEncoding = "UTF-8";
+      HardwareAcceleration = HWAcceleration.Auto;
       Transcoder = Transcoder.FFMpeg;
       AudioFileExtensions = DEFAULT_AUDIO_FILE_EXTENSIONS;
       VideoFileExtensions = DEFAULT_VIDEO_FILE_EXTENSIONS;
@@ -125,7 +126,7 @@ namespace MediaPortal.Plugins.Transcoding.Interfaces.Settings
     /// Enable caching of transcoded files so they can be reused at a later time
     /// </summary>
     [Setting(SettingScope.Global)]
-    public bool CacheEnabled { get; private set; }
+    public bool CacheEnabled { get; set; }
 
     /// <summary>
     /// THe path where the trancoded cache files should be stored
@@ -138,14 +139,14 @@ namespace MediaPortal.Plugins.Transcoding.Interfaces.Settings
     /// If set to zero no transcoded files are deleted.
     /// </summary>
     [Setting(SettingScope.Global)]
-    public long CacheMaximumSizeInGB { get; private set; }
+    public long CacheMaximumSizeInGB { get; set; }
 
     /// <summary>
     /// Maximum number of days to keep the transcoded files. Any transcoded file older than this will be deleted.
     /// If set to zero no transcoded files are deleted.
     /// </summary>
     [Setting(SettingScope.Global)]
-    public long CacheMaximumAgeInDays { get; private set; }
+    public long CacheMaximumAgeInDays { get; set; }
 
     /// <summary>
     /// Timeout in milliseconds for analyzing a media file.
@@ -193,7 +194,7 @@ namespace MediaPortal.Plugins.Transcoding.Interfaces.Settings
     /// Hardware acceleration to use if possible.
     /// </summary>
     [Setting(SettingScope.Global)]
-    public HWAccelleration HardwareAcceleration { get; private set; }
+    public HWAcceleration HardwareAcceleration { get; set; }
 
     /// <summary>
     /// The transcoder to use for transcoding and analysis.
@@ -205,32 +206,32 @@ namespace MediaPortal.Plugins.Transcoding.Interfaces.Settings
     /// The font to use for harcoded subtitles.
     /// </summary>
     [Setting(SettingScope.Global)]
-    public string SubtitleFont { get; private set; }
+    public string SubtitleFont { get; set; }
 
     /// <summary>
     /// The font size to use for harcoded subtitles.
     /// </summary>
     [Setting(SettingScope.Global)]
-    public string SubtitleFontSize { get; private set; }
+    public string SubtitleFontSize { get; set; }
 
     /// <summary>
     /// The primary color to use for subtitle to use for harcoded subtitles. 
     /// Hexadecimal in Blue Green Red order as per ASS standard.
     /// </summary>
     [Setting(SettingScope.Global)]
-    public string SubtitleColor { get; private set; }
+    public string SubtitleColor { get; set; }
 
     /// <summary>
     /// Show an opaque box behind the hardcoded subtitles.
     /// </summary>
     [Setting(SettingScope.Global)]
-    public bool SubtitleBox { get; private set; }
+    public bool SubtitleBox { get; set; }
 
     /// <summary>
     /// Always add subtitles if possible.
     /// </summary>
     [Setting(SettingScope.Global)]
-    public bool ForceSubtitles { get; private set; }
+    public bool ForceSubtitles { get; set; }
 
     /// <summary>
     /// Audio file extensions supported for transcoding.

@@ -27,7 +27,7 @@ using UPnP.Infrastructure.Common;
 using UPnP.Infrastructure.Dv;
 using UPnP.Infrastructure.Dv.DeviceTree;
 
-namespace MediaPortal.Plugins.MediaServer
+namespace MediaPortal.Extensions.MediaServer
 {
     class UPnPMediaReceiverRegistrarServiceImpl : DvService
     {

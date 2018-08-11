@@ -359,5 +359,15 @@ namespace Tests.Server.MediaServer
     {
       throw new NotImplementedException();
     }
+
+    public void RefreshMediaItemMetadata(Guid mediaItemId, bool clearMetadata)
+    {
+      throw new NotImplementedException();
+    }
+
+    public void ReimportMediaItemMetadata(Guid mediaItemId, IEnumerable<MediaItemAspect> matchedAspects)
+    {
+      throw new NotImplementedException();
+    }
   }
 }

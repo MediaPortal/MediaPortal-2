@@ -25,7 +25,7 @@
 using MediaPortal.Common.ResourceAccess;
 using Newtonsoft.Json;
 
-namespace MediaPortal.Plugins.Transcoding.Interfaces.Metadata.Streams
+namespace MediaPortal.Extensions.TranscodingService.Interfaces.Metadata.Streams
 {
   public class MetadataStream
   {

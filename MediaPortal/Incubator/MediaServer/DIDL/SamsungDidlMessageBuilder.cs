@@ -27,11 +27,11 @@ using System.IO;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Common.ResourceAccess;
-using MediaPortal.Plugins.MediaServer.Objects;
-using MediaPortal.Plugins.MediaServer.Objects.MediaLibrary;
+using MediaPortal.Extensions.MediaServer.Objects;
+using MediaPortal.Extensions.MediaServer.Objects.MediaLibrary;
 using System.Collections.Generic;
 
-namespace MediaPortal.Plugins.MediaServer.DIDL
+namespace MediaPortal.Extensions.MediaServer.DIDL
 {
   public class SamsungDidlMessageBuilder : GenericDidlMessageBuilder
   {

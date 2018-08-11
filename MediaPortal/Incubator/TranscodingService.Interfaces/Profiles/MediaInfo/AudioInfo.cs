@@ -22,10 +22,10 @@
 
 #endregion
 
-using MediaPortal.Plugins.Transcoding.Interfaces.Metadata;
+using MediaPortal.Extensions.TranscodingService.Interfaces.Metadata;
 using System.Linq;
 
-namespace MediaPortal.Plugins.Transcoding.Interfaces.Profiles.MediaInfo
+namespace MediaPortal.Extensions.TranscodingService.Interfaces.Profiles.MediaInfo
 {
   public class AudioInfo
   {

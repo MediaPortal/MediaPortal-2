@@ -29,15 +29,15 @@ using System.Globalization;
 using MediaPortal.Common.ResourceAccess;
 using MediaPortal.Utilities.Process;
 using MediaPortal.Extensions.MetadataExtractors.FFMpegLib;
-using MediaPortal.Plugins.Transcoding.Service.Transcoders.FFMpeg.Parsers;
-using MediaPortal.Plugins.Transcoding.Interfaces.Metadata;
-using MediaPortal.Plugins.Transcoding.Interfaces.Helpers;
+using MediaPortal.Extensions.TranscodingService.Service.Transcoders.FFMpeg.Parsers;
+using MediaPortal.Extensions.TranscodingService.Interfaces.Metadata;
+using MediaPortal.Extensions.TranscodingService.Interfaces.Helpers;
 using System.IO;
-using MediaPortal.Plugins.Transcoding.Interfaces;
+using MediaPortal.Extensions.TranscodingService.Interfaces;
 using System.Threading.Tasks;
 using System.Threading;
 
-namespace MediaPortal.Plugins.Transcoding.Service.Transcoders.FFMpeg
+namespace MediaPortal.Extensions.TranscodingService.Service.Transcoders.FFMpeg
 {
   public class FFMpegMediaAnalyzer : BaseMediaAnalyzer
   {

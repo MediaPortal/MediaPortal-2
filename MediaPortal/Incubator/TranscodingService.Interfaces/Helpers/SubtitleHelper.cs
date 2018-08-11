@@ -24,7 +24,7 @@
 
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 
-namespace MediaPortal.Plugins.Transcoding.Interfaces.Helpers
+namespace MediaPortal.Extensions.TranscodingService.Interfaces.Helpers
 {
   public class SubtitleHelper
   {

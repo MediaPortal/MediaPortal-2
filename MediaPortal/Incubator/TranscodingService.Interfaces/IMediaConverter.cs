@@ -26,10 +26,10 @@ using System;
 using System.IO;
 using System.Threading.Tasks;
 using MediaPortal.Common.ResourceAccess;
-using MediaPortal.Plugins.Transcoding.Interfaces.Metadata;
-using MediaPortal.Plugins.Transcoding.Interfaces.Transcoding;
+using MediaPortal.Extensions.TranscodingService.Interfaces.Metadata;
+using MediaPortal.Extensions.TranscodingService.Interfaces.Transcoding;
 
-namespace MediaPortal.Plugins.Transcoding.Interfaces
+namespace MediaPortal.Extensions.TranscodingService.Interfaces
 {
     public interface IMediaConverter
     {

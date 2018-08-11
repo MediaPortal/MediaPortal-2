@@ -22,9 +22,9 @@
 
 #endregion
 
-using MediaPortal.Plugins.MediaServer.Profiles;
+using MediaPortal.Extensions.MediaServer.Profiles;
 
-namespace MediaPortal.Plugins.MediaServer.Objects.Basic
+namespace MediaPortal.Extensions.MediaServer.Objects.Basic
 {
   public class BasicItem : BasicObject, IDirectoryItem
   {

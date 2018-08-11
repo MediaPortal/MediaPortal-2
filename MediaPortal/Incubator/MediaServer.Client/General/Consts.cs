@@ -22,29 +22,16 @@
 
 #endregion
 
-using MediaPortal.Common.PluginManager;
+using System;
 
-namespace MediaPortal.UiComponents.MediaServer.Client
+namespace MediaPortal.Extensions.MediaServer.Client.General
 {
-  public class MediaServerPlugin : IPluginStateTracker
+  public class Consts
   {
-    #region IPluginStateTracker implementation
-
-    public void Activated(PluginRuntime pluginRuntime)
-    {
-    }
-
-    public bool RequestEnd()
-    {
-      return true;
-    }
-
-    public void Stop() { }
-
-    public void Continue() { }
-
-    public void Shutdown() { }
-
-    #endregion
+    // Keys for the ListItem's Labels in the ItemsLists
+    public const string KEY_NAME = "Name";
+    public const string KEY_CLIENT = "Client";
+    public const string KEY_USER = "User";
+    public const string KEY_PROFILE = "Profile";
   }
 }

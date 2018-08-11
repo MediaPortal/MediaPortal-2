@@ -33,18 +33,18 @@ using System.Drawing;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.ResourceAccess;
-using MediaPortal.Plugins.Transcoding.Interfaces;
-using MediaPortal.Plugins.Transcoding.Interfaces.Transcoding;
-using MediaPortal.Plugins.Transcoding.Interfaces.Helpers;
-using MediaPortal.Plugins.Transcoding.Interfaces.Metadata;
-using MediaPortal.Plugins.Transcoding.Interfaces.Metadata.Streams;
-using MediaPortal.Plugins.Transcoding.Interfaces.Analyzers;
-using MediaPortal.Plugins.Transcoding.Interfaces.SlimTv;
+using MediaPortal.Extensions.TranscodingService.Interfaces;
+using MediaPortal.Extensions.TranscodingService.Interfaces.Transcoding;
+using MediaPortal.Extensions.TranscodingService.Interfaces.Helpers;
+using MediaPortal.Extensions.TranscodingService.Interfaces.Metadata;
+using MediaPortal.Extensions.TranscodingService.Interfaces.Metadata.Streams;
+using MediaPortal.Extensions.TranscodingService.Interfaces.Analyzers;
+using MediaPortal.Extensions.TranscodingService.Interfaces.SlimTv;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using MediaPortal.Utilities.Threading;
 
-namespace MediaPortal.Plugins.Transcoding.Service.Transcoders
+namespace MediaPortal.Extensions.TranscodingService.Service.Transcoders
 {
   public abstract class BaseMediaConverter : IMediaConverter
   {
@@ -881,26 +881,30 @@ namespace MediaPortal.Plugins.Transcoding.Service.Transcoders
       try
       {
         if (string.IsNullOrEmpty(charEncoding))
-          charEncoding = "utf-8";
+          charEncoding = "UTF-8";
 
-        if (!SubtitleHelper.SubtitleIsUnicode(sub.CharacterEncoding) && !SubtitleHelper.SubtitleIsImage(sub.CharacterEncoding))
+        string sourceCharEncoding = sub.CharacterEncoding;
+        if (string.IsNullOrEmpty(sourceCharEncoding))
+          sourceCharEncoding = _subtitleDefaultEncoding;
+
+        if (!SubtitleHelper.SubtitleIsUnicode(sourceCharEncoding) && !SubtitleHelper.SubtitleIsImage(sourceCharEncoding))
         {
-          if (!string.IsNullOrEmpty(sub.CharacterEncoding) && !SubtitleAnalyzer.IsImageBasedSubtitle(sub.Codec))
+          if (!string.IsNullOrEmpty(sourceCharEncoding) && !SubtitleAnalyzer.IsImageBasedSubtitle(sub.Codec))
           {
             string path = Path.GetDirectoryName(targetFileName);
             if (!Directory.Exists(path))
               Directory.CreateDirectory(path);
 
             string sourceName = sub.Source;
-            using (var sourceReader = new StreamReader(sourceName, Encoding.GetEncoding(sub.CharacterEncoding)))
+            using (var sourceReader = new StreamReader(sourceName, Encoding.GetEncoding(sourceCharEncoding)))
             using (var targetWriter = new StreamWriter(targetFileName, false, Encoding.GetEncoding(charEncoding)))
             {
               while (!sourceReader.EndOfStream)
                 await targetWriter.WriteLineAsync(await sourceReader.ReadLineAsync());
             };
-            sub.CharacterEncoding = "UTF-8";
+            sub.CharacterEncoding = charEncoding;
             sub.Source = targetFileName;
-            _logger.Debug("MediaConverter: Converted subtitle file '{0}' to UTF-8", sourceName);
+            _logger.Debug("MediaConverter: Converted subtitle file '{0}' to {1}", sourceName, charEncoding);
           }
         }
       }
@@ -976,7 +980,7 @@ namespace MediaPortal.Plugins.Transcoding.Service.Transcoders
               Codec = srcStream.Codec,
               Language = srcStream.Language,
               Source = srcStream.Source,
-              CharacterEncoding = srcStream.CharacterEncoding,
+              CharacterEncoding = string.IsNullOrEmpty(srcStream.CharacterEncoding) ? _subtitleDefaultEncoding : srcStream.CharacterEncoding,
               IsPartial = video.SourceMedia.Count > 1
             };
             if (SubtitleAnalyzer.IsSubtitleSupportedByContainer(srcStream.Codec, video.FirstSourceVideoContainer, video.TargetVideoContainer) == true)
@@ -1010,10 +1014,7 @@ namespace MediaPortal.Plugins.Transcoding.Service.Transcoders
               }
               sub.Codec = targetCodec;
               sub.Source = transcodingFile;
-              if (SubtitleHelper.SubtitleIsUnicode(sub.CharacterEncoding) == false)
-              {
-                sub.CharacterEncoding = "UTF-8";
-              }
+              sub.CharacterEncoding = video.TargetSubtitleCharacterEncoding;
               if (!res[sourceMediaIndex].Any(s => s.Source == transcodingFile))
                 res[sourceMediaIndex].Add(sub);
               continue;
@@ -1026,7 +1027,6 @@ namespace MediaPortal.Plugins.Transcoding.Service.Transcoders
               {
                 sub.StreamIndex = -1;
                 sub.Codec = targetCodec;
-                sub.CharacterEncoding = "UTF-8";
                 sub.Source = transcodingFile;
                 res[sourceMediaIndex].Add(sub);
                 continue;

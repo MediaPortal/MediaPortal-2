@@ -7,7 +7,7 @@
     <ProjectGuid>{38EDED2D-21CC-4FFC-B1F4-2597E4823B7A}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>MediaPortal.Plugins.Transcoding.Service</RootNamespace>
+    <RootNamespace>MediaPortal.Extensions.TranscodingService</RootNamespace>
     <AssemblyName>TranscodingService</AssemblyName>
     <TargetFrameworkVersion>v4.7</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>

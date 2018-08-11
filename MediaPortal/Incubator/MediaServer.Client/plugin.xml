@@ -15,7 +15,6 @@
   <DependsOn>
     <CoreDependency Name="MediaPortal.Common" CompatibleAPI="2" />
     <CoreDependency Name="MediaPortal.UI" CompatibleAPI="2" />
-    <CoreDependency Name="MediaPortal.Utilities" CompatibleAPI="1" />
     <PluginReference PluginId="{D87D92F0-5E71-470a-A2A4-430F90A28BF3}" CompatibleAPI="1"/> <!-- SkinEngine -->
     <PluginReference PluginId="{1AFF4467-64B0-4ca1-AF28-9AEDF3525BCE}" CompatibleAPI="1"/> <!-- ConfigurationManager -->
     <PluginReference PluginId="{B765A4B6-F455-4941-BDAE-2CE45208BFEB}" CompatibleAPI="1"/> <!-- Configuration plugin -->
@@ -23,97 +22,68 @@
 
   <Runtime>
     <Assembly FileName="MediaServer.Client.dll"/>
-    <PluginStateTracker ClassName="MediaPortal.UiComponents.MediaServer.Client.MediaServerPlugin"/>
+    <PluginStateTracker ClassName="MediaPortal.Extensions.MediaServer.Client.MediaServerClientPlugin"/>
   </Runtime>
 
   <Register Location="/Models">
-    <Model Id="82582433-FD64-41bd-9059-7F662DBDA713" Name="LoginModel" ClassName="MediaPortal.UiComponents.Login.Models.LoginModel"/>
-    <Model Id="9B20B421-DF2E-42B6-AFF2-7EB6B60B601D" Name="UserConfigModel" ClassName="MediaPortal.UiComponents.Login.Models.UserConfigModel"/>
-    <Model Id="D5CA9E6F-8639-4D2F-B94A-FEE7A69A87C4" Name="UserLoginContributorModel" ClassName="MediaPortal.UiComponents.Login.Actions.UserLoginAction"/>
+    <Model Id="A5E439BD-6A88-4B1B-9032-0C6F1CE9DD30" Name="ClientConfigModel" ClassName="MediaPortal.Extensions.MediaServer.Client.Models.ClientConfigModel"/>
   </Register>
 
   <Register Location="/Workflow/States">
-    <!-- Overview screen for all users at the server -->
-    <WorkflowState Id="75488A94-7BEC-44FF-836D-7A2A8C7AFEF0"
-        Name="UserManagement"
-        DisplayLabel="[UserConfig.UserOverviewWorkflowNavigationContextDisplayLabel]"
-        MainScreen="UserManagement"
-        WorkflowModel="9B20B421-DF2E-42B6-AFF2-7EB6B60B601D"/> <!-- User config model -->
-
-    <WorkflowState Id="2529B0F0-8415-4A4E-971B-38D6CDD2406A"
-        Name="Login"
-        MainScreen="Login"
-        DisplayLabel="[Login.Title]"
-        WorkflowModel="82582433-FD64-41bd-9059-7F662DBDA713"/> <!-- Login model -->/>
-
-    <WorkflowState Id="D3C5EC78-F901-4851-8DB8-83CF27E80EA8"
-        Name="AutoLoginUser"
-        MainScreen="AutoLoginUser"
-        DisplayLabel="[Login.Title]"
-        WorkflowModel="82582433-FD64-41bd-9059-7F662DBDA713"/> <!-- Login model -->/>
+    <!-- Overview screen for all clients at the server -->
+    <WorkflowState Id="4E75F401-3C1F-46F3-BF26-F636DD0F86B9"
+        Name="ClientManagement"
+        DisplayLabel="[Settings.Clients.Config]"
+        MainScreen="ClientManagement"
+        WorkflowModel="A5E439BD-6A88-4B1B-9032-0C6F1CE9DD30"/> <!-- Client config model -->
   </Register>
 
   <Register Location="/Resources/Language">
-    <Resource Id="LoginLanguage" Directory="Language" Type="Language"/>
+    <Resource Id="MediaServerLanguage" Directory="Language" Type="Language"/>
   </Register>
 
   <Register Location = "/Resources/Skin">
-    <Resource Id="LoginSkin" Directory="Skin" Type="Skin"/>
+    <Resource Id="MediaServerSkin" Directory="Skin" Type="Skin"/>
   </Register>
 
   <!-- Root configuration sections -->
   <Register Location="/Configuration/Settings">
     <ConfigSection
-        Id="Users"
+        Id="DLNA"
         Sort="X100"
         Redundant="true"
-        Text="[Settings.Users]"/>
+        Text="[Settings.Title]"/>
   </Register>
 
-  <!-- Contents of '/Users' section -->
-  <Register Location="/Configuration/Settings/Users">
+  <!-- Contents of '/DLNA' section -->
+  <Register Location="/Configuration/Settings/DLNA">
     <ConfigSetting
-        Id="EnableUserLogin"
-        RestrictionGroup="Settings.UserProfile"
-        Text="[Settings.Users.Config.UserEnable]"
-        HelpText="[Settings.Users.Config.UserEnable.Help]"
-        ClassName="MediaPortal.UiComponents.Login.Settings.Configuration.UserConfigSettings"/>
+        Id="Transcoding"
+        RestrictionGroup="Settings"
+        Text="[Settings.Transcoding]"
+        HelpText="[Settings.Transcoding.Help]"
+        ClassName="MediaPortal.Extensions.MediaServer.Client.Settings.Configuration.TranscodingAllowedSetting"/>
+    
+    <ConfigSetting
+        Id="HardcodedSubtitles"
+        RestrictionGroup="Settings"
+        Text="[Settings.HardcodedSubtitles]"
+        HelpText="[Settings.HardcodedSubtitles.Help]"
+        ClassName="MediaPortal.Extensions.MediaServer.Client.Settings.Configuration.HardcodedSubtitlesAllowedSetting"/>
 
     <ConfigSetting
-        Id="EnableUserLoginScreen"
-        RestrictionGroup="Settings.UserProfile"
-        Text="[Settings.Users.Config.UserEnableScreen]"
-        HelpText="[Settings.Users.Config.UserEnableScreen.Help]"
-        ClassName="MediaPortal.UiComponents.Login.Settings.Configuration.UserLoginScreenSettings"/>
-
-    <ConfigSetting
-        Id="AutoLogout"
-        RestrictionGroup="Settings.UserProfile"
-        Text="[Settings.Users.Config.AutoLogout]"
-        HelpText="[Settings.Users.Config.AutoLogout.Help]"
-        ClassName="MediaPortal.UiComponents.Login.Settings.Configuration.AutoLogoutSettings"/>
-
-    <ConfigSetting
-        Id="AutoLogoutTimeout"
-        RestrictionGroup="Settings.UserProfile"
-        Text="[Settings.Users.Config.AutoLogoutTimeout]"
-        HelpText="[Settings.Users.Config.AutoLogoutTimeout.Help]"
-        ClassName="MediaPortal.UiComponents.Login.Settings.Configuration.AutoLogoutTimeoutSetting"/>
+        Id="ShowLogin"
+        RestrictionGroup="Settings"
+        Text="[Settings.UserLogin]"
+        HelpText="[Settings.UserLogin.Help]"
+        ClassName="MediaPortal.Extensions.MediaServer.Client.Settings.Configuration.ShowUserLoginSetting"/>
 
     <CustomConfigSetting
-        Id="AutoLoginUser"
-        RestrictionGroup="Settings.UserProfile"
-        Text="[Settings.Users.Config.AutoLoginUser]"
-        HelpText="[Settings.Users.Config.AutoLoginUser.Help]"
-        ClassName="MediaPortal.UiComponents.Login.Settings.Configuration.AutoLoginUserSetting"
-        AdditionalData="WorkflowState=D3C5EC78-F901-4851-8DB8-83CF27E80EA8,ConfAppPanel=..."/>
-
-    <CustomConfigSetting
-        Id="UserOverview"
-        RestrictionGroup="Settings.UserProfile,Settings.UserProfile.ManageOwn"
-        Text="[Settings.Users.Config.UserManagement]"
-        HelpText="[Settings.Users.Config.UserManagement.Help]"
-        ClassName="MediaPortal.UiComponents.Login.Settings.Configuration.UserManagementSetting"
-        AdditionalData="WorkflowState=75488A94-7BEC-44FF-836D-7A2A8C7AFEF0,ConfAppPanel=..."/>
+        Id="DLNAClientsw"
+        RestrictionGroup="Settings"
+        Text="[Settings.Clients.Config]"
+        HelpText="[Settings.Clients.Config.Help]"
+        ClassName="MediaPortal.Extensions.MediaServer.Client.Settings.ClientManagementSetting"
+        AdditionalData="WorkflowState=4E75F401-3C1F-46F3-BF26-F636DD0F86B9,ConfAppPanel=..."/>
   </Register>
 </Plugin>

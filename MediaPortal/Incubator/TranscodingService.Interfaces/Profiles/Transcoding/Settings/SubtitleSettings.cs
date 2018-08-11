@@ -25,7 +25,7 @@
 
 using System.Collections.Generic;
 
-namespace MediaPortal.Plugins.Transcoding.Interfaces.Profiles.Setup.Settings
+namespace MediaPortal.Extensions.TranscodingService.Interfaces.Profiles.Setup.Settings
 {
   public class SubtitleSettings
   {

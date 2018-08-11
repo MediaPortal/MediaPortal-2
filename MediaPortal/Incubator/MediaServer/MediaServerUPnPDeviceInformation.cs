@@ -29,11 +29,11 @@ using System.Net;
 using System.Reflection;
 using MediaPortal.Common;
 using MediaPortal.Common.Localization;
-using MediaPortal.Plugins.MediaServer.ResourceAccess;
+using MediaPortal.Extensions.MediaServer.ResourceAccess;
 using MediaPortal.Utilities;
 using UPnP.Infrastructure.Dv.DeviceTree;
 
-namespace MediaPortal.Plugins.MediaServer
+namespace MediaPortal.Extensions.MediaServer
 {
   public class MediaServerUpnPDeviceInformation : ILocalizedDeviceInformation
   {

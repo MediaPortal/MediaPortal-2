@@ -23,9 +23,9 @@
 #endregion
 
 using System.Collections.Generic;
-using MediaPortal.Plugins.Transcoding.Interfaces.Profiles.MediaInfo;
+using MediaPortal.Extensions.TranscodingService.Interfaces.Profiles.MediaInfo;
 
-namespace MediaPortal.Plugins.Transcoding.Interfaces.Profiles.Setup.Targets
+namespace MediaPortal.Extensions.TranscodingService.Interfaces.Profiles.Setup.Targets
 {
   public class AudioTranscodingTarget : MediaTranscoding
   {

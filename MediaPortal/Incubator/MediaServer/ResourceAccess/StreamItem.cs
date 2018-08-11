@@ -24,10 +24,10 @@
 
 using System;
 using System.Threading;
-using MediaPortal.Plugins.MediaServer.DLNA;
-using MediaPortal.Plugins.Transcoding.Interfaces.Transcoding;
+using MediaPortal.Extensions.MediaServer.DLNA;
+using MediaPortal.Extensions.TranscodingService.Interfaces.Transcoding;
 
-namespace MediaPortal.Plugins.MediaServer.ResourceAccess
+namespace MediaPortal.Extensions.MediaServer.ResourceAccess
 {
   internal class StreamItem
   {

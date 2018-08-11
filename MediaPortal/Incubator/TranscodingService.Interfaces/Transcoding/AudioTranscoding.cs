@@ -24,7 +24,7 @@
 
 using System;
 
-namespace MediaPortal.Plugins.Transcoding.Interfaces.Transcoding
+namespace MediaPortal.Extensions.TranscodingService.Interfaces.Transcoding
 {
   public class AudioTranscoding : BaseTranscoding
   {

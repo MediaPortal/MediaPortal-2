@@ -27,7 +27,7 @@ using MediaPortal.Common.ResourceAccess;
 using MediaPortal.Common;
 using MediaPortal.Utilities.SystemAPI;
 
-namespace MediaPortal.Plugins.Transcoding.Interfaces.Helpers
+namespace MediaPortal.Extensions.TranscodingService.Interfaces.Helpers
 {
   public class MimeDetector
   {
