@@ -1,13 +1,38 @@
-﻿using System;
-using System.Collections.Generic;
+﻿#region Copyright (C) 2007-2015 Team MediaPortal
+
+/*
+    Copyright (C) 2007-2015 Team MediaPortal
+    http://www.team-mediaportal.com
+
+    This file is part of MediaPortal 2
+
+    MediaPortal 2 is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    MediaPortal 2 is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with MediaPortal 2. If not, see <http://www.gnu.org/licenses/>.
+*/
+
+#endregion
+
+using System;
 using System.Linq;
 using MediaPortal.Common;
+using MediaPortal.Common.FanArt;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.MediaManagement;
-using MediaPortal.Common.MediaManagement.DefaultItemAspects;
+using MediaPortal.Common.MediaManagement.Helpers;
+using MediaPortal.Plugins.WifiRemote;
 using MediaPortal.Plugins.WifiRemote.Messages.Now_Playing;
 
-namespace WifiRemote
+namespace MediaPortal.Plugins.WifiRemote
 {
   internal class NowPlayingMovingPictures : IAdditionalNowPlayingInfo
   {
@@ -204,33 +229,23 @@ namespace WifiRemote
       {
         movieFound = true;
 
+        MovieInfo movie = new MovieInfo();
+        movie.FromMetadata(mediaItem.Aspects);
+
         ItemId = mediaItem.MediaItemId;
-        Title = (string)mediaItem[MovieAspect.Metadata][MovieAspect.ATTR_MOVIE_NAME];
-        //AlternateTitles = match.AlternateTitles.ToString();
-        var videoDirectors = (List<string>)mediaItem[VideoAspect.Metadata][VideoAspect.ATTR_DIRECTORS];
-        if (videoDirectors != null)
-          Directors = String.Join(", ", videoDirectors.Cast<string>().ToArray());
-
-        var videoWriters = (List<string>)mediaItem[VideoAspect.Metadata][VideoAspect.ATTR_WRITERS];
-        if (videoWriters != null)
-          Writers = String.Join(", ", videoWriters.Cast<string>().ToArray());
-
-        var videoActors = (List<string>)mediaItem[VideoAspect.Metadata][VideoAspect.ATTR_ACTORS];
-        if (videoActors != null)
-          Actors = String.Join(", ", videoActors.Cast<string>().ToArray());
-
-        var videoGenres = (List<string>)mediaItem[VideoAspect.Metadata][VideoAspect.ATTR_GENRES];
-        if (videoGenres != null)
-          Genres = String.Join(", ", videoGenres.Cast<string>().ToArray());
-
-        Rating = Convert.ToString((double)mediaItem[MovieAspect.Metadata][MovieAspect.ATTR_TOTAL_RATING]);
-
-        /*Year = (int)mediaItem[VideoAspect.Metadata][VideoAspect.];
-        Certification = match.Certification;
-        Tagline = match.Tagline;*/
-        Summary = (string)mediaItem[VideoAspect.Metadata][VideoAspect.ATTR_STORYPLOT];
-        /*DetailsUrl = match.DetailsURL;
-        ImageName = match.CoverFullPath;*/
+        Title = movie.MovieName.Text;
+        AlternateTitles = movie.OriginalName;
+        Directors = String.Join(", ", movie.Directors);
+        Writers = String.Join(", ", movie.Writers);
+        Actors = String.Join(", ", movie.Actors);
+        Genres = String.Join(", ", movie.Genres.Select(g => g.Name));
+        Rating = Convert.ToString(movie.Rating.RatingValue ?? 0);
+        Year = movie.ReleaseDate.Value.Year;
+        Certification = movie.Certification;
+        Tagline = movie.Tagline;
+        Summary = movie.Summary.Text;
+        //DetailsUrl = match.DetailsURL;
+        ImageName = Helper.GetImageBaseURL(mediaItem, FanArtMediaTypes.Movie, FanArtTypes.Cover);
       }
       catch (Exception e)
       {

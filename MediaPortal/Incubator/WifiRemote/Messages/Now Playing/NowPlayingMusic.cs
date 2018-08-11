@@ -1,13 +1,39 @@
-﻿using System;
-using System.Collections.Generic;
+﻿#region Copyright (C) 2007-2015 Team MediaPortal
+
+/*
+    Copyright (C) 2007-2015 Team MediaPortal
+    http://www.team-mediaportal.com
+
+    This file is part of MediaPortal 2
+
+    MediaPortal 2 is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    MediaPortal 2 is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with MediaPortal 2. If not, see <http://www.gnu.org/licenses/>.
+*/
+
+#endregion
+
+using System;
 using System.Linq;
 using MediaPortal.Common;
+using MediaPortal.Common.FanArt;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
+using MediaPortal.Common.MediaManagement.Helpers;
+using MediaPortal.Plugins.WifiRemote;
 using MediaPortal.Plugins.WifiRemote.Messages.Now_Playing;
 
-namespace WifiRemote
+namespace MediaPortal.Plugins.WifiRemote
 {
   internal class NowPlayingMusic : IAdditionalNowPlayingInfo
   {
@@ -67,53 +93,40 @@ namespace WifiRemote
     {
       try
       {
-        var audioAspect = song[AudioAspect.Metadata];
+        TrackInfo track = new TrackInfo();
+        track.FromMetadata(song.Aspects);
+
+        var mediaAspect = MediaItemAspect.GetAspect(song.Aspects, MediaAspect.Metadata);
 
         ItemId = song.MediaItemId;
-        Album = (string)audioAspect[AudioAspect.ATTR_ALBUM];
-
-        var audioAlbumArtists = (List<string>)audioAspect[AudioAspect.ATTR_ALBUMARTISTS];
-        if (audioAlbumArtists != null)
-          AlbumArtist = String.Join(", ", audioAlbumArtists.Cast<string>().ToArray());
-
-        var audioArtists = (List<string>)audioAspect[AudioAspect.ATTR_ARTISTS];
-        if (audioArtists != null)
-          Artist = String.Join(", ", audioArtists.Cast<string>().ToArray());
-
-        var audioComposers = (List<string>)audioAspect[AudioAspect.ATTR_COMPOSERS];
-        if (audioComposers != null)
-          Composer = String.Join(", ", audioComposers.Cast<string>().ToArray());
-
-        BitRate = (int)audioAspect[AudioAspect.ATTR_BITRATE];
-        BitRateMode =string.Empty;
+        Album = track.Album;
+        AlbumArtist = String.Join(", ", track.AlbumArtists);
+        Artist = String.Join(", ", track.Artists);
+        Composer = String.Join(", ", track.Composers);
+        Conductor = String.Join(", ", track.Conductors);
+        Genre = String.Join(", ", track.Genres.Select(g => g.Name));
+        BitRate = track.BitRate;
+        BitRateMode = string.Empty;
         BPM = 0;
-        Channels = 0;
-        Codec = (string)audioAspect[AudioAspect.ATTR_ENCODING];
+        Channels = track.Channels;
+        Codec = track.Encoding;
         Comment = string.Empty;
-        Conductor = string.Empty;
         DateTimeModified = DateTime.Now;
         DateTimePlayed = DateTime.Now;
-        DiscId = (int)(audioAspect[AudioAspect.ATTR_DISCID] ?? 0);
-        DiscTotal = (int)(audioAspect[AudioAspect.ATTR_NUMDISCS] ?? 0);
-        Duration = (long)audioAspect[AudioAspect.ATTR_DURATION];
-
-        var audioGenres = (List<string>)audioAspect[AudioAspect.ATTR_GENRES];
-        if (audioGenres != null)
-          Genre = String.Join(", ", audioGenres.Cast<string>().ToArray());
-
-        Lyrics = String.Empty;
-        Rating = 0;
-        SampleRate = 0;
-        TimesPlayed = (int)song[MediaAspect.Metadata][MediaAspect.ATTR_PLAYCOUNT];
-        Title = (string)song[MediaAspect.Metadata][MediaAspect.ATTR_TITLE];
-        Track = (int)audioAspect[AudioAspect.ATTR_TRACK];
-        TrackTotal = (int)audioAspect[AudioAspect.ATTR_NUMTRACKS];
+        DiscId = track.DiscNum;
+        DiscTotal = track.TotalDiscs;
+        Duration = track.Duration;
+        Lyrics = track.TrackLyrics;
+        Rating = Convert.ToInt32(track.Rating.RatingValue ?? 0);
+        SampleRate = Convert.ToInt32(track.SampleRate);
+        TimesPlayed = mediaAspect.GetAttributeValue<int>(MediaAspect.ATTR_PLAYCOUNT);
+        Title = track.TrackName;
+        Track = track.TrackNum;
+        TrackTotal = track.TotalTracks;
         URL = String.Empty;
         WebImage = String.Empty;
-        Year = 0;
-
-        //ImageName = MediaPortal.Util.Utils.GetAlbumThumbName(song.Artist, song.Album);
-        //ImageName = MediaPortal.Util.Utils.ConvertToLargeCoverArt(ImageName);
+        Year = track.ReleaseDate.Value.Year;
+        ImageName = Helper.GetImageBaseURL(song, FanArtMediaTypes.Audio, FanArtTypes.Cover);
       }
       catch (Exception e)
       {

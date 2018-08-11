@@ -1,7 +1,29 @@
-﻿using System;
+﻿#region Copyright (C) 2007-2015 Team MediaPortal
+
+/*
+    Copyright (C) 2007-2015 Team MediaPortal
+    http://www.team-mediaportal.com
+
+    This file is part of MediaPortal 2
+
+    MediaPortal 2 is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    MediaPortal 2 is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with MediaPortal 2. If not, see <http://www.gnu.org/licenses/>.
+*/
+
+#endregion
+
+using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
@@ -11,7 +33,12 @@ using MediaPortal.Common.MediaManagement.MLQueries;
 using MediaPortal.UiComponents.Media.Models;
 using MediaPortal.UI.Presentation.Players;
 using MediaPortal.UI.ServerCommunication;
-using MediaPortal.UI.SkinEngine.Players;
+using MediaPortal.Common.FanArt;
+using MediaPortal.Common.ResourceAccess;
+using MediaPortal.Common.Services.ResourceAccess.Settings;
+using System.Net.Sockets;
+using System.Net;
+using MediaPortal.Common.Settings;
 
 namespace MediaPortal.Plugins.WifiRemote
 {
@@ -26,7 +53,7 @@ namespace MediaPortal.Plugins.WifiRemote
       return isPlaying;
     }
 
-    internal static MediaItem GetMediaItemById(Guid id)
+    internal static async Task<MediaItem> GetMediaItemByIdAsync(Guid id)
     {
       ISet<Guid> necessaryMIATypes = new HashSet<Guid>();
       necessaryMIATypes.Add(MediaAspect.ASPECT_ID);
@@ -42,12 +69,12 @@ namespace MediaPortal.Plugins.WifiRemote
 
       IFilter searchFilter = new MediaItemIdFilter(id);
       MediaItemQuery searchQuery = new MediaItemQuery(necessaryMIATypes, optionalMIATypes, searchFilter) { Limit = 1 };
-      IList<MediaItem> items = ServiceRegistration.Get<IServerConnectionManager>().ContentDirectory.Search(searchQuery, false, null, false);
+      IList<MediaItem> items = await ServiceRegistration.Get<IServerConnectionManager>().ContentDirectory.SearchAsync(searchQuery, false, null, false);
 
       return items[0];
     }
 
-    internal static void PlayMediaItem(Guid mediaItemGuid, int startPos)
+    internal static async Task PlayMediaItemAsync(Guid mediaItemGuid, int startPos)
     {
       ISet<Guid> necessaryMIATypes = new HashSet<Guid>();
       necessaryMIATypes.Add(MediaAspect.ASPECT_ID);
@@ -63,7 +90,7 @@ namespace MediaPortal.Plugins.WifiRemote
 
       IFilter searchFilter = new MediaItemIdFilter(mediaItemGuid);
       MediaItemQuery searchQuery = new MediaItemQuery(necessaryMIATypes, optionalMIATypes, searchFilter) { Limit = 1 };
-      IList<MediaItem> items = ServiceRegistration.Get<IServerConnectionManager>().ContentDirectory.Search(searchQuery, false);
+      IList<MediaItem> items = await ServiceRegistration.Get<IServerConnectionManager>().ContentDirectory.SearchAsync(searchQuery, false, null, false);
 
       if (items.Count == 0)
       {
@@ -71,7 +98,7 @@ namespace MediaPortal.Plugins.WifiRemote
         return;
       }
 
-      PlayItemsModel.PlayItem(items[0]);
+      await PlayItemsModel.PlayItem(items[0]);
 
       SetPosition(startPos, true);
     }
@@ -122,6 +149,74 @@ namespace MediaPortal.Plugins.WifiRemote
           mediaPlaybackControl.CurrentTime = finalPosition;
         }
       }
+    }
+
+    internal static string GetImageBaseURL(MediaItem item, string fanartType = null, string imageType = null)
+    {
+      string mediaType = fanartType ?? FanArtMediaTypes.Undefined;
+      if (string.IsNullOrEmpty(fanartType))
+      {
+        if (item.Aspects.ContainsKey(ImageAspect.ASPECT_ID)) mediaType = FanArtMediaTypes.Image;
+        else if (item.Aspects.ContainsKey(MovieAspect.ASPECT_ID)) mediaType = FanArtMediaTypes.Movie;
+        else if (item.Aspects.ContainsKey(MovieCollectionAspect.ASPECT_ID)) mediaType = FanArtMediaTypes.MovieCollection;
+        else if (item.Aspects.ContainsKey(SeriesAspect.ASPECT_ID)) mediaType = FanArtMediaTypes.Series;
+        else if (item.Aspects.ContainsKey(SeasonAspect.ASPECT_ID)) mediaType = FanArtMediaTypes.SeriesSeason;
+        else if (item.Aspects.ContainsKey(AudioAspect.ASPECT_ID)) mediaType = FanArtMediaTypes.Audio;
+        else if (item.Aspects.ContainsKey(AudioAlbumAspect.ASPECT_ID)) mediaType = FanArtMediaTypes.Album;
+        else if (item.Aspects.ContainsKey(EpisodeAspect.ASPECT_ID)) mediaType = FanArtMediaTypes.Episode;
+        else if (item.Aspects.ContainsKey(CharacterAspect.ASPECT_ID)) mediaType = FanArtMediaTypes.Character;
+      }
+      string fanartImageType = imageType ?? FanArtTypes.Thumbnail;
+
+      // Using MP2's FanArtService provides access to all kind of resources, thumbnails from ML and also local fanart from filesystem
+      string url = string.Format("{0}/FanartService?mediatype={1}&fanarttype={2}&name={3}&width={4}&height={5}",
+        GetBaseResourceURL(), mediaType, fanartImageType, item.MediaItemId,
+        320, 480);
+      return url;
+    }
+
+    internal static string GetBaseResourceURL()
+    {
+      var rs = ServiceRegistration.Get<IResourceServer>();
+      return rs.GetServiceUrl(GetLocalIp());
+    }
+
+    internal static IPAddress GetLocalIp()
+    {
+      bool useIPv4 = true;
+      bool useIPv6 = false;
+      ServerSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<ServerSettings>();
+      if (settings.UseIPv4) useIPv4 = true;
+      if (settings.UseIPv6) useIPv6 = true;
+
+      var host = Dns.GetHostEntry(Dns.GetHostName());
+      IPAddress ip6 = null;
+      foreach (var ip in host.AddressList)
+      {
+        if (IPAddress.IsLoopback(ip) == true)
+        {
+          continue;
+        }
+        if (useIPv4)
+        {
+          if (ip.AddressFamily == AddressFamily.InterNetwork)
+          {
+            return ip;
+          }
+        }
+        if (useIPv6)
+        {
+          if (ip.AddressFamily == AddressFamily.InterNetworkV6)
+          {
+            ip6 = ip;
+          }
+        }
+      }
+      if (ip6 != null)
+      {
+        return ip6;
+      }
+      return null;
     }
   }
 }

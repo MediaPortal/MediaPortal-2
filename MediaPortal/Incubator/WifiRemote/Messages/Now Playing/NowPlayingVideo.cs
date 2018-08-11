@@ -1,9 +1,36 @@
-﻿using System;
+﻿#region Copyright (C) 2007-2015 Team MediaPortal
+
+/*
+    Copyright (C) 2007-2015 Team MediaPortal
+    http://www.team-mediaportal.com
+
+    This file is part of MediaPortal 2
+
+    MediaPortal 2 is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    MediaPortal 2 is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with MediaPortal 2. If not, see <http://www.gnu.org/licenses/>.
+*/
+
+#endregion
+
+using System;
+using System.Linq;
+using MediaPortal.Common.FanArt;
 using MediaPortal.Common.MediaManagement;
-using MediaPortal.Common.MediaManagement.DefaultItemAspects;
+using MediaPortal.Common.MediaManagement.Helpers;
+using MediaPortal.Plugins.WifiRemote;
 using MediaPortal.Plugins.WifiRemote.Messages.Now_Playing;
 
-namespace WifiRemote
+namespace MediaPortal.Plugins.WifiRemote
 {
   public class NowPlayingVideo : IAdditionalNowPlayingInfo
   {
@@ -176,22 +203,24 @@ namespace WifiRemote
     /// Constructor
     /// </summary>
     /// <param name="aMovie">The currently playing movie</param>
-    public NowPlayingVideo(MediaItem aMovie)
+    public NowPlayingVideo(MediaItem mediaItem)
     {
-      var movieAspect = aMovie[VideoAspect.Metadata];
-      ItemId = aMovie.MediaItemId;
-      Summary = (string)movieAspect[VideoAspect.ATTR_STORYPLOT];
-      Title = (string)aMovie[MediaAspect.Metadata][MediaAspect.ATTR_TITLE];
-      Tagline = String.Empty;
-      Directors = (string)movieAspect[VideoAspect.ATTR_DIRECTORS];
-      Writers = (string)movieAspect[VideoAspect.ATTR_WRITERS];
-      Actors = (string)movieAspect[VideoAspect.ATTR_ACTORS];
-      Rating = String.Empty;
-      Year = 0;
-      Genres = (string)movieAspect[VideoAspect.ATTR_GENRES];
-      Certification = String.Empty;
+      MovieInfo movie = new MovieInfo();
+      movie.FromMetadata(mediaItem.Aspects);
 
-      //ImageUrl = aMovie.ThumbURL;
+      ItemId = mediaItem.MediaItemId;
+      Title = movie.MovieName.Text;
+      Directors = String.Join(", ", movie.Directors);
+      Writers = String.Join(", ", movie.Writers);
+      Actors = String.Join(", ", movie.Actors);
+      Genres = String.Join(", ", movie.Genres.Select(g => g.Name));
+      Rating = String.Empty;
+      Year = movie.ReleaseDate.Value.Year;
+      Certification = String.Empty;
+      Tagline = String.Empty;
+      Summary = movie.Summary.Text;
+      //DetailsUrl = match.DetailsURL;
+      ImageUrl = Helper.GetImageBaseURL(mediaItem, FanArtMediaTypes.Undefined, FanArtTypes.Thumbnail);
     }
   }
 }

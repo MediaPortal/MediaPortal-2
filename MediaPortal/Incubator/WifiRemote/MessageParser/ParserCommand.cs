@@ -1,8 +1,33 @@
-﻿using System;
+﻿#region Copyright (C) 2007-2015 Team MediaPortal
+
+/*
+    Copyright (C) 2007-2015 Team MediaPortal
+    http://www.team-mediaportal.com
+
+    This file is part of MediaPortal 2
+
+    MediaPortal 2 is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    MediaPortal 2 is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with MediaPortal 2. If not, see <http://www.gnu.org/licenses/>.
+*/
+
+#endregion
+
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading;
+using System.Threading.Tasks;
 using Deusty.Net;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
@@ -24,14 +49,14 @@ namespace MediaPortal.Plugins.WifiRemote.MessageParser
     private static Stopwatch _mKeyDownTimer;
     private static IDictionary<string, IGeometry> availableGeometries = ServiceRegistration.Get<IGeometryManager>().AvailableGeometries;
 
-    public static bool Parse(JObject message, SocketServer server, AsyncSocket sender)
+    public static Task<bool> ParseAsync(JObject message, SocketServer server, AsyncSocket sender)
     {
       ServiceRegistration.Get<ILogger>().Debug("ParserCommand: command: {0}", (string)message["Command"]);
       SendCommand((string)message["Command"]);
-      return true;
+      return Task.FromResult(true);
     }
 
-    public static bool ParseCommandStartRepeat(JObject message, SocketServer server, AsyncSocket sender)
+    public static Task<bool> ParseCommandStartRepeatAsync(JObject message, SocketServer server, AsyncSocket sender)
     {
       _commandDownChar = (string)message["Command"];
       _commandDownPauses = (int)message["Pause"];
@@ -43,16 +68,16 @@ namespace MediaPortal.Plugins.WifiRemote.MessageParser
         _commandDownThread.Start();
       }
 
-      return true;
+      return Task.FromResult(true);
     }
 
     /// <summary>
     /// Sends key-up so a running key-down is cancelled
     /// </summary>
-    public static bool ParseCommandStopRepeat(JObject message, SocketServer server, AsyncSocket sender)
+    public static Task<bool> ParseCommandStopRepeatAsync(JObject message, SocketServer server, AsyncSocket sender)
     {
       _isCommandDown = false;
-      return true;
+      return Task.FromResult(true);
     }
 
     /// <summary>

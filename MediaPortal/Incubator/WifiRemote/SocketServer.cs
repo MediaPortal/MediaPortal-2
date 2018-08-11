@@ -1,7 +1,29 @@
-﻿using System;
+﻿#region Copyright (C) 2007-2015 Team MediaPortal
+
+/*
+    Copyright (C) 2007-2015 Team MediaPortal
+    http://www.team-mediaportal.com
+
+    This file is part of MediaPortal 2
+
+    MediaPortal 2 is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    MediaPortal 2 is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with MediaPortal 2. If not, see <http://www.gnu.org/licenses/>.
+*/
+
+#endregion
+
+using System;
 using System.Collections.Generic;
-using System.Data.SqlTypes;
-using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Deusty.Net;
@@ -10,10 +32,7 @@ using MediaPortal.Common.Logging;
 using MediaPortal.Plugins.WifiRemote.MessageParser;
 using MediaPortal.Plugins.WifiRemote.Messages;
 using MediaPortal.Plugins.WifiRemote.SendMessages;
-using MediaPortal.UI.Control.InputManager;
-using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using WifiRemote;
 
 namespace MediaPortal.Plugins.WifiRemote
 {
@@ -36,32 +55,32 @@ namespace MediaPortal.Plugins.WifiRemote
     
 
     // This function specifies all the different Message Types and Maps the processing function to it.
-    private readonly Dictionary<string, Func<JObject, SocketServer, AsyncSocket, bool>> MessageType = new Dictionary<string, Func<JObject, SocketServer, AsyncSocket, bool>>()
+    private readonly Dictionary<string, Func<JObject, SocketServer, AsyncSocket, Task<bool>>> MessageType = new Dictionary<string, Func<JObject, SocketServer, AsyncSocket, Task<bool>>>()
     {
-      { "command", ParserCommand.Parse },
-      { "key", ParserKey.Parse },
-      { "commandstartrepeat", ParserCommand.ParseCommandStartRepeat },
-      { "commandstoprepeat", ParserCommand.ParseCommandStopRepeat },
+      { "command", ParserCommand.ParseAsync },
+      { "key", ParserKey.ParseAsync },
+      { "commandstartrepeat", ParserCommand.ParseCommandStartRepeatAsync },
+      { "commandstoprepeat", ParserCommand.ParseCommandStopRepeatAsync },
       /*{ "window", new Func<int, int, int>(Func1) },
       { "activatewindow", new Func<int, int, int>(Func1) },
       { "dialog", new Func<int, int, int>(Func1) },
       { "facade", new Func<int, int, int>(Func1) },*/
-      { "powermode", ParserPowermode.Parse },
-      { "volume", ParserVolume.Parse },
-      { "position", ParserPosition.Parse },
-      { "playfile", ParserPlayFile.Parse },
-      { "playchannel", ParserPlaychannel.Parse },
-      { "playradiochannel", ParserPlaychannel.Parse },  // should be the same as playchannel in MP2
+      { "powermode", ParserPowermode.ParseAsync },
+      { "volume", ParserVolume.ParseAsync },
+      { "position", ParserPosition.ParseAsync },
+      { "playfile", ParserPlayFile.ParseAsync },
+      { "playchannel", ParserPlaychannel.ParseAsync },
+      { "playradiochannel", ParserPlaychannel.ParseAsync },  // should be the same as playchannel in MP2
       /*{ "playrecording", new Func<int, int, int>(Func1) },*/
-      { "mpext", ParserMPExt.Parse },
+      { "mpext", ParserMPExt.ParseAsync },
       //{ "plugins", new Func<int, int, int>(Func1) },
-      { "properties", ParserProperties.Parse },
+      { "properties", ParserProperties.ParseAsync },
       /*{ "image", new Func<int, int, int>(Func1) },*/
-      { "screenshot", ParserScreenshot.Parse },
-      { "playlist", ParserPlaylist.Parse },
-      { "requeststatus", ParserRequeststatus.Parse },
-      { "requestnowplaying", ParserRequestnowplaying.Parse },
-      { "movingpictures", ParserMovingpictures.Parse },
+      { "screenshot", ParserScreenshot.ParseAsync },
+      { "playlist", ParserPlaylist.ParseAsync },
+      { "requeststatus", ParserRequeststatus.ParseAsync },
+      { "requestnowplaying", ParserRequestnowplaying.ParseAsync },
+      { "movingpictures", ParserMovingpictures.ParseAsync },
       /*{ "tvseries", new Func<int, int, int>(Func1) },
       { "message", new Func<int, int, int>(Func1) },
       { "showdialog", new Func<int, int, int>(Func1) }*/
@@ -333,7 +352,7 @@ namespace MediaPortal.Plugins.WifiRemote
         // The client is already authentificated or we don't need authentification
         if (type != null && client.IsAuthenticated && type != "identify")
         {
-          Func<JObject, SocketServer, AsyncSocket, bool> function;
+          Func<JObject, SocketServer, AsyncSocket, Task<bool>> function;
           if (MessageType.TryGetValue(type, out function))
           {
             Logger.Info("WifiRemote: MessageType: {0} got called", type);

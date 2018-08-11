@@ -1,28 +1,51 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+#region Copyright (C) 2007-2015 Team MediaPortal
+
+/*
+    Copyright (C) 2007-2015 Team MediaPortal
+    http://www.team-mediaportal.com
+
+    This file is part of MediaPortal 2
+
+    MediaPortal 2 is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    MediaPortal 2 is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with MediaPortal 2. If not, see <http://www.gnu.org/licenses/>.
+*/
+
+#endregion
+
 using Deusty.Net;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Common.SystemCommunication;
-using MediaPortal.Common.UPnP;
 using MediaPortal.Plugins.WifiRemote.Messages;
 using MediaPortal.Plugins.WifiRemote.Messages.Playlist;
 using MediaPortal.Plugins.WifiRemote.SendMessages;
-using MediaPortal.UiComponents.Media.Actions;
 using MediaPortal.UiComponents.Media.Models;
 using MediaPortal.UI.Presentation.Players;
 using MediaPortal.UI.ServerCommunication;
 using MediaPortal.Utilities;
 using Newtonsoft.Json.Linq;
+using System.Threading.Tasks;
 
 namespace MediaPortal.Plugins.WifiRemote.MessageParser
 {
   internal class ParserPlaylist
   {
-    public static bool Parse(JObject message, SocketServer server, AsyncSocket sender)
+    public static async Task<bool> ParseAsync(JObject message, SocketServer server, AsyncSocket sender)
     {
       string action = (string)message["PlaylistAction"];
       string playlistType = (message["PlaylistType"] != null) ? (string)message["PlaylistType"] : "music";
@@ -66,7 +89,7 @@ namespace MediaPortal.Plugins.WifiRemote.MessageParser
                 continue;
               }
 
-              MediaItem item = Helper.GetMediaItemById(itemid);
+              MediaItem item = await Helper.GetMediaItemByIdAsync(itemid);
               if (item == null)
               {
                 ServiceRegistration.Get<ILogger>().Warn("ParserPlaylist: Not media item found");
@@ -104,26 +127,11 @@ namespace MediaPortal.Plugins.WifiRemote.MessageParser
         string playlistPath = (string)message["PlaylistPath"];
 
         Guid playlistId;
-
         if ((!string.IsNullOrEmpty(playlistName) || !string.IsNullOrEmpty(playlistPath)) && Guid.TryParse(playlistPath, out playlistId))
         {
           // TODO: does this work?!
-          IContentDirectory cd = ServiceRegistration.Get<IServerConnectionManager>().ContentDirectory;
-          Guid[] necessaryMIATypes = new Guid[]
-          {
-              ProviderResourceAspect.ASPECT_ID,
-              MediaAspect.ASPECT_ID,
-          };
-          Guid[] optionalMIATypes = new Guid[]
-          {
-              AudioAspect.ASPECT_ID,
-              VideoAspect.ASPECT_ID,
-              ImageAspect.ASPECT_ID,
-          };
-
-          PlaylistRawData playlistData = cd.ExportPlaylist(playlistId);
-          PlayItemsModel.CheckQueryPlayAction(() => CollectionUtils.Cluster(playlistData.MediaItemIds, 1000).SelectMany(itemIds =>
-                cd.LoadCustomPlaylist(itemIds, necessaryMIATypes, optionalMIATypes)), AVType.None); // AvType?!
+          var items = await LoadPlayListsAsync(playlistId);
+          PlayItemsModel.CheckQueryPlayAction(() => items, AVType.None); // AvType?!
           /*PlaylistHelper.LoadPlaylist(playlistType, (!string.IsNullOrEmpty(playlistName)) ? playlistName : playlistPath, shuffle);
           if (autoPlay)
           {
@@ -222,6 +230,30 @@ namespace MediaPortal.Plugins.WifiRemote.MessageParser
       }
 
       return true;
+    }
+
+    internal static async Task<IEnumerable<MediaItem>> LoadPlayListsAsync(Guid playlistId)
+    {
+      IContentDirectory cd = ServiceRegistration.Get<IServerConnectionManager>().ContentDirectory;
+      Guid[] necessaryMIATypes = new Guid[]
+      {
+              ProviderResourceAspect.ASPECT_ID,
+              MediaAspect.ASPECT_ID,
+      };
+      Guid[] optionalMIATypes = new Guid[]
+      {
+              AudioAspect.ASPECT_ID,
+              VideoAspect.ASPECT_ID,
+              ImageAspect.ASPECT_ID,
+      };
+
+      PlaylistRawData playlistData = await cd.ExportPlaylistAsync(playlistId);
+      List<MediaItem> items = new List<MediaItem>();
+      foreach (var cluster in CollectionUtils.Cluster(playlistData.MediaItemIds, 1000))
+      {
+        items.AddRange(await cd.LoadCustomPlaylistAsync(cluster, necessaryMIATypes, optionalMIATypes));
+      }
+      return items;
     }
 
     internal static ILogger Logger

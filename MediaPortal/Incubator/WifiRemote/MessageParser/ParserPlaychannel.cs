@@ -1,28 +1,36 @@
-﻿using System;
+﻿#region Copyright (C) 2007-2015 Team MediaPortal
+
+/*
+    Copyright (C) 2007-2015 Team MediaPortal
+    http://www.team-mediaportal.com
+
+    This file is part of MediaPortal 2
+
+    MediaPortal 2 is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    MediaPortal 2 is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with MediaPortal 2. If not, see <http://www.gnu.org/licenses/>.
+*/
+
+#endregion
+
 using System.Collections.Concurrent;
-using System.Collections.Generic;
-using System.Drawing;
-using System.Drawing.Imaging;
-using System.Linq;
-using System.Runtime.InteropServices;
-using System.Text;
 using System.Threading.Tasks;
-using System.Windows.Forms;
 using Deusty.Net;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
-using MediaPortal.Plugins.SlimTv.Client.Helpers;
 using MediaPortal.Plugins.SlimTv.Client.Models;
-using MediaPortal.Plugins.SlimTv.Client.Player;
 using MediaPortal.Plugins.SlimTv.Interfaces;
-using MediaPortal.Plugins.SlimTv.Interfaces.Items;
-using MediaPortal.Plugins.WifiRemote.Messages;
-using MediaPortal.Plugins.WifiRemote.SendMessages;
 using MediaPortal.Plugins.WifiRemote.Utils;
-using MediaPortal.UI.Presentation;
-using MediaPortal.UI.Presentation.Screens;
 using MediaPortal.UI.Presentation.Workflow;
-using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
 namespace MediaPortal.Plugins.WifiRemote.MessageParser
@@ -32,7 +40,7 @@ namespace MediaPortal.Plugins.WifiRemote.MessageParser
     private static ImageHelper _imageHelper;
     private static ConcurrentDictionary<AsyncSocket, int> _socketsWaitingForScreenshot;
     
-    public static bool Parse(JObject message, SocketServer server, AsyncSocket sender)
+    public static async Task<bool> ParseAsync(JObject message, SocketServer server, AsyncSocket sender)
     {
       int channelId = (int)message["ChannelId"];
       bool startFullscreen = (message["StartFullscreen"] != null) && (bool)message["StartFullscreen"];
@@ -44,8 +52,8 @@ namespace MediaPortal.Plugins.WifiRemote.MessageParser
       }
 
       ITvHandler tvHandler = ServiceRegistration.Get<ITvHandler>();
-      IChannel channel;
-      if (!tvHandler.ChannelAndGroupInfo.GetChannel(channelId, out channel))
+      var channel = await tvHandler.ChannelAndGroupInfo.GetChannelAsync(channelId);
+      if (!channel.Success)
       {
         Logger.Info("WifiRemote: playchannel - Channel with id '{0}' not found", channelId);
         return false;
@@ -54,7 +62,7 @@ namespace MediaPortal.Plugins.WifiRemote.MessageParser
       IWorkflowManager workflowManager = ServiceRegistration.Get<IWorkflowManager>();
       SlimTvClientModel model = workflowManager.GetModel(SlimTvClientModel.MODEL_ID) as SlimTvClientModel;
       if (model != null)
-        model.Tune(channel);
+        await model.Tune(channel.Result);
 
       return true;
     }

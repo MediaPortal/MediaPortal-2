@@ -1,22 +1,35 @@
-﻿using System;
+﻿#region Copyright (C) 2007-2015 Team MediaPortal
+
+/*
+    Copyright (C) 2007-2015 Team MediaPortal
+    http://www.team-mediaportal.com
+
+    This file is part of MediaPortal 2
+
+    MediaPortal 2 is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    MediaPortal 2 is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with MediaPortal 2. If not, see <http://www.gnu.org/licenses/>.
+*/
+
+#endregion
+
 using System.Collections.Concurrent;
-using System.Collections.Generic;
-using System.Drawing;
-using System.Drawing.Imaging;
-using System.Linq;
-using System.Runtime.InteropServices;
-using System.Text;
 using System.Threading.Tasks;
-using System.Windows.Forms;
 using Deusty.Net;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
 using MediaPortal.Plugins.WifiRemote.Messages;
 using MediaPortal.Plugins.WifiRemote.SendMessages;
 using MediaPortal.Plugins.WifiRemote.Utils;
-using MediaPortal.UI.Presentation;
-using MediaPortal.UI.Presentation.Screens;
-using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
 namespace MediaPortal.Plugins.WifiRemote.MessageParser
@@ -26,7 +39,7 @@ namespace MediaPortal.Plugins.WifiRemote.MessageParser
     private static ImageHelper _imageHelper;
     private static ConcurrentDictionary<AsyncSocket, int> _socketsWaitingForScreenshot;
     
-    public static bool Parse(JObject message, SocketServer server, AsyncSocket sender)
+    public static Task<bool> ParseAsync(JObject message, SocketServer server, AsyncSocket sender)
     {
       if (_socketsWaitingForScreenshot == null)
       {
@@ -49,13 +62,13 @@ namespace MediaPortal.Plugins.WifiRemote.MessageParser
 
       _imageHelper.TakeScreenshot();
 
-      return true;
+      return Task.FromResult(true);
     }
 
     /// <summary>
     /// A requested screenshot is ready, send it to all interested clients
     /// </summary>
-    static void ImageHelperScreenshotReady()
+    private static void ImageHelperScreenshotReady()
     {
       foreach (var pair in _socketsWaitingForScreenshot)
       {
@@ -69,7 +82,7 @@ namespace MediaPortal.Plugins.WifiRemote.MessageParser
     /// The screenshot could not be taken. Inform clients.
     /// </summary>
     /// <param name="error"></param>
-    static void ImageHelperScreenshotFailed(ImageHelperError error)
+    private static void ImageHelperScreenshotFailed(ImageHelperError error)
     {
       foreach (var pair in _socketsWaitingForScreenshot)
       {
@@ -82,7 +95,7 @@ namespace MediaPortal.Plugins.WifiRemote.MessageParser
     /// <summary>
     /// Send the current screenshot to the client as byte array
     /// </summary>
-    static void SendScreenshotToClient(AsyncSocket sender, int width, ImageHelperError error)
+    private static void SendScreenshotToClient(AsyncSocket sender, int width, ImageHelperError error)
     {
       MessageScreenshot screenshot = new MessageScreenshot();
 

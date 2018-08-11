@@ -1,18 +1,40 @@
-﻿using System;
+﻿#region Copyright (C) 2007-2015 Team MediaPortal
+
+/*
+    Copyright (C) 2007-2015 Team MediaPortal
+    http://www.team-mediaportal.com
+
+    This file is part of MediaPortal 2
+
+    MediaPortal 2 is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    MediaPortal 2 is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with MediaPortal 2. If not, see <http://www.gnu.org/licenses/>.
+*/
+
+#endregion
+
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using MediaPortal.Common;
-using MediaPortal.Common.Localization;
+using MediaPortal.Common.FanArt;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
-using MediaPortal.Common.MediaManagement.MLQueries;
-using MediaPortal.Common.SystemCommunication;
+using MediaPortal.Common.MediaManagement.Helpers;
+using MediaPortal.Plugins.WifiRemote;
 using MediaPortal.Plugins.WifiRemote.Messages.Now_Playing;
-using MediaPortal.UiComponents.Media.General;
-using MediaPortal.UI.ServerCommunication;
 
-namespace WifiRemote
+namespace MediaPortal.Plugins.WifiRemote
 {
   internal class NowPlayingSeries : IAdditionalNowPlayingInfo
   {
@@ -51,12 +73,12 @@ namespace WifiRemote
       set { seriesId = value; }
     }
 
-    private string seasonId;
+    private Guid seasonId;
 
     /// <summary>
     /// ID of the season in TVSeries' DB
     /// </summary>
-    public string SeasonId
+    public Guid SeasonId
     {
       get { return seasonId; }
       set { seasonId = value; }
@@ -258,59 +280,39 @@ namespace WifiRemote
       {
         episodeFound = true;
 
-        ISet<Guid> necessaryMIATypes = new HashSet<Guid>();
-        necessaryMIATypes.Add(MediaAspect.ASPECT_ID);
+        SeriesId = Guid.Empty;
+        SeasonId = Guid.Empty;
+        if (mediaItem.Aspects.ContainsKey(EpisodeAspect.ASPECT_ID))
+        {
+          if (MediaItemAspect.TryGetAspects(mediaItem.Aspects, RelationshipAspect.Metadata, out IList<MultipleMediaItemAspect> relationAspects))
+          {
+            foreach (MultipleMediaItemAspect relation in relationAspects)
+            {
+              if ((Guid?)relation[RelationshipAspect.ATTR_LINKED_ROLE] == SeriesAspect.ROLE_SERIES)
+                SeriesId = (Guid)relation[RelationshipAspect.ATTR_LINKED_ID];
+              if ((Guid?)relation[RelationshipAspect.ATTR_LINKED_ROLE] == SeasonAspect.ROLE_SEASON)
+                SeasonId = (Guid)relation[RelationshipAspect.ATTR_LINKED_ID];
+            }
+          }
+        }
 
-        // show
-        IFilter searchFilter = new RelationalFilter(MediaAspect.ATTR_TITLE, RelationalOperator.EQ, (string)mediaItem[EpisodeAspect.Metadata][EpisodeAspect.ATTR_SERIESNAME]);
-        MediaItemQuery searchQuery = new MediaItemQuery(necessaryMIATypes, null, searchFilter);
-
-        IList<MediaItem> show = ServiceRegistration.Get<IServerConnectionManager>().ContentDirectory.Search(searchQuery, false);
-        Guid showId = Guid.Empty;
-        if (show.Count > 0)
-          showId = show[0].MediaItemId;
-
-        SeriesId = showId;
-        SeasonId = String.Format("{0}:{1}", showId, (int)mediaItem[EpisodeAspect.Metadata][EpisodeAspect.ATTR_SEASON]);
-        EpisodeId = mediaItem.MediaItemId;
         //CompositeId = episodes[0].fullItem[DBEpisode.cCompositeID];
 
-        var episodeNumber = (List<int>)mediaItem[EpisodeAspect.Metadata][EpisodeAspect.ATTR_EPISODE];
-        Episode = episodeNumber[0];
-        Season = (int)mediaItem[EpisodeAspect.Metadata][EpisodeAspect.ATTR_SEASON];
-        Plot = (string)mediaItem[VideoAspect.Metadata][VideoAspect.ATTR_STORYPLOT];
-        Title = (string)mediaItem[MediaAspect.Metadata][MediaAspect.ATTR_TITLE];
-        var videoDirectors = (List<string>)mediaItem[VideoAspect.Metadata][VideoAspect.ATTR_DIRECTORS];
-        if (videoDirectors != null)
-          Director = String.Join(", ", videoDirectors.Cast<string>().ToArray());
+        EpisodeInfo episode = new EpisodeInfo();
+        episode.FromMetadata(mediaItem.Aspects);
 
-        var videoWriters = (List<string>)mediaItem[VideoAspect.Metadata][VideoAspect.ATTR_WRITERS];
-        if (videoWriters != null)
-          Writer = String.Join(", ", videoWriters.Cast<string>().ToArray());
-
-        var videoGenres = (List<string>)mediaItem[VideoAspect.Metadata][VideoAspect.ATTR_GENRES];
-        if (videoGenres != null)
-          Genre = String.Join(", ", videoGenres.Cast<string>().ToArray());
-
-        var firstAired = mediaItem[EpisodeAspect.Metadata][EpisodeAspect.ATTR_FIRSTAIRED];
-        if (firstAired != null)
-          AirDate = ((DateTime)mediaItem[EpisodeAspect.Metadata][EpisodeAspect.ATTR_FIRSTAIRED]).ToLongDateString();
-
-        MyRating = Convert.ToString((double)mediaItem[EpisodeAspect.Metadata][EpisodeAspect.ATTR_TOTAL_RATING]);
-
-        //DBSeries s = Helper.getCorrespondingSeries(episodes[0].onlineEpisode[DBOnlineEpisode.cSeriesID]);
-        Series = (string)mediaItem[EpisodeAspect.Metadata][EpisodeAspect.ATTR_SERIESNAME];
+        Episode = episode.EpisodeNumbers.First();
+        Season = episode.SeasonNumber.Value;
+        Plot = episode.Summary.Text;
+        Title = episode.EpisodeName.Text;
+        Director = String.Join(", ", episode.Directors);
+        Writer = String.Join(", ", episode.Writers);
+        Genre = String.Join(", ", episode.Genres.Select(g => g.Name));
+        AirDate = episode.FirstAired.HasValue ? episode.FirstAired.Value.ToLongDateString() : "";
+        MyRating = Convert.ToString(episode.Rating.RatingValue ?? 0);
+        Series = episode.SeriesName.Text;
         //Status = s[DBOnlineSeries.cStatus];
-
-        // Get season poster path
-        //DBSeason season = DBSeason.getRaw(SeriesId, episodes[0].onlineEpisode[DBOnlineEpisode.cSeasonIndex]);
-        //ImageName = ImageAllocator.GetSeasonBannerAsFilename(season);
-
-        // Fall back to series poster if no season poster is available
-        if (String.IsNullOrEmpty(ImageName))
-        {
-          //ImageName = ImageAllocator.GetSeriesPosterAsFilename(s);
-        }
+        ImageName = Helper.GetImageBaseURL(mediaItem, FanArtMediaTypes.Episode, FanArtTypes.Thumbnail);
       }
       catch (Exception e)
       {
