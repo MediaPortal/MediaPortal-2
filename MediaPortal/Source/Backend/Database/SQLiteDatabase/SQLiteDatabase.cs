@@ -524,6 +524,7 @@ namespace MediaPortal.Database.SQLite
     {
       bool result = false;
       List<string> tables = new List<string>();
+      List<string> indexes = new List<string>();
       List<string> constrainedTables = new List<string>();
       Dictionary<string, string> tableSqls = new Dictionary<string, string> ();
       using (var transaction = BeginTransaction())
@@ -556,6 +557,17 @@ namespace MediaPortal.Database.SQLite
                   tableSqls[table] = tableSqls[table].Substring(0, tableSqls[table].Length - 1) + ")";
                 }
               }
+            }
+          }
+
+          //Find all indexes
+          cmd.CommandText = @"SELECT name FROM sqlite_master WHERE type='index'";
+          using (IDataReader reader = cmd.ExecuteReader())
+          {
+            while (reader.Read())
+            {
+              string index = reader.GetString(0);
+              indexes.Add(index);
             }
           }
 
@@ -603,6 +615,14 @@ namespace MediaPortal.Database.SQLite
             {
               //Drop table
               cmd.CommandText = $"DROP TABLE IF EXISTS {table}";
+              cmd.ExecuteNonQuery();
+            }
+
+            //Drop all indexes so they can be recreated
+            foreach (var index in indexes)
+            {
+              //Drop index
+              cmd.CommandText = $"DROP INDEX IF EXISTS {index}";
               cmd.ExecuteNonQuery();
             }
           }
@@ -665,6 +685,9 @@ namespace MediaPortal.Database.SQLite
       {
         using (var cmd = connection.CreateCommand())
         {
+          //File based temp storage to avoid OOM errors
+          cmd.CommandText = @"PRAGMA temp_store=FILE";
+          cmd.ExecuteNonQuery();
           try
           {
             //Shrink and optimize database
@@ -674,6 +697,15 @@ namespace MediaPortal.Database.SQLite
           catch (Exception e)
           {
             ServiceRegistration.Get<ILogger>().Error("SQLiteDatabase: Error shrinking database", e);
+          }
+          finally
+          {
+            //Restore default temp storage
+            if (_settings.UseTempStoreMemory)
+              cmd.CommandText = @"PRAGMA temp_store=MEMORY";
+            else
+              cmd.CommandText = @"PRAGMA temp_store=DEFAULT";
+            cmd.ExecuteNonQuery();
           }
         }
       }
