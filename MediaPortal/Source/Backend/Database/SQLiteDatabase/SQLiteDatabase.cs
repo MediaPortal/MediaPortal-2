@@ -709,6 +709,9 @@ namespace MediaPortal.Database.SQLite
           }
         }
       }
+      //Wait for garbage collection of temporary files
+      GC.Collect();
+      GC.WaitForPendingFinalizers();
       return true;
     }
 
