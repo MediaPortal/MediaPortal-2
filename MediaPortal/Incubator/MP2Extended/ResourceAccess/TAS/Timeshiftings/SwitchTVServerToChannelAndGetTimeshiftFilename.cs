@@ -25,7 +25,6 @@
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.MediaManagement;
-using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Common.ResourceAccess;
 using MediaPortal.Plugins.MP2Extended.Attributes;
 using MediaPortal.Plugins.MP2Extended.Exceptions;
@@ -34,6 +33,8 @@ using MediaPortal.Plugins.SlimTv.Interfaces;
 using MediaPortal.Plugins.SlimTv.Interfaces.Items;
 using MediaPortal.Plugins.SlimTv.Interfaces.ResourceProvider;
 using MP2Extended.Extensions;
+using System.Threading.Tasks;
+using Microsoft.Owin;
 
 namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.TAS.Timeshiftings
 {
@@ -42,24 +43,16 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.TAS.Timeshiftings
   [ApiFunctionParam(Name = "userName", Type = typeof(string), Nullable = false)]
   internal class SwitchTVServerToChannelAndGetTimeshiftFilename
   {
-    public WebStringResult Process(string userName, int channelId)
+    public async Task<WebStringResult> ProcessAsync(IOwinContext context, string userName, int channelId)
     {
       if (!ServiceRegistration.IsRegistered<ITvProvider>())
         throw new BadRequestException("SwitchTVServerToChannelAndGetTimeshiftFilename: ITvProvider not found");
 
-      IChannelAndGroupInfo channelAndGroupInfo = ServiceRegistration.Get<ITvProvider>() as IChannelAndGroupInfo;
-
       if (userName == null)
         throw new BadRequestException("SwitchTVServerToChannelAndGetTimeshiftFilename: userName is null");
 
-      IChannel channel;
-      if (!channelAndGroupInfo.GetChannel(channelId, out channel))
-        throw new BadRequestException(string.Format("SwitchTVServerToChannelAndGetTimeshiftFilename: Couldn't get channel with Id: {0}", channelId));
-
-      ITimeshiftControlEx timeshiftControl = ServiceRegistration.Get<ITvProvider>() as ITimeshiftControlEx;
-
-      MediaItem item;
-      if (!timeshiftControl.StartTimeshift(userName, SlotControl.GetSlotIndex(userName), channel, out item))
+      var item = await TVAccess.StartTimeshiftAsync(context, channelId, userName);
+      if (item == null)
         throw new BadRequestException("SwitchTVServerToChannelAndGetTimeshiftFilename: Couldn't start timeshifting");
 
       string resourcePathStr = item.PrimaryProviderResourcePath();
@@ -72,7 +65,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.TAS.Timeshiftings
       }
       else
       {
-        timeshiftControl.StopTimeshift(userName, SlotControl.GetSlotIndex(userName));
+        await TVAccess.StopTimeshiftAsync(context, channelId, userName);
       }
 
       return new WebStringResult { Result = url };

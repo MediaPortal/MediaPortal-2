@@ -22,9 +22,9 @@
 
 #endregion
 
+using MediaPortal.Extensions.TranscodingService.Interfaces;
 using System;
 using System.Collections.Generic;
-using MediaPortal.Extensions.TranscodingService.Interfaces;
 
 namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.Profiles
 {

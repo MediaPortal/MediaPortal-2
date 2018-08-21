@@ -30,8 +30,8 @@ using System.Xml;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.PathManager;
+using MediaPortal.Extensions.TranscodingService.Interfaces;
 using MediaPortal.Utilities.FileSystem;
-using MediaPortal.Extensions.TranscodingService.Interfaces.Profiles;
 
 namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.Profiles
 {
@@ -268,7 +268,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.Profiles
           }
           reader.Close();
 
-          TranscodeProfileManager.LoadTranscodeProfiles(TRANSCODE_PROFILE_SECTION, profileFile);
+          TranscodeProfileManager.LoadTranscodeProfilesAsync(TRANSCODE_PROFILE_SECTION, profileFile);
         }
       }
       catch (Exception e)
@@ -279,10 +279,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.Profiles
 
     public static EndPointSettings GetEndPointSettings(string profileId)
     {
-      EndPointSettings settings = new EndPointSettings
-      {
-        PreferredAudioLanguages = MP2Extended.Settings.PreferredAudioLanguages
-      };
+      EndPointSettings settings = new EndPointSettings();
       try
       {
         if (Profiles.ContainsKey(profileId) == true)
@@ -303,6 +300,11 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.Profiles
         Logger.Info("MP2Extended: Exception reading profile links (Text: '{0}')", e.Message);
       }
       return settings;
+    }
+
+    private static ITranscodeProfileManager TranscodeProfileManager
+    {
+      get { return ServiceRegistration.Get<ITranscodeProfileManager>(); }
     }
 
     private static ILogger Logger

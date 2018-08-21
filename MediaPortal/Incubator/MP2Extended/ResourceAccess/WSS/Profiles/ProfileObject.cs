@@ -22,12 +22,16 @@
 
 #endregion
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Reflection;
-using MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.Profiles;
-using MediaPortal.Extensions.TranscodingService.Interfaces.Profiles.Setup;
+using MediaPortal.Common;
+using MediaPortal.Extensions.TranscodingService.Interfaces;
 using MediaPortal.Extensions.TranscodingService.Interfaces.Profiles;
+using MediaPortal.Extensions.TranscodingService.Interfaces.Profiles.Setup;
+using MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.Profiles;
 
 namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS
 {
@@ -39,12 +43,6 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS
     public string MIMEName = null;
     public string MappedMediaFormat = null;
   }
-
-  /*public class UpnpDeviceInformation
-  {
-    public MediaServerUpnPDeviceInformation DeviceInformation = new MediaServerUpnPDeviceInformation();
-    public string AdditionalElements = null;
-  }*/
 
   #endregion
 
@@ -91,37 +89,19 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS
     public MetadataSettings Metadata = new MetadataSettings();
   }
 
-  public class UpnpSearch
-  {
-    public UpnpSearch()
-    {
-      FriendlyName = null;
-      ModelName = null;
-      ModelNumber = null;
-      ProductNumber = null;
-      Server = null;
-      Manufacturer = null;
-    }
-
-    public string FriendlyName { get; set; }
-    public string ModelName { get; set; }
-    public string ModelNumber { get; set; }
-    public string ProductNumber { get; set; }
-    public string Server { get; set; }
-    public string Manufacturer { get; set; }
-
-    public int Count()
-    {
-      PropertyInfo[] properties = typeof(UpnpSearch).GetProperties();
-      return properties.Count(property => property.GetValue(this) != null);
-    }
-  }
-
   public class EndPointSettings
   {
-    public EndPointProfile Profile = null;
-    public string PreferredAudioLanguages = null;
-    public bool EstimateTransodedSize = true;
+    public EndPointProfile Profile { get; set; } = null;
+    public IEnumerable<string> PreferredSubtitleLanguages { get; set; } = null;
+    public IEnumerable<string> PreferredAudioLanguages { get; set; } = null;
+    public Guid ClientId { get; set; } = Guid.Empty;
+    public Guid? UserId { get; set; } = null;
+    public bool EstimateTransodedSize { get; set; } = true;
+
+    public static string GetClientName(IPAddress ip)
+    {
+      return $"MP2E ({ip.ToString()})";
+    }
   }
 
   public class EndPointProfile
@@ -144,6 +124,11 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS
     public override string ToString()
     {
       return ID + " - " + Name;
+    }
+
+    private ITranscodeProfileManager TranscodeProfileManager
+    {
+      get { return ServiceRegistration.Get<ITranscodeProfileManager>(); }
     }
   }
 

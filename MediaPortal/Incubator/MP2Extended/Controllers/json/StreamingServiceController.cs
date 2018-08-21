@@ -1,5 +1,31 @@
-﻿using System;
+﻿#region Copyright (C) 2007-2017 Team MediaPortal
+
+/*
+    Copyright (C) 2007-2017 Team MediaPortal
+    http://www.team-mediaportal.com
+
+    This file is part of MediaPortal 2
+
+    MediaPortal 2 is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    MediaPortal 2 is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with MediaPortal 2. If not, see <http://www.gnu.org/licenses/>.
+*/
+
+#endregion
+
+using System;
 using System.Collections.Generic;
+using System.Web.Http;
+using System.Web.Http.Description;
 using MediaPortal.Plugins.MP2Extended.Common;
 using MediaPortal.Plugins.MP2Extended.Controllers.Interfaces;
 using MediaPortal.Plugins.MP2Extended.MAS.General;
@@ -11,21 +37,25 @@ using MediaPortal.Plugins.MP2Extended.WSS;
 using MediaPortal.Plugins.MP2Extended.WSS.General;
 using MediaPortal.Plugins.MP2Extended.WSS.Profiles;
 using MediaPortal.Plugins.MP2Extended.WSS.StreamInfo;
-using Microsoft.AspNetCore.Mvc;
+using System.Net.Http;
+using System.Web;
+using System.Threading.Tasks;
 
 namespace MediaPortal.Plugins.MP2Extended.Controllers.json
 {
-  [Route("[Controller]/json/[Action]")]
-  public class StreamingServiceController : Controller, IStreamingServiceController
+  [RoutePrefix("MPExtended/StreamingService/json")]
+  [Route("{action}")]
+  [Authorize]
+  public class StreamingServiceController : ApiController, IStreamingServiceController
   {
-
     #region General
 
     [HttpGet]
-    [ApiExplorerSettings(GroupName = "StreamingService")]
-    public WebStreamServiceDescription GetServiceDescription()
+    [ApiExplorerSettings]
+    [AllowAnonymous]
+    public async Task<WebStreamServiceDescription> GetServiceDescription()
     {
-      return new GetServiceDescription().Process();
+      return await new GetServiceDescription().ProcessAsync(Request.GetOwinContext());
     }
 
     #endregion
@@ -33,24 +63,24 @@ namespace MediaPortal.Plugins.MP2Extended.Controllers.json
     #region Profiles
 
     [HttpGet]
-    [ApiExplorerSettings(GroupName = "StreamingService")]
-    public IList<WebTranscoderProfile> GetTranscoderProfiles()
+    [ApiExplorerSettings]
+    public async Task<IList<WebTranscoderProfile>> GetTranscoderProfiles()
     {
-      return new GetTranscoderProfiles().Process();
+      return await new GetTranscoderProfiles().ProcessAsync(Request.GetOwinContext());
     }
 
     [HttpGet]
-    [ApiExplorerSettings(GroupName = "StreamingService")]
-    public IList<WebTranscoderProfile> GetTranscoderProfilesForTarget(string target)
+    [ApiExplorerSettings]
+    public async Task<IList<WebTranscoderProfile>> GetTranscoderProfilesForTarget(string target)
     {
-      return new GetTranscoderProfilesForTarget().Process(target);
+      return await new GetTranscoderProfilesForTarget().ProcessAsync(Request.GetOwinContext(), target);
     }
 
     [HttpGet]
-    [ApiExplorerSettings(GroupName = "StreamingService")]
-    public WebTranscoderProfile GetTranscoderProfileByName(string name)
+    [ApiExplorerSettings]
+    public async Task<WebTranscoderProfile> GetTranscoderProfileByName(string name)
     {
-      return new GetTranscoderProfileByName().Process(name);
+      return await new GetTranscoderProfileByName().ProcessAsync(Request.GetOwinContext(), name);
     }
 
     #endregion
@@ -58,10 +88,10 @@ namespace MediaPortal.Plugins.MP2Extended.Controllers.json
     #region StreamInfo
 
     [HttpGet]
-    [ApiExplorerSettings(GroupName = "StreamingService")]
-    public WebMediaInfo GetMediaInfo(string itemId, WebMediaType type)
+    [ApiExplorerSettings]
+    public async Task<WebMediaInfo> GetMediaInfo(string itemId, WebMediaType type)
     {
-      return new GetMediaInfo().Process(itemId, type);
+      return await new GetMediaInfo().ProcessAsync(Request.GetOwinContext(), itemId, type);
     }
 
     #endregion
@@ -69,85 +99,85 @@ namespace MediaPortal.Plugins.MP2Extended.Controllers.json
     #region Control
 
     [HttpGet]
-    [ApiExplorerSettings(GroupName = "StreamingService")]
-    public WebTranscodingInfo GetTranscodingInfo(string identifier, long? playerPosition)
+    [ApiExplorerSettings]
+    public async Task<WebTranscodingInfo> GetTranscodingInfo(string identifier, long? playerPosition)
     {
       throw new NotImplementedException();
     }
 
     [HttpGet]
-    [ApiExplorerSettings(GroupName = "StreamingService")]
-    public WebBoolResult InitStream(string itemId, string clientDescription, string identifier, WebMediaType type, int? idleTimeout)
+    [ApiExplorerSettings]
+    public async Task<WebBoolResult> InitStream(string itemId, string clientDescription, string identifier, WebMediaType type, int? idleTimeout)
     {
-      return new InitStream().Process(HttpContext, itemId, clientDescription, identifier, type, idleTimeout);
+      return await new InitStream().ProcessAsync(Request.GetOwinContext(), itemId, clientDescription, identifier, type, idleTimeout);
     }
 
     [HttpGet]
-    [ApiExplorerSettings(GroupName = "StreamingService")]
-    public WebStringResult StartStream(string identifier, string profileName, long startPosition)
+    [ApiExplorerSettings]
+    public async Task<WebStringResult> StartStream(string identifier, string profileName, long startPosition)
     {
-      return new StartStream().Process(HttpContext, identifier, profileName, startPosition);
+      return await new StartStream().ProcessAsync(Request.GetOwinContext(), identifier, profileName, startPosition);
     }
 
     [HttpGet]
-    [ApiExplorerSettings(GroupName = "StreamingService")]
-    public WebStringResult StartStreamWithStreamSelection(string identifier, string profileName, long startPosition, int audioId, int subtitleId)
+    [ApiExplorerSettings]
+    public async Task<WebStringResult> StartStreamWithStreamSelection(string identifier, string profileName, long startPosition, int audioId, int subtitleId)
     {
-      return new StartStreamWithStreamSelection().Process(HttpContext, identifier, profileName, startPosition, audioId, subtitleId);
+      return await new StartStreamWithStreamSelection().ProcessAsync(Request.GetOwinContext(), identifier, profileName, startPosition, audioId, subtitleId);
     }
 
     [HttpGet]
-    [ApiExplorerSettings(GroupName = "StreamingService")]
-    public WebBoolResult StopStream(string identifier)
+    [ApiExplorerSettings]
+    public async Task<WebBoolResult> StopStream(string identifier)
     {
-      return new StopStream().Process(identifier);
+      return await new StopStream().ProcessAsync(Request.GetOwinContext(), identifier);
     }
 
     [HttpGet]
-    [ApiExplorerSettings(GroupName = "StreamingService")]
-    public WebBoolResult FinishStream(string identifier)
+    [ApiExplorerSettings]
+    public async Task<WebBoolResult> FinishStream(string identifier)
     {
-      return new FinishStream().Process(identifier);
+      return await new FinishStream().ProcessAsync(Request.GetOwinContext(), identifier);
     }
 
     [HttpGet]
-    [ApiExplorerSettings(GroupName = "StreamingService")]
-    public IList<WebStreamingSession> GetStreamingSessions(string filter = null)
+    [ApiExplorerSettings]
+    public async Task<IList<WebStreamingSession>> GetStreamingSessions(string filter = null)
     {
-      throw new NotImplementedException();
+      return await new GetStreamingSessions().ProcessAsync(Request.GetOwinContext(), filter);
     }
 
     [HttpGet]
-    [ApiExplorerSettings(GroupName = "StreamingService")]
-    public WebResolution GetStreamSize(WebMediaType type, int? provider, string itemId, int? offset, string profile)
-    {
-      throw new NotImplementedException();
-    }
-
-    [HttpGet]
-    [ApiExplorerSettings(GroupName = "StreamingService")]
-    public WebBoolResult AuthorizeStreaming()
+    [ApiExplorerSettings]
+    public async Task<WebResolution> GetStreamSize(WebMediaType type, int? provider, string itemId, int? offset, string profile)
     {
       throw new NotImplementedException();
     }
 
     [HttpGet]
-    [ApiExplorerSettings(GroupName = "StreamingService")]
-    public WebBoolResult AuthorizeRemoteHostForStreaming(string host)
+    [ApiExplorerSettings]
+    public async Task<WebBoolResult> AuthorizeStreaming()
     {
       throw new NotImplementedException();
     }
 
     [HttpGet]
-    [ApiExplorerSettings(GroupName = "StreamingService")]
-    public WebItemSupportStatus GetItemSupportStatus(WebMediaType type, int? provider, string itemId, int? offset)
+    [ApiExplorerSettings]
+    public async Task<WebBoolResult> AuthorizeRemoteHostForStreaming(string host)
     {
       throw new NotImplementedException();
     }
 
     [HttpGet]
-    [ApiExplorerSettings(GroupName = "StreamingService")]
-    public WebBoolResult RequestImageResize(WebMediaType mediatype, int? provider, string id, WebFileType imagetype, int offset, int maxWidth, int maxHeight, string borders = null, string format = null)
+    [ApiExplorerSettings]
+    public async Task<WebItemSupportStatus> GetItemSupportStatus(WebMediaType type, int? provider, string itemId, int? offset)
+    {
+      return await new GetItemSupportStatus().ProcessAsync(Request.GetOwinContext(), type, provider, itemId, offset);
+    }
+
+    [HttpGet]
+    [ApiExplorerSettings]
+    public async Task<WebBoolResult> RequestImageResize(WebMediaType mediatype, int? provider, string id, WebFileType imagetype, int offset, int maxWidth, int maxHeight, string borders = null, string format = null)
     {
       throw new NotImplementedException();
     }

@@ -1,9 +1,32 @@
-﻿using System;
+﻿#region Copyright (C) 2007-2017 Team MediaPortal
+
+/*
+    Copyright (C) 2007-2017 Team MediaPortal
+    http://www.team-mediaportal.com
+
+    This file is part of MediaPortal 2
+
+    MediaPortal 2 is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    MediaPortal 2 is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with MediaPortal 2. If not, see <http://www.gnu.org/licenses/>.
+*/
+
+#endregion
+
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using HttpServer;
-using HttpServer.Sessions;
+using System.Threading.Tasks;
 using MediaPortal.Backend.MediaLibrary;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
@@ -14,8 +37,9 @@ using MediaPortal.Plugins.MP2Extended.Attributes;
 using MediaPortal.Plugins.MP2Extended.Common;
 using MediaPortal.Plugins.MP2Extended.Exceptions;
 using MediaPortal.Plugins.MP2Extended.MAS.Music;
-using Newtonsoft.Json;
 using MP2Extended.Extensions;
+using Microsoft.Owin;
+using MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS;
 
 namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.Music
 {
@@ -25,7 +49,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.Music
   [ApiFunctionParam(Name = "order", Type = typeof(WebSortOrder), Nullable = true)]
   internal class GetMusicTracksBasicForAlbum
   {
-    public IList<WebMusicTrackBasic> Process(Guid id, string filter, WebSortField? sort, WebSortOrder? order)
+    public Task<IList<WebMusicTrackBasic>> ProcessAsync(IOwinContext context, Guid id, string filter, WebSortField? sort, WebSortOrder? order)
     {
       if (id == null)
         throw new BadRequestException("GetMusicTracksBasicForAlbum: no id is null");
@@ -36,11 +60,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.Music
       necessaryMIATypes.Add(AudioAspect.ASPECT_ID);
       necessaryMIATypes.Add(ImporterAspect.ASPECT_ID);
 
-      IFilter searchFilter = new RelationalFilter(AudioAspect.ATTR_ALBUM, RelationalOperator.EQ, id);
-      MediaItemQuery searchQuery = new MediaItemQuery(necessaryMIATypes, null, searchFilter);
-
-      IList<MediaItem> tracks = ServiceRegistration.Get<IMediaLibrary>().Search(searchQuery, false, null, false);
-
+      IList<MediaItem> tracks = MediaLibraryAccess.GetMediaItemsByGroup(context, AudioAspect.ROLE_TRACK, AudioAlbumAspect.ROLE_ALBUM, id, necessaryMIATypes, null);
       if (tracks.Count == 0)
         throw new BadRequestException("No Tracks found");
 
@@ -87,7 +107,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.Music
         output = output.SortWebMusicTrackBasic(sort, order).ToList();
       }
 
-      return output;
+      return Task.FromResult<IList<WebMusicTrackBasic>>(output);
     }
 
     internal static ILogger Logger

@@ -1,7 +1,33 @@
-﻿using System;
+﻿#region Copyright (C) 2007-2017 Team MediaPortal
+
+/*
+    Copyright (C) 2007-2017 Team MediaPortal
+    http://www.team-mediaportal.com
+
+    This file is part of MediaPortal 2
+
+    MediaPortal 2 is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    MediaPortal 2 is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with MediaPortal 2. If not, see <http://www.gnu.org/licenses/>.
+*/
+
+#endregion
+
+using System;
 using System.Collections.Generic;
 using System.IO;
+using System.ServiceModel;
 using System.ServiceModel.Web;
+using System.Threading.Tasks;
 using MediaPortal.Plugins.MP2Extended.Common;
 using MediaPortal.Plugins.MP2Extended.MAS;
 using MediaPortal.Plugins.MP2Extended.MAS.FileSystem;
@@ -20,439 +46,189 @@ namespace MediaPortal.Plugins.MP2Extended.Controllers.Interfaces
   {
     #region General
 
-    WebMediaServiceDescription GetServiceDescription();
-
-
-    WebBoolResult TestConnection();
-
-
-    WebMediaItem GetMediaItem(WebMediaType type, Guid id);
-
-
-    //IList<WebSearchResult> Search(string text);
-
-
-    //IList<WebSearchResult> SearchResultsByRange(string text, int start, int end);
-
-
-    WebDictionary<string> GetExternalMediaInfo(WebMediaType type, Guid id);
-
-
-    IList<WebDiskSpaceInformation> GetLocalDiskInformation(string filter = null);
+    Task<WebMediaServiceDescription> GetServiceDescription();
+    Task<WebBoolResult> TestConnection();
+    Task<WebMediaItem> GetMediaItem(WebMediaType type, Guid id);
+    //Task<IList<WebSearchResult>> Search(string text);
+    //Task<IList<WebSearchResult>> SearchResultsByRange(string text, int start, int end);
+    Task<WebDictionary<string>> GetExternalMediaInfo(WebMediaType type, Guid id);
+    Task<IList<WebDiskSpaceInformation>> GetLocalDiskInformation(string filter = null);
 
     #endregion
 
     #region Movies
 
-    WebIntResult GetMovieCount();
-
-
-    IList<WebMovieBasic> GetMoviesBasic(string filter = null, WebSortField? sort = WebSortField.Title, WebSortOrder? order = WebSortOrder.Asc);
-
-
-    IList<WebMovieDetailed> GetMoviesDetailed(string filter = null, WebSortField? sort = WebSortField.Title, WebSortOrder? order = WebSortOrder.Asc);
-
-
-    IList<WebMovieBasic> GetMoviesBasicByRange(int start, int end, string filter = null, WebSortField? sort = WebSortField.Title, WebSortOrder? order = WebSortOrder.Asc);
-
-
-    IList<WebMovieDetailed> GetMoviesDetailedByRange(int start, int end, string filter = null, WebSortField? sort = WebSortField.Title, WebSortOrder? order = WebSortOrder.Asc);
-
-
-    WebMovieBasic GetMovieBasicById(Guid id);
-
-
-    WebMovieDetailed GetMovieDetailedById(Guid id);
-
-
-    IList<WebGenre> GetMovieGenres(WebSortField? sort = WebSortField.Title, WebSortOrder? order = WebSortOrder.Asc);
-
-
-    IList<WebGenre> GetMovieGenresByRange(int start, int end, string filter = null, WebSortField? sort = WebSortField.Title, WebSortOrder? order = WebSortOrder.Asc);
-
-
-    WebIntResult GetMovieGenresCount(string filter = null);
-
-
-    IList<WebCategory> GetMovieCategories(string filter = null, WebSortField? sort = WebSortField.Title, WebSortOrder? order = WebSortOrder.Asc);
-
-
-    IList<WebActor> GetMovieActors(string filter = null, WebSortField? sort = WebSortField.Title, WebSortOrder? order = WebSortOrder.Asc);
-
-
-    IList<WebActor> GetMovieActorsByRange(int start, int end, string filter = null, WebSortField? sort = WebSortField.Title, WebSortOrder? order = WebSortOrder.Asc);
-
-
-    WebIntResult GetMovieActorCount(string filter = null);
+    Task<WebIntResult> GetMovieCount();
+    Task<IList<WebMovieBasic>> GetMoviesBasic(string filter = null, WebSortField? sort = WebSortField.Title, WebSortOrder? order = WebSortOrder.Asc);
+    Task<IList<WebMovieDetailed>> GetMoviesDetailed(string filter = null, WebSortField? sort = WebSortField.Title, WebSortOrder? order = WebSortOrder.Asc);
+    Task<IList<WebMovieBasic>> GetMoviesBasicByRange(int start, int end, string filter = null, WebSortField? sort = WebSortField.Title, WebSortOrder? order = WebSortOrder.Asc);
+    Task<IList<WebMovieDetailed>> GetMoviesDetailedByRange(int start, int end, string filter = null, WebSortField? sort = WebSortField.Title, WebSortOrder? order = WebSortOrder.Asc);
+    Task<WebMovieBasic> GetMovieBasicById(Guid id);
+    Task<WebMovieDetailed> GetMovieDetailedById(Guid id);
+    Task<IList<WebGenre>> GetMovieGenres(WebSortField? sort = WebSortField.Title, WebSortOrder? order = WebSortOrder.Asc);
+    Task<IList<WebGenre>> GetMovieGenresByRange(int start, int end, string filter = null, WebSortField? sort = WebSortField.Title, WebSortOrder? order = WebSortOrder.Asc);
+    Task<WebIntResult> GetMovieGenresCount(string filter = null);
+    Task<IList<WebCategory>> GetMovieCategories(string filter = null, WebSortField? sort = WebSortField.Title, WebSortOrder? order = WebSortOrder.Asc);
+    Task<IList<WebActor>> GetMovieActors(string filter = null, WebSortField? sort = WebSortField.Title, WebSortOrder? order = WebSortOrder.Asc);
+    Task<IList<WebActor>> GetMovieActorsByRange(int start, int end, string filter = null, WebSortField? sort = WebSortField.Title, WebSortOrder? order = WebSortOrder.Asc);
+    Task<WebIntResult> GetMovieActorCount(string filter = null);
 
     #endregion
 
     #region Music
 
-    WebIntResult GetMusicAlbumCount(string filter = null);
-
-
-    IList<WebMusicAlbumBasic> GetMusicAlbumsBasic(string filter = null, WebSortField? sort = WebSortField.Title, WebSortOrder? order = WebSortOrder.Asc);
-
-
-    IList<WebMusicAlbumBasic> GetMusicAlbumsBasicByRange(int start, int end, string filter = null, WebSortField? sort = WebSortField.Title, WebSortOrder? order = WebSortOrder.Asc);
-
-
-    IList<WebMusicAlbumBasic> GetMusicAlbumsBasicForArtist(Guid id, string filter = null, WebSortField? sort = WebSortField.Title, WebSortOrder? order = WebSortOrder.Asc);
-
-
-    WebMusicAlbumBasic GetMusicAlbumBasicById(Guid id);
-
-
-    WebIntResult GetMusicArtistCount(string filter = null);
-
-
-    IList<WebMusicArtistBasic> GetMusicArtistsBasic(string filter = null, WebSortField? sort = WebSortField.Title, WebSortOrder? order = WebSortOrder.Asc);
-
-
-    IList<WebMusicArtistBasic> GetMusicArtistsBasicByRange(int start, int end, string filter = null, WebSortField? sort = WebSortField.Title, WebSortOrder? order = WebSortOrder.Asc);
-
-
-    WebMusicArtistBasic GetMusicArtistBasicById(Guid id);
-
-
-    IList<WebMusicArtistDetailed> GetMusicArtistsDetailed(string filter = null, WebSortField? sort = WebSortField.Title, WebSortOrder? order = WebSortOrder.Asc);
-
-
-    IList<WebMusicArtistDetailed> GetMusicArtistsDetailedByRange(int start, int end, string filter = null, WebSortField? sort = WebSortField.Title, WebSortOrder? order = WebSortOrder.Asc);
-
-
-    WebMusicArtistDetailed GetMusicArtistDetailedById(Guid id);
-
-
-    WebIntResult GetMusicTrackCount(string filter = null);
-
-
-    IList<WebMusicTrackBasic> GetMusicTracksBasic(string filter = null, WebSortField? sort = WebSortField.Title, WebSortOrder? order = WebSortOrder.Asc);
-
-
-    IList<WebMusicTrackDetailed> GetMusicTracksDetailed(string filter = null, WebSortField? sort = WebSortField.Title, WebSortOrder? order = WebSortOrder.Asc);
-
-
-    IList<WebMusicTrackBasic> GetMusicTracksBasicByRange(int start, int end, string filter = null, WebSortField? sort = WebSortField.Title, WebSortOrder? order = WebSortOrder.Asc);
-
-
-    IList<WebMusicTrackDetailed> GetMusicTracksDetailedByRange(int start, int end, string filter = null, WebSortField? sort = WebSortField.Title, WebSortOrder? order = WebSortOrder.Asc);
-
-
-    IList<WebMusicTrackBasic> GetMusicTracksBasicForAlbum(Guid id, string filter = null, WebSortField? sort = WebSortField.Title, WebSortOrder? order = WebSortOrder.Asc);
-
-
-    IList<WebMusicTrackBasic> GetMusicTracksBasicForArtist(Guid id, string filter = null, WebSortField? sort = WebSortField.Title, WebSortOrder? order = WebSortOrder.Asc);
-
-
-    IList<WebMusicTrackDetailed> GetMusicTracksDetailedForAlbum(Guid id, string filter = null, WebSortField? sort = WebSortField.Title, WebSortOrder? order = WebSortOrder.Asc);
-
-
-    IList<WebMusicTrackDetailed> GetMusicTracksDetailedForArtist(Guid id, string filter = null, WebSortField? sort = WebSortField.Title, WebSortOrder? order = WebSortOrder.Asc);
-
-
-    WebMusicTrackBasic GetMusicTrackBasicById(Guid id);
-
-
-    WebMusicTrackDetailed GetMusicTrackDetailedById(Guid id);
-
-
-    IList<WebGenre> GetMusicGenres(WebSortField? sort = WebSortField.Title, WebSortOrder? order = WebSortOrder.Asc);
-
-
-    IList<WebGenre> GetMusicGenresByRange(int start, int end, string filter = null, WebSortField? sort = WebSortField.Title, WebSortOrder? order = WebSortOrder.Asc);
-
-
-    WebIntResult GetMusicGenresCount(string filter = null);
-
-
-    IList<WebCategory> GetMusicCategories(string filter = null);
+    Task<WebIntResult> GetMusicAlbumCount(string filter = null);
+    Task<IList<WebMusicAlbumBasic>> GetMusicAlbumsBasic(string filter = null, WebSortField? sort = WebSortField.Title, WebSortOrder? order = WebSortOrder.Asc);
+    Task<IList<WebMusicAlbumBasic>> GetMusicAlbumsBasicByRange(int start, int end, string filter = null, WebSortField? sort = WebSortField.Title, WebSortOrder? order = WebSortOrder.Asc);
+    Task<IList<WebMusicAlbumBasic>> GetMusicAlbumsBasicForArtist(Guid id, string filter = null, WebSortField? sort = WebSortField.Title, WebSortOrder? order = WebSortOrder.Asc);
+    Task<WebMusicAlbumBasic> GetMusicAlbumBasicById(Guid id);
+    Task<WebIntResult> GetMusicArtistCount(string filter = null);
+    Task<IList<WebMusicArtistBasic>> GetMusicArtistsBasic(string filter = null, WebSortField? sort = WebSortField.Title, WebSortOrder? order = WebSortOrder.Asc);
+    Task<IList<WebMusicArtistBasic>> GetMusicArtistsBasicByRange(int start, int end, string filter = null, WebSortField? sort = WebSortField.Title, WebSortOrder? order = WebSortOrder.Asc);
+    Task<WebMusicArtistBasic> GetMusicArtistBasicById(Guid id);
+    Task<IList<WebMusicArtistDetailed>> GetMusicArtistsDetailed(string filter = null, WebSortField? sort = WebSortField.Title, WebSortOrder? order = WebSortOrder.Asc);
+    Task<IList<WebMusicArtistDetailed>> GetMusicArtistsDetailedByRange(int start, int end, string filter = null, WebSortField? sort = WebSortField.Title, WebSortOrder? order = WebSortOrder.Asc);
+    Task<WebMusicArtistDetailed> GetMusicArtistDetailedById(Guid id);
+    Task<WebIntResult> GetMusicTrackCount(string filter = null);
+    Task<IList<WebMusicTrackBasic>> GetMusicTracksBasic(string filter = null, WebSortField? sort = WebSortField.Title, WebSortOrder? order = WebSortOrder.Asc);
+    Task<IList<WebMusicTrackDetailed>> GetMusicTracksDetailed(string filter = null, WebSortField? sort = WebSortField.Title, WebSortOrder? order = WebSortOrder.Asc);
+    Task<IList<WebMusicTrackBasic>> GetMusicTracksBasicByRange(int start, int end, string filter = null, WebSortField? sort = WebSortField.Title, WebSortOrder? order = WebSortOrder.Asc);
+    Task<IList<WebMusicTrackDetailed>> GetMusicTracksDetailedByRange(int start, int end, string filter = null, WebSortField? sort = WebSortField.Title, WebSortOrder? order = WebSortOrder.Asc);
+    Task<IList<WebMusicTrackBasic>> GetMusicTracksBasicForAlbum(Guid id, string filter = null, WebSortField? sort = WebSortField.Title, WebSortOrder? order = WebSortOrder.Asc);
+    Task<IList<WebMusicTrackBasic>> GetMusicTracksBasicForArtist(Guid id, string filter = null, WebSortField? sort = WebSortField.Title, WebSortOrder? order = WebSortOrder.Asc);
+    Task<IList<WebMusicTrackDetailed>> GetMusicTracksDetailedForAlbum(Guid id, string filter = null, WebSortField? sort = WebSortField.Title, WebSortOrder? order = WebSortOrder.Asc);
+    Task<IList<WebMusicTrackDetailed>> GetMusicTracksDetailedForArtist(Guid id, string filter = null, WebSortField? sort = WebSortField.Title, WebSortOrder? order = WebSortOrder.Asc);
+    Task<WebMusicTrackBasic> GetMusicTrackBasicById(Guid id);
+    Task<WebMusicTrackDetailed> GetMusicTrackDetailedById(Guid id);
+    Task<IList<WebGenre>> GetMusicGenres(WebSortField? sort = WebSortField.Title, WebSortOrder? order = WebSortOrder.Asc);
+    Task<IList<WebGenre>> GetMusicGenresByRange(int start, int end, string filter = null, WebSortField? sort = WebSortField.Title, WebSortOrder? order = WebSortOrder.Asc);
+    Task<WebIntResult> GetMusicGenresCount(string filter = null);
+    Task<IList<WebCategory>> GetMusicCategories(string filter = null);
 
     #endregion
 
     #region OnlineVideos
 
-    List<WebOnlineVideosVideo> GetOnlineVideosCategoryVideos(string id);
-
-    List<WebOnlineVideosGlobalSite> GetOnlineVideosGlobalSites(string filter, WebSortField? sort, WebSortOrder? order);
-
-    List<WebOnlineVideosSiteCategory> GetOnlineVideosSiteCategories(string id);
-
-    List<WebOnlineVideosSite> GetOnlineVideosSites(string filter, WebSortField? sort, WebSortOrder? order);
-
-    List<WebOnlineVideosSiteSetting> GetOnlineVideosSiteSettings(string id);
-
-    List<WebOnlineVideosSiteCategory> GetOnlineVideosSubCategories(string id);
-
-    List<string> GetOnlineVideosVideoUrls(string id);
-
-    WebBoolResult SetOnlineVideosSiteSetting(string siteId, string property, string value);
+    Task<IList<WebOnlineVideosVideo>> GetOnlineVideosCategoryVideos(string id);
+    Task<IList<WebOnlineVideosGlobalSite>> GetOnlineVideosGlobalSites(string filter, WebSortField? sort, WebSortOrder? order);
+    Task<IList<WebOnlineVideosSiteCategory>> GetOnlineVideosSiteCategories(string id);
+    Task<IList<WebOnlineVideosSite>> GetOnlineVideosSites(string filter, WebSortField? sort, WebSortOrder? order);
+    Task<IList<WebOnlineVideosSiteSetting>> GetOnlineVideosSiteSettings(string id);
+    Task<IList<WebOnlineVideosSiteCategory>> GetOnlineVideosSubCategories(string id);
+    Task<IList<string>> GetOnlineVideosVideoUrls(string id);
+    Task<WebBoolResult> SetOnlineVideosSiteSetting(string siteId, string property, string value);
 
     #endregion
 
     #region Pictures
 
-    WebIntResult GetPictureCount();
-
-
-    IList<WebPictureBasic> GetPicturesBasic(string filter = null, WebSortField? sort = WebSortField.Title, WebSortOrder? order = WebSortOrder.Asc);
-
-
-    IList<WebPictureBasic> GetPicturesBasicByRange(int start, int end, string filter = null, WebSortField? sort = WebSortField.Title, WebSortOrder? order = WebSortOrder.Asc);
-
-
-    IList<WebPictureDetailed> GetPicturesDetailed(string filter = null, WebSortField? sort = WebSortField.Title, WebSortOrder? order = WebSortOrder.Asc);
-
-
-    IList<WebPictureDetailed> GetPicturesDetailedByRange(int start, int end, string filter = null, WebSortField? sort = WebSortField.Title, WebSortOrder? order = WebSortOrder.Asc);
-
-
-    WebPictureBasic GetPictureBasicById(Guid id);
-
-
-    WebPictureDetailed GetPictureDetailedById(Guid id);
-
-
-    IList<WebCategory> GetPictureCategories();
-
-
-    IList<WebCategory> GetPictureSubCategories(Guid id, string filter = null);
-
-
-    IList<WebPictureBasic> GetPicturesBasicByCategory(string id);
-
-
-    IList<WebPictureDetailed> GetPicturesDetailedByCategory(Guid id, string filter = null);
+    Task<WebIntResult> GetPictureCount();
+    Task<IList<WebPictureBasic>> GetPicturesBasic(string filter = null, WebSortField? sort = WebSortField.Title, WebSortOrder? order = WebSortOrder.Asc);
+    Task<IList<WebPictureBasic>> GetPicturesBasicByRange(int start, int end, string filter = null, WebSortField? sort = WebSortField.Title, WebSortOrder? order = WebSortOrder.Asc);
+    Task<IList<WebPictureDetailed>> GetPicturesDetailed(string filter = null, WebSortField? sort = WebSortField.Title, WebSortOrder? order = WebSortOrder.Asc);
+    Task<IList<WebPictureDetailed>> GetPicturesDetailedByRange(int start, int end, string filter = null, WebSortField? sort = WebSortField.Title, WebSortOrder? order = WebSortOrder.Asc);
+    Task<WebPictureBasic> GetPictureBasicById(Guid id);
+    Task<WebPictureDetailed> GetPictureDetailedById(Guid id);
+    Task<IList<WebCategory>> GetPictureCategories();
+    Task<IList<WebCategory>> GetPictureSubCategories(Guid id, string filter = null);
+    Task<IList<WebPictureBasic>> GetPicturesBasicByCategory(string id);
+    Task<IList<WebPictureDetailed>> GetPicturesDetailedByCategory(Guid id, string filter = null);
 
     #endregion
 
     #region TVShows
 
-    WebIntResult GetTVEpisodeCount();
-
-
-    WebIntResult GetTVEpisodeCountForTVShow(Guid id);
-
-
-    WebIntResult GetTVEpisodeCountForSeason(Guid id);
-
-
-    WebIntResult GetTVShowCount(string filter = null);
-
-
-    WebIntResult GetTVSeasonCountForTVShow(Guid id);
-
-
-    IList<WebTVShowBasic> GetTVShowsBasic(string filter = null, WebSortField? sort = WebSortField.Title, WebSortOrder? order = WebSortOrder.Asc);
-
-
-    IList<WebTVShowDetailed> GetTVShowsDetailed(string filter = null, WebSortField? sort = WebSortField.Title, WebSortOrder? order = WebSortOrder.Asc);
-
-
-    IList<WebTVShowBasic> GetTVShowsBasicByRange(int start, int end, string filter = null, WebSortField? sort = WebSortField.Title, WebSortOrder? order = WebSortOrder.Asc);
-
-
-    IList<WebTVShowDetailed> GetTVShowsDetailedByRange(int start, int end, string filter = null, WebSortField? sort = WebSortField.Title, WebSortOrder? order = WebSortOrder.Asc);
-
-
-    WebTVShowBasic GetTVShowBasicById(Guid id);
-
-
-    WebTVShowDetailed GetTVShowDetailedById(Guid id);
-
-
-    IList<WebTVSeasonBasic> GetTVSeasonsBasicForTVShow(Guid id, string filter = null, WebSortField? sort = WebSortField.TVSeasonNumber, WebSortOrder? order = WebSortOrder.Asc);
-
-
-    IList<WebTVSeasonDetailed> GetTVSeasonsDetailedForTVShow(Guid id, WebSortField? sort = WebSortField.TVSeasonNumber, WebSortOrder? order = WebSortOrder.Asc);
-
-
-    WebTVSeasonBasic GetTVSeasonBasicById(Guid id);
-
-
-    WebTVSeasonDetailed GetTVSeasonDetailedById(Guid id);
-
-
-    IList<WebTVEpisodeBasic> GetTVEpisodesBasic(WebSortField? sort = WebSortField.TVEpisodeNumber, WebSortOrder? order = WebSortOrder.Asc);
-
-
-    IList<WebTVEpisodeDetailed> GetTVEpisodesDetailed(string filter = null, WebSortField? sort = WebSortField.TVEpisodeNumber, WebSortOrder? order = WebSortOrder.Asc);
-
-
-    IList<WebTVEpisodeBasic> GetTVEpisodesBasicByRange(int start, int end, WebSortField? sort = WebSortField.TVEpisodeNumber, WebSortOrder? order = WebSortOrder.Asc);
-
-
-    IList<WebTVEpisodeDetailed> GetTVEpisodesDetailedByRange(int start, int end, WebSortField? sort = WebSortField.TVEpisodeNumber, WebSortOrder? order = WebSortOrder.Asc);
-
-
-    IList<WebTVEpisodeBasic> GetTVEpisodesBasicForTVShow(Guid id, WebSortField? sort = WebSortField.TVEpisodeNumber, WebSortOrder? order = WebSortOrder.Asc);
-
-
-    IList<WebTVEpisodeDetailed> GetTVEpisodesDetailedForTVShow(Guid id, WebSortField? sort = WebSortField.TVEpisodeNumber, WebSortOrder? order = WebSortOrder.Asc);
-
-
-    IList<WebTVEpisodeBasic> GetTVEpisodesBasicForTVShowByRange(Guid id, int start, int end, WebSortField? sort = WebSortField.TVEpisodeNumber, WebSortOrder? order = WebSortOrder.Asc);
-
-
-    IList<WebTVEpisodeDetailed> GetTVEpisodesDetailedForTVShowByRange(Guid id, int start, int end, string filter = null, WebSortField? sort = WebSortField.TVEpisodeNumber, WebSortOrder? order = WebSortOrder.Asc);
-
-
-    IList<WebTVEpisodeBasic> GetTVEpisodesBasicForSeason(Guid id, WebSortField? sort = WebSortField.TVEpisodeNumber, WebSortOrder? order = WebSortOrder.Asc);
-
-
-    IList<WebTVEpisodeDetailed> GetTVEpisodesDetailedForSeason(Guid id, WebSortField? sort = WebSortField.TVEpisodeNumber, WebSortOrder? order = WebSortOrder.Asc);
-
-
-    WebTVEpisodeBasic GetTVEpisodeBasicById(Guid id);
-
-
-    WebTVEpisodeDetailed GetTVEpisodeDetailedById(Guid id);
-
-
-    IList<WebCategory> GetTVShowCategories(string filter = null);
-
-
-    IList<WebGenre> GetTVShowGenres(WebSortField? sort = WebSortField.Title, WebSortOrder? order = WebSortOrder.Asc);
-
-
-    IList<WebGenre> GetTVShowGenresByRange(int start, int end, WebSortField? sort = WebSortField.Title, WebSortOrder? order = WebSortOrder.Asc);
-
-
-    WebIntResult GetTVShowGenresCount();
-
-
-    IList<WebActor> GetTVShowActors(string filter = null, WebSortField? sort = WebSortField.Title, WebSortOrder? order = WebSortOrder.Asc);
-
-
-    IList<WebActor> GetTVShowActorsByRange(int start, int end, string filter = null, WebSortField? sort = WebSortField.Title, WebSortOrder? order = WebSortOrder.Asc);
-
-
-    WebIntResult GetTVShowActorCount(string filter = null);
+    Task<WebIntResult> GetTVEpisodeCount();
+    Task<WebIntResult> GetTVEpisodeCountForTVShow(Guid id);
+    Task<WebIntResult> GetTVEpisodeCountForSeason(Guid id);
+    Task<WebIntResult> GetTVShowCount(string filter = null);
+    Task<WebIntResult> GetTVSeasonCountForTVShow(Guid id);
+    Task<IList<WebTVShowBasic>> GetTVShowsBasic(string filter = null, WebSortField? sort = WebSortField.Title, WebSortOrder? order = WebSortOrder.Asc);
+    Task<IList<WebTVShowDetailed>> GetTVShowsDetailed(string filter = null, WebSortField? sort = WebSortField.Title, WebSortOrder? order = WebSortOrder.Asc);
+    Task<IList<WebTVShowBasic>> GetTVShowsBasicByRange(int start, int end, string filter = null, WebSortField? sort = WebSortField.Title, WebSortOrder? order = WebSortOrder.Asc);
+    Task<IList<WebTVShowDetailed>> GetTVShowsDetailedByRange(int start, int end, string filter = null, WebSortField? sort = WebSortField.Title, WebSortOrder? order = WebSortOrder.Asc);
+    Task<WebTVShowBasic> GetTVShowBasicById(Guid id);
+    Task<WebTVShowDetailed> GetTVShowDetailedById(Guid id);
+    Task<IList<WebTVSeasonBasic>> GetTVSeasonsBasicForTVShow(Guid id, string filter = null, WebSortField? sort = WebSortField.TVSeasonNumber, WebSortOrder? order = WebSortOrder.Asc);
+    Task<IList<WebTVSeasonDetailed>> GetTVSeasonsDetailedForTVShow(Guid id, WebSortField? sort = WebSortField.TVSeasonNumber, WebSortOrder? order = WebSortOrder.Asc);
+    Task<WebTVSeasonBasic> GetTVSeasonBasicById(Guid id);
+    Task<WebTVSeasonDetailed> GetTVSeasonDetailedById(Guid id);
+    Task<IList<WebTVEpisodeBasic>> GetTVEpisodesBasic(WebSortField? sort = WebSortField.TVEpisodeNumber, WebSortOrder? order = WebSortOrder.Asc);
+    Task<IList<WebTVEpisodeDetailed>> GetTVEpisodesDetailed(string filter = null, WebSortField? sort = WebSortField.TVEpisodeNumber, WebSortOrder? order = WebSortOrder.Asc);
+    Task<IList<WebTVEpisodeBasic>> GetTVEpisodesBasicByRange(int start, int end, WebSortField? sort = WebSortField.TVEpisodeNumber, WebSortOrder? order = WebSortOrder.Asc);
+    Task<IList<WebTVEpisodeDetailed>> GetTVEpisodesDetailedByRange(int start, int end, WebSortField? sort = WebSortField.TVEpisodeNumber, WebSortOrder? order = WebSortOrder.Asc);
+    Task<IList<WebTVEpisodeBasic>> GetTVEpisodesBasicForTVShow(Guid id, WebSortField? sort = WebSortField.TVEpisodeNumber, WebSortOrder? order = WebSortOrder.Asc);
+    Task<IList<WebTVEpisodeDetailed>> GetTVEpisodesDetailedForTVShow(Guid id, WebSortField? sort = WebSortField.TVEpisodeNumber, WebSortOrder? order = WebSortOrder.Asc);
+    Task<IList<WebTVEpisodeBasic>> GetTVEpisodesBasicForTVShowByRange(Guid id, int start, int end, WebSortField? sort = WebSortField.TVEpisodeNumber, WebSortOrder? order = WebSortOrder.Asc);
+    Task<IList<WebTVEpisodeDetailed>> GetTVEpisodesDetailedForTVShowByRange(Guid id, int start, int end, string filter = null, WebSortField? sort = WebSortField.TVEpisodeNumber, WebSortOrder? order = WebSortOrder.Asc);
+    Task<IList<WebTVEpisodeBasic>> GetTVEpisodesBasicForSeason(Guid id, WebSortField? sort = WebSortField.TVEpisodeNumber, WebSortOrder? order = WebSortOrder.Asc);
+    Task<IList<WebTVEpisodeDetailed>> GetTVEpisodesDetailedForSeason(Guid id, WebSortField? sort = WebSortField.TVEpisodeNumber, WebSortOrder? order = WebSortOrder.Asc);
+    Task<WebTVEpisodeBasic> GetTVEpisodeBasicById(Guid id);
+    Task<WebTVEpisodeDetailed> GetTVEpisodeDetailedById(Guid id);
+    Task<IList<WebCategory>> GetTVShowCategories(string filter = null);
+    Task<IList<WebGenre>> GetTVShowGenres(WebSortField? sort = WebSortField.Title, WebSortOrder? order = WebSortOrder.Asc);
+    Task<IList<WebGenre>> GetTVShowGenresByRange(int start, int end, WebSortField? sort = WebSortField.Title, WebSortOrder? order = WebSortOrder.Asc);
+    Task<WebIntResult> GetTVShowGenresCount();
+    Task<IList<WebActor>> GetTVShowActors(string filter = null, WebSortField? sort = WebSortField.Title, WebSortOrder? order = WebSortOrder.Asc);
+    Task<IList<WebActor>> GetTVShowActorsByRange(int start, int end, string filter = null, WebSortField? sort = WebSortField.Title, WebSortOrder? order = WebSortOrder.Asc);
+    Task<WebIntResult> GetTVShowActorCount(string filter = null);
 
     #endregion
 
     #region Filesystem
 
-    WebIntResult GetFileSystemDriveCount();
-
-
-    IList<WebDriveBasic> GetFileSystemDrives(WebSortField? sort = WebSortField.Title, WebSortOrder? order = WebSortOrder.Asc);
-
-
-    IList<WebDriveBasic> GetFileSystemDrivesByRange(int start, int end, WebSortField? sort = WebSortField.Title, WebSortOrder? order = WebSortOrder.Asc);
-
-
-    IList<WebFolderBasic> GetFileSystemFolders(string id, WebSortField? sort = WebSortField.Title, WebSortOrder? order = WebSortOrder.Asc);
-
-
-    IList<WebFolderBasic> GetFileSystemFoldersByRange(string id, int start, int end, WebSortField? sort = WebSortField.Title, WebSortOrder? order = WebSortOrder.Asc);
-
-
-    IList<WebFileBasic> GetFileSystemFiles(string id, WebSortField? sort = WebSortField.Title, WebSortOrder? order = WebSortOrder.Asc);
-
-
-    IList<WebFileBasic> GetFileSystemFilesByRange(string id, int start, int end, WebSortField? sort = WebSortField.Title, WebSortOrder? order = WebSortOrder.Asc);
-
-
-    IList<WebFilesystemItem> GetFileSystemFilesAndFolders(string id, WebSortField? sort = WebSortField.Title, WebSortOrder? order = WebSortOrder.Asc);
-
-
-    IList<WebFilesystemItem> GetFileSystemFilesAndFoldersByRange(string id, int start, int end, WebSortField? sort = WebSortField.Title, WebSortOrder? order = WebSortOrder.Asc);
-
-
-    WebIntResult GetFileSystemFilesAndFoldersCount(string id);
-
-
-    WebIntResult GetFileSystemFilesCount(string id);
-
-
-    WebIntResult GetFileSystemFoldersCount(string id);
-
-
-    WebDriveBasic GetFileSystemDriveBasicById(string id);
-
-
-    WebFolderBasic GetFileSystemFolderBasicById(string id);
-
-
-    WebFileBasic GetFileSystemFileBasicById(string id);
+    Task<WebIntResult> GetFileSystemDriveCount();
+    Task<IList<WebDriveBasic>> GetFileSystemDrives(WebSortField? sort = WebSortField.Title, WebSortOrder? order = WebSortOrder.Asc);
+    Task<IList<WebDriveBasic>> GetFileSystemDrivesByRange(int start, int end, WebSortField? sort = WebSortField.Title, WebSortOrder? order = WebSortOrder.Asc);
+    Task<IList<WebFolderBasic>> GetFileSystemFolders(string id, WebSortField? sort = WebSortField.Title, WebSortOrder? order = WebSortOrder.Asc);
+    Task<IList<WebFolderBasic>> GetFileSystemFoldersByRange(string id, int start, int end, WebSortField? sort = WebSortField.Title, WebSortOrder? order = WebSortOrder.Asc);
+    Task<IList<WebFileBasic>> GetFileSystemFiles(string id, WebSortField? sort = WebSortField.Title, WebSortOrder? order = WebSortOrder.Asc);
+    Task<IList<WebFileBasic>> GetFileSystemFilesByRange(string id, int start, int end, WebSortField? sort = WebSortField.Title, WebSortOrder? order = WebSortOrder.Asc);
+    Task<IList<WebFilesystemItem>> GetFileSystemFilesAndFolders(string id, WebSortField? sort = WebSortField.Title, WebSortOrder? order = WebSortOrder.Asc);
+    Task<IList<WebFilesystemItem>> GetFileSystemFilesAndFoldersByRange(string id, int start, int end, WebSortField? sort = WebSortField.Title, WebSortOrder? order = WebSortOrder.Asc);
+    Task<WebIntResult> GetFileSystemFilesAndFoldersCount(string id);
+    Task<WebIntResult> GetFileSystemFilesCount(string id);
+    Task<WebIntResult> GetFileSystemFoldersCount(string id);
+    Task<WebDriveBasic> GetFileSystemDriveBasicById(string id);
+    Task<WebFolderBasic> GetFileSystemFolderBasicById(string id);
+    Task<WebFileBasic> GetFileSystemFileBasicById(string id);
 
     #endregion
 
     #region Files
 
-    IList<WebArtwork> GetArtwork(WebMediaType type, Guid id);
-
-
-    IList<string> GetPathList(WebMediaType mediatype, WebFileType filetype, Guid id);
-
-
-    WebFileInfo GetFileInfo(WebMediaType mediatype, WebFileType filetype, Guid id, int offset);
-
-
-    WebBoolResult IsLocalFile(WebMediaType mediatype, WebFileType filetype, Guid id, int offset);
-
-
-    [WebGet(BodyStyle = WebMessageBodyStyle.Bare)]
-    Stream RetrieveFile(WebMediaType mediatype, WebFileType filetype, Guid id, int offset);
+    Task<IList<WebArtwork>> GetArtwork(WebMediaType type, Guid id);
+    Task<IList<string>> GetPathList(WebMediaType mediatype, WebFileType filetype, Guid id);
+    Task<WebFileInfo> GetFileInfo(WebMediaType mediatype, WebFileType filetype, Guid id, int offset);
+    Task<WebBoolResult> IsLocalFile(WebMediaType mediatype, WebFileType filetype, Guid id, int offset);
+    Task<Stream> RetrieveFile(WebMediaType mediatype, WebFileType filetype, Guid id, int offset);
 
     #endregion
 
     #region Playlist
 
-    IList<WebPlaylist> GetPlaylists();
-
-
-    IList<WebPlaylistItem> GetPlaylistItems(Guid playlistId, string filter = null, WebSortField? sort = WebSortField.Title, WebSortOrder? order = WebSortOrder.Asc);
-
-
-    IList<WebPlaylistItem> GetPlaylistItemsByRange(Guid playlistId, int start, int end, string filter = null, WebSortField? sort = WebSortField.Title, WebSortOrder? order = WebSortOrder.Asc);
-
-
-    WebIntResult GetPlaylistItemsCount(Guid playlistId, string filter = null);
-
-
-    WebBoolResult AddPlaylistItem(Guid playlistId, WebMediaType type, Guid id, int? position);
-
-
-    WebBoolResult ClearAndAddPlaylistItems(Guid playlistId, WebMediaType type, int? position, List<Guid> ids);
-
-
-    WebBoolResult AddPlaylistItems(Guid playlistId, WebMediaType type, int? position, List<Guid> ids);
-
-
-    WebBoolResult RemovePlaylistItem(Guid playlistId, int position);
-
-
-    WebBoolResult RemovePlaylistItems(Guid playlistId, string positions);
-
-
-    WebBoolResult MovePlaylistItem(Guid playlistId, int oldPosition, int newPosition);
-
-
-    WebStringResult CreatePlaylist(string playlistName);
-
-
-    WebBoolResult DeletePlaylist(Guid playlistId);
+    Task<IList<WebPlaylist>> GetPlaylists();
+    Task<IList<WebPlaylistItem>> GetPlaylistItems(Guid playlistId, string filter = null, WebSortField? sort = WebSortField.Title, WebSortOrder? order = WebSortOrder.Asc);
+    Task<IList<WebPlaylistItem>> GetPlaylistItemsByRange(Guid playlistId, int start, int end, string filter = null, WebSortField? sort = WebSortField.Title, WebSortOrder? order = WebSortOrder.Asc);
+    Task<WebIntResult> GetPlaylistItemsCount(Guid playlistId, string filter = null);
+    Task<WebBoolResult> AddPlaylistItem(Guid playlistId, WebMediaType type, Guid id, int? position);
+    Task<WebBoolResult> ClearAndAddPlaylistItems(Guid playlistId, WebMediaType type, int? position, List<Guid> ids);
+    Task<WebBoolResult> AddPlaylistItems(Guid playlistId, WebMediaType type, int? position, List<Guid> ids);
+    Task<WebBoolResult> RemovePlaylistItem(Guid playlistId, int position);
+    Task<WebBoolResult> RemovePlaylistItems(Guid playlistId, string positions);
+    Task<WebBoolResult> MovePlaylistItem(Guid playlistId, int oldPosition, int newPosition);
+    Task<WebStringResult> CreatePlaylist(string playlistName);
+    Task<WebBoolResult> DeletePlaylist(Guid playlistId);
 
     #endregion
 
     #region Filters
 
-    WebIntResult GetFilterValuesCount(WebMediaType mediaType, string filterField, string op = null, int? limit = null);
-
-
-    IList<string> GetFilterValues(WebMediaType mediaType, string filterField, string op = null, int? limit = null, WebSortOrder? order = WebSortOrder.Asc);
-
-
-    IList<string> GetFilterValuesByRange(int start, int end, WebMediaType mediaType, string filterField, string op = null, int? limit = null, WebSortOrder? order = WebSortOrder.Asc);
-
-
-    WebStringResult CreateFilterString(string field, string op, string value, string conjunction);
-
-
-    IList<WebFilterOperator> GetFilterOperators();
+    Task<WebIntResult> GetFilterValuesCount(WebMediaType mediaType, string filterField, string op = null, int? limit = null);
+    Task<IList<string>> GetFilterValues(WebMediaType mediaType, string filterField, string op = null, int? limit = null, WebSortOrder? order = WebSortOrder.Asc);
+    Task<IList<string>> GetFilterValuesByRange(int start, int end, WebMediaType mediaType, string filterField, string op = null, int? limit = null, WebSortOrder? order = WebSortOrder.Asc);
+    Task<WebStringResult> CreateFilterString(string field, string op, string value, string conjunction);
+    Task<IList<WebFilterOperator>> GetFilterOperators();
 
     #endregion
   }

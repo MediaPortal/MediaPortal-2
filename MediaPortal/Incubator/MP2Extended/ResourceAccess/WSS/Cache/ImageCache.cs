@@ -1,4 +1,28 @@
-﻿using System;
+﻿#region Copyright (C) 2007-2017 Team MediaPortal
+
+/*
+    Copyright (C) 2007-2017 Team MediaPortal
+    http://www.team-mediaportal.com
+
+    This file is part of MediaPortal 2
+
+    MediaPortal 2 is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    MediaPortal 2 is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with MediaPortal 2. If not, see <http://www.gnu.org/licenses/>.
+*/
+
+#endregion
+
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
@@ -6,6 +30,7 @@ using MediaPortal.Common;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Common.PathManager;
+using Microsoft.Owin;
 using MP2Extended.Extensions;
 
 namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.Cache
@@ -59,11 +84,11 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.Cache
     /// <param name="height">height of the final image</param>
     /// <param name="borders">borders of the final image</param>
     /// <returns>Returns true if the image was added to the cache, false if the image is already in the cache</returns>
-    internal static bool AddImageToCache(byte[] data, CacheIdentifier identifier)
+    internal static bool AddImageToCache(IOwinContext context, byte[] data, CacheIdentifier identifier)
     {
       lock (_lockObject)
       {
-        if (IsInCache(identifier))
+        if (IsInCache(context, identifier))
           return false;
         FileStream stream = File.OpenWrite(GetFilePath(identifier));
         stream.Write(data, 0, data.Length);
@@ -72,13 +97,13 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.Cache
       }
     }
 
-    internal static bool TryGetImageFromCache(CacheIdentifier identifier, out byte[] data)
+    internal static bool TryGetImageFromCache(IOwinContext context, CacheIdentifier identifier, out byte[] data)
     {
       lock (_lockObject)
       {
         data = new byte[0];
         string filepath = GetFilePath(identifier);
-        if (!IsInCache(identifier))
+        if (!IsInCache(context, identifier))
           return false;
 
         FileStream stream = File.OpenRead(GetFilePath(identifier));
@@ -99,7 +124,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.Cache
     /// <param name="borders">borders of the final image</param>
     /// <returns>Returns true if the image was added to the cache, false if the image is already in the cache</returns>
     /// <returns>true if the image is in the cache, otherwise false</returns>
-    internal static bool IsInCache(CacheIdentifier identifier)
+    internal static bool IsInCache(IOwinContext context, CacheIdentifier identifier)
     {
       lock (_lockObject)
       {
@@ -109,7 +134,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.Cache
         {
           ISet<Guid> necessaryMIATypes = new HashSet<Guid>();
           necessaryMIATypes.Add(ImporterAspect.ASPECT_ID);
-          MediaItem item = GetMediaItems.GetMediaItemById(identifier.MediaItemId, necessaryMIATypes);
+          MediaItem item = MediaLibraryAccess.GetMediaItemById(context, identifier.MediaItemId, necessaryMIATypes, null);
           if (item == null)
             return false;
           dateAdded = (DateTime)item.GetAspect(ImporterAspect.Metadata)[ImporterAspect.ATTR_DATEADDED];

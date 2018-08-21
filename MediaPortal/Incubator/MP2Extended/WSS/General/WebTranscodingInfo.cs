@@ -22,8 +22,8 @@
 
 #endregion
 
-using System;
 using MediaPortal.Extensions.TranscodingService.Interfaces.Transcoding;
+using System;
 
 namespace MediaPortal.Plugins.MP2Extended.WSS.General
 {

@@ -28,11 +28,11 @@ using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
-using MediaPortal.Plugins.SlimTv.Interfaces.LiveTvMediaItem;
-using MediaPortal.Extensions.TranscodingService.Interfaces.Metadata;
-using MediaPortal.Extensions.TranscodingService.Interfaces.Transcoding;
-using MediaPortal.Extensions.TranscodingService.Interfaces.Profiles;
 using MediaPortal.Extensions.TranscodingService.Interfaces;
+using MediaPortal.Extensions.TranscodingService.Interfaces.Transcoding;
+using MediaPortal.Extensions.TranscodingService.Interfaces.Metadata;
+using MediaPortal.Extensions.TranscodingService.Interfaces.Profiles;
+using System.Linq;
 using MediaPortal.Extensions.TranscodingService.Interfaces.Metadata.Streams;
 
 namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.Profiles
@@ -52,10 +52,10 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.Profiles
       TranscodingParameter = null;
       IsSegmented = false;
       IsLive = live;
-      MetadataContainer info = null;
+      IList<MetadataContainer> info = null;
       bool sourceIsLive = false;
 
-      info = MediaAnalyzer.ParseMediaItem(item);
+      info = MediaAnalyzer.ParseMediaItemAsync(item, null).Result;
       if(info == null)
       {
         Logger.Warn("MP2Extended: Mediaitem {0} couldn't be analyzed", item.MediaItemId);
@@ -88,13 +88,13 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.Profiles
         if (IsAudio)
         {
           AudioTranscoding audio = TranscodeProfileManager.GetAudioTranscoding(ProfileManager.TRANSCODE_PROFILE_SECTION, client.Profile.ID,
-            info, live, transcodeId);
+            info.First(), live, transcodeId);
           TranscodingParameter = audio;
         }
         else if (IsImage)
         {
           ImageTranscoding image = TranscodeProfileManager.GetImageTranscoding(ProfileManager.TRANSCODE_PROFILE_SECTION, client.Profile.ID,
-            info, transcodeId);
+            info.First(), transcodeId);
           TranscodingParameter = image;
         }
         else if (IsVideo)
@@ -124,9 +124,9 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.Profiles
         if (sourceIsLive == true)
         {
           if (IsVideo)
-            TranscodingParameter = TranscodeProfileManager.GetLiveVideoTranscoding(info, client.PreferredAudioLanguages, transcodeId);
+            TranscodingParameter = TranscodeProfileManager.GetLiveVideoTranscoding(info.First(), client.PreferredAudioLanguages, transcodeId);
           else if (IsAudio)
-            TranscodingParameter = TranscodeProfileManager.GetLiveAudioTranscoding(info, transcodeId);
+            TranscodingParameter = TranscodeProfileManager.GetLiveAudioTranscoding(info.First(), transcodeId);
         }
         else if (IsVideo)
         {
@@ -147,7 +147,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.Profiles
         }
       }
 
-      AssignWebMetadata(info);
+      AssignWebMetadata(info.First());
     }
 
     private void AssignWebMetadata(MetadataContainer info)
@@ -220,14 +220,14 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.Profiles
           VideoTranscoding video = (VideoTranscoding)TranscodingParameter;
           TranscodedVideoMetadata metadata = MediaConverter.GetTranscodedVideoMetadata(video);
           int selectedAudio = 0;
-          for (int stream = 0; stream < info.Audio.Count; stream++)
-          {
-            if (video.SourceAudioStreamIndex == info.Audio[stream].StreamIndex)
-            {
-              selectedAudio = stream;
-              break;
-            }
-          }
+          //for (int stream = 0; stream < info.Audio.Count; stream++)
+          //{
+          //  if (video.SourceAudioStreamIndex == info.Audio[stream].StreamIndex)
+          //  {
+          //    selectedAudio = stream;
+          //    break;
+          //  }
+          //}
 
           WebMetadata = new MetadataContainer();
           WebMetadata.Metadata.Mime = info.Metadata.Mime;
@@ -287,19 +287,19 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.Profiles
         }
       }
 
-      if (IsImage)
-      {
-        profileList = ProfileMime.ResolveImageProfile(WebMetadata.Metadata.ImageContainerType, WebMetadata.Image.Width, WebMetadata.Image.Height);
-      }
-      else if (IsAudio)
-      {
-        profileList = ProfileMime.ResolveAudioProfile(WebMetadata.Metadata.AudioContainerType, WebMetadata.Audio[0].Codec, WebMetadata.Audio[0].Bitrate, WebMetadata.Audio[0].Frequency, WebMetadata.Audio[0].Channels);
-      }
-      else if (IsVideo)
-      {
-        profileList = ProfileMime.ResolveVideoProfile(WebMetadata.Metadata.VideoContainerType, WebMetadata.Video.Codec, WebMetadata.Audio[0].Codec, WebMetadata.Video.ProfileType, WebMetadata.Video.HeaderLevel,
-          WebMetadata.Video.Framerate, WebMetadata.Video.Width, WebMetadata.Video.Height, WebMetadata.Video.Bitrate, WebMetadata.Audio[0].Bitrate, WebMetadata.Video.TimestampType);
-      }
+      //if (IsImage)
+      //{
+      //  profileList = ProfileMime.ResolveImageProfile(WebMetadata.Metadata.ImageContainerType, WebMetadata.Image.Width, WebMetadata.Image.Height);
+      //}
+      //else if (IsAudio)
+      //{
+      //  profileList = ProfileMime.ResolveAudioProfile(WebMetadata.Metadata.AudioContainerType, WebMetadata.Audio[0].Codec, WebMetadata.Audio[0].Bitrate, WebMetadata.Audio[0].Frequency, WebMetadata.Audio[0].Channels);
+      //}
+      //else if (IsVideo)
+      //{
+      //  profileList = ProfileMime.ResolveVideoProfile(WebMetadata.Metadata.VideoContainerType, WebMetadata.Video.Codec, WebMetadata.Audio[0].Codec, WebMetadata.Video.ProfileType, WebMetadata.Video.HeaderLevel,
+      //    WebMetadata.Video.Framerate, WebMetadata.Video.Width, WebMetadata.Video.Height, WebMetadata.Video.Bitrate, WebMetadata.Audio[0].Bitrate, WebMetadata.Video.TimestampType);
+      //}
 
       string mime = info.Metadata.Mime;
       ProfileMime.FindCompatibleMime(Client, profileList, ref mime);
@@ -314,7 +314,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.Profiles
         {
           return false;
         }
-        return MediaConverter.IsTranscodeRunning(_clientId, TranscodingParameter.TranscodeId);
+        return MediaConverter.IsTranscodeRunningAsync(_clientId, TranscodingParameter.TranscodeId).Result;
       }
     }
 
@@ -328,7 +328,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.Profiles
     {
       if (TranscodingParameter != null)
       {
-        MediaConverter.StopTranscode(_clientId, TranscodingParameter.TranscodeId);
+        MediaConverter.StopTranscodeAsync(_clientId, TranscodingParameter.TranscodeId);
       }
     }
 
@@ -400,15 +400,20 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.Profiles
       }
     }
     public DateTime LastUpdated { get; set; }
-    internal static IMediaConverter MediaConverter
+
+    private ITranscodeProfileManager TranscodeProfileManager
+    {
+      get { return ServiceRegistration.Get<ITranscodeProfileManager>(); }
+    }
+    private IMediaConverter MediaConverter
     {
       get { return ServiceRegistration.Get<IMediaConverter>(); }
     }
-    internal static IMediaAnalyzer MediaAnalyzer
+    private IMediaAnalyzer MediaAnalyzer
     {
       get { return ServiceRegistration.Get<IMediaAnalyzer>(); }
     }
-    internal static ILogger Logger
+    private ILogger Logger
     {
       get { return ServiceRegistration.Get<ILogger>(); }
     }

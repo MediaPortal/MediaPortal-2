@@ -1,8 +1,31 @@
-﻿using System;
+﻿#region Copyright (C) 2007-2017 Team MediaPortal
+
+/*
+    Copyright (C) 2007-2017 Team MediaPortal
+    http://www.team-mediaportal.com
+
+    This file is part of MediaPortal 2
+
+    MediaPortal 2 is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    MediaPortal 2 is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with MediaPortal 2. If not, see <http://www.gnu.org/licenses/>.
+*/
+
+#endregion
+
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using HttpServer;
-using HttpServer.Sessions;
+using System.Threading.Tasks;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
 using MediaPortal.Plugins.MP2Extended.Attributes;
@@ -11,7 +34,7 @@ using MediaPortal.Plugins.MP2Extended.Exceptions;
 using MediaPortal.Plugins.MP2Extended.TAS;
 using MediaPortal.Plugins.SlimTv.Interfaces;
 using MediaPortal.Plugins.SlimTv.Interfaces.Items;
-using Newtonsoft.Json;
+using Microsoft.Owin;
 
 namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.TAS.Schedule
 {
@@ -28,33 +51,17 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.TAS.Schedule
   [ApiFunctionParam(Name = "priority", Type = typeof(int), Nullable = true)]
   internal class EditSchedule
   {
-    public WebBoolResult Process(int scheduleId, int? channelId = null, string title = null, DateTime? startTime = null, DateTime? endTime = null, WebScheduleType? scheduleType = null, int? preRecordInterval = null, int? postRecordInterval = null, string directory = null, int? priority = null)
+    public async Task<WebBoolResult> ProcessAsync(IOwinContext context, int scheduleId, int? channelId = null, string title = null, DateTime? startTime = null, DateTime? endTime = null, WebScheduleType? scheduleType = null, int? preRecordInterval = null, int? postRecordInterval = null, string directory = null, int? priority = null)
     {
       if (!ServiceRegistration.IsRegistered<ITvProvider>())
         throw new BadRequestException("EditSchedule: ITvProvider not found");
 
-      IChannelAndGroupInfo channelAndGroupInfo = ServiceRegistration.Get<ITvProvider>() as IChannelAndGroupInfo;
-      IScheduleControl scheduleControl = ServiceRegistration.Get<ITvProvider>() as IScheduleControl;
-
-      IChannel channel;
-      if (!channelAndGroupInfo.GetChannel(channelId.Value, out channel))
-        throw new BadRequestException(string.Format("EditSchedule: Couldn't get channel with Id: {0}", channelId));
-
-      IList<ISchedule> schedules;
-      ISchedule scheduleSrc;
-      if (!scheduleControl.GetSchedules(out schedules))
-        throw new BadRequestException("EditSchedule: Couldn't get schedules");
-      else
-      {
-        scheduleSrc = schedules.Single(x => x.ScheduleId == scheduleId);
-      }
-
-      bool result = scheduleControl.EditSchedule(scheduleSrc,
-        (channelId != null) ? channel : null,
+      bool result = await TVAccess.EditScheduleAsync(context, scheduleId, 
+        channelId,
         title,
         startTime,
         endTime,
-        (scheduleType != null) ? (ScheduleRecordingType?)scheduleType : (ScheduleRecordingType?)null,
+        scheduleType,
         preRecordInterval,
         postRecordInterval,
         directory,

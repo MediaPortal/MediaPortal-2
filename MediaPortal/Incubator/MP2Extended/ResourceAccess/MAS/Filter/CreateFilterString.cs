@@ -1,12 +1,35 @@
-﻿using System;
-using System.Linq;
-using HttpServer;
-using HttpServer.Sessions;
+﻿#region Copyright (C) 2007-2017 Team MediaPortal
+
+/*
+    Copyright (C) 2007-2017 Team MediaPortal
+    http://www.team-mediaportal.com
+
+    This file is part of MediaPortal 2
+
+    MediaPortal 2 is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    MediaPortal 2 is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with MediaPortal 2. If not, see <http://www.gnu.org/licenses/>.
+*/
+
+#endregion
+
+using System;
+using System.Threading.Tasks;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
 using MediaPortal.Plugins.MP2Extended.Attributes;
 using MediaPortal.Plugins.MP2Extended.Exceptions;
 using MediaPortal.Plugins.MP2Extended.MAS.General;
+using Microsoft.Owin;
 
 namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.Filter
 {
@@ -18,7 +41,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.Filter
   [ApiFunctionParam(Name = "conjunction", Type = typeof(string), Nullable = true)]
   internal class CreateFilterString
   {
-    public WebStringResult Process(string field, string op, string value, string conjunction)
+    public Task<WebStringResult> ProcessAsync(IOwinContext context, string field, string op, string value, string conjunction)
     {
       if (field == null)
         throw new BadRequestException("CreateFilterString: field is null");
@@ -30,9 +53,9 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.Filter
         throw new BadRequestException("CreateFilterString: value is null");
       
       string val = value.Replace("\\", "\\\\").Replace("'", "\\'");
-      return conjunction == null ?
+      return Task.FromResult(new WebStringResult(conjunction == null ?
           String.Format("{0}{1}'{2}'", field, op, val) :
-          String.Format("{0}{1}'{2}'{3} ", field, op, val, conjunction == "and" ? "," : "|");
+          String.Format("{0}{1}'{2}'{3} ", field, op, val, conjunction == "and" ? "," : "|")));
     }
 
     internal static ILogger Logger

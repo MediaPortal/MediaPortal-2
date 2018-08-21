@@ -24,19 +24,19 @@
 
 using System;
 using System.Collections.Generic;
-using Microsoft.AspNetCore.Http;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
 using MediaPortal.Plugins.MP2Extended.Attributes;
 using MediaPortal.Plugins.MP2Extended.Common;
 using MediaPortal.Plugins.MP2Extended.Exceptions;
 using MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.stream;
-using MediaPortal.Plugins.SlimTv.Interfaces;
-using MediaPortal.Plugins.SlimTv.Interfaces.Items;
 using MediaPortal.Common.MediaManagement;
-using MediaPortal.Plugins.MP2Extended.ResourceAccess.TAS.Timeshiftings;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
+using System.Web;
 using MediaPortal.Extensions.TranscodingService.Interfaces;
+using MediaPortal.Plugins.SlimTv.Interfaces.LiveTvMediaItem;
+using System.Threading.Tasks;
+using Microsoft.Owin;
 
 namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.json.Control
 {
@@ -48,9 +48,8 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.json.Control
   [ApiFunctionParam(Name = "idleTimeout", Type = typeof(int), Nullable = true)]
   internal class InitStream
   {
-    public WebBoolResult Process(HttpContext httpContext, string itemId, string clientDescription, string identifier, WebMediaType type, int? idleTimeout)
+    public async Task<WebBoolResult> ProcessAsync(IOwinContext context, string itemId, string clientDescription, string identifier, WebMediaType type, int? idleTimeout)
     {
-
       if (itemId == null)
         throw new BadRequestException("InitStream: itemId is null");
       if (clientDescription == null)
@@ -63,10 +62,10 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.json.Control
         ItemType = type,
         ClientDescription = clientDescription,
         IdleTimeout = idleTimeout ?? -1,
-        ClientIp = httpContext.Request.Headers["remote_addr"]
+        ClientIp = context.Request.Headers["remote_addr"]
       };
 
-      MediaItem mediaItem = null;
+      MediaItem mediaItem = new LiveTvMediaItem(Guid.Empty);
       if (streamItem.ItemType == WebMediaType.TV || streamItem.ItemType == WebMediaType.Radio)
       {
         int channelIdInt;
@@ -77,7 +76,8 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.json.Control
         if (streamItem.ItemType == WebMediaType.Radio) streamItem.Title = "Live Radio";
         streamItem.LiveChannelId = channelIdInt;
 
-        if(MediaAnalyzer.ParseChannelStream(channelIdInt, out mediaItem) == null)
+        var info = await MediaAnalyzer.ParseChannelStreamAsync(channelIdInt, (LiveTvMediaItem)mediaItem);
+        if (info == null)
         {
           throw new BadRequestException(string.Format("InitStream: Couldn't parse channel stream: {0}", channelIdInt));
         }
@@ -97,7 +97,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.json.Control
         optionalMIATypes.Add(AudioAspect.ASPECT_ID);
         optionalMIATypes.Add(ImageAspect.ASPECT_ID);
 
-        mediaItem = GetMediaItems.GetMediaItemById(itemGuid, necessaryMIATypes, optionalMIATypes);
+        mediaItem = MediaLibraryAccess.GetMediaItemById(context, itemGuid, necessaryMIATypes, optionalMIATypes);
         if (mediaItem == null)
         {
           throw new BadRequestException(string.Format("InitStream: Couldn't init stream! No MediaItem found with id: {0}", itemId));

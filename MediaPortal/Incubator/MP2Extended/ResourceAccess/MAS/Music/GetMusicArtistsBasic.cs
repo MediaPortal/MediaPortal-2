@@ -1,21 +1,44 @@
-﻿using System;
+﻿#region Copyright (C) 2007-2017 Team MediaPortal
+
+/*
+    Copyright (C) 2007-2017 Team MediaPortal
+    http://www.team-mediaportal.com
+
+    This file is part of MediaPortal 2
+
+    MediaPortal 2 is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    MediaPortal 2 is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with MediaPortal 2. If not, see <http://www.gnu.org/licenses/>.
+*/
+
+#endregion
+
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using HttpServer;
-using HttpServer.Sessions;
+using System.Threading.Tasks;
 using MediaPortal.Backend.MediaLibrary;
 using MediaPortal.Common;
 using MediaPortal.Common.General;
 using MediaPortal.Common.Logging;
-using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Plugins.MP2Extended.Attributes;
 using MediaPortal.Plugins.MP2Extended.Common;
 using MediaPortal.Plugins.MP2Extended.Exceptions;
 using MediaPortal.Plugins.MP2Extended.Extensions;
 using MediaPortal.Plugins.MP2Extended.MAS.Music;
-using Newtonsoft.Json;
+using MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS;
+using Microsoft.Owin;
 
 namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.Music
 {
@@ -25,18 +48,18 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.Music
   [ApiFunctionParam(Name = "filter", Type = typeof(string), Nullable = true)]
   internal class GetMusicArtistsBasic
   {
-    public IList<WebMusicArtistBasic> Process(string filter, WebSortField? sort, WebSortOrder? order)
+    public Task<IList<WebMusicArtistBasic>> ProcessAsync(IOwinContext context, string filter, WebSortField? sort, WebSortOrder? order)
     {
       ISet<Guid> necessaryMIATypes = new HashSet<Guid>();
       necessaryMIATypes.Add(MediaAspect.ASPECT_ID);
 
-      HomogenousMap items = ServiceRegistration.Get<IMediaLibrary>().GetValueGroups(AudioAspect.ATTR_ARTISTS, null, ProjectionFunction.None, necessaryMIATypes, null, true, false);
-      HomogenousMap itemsAlbum = ServiceRegistration.Get<IMediaLibrary>().GetValueGroups(AudioAspect.ATTR_ALBUMARTISTS, null, ProjectionFunction.None, necessaryMIATypes, null, true, false);
+      HomogenousMap items = MediaLibraryAccess.GetGroups(context, necessaryMIATypes, AudioAspect.ATTR_ARTISTS);
+      HomogenousMap itemsAlbum = MediaLibraryAccess.GetGroups(context, necessaryMIATypes, AudioAspect.ATTR_ALBUMARTISTS);
 
       List<WebMusicArtistBasic> output = new List<WebMusicArtistBasic>();
 
       if (items.Count == 0)
-        return output;
+        return System.Threading.Tasks.Task.FromResult<IList<WebMusicArtistBasic>>(output);
 
       output = (from item in items
         where item.Key is string
@@ -55,7 +78,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.Music
         output = output.AsQueryable().Filter(filter).ToList();
 
 
-      return output;
+      return System.Threading.Tasks.Task.FromResult<IList<WebMusicArtistBasic>>(output);
     }
 
     internal static ILogger Logger

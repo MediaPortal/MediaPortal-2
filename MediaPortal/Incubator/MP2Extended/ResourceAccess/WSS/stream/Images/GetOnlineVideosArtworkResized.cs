@@ -1,14 +1,40 @@
-﻿using System;
-using HttpServer;
+﻿#region Copyright (C) 2007-2017 Team MediaPortal
+
+/*
+    Copyright (C) 2007-2017 Team MediaPortal
+    http://www.team-mediaportal.com
+
+    This file is part of MediaPortal 2
+
+    MediaPortal 2 is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    MediaPortal 2 is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with MediaPortal 2. If not, see <http://www.gnu.org/licenses/>.
+*/
+
+#endregion
+
+using System;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
-using MediaPortal.Extensions.UserServices.FanArtService.Interfaces;
 using MediaPortal.Plugins.MP2Extended.Attributes;
 using MediaPortal.Plugins.MP2Extended.Exceptions;
 using MediaPortal.Plugins.MP2Extended.MAS.OnlineVideos;
 using MediaPortal.Plugins.MP2Extended.OnlineVideos;
 using MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.Cache;
 using MediaPortal.Common.FanArt;
+using System.Net.Http;
+using MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.stream.Images.BaseClasses;
+using System.Threading.Tasks;
+using Microsoft.Owin;
 
 namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.stream.Images
 {
@@ -18,9 +44,9 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.stream.Images
   [ApiFunctionParam(Name = "maxWidth", Type = typeof(int), Nullable = false)]
   [ApiFunctionParam(Name = "maxHeight", Type = typeof(int), Nullable = false)]
   [ApiFunctionParam(Name = "borders", Type = typeof(string), Nullable = true)]
-  internal class GetOnlineVideosArtworkResized
+  internal class GetOnlineVideosArtworkResized : BaseGetArtwork
   {
-    public byte[] Process(WebOnlineVideosMediaType mediatype, string id, int maxWidth, int maxHeight, string borders = null)
+    public Task<HttpResponseMessage> ProcessAsync(IOwinContext context, WebOnlineVideosMediaType mediatype, string id, int maxWidth, int maxHeight, string borders = null)
     {
       if (id == null)
         throw new BadRequestException("GetOnlineVideosArtworkResized: id is null");
@@ -28,26 +54,14 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.stream.Images
       ImageCache.CacheIdentifier identifier = ImageCache.GetIdentifier(StringToGuid(id), false, maxWidth, maxHeight, borders, 0, FanArtTypes.Thumbnail, FanArtMediaTypes.Undefined);
 
       byte[] data;
-      if (ImageCache.TryGetImageFromCache(identifier, out data))
+      if (ImageCache.TryGetImageFromCache(context, identifier, out data))
       {
         Logger.Info("GetOnlineVideosArtworkResized: got image from cache");
-        return data;
+        return Task.FromResult(ImageFile(data));
       }
 
       byte[] resizedImage = Plugins.MP2Extended.WSS.Images.ResizeImage(OnlineVideosThumbs.GetThumb(mediatype, id), maxWidth, maxHeight, borders);
-
-      return resizedImage;
-    }
-
-    private Guid StringToGuid(string value)
-    {
-      byte[] bytes = ResourceAccessUtils.GetBytes(value);
-      return new Guid(bytes);
-    }
-
-    internal static ILogger Logger
-    {
-      get { return ServiceRegistration.Get<ILogger>(); }
+      return Task.FromResult(ImageFile(resizedImage));
     }
   }
 }

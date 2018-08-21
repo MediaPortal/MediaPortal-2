@@ -22,10 +22,8 @@
 
 #endregion
 
-using System;
 using System.Linq;
 using System.Collections.Generic;
-using HttpServer.Exceptions;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
 using MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.Profiles;
@@ -34,10 +32,12 @@ using MediaPortal.Plugins.MP2Extended.Attributes;
 using MediaPortal.Plugins.MP2Extended.MAS.General;
 using MediaPortal.Plugins.MP2Extended.Utils;
 using MediaPortal.Plugins.SlimTv.Interfaces.LiveTvMediaItem;
-using MediaPortal.Extensions.TranscodingService.Interfaces;
+using System.Web;
+using MediaPortal.Plugins.MP2Extended.Exceptions;
 using MediaPortal.Extensions.TranscodingService.Interfaces.Transcoding;
-using MediaPortal.Extensions.TranscodingService.Interfaces.Helpers;
-using Microsoft.AspNetCore.Http;
+using MediaPortal.Extensions.TranscodingService.Interfaces;
+using System.Threading.Tasks;
+using Microsoft.Owin;
 
 namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.json.Control
 {
@@ -49,7 +49,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.json.Control
   [ApiFunctionParam(Name = "subtitleId", Type = typeof(string), Nullable = true)]
   internal class StartStreamWithStreamSelection
   {
-    public WebStringResult Process(HttpContext httpContext, string identifier, string profileName, long startPosition, int audioId = -1, int subtitleId = -1)
+    public Task<WebStringResult> ProcessAsync(IOwinContext context, string identifier, string profileName, long startPosition, int audioId = -1, int subtitleId = -1)
     {
       if (identifier == null)
         throw new BadRequestException("StartStreamWithStreamSelection: identifier is null");
@@ -86,12 +86,12 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.json.Control
       if ((streamItem.TranscoderObject.TranscodingParameter is VideoTranscoding))
       {
         ((VideoTranscoding)streamItem.TranscoderObject.TranscodingParameter).HlsBaseUrl = string.Format("RetrieveStream?identifier={0}&hls=", identifier);
-        if (audioId >= 0)
-          ((VideoTranscoding)streamItem.TranscoderObject.TranscodingParameter).SourceAudioStreamIndex = audioId;
-        if (subtitleId == -1)
-          ((VideoTranscoding)streamItem.TranscoderObject.TranscodingParameter).SourceSubtitleStreamIndex = SubtitleHelper.NO_SUBTITLE;
-        else
-          ((VideoTranscoding)streamItem.TranscoderObject.TranscodingParameter).SourceSubtitleStreamIndex = subtitleId;
+        //if (audioId >= 0)
+        //  ((VideoTranscoding)streamItem.TranscoderObject.TranscodingParameter).SourceAudioStreamIndex = audioId;
+        //if (subtitleId == -1)
+        //  ((VideoTranscoding)streamItem.TranscoderObject.TranscodingParameter).SourceSubtitleStreamIndex = SubtitleHelper.NO_SUBTITLE;
+        //else
+        //  ((VideoTranscoding)streamItem.TranscoderObject.TranscodingParameter).SourceSubtitleStreamIndex = subtitleId;
       }
 
       StreamControl.StartStreaming(identifier, startPosition);
@@ -109,8 +109,8 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.json.Control
         }
       }
 
-      string url = GetBaseStreamUrl.GetBaseStreamURL(httpContext) + "/MPExtended/StreamingService/stream/RetrieveStream?identifier=" + identifier + filePostFix;
-      return new WebStringResult { Result = url };
+      string url = GetBaseStreamUrl.GetBaseStreamURL(context) + "/MPExtended/StreamingService/stream/RetrieveStream?identifier=" + identifier + filePostFix;
+      return Task.FromResult(new WebStringResult { Result = url });
     }
 
     internal static ILogger Logger

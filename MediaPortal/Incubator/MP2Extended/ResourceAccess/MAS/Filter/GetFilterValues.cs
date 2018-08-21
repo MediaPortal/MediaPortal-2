@@ -1,8 +1,29 @@
-﻿using System;
+﻿#region Copyright (C) 2007-2017 Team MediaPortal
+
+/*
+    Copyright (C) 2007-2017 Team MediaPortal
+    http://www.team-mediaportal.com
+
+    This file is part of MediaPortal 2
+
+    MediaPortal 2 is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    MediaPortal 2 is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with MediaPortal 2. If not, see <http://www.gnu.org/licenses/>.
+*/
+
+#endregion
+
 using System.Collections.Generic;
 using System.Linq;
-using HttpServer;
-using HttpServer.Sessions;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
 using MediaPortal.Plugins.MP2Extended.Attributes;
@@ -10,14 +31,14 @@ using MediaPortal.Plugins.MP2Extended.Common;
 using MediaPortal.Plugins.MP2Extended.Exceptions;
 using MediaPortal.Plugins.MP2Extended.Filters;
 using MediaPortal.Plugins.MP2Extended.MAS.FileSystem;
-using MediaPortal.Plugins.MP2Extended.MAS.General;
 using MediaPortal.Plugins.MP2Extended.MAS.Picture;
 using MediaPortal.Plugins.MP2Extended.MAS.Playlist;
 using MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.FileSystem;
 using MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.Picture;
 using MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.Playlist;
 using MediaPortal.Plugins.MP2Extended.Extensions;
-using MediaPortal.Plugins.MP2Extended.Utils;
+using System.Threading.Tasks;
+using Microsoft.Owin;
 
 namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.Filter
 {
@@ -32,24 +53,24 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.Filter
   // TODO: add the missing functions once these are implemented
   internal class GetFilterValues
   {
-    public IList<string> Process(WebMediaType mediaType, string filterField, string op, int? limit, WebSortOrder? order)
+    public async Task<IList<string>> ProcessAsync(IOwinContext context, WebMediaType mediaType, string filterField, string op, int? limit, WebSortOrder? order)
     {
       switch (mediaType)
       {
         case WebMediaType.Drive:
-          return AutoSuggestion.GetValuesForField(filterField, (List<WebDriveBasic>)(new GetFileSystemDrives().Process(null, null)), op, limit).OrderBy(x => x, order).ToList();
+          return AutoSuggestion.GetValuesForField(filterField, await new GetFileSystemDrives().ProcessAsync(context, null, null), op, limit).OrderBy(x => x, order).ToList();
         case WebMediaType.Movie:
-        //return AutoSuggestion.GetValuesForField(filterField, new GetMoviesDetailed().Process(provider), op, limitInt).OrderBy(x => x, webSortOrder).ToList();
+        //return AutoSuggestion.GetValuesForField(filterField, new GetMoviesDetailed().ProcessAsync(context, provider), op, limitInt).OrderBy(x => x, webSortOrder).ToList();
         case WebMediaType.MusicAlbum:
-        //return AutoSuggestion.GetValuesForField(filterField, new GetMusicAlbumsBasic().Process(provider), op, limitInt).OrderBy(x => x, webSortOrder).ToList();
+        //return AutoSuggestion.GetValuesForField(filterField, new GetMusicAlbumsBasic().ProcessAsync(context, provider), op, limitInt).OrderBy(x => x, webSortOrder).ToList();
         case WebMediaType.MusicArtist:
         //return AutoSuggestion.GetValuesForField(filterField, GetMusicArtistsDetailed(provider), op, limitInt).OrderBy(x => x, webSortOrder).ToList();
         case WebMediaType.MusicTrack:
         //return AutoSuggestion.GetValuesForField(filterField, GetMusicTracksDetailed(provider), op, limitInt).OrderBy(x => x, webSortOrder).ToList();
         case WebMediaType.Picture:
-          return AutoSuggestion.GetValuesForField(filterField, (List<WebPictureDetailed>)(new GetPicturesDetailed().Process(null, null, null)), op, limit).OrderBy(x => x, order).ToList();
+          return AutoSuggestion.GetValuesForField(filterField, await new GetPicturesDetailed().ProcessAsync(context, null, null, null), op, limit).OrderBy(x => x, order).ToList();
         case WebMediaType.Playlist:
-          return AutoSuggestion.GetValuesForField(filterField, (List<WebPlaylist>)(new GetPlaylists().Process()), op, limit).OrderBy(x => x, order).ToList();
+          return AutoSuggestion.GetValuesForField(filterField, await new GetPlaylists().ProcessAsync(context), op, limit).OrderBy(x => x, order).ToList();
         case WebMediaType.TVEpisode:
         //return AutoSuggestion.GetValuesForField(filterField, GetTVEpisodesDetailed(provider), op, limitInt).OrderBy(x => x, webSortOrder).ToList();
         case WebMediaType.TVShow:

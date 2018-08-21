@@ -1,22 +1,46 @@
-﻿using System;
+﻿#region Copyright (C) 2007-2017 Team MediaPortal
+
+/*
+    Copyright (C) 2007-2017 Team MediaPortal
+    http://www.team-mediaportal.com
+
+    This file is part of MediaPortal 2
+
+    MediaPortal 2 is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    MediaPortal 2 is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with MediaPortal 2. If not, see <http://www.gnu.org/licenses/>.
+*/
+
+#endregion
+
+using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Net;
-using HttpServer;
-using HttpServer.Sessions;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Common.ResourceAccess;
-using MediaPortal.Extensions.UserServices.FanArtService.Interfaces;
 using MediaPortal.Plugins.MP2Extended.Attributes;
 using MediaPortal.Plugins.MP2Extended.Common;
 using MediaPortal.Plugins.MP2Extended.Exceptions;
 using MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.Cache;
 using MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.stream.BaseClasses;
-using Microsoft.AspNetCore.Http;
 using MediaPortal.Common.FanArt;
+using System.Web;
+using System.Threading.Tasks;
+using System.Web.Http.Controllers;
+using Microsoft.Owin;
+using System.Net;
 
 namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.stream.Images
 {
@@ -28,13 +52,13 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.stream.Images
   [ApiFunctionParam(Name = "borders", Type = typeof(string), Nullable = true)]
   internal class GetImageResized : BaseSendData
   {
-    public void Process(HttpContext httpContext, WebMediaType type, string id, int maxWidth, int maxHeight, string borders = null)
+    public async Task ProcessAsync(IOwinContext context, WebMediaType type, string id, int maxWidth, int maxHeight, string borders = null)
     {
       if (id == null)
         throw new BadRequestException("GetImageResized: id is null");
-      if (maxWidth == null)
+      if (maxWidth == 0)
         throw new BadRequestException("GetImageResized: maxWidth is null");
-      if (maxHeight == null)
+      if (maxHeight == 0)
         throw new BadRequestException("GetImageResized: maxHeight is null");
 
       Guid idGuid;
@@ -46,7 +70,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.stream.Images
       necessaryMIATypes.Add(ProviderResourceAspect.ASPECT_ID);
       necessaryMIATypes.Add(ImporterAspect.ASPECT_ID);
       necessaryMIATypes.Add(ImageAspect.ASPECT_ID);
-      MediaItem item = GetMediaItems.GetMediaItemById(idGuid, necessaryMIATypes);
+      MediaItem item = MediaLibraryAccess.GetMediaItemById(context, idGuid, necessaryMIATypes, null);
 
       var resourcePathStr = item.PrimaryResources[item.ActiveResourceLocatorIndex].GetAttributeValue(ProviderResourceAspect.ATTR_RESOURCE_ACCESSOR_PATH);
       var resourcePath = ResourcePath.Deserialize(resourcePathStr.ToString());
@@ -60,7 +84,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.stream.Images
       ImageCache.CacheIdentifier identifier = ImageCache.GetIdentifier(idGuid, false, maxWidth, maxHeight, borders, 0, FanArtTypes.Undefined, FanArtMediaTypes.Image);
       byte[] resizedImage;
 
-      if (ImageCache.TryGetImageFromCache(identifier, out resizedImage))
+      if (ImageCache.TryGetImageFromCache(context, identifier, out resizedImage))
       {
         Logger.Info("GetImageResized: Got image from cache");
       }
@@ -74,31 +98,31 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.stream.Images
         }
 
         // Add to cache
-        if (ImageCache.AddImageToCache(resizedImage, identifier))
+        if (ImageCache.AddImageToCache(context, resizedImage, identifier))
           Logger.Info("GetImageResized: Added image to cache");
       }
 
       using (var resourceStream = new MemoryStream(resizedImage))
       {
         // HTTP/1.1 RFC2616 section 14.25 'If-Modified-Since'
-        if (!string.IsNullOrEmpty(httpContext.Request.Headers["If-Modified-Since"]))
+        if (!string.IsNullOrEmpty(context.Request.Headers["If-Modified-Since"]))
         {
-          DateTime lastRequest = DateTime.Parse(httpContext.Request.Headers["If-Modified-Since"]);
+          DateTime lastRequest = DateTime.Parse(context.Request.Headers["If-Modified-Since"]);
           if (lastRequest.CompareTo(fsra.LastChanged) <= 0)
-            httpContext.Response.StatusCode = StatusCodes.Status304NotModified;
+            context.Response.StatusCode = (int)HttpStatusCode.NotModified;
         }
 
         // HTTP/1.1 RFC2616 section 14.29 'Last-Modified'
-        httpContext.Response.Headers.Add("Last-Modified", fsra.LastChanged.ToUniversalTime().ToString("r"));
+        context.Response.Headers["Last-Modified"] = fsra.LastChanged.ToUniversalTime().ToString("r");
 
-        string byteRangesSpecifier = httpContext.Request.Headers["Range"];
+        string byteRangesSpecifier = context.Request.Headers["Range"];
         IList<Range> ranges = ParseByteRanges(byteRangesSpecifier, resourceStream.Length);
-        bool onlyHeaders = httpContext.Request.Method == Method.Header || httpContext.Response.StatusCode == StatusCodes.Status304NotModified;
+        bool onlyHeaders = context.Request.Method == "HEAD" || context.Response.StatusCode == (int)HttpStatusCode.NotModified;
         if (ranges != null && ranges.Count > 0)
           // We only support last range
-          SendRange(httpContext, resourceStream, ranges[ranges.Count - 1], onlyHeaders);
+          await SendRangeAsync(context, resourceStream, ranges[ranges.Count - 1], onlyHeaders);
         else
-          SendWholeFile(httpContext, resourceStream, onlyHeaders);
+          await SendWholeFileAsync(context, resourceStream, onlyHeaders);
       }
     }
 

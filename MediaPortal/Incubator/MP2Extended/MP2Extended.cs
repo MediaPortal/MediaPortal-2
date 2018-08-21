@@ -1,198 +1,50 @@
-﻿using MediaPortal.Common;
+﻿#region Copyright (C) 2007-2017 Team MediaPortal
+
+/*
+    Copyright (C) 2007-2017 Team MediaPortal
+    http://www.team-mediaportal.com
+
+    This file is part of MediaPortal 2
+
+    MediaPortal 2 is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    MediaPortal 2 is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with MediaPortal 2. If not, see <http://www.gnu.org/licenses/>.
+*/
+
+#endregion
+
+using MediaPortal.Common;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.PluginManager;
 using MediaPortal.Common.Settings;
-using MediaPortal.Plugins.AspNetServer;
 using MediaPortal.Plugins.MP2Extended.OnlineVideos;
 using MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.Profiles;
+using MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.stream.BaseClasses;
 using MediaPortal.Plugins.MP2Extended.Settings;
-using MediaPortal.Plugins.MP2Extended.Swagger;
-using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Formatters;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.FileProviders;
-using Newtonsoft.Json;
-using Swashbuckle.AspNetCore.Swagger;
 using System;
-using System.Buffers;
 using System.IO;
 using System.Reflection;
 
 namespace MediaPortal.Plugins.MP2Extended
 {
-  public class MP2ExtendedService : IDisposable
-  {
-    #region Consts
-
-    private const string WEB_APPLICATION_NAME = "MP2Extended";
-    private const int PORT = 4322;
-    private const string BASE_PATH = "/MPExtended";
-    private static readonly Assembly ASS = Assembly.GetExecutingAssembly();
-    internal static readonly string ASSEMBLY_PATH = Path.GetDirectoryName(ASS.Location);
-
-    #endregion
-
-    #region Constructor
-    public MP2ExtendedService()
-    {
-      // TODO: remove one the Razor hacks aren't needed anymore
-      // Necessary so that the Asp.Net dlls can be resolved even if the WebApplication is contained in another plugin
-      AppDomain.CurrentDomain.AssemblyResolve += LoadAssemblyFromPluginFolder;
-
-      ServiceRegistration.Get<IAspNetServerService>().TryStartWebApplicationAsync(
-        webApplicationName: WEB_APPLICATION_NAME,
-        configureServices: services =>
-        {
-          // CORS
-          services.AddCors(options =>
-          {
-            options.AddPolicy("AllowAll", p => p.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader());
-          });
-
-          services.AddMvc(options =>
-          {
-            options.CacheProfiles.Add("nonCriticalApiCalls", new CacheProfile()
-            {
-              Duration = 100,
-              Location = ResponseCacheLocation.Client
-            });
-            var settings = JsonSerializerSettingsProvider.CreateSerializerSettings();
-            settings.DateFormatHandling = DateFormatHandling.MicrosoftDateFormat;
-            var jsonOutputFormatter = new JsonOutputFormatter(settings, ArrayPool<Char>.Shared);
-            options.OutputFormatters.RemoveType<JsonOutputFormatter>();
-            options.OutputFormatters.Insert(0, jsonOutputFormatter);
-          })
-          // MVC Razor
-          .AddRazorOptions(options => options.FileProviders.Add(new PhysicalFileProvider(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location))))
-          // This line is important to register the controllers from this webApp. If this is missing, no controller can be reached / no route gets generated
-          .AddApplicationPart(this.GetType().Assembly);
-
-          // Swagger
-          services.AddSwaggerGen(c =>
-          {
-            c.DescribeAllEnumsAsStrings();
-            c.OperationFilter<HandleModelbinding>();
-            Info info = new Info
-            {
-              Title = "MP2Extended API",
-              Description = "MP2Extended brings the well known MPExtended from MP1 to MP2",
-              Contact = new Contact
-              {
-                Name = "FreakyJ"
-              },
-              Version = "v1"
-            };
-
-            c.SwaggerDoc("MediaAccessService", info);
-            c.SwaggerDoc("TVAccessService", info);
-            c.SwaggerDoc("StreamingService", info);
-            c.OrderActionsBy(d => d.ActionDescriptor.DisplayName);
-            //c.IncludeXmlComments(Path.Combine(ASSEMBLY_PATH, ASS.GetName().Name+".xml"));
-          });
-        },
-        configureApp: app =>
-        {
-          // CORS
-          app.UseCors("AllowAll");
-
-          //app.UseExceptionHandler("/Error/Error");
-          app.UseDeveloperExceptionPage();
-          /*app.UseExceptionHandler(errorApp =>
-          {
-            // Normally you'd use MVC or similar to render a nice page.
-            errorApp.Run(async context =>
-            {
-              context.Response.StatusCode = 500;
-              context.Response.ContentType = "text/html";
-              await context.Response.WriteAsync("<html><body>\r\n");
-              await context.Response.WriteAsync("We're sorry, we encountered an un-expected issue with your application.<br>\r\n");
-
-              var error = context.Features.Get<IExceptionHandlerFeature>();
-              if (error != null)
-              {
-                // This error would not normally be exposed to the client
-                await context.Response.WriteAsync("<br>Error: " + HtmlEncoder.Default.Encode(error.Error.Message) + "<br>\r\n");
-              }
-              await context.Response.WriteAsync("<br><a href=\"/\">Home</a><br>\r\n");
-              await context.Response.WriteAsync("</body></html>\r\n");
-              await context.Response.WriteAsync(new string(' ', 512)); // Padding for IE
-            });
-          });*/
-          //app.UseMiddleware<ExceptionHandlerMiddleware>();
-          
-          // View File Provider
-          string resourcePathView = Path.Combine(ASSEMBLY_PATH, "Views").TrimEnd(Path.DirectorySeparatorChar);
-          app.UseStaticFiles(new StaticFileOptions
-          {
-            FileProvider = new PhysicalFileProvider(resourcePathView),
-            RequestPath = new PathString("/wwwViews")
-          });
-
-          // www File Provider
-          //string resourcePathWww = Path.Combine(ASSEMBLY_PATH, "wwwroot").TrimEnd(Path.DirectorySeparatorChar);
-          //app.UseStaticFiles(new StaticFileOptions
-          //{
-          //  FileProvider = new PhysicalFileProvider(resourcePathWww),
-          //  RequestPath = new PathString("/wwwroot")
-          //});
-
-          // Swagger
-          app.UseSwagger();
-          app.UseSwaggerUI(o =>
-          {
-            o.SwaggerEndpoint(BASE_PATH + "/swagger/MediaAccessService/swagger.json", "MediaAccessService");
-            o.SwaggerEndpoint(BASE_PATH + "/swagger/TVAccessService/swagger.json", "TVAccessService");
-            o.SwaggerEndpoint(BASE_PATH + "/swagger/StreamingService/swagger.json", "StreamingService");
-          });
-
-          // MVC
-          app.UseMvc();
-
-          // some standard output
-          app.Run(context => context.Response.WriteAsync("Hello MP2Extended"));
-        },
-        port: PORT,
-        basePath: BASE_PATH);
-    }
-
-    #endregion
-
-    // TODO: remove one the Razor hacks aren't needed anymore
-    private static Assembly LoadAssemblyFromPluginFolder(object sender, ResolveEventArgs args)
-    {
-      string folderPath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
-      if (folderPath == null)
-        return null;
-      string assemblyPath = Path.Combine(folderPath, new AssemblyName(args.Name).Name + ".dll");
-      if (!File.Exists(assemblyPath))
-        return null;
-      Assembly assembly = Assembly.LoadFrom(assemblyPath);
-      return assembly;
-    }
-
-    #region IDisposable implementation
-
-    public void Dispose()
-    {
-      ServiceRegistration.Get<IAspNetServerService>().TryStopWebApplicationAsync(WEB_APPLICATION_NAME).Wait();
-    }
-
-    #endregion
-  }
-
-  public class MP2Extended : IPluginStateTracker
+   public class MP2Extended : IPluginStateTracker
   {
     public static MP2ExtendedSettings Settings = new MP2ExtendedSettings();
-    public static MP2ExtendedUsers Users = new MP2ExtendedUsers();
     public static OnlineVideosManager OnlineVideosManager;
-
-    
 
     private void StartUp()
     {
       Logger.Debug("MP2Extended: Registering HTTP resource access module");
+
       //ServiceRegistration.Get<IResourceServer>().AddHttpModule(new MainRequestHandler());
       if (Settings.OnlineVideosEnabled)
         OnlineVideosManager = new OnlineVideosManager(); // must be loaded after the settings are loaded
@@ -202,7 +54,6 @@ namespace MediaPortal.Plugins.MP2Extended
     {
       ISettingsManager settingsManager = ServiceRegistration.Get<ISettingsManager>();
       Settings = settingsManager.Load<MP2ExtendedSettings>();
-      Users = settingsManager.Load<MP2ExtendedUsers>();
 
       ProfileManager.Profiles.Clear();
       ProfileManager.LoadProfiles(false);
@@ -213,7 +64,6 @@ namespace MediaPortal.Plugins.MP2Extended
     {
       ISettingsManager settingsManager = ServiceRegistration.Get<ISettingsManager>();
       settingsManager.Save(Settings);
-      settingsManager.Save(Users);
     }
 
     #region IPluginStateTracker
@@ -245,6 +95,7 @@ namespace MediaPortal.Plugins.MP2Extended
     public void Shutdown()
     {
       SaveSettings();
+      BaseSendData.SendDataCancellation.Cancel();
     }
 
     #endregion IPluginStateTracker

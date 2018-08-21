@@ -1,13 +1,35 @@
-﻿using System;
+﻿#region Copyright (C) 2007-2017 Team MediaPortal
+
+/*
+    Copyright (C) 2007-2017 Team MediaPortal
+    http://www.team-mediaportal.com
+
+    This file is part of MediaPortal 2
+
+    MediaPortal 2 is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    MediaPortal 2 is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with MediaPortal 2. If not, see <http://www.gnu.org/licenses/>.
+*/
+
+#endregion
+
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using HttpServer;
-using HttpServer.Sessions;
+using System.Threading.Tasks;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
-using MediaPortal.Extensions.MetadataExtractors.Aspects;
 using MediaPortal.Plugins.MP2Extended.Attributes;
 using MediaPortal.Plugins.MP2Extended.Common;
 using MediaPortal.Plugins.MP2Extended.Exceptions;
@@ -15,7 +37,8 @@ using MediaPortal.Plugins.MP2Extended.Extensions;
 using MediaPortal.Plugins.MP2Extended.ResourceAccess.TAS.Recording.BaseClasses;
 using MediaPortal.Plugins.MP2Extended.TAS.Tv;
 using MediaPortal.Plugins.SlimTv.Interfaces;
-using Newtonsoft.Json;
+using MediaPortal.Plugins.SlimTv.Interfaces.Aspects;
+using Microsoft.Owin;
 
 namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.TAS.Recording
 {
@@ -25,7 +48,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.TAS.Recording
   [ApiFunctionParam(Name = "filter", Type = typeof(string), Nullable = true)]
   internal class GetRecordings : BaseRecordingBasic
   {
-    public IList<WebRecordingBasic> Process(WebSortField? sort, WebSortOrder? order, string filter = null)
+    public Task<IList<WebRecordingBasic>> ProcessAsync(IOwinContext context, WebSortField? sort, WebSortOrder? order, string filter = null)
     {
       if (!ServiceRegistration.IsRegistered<ITvProvider>())
         throw new BadRequestException("GetRecordings: ITvProvider not found");
@@ -37,8 +60,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.TAS.Recording
       necessaryMIATypes.Add(VideoAspect.ASPECT_ID);
       necessaryMIATypes.Add(RecordingAspect.ASPECT_ID);
 
-      IList<MediaItem> items = GetMediaItems.GetMediaItemsByAspect(necessaryMIATypes);
-
+      IList<MediaItem> items = MediaLibraryAccess.GetMediaItemsByAspect(context, necessaryMIATypes, null);
 
       List<WebRecordingBasic> output = items.Select(item => RecordingBasic(item)).ToList();
 
@@ -50,7 +72,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.TAS.Recording
       else
         output = output.Filter(filter).ToList();
 
-      return output;
+      return System.Threading.Tasks.Task.FromResult<IList<WebRecordingBasic>>(output);
     }
 
     internal static ILogger Logger

@@ -1,16 +1,34 @@
-﻿using System;
+﻿#region Copyright (C) 2007-2017 Team MediaPortal
+
+/*
+    Copyright (C) 2007-2017 Team MediaPortal
+    http://www.team-mediaportal.com
+
+    This file is part of MediaPortal 2
+
+    MediaPortal 2 is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    MediaPortal 2 is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with MediaPortal 2. If not, see <http://www.gnu.org/licenses/>.
+*/
+
+#endregion
+
 using System.Collections.Generic;
-using System.Linq;
-using HttpServer;
-using HttpServer.Sessions;
+using System.Threading.Tasks;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
 using MediaPortal.Plugins.MP2Extended.Attributes;
 using MediaPortal.Plugins.MP2Extended.Common;
-using MediaPortal.Plugins.MP2Extended.Extensions;
-using MediaPortal.Plugins.MP2Extended.MAS.General;
-using MediaPortal.Plugins.MP2Extended.ResourceAccess.TAS.EPG;
-using MediaPortal.Plugins.MP2Extended.TAS.Tv;
+using Microsoft.Owin;
 
 namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.Filter
 {
@@ -23,9 +41,9 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.Filter
   [ApiFunctionParam(Name = "limit", Type = typeof(int), Nullable = true)]
   internal class GetFilterValuesCount
   {
-    public WebIntResult Process(WebMediaType mediaType, string filterField, string op, int? limit)
+    public async Task<WebIntResult> ProcessAsync(IOwinContext context, WebMediaType mediaType, string filterField, string op, int? limit)
     {
-      IList<string> output = new GetFilterValues().Process(mediaType, filterField, op, limit, null);
+      IList<string> output = await new GetFilterValues().ProcessAsync(context, mediaType, filterField, op, limit, null);
 
       return new WebIntResult { Result = output.Count };
     }

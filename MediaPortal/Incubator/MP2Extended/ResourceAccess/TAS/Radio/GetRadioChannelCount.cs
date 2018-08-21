@@ -1,7 +1,30 @@
-﻿using System.Collections.Generic;
+﻿#region Copyright (C) 2007-2017 Team MediaPortal
+
+/*
+    Copyright (C) 2007-2017 Team MediaPortal
+    http://www.team-mediaportal.com
+
+    This file is part of MediaPortal 2
+
+    MediaPortal 2 is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    MediaPortal 2 is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with MediaPortal 2. If not, see <http://www.gnu.org/licenses/>.
+*/
+
+#endregion
+
+using System.Collections.Generic;
 using System.Linq;
-using HttpServer;
-using HttpServer.Sessions;
+using System.Threading.Tasks;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
 using MediaPortal.Plugins.MP2Extended.Attributes;
@@ -10,6 +33,7 @@ using MediaPortal.Plugins.MP2Extended.Exceptions;
 using MediaPortal.Plugins.SlimTv.Interfaces;
 using MediaPortal.Plugins.SlimTv.Interfaces.Items;
 using MediaPortal.Plugins.SlimTv.Interfaces.UPnP.Items;
+using Microsoft.Owin;
 
 namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.TAS.Radio
 {
@@ -17,35 +41,13 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.TAS.Radio
   [ApiFunctionParam(Name = "groupId", Type = typeof(int), Nullable = false)]
   internal class GetRadioChannelCount
   {
-    public WebIntResult Process(int? groupId = null)
+    public async Task<WebIntResult> ProcessAsync(IOwinContext context, int? groupId = null)
     {
       if (!ServiceRegistration.IsRegistered<ITvProvider>())
         throw new BadRequestException("GetRadioChannelCount: ITvProvider not found");
 
-      IChannelAndGroupInfo channelAndGroupInfo = ServiceRegistration.Get<ITvProvider>() as IChannelAndGroupInfo;
-        
-
-      IList<IChannelGroup> channelGroups = new List<IChannelGroup>();
-      if (groupId == null)
-        channelAndGroupInfo.GetChannelGroups(out channelGroups);
-      else
-      {
-        channelGroups.Add(new ChannelGroup() { ChannelGroupId = groupId.Value });
-      }
-
-      int output = 0;
-
-      foreach (var group in channelGroups)
-      {
-        // get channel for goup
-        IList<IChannel> channels = new List<IChannel>();
-        if (!channelAndGroupInfo.GetChannels(group, out channels))
-          continue;
-
-        output += channels.Count;
-      }
-
-      return new WebIntResult { Result = output };
+      var channels = await TVAccess.GetGroupChannelsAsync(context, groupId);
+      return new WebIntResult { Result = channels.Where(c => c.MediaType == MediaType.Radio).Count() };
     }
 
     internal static ILogger Logger

@@ -23,9 +23,9 @@ using MediaPortal.Common.Logging;
 
 namespace MediaPortal.Plugins.MP2Extended.Extensions
 {
-  public static class TaskExtensionMethods
+  public static class Task
   {
-    public static void LogOnException(this Task task)
+    public static void LogOnException(this System.Threading.Tasks.Task task)
     {
       task.ContinueWith(t => { ServiceRegistration.Get<ILogger>().Error("Exception thrown in task started with LogOnException()", t.Exception); },
         TaskContinuationOptions.OnlyOnFaulted);

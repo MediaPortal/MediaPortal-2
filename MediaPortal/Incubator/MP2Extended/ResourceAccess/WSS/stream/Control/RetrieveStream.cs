@@ -26,18 +26,21 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using Microsoft.AspNetCore.Http;
-using HttpServer;
+using System.Net;
+using System.Threading.Tasks;
+using System.Web;
+using System.Web.Http.Controllers;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.ResourceAccess;
+using MediaPortal.Extensions.TranscodingService.Interfaces;
+using MediaPortal.Extensions.TranscodingService.Interfaces.Helpers;
+using MediaPortal.Extensions.TranscodingService.Interfaces.Transcoding;
 using MediaPortal.Plugins.MP2Extended.Attributes;
 using MediaPortal.Plugins.MP2Extended.Exceptions;
 using MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.Profiles;
 using MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.stream.BaseClasses;
-using MediaPortal.Extensions.TranscodingService.Interfaces.Transcoding;
-using MediaPortal.Extensions.TranscodingService.Interfaces;
-using MediaPortal.Extensions.TranscodingService.Interfaces.Helpers;
+using Microsoft.Owin;
 
 namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.stream.Control
 {
@@ -47,7 +50,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.stream.Control
   [ApiFunctionParam(Name = "hls", Type = typeof(string), Nullable = true)]
   internal class RetrieveStream : BaseSendData
   {
-    public bool Process(HttpContext httpContext, string identifier, string file, string hls)
+    public async Task<bool> ProcessAsync(IOwinContext context, string identifier, string file, string hls)
     {
       Stream resourceStream = null;
       bool onlyHeaders = false;
@@ -64,7 +67,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.stream.Control
       {
         #region Handle segment/playlist request
 
-        if (SendSegment(hls, httpContext, streamItem) == true)
+        if (await SendSegmentAsync(hls, null, streamItem) == true)
         {
           return true;
         }
@@ -74,13 +77,13 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.stream.Control
         {
           long segmentRequest = MediaConverter.GetSegmentSequence(hls);
           if (streamItem.RequestSegment(segmentRequest) == false)
-
           {
             Logger.Error("RetrieveStream: Request for segment file {0} canceled", hls);
 
-            httpContext.Response.StatusCode = StatusCodes.Status500InternalServerError;
-            httpContext.Response.ContentLength = null;
-            httpContext.Response.ContentType = null;
+            context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
+            context.Response.ReasonPhrase = "Request for segment file canceled";
+            context.Response.ContentLength = 0;
+            context.Response.ContentType = null;
 
             return true;
           }
@@ -90,9 +93,10 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.stream.Control
         {
           Logger.Error("RetrieveStream: Unable to find segment file {0}", hls);
 
-          httpContext.Response.StatusCode = StatusCodes.Status500InternalServerError;
-          httpContext.Response.ContentLength = null;
-          httpContext.Response.ContentType = null;
+          context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
+          context.Response.ReasonPhrase = "Unable to find segment file";
+          context.Response.ContentLength = 0;
+          context.Response.ContentType = null;
 
           return true;
         }
@@ -104,9 +108,10 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.stream.Control
       {
         Logger.Debug("RetrieveStream: Stream for {0} is no longer active", identifier);
 
-        httpContext.Response.StatusCode = StatusCodes.Status500InternalServerError;
-        httpContext.Response.ContentLength = null;
-        httpContext.Response.ContentType = null;
+        context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
+        context.Response.ReasonPhrase = "Stream is no longer active";
+        context.Response.ContentLength = 0;
+        context.Response.ContentType = null;
 
         return true;
       }
@@ -118,7 +123,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.stream.Control
       // Grab the mimetype from the media item and set the Content Type header.
       if (streamItem.TranscoderObject.Mime == null)
         throw new InternalServerException("RetrieveStream: Media item has bad mime type, re-import media item");
-      httpContext.Response.ContentType = streamItem.TranscoderObject.Mime;
+      context.Response.ContentType = streamItem.TranscoderObject.Mime;
 
       TransferMode mediaTransferMode = TransferMode.Interactive;
       if (streamItem.TranscoderObject.IsVideo || streamItem.TranscoderObject.IsAudio)
@@ -127,7 +132,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.stream.Control
       }
 
       StreamMode requestedStreamingMode = StreamMode.Normal;
-      string byteRangesSpecifier = httpContext.Request.Headers["Range"];
+      string byteRangesSpecifier = context.Request.Headers["Range"];
       if (byteRangesSpecifier != null)
       {
         Logger.Debug("RetrieveStream: Requesting range {1} for mediaitem {0}", streamItem.RequestedMediaItem.MediaItemId, byteRangesSpecifier);
@@ -156,10 +161,10 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.stream.Control
         if (ranges == null || ranges.Count == 0)
         {
           //At least 1 range is needed
-          httpContext.Response.StatusCode = StatusCodes.Status416RequestedRangeNotSatisfiable;
-          httpContext.Response.ContentLength = null;
-          httpContext.Response.ContentType = null;
-          Logger.Debug("RetrieveStream: Sending headers: " + string.Join(";", httpContext.Response.Headers.Select(x => x.Key + "=" + x.Value).ToArray()));
+          context.Response.StatusCode = (int)HttpStatusCode.RequestedRangeNotSatisfiable;
+          context.Response.ContentLength = 0;
+          context.Response.ContentType = null;
+          Logger.Debug("RetrieveStream: Sending headers: " + string.Join(";", context.Response.Headers.Select(x => x.Key + "=" + x.Value).ToArray()));
           return true;
         }
       }
@@ -169,10 +174,10 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.stream.Control
         if ((requestedStreamingMode == StreamMode.ByteRange) && (ranges == null || ranges.Count == 0))
         {
           //At least 1 range is needed
-          httpContext.Response.StatusCode = StatusCodes.Status416RequestedRangeNotSatisfiable;
-          httpContext.Response.ContentLength = null;
-          httpContext.Response.ContentType = null;
-          Logger.Debug("RetrieveStream: Sending headers: " + string.Join(";", httpContext.Response.Headers.Select(x => x.Key + "=" + x.Value).ToArray()));
+          context.Response.StatusCode = (int)HttpStatusCode.RequestedRangeNotSatisfiable;
+          context.Response.ContentLength = 0;
+          context.Response.ContentType = null;
+          Logger.Debug("RetrieveStream: Sending headers: " + string.Join(";", context.Response.Headers.Select(x => x.Key + "=" + x.Value).ToArray()));
           return true;
         }
       }
@@ -195,7 +200,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.stream.Control
       {
         if (streamItem.TranscoderObject.WebMetadata.Metadata.Source is ILocalFsResourceAccessor)
         {
-          resourceStream = MediaConverter.GetFileStream((ILocalFsResourceAccessor)streamItem.TranscoderObject.WebMetadata.Metadata.Source);
+          resourceStream = await MediaConverter.GetFileStreamAsync((ILocalFsResourceAccessor)streamItem.TranscoderObject.WebMetadata.Metadata.Source);
         }
       }
 
@@ -224,7 +229,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.stream.Control
         if (hls != null)
         {
           //Send HLS file originally requested
-          if (SendSegment(hls, httpContext, streamItem) == true)
+          if (await SendSegmentAsync(hls, context, streamItem) == true)
           {
             return true;
           }
@@ -241,77 +246,87 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.stream.Control
       #region Finish and send response
 
       // HTTP/1.1 RFC2616 section 14.25 'If-Modified-Since'
-      if (!string.IsNullOrEmpty(httpContext.Request.Headers["If-Modified-Since"]))
+      if (!string.IsNullOrEmpty(context.Request.Headers["If-Modified-Since"]))
       {
-        DateTime lastRequest = DateTime.Parse(httpContext.Request.Headers["If-Modified-Since"]);
+        DateTime lastRequest = DateTime.Parse(context.Request.Headers["If-Modified-Since"]);
         if (lastRequest.CompareTo(streamItem.TranscoderObject.LastUpdated) <= 0)
-          httpContext.Response.StatusCode = StatusCodes.Status304NotModified;
+          context.Response.StatusCode = (int)HttpStatusCode.NotModified;
       }
 
       // HTTP/1.1 RFC2616 section 14.29 'Last-Modified'
-      httpContext.Response.Headers.Add("Last-Modified", streamItem.TranscoderObject.LastUpdated.ToUniversalTime().ToString("r"));
+      context.Response.Headers["Last-Modified"] = streamItem.TranscoderObject.LastUpdated.ToUniversalTime().ToString("r");
 
       if (resourceStream == null)
       {
-        httpContext.Response.StatusCode = StatusCodes.Status500InternalServerError;
-        httpContext.Response.ContentLength = null;
-        httpContext.Response.ContentType = null;
+        context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
+        context.Response.ReasonPhrase = "No resource stream found";
+        context.Response.ContentLength = 0;
+        context.Response.ContentType = null;
 
         return true;
       }
 
-      lock (streamItem.BusyLock)
+      await streamItem.BusyLock.WaitAsync(SendDataCancellation.Token);
+      try
       {
         // TODO: fix method
-        onlyHeaders = /*request.Method == Method.Header ||*/ httpContext.Response.StatusCode == StatusCodes.Status304NotModified;
+        //onlyHeaders = /*request.Method == Method.Header ||*/ httpContext.Response.StatusCode == StatusCodes.Status304NotModified;
         if (requestedStreamingMode == StreamMode.ByteRange)
         {
           if (ranges != null && ranges.Count > 0)
           {
             // We only support last range
-            SendByteRange(httpContext, resourceStream, streamItem.TranscoderObject, endPointSettings, ranges[ranges.Count - 1], onlyHeaders, partialResource, mediaTransferMode);
+            await SendByteRangeAsync(context, resourceStream, streamItem.TranscoderObject, endPointSettings, ranges[ranges.Count - 1], onlyHeaders, partialResource, mediaTransferMode);
             return true;
           }
         }
         Logger.Debug("RetrieveStream: Sending file header only: {0}", onlyHeaders.ToString());
-        SendWholeFile(httpContext, resourceStream, streamItem.TranscoderObject, endPointSettings, onlyHeaders, partialResource, mediaTransferMode);
+        await SendWholeFileAsync(context, resourceStream, streamItem.TranscoderObject, endPointSettings, onlyHeaders, partialResource, mediaTransferMode);
+      }
+      finally
+      {
+        streamItem.BusyLock.Release();
       }
 
       #endregion
 
-      return true;
+        return true;
     }
 
-    private bool SendSegment(string fileName, HttpContext httpContext, StreamItem streamItem)
+    private async Task<bool> SendSegmentAsync(string fileName, IOwinContext context, StreamItem streamItem)
     {
       if (fileName != null)
       {
-        lock (streamItem.BusyLock)
+        await streamItem.BusyLock.WaitAsync(SendDataCancellation.Token);
+        try
         {
-          object containerEnum = null;
-          Stream resourceStream = null;
-          if (MediaConverter.GetSegmentFile((VideoTranscoding)streamItem.TranscoderObject.TranscodingParameter, streamItem.StreamContext, fileName, out resourceStream, out containerEnum) == true)
+          var segment = await MediaConverter.GetSegmentFileAsync((VideoTranscoding)streamItem.TranscoderObject.TranscodingParameter, streamItem.StreamContext, fileName);
+          if (segment != null)
           {
-            if (containerEnum is VideoContainer)
+            if (segment.Value.ContainerEnum is VideoContainer)
             {
               VideoTranscoding video = (VideoTranscoding)streamItem.TranscoderObject.TranscodingParameter;
-              List<string> profiles = ProfileMime.ResolveVideoProfile((VideoContainer)containerEnum, video.TargetVideoCodec, video.TargetAudioCodec, EncodingProfile.Unknown, 0, 0, 0, 0, 0, 0, Timestamp.None);
+              List<string> profiles = ProfileMime.ResolveVideoProfile((VideoContainer)segment.Value.ContainerEnum, video.TargetVideoCodec, video.TargetAudioCodec, EncodingProfile.Unknown, 0, 0, 0, 0, 0, 0, Timestamp.None);
               string mime = "video/unknown";
               ProfileMime.FindCompatibleMime(streamItem.Profile, profiles, ref mime);
-              httpContext.Response.ContentType = mime;
+              context.Response.ContentType = mime;
             }
-            else if (containerEnum is SubtitleCodec)
+            else if (segment.Value.ContainerEnum is SubtitleCodec)
             {
-              httpContext.Response.ContentType = SubtitleHelper.GetSubtitleMime((SubtitleCodec)containerEnum);
+              context.Response.ContentType = SubtitleHelper.GetSubtitleMime((SubtitleCodec)segment.Value.ContainerEnum);
             }
-            bool onlyHeaders = httpContext.Request.Method == Method.Header || httpContext.Response.StatusCode == StatusCodes.Status304NotModified;
+            bool onlyHeaders = true; // httpContext.Request.Method == Method.Header || httpContext.Response.StatusCode == StatusCodes.Status304NotModified;
             Logger.Debug("RetrieveStream: Sending file header only: {0}", onlyHeaders.ToString());
 
-            SendWholeFile(httpContext, resourceStream, onlyHeaders);
+            await SendWholeFileAsync(context, segment.Value.FileData, onlyHeaders);
             // Close the Stream so that FFMpeg can replace the playlist file
-            resourceStream.Dispose();
+            segment.Value.FileData.Dispose();
             return true;
           }
+        }
+        finally
+        {
+          streamItem.BusyLock.Release();
         }
       }
       return false;

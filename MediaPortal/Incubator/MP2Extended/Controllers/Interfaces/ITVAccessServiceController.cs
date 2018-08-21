@@ -1,9 +1,30 @@
-﻿using System;
+﻿#region Copyright (C) 2007-2017 Team MediaPortal
+
+/*
+    Copyright (C) 2007-2017 Team MediaPortal
+    http://www.team-mediaportal.com
+
+    This file is part of MediaPortal 2
+
+    MediaPortal 2 is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    MediaPortal 2 is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with MediaPortal 2. If not, see <http://www.gnu.org/licenses/>.
+*/
+
+#endregion
+
+using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.ServiceModel;
-using System.ServiceModel.Web;
 using System.Threading.Tasks;
 using MediaPortal.Plugins.MP2Extended.Common;
 using MediaPortal.Plugins.MP2Extended.MAS.General;
@@ -15,343 +36,129 @@ namespace MediaPortal.Plugins.MP2Extended.Controllers.Interfaces
 {
   public interface ITVAccessServiceController
   {
-    [OperationContract]
-    [WebGet(ResponseFormat = WebMessageFormat.Json)]
-    WebTVServiceDescription GetServiceDescription();
+    Task<WebTVServiceDescription> GetServiceDescription();
 
     #region TV Server
-    [OperationContract]
-    [WebGet(ResponseFormat = WebMessageFormat.Json)]
-    WebBoolResult TestConnectionToTVService();
 
-    [OperationContract]
-    [WebGet(ResponseFormat = WebMessageFormat.Json)]
-    WebStringResult ReadSettingFromDatabase(string tagName);
+    Task<WebBoolResult> TestConnectionToTVService();
+    Task<WebStringResult> ReadSettingFromDatabase(string tagName);
+    Task<WebBoolResult> WriteSettingToDatabase(string tagName, string value);
+    Task<IList<WebDiskSpaceInformation>> GetLocalDiskInformation();
+    //Task<IList<WebTVSearchResult>> Search(string text, WebTVSearchResultType? type = null);
+    Task<WebDictionary<string>> GetExternalMediaInfo(WebMediaType? type, string id);
+    //Task<IList<WebTVSearchResult>> SearchResultsByRange(string text, int start, int end, WebTVSearchResultType? type = null);
 
-    [OperationContract]
-    [WebGet(ResponseFormat = WebMessageFormat.Json)]
-    WebBoolResult WriteSettingToDatabase(string tagName, string value);
-
-    [OperationContract]
-    [WebGet(ResponseFormat = WebMessageFormat.Json)]
-    IList<WebDiskSpaceInformation> GetLocalDiskInformation();
-
-    /*[OperationContract]
-    [WebGet(ResponseFormat = WebMessageFormat.Json)]
-    IList<WebTVSearchResult> Search(string text, WebTVSearchResultType? type = null);*/
-
-    [OperationContract]
-    [WebGet(ResponseFormat = WebMessageFormat.Json)]
-    WebDictionary<string> GetExternalMediaInfo(WebMediaType? type, string id);
-
-    /*[OperationContract]
-    [WebGet(ResponseFormat = WebMessageFormat.Json)]
-    IList<WebTVSearchResult> SearchResultsByRange(string text, int start, int end, WebTVSearchResultType? type = null);*/
     #endregion
 
     #region Cards
-    [OperationContract]
-    [WebGet(ResponseFormat = WebMessageFormat.Json)]
-    IList<WebCard> GetCards();
 
-    [OperationContract]
-    [WebGet(ResponseFormat = WebMessageFormat.Json)]
-    IList<WebVirtualCard> GetActiveCards();
+    Task<IList<WebCard>> GetCards();
+    Task<IList<WebVirtualCard>> GetActiveCards();
+    Task<IList<WebUser>> GetActiveUsers();
+    //Task<IList<WebRtspClient>> GetStreamingClients();
+    Task<IList<WebDiskSpaceInformation>> GetAllRecordingDiskInformation();
+    Task<WebDiskSpaceInformation> GetRecordingDiskInformationForCard(int id);
 
-    [OperationContract]
-    [WebGet(ResponseFormat = WebMessageFormat.Json)]
-    IList<WebUser> GetActiveUsers();
-
-    /*[OperationContract]
-    [WebGet(ResponseFormat = WebMessageFormat.Json)]
-    IList<WebRtspClient> GetStreamingClients();*/
-
-    [OperationContract]
-    [WebGet(ResponseFormat = WebMessageFormat.Json)]
-    IList<WebDiskSpaceInformation> GetAllRecordingDiskInformation();
-
-    [OperationContract]
-    [WebGet(ResponseFormat = WebMessageFormat.Json)]
-    WebDiskSpaceInformation GetRecordingDiskInformationForCard(int id);
     #endregion
 
     #region Schedules
-    [OperationContract]
-    [WebGet(ResponseFormat = WebMessageFormat.Json)]
-    WebBoolResult StartRecordingManual(string userName, int channelId, string title);
 
-    [OperationContract]
-    [WebGet(ResponseFormat = WebMessageFormat.Json)]
-    WebBoolResult AddSchedule(int channelId, string title, DateTime startTime, DateTime endTime, WebScheduleType scheduleType);
-
-    [OperationContract]
-    [WebGet(ResponseFormat = WebMessageFormat.Json)]
-    WebBoolResult AddScheduleDetailed(int channelId, string title, DateTime startTime, DateTime endTime, WebScheduleType scheduleType, int preRecordInterval, int postRecordInterval, string directory, int priority);
-
-    [OperationContract]
-    [WebGet(ResponseFormat = WebMessageFormat.Json)]
-    WebIntResult GetScheduleCount();
-
-    [OperationContract]
-    [WebGet(ResponseFormat = WebMessageFormat.Json)]
-    IList<WebScheduleBasic> GetSchedules(WebSortField? sort = WebSortField.Title, WebSortOrder? order = WebSortOrder.Asc, string filter = null);
-
-    [OperationContract]
-    [WebGet(ResponseFormat = WebMessageFormat.Json)]
-    IList<WebScheduleBasic> GetSchedulesByRange(int start, int end, WebSortField? sort = WebSortField.Title, WebSortOrder? order = WebSortOrder.Asc, string filter = null);
-
-    [OperationContract]
-    [WebGet(ResponseFormat = WebMessageFormat.Json)]
-    WebScheduleBasic GetScheduleById(int scheduleId);
-
-    [OperationContract]
-    [WebGet(ResponseFormat = WebMessageFormat.Json)]
-    WebBoolResult CancelSchedule(int programId);
-
-    [OperationContract]
-    [WebGet(ResponseFormat = WebMessageFormat.Json)]
-    WebBoolResult EditSchedule(int scheduleId, int? channelId = null, string title = null, DateTime? startTime = null, DateTime? endTime = null, WebScheduleType? scheduleType = null, int? preRecordInterval = null, int? postRecordInterval = null, string directory = null, int? priority = null);
-
-    [OperationContract]
-    [WebGet(ResponseFormat = WebMessageFormat.Json)]
-    WebBoolResult DeleteSchedule(int scheduleId);
-
-    [OperationContract]
-    [WebGet(ResponseFormat = WebMessageFormat.Json)]
-    WebBoolResult StopRecording(int scheduleId);
-
-    [OperationContract]
-    [WebGet(ResponseFormat = WebMessageFormat.Json)]
-    IList<WebScheduledRecording> GetScheduledRecordingsForDate(DateTime date, WebSortField? sort = WebSortField.Title, WebSortOrder? order = WebSortOrder.Asc, string filter = null);
-
-    [OperationContract]
-    [WebGet(ResponseFormat = WebMessageFormat.Json)]
-    IList<WebScheduledRecording> GetScheduledRecordingsForToday(WebSortField? sort = WebSortField.Title, WebSortOrder? order = WebSortOrder.Asc, string filter = null);
+    Task<WebBoolResult> StartRecordingManual(string userName, int channelId, string title);
+    Task<WebBoolResult> AddSchedule(int channelId, string title, DateTime startTime, DateTime endTime, WebScheduleType scheduleType);
+    Task<WebBoolResult> AddScheduleDetailed(int channelId, string title, DateTime startTime, DateTime endTime, WebScheduleType scheduleType, int preRecordInterval, int postRecordInterval, string directory, int priority);
+    Task<WebIntResult> GetScheduleCount();
+    Task<IList<WebScheduleBasic>> GetSchedules(WebSortField? sort = WebSortField.Title, WebSortOrder? order = WebSortOrder.Asc, string filter = null);
+    Task<IList<WebScheduleBasic>> GetSchedulesByRange(int start, int end, WebSortField? sort = WebSortField.Title, WebSortOrder? order = WebSortOrder.Asc, string filter = null);
+    Task<WebScheduleBasic> GetScheduleById(int scheduleId);
+    Task<WebBoolResult> CancelSchedule(int programId);
+    Task<WebBoolResult> EditSchedule(int scheduleId, int? channelId = null, string title = null, DateTime? startTime = null, DateTime? endTime = null, WebScheduleType? scheduleType = null, int? preRecordInterval = null, int? postRecordInterval = null, string directory = null, int? priority = null);
+    Task<WebBoolResult> DeleteSchedule(int scheduleId);
+    Task<WebBoolResult> StopRecording(int scheduleId);
+    Task<IList<WebScheduledRecording>> GetScheduledRecordingsForDate(DateTime date, WebSortField? sort = WebSortField.Title, WebSortOrder? order = WebSortOrder.Asc, string filter = null);
+    Task<IList<WebScheduledRecording>> GetScheduledRecordingsForToday(WebSortField? sort = WebSortField.Title, WebSortOrder? order = WebSortOrder.Asc, string filter = null);
+    
     #endregion
 
     #region Recordings
-    [OperationContract]
-    [WebGet(ResponseFormat = WebMessageFormat.Json)]
-    WebIntResult GetRecordingCount();
 
-    [OperationContract]
-    [WebGet(ResponseFormat = WebMessageFormat.Json)]
-    IList<WebRecordingBasic> GetRecordings(WebSortField? sort = WebSortField.Title, WebSortOrder? order = WebSortOrder.Asc, string filter = null);
+    Task<WebIntResult> GetRecordingCount();
+    Task<IList<WebRecordingBasic>> GetRecordings(WebSortField? sort = WebSortField.Title, WebSortOrder? order = WebSortOrder.Asc, string filter = null);
+    Task<IList<WebRecordingBasic>> GetRecordingsByRange(int start, int end, WebSortField? sort = WebSortField.Title, WebSortOrder? order = WebSortOrder.Asc, string filter = null);
+    Task<WebRecordingBasic> GetRecordingById(Guid id);
+    Task<WebBoolResult> DeleteRecording(int id);
+    Task<WebRecordingFileInfo> GetRecordingFileInfo(int id);
+    Task<Stream> ReadRecordingFile(int id);
 
-    [OperationContract]
-    [WebGet(ResponseFormat = WebMessageFormat.Json)]
-    IList<WebRecordingBasic> GetRecordingsByRange(int start, int end, WebSortField? sort = WebSortField.Title, WebSortOrder? order = WebSortOrder.Asc, string filter = null);
-
-    [OperationContract]
-    [WebGet(ResponseFormat = WebMessageFormat.Json)]
-    WebRecordingBasic GetRecordingById(Guid id);
-
-    [OperationContract]
-    [WebGet(ResponseFormat = WebMessageFormat.Json)]
-    WebBoolResult DeleteRecording(int id);
-
-    [OperationContract]
-    [WebGet(ResponseFormat = WebMessageFormat.Json)]
-    WebRecordingFileInfo GetRecordingFileInfo(int id);
-
-    [OperationContract]
-    [WebGet(ResponseFormat = WebMessageFormat.Json)]
-    Stream ReadRecordingFile(int id);
     #endregion
 
     #region TV
-    [OperationContract]
-    [WebGet(ResponseFormat = WebMessageFormat.Json)]
-    WebIntResult GetGroupCount();
 
-    [OperationContract]
-    [WebGet(ResponseFormat = WebMessageFormat.Json)]
-    IList<WebChannelGroup> GetGroups(WebSortField? sort = WebSortField.User, WebSortOrder? order = WebSortOrder.Asc);
+    Task<WebIntResult> GetGroupCount();
+    Task<IList<WebChannelGroup>> GetGroups(WebSortField? sort = WebSortField.User, WebSortOrder? order = WebSortOrder.Asc);
+    Task<IList<WebChannelGroup>> GetGroupsByRange(int start, int end, WebSortField? sort = WebSortField.User, WebSortOrder? order = WebSortOrder.Asc);
+    Task<WebChannelGroup> GetGroupById(int groupId);
+    Task<WebIntResult> GetChannelCount(int? groupId = null);
+    Task<IList<WebChannelBasic>> GetChannelsBasic(int? groupId = null, WebSortField? sort = WebSortField.User, WebSortOrder? order = WebSortOrder.Asc);
+    Task<IList<WebChannelBasic>> GetChannelsBasicByRange(int start, int end, int? groupId = null, WebSortField? sort = WebSortField.User, WebSortOrder? order = WebSortOrder.Asc);
+    Task<IList<WebChannelDetailed>> GetChannelsDetailed(int? groupId = null, WebSortField? sort = WebSortField.User, WebSortOrder? order = WebSortOrder.Asc);
+    Task<IList<WebChannelDetailed>> GetChannelsDetailedByRange(int start, int end, int? groupId = null, WebSortField? sort = WebSortField.User, WebSortOrder? order = WebSortOrder.Asc);
+    Task<IList<WebChannelState>> GetAllChannelStatesForGroup(int groupId, string userName);
 
-    [OperationContract]
-    [WebGet(ResponseFormat = WebMessageFormat.Json)]
-    IList<WebChannelGroup> GetGroupsByRange(int start, int end, WebSortField? sort = WebSortField.User, WebSortOrder? order = WebSortOrder.Asc);
-
-    [OperationContract]
-    [WebGet(ResponseFormat = WebMessageFormat.Json)]
-    WebChannelGroup GetGroupById(int groupId);
-
-
-    [OperationContract]
-    [WebGet(ResponseFormat = WebMessageFormat.Json)]
-    WebIntResult GetChannelCount(int? groupId = null);
-
-    [OperationContract]
-    [WebGet(ResponseFormat = WebMessageFormat.Json)]
-    IList<WebChannelBasic> GetChannelsBasic(int? groupId = null, WebSortField? sort = WebSortField.User, WebSortOrder? order = WebSortOrder.Asc);
-
-    [OperationContract]
-    [WebGet(ResponseFormat = WebMessageFormat.Json)]
-    IList<WebChannelBasic> GetChannelsBasicByRange(int start, int end, int? groupId = null, WebSortField? sort = WebSortField.User, WebSortOrder? order = WebSortOrder.Asc);
-
-    [OperationContract]
-    [WebGet(ResponseFormat = WebMessageFormat.Json)]
-    IList<WebChannelDetailed> GetChannelsDetailed(int? groupId = null, WebSortField? sort = WebSortField.User, WebSortOrder? order = WebSortOrder.Asc);
-
-    [OperationContract]
-    [WebGet(ResponseFormat = WebMessageFormat.Json)]
-    IList<WebChannelDetailed> GetChannelsDetailedByRange(int start, int end, int? groupId = null, WebSortField? sort = WebSortField.User, WebSortOrder? order = WebSortOrder.Asc);
-
-    [OperationContract]
-    [WebGet(ResponseFormat = WebMessageFormat.Json)]
-    IList<WebChannelState> GetAllChannelStatesForGroup(int groupId, string userName);
     #endregion
 
-    #region Radio specific
-    [OperationContract]
-    [WebGet(ResponseFormat = WebMessageFormat.Json)]
-    WebIntResult GetRadioGroupCount();
+    #region Radio specific 
+    
+    Task<WebIntResult> GetRadioGroupCount();
+    Task<IList<WebChannelGroup>> GetRadioGroups(WebSortField? sort = WebSortField.User, WebSortOrder? order = WebSortOrder.Asc);
+    Task<IList<WebChannelGroup>> GetRadioGroupsByRange(int start, int end, WebSortField? sort = WebSortField.User, WebSortOrder? order = WebSortOrder.Asc);
+    Task<WebChannelGroup> GetRadioGroupById(int groupId);
+    Task<WebIntResult> GetRadioChannelCount(int? groupId = null);
+    Task<IList<WebChannelBasic>> GetRadioChannelsBasic(int? groupId = null, WebSortField? sort = WebSortField.User, WebSortOrder? order = WebSortOrder.Asc);
+    Task<IList<WebChannelBasic>> GetRadioChannelsBasicByRange(int start, int end, int? groupId = null, WebSortField? sort = WebSortField.User, WebSortOrder? order = WebSortOrder.Asc);
+    Task<IList<WebChannelDetailed>> GetRadioChannelsDetailed(int? groupId = null, WebSortField? sort = WebSortField.User, WebSortOrder? order = WebSortOrder.Asc);
+    Task<IList<WebChannelDetailed>> GetRadioChannelsDetailedByRange(int start, int end, int? groupId = null, WebSortField? sort = WebSortField.User, WebSortOrder? order = WebSortOrder.Asc);
+    Task<IList<WebChannelState>> GetAllRadioChannelStatesForGroup(int groupId, string userName);
 
-    [OperationContract]
-    [WebGet(ResponseFormat = WebMessageFormat.Json)]
-    IList<WebChannelGroup> GetRadioGroups(WebSortField? sort = WebSortField.User, WebSortOrder? order = WebSortOrder.Asc);
-
-    [OperationContract]
-    [WebGet(ResponseFormat = WebMessageFormat.Json)]
-    IList<WebChannelGroup> GetRadioGroupsByRange(int start, int end, WebSortField? sort = WebSortField.User, WebSortOrder? order = WebSortOrder.Asc);
-
-    [OperationContract]
-    [WebGet(ResponseFormat = WebMessageFormat.Json)]
-    WebChannelGroup GetRadioGroupById(int groupId);
-
-
-    [OperationContract]
-    [WebGet(ResponseFormat = WebMessageFormat.Json)]
-    WebIntResult GetRadioChannelCount(int? groupId = null);
-
-    [OperationContract]
-    [WebGet(ResponseFormat = WebMessageFormat.Json)]
-    IList<WebChannelBasic> GetRadioChannelsBasic(int? groupId = null, WebSortField? sort = WebSortField.User, WebSortOrder? order = WebSortOrder.Asc);
-
-    [OperationContract]
-    [WebGet(ResponseFormat = WebMessageFormat.Json)]
-    IList<WebChannelBasic> GetRadioChannelsBasicByRange(int start, int end, int? groupId = null, WebSortField? sort = WebSortField.User, WebSortOrder? order = WebSortOrder.Asc);
-
-    [OperationContract]
-    [WebGet(ResponseFormat = WebMessageFormat.Json)]
-    IList<WebChannelDetailed> GetRadioChannelsDetailed(int? groupId = null, WebSortField? sort = WebSortField.User, WebSortOrder? order = WebSortOrder.Asc);
-
-    [OperationContract]
-    [WebGet(ResponseFormat = WebMessageFormat.Json)]
-    IList<WebChannelDetailed> GetRadioChannelsDetailedByRange(int start, int end, int? groupId = null, WebSortField? sort = WebSortField.User, WebSortOrder? order = WebSortOrder.Asc);
-
-    [OperationContract]
-    [WebGet(ResponseFormat = WebMessageFormat.Json)]
-    IList<WebChannelState> GetAllRadioChannelStatesForGroup(int groupId, string userName);
     #endregion
 
     #region Channels
 
-    [OperationContract]
-    [WebGet(ResponseFormat = WebMessageFormat.Json)]
-    WebChannelBasic GetChannelBasicById(int channelId);
+    Task<WebChannelBasic> GetChannelBasicById(int channelId);
+    Task<WebChannelDetailed> GetChannelDetailedById(int channelId);
+    Task<WebChannelState> GetChannelState(int channelId, string userName);
 
-    [OperationContract]
-    [WebGet(ResponseFormat = WebMessageFormat.Json)]
-    WebChannelDetailed GetChannelDetailedById(int channelId);
-
-    [OperationContract]
-    [WebGet(ResponseFormat = WebMessageFormat.Json)]
-    WebChannelState GetChannelState(int channelId, string userName);
     #endregion
 
     #region Timeshifting
-    [OperationContract]
-    [WebGet(ResponseFormat = WebMessageFormat.Json)]
-    WebVirtualCard SwitchTVServerToChannelAndGetVirtualCard(string userName, int channelId);
+    
+    Task<WebVirtualCard> SwitchTVServerToChannelAndGetVirtualCard(string userName, int channelId);
+    Task<WebStringResult> SwitchTVServerToChannelAndGetStreamingUrl(string userName, int channelId);
+    Task<WebStringResult> SwitchTVServerToChannelAndGetTimeshiftFilename(string userName, int channelId);
+    Task<WebBoolResult> SendHeartbeat(string userName);
+    Task<WebBoolResult> CancelCurrentTimeShifting(string userName);
 
-    [OperationContract]
-    [WebGet(ResponseFormat = WebMessageFormat.Json)]
-    WebStringResult SwitchTVServerToChannelAndGetStreamingUrl(string userName, int channelId);
-
-    [OperationContract]
-    [WebGet(ResponseFormat = WebMessageFormat.Json)]
-    WebStringResult SwitchTVServerToChannelAndGetTimeshiftFilename(string userName, int channelId);
-
-    [OperationContract]
-    [WebGet(ResponseFormat = WebMessageFormat.Json)]
-    WebBoolResult SendHeartbeat(string userName);
-
-    [OperationContract]
-    [WebGet(ResponseFormat = WebMessageFormat.Json)]
-    WebBoolResult CancelCurrentTimeShifting(string userName);
     #endregion
 
     #region EPG
-    [OperationContract]
-    [WebGet(ResponseFormat = WebMessageFormat.Json)]
-    IList<WebProgramBasic> GetProgramsBasicForChannel(int channelId, DateTime startTime, DateTime endTime);
+    
+    Task<IList<WebProgramBasic>> GetProgramsBasicForChannel(int channelId, DateTime startTime, DateTime endTime);
+    Task<IList<WebProgramDetailed>> GetProgramsDetailedForChannel(int channelId, DateTime startTime, DateTime endTime);
+    Task<IList<WebChannelPrograms<WebProgramBasic>>> GetProgramsBasicForGroup(int groupId, DateTime startTime, DateTime endTime);
+    Task<IList<WebChannelPrograms<WebProgramDetailed>>> GetProgramsDetailedForGroup(int groupId, DateTime startTime, DateTime endTime);
+    Task<WebProgramDetailed> GetCurrentProgramOnChannel(int channelId);
+    Task<WebProgramDetailed> GetNextProgramOnChannel(int channelId);
+    Task<WebIntResult> SearchProgramsCount(string searchTerm);
+    Task<IList<WebProgramBasic>> SearchProgramsBasic(string searchTerm);
+    Task<IList<WebProgramBasic>> SearchProgramsBasicByRange(string searchTerm, int start, int end);
+    Task<IList<WebProgramDetailed>> SearchProgramsDetailed(string searchTerm);
+    Task<IList<WebProgramDetailed>> SearchProgramsDetailedByRange(string searchTerm, int start, int end);
+    Task<IList<WebProgramBasic>> GetNowNextWebProgramBasicForChannel(int channelId);
+    Task<IList<WebProgramDetailed>> GetNowNextWebProgramDetailedForChannel(int channelId);
+    Task<WebProgramBasic> GetProgramBasicById(int programId);
+    Task<WebProgramDetailed> GetProgramDetailedById(int programId);
+    Task<WebBoolResult> GetProgramIsScheduledOnChannel(int channelId, int programId);
+    Task<WebBoolResult> GetProgramIsScheduled(int programId);
 
-    [OperationContract]
-    [WebGet(ResponseFormat = WebMessageFormat.Json)]
-    IList<WebProgramDetailed> GetProgramsDetailedForChannel(int channelId, DateTime startTime, DateTime endTime);
-
-    [OperationContract]
-    [WebGet(ResponseFormat = WebMessageFormat.Json)]
-    IList<WebChannelPrograms<WebProgramBasic>> GetProgramsBasicForGroup(int groupId, DateTime startTime, DateTime endTime);
-
-    [OperationContract]
-    [WebGet(ResponseFormat = WebMessageFormat.Json)]
-    IList<WebChannelPrograms<WebProgramDetailed>> GetProgramsDetailedForGroup(int groupId, DateTime startTime, DateTime endTime);
-
-    [OperationContract]
-    [WebGet(ResponseFormat = WebMessageFormat.Json)]
-    WebProgramDetailed GetCurrentProgramOnChannel(int channelId);
-
-    [OperationContract]
-    [WebGet(ResponseFormat = WebMessageFormat.Json)]
-    WebProgramDetailed GetNextProgramOnChannel(int channelId);
-
-
-    [OperationContract]
-    [WebGet(ResponseFormat = WebMessageFormat.Json)]
-    WebIntResult SearchProgramsCount(string searchTerm);
-
-    [OperationContract]
-    [WebGet(ResponseFormat = WebMessageFormat.Json)]
-    IList<WebProgramBasic> SearchProgramsBasic(string searchTerm);
-
-    [OperationContract]
-    [WebGet(ResponseFormat = WebMessageFormat.Json)]
-    IList<WebProgramBasic> SearchProgramsBasicByRange(string searchTerm, int start, int end);
-
-    [OperationContract]
-    [WebGet(ResponseFormat = WebMessageFormat.Json)]
-    IList<WebProgramDetailed> SearchProgramsDetailed(string searchTerm);
-
-    [OperationContract]
-    [WebGet(ResponseFormat = WebMessageFormat.Json)]
-    IList<WebProgramDetailed> SearchProgramsDetailedByRange(string searchTerm, int start, int end);
-
-
-    [OperationContract]
-    [WebGet(ResponseFormat = WebMessageFormat.Json)]
-    IList<WebProgramBasic> GetNowNextWebProgramBasicForChannel(int channelId);
-
-    [OperationContract]
-    [WebGet(ResponseFormat = WebMessageFormat.Json)]
-    IList<WebProgramDetailed> GetNowNextWebProgramDetailedForChannel(int channelId);
-
-    [OperationContract]
-    [WebGet(ResponseFormat = WebMessageFormat.Json)]
-    WebProgramBasic GetProgramBasicById(int programId);
-
-    [OperationContract]
-    [WebGet(ResponseFormat = WebMessageFormat.Json)]
-    WebProgramDetailed GetProgramDetailedById(int programId);
-
-    [OperationContract]
-    [WebGet(ResponseFormat = WebMessageFormat.Json)]
-    WebBoolResult GetProgramIsScheduledOnChannel(int channelId, int programId);
-
-    [OperationContract]
-    [WebGet(ResponseFormat = WebMessageFormat.Json)]
-    WebBoolResult GetProgramIsScheduled(int programId);
     #endregion
   }
 }

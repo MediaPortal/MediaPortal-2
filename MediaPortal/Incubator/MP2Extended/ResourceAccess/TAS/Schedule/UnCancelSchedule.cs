@@ -1,8 +1,27 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using HttpServer;
-using HttpServer.Sessions;
+﻿#region Copyright (C) 2007-2017 Team MediaPortal
+
+/*
+    Copyright (C) 2007-2017 Team MediaPortal
+    http://www.team-mediaportal.com
+
+    This file is part of MediaPortal 2
+
+    MediaPortal 2 is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    MediaPortal 2 is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with MediaPortal 2. If not, see <http://www.gnu.org/licenses/>.
+*/
+
+#endregion
+
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
 using MediaPortal.Plugins.MP2Extended.Attributes;
@@ -10,37 +29,24 @@ using MediaPortal.Plugins.MP2Extended.Common;
 using MediaPortal.Plugins.MP2Extended.Exceptions;
 using MediaPortal.Plugins.SlimTv.Interfaces;
 using MediaPortal.Plugins.SlimTv.Interfaces.Items;
+using System.Threading.Tasks;
+using Microsoft.Owin;
 
 namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.TAS.Schedule
 {
   [ApiFunctionDescription(Type = ApiFunctionDescription.FunctionType.Json, Summary = "")]
   [ApiFunctionParam(Name = "programId", Type = typeof(int), Nullable = false)]
-  internal class UnCancelSchedule : IRequestMicroModuleHandler
+  internal class UnCancelSchedule
   {
-    public dynamic Process(IHttpRequest request, IHttpSession session)
+    public async Task<WebBoolResult> ProcessAsync(IOwinContext context, int programId)
     {
-      HttpParam httpParam = request.Param;
-      string programId = httpParam["programId"].Value;
-
-      if (programId == null)
+      if (programId == 0)
         throw new BadRequestException("CancelSchedule: programId is null");
-
-      int programIdInt;
-      if (!int.TryParse(programId, out programIdInt))
-        throw new BadRequestException(string.Format("CancelSchedule: Couldn't parse programId to int: {0}", programId));
 
       if (!ServiceRegistration.IsRegistered<ITvProvider>())
         throw new BadRequestException("CancelSchedule: ITvProvider not found");
 
-      IProgramInfo programInfo = ServiceRegistration.Get<ITvProvider>() as IProgramInfo;
-      IScheduleControl scheduleControl = ServiceRegistration.Get<ITvProvider>() as IScheduleControl;
-
-      bool result = false;
-
-      IProgram program;
-      if (programInfo.GetProgram(programIdInt, out program))
-        result = scheduleControl.UnCancelSchedule(program);
-
+      bool result = await TVAccess.UnCancelScheduleAsync(context, programId);
       return new WebBoolResult { Result = result };
     }
 

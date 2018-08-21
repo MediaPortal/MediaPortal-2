@@ -36,13 +36,16 @@ using MediaPortal.Plugins.MP2Extended.Attributes;
 using MediaPortal.Plugins.MP2Extended.Exceptions;
 using MediaPortal.Plugins.MP2Extended.Utils;
 using MediaPortal.Plugins.MP2Extended.WSS.StreamInfo;
-using MediaPortal.Extensions.TranscodingService.Interfaces.Metadata.Streams;
-using MediaPortal.Extensions.TranscodingService.Interfaces.Metadata;
 using MediaPortal.Plugins.MP2Extended.Common;
-using MediaPortal.Extensions.TranscodingService.Interfaces.Helpers;
-using MediaPortal.Extensions.TranscodingService.Interfaces;
 using MP2Extended.Extensions;
 using System.Linq;
+using MediaPortal.Extensions.TranscodingService.Interfaces;
+using MediaPortal.Plugins.SlimTv.Interfaces.LiveTvMediaItem;
+using MediaPortal.Extensions.TranscodingService.Interfaces.Metadata;
+using MediaPortal.Extensions.TranscodingService.Interfaces.Metadata.Streams;
+using MediaPortal.Extensions.TranscodingService.Interfaces.Helpers;
+using System.Threading.Tasks;
+using Microsoft.Owin;
 
 namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.json.StreamInfo
 {
@@ -53,7 +56,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.json.StreamInfo
   {
     private const string UNDEFINED = "?";
 
-    public WebMediaInfo Process(string itemId, WebMediaType type)
+    public Task<WebMediaInfo> ProcessAsync(IOwinContext context, string itemId, WebMediaType type)
     {
       if (itemId == null)
         throw new BadRequestException("GetMediaInfo: itemId is null");
@@ -71,7 +74,9 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.json.StreamInfo
         int channelIdInt;
         if (int.TryParse(itemId, out channelIdInt))
         {
-          if (MediaAnalyzer.ParseChannelStream(channelIdInt, out item) == null)
+          item = new LiveTvMediaItem(Guid.Empty);
+          var info = MediaAnalyzer.ParseChannelStreamAsync(channelIdInt, (LiveTvMediaItem)item).Result;
+          if (info == null)
           {
             throw new BadRequestException(String.Format("GetMediaInfo: Channel {0} stream not available", itemId));
           }
@@ -93,7 +98,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.json.StreamInfo
         optionalMIATypes.Add(AudioAspect.ASPECT_ID);
         optionalMIATypes.Add(ImageAspect.ASPECT_ID);
 
-        item = GetMediaItems.GetMediaItemById(itemId, necessaryMIATypes, optionalMIATypes);
+        item = MediaLibraryAccess.GetMediaItemById(context, itemId, necessaryMIATypes, optionalMIATypes);
 
         if (item == null)
           throw new BadRequestException(String.Format("GetMediaInfo: No MediaItem found with id: {0}", itemId));
@@ -119,7 +124,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.json.StreamInfo
         webVideoStream.Width = Convert.ToInt32(videoStreamAspect.GetAttributeValue(VideoStreamAspect.ATTR_WIDTH) ?? 0);
         webVideoStreams.Add(webVideoStream);
 
-        MetadataContainer mc = MediaAnalyzer.ParseMediaItem(item);
+        MetadataContainer mc = MediaAnalyzer.ParseMediaItemAsync(item, null).Result.First();
         if (mc.IsVideo)
         {
           webVideoStream.ID = mc.Video.StreamIndex;
@@ -178,38 +183,6 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.json.StreamInfo
             }
             webSubtitleStreams.Add(webSubtitleStream);
           }
-
-          IResourceAccessor mediaItemAccessor = item.GetResourceLocator().CreateAccessor();
-          if (mediaItemAccessor is IFileSystemResourceAccessor)
-          {
-            using (var fsra = (IFileSystemResourceAccessor)mediaItemAccessor.Clone())
-            {
-              if (fsra.IsFile)
-                using (var lfsra = StreamedResourceToLocalFsAccessBridge.GetLocalFsResourceAccessor(fsra))
-                {
-                  List<SubtitleStream> externalSubtitles = SubtitleHelper.FindExternalSubtitles(lfsra, null, "EN");
-                  if (externalSubtitles != null)
-                    for (int i = 0; i < externalSubtitles.Count; i++)
-                    {
-                      WebSubtitleStream webSubtitleStream = new WebSubtitleStream();
-                      webSubtitleStream.Filename = Path.GetFileName(externalSubtitles[i].Source);
-                      webSubtitleStream.ID = externalSubtitles[i].StreamIndex;
-                      webSubtitleStream.Index = webSubtitleStreams.Count;
-                      if (string.IsNullOrEmpty(externalSubtitles[i].Language) == false)
-                      {
-                        webSubtitleStream.Language = externalSubtitles[i].Language;
-                        webSubtitleStream.LanguageFull = new CultureInfo(externalSubtitles[i].Language).EnglishName;
-                      }
-                      else
-                      {
-                        webSubtitleStream.Language = UNDEFINED;
-                        webSubtitleStream.LanguageFull = UNDEFINED;
-                      }
-                      webSubtitleStreams.Add(webSubtitleStream);
-                    }
-                }
-            }
-          }
         }
 
         // Audio File
@@ -236,7 +209,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.json.StreamInfo
         SubtitleStreams = webSubtitleStreams
       };
 
-      return webMediaInfo;
+      return Task.FromResult(webMediaInfo);
     }
 
     internal static IMediaConverter MediaConverter

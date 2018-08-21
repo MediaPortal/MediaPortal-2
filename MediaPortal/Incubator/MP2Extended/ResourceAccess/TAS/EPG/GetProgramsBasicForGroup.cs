@@ -1,8 +1,31 @@
-﻿using System;
+﻿#region Copyright (C) 2007-2017 Team MediaPortal
+
+/*
+    Copyright (C) 2007-2017 Team MediaPortal
+    http://www.team-mediaportal.com
+
+    This file is part of MediaPortal 2
+
+    MediaPortal 2 is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    MediaPortal 2 is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with MediaPortal 2. If not, see <http://www.gnu.org/licenses/>.
+*/
+
+#endregion
+
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using HttpServer;
-using HttpServer.Sessions;
+using System.Threading.Tasks;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
 using MediaPortal.Plugins.MP2Extended.Attributes;
@@ -11,6 +34,7 @@ using MediaPortal.Plugins.MP2Extended.ResourceAccess.TAS.EPG.BaseClasses;
 using MediaPortal.Plugins.MP2Extended.TAS.Tv;
 using MediaPortal.Plugins.SlimTv.Interfaces;
 using MediaPortal.Plugins.SlimTv.Interfaces.Items;
+using Microsoft.Owin;
 
 namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.TAS.EPG
 {
@@ -20,33 +44,23 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.TAS.EPG
   [ApiFunctionParam(Name = "endTime", Type = typeof(DateTime), Nullable = false)]
   internal class GetProgramsBasicForGroup : BaseProgramBasic
   {
-    public IList<WebChannelPrograms<WebProgramBasic>> Process(int groupId, DateTime startTime, DateTime endTime)
+    public async Task<IList<WebChannelPrograms<WebProgramBasic>>> ProcessAsync(IOwinContext context, int groupId, DateTime startTime, DateTime endTime)
     {
       if (!ServiceRegistration.IsRegistered<ITvProvider>())
         throw new BadRequestException("GetProgramsBasicForGroup: ITvProvider not found");
 
-      IChannelAndGroupInfo channelAndGroupInfo = ServiceRegistration.Get<ITvProvider>() as IChannelAndGroupInfo;
-      IProgramInfo programInfo = ServiceRegistration.Get<ITvProvider>() as IProgramInfo;
-
-      IList<IChannelGroup> grouList;
-      if (!channelAndGroupInfo.GetChannelGroups(out grouList))
-        throw new BadRequestException(string.Format("GetProgramsDetailedForGroup: Couldn't get channel with Id: {0}", groupId));
-
-      IChannelGroup group = grouList.Single(x => x.ChannelGroupId == groupId);
-
-      IList<IProgram> programList;
-      if (!programInfo.GetProgramsGroup(group, startTime, endTime, out programList))
+      var programs = await TVAccess.GetGroupProgramsAsync(context, startTime, endTime, groupId);
+      if (programs.Count == 0)
         Logger.Warn("GetProgramsDetailedForGroup: Couldn't get Now/Next Info for channel with Id: {0}", groupId);
 
       List<WebChannelPrograms<WebProgramBasic>> output = new List<WebChannelPrograms<WebProgramBasic>>();
-
-      foreach (var program in programList)
+      foreach (var program in programs)
       {
         if (output.FindIndex(x => x.ChannelId == program.ChannelId) == -1)
           output.Add(new WebChannelPrograms<WebProgramBasic>
           {
             ChannelId = program.ChannelId,
-            Programs = programList.Select(y => ProgramBasic(y)).Where(x => x.ChannelId == program.ChannelId).ToList()
+            Programs = programs.Select(y => ProgramBasic(y)).Where(x => x.ChannelId == program.ChannelId).ToList()
           });
       }
 

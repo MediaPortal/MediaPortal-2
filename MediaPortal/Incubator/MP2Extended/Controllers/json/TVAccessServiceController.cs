@@ -1,6 +1,34 @@
-﻿using System;
+﻿#region Copyright (C) 2007-2017 Team MediaPortal
+
+/*
+    Copyright (C) 2007-2017 Team MediaPortal
+    http://www.team-mediaportal.com
+
+    This file is part of MediaPortal 2
+
+    MediaPortal 2 is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    MediaPortal 2 is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with MediaPortal 2. If not, see <http://www.gnu.org/licenses/>.
+*/
+
+#endregion
+
+using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Net.Http;
+using System.Threading.Tasks;
+using System.Web.Http;
+using System.Web.Http.Description;
 using MediaPortal.Plugins.MP2Extended.Common;
 using MediaPortal.Plugins.MP2Extended.Controllers.Interfaces;
 using MediaPortal.Plugins.MP2Extended.MAS.General;
@@ -15,94 +43,96 @@ using MediaPortal.Plugins.MP2Extended.ResourceAccess.TAS.Tv;
 using MediaPortal.Plugins.MP2Extended.TAS;
 using MediaPortal.Plugins.MP2Extended.TAS.Misc;
 using MediaPortal.Plugins.MP2Extended.TAS.Tv;
-using Microsoft.AspNetCore.Mvc;
 
 namespace MediaPortal.Plugins.MP2Extended.Controllers.json
 {
-  [Route("[Controller]/json/[Action]")]
-  public class TVAccessServiceController : Controller, ITVAccessServiceController
+  [RoutePrefix("MPExtended/TVAccessService/json")]
+  [Route("{action}")]
+  [Authorize]
+  public class TVAccessServiceController : ApiController, ITVAccessServiceController
   {
-
     #region Misc
 
     [HttpGet]
-    [ApiExplorerSettings(GroupName = "TVAccessService")]
-    public WebTVServiceDescription GetServiceDescription()
+    [ApiExplorerSettings]
+    [AllowAnonymous]
+    public async Task<WebTVServiceDescription> GetServiceDescription()
     {
-      return new GetServiceDescription().Process();
+      return await new GetServiceDescription().ProcessAsync(Request.GetOwinContext());
     }
 
     [HttpGet]
-    [ApiExplorerSettings(GroupName = "TVAccessService")]
-    public WebBoolResult TestConnectionToTVService()
+    [ApiExplorerSettings]
+    [AllowAnonymous]
+    public async Task<WebBoolResult> TestConnectionToTVService()
     {
-      return new TestConnectionToTVService().Process();
+      return await new TestConnectionToTVService().ProcessAsync(Request.GetOwinContext());
     }
 
     [HttpGet]
-    [ApiExplorerSettings(GroupName = "TVAccessService")]
-    public WebStringResult ReadSettingFromDatabase(string tagName)
+    [ApiExplorerSettings]
+    public async Task<WebStringResult> ReadSettingFromDatabase(string tagName)
     {
-      return new ReadSettingFromDatabase().Process(tagName);
+      return await new ReadSettingFromDatabase().ProcessAsync(Request.GetOwinContext(), tagName);
     }
 
     [HttpGet]
-    [ApiExplorerSettings(GroupName = "TVAccessService")]
-    public WebBoolResult WriteSettingToDatabase(string tagName, string value)
+    [ApiExplorerSettings]
+    public async Task<WebBoolResult> WriteSettingToDatabase(string tagName, string value)
     {
       throw new NotImplementedException();
     }
 
     [HttpGet]
-    [ApiExplorerSettings(GroupName = "TVAccessService")]
-    public IList<WebDiskSpaceInformation> GetLocalDiskInformation()
+    [ApiExplorerSettings]
+    public async Task<IList<WebDiskSpaceInformation>> GetLocalDiskInformation()
     {
-      return new GetLocalDiskInformation().Process();
+      return await new GetLocalDiskInformation().ProcessAsync(Request.GetOwinContext());
     }
 
-    /*public IList<WebTVSearchResult> Search(string text, WebTVSearchResultType? type = null)
-    {
-      throw new NotImplementedException();
-    }*/
-
-    [HttpGet]
-    [ApiExplorerSettings(GroupName = "TVAccessService")]
-    public WebDictionary<string> GetExternalMediaInfo(WebMediaType? type, string id)
-    {
-      throw new NotImplementedException();
-    }
-
-    /*[HttpGet]
-    [ApiExplorerSettings(GroupName = "TVAccessService")]
-    public IList<WebTVSearchResult> SearchResultsByRange(string text, int start, int end, WebTVSearchResultType? type = null)
+    /*public async Task<IList<WebTVSearchResult>> Search(string text, WebTVSearchResultType? type = null)
     {
       throw new NotImplementedException();
     }*/
 
     [HttpGet]
-    [ApiExplorerSettings(GroupName = "TVAccessService")]
-    public IList<WebCard> GetCards()
+    [ApiExplorerSettings]
+    public async Task<WebDictionary<string>> GetExternalMediaInfo(WebMediaType? type, string id)
     {
-      return new GetCards().Process();
-    }
-
-    [HttpGet]
-    [ApiExplorerSettings(GroupName = "TVAccessService")]
-    public IList<WebVirtualCard> GetActiveCards()
-    {
-      return new GetActiveCards().Process();
-    }
-
-    [HttpGet]
-    [ApiExplorerSettings(GroupName = "TVAccessService")]
-    public IList<WebUser> GetActiveUsers()
-    {
-      return new GetActiveUsers().Process();
+      throw new NotImplementedException();
     }
 
     /*[HttpGet]
-    [ApiExplorerSettings(GroupName = "TVAccessService")]
-    public IList<WebRtspClient> GetStreamingClients(string filter = null)
+    [ApiExplorerSettings]
+    public async Task<IList<WebTVSearchResult>> SearchResultsByRange(string text, int start, int end, WebTVSearchResultType? type = null)
+    {
+      throw new NotImplementedException();
+    }*/
+
+    [HttpGet]
+    [ApiExplorerSettings]
+    public async Task<IList<WebCard>> GetCards()
+    {
+      return await new GetCards().ProcessAsync(Request.GetOwinContext());
+    }
+
+    [HttpGet]
+    [ApiExplorerSettings]
+    public async Task<IList<WebVirtualCard>> GetActiveCards()
+    {
+      return await new GetActiveCards().ProcessAsync(Request.GetOwinContext());
+    }
+
+    [HttpGet]
+    [ApiExplorerSettings]
+    public async Task<IList<WebUser>> GetActiveUsers()
+    {
+      return await new GetActiveUsers().ProcessAsync(Request.GetOwinContext());
+    }
+
+    /*[HttpGet]
+    [ApiExplorerSettings]
+    public async Task<IList<WebRtspClient>> GetStreamingClients(string filter = null)
     {
       throw new NotImplementedException();
     }*/
@@ -112,87 +142,87 @@ namespace MediaPortal.Plugins.MP2Extended.Controllers.json
     #region Schedule
 
     [HttpGet]
-    [ApiExplorerSettings(GroupName = "TVAccessService")]
-    public WebBoolResult AddSchedule(int channelId, string title, DateTime startTime, DateTime endTime, WebScheduleType scheduleType)
+    [ApiExplorerSettings]
+    public async Task<WebBoolResult> AddSchedule(int channelId, string title, DateTime startTime, DateTime endTime, WebScheduleType scheduleType)
     {
-      return new AddSchedule().Process(channelId, title, startTime, startTime, scheduleType);
+      return await new AddSchedule().ProcessAsync(Request.GetOwinContext(), channelId, title, startTime, startTime, scheduleType);
     }
 
     [HttpGet]
-    [ApiExplorerSettings(GroupName = "TVAccessService")]
-    public WebBoolResult AddScheduleDetailed(int channelId, string title, DateTime startTime, DateTime endTime, WebScheduleType scheduleType, int preRecordInterval, int postRecordInterval, string directory, int priority)
+    [ApiExplorerSettings]
+    public async Task<WebBoolResult> AddScheduleDetailed(int channelId, string title, DateTime startTime, DateTime endTime, WebScheduleType scheduleType, int preRecordInterval, int postRecordInterval, string directory, int priority)
     {
-      return new AddScheduleDetailed().Process(channelId, title, startTime, endTime, scheduleType, preRecordInterval, postRecordInterval, directory, priority);
+      return await new AddScheduleDetailed().ProcessAsync(Request.GetOwinContext(), channelId, title, startTime, endTime, scheduleType, preRecordInterval, postRecordInterval, directory, priority);
     }
 
     [HttpGet]
-    [ApiExplorerSettings(GroupName = "TVAccessService")]
-    public WebIntResult GetScheduleCount()
+    [ApiExplorerSettings]
+    public async Task<WebIntResult> GetScheduleCount()
     {
-      return new GetScheduleCount().Process();
+      return await new GetScheduleCount().ProcessAsync(Request.GetOwinContext());
     }
 
     [HttpGet]
-    [ApiExplorerSettings(GroupName = "TVAccessService")]
-    public IList<WebScheduleBasic> GetSchedules(WebSortField? sort, WebSortOrder? order, string filter = null)
+    [ApiExplorerSettings]
+    public async Task<IList<WebScheduleBasic>> GetSchedules(WebSortField? sort, WebSortOrder? order, string filter = null)
     {
-      return new GetSchedules().Process(filter, sort, order);
+      return await new GetSchedules().ProcessAsync(Request.GetOwinContext(), filter, sort, order);
     }
 
     [HttpGet]
-    [ApiExplorerSettings(GroupName = "TVAccessService")]
-    public IList<WebScheduleBasic> GetSchedulesByRange(int start, int end, WebSortField? sort, WebSortOrder? order, string filter = null)
+    [ApiExplorerSettings]
+    public async Task<IList<WebScheduleBasic>> GetSchedulesByRange(int start, int end, WebSortField? sort, WebSortOrder? order, string filter = null)
     {
-      return new GetSchedulesByRange().Process(start, end, filter, sort, order);
+      return await new GetSchedulesByRange().ProcessAsync(Request.GetOwinContext(), start, end, filter, sort, order);
     }
 
     [HttpGet]
-    [ApiExplorerSettings(GroupName = "TVAccessService")]
-    public WebScheduleBasic GetScheduleById(int scheduleId)
+    [ApiExplorerSettings]
+    public async Task<WebScheduleBasic> GetScheduleById(int scheduleId)
     {
-      return new GetScheduleById().Process(scheduleId);
+      return await new GetScheduleById().ProcessAsync(Request.GetOwinContext(), scheduleId);
     }
 
     [HttpGet]
-    [ApiExplorerSettings(GroupName = "TVAccessService")]
-    public WebBoolResult CancelSchedule(int programId)
+    [ApiExplorerSettings]
+    public async Task<WebBoolResult> CancelSchedule(int programId)
     {
-      return new CancelSchedule().Process(programId);
+      return await new CancelSchedule().ProcessAsync(Request.GetOwinContext(), programId);
     }
 
     [HttpGet]
-    [ApiExplorerSettings(GroupName = "TVAccessService")]
-    public WebBoolResult EditSchedule(int scheduleId, int? channelId = null, string title = null, DateTime? startTime = null, DateTime? endTime = null, WebScheduleType? scheduleType = null, int? preRecordInterval = null, int? postRecordInterval = null, string directory = null, int? priority = null)
+    [ApiExplorerSettings]
+    public async Task<WebBoolResult> EditSchedule(int scheduleId, int? channelId = null, string title = null, DateTime? startTime = null, DateTime? endTime = null, WebScheduleType? scheduleType = null, int? preRecordInterval = null, int? postRecordInterval = null, string directory = null, int? priority = null)
     {
-      return new EditSchedule().Process(scheduleId, scheduleId, title, startTime, endTime, scheduleType, preRecordInterval, postRecordInterval, directory, priority);
+      return await new EditSchedule().ProcessAsync(Request.GetOwinContext(), scheduleId, scheduleId, title, startTime, endTime, scheduleType, preRecordInterval, postRecordInterval, directory, priority);
     }
 
     [HttpGet]
-    [ApiExplorerSettings(GroupName = "TVAccessService")]
-    public WebBoolResult DeleteSchedule(int scheduleId)
+    [ApiExplorerSettings]
+    public async Task<WebBoolResult> DeleteSchedule(int scheduleId)
     {
-      return new DeleteSchedule().Process(scheduleId);
+      return await new DeleteSchedule().ProcessAsync(Request.GetOwinContext(), scheduleId);
     }
 
     [HttpGet]
-    [ApiExplorerSettings(GroupName = "TVAccessService")]
-    public WebBoolResult StopRecording(int scheduleId)
+    [ApiExplorerSettings]
+    public async Task<WebBoolResult> StopRecording(int scheduleId)
     {
       throw new NotImplementedException();
     }
 
     [HttpGet]
-    [ApiExplorerSettings(GroupName = "TVAccessService")]
-    public IList<WebScheduledRecording> GetScheduledRecordingsForDate(DateTime date, WebSortField? sort, WebSortOrder? order, string filter = null)
+    [ApiExplorerSettings]
+    public async Task<IList<WebScheduledRecording>> GetScheduledRecordingsForDate(DateTime date, WebSortField? sort, WebSortOrder? order, string filter = null)
     {
-      return new GetScheduledRecordingsForDate().Process(date, sort, order, filter);
+      return await new GetScheduledRecordingsForDate().ProcessAsync(Request.GetOwinContext(), date, sort, order, filter);
     }
 
     [HttpGet]
-    [ApiExplorerSettings(GroupName = "TVAccessService")]
-    public IList<WebScheduledRecording> GetScheduledRecordingsForToday(WebSortField? sort, WebSortOrder? order, string filter = null)
+    [ApiExplorerSettings]
+    public async Task<IList<WebScheduledRecording>> GetScheduledRecordingsForToday(WebSortField? sort, WebSortOrder? order, string filter = null)
     {
-      return new GetScheduledRecordingsForToday().Process(sort, order, filter);
+      return await new GetScheduledRecordingsForToday().ProcessAsync(Request.GetOwinContext(), sort, order, filter);
     }
 
     #endregion
@@ -200,72 +230,72 @@ namespace MediaPortal.Plugins.MP2Extended.Controllers.json
     #region Recording
 
     [HttpGet]
-    [ApiExplorerSettings(GroupName = "TVAccessService")]
-    public IList<WebDiskSpaceInformation> GetAllRecordingDiskInformation()
+    [ApiExplorerSettings]
+    public async Task<IList<WebDiskSpaceInformation>> GetAllRecordingDiskInformation()
     {
-      return new GetAllRecordingDiskInformation().Process();
+      return await new GetAllRecordingDiskInformation().ProcessAsync(Request.GetOwinContext());
     }
 
     [HttpGet]
-    [ApiExplorerSettings(GroupName = "TVAccessService")]
-    public WebDiskSpaceInformation GetRecordingDiskInformationForCard(int id)
+    [ApiExplorerSettings]
+    public async Task<WebDiskSpaceInformation> GetRecordingDiskInformationForCard(int id)
     {
-      throw new NotImplementedException();
+      return await new GetRecordingDiskInformationForCard().ProcessAsync(Request.GetOwinContext(), id);
     }
 
 
     [HttpGet]
-    [ApiExplorerSettings(GroupName = "TVAccessService")]
-    public WebBoolResult StartRecordingManual(string userName, int channelId, string title)
-    {
-      throw new NotImplementedException();
-    }
-
-    [HttpGet]
-    [ApiExplorerSettings(GroupName = "TVAccessService")]
-    public WebIntResult GetRecordingCount()
-    {
-      return new GetRecordingCount().Process();
-    }
-
-    [HttpGet]
-    [ApiExplorerSettings(GroupName = "TVAccessService")]
-    public IList<WebRecordingBasic> GetRecordings(WebSortField? sort, WebSortOrder? order, string filter = null)
-    {
-      return new GetRecordings().Process(sort, order, filter);
-    }
-
-    [HttpGet]
-    [ApiExplorerSettings(GroupName = "TVAccessService")]
-    public IList<WebRecordingBasic> GetRecordingsByRange(int start, int end, WebSortField? sort, WebSortOrder? order, string filter = null)
-    {
-      return new GetRecordingsByRange().Process(start, end, sort, order, filter);
-    }
-
-    [HttpGet]
-    [ApiExplorerSettings(GroupName = "TVAccessService")]
-    public WebRecordingBasic GetRecordingById(Guid id)
-    {
-      return new GetRecordingById().Process(id);
-    }
-
-    [HttpGet]
-    [ApiExplorerSettings(GroupName = "TVAccessService")]
-    public WebBoolResult DeleteRecording(int id)
+    [ApiExplorerSettings]
+    public async Task<WebBoolResult> StartRecordingManual(string userName, int channelId, string title)
     {
       throw new NotImplementedException();
     }
 
     [HttpGet]
-    [ApiExplorerSettings(GroupName = "TVAccessService")]
-    public WebRecordingFileInfo GetRecordingFileInfo(int id)
+    [ApiExplorerSettings]
+    public async Task<WebIntResult> GetRecordingCount()
+    {
+      return await new GetRecordingCount().ProcessAsync(Request.GetOwinContext());
+    }
+
+    [HttpGet]
+    [ApiExplorerSettings]
+    public async Task<IList<WebRecordingBasic>> GetRecordings(WebSortField? sort, WebSortOrder? order, string filter = null)
+    {
+      return await new GetRecordings().ProcessAsync(Request.GetOwinContext(), sort, order, filter);
+    }
+
+    [HttpGet]
+    [ApiExplorerSettings]
+    public async Task<IList<WebRecordingBasic>> GetRecordingsByRange(int start, int end, WebSortField? sort, WebSortOrder? order, string filter = null)
+    {
+      return await new GetRecordingsByRange().ProcessAsync(Request.GetOwinContext(), start, end, sort, order, filter);
+    }
+
+    [HttpGet]
+    [ApiExplorerSettings]
+    public async Task<WebRecordingBasic> GetRecordingById(Guid id)
+    {
+      return await new GetRecordingById().ProcessAsync(Request.GetOwinContext(), id);
+    }
+
+    [HttpGet]
+    [ApiExplorerSettings]
+    public async Task<WebBoolResult> DeleteRecording(int id)
     {
       throw new NotImplementedException();
     }
 
     [HttpGet]
-    [ApiExplorerSettings(GroupName = "TVAccessService")]
-    public Stream ReadRecordingFile(int id)
+    [ApiExplorerSettings]
+    public async Task<WebRecordingFileInfo> GetRecordingFileInfo(int id)
+    {
+      throw new NotImplementedException();
+    }
+
+    [HttpGet]
+    [ApiExplorerSettings]
+    public async Task<Stream> ReadRecordingFile(int id)
     {
       throw new NotImplementedException();
     }
@@ -275,80 +305,80 @@ namespace MediaPortal.Plugins.MP2Extended.Controllers.json
     #region Tv
 
     [HttpGet]
-    [ApiExplorerSettings(GroupName = "TVAccessService")]
-    public WebChannelBasic GetChannelBasicById(int channelId)
+    [ApiExplorerSettings]
+    public async Task<WebChannelBasic> GetChannelBasicById(int channelId)
     {
-      return new GetChannelBasicById().Process(channelId);
+      return await new GetChannelBasicById().ProcessAsync(Request.GetOwinContext(), channelId);
     }
 
     [HttpGet]
-    [ApiExplorerSettings(GroupName = "TVAccessService")]
-    public WebChannelDetailed GetChannelDetailedById(int channelId)
+    [ApiExplorerSettings]
+    public async Task<WebChannelDetailed> GetChannelDetailedById(int channelId)
     {
-      return new GetChannelDetailedById().Process(channelId);
+      return await new GetChannelDetailedById().ProcessAsync(Request.GetOwinContext(), channelId);
     }
 
     [HttpGet]
-    [ApiExplorerSettings(GroupName = "TVAccessService")]
-    public WebIntResult GetGroupCount()
+    [ApiExplorerSettings]
+    public async Task<WebIntResult> GetGroupCount()
     {
-      return new GetGroupCount().Process();
+      return await new GetGroupCount().ProcessAsync(Request.GetOwinContext());
     }
 
     [HttpGet]
-    [ApiExplorerSettings(GroupName = "TVAccessService")]
-    public IList<WebChannelGroup> GetGroups(WebSortField? sort, WebSortOrder? order)
+    [ApiExplorerSettings]
+    public async Task<IList<WebChannelGroup>> GetGroups(WebSortField? sort, WebSortOrder? order)
     {
-      return new GetGroups().Process(sort, order);
+      return await new GetGroups().ProcessAsync(Request.GetOwinContext(), sort, order);
     }
 
     [HttpGet]
-    [ApiExplorerSettings(GroupName = "TVAccessService")]
-    public IList<WebChannelGroup> GetGroupsByRange(int start, int end, WebSortField? sort, WebSortOrder? order)
+    [ApiExplorerSettings]
+    public async Task<IList<WebChannelGroup>> GetGroupsByRange(int start, int end, WebSortField? sort, WebSortOrder? order)
     {
-      return new GetGroupsByRange().Process(start, end, sort, order);
+      return await new GetGroupsByRange().ProcessAsync(Request.GetOwinContext(), start, end, sort, order);
     }
 
     [HttpGet]
-    [ApiExplorerSettings(GroupName = "TVAccessService")]
-    public WebChannelGroup GetGroupById(int groupId)
+    [ApiExplorerSettings]
+    public async Task<WebChannelGroup> GetGroupById(int groupId)
     {
-      return new GetGroupById().Process(groupId);
+      return await new GetGroupById().ProcessAsync(Request.GetOwinContext(), groupId);
     }
 
     [HttpGet]
-    [ApiExplorerSettings(GroupName = "TVAccessService")]
-    public WebIntResult GetChannelCount(int? groupId = null)
+    [ApiExplorerSettings]
+    public async Task<WebIntResult> GetChannelCount(int? groupId = null)
     {
-      return new GetChannelCount().Process(groupId);
+      return await new GetChannelCount().ProcessAsync(Request.GetOwinContext(), groupId);
     }
 
     [HttpGet]
-    [ApiExplorerSettings(GroupName = "TVAccessService")]
-    public IList<WebChannelBasic> GetChannelsBasic(int? groupId, WebSortField? sort, WebSortOrder? order)
+    [ApiExplorerSettings]
+    public async Task<IList<WebChannelBasic>> GetChannelsBasic(int? groupId, WebSortField? sort, WebSortOrder? order)
     {
-      return new GetChannelsBasic().Process(sort, order, groupId);
+      return await new GetChannelsBasic().ProcessAsync(Request.GetOwinContext(), sort, order, groupId);
     }
 
     [HttpGet]
-    [ApiExplorerSettings(GroupName = "TVAccessService")]
-    public IList<WebChannelBasic> GetChannelsBasicByRange(int start, int end, int? groupId, WebSortField? sort, WebSortOrder? order)
+    [ApiExplorerSettings]
+    public async Task<IList<WebChannelBasic>> GetChannelsBasicByRange(int start, int end, int? groupId, WebSortField? sort, WebSortOrder? order)
     {
-      return new GetChannelsBasicByRange().Process(start, end, sort, order, groupId);
+      return await new GetChannelsBasicByRange().ProcessAsync(Request.GetOwinContext(), start, end, sort, order, groupId);
     }
 
     [HttpGet]
-    [ApiExplorerSettings(GroupName = "TVAccessService")]
-    public IList<WebChannelDetailed> GetChannelsDetailed(int? groupId, WebSortField? sort, WebSortOrder? order)
+    [ApiExplorerSettings]
+    public async Task<IList<WebChannelDetailed>> GetChannelsDetailed(int? groupId, WebSortField? sort, WebSortOrder? order)
     {
-      return new GetChannelsDetailed().Process(groupId, sort, order);
+      return await new GetChannelsDetailed().ProcessAsync(Request.GetOwinContext(), groupId, sort, order);
     }
 
     [HttpGet]
-    [ApiExplorerSettings(GroupName = "TVAccessService")]
-    public IList<WebChannelDetailed> GetChannelsDetailedByRange(int start, int end, int? groupId, WebSortField? sort, WebSortOrder? order)
+    [ApiExplorerSettings]
+    public async Task<IList<WebChannelDetailed>> GetChannelsDetailedByRange(int start, int end, int? groupId, WebSortField? sort, WebSortOrder? order)
     {
-      return new GetChannelsDetailedByRange().Process(start, end, groupId, sort, order);
+      return await new GetChannelsDetailedByRange().ProcessAsync(Request.GetOwinContext(), start, end, groupId, sort, order);
     }
 
     #endregion
@@ -356,71 +386,71 @@ namespace MediaPortal.Plugins.MP2Extended.Controllers.json
     #region Radio
 
     [HttpGet]
-    [ApiExplorerSettings(GroupName = "TVAccessService")]
-    public WebIntResult GetRadioGroupCount()
+    [ApiExplorerSettings]
+    public async Task<WebIntResult> GetRadioGroupCount()
     {
-      return new GetRadioGroupCount().Process();
+      return await new GetRadioGroupCount().ProcessAsync(Request.GetOwinContext());
     }
 
     [HttpGet]
-    [ApiExplorerSettings(GroupName = "TVAccessService")]
-    public IList<WebChannelGroup> GetRadioGroups(WebSortField? sort, WebSortOrder? order)
+    [ApiExplorerSettings]
+    public async Task<IList<WebChannelGroup>> GetRadioGroups(WebSortField? sort, WebSortOrder? order)
     {
-      return new GetRadioGroups().Process(sort, order);
+      return await new GetRadioGroups().ProcessAsync(Request.GetOwinContext(), sort, order);
     }
 
     [HttpGet]
-    [ApiExplorerSettings(GroupName = "TVAccessService")]
-    public IList<WebChannelGroup> GetRadioGroupsByRange(int start, int end, WebSortField? sort, WebSortOrder? order)
+    [ApiExplorerSettings]
+    public async Task<IList<WebChannelGroup>> GetRadioGroupsByRange(int start, int end, WebSortField? sort, WebSortOrder? order)
     {
-      return new GetRadioGroupsByRange().Process(start, end, sort, order);
+      return await new GetRadioGroupsByRange().ProcessAsync(Request.GetOwinContext(), start, end, sort, order);
     }
 
     [HttpGet]
-    [ApiExplorerSettings(GroupName = "TVAccessService")]
-    public WebChannelGroup GetRadioGroupById(int groupId)
+    [ApiExplorerSettings]
+    public async Task<WebChannelGroup> GetRadioGroupById(int groupId)
     {
-      return new GetRadioGroupById().Process(groupId);
+      return await new GetRadioGroupById().ProcessAsync(Request.GetOwinContext(), groupId);
     }
 
     [HttpGet]
-    [ApiExplorerSettings(GroupName = "TVAccessService")]
-    public WebIntResult GetRadioChannelCount(int? groupId = null)
+    [ApiExplorerSettings]
+    public async Task<WebIntResult> GetRadioChannelCount(int? groupId = null)
     {
-      return new GetRadioChannelCount().Process(groupId);
+      return await new GetRadioChannelCount().ProcessAsync(Request.GetOwinContext(), groupId);
     }
 
     [HttpGet]
-    [ApiExplorerSettings(GroupName = "TVAccessService")]
-    public IList<WebChannelBasic> GetRadioChannelsBasic(int? groupId, WebSortField? sort, WebSortOrder? order)
+    [ApiExplorerSettings]
+    public async Task<IList<WebChannelBasic>> GetRadioChannelsBasic(int? groupId, WebSortField? sort, WebSortOrder? order)
     {
-      return new GetRadioChannelsBasic().Process(groupId, sort, order);
+      return await new GetRadioChannelsBasic().ProcessAsync(Request.GetOwinContext(), groupId, sort, order);
     }
 
     [HttpGet]
-    [ApiExplorerSettings(GroupName = "TVAccessService")]
-    public IList<WebChannelBasic> GetRadioChannelsBasicByRange(int start, int end, int? groupId, WebSortField? sort, WebSortOrder? order)
+    [ApiExplorerSettings]
+    public async Task<IList<WebChannelBasic>> GetRadioChannelsBasicByRange(int start, int end, int? groupId, WebSortField? sort, WebSortOrder? order)
     {
-      return new GetRadioChannelsBasicByRange().Process(start, end, groupId, sort, order);
+      return await new GetRadioChannelsBasicByRange().ProcessAsync(Request.GetOwinContext(), start, end, groupId, sort, order);
     }
 
     [HttpGet]
-    [ApiExplorerSettings(GroupName = "TVAccessService")]
-    public IList<WebChannelDetailed> GetRadioChannelsDetailed(int? groupId, WebSortField? sort, WebSortOrder? order)
+    [ApiExplorerSettings]
+    public async Task<IList<WebChannelDetailed>> GetRadioChannelsDetailed(int? groupId, WebSortField? sort, WebSortOrder? order)
     {
-      return new GetRadioChannelsDetailed().Process(groupId, sort, order);
+      return await new GetRadioChannelsDetailed().ProcessAsync(Request.GetOwinContext(), groupId, sort, order);
     }
 
     [HttpGet]
-    [ApiExplorerSettings(GroupName = "TVAccessService")]
-    public IList<WebChannelDetailed> GetRadioChannelsDetailedByRange(int start, int end, int? groupId, WebSortField? sort, WebSortOrder? order)
+    [ApiExplorerSettings]
+    public async Task<IList<WebChannelDetailed>> GetRadioChannelsDetailedByRange(int start, int end, int? groupId, WebSortField? sort, WebSortOrder? order)
     {
-      return new GetRadioChannelsDetailedByRange().Process(start, end, groupId, sort, order);
+      return await new GetRadioChannelsDetailedByRange().ProcessAsync(Request.GetOwinContext(), start, end, groupId, sort, order);
     }
 
     [HttpGet]
-    [ApiExplorerSettings(GroupName = "TVAccessService")]
-    public IList<WebChannelState> GetAllRadioChannelStatesForGroup(int groupId, string userName)
+    [ApiExplorerSettings]
+    public async Task<IList<WebChannelState>> GetAllRadioChannelStatesForGroup(int groupId, string userName)
     {
       throw new NotImplementedException();
     }
@@ -430,17 +460,17 @@ namespace MediaPortal.Plugins.MP2Extended.Controllers.json
     #region Channels
 
     [HttpGet]
-    [ApiExplorerSettings(GroupName = "TVAccessService")]
-    public WebChannelState GetChannelState(int channelId, string userName)
+    [ApiExplorerSettings]
+    public async Task<WebChannelState> GetChannelState(int channelId, string userName)
     {
-      return new GetChannelState().Process(channelId, userName);
+      return await new GetChannelState().ProcessAsync(Request.GetOwinContext(), channelId, userName);
     }
 
     [HttpGet]
-    [ApiExplorerSettings(GroupName = "TVAccessService")]
-    public IList<WebChannelState> GetAllChannelStatesForGroup(int groupId, string userName)
+    [ApiExplorerSettings]
+    public async Task<IList<WebChannelState>> GetAllChannelStatesForGroup(int groupId, string userName)
     {
-      return new GetAllChannelStatesForGroup().Process(groupId, userName);
+      return await new GetAllChannelStatesForGroup().ProcessAsync(Request.GetOwinContext(), groupId, userName);
     }
 
     #endregion
@@ -448,38 +478,38 @@ namespace MediaPortal.Plugins.MP2Extended.Controllers.json
     #region Timeshifting
 
     [HttpGet]
-    [ApiExplorerSettings(GroupName = "TVAccessService")]
-    public WebVirtualCard SwitchTVServerToChannelAndGetVirtualCard(string userName, int channelId)
+    [ApiExplorerSettings]
+    public async Task<WebVirtualCard> SwitchTVServerToChannelAndGetVirtualCard(string userName, int channelId)
     {
       throw new NotImplementedException();
     }
 
     [HttpGet]
-    [ApiExplorerSettings(GroupName = "TVAccessService")]
-    public WebStringResult SwitchTVServerToChannelAndGetStreamingUrl(string userName, int channelId)
+    [ApiExplorerSettings]
+    public async Task<WebStringResult> SwitchTVServerToChannelAndGetStreamingUrl(string userName, int channelId)
     {
-      return new SwitchTVServerToChannelAndGetStreamingUrl().Process(userName, channelId);
+      return await new SwitchTVServerToChannelAndGetStreamingUrl().ProcessAsync(Request.GetOwinContext(), userName, channelId);
     }
 
     [HttpGet]
-    [ApiExplorerSettings(GroupName = "TVAccessService")]
-    public WebStringResult SwitchTVServerToChannelAndGetTimeshiftFilename(string userName, int channelId)
+    [ApiExplorerSettings]
+    public async Task<WebStringResult> SwitchTVServerToChannelAndGetTimeshiftFilename(string userName, int channelId)
     {
-      return new SwitchTVServerToChannelAndGetTimeshiftFilename().Process(userName, channelId);
+      return await new SwitchTVServerToChannelAndGetTimeshiftFilename().ProcessAsync(Request.GetOwinContext(), userName, channelId);
     }
 
     [HttpGet]
-    [ApiExplorerSettings(GroupName = "TVAccessService")]
-    public WebBoolResult SendHeartbeat(string userName)
+    [ApiExplorerSettings]
+    public async Task<WebBoolResult> SendHeartbeat(string userName)
     {
       throw new NotImplementedException();
     }
 
     [HttpGet]
-    [ApiExplorerSettings(GroupName = "TVAccessService")]
-    public WebBoolResult CancelCurrentTimeShifting(string userName)
+    [ApiExplorerSettings]
+    public async Task<WebBoolResult> CancelCurrentTimeShifting(string userName)
     {
-      return new CancelCurrentTimeShifting().Process(userName);
+      return await new CancelCurrentTimeShifting().ProcessAsync(Request.GetOwinContext(), userName);
     }
 
     #endregion
@@ -487,122 +517,122 @@ namespace MediaPortal.Plugins.MP2Extended.Controllers.json
     #region EPG
 
     [HttpGet]
-    [ApiExplorerSettings(GroupName = "TVAccessService")]
-    public IList<WebProgramBasic> GetProgramsBasicForChannel(int channelId, DateTime startTime, DateTime endTime)
+    [ApiExplorerSettings]
+    public async Task<IList<WebProgramBasic>> GetProgramsBasicForChannel(int channelId, DateTime startTime, DateTime endTime)
     {
-      return new GetProgramsBasicForChannel().Process(channelId, startTime, endTime);
+      return await new GetProgramsBasicForChannel().ProcessAsync(Request.GetOwinContext(), channelId, startTime, endTime);
     }
 
     [HttpGet]
-    [ApiExplorerSettings(GroupName = "TVAccessService")]
-    public IList<WebProgramDetailed> GetProgramsDetailedForChannel(int channelId, DateTime startTime, DateTime endTime)
+    [ApiExplorerSettings]
+    public async Task<IList<WebProgramDetailed>> GetProgramsDetailedForChannel(int channelId, DateTime startTime, DateTime endTime)
     {
-      return new GetProgramsDetailedForChannel().Process(channelId, startTime, endTime);
+      return await new GetProgramsDetailedForChannel().ProcessAsync(Request.GetOwinContext(), channelId, startTime, endTime);
     }
 
     [HttpGet]
-    [ApiExplorerSettings(GroupName = "TVAccessService")]
-    public IList<WebChannelPrograms<WebProgramBasic>> GetProgramsBasicForGroup(int groupId, DateTime startTime, DateTime endTime)
+    [ApiExplorerSettings]
+    public async Task<IList<WebChannelPrograms<WebProgramBasic>>> GetProgramsBasicForGroup(int groupId, DateTime startTime, DateTime endTime)
     {
-      return new GetProgramsBasicForGroup().Process(groupId, startTime, endTime);
+      return await new GetProgramsBasicForGroup().ProcessAsync(Request.GetOwinContext(), groupId, startTime, endTime);
     }
 
     [HttpGet]
-    [ApiExplorerSettings(GroupName = "TVAccessService")]
-    public IList<WebChannelPrograms<WebProgramDetailed>> GetProgramsDetailedForGroup(int groupId, DateTime startTime, DateTime endTime)
+    [ApiExplorerSettings]
+    public async Task<IList<WebChannelPrograms<WebProgramDetailed>>> GetProgramsDetailedForGroup(int groupId, DateTime startTime, DateTime endTime)
     {
-      return new GetProgramsDetailedForGroup().Process(groupId, startTime, endTime);
+      return await new GetProgramsDetailedForGroup().ProcessAsync(Request.GetOwinContext(), groupId, startTime, endTime);
     }
 
     [HttpGet]
-    [ApiExplorerSettings(GroupName = "TVAccessService")]
-    public WebProgramDetailed GetCurrentProgramOnChannel(int channelId)
+    [ApiExplorerSettings]
+    public async Task<WebProgramDetailed> GetCurrentProgramOnChannel(int channelId)
     {
-      return new GetCurrentProgramOnChannel().Process(channelId);
+      return await new GetCurrentProgramOnChannel().ProcessAsync(Request.GetOwinContext(), channelId);
     }
 
     [HttpGet]
-    [ApiExplorerSettings(GroupName = "TVAccessService")]
-    public WebProgramDetailed GetNextProgramOnChannel(int channelId)
+    [ApiExplorerSettings]
+    public async Task<WebProgramDetailed> GetNextProgramOnChannel(int channelId)
     {
-      return new GetNextProgramOnChannel().Process(channelId);
+      return await new GetNextProgramOnChannel().ProcessAsync(Request.GetOwinContext(), channelId);
     }
 
     [HttpGet]
-    [ApiExplorerSettings(GroupName = "TVAccessService")]
-    public WebIntResult SearchProgramsCount(string searchTerm)
+    [ApiExplorerSettings]
+    public async Task<WebIntResult> SearchProgramsCount(string searchTerm)
     {
-      return new SearchProgramsCount().Process(searchTerm);
+      return await new SearchProgramsCount().ProcessAsync(Request.GetOwinContext(), searchTerm);
     }
 
     [HttpGet]
-    [ApiExplorerSettings(GroupName = "TVAccessService")]
-    public IList<WebProgramBasic> SearchProgramsBasic(string searchTerm)
+    [ApiExplorerSettings]
+    public async Task<IList<WebProgramBasic>> SearchProgramsBasic(string searchTerm)
     {
-      return new SearchProgramsBasic().Process(searchTerm);
+      return await new SearchProgramsBasic().ProcessAsync(Request.GetOwinContext(), searchTerm);
     }
 
     [HttpGet]
-    [ApiExplorerSettings(GroupName = "TVAccessService")]
-    public IList<WebProgramBasic> SearchProgramsBasicByRange(string searchTerm, int start, int end)
+    [ApiExplorerSettings]
+    public async Task<IList<WebProgramBasic>> SearchProgramsBasicByRange(string searchTerm, int start, int end)
     {
-      return new SearchProgramsBasicByRange().Process(searchTerm, start, end);
+      return await new SearchProgramsBasicByRange().ProcessAsync(Request.GetOwinContext(), searchTerm, start, end);
     }
 
     [HttpGet]
-    [ApiExplorerSettings(GroupName = "TVAccessService")]
-    public IList<WebProgramDetailed> SearchProgramsDetailed(string searchTerm)
+    [ApiExplorerSettings]
+    public async Task<IList<WebProgramDetailed>> SearchProgramsDetailed(string searchTerm)
     {
-      return new SearchProgramsDetailed().Process(searchTerm);
+      return await new SearchProgramsDetailed().ProcessAsync(Request.GetOwinContext(), searchTerm);
     }
 
     [HttpGet]
-    [ApiExplorerSettings(GroupName = "TVAccessService")]
-    public IList<WebProgramDetailed> SearchProgramsDetailedByRange(string searchTerm, int start, int end)
+    [ApiExplorerSettings]
+    public async Task<IList<WebProgramDetailed>> SearchProgramsDetailedByRange(string searchTerm, int start, int end)
     {
-      return new SearchProgramsDetailedByRange().Process(searchTerm, start, end);
+      return await new SearchProgramsDetailedByRange().ProcessAsync(Request.GetOwinContext(), searchTerm, start, end);
     }
 
     [HttpGet]
-    [ApiExplorerSettings(GroupName = "TVAccessService")]
-    public IList<WebProgramBasic> GetNowNextWebProgramBasicForChannel(int channelId)
+    [ApiExplorerSettings]
+    public async Task<IList<WebProgramBasic>> GetNowNextWebProgramBasicForChannel(int channelId)
     {
-      return new GetNowNextWebProgramBasicForChannel().Process(channelId);
+      return await new GetNowNextWebProgramBasicForChannel().ProcessAsync(Request.GetOwinContext(), channelId);
     }
 
     [HttpGet]
-    [ApiExplorerSettings(GroupName = "TVAccessService")]
-    public IList<WebProgramDetailed> GetNowNextWebProgramDetailedForChannel(int channelId)
+    [ApiExplorerSettings]
+    public async Task<IList<WebProgramDetailed>> GetNowNextWebProgramDetailedForChannel(int channelId)
     {
-      return new GetNowNextWebProgramDetailedForChannel().Process(channelId);
+      return await new GetNowNextWebProgramDetailedForChannel().ProcessAsync(Request.GetOwinContext(), channelId);
     }
 
     [HttpGet]
-    [ApiExplorerSettings(GroupName = "TVAccessService")]
-    public WebProgramBasic GetProgramBasicById(int programId)
+    [ApiExplorerSettings]
+    public async Task<WebProgramBasic> GetProgramBasicById(int programId)
     {
-      return new GetProgramBasicById().Process(programId);
+      return await new GetProgramBasicById().ProcessAsync(Request.GetOwinContext(), programId);
     }
 
     [HttpGet]
-    [ApiExplorerSettings(GroupName = "TVAccessService")]
-    public WebProgramDetailed GetProgramDetailedById(int programId)
+    [ApiExplorerSettings]
+    public async Task<WebProgramDetailed> GetProgramDetailedById(int programId)
     {
-      return new GetProgramDetailedById().Process(programId);
+      return await new GetProgramDetailedById().ProcessAsync(Request.GetOwinContext(), programId);
     }
 
     [HttpGet]
-    [ApiExplorerSettings(GroupName = "TVAccessService")]
-    public WebBoolResult GetProgramIsScheduledOnChannel(int channelId, int programId)
+    [ApiExplorerSettings]
+    public async Task<WebBoolResult> GetProgramIsScheduledOnChannel(int channelId, int programId)
     {
       throw new NotImplementedException();
     }
 
     [HttpGet]
-    [ApiExplorerSettings(GroupName = "TVAccessService")]
-    public WebBoolResult GetProgramIsScheduled(int programId)
+    [ApiExplorerSettings]
+    public async Task<WebBoolResult> GetProgramIsScheduled(int programId)
     {
-      throw new NotImplementedException();
+      return await new GetProgramIsScheduled().ProcessAsync(Request.GetOwinContext(), programId);
     }
 
     #endregion

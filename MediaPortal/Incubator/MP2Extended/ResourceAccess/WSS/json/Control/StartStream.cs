@@ -22,22 +22,23 @@
 
 #endregion
 
-using System;
 using System.Collections.Generic;
 using System.Linq;
-using HttpServer.Exceptions;
+using System.Threading.Tasks;
+using System.Web;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
+using MediaPortal.Extensions.TranscodingService.Interfaces;
+using MediaPortal.Extensions.TranscodingService.Interfaces.Helpers;
+using MediaPortal.Extensions.TranscodingService.Interfaces.Transcoding;
 using MediaPortal.Plugins.MP2Extended.Attributes;
+using MediaPortal.Plugins.MP2Extended.Exceptions;
 using MediaPortal.Plugins.MP2Extended.MAS.General;
 using MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.Profiles;
 using MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.stream;
 using MediaPortal.Plugins.MP2Extended.Utils;
 using MediaPortal.Plugins.SlimTv.Interfaces.LiveTvMediaItem;
-using MediaPortal.Extensions.TranscodingService.Interfaces.Transcoding;
-using MediaPortal.Extensions.TranscodingService.Interfaces.Helpers;
-using MediaPortal.Extensions.TranscodingService.Interfaces;
-using Microsoft.AspNetCore.Http;
+using Microsoft.Owin;
 
 namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.json.Control
 {
@@ -47,7 +48,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.json.Control
   [ApiFunctionParam(Name = "startPosition", Type = typeof(long), Nullable = false)]
   internal class StartStream
   {
-    public WebStringResult Process(HttpContext httpContext, string identifier, string profileName, long startPosition)
+    public Task<WebStringResult> ProcessAsync(IOwinContext context, string identifier, string profileName, long startPosition)
     {
       if (identifier == null)
         throw new BadRequestException("InitStream: identifier is null");
@@ -84,7 +85,6 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.json.Control
       if ((streamItem.TranscoderObject.TranscodingParameter is VideoTranscoding))
       {
         ((VideoTranscoding)streamItem.TranscoderObject.TranscodingParameter).HlsBaseUrl = string.Format("RetrieveStream?identifier={0}&hls=", identifier);
-        ((VideoTranscoding)streamItem.TranscoderObject.TranscodingParameter).SourceSubtitleStreamIndex = SubtitleHelper.NO_SUBTITLE;
       }
 
       StreamControl.StartStreaming(identifier, startPosition);
@@ -102,8 +102,8 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.json.Control
         }
       }
 
-      string url = GetBaseStreamUrl.GetBaseStreamURL(httpContext) + "/MPExtended/StreamingService/stream/RetrieveStream?identifier=" + identifier + filePostFix;
-      return new WebStringResult { Result = url };
+      string url = GetBaseStreamUrl.GetBaseStreamURL(context) + "/MPExtended/StreamingService/stream/RetrieveStream?identifier=" + identifier + filePostFix;
+      return Task.FromResult(new WebStringResult { Result = url });
     }
 
     internal static ILogger Logger

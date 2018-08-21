@@ -26,8 +26,8 @@ using MediaPortal.Common;
 using MediaPortal.Common.Logging;
 using MediaPortal.Plugins.MP2Extended.Attributes;
 using MediaPortal.Plugins.MP2Extended.Common;
-using MediaPortal.Plugins.MP2Extended.ResourceAccess.TAS.Timeshiftings;
-using MediaPortal.Plugins.SlimTv.Interfaces;
+using System.Threading.Tasks;
+using Microsoft.Owin;
 
 namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.json.Control
 {
@@ -35,7 +35,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.json.Control
   [ApiFunctionParam(Name = "identifier", Type = typeof(string), Nullable = false)]
   internal class FinishStream
   {
-    public WebBoolResult Process(string identifier)
+    public Task<WebBoolResult> ProcessAsync(IOwinContext context, string identifier)
     {
       bool result = true;
 
@@ -43,21 +43,21 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.json.Control
       {
         Logger.Debug("FinishStream: identifier is null");
         result = false;
-        return new WebBoolResult { Result = result };
+        return Task.FromResult(new WebBoolResult { Result = result });
       }
 
       if (!StreamControl.ValidateIdentifier(identifier))
       {
         Logger.Debug("FinishStream: unknown identifier: {0}", identifier);
         result = false;
-        return new WebBoolResult { Result = result };
+        return Task.FromResult(new WebBoolResult { Result = result });
       }
 
       // Remove the stream from the stream controller
       stream.StreamItem item = StreamControl.GetStreamItem(identifier);
       StreamControl.DeleteStreamItem(identifier);
 
-     return new WebBoolResult { Result = result };
+     return Task.FromResult(new WebBoolResult { Result = result });
     }
 
     internal static ILogger Logger

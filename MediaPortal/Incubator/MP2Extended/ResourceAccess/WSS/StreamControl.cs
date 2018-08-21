@@ -25,8 +25,8 @@
 using System.Collections.Generic;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
-using MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.stream;
 using MediaPortal.Extensions.TranscodingService.Interfaces;
+using MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.stream;
 
 namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS
 {
@@ -126,11 +126,11 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS
           STREAM_ITEMS[identifier].TranscoderObject.StartStreaming();
           if (STREAM_ITEMS[identifier].IsLive == true)
           {
-            STREAM_ITEMS[identifier].StreamContext = MediaConverter.GetLiveStream(identifier, STREAM_ITEMS[identifier].TranscoderObject.TranscodingParameter, STREAM_ITEMS[identifier].LiveChannelId, true);
+            STREAM_ITEMS[identifier].StreamContext = MediaConverter.GetLiveStreamAsync(identifier, STREAM_ITEMS[identifier].TranscoderObject.TranscodingParameter, STREAM_ITEMS[identifier].LiveChannelId, true).Result;
           }
           else
           {
-            STREAM_ITEMS[identifier].StreamContext = MediaConverter.GetMediaStream(identifier, STREAM_ITEMS[identifier].TranscoderObject.TranscodingParameter, startTime, 0, true);
+            STREAM_ITEMS[identifier].StreamContext = MediaConverter.GetMediaStreamAsync(identifier, STREAM_ITEMS[identifier].TranscoderObject.TranscodingParameter, startTime, 0, true).Result;
           }
           STREAM_ITEMS[identifier].TranscoderObject.SegmentDir = STREAM_ITEMS[identifier].StreamContext.SegmentDir;
           STREAM_ITEMS[identifier].StreamContext.InUse = true;

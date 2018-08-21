@@ -36,7 +36,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.stream
     private const int DEFAULT_TIMEOUT = 5 * 60; // 5 minutes
 
     private int _idleTimeout;
-    private object _busyLock = new object();
+    private SemaphoreSlim _busyLock = new SemaphoreSlim(1);
     private DateTime _requestTime = DateTime.MinValue;
     private long _requestSegment = 0;
     private object _requestLock = new object();
@@ -89,7 +89,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.stream
     /// <summary>
     /// Gets a lock for indicating that files are in use
     /// </summary>
-    internal object BusyLock { get { return _busyLock; } }
+    internal SemaphoreSlim BusyLock { get { return _busyLock; } }
 
     /// <summary>
     /// Gets or sets the type of stream item
