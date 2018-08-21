@@ -25,7 +25,7 @@
 using System;
 using MediaPortal.Common.MediaManagement;
 
-namespace MediaPortal.Extensions.MetadataExtractors.Aspects
+namespace MediaPortal.Plugins.SlimTv.Interfaces.Aspects
 {
   /// <summary>
   /// Contains the metadata specification of the "Recording" media item aspect which is assigned to all recording media items.
