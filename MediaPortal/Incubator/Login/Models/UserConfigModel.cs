@@ -521,7 +521,7 @@ namespace MediaPortal.UiComponents.Login.Models
         int shareCount = 0;
         string hash = UserProxy.Password;
         if (UserProxy.IsPasswordChanged)
-          hash = Utils.HashPassword(UserProxy.Password);
+          hash = UserProfile.HashPassword(UserProxy.Password);
         UserProfile user = new UserProfile(Guid.Empty, GetUniqueName(UserProxy.Name), UserProxy.ProfileType, hash, DateTime.Now, UserProxy.Image);
         user.AllowedAge = UserProxy.AllowedAge;
         foreach (var shareId in UserProxy.SelectedShares)
@@ -604,7 +604,7 @@ namespace MediaPortal.UiComponents.Login.Models
           string hash = UserProxy.Password;
           bool wasCreated = false;
           if (UserProxy.IsPasswordChanged)
-            hash = Utils.HashPassword(UserProxy.Password);
+            hash = UserProfile.HashPassword(UserProxy.Password);
           if (UserProxy.ProfileType == UserProfileType.ClientProfile)
             hash = ""; //Client profiles can't have passwords
           IUserManagement userManagement = ServiceRegistration.Get<IUserManagement>();

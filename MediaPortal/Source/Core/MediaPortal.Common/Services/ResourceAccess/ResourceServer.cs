@@ -26,13 +26,22 @@ using System;
 using System.Collections.Generic;
 using System.Net;
 using System.Net.Sockets;
+using System.Security.Claims;
+using System.Text;
+using System.Threading.Tasks;
+using System.Web.Http;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.ResourceAccess;
 using MediaPortal.Common.Services.ResourceAccess.Settings;
 using MediaPortal.Common.Settings;
+using MediaPortal.Common.UserProfileDataManagement;
+using Microsoft.Owin;
 using Microsoft.Owin.Hosting;
+using Microsoft.Owin.Security.OAuth;
+using Owin;
 using UPnP.Infrastructure.Dv;
 
+[assembly: OwinStartup(typeof(MediaPortal.Common.Services.ResourceAccess.ResourceServer))]
 namespace MediaPortal.Common.Services.ResourceAccess
 {
   public class ResourceServer : IResourceServer, IDisposable
@@ -54,19 +63,109 @@ namespace MediaPortal.Common.Services.ResourceAccess
       ServerSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<ServerSettings>();
       List<string> filters = settings.IPAddressBindingsList;
 
-      _servicePrefix = ResourceHttpAccessUrlUtils.RESOURCE_SERVER_BASE_PATH + Guid.NewGuid().GetHashCode().ToString("X");
+      //TODO: Why is a service prefix needed for the resource server?
+      _servicePrefix = ""; // ResourceHttpAccessUrlUtils.RESOURCE_SERVER_BASE_PATH + Guid.NewGuid().GetHashCode().ToString("X");
       var startOptions = UPnPServer.BuildStartOptions(_servicePrefix, filters);
 
       lock (_syncObj)
       {
+        if (_httpServer != null) //Already started
+          return;
+
         _httpServer = WebApp.Start(startOptions, builder =>
         {
+          // Configure OAuth Authorization Server
+          builder.UseOAuthAuthorizationServer(new OAuthAuthorizationServerOptions
+          {
+            AuthenticationType = "MediaPortal",
+            TokenEndpointPath = new PathString("/Token"),
+            ApplicationCanDisplayErrors = true,
+            AuthorizationCodeExpireTimeSpan = TimeSpan.FromDays(7),
+#if DEBUG
+            AllowInsecureHttp = true,
+#endif
+            // Authorization server provider which controls the lifecycle of Authorization Server
+            Provider = new OAuthAuthorizationServerProvider
+            {
+              OnValidateClientAuthentication = ValidateClientAuthentication,
+              OnGrantResourceOwnerCredentials = GrantResourceOwnerCredentials,
+            }
+          });
+          builder.UseOAuthBearerAuthentication(new OAuthBearerAuthenticationOptions());
+
+          // Configure Web API
+          HttpConfiguration config = new HttpConfiguration();
+
+          // Support conventional routing
+          config.Routes.MapHttpRoute(
+              name: "DefaultApi",
+              routeTemplate: "api/{controller}/{id}",
+              defaults: new { id = RouteParameter.Optional }
+          );
+
+          // Support attribute based routing
+          config.MapHttpAttributeRoutes();
+
+          // Set json as default instead of xml
+          config.Formatters.JsonFormatter.MediaTypeMappings
+            .Add(new System.Net.Http.Formatting.RequestHeaderMapping(
+              "Accept", "text/html", StringComparison.InvariantCultureIgnoreCase, true, "application/json"));
+
+          builder.UseWebApi(config);
+
+          // Configure MiddleWare
           foreach (Type middleWareType in _middleWares)
           {
             builder.Use(middleWareType);
           }
         });
       }
+    }
+
+    private Task ValidateClientAuthentication(OAuthValidateClientAuthenticationContext context)
+    {
+      context.Validated();
+      return Task.CompletedTask;
+    }
+
+    public async Task GrantResourceOwnerCredentials(OAuthGrantResourceOwnerCredentialsContext context)
+    {
+      var userManagement = ServiceRegistration.Get<IUserProfileDataManagement>(false);
+      if(userManagement != null)
+      {
+        var user = await userManagement.GetProfileByNameAsync(context.UserName);
+        if(user.Success)
+        {
+          var pass = GetPassword(context.Password);
+          if (UserProfile.VerifyPassword(pass, user.Result.Password))
+          {
+            bool isAdmin = !user.Result.RestrictShares && !user.Result.RestrictAges && user.Result.ProfileType == UserProfileType.UserProfile &&
+              !user.Result.EnableRestrictionGroups;
+
+            var identity = new ClaimsIdentity(context.Options.AuthenticationType);
+            identity.AddClaim(new Claim(ClaimTypes.Name, context.UserName));
+            identity.AddClaim(new Claim(ClaimTypes.Sid, user.Result.ProfileId.ToString()));
+            identity.AddClaim(new Claim(ClaimTypes.Role, isAdmin ? "Admin" : "User"));
+            await userManagement.LoginProfileAsync(user.Result.ProfileId);
+
+            context.Validated(identity);
+            return;
+          }
+          else
+          {
+            context.Rejected();
+            context.SetError("invalid_grant", "The user name or password is incorrect.");
+          }
+        }
+      }
+      context.Rejected();
+      context.SetError("invalid_grant", "User management not available.");
+    }
+
+    private string GetPassword(string encoded)
+    {
+      byte[] converted = Convert.FromBase64String(encoded);
+      return Encoding.UTF8.GetString(converted);
     }
 
     public void Dispose()
@@ -117,6 +216,7 @@ namespace MediaPortal.Common.Services.ResourceAccess
     public void Startup()
     {
       CreateAndStartServer();
+      ServiceRegistration.Get<ILogger>().Info("ResourceServer: HTTP servers running on {0}", GetServiceUrl(IPAddress.Any));
     }
 
     public void Shutdown()

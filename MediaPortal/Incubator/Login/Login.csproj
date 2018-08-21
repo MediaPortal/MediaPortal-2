@@ -52,7 +52,6 @@
     </Compile>
     <Compile Include="Actions\UserLoginAction.cs" />
     <Compile Include="General\Consts.cs" />
-    <Compile Include="General\Utils.cs" />
     <Compile Include="LoginPlugin.cs" />
     <Compile Include="Models\LoginModel.cs" />
     <Compile Include="Models\UserLanguageModel.cs" />

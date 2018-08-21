@@ -27,6 +27,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Security.Cryptography;
 using System.Text;
 using System.Xml;
 using System.Xml.Serialization;
@@ -63,6 +64,8 @@ namespace MediaPortal.Common.UserProfileDataManagement
   /// </remarks>
   public class UserProfile
   {
+    private const int MAX_PASSWORD_LENGTH = 10;
+
     protected Guid _profileId;
     protected string _name;
     protected string _password;
@@ -259,7 +262,6 @@ namespace MediaPortal.Common.UserProfileDataManagement
       }
     }
 
-
     /// <summary>
     /// Define if unrated content should be allowed.
     /// </summary>
@@ -331,6 +333,24 @@ namespace MediaPortal.Common.UserProfileDataManagement
     public IDictionary<string, IDictionary<int, string>> AdditionalData
     {
       get { return _userData; }
+    }
+
+    public static bool VerifyPassword(string password, string profilePassword)
+    {
+      if (string.IsNullOrEmpty(profilePassword))
+        return true;
+      string hashedPassword = HashPassword(password);
+      return string.Equals(hashedPassword, profilePassword, StringComparison.Ordinal);
+    }
+
+    public static string HashPassword(string password)
+    {
+      if (string.IsNullOrEmpty(password))
+        return "";
+
+      HashAlgorithm hash = HashAlgorithm.Create("SHA256");
+      string hashedPassword = Convert.ToBase64String(hash.ComputeHash(Encoding.Unicode.GetBytes(password)));
+      return hashedPassword.Substring(0, hashedPassword.Length < MAX_PASSWORD_LENGTH ? hashedPassword.Length : MAX_PASSWORD_LENGTH);
     }
 
     /// <summary>
