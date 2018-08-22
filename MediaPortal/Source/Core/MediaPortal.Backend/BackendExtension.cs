@@ -81,6 +81,13 @@ namespace MediaPortal.Backend
       ((UserProfileDataManagement)ServiceRegistration.Get<IUserProfileDataManagement>()).Startup();
       ServiceRegistration.Get<IClientManager>().Startup();
       ServiceRegistration.Get<IBackendServer>().Startup();
+    }
+
+    /// <summary>
+    /// To be called when the database service is present.
+    /// </summary>
+    public static void MigrateDatabaseData()
+    {
       ServiceRegistration.Get<IDatabaseManager>().MigrateDatabaseData();
     }
 

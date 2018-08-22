@@ -30,6 +30,7 @@ using MediaPortal.Common.MediaManagement.Helpers;
 using MediaPortal.Common.Messaging;
 using MediaPortal.Common.ResourceAccess;
 using MediaPortal.Common.Runtime;
+using MediaPortal.Common.Services.Database;
 using MediaPortal.Common.Services.MediaManagement;
 using MediaPortal.Common.Services.ServerCommunication;
 using MediaPortal.Common.Settings;
@@ -324,6 +325,15 @@ namespace MediaPortal.UI.Services.ServerCommunication
                 UpdateCurrentlyImportingShares(shareStates.Where(s => s.IsImporting).Select(s => s.ShareId).ToList());
                 UpdateCurrentlyImportingSharesProgresses(shareStates.Where(s => s.IsImporting).ToDictionary(s => s.ShareId, s => s.Progress));
               }
+            }
+          }
+          else if (states != null && states.ContainsKey(DatabaseUpgradeServerState.STATE_ID))
+          {
+            DatabaseUpgradeServerState upgradeState = states[DatabaseUpgradeServerState.STATE_ID] as DatabaseUpgradeServerState;
+            if (upgradeState != null && !upgradeState.IsUpgrading && upgradeState.Progress == 100)
+            {
+              ServerConnectionMessaging.SendServerConnectionStateChangedMessage(ServerConnectionMessaging.MessageType.HomeServerDisconnected);
+              ServerConnectionMessaging.SendServerConnectionStateChangedMessage(ServerConnectionMessaging.MessageType.HomeServerConnected);
             }
           }
         }

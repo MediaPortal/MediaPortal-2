@@ -35,6 +35,7 @@ using MediaPortal.Backend.Services.MediaLibrary;
 using System.Linq;
 using MediaPortal.Backend.ClientCommunication;
 using MediaPortal.Common.Services.Database;
+using MediaPortal.Backend.MediaLibrary;
 
 namespace MediaPortal.Backend.Services.Database
 {
@@ -365,6 +366,10 @@ namespace MediaPortal.Backend.Services.Database
             }
             //A newly created database will always be of the latest version
             SetDatabaseVersion(DATABASE_VERSION_MAJOR, DATABASE_VERSION_MINOR);
+
+            //Set MediaLibrary in maintenance mode
+            if(ServiceRegistration.Get<IMediaLibrary>() is MediaLibrary.MediaLibrary mediaLibrary)
+              mediaLibrary.MaintenanceMode = true;
             return true;
           }
         }
@@ -447,6 +452,10 @@ namespace MediaPortal.Backend.Services.Database
           }
           database.DropBackupTables(BACKUP_TABLE_SUFFIX);
           ServiceRegistration.Get<ILogger>().Info("DatabaseManager: Successfully migrated database data to version {0}.{1}", DATABASE_VERSION_MAJOR, DATABASE_VERSION_MINOR);
+
+          //Exit MediaLibrary maintenance mode
+          if (ServiceRegistration.Get<IMediaLibrary>() is MediaLibrary.MediaLibrary mediaLibrary)
+            mediaLibrary.MaintenanceMode = false;
           SendUpgradeProgress(totalMigrationSteps, totalMigrationSteps);
           return true;
         }

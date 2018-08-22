@@ -387,6 +387,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
     protected IImportResultHandler _importResultHandler;
     protected AsynchronousMessageQueue _messageQueue;
     protected bool _shutdown = false;
+    protected bool _maintenanceMode = false;
     protected readonly Dictionary<Guid, ShareWatcher> _shareWatchers = new Dictionary<Guid, ShareWatcher>();
     // Should be accessed only by GetResourcePathLock
     private readonly ConcurrentDictionary<ResourcePath, ReaderWriterLockSlim> _shareDeleteSync = new ConcurrentDictionary<ResourcePath, ReaderWriterLockSlim>();
@@ -588,6 +589,22 @@ namespace MediaPortal.Backend.Services.MediaLibrary
     public string LocalSystemId
     {
       get { return _localSystemId; }
+    }
+
+    public bool MaintenanceMode
+    {
+      get { return _maintenanceMode; }
+      set
+      {
+        if(_maintenanceMode != value)
+        {
+          if (value)
+            Logger.Info("Media library entering maintenance mode");
+          else
+            Logger.Info("Media library exiting maintenance mode");
+        }
+        _maintenanceMode = value;
+      }
     }
 
     #region Protected methods
@@ -889,6 +906,9 @@ namespace MediaPortal.Backend.Services.MediaLibrary
 
     public void RefreshMediaItemMetadata(string systemId, Guid mediaItemId, bool clearMetadata)
     {
+      if (_maintenanceMode)
+        return;
+
       ISQLDatabase database = ServiceRegistration.Get<ISQLDatabase>();
       ITransaction transaction = database.BeginTransaction();
 
@@ -1003,6 +1023,9 @@ namespace MediaPortal.Backend.Services.MediaLibrary
 
     public MediaItem LoadItem(MediaItemQuery loadItemQuery, IEnumerable<Guid> necessaryRequestedMIATypeIDs, IEnumerable<Guid> optionalRequestedMIATypeIDs, Guid? userProfileId = null)
     {
+      if (_maintenanceMode)
+        return null;
+
       lock (_syncObj)
       {
         // The following lines are a temporary workaround for the fact that our MainQueryBuilder doesn't like
@@ -1041,6 +1064,9 @@ namespace MediaPortal.Backend.Services.MediaLibrary
         IEnumerable<Guid> necessaryRequestedMIATypeIDs, IEnumerable<Guid> optionalRequestedMIATypeIDs,
         Guid? userProfileId, bool includeVirtual, uint? offset = null, uint? limit = null)
     {
+      if (_maintenanceMode)
+        return new List<MediaItem>();
+
       lock (_syncObj)
       {
         MediaItemQuery browseQuery = BuildBrowseQuery(parentDirectoryId);
@@ -1130,6 +1156,8 @@ namespace MediaPortal.Backend.Services.MediaLibrary
     public IList<MediaItem> Search(ISQLDatabase database, ITransaction transaction, MediaItemQuery query, bool filterOnlyOnline, Guid? userProfileId, bool includeVirtual)
     {
       IList<MediaItem> items = new List<MediaItem>();
+      if (_maintenanceMode)
+        return items;
 
       // We add the provider resource aspect to the necessary aspect types be able to filter online systems
       MediaItemQuery executeQuery = query;
@@ -1187,6 +1215,9 @@ namespace MediaPortal.Backend.Services.MediaLibrary
     public HomogenousMap GetValueGroups(MediaItemAspectMetadata.AttributeSpecification attributeType, IFilter selectAttributeFilter,
         ProjectionFunction projectionFunction, IEnumerable<Guid> necessaryMIATypeIDs, IFilter filter, bool filterOnlyOnline, bool includeVirtual)
     {
+      if (_maintenanceMode)
+        return null;
+
       SelectProjectionFunction selectProjectionFunctionImpl;
       Type projectionValueType;
       switch (projectionFunction)
@@ -1222,6 +1253,9 @@ namespace MediaPortal.Backend.Services.MediaLibrary
     public Tuple<HomogenousMap, HomogenousMap> GetKeyValueGroups(MediaItemAspectMetadata.AttributeSpecification keyAttributeType, MediaItemAspectMetadata.AttributeSpecification valueAttributeType,
       IFilter selectAttributeFilter, ProjectionFunction projectionFunction, IEnumerable<Guid> necessaryMIATypeIDs, IFilter filter, bool filterOnlyOnline, bool includeVirtual)
     {
+      if (_maintenanceMode)
+        return null;
+
       SelectProjectionFunction selectProjectionFunctionImpl;
       Type projectionValueType;
       switch (projectionFunction)
@@ -1258,6 +1292,9 @@ namespace MediaPortal.Backend.Services.MediaLibrary
         IFilter selectAttributeFilter, ProjectionFunction projectionFunction, IEnumerable<Guid> necessaryMIATypeIDs,
         IFilter filter, bool filterOnlyOnline, GroupingFunction groupingFunction, bool includeVirtual)
     {
+      if (_maintenanceMode)
+        return new List<MLQueryResultGroup>();
+
       IDictionary<object, MLQueryResultGroup> groups = new Dictionary<object, MLQueryResultGroup>();
       IGroupingFunctionImpl groupingFunctionImpl;
       switch (groupingFunction)
@@ -1290,6 +1327,9 @@ namespace MediaPortal.Backend.Services.MediaLibrary
 
     public int CountMediaItems(IEnumerable<Guid> necessaryMIATypeIDs, IFilter filter, bool filterOnlyOnline, bool includeVirtual)
     {
+      if (_maintenanceMode)
+        return 0;
+
       IFilter additionalFilter = CreateAddtionalFilter(filterOnlyOnline, includeVirtual);
       if (additionalFilter != null)
         filter = filter != null ? BooleanCombinationFilter.CombineFilters(BooleanOperator.And, filter, additionalFilter) : additionalFilter;
@@ -1360,6 +1400,9 @@ namespace MediaPortal.Backend.Services.MediaLibrary
 
     public ICollection<PlaylistInformationData> GetPlaylists()
     {
+      if (_maintenanceMode)
+        return new List<PlaylistInformationData>();
+
       ISQLDatabase database = ServiceRegistration.Get<ISQLDatabase>();
       ITransaction transaction = database.BeginTransaction();
       try
@@ -1493,6 +1536,9 @@ namespace MediaPortal.Backend.Services.MediaLibrary
     public IList<MediaItem> LoadCustomPlaylist(IList<Guid> mediaItemIds,
         IEnumerable<Guid> necessaryMIATypes, IEnumerable<Guid> optionalMIATypes, uint? offset = null, uint? limit = null)
     {
+      if (_maintenanceMode)
+        return new List<MediaItem>();
+
       IFilter filter = new MediaItemIdFilter(mediaItemIds);
       MediaItemQuery query = new MediaItemQuery(necessaryMIATypes, optionalMIATypes, filter);
       query.Limit = limit;
@@ -2374,6 +2420,9 @@ namespace MediaPortal.Backend.Services.MediaLibrary
 
     public ICollection<Guid> GetCurrentlyImportingShareIds()
     {
+      if (_maintenanceMode)
+        return new List<Guid>();
+
       ICollection<Guid> result = new List<Guid>();
       IImporterWorker importerWorker = ServiceRegistration.Get<IImporterWorker>();
       // Shares of media library
