@@ -117,6 +117,14 @@ namespace MediaPortal.Common.Services.ServerCommunication
       return (bool)outParameters[0];
     }
 
+    public async Task<bool> ChangeProfileIdAsync(Guid profileId, Guid newProfileId)
+    {
+      CpAction action = GetAction("ChangeProfileId");
+      IList<object> inParameters = new List<object> { MarshallingHelper.SerializeGuid(profileId), MarshallingHelper.SerializeGuid(newProfileId) };
+      IList<object> outParameters = await action.InvokeAsync(inParameters);
+      return (bool)outParameters[0];
+    }
+
     public async Task<bool> DeleteProfileAsync(Guid profileId)
     {
       CpAction action = GetAction("DeleteProfile");
