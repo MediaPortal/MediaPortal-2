@@ -46,6 +46,10 @@ namespace MediaPortal.Mock
       get { return uint.MaxValue; }
     }
 
+    public string ConcatOperator => throw new NotImplementedException();
+
+    public string LengthFunction => throw new NotImplementedException();
+
     public string GetSQLType(Type dotNetType)
     {
       return dotNetType.Name;
