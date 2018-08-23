@@ -394,6 +394,16 @@ namespace MediaPortal.Database.SQLite
       get { return 30; }
     }
 
+    public string ConcatOperator
+    {
+      get { return "||"; }
+    }
+
+    public string LengthFunction
+    {
+      get { return "LENGTH"; }
+    }
+
     public string GetSQLType(Type dotNetType)
     {
       // SQLite only knows five storage classes:

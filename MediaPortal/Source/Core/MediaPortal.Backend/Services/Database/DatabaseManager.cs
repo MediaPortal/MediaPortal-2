@@ -50,6 +50,8 @@ namespace MediaPortal.Backend.Services.Database
     public const string MIA_TABLE_PLACEHOLDER = "%ASPECT_TABLE%";
     public const string MIA_V_TABLE_PLACEHOLDER = "%ASPECT_V_TABLE%";
     public const string MIA_NM_TABLE_PLACEHOLDER = "%ASPECT_NM_TABLE%";
+    public const string SQL_CONCAT_PLACEHOLDER = "%SQL_CONCAT_OP%";
+    public const string SQL_LEN_PLACEHOLDER = "%SQL_LEN_OP%";
 
     public const string MIGRATION_USER_PARAM = "MigrationUser";
     public readonly Guid MIGRATION_USER_GUID = Guid.Empty;
@@ -311,6 +313,11 @@ namespace MediaPortal.Backend.Services.Database
       ISQLDatabase database = ServiceRegistration.Get<ISQLDatabase>(false);
       if (database == null)
         throw new IllegalCallException("There is no database present in the system");
+
+      if (!_migrationScriptPlaceholders.ContainsKey(SQL_CONCAT_PLACEHOLDER))
+        _migrationScriptPlaceholders.Add(SQL_CONCAT_PLACEHOLDER, database.ConcatOperator);
+      if (!_migrationScriptPlaceholders.ContainsKey(SQL_LEN_PLACEHOLDER))
+        _migrationScriptPlaceholders.Add(SQL_LEN_PLACEHOLDER, database.LengthFunction);
 
       // Prepare schema
       if (!database.TableExists(MediaPortal_Basis_Schema.MEDIAPORTAL_BASIS_TABLE_NAME))

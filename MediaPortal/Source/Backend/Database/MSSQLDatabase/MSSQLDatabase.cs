@@ -216,6 +216,16 @@ namespace MediaPortal.Database.MSSQL
       get { return 30; }
     }
 
+    public string ConcatOperator
+    {
+      get { return "+"; }
+    }
+
+    public string LengthFunction
+    {
+      get { return "LEN"; }
+    }
+
     public string GetSQLType(Type dotNetType)
     {
       if (dotNetType == typeof(DateTime))

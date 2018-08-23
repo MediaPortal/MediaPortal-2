@@ -109,6 +109,18 @@ namespace MediaPortal.Backend.Database
     uint MaxObjectNameLength { get; }
 
     /// <summary>
+    /// Get SQL operator used for concatenating two strings. For Oracle, that will be
+    /// <c>"||"</c>, for example. For MS SQL Server, that will be <c>"+"</c>.
+    /// </summary>
+    string ConcatOperator { get; }
+
+    /// <summary>
+    /// Get SQL function used for getting the length of a string. For Oracle, that will be
+    /// <c>"LENGTH"</c>, for example. For MS SQL Server, that will be <c>"LEN"</c>.
+    /// </summary>
+    string LengthFunction { get; }
+
+    /// <summary>
     /// Returns the name of an SQL type (to be used in SQL scripts) which can store values of the specified .net type
     /// without truncation or loss of data.
     /// </summary>
