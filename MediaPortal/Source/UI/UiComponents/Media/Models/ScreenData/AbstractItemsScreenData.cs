@@ -230,9 +230,13 @@ namespace MediaPortal.UiComponents.Media.Models.ScreenData
         }
         if (changeType == ContentDirectoryMessaging.MediaItemChangeType.Updated)
         {
-          PlayableMediaItem existingItem = _items.OfType<PlayableMediaItem>().FirstOrDefault(pmi => pmi.MediaItem.Equals(mediaItem));
+          IEnumerable<PlayableMediaItem> playableItems = _items.OfType<PlayableMediaItem>();
+          PlayableMediaItem existingItem = playableItems.FirstOrDefault(pmi => pmi.MediaItem.Equals(mediaItem));
           if (existingItem != null)
+          {
             existingItem.Update(mediaItem);
+            changed = SetSelectedItem(playableItems);
+          }
         }
       }
       if (changed)
@@ -256,6 +260,15 @@ namespace MediaPortal.UiComponents.Media.Models.ScreenData
 
       for (int i = 0; i < _items.Count; i++)
         _items[i].Selected = i == oldIndex;
+    }
+
+    /// <summary>
+    /// Can be overriden in derived classes to set the initially selected item.
+    /// </summary>
+    /// <param name="items">Enumeration of items to select from.</param>
+    protected virtual bool SetSelectedItem(IEnumerable<PlayableMediaItem> items)
+    {
+      return false;
     }
 
     /// <summary>
@@ -343,6 +356,10 @@ namespace MediaPortal.UiComponents.Media.Models.ScreenData
                 else
                   // Default sorting: Use SortString
                   itemsList.Sort((i1, i2) => string.Compare(i1.SortString, i2.SortString));
+
+                // Derived classes can implement special initial selection handling here,
+                // e.g. the first unwatched episode could be selected from a list of episodes
+                SetSelectedItem(itemsList);
                 CollectionUtils.AddAll(items, itemsList);
 
                 // Support custom sorting logic by view specification. At this time it can work on both MediaItems and SubViews.
