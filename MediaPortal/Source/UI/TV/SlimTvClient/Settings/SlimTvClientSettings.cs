@@ -61,7 +61,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Settings
     /// <summary>
     /// Whether to show genre colors in EPG.
     /// </summary>
-    [Setting(SettingScope.User, DefaultValue = true)]
+    [Setting(SettingScope.User, DefaultValue = false)]
     public bool EpgShowGenreColors { get; set; }
 
     /// <summary>
