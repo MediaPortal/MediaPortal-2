@@ -46,6 +46,8 @@ namespace MediaPortal.Common.Services.ResourceAccess
 {
   public class ResourceServer : IResourceServer, IDisposable
   {
+    public const string MEDIAPORTAL_AUTHENTICATION_TYPE = "MediaPortal";
+
     protected readonly List<Type> _middleWares = new List<Type>();
     protected IDisposable _httpServer;
     protected int _serverPort = UPnPServer.DEFAULT_UPNP_AND_SERVICE_PORT_NUMBER;
@@ -77,7 +79,7 @@ namespace MediaPortal.Common.Services.ResourceAccess
           // Configure OAuth Authorization Server
           builder.UseOAuthAuthorizationServer(new OAuthAuthorizationServerOptions
           {
-            AuthenticationType = "MediaPortal",
+            AuthenticationType = MEDIAPORTAL_AUTHENTICATION_TYPE,
             TokenEndpointPath = new PathString("/Token"),
             ApplicationCanDisplayErrors = true,
             AuthorizationCodeExpireTimeSpan = TimeSpan.FromDays(7),
