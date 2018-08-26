@@ -729,6 +729,7 @@ namespace MediaPortal.Extensions.TranscodingService.Service.Transcoders
     protected Dictionary<int, SubtitleStream> FindPrimarySubtitle(VideoTranscoding video)
     {
       if (video.SourceSubtitles == null) return null;
+      if (video.TargetSubtitleLanguages == null) return null;
 
       Dictionary<int, SubtitleStream> currentEmbeddedSub = new Dictionary<int, SubtitleStream>();
       Dictionary<int, SubtitleStream> currentExternalSub = new Dictionary<int, SubtitleStream>();

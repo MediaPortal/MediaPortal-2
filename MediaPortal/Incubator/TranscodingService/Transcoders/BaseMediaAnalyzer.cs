@@ -158,12 +158,14 @@ namespace MediaPortal.Extensions.TranscodingService.Service.Transcoders
       return null;
     }
 
-    public async Task<IList<MetadataContainer>> ParseMediaItemAsync(MediaItem Media, int? editionId)
+    public async Task<IDictionary<int, IList<MetadataContainer>>> ParseMediaItemAsync(MediaItem Media, int? editionId = null)
     {
       try
       {
         if (Media.IsStub)
           return null;
+
+        IDictionary<int, IList<MetadataContainer>> mediaContainers = new Dictionary<int, IList<MetadataContainer>>();
 
         //Check for live items
         if (Media.Aspects.ContainsKey(AudioAspect.ASPECT_ID))
@@ -176,7 +178,9 @@ namespace MediaPortal.Extensions.TranscodingService.Service.Transcoders
               info.Metadata.Live = true;
               info.Metadata.Size = 0;
             }
-            return new MetadataContainer[] { info };
+
+            mediaContainers.Add(-1, new MetadataContainer[] { info });
+            return mediaContainers;
           }
         }
         else if (Media.Aspects.ContainsKey(VideoAspect.ASPECT_ID))
@@ -189,7 +193,8 @@ namespace MediaPortal.Extensions.TranscodingService.Service.Transcoders
               info.Metadata.Live = true;
               info.Metadata.Size = 0;
             }
-            return new MetadataContainer[] { info };
+            mediaContainers.Add(-1, new MetadataContainer[] { info });
+            return mediaContainers;
           }
         }
 
@@ -203,10 +208,10 @@ namespace MediaPortal.Extensions.TranscodingService.Service.Transcoders
         if (Media.HasEditions)
         {
           IEnumerable<int> praIdxs = null;
-          if (!editionId.HasValue)
+          if (editionId.HasValue)
             praIdxs = Media.Editions.First(e => e.Key == editionId.Value).Value.PrimaryResourceIndexes;
           else
-            praIdxs = Media.Editions.First().Value.PrimaryResourceIndexes;
+            praIdxs = Media.Editions.SelectMany(e => e.Value.PrimaryResourceIndexes).Distinct();
 
           resources = providerAspects.Where(pra => praIdxs.Contains(pra.GetAttributeValue<int>(ProviderResourceAspect.ATTR_RESOURCE_INDEX))).
               ToDictionary(pra => pra.GetAttributeValue<int>(ProviderResourceAspect.ATTR_RESOURCE_INDEX), pra => new ResourceLocator(pra.GetAttributeValue<string>(ProviderResourceAspect.ATTR_SYSTEM_ID), ResourcePath.Deserialize(pra.GetAttributeValue<string>(ProviderResourceAspect.ATTR_RESOURCE_ACCESSOR_PATH))));
@@ -218,7 +223,6 @@ namespace MediaPortal.Extensions.TranscodingService.Service.Transcoders
         }
 
         //Analyze media
-        List<MetadataContainer> infos = new List<MetadataContainer>();
         foreach (var res in resources)
         {
           IResourceAccessor mia = res.Value.CreateAccessor();
@@ -252,9 +256,15 @@ namespace MediaPortal.Extensions.TranscodingService.Service.Transcoders
                 }));
             }
           }
-          infos.Add(info);
+          int edition = -1;
+          if (Media.HasEditions)
+            edition = Media.Editions.First(e => e.Value.PrimaryResourceIndexes.Contains(res.Key)).Key;
+          if (!mediaContainers.ContainsKey(edition))
+            mediaContainers.Add(edition, new List<MetadataContainer>());
+
+          mediaContainers[edition].Add(info);
         }
-        return infos;
+        return mediaContainers;
       }
       catch (Exception ex)
       {

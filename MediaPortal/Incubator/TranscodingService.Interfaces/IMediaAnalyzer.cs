@@ -46,7 +46,7 @@ namespace MediaPortal.Extensions.TranscodingService.Interfaces
     /// <param name="Media">The MediaItem to parse</param>
     /// <param name="MediaPartSetId">The media set part to analyze. Null for first set.</param>
     /// <returns>Metadata Container with all information about the MediaItem</returns>
-    Task<IList<MetadataContainer>> ParseMediaItemAsync(MediaItem Media, int? MediaPartSetId);
+    Task<IDictionary<int, IList<MetadataContainer>>> ParseMediaItemAsync(MediaItem Media, int? MediaPartSetId = null);
 
     /// <summary>
     /// Parses a channel (SlimTv) and returns a MetadataContainer with the information (codecs, container, streams, ...) found

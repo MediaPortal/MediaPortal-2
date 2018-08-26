@@ -790,6 +790,15 @@ namespace MediaPortal.Extensions.TranscodingService.Interfaces.Profiles
     /// </summary>
     public VideoTranscoding GetVideoTranscoding(string section, string profile, IEnumerable<MetadataContainer> infos, IEnumerable<string> preferedAudioLanguages, bool liveStreaming, string transcodeId)
     {
+      int matchedAudioStream = GetPreferredAudioStream(infos.First(), preferedAudioLanguages);
+      return GetVideoTranscoding(section, profile, infos, matchedAudioStream, null, liveStreaming, transcodeId);
+    }
+
+    /// <summary>
+    /// Get the video transcoding profile that best matches the source video.
+    /// </summary>
+    public VideoTranscoding GetVideoTranscoding(string section, string profile, IEnumerable<MetadataContainer> infos, int audioStreamIndex, int? subtitleStreamIndex, bool liveStreaming, string transcodeId)
+    {
       if (infos == null)
         return null;
 
@@ -798,8 +807,7 @@ namespace MediaPortal.Extensions.TranscodingService.Interfaces.Profiles
         return null;
 
       VideoMatch srcVideo = null;
-      int matchedAudioStream = GetPreferredAudioStream(infos.First(), preferedAudioLanguages);
-      VideoTranscodingTarget dstVideo = transSetup.GetMatchingVideoTranscoding(infos.First(), matchedAudioStream, out srcVideo);
+      VideoTranscodingTarget dstVideo = transSetup.GetMatchingVideoTranscoding(infos.First(), audioStreamIndex, out srcVideo);
       SubtitleSupport subMode = transSetup.SubtitleSettings.SubtitleMode;
       if (subMode != SubtitleSupport.HardCoded)
       {
@@ -835,7 +843,7 @@ namespace MediaPortal.Extensions.TranscodingService.Interfaces.Profiles
       {
         //Stacked files or hardcoded subs need generic transcoding
         srcVideo = new VideoMatch();
-        srcVideo.MatchedAudioStream = matchedAudioStream;
+        srcVideo.MatchedAudioStream = audioStreamIndex;
         dstVideo = transSetup.GenericVideoTargets.First();
         srcVideo.MatchedVideoSource = dstVideo.Target;
       }
@@ -855,7 +863,7 @@ namespace MediaPortal.Extensions.TranscodingService.Interfaces.Profiles
           video.SourceVideoStreams.Add(infoIndex, info.Video);
           video.SourceVideoContainers.Add(infoIndex, info.Metadata.VideoContainerType);
 
-          if(info.Metadata.Duration.HasValue)
+          if (info.Metadata.Duration.HasValue)
             video.SourceMediaDurations.Add(infoIndex, TimeSpan.FromSeconds(info.Metadata.Duration.Value));
           if (info.Metadata.Source != null)
             video.SourceMedia.Add(infoIndex, info.Metadata.Source);
@@ -874,9 +882,11 @@ namespace MediaPortal.Extensions.TranscodingService.Interfaces.Profiles
               video.SourceAudioStreams[infoIndex].Add(info.Audio[idx]);
             }
           }
-
-          video.SourceSubtitles.Add(infoIndex, new List<SubtitleStream>(info.Subtitles));
-        }      
+          if (subtitleStreamIndex.HasValue)
+            video.SourceSubtitles.Add(infoIndex, new List<SubtitleStream>(info.Subtitles.Where(s => s.StreamIndex == subtitleStreamIndex.Value)));
+          else
+            video.SourceSubtitles.Add(infoIndex, new List<SubtitleStream>(info.Subtitles));
+        }
 
         if (dstVideo.Target.VideoContainerType != VideoContainer.Unknown)
           video.TargetVideoContainer = dstVideo.Target.VideoContainerType;
@@ -893,7 +903,7 @@ namespace MediaPortal.Extensions.TranscodingService.Interfaces.Profiles
 
         if (dstVideo.Target.AudioCodecType != AudioCodec.Unknown)
           video.TargetAudioCodec = dstVideo.Target.AudioCodecType;
- 
+
         video.TargetForceAudioStereo = transSetup.AudioSettings.DefaultStereo;
         if (dstVideo.Target.ForceStereo)
           video.TargetForceAudioStereo = dstVideo.Target.ForceStereo;
@@ -953,11 +963,11 @@ namespace MediaPortal.Extensions.TranscodingService.Interfaces.Profiles
           video.TargetLevel = transSetup.VideoSettings.H265Level;
           if (dstVideo.Target.LevelMinimum > 0)
             video.TargetLevel = dstVideo.Target.LevelMinimum;
- 
+
           video.TargetProfile = transSetup.VideoSettings.H265TargetProfile;
           if (dstVideo.Target.EncodingProfileType != EncodingProfile.Unknown)
             video.TargetProfile = dstVideo.Target.EncodingProfileType;
-      
+
           video.TargetPreset = transSetup.VideoSettings.H265TargetPreset;
           if (dstVideo.Target.TargetPresetType != EncodingPreset.Default)
             video.TargetPreset = dstVideo.Target.TargetPresetType;
@@ -1168,10 +1178,17 @@ namespace MediaPortal.Extensions.TranscodingService.Interfaces.Profiles
     /// </summary>
     public VideoTranscoding GetLiveVideoTranscoding(MetadataContainer info, IEnumerable<string> preferedAudioLanguages, string transcodeId)
     {
+      int matchedAudioStream = GetPreferredAudioStream(info, preferedAudioLanguages);
+      return GetLiveVideoTranscoding(info, matchedAudioStream, transcodeId);
+    }
+
+    /// <summary>
+    /// Get a video transcoding profile that streams the live source video.
+    /// </summary>
+    public VideoTranscoding GetLiveVideoTranscoding(MetadataContainer info, int audioStreamIndex, string transcodeId)
+    {
       if (info == null)
         return null;
-
-      int matchedAudioStream = GetPreferredAudioStream(info, preferedAudioLanguages);
 
       VideoTranscoding video = new VideoTranscoding();
       video.SourceVideoStreams.Add(0, info.Video);
@@ -1180,10 +1197,10 @@ namespace MediaPortal.Extensions.TranscodingService.Interfaces.Profiles
       if (info.Metadata.Source != null)
         video.SourceMedia.Add(0, info.Metadata.Source);
 
-      video.SourceAudioStreams.Add(0, new List<AudioStream>() { info.Audio.First(s => s.StreamIndex == matchedAudioStream) });
+      video.SourceAudioStreams.Add(0, new List<AudioStream>() { info.Audio.First(s => s.StreamIndex == audioStreamIndex) });
       for (int idx = 0; idx < info.Audio.Count; idx++)
       {
-        if (info.Audio[idx].StreamIndex == matchedAudioStream)
+        if (info.Audio[idx].StreamIndex == audioStreamIndex)
           continue;
 
         video.SourceAudioStreams[0].Add(info.Audio[idx]);

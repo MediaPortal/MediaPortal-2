@@ -43,6 +43,11 @@ namespace MediaPortal.Extensions.TranscodingService.Interfaces
     /// <summary>
     /// Get the video transcoding profile that best matches the source video.
     /// </summary>
+    VideoTranscoding GetVideoTranscoding(string section, string profile, IEnumerable<MetadataContainer> infos, int audioStreamIndex, int? subtitleStreamIndex, bool liveStreaming, string transcodeId);
+
+    /// <summary>
+    /// Get the video transcoding profile that best matches the source video.
+    /// </summary>
     VideoTranscoding GetVideoTranscoding(string section, string profile, IEnumerable<MetadataContainer> infos, IEnumerable<string> preferedAudioLanguages, bool liveStreaming, string transcodeId);
 
     /// <summary>
@@ -59,6 +64,11 @@ namespace MediaPortal.Extensions.TranscodingService.Interfaces
     /// Get a video transcoding profile that adds subtitles the source video.
     /// </summary>
     VideoTranscoding GetVideoSubtitleTranscoding(string section, string profile, IEnumerable<MetadataContainer> infos, bool live, string transcodeId);
+
+    /// <summary>
+    /// Get a video transcoding profile that streams the live source video.
+    /// </summary>
+    VideoTranscoding GetLiveVideoTranscoding(MetadataContainer info, int audioStreamIndex, string transcodeId);
 
     /// <summary>
     /// Get a video transcoding profile that streams the live source video.
