@@ -850,8 +850,9 @@ namespace Test.TranscodingService
       FFMpegMediaConverter fFMpegMediaConverter = new FFMpegMediaConverter();
       if (mi.Aspects.ContainsKey(VideoAspect.ASPECT_ID))
       {
-        var containers = await fFMpegMediaAnalyzer.ParseMediaItemAsync(mi, null);
-        var transcodeInfo = profileManager.GetVideoTranscoding(profileSection, profileName, containers, new string[] { "EN" }, false, fileId);
+        var containers = await fFMpegMediaAnalyzer.ParseMediaItemAsync(mi);
+        var container = containers.Values.First(); //Use first
+        var transcodeInfo = profileManager.GetVideoTranscoding(profileSection, profileName, container, new string[] { "EN" }, false, fileId);
         if (transcodeInfo == null)
         {
           Console.WriteLine("No transoding needed!");
@@ -869,8 +870,9 @@ namespace Test.TranscodingService
       }
       else if (mi.Aspects.ContainsKey(AudioAspect.ASPECT_ID))
       {
-        var containers = await fFMpegMediaAnalyzer.ParseMediaItemAsync(mi, null);
-        var transcodeInfo = profileManager.GetAudioTranscoding(profileSection, profileName, containers.First(), false, fileId);
+        var containers = await fFMpegMediaAnalyzer.ParseMediaItemAsync(mi);
+        var container = containers.Values.First().First(); //Only one container for audio
+        var transcodeInfo = profileManager.GetAudioTranscoding(profileSection, profileName, container, false, fileId);
         if (transcodeInfo == null)
         {
           Console.WriteLine("No transoding needed!");
@@ -888,8 +890,9 @@ namespace Test.TranscodingService
       }
       else if (mi.Aspects.ContainsKey(ImageAspect.ASPECT_ID))
       {
-        var containers = await fFMpegMediaAnalyzer.ParseMediaItemAsync(mi, null);
-        var transcodeInfo = profileManager.GetImageTranscoding(profileSection, profileName, containers.First(), fileId);
+        var containers = await fFMpegMediaAnalyzer.ParseMediaItemAsync(mi);
+        var container = containers.Values.First().First(); //Only one container for images
+        var transcodeInfo = profileManager.GetImageTranscoding(profileSection, profileName, container, fileId);
         if (transcodeInfo == null)
         {
           Console.WriteLine("No transoding needed!");
