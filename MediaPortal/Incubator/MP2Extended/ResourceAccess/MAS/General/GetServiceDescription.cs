@@ -38,7 +38,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.General
     public Task<WebMediaServiceDescription> ProcessAsync(IOwinContext context)
     {
       WebMediaServiceDescription webMediaServiceDescription = new WebMediaServiceDescription();
-      webMediaServiceDescription.ApiVersion = 4;
+      webMediaServiceDescription.ApiVersion = GlobalVersion.API_VERSION;
       webMediaServiceDescription.AvailableFileSystemLibraries = new List<WebBackendProvider>
       {
         new WebBackendProvider

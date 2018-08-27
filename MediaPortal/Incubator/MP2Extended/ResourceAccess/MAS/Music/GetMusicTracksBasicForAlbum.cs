@@ -52,7 +52,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.Music
     public Task<IList<WebMusicTrackBasic>> ProcessAsync(IOwinContext context, Guid id, string filter, WebSortField? sort, WebSortOrder? order)
     {
       if (id == null)
-        throw new BadRequestException("GetMusicTracksBasicForAlbum: no id is null");
+        throw new BadRequestException("GetMusicTracksBasicForAlbum: id is null");
 
       // Get all episodes for this
       ISet<Guid> necessaryMIATypes = new HashSet<Guid>();

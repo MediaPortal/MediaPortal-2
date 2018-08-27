@@ -61,9 +61,13 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.Movie.BaseClasses
       MediaItemAspect mediaAspect = item.GetAspect(MediaAspect.Metadata);
       MediaItemAspect importerAspect = item.GetAspect(ImporterAspect.Metadata);
 
-      ResourcePath resourcePath = ResourcePath.Deserialize(item.PrimaryProviderResourcePath());
-      string path = resourcePath.PathSegments.Count > 0 ? StringUtils.RemovePrefixIfPresent(resourcePath.LastPathSegment.Path, "/") : string.Empty;
-      
+      string path = "";
+      if (item.PrimaryResources.Count > 0)
+      {
+        ResourcePath resourcePath = ResourcePath.Deserialize(item.PrimaryProviderResourcePath());
+        path = resourcePath.PathSegments.Count > 0 ? StringUtils.RemovePrefixIfPresent(resourcePath.LastPathSegment.Path, "/") : string.Empty;
+      }
+
       WebMovieBasic webMovieBasic = new WebMovieBasic
       {
         Title = movieAspect.GetAttributeValue<string>(MovieAspect.ATTR_MOVIE_NAME),

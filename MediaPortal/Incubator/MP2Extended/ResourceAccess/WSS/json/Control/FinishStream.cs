@@ -35,29 +35,28 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.json.Control
   [ApiFunctionParam(Name = "identifier", Type = typeof(string), Nullable = false)]
   internal class FinishStream
   {
-    public Task<WebBoolResult> ProcessAsync(IOwinContext context, string identifier)
+    public async Task<WebBoolResult> ProcessAsync(IOwinContext context, string identifier)
     {
       bool result = true;
 
       if (identifier == null)
       {
-        Logger.Debug("FinishStream: identifier is null");
+        Logger.Debug("FinishStream: Identifier is null");
         result = false;
-        return Task.FromResult(new WebBoolResult { Result = result });
+        return new WebBoolResult { Result = result };
       }
 
       if (!StreamControl.ValidateIdentifier(identifier))
       {
-        Logger.Debug("FinishStream: unknown identifier: {0}", identifier);
+        Logger.Debug("FinishStream: Unknown identifier: {0}", identifier);
         result = false;
-        return Task.FromResult(new WebBoolResult { Result = result });
+        return new WebBoolResult { Result = result };
       }
 
       // Remove the stream from the stream controller
-      stream.StreamItem item = StreamControl.GetStreamItem(identifier);
-      StreamControl.DeleteStreamItem(identifier);
+      result = await StreamControl.DeleteStreamItemAsync(identifier);
 
-     return Task.FromResult(new WebBoolResult { Result = result });
+     return new WebBoolResult { Result = result };
     }
 
     internal static ILogger Logger

@@ -34,6 +34,7 @@ using MediaPortal.Extensions.UserServices.FanArtService.Interfaces;
 using System.Net.Http;
 using System.Threading.Tasks;
 using Microsoft.Owin;
+using System.IO;
 
 namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.stream.Images
 {
@@ -45,7 +46,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.stream.Images
   [ApiFunctionParam(Name = "offset", Type = typeof(string), Nullable = true)]
   internal class GetArtwork : BaseGetArtwork
   {
-    public Task<HttpResponseMessage> ProcessAsync(IOwinContext context, WebMediaType mediatype, string id, WebFileType artworktype, int offset)
+    public async Task ProcessAsync(IOwinContext context, WebMediaType mediatype, string id, WebFileType artworktype, int offset)
     {
       int offsetInt = 0;
 
@@ -68,7 +69,10 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.stream.Images
         offsetInt = 0;
       }
 
-      return Task.FromResult(ImageFile(fanart[offsetInt].BinaryData));
+      Stream resourceStream = ImageFile(fanart[offsetInt].BinaryData);
+      context.Response.ContentType = "image/*";
+      await SendWholeFileAsync(context, resourceStream, false);
+      resourceStream.Dispose();
     }
 
     internal new static ILogger Logger

@@ -91,7 +91,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.stream.General
 
           string byteRangesSpecifier = context.Request.Headers["Range"];
           IList<Range> ranges = ParseByteRanges(byteRangesSpecifier, resourceStream.Length);
-          bool onlyHeaders = true; // httpContext.Request.Method == Method.Header || httpContext.Response.StatusCode == StatusCodes.Status304NotModified;
+          bool onlyHeaders = context.Request.Method == "HEAD" || context.Response.StatusCode == (int)HttpStatusCode.NotModified;
           if (ranges != null)
             // We only support last range
             await SendRangeAsync(context, resourceStream, ranges[ranges.Count - 1], onlyHeaders);

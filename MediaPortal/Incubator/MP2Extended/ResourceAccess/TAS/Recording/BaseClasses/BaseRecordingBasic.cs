@@ -39,7 +39,12 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.TAS.Recording.BaseClass
     internal WebRecordingBasic RecordingBasic(MediaItem item)
     {
       MediaItemAspect recordingAspect = item.GetAspect(RecordingAspect.Metadata);
-      ResourcePath path = ResourcePath.Deserialize(item.PrimaryProviderResourcePath());
+      string path = "";
+      if (item.PrimaryResources.Count > 0)
+      {
+        ResourcePath resourcePath = ResourcePath.Deserialize(item.PrimaryProviderResourcePath());
+        path = resourcePath.PathSegments.Count > 0 ? StringUtils.RemovePrefixIfPresent(resourcePath.LastPathSegment.Path, "/") : string.Empty;
+      }
       string genre = string.Empty;
       if (MediaItemAspect.TryGetAttribute(item.Aspects, GenreAspect.ATTR_GENRE, out List<string> genres))
         genre = string.Join(", ", genres);
@@ -54,7 +59,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.TAS.Recording.BaseClass
         EndTime = (DateTime) (recordingAspect.GetAttributeValue(RecordingAspect.ATTR_ENDTIME) ?? DateTime.Now),
         Genre = genre,
         TimesWatched = (int)(item.GetAspect(MediaAspect.Metadata)[MediaAspect.ATTR_PLAYCOUNT] ?? 0),
-        FileName = (path != null && path.PathSegments.Count > 0) ? StringUtils.RemovePrefixIfPresent(path.LastPathSegment.Path, "/") : string.Empty,
+        FileName = path,
       };
     }
   }

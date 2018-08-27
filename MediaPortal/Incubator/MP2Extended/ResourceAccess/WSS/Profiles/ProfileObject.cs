@@ -89,21 +89,6 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS
     public MetadataSettings Metadata = new MetadataSettings();
   }
 
-  public class EndPointSettings
-  {
-    public EndPointProfile Profile { get; set; } = null;
-    public IEnumerable<string> PreferredSubtitleLanguages { get; set; } = null;
-    public IEnumerable<string> PreferredAudioLanguages { get; set; } = null;
-    public Guid ClientId { get; set; } = Guid.Empty;
-    public Guid? UserId { get; set; } = null;
-    public bool EstimateTransodedSize { get; set; } = true;
-
-    public static string GetClientName(IPAddress ip)
-    {
-      return $"MP2E ({ip.ToString()})";
-    }
-  }
-
   public class EndPointProfile
   {
     public bool Active = false;

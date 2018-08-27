@@ -35,25 +35,23 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.json.Control
   [ApiFunctionParam(Name = "identifier", Type = typeof(string), Nullable = false)]
   internal class StopStream
   {
-    public Task<WebBoolResult> ProcessAsync(IOwinContext context, string identifier)
+    public async Task<WebBoolResult> ProcessAsync(IOwinContext context, string identifier)
     {
       bool result = true;
 
       if (identifier == null)
       {
-        Logger.Debug("StopStream: identifier is null");
+        Logger.Debug("StopStream: Identifier is null");
         result = false;
       }
 
-      if (!StreamControl.ValidateIdentifier(identifier))
+      if (!(await StreamControl.StopStreamingAsync(identifier)))
       {
-        Logger.Debug("StopStream: unknown identifier: {0}", identifier);
+        Logger.Debug("StopStream: Unknown identifier: {0}", identifier);
         result = false;
       }
 
-      StreamControl.StopStreaming(identifier);
-
-     return Task.FromResult(new WebBoolResult { Result = result });
+     return new WebBoolResult { Result = result };
     }
 
     internal static ILogger Logger

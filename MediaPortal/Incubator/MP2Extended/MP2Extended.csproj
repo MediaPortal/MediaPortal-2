@@ -68,7 +68,7 @@
     <Compile Include="Controllers\json\MediaAccessServiceController.cs" />
     <Compile Include="Controllers\json\StreamingServiceController.cs" />
     <Compile Include="Controllers\json\TVAccessServiceController.cs" />
-    <Compile Include="Controllers\stream\StreamingServiceController.cs" />
+    <Compile Include="Controllers\stream\StreamingServiceStreamController.cs" />
     <Compile Include="Exceptions\BadRequestException.cs" />
     <Compile Include="Exceptions\ForbiddenException.cs" />
     <Compile Include="Exceptions\HttpException.cs" />
@@ -148,9 +148,8 @@
     <Compile Include="OnlineVideos\OnlineVideosThumbs.cs" />
     <Compile Include="OnlineVideos\UserSiteSettingsStore.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="ResourceAccess\BaseClasses\BaseHtmlHeader.cs" />
-    <Compile Include="ResourceAccess\BaseClasses\BaseJsonHeader.cs" />
     <Compile Include="ResourceAccess\DAS\json\Settings\ChangeSetting.cs" />
+    <Compile Include="ResourceAccess\WebResourceAccessModule.cs" />
     <Compile Include="ResourceAccess\TVAccess.cs" />
     <Compile Include="ResourceAccess\MediaLibraryAccess.cs" />
     <Compile Include="ResourceAccess\MAS\FileSystem\BaseClasses\BaseDriveBasic.cs" />

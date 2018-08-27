@@ -56,12 +56,12 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.stream.Control
       bool onlyHeaders = false;
 
       if (identifier == null)
-        throw new BadRequestException("RetrieveStream: identifier is null");
+        throw new BadRequestException("RetrieveStream: Identifier is null");
 
-      if (!StreamControl.ValidateIdentifier(identifier))
-        throw new BadRequestException("RetrieveStream: identifier is not valid");
+      StreamItem streamItem = await StreamControl.GetStreamItemAsync(identifier);
+      if (streamItem == null)
+        throw new BadRequestException("RetrieveStream: Identifier is not valid");
 
-      StreamItem streamItem = StreamControl.GetStreamItem(identifier);
       long startPosition = streamItem.StartPosition;
       if (streamItem.IsActive && hls != null)
       {
@@ -71,8 +71,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.stream.Control
         {
           return true;
         }
-        else if (streamItem.ItemType != Common.WebMediaType.TV &&
-          streamItem.ItemType != Common.WebMediaType.Radio &&
+        else if (streamItem.ItemType != Common.WebMediaType.TV && streamItem.ItemType != Common.WebMediaType.Radio &&
           MediaConverter.GetSegmentSequence(hls) > 0)
         {
           long segmentRequest = MediaConverter.GetSegmentSequence(hls);
@@ -117,8 +116,6 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.stream.Control
       }
 
       #region Init response
-
-      EndPointSettings endPointSettings = ProfileManager.GetEndPointSettings(streamItem.Profile.ID);
 
       // Grab the mimetype from the media item and set the Content Type header.
       if (streamItem.TranscoderObject.Mime == null)
@@ -221,8 +218,8 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.stream.Control
       if (resourceStream == null)
       {
         Logger.Debug("RetrieveStream: Attempting to start streaming for mediaitem {0} in mode {1}", streamItem.RequestedMediaItem.MediaItemId, requestedStreamingMode.ToString());
-        StreamControl.StopStreaming(identifier);
-        StreamControl.StartStreaming(identifier, timeRange.From);
+        await StreamControl.StopStreamingAsync(identifier);
+        await StreamControl.StartStreamingAsync(identifier, timeRange.From);
         partialResource = streamItem.StreamContext.Partial;
         resourceStream = streamItem.StreamContext.TranscodedStream;
 
@@ -270,18 +267,18 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.stream.Control
       try
       {
         // TODO: fix method
-        //onlyHeaders = /*request.Method == Method.Header ||*/ httpContext.Response.StatusCode == StatusCodes.Status304NotModified;
+        onlyHeaders = context.Request.Method == "HEAD" || context.Response.StatusCode == (int)HttpStatusCode.NotModified;
         if (requestedStreamingMode == StreamMode.ByteRange)
         {
           if (ranges != null && ranges.Count > 0)
           {
             // We only support last range
-            await SendByteRangeAsync(context, resourceStream, streamItem.TranscoderObject, endPointSettings, ranges[ranges.Count - 1], onlyHeaders, partialResource, mediaTransferMode);
+            await SendByteRangeAsync(context, resourceStream, streamItem.TranscoderObject, streamItem.Profile, ranges[ranges.Count - 1], onlyHeaders, partialResource, mediaTransferMode);
             return true;
           }
         }
         Logger.Debug("RetrieveStream: Sending file header only: {0}", onlyHeaders.ToString());
-        await SendWholeFileAsync(context, resourceStream, streamItem.TranscoderObject, endPointSettings, onlyHeaders, partialResource, mediaTransferMode);
+        await SendWholeFileAsync(context, resourceStream, streamItem.TranscoderObject, streamItem.Profile, onlyHeaders, partialResource, mediaTransferMode);
       }
       finally
       {
@@ -315,7 +312,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.stream.Control
             {
               context.Response.ContentType = SubtitleHelper.GetSubtitleMime((SubtitleCodec)segment.Value.ContainerEnum);
             }
-            bool onlyHeaders = true; // httpContext.Request.Method == Method.Header || httpContext.Response.StatusCode == StatusCodes.Status304NotModified;
+            bool onlyHeaders = context.Request.Method == "HEAD" || context.Response.StatusCode == (int)HttpStatusCode.NotModified;
             Logger.Debug("RetrieveStream: Sending file header only: {0}", onlyHeaders.ToString());
 
             await SendWholeFileAsync(context, segment.Value.FileData, onlyHeaders);

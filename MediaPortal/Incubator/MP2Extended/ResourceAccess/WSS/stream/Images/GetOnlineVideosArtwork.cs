@@ -32,6 +32,7 @@ using MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.stream.Images.BaseClass
 using System.Net.Http;
 using System.Threading.Tasks;
 using Microsoft.Owin;
+using System.IO;
 
 namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.stream.Images
 {
@@ -40,12 +41,15 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.stream.Images
   [ApiFunctionParam(Name = "mediatype", Type = typeof(WebOnlineVideosMediaType), Nullable = false)]
   internal class GetOnlineVideosArtwork : BaseGetArtwork
   {
-    public Task<HttpResponseMessage> ProcessAsync(IOwinContext context, WebOnlineVideosMediaType mediatype, string id)
+    public async Task ProcessAsync(IOwinContext context, WebOnlineVideosMediaType mediatype, string id)
     {
       if (id == null)
         throw new BadRequestException("GetOnlineVideosArtwork: id is null");
 
-      return Task.FromResult(ImageFile(OnlineVideosThumbs.GetThumb(mediatype, id)));
+      Stream resourceStream = ImageFile(OnlineVideosThumbs.GetThumb(mediatype, id));
+      context.Response.ContentType = "image/*";
+      await SendWholeFileAsync(context, resourceStream, false);
+      resourceStream.Dispose();
     }
   }
 }

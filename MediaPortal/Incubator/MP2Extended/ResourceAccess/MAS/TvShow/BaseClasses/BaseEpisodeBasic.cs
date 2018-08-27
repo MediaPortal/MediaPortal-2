@@ -58,8 +58,12 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.TvShow.BaseClasses
       MediaItemAspect importerAspect = item.GetAspect(ImporterAspect.Metadata);
       MediaItemAspect mediaAspect = item.GetAspect(MediaAspect.Metadata);
 
-      ResourcePath resourcePath = ResourcePath.Deserialize(item.PrimaryProviderResourcePath());
-      string path = resourcePath.PathSegments.Count > 0 ? StringUtils.RemovePrefixIfPresent(resourcePath.LastPathSegment.Path, "/") : string.Empty;
+      string path = "";
+      if (item.PrimaryResources.Count > 0)
+      {
+        ResourcePath resourcePath = ResourcePath.Deserialize(item.PrimaryProviderResourcePath());
+        path = resourcePath.PathSegments.Count > 0 ? StringUtils.RemovePrefixIfPresent(resourcePath.LastPathSegment.Path, "/") : string.Empty;
+      }
 
       IEnumerable<int> episodeNumbers = episodeAspect.GetCollectionAttribute<int>(EpisodeAspect.ATTR_EPISODE);
       int episodeNumber = episodeNumbers != null ? episodeNumbers.FirstOrDefault() : 0;

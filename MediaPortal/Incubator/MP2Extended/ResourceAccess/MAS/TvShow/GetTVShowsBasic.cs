@@ -49,7 +49,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.TvShow
       IList<MediaItem> items = MediaLibraryAccess.GetMediaItemsByAspect(context, BasicNecessaryMIATypeIds, BasicOptionalMIATypeIds, null);
 
       if (items.Count == 0)
-        throw new BadRequestException("GetTVShowsBasic: no Tv Episodes found");
+        throw new BadRequestException("GetTVShowsBasic: No TV Episodes found");
 
       var output = items.Select(item => TVShowBasic(context, item))
         .Filter(filter);

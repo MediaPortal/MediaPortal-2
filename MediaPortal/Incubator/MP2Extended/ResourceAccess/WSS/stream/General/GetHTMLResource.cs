@@ -32,9 +32,11 @@ using System.Web;
 using System.Web.Http.Controllers;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
+using MediaPortal.Common.PathManager;
 using MediaPortal.Plugins.MP2Extended.Attributes;
 using MediaPortal.Plugins.MP2Extended.Exceptions;
 using MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.stream.BaseClasses;
+using MediaPortal.Utilities.SystemAPI;
 using Microsoft.Owin;
 
 namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.stream.General
@@ -43,55 +45,48 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.stream.General
   [ApiFunctionParam(Name = "path", Type = typeof(string), Nullable = false)]
   internal class GetHtmlResource : BaseSendData
   {
-    /// <summary>
-    /// The folder inside the MP2Ext folder where the files are stored
-    /// </summary>
-    private const string RESOURCE_DIR = "www";
-    
+    private string _localPath;
+    private string _appDataPath;
+
+    public GetHtmlResource()
+    {
+      Assembly assembly = Assembly.GetExecutingAssembly();
+      _localPath = Path.GetDirectoryName(assembly.Location);
+      _appDataPath = ServiceRegistration.Get<IPathManager>().GetPath(@"<DATA>\Web\");
+    }
+
     public async Task<bool> ProcessAsync(IOwinContext context, string path)
     {
-      string[] uriParts = context.Request.Path.Value.Split('/');
-      if (uriParts.Length >= 6)
-        path = string.Join("/", uriParts.Skip(5));
+      if (path == null)
+      {
+        if (context.Request.Uri.Segments.Length >= 3)
+          path = string.Join("", context.Request.Uri.Segments.Skip(2));
+      }
 
       if (path == null)
         throw new BadRequestException("GetHtmlResource: path is null");
 
-      string assemblyPath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
-      if (assemblyPath == null)
-        throw new BadRequestException("GetHtmlResource: assemblyPath is null");
+      string skinPath = string.IsNullOrEmpty(MP2Extended.Settings.SkinName) ? "Default" : MP2Extended.Settings.SkinName;
 
-      string resourceBasePath = Path.Combine(assemblyPath, RESOURCE_DIR);
-
+      string resourceBasePath = Path.Combine(_localPath, "Skins", skinPath);
       string resourcePath = Path.GetFullPath(Path.Combine(resourceBasePath, path));
-
-      if (!resourcePath.StartsWith(resourceBasePath))
-        throw new BadRequestException(string.Format("GetHtmlResource: outside home dir! reguested Path: {0}", resourcePath));
-
       if (!File.Exists(resourcePath))
-        throw new BadRequestException(string.Format("GetHtmlResource: File doesn't exist! reguested Path: {0}", resourcePath));
-
-      // Headers
-
-      DateTime lastChanged = File.GetLastWriteTime(resourcePath);
-
-      // HTTP/1.1 RFC2616 section 14.25 'If-Modified-Since'
-      if (!string.IsNullOrEmpty(context.Request.Headers["If-Modified-Since"]))
       {
-        DateTime lastRequest = DateTime.Parse(context.Request.Headers["If-Modified-Since"]);
-        if (lastRequest.CompareTo(lastChanged) <= 0)
-          context.Response.StatusCode = (int)HttpStatusCode.NotModified;
+        resourceBasePath = Path.Combine(_appDataPath, "Skins", skinPath);
+        resourcePath = Path.GetFullPath(Path.Combine(resourceBasePath, path));
       }
 
-      // HTTP/1.1 RFC2616 section 14.29 'Last-Modified'
-      context.Response.Headers["Last-Modified"] = lastChanged.ToUniversalTime().ToString("r");
+      if (!resourcePath.StartsWith(resourceBasePath))
+        throw new BadRequestException(string.Format("GetHtmlResource: Outside home dir! Requested Path: {0}", resourcePath));
 
-      // Cache
-      context.Response.Headers["Cache-Control"] = "public; max-age=31536000";
-      context.Response.Headers["Expires"] = DateTime.Now.AddYears(1).ToString("r");
+      if (!File.Exists(resourcePath))
+        throw new BadRequestException(string.Format("GetHtmlResource: File doesn't exist! Requested Path: {0}", resourcePath));
+
+      Logger.Debug("GetHtmlResource: Serving file: {0}", resourcePath);
 
       // Content
-      bool onlyHeaders = true; // httpContext.Request.Method == Method.Header || httpContext.Response.StatusCode == StatusCodes.Status304NotModified;
+      bool onlyHeaders = context.Request.Method == "HEAD";
+      context.Response.ContentType = MimeTypeDetector.GetMimeTypeFromExtension(Path.GetFileName(resourcePath));
       Stream resourceStream = File.OpenRead(resourcePath);
       await SendWholeFileAsync(context, resourceStream, onlyHeaders);
       resourceStream.Close();

@@ -39,7 +39,13 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.Picture.BaseClasses
     internal WebPictureBasic PictureBasic(MediaItem item)
     {
       MediaItemAspect imageAspects = item.GetAspect(ImageAspect.Metadata);
-      ResourcePath path = ResourcePath.Deserialize(item.PrimaryProviderResourcePath());
+
+      string path = "";
+      if (item.PrimaryResources.Count > 0)
+      {
+        ResourcePath resourcePath = ResourcePath.Deserialize(item.PrimaryProviderResourcePath());
+        path = resourcePath.PathSegments.Count > 0 ? StringUtils.RemovePrefixIfPresent(resourcePath.LastPathSegment.Path, "/") : string.Empty;
+      }
 
       WebPictureBasic webPictureBasic = new WebPictureBasic
       {
@@ -49,7 +55,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.Picture.BaseClasses
         PID = 0,
         Title = (string)item.GetAspect(MediaAspect.Metadata).GetAttributeValue(MediaAspect.ATTR_TITLE),
         DateTaken = (DateTime)item.GetAspect(MediaAspect.Metadata)[MediaAspect.ATTR_RECORDINGTIME],
-        Path = new List<string> { (path != null && path.PathSegments.Count > 0) ? StringUtils.RemovePrefixIfPresent(path.LastPathSegment.Path, "/") : string.Empty },
+        Path = new List<string> { path },
       };
 
       //webPictureBasic.Categories = imageAspects.GetAttributeValue(ImageAspect);

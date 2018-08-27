@@ -43,10 +43,11 @@ using System.Net.Http;
 using System.Net;
 using System.Net.Http.Headers;
 using Microsoft.Owin;
+using MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.stream.BaseClasses;
 
 namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.stream.Images.BaseClasses
 {
-  internal class BaseGetArtwork
+  internal class BaseGetArtwork : BaseSendData
   {
     internal const string NO_FANART_IMAGE_NAME = "B1D44E89-1EAC-4765-B9E9-EF4BBE75C774";
     
@@ -184,12 +185,19 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.stream.Images.BaseC
       return new Guid(bytes);
     }
 
-    public static HttpResponseMessage ImageFile(byte[] bytes)
+    //public static HttpResponseMessage ImageFile(byte[] bytes)
+    //{
+    //  HttpResponseMessage result = new HttpResponseMessage(HttpStatusCode.OK);
+    //  result.Content = new ByteArrayContent(bytes);
+    //  result.Content.Headers.ContentType = new MediaTypeHeaderValue("image/*");
+    //  return result;
+    //}
+
+    public static Stream ImageFile(byte[] bytes)
     {
-      HttpResponseMessage result = new HttpResponseMessage(HttpStatusCode.OK);
-      result.Content = new ByteArrayContent(bytes);
-      result.Content.Headers.ContentType = new MediaTypeHeaderValue("image/*");
-      return result;
+      MemoryStream mem = new MemoryStream(bytes);
+      mem.Position = 0;
+      return mem;
     }
 
     internal static ILogger Logger

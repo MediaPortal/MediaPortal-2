@@ -277,31 +277,6 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.Profiles
       }
     }
 
-    public static EndPointSettings GetEndPointSettings(string profileId)
-    {
-      EndPointSettings settings = new EndPointSettings();
-      try
-      {
-        if (Profiles.ContainsKey(profileId) == true)
-        {
-          settings.Profile = Profiles[profileId];
-        }
-        else if (profileId == "None")
-        {
-          settings.Profile = null;
-        }
-        else if (Profiles.ContainsKey(DEFAULT_PROFILE_ID) == true)
-        {
-          settings.Profile = Profiles[DEFAULT_PROFILE_ID];
-        }
-      }
-      catch (Exception e)
-      {
-        Logger.Info("MP2Extended: Exception reading profile links (Text: '{0}')", e.Message);
-      }
-      return settings;
-    }
-
     private static ITranscodeProfileManager TranscodeProfileManager
     {
       get { return ServiceRegistration.Get<ITranscodeProfileManager>(); }

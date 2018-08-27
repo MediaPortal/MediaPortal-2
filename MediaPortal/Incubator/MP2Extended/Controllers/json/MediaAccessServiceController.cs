@@ -9,6 +9,9 @@ using System.Threading.Tasks;
 using System.Web.Http;
 using System.Web.Http.Description;
 using System.Web.Script.Services;
+using MediaPortal.Common;
+using MediaPortal.Common.Logging;
+using MediaPortal.Common.Services.ResourceAccess;
 #region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
@@ -59,7 +62,7 @@ namespace MediaPortal.Plugins.MP2Extended.Controllers.json
 {
   [RoutePrefix("MPExtended/MediaAccessService/json")]
   [Route("{action}")]
-  [Authorize]
+  [MediaPortalAuthorize]
   public class MediaAccessServiceController : ApiController, IMediaAccessServiceController
   {
     #region General
@@ -69,6 +72,7 @@ namespace MediaPortal.Plugins.MP2Extended.Controllers.json
     [AllowAnonymous]
     public async Task<WebMediaServiceDescription> GetServiceDescription()
     {
+      Logger.Debug("MAS Request: {0}", Request.GetOwinContext().Request.Uri);
       return await new GetServiceDescription().ProcessAsync(Request.GetOwinContext());
     }
 
@@ -77,6 +81,7 @@ namespace MediaPortal.Plugins.MP2Extended.Controllers.json
     [AllowAnonymous]
     public Task<WebBoolResult> TestConnection()
     {
+      Logger.Debug("MAS Request: {0}", Request.GetOwinContext().Request.Uri);
       return Task.FromResult(new WebBoolResult { Result = true });
     }
 
@@ -84,6 +89,7 @@ namespace MediaPortal.Plugins.MP2Extended.Controllers.json
     [ApiExplorerSettings]
     public async Task<WebMediaItem> GetMediaItem(WebMediaType type, Guid id)
     {
+      Logger.Debug("MAS Request: {0}", Request.GetOwinContext().Request.Uri);
       return await new GetMediaItem().ProcessAsync(Request.GetOwinContext(), id);
     }
 
@@ -91,6 +97,7 @@ namespace MediaPortal.Plugins.MP2Extended.Controllers.json
     [ApiExplorerSettings]
     public async Task<WebDictionary<string>> GetExternalMediaInfo(WebMediaType type, Guid id)
     {
+      Logger.Debug("MAS Request: {0}", Request.GetOwinContext().Request.Uri);
       return await new GetExternalMediaInfo().ProcessAsync(Request.GetOwinContext(), id);
     }
 
@@ -98,6 +105,7 @@ namespace MediaPortal.Plugins.MP2Extended.Controllers.json
     [ApiExplorerSettings]
     public async Task<IList<WebDiskSpaceInformation>> GetLocalDiskInformation(string filter)
     {
+      Logger.Debug("MAS Request: {0}", Request.GetOwinContext().Request.Uri);
       return await new GetLocalDiskInformation().ProcessAsync(Request.GetOwinContext());
     }
 
@@ -109,6 +117,7 @@ namespace MediaPortal.Plugins.MP2Extended.Controllers.json
     [ApiExplorerSettings]
     public async Task<WebIntResult> GetMovieCount()
     {
+      Logger.Debug("MAS Request: {0}", Request.GetOwinContext().Request.Uri);
       return await new GetMovieCount().ProcessAsync(Request.GetOwinContext());
     }
 
@@ -116,6 +125,7 @@ namespace MediaPortal.Plugins.MP2Extended.Controllers.json
     [ApiExplorerSettings]
     public async Task<IList<WebMovieBasic>> GetMoviesBasic(string filter, WebSortField? sort, WebSortOrder? order)
     {
+      Logger.Debug("MAS Request: {0}", Request.GetOwinContext().Request.Uri);
       return await new GetMoviesBasic().ProcessAsync(Request.GetOwinContext(), filter, sort, order);
     }
 
@@ -123,6 +133,7 @@ namespace MediaPortal.Plugins.MP2Extended.Controllers.json
     [ApiExplorerSettings]
     public async Task<IList<WebMovieDetailed>> GetMoviesDetailed(string filter, WebSortField? sort, WebSortOrder? order)
     {
+      Logger.Debug("MAS Request: {0}", Request.GetOwinContext().Request.Uri);
       return await new GetMoviesDetailed().ProcessAsync(Request.GetOwinContext(), filter, sort, order);
     }
 
@@ -130,6 +141,7 @@ namespace MediaPortal.Plugins.MP2Extended.Controllers.json
     [ApiExplorerSettings]
     public async Task<IList<WebMovieBasic>> GetMoviesBasicByRange(int start, int end, string filter, WebSortField? sort, WebSortOrder? order)
     {
+      Logger.Debug("MAS Request: {0}", Request.GetOwinContext().Request.Uri);
       return await new GetMoviesBasicByRange().ProcessAsync(Request.GetOwinContext(), start, end, filter, sort, order);
     }
 
@@ -137,6 +149,7 @@ namespace MediaPortal.Plugins.MP2Extended.Controllers.json
     [ApiExplorerSettings]
     public async Task<IList<WebMovieDetailed>> GetMoviesDetailedByRange(int start, int end, string filter, WebSortField? sort, WebSortOrder? order)
     {
+      Logger.Debug("MAS Request: {0}", Request.GetOwinContext().Request.Uri);
       return await new GetMoviesDetailedByRange().ProcessAsync(Request.GetOwinContext(), start, end, filter, sort, order);
     }
 
@@ -144,6 +157,7 @@ namespace MediaPortal.Plugins.MP2Extended.Controllers.json
     [ApiExplorerSettings]
     public async Task<WebMovieBasic> GetMovieBasicById(Guid id)
     {
+      Logger.Debug("MAS Request: {0}", Request.GetOwinContext().Request.Uri);
       return await new GetMovieBasicById().ProcessAsync(Request.GetOwinContext(), id);
     }
 
@@ -151,6 +165,7 @@ namespace MediaPortal.Plugins.MP2Extended.Controllers.json
     [ApiExplorerSettings]
     public async Task<WebMovieDetailed> GetMovieDetailedById(Guid id)
     {
+      Logger.Debug("MAS Request: {0}", Request.GetOwinContext().Request.Uri);
       return await new GetMovieDetailedById().ProcessAsync(Request.GetOwinContext(), id);
     }
 
@@ -158,6 +173,7 @@ namespace MediaPortal.Plugins.MP2Extended.Controllers.json
     [ApiExplorerSettings]
     public async Task<IList<WebGenre>> GetMovieGenres(WebSortField? sort, WebSortOrder? order)
     {
+      Logger.Debug("MAS Request: {0}", Request.GetOwinContext().Request.Uri);
       return await new GetMovieGenres().ProcessAsync(Request.GetOwinContext(), sort, order);
     }
 
@@ -165,6 +181,7 @@ namespace MediaPortal.Plugins.MP2Extended.Controllers.json
     [ApiExplorerSettings]
     public async Task<IList<WebGenre>> GetMovieGenresByRange(int start, int end, string filter, WebSortField? sort, WebSortOrder? order)
     {
+      Logger.Debug("MAS Request: {0}", Request.GetOwinContext().Request.Uri);
       return await new GetMovieGenresByRange().ProcessAsync(Request.GetOwinContext(), start, end, filter, sort, order);
     }
 
@@ -172,6 +189,7 @@ namespace MediaPortal.Plugins.MP2Extended.Controllers.json
     [ApiExplorerSettings]
     public async Task<WebIntResult> GetMovieGenresCount(string filter)
     {
+      Logger.Debug("MAS Request: {0}", Request.GetOwinContext().Request.Uri);
       return await new GetMovieGenresCount().ProcessAsync(Request.GetOwinContext(), filter);
     }
 
@@ -179,6 +197,7 @@ namespace MediaPortal.Plugins.MP2Extended.Controllers.json
     [ApiExplorerSettings]
     public async Task<IList<WebCategory>> GetMovieCategories(string filter, WebSortField? sort, WebSortOrder? order)
     {
+      Logger.Debug("MAS Request: {0}", Request.GetOwinContext().Request.Uri);
       throw new NotImplementedException();
     }
 
@@ -186,6 +205,7 @@ namespace MediaPortal.Plugins.MP2Extended.Controllers.json
     [ApiExplorerSettings]
     public async Task<IList<WebActor>> GetMovieActors(string filter, WebSortField? sort, WebSortOrder? order)
     {
+      Logger.Debug("MAS Request: {0}", Request.GetOwinContext().Request.Uri);
       return await new GetMovieActors().ProcessAsync(Request.GetOwinContext(), filter, sort, order);
     }
 
@@ -193,6 +213,7 @@ namespace MediaPortal.Plugins.MP2Extended.Controllers.json
     [ApiExplorerSettings]
     public async Task<IList<WebActor>> GetMovieActorsByRange(int start, int end, string filter, WebSortField? sort, WebSortOrder? order)
     {
+      Logger.Debug("MAS Request: {0}", Request.GetOwinContext().Request.Uri);
       return await new GetMovieActorsByRange().ProcessAsync(Request.GetOwinContext(), start, end, filter, sort, order);
     }
 
@@ -200,6 +221,7 @@ namespace MediaPortal.Plugins.MP2Extended.Controllers.json
     [ApiExplorerSettings]
     public async Task<WebIntResult> GetMovieActorCount(string filter)
     {
+      Logger.Debug("MAS Request: {0}", Request.GetOwinContext().Request.Uri);
       return await new GetMovieActorCount().ProcessAsync(Request.GetOwinContext(), filter);
     }
 
@@ -211,6 +233,7 @@ namespace MediaPortal.Plugins.MP2Extended.Controllers.json
     [ApiExplorerSettings]
     public async Task<WebIntResult> GetMusicAlbumCount(string filter)
     {
+      Logger.Debug("MAS Request: {0}", Request.GetOwinContext().Request.Uri);
       return await new GetMusicAlbumCount().ProcessAsync(Request.GetOwinContext(), filter);
     }
 
@@ -218,6 +241,7 @@ namespace MediaPortal.Plugins.MP2Extended.Controllers.json
     [ApiExplorerSettings]
     public async Task<IList<WebMusicAlbumBasic>> GetMusicAlbumsBasic(string filter, WebSortField? sort, WebSortOrder? order)
     {
+      Logger.Debug("MAS Request: {0}", Request.GetOwinContext().Request.Uri);
       return await new GetMusicAlbumsBasic().ProcessAsync(Request.GetOwinContext(), filter, sort, order);
     }
 
@@ -225,6 +249,7 @@ namespace MediaPortal.Plugins.MP2Extended.Controllers.json
     [ApiExplorerSettings]
     public async Task<IList<WebMusicAlbumBasic>> GetMusicAlbumsBasicByRange(int start, int end, string filter, WebSortField? sort, WebSortOrder? order)
     {
+      Logger.Debug("MAS Request: {0}", Request.GetOwinContext().Request.Uri);
       return await new GetMusicAlbumsBasicByRange().ProcessAsync(Request.GetOwinContext(), start, end, filter, sort, order);
     }
 
@@ -232,6 +257,7 @@ namespace MediaPortal.Plugins.MP2Extended.Controllers.json
     [ApiExplorerSettings]
     public async Task<IList<WebMusicAlbumBasic>> GetMusicAlbumsBasicForArtist(Guid id, string filter, WebSortField? sort, WebSortOrder? order)
     {
+      Logger.Debug("MAS Request: {0}", Request.GetOwinContext().Request.Uri);
       throw new NotImplementedException();
     }
 
@@ -239,6 +265,7 @@ namespace MediaPortal.Plugins.MP2Extended.Controllers.json
     [ApiExplorerSettings]
     public async Task<WebMusicAlbumBasic> GetMusicAlbumBasicById(Guid id)
     {
+      Logger.Debug("MAS Request: {0}", Request.GetOwinContext().Request.Uri);
       return await new GetMusicAlbumBasicById().ProcessAsync(Request.GetOwinContext(), id);
     }
 
@@ -246,6 +273,7 @@ namespace MediaPortal.Plugins.MP2Extended.Controllers.json
     [ApiExplorerSettings]
     public async Task<WebIntResult> GetMusicArtistCount(string filter)
     {
+      Logger.Debug("MAS Request: {0}", Request.GetOwinContext().Request.Uri);
       return await new GetMusicArtistCount().ProcessAsync(Request.GetOwinContext(), filter);
     }
 
@@ -253,6 +281,7 @@ namespace MediaPortal.Plugins.MP2Extended.Controllers.json
     [ApiExplorerSettings]
     public async Task<IList<WebMusicArtistBasic>> GetMusicArtistsBasic(string filter, WebSortField? sort, WebSortOrder? order)
     {
+      Logger.Debug("MAS Request: {0}", Request.GetOwinContext().Request.Uri);
       return await new GetMusicArtistsBasic().ProcessAsync(Request.GetOwinContext(), filter, sort, order);
     }
 
@@ -260,6 +289,7 @@ namespace MediaPortal.Plugins.MP2Extended.Controllers.json
     [ApiExplorerSettings]
     public async Task<IList<WebMusicArtistBasic>> GetMusicArtistsBasicByRange(int start, int end, string filter, WebSortField? sort, WebSortOrder? order)
     {
+      Logger.Debug("MAS Request: {0}", Request.GetOwinContext().Request.Uri);
       return await new GetMusicArtistsBasicByRange().ProcessAsync(Request.GetOwinContext(), start, end, filter, sort, order);
     }
 
@@ -267,6 +297,7 @@ namespace MediaPortal.Plugins.MP2Extended.Controllers.json
     [ApiExplorerSettings]
     public async Task<WebMusicArtistBasic> GetMusicArtistBasicById(Guid id)
     {
+      Logger.Debug("MAS Request: {0}", Request.GetOwinContext().Request.Uri);
       throw new NotImplementedException();
     }
 
@@ -274,6 +305,7 @@ namespace MediaPortal.Plugins.MP2Extended.Controllers.json
     [ApiExplorerSettings]
     public async Task<IList<WebMusicArtistDetailed>> GetMusicArtistsDetailed(string filter, WebSortField? sort, WebSortOrder? order)
     {
+      Logger.Debug("MAS Request: {0}", Request.GetOwinContext().Request.Uri);
       throw new NotImplementedException();
     }
 
@@ -281,6 +313,7 @@ namespace MediaPortal.Plugins.MP2Extended.Controllers.json
     [ApiExplorerSettings]
     public async Task<IList<WebMusicArtistDetailed>> GetMusicArtistsDetailedByRange(int start, int end, string filter, WebSortField? sort, WebSortOrder? order)
     {
+      Logger.Debug("MAS Request: {0}", Request.GetOwinContext().Request.Uri);
       throw new NotImplementedException();
     }
 
@@ -288,6 +321,7 @@ namespace MediaPortal.Plugins.MP2Extended.Controllers.json
     [ApiExplorerSettings]
     public async Task<WebMusicArtistDetailed> GetMusicArtistDetailedById(Guid id)
     {
+      Logger.Debug("MAS Request: {0}", Request.GetOwinContext().Request.Uri);
       throw new NotImplementedException();
     }
 
@@ -295,6 +329,7 @@ namespace MediaPortal.Plugins.MP2Extended.Controllers.json
     [ApiExplorerSettings]
     public async Task<WebIntResult> GetMusicTrackCount(string filter)
     {
+      Logger.Debug("MAS Request: {0}", Request.GetOwinContext().Request.Uri);
       throw new NotImplementedException();
     }
 
@@ -302,6 +337,7 @@ namespace MediaPortal.Plugins.MP2Extended.Controllers.json
     [ApiExplorerSettings]
     public async Task<IList<WebMusicTrackBasic>> GetMusicTracksBasic(string filter, WebSortField? sort, WebSortOrder? order)
     {
+      Logger.Debug("MAS Request: {0}", Request.GetOwinContext().Request.Uri);
       throw new NotImplementedException();
     }
 
@@ -309,6 +345,7 @@ namespace MediaPortal.Plugins.MP2Extended.Controllers.json
     [ApiExplorerSettings]
     public async Task<IList<WebMusicTrackDetailed>> GetMusicTracksDetailed(string filter, WebSortField? sort, WebSortOrder? order)
     {
+      Logger.Debug("MAS Request: {0}", Request.GetOwinContext().Request.Uri);
       throw new NotImplementedException();
     }
 
@@ -316,6 +353,7 @@ namespace MediaPortal.Plugins.MP2Extended.Controllers.json
     [ApiExplorerSettings]
     public async Task<IList<WebMusicTrackBasic>> GetMusicTracksBasicByRange(int start, int end, string filter, WebSortField? sort, WebSortOrder? order)
     {
+      Logger.Debug("MAS Request: {0}", Request.GetOwinContext().Request.Uri);
       throw new NotImplementedException();
     }
 
@@ -323,6 +361,7 @@ namespace MediaPortal.Plugins.MP2Extended.Controllers.json
     [ApiExplorerSettings]
     public async Task<IList<WebMusicTrackDetailed>> GetMusicTracksDetailedByRange(int start, int end, string filter, WebSortField? sort, WebSortOrder? order)
     {
+      Logger.Debug("MAS Request: {0}", Request.GetOwinContext().Request.Uri);
       throw new NotImplementedException();
     }
 
@@ -330,6 +369,7 @@ namespace MediaPortal.Plugins.MP2Extended.Controllers.json
     [ApiExplorerSettings]
     public async Task<IList<WebMusicTrackBasic>> GetMusicTracksBasicForAlbum(Guid id, string filter, WebSortField? sort, WebSortOrder? order)
     {
+      Logger.Debug("MAS Request: {0}", Request.GetOwinContext().Request.Uri);
       return await new GetMusicTracksBasicForAlbum().ProcessAsync(Request.GetOwinContext(), id, filter, sort, order);
     }
 
@@ -337,6 +377,7 @@ namespace MediaPortal.Plugins.MP2Extended.Controllers.json
     [ApiExplorerSettings]
     public async Task<IList<WebMusicTrackBasic>> GetMusicTracksBasicForArtist(Guid id, string filter, WebSortField? sort, WebSortOrder? order)
     {
+      Logger.Debug("MAS Request: {0}", Request.GetOwinContext().Request.Uri);
       throw new NotImplementedException();
     }
 
@@ -344,6 +385,7 @@ namespace MediaPortal.Plugins.MP2Extended.Controllers.json
     [ApiExplorerSettings]
     public async Task<IList<WebMusicTrackDetailed>> GetMusicTracksDetailedForAlbum(Guid id, string filter, WebSortField? sort, WebSortOrder? order)
     {
+      Logger.Debug("MAS Request: {0}", Request.GetOwinContext().Request.Uri);
       throw new NotImplementedException();
     }
 
@@ -351,6 +393,7 @@ namespace MediaPortal.Plugins.MP2Extended.Controllers.json
     [ApiExplorerSettings]
     public async Task<IList<WebMusicTrackDetailed>> GetMusicTracksDetailedForArtist(Guid id, string filter, WebSortField? sort, WebSortOrder? order)
     {
+      Logger.Debug("MAS Request: {0}", Request.GetOwinContext().Request.Uri);
       throw new NotImplementedException();
     }
 
@@ -358,6 +401,7 @@ namespace MediaPortal.Plugins.MP2Extended.Controllers.json
     [ApiExplorerSettings]
     public async Task<WebMusicTrackBasic> GetMusicTrackBasicById(Guid id)
     {
+      Logger.Debug("MAS Request: {0}", Request.GetOwinContext().Request.Uri);
       return await new GetMusicTrackBasicById().ProcessAsync(Request.GetOwinContext(), id);
     }
 
@@ -365,6 +409,7 @@ namespace MediaPortal.Plugins.MP2Extended.Controllers.json
     [ApiExplorerSettings]
     public async Task<WebMusicTrackDetailed> GetMusicTrackDetailedById(Guid id)
     {
+      Logger.Debug("MAS Request: {0}", Request.GetOwinContext().Request.Uri);
       throw new NotImplementedException();
     }
 
@@ -372,6 +417,7 @@ namespace MediaPortal.Plugins.MP2Extended.Controllers.json
     [ApiExplorerSettings]
     public async Task<IList<WebGenre>> GetMusicGenres(WebSortField? sort, WebSortOrder? order)
     {
+      Logger.Debug("MAS Request: {0}", Request.GetOwinContext().Request.Uri);
       return await new GetMusicGenres().ProcessAsync(Request.GetOwinContext(), sort, order);
     }
 
@@ -379,6 +425,7 @@ namespace MediaPortal.Plugins.MP2Extended.Controllers.json
     [ApiExplorerSettings]
     public async Task<IList<WebGenre>> GetMusicGenresByRange(int start, int end, string filter, WebSortField? sort, WebSortOrder? order)
     {
+      Logger.Debug("MAS Request: {0}", Request.GetOwinContext().Request.Uri);
       throw new NotImplementedException();
     }
 
@@ -386,6 +433,7 @@ namespace MediaPortal.Plugins.MP2Extended.Controllers.json
     [ApiExplorerSettings]
     public async Task<WebIntResult> GetMusicGenresCount(string filter)
     {
+      Logger.Debug("MAS Request: {0}", Request.GetOwinContext().Request.Uri);
       throw new NotImplementedException();
     }
 
@@ -393,6 +441,7 @@ namespace MediaPortal.Plugins.MP2Extended.Controllers.json
     [ApiExplorerSettings]
     public async Task<IList<WebCategory>> GetMusicCategories(string filter)
     {
+      Logger.Debug("MAS Request: {0}", Request.GetOwinContext().Request.Uri);
       throw new NotImplementedException();
     }
 
@@ -404,6 +453,7 @@ namespace MediaPortal.Plugins.MP2Extended.Controllers.json
     [ApiExplorerSettings]
     public async Task<IList<WebOnlineVideosVideo>> GetOnlineVideosCategoryVideos(string id)
     {
+      Logger.Debug("MAS Request: {0}", Request.GetOwinContext().Request.Uri);
       return await new GetOnlineVideosCategoryVideos().ProcessAsync(Request.GetOwinContext(), id);
     }
 
@@ -411,6 +461,7 @@ namespace MediaPortal.Plugins.MP2Extended.Controllers.json
     [ApiExplorerSettings]
     public async Task<IList<WebOnlineVideosGlobalSite>> GetOnlineVideosGlobalSites(string filter, WebSortField? sort, WebSortOrder? order)
     {
+      Logger.Debug("MAS Request: {0}", Request.GetOwinContext().Request.Uri);
       return await new GetOnlineVideosGlobalSites().ProcessAsync(Request.GetOwinContext(), filter, sort, order);
     }
 
@@ -418,6 +469,7 @@ namespace MediaPortal.Plugins.MP2Extended.Controllers.json
     [ApiExplorerSettings]
     public async Task<IList<WebOnlineVideosSiteCategory>> GetOnlineVideosSiteCategories(string id)
     {
+      Logger.Debug("MAS Request: {0}", Request.GetOwinContext().Request.Uri);
       return await new GetOnlineVideosSiteCategories().ProcessAsync(Request.GetOwinContext(), id);
     }
 
@@ -425,6 +477,7 @@ namespace MediaPortal.Plugins.MP2Extended.Controllers.json
     [ApiExplorerSettings]
     public async Task<IList<WebOnlineVideosSite>> GetOnlineVideosSites(string filter, WebSortField? sort, WebSortOrder? order)
     {
+      Logger.Debug("MAS Request: {0}", Request.GetOwinContext().Request.Uri);
       return await new GetOnlineVideosSites().ProcessAsync(Request.GetOwinContext(), filter, sort, order);
     }
 
@@ -432,6 +485,7 @@ namespace MediaPortal.Plugins.MP2Extended.Controllers.json
     [ApiExplorerSettings]
     public async Task<IList<WebOnlineVideosSiteSetting>> GetOnlineVideosSiteSettings(string id)
     {
+      Logger.Debug("MAS Request: {0}", Request.GetOwinContext().Request.Uri);
       return await new GetOnlineVideosSiteSettings().ProcessAsync(Request.GetOwinContext(), id);
     }
 
@@ -439,6 +493,7 @@ namespace MediaPortal.Plugins.MP2Extended.Controllers.json
     [ApiExplorerSettings]
     public async Task<IList<WebOnlineVideosSiteCategory>> GetOnlineVideosSubCategories(string id)
     {
+      Logger.Debug("MAS Request: {0}", Request.GetOwinContext().Request.Uri);
       return await new GetOnlineVideosSubCategories().ProcessAsync(Request.GetOwinContext(), id);
     }
 
@@ -446,6 +501,7 @@ namespace MediaPortal.Plugins.MP2Extended.Controllers.json
     [ApiExplorerSettings]
     public async Task<IList<string>> GetOnlineVideosVideoUrls(string id)
     {
+      Logger.Debug("MAS Request: {0}", Request.GetOwinContext().Request.Uri);
       return await new GetOnlineVideosVideoUrls().ProcessAsync(Request.GetOwinContext(), id);
     }
 
@@ -453,6 +509,7 @@ namespace MediaPortal.Plugins.MP2Extended.Controllers.json
     [ApiExplorerSettings]
     public async Task<WebBoolResult> SetOnlineVideosSiteSetting(string siteId, string property, string value)
     {
+      Logger.Debug("MAS Request: {0}", Request.GetOwinContext().Request.Uri);
       return await new SetOnlineVideosSiteSetting().ProcessAsync(Request.GetOwinContext(), siteId, property, value);
     }
 
@@ -464,6 +521,7 @@ namespace MediaPortal.Plugins.MP2Extended.Controllers.json
     [ApiExplorerSettings]
     public async Task<WebIntResult> GetPictureCount()
     {
+      Logger.Debug("MAS Request: {0}", Request.GetOwinContext().Request.Uri);
       return await new GetPictureCount().ProcessAsync(Request.GetOwinContext());
     }
 
@@ -471,6 +529,7 @@ namespace MediaPortal.Plugins.MP2Extended.Controllers.json
     [ApiExplorerSettings]
     public async Task<IList<WebPictureBasic>> GetPicturesBasic(string filter, WebSortField? sort, WebSortOrder? order)
     {
+      Logger.Debug("MAS Request: {0}", Request.GetOwinContext().Request.Uri);
       return await new GetPicturesBasic().ProcessAsync(Request.GetOwinContext(), filter, sort, order);
     }
 
@@ -478,6 +537,7 @@ namespace MediaPortal.Plugins.MP2Extended.Controllers.json
     [ApiExplorerSettings]
     public async Task<IList<WebPictureBasic>> GetPicturesBasicByRange(int start, int end, string filter, WebSortField? sort, WebSortOrder? order)
     {
+      Logger.Debug("MAS Request: {0}", Request.GetOwinContext().Request.Uri);
       throw new NotImplementedException();
     }
 
@@ -485,6 +545,7 @@ namespace MediaPortal.Plugins.MP2Extended.Controllers.json
     [ApiExplorerSettings]
     public async Task<IList<WebPictureDetailed>> GetPicturesDetailed(string filter, WebSortField? sort, WebSortOrder? order)
     {
+      Logger.Debug("MAS Request: {0}", Request.GetOwinContext().Request.Uri);
       return await new GetPicturesDetailed().ProcessAsync(Request.GetOwinContext(), filter, sort, order);
     }
 
@@ -492,6 +553,7 @@ namespace MediaPortal.Plugins.MP2Extended.Controllers.json
     [ApiExplorerSettings]
     public async Task<IList<WebPictureDetailed>> GetPicturesDetailedByRange(int start, int end, string filter, WebSortField? sort, WebSortOrder? order)
     {
+      Logger.Debug("MAS Request: {0}", Request.GetOwinContext().Request.Uri);
       throw new NotImplementedException();
     }
 
@@ -499,6 +561,7 @@ namespace MediaPortal.Plugins.MP2Extended.Controllers.json
     [ApiExplorerSettings]
     public async Task<WebPictureBasic> GetPictureBasicById(Guid id)
     {
+      Logger.Debug("MAS Request: {0}", Request.GetOwinContext().Request.Uri);
       return await new GetPictureBasicById().ProcessAsync(Request.GetOwinContext(), id);
     }
 
@@ -506,6 +569,7 @@ namespace MediaPortal.Plugins.MP2Extended.Controllers.json
     [ApiExplorerSettings]
     public async Task<WebPictureDetailed> GetPictureDetailedById(Guid id)
     {
+      Logger.Debug("MAS Request: {0}", Request.GetOwinContext().Request.Uri);
       return await new GetPictureDetailedById().ProcessAsync(Request.GetOwinContext(), id);
     }
 
@@ -513,6 +577,7 @@ namespace MediaPortal.Plugins.MP2Extended.Controllers.json
     [ApiExplorerSettings]
     public async Task<IList<WebCategory>> GetPictureCategories()
     {
+      Logger.Debug("MAS Request: {0}", Request.GetOwinContext().Request.Uri);
       return await new GetPictureCategories().ProcessAsync(Request.GetOwinContext());
     }
 
@@ -520,6 +585,7 @@ namespace MediaPortal.Plugins.MP2Extended.Controllers.json
     [ApiExplorerSettings]
     public async Task<IList<WebCategory>> GetPictureSubCategories(Guid id, string filter)
     {
+      Logger.Debug("MAS Request: {0}", Request.GetOwinContext().Request.Uri);
       throw new NotImplementedException();
     }
 
@@ -527,6 +593,7 @@ namespace MediaPortal.Plugins.MP2Extended.Controllers.json
     [ApiExplorerSettings]
     public async Task<IList<WebPictureBasic>> GetPicturesBasicByCategory(string id)
     {
+      Logger.Debug("MAS Request: {0}", Request.GetOwinContext().Request.Uri);
       return await new GetPicturesBasicByCategory().ProcessAsync(Request.GetOwinContext(), id);
     }
 
@@ -534,6 +601,7 @@ namespace MediaPortal.Plugins.MP2Extended.Controllers.json
     [ApiExplorerSettings]
     public async Task<IList<WebPictureDetailed>> GetPicturesDetailedByCategory(Guid id, string filter)
     {
+      Logger.Debug("MAS Request: {0}", Request.GetOwinContext().Request.Uri);
       throw new NotImplementedException();
     }
 
@@ -545,6 +613,7 @@ namespace MediaPortal.Plugins.MP2Extended.Controllers.json
     [ApiExplorerSettings]
     public async Task<WebIntResult> GetTVEpisodeCount()
     {
+      Logger.Debug("MAS Request: {0}", Request.GetOwinContext().Request.Uri);
       return await new GetTVEpisodeCount().ProcessAsync(Request.GetOwinContext());
     }
 
@@ -552,6 +621,7 @@ namespace MediaPortal.Plugins.MP2Extended.Controllers.json
     [ApiExplorerSettings]
     public async Task<WebIntResult> GetTVEpisodeCountForTVShow(Guid id)
     {
+      Logger.Debug("MAS Request: {0}", Request.GetOwinContext().Request.Uri);
       return await new GetTVEpisodeCountForTVShow().ProcessAsync(Request.GetOwinContext(), id);
     }
 
@@ -559,6 +629,7 @@ namespace MediaPortal.Plugins.MP2Extended.Controllers.json
     [ApiExplorerSettings]
     public async Task<WebIntResult> GetTVEpisodeCountForSeason(Guid id)
     {
+      Logger.Debug("MAS Request: {0}", Request.GetOwinContext().Request.Uri);
       return await new GetTVEpisodeCountForSeason().ProcessAsync(Request.GetOwinContext(), id);
     }
 
@@ -566,6 +637,7 @@ namespace MediaPortal.Plugins.MP2Extended.Controllers.json
     [ApiExplorerSettings]
     public async Task<WebIntResult> GetTVShowCount(string filter)
     {
+      Logger.Debug("MAS Request: {0}", Request.GetOwinContext().Request.Uri);
       return await new GetTVShowCount().ProcessAsync(Request.GetOwinContext(), filter);
     }
 
@@ -573,6 +645,7 @@ namespace MediaPortal.Plugins.MP2Extended.Controllers.json
     [ApiExplorerSettings]
     public async Task<WebIntResult> GetTVSeasonCountForTVShow(Guid id)
     {
+      Logger.Debug("MAS Request: {0}", Request.GetOwinContext().Request.Uri);
       return await new GetTVSeasonCountForTVShow().ProcessAsync(Request.GetOwinContext(), id);
     }
 
@@ -580,6 +653,7 @@ namespace MediaPortal.Plugins.MP2Extended.Controllers.json
     [ApiExplorerSettings]
     public async Task<IList<WebTVShowBasic>> GetTVShowsBasic(string filter, WebSortField? sort, WebSortOrder? order)
     {
+      Logger.Debug("MAS Request: {0}", Request.GetOwinContext().Request.Uri);
       return await new GetTVShowsBasic().ProcessAsync(Request.GetOwinContext(), filter, sort, order);
     }
 
@@ -587,6 +661,7 @@ namespace MediaPortal.Plugins.MP2Extended.Controllers.json
     [ApiExplorerSettings]
     public async Task<IList<WebTVShowDetailed>> GetTVShowsDetailed(string filter, WebSortField? sort, WebSortOrder? order)
     {
+      Logger.Debug("MAS Request: {0}", Request.GetOwinContext().Request.Uri);
       return await new GetTVShowsDetailed().ProcessAsync(Request.GetOwinContext(), filter, sort, order);
     }
 
@@ -594,6 +669,7 @@ namespace MediaPortal.Plugins.MP2Extended.Controllers.json
     [ApiExplorerSettings]
     public async Task<IList<WebTVShowBasic>> GetTVShowsBasicByRange(int start, int end, string filter, WebSortField? sort, WebSortOrder? order)
     {
+      Logger.Debug("MAS Request: {0}", Request.GetOwinContext().Request.Uri);
       return await new GetTVShowsBasicByRange().ProcessAsync(Request.GetOwinContext(), start, end, filter, sort, order);
     }
 
@@ -601,6 +677,7 @@ namespace MediaPortal.Plugins.MP2Extended.Controllers.json
     [ApiExplorerSettings]
     public async Task<IList<WebTVShowDetailed>> GetTVShowsDetailedByRange(int start, int end, string filter, WebSortField? sort, WebSortOrder? order)
     {
+      Logger.Debug("MAS Request: {0}", Request.GetOwinContext().Request.Uri);
       return await new GetTVShowsDetailedRange().ProcessAsync(Request.GetOwinContext(), start, end, filter, sort, order);
     }
 
@@ -608,6 +685,7 @@ namespace MediaPortal.Plugins.MP2Extended.Controllers.json
     [ApiExplorerSettings]
     public async Task<WebTVShowBasic> GetTVShowBasicById(Guid id)
     {
+      Logger.Debug("MAS Request: {0}", Request.GetOwinContext().Request.Uri);
       return await new GetTVShowBasicById().ProcessAsync(Request.GetOwinContext(), id);
     }
 
@@ -615,6 +693,7 @@ namespace MediaPortal.Plugins.MP2Extended.Controllers.json
     [ApiExplorerSettings]
     public async Task<WebTVShowDetailed> GetTVShowDetailedById(Guid id)
     {
+      Logger.Debug("MAS Request: {0}", Request.GetOwinContext().Request.Uri);
       return await new GetTVShowDetailedById().ProcessAsync(Request.GetOwinContext(), id);
     }
 
@@ -622,6 +701,7 @@ namespace MediaPortal.Plugins.MP2Extended.Controllers.json
     [ApiExplorerSettings]
     public async Task<IList<WebTVSeasonBasic>> GetTVSeasonsBasicForTVShow(Guid id, string filter, WebSortField? sort, WebSortOrder? order)
     {
+      Logger.Debug("MAS Request: {0}", Request.GetOwinContext().Request.Uri);
       return await new GetTVSeasonsBasicForTVShow().ProcessAsync(Request.GetOwinContext(), id, filter, sort, order);
     }
 
@@ -629,6 +709,7 @@ namespace MediaPortal.Plugins.MP2Extended.Controllers.json
     [ApiExplorerSettings]
     public async Task<IList<WebTVSeasonDetailed>> GetTVSeasonsDetailedForTVShow(Guid id, WebSortField? sort, WebSortOrder? order)
     {
+      Logger.Debug("MAS Request: {0}", Request.GetOwinContext().Request.Uri);
       return await new GetTVSeasonsDetailedForTVShow().ProcessAsync(Request.GetOwinContext(), id, sort, order);
     }
 
@@ -636,6 +717,7 @@ namespace MediaPortal.Plugins.MP2Extended.Controllers.json
     [ApiExplorerSettings]
     public async Task<WebTVSeasonBasic> GetTVSeasonBasicById(Guid id)
     {
+      Logger.Debug("MAS Request: {0}", Request.GetOwinContext().Request.Uri);
       return await new GetTVSeasonBasicById().ProcessAsync(Request.GetOwinContext(), id);
     }
 
@@ -643,6 +725,7 @@ namespace MediaPortal.Plugins.MP2Extended.Controllers.json
     [ApiExplorerSettings]
     public async Task<WebTVSeasonDetailed> GetTVSeasonDetailedById(Guid id)
     {
+      Logger.Debug("MAS Request: {0}", Request.GetOwinContext().Request.Uri);
       return await new GetTVSeasonDetailedById().ProcessAsync(Request.GetOwinContext(), id);
     }
 
@@ -650,6 +733,7 @@ namespace MediaPortal.Plugins.MP2Extended.Controllers.json
     [ApiExplorerSettings]
     public async Task<IList<WebTVEpisodeBasic>> GetTVEpisodesBasic(WebSortField? sort, WebSortOrder? order)
     {
+      Logger.Debug("MAS Request: {0}", Request.GetOwinContext().Request.Uri);
       return await new GetTVEpisodesBasic().ProcessAsync(Request.GetOwinContext(), sort, order);
     }
 
@@ -657,6 +741,7 @@ namespace MediaPortal.Plugins.MP2Extended.Controllers.json
     [ApiExplorerSettings]
     public async Task<IList<WebTVEpisodeDetailed>> GetTVEpisodesDetailed(string filter, WebSortField? sort, WebSortOrder? order)
     {
+      Logger.Debug("MAS Request: {0}", Request.GetOwinContext().Request.Uri);
       return await new GetTVEpisodesDetailed().ProcessAsync(Request.GetOwinContext(), filter, sort, order);
     }
 
@@ -664,6 +749,7 @@ namespace MediaPortal.Plugins.MP2Extended.Controllers.json
     [ApiExplorerSettings]
     public async Task<IList<WebTVEpisodeBasic>> GetTVEpisodesBasicByRange(int start, int end, WebSortField? sort, WebSortOrder? order)
     {
+      Logger.Debug("MAS Request: {0}", Request.GetOwinContext().Request.Uri);
       return await new GetTVEpisodesBasicByRange().ProcessAsync(Request.GetOwinContext(), start, end, sort, order);
     }
 
@@ -671,6 +757,7 @@ namespace MediaPortal.Plugins.MP2Extended.Controllers.json
     [ApiExplorerSettings]
     public async Task<IList<WebTVEpisodeDetailed>> GetTVEpisodesDetailedByRange(int start, int end, WebSortField? sort, WebSortOrder? order)
     {
+      Logger.Debug("MAS Request: {0}", Request.GetOwinContext().Request.Uri);
       return await new GetTVEpisodesDetailedByRange().ProcessAsync(Request.GetOwinContext(), start, end, sort, order);
     }
 
@@ -678,6 +765,7 @@ namespace MediaPortal.Plugins.MP2Extended.Controllers.json
     [ApiExplorerSettings]
     public async Task<IList<WebTVEpisodeBasic>> GetTVEpisodesBasicForTVShow(Guid id, WebSortField? sort, WebSortOrder? order)
     {
+      Logger.Debug("MAS Request: {0}", Request.GetOwinContext().Request.Uri);
       return await new GetTVEpisodesBasicForTVShow().ProcessAsync(Request.GetOwinContext(), id, sort, order);
     }
 
@@ -685,6 +773,7 @@ namespace MediaPortal.Plugins.MP2Extended.Controllers.json
     [ApiExplorerSettings]
     public async Task<IList<WebTVEpisodeDetailed>> GetTVEpisodesDetailedForTVShow(Guid id, WebSortField? sort, WebSortOrder? order)
     {
+      Logger.Debug("MAS Request: {0}", Request.GetOwinContext().Request.Uri);
       return await new GetTVEpisodesDetailedForTVShow().ProcessAsync(Request.GetOwinContext(), id, sort, order);
     }
 
@@ -692,6 +781,7 @@ namespace MediaPortal.Plugins.MP2Extended.Controllers.json
     [ApiExplorerSettings]
     public async Task<IList<WebTVEpisodeBasic>> GetTVEpisodesBasicForTVShowByRange(Guid id, int start, int end, WebSortField? sort, WebSortOrder? order)
     {
+      Logger.Debug("MAS Request: {0}", Request.GetOwinContext().Request.Uri);
       return await new GetTVEpisodesBasicForTVShowByRange().ProcessAsync(Request.GetOwinContext(), id, start, end, sort, order);
     }
 
@@ -699,6 +789,7 @@ namespace MediaPortal.Plugins.MP2Extended.Controllers.json
     [ApiExplorerSettings]
     public async Task<IList<WebTVEpisodeDetailed>> GetTVEpisodesDetailedForTVShowByRange(Guid id, int start, int end, string filter, WebSortField? sort, WebSortOrder? order)
     {
+      Logger.Debug("MAS Request: {0}", Request.GetOwinContext().Request.Uri);
       return await new GetTVEpisodesDetailedForTVShowByRange().ProcessAsync(Request.GetOwinContext(), id, start, end, filter, sort, order);
     }
 
@@ -706,6 +797,7 @@ namespace MediaPortal.Plugins.MP2Extended.Controllers.json
     [ApiExplorerSettings]
     public async Task<IList<WebTVEpisodeBasic>> GetTVEpisodesBasicForSeason(Guid id, WebSortField? sort, WebSortOrder? order)
     {
+      Logger.Debug("MAS Request: {0}", Request.GetOwinContext().Request.Uri);
       return await new GetTVEpisodesBasicForSeason().ProcessAsync(Request.GetOwinContext(), id, sort, order);
     }
 
@@ -713,6 +805,7 @@ namespace MediaPortal.Plugins.MP2Extended.Controllers.json
     [ApiExplorerSettings]
     public async Task<IList<WebTVEpisodeDetailed>> GetTVEpisodesDetailedForSeason(Guid id, WebSortField? sort, WebSortOrder? order)
     {
+      Logger.Debug("MAS Request: {0}", Request.GetOwinContext().Request.Uri);
       return await new GetTVEpisodesDetailedForSeason().ProcessAsync(Request.GetOwinContext(), id, sort, order);
     }
 
@@ -720,6 +813,7 @@ namespace MediaPortal.Plugins.MP2Extended.Controllers.json
     [ApiExplorerSettings]
     public async Task<WebTVEpisodeBasic> GetTVEpisodeBasicById(Guid id)
     {
+      Logger.Debug("MAS Request: {0}", Request.GetOwinContext().Request.Uri);
       return await new GetTVEpisodeBasicById().ProcessAsync(Request.GetOwinContext(), id);
     }
 
@@ -727,6 +821,7 @@ namespace MediaPortal.Plugins.MP2Extended.Controllers.json
     [ApiExplorerSettings]
     public async Task<WebTVEpisodeDetailed> GetTVEpisodeDetailedById(Guid id)
     {
+      Logger.Debug("MAS Request: {0}", Request.GetOwinContext().Request.Uri);
       return await new GetTVEpisodeDetailedById().ProcessAsync(Request.GetOwinContext(), id);
     }
 
@@ -734,6 +829,7 @@ namespace MediaPortal.Plugins.MP2Extended.Controllers.json
     [ApiExplorerSettings]
     public async Task<IList<WebCategory>> GetTVShowCategories(string filter)
     {
+      Logger.Debug("MAS Request: {0}", Request.GetOwinContext().Request.Uri);
       throw new NotImplementedException();
     }
 
@@ -741,6 +837,7 @@ namespace MediaPortal.Plugins.MP2Extended.Controllers.json
     [ApiExplorerSettings]
     public async Task<IList<WebGenre>> GetTVShowGenres(WebSortField? sort, WebSortOrder? order)
     {
+      Logger.Debug("MAS Request: {0}", Request.GetOwinContext().Request.Uri);
       return await new GetTVShowGenres().ProcessAsync(Request.GetOwinContext(), sort, order);
     }
 
@@ -748,6 +845,7 @@ namespace MediaPortal.Plugins.MP2Extended.Controllers.json
     [ApiExplorerSettings]
     public async Task<IList<WebGenre>> GetTVShowGenresByRange(int start, int end, WebSortField? sort, WebSortOrder? order)
     {
+      Logger.Debug("MAS Request: {0}", Request.GetOwinContext().Request.Uri);
       return await new GetTVShowGenresByRange().ProcessAsync(Request.GetOwinContext(), start, end, sort, order);
     }
 
@@ -755,6 +853,7 @@ namespace MediaPortal.Plugins.MP2Extended.Controllers.json
     [ApiExplorerSettings]
     public async Task<WebIntResult> GetTVShowGenresCount()
     {
+      Logger.Debug("MAS Request: {0}", Request.GetOwinContext().Request.Uri);
       return await new GetTVShowGenresCount().ProcessAsync(Request.GetOwinContext());
     }
 
@@ -762,6 +861,7 @@ namespace MediaPortal.Plugins.MP2Extended.Controllers.json
     [ApiExplorerSettings]
     public async Task<IList<WebActor>> GetTVShowActors(string filter, WebSortField? sort, WebSortOrder? order)
     {
+      Logger.Debug("MAS Request: {0}", Request.GetOwinContext().Request.Uri);
       return await new GetTVShowActors().ProcessAsync(Request.GetOwinContext(), filter, sort, order);
     }
 
@@ -769,6 +869,7 @@ namespace MediaPortal.Plugins.MP2Extended.Controllers.json
     [ApiExplorerSettings]
     public async Task<IList<WebActor>> GetTVShowActorsByRange(int start, int end, string filter, WebSortField? sort, WebSortOrder? order)
     {
+      Logger.Debug("MAS Request: {0}", Request.GetOwinContext().Request.Uri);
       return await new GetTVShowActorsByRange().ProcessAsync(Request.GetOwinContext(), start, end, filter, sort, order);
     }
 
@@ -776,6 +877,7 @@ namespace MediaPortal.Plugins.MP2Extended.Controllers.json
     [ApiExplorerSettings]
     public async Task<WebIntResult> GetTVShowActorCount(string filter)
     {
+      Logger.Debug("MAS Request: {0}", Request.GetOwinContext().Request.Uri);
       return await new GetTVShowActorCount().ProcessAsync(Request.GetOwinContext(), filter);
     }
 
@@ -787,6 +889,7 @@ namespace MediaPortal.Plugins.MP2Extended.Controllers.json
     [ApiExplorerSettings]
     public async Task<WebIntResult> GetFileSystemDriveCount()
     {
+      Logger.Debug("MAS Request: {0}", Request.GetOwinContext().Request.Uri);
       return await new GetFileSystemDriveCount().ProcessAsync(Request.GetOwinContext());
     }
 
@@ -794,6 +897,7 @@ namespace MediaPortal.Plugins.MP2Extended.Controllers.json
     [ApiExplorerSettings]
     public async Task<IList<WebDriveBasic>> GetFileSystemDrives(WebSortField? sort, WebSortOrder? order)
     {
+      Logger.Debug("MAS Request: {0}", Request.GetOwinContext().Request.Uri);
       return await new GetFileSystemDrives().ProcessAsync(Request.GetOwinContext(), sort, order);
     }
 
@@ -801,6 +905,7 @@ namespace MediaPortal.Plugins.MP2Extended.Controllers.json
     [ApiExplorerSettings]
     public async Task<IList<WebDriveBasic>> GetFileSystemDrivesByRange(int start, int end, WebSortField? sort, WebSortOrder? order)
     {
+      Logger.Debug("MAS Request: {0}", Request.GetOwinContext().Request.Uri);
       return await new GetFileSystemDrivesByRange().ProcessAsync(Request.GetOwinContext(), start, end, sort, order);
     }
 
@@ -808,6 +913,7 @@ namespace MediaPortal.Plugins.MP2Extended.Controllers.json
     [ApiExplorerSettings]
     public async Task<IList<WebFolderBasic>> GetFileSystemFolders(string id, WebSortField? sort, WebSortOrder? order)
     {
+      Logger.Debug("MAS Request: {0}", Request.GetOwinContext().Request.Uri);
       return await new GetFileSystemFolders().ProcessAsync(Request.GetOwinContext(), id, sort, order);
     }
 
@@ -815,6 +921,7 @@ namespace MediaPortal.Plugins.MP2Extended.Controllers.json
     [ApiExplorerSettings]
     public async Task<IList<WebFolderBasic>> GetFileSystemFoldersByRange(string id, int start, int end, WebSortField? sort, WebSortOrder? order)
     {
+      Logger.Debug("MAS Request: {0}", Request.GetOwinContext().Request.Uri);
       return await new GetFileSystemFoldersByRange().ProcessAsync(Request.GetOwinContext(), id, start, end, sort, order);
     }
 
@@ -822,6 +929,7 @@ namespace MediaPortal.Plugins.MP2Extended.Controllers.json
     [ApiExplorerSettings]
     public async Task<IList<WebFileBasic>> GetFileSystemFiles(string id, WebSortField? sort, WebSortOrder? order)
     {
+      Logger.Debug("MAS Request: {0}", Request.GetOwinContext().Request.Uri);
       return await new GetFileSystemFiles().ProcessAsync(Request.GetOwinContext(), id, sort, order);
     }
 
@@ -829,6 +937,7 @@ namespace MediaPortal.Plugins.MP2Extended.Controllers.json
     [ApiExplorerSettings]
     public async Task<IList<WebFileBasic>> GetFileSystemFilesByRange(string id, int start, int end, WebSortField? sort, WebSortOrder? order)
     {
+      Logger.Debug("MAS Request: {0}", Request.GetOwinContext().Request.Uri);
       return await new GetFileSystemFilesByRange().ProcessAsync(Request.GetOwinContext(), id, start, end, sort, order);
     }
 
@@ -836,6 +945,7 @@ namespace MediaPortal.Plugins.MP2Extended.Controllers.json
     [ApiExplorerSettings]
     public async Task<IList<WebFilesystemItem>> GetFileSystemFilesAndFolders(string id, WebSortField? sort, WebSortOrder? order)
     {
+      Logger.Debug("MAS Request: {0}", Request.GetOwinContext().Request.Uri);
       return await new GetFileSystemFilesAndFolders().ProcessAsync(Request.GetOwinContext(), id, sort, order);
     }
 
@@ -843,6 +953,7 @@ namespace MediaPortal.Plugins.MP2Extended.Controllers.json
     [ApiExplorerSettings]
     public async Task<IList<WebFilesystemItem>> GetFileSystemFilesAndFoldersByRange(string id, int start, int end, WebSortField? sort, WebSortOrder? order)
     {
+      Logger.Debug("MAS Request: {0}", Request.GetOwinContext().Request.Uri);
       return await new GetFileSystemFilesAndFoldersByRange().ProcessAsync(Request.GetOwinContext(), id, start, end, sort, order);
     }
 
@@ -850,6 +961,7 @@ namespace MediaPortal.Plugins.MP2Extended.Controllers.json
     [ApiExplorerSettings]
     public async Task<WebIntResult> GetFileSystemFilesAndFoldersCount(string id)
     {
+      Logger.Debug("MAS Request: {0}", Request.GetOwinContext().Request.Uri);
       return await new GetFileSystemFilesAndFoldersCount().ProcessAsync(Request.GetOwinContext(), id);
     }
 
@@ -857,6 +969,7 @@ namespace MediaPortal.Plugins.MP2Extended.Controllers.json
     [ApiExplorerSettings]
     public async Task<WebIntResult> GetFileSystemFilesCount(string id)
     {
+      Logger.Debug("MAS Request: {0}", Request.GetOwinContext().Request.Uri);
       return await new GetFileSystemFilesCount().ProcessAsync(Request.GetOwinContext(), id);
     }
 
@@ -864,6 +977,7 @@ namespace MediaPortal.Plugins.MP2Extended.Controllers.json
     [ApiExplorerSettings]
     public async Task<WebIntResult> GetFileSystemFoldersCount(string id)
     {
+      Logger.Debug("MAS Request: {0}", Request.GetOwinContext().Request.Uri);
       return await new GetFileSystemFoldersCount().ProcessAsync(Request.GetOwinContext(), id);
     }
 
@@ -871,6 +985,7 @@ namespace MediaPortal.Plugins.MP2Extended.Controllers.json
     [ApiExplorerSettings]
     public async Task<WebDriveBasic> GetFileSystemDriveBasicById(string id)
     {
+      Logger.Debug("MAS Request: {0}", Request.GetOwinContext().Request.Uri);
       return await new GetFileSystemDriveBasicById().ProcessAsync(Request.GetOwinContext(), id);
     }
 
@@ -878,6 +993,7 @@ namespace MediaPortal.Plugins.MP2Extended.Controllers.json
     [ApiExplorerSettings]
     public async Task<WebFolderBasic> GetFileSystemFolderBasicById(string id)
     {
+      Logger.Debug("MAS Request: {0}", Request.GetOwinContext().Request.Uri);
       return await new GetFileSystemFolderBasicById().ProcessAsync(Request.GetOwinContext(), id);
     }
 
@@ -885,6 +1001,7 @@ namespace MediaPortal.Plugins.MP2Extended.Controllers.json
     [ApiExplorerSettings]
     public async Task<WebFileBasic> GetFileSystemFileBasicById(string id)
     {
+      Logger.Debug("MAS Request: {0}", Request.GetOwinContext().Request.Uri);
       return await new GetFileSystemFileBasicById().ProcessAsync(Request.GetOwinContext(), id);
     }
 
@@ -896,6 +1013,7 @@ namespace MediaPortal.Plugins.MP2Extended.Controllers.json
     [ApiExplorerSettings]
     public async Task<IList<WebArtwork>> GetArtwork(WebMediaType type, Guid id)
     {
+      Logger.Debug("MAS Request: {0}", Request.GetOwinContext().Request.Uri);
       throw new NotImplementedException();
     }
 
@@ -903,6 +1021,7 @@ namespace MediaPortal.Plugins.MP2Extended.Controllers.json
     [ApiExplorerSettings]
     public async Task<IList<string>> GetPathList(WebMediaType mediatype, WebFileType filetype, Guid id)
     {
+      Logger.Debug("MAS Request: {0}", Request.GetOwinContext().Request.Uri);
       throw new NotImplementedException();
     }
 
@@ -910,6 +1029,7 @@ namespace MediaPortal.Plugins.MP2Extended.Controllers.json
     [ApiExplorerSettings]
     public async Task<WebFileInfo> GetFileInfo(WebMediaType mediatype, WebFileType filetype, Guid id, int offset)
     {
+      Logger.Debug("MAS Request: {0}", Request.GetOwinContext().Request.Uri);
       return await new GetFileInfo().ProcessAsync(Request.GetOwinContext(), mediatype, filetype, id, offset);
     }
 
@@ -917,6 +1037,7 @@ namespace MediaPortal.Plugins.MP2Extended.Controllers.json
     [ApiExplorerSettings]
     public async Task<WebBoolResult> IsLocalFile(WebMediaType mediatype, WebFileType filetype, Guid id, int offset)
     {
+      Logger.Debug("MAS Request: {0}", Request.GetOwinContext().Request.Uri);
       throw new NotImplementedException();
     }
 
@@ -924,6 +1045,7 @@ namespace MediaPortal.Plugins.MP2Extended.Controllers.json
     [ApiExplorerSettings]
     public async Task<Stream> RetrieveFile(WebMediaType mediatype, WebFileType filetype, Guid id, int offset)
     {
+      Logger.Debug("MAS Request: {0}", Request.GetOwinContext().Request.Uri);
       throw new NotImplementedException();
     }
 
@@ -935,6 +1057,7 @@ namespace MediaPortal.Plugins.MP2Extended.Controllers.json
     [ApiExplorerSettings]
     public async Task<IList<WebPlaylist>> GetPlaylists()
     {
+      Logger.Debug("MAS Request: {0}", Request.GetOwinContext().Request.Uri);
       return await new GetPlaylists().ProcessAsync(Request.GetOwinContext());
     }
 
@@ -942,6 +1065,7 @@ namespace MediaPortal.Plugins.MP2Extended.Controllers.json
     [ApiExplorerSettings]
     public async Task<IList<WebPlaylistItem>> GetPlaylistItems(Guid playlistId, string filter, WebSortField? sort, WebSortOrder? order)
     {
+      Logger.Debug("MAS Request: {0}", Request.GetOwinContext().Request.Uri);
       throw new NotImplementedException();
     }
 
@@ -949,6 +1073,7 @@ namespace MediaPortal.Plugins.MP2Extended.Controllers.json
     [ApiExplorerSettings]
     public async Task<IList<WebPlaylistItem>> GetPlaylistItemsByRange(Guid playlistId, int start, int end, string filter, WebSortField? sort, WebSortOrder? order)
     {
+      Logger.Debug("MAS Request: {0}", Request.GetOwinContext().Request.Uri);
       throw new NotImplementedException();
     }
 
@@ -956,6 +1081,7 @@ namespace MediaPortal.Plugins.MP2Extended.Controllers.json
     [ApiExplorerSettings]
     public async Task<WebIntResult> GetPlaylistItemsCount(Guid playlistId, string filter)
     {
+      Logger.Debug("MAS Request: {0}", Request.GetOwinContext().Request.Uri);
       throw new NotImplementedException();
     }
 
@@ -963,6 +1089,7 @@ namespace MediaPortal.Plugins.MP2Extended.Controllers.json
     [ApiExplorerSettings]
     public async Task<WebBoolResult> AddPlaylistItem(Guid playlistId, WebMediaType type, Guid id, int? position)
     {
+      Logger.Debug("MAS Request: {0}", Request.GetOwinContext().Request.Uri);
       return await new AddPlaylistItem().ProcessAsync(Request.GetOwinContext(), playlistId, type, id, position);
     }
 
@@ -970,6 +1097,7 @@ namespace MediaPortal.Plugins.MP2Extended.Controllers.json
     [ApiExplorerSettings]
     public async Task<WebBoolResult> ClearAndAddPlaylistItems(Guid playlistId, WebMediaType type, int? position, List<Guid> ids)
     {
+      Logger.Debug("MAS Request: {0}", Request.GetOwinContext().Request.Uri);
       return await new ClearAndAddPlaylistItems().ProcessAsync(Request.GetOwinContext(), playlistId, type, position, ids);
     }
 
@@ -977,6 +1105,7 @@ namespace MediaPortal.Plugins.MP2Extended.Controllers.json
     [ApiExplorerSettings]
     public async Task<WebBoolResult> AddPlaylistItems(Guid playlistId, WebMediaType type, int? position, List<Guid> ids)
     {
+      Logger.Debug("MAS Request: {0}", Request.GetOwinContext().Request.Uri);
       return await new AddPlaylistItems().ProcessAsync(Request.GetOwinContext(), playlistId, type, position, ids);
     }
 
@@ -984,6 +1113,7 @@ namespace MediaPortal.Plugins.MP2Extended.Controllers.json
     [ApiExplorerSettings]
     public async Task<WebBoolResult> RemovePlaylistItem(Guid playlistId, int position)
     {
+      Logger.Debug("MAS Request: {0}", Request.GetOwinContext().Request.Uri);
       throw new NotImplementedException();
     }
 
@@ -991,6 +1121,7 @@ namespace MediaPortal.Plugins.MP2Extended.Controllers.json
     [ApiExplorerSettings]
     public async Task<WebBoolResult> RemovePlaylistItems(Guid playlistId, string positions)
     {
+      Logger.Debug("MAS Request: {0}", Request.GetOwinContext().Request.Uri);
       throw new NotImplementedException();
     }
 
@@ -998,6 +1129,7 @@ namespace MediaPortal.Plugins.MP2Extended.Controllers.json
     [ApiExplorerSettings]
     public async Task<WebBoolResult> MovePlaylistItem(Guid playlistId, int oldPosition, int newPosition)
     {
+      Logger.Debug("MAS Request: {0}", Request.GetOwinContext().Request.Uri);
       throw new NotImplementedException();
     }
 
@@ -1005,6 +1137,7 @@ namespace MediaPortal.Plugins.MP2Extended.Controllers.json
     [ApiExplorerSettings]
     public async Task<WebStringResult> CreatePlaylist(string playlistName)
     {
+      Logger.Debug("MAS Request: {0}", Request.GetOwinContext().Request.Uri);
       return await new CreatePlaylist().ProcessAsync(Request.GetOwinContext(), playlistName);
     }
 
@@ -1012,6 +1145,7 @@ namespace MediaPortal.Plugins.MP2Extended.Controllers.json
     [ApiExplorerSettings]
     public async Task<WebBoolResult> DeletePlaylist(Guid playlistId)
     {
+      Logger.Debug("MAS Request: {0}", Request.GetOwinContext().Request.Uri);
       return await new DeletePlaylist().ProcessAsync(Request.GetOwinContext(), playlistId);
     }
 
@@ -1023,6 +1157,7 @@ namespace MediaPortal.Plugins.MP2Extended.Controllers.json
     [ApiExplorerSettings]
     public async Task<WebIntResult> GetFilterValuesCount(WebMediaType mediaType, string filterField, string op, int? limit)
     {
+      Logger.Debug("MAS Request: {0}", Request.GetOwinContext().Request.Uri);
       return await new GetFilterValuesCount().ProcessAsync(Request.GetOwinContext(), mediaType, filterField, op, limit);
     }
 
@@ -1030,6 +1165,7 @@ namespace MediaPortal.Plugins.MP2Extended.Controllers.json
     [ApiExplorerSettings]
     public async Task<IList<string>> GetFilterValues(WebMediaType mediaType, string filterField, string op, int? limit, WebSortOrder? order)
     {
+      Logger.Debug("MAS Request: {0}", Request.GetOwinContext().Request.Uri);
       return await new GetFilterValues().ProcessAsync(Request.GetOwinContext(), mediaType, filterField, op, limit, order);
     }
 
@@ -1037,6 +1173,7 @@ namespace MediaPortal.Plugins.MP2Extended.Controllers.json
     [ApiExplorerSettings]
     public async Task<IList<string>> GetFilterValuesByRange(int start, int end, WebMediaType mediaType, string filterField, string op, int? limit, WebSortOrder? order)
     {
+      Logger.Debug("MAS Request: {0}", Request.GetOwinContext().Request.Uri);
       return await new GetFilterValuesByRange().ProcessAsync(Request.GetOwinContext(), start, end, mediaType, filterField, op, limit, order);
     }
 
@@ -1044,6 +1181,7 @@ namespace MediaPortal.Plugins.MP2Extended.Controllers.json
     [ApiExplorerSettings]
     public async Task<WebStringResult> CreateFilterString(string field, string op, string value, string conjunction)
     {
+      Logger.Debug("MAS Request: {0}", Request.GetOwinContext().Request.Uri);
       return await new CreateFilterString().ProcessAsync(Request.GetOwinContext(), field, op, value, conjunction);
     }
 
@@ -1051,9 +1189,15 @@ namespace MediaPortal.Plugins.MP2Extended.Controllers.json
     [ApiExplorerSettings]
     public async Task<IList<WebFilterOperator>> GetFilterOperators()
     {
+      Logger.Debug("MAS Request: {0}", Request.GetOwinContext().Request.Uri);
       return await new GetFilterOperators().ProcessAsync(Request.GetOwinContext());
     }
 
     #endregion
+
+    internal static ILogger Logger
+    {
+      get { return ServiceRegistration.Get<ILogger>(); }
+    }
   }
 }

@@ -26,6 +26,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Runtime.CompilerServices;
 using MediaPortal.Common;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
@@ -148,12 +149,11 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.Cache
       }
     }
 
-    internal static CacheIdentifier GetIdentifier(Guid id, bool isTvRadio, int width, int height, string borders, int offset, string fanArtType, string fanartMediaType)
+    internal static CacheIdentifier GetIdentifier(Guid id, bool isTvRadio, int width, int height, string borders, int offset, string fanArtType, string fanartMediaType, [CallerFilePath] string callerFile = null)
     {
       lock (_lockObject)
       {
-        var mth = new StackTrace().GetFrame(1).GetMethod();
-        var identifier = mth.ReflectedType == null ? mth.Name : mth.ReflectedType.Name;
+        string identifier = Path.GetFileNameWithoutExtension(callerFile);
 
         return new CacheIdentifier
         {

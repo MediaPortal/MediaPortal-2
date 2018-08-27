@@ -25,8 +25,10 @@
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.PluginManager;
+using MediaPortal.Common.ResourceAccess;
 using MediaPortal.Common.Settings;
 using MediaPortal.Plugins.MP2Extended.OnlineVideos;
+using MediaPortal.Plugins.MP2Extended.ResourceAccess;
 using MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.Profiles;
 using MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.stream.BaseClasses;
 using MediaPortal.Plugins.MP2Extended.Settings;
@@ -44,8 +46,8 @@ namespace MediaPortal.Plugins.MP2Extended
     private void StartUp()
     {
       Logger.Debug("MP2Extended: Registering HTTP resource access module");
+      ServiceRegistration.Get<IResourceServer>().AddHttpModule((typeof(WebResourceAccessModule)));
 
-      //ServiceRegistration.Get<IResourceServer>().AddHttpModule(new MainRequestHandler());
       if (Settings.OnlineVideosEnabled)
         OnlineVideosManager = new OnlineVideosManager(); // must be loaded after the settings are loaded
     }

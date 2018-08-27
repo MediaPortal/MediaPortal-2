@@ -62,7 +62,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.json.Control
         ItemType = type,
         ClientDescription = clientDescription,
         IdleTimeout = idleTimeout ?? -1,
-        ClientIp = context.Request.Headers["remote_addr"]
+        ClientIp = context.Request.RemoteIpAddress
       };
 
       MediaItem mediaItem = new LiveTvMediaItem(Guid.Empty);
@@ -107,9 +107,9 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.json.Control
       streamItem.RequestedMediaItem = mediaItem;
 
       // Add the stream to the stream controller
-      StreamControl.AddStreamItem(identifier, streamItem);
+      bool result = await StreamControl.AddStreamItemAsync(identifier, streamItem);
 
-      return new WebBoolResult { Result = true };
+      return new WebBoolResult { Result = result };
     }
 
     internal static IMediaAnalyzer MediaAnalyzer

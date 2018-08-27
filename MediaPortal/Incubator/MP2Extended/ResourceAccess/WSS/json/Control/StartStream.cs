@@ -22,14 +22,13 @@
 
 #endregion
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using System.Web;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
 using MediaPortal.Extensions.TranscodingService.Interfaces;
-using MediaPortal.Extensions.TranscodingService.Interfaces.Helpers;
 using MediaPortal.Extensions.TranscodingService.Interfaces.Transcoding;
 using MediaPortal.Plugins.MP2Extended.Attributes;
 using MediaPortal.Plugins.MP2Extended.Exceptions;
@@ -48,7 +47,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.json.Control
   [ApiFunctionParam(Name = "startPosition", Type = typeof(long), Nullable = false)]
   internal class StartStream
   {
-    public Task<WebStringResult> ProcessAsync(IOwinContext context, string identifier, string profileName, long startPosition)
+    public async Task<WebStringResult> ProcessAsync(IOwinContext context, string identifier, string profileName, long startPosition)
     {
       if (identifier == null)
         throw new BadRequestException("InitStream: identifier is null");
@@ -67,12 +66,12 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.json.Control
       }
 
       if (profile == null)
-        throw new BadRequestException(string.Format("StartStream: unknown profile: {0}", profileName));
+        throw new BadRequestException(string.Format("StartStream: Unknown profile: {0}", profileName));
 
-      if (!StreamControl.ValidateIdentifier(identifier))
-        throw new BadRequestException(string.Format("StartStream: unknown identifier: {0}", identifier));
+      StreamItem streamItem = await StreamControl.GetStreamItemAsync(identifier);
+      if (streamItem == null)
+        throw new BadRequestException(string.Format("StartStream: Unknown identifier: {0}", identifier));
 
-      StreamItem streamItem = StreamControl.GetStreamItem(identifier);
       streamItem.Profile = profile;
       streamItem.StartPosition = startPosition;
       if (streamItem.RequestedMediaItem is LiveTvMediaItem)
@@ -80,14 +79,15 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.json.Control
         streamItem.StartPosition = 0;
       }
 
-      EndPointSettings endPointSettings = ProfileManager.GetEndPointSettings(profile.ID);
-      streamItem.TranscoderObject = new ProfileMediaItem(identifier, streamItem.RequestedMediaItem, endPointSettings, streamItem.IsLive);
-      if ((streamItem.TranscoderObject.TranscodingParameter is VideoTranscoding))
+      Guid? userId = ResourceAccessUtils.GetUser(context);
+      streamItem.TranscoderObject = new ProfileMediaItem(identifier, streamItem.RequestedMediaItem, profile, streamItem.IsLive);
+      await streamItem.TranscoderObject.Initialize(userId);
+      if (streamItem.TranscoderObject.TranscodingParameter is VideoTranscoding vt)
       {
-        ((VideoTranscoding)streamItem.TranscoderObject.TranscodingParameter).HlsBaseUrl = string.Format("RetrieveStream?identifier={0}&hls=", identifier);
+        vt.HlsBaseUrl = string.Format("RetrieveStream?identifier={0}&hls=", identifier);
       }
 
-      StreamControl.StartStreaming(identifier, startPosition);
+      await StreamControl.StartStreamingAsync(identifier, startPosition);
 
       string filePostFix = "&file=media.ts";
       if (profile.MediaTranscoding != null && profile.MediaTranscoding.VideoTargets != null)
@@ -103,7 +103,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.json.Control
       }
 
       string url = GetBaseStreamUrl.GetBaseStreamURL(context) + "/MPExtended/StreamingService/stream/RetrieveStream?identifier=" + identifier + filePostFix;
-      return Task.FromResult(new WebStringResult { Result = url });
+      return new WebStringResult { Result = url };
     }
 
     internal static ILogger Logger

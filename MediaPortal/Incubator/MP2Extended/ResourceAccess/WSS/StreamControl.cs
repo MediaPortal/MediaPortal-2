@@ -22,7 +22,9 @@
 
 #endregion
 
+using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
 using MediaPortal.Extensions.TranscodingService.Interfaces;
@@ -32,21 +34,19 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS
 {
   static class StreamControl
   {
-    private static readonly Dictionary<string, StreamItem> STREAM_ITEMS = new Dictionary<string, StreamItem>();
+    private static readonly ConcurrentDictionary<string, StreamItem> StreamItems = new ConcurrentDictionary<string, StreamItem>();
 
     /// <summary>
     /// Adds a new stream Item to the list.
     /// </summary>
     /// <param name="identifier">The unique string which identifies the stream Item</param>
     /// <param name="item">The stream item which should be added</param>
-    internal static void AddStreamItem(string identifier, StreamItem item)
+    internal static async Task<bool> AddStreamItemAsync(string identifier, StreamItem item)
     {
-      if (DeleteStreamItem(identifier))
-      {
-        Logger.Debug("StreamControl: identifier {0} is already in list -> deleting old stream item", identifier);
-      }
+      if (await DeleteStreamItemAsync(identifier))
+        Logger.Debug("StreamControl: Identifier {0} is already in list -> deleting old stream item", identifier);
 
-      STREAM_ITEMS.Add(identifier, item);
+      return StreamItems.TryAdd(identifier, item);
     }
 
     /// <summary>
@@ -54,14 +54,16 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS
     /// </summary>
     /// <param name="identifier">The unique string which identifies the stream Item</param>
     /// <returns>Returns true if an item was deleted, false if no item was deleted</returns>
-    internal static bool DeleteStreamItem(string identifier)
+    internal static async Task<bool> DeleteStreamItemAsync(string identifier)
     {
       if (ValidateIdentifier(identifier))
       {
-        StopStreaming(identifier);
-        if (STREAM_ITEMS[identifier].TranscoderObject != null)
-          STREAM_ITEMS[identifier].TranscoderObject.StopTranscoding();
-        STREAM_ITEMS.Remove(identifier);
+        await StopStreamingAsync(identifier);
+        if(StreamItems.TryRemove(identifier, out var stream))
+        {
+          if (stream.TranscoderObject != null)
+            stream.TranscoderObject.StopTranscoding();
+        }
         return true;
       }
       return false;
@@ -72,10 +74,10 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS
     /// </summary>
     /// <param name="identifier">The unique string which identifies the stream Item</param>
     /// <param name="item">The updated stream item</param>
-    internal static void UpdateStreamItem(string identifier, StreamItem item)
+    internal static async Task UpdateStreamItemAsync(string identifier, StreamItem item)
     {
-      DeleteStreamItem(identifier);
-      AddStreamItem(identifier, item);
+      await DeleteStreamItemAsync(identifier);
+      await AddStreamItemAsync(identifier, item);
     }
 
     /// <summary>
@@ -83,27 +85,28 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS
     /// </summary>
     /// <param name="identifier">The unique string which identifies the stream Item</param>
     /// <returns>Returns the requested stream item otherwise null</returns>
-    internal static StreamItem GetStreamItem(string identifier)
+    internal static Task<StreamItem> GetStreamItemAsync(string identifier)
     {
       if (ValidateIdentifier(identifier))
       {
-        return STREAM_ITEMS[identifier];
+        if (StreamItems.TryGetValue(identifier, out var stream))
+          return Task.FromResult(stream);
       }
-      return null;
+      return Task.FromResult<StreamItem>(null);
     }
 
     /// <summary>
     /// Gets all available stream items
     /// </summary>
     /// <returns>Returns a Dictionary of stream Items</returns>
-    internal static Dictionary<string, StreamItem> GetStreamItems()
+    internal static IReadOnlyDictionary<string, StreamItem> GetStreamItems()
     {
-      return STREAM_ITEMS;
+      return StreamItems;
     }
 
     internal static bool ValidateIdentifier(string identifier)
     {
-      return STREAM_ITEMS.ContainsKey(identifier);
+      return StreamItems.ContainsKey(identifier);
     }
 
     /// <summary>
@@ -111,30 +114,35 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS
     /// </summary>
     /// <param name="identifier">The unique string which identifies the stream Item</param>
     /// <param name="context">Transcoder context</param>
-    internal static void StartStreaming(string identifier, double startTime)
+    internal static async Task StartStreamingAsync(string identifier, double startTime)
     {
       if (ValidateIdentifier(identifier))
       {
-        lock (STREAM_ITEMS[identifier].BusyLock)
+        if (StreamItems.TryGetValue(identifier, out var stream))
         {
-          if (STREAM_ITEMS[identifier].TranscoderObject == null) return;
-          if (STREAM_ITEMS[identifier].TranscoderObject.StartTrancoding() == false)
+          await stream.BusyLock.WaitAsync();
+          try
           {
-            Logger.Debug("StreamControl: Transcoding busy for mediaitem {0}", STREAM_ITEMS[identifier].RequestedMediaItem.MediaItemId);
-            return;
+            if (stream.TranscoderObject == null)
+              return;
+            if (stream.TranscoderObject.StartTrancoding() == false)
+            {
+              Logger.Debug("StreamControl: Transcoding busy for mediaitem {0}", stream.RequestedMediaItem.MediaItemId);
+              return;
+            }
+            stream.TranscoderObject.StartStreaming();
+            if (stream.IsLive == true)
+              stream.StreamContext = await MediaConverter.GetLiveStreamAsync(identifier, stream.TranscoderObject.TranscodingParameter, stream.LiveChannelId, true);
+            else
+              stream.StreamContext = await MediaConverter.GetMediaStreamAsync(identifier, stream.TranscoderObject.TranscodingParameter, startTime, 0, true);
+
+            stream.TranscoderObject.SegmentDir = stream.StreamContext.SegmentDir;
+            stream.IsActive = true;
           }
-          STREAM_ITEMS[identifier].TranscoderObject.StartStreaming();
-          if (STREAM_ITEMS[identifier].IsLive == true)
+          finally
           {
-            STREAM_ITEMS[identifier].StreamContext = MediaConverter.GetLiveStreamAsync(identifier, STREAM_ITEMS[identifier].TranscoderObject.TranscodingParameter, STREAM_ITEMS[identifier].LiveChannelId, true).Result;
+            stream.BusyLock.Release();
           }
-          else
-          {
-            STREAM_ITEMS[identifier].StreamContext = MediaConverter.GetMediaStreamAsync(identifier, STREAM_ITEMS[identifier].TranscoderObject.TranscodingParameter, startTime, 0, true).Result;
-          }
-          STREAM_ITEMS[identifier].TranscoderObject.SegmentDir = STREAM_ITEMS[identifier].StreamContext.SegmentDir;
-          STREAM_ITEMS[identifier].StreamContext.InUse = true;
-          STREAM_ITEMS[identifier].IsActive = true;
         }
       }
     }
@@ -143,20 +151,31 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS
     /// Stops the streaming
     /// </summary>
     /// <param name="identifier">The unique string which identifies the stream Item</param>
-    internal static void StopStreaming(string identifier)
+    internal static async Task<bool> StopStreamingAsync(string identifier)
     {
       if (ValidateIdentifier(identifier))
       {
-        lock (STREAM_ITEMS[identifier].BusyLock)
+        if (StreamItems.TryGetValue(identifier, out var stream))
         {
-          STREAM_ITEMS[identifier].IsActive = false;
-          if (STREAM_ITEMS[identifier].TranscoderObject != null)
-            STREAM_ITEMS[identifier].TranscoderObject.StopStreaming();
+          await stream.BusyLock.WaitAsync();
+          try
+          {
+            stream.IsActive = false;
+            if (stream.TranscoderObject != null)
+              stream.TranscoderObject.StopStreaming();
 
-          if (STREAM_ITEMS[identifier].StreamContext != null)
-            STREAM_ITEMS[identifier].StreamContext.InUse = false;
+            if (stream.StreamContext != null)
+              stream.StreamContext.InUse = false;
+
+            return true;
+          }
+          finally
+          {
+            stream.BusyLock.Release();
+          }
         }
       }
+      return false;
     }
 
     internal static IMediaConverter MediaConverter

@@ -33,8 +33,6 @@ using MediaPortal.Common.Logging;
 using MediaPortal.Common.ResourceAccess;
 using MediaPortal.Common.Threading;
 using MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.Profiles;
-using System.Text;
-using System.Web;
 using Microsoft.Owin;
 using System.Net;
 using System.Threading.Tasks;
@@ -117,7 +115,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.stream.BaseClasses
       await SendAsync(context, resourceStream, resourceStream.Length);
     }
 
-    protected async Task SendWholeFileAsync(IOwinContext context, Stream resourceStream, ProfileMediaItem item, EndPointSettings client, bool onlyHeaders, bool partialResource, TransferMode mediaTransferMode)
+    protected async Task SendWholeFileAsync(IOwinContext context, Stream resourceStream, ProfileMediaItem item, EndPointProfile profile, bool onlyHeaders, bool partialResource, TransferMode mediaTransferMode)
     {
       if (await WaitForMinimumFileSizeAsync(resourceStream, 1) == false)
       {
@@ -134,7 +132,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.stream.BaseClasses
         length = resourceStream.Length;
       }
 
-      if (resourceStream.CanSeek == false && context.Request.Protocol == "HTTP/1.1" && client.Profile.Settings.Communication.AllowChunckedTransfer)
+      if (resourceStream.CanSeek == false && context.Request.Protocol == "HTTP/1.1" && profile.Settings.Communication.AllowChunckedTransfer)
       {
         context.Response.StatusCode = (int)HttpStatusCode.PartialContent;
         context.Response.ContentLength = null;
@@ -146,7 +144,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.stream.BaseClasses
       }
 
       Range byteRange = new Range(0, context.Response.ContentLength ?? 0);
-      await SendAsync(context, resourceStream, item, client, onlyHeaders, partialResource, byteRange);
+      await SendAsync(context, resourceStream, item, profile, onlyHeaders, partialResource, byteRange);
     }
 
     protected async Task SendAsync(IOwinContext context, Stream resourceStream, long length)
@@ -170,7 +168,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.stream.BaseClasses
       Logger.Debug("Sending data complete");
     }
 
-    protected async Task SendAsync(IOwinContext context, Stream resourceStream, ProfileMediaItem item, EndPointSettings client, bool onlyHeaders, bool partialResource, Range byteRange)
+    protected async Task SendAsync(IOwinContext context, Stream resourceStream, ProfileMediaItem item, EndPointProfile profile, bool onlyHeaders, bool partialResource, Range byteRange)
     {
       if (onlyHeaders)
         return;
@@ -191,7 +189,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.stream.BaseClasses
         }
         Logger.Debug("BaseSendData: Sending chunked: {0}", context.Response.ContentLength == null);
         string clientID = context.Request.RemoteIpAddress;
-        int bufferSize = client.Profile.Settings.Communication.DefaultBufferSize;
+        int bufferSize = profile.Settings.Communication.DefaultBufferSize;
         if (bufferSize <= 0)
         {
           bufferSize = 1500;
@@ -201,9 +199,9 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.stream.BaseClasses
         long count = 0;
         bool isStream = false;
         long waitForSize = 0;
-        if (byteRange.Length == 0 || (byteRange.Length > 0 && byteRange.Length >= client.Profile.Settings.Communication.InitialBufferSize))
+        if (byteRange.Length == 0 || (byteRange.Length > 0 && byteRange.Length >= profile.Settings.Communication.InitialBufferSize))
         {
-          waitForSize = client.Profile.Settings.Communication.InitialBufferSize;
+          waitForSize = profile.Settings.Communication.InitialBufferSize;
         }
         if (partialResource == false)
         {
@@ -299,8 +297,10 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.stream.BaseClasses
             //Everything sent to client so presume watched
             if (item.IsLive == false)
             {
+              Guid? userId = ResourceAccessUtils.GetUser(context);
               IMediaLibrary library = ServiceRegistration.Get<IMediaLibrary>();
-              library.NotifyUserPlayback(client.UserId.HasValue ? client.UserId.Value : client.ClientId, item.MediaSource.MediaItemId, 100, true);
+              if(library != null && userId.HasValue)
+                library.NotifyUserPlayback(userId.Value, item.MediaSource.MediaItemId, 100, true);
             }
           }
         }
@@ -308,7 +308,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.stream.BaseClasses
       }
     }
 
-    protected async Task SendByteRangeAsync(IOwinContext context, Stream resourceStream, ProfileMediaItem item, EndPointSettings client, Range range, bool onlyHeaders, bool partialResource, TransferMode mediaTransferMode)
+    protected async Task SendByteRangeAsync(IOwinContext context, Stream resourceStream, ProfileMediaItem item, EndPointProfile profile, Range range, bool onlyHeaders, bool partialResource, TransferMode mediaTransferMode)
     {
       if (range.From > 0 && range.From == range.To)
       {
@@ -349,7 +349,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.stream.BaseClasses
       context.Response.StatusCode = (int)HttpStatusCode.PartialContent;
 
       if (item.IsLive || range.Length == 0 ||
-        (mediaTransferMode == TransferMode.Streaming && context.Request.Protocol == "HTTP/1.1" && client.Profile.Settings.Communication.AllowChunckedTransfer))
+        (mediaTransferMode == TransferMode.Streaming && context.Request.Protocol == "HTTP/1.1" && profile.Settings.Communication.AllowChunckedTransfer))
       {
         context.Response.Headers["Content-Range"] = $"bytes {range.From}-";
         context.Response.ContentLength = null;
@@ -370,7 +370,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.stream.BaseClasses
         context.Response.Headers["Content-Duration"] = Convert.ToDouble(item.WebMetadata.Metadata.Duration).ToString("0.00", CultureInfo.InvariantCulture);
       }
 
-      await SendAsync(context, resourceStream, item, client, onlyHeaders, partialResource, fileRange);
+      await SendAsync(context, resourceStream, item, profile, onlyHeaders, partialResource, fileRange);
     }
 
     protected Range ConvertToByteRange(Range timeRange, ProfileMediaItem item)

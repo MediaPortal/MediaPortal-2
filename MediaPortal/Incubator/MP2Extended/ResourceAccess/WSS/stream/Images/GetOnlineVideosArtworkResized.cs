@@ -35,6 +35,7 @@ using System.Net.Http;
 using MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.stream.Images.BaseClasses;
 using System.Threading.Tasks;
 using Microsoft.Owin;
+using System.IO;
 
 namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.stream.Images
 {
@@ -46,22 +47,29 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.stream.Images
   [ApiFunctionParam(Name = "borders", Type = typeof(string), Nullable = true)]
   internal class GetOnlineVideosArtworkResized : BaseGetArtwork
   {
-    public Task<HttpResponseMessage> ProcessAsync(IOwinContext context, WebOnlineVideosMediaType mediatype, string id, int maxWidth, int maxHeight, string borders = null)
+    public async Task ProcessAsync(IOwinContext context, WebOnlineVideosMediaType mediatype, string id, int maxWidth, int maxHeight, string borders = null)
     {
       if (id == null)
         throw new BadRequestException("GetOnlineVideosArtworkResized: id is null");
 
       ImageCache.CacheIdentifier identifier = ImageCache.GetIdentifier(StringToGuid(id), false, maxWidth, maxHeight, borders, 0, FanArtTypes.Thumbnail, FanArtMediaTypes.Undefined);
 
+      Stream resourceStream;
       byte[] data;
       if (ImageCache.TryGetImageFromCache(context, identifier, out data))
       {
         Logger.Info("GetOnlineVideosArtworkResized: got image from cache");
-        return Task.FromResult(ImageFile(data));
+        resourceStream = ImageFile(data);
+        context.Response.ContentType = "image/*";
+        await SendWholeFileAsync(context, resourceStream, false);
+        resourceStream.Dispose();
       }
 
       byte[] resizedImage = Plugins.MP2Extended.WSS.Images.ResizeImage(OnlineVideosThumbs.GetThumb(mediatype, id), maxWidth, maxHeight, borders);
-      return Task.FromResult(ImageFile(resizedImage));
+      resourceStream = ImageFile(resizedImage);
+      context.Response.ContentType = "image/*";
+      await SendWholeFileAsync(context, resourceStream, false);
+      resourceStream.Dispose();
     }
   }
 }

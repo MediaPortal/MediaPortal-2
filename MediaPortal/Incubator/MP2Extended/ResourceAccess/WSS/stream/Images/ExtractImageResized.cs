@@ -36,6 +36,7 @@ using System.Net.Http;
 using MediaPortal.Extensions.UserServices.FanArtService.Interfaces;
 using System.Threading.Tasks;
 using Microsoft.Owin;
+using System.IO;
 
 namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.stream.Images
 {
@@ -48,7 +49,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.stream.Images
   internal class ExtractImageResized : BaseGetArtwork
   {
     // We just return a Thumbnail from MP
-    public Task<HttpResponseMessage> ProcessAsync(IOwinContext context, WebMediaType type, string itemId, int maxWidth, int maxHeight, string borders = null)
+    public async Task ProcessAsync(IOwinContext context, WebMediaType type, string itemId, int maxWidth, int maxHeight, string borders = null)
     {
       // set borders to transparent
       borders = "transparent";
@@ -76,11 +77,16 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.stream.Images
 
       ImageCache.CacheIdentifier identifier = ImageCache.GetIdentifier(idGuid, isTvRadio, maxWidth, maxHeight, borders, 0, FanArtTypes.Thumbnail, FanArtMediaTypes.Undefined);
 
+      Stream resourceStream;
       byte[] data;
       if (ImageCache.TryGetImageFromCache(context, identifier, out data))
       {
         Logger.Info("GetArtworkResized: got image from cache");
-        return Task.FromResult(ImageFile(data));
+        resourceStream = ImageFile(data);
+        context.Response.ContentType = "image/*";
+        await SendWholeFileAsync(context, resourceStream, false);
+        resourceStream.Dispose();
+        return;
       }
 
       IList<FanArtImage> fanart = GetFanArtImages(context, itemId, isTvRadio, isRecording, fanartType, fanArtMediaType);
@@ -99,7 +105,10 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.stream.Images
         if (ImageCache.AddImageToCache(context, resizedImage, identifier))
           Logger.Info("GetArtworkResized: Added image to cache");
 
-      return Task.FromResult(ImageFile(resizedImage));
+      resourceStream = ImageFile(resizedImage);
+      context.Response.ContentType = "image/*";
+      await SendWholeFileAsync(context, resourceStream, false);
+      resourceStream.Dispose();
     }
 
     internal new static ILogger Logger

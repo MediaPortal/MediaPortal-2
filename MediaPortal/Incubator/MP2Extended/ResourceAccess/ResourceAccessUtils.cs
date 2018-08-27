@@ -57,7 +57,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess
 
     internal static Guid? GetUser(IOwinContext context)
     {
-      var claim = context.Authentication.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Sid);
+      var claim = context.Authentication.User?.Claims?.FirstOrDefault(c => c.Type == ClaimTypes.Sid);
       var id = claim?.Value != null ? Guid.Parse(claim.Value) : (Guid?)null;
       if (id != null)
         return id;
@@ -275,6 +275,27 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess
         return filters[0];
 
       return null;
+    }
+
+    public static async Task<bool> AddPreferredLanguagesAsync(Guid? userId, IList<string> preferredAudioLanguuages, IList<string> preferredSubtitleLanguuages)
+    {
+      IUserProfileDataManagement userManager = ServiceRegistration.Get<IUserProfileDataManagement>();
+      if (userId.HasValue)
+      {
+        await userManager.LoginProfileAsync(userId.Value);
+        var audioList = await userManager.GetUserAdditionalDataListAsync(userId.Value, UserDataKeysKnown.KEY_PREFERRED_AUDIO_LANGUAGE);
+        foreach (var lang in audioList.Result.Select(l => l.Item2))
+          preferredAudioLanguuages.Add(lang);
+        var subtitleList = await userManager.GetUserAdditionalDataListAsync(userId.Value, UserDataKeysKnown.KEY_PREFERRED_SUBTITLE_LANGUAGE);
+        foreach(var lang in subtitleList.Result.Select(l => l.Item2))
+          preferredSubtitleLanguuages.Add(lang);
+      }
+      if (preferredAudioLanguuages.Count == 0)
+        preferredAudioLanguuages = new List<string>() { "EN" };
+      if (preferredSubtitleLanguuages.Count == 0)
+        preferredSubtitleLanguuages = new List<string>() { "EN" };
+
+      return true;
     }
 
     internal static WebMediaType GetWebMediaType(MediaItem mediaItem)

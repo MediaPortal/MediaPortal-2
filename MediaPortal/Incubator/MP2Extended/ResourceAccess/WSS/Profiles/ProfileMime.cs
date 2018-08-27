@@ -282,11 +282,6 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.Profiles
       return valuesProfiles;
     }
 
-    public static bool FindCompatibleMime(EndPointSettings client, List<string> resolvedList, ref string Mime)
-    {
-      return FindCompatibleMime(client.Profile, resolvedList, ref Mime);
-    }
-
     public static bool FindCompatibleMime(EndPointProfile profile, List<string> resolvedList, ref string Mime)
     {
       foreach (MediaMimeMapping map in profile.MediaMimeMap.Values)

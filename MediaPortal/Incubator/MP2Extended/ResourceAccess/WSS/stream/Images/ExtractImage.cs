@@ -36,6 +36,9 @@ using System.Net.Http;
 using MediaPortal.Extensions.UserServices.FanArtService.Interfaces;
 using System.Threading.Tasks;
 using Microsoft.Owin;
+using System.IO;
+using MediaPortal.Utilities.SystemAPI;
+using System.Drawing;
 
 namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.stream.Images
 {
@@ -45,7 +48,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.stream.Images
   internal class ExtractImage : BaseGetArtwork
   {
     // We just return a Thumbnail from MP
-    public Task<HttpResponseMessage> ProcessAsync(IOwinContext context, WebMediaType type, string itemId)
+    public async Task ProcessAsync(IOwinContext context, WebMediaType type, string itemId)
     {
       bool isSeason = false;
       string showId = string.Empty;
@@ -76,8 +79,10 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.stream.Images
       int r = rnd.Next(fanart.Count);
 
       var resizedImage = fanart[r].BinaryData;
-
-      return Task.FromResult(ImageFile(resizedImage));
+      Stream resourceStream = ImageFile(resizedImage);
+      context.Response.ContentType = "image/*";
+      await SendWholeFileAsync(context, resourceStream, false);
+      resourceStream.Dispose();
     }
 
     internal new static ILogger Logger
