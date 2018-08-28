@@ -102,7 +102,7 @@
 
             <!-- TODO: add all related episode information -->
             <Label x:Name="EpisodeLabel" Grid.Row="6" Grid.Column="0" Content="[SlimTvClient.EpisodeLabel]" Color="{ThemeResource EmphasisTextColor}"/>
-            <Label x:Name="SeriesLabel" Grid.Column="6" Grid.Row="1" Color="{ThemeResource TextColor}" Margin="5,0,0,0" Scroll="Auto"
+            <Label x:Name="SeriesLabel" Grid.Column="1" Grid.Row="6" Color="{ThemeResource TextColor}" Margin="5,0,0,0" Scroll="Auto"
              IsVisible="{Binding Path=CurrentProgram.Series, Converter={StaticResource EmptyStringToFalseConverter}}">
               <Label.Content>
                 <Binding Path="CurrentProgram.Series" Converter="{StaticResource StringFormatConverter}" ConverterParameter="{} ({0})"/>
