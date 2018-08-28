@@ -88,7 +88,7 @@ namespace MediaPortal.Extensions.UserServices.FanArtService
         result.Add(new FanArtImage(name, textureData));
         return true;
       }
-      return true;
+      return false;
     }
 
     #endregion
