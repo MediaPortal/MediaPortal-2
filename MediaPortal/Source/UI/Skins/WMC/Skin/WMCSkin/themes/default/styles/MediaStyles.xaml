@@ -4622,7 +4622,7 @@
               <Binding>
                 <Binding.Source>
                   <ItemsPanelTemplate>
-                    <AnimatedWrapPanel x:Name="GridItemsHost" IsItemsHost="True" Orientation="Vertical" ScrollMargin="500,500" Margin="-240,0,-290,0">
+                    <AnimatedWrapPanel x:Name="GridItemsHost" IsItemsHost="True" Orientation="Vertical" ScrollMargin="500,500" Margin="-240,0,-290,5">
                       <AnimatedWrapPanel.Resources>
                         <Storyboard x:Key="ScrollAnimation" FillBehavior="HoldEnd">
                           <DoubleAnimation BeginTime="00:00:00" From="0" To="1" Duration="00:00:00.400" AccelerationRatio="0.5" DecelerationRatio="0.5"
