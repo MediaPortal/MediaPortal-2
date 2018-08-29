@@ -377,6 +377,8 @@
     <Compile Include="Settings\Configuration\Appearance\StartupScreen.cs" />
     <Compile Include="Settings\Configuration\General\ApplicationSuspendLevel.cs" />
     <Compile Include="SharpDX\SharpDXExtensions.cs" />
+    <Compile Include="SpecialElements\Behaviors\FocusSelectedItemAction.cs" />
+    <Compile Include="SpecialElements\Behaviors\SelectedItemBehavior.cs" />
     <Compile Include="Utils\DoubleUtils.cs" />
     <Compile Include="Utils\ImageSourceFactory.cs" />
     <Compile Include="Utils\UIResourcesHelper.cs" />

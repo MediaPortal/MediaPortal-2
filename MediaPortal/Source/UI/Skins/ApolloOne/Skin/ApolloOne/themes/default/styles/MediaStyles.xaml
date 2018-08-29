@@ -975,8 +975,9 @@
       <Setter.Value>
         <ControlTemplate TargetType="{x:Type ListViewItem}">
           <Button Style="{ThemeResource MediaItemButtonWideStyle}"
-              Command="{DynamicResource ResourceKey=Menu_Command}"
-              IsEnabled="{Binding Enabled}" SetFocus="{Binding Path=Selected,Mode=OneTime}">
+                  Command="{DynamicResource ResourceKey=Menu_Command}"
+                  IsEnabled="{Binding Enabled}"
+                  SetFocusPrio="{Binding Path=Selected,Mode=OneTime,Converter={StaticResource BoolToFocusPriorityConverter},ConverterParameter=Highest}">
             <Button.Triggers>
               <Trigger Property="HasFocus" Value="True">
                 <Setter TargetName="ItemLabel" Property="Scroll" Value="Auto"/>
@@ -997,8 +998,9 @@
       <Setter.Value>
         <ControlTemplate TargetType="{x:Type ListViewItem}">
           <Button Style="{ThemeResource MediaItemButtonCoverStyle}"
-              Command="{DynamicResource ResourceKey=Menu_Command}"
-              IsEnabled="{Binding Enabled}" SetFocus="{Binding Path=Selected,Mode=OneTime}">
+                  Command="{DynamicResource ResourceKey=Menu_Command}"
+                  IsEnabled="{Binding Enabled}"
+                  SetFocusPrio="{Binding Path=Selected,Mode=OneTime,Converter={StaticResource BoolToFocusPriorityConverter},ConverterParameter=Highest}">
             <Button.Triggers>
               <Trigger Property="HasFocus" Value="True">
                 <Setter TargetName="ItemLabel" Property="Scroll" Value="Auto"/>
@@ -1019,8 +1021,9 @@
       <Setter.Value>
         <ControlTemplate TargetType="{x:Type ListViewItem}">
           <Button Style="{ThemeResource MediaItemButtonCoverFlowStyle}"
-              Command="{DynamicResource ResourceKey=Menu_Command}"
-              IsEnabled="{Binding Enabled}" SetFocus="{Binding Path=Selected,Mode=OneTime}">
+                  Command="{DynamicResource ResourceKey=Menu_Command}"
+                  IsEnabled="{Binding Enabled}"
+                  SetFocusPrio="{Binding Path=Selected,Mode=OneTime,Converter={StaticResource BoolToFocusPriorityConverter},ConverterParameter=Highest}">
             <Button.Triggers>
               <Trigger Property="HasFocus" Value="True">
                 <Setter TargetName="ItemLabel" Property="Scroll" Value="Auto"/>

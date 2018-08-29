@@ -64,7 +64,7 @@ namespace MediaPortal.UiComponents.Weather.Grabbers
     {
       CultureInfo currentCulture = ServiceRegistration.Get<ILocalization>().CurrentCulture;
       _dateFormat = currentCulture.DateTimeFormat;
-      _metricSystem = new RegionInfo(currentCulture.LCID).IsMetric ? MetricSystem.Metric : MetricSystem.Imperial;
+      _metricSystem = new RegionInfo(currentCulture.Name).IsMetric ? MetricSystem.Metric : MetricSystem.Imperial;
       if (!Enum.TryParse(currentCulture.TwoLetterISOLanguageName, true, out _language))
         _language = OpenWeatherMapLanguage.EN;
 

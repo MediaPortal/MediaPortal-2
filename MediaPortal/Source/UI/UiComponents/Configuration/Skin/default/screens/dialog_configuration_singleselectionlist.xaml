@@ -7,6 +7,7 @@ It doesn't inherit from master_configuration_dialog_wb as it has special focus h
 <Include
     xmlns="www.team-mediaportal.com/2008/mpf/directx"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:mp_special_behavior="clr-namespace:MediaPortal.UI.SkinEngine.SpecialElements.Behaviors;assembly=SkinEngine"
     Source="screens\master_configuration_dialog.xaml"
     >
   <Include.Resources>
@@ -44,9 +45,10 @@ It doesn't inherit from master_configuration_dialog_wb as it has special focus h
 
         <!-- Must be last child of DockPanel (LastChildFill) -->
         <ListView x:Name="SingleSelectionListBox" DockPanel.Dock="Center" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
-          Style="{ThemeResource SingleMarkableListViewStyle}"
-          ItemsSource="{Binding Source={StaticResource Model},Path=CurrentConfigController.Items,Mode=OneTime}"/>
-        
+                  Style="{ThemeResource SingleMarkableListViewStyle}"
+                  ItemsSource="{Binding Source={StaticResource Model},Path=CurrentConfigController.Items,Mode=OneTime}"
+                  mp_special_behavior:SelectedItemBehavior.FocusSelectedItem="True"/>
+
       </DockPanel>
     </ControlTemplate>
   </Include.Resources>

@@ -22,9 +22,9 @@
 
 #endregion
 
-using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.UiComponents.Media.General;
-using System;
+using MediaPortal.UiComponents.Media.Models.Navigation;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace MediaPortal.UiComponents.Media.Models.ScreenData
@@ -43,6 +43,20 @@ namespace MediaPortal.UiComponents.Media.Models.ScreenData
     public override AbstractItemsScreenData Derive()
     {
       return new SeriesShowItemsScreenData(PlayableItemCreator);
+    }
+
+    protected override bool SetSelectedItem(IEnumerable<PlayableMediaItem> items)
+    {
+      //Set the first unwatched episode as Selected so it has focus when [re]entering the view
+      bool selected = false;
+      foreach (PlayableMediaItem item in items)
+      {
+        if (!selected)
+          item.Selected = selected = item.WatchPercentage < 100;
+        else
+          item.Selected = false;
+      }
+      return selected;
     }
   }
 }

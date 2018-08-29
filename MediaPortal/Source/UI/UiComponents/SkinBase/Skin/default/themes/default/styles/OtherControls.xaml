@@ -716,6 +716,19 @@
     </Setter>
   </Style>
 
+  <!-- ListView style to be used for single and multiple markable items -->
+  <Style x:Key="MarkableListViewStyle" BasedOn="{ThemeResource ContentsMenuListViewStyle}">
+    <Setter Property="ItemsPanel">
+      <Setter.Value>
+        <ItemsPanelTemplate>
+          <!-- It's not possible to use a VirtualizingStackPanel for markable lists because RadioButtons
+               are not updated correctly if virtualization has caused the previously checked RadioButton to be disposed -->
+          <StackPanel x:Name="ListItemsHost" IsItemsHost="True"/>
+        </ItemsPanelTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+
   <!-- ListView style to be used for the shares list -->
   <Style x:Key="SharesConfigListViewStyle" BasedOn="{ThemeResource ContentsMenuListViewStyle}">
     <Setter Property="Template">
@@ -859,7 +872,7 @@
   </Style>
 
   <!-- ListView style to be used for the shares list -->
-  <Style x:Key="MultiMarkableSharesListViewStyle" BasedOn="{ThemeResource ContentsMenuListViewStyle}">
+  <Style x:Key="MultiMarkableSharesListViewStyle" BasedOn="{ThemeResource MarkableListViewStyle}">
     <Setter Property="Template">
       <Setter.Value>
         <ControlTemplate TargetType="{x:Type ListView}">
@@ -888,7 +901,7 @@
   </Style>
 
   <!-- ListView style to be used for the shares list -->
-  <Style x:Key="SingleMarkableSharesListViewStyle" BasedOn="{ThemeResource ContentsMenuListViewStyle}">
+  <Style x:Key="SingleMarkableSharesListViewStyle" BasedOn="{ThemeResource MarkableListViewStyle}">
     <Setter Property="Template">
       <Setter.Value>
         <ControlTemplate TargetType="{x:Type ListView}">
@@ -917,7 +930,7 @@
   </Style>
 
   <!-- ListView style to be used for the resource providers list -->
-  <Style x:Key="SingleMarkableResourceProvidersListViewStyle" BasedOn="{ThemeResource ContentsMenuListViewStyle}">
+  <Style x:Key="SingleMarkableResourceProvidersListViewStyle" BasedOn="{ThemeResource MarkableListViewStyle}">
     <Setter Property="Template">
       <Setter.Value>
         <ControlTemplate TargetType="{x:Type ListView}">
@@ -988,7 +1001,7 @@
   </Style>
 
   <!-- ListView style to be used for lists where multiple items can be marked -->
-  <Style x:Key="MultiMarkableListViewStyle" BasedOn="{ThemeResource ContentsMenuListViewStyle}">
+  <Style x:Key="MultiMarkableListViewStyle" BasedOn="{ThemeResource MarkableListViewStyle}">
     <Setter Property="ItemTemplate" Value="{ThemeResource DefaultItemDataTemplate}"/>
     <Setter Property="DataStringProvider" Value="{ThemeResource DefaultItemDataStringProvider}"/>
     <Setter Property="ItemContainerStyle" Value="{ThemeResource DefaultMultiMarkableItemContainerStyle}"/>
@@ -996,7 +1009,7 @@
   </Style>
 
   <!-- ListView style to be used for lists where a single item can be marked -->
-  <Style x:Key="SingleMarkableListViewStyle" BasedOn="{ThemeResource ContentsMenuListViewStyle}">
+  <Style x:Key="SingleMarkableListViewStyle" BasedOn="{ThemeResource MarkableListViewStyle}">
     <Setter Property="ItemTemplate" Value="{ThemeResource DefaultItemDataTemplate}"/>
     <Setter Property="DataStringProvider" Value="{ThemeResource DefaultItemDataStringProvider}"/>
     <Setter Property="ItemContainerStyle" Value="{ThemeResource DefaultSingleMarkableItemContainerStyle}"/>
@@ -1004,7 +1017,7 @@
   </Style>
 
   <!-- ListView style to be used for lists where a single item can be marked -->
-  <Style x:Key="ColoredSingleMarkableListViewStyle" BasedOn="{ThemeResource ContentsMenuListViewStyle}"> 
+  <Style x:Key="ColoredSingleMarkableListViewStyle" BasedOn="{ThemeResource MarkableListViewStyle}"> 
     <Setter Property="ItemTemplate" Value="{ThemeResource ColoredItemDataTemplate}"/>
     <Setter Property="DataStringProvider" Value="{ThemeResource DefaultItemDataStringProvider}"/>
     <Setter Property="ItemContainerStyle" Value="{ThemeResource DefaultSingleMarkableItemContainerStyle}"/>
@@ -1012,7 +1025,7 @@
     <Setter Property="ItemsPanel">
       <Setter.Value>
         <ItemsPanelTemplate>
-          <VirtualizingWrapPanel x:Name="ListItemsHost" IsItemsHost="True"/>
+          <WrapPanel x:Name="ListItemsHost" IsItemsHost="True"/>
         </ItemsPanelTemplate>
       </Setter.Value>
     </Setter>

@@ -2,6 +2,7 @@
 <Grid
     xmlns="www.team-mediaportal.com/2008/mpf/directx"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:mp_special_behavior="clr-namespace:MediaPortal.UI.SkinEngine.SpecialElements.Behaviors;assembly=SkinEngine"
     DataContext="{Binding Source={Model 4CDD601F-E280-43b9-AD0A-6D7B2403C856},Path=NavigationData.CurrentScreenData}"
     > <!-- Model = MediaNavigationModel -->
   <Grid.Resources>
@@ -26,7 +27,8 @@
     </Grid.ColumnDefinitions>
 
     <ListView x:Name="MediaItemsList" Style="{ThemeResource MediaItemsListListViewStyle}" ItemsSource="{Binding Items}"
-        HorizontalAlignment="Stretch" VerticalAlignment="Stretch" IsVisible="{Binding ShowList}">
+              HorizontalAlignment="Stretch" VerticalAlignment="Stretch" IsVisible="{Binding ShowList}"
+              mp_special_behavior:SelectedItemBehavior.FocusSelectedItem="True">
       <ListView.Resources>
         <Command x:Key="Menu_Command" Source="{StaticResource MediaModel}" Path="Select"
             Parameters="{LateBoundValue BindingValue={Binding}}"/>
