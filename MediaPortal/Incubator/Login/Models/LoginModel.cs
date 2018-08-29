@@ -311,7 +311,7 @@ namespace MediaPortal.UiComponents.Login.Models
       IWorkflowManager workflowManager = ServiceRegistration.Get<IWorkflowManager>();
       if (force || workflowManager.CurrentNavigationContext.WorkflowState.StateId != Consts.WF_STATE_ID_HOME_SCREEN)
       {
-        workflowManager.NavigatePopToState(Consts.WF_STATE_ID_HOME_SCREEN, false);
+        workflowManager.NavigatePopToState(Consts.WF_STATE_ID_HOME_SCREEN, force);
       }
     }
 
@@ -389,6 +389,7 @@ namespace MediaPortal.UiComponents.Login.Models
 
     private async Task SetCurrentUser(UserProfile userProfile = null)
     {
+      bool refreshHome = false;
       IUserManagement userProfileDataManagement = ServiceRegistration.Get<IUserManagement>();
       if (userProfile == null)
       {
@@ -401,6 +402,7 @@ namespace MediaPortal.UiComponents.Login.Models
             {
               userProfile = userProfileDataManagement.CurrentUser = result.Result;
               _firstLogin = false;
+              refreshHome = true;
             }
           }
         }
@@ -429,6 +431,8 @@ namespace MediaPortal.UiComponents.Login.Models
       {
         IsUserLoggedIn = false;
       }
+      if (refreshHome)
+        ShowHomeScreen(true);
     }
 
     /// <summary>
