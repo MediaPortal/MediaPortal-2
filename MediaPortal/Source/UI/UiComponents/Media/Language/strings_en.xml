@@ -311,6 +311,7 @@
   <string name="Media.ReimportMediaItem.AutoMatch">Auto Match</string>
   <string name="Media.ReimportMediaItem.ManualSearch">Manual Search</string>
   <string name="Media.ReimportMediaItem.Description">Description</string>
+  <string name="Media.ReimportMediaItem.Hint">Note: Requires internet connection and at least one online scrapper selected in media library settings</string>
   
   <!-- Play items dialog -->
   <string name="Media.PlayItemDialogHeader">Play item</string>
