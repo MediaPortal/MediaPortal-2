@@ -912,9 +912,10 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
         return;
       _itemsHostPanel.BringIntoView(itemIndex);
       FrameworkElement focusable = Screen.FindFirstFocusableElement(item);
-      if (focusable != null)
+      if (focusable != null && focusable.SetFocusPrio < SetFocusPriority.Default)
         // For virtualized panels, the item might not be in the visual tree yet
-        // so defer the focus setting to the next layouting
+        // so defer the focus setting to the next layouting if it hasn't already been
+        // set with a higher priority elsewhere
         focusable.SetFocusPrio = SetFocusPriority.Default;
     }
 
