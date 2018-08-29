@@ -1,4 +1,4 @@
-#region Copyright (C) 2007-2017 Team MediaPortal
+﻿#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
     Copyright (C) 2007-2017 Team MediaPortal
@@ -22,32 +22,41 @@
 
 #endregion
 
-using MediaPortal.Common.MediaManagement;
+using MediaPortal.Common.MediaManagement.MLQueries;
+using MediaPortal.UiComponents.Media.FilterTrees;
 using System;
 
 namespace MediaPortal.UiComponents.Media.Models.NavigationModel
 {
   /// <summary>
-  /// Initialization interface for the <see cref="MediaNavigationModel"/>.
+  /// Configuration to be used to override default media navigation initialization.
   /// </summary>
-  public interface IMediaNavigationInitializer
+  public class MediaNavigationConfig
   {
     /// <summary>
-    /// Gets the <see cref="MediaNavigationMode"/> associated to this class.
+    /// The screen to use as the navigation root. This screen will be used to
+    /// load the screen hierarchy and will be removed from the list of available screens.
     /// </summary>
-    string MediaNavigationMode { get; }
-    
-    /// <summary>
-    /// Gets the navigation root state.
-    /// </summary>
-    Guid MediaNavigationRootState { get; }
+    public Type RootScreenType { get; set; }
 
     /// <summary>
-    /// Initializes the media navigation, returns the required <see cref="NavigationData"/>.
+    /// The default screen to show if there is no saved screen hierarchy. 
     /// </summary>
-    /// <param name="config">Configuration for the media navigation</param>
-    /// <param name="mediaNavigationMode">MediaNavigationMode</param>
-    /// <param name="navigationData">NavigationData</param>
-    void InitMediaNavigation(MediaNavigationConfig config, out string mediaNavigationMode, out NavigationData navigationData);
+    public Type DefaultScreenType { get; set; }
+
+    /// <summary>
+    /// Media item id to use to apply a MediaItemIdFilter to the root media view.
+    /// </summary>
+    public Guid? LinkedId { get; set; }
+
+    /// <summary>
+    /// Filter to apply to the root media view.
+    /// </summary>
+    public IFilter Filter { get; set; }
+
+    /// <summary>
+    /// Relationship of the linked id/filter to the base media items.
+    /// </summary>
+    public FilterTreePath FilterPath { get; set; }
   }
 }

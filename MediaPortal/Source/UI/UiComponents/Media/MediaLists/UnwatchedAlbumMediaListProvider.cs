@@ -22,6 +22,7 @@
 
 #endregion
 
+using MediaPortal.Common.Commands;
 using MediaPortal.UiComponents.Media.General;
 using MediaPortal.UiComponents.Media.Models.Navigation;
 using MediaPortal.UiComponents.Media.Models.NavigationModel;
@@ -33,7 +34,10 @@ namespace MediaPortal.UiComponents.Media.MediaLists
     public UnwatchedAlbumMediaListProvider()
     {
       _necessaryMias = Consts.NECESSARY_ALBUM_MIAS;
-      _playableContainerConverterAction = item => new AlbumFilterItem(item);
+      _playableContainerConverterAction = item => new AlbumFilterItem(item)
+      {
+        Command = new MethodDelegateCommand(() => AudioNavigationInitializer.NavigateToAlbum(item.MediaItemId))
+      };
       _navigationInitializerType = typeof(AudioNavigationInitializer);
     }
   }

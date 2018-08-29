@@ -22,10 +22,6 @@
 
 #endregion
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using MediaPortal.Common;
 using MediaPortal.Common.Commands;
 using MediaPortal.Common.Logging;
@@ -34,12 +30,16 @@ using MediaPortal.Common.MediaManagement.MLQueries;
 using MediaPortal.Common.PluginManager;
 using MediaPortal.Common.PluginManager.Exceptions;
 using MediaPortal.UiComponents.Media.Extensions;
+using MediaPortal.UiComponents.Media.FilterTrees;
 using MediaPortal.UiComponents.Media.General;
 using MediaPortal.UiComponents.Media.Models.Navigation;
 using MediaPortal.UiComponents.Media.Models.ScreenData;
 using MediaPortal.UiComponents.Media.Settings;
 using MediaPortal.UiComponents.Media.Views;
-using MediaPortal.UiComponents.Media.FilterTrees;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace MediaPortal.UiComponents.Media.Models.NavigationModel
 {
@@ -113,43 +113,77 @@ namespace MediaPortal.UiComponents.Media.Models.NavigationModel
       return Task.CompletedTask;
     }
 
-    public virtual void InitMediaNavigation(out string mediaNavigationMode, out NavigationData navigationData)
+    public virtual void InitMediaNavigation(MediaNavigationConfig config, out string mediaNavigationMode, out NavigationData navigationData)
     {
-      PrepareAsync();
+      PrepareAsync().Wait();
+
+      IFilterTree filterTree = _customFilterTree ?? (_rootRole.HasValue ? new RelationshipFilterTree(_rootRole.Value) : (IFilterTree)new SimpleFilterTree());
+      filterTree.AddFilter(_filter);
+
+      //Default configuration
+      string viewName = _viewName;
+      AbstractScreenData defaultScreen = _defaultScreen;
+      ICollection<AbstractScreenData> availableScreens = _availableScreens;
+
+      //Apply any custom configuration
+      if (config != null)
+      {
+        if (availableScreens != null)
+        {
+          //Use the configured root screen to load the next screen from the hierarchy
+          //and remove it from the list of available screens
+          AbstractScreenData configRoot = config.RootScreenType != null ? availableScreens.FirstOrDefault(s => s.GetType() == config.RootScreenType) : null;
+          if (configRoot != null)
+          {
+            viewName = configRoot.GetType().ToString();
+            //don't modify the existing list
+            availableScreens = new List<AbstractScreenData>(availableScreens);
+            availableScreens.Remove(configRoot);
+          }
+
+          //Use the configured default screen if there is no saved screen hierarchy
+          AbstractScreenData configDefault = config.DefaultScreenType != null ? availableScreens.FirstOrDefault(s => s.GetType() == config.DefaultScreenType) : null;
+          if (configDefault != null)
+            defaultScreen = configDefault;
+        }
+
+        //Apply any additional filters
+        if (config.LinkedId.HasValue)
+          filterTree.AddLinkedId(config.LinkedId.Value, config.FilterPath);
+        if (config.Filter != null)
+          filterTree.AddFilter(config.Filter, config.FilterPath);
+      }
 
       string nextScreenName;
       AbstractScreenData nextScreen = null;
 
       // Try to load the prefered next screen from settings.
-      if (NavigationData.LoadScreenHierarchy(_viewName, out nextScreenName))
+      if (NavigationData.LoadScreenHierarchy(viewName, out nextScreenName))
       {
         // Support for browsing mode.
         if (nextScreenName == Consts.USE_BROWSE_MODE)
           SetBrowseMode();
 
-        if (_availableScreens != null)
-          nextScreen = _availableScreens.FirstOrDefault(s => s.GetType().ToString() == nextScreenName);
+        if (availableScreens != null)
+          nextScreen = availableScreens.FirstOrDefault(s => s.GetType().ToString() == nextScreenName);
       }
 
       IEnumerable<Guid> optionalMIATypeIDs = MediaNavigationModel.GetMediaSkinOptionalMIATypes(MediaNavigationMode);
-      if(_optionalMias != null)
+      if (_optionalMias != null)
       {
         optionalMIATypeIDs = optionalMIATypeIDs.Union(_optionalMias);
         optionalMIATypeIDs = optionalMIATypeIDs.Except(_necessaryMias);
       }
 
-      IFilterTree filterTree = _customFilterTree ?? (_rootRole.HasValue ? new RelationshipFilterTree(_rootRole.Value) : (IFilterTree)new SimpleFilterTree());
-      filterTree.AddFilter(_filter);
-
       // Prefer custom view specification.
       ViewSpecification rootViewSpecification = _customRootViewSpecification ??
-        new MediaLibraryQueryViewSpecification(_viewName, filterTree, _necessaryMias, optionalMIATypeIDs, true)
+        new MediaLibraryQueryViewSpecification(viewName, filterTree, _necessaryMias, optionalMIATypeIDs, true)
         {
           MaxNumItems = Consts.MAX_NUM_ITEMS_VISIBLE,
         };
 
       if (nextScreen == null)
-        nextScreen = _defaultScreen;
+        nextScreen = defaultScreen;
 
       ScreenConfig nextScreenConfig;
       NavigationData.LoadLayoutSettings(nextScreen.GetType().ToString(), out nextScreenConfig);
@@ -157,8 +191,8 @@ namespace MediaPortal.UiComponents.Media.Models.NavigationModel
       Sorting.Sorting nextSortingMode = _availableSortings.FirstOrDefault(sorting => sorting.GetType().ToString() == nextScreenConfig.Sorting) ?? _defaultSorting;
       Sorting.Sorting nextGroupingMode = _availableGroupings == null || String.IsNullOrEmpty(nextScreenConfig.Grouping) ? null : _availableGroupings.FirstOrDefault(grouping => grouping.GetType().ToString() == nextScreenConfig.Grouping) ?? _defaultGrouping;
 
-      navigationData = new NavigationData(null, _viewName, MediaNavigationRootState,
-        MediaNavigationRootState, rootViewSpecification, nextScreen, _availableScreens, nextSortingMode, nextGroupingMode)
+      navigationData = new NavigationData(null, viewName, MediaNavigationRootState,
+        MediaNavigationRootState, rootViewSpecification, nextScreen, availableScreens, nextSortingMode, nextGroupingMode)
       {
         AvailableSortings = _availableSortings,
         AvailableGroupings = _availableGroupings,
