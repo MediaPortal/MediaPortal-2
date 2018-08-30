@@ -408,17 +408,17 @@ namespace MediaPortal.Backend.Services.Database
             List<DatabaseMigrationManager> schemaManagers = new List<DatabaseMigrationManager>();
             foreach (string subSchema in GetDatabaseSubSchemas())
             {
-              DatabaseMigrationManager manager = new DatabaseMigrationManager(subSchema);
-              manager.AddDirectory(MediaPortal_Basis_Schema.DatabaseUpgradeScriptDirectory);
-              schemaManagers.Add(manager);
+              DatabaseMigrationManager schemaManager = new DatabaseMigrationManager(subSchema);
+              schemaManager.AddDirectory(MediaPortal_Basis_Schema.DatabaseUpgradeScriptDirectory);
+              schemaManagers.Add(schemaManager);
             }
             //Add aspects
             List<DatabaseMigrationManager> aspectManagers = new List<DatabaseMigrationManager>();
             foreach (var mia in miaTypes)
             {
-              DatabaseMigrationManager manager = GetMiaMigrationManager(mia.Id, mia.Name);
-              if (manager != null)
-                aspectManagers.Add(manager);
+              DatabaseMigrationManager aspectManager = GetMiaMigrationManager(mia.Id, mia.Name);
+              if (aspectManager != null)
+                aspectManagers.Add(aspectManager);
               else
                 ServiceRegistration.Get<ILogger>().Warn("DatabaseManager: Migration of aspect '{0}' skipped because no migration manager was available", mia.Name);
             }
@@ -426,8 +426,13 @@ namespace MediaPortal.Backend.Services.Database
             {
               ServiceRegistration.Get<ILogger>().Warn("DatabaseManager: Migration of aspect '{0}' skipped because it no longer exists", mia.Name);
             }
+            //Add cleanup script
+            List<DatabaseMigrationManager> scriptManagers = new List<DatabaseMigrationManager>();
+            DatabaseMigrationManager cleanupManager = new DatabaseMigrationManager("Cleanup");
+            cleanupManager.AddDirectory(MediaPortal_Basis_Schema.DatabaseUpgradeScriptDirectory);
+            scriptManagers.Add(cleanupManager);
 
-            totalMigrationSteps = schemaManagers.Count + aspectManagers.Count; //All migrations
+            totalMigrationSteps = schemaManagers.Count + aspectManagers.Count + scriptManagers.Count; //All migrations
             totalMigrationSteps += 2; //Add backup steps that has already been completed
             totalMigrationSteps += 2; //Add commit and drop steps that will be done after migration is complete
             int currentMigrationStep = 2; //Backup is already complete
@@ -450,6 +455,17 @@ namespace MediaPortal.Backend.Services.Database
                   ServiceRegistration.Get<ILogger>().Warn("DatabaseManager: Migration of aspect '{0}' failed", manager.MigrationOwnerName);
                 SendUpgradeProgress(++currentMigrationStep, totalMigrationSteps);
               }
+
+              //Scripts
+              foreach (var manager in scriptManagers)
+              {
+                if (manager.MigrateData(transaction, curVersionMajor, curVersionMinor, DATABASE_VERSION_MAJOR, DATABASE_VERSION_MINOR))
+                  ServiceRegistration.Get<ILogger>().Info("DatabaseManager: Executed script '{0}'", manager.MigrationOwnerName);
+                else
+                  ServiceRegistration.Get<ILogger>().Warn("DatabaseManager: Execution of script '{0}' failed", manager.MigrationOwnerName);
+                SendUpgradeProgress(++currentMigrationStep, totalMigrationSteps);
+              }
+
               transaction.Commit();
               SendUpgradeProgress(++currentMigrationStep, totalMigrationSteps);
             }
