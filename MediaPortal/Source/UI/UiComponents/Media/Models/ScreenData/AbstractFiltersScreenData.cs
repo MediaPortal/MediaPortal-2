@@ -123,6 +123,9 @@ namespace MediaPortal.UiComponents.Media.Models.ScreenData
             ContentDirectoryMessaging.MediaItemChangeType changeType = (ContentDirectoryMessaging.MediaItemChangeType)message.MessageData[ContentDirectoryMessaging.MEDIA_ITEM_CHANGE_TYPE];
             UpdateLoadedMediaItems(mediaItem, changeType);
             break;
+          case ContentDirectoryMessaging.MessageType.ShareImportCompleted:
+            Reload();
+            break;
         }
       }
     }
@@ -132,17 +135,31 @@ namespace MediaPortal.UiComponents.Media.Models.ScreenData
       if (changeType == ContentDirectoryMessaging.MediaItemChangeType.None)
         return;
 
+      bool changed = false;
       lock (_syncObj)
       {
         if (changeType == ContentDirectoryMessaging.MediaItemChangeType.Updated)
         {
-          PlayableContainerMediaItem existingItem = _items.OfType<PlayableContainerMediaItem>().FirstOrDefault(pcm => pcm.MediaItem.Equals(mediaItem));
+          IEnumerable<PlayableContainerMediaItem> containerItems = _items.OfType<PlayableContainerMediaItem>();
+          PlayableContainerMediaItem existingItem = containerItems.FirstOrDefault(pcm => pcm.MediaItem.Equals(mediaItem));
           if (existingItem != null)
           {
             existingItem.Update(mediaItem);
+            changed = SetSelectedItem(containerItems);
           }
         }
       }
+      if (changed)
+        _items.FireChange();
+    }
+
+    /// <summary>
+    /// Can be overriden in derived classes to set the initially selected item.
+    /// </summary>
+    /// <param name="items">Enumeration of items to select from.</param>
+    protected virtual bool SetSelectedItem(IEnumerable<FilterItem> items)
+    {
+      return false;
     }
 
     public override void Reload()
@@ -275,6 +292,9 @@ namespace MediaPortal.UiComponents.Media.Models.ScreenData
               if (sorting != null)
                 itemsList.Sort((i1, i2) => sorting.Compare(i1.MediaItem, i2.MediaItem));
             }
+            // Derived classes can implement special initial selection handling here,
+            // e.g. the first unwatched episode could be selected from a list of episodes
+            SetSelectedItem(itemsList);
             CollectionUtils.AddAll(items, itemsList);
             Display_Normal(items.Count, totalNumItems == 0 ? new int?() : totalNumItems);
           }

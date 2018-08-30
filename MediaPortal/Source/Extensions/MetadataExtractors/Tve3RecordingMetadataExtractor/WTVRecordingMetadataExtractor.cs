@@ -92,7 +92,7 @@ namespace MediaPortal.Extensions.MetadataExtractors
 
       if (TryGet(metadata, TAG_GENRE, out tmpString))
       {
-        episodeInfo.Genres = new List<GenreInfo>(tmpString.Split(new[] { ";" }, StringSplitOptions.RemoveEmptyEntries).Select(s => new GenreInfo { Name = s }));
+        episodeInfo.Genres = new List<GenreInfo>(tmpString.Split(new[] { ";" }, StringSplitOptions.RemoveEmptyEntries).Select(s => new GenreInfo { Name = s.Trim() }));
         IGenreConverter converter = ServiceRegistration.Get<IGenreConverter>();
         foreach (var genre in episodeInfo.Genres)
         {
@@ -274,7 +274,7 @@ namespace MediaPortal.Extensions.MetadataExtractors
 
         if (TryGet(tags, TAG_GENRE, out value))
         {
-          List<GenreInfo> genreList = new List<GenreInfo>(value.Split(new[] { ";" }, StringSplitOptions.RemoveEmptyEntries).Select(s => new GenreInfo { Name = s }));
+          List<GenreInfo> genreList = new List<GenreInfo>(value.Split(new[] { ";" }, StringSplitOptions.RemoveEmptyEntries).Select(s => new GenreInfo { Name = s.Trim() }));
           IGenreConverter converter = ServiceRegistration.Get<IGenreConverter>();
           foreach (var genre in genreList)
           {
@@ -342,6 +342,16 @@ namespace MediaPortal.Extensions.MetadataExtractors
     public bool TryExtractStubItems(IResourceAccessor mediaItemAccessor, ICollection<IDictionary<Guid, IList<MediaItemAspect>>> extractedStubAspectData)
     {
       return false;
+    }
+
+    public Task<IList<MediaItemSearchResult>> SearchForMatchesAsync(IDictionary<Guid, IList<MediaItemAspect>> searchAspectData, ICollection<string> searchCategories)
+    {
+      return Task.FromResult<IList<MediaItemSearchResult>>(null);
+    }
+
+    public Task<bool> AddMatchedAspectDetailsAsync(IDictionary<Guid, IList<MediaItemAspect>> matchedAspectData)
+    {
+      return Task.FromResult(false);
     }
 
     #endregion

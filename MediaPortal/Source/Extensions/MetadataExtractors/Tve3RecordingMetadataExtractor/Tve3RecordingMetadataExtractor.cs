@@ -233,9 +233,9 @@ namespace MediaPortal.Extensions.MetadataExtractors
           episodeInfo.EpisodeNumbers.Add(episodeNum);
       }
 
-      if (TryGet(extractedTags, TAG_GENRE, out tmpString))
+      if (TryGet(extractedTags, TAG_GENRE, out tmpString) && !string.IsNullOrEmpty(tmpString?.Trim()))
       {
-        episodeInfo.Genres = new List<GenreInfo>(new GenreInfo[] { new GenreInfo { Name = tmpString } });
+        episodeInfo.Genres = new List<GenreInfo>(new GenreInfo[] { new GenreInfo { Name = tmpString.Trim() } });
         IGenreConverter converter = ServiceRegistration.Get<IGenreConverter>();
         foreach (var genre in episodeInfo.Genres)
         {
@@ -291,9 +291,9 @@ namespace MediaPortal.Extensions.MetadataExtractors
           MediaItemAspect.SetAttribute(extractedAspectData, MediaAspect.ATTR_SORT_TITLE, BaseInfo.GetSortTitle(value));
         }
 
-        if (TryGet(tags, TAG_GENRE, out value))
+        if (TryGet(tags, TAG_GENRE, out value) && !string.IsNullOrEmpty(value?.Trim()))
         {
-          List<GenreInfo> genreList = new List<GenreInfo>(new GenreInfo[] { new GenreInfo { Name = value } });
+          List<GenreInfo> genreList = new List<GenreInfo>(new GenreInfo[] { new GenreInfo { Name = value.Trim() } });
           IGenreConverter converter = ServiceRegistration.Get<IGenreConverter>();
           foreach (var genre in genreList)
           {
@@ -371,6 +371,16 @@ namespace MediaPortal.Extensions.MetadataExtractors
     public bool TryExtractStubItems(IResourceAccessor mediaItemAccessor, ICollection<IDictionary<Guid, IList<MediaItemAspect>>> extractedStubAspectData)
     {
       return false;
+    }
+
+    public Task<IList<MediaItemSearchResult>> SearchForMatchesAsync(IDictionary<Guid, IList<MediaItemAspect>> searchAspectData, ICollection<string> searchCategories)
+    {
+      return Task.FromResult<IList<MediaItemSearchResult>>(null);
+    }
+
+    public Task<bool> AddMatchedAspectDetailsAsync(IDictionary<Guid, IList<MediaItemAspect>> matchedAspectData)
+    {
+      return Task.FromResult(false);
     }
 
     #endregion

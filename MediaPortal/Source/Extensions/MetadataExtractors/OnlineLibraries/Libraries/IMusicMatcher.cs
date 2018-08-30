@@ -36,6 +36,9 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries
     List<TrackInfo> GetLastChangedAudio();
     void ResetLastChangedAudio();
 
+    Task<IEnumerable<TrackInfo>> FindMatchingTracksAsync(TrackInfo trackInfo);
+    Task<IEnumerable<AlbumInfo>> FindMatchingAlbumsAsync(AlbumInfo albumInfo);
+
     Task<bool> FindAndUpdateTrackAsync(TrackInfo trackInfo);
     Task<bool> UpdateTrackPersonsAsync(TrackInfo trackInfo, string occupation, bool forAlbum);
     Task<bool> UpdateAlbumPersonsAsync(AlbumInfo albumInfo, string occupation);

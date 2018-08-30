@@ -58,11 +58,16 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
     /// <param name="season">Season number of the episode to update with metadata</param>
     /// <param name="episode">Episode number of the episode to update with metadata</param>
     /// <returns><c>true</c> if metadata was found and stored into the <paramref name="extractedAspects"/>, else <c>false</c></returns>
-    protected async Task<bool> TryExtractEpisodeCharactersMetadataAsync(IResourceAccessor mediaItemAccessor, IList<IDictionary<Guid, IList<MediaItemAspect>>> extractedAspects, int? season, int? episode)
+    protected async Task<bool> TryExtractEpisodeCharactersMetadataAsync(IResourceAccessor mediaItemAccessor, IList<IDictionary<Guid, IList<MediaItemAspect>>> extractedAspects, int? season, int? episode, EpisodeInfo reimport)
     {
       NfoSeriesEpisodeReader episodeNfoReader = await TryGetNfoSeriesEpisodeReaderAsync(mediaItemAccessor, season, episode).ConfigureAwait(false);
       if (episodeNfoReader != null)
+      {
+        if (reimport != null && !VerifyEpisodeReimport(episodeNfoReader, reimport))
+          return false;
+
         return episodeNfoReader.TryWriteCharacterMetadata(extractedAspects);
+      }
       return false;
     }
 
@@ -126,11 +131,15 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
       if (!episodeInfo.FromMetadata(aspects))
         return false;
 
+      EpisodeInfo reimport = null;
+      if (aspects.ContainsKey(ReimportAspect.ASPECT_ID))
+        reimport = episodeInfo;
+
       int? season = episodeInfo.SeasonNumber;
       int? episode = episodeInfo.EpisodeNumbers != null && episodeInfo.EpisodeNumbers.Any() ? episodeInfo.EpisodeNumbers.First() : (int?)null;
 
       IList<IDictionary<Guid, IList<MediaItemAspect>>> nfoLinkedAspects = new List<IDictionary<Guid, IList<MediaItemAspect>>>();
-      if (!await TryExtractEpisodeCharactersMetadataAsync(mediaItemAccessor, nfoLinkedAspects, season, episode).ConfigureAwait(false))
+      if (!await TryExtractEpisodeCharactersMetadataAsync(mediaItemAccessor, nfoLinkedAspects, season, episode, reimport).ConfigureAwait(false))
         return false;
 
       List<CharacterInfo> characters;

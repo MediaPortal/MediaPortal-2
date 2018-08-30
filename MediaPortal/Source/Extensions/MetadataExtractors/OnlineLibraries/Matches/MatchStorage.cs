@@ -65,6 +65,16 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matches
       return false;
     }
 
+    public bool TryRemoveMatch(TMatch match)
+    {
+      if (_storage.TryRemove(match.ItemName, out TMatch foundMatch))
+      {
+        SaveMatches();
+        return true;
+      }
+      return false;
+    }
+
     public List<TMatch> GetMatches()
     {
       return _storage.Values.ToList();

@@ -128,7 +128,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
         AddToCache(albumMediaItemId))
       {
         //If the track is not a stub, Store track tag images in the album
-        if (MediaItemAspect.TryGetAttribute(aspects, MediaAspect.ATTR_ISSTUB, out bool isStub) && isStub == false)
+        if (!aspects.ContainsKey(ReimportAspect.ASPECT_ID) && MediaItemAspect.TryGetAttribute(aspects, MediaAspect.ATTR_ISSTUB, out bool isStub) && isStub == false)
           await ExtractTagFanArt(mediaItemLocator, albumMediaItemId, albumTitle);
         if (shouldCacheLocal)
           await ExtractAlbumFolderFanArt(mediaItemLocator.NativeSystemId, albumDirectory, albumMediaItemId, albumTitle, artists).ConfigureAwait(false);

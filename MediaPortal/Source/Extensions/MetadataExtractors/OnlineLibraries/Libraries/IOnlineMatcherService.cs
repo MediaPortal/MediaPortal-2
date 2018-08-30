@@ -40,6 +40,8 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries
     void ResetLastChangedAudioAlbums();
     List<TrackInfo> GetLastChangedAudio();
     void ResetLastChangedAudio();
+    Task<IEnumerable<TrackInfo>> FindMatchingTracksAsync(TrackInfo trackInfo);
+    Task<IEnumerable<AlbumInfo>> FindMatchingAlbumsAsync(AlbumInfo albumInfo);
     Task<bool> FindAndUpdateTrackAsync(TrackInfo trackInfo);
     Task<bool> UpdateAlbumPersonsAsync(AlbumInfo albumInfo, string occupation);
     Task<bool> UpdateTrackPersonsAsync(TrackInfo trackInfo, string occupation, bool forAlbum);
@@ -57,6 +59,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries
     void ResetLastChangedMovies();
     List<MovieCollectionInfo> GetLastChangedMovieCollections();
     void ResetLastChangedMovieCollections();
+    Task<IEnumerable<MovieInfo>> FindMatchingMoviesAsync(MovieInfo movieInfo);
     Task<bool> FindAndUpdateMovieAsync(MovieInfo movieInfo);
     Task<bool> UpdatePersonsAsync(MovieInfo movieInfo, string occupation);
     Task<bool> UpdateCharactersAsync(MovieInfo movieInfo);
@@ -75,6 +78,8 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries
     void ResetLastChangedSeries();
     List<EpisodeInfo> GetLastChangedEpisodes();
     void ResetLastChangedEpisodes();
+    Task<IEnumerable<EpisodeInfo>> FindMatchingEpisodesAsync(EpisodeInfo episodeInfo);
+    Task<IEnumerable<SeriesInfo>> FindMatchingSeriesAsync(SeriesInfo seriesInfo);
     Task<bool> FindAndUpdateEpisodeAsync(EpisodeInfo episodeInfo);
     Task<bool> UpdateEpisodePersonsAsync(EpisodeInfo episodeInfo, string occupation);
     Task<bool> UpdateEpisodeCharactersAsync(EpisodeInfo episodeInfo);

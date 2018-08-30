@@ -57,7 +57,6 @@
     </PackageReference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Backend\TestGenres.cs" />
     <Compile Include="Backend\TestLibrary.cs" />
     <Compile Include="Backend\TestMediaItemAspectMetadata.cs" />
     <Compile Include="Backend\TestQueryEngine.cs" />
@@ -70,6 +69,7 @@
     <Compile Include="FanArt\FanArtHandlersForTests\VideoFanArtHandlerForTests.cs" />
     <Compile Include="FanArt\MockFanArtAccess\MockFanArtCache.cs" />
     <Compile Include="FanArt\MockFanArtAccess\MockResourceAccess.cs" />
+    <Compile Include="FanArt\TestTvLogos.cs" />
     <Compile Include="FanArt\TestBaseFanArt.cs" />
     <Compile Include="FanArt\TestLocalAudioFanArt.cs" />
     <Compile Include="FanArt\TestLocalMovieFanArt.cs" />
@@ -145,6 +145,10 @@
       <Project>{000c12a6-9734-4acb-99e9-d3f726c5858f}</Project>
       <Name>VideoMetadataExtractor</Name>
     </ProjectReference>
+    <ProjectReference Include="..\..\Source\UI\TV\SlimTvResources\SlimTv.Resources.csproj">
+      <Project>{9158967E-4FEB-4504-8C1E-02BE96045D34}</Project>
+      <Name>SlimTv.Resources</Name>
+    </ProjectReference>
     <ProjectReference Include="..\MediaPortal.Mock\MediaPortal.Mock.csproj">
       <Project>{f1a04140-5c63-4688-8a9e-a195aaf95de1}</Project>
       <Name>MediaPortal.Mock</Name>
@@ -159,6 +163,19 @@
     <EmbeddedResource Include="VideoThumbnailer\TestData\Test Media.mkv">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Designs\Flat\background.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Designs\Flat\overlay.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Designs\Flat-default.logotheme">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
   <Import Project="$(VSToolsPath)\TeamTest\Microsoft.TestTools.targets" Condition="Exists('$(VSToolsPath)\TeamTest\Microsoft.TestTools.targets')" />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

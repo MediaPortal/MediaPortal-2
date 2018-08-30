@@ -302,7 +302,17 @@
   <string name="Media.DeleteFromStorage">Delete from storage</string>
   <string name="Media.DeleteFromStorage.Confirmation">Are you sure that you want to delete this item? This cannot be undone.</string>
   <string name="Media.ConfirmAction">Confirm action</string>
-
+  <string name="Media.ReimportMediaItem.Confirmation">Are you sure you want to reimport the media item and replace existing data by a selected match? This cannot be undone.</string>
+  <string name="Media.ReimportMediaItem.Title">Select the correct match</string>
+  <string name="Media.ReimportMediaItem.Id">Id</string>
+  <string name="Media.ReimportMediaItem.Done">Done</string>
+  <string name="Media.ReimportMediaItem.SearchResultHeader">Search Result</string>
+  <string name="Media.ReimportMediaItem.SearchTypeHeader">Search Type</string>
+  <string name="Media.ReimportMediaItem.AutoMatch">Auto Match</string>
+  <string name="Media.ReimportMediaItem.ManualSearch">Manual Search</string>
+  <string name="Media.ReimportMediaItem.Description">Description</string>
+  <string name="Media.ReimportMediaItem.Hint">Note: Requires internet connection and at least one online scrapper selected in media library settings</string>
+  
   <!-- Play items dialog -->
   <string name="Media.PlayItemDialogHeader">Play item</string>
 

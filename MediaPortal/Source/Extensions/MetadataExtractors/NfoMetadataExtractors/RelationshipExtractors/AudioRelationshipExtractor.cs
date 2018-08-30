@@ -102,5 +102,10 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
     public void ResetLastChangedItems()
     {
     }
+
+    public IDictionary<Guid, IList<MediaItemAspect>> GetBaseChildAspectsFromExistingAspects(IDictionary<Guid, IList<MediaItemAspect>> existingChildAspects, IDictionary<Guid, IList<MediaItemAspect>> existingParentAspects)
+    {
+      return null;
+    }
   }
 }

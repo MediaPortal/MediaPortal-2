@@ -54,11 +54,16 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
     /// <param name="mediaItemAccessor">Points to the resource for which we try to extract metadata</param>
     /// <param name="extractedAspects">List of MediaItemAspect dictionaries to update with metadata</param>
     /// <returns><c>true</c> if metadata was found and stored into the <paramref name="extractedAspects"/>, else <c>false</c></returns>
-    protected async Task<bool> TryExtractMovieActorsMetadataAsync(IResourceAccessor mediaItemAccessor, IList<IDictionary<Guid, IList<MediaItemAspect>>> extractedAspects)
+    protected async Task<bool> TryExtractMovieActorsMetadataAsync(IResourceAccessor mediaItemAccessor, IList<IDictionary<Guid, IList<MediaItemAspect>>> extractedAspects, MovieInfo reimport)
     {
       NfoMovieReader movieNfoReader = await TryGetNfoMovieReaderAsync(mediaItemAccessor).ConfigureAwait(false);
       if (movieNfoReader != null)
+      {
+        if (reimport != null && !VerifyMovieReimport(movieNfoReader, reimport))
+          return false;
+
         return movieNfoReader.TryWriteActorMetadata(extractedAspects);
+      }
       return false;
     }
 
@@ -112,8 +117,15 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
 
     public async Task<bool> TryExtractRelationshipsAsync(IResourceAccessor mediaItemAccessor, IDictionary<Guid, IList<MediaItemAspect>> aspects, IList<IDictionary<Guid, IList<MediaItemAspect>>> extractedLinkedAspects)
     {
+      MovieInfo reimport = null;
+      if (aspects.ContainsKey(ReimportAspect.ASPECT_ID))
+      {
+        reimport = new MovieInfo();
+        reimport.FromMetadata(aspects);
+      }
+
       IList<IDictionary<Guid, IList<MediaItemAspect>>> nfoLinkedAspects = new List<IDictionary<Guid, IList<MediaItemAspect>>>();
-      if (!await TryExtractMovieActorsMetadataAsync(mediaItemAccessor, nfoLinkedAspects).ConfigureAwait(false))
+      if (!await TryExtractMovieActorsMetadataAsync(mediaItemAccessor, nfoLinkedAspects, reimport).ConfigureAwait(false))
         return false;
 
       List<PersonInfo> actors;

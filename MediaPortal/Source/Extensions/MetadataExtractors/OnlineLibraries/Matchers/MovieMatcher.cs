@@ -225,6 +225,60 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
 
     #region Metadata updaters
 
+    private MovieMatch GetStroredMatch(MovieInfo movieInfo)
+    {
+      // Load cache or create new list
+      List<MovieMatch> matches = _storage.GetMatches();
+
+      // Use cached values before doing online query
+      MovieMatch match = matches.Find(m =>
+        (string.Equals(m.ItemName, movieInfo.MovieName.ToString(), StringComparison.OrdinalIgnoreCase) || string.Equals(m.OnlineName, movieInfo.MovieName.ToString(), StringComparison.OrdinalIgnoreCase)) &&
+        ((movieInfo.ReleaseDate.HasValue && m.Year == movieInfo.ReleaseDate.Value.Year) || !movieInfo.ReleaseDate.HasValue));
+
+      return match;
+    }
+
+    /// <summary>
+    /// Tries to lookup the Movie online and downloads images.
+    /// </summary>
+    /// <param name="movieInfo">Movie to check</param>
+    /// <returns><c>true</c> if successful</returns>
+    public virtual async Task<IEnumerable<MovieInfo>> FindMatchingMoviesAsync(MovieInfo movieInfo)
+    {
+      List<MovieInfo> matches = new List<MovieInfo>();
+      try
+      {
+        // Try online lookup
+        if (!await InitAsync().ConfigureAwait(false))
+          return matches;
+
+        MovieInfo movieSearch = movieInfo.Clone();
+        TLang language = FindBestMatchingLanguage(movieInfo.Languages);
+
+        IEnumerable<MovieInfo> onlineMatches = null;
+        if (GetMovieId(movieInfo, out string movieId))
+        {
+          Logger.Debug(_id + ": Get movie from id {0} online", movieId);
+          if (await _wrapper.UpdateFromOnlineMovieAsync(movieSearch, language, false))
+            onlineMatches = new MovieInfo[] { movieSearch };
+        }
+        if (onlineMatches == null)
+        {
+          Logger.Debug(_id + ": Search for movie {0} online", movieInfo.ToString());
+          onlineMatches = await _wrapper.SearchMovieMatchesAsync(movieSearch, language).ConfigureAwait(false);
+        }
+        if (onlineMatches?.Count() > 0)
+          matches.AddRange(onlineMatches.Where(m => m.IsBaseInfoPresent));
+
+        return matches;
+      }
+      catch (Exception ex)
+      {
+        Logger.Debug(_id + ": Exception while matching movie {0}", ex, movieInfo.ToString());
+        return matches;
+      }
+    }
+
     /// <summary>
     /// Tries to lookup the Movie online and downloads images.
     /// </summary>
@@ -255,32 +309,37 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
 
         if (!matchFound)
         {
-          // Load cache or create new list
-          List<MovieMatch> matches = _storage.GetMatches();
-
-          // Use cached values before doing online query
-          MovieMatch match = matches.Find(m =>
-            (string.Equals(m.ItemName, movieInfo.MovieName.ToString(), StringComparison.OrdinalIgnoreCase) || string.Equals(m.OnlineName, movieInfo.MovieName.ToString(), StringComparison.OrdinalIgnoreCase)) &&
-            ((movieInfo.ReleaseDate.HasValue && m.Year == movieInfo.ReleaseDate.Value.Year) || !movieInfo.ReleaseDate.HasValue));
-          Logger.Debug(_id + ": Try to lookup movie \"{0}\" from cache: {1}", movieInfo, match != null && !string.IsNullOrEmpty(match.Id));
-
+          MovieMatch match = GetStroredMatch(movieInfo);
           movieMatch = movieInfo.Clone();
-          if (match != null)
+          if (string.IsNullOrEmpty(movieId))
           {
-            if (SetMovieId(movieMatch, match.Id))
+            Logger.Debug(_id + ": Try to lookup movie \"{0}\" from cache: {1}", movieInfo, match != null && !string.IsNullOrEmpty(match.Id));
+
+            if (match != null)
             {
-              //If Id was found in cache the online movie info is probably also in the cache
-              if (await _wrapper.UpdateFromOnlineMovieAsync(movieMatch, language, true).ConfigureAwait(false))
+              if (SetMovieId(movieMatch, match.Id))
               {
-                Logger.Debug(_id + ": Found movie {0} in cache", movieInfo.ToString());
-                matchFound = true;
+                //If Id was found in cache the online movie info is probably also in the cache
+                if (await _wrapper.UpdateFromOnlineMovieAsync(movieMatch, language, true).ConfigureAwait(false))
+                {
+                  Logger.Debug(_id + ": Found movie {0} in cache", movieInfo.ToString());
+                  matchFound = true;
+                }
+              }
+              else if (string.IsNullOrEmpty(movieId))
+              {
+                //Match was found but with invalid Id probably to avoid a retry
+                //No Id is available so online search will probably fail again
+                return false;
               }
             }
-            else if (string.IsNullOrEmpty(movieId))
+          }
+          else
+          {
+            if (match != null && movieId != match.Id)
             {
-              //Match was found but with invalid Id probably to avoid a retry
-              //No Id is available so online search will probably fail again
-              return false;
+              //Id was changed so remove it so it can be updated
+              _storage.TryRemoveMatch(match);
             }
           }
 
@@ -312,19 +371,6 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
         if (matchFound)
         {
           movieInfo.MergeWith(movieMatch, true);
-
-          if (movieInfo.Genres.Count > 0)
-          {
-            IGenreConverter converter = ServiceRegistration.Get<IGenreConverter>();
-            foreach (var genre in movieInfo.Genres)
-            {
-              if (!genre.Id.HasValue && converter.GetGenreId(genre.Name, GenreCategory.Movie, null, out int genreId))
-              {
-                genre.Id = genreId;
-                movieInfo.HasChanged = true;
-              }
-            }
-          }
 
           //Store person matches
           foreach (PersonInfo person in movieInfo.Actors)

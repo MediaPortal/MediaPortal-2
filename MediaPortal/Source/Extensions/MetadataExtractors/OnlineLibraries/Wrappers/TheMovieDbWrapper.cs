@@ -60,7 +60,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
 
     #region Search
 
-    public override async Task<IList<MovieInfo>> SearchMovieAsync(MovieInfo movieSearch, string language)
+    public override async Task<List<MovieInfo>> SearchMovieAsync(MovieInfo movieSearch, string language)
     {
       List<MovieSearchResult> foundMovies = await _movieDbHandler.SearchMovieAsync(movieSearch.MovieName.Text, language).ConfigureAwait(false);
       if (foundMovies == null) return null;
@@ -83,7 +83,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
       language = language ?? PreferredLanguage;
 
       SeriesInfo seriesSearch = null;
-      if (episodeSearch.SeriesMovieDbId <= 0)
+      if (episodeSearch.SeriesMovieDbId <= 0 && !string.IsNullOrEmpty(episodeSearch.SeriesImdbId) && episodeSearch.SeriesTvdbId <= 0 && episodeSearch.SeriesTvRageId <= 0)
       {
         seriesSearch = episodeSearch.CloneBasicInstance<SeriesInfo>();
         if (!await SearchSeriesUniqueAndUpdateAsync(seriesSearch, language).ConfigureAwait(false))
@@ -92,9 +92,29 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
       }
 
       List<EpisodeInfo> episodes = null;
-      if (episodeSearch.SeriesMovieDbId > 0 && episodeSearch.SeasonNumber.HasValue)
+      if ((episodeSearch.SeriesMovieDbId > 0 || !string.IsNullOrEmpty(episodeSearch.SeriesImdbId) || episodeSearch.SeriesTvdbId > 0 || episodeSearch.SeriesTvRageId > 0) && episodeSearch.SeasonNumber.HasValue)
       {
-        Season season = await _movieDbHandler.GetSeriesSeasonAsync(episodeSearch.SeriesMovieDbId, episodeSearch.SeasonNumber.Value, language, false).ConfigureAwait(false);
+        Season season = null;
+        if(episodeSearch.SeriesMovieDbId > 0)
+          season = await _movieDbHandler.GetSeriesSeasonAsync(episodeSearch.SeriesMovieDbId, episodeSearch.SeasonNumber.Value, language, false).ConfigureAwait(false);
+        if (season == null && !string.IsNullOrEmpty(episodeSearch.SeriesImdbId))
+        {
+          var results = await _movieDbHandler.FindSeriesByImdbIdAsync(episodeSearch.SeriesImdbId, language);
+          if (results.Count == 1)
+            season = await _movieDbHandler.GetSeriesSeasonAsync(results.First().Id, episodeSearch.SeasonNumber.Value, language, false).ConfigureAwait(false);
+        }
+        if (season == null && episodeSearch.SeriesTvdbId > 0)
+        {
+          var results = await _movieDbHandler.FindSeriesByTvDbIdAsync(episodeSearch.SeriesTvdbId, language);
+          if (results.Count == 1)
+            season = await _movieDbHandler.GetSeriesSeasonAsync(results.First().Id, episodeSearch.SeasonNumber.Value, language, false).ConfigureAwait(false);
+        }
+        if (season == null && episodeSearch.SeriesTvRageId > 0)
+        {
+          var results = await _movieDbHandler.FindSeriesByTvRageIdAsync(episodeSearch.SeriesTvRageId, language);
+          if (results.Count == 1)
+            season = await _movieDbHandler.GetSeriesSeasonAsync(results.First().Id, episodeSearch.SeasonNumber.Value, language, false).ConfigureAwait(false);
+        }
         if (season != null && season.Episodes != null)
         {
           foreach (SeasonEpisode episode in season.Episodes)
@@ -106,7 +126,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
 
               EpisodeInfo info = new EpisodeInfo()
               {
-                SeriesName = seriesSearch.SeriesName,
+                SeriesName = seriesSearch?.SeriesName ?? episodeSearch.SeriesName,
                 SeasonNumber = episode.SeasonNumber,
                 EpisodeName = new SimpleTitle(episode.Name, false),
               };
@@ -123,7 +143,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
         episodes = new List<EpisodeInfo>();
         EpisodeInfo info = new EpisodeInfo()
         {
-          SeriesName = seriesSearch.SeriesName,
+          SeriesName = seriesSearch?.SeriesName ?? episodeSearch.SeriesName,
           SeasonNumber = episodeSearch.SeasonNumber,
           EpisodeName = episodeSearch.EpisodeName,
         };
@@ -547,9 +567,39 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
         Season seasonDetail = null;
         if (season.SeriesMovieDbId > 0)
           seriesDetail = await _movieDbHandler.GetSeriesAsync(season.SeriesMovieDbId, language, cacheOnly).ConfigureAwait(false);
+        if (seriesDetail == null && !string.IsNullOrEmpty(season.SeriesImdbId))
+        {
+          var results = await _movieDbHandler.FindSeriesByImdbIdAsync(season.SeriesImdbId, language);
+          if (results.Count == 1)
+            seriesDetail = await _movieDbHandler.GetSeriesAsync(results.First().Id, language, cacheOnly).ConfigureAwait(false);
+        }
+        if (seriesDetail == null && season.SeriesTvdbId > 0)
+        {
+          var results = await _movieDbHandler.FindSeriesByTvDbIdAsync(season.SeriesTvdbId, language);
+          if (results.Count == 1)
+            seriesDetail = await _movieDbHandler.GetSeriesAsync(results.First().Id, language, cacheOnly).ConfigureAwait(false);
+        }
+        if (seriesDetail == null && season.SeriesTvRageId > 0)
+        {
+          var results = await _movieDbHandler.FindSeriesByTvRageIdAsync(season.SeriesTvRageId, language);
+          if (results.Count == 1)
+            seriesDetail = await _movieDbHandler.GetSeriesAsync(results.First().Id, language, cacheOnly).ConfigureAwait(false);
+        }
         if (seriesDetail == null) return false;
         if (season.SeriesMovieDbId > 0 && season.SeasonNumber.HasValue)
           seasonDetail = await _movieDbHandler.GetSeriesSeasonAsync(season.SeriesMovieDbId, season.SeasonNumber.Value, language, cacheOnly).ConfigureAwait(false);
+        if (seasonDetail == null && season.TvdbId > 0)
+        {
+          var results = await _movieDbHandler.FindSeriesSeasonByTvDbIdAsync(season.TvdbId, language);
+          if (results.Count == 1)
+            seasonDetail = await _movieDbHandler.GetSeriesSeasonAsync(results.First().Id, season.SeasonNumber.Value, language, cacheOnly).ConfigureAwait(false);
+        }
+        if (seasonDetail == null && season.TvRageId > 0)
+        {
+          var results = await _movieDbHandler.FindSeriesSeasonByTvRageIdAsync(season.TvRageId, language);
+          if (results.Count == 1)
+            seasonDetail = await _movieDbHandler.GetSeriesSeasonAsync(results.First().Id, season.SeasonNumber.Value, language, cacheOnly).ConfigureAwait(false);
+        }
         if (seasonDetail == null) return false;
 
         season.MovieDbId = seasonDetail.SeasonId;
@@ -589,17 +639,36 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
         Series seriesDetail = null;
         MovieCasts seriesCast = null;
 
-        if (episode.SeriesMovieDbId > 0 && episode.SeasonNumber.HasValue && episode.EpisodeNumbers.Count > 0)
+        if ((episode.SeriesMovieDbId > 0 || !string.IsNullOrEmpty(episode.SeriesImdbId) || episode.SeriesTvdbId > 0 || episode.SeriesTvRageId > 0) && episode.SeasonNumber.HasValue && episode.EpisodeNumbers.Count > 0)
         {
-          seriesDetail = await _movieDbHandler.GetSeriesAsync(episode.SeriesMovieDbId, language, cacheOnly).ConfigureAwait(false);
+          if (episode.SeriesMovieDbId > 0)
+            seriesDetail = await _movieDbHandler.GetSeriesAsync(episode.SeriesMovieDbId, language, cacheOnly).ConfigureAwait(false);
+          if (seriesDetail == null && !string.IsNullOrEmpty(episode.SeriesImdbId))
+          {
+            var results = await _movieDbHandler.FindSeriesByImdbIdAsync(episode.SeriesImdbId, language);
+            if (results.Count == 1)
+              seriesDetail = await _movieDbHandler.GetSeriesAsync(results.First().Id, language, cacheOnly).ConfigureAwait(false);
+          }
+          if (seriesDetail == null && episode.SeriesTvdbId > 0)
+          {
+            var results = await _movieDbHandler.FindSeriesByTvDbIdAsync(episode.SeriesTvdbId, language);
+            if (results.Count == 1)
+              seriesDetail = await _movieDbHandler.GetSeriesAsync(results.First().Id, language, cacheOnly).ConfigureAwait(false);
+          }
+          if (seriesDetail == null && episode.SeriesTvRageId > 0)
+          {
+            var results = await _movieDbHandler.FindSeriesByTvRageIdAsync(episode.SeriesTvRageId, language);
+            if (results.Count == 1)
+              seriesDetail = await _movieDbHandler.GetSeriesAsync(results.First().Id, language, cacheOnly).ConfigureAwait(false);
+          }
           if (seriesDetail == null) return false;
-          seriesCast = await _movieDbHandler.GetSeriesCastCrewAsync(episode.SeriesMovieDbId, language, cacheOnly).ConfigureAwait(false);
+          seriesCast = await _movieDbHandler.GetSeriesCastCrewAsync(seriesDetail.Id, language, cacheOnly).ConfigureAwait(false);
           if (cacheOnly && seriesCast == null)
             cacheIncomplete = true;
 
           foreach (int episodeNumber in episode.EpisodeNumbers)
           {
-            episodeDetail = await _movieDbHandler.GetSeriesEpisodeAsync(episode.SeriesMovieDbId, episode.SeasonNumber.Value, episodeNumber, language, cacheOnly).ConfigureAwait(false);
+            episodeDetail = await _movieDbHandler.GetSeriesEpisodeAsync(seriesDetail.Id, episode.SeasonNumber.Value, episodeNumber, language, cacheOnly).ConfigureAwait(false);
             if (episodeDetail == null) continue;
 
             EpisodeInfo info = new EpisodeInfo()
@@ -1061,13 +1130,15 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
           changedItems.Clear();
           changes = _movieDbHandler.GetMovieChanges(page, lastRefresh);
           foreach (Change change in changes.Changes)
-            changedItems.Add(change.Id);
+            if (change.Id.HasValue)
+            changedItems.Add(change.Id.Value);
           while (page < changes.TotalPages)
           {
             page++;
             changes = _movieDbHandler.GetMovieChanges(page, lastRefresh);
             foreach (Change change in changes.Changes)
-              changedItems.Add(change.Id);
+              if (change.Id.HasValue)
+                changedItems.Add(change.Id.Value);
           }
           foreach (int movieId in changedItems)
             _movieDbHandler.DeleteMovieCache(movieId);
@@ -1079,13 +1150,15 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
           changedItems.Clear();
           changes = _movieDbHandler.GetPersonChanges(page, lastRefresh);
           foreach (Change change in changes.Changes)
-            changedItems.Add(change.Id);
+            if (change.Id.HasValue)
+              changedItems.Add(change.Id.Value);
           while (page < changes.TotalPages)
           {
             page++;
             changes = _movieDbHandler.GetPersonChanges(page, lastRefresh);
             foreach (Change change in changes.Changes)
-              changedItems.Add(change.Id);
+              if (change.Id.HasValue)
+                changedItems.Add(change.Id.Value);
           }
           foreach (int movieId in changedItems)
             _movieDbHandler.DeletePersonCache(movieId);
@@ -1099,13 +1172,15 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
           changedItems.Clear();
           changes = _movieDbHandler.GetSeriesChanges(page, lastRefresh);
           foreach (Change change in changes.Changes)
-            changedItems.Add(change.Id);
+            if (change.Id.HasValue)
+              changedItems.Add(change.Id.Value);
           while (page < changes.TotalPages)
           {
             page++;
             changes = _movieDbHandler.GetSeriesChanges(page, lastRefresh);
             foreach (Change change in changes.Changes)
-              changedItems.Add(change.Id);
+              if (change.Id.HasValue)
+                changedItems.Add(change.Id.Value);
           }
           foreach (int movieId in changedItems)
             _movieDbHandler.DeleteSeriesCache(movieId);

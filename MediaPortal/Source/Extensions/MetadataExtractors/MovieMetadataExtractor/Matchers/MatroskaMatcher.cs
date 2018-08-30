@@ -113,13 +113,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor.Match
       tags = tagsToExtract[MatroskaConsts.TAG_SERIES_GENRE];
       if (tags != null)
       {
-        List<GenreInfo> genreList = tags.Select(s => new GenreInfo { Name = s }).ToList();
-        IGenreConverter converter = ServiceRegistration.Get<IGenreConverter>();
-        foreach (var genre in genreList)
-        {
-          if (!genre.Id.HasValue && converter.GetGenreId(genre.Name, GenreCategory.Movie, null, out int genreId))
-            genre.Id = genreId;
-        }
+        List<GenreInfo> genreList = tags.Where(s => !string.IsNullOrEmpty(s?.Trim())).Select(s => new GenreInfo { Name = s.Trim() }).ToList();
         movieInfo.HasChanged |= MetadataUpdater.SetOrUpdateList(movieInfo.Genres, genreList, movieInfo.Genres.Count == 0);
       }
 

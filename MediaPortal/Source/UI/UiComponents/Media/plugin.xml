@@ -24,6 +24,7 @@
     <PluginReference PluginId="{2BA6F93C-B2A9-4795-A99C-BA19126B1359}" CompatibleAPI="1"/> <!-- BassLibraries -->
     <PluginReference PluginId="{87316CE6-904A-48D3-90F0-BBEF3E9D007C}" CompatibleAPI="1"/> <!-- AudioCDResourceProvider -->
     <PluginReference PluginId="{15FD97A4-D925-4D8A-9DF0-5349743EED0C}" CompatibleAPI="2"/> <!-- FanArtService Client -->
+    <PluginReference PluginId="{B32504F3-4374-4640-94A1-16E1DEE84C3C}" CompatibleAPI="2"/> <!-- OnlineLibraries -->
   </DependsOn>
 
   <Runtime>
@@ -70,6 +71,8 @@
     <Model Id="11193401-D85D-4D50-9825-E9EB34D87062" Name="LatestMediaModel" ClassName="MediaPortal.UiComponents.Media.Models.LatestMediaModel" />
   
     <Model Id="6121E6CC-EB66-4ABC-8AA0-D952B64C0414" Name="MediaListModel" ClassName="MediaPortal.UiComponents.Media.Models.MediaListModel" />
+
+    <Model Id="692FA8C3-41A5-43DD-8C12-C857C9C75E72" Name="MediaItemMatchModel" ClassName="MediaPortal.UiComponents.Media.Models.MediaItemMatchModel" />
   </Register>
 
   <Register Location="/Workflow/States">

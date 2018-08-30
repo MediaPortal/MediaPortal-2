@@ -38,9 +38,8 @@ namespace MediaPortal.UiComponents.Media.MediaLists
       Guid? userProfile = CurrentUserProfile?.ProfileId;
       IFilter filter;
       if (userProfile.HasValue)
-        filter = await AppendUserFilterAsync(BooleanCombinationFilter.CombineFilters(BooleanOperator.Or,
-          new EmptyUserDataFilter(userProfile.Value, UserDataKeysKnown.KEY_PLAY_PERCENTAGE),
-          new RelationalUserDataFilter(userProfile.Value, UserDataKeysKnown.KEY_PLAY_PERCENTAGE, RelationalOperator.EQ, UserDataKeysKnown.GetSortablePlayPercentageString(0))), _necessaryMias);
+        filter = await AppendUserFilterAsync(
+          new RelationalUserDataFilter(userProfile.Value, UserDataKeysKnown.KEY_PLAY_PERCENTAGE, RelationalOperator.EQ, UserDataKeysKnown.GetSortablePlayPercentageString(0), true), _necessaryMias);
       else
         filter = new RelationalFilter(MediaAspect.ATTR_PLAYCOUNT, RelationalOperator.EQ, 0);
 

@@ -311,7 +311,7 @@ namespace MediaPortal.UiComponents.Login.Models
       IWorkflowManager workflowManager = ServiceRegistration.Get<IWorkflowManager>();
       if (force || workflowManager.CurrentNavigationContext.WorkflowState.StateId != Consts.WF_STATE_ID_HOME_SCREEN)
       {
-        workflowManager.NavigatePopToState(Consts.WF_STATE_ID_HOME_SCREEN, false);
+        workflowManager.NavigatePopToState(Consts.WF_STATE_ID_HOME_SCREEN, force);
       }
     }
 
@@ -388,6 +388,7 @@ namespace MediaPortal.UiComponents.Login.Models
 
     private async Task SetCurrentUser(UserProfile userProfile = null)
     {
+      bool refreshHome = false;
       IUserManagement userProfileDataManagement = ServiceRegistration.Get<IUserManagement>();
       if (userProfile == null)
       {
@@ -400,6 +401,7 @@ namespace MediaPortal.UiComponents.Login.Models
             {
               userProfile = userProfileDataManagement.CurrentUser = result.Result;
               _firstLogin = false;
+              refreshHome = true;
             }
           }
         }
@@ -428,6 +430,8 @@ namespace MediaPortal.UiComponents.Login.Models
       {
         IsUserLoggedIn = false;
       }
+      if (refreshHome)
+        ShowHomeScreen(true);
     }
 
     /// <summary>
@@ -447,6 +451,13 @@ namespace MediaPortal.UiComponents.Login.Models
       var localSystemGuid = Guid.Parse(ServiceRegistration.Get<ISettingsManager>().Load<SystemResolverSettings>().SystemId);
 
       UserProxy proxy;
+      proxy = new UserProxy();
+      proxy.SetLabel(Consts.KEY_NAME, LocalizationHelper.Translate(Consts.RES_DISABLE));
+      proxy.SetUserProfile(new UserProfile(Guid.Empty, LocalizationHelper.Translate(Consts.RES_DISABLE)));
+      proxy.Selected = UserSettingStorage.AutoLoginUser == Guid.Empty;
+      proxy.SelectedProperty.Attach(OnAutoLoginUserSelectionChanged);
+      _autoLoginUserList.Add(proxy);
+
       // add users to expose them
       var users = await userManagement.UserProfileDataManagement.GetProfilesAsync();
       foreach (UserProfile user in users)
@@ -500,21 +511,13 @@ namespace MediaPortal.UiComponents.Login.Models
         if (result.Success && Utils.VerifyPassword(password, result.Result.Password))
           userProfile = result.Result;
       }
-      if (userProfile != null)
-      {
-        ISettingsManager localSettings = ServiceRegistration.Get<ISettingsManager>();
-        UserSettings settings = localSettings.Load<UserSettings>();
-        settings.AutoLoginUser = userProfile.ProfileId;
-        localSettings.Save(settings);
-        UserSettingStorage.AutoLoginUser = userProfile.ProfileId;
 
-        listUser = (UserProxy)_autoLoginUserList.FirstOrDefault(u => ((UserProxy)u).Id == userProfile.ProfileId);
-        if (listUser != null)
-        {
-          listUser.Selected = true;
-          return;
-        }
-      }
+      ISettingsManager localSettings = ServiceRegistration.Get<ISettingsManager>();
+      UserSettings settings = localSettings.Load<UserSettings>();
+      settings.AutoLoginUser = userProfile?.ProfileId ?? Guid.Empty;
+      localSettings.Save(settings);
+      UserSettingStorage.AutoLoginUser = userProfile?.ProfileId ?? Guid.Empty;
+
       //Try to select current selected user
       listUser = (UserProxy)_autoLoginUserList.FirstOrDefault(u => ((UserProxy)u).Id == UserSettingStorage.AutoLoginUser);
       if (listUser != null)

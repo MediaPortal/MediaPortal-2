@@ -654,6 +654,7 @@
     <Content Include="Skin\BlueVision\themes\Win10\theme.xml" />
   </ItemGroup>
   <ItemGroup>
+    <Folder Include="Skin\BlueVision\settings\configuration\" />
     <Folder Include="Skin\BlueVision\sounds\" />
   </ItemGroup>
   <ItemGroup>

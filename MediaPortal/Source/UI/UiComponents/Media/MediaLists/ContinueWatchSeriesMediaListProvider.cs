@@ -22,6 +22,7 @@
 
 #endregion
 
+using MediaPortal.Common.Commands;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.UiComponents.Media.General;
 using MediaPortal.UiComponents.Media.Models.Navigation;
@@ -37,7 +38,10 @@ namespace MediaPortal.UiComponents.Media.MediaLists
       _linkedRole = EpisodeAspect.ROLE_EPISODE;
       _necessaryMias = Consts.NECESSARY_SERIES_MIAS;
       _necessaryLinkedMias = Consts.NECESSARY_EPISODE_MIAS;
-      _playableContainerConverterAction = item => new SeriesFilterItem(item);
+      _playableContainerConverterAction = item => new SeriesFilterItem(item)
+      {
+        Command = new MethodDelegateCommand(() => SeriesNavigationInitializer.NavigateToSeries(item.MediaItemId))
+      };
       _navigationInitializerType = typeof(SeriesNavigationInitializer);
     }
   }

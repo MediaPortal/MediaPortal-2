@@ -145,5 +145,10 @@ namespace MediaPortal.Common.MediaManagement
     /// the nest query for changed items.
     /// </summary>
     void ResetLastChangedItems();
+
+    /// <summary>
+    /// Create new base child aspects based on existing child and parent aspects.
+    /// </summary>
+    IDictionary<Guid, IList<MediaItemAspect>> GetBaseChildAspectsFromExistingAspects(IDictionary<Guid, IList<MediaItemAspect>> existingChildAspects, IDictionary<Guid, IList<MediaItemAspect>> existingParentAspects);
   }
 }

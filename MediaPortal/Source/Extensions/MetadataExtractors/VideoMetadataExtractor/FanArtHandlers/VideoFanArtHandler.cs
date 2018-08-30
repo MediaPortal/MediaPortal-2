@@ -57,7 +57,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor
     /// </summary>
     public static Guid FANARTHANDLER_ID = new Guid(FANARTHANDLER_ID_STR);
 
-    private static readonly ICollection<string> MKV_EXTENSIONS = new HashSet<string>(StringComparer.InvariantCultureIgnoreCase) { ".mkv", ".webm" };
+    private static readonly ICollection<string> MKV_EXTENSIONS = new HashSet<string>(StringComparer.InvariantCultureIgnoreCase) { ".mkv", ".mk3d", ".webm" };
 
     private static readonly ICollection<Tuple<string, string>> MKV_PATTERNS = new List<Tuple<string, string>>
     {

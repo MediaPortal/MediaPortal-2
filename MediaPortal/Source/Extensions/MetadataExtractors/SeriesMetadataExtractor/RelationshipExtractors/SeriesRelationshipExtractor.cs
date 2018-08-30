@@ -241,6 +241,40 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
       get { return _extractors; }
     }
 
+    public IDictionary<Guid, IList<MediaItemAspect>> GetBaseChildAspectsFromExistingAspects(IDictionary<Guid, IList<MediaItemAspect>> existingChildAspects, IDictionary<Guid, IList<MediaItemAspect>> existingParentAspects)
+    {
+      if (existingParentAspects.ContainsKey(SeriesAspect.ASPECT_ID))
+      {
+        SeriesInfo series = new SeriesInfo();
+        series.FromMetadata(existingParentAspects);
+
+        if (existingChildAspects.ContainsKey(SeasonAspect.ASPECT_ID))
+        {
+          SeasonInfo season = new SeasonInfo();
+          season.FromMetadata(existingChildAspects);
+
+          SeasonInfo basicSeason = series.CloneBasicInstance<SeasonInfo>();
+          basicSeason.SeasonNumber = season.SeasonNumber;
+          IDictionary<Guid, IList<MediaItemAspect>> aspects = new Dictionary<Guid, IList<MediaItemAspect>>();
+          basicSeason.SetMetadata(aspects, true);
+          return aspects;
+        }
+        else if (existingChildAspects.ContainsKey(EpisodeAspect.ASPECT_ID))
+        {
+          EpisodeInfo episode = new EpisodeInfo();
+          episode.FromMetadata(existingChildAspects);
+
+          EpisodeInfo basicEpisode = series.CloneBasicInstance<EpisodeInfo>();
+          basicEpisode.SeasonNumber = episode.SeasonNumber;
+          basicEpisode.EpisodeNumbers = episode.EpisodeNumbers;
+          IDictionary<Guid, IList<MediaItemAspect>> aspects = new Dictionary<Guid, IList<MediaItemAspect>>();
+          basicEpisode.SetMetadata(aspects, true);
+          return aspects;
+        }
+      }
+      return null;
+    }
+
     #region Episode IFilter
 
     public static IFilter GetEpisodeSearchFilter(IDictionary<Guid, IList<MediaItemAspect>> extractedAspects)

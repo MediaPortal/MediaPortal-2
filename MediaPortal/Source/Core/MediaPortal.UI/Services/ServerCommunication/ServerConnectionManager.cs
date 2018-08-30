@@ -26,6 +26,7 @@ using MediaPortal.Common;
 using MediaPortal.Common.General;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.MediaManagement;
+using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Common.MediaManagement.Helpers;
 using MediaPortal.Common.Messaging;
 using MediaPortal.Common.ResourceAccess;
@@ -50,6 +51,26 @@ namespace MediaPortal.UI.Services.ServerCommunication
 {
   public class ServerConnectionManager : IServerConnectionManager
   {
+    public static readonly Guid[] NECESSARY_MIAS = new Guid[]
+      {
+          ProviderResourceAspect.ASPECT_ID,
+          MediaAspect.ASPECT_ID,
+      };
+
+    public static readonly Guid[] OPTIONAL_MIAS = new Guid[]
+      {
+          MovieAspect.ASPECT_ID,
+          EpisodeAspect.ASPECT_ID,
+          AudioAspect.ASPECT_ID,
+          VideoAspect.ASPECT_ID,
+          ImageAspect.ASPECT_ID,
+          VideoStreamAspect.ASPECT_ID,
+          VideoAudioStreamAspect.ASPECT_ID,
+          SubtitleAspect.ASPECT_ID,
+          GenreAspect.ASPECT_ID,
+          StubAspect.ASPECT_ID
+      };
+
     /// <summary>
     /// Callback instance for the importer worker, implementing the callback interfaces
     /// <see cref="IMediaBrowsing"/> and <see cref="IImportResultHandler"/>.

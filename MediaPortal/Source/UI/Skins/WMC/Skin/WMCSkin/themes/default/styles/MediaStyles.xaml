@@ -828,7 +828,7 @@
     <Setter Property="ItemTemplate" Value="{ThemeResource PlaylistsListItemDataTemplate}"/>
   </Style>
 
-  <Style x:Key="MultiMarkablePlaylistsListViewStyle" BasedOn="{ThemeResource ContentsMenuListViewStyle}">
+  <Style x:Key="MultiMarkablePlaylistsListViewStyle" BasedOn="{ThemeResource MarkableListViewStyle}">
     <Setter Property="Template">
       <Setter.Value>
         <ControlTemplate TargetType="{x:Type ListView}">
@@ -4437,8 +4437,9 @@
       <Setter.Value>
         <ControlTemplate TargetType="{x:Type ListViewItem}">
           <Button Style="{ThemeResource ButtonWideStyle_List}"
-                            Command="{DynamicResource ResourceKey=Menu_Command}"
-                            IsEnabled="{Binding Enabled}" SetFocus="{Binding Path=Selected,Mode=OneTime}">
+                  Command="{DynamicResource ResourceKey=Menu_Command}"
+                  IsEnabled="{Binding Enabled}"
+                  SetFocusPrio="{Binding Path=Selected,Mode=OneTime,Converter={StaticResource BoolToFocusPriorityConverter},ConverterParameter=Highest}">
             <Button.Triggers>
               <Trigger Property="HasFocus" Value="True">
                 <Setter TargetName="ItemLabel" Property="Scroll" Value="Auto"/>
@@ -4464,7 +4465,8 @@
         <ControlTemplate TargetType="{x:Type ListViewItem}">
           <Button Style="{ThemeResource ButtonWideStyle_Grid}"
                   Command="{DynamicResource ResourceKey=Menu_Command}"
-                  IsEnabled="{Binding Enabled}" SetFocus="{Binding Path=Selected,Mode=OneTime}">
+                  IsEnabled="{Binding Enabled}"
+                  SetFocusPrio="{Binding Path=Selected,Mode=OneTime,Converter={StaticResource BoolToFocusPriorityConverter},ConverterParameter=Highest}">
             <Button.ContextMenuCommand>
               <Command Source="{StaticResource MediaItemsActionModel}" Path="ShowMediaItemActions" Parameters="{LateBoundValue BindingValue={Binding MediaItem}}"/>
             </Button.ContextMenuCommand>
@@ -4480,7 +4482,8 @@
         <ControlTemplate TargetType="{x:Type ListViewItem}">
           <Button Style="{ThemeResource ButtonWideStyle_Cover}"
                   Command="{DynamicResource ResourceKey=Menu_Command}"
-                            IsEnabled="{Binding Enabled}" SetFocus="{Binding Path=Selected,Mode=OneTime}">
+                  IsEnabled="{Binding Enabled}"
+                  SetFocusPrio="{Binding Path=Selected,Mode=OneTime,Converter={StaticResource BoolToFocusPriorityConverter},ConverterParameter=Highest}">
             <Button.Triggers>
               <Trigger Property="HasFocus" Value="True">
                 <Setter TargetName="ItemLabel" Property="IsVisible" Value="True"/>
@@ -4619,7 +4622,7 @@
               <Binding>
                 <Binding.Source>
                   <ItemsPanelTemplate>
-                    <AnimatedWrapPanel x:Name="GridItemsHost" IsItemsHost="True" Orientation="Vertical" ScrollMargin="500,500" Margin="-240,0,-290,0">
+                    <AnimatedWrapPanel x:Name="GridItemsHost" IsItemsHost="True" Orientation="Vertical" ScrollMargin="500,500" Margin="-240,0,-290,5">
                       <AnimatedWrapPanel.Resources>
                         <Storyboard x:Key="ScrollAnimation" FillBehavior="HoldEnd">
                           <DoubleAnimation BeginTime="00:00:00" From="0" To="1" Duration="00:00:00.400" AccelerationRatio="0.5" DecelerationRatio="0.5"

@@ -413,9 +413,12 @@ namespace MediaPortal.UiComponents.Media.Models
       if (numOpen == 0)
       {
         // Asynchronously leave the current workflow state because we're called from a workflow model method
-        await Task.Yield();
-        LeaveCheckQueryPlayActionMultipleItemsState();
-        await PlayItems(getMediaItemsFunction, avType);
+        //await Task.Yield();
+        await Task.Run(async () =>
+        {
+          LeaveCheckQueryPlayActionMultipleItemsState();
+          await PlayItems(getMediaItemsFunction, avType);
+        });
         return;
       }
       _playMenuItems = new ItemsList();
@@ -545,9 +548,12 @@ namespace MediaPortal.UiComponents.Media.Models
       if (resumeState == null)
       {
         // Asynchronously leave the current workflow state because we're called from a workflow model method
-        await Task.Yield();
-        LeaveCheckResumePlaybackSingleItemState();
-        await PlayItem(item);
+        //await Task.Yield();
+        await Task.Run(async () =>
+        {
+          LeaveCheckResumePlaybackSingleItemState();
+          await PlayItem(item);
+        });
         return;
       }
       _playMenuItems = new ItemsList();
@@ -589,17 +595,20 @@ namespace MediaPortal.UiComponents.Media.Models
       if (!hasEditions)
       {
         // Asynchronously leave the current workflow state because we're called from a workflow model method
-        await Task.Yield();
-        LeaveCheckEditionsState();
-        await CheckResumeMenuInternal(item, 0);
+        //await Task.Yield();
+        await Task.Run(async () =>
+        {
+          LeaveCheckEditionsState();
+          await CheckResumeMenuInternal(item, 0);
+        });
         return;
       }
 
       _playMenuItems = new ItemsList();
       for (var editionIndex = 0; editionIndex < item.Editions.Count; editionIndex++)
       {
-        var editionAspects = item.Editions[editionIndex];
-        var label = editionAspects.GetAttributeValue<string>(VideoStreamAspect.ATTR_VIDEO_PART_SET_NAME);
+        var edition = item.Editions[editionIndex];
+        var label = edition.Name;
         var index = editionIndex;
         ListItem editionItem = new ListItem
         {
@@ -798,8 +807,11 @@ namespace MediaPortal.UiComponents.Media.Models
 
       // Adding items to playlist must be executed asynchronously - we will show a progress dialog where we aren't allowed
       // to block the input thread.
-      await Task.Yield();
-      await AsyncAddToPlaylist(pc, getMediaItemsFunction, play);
+      //await Task.Yield();
+      await Task.Run(async () =>
+      {
+        await AsyncAddToPlaylist(pc, getMediaItemsFunction, play);
+      });
     }
 
     protected IEnumerable<MediaItem> FilterMediaItems(GetMediaItemsDlgt getMediaItemsFunction, ICollection<Guid> consideredMediaItemAspectTypes)
