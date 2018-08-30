@@ -51,6 +51,7 @@
   <string name="UserConfig.Yes">Yes</string>
   <string name="UserConfig.No">No</string>
   <string name="UserConfig.Ok">OK</string>
+  <string name="UserConfig.Disable">Disable</string>
 
   <string name="UserConfig.SelectProfileTemplate">Select profile template</string>
   <string name="UserConfig.ClientProfile">Client profile</string>
