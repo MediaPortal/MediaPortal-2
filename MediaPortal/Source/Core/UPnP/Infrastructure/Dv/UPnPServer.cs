@@ -210,10 +210,10 @@ namespace UPnP.Infrastructure.Dv
 
     public static StartOptions BuildStartOptions(string servicePrefix)
     {
-      return BuildStartOptions(servicePrefix, UPnPConfiguration.IP_ADDRESS_BINDINGS);
+      return BuildStartOptions(servicePrefix, UPnPConfiguration.IP_ADDRESS_BINDINGS, UPnPServer.DEFAULT_UPNP_AND_SERVICE_PORT_NUMBER);
     }
 
-    public static StartOptions BuildStartOptions(string servicePrefix, List<string> filters)
+    public static StartOptions BuildStartOptions(string servicePrefix, List<string> filters, int port)
     {
       ICollection<IPAddress> listenAddresses = new HashSet<IPAddress>();
       if (UPnPConfiguration.USE_IPV4)
@@ -224,7 +224,6 @@ namespace UPnP.Infrastructure.Dv
           listenAddresses.Add(address);
 
       StartOptions startOptions = new StartOptions();
-      int port = UPnPServer.DEFAULT_UPNP_AND_SERVICE_PORT_NUMBER;
       foreach (IPAddress address in listenAddresses)
       {
         var bindableAddress = NetworkHelper.TranslateBindableAddress(address);

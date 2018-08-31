@@ -38,10 +38,6 @@ namespace MediaPortal.Common.Services.ResourceAccess.Settings
     protected string _ipAddressBindings = null;
     protected bool _webAutorizationEnabled = true;
 
-    /// <summary>
-    /// Port where the local HTTP server is started. Use a value of <c>0</c> to let the system choose
-    /// an available port automatically.
-    /// </summary>
     [Setting(SettingScope.Global)]
     public int HttpServerPort
     {

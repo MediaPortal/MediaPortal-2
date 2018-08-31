@@ -34,7 +34,9 @@ using MediaPortal.Common.Logging;
 using MediaPortal.Common.ResourceAccess;
 using MediaPortal.Common.Services.ResourceAccess.Settings;
 using MediaPortal.Common.Settings;
+using MediaPortal.Common.UserManagement;
 using MediaPortal.Common.UserProfileDataManagement;
+using MediaPortal.Utilities.Network;
 using Microsoft.Owin;
 using Microsoft.Owin.Hosting;
 using Microsoft.Owin.Security.OAuth;
@@ -57,17 +59,21 @@ namespace MediaPortal.Common.Services.ResourceAccess
     public ResourceServer()
     {
       AddHttpModule(typeof(ResourceAccessModule));
-      CreateAndStartServer();
+      //CreateAndStartServer();
     }
 
     private void CreateAndStartServer()
     {
       ServerSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<ServerSettings>();
       List<string> filters = settings.IPAddressBindingsList;
+      if(NetworkUtils.UseHttpServerPort)
+        _serverPort = settings.HttpServerPort == 0 ? UPnPServer.DEFAULT_UPNP_AND_SERVICE_PORT_NUMBER + 1 : settings.HttpServerPort;
+      else
+        _serverPort = UPnPServer.DEFAULT_UPNP_AND_SERVICE_PORT_NUMBER;
 
       //TODO: Why is a service prefix needed for the resource server?
       _servicePrefix = ""; // ResourceHttpAccessUrlUtils.RESOURCE_SERVER_BASE_PATH + Guid.NewGuid().GetHashCode().ToString("X");
-      var startOptions = UPnPServer.BuildStartOptions(_servicePrefix, filters);
+      var startOptions = UPnPServer.BuildStartOptions(_servicePrefix, filters, _serverPort);
 
       lock (_syncObj)
       {
@@ -133,7 +139,14 @@ namespace MediaPortal.Common.Services.ResourceAccess
     public async Task GrantResourceOwnerCredentials(OAuthGrantResourceOwnerCredentialsContext context)
     {
       var userManagement = ServiceRegistration.Get<IUserProfileDataManagement>(false);
-      if(userManagement != null)
+      if (userManagement == null)
+      {
+        //Try client service
+        IUserManagement clientUserManagement = ServiceRegistration.Get<IUserManagement>();
+        userManagement = clientUserManagement.UserProfileDataManagement;
+      }
+
+      if (userManagement != null)
       {
         var user = await userManagement.GetProfileByNameAsync(context.UserName);
         if(user.Success)
