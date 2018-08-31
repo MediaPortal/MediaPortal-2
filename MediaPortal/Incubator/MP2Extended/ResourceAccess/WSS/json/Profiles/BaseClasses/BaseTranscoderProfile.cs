@@ -24,6 +24,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using MediaPortal.Extensions.TranscodingService.Interfaces;
 using MediaPortal.Plugins.MP2Extended.WSS.Profiles;
 
@@ -35,39 +36,29 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.json.Profiles.BaseC
     {
       int bandwith = 0;
       string mime = "video/MP2T";
-      int maxHeight = profile.Value.MediaTranscoding.VideoSettings.MaxHeight;
+      int maxHeight = profile.Value?.MediaTranscoding?.VideoSettings?.MaxHeight ?? 0;
       int maxWidth = Convert.ToInt32((double)maxHeight * (16.0 / 9.0));
       string transport = "http";
       long audioBitrate = 512;
       long videoBitRate = 10000;
-      if (profile.Value.MediaTranscoding.VideoTargets.Count > 0)
+      if (profile.Value?.MediaTranscoding?.VideoTargets?.Count > 0)
       {
-        if (profile.Value.MediaTranscoding.VideoTargets[0].Target.MaxVideoBitrate > 0)
-        {
-          videoBitRate = profile.Value.MediaTranscoding.VideoTargets[0].Target.MaxVideoBitrate;
-        }
-        if (profile.Value.MediaTranscoding.VideoTargets[0].Target.AudioBitrate > 0)
-        {
-          audioBitrate = profile.Value.MediaTranscoding.VideoTargets[0].Target.AudioBitrate;
-        }
+        var video = profile.Value.MediaTranscoding.VideoTargets.First();
+        if (video.Target.MaxVideoBitrate > 0)
+          videoBitRate = video.Target.MaxVideoBitrate;
+        if (video.Target.AudioBitrate > 0)
+          audioBitrate = video.Target.AudioBitrate;
         if (videoBitRate > 0 && audioBitrate > 0)
-        {
           bandwith = Convert.ToInt32(videoBitRate + audioBitrate);
-        }
-        if (profile.Value.MediaTranscoding.VideoTargets[0].Target.MaxVideoHeight > maxHeight)
-        {
-          maxHeight = profile.Value.MediaTranscoding.VideoTargets[0].Target.MaxVideoHeight;
-        }
-        if (profile.Value.MediaTranscoding.VideoTargets[0].Target.AspectRatio > 0)
-        {
-          maxWidth = Convert.ToInt32((float)maxHeight * profile.Value.MediaTranscoding.VideoTargets[0].Target.AspectRatio);
-        }
-        else
-        {
-          maxWidth = Convert.ToInt32((double)maxHeight * (16.0 / 9.0));
-        }
+        if (video.Target.MaxVideoHeight > maxHeight)
+          maxHeight = video.Target.MaxVideoHeight;
 
-        if (profile.Value.MediaTranscoding.VideoTargets[0].Target.VideoContainerType == VideoContainer.Hls)
+        if (video.Target.AspectRatio > 0)
+          maxWidth = Convert.ToInt32((float)maxHeight * video.Target.AspectRatio);
+        else
+          maxWidth = Convert.ToInt32((double)maxHeight * (16.0 / 9.0));
+
+        if (video.Target.VideoContainerType == VideoContainer.Hls)
         {
           transport = "httplive";
           mime = "application/x-mpegURL";

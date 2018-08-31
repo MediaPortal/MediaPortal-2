@@ -25,13 +25,10 @@
 using System;
 using System.Collections.Generic;
 using System.Globalization;
-using System.IO;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
-using MediaPortal.Common.ResourceAccess;
-using MediaPortal.Common.Services.ResourceAccess.StreamedResourceToLocalFsAccessBridge;
 using MediaPortal.Plugins.MP2Extended.Attributes;
 using MediaPortal.Plugins.MP2Extended.Exceptions;
 using MediaPortal.Plugins.MP2Extended.Utils;
@@ -42,8 +39,6 @@ using System.Linq;
 using MediaPortal.Extensions.TranscodingService.Interfaces;
 using MediaPortal.Plugins.SlimTv.Interfaces.LiveTvMediaItem;
 using MediaPortal.Extensions.TranscodingService.Interfaces.Metadata;
-using MediaPortal.Extensions.TranscodingService.Interfaces.Metadata.Streams;
-using MediaPortal.Extensions.TranscodingService.Interfaces.Helpers;
 using System.Threading.Tasks;
 using Microsoft.Owin;
 
@@ -95,6 +90,8 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.json.StreamInfo
 
         ISet<Guid> optionalMIATypes = new HashSet<Guid>();
         optionalMIATypes.Add(VideoAspect.ASPECT_ID);
+        optionalMIATypes.Add(VideoStreamAspect.ASPECT_ID);
+        optionalMIATypes.Add(VideoAudioStreamAspect.ASPECT_ID);
         optionalMIATypes.Add(AudioAspect.ASPECT_ID);
         optionalMIATypes.Add(ImageAspect.ASPECT_ID);
 

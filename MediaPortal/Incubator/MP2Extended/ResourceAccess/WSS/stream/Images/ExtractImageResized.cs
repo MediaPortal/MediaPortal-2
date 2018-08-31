@@ -57,9 +57,9 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.stream.Images
       if (itemId == null)
         throw new BadRequestException("ExtractImageResized: id is null");
       if (maxWidth == 0)
-        throw new BadRequestException("ExtractImageResized: maxWidth is null");
+        maxWidth = 800;
       if (maxHeight == 0)
-        throw new BadRequestException("ExtractImageResized: maxHeight is null");
+        maxHeight = 600;
 
       string fanartType;
       string fanArtMediaType;
