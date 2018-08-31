@@ -32,7 +32,7 @@ namespace MediaPortal.Common.Services.ResourceAccess
 {
   public class MediaPortalAuthorizeAttribute : AuthorizeAttribute
   {
-    private bool? _webAutorizationEnabled = null;
+    private bool? _webAutorizationEnabled = false;
 
     protected override bool IsAuthorized(HttpActionContext actionContext)
     {
