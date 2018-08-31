@@ -24,7 +24,7 @@
 
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Common.MediaManagement.MLQueries;
-using MediaPortal.Extensions.MetadataExtractors.Aspects;
+using MediaPortal.Plugins.SlimTv.Interfaces.Aspects;
 using MediaPortal.UiComponents.Media.Models.ScreenData;
 
 namespace MediaPortal.Plugins.SlimTv.Client.Models.ScreenData
