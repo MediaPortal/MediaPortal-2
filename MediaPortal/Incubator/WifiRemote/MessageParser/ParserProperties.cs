@@ -42,16 +42,16 @@ namespace MediaPortal.Plugins.WifiRemote.MessageParser
       JArray array = (JArray)message["Properties"];
       if (array != null)
       {
+        var client = SocketServer.Instance.connectedSockets.Single(x => x == sender).GetRemoteClient();
         foreach (JValue v in array)
         {
           String propString = (string)v.Value;
           ServiceRegistration.Get<ILogger>().Info("ParserProperties: propertiy: {0}", propString);
-          SocketServer.Instance.connectedSockets.Single(x => x == sender).GetRemoteClient().Properties.Add(propString);
+          client.Properties.Add(propString);
         }
-        MessageProperties propertiesMessage = new MessageProperties();
 
         List<Property> properties = new List<Property>();
-        foreach (String s in SocketServer.Instance.connectedSockets.Single(x => x == sender).GetRemoteClient().Properties)
+        foreach (String s in client.Properties)
         {
           // TODO: MP2 doesn' have properties like '#TV.TuningDetails.ChannelName'
           //String value = GUIPropertyManager.GetProperty(s);
@@ -62,6 +62,7 @@ namespace MediaPortal.Plugins.WifiRemote.MessageParser
           //}
         }
 
+        MessageProperties propertiesMessage = new MessageProperties();
         propertiesMessage.Tags = properties;
         SendMessageToClient.Send(propertiesMessage, sender);
       }
