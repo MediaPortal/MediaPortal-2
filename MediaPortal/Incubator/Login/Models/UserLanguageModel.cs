@@ -461,6 +461,13 @@ namespace MediaPortal.UiComponents.Login.Models
       }
       try
       {
+        IServerConnectionManager scm = ServiceRegistration.Get<IServerConnectionManager>();
+        if (scm == null || scm.ContentDirectory == null)
+          return;
+
+        SystemName homeServerSystem = scm.LastHomeServerSystem;
+        IsHomeServerConnected = homeServerSystem != null;
+
         IUserManagement userManagement = ServiceRegistration.Get<IUserManagement>();
         if (userManagement == null || userManagement.UserProfileDataManagement == null)
           return;

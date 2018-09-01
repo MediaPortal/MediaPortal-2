@@ -41,7 +41,7 @@
                   IsVisible="{Binding IsHomeServerConnected}"
                   ItemsSource="{Binding Path=UserList,Mode=OneTime}">
         </ListView>
-        <Label Margin="10" Grid.Row="1" IsVisible="{Binding !IsHomeServerConnected}" Opacity="0.5"
+        <Label Margin="10" Grid.Row="1" Grid.RowSpan="8" IsVisible="{Binding !IsHomeServerConnected}" Opacity="0.5"
                Content="[UserConfig.NoConfigUserHomeServerNotConnected]" Wrap="true"
                Color="{ThemeResource HintTextColor}" FontSize="{ThemeResource SmallFontSize}"/>
 
@@ -53,43 +53,47 @@
         <Label Margin="5" Grid.Row="2" Grid.Column="1" Content="[UserConfig.MainAudioLanguage]" Color="{ThemeResource TextColor}"/>
         <Button x:Name="EditMainAudioButton" Grid.Row="2" Grid.Column="3" Style="{ThemeResource WizardButtonStyle}"
                 Content="{Binding Path=UserProxy.LanguageAudioMain}" IsVisible="{Binding Path=!IsRestrictedToOwn}"
+                IsEnabled="{Binding UserProxy.IsUserValid}"
                 Command="{Command OpenAudioMainLanguageDialog}">
         </Button>
 
         <Label Margin="5" Grid.Row="3" Grid.Column="1" Content="[UserConfig.SecondaryAudioLanguage]" Color="{ThemeResource TextColor}"/>
         <Button x:Name="EditSecondaryAudioButton" Grid.Row="3" Grid.Column="3" Style="{ThemeResource WizardButtonStyle}"
                 Content="{Binding Path=UserProxy.LanguageAudioSecondary}" IsVisible="{Binding Path=!IsRestrictedToOwn}"
+                IsEnabled="{Binding UserProxy.IsUserValid}"
                 Command="{Command OpenAudioSecondaryLanguageDialog}">
         </Button>
 
         <Label Margin="5" Grid.Row="4" Grid.Column="1" Content="[UserConfig.MainSubtitleLanguage]" Color="{ThemeResource TextColor}"/>
         <Button x:Name="EditMainSubtitleButton" Grid.Row="4" Grid.Column="3" Style="{ThemeResource WizardButtonStyle}"
                 Content="{Binding Path=UserProxy.LanguageSubtitleMain}" IsVisible="{Binding Path=!IsRestrictedToOwn}"
+                IsEnabled="{Binding UserProxy.IsUserValid}"
                 Command="{Command OpenSubtitleMainLanguageDialog}">
         </Button>
 
         <Label Margin="5" Grid.Row="5" Grid.Column="1" Content="[UserConfig.SecondarySubtitleLanguage]" Color="{ThemeResource TextColor}"/>
         <Button x:Name="EditSecondarySubtitleButton" Grid.Row="5" Grid.Column="3" Style="{ThemeResource WizardButtonStyle}"
                 Content="{Binding Path=UserProxy.LanguageSubtitleSecondary}" IsVisible="{Binding Path=!IsRestrictedToOwn}"
+                IsEnabled="{Binding UserProxy.IsUserValid}"
                 Command="{Command OpenSubtitleSecondaryLanguageDialog}">
         </Button>
 
         <Label Margin="5" Grid.Row="6" Grid.Column="1" Content="[UserConfig.MainMenuLanguage]" Color="{ThemeResource TextColor}"/>
         <Button x:Name="EditMainMenuButton" Grid.Row="6" Grid.Column="3" Style="{ThemeResource WizardButtonStyle}"
                 Content="{Binding Path=UserProxy.LanguageMenuMain}" IsVisible="{Binding Path=!IsRestrictedToOwn}"
+                IsEnabled="{Binding UserProxy.IsUserValid}"
                 Command="{Command OpenMenuMainLanguageDialog}">
         </Button>
 
         <Label Margin="5" Grid.Row="7" Grid.Column="1" Content="[UserConfig.SecondaryMenuLanguage]" Color="{ThemeResource TextColor}"/>
         <Button x:Name="EditSecondaryMenuButton" Grid.Row="7" Grid.Column="3" Style="{ThemeResource WizardButtonStyle}"
                 Content="{Binding Path=UserProxy.LanguageMenuSecondary}" IsVisible="{Binding Path=!IsRestrictedToOwn}"
+                IsEnabled="{Binding UserProxy.IsUserValid}"
                 Command="{Command OpenMenuSecondaryLanguageDialog}">
         </Button>
 
-        <UniformGrid Columns="1" Grid.ColumnSpan="4" Grid.Row="8" Height="80" VerticalAlignment="Bottom">
-          <Button x:Name="SaveUserButton" Style="{ThemeResource WizardButtonStyle}" Margin="10,10,0,10"
+        <Button x:Name="SaveUserButton" Grid.Row="8" Grid.Column="3" Style="{ThemeResource WizardButtonStyle}" Margin="10,10,0,10"
                   Content="[UserConfig.SaveUser]" IsEnabled="{Binding UserProxy.IsUserValid}" Command="{Command SaveUser}"/>
-        </UniformGrid>
       </Grid>
     </ControlTemplate>
 

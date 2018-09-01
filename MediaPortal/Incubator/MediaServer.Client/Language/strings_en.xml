@@ -2,27 +2,28 @@
 <resources>
 
   <!--Client Settings-->
-  <string name="Settings.Title">DLNA</string> <!-- Section name -->
-  <string name="Settings.Clients.Config">Client Setup</string> <!-- Group name -->
-  <string name="Settings.Clients.Config.Help">Manage DLNA clients on the home server</string>
-  <string name="Settings.Clients.Config.Clients">Clients</string> 
-  <string name="Settings.Clients.Config.ClientName">Name</string>
-  <string name="Settings.Clients.Config.Profile">Profile</string>
-  <string name="Settings.Clients.Config.DefaultUser">Default user</string>
-  <string name="Settings.Clients.Config.DeleteClient">Delete client</string>
-  <string name="Settings.Clients.Config.SaveClients">Save all clients</string>
-  <string name="Settings.Clients.Config.DeleteConfirmation.Title">Delete confirmation</string>
-  <string name="Settings.Clients.Config.DeleteConfirmation">Are you sure you want to delete the selected client?</string>
-  <string name="Settings.Clients.Config.Yes">Yes</string>
-  <string name="Settings.Clients.Config.No">No</string>
-  <string name="Settings.Clients.Config.SelectProfile">Select client profile</string>
-  <string name="Settings.Clients.Config.SelectUser">Select client default user</string>
+  <string name="Settings.DLNA.Title">DLNA</string> <!-- Section name -->
+  <string name="Settings.DLNA.Clients.Config">Client Setup</string> <!-- Group name -->
+  <string name="Settings.DLNA.Clients.Config.Help">Manage DLNA clients on the home server</string>
+  <string name="Settings.DLNA.Clients.Config.Clients">Clients</string> 
+  <string name="Settings.DLNA.Clients.Config.ClientName">Name</string>
+  <string name="Settings.DLNA.Clients.Config.Profile">Profile</string>
+  <string name="Settings.DLNA.Clients.Config.DefaultUser">Default user</string>
+  <string name="Settings.DLNA.Clients.Config.DeleteClient">Delete client</string>
+  <string name="Settings.DLNA.Clients.Config.SaveClients">Save all clients</string>
+  <string name="Settings.DLNA.Clients.Config.DeleteConfirmation.Title">Delete confirmation</string>
+  <string name="Settings.DLNA.Clients.Config.DeleteConfirmation">Are you sure you want to delete the selected client?</string>
+  <string name="Settings.DLNA.Clients.Config.Yes">Yes</string>
+  <string name="Settings.DLNA.Clients.Config.No">No</string>
+  <string name="Settings.DLNA.Clients.Config.SelectProfile">Select client profile</string>
+  <string name="Settings.DLNA.Clients.Config.SelectUser">Select client default user</string>
+  <string name="Settings.DLNA.Clients.NoConfigHomeServerNotConnected">The home server is currently not connected, so DLNA clients cannot be managed at the moment.</string>
   
-  <string name="Settings.HardcodedSubtitles">Allow hardcoded subtitles</string> <!-- Setting -->
-  <string name="Settings.HardcodedSubtitles.Help">Should hardcoded subtitles be allowed if client does not support subtitles</string>
-  <string name="Settings.UserLogin">Show user login</string> <!-- Setting -->
-  <string name="Settings.UserLogin.Help">Show list of user for login support through client</string>
-  <string name="Settings.Transcoding">Allow transcoding</string> <!-- Setting -->
-  <string name="Settings.Transcoding.Help">Should transcoding of media be allowed if the media is not supported by the client</string>
+  <string name="Settings.DLNA.HardcodedSubtitles">Allow hardcoded subtitles</string> <!-- Setting -->
+  <string name="Settings.DLNA.HardcodedSubtitles.Help">Should hardcoded subtitles be allowed if client does not support subtitles</string>
+  <string name="Settings.DLNA.UserLogin">Show user login</string> <!-- Setting -->
+  <string name="Settings.DLNA.UserLogin.Help">Show list of user for login support through client</string>
+  <string name="Settings.DLNA.Transcoding">Allow transcoding</string> <!-- Setting -->
+  <string name="Settings.DLNA.Transcoding.Help">Should transcoding of media be allowed if the media is not supported by the client</string>
 
 </resources>

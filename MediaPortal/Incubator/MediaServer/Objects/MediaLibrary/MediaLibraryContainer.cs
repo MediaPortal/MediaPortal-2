@@ -63,6 +63,8 @@ namespace MediaPortal.Extensions.MediaServer.Objects.MediaLibrary
     {
       IMediaLibrary library = ServiceRegistration.Get<IMediaLibrary>();
       //TODO: Check if this is correct handling of missing filter
+
+      _query.Filter = AppendUserFilter(_query.Filter, _necessaryMiaTypeIds);
       if (_query.Filter == null && Item != null)
       {
         return library.Browse(Item.MediaItemId, _necessaryMiaTypeIds, _optionalMiaTypeIds, _userId, false);

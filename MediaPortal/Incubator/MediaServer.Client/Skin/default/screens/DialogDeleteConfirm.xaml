@@ -7,7 +7,7 @@
   <Include.Resources>
 
     <!-- Dialog title -->
-    <ResourceWrapper x:Key="Dialog_Header_Text" Resource="[Settings.Clients.Config.DeleteConfirmation.Title]"/>
+    <ResourceWrapper x:Key="Dialog_Header_Text" Resource="[Settings.DLNA.Clients.Config.DeleteConfirmation.Title]"/>
 
     <!-- Client configuration model -->
     <Model x:Key="Model" Id="A5E439BD-6A88-4B1B-9032-0C6F1CE9DD30"/>
@@ -25,8 +25,8 @@
         </Grid.RowDefinitions>
         <Label x:Name="DeleteConfirmation" Grid.Row="1" Grid.ColumnSpan="2" Color="{ThemeResource TextColor}"
                HorizontalAlignment="Center" HorizontalContentAlignment="Center" VerticalAlignment="Stretch" Width="450"
-               Content="[Settings.Clients.Config.DeleteConfirmation]" Wrap="True" Margin="10"/>
-        <Button x:Name="Yes" Grid.Column="0" Grid.Row="2" Content="[Settings.Clients.Config.Yes]" Style="{ThemeResource DialogButtonStyle}"
+               Content="[Settings.DLNA.Clients.Config.DeleteConfirmation]" Wrap="True" Margin="10"/>
+        <Button x:Name="Yes" Grid.Column="0" Grid.Row="2" Content="[Settings.DLNA.Clients.Config.Yes]" Style="{ThemeResource DialogButtonStyle}"
                 HorizontalAlignment="Center" Margin="10,20,10,10" SetFocus="True">
           <Button.Command>
             <CommandList x:Key="Menu_Command">
@@ -35,7 +35,7 @@
             </CommandList>
           </Button.Command>
         </Button>
-        <Button x:Name="No" Grid.Column="1" Grid.Row="2" Content="[Settings.Clients.Config.No]" Style="{ThemeResource DialogButtonStyle}"
+        <Button x:Name="No" Grid.Column="1" Grid.Row="2" Content="[Settings.DLNA.Clients.Config.No]" Style="{ThemeResource DialogButtonStyle}"
                 HorizontalAlignment="Center" Margin="10,20,10,10">
           <Button.Command>
             <CommandList x:Key="Menu_Command">

@@ -154,7 +154,7 @@ namespace MediaPortal.Extensions.MediaServer.ResourceAccess
 
     private long GetStreamSize(DlnaMediaItem dlnaItem)
     {
-      long length = dlnaItem.DlnaMetadata.Metadata.Size ?? 0;
+      long length = dlnaItem?.DlnaMetadata?.Metadata?.Size ?? 0;
       if (dlnaItem.IsTranscoding == true || dlnaItem.IsLive == true || length <= 0)
       //if (length <= 0)
       {
@@ -330,6 +330,12 @@ namespace MediaPortal.Extensions.MediaServer.ResourceAccess
     public override async Task Invoke(IOwinContext context)
     {
       var uri = context.Request.Uri;
+      if (!uri.ToString().Contains(DlnaResourceAccessUtils.RESOURCE_ACCESS_PATH))
+      {
+        await Next.Invoke(context);
+        return;
+      }
+
       bool bHandled = false;
       Logger.Debug($"DlnaResourceAccessModule: Received request {uri}");
 #if DEBUG
@@ -1168,7 +1174,7 @@ namespace MediaPortal.Extensions.MediaServer.ResourceAccess
             if (emptyCount > 2)
             {
               Logger.Debug("DlnaResourceAccessModule: Buffer underrun delay");
-              Thread.Sleep(100);
+              await Task.Delay(100);
             }
             if (emptyCount > 10)
             {

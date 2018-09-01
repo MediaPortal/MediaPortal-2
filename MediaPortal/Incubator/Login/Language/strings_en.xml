@@ -26,6 +26,8 @@
   <string name="Settings.Users.Config.AutoLoginUser.Help">The user to use for automatic login</string>
   <string name="Settings.Users.Config.SystemDefault">System default</string>
   <string name="Settings.Users.Config.AutoLoginUser.Title">Automatic login user</string>
+  <string name="Settings.Users.Config.UserLanguage">Language preferences</string>  <!-- Setting -->
+  <string name="Settings.Users.Config.UserLanguage.Help">Configure preferred content languages for users</string>
 
   <!-- User configuration workflow -->
   <string name="UserConfig.UserOverviewWorkflowNavigationContextDisplayLabel">User management</string>
@@ -53,7 +55,7 @@
   <string name="UserConfig.Yes">Yes</string>
   <string name="UserConfig.No">No</string>
   <string name="UserConfig.Ok">OK</string>
-  
+
   <string name="UserConfig.SelectLanguage">Select language</string>
   <string name="UserConfig.Default">Default</string>
   <string name="UserConfig.MainAudioLanguage">Main audio language</string>

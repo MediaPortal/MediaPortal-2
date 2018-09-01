@@ -44,7 +44,7 @@ namespace MediaPortal.Extensions.TranscodingService.Client.Settings.Configuratio
       "MS Gothic",
       "Malgun Gothic",
     };
-    private const string RES_DEFAULT = "[Settings.Default]";
+    private const string RES_DEFAULT = "[Settings.Transcode.Default]";
 
     public SubtitleFontSetting()
     {

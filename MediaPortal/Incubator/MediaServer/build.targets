@@ -9,6 +9,7 @@
     <ItemGroup>
       <PluginFiles Include="$(TargetDir)Antlr4.Runtime.dll" />
       <PluginFiles Include="$(TargetDir)$(ProjectName).dll" />
+      <PluginFiles Include="$(TargetDir)MediaServer.Interfaces.dll" />
       <PluginFiles Include="$(TargetDir)TranscodingService.Interfaces.dll" />
       <PluginFiles Include="$(TargetDir)SlimTv.Interfaces.dll" />
       <PluginFiles Include="$(ProjectDir)plugin.xml" />
@@ -19,6 +20,7 @@
 
     <ItemGroup Condition=" '$(Configuration)' == 'Debug'">
       <PluginFiles Include="$(TargetDir)$(ProjectName).pdb" />
+      <PluginFiles Include="$(TargetDir)MediaServer.Interfaces.pdb" />
       <PluginFiles Include="$(TargetDir)TranscodingService.Interfaces.pdb" />
       <PluginFiles Include="$(TargetDir)SlimTv.Interfaces.pdb" />
     </ItemGroup>

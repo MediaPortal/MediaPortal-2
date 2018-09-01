@@ -55,7 +55,6 @@ namespace MediaPortal.Extensions.MediaServer.ResourceAccess
     /// </summary>
     public const string RESOURCE_PATH_ARGUMENT_NAME = "ResourcePath";
 
-
     public const string SYNTAX = RESOURCE_ACCESS_PATH + "/[media item guid]";
 
     public static string GetResourceUrl(string mediaItem)

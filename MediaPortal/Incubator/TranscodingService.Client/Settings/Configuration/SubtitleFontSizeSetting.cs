@@ -38,16 +38,14 @@ namespace MediaPortal.Extensions.TranscodingService.Client.Settings.Configuratio
     private readonly List<string> _fontSizes = new List<string>
     {
       "8",
-      "9",
       "10",
-      "11",
       "12",
-      "13",
       "14",
-      "15",
       "16",
+      "18",
+      "20",
     };
-    private const string RES_DEFAULT = "[Settings.Default]";
+    private const string RES_DEFAULT = "[Settings.Transcode.Default]";
 
     public SubtitleFontSizeSetting()
     {

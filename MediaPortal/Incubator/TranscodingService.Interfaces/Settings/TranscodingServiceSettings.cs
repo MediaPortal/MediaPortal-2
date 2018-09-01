@@ -132,7 +132,7 @@ namespace MediaPortal.Extensions.TranscodingService.Interfaces.Settings
     /// THe path where the trancoded cache files should be stored
     /// </summary>
     [Setting(SettingScope.Global)]
-    public string CachePath { get; private set; }
+    public string CachePath { get; set; }
 
     /// <summary>
     /// The maximum size of the cache for transcoded files. If cache is bigger than this oldest trancoded files will be deleted.
@@ -152,43 +152,43 @@ namespace MediaPortal.Extensions.TranscodingService.Interfaces.Settings
     /// Timeout in milliseconds for analyzing a media file.
     /// </summary>
     [Setting(SettingScope.Global)]
-    public int AnalyzerTimeout { get; private set; }
+    public int AnalyzerTimeout { get; set; }
 
     /// <summary>
     /// Timeout in milliseconds for analyzing a media stream.
     /// </summary>
     [Setting(SettingScope.Global)]
-    public long AnalyzerStreamTimeout { get; private set; }
+    public long AnalyzerStreamTimeout { get; set; }
 
     /// <summary>
     /// Maximum number of threads to user for analyzing media. If zero the maximum is determined automatically.
     /// </summary>
     [Setting(SettingScope.Global)]
-    public int AnalyzerMaximumThreads { get; private set; }
+    public int AnalyzerMaximumThreads { get; set; }
 
     /// <summary>
     /// Maximum number of threads to user for transcoding media. If zero the maximum is determined automatically.
     /// </summary>
     [Setting(SettingScope.Global)]
-    public int TranscoderMaximumThreads { get; private set; }
+    public int TranscoderMaximumThreads { get; set; }
 
     /// <summary>
     /// Timeout in milliseconds for transcoding to start.
     /// </summary>
     [Setting(SettingScope.Global)]
-    public int TranscoderTimeout { get; private set; }
+    public int TranscoderTimeout { get; set; }
 
     /// <summary>
     /// Timeout in milliseconds for HLS segment creation.
     /// </summary>
     [Setting(SettingScope.Global)]
-    public int HLSSegmentTimeInSeconds { get; private set; }
+    public int HLSSegmentTimeInSeconds { get; set; }
 
     /// <summary>
     /// The subtitle encoding to assume if encoding cannot be determined automatically.
     /// </summary>
     [Setting(SettingScope.Global)]
-    public string SubtitleDefaultEncoding { get; private set; }
+    public string SubtitleDefaultEncoding { get; set; }
 
     /// <summary>
     /// Hardware acceleration to use if possible.
@@ -200,7 +200,7 @@ namespace MediaPortal.Extensions.TranscodingService.Interfaces.Settings
     /// The transcoder to use for transcoding and analysis.
     /// </summary>
     [Setting(SettingScope.Global)]
-    public Transcoder Transcoder { get; private set; }
+    public Transcoder Transcoder { get; set; }
 
     /// <summary>
     /// The font to use for harcoded subtitles.

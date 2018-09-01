@@ -45,8 +45,8 @@ namespace MediaPortal.Extensions.TranscodingService.Client.Settings.Configuratio
       HWAcceleration.Nvidia,
       //HWAccelleration.Amd
     };
-    private const string RES_NONE = "[Settings.None]";
-    private const string RES_AUTO = "[Settings.Auto]";
+    private const string RES_NONE = "[Settings.Transcode.None]";
+    private const string RES_AUTO = "[Settings.Transcode.Auto]";
 
     public HardwareAccelerationSetting()
     {

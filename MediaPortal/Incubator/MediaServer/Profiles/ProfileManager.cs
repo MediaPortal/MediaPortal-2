@@ -133,14 +133,14 @@ namespace MediaPortal.Extensions.MediaServer.Profiles
       string clientName = EndPointSettings.GetClientName(ip);
 
       // Overwrite the automatic profile detection
-      if (ProfileLinks.ContainsKey(clientName))
+      if (ProfileLinks.TryGetValue(clientName, out var link))
       {
-        if (ProfileLinks[clientName].Profile != null)
+        if (link.Profile != null)
         {
-          Logger.Debug("DetectProfile: Overwrite automatic profile detection for IP: {0}, using: {1}", ip, ProfileLinks[clientName].Profile.ID);
-          return ProfileLinks[clientName];
+          Logger.Debug("DetectProfile: Overwrite automatic profile detection for IP: {0}, using: {1}", ip, link.Profile.ID);
+          return link;
         }
-        else if(ProfileLinks[clientName].AutoProfile == false)
+        else if(link.AutoProfile == false)
         {
           Logger.Debug("DetectProfile: Overwrite automatic profile detection for IP: {0}, using: None", ip);
           return null;
@@ -244,22 +244,20 @@ namespace MediaPortal.Extensions.MediaServer.Profiles
           if (match)
           {
             Logger.Info("DetectProfile: Profile found => using {0}, headers={1}", profile.Value.ID, string.Join(", ", request.Headers.Select(h => h.Key + ": " + string.Join(";", h.Value)).ToArray()));
-            if (ProfileLinks.ContainsKey(clientName) == false)
-              ProfileLinks.TryAdd(clientName, await GetEndPointSettingsAsync(ip.ToString(), profile.Value.ID));
-            else
-              ProfileLinks[clientName] = await GetEndPointSettingsAsync(ip.ToString(), profile.Value.ID);
-            return ProfileLinks[clientName];
+            var eps = await GetEndPointSettingsAsync(ip.ToString(), profile.Value.ID);
+            if (ProfileLinks.TryAdd(clientName, eps) == false)
+              ProfileLinks[clientName] = eps;
+            return eps;
           }
         }
       }
 
       // no match => return Default Profile
       Logger.Info("DetectProfile: No profile found => using {0}, headers={1}", DLNA_DEFAULT_PROFILE_ID, string.Join(", ", request.Headers.Select(h => h.Key + ": " + string.Join(";", h.Value)).ToArray()));
-      if (ProfileLinks.ContainsKey(clientName) == false)
-        ProfileLinks.TryAdd(clientName, await GetEndPointSettingsAsync(ip.ToString(), DLNA_DEFAULT_PROFILE_ID));
-      else
-        ProfileLinks[clientName] = await GetEndPointSettingsAsync(ip.ToString(), DLNA_DEFAULT_PROFILE_ID);
-      return ProfileLinks[clientName];
+      var def = await GetEndPointSettingsAsync(ip.ToString(), DLNA_DEFAULT_PROFILE_ID);
+      if (ProfileLinks.TryAdd(clientName, def) == false)
+        ProfileLinks[clientName] = def;
+      return def;
     }
 
     public static async Task LoadProfilesAsync(bool userProfiles)

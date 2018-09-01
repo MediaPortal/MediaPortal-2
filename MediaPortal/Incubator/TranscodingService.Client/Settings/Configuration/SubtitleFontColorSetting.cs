@@ -42,7 +42,7 @@ namespace MediaPortal.Extensions.TranscodingService.Client.Settings.Configuratio
       "000000",
       "FFFFFF",
     };
-    private const string RES_DEFAULT = "[Settings.Default]";
+    private const string RES_DEFAULT = "[Settings.Transcode.Default]";
 
     public SubtitleFontColorSetting()
     {

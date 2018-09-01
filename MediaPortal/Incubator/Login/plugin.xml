@@ -28,6 +28,7 @@
   <Register Location="/Models">
     <Model Id="82582433-FD64-41bd-9059-7F662DBDA713" Name="LoginModel" ClassName="MediaPortal.UiComponents.Login.Models.LoginModel"/>
     <Model Id="9B20B421-DF2E-42B6-AFF2-7EB6B60B601D" Name="UserConfigModel" ClassName="MediaPortal.UiComponents.Login.Models.UserConfigModel"/>
+    <Model Id="E26A7613-4B9C-4B84-A982-A7B69D83DC3A" Name="UserLanguageModel" ClassName="MediaPortal.UiComponents.Login.Models.UserLanguageModel"/>
     <Model Id="D5CA9E6F-8639-4D2F-B94A-FEE7A69A87C4" Name="UserLoginContributorModel" ClassName="MediaPortal.UiComponents.Login.Actions.UserLoginAction"/>
   </Register>
 
@@ -124,8 +125,8 @@
     <CustomConfigSetting
         Id="UserLanguage"
         RestrictionGroup="Settings.UserProfile,Settings.UserProfile.ManageOwn"
-        Text="[Settings.Users.Config.UseLanguage]"
-        HelpText="[Settings.Users.Config.UseLanguage.Help]"
+        Text="[Settings.Users.Config.UserLanguage]"
+        HelpText="[Settings.Users.Config.UserLanguage.Help]"
         ClassName="MediaPortal.UiComponents.Login.Settings.Configuration.UserLanguageSetting"
         AdditionalData="WorkflowState=756B2512-0B2A-4D79-B981-0D45FB9125C1,ConfAppPanel=..."/>
   </Register>

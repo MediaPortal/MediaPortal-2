@@ -52,38 +52,38 @@
         Id="DLNA"
         Sort="X100"
         Redundant="true"
-        Text="[Settings.Title]"/>
+        Text="[Settings.DLNA.Title]"/>
   </Register>
 
   <!-- Contents of '/DLNA' section -->
   <Register Location="/Configuration/Settings/DLNA">
     <ConfigSetting
-        Id="Transcoding"
+        Id="AllowTranscoding"
         RestrictionGroup="Settings"
-        Text="[Settings.Transcoding]"
-        HelpText="[Settings.Transcoding.Help]"
+        Text="[Settings.DLNA.Transcoding]"
+        HelpText="[Settings.DLNA.Transcoding.Help]"
         ClassName="MediaPortal.Extensions.MediaServer.Client.Settings.Configuration.TranscodingAllowedSetting"/>
     
     <ConfigSetting
-        Id="HardcodedSubtitles"
+        Id="AllowHardcodedSubtitles"
         RestrictionGroup="Settings"
-        Text="[Settings.HardcodedSubtitles]"
-        HelpText="[Settings.HardcodedSubtitles.Help]"
+        Text="[Settings.DLNA.HardcodedSubtitles]"
+        HelpText="[Settings.DLNA.HardcodedSubtitles.Help]"
         ClassName="MediaPortal.Extensions.MediaServer.Client.Settings.Configuration.HardcodedSubtitlesAllowedSetting"/>
 
     <ConfigSetting
-        Id="ShowLogin"
+        Id="ShowDLNALogin"
         RestrictionGroup="Settings"
-        Text="[Settings.UserLogin]"
-        HelpText="[Settings.UserLogin.Help]"
+        Text="[Settings.DLNA.UserLogin]"
+        HelpText="[Settings.DLNA.UserLogin.Help]"
         ClassName="MediaPortal.Extensions.MediaServer.Client.Settings.Configuration.ShowUserLoginSetting"/>
 
     <CustomConfigSetting
-        Id="DLNAClientsw"
+        Id="DLNAClients"
         RestrictionGroup="Settings"
-        Text="[Settings.Clients.Config]"
-        HelpText="[Settings.Clients.Config.Help]"
-        ClassName="MediaPortal.Extensions.MediaServer.Client.Settings.ClientManagementSetting"
+        Text="[Settings.DLNA.Clients.Config]"
+        HelpText="[Settings.DLNA.Clients.Config.Help]"
+        ClassName="MediaPortal.Extensions.MediaServer.Client.Settings.Configuration.ClientManagementSetting"
         AdditionalData="WorkflowState=4E75F401-3C1F-46F3-BF26-F636DD0F86B9,ConfAppPanel=..."/>
   </Register>
 </Plugin>

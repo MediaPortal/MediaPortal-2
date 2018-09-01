@@ -69,6 +69,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess
         return;
       }
 
+      Logger.Debug("MP2Extended: Received request for {0}", context.Request.Path);
       await _htmlResourceProvider.ProcessAsync(context, path);
     }
 

@@ -503,6 +503,8 @@ namespace MediaPortal.Extensions.MediaServer
       optionalMIATypes.Add(SeriesAspect.ASPECT_ID);
       optionalMIATypes.Add(SeasonAspect.ASPECT_ID);
 
+      BasicContainer tempContainer = new BasicContainer("TEMP", deviceClient);
+      searchFilter = tempContainer.AppendUserFilter(searchFilter, necessaryMIATypes);
       MediaItemQuery searchQuery = new MediaItemQuery(necessaryMIATypes, optionalMIATypes, searchFilter);
       searchQuery.Offset = startingIndex;
       searchQuery.Limit = requestedCount;

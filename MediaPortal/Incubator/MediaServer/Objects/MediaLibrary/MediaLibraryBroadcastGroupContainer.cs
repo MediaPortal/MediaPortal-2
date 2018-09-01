@@ -47,8 +47,11 @@ namespace MediaPortal.Extensions.MediaServer.Objects.MediaLibrary
 
         IList<IChannelGroup> channelGroups = new List<IChannelGroup>();
         var result = channelAndGroupInfo.GetChannelGroupsAsync().Result;
-        if(result.Success)
+        if (result.Success)
+        {
+          result.Result = FilterGroups(result.Result);
           return result.Result;
+        }
       }
       return null;
     }

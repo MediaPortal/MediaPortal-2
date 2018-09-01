@@ -157,7 +157,7 @@ namespace MediaPortal.Extensions.MediaServer.Profiles
       return $"DLNA ({ip.ToString()})";
     }
 
-    public DlnaMediaItem GetDlnaItem(MediaItem item, bool isLive)
+    public DlnaMediaItem GetDlnaItem(MediaItem item, bool isLive, int? edition = null)
     {
       lock (DlnaMediaItems)
       {
@@ -166,6 +166,7 @@ namespace MediaPortal.Extensions.MediaServer.Profiles
           return dlnaItem;
 
         dlnaItem = new DlnaMediaItem(item, this, isLive);
+        dlnaItem.Initialize(edition).Wait();
         DlnaMediaItems.TryAdd(item.MediaItemId, dlnaItem);
         return dlnaItem;
       }

@@ -2,28 +2,28 @@
 <resources>
 
   <!--Client Settings-->
-  <string name="Settings.Title">Transcoding</string> <!-- Section name -->
-  <string name="Settings.HWAcceleration">Hardware acceleration</string> <!-- Setting -->
-  <string name="Settings.HWAcceleration.Help">Enables hardware acceleration during transcoding if supported.</string>
-  <string name="Settings.Cache">Cache</string> <!-- Setting -->
-  <string name="Settings.Cache.Help">Enables caching of transcodings so they can be reused at a later time</string>
-  <string name="Settings.CacheAge">Cache maximum age (days)</string> <!-- Setting -->
-  <string name="Settings.CacheAge.Help">The maximum number of days cached transcodings should be stored before they expire. 0 means they never expire.</string>
-  <string name="Settings.CacheSize">Cache maximum size (GB)</string> <!-- Setting -->
-  <string name="Settings.CacheSize.Help">The maximum size of the cache in GB. Oldest transcodings will be deleted when cache is full and 0 means there is no size restriction.</string>
-  <string name="Settings.SubtitleForce">Force hardcoded subtitles</string>  <!-- Setting -->
-  <string name="Settings.SubtitleForce.Help">Force hardcoded subtitles if no other form of subtitles are supported.</string>
-  <string name="Settings.SubtitleBox">Show subtitle box</string>  <!-- Setting -->
-  <string name="Settings.SubtitleBox.Help">Show a box around hardcoded subtitles.</string>
-  <string name="Settings.SubtitleFont">Subtitle font</string>  <!-- Setting -->
-  <string name="Settings.SubtitleFont.Help">The font to use for hardcoded subtitles.</string>
-  <string name="Settings.SubtitleFontSize">Subtitle font size</string>  <!-- Setting -->
-  <string name="Settings.SubtitleFontSize.Help">The size of the font used for hardcoded subtitles.</string>
-  <string name="Settings.SubtitleFontColor">Subtitle font color</string>  <!-- Setting -->
-  <string name="Settings.SubtitleFontColor.Help">The font color to use for hardcoded subtitles.</string>
+  <string name="Settings.Transcode.Title">Transcoding</string> <!-- Section name -->
+  <string name="Settings.Transcode.HWAcceleration">Hardware acceleration</string> <!-- Setting -->
+  <string name="Settings.Transcode.HWAcceleration.Help">Enables hardware acceleration during transcoding if supported.</string>
+  <string name="Settings.Transcode.Cache">Cache</string> <!-- Setting -->
+  <string name="Settings.Transcode.Cache.Help">Enables caching of transcodings so they can be reused at a later time</string>
+  <string name="Settings.Transcode.CacheAge">Cache maximum age (days)</string> <!-- Setting -->
+  <string name="Settings.Transcode.CacheAge.Help">The maximum number of days cached transcodings should be stored before they expire. 0 means they never expire.</string>
+  <string name="Settings.Transcode.CacheSize">Cache maximum size (GB)</string> <!-- Setting -->
+  <string name="Settings.Transcode.CacheSize.Help">The maximum size of the cache in GB. Oldest transcodings will be deleted when cache is full and 0 means there is no size restriction.</string>
+  <string name="Settings.Transcode.SubtitleForce">Force hardcoded subtitles</string>  <!-- Setting -->
+  <string name="Settings.Transcode.SubtitleForce.Help">Force hardcoded subtitles if no other form of subtitles are supported.</string>
+  <string name="Settings.Transcode.SubtitleBox">Show subtitle box</string>  <!-- Setting -->
+  <string name="Settings.Transcode.SubtitleBox.Help">Show a box around hardcoded subtitles.</string>
+  <string name="Settings.Transcode.SubtitleFont">Subtitle font</string>  <!-- Setting -->
+  <string name="Settings.Transcode.SubtitleFont.Help">The font to use for hardcoded subtitles.</string>
+  <string name="Settings.Transcode.SubtitleFontSize">Subtitle font size</string>  <!-- Setting -->
+  <string name="Settings.Transcode.SubtitleFontSize.Help">The size of the font used for hardcoded subtitles.</string>
+  <string name="Settings.Transcode.SubtitleFontColor">Subtitle font color</string>  <!-- Setting -->
+  <string name="Settings.Transcode.SubtitleFontColor.Help">The font color to use for hardcoded subtitles.</string>
 
-  <string name="Settings.None">None</string>
-  <string name="Settings.Auto">Automatically</string>
-  <string name="Settings.Default">Default</string>
+  <string name="Settings.Transcode.None">None</string>
+  <string name="Settings.Transcode.Auto">Automatically</string>
+  <string name="Settings.Transcode.Default">Default</string>
 
 </resources>

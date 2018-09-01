@@ -33,7 +33,7 @@
         Id="Transcoding"
         Sort="X100"
         Redundant="true"
-        Text="[Settings.Title]"/>
+        Text="[Settings.Transcode.Title]"/>
   </Register>
 
   <!-- Contents of '/Transcoding' section -->
@@ -41,64 +41,64 @@
     <ConfigSetting
         Id="HWAcceleration"
         RestrictionGroup="Settings"
-        Text="[Settings.HWAcceleration]"
-        HelpText="[Settings.HWAccelleration.Help]"
+        Text="[Settings.Transcode.HWAcceleration]"
+        HelpText="[Settings.Transcode.HWAcceleration.Help]"
         ClassName="MediaPortal.Extensions.TranscodingService.Client.Settings.Configuration.HardwareAccelerationSetting"/>
     
     <ConfigSetting
         Id="Cache"
         RestrictionGroup="Settings"
-        Text="[Settings.Cache]"
-        HelpText="[Settings.Cache.Help]"
+        Text="[Settings.Transcode.Cache]"
+        HelpText="[Settings.Transcode.Cache.Help]"
         ClassName="MediaPortal.Extensions.TranscodingService.Client.Settings.Configuration.CacheEnabledSetting"/>
     
     <ConfigSetting
         Id="CacheAge"
         RestrictionGroup="Settings"
-        Text="[Settings.CacheAge]"
-        HelpText="[Settings.CacheAge.Help]"
+        Text="[Settings.Transcode.CacheAge]"
+        HelpText="[Settings.Transcode.CacheAge.Help]"
         ClassName="MediaPortal.Extensions.TranscodingService.Client.Settings.Configuration.CacheMaxAgeSetting"/>
 
     <ConfigSetting
         Id="CacheSize"
         RestrictionGroup="Settings"
-        Text="[Settings.CacheSize]"
-        HelpText="[Settings.CacheSize.Help]"
+        Text="[Settings.Transcode.CacheSize]"
+        HelpText="[Settings.Transcode.CacheSize.Help]"
         ClassName="MediaPortal.Extensions.TranscodingService.Client.Settings.Configuration.CacheMaxSizeSetting"/>
 
     <ConfigSetting
         Id="SubtitleForce"
         RestrictionGroup="Settings"
-        Text="[Settings.SubtitleForce]"
-        HelpText="[Settings.SubtitleForce.Help]"
+        Text="[Settings.Transcode.SubtitleForce]"
+        HelpText="[Settings.Transcode.SubtitleForce.Help]"
         ClassName="MediaPortal.Extensions.TranscodingService.Client.Settings.Configuration.SubtitleForceSetting"/>
 
     <ConfigSetting
         Id="SubtitleBox"
         RestrictionGroup="Settings"
-        Text="[Settings.SubtitleBox]"
-        HelpText="[Settings.SubtitleBox.Help]"
+        Text="[Settings.Transcode.SubtitleBox]"
+        HelpText="[Settings.Transcode.SubtitleBox.Help]"
         ClassName="MediaPortal.Extensions.TranscodingService.Client.Settings.Configuration.SubtitleBoxSetting"/>
 
     <ConfigSetting
         Id="SubtitleFont"
         RestrictionGroup="Settings"
-        Text="[Settings.SubtitleFont]"
-        HelpText="[Settings.SubtitleFont.Help]"
+        Text="[Settings.Transcode.SubtitleFont]"
+        HelpText="[Settings.Transcode.SubtitleFont.Help]"
         ClassName="MediaPortal.Extensions.TranscodingService.Client.Settings.Configuration.SubtitleFontSetting"/>
 
     <ConfigSetting
         Id="SubtitleFontSize"
         RestrictionGroup="Settings"
-        Text="[Settings.SubtitleFontSize]"
-        HelpText="[Settings.SubtitleFontSize.Help]"
+        Text="[Settings.Transcode.SubtitleFontSize]"
+        HelpText="[Settings.Transcode.SubtitleFontSize.Help]"
         ClassName="MediaPortal.Extensions.TranscodingService.Client.Settings.Configuration.SubtitleFontSizeSetting"/>
 
     <ConfigSetting
         Id="SubtitleFontColor"
         RestrictionGroup="Settings"
-        Text="[Settings.SubtitleFontColor]"
-        HelpText="[Settings.SubtitleFontColor.Help]"
+        Text="[Settings.Transcode.SubtitleFontColor]"
+        HelpText="[Settings.Transcode.SubtitleFontColor.Help]"
         ClassName="MediaPortal.Extensions.TranscodingService.Client.Settings.Configuration.SubtitleFontColorSetting"/>
 
   </Register>

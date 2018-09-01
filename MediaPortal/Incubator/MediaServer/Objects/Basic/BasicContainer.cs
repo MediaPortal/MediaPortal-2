@@ -33,6 +33,7 @@ using MediaPortal.Backend.MediaLibrary;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common;
 using MediaPortal.Common.Certifications;
+using MediaPortal.Plugins.SlimTv.Interfaces.Items;
 
 namespace MediaPortal.Extensions.MediaServer.Objects.Basic
 {
@@ -194,7 +195,7 @@ namespace MediaPortal.Extensions.MediaServer.Objects.Basic
       LastUpdate = DateTime.Now;
     }
 
-    protected IFilter AppendUserFilter(IFilter filter, IEnumerable<Guid> necessaryMias)
+    public IFilter AppendUserFilter(IFilter filter, IEnumerable<Guid> necessaryMias)
     {
       IFilter userFilter = GetUserCertificateFilter(necessaryMias);
       return filter == null ? userFilter : userFilter != null ? BooleanCombinationFilter.CombineFilters(BooleanOperator.And, filter, userFilter) : null;
@@ -388,6 +389,41 @@ namespace MediaPortal.Extensions.MediaServer.Objects.Basic
       if (allowAllShares)
         return null;
       return allowedShares;
+    }
+
+    protected IList<IChannelGroup> FilterGroups(IList<IChannelGroup> channelGroups)
+    {
+      UserProfile userProfile = null;
+      bool applyUserRestrictions = false;
+      IUserProfileDataManagement userProfileDataManagement = ServiceRegistration.Get<IUserProfileDataManagement>();
+      if (userProfileDataManagement != null)
+      {
+        userProfile = (userProfileDataManagement.GetProfileAsync(_userId.Value).Result)?.Result;
+        applyUserRestrictions = true;
+      }
+      if (userProfile == null || !applyUserRestrictions)
+        return channelGroups;
+
+      IList<IChannelGroup> filteredGroups = new List<IChannelGroup>();
+      foreach (IChannelGroup channelGroup in channelGroups)
+      {
+        IUserRestriction restriction = channelGroup as IUserRestriction;
+        if (restriction != null && !CheckUserAccess(userProfile, restriction))
+          continue;
+        filteredGroups.Add(channelGroup);
+      }
+      return filteredGroups;
+    }
+
+    private bool CheckUserAccess(UserProfile userProfile, IUserRestriction restrictedElement)
+    {
+      if (!userProfile.EnableRestrictionGroups || string.IsNullOrEmpty(restrictedElement.RestrictionGroup))
+        return true;
+
+      foreach (var group in restrictedElement.RestrictionGroup.Split(new[] { "," }, StringSplitOptions.RemoveEmptyEntries))
+        if (userProfile.RestrictionGroups.Contains(group))
+          return true;
+      return false;
     }
 
     public override string Class

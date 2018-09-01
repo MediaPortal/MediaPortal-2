@@ -35,6 +35,8 @@ using MediaPortal.Extensions.TranscodingService.Interfaces.Profiles;
 using MediaPortal.Extensions.TranscodingService.Interfaces;
 using MediaPortal.Extensions.TranscodingService.Interfaces.Metadata.Streams;
 using System.Linq;
+using System.Threading.Tasks;
+using MediaPortal.Extensions.MediaServer.ResourceAccess;
 
 namespace MediaPortal.Extensions.MediaServer.DLNA
 {
@@ -51,59 +53,85 @@ namespace MediaPortal.Extensions.MediaServer.DLNA
       TranscodingParameter = null;
       IsSegmented = false;
       IsLive = live;
-      IList<MetadataContainer> infos = null;
+    }
+
+    public async Task Initialize(int? edition = null)
+    {
       bool sourceIsLive = false;
 
-      int? edition = null;
-      if (item.HasEditions)
-        edition = item.Editions.First().Key;
-
-      infos = MediaAnalyzer.ParseMediaItemAsync(item, edition).Result;
+      var infos = await MediaAnalyzer.ParseMediaItemAsync(MediaSource, edition);
       if (infos == null || infos.Count == 0)
       {
-        Logger.Warn("MediaServer: Mediaitem {0} couldn't be analyzed", item.MediaItemId);
+        Logger.Warn("MediaServer: Mediaitem {0} couldn't be analyzed", MediaSource.MediaItemId);
         return;
       }
 
-      if (item.Aspects.ContainsKey(AudioAspect.ASPECT_ID))
+      if (MediaSource.Aspects.ContainsKey(AudioAspect.ASPECT_ID))
       {
         IsAudio = true;
       }
-      else if (item.Aspects.ContainsKey(ImageAspect.ASPECT_ID))
+      else if (MediaSource.Aspects.ContainsKey(ImageAspect.ASPECT_ID))
       {
         IsImage = true;
       }
-      else if (item.Aspects.ContainsKey(VideoAspect.ASPECT_ID))
+      else if (MediaSource.Aspects.ContainsKey(VideoAspect.ASPECT_ID))
       {
         IsVideo = true;
       }
       else
       {
-        Logger.Warn("MediaServer: Mediaitem {0} contains no required aspect information", item.MediaItemId);
+        Logger.Warn("MediaServer: Mediaitem {0} contains no required aspect information", MediaSource.MediaItemId);
         return;
       }
+
+      IList<MetadataContainer> media = infos.First().Value;
+      if (MediaSource.HasEditions && !edition.HasValue)
+      {
+        //Find best matching audio edition
+        int currentPriority = -1;
+        var preferredAudioLang = Client.PreferredAudioLanguages.ToList();
+        foreach (var info in infos)
+        {
+          var mc = info.Value.First();
+          for (int idx = 0; idx < mc.Audio.Count; idx++)
+          {
+            for (int priority = 0; priority < preferredAudioLang.Count; priority++)
+            {
+              if (preferredAudioLang[priority].Equals(mc.Audio[idx].Language, StringComparison.InvariantCultureIgnoreCase) == true)
+              {
+                if (currentPriority == -1 || priority < currentPriority)
+                {
+                  currentPriority = priority;
+                  media = info.Value;
+                }
+              }
+            }
+          }
+        }
+      }
+      var firstMedia = media.First();
 
       if (MediaServerPlugin.Settings.TranscodingAllowed == true)
       {
         string transcodeId = MediaSource.MediaItemId.ToString() + "_" + Client.Profile.ID;
-        if(sourceIsLive) transcodeId = Guid.NewGuid().ToString() + "_" + Client.Profile.ID;
+        if (sourceIsLive) transcodeId = Guid.NewGuid().ToString() + "_" + Client.Profile.ID;
 
         if (IsAudio)
         {
-          AudioTranscoding audio = TranscodeProfileManager.GetAudioTranscoding(ProfileManager.TRANSCODE_PROFILE_SECTION, client.Profile.ID,
-            infos.First(), live, transcodeId);
+          AudioTranscoding audio = TranscodeProfileManager.GetAudioTranscoding(ProfileManager.TRANSCODE_PROFILE_SECTION, Client.Profile.ID,
+            firstMedia, IsLive, transcodeId);
           TranscodingParameter = audio;
         }
         else if (IsImage)
         {
-          ImageTranscoding image = TranscodeProfileManager.GetImageTranscoding(ProfileManager.TRANSCODE_PROFILE_SECTION, client.Profile.ID,
-            infos.First(), transcodeId);
+          ImageTranscoding image = TranscodeProfileManager.GetImageTranscoding(ProfileManager.TRANSCODE_PROFILE_SECTION, Client.Profile.ID,
+            firstMedia, transcodeId);
           TranscodingParameter = image;
         }
         else if (IsVideo)
         {
-          VideoTranscoding video = TranscodeProfileManager.GetVideoTranscoding(ProfileManager.TRANSCODE_PROFILE_SECTION, client.Profile.ID,
-            infos, client.PreferredAudioLanguages, live, transcodeId);
+          VideoTranscoding video = TranscodeProfileManager.GetVideoTranscoding(ProfileManager.TRANSCODE_PROFILE_SECTION, Client.Profile.ID,
+            media, Client.PreferredAudioLanguages, IsLive, transcodeId);
           if (video != null)
           {
             if (video.TargetVideoContainer == VideoContainer.Hls)
@@ -127,14 +155,14 @@ namespace MediaPortal.Extensions.MediaServer.DLNA
         if (sourceIsLive == true)
         {
           if (IsVideo)
-            TranscodingParameter = TranscodeProfileManager.GetLiveVideoTranscoding(infos.First(), client.PreferredAudioLanguages, transcodeId);
+            TranscodingParameter = TranscodeProfileManager.GetLiveVideoTranscoding(firstMedia, Client.PreferredAudioLanguages, transcodeId);
           else if (IsAudio)
-            TranscodingParameter = TranscodeProfileManager.GetLiveAudioTranscoding(infos.First(), transcodeId);
+            TranscodingParameter = TranscodeProfileManager.GetLiveAudioTranscoding(firstMedia, transcodeId);
         }
         else if (IsVideo)
         {
-          VideoTranscoding video = TranscodeProfileManager.GetVideoSubtitleTranscoding(ProfileManager.TRANSCODE_PROFILE_SECTION, client.Profile.ID,
-            infos, live, transcodeId);
+          VideoTranscoding video = TranscodeProfileManager.GetVideoSubtitleTranscoding(ProfileManager.TRANSCODE_PROFILE_SECTION, Client.Profile.ID,
+            media, IsLive, transcodeId);
           if (video != null)
           {
             if (video.TargetVideoContainer == VideoContainer.Hls)
@@ -150,7 +178,7 @@ namespace MediaPortal.Extensions.MediaServer.DLNA
         }
       }
 
-      AssignDlnaMetadata(infos);
+      AssignDlnaMetadata(media);
     }
 
     private void AssignDlnaMetadata(IList<MetadataContainer> infos)

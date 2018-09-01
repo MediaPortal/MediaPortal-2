@@ -65,6 +65,7 @@ namespace MediaPortal.Extensions.MediaServer.Client.Models
     protected ItemsList _clientList = null;
     protected ItemsList _profileList = null;
     protected ItemsList _userList = null;
+    protected AbstractProperty _isHomeServerConnectedProperty;
     protected AbstractProperty _isClientSelectedProperty;
     protected AbstractProperty _selectedUserInfoProperty;
     protected AbstractProperty _selectedProfileInfoProperty;
@@ -77,6 +78,7 @@ namespace MediaPortal.Extensions.MediaServer.Client.Models
 
     public ClientConfigModel()
     {
+      _isHomeServerConnectedProperty = new WProperty(typeof(bool), false);
       _selectedUserInfoProperty = new WProperty(typeof(string), string.Empty);
       _selectedProfileInfoProperty = new WProperty(typeof(string), string.Empty);
       _selectedClientNameProperty = new WProperty(typeof(string), string.Empty);
@@ -164,6 +166,17 @@ namespace MediaPortal.Extensions.MediaServer.Client.Models
         lock (_syncObj)
           return _profileList;
       }
+    }
+
+    public AbstractProperty IsHomeServerConnectedProperty
+    {
+      get { return _isHomeServerConnectedProperty; }
+    }
+
+    public bool IsHomeServerConnected
+    {
+      get { return (bool)_isHomeServerConnectedProperty.GetValue(); }
+      set { _isHomeServerConnectedProperty.SetValue(value); }
     }
 
     public AbstractProperty SelectedClientNameProperty
@@ -340,6 +353,13 @@ namespace MediaPortal.Extensions.MediaServer.Client.Models
       }
       try
       {
+        IServerConnectionManager scm = ServiceRegistration.Get<IServerConnectionManager>();
+        if (scm == null || scm.ContentDirectory == null)
+          return;
+
+        SystemName homeServerSystem = scm.LastHomeServerSystem;
+        IsHomeServerConnected = homeServerSystem != null;
+
         IServerSettingsClient serverSettings = ServiceRegistration.Get<IServerSettingsClient>();
         ProfileLinkSettings settings = serverSettings.Load<ProfileLinkSettings>();
 
