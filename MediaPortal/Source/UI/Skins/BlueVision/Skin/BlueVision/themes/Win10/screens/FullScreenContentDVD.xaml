@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-  <Screen
+<Screen
     xmlns="www.team-mediaportal.com/2008/mpf/directx"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:mp_special_controls="clr-namespace:MediaPortal.UI.SkinEngine.SpecialElements.Controls;assembly=SkinEngine"
@@ -7,12 +7,8 @@
     mp_special_workflow:WorkflowContext.StateSlot="Root"
     x:Name="FullscreenContentVideoScreen"
     >
-
   <!-- DataContext model = VideoPlayerModel -->
   <Grid x:Name="FullscreenLayoutGrid" Context="{Model Id=4E2301B4-3C17-4a1d-8DE5-2CEA169A0256}">
-    <Grid.Resources>
-      <Model x:Key="ExtendedVideoSkip" Id="8573DBD8-A257-426a-9875-9DB155D32D47"/>
-    </Grid.Resources>
     <Grid.Background>
       <VideoBrush Stream="0"/>
     </Grid.Background>
@@ -22,13 +18,11 @@
       <ColumnDefinition Width="180"/>
     </Grid.ColumnDefinitions>
     <Grid.RowDefinitions>
-      <RowDefinition Height="100"/>
+      <RowDefinition Height="140"/>
       <RowDefinition Height="Auto"/>
       <RowDefinition Height="*"/>
       <RowDefinition Height="Auto"/>
     </Grid.RowDefinitions>
-
-    <Include Source="screens\FullScreenContentVideoKeyBindings.inc"/>
 
     <mp_special_controls:UserInputCapture Grid.RowSpan="4" Grid.ColumnSpan="3" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
         IsActive="{Binding PlayerUIContributor.DvdPlayerHandlesInput}"
@@ -36,6 +30,8 @@
         KeyPressedCommand="{CommandStencil PlayerUIContributor.OnKeyPress}"
         MouseMovedCommand="{CommandStencil PlayerUIContributor.OnMouseMove}"
         MouseClickedCommand="{CommandStencil PlayerUIContributor.OnMouseClick}"/>
+
+    <Include Source="screens\FullScreenContentDVDKeyBindings.inc"/>
 
     <!--Playerstate overlay-->
     <Grid Grid.ColumnSpan="3" Grid.RowSpan="4" HorizontalAlignment="Center" VerticalAlignment="Center"
@@ -57,14 +53,20 @@
              Color="Black" VerticalAlignment="Center" HorizontalAlignment="Center"/>
     </Grid>
 
-    <Control x:Name="WindowButtons" Grid.Column="2" Grid.Row="0">
-      <Control.TemplateControl>
-        <Include Source="screens\FSCWindowButtons.inc"/>
-      </Control.TemplateControl>
-    </Control>
+    <Control x:Name="PiP" Grid.Column="1" Grid.ColumnSpan="2" Grid.Row="1" Style="{ThemeResource PipControlStyle}"
+             IsVisible="{Binding !IsOSDVisible}"/>
 
-    <Control x:Name="PiP" Grid.Column="1" Grid.ColumnSpan="2" Grid.Row="1" Style="{ThemeResource PipControlStyle}" 
-          IsVisible="{Binding !IsOSDVisible}"/>
+    <mp_special_controls:PlayerControl x:Name="PrimaryOSD"  Grid.Column="0" Grid.ColumnSpan="3" Grid.Row="0" Grid.RowSpan="4"
+            IsEnabled="{Binding IsOSDVisible}"
+            Style="{ThemeResource PrimaryDvdOSDStyle}" Margin="0,0,0,0"
+            VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
+      <mp_special_controls:PlayerControl.IsVisible>
+        <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} &amp;&amp; {1}">
+          <Binding Path="IsOSDVisible"/>
+          <Binding Path="!PlayerUIContributor.DvdPlayerHandlesInput"/>
+        </MultiBinding>
+      </mp_special_controls:PlayerControl.IsVisible>
+    </mp_special_controls:PlayerControl>
 
     <DockPanel x:Name="OSD_RightPanel"  Grid.Column="1" Grid.ColumnSpan="2" Grid.Row="1" LastChildFill="false">
       <mp_special_controls:PlayerControl x:Name="SecondaryOSD"
@@ -79,16 +81,6 @@
         </mp_special_controls:PlayerControl.IsVisible>
       </mp_special_controls:PlayerControl>
     </DockPanel>
-
-    <mp_special_controls:PlayerControl x:Name="PrimaryOSD"  Grid.Column="0" Grid.ColumnSpan="3" Grid.Row="3"
-            Style="{ThemeResource PrimaryDvdOSDStyle}" VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
-      <mp_special_controls:PlayerControl.IsVisible>
-        <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} &amp;&amp; {1}">
-          <Binding Path="IsOSDVisible"/>
-          <Binding Path="!PlayerUIContributor.DvdPlayerHandlesInput"/>
-        </MultiBinding>
-      </mp_special_controls:PlayerControl.IsVisible>
-    </mp_special_controls:PlayerControl>
 
   </Grid>
 </Screen>
