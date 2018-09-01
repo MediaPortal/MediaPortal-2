@@ -47,6 +47,7 @@ namespace MediaPortal.UiComponents.Login.General
     public const string RES_ANY_TEXT = "[UserConfig.AnyText]";
     public const string RES_NEW_USER_TEXT = "[UserConfig.NewUserText]";
     public const string RES_SELECT_USER_IMAGE = "[UserConfig.SelectImage]";
+    public const string RES_DISABLE = "[UserConfig.Disable]";
 
     public const string RES_SYSTEM_DEFAULT_TEXT = "[Settings.Users.Config.SystemDefault]";
 

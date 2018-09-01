@@ -22,7 +22,9 @@
 
 #endregion
 
+using MediaPortal.Common.Commands;
 using MediaPortal.UiComponents.Media.General;
+using MediaPortal.UiComponents.Media.Models;
 using MediaPortal.UiComponents.Media.Models.Navigation;
 using MediaPortal.UiComponents.Media.Models.NavigationModel;
 
@@ -33,7 +35,10 @@ namespace MediaPortal.UiComponents.Media.MediaLists
     public UnwatchedSeriesMediaListProvider()
     {
       _necessaryMias = Consts.NECESSARY_SERIES_MIAS;
-      _playableContainerConverterAction = item => new SeriesFilterItem(item);
+      _playableContainerConverterAction = item => new SeriesFilterItem(item)
+      {
+        Command = new MethodDelegateCommand(() => SeriesNavigationInitializer.NavigateToSeries(item.MediaItemId))
+      };
       _navigationInitializerType = typeof(SeriesNavigationInitializer);
     }
   }

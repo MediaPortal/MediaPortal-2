@@ -68,7 +68,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
         TheAudioDbWrapper wrapper = new TheAudioDbWrapper();
         // Try to lookup online content in the configured language
         CultureInfo currentCulture = new CultureInfo(PreferredLanguageCulture);
-        string lang = new RegionInfo(currentCulture.LCID).TwoLetterISORegionName;
+        string lang = new RegionInfo(currentCulture.Name).TwoLetterISORegionName;
         if(currentCulture.TwoLetterISOLanguageName.Equals("en", StringComparison.InvariantCultureIgnoreCase))
         {
           lang = "EN";

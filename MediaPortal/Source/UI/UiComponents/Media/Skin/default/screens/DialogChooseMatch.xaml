@@ -27,6 +27,7 @@
           <RowDefinition Height="Auto"/>
           <RowDefinition Height="Auto"/>
           <RowDefinition Height="*"/>
+          <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
         
         <StackPanel Grid.RowSpan="5" Grid.ColumnSpan="2" HorizontalAlignment="Stretch" VerticalAlignment="Center" IsVisible="{Binding IsSearching}">
@@ -104,6 +105,9 @@
                TextTrimming="WordEllipsis" Color="{ThemeResource TextColor}" Margin="10,20,5,5"/>
         <Label Grid.Row="6" Grid.Column="1" Content="{Binding Source={StaticResource Model}, Path=SelectedInformation}" IsVisible="{Binding !IsSearching}" Wrap="True"
                Color="{ThemeResource TextColor}" Margin="30,5,10,10" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" TextTrimming="WordEllipsis"/>
+
+        <Label Grid.Row="7" Grid.ColumnSpan="2" Content="[Media.ReimportMediaItem.Hint]" Wrap="True" FontSize="20"
+               Color="{ThemeResource TextColor}" Margin="30,10,30,10" VerticalAlignment="Center" HorizontalAlignment="Center" MinHeight="30"/>
 
       </Grid>
     </ControlTemplate>

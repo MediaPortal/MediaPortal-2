@@ -70,7 +70,7 @@ namespace MediaPortal.Plugins.ServerSettings.Settings.Configuration
       {
         CultureInfo ci = _cultures[i];
         _items.Add(LocalizationHelper.CreateStaticString(ci.DisplayName));
-        if (ci.LCID == current.LCID)
+        if (ci.Equals(current))
           Selected = i;
       }
     }

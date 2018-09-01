@@ -55,6 +55,7 @@
   <string name="UserConfig.Yes">Yes</string>
   <string name="UserConfig.No">No</string>
   <string name="UserConfig.Ok">OK</string>
+  <string name="UserConfig.Disable">Disable</string>
 
   <string name="UserConfig.SelectLanguage">Select language</string>
   <string name="UserConfig.Default">Default</string>
