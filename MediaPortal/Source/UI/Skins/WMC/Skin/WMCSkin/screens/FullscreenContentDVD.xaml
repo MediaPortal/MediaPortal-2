@@ -81,8 +81,14 @@
 
       <DockPanel x:Name="OSD_RightPanel" Grid.Row="0" Grid.Column="1" LastChildFill="false">
         <mp_special_controls:PlayerControl x:Name="PrimaryOSD" DockPanel.Dock="Bottom"
-            Style="{ThemeResource PrimaryDvdOSDStyle}"
-            VerticalAlignment="Stretch" HorizontalAlignment="Right"/>
+            Style="{ThemeResource PrimaryDvdOSDStyle}" VerticalAlignment="Stretch" HorizontalAlignment="Right">
+          <mp_special_controls:PlayerControl.IsVisible>
+            <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} &amp;&amp; {1}">
+              <Binding Path="IsOSDVisible"/>
+              <Binding Path="!PlayerUIContributor.DvdPlayerHandlesInput"/>
+            </MultiBinding>
+          </mp_special_controls:PlayerControl.IsVisible>
+        </mp_special_controls:PlayerControl>
       </DockPanel>
     </Grid>
 
