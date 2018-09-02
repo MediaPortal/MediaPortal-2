@@ -84,7 +84,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor.Setti
       _subtitleFileExtensions = DEFAULT_SUBTITLE_FILE_EXTENSIONS;
       _subtitleFolders = DEFAULT_SUBTITLE_FOLDERS;
 
-      MultiPartVideoRegex = new SerializableRegex(@"\\(?<file>[^\\|^\/]*)(\s|-|_)*(?<media>Disc|CD|DVD|File)\s*(?<disc>\d{1,2})", RegexOptions.IgnoreCase);
+      MultiPartVideoRegex = new SerializableRegex(@"\\(?<file>[^\\|^\/]*)(\s|-|_)*(?<media>Disc|Disk|CD|DVD|File)\s*(?<disc>\d{1,2})", RegexOptions.IgnoreCase);
       StereoVideoRegex = new SerializableRegex(@"\\.*?[-. _](3d|.*?)?([-. _]?|3d)(?<mode>h[-]?|half[-]?|full[-]?)*(?<stereo>sbs|tab|ou|mvc|anaglyph)[-. _]", RegexOptions.IgnoreCase);
       MaxSampleSize = 150;
       SampleVideoRegex = new SerializableRegex(@"(sample)|(trailer)", RegexOptions.IgnoreCase);
