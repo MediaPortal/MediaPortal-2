@@ -207,7 +207,7 @@ namespace MediaPortal.UiComponents.Media.Models
       return false;
     }
 
-    public async Task<IEnumerable<MediaItemAspect>> OpenSelectMatchDialogAsync(MediaItem mediaItem)
+    public Task<IEnumerable<MediaItemAspect>> OpenSelectMatchDialogAsync(MediaItem mediaItem)
     {
       ClearData();
       if (!IsValidMediaItem(mediaItem))
@@ -236,13 +236,14 @@ namespace MediaPortal.UiComponents.Media.Models
             selectionComplete.SetResult(MediaItemAspect.GetAspects(_matchedAspects));
           }
         }
-        finally
+        catch (Exception ex)
         {
+          ServiceRegistration.Get<ILogger>().Error("Error reimporting media item '{0}'. Adding details failed.", ex, mediaItem.MediaItemId);
           selectionComplete.TrySetResult(null);
         }
       });
-      await DoSearchAsync();
-      return await selectionComplete.Task;
+      _ = DoSearchAsync();
+      return selectionComplete.Task;
     }
 
     protected async Task DoSearchAsync()
