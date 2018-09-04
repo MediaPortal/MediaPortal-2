@@ -1,6 +1,6 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
-  <string name="SlimTvClient.Title">Cliente de TV Slim</string>
+  <string name="SlimTvClient.Title">Guia da TV</string>
   <string name="SlimTvClient.Main">TV</string>
   <string name="SlimTvClient.TvGuide">Guia da TV</string>
   <string name="SlimTvClient.SingleChannelGuide">Guia de Canais</string>
@@ -44,6 +44,7 @@
   <string name="SlimTvClient.EpgNumberOfHours">Número de hora no EPG</string>
   <string name="SlimTvClient.EpgNumberOfHours.Help">Define o número de horas (programas) a serem mostrados no EPG </string>
   <string name="SlimTvClient.Notifications">Notificações</string>
+  <string name="SlimTvClient.NoColor">Nenhum</string>
   <string name="SlimTvClient.RecordingsMenuItem">Gravações</string>
   <string name="SlimTvClient.RecordingsRootViewName">Gravações de TV</string>
   <string name="SlimTvClient.ChannelMenuItemLabel">Filtrar por canal</string>

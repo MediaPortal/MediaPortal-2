@@ -1,6 +1,6 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
-  <string name="SlimTvClient.Title">पतला टीवी ग्राहक</string>
+  <string name="SlimTvClient.Title">टीवी गाइड</string>
   <string name="SlimTvClient.Main">टेलीविज़न</string>
   <string name="SlimTvClient.TvGuide">टीवी गाइड</string>
   <string name="SlimTvClient.CurrentlyPlayingInformationHeader">कार्यक्रम की जानकारी</string>
@@ -23,4 +23,5 @@
   <!--Extended recording features-->
   <!--Schedule management-->
   <!--Settings-->
+  <string name="SlimTvClient.NoColor">कोई नहीं</string>
 </resources>

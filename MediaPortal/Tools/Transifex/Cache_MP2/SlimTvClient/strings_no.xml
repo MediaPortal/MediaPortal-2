@@ -1,6 +1,6 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
-  <string name="SlimTvClient.Title">Tynn TV Klient</string>
+  <string name="SlimTvClient.Title">TV-Guide</string>
   <string name="SlimTvClient.Main">TV</string>
   <string name="SlimTvClient.TvGuide">TV-Guide</string>
   <string name="SlimTvClient.CurrentlyPlayingInformationHeader">Programinformasjon</string>
@@ -27,6 +27,7 @@
   <string name="SlimTvClient.ErrorNoTvProvider">Ingen TV kilde er tilgjengelig (enda)</string>
   <!--Settings-->
   <string name="SlimTvClient.Notifications">Beskjeder</string>
+  <string name="SlimTvClient.NoColor">Ingen</string>
   <string name="SlimTvClient.RecordingsMenuItem">Opptak</string>
   <string name="SlimTvClient.RecordingsRootViewName">TV opptak</string>
   <string name="SlimTvClient.ChannelMenuItemLabel">Filtrer etter kanal</string>

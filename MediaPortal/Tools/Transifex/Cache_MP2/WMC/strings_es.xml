@@ -1,7 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
   <string name="WMC.Configuration.EnableFanart.Help">Si se desea mostrar fanart de fondo.</string>
-  <string name="WMC.Configuration.EnableBanners.Movies">Movies</string>
-  <string name="WMC.Configuration.EnableBanners.Series">Series</string>
-  <string name="WMC.Configuration.EnableBanners.Seasons">Seasons</string>
+  <string name="WMC.Home.Favorites">Favoritos</string>
   </resources>

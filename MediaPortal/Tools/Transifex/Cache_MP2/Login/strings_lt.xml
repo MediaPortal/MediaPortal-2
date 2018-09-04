@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  
+  <string name="Login.PasswordOk">OK</string>
+  <!--User Settings-->
+  <string name="Settings.Users">Vartotojai</string> <string name="UserConfig.Users">Vartotojai</string>
+  <string name="UserConfig.Password">Slaptažodis</string>
+  <string name="UserConfig.AddUser">Pridėti</string>
+  <string name="UserConfig.CopyUser">Kopijuoti</string>
+  <string name="UserConfig.DeleteUser">Trinti</string>
+  <string name="UserConfig.SaveUser">Išsaugoti</string>
+  <string name="UserConfig.Yes">Taip</string>
+  <string name="UserConfig.No">Ne</string>
+  <string name="UserConfig.Ok">OK</string>
+  <string name="UserConfig.SharesText">Bendriniai</string>
+  <string name="UserConfig.LocalShare">Kliento media šaltinis</string>
+  <string name="UserConfig.LocalShares">Kliento media šaltiniai</string>
+  <string name="UserConfig.GlobalShare">Serverio media šaltinis</string>
+  <string name="UserConfig.GlobalShares">Serverio media šaltiniai</string>
+  <string name="UserConfig.NoConfigGlobalSharesHomeServerNotConnected">Pagrindinis serveris išjungtas, todėl negali būti valdomi serverio media šaltiniai.</string>
+  <string name="UserConfig.NoConfigLocalSharesHomeServerLocal">Pagrindinis serveris yra tame pačiame kompiuteryje, todėl tik serverio media šaltiniai gali būti konfiguruojami.</string>
+
+  </resources>

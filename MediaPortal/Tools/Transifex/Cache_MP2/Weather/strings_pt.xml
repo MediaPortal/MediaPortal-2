@@ -33,8 +33,8 @@
   <string name="Weather.Snow">Nevando</string>
   <string name="Weather.Rain">Chuva</string>
   <string name="Weather.Light">Claro</string>
-  <string name="Weather.AM">M</string>
-  <string name="Weather.PM">T</string>
+  <string name="Weather.AM">AM</string>
+  <string name="Weather.PM">PM</string>
   <string name="Weather.Showers">Pancadas</string>
   <string name="Weather.Few">Pouco</string>
   <string name="Weather.Scattered">Esparso</string>
@@ -77,6 +77,8 @@
   <string name="Settings.Plugins.Weather">Clima</string>
   <string name="Settings.Plugins.Weather.LocationSetup">Configurar locais</string>
   <string name="Settings.Plugins.Weather.LocationSetup.Help">Configurar cidades para estar disponíveis na tela de clima</string>
+  <string name="Settings.Plugins.Weather.ApiKey">Configure  a sua chave pessoal da API</string>
+  <string name="Settings.Plugins.Weather.ApiKey.Help">Configura a chave pessoal d API cria da em https://openweathermap.org/api para evitar os limites de consultas.</string>
   <string name="WeatherSetup.Title">Configurar cidades</string>
   <string name="WeatherSetup.ConfiguredCities">Cidades configuradas</string>
   <string name="WeatherSetup.EnterCity">Por favor, entre o nome da cidade para adicionar:</string>

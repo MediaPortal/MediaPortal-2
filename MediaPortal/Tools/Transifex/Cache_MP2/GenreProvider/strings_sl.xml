@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <string name="Match.Video.Music">Glasba</string>
+  <string name="Match.Video.TVMovie">TV</string>
+  <string name="Match.Video.News">Novice</string>
+  <string name="Match.Epg.Series">Nanizanke</string>
+  <string name="Match.Epg.Music">Glasba</string>
+  <string name="Match.Epg.News">Novice</string>
+  <string name="Label.Audio.Country">Država</string>
+  <string name="Label.Audio.World">Svet</string>
+  <string name="Label.Video.Music">Glasba</string>
+  <string name="Label.Video.TVMovie">TV</string>
+  <string name="Label.Video.News">Novice</string>
+  <string name="Label.Epg.Series">Nanizanke</string>
+  <string name="Label.Epg.Music">Glasba</string>
+  <string name="Label.Epg.News">Novice</string>
+  </resources>

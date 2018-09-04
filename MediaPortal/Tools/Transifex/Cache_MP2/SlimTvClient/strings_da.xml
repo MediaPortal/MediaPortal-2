@@ -1,6 +1,6 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
-  <string name="SlimTvClient.Title">Slim TV klient</string>
+  <string name="SlimTvClient.Title">TV guide</string>
   <string name="SlimTvClient.Main">TV</string>
   <string name="SlimTvClient.TvGuide">TV guide</string>
   <string name="SlimTvClient.SingleChannelGuide">Kanal guide</string>
@@ -50,6 +50,7 @@
   <string name="SlimTvClient.EpgNumberOfHours">Antal af timer i EPG</string>
   <string name="SlimTvClient.AutoStartTv">Start TV automatisk</string>
   <string name="SlimTvClient.Notifications">Meddelelser</string>
+  <string name="SlimTvClient.NoColor">Intet</string>
   <string name="SlimTvClient.RecordingsMenuItem">Optagelser</string>
   <string name="SlimTvClient.RecordingsRootViewName">TV optagelser</string>
   <string name="SlimTvClient.ChannelMenuItemLabel">Filtrer pr. kanal</string>

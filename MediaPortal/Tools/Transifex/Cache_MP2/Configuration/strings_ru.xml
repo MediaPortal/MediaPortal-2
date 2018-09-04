@@ -1,6 +1,7 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
   <string name="Configuration.Name">Настройки</string>
+  <string name="Configuration.Name.Help">Изменить внешний вид и метод взаимодействия с Mediaportal, а также настроить медиа-источники</string>
   <string name="Configuration.ConfigurationMainWorkflowNavigationContextDisplayLabel">Настройки</string>
   <string name="Configuration.MainSettings">Основные настройки</string>
   <!--2nd Header for root configuration section-->
@@ -11,4 +12,6 @@
   <!--0 = current value, 1 = lower limit, 2 = upper limit-->
   <string name="Configuration.ErrorNumericUpperLimit">Используйте значение между \'{1}\' и \'{2}\'</string>
   <!--0 = current value, 1 = lower limit, 2 = upper limit-->
+  <string name="RestrictionGroup.Settings">Настройка: Конфигурировать доступ</string>
+  <string name="RestrictionGroup.Settings.MediaSources">Настройка: Управление медиа-источниками</string>
 </resources>

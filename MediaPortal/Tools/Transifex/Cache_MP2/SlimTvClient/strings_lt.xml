@@ -1,6 +1,6 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
-  <string name="SlimTvClient.Title">Slim TV klientas</string>
+  <string name="SlimTvClient.Title">TV programa</string>
   <string name="SlimTvClient.Main">TV</string>
   <string name="SlimTvClient.TvGuide">TV programa</string>
   <string name="SlimTvClient.SingleChannelGuide">Kanalų gidas</string>
@@ -61,6 +61,7 @@
   <string name="SlimTvClient.EpgNumberOfHours">Valandų kiekis EPG</string>
   <string name="SlimTvClient.EpgNumberOfHours.Help">Numato kiek valandų (programų) bus rodoma EPG</string>
   <string name="SlimTvClient.Notifications">Pranešimai</string>
+  <string name="SlimTvClient.NoColor">Joks</string>
   <string name="SlimTvClient.RecordingsMenuItem">Įrašai</string>
   <string name="SlimTvClient.RecordingsRootViewName">TV įrašai</string>
   <string name="SlimTvClient.ChannelMenuItemLabel">Filtruoti pagal kanalą</string>

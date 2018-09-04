@@ -1,5 +1,7 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
+  <!--Headlines for HomeContent-->
+  <string name="Media.Favorites">Suosikit</string>
   <!--Menu items for the five Media navigation parts-->
   <string name="Media.BrowseMediaMenuItem">Selaa medioita</string>
   <string name="Media.LocalMediaMenuItem">Paikallinen media</string>
@@ -30,6 +32,7 @@
   <string name="Media.ImageFilterSmall">Pieni</string>
   <string name="Media.ImageFilterMedium">Keskikokoinen</string>
   <string name="Media.ImageFilterBig">Suuri</string>
+  <string name="Media.ContentGroupFilter">{0}</string>
   <string name="Media.SwitchToBrowseMLView">Palvelin näkymään</string>
   <string name="Media.SwitchToLocalMediaView">Paikalliseen näkymään</string>
   <string name="Media.SwitchToBrowseShareView">Kansio näkymään</string>
@@ -172,9 +175,10 @@
   <string name="Media.OpenPlayerStrategy.MediaPortal.UI.Services.Players.PCMOpenPlayerStrategy.Default">Oletus</string>
   <string name="Media.OpenPlayerStrategy.MediaPortal.UI.Services.Players.PCMOpenPlayerStrategy.PreservePiP">Säilytä PiP video</string>
   <!--MediaItemAction dialog-->
-  <string name="Media.SetWatched">Aseta katsotuksi</string>
-  <string name="Media.SetUnwatched">Nollaa katsontakerrat</string>
+  <string name="Media.Refresh">Päivitä</string>
   <string name="Media.DeleteFromStorage">Poista varastosta</string>
+  <string name="Media.ReimportMediaItem.Done">Valmis</string>
+  <string name="Media.ReimportMediaItem.Description">Kuvaus</string>
   <!--Play items dialog-->
   <string name="Media.PlayItemDialogHeader">Toista kappale</string>
   <string name="Media.PlayAudioItems">Toista audiokappaleita</string>
@@ -287,6 +291,8 @@
   <string name="Media.SwitchSortingMenuItem">Lajittelu</string>
   <string name="Media.SortByDate">Pvm</string>
   <string name="Media.GroupingBrowseDefault">Oletus</string>
+  <!--Stubs-->
+  <!--Settings-->
   <string name="Settings.Players">Soittimet</string>
   <string name="Settings.Players.ClosePlayersWhenFinished">Sammuta soittimet lopuksi</string>
   <string name="Settings.Players.ClosePlayersWhenFinished.Help">Aseta tämä asetus päälle jotta MediaPortal sammuttaa soittimet automaattisesti</string>

@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <string name="Match.Video.Action">Veiksmo</string>
+  <string name="Match.Video.Adventure">Nuotykių</string>
+  <string name="Match.Video.Comedy">Komedija</string>
+  <string name="Match.Video.Crime">Kriminalinis</string>
+  <string name="Match.Video.Documentary">Dokumentinis</string>
+  <string name="Match.Video.Drama">Drama</string>
+  <string name="Match.Video.Family">Šeimyninis</string>
+  <string name="Match.Video.Fantasy">Fantastika</string>
+  <string name="Match.Video.History">Istorinis</string>
+  <string name="Match.Video.Horror">Siaubo</string>
+  <string name="Match.Video.Music">Muzika</string>
+  <string name="Match.Video.Mystery">Paslaptingi</string>
+  <string name="Match.Video.Romance">Romantiški</string>
+  <string name="Match.Video.TVMovie">TV</string>
+  <string name="Match.Video.War">Kariniai</string>
+  <string name="Match.Video.Western">Vesternai</string>
+  <string name="Match.Video.News">Naujienos</string>
+  <string name="Match.Video.Reality">Realybės</string>
+  <string name="Match.Video.Soap">Muilo opera</string>
+  <string name="Match.Video.Sport">Sportas</string>
+  <string name="Match.Epg.Movie">Filmas</string>
+  <string name="Match.Epg.Series">Serijos</string>
+  <string name="Match.Epg.Music">Muzika</string>
+  <string name="Match.Epg.News">Naujienos</string>
+  <string name="Match.Epg.Sport">Sportas</string>
+
+  <string name="Label.Audio.Country">Šalis</string>
+  <string name="Label.Audio.Comedy">Komedija</string>
+  <string name="Label.Audio.World">Pasaulis</string>
+  <string name="Label.Video.Action">Veiksmo</string>
+  <string name="Label.Video.Adventure">Nuotykių</string>
+  <string name="Label.Video.Animation">Animacinis</string>
+  <string name="Label.Video.Comedy">Komedija</string>
+  <string name="Label.Video.Crime">Kriminalinis</string>
+  <string name="Label.Video.Documentary">Dokumentinis</string>
+  <string name="Label.Video.Drama">Drama</string>
+  <string name="Label.Video.Family">Šeimyninis</string>
+  <string name="Label.Video.Fantasy">Fantastika</string>
+  <string name="Label.Video.History">Istorinis</string>
+  <string name="Label.Video.Horror">Siaubo</string>
+  <string name="Label.Video.Music">Muzika</string>
+  <string name="Label.Video.Mystery">Paslaptingi</string>
+  <string name="Label.Video.Romance">Romantiški</string>
+  <string name="Label.Video.TVMovie">TV</string>
+  <string name="Label.Video.Thriller">Trileriai</string>
+  <string name="Label.Video.War">Kariniai</string>
+  <string name="Label.Video.Western">Vesternai</string>
+  <string name="Label.Video.News">Naujienos</string>
+  <string name="Label.Video.Soap">Muilo opera</string>
+  <string name="Label.Video.Talk">Pokalbių laidos</string>
+  <string name="Label.Video.Noir">Sunkaus siužeto</string>
+  <string name="Label.Video.Sport">Sportas</string>
+  <string name="Label.Video.Game">TV laida</string>
+
+  <string name="Label.Epg.Movie">Filmas</string>
+  <string name="Label.Epg.Series">Serijos</string>
+  <string name="Label.Epg.Documentary">Dokumentinis</string>
+  <string name="Label.Epg.Music">Muzika</string>
+  <string name="Label.Epg.News">Naujienos</string>
+  <string name="Label.Epg.Sport">Sportas</string>
+</resources>

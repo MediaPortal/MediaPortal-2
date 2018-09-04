@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <string name="Match.Video.Music">Μουσική</string>
+  <string name="Match.Video.TVMovie">TV</string>
+  <string name="Match.Epg.Series">Σειρές</string>
+  <string name="Match.Epg.Music">Μουσική</string>
+  <string name="Label.Audio.World">Κόσμος</string>
+  <string name="Label.Video.Music">Μουσική</string>
+  <string name="Label.Video.TVMovie">TV</string>
+  <string name="Label.Epg.Series">Σειρές</string>
+  <string name="Label.Epg.Music">Μουσική</string>
+  </resources>

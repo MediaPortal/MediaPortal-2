@@ -1,5 +1,7 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
+  <!--Headlines for HomeContent-->
+  <string name="Media.Favorites">Ulubione</string>
   <!--Menu items for the five Media navigation parts-->
   <string name="Media.BrowseMediaMenuItem">Przeglądaj media</string>
   <string name="Media.LocalMediaMenuItem">Media lokalne</string>
@@ -25,6 +27,7 @@
   <string name="Media.ImageFilterSmall">Mały</string>
   <string name="Media.ImageFilterMedium">Średni</string>
   <string name="Media.ImageFilterBig">Wielki</string>
+  <string name="Media.ContentGroupFilter">{0}</string>
   <!--Navbar display labels for sub view navigation-->
   <string name="Media.BrowseMediaNavigationNavbarDisplayLabel">{0}</string>
   <!--For example: "R.E.M."-->
@@ -144,6 +147,9 @@
   <string name="Media.PlaylistIdInfoLabel">Wewnętrzny identyfikator listy odtwarzania</string>
   <string name="Media.OpenPlayerStrategy.MediaPortal.UI.Services.Players.PCMOpenPlayerStrategy.Default">Domyślne</string>
   <!--MediaItemAction dialog-->
+  <string name="Media.Refresh">Odśwież</string>
+  <string name="Media.ReimportMediaItem.Done">Gotowe</string>
+  <string name="Media.ReimportMediaItem.Description">Opis</string>
   <!--Play items dialog-->
   <string name="Media.PlayItemDialogHeader">Odtwórz element</string>
   <string name="Media.PlayAudioItems">Odtwórz elementy audio</string>
@@ -186,6 +192,8 @@
   <!--Video Player time units-->
   <string name="Media.SortByDate">Data</string>
   <string name="Media.GroupingBrowseDefault">Domyślne</string>
+  <!--Stubs-->
+  <!--Settings-->
   <string name="Settings.Players">Odtwarzacze</string>
   <!--Secondary filters-->
   <string name="Filter.RemoteNumericAlphabet0"></string>

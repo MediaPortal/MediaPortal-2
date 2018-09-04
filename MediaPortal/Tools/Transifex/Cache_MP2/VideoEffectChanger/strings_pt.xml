@@ -5,4 +5,6 @@
   <string name="VEC.LowerEffect">Efeitos de baixa resolução</string>
   <string name="VEC.HigherEffect">Efeitos de alta resolução</string>
   <string name="VEC.ResolutionLimit">Limite de resolução</string>
+  <string name="Settings.Players.VideoPlayer.VEC">Alterar efeito de video</string>
+  <string name="Settings.Plugins.VideoPlayer.VEC.Help">Permite definir o filtro padrão para visualização dos vídeos</string>
 </resources>

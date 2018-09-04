@@ -10,14 +10,27 @@
   <string name="WMC.Configuration.EnableWatchedFlags.GridView">Rasteransicht</string>
   <string name="WMC.Configuration.EnableWatchedFlags.CoverView">Coveransicht</string>
   <string name="WMC.Configuration.EnableAgeCertificationLogos">Alterseinstufungs-Logos anzeigen</string>
-  <string name="WMC.Configuration.EnableAgeCertificationLogos.Help">Zeigt Altersfreigabe-Logos zusammen mit den Medieninformationen an</string>
-  <string name="WMC.Configuration.EnableBanners">Banner anzeigen</string>
-  <string name="WMC.Configuration.EnableBanners.Help">Legt fest, ob in der Rasteransicht Banner anstelle von Covern angezeigt werden sollen</string>
-  <string name="WMC.Configuration.EnableBanners.Movies">Filme</string>
-  <string name="WMC.Configuration.EnableBanners.Series">Serien</string>
-  <string name="WMC.Configuration.EnableBanners.Seasons">Staffeln</string>
-  <string name="WMC.Configuration.EnableAnimatedBackground">Animierten Hintergrund aktivieren</string>
-  <string name="WMC.Configuration.EnableAnimatedBackground.Help">Legt fest, ob die \"Aurora\"-Animation im Hauptmenu verwendet wird</string>
+  <string name="WMC.Configuration.EnableAgeCertificationLogos.Help">Zeigt Altersfreigabe-Logos zusammen mit den Medieninformationen an</string>  
+  <string name="WMC.Configuration.MovieGridViewType">Film Rasteransicht</string>
+  <string name="WMC.Configuration.MovieGridViewType.Help">Wähle die Rasteransicht für Filme</string>
+  <string name="WMC.Configuration.SeriesGridViewType">Serie Rasteransicht</string>
+  <string name="WMC.Configuration.SeriesGridViewType.Help">Wähle die Rasteransicht für Serien</string>
+  <string name="WMC.Configuration.SeasonGridViewType">Staffel Rasteransicht</string>
+  <string name="WMC.Configuration.SeasonGridViewType.Help">Wähle die Rasteransicht für Staffeln</string>
+  <string name="WMC.Configuration.GridViewType.Poster">Poster</string>
+  <string name="WMC.Configuration.GridViewType.Banner">Banner</string>
+  <string name="WMC.Configuration.GridViewType.Thumbnail">Vorschaubilder</string>  
+  <string name="WMC.Configuration.EnableHomeContent">Aktiviere Home-Inhalte</string>
+  <string name="WMC.Configuration.EnableHomeContent.Help">Sollen Home-Inhalte auf der Startseite angezeigt werden?</string>
   <string name="WMC.Configuration.EnableMediaItemDetailsView">Medien Detail-Ansicht aktivieren</string>
   <string name="WMC.Configuration.EnableMediaItemDetailsView.Help">Zeigt zunächst Mediendetails an, statt den Titel direkt wiederzugeben.</string>
+
+  <string name="WMC.Home.LatestAdded">Zuletzt hinzugefügt</string>
+  <string name="WMC.Home.LatestPlayed">Zuletzt gespielt</string>
+  <string name="WMC.Home.ContinuePlayed">Wiedergabe fortsetzen</string>
+  <string name="WMC.Home.CurrentPrograms">Aktuelle Programme</string>
+  <string name="WMC.Home.CurrentSchedules">Aktuelle Aufnahmepläne</string>
+  <string name="WMC.Home.Favorites">Favoriten</string>
+  <string name="WMC.Home.Unplayed">Nicht abgespielt</string>
+
 </resources>

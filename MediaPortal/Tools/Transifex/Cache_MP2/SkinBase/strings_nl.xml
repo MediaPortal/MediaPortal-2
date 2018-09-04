@@ -101,6 +101,7 @@
   <!--for example "Close video player"-->
   <string name="Players.ChoosePlayerGeometry">Zoom mode</string>
   <string name="Players.ChoosePlayerEffect">Effect</string>
+  <string name="Players.ChoosePlayerSubtitle">Ondertitel</string>
   <string name="Settings.Appearance">Uiterlijk</string>
   <string name="Settings.Appearance.Skin">Skin</string>
   <string name="Settings.Appearance.Skin.Formats.DateFormat">Datum notatie</string>
@@ -165,6 +166,12 @@
   <string name="SharesConfig.ReImportShare">Herimporteer mediabron</string>
   <string name="SharesConfig.RemoveShares">Verwijder mediabronnen</string>
   <string name="SharesConfig.ChooseSystem">Selecteer systeem</string>
+  <string name="SharesConfig.LocalShare">Client mediabron</string>
+  <string name="SharesConfig.LocalShares">Client mediabronnen</string>
+  <string name="SharesConfig.GlobalShare">Server mediabron</string>
+  <string name="SharesConfig.GlobalShares">Server mediabronnen</string>
+  <string name="SharesConfig.NoConfigGlobalSharesHomeServerNotConnected">De thuisserver is op dit moment niet verbonden, media op de server kan daarom niet worden beheerd.</string>
+  <string name="SharesConfig.NoConfigLocalSharesHomeServerLocal">De thuisserver is op dezelfde computer, daarom kunnen er alleen mediabronnen op de server worden geconfigureerd.</string>
   <string name="SharesConfig.ResourceProviderPathIsNotValid">Geef een geldig pad voor de geselecteerde bron. Je kunt een eenvoudig pad opgeven dat begrijpelijk is voor de bron. Je kunt ook een complex pad opgeven met de volgende notatie {[Base-ResourceProvider-ID]}://[Base-ResourceProvider-Path]&gt;{[Chained-ResourceProvider-ID]}://[Chained-ResourceProvider-Path]&gt;...</string>
   <string name="SharesConfig.MenuAddShare">Mediabron toevoegen</string>
   <string name="SharesConfig.MenuEditShares">Bewerken</string>

@@ -1,0 +1,6 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<resources>
+  <string name="News.Title">Новости</string>
+  <string name="News.FeedsStateDisplayLabel">Новости</string>
+  <string name="Settings.Plugins.News">Новости</string>
+</resources>

@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <string name="WakeOnLan.EnableWakeOnLan">Wake on LAN aktivieren</string>
+  <string name="WakeOnLan.EnableWakeOnLan.Help">Legt fest, ob beim Starten des Client auch der Server automatisch geweckt wird.</string>
+</resources>

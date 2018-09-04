@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <string name="Match.Video.Music">Muusika</string>
+  <string name="Match.Video.TVMovie">TV</string>
+  <string name="Match.Video.News">Uudised</string>
+  <string name="Match.Epg.Series">Seeriad</string>
+  <string name="Match.Epg.Music">Muusika</string>
+  <string name="Match.Epg.News">Uudised</string>
+  <string name="Label.Audio.World">Maailm</string>
+  <string name="Label.Video.Music">Muusika</string>
+  <string name="Label.Video.TVMovie">TV</string>
+  <string name="Label.Video.News">Uudised</string>
+  <string name="Label.Epg.Series">Seeriad</string>
+  <string name="Label.Epg.Music">Muusika</string>
+  <string name="Label.Epg.News">Uudised</string>
+  </resources>
