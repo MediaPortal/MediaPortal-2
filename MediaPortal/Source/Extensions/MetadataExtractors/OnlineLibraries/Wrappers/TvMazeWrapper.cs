@@ -105,7 +105,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
           EpisodeName = episodeSearch.EpisodeName,
         };
         info.CopyIdsFrom(seriesSearch);
-        CollectionUtils.AddAll(info.EpisodeNumbers, episodeSearch.EpisodeNumbers);
+        info.EpisodeNumbers = info.EpisodeNumbers.Union(episodeSearch.EpisodeNumbers).ToList();
         episodes.Add(info);
       }
 
@@ -218,8 +218,8 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
                 Genres = seriesDetail.Genres.Where(s => !string.IsNullOrEmpty(s?.Trim())).Select(s => new GenreInfo { Name = s.Trim() }).ToList(),
               };
 
-              info.Actors = series.Actors;
-              info.Characters = series.Characters;
+              info.Actors = series.Actors.ToList();
+              info.Characters = series.Characters.ToList();
 
               series.Episodes.Add(info);
             }

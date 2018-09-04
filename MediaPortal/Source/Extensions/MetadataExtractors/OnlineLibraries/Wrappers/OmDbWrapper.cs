@@ -117,7 +117,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
           EpisodeName = episodeSearch.EpisodeName,
         };
         info.CopyIdsFrom(seriesSearch);
-        CollectionUtils.AddAll(info.EpisodeNumbers, episodeSearch.EpisodeNumbers);
+        info.EpisodeNumbers = info.EpisodeNumbers.Union(episodeSearch.EpisodeNumbers).ToList();
         episodes.Add(info);
       }
 
@@ -185,7 +185,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
           {
             awards.Add("Golden Globe");
           }
-          movie.Awards = awards;
+          movie.Awards = awards.ToList();
         }
 
         if (movieDetail.ImdbRating.HasValue)
@@ -258,7 +258,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
           {
             awards.Add("Golden Globe");
           }
-          series.Awards = awards;
+          series.Awards = awards.ToList();
         }
 
         if (seriesDetail.ImdbRating.HasValue)

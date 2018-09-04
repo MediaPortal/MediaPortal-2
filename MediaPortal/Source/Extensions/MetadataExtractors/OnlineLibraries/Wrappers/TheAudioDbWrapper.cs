@@ -435,8 +435,8 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
             if (!string.IsNullOrEmpty(trackDetail.Genre?.Trim()))
               track.Genres.Add(new GenreInfo { Name = trackDetail.Genre.Trim() });
 
-            track.AlbumArtists = album.Artists;
-            track.MusicLabels = album.MusicLabels;
+            track.AlbumArtists = album.Artists.ToList();
+            track.MusicLabels = album.MusicLabels.ToList();
 
             album.Tracks.Add(track);
           }

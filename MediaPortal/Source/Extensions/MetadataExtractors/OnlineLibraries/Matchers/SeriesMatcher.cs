@@ -1121,7 +1121,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
         {
           //Try to update person based on series information
           SeriesInfo series = episodeMatch.CloneBasicInstance<SeriesInfo>();
-          series.Actors = episodeMatch.Actors;
+          series.Actors = episodeMatch.Actors.ToList();
           if (await UpdateSeriesPersonsAsync(series, occupation).ConfigureAwait(false))
             updated = true;
         }
@@ -1255,7 +1255,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
         {
           //Try to update character based on series information
           SeriesInfo series = episodeMatch.CloneBasicInstance<SeriesInfo>();
-          series.Characters = episodeMatch.Characters;
+          series.Characters = episodeMatch.Characters.ToList();
           if (await UpdateSeriesCharactersAsync(series).ConfigureAwait(false))
             updated = true;
         }

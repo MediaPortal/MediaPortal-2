@@ -957,7 +957,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
             else //Fallabck to name search
             {
               searchData = searchData.Trim();
-              albumSearchinfo.Artists = new List<PersonInfo>(album.Artists);
+              albumSearchinfo.Artists = album.Artists.ToList();
               var match = _titleYearRegEx.Match(searchData);
               if (match.Success)
               {
