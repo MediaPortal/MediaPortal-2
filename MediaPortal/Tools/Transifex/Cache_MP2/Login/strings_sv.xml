@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  
+  <!--Login-->
+  <string name="Login.Title">Login</string>
+  <string name="Login.Title.Help">Logga in en viss användare</string>
+  <string name="Login.IncorrectPassword">Fel lösenord, försök igen</string>
+  <string name="Login.PasswordOk">OK</string>
+  <string name="Login.EnterPassword">Lösenord</string>
+  <string name="Login.Logout">Logga ut</string>
+
+  <!--User Settings-->
+  <string name="Settings.Users">Användare</string> <!-- Section name -->
+  <string name="Settings.Users.Config">Hantera användare</string> <!-- Group name -->
+  <string name="Settings.Users.Config.UserManagement">Hantera användare</string> <!-- Setting -->
+  <string name="Settings.Users.Config.UserManagement.Help">Hantera användarna på hemmaservern</string>
+  <string name="Settings.Users.Config.UserEnable">Aktivera login-funktioner och behörigheter</string> <!-- Setting -->
+  <string name="Settings.Users.Config.UserEnable.Help">Aktivera inloggning, byt användare och ändra inställningar för en användare</string>
+  <string name="Settings.Users.Config.UserEnableScreen">Aktivera loginsidan</string> <!-- Setting -->
+  <string name="Settings.Users.Config.UserEnableScreen.Help">Visa loginsidan när ingen är inloggad</string>
+  <string name="Settings.Users.Config.AutoLogout">Automatisk utloggning </string> <!-- Setting -->
+  <string name="Settings.Users.Config.AutoLogout.Help">Aktivera automatisk utloggning efter en viss tid av inaktivitet</string>
+  <string name="Settings.Users.Config.AutoLogoutTimeout">Timeout för inaktivitet</string> <!-- Setting -->
+  <string name="Settings.Users.Config.AutoLogoutTimeout.Help">Tid för inaktivitet innan användaren loggas ut</string>
+  <string name="Settings.Users.Config.AutoLoginUser">Logga in automatiskt</string> <!-- Setting -->
+  <string name="Settings.Users.Config.AutoLoginUser.Help">Användaren som loggas in automatiskt</string>
+  <string name="Settings.Users.Config.SystemDefault">Förvalda värden</string>
+  <string name="Settings.Users.Config.AutoLoginUser.Title">Automatiskt inloggad användare</string>
+
+  <!-- User configuration workflow -->
+  <string name="UserConfig.UserOverviewWorkflowNavigationContextDisplayLabel">Hantera användare</string>
+  <string name="UserConfig.UserConfiguration.Title">Hantera användare</string>
+  <string name="UserConfig.Users">Användare</string>
+  <string name="UserConfig.NoConfigUserHomeServerNotConnected">Hemmaservern är för närvarande inte uppkopplad, så användarna på servern kan inte hanteras nu.</string>
+  <string name="UserConfig.UserName">Användarnamn</string>
+  <string name="UserConfig.Password">Lösenord</string>
+  <string name="UserConfig.ProfileType">Typ av profil</string>
+  <string name="UserConfig.AgeFilter">Aktivera filtrering på åldersgränser</string>
+  <string name="UserConfig.ShareRestrictions">Begränsa åtkomst av mappar</string>
+  <string name="UserConfig.IncludePGContent">Inkludera \"i vuxens sällskap\" innehåll</string>
+  <string name="UserConfig.IncludeUnratedContent">Ta med oklassificerat innehåll</string>
+  <string name="UserConfig.LastLogin">Senaste login</string>
+  <string name="UserConfig.NewUserText">Ny användare</string>
+  <string name="UserConfig.AddUser">Lägg till</string>
+  <string name="UserConfig.CopyUser">Kopiera</string>
+  <string name="UserConfig.DeleteUser">Ta bort</string>
+  <string name="UserConfig.SaveUser">Spara</string>
+  <string name="UserConfig.SelectImage">Välj bild för användaren</string>
+  <string name="UserConfig.DeleteConfirmation.Title">Bekräfta borttagningen</string>
+  <string name="UserConfig.DeleteConfirmation">Är du säker på att du vill ta bort användaren?</string>
+  <string name="UserConfig.Yes">Ja</string>
+  <string name="UserConfig.No">Nej</string>
+  <string name="UserConfig.Ok">OK</string>
+  <string name="UserConfig.Disable">Inaktivera</string>
+
+  <string name="UserConfig.SelectProfileTemplate">Välj mall för typ av profil</string>
+  <string name="UserConfig.ClientProfile">Klientprofil</string>
+  <string name="UserConfig.UserProfile">Användarprofil</string>
+
+  <string name="UserConfig.RestrictionGroups">Begränsa åtgärder</string>
+  <string name="UserConfig.RestrictedAll">Alla tillåtna</string>
+  <string name="UserConfig.RestrictedNone">Inga tillåtna</string>
+  <string name="UserConfig.RestrictedNumbers">{0} / {1} tillåtna</string>
+  <string name="UserConfig.SelectRestrictions">Välj vad användaren kan göra</string>
+
+  <string name="UserConfig.SharesText">Utdelade mappar</string>
+  <string name="UserConfig.SelectShares">Välj åtkomst av mappar</string>
+  <string name="UserConfig.LocalShare">Klientens mediakälla</string>
+  <string name="UserConfig.LocalShares">Klientens mediakällor</string>
+  <string name="UserConfig.GlobalShare">Serverns mediakälla</string>
+  <string name="UserConfig.GlobalShares">Serverns mediakällor</string>
+  <string name="UserConfig.NoConfigGlobalSharesHomeServerNotConnected">Hemmaservern är för närvarande inte ansluten, så serverns mediakällor kan inte hanteras nu</string>
+  <string name="UserConfig.NoConfigLocalSharesHomeServerLocal">Hemmaservern finns på samma dator, så endast serverns mediakällor kan konfigureras</string>
+
+  <string name="RestrictionGroup.Settings.UserProfile">Inställningar: Hantera alla profiler</string>
+  <string name="RestrictionGroup.Settings.UserProfile.ManageOwn">Inställningar: Hantera egen profil</string>
+
+  <string name="UserProfileTemplate.Admin">Administratör</string>
+  <string name="UserProfileTemplate.Teenager">Tonåring</string>
+  <string name="UserProfileTemplate.Child">Barn</string>
+
+</resources>

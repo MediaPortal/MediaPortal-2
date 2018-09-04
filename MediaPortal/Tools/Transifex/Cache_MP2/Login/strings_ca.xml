@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  
+  <string name="UserConfig.AddUser">Afegeix</string>
+  <string name="UserConfig.CopyUser">Copia</string>
+  <string name="UserConfig.DeleteUser">Suprimeix</string>
+  <string name="UserConfig.Yes">Sí</string>
+  <string name="UserConfig.No">No</string>
+  <string name="UserConfig.SharesText">Llocs compartits</string>
+  </resources>

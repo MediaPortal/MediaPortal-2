@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  
+  <string name="UserConfig.AddUser">Добавить</string>
+  <string name="UserConfig.DeleteUser">Удалить</string>
+  <string name="UserConfig.Yes">Да</string>
+  <string name="UserConfig.No">Нет</string>
+  </resources>

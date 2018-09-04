@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <string name="Match.Video.Music">Tónlist</string>
+  <string name="Match.Video.TVMovie">Sjónvarp</string>
+  <string name="Match.Video.News">Fréttir</string>
+  <string name="Match.Epg.Series">Þættir</string>
+  <string name="Match.Epg.Music">Tónlist</string>
+  <string name="Match.Epg.News">Fréttir</string>
+  <string name="Label.Audio.World">Heimurinn</string>
+  <string name="Label.Video.Music">Tónlist</string>
+  <string name="Label.Video.TVMovie">Sjónvarp</string>
+  <string name="Label.Video.News">Fréttir</string>
+  <string name="Label.Epg.Series">Þættir</string>
+  <string name="Label.Epg.Music">Tónlist</string>
+  <string name="Label.Epg.News">Fréttir</string>
+  </resources>

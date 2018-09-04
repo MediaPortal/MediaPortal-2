@@ -1,5 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-  <string name="WMC.Configuration.EnableBanners.Movies">Films</string>
-  <string name="WMC.Configuration.EnableBanners.Series">Series</string>
-  </resources>
+  <string name="WMC.Configuration.EnableFanart">Activeer Fanart</string>
+  <string name="WMC.Configuration.EnableFanart.Help">Wel of niet tonen van Fanart achtergrond</string>
+  <string name="WMC.Configuration.FanartOverlayOpacity">Fanart zichtbaarheid</string>
+  <string name="WMC.Configuration.EnableWatchedFlags.ListView">Bekijk lijst</string>
+  <string name="WMC.Configuration.EnableWatchedFlags.GridView">Bekijk raster</string>
+  <string name="WMC.Configuration.EnableWatchedFlags.CoverView">Bekijk cover</string>
+  <string name="WMC.Configuration.EnableAgeCertificationLogos">Activeer leeftijd logo\'s </string>
+  <string name="WMC.Configuration.EnableAgeCertificationLogos.Help">Wel of niet tonen van leeftijd logo\'s in mediaschermen</string>  
+  <string name="WMC.Home.LatestAdded">Laatst gezien</string>
+  <string name="WMC.Home.LatestPlayed">Laatst afgespeeld</string>
+  <string name="WMC.Home.CurrentPrograms">Huidige programma\'s</string>
+  <string name="WMC.Home.CurrentSchedules">Huidige opnames</string>
+  <string name="WMC.Home.Favorites">Favorieten</string>
+  <string name="WMC.Home.Unplayed">Niet afgespeeld</string>
+
+</resources>

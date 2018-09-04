@@ -12,4 +12,6 @@
   <!--0 = current value, 1 = lower limit, 2 = upper limit-->
   <string name="Configuration.ErrorNumericUpperLimit">Använd ett värde mellan  \'{1}\' och \'{2}\'</string>
   <!--0 = current value, 1 = lower limit, 2 = upper limit-->
+  <string name="RestrictionGroup.Settings">Inställningar: Konfigurera inloggning</string>
+  <string name="RestrictionGroup.Settings.MediaSources">Inställningar: Hantera mediakällor</string>
 </resources>

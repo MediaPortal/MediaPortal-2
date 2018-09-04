@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  
+  <string name="UserConfig.AddUser">Tambah</string>
+  <string name="UserConfig.CopyUser">Salin</string>
+  <string name="UserConfig.DeleteUser">Hapus</string>
+  <string name="UserConfig.Yes">Ya</string>
+  <string name="UserConfig.No">Tidak</string>
+  <string name="UserConfig.SharesText">Share</string>
+  </resources>

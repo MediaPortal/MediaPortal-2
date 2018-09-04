@@ -1,5 +1,7 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
+  <!--Headlines for HomeContent-->
+  <string name="Media.Favorites">Фаворити</string>
   <!--Menu items for the five Media navigation parts-->
   <string name="Media.BrowseMediaMenuItem">Погледајте медије</string>
   <string name="Media.BrowseMediaMenuItem.Help">Прегледај медије за сваку врсту и сваки извор. Приступ уклоњивим дисковима је такође омогућен.</string>
@@ -21,7 +23,6 @@
   <string name="Media.SortTitleMenuItem">Сортирај наслове.</string>
   <string name="Media.AlbumMenuItem">Албуми и наслови</string>
   <string name="Media.AlbumTrackMenuItem">Албум и песме</string>
-  <string name="Media.AlbumArtistMenuItem">Албум Уметник</string>
   <string name="Media.AlbumLabelMenuItem">Назив музике</string>
   <string name="Media.TrackMenuItem">Нумера</string>
   <string name="Media.ArtistMenuItem">Уметник</string>
@@ -64,6 +65,7 @@
   <string name="Media.ImageFilterMedium">Средње</string>
   <string name="Media.ImageFilterBig">Велико</string>
   <string name="Media.DiscNumberFilter">Диск {0}</string>
+  <string name="Media.ContentGroupFilter">{0}</string>
   <string name="Media.SwitchToBrowseMLView">Сервер приказ</string>
   <string name="Media.SwitchToLocalMediaView">Локални приказ</string>
   <string name="Media.SwitchToBrowseShareView">За приказ датотека</string>
@@ -249,9 +251,10 @@
   <string name="Media.OpenPlayerStrategy.MediaPortal.UI.Services.Players.PCMOpenPlayerStrategy.PreservePiP">Задржи видео као слику у слици</string>
   <!--MediaItemAction dialog-->
   <string name="Media.MediaItemsActionDialogHeader">Медија ставке акције</string>
-  <string name="Media.SetWatched">Подеси као већ гледано</string>
-  <string name="Media.SetUnwatched">Подеси на неодгледано</string>
+  <string name="Media.Refresh">Освежи приказ</string>
   <string name="Media.DeleteFromStorage">Обриши из складишта</string>
+  <string name="Media.ReimportMediaItem.Done">Готово</string>
+  <string name="Media.ReimportMediaItem.Description">Опис</string>
   <!--Play items dialog-->
   <string name="Media.PlayItemDialogHeader">Пусти ставку</string>
   <string name="Media.PlayAudioItems">Пусти аудио ставку</string>
@@ -375,6 +378,8 @@
   <string name="Media.SwitchGroupingMenuItem">Прављење група</string>
   <string name="Media.SwitchGroupingDialogTitle">Групиши по</string>
   <string name="Media.NoGrouping">Без груписања</string>
+  <!--Stubs-->
+  <!--Settings-->
   <string name="Settings.Players">Плејери</string>
   <string name="Settings.Players.ClosePlayersWhenFinished">Одабери плејер</string>
   <string name="Settings.Players.ClosePlayersWhenFinished.Help">Одабери ово подешавање да МедијаПортал затвори плејере који су завршили аутоматски</string>

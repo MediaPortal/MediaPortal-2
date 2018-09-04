@@ -1,5 +1,7 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
+  <!--Headlines for HomeContent-->
+  <string name="Media.Favorites">Priljubljene</string>
   <!--Menu items for the five Media navigation parts-->
   <string name="Media.BrowseMediaMenuItem">Preglej vsebine</string>
   <string name="Media.LocalMediaMenuItem">Lokalne vsebine</string>
@@ -28,6 +30,7 @@
   <string name="Media.ImageFilterSmall">Male</string>
   <string name="Media.ImageFilterMedium">Srednje</string>
   <string name="Media.ImageFilterBig">Velike</string>
+  <string name="Media.ContentGroupFilter">{0}</string>
   <string name="Media.SwitchToBrowseMLView">Na pregled strežnika</string>
   <string name="Media.SwitchToLocalMediaView">Na pregled lokalnih vsebin</string>
   <string name="Media.SwitchToBrowseShareView">Pojdi na pregled map</string>
@@ -169,9 +172,10 @@
   <string name="Media.OpenPlayerStrategy.MediaPortal.UI.Services.Players.PCMOpenPlayerStrategy.PreservePiP">Ohrani PiP video</string>
   <!--MediaItemAction dialog-->
   <string name="Media.MediaItemsActionDialogHeader">Dejanja medijskega elementa</string>
-  <string name="Media.SetWatched">Nastavi ogledano</string>
-  <string name="Media.SetUnwatched">Nastavi neogledano</string>
+  <string name="Media.Refresh">Osveži</string>
   <string name="Media.DeleteFromStorage">Izbriši iz shrambe</string>
+  <string name="Media.ReimportMediaItem.Done">Končano</string>
+  <string name="Media.ReimportMediaItem.Description">Opis</string>
   <!--Play items dialog-->
   <string name="Media.PlayItemDialogHeader">Predvajaj vsebino</string>
   <string name="Media.PlayAudioItems">Predvajaj audio vsebine</string>
@@ -282,6 +286,8 @@
   <string name="Media.SwitchSortingMenuItem">Urejanje</string>
   <string name="Media.SortByDate">Datum</string>
   <string name="Media.GroupingBrowseDefault">Privzeto</string>
+  <!--Stubs-->
+  <!--Settings-->
   <string name="Settings.Players">Predvajalniki</string>
   <string name="Settings.Players.ClosePlayersWhenFinished">Zapri predvajalnike ob koncu</string>
   <string name="Settings.Players.ClosePlayersWhenFinished.Help">Vključi to nastavitev, da bo MediaPortal ob koncu zaprl predvajalnike</string>

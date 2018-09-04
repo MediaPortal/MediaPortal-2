@@ -6,5 +6,6 @@
   <!--Schedule management-->
   <!--Settings-->
   <string name="SlimTvClient.Notifications">Ειδοποιήσεις</string>
+  <string name="SlimTvClient.NoColor">Κανένα</string>
   <string name="SlimTvClient.NameFilterNavBarItemLabel">{0}</string>
 </resources>

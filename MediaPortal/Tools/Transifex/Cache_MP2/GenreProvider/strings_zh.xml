@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <string name="Match.Video.Music">音乐</string>
+  <string name="Match.Video.TVMovie">电视</string>
+  <string name="Match.Video.News">新闻</string>
+  <string name="Match.Epg.Series">系列</string>
+  <string name="Match.Epg.Music">音乐</string>
+  <string name="Match.Epg.News">新闻</string>
+  <string name="Label.Audio.World">世界</string>
+  <string name="Label.Video.Music">音乐</string>
+  <string name="Label.Video.TVMovie">电视</string>
+  <string name="Label.Video.News">新闻</string>
+  <string name="Label.Epg.Series">系列</string>
+  <string name="Label.Epg.Music">音乐</string>
+  <string name="Label.Epg.News">新闻</string>
+  </resources>

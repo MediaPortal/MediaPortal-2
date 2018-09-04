@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <string name="Match.Video.Music">Musiikki</string>
+  <string name="Match.Video.TVMovie">TV</string>
+  <string name="Match.Video.News">Uutiset</string>
+  <string name="Match.Epg.Series">Sarjat</string>
+  <string name="Match.Epg.Music">Musiikki</string>
+  <string name="Match.Epg.News">Uutiset</string>
+  <string name="Label.Audio.Country">Maa</string>
+  <string name="Label.Audio.World">Maailma</string>
+  <string name="Label.Video.Music">Musiikki</string>
+  <string name="Label.Video.TVMovie">TV</string>
+  <string name="Label.Video.News">Uutiset</string>
+  <string name="Label.Epg.Series">Sarjat</string>
+  <string name="Label.Epg.Music">Musiikki</string>
+  <string name="Label.Epg.News">Uutiset</string>
+  </resources>

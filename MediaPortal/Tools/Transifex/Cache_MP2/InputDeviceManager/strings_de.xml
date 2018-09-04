@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <string name="Settings.InputDeviceManager.Section">Eingabe Management</string>
+  <string name="Settings.InputDeviceManager.EnterKeyConfig">Tasten Eingabe Manager</string>
+  <string name="Settings.InputDeviceManager.EnterKeyConfigHelp">Dieses erlaubt es Ihnen HID Geräte zu verschiedenen Tasten Aktionen aufzunehmen.</string>
+  <string name="Settings.InputDeviceManager.EnterScreenConfig">Screen Eingabe Manager</string>
+  <string name="Settings.InputDeviceManager.EnterScreenConfigHelp">Dieses erlaubt es Ihnen HID Geräte zu verschiedenen Screens aufzunehmen.</string>
+
+  <string name="InputDeviceManager.SelectDevice.Header">Drücken Sie bitte einen Taste auf dem Eingabegerät, das sie konfigurieren wollen.</string>
+  <string name="InputDeviceManager.FocusItem">Sehen Sie die aktuelle Aufnahmen und wählen Sie einen Eintrag, um diesen zu ändern.</string>
+
+  <string name="InputDeviceManager.AddKey.Header">Drücken Sie bitte die gewünschte Tastenkombination auf dem Eingabegerät!</string>
+  <string name="InputDeviceManager.Screen">Screen</string>
+  <string name="InputDeviceManager.Key">Taste</string>
+
+  <string name="InputDeviceManager.KeyMapping.Button.ClearMapping">Löschen</string>
+  <string name="InputDeviceManager.KeyMapping.Dialog.RemoveMapping">Entferne Aufnahme?</string>
+  <string name="InputDeviceManager.KeyMapping.Dialog.AddMapping">Füge Aufnahme hinzu?</string>
+</resources>

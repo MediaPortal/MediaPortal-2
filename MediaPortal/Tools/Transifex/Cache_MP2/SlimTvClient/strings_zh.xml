@@ -1,6 +1,6 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
-  <string name="SlimTvClient.Title">Slim TV客户端</string>
+  <string name="SlimTvClient.Title">电视指南</string>
   <string name="SlimTvClient.Main">电视</string>
   <string name="SlimTvClient.TvGuide">电视指南</string>
   <string name="SlimTvClient.SingleChannelGuide">频道指南</string>
@@ -43,6 +43,7 @@
   <string name="SlimTvClient.EpgNumberOfHours">EPG中的小时数</string>
   <string name="SlimTvClient.EpgNumberOfHours.Help">定义EPG中显示的小时(节目)数</string>
   <string name="SlimTvClient.Notifications">提示信息</string>
+  <string name="SlimTvClient.NoColor">无</string>
   <string name="SlimTvClient.RecordingsMenuItem">录制</string>
   <string name="SlimTvClient.RecordingsRootViewName">电视录制</string>
   <string name="SlimTvClient.ChannelMenuItemLabel">按频道过滤</string>

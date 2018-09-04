@@ -1,6 +1,6 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
-  <string name="SlimTvClient.Title">Slim TV İstemci</string>
+  <string name="SlimTvClient.Title">TV Rehberi</string>
   <string name="SlimTvClient.Main">TV</string>
   <string name="SlimTvClient.TvGuide">TV Rehberi</string>
   <string name="SlimTvClient.CurrentlyPlayingInformationHeader">Program bilgisi</string>
@@ -24,6 +24,7 @@
   <!--Schedule management-->
   <!--Settings-->
   <string name="SlimTvClient.Notifications">Bildirimler</string>
+  <string name="SlimTvClient.NoColor">Hiçbiri</string>
   <string name="SlimTvClient.RecordingsMenuItem">Kayıtlar</string>
   <string name="SlimTvClient.RecordingsRootViewName">TV Kayıtları</string>
   <string name="SlimTvClient.ChannelMenuItemLabel">Kanala göre filtrele</string>

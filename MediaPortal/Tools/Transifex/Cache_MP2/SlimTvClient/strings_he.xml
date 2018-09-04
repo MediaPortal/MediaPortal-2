@@ -1,6 +1,6 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
-  <string name="SlimTvClient.Title">קליינט טלויזיה קל</string>
+  <string name="SlimTvClient.Title">מדריך הטלויזיה</string>
   <string name="SlimTvClient.Main">טלויזיה</string>
   <string name="SlimTvClient.TvGuide">מדריך הטלויזיה</string>
   <string name="SlimTvClient.CurrentlyPlayingInformationHeader">מידע אודות התוכנית</string>
@@ -32,6 +32,7 @@
   <string name="SlimTvClient.EpgNumberOfHours">מספר השעות במדריך הערוצים</string>
   <string name="SlimTvClient.EpgNumberOfHours.Help">מגדיר את מספר השעות (התוכניות) המוצגות במדריך הערוצים</string>
   <string name="SlimTvClient.Notifications">התראות</string>
+  <string name="SlimTvClient.NoColor">ללא</string>
   <string name="SlimTvClient.RecordingsMenuItem">הקלטות</string>
   <string name="SlimTvClient.RecordingsRootViewName">הקלטות מטלויזיה</string>
   <string name="SlimTvClient.ChannelMenuItemLabel">סנן לפי ערוץ</string>

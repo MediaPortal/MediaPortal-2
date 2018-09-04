@@ -1,0 +1,10 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<resources>
+  <string name="Settings.Appearance.Skin.Background.VideoBackground">Фоновое видео</string>
+  <string name="Settings.Appearance.Skin.Background.VideoBackground.Help">Включить фоновое видео и выбрать его</string>
+  <string name="Settings.Appearance.Skin.Background.EnableVideoBackground">Включить фоновое видео</string>
+  <string name="Settings.Appearance.Skin.Background.Setup">Настройка фонового видео</string>
+  <string name="Settings.Appearance.Skin.Background.Setup.VideoFilename">Видео-файл</string>
+  <string name="Settings.Appearance.Skin.Background.Setup.Select">Выбрать</string>
+  <string name="Settings.Appearance.Skin.Background.Setup.SelectVideo">Выбрать видео-файл для воспроизведения в фоне</string>
+</resources>

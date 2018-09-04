@@ -2,6 +2,7 @@
 <resources>
   <string name="Menu.Audio">Audio</string>
   <string name="Menu.Image">Afbeeldingen</string>
+  <string name="Menu.MediaHub">Videohub</string>
   <string name="Menu.TV">TV</string>
   <string name="Menu.News">Nieuws</string>
   <string name="Menu.Weather">Weer</string>
@@ -16,7 +17,22 @@
   <string name="Recordings.Title">Opnames</string>
   <string name="Images.Title">Afbeeldingen</string>
   <string name="Videos.Title">Video\'s</string>
+  <string name="Video.Title">Video</string>
+  <string name="Subtitle.Title">Ondertitel</string>
   <string name="News.Title">Nieuws</string>
   <string name="Weather.Title">Weer</string>
   <string name="General.Title">Algemeen</string>
+  <string name="CastCrew.Title">Cast + Crew</string>
+  <string name="MediaInfo.Title">Media Info</string>
+  <string name="Media.AudioAlbumArtistsLabel">Album artiesten:</string>
+  <string name="Media.AudioTrackLabel">Track:</string>
+  <string name="Media.AudioBitRateLabel">Bitrate:</string>
+  <string name="Media.AudioComposersLabel">Componisten:</string>
+  <string name="Media.AudioMimeTypeLabel">Type:</string>
+  <string name="BlueVision.Configuration">Configuratie BlueVision</string>
+  <string name="BlueVision.Configuration.Help">Aanpassen van BlueVision skin toestaan</string>
+  <string name="BlueVision.DisableHomeTab">Deactiveer \"Home\" tab</string>
+  <string name="BlueVision.DisableAutoSelection">Deactiveer de automatische selectie van de tab menu</string>
+  <string name="BlueVision.UseAlternativeSplashscreen">Gebruik het BlueVision splash screen</string>
+  <string name="BlueVision.ResetMenuLayout">Reset het menu layout naar standaard</string>
 </resources>
