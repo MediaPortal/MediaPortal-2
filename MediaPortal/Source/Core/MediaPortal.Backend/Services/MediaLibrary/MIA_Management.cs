@@ -940,7 +940,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
       }
       
       ISQLDatabase database = ServiceRegistration.Get<ISQLDatabase>();
-      ITransaction transaction = database.BeginTransaction();
+      ITransaction transaction = database.BeginTransaction(IsolationLevel.Serializable);
       ServiceRegistration.Get<ILogger>().Info("MIA_Management: Adding media library storage for media item aspect '{0}' (id '{1}')",
           miam.Name, miam.AspectId);
       try
