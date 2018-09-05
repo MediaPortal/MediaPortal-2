@@ -12,7 +12,7 @@
 
     <!-- Transifex Client -->
     <TransifexClientExePath>$(TransifexDir)\tx.exe</TransifexClientExePath>
-    <TransifexClientDownloadUrl>https://github.com/transifex/transifex-client/releases/download/0.13.1/tx.py36.exe</TransifexClientDownloadUrl>
+    <TransifexClientDownloadUrl>https://github.com/transifex/transifex-client/releases/download/0.13.4/tx.py36.exe</TransifexClientDownloadUrl>
 
     <!-- Transifex Helper -->
     <TransifexHelperDir Condition="$(TransifexHelperDir) == ''">$(ProjectRoot)\Tools\TransifexHelper</TransifexHelperDir>
