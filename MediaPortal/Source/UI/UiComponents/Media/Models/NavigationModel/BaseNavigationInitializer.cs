@@ -150,6 +150,10 @@ namespace MediaPortal.UiComponents.Media.Models.NavigationModel
           filterTree.AddFilter(config.Filter, config.FilterPath);
       }
 
+      IEnumerable<Guid> optionalMIATypeIDs = MediaNavigationModel.GetMediaSkinOptionalMIATypes(MediaNavigationMode);
+      if (_optionalMias != null)
+        optionalMIATypeIDs = optionalMIATypeIDs.Union(_optionalMias).Except(_necessaryMias);
+
       string nextScreenName;
       AbstractScreenData nextScreen = null;
 
@@ -158,17 +162,10 @@ namespace MediaPortal.UiComponents.Media.Models.NavigationModel
       {
         // Support for browsing mode.
         if (nextScreenName == Consts.USE_BROWSE_MODE)
-          SetBrowseMode();
+          SetBrowseMode(optionalMIATypeIDs);
 
         if (_availableScreens != null)
           nextScreen = _availableScreens.FirstOrDefault(s => s.GetType().ToString() == nextScreenName);
-      }
-
-      IEnumerable<Guid> optionalMIATypeIDs = MediaNavigationModel.GetMediaSkinOptionalMIATypes(MediaNavigationMode);
-      if (_optionalMias != null)
-      {
-        optionalMIATypeIDs = optionalMIATypeIDs.Union(_optionalMias);
-        optionalMIATypeIDs = optionalMIATypeIDs.Except(_necessaryMias);
       }
 
       // Prefer custom view specification.
@@ -206,11 +203,12 @@ namespace MediaPortal.UiComponents.Media.Models.NavigationModel
     /// <summary>
     /// Switches to browsing by MediaLibray shares, limited to restricted MediaCategories.
     /// </summary>
-    protected void SetBrowseMode()
+    /// <param name="optionalMIATypeIDs">Optional MIAs to use.</param>
+    protected void SetBrowseMode(IEnumerable<Guid> optionalMIATypeIDs)
     {
       _availableScreens = null;
       _defaultScreen = new BrowseMediaNavigationScreenData(_genericPlayableItemCreatorDelegate);
-      _customRootViewSpecification = new BrowseMediaRootProxyViewSpecification(_viewName, _necessaryMias, null, _restrictedMediaCategories);
+      _customRootViewSpecification = new BrowseMediaRootProxyViewSpecification(_viewName, _necessaryMias, optionalMIATypeIDs, _restrictedMediaCategories);
     }
 
     /// <summary>
