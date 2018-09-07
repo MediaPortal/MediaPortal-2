@@ -1,0 +1,12 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="Diagnostics.Settings.Diagnostics">Диагностика</string>
+    <string name="Diagnostics.Settings.Diagnostics.AllLogs">Включить отладочный лог</string>
+    <string name="Diagnostics.Settings.Diagnostics.AllLogsHelpText">Увеличить подробность лога</string>
+    <string name="Diagnostics.Settings.Image.FocusStealing">Включать в лог события потенциального перехвата фокуса</string>
+    <string name="Diagnostics.Settings.Image.FocusStealingHelpText">Включать в лог события потенциального перехвата фокуса</string>
+    <string name="Diagnostics.Settings.Collectlogs">Собрать коллекцию лог-файлов</string>
+    <string name="Diagnostics.Settings.CollectlogsHelpText">Запусть \"Коллектор логов\". Будет создан zip-архив со всеми собранными логами</string>
+    <string name="Diagnostics.Settings.ShowLogs">Показать логи</string>
+    <string name="Diagnostics.Settings.ShowLogsHelpText">Показать логи в отдельном окне</string>
+</resources>

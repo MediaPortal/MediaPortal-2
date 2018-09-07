@@ -1,5 +1,6 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
+  <!--Headlines for HomeContent-->
   <!--Menu items for the five Media navigation parts-->
   <!--General strings used in filter/sort/group menus-->
   <string name="Media.GenreMenuItem">Loại</string>
@@ -7,6 +8,7 @@
   <string name="Media.EpisodeMenuItem">Episode</string>
   <!--Filter titles-->
   <!--Special filters names-->
+  <string name="Media.ContentGroupFilter">{0}</string>
   <!--Navbar display labels for sub view navigation-->
   <string name="Media.BrowseMediaNavigationNavbarDisplayLabel">{0}</string>
   <!--For example: "R.E.M."-->
@@ -28,6 +30,7 @@
   <!--Shown in the header of an items list, e.g. "45 items"-->
   <!--Playlists-->
   <!--MediaItemAction dialog-->
+  <string name="Media.ReimportMediaItem.Description">Mô tả</string>
   <!--Play items dialog-->
   <!--Player context names-->
   <!--Video currently playing-->
@@ -38,6 +41,8 @@
   <!--Audio currently playing-->
   <!--VideoPlayerUIContributor-->
   <!--Video Player time units-->
+  <!--Stubs-->
+  <!--Settings-->
   <string name="Settings.Players">Người phát</string>
   <!--Secondary filters-->
   <string name="Filter.RemoteNumericAlphabet0"></string>

@@ -63,6 +63,7 @@
   <string name="Notifications.NMoreNotifications">({0} fler)</string>
   <string name="Notifications.WatchNotificationsWorkflowStateLabel">Meddelanden</string>
   <string name="Notifications.Handle">Hantera</string>
+  <string name="Notifications.Upgrading">Förnyar...</string>
   <string name="ImporterMessages.ImportStartedTitle">Import startad</string>
   <string name="ImporterMessages.ImportStartedText">Import av \'{0}\' har startat.</string>
   <string name="ImporterMessages.ImportCompletedTitle">Import slutförd</string>

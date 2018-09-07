@@ -366,7 +366,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
 
             episodeSearchinfo = new EpisodeInfo();
             episodeSearchinfo.SeasonNumber = episode.SeasonNumber;
-            episodeSearchinfo.EpisodeNumbers = episode.EpisodeNumbers;
+            episodeSearchinfo.EpisodeNumbers = episode.EpisodeNumbers.ToList();
             if (searchData.StartsWith("tt", StringComparison.InvariantCultureIgnoreCase) && !searchData.Contains(" ") && int.TryParse(searchData.Substring(2), out int id))
               episodeSearchinfo.SeriesImdbId = searchData;
             else if (!searchData.Contains(" ") && int.TryParse(searchData, out int tvDbSeriesId))
@@ -382,7 +382,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
               {
                 episodeSearchinfo.SeriesName = tempEpisodeInfo.SeriesName;
                 episodeSearchinfo.SeasonNumber = tempEpisodeInfo.SeasonNumber;
-                episodeSearchinfo.EpisodeNumbers = tempEpisodeInfo.EpisodeNumbers;
+                episodeSearchinfo.EpisodeNumbers = tempEpisodeInfo.EpisodeNumbers.ToList();
               }
             }
 

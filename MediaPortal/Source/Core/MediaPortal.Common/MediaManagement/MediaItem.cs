@@ -48,6 +48,7 @@ namespace MediaPortal.Common.MediaManagement
     protected Guid _id;
     protected readonly IDictionary<Guid, IList<MediaItemAspect>> _aspects;
     protected readonly IDictionary<string, string> _userData = new Dictionary<string, string>();
+    protected readonly string[] _opticalDiscMimes = new string[] { "video/dvd", "video/bluray" };
 
     #endregion
 
@@ -179,6 +180,34 @@ namespace MediaPortal.Common.MediaManagement
     }
 
     /// <summary>
+    /// Indicates if the active resource is the last part of the current edition.
+    /// </summary>
+    public bool IsLastPart
+    {
+      get
+      {
+        if (PrimaryResources.Count <= ActiveResourceLocatorIndex)
+          return true;
+
+        IList<MultipleMediaItemAspect> videoStreamAspects;
+        if (!MediaItemAspect.TryGetAspects(_aspects, VideoStreamAspect.Metadata, out videoStreamAspects))
+          return true;
+
+        if (HasEditions)
+        {
+          var setNo = Editions[ActiveEditionIndex].SetNo;
+          var currentResourceIndex = PrimaryResources[ActiveResourceLocatorIndex].GetAttributeValue<int>(ProviderResourceAspect.ATTR_RESOURCE_INDEX);
+          int maxPart = videoStreamAspects.Where(p => p.GetAttributeValue<int>(VideoStreamAspect.ATTR_VIDEO_PART_SET) == setNo).Max(p => p.GetAttributeValue<int>(VideoStreamAspect.ATTR_VIDEO_PART));
+          if (!videoStreamAspects.Any(p => p.GetAttributeValue<int>(VideoStreamAspect.ATTR_VIDEO_PART_SET) == setNo &&
+            p.GetAttributeValue<int>(VideoStreamAspect.ATTR_VIDEO_PART) == maxPart &&
+            p.GetAttributeValue<int>(VideoStreamAspect.ATTR_RESOURCE_INDEX) == currentResourceIndex))
+            return false;
+        }
+        return true;
+      }
+    }
+
+    /// <summary>
     /// Indicates if this <see cref="MediaItem"/> represents a multi-edition item.
     /// </summary>
     public bool HasEditions
@@ -189,7 +218,16 @@ namespace MediaPortal.Common.MediaManagement
         if (!MediaItemAspect.TryGetAspects(_aspects, VideoStreamAspect.Metadata, out videoStreamAspects))
           return false;
 
-        return videoStreamAspects.Select(pra => pra.GetAttributeValue<int>(VideoStreamAspect.ATTR_VIDEO_PART_SET)).Distinct().Count() > 1;
+        if (videoStreamAspects.Select(pra => pra.GetAttributeValue<int>(VideoStreamAspect.ATTR_VIDEO_PART_SET)).Distinct().Count() > 1)
+          return true;
+
+        //Special case for optical discs
+        IList<MultipleMediaItemAspect> providerAspects;
+        if (MediaItemAspect.TryGetAspects(_aspects, ProviderResourceAspect.Metadata, out providerAspects) &&
+          providerAspects.Where(pra => _opticalDiscMimes.Any(m => m.Equals(pra.GetAttributeValue<string>(ProviderResourceAspect.ATTR_MIME_TYPE), StringComparison.InvariantCultureIgnoreCase))).Count() > 1)
+            return true;
+
+        return false;
       }
     }
 
@@ -198,11 +236,11 @@ namespace MediaPortal.Common.MediaManagement
     /// (presents physical parts of multi-file items) that can be used to start playback.
     /// Secondary resources (like subtitles) are not considered here.
     /// </summary>
-    public IDictionary<int, (string Name, IList<int> PrimaryResourceIndexes, TimeSpan Duration)> Editions
+    public IDictionary<int, (int SetNo, string Name, IList<int> PrimaryResourceIndexes, TimeSpan Duration)> Editions
     {
       get
       {
-        var map = new Dictionary<int, (string, IList<int>, TimeSpan)>();
+        var map = new Dictionary<int, (int, string, IList<int>, TimeSpan)>();
         IList<MultipleMediaItemAspect> videoStreamAspects;
         if (!MediaItemAspect.TryGetAspects(_aspects, VideoStreamAspect.Metadata, out videoStreamAspects))
           return map;
@@ -213,22 +251,44 @@ namespace MediaPortal.Common.MediaManagement
           OrderBy(pra => pra.GetAttributeValue<int>(VideoStreamAspect.ATTR_VIDEO_PART)))
         {
           var setNo = stream.GetAttributeValue<int>(VideoStreamAspect.ATTR_VIDEO_PART_SET);
-          if (usedSets.Contains(setNo))
+          var videoStreams = videoStreamAspects.Where(v => v.GetAttributeValue<int>(VideoStreamAspect.ATTR_VIDEO_PART_SET) == setNo);
+
+          bool isOpticalDisc = false;
+          IList<MultipleMediaItemAspect> providerAspects;
+          if (MediaItemAspect.TryGetAspects(_aspects, ProviderResourceAspect.Metadata, out providerAspects))
+            isOpticalDisc = providerAspects.Any(pra => _opticalDiscMimes.Any(m => m.Equals(pra.GetAttributeValue<string>(ProviderResourceAspect.ATTR_MIME_TYPE), StringComparison.InvariantCultureIgnoreCase)) &&
+            videoStreams.Any(s => s.GetAttributeValue<int>(VideoStreamAspect.ATTR_RESOURCE_INDEX) == pra.GetAttributeValue<int>(ProviderResourceAspect.ATTR_RESOURCE_INDEX)));
+
+          if (usedSets.Contains(setNo) && !isOpticalDisc)
             continue;
 
-          usedSets.Add(setNo);
-          (string Name, IList<int> PrimaryResourceIndexes, TimeSpan Duration) edition = 
-            (stream.GetAttributeValue<string>(VideoStreamAspect.ATTR_VIDEO_PART_SET_NAME), new List<int>(), new TimeSpan());
+          if (!usedSets.Contains(setNo))
+            usedSets.Add(setNo);
+
+          (int SetNo, string Name, IList<int> PrimaryResourceIndexes, TimeSpan Duration) edition = 
+            (setNo, stream.GetAttributeValue<string>(VideoStreamAspect.ATTR_VIDEO_PART_SET_NAME), new List<int>(), new TimeSpan());
 
           bool durationIsValid = true;
-          foreach (var res in videoStreamAspects.Where(v => v.GetAttributeValue<int>(VideoStreamAspect.ATTR_VIDEO_PART_SET) == setNo))
+          if (isOpticalDisc)
           {
-            long? durSecs = res.GetAttributeValue<long?>(VideoStreamAspect.ATTR_DURATION);
+            long? durSecs = stream.GetAttributeValue<long?>(VideoStreamAspect.ATTR_DURATION);
             if (durSecs.HasValue)
               edition.Duration = edition.Duration.Add(TimeSpan.FromSeconds(durSecs.Value));
             else
               durationIsValid = false;
-            edition.PrimaryResourceIndexes.Add(res.GetAttributeValue<int>(VideoStreamAspect.ATTR_RESOURCE_INDEX));
+            edition.PrimaryResourceIndexes.Add(stream.GetAttributeValue<int>(VideoStreamAspect.ATTR_RESOURCE_INDEX));
+          }
+          else
+          {
+            foreach (var res in videoStreams)
+            {
+              long? durSecs = res.GetAttributeValue<long?>(VideoStreamAspect.ATTR_DURATION);
+              if (durSecs.HasValue)
+                edition.Duration = edition.Duration.Add(TimeSpan.FromSeconds(durSecs.Value));
+              else
+                durationIsValid = false;
+              edition.PrimaryResourceIndexes.Add(res.GetAttributeValue<int>(VideoStreamAspect.ATTR_RESOURCE_INDEX));
+            }
           }
 
           if (durationIsValid)

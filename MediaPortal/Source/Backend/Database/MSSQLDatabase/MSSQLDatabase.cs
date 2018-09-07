@@ -314,15 +314,15 @@ namespace MediaPortal.Database.MSSQL
 
     public ITransaction BeginTransaction(IsolationLevel level)
     {
-      // Always use snapshot isolation level to avoid deadlocks in the database in multi-threaded scenarios like 
-      // MP2 does during import. If using other isolation levels where shared read locks are used during queries,
-      // the database will get into a deadlock when write locks need to escalate their locks on the same table/row,
-      // so we override any requested IsolationLevel other than Snapshot.
-      return new MSSQLTransaction(this, IsolationLevel.Snapshot, _settings);
+      return new MSSQLTransaction(this, level, _settings);
     }
 
     public ITransaction BeginTransaction()
     {
+      // Always use snapshot isolation level to avoid deadlocks in the database in multi-threaded scenarios like 
+      // MP2 does during import. If using other isolation levels where shared read locks are used during queries,
+      // the database will get into a deadlock when write locks need to escalate their locks on the same table/row,
+      // so we override any requested IsolationLevel other than Snapshot.
       return BeginTransaction(IsolationLevel.Snapshot);
     }
 

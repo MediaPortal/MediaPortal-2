@@ -854,8 +854,8 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
       episodeInfo.SeriesFirstAired = firstEpisodeMatch.SeriesFirstAired;
 
       episodeInfo.SeasonNumber = firstEpisodeMatch.SeasonNumber;
-      episodeInfo.EpisodeNumbers = episodeMatches.SelectMany(x => x.EpisodeNumbers).ToList();
-      episodeInfo.DvdEpisodeNumbers = episodeMatches.SelectMany(x => x.DvdEpisodeNumbers).ToList();
+      episodeInfo.EpisodeNumbers = episodeMatches.SelectMany(x => x.EpisodeNumbers).Distinct().ToList();
+      episodeInfo.DvdEpisodeNumbers = episodeMatches.SelectMany(x => x.DvdEpisodeNumbers).Distinct().ToList();
       episodeInfo.FirstAired = firstEpisodeMatch.FirstAired;
       episodeInfo.Rating = new SimpleRating(episodeMatches.Where(e => !e.Rating.IsEmpty).
         Sum(e => e.Rating.RatingValue.Value) / episodeMatches.Where(e => !e.Rating.IsEmpty).Count()); // Average rating
@@ -892,18 +892,18 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
       episodeInfo.SeriesFirstAired = episodeMatch.SeriesFirstAired;
 
       episodeInfo.SeasonNumber = episodeMatch.SeasonNumber;
-      episodeInfo.EpisodeNumbers = episodeMatch.EpisodeNumbers;
-      episodeInfo.DvdEpisodeNumbers = episodeMatch.DvdEpisodeNumbers;
+      episodeInfo.EpisodeNumbers = episodeMatch.EpisodeNumbers.ToList();
+      episodeInfo.DvdEpisodeNumbers = episodeMatch.DvdEpisodeNumbers.ToList();
       episodeInfo.FirstAired = episodeMatch.FirstAired;
       episodeInfo.Rating = episodeMatch.Rating;
       episodeInfo.EpisodeName = episodeMatch.EpisodeName;
       episodeInfo.Summary = episodeMatch.Summary;
 
-      episodeInfo.Genres = episodeMatch.Genres;
-      episodeInfo.Actors = episodeMatch.Actors;
-      episodeInfo.Directors = episodeMatch.Directors;
-      episodeInfo.Writers = episodeMatch.Writers;
-      episodeInfo.Characters = episodeMatch.Characters;
+      episodeInfo.Genres = episodeMatch.Genres.ToList();
+      episodeInfo.Actors = episodeMatch.Actors.ToList();
+      episodeInfo.Directors = episodeMatch.Directors.ToList();
+      episodeInfo.Writers = episodeMatch.Writers.ToList();
+      episodeInfo.Characters = episodeMatch.Characters.ToList();
 
       episodeInfo.Thumbnail = episodeMatch.Thumbnail;
     }

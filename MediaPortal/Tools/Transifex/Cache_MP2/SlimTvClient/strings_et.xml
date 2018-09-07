@@ -1,6 +1,6 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
-  <string name="SlimTvClient.Title">Slim TV Client</string>
+  <string name="SlimTvClient.Title">TV Kava</string>
   <string name="SlimTvClient.Main">TV</string>
   <string name="SlimTvClient.TvGuide">TV Kava</string>
   <string name="SlimTvClient.CurrentlyPlayingInformationHeader">Saate info</string>
@@ -24,5 +24,6 @@
   <!--Schedule management-->
   <!--Settings-->
   <string name="SlimTvClient.Notifications">Teatised</string>
+  <string name="SlimTvClient.NoColor">Ei midagi</string>
   <string name="SlimTvClient.NameFilterNavBarItemLabel">{0}</string>
 </resources>

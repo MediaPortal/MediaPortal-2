@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <string name="WakeOnLan.EnableWakeOnLan">Ativar arranque pela rede (WOL)</string>
+  <string name="WakeOnLan.EnableWakeOnLan.Help">Se deseja que o servidor arranque automaticamente assim que iniciado ou acordado pela rede.</string>
+</resources>

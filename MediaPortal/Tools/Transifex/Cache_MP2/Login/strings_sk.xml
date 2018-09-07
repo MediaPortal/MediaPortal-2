@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  
+  <string name="UserConfig.Password">Heslo</string>
+  <string name="UserConfig.AddUser">Pridať</string>
+  <string name="UserConfig.CopyUser">Kopírovať</string>
+  <string name="UserConfig.DeleteUser">Vymazať</string>
+  <string name="UserConfig.SaveUser">Uložiť</string>
+  <string name="UserConfig.Yes">Áno</string>
+  <string name="UserConfig.No">Nie</string>
+  <string name="UserConfig.SharesText">Zdieľania</string>
+  </resources>

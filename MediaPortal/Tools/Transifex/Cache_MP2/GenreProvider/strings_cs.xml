@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <string name="Match.Video.Music">Hudba</string>
+  <string name="Match.Video.TVMovie">Televize</string>
+  <string name="Match.Video.News">Zprávy</string>
+  <string name="Match.Epg.Series">Seriály</string>
+  <string name="Match.Epg.Music">Hudba</string>
+  <string name="Match.Epg.News">Zprávy</string>
+  <string name="Label.Audio.Country">Země</string>
+  <string name="Label.Audio.World">Svět</string>
+  <string name="Label.Video.Music">Hudba</string>
+  <string name="Label.Video.TVMovie">Televize</string>
+  <string name="Label.Video.News">Zprávy</string>
+  <string name="Label.Epg.Series">Seriály</string>
+  <string name="Label.Epg.Music">Hudba</string>
+  <string name="Label.Epg.News">Zprávy</string>
+  </resources>

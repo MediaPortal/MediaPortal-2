@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <string name="Match.Video.Music">Müzik</string>
+  <string name="Match.Video.TVMovie">TV</string>
+  <string name="Match.Video.News">Haberler</string>
+  <string name="Match.Epg.Series">Dizi</string>
+  <string name="Match.Epg.Music">Müzik</string>
+  <string name="Match.Epg.News">Haberler</string>
+  <string name="Label.Audio.World">Dünya</string>
+  <string name="Label.Video.Music">Müzik</string>
+  <string name="Label.Video.TVMovie">TV</string>
+  <string name="Label.Video.News">Haberler</string>
+  <string name="Label.Epg.Series">Dizi</string>
+  <string name="Label.Epg.Music">Müzik</string>
+  <string name="Label.Epg.News">Haberler</string>
+  </resources>

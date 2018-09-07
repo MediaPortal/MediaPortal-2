@@ -266,7 +266,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
 
           EpisodeInfo basicEpisode = series.CloneBasicInstance<EpisodeInfo>();
           basicEpisode.SeasonNumber = episode.SeasonNumber;
-          basicEpisode.EpisodeNumbers = episode.EpisodeNumbers;
+          basicEpisode.EpisodeNumbers = episode.EpisodeNumbers.ToList();
           IDictionary<Guid, IList<MediaItemAspect>> aspects = new Dictionary<Guid, IList<MediaItemAspect>>();
           basicEpisode.SetMetadata(aspects, true);
           return aspects;

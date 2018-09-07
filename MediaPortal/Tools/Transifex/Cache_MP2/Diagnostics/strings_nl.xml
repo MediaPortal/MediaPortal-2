@@ -1,0 +1,12 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="Diagnostics.Settings.Diagnostics">Diagnose</string>
+    <string name="Diagnostics.Settings.Diagnostics.AllLogs">Activeer loggen DEBUG </string>
+    <string name="Diagnostics.Settings.Diagnostics.AllLogsHelpText">Breidt het aantal woorden in de log uit</string>
+    <string name="Diagnostics.Settings.Image.FocusStealing">Activeer het loggen van mogelijke focus verlies</string>
+    <string name="Diagnostics.Settings.Image.FocusStealingHelpText">Activeer het loggen van mogelijke focus verlies</string>
+    <string name="Diagnostics.Settings.Collectlogs">Verzamel logbestanden</string>
+    <string name="Diagnostics.Settings.CollectlogsHelpText">Start de Log Collector om een zipbestand van alle logfiles te maken</string>
+    <string name="Diagnostics.Settings.ShowLogs">Toon logbestand</string>
+    <string name="Diagnostics.Settings.ShowLogsHelpText">Toon logbestand in apart venster</string>
+</resources>

@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <string name="Settings.InputDeviceManager.Section">Gestione Tasti</string>
+  <string name="Settings.InputDeviceManager.EnterKeyConfig">Gestione Tasti</string>
+  <string name="Settings.InputDeviceManager.EnterKeyConfigHelp">Questa funzione ti permette di rimappare i pulsanti a specifiche azioni predefinite.</string>
+  <string name="Settings.InputDeviceManager.EnterScreenConfig">Gestione Schermate</string>
+  <string name="Settings.InputDeviceManager.EnterScreenConfigHelp">Questa funzione permette di associare un tasto per richiamare una specifica schermata</string>
+
+  <string name="InputDeviceManager.SelectDevice.Header">Premi il pulsante che vuoi configurare.</string>
+  <string name="InputDeviceManager.FocusItem">Visualizza le impostazioni correnti e seleziona una coppia per cambiare l\'associazione.</string>
+
+  <string name="InputDeviceManager.AddKey.Header">Premi la combinazione di tasti che vuoi configurare!</string>
+  <string name="InputDeviceManager.Screen">Schermata</string>
+  <string name="InputDeviceManager.Key">Pulsante</string>
+
+  <string name="InputDeviceManager.KeyMapping.Button.ClearMapping">Pulisci</string>
+  <string name="InputDeviceManager.KeyMapping.Dialog.RemoveMapping">Rimuovere associazione?</string>
+  <string name="InputDeviceManager.KeyMapping.Dialog.AddMapping">Aggiungere associazione?</string>
+</resources>

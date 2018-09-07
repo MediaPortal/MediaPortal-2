@@ -1,6 +1,6 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
-  <string name="SlimTvClient.Title">Slim TV Client</string>
+  <string name="SlimTvClient.Title">TV-Programm</string>
   <string name="SlimTvClient.Main">TV</string>
   <string name="SlimTvClient.Main.Help">Hier kann man TV anschauen, Radio hören und zwischen den Kanälen wechseln.</string>
   <string name="SlimTvClient.TvGuide">TV-Programm</string>
@@ -98,7 +98,28 @@
   <string name="SlimTvClient.ShowRecordingStartedNotifications.Help">Legt fest ob bei Beginn einer Aufnahme eine Benachrichtigung angezeigt wird.</string>
   <string name="SlimTvClient.ShowRecordingEndedNotifications">\"Aufnahme beendet\" anzeigen</string>
   <string name="SlimTvClient.ShowRecordingEndedNotifications.Help">Legt fest, ob beim Beenden einer Aufnahme eine Benachrichtigung angezeigt wird.</string>
+  <string name="SlimTvClient.ShowEpgGenreColors">Genre-Farben im EPG anzeigen</string>
+  <string name="SlimTvClient.ShowEpgGenreColors.Help">Sollen Genre-Farben im EPG angezeigt werden?</string>
+  <string name="SlimTvClient.EpgGenreColors">EPG-Genre-Farben</string>
+  <string name="SlimTvClient.EpgMovieGenreColor">Film-Genre-Farben</string>
+  <string name="SlimTvClient.EpgMovieGenreColor.Help">Farbe für Film-Einträge im EPG</string>
+  <string name="SlimTvClient.EpgSeriesGenreColor">Serien-Genre-Farben</string>
+  <string name="SlimTvClient.EpgSeriesGenreColor.Help">Die Farbe für TV-Serien im EPG</string>
+  <string name="SlimTvClient.EpgDocumentaryGenreColor">Doku-Genre-Farbe</string>
+  <string name="SlimTvClient.EpgDocumentaryGenreColor.Help">Die Farbe für Dokumentationen im EPG</string>
+  <string name="SlimTvClient.EpgMusicGenreColor">Musik-Genre-Farbe</string>
+  <string name="SlimTvClient.EpgMusicGenreColor.Help">Die Farbe für Musik-Sendungen im EPG</string>
+  <string name="SlimTvClient.EpgKidsGenreColor">Kinder-Genre-Farbe</string>
+  <string name="SlimTvClient.EpgKidsGenreColor.Help">Die Farbe für Kinder-Sendungen im EPG</string>
+  <string name="SlimTvClient.EpgNewsGenreColor">Nachrichten-Genre-Farbe</string>
+  <string name="SlimTvClient.EpgNewsGenreColor.Help">Die Farbe für Nachrichtensendungen im EPG</string>
+  <string name="SlimTvClient.EpgSportGenreColor">Sport-Genre-Farbe</string>
+  <string name="SlimTvClient.EpgSportGenreColor.Help">Die Farbe für Sportsendungen im EPG</string>
+  <string name="SlimTvClient.EpgSpecialGenreColor">Spezial-Genre-Farbe</string>
+  <string name="SlimTvClient.EpgSpecialGenreColor.Help">Die Farbe für Sendungen im EPG, die manuell als speziell gekennzeichnet wurden</string>
+  <string name="SlimTvClient.NoColor">Kein</string>
   <string name="SlimTvClient.RecordingsMenuItem">Aufnahmen</string>
+  <string name="SlimTvClient.ChannelsMenuItem">Kanäle</string>
   <string name="SlimTvClient.Recordings.Help">Hier findet man die aufgenommenen Sendungen und kann sie abspielen.</string>
   <string name="SlimTvClient.RecordingsRootViewName">TV-Aufnahmen</string>
   <string name="SlimTvClient.ChannelMenuItemLabel">Kanal</string>
@@ -109,4 +130,5 @@
   <string name="SlimTvClient.RecordingsByNameHeader">Datum</string>
   <string name="SlimTvClient.RecordingStartedHeader">Aufnahme gestartet</string>
   <string name="SlimTvClient.RecordingEndedHeader">Aufnahme beendet</string>
+  <string name="RestrictionGroup.SlimTvClient.DeleteRecording">TV: Aufnahmen löschen</string>
 </resources>

@@ -1,5 +1,6 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
+  <!--Headlines for HomeContent-->
   <!--Menu items for the five Media navigation parts-->
   <string name="Media.BrowseMediaMenuItem">Média tallózása</string>
   <string name="Media.LocalMediaMenuItem">Helyi média</string>
@@ -20,6 +21,7 @@
   <string name="Media.ImageFilterSmall">Kicsi</string>
   <string name="Media.ImageFilterMedium">Közepes</string>
   <string name="Media.ImageFilterBig">Nagy</string>
+  <string name="Media.ContentGroupFilter">{0}</string>
   <string name="Media.SwitchToBrowseMLView">Szerver nézet</string>
   <string name="Media.SwitchToLocalMediaView">Helyi nézet</string>
   <!--Navbar display labels for sub view navigation-->
@@ -134,6 +136,9 @@
   <string name="Media.PlaylistNameInfoLabel">Lejátszási lista neve</string>
   <string name="Media.PlaylistTypeInfoLabel">Lejátszási lista típusa</string>
   <!--MediaItemAction dialog-->
+  <string name="Media.Refresh">Frissítés</string>
+  <string name="Media.ReimportMediaItem.Done">Kész</string>
+  <string name="Media.ReimportMediaItem.Description">Leírás</string>
   <!--Play items dialog-->
   <!--Player context names-->
   <string name="Media.VideoImageContextName">Videó/Kép</string>
@@ -202,6 +207,8 @@
   <string name="Media.LargeList">Nagy lista</string>
   <string name="Media.LargeGrid">Rács</string>
   <string name="Media.SwitchSortingMenuItem">Rendezés</string>
+  <!--Stubs-->
+  <!--Settings-->
   <string name="Settings.Players">Lejátszók</string>
   <string name="Settings.Players.ClosePlayersWhenFinished">Lejátszók bezárása amikor kész</string>
   <string name="Settings.Players.ClosePlayersWhenFinished.Help">Engedélyezze ezt a beállítást, hogy a MediaPortal automatikusan bezárja a lejátszókat amikor befejeződött</string>

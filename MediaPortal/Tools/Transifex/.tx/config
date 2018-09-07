@@ -70,6 +70,11 @@ file_filter=Cache_MP2\ImagePlayer\strings_<lang>.xml
 source_file=Cache_MP2\ImagePlayer\strings_en.xml
 source_lang=en
 type=ANDROID
+[MP2.InputDeviceManager]
+file_filter=Cache_MP2\InputDeviceManager\strings_<lang>.xml
+source_file=Cache_MP2\InputDeviceManager\strings_en.xml
+source_lang=en
+type=ANDROID
 [MP2.IsoResourceProvider]
 file_filter=Cache_MP2\IsoResourceProvider\strings_<lang>.xml
 source_file=Cache_MP2\IsoResourceProvider\strings_en.xml

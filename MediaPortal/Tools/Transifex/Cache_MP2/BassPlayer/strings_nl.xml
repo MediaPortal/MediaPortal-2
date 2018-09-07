@@ -1,12 +1,17 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
   <string name="Settings.Players">Spelers</string>
+  <string name="Settings.Players.AudioPlayer">Audiospeler</string>
   <string name="Settings.Players.BassPlayer.Setup">Configureer uitgangsaparaat</string>
   <string name="Settings.Players.BassPlayer.Setup.Help">Configureerd het BassPlayer uitgangsaparaat en opties</string>
   <string name="Settings.Players.BassPlayer.Setup.DirectSound">Direct Sound</string>
   <string name="Settings.Players.BassPlayer.Setup.WASAPI">WASAPI</string>
   <string name="Settings.Players.BassPlayer.Setup.WASAPI.Exclusive">Exclusieve modus</string>
   <string name="Settings.Players.BassPlayer.SongTransitionMode.Setup.NormalMode">normaal</string>
+  <string name="Settings.Players.BassPlayer.SongTransitionMode.Setup.CrossFading">Cross-fading</string>
+  <string name="Settings.Players.BassPlayer.PlaybackBuffer.Setup">Buffer voor afspelen</string>
+  <string name="Settings.Players.BassPlayer.PlaybackBuffer.Help">Buffertijd in ms [0-300]</string>
+  <string name="Settings.Players.Rendering.DirectSoundBufferSize">DirectSound</string>
   <string name="Settings.Players.Rendering.WasapiBufferSize">WASAPI</string>
   <string name="Settings.Players.Rendering">Weergave</string>
   <string name="Settings.Players.Rendering.CrossFading.CrossFadeDuration">Tijdsduur geleidelijke overgang</string>

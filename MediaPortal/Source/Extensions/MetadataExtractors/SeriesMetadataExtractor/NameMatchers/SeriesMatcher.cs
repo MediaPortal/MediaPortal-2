@@ -200,7 +200,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor.Name
         if (episodeNums.Count > 0 && !episodeInfo.EpisodeNumbers.SequenceEqual(episodeNums))
         {
           episodeInfo.HasChanged = true;
-          episodeInfo.EpisodeNumbers = new HashSet<int>(episodeNums);
+          episodeInfo.EpisodeNumbers = new List<int>(episodeNums);
         }
       }
       return true;

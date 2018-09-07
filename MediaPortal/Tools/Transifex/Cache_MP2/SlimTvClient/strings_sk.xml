@@ -1,6 +1,6 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
-  <string name="SlimTvClient.Title">Slim TV klient</string>
+  <string name="SlimTvClient.Title">TV program</string>
   <string name="SlimTvClient.Main">TV</string>
   <string name="SlimTvClient.TvGuide">TV program</string>
   <string name="SlimTvClient.CurrentlyPlayingInformationHeader">Informácie o programe</string>
@@ -32,6 +32,7 @@
   <string name="SlimTvClient.EpgNumberOfHours">Počet hodín v EPG</string>
   <string name="SlimTvClient.EpgNumberOfHours.Help">Určuje počet hodín (relácií) zobrazených v EPG</string>
   <string name="SlimTvClient.Notifications">Oznamy</string>
+  <string name="SlimTvClient.NoColor">Žiadne</string>
   <string name="SlimTvClient.RecordingsMenuItem">Nahrávky</string>
   <string name="SlimTvClient.RecordingsRootViewName">TV nahrávky</string>
   <string name="SlimTvClient.ChannelMenuItemLabel">Filtrovať podľa kanála</string>

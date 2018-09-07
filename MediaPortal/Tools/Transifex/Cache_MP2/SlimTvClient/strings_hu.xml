@@ -1,6 +1,6 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
-  <string name="SlimTvClient.Title">Vékony TV kliens</string>
+  <string name="SlimTvClient.Title">Tv műsorújság</string>
   <string name="SlimTvClient.Main">TV</string>
   <string name="SlimTvClient.TvGuide">Tv műsorújság</string>
   <string name="SlimTvClient.CurrentlyPlayingInformationHeader">Programinformáció</string>
@@ -24,5 +24,6 @@
   <!--Schedule management-->
   <!--Settings-->
   <string name="SlimTvClient.Notifications">Értesítések</string>
+  <string name="SlimTvClient.NoColor">Nincs</string>
   <string name="SlimTvClient.NameFilterNavBarItemLabel">{0}</string>
 </resources>

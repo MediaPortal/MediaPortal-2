@@ -10,14 +10,27 @@
   <string name="WMC.Configuration.EnableWatchedFlags.GridView">Rutnät</string>
   <string name="WMC.Configuration.EnableWatchedFlags.CoverView">Omslag</string>
   <string name="WMC.Configuration.EnableAgeCertificationLogos">Aktivera logos för åldersgränser</string>
-  <string name="WMC.Configuration.EnableAgeCertificationLogos.Help">Ska logos för åldersgränser visas på media-sidor</string>
-  <string name="WMC.Configuration.EnableBanners">Visa banners</string>
-  <string name="WMC.Configuration.EnableBanners.Help">Ska banners visas istället för omslag i rutnät</string>
-  <string name="WMC.Configuration.EnableBanners.Movies">Filmer</string>
-  <string name="WMC.Configuration.EnableBanners.Series">TV-serier</string>
-  <string name="WMC.Configuration.EnableBanners.Seasons">Säsonger</string>
-  <string name="WMC.Configuration.EnableAnimatedBackground">Aktivera rörliga bakgrunder</string>
-  <string name="WMC.Configuration.EnableAnimatedBackground.Help">Ska en bakgrund av norrsken visas på startsidan</string>
+  <string name="WMC.Configuration.EnableAgeCertificationLogos.Help">Ska logos för åldersgränser visas på media-sidor</string>  
+  <string name="WMC.Configuration.MovieGridViewType">Layout för filmer</string>
+  <string name="WMC.Configuration.MovieGridViewType.Help">Välj layout för filmer</string>
+  <string name="WMC.Configuration.SeriesGridViewType">Layout för TV-serier</string>
+  <string name="WMC.Configuration.SeriesGridViewType.Help">Välj layout för TV-serier</string>
+  <string name="WMC.Configuration.SeasonGridViewType">Layout för säsonger</string>
+  <string name="WMC.Configuration.SeasonGridViewType.Help">Välj layout för säsonger</string>
+  <string name="WMC.Configuration.GridViewType.Poster">Posters</string>
+  <string name="WMC.Configuration.GridViewType.Banner">Banners</string>
+  <string name="WMC.Configuration.GridViewType.Thumbnail">Miniatyrer</string>  
+  <string name="WMC.Configuration.EnableHomeContent">Aktivera Start Innehåll</string>
+  <string name="WMC.Configuration.EnableHomeContent.Help">Om du vill visa Start Innehåll på startsidan</string>
   <string name="WMC.Configuration.EnableMediaItemDetailsView">Aktivera visning av information om media-filerna.</string>
   <string name="WMC.Configuration.EnableMediaItemDetailsView.Help">Ska information om media-filerna visas i stället för att spela upp media direkt.</string>
+
+  <string name="WMC.Home.LatestAdded">Senast tillagda</string>
+  <string name="WMC.Home.LatestPlayed">Senast spelad</string>
+  <string name="WMC.Home.ContinuePlayed">Fortsätt spela</string>
+  <string name="WMC.Home.CurrentPrograms">Pågående program</string>
+  <string name="WMC.Home.CurrentSchedules">Pågående inspelningar</string>
+  <string name="WMC.Home.Favorites">Favoriter</string>
+  <string name="WMC.Home.Unplayed">Inte spelad</string>
+
 </resources>

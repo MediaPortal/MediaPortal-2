@@ -323,7 +323,7 @@ namespace MediaPortal.Backend.Services.Database
       if (!database.TableExists(MediaPortal_Basis_Schema.MEDIAPORTAL_BASIS_TABLE_NAME))
       {
         ServiceRegistration.Get<ILogger>().Info("DatabaseManager: Creating subschema '{0}'", MediaPortal_Basis_Schema.SUBSCHEMA_NAME);
-        using (ITransaction transaction = database.BeginTransaction())
+        using (ITransaction transaction = database.BeginTransaction(IsolationLevel.Serializable))
         {
           using (TextReader reader = new SqlScriptPreprocessor(MediaPortal_Basis_Schema.SubSchemaCreateScriptPath))
             ExecuteBatch(transaction, new InstructionList(reader));
@@ -364,7 +364,7 @@ namespace MediaPortal.Backend.Services.Database
           if (database.BackupTables(BACKUP_TABLE_SUFFIX))
           {
             SendUpgradeProgress(10, 100);
-            using (ITransaction transaction = database.BeginTransaction())
+            using (ITransaction transaction = database.BeginTransaction(IsolationLevel.Serializable))
             {
               ServiceRegistration.Get<ILogger>().Info("DatabaseManager: Creating subschema '{0}'", MediaPortal_Basis_Schema.SUBSCHEMA_NAME);
               using (TextReader reader = new SqlScriptPreprocessor(MediaPortal_Basis_Schema.SubSchemaCreateScriptPath))
@@ -436,7 +436,7 @@ namespace MediaPortal.Backend.Services.Database
             totalMigrationSteps += 2; //Add backup steps that has already been completed
             totalMigrationSteps += 2; //Add commit and drop steps that will be done after migration is complete
             int currentMigrationStep = 2; //Backup is already complete
-            using (ITransaction transaction = database.BeginTransaction())
+            using (ITransaction transaction = database.BeginTransaction(IsolationLevel.Serializable))
             {
               //Migrate sub schema data. Note that not all sub schemas need to be migrated
               foreach (var manager in schemaManagers)
@@ -541,7 +541,7 @@ namespace MediaPortal.Backend.Services.Database
         int versionMajor;
         int versionMinor;
         bool schemaPresent = GetSubSchemaVersion(subSchemaName, out versionMajor, out versionMinor);
-        using (ITransaction transaction = database.BeginTransaction())
+        using (ITransaction transaction = database.BeginTransaction(IsolationLevel.Serializable))
         {
           if (schemaPresent)
           {
@@ -601,7 +601,7 @@ namespace MediaPortal.Backend.Services.Database
     public void DeleteSubSchema(string subSchemaName, int currentVersionMajor, int currentVersionMinor, string deleteScriptFilePath)
     {
       ISQLDatabase database = ServiceRegistration.Get<ISQLDatabase>(false);
-      using (ITransaction transaction = database.BeginTransaction())
+      using (ITransaction transaction = database.BeginTransaction(IsolationLevel.Serializable))
       {
         int versionMajor;
         int versionMinor;

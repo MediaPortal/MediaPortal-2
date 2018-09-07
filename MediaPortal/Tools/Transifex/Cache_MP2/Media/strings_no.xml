@@ -1,5 +1,7 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
+  <!--Headlines for HomeContent-->
+  <string name="Media.Favorites">Favoritter</string>
   <!--Menu items for the five Media navigation parts-->
   <string name="Media.BrowseMediaMenuItem">Utforsk media</string>
   <string name="Media.LocalMediaMenuItem">Lokalt media</string>
@@ -21,6 +23,7 @@
   <string name="Media.ImageStateMenuItem">Tilstand</string>
   <string name="Media.SeriesNameMenuItem">Serie</string>
   <string name="Media.SeriesSeasonMenuItem">Sesong</string>
+  <string name="Media.CertificationMenuItem">Sertifisering</string>
   <string name="Media.SimpleSearchFilterMenuItem">Søk</string>
   <!--Filter titles-->
   <string name="Media.SwitchFilterMenuItem">Filter</string>
@@ -28,6 +31,7 @@
   <string name="Media.ImageFilterSmall">Små</string>
   <string name="Media.ImageFilterMedium">Medium</string>
   <string name="Media.ImageFilterBig">Store</string>
+  <string name="Media.ContentGroupFilter">{0}</string>
   <string name="Media.SwitchToBrowseMLView">Til servervisning</string>
   <string name="Media.SwitchToLocalMediaView">Til lokal visning</string>
   <!--Navbar display labels for sub view navigation-->
@@ -165,6 +169,9 @@
   <string name="Media.OpenPlayerStrategy.MediaPortal.UI.Services.Players.PCMOpenPlayerStrategy.Default">Standard</string>
   <string name="Media.OpenPlayerStrategy.MediaPortal.UI.Services.Players.PCMOpenPlayerStrategy.PreservePiP">PiP</string>
   <!--MediaItemAction dialog-->
+  <string name="Media.Refresh">Oppdater</string>
+  <string name="Media.ReimportMediaItem.Done">Ferdig</string>
+  <string name="Media.ReimportMediaItem.Description">Beskrivelse</string>
   <!--Play items dialog-->
   <string name="Media.PlayItemDialogHeader">Spill element</string>
   <string name="Media.PlayAudioItems">Spill av lydelementer</string>
@@ -273,6 +280,8 @@
   <string name="Media.SwitchSortingMenuItem">Sorter</string>
   <string name="Media.SortByDate">Dato</string>
   <string name="Media.GroupingBrowseDefault">Standard</string>
+  <!--Stubs-->
+  <!--Settings-->
   <string name="Settings.Players">Avspillere</string>
   <string name="Settings.Players.ClosePlayersWhenFinished">Lukk spilleren når den er ferdig</string>
   <string name="Settings.Players.ClosePlayersWhenFinished.Help">Velg denne innstillingen for at MediaPortal skal lukke spilleren automatisk</string>

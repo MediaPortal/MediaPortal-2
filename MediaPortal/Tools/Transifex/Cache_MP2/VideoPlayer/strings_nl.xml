@@ -8,6 +8,10 @@
   <string name="Settings.Players.Codecs.VideoCodecs.MPEG4.Help">Stel de codec in die gebruikt wordt voor MPEG4 video (H.264, x264)</string>
   <string name="Settings.Players.Codecs.VideoCodecs.AVC">AVC video codec</string>
   <string name="Settings.Players.Codecs.VideoCodecs.AVC.Help">Stel de codec in die gebruikt wordt voor AVC video (HDTV, Blu-ray)</string>
+  <string name="Settings.Players.Codecs.VideoCodecs.HEVC">HEVC Video Codec</string>
+  <string name="Settings.Players.Codecs.VideoCodecs.HEVC.Help">Stel de codec in die gebruikt wordt voor HEVC video (HD, UHD)</string>
+  <string name="Settings.Players.Codecs.VideoCodecs.Splitter">Splitter</string>
+  <string name="Settings.Players.Codecs.VideoCodecs.Splitter.Help">Stel de splitter in</string>
   <string name="Settings.Players.Codecs.AudioCodecs">Audio codecs</string>
   <string name="Settings.Players.Codecs.AudioRenderer">Audio renderer</string>
   <string name="Settings.Players.Codecs.AudioCodecs.AudioCodec">MPEG1/2 audio codec</string>

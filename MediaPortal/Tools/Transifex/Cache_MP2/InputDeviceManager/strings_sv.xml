@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <string name="Settings.InputDeviceManager.Section">Hantera inmatning</string>
+  <string name="Settings.InputDeviceManager.EnterKeyConfig">Hantera tangentinmatning</string>
+  <string name="Settings.InputDeviceManager.EnterKeyConfigHelp">Ger dig möjlighet att koppla HID-enheter till olika tangentaktiviteter</string>
+  <string name="Settings.InputDeviceManager.EnterScreenConfig">Hantera skärminmatning</string>
+  <string name="Settings.InputDeviceManager.EnterScreenConfigHelp">Ger dig möjlighet att koppla HID-enheter till olika skärmar</string>
+
+  <string name="InputDeviceManager.SelectDevice.Header">Tryck på en knapp/tangent på inmatningsenheten som du vill konfigurera</string>
+  <string name="InputDeviceManager.FocusItem">Visa nuvarande mappningar och välj den du vill ändra</string>
+
+  <string name="InputDeviceManager.AddKey.Header">Tryck den önskade tangentkombinationen på inmatningsenheten!</string>
+  <string name="InputDeviceManager.Screen">Skärm</string>
+  <string name="InputDeviceManager.Key">Tangent</string>
+
+  <string name="InputDeviceManager.KeyMapping.Button.ClearMapping">Rensa</string>
+  <string name="InputDeviceManager.KeyMapping.Dialog.RemoveMapping">Ta bort mappning?</string>
+  <string name="InputDeviceManager.KeyMapping.Dialog.AddMapping">Lägg till mappning?</string>
+</resources>
