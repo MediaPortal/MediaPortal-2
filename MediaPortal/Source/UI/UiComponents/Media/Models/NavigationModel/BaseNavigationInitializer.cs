@@ -122,29 +122,25 @@ namespace MediaPortal.UiComponents.Media.Models.NavigationModel
 
       //Default configuration
       string viewName = _viewName;
-      AbstractScreenData defaultScreen = _defaultScreen;
-      ICollection<AbstractScreenData> availableScreens = _availableScreens;
 
       //Apply any custom configuration
       if (config != null)
       {
-        if (availableScreens != null)
+        if (_availableScreens != null)
         {
           //Use the configured root screen to load the next screen from the hierarchy
           //and remove it from the list of available screens
-          AbstractScreenData configRoot = config.RootScreenType != null ? availableScreens.FirstOrDefault(s => s.GetType() == config.RootScreenType) : null;
+          AbstractScreenData configRoot = config.RootScreenType != null ? _availableScreens.FirstOrDefault(s => s.GetType() == config.RootScreenType) : null;
           if (configRoot != null)
           {
             viewName = configRoot.GetType().ToString();
-            //don't modify the existing list
-            availableScreens = new List<AbstractScreenData>(availableScreens);
-            availableScreens.Remove(configRoot);
+            _availableScreens.Remove(configRoot);
           }
 
           //Use the configured default screen if there is no saved screen hierarchy
-          AbstractScreenData configDefault = config.DefaultScreenType != null ? availableScreens.FirstOrDefault(s => s.GetType() == config.DefaultScreenType) : null;
+          AbstractScreenData configDefault = config.DefaultScreenType != null ? _availableScreens.FirstOrDefault(s => s.GetType() == config.DefaultScreenType) : null;
           if (configDefault != null)
-            defaultScreen = configDefault;
+            _defaultScreen = configDefault;
         }
 
         //Apply any additional filters
@@ -164,8 +160,8 @@ namespace MediaPortal.UiComponents.Media.Models.NavigationModel
         if (nextScreenName == Consts.USE_BROWSE_MODE)
           SetBrowseMode();
 
-        if (availableScreens != null)
-          nextScreen = availableScreens.FirstOrDefault(s => s.GetType().ToString() == nextScreenName);
+        if (_availableScreens != null)
+          nextScreen = _availableScreens.FirstOrDefault(s => s.GetType().ToString() == nextScreenName);
       }
 
       IEnumerable<Guid> optionalMIATypeIDs = MediaNavigationModel.GetMediaSkinOptionalMIATypes(MediaNavigationMode);
@@ -177,13 +173,18 @@ namespace MediaPortal.UiComponents.Media.Models.NavigationModel
 
       // Prefer custom view specification.
       ViewSpecification rootViewSpecification = _customRootViewSpecification ??
-        new MediaLibraryQueryViewSpecification(viewName, filterTree, _necessaryMias, optionalMIATypeIDs, true)
+        // Always use the default view name for the root view specification, not any custom name that may
+        // have been specified in a navigation config, otherwise toggling browse mode won't work correctly.
+        // To switch to browse mode we update the root screen hierarchy to point to the browse screen and
+        // then navigate to the root wf state. The name of the root screen hierarchy is determined by the
+        // name specified here so it should always point to the actual root view name.
+        new MediaLibraryQueryViewSpecification(_viewName, filterTree, _necessaryMias, optionalMIATypeIDs, true)
         {
           MaxNumItems = Consts.MAX_NUM_ITEMS_VISIBLE,
         };
 
       if (nextScreen == null)
-        nextScreen = defaultScreen;
+        nextScreen = _defaultScreen;
 
       ScreenConfig nextScreenConfig;
       NavigationData.LoadLayoutSettings(nextScreen.GetType().ToString(), out nextScreenConfig);
@@ -192,7 +193,7 @@ namespace MediaPortal.UiComponents.Media.Models.NavigationModel
       Sorting.Sorting nextGroupingMode = _availableGroupings == null || String.IsNullOrEmpty(nextScreenConfig.Grouping) ? null : _availableGroupings.FirstOrDefault(grouping => grouping.GetType().ToString() == nextScreenConfig.Grouping) ?? _defaultGrouping;
 
       navigationData = new NavigationData(null, viewName, MediaNavigationRootState,
-        MediaNavigationRootState, rootViewSpecification, nextScreen, availableScreens, nextSortingMode, nextGroupingMode)
+        MediaNavigationRootState, rootViewSpecification, nextScreen, _availableScreens, nextSortingMode, nextGroupingMode)
       {
         AvailableSortings = _availableSortings,
         AvailableGroupings = _availableGroupings,
