@@ -568,7 +568,8 @@ namespace MediaPortal.Backend.Services.MediaLibrary
         lock (_shareImportSync)
           shareStates.AddRange(_shareImportStates.Values);
         bool importing = shareStates.Any(s => s.IsImporting);
-        int? progress = importing ? shareStates.Where(s => s.IsImporting).Min(s => s.Progress) : (int?)null;
+        var activeShares = shareStates.Where(s => s.IsImporting && s.Progress > 0);
+        int? progress = importing ? activeShares?.Count() > 0 ? activeShares.Min(s => s.Progress) : 0 : (int?)null;
         var state = new ShareImportServerState
         {
           IsImporting = importing,
