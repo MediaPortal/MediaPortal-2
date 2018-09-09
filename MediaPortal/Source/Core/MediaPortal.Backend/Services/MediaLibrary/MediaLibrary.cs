@@ -607,8 +607,47 @@ namespace MediaPortal.Backend.Services.MediaLibrary
           {
             Logger.Info("Media library exiting maintenance mode");
 
-            var shares = GetShares(null);
-            foreach (var share in shares.Values)
+            //Find dirty items
+            ISQLDatabase database = ServiceRegistration.Get<ISQLDatabase>();
+            ITransaction transaction = database.BeginTransaction();
+            IList<MediaItem> dirtyItems;
+            IDictionary<Guid, Share> shares;
+            try
+            {
+              var query = new MediaItemQuery(new Guid[] { ProviderResourceAspect.ASPECT_ID, ImporterAspect.ASPECT_ID }, new List<Guid>(),
+              new BooleanCombinationFilter(BooleanOperator.And, new IFilter[]
+              {
+                new RelationalFilter(ProviderResourceAspect.ATTR_SYSTEM_ID, RelationalOperator.EQ, _localSystemId),
+                new RelationalFilter(ProviderResourceAspect.ATTR_TYPE, RelationalOperator.EQ, ProviderResourceAspect.TYPE_PRIMARY),
+                new RelationalFilter(ImporterAspect.ATTR_DIRTY, RelationalOperator.EQ, 1)
+              }));
+              CompiledMediaItemQuery cmiq = CompiledMediaItemQuery.Compile(_miaManagement, query);
+              dirtyItems = cmiq.QueryList(database, transaction);
+
+              shares = GetShares(transaction, _localSystemId);
+            }
+            finally
+            {
+              transaction.Dispose();
+            }
+
+            //Find dirty shares
+            List<Share> importShares = new List<Share>();
+            foreach (var mi in dirtyItems)
+            {
+              var primaryResource = mi.PrimaryResources?.FirstOrDefault();
+              string accessorPath = primaryResource?.GetAttributeValue<string>(ProviderResourceAspect.ATTR_RESOURCE_ACCESSOR_PATH);
+              if (string.IsNullOrEmpty(accessorPath))
+                continue;
+
+              var mediaItemPath = ResourcePath.Deserialize(accessorPath);
+              Share share = shares?.Values?.FirstOrDefault(s => s.BaseResourcePath.IsSameOrParentOf(mediaItemPath));
+              if (share != null && !importShares.Contains(share))
+                importShares.Add(share);
+            }
+
+            //Schedule refresh of dirty shares
+            foreach (var share in importShares)
               TryScheduleLocalShareRefresh(share);
           }
         }
