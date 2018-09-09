@@ -128,8 +128,11 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.FanArtDataflow
     {
       FanArtManagerAction removedAction;
       if (_pendingFanArtDownloads.TryRemove(action.ActionId, out removedAction))
+      {
+        removedAction.Aspects?.Clear();
         //Remove the completed action from the persisted list of pending actions
         _persistBlock.Post(null);
+      }
     }
     
     /// <summary>
