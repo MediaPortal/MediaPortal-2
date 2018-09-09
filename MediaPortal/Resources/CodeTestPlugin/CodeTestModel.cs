@@ -24,11 +24,20 @@
 
 
 using System;
+using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using MediaPortal.Common;
+using MediaPortal.Common.MediaManagement;
+using MediaPortal.Common.MediaManagement.DefaultItemAspects;
+using MediaPortal.Common.MediaManagement.MLQueries;
+using MediaPortal.Common.SystemCommunication;
+using MediaPortal.Common.UserManagement;
+using MediaPortal.Common.UserProfileDataManagement;
 using MediaPortal.UI.Presentation.Models;
 using MediaPortal.UI.Presentation.Screens;
 using MediaPortal.UI.Presentation.Workflow;
+using MediaPortal.UI.ServerCommunication;
 
 namespace MediaPortal.Test.CodeTest
 {
@@ -65,6 +74,36 @@ namespace MediaPortal.Test.CodeTest
       string header = "ContextMenuCommand executed";
       string text = "The ContextMenuCommand has been executed. Great.";
       dialogManager.ShowDialog(header, text, DialogType.OkDialog, false, DialogButtonType.Ok);
+    }
+
+    public void TestEpisodeNumbers()
+    {
+      Guid[] types =
+      {
+        MediaAspect.ASPECT_ID, EpisodeAspect.ASPECT_ID, VideoAspect.ASPECT_ID, ImporterAspect.ASPECT_ID,
+        ProviderResourceAspect.ASPECT_ID, ExternalIdentifierAspect.ASPECT_ID
+      };
+
+      IContentDirectory contentDirectory = ServiceRegistration.Get<IServerConnectionManager>().ContentDirectory;
+      if (contentDirectory == null)
+      {
+        return;
+      }
+
+      Guid? userProfile = null;
+      IUserManagement userProfileDataManagement = ServiceRegistration.Get<IUserManagement>();
+      if (userProfileDataManagement != null && userProfileDataManagement.IsValidUser)
+      {
+        userProfile = userProfileDataManagement.CurrentUser.ProfileId;
+      }
+
+      IList<MediaItem> collectedEpisodeMediaItems = contentDirectory.SearchAsync(new MediaItemQuery(types, null, null), true, userProfile, false).Result;
+      List<MediaItem> watchedEpisodeMediaItems = collectedEpisodeMediaItems.Where(IsWatched).ToList();
+
+      foreach (MediaItem episodeMediaItem in watchedEpisodeMediaItems)
+      {
+        List<int> episodeNumbers = GetEpisodeNumbers(episodeMediaItem);
+      }
     }
 
     #endregion
@@ -114,5 +153,29 @@ namespace MediaPortal.Test.CodeTest
     }
 
     #endregion
+
+    private static bool IsWatched(MediaItem mediaItem)
+    {
+      int playPercentage = 0;
+      if (mediaItem.UserData.ContainsKey(UserDataKeysKnown.KEY_PLAY_PERCENTAGE))
+      {
+        int.TryParse(mediaItem.UserData[UserDataKeysKnown.KEY_PLAY_PERCENTAGE], out playPercentage);
+      }
+
+      return playPercentage == 100;
+    }
+
+    private static List<int> GetEpisodeNumbers(MediaItem mediaItem)
+    {
+      List<int> episodeNumbers = new List<int>();
+      if (MediaItemAspect.TryGetAttribute(mediaItem.Aspects, EpisodeAspect.ATTR_EPISODE, out IEnumerable episodes))
+      {
+        foreach (int episode in episodes.Cast<int>())
+        {
+          episodeNumbers.Add(episode);
+        }
+      }
+      return episodeNumbers;
+    }
   }
 }
