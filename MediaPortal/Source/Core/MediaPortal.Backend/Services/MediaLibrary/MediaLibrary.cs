@@ -598,12 +598,20 @@ namespace MediaPortal.Backend.Services.MediaLibrary
       {
         if(_maintenanceMode != value)
         {
+          _maintenanceMode = value;
           if (value)
+          {
             Logger.Info("Media library entering maintenance mode");
+          }
           else
+          {
             Logger.Info("Media library exiting maintenance mode");
+
+            var shares = GetShares(null);
+            foreach (var share in shares.Values)
+              TryScheduleLocalShareRefresh(share);
+          }
         }
-        _maintenanceMode = value;
       }
     }
 
