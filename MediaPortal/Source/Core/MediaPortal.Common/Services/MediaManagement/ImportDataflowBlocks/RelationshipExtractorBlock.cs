@@ -132,10 +132,8 @@ namespace MediaPortal.Common.Services.MediaManagement.ImportDataflowBlocks
         }
 
         importResource.IsValid = false;
-        if (importResource.Aspects != null)
-          importResource.Aspects.Clear();
-        if (importResource.ExistingAspects != null)
-          importResource.ExistingAspects.Clear();
+        importResource.Aspects?.Clear();
+        importResource.ExistingAspects?.Clear();
         return importResource;
       }
       catch (OperationCanceledException)

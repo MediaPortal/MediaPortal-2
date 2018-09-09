@@ -332,7 +332,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
         BindVar userIdVar = new BindVar(bvNamespace.CreateNewBindVarName("V"), relationalUserDataFilter.UserProfileId, typeof(Guid));
         BindVar bindVar = new BindVar(bvNamespace.CreateNewBindVarName("V"), relationalUserDataFilter.FilterValue, typeof(string));
 
-        resultParts.Add("EXISTS(");
+        resultParts.Add("(EXISTS(");
         resultParts.Add("SELECT 1");
         resultParts.Add(" FROM ");
         resultParts.Add(UserProfileDataManagement_SubSchema.USER_MEDIA_ITEM_DATA_TABLE_NAME);
@@ -403,6 +403,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
           resultParts.Add(outerMIIDJoinVariable);
           resultParts.Add(")");
         }
+        resultParts.Add(")");
         return;
       }
 
