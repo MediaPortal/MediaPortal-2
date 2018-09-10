@@ -288,9 +288,9 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
         if (tableQueries.ContainsKey(miaType))
           // We only come here if miaType is the MIA of the requested attribute itself or if it was already queried as necessary MIA, so optimize redundant entry
           continue;
-        TableQueryData tqd = tableQueries[miaType] = TableQueryData.CreateTableQueryOfMIATable(_miaManagement, miaType);
-        tableJoins.Add(new TableJoin("INNER JOIN", tqd,
-            new RequestedAttribute(tqd, MIA_Management.MIA_MEDIA_ITEM_ID_COL_NAME), miaIdAttribute));
+        //If any MultipleMediaItemAspect are requested, the joining below will cause duplicate values
+        //TableQueryData tqd = tableQueries[miaType] = TableQueryData.CreateTableQueryOfMIATable(_miaManagement, miaType);
+        //tableJoins.Add(new TableJoin("INNER JOIN", tqd, new RequestedAttribute(tqd, MIA_Management.MIA_MEDIA_ITEM_ID_COL_NAME), miaIdAttribute));
       }
 
       CompiledFilter compiledFilter = new CompiledFilter(_miaManagement, _filter, _subqueryFilter, ns, bvNamespace, miaIdAttribute.GetQualifiedName(ns), tableJoins);
