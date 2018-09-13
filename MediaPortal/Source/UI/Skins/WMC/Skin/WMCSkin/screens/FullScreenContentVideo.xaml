@@ -45,37 +45,34 @@
              Color="Black" VerticalAlignment="Center" HorizontalAlignment="Center"/>
     </Grid>
 
-    <Grid x:Name="BackgroundPipLayoutGrid" Grid.Row="0" Grid.Column="0" VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
+    <Grid x:Name="OSD_LayoutPanel" Grid.Row="0" Grid.Column="0"
+        VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
       <Grid.ColumnDefinitions>
         <ColumnDefinition Width="*"/>
         <ColumnDefinition Width="Auto"/>
         <ColumnDefinition Width="40"/>
       </Grid.ColumnDefinitions>
       <Grid.RowDefinitions>
-        <RowDefinition Height="*"/>
+        <RowDefinition Height="150"/>
         <RowDefinition Height="Auto"/>
-        <RowDefinition Height="40"/>
+        <RowDefinition Height="*"/>
       </Grid.RowDefinitions>
-  
+
+      <DockPanel x:Name="OSD_RightPanel" Grid.Row="0" Grid.RowSpan="3"  Grid.Column="1" Grid.ColumnSpan="2"
+                 LastChildFill="false" HorizontalAlignment="Right">
+        <mp_special_controls:PlayerControl x:Name="PrimaryOSD" DockPanel.Dock="Bottom"
+            Style="{ThemeResource PrimaryVideoOSDStyle}" IsVisible="{Binding IsOSDVisible}"
+            VerticalAlignment="Stretch" HorizontalAlignment="Right"/>
+      </DockPanel>
+
       <Control x:Name="PiP" Grid.Column="1" Grid.Row="1" Style="{ThemeResource PipControlStyle}"
                IsVisible="{Binding !IsOSDVisible}"/>
-    </Grid> <!-- BackgroundPipLayoutGrid -->
 
-    <Grid x:Name="OSD_LayoutPanel" Grid.Row="0" Grid.Column="0"
-        VerticalAlignment="Stretch" HorizontalAlignment="Stretch" IsVisible="{Binding IsOSDVisible}">
-      <Grid.ColumnDefinitions>
-        <ColumnDefinition Width="*"/>
-        <ColumnDefinition Width="Auto"/>
-      </Grid.ColumnDefinitions>
-      <Grid.RowDefinitions>
-        <RowDefinition Height="*"/>
-      </Grid.RowDefinitions>
-
-      <DockPanel x:Name="OSD_RightPanel" Grid.Row="0" Grid.Column="1" LastChildFill="false">
-        <mp_special_controls:PlayerControl x:Name="PrimaryOSD" DockPanel.Dock="Bottom"
-            Style="{ThemeResource PrimaryVideoOSDStyle}"
-            VerticalAlignment="Stretch" HorizontalAlignment="Right"/>
-      </DockPanel> 
+      <DockPanel x:Name="OSD_PiPPanel" Grid.Column="1" Grid.Row="1" LastChildFill="false" IsVisible="{Binding IsOSDVisible}" Margin="0,0,20,0">
+        <mp_special_controls:PlayerControl x:Name="SecondaryOSD" DockPanel.Dock="Right"
+            Style="{ThemeResource SecondaryMediaOSDStyle}" AutoVisibility="true"/>
+      </DockPanel>
+      
     </Grid>
 
     <Grid Height="90" VerticalAlignment="Top" HorizontalAlignment="Left" Margin="30,5,0,0">

@@ -33,8 +33,8 @@
 
   <ResourceWrapper x:Key="DefaultPlayerControlBorderThickness" Resource="1"/>
   <ResourceWrapper x:Key="DefaultPlayerControlCornerRadius" Resource="4"/>
-  <ResourceWrapper x:Key="OSDPlayControlBorderThickness" Resource="2"/>
-  <ResourceWrapper x:Key="OSDPlayControlCornerRadius" Resource="3"/>
+  <ResourceWrapper x:Key="OSDPlayControlBorderThickness" Resource="3"/>
+  <ResourceWrapper x:Key="OSDPlayControlCornerRadius" Resource="4"/>
   <ResourceWrapper x:Key="PipBorderThickness" Resource="2"/>
 
 
