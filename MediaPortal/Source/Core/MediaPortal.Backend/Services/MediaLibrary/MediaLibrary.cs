@@ -1725,7 +1725,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
               Logger.Debug("Media item {0} with name {1} ({2}) cannot be saved. Needs to be merged ({3} ms)",
                 mediaItemId.HasValue ? mediaItemId : newMediaItemId, name, Path.GetFileName(path.FileName), swImport.ElapsedMilliseconds);
             else
-              Logger.Info("Media item {0} with name {1} ({2}) was merged into {3} ({4} ms)",
+              Logger.Debug("Media item {0} with name {1} ({2}) was merged into {3} ({4} ms)",
                 mediaItemId.HasValue ? mediaItemId : newMediaItemId, name, Path.GetFileName(path.FileName), mergedMediaItemId, swImport.ElapsedMilliseconds);
             return mergedMediaItemId;
           }

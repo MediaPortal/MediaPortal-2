@@ -290,7 +290,7 @@ namespace MediaPortal.Common.Services.MediaManagement.ImportDataflowBlocks
         _cacheSync.Release();
       }
 
-      ServiceRegistration.Get<ILogger>().Info(
+      ServiceRegistration.Get<ILogger>().Debug(
         $"{BLOCK_NAME}: Added {relations.Count} relations ({newMediaItems.Count} new, {cacheMisses} recached) to {GetMediaItemName(aspects)} ({mediaItemId})");
 
       TransferTransientAspects(aspects, newMediaItems);
