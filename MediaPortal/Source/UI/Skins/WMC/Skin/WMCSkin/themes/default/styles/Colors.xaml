@@ -35,8 +35,9 @@
   <ResourceWrapper x:Key="DialogBackgroundGradient1Color" Resource="#F2447da7"/>
   <ResourceWrapper x:Key="DialogBackgroundGradient2Color" Resource="#F2124273"/>
   <ResourceWrapper x:Key="DialogBackgroundFadeColor" Resource="#081643"/>
-
-  <ResourceWrapper x:Key="DialogBorderColor">
+  <ResourceWrapper x:Key="DialogBorderColor" Resource="#8CFFFFFF"/>
+  
+  <!--ResourceWrapper x:Key="DialogBorderColor">
     <ResourceWrapper.Resource>
       <LinearGradientBrush StartPoint="0.5,0" EndPoint="0.5,1">
         <GradientStop Offset="0" Color="#40505050"/>
@@ -44,7 +45,7 @@
         <GradientStop Offset="1" Color="#40505050"/>
       </LinearGradientBrush >
     </ResourceWrapper.Resource>
-  </ResourceWrapper>
+  </-->
 
   <ResourceWrapper x:Key="ProgressBarBorderColor" Resource="#80000000"/>
   <ResourceWrapper x:Key="ProgressBarBackgroundColor" Resource="#FFc1c1c1"/>

@@ -17,6 +17,7 @@
     <ProjectsToRestore Include="$(ProjectRoot)\Source\MP2-ServiceMonitor.sln"/>
     <ProjectsToRestore Include="$(ProjectRoot)\..\OnlineVideos\OnlineVideos.MediaPortal2.sln"/>
     <ProjectsToRestore Include="$(ProjectRoot)\Setup\MP2-Setup.sln"/>
+    <ProjectsToRestore Include="$(ProjectRoot)\Source\UI\Players\EVRPresenter\EVRPresenter.sln"/>
   </ItemGroup>
 
   <Target Name="DownloadNuGet">
