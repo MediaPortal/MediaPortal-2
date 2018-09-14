@@ -5,6 +5,7 @@
     xmlns:system="clr-namespace:System"
     xmlns:collections="clr-namespace:MediaPortal.UI.Presentation.DataObjects;assembly=MediaPortal.UI"
     xmlns:mp_special_controls="clr-namespace:MediaPortal.UI.SkinEngine.SpecialElements.Controls;assembly=SkinEngine"
+    xmlns:fanart="clr-namespace:MediaPortal.Extensions.UserServices.FanArtService.Client;assembly=FanArtService.Client"
     DependsOnStyleResources="Colors,Buttons,Consts,Brushes"
     >
 
@@ -1660,6 +1661,16 @@
                           Transition="transitions\granular_dissolve;transitions\fade;transitions\dissolve;transitions\wipe_right;transitions\wipe_down;transitions\wipe_down-right;transitions\wipe_up-left"
                           TransitionInOut="False" />
                     </Image.Source>
+                  </Image>
+                  <Image x:Name="PiPAudio" IsVisible="{Binding IsAudioPlayerPresent}" Width="{Binding ImageWidth}" Height="{Binding ImageHeight}" Stretch="Uniform" Source="error-icon.png">
+                    <!--Image.Source>
+                      <ImageSourceWrapper Delay="0.5" DelayInOut="true" Transition="transitions\dissolve" TransitionDuration="0.5">
+                        <ImageSourceWrapper.Source>
+                          <fanart:FanArtImageSource fanart:FanArtMediaType="Audio" fanart:FanArtType="FanArt"
+                              fanart:FanArtName="{Binding Source={Binding MediaItem}, Path=MediaItemId}" fanart:MaxWidth="400" fanart:MaxHeight="400" fanart:Cache="false"/>
+                        </ImageSourceWrapper.Source>
+                      </ImageSourceWrapper>
+                    </-->
                   </Image>
                 </Grid>
               </Border>
