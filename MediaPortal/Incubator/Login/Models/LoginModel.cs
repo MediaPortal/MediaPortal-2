@@ -380,7 +380,6 @@ namespace MediaPortal.UiComponents.Login.Models
         {
           case ServerConnectionMessaging.MessageType.HomeServerConnected:
             _ = SetCurrentUser();
-
             _ = RefreshUserList();
             break;
         }

@@ -198,6 +198,16 @@ namespace MediaPortal.Backend.Services.UserProfileDataManagement
           });
       AddAction(renameProfileAction);
 
+      DvAction changeProfileIdAction = new DvAction("ChangeProfileId", OnChangeProfileId,
+          new DvArgument[] {
+            new DvArgument("ProfileId", A_ARG_TYPE_Uuid, ArgumentDirection.In),
+            new DvArgument("NewProfileId", A_ARG_TYPE_Uuid, ArgumentDirection.In)
+          },
+          new DvArgument[] {
+            new DvArgument("Success", A_ARG_TYPE_Bool, ArgumentDirection.Out, true)
+          });
+      AddAction(changeProfileIdAction);
+
       DvAction deleteProfileAction = new DvAction("DeleteProfile", OnDeleteProfile,
           new DvArgument[] {
             new DvArgument("ProfileId", A_ARG_TYPE_Uuid, ArgumentDirection.In)
@@ -445,6 +455,16 @@ namespace MediaPortal.Backend.Services.UserProfileDataManagement
       Guid profileId = MarshallingHelper.DeserializeGuid((string)inParams[0]);
       string newName = (string)inParams[1];
       bool success = ServiceRegistration.Get<IUserProfileDataManagement>().RenameProfileAsync(profileId, newName).Result;
+      outParams = new List<object> { success };
+      return null;
+    }
+
+    static UPnPError OnChangeProfileId(DvAction action, IList<object> inParams, out IList<object> outParams,
+        CallContext context)
+    {
+      Guid profileId = MarshallingHelper.DeserializeGuid((string)inParams[0]);
+      Guid newProfileId = MarshallingHelper.DeserializeGuid((string)inParams[1]);
+      bool success = ServiceRegistration.Get<IUserProfileDataManagement>().ChangeProfileIdAsync(profileId, newProfileId).Result;
       outParams = new List<object> { success };
       return null;
     }

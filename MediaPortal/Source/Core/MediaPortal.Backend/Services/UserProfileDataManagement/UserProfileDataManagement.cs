@@ -278,6 +278,54 @@ namespace MediaPortal.Backend.Services.UserProfileDataManagement
       }
     }
 
+    public Task<bool> ChangeProfileIdAsync(Guid profileId, Guid newProfileId)
+    {
+      ISQLDatabase database = ServiceRegistration.Get<ISQLDatabase>();
+      ITransaction transaction = database.BeginTransaction();
+      try
+      {
+        bool result;
+        int nameIndex;
+        string profileName;
+        using (IDbCommand command = UserProfileDataManagement_SubSchema.SelectUserProfileNameCommand(transaction, profileId, out nameIndex))
+        {
+          using (IDataReader reader = command.ExecuteReader())
+          {
+            if (reader.Read())
+            {
+              profileName = database.ReadDBValue<string>(reader, nameIndex);
+            }
+            else
+            {
+              transaction.Rollback();
+              return Task.FromResult(false);
+            }
+          }
+        }
+        using (IDbCommand command = UserProfileDataManagement_SubSchema.UpdateUserProfileNameCommand(transaction, profileId, profileName + "_old"))
+          command.ExecuteNonQuery();
+        using (IDbCommand command = UserProfileDataManagement_SubSchema.CopyUserProfileCommand(transaction, profileId, newProfileId, profileName))
+          result = command.ExecuteNonQuery() > 0;
+        using (IDbCommand command = UserProfileDataManagement_SubSchema.CopyUserMediaItemDataCommand(transaction, profileId, newProfileId))
+          command.ExecuteNonQuery();
+        using (IDbCommand command = UserProfileDataManagement_SubSchema.CopyUserPlaylistDataCommand(transaction, profileId, newProfileId))
+          command.ExecuteNonQuery();
+        using (IDbCommand command = UserProfileDataManagement_SubSchema.CopyUserAdditionalDataCommand(transaction, profileId, newProfileId))
+          command.ExecuteNonQuery();
+        using (IDbCommand command = UserProfileDataManagement_SubSchema.DeleteUserProfileCommand(transaction, profileId))
+          command.ExecuteNonQuery();
+        transaction.Commit();
+
+        return Task.FromResult(result);
+      }
+      catch (Exception e)
+      {
+        ServiceRegistration.Get<ILogger>().Error("UserProfileDataManagement: Error changing profile Id '{0}'", e, profileId);
+        transaction.Rollback();
+        throw;
+      }
+    }
+
     public Task<bool> DeleteProfileAsync(Guid profileId)
     {
       ISQLDatabase database = ServiceRegistration.Get<ISQLDatabase>();

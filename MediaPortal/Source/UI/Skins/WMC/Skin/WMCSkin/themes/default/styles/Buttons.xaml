@@ -1625,6 +1625,30 @@
     </Setter>
   </Style>
 
+  <Style x:Key="UpgradingButtonStyle" TargetType="{x:Type Button}">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="{x:Type Button}">
+          <Grid Height="60" Width="60">
+            <Image x:Name="Icon" Source="Upgrading.png" Stretch="Uniform" Margin="10" 
+                   HorizontalAlignment="Center" VerticalAlignment="Center">
+              <Image.Triggers>
+                <Trigger Property="IsEnabled" Value="True">
+                  <Trigger.EnterActions>
+                    <BeginStoryboard x:Name="Disabled_BeginStoryBoard" Storyboard="{ThemeResource BlinkStoryboard}"/>
+                  </Trigger.EnterActions>
+                  <Trigger.ExitActions>
+                    <StopStoryboard BeginStoryboardName="Disabled_BeginStoryBoard"/>
+                  </Trigger.ExitActions>
+                </Trigger>
+              </Image.Triggers>
+            </Image>
+          </Grid>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+
   <Style x:Key="UserButtonStyle" TargetType="{x:Type Button}">
     <Setter Property="Template">
       <Setter.Value>

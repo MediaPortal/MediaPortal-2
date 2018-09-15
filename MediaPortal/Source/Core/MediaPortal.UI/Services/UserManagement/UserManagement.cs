@@ -128,11 +128,16 @@ namespace MediaPortal.UI.Services.UserManagement
 
         // First check if there is an "old" client profile with same name but different ID. This happens only for older versions.
         // This needs to be done to avoid unique constraint violations when creating the new profile by name.
+        // If client profile exists rename it and convert it to a user profile so it can be deleted or used otherwise.
         string profileName = SystemInformation.ComputerName;
         var existingProfile = await updm.GetProfileByNameAsync(profileName);
         if (existingProfile.Success && existingProfile.Result.ProfileId != systemId)
-          if (!await updm.UpdateProfileAsync(existingProfile.Result.ProfileId, profileName + "_old", existingProfile.Result.ProfileType, null))
-            return null;
+          if (await updm.ChangeProfileIdAsync(existingProfile.Result.ProfileId, systemId))
+          {
+            result = await updm.GetProfileAsync(systemId);
+            if (result.Success)
+              return result.Result;
+          }
 
         // Create a login profile which uses the LocalSystemId and the associated ComputerName
         Guid profileId = await updm.CreateClientProfileAsync(systemId, profileName);
