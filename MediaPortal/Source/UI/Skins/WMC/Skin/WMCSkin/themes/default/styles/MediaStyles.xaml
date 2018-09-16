@@ -497,7 +497,7 @@
                     <RowDefinition Height="*"/>
                   </Grid.RowDefinitions>
                   <Label x:Name="MediaName" Content="{Binding Path=MediaItemTitle}" Color="{ThemeResource TextColor}" Scroll="Auto"
-                         HorizontalAlignment="Left" VerticalAlignment="Center"/>
+                         HorizontalAlignment="Left" VerticalAlignment="Center" MaxWidth="500"/>
                 </Grid>
               </DockPanel>
               

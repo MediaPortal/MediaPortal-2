@@ -1662,7 +1662,7 @@
                           TransitionInOut="False" />
                     </Image.Source>
                   </Image>
-                  <Image x:Name="PiPAudio" IsVisible="{Binding IsAudioPlayerPresent}" Width="{Binding ImageWidth}" Height="{Binding ImageHeight}" Stretch="Uniform" Source="error-icon.png">
+                  <Image x:Name="PiPAudio" IsVisible="{Binding IsAudioPlayerPresent}" Width="80" Height="80" Stretch="Uniform" Source="error-icon.png">
                     <!--Image.Source>
                       <ImageSourceWrapper Delay="0.5" DelayInOut="true" Transition="transitions\dissolve" TransitionDuration="0.5">
                         <ImageSourceWrapper.Source>
