@@ -9,6 +9,8 @@
     DependsOnStyleResources="Colors,Buttons,Consts,Brushes"
     >
 
+  <Model x:Key="FanArtBackgroundModel" Id="8F42C8E9-E8A3-475C-A50A-99E1E644DC91"/>
+
   <!-- ************************** Default conversions ****************************** -->
   <DataTemplate DataType="{x:Type system:String}">
     <Label Content="{Binding}" Color="{ThemeResource TextColor}"/>
@@ -1640,7 +1642,6 @@
               FixedImageWidth="{ThemeResource PiPVideoWidth}">
             <mp_special_controls:PlayerControl.TemplateControl>
               <Border x:Name="PiPControlBorder"
-                  IsVisible="{Binding IsPip}"
                   DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}"
                   BorderBrush="{ThemeResource PipBorderColor}" BorderThickness="{ThemeResource PipBorderThickness}">
                 <Grid>
@@ -1662,15 +1663,11 @@
                           TransitionInOut="False" />
                     </Image.Source>
                   </Image>
-                  <Image x:Name="PiPAudio" IsVisible="{Binding IsAudioPlayerPresent}" Width="80" Height="80" Stretch="Uniform" Source="error-icon.png">
-                    <!--Image.Source>
-                      <ImageSourceWrapper Delay="0.5" DelayInOut="true" Transition="transitions\dissolve" TransitionDuration="0.5">
-                        <ImageSourceWrapper.Source>
-                          <fanart:FanArtImageSource fanart:FanArtMediaType="Audio" fanart:FanArtType="FanArt"
-                              fanart:FanArtName="{Binding Source={Binding MediaItem}, Path=MediaItemId}" fanart:MaxWidth="400" fanart:MaxHeight="400" fanart:Cache="false"/>
-                        </ImageSourceWrapper.Source>
-                      </ImageSourceWrapper>
-                    </-->
+                  <Image x:Name="PiPAudio" IsVisible="{Binding IsAudioPlayerPresent}" Stretch="Uniform" Width="200" Height="200">
+                    <Image.Source>
+                      <fanart:FanArtImageSource fanart:FanArtMediaType="Album" fanart:FanArtType="Poster" fanart:FanArtName="{Binding MediaItem.MediaItemId}"
+                                            fanart:MaxWidth="200" fanart:MaxHeight="200"/>
+                    </Image.Source>
                   </Image>
                 </Grid>
               </Border>
