@@ -63,6 +63,7 @@
   <string name="Notifications.NMoreNotifications">({0} mehr)</string>
   <string name="Notifications.WatchNotificationsWorkflowStateLabel">Benachrichtigungen</string>
   <string name="Notifications.Handle">Details</string>
+  <string name="Notifications.Upgrading">Upgrade...</string>
   <string name="ImporterMessages.ImportStartedTitle">Import gestartet</string>
   <string name="ImporterMessages.ImportStartedText">Der Import \'{0}\' wurde gestartet.</string>
   <string name="ImporterMessages.ImportCompletedTitle">Import abgeschlossen</string>

@@ -5,7 +5,7 @@
   <string name="Settings.ServerSettings.NetworkCredentials.Help">Configura nome utente e password per accedere alle risorse di rete sul server</string>
   <string name="Settings.ServerSettings.UseCredentials">Utilizza nome utente e password per accedere alla rete</string>
   <string name="Settings.ServerSettings.UsernamePasswordGroup">Nome utente e password</string>
-  <string name="Settings.ServerSettings.Username">Nume utente:</string>
+  <string name="Settings.ServerSettings.Username">Nome utente:</string>
   <string name="Settings.ServerSettings.Password">Password:</string>
   <string name="Settings.ServerSettings.ImporterWorker">Aggiornamento automatico condivisioni</string>
   <string name="Settings.ServerSettings.ImporterWorker.Help">Configura l\'aggiornamento automatico delle condivisioni</string>
