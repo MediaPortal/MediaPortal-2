@@ -23,14 +23,14 @@
   <string name="Home.Title">MediaPortal 2</string>
   <string name="Home.HomeStateDisplayLabel">Home</string>
   <string name="Dialogs.InfoHeaderText">Info</string>
-  <string name="Dialogs.WarningHeaderText">Attenzione</string>
+  <string name="Dialogs.WarningHeaderText">Avvertimento</string>
   <string name="Dialogs.ErrorHeaderText">Errore</string>
   <string name="Media.MyMusic">Musica</string>
   <string name="Media.MyVideos">Video</string>
   <string name="Media.MyPictures">Immagini</string>
   <string name="Media.InvalidShareName">Sorgente multimediale non valida</string>
   <string name="ServerConnection.NotificationServerAvailableTitle">Server MP2 disponibile</string>
-  <string name="ServerConnection.NotificationServerAvailableText">C\'è almeno un server MediaPortal 2 nella rete. Collegati ad esso per avere tutte le opzioni di MediaPortal 2.</string>
+  <string name="ServerConnection.NotificationServerAvailableText">C\'è almeno un server MediaPortal 2 nella rete. Connettiti ad esso per ottenere tutte le funzionalità di MediaPortal 2.</string>
   <string name="ServerConnection.ServerFormatText">\'{0}\' al host \'{1}\'</string>
   <!--{0} = server name, {1} = host name-->
   <string name="ServerConnection.UnknownServerName">&lt;Sconosciuto&gt;</string>
@@ -46,11 +46,11 @@
   <string name="ServerConnection.HomeServerIsNotConnected">Il sever home è attualmente disconnesso.</string>
   <string name="ServerConnection.DetachMenu">Disconnetti</string>
   <string name="ServerConnection.DetachConfirmDialogHeader">Disconnetti dal server home</string>
-  <string name="ServerConnection.DetachConfirmDialogText">De ti scolleghi dal server home, tutti i dati relativi alle sorgenti del client saranno rimossi dalle librerie del server home. Potrai ricollegarti in seguito. Vuoi davvero disconnetterti dal server home \'{0}\' residente sull\'host \'{1}\'?</string>
+  <string name="ServerConnection.DetachConfirmDialogText">Se ti scolleghi dal server home, tutti i dati relativi alle sorgenti del client saranno rimossi dalle librerie del server home. Potrai ricollegarti in seguito. Vuoi davvero disconnetterti dal server home \'{0}\' residente sull\'host \'{1}\'?</string>
   <string name="ServerConnection.SearchForServers">Ricerca server</string>
   <string name="ServerConnection.DetachFromServer">Scollegati dal server home</string>
   <string name="ServerConnection.AttachToServerHeader">Collegati al server MediaPortal 2</string>
-  <string name="ServerConnection.AttachToMultipleText">Ci sono molteplici MP2 server disponibili nella rete. Vuoi scegliere uno di questi come server home?</string>
+  <string name="ServerConnection.AttachToMultipleText">Ci sono diversi server MP2 disponibili nella rete. Vuoi sceglierne uno come server home?</string>
   <string name="ServerConnection.AttachToSingleText.Before">Il server MP2</string>
   <string name="ServerConnection.AttachToSingleText.After">è disponibile nella rete. Vuoi collegarti ad esso?</string>
   <string name="ServerConnection.AttachToServerNoServerText">Al momento non ci sono server MediaPortal 2 disponibili nella rete.</string>
@@ -63,6 +63,7 @@
   <string name="Notifications.NMoreNotifications">({0} più)</string>
   <string name="Notifications.WatchNotificationsWorkflowStateLabel">Notifiche</string>
   <string name="Notifications.Handle">Handle</string>
+  <string name="Notifications.Upgrading">In aggiornamento..</string>
   <string name="ImporterMessages.ImportStartedTitle">Importazione iniziata</string>
   <string name="ImporterMessages.ImportStartedText">L\'importazione di  \'{0}\' è iniziata.</string>
   <string name="ImporterMessages.ImportCompletedTitle">Importazione completata</string>
@@ -215,8 +216,8 @@
   <string name="SharesConfig.UpdateShareRelocateItemsQueryText.Info">Il fornitore della sorgente di contenuti o il suo percorso sono stati aggiornati.</string>
   <string name="SharesConfig.UpdateShareRelocateItemsQueryText.Description">Le informazioni sui contenuti in questa sorgente possono essere aggiornati (ricollocati) o possono essere rimosse e reimportate.</string>
   <string name="SharesConfig.UpdateShareRelocateItemsQueryText.Query">Vuoi riallocare o azzerare e reimportare?</string>
-  <string name="SharesConfig.Relocate">Riallocare</string>
-  <string name="SharesConfig.ReImport">Reimportare</string>
+  <string name="SharesConfig.Relocate">Ricolloca</string>
+  <string name="SharesConfig.ReImport">Reimporta</string>
   <string name="SharesConfig.ManualPathInput">Immissione manuale</string>
   <string name="SharesConfig.UseShareWatcher">Sensore condivisione:</string>
   <string name="SharesConfig.UseShareWatcher.Help">Verifica i cambiamenti nella sorgente ed aggiorna la libreria automaticamente.</string>
