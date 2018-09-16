@@ -69,7 +69,7 @@
 
   <!-- PiP -->
   <ResourceWrapper x:Key="PipBorderThickness" Resource="2"/>
-  <ResourceWrapper x:Key="PiPVideoWidth" Resource="192"/>
+  <ResourceWrapper x:Key="PiPVideoWidth" Resource="330"/>
   <ResourceWrapper x:Key="PressedPiPOSDButtonAnimationTime1" Resource="00:00:00.1"/>
   <ResourceWrapper x:Key="PressedPiPOSDButtonAnimationTime2" Resource="00:00:01"/>
 
