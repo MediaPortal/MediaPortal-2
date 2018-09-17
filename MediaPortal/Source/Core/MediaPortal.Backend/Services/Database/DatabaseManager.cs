@@ -86,6 +86,40 @@ namespace MediaPortal.Backend.Services.Database
 
     #region Migration methods
 
+    protected int GuessMiniorVersion(bool useBackupTable = false)
+    {
+      //Simple way to check for database version. 
+      //Not pretty, but will only be used during initial introduction of database migration.
+      int minorVersion = 0;
+      ISQLDatabase database = ServiceRegistration.Get<ISQLDatabase>(false);
+      using (ITransaction transaction = database.BeginTransaction())
+      {
+        using (var cmd = transaction.CreateCommand())
+        {
+          try
+          {
+            cmd.CommandText = "SELECT MAX(ISPRIMARY) FROM M_PROVIDERRESOURCE" + (useBackupTable ? BACKUP_TABLE_SUFFIX : "");
+            cmd.ExecuteScalar();
+            minorVersion = 1;
+          }
+          catch { }
+          try
+          {
+            cmd.CommandText = "SELECT MAX(TYPE) FROM M_PROVIDERRESOURCE" + (useBackupTable ? BACKUP_TABLE_SUFFIX : "");
+            cmd.ExecuteScalar();
+            minorVersion = 2;
+          }
+          catch { }
+        }
+      }
+
+      if (minorVersion == 0)
+        throw new ArgumentOutOfRangeException("MinorVersion", "Database version 2.0 is not supported!");
+
+      ServiceRegistration.Get<ILogger>().Info($"DatabaseManager: Detected old 2.{minorVersion} database");
+      return minorVersion;
+    }
+
     protected bool GetDatabaseVersion(out int versionMajor, out int versionMinor, bool useBackupTable = false)
     {
       versionMajor = 0;
@@ -352,7 +386,7 @@ namespace MediaPortal.Backend.Services.Database
       {
         //Database was not migratable before version 2.1
         if (curVersionMajor == 2 && curVersionMinor == 0)
-          curVersionMinor = 1;
+          curVersionMinor = GuessMiniorVersion();
 
         _upgradeInProgress = true;
         SendUpgradeProgress(0, 100);
@@ -399,7 +433,7 @@ namespace MediaPortal.Backend.Services.Database
             ServiceRegistration.Get<ILogger>().Info("DatabaseManager: Initiating data migration to database version {0}.{1}", DATABASE_VERSION_MAJOR, DATABASE_VERSION_MINOR);
             //Database was not migratable before version 2.1
             if (curVersionMajor == 2 && curVersionMinor == 0)
-              curVersionMinor = 1;
+              curVersionMinor = GuessMiniorVersion(true);
 
             var miaTypes = GetMiaTypes().OrderBy(m => m.Date);
             var oldMiaTypes = GetMiaTypes(true);
