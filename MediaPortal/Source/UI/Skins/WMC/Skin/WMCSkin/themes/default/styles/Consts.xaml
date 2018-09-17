@@ -40,7 +40,7 @@
 
   <ResourceWrapper x:Key="FullScreenContentVideoPrimaryPlayerOSDWidth" Resource="850"/>
  
-  <ResourceWrapper x:Key="PiPVideoWidth" Resource="192"/>
+  <ResourceWrapper x:Key="PiPVideoWidth" Resource="300"/>
   
   <ResourceWrapper x:Key="DialogBorderCornerRadius" Resource="2"/>
     

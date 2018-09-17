@@ -192,8 +192,11 @@ namespace MediaPortal.Plugins.SlimTv.Service
       ServiceRegistration.Get<ILogger>().Info("SlimTvService: Initialising");
       Task.Delay(MAX_INIT_MS).ContinueWith((t) =>
       {
-        _initComplete.TrySetResult(false);
-        ServiceRegistration.Get<ILogger>().Error("SlimTvService: Initialization timed out.");
+        if (_initComplete.Task.Status != TaskStatus.RanToCompletion)
+        {
+          _initComplete.TrySetResult(false);
+          ServiceRegistration.Get<ILogger>().Error("SlimTvService: Initialization timed out.");
+        }
       });
 
       ISQLDatabase database = ServiceRegistration.Get<ISQLDatabase>(false);

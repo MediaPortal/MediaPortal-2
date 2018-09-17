@@ -292,6 +292,7 @@
   <string name="Media.ReimportMediaItem.AutoMatch">Automatische Übereinstimmung</string>
   <string name="Media.ReimportMediaItem.ManualSearch">Manuelle Suche</string>
   <string name="Media.ReimportMediaItem.Description">Beschreibung</string>
+  <string name="Media.ReimportMediaItem.Hint">Hinweis: Es wird eine Internetverbindung benötigt und mindestens ein Online-Scraper muss in den Einstellungen aktiviert sein</string>
   <!--Play items dialog-->
   <string name="Media.PlayItemDialogHeader">Element abspielen</string>
   <string name="Media.PlayAudioItems">Audiotitel abspielen</string>

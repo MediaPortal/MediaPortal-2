@@ -11,11 +11,11 @@
   <string name="WMC.Configuration.EnableWatchedFlags.CoverView">Modalità copertina</string>
   <string name="WMC.Configuration.EnableAgeCertificationLogos">Abilita la certificazione età dei logo</string>
   <string name="WMC.Configuration.EnableAgeCertificationLogos.Help">Scegli se mostrare la certificazione età nelle schermate media.</string>  
-  <string name="WMC.Configuration.MovieGridViewType">Disposizione a griglia dei film</string>
+  <string name="WMC.Configuration.MovieGridViewType">Disposizione dei film a griglia</string>
   <string name="WMC.Configuration.MovieGridViewType.Help">Seleziona la disposizione usata dalla visualizzazione a griglia dei film</string>
-  <string name="WMC.Configuration.SeriesGridViewType">Disposizione a griglia delle Serie TV</string>
+  <string name="WMC.Configuration.SeriesGridViewType">Disposizione delle Serie TV a griglia</string>
   <string name="WMC.Configuration.SeriesGridViewType.Help">Seleziona la disposizione usata dalla visualizzazione a griglia delle Serie TV</string>
-  <string name="WMC.Configuration.SeasonGridViewType">Disposizione a griglia delle stagioni</string>
+  <string name="WMC.Configuration.SeasonGridViewType">Disposizione delle stagioni a griglia</string>
   <string name="WMC.Configuration.SeasonGridViewType.Help">Seleziona la disposizione usata dalla visualizzazione a griglia delle stagioni</string>
   <string name="WMC.Configuration.GridViewType.Poster">Poster</string>
   <string name="WMC.Configuration.GridViewType.Banner">Banner</string>

@@ -161,7 +161,7 @@
   <string name="Media.SeasonItemsHeader">Stagione/i</string>
   <string name="Media.MoviesItemsHeader">Film</string>
   <string name="Media.ImageItemsHeader">Immagine/i</string>
-  <string name="Media.DiscItemsHeader">Disco(i)</string>
+  <string name="Media.DiscItemsHeader">Disco/i</string>
   <string name="Media.TrackItemsHeader">Traccia/e</string>
   <string name="Media.SimpleSearchHeader">Ricerca semplice</string>
   <string name="Media.ChooseCollectionHeader">Collezioni</string>
@@ -283,7 +283,7 @@
   <string name="Media.DeleteFromStorage">Cancella dal supporto</string>
   <string name="Media.DeleteFromStorage.Confirmation">Sei sicuro di volere rimuovere questo elemento? L\'azione non può essere annullata.</string>
   <string name="Media.ConfirmAction">Conferma l\'azione</string>
-  <string name="Media.ReimportMediaItem.Confirmation">Sei sicuro di voler reimportare l\'oggetto desiderato e rimpiazzare i dati esistenti con quelli selezionati? L\'operazione non può essere annullata.</string>
+  <string name="Media.ReimportMediaItem.Confirmation">Sei sicuro di voler reimportare l\'elemento multimediale desiderato e sostituire i dati esistenti con quelli selezionati? L\'operazione non può essere annullata.</string>
   <string name="Media.ReimportMediaItem.Title">Seleziona la corrispondenza corretta.</string>
   <string name="Media.ReimportMediaItem.Id">Id</string>
   <string name="Media.ReimportMediaItem.Done">Fatto</string>
@@ -292,6 +292,7 @@
   <string name="Media.ReimportMediaItem.AutoMatch">Corrispondenza Automatica</string>
   <string name="Media.ReimportMediaItem.ManualSearch">Ricerca Manuale</string>
   <string name="Media.ReimportMediaItem.Description">Descrizione</string>
+  <string name="Media.ReimportMediaItem.Hint">Nota: richiede una connessione e almeno uno scraper selezionato su impostazioni libreria.</string>
   <!--Play items dialog-->
   <string name="Media.PlayItemDialogHeader">Riproduci contenuto</string>
   <string name="Media.PlayAudioItems">Riproduci audio</string>

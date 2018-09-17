@@ -497,15 +497,13 @@
                     <RowDefinition Height="*"/>
                   </Grid.RowDefinitions>
                   <Label x:Name="MediaName" Content="{Binding Path=MediaItemTitle}" Color="{ThemeResource TextColor}" Scroll="Auto"
-                         HorizontalAlignment="Left" VerticalAlignment="Center"/>
+                         HorizontalAlignment="Left" VerticalAlignment="Center" MaxWidth="500"/>
                 </Grid>
               </DockPanel>
               
               <!-- PiPHeaderPanel -->
-              <Button x:Name="PiPButton" Grid.Column="0" Grid.Row="1" Margin="5" MinHeight="10" MinWidth="10"
-                      Style="{ThemeResource PipControlStyle}"
-                      VerticalAlignment="Center" HorizontalAlignment="Center"
-                      Command="{Command SwitchPip}" IsVisible="{Binding IsPip}">
+              <Button x:Name="PiPButton" Grid.Column="0" Grid.Row="1" Margin="5" Command="{Command SwitchPip}"
+                      Style="{ThemeResource PipControlStyle}" VerticalAlignment="Center" HorizontalAlignment="Center">
                 <Button.Triggers>
                   <Trigger Property="HasFocus" Value="True">
                     <Trigger.EnterActions>
