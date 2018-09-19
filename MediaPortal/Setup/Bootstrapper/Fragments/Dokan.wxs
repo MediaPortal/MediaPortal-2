@@ -9,18 +9,18 @@
            Result="version"/>
     <PackageGroup Id="dokan">
       <ExePackage Id="dokan" Cache="yes" PerMachine="yes" Permanent="yes" Vital="yes" Compressed="no"
-                  Name="DokanSetup-1.0.5.1000.exe"
-                  DownloadUrl="http://install.team-mediaportal.com/MP2/install/DokanSetup-1.0.5.1000.exe"
+                  Name="DokanSetup-1.2.0.1000.exe"
+                  DownloadUrl="http://install.team-mediaportal.com/MP2/install/DokanSetup-1.2.0.1000.exe"
                   InstallCommand="/q"
                   InstallCondition="(NOT Dokan_1000_Version >= v1.0.0.0) OR NOT Dokan_1000_Version">
         <RemotePayload
                   CertificatePublicKey="70E450EF45A7F579112248987E26294ACCDC3D2F"
-                  CertificateThumbprint="0AC18DDF5466B05A1A00D9D346259C94A5488A9F"
-                  Description="Dokan Library 1.0.5.1000 Bundle"
-                  Hash="216577D09658F2F70CD7B9EFCC77D082F16B71CA"
-                  ProductName="Dokan Library 1.0.5.1000 Bundle"
-                  Size="6835728"
-                  Version="1.0.5.1000" />
+                  CertificateThumbprint="D77151160BDABFE406B042039585ED1ED03F9154"
+                  Description="Dokan Library 1.2.0.1000 Bundle"
+                  Hash="89D8C6D9CD2976D753E61D8A735F6465A0F97D01"
+                  ProductName="Dokan Library 1.2.0.1000 Bundle"
+                  Size="6918456"
+                  Version="1.2.0.1000" />
       </ExePackage>
     </PackageGroup>
 
