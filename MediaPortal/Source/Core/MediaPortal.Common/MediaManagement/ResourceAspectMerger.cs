@@ -26,6 +26,7 @@ using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Common.ResourceAccess;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 
 namespace MediaPortal.Common.MediaManagement
@@ -164,7 +165,7 @@ namespace MediaPortal.Common.MediaManagement
               {
                 accessorPath = (string)pra.GetAttributeValue(ProviderResourceAspect.ATTR_RESOURCE_ACCESSOR_PATH);
                 resourcePath = resourcePath = ResourcePath.Deserialize(accessorPath);
-                filename = resourcePath.FileName;
+                filename = resourcePath.FileName ?? Path.GetFileName(resourcePath.BasePathSegment.Path);
                 break;
               }
             }
