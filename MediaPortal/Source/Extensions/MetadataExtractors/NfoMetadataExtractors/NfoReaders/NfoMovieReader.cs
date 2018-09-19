@@ -469,9 +469,11 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoRea
               _debugLogger.Warn("[#{0}]: Key element missing {1}", _miNumber, childElement);
               break;
             case "imdbId":
+            case "imdb":
               result = ((_currentStub.IdsImdbId = ParseSimpleString(childElement.Element("value"))) != null);
               break;
             case "tmdbId":
+            case "tmdb":
               result = ((_currentStub.IdsTmdbId = ParseSimpleInt(childElement.Element("value"))) != null) || result;
               break;
             default:
