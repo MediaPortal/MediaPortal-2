@@ -99,7 +99,7 @@ namespace MediaPortal.Extensions.MetadataExtractors
         EpisodeInfo episodeInfo = GetSeriesFromTags(tags);
         if (episodeInfo.IsBaseInfoPresent)
         {
-          if(!forceQuickMode)
+          if (!forceQuickMode)
             await OnlineMatcherService.Instance.FindAndUpdateEpisodeAsync(episodeInfo).ConfigureAwait(false);
           if (episodeInfo.IsBaseInfoPresent)
             episodeInfo.SetMetadata(extractedAspectData);
@@ -168,6 +168,8 @@ namespace MediaPortal.Extensions.MetadataExtractors
     const string TAG_EPISODENUM = "EPISODENUM";
     const string TAG_STARTTIME = "STARTTIME";
     const string TAG_ENDTIME = "ENDTIME";
+    const string TAG_PROGRAMSTARTTIME = "PROGRAMSTARTTIME";
+    const string TAG_PROGRAMENDTIME = "PROGRAMENDTIME";
 
     #endregion
 
@@ -318,13 +320,37 @@ namespace MediaPortal.Extensions.MetadataExtractors
           MediaItemAspect.SetAttribute(extractedAspectData, RecordingAspect.ATTR_CHANNEL, value);
 
         // Recording date formatted: 2011-11-04 20:55
-        DateTime recordingStart;
-        DateTime recordingEnd;
-        if (TryGet(tags, TAG_STARTTIME, out value) && DateTime.TryParse(value, out recordingStart))
-          MediaItemAspect.SetAttribute(extractedAspectData, RecordingAspect.ATTR_STARTTIME, recordingStart);
+        DateTime tmpValue;
+        DateTime? recordingStart = null;
+        DateTime? recordingEnd = null;
+        DateTime? programStart = null;
+        DateTime? programEnd = null;
 
-        if (TryGet(tags, TAG_ENDTIME, out value) && DateTime.TryParse(value, out recordingEnd))
-          MediaItemAspect.SetAttribute(extractedAspectData, RecordingAspect.ATTR_ENDTIME, recordingEnd);
+        // First try to read program start and end times, they will be preferred.
+        if (TryGet(tags, TAG_PROGRAMSTARTTIME, out value) && DateTime.TryParse(value, out tmpValue))
+          programStart = tmpValue;
+
+        if (TryGet(tags, TAG_PROGRAMENDTIME, out value) && DateTime.TryParse(value, out tmpValue))
+          programEnd = tmpValue;
+
+        if (TryGet(tags, TAG_STARTTIME, out value) && DateTime.TryParse(value, out tmpValue))
+          recordingStart = tmpValue;
+
+        if (TryGet(tags, TAG_ENDTIME, out value) && DateTime.TryParse(value, out tmpValue))
+          recordingEnd = tmpValue;
+
+        // Correct start time if recording started before the program (skip pre-recording offset)
+        if (programStart.HasValue && recordingStart.HasValue && programStart > recordingStart)
+          recordingStart = programStart;
+
+        // Correct end time if recording ended after the program (skip the post-recording offset)
+        if (programEnd.HasValue && recordingEnd.HasValue && programEnd < recordingEnd)
+          recordingEnd = programEnd;
+
+        if (recordingStart.HasValue)
+          MediaItemAspect.SetAttribute(extractedAspectData, RecordingAspect.ATTR_STARTTIME, recordingStart.Value);
+        if (recordingEnd.HasValue)
+          MediaItemAspect.SetAttribute(extractedAspectData, RecordingAspect.ATTR_ENDTIME, recordingEnd.Value);
 
         return Task.FromResult(true);
       }
