@@ -551,12 +551,5 @@ namespace MediaPortal.UI.SkinEngine.DirectX
         ServiceRegistration.Get<ILogger>().Error("Error executing render event handler:", e);
       }
     }
-
-      bool doReset = false;
-        doReset = true;
-        // If there are exceptions during render pass, the device can stay in an invalid state, even if the CheckDeviceState returns "ok".
-        // So we prefer to reset the device and try continue rendering.
-        if (doReset)
-          Reset();
   }
 }
