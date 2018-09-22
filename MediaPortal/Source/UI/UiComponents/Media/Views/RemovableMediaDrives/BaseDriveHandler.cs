@@ -38,6 +38,7 @@ using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using System.Collections;
 using MediaPortal.Utilities;
 using MediaPortal.Common.Logging;
+using MediaPortal.Common.UserManagement;
 
 namespace MediaPortal.UiComponents.Media.Views.RemovableMediaDrives
 {

@@ -8,15 +8,14 @@
   <ItemGroup>
     <References Include="$(TargetDir)log4net.dll"/>
     <References Include="$(TargetDir)System.Threading.Tasks.Dataflow.dll"/>
-  </ItemGroup>
-
-  <ItemGroup>
-    <LanguageFiles Include="$(ProjectDir)Genres\Language\*.*" />
+    <References Include="$(TargetDir)Owin.dll"/>
+    <References Include="$(TargetDir)Microsoft.Owin.dll"/>
+    <References Include="$(TargetDir)Microsoft.Owin.Diagnostics.dll"/>
+    <References Include="$(TargetDir)Microsoft.Owin.Host.HttpListener.dll"/>
   </ItemGroup>
 
   <Target Name="AfterBuild">
     <Copy SourceFiles="@(References)" DestinationFolder="$(AppDestination)" />
-    <Copy SourceFiles="@(LanguageFiles)" DestinationFolder="$(AppDestination)Genres\" />
   </Target>
 
 </Project>

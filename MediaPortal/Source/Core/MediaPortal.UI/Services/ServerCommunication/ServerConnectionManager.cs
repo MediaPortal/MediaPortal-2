@@ -22,16 +22,17 @@
 
 #endregion
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using MediaPortal.Common;
 using MediaPortal.Common.General;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.MediaManagement;
+using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Common.MediaManagement.Helpers;
-using MediaPortal.Common.ResourceAccess;
 using MediaPortal.Common.Messaging;
+using MediaPortal.Common.ResourceAccess;
+using MediaPortal.Common.Runtime;
+using MediaPortal.Common.Services.Database;
+using MediaPortal.Common.Services.MediaManagement;
 using MediaPortal.Common.Services.ServerCommunication;
 using MediaPortal.Common.Settings;
 using MediaPortal.Common.SystemCommunication;
@@ -39,16 +40,37 @@ using MediaPortal.Common.SystemResolver;
 using MediaPortal.UI.ServerCommunication;
 using MediaPortal.UI.ServerCommunication.Settings;
 using MediaPortal.UI.Shares;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 using UPnP.Infrastructure.CP;
 using RelocationMode = MediaPortal.Common.MediaManagement.RelocationMode;
-using System.Threading;
-using System.Threading.Tasks;
-using MediaPortal.Common.Services.MediaManagement;
 
 namespace MediaPortal.UI.Services.ServerCommunication
 {
   public class ServerConnectionManager : IServerConnectionManager
   {
+    public static readonly Guid[] NECESSARY_MIAS = new Guid[]
+      {
+          ProviderResourceAspect.ASPECT_ID,
+          MediaAspect.ASPECT_ID,
+      };
+
+    public static readonly Guid[] OPTIONAL_MIAS = new Guid[]
+      {
+          MovieAspect.ASPECT_ID,
+          EpisodeAspect.ASPECT_ID,
+          AudioAspect.ASPECT_ID,
+          VideoAspect.ASPECT_ID,
+          ImageAspect.ASPECT_ID,
+          VideoStreamAspect.ASPECT_ID,
+          VideoAudioStreamAspect.ASPECT_ID,
+          SubtitleAspect.ASPECT_ID,
+          GenreAspect.ASPECT_ID,
+          StubAspect.ASPECT_ID
+      };
+
     /// <summary>
     /// Callback instance for the importer worker, implementing the callback interfaces
     /// <see cref="IMediaBrowsing"/> and <see cref="IImportResultHandler"/>.
@@ -132,11 +154,11 @@ namespace MediaPortal.UI.Services.ServerCommunication
 
       #region IImportResultHandler implementation
 
-      public Guid UpdateMediaItem(Guid parentDirectoryId, ResourcePath path, IEnumerable<MediaItemAspect> updatedAspects, bool isRefresh, ResourcePath basePath, CancellationToken cancelToken)
+      public async Task<Guid> UpdateMediaItemAsync(Guid parentDirectoryId, ResourcePath path, IEnumerable<MediaItemAspect> updatedAspects, bool isRefresh, ResourcePath basePath)
       {
         try
         {
-          return _contentDirectory.AddOrUpdateMediaItemAsync(parentDirectoryId, _localSystemId, path, updatedAspects).Result;
+          return await _contentDirectory.AddOrUpdateMediaItemAsync(parentDirectoryId, _localSystemId, path, updatedAspects);
         }
         catch (Exception)
         {
@@ -144,11 +166,11 @@ namespace MediaPortal.UI.Services.ServerCommunication
         }
       }
 
-      public Guid UpdateMediaItem(Guid parentDirectoryId, ResourcePath path, Guid mediItemId, IEnumerable<MediaItemAspect> updatedAspects, bool isRefresh, ResourcePath basePath, CancellationToken cancelToken)
+      public async Task<Guid> UpdateMediaItemAsync(Guid parentDirectoryId, ResourcePath path, Guid mediItemId, IEnumerable<MediaItemAspect> updatedAspects, bool isRefresh, ResourcePath basePath)
       {
         try
         {
-          return _contentDirectory.AddOrUpdateMediaItemAsync(parentDirectoryId, _localSystemId, path, mediItemId, updatedAspects).Result;
+          return await _contentDirectory.AddOrUpdateMediaItemAsync(parentDirectoryId, _localSystemId, path, mediItemId, updatedAspects);
         }
         catch (Exception)
         {
@@ -156,11 +178,11 @@ namespace MediaPortal.UI.Services.ServerCommunication
         }
       }
 
-      public void DeleteMediaItem(ResourcePath path)
+      public async Task<IList<MediaItem>> ReconcileMediaItemRelationshipsAsync(Guid mediaItemId, IEnumerable<MediaItemAspect> mediaItemAspects, IEnumerable<RelationshipItem> relationshipItems)
       {
         try
         {
-          _contentDirectory.DeleteMediaItemOrPathAsync(_localSystemId, path, true);
+          return await _contentDirectory.ReconcileMediaItemRelationshipsAsync(mediaItemId, mediaItemAspects, relationshipItems);
         }
         catch (Exception)
         {
@@ -168,11 +190,23 @@ namespace MediaPortal.UI.Services.ServerCommunication
         }
       }
 
-      public void DeleteUnderPath(ResourcePath path)
+      public async Task DeleteMediaItemAsync(ResourcePath path)
       {
         try
         {
-          _contentDirectory.DeleteMediaItemOrPathAsync(_localSystemId, path, false);
+          await _contentDirectory.DeleteMediaItemOrPathAsync(_localSystemId, path, true);
+        }
+        catch (Exception)
+        {
+          throw new DisconnectedException();
+        }
+      }
+
+      public async Task DeleteUnderPathAsync(ResourcePath path)
+      {
+        try
+        {
+          await _contentDirectory.DeleteMediaItemOrPathAsync(_localSystemId, path, false);
         }
         catch (Exception)
         {
@@ -304,11 +338,23 @@ namespace MediaPortal.UI.Services.ServerCommunication
           if (states != null && states.ContainsKey(ShareImportServerState.STATE_ID))
           {
             ShareImportServerState importState = states[ShareImportServerState.STATE_ID] as ShareImportServerState;
-            List<ShareImportState> shareStates = new List<ShareImportState>(importState.Shares);
-            lock (_syncObj)
+            if (importState != null)
             {
-              UpdateCurrentlyImportingShares(shareStates.Where(s => s.IsImporting).Select(s => s.ShareId).ToList());
-              UpdateCurrentlyImportingSharesProgresses(shareStates.Where(s => s.IsImporting).ToDictionary(s => s.ShareId, s => s.Progress));
+              List<ShareImportState> shareStates = new List<ShareImportState>(importState.Shares);
+              lock (_syncObj)
+              {
+                UpdateCurrentlyImportingShares(shareStates.Where(s => s.IsImporting).Select(s => s.ShareId).ToList());
+                UpdateCurrentlyImportingSharesProgresses(shareStates.Where(s => s.IsImporting).ToDictionary(s => s.ShareId, s => s.Progress));
+              }
+            }
+          }
+          else if (states != null && states.ContainsKey(DatabaseUpgradeServerState.STATE_ID))
+          {
+            DatabaseUpgradeServerState upgradeState = states[DatabaseUpgradeServerState.STATE_ID] as DatabaseUpgradeServerState;
+            if (upgradeState != null && !upgradeState.IsUpgrading && upgradeState.Progress == 100)
+            {
+              ServerConnectionMessaging.SendServerConnectionStateChangedMessage(ServerConnectionMessaging.MessageType.HomeServerDisconnected);
+              ServerConnectionMessaging.SendServerConnectionStateChangedMessage(ServerConnectionMessaging.MessageType.HomeServerConnected);
             }
           }
         }

@@ -22,32 +22,28 @@
 
 #endregion
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net;
-using System.Net.Http;
-using System.Threading;
-using System.Threading.Tasks;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
-using MediaPortal.Common.PathManager;
 using MediaPortal.Common.PluginManager;
 using MediaPortal.Common.ResourceAccess;
-using MediaPortal.Common.Services.Logging;
-using MediaPortal.Common.Settings;
+using MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.Extractors;
 using MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoReaders;
 using MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.Settings;
 using MediaPortal.Utilities;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
 {
   /// <summary>
   /// MediaPortal 2 metadata extractor for video reading from local nfo-files.
   /// </summary>
-  public class NfoVideoMetadataExtractor : IMetadataExtractor, IDisposable
+  public class NfoVideoMetadataExtractor : NfoExtractorBase<NfoMovieMetadataExtractorSettings>, IDisposable
   {
     #region Constants / Static fields
 
@@ -58,7 +54,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
     public static readonly Guid PLUGIN_ID = new Guid(PLUGIN_ID_STR);
 
     /// <summary>
-    /// GUID for the NfoMovieMetadataExtractor
+    /// GUID for the NfoVideoMetadataExtractor
     /// </summary>
     public const string METADATAEXTRACTOR_ID_STR = "183DBA7C-666A-4BBD-BCE8-AD0924B4FEF1";
     public static readonly Guid METADATAEXTRACTOR_ID = new Guid(METADATAEXTRACTOR_ID_STR);
@@ -77,30 +73,6 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
     /// Metadata of this MetadataExtractor
     /// </summary>
     private readonly MetadataExtractorMetadata _metadata;
-
-    /// <summary>
-    /// Settings of the <see cref="NfoMovieMetadataExtractor"/>
-    /// </summary>
-    private readonly NfoMovieMetadataExtractorSettings _settings;
-    
-    /// <summary>
-    /// Debug logger
-    /// </summary>
-    /// <remarks>
-    /// NoLogger if _settings.EnableDebugLogging == <c>false</c>"/>
-    /// FileLogger if _settings.EnableDebugLogging == <c>true</c>"/>
-    /// </remarks>
-    private readonly ILogger _debugLogger;
-
-    /// <summary>
-    /// Unique number of the last MediaItem for which this MetadataExtractor was called
-    /// </summary>
-    private long _lastMediaItemNumber = 1;
-
-    /// <summary>
-    /// <see cref="HttpClient"/> used to download from http URLs contained in nfo-files
-    /// </summary>
-    private HttpClient _httpClient;
 
     #endregion
 
@@ -142,29 +114,6 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
           VideoAspect.Metadata,
           ThumbnailLargeAspect.Metadata
         });
-
-      _settings = ServiceRegistration.Get<ISettingsManager>().Load<NfoMovieMetadataExtractorSettings>();
-
-      if (_settings.EnableDebugLogging)
-      {
-        _debugLogger = FileLogger.CreateFileLogger(ServiceRegistration.Get<IPathManager>().GetPath(@"<LOG>\NfoVideoMetadataExtractorDebug.log"), LogLevel.Debug, false, true);
-        LogSettings();
-      }
-      else
-        _debugLogger = new NoLogger();
-
-      var handler = new HttpClientHandler();
-      if (handler.SupportsAutomaticDecompression)
-        // This enables the automatic decompression of the content. It does not automatically send an "Accept-Encoding" header!
-        // We therefore have to add the Accept-Encoding header(s) manually below.
-        // Additionally, due to the automatic decompression, HttpResponseMessage.Content.Headers DOES NOT contain
-        // a "Content-Encoding" header anymore when we try to access it. It is automatically removed when decompressing.
-        handler.AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Deflate;
-      else
-        _debugLogger.Warn("HttpClient does not support compression");
-      _httpClient = new HttpClient(handler);
-      _httpClient.DefaultRequestHeaders.AcceptEncoding.Add(new System.Net.Http.Headers.StringWithQualityHeaderValue("gzip"));
-      _httpClient.DefaultRequestHeaders.AcceptEncoding.Add(new System.Net.Http.Headers.StringWithQualityHeaderValue("deflate"));
     }
 
     #endregion
@@ -180,7 +129,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
     /// <param name="extractedAspectData">Dictionary of <see cref="MediaItemAspect"/>s with the extracted metadata</param>
     /// <param name="importOnly">If <c>true</c>, nothing is downloaded from the internet</param>
     /// <returns><c>true</c> if metadata was found and stored into <param name="extractedAspectData"></param>, else <c>false</c></returns>
-    private async Task<bool> TryExtractMetadataAsync(IResourceAccessor mediaItemAccessor, IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData, bool importOnly, bool forceQuickMode)
+    private async Task<bool> TryExtractVideoMetadataAsync(IResourceAccessor mediaItemAccessor, IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData, bool forceQuickMode)
     {
       // Get a unique number for this call to TryExtractMetadataAsync. We use this to make reading the debug log easier.
       // This MetadataExtractor is called in parallel for multiple MediaItems so that the respective debug log entries
@@ -188,7 +137,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
       var miNumber = Interlocked.Increment(ref _lastMediaItemNumber);
       try
       {
-        _debugLogger.Info("[#{0}]: Start extracting metadata for resource '{1}' (importOnly: {2}, forceQuickMode: {3})", miNumber, mediaItemAccessor, importOnly, forceQuickMode);
+        _debugLogger.Info("[#{0}]: Start extracting metadata for resource '{1}' (forceQuickMode: {2})", miNumber, mediaItemAccessor, forceQuickMode);
 
         // We only extract metadata with this MetadataExtractor, if another MetadataExtractor that was applied before
         // has identified this MediaItem as a video and therefore added a VideoAspect.
@@ -214,7 +163,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
 
         // Now we (asynchronously) extract the metadata into a stub object.
         // If no metadata was found, nothing can be stored in the MediaItemAspects.
-        var nfoReader = new NfoMovieReader(_debugLogger, miNumber, true, importOnly, forceQuickMode, false, _httpClient, _settings);
+        var nfoReader = new NfoMovieReader(_debugLogger, miNumber, true, forceQuickMode, false, _httpClient, _settings);
         using (nfoFsra)
         {
           if (!await nfoReader.TryReadMetadataAsync(nfoFsra).ConfigureAwait(false) &&
@@ -234,11 +183,12 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
         }
 
         _debugLogger.Info("[#{0}]: Successfully finished extracting metadata", miNumber);
+        ServiceRegistration.Get<ILogger>().Debug("NfoVideoMetadataExtractor: Assigned nfo video metadata for resource '{0}'", mediaItemAccessor);
         return true;
       }
       catch (Exception e)
       {
-        ServiceRegistration.Get<ILogger>().Warn("NfoMovieMetadataExtractor: Exception while extracting metadata for resource '{0}'; enable debug logging for more details.", mediaItemAccessor);
+        ServiceRegistration.Get<ILogger>().Warn("NfoVideoMetadataExtractor: Exception while extracting metadata for resource '{0}'; enable debug logging for more details.", mediaItemAccessor);
         _debugLogger.Error("[#{0}]: Exception while extracting metadata", e, miNumber);
         return false;
       }
@@ -356,7 +306,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
     /// <summary>
     /// Logs version and setting information into <see cref="_debugLogger"/>
     /// </summary>
-    private void LogSettings()
+    protected override void LogSettings()
     {
       _debugLogger.Info("-------------------------------------------------------------");
       _debugLogger.Info("NfoVideoMetadataExtractor v{0} instantiated", ServiceRegistration.Get<IPluginManager>().AvailablePlugins[PLUGIN_ID].Metadata.PluginVersion);
@@ -375,18 +325,6 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
 
     #endregion
 
-    #region IDisposable implementation
-
-    public void Dispose()
-    {
-      if (_httpClient == null)
-        return;
-      _httpClient.Dispose();
-      _httpClient = null;
-    }
-
-    #endregion
-
     #region IMetadataExtractor implementation
 
     public MetadataExtractorMetadata Metadata
@@ -394,14 +332,14 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
       get { return _metadata; }
     }
 
-    public bool TryExtractMetadata(IResourceAccessor mediaItemAccessor, IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData, bool importOnly, bool forceQuickMode)
+    public Task<bool> TryExtractMetadataAsync(IResourceAccessor mediaItemAccessor, IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData, bool forceQuickMode)
     {
       if (extractedAspectData.ContainsKey(MovieAspect.ASPECT_ID) || extractedAspectData.ContainsKey(EpisodeAspect.ASPECT_ID))
-        return false;
+        return Task.FromResult(false);
+      if (extractedAspectData.ContainsKey(ReimportAspect.ASPECT_ID)) //Ignore for reimports because they are handled by movie or series MDE
+        return Task.FromResult(false);
 
-      // The following is bad practice as it wastes one ThreadPool thread.
-      // ToDo: Once the IMetadataExtractor interface is updated to support async operations, call TryExtractMetadataAsync directly
-      return TryExtractMetadataAsync(mediaItemAccessor, extractedAspectData, importOnly, forceQuickMode).Result;
+      return TryExtractVideoMetadataAsync(mediaItemAccessor, extractedAspectData, forceQuickMode);
     }
 
     public bool IsDirectorySingleResource(IResourceAccessor mediaItemAccessor)
@@ -417,6 +355,16 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
     public bool TryExtractStubItems(IResourceAccessor mediaItemAccessor, ICollection<IDictionary<Guid, IList<MediaItemAspect>>> extractedStubAspectData)
     {
       return false;
+    }
+
+    public Task<IList<MediaItemSearchResult>> SearchForMatchesAsync(IDictionary<Guid, IList<MediaItemAspect>> searchAspectData)
+    {
+      return Task.FromResult<IList<MediaItemSearchResult>>(null);
+    }
+
+    public Task<bool> AddMatchedAspectDetailsAsync(IDictionary<Guid, IList<MediaItemAspect>> matchedAspectData)
+    {
+      return Task.FromResult(false);
     }
 
     #endregion

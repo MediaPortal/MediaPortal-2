@@ -257,6 +257,22 @@ namespace MediaPortal.UI.Presentation.Players
     void SeekBackward();
 
     /// <summary>
+    /// Skips to previous chapter of current item.
+    /// </summary>
+    /// <returns>
+    /// <c>true</c>, if the previous chapter could be started, else <c>false</c>.
+    /// </returns>
+    bool PreviousChapter();
+
+    /// <summary>
+    /// Skips to next chapter of current item.
+    /// </summary>
+    /// <returns>
+    /// <c>true</c>, if the next item could be started, else <c>false</c>.
+    /// </returns>
+    bool NextChapter();
+
+    /// <summary>
     /// Plays the previous item from the playlist.
     /// </summary>
     /// <returns>

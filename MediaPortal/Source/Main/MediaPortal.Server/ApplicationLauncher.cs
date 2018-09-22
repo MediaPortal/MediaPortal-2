@@ -134,14 +134,15 @@ namespace MediaPortal.Server
           ApplicationCore.StartCoreServices();
           InitIpc();
           BackendExtension.StartupBackendServices();
-          _ = ApplicationCore.RegisterDefaultMediaItemAspectTypes(); // To be done after backend services are running
 
           mediaAccessor.Initialize();
 
           logger.Info("Switching to running state");
           _systemStateService.SwitchSystemState(SystemState.Running, true);
+          // Do before importers are activated and after server is running so it is possible to use other parts of the client
+          BackendExtension.MigrateDatabaseData();
+          // To be done after default media item aspect types are present and when the system is running (other plugins might also install media item aspect types)
           BackendExtension.ActivateImporterWorker();
-            // To be done after default media item aspect types are present and when the system is running (other plugins might also install media item aspect types)
         }
         catch (Exception e)
         {

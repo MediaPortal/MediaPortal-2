@@ -24,6 +24,10 @@
                 HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
                 Command="{Command Source={StaticResource Model},Path=ContextMenuTest_Command}"
                 ContextMenuCommand="{Command Source={StaticResource Model},Path=ContextMenuTest_ContextMenuCommand}"/>
+            <Button Style="{StaticResource ButtonWideStyle}" Content="Episode Numbers Test " 
+                    HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+                    Command="{Command Source={StaticResource Model},Path=TestEpisodeNumbers}">
+            </Button>
           </StackPanel>
           <StackPanel x:Name="RightPanel" Orientation="Vertical" Margin="5,0,0,0">
           </StackPanel>

@@ -52,7 +52,7 @@ namespace MediaPortal.Database.SQLite
   /// (such as MSSQLCE with a maximum database size of 2GB). The limitations of SQLite are much less
   /// restrictive (e.g. a maximum database size of about 140TB, for details see http://www.sqlite.org/limits.html)
   /// </remarks>
-  public class SQLiteDatabase : ISQLDatabasePaging, IDisposable
+  public class SQLiteDatabase : ISQLDatabasePaging, ISQLDatabaseStorage, IDisposable
   {
     #region Constants
 
@@ -63,26 +63,27 @@ namespace MediaPortal.Database.SQLite
     #region Variables
 
     private readonly string _connectionString;
+#if !NO_POOL
     private ConnectionPool<SQLiteConnection> _connectionPool;
+#endif
     private readonly SQLiteSettings _settings;
     private readonly ILogger _sqliteDebugLogger;
     private readonly AsynchronousMessageQueue _messageQueue;
     private readonly ActionBlock<bool> _maintenanceScheduler;
+    private readonly ICollection<Guid> _importingShareIds;
 
     #endregion
 
     #region Constructors/Destructors
 
+    /// <summary>
+    /// Creates a new SQLiteDatabase instance.
+    /// </summary>
     public SQLiteDatabase()
     {
-      VersionUpgrade upgrade = new VersionUpgrade();
-      if (!upgrade.Upgrade())
-      {
-        ServiceRegistration.Get<ILogger>().Warn("SQLiteDatabase: Could not upgrade existing database");
-      }
-
       try
       {
+        _importingShareIds = new HashSet<Guid>();
         _maintenanceScheduler = new ActionBlock<bool>(async _ => await PerformDatabaseMaintenanceAsync(), new ExecutionDataflowBlockOptions { BoundedCapacity = 2 });
         _messageQueue = new AsynchronousMessageQueue(this, new[] { ContentDirectoryMessaging.CHANNEL });
         _messageQueue.MessageReceived += OnMessageReceived;
@@ -101,10 +102,6 @@ namespace MediaPortal.Database.SQLite
           SQLiteLog.Log += MPSQLiteLogEventHandler;
         }
 
-        // We use our own collation sequence which is registered here to be able
-        // to sort items taking into account culture specifics
-        SQLiteFunction.RegisterFunction(typeof(SQLiteCultureSensitiveCollation));
-
         var pathManager = ServiceRegistration.Get<IPathManager>();
         string dataDirectory = pathManager.GetPath("<DATABASE>");
         string databaseFile = Path.Combine(dataDirectory, _settings.DatabaseFileName);
@@ -116,7 +113,9 @@ namespace MediaPortal.Database.SQLite
         string databaseFileForUri = databaseFile.Replace('\\', '/');
         string databaseUri = System.Web.HttpUtility.UrlPathEncode("file:///" + databaseFileForUri + "?cache=shared");
 
+#if !NO_POOL
         _connectionPool = new ConnectionPool<SQLiteConnection>(CreateOpenAndInitializeConnection);
+#endif
 
         // We are using the ConnectionStringBuilder to generate the connection string
         // This ensures code compatibility in case of changes to the SQLite connection string parameters
@@ -145,7 +144,11 @@ namespace MediaPortal.Database.SQLite
 
           // Do not use the inbuilt connection pooling of System.Data.SQLite
           // We use our own connection pool which is faster.
-          Pooling = false,
+#if NO_POOL
+          Pooling = true,
+#else
+        Pooling = false,
+#endif
 
           // Sychronization Mode "Normal" enables parallel database access while at the same time preventing database
           // corruption and is therefore a good compromise between "Off" (more performance) and "On"
@@ -228,6 +231,7 @@ namespace MediaPortal.Database.SQLite
 
     #endregion
 
+#if !NO_POOL
     #region Public properties
 
     public ConnectionPool<SQLiteConnection> ConnectionPool
@@ -239,6 +243,7 @@ namespace MediaPortal.Database.SQLite
     }
 
     #endregion
+#endif
 
     #region Private methods
 
@@ -247,7 +252,7 @@ namespace MediaPortal.Database.SQLite
     /// InitializationCommand via ExecuteNonQuery()
     /// </summary>
     /// <returns>Newly created and initialized <see cref="SQLiteConnection"/></returns>
-    private SQLiteConnection CreateOpenAndInitializeConnection()
+    public SQLiteConnection CreateOpenAndInitializeConnection()
     {
       var connection = new SQLiteConnection(_connectionString);
       connection.Open();
@@ -305,9 +310,15 @@ namespace MediaPortal.Database.SQLite
       var messageType = (ContentDirectoryMessaging.MessageType)message.MessageType;
       switch (messageType)
       {
+        case ContentDirectoryMessaging.MessageType.ShareImportStarted:
+          // Count all importing shares to know if all are finished before we run the maintenance task
+          _importingShareIds.Add((Guid)message.MessageData[ContentDirectoryMessaging.SHARE_ID]);
+          break;
         case ContentDirectoryMessaging.MessageType.ShareImportCompleted:
-          if (!_maintenanceScheduler.Post(true))
-            ServiceRegistration.Get<ILogger>().Info("SQLiteDatabase: Skipping additional database maintenance. There is already a maintenance run in the works and another one scheduled.");
+          _importingShareIds.Remove((Guid)message.MessageData[ContentDirectoryMessaging.SHARE_ID]);
+          if (_importingShareIds.Count == 0)
+            if (!_maintenanceScheduler.Post(true))
+              ServiceRegistration.Get<ILogger>().Info("SQLiteDatabase: Skipping additional database maintenance. There is already a maintenance run in the works and another one scheduled.");
           break;
       }
     }
@@ -381,6 +392,16 @@ namespace MediaPortal.Database.SQLite
     public uint MaxObjectNameLength
     {
       get { return 30; }
+    }
+
+    public string ConcatOperator
+    {
+      get { return "||"; }
+    }
+
+    public string LengthFunction
+    {
+      get { return "LENGTH"; }
     }
 
     public string GetSQLType(Type dotNetType)
@@ -486,6 +507,224 @@ namespace MediaPortal.Database.SQLite
       }
     }
 
+    public bool BackupDatabase(string backupVersion)
+    {
+      var pathManager = ServiceRegistration.Get<IPathManager>();
+      string dataDirectory = pathManager.GetPath("<DATABASE>");
+      string databaseFile = Path.Combine(dataDirectory, _settings.DatabaseFileName);
+      if (File.Exists(databaseFile))
+      {
+        string backupFile = Path.ChangeExtension(databaseFile, $".{backupVersion}.bak");
+        if (File.Exists(backupFile))
+        {
+          for (int i = 1; i <= 10; i++)
+          {
+            backupFile = Path.ChangeExtension(databaseFile, $".{backupVersion} {i}.bak");
+            if (!File.Exists(backupFile))
+              break;
+          }
+        }
+        File.Copy(databaseFile, backupFile, true);
+        return true;
+      }
+      return false;
+    }
+
+    public bool BackupTables(string tableSuffix)
+    {
+      bool result = false;
+      List<string> tables = new List<string>();
+      List<string> indexes = new List<string>();
+      List<string> constrainedTables = new List<string>();
+      Dictionary<string, string> tableSqls = new Dictionary<string, string> ();
+      using (var transaction = BeginTransaction())
+      {
+        using (var cmd = transaction.CreateCommand())
+        {
+          //Find all tables
+          cmd.CommandText = @"SELECT name, sql FROM sqlite_master WHERE type='table'";
+          using (IDataReader reader = cmd.ExecuteReader())
+          {
+            while (reader.Read())
+            {
+              string table = reader.GetString(0);
+              if (!table.StartsWith("sqlite", StringComparison.InvariantCultureIgnoreCase) && !table.EndsWith(tableSuffix, StringComparison.InvariantCultureIgnoreCase))
+              {
+                tables.Add(table);
+
+                //Get create sql
+                tableSqls[table] = reader.GetString(1);
+                if (tableSqls[table].IndexOf("REFERENCES", StringComparison.InvariantCultureIgnoreCase) >= 0)
+                  constrainedTables.Add(table);
+                //Change table name
+                tableSqls[table] = tableSqls[table].Replace(" " + table + " ", " " + table + tableSuffix + " ");
+                int idx = tableSqls[table].IndexOf("CONSTRAINT", StringComparison.InvariantCultureIgnoreCase);
+                if (idx >= 0)
+                {
+                  //Remove constraint
+                  tableSqls[table] = tableSqls[table].Substring(0, idx).Trim();
+                  //Remove comma and add parenthesis
+                  tableSqls[table] = tableSqls[table].Substring(0, tableSqls[table].Length - 1) + ")";
+                }
+              }
+            }
+          }
+
+          //Find all indexes
+          cmd.CommandText = @"SELECT name FROM sqlite_master WHERE type='index'";
+          using (IDataReader reader = cmd.ExecuteReader())
+          {
+            while (reader.Read())
+            {
+              string index = reader.GetString(0);
+              indexes.Add(index);
+            }
+          }
+
+          //Rename all tables and remove constraints
+          foreach (var table in tables)
+          {
+            //Check if backup table exists
+            cmd.CommandText = $"SELECT count(*) FROM sqlite_master WHERE name='{table + tableSuffix}' AND type='table'";
+            var cnt = (long)cmd.ExecuteScalar();
+            if (cnt == 0)
+            {
+              //Sqlite cannot remove constraints so we need to recreate tables and copy data
+
+              //Create old table without constraints
+              cmd.CommandText = tableSqls[table];
+              cmd.ExecuteNonQuery();
+
+              //Copy data
+              cmd.CommandText = $"INSERT INTO {table + tableSuffix} SELECT * FROM {table}";
+              cmd.ExecuteNonQuery();
+
+              result = true;
+            }
+            else
+            {
+              result = true;
+            }
+          }
+
+          //Disable foreign keys to avoid errors
+          cmd.CommandText = @"PRAGMA foreign_keys=OFF";
+          cmd.ExecuteNonQuery();
+          try
+          {
+            //Drop tables with references first to avoid errors
+            foreach (var table in constrainedTables)
+            {
+              //Drop table
+              cmd.CommandText = $"DROP TABLE IF EXISTS {table}";
+              cmd.ExecuteNonQuery();
+            }
+
+            //Drop all tables so they can be recreated
+            foreach (var table in tables)
+            {
+              //Drop table
+              cmd.CommandText = $"DROP TABLE IF EXISTS {table}";
+              cmd.ExecuteNonQuery();
+            }
+
+            //Drop all indexes so they can be recreated
+            foreach (var index in indexes)
+            {
+              //Drop index
+              cmd.CommandText = $"DROP INDEX IF EXISTS {index}";
+              cmd.ExecuteNonQuery();
+            }
+          }
+          finally
+          {
+            //Restore foreign keys
+            cmd.CommandText = @"PRAGMA foreign_keys=ON";
+            cmd.ExecuteNonQuery();
+          }
+          transaction.Commit();
+        }
+      }
+      return result;
+    }
+
+    public bool DropBackupTables(string tableSuffix)
+    {
+      List<string> tables = new List<string>();
+      using (var transaction = BeginTransaction())
+      {
+        using (var cmd = transaction.CreateCommand())
+        {
+          //Find all tables
+          cmd.CommandText = @"SELECT name FROM sqlite_master WHERE type='table'";
+          using (IDataReader reader = cmd.ExecuteReader())
+          {
+            while (reader.Read())
+            {
+              string table = reader.GetString(0);
+              if (table.EndsWith(tableSuffix, StringComparison.InvariantCultureIgnoreCase))
+                tables.Add(table);
+            }
+          }
+
+          //Disable foreign keys to avoid errors
+          cmd.CommandText = @"PRAGMA foreign_keys=OFF";
+          cmd.ExecuteNonQuery();
+          try
+          {
+            //Drop all backup tables as they are no longer needed
+            foreach (var table in tables)
+            {
+              //Drop table
+              cmd.CommandText = $"DROP TABLE IF EXISTS {table}";
+              cmd.ExecuteNonQuery();
+            }
+          }
+          finally
+          {
+            //Restore foreign keys
+            cmd.CommandText = @"PRAGMA foreign_keys=ON";
+            cmd.ExecuteNonQuery();
+          }
+
+          transaction.Commit();
+        }
+      }
+
+      using (var connection = CreateOpenAndInitializeConnection())
+      {
+        using (var cmd = connection.CreateCommand())
+        {
+          //File based temp storage to avoid OOM errors
+          cmd.CommandText = @"PRAGMA temp_store=FILE";
+          cmd.ExecuteNonQuery();
+          try
+          {
+            //Shrink and optimize database
+            cmd.CommandText = "VACUUM";
+            cmd.ExecuteNonQuery();
+          }
+          catch (Exception e)
+          {
+            ServiceRegistration.Get<ILogger>().Error("SQLiteDatabase: Error shrinking database", e);
+          }
+          finally
+          {
+            //Restore default temp storage
+            if (_settings.UseTempStoreMemory)
+              cmd.CommandText = @"PRAGMA temp_store=MEMORY";
+            else
+              cmd.CommandText = @"PRAGMA temp_store=DEFAULT";
+            cmd.ExecuteNonQuery();
+          }
+        }
+      }
+      //Wait for garbage collection of temporary files
+      GC.Collect();
+      GC.WaitForPendingFinalizers();
+      return true;
+    }
+
     public string CreateStringConcatenationExpression(string str1, string str2)
     {
       return str1 + " || " + str2;
@@ -507,6 +746,17 @@ namespace MediaPortal.Database.SQLite
       // a TEXT value and SQLite refuses to convert TEXT to INT without an
       // explicit CAST.
       return "CAST(strftime('%Y', " + selectExpression + ") AS INTEGER)";
+    }
+
+    public string GetStorageClause(string statementStr)
+    {
+      // We can only append the "WITHOUT ROWID" to tables that are defining a primary key inside the "CREATE TABLE" statement.
+      if (string.IsNullOrEmpty(statementStr)
+        || statementStr.IndexOf("create table", StringComparison.InvariantCultureIgnoreCase) == -1
+        || statementStr.IndexOf("primary key", StringComparison.InvariantCultureIgnoreCase) == -1)
+        return null;
+
+      return " WITHOUT ROWID";
     }
 
     public bool Process(ref string statementStr, ref IList<BindVar> bindVars, ref uint? offset, ref uint? limit)
@@ -531,11 +781,13 @@ namespace MediaPortal.Database.SQLite
       _maintenanceScheduler.Complete();
       _maintenanceScheduler.Completion.Wait();
 
+#if !NO_POOL
       if (_connectionPool != null)
       {
         _connectionPool.Dispose();
         _connectionPool = null;
       }
+#endif
     }
 
     #endregion

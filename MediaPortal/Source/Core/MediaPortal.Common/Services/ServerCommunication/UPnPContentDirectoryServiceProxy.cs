@@ -27,6 +27,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using MediaPortal.Common.Async;
 using MediaPortal.Common.General;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.MLQueries;
@@ -287,10 +288,17 @@ namespace MediaPortal.Common.Services.ServerCommunication
       return (MediaItem)outParameters[0];
     }
 
-    public async Task RefreshMediaItemMetadataAsync(string systemId, Guid mediaItemId, bool clearMetadata)
+    public async Task RefreshMediaItemMetadataAsync(Guid mediaItemId, bool clearMetadata)
     {
       CpAction action = GetAction("X_MediaPortal_RefreshMediaItem");
-      IList<object> inParameters = new List<object> { systemId, MarshallingHelper.SerializeGuid(mediaItemId), clearMetadata };
+      IList<object> inParameters = new List<object> { MarshallingHelper.SerializeGuid(mediaItemId), clearMetadata };
+      await action.InvokeAsync(inParameters);
+    }
+
+    public async Task ReimportMediaItemMetadataAsync(Guid mediaItemId, IEnumerable<MediaItemAspect> matchedAspects)
+    {
+      CpAction action = GetAction("X_MediaPortal_ReimportMediaItem");
+      IList<object> inParameters = new List<object> { MarshallingHelper.SerializeGuid(mediaItemId), matchedAspects };
       await action.InvokeAsync(inParameters);
     }
 
@@ -527,6 +535,20 @@ namespace MediaPortal.Common.Services.ServerCommunication
         };
       IList<object> outParameters = await action.InvokeAsync(inParameters);
       return MarshallingHelper.DeserializeGuid((string)outParameters[0]);
+    }
+
+    public async Task<IList<MediaItem>> ReconcileMediaItemRelationshipsAsync(Guid mediaItemId, IEnumerable<MediaItemAspect> mediaItemAspects,
+      IEnumerable<RelationshipItem> relationshipItems)
+    {
+      CpAction action = GetAction("X_MediaPortal_ReconcileMediaItemRelationships");
+      IList<object> inParameters = new List<object>
+        {
+            MarshallingHelper.SerializeGuid(mediaItemId),
+            mediaItemAspects,
+            relationshipItems
+        };
+      IList<object> outParameters = await action.InvokeAsync(inParameters);
+      return (IList<MediaItem>)outParameters[0];
     }
 
     public async Task DeleteMediaItemOrPathAsync(string systemId, ResourcePath path, bool inclusive)

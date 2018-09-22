@@ -23,6 +23,7 @@
 #endregion
 
 using System.Device.Location;
+using System.Threading.Tasks;
 
 namespace MediaPortal.Extensions.OnlineLibraries.Libraries
 {
@@ -31,6 +32,6 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries
   /// </summary>
   public interface IAddressResolver
   {
-    bool TryResolveCivicAddress(GeoCoordinate coordinates, out CivicAddress address);
+    Task<CivicAddress> TryResolveCivicAddressAsync(GeoCoordinate coordinates);
   }
 }

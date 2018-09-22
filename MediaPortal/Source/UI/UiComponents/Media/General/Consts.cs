@@ -585,6 +585,7 @@ namespace MediaPortal.UiComponents.Media.General
     // Keys for workflow state variables
     public const string KEY_NAVIGATION_MODE = "MediaNavigationModel: NAVIGATION_MODE";
     public const string KEY_NAVIGATION_DATA = "MediaNavigationModel: NAVIGATION_DATA";
+    public const string KEY_NAVIGATION_CONFIG = "MediaNavigationModel: NAVIGATION_CONFIG";
 
     public static float DEFAULT_PIP_HEIGHT = 108;
     public static float DEFAULT_PIP_WIDTH = 192;
@@ -621,38 +622,6 @@ namespace MediaPortal.UiComponents.Media.General
           SubtitleAspect.ASPECT_ID,
           GenreAspect.ASPECT_ID,
           StubAspect.ASPECT_ID
-      };
-
-    public static readonly Guid[] NECESSARY_MOVIE_GENRE_MIAS = new Guid[]
-      {
-          ProviderResourceAspect.ASPECT_ID,
-          MediaAspect.ASPECT_ID,
-          GenreAspect.ASPECT_ID,
-          MovieAspect.ASPECT_ID
-      };
-
-    public static readonly Guid[] NECESSARY_SERIES_GENRE_MIAS = new Guid[]
-      {
-          ProviderResourceAspect.ASPECT_ID,
-          MediaAspect.ASPECT_ID,
-          GenreAspect.ASPECT_ID,
-          SeriesAspect.ASPECT_ID
-      };
-
-    public static readonly Guid[] NECESSARY_AUDIO_GENRE_MIAS = new Guid[]
-      {
-          ProviderResourceAspect.ASPECT_ID,
-          MediaAspect.ASPECT_ID,
-          GenreAspect.ASPECT_ID,
-          AudioAspect.ASPECT_ID
-      };
-
-    public static readonly Guid[] NECESSARY_VIDEO_GENRE_MIAS = new Guid[]
-      {
-          ProviderResourceAspect.ASPECT_ID,
-          MediaAspect.ASPECT_ID,
-          GenreAspect.ASPECT_ID,
-          VideoAspect.ASPECT_ID
       };
 
     public static readonly Guid[] NECESSARY_VIDEO_MIAS = new Guid[]

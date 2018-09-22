@@ -33,12 +33,46 @@ Parameters which have to be accessible by a DynamicResource lookup:
     Source="screens\master_home.xaml"
     xmlns:mp_special_controls="clr-namespace:MediaPortal.UI.SkinEngine.SpecialElements.Controls;assembly=SkinEngine"
     xmlns:wmc="clr-namespace:MediaPortal.UiComponents.WMCSkin.Controls;assembly=WMCSkin"
+    xmlns:fanart="clr-namespace:MediaPortal.Extensions.UserServices.FanArtService.Client;assembly=FanArtService.Client"
     xmlns:wmc_markup_extensions="clr-namespace:MediaPortal.UiComponents.WMCSkin.MarkupExtensions;assembly=WMCSkin"
-    >
+    xmlns:imagesources="clr-namespace:MediaPortal.UI.SkinEngine.Controls.ImageSources;assembly=SkinEngine">
   <Include.Resources>
 
-    <ControlTemplate x:Key="FanArtBackground_Template">
+    <!--ControlTemplate x:Key="FanArtBackground_Template">
       <Image Stretch="Fill" Opacity="{Binding Source={StaticResource SkinSettingsModel}, Path=[WMC].FanartOverlayOpacity}" Source="Background_GridView.png"/>
+    </-->
+
+    <ControlTemplate x:Key="FanArtBackgroundHome_Template">
+      <ControlTemplate.Resources>
+        <fanart:FanArtImageSourceConverter x:Key="FanArtImageSourceConverter"/>
+        <Model x:Key="FanArtBackgroundModel" Id="8F42C8E9-E8A3-475C-A50A-99E1E644DC91"/>
+        <Model x:Key="SkinSettingsModel" Id="13961014-16C4-4361-9751-8E2C585EFD44"/>
+      </ControlTemplate.Resources>
+      <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch" >
+        <Grid.ColumnDefinitions>
+          <ColumnDefinition Width="20*"/>
+          <ColumnDefinition Width="80*"/>
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+          <RowDefinition Height="80*"/>
+          <RowDefinition Height="20*"/>
+        </Grid.RowDefinitions>
+
+        <Grid Grid.Column="1" Grid.Row="0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+          <Grid.Background>
+            <VideoBrush Stream="0"/>
+          </Grid.Background>
+        </Grid>
+
+        <Image x:Name="FanArtImageBackground" Stretch="UniformToFill" Grid.Column="1" Grid.Row="0"
+               IsVisible="{Binding Source={StaticResource SkinSettingsModel}, Path=[WMC].EnableFanart}">
+          <Image.Source>
+            <imagesources:ImageSourceWrapper Delay="0.5" DelayInOut="true" Transition="transitions\dissolve" TransitionDuration="0.5"
+                   Source="{Binding Source={StaticResource FanArtBackgroundModel}, Path=ImageSource, Converter={StaticResource FanArtImageSourceConverter}, ConverterParameter=FanArt;1200;750;False}"/>
+          </Image.Source>
+        </Image>
+        <Image Stretch="Fill" Source="Background_Home.png" Grid.ColumnSpan="2" Grid.RowSpan="2" Opacity="1"/>
+      </Grid>
     </ControlTemplate>
 
     <!-- Background Manager for menu hovers -->
@@ -57,7 +91,7 @@ Parameters which have to be accessible by a DynamicResource lookup:
         </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
           <RowDefinition Height="*"/>
-          <RowDefinition Height="500"/>
+          <RowDefinition Height="505"/>
           <RowDefinition Height="480"/>
         </Grid.RowDefinitions>
         <Grid.Resources>
@@ -84,7 +118,7 @@ Parameters which have to be accessible by a DynamicResource lookup:
         </ListView>
 
         <Grid x:Name="SubItemsFadeControl" Grid.Row="2" Grid.Column="0" Opacity="0" Panel.ZIndex="100"
-              HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+              HorizontalAlignment="Stretch" VerticalAlignment="Top">
           <Grid.ColumnDefinitions>
             <ColumnDefinition Width="*"/>
           </Grid.ColumnDefinitions>
@@ -134,15 +168,44 @@ Parameters which have to be accessible by a DynamicResource lookup:
 
           </Grid.Triggers>
 
-          <ListView Margin="-1240,0,0,0" x:Name="SubItemsListViewHome" 
-                   SetFocusPrio="DefaultHigh"
-                   ItemsSource="{Binding Source={StaticResource HomeMenuModel},Path=SubItems,Mode=OneTime}"
-                   Style="{ThemeResource SubMenuListViewStyle}"
-                   SelectionChanged="{CommandStencil Source={StaticResource HomeMenuModel}, Path=SetSelectedItem}">
+          <ListView Margin="-1240,0,0,0" x:Name="SubItemsListViewHome" IsEnabled="{Binding Source={StaticResource HomeContentModel}, Path=!IsContentFocused}"
+                    ItemsSource="{Binding Source={StaticResource HomeMenuModel},Path=SubItems,Mode=OneTime}"
+                    Style="{ThemeResource SubMenuListViewStyle}"
+                    SelectionChanged="{CommandStencil Source={StaticResource HomeMenuModel}, Path=SetSelectedItem}">
             <ListView.Resources>
               <CommandBridge x:Key="Menu_Command" Command="{Binding Path=Command,Mode=OneTime}"/>
             </ListView.Resources>
+            <ListView.Triggers>
+              <Trigger Property="IsEnabled" Value="True">
+                <Setter TargetName="HomeContentGrid" Property="IsEnabled" Value="False"/>
+                </Trigger>
+            </ListView.Triggers>
           </ListView>
+          <Image x:Name="HomeMenuIndicator" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="380,0,0,0"
+                 IsVisible="{Binding Source={StaticResource HomeContentModel}, Path=IsContentFocused}"
+                 Stretch="Uniform" Width="40" Source="i-indicator.png" Opacity="0.35">
+            <Image.Resources>
+              <Storyboard x:Key="InfoBlinkStoryboard_" RepeatBehavior="Forever" >
+                <DoubleAnimationUsingKeyFrames Storyboard.TargetName="HomeMenuIndicator" Storyboard.TargetProperty="Opacity" 
+                                               AccelerationRatio="0.2" DecelerationRatio="0.2"
+                                               BeginTime="00:01:00" RepeatBehavior="Forever" FillBehavior="HoldEnd">
+                  <SplineDoubleKeyFrame KeyTime="00:00:00" Value="0"/>
+                  <SplineDoubleKeyFrame KeyTime="00:00:01.5" Value="0.35"/>
+                  <SplineDoubleKeyFrame KeyTime="00:00:03" Value="0"/>
+                </DoubleAnimationUsingKeyFrames>
+              </Storyboard>
+            </Image.Resources>
+            <Image.Triggers>
+              <Trigger Property="IsVisible" Value="True">
+                <Trigger.EnterActions>
+                  <BeginStoryboard x:Name="Disabled_BeginStoryBoard_" Storyboard="{ThemeResource InfoBlinkStoryboard_}"/>
+                </Trigger.EnterActions>
+                <Trigger.ExitActions>
+                  <StopStoryboard BeginStoryboardName="Disabled_BeginStoryBoard_"/>
+                </Trigger.ExitActions>
+              </Trigger>
+            </Image.Triggers>
+          </Image>
         </Grid>
 
         <Grid Grid.Row="2" Grid.Column="0" Opacity="1" Panel.ZIndex="99">
@@ -150,7 +213,7 @@ Parameters which have to be accessible by a DynamicResource lookup:
             <Model x:Key="MouseModel" Id="CA6428A7-A6E2-4dd3-9661-F89CEBAF8E62"/>
           </Grid.Resources>
           <Image x:Name="FocusFrame" Source="Focus.frame.png" 
-                 Stretch="Uniform" Width="360" HorizontalAlignment="Left" Margin="11,-1,0,18"/>
+                 Stretch="Fill" Width="373" Height="210" HorizontalAlignment="Left" Margin="7,-5,0,10"/>
         </Grid>
 
         <!-- Order matters here: The content grid has to be the last control to fill the rest of the space -->
@@ -165,19 +228,6 @@ Parameters which have to be accessible by a DynamicResource lookup:
               Template="{DynamicResource ResourceKey=Contents_Template}" SetFocus="true"/>
         </Grid>
 
-        <Grid x:Name="RightButtonGrid" Grid.Row="1" HorizontalAlignment="Left" Margin="-290,0,0,-140" Panel.ZIndex="1000"
-              IsVisible="{Binding Source={StaticResource MouseModel},Path=IsMouseUsed}">
-          <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="Auto"/>
-          </Grid.ColumnDefinitions>
-          <Grid.RowDefinitions>
-            <RowDefinition Height="*"/>
-          </Grid.RowDefinitions>
-          <Button VerticalAlignment="Bottom" Style="{StaticResource SubMenuRightButtonStyle}" Height="50"
-                  Command="{Command Source={StaticResource HomeMenuModel},Path=MovePreviousSubItem}"/>
-        </Grid>
-
-
         <!--++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++-->
         <!--++++++++++++++++++++++++   HOME CONTENT   ++++++++++++++++++++++-->
         <!--++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++-->
@@ -188,7 +238,10 @@ Parameters which have to be accessible by a DynamicResource lookup:
           </Control.TemplateControl>
         </Control>
 
-        <Grid x:Name="HomeContentGrid" Grid.Row="1" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,-150,50,0">
+        <Grid x:Name="HomeContentGrid" Grid.Row="1" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,-150,50,0"
+              IsVisible="{Binding Source={StaticResource SkinSettingsModel}, Path=[WMC].EnableHomeContent}"
+              DataContext="{Binding Source={StaticResource HomeContentModel}}"
+              IsKeyboardFocusWithin="{Binding Source={StaticResource HomeContentModel}, Path=IsContentFocused, Mode=OneWayToSource}">
           <Grid.ColumnDefinitions>
             <ColumnDefinition Width="1000"/>
           </Grid.ColumnDefinitions>
@@ -199,43 +252,37 @@ Parameters which have to be accessible by a DynamicResource lookup:
           <Grid.Resources>
             <!-- HomeContent Storyboard -->
             <Storyboard x:Key="SlideInStoryboard" FillBehavior="HoldEnd">
-              <DoubleAnimationUsingKeyFrames BeginTime="00:00:00" FillBehavior="HoldEnd" Storyboard.TargetProperty="RenderTransform.X">
-                <SplineDoubleKeyFrame KeyTime="00:00:00.5" Value="500"/>                
-                <SplineDoubleKeyFrame KeyTime="00:00:00.6" Value="256"/>
-                <SplineDoubleKeyFrame KeyTime="00:00:00.7" Value="131"/>                
-                <SplineDoubleKeyFrame KeyTime="00:00:00.8" Value="67"/>
-                <SplineDoubleKeyFrame KeyTime="00:00:00.9" Value="34"/>
-                <SplineDoubleKeyFrame KeyTime="00:00:01.0" Value="17"/>
-                <SplineDoubleKeyFrame KeyTime="00:00:01.1" Value="8"/>
-                <SplineDoubleKeyFrame KeyTime="00:00:01.2" Value="4"/>                
-                <SplineDoubleKeyFrame KeyTime="00:00:01.3" Value="1"/>
-                <SplineDoubleKeyFrame KeyTime="00:00:01.4" Value="0"/>                
-              </DoubleAnimationUsingKeyFrames>
+              <DoubleAnimation BeginTime="00:00:00" From="600" To="0" Duration="00:00:01.1" DecelerationRatio="0"
+                               FillBehavior="HoldEnd" Storyboard.TargetProperty="RenderTransform.X">
+                <DoubleAnimation.EasingFunction>
+                  <BackEase Amplitude="0.3" EasingMode="EaseOut"/>
+                </DoubleAnimation.EasingFunction>
+              </DoubleAnimation>
               <DoubleAnimationUsingKeyFrames BeginTime="00:00:00" FillBehavior="HoldEnd" Storyboard.TargetProperty="Opacity">
                 <SplineDoubleKeyFrame KeyTime="00:00:00" Value="0"/>
-                <SplineDoubleKeyFrame KeyTime="00:00:00.5" Value="0"/>
-                <SplineDoubleKeyFrame KeyTime="00:00:01.40" Value="1"/>
+                <SplineDoubleKeyFrame KeyTime="00:00:00.4" Value="0"/>
+                <SplineDoubleKeyFrame KeyTime="00:00:01.1" Value="1"/>
               </DoubleAnimationUsingKeyFrames>
             </Storyboard>
             <Storyboard x:Key="SlideOutStoryboard" FillBehavior="Stop">
-              <DoubleAnimationUsingKeyFrames BeginTime="00:00:00" FillBehavior="HoldEnd" Storyboard.TargetProperty="RenderTransform.X">
-                <SplineDoubleKeyFrame KeyTime="00:00:00" Value="0"/>
-                <SplineDoubleKeyFrame KeyTime="00:00:00.1" Value="1"/>
-                <SplineDoubleKeyFrame KeyTime="00:00:00.2" Value="4"/>
-                <SplineDoubleKeyFrame KeyTime="00:00:00.3" Value="8"/>
-                <SplineDoubleKeyFrame KeyTime="00:00:00.4" Value="17"/>
-                <SplineDoubleKeyFrame KeyTime="00:00:00.5" Value="34"/>
-                <SplineDoubleKeyFrame KeyTime="00:00:00.6" Value="67"/>
-                <SplineDoubleKeyFrame KeyTime="00:00:00.7" Value="131"/>
-                <SplineDoubleKeyFrame KeyTime="00:00:00.8" Value="256"/>
-                <SplineDoubleKeyFrame KeyTime="00:00:00.9" Value="500"/>
-              </DoubleAnimationUsingKeyFrames>
+              <DoubleAnimation BeginTime="00:00:00" From="0" To="600" Duration="00:00:00.5" AccelerationRatio="1"
+                               FillBehavior="HoldEnd" Storyboard.TargetProperty="RenderTransform.X" >
+              </DoubleAnimation>
               <DoubleAnimationUsingKeyFrames BeginTime="00:00:00" FillBehavior="HoldEnd" Storyboard.TargetProperty="Opacity">
                 <SplineDoubleKeyFrame KeyTime="00:00:00.0" Value="1"/>
-                <SplineDoubleKeyFrame KeyTime="00:00:00.9" Value="0"/>
+                <SplineDoubleKeyFrame KeyTime="00:00:00.5" Value="0"/>
               </DoubleAnimationUsingKeyFrames>
             </Storyboard>
           </Grid.Resources>
+
+          <Grid.Triggers>
+            <!-- Trigger that sets the focus on the main menu if the focus toggle command is executed from the home content -->
+            <DataTrigger Binding="{Binding Source={StaticResource HomeContentModel}, Path=FocusedContentIndex}" Value="-1">
+              <DataTrigger.EnterActions>
+                <TriggerCommand Command="{Command Source={StaticResource HomeMenuModel}, Path=SetFocus}"/>
+              </DataTrigger.EnterActions>
+            </DataTrigger>
+          </Grid.Triggers>
           
           <!-- To allow the next home content to slide in whilst the previous slides out we use the HomeContentModel
                To alternate the content between HomeContent0Control and HomeContent1Control below -->
@@ -253,7 +300,7 @@ Parameters which have to be accessible by a DynamicResource lookup:
             </Grid.RenderTransform>
             <Grid.Triggers>
               <!-- Trigger for the HomeContent Storyboard -->
-              <DataTrigger Binding="{Binding Source={StaticResource HomeContentModel},Path=CurrentContentIndex}" Value="0">
+              <DataTrigger Binding="{Binding CurrentContentIndex}" Value="0">
                 <DataTrigger.EnterActions>
                   <BeginStoryboard x:Name="Content0BeginSlideInStoryboard" Storyboard="{StaticResource SlideInStoryboard}"/>
                 </DataTrigger.EnterActions>
@@ -265,7 +312,22 @@ Parameters which have to be accessible by a DynamicResource lookup:
             </Grid.Triggers>
 
             <Control x:Name="HomeContent0Control" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
-                   Template="{wmc_markup_extensions:DynamicResourceBindingExtension ResourceKey={Binding Source={StaticResource HomeContentModel}, Path=Content0ActionId}}"/>
+                     SetFocusPrio="None" IsEnabled="False"
+                     Template="{wmc_markup_extensions:DynamicResourceBindingExtension ResourceKey={Binding Content0ActionId}}">
+              <Control.Triggers>
+
+                <!-- Only enable the content when visible to prevent hidden content from getting focus -->
+                <DataTrigger Binding="{Binding CurrentContentIndex}" Value="0">
+                  <Setter Property="IsEnabled" Value="True"/>
+                </DataTrigger>
+
+                <!-- Trigger that sets the focus on the home content if the focus toggle command is executed from the main menu -->
+                <DataTrigger Binding="{Binding FocusedContentIndex}" Value="0">
+                  <Setter Property="SetFocusPrio" Value="Default"/>
+                </DataTrigger>
+
+              </Control.Triggers>
+            </Control>
             
           </Grid>
 
@@ -283,7 +345,7 @@ Parameters which have to be accessible by a DynamicResource lookup:
             </Grid.RenderTransform>
             <Grid.Triggers>
               <!-- Trigger for the HomeContent Storyboard -->
-              <DataTrigger Binding="{Binding Source={StaticResource HomeContentModel},Path=CurrentContentIndex}" Value="1">
+              <DataTrigger Binding="{Binding CurrentContentIndex}" Value="1">
                 <DataTrigger.EnterActions>
                   <BeginStoryboard x:Name="Content1BeginSlideInStoryboard" Storyboard="{StaticResource SlideInStoryboard}"/>
                 </DataTrigger.EnterActions>
@@ -295,13 +357,29 @@ Parameters which have to be accessible by a DynamicResource lookup:
             </Grid.Triggers>
 
             <Control x:Name="HomeContent1Control" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
-                   Template="{wmc_markup_extensions:DynamicResourceBindingExtension ResourceKey={Binding Source={StaticResource HomeContentModel}, Path=Content1ActionId}}"/>
+                     SetFocusPrio="None" IsEnabled="False"
+                     Template="{wmc_markup_extensions:DynamicResourceBindingExtension ResourceKey={Binding Content1ActionId}}">
+              <Control.Triggers>
+
+                <!-- Only enable the content when visible to prevent hidden content from getting focus -->
+                <DataTrigger Binding="{Binding CurrentContentIndex}" Value="1">
+                  <Setter Property="IsEnabled" Value="True"/>
+                </DataTrigger>
+
+                <!-- Trigger that sets the focus on the home content if the focus toggle command is executed from the main menu -->
+                <DataTrigger Binding="{Binding FocusedContentIndex}" Value="1">
+                  <Setter Property="SetFocusPrio" Value="Default"/>
+                </DataTrigger>
+
+              </Control.Triggers>
+            </Control>
             
           </Grid>
 
         </Grid>
         
         <Grid x:Name="LeftButtonGrid" Grid.Row="1" HorizontalAlignment="Right" Margin="0,0,10,-140" Panel.ZIndex="1000"
+              IsEnabled="{Binding Source={StaticResource HomeContentModel}, Path=!IsContentFocused}"
               IsVisible="{Binding Source={StaticResource MouseModel},Path=IsMouseUsed}">
           <Grid.ColumnDefinitions>
             <ColumnDefinition Width="Auto"/>
@@ -309,12 +387,66 @@ Parameters which have to be accessible by a DynamicResource lookup:
           <Grid.RowDefinitions>
             <RowDefinition Height="*"/>
           </Grid.RowDefinitions>
-          <Button VerticalAlignment="Bottom" Style="{StaticResource SubMenuLeftButtonStyle}" Height="50"
+          <Button VerticalAlignment="Bottom" Style="{StaticResource SubMenuNavigateButtonStyle}" Height="50"
                   Command="{Command Source={StaticResource HomeMenuModel},Path=MoveNextSubItem}"/>
+        </Grid>
+
+        <Grid x:Name="RightButtonGrid" Grid.Row="1" HorizontalAlignment="Left" Margin="-250,0,0,-180" Panel.ZIndex="1000"
+              IsEnabled="{Binding Source={StaticResource HomeContentModel}, Path=!IsContentFocused}"
+              IsVisible="{Binding Source={StaticResource MouseModel},Path=IsMouseUsed}">
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="Auto"/>
+          </Grid.ColumnDefinitions>
+          <Grid.RowDefinitions>
+            <RowDefinition Height="*"/>
+          </Grid.RowDefinitions>
+          <Button VerticalAlignment="Bottom" Style="{StaticResource SubMenuNavigateButtonStyle}" Height="50"
+                  Command="{Command Source={StaticResource HomeMenuModel},Path=MovePreviousSubItem}">
+            <Button.RenderTransform>
+              <RotateTransform Angle="180" />
+            </Button.RenderTransform>
+          </Button>
+        </Grid>
+
+        <Grid x:Name="TopButtonGrid" Grid.Row="1" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="160,30,0,-20" Panel.ZIndex="1000"
+              IsEnabled="{Binding Source={StaticResource HomeContentModel}, Path=!IsContentFocused}"
+              IsVisible="{Binding Source={StaticResource MouseModel},Path=IsMouseUsed}">
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="Auto"/>
+          </Grid.ColumnDefinitions>
+          <Grid.RowDefinitions>
+            <RowDefinition Height="*"/>
+          </Grid.RowDefinitions>
+          <Button VerticalAlignment="Bottom" Style="{StaticResource SubMenuNavigateButtonStyle}" Height="50"
+                  Command="{Command Source={StaticResource HomeMenuModel},Path=MovePrevious}">
+            <Button.RenderTransform>
+              <RotateTransform Angle="270" />
+            </Button.RenderTransform>
+          </Button>
+        </Grid>
+
+        <Grid x:Name="BottomButtonGrid" Grid.Row="2" HorizontalAlignment="Left" VerticalAlignment="Bottom" Margin="210,0,0,-10" Panel.ZIndex="1000"
+              IsEnabled="{Binding Source={StaticResource HomeContentModel}, Path=!IsContentFocused}"
+              IsVisible="{Binding Source={StaticResource MouseModel},Path=IsMouseUsed}">
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="Auto"/>
+          </Grid.ColumnDefinitions>
+          <Grid.RowDefinitions>
+            <RowDefinition Height="*"/>
+          </Grid.RowDefinitions>
+          <Button VerticalAlignment="Bottom" Style="{StaticResource SubMenuNavigateButtonStyle}" Height="50"
+                  Command="{Command Source={StaticResource HomeMenuModel},Path=MoveNext}">
+            <Button.RenderTransform>
+              <RotateTransform Angle="90" />
+            </Button.RenderTransform>
+          </Button>
         </Grid>
 
         <KeyBinding Key="Up" Command="{Command Source={StaticResource HomeMenuModel},Path=MovePrevious}" IsEnabled="{Binding ElementName=HomeContentGrid, Path=!IsKeyboardFocusWithin}"/>
         <KeyBinding Key="Down" Command="{Command Source={StaticResource HomeMenuModel},Path=MoveNext}" IsEnabled="{Binding ElementName=HomeContentGrid, Path=!IsKeyboardFocusWithin}"/>
+        <!-- Toggles focus between the main menu and the home content -->
+        <KeyBinding Key="Info" Command="{Command Source={StaticResource HomeContentModel},Path=ToggleFocus}"/>
+        <KeyBinding Key="i" Command="{Command Source={StaticResource HomeContentModel},Path=ToggleFocus}"/>
 
       </Grid>
     </ControlTemplate>

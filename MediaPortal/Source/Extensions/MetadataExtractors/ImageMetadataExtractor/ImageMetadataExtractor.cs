@@ -22,23 +22,24 @@
 
 #endregion
 
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Device.Location;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Common.ResourceAccess;
+using MediaPortal.Common.Services.Settings;
 using MediaPortal.Common.Services.ThumbnailGenerator;
 using MediaPortal.Common.Settings;
 using MediaPortal.Extensions.MetadataExtractors.ImageMetadataExtractor.Settings;
 using MediaPortal.Extensions.OnlineLibraries;
 using MediaPortal.Utilities;
 using MediaPortal.Utilities.SystemAPI;
-using MediaPortal.Common.Services.Settings;
+using System;
+using System.Collections.Generic;
+using System.Device.Location;
+using System.IO;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace MediaPortal.Extensions.MetadataExtractors.ImageMetadataExtractor
 {
@@ -149,7 +150,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.ImageMetadataExtractor
       get { return _metadata; }
     }
 
-    public bool TryExtractMetadata(IResourceAccessor mediaItemAccessor, IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData, bool importOnly, bool forceQuickMode)
+    public async Task<bool> TryExtractMetadataAsync(IResourceAccessor mediaItemAccessor, IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData, bool forceQuickMode)
     {
       string fileName = mediaItemAccessor.ResourceName;
       if (!HasImageExtension(fileName))
@@ -245,7 +246,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.ImageMetadataExtractor
               // Thumbnail extraction
               IThumbnailGenerator generator = ServiceRegistration.Get<IThumbnailGenerator>();
               ImageType imageType;
-              if (generator.GetThumbnail(localFsResourcePath, true, out thumbData, out imageType))
+              if (generator.GetThumbnail(localFsResourcePath, forceQuickMode, out thumbData, out imageType))
                 MediaItemAspect.SetAttribute(extractedAspectData, ThumbnailLargeAspect.ATTR_THUMBNAIL, thumbData);
             }
           }
@@ -256,12 +257,14 @@ namespace MediaPortal.Extensions.MetadataExtractors.ImageMetadataExtractor
           bool updated = false;
           double? latitude = imageAspect.GetAttributeValue<double?>(ImageAspect.ATTR_LATITUDE);
           double? longitude = imageAspect.GetAttributeValue<double?>(ImageAspect.ATTR_LONGITUDE);
-          if (IncludeGeoLocationDetails && !importOnly && latitude.HasValue && longitude.HasValue &&
+          if (!forceQuickMode && IncludeGeoLocationDetails && latitude.HasValue && longitude.HasValue &&
             string.IsNullOrEmpty(imageAspect.GetAttributeValue<string>(ImageAspect.ATTR_COUNTRY)))
           {
-            CivicAddress locationInfo;
-            if (!forceQuickMode && GeoLocationService.Instance.TryLookup(new GeoCoordinate(latitude.Value, longitude.Value), out locationInfo))
+            var geoCoordinate = new GeoCoordinate(latitude.Value, longitude.Value);
+            var lookupResult = await GeoLocationService.Instance.TryLookupAsync(geoCoordinate).ConfigureAwait(false);
+            if (lookupResult.Success)
             {
+              CivicAddress locationInfo = lookupResult.Result;
               imageAspect.SetAttribute(ImageAspect.ATTR_CITY, locationInfo.City);
               imageAspect.SetAttribute(ImageAspect.ATTR_STATE, locationInfo.StateProvince);
               imageAspect.SetAttribute(ImageAspect.ATTR_COUNTRY, locationInfo.CountryRegion);
@@ -317,6 +320,16 @@ namespace MediaPortal.Extensions.MetadataExtractors.ImageMetadataExtractor
     public bool TryExtractStubItems(IResourceAccessor mediaItemAccessor, ICollection<IDictionary<Guid, IList<MediaItemAspect>>> extractedStubAspectData)
     {
       return false;
+    }
+
+    public Task<IList<MediaItemSearchResult>> SearchForMatchesAsync(IDictionary<Guid, IList<MediaItemAspect>> searchAspectData, ICollection<string> searchCategories)
+    {
+      return Task.FromResult<IList<MediaItemSearchResult>>(null);
+    }
+
+    public Task<bool> AddMatchedAspectDetailsAsync(IDictionary<Guid, IList<MediaItemAspect>> matchedAspectData)
+    {
+      return Task.FromResult(false);
     }
 
     #endregion IMetadataExtractor implementation

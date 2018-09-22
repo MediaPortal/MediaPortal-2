@@ -22,23 +22,57 @@
 
 #endregion
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Common.MediaManagement.Helpers;
 using MediaPortal.Common.MediaManagement.MLQueries;
+using MediaPortal.Common.ResourceAccess;
+using MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.Extractors;
+using MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoReaders;
 using MediaPortal.Utilities.Collections;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
 {
-  class SeriesCharacterRelationshipExtractor : INfoRelationshipExtractor, IRelationshipRoleExtractor
+  class SeriesCharacterRelationshipExtractor : NfoSeriesExtractorBase, IRelationshipRoleExtractor
   {
+    #region Static fields
+
     private static readonly Guid[] ROLE_ASPECTS = { SeriesAspect.ASPECT_ID };
     private static readonly Guid[] LINKED_ROLE_ASPECTS = { CharacterAspect.ASPECT_ID };
+
+    #endregion
+
+    #region Protected methods
+
+    /// <summary>
+    /// Asynchronously tries to extract series characters for the given <param name="mediaItemAccessor"></param>
+    /// </summary>
+    /// <param name="mediaItemAccessor">Points to the resource for which we try to extract metadata</param>
+    /// <param name="extractedAspects">List of MediaItemAspect dictionaries to update with metadata</param>
+    /// <param name="reimport">During reimport only allow if nfo is for same media as this</param>
+    /// <returns><c>true</c> if metadata was found and stored into the <paramref name="extractedAspects"/>, else <c>false</c></returns>
+    protected async Task<bool> TryExtractSeriesCharactersMetadataAsync(IResourceAccessor mediaItemAccessor, IList<IDictionary<Guid, IList<MediaItemAspect>>> extractedAspects, SeriesInfo reimport)
+    {
+      NfoSeriesReader seriesNfoReader = await TryGetNfoSeriesReaderAsync(mediaItemAccessor).ConfigureAwait(false);
+      if (seriesNfoReader != null)
+      {
+        if (reimport != null && !VerifySeriesReimport(seriesNfoReader, reimport))
+          return false;
+
+        return seriesNfoReader.TryWriteCharacterMetadata(extractedAspects);
+      }
+      return false;
+    }
+
+    #endregion
+
+    #region IRelationshipRoleExtractor implementation
 
     public bool BuildRelationship
     {
@@ -72,41 +106,50 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
 
     public IFilter GetSearchFilter(IDictionary<Guid, IList<MediaItemAspect>> extractedAspects)
     {
-      return GetCharacterSearchFilter(extractedAspects);
+      if (!extractedAspects.ContainsKey(CharacterAspect.ASPECT_ID))
+        return null;
+      return BooleanCombinationFilter.CombineFilters(BooleanOperator.Or,
+        RelationshipExtractorUtils.CreateExternalItemFilter(extractedAspects, ExternalIdentifierAspect.TYPE_CHARACTER),
+        RelationshipExtractorUtils.CreateExternalItemFilter(extractedAspects, ExternalIdentifierAspect.TYPE_PERSON));
     }
 
-    public bool TryExtractRelationships(IDictionary<Guid, IList<MediaItemAspect>> aspects, bool importOnly, out IList<RelationshipItem> extractedLinkedAspects)
+    public ICollection<string> GetExternalIdentifiers(IDictionary<Guid, IList<MediaItemAspect>> extractedAspects)
     {
-      extractedLinkedAspects = null;
-
-      if (!NfoSeriesMetadataExtractor.IncludeCharacterDetails)
-        return false;
-
-      if (!importOnly) //Only during import
-        return false;
-
-      SeriesInfo seriesInfo = new SeriesInfo();
-      if (!seriesInfo.FromMetadata(aspects))
-        return false;
-
-      if (!UpdateCharacters(aspects, seriesInfo.Characters, true))
-        return false;
-
-      if (seriesInfo.Characters.Count == 0)
-        return false;
-
-      extractedLinkedAspects = new List<RelationshipItem>();
-      foreach (CharacterInfo character in seriesInfo.Characters)
+      List<string> identifiers = new List<string>();
+      if (extractedAspects.ContainsKey(CharacterAspect.ASPECT_ID))
       {
-        character.AssignNameId();
-        character.HasChanged = seriesInfo.HasChanged;
-        IDictionary<Guid, IList<MediaItemAspect>> characterAspects = new Dictionary<Guid, IList<MediaItemAspect>>();
-        character.SetMetadata(characterAspects);
+        identifiers.AddRange(RelationshipExtractorUtils.CreateExternalItemIdentifiers(extractedAspects, ExternalIdentifierAspect.TYPE_CHARACTER));
+        identifiers.AddRange(RelationshipExtractorUtils.CreateExternalItemIdentifiers(extractedAspects, ExternalIdentifierAspect.TYPE_PERSON));
+      }
+      return identifiers;
+    }
 
-        if (characterAspects.ContainsKey(ExternalIdentifierAspect.ASPECT_ID))
-        {
-          extractedLinkedAspects.Add(new RelationshipItem(characterAspects, Guid.Empty));
-        }
+    public async Task<bool> TryExtractRelationshipsAsync(IResourceAccessor mediaItemAccessor, IDictionary<Guid, IList<MediaItemAspect>> aspects, IList<IDictionary<Guid, IList<MediaItemAspect>>> extractedLinkedAspects)
+    {
+      SeriesInfo reimport = null;
+      if (aspects.ContainsKey(ReimportAspect.ASPECT_ID))
+      {
+        reimport = new SeriesInfo();
+        reimport.FromMetadata(aspects);
+      }
+
+      IList<IDictionary<Guid, IList<MediaItemAspect>>> nfoLinkedAspects = new List<IDictionary<Guid, IList<MediaItemAspect>>>();
+      if (!await TryExtractSeriesCharactersMetadataAsync(mediaItemAccessor, nfoLinkedAspects, reimport).ConfigureAwait(false))
+        return false;
+
+      List<CharacterInfo> characters;
+      if (!RelationshipExtractorUtils.TryCreateInfoFromLinkedAspects(nfoLinkedAspects, out characters))
+        return false;
+
+      characters = characters.Where(c => c != null && !string.IsNullOrEmpty(c.Name)).ToList();
+      if (characters.Count == 0)
+        return false;
+
+      extractedLinkedAspects.Clear();
+      foreach (CharacterInfo character in characters)
+      {
+        if (character.SetLinkedMetadata() && character.LinkedAspects.ContainsKey(ExternalIdentifierAspect.ASPECT_ID))
+          extractedLinkedAspects.Add(character.LinkedAspects);
       }
       return extractedLinkedAspects.Count > 0;
     }
@@ -148,13 +191,6 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
       return index >= 0;
     }
 
-    public void CacheExtractedItem(Guid extractedItemId, IDictionary<Guid, IList<MediaItemAspect>> extractedAspects)
-    {
-    }
-
-    internal static ILogger Logger
-    {
-      get { return ServiceRegistration.Get<ILogger>(); }
-    }
+    #endregion
   }
 }

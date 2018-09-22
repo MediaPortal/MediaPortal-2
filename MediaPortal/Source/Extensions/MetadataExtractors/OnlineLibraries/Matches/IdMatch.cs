@@ -24,11 +24,7 @@
 
 namespace MediaPortal.Extensions.OnlineLibraries.Matches
 {
-  public class IdMatch: BaseMatch
+  public class IdMatch : BaseMatch<string>
   {
-    /// <summary>
-    /// ID of the instance
-    /// </summary>
-    public string Id;
   }
 }

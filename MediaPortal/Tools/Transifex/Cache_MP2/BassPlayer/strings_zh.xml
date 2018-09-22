@@ -1,12 +1,14 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
   <string name="Settings.Players">播放器</string>
+  <string name="Settings.Players.AudioPlayer">音频播放器</string>
   <string name="Settings.Players.BassPlayer.Setup">配置输出设备</string>
   <string name="Settings.Players.BassPlayer.Setup.Help">配置BassPlayer输出设备和选项</string>
   <string name="Settings.Players.BassPlayer.Setup.DirectSound">Direct Sound</string>
   <string name="Settings.Players.BassPlayer.Setup.WASAPI">WASAPI</string>
   <string name="Settings.Players.BassPlayer.Setup.WASAPI.Exclusive">独占模式</string>
   <string name="Settings.Players.BassPlayer.SongTransitionMode.Setup.NormalMode">正常</string>
+  <string name="Settings.Players.BassPlayer.SongTransitionMode.Setup.GaplessMode">无缝</string>
   <string name="Settings.Players.Rendering.WasapiBufferSize">WASAPI</string>
   <string name="Settings.Players.Rendering">渲染</string>
   <string name="Settings.Players.Rendering.CrossFading.CrossFadeDuration">淡入淡出时间</string>

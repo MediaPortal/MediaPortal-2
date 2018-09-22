@@ -1,4 +1,4 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-  <string name="WMC.Configuration.EnableBanners.Series">Σειρές</string>
+  <string name="WMC.Home.Favorites">Αγαπημένα</string>
   </resources>

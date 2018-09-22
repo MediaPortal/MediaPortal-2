@@ -27,9 +27,12 @@ using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Common.MediaManagement.Helpers;
 using MediaPortal.Common.MediaManagement.MLQueries;
+using MediaPortal.Common.MediaManagement.TransientAspects;
+using MediaPortal.Common.ResourceAccess;
 using MediaPortal.Extensions.OnlineLibraries;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
 {
@@ -54,7 +57,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
 
     public AudioRelationshipExtractor()
     {
-      _metadata = new RelationshipExtractorMetadata(METADATAEXTRACTOR_ID, "Audio relationship extractor");
+      _metadata = new RelationshipExtractorMetadata(METADATAEXTRACTOR_ID, "Audio relationship extractor", MetadataExtractorPriority.Core);
       RegisterRelationships();
       InitExtractors();
     }
@@ -80,7 +83,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
       IRelationshipTypeRegistration relationshipRegistration = ServiceRegistration.Get<IRelationshipTypeRegistration>();
 
       //Relationships must be registered in order from tracks up to all parent relationships
-      
+
       //Hierarchical relationships
       relationshipRegistration.RegisterLocallyKnownRelationshipType(new RelationshipType("Track->Album", true,
         AudioAspect.ROLE_TRACK, AudioAlbumAspect.ROLE_ALBUM, AudioAspect.ASPECT_ID, AudioAlbumAspect.ASPECT_ID,
@@ -202,6 +205,28 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
     {
       OnlineMatcherService.Instance.ResetLastChangedAudioAlbums();
       OnlineMatcherService.Instance.ResetLastChangedAudio();
+    }
+
+    public IDictionary<Guid, IList<MediaItemAspect>> GetBaseChildAspectsFromExistingAspects(IDictionary<Guid, IList<MediaItemAspect>> existingChildAspects, IDictionary<Guid, IList<MediaItemAspect>> existingParentAspects)
+    {
+      if (existingParentAspects.ContainsKey(AudioAlbumAspect.ASPECT_ID))
+      {
+        AlbumInfo album = new AlbumInfo();
+        album.FromMetadata(existingParentAspects);
+
+        if (existingChildAspects.ContainsKey(AudioAspect.ASPECT_ID))
+        {
+          TrackInfo track = new TrackInfo();
+          track.FromMetadata(existingChildAspects);
+
+          TrackInfo basicTrack = album.CloneBasicInstance<TrackInfo>();
+          basicTrack.TrackNum = track.TrackNum;
+          IDictionary<Guid, IList<MediaItemAspect>> aspects = new Dictionary<Guid, IList<MediaItemAspect>>();
+          basicTrack.SetMetadata(aspects, true);
+          return aspects;
+        }
+      }
+      return null;
     }
 
     public RelationshipExtractorMetadata Metadata

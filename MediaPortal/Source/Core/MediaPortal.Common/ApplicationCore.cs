@@ -49,6 +49,8 @@ using MediaPortal.Common.TaskScheduler;
 using MediaPortal.Common.Threading;
 using MediaPortal.Common.FileEventNotification;
 using MediaPortal.Common.Services.FileEventNotification;
+using MediaPortal.Common.FanArt;
+using MediaPortal.Common.Services.GenreConverter;
 
 namespace MediaPortal.Common
 {
@@ -179,6 +181,12 @@ namespace MediaPortal.Common
       logger.Debug("ApplicationCore: Registering IThumbnailGenerator service");
       ServiceRegistration.Set<IThumbnailGenerator>(new ThumbnailGenerator());
 
+      logger.Debug("ApplicationCore: Registering IGenreConverter service");
+      ServiceRegistration.Set<IGenreConverter>(new GenreConverter());
+
+      logger.Debug("ApplicationCore: Registering IFanArtCache service");
+      ServiceRegistration.Set<IFanArtCache>(new FanArtCache());
+
       AdditionalPluginItemBuilders.Register();
     }
 
@@ -231,7 +239,8 @@ namespace MediaPortal.Common
         ThumbnailLargeAspect.Metadata,
         ExternalIdentifierAspect.Metadata,
         RelationshipAspect.Metadata,
-        StubAspect.Metadata
+        StubAspect.Metadata,
+        ReimportAspect.Metadata
       };
       await miatr.RegisterLocallyKnownMediaItemAspectTypeAsync(knownAspects);
     }
@@ -242,6 +251,9 @@ namespace MediaPortal.Common
 
       logger.Debug("ApplicationCore: Removing IThumbnailGenerator service");
       ServiceRegistration.RemoveAndDispose<IThumbnailGenerator>();
+
+      logger.Debug("ApplicationCore: Removing IGenreConverter service");
+      ServiceRegistration.RemoveAndDispose<IGenreConverter>();
 
       logger.Debug("ApplicationCore: Removing IRemoteResourceInformationService");
       ServiceRegistration.RemoveAndDispose<IRemoteResourceInformationService>();

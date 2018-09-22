@@ -42,6 +42,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using MediaPortal.Common.UserManagement;
 
 namespace MediaPortal.UiComponents.Media.MediaLists
 {
@@ -53,6 +54,7 @@ namespace MediaPortal.UiComponents.Media.MediaLists
     protected IList<MediaItem> _currentMediaItems;
     protected ItemsList _allItems;
     protected IEnumerable<Guid> _necessaryMias;
+    protected IEnumerable<Guid> _optionalMias;
     protected PlayableMediaItemToListItemAction _playableConverterAction;
     protected PlayableContainerMediaItemToListItemAction _playableContainerConverterAction;
 
@@ -121,7 +123,7 @@ namespace MediaPortal.UiComponents.Media.MediaLists
       Guid? userProfile = CurrentUserProfile?.ProfileId;
       bool showVirtual = VirtualMediaHelper.ShowVirtualMedia(_necessaryMias);
 
-      var items = await contentDirectory.SearchAsync(query, false, userProfile, showVirtual);
+      var items = await contentDirectory.SearchAsync(query, true, userProfile, showVirtual);
       lock (_allItems.SyncRoot)
       {
         if (_currentMediaItems != null && _currentMediaItems.Select(m => m.MediaItemId).SequenceEqual(items.Select(m => m.MediaItemId)))

@@ -9,8 +9,8 @@
     <ItemGroup>
       <PluginFiles Include="$(TargetDir)$(ProjectName).dll" />
       <PluginFiles Include="$(TargetDir)Newtonsoft.Json.dll" />
-      <PluginFiles Include="$(TargetDir)OneTrueError.Client.dll" />
-      <PluginFiles Include="$(TargetDir)OneTrueError.Client.WinForms.dll" />
+      <PluginFiles Include="$(TargetDir)Coderr.Client.dll" />
+      <PluginFiles Include="$(TargetDir)Coderr.Client.WinForms.dll" />
       <PluginFiles Include="$(ProjectDir)plugin.xml" />
     </ItemGroup>
 

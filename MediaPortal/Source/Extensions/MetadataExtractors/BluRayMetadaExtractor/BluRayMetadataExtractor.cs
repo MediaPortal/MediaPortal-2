@@ -22,10 +22,6 @@
 
 #endregion
 
-using System;
-using System.Collections.Generic;
-using System.Drawing.Imaging;
-using System.IO;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.MediaManagement;
@@ -33,6 +29,11 @@ using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Common.ResourceAccess;
 using MediaPortal.UI.Players.Video;
 using MediaPortal.Utilities.Graphics;
+using System;
+using System.Collections.Generic;
+using System.Drawing.Imaging;
+using System.IO;
+using System.Threading.Tasks;
 
 namespace MediaPortal.Media.MetadataExtractors
 {
@@ -108,15 +109,15 @@ namespace MediaPortal.Media.MetadataExtractors
       get { return _metadata; }
     }
 
-    public bool TryExtractMetadata(IResourceAccessor mediaItemAccessor, IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData, bool importOnly, bool forceQuickMode)
+    public Task<bool> TryExtractMetadataAsync(IResourceAccessor mediaItemAccessor, IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData, bool forceQuickMode)
     {
       try
       {
         if (!(mediaItemAccessor is IFileSystemResourceAccessor))
-          return false;
+          return Task.FromResult(false);
 
         if (extractedAspectData.ContainsKey(VideoAspect.ASPECT_ID))
-          return false;
+          return Task.FromResult(false);
 
         using (LocalFsResourceAccessorHelper rah = new LocalFsResourceAccessorHelper(mediaItemAccessor))
         {
@@ -172,11 +173,11 @@ namespace MediaPortal.Media.MetadataExtractors
                     }
                   }
                 }
-                return true;
+                return Task.FromResult(true);
               }
           }
         }
-        return false;
+        return Task.FromResult(false);
       }
       catch
       {
@@ -184,7 +185,7 @@ namespace MediaPortal.Media.MetadataExtractors
         // couldn't perform our task here
         if (mediaItemAccessor != null)
           ServiceRegistration.Get<ILogger>().Info("BluRayMetadataExtractor: Exception reading source '{0}'", mediaItemAccessor.ResourcePathName);
-        return false;
+        return Task.FromResult(false);
       }
     }
 
@@ -216,6 +217,16 @@ namespace MediaPortal.Media.MetadataExtractors
     public bool TryExtractStubItems(IResourceAccessor mediaItemAccessor, ICollection<IDictionary<Guid, IList<MediaItemAspect>>> extractedStubAspectData)
     {
       return false;
+    }
+
+    public Task<IList<MediaItemSearchResult>> SearchForMatchesAsync(IDictionary<Guid, IList<MediaItemAspect>> searchAspectData, ICollection<string> searchCategories)
+    {
+      return Task.FromResult<IList<MediaItemSearchResult>>(null);
+    }
+
+    public Task<bool> AddMatchedAspectDetailsAsync(IDictionary<Guid, IList<MediaItemAspect>> matchedAspectData)
+    {
+      return Task.FromResult(false);
     }
 
     #endregion

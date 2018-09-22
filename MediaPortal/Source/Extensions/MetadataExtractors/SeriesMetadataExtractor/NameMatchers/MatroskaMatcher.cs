@@ -22,18 +22,17 @@
 
 #endregion
 
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Common.MediaManagement.Helpers;
 using MediaPortal.Common.ResourceAccess;
 using MediaPortal.Extensions.MetadataExtractors.MatroskaLib;
 using MediaPortal.Utilities;
-using MediaPortal.Extensions.OnlineLibraries;
+using System.Collections.Generic;
 using System.Globalization;
+using System.IO;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor.NameMatchers
 {
@@ -51,7 +50,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor.Name
     /// already present media item aspects, this metadata extractor should edit. If a media item aspect is not present
     /// in this dictionary but found by this metadata extractor, it will add it to the dictionary.</param>
     /// <returns><c>true</c> if successful.</returns>
-    public bool MatchSeries(ILocalFsResourceAccessor folderOrFileLfsra, EpisodeInfo episodeInfo)
+    public async Task<bool> MatchSeriesAsync(ILocalFsResourceAccessor folderOrFileLfsra, EpisodeInfo episodeInfo)
     {
       // Calling EnsureLocalFileSystemAccess not necessary; only string operation
       string extensionLower = StringUtils.TrimToEmpty(Path.GetExtension(folderOrFileLfsra.LocalFileSystemPath)).ToLower();
@@ -61,10 +60,10 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor.Name
         return false;
       }
 
-      MatroskaInfoReader mkvReader = new MatroskaInfoReader(folderOrFileLfsra);
+      MatroskaBinaryReader mkvReader = new MatroskaBinaryReader(folderOrFileLfsra);
       // Add keys to be extracted to tags dictionary, matching results will returned as value
-      Dictionary<string, IList<string>> tagsToExtract = MatroskaConsts.DefaultTags;
-      mkvReader.ReadTags(tagsToExtract);
+      Dictionary<string, IList<string>> tagsToExtract = MatroskaConsts.DefaultVideoTags;
+      await mkvReader.ReadTagsAsync(tagsToExtract).ConfigureAwait(false);
 
       IList<string> tags = tagsToExtract[MatroskaConsts.TAG_EPISODE_SUMMARY];
       string plot = tags != null ? tags.FirstOrDefault() : string.Empty;

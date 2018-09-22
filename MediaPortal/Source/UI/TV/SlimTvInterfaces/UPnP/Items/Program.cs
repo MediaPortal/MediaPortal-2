@@ -43,6 +43,8 @@ namespace MediaPortal.Plugins.SlimTv.Interfaces.UPnP.Items
     public string Title { get; set; }
     public string Description { get; set; }
     public string Genre { get; set; }
+    public int EpgGenreId { get; set; }
+    public string EpgGenreColor { get; set; }
     public DateTime StartTime { get; set; }
     public DateTime EndTime { get; set; }
     public RecordingStatus RecordingStatus { get; set; }

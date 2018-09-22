@@ -1,5 +1,6 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
+  <!--Headlines for HomeContent-->
   <!--Menu items for the five Media navigation parts-->
   <string name="Media.BrowseMediaMenuItem">Explorar tudo</string>
   <string name="Media.LocalMediaMenuItem">Conteúdos locais</string>
@@ -18,6 +19,7 @@
   <string name="Media.ImageFilterSmall">Pequenos</string>
   <string name="Media.ImageFilterMedium">Médios</string>
   <string name="Media.ImageFilterBig">Grandes</string>
+  <string name="Media.ContentGroupFilter">{0}</string>
   <!--Navbar display labels for sub view navigation-->
   <string name="Media.BrowseMediaNavigationNavbarDisplayLabel">{0}</string>
   <!--For example: "R.E.M."-->
@@ -136,6 +138,7 @@
   <string name="Media.PlaylistNumItemsLabel">Quantidade de ítens</string>
   <string name="Media.PlaylistIdInfoLabel">Identificação interna da playlist</string>
   <!--MediaItemAction dialog-->
+  <string name="Media.Refresh">Atualizar</string>
   <!--Play items dialog-->
   <string name="Media.PlayItemDialogHeader">Executar o ítem</string>
   <string name="Media.PlayAudioItems">Tocar ítens de áudio</string>
@@ -186,6 +189,8 @@
   <string name="Media.AudioDurationLabel">Duração:</string>
   <!--VideoPlayerUIContributor-->
   <!--Video Player time units-->
+  <!--Stubs-->
+  <!--Settings-->
   <string name="Settings.Players">Reprodutores</string>
   <!--Secondary filters-->
   <string name="Filter.RemoteNumericAlphabet0"></string>

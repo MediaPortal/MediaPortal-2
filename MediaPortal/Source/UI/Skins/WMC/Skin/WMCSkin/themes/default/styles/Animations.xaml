@@ -10,14 +10,15 @@
 
   <ResourceWrapper x:Key="TransitionKeyFrame" Resource="00:00:00.200"/>
   <ResourceWrapper x:Key="TransitionKeyFrameReverse" Resource="00:00:00.100"/>
-  <ResourceWrapper x:Key="TransitionDuration" Resource="00:00:00.300"/>
+  <ResourceWrapper x:Key="TransitionDuration" Resource="00:00:00.400"/>
   <ResourceWrapper x:Key="RenderTransformY" Resource="279"/>
   <ResourceWrapper x:Key="RenderTransformX" Resource="-20"/>
   <ResourceWrapper x:Key="SubMenuTransformY" Resource="93"/>
   <ResourceWrapper x:Key="NegativeSubMenuTransformY" Resource="-93"/>
 
   <Storyboard x:Key="HomeMenuScrollAnimation" FillBehavior="HoldEnd">
-    <DoubleAnimation BeginTime="00:00:00" From="0" To="1" Duration="{StaticResource TransitionDuration}" FillBehavior="HoldEnd" Storyboard.TargetName="AnimatedScroller" Storyboard.TargetProperty="ScrollOffsetMultiplier" />
+    <DoubleAnimation BeginTime="00:00:00" From="0" To="1" Duration="{StaticResource TransitionDuration}"
+                     FillBehavior="HoldEnd" Storyboard.TargetName="AnimatedScroller" Storyboard.TargetProperty="ScrollOffsetMultiplier" />
   </Storyboard>
 
   <Storyboard x:Key="MainItemTransformAnimationQuick" FillBehavior="HoldEnd">

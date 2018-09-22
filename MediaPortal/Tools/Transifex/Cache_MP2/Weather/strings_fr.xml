@@ -77,6 +77,8 @@
   <string name="Settings.Plugins.Weather">Météo</string>
   <string name="Settings.Plugins.Weather.LocationSetup">Choix des villes</string>
   <string name="Settings.Plugins.Weather.LocationSetup.Help">Ville affichée sur la page météo</string>
+  <string name="Settings.Plugins.Weather.ApiKey">Configurer la clé API personnelle </string>
+  <string name="Settings.Plugins.Weather.ApiKey.Help">Configure une clé API personnelle créée à l\'adresse https://openweathermap.org/api pour éviter les limites de requêtes.</string>
   <string name="WeatherSetup.Title">Gestion des villes</string>
   <string name="WeatherSetup.ConfiguredCities">Villes configurées</string>
   <string name="WeatherSetup.EnterCity">SVP, entrer le nom de la ville à ajouter :</string>

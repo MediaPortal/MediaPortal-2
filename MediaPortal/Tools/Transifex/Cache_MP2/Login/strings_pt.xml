@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  
+  <!--Login-->
+  <string name="Login.Title">Entdada de utilizador</string>
+  <string name="Login.Title.Help">Entrar com um utilizador específico</string>
+  <string name="Login.IncorrectPassword">Palavra-passe incorreta, por favor tente de novo</string>
+  <string name="Login.PasswordOk">OK</string>
+  <string name="Login.EnterPassword">Insira a Palavra-passe</string>
+  <string name="Login.Logout">Sair</string>
+
+  <!--User Settings-->
+  <string name="Settings.Users">Utilizadores</string> <!-- Section name -->
+  <string name="Settings.Users.Config">Gestão de utilizadores</string> <!-- Group name -->
+  <string name="Settings.Users.Config.UserManagement">Gestão de utilizadores</string> <string name="Settings.Users.Config.UserEnableScreen">Ativar ecrã de entrada</string> <string name="Settings.Users.Config.AutoLogout">Entrar automáticamente</string> <string name="Settings.Users.Config.AutoLoginUser">Entrada automática</string> <string name="Settings.Users.Config.SystemDefault">Valor padão</string>
+  <!-- User configuration workflow -->
+  <string name="UserConfig.UserOverviewWorkflowNavigationContextDisplayLabel">Gestão de utilizadores</string>
+  <string name="UserConfig.UserConfiguration.Title">Gestão de utilizadores</string>
+  <string name="UserConfig.Users">Utilizadores</string>
+  <string name="UserConfig.UserName">Utilizador</string>
+  <string name="UserConfig.Password">Palavra-passe</string>
+  <string name="UserConfig.ProfileType">Tipo de perfil</string>
+  <string name="UserConfig.AgeFilter">Ativar fitro por idade</string>
+  <string name="UserConfig.LastLogin">Última entrada</string>
+  <string name="UserConfig.NewUserText">Novo Utilizador</string>
+  <string name="UserConfig.AddUser">Adicionar</string>
+  <string name="UserConfig.CopyUser">Copiar</string>
+  <string name="UserConfig.DeleteUser">Eliminar</string>
+  <string name="UserConfig.SaveUser">Guardar</string>
+  <string name="UserConfig.DeleteConfirmation.Title">Confirmação de eliminação</string>
+  <string name="UserConfig.DeleteConfirmation">Tem a certeza que quer eliminar este utilizador?</string>
+  <string name="UserConfig.Yes">Sim</string>
+  <string name="UserConfig.No">Não</string>
+  <string name="UserConfig.Ok">OK</string>
+  <string name="UserConfig.RestrictedAll">Permitir todos</string>
+  <string name="UserConfig.RestrictedNone">Não permitir nenhum</string>
+  <string name="UserConfig.RestrictedNumbers">{0} / {1} permitidos</string>
+  <string name="UserConfig.SharesText">Compartilhamentos</string>
+  <string name="UserProfileTemplate.Admin">Administrador</string>
+  <string name="UserProfileTemplate.Teenager">Jovem</string>
+  <string name="UserProfileTemplate.Child">Criança</string>
+
+</resources>

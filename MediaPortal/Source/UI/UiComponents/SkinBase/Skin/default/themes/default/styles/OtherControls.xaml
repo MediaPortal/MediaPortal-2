@@ -5,8 +5,11 @@
     xmlns:system="clr-namespace:System"
     xmlns:collections="clr-namespace:MediaPortal.UI.Presentation.DataObjects;assembly=MediaPortal.UI"
     xmlns:mp_special_controls="clr-namespace:MediaPortal.UI.SkinEngine.SpecialElements.Controls;assembly=SkinEngine"
+    xmlns:fanart="clr-namespace:MediaPortal.Extensions.UserServices.FanArtService.Client;assembly=FanArtService.Client"
     DependsOnStyleResources="Colors,Buttons,Consts,Brushes"
     >
+
+  <Model x:Key="FanArtBackgroundModel" Id="8F42C8E9-E8A3-475C-A50A-99E1E644DC91"/>
 
   <!-- ************************** Default conversions ****************************** -->
   <DataTemplate DataType="{x:Type system:String}">
@@ -528,6 +531,15 @@
     </DockPanel>
   </DataTemplate>
 
+  <DataTemplate x:Key="ColoredItemDataTemplate" DataType="{x:Type collections:ListItem}">
+    <DockPanel x:Name="ItemControl" LastChildFill="False" Width="120" Margin="0,0,30,0">
+      <Label x:Name="ItemLabel" DockPanel.Dock="Center" Content="{Binding [Name]}"
+             HorizontalAlignment="Stretch" VerticalAlignment="Center"
+             FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColor}"
+             Background="{Binding [Color]}"/>
+    </DockPanel>
+  </DataTemplate>
+
   <DataStringProvider x:Key="DefaultItemDataStringProvider" Path="[Name]"/>
 
   <DataTemplate x:Key="MainMenuItemDataTemplate">
@@ -707,6 +719,19 @@
     </Setter>
   </Style>
 
+  <!-- ListView style to be used for single and multiple markable items -->
+  <Style x:Key="MarkableListViewStyle" BasedOn="{ThemeResource ContentsMenuListViewStyle}">
+    <Setter Property="ItemsPanel">
+      <Setter.Value>
+        <ItemsPanelTemplate>
+          <!-- It's not possible to use a VirtualizingStackPanel for markable lists because RadioButtons
+               are not updated correctly if virtualization has caused the previously checked RadioButton to be disposed -->
+          <StackPanel x:Name="ListItemsHost" IsItemsHost="True"/>
+        </ItemsPanelTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+
   <!-- ListView style to be used for the shares list -->
   <Style x:Key="SharesConfigListViewStyle" BasedOn="{ThemeResource ContentsMenuListViewStyle}">
     <Setter Property="Template">
@@ -850,7 +875,7 @@
   </Style>
 
   <!-- ListView style to be used for the shares list -->
-  <Style x:Key="MultiMarkableSharesListViewStyle" BasedOn="{ThemeResource ContentsMenuListViewStyle}">
+  <Style x:Key="MultiMarkableSharesListViewStyle" BasedOn="{ThemeResource MarkableListViewStyle}">
     <Setter Property="Template">
       <Setter.Value>
         <ControlTemplate TargetType="{x:Type ListView}">
@@ -879,7 +904,7 @@
   </Style>
 
   <!-- ListView style to be used for the shares list -->
-  <Style x:Key="SingleMarkableSharesListViewStyle" BasedOn="{ThemeResource ContentsMenuListViewStyle}">
+  <Style x:Key="SingleMarkableSharesListViewStyle" BasedOn="{ThemeResource MarkableListViewStyle}">
     <Setter Property="Template">
       <Setter.Value>
         <ControlTemplate TargetType="{x:Type ListView}">
@@ -908,7 +933,7 @@
   </Style>
 
   <!-- ListView style to be used for the resource providers list -->
-  <Style x:Key="SingleMarkableResourceProvidersListViewStyle" BasedOn="{ThemeResource ContentsMenuListViewStyle}">
+  <Style x:Key="SingleMarkableResourceProvidersListViewStyle" BasedOn="{ThemeResource MarkableListViewStyle}">
     <Setter Property="Template">
       <Setter.Value>
         <ControlTemplate TargetType="{x:Type ListView}">
@@ -979,7 +1004,7 @@
   </Style>
 
   <!-- ListView style to be used for lists where multiple items can be marked -->
-  <Style x:Key="MultiMarkableListViewStyle" BasedOn="{ThemeResource ContentsMenuListViewStyle}">
+  <Style x:Key="MultiMarkableListViewStyle" BasedOn="{ThemeResource MarkableListViewStyle}">
     <Setter Property="ItemTemplate" Value="{ThemeResource DefaultItemDataTemplate}"/>
     <Setter Property="DataStringProvider" Value="{ThemeResource DefaultItemDataStringProvider}"/>
     <Setter Property="ItemContainerStyle" Value="{ThemeResource DefaultMultiMarkableItemContainerStyle}"/>
@@ -987,11 +1012,26 @@
   </Style>
 
   <!-- ListView style to be used for lists where a single item can be marked -->
-  <Style x:Key="SingleMarkableListViewStyle" BasedOn="{ThemeResource ContentsMenuListViewStyle}">
+  <Style x:Key="SingleMarkableListViewStyle" BasedOn="{ThemeResource MarkableListViewStyle}">
     <Setter Property="ItemTemplate" Value="{ThemeResource DefaultItemDataTemplate}"/>
     <Setter Property="DataStringProvider" Value="{ThemeResource DefaultItemDataStringProvider}"/>
     <Setter Property="ItemContainerStyle" Value="{ThemeResource DefaultSingleMarkableItemContainerStyle}"/>
     <Setter Property="Background" Value="{ThemeResource ItemsControlShadowBackgroundColor}"/>
+  </Style>
+
+  <!-- ListView style to be used for lists where a single item can be marked -->
+  <Style x:Key="ColoredSingleMarkableListViewStyle" BasedOn="{ThemeResource MarkableListViewStyle}"> 
+    <Setter Property="ItemTemplate" Value="{ThemeResource ColoredItemDataTemplate}"/>
+    <Setter Property="DataStringProvider" Value="{ThemeResource DefaultItemDataStringProvider}"/>
+    <Setter Property="ItemContainerStyle" Value="{ThemeResource DefaultSingleMarkableItemContainerStyle}"/>
+    <Setter Property="Background" Value="{ThemeResource ItemsControlShadowBackgroundColor}"/>
+    <Setter Property="ItemsPanel">
+      <Setter.Value>
+        <ItemsPanelTemplate>
+          <WrapPanel x:Name="ListItemsHost" IsItemsHost="True"/>
+        </ItemsPanelTemplate>
+      </Setter.Value>
+    </Setter>
   </Style>
 
   <!-- ListView style to be used for menus which display an image with a label -->
@@ -1602,7 +1642,6 @@
               FixedImageWidth="{ThemeResource PiPVideoWidth}">
             <mp_special_controls:PlayerControl.TemplateControl>
               <Border x:Name="PiPControlBorder"
-                  IsVisible="{Binding IsPip}"
                   DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}"
                   BorderBrush="{ThemeResource PipBorderColor}" BorderThickness="{ThemeResource PipBorderThickness}">
                 <Grid>
@@ -1622,6 +1661,12 @@
                       <ImagePlayerImageSource Stream="1"
                           Transition="transitions\granular_dissolve;transitions\fade;transitions\dissolve;transitions\wipe_right;transitions\wipe_down;transitions\wipe_down-right;transitions\wipe_up-left"
                           TransitionInOut="False" />
+                    </Image.Source>
+                  </Image>
+                  <Image x:Name="PiPAudio" IsVisible="{Binding IsAudioPlayerPresent}" Stretch="Uniform" Width="200" Height="200">
+                    <Image.Source>
+                      <fanart:FanArtImageSource fanart:FanArtMediaType="Album" fanart:FanArtType="Poster" fanart:FanArtName="{Binding MediaItem.MediaItemId}"
+                                            fanart:MaxWidth="200" fanart:MaxHeight="200"/>
                     </Image.Source>
                   </Image>
                 </Grid>

@@ -1,6 +1,6 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
-  <string name="SlimTvClient.Title">Client Slim Tv</string>
+  <string name="SlimTvClient.Title">Guia de TV</string>
   <string name="SlimTvClient.Main">TV</string>
   <string name="SlimTvClient.TvGuide">Guia de TV</string>
   <string name="SlimTvClient.CurrentlyPlayingInformationHeader">Informació de programa</string>
@@ -27,6 +27,7 @@
   <string name="SlimTvClient.ErrorNoTvProvider">Ni hi ha cap proveïdor disponible (encara)</string>
   <!--Settings-->
   <string name="SlimTvClient.Notifications">Notificacions</string>
+  <string name="SlimTvClient.NoColor">Cpa</string>
   <string name="SlimTvClient.RecordingsMenuItem">Enregistraments</string>
   <string name="SlimTvClient.RecordingsRootViewName">Enregistraments de TV</string>
   <string name="SlimTvClient.ChannelMenuItemLabel">Filtra per canal</string>

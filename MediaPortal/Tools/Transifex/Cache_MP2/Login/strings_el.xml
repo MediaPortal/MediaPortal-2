@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  
+  <string name="UserConfig.AddUser">Πρόσθεση</string>
+  <string name="UserConfig.DeleteUser">Διαγραφή</string>
+  <string name="UserConfig.Yes">Ναι</string>
+  <string name="UserConfig.No">Όχι</string>
+  <string name="UserConfig.SharesText">Τοποθεσίες</string>
+  </resources>

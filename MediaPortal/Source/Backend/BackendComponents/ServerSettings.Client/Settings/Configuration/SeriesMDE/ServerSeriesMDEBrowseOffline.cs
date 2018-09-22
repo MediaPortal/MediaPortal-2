@@ -36,8 +36,8 @@ namespace MediaPortal.Plugins.ServerSettings.Settings.Configuration
     {
       Enabled = false;
       ConnectionMonitor.Instance.RegisterConfiguration(this);
-      _items.Add(LocalizationHelper.CreateResourceString("[Settings.ServerSettings.SeriesMDESettings.ServerSeriesMDEBrowseOfflineNetwork]"));
-      _items.Add(LocalizationHelper.CreateResourceString("[Settings.ServerSettings.SeriesMDESettings.ServerSeriesMDEBrowseOfflineLocal]"));
+      _items.Add(LocalizationHelper.CreateResourceString("[Settings.ServerSettings.MDESettings.MDEBrowseOfflineNetwork]"));
+      _items.Add(LocalizationHelper.CreateResourceString("[Settings.ServerSettings.MDESettings.MDEBrowseOfflineLocal]"));
     }
 
     public override void Load()

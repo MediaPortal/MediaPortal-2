@@ -44,25 +44,6 @@ namespace MediaPortal.Extensions.MetadataExtractors.MatroskaLib
   /// </summary>
   public class MatroskaInfoReader
   {
-    public enum StereoMode
-    {
-      Mono,
-      SBSLeftEyeFirst,
-      TABRightEyeFirst,
-      TABLeftEyeFirst,
-      CheckboardRightEyeFirst,
-      CheckboardLeftEyeFirst,
-      RowInterleavedRightEyeFirst,
-      RowInterleavedLeftEyeFirst,
-      ColumnInterleavedRightEyeFirst,
-      ColumnInterleavedLeftEyeFirst,
-      AnaglyphCyanRed,
-      SBSRightEyeFirst,
-      AnaglyphGreenMagenta,
-      FieldSequentialModeLeftEyeFirst,
-      FieldSequentialModeRightEyeFirst,
-    }
-
     /// <summary>
     /// Maximum duration for creating a tag extraction.
     /// </summary>
@@ -73,7 +54,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.MatroskaLib
     #region Fields
 
     private readonly ILocalFsResourceAccessor _lfsra;
-    private List<MatroskaAttachment> _attachments;
+    private List<MatroskaConsts.MatroskaAttachment> _attachments;
     private readonly string _mkvInfoPath;
     private static readonly SemaphoreSlim MKVINFO_THROTTLE_LOCK = new SemaphoreSlim(MAX_CONCURRENT_MKVINFO, MAX_CONCURRENT_MKVINFO);
     private readonly string _mkvExtractPath;
@@ -82,27 +63,12 @@ namespace MediaPortal.Extensions.MetadataExtractors.MatroskaLib
 
     #endregion
 
-    #region Helper classes
-
-    public class MatroskaAttachment
-    {
-      public string FileName;
-      public string MimeType;
-      public int FileSize;
-      public override string ToString()
-      {
-        return string.Format("{0} [{1}, {2}]", FileName, MimeType, FileSize);
-      }
-    }
-
-    #endregion
-
     #region Properties
 
     /// <summary>
-    /// Gets a list of attachments, is created after <see cref="ReadAttachments"/> was called once.
+    /// Gets a list of attachments, is created after <see cref="ReadAttachmentsAsync"/> was called once.
     /// </summary>
-    public IList<MatroskaAttachment> Attachments
+    public IList<MatroskaConsts.MatroskaAttachment> Attachments
     {
       get { return _attachments; }
     }
@@ -121,8 +87,8 @@ namespace MediaPortal.Extensions.MetadataExtractors.MatroskaLib
     public MatroskaInfoReader(ILocalFsResourceAccessor lfsra)
     {
       _lfsra = lfsra;
-      _mkvInfoPath = FileUtils.BuildAssemblyRelativePath("mkvinfo.exe");
-      _mkvExtractPath = FileUtils.BuildAssemblyRelativePath("mkvextract.exe");
+      _mkvInfoPath = FileUtils.BuildAssemblyRelativePathForArchitecture("mkvinfo.exe");
+      _mkvExtractPath = FileUtils.BuildAssemblyRelativePathForArchitecture("mkvextract.exe");
     }
 
     #endregion
@@ -133,27 +99,19 @@ namespace MediaPortal.Extensions.MetadataExtractors.MatroskaLib
     /// Reads all tags from matroska file and parses the XML for the requested tags (<paramref name="tagsToExtract"/>).
     /// </summary>
     /// <param name="tagsToExtract">Dictionary with tag names as keys.</param>
-    public void ReadTags(IDictionary<string, IList<string>> tagsToExtract)
+    public async Task ReadTagsAsync(IDictionary<string, IList<string>> tagsToExtract)
     {
       ProcessExecutionResult executionResult = null;
       // Calling EnsureLocalFileSystemAccess not necessary; access for external process ensured by ExecuteWithResourceAccess
       var arguments = string.Format("tags \"{0}\"", _lfsra.LocalFileSystemPath);
+      await MKVEXTRACT_THROTTLE_LOCK.WaitAsync().ConfigureAwait(false);
       try
       {
-        MKVEXTRACT_THROTTLE_LOCK.Wait();
-        executionResult = _lfsra.ExecuteWithResourceAccessAsync(_mkvExtractPath, arguments, _priorityClass, PROCESS_TIMEOUT_MS).Result;
+        executionResult = await _lfsra.ExecuteWithResourceAccessAsync(_mkvExtractPath, arguments, _priorityClass, PROCESS_TIMEOUT_MS).ConfigureAwait(false);
       }
-      catch (AggregateException ae)
+      catch (TaskCanceledException)
       {
-        ae.Handle(e =>
-        {
-          if (e is TaskCanceledException)
-          {
-            ServiceRegistration.Get<ILogger>().Warn("MatroskaInfoReader.ReadTags: External process aborted due to timeout: Executable='{0}', Arguments='{1}'", _mkvExtractPath, arguments);
-            return true;
-          }
-          return false;
-        });
+        ServiceRegistration.Get<ILogger>().Warn("MatroskaInfoReader.ReadTags: External process aborted due to timeout: Executable='{0}', Arguments='{1}'", _mkvExtractPath, arguments);
       }
       finally
       {
@@ -193,13 +151,13 @@ namespace MediaPortal.Extensions.MetadataExtractors.MatroskaLib
     /// <summary>
     /// Reads the attachment information from the matroska file.
     /// </summary>
-    public void ReadAttachments()
+    public async Task ReadAttachmentsAsync()
     {
       // Only read attachments once
       if (_attachments != null)
         return;
 
-      _attachments = new List<MatroskaAttachment>();
+      _attachments = new List<MatroskaConsts.MatroskaAttachment>();
 
       // Structure of mkvinfo attachment output
       // |+ Attachments
@@ -211,22 +169,14 @@ namespace MediaPortal.Extensions.MetadataExtractors.MatroskaLib
       ProcessExecutionResult executionResult = null;
       // Calling EnsureLocalFileSystemAccess not necessary; access for external process ensured by ExecuteWithResourceAccess
       var arguments = string.Format("--ui-language en --output-charset UTF-8 \"{0}\"", _lfsra.LocalFileSystemPath);
+      await MKVINFO_THROTTLE_LOCK.WaitAsync().ConfigureAwait(false);
       try
       {
-        MKVINFO_THROTTLE_LOCK.Wait();
-        executionResult = _lfsra.ExecuteWithResourceAccessAsync(_mkvInfoPath, arguments, _priorityClass, PROCESS_TIMEOUT_MS).Result;
+        executionResult = await _lfsra.ExecuteWithResourceAccessAsync(_mkvInfoPath, arguments, _priorityClass, PROCESS_TIMEOUT_MS).ConfigureAwait(false);
       }
-      catch (AggregateException ae)
+      catch (TaskCanceledException)
       {
-        ae.Handle(e =>
-        {
-          if (e is TaskCanceledException)
-          {
-            ServiceRegistration.Get<ILogger>().Warn("MatroskaInfoReader.ReadAttachments: External process aborted due to timeout: Executable='{0}', Arguments='{1}'", _mkvInfoPath, arguments);
-            return true;
-          }
-          return false;
-        });
+        ServiceRegistration.Get<ILogger>().Warn("MatroskaInfoReader.ReadAttachments: External process aborted due to timeout: Executable='{0}', Arguments='{1}'", _mkvExtractPath, arguments);
       }
       finally
       {
@@ -240,7 +190,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.MatroskaLib
         {
           // Start of an attachment section
           if (line.Contains("Attached"))
-            _attachments.Add(new MatroskaAttachment());
+            _attachments.Add(new MatroskaConsts.MatroskaAttachment());
 
           if (line.Contains("File name"))
             _attachments[_attachments.Count - 1].FileName = line.Substring(line.LastIndexOf(": ") + 2);
@@ -257,7 +207,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.MatroskaLib
     /// <summary>
     /// Reads the stereoscopic information from the matroska file.
     /// </summary>
-    public StereoMode ReadStereoMode()
+    public async Task<MatroskaConsts.StereoMode> ReadStereoModeAsync()
     {
       // Structure of mkvinfo attachment output
       // |+ Attachments
@@ -269,22 +219,14 @@ namespace MediaPortal.Extensions.MetadataExtractors.MatroskaLib
       ProcessExecutionResult executionResult = null;
       // Calling EnsureLocalFileSystemAccess not necessary; access for external process ensured by ExecuteWithResourceAccess
       var arguments = string.Format("--ui-language en --output-charset UTF-8 \"{0}\"", _lfsra.LocalFileSystemPath);
+      await MKVINFO_THROTTLE_LOCK.WaitAsync().ConfigureAwait(false);
       try
       {
-        MKVINFO_THROTTLE_LOCK.Wait();
-        executionResult = _lfsra.ExecuteWithResourceAccessAsync(_mkvInfoPath, arguments, _priorityClass, PROCESS_TIMEOUT_MS).Result;
+        executionResult = await _lfsra.ExecuteWithResourceAccessAsync(_mkvInfoPath, arguments, _priorityClass, PROCESS_TIMEOUT_MS).ConfigureAwait(false);
       }
-      catch (AggregateException ae)
+      catch (TaskCanceledException)
       {
-        ae.Handle(e =>
-        {
-          if (e is TaskCanceledException)
-          {
-            ServiceRegistration.Get<ILogger>().Warn("MatroskaInfoReader.ReadAttachments: External process aborted due to timeout: Executable='{0}', Arguments='{1}'", _mkvInfoPath, arguments);
-            return true;
-          }
-          return false;
-        });
+        ServiceRegistration.Get<ILogger>().Warn("MatroskaInfoReader.ReadStereoMode: External process aborted due to timeout: Executable='{0}', Arguments='{1}'", _mkvExtractPath, arguments);
       }
       finally
       {
@@ -301,12 +243,12 @@ namespace MediaPortal.Extensions.MetadataExtractors.MatroskaLib
             int stereoMode = 0;
             if (int.TryParse(line.Substring(line.LastIndexOf(": ") + 2, 2), out stereoMode))
             {
-              return (StereoMode)stereoMode;
+              return (MatroskaConsts.StereoMode)stereoMode;
             }
           }
         }
       }
-      return StereoMode.Mono;
+      return MatroskaConsts.StereoMode.Mono;
     }
 
     /// <summary>
@@ -324,38 +266,34 @@ namespace MediaPortal.Extensions.MetadataExtractors.MatroskaLib
     ///  small_cover_land.jpg (landscape 120)
     /// </para>
     /// </summary>
-    /// <param name="binaryData">Returns the binary data</param>
-    /// <returns>True if successful</returns>
-    public bool GetCover(out byte[] binaryData)
+    /// <returns>Returns the binary data if successful, else <c>null</c></returns>
+    public Task<byte[]> GetCoverAsync()
     {
-      return GetAttachmentByName("cover.", out binaryData); // Could be .png or .jpg
+      return GetAttachmentByNameAsync("cover."); // Could be .png or .jpg
     }
 
     /// <summary>
-    /// Tries to extract an embedded landscape cover from the matroska file. <seealso cref="GetCover"/> for more information about naming conventions.
+    /// Tries to extract an embedded landscape cover from the matroska file. <seealso cref="GetCoverAsync"/> for more information about naming conventions.
     /// </summary>
-    /// <param name="binaryData">Returns the binary data</param>
-    /// <returns>True if successful</returns>
-    public bool GetCoverLandscape(out byte[] binaryData)
+    /// <returns>Returns the binary data if successful, else <c>null</c></returns>
+    public Task<byte[]> GetCoverLandscape()
     {
-      return GetAttachmentByName("cover_land.", out binaryData); // Could be .png or .jpg
+      return GetAttachmentByNameAsync("cover_land."); // Could be .png or .jpg
     }
 
     /// <summary>
     /// Tries to extract an attachment by its name.
     /// </summary>
     /// <param name="fileNamePart">Beginn of filename</param>
-    /// <param name="binaryData">Returns the binary data</param>
-    /// <returns>True if successful</returns>
-    public bool GetAttachmentByName(string fileNamePart, out byte[] binaryData)
+    /// <returns>Returns the binary data if successful, else <c>null</c></returns>
+    public async Task<byte[]> GetAttachmentByNameAsync(string fileNamePart)
     {
-      ReadAttachments();
+      await ReadAttachmentsAsync().ConfigureAwait(false);
       for (int c = 0; c < Attachments.Count; c++)
         if (Attachments[c].FileName.ToLowerInvariant().StartsWith(fileNamePart))
-          return ExtractAttachment(c, out binaryData);
+          return await ExtractAttachmentAsync(c).ConfigureAwait(false);
 
-      binaryData = null;
-      return false;
+      return null;
     }
 
     /// <summary>
@@ -364,29 +302,20 @@ namespace MediaPortal.Extensions.MetadataExtractors.MatroskaLib
     /// <param name="attachmentIndex">Index</param>
     /// <param name="binaryData">Returns the binary data</param>
     /// <returns>True if successful</returns>
-    public bool ExtractAttachment(int attachmentIndex, out byte[] binaryData)
+    public async Task<byte[]> ExtractAttachmentAsync(int attachmentIndex)
     {
-      binaryData = null;
       string tempFileName = Path.GetTempFileName();
       bool success = false;
       // Calling EnsureLocalFileSystemAccess not necessary; access for external process ensured by ExecuteWithResourceAccess
       var arguments = string.Format("attachments \"{0}\" {1}:\"{2}\"", _lfsra.LocalFileSystemPath, attachmentIndex + 1, tempFileName);
+      await MKVEXTRACT_THROTTLE_LOCK.WaitAsync().ConfigureAwait(false);
       try
       {
-        MKVEXTRACT_THROTTLE_LOCK.Wait();
-        success = _lfsra.ExecuteWithResourceAccessAsync(_mkvExtractPath, arguments, _priorityClass, PROCESS_TIMEOUT_MS).Result.Success;
+        success = (await _lfsra.ExecuteWithResourceAccessAsync(_mkvExtractPath, arguments, _priorityClass, PROCESS_TIMEOUT_MS).ConfigureAwait(false)).Success;
       }
-      catch (AggregateException ae)
+      catch (TaskCanceledException)
       {
-        ae.Handle(e =>
-        {
-          if (e is TaskCanceledException)
-          {
-            ServiceRegistration.Get<ILogger>().Warn("MatroskaInfoReader.ExtractAttachment: External process aborted due to timeout: Executable='{0}', Arguments='{1}'", _mkvExtractPath, arguments);
-            return true;
-          }
-          return false;
-        });
+        ServiceRegistration.Get<ILogger>().Warn("MatroskaInfoReader.ExtractAttachment: External process aborted due to timeout: Executable='{0}', Arguments='{1}'", _mkvExtractPath, arguments);
       }
       finally
       {
@@ -394,22 +323,22 @@ namespace MediaPortal.Extensions.MetadataExtractors.MatroskaLib
       }
 
       if (!success)
-        return false;
+        return null;
 
-      int fileSize = _attachments[attachmentIndex].FileSize;
+      long fileSize = _attachments[attachmentIndex].FileSize;
       FileInfo fileInfo = new FileInfo(tempFileName);
       if (!fileInfo.Exists || fileInfo.Length != fileSize)
-        return false;
+        return null;
 
-      binaryData = FileUtils.ReadFile(tempFileName);
+      byte[] binaryData = FileUtils.ReadFile(tempFileName);
       fileInfo.Delete();
-      return true;
+      return binaryData;
     }
 
     #endregion
 
     #region Private methods
-    
+
     private static IEnumerable<XElement> GetTagsForTargetType(XDocument doc, int? targetTypeValue)
     {
       if (targetTypeValue.HasValue)

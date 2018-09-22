@@ -52,7 +52,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
 
     public AudioRelationshipExtractor()
     {
-      _metadata = new RelationshipExtractorMetadata(METADATAEXTRACTOR_ID, "NFO Audio relationship extractor");
+      _metadata = new RelationshipExtractorMetadata(METADATAEXTRACTOR_ID, "NFO Audio relationship extractor", MetadataExtractorPriority.Extended);
       RegisterRelationships();
       InitExtractors();
     }
@@ -101,6 +101,11 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
 
     public void ResetLastChangedItems()
     {
+    }
+
+    public IDictionary<Guid, IList<MediaItemAspect>> GetBaseChildAspectsFromExistingAspects(IDictionary<Guid, IList<MediaItemAspect>> existingChildAspects, IDictionary<Guid, IList<MediaItemAspect>> existingParentAspects)
+    {
+      return null;
     }
   }
 }

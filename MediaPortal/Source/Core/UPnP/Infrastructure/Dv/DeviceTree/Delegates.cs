@@ -22,11 +22,10 @@
 
 #endregion
 
-using HttpServer;
 using System.Globalization;
 using System.Net;
 using System.Xml;
-using UPnP.Infrastructure.Utils;
+using Microsoft.Owin;
 
 namespace UPnP.Infrastructure.Dv.DeviceTree
 {
@@ -82,7 +81,7 @@ namespace UPnP.Infrastructure.Dv.DeviceTree
   /// <param name="pos">The current description XML position.</param>
   /// <param name="config">The endpoint configuration which requested the description.</param>
   /// <param name="culture">The culture of the client which requested the description.</param>
-  public delegate void GenerateDescriptionDlgt(IHttpRequest request, XmlWriter writer, DvDevice device, GenerationPosition pos, EndpointConfiguration config, CultureInfo culture);
+  public delegate void GenerateDescriptionDlgt(IOwinRequest request, XmlWriter writer, DvDevice device, GenerationPosition pos, EndpointConfiguration config, CultureInfo culture);
 
   /// <summary>
   /// Delegate which can return a URL which is available over the specified <paramref name="endPointIPAddress"/>.
@@ -105,5 +104,5 @@ namespace UPnP.Infrastructure.Dv.DeviceTree
   /// <param name="request">The request for the device information.</param>
   /// <param name="deviceInfo">The device information that will be sent if not overridden.</param>
   /// <param name="overrideDeviceInfo">The overriden device information to send.</param>
-  public delegate void GetDeviceInfoForEndpointDlgt(IHttpRequest request, ILocalizedDeviceInformation deviceInfo, ref ILocalizedDeviceInformation overrideDeviceInfo);
+  public delegate void GetDeviceInfoForEndpointDlgt(IOwinRequest request, ILocalizedDeviceInformation deviceInfo, ref ILocalizedDeviceInformation overrideDeviceInfo);
 }

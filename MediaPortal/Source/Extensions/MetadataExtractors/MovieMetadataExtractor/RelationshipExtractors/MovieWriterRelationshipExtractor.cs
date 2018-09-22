@@ -22,21 +22,23 @@
 
 #endregion
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Common.MediaManagement.Helpers;
-using MediaPortal.Extensions.OnlineLibraries;
 using MediaPortal.Common.MediaManagement.MLQueries;
+using MediaPortal.Common.ResourceAccess;
+using MediaPortal.Extensions.OnlineLibraries;
 using MediaPortal.Utilities.Collections;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
 {
-  class MovieWriterRelationshipExtractor : IMovieRelationshipExtractor, IRelationshipRoleExtractor
+  class MovieWriterRelationshipExtractor : IRelationshipRoleExtractor
   {
     private static readonly Guid[] ROLE_ASPECTS = { MovieAspect.ASPECT_ID, VideoAspect.ASPECT_ID };
     private static readonly Guid[] LINKED_ROLE_ASPECTS = { PersonAspect.ASPECT_ID };
@@ -73,19 +75,20 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
 
     public IFilter GetSearchFilter(IDictionary<Guid, IList<MediaItemAspect>> extractedAspects)
     {
-      return GetPersonSearchFilter(extractedAspects);
+      if (!extractedAspects.ContainsKey(PersonAspect.ASPECT_ID))
+        return null;
+      return RelationshipExtractorUtils.CreateExternalItemFilter(extractedAspects, ExternalIdentifierAspect.TYPE_PERSON);
     }
 
-    public bool TryExtractRelationships(IDictionary<Guid, IList<MediaItemAspect>> aspects, bool importOnly, out IList<RelationshipItem> extractedLinkedAspects)
+    public ICollection<string> GetExternalIdentifiers(IDictionary<Guid, IList<MediaItemAspect>> extractedAspects)
     {
-      extractedLinkedAspects = null;
+      if (!extractedAspects.ContainsKey(PersonAspect.ASPECT_ID))
+        return new List<string>();
+      return RelationshipExtractorUtils.CreateExternalItemIdentifiers(extractedAspects, ExternalIdentifierAspect.TYPE_PERSON);
+    }
 
-      if (!MovieMetadataExtractor.IncludeWriterDetails)
-        return false;
-
-      if (importOnly)
-        return false;
-
+    public async Task<bool> TryExtractRelationshipsAsync(IResourceAccessor mediaItemAccessor, IDictionary<Guid, IList<MediaItemAspect>> aspects, IList<IDictionary<Guid, IList<MediaItemAspect>>> extractedLinkedAspects)
+    {
       if (BaseInfo.IsVirtualResource(aspects))
         return false;
 
@@ -93,48 +96,21 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
       if (!movieInfo.FromMetadata(aspects))
         return false;
 
-      if (CheckCacheContains(movieInfo))
-        return false;
+      if (RelationshipExtractorUtils.TryCreateInfoFromLinkedAspects(extractedLinkedAspects, out List<PersonInfo> writers))
+        movieInfo.Writers = writers;
 
-      int count = 0;
-      if (!MovieMetadataExtractor.SkipOnlineSearches)
-      {
-        OnlineMatcherService.Instance.UpdatePersons(movieInfo, PersonAspect.OCCUPATION_WRITER, importOnly);
-        count = movieInfo.Writers.Where(p => p.HasExternalId).Count();
-        if (!movieInfo.IsRefreshed)
-          movieInfo.HasChanged = true; //Force save to update external Ids for metadata found by other MDEs
-      }
-      else
-      {
-        count = movieInfo.Writers.Where(p => !string.IsNullOrEmpty(p.Name)).Count();
-      }
-
-      if (movieInfo.Writers.Count == 0)
-        return false;
-
-      if (BaseInfo.CountRelationships(aspects, LinkedRole) < count || (BaseInfo.CountRelationships(aspects, LinkedRole) == 0 && movieInfo.Writers.Count > 0))
-        movieInfo.HasChanged = true; //Force save if no relationship exists
-
-      if (!movieInfo.HasChanged)
-        return false;
-
-      AddToCheckCache(movieInfo);
-
-      extractedLinkedAspects = new List<RelationshipItem>();
+      if (MovieMetadataExtractor.IncludeWriterDetails && !MovieMetadataExtractor.SkipOnlineSearches)
+        await OnlineMatcherService.Instance.UpdatePersonsAsync(movieInfo, PersonAspect.OCCUPATION_WRITER).ConfigureAwait(false);
+      
       foreach (PersonInfo person in movieInfo.Writers)
       {
-        person.AssignNameId();
-        person.HasChanged = movieInfo.HasChanged;
-        IDictionary<Guid, IList<MediaItemAspect>> personAspects = new Dictionary<Guid, IList<MediaItemAspect>>();
-        person.SetMetadata(personAspects);
-
-        if (personAspects.ContainsKey(ExternalIdentifierAspect.ASPECT_ID))
+        if (person.LinkedAspects != null)
+          person.SetLinkedMetadata();
+        else
         {
-          Guid existingId;
-          if (TryGetIdFromCache(person, out existingId))
-            extractedLinkedAspects.Add(new RelationshipItem(personAspects, existingId));
-          else
-            extractedLinkedAspects.Add(new RelationshipItem(personAspects, Guid.Empty));
+          IDictionary<Guid, IList<MediaItemAspect>> personAspects = new Dictionary<Guid, IList<MediaItemAspect>>();
+          if (person.SetMetadata(personAspects) && personAspects.ContainsKey(ExternalIdentifierAspect.ASPECT_ID))
+            extractedLinkedAspects.Add(personAspects);
         }
       }
       return extractedLinkedAspects.Count > 0;
@@ -175,13 +151,6 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
 
       index = nameList.IndexOf(name);
       return index >= 0;
-    }
-
-    public void CacheExtractedItem(Guid extractedItemId, IDictionary<Guid, IList<MediaItemAspect>> extractedAspects)
-    {
-      PersonInfo person = new PersonInfo();
-      person.FromMetadata(extractedAspects);
-      AddToCache(extractedItemId, person);
     }
 
     internal static ILogger Logger

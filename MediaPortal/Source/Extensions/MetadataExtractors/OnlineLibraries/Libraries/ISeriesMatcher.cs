@@ -22,9 +22,10 @@
 
 #endregion
 
-using System;
 using MediaPortal.Common.MediaManagement.Helpers;
+using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace MediaPortal.Extensions.OnlineLibraries.Libraries
 {
@@ -35,14 +36,17 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries
     List<EpisodeInfo> GetLastChangedEpisodes();
     void ResetLastChangedEpisodes();
 
-    bool FindAndUpdateEpisode(EpisodeInfo episodeInfo, bool importOnly);
-    bool UpdateSeries(SeriesInfo seriesInfo, bool updateEpisodeList, bool importOnly);
-    bool UpdateSeason(SeasonInfo seasonInfo, bool importOnly);
-    bool UpdateSeriesPersons(SeriesInfo seriesInfo, string occupation, bool importOnly);
-    bool UpdateSeriesCharacters(SeriesInfo seriesInfo, bool importOnly);
-    bool UpdateSeriesCompanies(SeriesInfo seriesInfo, string companyType, bool importOnly);
-    bool UpdateEpisodePersons(EpisodeInfo episodeInfo, string occupation, bool importOnly);
-    bool UpdateEpisodeCharacters(EpisodeInfo episodeInfo, bool importOnly);
+    Task<IEnumerable<EpisodeInfo>> FindMatchingEpisodesAsync(EpisodeInfo episodeInfo);
+    Task<IEnumerable<SeriesInfo>> FindMatchingSeriesAsync(SeriesInfo seriesInfo);
+
+    Task<bool> FindAndUpdateEpisodeAsync(EpisodeInfo episodeInfo);
+    Task<bool> UpdateSeriesAsync(SeriesInfo seriesInfo, bool updateEpisodeList);
+    Task<bool> UpdateSeasonAsync(SeasonInfo seasonInfo);
+    Task<bool> UpdateSeriesPersonsAsync(SeriesInfo seriesInfo, string occupation);
+    Task<bool> UpdateSeriesCharactersAsync(SeriesInfo seriesInfo);
+    Task<bool> UpdateSeriesCompaniesAsync(SeriesInfo seriesInfo, string companyType);
+    Task<bool> UpdateEpisodePersonsAsync(EpisodeInfo episodeInfo, string occupation);
+    Task<bool> UpdateEpisodeCharactersAsync(EpisodeInfo episodeInfo);
 
     void StoreActorMatch(PersonInfo person);
     void StoreDirectorMatch(PersonInfo person);
@@ -51,6 +55,6 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries
     void StoreCompanyMatch(CompanyInfo company);
     void StoreTvNetworkMatch(CompanyInfo company);
 
-    bool ScheduleFanArtDownload(Guid mediaItemId, BaseInfo info, bool force);
+    Task<bool> DownloadFanArtAsync(Guid mediaItemId, BaseInfo info);
   }
 }

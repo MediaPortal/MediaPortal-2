@@ -22,20 +22,55 @@
 
 #endregion
 
-using System;
-using System.Collections.Generic;
+using MediaPortal.Common;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Common.MediaManagement.Helpers;
 using MediaPortal.Common.MediaManagement.MLQueries;
-using MediaPortal.Common.Genres;
+using MediaPortal.Common.ResourceAccess;
+using MediaPortal.Common.Services.GenreConverter;
+using MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.Extractors;
+using MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoReaders;
+using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
 {
-  class TrackAlbumRelationshipExtractor : INfoRelationshipExtractor, IRelationshipRoleExtractor
+  class TrackAlbumRelationshipExtractor : NfoAudioExtractorBase, IRelationshipRoleExtractor
   {
+    #region Static fields
+
     private static readonly Guid[] ROLE_ASPECTS = { AudioAspect.ASPECT_ID };
     private static readonly Guid[] LINKED_ROLE_ASPECTS = { AudioAlbumAspect.ASPECT_ID };
+
+    #endregion
+
+    #region Protected methods
+
+    /// <summary>
+    /// Asynchronously tries to extract series metadata for the given <param name="mediaItemAccessor"></param>
+    /// </summary>
+    /// <param name="mediaItemAccessor">Points to the resource for which we try to extract metadata</param>
+    /// <param name="extractedAspectData">Dictionary of MediaItemAspect to update with metadata</param>
+    /// <param name="reimport">During reimport only allow if nfo is for same media as this</param>
+    /// <returns><c>true</c> if metadata was found and stored into the <paramref name="extractedAspectData"/>, else <c>false</c></returns>
+    protected async Task<bool> TryExtractAlbumMetadataAsync(IResourceAccessor mediaItemAccessor, IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData, AlbumInfo reimport)
+    {
+      NfoAlbumReader albumNfoReader = await TryGetNfoAlbumReaderAsync(mediaItemAccessor).ConfigureAwait(false);
+      if(albumNfoReader != null)
+      {
+        if (reimport != null && !VerifyAlbumReimport(albumNfoReader, reimport))
+          return false;
+
+        return albumNfoReader.TryWriteMetadata(extractedAspectData);
+      }
+      return false;
+    }
+
+    #endregion
+
+    #region IRelationshipRoleExtractor implementation
 
     public bool BuildRelationship
     {
@@ -69,49 +104,54 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
 
     public IFilter GetSearchFilter(IDictionary<Guid, IList<MediaItemAspect>> extractedAspects)
     {
-      return GetAlbumSearchFilter(extractedAspects);
+      if (!extractedAspects.ContainsKey(AudioAlbumAspect.ASPECT_ID))
+        return null;
+      return RelationshipExtractorUtils.CreateExternalItemFilter(extractedAspects, ExternalIdentifierAspect.TYPE_ALBUM);
     }
 
-    public bool TryExtractRelationships(IDictionary<Guid, IList<MediaItemAspect>> aspects, bool importOnly, out IList<RelationshipItem> extractedLinkedAspects)
+    public ICollection<string> GetExternalIdentifiers(IDictionary<Guid, IList<MediaItemAspect>> extractedAspects)
     {
-      extractedLinkedAspects = null;
+      if (!extractedAspects.ContainsKey(AudioAlbumAspect.ASPECT_ID))
+        return new List<string>();
+      return RelationshipExtractorUtils.CreateExternalItemIdentifiers(extractedAspects, ExternalIdentifierAspect.TYPE_ALBUM);
+    }
 
-      if (!NfoAudioMetadataExtractor.IncludeAlbumDetails)
-        return false;
-
-      //Only run during import
-      if (!importOnly)
-        return false;
-
+    public async Task<bool> TryExtractRelationshipsAsync(IResourceAccessor mediaItemAccessor, IDictionary<Guid, IList<MediaItemAspect>> aspects, IList<IDictionary<Guid, IList<MediaItemAspect>>> extractedLinkedAspects)
+    {
       TrackInfo trackInfo = new TrackInfo();
       if (!trackInfo.FromMetadata(aspects))
         return false;
 
-      AlbumInfo albumInfo = trackInfo.CloneBasicInstance<AlbumInfo>();
-      UpdateArtists(aspects, albumInfo.Artists, true);
-      if (!UpdateAlbum(aspects, albumInfo))
+      AlbumInfo reimport = null;
+      if (aspects.ContainsKey(ReimportAspect.ASPECT_ID))
+        reimport = trackInfo.CloneBasicInstance<AlbumInfo>();
+
+      IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData = extractedLinkedAspects.Count > 0 ?
+        extractedLinkedAspects[0] : new Dictionary<Guid, IList<MediaItemAspect>>();
+      if (!await TryExtractAlbumMetadataAsync(mediaItemAccessor, extractedAspectData, reimport).ConfigureAwait(false))
         return false;
-      GenreMapper.AssignMissingSeriesGenreIds(albumInfo.Genres);
 
-      extractedLinkedAspects = new List<RelationshipItem>();
-      IDictionary<Guid, IList<MediaItemAspect>> albumAspects = new Dictionary<Guid, IList<MediaItemAspect>>();
-      albumInfo.SetMetadata(albumAspects);
+      AlbumInfo albumInfo = new AlbumInfo();
+      if (!albumInfo.FromMetadata(extractedAspectData))
+        return false;
 
-      if (aspects.ContainsKey(AudioAspect.ASPECT_ID))
+      IGenreConverter converter = ServiceRegistration.Get<IGenreConverter>();
+      foreach (var genre in albumInfo.Genres)
       {
-        bool trackVirtual = true;
-        if (MediaItemAspect.TryGetAttribute(aspects, MediaAspect.ATTR_ISVIRTUAL, false, out trackVirtual))
-        {
-          MediaItemAspect.SetAttribute(albumAspects, MediaAspect.ATTR_ISVIRTUAL, trackVirtual);
-        }
+        if (!genre.Id.HasValue && converter.GetGenreId(genre.Name, GenreCategory.Music, null, out int genreId))
+          genre.Id = genreId;
       }
+      albumInfo.SetMetadata(extractedAspectData);
 
-      if (!albumAspects.ContainsKey(ExternalIdentifierAspect.ASPECT_ID))
+      if (!extractedAspectData.ContainsKey(ExternalIdentifierAspect.ASPECT_ID))
         return false;
 
-      StoreArtists(albumAspects, albumInfo.Artists, true);
+      bool trackVirtual;
+      if (MediaItemAspect.TryGetAttribute(aspects, MediaAspect.ATTR_ISVIRTUAL, false, out trackVirtual))
+        MediaItemAspect.SetAttribute(extractedAspectData, MediaAspect.ATTR_ISVIRTUAL, trackVirtual);
 
-      extractedLinkedAspects.Add(new RelationshipItem(albumAspects, Guid.Empty));
+      extractedLinkedAspects.Clear();
+      extractedLinkedAspects.Add(extractedAspectData);
       return true;
     }
 
@@ -146,8 +186,6 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
       return true;
     }
 
-    public void CacheExtractedItem(Guid extractedItemId, IDictionary<Guid, IList<MediaItemAspect>> extractedAspects)
-    {
-    }
+    #endregion
   }
 }

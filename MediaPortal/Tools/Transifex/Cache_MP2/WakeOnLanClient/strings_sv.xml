@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <string name="WakeOnLan.EnableWakeOnLan">Aktivera Wake on Lan</string>
+  <string name="WakeOnLan.EnableWakeOnLan.Help">Väck automatiskt servern när klienterna startar eller återstartar från vila</string>
+</resources>

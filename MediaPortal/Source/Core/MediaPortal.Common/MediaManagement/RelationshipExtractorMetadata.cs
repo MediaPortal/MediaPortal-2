@@ -23,7 +23,6 @@
 #endregion
 
 using System;
-using System.Collections.Generic;
 
 namespace MediaPortal.Common.MediaManagement
 {
@@ -36,13 +35,15 @@ namespace MediaPortal.Common.MediaManagement
 
     protected Guid _relationshipExtractorId;
     protected string _name;
+    MetadataExtractorPriority _priority;
 
     #endregion
 
-    public RelationshipExtractorMetadata(Guid relationshipExtractorId, string name)
+    public RelationshipExtractorMetadata(Guid relationshipExtractorId, string name, MetadataExtractorPriority priority)
     {
       _relationshipExtractorId = relationshipExtractorId;
       _name = name;
+      _priority = priority;
     }
 
     /// <summary>
@@ -59,6 +60,14 @@ namespace MediaPortal.Common.MediaManagement
     public string Name
     {
       get { return _name; }
+    }
+
+    /// <summary>
+    /// Returns the priority of the relationship extractor.
+    /// </summary>
+    public MetadataExtractorPriority Priority
+    {
+      get { return _priority; }
     }
   }
 }

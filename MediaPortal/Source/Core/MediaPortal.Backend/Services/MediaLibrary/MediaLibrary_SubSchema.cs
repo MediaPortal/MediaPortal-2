@@ -82,6 +82,18 @@ namespace MediaPortal.Backend.Services.MediaLibrary
       return result;
     }
 
+    public static IDbCommand SelectAllMediaItemAspectMetadataNameAndCreationDatesCommand(ITransaction transaction,
+        out int aspectIdIndex, out int nameIndex, out int creationDateIndex)
+    {
+      IDbCommand result = transaction.CreateCommand();
+      result.CommandText = "SELECT MIAM_ID, NAME, CREATION_DATE FROM MIA_TYPES";
+
+      aspectIdIndex = 0;
+      nameIndex = 1;
+      creationDateIndex = 2;
+      return result;
+    }
+
     public static IDbCommand CreateMediaItemAspectMetadataCommand(ITransaction transaction, Guid miamId,
         string name, string serialization)
     {

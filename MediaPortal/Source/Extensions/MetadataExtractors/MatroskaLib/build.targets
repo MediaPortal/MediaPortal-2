@@ -14,14 +14,16 @@
     <PluginFiles Include="$(TargetDir)$(ProjectName).pdb" />
   </ItemGroup>
 
-  <ItemGroup>
-    <References Include="$(TargetDir)mkvextract.exe" />
-    <References Include="$(TargetDir)mkvinfo.exe" />
-  </ItemGroup>
-
   <Target Name="AfterBuild">
+    <!-- This position is required to capture newly copied package references -->
+    <ItemGroup>
+      <References Include="$(TargetDir)NEbml.Core.dll" />
+      <ReferencesX86 Include="$(TargetDir)x86\*.*" />
+      <ReferencesX64 Include="$(TargetDir)x64\*.*" />
+    </ItemGroup>
     <Copy SourceFiles="@(PluginFiles)" DestinationFolder="$(PluginDestination)" />
     <Copy SourceFiles="@(References)" DestinationFolder="$(PluginDestination)" />
+    <Copy SourceFiles="@(ReferencesX86)" DestinationFolder="$(PluginDestination)\x86" />
+    <Copy SourceFiles="@(ReferencesX64)" DestinationFolder="$(PluginDestination)\x64" />
   </Target>
-
 </Project>

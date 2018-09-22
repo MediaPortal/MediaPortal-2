@@ -22,13 +22,13 @@
 
 #endregion
 
-using System;
 using MediaPortal.Common;
-using MediaPortal.Common.PathManager;
-using MediaPortal.Common.MediaManagement.Helpers;
 using MediaPortal.Common.Logging;
+using MediaPortal.Common.MediaManagement.Helpers;
+using MediaPortal.Common.PathManager;
 using MediaPortal.Extensions.OnlineLibraries.Wrappers;
-using MediaPortal.Extensions.OnlineLibraries.Matches;
+using System;
+using System.Threading.Tasks;
 
 namespace MediaPortal.Extensions.OnlineLibraries.Matchers
 {
@@ -55,9 +55,11 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
     public MusicFreeDbMatcher() : 
       base(CACHE_PATH, MAX_MEMCACHE_DURATION, false)
     {
+      //Will be overridden if the user enables it in setttings
+      Enabled = false;
     }
 
-    public override bool InitWrapper(bool useHttps)
+    public override Task<bool> InitWrapperAsync(bool useHttps)
     {
       try
       {
@@ -65,23 +67,23 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
         if (wrapper.Init(CACHE_PATH))
         {
           _wrapper = wrapper;
-          return true;
+          return Task.FromResult(true);
         }
       }
       catch (Exception ex)
       {
         ServiceRegistration.Get<ILogger>().Error("MusicFreeDbMatcher: Error initializing wrapper", ex);
       }
-      return false;
+      return Task.FromResult(false);
     }
 
-    public override bool FindAndUpdateTrack(TrackInfo trackInfo, bool importOnly)
+    public override Task<bool> FindAndUpdateTrackAsync(TrackInfo trackInfo)
     {
       if (!string.IsNullOrEmpty(trackInfo.AlbumCdDdId))
       {
-        return base.FindAndUpdateTrack(trackInfo, importOnly);
+        return base.FindAndUpdateTrackAsync(trackInfo);
       }
-      return false;
+      return Task.FromResult(false);
     }
 
     #endregion
@@ -122,16 +124,6 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
         return true;
       }
       return false;
-    }
-
-    #endregion
-
-    #region FanArt
-
-    protected override void DownloadFanArt(FanartDownload<string> fanartDownload)
-    {
-      // No fanart to download
-      FinishDownloadFanArt(fanartDownload);
     }
 
     #endregion

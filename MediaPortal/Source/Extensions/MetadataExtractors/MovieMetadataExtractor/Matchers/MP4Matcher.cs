@@ -28,10 +28,10 @@ using System.Linq;
 using MediaPortal.Common.MediaManagement.Helpers;
 using MediaPortal.Common.ResourceAccess;
 using MediaPortal.Utilities;
-using MediaPortal.Extensions.OnlineLibraries;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Common.MediaManagement;
-using MediaPortal.Common.Genres;
+using MediaPortal.Common.Services.GenreConverter;
+using MediaPortal.Common;
 
 namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor.Matchers
 {
@@ -46,7 +46,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor.Match
       string extensionUpper = StringUtils.TrimToEmpty(Path.GetExtension(folderOrFileLfsra.LocalFileSystemPath)).ToUpper();
 
       // Try to get extended information out of MP4 files)
-      if (extensionUpper != ".MP4") return false;
+      if (extensionUpper != ".MP4" || extensionUpper != ".M4V") return false;
 
       using (folderOrFileLfsra.EnsureLocalFileSystemAccess())
       {
@@ -58,8 +58,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor.Match
 
         if (!ReferenceEquals(tag.Genres, null) && tag.Genres.Length > 0)
         {
-          List<GenreInfo> genreList = tag.Genres.Select(s => new GenreInfo { Name = s }).ToList();
-          GenreMapper.AssignMissingMovieGenreIds(genreList);
+          List<GenreInfo> genreList = tag.Genres.Where(s => !string.IsNullOrEmpty(s?.Trim())).Select(s => new GenreInfo { Name = s.Trim() }).ToList();
           movieInfo.HasChanged |= MetadataUpdater.SetOrUpdateList(movieInfo.Genres, genreList, movieInfo.Genres.Count == 0);
         }
 

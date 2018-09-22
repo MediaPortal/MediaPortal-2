@@ -190,14 +190,24 @@ namespace MediaPortal.Extensions.MetadataExtractors.StubMetadataExtractors
       get { return _metadata; }
     }
 
-    public bool TryExtractMetadata(IResourceAccessor mediaItemAccessor, IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData, bool importOnly, bool forceQuickMode)
+    public Task<bool> TryExtractMetadataAsync(IResourceAccessor mediaItemAccessor, IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData, bool forceQuickMode)
     {
-      return false;
+      return Task.FromResult(false);
     }
 
     public bool IsDirectorySingleResource(IResourceAccessor mediaItemAccessor)
     {
       return false;
+    }
+
+    public Task<IList<MediaItemSearchResult>> SearchForMatchesAsync(IDictionary<Guid, IList<MediaItemAspect>> searchAspectData, ICollection<string> searchCategories)
+    {
+      return Task.FromResult<IList<MediaItemSearchResult>>(null);
+    }
+
+    public Task<bool> AddMatchedAspectDetailsAsync(IDictionary<Guid, IList<MediaItemAspect>> matchedAspectData)
+    {
+      return Task.FromResult(false);
     }
 
     public bool IsStubResource(IResourceAccessor mediaItemAccessor)

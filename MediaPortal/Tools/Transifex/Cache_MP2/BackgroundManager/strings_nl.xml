@@ -1,5 +1,9 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
+  <string name="Settings.Appearance.Skin.Background.VideoBackground">Video achtergrond</string>
+  <string name="Settings.Appearance.Skin.Background.VideoBackground.Help">Activeer video achtergrond en selecteer video</string>
+  <string name="Settings.Appearance.Skin.Background.EnableVideoBackground">Activeer achtergrond video</string>
+  <string name="Settings.Appearance.Skin.Background.Setup">Configuratie achtergrond</string>
   <string name="Settings.Appearance.Skin.Background.Setup.VideoFilename">Video bestand</string>
   <string name="Settings.Appearance.Skin.Background.Setup.Select">Selecteer</string>
   <string name="Settings.Appearance.Skin.Background.Setup.SelectVideo">Selecteer achtergrond video</string>

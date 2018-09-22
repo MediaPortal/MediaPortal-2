@@ -33,6 +33,8 @@ using MediaPortal.UI.Presentation.DataObjects;
 using MediaPortal.UI.Presentation.Screens;
 using System;
 using System.Collections.Generic;
+using MediaPortal.Plugins.SystemStateMenu.Models;
+using MediaPortal.UI.Presentation.Workflow;
 
 namespace MediaPortal.UiComponents.BlueVision.Models
 {
@@ -127,11 +129,18 @@ namespace MediaPortal.UiComponents.BlueVision.Models
       List<SystemStateItem> shutdownItems = _settings.Settings.ShutdownItemList;
       if (shutdownItems != null)
       {
+        bool timerActive = false;
+        SleepTimerModel stm = ServiceRegistration.Get<IWorkflowManager>().GetModel(Consts.WF_STATE_ID_SLEEP_TIMER_MODEL) as SleepTimerModel;
+        if (stm != null && stm.IsSleepTimerActive)
+        {
+          timerActive = true;
+        }
+
         foreach (SystemStateItem shutdownItem in shutdownItems)
         {
           if (!shutdownItem.Enabled)
             continue;
-          ListItem item = new ListItem(Consts.KEY_NAME, Consts.GetResourceIdentifierForMenuItem(shutdownItem.Action));
+          ListItem item = new ListItem(Consts.KEY_NAME, Consts.GetResourceIdentifierForMenuItem(shutdownItem.Action, timerActive));
           item.AdditionalProperties[KEY_SHUTDOWN_ACTION] = shutdownItem.Action;
           item.Command = new MethodDelegateCommand(() => SelectItem(item));
           _menuItems.Add(item);
@@ -165,6 +174,19 @@ namespace MediaPortal.UiComponents.BlueVision.Models
         case SystemStateAction.MinimizeMP:
           ServiceRegistration.Get<IScreenControl>().Minimize();
           return;
+        case SystemStateAction.SleepTimer:
+          SleepTimerModel stm = ServiceRegistration.Get<IWorkflowManager>().GetModel(Consts.WF_STATE_ID_SLEEP_TIMER_MODEL) as SleepTimerModel;
+          if (stm == null || stm.IsSleepTimerActive == false)
+          {
+            CloseMenu();
+            ServiceRegistration.Get<IWorkflowManager>().NavigatePush(Consts.WF_STATE_ID_SLEEP_TIMER_DIALOG);
+          }
+          else
+          {
+            stm.Stop();
+          }
+          _needsUpdate = true;
+          break;
       }
     }
   }

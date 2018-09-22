@@ -11,7 +11,7 @@
   <string name="Settings.Players.BassPlayer.SongTransitionMode.Help">Imposta la pausa  e/o la dissolvenza al cambio traccia</string>
   <string name="Settings.Players.BassPlayer.SongTransitionMode.Setup.NormalMode">Normale</string>
   <string name="Settings.Players.BassPlayer.SongTransitionMode.Setup.GaplessMode">Senza pausa</string>
-  <string name="Settings.Players.BassPlayer.SongTransitionMode.Setup.CrossFading">dissolvenza incrociata</string>
+  <string name="Settings.Players.BassPlayer.SongTransitionMode.Setup.CrossFading">Dissolvenza incrociata</string>
   <string name="Settings.Players.BassPlayer.PlaybackBuffer.Setup">Buffer riproduzione</string>
   <string name="Settings.Players.BassPlayer.PlaybackBuffer.Help">Tempo da tenere nel buffer [0-300] ms</string>
   <string name="Settings.Players.Rendering.DirectSoundBufferSize">DirectSound</string>

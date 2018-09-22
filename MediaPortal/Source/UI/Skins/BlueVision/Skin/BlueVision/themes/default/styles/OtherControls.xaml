@@ -576,67 +576,6 @@
       </Setter.Value>
     </Setter>
   </Style>
-
-  <Style x:Key="LoginItemContainerStyle" BasedOn="{ThemeResource DefaultItemContainerStyle}">
-    <Setter Property="Template">
-      <Setter.Value>
-        <ControlTemplate TargetType="{x:Type ListViewItem}">
-          <DockPanel x:Name="ItemGroup" LastChildFill="False">
-            <Button Style="{ThemeResource HomeButtonStyle}" Margin="0,0,16,16" DockPanel.Dock="Top" 
-                    Command="{DynamicResource ResourceKey=Menu_Command}"
-                    IsEnabled="{Binding Enabled}" SetFocus="{Binding Path=Selected,Mode=OneTime}">
-              <Button.Triggers>
-                <Trigger Property="HasFocus" Value="True">
-                  <Setter TargetName="ItemLabel" Property="Color" Value="{ThemeResource TextColor}"/>
-                </Trigger>
-              </Button.Triggers>
-            </Button>
-          </DockPanel>
-        </ControlTemplate>
-      </Setter.Value>
-    </Setter>
-  </Style>
-
-  <DataTemplate x:Key="LoginItemDataTemplate">
-    <DockPanel LastChildFill="False">
-      <Grid x:Name="ItemControl">
-        <Grid.ColumnDefinitions>
-          <ColumnDefinition Width="*"/>
-        </Grid.ColumnDefinitions>
-        <Grid.RowDefinitions>
-          <RowDefinition Height="*"/>
-          <RowDefinition Height="60"/>
-        </Grid.RowDefinitions>
-
-        <Grid.OpacityMask>
-          <VisualBrush>
-            <VisualBrush.Visual>
-              <Border Name="mask" Background="White" CornerRadius="16" BorderThickness="0" BorderBrush="Black"/>
-            </VisualBrush.Visual>
-          </VisualBrush>
-        </Grid.OpacityMask>
-
-        <!-- Light blue background fill -->
-        <Rectangle Grid.RowSpan="2"
-            x:Name="HomeFill" Fill="#FF808080" Opacity="1" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
-        <!-- Image -->
-        <Image x:Name="Thumb" Grid.RowSpan="2" HorizontalAlignment="Center" VerticalAlignment="Center"
-               Source="{Binding Path=Image}"
-               Width="300" Height="300" Stretch="UniformToFill">
-        </Image>
-        <Image x:Name="Fallback" Grid.RowSpan="2" HorizontalAlignment="Center" VerticalAlignment="Center"
-               Source="person.png" IsVisible="{Binding ElementName=Thumb, Path=!HasImage}"
-               Width="300" Height="300" Stretch="Uniform">
-        </Image>
-        <!-- Darkened band -->
-        <Rectangle Grid.Row="1" Fill="#FF000000" Opacity="0.749"
-                   HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="0,0,0,0" />
-        <!-- Item label -->
-        <Label Grid.Row="1" x:Name="ItemLabel" HorizontalAlignment="Center" VerticalAlignment="Center"  Content="{Binding Name}"
-               FontSize="{ThemeResource BigFontSize}" Color="{ThemeResource HomeNonFocusedColor}" Margin="0,0,0,0"/>
-      </Grid>
-    </DockPanel>
-  </DataTemplate>
   
   <!-- A simple data template to show the Name of the ListItem in a Label -->
   <DataTemplate x:Key="DefaultItemDataTemplate" DataType="{x:Type collections:ListItem}">
@@ -768,45 +707,6 @@
   <!-- Implicit default style for ListView controls -->
   <Style BasedOn="{ThemeResource DefaultListViewStyle}" TargetType="{x:Type ListView}"/>
 
-  <Style x:Key="LoginListViewStyle" BasedOn="{ThemeResource MainMenuListViewStyle}">
-    <Setter Property="ItemsPanel">
-      <Setter.Value>
-        <ItemsPanelTemplate>
-          <AnimatedStackPanel x:Name="ListItemsHost" IsItemsHost="True" Orientation="Horizontal"
-                              ScrollMargin="1100,1100" Margin="-150,20,-450,0" HorizontalAlignment="Stretch">
-            <AnimatedStackPanel.Resources>
-              <Storyboard x:Key="ScrollAnimation" FillBehavior="HoldEnd">
-                <DoubleAnimation BeginTime="00:00:00" From="0" To="1" Duration="00:00:00.400" 
-                                 FillBehavior="HoldEnd" Storyboard.TargetName="ListItemsHost" Storyboard.TargetProperty="ScrollOffsetMultiplier" />
-              </Storyboard>
-            </AnimatedStackPanel.Resources>
-            <AnimatedStackPanel.Triggers>
-              <EventTrigger RoutedEvent="AnimatedStackPanel.Scroll">
-                <EventTrigger.Actions>
-                  <BeginStoryboard Storyboard="{ThemeResource ScrollAnimation}"/>
-                </EventTrigger.Actions>
-              </EventTrigger>
-            </AnimatedStackPanel.Triggers>
-          </AnimatedStackPanel>
-        </ItemsPanelTemplate>
-      </Setter.Value>
-    </Setter>
-    <Setter Property="ItemTemplate" Value="{ThemeResource LoginItemDataTemplate}"/>
-    <Setter Property="DataStringProvider" Value="{ThemeResource DefaultItemDataStringProvider}"/>
-    <Setter Property="ItemContainerStyle" Value="{ThemeResource LoginItemContainerStyle}"/>
-    <Setter Property="Template">
-      <Setter.Value>
-        <ControlTemplate TargetType="{x:Type ListView}">
-          <ScrollViewer CanContentScroll="True" Margin="0" Style="{ThemeResource GradientCoverScrollViewerStyle}"
-                        HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
-                        HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Disabled" >
-            <ItemsPresenter VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
-          </ScrollViewer>
-        </ControlTemplate>
-      </Setter.Value>
-    </Setter>
-  </Style>
-
   <Style x:Key="LeftMenuListViewStyle" BasedOn="{ThemeResource DefaultListViewStyle}">
     <Setter Property="Template">
       <Setter.Value>
@@ -831,6 +731,19 @@
       <Setter.Value>
         <ItemsPanelTemplate>
           <VirtualizingStackPanel x:Name="ListItemsHost" IsItemsHost="True"/>
+        </ItemsPanelTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+
+  <!-- ListView style to be used for single and multiple markable items -->
+  <Style x:Key="MarkableListViewStyle" BasedOn="{ThemeResource ContentsMenuListViewStyle}">
+    <Setter Property="ItemsPanel">
+      <Setter.Value>
+        <ItemsPanelTemplate>
+          <!-- It's not possible to use a VirtualizingStackPanel for markable lists because RadioButtons
+               are not updated correctly if virtualization has caused the previously checked RadioButton to be disposed -->
+          <StackPanel x:Name="ListItemsHost" IsItemsHost="True"/>
         </ItemsPanelTemplate>
       </Setter.Value>
     </Setter>

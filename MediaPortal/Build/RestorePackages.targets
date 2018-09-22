@@ -12,7 +12,12 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackagesConfigs Include="$(ProjectRoot)\**\packages.config" />
+    <ProjectsToRestore Include="$(ProjectRoot)\Source\MP2-Client.sln"/>
+    <ProjectsToRestore Include="$(ProjectRoot)\Source\MP2-Server.sln"/>
+    <ProjectsToRestore Include="$(ProjectRoot)\Source\MP2-ServiceMonitor.sln"/>
+    <ProjectsToRestore Include="$(ProjectRoot)\..\OnlineVideos\OnlineVideos.MediaPortal2.sln"/>
+    <ProjectsToRestore Include="$(ProjectRoot)\Setup\MP2-Setup.sln"/>
+    <ProjectsToRestore Include="$(ProjectRoot)\Source\UI\Players\EVRPresenter\EVRPresenter.sln"/>
   </ItemGroup>
 
   <Target Name="DownloadNuGet">
@@ -22,11 +27,11 @@
   <Target Name="RestoreAllPackages"
           DependsOnTargets="DownloadNuGet">
 
-    <Message Text="Found the following 'packages.config'-files: @(PackagesConfigs->'%(FullPath)')"/>
+    <Message Text="Found the following solutions: @(ProjectsToRestore->'%(FullPath)')"/>
 
     <!-- First do a self update of nuget.exe -->
     <Exec Command='"$(NuGetExePath)" update -self'/>
-    <Exec Command='"$(NuGetExePath)" install "%(PackagesConfigs.FullPath)"'/>
+    <Exec Command='"$(NuGetExePath)" restore "%(ProjectsToRestore.FullPath)"'/>
   </Target>
 
   <!--

@@ -22,6 +22,7 @@
 
 #endregion
 
+using MediaPortal.Common.Commands;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.UiComponents.Media.General;
 using MediaPortal.UiComponents.Media.Models.Navigation;
@@ -37,7 +38,10 @@ namespace MediaPortal.UiComponents.Media.MediaLists
       _linkedRole = AudioAspect.ROLE_TRACK;
       _necessaryMias = Consts.NECESSARY_ALBUM_MIAS;
       _necessaryLinkedMias = Consts.NECESSARY_AUDIO_MIAS;
-      _playableContainerConverterAction = item => new AlbumFilterItem(item);
+      _playableContainerConverterAction = item => new AlbumFilterItem(item)
+      {
+        Command = new MethodDelegateCommand(() => AudioNavigationInitializer.NavigateToAlbum(item.MediaItemId))
+      };
       _navigationInitializerType = typeof(AudioNavigationInitializer);
     }
   }

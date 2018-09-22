@@ -103,7 +103,7 @@ Parameters which have to be accessible by a DynamicResource lookup:
           <wmc:ExcludeItemsListActionIdFilter.Template>
             <ControlTemplate>
               <ListView x:Name="TopMenu" Margin="10,0,20,10" Style="{ThemeResource TopMenuListViewStyle}" Height="90"
-                        VerticalAlignment="Top" HorizontalAlignment="Stretch" SetFocusPrio="Default" RestoreFocus="True"
+                        VerticalAlignment="Top" HorizontalAlignment="Stretch" RestoreFocus="True"
                         ItemsSource="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=FilteredItems, Mode=OneTime}">
                 <ListView.Resources>
                   <CommandBridge x:Key="Menu_Command" Command="{Binding Path=Command,Mode=OneTime}"/>
@@ -114,7 +114,7 @@ Parameters which have to be accessible by a DynamicResource lookup:
         </wmc:ExcludeItemsListActionIdFilter>        
 
         <!-- Order matters here: The content control has to be the last control to fill the rest of the space -->
-        <Grid x:Name="ContentPanel" SetFocusPrio="DefaultHigh">
+        <Grid x:Name="ContentPanel" SetFocusPrio="Default">
           <Grid.ColumnDefinitions>
             <ColumnDefinition Width="*"/>
           </Grid.ColumnDefinitions>
@@ -152,9 +152,17 @@ Parameters which have to be accessible by a DynamicResource lookup:
           </Grid>
 
           <Grid x:Name="FadeBackground" Background="{ThemeResource DialogBackgroundFadeColor}" IsVisible="False"
-                  VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Margin="-200,-500,-200,-500" Opacity="0">
+                  VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Margin="-200,-500,-200,-500" Opacity="0"/>
+
+          <!--
+          This control captures when the mouse moves over the content when the menu is open as the fade background above
+          covers the content preventing it from getting mouse focus. It has a right margin the same width as the menu so
+          it is not accidently hit whilst the menu is opened with the mouse.
+          -->
+          <Grid x:Name="MouseCaptureControl" IsVisible="{Binding Source={StaticResource MenuModel}, Path=IsMenuOpen}"
+                  VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Margin="-200,-500, 500,-500">
             <Grid.Triggers>
-              <!--Close the menu when the mouse moves over the fade background as it covers the main content and prevents it getting focus-->
+              <!--Close the menu when the mouse moves over this control as the fade background above covers the main content and prevents it getting focus-->
               <EventTrigger RoutedEvent="FrameworkElement.MouseMove">
                 <TriggerCommand Command="{Command Source={StaticResource MenuModel}, Path=CloseMenu}"/>
               </EventTrigger>
@@ -172,36 +180,24 @@ Parameters which have to be accessible by a DynamicResource lookup:
                 <ObjectAnimationUsingKeyFrames BeginTime="00:00:00" FillBehavior="HoldEnd" Storyboard.TargetName="FadeBackground" Storyboard.TargetProperty="IsVisible">
                   <DiscreteObjectKeyFrame KeyTime="00:00:00" Value="True"/>
                 </ObjectAnimationUsingKeyFrames>
-                <DoubleAnimationUsingKeyFrames BeginTime="00:00:00" FillBehavior="HoldEnd" Storyboard.TargetName="RightPanel" Storyboard.TargetProperty="RenderTransform.X">
-                  <SplineDoubleKeyFrame KeyTime="00:00:00" Value="0.00"/>
-                  <SplineDoubleKeyFrame KeyTime="00:00:00.1" Value="-192"/>
-                  <SplineDoubleKeyFrame KeyTime="00:00:00.2" Value="-417"/>
-                  <SplineDoubleKeyFrame KeyTime="00:00:00.3" Value="-482"/>
-                  <SplineDoubleKeyFrame KeyTime="00:00:00.4" Value="-516"/>
-                  <SplineDoubleKeyFrame KeyTime="00:00:00.5" Value="-533"/>
-                  <SplineDoubleKeyFrame KeyTime="00:00:00.6" Value="-542"/>
-                  <SplineDoubleKeyFrame KeyTime="00:00:00.7" Value="-546"/>
-                  <SplineDoubleKeyFrame KeyTime="00:00:00.8" Value="-549"/>
-                  <SplineDoubleKeyFrame KeyTime="00:00:00.9" Value="-550"/>
-                </DoubleAnimationUsingKeyFrames>
+                <DoubleAnimation BeginTime="00:00:00" From="0" To="-550" Duration="00:00:00.9" DecelerationRatio="0"
+                                 FillBehavior="HoldEnd" Storyboard.TargetName="RightPanel" Storyboard.TargetProperty="RenderTransform.X">
+                  <DoubleAnimation.EasingFunction>
+                    <BackEase Amplitude="0.35" EasingMode="EaseOut"/>
+                  </DoubleAnimation.EasingFunction>
+                </DoubleAnimation>
                 <DoubleAnimationUsingKeyFrames BeginTime="00:00:00.01" FillBehavior="HoldEnd" Storyboard.TargetName="FadeBackground" Storyboard.TargetProperty="Opacity">
                   <SplineDoubleKeyFrame KeyTime="00:00:00.01" Value="0"/>
                   <SplineDoubleKeyFrame KeyTime="00:00:00.7" Value="0.5"/>
                 </DoubleAnimationUsingKeyFrames>
               </Storyboard>
               <Storyboard x:Key="SlideOutStoryboard" FillBehavior="HoldEnd">
-                <DoubleAnimationUsingKeyFrames BeginTime="00:00:00" FillBehavior="HoldEnd" Storyboard.TargetName="RightPanel" Storyboard.TargetProperty="RenderTransform.X">
-                  <SplineDoubleKeyFrame KeyTime="00:00:00" Value="-550"/>
-                  <SplineDoubleKeyFrame KeyTime="00:00:00.1" Value="-549"/>
-                  <SplineDoubleKeyFrame KeyTime="00:00:00.2" Value="-546"/>
-                  <SplineDoubleKeyFrame KeyTime="00:00:00.3" Value="-542"/>
-                  <SplineDoubleKeyFrame KeyTime="00:00:00.4" Value="-533"/>
-                  <SplineDoubleKeyFrame KeyTime="00:00:00.5" Value="-516"/>
-                  <SplineDoubleKeyFrame KeyTime="00:00:00.6" Value="-482"/>
-                  <SplineDoubleKeyFrame KeyTime="00:00:00.7" Value="-417"/>
-                  <SplineDoubleKeyFrame KeyTime="00:00:00.8" Value="-192"/>
-                  <SplineDoubleKeyFrame KeyTime="00:00:00.9" Value="0"/>
-                </DoubleAnimationUsingKeyFrames>
+                <DoubleAnimation BeginTime="00:00:00" From="-550" To="0" Duration="00:00:00.9"
+                                 FillBehavior="HoldEnd" Storyboard.TargetName="RightPanel" Storyboard.TargetProperty="RenderTransform.X">
+                  <DoubleAnimation.EasingFunction>
+                    <BackEase Amplitude="0.35" EasingMode="EaseIn"/>
+                  </DoubleAnimation.EasingFunction>
+                </DoubleAnimation>
                 <DoubleAnimationUsingKeyFrames BeginTime="00:00:00" FillBehavior="HoldEnd" Storyboard.TargetName="FadeBackground" Storyboard.TargetProperty="Opacity">
                   <SplineDoubleKeyFrame KeyTime="00:00:00" Value="0.5"/>
                   <SplineDoubleKeyFrame KeyTime="00:00:00.7" Value="0"/>

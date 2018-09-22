@@ -153,19 +153,21 @@ Parameters which have to be accessible by a DynamicResource lookup:
       </StackPanel>
 
       <!-- Menu button -->
-      <Control Grid.Row="0" Grid.Column="3" Margin="15,0,0,0" VerticalAlignment="Center"
+      <Control Grid.Row="0" Grid.Column="3" Margin="15,0,0,0" VerticalAlignment="Center" HorizontalAlignment="Left"
                x:Name="MenuButtonDummy" Template="{DynamicResource ResourceKey=Menu_Button_Dummy}"></Control>
-      <Control Grid.Row="0" Grid.Column="3" Margin="15,0,0,0" VerticalAlignment="Center"
+      <Control Grid.Row="0" Grid.Column="3" Margin="15,0,0,0" VerticalAlignment="Center" HorizontalAlignment="Left"
                x:Name="MenuButtonDummyConfig" Template="{DynamicResource ResourceKey=Menu_Button_DummyConfig}"></Control>
-      <Control Grid.Row="0" Grid.Column="3" Margin="15,0,0,0" VerticalAlignment="Center"
+      <Control Grid.Row="0" Grid.Column="3" Margin="15,0,0,0" VerticalAlignment="Center" HorizontalAlignment="Left"
                x:Name="MenuButtonPlaceholder" Template="{DynamicResource ResourceKey=Menu_Button_Placeholder}"></Control>
 
       <StackPanel Orientation="Horizontal" Grid.Row="0" Grid.Column="2" Margin="0,-55,-75,0" VerticalAlignment="Top" HorizontalAlignment="Right">
+        
+        <!--Import Indicator-->
         <StackPanel Orientation="Horizontal" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="0,0,10,0"
                     DataContext="{Binding Source={StaticResource StateModel}, Path=[C37B62D0-8E87-42A4-877E-B41944DA9FC9]}"
                     IsVisible="{Binding Converter={StaticResource ReferenceToBoolConverter}}">
           <Label FontSize="{ThemeResource TinyFontSize}" Margin="10,-5,0,-10" 
-                   Color="{ThemeResource TextColor}" VerticalAlignment="Center" HorizontalAlignment="Right">
+                 Color="{ThemeResource TextColor}" VerticalAlignment="Center" HorizontalAlignment="Right">
             <Label.IsVisible>
               <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0}>=0">
                 <Binding Path="Progress"/>
@@ -178,11 +180,34 @@ Parameters which have to be accessible by a DynamicResource lookup:
           <Button Style="{ThemeResource ImportingButtonStyle}" IsVisible="{Binding IsImporting}" VerticalAlignment="Center" 
                   HorizontalAlignment="Left" Margin="0,-5,0,-10"/>
         </StackPanel>
+        
+        <!--Data Base Upgrade Indicator-->
+        <StackPanel Orientation="Horizontal" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="0,0,10,0"
+                    DataContext="{Binding Source={StaticResource StateModel}, Path=[431528C9-5610-45CD-9807-0130AE1761DA]}"
+                    IsVisible="{Binding Converter={StaticResource ReferenceToBoolConverter}}">
+          <Label FontSize="{ThemeResource TinyFontSize}" Content="[Notifications.Upgrading]" Margin="0,-5,0,-10" 
+                 Color="{ThemeResource TextColor}" VerticalAlignment="Center" HorizontalAlignment="Right">
+            <Label.IsVisible>
+              <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0}>=0">
+                <Binding Path="Progress"/>
+              </MultiBinding>
+            </Label.IsVisible>
+            <Label.Content>
+              <Binding Path="Progress" Converter="{StaticResource StringFormatConverter}" ConverterParameter="{}{0}%"/>
+            </Label.Content>
+          </Label>
+          <Button Style="{ThemeResource UpgradingButtonStyle}" IsVisible="{Binding IsUpgrading}" VerticalAlignment="Center" 
+                  HorizontalAlignment="Left" Margin="0,-5,0,-10"/>
+        </StackPanel>
+        
+        <!--Recording Indicator-->
         <StackPanel Orientation="Horizontal" VerticalAlignment="Center" HorizontalAlignment="Right"
                     DataContext="{Binding Source={StaticResource StateModel}, Path=[2A58935C-3363-4FA1-B48D-1EF0E81F830D]}"
                     IsVisible="{Binding Converter={StaticResource ReferenceToBoolConverter}}">
           <Button Style="{ThemeResource RecordingButtonStyle}" IsVisible="{Binding IsRecording}" VerticalAlignment="Center" Margin="0,-4,0,-16"/>
         </StackPanel>
+        
+        <!--User Button-->
         <Button Style="{ThemeResource UserButtonStyle}" IsVisible="{Binding Source={StaticResource LoginModel},Path=EnableUserLogin}" 
                 IsEnabled="{Binding Source={StaticResource MenuModel},Path=IsHomeScreen}"
                 Command="{Command Source={Service WorkflowManager},Path=NavigatePush,Parameters=2529B0F0-8415-4A4E-971B-38D6CDD2406A}"/>

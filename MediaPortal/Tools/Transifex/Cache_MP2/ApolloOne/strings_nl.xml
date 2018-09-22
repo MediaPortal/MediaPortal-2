@@ -2,6 +2,7 @@
 <resources>
   <string name="Menu.Audio">Audio</string>
   <string name="Menu.Image">Afbeeldingen</string>
+  <string name="Menu.MediaHub">Mediahub</string>
   <string name="Menu.TV">TV</string>
   <string name="Menu.News">Nieuws</string>
   <string name="Menu.Weather">Weer</string>

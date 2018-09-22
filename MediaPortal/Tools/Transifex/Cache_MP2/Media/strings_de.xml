@@ -1,5 +1,13 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
+  <!--Headlines for HomeContent-->
+  <string name="Media.LatestPlayed">Zuletzt gespielt</string>
+  <string name="Media.LatestAdded">Zuletzt hinzugefügt</string>
+  <string name="Media.ContinueWatching">Wiedergabe fortsetzen</string>
+  <string name="Media.Favorites">Favoriten</string>
+  <string name="Media.Unplayed">Nicht abgespielt</string>
+  <string name="Media.CurrentPrograms">Aktuelle Programme</string>
+  <string name="Media.CurrentSchedules">Aktuelle Aufnahmepläne</string>
   <!--Menu items for the five Media navigation parts-->
   <string name="Media.BrowseMediaMenuItem">Medien durchsuchen</string>
   <string name="Media.BrowseMediaMenuItem.Help">Durchsuchen der Medienbibliothek nach allen Arten von Medien, angeordnet nach der Dateistruktur. Der Zugriff auf Wechseldatenträger ist hier ebenfalls möglich.</string>
@@ -55,6 +63,11 @@
   <string name="Media.MoviesCollectionMenuItem">Filmreihe</string>
   <string name="Media.SeriesNameMenuItem">Serien</string>
   <string name="Media.SeriesSeasonMenuItem">Staffel</string>
+  <string name="Media.ConductorMenuItem">Dirigent</string>
+  <string name="Media.CompilationMenuItem">Zusammenstellung</string>
+  <string name="Media.AlbumCompilationMenuItem">Albensammlung</string>
+  <string name="Media.ContentGroupMenuItem">Inhaltsgruppe</string>
+  <string name="Media.CertificationMenuItem">Zertifizierung</string>
   <string name="Media.SimpleSearchFilterMenuItem">Suche</string>
   <!--Filter titles-->
   <string name="Media.SwitchFilterMenuItem">Filter</string>
@@ -64,6 +77,9 @@
   <string name="Media.ImageFilterMedium">Mittel</string>
   <string name="Media.ImageFilterBig">Groß</string>
   <string name="Media.DiscNumberFilter">Disk {0}</string>
+  <string name="Media.CompilationFilterCompiled">Zusammenstellungen</string>
+  <string name="Media.CompilationFilterUncompiled">Keine Zusammenstellungen</string>
+  <string name="Media.ContentGroupFilter">{0}</string>
   <string name="Media.SwitchToBrowseMLView">Zur Serveransicht</string>
   <string name="Media.SwitchToLocalMediaView">Zu lokaler Ansicht</string>
   <string name="Media.SwitchToBrowseShareView">Zur Ordneransicht</string>
@@ -105,6 +121,11 @@
   <string name="Media.FilterImageItemsNavbarDisplayLabel">Name: {0}</string>
   <string name="Media.FilterSystemNavbarDisplayLabel">System: {0}</string>
   <string name="Media.FilterMoviesNavbarDisplayLabel">Filme: {0}</string>
+  <string name="Media.FilterConductorNavbarDisplayLabel">Dirigent: {0}</string>
+  <string name="Media.FilterCompilationNavbarDisplayLabel">Zusammenstellungen</string>
+  <string name="Media.FilterAlbumCompilationNavbarDisplayLabel">Album Zusammenstellung</string>
+  <string name="Media.FilterContentGroupNavbarDisplayLabel">Inhaltsgruppe: {0}</string>
+  <string name="Media.FilterCertificationNavbarDisplayLabel">Zertifizierung: {0}</string>
   <!--Display labels for workflow navigation contexts-->
   <string name="Media.BrowseMediaNavigationRootWorkflowNavigationContextDisplayLabel">Medien durchsuchen</string>
   <string name="Media.LocalMediaNavigationRootWorkflowNavigationContextDisplayLabel">Lokale Medien</string>
@@ -175,6 +196,11 @@
   <string name="Media.ChooseVideoHeader">Videos</string>
   <string name="Media.ChooseVideoLanguageHeader">Sprachen</string>
   <string name="Media.ChoosePlayCountHeader">Gesehen-Status</string>
+  <string name="Media.ChooseAlbumCompilationHeader">Album Zusammenstellung</string>
+  <string name="Media.ChooseCompilationHeader">Zusammenstellungen</string>
+  <string name="Media.ChooseConductorHeader">Dirigenten</string>
+  <string name="Media.ChooseContentGroupHeader">Inhaltsgruppen</string>
+  <string name="Media.ChooseCertificationHeader">Zertifizierungen</string>
   <string name="Media.PlaylistsOverviewHeader">Playlisten</string>
   <string name="Media.SavePlaylistEditNameHeader">Playlist speichern</string>
   <string name="Media.SavePlaylistFailedHeader">Playlist speichern</string>
@@ -250,11 +276,23 @@
   <string name="Media.OpenPlayerStrategy.MediaPortal.UI.Services.Players.PCMOpenPlayerStrategy.PreservePiP">PiP-Video behalten</string>
   <!--MediaItemAction dialog-->
   <string name="Media.MediaItemsActionDialogHeader">Aktionen</string>
-  <string name="Media.SetWatched">Als gesehen markieren</string>
-  <string name="Media.SetUnwatched">Als ungesehen markieren</string>
+  <string name="Media.SetPlayed">Als gesehen markieren</string>
+  <string name="Media.SetUnplayed">Als ungesehen markieren</string>
+  <string name="Media.Refresh">Ansicht aktualisieren</string>
+  <string name="Media.Reimport">Reimportieren</string>
   <string name="Media.DeleteFromStorage">Von Speicher löschen</string>
   <string name="Media.DeleteFromStorage.Confirmation">Soll das gewählte Element endgültig gelöscht werden? Diese Aktion kann nicht rückgängig gemacht werden.</string>
   <string name="Media.ConfirmAction">Bestätigung</string>
+  <string name="Media.ReimportMediaItem.Confirmation">Sind Sie sicher, dass Sie das Medienelement neu importieren wollen und alle existierenden Daten durch die neue Auswahl ersetzen? Der Vorgang kann nicht rückgängig gemacht werden.</string>
+  <string name="Media.ReimportMediaItem.Title">Bitte wählen Sie das passende Suchergebnis</string>
+  <string name="Media.ReimportMediaItem.Id">Id</string>
+  <string name="Media.ReimportMediaItem.Done">Fertig</string>
+  <string name="Media.ReimportMediaItem.SearchResultHeader">Suchergebnis</string>
+  <string name="Media.ReimportMediaItem.SearchTypeHeader">Such Variante</string>
+  <string name="Media.ReimportMediaItem.AutoMatch">Automatische Übereinstimmung</string>
+  <string name="Media.ReimportMediaItem.ManualSearch">Manuelle Suche</string>
+  <string name="Media.ReimportMediaItem.Description">Beschreibung</string>
+  <string name="Media.ReimportMediaItem.Hint">Hinweis: Es wird eine Internetverbindung benötigt und mindestens ein Online-Scraper muss in den Einstellungen aktiviert sein</string>
   <!--Play items dialog-->
   <string name="Media.PlayItemDialogHeader">Element abspielen</string>
   <string name="Media.PlayAudioItems">Audiotitel abspielen</string>
@@ -341,6 +379,7 @@
   <string name="Media.CannotPlayItemDialogText">Medienelement kannn nicht abgespielt werden</string>
   <string name="Media.CannotPlayItemsDialogText">Medienelemente können nicht abgespielt werden</string>
   <string name="Media.ValueEmptyTitle">&lt;Leer&gt;</string>
+  <string name="Media.UnratedTitle">Nicht bewertet</string>
   <string name="Media.ChoosePlayModeDialogHeader">Wiedergabemodus auswählen</string>
   <string name="Media.PlayMode">Wiedergabemodus</string>
   <string name="Media.PlayMode.Continuous">Endlos</string>
@@ -379,6 +418,10 @@
   <string name="Media.SwitchGroupingMenuItem">Gruppieren</string>
   <string name="Media.SwitchGroupingDialogTitle">Gruppieren nach</string>
   <string name="Media.NoGrouping">Keine Gruppierung</string>
+  <!--Stubs-->
+  <string name="Media.Stub.Title">Medium einlegen</string>
+  <string name="Media.Stub.Message">Bitte Medium einlegen</string>
+  <!--Settings-->
   <string name="Settings.Players">Player</string>
   <string name="Settings.Players.ClosePlayersWhenFinished">Player nach Wiedergabe schließen</string>
   <string name="Settings.Players.ClosePlayersWhenFinished.Help">Aktiviere diese Option, damit MediaPortal die Player am Ende der Wiedergabe automatisch schließt</string>
@@ -400,6 +443,12 @@
   <string name="Settings.Media.ShowVirtual.Audio">Alle bekannten Album-Titel anzeigen</string>
   <string name="Settings.Media.ShowVirtual.Movie">Alle bekannten Filme der Sammlung anzeigen</string>
   <string name="Settings.Media.ShowVirtual.Series">Alle bekannten Staffeln und Episoden anzeigen</string>
+  <string name="Settings.Media.Certification">Zertifikationsländer</string>
+  <string name="Settings.Media.Certification.None">Original (wie importiert)</string>
+  <string name="Settings.Media.Certification.Movie">Zertifikationsland Filme</string>
+  <string name="Settings.Media.Certification.Movie.Help">Wähle ein Zertifikationsland für Filme</string>
+  <string name="Settings.Media.Certification.Series">Zertifikationsland Serien </string>
+  <string name="Settings.Media.Certification.Series.Help">Wähle ein Zertifikationsland für Serien</string>
   <!--Secondary filters-->
   <string name="Filter.RemoteNumericAlphabet0"></string>
   <string name="Filter.RemoteNumericAlphabet1"></string>
@@ -413,4 +462,5 @@
   <string name="Filter.RemoteNumericAlphabet9">wxyz</string>
   <string name="Filter.Filtered">Filter aktiv</string>
   <string name="Filter.StartsWith">Beginnt mit: {0}</string>
+  <string name="RestrictionGroup.Media.DeleteMediaItem">Medien: Entferne Objekte vom Speicher</string>
 </resources>

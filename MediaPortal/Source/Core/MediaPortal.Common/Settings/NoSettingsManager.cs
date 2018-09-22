@@ -55,6 +55,8 @@ namespace MediaPortal.Common.Settings
 
     public void ClearCache() { }
 
+    public void ChangeUserContext(string userName) { }
+
     public void RemoveSettingsData(Type settingsType, bool user, bool global) { }
 
     public void RemoveAllSettingsData(bool user, bool global) { }

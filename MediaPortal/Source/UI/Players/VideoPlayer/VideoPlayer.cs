@@ -394,7 +394,7 @@ namespace MediaPortal.UI.Players.Video
     protected virtual void PostProcessTexture(IBitmapAsset2D targetTexture)
     {
       // TODO:
-      //_mpcSubsRenderer.DrawItem(targetTexture, false);
+      //_mpcSubsRenderer?.DrawItem(targetTexture, false);
     }
 
     public IGeometry GeometryOverride

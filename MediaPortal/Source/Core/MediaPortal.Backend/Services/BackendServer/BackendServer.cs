@@ -23,7 +23,6 @@
 #endregion
 
 using System;
-using HttpServer;
 using MediaPortal.Backend.BackendServer;
 using MediaPortal.Backend.Services.ClientCommunication;
 using MediaPortal.Common;
@@ -141,7 +140,7 @@ namespace MediaPortal.Backend.Services.BackendServer
       UPnPConfiguration.USE_IPV6 = serverSettings.UseIPv6;
       UPnPConfiguration.IP_ADDRESS_BINDINGS = serverSettings.IPAddressBindingsList;
       NetworkUtils.LimitIPEndpoints = serverSettings.LimitIPEndpoints;
-      HttpResponse.HTTP_SERVER_NAME = MP2_HTTP_SERVER_NAME;
+      //HttpResponse.HTTP_SERVER_NAME = MP2_HTTP_SERVER_NAME;
 
       ISystemResolver systemResolver = ServiceRegistration.Get<ISystemResolver>();
       _upnpServer = new UPnPBackendServer(systemResolver.LocalSystemId);

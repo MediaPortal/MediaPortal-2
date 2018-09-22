@@ -8,4 +8,6 @@
   <KeyBinding Key="Back" Command="{Command CloseOSD}" IsEnabled="{Binding IsOSDVisible}"/>
   <KeyBinding Key="Escape" Command="{Command CloseOSD}" IsEnabled="{Binding IsOSDVisible}"/>
 
+  <KeyBinding Key="PageUp" Command="{Command Source={Service PlayerContextManager},Path=NextItem}"/>
+  <KeyBinding Key="PageDown" Command="{Command Source={Service PlayerContextManager},Path=PreviousItem}"/>
 </Grid>

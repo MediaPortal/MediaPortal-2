@@ -1,0 +1,78 @@
+<Plugin
+    DescriptorVersion="1.0"
+    Name="InputManager"
+    PluginId="{359A4AA5-B25F-4961-896B-C1323AF4A4A4}"
+    Author="FreakyJ"
+    Copyright="GPL"
+    AutoActivate="true"
+    Description="Control your MP2 by any HID device">
+
+  <Version
+    PluginVersion="1.3"
+    ReleaseDate="2013-11-11 01:00:00 GMT+01:00"
+    CurrentAPI="1"/>
+
+  <DependsOn>
+    <CoreDependency Name="MediaPortal.Common" CompatibleAPI="2" />
+    <CoreDependency Name="MediaPortal.UI" CompatibleAPI="2" />
+    <CoreDependency Name="MediaPortal.Utilities" CompatibleAPI="1" />
+    <!-- SkinEngine -->
+    <PluginReference PluginId="{D87D92F0-5E71-470a-A2A4-430F90A28BF3}" CompatibleAPI="1"/>
+    <!-- ConfigurationManager -->
+    <PluginReference PluginId="{1AFF4467-64B0-4ca1-AF28-9AEDF3525BCE}" CompatibleAPI="1"/>
+    <!-- Configuration plugin -->
+    <PluginReference PluginId="{B765A4B6-F455-4941-BDAE-2CE45208BFEB}" CompatibleAPI="1"/>
+  </DependsOn>
+
+  <Runtime>
+    <Assembly FileName="InputDeviceManager.dll"/>
+    <PluginStateTracker ClassName="MediaPortal.Plugins.InputDeviceManager.InputDeviceManager"/>
+  </Runtime>
+
+  <Register Location="/Resources/Language">
+    <Resource Id="InputDeviceManagerLanguage" Directory="Language" Type="Language"/>
+  </Register>
+
+  <Register Location="/Models">
+    <Model Id="CC11183C-01A9-4F96-AF90-FAA046981006" Name="InputDeviceModel" ClassName="MediaPortal.Plugins.InputDeviceManager.Models.InputDeviceModel"/>
+  </Register>
+
+  <Register Location="/Resources/Skin">
+    <Resource Id="InputManagerSkin" Directory="Skin" Type="Skin"/>
+  </Register>
+
+  <Register Location="/Workflow/States">
+    <WorkflowState Id="CB09DF01-65FA-4550-977C-B685C237ED3D"
+        Name="InputDeviceManagerConfigScreenKeys"
+        MainScreen="ConfigScreenKeys"
+        DisplayLabel="Input Devices Keys"
+        WorkflowModel="CC11183C-01A9-4F96-AF90-FAA046981006"/>
+    <WorkflowState Id="A1399A7B-AD02-4F72-8F80-F0C43362953E"
+        Name="InputDeviceManagerConfigScreenScreens"
+        MainScreen="ConfigScreenScreens"
+        DisplayLabel="Input Devices Screens"
+        WorkflowModel="CC11183C-01A9-4F96-AF90-FAA046981006"/>
+  </Register>
+
+  <Register Location="/Configuration/Settings">
+    <ConfigSection
+        Id="InputDevices"
+        Redundant="true"
+        Text="[Settings.InputDeviceManager.Section]"/>
+  </Register>
+
+  <Register Location="/Configuration/Settings/InputDevices">
+    <CustomConfigSetting
+        Id="InputDevicesConfKeys"
+        Text="[Settings.InputDeviceManager.EnterKeyConfig]"
+        HelpText="[Settings.InputDeviceManager.EnterKeyConfigHelp]"
+        ClassName="MediaPortal.Plugins.InputDeviceManager.Settings.ConfigScreenKeys"
+        AdditionalData="WorkflowState=CB09DF01-65FA-4550-977C-B685C237ED3D,ConfAppPanel=..."/>
+    <CustomConfigSetting
+        Id="InputDevicesConfScreens"
+        Text="[Settings.InputDeviceManager.EnterScreenConfig]"
+        HelpText="[Settings.InputDeviceManager.EnterScreenConfigHelp]"
+        ClassName="MediaPortal.Plugins.InputDeviceManager.Settings.ConfigScreenScreens"
+        AdditionalData="WorkflowState=A1399A7B-AD02-4F72-8F80-F0C43362953E,ConfAppPanel=..."/>
+  </Register>
+</Plugin>

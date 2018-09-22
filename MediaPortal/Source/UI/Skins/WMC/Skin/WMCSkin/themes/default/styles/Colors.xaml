@@ -35,8 +35,9 @@
   <ResourceWrapper x:Key="DialogBackgroundGradient1Color" Resource="#F2447da7"/>
   <ResourceWrapper x:Key="DialogBackgroundGradient2Color" Resource="#F2124273"/>
   <ResourceWrapper x:Key="DialogBackgroundFadeColor" Resource="#081643"/>
-
-  <ResourceWrapper x:Key="DialogBorderColor">
+  <ResourceWrapper x:Key="DialogBorderColor" Resource="#8CFFFFFF"/>
+  
+  <!--ResourceWrapper x:Key="DialogBorderColor">
     <ResourceWrapper.Resource>
       <LinearGradientBrush StartPoint="0.5,0" EndPoint="0.5,1">
         <GradientStop Offset="0" Color="#40505050"/>
@@ -44,7 +45,7 @@
         <GradientStop Offset="1" Color="#40505050"/>
       </LinearGradientBrush >
     </ResourceWrapper.Resource>
-  </ResourceWrapper>
+  </-->
 
   <ResourceWrapper x:Key="ProgressBarBorderColor" Resource="#80000000"/>
   <ResourceWrapper x:Key="ProgressBarBackgroundColor" Resource="#FFc1c1c1"/>
@@ -74,6 +75,29 @@
   <ResourceWrapper x:Key="PressedButtonGradientLight2Color" Resource="#FFA0A0A0"/>
   <ResourceWrapper x:Key="PressedButtonGradientDark1Color" Resource="#FF808080"/>
   <ResourceWrapper x:Key="PressedButtonGradientDark2Color" Resource="#FF404040"/>
+
+  <!-- ScrollBar -->
+  <ResourceWrapper x:Key="ScrollBarStrokeColor" Resource="#00000000"/>
+  <ResourceWrapper x:Key="ScrollBarBackgroundColor">
+    <ResourceWrapper.Resource>
+      <LinearGradientBrush StartPoint="0,0.5" EndPoint="1,0.5">
+        <GradientStop Offset="0" Color="#66000000"/>
+        <GradientStop Offset="1" Color="#00000000"/>
+      </LinearGradientBrush >
+    </ResourceWrapper.Resource>
+  </ResourceWrapper>
+  <!--ResourceWrapper x:Key="ScrollBarBackgroundColor" Resource="#10909090"/-->
+  <ResourceWrapper x:Key="ScrollBarKnobStrokeColor" Resource="#00FFFFFF"/>
+  <!--ResourceWrapper x:Key="ScrollBarKnobBackgroundColor" Resource="#4D000000"/-->
+  <ResourceWrapper x:Key="ScrollBarKnobBackgroundColor">
+    <ResourceWrapper.Resource>
+      <LinearGradientBrush StartPoint="0,0.5" EndPoint="1,0.5">
+        <GradientStop Offset="0" Color="#FF0a3c72"/>
+        <GradientStop Offset="1" Color="#FF204b7a"/>
+      </LinearGradientBrush >
+    </ResourceWrapper.Resource>
+  </ResourceWrapper>
+  <ResourceWrapper x:Key="ScrollBarWidth" Resource="16"/>
 
   <!-- Dark green -->
   <ResourceWrapper x:Key="DisabledButtonColor" Resource="#FF050505"/>
@@ -143,16 +167,6 @@
 
     <!-- Light blue with some green -->
   <ResourceWrapper x:Key="PassiveFocusBackgroundColor" Resource="#081643"/>
-
-  <ResourceWrapper x:Key="ScrollBarStrokeColor" Resource="#FFA0A0A0"/>
-
-  <ResourceWrapper x:Key="ScrollBarBackgroundColor" Resource="#10909090"/>
-
-  <ResourceWrapper x:Key="ScrollBarKnobStrokeColor" Resource="#FFA0A0A0"/>
-
-  <ResourceWrapper x:Key="ScrollBarKnobBackgroundColor" Resource="#20A0A0A0"/>
-
-  <ResourceWrapper x:Key="ScrollBarWidth" Resource="12"/>
 
   <!-- White -->
   <ResourceWrapper x:Key="ControlHandleColor" Resource="#FFFFFFFF"/>

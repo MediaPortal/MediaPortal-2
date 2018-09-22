@@ -1,8 +1,10 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
-  <string name="SlimTvClient.Title">Slim TV Client</string>
+  <string name="SlimTvClient.Title">TV-gids</string>
   <string name="SlimTvClient.Main">TV</string>
+  <string name="SlimTvClient.Main.Help">Hier kan je je favoriete TV en radio-programma\'s bekijken.</string>
   <string name="SlimTvClient.TvGuide">TV-gids</string>
+  <string name="SlimTvClient.TvGuide.Help">Blader door de EPG en kies de programma\'s die je wilt zien of opnemen. </string>
   <string name="SlimTvClient.SingleChannelGuide">Programmagids</string>
   <string name="SlimTvClient.CurrentlyPlayingInformationHeader">Programma-informatie</string>
   <string name="SlimTvClient.ChannelLabel">Zender</string>
@@ -12,17 +14,24 @@
   <string name="SlimTvClient.ProgramStartLabel">Starttijd</string>
   <string name="SlimTvClient.ProgramEndLabel">Eindtijd</string>
   <string name="SlimTvClient.EpisodeLabel">Aflevering</string>
+  <string name="SlimTvClient.CurrentProgram">Huidig programma</string>
+  <string name="SlimTvClient.NextProgram">Volgende programma</string>
   <string name="SlimTvClient.Progress">Voortgang</string>
   <string name="SlimTvClient.Guide">TV-gids</string>
   <string name="SlimTvClient.NoProgram">Geen programma-informatie</string>
   <string name="SlimTvClient.ChooseProgramAction">Kies programma actie...</string>
   <string name="SlimTvClient.ChooseChannelGroup">Kies zendergroep...</string>
+  <string name="SlimTvClient.ChannelGroupButton">Zender groep</string>
   <string name="SlimTvClient.ProgramOver">Programma is reeds afgelopen</string>
   <string name="SlimTvClient.WatchNow">Programma nu bekijken</string>
   <string name="SlimTvClient.WatchFromBeginning">Bekijk opname vanaf het begin</string>
   <string name="SlimTvClient.RecordNow">Nu opnemen</string>
   <string name="SlimTvClient.DeleteSchedule">Verwijder geplande opname</string>
   <string name="SlimTvClient.CreateSchedule">Plan een opname</string>
+  <string name="SlimTvClient.CreateManualSchedule">Plan een opname handmatig</string>
+  <string name="SlimTvClient.DeleteRecording.Confirmation">Weet u zeker dat u de opname wilt annuleren en verwijderen? Dit kan niet ongedaan worden gemaakt.</string>
+  <string name="SlimTvClient.ProgramSearch">Zoek programma\'s</string>
+  <string name="SlimTvClient.ProgramSearch.Help">Zoek voor programma titels in de EPG en vindt je gewenste shows</string>
   <!--Extended recording features-->
   <string name="SlimTvClient.RecordActions">Opname acties</string>
   <string name="SlimTvClient.StopCurrentRecording">Stop huidige opname \'{0}\'</string>
@@ -52,15 +61,25 @@
   <string name="SlimTvClient.ScheduleName">Geplande opnamenaam</string>
   <string name="SlimTvClient.ScheduleType">Geplande opnametype</string>
   <string name="SlimTvClient.Schedules">Geplande opnames</string>
+  <string name="SlimTvClient.Schedules.Help">Bekijk geplande opnames. Je mag hier ook geplande opnames wissen. </string>
   <string name="SlimTvClient.ExtendedSchedule">Uitgebreide geplande opnames</string>
   <string name="SlimTvClient.ScheduleManagement">Beheer geplande opnames</string>
+  <string name="SlimTvClient.ScheduleModeSeries">Beheer geplande opnames van series</string>
+  <string name="SlimTvClient.NewSchedule">Nieuwe handmatige opname.</string>
   <string name="SlimTvClient.ErrorNoTvProvider">TV aanbieder (nog) niet beschikbaar</string>
   <!--Settings-->
   <string name="SlimTvClient.EpgNumberOfRows">Aantal rijen in EPG</string>
   <string name="SlimTvClient.EpgNumberOfRows.Help">Stel het aantal rijen (zenders) in dat wordt weergegeven in EPG</string>
   <string name="SlimTvClient.EpgNumberOfHours">Aantal uren in EPG</string>
   <string name="SlimTvClient.EpgNumberOfHours.Help">Stel het aantal uren (programma\'s) in dat wordt weergegeven in EPG</string>
+  <string name="SlimTvClient.EpgVisibleChannelInfo">Zichtbare EPG informatie</string>
+  <string name="SlimTvClient.EpgVisibleChannelInfo.ChannelName">Naam zender</string>
+  <string name="SlimTvClient.EpgVisibleChannelInfo.ChannelNumber">Nummer zender</string>
+  <string name="SlimTvClient.EpgVisibleChannelInfo.ChannelLogo">Zender logo</string>
+  <string name="SlimTvClient.ZapFromGuide">Zap vanuit de TV-gids</string>
+  <string name="SlimTvClient.AutoStartTv">Start de TV automatisch</string>
   <string name="SlimTvClient.Notifications">Meldingen</string>
+  <string name="SlimTvClient.NoColor">Geen</string>
   <string name="SlimTvClient.RecordingsMenuItem">Opnames</string>
   <string name="SlimTvClient.RecordingsRootViewName">TV opnames</string>
   <string name="SlimTvClient.ChannelMenuItemLabel">Filteren op kanaal</string>

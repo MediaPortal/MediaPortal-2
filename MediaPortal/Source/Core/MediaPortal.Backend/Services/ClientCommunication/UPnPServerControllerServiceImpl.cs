@@ -32,6 +32,7 @@ using MediaPortal.Common.General;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.Messaging;
+using MediaPortal.Common.Runtime;
 using MediaPortal.Common.SystemResolver;
 using MediaPortal.Common.Threading;
 using MediaPortal.Common.UPnP;
@@ -55,6 +56,16 @@ namespace MediaPortal.Backend.Services.ClientCommunication
 
     protected AsynchronousMessageQueue _messageQueue;
 
+    static IMediaLibrary MediaLibrary
+    {
+      get
+      {
+        IMediaLibrary mediaLibrary = ServiceRegistration.Get<IMediaLibrary>();
+        mediaLibrary.ReserveAccess(5000);
+        return mediaLibrary;
+      }
+    }
+
     public UPnPServerControllerServiceImpl() : base(
         UPnPTypesAndIds.SERVER_CONTROLLER_SERVICE_TYPE, UPnPTypesAndIds.SERVER_CONTROLLER_SERVICE_TYPE_VERSION,
         UPnPTypesAndIds.SERVER_CONTROLLER_SERVICE_ID)
@@ -72,6 +83,13 @@ namespace MediaPortal.Backend.Services.ClientCommunication
             SendEvents = false
           };
       AddStateVariable(A_ARG_TYPE_Bool);
+
+      // Used for int values
+      DvStateVariable A_ARG_TYPE_Integer = new DvStateVariable("A_ARG_TYPE_Integer", new DvStandardDataType(UPnPStandardDataType.I4))
+      {
+        SendEvents = false
+      };
+      AddStateVariable(A_ARG_TYPE_Integer);
 
       // Used to transport a system name - contains the hostname string
       DvStateVariable A_ARG_TYPE_SystemName = new DvStateVariable("A_ARG_TYPE_SystemName", new DvStandardDataType(UPnPStandardDataType.String))
@@ -175,6 +193,14 @@ namespace MediaPortal.Backend.Services.ClientCommunication
           });
       AddAction(getSystemNameForSytemIdAction);
 
+      DvAction getServerStateAction = new DvAction("GetServerState", OnGetServerState,
+          new DvArgument[] {
+          },
+          new DvArgument[] {
+            new DvArgument("ServerState", A_ARG_TYPE_Integer, ArgumentDirection.Out),
+          });
+      AddAction(getServerStateAction);
+
       // More actions go here
 
       _messageQueue = new AsynchronousMessageQueue(this, new string[]
@@ -271,8 +297,7 @@ namespace MediaPortal.Backend.Services.ClientCommunication
       if (error != null)
         return error;
 
-      IMediaLibrary mediaLibrary = ServiceRegistration.Get<IMediaLibrary>();
-      IDictionary<Guid, Share> allShares = mediaLibrary.GetShares(null);
+      IDictionary<Guid, Share> allShares = MediaLibrary.GetShares(null);
       IDictionary<string, ICollection<Share>> importRequests = new Dictionary<string, ICollection<Share>>();
       foreach (Guid shareId in shareIds)
       {
@@ -326,6 +351,14 @@ namespace MediaPortal.Backend.Services.ClientCommunication
       string systemId = (string) inParams[0];
       SystemName result = ServiceRegistration.Get<ISystemResolver>().GetSystemNameForSystemId(systemId);
       outParams = new List<object> {result == null ? null : result.HostName};
+      return null;
+    }
+
+    static UPnPError OnGetServerState(DvAction action, IList<object> inParams, out IList<object> outParams,
+        CallContext context)
+    {
+      SystemState result = ServiceRegistration.Get<ISystemStateService>().CurrentState;
+      outParams = new List<object> { (int)result };
       return null;
     }
   }

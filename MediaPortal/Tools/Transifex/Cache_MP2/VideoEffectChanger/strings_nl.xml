@@ -1,0 +1,9 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<resources>
+  <string name="VEC.Enable">Activeer automatische selectie van video-effecten</string>
+  <string name="VEC.ConfigGroup">Effecten</string>
+  <string name="VEC.LowerEffect">Effect lage resolutie</string>
+  <string name="VEC.HigherEffect">Effect hoge resolutie</string>
+  <string name="VEC.ResolutionLimit">Resolutie grens</string>
+  <string name="Settings.Players.VideoPlayer.VEC">Wissel video-effect</string>
+</resources>

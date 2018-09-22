@@ -36,24 +36,13 @@ Parameters which have to be accessible by a DynamicResource lookup:
     >
   <Screen.Resources>
     <Model x:Key="DefaultMenuModel" Id="9E9D0CD9-4FDB-4c0f-A0C4-F356E151BDE0"/>
-    <!--<Storyboard x:Key="SlideInStoryboard" FillBehavior="HoldEnd">
-      <DoubleAnimationUsingKeyFrames BeginTime="00:00:00" FillBehavior="HoldEnd" Storyboard.TargetName="HoverGrid" Storyboard.TargetProperty="RenderTransform.X">
-        <SplineDoubleKeyFrame KeyTime="00:00:00" Value="470"/>
-        <SplineDoubleKeyFrame KeyTime="00:00:00.30" Value="0"/>
-      </DoubleAnimationUsingKeyFrames>
-      <DoubleAnimationUsingKeyFrames BeginTime="00:00:00" FillBehavior="HoldEnd" Storyboard.TargetName="MainMenu" Storyboard.TargetProperty="Opacity">
-        <SplineDoubleKeyFrame KeyTime="00:00:00" Value="0.0"/>
-        <SplineDoubleKeyFrame KeyTime="00:00:00.30" Value="1.0"/>
-      </DoubleAnimationUsingKeyFrames>
-    </Storyboard>-->
+    <Model x:Key="HomeContentModel" Id="24BB1BBE-A3B3-474A-8D55-C37EBE182F6C"/>
   </Screen.Resources>
+  
   <Screen.Triggers>
     <EventTrigger RoutedEvent="Screen.Show">
       <!--Set default state of side menus to hidden-->
       <TriggerCommand Command="{Command Source={StaticResource DefaultMenuModel}, Path=CloseMenu}"/>
-      <!--<EventTrigger.Actions>
-        <BeginStoryboard Storyboard="{StaticResource SlideInStoryboard}"/>
-      </EventTrigger.Actions>-->
     </EventTrigger>
   </Screen.Triggers>
 
@@ -65,108 +54,15 @@ Parameters which have to be accessible by a DynamicResource lookup:
       <ColumnDefinition Width="*"/>
     </Grid.ColumnDefinitions>
 
-    <Image x:Name="L1" Source="Effects\Layer1.png" Opacity="0" Stretch="Fill" 
-           IsVisible="{Binding Source={StaticResource SkinSettingsModel}, Path=[WMC].EnableAnimatedBackground}"/>
-    <Image x:Name="L2" Source="Effects\Layer2.png" Opacity="0" Stretch="Fill" 
-           IsVisible="{Binding Source={StaticResource SkinSettingsModel}, Path=[WMC].EnableAnimatedBackground}"/>
-    <Image x:Name="L3" Source="Effects\Layer3.png" Opacity="0" Stretch="Fill" 
-           IsVisible="{Binding Source={StaticResource SkinSettingsModel}, Path=[WMC].EnableAnimatedBackground}"/>
-    <Image x:Name="L4" Source="Effects\Layer4.png" Opacity="0" Stretch="Fill" 
-           IsVisible="{Binding Source={StaticResource SkinSettingsModel}, Path=[WMC].EnableAnimatedBackground}"/>
-    <Image x:Name="L5" Source="Effects\Layer5.png" Opacity="0" Stretch="Fill" 
-           IsVisible="{Binding Source={StaticResource SkinSettingsModel}, Path=[WMC].EnableAnimatedBackground}"/>
+    <Control x:Name="FanArtBackground" Grid.Column="0" Grid.Row="0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="-1"
+             Template="{DynamicResource ResourceKey=FanArtBackgroundHome_Template}"/>
 
     <Grid.Resources>
       <Model x:Key="MouseModel" Id="CA6428A7-A6E2-4dd3-9661-F89CEBAF8E62"/>
       <Model x:Key="SkinSettingsModel" Id="13961014-16C4-4361-9751-8E2C585EFD44"/>
       <Model x:Key="ScreenModeModel" Id="0E621AA5-0733-4E88-A0F0-887F8D73A055"/>
       <Model x:Key="StateModel" Id="B23D8DC1-405E-4564-92D0-E247C299FFAE"/>
-      <Storyboard
-                x:Key="AnimationL1"
-                BeginTime="00:00:00.000"
-                Duration="00:00:21.000"
-                RepeatBehavior="Forever">
-        <DoubleAnimationUsingKeyFrames Storyboard.TargetName="L1" Storyboard.TargetProperty="Opacity">
-          <SplineDoubleKeyFrame KeyTime="00:00:00.000" Value="0"/>
-          <SplineDoubleKeyFrame KeyTime="00:00:03.000" Value="0"/>
-          <SplineDoubleKeyFrame KeyTime="00:00:06.000" Value="1"/>
-          <SplineDoubleKeyFrame KeyTime="00:00:09.000" Value="0"/>
-          <SplineDoubleKeyFrame KeyTime="00:00:21.000" Value="0"/>
-        </DoubleAnimationUsingKeyFrames>
-      </Storyboard>
-      <Storyboard
-                x:Key="AnimationL2"
-                BeginTime="00:00:00.000"
-                Duration="00:00:21.000"
-                RepeatBehavior="Forever">
-        <DoubleAnimationUsingKeyFrames Storyboard.TargetName="L2" Storyboard.TargetProperty="Opacity">
-          <SplineDoubleKeyFrame KeyTime="00:00:00.000" Value="0"/>
-          <SplineDoubleKeyFrame KeyTime="00:00:06.000" Value="0"/>
-          <SplineDoubleKeyFrame KeyTime="00:00:09.000" Value="1"/>
-          <SplineDoubleKeyFrame KeyTime="00:00:12.000" Value="0"/>
-          <SplineDoubleKeyFrame KeyTime="00:00:21.000" Value="0"/>
-        </DoubleAnimationUsingKeyFrames>
-      </Storyboard>
-      <Storyboard
-                x:Key="AnimationL3"
-                BeginTime="00:00:00.000"
-                Duration="00:00:21.000"
-                RepeatBehavior="Forever">
-        <DoubleAnimationUsingKeyFrames Storyboard.TargetName="L3" Storyboard.TargetProperty="Opacity">
-          <SplineDoubleKeyFrame KeyTime="00:00:00.000" Value="0"/>
-          <SplineDoubleKeyFrame KeyTime="00:00:08.000" Value="0"/>
-          <SplineDoubleKeyFrame KeyTime="00:00:12.000" Value="1"/>
-          <SplineDoubleKeyFrame KeyTime="00:00:15.000" Value="0"/>
-          <SplineDoubleKeyFrame KeyTime="00:00:21.000" Value="0"/>
-        </DoubleAnimationUsingKeyFrames>
-      </Storyboard>
-      <Storyboard
-                x:Key="AnimationL4"
-                BeginTime="00:00:00.000"
-                Duration="00:00:21.000"
-                RepeatBehavior="Forever">
-        <DoubleAnimationUsingKeyFrames Storyboard.TargetName="L4" Storyboard.TargetProperty="Opacity">
-          <SplineDoubleKeyFrame KeyTime="00:00:00.000" Value="0"/>
-          <SplineDoubleKeyFrame KeyTime="00:00:11.500" Value="0"/>
-          <SplineDoubleKeyFrame KeyTime="00:00:15.000" Value="1"/>
-          <SplineDoubleKeyFrame KeyTime="00:00:18.000" Value="0"/>
-          <SplineDoubleKeyFrame KeyTime="00:00:21.000" Value="0"/>
-        </DoubleAnimationUsingKeyFrames>
-      </Storyboard>
-      <Storyboard
-                x:Key="AnimationL5"
-                BeginTime="00:00:00.000"
-                Duration="00:00:21.000"
-                RepeatBehavior="Forever">
-        <DoubleAnimationUsingKeyFrames Storyboard.TargetName="L5" Storyboard.TargetProperty="Opacity">
-          <SplineDoubleKeyFrame KeyTime="00:00:00.000" Value="0"/>
-          <SplineDoubleKeyFrame KeyTime="00:00:14.500" Value="0"/>
-          <SplineDoubleKeyFrame KeyTime="00:00:18.000" Value="1"/>
-          <SplineDoubleKeyFrame KeyTime="00:00:21.000" Value="0"/>
-        </DoubleAnimationUsingKeyFrames>
-      </Storyboard>
     </Grid.Resources>
-
-    <Grid.Triggers>
-      <Trigger Property="IsVisible" Value="True">
-        <Trigger.EnterActions>
-          <BeginStoryboard x:Name="BeginStoryboardL1" Storyboard="{StaticResource AnimationL1}"/>
-          <BeginStoryboard x:Name="BeginStoryboardL2" Storyboard="{StaticResource AnimationL2}"/>
-          <BeginStoryboard x:Name="BeginStoryboardL3" Storyboard="{StaticResource AnimationL3}"/>
-          <BeginStoryboard x:Name="BeginStoryboardL4" Storyboard="{StaticResource AnimationL4}"/>
-          <BeginStoryboard x:Name="BeginStoryboardL5" Storyboard="{StaticResource AnimationL5}"/>
-          <!--BeginStoryboard x:Name="BeginStoryboardL6" Storyboard="{StaticResource AnimationL6}"/-->
-        </Trigger.EnterActions>
-        <Trigger.ExitActions>
-          <StopStoryboard BeginStoryboardName="BeginStoryboardL1"/>
-          <StopStoryboard BeginStoryboardName="BeginStoryboardL2"/>
-          <StopStoryboard BeginStoryboardName="BeginStoryboardL3"/>
-          <StopStoryboard BeginStoryboardName="BeginStoryboardL4"/>
-          <StopStoryboard BeginStoryboardName="BeginStoryboardL5"/>
-          <!--StopStoryboard BeginStoryboardName="BeginStoryboardL6"/-->
-        </Trigger.ExitActions>
-      </Trigger>
-    </Grid.Triggers>
 
     <DockPanel Grid.Column="0" Grid.Row="0" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
       LastChildFill="True">
@@ -221,17 +117,21 @@ Parameters which have to be accessible by a DynamicResource lookup:
         <ColumnDefinition Width="450"/>
       </Grid.ColumnDefinitions>
       <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-        <StackPanel Orientation="Horizontal" Context="{Service Window}" IsVisible="{Binding Source={StaticResource MouseModel},Path=IsMouseUsed}" VerticalAlignment="Center">
+        <StackPanel Orientation="Horizontal" Context="{Service Window}" IsVisible="{Binding Source={StaticResource MouseModel},Path=IsMouseUsed}" 
+                    IsEnabled="{Binding Source={StaticResource HomeContentModel}, Path=!IsContentFocused}" VerticalAlignment="Center">
           <Control Style="{ThemeResource NotificationControlStyle}" Margin="5,2,5,5" IsVisible="{Binding Source={StaticResource NotificationsModel},Path=IsNotificationsHintVisible}"
                      HorizontalAlignment="Left" VerticalAlignment="Center"/>
         </StackPanel>
-        <Button Style="{ThemeResource UserButtonStyle}" Margin="0,0,5,0" IsVisible="{Binding Source={StaticResource LoginModel},Path=EnableUserLogin}"
+        <!-- User Indicator -->
+        <Button Style="{ThemeResource UserButtonStyle}" Margin="0,0,5,0" IsVisible="{Binding Source={StaticResource LoginModel},Path=EnableUserLogin}" Focusable="False"
                 Command="{Command Source={Service WorkflowManager},Path=NavigatePush,Parameters=2529B0F0-8415-4A4E-971B-38D6CDD2406A}"/>
+
+        <!-- Importing Indicator -->
         <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="0,0,5,0"
                     DataContext="{Binding Source={StaticResource StateModel}, Path=[C37B62D0-8E87-42A4-877E-B41944DA9FC9]}"
                     IsVisible="{Binding Converter={StaticResource ReferenceToBoolConverter}}">
           <Label FontSize="{ThemeResource SmallerFontSize}" Margin="10,0,0,0"
-                     Color="{ThemeResource TextColor}" VerticalAlignment="Center" HorizontalAlignment="Right">
+                 Color="{ThemeResource TextColor}" VerticalAlignment="Center" HorizontalAlignment="Right">
             <Label.IsVisible>
               <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0}>=0">
                 <Binding Path="Progress"/>
@@ -243,11 +143,33 @@ Parameters which have to be accessible by a DynamicResource lookup:
           </Label>
           <Button Style="{ThemeResource ImportingButtonStyle}" IsVisible="{Binding IsImporting}"/>
         </StackPanel>
+
+        <!--Data Base Upgrade Indicator-->
         <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="0,0,5,0"
-                    DataContext="{Binding Source={StaticResource StateModel}, Path=[2A58935C-3363-4FA1-B48D-1EF0E81F830D]}"
+                    DataContext="{Binding Source={StaticResource StateModel}, Path=[431528C9-5610-45CD-9807-0130AE1761DA]}"
                     IsVisible="{Binding Converter={StaticResource ReferenceToBoolConverter}}">
+          <Label FontSize="{ThemeResource TinyFontSize}" Content="[Notifications.Upgrading]" Margin="10,-5,0,-10" 
+                 Color="{ThemeResource TextColor}" VerticalAlignment="Center" HorizontalAlignment="Right">
+            <Label.IsVisible>
+              <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0}>=0">
+                <Binding Path="Progress"/>
+              </MultiBinding>
+            </Label.IsVisible>
+            <Label.Content>
+              <Binding Path="Progress" Converter="{StaticResource StringFormatConverter}" ConverterParameter="{}{0}%"/>
+            </Label.Content>
+          </Label>
+          <Button Style="{ThemeResource UpgradingButtonStyle}" IsVisible="{Binding IsUpgrading}"/>
+        </StackPanel>
+
+        <!-- Recording Indicator -->
+        <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="0,0,5,0"
+                        DataContext="{Binding Source={StaticResource StateModel}, Path=[2A58935C-3363-4FA1-B48D-1EF0E81F830D]}"
+                        IsVisible="{Binding Converter={StaticResource ReferenceToBoolConverter}}">
           <Button Style="{ThemeResource RecordingButtonStyle}" IsVisible="{Binding IsRecording}"/>
         </StackPanel>
+
+        <!-- Currently Playing Indicator -->
         <mp_special_controls:PlayerControl Style="{ThemeResource CPPlayerControlStyle}" VerticalAlignment="Center"
                   AutoVisibility="True" HorizontalAlignment="Left">
         </mp_special_controls:PlayerControl>
@@ -259,18 +181,21 @@ Parameters which have to be accessible by a DynamicResource lookup:
       <StackPanel Orientation="Horizontal">
         <StackPanel Margin="0,0,0,0" Orientation="Horizontal" Context="{Service Window}"  IsVisible="{Binding Source={StaticResource MouseModel},Path=IsMouseUsed}">
           <Button x:Name="WindowedButton" Style="{ThemeResource MinMaxButtonStyle}" Margin="5,2,0,0" HorizontalAlignment="Right"
+                  IsEnabled="{Binding Source={StaticResource HomeContentModel}, Path=!IsContentFocused}"
                   Command="{Command Source={Service Window},Path=SwitchMode,Parameters=NormalWindowed}">
             <Button.IsVisible>
               <Binding Source="{StaticResource ScreenModeModel}" Path="CurrentScreenMode" Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0} == {ScreenMode}.{FullScreen}"/>
             </Button.IsVisible>
           </Button>
           <Button x:Name="MaximizedButton" Style="{ThemeResource MinMaxButtonStyle}" Margin="5,2,0,0" HorizontalAlignment="Right"
+                  IsEnabled="{Binding Source={StaticResource HomeContentModel}, Path=!IsContentFocused}"
                   Command="{Command Source={Service Window},Path=SwitchMode,Parameters=FullScreen}">
             <Button.IsVisible>
               <Binding Source="{StaticResource ScreenModeModel}" Path="CurrentScreenMode" Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0} != {ScreenMode}.{FullScreen}"/>
             </Button.IsVisible>
           </Button>
           <Button x:Name="ExitButton" Style="{ThemeResource ExitButtonStyle}" Margin="5,2,0,0" HorizontalAlignment="Right"
+                  IsEnabled="{Binding Source={StaticResource HomeContentModel}, Path=!IsContentFocused}"
                   Command="{Command Source={Service Window},Path=Shutdown}">
             <Button.IsVisible>
               <Binding Source="{StaticResource ScreenModeModel}" Path="CurrentScreenMode" Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0} == {ScreenMode}.{FullScreen}"/>

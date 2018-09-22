@@ -34,6 +34,7 @@ using MediaPortal.Backend.Database;
 using MediaPortal.Common.UserProfileDataManagement;
 using MediaPortal.Utilities.Exceptions;
 using MediaPortal.Backend.Services.MediaLibrary.QueryEngine;
+using MediaPortal.Common.Async;
 using MediaPortal.Common.MediaManagement.MLQueries;
 using MediaPortal.Common.Services.ServerCommunication;
 
@@ -90,7 +91,7 @@ namespace MediaPortal.Backend.Services.UserProfileDataManagement
               result.Add(new UserProfile(
                 database.ReadDBValue<Guid>(reader, profileIdIndex),
                 database.ReadDBValue<string>(reader, nameIndex),
-                database.ReadDBValue<int>(reader, idIndex),
+                (UserProfileType)database.ReadDBValue<int>(reader, idIndex),
                 database.ReadDBValue<string>(reader, dataIndex),
                 database.ReadDBValue<DateTime?>(reader, lastLoginIndex),
                 database.ReadDBValue<byte[]>(reader, imageIndex))
@@ -178,16 +179,27 @@ namespace MediaPortal.Backend.Services.UserProfileDataManagement
       return profileId;
     }
 
-    public async Task<Guid> CreateProfileAsync(string profileName, int profileType, string profilePassword)
+    public Task<Guid> CreateClientProfileAsync(Guid profileId, string profileName)
+    {
+      var guid = CreateProfileInternal(profileId, profileName, UserProfileType.ClientProfile, null);
+      return  Task.FromResult(guid);
+    }
+
+    public async Task<Guid> CreateProfileAsync(string profileName, UserProfileType profileType, string profilePassword)
     {
       //Profile might already exist.
       var result = await GetProfileByNameAsync(profileName);
       if (result.Success)
         return result.Result.ProfileId;
 
+      Guid profileId = Guid.NewGuid();
+      return CreateProfileInternal(profileId, profileName, profileType, profilePassword);
+    }
+
+    private Guid CreateProfileInternal(Guid profileId, string profileName, UserProfileType profileType, string profilePassword)
+    {
       ISQLDatabase database = ServiceRegistration.Get<ISQLDatabase>();
       ITransaction transaction = database.BeginTransaction();
-      Guid profileId = Guid.NewGuid();
       try
       {
         using (IDbCommand command = UserProfileDataManagement_SubSchema.CreateUserProfileCommand(transaction, profileId, profileName, profileType, profilePassword))
@@ -203,7 +215,7 @@ namespace MediaPortal.Backend.Services.UserProfileDataManagement
       return profileId;
     }
 
-    public Task<bool> UpdateProfileAsync(Guid profileId, string profileName, int profileType, string profilePassword)
+    public Task<bool> UpdateProfileAsync(Guid profileId, string profileName, UserProfileType profileType, string profilePassword)
     {
       ISQLDatabase database = ServiceRegistration.Get<ISQLDatabase>();
       ITransaction transaction = database.BeginTransaction();
@@ -261,6 +273,54 @@ namespace MediaPortal.Backend.Services.UserProfileDataManagement
       catch (Exception e)
       {
         ServiceRegistration.Get<ILogger>().Error("UserProfileDataManagement: Error renaming profile '{0}'", e, profileId);
+        transaction.Rollback();
+        throw;
+      }
+    }
+
+    public Task<bool> ChangeProfileIdAsync(Guid profileId, Guid newProfileId)
+    {
+      ISQLDatabase database = ServiceRegistration.Get<ISQLDatabase>();
+      ITransaction transaction = database.BeginTransaction();
+      try
+      {
+        bool result;
+        int nameIndex;
+        string profileName;
+        using (IDbCommand command = UserProfileDataManagement_SubSchema.SelectUserProfileNameCommand(transaction, profileId, out nameIndex))
+        {
+          using (IDataReader reader = command.ExecuteReader())
+          {
+            if (reader.Read())
+            {
+              profileName = database.ReadDBValue<string>(reader, nameIndex);
+            }
+            else
+            {
+              transaction.Rollback();
+              return Task.FromResult(false);
+            }
+          }
+        }
+        using (IDbCommand command = UserProfileDataManagement_SubSchema.UpdateUserProfileNameCommand(transaction, profileId, profileName + "_old"))
+          command.ExecuteNonQuery();
+        using (IDbCommand command = UserProfileDataManagement_SubSchema.CopyUserProfileCommand(transaction, profileId, newProfileId, profileName))
+          result = command.ExecuteNonQuery() > 0;
+        using (IDbCommand command = UserProfileDataManagement_SubSchema.CopyUserMediaItemDataCommand(transaction, profileId, newProfileId))
+          command.ExecuteNonQuery();
+        using (IDbCommand command = UserProfileDataManagement_SubSchema.CopyUserPlaylistDataCommand(transaction, profileId, newProfileId))
+          command.ExecuteNonQuery();
+        using (IDbCommand command = UserProfileDataManagement_SubSchema.CopyUserAdditionalDataCommand(transaction, profileId, newProfileId))
+          command.ExecuteNonQuery();
+        using (IDbCommand command = UserProfileDataManagement_SubSchema.DeleteUserProfileCommand(transaction, profileId))
+          command.ExecuteNonQuery();
+        transaction.Commit();
+
+        return Task.FromResult(result);
+      }
+      catch (Exception e)
+      {
+        ServiceRegistration.Get<ILogger>().Error("UserProfileDataManagement: Error changing profile Id '{0}'", e, profileId);
         transaction.Rollback();
         throw;
       }

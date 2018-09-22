@@ -22,12 +22,13 @@
 
 #endregion
 
-using System;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.MediaManagement.Helpers;
 using MediaPortal.Common.PathManager;
 using MediaPortal.Extensions.OnlineLibraries.Wrappers;
+using System;
+using System.Threading.Tasks;
 
 namespace MediaPortal.Extensions.OnlineLibraries.Matchers
 {
@@ -58,7 +59,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
       Enabled = false;
     }
 
-    public override bool InitWrapper(bool useHttps)
+    public override Task<bool> InitWrapperAsync(bool useHttps)
     {
       try
       {
@@ -66,45 +67,33 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
         if (wrapper.Init(CACHE_PATH, useHttps))
         {
           _wrapper = wrapper;
-          return true;
+          return Task.FromResult(true);
         }
       }
       catch (Exception ex)
       {
         ServiceRegistration.Get<ILogger>().Error(Id + ": Error initializing wrapper", ex);
       }
-      return false;
+      return Task.FromResult(false);
     }
 
     #endregion
 
     #region Metadata updaters
 
-    public override bool FindAndUpdateMovie(MovieInfo movieInfo, bool importOnly)
+    public override Task<bool> UpdateCharactersAsync(MovieInfo movieInfo)
     {
-      // Don't allow SimApi during first import cycle because it is english only
-      // If it was allowed it would prevent the update of metadata with preferred language
-      // during refresh cycle that also allows searches which might be needed to find metadata 
-      // in the preferred language
-      if (importOnly && !Primary)
-        return false;
-
-      return base.FindAndUpdateMovie(movieInfo, importOnly);
+      return Task.FromResult(false);
     }
 
-    public override bool UpdateCharacters(MovieInfo movieInfo, bool importOnly)
+    public override Task<bool> UpdateCompaniesAsync(MovieInfo movieInfo, string companyType)
     {
-      return false;
+      return Task.FromResult(false);
     }
 
-    public override bool UpdateCompanies(MovieInfo movieInfo, string companyType, bool importOnly)
+    public override Task<bool> UpdateCollectionAsync(MovieCollectionInfo movieCollectionInfo, bool updateMovieList)
     {
-      return false;
-    }
-
-    public override bool UpdateCollection(MovieCollectionInfo movieCollectionInfo, bool updateMovieList, bool importOnly)
-    {
-      return false;
+      return Task.FromResult(false);
     }
 
     #endregion
@@ -163,7 +152,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
 
     #region FanArt
 
-    protected override bool VerifyFanArtImage(string imageUrl, string language)
+    protected override bool VerifyFanArtImage(string imageUrl, string language, string fanArtType)
     {
       return !string.IsNullOrEmpty(imageUrl);
     }

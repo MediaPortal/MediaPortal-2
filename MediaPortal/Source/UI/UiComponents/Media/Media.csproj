@@ -17,6 +17,7 @@
     </UpgradeBackupLocation>
     <TargetFrameworkVersion>v4.7</TargetFrameworkVersion>
     <TargetFrameworkProfile />
+    <RestoreProjectStyle>PackageReference</RestoreProjectStyle>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' ">
     <DebugSymbols>true</DebugSymbols>
@@ -49,10 +50,6 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Reference Include="Bass.Net, Version=2.4.12.5, Culture=neutral, PublicKeyToken=b7566c273e6ef480, processorArchitecture=MSIL">
-      <HintPath>..\..\..\..\Packages\BASS.NET.2.4.12.5\lib\net45\Bass.Net.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
     <ProjectReference Include="..\..\..\Extensions\BassLibraries\BassLibraries.csproj">
       <Project>{B186C33C-7DC6-4F6B-911D-B8D3C6482C39}</Project>
       <Name>BassLibraries</Name>
@@ -123,6 +120,7 @@
     <Compile Include="FilterCriteria\FilterByAlbumArtistCriterion.cs" />
     <Compile Include="FilterCriteria\FilterByAlbumCompilationCriterion.cs" />
     <Compile Include="FilterCriteria\FilterByMovieCertificationCriterion.cs" />
+    <Compile Include="FilterCriteria\FilterByGenreCriterion.cs" />
     <Compile Include="FilterCriteria\FilterBySeriesCertificationCriterion.cs" />
     <Compile Include="FilterCriteria\FilterByConductorCriterion.cs" />
     <Compile Include="FilterCriteria\FilterByCharacterCriterion.cs" />
@@ -243,6 +241,7 @@
     <Compile Include="Models\NavigationModel\BaseNavigationInitializer.cs" />
     <Compile Include="Models\NavigationModel\MediaLibraryBrowsingNavigationInitializer.cs" />
     <Compile Include="Models\NavigationModel\LocalBrowsingNavigationInitializer.cs" />
+    <Compile Include="Models\NavigationModel\MediaNavigationConfig.cs" />
     <Compile Include="Models\NavigationModel\MoviesNavigationInitializer.cs" />
     <Compile Include="Models\NavigationModel\SeriesNavigationInitializer.cs" />
     <Compile Include="Models\NavigationModel\VideosNavigationInitializer.cs" />
@@ -363,6 +362,7 @@
     <Compile Include="Models\Sorting\SortByYear.cs" />
     <Compile Include="Models\Sorting\SortByTitle.cs" />
     <Compile Include="Models\Sorting\Sorting.cs" />
+    <Compile Include="Models\MediaItemMatchModel.cs" />
     <Compile Include="Models\ViewModeModel.cs" />
     <Compile Include="Models\ManagePlaylistsModel.cs" />
     <Compile Include="Models\Navigation\ContainerItem.cs" />
@@ -436,6 +436,7 @@
     <Compile Include="Settings\MediaModelSettings.cs" />
     <Compile Include="General\MultimediaDirectory.cs" />
     <Compile Include="Helpers\VirtualMediaHelper.cs" />
+    <Compile Include="MediaPlugin.cs" />
     <Compile Include="Views\BrowseMediaRootProxyViewSpecification.cs" />
     <Compile Include="Views\AbstractMediaRootProxyViewSpecification.cs" />
     <Compile Include="Views\LocalMediaRootProxyViewSpecification.cs" />
@@ -586,7 +587,6 @@
     </Content>
   </ItemGroup>
   <ItemGroup>
-    <None Include="packages.config" />
     <None Include="Skin\default\screens\DialogChooseTitle.xaml">
       <SubType>Designer</SubType>
     </None>
@@ -724,6 +724,16 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Skin\default\screens\MovieFilterByCertification.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="BASS.NET">
+      <Version>2.4.12.5</Version>
+    </PackageReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\default\screens\DialogChooseMatch.xaml">
       <SubType>Designer</SubType>
     </Content>
   </ItemGroup>

@@ -75,10 +75,20 @@ namespace MediaPortal.Backend
     public static void StartupBackendServices()
     {
       ServiceRegistration.Get<IDatabaseManager>().Startup();
+      ServiceRegistration.Get<IDatabaseManager>().UpgradeDatabase();
       ServiceRegistration.Get<IMediaLibrary>().Startup();
+      ApplicationCore.RegisterDefaultMediaItemAspectTypes().Wait(); // Must be done before a client starts doing searches or exceptions can happen for missing Aspects
+      ((UserProfileDataManagement)ServiceRegistration.Get<IUserProfileDataManagement>()).Startup();
       ServiceRegistration.Get<IClientManager>().Startup();
       ServiceRegistration.Get<IBackendServer>().Startup();
-      ((UserProfileDataManagement)ServiceRegistration.Get<IUserProfileDataManagement>()).Startup();
+    }
+
+    /// <summary>
+    /// To be called when the database service is present.
+    /// </summary>
+    public static void MigrateDatabaseData()
+    {
+      ServiceRegistration.Get<IDatabaseManager>().MigrateDatabaseData();
     }
 
     /// <summary>

@@ -72,7 +72,7 @@ namespace MediaPortal.UiComponents.Configuration.ConfigurationControllers
 
     public override bool IsSettingSupported(ConfigSetting setting)
     {
-      return setting != null && setting is PathEntry;
+      return base.IsSettingSupported(setting) && setting is PathEntry;
     }
   }
 }

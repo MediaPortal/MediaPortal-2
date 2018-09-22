@@ -131,7 +131,7 @@ Parameters which have to be accessible by a DynamicResource lookup:
           <Grid.RenderTransform>
             <TranslateTransform X="0"/>
           </Grid.RenderTransform>
-          <Image Grid.Column="1" Source="menu_fade.png" Stretch="Fill" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="-65,-168,-50,-50">
+          <Image Grid.Column="1" Source="menu_fade.png" Stretch="Fill" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="-66,-169,-50,-51">
           </Image>
           <!--Image Source="menu_bg.png" Stretch="Uniform" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="0,10,-60,10">   
           </Image-->
@@ -233,7 +233,7 @@ Parameters which have to be accessible by a DynamicResource lookup:
             </ListView.Resources>
           </ListView>
           <Button x:Name="MenuShowTopButton" Content="Menu" Style="{ThemeResource ButtonWideStyle_GrowOnly}"
-                  Grid.Row="1" Grid.Column="0" VerticalAlignment="Bottom" Width="180" Margin="0,0,0,0"
+                  Grid.Row="1" Grid.Column="0" VerticalAlignment="Bottom" Width="180" Margin="0,-1,0,1"
                   IsEnabled="{Binding Source={StaticResource MenuModel},Path=!IsMenuOpen}"
                   Command="{Command Source={StaticResource MenuModel}, Path=ToggleMenu}">
             <Image Source="hiddenmenu_tab_up.png" Stretch="Uniform" Margin="-40,0,0,0"/>

@@ -24,16 +24,13 @@
 
 using MediaPortal.Common;
 using MediaPortal.Common.FanArt;
-using MediaPortal.Common.Genres;
-using MediaPortal.Common.Localization;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Common.MediaManagement.Helpers;
-using MediaPortal.Common.PathManager;
+using MediaPortal.Common.Services.GenreConverter;
 using MediaPortal.Common.Threading;
 using MediaPortal.Extensions.OnlineLibraries.Libraries;
 using MediaPortal.Extensions.OnlineLibraries.Libraries.Common;
-using MediaPortal.Extensions.OnlineLibraries.Libraries.Common.Data;
 using MediaPortal.Extensions.OnlineLibraries.Matches;
 using MediaPortal.Extensions.OnlineLibraries.Wrappers;
 using System;
@@ -43,10 +40,12 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace MediaPortal.Extensions.OnlineLibraries.Matchers
 {
-  public abstract class SeriesMatcher<TImg, TLang> : BaseMatcher<SeriesMatch, string>, ISeriesMatcher
+  public abstract class SeriesMatcher<TImg, TLang> : BaseMatcher<SeriesMatch, string, TImg, TLang>, ISeriesMatcher
   {
     public class SeriresMatcherSettings
     {
@@ -57,7 +56,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
       public List<string> LastUpdatedEpisodes { get; set; }
     }
 
-    protected readonly object _initSyncObj = new object();
+    protected readonly SemaphoreSlim _initSyncObj = new SemaphoreSlim(1, 1);
     protected bool _isInit = false;
 
     #region Init
@@ -80,22 +79,23 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
       _configFile = Path.Combine(cachePath, "SeriesConfig.xml");
     }
 
-    public override bool Init()
+    public override async Task<bool> InitAsync()
     {
       if (!_enabled)
         return false;
 
-      lock (_initSyncObj)
+      await _initSyncObj.WaitAsync().ConfigureAwait(false);
+      try
       {
         if (_isInit)
           return true;
 
-        if (!base.Init())
+        if (!await base.InitAsync().ConfigureAwait(false))
           return false;
 
         LoadConfig();
 
-        if (InitWrapper(UseSecureWebCommunication))
+        if (await InitWrapperAsync(UseSecureWebCommunication).ConfigureAwait(false))
         {
           if (_wrapper != null)
             _wrapper.CacheUpdateFinished += CacheUpdateFinished;
@@ -103,6 +103,10 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
           return true;
         }
         return false;
+      }
+      finally
+      {
+        _initSyncObj.Release();
       }
     }
 
@@ -124,13 +128,12 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
       Settings.Save(_configFile, _config);
     }
 
-    public abstract bool InitWrapper(bool useHttps);
+    public abstract Task<bool> InitWrapperAsync(bool useHttps);
 
     #endregion
 
     #region Constants
 
-    public static string FANART_CACHE_PATH = ServiceRegistration.Get<IPathManager>().GetPath(@"<DATA>\FanArt\");
     private TimeSpan CACHE_CHECK_INTERVAL = TimeSpan.FromMinutes(60);
     private Regex seriesTitleYearRegex = new Regex(@"(?<title>.*)\((?<year>\d{4})\)", RegexOptions.IgnoreCase);
 
@@ -152,8 +155,6 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
     private string _configFile;
     private TimeSpan _maxCacheDuration;
     private bool _enabled = true;
-    private bool _primary = false;
-    private string _id = null;
     private bool _cacheRefreshable;
     private DateTime? _lastCacheRefresh;
     private DateTime _lastCacheCheck = DateTime.MinValue;
@@ -167,8 +168,6 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
     private SimpleNameMatcher _characterMatcher;
     private SimpleNameMatcher _seriesNameMatcher;
 
-    protected ApiWrapper<TImg, TLang> _wrapper = null;
-
     #endregion
 
     #region Properties
@@ -177,17 +176,6 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
     {
       get { return _enabled; }
       set { _enabled = value; }
-    }
-
-    public bool Primary
-    {
-      get { return _primary; }
-      set { _primary = value; }
-    }
-
-    public string Id
-    {
-      get { return _id; }
     }
 
     public bool CacheRefreshable
@@ -251,17 +239,121 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
 
     #region Metadata updaters
 
+    private SeriesMatch GetStroredMatch(SeriesInfo episodeSeries)
+    {
+      // Load cache or create new list
+      List<SeriesMatch> matches = _storage.GetMatches();
+
+      // Use cached values before doing online query
+      SeriesMatch match = matches.Find(m =>
+        (string.Equals(m.ItemName, episodeSeries.SeriesName.ToString(), StringComparison.OrdinalIgnoreCase) || string.Equals(m.OnlineName, episodeSeries.SeriesName.ToString(), StringComparison.OrdinalIgnoreCase)) &&
+        ((episodeSeries.FirstAired.HasValue && m.Year == episodeSeries.FirstAired.Value.Year) || !episodeSeries.FirstAired.HasValue));
+
+      return match;
+    }
+
+    public virtual async Task<IEnumerable<EpisodeInfo>> FindMatchingEpisodesAsync(EpisodeInfo episodeInfo)
+    {
+      List<EpisodeInfo> matches = new List<EpisodeInfo>();
+
+      try
+      {
+        // Try online lookup
+        if (!await InitAsync().ConfigureAwait(false))
+          return matches;
+
+        EpisodeInfo episodeSearch = episodeInfo.Clone();
+        SeriesInfo seriesMatch = null;
+        SeriesInfo episodeSeries = episodeInfo.CloneBasicInstance<SeriesInfo>();
+        string seriesId = null;
+        TLang language = FindBestMatchingLanguage(episodeInfo.Languages);
+
+        if (GetSeriesId(episodeSeries, out seriesId))
+        {
+          CheckCacheAndRefresh();
+          if (_memoryCache.TryGetValue(seriesId, out seriesMatch))
+          {
+            if (episodeInfo.SeriesName.IsEmpty)
+              episodeInfo.SeriesName = seriesMatch.SeriesName;
+          }
+        }
+
+        SeriesMatch match = GetStroredMatch(episodeSeries);
+        if (match != null)
+          SetSeriesId(episodeSearch, match.Id);
+
+        IEnumerable<EpisodeInfo> onlineMatches = null;
+        if (GetSeriesId(episodeSearch.CloneBasicInstance<SeriesInfo>(), out string searchSeriesId))
+        {
+          Logger.Debug(_id + ": Get episode from id {0} online", searchSeriesId);
+          if (await _wrapper.UpdateFromOnlineSeriesEpisodeAsync(episodeSearch, language, false))
+            onlineMatches = new EpisodeInfo[] { episodeSearch };
+        }
+        if (onlineMatches == null)
+        {
+          Logger.Debug(_id + ": Search for episode {0} online", episodeInfo.ToString());
+          onlineMatches = await _wrapper.SearchSeriesEpisodeMatchesAsync(episodeSearch, language).ConfigureAwait(false);
+        }
+        GetSeriesEpisodeId(episodeInfo, out string episodeId);
+        if (onlineMatches?.Count() > 0)
+          matches.AddRange(onlineMatches.Where(m => m.IsBaseInfoPresent));
+
+        return matches;
+      }
+      catch (Exception ex)
+      {
+        Logger.Debug(_id + ": Exception while matching episode {0}", ex, episodeInfo.ToString());
+        return matches;
+      }
+    }
+
+    public virtual async Task<IEnumerable<SeriesInfo>> FindMatchingSeriesAsync(SeriesInfo seriesInfo)
+    {
+      List<SeriesInfo> matches = new List<SeriesInfo>();
+      try
+      {
+        // Try online lookup
+        if (!await InitAsync().ConfigureAwait(false))
+          return matches;
+
+        SeriesInfo seriesSearch = seriesInfo.Clone();
+        TLang language = FindBestMatchingLanguage(seriesInfo.Languages);
+
+        IEnumerable<SeriesInfo> onlineMatches = null;
+        if (GetSeriesId(seriesInfo, out string seriesId))
+        {
+          Logger.Debug(_id + ": Get series from id {0} online", seriesId);
+          if (await _wrapper.UpdateFromOnlineSeriesAsync(seriesSearch, language, false))
+            onlineMatches = new SeriesInfo[] { seriesSearch };
+        }
+        if (onlineMatches == null)
+        {
+          Logger.Debug(_id + ": Search for series {0} online", seriesInfo.ToString());
+          onlineMatches = await _wrapper.SearchSeriesMatchesAsync(seriesSearch, language).ConfigureAwait(false);
+        }
+        if (onlineMatches?.Count() > 0)
+          matches.AddRange(onlineMatches.Where(m => m.IsBaseInfoPresent));
+
+        return matches;
+      }
+      catch (Exception ex)
+      {
+        Logger.Debug(_id + ": Exception while matching series {0}", ex, seriesInfo.ToString());
+        return matches;
+      }
+    }
+
     /// <summary>
     /// Tries to lookup the Episode online.
     /// </summary>
     /// <param name="episodeInfo">Episode to check</param>
     /// <returns><c>true</c> if successful</returns>
-    public virtual bool FindAndUpdateEpisode(EpisodeInfo episodeInfo, bool importOnly)
+    public virtual async Task<bool> FindAndUpdateEpisodeAsync(EpisodeInfo episodeInfo)
     {
       try
       {
         // Try online lookup
-        if (!Init())
+        if (!await InitAsync().ConfigureAwait(false))
           return false;
 
         EpisodeInfo episodeMatch = null;
@@ -303,52 +395,49 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
 
         if (!matchFound)
         {
-          // Load cache or create new list
-          List<SeriesMatch> matches = _storage.GetMatches();
-
-          // Use cached values before doing online query
-          SeriesMatch match = matches.Find(m =>
-            (string.Equals(m.ItemName, episodeSeries.SeriesName.ToString(), StringComparison.OrdinalIgnoreCase) || string.Equals(m.OnlineName, episodeSeries.SeriesName.ToString(), StringComparison.OrdinalIgnoreCase)) &&
-            ((episodeSeries.FirstAired.HasValue && m.Year == episodeSeries.FirstAired.Value.Year) || !episodeSeries.FirstAired.HasValue));
-          Logger.Debug(_id + ": Try to lookup series \"{0}\" from cache: {1}", episodeSeries, match != null && !string.IsNullOrEmpty(match.Id));
-
           episodeMatch = episodeInfo.Clone();
-          if (match != null)
+          if (string.IsNullOrEmpty(seriesId))
           {
-            if (SetSeriesId(episodeMatch, match.Id))
+            SeriesMatch match = GetStroredMatch(episodeSeries);
+            Logger.Debug(_id + ": Try to lookup series \"{0}\" from cache: {1}", episodeSeries, match != null && !string.IsNullOrEmpty(match.Id));
+
+            if (match != null)
             {
-              seriesMatchFound = true;
+              if (SetSeriesId(episodeMatch, match.Id))
+              {
+                seriesMatchFound = true;
+              }
+              else if (string.IsNullOrEmpty(seriesId))
+              {
+                //Match was found but with invalid Id probably to avoid a retry
+                //No Id is available so online search will probably fail again
+                return false;
+              }
             }
-            else if (string.IsNullOrEmpty(seriesId))
+
+            if (seriesMatchFound)
             {
-              //Match was found but with invalid Id probably to avoid a retry
-              //No Id is available so online search will probably fail again
-              return false;
+              //If Id was found in cache the online movie info is probably also in the cache
+              if (await _wrapper.UpdateFromOnlineSeriesEpisodeAsync(episodeMatch, language, true).ConfigureAwait(false))
+              {
+                Logger.Debug(_id + ": Found episode {0} in cache", episodeInfo.ToString());
+                matchFound = true;
+              }
             }
           }
 
-          if (seriesMatchFound)
-          {
-            //If Id was found in cache the online movie info is probably also in the cache
-            if (_wrapper.UpdateFromOnlineSeriesEpisode(episodeMatch, language, true))
-            {
-              Logger.Debug(_id + ": Found episode {0} in cache", episodeInfo.ToString());
-              matchFound = true;
-            }
-          }
-
-          if (!matchFound && !importOnly)
+          if (!matchFound)
           {
             Logger.Debug(_id + ": Search for episode {0} online", episodeInfo.ToString());
 
             //Try to update movie information from online source if online Ids are present
-            if (!_wrapper.UpdateFromOnlineSeriesEpisode(episodeMatch, language, false))
+            if (!await _wrapper.UpdateFromOnlineSeriesEpisodeAsync(episodeMatch, language, false).ConfigureAwait(false))
             {
               //Search for the movie online and update the Ids if a match is found
-              if (_wrapper.SearchSeriesEpisodeUniqueAndUpdate(episodeMatch, language))
+              if (await _wrapper.SearchSeriesEpisodeUniqueAndUpdateAsync(episodeMatch, language).ConfigureAwait(false))
               {
                 //Ids were updated now try to update movie information from online source
-                if (_wrapper.UpdateFromOnlineSeriesEpisode(episodeMatch, language, false))
+                if (await _wrapper.UpdateFromOnlineSeriesEpisodeAsync(episodeMatch, language, false).ConfigureAwait(false))
                   matchFound = true;
               }
             }
@@ -361,8 +450,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
 
         //Always save match even if none to avoid retries
         SeriesInfo cloneBasicSeries = episodeMatch != null ? episodeMatch.CloneBasicInstance<SeriesInfo>() : null;
-        if (!importOnly)
-          StoreSeriesMatch(episodeSeries, cloneBasicSeries);
+        StoreSeriesMatch(episodeSeries, cloneBasicSeries);
 
         if (matchFound && episodeMatch != null)
         {
@@ -437,12 +525,12 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
       }
     }
 
-    public virtual bool UpdateSeries(SeriesInfo seriesInfo, bool updateEpisodeList, bool importOnly)
+    public virtual async Task<bool> UpdateSeriesAsync(SeriesInfo seriesInfo, bool updateEpisodeList)
     {
       try
       {
         // Try online lookup
-        if (!Init())
+        if (!await InitAsync().ConfigureAwait(false))
           return false;
 
         string id;
@@ -465,27 +553,24 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
         seriesMatch.Seasons.Clear();
         seriesMatch.Episodes.Clear();
         //Try updating from cache
-        if (!_wrapper.UpdateFromOnlineSeries(seriesMatch, language, true))
+        if (!await _wrapper.UpdateFromOnlineSeriesAsync(seriesMatch, language, true).ConfigureAwait(false))
         {
-          if (!importOnly)
-          {
-            Logger.Debug(_id + ": Search for series {0} online", seriesInfo.ToString());
+          Logger.Debug(_id + ": Search for series {0} online", seriesInfo.ToString());
 
-            //Try to update series information from online source if online Ids are present
-            if (!_wrapper.UpdateFromOnlineSeries(seriesMatch, language, false))
+          //Try to update series information from online source if online Ids are present
+          if (!await _wrapper.UpdateFromOnlineSeriesAsync(seriesMatch, language, false).ConfigureAwait(false))
+          {
+            //Search for the series online and update the Ids if a match is found
+            if (await _wrapper.SearchSeriesUniqueAndUpdateAsync(seriesMatch, language).ConfigureAwait(false))
             {
-              //Search for the series online and update the Ids if a match is found
-              if (_wrapper.SearchSeriesUniqueAndUpdate(seriesMatch, language))
-              {
-                //Ids were updated now try to fetch the online series info
-                if (_wrapper.UpdateFromOnlineSeries(seriesMatch, language, false))
-                  updated = true;
-              }
+              //Ids were updated now try to fetch the online series info
+              if (await _wrapper.UpdateFromOnlineSeriesAsync(seriesMatch, language, false).ConfigureAwait(false))
+                updated = true;
             }
-            else
-            {
-              updated = true;
-            }
+          }
+          else
+          {
+            updated = true;
           }
         }
         else
@@ -497,11 +582,6 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
         if (updated)
         {
           seriesInfo.MergeWith(seriesMatch, true, updateEpisodeList);
-
-          if (seriesInfo.Genres.Count > 0)
-          {
-            seriesInfo.HasChanged |= GenreMapper.AssignMissingSeriesGenreIds(seriesInfo.Genres, language.ToString());
-          }
 
           //Store person matches
           foreach (PersonInfo person in seriesInfo.Actors)
@@ -536,8 +616,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
         if (!GetSeriesId(seriesInfo, out Id))
         {
           //Store empty match so it is not retried
-          if (!importOnly)
-            _seriesNameMatcher.StoreNameMatch("", seriesInfo.SeriesName.Text, seriesInfo.SeriesName.Text);
+          _seriesNameMatcher.StoreNameMatch("", seriesInfo.SeriesName.Text, seriesInfo.SeriesName.Text);
         }
 
         return updated;
@@ -549,28 +628,25 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
       }
     }
 
-    public virtual bool UpdateSeason(SeasonInfo seasonInfo, bool importOnly)
+    public virtual async Task<bool> UpdateSeasonAsync(SeasonInfo seasonInfo)
     {
       try
       {
         // Try online lookup
-        if (!Init())
+        if (!await InitAsync().ConfigureAwait(false))
           return false;
 
         TLang language = FindBestMatchingLanguage(seasonInfo.Languages);
         bool updated = false;
         SeasonInfo seasonMatch = seasonInfo.Clone();
         //Try updating from cache
-        if (!_wrapper.UpdateFromOnlineSeriesSeason(seasonMatch, language, true))
+        if (!await _wrapper.UpdateFromOnlineSeriesSeasonAsync(seasonMatch, language, true).ConfigureAwait(false))
         {
-          if (!importOnly)
-          {
-            Logger.Debug(_id + ": Search for season {0} online", seasonInfo.ToString());
+          Logger.Debug(_id + ": Search for season {0} online", seasonInfo.ToString());
 
-            //Try to update season information from online source
-            if (_wrapper.UpdateFromOnlineSeriesSeason(seasonMatch, language, false))
-              updated = true;
-          }
+          //Try to update season information from online source
+          if (await _wrapper.UpdateFromOnlineSeriesSeasonAsync(seasonMatch, language, false).ConfigureAwait(false))
+            updated = true;
         }
         else
         {
@@ -592,12 +668,12 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
       }
     }
 
-    public virtual bool UpdateSeriesPersons(SeriesInfo seriesInfo, string occupation, bool importOnly)
+    public virtual async Task<bool> UpdateSeriesPersonsAsync(SeriesInfo seriesInfo, string occupation)
     {
       try
       {
         // Try online lookup
-        if (!Init())
+        if (!await InitAsync().ConfigureAwait(false))
           return false;
 
         TLang language = FindBestMatchingLanguage(seriesInfo.Languages);
@@ -632,31 +708,28 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
         foreach (PersonInfo person in persons)
         {
           //Try updating from cache
-          if (!_wrapper.UpdateFromOnlineSeriesPerson(seriesMatch, person, language, true))
+          if (!await _wrapper.UpdateFromOnlineSeriesPersonAsync(seriesMatch, person, language, true).ConfigureAwait(false))
           {
-            if (!importOnly)
-            {
-              Logger.Debug(_id + ": Search for person {0} online", person.ToString());
+            Logger.Debug(_id + ": Search for person {0} online", person.ToString());
 
-              //Try to update movie information from online source if online Ids are present
-              if (!_wrapper.UpdateFromOnlineSeriesPerson(seriesMatch, person, language, false))
+            //Try to update movie information from online source if online Ids are present
+            if (!await _wrapper.UpdateFromOnlineSeriesPersonAsync(seriesMatch, person, language, false).ConfigureAwait(false))
+            {
+              //Search for the movie online and update the Ids if a match is found
+              if (await _wrapper.SearchPersonUniqueAndUpdateAsync(person, language).ConfigureAwait(false))
               {
-                //Search for the movie online and update the Ids if a match is found
-                if (_wrapper.SearchPersonUniqueAndUpdate(person, language))
+                //Ids were updated now try to fetch the online movie info
+                if (await _wrapper.UpdateFromOnlineSeriesPersonAsync(seriesMatch, person, language, false).ConfigureAwait(false))
                 {
-                  //Ids were updated now try to fetch the online movie info
-                  if (_wrapper.UpdateFromOnlineSeriesPerson(seriesMatch, person, language, false))
-                  {
-                    //Set as changed because cache has changed and might contain new/updated data
-                    seriesInfo.HasChanged = true;
-                    updated = true;
-                  }
+                  //Set as changed because cache has changed and might contain new/updated data
+                  seriesInfo.HasChanged = true;
+                  updated = true;
                 }
               }
-              else
-              {
-                updated = true;
-              }
+            }
+            else
+            {
+              updated = true;
             }
           }
           else
@@ -687,8 +760,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
             else
             {
               //Store empty match so he/she is not retried
-              if (!importOnly)
-                _actorMatcher.StoreNameMatch("", person.Name, person.Name);
+              _actorMatcher.StoreNameMatch("", person.Name, person.Name);
             }
           }
         }
@@ -702,12 +774,12 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
       }
     }
 
-    public virtual bool UpdateSeriesCharacters(SeriesInfo seriesInfo, bool importOnly)
+    public virtual async Task<bool> UpdateSeriesCharactersAsync(SeriesInfo seriesInfo)
     {
       try
       {
         // Try online lookup
-        if (!Init())
+        if (!await InitAsync().ConfigureAwait(false))
           return false;
 
         TLang language = FindBestMatchingLanguage(seriesInfo.Languages);
@@ -725,31 +797,28 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
           }
 
           //Try updating from cache
-          if (!_wrapper.UpdateFromOnlineSeriesCharacter(seriesMatch, character, language, true))
+          if (!await _wrapper.UpdateFromOnlineSeriesCharacterAsync(seriesMatch, character, language, true).ConfigureAwait(false))
           {
-            if (!importOnly)
-            {
-              Logger.Debug(_id + ": Search for character {0} online", character.ToString());
+            Logger.Debug(_id + ": Search for character {0} online", character.ToString());
 
-              //Try to update movie information from online source if online Ids are present
-              if (!_wrapper.UpdateFromOnlineSeriesCharacter(seriesMatch, character, language, false))
+            //Try to update movie information from online source if online Ids are present
+            if (!await _wrapper.UpdateFromOnlineSeriesCharacterAsync(seriesMatch, character, language, false).ConfigureAwait(false))
+            {
+              //Search for the movie online and update the Ids if a match is found
+              if (await _wrapper.SearchCharacterUniqueAndUpdateAsync(character, language).ConfigureAwait(false))
               {
-                //Search for the movie online and update the Ids if a match is found
-                if (_wrapper.SearchCharacterUniqueAndUpdate(character, language))
+                //Ids were updated now try to fetch the online movie info
+                if (await _wrapper.UpdateFromOnlineSeriesCharacterAsync(seriesMatch, character, language, false).ConfigureAwait(false))
                 {
-                  //Ids were updated now try to fetch the online movie info
-                  if (_wrapper.UpdateFromOnlineSeriesCharacter(seriesMatch, character, language, false))
-                  {
-                    //Set as changed because cache has changed and might contain new/updated data
-                    seriesInfo.HasChanged = true;
-                    updated = true;
-                  }
+                  //Set as changed because cache has changed and might contain new/updated data
+                  seriesInfo.HasChanged = true;
+                  updated = true;
                 }
               }
-              else
-              {
-                updated = true;
-              }
+            }
+            else
+            {
+              updated = true;
             }
           }
           else
@@ -777,8 +846,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
           else
           {
             //Store empty match so he/she is not retried
-            if (!importOnly)
-              _characterMatcher.StoreNameMatch("", character.Name, character.Name);
+            _characterMatcher.StoreNameMatch("", character.Name, character.Name);
           }
         }
 
@@ -791,12 +859,12 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
       }
     }
 
-    public virtual bool UpdateSeriesCompanies(SeriesInfo seriesInfo, string companyType, bool importOnly)
+    public virtual async Task<bool> UpdateSeriesCompaniesAsync(SeriesInfo seriesInfo, string companyType)
     {
       try
       {
         // Try online lookup
-        if (!Init())
+        if (!await InitAsync().ConfigureAwait(false))
           return false;
 
         TLang language = FindBestMatchingLanguage(seriesInfo.Languages);
@@ -852,31 +920,28 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
         foreach (CompanyInfo company in companies)
         {
           //Try updating from cache
-          if (!_wrapper.UpdateFromOnlineSeriesCompany(seriesMatch, company, language, true))
+          if (!await _wrapper.UpdateFromOnlineSeriesCompanyAsync(seriesMatch, company, language, true).ConfigureAwait(false))
           {
-            if (!importOnly)
-            {
-              Logger.Debug(_id + ": Search for company {0} online", company.ToString());
+            Logger.Debug(_id + ": Search for company {0} online", company.ToString());
 
-              //Try to update company information from online source if online Ids are present
-              if (!_wrapper.UpdateFromOnlineSeriesCompany(seriesMatch, company, language, false))
+            //Try to update company information from online source if online Ids are present
+            if (!await _wrapper.UpdateFromOnlineSeriesCompanyAsync(seriesMatch, company, language, false).ConfigureAwait(false))
+            {
+              //Search for the company online and update the Ids if a match is found
+              if (await _wrapper.SearchCompanyUniqueAndUpdateAsync(company, language).ConfigureAwait(false))
               {
-                //Search for the company online and update the Ids if a match is found
-                if (_wrapper.SearchCompanyUniqueAndUpdate(company, language))
+                //Ids were updated now try to fetch the online company info
+                if (await _wrapper.UpdateFromOnlineSeriesCompanyAsync(seriesMatch, company, language, false).ConfigureAwait(false))
                 {
-                  //Ids were updated now try to fetch the online company info
-                  if (_wrapper.UpdateFromOnlineSeriesCompany(seriesMatch, company, language, false))
-                  {
-                    //Set as changed because cache has changed and might contain new/updated data
-                    seriesInfo.HasChanged = true;
-                    updated = true;
-                  }
+                  //Set as changed because cache has changed and might contain new/updated data
+                  seriesInfo.HasChanged = true;
+                  updated = true;
                 }
               }
-              else
-              {
-                updated = true;
-              }
+            }
+            else
+            {
+              updated = true;
             }
           }
           else
@@ -909,8 +974,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
             else
             {
               //Store empty match so it is not retried
-              if (!importOnly)
-                _companyMatcher.StoreNameMatch("", company.Name, company.Name);
+              _companyMatcher.StoreNameMatch("", company.Name, company.Name);
             }
           }
         }
@@ -926,8 +990,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
             else
             {
               //Store empty match so it is not retried
-              if (!importOnly)
-                _networkMatcher.StoreNameMatch("", company.Name, company.Name);
+              _networkMatcher.StoreNameMatch("", company.Name, company.Name);
             }
           }
         }
@@ -941,12 +1004,12 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
       }
     }
 
-    public virtual bool UpdateEpisodePersons(EpisodeInfo episodeInfo, string occupation, bool importOnly)
+    public virtual async Task<bool> UpdateEpisodePersonsAsync(EpisodeInfo episodeInfo, string occupation)
     {
       try
       {
         // Try online lookup
-        if (!Init())
+        if (!await InitAsync().ConfigureAwait(false))
           return false;
 
         TLang language = FindBestMatchingLanguage(episodeInfo.Languages);
@@ -1023,31 +1086,28 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
         foreach (PersonInfo person in persons)
         {
           //Try updating from cache
-          if (!_wrapper.UpdateFromOnlineSeriesEpisodePerson(episodeMatch, person, language, true))
+          if (!await _wrapper.UpdateFromOnlineSeriesEpisodePersonAsync(episodeMatch, person, language, true).ConfigureAwait(false))
           {
-            if (!importOnly)
-            {
-              Logger.Debug(_id + ": Search for person {0} online", person.ToString());
+            Logger.Debug(_id + ": Search for person {0} online", person.ToString());
 
-              //Try to update person information from online source if online Ids are present
-              if (!_wrapper.UpdateFromOnlineSeriesEpisodePerson(episodeMatch, person, language, false))
+            //Try to update person information from online source if online Ids are present
+            if (!await _wrapper.UpdateFromOnlineSeriesEpisodePersonAsync(episodeMatch, person, language, false).ConfigureAwait(false))
+            {
+              //Search for the person online and update the Ids if a match is found
+              if (await _wrapper.SearchPersonUniqueAndUpdateAsync(person, language).ConfigureAwait(false))
               {
-                //Search for the person online and update the Ids if a match is found
-                if (_wrapper.SearchPersonUniqueAndUpdate(person, language))
+                //Ids were updated now try to fetch the online person info
+                if (await _wrapper.UpdateFromOnlineSeriesEpisodePersonAsync(episodeMatch, person, language, false).ConfigureAwait(false))
                 {
-                  //Ids were updated now try to fetch the online person info
-                  if (_wrapper.UpdateFromOnlineSeriesEpisodePerson(episodeMatch, person, language, false))
-                  {
-                    //Set as changed because cache has changed and might contain new/updated data
-                    episodeInfo.HasChanged = true;
-                    updated = true;
-                  }
+                  //Set as changed because cache has changed and might contain new/updated data
+                  episodeInfo.HasChanged = true;
+                  updated = true;
                 }
               }
-              else
-              {
-                updated = true;
-              }
+            }
+            else
+            {
+              updated = true;
             }
           }
           else
@@ -1061,8 +1121,8 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
         {
           //Try to update person based on series information
           SeriesInfo series = episodeMatch.CloneBasicInstance<SeriesInfo>();
-          series.Actors = episodeMatch.Actors;
-          if (UpdateSeriesPersons(series, occupation, importOnly))
+          series.Actors = episodeMatch.Actors.ToList();
+          if (await UpdateSeriesPersonsAsync(series, occupation).ConfigureAwait(false))
             updated = true;
         }
 
@@ -1091,8 +1151,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
             else
             {
               //Store empty match so he/she is not retried
-              if (!importOnly)
-                _actorMatcher.StoreNameMatch("", person.Name, person.Name);
+              _actorMatcher.StoreNameMatch("", person.Name, person.Name);
             }
           }
         }
@@ -1108,8 +1167,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
             else
             {
               //Store empty match so he/she is not retried
-              if (!importOnly)
-                _directorMatcher.StoreNameMatch("", person.Name, person.Name);
+              _directorMatcher.StoreNameMatch("", person.Name, person.Name);
             }
           }
         }
@@ -1125,8 +1183,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
             else
             {
               //Store empty match so he/she is not retried
-              if (!importOnly)
-                _writerMatcher.StoreNameMatch("", person.Name, person.Name);
+              _writerMatcher.StoreNameMatch("", person.Name, person.Name);
             }
           }
         }
@@ -1140,12 +1197,12 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
       }
     }
 
-    public virtual bool UpdateEpisodeCharacters(EpisodeInfo episodeInfo, bool importOnly)
+    public virtual async Task<bool> UpdateEpisodeCharactersAsync(EpisodeInfo episodeInfo)
     {
       try
       {
         // Try online lookup
-        if (!Init())
+        if (!await InitAsync().ConfigureAwait(false))
           return false;
 
         TLang language = FindBestMatchingLanguage(episodeInfo.Languages);
@@ -1163,31 +1220,28 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
           }
 
           //Try updating from cache
-          if (!_wrapper.UpdateFromOnlineSeriesEpisodeCharacter(episodeMatch, character, language, true))
+          if (!await _wrapper.UpdateFromOnlineSeriesEpisodeCharacterAsync(episodeMatch, character, language, true).ConfigureAwait(false))
           {
-            if (!importOnly)
-            {
-              Logger.Debug(_id + ": Search for character {0} online", character.ToString());
+            Logger.Debug(_id + ": Search for character {0} online", character.ToString());
 
-              //Try to update character information from online source if online Ids are present
-              if (!_wrapper.UpdateFromOnlineSeriesEpisodeCharacter(episodeMatch, character, language, false))
+            //Try to update character information from online source if online Ids are present
+            if (!await _wrapper.UpdateFromOnlineSeriesEpisodeCharacterAsync(episodeMatch, character, language, false).ConfigureAwait(false))
+            {
+              //Search for the character online and update the Ids if a match is found
+              if (await _wrapper.SearchCharacterUniqueAndUpdateAsync(character, language).ConfigureAwait(false))
               {
-                //Search for the character online and update the Ids if a match is found
-                if (_wrapper.SearchCharacterUniqueAndUpdate(character, language))
+                //Ids were updated now try to fetch the online character info
+                if (await _wrapper.UpdateFromOnlineSeriesEpisodeCharacterAsync(episodeMatch, character, language, false).ConfigureAwait(false))
                 {
-                  //Ids were updated now try to fetch the online character info
-                  if (_wrapper.UpdateFromOnlineSeriesEpisodeCharacter(episodeMatch, character, language, false))
-                  {
-                    //Set as changed because cache has changed and might contain new/updated data
-                    episodeInfo.HasChanged = true;
-                    updated = true;
-                  }
+                  //Set as changed because cache has changed and might contain new/updated data
+                  episodeInfo.HasChanged = true;
+                  updated = true;
                 }
               }
-              else
-              {
-                updated = true;
-              }
+            }
+            else
+            {
+              updated = true;
             }
           }
           else
@@ -1201,8 +1255,8 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
         {
           //Try to update character based on series information
           SeriesInfo series = episodeMatch.CloneBasicInstance<SeriesInfo>();
-          series.Characters = episodeMatch.Characters;
-          if (UpdateSeriesCharacters(series, importOnly))
+          series.Characters = episodeMatch.Characters.ToList();
+          if (await UpdateSeriesCharactersAsync(series).ConfigureAwait(false))
             updated = true;
         }
 
@@ -1224,8 +1278,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
           else
           {
             //Store empty match so he/she is not retried
-            if (!importOnly)
-              _characterMatcher.StoreNameMatch("", character.Name, character.Name);
+            _characterMatcher.StoreNameMatch("", character.Name, character.Name);
           }
         }
 
@@ -1439,7 +1492,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
     {
       List<SeriesInfo> series = new List<SeriesInfo>();
 
-      if (!Init())
+      if (!InitAsync().Result)
         return series;
 
       foreach (string id in _config.LastUpdatedSeries)
@@ -1453,7 +1506,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
 
     public void ResetLastChangedSeries()
     {
-      if (!Init())
+      if (!InitAsync().Result)
         return;
 
       _config.LastUpdatedSeries.Clear();
@@ -1464,7 +1517,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
     {
       List<EpisodeInfo> episodes = new List<EpisodeInfo>();
 
-      if (!Init())
+      if (!InitAsync().Result)
         return episodes;
 
       foreach (string id in _config.LastUpdatedEpisodes)
@@ -1478,7 +1531,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
 
     public void ResetLastChangedEpisodes()
     {
-      if (!Init())
+      if (!InitAsync().Result)
         return;
 
       _config.LastUpdatedEpisodes.Clear();
@@ -1510,416 +1563,77 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
 
     #region FanArt
 
-    public virtual bool ScheduleFanArtDownload(Guid mediaItemId, BaseInfo info, bool force)
+    protected override bool TryGetFanArtInfo(BaseInfo info, out TLang language, out string fanArtMediaType, out bool includeThumbnails)
     {
-      if (!Init())
+      language = default(TLang);
+      fanArtMediaType = null;
+      includeThumbnails = true;
+
+      SeriesInfo seriesInfo = info as SeriesInfo;
+      if (seriesInfo != null)
+      {
+        language = FindBestMatchingLanguage(seriesInfo.Languages);
+        fanArtMediaType = FanArtMediaTypes.Series;
+        includeThumbnails = false;
+        return true;
+      }
+
+      SeasonInfo seasonInfo = info as SeasonInfo;
+      if (seasonInfo != null)
+      {
+        language = FindBestMatchingLanguage(seasonInfo.Languages);
+        fanArtMediaType = FanArtMediaTypes.SeriesSeason;
+        includeThumbnails = false;
+        return true;
+      }
+
+      EpisodeInfo episodeInfo = info as EpisodeInfo;
+      if (episodeInfo != null)
+      {
+        language = FindBestMatchingLanguage(episodeInfo.Languages);
+        fanArtMediaType = FanArtMediaTypes.Episode;
+        return true;
+      }
+
+      if (OnlyBasicFanArt)
         return false;
 
-      string id;
-      string mediaItem = mediaItemId.ToString().ToUpperInvariant();
-      if (info is SeriesInfo)
+      CompanyInfo companyInfo = info as CompanyInfo;
+      if (companyInfo != null)
       {
-        SeriesInfo seriesInfo = info as SeriesInfo;
-        if (GetSeriesId(seriesInfo, out id))
-        {
-          TLang language = FindBestMatchingLanguage(seriesInfo.Languages);
-          DownloadData data = new DownloadData()
-          {
-            FanArtMediaType = FanArtMediaTypes.Series,
-            ShortLanguage = language != null ? language.ToString() : "",
-            MediaItemId = mediaItem,
-            Name = seriesInfo.ToString()
-          };
-          data.FanArtId[FanArtMediaTypes.Series] = id;
-          return ScheduleDownload(id, data.Serialize(), force);
-        }
+        if (companyInfo.Type == CompanyAspect.COMPANY_TV_NETWORK)
+          fanArtMediaType = FanArtMediaTypes.TVNetwork;
+        else if (companyInfo.Type == CompanyAspect.COMPANY_PRODUCTION)
+          fanArtMediaType = FanArtMediaTypes.Company;
+        else
+          return false;
+        language = FindMatchingLanguage(string.Empty);
+        return true;
       }
-      else if (info is SeasonInfo)
-      {
-        SeasonInfo seasonInfo = info as SeasonInfo;
-        if (seasonInfo != null)
-        {
-          TLang language = FindBestMatchingLanguage(seasonInfo.Languages);
-          DownloadData data = new DownloadData()
-          {
-            FanArtMediaType = FanArtMediaTypes.SeriesSeason,
-            ShortLanguage = language != null ? language.ToString() : "",
-            MediaItemId = mediaItem,
-            Name = seasonInfo.ToString()
-          };
-          if (GetSeriesId(seasonInfo.CloneBasicInstance<SeriesInfo>(), out id))
-          {
-            data.FanArtId[FanArtMediaTypes.Series] = id;
-          }
-          if (seasonInfo.SeasonNumber.HasValue)
-          {
-            data.FanArtId[FanArtMediaTypes.SeriesSeason] = seasonInfo.SeasonNumber.Value.ToString();
-          }
-          if (GetSeriesSeasonId(seasonInfo, out id))
-          {
-            data.FanArtId[FanArtMediaTypes.Undefined] = id;
-          }
-          ScheduleDownload(id, data.Serialize(), force);
-        }
-      }
-      else if (info is EpisodeInfo)
-      {
-        EpisodeInfo episodeInfo = info as EpisodeInfo;
-        if (episodeInfo != null)
-        {
-          TLang language = FindBestMatchingLanguage(episodeInfo.Languages);
-          DownloadData data = new DownloadData()
-          {
-            FanArtMediaType = FanArtMediaTypes.Episode,
-            ShortLanguage = language != null ? language.ToString() : "",
-            MediaItemId = mediaItem,
-            Name = episodeInfo.ToString()
-          };
-          if (GetSeriesId(episodeInfo.CloneBasicInstance<SeriesInfo>(), out id))
-          {
-            data.FanArtId[FanArtMediaTypes.Series] = id;
-          }
-          if (episodeInfo.SeasonNumber.HasValue)
-          {
-            data.FanArtId[FanArtMediaTypes.SeriesSeason] = episodeInfo.SeasonNumber.Value.ToString();
-          }
-          if (episodeInfo.EpisodeNumbers.Count > 0)
-          {
-            data.FanArtId[FanArtMediaTypes.Episode] = episodeInfo.FirstEpisodeNumber.ToString();
-          }
-          if (GetSeriesEpisodeId(episodeInfo, out id))
-          {
-            data.FanArtId[FanArtMediaTypes.Undefined] = id;
-          }
-          ScheduleDownload(id, data.Serialize(), force);
-        }
-      }
-      else if (info is CompanyInfo)
-      {
-        CompanyInfo companyInfo = info as CompanyInfo;
-        if (GetCompanyId(companyInfo, out id))
-        {
-          DownloadData data = new DownloadData()
-          {
-            ShortLanguage = "",
-            MediaItemId = mediaItem,
-            Name = companyInfo.ToString()
-          };
-          if (companyInfo.Type == CompanyAspect.COMPANY_PRODUCTION)
-          {
-            data.FanArtMediaType = FanArtMediaTypes.Company;
-            data.FanArtId[FanArtMediaTypes.Company] = id;
-          }
-          else if (companyInfo.Type == CompanyAspect.COMPANY_TV_NETWORK)
-          {
-            data.FanArtMediaType = FanArtMediaTypes.TVNetwork;
-            data.FanArtId[FanArtMediaTypes.TVNetwork] = id;
-          }
-          return ScheduleDownload(id, data.Serialize(), force);
-        }
-      }
-      else if (info is CharacterInfo)
-      {
-        CharacterInfo characterInfo = info as CharacterInfo;
-        if (GetCharacterId(characterInfo, out id))
-        {
-          DownloadData data = new DownloadData()
-          {
-            FanArtMediaType = FanArtMediaTypes.Character,
-            ShortLanguage = "",
-            MediaItemId = mediaItem,
-            Name = characterInfo.ToString()
-          };
-          data.FanArtId[FanArtMediaTypes.Character] = id;
 
-          string actorId;
-          PersonInfo actor = characterInfo.CloneBasicInstance<PersonInfo>();
-          if (GetPersonId(actor, out actorId))
-          {
-            data.FanArtId[FanArtMediaTypes.Actor] = actorId;
-          }
-          return ScheduleDownload(id, data.Serialize(), force);
-        }
-      }
-      else if (info is PersonInfo)
+      CharacterInfo characterInfo = info as CharacterInfo;
+      if (characterInfo != null)
       {
-        PersonInfo personInfo = info as PersonInfo;
-        if (GetPersonId(personInfo, out id))
-        {
-          DownloadData data = new DownloadData()
-          {
-            ShortLanguage = "",
-            MediaItemId = mediaItem,
-            Name = personInfo.ToString()
-          };
-          if (personInfo.Occupation == PersonAspect.OCCUPATION_ACTOR)
-          {
-            data.FanArtMediaType = FanArtMediaTypes.Actor;
-            data.FanArtId[FanArtMediaTypes.Actor] = id;
-          }
-          else if (personInfo.Occupation == PersonAspect.OCCUPATION_DIRECTOR)
-          {
-            data.FanArtMediaType = FanArtMediaTypes.Director;
-            data.FanArtId[FanArtMediaTypes.Director] = id;
-          }
-          else if (personInfo.Occupation == PersonAspect.OCCUPATION_WRITER)
-          {
-            data.FanArtMediaType = FanArtMediaTypes.Writer;
-            data.FanArtId[FanArtMediaTypes.Writer] = id;
-          }
-          return ScheduleDownload(id, data.Serialize(), force);
-        }
+        language = FindMatchingLanguage(string.Empty);
+        fanArtMediaType = FanArtMediaTypes.Character;
+        return true;
+      }
+
+      PersonInfo personInfo = info as PersonInfo;
+      if (personInfo != null)
+      {
+        if (personInfo.Occupation == PersonAspect.OCCUPATION_ACTOR)
+          fanArtMediaType = FanArtMediaTypes.Actor;
+        else if (personInfo.Occupation == PersonAspect.OCCUPATION_DIRECTOR)
+          fanArtMediaType = FanArtMediaTypes.Director;
+        else if (personInfo.Occupation == PersonAspect.OCCUPATION_WRITER)
+          fanArtMediaType = FanArtMediaTypes.Writer;
+        else
+          return false;
+        language = FindMatchingLanguage(string.Empty);
+        return true;
       }
       return false;
-    }
-
-    protected override void DownloadFanArt(FanartDownload<string> fanartDownload)
-    {
-      string name = fanartDownload.DownloadId;
-      try
-      {
-        if (string.IsNullOrEmpty(fanartDownload.DownloadId))
-          return;
-
-        DownloadData data = new DownloadData();
-        if (!data.Deserialize(fanartDownload.DownloadId))
-          return;
-
-        name = string.Format("{0} ({1})", data.MediaItemId, data.Name);
-
-        if (!Init())
-          return;
-
-        try
-        {
-          string seriesId = null;
-          string seasonId = null;
-          string episodeId = null;
-          string seasonNo = null;
-          string episodeNo = null;
-          TLang language = FindMatchingLanguage(data.ShortLanguage);
-
-          Logger.Debug(_id + " Download: Started for media item {0}", name);
-          ApiWrapperImageCollection<TImg> images = null;
-          string Id = "";
-          if (data.FanArtMediaType == FanArtMediaTypes.Series)
-          {
-            Id = data.FanArtId[FanArtMediaTypes.Series];
-            seriesId = Id;
-            SeriesInfo seriesInfo = new SeriesInfo();
-            if (SetSeriesId(seriesInfo, seriesId))
-            {
-              if (_wrapper.GetFanArt(seriesInfo, language, data.FanArtMediaType, out images) == false)
-              {
-                Logger.Debug(_id + " Download: Failed getting images for series ID {0} [{1}]", Id, name);
-                return;
-              }
-
-              //Not used
-              images.Thumbnails.Clear();
-            }
-          }
-          else if (data.FanArtMediaType == FanArtMediaTypes.SeriesSeason)
-          {
-            if (data.FanArtId.ContainsKey(FanArtMediaTypes.Undefined))
-            {
-              seasonId = data.FanArtId[FanArtMediaTypes.Undefined];
-            }
-            if (data.FanArtId.ContainsKey(FanArtMediaTypes.Series))
-            {
-              seriesId = data.FanArtId[FanArtMediaTypes.Series];
-            }
-            if (data.FanArtId.ContainsKey(FanArtMediaTypes.SeriesSeason))
-            {
-              seasonNo = data.FanArtId[FanArtMediaTypes.SeriesSeason];
-            }
-            if (data.FanArtId.ContainsKey(FanArtMediaTypes.Episode))
-            {
-              episodeNo = data.FanArtId[FanArtMediaTypes.Episode];
-            }
-            SeriesInfo seriesInfo = new SeriesInfo();
-            SeasonInfo seasonInfo = new SeasonInfo();
-            if (SetSeriesId(seriesInfo, seriesId))
-            {
-              seasonInfo.CopyIdsFrom(seriesInfo);
-            }
-            SetSeriesSeasonId(seasonInfo, seasonId);
-            if (seasonNo != null)
-            {
-              seasonInfo.SeasonNumber = Convert.ToInt32(seasonNo);
-            }
-            if (_wrapper.GetFanArt(seasonInfo, language, data.FanArtMediaType, out images) == false)
-            {
-              Logger.Debug(_id + " Download: Failed getting images for series season {0} [{1}]", Id, name);
-              return;
-            }
-
-            //Not used
-            images.Thumbnails.Clear();
-          }
-          else if (data.FanArtMediaType == FanArtMediaTypes.Episode)
-          {
-            if (data.FanArtId.ContainsKey(FanArtMediaTypes.Undefined))
-            {
-              episodeId = data.FanArtId[FanArtMediaTypes.Undefined];
-            }
-            if (data.FanArtId.ContainsKey(FanArtMediaTypes.Series))
-            {
-              seriesId = data.FanArtId[FanArtMediaTypes.Series];
-            }
-            if (data.FanArtId.ContainsKey(FanArtMediaTypes.SeriesSeason))
-            {
-              seasonNo = data.FanArtId[FanArtMediaTypes.SeriesSeason];
-            }
-            if (data.FanArtId.ContainsKey(FanArtMediaTypes.Episode))
-            {
-              episodeNo = data.FanArtId[FanArtMediaTypes.Episode];
-            }
-            SeriesInfo seriesInfo = new SeriesInfo();
-            EpisodeInfo episodeInfo = new EpisodeInfo();
-            if (SetSeriesId(seriesInfo, seriesId))
-            {
-              episodeInfo.CopyIdsFrom(seriesInfo);
-            }
-            SetSeriesEpisodeId(episodeInfo, episodeId);
-            if (seasonNo != null)
-            {
-              episodeInfo.SeasonNumber = Convert.ToInt32(seasonNo);
-            }
-            if (episodeNo != null)
-            {
-              episodeInfo.EpisodeNumbers.Add(Convert.ToInt32(episodeNo));
-            }
-            if (_wrapper.GetFanArt(episodeInfo, language, data.FanArtMediaType, out images) == false)
-            {
-              Logger.Debug(_id + " Download: Failed getting images for series episode {0} [{1}]", Id, name);
-              return;
-            }
-          }
-          else if (data.FanArtMediaType == FanArtMediaTypes.Actor || data.FanArtMediaType == FanArtMediaTypes.Director || data.FanArtMediaType == FanArtMediaTypes.Writer)
-          {
-            if (OnlyBasicFanArt)
-              return;
-
-            Id = data.FanArtId[data.FanArtMediaType];
-            PersonInfo personInfo = new PersonInfo();
-            if (SetPersonId(personInfo, Id))
-            {
-              if (_wrapper.GetFanArt(personInfo, language, data.FanArtMediaType, out images) == false)
-              {
-                Logger.Debug(_id + " Download: Failed getting images for series person ID {0} [{1}]", Id, name);
-                return;
-              }
-            }
-          }
-          else if (data.FanArtMediaType == FanArtMediaTypes.Character)
-          {
-            if (OnlyBasicFanArt)
-              return;
-
-            Id = data.FanArtId[FanArtMediaTypes.Character];
-            CharacterInfo characterInfo = new CharacterInfo();
-            if (SetCharacterId(characterInfo, Id))
-            {
-              if (_wrapper.GetFanArt(characterInfo, language, data.FanArtMediaType, out images) == false)
-              {
-                Logger.Debug(_id + " Download: Failed getting images for series character ID {0} [{1}]", Id, name);
-                return;
-              }
-            }
-          }
-          else if (data.FanArtMediaType == FanArtMediaTypes.Company || data.FanArtMediaType == FanArtMediaTypes.TVNetwork)
-          {
-            if (OnlyBasicFanArt)
-              return;
-
-            Id = data.FanArtId[data.FanArtMediaType];
-            CompanyInfo companyInfo = new CompanyInfo();
-            if (SetCompanyId(companyInfo, Id))
-            {
-              if (_wrapper.GetFanArt(companyInfo, language, data.FanArtMediaType, out images) == false)
-              {
-                Logger.Debug(_id + " Download: Failed getting images for series company ID {0} [{1}]", Id, name);
-                return;
-              }
-            }
-          }
-
-          if (images != null)
-          {
-            Logger.Debug(_id + " Download: Downloading images for ID {0} [{1}]", Id, name);
-
-            SaveFanArtImages(images.Id, images.Backdrops, language, data.MediaItemId, data.Name, FanArtTypes.FanArt);
-            SaveFanArtImages(images.Id, images.Posters, language, data.MediaItemId, data.Name, FanArtTypes.Poster);
-            SaveFanArtImages(images.Id, images.Banners, language, data.MediaItemId, data.Name, FanArtTypes.Banner);
-            SaveFanArtImages(images.Id, images.Covers, language, data.MediaItemId, data.Name, FanArtTypes.Cover);
-            SaveFanArtImages(images.Id, images.Thumbnails, language, data.MediaItemId, data.Name, FanArtTypes.Thumbnail);
-
-            if (!OnlyBasicFanArt)
-            {
-              SaveFanArtImages(images.Id, images.ClearArt, language, data.MediaItemId, data.Name, FanArtTypes.ClearArt);
-              SaveFanArtImages(images.Id, images.DiscArt, language, data.MediaItemId, data.Name, FanArtTypes.DiscArt);
-              SaveFanArtImages(images.Id, images.Logos, language, data.MediaItemId, data.Name, FanArtTypes.Logo);
-            }
-
-            Logger.Debug(_id + " Download: Finished saving images for ID {0} [{1}]", Id, name);
-          }
-        }
-        finally
-        {
-          // Remember we are finished
-          FinishDownloadFanArt(fanartDownload);
-        }
-      }
-      catch (Exception ex)
-      {
-        Logger.Debug(_id + " Download: Exception downloading images for {0}", ex, name);
-      }
-    }
-
-    protected virtual bool VerifyFanArtImage(TImg image, TLang language)
-    {
-      return image != null;
-    }
-
-    protected virtual int SaveFanArtImages(string id, IEnumerable<TImg> images, TLang language, string mediaItemId, string name, string fanartType)
-    {
-      try
-      {
-        if (images == null)
-          return 0;
-
-        int idx = 0;
-        foreach (TImg img in images)
-        {
-          using (FanArtCache.FanArtCountLock countLock = FanArtCache.GetFanArtCountLock(mediaItemId, fanartType))
-          {
-            if (countLock.Count >= FanArtCache.MAX_FANART_IMAGES[fanartType])
-              break;
-            if (!VerifyFanArtImage(img, language))
-              continue;
-            if (idx >= FanArtCache.MAX_FANART_IMAGES[fanartType])
-              break;
-            FanArtCache.InitFanArtCache(mediaItemId, name);
-            if (_wrapper.DownloadFanArt(id, img, Path.Combine(FANART_CACHE_PATH, mediaItemId, fanartType)))
-            {
-              countLock.Count++;
-              idx++;
-            }
-            else
-            {
-              Logger.Warn(_id + " Download: Error downloading FanArt for ID {0} on media item {1} ({2}) of type {3}", id, mediaItemId, name, fanartType);
-            }
-          }
-        }
-        Logger.Debug(_id + @" Download: Saved {0} for media item {1} ({2}) of type {3}", idx, mediaItemId, name, fanartType);
-        return idx;
-      }
-      catch (Exception ex)
-      {
-        Logger.Debug(_id + " Download: Exception downloading images for ID {0} [{1} ({2})]", ex, id, mediaItemId, name);
-        return 0;
-      }
     }
 
     #endregion

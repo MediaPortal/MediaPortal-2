@@ -50,16 +50,17 @@
     <Compile Include="..\..\Source\Core\MediaPortal.Common\VersionInfo\VersionInfo.cs">
       <Link>Properties\VersionInfo.cs</Link>
     </Compile>
+    <Compile Include="Actions\UserLoginAction.cs" />
     <Compile Include="General\Consts.cs" />
     <Compile Include="General\Utils.cs" />
     <Compile Include="LoginPlugin.cs" />
     <Compile Include="Models\LoginModel.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Settings\Configuration\AutoLoginUsertSetting.cs" />
+    <Compile Include="Settings\Configuration\AutoLoginUserSetting.cs" />
     <Compile Include="Settings\Configuration\AutoLogoutTimeoutSetting.cs" />
     <Compile Include="Settings\Configuration\AutoLogoutSettings.cs" />
     <Compile Include="Settings\Configuration\UserLoginScreenSettings.cs" />
-    <Compile Include="Settings\UserSettings.cs" />
+    <Compile Include="Settings\UserTemplateSettings.cs" />
     <Compile Include="Settings\UserSettingStorage.cs" />
     <Compile Include="Settings\Configuration\UserConfigSettings.cs" />
     <Compile Include="Settings\Configuration\UserManagementSetting.cs" />
@@ -116,7 +117,7 @@
     </Content>
   </ItemGroup>
   <ItemGroup>
-    <None Include="Skin\default\screens\DialogChooseProfileType.xaml">
+    <None Include="Skin\default\screens\DialogChooseProfileTemplate.xaml">
       <SubType>Designer</SubType>
     </None>
   </ItemGroup>
@@ -155,6 +156,36 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Skin\BlueVision\themes\Win10\screens\UserManagement.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\default\screens\DialogSelectRestrictions.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\BlueVision\themes\Win10\styles\LoginStyles.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\BlueVision\themes\default\styles\LoginStyles.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\BlueVision\themes\Titanium Extended\styles\LoginStyles.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\WMCSkin\themes\default\styles\LoginStyles.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\BlueVision\themes\Titanium Extended\screens\UserManagement.xaml">
       <SubType>Designer</SubType>
     </Content>
   </ItemGroup>

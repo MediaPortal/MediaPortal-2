@@ -1,5 +1,4 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-  <string name="WMC.Configuration.EnableBanners.Movies">Filmler</string>
-  <string name="WMC.Configuration.EnableBanners.Series">Dizi</string>
+  <string name="WMC.Home.Favorites">Favorites</string>
   </resources>

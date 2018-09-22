@@ -332,7 +332,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
         BindVar userIdVar = new BindVar(bvNamespace.CreateNewBindVarName("V"), relationalUserDataFilter.UserProfileId, typeof(Guid));
         BindVar bindVar = new BindVar(bvNamespace.CreateNewBindVarName("V"), relationalUserDataFilter.FilterValue, typeof(string));
 
-        resultParts.Add("EXISTS(");
+        resultParts.Add("(EXISTS(");
         resultParts.Add("SELECT 1");
         resultParts.Add(" FROM ");
         resultParts.Add(UserProfileDataManagement_SubSchema.USER_MEDIA_ITEM_DATA_TABLE_NAME);
@@ -344,7 +344,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
         resultParts.Add(UserProfileDataManagement_SubSchema.USER_DATA_KEY_COL_NAME);
         resultParts.Add(" = '");
         resultParts.Add(relationalUserDataFilter.UserDataKey);
-        resultParts.Add("' AND ");
+        resultParts.Add("' AND (");
         resultParts.Add(UserProfileDataManagement_SubSchema.USER_DATA_VALUE_COL_NAME);
         switch (relationalUserDataFilter.Operator)
         {
@@ -372,10 +372,37 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
         }
         resultParts.Add("@" + bindVar.Name);
         resultBindVars.Add(bindVar);
-        resultParts.Add(" AND ");
+        if (relationalUserDataFilter.IncludeEmpty)
+        {
+          resultParts.Add(" OR ");
+          resultParts.Add(UserProfileDataManagement_SubSchema.USER_DATA_VALUE_COL_NAME);
+          resultParts.Add(" IS NULL ");
+        }
+        resultParts.Add(") AND ");
         resultParts.Add(MIA_Management.MIA_MEDIA_ITEM_ID_COL_NAME);
         resultParts.Add("=");
         resultParts.Add(outerMIIDJoinVariable);
+        resultParts.Add(")");
+        if (relationalUserDataFilter.IncludeEmpty)
+        {
+          resultParts.Add(" OR NOT EXISTS(");
+          resultParts.Add("SELECT 1");
+          resultParts.Add(" FROM ");
+          resultParts.Add(UserProfileDataManagement_SubSchema.USER_MEDIA_ITEM_DATA_TABLE_NAME);
+          resultParts.Add(" WHERE ");
+          resultParts.Add(UserProfileDataManagement_SubSchema.USER_PROFILE_ID_COL_NAME);
+          resultParts.Add(" = @" + userIdVar.Name);
+          resultParts.Add(" AND ");
+          resultParts.Add(UserProfileDataManagement_SubSchema.USER_DATA_KEY_COL_NAME);
+          resultParts.Add(" = '");
+          resultParts.Add(relationalUserDataFilter.UserDataKey);
+          resultParts.Add("'");
+          resultParts.Add(" AND ");
+          resultParts.Add(MIA_Management.MIA_MEDIA_ITEM_ID_COL_NAME);
+          resultParts.Add("=");
+          resultParts.Add(outerMIIDJoinVariable);
+          resultParts.Add(")");
+        }
         resultParts.Add(")");
         return;
       }

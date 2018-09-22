@@ -24,6 +24,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using MediaPortal.Common;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.UI.Presentation.Geometries;
@@ -475,6 +476,30 @@ namespace MediaPortal.UI.Services.Players
       player.CurrentTime = player.Duration;
     }
 
+    public bool PreviousChapter()
+    {
+      IChapterPlayer player = GetCurrentPlayer() as IChapterPlayer;
+      if (player == null || !player.ChaptersAvailable)
+        return false;
+      // Can skip to previous only if current chapter is not the first
+      if (player.CurrentChapter == player.Chapters.First())
+        return false;
+      player.PrevChapter();
+      return true;
+    }
+
+    public bool NextChapter()
+    {
+      IChapterPlayer player = GetCurrentPlayer() as IChapterPlayer;
+      if (player == null || !player.ChaptersAvailable)
+        return false;
+      // Can skip to next only if current chapter is not the last
+      if (player.CurrentChapter == player.Chapters.Last())
+        return false;
+      player.NextChapter();
+      return true;
+    }
+
     public bool PreviousItem()
     {
       IPlayerSlotController psc = _slotController;
@@ -502,7 +527,7 @@ namespace MediaPortal.UI.Services.Players
       bool playOk;
       do // Loop: Try until we find an item we can play
       {
-        if (--countLeft < 0 || !_playlist.HasNext) // Break loop if we don't have any more items left
+        if (--countLeft < 0 || !_playlist.HasNext || psc.IsClosed) // Break loop if we don't have any more items left or player is closed
         {
           _playlist.ResetStatus();
           return false;

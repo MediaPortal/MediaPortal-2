@@ -143,9 +143,17 @@ Parameters which have to be accessible by a DynamicResource lookup:
 
           <!--Overlay to darken the content when the hidden menu is shown-->
           <Grid x:Name="FadeBackground" Background="Black" IsVisible="False"
-                VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Margin="-200,-500,-200,-500" Opacity="0">
+                VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Margin="-200,-500,-200,-500" Opacity="0"/>
+          
+          <!--
+          This control captures when the mouse moves over the content when the menu is open as the fade background above
+          covers the content preventing it from getting mouse focus. It has a right margin the same width as the menu so
+          it is not accidently hit whilst the menu is opened with the mouse.
+          -->
+          <Grid x:Name="MouseCaptureControl" IsVisible="{Binding Source={StaticResource MenuModel}, Path=IsMenuOpen}"
+                  VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Margin="-200,-500, 500,-500">
             <Grid.Triggers>
-              <!--Close the menu when the mouse moves over the fade background as it covers the main content and prevents it getting focus-->
+              <!--Close the menu when the mouse moves over this control as the fade background above covers the main content and prevents it getting focus-->
               <EventTrigger RoutedEvent="FrameworkElement.MouseMove">
                 <TriggerCommand Command="{Command Source={StaticResource MenuModel}, Path=CloseMenu}"/>
               </EventTrigger>

@@ -70,16 +70,15 @@ Parameters which have to be accessible by a DynamicResource lookup:
         <ColumnDefinition Width="Auto"/> <!-- Time -->
       </Grid.ColumnDefinitions>
 
-      <!--mp_special_controls:WorkflowNavigationBar Grid.Column="0" Grid.Row="0" Style="{ThemeResource NewWorkflowNavigationBarStyle}"
-            VerticalAlignment="Center" Margin="40,0,0,0" IsVisible="{Binding Source={StaticResource MouseModel},Path=IsMouseUsed}"/-->
       <Grid Grid.Row="0" Height="7" IsVisible="{Binding Source={StaticResource MenuModel},Path=IsHomeScreen}" />
      
       <Image Grid.Row="1" Grid.RowSpan="2" Grid.Column="2" x:Name="BigIcon" Stretch="Uniform" Height="100" 
              Source="{Binding Source={StaticResource CurrentWeatherModel}, Path=CurrentLocation.Condition.BigIconProperty}" 
              IsVisible="{Binding UseInHome}" HorizontalAlignment="Right" Margin="0,0,60,0"/>
 
-      <!-- Time & Date -->
       <StackPanel Orientation="Horizontal" Grid.Row="1" Grid.Column="1" HorizontalAlignment="Right" VerticalAlignment="Center">
+
+        <!--Import Indicator-->
         <StackPanel  VerticalAlignment="Center" HorizontalAlignment="Right" Margin="0,5,10,-5" Orientation="Horizontal"
                      DataContext="{Binding Source={StaticResource StateModel}, Path=[C37B62D0-8E87-42A4-877E-B41944DA9FC9]}"
                      IsVisible="{Binding Converter={StaticResource ReferenceToBoolConverter}}">
@@ -97,19 +96,45 @@ Parameters which have to be accessible by a DynamicResource lookup:
           <Button Style="{ThemeResource ImportingButtonStyle}" IsVisible="{Binding IsImporting}" VerticalAlignment="Center" 
                   HorizontalAlignment="Left" Margin="0,-5,0,-10"/>
         </StackPanel>
+
+        <!--Data Base Upgrade Indicator-->
+        <StackPanel Orientation="Horizontal" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="0,5,10,-5"
+                    DataContext="{Binding Source={StaticResource StateModel}, Path=[431528C9-5610-45CD-9807-0130AE1761DA]}"
+                    IsVisible="{Binding Converter={StaticResource ReferenceToBoolConverter}}">
+          <Label FontSize="{ThemeResource TinyFontSize}" Content="[Notifications.Upgrading]" Margin="10,-5,0,-10" 
+                 Color="{ThemeResource TextColor}" VerticalAlignment="Center" HorizontalAlignment="Right">
+            <Label.IsVisible>
+              <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0}>=0">
+                <Binding Path="Progress"/>
+              </MultiBinding>
+            </Label.IsVisible>
+            <Label.Content>
+              <Binding Path="Progress" Converter="{StaticResource StringFormatConverter}" ConverterParameter="{}{0}%"/>
+            </Label.Content>
+          </Label>
+          <Button Style="{ThemeResource UpgradingButtonStyle}" IsVisible="{Binding IsUpgrading}" VerticalAlignment="Center" 
+                  HorizontalAlignment="Left" Margin="0,-5,0,-10"/>
+        </StackPanel>
+
+        <!--Recording Indicator-->
         <StackPanel Orientation="Horizontal" VerticalAlignment="Center" HorizontalAlignment="Right"
                     DataContext="{Binding Source={StaticResource StateModel}, Path=[2A58935C-3363-4FA1-B48D-1EF0E81F830D]}"
                     IsVisible="{Binding Converter={StaticResource ReferenceToBoolConverter}}">
           <Button Style="{ThemeResource RecordingButtonStyle}" IsVisible="{Binding IsRecording}" VerticalAlignment="Center" Margin="0,-4,0,-16"/>
         </StackPanel>
+
+        <!--User Button-->
         <Button Style="{ThemeResource UserButtonStyle}" IsVisible="{Binding Source={StaticResource LoginModel},Path=EnableUserLogin}" 
                 IsEnabled="{Binding Source={StaticResource MenuModel},Path=IsHomeScreen}" Margin="0,-4,10,-16"
                 Command="{Command Source={Service WorkflowManager},Path=NavigatePush,Parameters=2529B0F0-8415-4A4E-971B-38D6CDD2406A}"/>
+
+        <!-- Time -->
         <Label x:Name="TimeLabel" Content="{Binding Source={StaticResource TimeModel}, Path=CurrentTime}" Margin="0,10,10,0"
                FontSize="{ThemeResource DialogTitleFontSize}" FontFamily="Titan"
                Color="{ThemeResource TextColor}" VerticalAlignment="Center" HorizontalAlignment="Right"/>
       </StackPanel>
 
+      <!-- Date & Weather -->
       <StackPanel Orientation="Horizontal" Grid.Column="1" Grid.Row="2" Margin="0,-20,10,0">
         <Label x:Name="DateLabel" Content="{Binding Source={StaticResource TimeModel}, Path=CurrentDate}" FontFamily="TitanBold"
                Color="{ThemeResource TextColor}" VerticalAlignment="Center" HorizontalAlignment="Right"/>
@@ -184,7 +209,7 @@ Parameters which have to be accessible by a DynamicResource lookup:
     <Control x:Name="ClientArea" Height="580" Width="1795" Canvas.Left="66" Canvas.Bottom="952"
              Template="{DynamicResource ResourceKey=Client_Template}"/>
 
-    <Grid Canvas.Top="-32" Canvas.Left="0" Width="1920" Height="120" IsVisible="{Binding Source={StaticResource MenuModel},Path=IsHomeScreen}">
+    <Grid Canvas.Top="-32" Canvas.Left="400" Width="1120" Height="120" IsVisible="{Binding Source={StaticResource MenuModel},Path=IsHomeScreen}">
       <Grid.RowDefinitions>
         <RowDefinition Height="*"/>
       </Grid.RowDefinitions>

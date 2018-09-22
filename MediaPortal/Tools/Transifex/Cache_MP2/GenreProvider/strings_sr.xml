@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <string name="Match.Video.Music">Музика</string>
+  <string name="Match.Video.TVMovie">ТВ</string>
+  <string name="Match.Video.News">Новости</string>
+  <string name="Match.Epg.Series">Серије</string>
+  <string name="Match.Epg.Music">Музика</string>
+  <string name="Match.Epg.News">Новости</string>
+  <string name="Label.Audio.Country">Држава</string>
+  <string name="Label.Audio.World">Свет</string>
+  <string name="Label.Video.Music">Музика</string>
+  <string name="Label.Video.TVMovie">ТВ</string>
+  <string name="Label.Video.News">Новости</string>
+  <string name="Label.Epg.Series">Серије</string>
+  <string name="Label.Epg.Music">Музика</string>
+  <string name="Label.Epg.News">Новости</string>
+  </resources>

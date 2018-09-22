@@ -34,6 +34,7 @@ using MediaPortal.UI.Presentation.Models;
 using MediaPortal.UI.Presentation.Workflow;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using MediaPortal.Common.Async;
 using MediaPortal.UI.Presentation.Screens;
 using MediaPortal.UiComponents.Login.General;
 using MediaPortal.Common.Messaging;
@@ -41,7 +42,10 @@ using MediaPortal.Common.Runtime;
 using MediaPortal.UI.Control.InputManager;
 using MediaPortal.UI.Presentation.Players;
 using MediaPortal.Common.Localization;
+using MediaPortal.Common.Services.ServerCommunication;
+using MediaPortal.Common.Services.SystemResolver.Settings;
 using MediaPortal.Common.Settings;
+using MediaPortal.Common.UserManagement;
 using MediaPortal.UI.ServerCommunication;
 
 namespace MediaPortal.UiComponents.Login.Models
@@ -291,7 +295,7 @@ namespace MediaPortal.UiComponents.Login.Models
 
       // Client login retry
       if (CurrentUser == UserManagement.UNKNOWN_USER)
-        SetCurrentUser().Wait();
+        SetCurrentUser().TryWait();
 
       // Update user
       IUserManagement userManagement = ServiceRegistration.Get<IUserManagement>();
@@ -307,7 +311,7 @@ namespace MediaPortal.UiComponents.Login.Models
       IWorkflowManager workflowManager = ServiceRegistration.Get<IWorkflowManager>();
       if (force || workflowManager.CurrentNavigationContext.WorkflowState.StateId != Consts.WF_STATE_ID_HOME_SCREEN)
       {
-        workflowManager.NavigatePopToState(Consts.WF_STATE_ID_HOME_SCREEN, false);
+        workflowManager.NavigatePopToState(Consts.WF_STATE_ID_HOME_SCREEN, force);
       }
     }
 
@@ -321,7 +325,7 @@ namespace MediaPortal.UiComponents.Login.Models
     {
       TimeSpan idleTimeout = TimeSpan.FromMinutes(UserSettingStorage.AutoLogoutIdleTimeoutInMin);
       IInputManager inputManager = ServiceRegistration.Get<IInputManager>();
-      if((_lastActivity - inputManager.LastMouseUsageTime) < idleTimeout ||
+      if ((_lastActivity - inputManager.LastMouseUsageTime) < idleTimeout ||
               (_lastActivity - inputManager.LastInputTime) < idleTimeout)
       {
         _lastActivity = DateTime.Now;
@@ -350,7 +354,7 @@ namespace MediaPortal.UiComponents.Login.Models
         {
           case SystemMessaging.MessageType.SystemStateChanged:
             SystemState newState = (SystemState)message.MessageData[SystemMessaging.NEW_STATE];
-            if(newState == SystemState.Running)
+            if (newState == SystemState.Running)
             {
               StartTimer();
               if (UserSettingStorage.AutoLoginUser == Guid.Empty && UserSettingStorage.UserLoginScreenEnabled && UserSettingStorage.UserLoginEnabled)
@@ -369,14 +373,13 @@ namespace MediaPortal.UiComponents.Login.Models
             break;
         }
       }
-      else if(message.ChannelName == ServerConnectionMessaging.CHANNEL)
+      else if (message.ChannelName == ServerConnectionMessaging.CHANNEL)
       {
         ServerConnectionMessaging.MessageType messageType = (ServerConnectionMessaging.MessageType)message.MessageType;
         switch (messageType)
         {
           case ServerConnectionMessaging.MessageType.HomeServerConnected:
             _ = SetCurrentUser();
-
             _ = RefreshUserList();
             break;
         }
@@ -385,6 +388,7 @@ namespace MediaPortal.UiComponents.Login.Models
 
     private async Task SetCurrentUser(UserProfile userProfile = null)
     {
+      bool refreshHome = false;
       IUserManagement userProfileDataManagement = ServiceRegistration.Get<IUserManagement>();
       if (userProfile == null)
       {
@@ -397,10 +401,11 @@ namespace MediaPortal.UiComponents.Login.Models
             {
               userProfile = userProfileDataManagement.CurrentUser = result.Result;
               _firstLogin = false;
+              refreshHome = true;
             }
           }
         }
-        if(userProfile == null)
+        if (userProfile == null)
         {
           // Init with system default
           userProfileDataManagement.CurrentUser = null;
@@ -419,12 +424,14 @@ namespace MediaPortal.UiComponents.Login.Models
           await userProfileDataManagement.UserProfileDataManagement.LoginProfileAsync(userProfile.ProfileId);
         _lastActivity = DateTime.Now;
         IsUserLoggedIn = !userProfile.Name.Equals(System.Windows.Forms.SystemInformation.ComputerName, StringComparison.InvariantCultureIgnoreCase) ||
-          userProfile.ProfileType != UserProfile.CLIENT_PROFILE;
+          userProfile.ProfileType != UserProfileType.ClientProfile;
       }
       else
       {
         IsUserLoggedIn = false;
       }
+      if (refreshHome)
+        ShowHomeScreen(true);
     }
 
     /// <summary>
@@ -440,13 +447,14 @@ namespace MediaPortal.UiComponents.Login.Models
       if (userManagement.UserProfileDataManagement == null)
         return;
 
-      UserProfile defaultProfile = new UserProfile(Guid.Empty, 
-        LocalizationHelper.Translate(Consts.RES_SYSTEM_DEFAULT_TEXT) + " (" + System.Windows.Forms.SystemInformation.ComputerName + ")", 
-        UserProfile.CLIENT_PROFILE);
-      UserProxy proxy = new UserProxy();
-      proxy.SetLabel(Consts.KEY_NAME, defaultProfile.Name);
-      proxy.SetUserProfile(defaultProfile);
-      proxy.Selected = true;
+      // Get our local client profile, it will be available for local login
+      var localSystemGuid = Guid.Parse(ServiceRegistration.Get<ISettingsManager>().Load<SystemResolverSettings>().SystemId);
+
+      UserProxy proxy;
+      proxy = new UserProxy();
+      proxy.SetLabel(Consts.KEY_NAME, LocalizationHelper.Translate(Consts.RES_DISABLE));
+      proxy.SetUserProfile(new UserProfile(Guid.Empty, LocalizationHelper.Translate(Consts.RES_DISABLE)));
+      proxy.Selected = UserSettingStorage.AutoLoginUser == Guid.Empty;
       proxy.SelectedProperty.Attach(OnAutoLoginUserSelectionChanged);
       _autoLoginUserList.Add(proxy);
 
@@ -454,15 +462,8 @@ namespace MediaPortal.UiComponents.Login.Models
       var users = await userManagement.UserProfileDataManagement.GetProfilesAsync();
       foreach (UserProfile user in users)
       {
-        if (user.ProfileType != UserProfile.CLIENT_PROFILE)
-        {
-          proxy = new UserProxy();
-          proxy.SetLabel(Consts.KEY_NAME, user.Name);
-          proxy.SetUserProfile(user);
-          _loginUserList.Add(proxy);
-        }
-
-        if (!user.Name.Equals(System.Windows.Forms.SystemInformation.ComputerName, StringComparison.InvariantCultureIgnoreCase))
+        var isCurrentClient = user.ProfileId == localSystemGuid;
+        if (user.ProfileType != UserProfileType.ClientProfile || isCurrentClient)
         {
           proxy = new UserProxy();
           proxy.SetLabel(Consts.KEY_NAME, user.Name);
@@ -471,6 +472,8 @@ namespace MediaPortal.UiComponents.Login.Models
             proxy.Selected = true;
           proxy.SelectedProperty.Attach(OnAutoLoginUserSelectionChanged);
           _autoLoginUserList.Add(proxy);
+          if (!isCurrentClient)
+            _loginUserList.Add(proxy);
         }
       }
 
@@ -508,21 +511,13 @@ namespace MediaPortal.UiComponents.Login.Models
         if (result.Success && Utils.VerifyPassword(password, result.Result.Password))
           userProfile = result.Result;
       }
-      if (userProfile != null)
-      {
-        ISettingsManager localSettings = ServiceRegistration.Get<ISettingsManager>();
-        UserSettings settings = localSettings.Load<UserSettings>();
-        settings.AutoLoginUser = userProfile.ProfileId;
-        localSettings.Save(settings);
-        UserSettingStorage.AutoLoginUser = userProfile.ProfileId;
 
-        listUser = (UserProxy)_autoLoginUserList.FirstOrDefault(u => ((UserProxy)u).Id == userProfile.ProfileId);
-        if (listUser != null)
-        {
-          listUser.Selected = true;
-          return;
-        }
-      }
+      ISettingsManager localSettings = ServiceRegistration.Get<ISettingsManager>();
+      UserSettings settings = localSettings.Load<UserSettings>();
+      settings.AutoLoginUser = userProfile?.ProfileId ?? Guid.Empty;
+      localSettings.Save(settings);
+      UserSettingStorage.AutoLoginUser = userProfile?.ProfileId ?? Guid.Empty;
+
       //Try to select current selected user
       listUser = (UserProxy)_autoLoginUserList.FirstOrDefault(u => ((UserProxy)u).Id == UserSettingStorage.AutoLoginUser);
       if (listUser != null)

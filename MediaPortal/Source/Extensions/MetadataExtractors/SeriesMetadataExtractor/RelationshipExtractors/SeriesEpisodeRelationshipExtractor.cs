@@ -22,21 +22,23 @@
 
 #endregion
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Common.MediaManagement.Helpers;
-using MediaPortal.Extensions.OnlineLibraries;
 using MediaPortal.Common.MediaManagement.MLQueries;
+using MediaPortal.Common.ResourceAccess;
+using MediaPortal.Extensions.OnlineLibraries;
 using MediaPortal.Utilities.Collections;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
 {
-  class SeriesEpisodeRelationshipExtractor : ISeriesRelationshipExtractor, IRelationshipRoleExtractor
+  class SeriesEpisodeRelationshipExtractor : IRelationshipRoleExtractor
   {
     private static readonly Guid[] ROLE_ASPECTS = { SeriesAspect.ASPECT_ID };
     private static readonly Guid[] LINKED_ROLE_ASPECTS = { EpisodeAspect.ASPECT_ID };
@@ -74,16 +76,35 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
 
     public IFilter GetSearchFilter(IDictionary<Guid, IList<MediaItemAspect>> extractedAspects)
     {
-      return GetEpisodeSearchFilter(extractedAspects);
+      return SeriesRelationshipExtractor.GetEpisodeSearchFilter(extractedAspects);
     }
 
-    public bool TryExtractRelationships(IDictionary<Guid, IList<MediaItemAspect>> aspects, bool importOnly, out IList<RelationshipItem> extractedLinkedAspects)
+    public ICollection<string> GetExternalIdentifiers(IDictionary<Guid, IList<MediaItemAspect>> extractedAspects)
     {
-      extractedLinkedAspects = null;
+      SingleMediaItemAspect episodeAspect;
+      if (!MediaItemAspect.TryGetAspect(extractedAspects, EpisodeAspect.Metadata, out episodeAspect))
+        return new List<string>();
 
-      if (importOnly)
-        return false;
+      ICollection<string> episodeIdentifiers = RelationshipExtractorUtils.CreateExternalItemIdentifiers(extractedAspects, ExternalIdentifierAspect.TYPE_EPISODE);
+      ICollection<string> seriesIdentifiers = RelationshipExtractorUtils.CreateExternalItemIdentifiers(extractedAspects, ExternalIdentifierAspect.TYPE_SERIES);
+      if (seriesIdentifiers == null || seriesIdentifiers.Count == 0)
+        return episodeIdentifiers;
 
+      int? seasonNumber = episodeAspect.GetAttributeValue<int?>(EpisodeAspect.ATTR_SEASON);
+      string seasonEpisodeSuffix = seasonNumber.HasValue ? "S" + seasonNumber.Value : string.Empty;
+
+      IEnumerable<int> episodeNumbers = episodeAspect.GetCollectionAttribute<int>(EpisodeAspect.ATTR_EPISODE);
+      if (episodeNumbers != null && episodeNumbers.Any())
+        seasonEpisodeSuffix += "E" + episodeNumbers.First();
+
+      foreach (string seriesIdentifier in seriesIdentifiers)
+        episodeIdentifiers.Add(seriesIdentifier + seasonEpisodeSuffix);
+
+      return episodeIdentifiers;
+    }
+
+    public async Task<bool> TryExtractRelationshipsAsync(IResourceAccessor mediaItemAccessor, IDictionary<Guid, IList<MediaItemAspect>> aspects, IList<IDictionary<Guid, IList<MediaItemAspect>>> extractedLinkedAspects)
+    {
       if (SeriesMetadataExtractor.OnlyLocalMedia)
         return false;
 
@@ -91,37 +112,17 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
       if (!seriesInfo.FromMetadata(aspects))
         return false;
 
-      if (CheckCacheContains(seriesInfo))
-        return false;
-
       if (!SeriesMetadataExtractor.SkipOnlineSearches)
-        OnlineMatcherService.Instance.UpdateSeries(seriesInfo, true, false);
-
-      if (seriesInfo.Episodes.Count == 0)
-        return false;
-
-      if (BaseInfo.CountRelationships(aspects, LinkedRole) < seriesInfo.Episodes.Count)
-        seriesInfo.HasChanged = true; //Force save for new episodes
-      else
-        return false;
-
-      if (!seriesInfo.HasChanged)
-        return false;
-
-      AddToCheckCache(seriesInfo);
-
-      extractedLinkedAspects = new List<RelationshipItem>();
-      for (int i = 0; i < seriesInfo.Episodes.Count; i++)
+        await OnlineMatcherService.Instance.UpdateSeriesAsync(seriesInfo, true).ConfigureAwait(false);
+      
+      foreach (EpisodeInfo episodeInfo in seriesInfo.Episodes)
       {
-        EpisodeInfo episodeInfo = seriesInfo.Episodes[i];
         episodeInfo.SeriesNameId = seriesInfo.NameId;
-
         IDictionary<Guid, IList<MediaItemAspect>> episodeAspects = new Dictionary<Guid, IList<MediaItemAspect>>();
         episodeInfo.SetMetadata(episodeAspects);
         MediaItemAspect.SetAttribute(episodeAspects, MediaAspect.ATTR_ISVIRTUAL, true);
-
         if (episodeAspects.ContainsKey(ExternalIdentifierAspect.ASPECT_ID))
-          extractedLinkedAspects.Add(new RelationshipItem(episodeAspects, Guid.Empty));
+          extractedLinkedAspects.Add(episodeAspects);
       }
       return extractedLinkedAspects.Count > 0;
     }
@@ -159,10 +160,6 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
 
       index = season.Value * 1000 + episodeList.First();
       return index >= 0;
-    }
-
-    public void CacheExtractedItem(Guid extractedItemId, IDictionary<Guid, IList<MediaItemAspect>> extractedAspects)
-    {
     }
 
     internal static ILogger Logger

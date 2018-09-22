@@ -35,6 +35,7 @@ using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Common.MediaManagement.MLQueries;
 using MediaPortal.Common.Settings;
 using MediaPortal.Common.Threading;
+using MediaPortal.Common.UserManagement;
 using MediaPortal.Common.UserProfileDataManagement;
 using MediaPortal.Extensions.OnlineLibraries.Libraries.Trakt;
 using MediaPortal.Extensions.OnlineLibraries.Libraries.Trakt.Authentication;

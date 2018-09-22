@@ -28,7 +28,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.MatroskaLib
 {
   public class MatroskaConsts
   {
-    public static string[] MATROSKA_VIDEO_EXTENSIONS = new[] { ".mkv", ".mk3d" };
+    public static string[] MATROSKA_VIDEO_EXTENSIONS = new[] { ".mkv", ".mk3d", ".webm" };
 
     // Tags are constructed by using TargetTypeValue (i.e. 70) and the name of the <Simple> tag (i.e. TITLE).
     public const string TAG_SERIES_TITLE = "70.TITLE";
@@ -61,7 +61,37 @@ namespace MediaPortal.Extensions.MetadataExtractors.MatroskaLib
     public const string TAG_MOVIE_TMDB_ID = "50.TMDB";
     public const string TAG_SERIES_TVDB_ID = "70.TVDB";
 
-    public static Dictionary<string, IList<string>> DefaultTags
+    public enum StereoMode
+    {
+      Mono,
+      SBSLeftEyeFirst,
+      TABRightEyeFirst,
+      TABLeftEyeFirst,
+      CheckboardRightEyeFirst,
+      CheckboardLeftEyeFirst,
+      RowInterleavedRightEyeFirst,
+      RowInterleavedLeftEyeFirst,
+      ColumnInterleavedRightEyeFirst,
+      ColumnInterleavedLeftEyeFirst,
+      AnaglyphCyanRed,
+      SBSRightEyeFirst,
+      AnaglyphGreenMagenta,
+      FieldSequentialModeLeftEyeFirst,
+      FieldSequentialModeRightEyeFirst,
+    }
+
+    public class MatroskaAttachment
+    {
+      public string FileName;
+      public string MimeType;
+      public long FileSize;
+      public override string ToString()
+      {
+        return string.Format("{0} [{1}, {2}]", FileName, MimeType, FileSize);
+      }
+    }
+
+    public static Dictionary<string, IList<string>> DefaultVideoTags
     {
       get
       {

@@ -1,6 +1,6 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
-  <string name="SlimTvClient.Title">Lekki klient TV</string>
+  <string name="SlimTvClient.Title">Przewodnik TV</string>
   <string name="SlimTvClient.Main">TV</string>
   <string name="SlimTvClient.TvGuide">Przewodnik TV</string>
   <string name="SlimTvClient.CurrentlyPlayingInformationHeader">Informacje o programie</string>
@@ -23,6 +23,7 @@
   <!--Schedule management-->
   <!--Settings-->
   <string name="SlimTvClient.Notifications">Powiadomienia</string>
+  <string name="SlimTvClient.NoColor">Żaden</string>
   <string name="SlimTvClient.RecordingsMenuItem">Nagrania</string>
   <string name="SlimTvClient.RecordingsRootViewName">Nagrania TV</string>
   <string name="SlimTvClient.ChannelMenuItemLabel">Filtruj wg kanału</string>

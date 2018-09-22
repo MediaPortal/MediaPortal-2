@@ -57,6 +57,7 @@
     <Compile Include="Cache\AsyncStaticCache.cs" />
     <Compile Include="Cache\AsyncStaticTimeoutCache.cs" />
     <Compile Include="Cache\ILRUCache.cs" />
+    <Compile Include="Cache\LargeLRUCache.cs" />
     <Compile Include="Cache\SmallLRUCache.cs" />
     <Compile Include="Collections\SafeList.cs" />
     <Compile Include="Collections\SafeDictionary.cs" />
@@ -119,6 +120,9 @@
     </Compile>
     <Compile Include="StringUtils.cs" />
     <Compile Include="SystemAPI\WindowsAPI.cs" />
+    <Compile Include="Threading\AsyncPriorityLock.cs" />
+    <Compile Include="Threading\AsyncReaderWriterLock.cs" />
+    <Compile Include="Threading\KeyedAsyncReaderWriterLock.cs" />
     <Compile Include="UPnP\MarshallingHelper.cs" />
     <Compile Include="Versions.cs" />
     <Compile Include="Xml\SerializableDictionary.cs" />

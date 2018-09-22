@@ -7,10 +7,8 @@
     mp_special_workflow:WorkflowContext.StateSlot="Root"
     x:Name="FullscreenContentVideoScreen"
     >
-  <Grid
-      x:Name="FullscreenLayoutGrid"
-      Context="{Model Id=4E2301B4-3C17-4a1d-8DE5-2CEA169A0256}"
-      > <!-- DataContext model = VideoPlayerModel -->
+  <Grid x:Name="FullscreenLayoutGrid" Context="{Model Id=4E2301B4-3C17-4a1d-8DE5-2CEA169A0256}"> 
+    <!-- DataContext model = VideoPlayerModel -->
     <Grid.Resources>
       <Model x:Key="ExtendedVideoSkip" Id="8573DBD8-A257-426a-9875-9DB155D32D47"/>
       <Model x:Key="MouseModel" Id="CA6428A7-A6E2-4dd3-9661-F89CEBAF8E62"/>
@@ -47,38 +45,33 @@
              Color="Black" VerticalAlignment="Center" HorizontalAlignment="Center"/>
     </Grid>
 
-    <Grid x:Name="BackgroundPipLayoutGrid" Grid.Row="0" Grid.Column="0" VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
+    <Grid x:Name="OSD_LayoutPanel" Grid.Row="0" Grid.Column="0"
+        VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
       <Grid.ColumnDefinitions>
         <ColumnDefinition Width="*"/>
         <ColumnDefinition Width="Auto"/>
         <ColumnDefinition Width="40"/>
       </Grid.ColumnDefinitions>
       <Grid.RowDefinitions>
-        <RowDefinition Height="*"/>
+        <RowDefinition Height="150"/>
         <RowDefinition Height="Auto"/>
-        <RowDefinition Height="40"/>
+        <RowDefinition Height="*"/>
       </Grid.RowDefinitions>
-  
+
+      <DockPanel x:Name="OSD_RightPanel" Grid.Row="0" Grid.RowSpan="3"  Grid.Column="1" Grid.ColumnSpan="2"
+                 LastChildFill="false" HorizontalAlignment="Right">
+        <mp_special_controls:PlayerControl x:Name="PrimaryOSD" DockPanel.Dock="Bottom"
+            Style="{ThemeResource PrimaryVideoOSDStyle}" IsVisible="{Binding IsOSDVisible}"
+            VerticalAlignment="Stretch" HorizontalAlignment="Right"/>
+      </DockPanel>
+
       <Control x:Name="PiP" Grid.Column="1" Grid.Row="1" Style="{ThemeResource PipControlStyle}"
                IsVisible="{Binding !IsOSDVisible}"/>
-    </Grid> <!-- BackgroundPipLayoutGrid -->
 
-    <Grid x:Name="OSD_LayoutPanel" Grid.Row="0" Grid.Column="0"
-        VerticalAlignment="Stretch" HorizontalAlignment="Stretch" IsVisible="{Binding IsOSDVisible}">
-      <Grid.ColumnDefinitions>
-        <ColumnDefinition Width="*"/>
-        <ColumnDefinition Width="Auto"/>
-      </Grid.ColumnDefinitions>
-      <Grid.RowDefinitions>
-        <RowDefinition Height="*"/>
-      </Grid.RowDefinitions>
-
-      <DockPanel x:Name="OSD_RightPanel" Grid.Row="0" Grid.Column="1"
-          LastChildFill="false">
-        <mp_special_controls:PlayerControl x:Name="PrimaryOSD" DockPanel.Dock="Bottom"
-            Style="{ThemeResource PrimaryVideoOSDStyle}"
-            VerticalAlignment="Stretch" HorizontalAlignment="Right"/>
-      </DockPanel> 
+      <DockPanel x:Name="OSD_PiPPanel" Grid.Column="1" Grid.Row="1" LastChildFill="false" IsVisible="{Binding IsOSDVisible}" Margin="0,0,20,0">
+        <mp_special_controls:PlayerControl x:Name="SecondaryOSD" DockPanel.Dock="Right"
+            Style="{ThemeResource SecondaryMediaOSDStyle}" AutoVisibility="true"/>
+      </DockPanel>
       
     </Grid>
 
@@ -89,6 +82,23 @@
         <Button x:Name="HomeButton" Style="{ThemeResource HomeButtonStyle}" Margin="5" HorizontalAlignment="Left" VerticalAlignment="Center"
                 Command="{Command Source={Service WorkflowManager},Path=NavigatePush,Parameters=7F702D9C-F2DD-42da-9ED8-0BA92F07787F}"/>
       </StackPanel>
+    </Grid>
+
+    <Grid x:Name="TimeGrid" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,20,30,0" 
+          Height="105" IsVisible="{Binding IsOSDVisible}">
+      <Grid.Resources>
+        <Model x:Key="TimeModel" Id="E821B1C8-0666-4339-8027-AA45A4F6F107"/>
+      </Grid.Resources>
+      <Label x:Name="TimeLabel" Content="{Binding Source={StaticResource TimeModel}, Path=CurrentTime}" Panel.ZIndex="101"
+             FontSize="{ThemeResource NormalFontSize}" Color="{ThemeResource TextColor}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+      <Image Source="PlayerControl\Time.shadow.PNG" HorizontalAlignment="Center" VerticalAlignment="Center" Stretch="Fill" 
+             Margin="0,0,0,-10" Panel.ZIndex="100">
+        <Image.Width>
+          <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0}+60">
+            <Binding Source="{Binding ElementName=TimeLabel, Path=ActualWidth}"/>
+          </MultiBinding>
+        </Image.Width>
+      </Image>
     </Grid>
 
     <!-- Mouse control buttons -->

@@ -4,15 +4,15 @@
   This file contains MSBuild code to perform all Transifex related operations for the MP2 repository.
   -->
   <Import Project="$(MSBuildThisFileDirectory)\Build.tasks" />
-  <Import Project="$(MSBuildThisFileDirectory)\RestorePackages.targets" />
 
   <PropertyGroup>
     <ProjectRoot Condition="$(ProjectRoot) == ''">$(MSBuildThisFileDirectory)\..</ProjectRoot>
     <TransifexDir Condition="$(TransifexDir) == ''">$(ProjectRoot)\Tools\Transifex</TransifexDir>
+    <TransifexForceMarker Condition="$(TransifexForceMarker) == ''">$(ProjectRoot)\Tools\Transifex\Cache_MP2\Force_Update_Done.DO_NOT_COMMIT</TransifexForceMarker>
 
     <!-- Transifex Client -->
     <TransifexClientExePath>$(TransifexDir)\tx.exe</TransifexClientExePath>
-    <TransifexClientDownloadUrl>http://files.transifex.com/transifex-client/0.11/tx.exe</TransifexClientDownloadUrl>
+    <TransifexClientDownloadUrl>https://github.com/transifex/transifex-client/releases/download/0.13.4/tx.py36.exe</TransifexClientDownloadUrl>
 
     <!-- Transifex Helper -->
     <TransifexHelperDir Condition="$(TransifexHelperDir) == ''">$(ProjectRoot)\Tools\TransifexHelper</TransifexHelperDir>
@@ -24,10 +24,8 @@
   <Target Name="DownloadTransifexClient">
     <DownloadFile DownloadAddress="$(TransifexClientDownloadUrl)" OutputFilename="$(TransifexClientExePath)" Condition="!Exists('$(TransifexClientExePath)')" />
   </Target>
-  <Target Name="BuildTransifexHelper"
-          DependsOnTargets="DownloadNuGet">
-    <Exec Command='"$(NuGetExePath)" restore "$(TransifexHelperDir)\TransifexHelper.sln"'/>
-    <MSBuild Projects="$(TransifexHelperDir)\TransifexHelper.sln" Properties="Configuration=Release;Platform=x86" Targets="Rebuild"/>
+  <Target Name="BuildTransifexHelper">
+    <MSBuild Projects="$(TransifexHelperDir)\TransifexHelper.sln" Properties="Configuration=Release;Platform=x86" Targets="Restore;Rebuild"/>
   </Target>
 
   <!-- Targets required for build process -->
@@ -35,8 +33,23 @@
           DependsOnTargets="DownloadTransifexClient;BuildTransifexHelper"
           Condition="$(DownloadTranslations) != 'false'">
 
-    <Exec Command='"$(TransifexClientExePath)" pull -a -f'
+    <!-- If there was no forced-pull before, do it once and write the marker file -->
+    <Exec Command='"$(TransifexClientExePath)" pull -f --parallel'
+          Condition="!Exists('$(TransifexForceMarker)')"
+          WorkingDirectory="$(TransifexDir)"
+          ContinueOnError="false"/>
+
+    <!-- Otherwise do normal "pull" which is faster -->
+    <Exec Command='"$(TransifexClientExePath)" pull -a --parallel'
+          Condition="Exists('$(TransifexForceMarker)')"
           WorkingDirectory="$(TransifexDir)"/>
+
+    <WriteLinesToFile  
+          File="$(TransifexForceMarker)"  
+          Lines="Dummy Content"  
+          Encoding="Unicode"
+          Condition="!Exists('$(TransifexForceMarker)')" />
+
     <Exec Command='"$(TransifexHelperExePath)" --fix -t "$(ProjectRoot)"'/>
 
   </Target>

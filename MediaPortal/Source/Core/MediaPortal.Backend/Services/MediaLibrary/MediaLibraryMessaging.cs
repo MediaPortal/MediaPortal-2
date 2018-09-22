@@ -45,7 +45,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
     {
       // This message will be sent by the media library when a media item has been added to the database or the aspects
       // have been updated.
-      // The param will contain the media item that was added or updated.
+      // The param will contain an enumeration of the media items that was added or updated.
       MediaItemsAddedOrUpdated,
 
       // This message will be sent by the media library when 1 or more media items have been deleted from the database.
@@ -58,10 +58,18 @@ namespace MediaPortal.Backend.Services.MediaLibrary
     /// <summary>
     /// Sends a media item added message.
     /// </summary>
-    public static void SendMediaItemAddedOrUpdatedMessage(MediaItem mediaItem)
+    public static void SendMediaItemsAddedOrUpdatedMessage(MediaItem mediaItem)
+    {
+      SendMediaItemsAddedOrUpdatedMessage(new[] { mediaItem });
+    }
+
+    /// <summary>
+    /// Sends a media item added message.
+    /// </summary>
+    public static void SendMediaItemsAddedOrUpdatedMessage(IEnumerable<MediaItem> mediaItems)
     {
       SystemMessage msg = new SystemMessage(MessageType.MediaItemsAddedOrUpdated);
-      msg.MessageData[PARAM] = mediaItem;
+      msg.MessageData[PARAM] = new List<MediaItem>(mediaItems);
       ServiceRegistration.Get<IMessageBroker>().Send(CHANNEL, msg);
     }
 

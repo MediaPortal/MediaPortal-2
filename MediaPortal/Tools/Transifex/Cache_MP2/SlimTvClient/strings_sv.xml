@@ -1,6 +1,6 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
-  <string name="SlimTvClient.Title">Slim TV-klient</string>
+  <string name="SlimTvClient.Title">TV-tablå</string>
   <string name="SlimTvClient.Main">TV</string>
   <string name="SlimTvClient.Main.Help">Här kan du titta och lyssna på dina favorit TV- och radiokanaler. Du kan även byta kanal.</string>
   <string name="SlimTvClient.TvGuide">TV-tablå</string>
@@ -29,6 +29,7 @@
   <string name="SlimTvClient.DeleteSchedule">Ta bort planerad inspelning</string>
   <string name="SlimTvClient.CreateSchedule">Planera inspelning</string>
   <string name="SlimTvClient.CreateManualSchedule">Planera inspelning</string>
+  <string name="SlimTvClient.DeleteRecording.Confirmation">Är du säker på att du vill avbryta inspelningen och ta bort filen? Du kan inte ångra borttagningen.</string>
   <string name="SlimTvClient.ProgramSearch">Sök program</string>
   <string name="SlimTvClient.ProgramSearch.Help">Sök efter program i TV-tablån</string>
   <!--Extended recording features-->
@@ -97,7 +98,28 @@
   <string name="SlimTvClient.ShowRecordingStartedNotifications.Help">Bestäm om du vill visa ett meddelande när inspelningar startar</string>
   <string name="SlimTvClient.ShowRecordingEndedNotifications">Visa ett meddelande när en inspelning slutar</string>
   <string name="SlimTvClient.ShowRecordingEndedNotifications.Help">Bestäm om du vill visa ett meddelande när inspelningar slutar</string>
+  <string name="SlimTvClient.ShowEpgGenreColors">Använd olika färger för genrer i TV-tablån</string>
+  <string name="SlimTvClient.ShowEpgGenreColors.Help">Om du vill visa olika färger för genrer i TV-tablån</string>
+  <string name="SlimTvClient.EpgGenreColors">Färger för TV-tablåns genrer</string>
+  <string name="SlimTvClient.EpgMovieGenreColor">Färg för film</string>
+  <string name="SlimTvClient.EpgMovieGenreColor.Help">Färg för filmer i TV-tablån</string>
+  <string name="SlimTvClient.EpgSeriesGenreColor">Färg för TV-serier</string>
+  <string name="SlimTvClient.EpgSeriesGenreColor.Help">Färg för ett avsnitt i en TV-serie i TV-tablån </string>
+  <string name="SlimTvClient.EpgDocumentaryGenreColor">Färg för dokumentärer</string>
+  <string name="SlimTvClient.EpgDocumentaryGenreColor.Help">Färg för dokumentärer i TV-tablån </string>
+  <string name="SlimTvClient.EpgMusicGenreColor">Färg för musik</string>
+  <string name="SlimTvClient.EpgMusicGenreColor.Help">Färg för musik i TV-tablån </string>
+  <string name="SlimTvClient.EpgKidsGenreColor">Färg för barnprogram</string>
+  <string name="SlimTvClient.EpgKidsGenreColor.Help">Färg för barnprogram i TV-tablån </string>
+  <string name="SlimTvClient.EpgNewsGenreColor">Färg för nyheter</string>
+  <string name="SlimTvClient.EpgNewsGenreColor.Help">Färg för nyheter i TV-tablån </string>
+  <string name="SlimTvClient.EpgSportGenreColor">Färg för sport</string>
+  <string name="SlimTvClient.EpgSportGenreColor.Help">Färg för sport i TV-tablån </string>
+  <string name="SlimTvClient.EpgSpecialGenreColor">Färg för specialer</string>
+  <string name="SlimTvClient.EpgSpecialGenreColor.Help">Färg för special i TV-tablån </string>
+  <string name="SlimTvClient.NoColor">Ingen</string>
   <string name="SlimTvClient.RecordingsMenuItem">Inspelningar</string>
+  <string name="SlimTvClient.ChannelsMenuItem">Kanaler</string>
   <string name="SlimTvClient.Recordings.Help">Här kan du se en lista av dina inspelade program. Du kan även spela upp dessa program.</string>
   <string name="SlimTvClient.RecordingsRootViewName">TV-inspelningar</string>
   <string name="SlimTvClient.ChannelMenuItemLabel">Filtrera på kanal</string>
@@ -108,4 +130,5 @@
   <string name="SlimTvClient.RecordingsByNameHeader">Inspelningar per namn</string>
   <string name="SlimTvClient.RecordingStartedHeader">Inspelningen startade</string>
   <string name="SlimTvClient.RecordingEndedHeader">Inspelningen slutade</string>
+  <string name="RestrictionGroup.SlimTvClient.DeleteRecording">TV: Ta bort inspelningar</string>
 </resources>

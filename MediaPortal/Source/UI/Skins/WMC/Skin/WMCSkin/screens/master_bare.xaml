@@ -85,8 +85,12 @@ Parameters which have to be accessible by a DynamicResource lookup:
               <Control Style="{ThemeResource NotificationControlStyle}" Margin="5,2,5,5" IsVisible="{Binding Source={StaticResource NotificationsModel},Path=IsNotificationsHintVisible}"
                        HorizontalAlignment="Left" VerticalAlignment="Center"/>
             </StackPanel>
+
+            <!-- User Indicator -->
             <Button Style="{ThemeResource UserButtonStyle}" Margin="0,0,5,0" IsEnabled="False" IsVisible="{Binding Source={StaticResource LoginModel},Path=EnableUserLogin}"
                     Command="{Command Source={Service WorkflowManager},Path=NavigatePush,Parameters=2529B0F0-8415-4A4E-971B-38D6CDD2406A}"/>
+
+            <!-- Importing Indicator -->
             <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="0,0,5,0"
                         DataContext="{Binding Source={StaticResource StateModel}, Path=[C37B62D0-8E87-42A4-877E-B41944DA9FC9]}"
                         IsVisible="{Binding Converter={StaticResource ReferenceToBoolConverter}}">
@@ -103,11 +107,33 @@ Parameters which have to be accessible by a DynamicResource lookup:
               </Label>
               <Button Style="{ThemeResource ImportingButtonStyle}" IsVisible="{Binding IsImporting}"/>
             </StackPanel>
+
+            <!--Data Base Upgrade Indicator-->
+            <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="0,0,5,0"
+                        DataContext="{Binding Source={StaticResource StateModel}, Path=[431528C9-5610-45CD-9807-0130AE1761DA]}"
+                        IsVisible="{Binding Converter={StaticResource ReferenceToBoolConverter}}">
+              <Label FontSize="{ThemeResource TinyFontSize}" Content="[Notifications.Upgrading]" Margin="10,-5,0,-10"
+                     Color="{ThemeResource TextColor}" VerticalAlignment="Center" HorizontalAlignment="Right">
+                <Label.IsVisible>
+                  <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0}>=0">
+                    <Binding Path="Progress"/>
+                  </MultiBinding>
+                </Label.IsVisible>
+                <Label.Content>
+                  <Binding Path="Progress" Converter="{StaticResource StringFormatConverter}" ConverterParameter="{}{0}%"/>
+                </Label.Content>
+              </Label>
+              <Button Style="{ThemeResource UpgradingButtonStyle}" IsVisible="{Binding IsUpgrading}"/>
+            </StackPanel>
+
+            <!-- Recording Indicator -->
             <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="0,0,5,0"
                         DataContext="{Binding Source={StaticResource StateModel}, Path=[2A58935C-3363-4FA1-B48D-1EF0E81F830D]}"
                         IsVisible="{Binding Converter={StaticResource ReferenceToBoolConverter}}">
               <Button Style="{ThemeResource RecordingButtonStyle}" IsVisible="{Binding IsRecording}"/>
             </StackPanel>
+
+            <!-- Currently Playing Indicator -->
             <mp_special_controls:PlayerControl Style="{ThemeResource CPPlayerControlStyle}" VerticalAlignment="Center"
                   AutoVisibility="True" HorizontalAlignment="Left">
             </mp_special_controls:PlayerControl>
@@ -136,7 +162,8 @@ Parameters which have to be accessible by a DynamicResource lookup:
 
       <!-- Order matters here: The client area control has to be the last control (LastChildFill) -->
       <Control x:Name="ClientArea" DockPanel.Dock="Center" 
-               Template="{DynamicResource ResourceKey=Client_Template}">
+               Template="{DynamicResource ResourceKey=Client_Template}"
+               Margin="{DynamicResource ResourceKey=Client_Margin}">
       </Control>
     </DockPanel>
 

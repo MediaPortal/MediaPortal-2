@@ -100,19 +100,22 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoThumbnailer
       get { return _metadata; }
     }
 
-    public bool TryExtractMetadata(IResourceAccessor mediaItemAccessor, IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData, bool importOnly, bool forceQuickMode)
+    public async Task<bool> TryExtractMetadataAsync(IResourceAccessor mediaItemAccessor, IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData, bool forceQuickMode)
     {
       try
       {
         if (forceQuickMode)
           return false;
-        if (importOnly)
+
+        byte[] thumb;
+        // We only want to create missing thumbnails here, so check for existing ones first
+        if (MediaItemAspect.TryGetAttribute(extractedAspectData, ThumbnailLargeAspect.ATTR_THUMBNAIL, out thumb) && thumb != null)
           return false;
 
         if (!(mediaItemAccessor is IFileSystemResourceAccessor))
           return false;
         using (LocalFsResourceAccessorHelper rah = new LocalFsResourceAccessorHelper(mediaItemAccessor))
-          return ExtractThumbnail(rah.LocalFsResourceAccessor, extractedAspectData);
+          return await ExtractThumbnailAsync(rah.LocalFsResourceAccessor, extractedAspectData).ConfigureAwait(false);
       }
       catch (Exception e)
       {
@@ -123,16 +126,11 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoThumbnailer
       return false;
     }
 
-    private bool ExtractThumbnail(ILocalFsResourceAccessor lfsra, IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData)
+    private async Task<bool> ExtractThumbnailAsync(ILocalFsResourceAccessor lfsra, IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData)
     {
       // We can only work on files and make sure this file was detected by a lower MDE before (title is set then).
       // VideoAspect must be present to be sure it is actually a video resource.
       if (!lfsra.IsFile || !extractedAspectData.ContainsKey(VideoStreamAspect.ASPECT_ID))
-        return false;
-
-      byte[] thumb;
-      // We only want to create missing thumbnails here, so check for existing ones first
-      if (MediaItemAspect.TryGetAttribute(extractedAspectData, ThumbnailLargeAspect.ATTR_THUMBNAIL, out thumb) && thumb != null)
         return false;
 
       //ServiceRegistration.Get<ILogger>().Info("VideoThumbnailer: Evaluate {0}", lfsra.ResourceName);
@@ -141,13 +139,13 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoThumbnailer
       IList<MultipleMediaItemAspect> resourceAspects;
       if (MediaItemAspect.TryGetAspects(extractedAspectData, ProviderResourceAspect.Metadata, out resourceAspects))
       {
-        foreach(MultipleMediaItemAspect pra in resourceAspects)
+        foreach (MultipleMediaItemAspect pra in resourceAspects)
         {
           string accessorPath = (string)pra.GetAttributeValue(ProviderResourceAspect.ATTR_RESOURCE_ACCESSOR_PATH);
           ResourcePath resourcePath = ResourcePath.Deserialize(accessorPath);
           if (resourcePath.Equals(lfsra.CanonicalLocalResourcePath))
           {
-            if(pra.GetAttributeValue<int?>(ProviderResourceAspect.ATTR_TYPE) == ProviderResourceAspect.TYPE_PRIMARY)
+            if (pra.GetAttributeValue<int?>(ProviderResourceAspect.ATTR_TYPE) == ProviderResourceAspect.TYPE_PRIMARY)
             {
               isPrimaryResource = true;
               break;
@@ -178,9 +176,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoThumbnailer
           downscale = "";
       }
 
-      // ToDo: Move creation of temp file names to FileUtils class
-      string tempFileName = Path.GetTempPath() + Guid.NewGuid() + ".jpg";
-      string executable = FileUtils.BuildAssemblyRelativePath("ffmpeg.exe");
+      string tempFileName = FileUtils.GetTempFileName(".jpg");
       string arguments = string.Format("-ss {0} -i \"{1}\" -vframes 1 -an -dn -vf \"yadif='mode=send_frame:parity=auto:deint=all',scale=iw*sar:ih,setsar=1/1{3}\" -y \"{2}\"",
         defaultVideoOffset,
         // Calling EnsureLocalFileSystemAccess not necessary; access for external process ensured by ExecuteWithResourceAccess
@@ -190,12 +186,11 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoThumbnailer
 
       //ServiceRegistration.Get<ILogger>().Info("VideoThumbnailer: FFMpeg {0} {1}", executable, arguments);
 
+      await FFMPEG_THROTTLE_LOCK.WaitAsync().ConfigureAwait(false);
       try
       {
-        Task<ProcessExecutionResult> executionResult = null;
-        FFMPEG_THROTTLE_LOCK.Wait();
-        executionResult = FFMpegBinary.FFMpegExecuteWithResourceAccessAsync(lfsra, arguments, ProcessPriorityClass.BelowNormal, PROCESS_TIMEOUT_MS);
-        if (executionResult.Result.Success && File.Exists(tempFileName))
+        ProcessExecutionResult executionResult = await FFMpegBinary.FFMpegExecuteWithResourceAccessAsync(lfsra, arguments, ProcessPriorityClass.BelowNormal, PROCESS_TIMEOUT_MS).ConfigureAwait(false);
+        if (executionResult.Success && File.Exists(tempFileName))
         {
           var binary = FileUtils.ReadFile(tempFileName);
           MediaItemAspect.SetAttribute(extractedAspectData, ThumbnailLargeAspect.ATTR_THUMBNAIL, binary);
@@ -206,20 +201,12 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoThumbnailer
         {
           // Calling EnsureLocalFileSystemAccess not necessary; only string operation
           ServiceRegistration.Get<ILogger>().Warn("VideoThumbnailer: Failed to create thumbnail for resource '{0}'", lfsra.LocalFileSystemPath);
-          ServiceRegistration.Get<ILogger>().Debug("VideoThumbnailer: FFMpeg failure {0} dump:\n{1}", executionResult.Result.ExitCode, executionResult.Result.StandardError);
+          ServiceRegistration.Get<ILogger>().Debug("VideoThumbnailer: FFMpeg failure {0} dump:\n{1}", executionResult.ExitCode, executionResult.StandardError);
         }
       }
-      catch (AggregateException ae)
+      catch (TaskCanceledException)
       {
-        ae.Handle(e =>
-        {
-          if (e is TaskCanceledException)
-          {
-            ServiceRegistration.Get<ILogger>().Warn("VideoThumbnailer.ExtractThumbnail: External process aborted due to timeout: Executable='{0}', Arguments='{1}', Timeout='{2}'", executable, arguments, PROCESS_TIMEOUT_MS);
-            return true;
-          }
-          return false;
-        });
+        ServiceRegistration.Get<ILogger>().Warn("VideoThumbnailer: External process aborted due to timeout: Executable='{0}', Arguments='{1}'", FFMpegBinary.FFMpegPath, arguments);
       }
       finally
       {
@@ -248,6 +235,16 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoThumbnailer
     public bool TryExtractStubItems(IResourceAccessor mediaItemAccessor, ICollection<IDictionary<Guid, IList<MediaItemAspect>>> extractedStubAspectData)
     {
       return false;
+    }
+
+    public Task<IList<MediaItemSearchResult>> SearchForMatchesAsync(IDictionary<Guid, IList<MediaItemAspect>> searchAspectData, ICollection<string> searchCategories)
+    {
+      return Task.FromResult<IList<MediaItemSearchResult>>(null);
+    }
+
+    public Task<bool> AddMatchedAspectDetailsAsync(IDictionary<Guid, IList<MediaItemAspect>> matchedAspectData)
+    {
+      return Task.FromResult(false);
     }
 
     #endregion

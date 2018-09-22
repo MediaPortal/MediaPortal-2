@@ -31,13 +31,14 @@ using System.Net.Sockets;
 using System.Text;
 using System.Threading;
 using System.Xml;
-using HttpServer;
 using MediaPortal.Utilities.Exceptions;
 using MediaPortal.Utilities.Network;
+using Microsoft.Owin;
 using UPnP.Infrastructure.Common;
 using UPnP.Infrastructure.CP.Description;
 using UPnP.Infrastructure.CP.DeviceTree;
 using UPnP.Infrastructure.CP.SSDP;
+using UPnP.Infrastructure.Dv;
 using UPnP.Infrastructure.Utils;
 using UPnP.Infrastructure.Utils.HTTP;
 
@@ -111,10 +112,10 @@ namespace UPnP.Infrastructure.CP.GENA
       _connection = connection;
       _endpoint = endpoint;
       _upnpVersion = upnpVersion;
-      _eventNotificationPath = "/" + Guid.NewGuid();
+      _eventNotificationPath = cpData.ServicePrefix + "/" + Guid.NewGuid();
       IPAddress address = endpoint.EndPointIPAddress;
-      _eventNotificationEndpoint = new IPEndPoint(address, address.AddressFamily == AddressFamily.InterNetwork ?
-          cpData.HttpPortV4 : cpData.HttpPortV6);
+      var port = UPnPServer.DEFAULT_UPNP_AND_SERVICE_PORT_NUMBER;
+      _eventNotificationEndpoint = new IPEndPoint(address, port);
       _subscriptionRenewalTimer = new Timer(OnSubscriptionRenewalTimerElapsed);
     }
 
@@ -179,7 +180,7 @@ namespace UPnP.Infrastructure.CP.GENA
       }
       catch (Exception e) // SocketException, SecurityException
       {
-        UPnPConfiguration.LOGGER.Info("GENAClientController: Unable to bind to multicast address(es) for endpoint '{0}'", e,
+        UPnPConfiguration.LOGGER.Warn("GENAClientController: Unable to bind to multicast address(es) for endpoint '{0}'", e,
             NetworkHelper.IPAddrToString(address));
       }
     }
@@ -299,11 +300,8 @@ namespace UPnP.Infrastructure.CP.GENA
 
           // The date header is not always available, and it is not always accurate either.
           DateTime date = DateTime.Now;
-          try
-          {
-            date = DateTime.ParseExact(dateStr, "R", CultureInfo.InvariantCulture).ToLocalTime();
-          }
-          catch { }
+          if (DateTime.TryParseExact(dateStr, "R", CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime parsedDate))
+            date = parsedDate.ToLocalTime();
 
           DateTime expiration = date.AddSeconds(timeout);
           if (expiration < DateTime.Now)
@@ -459,7 +457,7 @@ namespace UPnP.Infrastructure.CP.GENA
       return request;
     }
 
-    public HttpStatusCode HandleUnicastEventNotification(IHttpRequest request)
+    public HttpStatusCode HandleUnicastEventNotification(IOwinRequest request)
     {
       string nt = request.Headers.Get("NT");
       string nts = request.Headers.Get("NTS");

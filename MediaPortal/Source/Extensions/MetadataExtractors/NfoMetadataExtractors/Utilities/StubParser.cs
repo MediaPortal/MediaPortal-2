@@ -25,103 +25,18 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.Utilit
             videoStreamAspects.SetAttribute(VideoStreamAspect.ATTR_RESOURCE_INDEX, 0);
             videoStreamAspects.SetAttribute(VideoStreamAspect.ATTR_STREAM_INDEX, streamId++);
 
-            string stereoscopic = null;
-            if (!string.IsNullOrEmpty(video.StereoMode))
+            string videoType = VideoStreamAspect.GetVideoType(null, video.StereoMode, video.Height, video.Width);
+            if (!string.IsNullOrEmpty(videoType))
+              videoStreamAspects.SetAttribute(VideoStreamAspect.ATTR_VIDEO_TYPE, videoType);
+            if (videoType == VideoStreamAspect.TYPE_SBS || videoType == VideoStreamAspect.TYPE_HSBS)
             {
-              if (video.StereoMode.StartsWith("H", StringComparison.InvariantCultureIgnoreCase))
-              {
-                if (video.StereoMode.EndsWith("SBS", StringComparison.InvariantCultureIgnoreCase))
-                {
-                  stereoscopic = VideoStreamAspect.TYPE_HSBS;
-                }
-                else if (video.StereoMode.EndsWith("TAB", StringComparison.InvariantCultureIgnoreCase))
-                {
-                  stereoscopic = VideoStreamAspect.TYPE_HTAB;
-                }
-                else if (video.StereoMode.EndsWith("OU", StringComparison.InvariantCultureIgnoreCase))
-                {
-                  stereoscopic = VideoStreamAspect.TYPE_HTAB;
-                }
-              }
-              else
-              {
-                if (video.StereoMode.EndsWith("SBS", StringComparison.InvariantCultureIgnoreCase))
-                {
-                  stereoscopic = VideoStreamAspect.TYPE_SBS;
-                }
-                else if (video.StereoMode.EndsWith("TAB", StringComparison.InvariantCultureIgnoreCase))
-                {
-                  stereoscopic = VideoStreamAspect.TYPE_TAB;
-                }
-                else if (video.StereoMode.EndsWith("OU", StringComparison.InvariantCultureIgnoreCase))
-                {
-                  stereoscopic = VideoStreamAspect.TYPE_TAB;
-                }
-              }
-              if (video.StereoMode.EndsWith("MVC", StringComparison.InvariantCultureIgnoreCase))
-              {
-                stereoscopic = VideoStreamAspect.TYPE_MVC;
-              }
-              else if (video.StereoMode.EndsWith("ANAGLYPH", StringComparison.InvariantCultureIgnoreCase))
-              {
-                stereoscopic = VideoStreamAspect.TYPE_ANAGLYPH;
-              }
+              video.Width = video.Width.Value / 2;
+              video.Aspect = (decimal)video.Width.Value / (decimal)video.Height.Value;
             }
-
-            int full3DTABMinHeight = 720 * 2;
-            int full3DSBSMinWidth = 1280 * 2;
-            if (video.Height.HasValue && video.Width.HasValue)
+            else if (videoType == VideoStreamAspect.TYPE_TAB || videoType == VideoStreamAspect.TYPE_HTAB)
             {
-              if (((double)video.Width.Value / (float)video.Height.Value >= 2.5) && (video.Width.Value >= full3DSBSMinWidth)) // we have Full HD SBS 
-              {
-                videoStreamAspects.SetAttribute(VideoStreamAspect.ATTR_VIDEO_TYPE, VideoStreamAspect.TYPE_SBS);
-                video.Width = video.Width.Value / 2;
-                video.Aspect = (decimal)video.Width.Value / (decimal)video.Height.Value;
-              }
-              else if (((double)video.Width.Value / (float)video.Height.Value <= 1.5) && (video.Height.Value >= full3DTABMinHeight)) // we have Full HD TAB
-              {
-                videoStreamAspects.SetAttribute(VideoStreamAspect.ATTR_VIDEO_TYPE, VideoStreamAspect.TYPE_TAB);
-                video.Height = video.Height.Value / 2;
-                video.Aspect = (decimal)video.Width.Value / (decimal)video.Height.Value;
-              }
-              else if (stereoscopic == VideoStreamAspect.TYPE_SBS || stereoscopic == VideoStreamAspect.TYPE_HSBS)
-              {
-                //Cannot be full SBS because of resolution
-                videoStreamAspects.SetAttribute(VideoStreamAspect.ATTR_VIDEO_TYPE, VideoStreamAspect.TYPE_HSBS);
-                video.Width = video.Width.Value / 2;
-                video.Aspect = (decimal)video.Width.Value / (decimal)video.Height.Value;
-              }
-              else if (stereoscopic == VideoStreamAspect.TYPE_TAB || stereoscopic == VideoStreamAspect.TYPE_HTAB)
-              {
-                //Cannot be full TAB because of resolution
-                videoStreamAspects.SetAttribute(VideoStreamAspect.ATTR_VIDEO_TYPE, VideoStreamAspect.TYPE_HTAB);
-                video.Height = video.Height.Value / 2;
-                video.Aspect = (decimal)video.Width.Value / (decimal)video.Height.Value;
-              }
-              else if (stereoscopic != null)
-                videoStreamAspects.SetAttribute(VideoStreamAspect.ATTR_VIDEO_TYPE, stereoscopic);
-              else if (video.Height.Value > 2000)
-                videoStreamAspects.SetAttribute(VideoStreamAspect.ATTR_VIDEO_TYPE, VideoStreamAspect.TYPE_UHD);
-              else if (video.Height.Value > 700)
-                videoStreamAspects.SetAttribute(VideoStreamAspect.ATTR_VIDEO_TYPE, VideoStreamAspect.TYPE_HD);
-              else
-                videoStreamAspects.SetAttribute(VideoStreamAspect.ATTR_VIDEO_TYPE, VideoStreamAspect.TYPE_SD);
-            }
-            else if (video.Height.HasValue)
-            {
-              if (stereoscopic != null)
-                videoStreamAspects.SetAttribute(VideoStreamAspect.ATTR_VIDEO_TYPE, stereoscopic);
-              else if (video.Height.Value > 2000)
-                videoStreamAspects.SetAttribute(VideoStreamAspect.ATTR_VIDEO_TYPE, VideoStreamAspect.TYPE_UHD);
-              else if (video.Height.Value > 700)
-                videoStreamAspects.SetAttribute(VideoStreamAspect.ATTR_VIDEO_TYPE, VideoStreamAspect.TYPE_HD);
-              else
-                videoStreamAspects.SetAttribute(VideoStreamAspect.ATTR_VIDEO_TYPE, VideoStreamAspect.TYPE_SD);
-            }
-            else
-            {
-              if (stereoscopic != null)
-                videoStreamAspects.SetAttribute(VideoStreamAspect.ATTR_VIDEO_TYPE, stereoscopic);
+              video.Height = video.Height.Value / 2;
+              video.Aspect = (decimal)video.Width.Value / (decimal)video.Height.Value;
             }
 
             if (video.Aspect.HasValue)
@@ -144,8 +59,8 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.Utilit
             videoStreamAspects.SetAttribute(VideoStreamAspect.ATTR_VIDEO_PART_SET, -1);
 
             List<string> suffixes = new List<string>();
-            if (!string.IsNullOrEmpty(stereoscopic))
-              suffixes.Add(stereoscopic);
+            if (!string.IsNullOrEmpty(videoType))
+              suffixes.Add(videoType);
             if (video.Height.HasValue && video.Width.HasValue)
               suffixes.Add($"{video.Width.Value}x{video.Height.Value}");
             videoStreamAspects.SetAttribute(VideoStreamAspect.ATTR_VIDEO_PART_SET_NAME, title + (suffixes.Count > 0 ? " (" + string.Join(", ", suffixes) + ")" : ""));

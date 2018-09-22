@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <string name="Match.Video.Music">संगीत</string>
+  <string name="Match.Video.TVMovie">टेलीविज़न</string>
+  <string name="Match.Epg.Music">संगीत</string>
+  <string name="Label.Audio.World">विश्व</string>
+  <string name="Label.Video.Music">संगीत</string>
+  <string name="Label.Video.TVMovie">टेलीविज़न</string>
+  <string name="Label.Epg.Music">संगीत</string>
+  </resources>

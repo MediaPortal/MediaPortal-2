@@ -54,7 +54,8 @@
     <Compile Include="ClientCommunication\IClientManager.cs" />
     <Compile Include="ClientCommunication\IClientController.cs" />
     <Compile Include="ClientCommunication\IServerStateService.cs" />
-    <Compile Include="Database\DatabaseSubSchemaManager.cs" />
+    <Compile Include="Services\Database\DatabaseMigrationManager.cs" />
+    <Compile Include="Services\Database\DatabaseSubSchemaManager.cs" />
     <Compile Include="Database\IDatabaseManager.cs" />
     <Compile Include="Database\ISQLDatabase.cs" />
     <Compile Include="Exceptions\Exceptions.cs" />
@@ -113,11 +114,6 @@
     <Compile Include="Services\UserProfileDataManagement\UserProfileDataManagement_SubSchema.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\HttpServer\HttpServer.csproj">
-      <Project>{B1C97BB7-8E27-4C1B-B086-A1204EF8FB79}</Project>
-      <Name>HttpServer</Name>
-      <Private>True</Private>
-    </ProjectReference>
     <ProjectReference Include="..\MediaPortal.Common\MediaPortal.Common.csproj">
       <Project>{ECF060E7-CAA1-4466-851F-F80B857641EA}</Project>
       <Name>MediaPortal.Common</Name>

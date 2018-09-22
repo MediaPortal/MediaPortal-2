@@ -30,12 +30,12 @@ using MediaPortal.Plugins.SlimTv.Client.Models;
 using MediaPortal.Plugins.SlimTv.Interfaces;
 using MediaPortal.Plugins.SlimTv.Interfaces.Items;
 using MediaPortal.UI.Presentation.DataObjects;
-using MediaPortal.UI.Services.UserManagement;
 using MediaPortal.UiComponents.Media.MediaLists;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using MediaPortal.Common.UserManagement;
 
 namespace MediaPortal.Plugins.SlimTv.Client.MediaLists
 {
@@ -82,7 +82,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.MediaLists
       return true;
     }
 
-    protected async Task<IList<IChannel>> GetUserChannelList(int maxItems, string userDataKey)
+    protected async Task<IList<IChannel>> GetUserChannelList(int maxItems, string userDataKey, bool fillList = false)
     {
       IList<IChannel> userChannels = new List<IChannel>();
 
@@ -100,6 +100,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.MediaLists
 
       IEnumerable<Tuple<int, string>> channelList = userResult.Result;
 
+      //Add favorite channels first
       foreach (int channelId in channelList.Select(c => c.Item1))
       {
         var result = await _tvHandler.ChannelAndGroupInfo.GetChannelAsync(channelId);
@@ -107,6 +108,19 @@ namespace MediaPortal.Plugins.SlimTv.Client.MediaLists
           userChannels.Add(result.Result);
         if (userChannels.Count >= maxItems)
           break;
+      }
+
+      //Add any remaining channels
+      if (fillList && userChannels.Count < maxItems)
+      {
+        foreach (int channelId in ChannelContext.Instance.Channels.Where(c => c.MediaType == _mediaType).Select(c => c.ChannelId).Except(channelList.Select(c => c.Item1)))
+        {
+          var result = await _tvHandler.ChannelAndGroupInfo.GetChannelAsync(channelId);
+          if (result.Success)
+            userChannels.Add(result.Result);
+          if (userChannels.Count >= maxItems)
+            break;
+        }
       }
       return userChannels;
     }

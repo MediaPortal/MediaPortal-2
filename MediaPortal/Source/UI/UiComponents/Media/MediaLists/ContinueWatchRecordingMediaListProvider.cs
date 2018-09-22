@@ -22,8 +22,10 @@
 
 #endregion
 
+using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.UiComponents.Media.General;
 using MediaPortal.UiComponents.Media.Models.Navigation;
+using System;
 
 namespace MediaPortal.UiComponents.Media.MediaLists
 {
@@ -32,6 +34,8 @@ namespace MediaPortal.UiComponents.Media.MediaLists
     public ContinueWatchRecordingMediaListProvider()
     {
       _necessaryMias = Consts.NECESSARY_RECORDING_MIAS;
+      //Needed for calculating play percentage
+      _optionalMias = new Guid[] { VideoStreamAspect.ASPECT_ID };
       _playableConverterAction = item => new VideoItem(item);
     }
   }

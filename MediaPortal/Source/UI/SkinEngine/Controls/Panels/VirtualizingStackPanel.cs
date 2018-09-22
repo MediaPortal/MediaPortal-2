@@ -853,7 +853,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
         return base.GetRenderedChildren();
 
       return _arrangedItems.Skip(_actualFirstRenderedChildIndex - _arrangedItemsStartIndex).
-          Take(_actualLastRenderedChildIndex - _actualFirstRenderedChildIndex + 1).Concat(_visibleGroupItems);
+          Take(_actualLastRenderedChildIndex - _actualFirstRenderedChildIndex + 1).Where(i => i != null).Concat(_visibleGroupItems);
     }
 
     #endregion
