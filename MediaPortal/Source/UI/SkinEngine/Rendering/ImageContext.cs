@@ -252,7 +252,8 @@ namespace MediaPortal.UI.SkinEngine.Rendering
         return false;
 
       // Apply effect parameters
-      _effectTransition.Effect.SetValue((int)ParamIndexIT.WorldTransform, renderContext.Transform);
+      // FIXME: Here a SharpDX exception occures (invalid parameter type), probably due to mismatch of former Matrix to Matrix3x2 now?
+      // _effectTransition.Effect.SetValue((int)ParamIndexIT.WorldTransform, renderContext.Transform);
       _effectTransition.Effect.SetValue((int)ParamIndexIT.Opacity, (float)renderContext.Opacity);
       _effectTransition.Effect.SetValue((int)ParamIndexIT.RelativeTransform, (RawMatrix)_inverseRelativeTransformCache);
       _effectTransition.Effect.SetValue((int)ParamIndexIT.ImageTransform, _imageTransform);
