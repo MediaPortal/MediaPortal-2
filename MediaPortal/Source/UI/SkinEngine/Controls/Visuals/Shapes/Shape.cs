@@ -297,7 +297,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Shapes
         _geometry = geometry;
 
         // Calculate the real occupied area, required for brushes that need exact dimensions
-        _strokeRect = geometry.GetWidenedBounds((float)StrokeThickness);
+        if (geometry != null)
+          _strokeRect = geometry.GetWidenedBounds((float)StrokeThickness);
       }
     }
 

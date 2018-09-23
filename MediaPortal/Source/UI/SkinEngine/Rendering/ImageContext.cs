@@ -253,7 +253,7 @@ namespace MediaPortal.UI.SkinEngine.Rendering
 
       // Apply effect parameters
       // FIXME: Here a SharpDX exception occures (invalid parameter type), probably due to mismatch of former Matrix to Matrix3x2 now?
-      // _effectTransition.Effect.SetValue((int)ParamIndexIT.WorldTransform, renderContext.Transform);
+       _effectTransition.Effect.SetValue((int)ParamIndexIT.WorldTransform, ToMatrix4x4(renderContext.Transform));
       _effectTransition.Effect.SetValue((int)ParamIndexIT.Opacity, (float)renderContext.Opacity);
       _effectTransition.Effect.SetValue((int)ParamIndexIT.RelativeTransform, (RawMatrix)_inverseRelativeTransformCache);
       _effectTransition.Effect.SetValue((int)ParamIndexIT.ImageTransform, _imageTransform);
@@ -282,6 +282,16 @@ namespace MediaPortal.UI.SkinEngine.Rendering
       frameSize.Width *= GraphicsDevice.Width / (float)SkinContext.SkinResources.SkinWidth;
       frameSize.Height *= GraphicsDevice.Height / (float)SkinContext.SkinResources.SkinHeight;
       return frameSize;
+    }
+
+    public static RawMatrix ToMatrix4x4(Matrix3x2 source)
+    {
+      Matrix m = Matrix.Identity;
+      m.M11 = source.M11;
+      m.M22 = source.M22;
+      m.M41 = source.M31;
+      m.M42 = source.M32;
+      return m;
     }
 
     public Size2F GetRotatedSize(Size2F size)
