@@ -206,7 +206,7 @@ namespace MediaPortal.Plugins.InputDeviceManager
     public void UpdateLoadedSettings(InputManagerSettings settings)
     {
       _inputDevices.Clear();
-      if (settings != null)
+      if (settings != null && settings.InputDevices != null)
         try
         {
           foreach (InputDevice device in settings.InputDevices)
