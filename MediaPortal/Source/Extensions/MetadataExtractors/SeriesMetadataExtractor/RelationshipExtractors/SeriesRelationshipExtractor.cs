@@ -293,8 +293,11 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
         new RelationalFilter(EpisodeAspect.ATTR_SEASON, RelationalOperator.EQ, seasonNumber.Value) : null;
 
       IEnumerable<int> episodeNumbers = episodeAspect.GetCollectionAttribute<int>(EpisodeAspect.ATTR_EPISODE);
-      IFilter episodeNumberFilter = episodeNumbers != null && episodeNumbers.Any() ?
-        new RelationalFilter(EpisodeAspect.ATTR_EPISODE, RelationalOperator.EQ, episodeNumbers.First()) : null;
+      IFilter episodeNumberFilter = null;
+      if (episodeNumbers.Count() > 1)
+        episodeNumberFilter = BooleanCombinationFilter.CombineFilters(BooleanOperator.Or, episodeNumbers.Select(e => new RelationalFilter(EpisodeAspect.ATTR_EPISODE, RelationalOperator.EQ, e)));
+      else if (episodeNumbers.Any())
+        episodeNumberFilter = new RelationalFilter(EpisodeAspect.ATTR_EPISODE, RelationalOperator.EQ, episodeNumbers.First());
 
       seriesFilter = BooleanCombinationFilter.CombineFilters(BooleanOperator.And, seriesFilter, seasonNumberFilter, episodeNumberFilter);
 

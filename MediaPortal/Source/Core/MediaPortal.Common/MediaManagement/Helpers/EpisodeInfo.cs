@@ -261,6 +261,11 @@ namespace MediaPortal.Common.MediaManagement.Helpers
     {
       if (other is EpisodeInfo episode)
       {
+        bool forceMerge = false;
+        //Merge of single and multi-episode needs to force overwrite of properties
+        if (EpisodeNumbers.Count == 1 && episode.EpisodeNumbers.Count > 1)
+          forceMerge = true;
+
         HasChanged |= MetadataUpdater.SetOrUpdateId(ref ImdbId, episode.ImdbId);
         HasChanged |= MetadataUpdater.SetOrUpdateId(ref MovieDbId, episode.MovieDbId);
         HasChanged |= MetadataUpdater.SetOrUpdateId(ref TvdbId, episode.TvdbId);
@@ -273,8 +278,18 @@ namespace MediaPortal.Common.MediaManagement.Helpers
         HasChanged |= MetadataUpdater.SetOrUpdateId(ref SeriesTvMazeId, episode.SeriesTvMazeId);
         HasChanged |= MetadataUpdater.SetOrUpdateId(ref SeriesTvRageId, episode.SeriesTvRageId);
 
-        HasChanged |= MetadataUpdater.SetOrUpdateString(ref EpisodeName, episode.EpisodeName, overwriteShorterStrings);
-        HasChanged |= MetadataUpdater.SetOrUpdateString(ref Summary, episode.Summary, overwriteShorterStrings);
+        if (forceMerge)
+        {
+          //Merge of single and multi-episode needs to force overwrite of name and summery
+          EpisodeName = episode.EpisodeName;
+          Summary = episode.Summary;
+          HasChanged = true;
+        }
+        else
+        {
+          HasChanged |= MetadataUpdater.SetOrUpdateString(ref EpisodeName, episode.EpisodeName, overwriteShorterStrings);
+          HasChanged |= MetadataUpdater.SetOrUpdateString(ref Summary, episode.Summary, overwriteShorterStrings);
+        }
         HasChanged |= MetadataUpdater.SetOrUpdateString(ref SeriesName, episode.SeriesName, overwriteShorterStrings);
 
         HasChanged |= MetadataUpdater.SetOrUpdateValue(ref FirstAired, episode.FirstAired);
@@ -283,14 +298,12 @@ namespace MediaPortal.Common.MediaManagement.Helpers
 
         HasChanged |= MetadataUpdater.SetOrUpdateRatings(ref Rating, episode.Rating);
 
-        if (EpisodeNumbers.Count == 0)
+        if (EpisodeNumbers.Count == 0 || forceMerge)
           HasChanged |= MetadataUpdater.SetOrUpdateList(EpisodeNumbers, episode.EpisodeNumbers.Distinct().ToList(), true);
-        if (DvdEpisodeNumbers.Count == 0)
+        if (DvdEpisodeNumbers.Count == 0 || forceMerge)
           HasChanged |= MetadataUpdater.SetOrUpdateList(DvdEpisodeNumbers, episode.DvdEpisodeNumbers.Distinct().ToList(), true);
         if (Genres.Count == 0)
-        {
           HasChanged |= MetadataUpdater.SetOrUpdateList(Genres, episode.Genres.Distinct().ToList(), true);
-        }
 
         if (!HasThumbnail && episode.HasThumbnail)
         {
@@ -667,21 +680,30 @@ namespace MediaPortal.Common.MediaManagement.Helpers
     {
       EpisodeInfo other = obj as EpisodeInfo;
       if (obj == null) return false;
-      if (TvdbId > 0 && other.TvdbId > 0)
-        return TvdbId == other.TvdbId;
-      if (MovieDbId > 0 && other.MovieDbId > 0)
-        return MovieDbId == other.MovieDbId;
-      if (TvMazeId > 0 && other.TvMazeId > 0)
-        return TvMazeId == other.TvMazeId;
-      if (TvRageId > 0 && other.TvRageId > 0)
-        return TvRageId == other.TvRageId;
-      if (!string.IsNullOrEmpty(ImdbId) && !string.IsNullOrEmpty(other.ImdbId))
-        return string.Equals(ImdbId, other.ImdbId, StringComparison.InvariantCultureIgnoreCase);
 
-      //Name id is generated from name and can be unreliable so should only be used if matches
-      if (!string.IsNullOrEmpty(NameId) && !string.IsNullOrEmpty(other.NameId) &&
-        string.Equals(NameId, other.NameId, StringComparison.InvariantCultureIgnoreCase))
-        return true;
+      bool multiEpisodeComparison = false;
+      if ((EpisodeNumbers.Count > 1 || other.EpisodeNumbers.Count > 1) &&
+        EpisodeNumbers.Intersect(other.EpisodeNumbers).Any() && EpisodeNumbers.Count != other.EpisodeNumbers.Count)
+        multiEpisodeComparison = true;
+
+      if (!multiEpisodeComparison)
+      {
+        if (TvdbId > 0 && other.TvdbId > 0)
+          return TvdbId == other.TvdbId;
+        if (MovieDbId > 0 && other.MovieDbId > 0)
+          return MovieDbId == other.MovieDbId;
+        if (TvMazeId > 0 && other.TvMazeId > 0)
+          return TvMazeId == other.TvMazeId;
+        if (TvRageId > 0 && other.TvRageId > 0)
+          return TvRageId == other.TvRageId;
+        if (!string.IsNullOrEmpty(ImdbId) && !string.IsNullOrEmpty(other.ImdbId))
+          return string.Equals(ImdbId, other.ImdbId, StringComparison.InvariantCultureIgnoreCase);
+
+        //Name id is generated from name and can be unreliable so should only be used if matches
+        if (!string.IsNullOrEmpty(NameId) && !string.IsNullOrEmpty(other.NameId) &&
+          string.Equals(NameId, other.NameId, StringComparison.InvariantCultureIgnoreCase))
+          return true;
+      }
 
       if (SeriesTvdbId > 0 && other.SeriesTvdbId > 0 && SeriesTvdbId != other.SeriesTvdbId)
         return false;
@@ -698,16 +720,32 @@ namespace MediaPortal.Common.MediaManagement.Helpers
         !string.Equals(SeriesNameId, other.SeriesNameId, StringComparison.InvariantCultureIgnoreCase))
         return false;
 
-      if (!SeriesName.IsEmpty && !other.SeriesName.IsEmpty && SeriesName.Text == other.SeriesName.Text &&
+      bool matchSeriesId = false;
+      if (SeriesTvdbId > 0 && other.SeriesTvdbId > 0)
+        matchSeriesId |= SeriesTvdbId == other.SeriesTvdbId;
+      if (SeriesMovieDbId > 0 && other.SeriesMovieDbId > 0)
+        matchSeriesId |= SeriesMovieDbId == other.SeriesMovieDbId;
+      if (SeriesTvMazeId > 0 && other.SeriesTvMazeId > 0)
+        matchSeriesId |= SeriesTvMazeId == other.SeriesTvMazeId;
+      if (SeriesTvRageId > 0 && other.SeriesTvRageId > 0)
+        matchSeriesId |= SeriesTvRageId == other.SeriesTvRageId;
+      if (!string.IsNullOrEmpty(SeriesImdbId) && !string.IsNullOrEmpty(other.SeriesImdbId))
+        matchSeriesId |= string.Equals(SeriesImdbId, other.SeriesImdbId, StringComparison.InvariantCultureIgnoreCase);
+      if (!string.IsNullOrEmpty(SeriesNameId) && !string.IsNullOrEmpty(other.SeriesNameId))
+        matchSeriesId |= string.Equals(SeriesNameId, other.SeriesNameId, StringComparison.InvariantCultureIgnoreCase);
+      if (!SeriesName.IsEmpty && !other.SeriesName.IsEmpty)
+        matchSeriesId |= SeriesName.Text == other.SeriesName.Text;
+
+      if (matchSeriesId &&
         SeasonNumber.HasValue && other.SeasonNumber.HasValue && SeasonNumber.Value == other.SeasonNumber.Value &&
-        EpisodeNumbers.Count > 0 && other.EpisodeNumbers.Count > 0 && EpisodeNumbers.First() == other.EpisodeNumbers.First())
+        EpisodeNumbers.Count > 0 && other.EpisodeNumbers.Count > 0 && EpisodeNumbers.Intersect(other.EpisodeNumbers).Any())
         return true;
-      if (!SeriesName.IsEmpty && !other.SeriesName.IsEmpty && SeriesName.Text == other.SeriesName.Text &&
+      if (matchSeriesId &&
         SeasonNumber.HasValue && other.SeasonNumber.HasValue && SeasonNumber.Value == other.SeasonNumber.Value &&
         !EpisodeName.IsEmpty && !other.EpisodeName.IsEmpty && MatchNames(EpisodeName.Text, other.EpisodeName.Text))
         return true;
       if (SeasonNumber.HasValue && other.SeasonNumber.HasValue && SeasonNumber.Value == other.SeasonNumber.Value &&
-        EpisodeNumbers.Count > 0 && other.EpisodeNumbers.Count > 0 && EpisodeNumbers.First() == other.EpisodeNumbers.First() &&
+        EpisodeNumbers.Count > 0 && other.EpisodeNumbers.Count > 0 && EpisodeNumbers.Intersect(other.EpisodeNumbers).Any() &&
         !EpisodeName.IsEmpty && !other.EpisodeName.IsEmpty && MatchNames(EpisodeName.Text, other.EpisodeName.Text))
         return true;
 
