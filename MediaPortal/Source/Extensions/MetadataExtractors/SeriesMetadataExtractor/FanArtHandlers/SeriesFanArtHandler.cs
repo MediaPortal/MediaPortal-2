@@ -110,16 +110,19 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
 
     protected async Task ExtractEpisodeFanArt(Guid mediaItemId, IDictionary<Guid, IList<MediaItemAspect>> aspects)
     {
-      if (BaseInfo.IsVirtualResource(aspects))
-        return;
+      bool shouldCacheLocal = false;
+      IResourceLocator mediaItemLocator = null;
 
-      IResourceLocator mediaItemLocator = GetResourceLocator(aspects);
-      if (mediaItemLocator == null)
-        return;
+      if (!BaseInfo.IsVirtualResource(aspects))
+      {
+        mediaItemLocator = GetResourceLocator(aspects);
+        if (mediaItemLocator == null)
+          return;
 
-      //Whether local fanart should be stored in the fanart cache
-      bool shouldCacheLocal = ShouldCacheLocalFanArt(mediaItemLocator.NativeResourcePath,
-        SeriesMetadataExtractor.CacheLocalFanArt, SeriesMetadataExtractor.CacheOfflineFanArt);
+        //Whether local fanart should be stored in the fanart cache
+        shouldCacheLocal = ShouldCacheLocalFanArt(mediaItemLocator.NativeResourcePath,
+          SeriesMetadataExtractor.CacheLocalFanArt, SeriesMetadataExtractor.CacheOfflineFanArt);
+      }
 
       if (!shouldCacheLocal && SeriesMetadataExtractor.SkipFanArtDownload)
         return; //Nothing to do
