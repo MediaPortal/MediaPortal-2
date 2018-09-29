@@ -50,7 +50,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.FreeGeoIP
 
     private string BuildUrl(IPAddress address)
     {
-      return string.Format("http://freegeoip.net/json/{0}", address);
+      return string.Format("http://ipinfo.io/json/?ip={0}&token=ee8866dc3d53c1", address);
     }
 
     private async Task<AsyncResult<Tuple<CivicAddress, GeoCoordinate>>> TryLookupInternal()
@@ -67,7 +67,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.FreeGeoIP
       var downloader = new Downloader { EnableCompression = true };
       downloader.Headers["Accept"] = "application/json";
       downloader.Headers["User-Agent"] = "Mozilla/5.0 (Windows NT 6.1; WOW64; rv:17.0) Gecko/20100101 Firefox/17.0";
-      FreeGeoIPResponse result = await downloader.DownloadAsync<FreeGeoIPResponse>(BuildUrl(ip)).ConfigureAwait(false);
+      IpInfoResponse result = await downloader.DownloadAsync<IpInfoResponse>(BuildUrl(ip)).ConfigureAwait(false);
 
       bool success;
       CivicAddress address;
