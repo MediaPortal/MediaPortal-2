@@ -368,7 +368,6 @@ namespace MediaPortal.UI.Services.Players
         return null;
       }
 
-
       foreach (IPlayerBuilder playerBuilder in builders)
       {
         try

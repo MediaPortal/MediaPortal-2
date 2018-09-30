@@ -463,7 +463,7 @@ namespace MediaPortal.UI.Services.Players
         player = _playerManager.BuildPlayer_NoLock(mediaItem, out exceptions);
         if (player == null)
         {
-          if (mediaItem.IsStub) //No player found for stub item which is expected
+          if (mediaItem.IsStub || mediaItem.IsVirtual) //No player found for stub or virtual item which is expected
           {
             Close_NoLock();
             return false;
