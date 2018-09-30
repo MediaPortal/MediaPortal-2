@@ -359,6 +359,15 @@ namespace MediaPortal.UI.Services.Players
         }
       }
 
+      if (mediaItem.IsVirtual)
+      {
+        string header = LocalizationHelper.Translate("[Media.Virtual.Title]");
+        string text = LocalizationHelper.Translate("[Media.Virtual.Message]");
+        IDialogManager dialogManager = ServiceRegistration.Get<IDialogManager>();
+        dialogManager.ShowDialog(header, text, DialogType.OkDialog, false, DialogButtonType.Ok);
+        return null;
+      }
+
 
       foreach (IPlayerBuilder playerBuilder in builders)
       {
