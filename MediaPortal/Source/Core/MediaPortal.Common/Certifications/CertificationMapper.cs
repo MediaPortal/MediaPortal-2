@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2017 Team MediaPortal
+#region Copyright (C) 2007-2018 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2017 Team MediaPortal
+    Copyright (C) 2007-2018 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -287,7 +287,7 @@ namespace MediaPortal.Common.Certifications
         new CertificationMapping("PH_X", "PH", "X", 18, 18, "X" ),
 
         //PT
-        new CertificationMapping("PT_T", "PT", "M/0", 0, 0, "Públicos", "T", "Para todos os públicos" ),
+        new CertificationMapping("PT_T", "PT", "M/0", 0, 0, "Pï¿½blicos", "T", "Para todos os pï¿½blicos" ),
         new CertificationMapping("PT_M3", "PT", "M/3", 3, 3, "M/3", "M_3" ),
         new CertificationMapping("PT_M6", "PT", "M/6", 6, 6, "M/6", "M_6" ),
         new CertificationMapping("PT_M12", "PT", "M/12", 12, 12, "M/12", "M_12" ),
@@ -445,7 +445,7 @@ namespace MediaPortal.Common.Certifications
         new CertificationMapping("ES_18", "ES", "18", 18, 18, "18", "+18" ),
 
         //PT
-        new CertificationMapping("PT_T", "PT", "T", 0, 0, "Todos", "T", "Para todos os públicos" ),
+        new CertificationMapping("PT_T", "PT", "T", 0, 0, "Todos", "T", "Para todos os pï¿½blicos" ),
         new CertificationMapping("PT_10", "PT", "10", 10, 6, "10", "10AP" ),
         new CertificationMapping("PT_12", "PT", "12", 12, 8, "12", "12AP" ),
         new CertificationMapping("PT_16", "PT", "16", 16, 16, "16" ),
