@@ -175,7 +175,7 @@ namespace MediaPortal.UiComponents.News.Models
 
     public void Reactivate(NavigationContext oldContext, NavigationContext newContext)
     {
-      // Nothing to do here
+      GetFeeds();
     }
 
     public void UpdateMenuActions(NavigationContext context, IDictionary<Guid, WorkflowAction> actions)
