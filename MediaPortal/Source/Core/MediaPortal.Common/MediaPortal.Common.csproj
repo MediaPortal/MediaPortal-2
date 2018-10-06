@@ -493,6 +493,7 @@
     <Compile Include="UPnP\UPnPDtUserProfile.cs" />
     <Compile Include="UPnP\UPnPDtUserProfileEnumeration.cs" />
     <Compile Include="UserManagement\IUserManagement.cs" />
+    <Compile Include="UserManagement\UserMessaging.cs" />
     <Compile Include="UserProfileDataManagement\IUserProfileDataManagement.cs" />
     <Compile Include="UserProfileDataManagement\IUserRestriction.cs" />
     <Compile Include="UserProfileDataManagement\UserDataKeysKnown.cs" />

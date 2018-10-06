@@ -25,6 +25,7 @@
 using System;
 using MediaPortal.Common.Messaging;
 using MediaPortal.Common.Settings;
+using MediaPortal.Common.UserManagement;
 
 namespace MediaPortal.Common.Services.Settings
 {
@@ -45,7 +46,7 @@ namespace MediaPortal.Common.Services.Settings
 
     public SettingsChangeWatcher()
     {
-      _messageQueue = new AsynchronousMessageQueue(this, new string[] { SettingsManagerMessaging.CHANNEL });
+      _messageQueue = new AsynchronousMessageQueue(this, new string[] { SettingsManagerMessaging.CHANNEL, UserMessaging.CHANNEL });
       _messageQueue.MessageReceived += OnMessageReceived;
       _messageQueue.Start();
     }
@@ -80,18 +81,29 @@ namespace MediaPortal.Common.Services.Settings
 
     protected void OnMessageReceived(AsynchronousMessageQueue queue, SystemMessage message)
     {
-      if (message.ChannelName != SettingsManagerMessaging.CHANNEL)
-        return;
-
-      SettingsManagerMessaging.MessageType messageType = (SettingsManagerMessaging.MessageType) message.MessageType;
-      switch (messageType)
+      if (message.ChannelName == UserMessaging.CHANNEL)
       {
-        case SettingsManagerMessaging.MessageType.SettingsChanged:
-          Type settingsType = (Type) message.MessageData[SettingsManagerMessaging.SETTINGSTYPE];
-          // If our contained Type has been changed, clear the cache and reload it
-          if (typeof(T) == settingsType)
+        UserMessaging.MessageType messageType = (UserMessaging.MessageType)message.MessageType;
+        switch (messageType)
+        {
+          // If the user has been changed, refresh the settings in every case.
+          case UserMessaging.MessageType.UserChanged:
             Refresh();
-          break;
+            break;
+        }
+      }
+      if (message.ChannelName == SettingsManagerMessaging.CHANNEL)
+      {
+        SettingsManagerMessaging.MessageType messageType = (SettingsManagerMessaging.MessageType)message.MessageType;
+        switch (messageType)
+        {
+          case SettingsManagerMessaging.MessageType.SettingsChanged:
+            Type settingsType = (Type)message.MessageData[SettingsManagerMessaging.SETTINGSTYPE];
+            // If our contained Type has been changed, clear the cache and reload it
+            if (typeof(T) == settingsType)
+              Refresh();
+            break;
+        }
       }
     }
 

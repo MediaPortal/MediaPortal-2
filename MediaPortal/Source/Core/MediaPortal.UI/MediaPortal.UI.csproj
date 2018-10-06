@@ -172,7 +172,6 @@
     <Compile Include="Services\UiNotifications\NotificationService.cs" />
     <Compile Include="Services\UserManagement\UserMessageHandler.cs" />
     <Compile Include="Services\UserManagement\UserManagement.cs" />
-    <Compile Include="Services\UserManagement\UserMessaging.cs" />
     <Compile Include="Services\UserManagement\UserSettings.cs" />
     <Compile Include="Services\Workflow\ShortcutResourcesLoader.cs" />
     <Compile Include="Services\Workflow\WorkflowStateBuilder.cs" />

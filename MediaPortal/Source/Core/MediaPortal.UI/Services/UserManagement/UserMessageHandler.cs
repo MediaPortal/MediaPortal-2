@@ -26,7 +26,7 @@ using System;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.Messaging;
-using MediaPortal.UI.General;
+using MediaPortal.Common.UserManagement;
 
 namespace MediaPortal.UI.Services.UserManagement
 {
