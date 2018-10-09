@@ -34,6 +34,8 @@ using MediaPortal.Common.General;
 using MediaPortal.Common.Localization;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.MediaManagement;
+using MediaPortal.Common.Messaging;
+using MediaPortal.Common.Runtime;
 using MediaPortal.Common.Services.Settings;
 using MediaPortal.Common.Settings;
 using MediaPortal.Plugins.SlimTv.Interfaces;
@@ -130,6 +132,7 @@ namespace MediaPortal.Plugins.SlimTv.Providers
     private readonly SettingsChangeWatcher<MPExtendedProviderSettings> _settings = new SettingsChangeWatcher<MPExtendedProviderSettings>();
     private string _serverNames = null;
     private readonly TimeSpan _checkDuration = TimeSpan.FromSeconds(CONNECTION_CHECK_INTERVAL_SEC);
+    private AsynchronousMessageQueue _messageQueue;
 
     #endregion
 
@@ -152,10 +155,31 @@ namespace MediaPortal.Plugins.SlimTv.Providers
     public bool Init()
     {
       _settings.SettingsChanged += ReCreateConnections;
+      _messageQueue = new AsynchronousMessageQueue(this, new[] { SystemMessaging.CHANNEL });
+      _messageQueue.PreviewMessage += OnMessageReceived;
+
       CreateAllTvServerConnections();
       return true;
     }
 
+    private void OnMessageReceived(AsynchronousMessageQueue queue, SystemMessage message)
+    {
+      if (message.ChannelName == SystemMessaging.CHANNEL)
+      {
+        SystemMessaging.MessageType messageType = (SystemMessaging.MessageType)message.MessageType;
+        switch (messageType)
+        {
+          case SystemMessaging.MessageType.SystemStateChanged:
+            SystemState newState = (SystemState)message.MessageData[SystemMessaging.NEW_STATE];
+            if (newState == SystemState.Suspending)
+            {
+              ServiceRegistration.Get<ILogger>().Info("SlimTVMPExtendedProvider: System suspending, stopping timeshift.");
+              DeInit();
+            }
+            break;
+        }
+      }
+    }
     private void ReCreateConnections(object sender, EventArgs e)
     {
       // Settings will be changed for various reasons, we only need to handle changed server name(s).
@@ -168,6 +192,9 @@ namespace MediaPortal.Plugins.SlimTv.Providers
 
     public bool DeInit()
     {
+      _messageQueue.Dispose();
+      _messageQueue = null;
+
       _settings.SettingsChanged -= ReCreateConnections;
 
       if (_tvServers == null)
