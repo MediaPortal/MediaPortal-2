@@ -45,7 +45,7 @@ namespace MediaPortal.UiComponents.Weather.Models
     /// </summary>
     private const int WEATHER_UPDATE_INTERVAL = 30 * 60 * 1000;
 
-    protected readonly SettingsChangeWatcher<WeatherSettings> _settings = new SettingsChangeWatcher<WeatherSettings>();
+    protected readonly SettingsChangeWatcher<WeatherSettings> _settings = new SettingsChangeWatcher<WeatherSettings>(true);
 
     protected readonly AbstractProperty _currentLocationProperty = new WProperty(typeof(City), City.NoData);
 

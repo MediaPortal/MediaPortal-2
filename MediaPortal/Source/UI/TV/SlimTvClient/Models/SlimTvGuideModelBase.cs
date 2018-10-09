@@ -422,7 +422,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
     {
       if (_settings != null)
         return;
-      _settings = new SettingsChangeWatcher<SlimTvClientSettings>();
+      _settings = new SettingsChangeWatcher<SlimTvClientSettings>(true);
       UpdatePropertiesFromSettings(_settings.Settings);
       _settings.SettingsChanged = OnSettingsChanged;
     }

@@ -39,7 +39,7 @@ namespace MediaPortal.UiComponents.VideoEffectChanger
     private double DEFAULT_CHECK_INTERVAL = 1000;
 
     private AsynchronousMessageQueue _messageQueue;
-    private readonly SettingsChangeWatcher<VideoEffectChangerSettings> _settings = new SettingsChangeWatcher<VideoEffectChangerSettings>();
+    private readonly SettingsChangeWatcher<VideoEffectChangerSettings> _settings = new SettingsChangeWatcher<VideoEffectChangerSettings>(true);
     private Timer _timer;
 
     public VideoEffectChanger()

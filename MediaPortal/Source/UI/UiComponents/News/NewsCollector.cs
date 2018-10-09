@@ -45,7 +45,7 @@ namespace MediaPortal.UiComponents.News
     protected NewsItem _lastRandomNewsItem = null;
     protected List<NewsFeed> _feeds = new List<NewsFeed>();
     protected bool _refeshInProgress = false;
-    protected SettingsChangeWatcher<NewsSettings> _settings = new SettingsChangeWatcher<NewsSettings>();
+    protected SettingsChangeWatcher<NewsSettings> _settings = new SettingsChangeWatcher<NewsSettings>(true);
     IntervalWork _work = null;
 
     public NewsCollector()

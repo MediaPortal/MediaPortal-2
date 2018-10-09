@@ -102,7 +102,13 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Triggers
           .Any(player => player is IAudioPlayer || player is IVideoPlayer))
           return;
       }
-      using (SoundPlayer simpleSound = new SoundPlayer(SkinContext.SkinResources.GetResourceFilePath(SkinResources.SOUNDS_DIRECTORY + "\\" + source)))
+
+      // The path can only be null during skin switching
+      var resourceFilePath = SkinContext.SkinResources.GetResourceFilePath(SkinResources.SOUNDS_DIRECTORY + "\\" + source);
+      if (resourceFilePath == null)
+        return;
+
+      using (SoundPlayer simpleSound = new SoundPlayer(resourceFilePath))
         simpleSound.Play();
     }
   }

@@ -23,6 +23,8 @@
 #endregion
 
 using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 using MediaPortal.Common.Messaging;
 using MediaPortal.Common.Settings;
 using MediaPortal.Common.UserManagement;
@@ -45,8 +47,14 @@ namespace MediaPortal.Common.Services.Settings
     #endregion
 
     public SettingsChangeWatcher()
+      : this(false) { }
+
+    public SettingsChangeWatcher(bool updateOnUserChange)
     {
-      _messageQueue = new AsynchronousMessageQueue(this, new string[] { SettingsManagerMessaging.CHANNEL, UserMessaging.CHANNEL });
+      List<string> channels = new List<string> { SettingsManagerMessaging.CHANNEL };
+      if (updateOnUserChange)
+        channels.Add(UserMessaging.CHANNEL);
+      _messageQueue = new AsynchronousMessageQueue(this, channels);
       _messageQueue.MessageReceived += OnMessageReceived;
       _messageQueue.Start();
     }
@@ -65,6 +73,14 @@ namespace MediaPortal.Common.Services.Settings
       {
         return _settings ?? (_settings = ServiceRegistration.Get<ISettingsManager>().Load<T>());
       }
+    }
+
+    /// <summary>
+    /// Refreshes the settings asynchronously.
+    /// </summary>
+    public void RefreshAsync()
+    {
+      Task.Run(() => Refresh());
     }
 
     /// <summary>
@@ -88,7 +104,7 @@ namespace MediaPortal.Common.Services.Settings
         {
           // If the user has been changed, refresh the settings in every case.
           case UserMessaging.MessageType.UserChanged:
-            Refresh();
+            RefreshAsync();
             break;
         }
       }

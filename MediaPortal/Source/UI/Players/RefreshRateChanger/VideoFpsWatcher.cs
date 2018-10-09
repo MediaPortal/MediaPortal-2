@@ -44,7 +44,7 @@ namespace MediaPortal.Plugins.RefreshRateChanger
     protected Timer _timer;
     protected object _syncObj = new object();
     protected bool _isEnabled;
-    protected SettingsChangeWatcher<RefreshRateChangerSettings> _settings = new SettingsChangeWatcher<RefreshRateChangerSettings>();
+    protected SettingsChangeWatcher<RefreshRateChangerSettings> _settings = new SettingsChangeWatcher<RefreshRateChangerSettings>(true);
 
     public VideoFpsWatcher()
     {
