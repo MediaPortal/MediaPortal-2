@@ -23,6 +23,7 @@
 #endregion
 
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
@@ -162,7 +163,7 @@ namespace MediaPortal.UI.SkinEngine.SkinManagement
     /// <summary>
     /// Models currently loaded for the style.
     /// </summary>
-    protected IDictionary<Guid, object> _styleGUIModels = new Dictionary<Guid, object>();
+    protected IDictionary<Guid, object> _styleGUIModels = new ConcurrentDictionary<Guid, object>();
 
     #endregion
 
