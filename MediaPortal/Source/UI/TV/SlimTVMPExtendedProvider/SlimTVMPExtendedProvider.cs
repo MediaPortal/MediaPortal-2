@@ -176,6 +176,11 @@ namespace MediaPortal.Plugins.SlimTv.Providers
               ServiceRegistration.Get<ILogger>().Info("SlimTVMPExtendedProvider: System suspending, stopping timeshift.");
               DeInit();
             }
+            if (newState == SystemState.Resuming)
+            {
+              ServiceRegistration.Get<ILogger>().Info("SlimTVMPExtendedProvider: System resuming, init connections.");
+              Init();
+            }
             break;
         }
       }
