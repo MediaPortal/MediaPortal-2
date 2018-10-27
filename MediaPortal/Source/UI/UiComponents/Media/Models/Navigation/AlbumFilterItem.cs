@@ -26,7 +26,7 @@ using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Common.MediaManagement.Helpers;
 using MediaPortal.UiComponents.Media.General;
-using MediaPortal.UiComponents.Media.Settings;
+using MediaPortal.UiComponents.Media.Helpers;
 
 namespace MediaPortal.UiComponents.Media.Models.Navigation
 {
@@ -35,9 +35,19 @@ namespace MediaPortal.UiComponents.Media.Models.Navigation
   /// </summary>
   public class AlbumFilterItem : PlayableContainerMediaItem
   {
+    public AlbumFilterItem()
+    { }
+
+    public AlbumFilterItem(MediaItem mediaItem)
+    {
+      MediaItem = mediaItem;
+    }
+
     public override void Update(MediaItem mediaItem)
     {
       base.Update(mediaItem);
+      if (mediaItem == null)
+        return;
 
       AlbumInfo album = new AlbumInfo();
       if (!album.FromMetadata(mediaItem.Aspects))
@@ -59,7 +69,7 @@ namespace MediaPortal.UiComponents.Media.Models.Navigation
         else
           TotalTracks = "";
 
-        if (ShowVirtualSetting.ShowVirtualAudioMedia)
+        if (VirtualMediaHelper.ShowVirtualAudioMedia)
           Tracks = TotalTracks;
         else
           Tracks = AvailableTracks;

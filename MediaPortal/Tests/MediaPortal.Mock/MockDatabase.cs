@@ -46,6 +46,10 @@ namespace MediaPortal.Mock
       get { return uint.MaxValue; }
     }
 
+    public string ConcatOperator => throw new NotImplementedException();
+
+    public string LengthFunction => throw new NotImplementedException();
+
     public string GetSQLType(Type dotNetType)
     {
       return dotNetType.Name;
@@ -114,11 +118,6 @@ namespace MediaPortal.Mock
       return new MockTransaction(this);
     }
 
-    public ITransaction CreateTransaction()
-    {
-      return new MockTransaction(this);
-    }
-
     public bool TableExists(string tableName)
     {
       throw new NotImplementedException();
@@ -160,6 +159,21 @@ namespace MediaPortal.Mock
       }
 
       return command;
+    }
+
+    public bool BackupDatabase(string backupVersion)
+    {
+      throw new NotImplementedException();
+    }
+
+    public bool BackupTables(string tableSuffix)
+    {
+      throw new NotImplementedException();
+    }
+
+    public bool DropBackupTables(string tableSuffix)
+    {
+      throw new NotImplementedException();
     }
   }
 }

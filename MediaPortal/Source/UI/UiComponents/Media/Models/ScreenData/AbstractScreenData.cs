@@ -33,6 +33,7 @@ using MediaPortal.Utilities;
 using MediaPortal.Utilities.Exceptions;
 using System;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace MediaPortal.UiComponents.Media.Models.ScreenData
 {
@@ -58,7 +59,6 @@ namespace MediaPortal.UiComponents.Media.Models.ScreenData
     protected AbstractProperty _listHintProperty = null;
     protected NavigationData _navigationData = null;
     protected IItemsFilter _filter;
-    protected IEnumerable<Guid> _filteredMias;
     protected IEnumerable<Guid> _availableMias;
 
     protected object _syncObj = new object();
@@ -278,14 +278,6 @@ namespace MediaPortal.UiComponents.Media.Models.ScreenData
     }
 
     /// <summary>
-    /// Returns the minimum mias that are guaranteed to be present in the items displayed by this screen.
-    /// </summary>
-    public IEnumerable<Guid> FilteredMias
-    {
-      get { return _filteredMias; }
-    }
-
-    /// <summary>
     /// Returns the mias that this screen has available.
     /// </summary>
     public IEnumerable<Guid> AvailableMias
@@ -302,19 +294,6 @@ namespace MediaPortal.UiComponents.Media.Models.ScreenData
     /// Rebuilds the items list without invalidating the underlaying view.
     /// </summary>
     public abstract void UpdateItems();
-
-    /// <summary>
-    /// Whether this screen can filter items shown by the <paramref name="parentScreen"/>.
-    /// The default implementation checks whether at least one of the <see cref="FilteredMias"/> is present in the <paramref name="parentScreen"/>'s <see cref="FilteredMias"/>
-    /// or whether <see cref="FilteredMias"/> is null on this or the parent screen.
-    /// Can be overriden in derived classes.
-    /// </summary>
-    /// <param name="parentScreen">The screen that is currently shown.</param>
-    /// <returns>True if this screen can handle items shown by the <paramref name="parentScreen"/></returns>
-    public virtual bool CanFilter(AbstractScreenData parentScreen)
-    {
-      return _filteredMias == null || parentScreen == null || parentScreen.FilteredMias == null || _filteredMias.Intersect(parentScreen.FilteredMias).Count() > 0;
-    }
 
     /// <summary>
     /// Allows a secondary filter of the already loaded <see cref="Items"/> by the given <paramref name="search"/> term.
@@ -391,20 +370,20 @@ namespace MediaPortal.UiComponents.Media.Models.ScreenData
     /// <returns>Enumeration of media items.</returns>
     public IEnumerable<MediaItem> GetAllMediaItems()
     {
-      List<MediaItem> result = new List<MediaItem>(GetAllMediaItemsOverride());
+      List<MediaItem> result = new List<MediaItem>(GetAllMediaItemsOverride().Result);
       Sorting.Sorting sorting = CurrentSorting;
       if (sorting != null)
         result.Sort(sorting);
       return result;
     }
 
-    protected virtual IEnumerable<MediaItem> GetAllMediaItemsOverride()
+    protected virtual async Task<IEnumerable<MediaItem>> GetAllMediaItemsOverride()
     {
       // Actually, this method doesn't need to be virtual because the code here is very generic -
       // depending on the base view specification of the current screen, we collect all items.
       // But screens like the search screen modify their list of items dynamically. Such screens must
       // return their dynamically generated items list.
-      return _navigationData.BaseViewSpecification.GetAllMediaItems();
+      return await _navigationData.BaseViewSpecification.GetAllMediaItems();
     }
 
     protected virtual void Display_ListBeingBuilt()

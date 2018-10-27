@@ -25,6 +25,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using MediaPortal.Common;
 using MediaPortal.Common.Commands;
 using MediaPortal.Common.General;
@@ -67,6 +68,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
     protected AbstractProperty _guideStartTimeProperty = null;
     protected AbstractProperty _visibleHoursProperty = null;
     protected AbstractProperty _channelNameProperty = null;
+    protected AbstractProperty _channelLogoTypeProperty = null;
 
     protected DateTime _bufferStartTime;
     protected DateTime _bufferEndTime;
@@ -103,6 +105,23 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
     public AbstractProperty ChannelNameProperty
     {
       get { return _channelNameProperty; }
+    }
+
+    /// <summary>
+    /// Exposes the current channel logo type to the skin.
+    /// </summary>
+    public string ChannelLogoType
+    {
+      get { return (string)_channelLogoTypeProperty.GetValue(); }
+      set { _channelLogoTypeProperty.SetValue(value); }
+    }
+
+    /// <summary>
+    /// Exposes the current channel logo type to the skin.
+    /// </summary>
+    public AbstractProperty ChannelLogoTypeProperty
+    {
+      get { return _channelLogoTypeProperty; }
     }
 
     /// <summary>
@@ -148,7 +167,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
     public void Scroll(TimeSpan difference)
     {
       GuideStartTime = GuideStartTime + difference;
-      UpdatePrograms();
+      _ = UpdatePrograms();
     }
 
     #endregion
@@ -167,6 +186,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
         var settings = ServiceRegistration.Get<ISettingsManager>().Load<SlimTvClientSettings>();
         _visibleHoursProperty = new WProperty(typeof(double), settings.EpgVisibleHours);
         _channelNameProperty = new WProperty(typeof(string), string.Empty);
+        _channelLogoTypeProperty = new WProperty(typeof(string), string.Empty);
       }
       base.InitModel();
     }
@@ -275,7 +295,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
       bool isRunning = DateTime.Now >= program.StartTime && DateTime.Now <= program.EndTime;
 
       if (settings.ZapFromGuide && isRunning)
-        TuneChannelByProgram(program);
+        _ = TuneChannelByProgram(program);
       else
         base.ShowProgramActions(program);
     }
@@ -292,14 +312,18 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
       base.UpdateProgramStatus(program);
       if (program == null || _tvHandler == null || _tvHandler.ChannelAndGroupInfo == null)
         return;
-      IChannel currentChannel;
-      if (_tvHandler.ChannelAndGroupInfo.GetChannel(program.ChannelId, out currentChannel))
+      var result = _tvHandler.ChannelAndGroupInfo.GetChannelAsync(program.ChannelId).Result;
+      if (result.Success)
+      {
+        var currentChannel = result.Result;
         ChannelName = currentChannel.Name;
+        ChannelLogoType = currentChannel.GetFanArtMediaType();
+      }
     }
 
-    protected void UpdatePrograms()
+    protected async Task UpdatePrograms()
     {
-      UpdateProgramsForGroup();
+      await UpdateProgramsForGroup();
       foreach (ChannelProgramListItem channel in _channelList)
         UpdateChannelPrograms(channel);
 
@@ -308,7 +332,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
       UpdateProgramsState();
     }
 
-    protected void UpdateProgramsForGroup()
+    protected async Task UpdateProgramsForGroup()
     {
       if (
         _bufferGroupIndex != ChannelContext.Instance.ChannelGroups.CurrentIndex || /* Group changed */
@@ -322,7 +346,11 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
         _bufferEndTime = GuideEndTime.AddHours(_bufferHours);
         IChannelGroup group = CurrentChannelGroup;
         if (group != null)
-          _tvHandler.ProgramInfo.GetProgramsGroup(group, _bufferStartTime, _bufferEndTime, out _groupPrograms);
+        {
+          var result = await _tvHandler.ProgramInfo.GetProgramsGroupAsync(group, _bufferStartTime, _bufferEndTime);
+          if (result.Success)
+            _groupPrograms = result.Result;
+        }
       }
     }
 
@@ -417,7 +445,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
     {
       base.OnCurrentGroupChanged(oldindex, newindex);
       UpdateChannels();
-      UpdatePrograms();
+      _ = UpdatePrograms();
       // Notify listeners about group change
       SlimTvClientMessaging.SendSlimTvClientMessage(SlimTvClientMessaging.MessageType.GroupChanged);
     }
@@ -430,6 +458,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
       GuideStartTime = DateTime.Now.RoundDateTime(15, DateFormatExtension.RoundingDirection.Down);
       var settings = ServiceRegistration.Get<ISettingsManager>().Load<SlimTvClientSettings>();
       VisibleHours = settings.EpgVisibleHours;
+      ShowGenreColors = settings.EpgShowGenreColors;
       _bufferStartTime = _bufferEndTime = DateTime.MinValue;
     }
 
@@ -448,7 +477,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
       if (timeChanged || _bufferGroupIndex != ChannelContext.Instance.ChannelGroups.CurrentIndex)
       {
         UpdateChannels();
-        UpdatePrograms();
+        _ = UpdatePrograms();
       }
     }
 
@@ -458,7 +487,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
       // Init viewport to start with current time.
       SetCurrentViewTime();
       UpdateChannels();
-      UpdatePrograms();
+      _ = UpdatePrograms();
     }
 
     #endregion

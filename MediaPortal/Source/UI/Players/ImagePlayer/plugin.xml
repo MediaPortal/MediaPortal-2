@@ -37,6 +37,7 @@
   <Register Location="/Configuration/Settings">
     <ConfigSection
         Id="Players"
+        Sort="E100"
         Redundant="true"
         Text="[Settings.Players]"/>
   </Register>
@@ -45,6 +46,7 @@
   <Register Location="/Configuration/Settings/Players">
     <ConfigSection
         Id="Image"
+        Sort="E150"
         Redundant="true"
         Text="[Settings.Players.Image]"/>
   </Register>

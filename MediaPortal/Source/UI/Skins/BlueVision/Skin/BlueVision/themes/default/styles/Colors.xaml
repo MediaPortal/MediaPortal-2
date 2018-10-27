@@ -8,6 +8,13 @@
   <ResourceWrapper x:Key="ArrowButtonArrowColor" Resource="LightGray"/>
   <ResourceWrapper x:Key="PassiveFocusBackgroundColor" Resource="#33FFFFFF"/>
 
+  <!-- OSD / Notifier -->
+  <ResourceWrapper x:Key="OSDPlayControlBorderColor" Resource="Transparent"/>
+  <ResourceWrapper x:Key="OSDCurrentPlayerControlBackgroundColor1" Resource="#D9fbfbfb"/>
+  <ResourceWrapper x:Key="OSDCurrentPlayerControlBackgroundColor2" Resource="#D9a3a3a3"/>
+
+  <ResourceWrapper x:Key="LogoutButtonColor" Resource="#99000000"/>
+
   <!-- Button background and effects-->
   <!-- PopupWindow Buttons-->
   <ResourceWrapper x:Key="ButtonGradient1Color" Resource="#000F3369"/>
@@ -72,6 +79,16 @@
     </LinearGradientBrush>
   </ResourceWrapper>
 
+  <ResourceWrapper x:Key="PlayControlsFillBrush">
+    <ResourceWrapper.Resource>
+      <LinearGradientBrush StartPoint="0.5,0" EndPoint="0.5,1">
+        <GradientStop Offset="0" Color="#E0A0A0A0"/>
+        <GradientStop Offset="0.5" Color="#F0F0F0F0"/>
+        <GradientStop Offset="1" Color="#E0A0A0A0"/>
+      </LinearGradientBrush >
+    </ResourceWrapper.Resource>
+  </ResourceWrapper>
+
   <ResourceWrapper x:Key="ScrollBarBackgroundXColor">
     <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
       <GradientStop Color="#00404040" Offset="0"/>
@@ -96,15 +113,10 @@
   </ResourceWrapper>
 
   <ResourceWrapper x:Key="ItemsControlShadowBackgroundColor" Resource="Transparent"/>
-
   <ResourceWrapper x:Key="ScrollBarKnobStrokeColor" Resource=""/>
-
   <ResourceWrapper x:Key="ScrollBarStrokeColor" Resource=""/>
-
   <ResourceWrapper x:Key="ScrollBarKnobBackgroundColor" Resource="#DFE0E2" />
-
   <ResourceWrapper x:Key="ScrollBarWidth" Resource="1"/>
-
   <ResourceWrapper x:Key="ScrollBarKnobWidth" Resource="18"/>
 
   <!-- Star Rating -->

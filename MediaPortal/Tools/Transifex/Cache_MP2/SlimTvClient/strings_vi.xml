@@ -1,6 +1,6 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
-  <string name="SlimTvClient.Title">Slim TV Client</string>
+  <string name="SlimTvClient.Title">Lịch xem TV</string>
   <string name="SlimTvClient.TvGuide">Lịch xem TV</string>
   <string name="SlimTvClient.CurrentlyPlayingInformationHeader">Thông tin chương trình</string>
   <string name="SlimTvClient.ChannelLabel">Kên</string>

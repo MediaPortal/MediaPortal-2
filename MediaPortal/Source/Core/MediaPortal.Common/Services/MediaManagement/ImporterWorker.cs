@@ -365,10 +365,10 @@ namespace MediaPortal.Common.Services.MediaManagement
     protected bool ImportResource(ImportJob importJob, IResourceAccessor mediaItemAccessor, Guid parentDirectoryId, ICollection<IMetadataExtractor> metadataExtractors, 
       IImportResultHandler resultHandler, IMediaAccessor mediaAccessor)
     {
-      const bool importOnly = false; // Allow extractions with probably longer runtime.
+      const bool forceQuickMode = false; // Allow extractions with probably longer runtime.
       ResourcePath path = mediaItemAccessor.CanonicalLocalResourcePath;
       ImporterWorkerMessaging.SendImportMessage(ImporterWorkerMessaging.MessageType.ImportStatus, path);
-      IDictionary<Guid, IList<MediaItemAspect>> aspects = mediaAccessor.ExtractMetadata(mediaItemAccessor, metadataExtractors, importOnly);
+      IDictionary<Guid, IList<MediaItemAspect>> aspects = mediaAccessor.ExtractMetadataAsync(mediaItemAccessor, metadataExtractors, forceQuickMode).Result;
       if (aspects == null)
         // No metadata could be extracted
         return false;
@@ -376,8 +376,8 @@ namespace MediaPortal.Common.Services.MediaManagement
       {
         try
         {
-          resultHandler.UpdateMediaItem(parentDirectoryId, path, MediaItemAspect.GetAspects(aspects), importJob.JobType == ImportJobType.Refresh, importJob.BasePath, cancelToken.Token);
-          resultHandler.DeleteUnderPath(path);
+          resultHandler.UpdateMediaItemAsync(parentDirectoryId, path, MediaItemAspect.GetAspects(aspects), importJob.JobType == ImportJobType.Refresh, importJob.BasePath);
+          resultHandler.DeleteUnderPathAsync(path);
         }
         catch
         {
@@ -418,13 +418,13 @@ namespace MediaPortal.Common.Services.MediaManagement
         IMediaBrowsing mediaBrowsing, IImportResultHandler resultHandler)
     {
       ResourcePath directoryPath = directoryAccessor.CanonicalLocalResourcePath;
-      MediaItem directoryItem = mediaBrowsing.LoadLocalItem(directoryPath, EMPTY_MIA_ID_ENUMERATION, DIRECTORY_MIA_ID_ENUMERATION);
+      MediaItem directoryItem = mediaBrowsing.LoadLocalItemAsync(directoryPath, EMPTY_MIA_ID_ENUMERATION, DIRECTORY_MIA_ID_ENUMERATION).Result;
       if (directoryItem != null)
       {
         SingleMediaItemAspect da;
         if (!MediaItemAspect.TryGetAspect(directoryItem.Aspects, DirectoryAspect.Metadata, out da))
         { // This is the case if the path was formerly imported as a non-directory media item; we cannot reuse it
-          resultHandler.DeleteMediaItem(directoryPath);
+          resultHandler.DeleteMediaItemAsync(directoryPath);
           directoryItem = null;
         }
       }
@@ -444,7 +444,7 @@ namespace MediaPortal.Common.Services.MediaManagement
               mia,
               da,
           });
-        return resultHandler.UpdateMediaItem(parentDirectoryId, directoryPath, aspects, importJob.JobType == ImportJobType.Refresh, importJob.BasePath, CancellationToken.None);
+        return resultHandler.UpdateMediaItemAsync(parentDirectoryId, directoryPath, aspects, importJob.JobType == ImportJobType.Refresh, importJob.BasePath).Result;
       }
       return directoryItem.MediaItemId;
     }
@@ -480,8 +480,8 @@ namespace MediaPortal.Common.Services.MediaManagement
         IDictionary<string, MediaItem> path2Item = new Dictionary<string, MediaItem>();
         if (importJob.JobType == ImportJobType.Refresh)
         {
-          foreach (MediaItem mediaItem in mediaBrowsing.Browse(directoryId,
-              IMPORTER_PROVIDER_MIA_ID_ENUMERATION, EMPTY_MIA_ID_ENUMERATION, null, false))
+          foreach (MediaItem mediaItem in mediaBrowsing.BrowseAsync(directoryId,
+              IMPORTER_PROVIDER_MIA_ID_ENUMERATION, EMPTY_MIA_ID_ENUMERATION, null, false).Result)
           {
             IList<MultipleMediaItemAspect> providerResourceAspects;
             if (MediaItemAspect.TryGetAspects(mediaItem.Aspects, ProviderResourceAspect.Metadata, out providerResourceAspects))
@@ -542,7 +542,7 @@ namespace MediaPortal.Common.Services.MediaManagement
               // This happens if the resource doesn't exist any more - we also catch missing directories here
             }
             // Delete all remaining items
-            resultHandler.DeleteMediaItem(path);
+            resultHandler.DeleteMediaItemAsync(path);
             CheckImportStillRunning(importJob.State);
           }
         }

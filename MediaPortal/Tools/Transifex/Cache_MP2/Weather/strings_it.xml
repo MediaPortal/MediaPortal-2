@@ -6,17 +6,18 @@
   <string name="Weather.WeatherLocationStateDisplayLabel">Scegli località</string>
   <!--Dialog state, doesn't appear at the UI-->
   <string name="Weather.Title">Meteo</string>
+  <string name="Weather.Title.Help">Verifica lo stato corrente e le previsioni</string>
   <string name="Weather.ChooseLocation">Scegli località</string>
-  <string name="Weather.Refresh">Ricarica</string>
+  <string name="Weather.Refresh">Aggiorna</string>
   <string name="Weather.Updating">Aggiornamento....</string>
   <string name="Weather.Weather">Meteo</string>
-  <string name="Weather.NoData">non ci sono dati</string>
+  <string name="Weather.NoData">non ci sono dati disponibili</string>
   <string name="Weather.Temp">Temperatura</string>
-  <string name="Weather.TempFeel">Sentito come</string>
+  <string name="Weather.TempFeel">Temperatura percepita</string>
   <string name="Weather.UVIndex">Indice UV</string>
-  <string name="Weather.Wind">Vento</string>
+  <string name="Weather.Wind">Venti</string>
   <string name="Weather.Humidity">Umidità</string>
-  <string name="Weather.Precipitation">Precipitazione</string>
+  <string name="Weather.Precipitation">Precipitazioni</string>
   <string name="Weather.Pressure">Pressione</string>
   <string name="Weather.DewPoint">Punto di rugiada</string>
   <string name="Weather.Sunrise">Alba</string>
@@ -75,11 +76,16 @@
   <string name="Weather.Clearing">Schiarimenti</string>
   <string name="Settings.Plugins.Weather">Meteo</string>
   <string name="Settings.Plugins.Weather.LocationSetup">Configura località</string>
-  <string name="Settings.Plugins.Weather.LocationSetup.Help">Configura le città per la schermata meteo</string>
+  <string name="Settings.Plugins.Weather.LocationSetup.Help">Configura le città da rendere disponibili nella schermata meteo</string>
+  <string name="Settings.Plugins.Weather.ApiKey">Configura chiave API personale</string>
+  <string name="Settings.Plugins.Weather.ApiKey.Help">Configura una chiave API personale creata su https://openweathermap.org/api per superare i limiti di richieste.</string>
   <string name="WeatherSetup.Title">Configura città</string>
-  <string name="WeatherSetup.ConfiguredCities">Configura città</string>
-  <string name="WeatherSetup.EnterCity">Perfavore inserisci il nome della città da aggiungere:</string>
+  <string name="WeatherSetup.ConfiguredCities">Città configurate</string>
+  <string name="WeatherSetup.EnterCity">Inserisci il nome della città da aggiungere:</string>
   <string name="WeatherSetup.SearchCity">Ricerca città</string>
   <string name="WeatherSetup.AddCity">Aggiungi città</string>
   <string name="WeatherSetup.RemoveCity">Rimuovi città</string>
+  <string name="WeatherSetup.Detect">Rileva</string>
+  <string name="WeatherSetup.DetectionFailed">Rilevamento non riuscito</string>
+  <string name="WeatherSetup.DetectionFailedMessage">Il tentativo di rilevamento automatico della tua posizione non è riuscito</string>
 </resources>

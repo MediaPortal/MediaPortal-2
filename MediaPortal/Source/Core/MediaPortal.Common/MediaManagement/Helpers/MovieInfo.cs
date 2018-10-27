@@ -57,6 +57,7 @@ namespace MediaPortal.Common.MediaManagement.Helpers
     /// Short format string that holds movie name.
     /// </summary>
     public static string SHORT_FORMAT_STR = "{0}";
+    private const int MAX_PERSONS = 10;
 
     protected static Regex _fromName = new Regex(@"(?<movie>.*) \((?<year>\d+)\)", RegexOptions.IgnoreCase);
 
@@ -105,10 +106,6 @@ namespace MediaPortal.Common.MediaManagement.Helpers
       {
         if (MovieName.IsEmpty)
           return false;
-        if (Runtime == 0)
-          return false;
-        if (!ReleaseDate.HasValue)
-          return false;
 
         return true;
       }
@@ -149,7 +146,97 @@ namespace MediaPortal.Common.MediaManagement.Helpers
 
     public MovieInfo Clone()
     {
-      return CloneProperties(this);
+      MovieInfo clone = (MovieInfo)this.MemberwiseClone();
+      clone.MovieName = new SimpleTitle(MovieName.Text, MovieName.DefaultLanguage);
+      clone.MovieNameSort = new SimpleTitle(MovieNameSort.Text, MovieNameSort.DefaultLanguage);
+      clone.Summary = new SimpleTitle(Summary.Text, Summary.DefaultLanguage);
+      clone.CollectionName = new SimpleTitle(CollectionName.Text, CollectionName.DefaultLanguage);
+      clone.Rating = new SimpleRating(Rating.RatingValue, Rating.VoteCount);
+      clone.Languages = new List<string>();
+      foreach (var l in Languages)
+        clone.Languages.Add(l);
+      clone.Awards = new List<string>();
+      foreach (var a in Awards)
+        clone.Awards.Add(a);
+      clone.Actors = new List<PersonInfo>();
+      foreach (var a in Actors)
+        clone.Actors.Add(a.Clone());
+      clone.Directors = new List<PersonInfo>();
+      foreach (var d in Directors)
+        clone.Directors.Add(d.Clone());
+      clone.Writers = new List<PersonInfo>();
+      foreach (var w in Writers)
+        clone.Writers.Add(w.Clone());
+      clone.Characters = new List<CharacterInfo>();
+      foreach (var c in Characters)
+        clone.Characters.Add(c.Clone());
+      clone.ProductionCompanies = new List<CompanyInfo>();
+      foreach (var p in ProductionCompanies)
+        clone.ProductionCompanies.Add(p.Clone());
+      clone.Genres = new List<GenreInfo>();
+      foreach (var g in Genres)
+        clone.Genres.Add(new GenreInfo() { Id = g.Id, Name = g.Name });
+
+      return clone;
+    }
+
+    public override bool MergeWith(object other, bool overwriteShorterStrings = true, bool updatePrimaryChildList = false)
+    {
+      if (other is MovieInfo movie)
+      {
+        HasChanged |= MetadataUpdater.SetOrUpdateId(ref ImdbId, movie.ImdbId);
+        HasChanged |= MetadataUpdater.SetOrUpdateId(ref MovieDbId, movie.MovieDbId);
+        HasChanged |= MetadataUpdater.SetOrUpdateId(ref CollectionMovieDbId, movie.CollectionMovieDbId);
+
+        HasChanged |= MetadataUpdater.SetOrUpdateString(ref MovieName, movie.MovieName, overwriteShorterStrings);
+        HasChanged |= MetadataUpdater.SetOrUpdateString(ref OriginalName, movie.OriginalName);
+        HasChanged |= MetadataUpdater.SetOrUpdateString(ref Summary, movie.Summary, overwriteShorterStrings);
+        HasChanged |= MetadataUpdater.SetOrUpdateString(ref Certification, movie.Certification, false);
+        HasChanged |= MetadataUpdater.SetOrUpdateString(ref CollectionName, movie.CollectionName, overwriteShorterStrings);
+        HasChanged |= MetadataUpdater.SetOrUpdateString(ref Tagline, movie.Tagline);
+
+        HasChanged |= MetadataUpdater.SetOrUpdateValue(ref Budget, movie.Budget);
+        HasChanged |= MetadataUpdater.SetOrUpdateValue(ref Revenue, movie.Revenue);
+        HasChanged |= MetadataUpdater.SetOrUpdateValue(ref Runtime, movie.Runtime);
+        if (movie.ReleaseDate.HasValue && movie.ReleaseDate.Value.Year > 1800)
+        { 
+          if (ReleaseDate > movie.ReleaseDate)
+          {
+            ReleaseDate = movie.ReleaseDate;
+            HasChanged = true;
+          }
+        }
+        HasChanged |= MetadataUpdater.SetOrUpdateValue(ref Popularity, movie.Popularity);
+        HasChanged |= MetadataUpdater.SetOrUpdateValue(ref Score, movie.Score);
+
+        HasChanged |= MetadataUpdater.SetOrUpdateRatings(ref Rating, movie.Rating);
+        if (Genres.Count == 0)
+        {
+          HasChanged |= MetadataUpdater.SetOrUpdateList(Genres, movie.Genres.Distinct().ToList(), true);
+        }
+        HasChanged |= MetadataUpdater.SetOrUpdateList(Awards, movie.Awards.Distinct().ToList(), true);
+
+        //Limit the number of persons
+        if (Actors.Count == 0 && movie.Actors.Count > MAX_PERSONS)
+          movie.Actors.RemoveRange(MAX_PERSONS, movie.Actors.Count - MAX_PERSONS);
+        if (Characters.Count == 0 && movie.Characters.Count > MAX_PERSONS)
+          movie.Characters.RemoveRange(MAX_PERSONS, movie.Characters.Count - MAX_PERSONS);
+        if (Directors.Count == 0 && movie.Directors.Count > MAX_PERSONS)
+          movie.Directors.RemoveRange(MAX_PERSONS, movie.Directors.Count - MAX_PERSONS);
+        if (Writers.Count == 0 && movie.Writers.Count > MAX_PERSONS)
+          movie.Writers.RemoveRange(MAX_PERSONS, movie.Writers.Count - MAX_PERSONS);
+
+        //These lists contain Ids and other properties that are not persisted, so they will always appear changed.
+        //So changes to these lists will only be stored if something else has changed.
+        MetadataUpdater.SetOrUpdateList(Actors, movie.Actors.Where(p => !string.IsNullOrEmpty(p.Name)).Distinct().ToList(), Actors.Count == 0, overwriteShorterStrings);
+        MetadataUpdater.SetOrUpdateList(Characters, movie.Characters.Where(p => !string.IsNullOrEmpty(p.Name)).Distinct().ToList(), Characters.Count == 0, overwriteShorterStrings);
+        MetadataUpdater.SetOrUpdateList(Directors, movie.Directors.Where(p => !string.IsNullOrEmpty(p.Name)).Distinct().ToList(), Directors.Count == 0, overwriteShorterStrings);
+        MetadataUpdater.SetOrUpdateList(ProductionCompanies, movie.ProductionCompanies.Where(c => !string.IsNullOrEmpty(c.Name)).Distinct().ToList(), ProductionCompanies.Count == 0, overwriteShorterStrings);
+        MetadataUpdater.SetOrUpdateList(Writers, movie.Writers.Where(p => !string.IsNullOrEmpty(p.Name)).Distinct().ToList(), Writers.Count == 0, overwriteShorterStrings);
+
+        return true;
+      }
+      return false;
     }
 
     #region Members
@@ -158,20 +245,19 @@ namespace MediaPortal.Common.MediaManagement.Helpers
     /// Copies the contained movie information into MediaItemAspect.
     /// </summary>
     /// <param name="aspectData">Dictionary with extracted aspects.</param>
-    public override bool SetMetadata(IDictionary<Guid, IList<MediaItemAspect>> aspectData)
+    public override bool SetMetadata(IDictionary<Guid, IList<MediaItemAspect>> aspectData, bool force = false)
     {
-      if (MovieName.IsEmpty) return false;
+      if (!force && !IsBaseInfoPresent)
+        return false;
 
+      AssignNameId();
       SetMetadataChanged(aspectData);
 
       MediaItemAspect.SetAttribute(aspectData, MediaAspect.ATTR_TITLE, ToString());
-      if (!MovieNameSort.IsEmpty)
-        MediaItemAspect.SetAttribute(aspectData, MediaAspect.ATTR_SORT_TITLE, MovieNameSort.Text);
-      else
-        MediaItemAspect.SetAttribute(aspectData, MediaAspect.ATTR_SORT_TITLE, GetSortTitle(MovieName.Text));
+      if (!MovieNameSort.IsEmpty) MediaItemAspect.SetAttribute(aspectData, MediaAspect.ATTR_SORT_TITLE, MovieNameSort.Text);
       MediaItemAspect.SetAttribute(aspectData, MediaAspect.ATTR_ISVIRTUAL, IsVirtualResource(aspectData));
       MediaItemAspect.SetAttribute(aspectData, MovieAspect.ATTR_MOVIE_NAME, MovieName.Text);
-      if(!string.IsNullOrEmpty(OriginalName)) MediaItemAspect.SetAttribute(aspectData, MovieAspect.ATTR_ORIG_MOVIE_NAME, OriginalName);
+      if (!string.IsNullOrEmpty(OriginalName)) MediaItemAspect.SetAttribute(aspectData, MovieAspect.ATTR_ORIG_MOVIE_NAME, OriginalName);
       if (ReleaseDate.HasValue) MediaItemAspect.SetAttribute(aspectData, MediaAspect.ATTR_RECORDINGTIME, ReleaseDate.Value);
       if (!Summary.IsEmpty) MediaItemAspect.SetAttribute(aspectData, VideoAspect.ATTR_STORYPLOT, CleanString(Summary.Text));
       if (!string.IsNullOrEmpty(Tagline)) MediaItemAspect.SetAttribute(aspectData, MovieAspect.ATTR_TAGLINE, Tagline);
@@ -200,13 +286,17 @@ namespace MediaPortal.Common.MediaManagement.Helpers
         if (Rating.VoteCount.HasValue) MediaItemAspect.SetAttribute(aspectData, MovieAspect.ATTR_RATING_COUNT, Rating.VoteCount.Value);
       }
 
-      if (Actors.Count > 0) MediaItemAspect.SetCollectionAttribute(aspectData, VideoAspect.ATTR_ACTORS, Actors.Where(p => !string.IsNullOrEmpty(p.Name)).Select(p => p.Name).ToList());
-      if (Directors.Count > 0) MediaItemAspect.SetCollectionAttribute(aspectData, VideoAspect.ATTR_DIRECTORS, Directors.Where(p => !string.IsNullOrEmpty(p.Name)).Select(p => p.Name).ToList());
-      if (Writers.Count > 0) MediaItemAspect.SetCollectionAttribute(aspectData, VideoAspect.ATTR_WRITERS, Writers.Where(p => !string.IsNullOrEmpty(p.Name)).Select(p => p.Name).ToList());
-      if (Characters.Count > 0) MediaItemAspect.SetCollectionAttribute(aspectData, VideoAspect.ATTR_CHARACTERS, Characters.Where(p => !string.IsNullOrEmpty(p.Name)).Select(p => p.Name).ToList());
+      bool? isDvd;
+      if (!MediaItemAspect.TryGetAttribute(aspectData, VideoAspect.ATTR_ISDVD, out isDvd) || !isDvd.HasValue)
+        MediaItemAspect.SetAttribute(aspectData, VideoAspect.ATTR_ISDVD, false);
 
-      if (Awards.Count > 0) MediaItemAspect.SetCollectionAttribute(aspectData, MovieAspect.ATTR_AWARDS, Awards.Where(a => !string.IsNullOrEmpty(a)).ToList());
-      if (ProductionCompanies.Count > 0) MediaItemAspect.SetCollectionAttribute(aspectData, MovieAspect.ATTR_COMPANIES, ProductionCompanies.Where(c => !string.IsNullOrEmpty(c.Name)).Select(c => c.Name).ToList());
+      if (Actors.Count > 0) MediaItemAspect.SetCollectionAttribute(aspectData, VideoAspect.ATTR_ACTORS, Actors.Where(p => !string.IsNullOrEmpty(p.Name)).Select(p => p.Name).Distinct().ToList());
+      if (Directors.Count > 0) MediaItemAspect.SetCollectionAttribute(aspectData, VideoAspect.ATTR_DIRECTORS, Directors.Where(p => !string.IsNullOrEmpty(p.Name)).Select(p => p.Name).Distinct().ToList());
+      if (Writers.Count > 0) MediaItemAspect.SetCollectionAttribute(aspectData, VideoAspect.ATTR_WRITERS, Writers.Where(p => !string.IsNullOrEmpty(p.Name)).Select(p => p.Name).Distinct().ToList());
+      if (Characters.Count > 0) MediaItemAspect.SetCollectionAttribute(aspectData, VideoAspect.ATTR_CHARACTERS, Characters.Where(p => !string.IsNullOrEmpty(p.Name)).Select(p => p.Name).Distinct().ToList());
+
+      if (Awards.Count > 0) MediaItemAspect.SetCollectionAttribute(aspectData, MovieAspect.ATTR_AWARDS, Awards.Where(a => !string.IsNullOrEmpty(a)).Distinct().ToList());
+      if (ProductionCompanies.Count > 0) MediaItemAspect.SetCollectionAttribute(aspectData, MovieAspect.ATTR_COMPANIES, ProductionCompanies.Where(c => !string.IsNullOrEmpty(c.Name)).Select(c => c.Name).Distinct().ToList());
 
       aspectData.Remove(GenreAspect.ASPECT_ID);
       foreach (GenreInfo genre in Genres.Distinct())
@@ -245,13 +335,13 @@ namespace MediaPortal.Common.MediaManagement.Helpers
 
         string tempString;
         MediaItemAspect.TryGetAttribute(aspectData, MovieAspect.ATTR_MOVIE_NAME, out tempString);
-        MovieName = new SimpleTitle(tempString, false);
+        MovieName = new SimpleTitle(tempString, string.IsNullOrWhiteSpace(tempString));
         MediaItemAspect.TryGetAttribute(aspectData, MediaAspect.ATTR_SORT_TITLE, out tempString);
-        MovieNameSort = new SimpleTitle(tempString, false);
+        MovieNameSort = new SimpleTitle(tempString, string.IsNullOrWhiteSpace(tempString));
         MediaItemAspect.TryGetAttribute(aspectData, VideoAspect.ATTR_STORYPLOT, out tempString);
-        Summary = new SimpleTitle(tempString, false);
+        Summary = new SimpleTitle(tempString, string.IsNullOrWhiteSpace(tempString));
         MediaItemAspect.TryGetAttribute(aspectData, MovieAspect.ATTR_COLLECTION_NAME, out tempString);
-        CollectionName = new SimpleTitle(tempString, false);
+        CollectionName = new SimpleTitle(tempString, string.IsNullOrWhiteSpace(tempString));
         MediaItemAspect.TryGetAttribute(aspectData, MovieAspect.ATTR_ORIG_MOVIE_NAME, out tempString);
         OriginalName = tempString;
 
@@ -338,7 +428,7 @@ namespace MediaPortal.Common.MediaManagement.Helpers
             {
               string language = audioAspect.GetAttributeValue<string>(VideoAudioStreamAspect.ATTR_AUDIOLANGUAGE);
               if (!string.IsNullOrEmpty(language) && !Languages.Contains(language))
-              { 
+              {
                 Languages.Add(language);
               }
             }
@@ -383,7 +473,7 @@ namespace MediaPortal.Common.MediaManagement.Helpers
             {
               string language = audioAspect.GetAttributeValue<string>(VideoAudioStreamAspect.ATTR_AUDIOLANGUAGE);
               if (!string.IsNullOrEmpty(language) && !Languages.Contains(language))
-              { 
+              {
                 Languages.Add(language);
               }
             }

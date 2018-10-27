@@ -12,8 +12,6 @@
   <string name="Settings.Appearance.System.ScreenSaverEnabled.Help">הגדר האם שומר המסך יוצג</string>
   <string name="Settings.Appearance.System.ScreenSaverTimeout">זמן להפעלת שומר מסך</string>
   <string name="Settings.Appearance.System.ScreenSaverTimeout.Help">הגדר את הזמן בדקות בין פעולת המשתמש האחרונה ועד להצגת שומר המסך</string>
-  <string name="Settings.Appearance.System.Antialiasing">antialiasing של ממשק המשתמש</string>
-  <string name="Settings.Appearance.System.Antialiasing.Help">Antialiasing משפר את תצוגת ממשק המשתמש הגרפי אך עלול להפחית את ביצועי הגרפיקה</string>
   <string name="Settings.Appearance.Skin">סקין</string>
   <string name="Settings.Appearance.Skin.SkinAndTheme">סקין וערכת נושא</string>
   <string name="Settings.Appearance.Skin.SkinAndTheme.ChangeSkin">שנה סקין</string>

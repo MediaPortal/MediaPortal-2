@@ -59,8 +59,8 @@ namespace MediaPortal.Extensions.MetadataExtractors.FFMpegLib
     /// </summary>
     static FFMpegBinary()
     {
-      _ffMpegBinPath = FileUtils.BuildAssemblyRelativePath(FFMPEG_EXECUTABLE);
-      _ffProbeBinPath = FileUtils.BuildAssemblyRelativePath(FFPROBE_EXECUTABLE);
+      _ffMpegBinPath = FileUtils.BuildAssemblyRelativePathForArchitecture(FFMPEG_EXECUTABLE);
+      _ffProbeBinPath = FileUtils.BuildAssemblyRelativePathForArchitecture(FFPROBE_EXECUTABLE);
     }
 
     /// <summary>

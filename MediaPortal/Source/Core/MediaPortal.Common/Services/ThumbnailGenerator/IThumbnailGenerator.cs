@@ -22,6 +22,8 @@
 
 #endregion
 
+using System.IO;
+
 namespace MediaPortal.Common.Services.ThumbnailGenerator
 {
   public enum ImageType
@@ -72,6 +74,18 @@ namespace MediaPortal.Common.Services.ThumbnailGenerator
     /// <param name="imageType">The type of the <paramref name="imageData"/>.</param>
     /// <returns><c>true</c>, if the thumbnail could successfully be created, else <c>false</c>.</returns>
     bool GetThumbnail(string fileOrFolderPath, int width, int height, bool cachedOnly, out byte[] imageData, out ImageType imageType);
+
+    /// <summary>
+    /// Creates a thumbnail from the specified <paramref name="stream"/> with the given paramters.
+    /// </summary>
+    /// <param name="stream">The file or folder path to create a thumbnail image for.</param>
+    /// <param name="width">The desired width of the thumbnail image.</param>
+    /// <param name="height">The desired height of the thumbnail image.</param>
+    /// <param name="cachedOnly">True to return only cached thumbs.</param>
+    /// <param name="imageData">The image data of the given <paramref name="imageType"/>.</param>
+    /// <param name="imageType">The type of the <paramref name="imageData"/>.</param>
+    /// <returns><c>true</c>, if the thumbnail could successfully be created, else <c>false</c>.</returns>
+    bool GetThumbnail(Stream stream, int width, int height, bool cachedOnly, out byte[] imageData, out ImageType imageType);
 
     /// <summary>
     /// Asynchronously creates a thumbnail file for the specified <paramref name="fileOrFolderPath"/> with a default size.

@@ -22,9 +22,6 @@
 
 #endregion
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using MediaPortal.Backend.MediaLibrary;
 using MediaPortal.Common;
 using MediaPortal.Common.FanArt;
@@ -34,6 +31,9 @@ using MediaPortal.Common.MediaManagement.MLQueries;
 using MediaPortal.Common.ResourceAccess;
 using MediaPortal.Common.Services.ResourceAccess;
 using MediaPortal.Extensions.UserServices.FanArtService.Interfaces;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace MediaPortal.Extensions.UserServices.FanArtService
 {
@@ -92,10 +92,12 @@ namespace MediaPortal.Extensions.UserServices.FanArtService
       if (Guid.TryParse(name, out mediaItemId) == false)
         return false;
 
+      IFanArtCache fanArtCache = ServiceRegistration.Get<IFanArtCache>();
+
       List<string> fanArtFiles = new List<string>();
-      fanArtFiles.AddRange(FanArtCache.GetFanArtFiles(mediaItemId.ToString().ToUpperInvariant(), fanArtType));
+      fanArtFiles.AddRange(fanArtCache.GetFanArtFiles(mediaItemId, fanArtType));
       if (fanArtFiles.Count == 0 && fanArtType == FanArtTypes.Poster)
-        fanArtFiles.AddRange(FanArtCache.GetFanArtFiles(mediaItemId.ToString().ToUpperInvariant(), FanArtTypes.Cover));
+        fanArtFiles.AddRange(fanArtCache.GetFanArtFiles(mediaItemId, FanArtTypes.Cover));
 
       // Try fallback
       if (fanArtFiles.Count == 0 && (mediaType == FanArtMediaTypes.Audio || mediaType == FanArtMediaTypes.Album))
@@ -112,17 +114,34 @@ namespace MediaPortal.Extensions.UserServices.FanArtService
         MediaItem mediaItem = items.First();
 
         IList<MultipleMediaItemAspect> relationAspects;
-        if (fanArtType == FanArtTypes.FanArt)
+        if (mediaType == FanArtMediaTypes.Audio && fanArtType == FanArtTypes.FanArt)
         {
-          //No FanArt exists for ALbum and Audio so use Artists
+          //No FanArt exists for Audio so use Artists
           if (MediaItemAspect.TryGetAspects(mediaItem.Aspects, RelationshipAspect.Metadata, out relationAspects))
           {
             //Artist fallback
             foreach (MultipleMediaItemAspect relation in relationAspects)
             {
+              if ((Guid?)relation[RelationshipAspect.ATTR_LINKED_ROLE] == PersonAspect.ROLE_ARTIST)
+              {
+                fanArtFiles.AddRange(fanArtCache.GetFanArtFiles((Guid)relation[RelationshipAspect.ATTR_LINKED_ID], fanArtType));
+                if (fanArtFiles.Count > 0)
+                  break;
+              }
+            }
+          }
+        }
+        else if (mediaType == FanArtMediaTypes.Album && fanArtType == FanArtTypes.FanArt)
+        {
+          //No FanArt exists for Album so use Artists
+          if (MediaItemAspect.TryGetAspects(mediaItem.Aspects, RelationshipAspect.Metadata, out relationAspects))
+          {
+            //Album artist fallback
+            foreach (MultipleMediaItemAspect relation in relationAspects)
+            {
               if ((Guid?)relation[RelationshipAspect.ATTR_LINKED_ROLE] == PersonAspect.ROLE_ALBUMARTIST)
               {
-                fanArtFiles.AddRange(FanArtCache.GetFanArtFiles(relation[RelationshipAspect.ATTR_LINKED_ID].ToString().ToUpperInvariant(), fanArtType));
+                fanArtFiles.AddRange(fanArtCache.GetFanArtFiles((Guid)relation[RelationshipAspect.ATTR_LINKED_ID], fanArtType));
                 if (fanArtFiles.Count > 0)
                   break;
               }
@@ -138,7 +157,7 @@ namespace MediaPortal.Extensions.UserServices.FanArtService
             {
               if ((Guid?)relation[RelationshipAspect.ATTR_LINKED_ROLE] == AudioAlbumAspect.ROLE_ALBUM)
               {
-                fanArtFiles.AddRange(FanArtCache.GetFanArtFiles(relation[RelationshipAspect.ATTR_LINKED_ID].ToString().ToUpperInvariant(), fanArtType));
+                fanArtFiles.AddRange(fanArtCache.GetFanArtFiles((Guid)relation[RelationshipAspect.ATTR_LINKED_ID], fanArtType));
                 if (fanArtFiles.Count > 0)
                   break;
               }

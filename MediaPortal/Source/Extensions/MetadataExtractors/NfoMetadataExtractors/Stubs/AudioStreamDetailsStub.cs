@@ -38,12 +38,22 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.Stubs
     /// <summary>
     /// Language of the audio stream
     /// </summary>
-    /// <example>"deutsch"</example>
+    /// <example>"deutsch", "ger"</example>
     public string Language { get; set; }
 
     /// <summary>
     /// Number of channels in the audio stream
     /// </summary>
     public int? Channels { get; set; }
+
+    /// <summary>
+    /// Bitrate of the audio stream in bps
+    /// </summary>
+    public long? Bitrate { get; set; }
+
+    /// <summary>
+    /// Bitrate mode of the audio stream (Constant, Variable)
+    /// </summary>
+    public string BitrateMode { get; set; }
   }
 }

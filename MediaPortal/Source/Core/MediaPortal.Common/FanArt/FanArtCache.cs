@@ -24,101 +24,175 @@
 
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.PathManager;
-using MediaPortal.Common.Settings;
+using MediaPortal.Common.Services.Settings;
+using MediaPortal.Utilities.Cache;
 using MediaPortal.Utilities.FileSystem;
+using MediaPortal.Utilities.Threading;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Threading;
+using System.Threading.Tasks;
 
 namespace MediaPortal.Common.FanArt
 {
-  public class FanArtCache
+  public class FanArtCache : IFanArtCache
   {
-    public static readonly Dictionary<string, int> MAX_FANART_IMAGES = new Dictionary<string, int>();
-    public static readonly string FANART_CACHE_PATH = ServiceRegistration.Get<IPathManager>().GetPath(@"<DATA>\FanArt\");
-    public const int FANART_CLEAN_DELAY = 300000;
+    #region Inner classes
 
-    private static Dictionary<string, Dictionary<string, FanArtCount>> _fanArtCounts = new Dictionary<string, Dictionary<string, FanArtCount>>();
-    private static Timer _clearCountTimer = new Timer(ClearFanArtCount, null, Timeout.Infinite, Timeout.Infinite);
-    private static object _fanArtCountSync = new object();
-    private static object _initSync = new object();
-
-    static FanArtCache()
+    public class FanArtCount
     {
-      FanArtSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<FanArtSettings>();
-      MAX_FANART_IMAGES.Add(FanArtTypes.Banner, settings.MaxBannerFanArt);
-      MAX_FANART_IMAGES.Add(FanArtTypes.ClearArt, settings.MaxClearArt);
-      MAX_FANART_IMAGES.Add(FanArtTypes.Cover, settings.MaxPosterFanArt);
-      MAX_FANART_IMAGES.Add(FanArtTypes.DiscArt, settings.MaxDiscArt);
-      MAX_FANART_IMAGES.Add(FanArtTypes.FanArt, settings.MaxBackdropFanArt);
-      MAX_FANART_IMAGES.Add(FanArtTypes.Logo, settings.MaxLogoFanArt);
-      MAX_FANART_IMAGES.Add(FanArtTypes.Poster, settings.MaxPosterFanArt);
-      MAX_FANART_IMAGES.Add(FanArtTypes.Thumbnail, settings.MaxThumbFanArt);
-      MAX_FANART_IMAGES.Add(FanArtTypes.Undefined, 0);
+      public FanArtCount(int count)
+      {
+        Count = count;
+      }
+
+      public int Count { get; set; }
     }
 
-    public static void InitFanArtCache(string mediaItemId)
+    #endregion
+
+    //The maximum length of the cache file's name, longer names will be truncated to this length
+    private const int MAX_CACHE_NAME_LENGTH = 50;
+    private readonly string FANART_CACHE_PATH = ServiceRegistration.Get<IPathManager>().GetPath(@"<DATA>\FanArt\");
+    private readonly TimeSpan FANART_COUNT_TIMEOUT = new TimeSpan(0, 5, 0);
+    
+    protected KeyedAsyncReaderWriterLock<Guid> _fanArtSync;
+    protected AsyncStaticTimeoutCache<string, FanArtCount> _fanArtCounts;
+    protected Dictionary<string, int> _maxFanArtCounts;
+    private SettingsChangeWatcher<FanArtSettings> _settingsChangeWatcher;
+
+    public FanArtCache()
     {
-      lock (_initSync)
+      Init();
+    }
+
+    protected void Init()
+    {
+      _fanArtSync = new KeyedAsyncReaderWriterLock<Guid>();
+      _fanArtCounts = new AsyncStaticTimeoutCache<string, FanArtCount>(FANART_COUNT_TIMEOUT);
+      _maxFanArtCounts = new Dictionary<string, int>();
+      _settingsChangeWatcher = new SettingsChangeWatcher<FanArtSettings>();
+      _settingsChangeWatcher.SettingsChanged += SettingsChanged;
+      LoadSettings();
+    }
+
+    private void LoadSettings()
+    {
+      FanArtSettings settings = _settingsChangeWatcher.Settings;
+      Dictionary<string, int> maxFanArtCounts = new Dictionary<string, int>();
+      maxFanArtCounts[FanArtTypes.Banner] = settings.MaxBannerFanArt;
+      maxFanArtCounts[FanArtTypes.ClearArt] = settings.MaxClearArt;
+      maxFanArtCounts[FanArtTypes.Cover] = settings.MaxPosterFanArt;
+      maxFanArtCounts[FanArtTypes.DiscArt] = settings.MaxDiscArt;
+      maxFanArtCounts[FanArtTypes.FanArt] = settings.MaxBackdropFanArt;
+      maxFanArtCounts[FanArtTypes.Logo] = settings.MaxLogoFanArt;
+      maxFanArtCounts[FanArtTypes.Poster] = settings.MaxPosterFanArt;
+      maxFanArtCounts[FanArtTypes.Thumbnail] = settings.MaxThumbFanArt;
+      maxFanArtCounts[FanArtTypes.Undefined] = 0;
+      _maxFanArtCounts = maxFanArtCounts;
+    }
+
+    private void SettingsChanged(object sender, EventArgs e)
+    {
+      LoadSettings();
+    }
+
+    public async Task<bool> TrySaveFanArt(Guid mediaItemId, string title, string fanArtType, TrySaveFanArtAsyncDelegate saveDlgt)
+    {
+      string fanArtCacheDirectory = GetFanArtDirectory(mediaItemId);
+      string fanArtTypeSubDirectory = GetFanArtTypeDirectory(fanArtCacheDirectory, fanArtType);
+
+      using (var writer = await _fanArtSync.WriterLockAsync(mediaItemId).ConfigureAwait(false))
       {
-        mediaItemId = mediaItemId.ToUpperInvariant();
-        string cacheFolder = Path.Combine(FANART_CACHE_PATH, mediaItemId);
-        if (!Directory.Exists(cacheFolder))
+        if (!await InitCache(fanArtCacheDirectory, fanArtTypeSubDirectory, title).ConfigureAwait(false))
+          return false;
+        FanArtCount currentCount = await _fanArtCounts.GetValue(CreateFanArtTypeId(mediaItemId, fanArtType), _ => CreateFanArtCount(mediaItemId, fanArtType)).ConfigureAwait(false);
+        if (currentCount.Count < GetMaxFanArtCount(fanArtType) && await saveDlgt(fanArtTypeSubDirectory).ConfigureAwait(false))
         {
-          Directory.CreateDirectory(cacheFolder);
+          currentCount.Count++;
+          return true;
         }
       }
+      return false;
     }
 
-    public static void InitFanArtCache(string mediaItemId, string title)
+    public async Task<int> TrySaveFanArt<T>(Guid mediaItemId, string title, string fanArtType, ICollection<T> files, TrySaveMultipleFanArtAsyncDelegate<T> saveDlgt)
     {
-      lock (_initSync)
+      if (files == null || files.Count == 0)
+        return 0;
+
+      string fanArtCacheDirectory = GetFanArtDirectory(mediaItemId);
+      string fanArtTypeSubDirectory = GetFanArtTypeDirectory(fanArtCacheDirectory, fanArtType);
+
+      int savedCount = 0;
+
+      using (var writer = await _fanArtSync.WriterLockAsync(mediaItemId).ConfigureAwait(false))
       {
-        mediaItemId = mediaItemId.ToUpperInvariant();
-        string cacheFolder = Path.Combine(FANART_CACHE_PATH, mediaItemId);
-        string cacheFile = null;
-        if(!string.IsNullOrEmpty(title))
-          cacheFile = Path.Combine(cacheFolder, FileUtils.GetSafeFilename(title.Trim().ToUpperInvariant() + ".mpcache"));
-        if (!Directory.Exists(cacheFolder))
+        if (!await InitCache(fanArtCacheDirectory, fanArtTypeSubDirectory, title).ConfigureAwait(false))
+          return savedCount;
+
+        int maxCount = GetMaxFanArtCount(fanArtType);
+        FanArtCount currentCount = await _fanArtCounts.GetValue(CreateFanArtTypeId(mediaItemId, fanArtType), _ => CreateFanArtCount(mediaItemId, fanArtType)).ConfigureAwait(false);
+        if (currentCount.Count >= maxCount)
+          return savedCount;
+
+        foreach (T file in files)
         {
-          Directory.CreateDirectory(cacheFolder);
-          if (cacheFile != null)
+          if (await saveDlgt(fanArtTypeSubDirectory, file).ConfigureAwait(false))
           {
-            File.AppendAllText(cacheFile, title);
-            File.SetAttributes(cacheFile, FileAttributes.Normal);
+            savedCount++;
+            currentCount.Count++;
+            if (currentCount.Count >= maxCount)
+              break;
           }
         }
-        else if (cacheFile != null && !File.Exists(cacheFile))
-        {
-          File.AppendAllText(cacheFile, title);
-          File.SetAttributes(cacheFile, FileAttributes.Normal);
-        }
       }
+      return savedCount;
     }
 
-    public static IList<string> GetFanArtFiles(string mediaItemId, string fanartType)
+    public IList<string> GetFanArtFiles(Guid mediaItemId, string fanArtType)
     {
-      mediaItemId = mediaItemId.ToUpperInvariant();
+      string fanArtId = CreateFanArtId(mediaItemId);
       List<string> fanartFiles = new List<string>();
-      string path = Path.Combine(FANART_CACHE_PATH, mediaItemId, fanartType);
+      string path = Path.Combine(FANART_CACHE_PATH, fanArtId, fanArtType);
       if (Directory.Exists(path))
       {
+        int maxCount = GetMaxFanArtCount(fanArtType);
         fanartFiles.AddRange(Directory.GetFiles(path, "*.jpg"));
-        if (fanartFiles.Count < MAX_FANART_IMAGES[fanartType])
+        if (fanartFiles.Count < maxCount)
           fanartFiles.AddRange(Directory.GetFiles(path, "*.png"));
-        if (fanartFiles.Count < MAX_FANART_IMAGES[fanartType])
+        if (fanartFiles.Count < maxCount)
           fanartFiles.AddRange(Directory.GetFiles(path, "*.tbn"));
       }
       return fanartFiles;
     }
 
-    public static void DeleteFanArtFiles(string mediaItemId)
+    public ICollection<Guid> GetAllFanArtIds()
     {
+      List<Guid> mediaItemIds = new List<Guid>();
       try
       {
-        string folderPath = Path.Combine(FANART_CACHE_PATH, mediaItemId);
-        mediaItemId = mediaItemId.ToUpperInvariant();
+        foreach (DirectoryInfo fanartDirectory in new DirectoryInfo(FANART_CACHE_PATH).EnumerateDirectories())
+        {
+          Guid mediaItemId;
+          if (Guid.TryParse(fanartDirectory.Name, out mediaItemId))
+            mediaItemIds.Add(mediaItemId);
+        }
+      }
+      catch (Exception ex)
+      {
+        Logger.Warn("FanArtCache: Error reading fanart directory '{0}'", ex, FANART_CACHE_PATH);
+      }
+      return mediaItemIds;
+    }
+
+    public void DeleteFanArtFiles(Guid mediaItemId)
+    {
+      string fanArtId = CreateFanArtId(mediaItemId);
+      try
+      {
+        string folderPath = Path.Combine(FANART_CACHE_PATH, fanArtId);
         int maxTries = 3;
         if (Directory.Exists(folderPath))
         {
@@ -153,75 +227,81 @@ namespace MediaPortal.Common.FanArt
       }
       catch (Exception ex)
       {
-        Logger.Warn("Unable to delete FanArt files for media item {0}", ex, mediaItemId);
+        Logger.Warn("Unable to delete FanArt files for media item {0}", ex, fanArtId);
       }
     }
 
-    #region FanArt Count
-
-    public class FanArtCount
+    protected async Task<bool> InitCache(string fanArtCacheDirectory, string fanArtTypeSubDirectory, string cacheName)
     {
-      public object SyncObj { get; private set; }
-      public int Count { get; set; }
-
-      public FanArtCount(int count)
+      try
       {
-        SyncObj = new object();
-        Count = count;
+        if (Directory.Exists(fanArtTypeSubDirectory))
+          return true;
+        Directory.CreateDirectory(fanArtTypeSubDirectory);
+        string cacheFile = CreateCacheNameFilePath(fanArtCacheDirectory, cacheName);
+        if (cacheFile != null)
+        {
+          FileInfo file = new FileInfo(cacheFile);
+          if (!file.Exists)
+          {
+            using (StreamWriter sw = file.CreateText())
+              await sw.WriteAsync(cacheName).ConfigureAwait(false);
+            file.Attributes = FileAttributes.Normal;
+          }
+        }
+        return true;
       }
+      catch (Exception ex)
+      {
+        ServiceRegistration.Get<ILogger>().Error("FanArtCache: Error creating fanart cache directory '{0}'", ex, fanArtTypeSubDirectory);
+      }
+      return false;
     }
 
-    public class FanArtCountLock : IDisposable
+    protected string CreateFanArtId(Guid mediaItemId)
     {
-      protected FanArtCount _count;
-      public int Count { get; set; }
-
-      public FanArtCountLock(FanArtCount count)
-      {
-        _count = count;
-        Monitor.Enter(_count.SyncObj);
-        Count = _count.Count;
-      }
-
-      public void Dispose()
-      {
-        _count.Count = Count;
-        Monitor.Exit(_count.SyncObj);
-      }
+      return mediaItemId.ToString().ToUpperInvariant();
     }
 
-    private static void ClearFanArtCount(object state)
+    protected string CreateFanArtTypeId(Guid mediaItemId, string fanArtType)
     {
-      lock (_fanArtCountSync)
-      {
-        _clearCountTimer.Change(Timeout.Infinite, Timeout.Infinite);
-        _fanArtCounts.Clear();
-      }
+      return string.Format("{0}|{1}", CreateFanArtId(mediaItemId), fanArtType);
     }
 
-    protected static FanArtCount InitFanArtCount(string mediaItemId, string fanArtType)
+    protected string GetFanArtDirectory(Guid mediaItemId)
     {
-      lock (_fanArtCountSync)
-      {
-        _clearCountTimer.Change(FANART_CLEAN_DELAY, Timeout.Infinite);
-        Dictionary<string, FanArtCount> mediaItemCounts;
-        if (!_fanArtCounts.TryGetValue(mediaItemId, out mediaItemCounts))
-          _fanArtCounts[mediaItemId] = mediaItemCounts = new Dictionary<string, FanArtCount>();
-        FanArtCount count;
-        if (!mediaItemCounts.TryGetValue(fanArtType, out count))
-          mediaItemCounts[fanArtType] = count = new FanArtCount(GetFanArtFiles(mediaItemId, fanArtType).Count);
-        return count;
-      }
+      return Path.Combine(FANART_CACHE_PATH, CreateFanArtId(mediaItemId));
     }
 
-    public static FanArtCountLock GetFanArtCountLock(string mediaItemId, string fanArtType)
+    protected string GetFanArtTypeDirectory(string fanArtDirectory, string fanArtType)
     {
-      if (string.IsNullOrEmpty(mediaItemId))
+      return Path.Combine(fanArtDirectory, fanArtType);
+    }
+
+    protected string CreateCacheNameFilePath(string fanArtCacheDirectory, string cacheName)
+    {
+      if (string.IsNullOrEmpty(cacheName))
         return null;
-      return new FanArtCountLock(InitFanArtCount(mediaItemId, fanArtType));
+      cacheName = cacheName.Trim();
+      //Long names can cause a PathTooLongException
+      if (cacheName.Length > MAX_CACHE_NAME_LENGTH)
+        cacheName = cacheName.Substring(0, MAX_CACHE_NAME_LENGTH);
+      return Path.Combine(fanArtCacheDirectory, FileUtils.GetSafeFilename(cacheName.ToUpperInvariant() + ".mpcache"));
     }
 
-    #endregion
+    protected int GetMaxFanArtCount(string fanArtType, int defaultCount = 3)
+    {
+      int maxCount;
+      if (_maxFanArtCounts.TryGetValue(fanArtType, out maxCount))
+        return maxCount;
+      return defaultCount;
+    }
+
+    protected Task<FanArtCount> CreateFanArtCount(Guid mediaItemId, string fanArtType)
+    {
+      int count = GetFanArtFiles(mediaItemId, fanArtType).Count;
+      return Task.FromResult(new FanArtCount(count));
+    }
 
     private static ILogger Logger
     {

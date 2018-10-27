@@ -10,7 +10,7 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>MediaPortal.Plugins.ServerSettings</RootNamespace>
     <AssemblyName>ServerSettings.Client</AssemblyName>
-    <TargetFrameworkVersion>v4.5.1</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.7</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <TargetFrameworkProfile />
   </PropertyGroup>
@@ -64,7 +64,6 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Settings\Configuration\AudioMDE\ServerAudioMDEOnlineData.cs" />
     <Compile Include="Settings\Configuration\AudioMDE\ServerAudioMDEBrowseOffline.cs" />
-    <Compile Include="Settings\Configuration\AudioMDE\ServerAudioMDESourcePrimary.cs" />
     <Compile Include="Settings\Configuration\AudioMDE\ServerAudioMDESourceEnable.cs" />
     <Compile Include="Settings\Configuration\FanArt\ServerFanArtMaxThumbs.cs" />
     <Compile Include="Settings\Configuration\FanArt\ServerFanArtMaxPosters.cs" />
@@ -81,16 +80,17 @@
     <Compile Include="Settings\Configuration\MovieMDE\ServerMovieMDEFilter.cs" />
     <Compile Include="Settings\Configuration\MovieMDE\ServerMovieMDEOnlineData.cs" />
     <Compile Include="Settings\Configuration\MovieMDE\ServerMovieMDESourceEnable.cs" />
-    <Compile Include="Settings\Configuration\MovieMDE\ServerMovieMDESourcePrimary.cs" />
     <Compile Include="Settings\Configuration\MovieMDE\ServerMovieMDEBrowseOffline.cs" />
+    <Compile Include="Settings\Configuration\MovieMDE\ServerMovieMDEDownloadAllCollectionMovies.cs" />
+    <Compile Include="Settings\Configuration\SeriesMDE\ServerSeriesMDEDownloadAllSeriesEpisodes.cs" />
     <Compile Include="Settings\Configuration\SeriesMDE\ServerSeriesMDEFilter.cs" />
     <Compile Include="Settings\Configuration\SeriesMDE\ServerSeriesMDEOnlineData.cs" />
     <Compile Include="Settings\Configuration\SeriesMDE\ServerSeriesMDESourceEnable.cs" />
-    <Compile Include="Settings\Configuration\SeriesMDE\ServerSeriesMDESourcePrimary.cs" />
     <Compile Include="Settings\Configuration\SeriesMDE\ServerSeriesMDEBrowseOffline.cs" />
     <Compile Include="Settings\Configuration\AudioMDE\ServerAudioMDEFilter.cs" />
     <Compile Include="Settings\Configuration\ServerImporterWorker.cs" />
     <Compile Include="Settings\Configuration\ServerNetworkCredentials.cs" />
+    <Compile Include="Settings\Configuration\VideoMDE\ServerVideoMDEBrowseOffline.cs" />
     <Compile Include="Settings\ConnectionMonitor.cs" />
     <Compile Include="ServerSettingsPlugin.cs" />
     <Compile Include="UPnP\ServerSettingsProxy.cs" />
@@ -144,6 +144,10 @@
     <ProjectReference Include="..\..\..\Extensions\MetadataExtractors\SeriesMetadataExtractor\SeriesMetadataExtractor.csproj">
       <Project>{DDD5112C-87CE-4228-9EE4-F78BDBA8DA12}</Project>
       <Name>SeriesMetadataExtractor</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\Extensions\MetadataExtractors\VideoMetadataExtractor\VideoMetadataExtractor.csproj">
+      <Project>{000C12A6-9734-4ACB-99E9-D3F726C5858F}</Project>
+      <Name>VideoMetadataExtractor</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\..\Extensions\ResourceProviders\NetworkNeighborhoodResourceProvider\NetworkNeighborhoodResourceProvider.csproj">
       <Project>{29184FFE-9BDD-4A49-B326-83D362211004}</Project>

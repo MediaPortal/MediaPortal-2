@@ -9,7 +9,7 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>MediaPortal.Extensions.UserServices.FanArtService.Local</RootNamespace>
     <AssemblyName>FanArtService.Local</AssemblyName>
-    <TargetFrameworkVersion>v4.5.1</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.7</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x86'">
@@ -43,6 +43,7 @@
     <Compile Include="..\..\..\Core\MediaPortal.Common\VersionInfo\VersionInfo.cs">
       <Link>Properties\VersionInfo.cs</Link>
     </Compile>
+    <Compile Include="LocalContainerFanartProvider.cs" />
     <Compile Include="LocalMovieActorFanartProvider.cs" />
     <Compile Include="LocalSeriesActorFanartProvider.cs" />
     <Compile Include="LocalMovieCollectionFanartProvider.cs" />

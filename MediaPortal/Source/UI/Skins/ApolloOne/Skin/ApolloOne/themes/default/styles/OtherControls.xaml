@@ -524,6 +524,19 @@
     </Setter>
   </Style>
 
+  <!-- ListView style to be used for single and multiple markable items -->
+  <Style x:Key="MarkableListViewStyle" BasedOn="{ThemeResource ContentsMenuListViewStyle}">
+    <Setter Property="ItemsPanel">
+      <Setter.Value>
+        <ItemsPanelTemplate>
+          <!-- It's not possible to use a VirtualizingStackPanel for markable lists because RadioButtons
+               are not updated correctly if virtualization has caused the previously checked RadioButton to be disposed -->
+          <StackPanel x:Name="ListItemsHost" IsItemsHost="True"/>
+        </ItemsPanelTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+
   <Style x:Key="PopupMenuListViewStyle" BasedOn="{ThemeResource DefaultListViewStyle}">
     <Setter Property="Template">
       <Setter.Value>

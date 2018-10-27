@@ -22,17 +22,18 @@
 
 #endregion
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using MediaPortal.Extensions.OnlineLibraries.Libraries.Freedb;
-using MediaPortal.Extensions.OnlineLibraries.Libraries.Freedb.Data;
-using System.IO;
-using System.Text;
-using MediaPortal.Common.MediaManagement.Helpers;
-using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
+using MediaPortal.Common.MediaManagement.DefaultItemAspects;
+using MediaPortal.Common.MediaManagement.Helpers;
+using MediaPortal.Extensions.OnlineLibraries.Libraries.Freedb;
+using MediaPortal.Extensions.OnlineLibraries.Libraries.Freedb.Data;
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 
 namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
 {
@@ -56,22 +57,21 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
 
     #region Search
 
-    public override bool SearchTrack(TrackInfo trackSearch, string language, out List<TrackInfo> tracks)
+    public override async Task<List<TrackInfo>> SearchTrackAsync(TrackInfo trackSearch, string language)
     {
-      tracks = null;
-
       if (string.IsNullOrEmpty(trackSearch.AlbumCdDdId) || trackSearch.TrackNum == 0)
-        return false;
+        return null;
 
       //TODO: Split CDDB ID into disc id and genre?
       string genre = null;
       string discId = null;
+      List<TrackInfo> tracks = null;
 
       try
       {
         if (_freeDbHandler.Connect())
         {
-          string[] xmcds = _freeDbHandler.GetDiscDetailsXMCD(genre, discId);
+          string[] xmcds = await _freeDbHandler.GetDiscDetailsXMCDAsync(genre, discId).ConfigureAwait(false);
           if (xmcds != null)
           {
             string fileName = GetCacheFilePath(discId, genre);
@@ -92,7 +92,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
                   break;
                 }
               }
-              if (foundTrack == null) return false;
+              if (foundTrack == null) return null;
 
               if (tracks == null)
                 tracks = new List<TrackInfo>();
@@ -120,25 +120,24 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
         _freeDbHandler.Disconnect();
       }
 
-      return tracks != null;
+      return tracks;
     }
 
-    public override bool SearchTrackAlbum(AlbumInfo albumSearch, string language, out List<AlbumInfo> albums)
+    public override async Task<List<AlbumInfo>> SearchTrackAlbumAsync(AlbumInfo albumSearch, string language)
     {
-      albums = null;
-
       if (string.IsNullOrEmpty(albumSearch.CdDdId))
-        return false;
+        return null;
 
       //TODO: Split CDDB ID into disc id and genre?
       string genre = null;
       string discId = null;
+      List<AlbumInfo> albums = null;
 
       try
       {
         if (_freeDbHandler.Connect())
         {
-          string[] xmcds = _freeDbHandler.GetDiscDetailsXMCD(genre, discId);
+          string[] xmcds = await _freeDbHandler.GetDiscDetailsXMCDAsync(genre, discId).ConfigureAwait(false);
           if (xmcds != null)
           {
             string fileName = GetCacheFilePath(discId, genre);
@@ -171,7 +170,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
         _freeDbHandler.Disconnect();
       }
 
-      return albums != null;
+      return albums;
     }
 
     #endregion
@@ -196,12 +195,12 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
 
     #region Update
 
-    public override bool UpdateFromOnlineMusicTrack(TrackInfo track, string language, bool cacheOnly)
+    public override Task<bool> UpdateFromOnlineMusicTrackAsync(TrackInfo track, string language, bool cacheOnly)
     {
       try
       {
         if (string.IsNullOrEmpty(track.AlbumCdDdId) || track.TrackNum == 0)
-          return false;
+          return Task.FromResult(false);
 
         //TODO: Split CDDB ID into disc id and genre?
         string discId = null;
@@ -218,7 +217,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
               break;
             }
           }
-          if (foundTrack == null) return false;
+          if (foundTrack == null) return Task.FromResult(false);
 
           track.Album = discInfo.Title;
           track.AlbumArtists = ConvertToPersons(discInfo.Artist, PersonAspect.OCCUPATION_ARTIST);
@@ -230,23 +229,23 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
           track.Artists = ConvertToPersons(foundTrack.Artist, PersonAspect.OCCUPATION_ARTIST);
           track.Duration = foundTrack.Duration;
 
-          return true;
+          return Task.FromResult(true);
         }
-        return false;
+        return Task.FromResult(false);
       }
       catch (Exception ex)
       {
         ServiceRegistration.Get<ILogger>().Debug("FreeDbWrapper: Exception while processing track {0}", ex, track.ToString());
-        return false;
+        return Task.FromResult(false);
       }
     }
 
-    public override bool UpdateFromOnlineMusicTrackAlbum(AlbumInfo album, string language, bool cacheOnly)
+    public override Task<bool> UpdateFromOnlineMusicTrackAlbumAsync(AlbumInfo album, string language, bool cacheOnly)
     {
       try
       {
         if (string.IsNullOrEmpty(album.CdDdId))
-          return false;
+          return Task.FromResult(false);
 
         //TODO: Split CDDB ID into disc id and genre?
         string discId = null;
@@ -277,14 +276,14 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
             album.Tracks.Add(track);
           }
 
-          return true;
+          return Task.FromResult(true);
         }
-        return false;
+        return Task.FromResult(false);
       }
       catch (Exception ex)
       {
         ServiceRegistration.Get<ILogger>().Debug("FreeDbWrapper: Exception while processing album {0}", ex, album.ToString());
-        return false;
+        return Task.FromResult(false);
       }
     }
 

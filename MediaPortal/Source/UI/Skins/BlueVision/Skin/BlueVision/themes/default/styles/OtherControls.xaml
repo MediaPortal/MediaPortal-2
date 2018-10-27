@@ -28,6 +28,7 @@
   <DurationConverter x:Key="DurationConverter"/>
   <PriorityBindingConverter x:Key="PriorityBindingConverter"/>
   <StringFormatConverter x:Key="StringFormatConverter"/>
+  <BoolToFocusPriorityConverter x:Key="BoolToFocusPriorityConverter"/>
   <fanart:MediaItemAspectToBoolConverter x:Key="MediaItemAspectToBoolConverter"/>
   <fanart:InvertedMediaItemAspectToBoolConverter x:Key="InvertedMediaItemAspectToBoolConverter"/>
 
@@ -575,7 +576,7 @@
       </Setter.Value>
     </Setter>
   </Style>
-
+  
   <!-- A simple data template to show the Name of the ListItem in a Label -->
   <DataTemplate x:Key="DefaultItemDataTemplate" DataType="{x:Type collections:ListItem}">
     <DockPanel x:Name="ItemControl" LastChildFill="False">
@@ -657,7 +658,7 @@
       </Grid>
     </Grid>
   </DataTemplate>
-
+  
   <!-- ***************************** ListView styles ********************************* -->
 
   <!-- Default ListView style. The properties "ItemTemplate", "ItemContainerStyle" and "DataStringProvider" should be exchanged for custom ListView styles. -->
@@ -683,10 +684,6 @@
     <Setter Property="ItemContainerStyle" Value="{ThemeResource DefaultItemContainerStyle}"/>
   </Style>
 
-  <!-- Implicit default style for ListView controls -->
-  <Style BasedOn="{ThemeResource DefaultListViewStyle}" TargetType="{x:Type ListView}"/>
-
-
   <!-- ListView style to be used for all menus (main menu, dialog menus, context menus, ...) -->
   <Style x:Key="MenuListViewStyle" BasedOn="{ThemeResource DefaultListViewStyle}">
     <Setter Property="Template">
@@ -706,6 +703,9 @@
   <!-- ListView style to be used for main menu -->
   <Style x:Key="MainMenuListViewStyle" BasedOn="{ThemeResource MenuListViewStyle}">
   </Style>
+
+  <!-- Implicit default style for ListView controls -->
+  <Style BasedOn="{ThemeResource DefaultListViewStyle}" TargetType="{x:Type ListView}"/>
 
   <Style x:Key="LeftMenuListViewStyle" BasedOn="{ThemeResource DefaultListViewStyle}">
     <Setter Property="Template">
@@ -731,6 +731,19 @@
       <Setter.Value>
         <ItemsPanelTemplate>
           <VirtualizingStackPanel x:Name="ListItemsHost" IsItemsHost="True"/>
+        </ItemsPanelTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+
+  <!-- ListView style to be used for single and multiple markable items -->
+  <Style x:Key="MarkableListViewStyle" BasedOn="{ThemeResource ContentsMenuListViewStyle}">
+    <Setter Property="ItemsPanel">
+      <Setter.Value>
+        <ItemsPanelTemplate>
+          <!-- It's not possible to use a VirtualizingStackPanel for markable lists because RadioButtons
+               are not updated correctly if virtualization has caused the previously checked RadioButton to be disposed -->
+          <StackPanel x:Name="ListItemsHost" IsItemsHost="True"/>
         </ItemsPanelTemplate>
       </Setter.Value>
     </Setter>
@@ -1354,7 +1367,7 @@
     <Setter Property="ItemsPanel">
       <Setter.Value>
         <ItemsPanelTemplate>
-          <mp_special_controls:WorkflowNavigationBarPanel x:Name="WorkflowNavigationBarItemsHost" IsItemsHost="True" Margin="-20,20,0,-5"
+          <mp_special_controls:WorkflowNavigationBarPanel x:Name="WorkflowNavigationBarItemsHost" IsItemsHost="True" Margin="-20,0,0,-5"
               Orientation="Horizontal"
               EllipsisControlStyle="{ThemeResource WorkflowNavigationBarEllipsisControlStyle}"
               Background="#60000000"/>

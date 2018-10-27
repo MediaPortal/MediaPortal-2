@@ -14,9 +14,9 @@
 
     <!-- Contents -->
     <ControlTemplate x:Key="Contents_Template">
-      <StackPanel VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Margin="40,0,20,0"
-          DataContext="{Binding Source={StaticResource Model}}">
-        <Grid x:Name="CurrentConditionPanel" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="-20,0,0,0">
+      <DockPanel VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Margin="20,0,20,0"
+                 DataContext="{Binding Source={StaticResource Model}}">
+        <Grid DockPanel.Dock="Top" x:Name="CurrentConditionPanel" HorizontalAlignment="Stretch" VerticalAlignment="Top">
           <Grid.ColumnDefinitions>
             <ColumnDefinition Width="Auto"/>
             <ColumnDefinition Width="100"/>
@@ -30,11 +30,8 @@
             </EventTrigger>
           </Grid.Triggers>
 
-          <Image Grid.Row="0" Grid.Column="2" Margin="0,30,30,0" Source="wwo-logo.png" Stretch="Fill" Height="60" Width="152" HorizontalAlignment="Right" VerticalAlignment="Top"/>
-          
-          <StackPanel x:Name="CurrentConditionOverview" Grid.Column="0" Grid.Row="0"
-              HorizontalAlignment="Left" VerticalAlignment="Top" Margin="10,10,0,40">
- 
+          <StackPanel x:Name="CurrentConditionOverview" Grid.Column="0"
+                      HorizontalAlignment="Left" VerticalAlignment="Top" Margin="10,10,0,40">
             <StackPanel x:Name="Temperatures" Orientation="Horizontal" HorizontalAlignment="Center" IsVisible="{Binding CurrentLocation}">
               <Image x:Name="BigIcon" Width="150" Height="150" Source="{Binding CurrentLocation.Condition.BigIconProperty}"/>
               <Label x:Name="Temperature" FontSize="48" Color="{ThemeResource TextColor}" FontFamily="DefaultBold"
@@ -94,19 +91,18 @@
         </Grid>
 
         <!-- Forecasts (dynamic count) -->
-
-        <ListView Margin="-30,20,0,20" HorizontalAlignment="Left" VerticalAlignment="Center"
-              Style="{ThemeResource ForecastListViewStyle}"
-              ItemsSource="{Binding Path=CurrentLocation.ForecastCollection}" >
-        </ListView>
-
-        <StackPanel HorizontalAlignment="Center" Margin="0,58,0,0">
+        <StackPanel HorizontalAlignment="Center" Margin="0,58,0,10" DockPanel.Dock="Bottom">
           <Label Content="{Binding LastUpdateTime}" Color="Black" IsVisible="{Binding !IsUpdating}"/>
           <Label x:Name="RefreshingHintLabel" Content="[Weather.Updating]" IsVisible="{Binding IsUpdating}"
               HorizontalAlignment="Center" VerticalAlignment="Center" Wrap="true" Color="{ThemeResource TextColor}"/>
         </StackPanel>
-        
-      </StackPanel>
+
+        <ListView Margin="-10,-10,0,-10" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+                  Style="{ThemeResource ForecastListViewStyle}" DockPanel.Dock="Center"
+                  ItemsSource="{Binding Path=CurrentLocation.ForecastCollection}" >
+        </ListView>
+
+      </DockPanel>
     </ControlTemplate>
 
   </Include.Resources>

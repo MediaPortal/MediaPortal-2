@@ -11,6 +11,10 @@
     <Image Source="PlayerControls.Large\SelectTitleButton.png" Stretch="Uniform" Height="{ThemeResource PlayerControlHeight}" />
   </ControlTemplate>
 
+  <ControlTemplate x:Key="SelectContextMenuControlTemplate">
+    <Image Source="PlayerControls.Large\SelectMenuButton.png" Stretch="Uniform" Height="{ThemeResource PlayerControlHeight}" />
+  </ControlTemplate>
+
   <ControlTemplate x:Key="SelectChapterControlTemplate">
     <Image Source="PlayerControls.Large\SelectChapterButton.png" Stretch="Uniform" Height="{ThemeResource PlayerControlHeight}" />
   </ControlTemplate>

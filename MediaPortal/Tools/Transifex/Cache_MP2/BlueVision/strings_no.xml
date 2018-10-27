@@ -2,19 +2,36 @@
 <resources>
   <string name="Menu.Audio">Lyd</string>
   <string name="Menu.Image">Bilder</string>
+  <string name="Menu.MediaHub">Videohub</string>
   <string name="Menu.TV">TV</string>
   <string name="Menu.News">Nyheter</string>
   <string name="Menu.Weather">Vær</string>
   <string name="Menu.Settings">Innstillinger</string>
   <string name="Menu.Others">Andre</string>
   <string name="Menu.Home">Hjem</string>
+  <string name="Menu.Main">Hovedmeny</string>
   <string name="Movies.Title">Filmer</string>
   <string name="Series.Title">Serie</string>
   <string name="Audio.Title">Lyd</string>
   <string name="Recordings.Title">Opptak</string>
   <string name="Images.Title">Bilder</string>
   <string name="Videos.Title">Videoer</string>
+  <string name="Video.Title">Video</string>
+  <string name="Subtitle.Title">Undertekster</string>
   <string name="News.Title">Nyheter</string>
   <string name="Weather.Title">Vær</string>
   <string name="General.Title">Generelt</string>
+  <string name="CastCrew.Title">Skuespillere + Medvirkende</string>
+  <string name="MediaInfo.Title">Media Informasjon</string>
+  <string name="Media.AudioAlbumArtistsLabel">Album Artister:</string>
+  <string name="Media.AudioTrackLabel">Spor:</string>
+  <string name="Media.AudioBitRateLabel">Bitrate:</string>
+  <string name="Media.AudioComposersLabel">Komponister:</string>
+  <string name="Media.AudioMimeTypeLabel">Type:</string>
+  <string name="BlueVision.Configuration">BlueVision innstillinger</string>
+  <string name="BlueVision.Configuration.Help">Muliggjør tilpasninger av BlueVision</string>
+  <string name="BlueVision.DisableHomeTab">Deaktiver \"Hjem\" taben</string>
+  <string name="BlueVision.DisableAutoSelection">Deaktiver automatisk tab meny valg</string>
+  <string name="BlueVision.UseAlternativeSplashscreen">Bruk BlueVision velkomstskjerm</string>
+  <string name="BlueVision.ResetMenuLayout">Tilbakestill meny oppsett til standard</string>
 </resources>

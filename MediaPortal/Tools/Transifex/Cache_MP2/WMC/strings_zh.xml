@@ -2,7 +2,5 @@
 <resources>
   <string name="WMC.Configuration.EnableFanart">启用同人画</string>
   <string name="WMC.Configuration.EnableFanart.Help">是否在背景中显示同人画。</string>
-  <string name="WMC.Configuration.EnableBanners.Movies">电影</string>
-  <string name="WMC.Configuration.EnableBanners.Series">系列</string>
-  <string name="WMC.Configuration.EnableBanners.Seasons">季剧</string>
+  <string name="WMC.Home.Favorites">收藏夹</string>
   </resources>

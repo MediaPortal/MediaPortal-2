@@ -152,7 +152,7 @@ namespace MediaPortal.Common.Services.ResourceAccess.ImpersonationService
     {
       WindowsImpersonationContext ctx = null;
       if(Interlocked.Increment(ref _usageCount) > 0)
-        ctx = _identity.Impersonate();
+        ctx = WindowsIdentity.Impersonate(_identity.Token);
       return new WindowsImpersonationContextWrapper(ctx, DecrementUsageCount);
     }
 

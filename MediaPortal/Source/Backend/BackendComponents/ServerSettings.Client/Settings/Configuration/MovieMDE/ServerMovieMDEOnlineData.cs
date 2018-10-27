@@ -29,6 +29,7 @@ using MediaPortal.Common.Localization;
 using MediaPortal.Common.Settings;
 using MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor;
 using MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor.Settings;
+using MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.Settings;
 
 namespace MediaPortal.Plugins.ServerSettings.Settings.Configuration
 {
@@ -38,10 +39,10 @@ namespace MediaPortal.Plugins.ServerSettings.Settings.Configuration
     {
       Enabled = false;
       ConnectionMonitor.Instance.RegisterConfiguration(this);
-      _items.Add(LocalizationHelper.CreateResourceString("[Settings.ServerSettings.MovieMDESettings.ServerMovieMDEOnlineData.MediaFanArt]"));
-      _items.Add(LocalizationHelper.CreateResourceString("[Settings.ServerSettings.MovieMDESettings.ServerMovieMDEOnlineData.Media]"));
-      _items.Add(LocalizationHelper.CreateResourceString("[Settings.ServerSettings.MovieMDESettings.ServerMovieMDEOnlineData.FanArt]"));
-      _items.Add(LocalizationHelper.CreateResourceString("[Settings.ServerSettings.MovieMDESettings.ServerMovieMDEOnlineData.None]"));
+      _items.Add(LocalizationHelper.CreateResourceString("[Settings.ServerSettings.MDESettings.MDEOnlineData.MediaFanArt]"));
+      _items.Add(LocalizationHelper.CreateResourceString("[Settings.ServerSettings.MDESettings.MDEOnlineData.Media]"));
+      _items.Add(LocalizationHelper.CreateResourceString("[Settings.ServerSettings.MDESettings.MDEOnlineData.FanArt]"));
+      _items.Add(LocalizationHelper.CreateResourceString("[Settings.ServerSettings.MDESettings.MDEOnlineData.None]"));
     }
 
     public override void Load()
@@ -69,6 +70,7 @@ namespace MediaPortal.Plugins.ServerSettings.Settings.Configuration
 
       ISettingsManager localSettings = ServiceRegistration.Get<ISettingsManager>();
       IServerSettingsClient serverSettings = ServiceRegistration.Get<IServerSettingsClient>();
+
       MovieMetadataExtractorSettings settings = serverSettings.Load<MovieMetadataExtractorSettings>();
       if (Selected == 0)
       {
@@ -92,6 +94,11 @@ namespace MediaPortal.Plugins.ServerSettings.Settings.Configuration
       }
       serverSettings.Save(settings);
       localSettings.Save(settings);
+
+      NfoMovieMetadataExtractorSettings nfoSettings = serverSettings.Load<NfoMovieMetadataExtractorSettings>();
+      nfoSettings.SkipFanArtDownload = settings.SkipFanArtDownload;
+      serverSettings.Save(nfoSettings);
+      localSettings.Save(nfoSettings);
     }
 
     public void Dispose()

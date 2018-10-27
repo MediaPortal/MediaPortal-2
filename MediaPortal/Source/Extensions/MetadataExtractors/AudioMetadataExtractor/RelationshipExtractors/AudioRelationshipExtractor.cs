@@ -22,13 +22,17 @@
 
 #endregion
 
-using System;
-using System.Collections.Generic;
+using MediaPortal.Common;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
-using MediaPortal.Common.MediaManagement.MLQueries;
 using MediaPortal.Common.MediaManagement.Helpers;
+using MediaPortal.Common.MediaManagement.MLQueries;
+using MediaPortal.Common.MediaManagement.TransientAspects;
+using MediaPortal.Common.ResourceAccess;
 using MediaPortal.Extensions.OnlineLibraries;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
 {
@@ -50,24 +54,48 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
 
     protected RelationshipExtractorMetadata _metadata;
     private IList<IRelationshipRoleExtractor> _extractors;
-    private IList<RelationshipHierarchy> _hierarchies;
 
     public AudioRelationshipExtractor()
     {
-      _metadata = new RelationshipExtractorMetadata(METADATAEXTRACTOR_ID, "Audio relationship extractor");
+      _metadata = new RelationshipExtractorMetadata(METADATAEXTRACTOR_ID, "Audio relationship extractor", MetadataExtractorPriority.Core);
+      RegisterRelationships();
+      InitExtractors();
+    }
 
+    protected void InitExtractors()
+    {
       _extractors = new List<IRelationshipRoleExtractor>();
 
       _extractors.Add(new TrackAlbumArtistRelationshipExtractor());
       _extractors.Add(new TrackArtistRelationshipExtractor());
       _extractors.Add(new TrackComposerRelationshipExtractor());
+      _extractors.Add(new TrackConductorRelationshipExtractor());
       _extractors.Add(new TrackAlbumRelationshipExtractor());
       _extractors.Add(new AlbumArtistRelationshipExtractor());
       _extractors.Add(new AlbumLabelRelationshipExtractor());
-      _extractors.Add(new AlbumTrackRelationshipExtractor());
+    }
 
-      _hierarchies = new List<RelationshipHierarchy>();
-      _hierarchies.Add(new RelationshipHierarchy(AudioAspect.ROLE_TRACK, AudioAspect.ATTR_TRACK, AudioAlbumAspect.ROLE_ALBUM, AudioAlbumAspect.ATTR_AVAILABLE_TRACKS, true));
+    /// <summary>
+    /// Registers all relationships that are extracted by this relationship extractor.
+    /// </summary>
+    protected void RegisterRelationships()
+    {
+      IRelationshipTypeRegistration relationshipRegistration = ServiceRegistration.Get<IRelationshipTypeRegistration>();
+
+      //Relationships must be registered in order from tracks up to all parent relationships
+
+      //Hierarchical relationships
+      relationshipRegistration.RegisterLocallyKnownRelationshipType(new RelationshipType("Track->Album", true,
+        AudioAspect.ROLE_TRACK, AudioAlbumAspect.ROLE_ALBUM, AudioAspect.ASPECT_ID, AudioAlbumAspect.ASPECT_ID,
+        AudioAspect.ATTR_TRACK, AudioAlbumAspect.ATTR_AVAILABLE_TRACKS, true), true);
+
+      //Simple (non hierarchical) relationships
+      relationshipRegistration.RegisterLocallyKnownRelationshipType(new RelationshipType("Track->Artist", AudioAspect.ROLE_TRACK, PersonAspect.ROLE_ARTIST), true);
+      relationshipRegistration.RegisterLocallyKnownRelationshipType(new RelationshipType("Track->Album Artist", AudioAspect.ROLE_TRACK, PersonAspect.ROLE_ALBUMARTIST), true);
+      relationshipRegistration.RegisterLocallyKnownRelationshipType(new RelationshipType("Track->Composer", AudioAspect.ROLE_TRACK, PersonAspect.ROLE_COMPOSER), true);
+      relationshipRegistration.RegisterLocallyKnownRelationshipType(new RelationshipType("Track->Conductor", AudioAspect.ROLE_TRACK, PersonAspect.ROLE_CONDUCTOR), true);
+      relationshipRegistration.RegisterLocallyKnownRelationshipType(new RelationshipType("Album->Artist", AudioAlbumAspect.ROLE_ALBUM, PersonAspect.ROLE_ALBUMARTIST), false);
+      relationshipRegistration.RegisterLocallyKnownRelationshipType(new RelationshipType("Album->Label", AudioAlbumAspect.ROLE_ALBUM, CompanyAspect.ROLE_MUSIC_LABEL), false);
     }
 
     public IDictionary<IFilter, uint> GetLastChangedItemsFilters()
@@ -121,7 +149,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
         }
 
         if (albumChangedFilter != null)
-          filters.Add(new FilteredRelationshipFilter(AudioAspect.ROLE_TRACK, albumChangedFilter), 1);
+          filters.Add(new FilteredRelationshipFilter(AudioAspect.ROLE_TRACK, AudioAlbumAspect.ROLE_ALBUM, albumChangedFilter), 1);
       }
 
       //Add filters for changed audio tracks
@@ -179,6 +207,28 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
       OnlineMatcherService.Instance.ResetLastChangedAudio();
     }
 
+    public IDictionary<Guid, IList<MediaItemAspect>> GetBaseChildAspectsFromExistingAspects(IDictionary<Guid, IList<MediaItemAspect>> existingChildAspects, IDictionary<Guid, IList<MediaItemAspect>> existingParentAspects)
+    {
+      if (existingParentAspects.ContainsKey(AudioAlbumAspect.ASPECT_ID))
+      {
+        AlbumInfo album = new AlbumInfo();
+        album.FromMetadata(existingParentAspects);
+
+        if (existingChildAspects.ContainsKey(AudioAspect.ASPECT_ID))
+        {
+          TrackInfo track = new TrackInfo();
+          track.FromMetadata(existingChildAspects);
+
+          TrackInfo basicTrack = album.CloneBasicInstance<TrackInfo>();
+          basicTrack.TrackNum = track.TrackNum;
+          IDictionary<Guid, IList<MediaItemAspect>> aspects = new Dictionary<Guid, IList<MediaItemAspect>>();
+          basicTrack.SetMetadata(aspects, true);
+          return aspects;
+        }
+      }
+      return null;
+    }
+
     public RelationshipExtractorMetadata Metadata
     {
       get { return _metadata; }
@@ -187,11 +237,6 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
     public IList<IRelationshipRoleExtractor> RoleExtractors
     {
       get { return _extractors; }
-    }
-
-    public IList<RelationshipHierarchy> Hierarchies
-    {
-      get { return _hierarchies; }
     }
   }
 }

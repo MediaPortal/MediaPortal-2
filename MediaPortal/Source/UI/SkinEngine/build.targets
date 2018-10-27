@@ -23,6 +23,7 @@
       <References Include="$(ProjectDir)References\freetype6.dll" />
       <References Include="$(TargetDir)SharpDX.dll" />
       <References Include="$(TargetDir)SharpDX.Direct3D9.dll" />
+      <References Include="$(TargetDir)SharpDX.Mathematics.dll" />
     </ItemGroup>
 
     <Copy SourceFiles="@(PluginFiles)" DestinationFolder="$(PluginDestination)" />

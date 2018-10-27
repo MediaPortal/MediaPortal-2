@@ -22,14 +22,10 @@
 
 #endregion
 
-using System;
-using System.Collections.Generic;
-using MediaPortal.Common.Localization;
 using MediaPortal.Common.MediaManagement;
-using MediaPortal.Common.MediaManagement.DefaultItemAspects;
+using MediaPortal.Common.MediaManagement.Helpers;
 using MediaPortal.UiComponents.Media.General;
 using MediaPortal.Utilities;
-using MediaPortal.Common.MediaManagement.Helpers;
 using System.Linq;
 
 namespace MediaPortal.UiComponents.Media.Models.Navigation
@@ -44,6 +40,9 @@ namespace MediaPortal.UiComponents.Media.Models.Navigation
     public override void Update(MediaItem mediaItem)
     {
       base.Update(mediaItem);
+      if (mediaItem == null)
+        return;
+
       TrackInfo trackInfo = new TrackInfo();
       if (!trackInfo.FromMetadata(mediaItem.Aspects))
         return;

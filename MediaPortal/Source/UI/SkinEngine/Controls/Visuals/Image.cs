@@ -360,7 +360,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       if (Uri.TryCreate(uriSource, UriKind.Absolute, out uri) || lower.EndsWith(".png") || lower.EndsWith(".bmp") || lower.EndsWith(".jpg") || lower.EndsWith(".jpeg") || lower.EndsWith(".gif"))
         return true;
 
-      if (Thumbnail && (lower.EndsWith(".avi") || lower.EndsWith(".ts") || lower.EndsWith(".mkv")))
+      if (Thumbnail && (lower.EndsWith(".avi") || lower.EndsWith(".ts") || lower.EndsWith(".mkv") || lower.EndsWith(".mk3d") || lower.EndsWith(".webm")))
         return true;
 
       return false;

@@ -64,7 +64,7 @@ namespace MediaPortal.Common.MediaManagement.DefaultItemAspects
     /// Set to <c>true</c> if this video item represents a disc image, like DVD or BluRay.
     /// </summary>
     public static readonly MediaItemAspectMetadata.SingleAttributeSpecification ATTR_ISDVD =
-        MediaItemAspectMetadata.CreateSingleAttributeSpecification("IsDVD", typeof(bool), Cardinality.Inline, false);
+        MediaItemAspectMetadata.CreateSingleAttributeSpecification("IsDVD", typeof(bool), Cardinality.Inline, true);
 
     /// <summary>
     /// String describing the story plot of the video.

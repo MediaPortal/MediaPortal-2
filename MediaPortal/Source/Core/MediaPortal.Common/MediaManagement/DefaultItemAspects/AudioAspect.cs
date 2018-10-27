@@ -76,7 +76,7 @@ namespace MediaPortal.Common.MediaManagement.DefaultItemAspects
     /// Set to <c>true</c> if this track item represents a CD track.
     /// </summary>
     public static readonly MediaItemAspectMetadata.SingleAttributeSpecification ATTR_ISCD =
-        MediaItemAspectMetadata.CreateSingleAttributeSpecification("IsCD", typeof(bool), Cardinality.Inline, false);
+        MediaItemAspectMetadata.CreateSingleAttributeSpecification("IsCD", typeof(bool), Cardinality.Inline, true);
 
     /// <summary>
     /// Track number.
@@ -97,6 +97,12 @@ namespace MediaPortal.Common.MediaManagement.DefaultItemAspects
         MediaItemAspectMetadata.CreateSingleStringAttributeSpecification("AlbumArtists", 100, Cardinality.ManyToMany, true);
 
     /// <summary>
+    /// Enumeration of conductor name strings.
+    /// </summary>
+    public static readonly MediaItemAspectMetadata.SingleAttributeSpecification ATTR_CONDUCTERS =
+        MediaItemAspectMetadata.CreateSingleStringAttributeSpecification("Conductors", 100, Cardinality.ManyToMany, true);
+
+    /// <summary>
     /// Enumeration of composer name strings.
     /// </summary>
     public static readonly MediaItemAspectMetadata.SingleAttributeSpecification ATTR_COMPOSERS =
@@ -107,6 +113,12 @@ namespace MediaPortal.Common.MediaManagement.DefaultItemAspects
     /// </summary>
     public static readonly MediaItemAspectMetadata.SingleAttributeSpecification ATTR_ENCODING =
         MediaItemAspectMetadata.CreateSingleStringAttributeSpecification("Encoding", 50, Cardinality.Inline, false);
+
+    /// <summary>
+    /// Content grouping as string.
+    /// </summary>
+    public static readonly MediaItemAspectMetadata.SingleAttributeSpecification ATTR_CONTENT_GROUP =
+        MediaItemAspectMetadata.CreateSingleStringAttributeSpecification("ContentGroup", 50, Cardinality.Inline, false);
 
     /// <summary>
     /// Bitrate in kbits/second.
@@ -164,7 +176,9 @@ namespace MediaPortal.Common.MediaManagement.DefaultItemAspects
             ATTR_NUMTRACKS,
             ATTR_ALBUMARTISTS,
             ATTR_COMPOSERS,
+            ATTR_CONDUCTERS,
             ATTR_ENCODING,
+            ATTR_CONTENT_GROUP,
             ATTR_BITRATE,
             ATTR_CHANNELS,
             ATTR_SAMPLERATE,

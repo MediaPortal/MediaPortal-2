@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<!--
+  Recording started notification.
+-->
+
+<Include
+      xmlns="www.team-mediaportal.com/2008/mpf/directx"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      Source="screens\SlimTvClient-notification_recording.xaml">
+  <Include.Resources>
+
+    <ResourceWrapper x:Key="Header_Text" Resource="[SlimTvClient.RecordingStartedHeader]" />
+
+  </Include.Resources>
+</Include>

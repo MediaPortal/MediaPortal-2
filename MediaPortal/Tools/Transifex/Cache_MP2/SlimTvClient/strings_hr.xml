@@ -1,6 +1,6 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
-  <string name="SlimTvClient.Title">Slim TV klijent</string>
+  <string name="SlimTvClient.Title">TV Vodič</string>
   <string name="SlimTvClient.Main">TV</string>
   <string name="SlimTvClient.TvGuide">TV Vodič</string>
   <string name="SlimTvClient.CurrentlyPlayingInformationHeader">Programske informacije</string>

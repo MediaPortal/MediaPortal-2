@@ -23,11 +23,15 @@
 #endregion
 
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Runtime.InteropServices;
 using DirectShow;
 using DirectShow.Helper;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
+using MediaPortal.Common.MediaManagement;
+using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Common.ResourceAccess;
 using MediaPortal.Common.Settings;
 using MediaPortal.UI.Players.Video.Interfaces;
@@ -135,9 +139,7 @@ namespace MediaPortal.UI.Players.Video
       //  _subtitleRenderer.SetPlayer(this);
       //}
 
-      // For supporting CC
       // AddClosedCaptionsFilter();
-
       if (_resourceLocator.NativeResourcePath.IsNetworkResource)
       {
         // _resourceAccessor points to an rtsp:// stream or network file
@@ -180,6 +182,40 @@ namespace MediaPortal.UI.Players.Video
     protected override void OnBeforeGraphRunning()
     {
       FilterGraphTools.RenderOutputPins(_graphBuilder, _sourceFilter.GetFilter());
+      UpdateVideoFps();
+    }
+
+    /// <summary>
+    /// Checks if the current MediaItem contains fps information, if not it tries to get it from
+    /// the source filter.
+    /// </summary>
+    protected virtual void UpdateVideoFps()
+    {
+      IList<MultipleMediaItemAspect> videoAspects;
+      // If there are VideoStreamAspects we don't need to fill it.
+      if (_mediaItem == null || MediaItemAspect.TryGetAspects(_mediaItem.Aspects, VideoStreamAspect.Metadata, out videoAspects))
+        return;
+
+      using (DSFilter d = new DSFilter((IBaseFilter)_tsReader))
+      {
+        // Would release the filter which causes errors in later access (like stream enumeration)
+        d.ReleaseOnDestroy = false;
+        var videoOutPin = d.Pins.FirstOrDefault(p => p.Direction == PinDirection.Output && p.ConnectionMediaType.majorType == MediaType.Video);
+        if (videoOutPin != null)
+        {
+          const long nTenMillion = 10000000;
+          long avgTimePerFrameHns = videoOutPin.ConnectionMediaType.GetFrameRate();
+          if (avgTimePerFrameHns == 0)
+            return;
+
+          float fps = (float)nTenMillion / avgTimePerFrameHns;
+
+          MultipleMediaItemAspect videoStreamAspects = MediaItemAspect.CreateAspect(_mediaItem.Aspects, VideoStreamAspect.Metadata);
+          videoStreamAspects.SetAttribute(VideoStreamAspect.ATTR_RESOURCE_INDEX, 0);
+          videoStreamAspects.SetAttribute(VideoStreamAspect.ATTR_STREAM_INDEX, 0);
+          videoStreamAspects.SetAttribute(VideoStreamAspect.ATTR_FPS, fps);
+        }
+      }
     }
 
     #endregion

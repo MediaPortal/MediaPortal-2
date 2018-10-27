@@ -35,7 +35,6 @@ using MediaPortal.Common.MediaManagement.MLQueries;
 using MediaPortal.Common.ResourceAccess;
 using MediaPortal.Extensions.MetadataExtractors.MatroskaLib;
 using MediaPortal.Extensions.UserServices.FanArtService.Interfaces;
-using MediaPortal.Common.Services.ResourceAccess.VirtualResourceProvider;
 using MediaPortal.Common.FanArt;
 
 namespace MediaPortal.Extensions.UserServices.FanArtService.Local
@@ -76,11 +75,10 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Local
         return false;
 
       MediaItem mediaItem = items.First();
-      var resourceLocator = mediaItem.GetResourceLocator();
       // Virtual resources won't have any local fanart
-      if (resourceLocator.NativeResourcePath.BasePathSegment.ProviderId == VirtualResourceProvider.VIRTUAL_RESOURCE_PROVIDER_ID)
+      if (mediaItem.IsVirtual)
         return false;
-
+      var resourceLocator = mediaItem.GetResourceLocator();
       string fileSystemPath = string.Empty;
       IList<string> patterns = new List<string>();
       switch (fanArtType)
@@ -101,13 +99,16 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Local
           patterns.Add("backdrop.");
           patterns.Add("fanart.");
           break;
+        case FanArtTypes.Logo:
+          patterns.Add("clearlogo.");
+          break;
         default:
           return false;
       }
       // File based access
       try
       {
-        using (var accessor = resourceLocator.CreateAccessor())
+        using (var accessor = resourceLocator?.CreateAccessor())
         {
           ILocalFsResourceAccessor fsra = accessor as ILocalFsResourceAccessor;
           if (fsra != null)
@@ -116,12 +117,15 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Local
             if (!SUPPORTED_EXTENSIONS.Contains(ext))
               return false;
 
-            MatroskaInfoReader mkvReader = new MatroskaInfoReader(fsra);
-            byte[] binaryData = null;
-            if (patterns.Any(pattern => mkvReader.GetAttachmentByName(pattern, out binaryData)))
+            MatroskaBinaryReader mkvReader = new MatroskaBinaryReader(fsra);
+            foreach (string pattern in patterns)
             {
-              result = new List<FanArtImage> { new FanArtImage(name, binaryData) };
-              return true;
+              byte[] binaryData = mkvReader.GetAttachmentByNameAsync(pattern).Result;
+              if (binaryData != null)
+              {
+                result = new List<FanArtImage> { new FanArtImage(name, binaryData) };
+                return true;
+              }
             }
           }
         }

@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <string name="WakeOnLan.EnableWakeOnLan">Abilita \"Wake on Lan\"</string>
+  <string name="WakeOnLan.EnableWakeOnLan.Help">Riattiva automaticamente il server quando si avvia o si risveglia un client dalla sospensione.</string>
+</resources>

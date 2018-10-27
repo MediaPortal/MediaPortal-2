@@ -2,11 +2,11 @@
 <resources>
     <string name="Diagnostics.Settings.Diagnostics">Diagnostik</string>
     <string name="Diagnostics.Settings.Diagnostics.AllLogs">Aktivera DEBUG loggning</string>
-    <string name="Diagnostics.Settings.Diagnostics.AllLogsHelpText">Öka nivån på loggad information</string>
+    <string name="Diagnostics.Settings.Diagnostics.AllLogsHelpText">Logga utökad och mer detaljerad information</string>
     <string name="Diagnostics.Settings.Image.FocusStealing">Aktivera loggning av tappad fokus</string>
     <string name="Diagnostics.Settings.Image.FocusStealingHelpText">Aktivera loggning av tappad fokus</string>
     <string name="Diagnostics.Settings.Collectlogs">Samla ihop loggfilerna</string>
     <string name="Diagnostics.Settings.CollectlogsHelpText">Kör insamlaren av loggfiler som skapar en zip-fil med alla loggfiler.</string>
     <string name="Diagnostics.Settings.ShowLogs">Visa loggfilerna</string>
-    <string name="Diagnostics.Settings.ShowLogsHelpText">Visa loggfilerna i eget fönster</string>
+    <string name="Diagnostics.Settings.ShowLogsHelpText">Visa loggfilerna i ett eget fönster</string>
 </resources>

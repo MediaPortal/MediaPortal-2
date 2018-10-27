@@ -1,5 +1,7 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
+  <!--Headlines for HomeContent-->
+  <string name="Media.Favorites">पसंदीदा</string>
   <!--Menu items for the five Media navigation parts-->
   <string name="Media.VideosMenuItem">वीडियो</string>
   <!--General strings used in filter/sort/group menus-->
@@ -9,7 +11,7 @@
   <string name="Media.GenreMenuItem">घराना</string>
   <string name="Media.SizeMenuItem">आकार</string>
   <string name="Media.SystemMenuItem">तंत्र</string>
-  <string name="Media.EpisodeDateMenuItem">एपिसोड</string>
+  <string name="Media.EpisodeMenuItem">एपिसोड</string>
   <string name="Media.AudioLanguageMenuItem">भाषा</string>
   <string name="Media.ImageStateMenuItem">स्थिति</string>
   <string name="Media.SimpleSearchFilterMenuItem">खोजें</string>
@@ -46,6 +48,9 @@
   <string name="Media.StopAddToPlaylistButton">रोकें</string>
   <string name="Media.OpenPlayerStrategy.MediaPortal.UI.Services.Players.PCMOpenPlayerStrategy.Default">तयशुदा</string>
   <!--MediaItemAction dialog-->
+  <string name="Media.Refresh">ताज़ा करें</string>
+  <string name="Media.ReimportMediaItem.Done">संपन्न</string>
+  <string name="Media.ReimportMediaItem.Description">विवरण</string>
   <!--Play items dialog-->
   <!--Player context names-->
   <!--Video currently playing-->
@@ -58,6 +63,10 @@
   <string name="Media.RepeatMode.All">सभी</string>
   <!--VideoPlayerUIContributor-->
   <!--Video Player time units-->
+  <string name="Media.SortByDate">तारीख़</string>
+  <string name="Media.GroupingBrowseDefault">तयशुदा</string>
+  <!--Stubs-->
+  <!--Settings-->
   <string name="Settings.Players">प्लेयर</string>
   <!--Secondary filters-->
   <string name="Filter.RemoteNumericAlphabet0"></string>

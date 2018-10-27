@@ -45,12 +45,15 @@ namespace MediaPortal.Plugins.SlimTv.Client.Helpers
     public AbstractProperty StartTimeProperty { get; set; }
     public AbstractProperty EndTimeProperty { get; set; }
     public AbstractProperty RemainingDurationProperty { get; set; }
+    public AbstractProperty EpgGenreIdProperty { get; set; }
+    public AbstractProperty EpgGenreColorProperty { get; set; }
     public AbstractProperty GenreProperty { get; set; }
     public AbstractProperty SeasonNumberProperty { get; set; }
     public AbstractProperty EpisodeNumberProperty { get; set; }
     public AbstractProperty EpisodeTitleProperty { get; set; }
     public AbstractProperty SeriesProperty { get; set; }
     public AbstractProperty ChannelNameProperty { get; set; }
+    public AbstractProperty ChannelLogoTypeProperty { get; set; }
 
     /// <summary>
     /// Gets or Sets the Title.
@@ -68,6 +71,24 @@ namespace MediaPortal.Plugins.SlimTv.Client.Helpers
     {
       get { return (String)DescriptionProperty.GetValue(); }
       set { DescriptionProperty.SetValue(value); }
+    }
+
+    /// <summary>
+    /// Gets or Sets the EPG Genre Id.
+    /// </summary>
+    public int EpgGenreId
+    {
+      get { return (int)EpgGenreIdProperty.GetValue(); }
+      set { EpgGenreIdProperty.SetValue(value); }
+    }
+
+    /// <summary>
+    /// Gets or Sets the EPG Genre Color.
+    /// </summary>
+    public string EpgGenreColor
+    {
+      get { return (String)EpgGenreColorProperty.GetValue(); }
+      set { EpgGenreColorProperty.SetValue(value); }
     }
 
     /// <summary>
@@ -179,6 +200,15 @@ namespace MediaPortal.Plugins.SlimTv.Client.Helpers
       set { ChannelNameProperty.SetValue(value); }
     }
 
+    /// <summary>
+    /// Exposes the current channel logo type to the skin.
+    /// </summary>
+    public string ChannelLogoType
+    {
+      get { return (string)ChannelLogoTypeProperty.GetValue(); }
+      set { ChannelLogoTypeProperty.SetValue(value); }
+    }
+
     public ProgramProperties()
     {
       ProgramIdProperty = new WProperty(typeof(int), 0);
@@ -186,6 +216,8 @@ namespace MediaPortal.Plugins.SlimTv.Client.Helpers
       IsSeriesScheduledProperty = new WProperty(typeof(bool), false);
       TitleProperty = new WProperty(typeof(String), String.Empty);
       DescriptionProperty = new WProperty(typeof(String), String.Empty);
+      EpgGenreIdProperty = new WProperty(typeof(int), 0);
+      EpgGenreColorProperty = new WProperty(typeof(String), String.Empty);
       GenreProperty = new WProperty(typeof(String), String.Empty);
       StartTimeProperty = new WProperty(typeof(DateTime), DateTime.MinValue);
       EndTimeProperty = new WProperty(typeof(DateTime), DateTime.MinValue);
@@ -195,6 +227,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Helpers
       EpisodeTitleProperty = new WProperty(typeof(String), String.Empty);
       SeriesProperty = new WProperty(typeof(String), String.Empty);
       ChannelNameProperty = new WProperty(typeof(String), String.Empty);
+      ChannelLogoTypeProperty = new WProperty(typeof(String), String.Empty);
       Attach();
     }
 
@@ -229,11 +262,18 @@ namespace MediaPortal.Plugins.SlimTv.Client.Helpers
           ChannelName = channel.Name;
         else if (program != null)
         {
-          IChannelAndGroupInfo channelAndGroupInfo = ServiceRegistration.Get<ITvHandler>().ChannelAndGroupInfo;
-          if (channelAndGroupInfo != null && channelAndGroupInfo.GetChannel(program.ChannelId, out channel))
-            ChannelName = channel.Name;
+          IChannelAndGroupInfoAsync channelAndGroupInfo = ServiceRegistration.Get<ITvHandler>().ChannelAndGroupInfo;
+          if (channelAndGroupInfo != null)
+          {
+            var result = channelAndGroupInfo.GetChannelAsync(program.ChannelId).Result;
+            if (result.Success)
+            {
+              channel = result.Result;
+              ChannelName = channel.Name;
+            }
+          }
         }
-
+        ChannelLogoType = channel.GetFanArtMediaType();
         _settingProgram = true;
         IProgramSeries series = program as IProgramSeries;
         if (series != null)
@@ -258,6 +298,8 @@ namespace MediaPortal.Plugins.SlimTv.Client.Helpers
           StartTime = program.StartTime;
           EndTime = program.EndTime;
           Genre = program.Genre;
+          EpgGenreId = program.EpgGenreId;
+          EpgGenreColor = program.EpgGenreColor;
         }
         else
         {
@@ -267,6 +309,8 @@ namespace MediaPortal.Plugins.SlimTv.Client.Helpers
           StartTime = DateTime.Now.GetDay();
           EndTime = StartTime.AddDays(1);
           Genre = string.Empty;
+          EpgGenreId = 0;
+          EpgGenreColor = string.Empty;
         }
         UpdateDuration();
       }

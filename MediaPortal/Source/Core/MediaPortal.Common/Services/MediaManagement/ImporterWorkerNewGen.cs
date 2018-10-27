@@ -313,6 +313,9 @@ namespace MediaPortal.Common.Services.MediaManagement
       foreach (var controller in jobsToBeCancelled)
         controller.Dispose();
 
+      //Set updated media items to changed
+      _mediaBrowsing?.MarkUpdatableMediaItems();
+
       var importJobController = new ImportJobController(new ImportJobNewGen(importJobInformation, null), Interlocked.Increment(ref _numberOfLastImportJob), this);
       _importJobControllers[importJobInformation] = importJobController;
 

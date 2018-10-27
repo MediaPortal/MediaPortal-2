@@ -25,6 +25,7 @@
 using System;
 using System.Collections.Generic;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
+using System.Linq;
 
 namespace MediaPortal.Common.MediaManagement.Helpers
 {
@@ -87,7 +88,39 @@ namespace MediaPortal.Common.MediaManagement.Helpers
 
     public MovieCollectionInfo Clone()
     {
-      return CloneProperties(this);
+      MovieCollectionInfo clone = (MovieCollectionInfo)this.MemberwiseClone();
+      clone.CollectionName = new SimpleTitle(CollectionName.Text, CollectionName.DefaultLanguage);
+      clone.Languages = new List<string>();
+      foreach (var l in Languages)
+        clone.Languages.Add(l);
+      clone.Movies = new List<MovieInfo>();
+      foreach (var m in Movies)
+        clone.Movies.Add(m.Clone());
+
+      return clone;
+    }
+
+    public override bool MergeWith(object other, bool overwriteShorterStrings = true, bool updateMovieList = false)
+    {
+      if (other is MovieCollectionInfo collection)
+      {
+        HasChanged |= MetadataUpdater.SetOrUpdateId(ref MovieDbId, collection.MovieDbId);
+
+        HasChanged |= MetadataUpdater.SetOrUpdateString(ref CollectionName, collection.CollectionName, overwriteShorterStrings);
+
+        if (TotalMovies < collection.TotalMovies)
+        {
+          HasChanged = true;
+          TotalMovies = collection.TotalMovies;
+        }
+
+        if (updateMovieList) //Comparing all movies can be quite time consuming
+        {
+          MetadataUpdater.SetOrUpdateList(Movies, collection.Movies.Distinct().ToList(), true, overwriteShorterStrings);
+        }
+        return true;
+      }
+      return false;
     }
 
     #region Members
@@ -96,10 +129,12 @@ namespace MediaPortal.Common.MediaManagement.Helpers
     /// Copies the contained character information into MediaItemAspect.
     /// </summary>
     /// <param name="aspectData">Dictionary with extracted aspects.</param>
-    public override bool SetMetadata(IDictionary<Guid, IList<MediaItemAspect>> aspectData)
+    public override bool SetMetadata(IDictionary<Guid, IList<MediaItemAspect>> aspectData, bool force = false)
     {
-      if (CollectionName.IsEmpty) return false;
+      if (!force && !IsBaseInfoPresent)
+        return false;
 
+      AssignNameId();
       SetMetadataChanged(aspectData);
 
       MediaItemAspect.SetAttribute(aspectData, MediaAspect.ATTR_TITLE, ToString());
@@ -124,7 +159,7 @@ namespace MediaPortal.Common.MediaManagement.Helpers
       {
         string tempString;
         MediaItemAspect.TryGetAttribute(aspectData, MovieCollectionAspect.ATTR_COLLECTION_NAME, out tempString);
-        CollectionName = new SimpleTitle(tempString, false);
+        CollectionName = new SimpleTitle(tempString, string.IsNullOrWhiteSpace(tempString));
 
         int? count;
         if (MediaItemAspect.TryGetAttribute(aspectData, MovieCollectionAspect.ATTR_NUM_MOVIES, out count))

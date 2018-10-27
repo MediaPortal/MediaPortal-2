@@ -58,3 +58,9 @@ $RECYCLE.BIN/
 # Don't include other languages than English into repository, others are managed with Transifex
 strings_*.xml
 !strings_en.xml
+
+# =========================
+# VS 2017 / C++ specfic
+# =========================
+**/.vs/*
+*.ilk

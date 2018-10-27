@@ -32,6 +32,7 @@ using MediaPortal.Common;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.Settings;
 using MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor.Settings;
+using MediaPortal.Common.MediaManagement;
 
 namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor.Matchers
 {
@@ -87,6 +88,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor.Match
           Match match = regex.Regex.Match(path);
           if (match.Groups[GROUP_TITLE].Length > 0 || match.Groups[GROUP_YEAR].Length > 0)
           {
+            ServiceRegistration.Get<ILogger>().Info("MovieNameMatcher: Found title '{0}' and year {1}", match.Groups[GROUP_TITLE].Value, match.Groups[GROUP_YEAR].Value);
             string title = CultureInfo.InvariantCulture.TextInfo.ToTitleCase(match.Groups[GROUP_TITLE].Value.Trim(new[] { ' ', '-' }));
             movieInfo.HasChanged |= MetadataUpdater.SetOrUpdateString(ref movieInfo.MovieName, title, true);
             movieInfo.HasChanged |= MetadataUpdater.SetOrUpdateValue(ref movieInfo.ReleaseDate, new DateTime(int.Parse(match.Groups[GROUP_YEAR].Value), 1, 1));
@@ -96,7 +98,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor.Match
       }
       catch(Exception e)
       {
-        ServiceRegistration.Get<ILogger>().Info("MovieNameMatcher: Exception matching title year for title '{0}' (Text: '{1}')", movieInfo.MovieName, e.Message);
+        ServiceRegistration.Get<ILogger>().Error("MovieNameMatcher: Exception matching title year for title '{0}'", e, movieInfo.MovieName);
       }
       return false;
     }

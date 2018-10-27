@@ -96,7 +96,7 @@ namespace MediaPortal.Common.General
         aliases.AddRange(hostEntry.Aliases.Select(GetCanonicalForm));
         aliases.AddRange(hostEntry.AddressList.Select(NetworkUtils.IPAddrToString));
       }
-      catch (SocketException e) // Could occur if the nameserver doesn't answer, for example
+      catch (SocketException) // Could occur if the nameserver doesn't answer, for example
       {
         ServiceRegistration.Get<ILogger>().Warn("SystemName: Could not retrieve host alias/address list from DNS (hostName: {0})", hostName);
         _failedLookups.Add(hostName);

@@ -10,7 +10,7 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>MediaPortal.UiComponents.Reflexion</RootNamespace>
     <AssemblyName>Reflexion</AssemblyName>
-    <TargetFrameworkVersion>v4.5.1</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.7</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <FileUpgradeFlags>
     </FileUpgradeFlags>
@@ -380,11 +380,6 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Skin\Reflexion\screens\DialogVirtualKeyboard.xaml">
-      <SubType>Designer</SubType>
-    </Content>
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="Skin\Reflexion\themes\default\styles\VirtualKeyboardStyle.xaml">
       <SubType>Designer</SubType>
     </Content>
   </ItemGroup>

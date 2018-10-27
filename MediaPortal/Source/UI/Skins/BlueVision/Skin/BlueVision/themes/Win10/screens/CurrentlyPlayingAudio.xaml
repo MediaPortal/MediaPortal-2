@@ -105,34 +105,38 @@
             </StackPanel>
 
             <Image x:Name="CDImage" Grid.Row="0" Grid.Column="0" Stretch="Uniform" 
-                Source="CD.png" HorizontalAlignment="Right" RenderTransformOrigin="0.498,0.498"
+                FallbackSource="CD.png" HorizontalAlignment="Right" RenderTransformOrigin="0.498,0.498"
                 VerticalAlignment="Bottom" Width="240" Height="240" Margin="0,0,130,105">
-              <Image.Resources>
-                <Storyboard x:Key="RotationStoryboard" FillBehavior="HoldEnd" RepeatBehavior="Forever">
-                  <DoubleAnimation  Storyboard.TargetProperty="RenderTransform.Angle"
-                                    From="0"
-                                    To="360"
-                                    Duration="0:0:2"
-                                    RepeatBehavior="Forever" />
-                </Storyboard>
-              </Image.Resources>
+              <Image.Source>
+                <fanart:FanArtImageSource fanart:FanArtMediaType="Album" fanart:FanArtType="DiscArt" fanart:FanArtName="{Binding MediaItem.MediaItemId}"
+                                        fanart:MaxWidth="240" fanart:MaxHeight="240"/>
+              </Image.Source>
+
               <Image.RenderTransform>
                 <RotateTransform x:Name="AnimatedRotateTransform" Angle="0" />
               </Image.RenderTransform>
+              <Image.Resources>
+                
+                <Storyboard x:Key="DiskRotationStoryboard" FillBehavior="HoldEnd" RepeatBehavior="Forever">
+                  <DoubleAnimation Storyboard.TargetProperty="RenderTransform.Angle"
+                                 From="0" To="360" Duration="0:0:4.5" RepeatBehavior="Forever" />
+                </Storyboard>
+              </Image.Resources>
+
               <Image.Triggers>
-                <Trigger Property="IsEnabled" Value="True">
-                  <Trigger.EnterActions>
-                    <BeginStoryboard x:Name="Disabled_BeginStoryBoard" Storyboard="{ThemeResource RotationStoryboard}"/>
-                  </Trigger.EnterActions>
-                  <Trigger.ExitActions>
+                <DataTrigger Binding="{Binding IsPlaying}" Value="True">
+                  <DataTrigger.EnterActions>
+                    <BeginStoryboard x:Name="Disabled_BeginStoryBoard" Storyboard="{ThemeResource DiskRotationStoryboard}"/>
+                  </DataTrigger.EnterActions>
+                  <DataTrigger.ExitActions>
                     <StopStoryboard BeginStoryboardName="Disabled_BeginStoryBoard"/>
-                  </Trigger.ExitActions>
-                </Trigger>
+                  </DataTrigger.ExitActions>
+                </DataTrigger>
               </Image.Triggers>
             </Image>
 
             <Image x:Name="ItemTypeImage" Grid.Row="0" Grid.Column="0" Stretch="Uniform" 
-                Source="{Binding MediaItem}" FallbackSource="AudioLarge.png" HorizontalAlignment="Right"
+                Source="{Binding MediaItem}" FallbackSource="Audio.png" HorizontalAlignment="Right"
                 VerticalAlignment="Bottom" Width="250" Height="250" Margin="0,0,30,100"/>
           </Grid>
         </mp_special_controls:PlayerControl.TemplateControl>

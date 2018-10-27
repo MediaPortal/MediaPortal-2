@@ -22,20 +22,17 @@
 
 #endregion
 
+using System;
 using System.Net;
-using HttpServer.Authentication;
-using HttpServer.HttpModules;
 
 namespace MediaPortal.Common.ResourceAccess
 {
   public interface IResourceServer
   {
     /// <summary>
-    /// Gets the port number on which the HttpServer with give IP is listening.
+    /// Gets the service base url.
     /// </summary>
-    /// <param name="ipAddress">Bound IP address</param>
-    /// <returns>Port number</returns>
-    int GetPortForIP(IPAddress ipAddress);
+    string GetServiceUrl(IPAddress ipAddress);
 
     void Startup();
 
@@ -50,29 +47,18 @@ namespace MediaPortal.Common.ResourceAccess
     void RestartHttpServers();
 
     /// <summary>
-    /// Adds a new HTTP module to the HTTP server.
+    /// Adds a new HTTP middleware to the HTTP server.
     /// </summary>
     /// <remarks>
-    /// The HTTP module approach is implemented by our <see cref="HttpServer.HttpServer"/> and fits very well into
-    /// the MediaPortal concept: Plugins simply can add a module to the HTTP server.
+    /// The HTTP module approach is implemented by Owin self host which allows to add a OwinMiddleware to the HTTP server.
     /// </remarks>
-    /// <param name="module"></param>
-    void AddHttpModule(HttpModule module);
-
-    /// <summary>
-    /// Adds a new Authentication Module to the HTTP server.
-    /// </summary>
-    /// <remarks>
-    /// The Authentication Module approach is implemented by our <see cref="HttpServer.HttpServer"/> and fits very well into
-    /// the MediaPortal concept: Plugins simply can add a module to the HTTP server.
-    /// </remarks>
-    /// <param name="module"></param>
-    void AddAuthenticationModule(AuthenticationModule module);
+    /// <param name="moduleType">Type of OwinMiddleware</param>
+    void AddHttpModule(Type moduleType);
 
     /// <summary>
     /// Removes an HTTP module from the HTTP server.
     /// </summary>
-    /// <param name="module">Module to remove.</param>
-    void RemoveHttpModule(HttpModule module);
+    /// <param name="moduleType">Type of OwinMiddleware to remove.</param>
+    void RemoveHttpModule(Type moduleType);
   }
 }

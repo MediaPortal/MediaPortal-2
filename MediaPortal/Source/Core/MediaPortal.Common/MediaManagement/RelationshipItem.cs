@@ -24,52 +24,137 @@
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.Xml;
+using System.Xml.Schema;
+using System.Xml.Serialization;
 
 namespace MediaPortal.Common.MediaManagement
 {
   /// <summary>
-  /// Encapsulates a relationship extracted from a <see cref="IRelationshipRoleExtractor"/>.
+  /// Encapsulates the role, linked role and aspects of a relationship extracted by a <see cref="IRelationshipRoleExtractor"/>.
   /// </summary>
-  public class RelationshipItem
+  public class RelationshipItem : IXmlSerializable
   {
-    /// <summary>
-    /// Creates a new <see cref="RelationshipItem"/> and sets <see cref="HasChanged"/> to true if <paramref name="mediaItemId"/> is empty. 
-    /// </summary>
-    /// <param name="aspects">The extracted aspects of the relationship item.</param>
-    /// <param name="mediaItemId">The media item id of the relationship item.</param>
-    public RelationshipItem(IDictionary<Guid, IList<MediaItemAspect>> aspects, Guid mediaItemId)
-      : this(aspects, mediaItemId, mediaItemId == Guid.Empty)
-    { }
+    #region Protected fields
+
+    protected Guid _role;
+    protected Guid _linkedRole;
+    protected readonly IDictionary<Guid, IList<MediaItemAspect>> _aspects;
+
+    #endregion
 
     /// <summary>
     /// Creates a new <see cref="RelationshipItem"/>.
     /// </summary>
+    /// <param name="role">The role of the media item that this relationship belongs to.</param>
+    /// <param name="linkedRole">The role of this relationship.</param>
     /// <param name="aspects">The extracted aspects of the relationship item.</param>
-    /// <param name="mediaItemId">The media item id of the relationship item.</param>
-    /// <param name="hasChanged">Whether aspects have been added or updated.</param>
-    public RelationshipItem(IDictionary<Guid, IList<MediaItemAspect>> aspects, Guid mediaItemId, bool hasChanged)
+    public RelationshipItem(Guid role, Guid linkedRole, IDictionary<Guid, IList<MediaItemAspect>> aspects)
     {
-      Aspects = aspects;
-      MediaItemId = mediaItemId;
-      HasChanged = hasChanged;
+      _role = role;
+      _linkedRole = linkedRole;
+      _aspects = new Dictionary<Guid, IList<MediaItemAspect>>(aspects);
+    }
+
+    /// <summary>
+    /// The role of the aspects this relationship was extracted from.
+    /// </summary>
+    public Guid Role
+    {
+      get { return _role; }
+    }
+
+    /// <summary>
+    /// The role of the aspects of this relationship.
+    /// </summary>
+    public Guid LinkedRole
+    {
+      get { return _linkedRole; }
     }
 
     /// <summary>
     /// The extracted aspects of the relationship item.
     /// </summary>
-    public IDictionary<Guid, IList<MediaItemAspect>> Aspects { get; set; }
+    public IDictionary<Guid, IList<MediaItemAspect>> Aspects
+    {
+      get { return _aspects; }
+    }
 
-    /// <summary>
-    /// The media item id of the relationship item if known,
-    /// </summary>
-    public Guid MediaItemId { get; set; }
+    XmlSchema IXmlSerializable.GetSchema()
+    {
+      return null;
+    }
 
-    /// <summary>
-    /// Whether aspects have been added or updated.
-    /// </summary>
-    public bool HasChanged { get; set; }
+    void IXmlSerializable.ReadXml(XmlReader reader)
+    {
+      try
+      {
+        // First read attributes, then check for empty start element
+        if (!reader.MoveToAttribute("Role"))
+          throw new ArgumentException("Role attribute not present");
+        _role = new Guid(reader.Value);
+        if (!reader.MoveToAttribute("LinkedRole"))
+          throw new ArgumentException("LinkedRole attribute not present");
+        _linkedRole = new Guid(reader.Value);
+        if (reader.IsEmptyElement)
+          return;
+      }
+      finally
+      {
+        reader.ReadStartElement();
+      }
+      while (reader.NodeType != XmlNodeType.EndElement)
+      {
+        if (reader.Name == "Aspect")
+        {
+          MediaItemAspect mia = MediaItemAspect.Deserialize(reader);
+          if (mia is SingleMediaItemAspect)
+          {
+            MediaItemAspect.SetAspect(_aspects, (SingleMediaItemAspect)mia);
+          }
+          else if (mia is MultipleMediaItemAspect)
+          {
+            MediaItemAspect.AddOrUpdateAspect(_aspects, (MultipleMediaItemAspect)mia);
+          }
+        }
+        else
+        {
+          reader.Read();
+        }
+      }
+      reader.ReadEndElement(); // RI
+    }
+
+    void IXmlSerializable.WriteXml(XmlWriter writer)
+    {
+      writer.WriteAttributeString("Role", _role.ToString("D"));
+      writer.WriteAttributeString("LinkedRole", _linkedRole.ToString("D"));
+      foreach (IList<MediaItemAspect> list in _aspects.Values)
+        foreach (MediaItemAspect mia in list)
+          mia.Serialize(writer);
+    }
+
+    public void Serialize(XmlWriter writer)
+    {
+      writer.WriteStartElement("RI"); // MediaItem
+      ((IXmlSerializable)this).WriteXml(writer);
+      writer.WriteEndElement(); // MediaItem
+    }
+
+    public static RelationshipItem Deserialize(XmlReader reader)
+    {
+      RelationshipItem result = new RelationshipItem();
+      ((IXmlSerializable)result).ReadXml(reader);
+      return result;
+    }
+
+    #region Additional members for the XML serialization
+
+    internal RelationshipItem()
+    {
+      _aspects = new Dictionary<Guid, IList<MediaItemAspect>>();
+    }
+
+    #endregion
   }
 }

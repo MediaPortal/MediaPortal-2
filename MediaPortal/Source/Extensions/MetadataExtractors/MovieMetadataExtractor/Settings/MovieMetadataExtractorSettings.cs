@@ -65,7 +65,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor.Setti
     /// <summary>
     /// If <c>true</c>, the MovieMetadataExtractor does not fetch any information for missing movies in a collection.
     /// </summary>
-    [Setting(SettingScope.Global, false)]
+    [Setting(SettingScope.Global, true)]
     public bool OnlyLocalMedia { get; set; }
 
     /// <summary>

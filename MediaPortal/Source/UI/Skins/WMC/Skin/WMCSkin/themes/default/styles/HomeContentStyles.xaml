@@ -1,0 +1,893 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ResourceDictionary
+    xmlns="www.team-mediaportal.com/2008/mpf/directx"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:system="clr-namespace:System"
+    xmlns:collections="clr-namespace:MediaPortal.UI.Presentation.DataObjects;assembly=MediaPortal.UI"
+    xmlns:fanart="clr-namespace:MediaPortal.Extensions.UserServices.FanArtService.Client;assembly=FanArtService.Client"
+    xmlns:navitems="clr-namespace:MediaPortal.UiComponents.Media.Models.Navigation;assembly=Media"
+    xmlns:wmcc="clr-namespace:MediaPortal.UiComponents.WMCSkin.Converters;assembly=WMCSkin"
+    DependsOnStyleResources="Colors,Consts,OtherControlsOverrides,OtherControls,MediaStyles"
+    >
+
+  <wmcc:MediaListVisibilityConverter x:Key="MediaListVisibilityConverter"/>
+  <wmcc:MultiMediaListIsVisibleConverter x:Key="MultiMediaListIsVisibleConverter"/>
+
+  <Model x:Key="CurrentWeatherModel" Id="FC57FF5C-F72F-47E9-B973-338E31FF7FF1"/>
+  <Model x:Key="CurrentNewsModel" Id="EE1BBF83-AE5C-491C-9978-14737A2B0883"/>
+  <Model x:Key="MediaListModel" Id="6121E6CC-EB66-4ABC-8AA0-D952B64C0414"/>
+  <Model x:Key="HomeMenuModel" Id="2EAA2DAB-241F-432F-A487-CDD35CCD4309"/>
+  <Model x:Key="HomeContentModel" Id="24BB1BBE-A3B3-474A-8D55-C37EBE182F6C"/>
+
+  <!--++++++++++++++++++++++++++++++++++-->
+  <!--++++ HOME CONTENT ITEM STYLES ++++-->
+  <!--++++++++++++++++++++++++++++++++++-->
+
+  <ControlTemplate x:Key="ContentIndicator_Template">
+    <Grid x:Name="IndicatorGrid" Opacity="0">
+      <Image Stretch="Uniform" Width="40" Source="i-indicator.png" Opacity="0.35"
+             IsEnabled="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=IsEnabled}">
+        <Image.Resources>
+          <Storyboard x:Key="InfoBlinkStoryboard">
+            <DoubleAnimationUsingKeyFrames Storyboard.TargetProperty="Opacity"
+                                         AccelerationRatio="0.2" DecelerationRatio="0.2"
+                                         BeginTime="00:00:00" RepeatBehavior="Forever" FillBehavior="HoldEnd">
+              <SplineDoubleKeyFrame KeyTime="00:00:00" Value="0"/>
+              <SplineDoubleKeyFrame KeyTime="00:00:01.5" Value="0.35"/>
+              <SplineDoubleKeyFrame KeyTime="00:00:03" Value="0"/>
+            </DoubleAnimationUsingKeyFrames>
+          </Storyboard>
+          <Storyboard x:Key="DelayStoryboard">
+            <DoubleAnimationUsingKeyFrames Storyboard.TargetName="IndicatorGrid" Storyboard.TargetProperty="Opacity" RepeatBehavior="None"
+                                           BeginTime="00:00:00" FillBehavior="HoldEnd">
+              <SplineDoubleKeyFrame KeyTime="00:00:00" Value="0"/>
+              <SplineDoubleKeyFrame KeyTime="00:00:04.0" Value="0"/>
+              <SplineDoubleKeyFrame KeyTime="00:00:04.1" Value="1"/>
+            </DoubleAnimationUsingKeyFrames>
+          </Storyboard>
+        </Image.Resources>
+        <Image.Triggers>
+          <MultiTrigger>
+            <MultiTrigger.Conditions>
+              <Condition Binding="{Binding Source={StaticResource HomeContentModel}, Path=IsContentFocused}" Value="False"/>
+              <Condition Property="IsEnabled" Value="True"/>
+            </MultiTrigger.Conditions>
+            <MultiTrigger.EnterActions>
+              <BeginStoryboard x:Name="Disabled_BeginStoryBoard" Storyboard="{ThemeResource InfoBlinkStoryboard}"/>
+              <BeginStoryboard x:Name="Delay_BeginStoryBoard" Storyboard="{ThemeResource DelayStoryboard}"/>
+            </MultiTrigger.EnterActions>
+            <MultiTrigger.ExitActions>
+              <StopStoryboard BeginStoryboardName="Disabled_BeginStoryBoard"/>
+              <StopStoryboard BeginStoryboardName="Delay_BeginStoryBoard"/>
+            </MultiTrigger.ExitActions>
+          </MultiTrigger>
+        </Image.Triggers>
+      </Image>
+    </Grid>
+  </ControlTemplate>
+
+  <Style x:Key="HomeMediaListGridViewContainerStyle" BasedOn="{ThemeResource DefaultItemContainerStyle}">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="{x:Type ListViewItem}">
+          <Button Style="{ThemeResource ButtonWideStyle_Grid}"
+                  Command="{Binding Path=Command,Mode=OneTime}"
+                  IsEnabled="{Binding Enabled}" SetFocus="{Binding Path=Selected,Mode=OneTime}">
+            <Button.IsEnabled>
+              <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} &amp;&amp; {1}">
+                <!-- Consider the item's enabled state -->
+                <Binding Path="Enabled"/>
+                <!-- In combination with the parent ListView's enabled state -->
+                <Binding RelativeSource="{RelativeSource Mode=FindAncestor,AncestorType={x:Type ListView}}" Path="IsEnabled"/>
+              </MultiBinding>
+            </Button.IsEnabled>
+          </Button>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+
+  <Style x:Key="HomeMediaListListViewContainerStyle" BasedOn="{ThemeResource DefaultItemContainerStyle}">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="{x:Type ListViewItem}">
+          <Button Style="{ThemeResource ButtonWideStyle_List_Grow}"
+                  Command="{Binding Path=Command,Mode=OneTime}"
+                  IsEnabled="{Binding Enabled}" SetFocus="{Binding Path=Selected,Mode=OneTime}"/>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+
+  <DataTemplate x:Key="ChannelDataTemplate" DataType="{x:Type collections:ListItem}">
+    <Grid x:Name="ItemControl" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+      <Grid.ColumnDefinitions>
+        <ColumnDefinition Width="{StaticResource CHANNEL_GRID_WIDTH_S}"/>
+      </Grid.ColumnDefinitions>
+      <Grid.RowDefinitions>
+        <RowDefinition Height="{StaticResource CHANNEL_GRID_HEIGHT_S}"/>
+      </Grid.RowDefinitions>
+      <Grid.OpacityMask>
+        <VisualBrush>
+          <VisualBrush.Visual>
+            <Border Background="White" CornerRadius="6" BorderThickness="0" BorderBrush="Black"/>
+          </VisualBrush.Visual>
+        </VisualBrush>
+      </Grid.OpacityMask>
+      <Border VerticalAlignment="Stretch" HorizontalAlignment="Stretch" BorderThickness="0">
+        <Border.Background>
+          <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+            <GradientStop Color="White" Offset="0"/>
+            <GradientStop Color="#BBBBBB" Offset="1"/>
+          </LinearGradientBrush>
+        </Border.Background>
+      </Border>
+      <Image x:Name="ItemTypeImage" Stretch="Uniform" Margin="10,5,10,5">
+        <Image.Source>
+          <fanart:FanArtImageSource fanart:FanArtMediaType="{Binding ChannelLogoType}" fanart:FanArtType="Banner" fanart:FanArtName="{Binding Channel.Name}"
+                                    fanart:MaxWidth="{StaticResource CHANNEL_GRID_WIDTH_S}" fanart:MaxHeight="{StaticResource CHANNEL_GRID_HEIGHT_S}"/>
+        </Image.Source>
+      </Image>
+      <Label x:Name="ItemLabel" HorizontalAlignment="Center" VerticalAlignment="Center" Height="{StaticResource CHANNEL_GRID_HEIGHT_S}"
+             Wrap="True" IsVisible="{Binding ElementName=ItemTypeImage, Path=!HasImage}" Width="{StaticResource CHANNEL_GRID_WIDTH_S}"
+             HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Content="{Binding Channel.Name}"
+             Color="Black" FontSize="{ThemeResource SmallerFontSize}" Margin="5"/>
+    </Grid>
+  </DataTemplate>
+
+  <DataTemplate x:Key="ProgramsDataTemplate" DataType="{x:Type collections:ListItem}">
+    <Grid x:Name="ItemControl" HorizontalAlignment="Stretch" Height="{StaticResource CHANNEL_GRID_HEIGHT_S}">
+      <Grid.ColumnDefinitions>
+        <ColumnDefinition Width="20*"/>
+        <ColumnDefinition Width="70*"/>
+        <ColumnDefinition Width="10*"/>
+      </Grid.ColumnDefinitions>
+      <Grid.RowDefinitions>
+        <RowDefinition Height="*"/>
+        <RowDefinition Height="*"/>
+      </Grid.RowDefinitions>
+      <Border Background="Black" CornerRadius="5" BorderThickness="0" Opacity="0.2" HorizontalAlignment="Stretch" 
+              Grid.ColumnSpan="3" Grid.RowSpan="2" VerticalAlignment="Stretch"/>
+      <Image x:Name="ItemTypeImage" Stretch="Uniform" Margin="15,10,15,10" Grid.RowSpan="2" VerticalAlignment="Center" >
+        <Image.Source>
+          <fanart:FanArtImageSource fanart:FanArtMediaType="{Binding Program.ChannelLogoType}" fanart:FanArtType="Banner" fanart:FanArtName="{Binding Program.ChannelName}"
+                                    fanart:MaxWidth="{StaticResource VIDEO_GRID_WIDTH_S}" fanart:MaxHeight="{StaticResource VIDEO_GRID_HEIGHT_S}"/>
+        </Image.Source>
+      </Image>
+      <Label x:Name="ProgramLabel" VerticalAlignment="Center" HorizontalAlignment="Stretch" Grid.Column="1" Margin="0,1,0,-1" Content="{Binding Program.Title}" FontFamily="SegoeUIBold"
+             TextTrimming="CharacterEllipsis" Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallerFontSize}" />
+      <Label x:Name="StartTimeLabel" VerticalAlignment="Center" Grid.Column="1" Grid.Row="1" Margin="0,-1,0,1" Content="{Binding Program.StartTime}"
+             Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallerFontSize}" />
+      <Image VerticalAlignment="Center" HorizontalAlignment="Center" Stretch="Fill" Width="75" Height="75" Grid.Column="2" Margin="3" Grid.RowSpan="2">
+        <Image.Source>
+          <Binding Path="Progress" Converter="{StaticResource StringFormatConverter}" ConverterParameter="{}CircularBar\{0:F0}.png"/>
+        </Image.Source>
+      </Image>
+    </Grid>
+  </DataTemplate>
+
+  <DataTemplate x:Key="SchedulesDataTemplate" DataType="{x:Type collections:ListItem}">
+    <Grid x:Name="ItemControl" HorizontalAlignment="Stretch" Height="{StaticResource CHANNEL_GRID_HEIGHT_S}">
+      <Grid.ColumnDefinitions>
+        <ColumnDefinition Width="20*"/>
+        <ColumnDefinition Width="30*"/>
+        <ColumnDefinition Width="42*"/>
+        <ColumnDefinition Width="8*"/>
+      </Grid.ColumnDefinitions>
+      <Grid.RowDefinitions>
+        <RowDefinition Height="*"/>
+        <RowDefinition Height="*"/>
+      </Grid.RowDefinitions>
+      <Border Background="Black" CornerRadius="5" BorderThickness="0" Opacity="0.2" HorizontalAlignment="Stretch" 
+              Grid.ColumnSpan="4" Grid.RowSpan="2" VerticalAlignment="Stretch"/>
+      <Image x:Name="ItemTypeImage" Stretch="Uniform" Margin="10" Grid.RowSpan="2">
+        <Image.Source>
+          <fanart:FanArtImageSource fanart:FanArtMediaType="{Binding Program.ChannelLogoType}" fanart:FanArtType="Banner" fanart:FanArtName="{Binding Program.ChannelName}"
+                                    fanart:MaxWidth="{StaticResource VIDEO_GRID_WIDTH_S}" fanart:MaxHeight="{StaticResource VIDEO_GRID_HEIGHT_S}"/>
+        </Image.Source>
+      </Image>
+      <Label x:Name="ItemLabel" HorizontalAlignment="Center" VerticalAlignment="Center" 
+             TextTrimming="CharacterEllipsis" IsVisible="{Binding ElementName=ItemTypeImage, Path=!HasImage}"
+             Content="{Binding Program.ChannelName}" Color="Black" FontSize="{ThemeResource SmallFontSize}" Margin="5"/>
+      
+      <Label x:Name="ProgramLabel" VerticalAlignment="Center" HorizontalAlignment="Stretch" Grid.Column="1" Grid.ColumnSpan="3" Margin="0,1,0,-1" Content="{Binding Program.Title}" FontFamily="SegoeUIBold"
+             TextTrimming="CharacterEllipsis" Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallerFontSize}" />
+      <Label x:Name="StartTimeLabel" VerticalAlignment="Center" Grid.Column="1" Grid.Row="1" Margin="0,-1,0,1" Content="{Binding Program.StartTime}"
+             Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallerFontSize}" />
+
+      <Image Grid.Column="3" Grid.Row="1" x:Name="SeriesRecIndicator" Source="RECORD.SERIES.png" IsVisible="{Binding Program.IsSeriesScheduled}"
+             VerticalAlignment="Center" HorizontalAlignment="Left" Height="30" Stretch="Uniform" Margin="5,0,0,0"/>
+      <Image Grid.Column="3" Grid.Row="1" x:Name="RecIndicator" Source="RECORD.SINGLE.png" IsVisible="{Binding !Program.IsSeriesScheduled}"
+             VerticalAlignment="Center" HorizontalAlignment="Left" Height="30" Stretch="Uniform" Margin="5,0,0,0"/>
+
+      <Label x:Name="ScheduleTypeLabel" VerticalAlignment="Center" Grid.Column="2" Grid.Row="1" Content="{Binding [ScheduleType]}" ScrollDelay="0" Scroll="None"
+             Color="{ThemeResource MenuTextBackground}" FontSize="{ThemeResource SmallerFontSize}" HorizontalAlignment="Right" Margin="0,0,10,0">
+        <Label.Triggers>
+          <DataTrigger Binding="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Button}, Path=HasFocus}" Value="True">
+            <Setter Property="Scroll" Value="Auto"/>
+          </DataTrigger>
+        </Label.Triggers>
+      </Label>
+    </Grid>
+  </DataTemplate>
+
+  <!--++++++++++++++++++++++++++++++++++-->
+  <!--++++ HOME CONTENT LIST STYLES ++++-->
+  <!--++++++++++++++++++++++++++++++++++-->
+
+  <Style x:Key="HomeScreenMediaItemViewStyle" BasedOn="{ThemeResource ContentsMenuListViewStyle}">
+    <EventSetter Event="SelectionChanged" Handler="{CommandStencil Source={StaticResource FanArtBackgroundModel}, Path=SetSelectedItemOrNull}"/>
+    <Setter Property="ItemTemplate"/>
+    <!-- Don't inherit the ItemTemplate from ContentsMenuListViewStyle - It should remain null to make the SkinEngine choose an appropriate template -->
+    <Setter Property="DataStringProvider" Value="{ThemeResource MediaItemDataStringProvider}"/>
+    <Setter Property="ItemContainerStyle" Value="{ThemeResource HomeMediaListGridViewContainerStyle}"/>
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="{x:Type ListView}">
+          <ScrollViewer CanContentScroll="True" Margin="-20,5,-20,0" HorizontalScrollBarVisibility="Disabled"
+                        VerticalScrollBarVisibility="Disabled" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" >
+            <ItemsPresenter VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Margin="20,0,20,0" VerticalContentAlignment="Top" HorizontalContentAlignment="Left" />
+          </ScrollViewer>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+    <Setter Property="ItemsPanel">
+      <Setter.Value>
+        <ItemsPanelTemplate>
+          <VirtualizingStackPanel x:Name="ListItemsHost" Orientation="Horizontal" IsItemsHost="True" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
+        </ItemsPanelTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+
+  <Style x:Key="HomeScreenProgramItemViewStyle" BasedOn="{ThemeResource ContentsMenuListViewStyle}">
+    <Setter Property="ItemContainerStyle" Value="{ThemeResource HomeMediaListListViewContainerStyle}"/>
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="{x:Type ListView}">
+          <ScrollViewer CanContentScroll="True" Margin="-30,5,-30,-25" HorizontalScrollBarVisibility="Disabled"
+                        VerticalScrollBarVisibility="Disabled" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" >
+            <ItemsPresenter VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Margin="30,0,30,0" HorizontalContentAlignment="Center"/>
+          </ScrollViewer>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+    <Setter Property="ItemsPanel">
+      <Setter.Value>
+        <ItemsPanelTemplate>
+          <VirtualizingStackPanel x:Name="ListItemsHost" Orientation="Vertical" IsItemsHost="True" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" LoopScroll="False"/>
+        </ItemsPanelTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+
+  <Style x:Key="HomeScreenChannelViewStyle" BasedOn="{ThemeResource HomeScreenMediaItemViewStyle}">
+    <Setter Property="ItemTemplate" Value="{ThemeResource ChannelDataTemplate}"/>
+  </Style>
+
+  <Style x:Key="HomeScreenCurrentProgramsListViewStyle" BasedOn="{ThemeResource HomeScreenProgramItemViewStyle}">
+    <Setter Property="ItemTemplate" Value="{ThemeResource ProgramsDataTemplate}"/>
+  </Style>
+
+  <Style x:Key="HomeScreenCurrentSchedulesListViewStyle" BasedOn="{ThemeResource HomeScreenProgramItemViewStyle}">
+    <Setter Property="ItemTemplate" Value="{ThemeResource SchedulesDataTemplate}"/>
+  </Style>
+
+  <!--+++++++++++++++++++++++++++++++++++++++-->
+  <!--++++ HOME CONTENT LIST GROUP STYLE ++++-->
+  <!--+++++++++++++++++++++++++++++++++++++++-->
+
+  <Style x:Key="MainMediaListListViewStyle" BasedOn="{ThemeResource DefaultListViewStyle}">
+    <Setter Property="ItemTemplate"/>
+    <!-- Don't inherit the ItemTemplate from DefaultListViewStyle - It should remain null to make the SkinEngine choose an appropriate template -->
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="{x:Type ListView}">
+          <ScrollViewer HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="-20,-40,-20,0"
+                        Style="{ThemeResource VerticalMediaScrollViewerStyle}" CanContentScroll="True"
+                        HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Disabled">
+            <ItemsPresenter VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Margin="20,40,20,0"/>
+          </ScrollViewer>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+    <Setter Property="ItemsPanel">
+      <Setter.Value>
+        <ItemsPanelTemplate>
+          <AnimatedStackPanel x:Name="ListItemsHost" IsItemsHost="True" Orientation="Vertical" ScrollMargin="0,350,0,350"
+                               Margin="20,-300,0,-350" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+            <AnimatedStackPanel.Resources>
+              <Storyboard x:Key="ScrollAnimation" FillBehavior="HoldEnd">
+                <DoubleAnimation BeginTime="00:00:00" From="0" To="1" Duration="00:00:00.400"
+                                FillBehavior="HoldEnd" Storyboard.TargetName="ListItemsHost" Storyboard.TargetProperty="ScrollOffsetMultiplier" />
+              </Storyboard>
+            </AnimatedStackPanel.Resources>
+            <AnimatedStackPanel.Triggers>
+              <EventTrigger RoutedEvent="AnimatedStackPanel.Scroll">
+                <EventTrigger.Actions>
+                  <BeginStoryboard Storyboard="{ThemeResource ScrollAnimation}"/>
+                </EventTrigger.Actions>
+              </EventTrigger>
+            </AnimatedStackPanel.Triggers>
+          </AnimatedStackPanel>
+        </ItemsPanelTemplate>
+      </Setter.Value>
+    </Setter>
+    <Setter Property="LayoutTransform">
+      <Setter.Value>
+        <TransformGroup>
+            <ScaleTransform ScaleX="1" ScaleY="1"/>
+          </TransformGroup>
+      </Setter.Value>
+    </Setter>
+  </Style>
+
+  <Style x:Key="MediaListTemplateStyle" TargetType="{x:Type Control}">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate>
+          <StackPanel>
+            <Label x:Name="MediaListLabel" FontFamily="SegoeUIBold" Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallerFontSize}" Margin="0,10,0,-6"
+                   Content="{Binding Source={DynamicResource List_Label},Path=Resource}"/>
+
+            <ListView x:Name="MediaList" Margin="10"
+                      Style="{Binding Source={DynamicResource List_Style},Path=Resource}"
+                      IsEnabled="{Binding RelativeSource={RelativeSource AncestorType={x:Type ListView}}, Path=IsEnabled}"
+                      ItemsSource="{Binding Path=AllItems}"/>
+
+          </StackPanel>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+
+  <!--+++++++++++++++++++++++++++++++++++++++-->
+  <!--++++ HOME CONTENT LIST ITEM STYLES ++++-->
+  <!--+++++++++++++++++++++++++++++++++++++++-->
+
+  <Style x:Key="LatestAddedListViewItemStyle" BasedOn="{ThemeResource DefaultItemContainerStyle}">
+    <Setter Property="Content">
+      <Setter.Value>
+        <Control Style="{ThemeResource MediaListTemplateStyle}">
+          <Control.Resources>
+            <ResourceWrapper x:Key="List_Label" Resource="[WMC.Home.LatestAdded]"/>
+            <ResourceWrapper x:Key="List_Style" Resource="{ThemeResource HomeScreenMediaItemViewStyle}"/>
+          </Control.Resources>
+        </Control>
+      </Setter.Value>
+    </Setter>
+  </Style>
+
+  <Style x:Key="LatestPlayedListViewItemStyle" BasedOn="{ThemeResource DefaultItemContainerStyle}">
+    <Setter Property="Content">
+      <Setter.Value>
+        <Control Style="{ThemeResource MediaListTemplateStyle}">
+          <Control.Resources>
+            <ResourceWrapper x:Key="List_Label" Resource="[WMC.Home.LatestPlayed]"/>
+            <ResourceWrapper x:Key="List_Style" Resource="{ThemeResource HomeScreenMediaItemViewStyle}"/>
+          </Control.Resources>
+        </Control>
+      </Setter.Value>
+    </Setter>
+  </Style>
+
+  <Style x:Key="ContinuePlayedListViewItemStyle" BasedOn="{ThemeResource DefaultItemContainerStyle}">
+    <Setter Property="Content">
+      <Setter.Value>
+        <Control Style="{ThemeResource MediaListTemplateStyle}">
+          <Control.Resources>
+            <ResourceWrapper x:Key="List_Label" Resource="[WMC.Home.ContinuePlayed]"/>
+            <ResourceWrapper x:Key="List_Style" Resource="{ThemeResource HomeScreenMediaItemViewStyle}"/>
+          </Control.Resources>
+        </Control>
+      </Setter.Value>
+    </Setter>
+  </Style>
+
+  <Style x:Key="FavoriteListViewItemStyle" BasedOn="{ThemeResource DefaultItemContainerStyle}">
+    <Setter Property="Content">
+      <Setter.Value>
+        <Control Style="{ThemeResource MediaListTemplateStyle}">
+          <Control.Resources>
+            <ResourceWrapper x:Key="List_Label" Resource="[WMC.Home.Favorites]"/>
+            <ResourceWrapper x:Key="List_Style" Resource="{ThemeResource HomeScreenMediaItemViewStyle}"/>
+          </Control.Resources>
+        </Control>
+      </Setter.Value>
+    </Setter>
+  </Style>
+
+  <Style x:Key="UnplayedListViewItemStyle" BasedOn="{ThemeResource DefaultItemContainerStyle}">
+    <Setter Property="Content">
+      <Setter.Value>
+        <Control Style="{ThemeResource MediaListTemplateStyle}">
+          <Control.Resources>
+            <ResourceWrapper x:Key="List_Label" Resource="[WMC.Home.Unplayed]"/>
+            <ResourceWrapper x:Key="List_Style" Resource="{ThemeResource HomeScreenMediaItemViewStyle}"/>
+          </Control.Resources>
+        </Control>
+      </Setter.Value>
+    </Setter>
+  </Style>
+
+  <Style x:Key="LatestPlayedChannelListViewItemStyle" BasedOn="{ThemeResource DefaultItemContainerStyle}">
+    <Setter Property="Content">
+      <Setter.Value>
+        <Control Style="{ThemeResource MediaListTemplateStyle}">
+          <Control.Resources>
+            <ResourceWrapper x:Key="List_Label" Resource="[WMC.Home.LatestPlayed]"/>
+            <ResourceWrapper x:Key="List_Style" Resource="{ThemeResource HomeScreenChannelViewStyle}"/>
+          </Control.Resources>
+        </Control>
+      </Setter.Value>
+    </Setter>
+  </Style>
+
+  <Style x:Key="FavoriteChannelListViewItemStyle" BasedOn="{ThemeResource DefaultItemContainerStyle}">
+    <Setter Property="Content">
+      <Setter.Value>
+        <Control Style="{ThemeResource MediaListTemplateStyle}">
+          <Control.Resources>
+            <ResourceWrapper x:Key="List_Label" Resource="[WMC.Home.Favorites]"/>
+            <ResourceWrapper x:Key="List_Style" Resource="{ThemeResource HomeScreenChannelViewStyle}"/>
+          </Control.Resources>
+        </Control>
+      </Setter.Value>
+    </Setter>
+  </Style>
+
+  <Style x:Key="CurrentProgramListViewItemStyle" BasedOn="{ThemeResource DefaultItemContainerStyle}">
+    <Setter Property="Content">
+      <Setter.Value>
+        <Control Style="{ThemeResource MediaListTemplateStyle}">
+          <Control.Resources>
+            <ResourceWrapper x:Key="List_Label" Resource="[WMC.Home.CurrentPrograms]"/>
+            <ResourceWrapper x:Key="List_Style" Resource="{ThemeResource HomeScreenCurrentProgramsListViewStyle}"/>
+          </Control.Resources>
+        </Control>
+      </Setter.Value>
+    </Setter>
+  </Style>
+
+  <Style x:Key="CurrentScheduleListViewItemStyle" BasedOn="{ThemeResource DefaultItemContainerStyle}">
+    <Setter Property="Content">
+      <Setter.Value>
+        <Control Style="{ThemeResource MediaListTemplateStyle}">
+          <Control.Resources>
+            <ResourceWrapper x:Key="List_Label" Resource="[WMC.Home.CurrentSchedules]"/>
+            <ResourceWrapper x:Key="List_Style" Resource="{ThemeResource HomeScreenCurrentSchedulesListViewStyle}"/>
+          </Control.Resources>
+        </Control>
+      </Setter.Value>
+    </Setter>
+  </Style>
+
+  <!--+++++++++++++++++++++++++++++++++++++++++++++-->
+  <!--++++ ACTION ID -> HOME CONTENT TEMPLATES ++++-->
+  <!--+++++++++++++++++++++++++++++++++++++++++++++-->
+
+  <!--++++++++++ Movies +++++++++++-->
+
+  <ControlTemplate x:Key="80d2e2cc-baaa-4750-807b-f37714153751">
+    <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+      <Grid.ColumnDefinitions>
+        <ColumnDefinition Width="*"/>
+      </Grid.ColumnDefinitions>
+      <Grid.RowDefinitions>
+        <RowDefinition Height="*"/>
+      </Grid.RowDefinitions>
+      <ListView Style="{ThemeResource MainMediaListListViewStyle}"
+                IsEnabled="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=IsEnabled}">
+        <ListView.Resources>
+          <DataTemplate DataType="{x:Type navitems:MovieItem}">
+            <Control Template="{StaticResource GridViewMovieItemSmallTemplate}"/>
+          </DataTemplate>
+        </ListView.Resources>
+        <ListViewItem DataContext="{Binding Source={StaticResource MediaListModel}, Path=Lists[LatestMovies]}"
+                      Style="{ThemeResource LatestAddedListViewItemStyle}"
+                      Visibility="{Binding Source={Binding AllItems}, Converter={StaticResource MediaListVisibilityConverter}}"/>
+        <ListViewItem DataContext="{Binding Source={StaticResource MediaListModel}, Path=Lists[ContinuePlayMovies]}"
+                      Style="{ThemeResource ContinuePlayedListViewItemStyle}"
+                      Visibility="{Binding Source={Binding AllItems}, Converter={StaticResource MediaListVisibilityConverter}}"/>
+        <ListViewItem DataContext="{Binding Source={StaticResource MediaListModel}, Path=Lists[FavoriteMovies]}"
+                      Style="{ThemeResource FavoriteListViewItemStyle}"
+                      Visibility="{Binding Source={Binding AllItems}, Converter={StaticResource MediaListVisibilityConverter}}"/>
+        <ListViewItem DataContext="{Binding Source={StaticResource MediaListModel}, Path=Lists[UnplayedMovies]}"
+                      Style="{ThemeResource UnplayedListViewItemStyle}"
+                      Visibility="{Binding Source={Binding AllItems}, Converter={StaticResource MediaListVisibilityConverter}}"/>
+      </ListView>
+      <Control HorizontalAlignment="Left" VerticalAlignment="Top" Margin="-30,80,0,0"
+               DataContext="{Binding Source={StaticResource MediaListModel}}"
+               IsEnabled="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=IsEnabled}"
+               Template="{StaticResource ResourceKey=ContentIndicator_Template}">
+        <Control.IsVisible>
+          <MultiBinding Converter="{StaticResource MultiMediaListIsVisibleConverter}">
+            <Binding Source="{Binding Source={Binding Lists[LatestMovies]}, Path=AllItems}"/>
+            <Binding Source="{Binding Source={Binding Lists[ContinuePlayMovies]}, Path=AllItems}"/>
+            <Binding Source="{Binding Source={Binding Lists[FavoriteMovies]}, Path=AllItems}"/>
+            <Binding Source="{Binding Source={Binding Lists[UnplayedMovies]}, Path=AllItems}"/>
+          </MultiBinding>
+        </Control.IsVisible>
+      </Control>
+    </Grid>
+  </ControlTemplate>
+
+  <!--++++++++++ Audio +++++++++++-->
+
+  <ControlTemplate x:Key="30715d73-4205-417f-80aa-e82f0834171f">
+    <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+      <Grid.ColumnDefinitions>
+        <ColumnDefinition Width="*"/>
+      </Grid.ColumnDefinitions>
+      <Grid.RowDefinitions>
+        <RowDefinition Height="*"/>
+      </Grid.RowDefinitions>
+      <ListView Style="{ThemeResource MainMediaListListViewStyle}"
+                IsEnabled="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=IsEnabled}">
+        <ListView.Resources>
+          <DataTemplate DataType="{x:Type navitems:AudioItem}">
+            <Control Template="{StaticResource GridViewAudioItemSmallTemplate}"/>
+          </DataTemplate>
+          <DataTemplate DataType="{x:Type navitems:AlbumFilterItem}">
+            <Control Template="{StaticResource GridViewAlbumItemSmallTemplate}"/>
+          </DataTemplate>
+        </ListView.Resources>
+        <ListViewItem DataContext="{Binding Source={StaticResource MediaListModel}, Path=Lists[LatestAudio]}"
+                      Style="{ThemeResource LatestAddedListViewItemStyle}"
+                      Visibility="{Binding Source={Binding AllItems}, Converter={StaticResource MediaListVisibilityConverter}}"/>
+        <ListViewItem DataContext="{Binding Source={StaticResource MediaListModel}, Path=Lists[LastPlayAudio]}"
+                      Style="{ThemeResource LatestPlayedListViewItemStyle}"
+                      Visibility="{Binding Source={Binding AllItems}, Converter={StaticResource MediaListVisibilityConverter}}"/>
+        <ListViewItem DataContext="{Binding Source={StaticResource MediaListModel}, Path=Lists[FavoriteAlbum]}"
+                      Style="{ThemeResource FavoriteListViewItemStyle}"
+                      Visibility="{Binding Source={Binding AllItems}, Converter={StaticResource MediaListVisibilityConverter}}"/>
+        <ListViewItem DataContext="{Binding Source={StaticResource MediaListModel}, Path=Lists[UnplayedAlbum]}"
+                      Style="{ThemeResource UnplayedListViewItemStyle}"
+                      Visibility="{Binding Source={Binding AllItems}, Converter={StaticResource MediaListVisibilityConverter}}"/>
+      </ListView>
+      <Control HorizontalAlignment="Left" VerticalAlignment="Top" Margin="-30,80,0,0"
+               DataContext="{Binding Source={StaticResource MediaListModel}}"
+               IsEnabled="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=IsEnabled}"
+               Template="{StaticResource ResourceKey=ContentIndicator_Template}">
+        <Control.IsVisible>
+          <MultiBinding Converter="{StaticResource MultiMediaListIsVisibleConverter}">
+            <Binding Source="{Binding Source={Binding Lists[LatestAudio]}, Path=AllItems}"/>
+            <Binding Source="{Binding Source={Binding Lists[LastPlayAudio]}, Path=AllItems}"/>
+            <Binding Source="{Binding Source={Binding Lists[FavoriteAlbum]}, Path=AllItems}"/>
+            <Binding Source="{Binding Source={Binding Lists[UnplayedAlbum]}, Path=AllItems}"/>
+          </MultiBinding>
+        </Control.IsVisible>
+      </Control>
+    </Grid>
+  </ControlTemplate>
+
+  <!--++++++++++ Episodes +++++++++++-->
+
+  <ControlTemplate x:Key="30f57cba-459c-4202-a587-09fff5098251">
+    <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+      <Grid.ColumnDefinitions>
+        <ColumnDefinition Width="*"/>
+      </Grid.ColumnDefinitions>
+      <Grid.RowDefinitions>
+        <RowDefinition Height="*"/>
+      </Grid.RowDefinitions>
+      <ListView Style="{ThemeResource MainMediaListListViewStyle}"
+                IsEnabled="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=IsEnabled}">
+        <ListView.Resources>
+          <DataTemplate DataType="{x:Type navitems:EpisodeItem}">
+            <Control Template="{StaticResource GridViewEpisodeItemSmallTemplate}"/>
+          </DataTemplate>
+          <DataTemplate DataType="{x:Type navitems:SeriesFilterItem}">
+            <Control Template="{StaticResource GridViewSeriesFilterItemSmallTemplate}"/>
+          </DataTemplate>
+        </ListView.Resources>
+        <ListViewItem DataContext="{Binding Source={StaticResource MediaListModel}, Path=Lists[LatestEpisodes]}"
+                      Style="{ThemeResource LatestAddedListViewItemStyle}"
+                      Visibility="{Binding Source={Binding AllItems}, Converter={StaticResource MediaListVisibilityConverter}}"/>
+        <ListViewItem DataContext="{Binding Source={StaticResource MediaListModel}, Path=Lists[ContinuePlayEpisodes]}"
+                      Style="{ThemeResource ContinuePlayedListViewItemStyle}"
+                      Visibility="{Binding Source={Binding AllItems}, Converter={StaticResource MediaListVisibilityConverter}}"/>
+        <ListViewItem DataContext="{Binding Source={StaticResource MediaListModel}, Path=Lists[FavoriteSeries]}"
+                      Style="{ThemeResource FavoriteListViewItemStyle}"
+                      Visibility="{Binding Source={Binding AllItems}, Converter={StaticResource MediaListVisibilityConverter}}"/>
+        <ListViewItem DataContext="{Binding Source={StaticResource MediaListModel}, Path=Lists[UnplayedSeries]}"
+                      Style="{ThemeResource UnplayedListViewItemStyle}"
+                      Visibility="{Binding Source={Binding AllItems}, Converter={StaticResource MediaListVisibilityConverter}}"/>
+      </ListView>
+      <Control HorizontalAlignment="Left" VerticalAlignment="Top" Margin="-30,80,0,0"
+               DataContext="{Binding Source={StaticResource MediaListModel}}"
+               IsEnabled="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=IsEnabled}"
+               Template="{StaticResource ResourceKey=ContentIndicator_Template}">
+        <Control.IsVisible>
+          <MultiBinding Converter="{StaticResource MultiMediaListIsVisibleConverter}">
+            <Binding Source="{Binding Source={Binding Lists[LatestEpisodes]}, Path=AllItems}"/>
+            <Binding Source="{Binding Source={Binding Lists[ContinuePlayEpisodes]}, Path=AllItems}"/>
+            <Binding Source="{Binding Source={Binding Lists[FavoriteSeries]}, Path=AllItems}"/>
+            <Binding Source="{Binding Source={Binding Lists[UnplayedSeries]}, Path=AllItems}"/>
+          </MultiBinding>
+        </Control.IsVisible>
+      </Control>
+    </Grid>
+  </ControlTemplate>
+
+  <!--++++++++++ Recordings +++++++++++-->
+
+  <ControlTemplate x:Key="7f52d0a1-b7f8-46a1-a56b-1110bbfb7d51">
+    <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+      <Grid.ColumnDefinitions>
+        <ColumnDefinition Width="*"/>
+      </Grid.ColumnDefinitions>
+      <Grid.RowDefinitions>
+        <RowDefinition Height="*"/>
+      </Grid.RowDefinitions>
+      <ListView Style="{ThemeResource MainMediaListListViewStyle}"
+                IsEnabled="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=IsEnabled}">
+        <ListViewItem DataContext="{Binding Source={StaticResource MediaListModel}, Path=Lists[LatestRecordings]}"
+                      Style="{ThemeResource LatestAddedListViewItemStyle}"
+                      Visibility="{Binding Source={Binding AllItems}, Converter={StaticResource MediaListVisibilityConverter}}"/>
+        <ListViewItem DataContext="{Binding Source={StaticResource MediaListModel}, Path=Lists[LastPlayRecordings]}"
+                      Style="{ThemeResource LatestPlayedListViewItemStyle}"
+                      Visibility="{Binding Source={Binding AllItems}, Converter={StaticResource MediaListVisibilityConverter}}"/>
+        <ListViewItem DataContext="{Binding Source={StaticResource MediaListModel}, Path=Lists[FavoriteRecordings]}"
+                      Style="{ThemeResource FavoriteListViewItemStyle}"
+                      Visibility="{Binding Source={Binding AllItems}, Converter={StaticResource MediaListVisibilityConverter}}"/>
+        <ListViewItem DataContext="{Binding Source={StaticResource MediaListModel}, Path=Lists[UnplayedRecordings]}"
+                      Style="{ThemeResource UnplayedListViewItemStyle}"
+                      Visibility="{Binding Source={Binding AllItems}, Converter={StaticResource MediaListVisibilityConverter}}"/>
+      </ListView>
+      <Control HorizontalAlignment="Left" VerticalAlignment="Top" Margin="-30,80,0,0"
+               DataContext="{Binding Source={StaticResource MediaListModel}}"
+               IsEnabled="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=IsEnabled}"
+               Template="{StaticResource ResourceKey=ContentIndicator_Template}">
+        <Control.IsVisible>
+          <MultiBinding Converter="{StaticResource MultiMediaListIsVisibleConverter}">
+            <Binding Source="{Binding Source={Binding Lists[LatestRecordings]}, Path=AllItems}"/>
+            <Binding Source="{Binding Source={Binding Lists[LastPlayRecordings]}, Path=AllItems}"/>
+            <Binding Source="{Binding Source={Binding Lists[FavoriteRecordings]}, Path=AllItems}"/>
+            <Binding Source="{Binding Source={Binding Lists[UnplayedRecordings]}, Path=AllItems}"/>
+          </MultiBinding>
+        </Control.IsVisible>
+      </Control>
+    </Grid>
+  </ControlTemplate>
+
+  <!--++++++++++ Images +++++++++++-->
+
+  <ControlTemplate x:Key="55556593-9fe9-436c-a3b6-a971e10c9d44">
+    <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+      <Grid.ColumnDefinitions>
+        <ColumnDefinition Width="*"/>
+      </Grid.ColumnDefinitions>
+      <Grid.RowDefinitions>
+        <RowDefinition Height="*"/>
+      </Grid.RowDefinitions>
+      <ListView Style="{ThemeResource MainMediaListListViewStyle}">
+        <ListView.Resources>
+          <DataTemplate DataType="{x:Type navitems:ImageItem}">
+            <Control Template="{StaticResource GridViewImageItemSmallTemplate}"/>
+          </DataTemplate>
+        </ListView.Resources>
+        <ListViewItem DataContext="{Binding Source={StaticResource MediaListModel}, Path=Lists[LatestImages]}"
+                      Style="{ThemeResource LatestAddedListViewItemStyle}"
+                      Visibility="{Binding Source={Binding AllItems}, Converter={StaticResource MediaListVisibilityConverter}}"/>
+        <ListViewItem DataContext="{Binding Source={StaticResource MediaListModel}, Path=Lists[LastPlayImages]}"
+                      Style="{ThemeResource LatestPlayedListViewItemStyle}"
+                      Visibility="{Binding Source={Binding AllItems}, Converter={StaticResource MediaListVisibilityConverter}}"/>
+        <ListViewItem DataContext="{Binding Source={StaticResource MediaListModel}, Path=Lists[FavoriteImages]}"
+                      Style="{ThemeResource FavoriteListViewItemStyle}"
+                      Visibility="{Binding Source={Binding AllItems}, Converter={StaticResource MediaListVisibilityConverter}}"/>
+        <ListViewItem DataContext="{Binding Source={StaticResource MediaListModel}, Path=Lists[UnplayedImages]}"
+                      Style="{ThemeResource UnplayedListViewItemStyle}"
+                      Visibility="{Binding Source={Binding AllItems}, Converter={StaticResource MediaListVisibilityConverter}}"/>
+      </ListView>
+      <Control HorizontalAlignment="Left" VerticalAlignment="Top" Margin="-30,80,0,0"
+               DataContext="{Binding Source={StaticResource MediaListModel}}"
+               IsEnabled="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=IsEnabled}"
+               Template="{StaticResource ResourceKey=ContentIndicator_Template}">
+        <Control.IsVisible>
+          <MultiBinding Converter="{StaticResource MultiMediaListIsVisibleConverter}">
+            <Binding Source="{Binding Source={Binding Lists[LatestImages]}, Path=AllItems}"/>
+            <Binding Source="{Binding Source={Binding Lists[LastPlayImages]}, Path=AllItems}"/>
+            <Binding Source="{Binding Source={Binding Lists[FavoriteImages]}, Path=AllItems}"/>
+            <Binding Source="{Binding Source={Binding Lists[UnplayedImages]}, Path=AllItems}"/>
+          </MultiBinding>
+        </Control.IsVisible>
+      </Control>
+    </Grid>
+  </ControlTemplate>
+
+  <!--++++++++++ Video +++++++++++-->
+
+  <ControlTemplate x:Key="a4df2df6-8d66-479a-9930-d7106525eb07">
+    <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+      <Grid.ColumnDefinitions>
+        <ColumnDefinition Width="*"/>
+      </Grid.ColumnDefinitions>
+      <Grid.RowDefinitions>
+        <RowDefinition Height="*"/>
+      </Grid.RowDefinitions>
+      <ListView Style="{ThemeResource MainMediaListListViewStyle}"
+                IsEnabled="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=IsEnabled}">
+        <ListView.Resources>
+          <DataTemplate DataType="{x:Type navitems:VideoItem}">
+            <Control Template="{StaticResource GridViewVideoItemSmallTemplate}"/>
+          </DataTemplate>
+        </ListView.Resources>
+        <ListViewItem DataContext="{Binding Source={StaticResource MediaListModel}, Path=Lists[LatestVideo]}"
+                      Style="{ThemeResource LatestAddedListViewItemStyle}"
+                      Visibility="{Binding Source={Binding AllItems}, Converter={StaticResource MediaListVisibilityConverter}}"/>
+        <ListViewItem DataContext="{Binding Source={StaticResource MediaListModel}, Path=Lists[LastPlayVideo]}"
+                      Style="{ThemeResource LatestPlayedListViewItemStyle}"
+                      Visibility="{Binding Source={Binding AllItems}, Converter={StaticResource MediaListVisibilityConverter}}"/>
+        <ListViewItem DataContext="{Binding Source={StaticResource MediaListModel}, Path=Lists[FavoriteVideo]}"
+                      Style="{ThemeResource FavoriteListViewItemStyle}"
+                      Visibility="{Binding Source={Binding AllItems}, Converter={StaticResource MediaListVisibilityConverter}}"/>
+        <ListViewItem DataContext="{Binding Source={StaticResource MediaListModel}, Path=Lists[UnplayedVideo]}"
+                      Style="{ThemeResource UnplayedListViewItemStyle}"
+                      Visibility="{Binding Source={Binding AllItems}, Converter={StaticResource MediaListVisibilityConverter}}"/>
+      </ListView>
+      <Control HorizontalAlignment="Left" VerticalAlignment="Top" Margin="-30,80,0,0"
+               DataContext="{Binding Source={StaticResource MediaListModel}}"
+               IsEnabled="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=IsEnabled}"
+               Template="{StaticResource ResourceKey=ContentIndicator_Template}">
+        <Control.IsVisible>
+          <MultiBinding Converter="{StaticResource MultiMediaListIsVisibleConverter}">
+            <Binding Source="{Binding Source={Binding Lists[LatestVideo]}, Path=AllItems}"/>
+            <Binding Source="{Binding Source={Binding Lists[LastPlayVideo]}, Path=AllItems}"/>
+            <Binding Source="{Binding Source={Binding Lists[FavoriteVideo]}, Path=AllItems}"/>
+            <Binding Source="{Binding Source={Binding Lists[UnplayedVideo]}, Path=AllItems}"/>
+          </MultiBinding>
+        </Control.IsVisible>
+      </Control>
+    </Grid>
+  </ControlTemplate>
+
+  <!--++++++++++ TV +++++++++++-->
+
+  <ControlTemplate x:Key="b4a9199f-6dd4-4bda-a077-de9c081f7703">
+    <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+      <Grid.ColumnDefinitions>
+        <ColumnDefinition Width="*"/>
+      </Grid.ColumnDefinitions>
+      <Grid.RowDefinitions>
+        <RowDefinition Height="*"/>
+      </Grid.RowDefinitions>
+      <ListView Style="{ThemeResource MainMediaListListViewStyle}"
+                IsEnabled="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=IsEnabled}">
+        <ListViewItem DataContext="{Binding Source={StaticResource MediaListModel}, Path=Lists[LastPlayTV]}"
+                      Style="{ThemeResource LatestPlayedChannelListViewItemStyle}"
+                      Visibility="{Binding Source={Binding AllItems}, Converter={StaticResource MediaListVisibilityConverter}}"/>
+        <ListViewItem DataContext="{Binding Source={StaticResource MediaListModel}, Path=Lists[FavoriteTV]}"
+                      Style="{ThemeResource FavoriteChannelListViewItemStyle}"
+                      Visibility="{Binding Source={Binding AllItems}, Converter={StaticResource MediaListVisibilityConverter}}"/>
+      </ListView>
+      <Control HorizontalAlignment="Left" VerticalAlignment="Top" Margin="-30,80,0,0"
+               DataContext="{Binding Source={StaticResource MediaListModel}}"
+               IsEnabled="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=IsEnabled}"
+               Template="{StaticResource ResourceKey=ContentIndicator_Template}">
+        <Control.IsVisible>
+          <MultiBinding Converter="{StaticResource MultiMediaListIsVisibleConverter}">
+            <Binding Source="{Binding Source={Binding Lists[LastPlayTV]}, Path=AllItems}"/>
+            <Binding Source="{Binding Source={Binding Lists[FavoriteTV]}, Path=AllItems}"/>
+          </MultiBinding>
+        </Control.IsVisible>
+      </Control>
+    </Grid>
+  </ControlTemplate>
+
+  <!--++++++++++ TV Guide +++++++++++-->
+
+  <ControlTemplate x:Key="a298dfbe-9da8-4c16-a3ea-a9b354f3910c">
+    <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+      <Grid.ColumnDefinitions>
+        <ColumnDefinition Width="*"/>
+      </Grid.ColumnDefinitions>
+      <Grid.RowDefinitions>
+        <RowDefinition Height="*"/>
+      </Grid.RowDefinitions>
+      <ListView Style="{ThemeResource MainMediaListListViewStyle}"
+                IsEnabled="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=IsEnabled}">
+        <ListViewItem DataContext="{Binding Source={StaticResource MediaListModel}, Path=Lists[CurrentPrograms]}"
+                      Style="{ThemeResource CurrentProgramListViewItemStyle}"
+                      Visibility="{Binding Source={Binding AllItems}, Converter={StaticResource MediaListVisibilityConverter}}"/>
+      </ListView>
+      <Control HorizontalAlignment="Left" VerticalAlignment="Top" Margin="-30,80,0,0"
+               DataContext="{Binding Source={StaticResource MediaListModel}}"
+               IsEnabled="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=IsEnabled}"
+               Template="{StaticResource ResourceKey=ContentIndicator_Template}">
+        <Control.IsVisible>
+          <MultiBinding Converter="{StaticResource MultiMediaListIsVisibleConverter}">
+            <Binding Source="{Binding Source={Binding Lists[CurrentPrograms]}, Path=AllItems}"/>
+          </MultiBinding>
+        </Control.IsVisible>
+      </Control>
+    </Grid>
+  </ControlTemplate>
+
+  <!--++++++++++ Schedules +++++++++++-->
+
+  <ControlTemplate x:Key="87355e05-a15b-452a-85b8-98d4fc80034e">
+    <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+      <Grid.ColumnDefinitions>
+        <ColumnDefinition Width="*"/>
+      </Grid.ColumnDefinitions>
+      <Grid.RowDefinitions>
+        <RowDefinition Height="*"/>
+      </Grid.RowDefinitions>
+      <ListView Style="{ThemeResource MainMediaListListViewStyle}"
+                IsEnabled="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=IsEnabled}">
+        <ListViewItem DataContext="{Binding Source={StaticResource MediaListModel}, Path=Lists[CurrentSchedules]}"
+                      Style="{ThemeResource CurrentScheduleListViewItemStyle}"
+                      Visibility="{Binding Source={Binding AllItems}, Converter={StaticResource MediaListVisibilityConverter}}"/>
+      </ListView>
+      <Control HorizontalAlignment="Left" VerticalAlignment="Top" Margin="-30,80,0,0"
+               DataContext="{Binding Source={StaticResource MediaListModel}}"
+               Template="{StaticResource ResourceKey=ContentIndicator_Template}">
+        <Control.IsVisible>
+          <MultiBinding Converter="{StaticResource MultiMediaListIsVisibleConverter}">
+            <Binding Source="{Binding Source={Binding Lists[CurrentSchedules]}, Path=AllItems}"/>
+          </MultiBinding>
+        </Control.IsVisible>
+      </Control>
+    </Grid>
+  </ControlTemplate>
+
+  <!--++++++++++ Weather +++++++++++-->
+
+  <ControlTemplate x:Key="e34fdb62-1f3e-4aa9-8a61-d143e0af77b5">
+    <Grid DataContext="{Binding Source={StaticResource CurrentWeatherModel}}" VerticalAlignment="Top" Margin="0,70,0,0">
+      <Grid.ColumnDefinitions>
+        <ColumnDefinition Width="Auto" />
+        <ColumnDefinition Width="30" />
+        <ColumnDefinition Width="Auto" />
+      </Grid.ColumnDefinitions>
+      <Grid.RowDefinitions>
+        <RowDefinition Height="Auto" />
+        <RowDefinition Height="Auto" />
+      </Grid.RowDefinitions>
+
+      <Label x:Name="Temperature" FontSize="{ThemeResource HugeFontSize}" Color="{ThemeResource TextColor}" 
+             Content="{Binding CurrentLocation.Condition.Temperature}" HorizontalAlignment="Center"/>
+      <Label Grid.Column="2" x:Name="LocName" FontSize="{ThemeResource HugeFontSize}" Color="{ThemeResource TextColor}" Content="{Binding CurrentLocation.Name}"/>
+      <Image Grid.Row="1" x:Name="BigIcon" Stretch="Fill" Height="175" Width="175" HorizontalAlignment="Center" VerticalAlignment="Center"
+             Source="{Binding CurrentLocation.Condition.BigIconProperty}"/>
+
+      <StackPanel Grid.Row="1" Grid.Column="2">
+        <Label x:Name="Date" FontSize="{ThemeResource NormalFontSize}"
+               Content="{Binding Source={StaticResource TimeModel}, Path=CurrentDate}" Color="{ThemeResource TextColor}"/>
+        <Label x:Name="Wind" FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource MenuTextBackground}" 
+               Content="{Binding CurrentLocation.Condition.Wind}" Opacity="1.3"/>
+        <StackPanel Orientation="Horizontal">
+          <Label x:Name="Humidity" FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource MenuTextBackground}" 
+                 Content="{Binding CurrentLocation.Condition.Humidity}" Opacity="1.3"/>
+          <Label FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource MenuTextBackground}" Content="   " Opacity="1.3"/>
+          <Label x:Name="Pressure" FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource MenuTextBackground}" 
+                 Content="{Binding CurrentLocation.Condition.Pressure}" Opacity="1.3"/>
+        </StackPanel>
+      </StackPanel>
+    </Grid>
+  </ControlTemplate>
+
+  <!--++++++++++ News +++++++++++-->
+
+  <ControlTemplate x:Key="bb49a591-7705-408f-8177-45d633fdfad0">
+    <Grid Margin="0,70,0,0" Height="350" Width="980" HorizontalAlignment="Left" VerticalAlignment="Top"
+          DataContext="{Binding Source={StaticResource CurrentNewsModel}}">
+      <Grid.ColumnDefinitions>
+        <ColumnDefinition Width="*" />
+      </Grid.ColumnDefinitions>
+      <Grid.RowDefinitions>
+        <RowDefinition Height="Auto" />
+        <RowDefinition Height="*" />
+        <RowDefinition Height="Auto" />
+      </Grid.RowDefinitions>
+
+      <Label Grid.Row="0" x:Name="News" FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColor}" Wrap="True"
+             Content="{Binding CurrentNewsItem.Title}" FontFamily="SegoeUIBold" HorizontalAlignment="Stretch"/>
+      <Label Grid.Row="1" Margin="0,10,0,20" x:Name="NewSummary" Wrap="True"
+             Content="{Binding CurrentNewsItem.Summary}" HorizontalAlignment="Stretch" Opacity="1.3"
+             Color="{ThemeResource MenuTextBackground}" FontSize="{ThemeResource SmallFontSize}"/>
+    </Grid>
+  </ControlTemplate>
+
+</ResourceDictionary>

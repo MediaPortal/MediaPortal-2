@@ -27,7 +27,8 @@
       SortOrder="c"
       SourceStates="7F702D9C-F2DD-42da-9ED8-0BA92F07787F"
       TargetState="CB5D4851-27D2-4222-B6A0-703EDC2071B5"
-      DisplayTitle="[SlimTvClient.ProgramSearch]"/>
+      DisplayTitle="[SlimTvClient.ProgramSearch]"
+      HelpText="[SlimTvClient.ProgramSearch.Help]"/>
 
     <WorkflowContributorAction Id="7F52D0A1-B7F8-46A1-A56B-1110BBFB7D51"
       Name="SlimTvClient->Recordings"

@@ -79,6 +79,7 @@ namespace MediaPortal.UiComponents.Weather
 
       Name = src.Name;
       Id = src.Id;
+      Grabber = src.Grabber;
       LocInfo locInfo = LocationInfo;
       LocInfo sourceLocInfo = src.LocationInfo;
       locInfo.SunRise = sourceLocInfo.SunRise;

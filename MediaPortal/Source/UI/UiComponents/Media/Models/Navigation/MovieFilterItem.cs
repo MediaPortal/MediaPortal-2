@@ -26,7 +26,7 @@ using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Common.MediaManagement.Helpers;
 using MediaPortal.UiComponents.Media.General;
-using MediaPortal.UiComponents.Media.Settings;
+using MediaPortal.UiComponents.Media.Helpers;
 
 namespace MediaPortal.UiComponents.Media.Models.Navigation
 {
@@ -38,6 +38,8 @@ namespace MediaPortal.UiComponents.Media.Models.Navigation
     public override void Update(MediaItem mediaItem)
     {
       base.Update(mediaItem);
+      if (mediaItem == null)
+        return;
 
       MovieCollectionInfo movieCollection = new MovieCollectionInfo();
       if (!movieCollection.FromMetadata(mediaItem.Aspects))
@@ -58,7 +60,7 @@ namespace MediaPortal.UiComponents.Media.Models.Navigation
         else
           TotalMovies = "";
 
-        if (ShowVirtualSetting.ShowVirtualMovieMedia)
+        if (VirtualMediaHelper.ShowVirtualMovieMedia)
           Movies = TotalMovies;
         else
           Movies = AvailableMovies;

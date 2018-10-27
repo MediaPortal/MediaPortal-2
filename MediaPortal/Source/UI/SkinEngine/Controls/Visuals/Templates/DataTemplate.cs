@@ -23,12 +23,14 @@
 #endregion
 
 using System;
+using System.Windows.Markup;
 using MediaPortal.Common.General;
 using MediaPortal.Utilities.DeepCopy;
 using MediaPortal.UI.SkinEngine.Xaml.Interfaces;
 
 namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Templates
 {
+  [ContentProperty("TemplateElement")]
   public class DataTemplate : TemplateWithTriggers, IImplicitKey
   {
     #region Protected fields

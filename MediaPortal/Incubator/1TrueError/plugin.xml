@@ -1,20 +1,20 @@
 <Plugin
     DescriptorVersion="1.0" 
-    Name="OneTrueError"
+    Name="codeRR"
     PluginId="{37DD9D24-9A85-4E5B-BBBF-D8C283C1E144}"
     Author="Morpheus_xx"
     Copyright="GPL"
     AutoActivate="true"
-    Description="The OneTrueError plugin allows sending application errors to https://onetrueerror.com/ for error tracking purpose.">
+    Description="The codeRR plugin allows sending application errors to http://onetrueerror.team-mediaportal.com for error tracking purpose.">
 
   <Version
-    PluginVersion="1.1"
-    ReleaseDate="2015-07-14 01:00:00 GMT+01:00"
+    PluginVersion="1.2"
+    ReleaseDate="2018-06-10 01:00:00 GMT+01:00"
     CurrentAPI="1"/>
 
   <Runtime>
-    <Assembly FileName="1TrueError.dll"/>
-    <PluginStateTracker ClassName="MediaPortal.Plugins.OneTrueError.ErrorReportingService"/>
+    <Assembly FileName="codeRR.dll"/>
+    <PluginStateTracker ClassName="MediaPortal.Plugins.CodeRR.ErrorReportingService"/>
   </Runtime>
 
 </Plugin>

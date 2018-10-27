@@ -33,7 +33,6 @@ using MediaPortal.Plugins.SlimTv.Client.Models;
 using MediaPortal.Plugins.SlimTv.Interfaces.Items;
 using MediaPortal.Plugins.SlimTv.Interfaces.LiveTvMediaItem;
 using MediaPortal.UI.Players.Video;
-using MediaPortal.UI.Players.Video.Interfaces;
 using MediaPortal.UI.Presentation.Players;
 using MediaPortal.UI.Presentation.Workflow;
 using MediaPortal.UI.SkinEngine.SkinManagement;
@@ -72,6 +71,9 @@ namespace MediaPortal.Plugins.SlimTv.Client.Player
       get { return typeof(SlimTvUIContributor); }
     }
 
+    public EventHandler OnBeginZap;
+    public EventHandler OnEndZap;
+
     #endregion
 
     public IList<ITimeshiftContext> TimeshiftContexes
@@ -102,8 +104,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Player
         return;
       IWorkflowManager workflowManager = ServiceRegistration.Get<IWorkflowManager>();
       SlimTvClientModel model = workflowManager.GetModel(SlimTvClientModel.MODEL_ID) as SlimTvClientModel;
-      if (model != null)
-        model.Tune(channel);
+      _ = model?.Tune(channel);
     }
 
     protected override void EnumerateChapters(bool forceRefresh)

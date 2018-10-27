@@ -73,7 +73,7 @@
                 <Condition Property="IsMouseOver" Value="False"/>
                 <Condition Property="IsKeyboardFocusWithin" Value="False"/>
               </MultiTrigger.Conditions>
-              <Setter TargetName="GuideStartTimeLabel" Property="Opacity" Value="0.5"/>
+              <Setter TargetName="CurrentChannelNameLabel" Property="Opacity" Value="0.5"/>
             </MultiTrigger>
           </Grid.Triggers>
         </Grid>

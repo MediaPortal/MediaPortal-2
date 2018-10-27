@@ -22,42 +22,12 @@
 
 #endregion
 
-using MediaPortal.Common.MediaManagement;
-using MediaPortal.Common.MediaManagement.DefaultItemAspects;
-using MediaPortal.Common.MediaManagement.Helpers;
-using MediaPortal.UiComponents.Media.General;
-
 namespace MediaPortal.UiComponents.Media.Models.Navigation
 {
   /// <summary>
   /// Holds a GUI item which represents a TV network filter choice.
   /// </summary>
-  public class TVNetworkFilterItem : FilterItem
+  public class TVNetworkFilterItem : CompanyFilterItem
   {
-    public override void Update(MediaItem mediaItem)
-    {
-      base.Update(mediaItem);
-
-      CompanyInfo company = new CompanyInfo();
-      if (!company.FromMetadata(mediaItem.Aspects))
-        return;
-
-      Name = company.Name ?? "";
-      Description = company.Description.Text ?? "";
-
-      FireChange();
-    }
-
-    public string Name
-    {
-      get { return this[Consts.KEY_NAME]; }
-      set { SetLabel(Consts.KEY_NAME, value); }
-    }
-
-    public string Description
-    {
-      get { return this[Consts.KEY_DESCRIPTION]; }
-      set { SetLabel(Consts.KEY_DESCRIPTION, value); }
-    }
   }
 }

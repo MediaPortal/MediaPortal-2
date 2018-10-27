@@ -42,7 +42,7 @@
 
   <ResourceWrapper x:Key="PipBorderThickness" Resource="2"/>
 
-  <ResourceWrapper x:Key="PiPVideoWidth" Resource="320"/>
+  <ResourceWrapper x:Key="PiPVideoWidth" Resource="330"/>
   
   <ResourceWrapper x:Key="DialogBorderCornerRadius" Resource="30"/>
   

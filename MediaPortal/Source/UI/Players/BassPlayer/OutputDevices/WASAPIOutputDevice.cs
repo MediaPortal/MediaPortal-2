@@ -48,6 +48,7 @@ namespace MediaPortal.UI.Players.BassPlayer.OutputDevices
     protected BassStream _mixer;
     protected int _mixerHandle;
     protected readonly int _maxFFT = (int)(BASSData.BASS_DATA_AVAILABLE | BASSData.BASS_DATA_FFT4096);
+    BASSWASAPIVolume _bassWASAPIVolScope = BASSWASAPIVolume.BASS_WASAPI_VOL_SESSION;
 
     #endregion
 
@@ -196,6 +197,9 @@ namespace MediaPortal.UI.Players.BassPlayer.OutputDevices
       if (passThrough)
         _fader = new BassStreamFader(_inputStream, TimeSpan.FromMilliseconds(Controller.GetSettings().FadeDurationMilliSecs));
 
+      // Init volume/mute mode
+      _bassWASAPIVolScope = isExclusive? BASSWASAPIVolume.BASS_WASAPI_VOL_DEVICE : BASSWASAPIVolume.BASS_WASAPI_VOL_SESSION;
+
       ResetState();
     }
 
@@ -302,6 +306,40 @@ namespace MediaPortal.UI.Players.BassPlayer.OutputDevices
 
       if (!BassWasapi.BASS_WASAPI_Stop(true))
         throw new BassLibraryException("BASS_WASAPI_Stop");
+    }
+
+
+    public override int Volume
+    {
+      get
+      {
+        return _volume;
+      }
+      set
+      {
+        // value is from 0 to 100 in a linear scale, internal _volume is from 0.0 to 1.0 in a linear scale
+        _volume = value;
+        var bassVolume = _volume / 100f;
+        BassWasapi.BASS_WASAPI_SetVolume(BASSWASAPIVolume.BASS_WASAPI_CURVE_LINEAR, bassVolume);
+      }
+    }
+
+    public override bool Mute
+    {
+      get
+      {
+        return BassWasapi.BASS_WASAPI_GetMute(_bassWASAPIVolScope);
+      }
+      set
+      {
+        BassWasapi.BASS_WASAPI_SetMute(_bassWASAPIVolScope, value);
+        if (!value)
+        {
+          var bassVolume = _volume / 100f;
+          BassWasapi.BASS_WASAPI_SetVolume(BASSWASAPIVolume.BASS_WASAPI_CURVE_LINEAR, bassVolume);
+        }
+        _isMuted = value;
+      }
     }
 
     #endregion

@@ -23,7 +23,6 @@
 #endregion
 
 using MediaPortal.Common;
-using MediaPortal.Common.Genres;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Common.MediaManagement.Helpers;
@@ -34,7 +33,7 @@ using MediaPortal.Extensions.OnlineLibraries.Matchers;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text.RegularExpressions;
+using System.Threading.Tasks;
 
 namespace MediaPortal.Extensions.OnlineLibraries
 {
@@ -46,9 +45,6 @@ namespace MediaPortal.Extensions.OnlineLibraries
     private List<IMusicMatcher> MUSIC_MATCHERS = new List<IMusicMatcher>();
     private List<ISeriesMatcher> SERIES_MATCHERS = new List<ISeriesMatcher>();
     private List<IMovieMatcher> MOVIE_MATCHERS = new List<IMovieMatcher>();
-    private List<GenreMapping> MUSIC_GENRE_MAP = new List<GenreMapping>();
-    private List<GenreMapping> SERIES_GENRE_MAP = new List<GenreMapping>();
-    private List<GenreMapping> MOVIE_GENRE_MAP = new List<GenreMapping>();
     private SettingsChangeWatcher<OnlineLibrarySettings> SETTINGS_CHANGE_WATCHER = null;
 
     #region Static instance
@@ -68,13 +64,14 @@ namespace MediaPortal.Extensions.OnlineLibraries
       MUSIC_MATCHERS.Add(MusicFanArtTvMatcher.Instance);
 
       MOVIE_MATCHERS.Add(MovieTheMovieDbMatcher.Instance);
-      MOVIE_MATCHERS.Add(MovieOmDbMatcher.Instance);
+      //MOVIE_MATCHERS.Add(MovieOmDbMatcher.Instance);
+      MOVIE_MATCHERS.Add(MovieSimApiMatcher.Instance);
       MOVIE_MATCHERS.Add(MovieFanArtTvMatcher.Instance);
 
       SERIES_MATCHERS.Add(SeriesTvDbMatcher.Instance);
       SERIES_MATCHERS.Add(SeriesTheMovieDbMatcher.Instance);
       SERIES_MATCHERS.Add(SeriesTvMazeMatcher.Instance);
-      SERIES_MATCHERS.Add(SeriesOmDbMatcher.Instance);
+      //SERIES_MATCHERS.Add(SeriesOmDbMatcher.Instance);
       SERIES_MATCHERS.Add(SeriesFanArtTvMatcher.Instance);
 
       //Load settings
@@ -90,122 +87,28 @@ namespace MediaPortal.Extensions.OnlineLibraries
     private void LoadSettings()
     {
       OnlineLibrarySettings settings = ServiceRegistration.Get<ISettingsManager>().Load<OnlineLibrarySettings>();
-      foreach (MatcherSetting setting in settings.MusicMatchers)
-      {
-        IMusicMatcher matcher = MUSIC_MATCHERS.Find(m => m.Id.Equals(setting.Id, StringComparison.InvariantCultureIgnoreCase));
-        if (matcher != null)
-        {
-          matcher.Primary = setting.Primary;
-          matcher.Enabled = setting.Enabled;
-          matcher.PreferredLanguageCulture = settings.MusicLanguageCulture;
-        }
-      }
-      if (settings.MusicGenreMappings.Length == 0)
-      {
-        settings.MusicGenreMappings = new GenreMapping[]
-        {
-          new GenreMapping(MusicGenre.CLASSIC, new SerializableRegex(@"Classic|Opera|Orchestral|Choral|Avant|Baroque|Chant", RegexOptions.IgnoreCase)),
-          new GenreMapping(MusicGenre.SOUNDTRACK, new SerializableRegex(@"Soundtrack|Cinema|Musical|Score", RegexOptions.IgnoreCase)),
-          new GenreMapping(MusicGenre.NEW_AGE, new SerializableRegex(@"New Age|Environment|Healing|Meditation|Nature|Relax|Travel", RegexOptions.IgnoreCase)),
-          new GenreMapping(MusicGenre.ROCK, new SerializableRegex(@"Rock|Grunge|Punk", RegexOptions.IgnoreCase)),
-          new GenreMapping(MusicGenre.METAL, new SerializableRegex(@"Metal", RegexOptions.IgnoreCase)),
-          new GenreMapping(MusicGenre.COUNTRY, new SerializableRegex(@"Country|Americana|Bluegrass|Cowboy|Honky|Hokum", RegexOptions.IgnoreCase)),
-          new GenreMapping(MusicGenre.JAZZ, new SerializableRegex(@"Jazz|Big Band|Fusion|Ragtime", RegexOptions.IgnoreCase)),
-          new GenreMapping(MusicGenre.RB_SOUL, new SerializableRegex(@"R&B|Soul|Disco|Funk|Swing|Blues", RegexOptions.IgnoreCase)),
-          new GenreMapping(MusicGenre.HIP_HOP_RAP, new SerializableRegex(@"Hop|Rap|Bounce|Turntablism", RegexOptions.IgnoreCase)),
-          new GenreMapping(MusicGenre.RAGGAE, new SerializableRegex(@"Reggae|Dancehall", RegexOptions.IgnoreCase)),
-          new GenreMapping(MusicGenre.POP, new SerializableRegex(@"Pop|Beat", RegexOptions.IgnoreCase)),
-          new GenreMapping(MusicGenre.DANCE, new SerializableRegex(@"Dance|Club|House|Step|Garage|Trance|NRG|Core|Techno", RegexOptions.IgnoreCase)),
-          new GenreMapping(MusicGenre.ELECTRONIC, new SerializableRegex(@"Electronic|Electro|Experimental|8bit|Chiptune|Downtempo|Industrial", RegexOptions.IgnoreCase)),
-          new GenreMapping(MusicGenre.COMEDY, new SerializableRegex(@"Comedy|Novelty|Parody", RegexOptions.IgnoreCase)),
-          new GenreMapping(MusicGenre.FOLK, new SerializableRegex(@"Folk", RegexOptions.IgnoreCase)),
-          new GenreMapping(MusicGenre.EASY_LISTENING, new SerializableRegex(@"Easy|Lounge|Background|Swing|Bop|Ambient", RegexOptions.IgnoreCase)),
-          new GenreMapping(MusicGenre.HOLIDAY, new SerializableRegex(@"Holiday|Chanukah|Christmas|Easter|Halloween|Thanksgiving", RegexOptions.IgnoreCase)),
-          new GenreMapping(MusicGenre.WORLD, new SerializableRegex(@"World|Africa|Afro|Asia|Australia|Cajun|Latin|Calypso|Caribbean|Celtic|Europe|France|America|Polka|Japanese|Indian|Korean|German|Danish|Ballad|Ethnic|Indie", RegexOptions.IgnoreCase)),
-          new GenreMapping(MusicGenre.ALTERNATIVE, new SerializableRegex(@"Alternative|New Wave|Progressive", RegexOptions.IgnoreCase)),
-          new GenreMapping(MusicGenre.COMPILATION, new SerializableRegex(@"Compilation|Top", RegexOptions.IgnoreCase)),
-        };
-      }
-      MUSIC_GENRE_MAP = new List<GenreMapping>(settings.MusicGenreMappings);
 
-      foreach (MatcherSetting setting in settings.MovieMatchers)
-      {
-        IMovieMatcher matcher = MOVIE_MATCHERS.Find(m => m.Id.Equals(setting.Id, StringComparison.InvariantCultureIgnoreCase));
-        if (matcher != null)
-        {
-          matcher.Primary = setting.Primary;
-          matcher.Enabled = setting.Enabled;
-          matcher.PreferredLanguageCulture = settings.MovieLanguageCulture;
-        }
-      }
-      if (settings.MovieGenreMappings.Length == 0)
-      {
-        settings.MovieGenreMappings = new GenreMapping[]
-        {
-          new GenreMapping(MovieGenre.ACTION, new SerializableRegex(@"Action", RegexOptions.IgnoreCase)),
-          new GenreMapping(MovieGenre.ADVENTURE, new SerializableRegex(@"Adventure", RegexOptions.IgnoreCase)),
-          new GenreMapping(MovieGenre.ANIMATION, new SerializableRegex(@"Animation|Cartoon|Anime", RegexOptions.IgnoreCase)),
-          new GenreMapping(MovieGenre.COMEDY, new SerializableRegex(@"Comedy", RegexOptions.IgnoreCase)),
-          new GenreMapping(MovieGenre.CRIME, new SerializableRegex(@"Crime", RegexOptions.IgnoreCase)),
-          new GenreMapping(MovieGenre.DOCUMENTARY, new SerializableRegex(@"Documentary|Biography", RegexOptions.IgnoreCase)),
-          new GenreMapping(MovieGenre.DRAMA, new SerializableRegex(@"Drama", RegexOptions.IgnoreCase)),
-          new GenreMapping(MovieGenre.FAMILY, new SerializableRegex(@"Family", RegexOptions.IgnoreCase)),
-          new GenreMapping(MovieGenre.FANTASY, new SerializableRegex(@"Fantasy", RegexOptions.IgnoreCase)),
-          new GenreMapping(MovieGenre.HISTORY, new SerializableRegex(@"History", RegexOptions.IgnoreCase)),
-          new GenreMapping(MovieGenre.HORROR, new SerializableRegex(@"Horror", RegexOptions.IgnoreCase)),
-          new GenreMapping(MovieGenre.MUSIC, new SerializableRegex(@"Music", RegexOptions.IgnoreCase)),
-          new GenreMapping(MovieGenre.MYSTERY, new SerializableRegex(@"Mystery", RegexOptions.IgnoreCase)),
-          new GenreMapping(MovieGenre.ROMANCE, new SerializableRegex(@"Romance", RegexOptions.IgnoreCase)),
-          new GenreMapping(MovieGenre.SCIENCE_FICTION, new SerializableRegex(@"Science Fiction|Science-Fiction|Sci-Fi", RegexOptions.IgnoreCase)),
-          new GenreMapping(MovieGenre.TV_MOVIE, new SerializableRegex(@"TV", RegexOptions.IgnoreCase)),
-          new GenreMapping(MovieGenre.THRILLER, new SerializableRegex(@"Thriller|Disaster|Suspense", RegexOptions.IgnoreCase)),
-          new GenreMapping(MovieGenre.WAR, new SerializableRegex(@"War", RegexOptions.IgnoreCase)),
-          new GenreMapping(MovieGenre.WESTERN, new SerializableRegex(@"Western", RegexOptions.IgnoreCase)),
-        };
-      }
-      MOVIE_GENRE_MAP = new List<GenreMapping>(settings.MovieGenreMappings);
+      //Music matchers
+      ConfigureMatchers(MUSIC_MATCHERS, settings.MusicMatchers, settings.MusicLanguageCulture);
 
-      foreach (MatcherSetting setting in settings.SeriesMatchers)
+      //Movie matchers
+      ConfigureMatchers(MOVIE_MATCHERS, settings.MovieMatchers, settings.MovieLanguageCulture);
+
+      //Series matchers
+      ConfigureMatchers(SERIES_MATCHERS, settings.SeriesMatchers, settings.SeriesLanguageCulture);
+    }
+
+    protected void ConfigureMatchers<T>(ICollection<T> matchers, ICollection<MatcherSetting> settings, string languageCulture) where T : IMatcher
+    {
+      foreach (MatcherSetting setting in settings)
       {
-        ISeriesMatcher matcher = SERIES_MATCHERS.Find(m => m.Id.Equals(setting.Id, StringComparison.InvariantCultureIgnoreCase));
+        IMatcher matcher = matchers.FirstOrDefault(m => m.Id.Equals(setting.Id, StringComparison.OrdinalIgnoreCase));
         if (matcher != null)
         {
-          matcher.Primary = setting.Primary;
           matcher.Enabled = setting.Enabled;
-          matcher.PreferredLanguageCulture = settings.SeriesLanguageCulture;
+          matcher.PreferredLanguageCulture = languageCulture;
         }
       }
-      if (settings.SeriesGenreMappings.Length == 0)
-      {
-        settings.SeriesGenreMappings = new GenreMapping[]
-        {
-          new GenreMapping(SeriesGenre.ACTION, new SerializableRegex(@"Action", RegexOptions.IgnoreCase)),
-          new GenreMapping(SeriesGenre.ADVENTURE, new SerializableRegex(@"Adventure", RegexOptions.IgnoreCase)),
-          new GenreMapping(SeriesGenre.ANIMATION, new SerializableRegex(@"Animation|Cartoon|Anime", RegexOptions.IgnoreCase)),
-          new GenreMapping(SeriesGenre.COMEDY, new SerializableRegex(@"Comedy", RegexOptions.IgnoreCase)),
-          new GenreMapping(SeriesGenre.CRIME, new SerializableRegex(@"Crime", RegexOptions.IgnoreCase)),
-          new GenreMapping(SeriesGenre.DOCUMENTARY, new SerializableRegex(@"Documentary|Biography", RegexOptions.IgnoreCase)),
-          new GenreMapping(SeriesGenre.DRAMA, new SerializableRegex(@"Drama", RegexOptions.IgnoreCase)),
-          new GenreMapping(SeriesGenre.FAMILY, new SerializableRegex(@"Family", RegexOptions.IgnoreCase)),
-          new GenreMapping(SeriesGenre.FANTASY, new SerializableRegex(@"Fantasy", RegexOptions.IgnoreCase)),
-          new GenreMapping(SeriesGenre.HISTORY, new SerializableRegex(@"History", RegexOptions.IgnoreCase)),
-          new GenreMapping(SeriesGenre.HORROR, new SerializableRegex(@"Horror", RegexOptions.IgnoreCase)),
-          new GenreMapping(SeriesGenre.MUSIC, new SerializableRegex(@"Music", RegexOptions.IgnoreCase)),
-          new GenreMapping(SeriesGenre.MYSTERY, new SerializableRegex(@"Mystery", RegexOptions.IgnoreCase)),
-          new GenreMapping(SeriesGenre.ROMANCE, new SerializableRegex(@"Romance", RegexOptions.IgnoreCase)),
-          new GenreMapping(SeriesGenre.SCIENCE_FICTION, new SerializableRegex(@"Science Fiction|Science-Fiction|Sci-Fi", RegexOptions.IgnoreCase)),
-          new GenreMapping(SeriesGenre.THRILLER, new SerializableRegex(@"Thriller|Disaster|Suspense", RegexOptions.IgnoreCase)),
-          new GenreMapping(SeriesGenre.WAR, new SerializableRegex(@"War", RegexOptions.IgnoreCase)),
-          new GenreMapping(SeriesGenre.WESTERN, new SerializableRegex(@"Western", RegexOptions.IgnoreCase)),
-          new GenreMapping(SeriesGenre.KIDS, new SerializableRegex(@"Kids|Children|Teen", RegexOptions.IgnoreCase)),
-          new GenreMapping(SeriesGenre.NEWS, new SerializableRegex(@"News", RegexOptions.IgnoreCase)),
-          new GenreMapping(SeriesGenre.REALITY, new SerializableRegex(@"Reality", RegexOptions.IgnoreCase)),
-          new GenreMapping(SeriesGenre.SOAP, new SerializableRegex(@"Soap", RegexOptions.IgnoreCase)),
-          new GenreMapping(SeriesGenre.TALK, new SerializableRegex(@"Talk", RegexOptions.IgnoreCase)),
-          new GenreMapping(SeriesGenre.POLITICS, new SerializableRegex(@"Politic", RegexOptions.IgnoreCase)),
-        };
-      }
-      SERIES_GENRE_MAP = new List<GenreMapping>(settings.SeriesGenreMappings);
     }
 
     private void SaveSettings()
@@ -217,11 +120,9 @@ namespace MediaPortal.Extensions.OnlineLibraries
         MatcherSetting setting = new MatcherSetting();
         setting.Id = matcher.Id;
         setting.Enabled = matcher.Enabled;
-        setting.Primary = matcher.Primary;
         list.Add(setting);
       }
       settings.MusicMatchers = list.ToArray();
-      settings.MusicGenreMappings = MUSIC_GENRE_MAP.ToArray();
 
       list.Clear();
       foreach (IMovieMatcher matcher in MOVIE_MATCHERS)
@@ -229,11 +130,9 @@ namespace MediaPortal.Extensions.OnlineLibraries
         MatcherSetting setting = new MatcherSetting();
         setting.Id = matcher.Id;
         setting.Enabled = matcher.Enabled;
-        setting.Primary = matcher.Primary;
         list.Add(setting);
       }
       settings.MovieMatchers = list.ToArray();
-      settings.MovieGenreMappings = MOVIE_GENRE_MAP.ToArray();
 
       list.Clear();
       foreach (ISeriesMatcher matcher in SERIES_MATCHERS)
@@ -241,11 +140,9 @@ namespace MediaPortal.Extensions.OnlineLibraries
         MatcherSetting setting = new MatcherSetting();
         setting.Id = matcher.Id;
         setting.Enabled = matcher.Enabled;
-        setting.Primary = matcher.Primary;
         list.Add(setting);
       }
       settings.SeriesMatchers = list.ToArray();
-      settings.SeriesGenreMappings = SERIES_GENRE_MAP.ToArray();
 
       ServiceRegistration.Get<ISettingsManager>().Save(settings);
     }
@@ -255,54 +152,40 @@ namespace MediaPortal.Extensions.OnlineLibraries
       LoadSettings();
     }
 
-    private bool AssignMissingGenreIds(List<GenreInfo> genres, List<GenreMapping> genreMap)
+    private async Task<IList<T>> MergeResults<T>(List<Task<IEnumerable<T>>> results) where T: BaseInfo
     {
-      bool retVal = false;
-      List<GenreInfo> checkGenres = new List<GenreInfo>(genres);
-      genres.Clear();
-      foreach (GenreInfo genre in checkGenres)
+      await Task.WhenAny(Task.WhenAll(results), Task.Delay(10000)).ConfigureAwait(false);
+
+      List<T> list = new List<T>();
+      foreach (var task in results)
       {
-        if (genre.Id > 0)
-        {
-          if (!genres.Contains(genre))
-            genres.Add(genre);
+        if (!task.IsCompleted)
           continue;
+        if (list.Count == 0)
+        {
+          list.AddRange(task.Result);
         }
-
-        if (string.IsNullOrEmpty(genre.Name))
-          continue;
-
-        GenreInfo testGenre = genre;
-        foreach (GenreMapping map in genreMap)
+        else if (task.Result != null)
         {
-          if (map.GenrePattern.Regex.IsMatch(genre.Name))
+          foreach (var item in task.Result)
           {
-            testGenre = new GenreInfo
-            {
-              Id = map.GenreId,
-              Name = genre.Name
-            };
-            retVal = true;
-            break;
+            int idx = list.IndexOf(item);
+            if (idx >= 0)
+              list[idx].MergeWith(item);
+            else
+              list.Add(item);
           }
         }
-        if (!genres.Contains(testGenre))
-          genres.Add(testGenre);
       }
-      return retVal;
+      return list;
     }
 
     #region Audio
 
-    public bool AssignMissingMusicGenreIds(List<GenreInfo> genres)
-    {
-      return AssignMissingGenreIds(genres, MUSIC_GENRE_MAP);
-    }
-
     public List<AlbumInfo> GetLastChangedAudioAlbums()
     {
       List<AlbumInfo> albums = new List<AlbumInfo>();
-      foreach (IMusicMatcher matcher in MUSIC_MATCHERS.OrderByDescending(m => m.Primary).Where(m => m.Enabled))
+      foreach (IMusicMatcher matcher in MUSIC_MATCHERS.Where(m => m.Enabled))
       {
         foreach (AlbumInfo album in matcher.GetLastChangedAudioAlbums())
           if (!albums.Contains(album))
@@ -313,7 +196,7 @@ namespace MediaPortal.Extensions.OnlineLibraries
 
     public void ResetLastChangedAudioAlbums()
     {
-      foreach (IMusicMatcher matcher in MUSIC_MATCHERS.OrderByDescending(m => m.Primary).Where(m => m.Enabled))
+      foreach (IMusicMatcher matcher in MUSIC_MATCHERS.Where(m => m.Enabled))
       {
         matcher.ResetLastChangedAudioAlbums();
       }
@@ -322,7 +205,7 @@ namespace MediaPortal.Extensions.OnlineLibraries
     public List<TrackInfo> GetLastChangedAudio()
     {
       List<TrackInfo> tracks = new List<TrackInfo>();
-      foreach (IMusicMatcher matcher in MUSIC_MATCHERS.OrderByDescending(m => m.Primary).Where(m => m.Enabled))
+      foreach (IMusicMatcher matcher in MUSIC_MATCHERS.Where(m => m.Enabled))
       {
         foreach (TrackInfo track in matcher.GetLastChangedAudio())
           if (!tracks.Contains(track))
@@ -333,58 +216,74 @@ namespace MediaPortal.Extensions.OnlineLibraries
 
     public void ResetLastChangedAudio()
     {
-      foreach (IMusicMatcher matcher in MUSIC_MATCHERS.OrderByDescending(m => m.Primary).Where(m => m.Enabled))
+      foreach (IMusicMatcher matcher in MUSIC_MATCHERS.Where(m => m.Enabled))
       {
         matcher.ResetLastChangedAudio();
       }
     }
 
-    public bool FindAndUpdateTrack(TrackInfo trackInfo, bool importOnly)
+    public async Task<IEnumerable<TrackInfo>> FindMatchingTracksAsync(TrackInfo trackInfo)
+    {
+      var tasks = MUSIC_MATCHERS.Where(m => m.Enabled)
+        .Select(m => m.FindMatchingTracksAsync(trackInfo)).ToList();
+      //Merge results
+      return await MergeResults(tasks).ConfigureAwait(false);
+    }
+
+    public async Task<IEnumerable<AlbumInfo>> FindMatchingAlbumsAsync(AlbumInfo albumInfo)
+    {
+      var tasks = MUSIC_MATCHERS.Where(m => m.Enabled)
+        .Select(m => m.FindMatchingAlbumsAsync(albumInfo)).ToList();
+      //Merge results
+      return await MergeResults(tasks).ConfigureAwait(false);
+    }
+
+    public async Task<bool> FindAndUpdateTrackAsync(TrackInfo trackInfo)
     {
       bool success = false;
-      foreach (IMusicMatcher matcher in MUSIC_MATCHERS.OrderByDescending(m => m.Primary).Where(m => m.Enabled))
+      foreach (IMusicMatcher matcher in MUSIC_MATCHERS.Where(m => m.Enabled))
       {
-        success |= matcher.FindAndUpdateTrack(trackInfo, matcher.Primary ? false : importOnly);
+        success |= await matcher.FindAndUpdateTrackAsync(trackInfo).ConfigureAwait(false);
       }
       return success;
     }
 
-    public bool UpdateAlbumPersons(AlbumInfo albumInfo, string occupation, bool importOnly)
+    public async Task<bool> UpdateAlbumPersonsAsync(AlbumInfo albumInfo, string occupation)
     {
       bool success = false;
-      foreach (IMusicMatcher matcher in MUSIC_MATCHERS.OrderByDescending(m => m.Primary).Where(m => m.Enabled))
+      foreach (IMusicMatcher matcher in MUSIC_MATCHERS.Where(m => m.Enabled))
       {
-        success |= matcher.UpdateAlbumPersons(albumInfo, occupation, importOnly);
+        success |= await matcher.UpdateAlbumPersonsAsync(albumInfo, occupation).ConfigureAwait(false);
       }
       return success;
     }
 
-    public bool UpdateTrackPersons(TrackInfo trackInfo, string occupation, bool forAlbum, bool importOnly)
+    public async Task<bool> UpdateTrackPersonsAsync(TrackInfo trackInfo, string occupation, bool forAlbum)
     {
       bool success = false;
-      foreach (IMusicMatcher matcher in MUSIC_MATCHERS.OrderByDescending(m => m.Primary).Where(m => m.Enabled))
+      foreach (IMusicMatcher matcher in MUSIC_MATCHERS.Where(m => m.Enabled))
       {
-        success |= matcher.UpdateTrackPersons(trackInfo, occupation, forAlbum, importOnly);
+        success |= await matcher.UpdateTrackPersonsAsync(trackInfo, occupation, forAlbum).ConfigureAwait(false);
       }
       return success;
     }
 
-    public bool UpdateAlbumCompanies(AlbumInfo albumInfo, string companyType, bool importOnly)
+    public async Task<bool> UpdateAlbumCompaniesAsync(AlbumInfo albumInfo, string companyType)
     {
       bool success = false;
-      foreach (IMusicMatcher matcher in MUSIC_MATCHERS.OrderByDescending(m => m.Primary).Where(m => m.Enabled))
+      foreach (IMusicMatcher matcher in MUSIC_MATCHERS.Where(m => m.Enabled))
       {
-        success |= matcher.UpdateAlbumCompanies(albumInfo, companyType, importOnly);
+        success |= await matcher.UpdateAlbumCompaniesAsync(albumInfo, companyType).ConfigureAwait(false);
       }
       return success;
     }
 
-    public bool UpdateAlbum(AlbumInfo albumInfo, bool updateTrackList, bool importOnly)
+    public async Task<bool> UpdateAlbumAsync(AlbumInfo albumInfo, bool updateTrackList)
     {
       bool success = false;
-      foreach (IMusicMatcher matcher in MUSIC_MATCHERS.OrderByDescending(m => m.Primary).Where(m => m.Enabled))
+      foreach (IMusicMatcher matcher in MUSIC_MATCHERS.Where(m => m.Enabled))
       {
-        success |= matcher.UpdateAlbum(albumInfo, updateTrackList, matcher.Primary ? false : importOnly);
+        success |= await matcher.UpdateAlbumAsync(albumInfo, updateTrackList).ConfigureAwait(false);
       }
 
       if (updateTrackList)
@@ -395,7 +294,7 @@ namespace MediaPortal.Extensions.OnlineLibraries
         for (int i = 0; i < albumInfo.Tracks.Count; i++)
         {
           //TrackInfo trackInfo = albumInfo.Tracks[i];
-          //foreach (IMusicMatcher matcher in MUSIC_MATCHERS.OrderByDescending(m => m.Primary).Where(m => m.Enabled))
+          //foreach (IMusicMatcher matcher in MUSIC_MATCHERS.Where(m => m.Enabled))
           //{
           //  matcher.FindAndUpdateTrack(trackInfo, importOnly);
           //}
@@ -404,12 +303,12 @@ namespace MediaPortal.Extensions.OnlineLibraries
       return success;
     }
 
-    public bool DownloadAudioFanArt(Guid mediaItemId, BaseInfo mediaItemInfo, bool force)
+    public async Task<bool> DownloadAudioFanArtAsync(Guid mediaItemId, BaseInfo mediaItemInfo)
     {
       bool success = false;
-      foreach (IMusicMatcher matcher in MUSIC_MATCHERS.OrderByDescending(m => m.Primary).Where(m => m.Enabled))
+      foreach (IMusicMatcher matcher in MUSIC_MATCHERS.Where(m => m.Enabled))
       {
-        success |= matcher.ScheduleFanArtDownload(mediaItemId, mediaItemInfo, force);
+        success |= await matcher.DownloadFanArtAsync(mediaItemId, mediaItemInfo).ConfigureAwait(false);
       }
       return success;
     }
@@ -430,6 +329,13 @@ namespace MediaPortal.Extensions.OnlineLibraries
           matcher.StoreComposerMatch(person);
         }
       }
+      else if (person.Occupation == PersonAspect.OCCUPATION_CONDUCTOR)
+      {
+        foreach (IMusicMatcher matcher in MUSIC_MATCHERS)
+        {
+          matcher.StoreConductorMatch(person);
+        }
+      }
     }
 
     public void StoreAudioCompanyMatch(CompanyInfo company)
@@ -447,15 +353,10 @@ namespace MediaPortal.Extensions.OnlineLibraries
 
     #region Movie
 
-    public bool AssignMissingMovieGenreIds(List<GenreInfo> genres)
-    {
-      return AssignMissingGenreIds(genres, MOVIE_GENRE_MAP);
-    }
-
     public List<MovieInfo> GetLastChangedMovies()
     {
       List<MovieInfo> movies = new List<MovieInfo>();
-      foreach (IMovieMatcher matcher in MOVIE_MATCHERS.OrderByDescending(m => m.Primary).Where(m => m.Enabled))
+      foreach (IMovieMatcher matcher in MOVIE_MATCHERS.Where(m => m.Enabled))
       {
         foreach (MovieInfo movie in matcher.GetLastChangedMovies())
           if (!movies.Contains(movie))
@@ -466,7 +367,7 @@ namespace MediaPortal.Extensions.OnlineLibraries
 
     public void ResetLastChangedMovies()
     {
-      foreach (IMovieMatcher matcher in MOVIE_MATCHERS.OrderByDescending(m => m.Primary).Where(m => m.Enabled))
+      foreach (IMovieMatcher matcher in MOVIE_MATCHERS.Where(m => m.Enabled))
       {
         matcher.ResetLastChangedMovies();
       }
@@ -475,7 +376,7 @@ namespace MediaPortal.Extensions.OnlineLibraries
     public List<MovieCollectionInfo> GetLastChangedMovieCollections()
     {
       List<MovieCollectionInfo> collections = new List<MovieCollectionInfo>();
-      foreach (IMovieMatcher matcher in MOVIE_MATCHERS.OrderByDescending(m => m.Primary).Where(m => m.Enabled))
+      foreach (IMovieMatcher matcher in MOVIE_MATCHERS.Where(m => m.Enabled))
       {
         foreach (MovieCollectionInfo collection in matcher.GetLastChangedMovieCollections())
           if (!collections.Contains(collection))
@@ -486,48 +387,56 @@ namespace MediaPortal.Extensions.OnlineLibraries
 
     public void ResetLastChangedMovieCollections()
     {
-      foreach (IMovieMatcher matcher in MOVIE_MATCHERS.OrderByDescending(m => m.Primary).Where(m => m.Enabled))
+      foreach (IMovieMatcher matcher in MOVIE_MATCHERS.Where(m => m.Enabled))
       {
         matcher.ResetLastChangedMovieCollections();
       }
     }
 
-    public bool FindAndUpdateMovie(MovieInfo movieInfo, bool importOnly)
+    public async Task<IEnumerable<MovieInfo>> FindMatchingMoviesAsync(MovieInfo movieInfo)
+    {
+      var tasks = MOVIE_MATCHERS.Where(m => m.Enabled)
+        .Select(m => m.FindMatchingMoviesAsync(movieInfo)).ToList();
+      //Merge results
+      return await MergeResults(tasks).ConfigureAwait(false);
+    }
+
+    public async Task<bool> FindAndUpdateMovieAsync(MovieInfo movieInfo)
     {
       bool success = false;
-      foreach (IMovieMatcher matcher in MOVIE_MATCHERS.OrderByDescending(m => m.Primary).Where(m => m.Enabled))
+      foreach (IMovieMatcher matcher in MOVIE_MATCHERS.Where(m => m.Enabled))
       {
-        success |= matcher.FindAndUpdateMovie(movieInfo, matcher.Primary ? false : importOnly);
+        success |= await matcher.FindAndUpdateMovieAsync(movieInfo).ConfigureAwait(false);
       }
       return success;
     }
 
-    public bool UpdatePersons(MovieInfo movieInfo, string occupation, bool importOnly)
+    public async Task<bool> UpdatePersonsAsync(MovieInfo movieInfo, string occupation)
     {
       bool success = false;
-      foreach (IMovieMatcher matcher in MOVIE_MATCHERS.OrderByDescending(m => m.Primary).Where(m => m.Enabled))
+      foreach (IMovieMatcher matcher in MOVIE_MATCHERS.Where(m => m.Enabled))
       {
-        success |= matcher.UpdatePersons(movieInfo, occupation, importOnly);
+        success |= await matcher.UpdatePersonsAsync(movieInfo, occupation).ConfigureAwait(false);
       }
       return success;
     }
 
-    public bool UpdateCharacters(MovieInfo movieInfo, bool importOnly)
+    public async Task<bool> UpdateCharactersAsync(MovieInfo movieInfo)
     {
       bool success = false;
-      foreach (IMovieMatcher matcher in MOVIE_MATCHERS.OrderByDescending(m => m.Primary).Where(m => m.Enabled))
+      foreach (IMovieMatcher matcher in MOVIE_MATCHERS.Where(m => m.Enabled))
       {
-        success |= matcher.UpdateCharacters(movieInfo, importOnly);
+        success |= await matcher.UpdateCharactersAsync(movieInfo).ConfigureAwait(false);
       }
       return success;
     }
 
-    public bool UpdateCollection(MovieCollectionInfo collectionInfo, bool updateMovieList, bool importOnly)
+    public async Task<bool> UpdateCollectionAsync(MovieCollectionInfo collectionInfo, bool updateMovieList)
     {
       bool success = false;
-      foreach (IMovieMatcher matcher in MOVIE_MATCHERS.OrderByDescending(m => m.Primary).Where(m => m.Enabled))
+      foreach (IMovieMatcher matcher in MOVIE_MATCHERS.Where(m => m.Enabled))
       {
-        success |= matcher.UpdateCollection(collectionInfo, updateMovieList, importOnly);
+        success |= await matcher.UpdateCollectionAsync(collectionInfo, updateMovieList).ConfigureAwait(false);
       }
 
       if (updateMovieList)
@@ -538,7 +447,7 @@ namespace MediaPortal.Extensions.OnlineLibraries
         for (int i = 0; i < collectionInfo.Movies.Count; i++)
         {
           //MovieInfo movieInfo = collectionInfo.Movies[i];
-          //foreach (IMovieMatcher matcher in MOVIE_MATCHERS.OrderByDescending(m => m.Primary).Where(m => m.Enabled))
+          //foreach (IMovieMatcher matcher in MOVIE_MATCHERS.Where(m => m.Enabled))
           //{
           //  success |= matcher.FindAndUpdateMovie(movieInfo, importOnly);
           //}
@@ -547,22 +456,22 @@ namespace MediaPortal.Extensions.OnlineLibraries
       return success;
     }
 
-    public bool UpdateCompanies(MovieInfo movieInfo, string companyType, bool importOnly)
+    public async Task<bool> UpdateCompaniesAsync(MovieInfo movieInfo, string companyType)
     {
       bool success = false;
-      foreach (IMovieMatcher matcher in MOVIE_MATCHERS.OrderByDescending(m => m.Primary).Where(m => m.Enabled))
+      foreach (IMovieMatcher matcher in MOVIE_MATCHERS.Where(m => m.Enabled))
       {
-        success |= matcher.UpdateCompanies(movieInfo, companyType, importOnly);
+        success |= await matcher.UpdateCompaniesAsync(movieInfo, companyType).ConfigureAwait(false);
       }
       return success;
     }
 
-    public bool DownloadMovieFanArt(Guid mediaItemId, BaseInfo mediaItemInfo, bool force)
+    public async Task<bool> DownloadMovieFanArtAsync(Guid mediaItemId, BaseInfo mediaItemInfo)
     {
       bool success = false;
-      foreach (IMovieMatcher matcher in MOVIE_MATCHERS.OrderByDescending(m => m.Primary).Where(m => m.Enabled))
+      foreach (IMovieMatcher matcher in MOVIE_MATCHERS.Where(m => m.Enabled))
       {
-        success |= matcher.ScheduleFanArtDownload(mediaItemId, mediaItemInfo, force);
+        success |= await matcher.DownloadFanArtAsync(mediaItemId, mediaItemInfo).ConfigureAwait(false);
       }
       return success;
     }
@@ -612,15 +521,10 @@ namespace MediaPortal.Extensions.OnlineLibraries
 
     #region Series
 
-    public bool AssignMissingSeriesGenreIds(List<GenreInfo> genres)
-    {
-      return AssignMissingGenreIds(genres, SERIES_GENRE_MAP);
-    }
-
     public List<SeriesInfo> GetLastChangedSeries()
     {
       List<SeriesInfo> series = new List<SeriesInfo>();
-      foreach (ISeriesMatcher matcher in SERIES_MATCHERS.OrderByDescending(m => m.Primary).Where(m => m.Enabled))
+      foreach (ISeriesMatcher matcher in SERIES_MATCHERS.Where(m => m.Enabled))
       {
         foreach (SeriesInfo ser in matcher.GetLastChangedSeries())
           if (!series.Contains(ser))
@@ -631,7 +535,7 @@ namespace MediaPortal.Extensions.OnlineLibraries
 
     public void ResetLastChangedSeries()
     {
-      foreach (ISeriesMatcher matcher in SERIES_MATCHERS.OrderByDescending(m => m.Primary).Where(m => m.Enabled))
+      foreach (ISeriesMatcher matcher in SERIES_MATCHERS.Where(m => m.Enabled))
       {
         matcher.ResetLastChangedSeries();
       }
@@ -640,7 +544,7 @@ namespace MediaPortal.Extensions.OnlineLibraries
     public List<EpisodeInfo> GetLastChangedEpisodes()
     {
       List<EpisodeInfo> episodes = new List<EpisodeInfo>();
-      foreach (ISeriesMatcher matcher in SERIES_MATCHERS.OrderByDescending(m => m.Primary).Where(m => m.Enabled))
+      foreach (ISeriesMatcher matcher in SERIES_MATCHERS.Where(m => m.Enabled))
       {
         foreach (EpisodeInfo episode in matcher.GetLastChangedEpisodes())
           if (!episodes.Contains(episode))
@@ -651,58 +555,74 @@ namespace MediaPortal.Extensions.OnlineLibraries
 
     public void ResetLastChangedEpisodes()
     {
-      foreach (ISeriesMatcher matcher in SERIES_MATCHERS.OrderByDescending(m => m.Primary).Where(m => m.Enabled))
+      foreach (ISeriesMatcher matcher in SERIES_MATCHERS.Where(m => m.Enabled))
       {
         matcher.ResetLastChangedEpisodes();
       }
     }
 
-    public bool FindAndUpdateEpisode(EpisodeInfo episodeInfo, bool importOnly)
+    public async Task<IEnumerable<EpisodeInfo>> FindMatchingEpisodesAsync(EpisodeInfo episodeInfo)
+    {
+      var tasks = SERIES_MATCHERS.Where(m => m.Enabled)
+        .Select(m => m.FindMatchingEpisodesAsync(episodeInfo)).ToList();
+      //Merge results
+      return await MergeResults(tasks).ConfigureAwait(false);
+    }
+
+    public async Task<IEnumerable<SeriesInfo>> FindMatchingSeriesAsync(SeriesInfo seriesInfo)
+    {
+      var tasks = SERIES_MATCHERS.Where(m => m.Enabled)
+        .Select(m => m.FindMatchingSeriesAsync(seriesInfo)).ToList();
+      //Merge results
+      return await MergeResults(tasks).ConfigureAwait(false);
+    }
+
+    public async Task<bool> FindAndUpdateEpisodeAsync(EpisodeInfo episodeInfo)
     {
       bool success = false;
-      foreach (ISeriesMatcher matcher in SERIES_MATCHERS.OrderByDescending(m => m.Primary).Where(m => m.Enabled))
+      foreach (ISeriesMatcher matcher in SERIES_MATCHERS.Where(m => m.Enabled))
       {
-        success |= matcher.FindAndUpdateEpisode(episodeInfo, matcher.Primary ? false : importOnly);
+        success |= await matcher.FindAndUpdateEpisodeAsync(episodeInfo).ConfigureAwait(false);
       }
       return success;
     }
 
-    public bool UpdateEpisodePersons(EpisodeInfo episodeInfo, string occupation, bool importOnly)
+    public async Task<bool> UpdateEpisodePersonsAsync(EpisodeInfo episodeInfo, string occupation)
     {
       bool success = false;
-      foreach (ISeriesMatcher matcher in SERIES_MATCHERS.OrderByDescending(m => m.Primary).Where(m => m.Enabled))
+      foreach (ISeriesMatcher matcher in SERIES_MATCHERS.Where(m => m.Enabled))
       {
-        success |= matcher.UpdateEpisodePersons(episodeInfo, occupation, importOnly);
+        success |= await matcher.UpdateEpisodePersonsAsync(episodeInfo, occupation).ConfigureAwait(false);
       }
       return success;
     }
 
-    public bool UpdateEpisodeCharacters(EpisodeInfo episodeInfo, bool importOnly)
+    public async Task<bool> UpdateEpisodeCharactersAsync(EpisodeInfo episodeInfo)
     {
       bool success = false;
-      foreach (ISeriesMatcher matcher in SERIES_MATCHERS.OrderByDescending(m => m.Primary).Where(m => m.Enabled))
+      foreach (ISeriesMatcher matcher in SERIES_MATCHERS.Where(m => m.Enabled))
       {
-        success |= matcher.UpdateEpisodeCharacters(episodeInfo, importOnly);
+        success |= await matcher.UpdateEpisodeCharactersAsync(episodeInfo).ConfigureAwait(false);
       }
       return success;
     }
 
-    public bool UpdateSeason(SeasonInfo seasonInfo, bool importOnly)
+    public async Task<bool> UpdateSeasonAsync(SeasonInfo seasonInfo)
     {
       bool success = false;
-      foreach (ISeriesMatcher matcher in SERIES_MATCHERS.OrderByDescending(m => m.Primary).Where(m => m.Enabled))
+      foreach (ISeriesMatcher matcher in SERIES_MATCHERS.Where(m => m.Enabled))
       {
-        success |= matcher.UpdateSeason(seasonInfo, importOnly);
+        success |= await matcher.UpdateSeasonAsync(seasonInfo).ConfigureAwait(false);
       }
       return success;
     }
 
-    public bool UpdateSeries(SeriesInfo seriesInfo, bool updateEpisodeList, bool importOnly)
+    public async Task<bool> UpdateSeriesAsync(SeriesInfo seriesInfo, bool updateEpisodeList)
     {
       bool success = false;
-      foreach (ISeriesMatcher matcher in SERIES_MATCHERS.OrderByDescending(m => m.Primary).Where(m => m.Enabled))
+      foreach (ISeriesMatcher matcher in SERIES_MATCHERS.Where(m => m.Enabled))
       {
-        success |= matcher.UpdateSeries(seriesInfo, updateEpisodeList, matcher.Primary ? false : importOnly);
+        success |= await matcher.UpdateSeriesAsync(seriesInfo, updateEpisodeList).ConfigureAwait(false);
       }
 
       if (updateEpisodeList)
@@ -714,7 +634,7 @@ namespace MediaPortal.Extensions.OnlineLibraries
         {
           //Gives more detail to the missing episodes but will be very slow
           //EpisodeInfo episodeInfo = seriesInfo.Episodes[i];
-          //foreach (ISeriesMatcher matcher in SERIES_MATCHERS.OrderByDescending(m => m.Primary).Where(m => m.Enabled))
+          //foreach (ISeriesMatcher matcher in SERIES_MATCHERS.Where(m => m.Enabled))
           //{
           //  success |= matcher.FindAndUpdateEpisode(episodeInfo, importOnly);
           //}
@@ -723,42 +643,42 @@ namespace MediaPortal.Extensions.OnlineLibraries
       return success;
     }
 
-    public bool UpdateSeriesPersons(SeriesInfo seriesInfo, string occupation, bool importOnly)
+    public async Task<bool> UpdateSeriesPersonsAsync(SeriesInfo seriesInfo, string occupation)
     {
       bool success = false;
-      foreach (ISeriesMatcher matcher in SERIES_MATCHERS.OrderByDescending(m => m.Primary).Where(m => m.Enabled))
+      foreach (ISeriesMatcher matcher in SERIES_MATCHERS.Where(m => m.Enabled))
       {
-        success |= matcher.UpdateSeriesPersons(seriesInfo, occupation, importOnly);
+        success |= await matcher.UpdateSeriesPersonsAsync(seriesInfo, occupation).ConfigureAwait(false);
       }
       return success;
     }
 
-    public bool UpdateSeriesCharacters(SeriesInfo seriesInfo, bool importOnly)
+    public async Task<bool> UpdateSeriesCharactersAsync(SeriesInfo seriesInfo)
     {
       bool success = false;
-      foreach (ISeriesMatcher matcher in SERIES_MATCHERS.OrderByDescending(m => m.Primary).Where(m => m.Enabled))
+      foreach (ISeriesMatcher matcher in SERIES_MATCHERS.Where(m => m.Enabled))
       {
-        success |= matcher.UpdateSeriesCharacters(seriesInfo, importOnly);
+        success |= await matcher.UpdateSeriesCharactersAsync(seriesInfo).ConfigureAwait(false);
       }
       return success;
     }
 
-    public bool UpdateSeriesCompanies(SeriesInfo seriesInfo, string companyType, bool importOnly)
+    public async Task<bool> UpdateSeriesCompaniesAsync(SeriesInfo seriesInfo, string companyType)
     {
       bool success = false;
-      foreach (ISeriesMatcher matcher in SERIES_MATCHERS.OrderByDescending(m => m.Primary).Where(m => m.Enabled))
+      foreach (ISeriesMatcher matcher in SERIES_MATCHERS.Where(m => m.Enabled))
       {
-        success |= matcher.UpdateSeriesCompanies(seriesInfo, companyType, importOnly);
+        success |= await matcher.UpdateSeriesCompaniesAsync(seriesInfo, companyType).ConfigureAwait(false);
       }
       return success;
     }
 
-    public bool DownloadSeriesFanArt(Guid mediaItemId, BaseInfo mediaItemInfo, bool force)
+    public async Task<bool> DownloadSeriesFanArtAsync(Guid mediaItemId, BaseInfo mediaItemInfo)
     {
       bool success = false;
-      foreach (ISeriesMatcher matcher in SERIES_MATCHERS.OrderByDescending(m => m.Primary).Where(m => m.Enabled))
+      foreach (ISeriesMatcher matcher in SERIES_MATCHERS.Where(m => m.Enabled))
       {
-        success |= matcher.ScheduleFanArtDownload(mediaItemId, mediaItemInfo, force);
+        success |= await matcher.DownloadFanArtAsync(mediaItemId, mediaItemInfo).ConfigureAwait(false);
       }
       return success;
     }

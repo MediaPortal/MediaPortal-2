@@ -29,14 +29,18 @@ namespace MediaPortal.Common.MediaManagement
 {
   /// <summary>
   /// <see cref="MetadataExtractorPriority"/> defines the different levels of <see cref="IMetadataExtractor"/>s in terms of availability,
-  /// quantity and quality of information they can extract. Metadata extractors will be run in ascending order from lowest (<see cref="Core"/>) 
+  /// quantity and quality of information they can extract. Metadata extractors will be run in ascending order from lowest (<see cref="Stub"/>) 
   /// to highest (<see cref="External"/>). This way a higher level extractor can work with the already extracted metadata, i.e. to do an 
   /// online lookup.
   /// </summary>
   public enum MetadataExtractorPriority
   {
     /// <summary>
-    /// Lowest level for metadata extractors, like detecting audio and video files, reading stream informationen and metadata of files.
+    /// Stub level metadata extractors build stubs that can be passed on to the core metadata extractors.
+    /// </summary>
+    Stub,
+    /// <summary>
+    /// Core level metadata extractors detect audio and video files, and read stream informationen and metadata of them.
     /// </summary>
     Core,
     /// <summary>
@@ -139,7 +143,7 @@ namespace MediaPortal.Common.MediaManagement
     /// </summary>
     /// <remarks>
     /// Every media item aspect whose attributes might be equipped by the metadata extractor
-    /// should be defined here. If the ME still provides metadata in method <see cref="IMetadataExtractor.TryExtractMetadata"/>
+    /// should be defined here. If the ME still provides metadata in method <see cref="IMetadataExtractor.TryExtractMetadataAsync"/>
     /// for aspects which aren't returned here, these attributes might be discarded by the system.
     /// </remarks>
     public IDictionary<Guid, MediaItemAspectMetadata> ExtractedAspectTypes

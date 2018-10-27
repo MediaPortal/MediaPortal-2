@@ -59,6 +59,12 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.Stubs
     public int? TmdbId { get; set; }
 
     /// <summary>
+    /// Collection ID of this movie at www.themoviedb.org
+    /// </summary>
+    /// <example>675</example>
+    public int? TmdbCollectionId { get; set; }
+
+    /// <summary>
     /// ID of this movie at www.themoviedb.org
     /// </summary>
     /// <example>675</example>

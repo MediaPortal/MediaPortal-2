@@ -196,7 +196,9 @@
             </Grid.RowDefinitions>
             <!-- Content -->
             <wmc:SubItemsContentPresenter x:Name="AnimatedScroller" Grid.Row="0" Grid.Column="0" Grid.ZIndex="100" AutoCentering="Horizontal"
-                                    VerticalAlignment="Stretch" HorizontalAlignment="Stretch" EnableAnimations="{Binding Source={StaticResource HomeMenuModel}, Path=EnableSubMenuAnimations}">
+                                          VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
+                                          EnableAnimations="{Binding Source={StaticResource HomeMenuModel}, Path=EnableSubMenuAnimations}"
+                                          CurrentIndex="{Binding Source={StaticResource HomeMenuModel}, Path=CurrentSubItemIndex, Mode=OneWayToSource}">
               <wmc:SubItemsContentPresenter.Triggers>
                 <EventTrigger RoutedEvent="AnimatedScrollContentPresenter.Scroll">
                   <EventTrigger.Actions>
@@ -224,18 +226,64 @@
       <Setter.Value>
         <ControlTemplate TargetType="{x:Type ListViewItem}">
           <Button Style="{ThemeResource SubItemButtonStyle}"
-              Command="{DynamicResource ResourceKey=Menu_Command}"
-              IsEnabled="{Binding Enabled}" SetFocus="{Binding Path=Selected,Mode=OneTime}">
+                  Command="{DynamicResource ResourceKey=Menu_Command}"
+                  SetFocusPrio="{Binding Path=Selected, Converter={StaticResource BoolToFocusPriorityConverter}, ConverterParameter=Highest}">
+
+            <Button.IsEnabled>
+              <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} &amp;&amp; {1}">
+                <!-- Consider the item's enabled state -->
+                <Binding RelativeSource="{RelativeSource TemplatedParent}" Path="IsEnabled"/>
+                <!-- In combination with the parent ListView's enabled state -->
+                <Binding RelativeSource="{RelativeSource Mode=FindAncestor,AncestorType={x:Type ListView}}" Path="IsEnabled"/>
+              </MultiBinding>
+            </Button.IsEnabled>
+            
+            <Button.Resources>
+              <Storyboard x:Key="FocusGrowStoryboard" FillBehavior="HoldEnd">
+                <DoubleAnimationUsingKeyFrames BeginTime="00:00:00" FillBehavior="HoldEnd" AccelerationRatio="0.3" DecelerationRatio="0.3"
+                                               Storyboard.TargetName="SubMenuImage" Storyboard.TargetProperty="RenderTransform.ScaleX">
+                  <SplineDoubleKeyFrame KeyTime="00:00:00" Value="1"/>
+                  <SplineDoubleKeyFrame KeyTime="00:00:00.4" Value="1.18"/>
+                </DoubleAnimationUsingKeyFrames>
+                <DoubleAnimationUsingKeyFrames BeginTime="00:00:00" FillBehavior="HoldEnd" AccelerationRatio="0.3" DecelerationRatio="0.3"
+                                               Storyboard.TargetName="SubMenuImage" Storyboard.TargetProperty="RenderTransform.ScaleY">
+                  <SplineDoubleKeyFrame KeyTime="00:00:00" Value="1"/>
+                  <SplineDoubleKeyFrame KeyTime="00:00:00.4" Value="1.18"/>
+                </DoubleAnimationUsingKeyFrames>
+              </Storyboard>
+              <Storyboard x:Key="FocusShrinkStoryboard" FillBehavior="HoldEnd">
+                <DoubleAnimationUsingKeyFrames BeginTime="00:00:00" FillBehavior="HoldEnd" AccelerationRatio="0.3" DecelerationRatio="0.3"
+                                               Storyboard.TargetName="SubMenuImage" Storyboard.TargetProperty="RenderTransform.ScaleX">
+                  <SplineDoubleKeyFrame KeyTime="00:00:00" Value="1.18"/>
+                  <SplineDoubleKeyFrame KeyTime="00:00:00.4" Value="1"/>
+                </DoubleAnimationUsingKeyFrames>
+                <DoubleAnimationUsingKeyFrames BeginTime="00:00:00" FillBehavior="HoldEnd" AccelerationRatio="0.3" DecelerationRatio="0.3"
+                                               Storyboard.TargetName="SubMenuImage" Storyboard.TargetProperty="RenderTransform.ScaleY">
+                  <SplineDoubleKeyFrame KeyTime="00:00:00" Value="1.18"/>
+                  <SplineDoubleKeyFrame KeyTime="00:00:00.4" Value="1"/>
+                </DoubleAnimationUsingKeyFrames>
+              </Storyboard>
+            </Button.Resources>
             <Button.Triggers>
-              <Trigger Property="HasFocus" Value="True">
+              <DataTrigger Binding="{Binding Selected}" Value="True">
                 <Setter TargetName="ButtonControlGrid" Property="IsVisible" Value="True"/>
                 <Setter TargetName="ItemLabelUnfocused" Property="IsVisible" Value="False"/>
                 <Setter TargetName="ItemLabelUnfocused" Property="Opacity" Value="1"/>
                 <Setter TargetName="ItemLabel" Property="IsVisible" Value="True"/>
-                <!--Setter TargetName="ItemLabel" Property="Color" Value="{ThemeResource TextColor}"/-->
-                <!--Setter TargetName="ItemLabel" Property="Scroll" Value="Auto"/-->
                 <Setter Property="StackPanel.ZIndex" Value="100.0"/>
-              </Trigger>
+              </DataTrigger>
+              <MultiTrigger>
+                <MultiTrigger.Conditions>
+                  <Condition Property="HasFocus" Value="True"/>
+                  <Condition Binding="{Binding Selected}" Value="False"/>
+                </MultiTrigger.Conditions>
+                <MultiTrigger.EnterActions>
+                  <BeginStoryboard x:Name="SubMenuItem_Grow" Storyboard="{StaticResource FocusGrowStoryboard}"/>
+                </MultiTrigger.EnterActions>
+                <MultiTrigger.ExitActions>
+                  <BeginStoryboard x:Name="SubMenuItem_Shrink" Storyboard="{StaticResource FocusShrinkStoryboard}"/>
+                </MultiTrigger.ExitActions>
+              </MultiTrigger>
             </Button.Triggers>
           </Button>
         </ControlTemplate>
@@ -271,7 +319,18 @@
           <SplineDoubleKeyFrame KeyTime="00:00:04.000" Value="0"/>
         </DoubleAnimationUsingKeyFrames>
       </Storyboard>
+      <Storyboard x:Key="Grow" FillBehavior="HoldEnd">
+        <DoubleAnimationUsingKeyFrames BeginTime="00:00:00" FillBehavior="HoldEnd" Storyboard.TargetName="SubMenuImage" Storyboard.TargetProperty="RenderTransform.ScaleX">
+          <SplineDoubleKeyFrame KeyTime="00:00:00.0" Value="1"/>
+          <SplineDoubleKeyFrame KeyTime="00:00:00.40" Value="1.30"/>
+        </DoubleAnimationUsingKeyFrames>
+        <DoubleAnimationUsingKeyFrames BeginTime="00:00:00" FillBehavior="HoldEnd" Storyboard.TargetName="SubMenuImage" Storyboard.TargetProperty="RenderTransform.ScaleY">
+          <SplineDoubleKeyFrame KeyTime="00:00:00.0" Value="1"/>
+          <SplineDoubleKeyFrame KeyTime="00:00:00.40" Value="1.30"/>
+        </DoubleAnimationUsingKeyFrames>
+      </Storyboard>
     </DataTemplate.Resources>
+    
     <Grid x:Name="ItemControl">
       <Grid.ColumnDefinitions>
         <ColumnDefinition Width="*"/>
@@ -279,31 +338,52 @@
       <Grid.RowDefinitions>
         <RowDefinition Height="*"/>
       </Grid.RowDefinitions>
-      <Image VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Stretch="Uniform" 
-             Margin="5" Grid.Row="0" Grid.Column="0" Opacity="0.8">
+      <Grid.Triggers>
+        <!--Triggers the ContentPresenter to auto scroll the item to center-->
+        <DataTrigger Binding="{Binding BringIntoView}" Value="True">
+          <DataTrigger.EnterActions>
+            <TriggerCommand>
+              <TriggerCommand.Command>
+                <Command ElementName="ItemControl" Path="BringIntoView"/>
+              </TriggerCommand.Command>
+            </TriggerCommand>
+          </DataTrigger.EnterActions>
+        </DataTrigger>
+      </Grid.Triggers>
+      
+      <Image VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Stretch="Uniform" x:Name="SubMenuImage"
+             Margin="5" Grid.Row="0" Grid.Column="0" Opacity="0.8" RenderTransformOrigin="0.5,0.5" Width="260">
+        <Image.RenderTransform>
+          <ScaleTransform ScaleX="1.0" ScaleY="1.0"></ScaleTransform>
+        </Image.RenderTransform>
         <Image.Source>
-          <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
-            <Binding RelativeSource="{RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}}" Path="HasFocus"/>
+          <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1}+{2} : {1}+{3}">
+            <Binding Path="Selected"/>
+            <Binding Source="HomeMenu\"/>
             <Binding Source="{Binding Converter={StaticResource ListItemActionIdConverter}, ConverterParameter=focus.png}"/>
             <Binding Source="{Binding Converter={StaticResource ListItemActionIdConverter}, ConverterParameter=nofocus.png}"/>
           </MultiBinding>
         </Image.Source>
-        <Image.Width>
-          <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
-            <Binding RelativeSource="{RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}}" Path="HasFocus"/>
-            <Binding Source="387"/>
-            <Binding Source="243"/>
-          </MultiBinding>
-        </Image.Width>
+        <Image.Triggers>
+          <DataTrigger Binding="{Binding Selected}" Value="True">
+            <DataTrigger.EnterActions>
+              <BeginStoryboard x:Name="Grow_BeginStoryboard" Storyboard="{ThemeResource Grow}"/>
+            </DataTrigger.EnterActions>
+            <DataTrigger.ExitActions>
+              <StopStoryboard BeginStoryboardName="Grow_BeginStoryboard"/>
+            </DataTrigger.ExitActions>
+          </DataTrigger>
+        </Image.Triggers>
       </Image>
+      
       <Image x:Name="Bling_horizontal" VerticalAlignment="Top" Stretch="Fill" HorizontalAlignment="Right" 
              Height="4" Width="60" Grid.Row="0" Grid.Column="0" Source="Bling_hori.png" Margin="0,0,0,4"
-             IsVisible="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Button}, Path=HasFocus}">
+             IsVisible="{Binding Selected}">
         <Image.RenderTransform>
           <TranslateTransform X="0"/>
         </Image.RenderTransform>
         <Image.Triggers>
-          <DataTrigger Binding="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Button}, Path=HasFocus}" Value="True">
+          <DataTrigger Binding="{Binding Selected}" Value="True">
             <DataTrigger.EnterActions>
               <BeginStoryboard x:Name="MoveRight_BeginStoryboard" Storyboard="{ThemeResource MoveRight}"/>
             </DataTrigger.EnterActions>
@@ -314,13 +394,13 @@
         </Image.Triggers>
       </Image>
       <Image x:Name="Bling_vertical" VerticalAlignment="Top" Stretch="Fill" HorizontalAlignment="Right" 
-             Height="60" Width="4" Grid.Row="0" Grid.Column="0" Source="Bling_vert.png" Margin="0,0,-1,0" 
-             IsVisible="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Button}, Path=HasFocus}">
+             Height="60" Width="4" Grid.Row="0" Grid.Column="0" Source="Bling_vert.png" Margin="0,0,-26,0" 
+             IsVisible="{Binding Selected}">
         <Image.RenderTransform>
           <TranslateTransform Y="0"/>
         </Image.RenderTransform>
         <Image.Triggers>
-          <DataTrigger Binding="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Button}, Path=HasFocus}" Value="True">
+          <DataTrigger Binding="{Binding Selected}" Value="True">
             <DataTrigger.EnterActions>
               <BeginStoryboard x:Name="MoveDown_BeginStoryboard" Storyboard="{ThemeResource MoveDown}"/>
             </DataTrigger.EnterActions>
@@ -505,8 +585,8 @@
           <AnimatedWrapPanel x:Name="GridItemsHost" IsItemsHost="True" Orientation="Vertical" ScrollMargin="800,0" Margin="-795,0,-805,0">
             <AnimatedWrapPanel.Resources>
               <Storyboard x:Key="ScrollAnimation" FillBehavior="HoldEnd">
-                <DoubleAnimation BeginTime="00:00:00" From="0" To="1" Duration="00:00:00.400" 
-                                           FillBehavior="HoldEnd" Storyboard.TargetName="GridItemsHost" Storyboard.TargetProperty="ScrollOffsetMultiplier" />
+                <DoubleAnimation BeginTime="00:00:00" From="0" To="1" Duration="00:00:00.400" AccelerationRatio="0.3" DecelerationRatio="0.3"
+                                 FillBehavior="HoldEnd" Storyboard.TargetName="GridItemsHost" Storyboard.TargetProperty="ScrollOffsetMultiplier" />
               </Storyboard>
             </AnimatedWrapPanel.Resources>
             <AnimatedWrapPanel.Triggers>

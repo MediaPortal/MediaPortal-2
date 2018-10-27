@@ -62,6 +62,7 @@
               Command="{Command Source={Service WorkflowManager},Path=NavigatePop,Parameters=1}"/>
           <Button x:Name="ContinueButton" Grid.Column="2" Style="{ThemeResource WizardButtonStyle}"
               Content="[System.Continue]" IsEnabled="{Binding ShareProxy.IsShareNameValid}"
+              SetFocusPrio="Default"
               Command="{Command Source={Service WorkflowManager},Path=NavigatePush,Parameters={StaticResource ChooseShareCategoriesStateId}}"/>
         </Grid>
       </Grid>

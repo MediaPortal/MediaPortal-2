@@ -26,6 +26,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 using MediaPortal.Common;
 using MediaPortal.Common.General;
 using MediaPortal.Common.Localization;
@@ -37,6 +38,7 @@ using MediaPortal.Common.Settings;
 using MediaPortal.Common.SystemCommunication;
 using MediaPortal.Common.SystemResolver;
 using MediaPortal.Common.Threading;
+using MediaPortal.Common.UserManagement;
 using MediaPortal.UI.Presentation.DataObjects;
 using MediaPortal.UI.Presentation.Players;
 using MediaPortal.UI.Presentation.Screens;
@@ -184,8 +186,8 @@ namespace MediaPortal.UiComponents.Utilities.Models
             if (IsCancelled)
               return null;
             CheckUpdateScreenData();
-            MediaItem item = cd.LoadItem(systemId, LocalFsResourceProviderBase.ToResourcePath(localMediaFile), 
-              necessaryAudioAspectIds, optionalAudioAspectIds, userProfile);
+            MediaItem item = cd.LoadItemAsync(systemId, LocalFsResourceProviderBase.ToResourcePath(localMediaFile), 
+              necessaryAudioAspectIds, optionalAudioAspectIds, userProfile).Result;
             NumProcessed++;
             if (item == null)
             {
@@ -383,8 +385,7 @@ namespace MediaPortal.UiComponents.Utilities.Models
         return;
       }
       IList<string> mediaFiles = M3U.ExtractFileNamesFromPlaylist(importFile);
-      IThreadPool threadPool = ServiceRegistration.Get<IThreadPool>();
-      threadPool.Add(() => RunImportOperationAsync(cd, mediaFiles));
+      _ = RunImportOperationAsync(cd, mediaFiles);
     }
 
     #endregion
@@ -461,7 +462,7 @@ namespace MediaPortal.UiComponents.Utilities.Models
       settings.ShareLocation = GetShareLocation();
     }
 
-    protected void RunImportOperationAsync(IContentDirectory cd, IList<string> mediaFiles)
+    protected async Task RunImportOperationAsync(IContentDirectory cd, IList<string> mediaFiles)
     {
       ILogger logger = ServiceRegistration.Get<ILogger>();
       _importPlaylistOperation = new ImportPlaylistOperation();
@@ -482,7 +483,7 @@ namespace MediaPortal.UiComponents.Utilities.Models
       PlaylistRawData playlistRawData = new PlaylistRawData(Guid.NewGuid(), playlistName, ManagePlaylistsModel.ConvertAVTypeToPlaylistType(AVType.Audio), items);
       try
       {
-        cd.SavePlaylist(playlistRawData);
+        await cd.SavePlaylistAsync(playlistRawData);
         dialogManager.ShowDialog(Consts.RES_PLAYLIST_SAVED_SUCCESSFULLY_TITLE,
             LocalizationHelper.Translate(Consts.RES_PLAYLIST_SAVED_SUCCESSFULLY_TEXT, playlistName), DialogType.OkDialog, false, DialogButtonType.Ok);
       }
@@ -495,7 +496,7 @@ namespace MediaPortal.UiComponents.Utilities.Models
 
     protected bool PlaylistNameExists(IContentDirectory cd, string playlistName)
     {
-      return cd.GetPlaylists().FirstOrDefault(playlistData => playlistData.Name == playlistName) != null;
+      return cd.GetPlaylistsAsync().Result.FirstOrDefault(playlistData => playlistData.Name == playlistName) != null;
     }
 
     #endregion

@@ -19,6 +19,6 @@
   <string name="Settings.Players.Rendering">Rendering</string>
   <string name="Settings.Players.Rendering.CrossFading.CrossFadeDuration">Überblendungsdauer</string>
   <string name="Settings.Players.Rendering.CrossFading.CrossFadeDuration.Help">Dauer der Überblendung in Sekunden</string>
-  <string name="Settings.Players.Rendering.Playback.SeekIncrementSeconds">Sprungweite</string>
+  <string name="Settings.Players.Rendering.Playback.SeekIncrementSeconds">Sprungweite Sekunden</string>
   <string name="Settings.Players.Rendering.Playback.SeekIncrementSeconds.Help">Sprungweite in Sekunden festlegen</string>
 </resources>

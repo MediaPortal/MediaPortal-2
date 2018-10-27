@@ -23,6 +23,7 @@
 #endregion
 
 using System;
+using System.Threading.Tasks;
 using MediaPortal.Plugins.SlimTv.Interfaces.Items;
 
 namespace MediaPortal.Plugins.SlimTv.Interfaces
@@ -38,24 +39,24 @@ namespace MediaPortal.Plugins.SlimTv.Interfaces
     void Initialize();
 
     /// <summary>
-    /// Exposes the ITimeshiftControl interface of active TvProvider.
+    /// Exposes the ITimeshiftControlAsync interface of active TvProvider.
     /// </summary>
-    ITimeshiftControl TimeshiftControl { get; }
+    ITimeshiftControlAsync TimeshiftControl { get; }
 
     /// <summary>
-    /// Exposes the IChannelAndGroupInfo interface of active TvProvider.
+    /// Exposes the IChannelAndGroupInfoAsync interface of active TvProvider.
     /// </summary>
-    IChannelAndGroupInfo ChannelAndGroupInfo { get; }
+    IChannelAndGroupInfoAsync ChannelAndGroupInfo { get; }
 
     /// <summary>
-    /// Exposes the IProgramInfo interface of active TvProvider.
+    /// Exposes the IProgramInfoAsync interface of active TvProvider.
     /// </summary>
-    IProgramInfo ProgramInfo { get; }
+    IProgramInfoAsync ProgramInfo { get; }
 
     /// <summary>
-    /// Exposes the IScheduleControl interface of active TvProvider.
+    /// Exposes the IScheduleControlAsync interface of active TvProvider.
     /// </summary>
-    IScheduleControl ScheduleControl { get; }
+    IScheduleControlAsync ScheduleControl { get; }
 
     /// <summary>
     /// Uses the <see cref="TimeshiftControl"/> to start timeshifting and the playback of
@@ -64,14 +65,14 @@ namespace MediaPortal.Plugins.SlimTv.Interfaces
     /// <param name="slotIndex">Slot Index for Playback (0=Primary, 1=PiP).</param>
     /// <param name="channel">Channel.</param>
     /// <returns>True if succeeded.</returns>
-    bool StartTimeshift(int slotIndex, IChannel channel);
+    Task<bool> StartTimeshiftAsync(int slotIndex, IChannel channel);
 
     /// <summary>
     /// Stops the active Timeshift.
     /// </summary>
     /// <param name="slotIndex">Slot Index to stop (0=Primary, 1=PiP).</param>
     /// <returns>True if succeeded.</returns>
-    bool StopTimeshift(int slotIndex);
+    Task<bool> StopTimeshiftAsync(int slotIndex);
 
     /// <summary>
     /// Disposes an open Slot. Usually a StopTimeshift is called, except a ResourceAccessor was
@@ -98,6 +99,6 @@ namespace MediaPortal.Plugins.SlimTv.Interfaces
     /// </summary>
     /// <param name="program">Program that is currently recording.</param>
     /// <returns>True if succeeded.</returns>
-    bool WatchRecordingFromBeginning(IProgram program);
+    Task<bool> WatchRecordingFromBeginningAsync(IProgram program);
   }
 }

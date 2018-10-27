@@ -40,7 +40,8 @@
     </ItemGroup>
 
     <ItemGroup>
-      <References Include="$(ProjectDir)References\**\*.*" />
+      <References Include="$(TvEngine35References)\**\*.*" />
+      <References Include="$(TvEngine35SetupReferences)\**\*.*" />
     </ItemGroup>
 
     <Copy SourceFiles="@(PluginFiles)" DestinationFolder="$(PluginDestination)" />

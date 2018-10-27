@@ -58,6 +58,45 @@ namespace MediaPortal.Common.Services.ResourceAccess.ImpersonationService
     [DllImport("kernel32.dll", SetLastError = true)]
     private static extern bool GetExitCodeProcess(SafeProcessHandle hProcess, out uint lpExitCode);
 
+    [Flags]
+    public enum ProcessAccessFlags : uint
+    {
+      Terminate = 0x00000001,
+      CreateThread = 0x00000002,
+      VirtualMemoryOperation = 0x00000008,
+      VirtualMemoryRead = 0x00000010,
+      VirtualMemoryWrite = 0x00000020,
+      DuplicateHandle = 0x00000040,
+      CreateProcess = 0x00000080,
+      SetQuota = 0x00000100,
+      SetInformation = 0x00000200,
+      QueryInformation = 0x00000400,
+      QueryLimitedInformation = 0x00001000,
+      Synchronize = 0x00100000,
+      All = Terminate |
+            CreateThread |
+            VirtualMemoryOperation |
+            VirtualMemoryRead |
+            VirtualMemoryWrite |
+            DuplicateHandle |
+            CreateProcess |
+            SetQuota |
+            SetInformation |
+            QueryInformation |
+            QueryLimitedInformation |
+            Synchronize,
+    }
+
+    /// <summary>
+    /// Opens the handle of a process
+    /// </summary>
+    /// <param name="dwDesiredAccess">Requested access flag(s)</param>
+    /// <param name="bInheritHandle">If <c>true</c>, processes created by this process inherit the handle; otherwise they don't</param>
+    /// <param name="dwProcessId">Process ID</param>
+    /// <returns>Handle of the process</returns>
+    [DllImport("kernel32.dll", SetLastError = true)]
+    public static extern SafeProcessHandle OpenProcess(ProcessAccessFlags dwDesiredAccess, bool bInheritHandle, int dwProcessId);
+
     #endregion
 
     #region GetPriorityClass / SetPriorityClass
@@ -270,6 +309,7 @@ namespace MediaPortal.Common.Services.ResourceAccess.ImpersonationService
     internal static Task<ProcessExecutionResult> ExecuteAsync(string executable, string arguments, WindowsIdentityWrapper idWrapper, ILogger debugLogger, ProcessPriorityClass priorityClass = ProcessPriorityClass.Normal, int maxWaitMs = ProcessUtils.DEFAULT_TIMEOUT)
     {
       var tcs = new TaskCompletionSource<ProcessExecutionResult>();
+      bool exited = false;
       var process = new AsyncImpersonationProcess(debugLogger)
       {
         StartInfo = new ProcessStartInfo(executable, arguments)
@@ -278,6 +318,7 @@ namespace MediaPortal.Common.Services.ResourceAccess.ImpersonationService
           CreateNoWindow = true,
           RedirectStandardOutput = true,
           RedirectStandardError = true,
+          RedirectStandardInput = true,
           StandardOutputEncoding = ProcessUtils.CONSOLE_ENCODING,
           StandardErrorEncoding = ProcessUtils.CONSOLE_ENCODING
         },
@@ -287,21 +328,39 @@ namespace MediaPortal.Common.Services.ResourceAccess.ImpersonationService
       // We need to read standardOutput and standardError asynchronously to avoid a deadlock
       // when the buffer is not big enough to receive all the respective output. Otherwise the
       // process may block because the buffer is full and the Exited event below is never raised.
-      Task<string> standardOutputTask = null;
-      Task<string> standardErrorTask = null;
-      var standardStreamTasksReady = new ManualResetEventSlim();
+      var standardOutput = new StringBuilder();
+      var standardOutputResults = new TaskCompletionSource<string>();
+      process.OutputDataReceived += (sender, args) =>
+      {
+        if (args.Data != null)
+          standardOutput.AppendLine(args.Data);
+        else
+          standardOutputResults.SetResult(standardOutput.Length > 0 ? ProcessUtils.RemoveEncodingPreamble(standardOutput.ToString()) : null);
+      };
 
+      var standardError = new StringBuilder();
+      var standardErrorResults = new TaskCompletionSource<string>();
+      process.ErrorDataReceived += (sender, args) =>
+      {
+        if (args.Data != null)
+          standardError.AppendLine(args.Data);
+        else
+          standardErrorResults.SetResult(standardError.Length > 0 ? ProcessUtils.RemoveEncodingPreamble(standardError.ToString()) : null);
+      };
+
+      var processStart = new TaskCompletionSource<bool>();
       // The Exited event is raised in any case when the process has finished, i.e. when it gracefully
       // finished (ExitCode = 0), finished with an error (ExitCode != 0) and when it was killed below.
       // That ensures disposal of the process object.
-      process.Exited += (sender, args) =>
+      process.Exited += async (sender, args) =>
       {
+        exited = true;
         try
         {
+          await processStart.Task;
           // standardStreamTasksReady is only disposed when starting the process was not successful,
           // in which case the Exited event is never raised.
           // ReSharper disable once AccessToDisposedClosure
-          standardStreamTasksReady.Wait();
           tcs.TrySetResult(new ProcessExecutionResult
           {
             ExitCode = process.ExitCode,
@@ -312,15 +371,14 @@ namespace MediaPortal.Common.Services.ResourceAccess.ImpersonationService
             // sure that this method waits until the tasks are initialized before they are accessed.
             // ReSharper disable PossibleNullReferenceException
             // ReSharper disable AccessToModifiedClosure
-            StandardOutput = standardOutputTask.Result,
-            StandardError = standardErrorTask.Result
+            StandardOutput = await standardOutputResults.Task,
+            StandardError = await standardErrorResults.Task
             // ReSharper restore AccessToModifiedClosure
             // ReSharper restore PossibleNullReferenceException
           });
         }
         catch (Exception e)
         {
-          debugLogger.Error("AsyncImpersonationProcess ({0}): Exception while executing the Exited handler", e, executable);
           tcs.TrySetException(e);
         }
         finally
@@ -329,32 +387,47 @@ namespace MediaPortal.Common.Services.ResourceAccess.ImpersonationService
         }
       };
 
+      bool processStarted = false;
       using (var tokenWrapper = idWrapper.TokenWrapper)
-        if (!process.StartAsUser(tokenWrapper.Token))
+        processStarted = process.StartAsUser(tokenWrapper.Token);
+      processStart.SetResult(processStarted);
+      if (processStarted)
+      {
+        process.BeginOutputReadLine();
+        process.BeginErrorReadLine();
+        try
         {
-          debugLogger.Error("AsyncImpersonationProcess ({0}): Could not start process", executable);
-          standardStreamTasksReady.Dispose();
-          return Task.FromResult(new ProcessExecutionResult { ExitCode = int.MinValue });
+          // This call may throw an exception if the process has already exited when we get here.
+          // In that case the Exited event has already set tcs to RanToCompletion state so that
+          // the TrySetException call below does not change the state of tcs anymore. This is correct
+          // as it doesn't make sense to change the priority of the process if it is already finished.
+          // Any other "real" error sets the state of tcs to Faulted below.
+          process.PriorityClass = priorityClass;
         }
-
-      try
-      {
-        // This call may throw an exception if the process has already exited when we get here.
-        // In that case the Exited event has already set tcs to RanToCompletion state so that
-        // the TrySetException call below does not change the state of tcs anymore. This is correct
-        // as it doesn't make sense to change the priority of the process if it is already finished.
-        // Any other "real" error sets the state of tcs to Faulted below.
-        process.PriorityClass = priorityClass;
+        catch (InvalidOperationException e)
+        {
+          // This exception indicates that the process is no longer available which is probably 
+          // because the process has exited already. The exception should not be logged because 
+          // there is no guarantee that the exited event has finished setting the task to the 
+          // RanToCompletion state before this exception sets it to the Faulted state.
+          if (!exited && !process.HasExited && tcs.TrySetException(e))
+            debugLogger.Error("AsyncImpersonationProcess ({0}): Exception while setting the PriorityClass", e, executable);
+        }
+        catch (Exception e)
+        {
+          if (tcs.TrySetException(e))
+            debugLogger.Error("AsyncImpersonationProcess ({0}): Exception while setting the PriorityClass", e, executable);
+        }
       }
-      catch (Exception e)
+      else
       {
-        debugLogger.Error("AsyncImpersonationProcess ({0}): Exception while setting the PriorityClass", e, executable);
-        tcs.TrySetException(e);
-      }
+        exited = true;
+        standardOutputResults.SetResult(null);
+        standardErrorResults.SetResult(null);
 
-      standardOutputTask = process.StandardOutput.ReadToEndAsync();
-      standardErrorTask = process.StandardError.ReadToEndAsync();
-      standardStreamTasksReady.Set();
+        debugLogger.Error("AsyncImpersonationProcess ({0}): Could not start process", executable);
+        return Task.FromResult(new ProcessExecutionResult { ExitCode = Int32.MinValue });
+      }
 
       // Here we take care of the maximum time to wait for the process if such was requested.
       if (maxWaitMs != ProcessUtils.INFINITE)
@@ -362,9 +435,11 @@ namespace MediaPortal.Common.Services.ResourceAccess.ImpersonationService
         {
           try
           {
-            // We only kill the process if the state of tcs was not set to Faulted or
+            // Cancel the state of tcs if it was not set to Faulted or
             // RanToCompletion before.
-            if (tcs.TrySetCanceled())
+            tcs.TrySetCanceled();
+            // Always kill the process if is running.
+            if (!exited && !process.HasExited)
             {
               process.Kill();
               debugLogger.Warn("AsyncImpersonationProcess ({0}): Process was killed because maxWaitMs was reached.", executable);
@@ -387,7 +462,7 @@ namespace MediaPortal.Common.Services.ResourceAccess.ImpersonationService
 
     public new void Kill()
     {
-      using (var hProcess = SafeProcessHandle.OpenProcess(SafeProcessHandle.ProcessAccessFlags.Terminate, false, Id))
+      using (var hProcess = OpenProcess(AsyncImpersonationProcess.ProcessAccessFlags.Terminate, false, Id))
       {
         if (hProcess.IsInvalid)
         {
@@ -442,6 +517,9 @@ namespace MediaPortal.Common.Services.ResourceAccess.ImpersonationService
     {
       get
       {
+        if (_processHandle.IsClosed)
+          return true;
+
         uint exitCode;
         if (!GetExitCodeProcess(_processHandle, out exitCode))
         {
@@ -461,7 +539,8 @@ namespace MediaPortal.Common.Services.ResourceAccess.ImpersonationService
       _stdoutWriteHandle.Dispose();
       _stderrReadHandle.Dispose();
       _stderrWriteHandle.Dispose();
-      _processHandle.Dispose();
+      if (_processHandle != null)
+        _processHandle.Dispose();
       base.Dispose(disposing);
     }
 
@@ -549,7 +628,6 @@ namespace MediaPortal.Common.Services.ResourceAccess.ImpersonationService
     /// <returns><c>true</c> if the call to <see cref="CreateProcessAsUserW"/> was successful; otherwise <c>false</c></returns>
     private bool SafeCreateProcessAsUserW(IntPtr userToken, CreateProcessFlags createFlags, StartupInfo startupInfo)
     {
-      _processHandle = new SafeProcessHandle();
       var threadHandle = new SafeThreadHandle();
       bool success;
 
@@ -568,7 +646,7 @@ namespace MediaPortal.Common.Services.ResourceAccess.ImpersonationService
         success = CreateProcessAsUserW(userToken, null, GetCommandLine(), IntPtr.Zero, IntPtr.Zero, true, createFlags, IntPtr.Zero, null, startupInfo, out processInformation);
         if (success)
         {
-          _processHandle.InitialSetHandle(processInformation.hProcess);
+          _processHandle = new SafeProcessHandle(processInformation.hProcess, true);
           threadHandle.InitialSetHandle(processInformation.hThread);
           _processId = processInformation.dwProcessId;
         }
@@ -580,7 +658,8 @@ namespace MediaPortal.Common.Services.ResourceAccess.ImpersonationService
       if (success)
         return true;
 
-      _processHandle.Dispose();
+      if (_processHandle != null)
+        _processHandle.Dispose();
       var error = Marshal.GetLastWin32Error();
       _debugLogger.Error("AsyncImpersonationProcess ({0}): Cannot start process. ErrorCode: {1} ({2})", StartInfo.FileName, error, new Win32Exception(error).Message);
       return false;
@@ -614,7 +693,7 @@ namespace MediaPortal.Common.Services.ResourceAccess.ImpersonationService
           // in particular in the server process because a Windows service does not have a standard output or standard error stream.
           // This is expected behaviour - not an error.
           if (error != 0 && error != 1008)
-            _debugLogger.Error("AsyncImpersonationProcess ({0}): GetStdHandle failed. ErrorCode: {1} ({2})", StartInfo.FileName, error, new Win32Exception(error).Message);
+            _debugLogger.Error("AsyncImpersonationProcess ({0}): GetStdHandle input failed. ErrorCode: {1} ({2})", StartInfo.FileName, error, new Win32Exception(error).Message);
         }
         else
         {
@@ -625,7 +704,7 @@ namespace MediaPortal.Common.Services.ResourceAccess.ImpersonationService
           // in particular in the server process because a Windows service does not have a standard output or standard error stream.
           // This is expected behaviour - not an error.
           if (error != 0 && error != 1008)
-            _debugLogger.Error("AsyncImpersonationProcess ({0}): GetStdHandle failed. ErrorCode: {1} ({2})", StartInfo.FileName, error, new Win32Exception(error).Message);
+            _debugLogger.Error("AsyncImpersonationProcess ({0}): GetStdHandle output failed. ErrorCode: {1} ({2})", StartInfo.FileName, error, new Win32Exception(error).Message);
         }
       }
     }

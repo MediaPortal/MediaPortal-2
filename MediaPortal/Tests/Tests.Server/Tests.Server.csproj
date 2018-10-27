@@ -1,0 +1,182 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="15.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="..\..\Packages\NUnit.3.10.1\build\NUnit.props" Condition="Exists('..\..\Packages\NUnit.3.10.1\build\NUnit.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{0C1B59BA-BF96-4803-B83D-9E42C1A3A8C6}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>Tests.Server</RootNamespace>
+    <AssemblyName>Tests.Server</AssemblyName>
+    <TargetFrameworkVersion>v4.7</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <ProjectTypeGuids>{3AC096D0-A1C2-E12C-1390-A8335801FDAB};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
+    <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">15.0</VisualStudioVersion>
+    <VSToolsPath Condition="'$(VSToolsPath)' == ''">$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)</VSToolsPath>
+    <ReferencePath>$(ProgramFiles)\Common Files\microsoft shared\VSTT\$(VisualStudioVersion)\UITestExtensionPackages</ReferencePath>
+    <IsCodedUITest>False</IsCodedUITest>
+    <TestProjectType>UnitTest</TestProjectType>
+    <NuGetPackageImportStamp>
+    </NuGetPackageImportStamp>
+    <RestoreProjectStyle>PackageReference</RestoreProjectStyle>
+  </PropertyGroup>
+  <PropertyGroup>
+    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
+    <GenerateBindingRedirectsOutputType>true</GenerateBindingRedirectsOutputType>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x86'">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\x86\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <DebugType>full</DebugType>
+    <PlatformTarget>x86</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x86'">
+    <OutputPath>bin\x86\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <Optimize>true</Optimize>
+    <DebugType>pdbonly</DebugType>
+    <PlatformTarget>x86</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.Net.Http" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Moq">
+      <Version>4.8.2</Version>
+    </PackageReference>
+    <PackageReference Include="NUnit">
+      <Version>3.10.1</Version>
+    </PackageReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Backend\TestLibrary.cs" />
+    <Compile Include="Backend\TestMediaItemAspectMetadata.cs" />
+    <Compile Include="Backend\TestQueryEngine.cs" />
+    <Compile Include="Backend\TestReconciler.cs" />
+    <Compile Include="Backend\TestUtils.cs" />
+    <Compile Include="FanArt\FanArtHandlersForTests\AudioFanArtHandlerForTests.cs" />
+    <Compile Include="FanArt\FanArtHandlersForTests\BaseFanArtHandlerForTests.cs" />
+    <Compile Include="FanArt\FanArtHandlersForTests\MovieFanArtHandlerForTests.cs" />
+    <Compile Include="FanArt\FanArtHandlersForTests\SeriesFanArtHandlerForTests.cs" />
+    <Compile Include="FanArt\FanArtHandlersForTests\VideoFanArtHandlerForTests.cs" />
+    <Compile Include="FanArt\MockFanArtAccess\MockFanArtCache.cs" />
+    <Compile Include="FanArt\MockFanArtAccess\MockResourceAccess.cs" />
+    <Compile Include="FanArt\TestTvLogos.cs" />
+    <Compile Include="FanArt\TestBaseFanArt.cs" />
+    <Compile Include="FanArt\TestLocalAudioFanArt.cs" />
+    <Compile Include="FanArt\TestLocalMovieFanArt.cs" />
+    <Compile Include="FanArt\TestLocalSeriesFanArt.cs" />
+    <Compile Include="FanArt\TestLocalVideoFanArt.cs" />
+    <Compile Include="NfoMetadataExtractor\NfoEpisodeReaderForTests.cs" />
+    <Compile Include="NfoMetadataExtractor\TestNfoArtistReader.cs" />
+    <Compile Include="NfoMetadataExtractor\TestNfoMovieReader.cs" />
+    <Compile Include="NfoMetadataExtractor\TestNfoSeriesReader.cs" />
+    <Compile Include="NfoMetadataExtractor\TestUtils.cs" />
+    <Compile Include="OnlineLibraries\Program.cs" />
+    <Compile Include="OnlineLibraries\SeriesNameMatcher.cs" />
+    <Compile Include="OnlineLibraries\TestMediaAccessor.cs" />
+    <Compile Include="OnlineLibraries\TheMovieDb.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Utilities\TestTimeoutCache.cs" />
+    <Compile Include="Libraries\MatroskaLib\TestMatroskaLib.cs" />
+    <Compile Include="VideoThumbnailer\TestOCVVideoThumbnailer.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="NfoMetadataExtractor\TestData\MovieNfo\movie.nfo" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\Source\Core\MediaPortal.Backend\MediaPortal.Backend.csproj">
+      <Project>{5b27eb95-b829-40f4-b445-0225ca206f85}</Project>
+      <Name>MediaPortal.Backend</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\Source\Core\MediaPortal.Common\MediaPortal.Common.csproj">
+      <Project>{ecf060e7-caa1-4466-851f-f80b857641ea}</Project>
+      <Name>MediaPortal.Common</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\Source\Core\MediaPortal.Utilities\MediaPortal.Utilities.csproj">
+      <Project>{4fe7b8ae-1330-424a-91a1-c68d7abf9cb8}</Project>
+      <Name>MediaPortal.Utilities</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\Source\Extensions\MetadataExtractors\AudioMetadataExtractor\AudioMetadataExtractor.csproj">
+      <Project>{11fd64f0-97c0-40b5-8aaa-1e56255d3ef7}</Project>
+      <Name>AudioMetadataExtractor</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\Source\Extensions\MetadataExtractors\GenreProvider\GenreProvider.csproj">
+      <Project>{1973ad5b-ef7e-41da-a668-58ac37e1154e}</Project>
+      <Name>GenreProvider</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\Source\Extensions\MetadataExtractors\MatroskaLib\MatroskaLib.csproj">
+      <Project>{0dcfe91a-60de-42bf-a5f9-a925aa45ecd4}</Project>
+      <Name>MatroskaLib</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\Source\Extensions\MetadataExtractors\MovieMetadataExtractor\MovieMetadataExtractor.csproj">
+      <Project>{e73c038e-fd47-40ad-9256-4457316f8a97}</Project>
+      <Name>MovieMetadataExtractor</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\Source\Extensions\MetadataExtractors\NfoMetadataExtractors\NfoMetadataExtractors.csproj">
+      <Project>{e34b06d1-8dcd-4027-9c2f-26fb29eb58a7}</Project>
+      <Name>NfoMetadataExtractors</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\Source\Extensions\MetadataExtractors\OCVVideoThumbnailer\OCVVideoThumbnailer.csproj">
+      <Project>{9049f675-1a23-46a1-b0a9-bba94c492aad}</Project>
+      <Name>OCVVideoThumbnailer</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\Source\Extensions\MetadataExtractors\OnlineLibraries\OnlineLibraries.csproj">
+      <Project>{dca4d19e-75f4-4a8a-b70a-f3f4291dc62b}</Project>
+      <Name>OnlineLibraries</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\Source\Extensions\MetadataExtractors\SeriesMetadataExtractor\SeriesMetadataExtractor.csproj">
+      <Project>{ddd5112c-87ce-4228-9ee4-f78bdba8da12}</Project>
+      <Name>SeriesMetadataExtractor</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\Source\Extensions\MetadataExtractors\Tve3RecordingMetadataExtractor\Tve3RecordingMetadataExtractor.csproj">
+      <Project>{bd0ad1e7-48a9-404e-9c82-291ce3b41657}</Project>
+      <Name>Tve3RecordingMetadataExtractor</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\Source\Extensions\MetadataExtractors\VideoMetadataExtractor\VideoMetadataExtractor.csproj">
+      <Project>{000c12a6-9734-4acb-99e9-d3f726c5858f}</Project>
+      <Name>VideoMetadataExtractor</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\Source\UI\TV\SlimTvResources\SlimTv.Resources.csproj">
+      <Project>{9158967E-4FEB-4504-8C1E-02BE96045D34}</Project>
+      <Name>SlimTv.Resources</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\MediaPortal.Mock\MediaPortal.Mock.csproj">
+      <Project>{f1a04140-5c63-4688-8a9e-a195aaf95de1}</Project>
+      <Name>MediaPortal.Mock</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Libraries\MatroskaLib\TestData\Test Media.mkv">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="VideoThumbnailer\TestData\Test Media.mkv">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Designs\Flat\background.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Designs\Flat\overlay.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Designs\Flat-default.logotheme">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+  <Import Project="$(VSToolsPath)\TeamTest\Microsoft.TestTools.targets" Condition="Exists('$(VSToolsPath)\TeamTest\Microsoft.TestTools.targets')" />
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+</Project>

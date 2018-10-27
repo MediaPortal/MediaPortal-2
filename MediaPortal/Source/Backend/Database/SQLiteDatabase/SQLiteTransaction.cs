@@ -42,18 +42,15 @@ namespace MediaPortal.Database.SQLite
 
     #region Constructors/Destructors
 
-    public SQLiteTransaction(SQLiteDatabase database, SQLiteSettings settings)
-    {
-      _database = database;
-      _settings = settings;
-      _connection = _database.ConnectionPool.GetConnection();
-    }
-
     public SQLiteTransaction(SQLiteDatabase database, IsolationLevel level, SQLiteSettings settings)
     {
       _database = database;
       _settings = settings;
+#if NO_POOL
+      _connection = _database.CreateOpenAndInitializeConnection();
+#else
       _connection = _database.ConnectionPool.GetConnection();
+#endif
       _transaction = _connection.BeginTransaction(level);
     }
 
@@ -66,18 +63,19 @@ namespace MediaPortal.Database.SQLite
       // Dispose the System.Data.SQLite.SQLiteTransaction. If neither Commit nor Rollback was
       // called before, the standard behaviour of System.Data.SQLite.SQLiteTransaction is to
       // issue a Rollback during disposing.
-      if (_transaction != null)
-      {
-        _transaction.Dispose();
-        _transaction = null;
-      }
-
+      _transaction?.Dispose();
+      _transaction = null;
+#if NO_POOL
+      _connection?.Dispose();
+      _connection = null;
+#else
       // Return the underlying connection to the connection pool without closing it
       if (_connection != null)
       {
         _database.ConnectionPool.PutConnection(_connection);
         _connection = null;
       }
+#endif
     }
 
     #endregion
@@ -94,24 +92,15 @@ namespace MediaPortal.Database.SQLite
       get { return _connection; }
     }
 
-    public void Begin(IsolationLevel level)
-    {
-      if (_transaction != null)
-        _transaction.Rollback();
-      _transaction = _connection.BeginTransaction(IsolationLevel.Serializable);
-    }
-
     public void Commit()
     {
-      if (_transaction != null)
-        _transaction.Commit();
+      _transaction.Commit();
       Dispose();
     }
 
     public void Rollback()
     {
-      if (_transaction != null)
-        _transaction.Rollback();
+      _transaction.Rollback();
       Dispose();
     }
 

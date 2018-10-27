@@ -27,6 +27,7 @@ using System.Windows.Markup;
 [assembly: XmlnsDefinition("www.team-mediaportal.com/2008/mpf/directx", "MediaPortal.UI.SkinEngine.ScreenManagement", AssemblyName = "SkinEngine")]
 [assembly: XmlnsDefinition("www.team-mediaportal.com/2008/mpf/directx", "MediaPortal.UI.SkinEngine.Commands", AssemblyName = "SkinEngine")]
 [assembly: XmlnsDefinition("www.team-mediaportal.com/2008/mpf/directx", "MediaPortal.UI.SkinEngine.Controls.Animations", AssemblyName = "SkinEngine")]
+[assembly: XmlnsDefinition("www.team-mediaportal.com/2008/mpf/directx", "MediaPortal.UI.SkinEngine.Controls.Animations.EasingFunctions", AssemblyName = "SkinEngine")]
 [assembly: XmlnsDefinition("www.team-mediaportal.com/2008/mpf/directx", "MediaPortal.UI.SkinEngine.Controls.Brushes", AssemblyName = "SkinEngine")]
 [assembly: XmlnsDefinition("www.team-mediaportal.com/2008/mpf/directx", "MediaPortal.UI.SkinEngine.Controls.Brushes.Animation", AssemblyName = "SkinEngine")]
 [assembly: XmlnsDefinition("www.team-mediaportal.com/2008/mpf/directx", "MediaPortal.UI.SkinEngine.Controls.Panels", AssemblyName = "SkinEngine")]

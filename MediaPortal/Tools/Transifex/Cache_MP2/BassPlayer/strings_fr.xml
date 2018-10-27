@@ -19,6 +19,6 @@
   <string name="Settings.Players.Rendering">Rendu vidéo</string>
   <string name="Settings.Players.Rendering.CrossFading.CrossFadeDuration">Durée du fondu enchainé</string>
   <string name="Settings.Players.Rendering.CrossFading.CrossFadeDuration.Help">Durée de la transition en seconde</string>
-  <string name="Settings.Players.Rendering.Playback.SeekIncrementSeconds">Avance rapide</string>
-  <string name="Settings.Players.Rendering.Playback.SeekIncrementSeconds.Help">Avance rapide en secondes</string>
+  <string name="Settings.Players.Rendering.Playback.SeekIncrementSeconds">Durée du saut en secondes</string>
+  <string name="Settings.Players.Rendering.Playback.SeekIncrementSeconds.Help">\"Aide\" - Durée du saut en secondes</string>
 </resources>

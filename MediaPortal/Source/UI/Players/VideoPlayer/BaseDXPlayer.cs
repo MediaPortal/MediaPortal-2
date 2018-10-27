@@ -953,7 +953,7 @@ namespace MediaPortal.UI.Players.Video
       string mimeType;
       string title;
       // Only re-use player for multi-part files
-      if (!mediaItem.GetPlayData(out mimeType, out title) || mediaItem.MaximumResourceLocatorIndex == 0)
+      if (!mediaItem.GetPlayData(out mimeType, out title) || mediaItem.MaximumResourceLocatorIndex == 0 && mediaItem.MaximumEditionIndex == 0)
       {
         ServiceRegistration.Get<ILogger>().Debug("VideoPlayer: Can reuse current player only for multi-resource items");
         return false;

@@ -29,6 +29,6 @@ namespace MediaPortal.Common.Configuration
   /// </summary>
   public class ConfigGroupMetadata : ConfigBaseMetadata
   {
-    public ConfigGroupMetadata(string location, string text, string sort) : base(location, text, sort) { }
+    public ConfigGroupMetadata(string location, string text, string sort, string restrictionGroup) : base(location, text, sort, restrictionGroup) { }
   }
 }

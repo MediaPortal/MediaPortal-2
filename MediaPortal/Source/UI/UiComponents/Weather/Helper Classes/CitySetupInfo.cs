@@ -21,8 +21,8 @@
 */
 
 #endregion
+
 using MediaPortal.Common.General;
-using MediaPortal.UiComponents.Weather.Grabbers;
 
 namespace MediaPortal.UiComponents.Weather
 {
@@ -42,10 +42,6 @@ namespace MediaPortal.UiComponents.Weather
       Id = id;
       _grabber = grabber;
     }
-
-    public CitySetupInfo(string name, string id) :
-      this(name, id, WorldWeatherOnlineCatcher.SERVICE_NAME)
-    { }
 
     public CitySetupInfo() {}
 

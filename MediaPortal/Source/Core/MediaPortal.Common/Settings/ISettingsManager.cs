@@ -105,6 +105,14 @@ namespace MediaPortal.Common.Settings
     void ClearCache();
 
     /// <summary>
+    /// Overrides the default user name (Windows account). When set to another value, settings will get reloaded
+    /// from the new profile location.
+    /// Setting the value to <c>null</c> restores the default behavior.
+    /// </summary>
+    /// <param name="userName">User name or profile id</param>
+    void ChangeUserContext(string userName);
+
+    /// <summary>
     /// Removes the application setting with the specified <paramref name="settingsType"/> from the system.
     /// </summary>
     /// <param name="settingsType">Type of settings to remove.</param>

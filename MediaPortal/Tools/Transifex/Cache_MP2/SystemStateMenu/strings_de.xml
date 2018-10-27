@@ -1,7 +1,7 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
   <string name="Settings.General.System.SystemStateDialog">Schließen-Menü</string>
-  <string name="Settings.General.System.SystemStateDialog.Help">Anzeige und Position der \"Schließen\"-Menüeinträge konfigurieren</string>
+  <string name="Settings.General.System.SystemStateDialog.Help">Anzeige und Reihenfolge der \"Schließen\"-Menüeinträge konfigurieren</string>
   <string name="SystemState.Configuration.Dialog.Title">Schließen-Menü Einträge konfigurieren</string>
   <string name="SystemState.Title">Schließen-Menü</string>
   <string name="SystemState.Hibernate">Ruhezustand</string>
@@ -16,7 +16,7 @@
   <string name="SystemState.ShutdownDialogStateDisplayLabel">Schließen-Menü</string>
   <string name="SystemState.ShutdownConfigurationDialogStateDisplayLabel">Schließen-Menü konfigurieren</string>
   <string name="SleepTimer.Title">Sleep-Timer</string>
-  <string name="SleepTimer.Start">Anfang</string>
+  <string name="SleepTimer.Start">Start</string>
   <string name="SleepTimer.Stop">Stopp</string>
   <string name="SleepTimer.Action">Aktion:</string>
   <string name="SleepTimer.TimeStr">Zeit:</string>

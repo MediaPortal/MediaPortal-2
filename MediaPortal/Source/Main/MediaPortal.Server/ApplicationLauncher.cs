@@ -25,6 +25,7 @@
 using System;
 using System.ServiceProcess;
 using System.Threading;
+using System.Threading.Tasks;
 using System.Windows.Forms;
 using MediaPortal.Backend;
 using MediaPortal.Common.Exceptions;
@@ -133,14 +134,15 @@ namespace MediaPortal.Server
           ApplicationCore.StartCoreServices();
           InitIpc();
           BackendExtension.StartupBackendServices();
-          ApplicationCore.RegisterDefaultMediaItemAspectTypes(); // To be done after backend services are running
 
           mediaAccessor.Initialize();
 
           logger.Info("Switching to running state");
           _systemStateService.SwitchSystemState(SystemState.Running, true);
+          // Do before importers are activated and after server is running so it is possible to use other parts of the client
+          BackendExtension.MigrateDatabaseData();
+          // To be done after default media item aspect types are present and when the system is running (other plugins might also install media item aspect types)
           BackendExtension.ActivateImporterWorker();
-            // To be done after default media item aspect types are present and when the system is running (other plugins might also install media item aspect types)
         }
         catch (Exception e)
         {
@@ -210,6 +212,7 @@ namespace MediaPortal.Server
     {
       Application.ThreadException += LauncherExceptionHandling.Application_ThreadException;
       AppDomain.CurrentDomain.UnhandledException += LauncherExceptionHandling.CurrentDomain_UnhandledException;
+      TaskScheduler.UnobservedTaskException += LauncherExceptionHandling.TaskScheduler_UnobservedTaskException;
 
       Start();
 
@@ -225,6 +228,7 @@ namespace MediaPortal.Server
       Stop();
       Application.ThreadException -= LauncherExceptionHandling.Application_ThreadException;
       AppDomain.CurrentDomain.UnhandledException -= LauncherExceptionHandling.CurrentDomain_UnhandledException;
+      TaskScheduler.UnobservedTaskException -= LauncherExceptionHandling.TaskScheduler_UnobservedTaskException;
     }
 
     private void InitIpc()

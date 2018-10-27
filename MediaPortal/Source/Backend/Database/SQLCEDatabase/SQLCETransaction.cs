@@ -51,24 +51,15 @@ namespace MediaPortal.Database.SQLCE
       get { return _connection; }
     }
 
-    public void Begin(IsolationLevel level)
-    {
-      if (_transaction != null)
-        _transaction.Rollback();
-      _transaction = ((SqlCeConnection)_connection).BeginTransaction(level);
-    }
-
     public void Commit()
     {
-      if(_transaction != null)
-        _transaction.Commit();
+      _transaction.Commit();
       Dispose();
     }
 
     public void Rollback()
     {
-      if (_transaction != null)
-        _transaction.Rollback();
+      _transaction.Rollback();
       Dispose();
     }
 
@@ -103,13 +94,6 @@ namespace MediaPortal.Database.SQLCE
       SqlCeConnection connection = new SqlCeConnection(connectionString);
       connection.Open();
       return new SQLCETransaction(database, connection, connection.BeginTransaction(level));
-    }
-
-    public static ITransaction CreateTransaction(SQLCEDatabase database, string connectionString)
-    {
-      SqlCeConnection connection = new SqlCeConnection(connectionString);
-      connection.Open();
-      return new SQLCETransaction(database, connection, null);
     }
 
     public SQLCETransaction(ISQLDatabase database, IDbConnection connection, SqlCeTransaction transaction)

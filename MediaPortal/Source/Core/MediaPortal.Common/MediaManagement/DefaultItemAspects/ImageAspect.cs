@@ -39,6 +39,8 @@ namespace MediaPortal.Common.MediaManagement.DefaultItemAspects
   /// </summary>
   public static class ImageAspect
   {
+    private const int SIZE_SEARCH_INDEX_ID = 1;
+
     /// <summary>
     /// Media item aspect id of the image aspect.
     /// </summary>
@@ -48,13 +50,13 @@ namespace MediaPortal.Common.MediaManagement.DefaultItemAspects
     /// Width of the image in pixels.
     /// </summary>
     public static readonly MediaItemAspectMetadata.SingleAttributeSpecification ATTR_WIDTH =
-      MediaItemAspectMetadata.CreateSingleAttributeSpecification("Width", typeof(int), Cardinality.Inline, false);
+      MediaItemAspectMetadata.CreateSingleAttributeSpecification("Width", typeof(int), Cardinality.Inline, false, SIZE_SEARCH_INDEX_ID);
 
     /// <summary>
     /// Height of the image in pixels.
     /// </summary>
     public static readonly MediaItemAspectMetadata.SingleAttributeSpecification ATTR_HEIGHT =
-      MediaItemAspectMetadata.CreateSingleAttributeSpecification("Height", typeof(int), Cardinality.Inline, false);
+      MediaItemAspectMetadata.CreateSingleAttributeSpecification("Height", typeof(int), Cardinality.Inline, false, SIZE_SEARCH_INDEX_ID);
 
     /// <summary>
     /// Contains the manufacturer of the equipment used to record the image.

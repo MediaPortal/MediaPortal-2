@@ -39,6 +39,7 @@ using MediaPortal.Backend.Services.MediaLibrary.QueryEngine;
 using MediaPortal.Utilities;
 using MediaPortal.Utilities.DB;
 using MediaPortal.Utilities.Exceptions;
+using MediaPortal.Common.ResourceAccess;
 
 namespace MediaPortal.Backend.Services.MediaLibrary
 {
@@ -156,13 +157,19 @@ namespace MediaPortal.Backend.Services.MediaLibrary
     /// added or removed will have a <c>null</c> value assigned to its ID.
     /// </summary>
     protected readonly IDictionary<Guid, MediaItemAspectMetadata> _managedMIATypes = new Dictionary<Guid, MediaItemAspectMetadata>();
+        
+    /// <summary>
+    /// Caches the relationships of all managed MIAs.
+    /// </summary>
+    protected ICollection<RelationshipType> _registeredRelationships = new List<RelationshipType>();
 
     /// <summary>
     /// Caches the creation dates of all managed MIAs.
     /// </summary>
     protected IDictionary<Guid, DateTime> _MIACreationDates = new ConcurrentDictionary<Guid, DateTime>();
 
-    protected readonly object _syncObj = new object();
+    protected readonly object _syncStorageObj = new object();
+    protected object _syncRelationshipsObj = new object();
 
     /// <summary>
     /// For all contained attribute types, the value tables are locked for concurrent access.
@@ -181,7 +188,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
 
     protected void ReloadAliasCache()
     {
-      lock (_syncObj)
+      lock (_syncStorageObj)
       {
         ISQLDatabase database = ServiceRegistration.Get<ISQLDatabase>();
         ITransaction transaction = database.BeginTransaction();
@@ -255,7 +262,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
     private string GetAliasMapping(string generatedName, string errorOnNotFound)
     {
       string result;
-      lock (_syncObj)
+      lock (_syncStorageObj)
         if (!_nameAliases.TryGetValue(generatedName, out result))
           throw new InvalidDataException(errorOnNotFound);
       return result;
@@ -329,7 +336,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
     /// <returns>Table name corresponding to the specified table identifier.</returns>
     private string GenerateDBObjectName(ITransaction transaction, Guid aspectId, string objectIdentifier, string desiredName, bool allowExisting = false)
     {
-      lock (_syncObj)
+      lock (_syncStorageObj)
       {
         if (_nameAliases.ContainsKey(objectIdentifier))
           throw new InvalidDataException("Table identifier '{0}' is already present in alias cache", objectIdentifier);
@@ -357,7 +364,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
     {
       using (IDbCommand command = MediaLibrary_SubSchema.CreateMIANameAliasCommand(transaction, aspectId, objectIdentifier, dbObjectName))
         command.ExecuteNonQuery();
-      lock (_syncObj)
+      lock (_syncStorageObj)
         _nameAliases[objectIdentifier] = dbObjectName;
     }
 
@@ -391,7 +398,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
 
     protected void LoadMIATypeCache()
     {
-      lock (_syncObj)
+      lock (_syncStorageObj)
       {
         foreach (MediaItemAspectMetadata miam in SelectAllManagedMediaItemAspectMetadata())
           _managedMIATypes[miam.AspectId] = miam;
@@ -512,8 +519,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
       {
         command.CommandText = "SELECT " + COLL_ATTR_VALUE_COL_NAME + " FROM " + collectionAttributeTableName + " V" +
             " INNER JOIN " + miaTableName + " MAIN ON V." + FOREIGN_COLL_ATTR_ID_COL_NAME + " = MAIN." + mainTableAttrName +
-            " WHERE MAIN." + MIA_MEDIA_ITEM_ID_COL_NAME + " = @MEDIA_ITEM_ID" +
-            " ORDER BY " + "V." + COLL_ATTR_VALUE_ORDER_COL_NAME;
+            " WHERE MAIN." + MIA_MEDIA_ITEM_ID_COL_NAME + " = @MEDIA_ITEM_ID";
 
         database.AddParameter(command, "MEDIA_ITEM_ID", mediaItemId, typeof(Guid));
 
@@ -538,7 +544,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
         command.CommandText = "SELECT " + COLL_ATTR_VALUE_COL_NAME + " FROM " + collectionAttributeTableName + " V" +
             " INNER JOIN " + nmTableName + " NM ON V." + FOREIGN_COLL_ATTR_ID_COL_NAME + " = NM." + FOREIGN_COLL_ATTR_ID_COL_NAME +
             " WHERE NM." + MIA_MEDIA_ITEM_ID_COL_NAME + " = @MEDIA_ITEM_ID" +
-            " ORDER BY " + "V." + COLL_ATTR_VALUE_ORDER_COL_NAME;
+            " ORDER BY " + "NM." + COLL_ATTR_VALUE_ORDER_COL_NAME;
 
         database.AddParameter(command, "MEDIA_ITEM_ID", mediaItemId, typeof(Guid));
 
@@ -555,12 +561,12 @@ namespace MediaPortal.Backend.Services.MediaLibrary
 
     protected void LockAttribute(MediaItemAspectMetadata.AttributeSpecification spec)
     {
-      lock (_syncObj)
+      lock (_syncStorageObj)
       {
         Thread currentThread = Thread.CurrentThread;
         ThreadOwnership to;
         while (_lockedAttrs.TryGetValue(spec, out to) && to.CurrentThread != currentThread)
-          Monitor.Wait(_syncObj);
+          Monitor.Wait(_syncStorageObj);
         if (!_lockedAttrs.TryGetValue(spec, out to))
           _lockedAttrs[spec] = to = new ThreadOwnership(currentThread);
         to.LockCount++;
@@ -569,7 +575,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
 
     protected void UnlockAttribute(MediaItemAspectMetadata.AttributeSpecification spec)
     {
-      lock (_syncObj)
+      lock (_syncStorageObj)
       {
         Thread currentThread = Thread.CurrentThread;
         ThreadOwnership to;
@@ -580,7 +586,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
         if (to.LockCount == 0)
         {
           _lockedAttrs.Remove(spec);
-          Monitor.PulseAll(_syncObj);
+          Monitor.PulseAll(_syncStorageObj);
         }
       }
     }
@@ -649,22 +655,23 @@ namespace MediaPortal.Backend.Services.MediaLibrary
     public void CleanupAllOrphanedAttributeValues(ITransaction transaction)
     {
       foreach (MediaItemAspectMetadata miaType in ManagedMediaItemAspectTypes.Values)
-        foreach (MediaItemAspectMetadata.AttributeSpecification spec in miaType.AttributeSpecifications.Values)
-          switch (spec.Cardinality)
-          {
-            case Cardinality.Inline:
-            case Cardinality.OneToMany:
-              break;
-            case Cardinality.ManyToOne:
-              CleanupManyToOneOrphanedAttributeValues(transaction, spec);
-              break;
-            case Cardinality.ManyToMany:
-              CleanupManyToManyOrphanedAttributeValues(transaction, spec);
-              break;
-            default:
-              throw new NotImplementedException(string.Format("Cardinality '{0}' for attribute '{1}.{2}' is not implemented",
-                  spec.Cardinality, spec.ParentMIAM.AspectId, spec.AttributeName));
-          }
+        if(miaType != null && !miaType.IsTransientAspect)
+          foreach (MediaItemAspectMetadata.AttributeSpecification spec in miaType.AttributeSpecifications.Values)
+            switch (spec.Cardinality)
+            {
+              case Cardinality.Inline:
+              case Cardinality.OneToMany:
+                break;
+              case Cardinality.ManyToOne:
+                CleanupManyToOneOrphanedAttributeValues(transaction, spec);
+                break;
+              case Cardinality.ManyToMany:
+                CleanupManyToManyOrphanedAttributeValues(transaction, spec);
+                break;
+              default:
+                throw new NotImplementedException(string.Format("Cardinality '{0}' for attribute '{1}.{2}' is not implemented",
+                    spec.Cardinality, spec.ParentMIAM.AspectId, spec.AttributeName));
+            }
     }
 
     protected void CleanupAllManyToOneOrphanedAttributeValues(ITransaction transaction, MediaItemAspectMetadata miaType)
@@ -805,7 +812,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
       {
         command.CommandText = "INSERT INTO " + collectionAttributeTableName + " (" +
             FOREIGN_COLL_ATTR_ID_COL_NAME + ", " + COLL_ATTR_VALUE_COL_NAME + ", " + COLL_ATTR_VALUE_ORDER_COL_NAME +
-            ") SELECT @FOREIGN_COLL_ATTR, @COLL_ATTR_VALUE, " + order + " FROM " +
+            ") SELECT @FOREIGN_COLL_ATTR, @COLL_ATTR_VALUE, 0 FROM " +
             databaseManager.DummyTableName + " WHERE NOT EXISTS(SELECT " + FOREIGN_COLL_ATTR_ID_COL_NAME +
             " FROM " + collectionAttributeTableName + " WHERE " + COLL_ATTR_VALUE_COL_NAME + " = @COLL_ATTR_VALUE)";
 
@@ -820,8 +827,8 @@ namespace MediaPortal.Backend.Services.MediaLibrary
       string nmTableName = GetMIACollectionAttributeNMTableName(spec);
       using (IDbCommand command = transaction.CreateCommand())
       {
-        command.CommandText = "INSERT INTO " + nmTableName + " (" + MIA_MEDIA_ITEM_ID_COL_NAME + ", " + FOREIGN_COLL_ATTR_ID_COL_NAME +
-            ") SELECT @MEDIA_ITEM_ID, " + FOREIGN_COLL_ATTR_ID_COL_NAME + " FROM " + collectionAttributeTableName +
+        command.CommandText = "INSERT INTO " + nmTableName + " (" + MIA_MEDIA_ITEM_ID_COL_NAME + ", " + FOREIGN_COLL_ATTR_ID_COL_NAME + "," + COLL_ATTR_VALUE_ORDER_COL_NAME +
+            ") SELECT @MEDIA_ITEM_ID, " + FOREIGN_COLL_ATTR_ID_COL_NAME + ", "+ order + " FROM " + collectionAttributeTableName +
             " WHERE " + COLL_ATTR_VALUE_COL_NAME + " = @COLL_ATTR_VALUE AND NOT EXISTS(" +
               "SELECT V." + FOREIGN_COLL_ATTR_ID_COL_NAME + " FROM " + collectionAttributeTableName + " V " +
               " INNER JOIN " + nmTableName + " NM ON V." + FOREIGN_COLL_ATTR_ID_COL_NAME + " = NM." + FOREIGN_COLL_ATTR_ID_COL_NAME +
@@ -887,7 +894,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
     {
       get
       {
-        lock (_syncObj)
+        lock (_syncStorageObj)
           return new Dictionary<Guid, MediaItemAspectMetadata>(_managedMIATypes);
       }
     }
@@ -902,7 +909,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
 
     public bool MediaItemAspectStorageExists(Guid aspectId)
     {
-      lock (_syncObj)
+      lock (_syncStorageObj)
       {
         MediaItemAspectMetadata miam;
         return _managedMIATypes.TryGetValue(aspectId, out miam) && miam != null;
@@ -912,7 +919,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
     public MediaItemAspectMetadata GetMediaItemAspectMetadata(Guid aspectId)
     {
       MediaItemAspectMetadata result;
-      lock (_syncObj)
+      lock (_syncStorageObj)
         if (_managedMIATypes.TryGetValue(aspectId, out result))
           return result;
       return null;
@@ -920,17 +927,20 @@ namespace MediaPortal.Backend.Services.MediaLibrary
 
     public bool AddMediaItemAspectStorage(MediaItemAspectMetadata miam)
     {
-      if (miam.IsTransientAspect)
-        return true;
-
-      lock (_syncObj)
+      lock (_syncStorageObj)
       {
         if (_managedMIATypes.ContainsKey(miam.AspectId))
           return false;
+        if (miam.IsTransientAspect)
+        {
+          _managedMIATypes.Add(miam.AspectId, miam);
+          return true;
+        }
         _managedMIATypes.Add(miam.AspectId, null);
       }
+      
       ISQLDatabase database = ServiceRegistration.Get<ISQLDatabase>();
-      ITransaction transaction = database.BeginTransaction();
+      ITransaction transaction = database.BeginTransaction(IsolationLevel.Serializable);
       ServiceRegistration.Get<ILogger>().Info("MIA_Management: Adding media library storage for media item aspect '{0}' (id '{1}')",
           miam.Name, miam.AspectId);
       try
@@ -976,12 +986,14 @@ namespace MediaPortal.Backend.Services.MediaLibrary
 
               using (IDbCommand command = transaction.CreateCommand())
               {
-                command.CommandText = "CREATE TABLE " + collectionAttributeTableName + " (" +
+                var sql = "CREATE TABLE " + collectionAttributeTableName + " (" +
                     FOREIGN_COLL_ATTR_ID_COL_NAME + " " + database.GetSQLType(typeof(Guid)) + ", " +
                     COLL_ATTR_VALUE_COL_NAME + " " + sqlType + ", " +
                     COLL_ATTR_VALUE_ORDER_COL_NAME + " " + database.GetSQLType(typeof(int)) + ", " +
                     "CONSTRAINT " + pkConstraintName + " PRIMARY KEY (" + FOREIGN_COLL_ATTR_ID_COL_NAME + ")" +
                     ")";
+                DatabaseManager.AppendStorageClause(database, ref sql);
+                command.CommandText = sql;
                 ServiceRegistration.Get<ILogger>().Debug("MIA_Management: Creating MTO table '{0}' for attribute '{1}' in media item aspect '{2}'",
                     collectionAttributeTableName, spec.AttributeName, miam.AspectId);
                 command.ExecuteNonQuery();
@@ -1070,7 +1082,10 @@ namespace MediaPortal.Backend.Services.MediaLibrary
         mainStatementBuilder.Append(")");
         using (IDbCommand command = transaction.CreateCommand())
         {
-          command.CommandText = mainStatementBuilder.ToString();
+          var sql = mainStatementBuilder.ToString();
+          DatabaseManager.AppendStorageClause(database, ref sql);
+          command.CommandText = sql;
+
           ServiceRegistration.Get<ILogger>().Debug(
               "MIA_Management: Creating main table '{0}' for media item aspect '{1}'", miaTableName, miam.AspectId);
           command.ExecuteNonQuery();
@@ -1117,15 +1132,17 @@ namespace MediaPortal.Backend.Services.MediaLibrary
 
               using (IDbCommand command = transaction.CreateCommand())
               {
-                command.CommandText = "CREATE TABLE " + collectionAttributeTableName + " (" +
+                var sql = "CREATE TABLE " + collectionAttributeTableName + " (" +
                     MIA_MEDIA_ITEM_ID_COL_NAME + " " + database.GetSQLType(typeof(Guid)) + ", " +
                     COLL_ATTR_VALUE_COL_NAME + " " + sqlType + ", " +
                     COLL_ATTR_VALUE_ORDER_COL_NAME + " " + database.GetSQLType(typeof(int)) + ", " +
-                    "CONSTRAINT " + pkConstraintName + " PRIMARY KEY (" + MIA_MEDIA_ITEM_ID_COL_NAME + "), " +
+                    "CONSTRAINT " + pkConstraintName + " PRIMARY KEY (" + MIA_MEDIA_ITEM_ID_COL_NAME + "," + COLL_ATTR_VALUE_COL_NAME + "), " +
                     "CONSTRAINT " + fkMediaItemConstraintName +
                     " FOREIGN KEY (" + MIA_MEDIA_ITEM_ID_COL_NAME + ")" +
                     " REFERENCES " + MediaLibrary_SubSchema.MEDIA_ITEMS_TABLE_NAME + " (" + MediaLibrary_SubSchema.MEDIA_ITEMS_ITEM_ID_COL_NAME + ") ON DELETE CASCADE" +
                     ")";
+                DatabaseManager.AppendStorageClause(database, ref sql);
+                command.CommandText = sql;
                 ServiceRegistration.Get<ILogger>().Debug(
                     "MIA_Management: Creating OTM table '{0}' for attribute '{1}' in media item aspect '{2}'",
                     collectionAttributeTableName, spec.AttributeName, miam.AspectId);
@@ -1199,11 +1216,13 @@ namespace MediaPortal.Backend.Services.MediaLibrary
 
               using (IDbCommand command = transaction.CreateCommand())
               {
-                command.CommandText = "CREATE TABLE " + collectionAttributeTableName + " (" +
+                var sql = "CREATE TABLE " + collectionAttributeTableName + " (" +
                     FOREIGN_COLL_ATTR_ID_COL_NAME + " " + database.GetSQLType(typeof(Guid)) + ", " +
                     COLL_ATTR_VALUE_COL_NAME + " " + sqlType + ", " +
                     COLL_ATTR_VALUE_ORDER_COL_NAME + " " + database.GetSQLType(typeof(int)) + ", " +
                     "CONSTRAINT " + pkConstraintName + " PRIMARY KEY (" + FOREIGN_COLL_ATTR_ID_COL_NAME + ")" + ")";
+                DatabaseManager.AppendStorageClause(database, ref sql);
+                command.CommandText = sql;
                 ServiceRegistration.Get<ILogger>().Debug(
                     "MIA_Management: Creating MTM value table '{0}' for attribute '{1}' in media item aspect '{2}'",
                     collectionAttributeTableName, spec.AttributeName, miam.AspectId);
@@ -1212,15 +1231,18 @@ namespace MediaPortal.Backend.Services.MediaLibrary
 
               using (IDbCommand command = transaction.CreateCommand())
               {
-                command.CommandText = "CREATE TABLE " + nmTableName + " (" +
+                var sql = "CREATE TABLE " + nmTableName + " (" +
                     MIA_MEDIA_ITEM_ID_COL_NAME + " " + database.GetSQLType(typeof(Guid)) + ", " +
                     FOREIGN_COLL_ATTR_ID_COL_NAME + " " + database.GetSQLType(typeof(Guid)) + ", " +
+                    COLL_ATTR_VALUE_ORDER_COL_NAME + " " + database.GetSQLType(typeof(int)) + ", " +
                     "CONSTRAINT " + pkNMConstraintName + " PRIMARY KEY (" + MIA_MEDIA_ITEM_ID_COL_NAME + "," + FOREIGN_COLL_ATTR_ID_COL_NAME + "), " +
                     "CONSTRAINT " + fkMainTableConstraintName + " FOREIGN KEY (" + MIA_MEDIA_ITEM_ID_COL_NAME + ")" +
                     " REFERENCES " + miaTableName + " (" + MediaLibrary_SubSchema.MEDIA_ITEMS_ITEM_ID_COL_NAME + ") ON DELETE CASCADE, " +
                     "CONSTRAINT " + fkForeignTableConstraintName + " FOREIGN KEY (" + FOREIGN_COLL_ATTR_ID_COL_NAME + ")" +
                     " REFERENCES " + collectionAttributeTableName + " (" + FOREIGN_COLL_ATTR_ID_COL_NAME + ") ON DELETE CASCADE" +
                     ")";
+                DatabaseManager.AppendStorageClause(database, ref sql);
+                command.CommandText = sql;
                 ServiceRegistration.Get<ILogger>().Debug(
                     "MIA_Management: Creating N:M table '{0}' for MTM attribute '{1}' in media item aspect '{2}'",
                     nmTableName, spec.AttributeName, miam.AspectId);
@@ -1271,6 +1293,29 @@ namespace MediaPortal.Backend.Services.MediaLibrary
                   spec.Cardinality, miam.AspectId, spec.AttributeName));
           }
         }
+
+        // Composite indexes
+        var indexIds = miam.AttributeSpecifications.Values.Where(a => a.CompositeIndexIds?.Count() > 0).SelectMany(a => a.CompositeIndexIds).Distinct();
+        if (indexIds?.Count() > 0)
+        {
+          foreach (int indexId in indexIds)
+          {
+            List<string> indexColumns = new List<string>();
+            if (indexId < 0) //If index Id is negative the media item Id column must be added
+              indexColumns.Add(MIA_MEDIA_ITEM_ID_COL_NAME);
+            indexColumns.AddRange(miam.AttributeSpecifications.Values.Where(a => a.CompositeIndexIds?.Contains(indexId) ?? false).Select(a => GetMIAAttributeColumnName(a)));
+            indexName = GenerateDBObjectName(transaction, miam.AspectId, $"{miaTableName}_CI{indexId}_IDX", "IDX");
+            ServiceRegistration.Get<ILogger>().Debug("MIA_Management: Creating composite index '{0}' for media item aspect '{1}'",
+                indexName, miam.AspectId);
+
+            using (IDbCommand command = transaction.CreateCommand())
+            {
+              command.CommandText = "CREATE INDEX " + indexName + " ON " + miaTableName + "(" + string.Join(",", indexColumns) + ")";
+              command.ExecuteNonQuery();
+            }
+          }
+        }
+
         transaction.Commit();
       }
       catch (Exception e)
@@ -1279,7 +1324,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
         transaction.Rollback();
         throw;
       }
-      lock (_syncObj)
+      lock (_syncStorageObj)
         _managedMIATypes[miam.AspectId] = miam;
       _MIACreationDates[miam.AspectId] = DateTime.Now;
       return true;
@@ -1287,15 +1332,17 @@ namespace MediaPortal.Backend.Services.MediaLibrary
 
     public bool RemoveMediaItemAspectStorage(Guid aspectId)
     {
-      lock (_syncObj)
+      MediaItemAspectMetadata miam = GetMediaItemAspectMetadata(aspectId);
+      lock (_syncStorageObj)
       {
         if (!_managedMIATypes.ContainsKey(aspectId))
           return false;
-        _managedMIATypes[aspectId] = null;
+        _managedMIATypes.Remove(aspectId);
       }
-      MediaItemAspectMetadata miam = GetMediaItemAspectMetadata(aspectId);
+      if (miam.IsTransientAspect)
+        return true;
       ISQLDatabase database = ServiceRegistration.Get<ISQLDatabase>();
-      ITransaction transaction = database.BeginTransaction();
+      ITransaction transaction = database.BeginTransaction(IsolationLevel.Serializable);
       ServiceRegistration.Get<ILogger>().Info("MIA_Management: Removing media library storage for media item aspect '{0}' (id '{1}')",
           miam.Name, miam.AspectId);
       try
@@ -1412,7 +1459,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
         transaction.Rollback();
         throw;
       }
-      lock (_syncObj)
+      lock (_syncStorageObj)
         _managedMIATypes.Remove(aspectId);
       _MIACreationDates.Remove(aspectId);
       return true;
@@ -1426,6 +1473,64 @@ namespace MediaPortal.Backend.Services.MediaLibrary
 
     #endregion
 
+    #region MIA relationship management
+
+    public void AddRelationship(RelationshipType relationshipType, bool isChildPrimaryResource)
+    {
+      lock (_syncRelationshipsObj)
+      {
+        if (_registeredRelationships.Any(r => r.ChildRole == relationshipType.ChildRole && r.ParentRole == relationshipType.ParentRole))
+          return;
+
+        //It must be possible to traverse up to any relationship from a primary resource role, so ensure that this is either
+        //a primary resource or child role is an existing parent role in another relationship
+        if (!isChildPrimaryResource && !_registeredRelationships.Any(r => r.ParentRole == relationshipType.ChildRole))
+          throw new InvalidOperationException("Relationship roles must be either a primary resource or an existing linked role");
+
+        _registeredRelationships.Add(relationshipType);
+      }
+    }
+
+    /// <summary>
+    /// Returns all relationship types which were registered in this registration instance.
+    /// </summary>
+    /// <value>Collection of relationship types.</value>
+    public ICollection<RelationshipType> LocallyKnownRelationshipTypes
+    {
+      get
+      {
+        lock (_syncRelationshipsObj)
+          return new List<RelationshipType>(_registeredRelationships);
+      }
+    }
+
+    /// <summary>
+    /// Returns all hierarchical relationship types which were registered in this registration instance.
+    /// </summary>
+    /// <value>Collection of relationship types.</value>
+    public ICollection<RelationshipType> LocallyKnownHierarchicalRelationshipTypes
+    {
+      get
+      {
+        lock (_syncRelationshipsObj)
+          return new List<RelationshipType>(_registeredRelationships.Where(r => r.IsHierarchical));
+      }
+    }
+
+    public bool RelationshipExists(Guid role, Guid linkedRole)
+    {
+      lock (_syncRelationshipsObj)
+        return _registeredRelationships.Any(r => r.ChildRole == role && r.ParentRole == linkedRole);
+    }
+
+    public RelationshipType GetRelationshipType(Guid role, Guid linkedRole)
+    {
+      lock (_syncRelationshipsObj)
+        return _registeredRelationships.FirstOrDefault(r => r.ChildRole == role && r.ParentRole == linkedRole);
+    }
+
+    #endregion
+
     #region MIA management
 
     public bool MIAExists(ITransaction transaction, Guid mediaItemId, MediaItemAspect mia)
@@ -1433,6 +1538,9 @@ namespace MediaPortal.Backend.Services.MediaLibrary
       MediaItemAspectMetadata miam;
       if (!_managedMIATypes.TryGetValue(mia.Metadata.AspectId, out miam) || miam == null)
         throw new ArgumentException(string.Format("MIA_Management: Requested media item aspect type with id '{0}' doesn't exist", mia.Metadata.AspectId));
+      if (miam.IsTransientAspect)
+        return false;
+
       string miaTableName = GetMIATableName(miam);
 
       ISQLDatabase database = transaction.Database;
@@ -1469,6 +1577,8 @@ namespace MediaPortal.Backend.Services.MediaLibrary
         result = new MultipleMediaItemAspect((MultipleMediaItemAspectMetadata)miaType);
       else
         result = new SingleMediaItemAspect((SingleMediaItemAspectMetadata)miaType);
+      if (miaType.IsTransientAspect)
+        return result;
     
       Namespace ns = new Namespace();
       string miaTableName = GetMIATableName(miaType);
@@ -1542,6 +1652,12 @@ namespace MediaPortal.Backend.Services.MediaLibrary
       if (!_managedMIATypes.TryGetValue(mia.Metadata.AspectId, out miaType) || miaType == null)
         throw new ArgumentException(string.Format("MIA_Management: Requested media item aspect type with id '{0}' doesn't exist",
           mia.Metadata.AspectId));
+      if (miaType.IsTransientAspect)
+        return;
+
+      //Check if miaType is a RelationshipAspect and ensure that the relationship has been registered
+      if (!CheckAddRelationship(miaType, mia))
+        return;
 
       IList<string> terms1 = new List<string>();
       IList<string> terms2 = new List<string>();
@@ -1602,7 +1718,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
             }
             else
               terms1.Add(attrColName + " = @" + bindVarName);
-            bindVars.Add(new BindVar(bindVarName, insertValue.HasValue ? (Guid?) insertValue.Value : null, typeof(Guid)));
+            bindVars.Add(new BindVar(bindVarName, insertValue.HasValue ? (Guid?)insertValue.Value : null, typeof(Guid)));
             break;
           case Cardinality.ManyToMany:
             // After main query
@@ -1705,6 +1821,8 @@ namespace MediaPortal.Backend.Services.MediaLibrary
       MediaItemAspectMetadata miaType;
       if (!_managedMIATypes.TryGetValue(aspectId, out miaType) || miaType == null)
         throw new ArgumentException(string.Format("MIA_Management: Requested media item aspect type with id '{0}' doesn't exist", aspectId));
+      if (miaType.IsTransientAspect)
+        return true;
       string miaTableName = GetMIATableName(miaType);
 
       // Cleanup/delete attribute value entries
@@ -1739,6 +1857,21 @@ namespace MediaPortal.Backend.Services.MediaLibrary
       }
       CleanupAllManyToOneOrphanedAttributeValues(transaction, miaType);
       return result;
+    }
+
+    protected bool CheckAddRelationship(MediaItemAspectMetadata miaType, MediaItemAspect mia)
+    {
+      if (miaType.AspectId != Common.MediaManagement.DefaultItemAspects.RelationshipAspect.ASPECT_ID)
+        return true;
+      Guid role = mia.GetAttributeValue<Guid>(Common.MediaManagement.DefaultItemAspects.RelationshipAspect.ATTR_ROLE);
+      Guid linkedRole = mia.GetAttributeValue<Guid>(Common.MediaManagement.DefaultItemAspects.RelationshipAspect.ATTR_LINKED_ROLE);
+      if (RelationshipExists(role, linkedRole))
+        return true;
+      //Only throw if reverse relationship also doesn't exists, otherwise just ignore
+      if (!RelationshipExists(linkedRole, role))
+        throw new InvalidOperationException(string.Format("MIA_Management: Relationship with role {0} and linked role {1} doesn't exist", role, linkedRole));
+      //ServiceRegistration.Get<ILogger>().Debug("MIA_Management: Attempted to add reverse relationship with role {0} and linked role {1}", role, linkedRole);
+      return false;
     }
 
     #endregion

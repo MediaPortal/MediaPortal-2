@@ -72,9 +72,29 @@
   <Register Location="/Resources/Language">
     <Resource Id="HomeEditorLanguage" Directory="Language" Type="Language"/>
   </Register>
+  
+  <Builder Name="HomeEditorRegistration" ClassName="HomeEditor.Extensions.HomeEditorRegistrationBuilder"/>
+
+  <!--
+  Skins that support the home menu editor should register support
+  so that the home menu configuration is only visible in supported skins
+  -->
+  
+  <!--
+  <Register Location="/HomeEditor">
+    <HomeEditorRegistration Id="0FFCE199-AE9D-494C-BCF9-BC103D8369D7" SkinName="MySkinName"/>
+  </Register>
+  -->
 
   <!-- Contents of '/Appearance' group -->
-  <Register Location="/Configuration/Settings/Appearance">
+  <Register Location="/Configuration/Settings/Appearance/Skin">
+    <ConfigSection
+      Id="SkinSettings"
+      Redundant="true"
+      Text="[SkinSettings.Configuration.SkinSettings]"/>
+  </Register>
+  
+  <Register Location="/Configuration/Settings/Appearance/Skin/SkinSettings">
     <CustomConfigSetting
         Id="HomeEditorConfig"
         Text="[HomeEditor.Configuration]"

@@ -142,11 +142,6 @@ Parameters which have to be accessible by a DynamicResource lookup:
           <Control x:Name="HeaderControl" Grid.Row="0" Grid.Column="0" Margin="10,0,10,0" VerticalAlignment="Top"
                Template="{DynamicResource ResourceKey=Header_Text_Template}">
           </Control>
-          <!--Label x:Name="SelectedItem" Margin="10,0,10,0"
-                  Content="{Binding Source={StaticResource MenuModel}, Path=LastSelectedItemName}"
-                  VerticalAlignment="Center" HorizontalAlignment="Left" FontSize="32" FontFamily="DefaultBold"
-                  Color="{ThemeResource TextColor}">
-          </Label-->
           <Control HorizontalAlignment="Left" VerticalAlignment="Bottom" Margin="10,-8,0,0">
             <Control.TemplateControl>
               <Include Source="screens\MediaItemsListHeader.inc"/>
@@ -169,10 +164,10 @@ Parameters which have to be accessible by a DynamicResource lookup:
         </bvm:GroupMenuListView.Resources>
       </bvm:GroupMenuListView>
 
-      <!-- Time & Date -->
       <Border Height="74" Grid.Row="0" Grid.Column="3" VerticalAlignment="Center" Margin="-10,-20,0,20" >
         <StackPanel HorizontalAlignment="Right" Margin="10,0,10,0" VerticalAlignment="Center">
           <StackPanel Orientation="Horizontal" VerticalAlignment="Center" HorizontalAlignment="Right">
+            <!--Import Indicator-->
             <StackPanel Orientation="Horizontal" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="0,0,10,0"
                         DataContext="{Binding Source={StaticResource StateModel}, Path=[C37B62D0-8E87-42A4-877E-B41944DA9FC9]}"
                         IsVisible="{Binding Converter={StaticResource ReferenceToBoolConverter}}">
@@ -190,19 +185,47 @@ Parameters which have to be accessible by a DynamicResource lookup:
               <Button Style="{ThemeResource ImportingButtonStyle}" IsVisible="{Binding IsImporting}" VerticalAlignment="Center"
                       HorizontalAlignment="Left" Margin="0,-6,0,-9"/>
             </StackPanel>
+
+            <!--Data Base Upgrade Indicator-->
+            <StackPanel Orientation="Horizontal" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="0,0,10,0"
+                    DataContext="{Binding Source={StaticResource StateModel}, Path=[431528C9-5610-45CD-9807-0130AE1761DA]}"
+                    IsVisible="{Binding Converter={StaticResource ReferenceToBoolConverter}}">
+              <Label FontSize="{ThemeResource TinyFontSize}" Content="[Notifications.Upgrading]" Margin="10,-5,0,-10" 
+                     Color="{ThemeResource TextColor}" VerticalAlignment="Center" HorizontalAlignment="Right">
+                <Label.IsVisible>
+                  <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0}>=0">
+                    <Binding Path="Progress"/>
+                  </MultiBinding>
+                </Label.IsVisible>
+                <Label.Content>
+                  <Binding Path="Progress" Converter="{StaticResource StringFormatConverter}" ConverterParameter="{}{0}%"/>
+                </Label.Content>
+              </Label>
+              <Button Style="{ThemeResource UpgradingButtonStyle}" IsVisible="{Binding IsUpgrading}" VerticalAlignment="Center" 
+                  HorizontalAlignment="Left" Margin="0,-6,0,-9"/>
+            </StackPanel>
+
+            <!--Recording Indicator-->
             <StackPanel Orientation="Horizontal" VerticalAlignment="Center" HorizontalAlignment="Right"
                         DataContext="{Binding Source={StaticResource StateModel}, Path=[2A58935C-3363-4FA1-B48D-1EF0E81F830D]}"
                         IsVisible="{Binding Converter={StaticResource ReferenceToBoolConverter}}">
-              <Button Style="{ThemeResource RecordingButtonStyle}" IsVisible="{Binding IsRecording}" VerticalAlignment="Center" Margin="0,-4,0,-16"/>
+              <Button Style="{ThemeResource RecordingButtonStyle}" IsVisible="{Binding IsRecording}" VerticalAlignment="Center" Margin="0,-5,0,-15"/>
             </StackPanel>
+
+            <!--User Button-->
+            <Button Style="{ThemeResource UserButtonStyle}" IsVisible="{Binding Source={StaticResource LoginModel},Path=EnableUserLogin}" 
+                    IsEnabled="{Binding Source={StaticResource MenuModel},Path=IsHomeScreen}" Margin="0,0,18,0"
+                    Command="{Command Source={Service WorkflowManager},Path=NavigatePush,Parameters=2529B0F0-8415-4A4E-971B-38D6CDD2406A}"/>
             <Label x:Name="TimeLabel" Content="{Binding Source={StaticResource TimeModel}, Path=CurrentTime}" FontSize="32" FontFamily="DefaultBold"
                    Color="{ThemeResource TextColor}" VerticalAlignment="Center" HorizontalAlignment="Right"/>
           </StackPanel>
 
+          <!-- Time & Date -->
           <Label x:Name="DateLabel" Content="{Binding Source={StaticResource TimeModel}, Path=CurrentDate}" FontSize="{ThemeResource SmallFontSize}" FontFamily="DefaultBold"
-                 Color="{ThemeResource TextColor}" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="0,-8,0,0"/>
+               Color="{ThemeResource TextColor}" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="0,-8,0,0"/>
         </StackPanel>
       </Border>
+
       <Button x:Name="MenuButton" Style="{ThemeResource MenuButtonStyle}" Grid.Row="0" Grid.Column="4" Margin="10,-5,60,35"
               HorizontalAlignment="Center" VerticalAlignment="Center" IsEnabled="False">
       </Button>

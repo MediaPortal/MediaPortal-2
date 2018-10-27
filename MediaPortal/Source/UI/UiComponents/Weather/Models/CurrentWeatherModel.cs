@@ -28,11 +28,10 @@ using MediaPortal.Common.Localization;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.Messaging;
 using MediaPortal.Common.Services.Settings;
-using MediaPortal.Common.Threading;
 using MediaPortal.UI.Presentation.Models;
 using MediaPortal.UiComponents.Weather.Settings;
 using System;
-using System.Threading;
+using System.Threading.Tasks;
 
 namespace MediaPortal.UiComponents.Weather.Models
 {
@@ -63,7 +62,7 @@ namespace MediaPortal.UiComponents.Weather.Models
     /// </summary>
     public City CurrentLocation
     {
-      get { return (City) _currentLocationProperty.GetValue(); }
+      get { return (City)_currentLocationProperty.GetValue(); }
       set { _currentLocationProperty.SetValue(value); }
     }
 
@@ -73,8 +72,7 @@ namespace MediaPortal.UiComponents.Weather.Models
     public CurrentWeatherModel()
       : base(true, WEATHER_UPDATE_INTERVAL)
     {
-      // do initial update in its own thread to avoid delay during startup of MP2
-      ServiceRegistration.Get<IThreadPool>().Add(SetAndUpdatePreferredLocation, "SetAndUpdatePreferredLocation", QueuePriority.Normal, ThreadPriority.BelowNormal);
+      Update();
       SubscribeToMessages();
       _settings.SettingsChanged += Update;
     }
@@ -88,7 +86,7 @@ namespace MediaPortal.UiComponents.Weather.Models
     private void OnMessageReceived(AsynchronousMessageQueue queue, SystemMessage message)
     {
       if (message.ChannelName == LocalizationMessaging.CHANNEL &&
-          ((LocalizationMessaging.MessageType) message.MessageType) == LocalizationMessaging.MessageType.LanguageChanged)
+          (LocalizationMessaging.MessageType)message.MessageType == LocalizationMessaging.MessageType.LanguageChanged)
         Update();
     }
 
@@ -102,34 +100,26 @@ namespace MediaPortal.UiComponents.Weather.Models
     protected override void Update()
     {
       // Do update in its own thread to avoid delay
-      ServiceRegistration.Get<IThreadPool>().Add(SetAndUpdatePreferredLocation, "SetAndUpdatePreferredLocation", QueuePriority.Normal, ThreadPriority.BelowNormal);
+      Task.Run(async () => await SetAndUpdatePreferredLocation());
     }
 
-    protected void SetAndUpdatePreferredLocation()
+    protected async Task SetAndUpdatePreferredLocation()
     {
       CurrentLocation.Copy(City.NoData);
 
-      if (_settings.Settings.LocationsList == null)
-        return;
-
-      CitySetupInfo city = _settings.Settings.LocationsList.Find(loc => loc.Id == _settings.Settings.LocationCode);
+      CitySetupInfo city = _settings.Settings.LocationsList?.Find(loc => loc.Id == _settings.Settings.LocationCode);
       if (city == null)
         return;
 
       bool result = false;
+      City newLocation = new City(city);
       try
       {
-        City newLocation = new City(city);
-        if (ServiceRegistration.Get<IWeatherCatcher>().GetLocationData(newLocation))
-        {
-          CurrentLocation.Copy(newLocation);
-          result = true;
-        }
+        result = await ServiceRegistration.Get<IWeatherCatcher>().GetLocationData(newLocation).ConfigureAwait(false);
       }
-      catch (Exception)
-      {
-      }
+      catch (Exception) { }
 
+      CurrentLocation.Copy(newLocation);
       ServiceRegistration.Get<ILogger>().Info(result
                                                 ? "CurrentWeatherModel: Loaded weather data for {0}, {1}"
                                                 : "CurrentWeatherModel: Failed to load weather data for {0}, {1}",

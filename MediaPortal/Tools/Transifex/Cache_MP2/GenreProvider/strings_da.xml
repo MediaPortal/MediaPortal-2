@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <string name="Match.Video.Music">Musik</string>
+  <string name="Match.Video.TVMovie">TV</string>
+  <string name="Match.Video.News">Nyheder</string>
+  <string name="Match.Epg.Movie">Film</string>
+  <string name="Match.Epg.Series">Serie</string>
+  <string name="Match.Epg.Music">Musik</string>
+  <string name="Match.Epg.News">Nyheder</string>
+  <string name="Label.Audio.World">Verden</string>
+  <string name="Label.Video.Music">Musik</string>
+  <string name="Label.Video.TVMovie">TV</string>
+  <string name="Label.Video.News">Nyheder</string>
+  <string name="Label.Epg.Movie">Film</string>
+  <string name="Label.Epg.Series">Serie</string>
+  <string name="Label.Epg.Music">Musik</string>
+  <string name="Label.Epg.News">Nyheder</string>
+  </resources>

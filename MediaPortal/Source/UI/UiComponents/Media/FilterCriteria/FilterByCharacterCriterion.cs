@@ -31,9 +31,9 @@ namespace MediaPortal.UiComponents.Media.FilterCriteria
 {
   public class FilterByCharacterCriterion : RelationshipMLFilterCriterion
   {
-    public FilterByCharacterCriterion(Guid linkedRole) :
-      base(CharacterAspect.ROLE_CHARACTER, linkedRole, Consts.NECESSARY_CHARACTER_MIAS, Consts.OPTIONAL_CHARACTER_MIAS,
-        new SortInformation(CharacterAspect.ATTR_CHARACTER_NAME, SortDirection.Ascending))
+    public FilterByCharacterCriterion(Guid role, Guid linkedRole) :
+      base(role, linkedRole, Consts.NECESSARY_CHARACTER_MIAS, Consts.OPTIONAL_CHARACTER_MIAS,
+        new AttributeSortInformation(CharacterAspect.ATTR_CHARACTER_NAME, SortDirection.Ascending))
     {
     }
   }

@@ -46,14 +46,6 @@ namespace MediaPortal.Backend.Database
     IDbConnection Connection { get; }
 
     /// <summary>
-    /// Begins this transaction on the current connection.
-    /// </summary>
-    /// <remarks>
-    /// Calling <see cref="IDisposable.Dispose"/> after calling this method has no effect.
-    /// </remarks>
-    void Begin(IsolationLevel level);
-
-    /// <summary>
     /// Commits and disposes this transaction. This transaction becomes invalid after calling this method.
     /// </summary>
     /// <remarks>
@@ -115,6 +107,18 @@ namespace MediaPortal.Backend.Database
     /// Gets the maximum length of an object name (table, column, sequence, ...) in this database.
     /// </summary>
     uint MaxObjectNameLength { get; }
+
+    /// <summary>
+    /// Get SQL operator used for concatenating two strings. For Oracle, that will be
+    /// <c>"||"</c>, for example. For MS SQL Server, that will be <c>"+"</c>.
+    /// </summary>
+    string ConcatOperator { get; }
+
+    /// <summary>
+    /// Get SQL function used for getting the length of a string. For Oracle, that will be
+    /// <c>"LENGTH"</c>, for example. For MS SQL Server, that will be <c>"LEN"</c>.
+    /// </summary>
+    string LengthFunction { get; }
 
     /// <summary>
     /// Returns the name of an SQL type (to be used in SQL scripts) which can store values of the specified .net type
@@ -207,22 +211,32 @@ namespace MediaPortal.Backend.Database
     ITransaction BeginTransaction();
 
     /// <summary>
-    /// Gets a database connection from the connection pool and prepares a new transaction on that connection without starting it.
-    /// </summary>
-    /// <remarks>
-    /// The returned transaction instance can be started with <see cref="ITransaction.Begin"/> and has to be closed with 
-    /// using of the methods <see cref="ITransaction.Commit"/>, <see cref="ITransaction.Rollback"/> or <see cref="ITransaction.Dispose"/>, 
-    /// because this is needed for maintaining the connection pool management in the background.
-    /// </remarks>
-    /// <returns>Transaction instance.</returns>
-    ITransaction CreateTransaction();
-
-    /// <summary>
     /// Returns the information if a table with the given <paramref name="tableName"/> exists in the database.
     /// </summary>
     /// <param name="tableName">Name of the table to check.</param>
     /// <returns><c>true</c>, if a table with the given name exists, else <c>false</c>.</returns>
     bool TableExists(string tableName);
+
+    /// <summary>
+    /// Creates a backup of the current database that can be used to restore data in case of a failed upgrade.
+    /// </summary>
+    /// <param name="backupVersion">The name of the backup version. Usually based on the MediaPortal version.</param>
+    /// <returns><c>true</c>, if the database was backed up successfully, else <c>false</c>.</returns>
+    bool BackupDatabase(string backupVersion);
+
+    /// <summary>
+    /// Renames all tables so they can be used for restoring data to new tables.
+    /// </summary>
+    /// <param name="tableSuffix">The suffix to use on all tables when renaming them.</param>
+    /// <returns><c>true</c>, if all tables were renamed successfully, else <c>false</c>.</returns>
+    bool BackupTables(string tableSuffix);
+
+    /// <summary>
+    /// Drops all tables with the <paramref name="tableSuffix"/> table name suffix.
+    /// </summary>
+    /// <param name="tableSuffix">The suffix to use to find all tables to be dropped.</param>
+    /// <returns><c>true</c>, if all tables were dropped successfully, else <c>false</c>.</returns>
+    bool DropBackupTables(string tableSuffix);
 
     /// <summary>
     /// Creates an expression to concatenate the two given string expressions. For Oracle, that will be
@@ -254,5 +268,19 @@ namespace MediaPortal.Backend.Database
     /// <param name="limit">Reference to limit.</param>
     /// <returns></returns>
     bool Process(ref string statementStr, ref IList<BindVar> bindVars, ref uint? offset, ref uint? limit);
+  }
+
+  /// <summary>
+  /// Extension interface for customization of table creation.
+  /// </summary>
+  public interface ISQLDatabaseStorage : ISQLDatabase
+  {
+    /// <summary>
+    /// Gets an optional storage clause for create table statements. This allows DB plugins to force specific behaviors.
+    /// For example this can be a "WITHOUT ROWID" clause for SQLite.
+    /// </summary>
+    /// <param name="statementStr">Current create table statement</param>
+    /// <returns>Storage clause or <c>null</c></returns>
+    string GetStorageClause(string statementStr);
   }
 }

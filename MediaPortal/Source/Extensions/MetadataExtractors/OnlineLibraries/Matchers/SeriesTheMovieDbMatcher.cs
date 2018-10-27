@@ -22,15 +22,15 @@
 
 #endregion
 
-using System;
-using System.Globalization;
 using MediaPortal.Common;
-using MediaPortal.Common.Localization;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.MediaManagement.Helpers;
 using MediaPortal.Common.PathManager;
 using MediaPortal.Extensions.OnlineLibraries.Libraries.MovieDbV3.Data;
 using MediaPortal.Extensions.OnlineLibraries.Wrappers;
+using System;
+using System.Globalization;
+using System.Threading.Tasks;
 
 namespace MediaPortal.Extensions.OnlineLibraries.Matchers
 {
@@ -57,9 +57,11 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
     public SeriesTheMovieDbMatcher() : 
       base(CACHE_PATH, MAX_MEMCACHE_DURATION, true)
     {
+      //Will be overridden if the user enables it in setttings
+      Enabled = false;
     }
 
-    public override bool InitWrapper(bool useHttps)
+    public override Task<bool> InitWrapperAsync(bool useHttps)
     {
       try
       {
@@ -70,14 +72,14 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
         if (wrapper.Init(CACHE_PATH, useHttps, false))
         {
           _wrapper = wrapper;
-          return true;
+          return Task.FromResult(true);
         }
       }
       catch (Exception ex)
       {
         ServiceRegistration.Get<ILogger>().Error("SeriesTheMovieDbMatcher: Error initializing wrapper", ex);
       }
-      return false;
+      return Task.FromResult(false);
     }
 
     #endregion
@@ -88,7 +90,10 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
     {
       if (!string.IsNullOrEmpty(id))
       {
-        series.MovieDbId = Convert.ToInt32(id);
+        if (id.StartsWith("tt", StringComparison.InvariantCultureIgnoreCase))
+          series.ImdbId = id;
+        else
+          series.MovieDbId = Convert.ToInt32(id);
         return true;
       }
       return false;
@@ -98,7 +103,10 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
     {
       if (!string.IsNullOrEmpty(id))
       {
-        episode.SeriesMovieDbId = Convert.ToInt32(id);
+        if (id.StartsWith("tt", StringComparison.InvariantCultureIgnoreCase))
+          episode.SeriesImdbId = id;
+        else
+          episode.SeriesMovieDbId = Convert.ToInt32(id);
         return true;
       }
       return false;
@@ -109,6 +117,8 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
       id = null;
       if (series.MovieDbId > 0)
         id = series.MovieDbId.ToString();
+      else if (!string.IsNullOrEmpty(series.ImdbId))
+        id = series.ImdbId;
       return id != null;
     }
 
@@ -188,7 +198,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
 
     #region FanArt
 
-    protected override bool VerifyFanArtImage(ImageItem image, string language)
+    protected override bool VerifyFanArtImage(ImageItem image, string language, string fanArtType)
     {
       if (image.Language == null || image.Language == language)
         return true;

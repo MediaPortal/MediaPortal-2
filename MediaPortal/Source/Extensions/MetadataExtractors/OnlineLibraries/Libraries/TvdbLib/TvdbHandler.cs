@@ -18,16 +18,19 @@
  * 
  */
 
-using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
 using MediaPortal.Extensions.OnlineLibraries.Libraries.Common;
 using MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib.Cache;
 using MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib.Data;
 using MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib.Data.Banner;
 using MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib.Data.Comparer;
 using MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib.Exceptions;
+using MediaPortal.Utilities.Cache;
+using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib
 {
@@ -40,6 +43,19 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib
   public class TvdbHandler
   {
     #region private fields
+
+    /// <summary>
+    /// Default timeout for the cache is 2 minutes
+    /// </summary>
+    private static readonly TimeSpan CACHE_TIMEOUT = new TimeSpan(0, 2, 0);
+
+    /// <summary>
+    /// Cache used to temporarily store <see cref="TvdbSeries"/> objects so that the same cache file
+    /// doesn't have to be parsed every time a series is loaded.
+    /// </summary>
+    private readonly AsyncStaticTimeoutCache<int, TvdbSeries> _memoryCache = new AsyncStaticTimeoutCache<int, TvdbSeries>(CACHE_TIMEOUT);
+
+    private SemaphoreSlim _seriesLoadingSync = new SemaphoreSlim(1, 1);
     private readonly ICacheProvider _cacheProvider;
     private readonly String _apiKey;
     private readonly TvdbDownloader _downloader;
@@ -299,9 +315,9 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib
     /// </summary>
     /// <param name="name">Name of series</param>
     /// <returns>List of possible hits (containing only very basic information (id, name,....)</returns>
-    public List<TvdbSearchResult> SearchSeries(String name)
+    public async Task<List<TvdbSearchResult>> SearchSeriesAsync(String name)
     {
-      List<TvdbSearchResult> retSeries = _downloader.DownloadSearchResults(name);
+      List<TvdbSearchResult> retSeries = await _downloader.DownloadSearchResultsAsync(name).ConfigureAwait(false);
       if (retSeries != null && retSeries.Count == 0)
         return null;
       return retSeries;
@@ -313,9 +329,9 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib
     /// <param name="name">Name of series</param>
     /// <param name="language">Language to search in</param>
     /// <returns>List of possible hits (containing only very basic information (id, name,....)</returns>
-    public List<TvdbSearchResult> SearchSeries(String name, TvdbLanguage language)
+    public async Task<List<TvdbSearchResult>> SearchSeriesAsync(String name, TvdbLanguage language)
     {
-      List<TvdbSearchResult> retSeries = _downloader.DownloadSearchResults(name, language);
+      List<TvdbSearchResult> retSeries = await _downloader.DownloadSearchResultsAsync(name, language).ConfigureAwait(false);
       if (retSeries != null && retSeries.Count == 0)
         return null;
       return retSeries;
@@ -327,10 +343,9 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib
     /// <param name="externalSite">external provider</param>
     /// <param name="id">id of the series</param>
     /// <returns>The tvdb series that corresponds to the external id</returns>
-    public TvdbSearchResult GetSeriesByRemoteId(ExternalId externalSite, String id)
+    public Task<TvdbSearchResult> GetSeriesByRemoteIdAsync(ExternalId externalSite, String id)
     {
-      TvdbSearchResult retSeries = _downloader.DownloadSeriesSearchByExternalId(externalSite, id);
-      return retSeries;
+      return _downloader.DownloadSeriesSearchByExternalIdAsync(externalSite, id);
     }
 
     /// <summary>
@@ -347,10 +362,10 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib
     /// <param name="loadActors">if true also loads the extended actor information</param>
     /// <param name="loadBanners">if true also loads the paths to the banners</param>
     /// <returns>Instance of TvdbSeries containing all gained information</returns>
-    public TvdbSeries GetSeries(int seriesId, TvdbLanguage language, bool loadEpisodes,
+    public Task<TvdbSeries> GetSeriesAsync(int seriesId, TvdbLanguage language, bool loadEpisodes,
                                 bool loadActors, bool loadBanners)
     {
-      return GetSeries(seriesId, language, loadEpisodes, loadActors, loadBanners, false);
+      return GetSeriesAsync(seriesId, language, loadEpisodes, loadActors, loadBanners, false);
     }
 
     /// <summary>
@@ -365,9 +380,22 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib
     /// <param name="seriesId">id of series</param>
     /// <param name="language">language that should be retrieved</param>
     /// <returns>Instance of TvdbSeries containing all gained information</returns>
-    internal TvdbSeries GetSeriesZipped(int seriesId, TvdbLanguage language)
+    internal Task<TvdbSeries> GetSeriesZippedAsync(int seriesId, TvdbLanguage language)
     {
-      return GetSeries(seriesId, language, true, true, true, true);
+      return GetSeriesAsync(seriesId, language, true, true, true, true);
+    }
+
+    protected async Task<TvdbSeries> GetSeriesAsync(int seriesId, TvdbLanguage language, bool loadEpisodes, bool loadActors, bool loadBanners, bool useZip)
+    {
+      // First try and get the series from the memory cache, or add it if not yet cached
+      TvdbSeries series = await _memoryCache.GetValue(seriesId, _ => LoadSeriesAsync(seriesId, language, loadEpisodes, loadActors, loadBanners, useZip));
+      if (series == null)
+        return null;
+      // If the cached series has all requested info return it
+      if (series.Language == language && (series.EpisodesLoaded || !loadEpisodes) && (series.TvdbActorsLoaded || !loadActors) && (series.BannersLoaded || !loadBanners))
+        return series;
+      // Some info was missing, load all requested info and update the cache
+      return await _memoryCache.UpdateValue(seriesId, _ => LoadSeriesAsync(seriesId, language, loadEpisodes, loadActors, loadBanners, useZip));
     }
 
     /// <summary>
@@ -390,143 +418,156 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib
     ///                                           or http://forums.thetvdb.com/</para></exception>  
     /// <exception cref="TvdbInvalidApiKeyException">The stored api key is invalid</exception>
     /// <exception cref="TvdbNotAvailableException">The tvdb database is unavailable</exception>
-    public TvdbSeries GetSeries(int seriesId, TvdbLanguage language, bool loadEpisodes,
+    public async Task<TvdbSeries> LoadSeriesAsync(int seriesId, TvdbLanguage language, bool loadEpisodes,
                                 bool loadActors, bool loadBanners, bool useZip)
     {
+      Log.Info($"TvdbHandler: Loading series {seriesId}");
       Stopwatch watch = new Stopwatch();
       watch.Start();
-      TvdbSeries series = GetSeriesFromCache(seriesId);
-      //Did I get the series completely from cache or did I have to make an additional online request
-      bool loadedAdditionalInfo = false;
+      TvdbSeries series = null;
+      //Synchronise series loading, this avoids multiple threads each missing the cache then trying to load the series whilst another thread is already loading it
+      await _seriesLoadingSync.WaitAsync().ConfigureAwait(false);
+      try
+      {
+        //Check the cache again now we're in the loading lock in case another thread has loaded it whist we were waiting
+        series = GetSeriesFromCache(seriesId);
 
-      if (series == null || //series not yet cached
-          (useZip && (!series.EpisodesLoaded && !series.TvdbActorsLoaded && !series.BannersLoaded)))//only the basic series info has been loaded -> zip is still faster than fetching the missing informations without using zip
-      {//load complete series from tvdb
-        series = useZip ?
-          _downloader.DownloadSeriesZipped(seriesId, language) :
-          _downloader.DownloadSeries(seriesId, language, loadEpisodes, loadActors, loadBanners);
+        //Did I get the series completely from cache or did I have to make an additional online request
+        bool loadedAdditionalInfo = false;
 
-        if (series == null)
-        {
-          return null;
-        }
-        watch.Stop();
-        loadedAdditionalInfo = true;
-        Log.Debug("Loaded series " + seriesId + " in " + watch.ElapsedMilliseconds + " milliseconds");
-        series.IsFavorite = _userInfo != null && CheckIfSeriesFavorite(seriesId, _userInfo.UserFavorites);
-      }
-      else
-      {//some (if not all) information has already been loaded from tvdb at some point -> fill the missing details and return the series
+        if (series == null || //series not yet cached
+            (useZip && (!series.EpisodesLoaded && !series.TvdbActorsLoaded && !series.BannersLoaded)))//only the basic series info has been loaded -> zip is still faster than fetching the missing informations without using zip
+        {//load complete series from tvdb
+          series = useZip ?
+            await _downloader.DownloadSeriesZippedAsync(seriesId, language).ConfigureAwait(false) :
+            await _downloader.DownloadSeriesAsync(seriesId, language, loadEpisodes, loadActors, loadBanners).ConfigureAwait(false);
 
-        if (language != series.Language)
-        {//user wants a different language than the one that has been loaded
-          if (series.GetAvailableLanguages().Contains(language))
-            series.SetLanguage(language);
-          else
+          if (series == null)
           {
-            TvdbSeriesFields newFields = _downloader.DownloadSeriesFields(seriesId, language);
-            loadedAdditionalInfo = true;
-            if (loadEpisodes)
-            {
-              List<TvdbEpisode> epList = _downloader.DownloadEpisodes(seriesId, language);
-              if (epList != null)
-              {
-                newFields.Episodes.Clear();
-                newFields.Episodes.AddRange(epList);
-                newFields.EpisodesLoaded = true;
-              }
-            }
-            if (newFields != null)
-            {
-              series.AddLanguage(newFields);
+            return null;
+          }
+          watch.Stop();
+          loadedAdditionalInfo = true;
+          Log.Debug("Loaded series " + seriesId + " in " + watch.ElapsedMilliseconds + " milliseconds");
+          series.IsFavorite = _userInfo != null && CheckIfSeriesFavorite(seriesId, _userInfo.UserFavorites);
+        }
+        else
+        {//some (if not all) information has already been loaded from tvdb at some point -> fill the missing details and return the series
+
+          if (language != series.Language)
+          {//user wants a different language than the one that has been loaded
+            if (series.GetAvailableLanguages().Contains(language))
               series.SetLanguage(language);
-            }
             else
             {
-              Log.Warn("Couldn't load new language " + language.Abbriviation + " for series " + seriesId);
-              return null;
+              TvdbSeriesFields newFields = await _downloader.DownloadSeriesFieldsAsync(seriesId, language).ConfigureAwait(false);
+              loadedAdditionalInfo = true;
+              if (loadEpisodes)
+              {
+                List<TvdbEpisode> epList = await _downloader.DownloadEpisodesAsync(seriesId, language).ConfigureAwait(false);
+                if (epList != null)
+                {
+                  newFields.Episodes.Clear();
+                  newFields.Episodes.AddRange(epList);
+                  newFields.EpisodesLoaded = true;
+                }
+              }
+              if (newFields != null)
+              {
+                series.AddLanguage(newFields);
+                series.SetLanguage(language);
+              }
+              else
+              {
+                Log.Warn("Couldn't load new language " + language.Abbriviation + " for series " + seriesId);
+                return null;
+              }
             }
           }
-        }
 
-        if (loadActors && !series.TvdbActorsLoaded)
-        {//user wants actors loaded
-          Log.Debug("Additionally loading actors");
-          List<TvdbActor> actorList = _downloader.DownloadActors(seriesId);
-          loadedAdditionalInfo = true;
-          if (actorList != null)
-          {
-            series.TvdbActorsLoaded = true;
-            series.TvdbActors = actorList;
+          if (loadActors && !series.TvdbActorsLoaded)
+          {//user wants actors loaded
+            Log.Debug("Additionally loading actors");
+            List<TvdbActor> actorList = await _downloader.DownloadActorsAsync(seriesId).ConfigureAwait(false);
+            loadedAdditionalInfo = true;
+            if (actorList != null)
+            {
+              series.TvdbActorsLoaded = true;
+              series.TvdbActors = actorList;
+            }
           }
-        }
 
-        if (loadEpisodes && !series.EpisodesLoaded)
-        {//user wants the full version but only the basic has been loaded (without episodes
-          Log.Debug("Additionally loading episodes");
-          List<TvdbEpisode> epList = _downloader.DownloadEpisodes(seriesId, language);
-          loadedAdditionalInfo = true;
-          if (epList != null)
-            series.SetEpisodes(epList);
-        }
-
-        if (loadBanners && !series.BannersLoaded)
-        {//user wants banners loaded but current series hasn't -> Do it baby
-          Log.Debug("Additionally loading banners");
-          List<TvdbBanner> bannerList = _downloader.DownloadBanners(seriesId);
-          loadedAdditionalInfo = true;
-          if (bannerList != null)
-          {
-            series.BannersLoaded = true;
-            series.Banners = bannerList;
+          if (loadEpisodes && !series.EpisodesLoaded)
+          {//user wants the full version but only the basic has been loaded (without episodes
+            Log.Debug("Additionally loading episodes");
+            List<TvdbEpisode> epList = await _downloader.DownloadEpisodesAsync(seriesId, language).ConfigureAwait(false);
+            loadedAdditionalInfo = true;
+            if (epList != null)
+              series.SetEpisodes(epList);
           }
+
+          if (loadBanners && !series.BannersLoaded)
+          {//user wants banners loaded but current series hasn't -> Do it baby
+            Log.Debug("Additionally loading banners");
+            List<TvdbBanner> bannerList = await _downloader.DownloadBannersAsync(seriesId).ConfigureAwait(false);
+            loadedAdditionalInfo = true;
+            if (bannerList != null)
+            {
+              series.BannersLoaded = true;
+              series.Banners = bannerList;
+            }
+          }
+
+          watch.Stop();
+          Log.Debug("Loaded series " + seriesId + " in " + watch.ElapsedMilliseconds + " milliseconds");
         }
 
-        watch.Stop();
-        Log.Debug("Loaded series " + seriesId + " in " + watch.ElapsedMilliseconds + " milliseconds");
+        if (_cacheProvider != null)
+        {
+          //we're using a cache provider
+
+          //if we've loaded data from online source -> save to cache
+          if (_cacheProvider.Initialised && loadedAdditionalInfo)
+          {
+            Log.Info("Store series " + seriesId + " with " + _cacheProvider);
+            _cacheProvider.SaveToCache(series);
+          }
+
+          //Store a ref to the cacheprovider and series id in each banner, so the banners
+          //can be stored/loaded to/from cache
+          #region add cache provider/series id
+          if (series.Banners != null)
+          {
+            series.Banners.ForEach(b =>
+            {
+              b.CacheProvider = _cacheProvider;
+              b.SeriesId = series.Id;
+            });
+          }
+
+          if (series.Episodes != null)
+          {
+            series.Episodes.ForEach(e =>
+            {
+              e.Banner.CacheProvider = _cacheProvider;
+              e.Banner.SeriesId = series.Id;
+            });
+          }
+
+          if (series.TvdbActors != null)
+          {
+            series.TvdbActors.ForEach(a =>
+            {
+              a.ActorImage.CacheProvider = _cacheProvider;
+              a.ActorImage.SeriesId = series.Id;
+            });
+          }
+          #endregion
+        }
       }
-
-      if (_cacheProvider != null)
-      {//we're using a cache provider
-        //if we've loaded data from online source -> save to cache
-        if (_cacheProvider.Initialised && loadedAdditionalInfo)
-        {
-          Log.Info("Store series " + seriesId + " with " + _cacheProvider);
-          _cacheProvider.SaveToCache(series);
-        }
-
-        //Store a ref to the cacheprovider and series id in each banner, so the banners
-        //can be stored/loaded to/from cache
-        #region add cache provider/series id
-        if (series.Banners != null)
-        {
-          series.Banners.ForEach(b =>
-                                   {
-                                     b.CacheProvider = _cacheProvider;
-                                     b.SeriesId = series.Id;
-                                   });
-        }
-
-        if (series.Episodes != null)
-        {
-          series.Episodes.ForEach(e =>
-                                    {
-                                      e.Banner.CacheProvider = _cacheProvider;
-                                      e.Banner.SeriesId = series.Id;
-                                    });
-        }
-
-        if (series.TvdbActors != null)
-        {
-          series.TvdbActors.ForEach(a =>
-                                      {
-                                        a.ActorImage.CacheProvider = _cacheProvider;
-                                        a.ActorImage.SeriesId = series.Id;
-                                      });
-        }
-        #endregion
-
-
+      finally
+      {
+        _seriesLoadingSync.Release();
       }
       return series;
     }
@@ -558,9 +599,9 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib
     ///                                           or http://forums.thetvdb.com/</para></exception>  
     /// <exception cref="TvdbInvalidApiKeyException">The stored api key is invalid</exception>
     /// <exception cref="TvdbNotAvailableException">The tvdb database is unavailable</exception>
-    public TvdbSeries GetFullSeries(int seriesId, TvdbLanguage language, bool loadBanners)
+    public Task<TvdbSeries> GetFullSeriesAsync(int seriesId, TvdbLanguage language, bool loadBanners)
     {
-      return GetSeries(seriesId, language, true, true, loadBanners);
+      return GetSeriesAsync(seriesId, language, true, true, loadBanners);
     }
 
     /// <summary>
@@ -580,9 +621,9 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib
     ///                                           or http://forums.thetvdb.com/</para></exception>  
     /// <exception cref="TvdbInvalidApiKeyException">The stored api key is invalid</exception>
     /// <exception cref="TvdbNotAvailableException">The tvdb database is unavailable</exception>
-    public TvdbSeries GetBasicSeries(int seriesId, TvdbLanguage language, bool loadBanners)
+    public Task<TvdbSeries> GetBasicSeriesAsync(int seriesId, TvdbLanguage language, bool loadBanners)
     {
-      return GetSeries(seriesId, language, false, false, loadBanners);
+      return GetSeriesAsync(seriesId, language, false, false, loadBanners);
     }
 
     /// <summary>
@@ -619,9 +660,9 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib
     ///                                           or http://forums.thetvdb.com/</para></exception>  
     /// <exception cref="TvdbContentNotFoundException">The episode/series/banner couldn't be located on the tvdb server.</exception>
     /// <exception cref="TvdbNotAvailableException">Exception is thrown when thetvdb isn't available.</exception>
-    public TvdbEpisode GetEpisode(int episodeId, TvdbLanguage language)
+    public Task<TvdbEpisode> GetEpisodeAsync(int episodeId, TvdbLanguage language)
     {
-      return _downloader.DownloadEpisode(episodeId, language);
+      return _downloader.DownloadEpisodeAsync(episodeId, language);
     }
 
     /// <summary>
@@ -639,7 +680,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib
     ///                                           or http://forums.thetvdb.com/</para></exception>  
     /// <exception cref="TvdbContentNotFoundException">The episode/series/banner couldn't be located on the tvdb server.</exception>
     /// <exception cref="TvdbNotAvailableException">Exception is thrown when thetvdb isn't available.</exception>
-    public TvdbEpisode GetEpisode(int seriesId, int seasonNr, int episodeNr, TvdbEpisode.EpisodeOrdering order, TvdbLanguage language)
+    public async Task<TvdbEpisode> GetEpisodeAsync(int seriesId, int seasonNr, int episodeNr, TvdbEpisode.EpisodeOrdering order, TvdbLanguage language)
     {
       TvdbEpisode episode = null;
       if (_cacheProvider != null && _cacheProvider.Initialised)
@@ -668,7 +709,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib
         }
       }
 
-      return episode ?? _downloader.DownloadEpisode(seriesId, seasonNr, episodeNr, order, language);
+      return episode ?? await _downloader.DownloadEpisodeAsync(seriesId, seasonNr, episodeNr, order, language).ConfigureAwait(false);
     }
 
     /// <summary>
@@ -684,7 +725,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib
     ///                                           or http://forums.thetvdb.com/</para></exception>  
     /// <exception cref="TvdbContentNotFoundException">The episode/series/banner couldn't be located on the tvdb server.</exception>
     /// <exception cref="TvdbNotAvailableException">Exception is thrown when thetvdb isn't available.</exception>
-    public TvdbEpisode GetEpisode(int seriesId, DateTime airDate, TvdbLanguage language)
+    public async Task<TvdbEpisode> GetEpisodeAsync(int seriesId, DateTime airDate, TvdbLanguage language)
     {
       TvdbEpisode episode = null;
       if (_cacheProvider != null && _cacheProvider.Initialised)
@@ -705,7 +746,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib
           }
         }
       }
-      return episode ?? (_downloader.DownloadEpisode(seriesId, airDate, language));
+      return episode ?? await _downloader.DownloadEpisodeAsync(seriesId, airDate, language).ConfigureAwait(false);
     }
 
     /// <summary>
@@ -735,9 +776,9 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib
     /// Update all the series (not using zip) with the updated information
     /// </summary>
     /// <returns>true if the update was successful, false otherwise</returns>
-    public bool UpdateAllSeries()
+    public Task<bool> UpdateAllSeriesAsync()
     {
-      return UpdateAllSeries(false);
+      return UpdateAllSeriesAsync(false);
     }
 
     /// <summary>
@@ -751,9 +792,9 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib
     ///                                           or http://forums.thetvdb.com/</para></exception>  
     /// <exception cref="TvdbInvalidApiKeyException">The stored api key is invalid</exception>
     /// <exception cref="TvdbNotAvailableException">Exception is thrown when thetvdb isn't available.</exception>
-    public bool UpdateAllSeries(bool zipped)
+    public Task<bool> UpdateAllSeriesAsync(bool zipped)
     {
-      return UpdateAllSeries(Interval.Automatic, zipped);
+      return UpdateAllSeriesAsync(Interval.Automatic, zipped);
     }
 
     /// <summary>
@@ -768,7 +809,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib
     /// <exception cref="TvdbInvalidApiKeyException">The stored api key is invalid</exception>
     /// <exception cref="TvdbNotAvailableException">Exception is thrown when thetvdb isn't available.</exception>
     /// <exception cref="TvdbCacheNotInitialisedException">In order to update, the cache has to be initialised</exception>
-    public bool UpdateAllSeries(Interval interval, bool zipped)
+    public Task<bool> UpdateAllSeriesAsync(Interval interval, bool zipped)
     {
       if (_loadedData == null)
       {//the cache hasn't been initialised yet
@@ -782,35 +823,35 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib
         if (_loadedData.LastUpdated == DateTime.MinValue)
         {//lastUpdated not available -> make longest possible upgrade
          //todo: Make a full update -> full update deosn't make sense... (do a complete re-scan?)
-          return UpdateAllSeries(Interval.Month, zipped, true);
+          return UpdateAllSeriesAsync(Interval.Month, zipped, true);
         }
         if (timespanLastUpdate > new TimeSpan(31, 0, 0, 0))
         {//last update is over 1 month ago -> make a monthly update
           Log.Warn("The last update occured longer than a month ago, to avoid data inconsistency, all cached series "
          + "and episode informations is downloaded again");
-          return UpdateAllSeries(Interval.Month, zipped, true);
+          return UpdateAllSeriesAsync(Interval.Month, zipped, true);
         }
         if (timespanLastUpdate > new TimeSpan(29, 0, 0, 0))
         {//last update is more than a month ago -> make a monthly update
-          return UpdateAllSeries(Interval.Month, zipped, true);
+          return UpdateAllSeriesAsync(Interval.Month, zipped, true);
         }
         if (timespanLastUpdate > new TimeSpan(7, 0, 0, 0))
         {//last update is more than a week ago -> make a weekly update
-          return UpdateAllSeries(Interval.Week, zipped, false);
+          return UpdateAllSeriesAsync(Interval.Week, zipped, false);
         }
         if (timespanLastUpdate > new TimeSpan(1, 0, 0, 0))
         {//last update is more than a day ago -> make a daily update
-          return UpdateAllSeries(Interval.Day, zipped, false);
+          return UpdateAllSeriesAsync(Interval.Day, zipped, false);
         }
-        return false;
+        return Task.FromResult(false);
       }
       if (interval == Interval.Day)
-        return UpdateAllSeries(interval, zipped, false);
+        return UpdateAllSeriesAsync(interval, zipped, false);
       if (interval == Interval.Week)
-        return UpdateAllSeries(interval, zipped, false);
+        return UpdateAllSeriesAsync(interval, zipped, false);
       if (interval == Interval.Month)
-        return UpdateAllSeries(interval, zipped, true);
-      return false;
+        return UpdateAllSeriesAsync(interval, zipped, true);
+      return Task.FromResult(false);
     }
 
     /// <summary>
@@ -828,11 +869,11 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib
     /// <exception cref="TvdbInvalidApiKeyException">The stored api key is invalid</exception>
     /// <exception cref="TvdbNotAvailableException">Exception is thrown when thetvdb isn't available.</exception>
     /// <exception cref="TvdbCacheNotInitialisedException">In order to update, the cache has to be initialised</exception>
-    public bool UpdateAllSeries(Interval interval, bool zipped, bool reloadOldContent)
+    public async Task<bool> UpdateAllSeriesAsync(Interval interval, bool zipped, bool reloadOldContent)
     {
       try
       {
-        MakeUpdate(interval, zipped, reloadOldContent);
+        await MakeUpdateAsync(interval, zipped, reloadOldContent).ConfigureAwait(false);
         return true;
       }
       catch (Exception ex)
@@ -871,7 +912,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib
     /// <param name="zipped">zipped downloading yes/no</param>
     /// <param name="reloadOldContent"> </param>
     /// <returns>true if successful, false otherwise</returns>
-    private bool MakeUpdate(Interval interval, bool zipped, bool reloadOldContent)
+    private async Task<bool> MakeUpdateAsync(Interval interval, bool zipped, bool reloadOldContent)
     {
       Log.Info("Started update (" + interval + ")");
       Stopwatch watch = new Stopwatch();
@@ -885,16 +926,12 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib
                                                      0, 0));
       }
 
-      //update all flagged series
-      List<TvdbSeries> updateSeries;
-      List<TvdbEpisode> updateEpisodes;
-      List<TvdbBanner> updateBanners;
-
       List<int> updatedSeriesIds = new List<int>();
       List<int> updatedEpisodeIds = new List<int>();
       List<int> updatedBannerIds = new List<int>();
 
-      DateTime updateTime = _downloader.DownloadUpdate(out updateSeries, out updateEpisodes, out updateBanners, interval, zipped);
+      //update all flagged series
+      TvDbUpdate update = await _downloader.DownloadUpdateAsync(interval, zipped).ConfigureAwait(false);
       List<int> cachedSeries = _cacheProvider.GetCachedSeries();
 
       //list of all series that have been loaded from cache 
@@ -908,7 +945,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib
                                                      0, 25));
       }
 
-      int countUpdatedSeries = updateSeries.Count;
+      int countUpdatedSeries = update.UpdateSeries.Count;
       int countSeriesDone = 0;
       int lastProgress = 0;//send progress event at least every 1 percent
       String updateText = "Updating series";
@@ -934,7 +971,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib
             span = span.Add(new TimeSpan(30, 0, 0, 0));
             break;
         }
-        
+
         if (lastupdated < DateTime.Now - span)
         {//the last update of the cache is longer ago than the timespan we make the update for
           List<int> allSeriesIds = _cacheProvider.GetCachedSeries();
@@ -951,12 +988,12 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib
               {
                 if (e.LastUpdated < DateTime.Now - span)
                 {
-                  if (TvDbUtils.FindEpisodeInList(e.Id, updateEpisodes) == null)
+                  if (TvDbUtils.FindEpisodeInList(e.Id, update.UpdateEpisodes) == null)
                   {//The episode is not in the updates.xml file
                     TvdbEpisode newEp = new TvdbEpisode();
                     newEp.Id = e.Id;
                     newEp.LastUpdated = DateTime.Now;
-                    updateEpisodes.Add(newEp);
+                    update.UpdateEpisodes.Add(newEp);
                   }
                   if (!seriesToSave.ContainsKey(series.Id)) seriesToSave.Add(series.Id, series);
 
@@ -965,7 +1002,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib
             }
             else
             {//the series hasn't been updated recently -> we need to do a complete re-download
-              ForceReload(series, false);//redownload series and save it to cache
+              await ForceReloadAsync(series, false).ConfigureAwait(false);//redownload series and save it to cache
               countUpdatedSeries++;
               countSeriesDone++;
               int currProg = (int)(100.0 / countUpdatedSeries * countSeriesDone);
@@ -983,7 +1020,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib
         }
       }
 
-      foreach (TvdbSeries us in updateSeries)
+      foreach (TvdbSeries us in update.UpdateSeries)
       {
         if (_abortUpdate) break;//the update has been aborted
         //Update series that have been already cached
@@ -998,7 +1035,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib
 
             int currProg = (int)(100.0 / countUpdatedSeries * countSeriesDone);
 
-            bool updated = UpdateSeries(series, us.LastUpdated, currProg);
+            bool updated = await UpdateSeriesAsync(series, us.LastUpdated, currProg).ConfigureAwait(false);
             if (updated)
             {//the series has been updated
               updatedSeriesIds.Add(us.Id);
@@ -1023,12 +1060,12 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib
         countSeriesDone++;
       }
 
-      int countEpisodeUpdates = updateEpisodes.Count;
+      int countEpisodeUpdates = update.UpdateEpisodes.Count;
       int countEpisodesDone = 0;
       lastProgress = 0;
       updateText = "Updating episodes";
       //update all flagged episodes
-      foreach (TvdbEpisode ue in updateEpisodes)
+      foreach (TvdbEpisode ue in update.UpdateEpisodes)
       {
         if (_abortUpdate) break;//the update has been aborted
 
@@ -1042,8 +1079,9 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib
               break;
 
             int progress = (int)(100.0 / countEpisodeUpdates * countEpisodesDone);
-            String text = "";
-            bool updated = UpdateEpisode(series, ue, progress, out text);
+            Tuple<bool, string> updateResult = await UpdateEpisodeAsync(series, ue, progress).ConfigureAwait(false);
+            bool updated = updateResult.Item1;
+            string text = updateResult.Item2;
             if (updated)
             {//The episode was updated or added
               updatedEpisodeIds.Add(ue.Id);
@@ -1064,12 +1102,12 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib
         countEpisodesDone++;
       }
 
-      int countUpdatedBanner = updateBanners.Count;
+      int countUpdatedBanner = update.UpdateBanners.Count;
       int countBannerDone = 0;
       lastProgress = 0;
       // todo: update banner information here -> wait for forum response regarding 
       // missing banner id within updates (atm. I'm matching banners via path)
-      foreach (TvdbBanner b in updateBanners)
+      foreach (TvdbBanner b in update.UpdateBanners)
       {
         if (_abortUpdate) break;//the update has been aborted
 
@@ -1144,7 +1182,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib
       if (!_abortUpdate)
       {//update finished and wasn't aborted
         //set the last updated time to time of this update
-        _loadedData.LastUpdated = updateTime;
+        _loadedData.LastUpdated = update.UpdateTime;
         _cacheProvider.SaveToCache(_loadedData);
       }
 
@@ -1243,10 +1281,10 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib
     /// <param name="text">Description of the current update</param>
     /// <returns>true if episode has been updated, false if not (e.g. timestamp of updated episode older than
     ///          timestamp of existing episode</returns> 
-    private bool UpdateEpisode(TvdbSeries series, TvdbEpisode episode, int progress, out String text)
+    private async Task<Tuple<bool, string>> UpdateEpisodeAsync(TvdbSeries series, TvdbEpisode episode, int progress)
     {
       bool updateDone = false;
-      text = "";
+      string text = "";
       TvdbLanguage currentLanguage = series.Language;
       foreach (KeyValuePair<TvdbLanguage, TvdbSeriesFields> kvp in series.SeriesTranslations)
       {
@@ -1267,7 +1305,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib
                 TvdbEpisode newEpisode = null;
                 try
                 {
-                  newEpisode = _downloader.DownloadEpisode(e.Id, kvp.Key);
+                  newEpisode = await _downloader.DownloadEpisodeAsync(e.Id, kvp.Key).ConfigureAwait(false);
                 }
                 catch (TvdbContentNotFoundException)
                 {
@@ -1319,7 +1357,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib
             TvdbEpisode ep = null;
             try
             {
-              ep = _downloader.DownloadEpisode(episode.Id, kvp.Key);
+              ep = await _downloader.DownloadEpisodeAsync(episode.Id, kvp.Key).ConfigureAwait(false);
             }
             catch (TvdbContentNotFoundException ex)
             {
@@ -1346,7 +1384,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib
         }
       }
       series.SetLanguage(currentLanguage);
-      return updateDone;
+      return new Tuple<bool, string>(updateDone, text);
     }
 
 
@@ -1358,7 +1396,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib
     /// <param name="lastUpdated">When was the last update made</param>
     /// <param name="progress">The progress done until now</param>
     /// <returns>true if the series has been upated false if not</returns>
-    private bool UpdateSeries(TvdbSeries series, DateTime lastUpdated, int progress)
+    private async Task<bool> UpdateSeriesAsync(TvdbSeries series, DateTime lastUpdated, int progress)
     {
       //get series info
       bool updateDone = false;
@@ -1370,7 +1408,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib
           TvdbSeries newSeries = null;
           try
           {//try to get the series
-            newSeries = _downloader.DownloadSeries(series.Id, kvp.Key, false, false, false);
+            newSeries = await _downloader.DownloadSeriesAsync(series.Id, kvp.Key, false, false, false).ConfigureAwait(false);
           }
           catch (TvdbContentNotFoundException ex)
           {//couldn't download the series
@@ -1401,29 +1439,26 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib
     /// Returns list of all available Languages on tvdb
     /// </summary>
     /// <returns>list of available languages</returns>
-    public List<TvdbLanguage> Languages
+    public async Task<List<TvdbLanguage>> GetLanguagesAsync()
     {
-      get
-      {
-        if (IsLanguagesCached)
-          return _loadedData.LanguageList;
+      if (IsLanguagesCached)
+        return _loadedData.LanguageList;
 
-        List<TvdbLanguage> list = _downloader.DownloadLanguages();
-        if (list == null || list.Count == 0)
-          return null;
-        if (_loadedData != null)
-          _loadedData.LanguageList = list;
-        return list;
-      }
+      List<TvdbLanguage> list = await _downloader.DownloadLanguagesAsync().ConfigureAwait(false);
+      if (list == null || list.Count == 0)
+        return null;
+      if (_loadedData != null)
+        _loadedData.LanguageList = list;
+      return list;
     }
 
     /// <summary>
     /// Reloads all language definitions from tvdb
     /// </summary>
     /// <returns>true if successful, false otherwise</returns>
-    public bool ReloadLanguages()
+    public async Task<bool> ReloadLanguagesAsync()
     {
-      List<TvdbLanguage> list = _downloader.DownloadLanguages();
+      List<TvdbLanguage> list = await _downloader.DownloadLanguagesAsync().ConfigureAwait(false);
       if (list == null || list.Count == 0)
         return false;
       _loadedData.LanguageList = list;
@@ -1477,9 +1512,9 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib
     /// </summary>
     /// <param name="series">Series to reload</param>
     /// <returns>The new TvdbSeries object</returns>
-    public TvdbSeries ForceReload(TvdbSeries series)
+    public Task<TvdbSeries> ForceReloadAsync(TvdbSeries series)
     {
-      return ForceReload(series, series.EpisodesLoaded, series.TvdbActorsLoaded, series.BannersLoaded);
+      return ForceReloadAsync(series, series.EpisodesLoaded, series.TvdbActorsLoaded, series.BannersLoaded);
     }
 
     /// <summary>
@@ -1488,9 +1523,9 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib
     /// <param name="series">Series to reload</param> 
     /// <param name="deleteArtwork">If yes, also deletes previously loaded images</param>
     /// <returns>The new TvdbSeries object</returns>
-    public TvdbSeries ForceReload(TvdbSeries series, bool deleteArtwork)
+    public Task<TvdbSeries> ForceReloadAsync(TvdbSeries series, bool deleteArtwork)
     {
-      return ForceReload(series, series.EpisodesLoaded, series.TvdbActorsLoaded, series.BannersLoaded, deleteArtwork);
+      return ForceReloadAsync(series, series.EpisodesLoaded, series.TvdbActorsLoaded, series.BannersLoaded, deleteArtwork);
     }
 
     /// <summary>
@@ -1501,10 +1536,10 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib
     /// <param name="loadActors">Should actors be loaded as well</param>
     /// <param name="loadBanners">Should banners be loaded as well</param>
     /// <returns>The new TvdbSeries object</returns>
-    public TvdbSeries ForceReload(TvdbSeries series, bool loadEpisodes,
+    public Task<TvdbSeries> ForceReloadAsync(TvdbSeries series, bool loadEpisodes,
                                 bool loadActors, bool loadBanners)
     {
-      return ForceReload(series, loadEpisodes, loadActors, loadBanners, true);
+      return ForceReloadAsync(series, loadEpisodes, loadActors, loadBanners, true);
     }
 
 
@@ -1517,14 +1552,14 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib
     /// <param name="loadBanners">Should banners be loaded as well</param>
     /// <param name="replaceArtwork">If yes, also deletes previously loaded images</param>
     /// <returns>The new TvdbSeries object</returns>
-    public TvdbSeries ForceReload(TvdbSeries series, bool loadEpisodes, bool loadActors, bool loadBanners, bool replaceArtwork)
+    public async Task<TvdbSeries> ForceReloadAsync(TvdbSeries series, bool loadEpisodes, bool loadActors, bool loadBanners, bool replaceArtwork)
     {
       if (series == null)
       {
         Log.Warn("no series given (null)");
         return null;
       }
-      TvdbSeries newSeries = _downloader.DownloadSeries(series.Id, series.Language, loadEpisodes, loadActors, loadBanners);
+      TvdbSeries newSeries = await _downloader.DownloadSeriesAsync(series.Id, series.Language, loadEpisodes, loadActors, loadBanners).ConfigureAwait(false);
 
       if (newSeries == null)
       {
@@ -1535,7 +1570,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib
       if (_cacheProvider != null && _cacheProvider.Initialised)
       {
         //remove old series from cache and store the reloaded one
-        if (replaceArtwork) 
+        if (replaceArtwork)
           _cacheProvider.RemoveFromCache(series.Id); //removes all info (including images)
         _cacheProvider.SaveToCache(newSeries);
       }
@@ -1553,11 +1588,11 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib
     ///                                           or http://forums.thetvdb.com/</para></exception>  
     /// <exception cref="TvdbUserNotFoundException">The user doesn't exist</exception>
     /// <exception cref="TvdbNotAvailableException">The tvdb database is unavailable</exception>
-    public TvdbLanguage GetPreferredLanguage()
+    public async Task<TvdbLanguage> GetPreferredLanguageAsync()
     {
       if (_userInfo != null)
       {
-        TvdbLanguage userLang = _downloader.DownloadUserPreferredLanguage(_userInfo.UserIdentifier);
+        TvdbLanguage userLang = await _downloader.DownloadUserPreferredLanguageAsync(_userInfo.UserIdentifier).ConfigureAwait(false);
 
         if (userLang != null)
         {
@@ -1595,11 +1630,11 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib
     ///                                           or http://forums.thetvdb.com/</para></exception>  
     /// <exception cref="TvdbUserNotFoundException">The user doesn't exist</exception>
     /// <exception cref="TvdbNotAvailableException">The tvdb database is unavailable</exception>
-    public List<int> GetUserFavouritesList()
+    public async Task<List<int>> GetUserFavouritesListAsync()
     {
       if (_userInfo == null)
         throw new Exception("You can't get the list of user favorites when no user is specified");
-      List<int> userFavs = _downloader.DownloadUserFavoriteList(_userInfo.UserIdentifier);
+      List<int> userFavs = await _downloader.DownloadUserFavoriteListAsync(_userInfo.UserIdentifier).ConfigureAwait(false);
       _userInfo.UserFavorites = userFavs;
       return userFavs;
     }
@@ -1614,13 +1649,13 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib
     ///                                           or http://forums.thetvdb.com/</para></exception>  
     /// <exception cref="TvdbUserNotFoundException">The user doesn't exist</exception>
     /// <exception cref="TvdbNotAvailableException">The tvdb database is unavailable</exception>
-    public List<TvdbSeries> GetUserFavorites(TvdbLanguage lang)
+    public async Task<List<TvdbSeries>> GetUserFavoritesAsync(TvdbLanguage lang)
     {
       if (_userInfo == null)
         throw new TvdbUserNotFoundException("You can't get the favourites when no user is defined");
       if (lang == null)
         throw new Exception("you have to define a language");
-      List<int> idList = GetUserFavouritesList();
+      List<int> idList = await GetUserFavouritesListAsync().ConfigureAwait(false);
       List<TvdbSeries> retList = new List<TvdbSeries>();
 
       foreach (int sId in idList)
@@ -1629,7 +1664,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib
           retList.Add(GetSeriesFromCache(sId));
         else
         {
-          TvdbSeries series = _downloader.DownloadSeries(sId, lang, false, false, false);
+          TvdbSeries series = await _downloader.DownloadSeriesAsync(sId, lang, false, false, false).ConfigureAwait(false);
           if (series != null)
             retList.Add(series);
 
@@ -1653,12 +1688,12 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib
     ///                                           or http://forums.thetvdb.com/</para></exception>  
     /// <exception cref="TvdbUserNotFoundException">The user doesn't exist</exception>
     /// <exception cref="TvdbNotAvailableException">The tvdb database is unavailable</exception>
-    public List<int> AddSeriesToFavorites(int seriesId)
+    public async Task<List<int>> AddSeriesToFavoritesAsync(int seriesId)
     {
       if (_userInfo == null)
         throw new TvdbUserNotFoundException("You can only add favorites if a user is set");
 
-      List<int> list = _downloader.DownloadUserFavoriteList(_userInfo.UserIdentifier,Util.UserFavouriteAction.Add,seriesId);
+      List<int> list = await _downloader.DownloadUserFavoriteListAsync(_userInfo.UserIdentifier, Util.UserFavouriteAction.Add, seriesId).ConfigureAwait(false);
       _userInfo.UserFavorites = list;
       return list;
     }
@@ -1674,9 +1709,9 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib
     ///                                           or http://forums.thetvdb.com/</para></exception>  
     /// <exception cref="TvdbUserNotFoundException">The user doesn't exist</exception>
     /// <exception cref="TvdbNotAvailableException">The tvdb database is unavailable</exception>
-    public List<int> AddSeriesToFavorites(TvdbSeries series)
+    public async Task<List<int>> AddSeriesToFavoritesAsync(TvdbSeries series)
     {
-      return series == null ? null : AddSeriesToFavorites(series.Id);
+      return series == null ? null : await AddSeriesToFavoritesAsync(series.Id).ConfigureAwait(false);
     }
 
     /// <summary>
@@ -1690,11 +1725,11 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib
     ///                                           or http://forums.thetvdb.com/</para></exception>  
     /// <exception cref="TvdbUserNotFoundException">The user doesn't exist</exception>
     /// <exception cref="TvdbNotAvailableException">The tvdb database is unavailable</exception>
-    public List<int> RemoveSeriesFromFavorites(int seriesId)
+    public async Task<List<int>> RemoveSeriesFromFavoritesAsync(int seriesId)
     {
       if (_userInfo == null)
         throw new TvdbUserNotFoundException("You can only add favorites if a user is set");
-      List<int> list = _downloader.DownloadUserFavoriteList(_userInfo.UserIdentifier, Util.UserFavouriteAction.Remove, seriesId);
+      List<int> list = await _downloader.DownloadUserFavoriteListAsync(_userInfo.UserIdentifier, Util.UserFavouriteAction.Remove, seriesId).ConfigureAwait(false);
       _userInfo.UserFavorites = list;
       return list;
     }
@@ -1710,9 +1745,9 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib
     ///                                           or http://forums.thetvdb.com/</para></exception>  
     /// <exception cref="TvdbUserNotFoundException">The user doesn't exist</exception>
     /// <exception cref="TvdbNotAvailableException">The tvdb database is unavailable</exception>
-    public List<int> RemoveSeriesFromFavorites(TvdbSeries series)
+    public Task<List<int>> RemoveSeriesFromFavoritesAsync(TvdbSeries series)
     {
-      return RemoveSeriesFromFavorites(series.Id);
+      return RemoveSeriesFromFavoritesAsync(series.Id);
     }
 
 
@@ -1727,13 +1762,13 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib
     ///                                           or http://forums.thetvdb.com/</para></exception>  
     /// <exception cref="TvdbUserNotFoundException">The user doesn't exist</exception>
     /// <exception cref="TvdbNotAvailableException">Exception is thrown when thetvdb isn't available.</exception>
-    public double RateSeries(int seriesId, int rating)
+    public Task<double> RateSeriesAsync(int seriesId, int rating)
     {
       if (_userInfo == null)
         throw new TvdbUserNotFoundException("You can only add favorites if a user is set");
       if (rating < 0 || rating > 10)
         throw new ArgumentOutOfRangeException("rating", rating, "rating must be an integer between 0 and 10");
-      return _downloader.RateSeries(_userInfo.UserIdentifier, seriesId, rating);
+      return _downloader.RateSeriesAsync(_userInfo.UserIdentifier, seriesId, rating);
     }
 
     /// <summary>
@@ -1747,13 +1782,13 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib
     ///                                           or http://forums.thetvdb.com/</para></exception>  
     /// <exception cref="TvdbUserNotFoundException">The user doesn't exist</exception>
     /// <exception cref="TvdbNotAvailableException">Exception is thrown when thetvdb isn't available.</exception>
-    public double RateEpisode(int episodeId, int rating)
+    public Task<double> RateEpisodeAsync(int episodeId, int rating)
     {
       if (_userInfo == null)
         throw new TvdbUserNotFoundException("You can only add favorites if a user is set");
       if (rating < 0 || rating > 10)
         throw new ArgumentOutOfRangeException("rating", rating, "rating must be an integer between 0 and 10");
-      return _downloader.RateEpisode(_userInfo.UserIdentifier, episodeId, rating);
+      return _downloader.RateEpisodeAsync(_userInfo.UserIdentifier, episodeId, rating);
     }
 
     /// <summary>
@@ -1766,11 +1801,11 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib
     ///                                           or http://forums.thetvdb.com/</para></exception>  
     /// <exception cref="TvdbUserNotFoundException">The user doesn't exist</exception>
     /// <exception cref="TvdbNotAvailableException">Exception is thrown when thetvdb isn't available.</exception>
-    public Dictionary<int, TvdbRating> GetRatedSeries()
+    public Task<Dictionary<int, TvdbRating>> GetRatedSeriesAsync()
     {
       if (_userInfo == null)
         throw new TvdbUserNotFoundException("You can only add favorites if a user is set");
-      return _downloader.DownloadAllSeriesRatings(_userInfo.UserIdentifier);
+      return _downloader.DownloadAllSeriesRatingsAsync(_userInfo.UserIdentifier);
     }
 
     /// <summary>
@@ -1784,11 +1819,11 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.TvdbLib
     ///                                           or http://forums.thetvdb.com/</para></exception>  
     /// <exception cref="TvdbUserNotFoundException">The user doesn't exist</exception>
     /// <exception cref="TvdbNotAvailableException">Exception is thrown when thetvdb isn't available.</exception>
-    public Dictionary<int, TvdbRating> GetRatingsForSeries(int seriesId)
+    public Task<Dictionary<int, TvdbRating>> GetRatingsForSeriesAsync(int seriesId)
     {
       if (_userInfo == null)
         throw new TvdbUserNotFoundException("You can only add favorites if a user is set");
-      return _downloader.DownloadRatingsForSeries(_userInfo.UserIdentifier, seriesId);
+      return _downloader.DownloadRatingsForSeriesAsync(_userInfo.UserIdentifier, seriesId);
     }
 
     #endregion

@@ -1,6 +1,7 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
   <string name="Configuration.Name">Innstillinger</string>
+  <string name="Configuration.Name.Help">Innstillinger for mediakilder og oppsett for utseende og oppførsel for MediaPortal.</string>
   <string name="Configuration.ConfigurationMainWorkflowNavigationContextDisplayLabel">Innstillinger</string>
   <string name="Configuration.MainSettings">Hovedinnstillinger</string>
   <!--2nd Header for root configuration section-->
