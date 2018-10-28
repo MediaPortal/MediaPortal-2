@@ -56,7 +56,7 @@
   <string name="ServerConnection.AttachToServerNoServerText">Zur Zeit ist kein MP2-Server im Netzwerk verfügbar.</string>
   <string name="ServerConnection.AttachButton">Anbinden</string>
   <string name="ServerConnection.AttachInfoDialogHeader">Server angebunden</string>
-  <string name="ServerConnection.AttachInfoDialogText">Dieser Client wurde mit dem Heimserver \'{0}\' auf Rechner \'{1}\' verbunden.</string>
+  <string name="ServerConnection.AttachInfoDialogText">Dieser Client wurde mit dem MP2-Server \'{0}\' auf Rechner \'{1}\' verbunden.</string>
   <!--{0} = server name, {1} = host name-->
   <string name="Notifications.Title">Benachrichtigungen</string>
   <string name="Notifications.OneMoreNotification">(1 mehr)</string>
@@ -195,7 +195,7 @@
   <string name="SharesConfig.ChooseResourceProviderForShare">Wähle einen Ressourcen-Provider für die Medienquelle</string>
   <string name="SharesConfig.EditResourceProviderPathForShare">Setze den Pfad zur Medienquelle</string>
   <string name="SharesConfig.ResourceProviderPathIsNotValid">Gib einen Pfad ein, der für den gewählten Ressourcen-Provider gültig ist. Dies kann ein einfacher Pfad sein, der vom Provider verstanden wird. Es können auch komplexe Pfade in folgendem Format angegeben werden: {[Base-ResourceProvider-ID]}://[Base-ResourceProvider-Path]&gt;{[Chained-ResourceProvider-ID]}://[Chained-ResourceProvider-Path]&gt;...</string>
-  <string name="SharesConfig.ChooseResourceProviderPathForShare">Wählen Sie den Pfad der Medienquelle aus</string>
+  <string name="SharesConfig.ChooseResourceProviderPathForShare">Pfad der Medienquelle auswählen</string>
   <string name="SharesConfig.EditShareName">Setze den Anzeigenamen der Medienquelle</string>
   <string name="SharesConfig.ChooseShareCategories">Wählen Sie die Kategorien der in der Medienquelle enthaltenen Medieninhalte aus</string>
   <string name="SharesConfig.SharePathExists">Eine Medienquelle mit diesem Pfad ist bereits vorhanden</string>

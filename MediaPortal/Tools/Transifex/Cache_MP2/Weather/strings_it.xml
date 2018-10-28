@@ -25,7 +25,7 @@
   <string name="Weather.LastUpdateTime">Ultimo aggiornamento: {0}</string>
   <string name="Weather.NotUpdatedYet">-</string>
   <!--Forecast names are mostly assigned 1:1-->
-  <string name="Weather.TStorms">Tempeste</string>
+  <string name="Weather.TStorms">Temporali</string>
   <string name="Weather.Partly">Parzialmente</string>
   <string name="Weather.Mostly">Prevalentemente</string>
   <string name="Weather.Sunny">Soleggiato</string>
@@ -73,7 +73,7 @@
   <string name="Weather.Calm">calmo</string>
   <string name="Weather.NoWind">senza vento</string>
   <string name="Weather.InTheVicinity">nelle vicinanze</string>
-  <string name="Weather.Clearing">Schiarimenti</string>
+  <string name="Weather.Clearing">Schiarite</string>
   <string name="Settings.Plugins.Weather">Meteo</string>
   <string name="Settings.Plugins.Weather.LocationSetup">Configura località</string>
   <string name="Settings.Plugins.Weather.LocationSetup.Help">Configura le città da rendere disponibili nella schermata meteo</string>

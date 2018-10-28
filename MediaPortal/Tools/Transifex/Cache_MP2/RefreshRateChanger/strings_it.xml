@@ -3,8 +3,8 @@
   <string name="RefreshRateChanger.IsEnabled">Abilita il cambio frequenza di refresh</string>
   <string name="RefreshRateChanger.IsEnabled.Help">Se abilitato  MP tenterà di regolare la frequenza dello schermo in accordo coi fotogrammi al secondo del video riprodotto.</string>
   <string name="RefreshRateChanger.NoChangeForRate">Escludi frequenze di refresh</string>
-  <string name="RefreshRateChanger.NoChangeForRate.Help">Escludi una lista di frequenze di refresh dai tentativi di cambiamento.Inserisci i valori come interi, separati dalla virgola (es. 23,25,50)</string>
+  <string name="RefreshRateChanger.NoChangeForRate.Help">Escludi una lista di frequenze di refresh dai tentativi di cambiamento. Inserisci i valori come interi, separati dalla virgola (es. 23,25,50)</string>
   <string name="RefreshRateChanger.RateMappings">Corrispondenze frequenze di refresh</string>
   <string name="RefreshRateChanger.RateMappings.Help">Sovrascrivi le corrispondenze predefinite.
-Formato: fps:Hz (es. \"23:24\" ii video a 23,976 foreranno il refresh dello schermo a 24 Hz).</string>
+Formato: fps:Hz; fps:Hz (es. \"23:24\": per video fps=23,976 imporranno il refresh dello schermo a 24Hz).</string>
 </resources>
