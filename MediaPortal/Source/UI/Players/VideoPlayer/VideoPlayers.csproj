@@ -78,6 +78,13 @@
     <Compile Include="Subtitles\MpcEngine.cs" />
     <Compile Include="Settings\MpcSubsSettings.cs" />
     <Compile Include="Subtitles\MpcSubsRenderer.cs" />
+    <Compile Include="Teletext_v2\TeletextHeaderPacket.cs" />
+    <Compile Include="Teletext_v2\TeletextMagazine.cs" />
+    <Compile Include="Teletext_v2\TeletextPacket.cs" />
+    <Compile Include="Teletext_v2\TeletextPage.cs" />
+    <Compile Include="Teletext_v2\TeletextRow.cs" />
+    <Compile Include="Teletext_v2\TeletextService.cs" />
+    <Compile Include="Teletext_v2\Utils.cs" />
     <Compile Include="Tools\COMHelper.cs" />
     <Compile Include="Tools\FilterLoader.cs" />
     <Compile Include="Tools\GraphRebuilder.cs" />
@@ -164,6 +171,7 @@
       <Version>4.0.1</Version>
     </PackageReference>
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="build.targets" />
 </Project>
