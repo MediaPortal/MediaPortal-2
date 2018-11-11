@@ -126,6 +126,12 @@ namespace MediaPortal.UI.Players.Video
       _graphBuilder.AddFilter(baseFilter, TSREADER_FILTER_NAME);
 
       _subtitleRenderer = new SubtitleRenderer(OnTextureInvalidated);
+      _subtitleFilter = _subtitleRenderer.AddSubtitleFilter(_graphBuilder);
+      if (_subtitleFilter != null)
+      {
+        _subtitleRenderer.RenderSubtitles = true;
+        _subtitleRenderer.SetPlayer(this);
+      }
 
 
       _teletextSource = (ITeletextSource)baseFilter;
