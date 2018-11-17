@@ -45,7 +45,7 @@ namespace MediaPortal.UI.Players
   [ComVisible(true)]
   [Guid("19651B59-6AD6-4FD7-882A-914ED5592BFA")]
   [ClassInterface(ClassInterfaceType.None)]
-  public class DotNetStreamSourceFilter : BaseFilter, IDotNetStreamSourceFilter, IFileSourceFilter
+  public class DotNetStreamSourceFilter : BaseFilter, IDotNetStreamSourceFilter, IFileSourceFilter, IDisposable
   {
     protected Stream _sourceStream = null;
     protected DotNetStreamOutputPin _outputPin = null;
@@ -59,13 +59,7 @@ namespace MediaPortal.UI.Players
 
     ~DotNetStreamSourceFilter()
     {
-      // Only dispose the underlying stream if we created it.
-      if (_streamCreated && _sourceStream != null)
-      {
-        _sourceStream.Close();
-        _sourceStream.Dispose();
-        _sourceStream = null;
-      }
+      Dispose();
     }
 
     protected override int OnInitializePins()
@@ -103,11 +97,32 @@ namespace MediaPortal.UI.Players
 
     public int GetCurFile(out string pszFileName, AMMediaType pmt)
     {
+      pszFileName = null;
+      if (string.IsNullOrEmpty(_fileName))
+        return VFW_E_NOT_CONNECTED;
+
       pszFileName = _fileName;
-      return string.IsNullOrEmpty(pszFileName) ? VFW_E_NOT_CONNECTED : NOERROR;
+      return NOERROR;
     }
 
     #endregion
+
+    public void Dispose()
+    {
+      if (_outputPin != null)
+      {
+        RemovePin(_outputPin);
+        _outputPin.Dispose();
+        _outputPin = null;
+      }
+      // Only dispose the underlying stream if we created it.
+      if (_streamCreated && _sourceStream != null)
+      {
+        _sourceStream.Close();
+        _sourceStream.Dispose();
+        _sourceStream = null;
+      }
+    }
   }
 
   /// <summary>
@@ -116,9 +131,13 @@ namespace MediaPortal.UI.Players
   /// </summary>
   [ComVisible(true)]
   [Guid("8CF6F982-E2A4-4DC4-A437-8E9F8533EA1D")]
-  public class DotNetStreamOutputPin : BasePin, IAsyncReader
+  public class DotNetStreamOutputPin : BasePin, IDisposable, IAsyncReader
   {
+    #region Variables
+
     protected Stream _sourceStream = null;
+
+    #endregion
 
     public DotNetStreamOutputPin(string name, BaseFilter filter, Stream sourceStream)
       : base(name, filter, filter.FilterLock, PinDirection.Output)
@@ -131,19 +150,28 @@ namespace MediaPortal.UI.Players
 
     ~DotNetStreamOutputPin()
     {
+      Dispose();
+    }
+
+    #region IDisposable Members
+
+    public void Dispose()
+    {
       _sourceStream = null;
     }
+
+    #endregion
 
     #region Overridden Methods of BasePin
 
     public override int BeginFlush()
     {
-      return E_UNEXPECTED;
+      return E_NOTIMPL;
     }
 
     public override int EndFlush()
     {
-      return E_UNEXPECTED;
+      return E_NOTIMPL;
     }
 
     public override int CheckMediaType(AMMediaType pmt)
@@ -203,7 +231,7 @@ namespace MediaPortal.UI.Players
       {
         // We are not working with Allocators, set the outgoing pointer to 0
         ppActual = IntPtr.Zero;
-        return S_OK;
+        return E_NOTIMPL;
       }
     }
 
@@ -216,7 +244,7 @@ namespace MediaPortal.UI.Players
     public int Request(IntPtr pSample, IntPtr dwUser)
     {
       // We are not working in async mode
-      throw new NotImplementedException();
+      return E_NOTIMPL;
     }
 
     /// <summary>
@@ -229,7 +257,9 @@ namespace MediaPortal.UI.Players
     public int WaitForNext(int dwTimeout, out IntPtr ppSample, out IntPtr pdwUser)
     {
       // We are not working in async mode
-      throw new NotImplementedException();
+      ppSample = IntPtr.Zero;
+      pdwUser = IntPtr.Zero;
+      return E_NOTIMPL;
     }
 
     /// <summary>
@@ -242,7 +272,7 @@ namespace MediaPortal.UI.Players
     public int SyncReadAligned(IntPtr pSample)
     {
       // We are not working with Allocators
-      throw new NotImplementedException();
+      return E_NOTIMPL;
     }
 
     /// <summary>

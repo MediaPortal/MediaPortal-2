@@ -99,6 +99,7 @@ namespace MediaPortal.UI.Players.Video
     protected IResourceLocator _resourceLocator;
     protected IResourceAccessor _resourceAccessor;
     protected Stream _resourceStream; // Will be opened for Stream based access
+    protected DotNetStreamSourceFilter _streamFilter;
     protected string _mediaItemTitle = null;
     protected AsynchronousMessageQueue _messageQueue = null;
 
@@ -469,17 +470,14 @@ namespace MediaPortal.UI.Players.Video
           return;
         }
 
-        // Morpheus_xx, 2018-11-17: There are known issues using the DotNetStreamSourceFilter. It will be not properly freed and causes memory leaks and
-        // also some playback issues with 4k content. Probably a solution would be to add explicit IDisposable implementation instead of relying on destructor.
-
         // use the DotNetStreamSourceFilter as source filter
-        var sourceFilter = new DotNetStreamSourceFilter();
+        _streamFilter = new DotNetStreamSourceFilter();
         _resourceStream = fileSystemResourceAccessor.OpenRead();
-        sourceFilter.SetSourceStream(_resourceStream, fileSystemResourceAccessor.ResourcePathName);
-        hr = _graphBuilder.AddFilter(sourceFilter, sourceFilter.Name);
+        _streamFilter.SetSourceStream(_resourceStream, fileSystemResourceAccessor.ResourcePathName);
+        hr = _graphBuilder.AddFilter(_streamFilter, _streamFilter.Name);
         new HRESULT(hr).Throw();
 
-        using (DSFilter source2 = new DSFilter(sourceFilter))
+        using (DSFilter source2 = new DSFilter(_streamFilter))
           hr = source2.OutputPin.Render();
         new HRESULT(hr).Throw();
 
@@ -598,6 +596,12 @@ namespace MediaPortal.UI.Players.Video
     /// </summary>
     protected virtual void FreeCodecs()
     {
+      if (_streamFilter != null)
+      {
+        if(_graphBuilder != null)
+          _graphBuilder.RemoveFilter(_streamFilter);
+        FilterGraphTools.TryDispose(ref _streamFilter);
+      }
       // If we opened an own Stream, dispose it here
       FilterGraphTools.TryDispose(ref _resourceStream);
     }
