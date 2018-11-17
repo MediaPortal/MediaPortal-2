@@ -25,7 +25,7 @@
 using MediaPortal.Common.MediaManagement.Helpers;
 using System;
 using System.Collections.Generic;
-using System.Device.Location;
+using System.Threading.Tasks;
 
 namespace MediaPortal.Extensions.OnlineLibraries.Libraries
 {
@@ -36,17 +36,18 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries
   {
     #region Audio
 
-    bool AssignMissingMusicGenreIds(List<GenreInfo> genres);
     List<AlbumInfo> GetLastChangedAudioAlbums();
     void ResetLastChangedAudioAlbums();
     List<TrackInfo> GetLastChangedAudio();
     void ResetLastChangedAudio();
-    bool FindAndUpdateTrack(TrackInfo trackInfo, bool importOnly);
-    bool UpdateAlbumPersons(AlbumInfo albumInfo, string occupation, bool importOnly);
-    bool UpdateTrackPersons(TrackInfo trackInfo, string occupation, bool forAlbum, bool importOnly);
-    bool UpdateAlbumCompanies(AlbumInfo albumInfo, string companyType, bool importOnly);
-    bool UpdateAlbum(AlbumInfo albumInfo, bool updateTrackList, bool importOnly);
-    bool DownloadAudioFanArt(Guid mediaItemId, BaseInfo mediaItemInfo, bool force);
+    Task<IEnumerable<TrackInfo>> FindMatchingTracksAsync(TrackInfo trackInfo);
+    Task<IEnumerable<AlbumInfo>> FindMatchingAlbumsAsync(AlbumInfo albumInfo);
+    Task<bool> FindAndUpdateTrackAsync(TrackInfo trackInfo);
+    Task<bool> UpdateAlbumPersonsAsync(AlbumInfo albumInfo, string occupation);
+    Task<bool> UpdateTrackPersonsAsync(TrackInfo trackInfo, string occupation, bool forAlbum);
+    Task<bool> UpdateAlbumCompaniesAsync(AlbumInfo albumInfo, string companyType);
+    Task<bool> UpdateAlbumAsync(AlbumInfo albumInfo, bool updateTrackList);
+    Task<bool> DownloadAudioFanArtAsync(Guid mediaItemId, BaseInfo mediaItemInfo);
     void StoreAudioPersonMatch(PersonInfo person);
     void StoreAudioCompanyMatch(CompanyInfo company);
 
@@ -54,17 +55,17 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries
 
     #region Movie
 
-    bool AssignMissingMovieGenreIds(List<GenreInfo> genres);
     List<MovieInfo> GetLastChangedMovies();
     void ResetLastChangedMovies();
     List<MovieCollectionInfo> GetLastChangedMovieCollections();
     void ResetLastChangedMovieCollections();
-    bool FindAndUpdateMovie(MovieInfo movieInfo, bool importOnly);
-    bool UpdatePersons(MovieInfo movieInfo, string occupation, bool importOnly);
-    bool UpdateCharacters(MovieInfo movieInfo, bool importOnly);
-    bool UpdateCollection(MovieCollectionInfo collectionInfo, bool updateMovieList, bool importOnly);
-    bool UpdateCompanies(MovieInfo movieInfo, string companyType, bool importOnly);
-    bool DownloadMovieFanArt(Guid mediaItemId, BaseInfo mediaItemInfo, bool force);
+    Task<IEnumerable<MovieInfo>> FindMatchingMoviesAsync(MovieInfo movieInfo);
+    Task<bool> FindAndUpdateMovieAsync(MovieInfo movieInfo);
+    Task<bool> UpdatePersonsAsync(MovieInfo movieInfo, string occupation);
+    Task<bool> UpdateCharactersAsync(MovieInfo movieInfo);
+    Task<bool> UpdateCollectionAsync(MovieCollectionInfo collectionInfo, bool updateMovieList);
+    Task<bool> UpdateCompaniesAsync(MovieInfo movieInfo, string companyType);
+    Task<bool> DownloadMovieFanArtAsync(Guid mediaItemId, BaseInfo mediaItemInfo);
     void StoreMoviePersonMatch(PersonInfo person);
     void StoreMovieCharacterMatch(CharacterInfo character);
     void StoreMovieCompanyMatch(CompanyInfo company);
@@ -73,20 +74,21 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries
 
     #region Series
 
-    bool AssignMissingSeriesGenreIds(List<GenreInfo> genres);
     List<SeriesInfo> GetLastChangedSeries();
     void ResetLastChangedSeries();
     List<EpisodeInfo> GetLastChangedEpisodes();
     void ResetLastChangedEpisodes();
-    bool FindAndUpdateEpisode(EpisodeInfo episodeInfo, bool importOnly);
-    bool UpdateEpisodePersons(EpisodeInfo episodeInfo, string occupation, bool importOnly);
-    bool UpdateEpisodeCharacters(EpisodeInfo episodeInfo, bool importOnly);
-    bool UpdateSeason(SeasonInfo seasonInfo, bool importOnly);
-    bool UpdateSeries(SeriesInfo seriesInfo, bool updateEpisodeList, bool importOnly);
-    bool UpdateSeriesPersons(SeriesInfo seriesInfo, string occupation, bool importOnly);
-    bool UpdateSeriesCharacters(SeriesInfo seriesInfo, bool importOnly);
-    bool UpdateSeriesCompanies(SeriesInfo seriesInfo, string companyType, bool importOnly);
-    bool DownloadSeriesFanArt(Guid mediaItemId, BaseInfo mediaItemInfo, bool force);
+    Task<IEnumerable<EpisodeInfo>> FindMatchingEpisodesAsync(EpisodeInfo episodeInfo);
+    Task<IEnumerable<SeriesInfo>> FindMatchingSeriesAsync(SeriesInfo seriesInfo);
+    Task<bool> FindAndUpdateEpisodeAsync(EpisodeInfo episodeInfo);
+    Task<bool> UpdateEpisodePersonsAsync(EpisodeInfo episodeInfo, string occupation);
+    Task<bool> UpdateEpisodeCharactersAsync(EpisodeInfo episodeInfo);
+    Task<bool> UpdateSeasonAsync(SeasonInfo seasonInfo);
+    Task<bool> UpdateSeriesAsync(SeriesInfo seriesInfo, bool updateEpisodeList);
+    Task<bool> UpdateSeriesPersonsAsync(SeriesInfo seriesInfo, string occupation);
+    Task<bool> UpdateSeriesCharactersAsync(SeriesInfo seriesInfo);
+    Task<bool> UpdateSeriesCompaniesAsync(SeriesInfo seriesInfo, string companyType);
+    Task<bool> DownloadSeriesFanArtAsync(Guid mediaItemId, BaseInfo mediaItemInfo);
     void StoreSeriesPersonMatch(PersonInfo person);
     void StoreSeriesCharacterMatch(CharacterInfo character);
     void StoreSeriesCompanyMatch(CompanyInfo company);

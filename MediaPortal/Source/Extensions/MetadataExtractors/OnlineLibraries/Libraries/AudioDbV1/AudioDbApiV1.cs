@@ -22,13 +22,13 @@
 
 #endregion
 
+using MediaPortal.Extensions.OnlineLibraries.Libraries.AudioDbV1.Data;
+using MediaPortal.Extensions.OnlineLibraries.Libraries.Common;
 using System;
 using System.Collections.Generic;
 using System.IO;
-using MediaPortal.Extensions.OnlineLibraries.Libraries.Common;
-using MediaPortal.Extensions.OnlineLibraries.Libraries.AudioDbV1.Data;
-using Newtonsoft.Json;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace MediaPortal.Extensions.OnlineLibraries.Libraries.AudioDbV1
 {
@@ -96,10 +96,10 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.AudioDbV1
 
     #region Public members
 
-    public List<AudioDbArtist> SearchArtist(string artistName, string language)
+    public async Task<List<AudioDbArtist>> SearchArtistAsync(string artistName, string language)
     {
       string url = GetUrl(URL_ARTIST_BY_NAME, Uri.EscapeDataString(artistName));
-      AudioDbArtists audioDbArtists = _downloader.Download<AudioDbArtists>(url);
+      AudioDbArtists audioDbArtists = await _downloader.DownloadAsync<AudioDbArtists>(url).ConfigureAwait(false);
       if (audioDbArtists.Artists != null && audioDbArtists.Artists.Count > 0)
       {
         List<AudioDbArtist> list = audioDbArtists.Artists.Where(a => a.ArtistId > 0).ToList();
@@ -111,19 +111,19 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.AudioDbV1
       return null;
     }
 
-    public List<AudioDbArtist> GetArtistByMbid(string mbid, string language, bool cacheOnly)
+    public async Task<List<AudioDbArtist>> GetArtistByMbidAsync(string mbid, string language, bool cacheOnly)
     {
       AudioDbArtists audioDbArtists = null;
       string cache = CreateAndGetCacheName(mbid, "Artist_mbId");
       if (!string.IsNullOrEmpty(cache) && File.Exists(cache))
       {
-        audioDbArtists = _downloader.ReadCache<AudioDbArtists>(cache);
+        audioDbArtists = await _downloader.ReadCacheAsync<AudioDbArtists>(cache).ConfigureAwait(false);
       }
       else
       {
         if (cacheOnly) return null;
         string url = GetUrl(URL_ARTIST_BY_MBID, mbid);
-        audioDbArtists = _downloader.Download<AudioDbArtists>(url, cache);
+        audioDbArtists = await _downloader.DownloadAsync<AudioDbArtists>(url, cache).ConfigureAwait(false);
       }
       if (audioDbArtists.Artists != null && audioDbArtists.Artists.Count > 0)
       {
@@ -141,19 +141,19 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.AudioDbV1
       return CreateAndGetCacheName(mbid, "Artist_mbId");
     }
 
-    public AudioDbArtist GetArtist(long tadbArtistID, string language, bool cacheOnly)
+    public async Task<AudioDbArtist> GetArtistAsync(long tadbArtistID, string language, bool cacheOnly)
     {
       AudioDbArtists audioDbArtists = null;
       string cache = CreateAndGetCacheName(tadbArtistID, "Artist");
       if (!string.IsNullOrEmpty(cache) && File.Exists(cache))
       {
-        audioDbArtists = _downloader.ReadCache<AudioDbArtists>(cache);
+        audioDbArtists = await _downloader.ReadCacheAsync<AudioDbArtists>(cache).ConfigureAwait(false);
       }
       else
       {
         if (cacheOnly) return null;
         string url = GetUrl(URL_ARTIST_BY_TADB, tadbArtistID);
-        audioDbArtists = _downloader.Download<AudioDbArtists>(url, cache);
+        audioDbArtists = await _downloader.DownloadAsync<AudioDbArtists>(url, cache).ConfigureAwait(false);
       }
       if (audioDbArtists.Artists != null && audioDbArtists.Artists.Count > 0)
       {
@@ -170,14 +170,14 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.AudioDbV1
       return CreateAndGetCacheName(tadbArtistID, "Artist");
     }
 
-    public List<AudioDbAlbum> SearchAlbum(string artistName, string albumName, string language)
+    public async Task<List<AudioDbAlbum>> SearchAlbumAsync(string artistName, string albumName, string language)
     {
       string url = GetUrl(URL_ALBUM_BY_NAME_AND_ARTIST, Uri.EscapeDataString(artistName), Uri.EscapeDataString(albumName));
-      AudioDbAlbums audioDbAlbums = _downloader.Download<AudioDbAlbums>(url);
+      AudioDbAlbums audioDbAlbums = await _downloader.DownloadAsync<AudioDbAlbums>(url).ConfigureAwait(false);
       if(audioDbAlbums == null || audioDbAlbums.Albums == null || audioDbAlbums.Albums.Count == 0)
       {
         url = GetUrl(URL_ALBUM_BY_NAME, Uri.EscapeDataString(albumName));
-        audioDbAlbums = _downloader.Download<AudioDbAlbums>(url);
+        audioDbAlbums = await _downloader.DownloadAsync<AudioDbAlbums>(url).ConfigureAwait(false);
       }
       if (audioDbAlbums != null && audioDbAlbums.Albums != null && audioDbAlbums.Albums.Count > 0)
       {
@@ -190,19 +190,19 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.AudioDbV1
       return null;
     }
 
-    public List<AudioDbAlbum> GetAlbumByMbid(string mbid, string language, bool cacheOnly)
+    public async Task<List<AudioDbAlbum>> GetAlbumByMbidAsync(string mbid, string language, bool cacheOnly)
     {
       AudioDbAlbums audioDbAlbums = null;
       string cache = CreateAndGetCacheName(mbid, "Album_mbId");
       if (!string.IsNullOrEmpty(cache) && File.Exists(cache))
       {
-        audioDbAlbums = _downloader.ReadCache<AudioDbAlbums>(cache);
+        audioDbAlbums = await _downloader.ReadCacheAsync<AudioDbAlbums>(cache).ConfigureAwait(false);
       }
       else
       {
         if (cacheOnly) return null;
         string url = GetUrl(URL_ALBUM_BY_MBID, mbid);
-        audioDbAlbums = _downloader.Download<AudioDbAlbums>(url, cache);
+        audioDbAlbums = await _downloader.DownloadAsync<AudioDbAlbums>(url, cache).ConfigureAwait(false);
       }
       if (audioDbAlbums.Albums != null && audioDbAlbums.Albums.Count > 0)
       {
@@ -220,19 +220,19 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.AudioDbV1
       return CreateAndGetCacheName(mbid, "Album_mbId");
     }
 
-    public List<AudioDbAlbum> GetAlbumsByArtistId(long tadbArtistId, string language, bool cacheOnly)
+    public async Task<List<AudioDbAlbum>> GetAlbumsByArtistIdAsync(long tadbArtistId, string language, bool cacheOnly)
     {
       AudioDbAlbums audioDbAlbums = null;
       string cache = CreateAndGetCacheName(tadbArtistId, "ArtistAlbums");
       if (!string.IsNullOrEmpty(cache) && File.Exists(cache))
       {
-        audioDbAlbums = _downloader.ReadCache<AudioDbAlbums>(cache);
+        audioDbAlbums = await _downloader.ReadCacheAsync<AudioDbAlbums>(cache).ConfigureAwait(false);
       }
       else
       {
         if (cacheOnly) return null;
         string url = GetUrl(URL_ALBUM_BY_ARTIST_TADB, tadbArtistId);
-        audioDbAlbums = _downloader.Download<AudioDbAlbums>(url, cache);
+        audioDbAlbums = await _downloader.DownloadAsync<AudioDbAlbums>(url, cache).ConfigureAwait(false);
       }
       if (audioDbAlbums.Albums != null && audioDbAlbums.Albums.Count > 0)
       {
@@ -250,19 +250,19 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.AudioDbV1
       return CreateAndGetCacheName(tadbArtistId, "ArtistAlbums");
     }
 
-    public AudioDbAlbum GetAlbum(long tadbAlbumId, string language, bool cacheOnly)
+    public async Task<AudioDbAlbum> GetAlbumAsync(long tadbAlbumId, string language, bool cacheOnly)
     {
       AudioDbAlbums audioDbAlbums = null;
       string cache = CreateAndGetCacheName(tadbAlbumId, "Album");
       if (!string.IsNullOrEmpty(cache) && File.Exists(cache))
       {
-        audioDbAlbums = _downloader.ReadCache<AudioDbAlbums>(cache);
+        audioDbAlbums = await _downloader.ReadCacheAsync<AudioDbAlbums>(cache).ConfigureAwait(false);
       }
       else
       {
         if (cacheOnly) return null;
         string url = GetUrl(URL_ALBUM_BY_TADB, tadbAlbumId);
-        audioDbAlbums = _downloader.Download<AudioDbAlbums>(url, cache);
+        audioDbAlbums = await _downloader.DownloadAsync<AudioDbAlbums>(url, cache).ConfigureAwait(false);
       }
       if (audioDbAlbums.Albums != null && audioDbAlbums.Albums.Count > 0)
       {
@@ -279,19 +279,19 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.AudioDbV1
       return CreateAndGetCacheName(tadbAlbumId, "Album");
     }
 
-    public List<AudioDbTrack> GetTracksByAlbumId(long tadbAlbumId, string language, bool cacheOnly)
+    public async Task<List<AudioDbTrack>> GetTracksByAlbumIdAsync(long tadbAlbumId, string language, bool cacheOnly)
     {
       AudioDbTracks audioDbTracks = null;
       string cache = CreateAndGetCacheName(tadbAlbumId, "AlbumTracks");
       if (!string.IsNullOrEmpty(cache) && File.Exists(cache))
       {
-        audioDbTracks = _downloader.ReadCache<AudioDbTracks>(cache);
+        audioDbTracks = await _downloader.ReadCacheAsync<AudioDbTracks>(cache).ConfigureAwait(false);
       }
       else
       {
         if (cacheOnly) return null;
         string url = GetUrl(URL_TRACK_BY_ALBUM_TADB, tadbAlbumId);
-        audioDbTracks = _downloader.Download<AudioDbTracks>(url, cache);
+        audioDbTracks = await _downloader.DownloadAsync<AudioDbTracks>(url, cache).ConfigureAwait(false);
       }
       if (audioDbTracks.Tracks != null && audioDbTracks.Tracks.Count > 0)
       {
@@ -309,11 +309,10 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.AudioDbV1
       return CreateAndGetCacheName(tadbAlbumId, "AlbumTracks");
     }
 
-    public List<AudioDbTrack> SearchTrack(string artistName, string trackName, string language)
+    public async Task<List<AudioDbTrack>> SearchTrackAsync(string artistName, string trackName, string language)
     {
-      AudioDbTracks audioDbTracks = null;
       string url = GetUrl(URL_TRACK_BY_ARTIST_AND_NAME, Uri.EscapeDataString(artistName), Uri.EscapeDataString(trackName));
-      audioDbTracks = _downloader.Download<AudioDbTracks>(url);
+      AudioDbTracks audioDbTracks = await _downloader.DownloadAsync<AudioDbTracks>(url).ConfigureAwait(false);
       if (audioDbTracks.Tracks != null && audioDbTracks.Tracks.Count > 0)
       {
         List<AudioDbTrack> list = audioDbTracks.Tracks.Where(t => t.TrackID > 0).ToList();
@@ -325,19 +324,19 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.AudioDbV1
       return null;
     }
 
-    public AudioDbTrack GetTrack(long tadbTrackId, string language, bool cacheOnly)
+    public async Task<AudioDbTrack> GetTrackAsync(long tadbTrackId, string language, bool cacheOnly)
     {
       AudioDbTracks audioDbTracks = null;
       string cache = CreateAndGetCacheName(tadbTrackId, "Track");
       if (!string.IsNullOrEmpty(cache) && File.Exists(cache))
       {
-        audioDbTracks = _downloader.ReadCache<AudioDbTracks>(cache);
+        audioDbTracks = await _downloader.ReadCacheAsync<AudioDbTracks>(cache).ConfigureAwait(false);
       }
       else
       {
         if (cacheOnly) return null;
         string url = GetUrl(URL_TRACK_BY_TADB, tadbTrackId);
-        audioDbTracks = _downloader.Download<AudioDbTracks>(url, cache);
+        audioDbTracks = await _downloader.DownloadAsync<AudioDbTracks>(url, cache).ConfigureAwait(false);
       }
       if (audioDbTracks.Tracks != null && audioDbTracks.Tracks.Count > 0)
       {
@@ -354,19 +353,19 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.AudioDbV1
       return CreateAndGetCacheName(tadbTrackId, "Track");
     }
 
-    public AudioDbTrack GetTrackByMbid(string mbid, string language, bool cacheOnly)
+    public async Task<AudioDbTrack> GetTrackByMbidAsync(string mbid, string language, bool cacheOnly)
     {
       AudioDbTracks audioDbTracks = null;
       string cache = CreateAndGetCacheName(mbid, "Track_mbId");
       if (!string.IsNullOrEmpty(cache) && File.Exists(cache))
       {
-        audioDbTracks = _downloader.ReadCache<AudioDbTracks>(cache);
+        audioDbTracks = await _downloader.ReadCacheAsync<AudioDbTracks>(cache).ConfigureAwait(false);
       }
       else
       {
         if (cacheOnly) return null;
         string url = GetUrl(URL_TRACK_BY_MBDB, mbid);
-        audioDbTracks = _downloader.Download<AudioDbTracks>(url, cache);
+        audioDbTracks = await _downloader.DownloadAsync<AudioDbTracks>(url, cache).ConfigureAwait(false);
       }
       if (audioDbTracks.Tracks != null && audioDbTracks.Tracks.Count > 0)
       {
@@ -383,19 +382,19 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.AudioDbV1
       return CreateAndGetCacheName(mbid, "Track_mbId");
     }
 
-    public List<AudioDbMvid> GetMusicVideosByArtistId(string tadbArtistId, string language, bool cacheOnly)
+    public async Task<List<AudioDbMvid>> GetMusicVideosByArtistIdAsync(string tadbArtistId, string language, bool cacheOnly)
     {
       AudioDbMvids audioDbMvids = null;
       string cache = CreateAndGetCacheName(tadbArtistId, "ArtistVideos");
       if (!string.IsNullOrEmpty(cache) && File.Exists(cache))
       {
-        audioDbMvids = _downloader.ReadCache<AudioDbMvids>(cache);
+        audioDbMvids = await _downloader.ReadCacheAsync<AudioDbMvids>(cache).ConfigureAwait(false);
       }
       else
       {
         if (cacheOnly) return null;
         string url = GetUrl(URL_MVID_BY_ARTIST_TADB, tadbArtistId);
-        audioDbMvids = _downloader.Download<AudioDbMvids>(url, cache);
+        audioDbMvids = await _downloader.DownloadAsync<AudioDbMvids>(url, cache).ConfigureAwait(false);
       }
       if (audioDbMvids.MVids != null && audioDbMvids.MVids.Count > 0)
       {
@@ -413,19 +412,19 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.AudioDbV1
       return CreateAndGetCacheName(tadbArtistId, "ArtistVideos");
     }
 
-    public List<AudioDbMvid> GetMusicVideosByArtistMbid(string mbid, string language, bool cacheOnly)
+    public async Task<List<AudioDbMvid>> GetMusicVideosByArtistMbidAsync(string mbid, string language, bool cacheOnly)
     {
       AudioDbMvids audioDbMvids = null;
       string cache = CreateAndGetCacheName(mbid, "ArtistVideos_mbId");
       if (!string.IsNullOrEmpty(cache) && File.Exists(cache))
       {
-        audioDbMvids = _downloader.ReadCache<AudioDbMvids>(cache);
+        audioDbMvids = await _downloader.ReadCacheAsync<AudioDbMvids>(cache).ConfigureAwait(false);
       }
       else
       {
         if (cacheOnly) return null;
         string url = GetUrl(URL_MVID_BY_ARTIST_MBID, mbid);
-        audioDbMvids = _downloader.Download<AudioDbMvids>(url, cache);
+        audioDbMvids = await _downloader.DownloadAsync<AudioDbMvids>(url, cache).ConfigureAwait(false);
       }
       if (audioDbMvids.MVids != null && audioDbMvids.MVids.Count > 0)
       {
@@ -449,23 +448,22 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.AudioDbV1
     /// <param name="url">Image to download</param>
     /// <param name="folderPath">The folder to store the image</param>
     /// <returns><c>true</c> if successful</returns>
-    public bool DownloadImage(long id, string url, string folderPath)
+    public Task<bool> DownloadImageAsync(long id, string url, string folderPath)
     {
       string cacheFileName = CreateAndGetCacheName(id, url, folderPath);
       if (string.IsNullOrEmpty(cacheFileName))
-        return false;
+        return Task.FromResult(false);
 
-      _downloader.DownloadFile(url, cacheFileName);
-      return true;
+      return _downloader.DownloadFileAsync(url, cacheFileName);
     }
 
-    public byte[] GetImage(long id, string url, string folderPath)
+    public Task<byte[]> GetImageAsync(long id, string url, string folderPath)
     {
       string cacheFileName = CreateAndGetCacheName(id, url, folderPath);
       if (string.IsNullOrEmpty(cacheFileName))
-        return null;
+        return Task.FromResult<byte[]>(null);
 
-      return _downloader.ReadDownloadedFile(cacheFileName);
+      return _downloader.ReadDownloadedFileAsync(cacheFileName);
     }
 
     #endregion

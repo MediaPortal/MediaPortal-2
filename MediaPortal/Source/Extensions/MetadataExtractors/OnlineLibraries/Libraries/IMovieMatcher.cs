@@ -22,29 +22,27 @@
 
 #endregion
 
-using System;
 using MediaPortal.Common.MediaManagement.Helpers;
+using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace MediaPortal.Extensions.OnlineLibraries.Libraries
 {
-  public interface IMovieMatcher
+  public interface IMovieMatcher : IMatcher
   {
-    bool Primary { get; set; }
-    bool Enabled { get; set; }
-    string Id { get; }
-    string PreferredLanguageCulture { get; set; }
-
     List<MovieInfo> GetLastChangedMovies();
     void ResetLastChangedMovies();
     List<MovieCollectionInfo> GetLastChangedMovieCollections();
     void ResetLastChangedMovieCollections();
 
-    bool FindAndUpdateMovie(MovieInfo movieInfo, bool importOnly);
-    bool UpdatePersons(MovieInfo movieInfo, string occupation, bool importOnly);
-    bool UpdateCharacters(MovieInfo movieInfo, bool importOnly);
-    bool UpdateCompanies(MovieInfo movieInfo, string companyType, bool importOnly);
-    bool UpdateCollection(MovieCollectionInfo movieCollectionInfo, bool updateMovieList, bool importOnly);
+    Task<IEnumerable<MovieInfo>> FindMatchingMoviesAsync(MovieInfo movieInfo);
+
+    Task<bool> FindAndUpdateMovieAsync(MovieInfo movieInfo);
+    Task<bool> UpdatePersonsAsync(MovieInfo movieInfo, string occupation);
+    Task<bool> UpdateCharactersAsync(MovieInfo movieInfo);
+    Task<bool> UpdateCompaniesAsync(MovieInfo movieInfo, string companyType);
+    Task<bool> UpdateCollectionAsync(MovieCollectionInfo movieCollectionInfo, bool updateMovieList);
 
     void StoreActorMatch(PersonInfo person);
     void StoreDirectorMatch(PersonInfo person);
@@ -52,6 +50,6 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries
     void StoreCharacterMatch(CharacterInfo character);
     void StoreCompanyMatch(CompanyInfo company);
 
-    bool ScheduleFanArtDownload(Guid mediaItemId, BaseInfo info, bool force);
+    Task<bool> DownloadFanArtAsync(Guid mediaItemId, BaseInfo info);
   }
 }

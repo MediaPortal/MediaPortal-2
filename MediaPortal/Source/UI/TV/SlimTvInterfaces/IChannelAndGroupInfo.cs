@@ -23,37 +23,46 @@
 #endregion
 
 using System.Collections.Generic;
+using System.Threading.Tasks;
+using MediaPortal.Common.Async;
+using MediaPortal.Common.Services.ServerCommunication;
 using MediaPortal.Plugins.SlimTv.Interfaces.Items;
 
 namespace MediaPortal.Plugins.SlimTv.Interfaces
 {
   /// <summary>
-  /// IChannelAndGroupInfo defines all actions and properties for TV channel and channel group infos.
+  /// IChannelAndGroupInfoAsync defines all actions and properties for TV channel and channel group infos.
   /// </summary>
-  public interface IChannelAndGroupInfo
+  public interface IChannelAndGroupInfoAsync
   {
     /// <summary>
     /// Gets the list of available channel groups.
     /// </summary>
-    /// <param name="groups">Channel groups.</param>
-    /// <returns>True if succeeded.</returns>
-    bool GetChannelGroups(out IList<IChannelGroup> groups);
+    /// <returns>
+    /// <see cref="AsyncResult{T}.Success"/> <c>true</c> if at least one program could be found.
+    /// <see cref="AsyncResult{T}.Result"/> Channel groups.
+    /// </returns>
+    Task<AsyncResult<IList<IChannelGroup>>> GetChannelGroupsAsync();
 
     /// <summary>
     /// Gets the list of channels in a channel group.
     /// </summary>
     /// <param name="group">Channel group.</param>
-    /// <param name="channels">List of channels.</param>
-    /// <returns>True if succeeded.</returns>
-    bool GetChannels(IChannelGroup group, out IList<IChannel> channels);
+    /// <returns>
+    /// <see cref="AsyncResult{T}.Success"/> <c>true</c> if at least one program could be found.
+    /// <see cref="AsyncResult{T}.Result"/> List of channels.
+    /// </returns>
+    Task<AsyncResult<IList<IChannel>>> GetChannelsAsync(IChannelGroup group);
 
     /// <summary>
     /// Gets the channel by given <paramref name="channelId"/>.
     /// </summary>
     /// <param name="channelId">ID of channel</param>
-    /// <param name="channel">Channels.</param>
-    /// <returns>True if succeeded.</returns>
-    bool GetChannel(int channelId, out IChannel channel);
+    /// <returns>
+    /// <see cref="AsyncResult{T}.Success"/> <c>true</c> if at least one program could be found.
+    /// <see cref="AsyncResult{T}.Result"/> Channels.
+    /// </returns>
+    Task<AsyncResult<IChannel>> GetChannelAsync(int channelId);
 
     /// <summary>
     /// Gets or Sets the ID of the current selected channel.

@@ -12,8 +12,6 @@
   <string name="Settings.Appearance.System.ScreenSaverEnabled.Help">Nastavi, ali naj se ohranjevalnik zaslona prikazuje</string>
   <string name="Settings.Appearance.System.ScreenSaverTimeout">Čas čakanja do vključitve ohranjevalnika zaslona</string>
   <string name="Settings.Appearance.System.ScreenSaverTimeout.Help">Nastavi čas v minutah od zadnje uporabnikove akcije do vključitve ohranjevalnika zaslona</string>
-  <string name="Settings.Appearance.System.Antialiasing">Glajenje robov uporabniškega vmesnika</string>
-  <string name="Settings.Appearance.System.Antialiasing.Help">Glajenje robov izboljša kvaliteto prikaza uporabniškega vmesnika, lahko pa deluje rahlo počasneje</string>
   <string name="Settings.Appearance.Skin">Izgled</string>
   <string name="Settings.Appearance.Skin.SkinAndTheme">Izgled in tema</string>
   <string name="Settings.Appearance.Skin.SkinAndTheme.ChangeSkin">Spremeni izgled</string>

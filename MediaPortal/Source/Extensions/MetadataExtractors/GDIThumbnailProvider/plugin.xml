@@ -1,0 +1,32 @@
+<Plugin
+    DescriptorVersion="1.0"
+    Name="GDIThumbnailProvider"
+    PluginId="{65CF3575-AC34-4E46-92C3-84E6EDA9BACD}"
+    Author = "Morpheus_xx"
+    Copyright="GPL"
+    Description="Thumbnail creator based on GDI.">
+
+  <Version
+    PluginVersion="1.0"
+    ReleaseDate="2018-02-24 01:00:00 GMT+01:00"
+    CurrentAPI="1"/>
+
+  <DependsOn>
+    <CoreDependency Name="MediaPortal.Common" CompatibleAPI="2" />
+    <CoreDependency Name="MediaPortal.Utilities" CompatibleAPI="1" />
+  </DependsOn>
+
+  <Runtime>
+    <Assembly FileName="GDIThumbnailProvider.dll"/>
+    <Assembly FileName="..\..\MediaPortal.Common.dll"/>
+  </Runtime>
+
+  <Builder Name="ThumbnailProviderBuilder" ClassName="MediaPortal.Common.Services.ThumbnailGenerator.ThumbnailProviderBuilder"/>
+  <Register Location="/Thumbnails/Providers">
+    <ThumbnailProviderBuilder
+      Id="{87AE5E97-1AE0-4530-A80F-37746C89CA4E}"
+      ClassName="MediaPortal.Extensions.MetadataExtractors.GDIThumbnailProvider.GDIThumbnailProvider"
+      ProviderName="GDIThumbnailProvider"
+      Priority="110"/>
+  </Register>
+</Plugin>

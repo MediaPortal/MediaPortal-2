@@ -1,0 +1,28 @@
+<Plugin
+    DescriptorVersion="1.0"
+    Name="OCVVideoThumbnailer"
+    PluginId="{355AE68E-6410-4210-B268-0ABBACE7A03F}"
+    Author = "henso"
+    Copyright="GPL"
+    Description="Thumbnail creator for video files. It is used only if no other thumbnail could be extracted before.">
+
+  <Version
+    PluginVersion="1.1"
+    ReleaseDate="2018-06-29 01:00:00 GMT+01:00"
+    CurrentAPI="1"/>
+
+  <DependsOn>
+    <CoreDependency Name="MediaPortal.Common" CompatibleAPI="2" />
+    <CoreDependency Name="MediaPortal.Utilities" CompatibleAPI="1" />
+  </DependsOn>
+
+  <Runtime>
+    <Assembly FileName="OCVVideoThumbnailer.dll"/>
+  </Runtime>
+
+  <Register Location="/Media/MetadataExtractors">
+    <Instance
+        Id="OCVVideoThumbnailer"
+        ClassName="MediaPortal.Extensions.MetadataExtractors.OCVVideoThumbnailer.OCVVideoThumbnailer"/>
+  </Register>
+</Plugin>

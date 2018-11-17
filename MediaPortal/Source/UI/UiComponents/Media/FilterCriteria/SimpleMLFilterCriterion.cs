@@ -25,6 +25,7 @@
 using System;
 using System.Linq;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using MediaPortal.Common;
 using MediaPortal.Common.Exceptions;
 using MediaPortal.Common.General;
@@ -33,7 +34,7 @@ using MediaPortal.Common.MediaManagement.MLQueries;
 using MediaPortal.Common.SystemCommunication;
 using MediaPortal.UI.ServerCommunication;
 using MediaPortal.UiComponents.Media.General;
-using MediaPortal.UiComponents.Media.Settings;
+using MediaPortal.UiComponents.Media.Helpers;
 
 namespace MediaPortal.UiComponents.Media.FilterCriteria
 {
@@ -66,11 +67,13 @@ namespace MediaPortal.UiComponents.Media.FilterCriteria
 
     #region Base overrides
 
-    public override ICollection<FilterValue> GetAvailableValues(IEnumerable<Guid> necessaryMIATypeIds, IFilter selectAttributeFilter, IFilter filter)
+    public override async Task<ICollection<FilterValue>> GetAvailableValuesAsync(IEnumerable<Guid> necessaryMIATypeIds, IFilter selectAttributeFilter, IFilter filter)
     {
       IContentDirectory cd = ServiceRegistration.Get<IServerConnectionManager>().ContentDirectory;
       if (cd == null)
         throw new NotConnectedException("The MediaLibrary is not connected");
+
+      bool showVirtual = VirtualMediaHelper.ShowVirtualMedia(necessaryMIATypeIds);
 
       if (_necessaryMIATypeIds != null)
         necessaryMIATypeIds = _necessaryMIATypeIds;
@@ -78,15 +81,13 @@ namespace MediaPortal.UiComponents.Media.FilterCriteria
       HomogenousMap valueKeys = null;
       if (_keyAttributeType != null)
       {
-        Tuple<HomogenousMap, HomogenousMap> values = cd.GetKeyValueGroups(_keyAttributeType, _valueAttributeType, selectAttributeFilter, ProjectionFunction.None, necessaryMIATypeIds, filter, true, 
-          ShowVirtualSetting.ShowVirtualMedia(necessaryMIATypeIds));
+        Tuple<HomogenousMap, HomogenousMap> values = await cd.GetKeyValueGroupsAsync(_keyAttributeType, _valueAttributeType, selectAttributeFilter, ProjectionFunction.None, necessaryMIATypeIds, filter, true, showVirtual);
         valueGroups = values.Item1;
         valueKeys = values.Item2;
       }
       else
       {
-        valueGroups = cd.GetValueGroups(_valueAttributeType, selectAttributeFilter, ProjectionFunction.None, necessaryMIATypeIds, filter, true, 
-          ShowVirtualSetting.ShowVirtualMedia(necessaryMIATypeIds));
+        valueGroups = await cd.GetValueGroupsAsync(_valueAttributeType, selectAttributeFilter, ProjectionFunction.None, necessaryMIATypeIds, filter, true, showVirtual);
       }
       IList<FilterValue> result = new List<FilterValue>(valueGroups.Count);
       int numEmptyEntries = 0;
@@ -98,12 +99,7 @@ namespace MediaPortal.UiComponents.Media.FilterCriteria
           if (name == string.Empty)
             numEmptyEntries += (int)group.Value;
           else
-          {
-            IFilter queryFilter = new RelationalFilter(_valueAttributeType, RelationalOperator.EQ, group.Key);
-            if (filter != null)
-              queryFilter = BooleanCombinationFilter.CombineFilters(BooleanOperator.And, queryFilter, filter);
-            result.Add(new FilterValue(valueKeys[group.Key], name, new FilteredRelationshipFilter(Guid.Empty, queryFilter), null, (int)group.Value, this));
-          }
+            result.Add(new FilterValue(valueKeys[group.Key], name, new RelationalFilter(_valueAttributeType, RelationalOperator.EQ, group.Key), null, (int)group.Value, this));
         }
         else
         {
@@ -111,21 +107,12 @@ namespace MediaPortal.UiComponents.Media.FilterCriteria
           if (name == string.Empty)
             numEmptyEntries += (int)group.Value;
           else
-          {
-            IFilter queryFilter = new RelationalFilter(_valueAttributeType, RelationalOperator.EQ, group.Key);
-            if (filter != null)
-              queryFilter = BooleanCombinationFilter.CombineFilters(BooleanOperator.And, queryFilter, filter);
-            result.Add(new FilterValue(name, new FilteredRelationshipFilter(Guid.Empty, queryFilter), null, (int)group.Value, this));
-          }
+            result.Add(new FilterValue(name, new RelationalFilter(_valueAttributeType, RelationalOperator.EQ, group.Key), null, (int)group.Value, this));
         }
       }
       if (numEmptyEntries > 0)
-      {
-        IFilter queryFilter = new EmptyFilter(_valueAttributeType);
-        if (filter != null)
-          queryFilter = BooleanCombinationFilter.CombineFilters(BooleanOperator.And, queryFilter, filter);
-        result.Insert(0, new FilterValue(Consts.RES_VALUE_EMPTY_TITLE, new FilteredRelationshipFilter(Guid.Empty, queryFilter), null, numEmptyEntries, this));
-      }
+        result.Insert(0, new FilterValue(Consts.RES_VALUE_EMPTY_TITLE, new EmptyFilter(_valueAttributeType), null, numEmptyEntries, this));
+
       return result;
     }
 
@@ -134,16 +121,18 @@ namespace MediaPortal.UiComponents.Media.FilterCriteria
       return string.Format("{0}", groupKey).Trim();
     }
 
-    public override ICollection<FilterValue> GroupValues(ICollection<Guid> necessaryMIATypeIds, IFilter selectAttributeFilter, IFilter filter)
+    public override async Task<ICollection<FilterValue>> GroupValuesAsync(ICollection<Guid> necessaryMIATypeIds, IFilter selectAttributeFilter, IFilter filter)
     {
       IContentDirectory cd = ServiceRegistration.Get<IServerConnectionManager>().ContentDirectory;
       if (cd == null)
         throw new NotConnectedException("The MediaLibrary is not connected");
 
+      bool showVirtual = VirtualMediaHelper.ShowVirtualMedia(necessaryMIATypeIds);
+
       if (_necessaryMIATypeIds != null)
         necessaryMIATypeIds = _necessaryMIATypeIds.ToList();
-      IList<MLQueryResultGroup> valueGroups = cd.GroupValueGroups(_valueAttributeType, selectAttributeFilter, ProjectionFunction.None,
-          necessaryMIATypeIds, filter, true, GroupingFunction.FirstCharacter, ShowVirtualSetting.ShowVirtualMedia(necessaryMIATypeIds));
+      IList<MLQueryResultGroup> valueGroups = await cd.GroupValueGroupsAsync(_valueAttributeType, selectAttributeFilter, ProjectionFunction.None,
+          necessaryMIATypeIds, filter, true, GroupingFunction.FirstCharacter, showVirtual);
       IList<FilterValue> result = new List<FilterValue>(valueGroups.Count);
       int numEmptyEntries = 0;
       foreach (MLQueryResultGroup group in valueGroups)

@@ -110,6 +110,36 @@ namespace MediaPortal.Backend.MediaLibrary
         Guid? userProfile = null);
 
     /// <summary>
+    /// Loads the media item at the given <paramref name="systemId"/> and <paramref name="mediaItemId"/>.
+    /// </summary>
+    /// <param name="systemId">System id of the item to load.</param>
+    /// <param name="mediaItemId">Id of the item to load.</param>
+    /// <param name="necessaryRequestedMIATypeIDs">IDs of media item aspect types which need to be present in the result.
+    /// If the media item at the given location doesn't contain one of those media item aspects, it won't be returned.</param>
+    /// <param name="optionalRequestedMIATypeIDs">IDs of media item aspect types which will be returned if present.</param>
+    /// <param name="userProfile">User profile to load any user specific media item data for.</param>
+    /// <returns></returns>
+    MediaItem LoadItem(string systemId, Guid mediaItemId,
+        IEnumerable<Guid> necessaryRequestedMIATypeIDs, IEnumerable<Guid> optionalRequestedMIATypeIDs,
+        Guid? userProfile = null);
+
+    /// <summary>
+    /// Refreshes the meta-data of the media item with the given <paramref name="mediaItemId"/>.
+    /// If <paramref name="clearMetadata"/> is set to <c>true</c>, the media item meta-data will be deleted too.
+    /// This makes it possible to completely recreate the meta-data by doing a new import.
+    /// </summary>
+    /// <param name="mediaItemId">Id of the item to refresh.</param>
+    /// <param name="clearMetadata">If set to <c>true</c>, the media item meta-data will be deleted before the refresh.</param>
+    void RefreshMediaItemMetadata(Guid mediaItemId, bool clearMetadata);
+
+    /// <summary>
+    /// Reimports the meta-data of the media item with the given <paramref name="mediaItemId"/> based on a matched media item.
+    /// </summary>
+    /// <param name="mediaItemId">Id of the item to reimport.</param>
+    /// <param name="mediaItem">The matched aspects primarily containing external ids to be used during the reimport.</param>
+    void ReimportMediaItemMetadata(Guid mediaItemId, IEnumerable<MediaItemAspect> matchedAspects);
+
+    /// <summary>
     /// Lists all media items with the given parent directory.
     /// </summary>
     /// <param name="parentDirectoryId">Media item id of the parent directory item to browse.</param>
@@ -274,6 +304,30 @@ namespace MediaPortal.Backend.MediaLibrary
     Guid AddOrUpdateMediaItem(Guid parentDirectoryId, string systemId, ResourcePath path, IEnumerable<MediaItemAspect> mediaItemAspects, bool isRefresh);
 
     /// <summary>
+    /// Adds or updates the media item specified by its location (<paramref name="systemId"/> and <paramref name="path"/>).
+    /// This method will typically be used by a media item importer.
+    /// </summary>
+    /// <param name="parentDirectoryId">Id of the parent directory's media item or <see cref="Guid.Empty"/>, if the
+    /// parent directory is not present in the media library.</param>
+    /// <param name="systemId">The Id of the system where the media item to be updated is located.</param>
+    /// <param name="path">The path at the given system of the media item to be updated.</param>
+    /// <param name="mediaItemId">Id of the media item to be updated.</param>
+    /// <param name="mediaItemAspects">Media item aspects to be updated.</param>
+    /// <param name="isRefresh">Is the media item being added/updated because of a refresh cycle.</param>
+    /// <returns>Id of the media item which has been added or updated.</returns>
+    Guid AddOrUpdateMediaItem(Guid parentDirectoryId, string systemId, ResourcePath path, Guid mediaItemId, IEnumerable<MediaItemAspect> mediaItemAspects, bool isRefresh);
+    
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="mediaItemId"></param>
+    /// <param name="mediaItemAspects"></param>
+    /// <param name="relationshipItems"></param>
+    /// <param name="updateParents"></param>
+    /// <returns></returns>
+    IList<MediaItem> ReconcileMediaItemRelationships(Guid mediaItemId, IEnumerable<MediaItemAspect> mediaItemAspects, IEnumerable<RelationshipItem> relationshipItems);
+
+    /// <summary>
     /// Writes some media item aspects of an existing media item to the media library.
     /// </summary>
     /// <param name="mediaItemId">Id of the media item to be updated.</param>
@@ -317,6 +371,7 @@ namespace MediaPortal.Backend.MediaLibrary
     #region Playback
 
     void NotifyPlayback(Guid mediaItemId, bool watched);
+    void NotifyUserPlayback(Guid userId, Guid mediaItemId, int percentage, bool updatePlayDate);
 
     #endregion
 
@@ -341,6 +396,16 @@ namespace MediaPortal.Backend.MediaLibrary
     IDictionary<Guid, DateTime> GetManagedMediaItemAspectCreationDates();
 
     MediaItemAspectMetadata GetManagedMediaItemAspectMetadata(Guid aspectId);
+
+    #endregion
+
+    #region Relationship type schema management
+
+    void AddRelationship(RelationshipType relationshipType, bool isChildPrimaryResource);
+
+    ICollection<RelationshipType> GetManagedRelationshipTypes();
+
+    ICollection<RelationshipType> GetManagedHierarchicalRelationshipTypes();
 
     #endregion
 
@@ -443,6 +508,22 @@ namespace MediaPortal.Backend.MediaLibrary
     /// </summary>
     /// <param name="systemId">System id of the client which switched offline.</param>
     void NotifySystemOffline(string systemId);
+
+    #endregion
+
+    #region Access
+
+    /// <summary>
+    /// Reserve access to the media library by blocking any import for the specified duration.
+    /// </summary>
+    /// <param name="duration">THe duration in ms to block the importer from accessing the media library.</param>
+    void ReserveAccess(int duration);
+
+    /// <summary>
+    /// Access request for any importer wanting access to media library.
+    /// </summary>
+    /// <returns>A lock that must be disposed when access is complete.</returns>
+    IDisposable RequestImporterAccess();
 
     #endregion
   }

@@ -23,38 +23,48 @@
 #endregion
 
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 using MediaPortal.Common.MediaManagement;
 
 namespace MediaPortal.Mock
 {
   public class MockMediaItemAspectTypeRegistration : IMediaItemAspectTypeRegistration
   {
-    protected IDictionary<Guid, MediaItemAspectMetadata> _locallyKnownMediaItemAspectTypes = new Dictionary<Guid, MediaItemAspectMetadata>();
+    protected IDictionary<Guid, MediaItemAspectMetadata> _locallyKnownMediaItemAspectTypes = new ConcurrentDictionary<Guid, MediaItemAspectMetadata>();
+    protected IDictionary<Guid, MediaItemAspectMetadata> _locallySupportedReimportMediaItemAspectTypes = new ConcurrentDictionary<Guid, MediaItemAspectMetadata>();
 
     public IDictionary<Guid, MediaItemAspectMetadata> LocallyKnownMediaItemAspectTypes
     {
       get { return _locallyKnownMediaItemAspectTypes; }
     }
 
-    public void RegisterLocallyKnownMediaItemAspectType(MediaItemAspectMetadata miaType)
+    public IDictionary<Guid, MediaItemAspectMetadata> LocallySupportedReimportMediaItemAspectTypes
+    {
+      get { return _locallySupportedReimportMediaItemAspectTypes; }
+    }
+
+    public async Task RegisterLocallyKnownMediaItemAspectTypeAsync(IEnumerable<MediaItemAspectMetadata> miaTypes)
+    {
+      await Task.WhenAll(miaTypes.Select(RegisterLocallyKnownMediaItemAspectTypeAsync));
+    }
+
+    public Task RegisterLocallyKnownMediaItemAspectTypeAsync(MediaItemAspectMetadata miaType)
     {
       Console.WriteLine("Registering " + miaType.Name);
-      if (_locallyKnownMediaItemAspectTypes.ContainsKey(miaType.AspectId))
-        return;
-      _locallyKnownMediaItemAspectTypes.Add(miaType.AspectId, miaType);
+      if (!_locallyKnownMediaItemAspectTypes.ContainsKey(miaType.AspectId))
+        _locallyKnownMediaItemAspectTypes.Add(miaType.AspectId, miaType);
+      return Task.CompletedTask;
     }
 
-    public void RegisterLocallyKnownMediaItemAspectType(MediaItemAspectMetadata miaType, MediaItemAspectMetadata.AttributeSpecification[] fkSpecs, MediaItemAspectMetadata refType, MediaItemAspectMetadata.AttributeSpecification[] refSpecs)
+    public Task RegisterLocallySupportedReimportMediaItemAspectTypeAsync(MediaItemAspectMetadata miaType)
     {
-    }
-
-    public void RegisterMediaItemAspectRoleHierarchy(Guid role, Guid parentRole)
-    {
-    }
-
-    public void RegisterMediaItemAspectRoleHierarchyChildCountAttribute(Guid childRole, Guid parentRole, MediaItemAspectMetadata parentMiaType, MediaItemAspectMetadata.AttributeSpecification childCountAttribute, bool includeVirtual)
-    {
+      Console.WriteLine("Registering reimport support " + miaType.Name);
+      if (!_locallySupportedReimportMediaItemAspectTypes.ContainsKey(miaType.AspectId))
+        _locallySupportedReimportMediaItemAspectTypes.Add(miaType.AspectId, miaType);
+      return Task.CompletedTask;
     }
   }
 }

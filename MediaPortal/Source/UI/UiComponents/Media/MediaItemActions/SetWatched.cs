@@ -24,16 +24,16 @@
 
 namespace MediaPortal.UiComponents.Media.MediaItemActions
 {
-  public class SetWatched : AbstractPlayCountAction
+  public class SetWatched : AbstractWatchedAction
   {
-    protected override bool AppliesForPlayCount(int playCount)
+    protected override bool AppliesForWatchedState(bool watched)
     {
-      return playCount == 0;
+      return !watched;
     }
 
-    protected override int GetNewPlayCount()
+    protected override bool GetNewWatchedState()
     {
-      return 1;
+      return true;
     }
   }
 }

@@ -16,7 +16,6 @@
     <ControlTemplate x:Key="Contents_Template">
       <StackPanel VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
           DataContext="{Binding Source={StaticResource Model}}">
-        <Image Margin="0,0,0,-60" Source="wwo-logo.png" Stretch="Fill" Height="60" Width="152" HorizontalAlignment="Right" VerticalAlignment="Top"/>
         <Grid x:Name="CurrentConditionPanel" HorizontalAlignment="Center" VerticalAlignment="Stretch">
           <Grid.ColumnDefinitions>
             <ColumnDefinition Width="*"/>

@@ -32,6 +32,12 @@ namespace MediaPortal.Common.MediaManagement.DefaultItemAspects
   /// </summary>
   public static class ProviderResourceAspect
   {
+    // TODO: Put this somewhere else?
+    public static readonly int TYPE_PRIMARY = 0;
+    public static readonly int TYPE_SECONDARY = 1;
+    public static readonly int TYPE_VIRTUAL = 2;
+    public static readonly int TYPE_STUB = 3;
+
     /// <summary>
     /// Media item aspect id of the provider resource aspect.
     /// </summary>
@@ -50,10 +56,10 @@ namespace MediaPortal.Common.MediaManagement.DefaultItemAspects
         MediaItemAspectMetadata.CreateMultipleAttributeSpecification("ResourceIndex", typeof(int), Cardinality.Inline, false);
 
     /// <summary>
-    /// If set to <c>true</c>, the resource is a primary one. A media item with only secondary resources should be deleted.
+    /// Marks the resource type as none, virtual, playable or stub
     /// </summary>
-    public static readonly MediaItemAspectMetadata.MultipleAttributeSpecification ATTR_PRIMARY =
-        MediaItemAspectMetadata.CreateMultipleAttributeSpecification("IsPrimary", typeof(bool), Cardinality.Inline, true);
+    public static readonly MediaItemAspectMetadata.MultipleAttributeSpecification ATTR_TYPE =
+        MediaItemAspectMetadata.CreateMultipleAttributeSpecification("Type", typeof(int), Cardinality.Inline, true);
 
     /// <summary>
     /// Contains the mime type of the resource.
@@ -85,7 +91,7 @@ namespace MediaPortal.Common.MediaManagement.DefaultItemAspects
         ASPECT_ID, "ProviderResource", new[] {
             ATTR_SYSTEM_ID,
             ATTR_RESOURCE_INDEX,
-            ATTR_PRIMARY,
+            ATTR_TYPE,
             ATTR_MIME_TYPE,
             ATTR_SIZE,
             ATTR_RESOURCE_ACCESSOR_PATH,

@@ -32,6 +32,9 @@ namespace MediaPortal.Common.MediaManagement.DefaultItemAspects
   /// </summary>
   public static class RelationshipAspect
   {
+    private const int LINKED_SEARCH_INDEX_ID = 1;
+    private const int ROLE_SEARCH_INDEX_ID = 2;
+
     /// <summary>
     /// Media item aspect id of the relationship aspect.
     /// </summary>
@@ -41,25 +44,31 @@ namespace MediaPortal.Common.MediaManagement.DefaultItemAspects
     /// The role played by this media item
     /// </summary>
     public static readonly MediaItemAspectMetadata.MultipleAttributeSpecification ATTR_ROLE =
-        MediaItemAspectMetadata.CreateMultipleAttributeSpecification("Role", typeof(Guid), Cardinality.Inline, true);
+        MediaItemAspectMetadata.CreateMultipleAttributeSpecification("Role", typeof(Guid), Cardinality.Inline, true, ROLE_SEARCH_INDEX_ID);
+
+    /// <summary>
+    /// If set to <c>true</c>, this media item is playable. Used for updating parent after playback.
+    /// </summary>
+    public static readonly MediaItemAspectMetadata.MultipleAttributeSpecification ATTR_PLAYABLE =
+        MediaItemAspectMetadata.CreateMultipleAttributeSpecification("IsPlayable", typeof(bool), Cardinality.Inline, true, LINKED_SEARCH_INDEX_ID);
 
     /// <summary>
     /// The role played by the media item being linked to
     /// </summary>
     public static readonly MediaItemAspectMetadata.MultipleAttributeSpecification ATTR_LINKED_ROLE =
-        MediaItemAspectMetadata.CreateMultipleAttributeSpecification("LinkedRole", typeof(Guid), Cardinality.Inline, true);
+        MediaItemAspectMetadata.CreateMultipleAttributeSpecification("LinkedRole", typeof(Guid), Cardinality.Inline, true, ROLE_SEARCH_INDEX_ID);
 
     /// <summary>
     /// The media item being linked to
     /// </summary>
     public static readonly MediaItemAspectMetadata.MultipleAttributeSpecification ATTR_LINKED_ID =
-        MediaItemAspectMetadata.CreateMultipleAttributeSpecification("LinkedID", typeof(Guid), Cardinality.Inline, true);
+        MediaItemAspectMetadata.CreateMultipleAttributeSpecification("LinkedID", typeof(Guid), Cardinality.Inline, true, LINKED_SEARCH_INDEX_ID);
 
     /// <summary>
     /// The index of the media item being linked to
     /// </summary>
     public static readonly MediaItemAspectMetadata.MultipleAttributeSpecification ATTR_RELATIONSHIP_INDEX =
-        MediaItemAspectMetadata.CreateMultipleAttributeSpecification("RelationshipIndex", typeof(int), Cardinality.Inline, false);
+        MediaItemAspectMetadata.CreateMultipleAttributeSpecification("RelationshipIndex", typeof(int), Cardinality.Inline, false, LINKED_SEARCH_INDEX_ID);
 
     public static readonly MultipleMediaItemAspectMetadata Metadata = new MultipleMediaItemAspectMetadata(
         // TODO: Localize name
@@ -68,6 +77,7 @@ namespace MediaPortal.Common.MediaManagement.DefaultItemAspects
             ATTR_ROLE,
             ATTR_LINKED_ROLE,
             ATTR_LINKED_ID,
+            ATTR_PLAYABLE,
             ATTR_RELATIONSHIP_INDEX,
           },
           new[]

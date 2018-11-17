@@ -30,15 +30,38 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Client.ImageSourcePr
 {
   public class FanartImageSourceProvider : IFanartImageSourceProvider
   {
+    protected static string GetFanArtName(ListItem listItem)
+    {
+      PlayableMediaItem playableMediaItem = listItem as PlayableMediaItem;
+      if (playableMediaItem != null)
+      {
+        if (playableMediaItem.MediaItem != null)
+          // Fanart loading now depends on the MediaItemId to support local fanart
+          return playableMediaItem.MediaItem.MediaItemId.ToString();
+        return string.Empty;
+      }
+      FilterItem filterItem = listItem as FilterItem;
+      if (filterItem != null)
+      {
+        if (filterItem.MediaItem != null)
+          // Fanart loading now depends on the MediaItemId to support local fanart
+          return filterItem.MediaItem.MediaItemId.ToString();
+        return string.Empty;
+      }
+      return string.Empty;
+    }
+
     bool IFanartImageSourceProvider.TryCreateFanartImageSource(ListItem listItem, out FanArtImageSource fanartImageSource)
     {
+      string fanArtName = GetFanArtName(listItem);
+
       SeriesFilterItem series = listItem as SeriesFilterItem;
       if (series != null)
       {
         fanartImageSource = new FanArtImageSource
         {
           FanArtMediaType = FanArtMediaTypes.Series,
-          FanArtName = series.MediaItem.MediaItemId.ToString()
+          FanArtName = fanArtName
         };
         return true;
       }
@@ -48,7 +71,7 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Client.ImageSourcePr
         fanartImageSource = new FanArtImageSource
         {
           FanArtMediaType = FanArtMediaTypes.SeriesSeason,
-          FanArtName = season.MediaItem.MediaItemId.ToString()
+          FanArtName = fanArtName
         };
         return true;
       }
@@ -58,7 +81,7 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Client.ImageSourcePr
         fanartImageSource = new FanArtImageSource
         {
           FanArtMediaType = FanArtMediaTypes.Episode,
-          FanArtName = episode.MediaItem.MediaItemId.ToString()
+          FanArtName = fanArtName
         };
         return true;
       }
@@ -68,7 +91,7 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Client.ImageSourcePr
         fanartImageSource = new FanArtImageSource
         {
           FanArtMediaType = FanArtMediaTypes.MovieCollection,
-          FanArtName = movieCollection.MediaItem.MediaItemId.ToString()
+          FanArtName = fanArtName
         };
         return true;
       }
@@ -78,8 +101,7 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Client.ImageSourcePr
         fanartImageSource = new FanArtImageSource
         {
           FanArtMediaType = FanArtMediaTypes.Movie,
-          // Fanart loading now depends on the MediaItemId to support local fanart
-          FanArtName = movie.MediaItem.MediaItemId.ToString()
+          FanArtName = fanArtName
         };
         return true;
       }
@@ -89,8 +111,7 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Client.ImageSourcePr
         fanartImageSource = new FanArtImageSource
         {
           FanArtMediaType = FanArtMediaTypes.Movie,
-          // Fanart loading now depends on the MediaItemId to support local fanart
-          FanArtName = video.MediaItem.MediaItemId.ToString()
+          FanArtName = fanArtName
         };
         return true;
       }
@@ -100,8 +121,7 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Client.ImageSourcePr
         fanartImageSource = new FanArtImageSource
         {
           FanArtMediaType = FanArtMediaTypes.Album,
-          // Fanart loading now depends on the MediaItemId to support local fanart
-          FanArtName = albumItem.MediaItem.MediaItemId.ToString()
+          FanArtName = fanArtName
         };
         return true;
       }
@@ -111,8 +131,7 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Client.ImageSourcePr
         fanartImageSource = new FanArtImageSource
         {
           FanArtMediaType = FanArtMediaTypes.Audio,
-          // Fanart loading now depends on the MediaItemId to support local fanart
-          FanArtName = audioItem.MediaItem.MediaItemId.ToString()
+          FanArtName = fanArtName
         };
         return true;
       }
@@ -122,8 +141,7 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Client.ImageSourcePr
         fanartImageSource = new FanArtImageSource
         {
           FanArtMediaType = FanArtMediaTypes.Actor,
-          // Fanart loading now depends on the MediaItemId to support local fanart
-          FanArtName = actorItem.MediaItem.MediaItemId.ToString()
+          FanArtName = fanArtName
         };
         return true;
       }
@@ -133,8 +151,7 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Client.ImageSourcePr
         fanartImageSource = new FanArtImageSource
         {
           FanArtMediaType = FanArtMediaTypes.Director,
-          // Fanart loading now depends on the MediaItemId to support local fanart
-          FanArtName = directorItem.MediaItem.MediaItemId.ToString()
+          FanArtName = fanArtName
         };
         return true;
       }
@@ -144,8 +161,7 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Client.ImageSourcePr
         fanartImageSource = new FanArtImageSource
         {
           FanArtMediaType = FanArtMediaTypes.Writer,
-          // Fanart loading now depends on the MediaItemId to support local fanart
-          FanArtName = writerItem.MediaItem.MediaItemId.ToString()
+          FanArtName = fanArtName
         };
         return true;
       }
@@ -155,8 +171,7 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Client.ImageSourcePr
         fanartImageSource = new FanArtImageSource
         {
           FanArtMediaType = FanArtMediaTypes.Artist,
-          // Fanart loading now depends on the MediaItemId to support local fanart
-          FanArtName = artisitItem.MediaItem.MediaItemId.ToString()
+          FanArtName = fanArtName
         };
         return true;
       }
@@ -166,8 +181,7 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Client.ImageSourcePr
         fanartImageSource = new FanArtImageSource
         {
           FanArtMediaType = FanArtMediaTypes.Composer,
-          // Fanart loading now depends on the MediaItemId to support local fanart
-          FanArtName = composerItem.MediaItem.MediaItemId.ToString()
+          FanArtName = fanArtName
         };
         return true;
       }
@@ -177,8 +191,7 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Client.ImageSourcePr
         fanartImageSource = new FanArtImageSource
         {
           FanArtMediaType = FanArtMediaTypes.Character,
-          // Fanart loading now depends on the MediaItemId to support local fanart
-          FanArtName = characterItem.MediaItem.MediaItemId.ToString()
+          FanArtName = fanArtName
         };
         return true;
       }
@@ -188,8 +201,7 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Client.ImageSourcePr
         fanartImageSource = new FanArtImageSource
         {
           FanArtMediaType = FanArtMediaTypes.Company,
-          // Fanart loading now depends on the MediaItemId to support local fanart
-          FanArtName = companyItem.MediaItem.MediaItemId.ToString()
+          FanArtName = fanArtName
         };
         return true;
       }
@@ -199,8 +211,7 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Client.ImageSourcePr
         fanartImageSource = new FanArtImageSource
         {
           FanArtMediaType = FanArtMediaTypes.TVNetwork,
-          // Fanart loading now depends on the MediaItemId to support local fanart
-          FanArtName = tvNetworkItem.MediaItem.MediaItemId.ToString()
+          FanArtName = fanArtName
         };
         return true;
       }
@@ -210,8 +221,7 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Client.ImageSourcePr
         fanartImageSource = new FanArtImageSource
         {
           FanArtMediaType = FanArtMediaTypes.Image,
-          // Fanart loading now depends on the MediaItemId to support local fanart
-          FanArtName = imgItem.MediaItem.MediaItemId.ToString()
+          FanArtName = fanArtName
         };
         return true;
       }

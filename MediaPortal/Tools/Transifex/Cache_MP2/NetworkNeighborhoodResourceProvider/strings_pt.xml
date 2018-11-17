@@ -1,4 +1,5 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
-  <string name="NetworkNeighborhoodResourceProvider.Description">Acessar janelas de compartilhamento em computadores na rede local</string>
+  <string name="NetworkNeighborhoodResourceProvider.Name">Vizinhança da rede</string>
+  <string name="NetworkNeighborhoodResourceProvider.Description">Aceder às partilhas dos computadores na rede local</string>
 </resources>

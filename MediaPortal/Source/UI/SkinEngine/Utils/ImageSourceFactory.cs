@@ -48,6 +48,7 @@ namespace MediaPortal.UI.SkinEngine.Utils
       RegisterCustomImageSource(CreateMediaItemThumbnailAspectSource);
       RegisterCustomImageSource(ResourceLocatorSource);
       RegisterCustomImageSource(ImageSource);
+      RegisterCustomImageSource(CreateBinaryImageSource);
     }
 
     /// <summary>
@@ -133,12 +134,16 @@ namespace MediaPortal.UI.SkinEngine.Utils
 
       textureData = (byte[])mediaAspect.GetAttributeValue(ThumbnailLargeAspect.ATTR_THUMBNAIL);
 
-      ImageRotation miRotation;
-      bool flipX;
-      bool flipY;
-      ImageAspect.GetOrientationMetadata(mediaItem, out miRotation, out flipX, out flipY);
-      RightAngledRotation rotation = RotationTranslator.TranslateToRightAngledRotation(miRotation);
-      return new BinaryTextureImageSource(textureData, rotation, key);
+      return new BinaryTextureImageSource(textureData, RightAngledRotation.Zero, key);
+    }
+
+    /// <summary>
+    /// Constructs a <see cref="BinaryTextureImageSource"/> for any given byte[].
+    /// </summary>
+    public static ImageSource CreateBinaryImageSource(object source, int width, int height)
+    {
+      byte[] binary = source as byte[];
+      return binary != null ? new BinaryTextureImageSource(binary, RightAngledRotation.Zero) : null;
     }
 
     #endregion

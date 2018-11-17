@@ -22,10 +22,12 @@
 
 #endregion
 
+using MediaPortal.Common;
+using MediaPortal.Common.MediaManagement;
+using MediaPortal.Common.MediaManagement.DefaultItemAspects;
+using MediaPortal.Common.MediaManagement.MLQueries;
 using System;
 using System.Collections.Generic;
-using MediaPortal.Common.MediaManagement;
-using MediaPortal.Common.MediaManagement.MLQueries;
 
 namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
 {
@@ -50,8 +52,13 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
 
     public SeriesRelationshipExtractor()
     {
-      _metadata = new RelationshipExtractorMetadata(METADATAEXTRACTOR_ID, "NFO Series relationship extractor");
+      _metadata = new RelationshipExtractorMetadata(METADATAEXTRACTOR_ID, "NFO Series relationship extractor", MetadataExtractorPriority.Extended);
+      RegisterRelationships();
+      InitExtractors();
+    }
 
+    protected void InitExtractors()
+    {
       _extractors = new List<IRelationshipRoleExtractor>();
 
       _extractors.Add(new EpisodeSeriesRelationshipExtractor());
@@ -63,9 +70,26 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
       _extractors.Add(new SeriesCharacterRelationshipExtractor());
     }
 
-    public IList<RelationshipHierarchy> Hierarchies
+    /// <summary>
+    /// Registers all relationships that are extracted by this relationship extractor.
+    /// </summary>
+    protected void RegisterRelationships()
     {
-      get { return null; }
+      IRelationshipTypeRegistration relationshipRegistration = ServiceRegistration.Get<IRelationshipTypeRegistration>();
+
+      //Relationships must be registered in order from episodes up to all parent relationships
+
+      //Hierarchical relationships
+      relationshipRegistration.RegisterLocallyKnownRelationshipType(new RelationshipType("Episode->Series", true,
+        EpisodeAspect.ROLE_EPISODE, SeriesAspect.ROLE_SERIES, EpisodeAspect.ASPECT_ID, SeriesAspect.ASPECT_ID,
+        EpisodeAspect.ATTR_EPISODE, SeriesAspect.ATTR_AVAILABLE_EPISODES, true), true);
+
+      //Simple (non hierarchical) relationships
+      relationshipRegistration.RegisterLocallyKnownRelationshipType(new RelationshipType("Episode->Actor", EpisodeAspect.ROLE_EPISODE, PersonAspect.ROLE_ACTOR), true);
+      relationshipRegistration.RegisterLocallyKnownRelationshipType(new RelationshipType("Episode->Character", EpisodeAspect.ROLE_EPISODE, CharacterAspect.ROLE_CHARACTER), true);
+
+      relationshipRegistration.RegisterLocallyKnownRelationshipType(new RelationshipType("Series->Actor", SeriesAspect.ROLE_SERIES, PersonAspect.ROLE_ACTOR), false);
+      relationshipRegistration.RegisterLocallyKnownRelationshipType(new RelationshipType("Series->Character", SeriesAspect.ROLE_SERIES, CharacterAspect.ROLE_CHARACTER), false);
     }
 
     public RelationshipExtractorMetadata Metadata
@@ -85,6 +109,11 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
 
     public void ResetLastChangedItems()
     {
+    }
+
+    public IDictionary<Guid, IList<MediaItemAspect>> GetBaseChildAspectsFromExistingAspects(IDictionary<Guid, IList<MediaItemAspect>> existingChildAspects, IDictionary<Guid, IList<MediaItemAspect>> existingParentAspects)
+    {
+      return null;
     }
   }
 }

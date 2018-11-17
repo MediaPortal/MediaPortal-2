@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2017 Team MediaPortal
+#region Copyright (C) 2007-2015 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2017 Team MediaPortal
+    Copyright (C) 2007-2015 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -198,14 +198,11 @@ public void Init(MediaItem mediaItem)
   SeriesName = (string) aspect[EpisodeAspect.ATTR_SERIES_NAME];
   Season = (int?) aspect[EpisodeAspect.ATTR_SEASON];
   SeasonName = (string) aspect[EpisodeAspect.ATTR_SERIES_SEASON];
-  Episode = (IEnumerable<int>) aspect[EpisodeAspect.ATTR_EPISODE];
-  DvdEpisode = (IEnumerable<double>) aspect[EpisodeAspect.ATTR_DVDEPISODE];
+  Episode = ((IEnumerable<int>) aspect[EpisodeAspect.ATTR_EPISODE])?.Distinct().OrderBy(e => e);
+  DvdEpisode = ((IEnumerable<double>) aspect[EpisodeAspect.ATTR_DVDEPISODE])?.Distinct().OrderBy(e => e);
   EpisodeName = (string) aspect[EpisodeAspect.ATTR_EPISODE_NAME];
   TotalRating = (double?) aspect[EpisodeAspect.ATTR_TOTAL_RATING];
   RatingCount = (int?) aspect[EpisodeAspect.ATTR_RATING_COUNT];
-  // Sorting
-  Episode = Episode?.Distinct()?.OrderBy(e => e);
-  DvdEpisode = DvdEpisode?.OrderBy(e => e);
 }
 
 public void SetEmpty()

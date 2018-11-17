@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  
+  <!--Login-->
+  <string name="Login.Title">Gebruikers inlog</string>
+  <string name="Login.Title.Help">Inloggen van een bepaalde gebruiker</string>
+  <string name="Login.IncorrectPassword">Verkeerd wachtwoord, probeer het opnieuw</string>
+  <string name="Login.PasswordOk">OK</string>
+  <string name="Login.EnterPassword">Geef gebruikers wachtwoord</string>
+  <string name="Login.Logout">Uitloggen</string>
+
+  <!--User Settings-->
+  <string name="Settings.Users">Gebruikers</string> <!-- Section name -->
+  <string name="Settings.Users.Config">Beheer gebruikers</string> <!-- Group name -->
+  <string name="Settings.Users.Config.UserManagement">Beheer gebruikers</string> <!-- Setting -->
+  <string name="Settings.Users.Config.UserManagement.Help">Beheer gebruikers op de thuisserver</string>
+  <string name="Settings.Users.Config.UserEnable">Activeer gebruikers inlog en -beperkingen</string> <!-- Setting -->
+  <string name="Settings.Users.Config.UserEnable.Help">Sta gebruikers toe om in te loggen, de huidige gebruiker te wijzigen en specifieke gebruikersinstellingen toe te passen</string>
+  <string name="Settings.Users.Config.UserEnableScreen">Schakel loginscherm in</string> <!-- Setting -->
+  <string name="Settings.Users.Config.UserEnableScreen.Help">Toon login scherm als er geen gebruiker is ingelogd</string>
+  <string name="Settings.Users.Config.AutoLogout">Automatische uitlog</string> <!-- Setting -->
+  <string name="Settings.Users.Config.AutoLogout.Help">Activeer automatische uitlog als een gebruiker een tijd niet actief is</string>
+  <string name="Settings.Users.Config.AutoLogoutTimeout">Tijd om automatisch uit te loggen</string> <!-- Setting -->
+  <string name="Settings.Users.Config.AutoLogoutTimeout.Help">Tijdsduur voordat een niet-actieve gebruiker wordt uitgelogd</string>
+  <string name="Settings.Users.Config.AutoLoginUser">Automatische inlog</string> <!-- Setting -->
+  <string name="Settings.Users.Config.AutoLoginUser.Help">De gebruiker om automatisch in te loggen</string>
+  <string name="Settings.Users.Config.SystemDefault">Standaardwaarden systeem</string>
+  <string name="Settings.Users.Config.AutoLoginUser.Title">Automatische inlog van gebruiker</string>
+
+  <!-- User configuration workflow -->
+  <string name="UserConfig.UserOverviewWorkflowNavigationContextDisplayLabel">Beheer gebruikers</string>
+  <string name="UserConfig.UserConfiguration.Title">Beheer gebruikers</string>
+  <string name="UserConfig.Users">Gebruikers</string>
+  <string name="UserConfig.NoConfigUserHomeServerNotConnected">De thuisserver is op dit moment niet verbonden, gebruikersbeheer is daarom momenteel niet mogelijk.</string>
+  <string name="UserConfig.UserName">Gebruikersnaam</string>
+  <string name="UserConfig.Password">Wachtwoord</string>
+  <string name="UserConfig.ProfileType">Profieltype</string>
+  <string name="UserConfig.AgeFilter">Activeer leeftijdfilter</string>
+  <string name="UserConfig.ShareRestrictions">Begrens gedeelde toegang</string>
+  <string name="UserConfig.IncludePGContent">Inclusief media voor volwassenen</string>
+  <string name="UserConfig.IncludeUnratedContent">Inclusief media zonder aanduiding</string>
+  <string name="UserConfig.LastLogin">Laatste inlog</string>
+  <string name="UserConfig.NewUserText">Nieuwe gebruiker</string>
+  <string name="UserConfig.AddUser">Toevoegen</string>
+  <string name="UserConfig.CopyUser">kopiëren</string>
+  <string name="UserConfig.DeleteUser">Verwijderen</string>
+  <string name="UserConfig.SaveUser">Sla op</string>
+  <string name="UserConfig.SelectImage">Kies afbeelding voor gebruiker</string>
+  <string name="UserConfig.DeleteConfirmation.Title">Verwijder bevestiging</string>
+  <string name="UserConfig.DeleteConfirmation">Weet je zeker dat je de geselecteerde gebruiker wilt verwijderen?</string>
+  <string name="UserConfig.Yes">Ja</string>
+  <string name="UserConfig.No">Nee</string>
+  <string name="UserConfig.Ok">OK</string>
+  <string name="UserConfig.SelectProfileTemplate">Kies profiel voorbeeld</string>
+  <string name="UserConfig.ClientProfile">Client profiel</string>
+  <string name="UserConfig.UserProfile">Gebruikers profiel</string>
+
+  <string name="UserConfig.RestrictionGroups">Beperk acties</string>
+  <string name="UserConfig.RestrictedAll">Alles toegestaan</string>
+  <string name="UserConfig.RestrictedNone">Geen toegestaan</string>
+  <string name="UserConfig.RestrictedNumbers">{0} / {1} toegestaan</string>
+  <string name="UserConfig.SelectRestrictions">Selecteer toegestane opties voor gebruiker</string>
+
+  <string name="UserConfig.SharesText">Gedeelde mappen</string>
+  <string name="UserConfig.SelectShares">Selecteer gedeelde toegang</string>
+  <string name="UserConfig.LocalShare">Client mediabron</string>
+  <string name="UserConfig.LocalShares">Client mediabronnen</string>
+  <string name="UserConfig.GlobalShare">Server mediabron</string>
+  <string name="UserConfig.GlobalShares">Server mediabronnen</string>
+  <string name="UserConfig.NoConfigGlobalSharesHomeServerNotConnected">De thuisserver is op dit moment niet verbonden, media op de server kan daarom niet worden beheerd.</string>
+  <string name="UserConfig.NoConfigLocalSharesHomeServerLocal">De thuisserver is op dezelfde computer, daarom kunnen er alleen mediabronnen op de server worden geconfigureerd.</string>
+
+  <string name="RestrictionGroup.Settings.UserProfile">Instellingen: beheer alle profielen van gebruikers</string>
+  <string name="RestrictionGroup.Settings.UserProfile.ManageOwn">Instellingen: beheer eigen profiel</string>
+
+  <string name="UserProfileTemplate.Admin">Beheerder</string>
+  <string name="UserProfileTemplate.Teenager">Tiener</string>
+  <string name="UserProfileTemplate.Child">Kind</string>
+
+</resources>

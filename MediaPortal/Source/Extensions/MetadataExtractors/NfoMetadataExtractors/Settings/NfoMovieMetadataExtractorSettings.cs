@@ -52,6 +52,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.Settin
     {
       MovieNfoFileNames = new HashSet<string> { "movie" };
       ImdbIdRegex = new SerializableRegex(REGEX_STRING_IMDBID);
+      PreferredCertificationCountry = ""; //Use first available
     }
 
     #endregion
@@ -69,6 +70,12 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.Settin
     /// </summary>
     [Setting(SettingScope.Global)]
     public SerializableRegex ImdbIdRegex { get; set; }
+
+    /// <summary>
+    /// The preferred certification region (ISO 2 letters) if multiple are available.
+    /// </summary>
+    [Setting(SettingScope.Global)]
+    public string PreferredCertificationCountry { get; set; }
 
     /// <summary>
     /// If <c>true</c>, Actor details will be created.

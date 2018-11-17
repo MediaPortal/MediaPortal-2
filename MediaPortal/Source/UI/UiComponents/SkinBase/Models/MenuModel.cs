@@ -364,8 +364,9 @@ namespace MediaPortal.UiComponents.SkinBase.Models
           ItemsList menu = GetMenuItems(currentContext);
           if (menu != null)
             return menu;
-          return UpdateMenu(currentContext);
         }
+        //Update outside of context lock
+        return UpdateMenu(currentContext);
       }
     }
 

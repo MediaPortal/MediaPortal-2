@@ -22,14 +22,14 @@
 
 #endregion
 
+using MediaPortal.Common;
+using MediaPortal.Common.Logging;
+using MediaPortal.Extensions.OnlineLibraries.Libraries.Common;
+using MediaPortal.Extensions.OnlineLibraries.Libraries.OmDbV1.Data;
 using System.Collections.Generic;
 using System.IO;
+using System.Threading.Tasks;
 using System.Web;
-using MediaPortal.Extensions.OnlineLibraries.Libraries.Common;
-using Newtonsoft.Json;
-using MediaPortal.Common.Logging;
-using MediaPortal.Common;
-using MediaPortal.Extensions.OnlineLibraries.Libraries.OmDbV1.Data;
 
 namespace MediaPortal.Extensions.OnlineLibraries.Libraries.OmDbV1
 {
@@ -59,7 +59,6 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.OmDbV1
 
     private readonly string _cachePath;
     private readonly Downloader _downloader;
-    private object _movieSync = new object();
     private object _seriesSync = new object();
     private object _seasonSync = new object();
     private object _episodeSync = new object();
@@ -86,10 +85,10 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.OmDbV1
     /// </summary>
     /// <param name="title">Full or partly name of movie</param>
     /// <returns>List of possible matches</returns>
-    public List<OmDbSearchItem> SearchMovie(string title, int year)
+    public async Task<List<OmDbSearchItem>> SearchMovieAsync(string title, int year)
     {
       string url = GetUrl(URL_QUERYMOVIE, year, false, false, HttpUtility.UrlEncode(title));
-      OmDbSearchResult results = _downloader.Download<OmDbSearchResult>(url);
+      OmDbSearchResult results = await _downloader.DownloadAsync<OmDbSearchResult>(url).ConfigureAwait(false);
       if (results.ResponseValid == false) return null;
       foreach (OmDbSearchItem item in results.SearchResults) item.AssignProperties();
       return results.SearchResults;
@@ -100,10 +99,10 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.OmDbV1
     /// </summary>
     /// <param name="title">Full or partly name of series</param>
     /// <returns>List of possible matches</returns>
-    public List<OmDbSearchItem> SearchSeries(string title, int year)
+    public async Task<List<OmDbSearchItem>> SearchSeriesAsync(string title, int year)
     {
       string url = GetUrl(URL_QUERYSERIES, year, false, false, HttpUtility.UrlEncode(title));
-      OmDbSearchResult results = _downloader.Download<OmDbSearchResult>(url);
+      OmDbSearchResult results = await _downloader.DownloadAsync<OmDbSearchResult>(url).ConfigureAwait(false);
       if (results.ResponseValid == false) return null;
       foreach (OmDbSearchItem item in results.SearchResults) item.AssignProperties();
       return results.SearchResults;
@@ -115,27 +114,24 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.OmDbV1
     /// </summary>
     /// <param name="id">IMDB id of movie</param>
     /// <returns>Movie information</returns>
-    public OmDbMovie GetMovie(string id, bool cacheOnly)
+    public async Task<OmDbMovie> GetMovie(string id, bool cacheOnly)
     {
-      lock (_movieSync)
+      string cache = CreateAndGetCacheName(id, "Movie");
+      OmDbMovie returnValue = null;
+      if (!string.IsNullOrEmpty(cache) && File.Exists(cache))
       {
-        string cache = CreateAndGetCacheName(id, "Movie");
-        OmDbMovie returnValue = null;
-        if (!string.IsNullOrEmpty(cache) && File.Exists(cache))
-        {
-          returnValue = _downloader.ReadCache<OmDbMovie>(cache);
-        }
-        else
-        {
-          if (cacheOnly) return null;
-          string url = GetUrl(URL_GETIMDBIDMOVIE, 0, true, true, id);
-          returnValue = _downloader.Download<OmDbMovie>(url, cache);
-        }
-        if (returnValue == null) return null;
-        if (returnValue.ResponseValid == false) return null;
-        if (returnValue != null) returnValue.AssignProperties();
-        return returnValue;
+        returnValue = await _downloader.ReadCacheAsync<OmDbMovie>(cache).ConfigureAwait(false);
       }
+      else
+      {
+        if (cacheOnly) return null;
+        string url = GetUrl(URL_GETIMDBIDMOVIE, 0, true, true, id);
+        returnValue = await _downloader.DownloadAsync<OmDbMovie>(url, cache).ConfigureAwait(false);
+      }
+      if (returnValue == null) return null;
+      if (returnValue.ResponseValid == false) return null;
+      if (returnValue != null) returnValue.AssignProperties();
+      return returnValue;
     }
 
     /// <summary>
@@ -154,27 +150,24 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.OmDbV1
     /// </summary>
     /// <param name="id">IMDB id of series</param>
     /// <returns>Series information</returns>
-    public OmDbSeries GetSeries(string id, bool cacheOnly)
+    public async Task<OmDbSeries> GetSeriesAsync(string id, bool cacheOnly)
     {
-      lock (_seriesSync)
+      string cache = CreateAndGetCacheName(id, "Series");
+      OmDbSeries returnValue = null;
+      if (!string.IsNullOrEmpty(cache) && File.Exists(cache))
       {
-        string cache = CreateAndGetCacheName(id, "Series");
-        OmDbSeries returnValue = null;
-        if (!string.IsNullOrEmpty(cache) && File.Exists(cache))
-        {
-          returnValue = _downloader.ReadCache<OmDbSeries>(cache);
-        }
-        else
-        {
-          if (cacheOnly) return null;
-          string url = GetUrl(URL_GETIMDBIDSERIES, 0, true, true, id);
-          returnValue = _downloader.Download<OmDbSeries>(url, cache);
-        }
-        if (returnValue == null) return null;
-        if (returnValue.ResponseValid == false) return null;
-        if (returnValue != null) returnValue.AssignProperties();
-        return returnValue;
+        returnValue = await _downloader.ReadCacheAsync<OmDbSeries>(cache).ConfigureAwait(false);
       }
+      else
+      {
+        if (cacheOnly) return null;
+        string url = GetUrl(URL_GETIMDBIDSERIES, 0, true, true, id);
+        returnValue = await _downloader.DownloadAsync<OmDbSeries>(url, cache).ConfigureAwait(false);
+      }
+      if (returnValue == null) return null;
+      if (returnValue.ResponseValid == false) return null;
+      if (returnValue != null) returnValue.AssignProperties();
+      return returnValue;
     }
 
     /// <summary>
@@ -194,27 +187,24 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.OmDbV1
     /// <param name="id">IMDB id of series</param>
     /// <param name="season">Season number</param>
     /// <returns>Season information</returns>
-    public OmDbSeason GetSeriesSeason(string id, int season, bool cacheOnly)
+    public async Task<OmDbSeason> GetSeriesSeasonAsync(string id, int season, bool cacheOnly)
     {
-      lock (_seasonSync)
+      string cache = CreateAndGetCacheName(id, string.Format("Season{0}", season));
+      OmDbSeason returnValue = null;
+      if (!string.IsNullOrEmpty(cache) && File.Exists(cache))
       {
-        string cache = CreateAndGetCacheName(id, string.Format("Season{0}", season));
-        OmDbSeason returnValue = null;
-        if (!string.IsNullOrEmpty(cache) && File.Exists(cache))
-        {
-          returnValue = _downloader.ReadCache<OmDbSeason>(cache);
-        }
-        else
-        {
-          if (cacheOnly) return null;
-          string url = GetUrl(URL_GETIMDBIDSEASON, 0, true, true, id, season);
-          returnValue = _downloader.Download<OmDbSeason>(url, cache);
-        }
-        if (returnValue == null) return null;
-        if (returnValue.ResponseValid == false) return null;
-        if (returnValue != null) returnValue.InitEpisodes();
-        return returnValue;
+        returnValue = await _downloader.ReadCacheAsync<OmDbSeason>(cache).ConfigureAwait(false);
       }
+      else
+      {
+        if (cacheOnly) return null;
+        string url = GetUrl(URL_GETIMDBIDSEASON, 0, true, true, id, season);
+        returnValue = await _downloader.DownloadAsync<OmDbSeason>(url, cache).ConfigureAwait(false);
+      }
+      if (returnValue == null) return null;
+      if (returnValue.ResponseValid == false) return null;
+      if (returnValue != null) returnValue.InitEpisodes();
+      return returnValue;
     }
 
     /// <summary>
@@ -235,27 +225,24 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.OmDbV1
     /// <param name="season">Season number</param>
     /// <param name="episode">Episode number</param>
     /// <returns>Episode information</returns>
-    public OmDbEpisode GetSeriesEpisode(string id, int season, int episode, bool cacheOnly)
+    public async Task<OmDbEpisode> GetSeriesEpisodeAsync(string id, int season, int episode, bool cacheOnly)
     {
-      lock (_episodeSync)
+      string cache = CreateAndGetCacheName(id, string.Format("Season{0}_Episode{1}", season, episode));
+      OmDbEpisode returnValue = null;
+      if (!string.IsNullOrEmpty(cache) && File.Exists(cache))
       {
-        string cache = CreateAndGetCacheName(id, string.Format("Season{0}_Episode{1}", season, episode));
-        OmDbEpisode returnValue = null;
-        if (!string.IsNullOrEmpty(cache) && File.Exists(cache))
-        {
-          returnValue = _downloader.ReadCache<OmDbEpisode>(cache);
-        }
-        else
-        {
-          if (cacheOnly) return null;
-          string url = GetUrl(URL_GETIMDBIDEPISODE, 0, true, true, id, season, episode);
-          returnValue = _downloader.Download<OmDbEpisode>(url, cache);
-        }
-        if (returnValue == null) return null;
-        if (returnValue.ResponseValid == false) return null;
-        if (returnValue != null) returnValue.AssignProperties();
-        return returnValue;
+        returnValue = await _downloader.ReadCacheAsync<OmDbEpisode>(cache).ConfigureAwait(false);
       }
+      else
+      {
+        if (cacheOnly) return null;
+        string url = GetUrl(URL_GETIMDBIDEPISODE, 0, true, true, id, season, episode);
+        returnValue = await _downloader.DownloadAsync<OmDbEpisode>(url, cache).ConfigureAwait(false);
+      }
+      if (returnValue == null) return null;
+      if (returnValue.ResponseValid == false) return null;
+      if (returnValue != null) returnValue.AssignProperties();
+      return returnValue;
     }
 
     /// <summary>

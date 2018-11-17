@@ -34,7 +34,6 @@ using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Common.MediaManagement.MLQueries;
 using MediaPortal.Common.ResourceAccess;
 using MediaPortal.Common.Services.ResourceAccess;
-using MediaPortal.Common.Services.ResourceAccess.VirtualResourceProvider;
 using MediaPortal.Extensions.UserServices.FanArtService.Interfaces;
 
 namespace MediaPortal.Extensions.UserServices.FanArtService.Local
@@ -42,7 +41,6 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Local
   public class LocalSeasonFanartProvider : IFanArtProvider
   {
     private readonly static Guid[] NECESSARY_MIAS = { ProviderResourceAspect.ASPECT_ID, EpisodeAspect.ASPECT_ID };
-    private readonly static ICollection<String> EXTENSIONS = new HashSet<string>(StringComparer.OrdinalIgnoreCase) { ".jpg", ".png", ".tbn" };
 
     public FanArtProviderSource Source { get { return FanArtProviderSource.File; } }
 
@@ -90,10 +88,10 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Local
         return false;
 
       MediaItem mediaItem = items.First();
-      var mediaIteamLocator = mediaItem.GetResourceLocator();
       // Virtual resources won't have any local fanart
-      if (mediaIteamLocator.NativeResourcePath.BasePathSegment.ProviderId == VirtualResourceProvider.VIRTUAL_RESOURCE_PROVIDER_ID)
+      if (mediaItem.IsVirtual)
         return false;
+      var mediaIteamLocator = mediaItem.GetResourceLocator();
       var fanArtPaths = new List<ResourcePath>();
       var files = new List<IResourceLocator>();
       // File based access
@@ -110,9 +108,16 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Local
           var directoryFsra = directoryRa as IFileSystemResourceAccessor;
           if (directoryFsra != null)
           {
-            var potentialFanArtFiles = GetPotentialFanArtFiles(directoryFsra);
+            var potentialFanArtFiles = LocalFanartHelper.GetPotentialFanArtFiles(directoryFsra);
 
-            if (fanArtType == FanArtTypes.Poster || fanArtType == FanArtTypes.Thumbnail)
+            if (fanArtType == FanArtTypes.Thumbnail)
+              fanArtPaths.AddRange(
+                from potentialFanArtFile in potentialFanArtFiles
+                let potentialFanArtFileNameWithoutExtension = ResourcePathHelper.GetFileNameWithoutExtension(potentialFanArtFile.ToString()).ToLowerInvariant()
+                where potentialFanArtFileNameWithoutExtension == "thumb"
+                select potentialFanArtFile);
+
+            if (fanArtType == FanArtTypes.Poster)
               fanArtPaths.AddRange(
                 from potentialFanArtFile in potentialFanArtFiles
                 let potentialFanArtFileNameWithoutExtension = ResourcePathHelper.GetFileNameWithoutExtension(potentialFanArtFile.ToString()).ToLowerInvariant()
@@ -150,7 +155,7 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Local
 
               if (directoryFsra.ResourceExists("ExtraFanArt/"))
                 using (var extraFanArtDirectoryFsra = directoryFsra.GetResource("ExtraFanArt/"))
-                  fanArtPaths.AddRange(GetPotentialFanArtFiles(extraFanArtDirectoryFsra));
+                  fanArtPaths.AddRange(LocalFanartHelper.GetPotentialFanArtFiles(extraFanArtDirectoryFsra));
             }
 
             files.AddRange(fanArtPaths.Select(path => new ResourceLocator(mediaIteamLocator.NativeSystemId, path)));
@@ -162,7 +167,7 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Local
           var directoryFsra = directoryRa as IFileSystemResourceAccessor;
           if (directoryFsra != null)
           {
-            var potentialFanArtFiles = GetPotentialFanArtFiles(directoryFsra);
+            var potentialFanArtFiles = LocalFanartHelper.GetPotentialFanArtFiles(directoryFsra);
 
             int? season = null;
             MediaItemAspect.TryGetAttribute(mediaItem.Aspects, EpisodeAspect.ATTR_SEASON, out season);
@@ -183,7 +188,14 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Local
 
               foreach (string prefix in prefixes)
               {
-                if (fanArtPaths.Count == 0 && (fanArtType == FanArtTypes.Poster || fanArtType == FanArtTypes.Thumbnail))
+                if (fanArtPaths.Count == 0 && fanArtType == FanArtTypes.Thumbnail)
+                  fanArtPaths.AddRange(
+                    from potentialFanArtFile in potentialFanArtFiles
+                    let potentialFanArtFileNameWithoutExtension = ResourcePathHelper.GetFileNameWithoutExtension(potentialFanArtFile.ToString()).ToLowerInvariant()
+                    where potentialFanArtFileNameWithoutExtension == prefix + "thumb"
+                    select potentialFanArtFile);
+
+                if (fanArtPaths.Count == 0 && fanArtType == FanArtTypes.Poster)
                   fanArtPaths.AddRange(
                     from potentialFanArtFile in potentialFanArtFiles
                     let potentialFanArtFileNameWithoutExtension = ResourcePathHelper.GetFileNameWithoutExtension(potentialFanArtFile.ToString()).ToLowerInvariant()
@@ -234,26 +246,6 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Local
       }
       result = files;
       return files.Count > 0;
-    }
-
-    /// <summary>
-    /// Returns a list of ResourcePaths to all potential FanArt files in a given directory
-    /// </summary>
-    /// <param name="directoryAccessor">ResourceAccessor pointing to the directory where FanArt files should be searched</param>
-    /// <returns>List of ResourcePaths to potential FanArt files</returns>
-    private List<ResourcePath> GetPotentialFanArtFiles(IFileSystemResourceAccessor directoryAccessor)
-    {
-      var result = new List<ResourcePath>();
-      if (directoryAccessor.IsFile)
-        return result;
-      foreach (var file in directoryAccessor.GetFiles())
-        using (file)
-        {
-          var path = file.CanonicalLocalResourcePath;
-          if (EXTENSIONS.Contains(ResourcePathHelper.GetExtension(path.ToString())))
-            result.Add(path);
-        }
-      return result;
     }
   }
 }

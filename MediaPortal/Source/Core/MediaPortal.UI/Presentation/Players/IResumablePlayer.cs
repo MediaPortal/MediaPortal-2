@@ -49,4 +49,12 @@ namespace MediaPortal.UI.Presentation.Players
   /// </summary>
   public interface IResumeState
   { }
+
+  /// <summary>
+  /// Marker interface for resume state classes.
+  /// </summary>
+  public interface IResumeStateEdition : IResumeState
+  {
+    int ActiveEditionIndex { get; set; }
+  }
 }

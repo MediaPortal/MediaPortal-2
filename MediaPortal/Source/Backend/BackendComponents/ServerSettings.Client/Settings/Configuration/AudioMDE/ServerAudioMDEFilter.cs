@@ -28,6 +28,7 @@ using MediaPortal.Common.Configuration.ConfigurationClasses;
 using MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor.Settings;
 using MediaPortal.Common.Localization;
 using MediaPortal.Common.Settings;
+using MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.Settings;
 
 namespace MediaPortal.Plugins.ServerSettings.Settings.Configuration
 {
@@ -37,9 +38,9 @@ namespace MediaPortal.Plugins.ServerSettings.Settings.Configuration
     {
       Enabled = false;
       ConnectionMonitor.Instance.RegisterConfiguration(this);
-      _items.Add(LocalizationHelper.CreateResourceString("[Settings.ServerSettings.AudioMDESettings.ServerAudioMDEFilter.Artists]"));
-      _items.Add(LocalizationHelper.CreateResourceString("[Settings.ServerSettings.AudioMDESettings.ServerAudioMDEFilter.Composers]"));
-      _items.Add(LocalizationHelper.CreateResourceString("[Settings.ServerSettings.AudioMDESettings.ServerAudioMDEFilter.MusicLabels]"));
+      _items.Add(LocalizationHelper.CreateResourceString("[Settings.ServerSettings.MDESettings.MDEFilter.Artists]"));
+      _items.Add(LocalizationHelper.CreateResourceString("[Settings.ServerSettings.MDESettings.MDEFilter.Composers]"));
+      _items.Add(LocalizationHelper.CreateResourceString("[Settings.ServerSettings.MDESettings.MDEFilter.MusicLabels]"));
     }
 
     public override void Load()
@@ -65,12 +66,18 @@ namespace MediaPortal.Plugins.ServerSettings.Settings.Configuration
 
       ISettingsManager localSettings = ServiceRegistration.Get<ISettingsManager>();
       IServerSettingsClient serverSettings = ServiceRegistration.Get<IServerSettingsClient>();
+
       AudioMetadataExtractorSettings settings = serverSettings.Load<AudioMetadataExtractorSettings>();
       settings.IncludeArtistDetails = _selected.Contains(0);
       settings.IncludeComposerDetails = _selected.Contains(1);
       settings.IncludeMusicLabelDetails = _selected.Contains(2);
       serverSettings.Save(settings);
       localSettings.Save(settings);
+
+      NfoAudioMetadataExtractorSettings nfoSettings = serverSettings.Load<NfoAudioMetadataExtractorSettings>();
+      nfoSettings.IncludeArtistDetails = settings.IncludeArtistDetails;
+      serverSettings.Save(nfoSettings);
+      localSettings.Save(nfoSettings);
     }
 
     public void Dispose()

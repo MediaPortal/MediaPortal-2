@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Screen
+    xmlns="www.team-mediaportal.com/2008/mpf/directx"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:mp_special_controls="clr-namespace:MediaPortal.UI.SkinEngine.SpecialElements.Controls;assembly=SkinEngine"
+    xmlns:mp_special_workflow="clr-namespace:MediaPortal.UI.SkinEngine.SpecialElements.Workflow;assembly=SkinEngine"
+    mp_special_workflow:WorkflowContext.StateSlot="Root"
+    x:Name="FullscreenContentVideoScreen"
+    >
+  <!-- DataContext model = VideoPlayerModel -->
+  <Grid x:Name="FullscreenLayoutGrid" Context="{Model Id=4E2301B4-3C17-4a1d-8DE5-2CEA169A0256}">
+    <Grid.Background>
+      <VideoBrush Stream="0"/>
+    </Grid.Background>
+    <Grid.ColumnDefinitions>
+      <ColumnDefinition Width="*"/>
+      <ColumnDefinition Width="Auto"/>
+      <ColumnDefinition Width="180"/>
+    </Grid.ColumnDefinitions>
+    <Grid.RowDefinitions>
+      <RowDefinition Height="140"/>
+      <RowDefinition Height="Auto"/>
+      <RowDefinition Height="*"/>
+      <RowDefinition Height="Auto"/>
+    </Grid.RowDefinitions>
+
+    <mp_special_controls:UserInputCapture Grid.RowSpan="4" Grid.ColumnSpan="3" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
+        IsActive="{Binding PlayerUIContributor.DvdPlayerHandlesInput}"
+        MousePositionMode="Relative" Buttons="Left"
+        KeyPressedCommand="{CommandStencil PlayerUIContributor.OnKeyPress}"
+        MouseMovedCommand="{CommandStencil PlayerUIContributor.OnMouseMove}"
+        MouseClickedCommand="{CommandStencil PlayerUIContributor.OnMouseClick}"/>
+
+    <Include Source="screens\FullScreenContentDVDKeyBindings.inc"/>
+
+    <!--Playerstate overlay-->
+    <Grid Grid.ColumnSpan="3" Grid.RowSpan="4" HorizontalAlignment="Center" VerticalAlignment="Center"
+          DataContext="{Binding ElementName=PrimaryOSD}">
+      <Image Width="250" Stretch="Uniform" Opacity="0.7" VerticalAlignment="Center" HorizontalAlignment="Center">
+        <Image.Source>
+          <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {3} : ({1} ? {4} : ({2} ? {5} : {6}))">
+            <Binding Path="IsSeekingForward"/>
+            <Binding Path="IsSeekingBackward"/>
+            <Binding Path="IsPaused"/>
+            <Binding Source="fastforward.png"/>
+            <Binding Source="fastrewind.png"/>
+            <Binding Source="pause.png"/>
+            <Binding Source=""/>
+          </MultiBinding>
+        </Image.Source>
+      </Image>
+      <Label Content="{Binding SeekHint}" FontSize="50" FontFamily="DefaultBold" Opacity="0.7" Margin="0,0,0,5"
+             Color="Black" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+    </Grid>
+
+    <Control x:Name="PiP" Grid.Column="1" Grid.ColumnSpan="2" Grid.Row="1" Style="{ThemeResource PipControlStyle}"
+             IsVisible="{Binding !IsOSDVisible}"/>
+
+    <mp_special_controls:PlayerControl x:Name="PrimaryOSD"  Grid.Column="0" Grid.ColumnSpan="3" Grid.Row="0" Grid.RowSpan="4"
+            IsEnabled="{Binding IsOSDVisible}"
+            Style="{ThemeResource PrimaryDvdOSDStyle}" Margin="0,0,0,0"
+            VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
+      <mp_special_controls:PlayerControl.IsVisible>
+        <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} &amp;&amp; {1}">
+          <Binding Path="IsOSDVisible"/>
+          <Binding Path="!PlayerUIContributor.DvdPlayerHandlesInput"/>
+        </MultiBinding>
+      </mp_special_controls:PlayerControl.IsVisible>
+    </mp_special_controls:PlayerControl>
+
+    <DockPanel x:Name="OSD_RightPanel"  Grid.Column="1" Grid.ColumnSpan="2" Grid.Row="1" LastChildFill="false">
+      <mp_special_controls:PlayerControl x:Name="SecondaryOSD"
+            Style="{ThemeResource SecondaryMediaOSDStyle}"
+            VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
+            AutoVisibility="true">
+        <mp_special_controls:PlayerControl.IsVisible>
+          <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} &amp;&amp; {1}">
+            <Binding Path="IsOSDVisible"/>
+            <Binding Path="!PlayerUIContributor.DvdPlayerHandlesInput"/>
+          </MultiBinding>
+        </mp_special_controls:PlayerControl.IsVisible>
+      </mp_special_controls:PlayerControl>
+    </DockPanel>
+
+  </Grid>
+</Screen>

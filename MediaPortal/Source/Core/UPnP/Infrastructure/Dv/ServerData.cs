@@ -24,7 +24,6 @@
 
 using System;
 using System.Collections.Generic;
-using HttpServer;
 using UPnP.Infrastructure.Dv.DeviceTree;
 using UPnP.Infrastructure.Dv.GENA;
 using UPnP.Infrastructure.Dv.SSDP;
@@ -39,7 +38,7 @@ namespace UPnP.Infrastructure.Dv
     /// <summary>
     /// HTTP listening port for description and control requests.
     /// </summary>
-    public static int DEFAULT_HTTP_PORT = 8081;
+    //public static int DEFAULT_HTTP_PORT = 0; // Auto assign
 
     /// <summary>
     /// State of the UPnP subsystem.
@@ -69,17 +68,12 @@ namespace UPnP.Infrastructure.Dv
     /// <summary>
     /// HTTP listeners to answer description, control and eventing requests.
     /// </summary>
-    public List<HttpListener> HTTPListeners = new List<HttpListener>();
+    public List<IDisposable> HTTPListeners = new List<IDisposable>();
 
     /// <summary>
-    /// Port where the HTTP server is listening for IPv4.
+    /// Contains the root path of web service, it will be unique per instance.
     /// </summary>
-    public int HTTP_PORTv4 = DEFAULT_HTTP_PORT;
-
-    /// <summary>
-    /// Port where the HTTP server is listening for IPv6.
-    /// </summary>
-    public int HTTP_PORTv6 = DEFAULT_HTTP_PORT;
+    public string ServicePrefix;
 
     /// <summary>
     /// The UPnP server which is handled by the UPnP subsystem.

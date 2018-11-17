@@ -25,6 +25,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using MediaPortal.Common;
 using MediaPortal.Common.Commands;
 using MediaPortal.Common.Localization;
@@ -38,6 +39,7 @@ using MediaPortal.UiComponents.Media.Models.Navigation;
 using MediaPortal.Utilities;
 using MediaPortal.Common.Messaging;
 using MediaPortal.Common.MediaManagement;
+using MediaPortal.UiComponents.Media.FilterTrees;
 
 namespace MediaPortal.UiComponents.Media.Models.ScreenData
 {
@@ -47,6 +49,10 @@ namespace MediaPortal.UiComponents.Media.Models.ScreenData
     protected string _navbarSubViewNavigationDisplayLabel;
     protected IFilter _clusterFilter = null;
     protected bool _sortable = false;
+
+    protected FilterTreePath _filterPath = null;
+    protected ICollection<Guid> _necessaryFilteredMIATypeIds;
+
 
     // Variables to be synchronized for multithreading access
     protected bool _buildingList = false;
@@ -117,6 +123,9 @@ namespace MediaPortal.UiComponents.Media.Models.ScreenData
             ContentDirectoryMessaging.MediaItemChangeType changeType = (ContentDirectoryMessaging.MediaItemChangeType)message.MessageData[ContentDirectoryMessaging.MEDIA_ITEM_CHANGE_TYPE];
             UpdateLoadedMediaItems(mediaItem, changeType);
             break;
+          case ContentDirectoryMessaging.MessageType.ShareImportCompleted:
+            Reload();
+            break;
         }
       }
     }
@@ -126,23 +135,37 @@ namespace MediaPortal.UiComponents.Media.Models.ScreenData
       if (changeType == ContentDirectoryMessaging.MediaItemChangeType.None)
         return;
 
+      bool changed = false;
       lock (_syncObj)
       {
         if (changeType == ContentDirectoryMessaging.MediaItemChangeType.Updated)
         {
-          PlayableContainerMediaItem existingItem = _items.OfType<PlayableContainerMediaItem>().FirstOrDefault(pcm => pcm.MediaItem.Equals(mediaItem));
+          IEnumerable<PlayableContainerMediaItem> containerItems = _items.OfType<PlayableContainerMediaItem>();
+          PlayableContainerMediaItem existingItem = containerItems.FirstOrDefault(pcm => pcm.MediaItem.Equals(mediaItem));
           if (existingItem != null)
           {
             existingItem.Update(mediaItem);
+            changed = SetSelectedItem(containerItems);
           }
         }
       }
+      if (changed)
+        _items.FireChange();
+    }
+
+    /// <summary>
+    /// Can be overriden in derived classes to set the initially selected item.
+    /// </summary>
+    /// <param name="items">Enumeration of items to select from.</param>
+    protected virtual bool SetSelectedItem(IEnumerable<FilterItem> items)
+    {
+      return false;
     }
 
     public override void Reload()
     {
       lock (_syncObj)
-        ReloadFilterValuesList(false);
+        _ = ReloadFilterValuesList(false);
     }
 
     public override void UpdateItems()
@@ -153,7 +176,7 @@ namespace MediaPortal.UiComponents.Media.Models.ScreenData
     public override void CreateScreenData(NavigationData navigationData)
     {
       base.CreateScreenData(navigationData);
-      ReloadFilterValuesList(true);
+      _ = ReloadFilterValuesList(true);
       SubscribeToMessages();
     }
 
@@ -167,7 +190,7 @@ namespace MediaPortal.UiComponents.Media.Models.ScreenData
     /// Updates the GUI data for a filter values selection screen which reflects the available filter values for
     /// the current base view specification of our <see cref="AbstractScreenData._navigationData"/>.
     /// </summary>
-    protected void ReloadFilterValuesList(bool createNewList)
+    protected async Task ReloadFilterValuesList(bool createNewList)
     {
       MediaLibraryQueryViewSpecification currentVS = _navigationData.BaseViewSpecification as MediaLibraryQueryViewSpecification;
       if (currentVS == null)
@@ -203,17 +226,14 @@ namespace MediaPortal.UiComponents.Media.Models.ScreenData
         {
           Display_ListBeingBuilt();
           bool grouping = true;
-          //If currentVS is the base view it's possible that it has a filter that is incompatible with _filterCriterion.
-          //This is the case if a plugin has added a base filter to exclude certain items, e.g. TV excludes recordings
-          //and the new filter filters by a different media type, e.g. series'. Ignore the base filter in this case.
-          IFilter currentFilter = (_navigationData.Parent != null && CanFilter(_navigationData.Parent.CurrentScreenData)) ||
-            currentVS.CanCombineFilters(_filteredMias) ? currentVS.Filter : null;
+          IFilter filter = currentVS.FilterTree.BuildFilter(_filterPath);
+          ICollection<Guid> necessaryMIAs = _necessaryFilteredMIATypeIds ?? currentVS.NecessaryMIATypeIds;
           ICollection<FilterValue> fv = _clusterFilter == null ?
-              _filterCriterion.GroupValues(currentVS.NecessaryMIATypeIds, _clusterFilter, currentFilter) : null;
-          
+              await _filterCriterion.GroupValuesAsync(necessaryMIAs, _clusterFilter, filter) : null;
+
           if (fv == null || fv.Count <= Consts.MAX_NUM_ITEMS_VISIBLE)
           {
-            fv = _filterCriterion.GetAvailableValues(currentVS.NecessaryMIATypeIds, _clusterFilter, currentFilter);
+            fv = await _filterCriterion.GetAvailableValuesAsync(necessaryMIAs, _clusterFilter, filter);
             grouping = false;
           }
           if (fv.Count > Consts.MAX_NUM_ITEMS_VISIBLE)
@@ -238,12 +258,13 @@ namespace MediaPortal.UiComponents.Media.Models.ScreenData
             // So we need an equality criterion when the screen to be removed is equal to this screen in terms of its
             // filter criterion. But with the given data, we actually cannot derive that equality.
             // So we simply use the MenuItemLabel, which should be the same in this and the base screen of the same filter.
-            foreach (FilterValue filterValue in fv)
+            foreach (FilterValue f in fv)
             {
+              //Used for enclosure
+              FilterValue filterValue = f;
               _sortable &= filterValue.Item != null;
               string filterTitle = filterValue.Title;
               IFilter selectAttributeFilter = filterValue.SelectAttributeFilter;
-              MediaLibraryQueryViewSpecification subVS = currentVS.CreateSubViewSpecification(filterTitle, filterValue.Filter, _filteredMias);
               T filterValueItem = new T
               {
                 // Support non-playable MediaItems (i.e. Series, Seasons)
@@ -251,9 +272,15 @@ namespace MediaPortal.UiComponents.Media.Models.ScreenData
                 SimpleTitle = filterTitle,
                 NumItems = filterValue.NumItems,
                 Id = filterValue.Id,
-                Command = grouping ? 
-                  new MethodDelegateCommand(() => NavigateToGroup(subVS, selectAttributeFilter)) :
-                  new MethodDelegateCommand(() => NavigateToSubView(subVS))
+                Command = new MethodDelegateCommand(() =>
+                {
+                  MediaLibraryQueryViewSpecification subVS = currentVS.CreateSubViewSpecification(filterTitle,
+                    FilterTreePath.Combine(_filterPath, filterValue.RelativeFilterPath), filterValue.Filter, filterValue.LinkedId);
+                  if (grouping)
+                    NavigateToGroup(subVS, selectAttributeFilter);
+                  else
+                    NavigateToSubView(subVS);
+                })
               };
               itemsList.Add(filterValueItem);
               if (filterValue.NumItems.HasValue)
@@ -265,6 +292,9 @@ namespace MediaPortal.UiComponents.Media.Models.ScreenData
               if (sorting != null)
                 itemsList.Sort((i1, i2) => sorting.Compare(i1.MediaItem, i2.MediaItem));
             }
+            // Derived classes can implement special initial selection handling here,
+            // e.g. the first unwatched episode could be selected from a list of episodes
+            SetSelectedItem(itemsList);
             CollectionUtils.AddAll(items, itemsList);
             Display_Normal(items.Count, totalNumItems == 0 ? new int?() : totalNumItems);
           }
@@ -335,7 +365,7 @@ namespace MediaPortal.UiComponents.Media.Models.ScreenData
       {
         lock (_syncObj)
           _buildingList = false;
-        ReloadFilterValuesList(createNewList);
+        _ = ReloadFilterValuesList(createNewList);
       }
       else
       {

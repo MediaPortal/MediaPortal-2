@@ -63,6 +63,7 @@
   <string name="Notifications.NMoreNotifications">({0} fler)</string>
   <string name="Notifications.WatchNotificationsWorkflowStateLabel">Meddelanden</string>
   <string name="Notifications.Handle">Hantera</string>
+  <string name="Notifications.Upgrading">Förnyar...</string>
   <string name="ImporterMessages.ImportStartedTitle">Import startad</string>
   <string name="ImporterMessages.ImportStartedText">Import av \'{0}\' har startat.</string>
   <string name="ImporterMessages.ImportCompletedTitle">Import slutförd</string>
@@ -114,8 +115,6 @@
   <string name="Settings.General.System">System</string>
   <string name="Settings.General.System.Autostart">Autostart</string>
   <string name="Settings.General.System.Autostart.Help">Starta MediaPortal 2 automatiskt när Windows startar</string>
-  <string name="Settings.General.System.ClientDOKANDrive">Enhetsbeteckning för nätverksmappen </string>
-  <string name="Settings.General.System.ClientDOKANDrive.Help">Konfigurerar den här klientens enhetsbeteckningen för nätverksmappen </string>
   <string name="Settings.General.Connectivity">Uppkopplingar</string>
   <string name="Settings.General.Connectivity.HomeServer">Hemmaserver</string>
   <string name="Settings.General.Connectivity.HomeServer.Help">Hemmaserverinformation, anslut till och koppla från hemmaservern</string>

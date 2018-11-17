@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (c) .NET Foundation and contributors. All rights reserved. Licensed under the Microsoft Reciprocal License. See LICENSE.TXT file in the project root for full license information. -->
+
+<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi" xmlns:util="http://schemas.microsoft.com/wix/UtilExtension">
+
+  <!--
+        .NET Framework installation state properties
+
+        Official documentation can be found at the following location:
+
+           .NET Framework 4.5/4.5.1/4.5.2/4.6/4.6.1/4.6.2/4.7/4.7.1 - http://msdn.microsoft.com/en-us/library/w0x726c2(v=vs.110).aspx
+    -->
+
+  <?define NetFx471MinRelease = 461308 ?>
+  <?define NetFx471WebLink = http://go.microsoft.com/fwlink/?LinkId=852092 ?>
+  <?define NetFx471RedistLink = http://go.microsoft.com/fwlink/?LinkId=852104 ?>
+  <?define NetFx471EulaLink = http://referencesource.microsoft.com/license.html ?>
+
+  <Fragment>
+    <PropertyRef Id="WIXNETFX4RELEASEINSTALLED" />
+    <Property Id="WIX_IS_NETFRAMEWORK_471_OR_LATER_INSTALLED" Secure="yes" />
+    <SetProperty Id="WIX_IS_NETFRAMEWORK_471_OR_LATER_INSTALLED" Value="1" After="AppSearch">
+      WIXNETFX4RELEASEINSTALLED >= "#$(var.NetFx471MinRelease)"
+    </SetProperty>
+  </Fragment>
+
+  <Fragment>
+    <util:RegistrySearchRef Id="NETFRAMEWORK45"/>
+
+    <WixVariable Id="WixMbaPrereqPackageId" Value="NetFx471Web" />
+    <WixVariable Id="WixMbaPrereqLicenseUrl" Value="$(var.NetFx471EulaLink)" Overridable="yes" />
+    <WixVariable Id="NetFx471WebDetectCondition" Value="NETFRAMEWORK45 &gt;= $(var.NetFx471MinRelease)" Overridable="yes" />
+    <WixVariable Id="NetFx471WebInstallCondition" Value="" Overridable="yes" />
+    <WixVariable Id="NetFx471WebPackageDirectory" Value="redist\" Overridable="yes" />
+
+    <PackageGroup Id="NetFx471Web">
+      <ExePackage
+          InstallCommand="/q /norestart /ChainingPackage &quot;[WixBundleName]&quot; /log &quot;[NetFx471FullLog].html&quot;"
+          RepairCommand="/q /norestart /repair /ChainingPackage &quot;[WixBundleName]&quot; /log &quot;[NetFx471FullLog].html&quot;"
+          UninstallCommand="/uninstall /q /norestart /ChainingPackage &quot;[WixBundleName]&quot; /log &quot;[NetFx471FullLog].html&quot;"
+          PerMachine="yes"
+          DetectCondition="!(wix.NetFx471WebDetectCondition)"
+          InstallCondition="!(wix.NetFx471WebInstallCondition)"
+          Id="NetFx471Web"
+          Vital="yes"
+          Permanent="yes"
+          Protocol="netfx4"
+          DownloadUrl="$(var.NetFx471WebLink)"
+          LogPathVariable="NetFx471FullLog"
+          Compressed="no"
+          Name="!(wix.NetFx471WebPackageDirectory)NDP471-KB4033344-Web.exe">
+        <RemotePayload
+          CertificatePublicKey="2ECAEC21B884B40A7C5FB141D2CBC4CDA4930752"
+          CertificateThumbprint="49D59D86505D82942A076388693F4FB7B21254EE"
+          Description="Microsoft .NET Framework 4.7.1 Setup"
+          Hash="C0919415622D86C3D6AB19F0F92EA938788DB847"
+          ProductName="Microsoft .NET Framework 4.7.1"
+          Size="1434504"
+          Version="4.7.2558.0" />
+      </ExePackage>
+    </PackageGroup>
+  </Fragment>
+</Wix>

@@ -38,8 +38,8 @@ namespace MediaPortal.Common.Services.Dokan.Native
     [DllImport(DOKAN_DLL, ExactSpelling = true)]
     public static extern int DokanMain(ref DOKAN_OPTIONS options, ref DOKAN_OPERATIONS operations);
 
-    [DllImport(DOKAN_DLL, ExactSpelling = true, CharSet = CharSet.Auto)]
-    public static extern int DokanUnmount(char driveLetter);
+    [DllImport(DOKAN_DLL, ExactSpelling = true, CharSet = CharSet.Unicode)]
+    public static extern bool DokanUnmount(char driveLetter);
 
     [DllImport(DOKAN_DLL, ExactSpelling = true)]
     public static extern uint DokanVersion();
@@ -47,8 +47,8 @@ namespace MediaPortal.Common.Services.Dokan.Native
     [DllImport(DOKAN_DLL, ExactSpelling = true)]
     public static extern uint DokanDriveVersion();
 
-    [DllImport(DOKAN_DLL, ExactSpelling = true, CharSet = CharSet.Auto)]
-    public static extern int DokanRemoveMountPoint([MarshalAs(UnmanagedType.LPWStr)] string mountPoint);
+    [DllImport(DOKAN_DLL, ExactSpelling = true, CharSet = CharSet.Unicode)]
+    public static extern bool DokanRemoveMountPoint([MarshalAs(UnmanagedType.LPWStr)] string mountPoint);
 
     [DllImport(DOKAN_DLL, ExactSpelling = true)]
     [return: MarshalAs(UnmanagedType.Bool)]

@@ -46,19 +46,6 @@ namespace MediaPortal.Mock
 
     public bool UpdateRelationshipsEnabled { get; set; }
 
-    protected override void Reconcile(Guid mediaItemId, IDictionary<Guid, IList<MediaItemAspect>> aspects, bool isRefresh, CancellationToken cancelToken)
-    {
-      UpdateRelationships(mediaItemId, aspects, true, cancelToken);
-    }
-
-    protected override void UpdateRelationships(Guid mediaItemId, IDictionary<Guid, IList<MediaItemAspect>> aspects, bool isRefresh, CancellationToken cancelToken)
-    {
-      if (UpdateRelationshipsEnabled)
-        base.UpdateRelationships(mediaItemId, aspects, isRefresh, cancelToken);
-      else
-        ServiceRegistration.Get<ILogger>().Debug("Update relationships is disabled");
-    }
-
     public void AddMediaItemId(Guid mediaItemId)
     {
       _newMediaItemsIds.Add(mediaItemId);

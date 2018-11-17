@@ -133,7 +133,7 @@ namespace MediaPortal.Configuration.ConfigurationManagement
           continue;
         logger.Warn("Configuration: Configuration section '{0}' was found in the tree but not explicitly registered as section (config items in this section are registered by those plugins: {1})",
                     childLocation, StringUtils.Join(", ", FindPluginRegistrations(childLocation)));
-        ConfigSectionMetadata dummyMetadata = new ConfigSectionMetadata(childLocation, Constants.INVALID_SECTION_TEXT, null, null, null);
+        ConfigSectionMetadata dummyMetadata = new ConfigSectionMetadata(childLocation, Constants.INVALID_SECTION_TEXT, null, null, null, null);
         ConfigSection dummySection = new ConfigSection();
         dummySection.SetMetadata(dummyMetadata);
         AddChildNode(dummySection);

@@ -24,6 +24,8 @@
 
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.MLQueries;
+using MediaPortal.UiComponents.Media.FilterTrees;
+using System;
 
 namespace MediaPortal.UiComponents.Media.FilterCriteria
 {
@@ -31,7 +33,9 @@ namespace MediaPortal.UiComponents.Media.FilterCriteria
   {
     protected object _id = null;
     protected string _title;
+    protected FilterTreePath _relativeFilterPath;
     protected IFilter _filter;
+    protected Guid? _linkedId;
     protected IFilter _selectAttributeFilter;
     protected int? _numItems = null;
     protected MediaItem _item = null;
@@ -64,13 +68,15 @@ namespace MediaPortal.UiComponents.Media.FilterCriteria
       _criterion = criterion;
     }
 
-    public FilterValue(string title, IFilter filter, IFilter selectAttributeFilter, MediaItem item, MLFilterCriterion criterion)
+    public FilterValue(string title, FilterTreePath relativeFilterPath, IFilter selectAttributeFilter, MediaItem item, MLFilterCriterion criterion)
     {
       _title = title;
-      _filter = filter;
+      _relativeFilterPath = relativeFilterPath;
       _selectAttributeFilter = selectAttributeFilter;
       _item = item;
       _criterion = criterion;
+      if (item != null)
+        _linkedId = item.MediaItemId;
     }
 
     public string Id
@@ -86,6 +92,11 @@ namespace MediaPortal.UiComponents.Media.FilterCriteria
     public int? NumItems
     {
       get { return _numItems; }
+    }
+
+    public FilterTreePath RelativeFilterPath
+    {
+      get { return _relativeFilterPath; }
     }
 
     public MediaItem Item
@@ -106,6 +117,11 @@ namespace MediaPortal.UiComponents.Media.FilterCriteria
     public IFilter SelectAttributeFilter
     {
       get { return _selectAttributeFilter; }
+    }
+
+    public Guid? LinkedId
+    {
+      get { return _linkedId; }
     }
   }
 }

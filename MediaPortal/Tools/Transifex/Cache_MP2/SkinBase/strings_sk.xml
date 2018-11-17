@@ -104,8 +104,6 @@
   <string name="Settings.General.System">Systém</string>
   <string name="Settings.General.System.Autostart">Autoštart</string>
   <string name="Settings.General.System.Autostart.Help">Spustiť MediaPortal automaticky po štarte Windows</string>
-  <string name="Settings.General.System.ClientDOKANDrive">Jednotka na pripájanie obsahu</string>
-  <string name="Settings.General.System.ClientDOKANDrive.Help">Nastavenie písmena jednotky, kam sa pripojí (\'mount\') vzdialený obsah.</string>
   <string name="Settings.General.Connectivity">Konektivita</string>
   <string name="Settings.General.Connectivity.HomeServer">Domáci server</string>
   <string name="Settings.General.Connectivity.HomeServer.Help">Domáci server. Informácie, pripojenie a odpojenie sa od servera.</string>

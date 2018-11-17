@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Include
+    xmlns="www.team-mediaportal.com/2008/mpf/directx"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    Source="screens\master_dialog_bare.xaml"
+    >
+  <Include.Resources>
+
+    <!-- Header -->
+    <ResourceWrapper x:Key="Dialog_Header_Text" Resource="[Media.ReimportMediaItem.Title]"/>
+
+    <!-- Login model -->
+    <Model x:Key="Model" Id="692FA8C3-41A5-43DD-8C12-C857C9C75E72"/>
+
+    <!-- Contents -->
+    <ControlTemplate x:Key="Contents_Template">
+      <Grid DataContext="{Binding Source={StaticResource Model}}" MinHeight="550">
+        <Grid.ColumnDefinitions>
+          <ColumnDefinition Width="500"/>
+          <ColumnDefinition Width="600"/>
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+          <RowDefinition Height="Auto"/>
+          <RowDefinition Height="Auto"/>
+          <RowDefinition Height="Auto"/>
+          <RowDefinition Height="Auto"/>
+          <RowDefinition Height="Auto"/>
+          <RowDefinition Height="Auto"/>
+          <RowDefinition Height="*"/>
+          <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+        
+        <StackPanel Grid.RowSpan="5" Grid.ColumnSpan="2" HorizontalAlignment="Stretch" VerticalAlignment="Center" IsVisible="{Binding IsSearching}">
+          <Image x:Name="Loading" Source="Importing.png" Stretch="Uniform" Height="80" Width="80" RenderTransformOrigin="0.49,0.49" HorizontalAlignment="Center">
+            <Image.RenderTransform>
+              <RotateTransform x:Name="AnimatedRotateTransform" Angle="0" />
+            </Image.RenderTransform>
+            <Image.Triggers>
+              <Trigger Property="IsEnabled" Value="True">
+                <Trigger.EnterActions>
+                  <BeginStoryboard x:Name="Disabled_BeginStoryBoard" Storyboard="{ThemeResource RotationStoryboard}"/>
+                </Trigger.EnterActions>
+                <Trigger.ExitActions>
+                  <StopStoryboard BeginStoryboardName="Disabled_BeginStoryBoard"/>
+                </Trigger.ExitActions>
+              </Trigger>
+            </Image.Triggers>
+          </Image>
+          <Label Content="[Media.SearchResultIsBeingBuiltHint]" Color="{ThemeResource TextColor}" Margin="10" HorizontalAlignment="Center"/>
+        </StackPanel>
+
+        <Label Grid.Row="0" Grid.Column="0" Content="[Media.ReimportMediaItem.SearchResultHeader]" IsVisible="{Binding !IsSearching}"
+               TextTrimming="WordEllipsis" Color="{ThemeResource TextColor}" Margin="10,0,10,5"/>
+        <Label Grid.Row="0" Grid.Column="1" Content="[Media.ReimportMediaItem.SearchTypeHeader]" IsVisible="{Binding !IsSearching}"
+               TextTrimming="WordEllipsis" Color="{ThemeResource TextColor}" Margin="10,0,10,5"/>
+
+        <RadioButton Grid.Row="1" Grid.Column="1" x:Name="AutoSearch" Margin="10,1,0,1" VerticalAlignment="Center" IsVisible="{Binding !IsSearching}"
+                     IsChecked="{Binding Path=IsAutomaticSearch,Mode=TwoWay}" GroupName="RadioButtonGroup" Content="[Media.ReimportMediaItem.AutoMatch]">
+          <RadioButton.Triggers>
+            <Trigger Property="IsVisible" Value="True">
+              <Setter TargetName="AutoSearch" Property="IsChecked" Value="True"/>
+            </Trigger>
+            <Trigger Property="IsChecked" Value="False">
+              <Setter TargetName="AutoSearch" Property="Color" Value="{ThemeResource TextColor}"/>
+              <Setter TargetName="ManualSearch" Property="Color" Value="{ThemeResource TextColor}"/>
+            </Trigger>
+            <Trigger Property="IsChecked" Value="True">
+              <Setter TargetName="AutoSearch" Property="Color" Value="{ThemeResource TextColor}"/>
+            </Trigger>
+          </RadioButton.Triggers>
+        </RadioButton>
+        <RadioButton Grid.Row="2" Grid.Column="1" x:Name="ManualSearch" Margin="10,1,0,1" VerticalAlignment="Center" IsEnabled="True" IsVisible="{Binding !IsSearching}"
+                     IsChecked="{Binding Path=IsManualSearch,Mode=TwoWay}" GroupName="RadioButtonGroup" Content="[Media.ReimportMediaItem.ManualSearch]">
+          <RadioButton.Triggers>
+            <Trigger Property="IsChecked" Value="False">
+              <Setter TargetName="TextBox" Property="IsEnabled" Value="False"/>
+              <Setter TargetName="DoneButton" Property="IsEnabled" Value="False"/>
+              <Setter TargetName="ManualSearch" Property="Color" Value="{ThemeResource TextColor}"/>
+              <Setter TargetName="AutoSearch" Property="Color" Value="{ThemeResource TextColor}"/>
+            </Trigger>
+          </RadioButton.Triggers>
+        </RadioButton>
+
+        <Grid Grid.Row="3" Grid.Column="1" Margin="60,5,20,10">
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="Auto"/>
+            <ColumnDefinition Width="*"/>
+          </Grid.ColumnDefinitions>
+          <Label Content="[Media.ReimportMediaItem.Id]" IsVisible="{Binding !IsSearching}"
+                 TextTrimming="WordEllipsis" Color="{ThemeResource TextColor}" Margin="0,0,15,0"/>
+          <TextBox x:Name="TextBox" Text="{Binding Source={StaticResource Model}, Path=ManualId, Mode=OneWayToSource}" TextAlign="Center"
+                   Grid.Column="1" PreferredTextLength="10" IsVisible="{Binding !IsSearching}"/>
+        </Grid>
+
+        <!-- Match list -->
+        <ListView x:Name="Match_List" Grid.Row="1" Grid.RowSpan="6" Grid.Column="0" Margin="10,10,20,10" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" SetFocus="True"
+                  Style="{ThemeResource MenuListViewStyle}" RestoreFocus="True" CurrentItem="{Binding Path=FocusedItem,Mode=OneWayToSource}" 
+                  ItemsSource="{Binding Path=MatchList}" IsVisible="{Binding !IsSearching}">
+          <ListView.Resources>
+            <Command x:Key="Menu_Command" Source="{StaticResource Model}" Path="SetMatch" Parameters="{LateBoundValue BindingValue={Binding}}"/>
+          </ListView.Resources>
+        </ListView>
+
+        <Label Grid.Row="5" Grid.Column="1" Content="[Media.ReimportMediaItem.Description]" IsVisible="{Binding !IsSearching}"
+               TextTrimming="WordEllipsis" Color="{ThemeResource TextColor}" Margin="10,20,5,5"/>
+        <Label Grid.Row="6" Grid.Column="1" Content="{Binding Source={StaticResource Model}, Path=SelectedInformation}" IsVisible="{Binding !IsSearching}" Wrap="True"
+               Color="{ThemeResource TextColor}" Margin="30,5,10,10" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" TextTrimming="WordEllipsis"/>
+
+        <Label Grid.Row="7" Grid.ColumnSpan="2" Content="[Media.ReimportMediaItem.Hint]" Wrap="True" FontSize="20"
+               Color="{ThemeResource TextColor}" Margin="30,10,30,10" VerticalAlignment="Center" HorizontalAlignment="Center" MinHeight="30"/>
+
+      </Grid>
+    </ControlTemplate>
+
+  </Include.Resources>
+</Include>

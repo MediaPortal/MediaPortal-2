@@ -33,12 +33,12 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
 {
   public class InverseRelationshipCompiledFilter : CompiledFilter
   {
-    public InverseRelationshipCompiledFilter(MIA_Management miaManagement, MediaItemIdFilter filter, Namespace ns, BindVarNamespace bvNamespace, string outerMIIDJoinVariable, ICollection<TableJoin> tableJoins)
-      : base(miaManagement, filter, ns, bvNamespace, outerMIIDJoinVariable, tableJoins)
+    public InverseRelationshipCompiledFilter(MIA_Management miaManagement, MediaItemIdFilter filter, IFilter subqueryFilter, Namespace ns, BindVarNamespace bvNamespace, string outerMIIDJoinVariable, ICollection<TableJoin> tableJoins)
+      : base(miaManagement, filter, subqueryFilter, ns, bvNamespace, outerMIIDJoinVariable, tableJoins)
     {
     }
 
-    protected override void CompileStatementParts(MIA_Management miaManagement, IFilter filter, Namespace ns, BindVarNamespace bvNamespace,
+    protected override void CompileStatementParts(MIA_Management miaManagement, IFilter filter, IFilter subqueryFilter, Namespace ns, BindVarNamespace bvNamespace,
       ICollection<MediaItemAspectMetadata> requiredMIATypes, string outerMIIDJoinVariable, ICollection<TableJoin> tableJoins,
       IList<object> resultParts, IList<BindVar> resultBindVars)
     {

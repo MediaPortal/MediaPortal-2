@@ -24,7 +24,9 @@
 
 using MediaPortal.Common;
 using MediaPortal.Common.PluginManager;
+using MediaPortal.Plugins.SlimTv.Client.Helpers;
 using MediaPortal.Plugins.SlimTv.Client.MediaExtensions;
+using MediaPortal.Plugins.SlimTv.Client.Notifications;
 using MediaPortal.Plugins.SlimTv.Client.TvHandler;
 using MediaPortal.Plugins.SlimTv.Interfaces;
 
@@ -37,9 +39,12 @@ namespace MediaPortal.Plugins.SlimTv.Client
     public void Activated(PluginRuntime pluginRuntime)
     {
       ServiceRegistration.Set<ITvHandler>(new SlimTvHandler());
-      
+      ServiceRegistration.Set<ISlimTvNotificationService>(new SlimTvNotificationService());
       // Register recording section in MediaLibrary
       RecordingsLibrary.RegisterOnMediaLibrary();
+
+      // Dummy call to static instance which creates required message handlers
+      var channels = ChannelContext.Instance.Channels;
     }
 
     public bool RequestEnd()

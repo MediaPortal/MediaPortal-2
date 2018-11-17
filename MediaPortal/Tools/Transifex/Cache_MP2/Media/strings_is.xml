@@ -1,5 +1,7 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
+  <!--Headlines for HomeContent-->
+  <string name="Media.Favorites">Uppáhald</string>
   <!--Menu items for the five Media navigation parts-->
   <string name="Media.BrowseMediaMenuItem">Vafra um miðilsskrár</string>
   <string name="Media.LocalMediaMenuItem">Staðbundnar miðilsskrár</string>
@@ -15,7 +17,7 @@
   <string name="Media.GenreMenuItem">Flokkun</string>
   <string name="Media.SizeMenuItem">Stærð</string>
   <string name="Media.SystemMenuItem">Kerfi</string>
-  <string name="Media.EpisodeDateMenuItem">Þáttur</string>
+  <string name="Media.EpisodeMenuItem">Þáttur</string>
   <string name="Media.AudioLanguageMenuItem">Tungumál</string>
   <string name="Media.SeriesNameMenuItem">Þættir</string>
   <string name="Media.SimpleSearchFilterMenuItem">Leita</string>
@@ -25,6 +27,7 @@
   <string name="Media.ImageFilterSmall">Lítið</string>
   <string name="Media.ImageFilterMedium">Miðlungs</string>
   <string name="Media.ImageFilterBig">Stór</string>
+  <string name="Media.ContentGroupFilter">{0}</string>
   <!--Navbar display labels for sub view navigation-->
   <string name="Media.BrowseMediaNavigationNavbarDisplayLabel">{0}</string>
   <!--For example: "R.E.M."-->
@@ -158,6 +161,9 @@
   <string name="Media.OpenPlayerStrategy.MediaPortal.UI.Services.Players.PCMOpenPlayerStrategy.Default">Sjálfgefið</string>
   <string name="Media.OpenPlayerStrategy.MediaPortal.UI.Services.Players.PCMOpenPlayerStrategy.PreservePiP">Varðveita MíM myndband</string>
   <!--MediaItemAction dialog-->
+  <string name="Media.Refresh">Endurstilla</string>
+  <string name="Media.ReimportMediaItem.Done">Lokið</string>
+  <string name="Media.ReimportMediaItem.Description">Lýsing</string>
   <!--Play items dialog-->
   <string name="Media.PlayItemDialogHeader">Spila atriði</string>
   <string name="Media.PlayAudioItems">Spila hljóðskrá</string>
@@ -259,6 +265,10 @@
   <string name="Media.LargeList">Stór listi</string>
   <string name="Media.LargeGrid">Stöðva</string>
   <string name="Media.SwitchSortingMenuItem">Flokka</string>
+  <string name="Media.SortByDate">Dags.</string>
+  <string name="Media.GroupingBrowseDefault">Sjálfgefið</string>
+  <!--Stubs-->
+  <!--Settings-->
   <string name="Settings.Players">Spilarar</string>
   <string name="Settings.Players.ClosePlayersWhenFinished">Loka spilara þegar spilun er lokið</string>
   <string name="Settings.Players.ClosePlayersWhenFinished.Help">Virkið þessa stillingu til að MediaPortal lokið óvirkum spilurum sjálfvirkt</string>

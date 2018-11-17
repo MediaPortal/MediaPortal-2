@@ -2,9 +2,11 @@
 <resources>
   <string name="Menu.Audio">Audio</string>
   <string name="Menu.Image">Gambar</string>
+  <string name="Menu.MediaHub">Mediahub</string>
   <string name="Menu.TV">TV</string>
   <string name="Menu.News">Berita</string>
   <string name="Menu.Weather">Cuaca</string>
   <string name="Menu.Settings">Setelan</string>
   <string name="Menu.Others">Lainnya</string>
+  <string name="Menu.Main">Menu Utama</string>
 </resources>

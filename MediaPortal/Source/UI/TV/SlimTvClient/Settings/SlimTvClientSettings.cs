@@ -59,6 +59,12 @@ namespace MediaPortal.Plugins.SlimTv.Client.Settings
     public bool EpgShowChannelLogos { get; set; }
 
     /// <summary>
+    /// Whether to show genre colors in EPG.
+    /// </summary>
+    [Setting(SettingScope.User, DefaultValue = false)]
+    public bool EpgShowGenreColors { get; set; }
+
+    /// <summary>
     /// Defines the zapping timeout in seconds.
     /// </summary>
     [Setting(SettingScope.User, DefaultValue = 2d)]
@@ -95,5 +101,23 @@ namespace MediaPortal.Plugins.SlimTv.Client.Settings
     /// </summary>
     [Setting(SettingScope.User, DefaultValue = false)]
     public bool HideAllChannelsGroup { get; set; }
+
+    /// <summary>
+    /// If set to <c>true</c>, a notification will be shown when a recording has started.
+    /// </summary>
+    [Setting(SettingScope.User, DefaultValue = true)]
+    public bool ShowRecordingStartedNotifications { get; set; }
+
+    /// <summary>
+    /// If set to <c>true</c>, a notification will be shown when a recording has ended.
+    /// </summary>
+    [Setting(SettingScope.User, DefaultValue = true)]
+    public bool ShowRecordingEndedNotifications { get; set; }
+
+    /// <summary>
+    /// The time in seconds to show recording notifications.
+    /// </summary>
+    [Setting(SettingScope.User, DefaultValue = 5)]
+    public int RecordingNotificationDuration { get; set; }
   }
 }

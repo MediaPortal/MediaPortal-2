@@ -30,10 +30,6 @@ using MediaPortal.Utilities.Graphics;
 using System.Drawing.Imaging;
 using System.Text.RegularExpressions;
 using DuoVia.FuzzyStrings;
-using MediaPortal.Common.Services.ResourceAccess.VirtualResourceProvider;
-using MediaPortal.Common.ResourceAccess;
-using System.Reflection;
-using System.Text;
 using MediaPortal.Utilities;
 
 namespace MediaPortal.Common.MediaManagement.Helpers
@@ -61,10 +57,17 @@ namespace MediaPortal.Common.MediaManagement.Helpers
     /// </summary>
     public byte[] Thumbnail = null;
 
+    private IDictionary<Guid, IList<MediaItemAspect>> _linkedAspects;
     private bool _hasThumbnail = false;
     private bool _hasChanged = false;
     private DateTime? _lastChange = null;
     private DateTime? _dateAdded = null;
+
+    public IDictionary<Guid, IList<MediaItemAspect>> LinkedAspects
+    {
+      get { return _linkedAspects; }
+    }
+
 
     public bool HasThumbnail
     {
@@ -186,7 +189,7 @@ namespace MediaPortal.Common.MediaManagement.Helpers
     /// </summary>
     public static string CleanupWhiteSpaces(string str)
     {
-      return str == null ? null : Regex.Replace(str, CLEAN_WHITESPACE_REGEX, " $1").Trim(' ', '-');
+      return str == null ? null : Regex.Replace(str, CLEAN_WHITESPACE_REGEX, " $1").Trim(' ', '-').Replace("  ", " ");
     }
 
     public static bool IsVirtualResource(IDictionary<Guid, IList<MediaItemAspect>> aspectData)
@@ -194,14 +197,12 @@ namespace MediaPortal.Common.MediaManagement.Helpers
       IList<MultipleMediaItemAspect> providerResourceAspects;
       if (MediaItemAspect.TryGetAspects(aspectData, ProviderResourceAspect.Metadata, out providerResourceAspects))
       {
-        string accessorPath = (string)providerResourceAspects[0].GetAttributeValue(ProviderResourceAspect.ATTR_RESOURCE_ACCESSOR_PATH);
-        if (string.IsNullOrEmpty(accessorPath))
-          return true;
-        ResourcePath resourcePath = ResourcePath.Deserialize(accessorPath);
-        if (resourcePath.BasePathSegment.ProviderId != VirtualResourceProvider.VIRTUAL_RESOURCE_PROVIDER_ID)
+        foreach(var pra in providerResourceAspects)
         {
-          return false;
+          if (pra.GetAttributeValue<int>(ProviderResourceAspect.ATTR_TYPE) == ProviderResourceAspect.TYPE_VIRTUAL)
+            return true;
         }
+        return false;
       }
       return true;
     }
@@ -282,9 +283,26 @@ namespace MediaPortal.Common.MediaManagement.Helpers
       }
     }
 
-    public abstract bool SetMetadata(IDictionary<Guid, IList<MediaItemAspect>> aspectData);
+    public abstract bool SetMetadata(IDictionary<Guid, IList<MediaItemAspect>> aspectData, bool force = false);
 
     public abstract bool FromMetadata(IDictionary<Guid, IList<MediaItemAspect>> aspectData);
+
+    public abstract bool MergeWith(object other, bool overwriteShorterStrings = true, bool updatePrimaryChildList = false);
+
+    public virtual bool SetLinkedMetadata()
+    {
+      if (_linkedAspects == null)
+        return false;
+      return SetMetadata(_linkedAspects);
+    }
+
+    public virtual bool FromLinkedMetadata(IDictionary<Guid, IList<MediaItemAspect>> aspectData)
+    {
+      if (aspectData == null)
+        return false;
+      _linkedAspects = aspectData;
+      return FromMetadata(aspectData);
+    }
 
     public abstract void AssignNameId();
 
@@ -316,44 +334,6 @@ namespace MediaPortal.Common.MediaManagement.Helpers
           return nameId;
       }
       return null;
-    }
-
-    protected T CloneProperties<T>(T obj)
-    {
-      if (obj == null)
-        return default(T);
-      Type type = obj.GetType();
-
-      if (type.IsValueType || type == typeof(string))
-      {
-        return obj;
-      }
-      else if (type.IsArray)
-      {
-        Type elementType = obj.GetType().GetElementType();
-        var array = obj as Array;
-        Array arrayCopy = Array.CreateInstance(elementType, array.Length);
-        for (int i = 0; i < array.Length; i++)
-        {
-          arrayCopy.SetValue(CloneProperties(array.GetValue(i)), i);
-        }
-        return (T)Convert.ChangeType(arrayCopy, obj.GetType());
-      }
-      else if (type.IsClass)
-      {
-        T newInstance = (T)Activator.CreateInstance(obj.GetType());
-        FieldInfo[] fields = type.GetFields(BindingFlags.Public |
-                    BindingFlags.NonPublic | BindingFlags.Instance);
-        foreach (FieldInfo field in fields)
-        {
-          object fieldValue = field.GetValue(obj);
-          if (fieldValue == null)
-            continue;
-          field.SetValue(newInstance, CloneProperties(fieldValue));
-        }
-        return newInstance;
-      }
-      return default(T);
     }
 
     #endregion

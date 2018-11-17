@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Include
+    xmlns="www.team-mediaportal.com/2008/mpf/directx"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    Source="screens\master_menu.xaml"
+    >
+  <Include.Resources>
+
+    <!-- Header -->
+    <ResourceWrapper x:Key="Header_Text" Resource="[Settings.InputDeviceManager.Section]"/>
+
+    <Model x:Key="InputManagerModel" Id="CC11183C-01A9-4F96-AF90-FAA046981006"/>
+    
+    <ControlTemplate x:Key="Contents_Template">
+      <DockPanel Context="{Binding Source={StaticResource InputManagerModel}}">
+        <!--Context="{Model Id=CC11183C-01A9-4F96-AF90-FAA046981006}">-->
+        <!-- IsVisible Condition is defines inside the included files -->
+        <!-- Screen for selecting the input device -->
+        <Include Source="screens\ConfigScreenSelectDevice.inc"/>
+        <!-- Screen for adding/deleting actions -->
+        <Include Source="screens\ConfigScreenScreenMapping.inc"/>
+      </DockPanel>
+    </ControlTemplate>
+  </Include.Resources>
+</Include>

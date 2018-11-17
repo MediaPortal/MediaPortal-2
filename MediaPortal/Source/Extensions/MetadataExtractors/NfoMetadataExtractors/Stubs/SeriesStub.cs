@@ -138,6 +138,11 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.Stubs
     /// </summary>
     public HashSet<string> Genres { get; set; }
 
+    /// <summary>
+    /// Episode(s) of the series
+    /// </summary>
+    public HashSet<SeriesEpisodeStub> Episodes { get; set; }
+
     #endregion
 
     #region Images

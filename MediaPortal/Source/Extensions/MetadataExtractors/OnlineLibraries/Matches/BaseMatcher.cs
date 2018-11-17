@@ -22,40 +22,33 @@
 
 #endregion
 
-using System;
-using System.Collections.Generic;
-using System.Threading;
 using MediaPortal.Common;
 using MediaPortal.Common.FanArt;
 using MediaPortal.Common.Logging;
+using MediaPortal.Common.MediaManagement.Helpers;
 using MediaPortal.Common.Settings;
-using MediaPortal.Common.Threading;
+using MediaPortal.Extensions.OnlineLibraries.Wrappers;
 using MediaPortal.Utilities.Network;
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Net;
+using System.Threading.Tasks;
 
 namespace MediaPortal.Extensions.OnlineLibraries.Matches
 {
   /// <summary>
-  /// Base class for online matchers (Series, Movies) that provides common features like loading and saving match lists, download queue management.
+  /// Base class for online matchers (Series, Movies) that provides common features like loading and saving match lists.
   /// </summary>
   /// <typeparam name="TMatch">Type of match, must be derived from <see cref="BaseFanArtMatch{T}"/>.</typeparam>
   /// <typeparam name="TId">Type of internal ID of the match.</typeparam>
-  public abstract class BaseMatcher<TMatch, TId> : IDisposable
-    where TMatch : BaseFanArtMatch<TId>
+  public abstract class BaseMatcher<TMatch, TId, TImg, TLang> : IDisposable
+    where TMatch : BaseMatch<TId>
   {
     #region Constants
 
-    public const int MAX_FANART_DOWNLOADERS = 3;
     public const string CONFIG_DATE_FORMAT = "MMddyyyyHHmm";
-
-    #endregion
-
-    #region Classes
-
-    protected class FanartDownload<T>
-    {
-      public T Id { get; set; }
-      public string DownloadId { get; set; }
-    }
 
     #endregion
 
@@ -68,18 +61,13 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matches
     /// </summary>
     protected object _syncObj = new object();
 
-    /// <summary>
-    /// Contains the Series ID for Downloading FanArt asynchronously.
-    /// </summary>
-    protected UniqueEventedQueue<FanartDownload<TId>> _downloadQueue = new UniqueEventedQueue<FanartDownload<TId>>();
-    protected List<Thread> _downloadThreads = new List<Thread>(MAX_FANART_DOWNLOADERS);
     protected bool _downloadFanart = true;
-    protected volatile bool _downloadAllowed = true;
     protected Predicate<TMatch> _matchPredicate;
     protected MatchStorage<TMatch, TId> _storage;
 
+    protected string _id;
+    protected ApiWrapper<TImg, TLang> _wrapper;
     private bool _disposed;
-    private bool _inited;
     private bool _useHttps;
     private bool _onlyBasicFanArt;
 
@@ -87,22 +75,17 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matches
 
     #region Properties
 
-    /// <summary>
-    /// If set to <c>true</c> (default), online available content will be downloaded after match was successful.
-    /// This property can be used to disable downloads, i.e. for testing process.
-    /// </summary>
-    public bool DownloadFanart
-    {
-      get { return _downloadFanart; }
-      set { _downloadFanart = value; }
-    }
-
     protected ILogger Logger
     {
       get
       {
         return ServiceRegistration.Get<ILogger>();
       }
+    }
+
+    public string Id
+    {
+      get { return _id; }
     }
 
     protected bool UseSecureWebCommunication
@@ -130,147 +113,104 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matches
       _onlyBasicFanArt = settings.OnlyBasicFanArt;
     }
 
-    public virtual bool Init()
+    public virtual Task<bool> InitAsync()
     {
       if (_storage == null)
         _storage = new MatchStorage<TMatch, TId>(MatchesSettingsFile);
-      if (!_inited)
-      {
-        // Use own thread to avoid delay during startup
-        IThreadPool threadPool = ServiceRegistration.Get<IThreadPool>(false);
-        if (threadPool != null)
-          threadPool.Add(ResumeDownloads, "ResumeDownloads", QueuePriority.Normal, ThreadPriority.BelowNormal);
-        _inited = true;
-      }
+      return Task.FromResult(NetworkConnectionTracker.IsNetworkConnected);
+    }
 
-      if (!NetworkConnectionTracker.IsNetworkConnected)
+    protected virtual bool TryGetFanArtInfo(BaseInfo info, out TLang language, out string fanArtMediaType, out bool includeThumbnails)
+    {
+      language = default(TLang);
+      fanArtMediaType = null;
+      includeThumbnails = false;
+      return false;
+    }
+
+    public virtual async Task<bool> DownloadFanArtAsync(Guid mediaItemId, BaseInfo info)
+    {
+      if (info == null)
         return false;
-      return true;
-    }
 
-    protected bool ScheduleDownload(TId id, string downloadId, bool force = false)
-    {
-      if (!_downloadFanart)
+      try
+      {
+        if (!await InitAsync().ConfigureAwait(false))
+          return false;
+        if (_wrapper == null)
+          return false;
+
+        TLang language;
+        string fanArtMediaType;
+        bool includeThumbnails;
+        if (!TryGetFanArtInfo(info, out language, out fanArtMediaType, out includeThumbnails))
+          return false;
+
+        ApiWrapperImageCollection<TImg> images = await _wrapper.GetFanArtAsync(info, language, fanArtMediaType).ConfigureAwait(false);
+        if (images == null)
+          return false;
+
+        string name = info.ToString();
+        Logger.Debug(_id + " Download: Downloading images for {0} [{1}]", info, mediaItemId);
+
+        await SaveFanArtImagesAsync(images.Id, images.Backdrops, language, mediaItemId, name, FanArtTypes.FanArt).ConfigureAwait(false);
+        await SaveFanArtImagesAsync(images.Id, images.Posters, language, mediaItemId, name, FanArtTypes.Poster).ConfigureAwait(false);
+        await SaveFanArtImagesAsync(images.Id, images.Banners, language, mediaItemId, name, FanArtTypes.Banner).ConfigureAwait(false);
+        await SaveFanArtImagesAsync(images.Id, images.Covers, language, mediaItemId, name, FanArtTypes.Cover).ConfigureAwait(false);
+        if (includeThumbnails)
+          await SaveFanArtImagesAsync(images.Id, images.Thumbnails, language, mediaItemId, name, FanArtTypes.Thumbnail).ConfigureAwait(false);
+        if (!OnlyBasicFanArt)
+        {
+          await SaveFanArtImagesAsync(images.Id, images.ClearArt, language, mediaItemId, name, FanArtTypes.ClearArt).ConfigureAwait(false);
+          await SaveFanArtImagesAsync(images.Id, images.DiscArt, language, mediaItemId, name, FanArtTypes.DiscArt).ConfigureAwait(false);
+          await SaveFanArtImagesAsync(images.Id, images.Logos, language, mediaItemId, name, FanArtTypes.Logo).ConfigureAwait(false);
+        }
+        Logger.Debug(_id + " Download: Finished saving images for {0} [{1}]", info, mediaItemId);
         return true;
+      }
+      catch (WebException)
+      {
+        //Remote server probably returned an error/not found, just log at debug level
+        Logger.Debug(_id + " Download: WebException when downloading images for {0} [{1}]", info, mediaItemId);
+      }
+      catch (Exception ex)
+      {
+        Logger.Warn(_id + " Download: Failed downloading images for {0} [{1}]", ex, info, mediaItemId);
+      }
+      return false;
+    }
 
-      FanartDownload<TId> fanartDownload = new FanartDownload<TId> { Id = id, DownloadId = downloadId };
-      //Always call CheckBeginDownloadFanart, even if we are forcing so the match storage is updated correctly
-      bool fanArtDownloaded = CheckBeginDownloadFanArt(fanartDownload) && !force;
-      if (fanArtDownloaded)
+    protected virtual bool VerifyFanArtImage(TImg image, TLang language, string fanArtType)
+    {
+      return image != null;
+    }
+
+    protected virtual async Task<int> SaveFanArtImagesAsync(string id, IEnumerable<TImg> images, TLang language, Guid mediaItemId, string name, string fanArtType)
+    {
+      if (images == null || !images.Any())
+        return 0;
+
+      var validImages = images.Where(i => VerifyFanArtImage(i, language, fanArtType)).ToList();      
+      IFanArtCache fanArtCache = ServiceRegistration.Get<IFanArtCache>();
+      int count = await fanArtCache.TrySaveFanArt(mediaItemId, name, fanArtType, validImages, (p, i) => SaveFanArtImageAsync(id, i, p, mediaItemId, name)).ConfigureAwait(false);
+
+      Logger.Debug(_id + @" Download: Saved {0} for media item {1} ({2}) of type {3}", count, mediaItemId, name, fanArtType);
+      return count;
+    }
+
+    private async Task<bool> SaveFanArtImageAsync(string id, TImg image, string path, Guid mediaItemId, string name)
+    {
+      try
+      {
+        await _wrapper.DownloadFanArtAsync(id, image, path).ConfigureAwait(false);
         return true;
-
-      lock (_downloadQueue.SyncObj)
-      {
-        bool newEnqueued = _downloadQueue.TryEnqueue(fanartDownload);
-        if (newEnqueued && _downloadThreads.Count < _downloadThreads.Capacity)
-        {
-          Thread downloader = new Thread(DownloadFanArtQueue) { Name = "FanArt Downloader " + _downloadThreads.Count, Priority = ThreadPriority.Lowest };
-          downloader.Start();
-          _downloadThreads.Add(downloader);
-        }
       }
-      return true;
-    }
-
-    public void EndDownloads()
-    {
-      lock (_downloadQueue.SyncObj)
+      catch (Exception ex)
       {
-        _downloadQueue.Clear();
-        _downloadAllowed = false;
-      }
-      foreach (Thread downloadThread in _downloadThreads)
-        if (!downloadThread.Join(5000))
-          downloadThread.Abort();
-
-      _downloadThreads.Clear();
-    }
-
-    protected bool CheckBeginDownloadFanArt(FanartDownload<TId> fanartDownload)
-    {
-      bool fanArtDownloaded = false;
-      lock (_syncObj)
-      {
-        // Load cache or create new list
-        List<TMatch> matches = _storage.GetMatches();
-        foreach (TMatch match in matches.FindAll(m => m.Id != null && m.Id.Equals(fanartDownload.Id)))
-        {
-          if (string.IsNullOrEmpty(match.FanArtDownloadId))
-            match.FanArtDownloadId = fanartDownload.DownloadId;
-
-          // We can have multiple matches for one TvDbId in list, if one has FanArt downloaded already, update the flag for all matches.
-          if (match.FanArtDownloadFinished.HasValue)
-            fanArtDownloaded = true;
-
-          if (!match.FanArtDownloadStarted.HasValue)
-            match.FanArtDownloadStarted = DateTime.Now;
-        }
-
-        //It's possible that we have multiple matches with the same id, ensure that they are all marked as finished
-        if (fanArtDownloaded)
-          foreach (TMatch match in matches.FindAll(m => m.Id != null && m.Id.Equals(fanartDownload.Id) && !m.FanArtDownloadFinished.HasValue))
-            match.FanArtDownloadFinished = DateTime.Now;
-
-        _storage.SaveMatches();
-      }
-      return fanArtDownloaded;
-    }
-
-    protected void FinishDownloadFanArt(FanartDownload<TId> fanartDownload)
-    {
-      lock (_syncObj)
-      {
-        // Load cache or create new list
-        List<TMatch> matches = _storage.GetMatches();
-        foreach (TMatch match in matches.FindAll(m => m.Id != null && m.Id.Equals(fanartDownload.Id)))
-          if (!match.FanArtDownloadFinished.HasValue)
-            match.FanArtDownloadFinished = DateTime.Now;
-
-        _storage.SaveMatches();
+        Logger.Debug(_id + " Download: Exception downloading images for ID {0} [{1} ({2})]", ex, id, mediaItemId, name);
+        return false;
       }
     }
-
-    protected void ResumeDownloads()
-    {
-      var downloadsToBeStarted = new HashSet<TMatch>();
-      lock (_syncObj)
-      {
-        var matches = _storage.GetMatches();
-        foreach (TMatch match in matches.FindAll(m => m.FanArtDownloadStarted.HasValue && !m.FanArtDownloadFinished.HasValue ||
-                                                      m.Id != null && !m.Id.Equals(default(TId)) && !m.FanArtDownloadStarted.HasValue))
-        {
-          if (string.IsNullOrEmpty(match.FanArtDownloadId))
-          {
-            match.FanArtDownloadFinished = DateTime.Now;
-            continue;
-          }
-          if (!match.FanArtDownloadStarted.HasValue)
-            match.FanArtDownloadStarted = DateTime.Now;
-          downloadsToBeStarted.Add(match);
-        }
-        _storage.SaveMatches();
-      }
-      foreach (var match in downloadsToBeStarted)
-        ScheduleDownload(match.Id, match.FanArtDownloadId, true);
-    }
-
-    protected void DownloadFanArtQueue()
-    {
-      while (_downloadAllowed)
-      {
-        _downloadQueue.OnEnqueued.WaitOne(1000);
-        FanartDownload<TId> fanartDownload;
-        lock (_downloadQueue.SyncObj)
-        {
-          if (_downloadQueue.Count == 0)
-            continue;
-          fanartDownload = _downloadQueue.Dequeue();
-        }
-        DownloadFanArt(fanartDownload);
-      }
-    }
-
-    protected abstract void DownloadFanArt(FanartDownload<TId> fanartDownload);
 
     #region IDisposable members
 
@@ -286,7 +226,6 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matches
         return;
       if (disposing)
       {
-        EndDownloads();
         if (_storage != null)
           _storage.Dispose();
       }

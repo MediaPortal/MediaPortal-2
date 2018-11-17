@@ -17,6 +17,8 @@
   <ResourceWrapper x:Key="TvGuideRowHeaderWidth" Resource="250"/>
 
   <ResourceWrapper x:Key="OSDDetailLabelHeight" Resource="150"/>
+  <ResourceWrapper x:Key="OSDHeaderFontSize" Resource="20"/>
+  <ResourceWrapper x:Key="OSDFontSize" Resource="18"/>
 
   <ResourceWrapper x:Key="MiniGuideHeight" Resource="500"/>
   <ResourceWrapper x:Key="MiniGuideWidth" Resource="600"/>
@@ -33,5 +35,8 @@
   <ResourceWrapper x:Key="ProgramInfoHeaderWidth" Resource="150"/>
 
   <ResourceWrapper x:Key="SeriesRecIndicatorHeight" Resource="40"/>
+
+  <ResourceWrapper x:Key="TvNotificationWidth" Resource="800"/>
+  <ResourceWrapper x:Key="TvNotificationPanelMargin" Resource="10"/>
 
 </ResourceDictionary>

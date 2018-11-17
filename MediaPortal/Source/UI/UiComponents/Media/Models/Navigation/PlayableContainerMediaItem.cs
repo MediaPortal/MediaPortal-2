@@ -22,11 +22,10 @@
 
 #endregion
 
-using System;
 using MediaPortal.Common.MediaManagement;
-using MediaPortal.Common.MediaManagement.DefaultItemAspects;
-using MediaPortal.UiComponents.Media.General;
 using MediaPortal.Common.UserProfileDataManagement;
+using MediaPortal.UiComponents.Media.General;
+using System;
 
 namespace MediaPortal.UiComponents.Media.Models.Navigation
 {
@@ -38,27 +37,25 @@ namespace MediaPortal.UiComponents.Media.Models.Navigation
     public override void Update(MediaItem mediaItem)
     {
       base.Update(mediaItem);
+      if (mediaItem == null)
+        return;
 
-      int? currentPlayCount = null;
-      SingleMediaItemAspect mediaAspect;
-      if (MediaItemAspect.TryGetAspect(mediaItem.Aspects, MediaAspect.Metadata, out mediaAspect))
-      {
-        currentPlayCount = (int?)mediaAspect[MediaAspect.ATTR_PLAYCOUNT] ?? 0;
-      }
-
+      int? playPct = null;
+      int? playCnt = null;
       if (mediaItem.UserData.ContainsKey(UserDataKeysKnown.KEY_PLAY_PERCENTAGE))
       {
-        WatchPercentage = mediaItem.UserData[UserDataKeysKnown.KEY_PLAY_PERCENTAGE];
+        playPct = Convert.ToInt32(mediaItem.UserData[UserDataKeysKnown.KEY_PLAY_PERCENTAGE]);
       }
 
       if (mediaItem.UserData.ContainsKey(UserDataKeysKnown.KEY_PLAY_COUNT))
       {
-        PlayCount = Convert.ToInt32(mediaItem.UserData[UserDataKeysKnown.KEY_PLAY_COUNT]);
+        playCnt = Convert.ToInt32(mediaItem.UserData[UserDataKeysKnown.KEY_PLAY_COUNT]);
+        if (!playPct.HasValue && playCnt > 0)
+          playPct = 100;
       }
-      else if (currentPlayCount.HasValue)
-      {
-        PlayCount = currentPlayCount.Value;
-      }
+
+      WatchPercentage = playPct ?? 0;
+      PlayCount = playCnt ?? 0;
     }
 
     public int PlayCount
@@ -67,10 +64,10 @@ namespace MediaPortal.UiComponents.Media.Models.Navigation
       set { AdditionalProperties[Consts.KEY_PLAYCOUNT] = value; }
     }
 
-    public string WatchPercentage
+    public int WatchPercentage
     {
-      get { return this[Consts.KEY_WATCH_PERCENTAGE]; }
-      set { SetLabel(Consts.KEY_WATCH_PERCENTAGE, value); }
+      get { return (int?)AdditionalProperties[Consts.KEY_WATCH_PERCENTAGE] ?? 0; }
+      set { AdditionalProperties[Consts.KEY_WATCH_PERCENTAGE] = value; }
     }
   }
 }

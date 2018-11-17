@@ -10,7 +10,7 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>MediaPortal.Plugins.SlimTv.Interfaces</RootNamespace>
     <AssemblyName>SlimTv.Interfaces</AssemblyName>
-    <TargetFrameworkVersion>v4.5.1</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.7</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <FileUpgradeFlags>
     </FileUpgradeFlags>
@@ -78,6 +78,8 @@
     <Compile Include="ResourceProvider\SlimTvFsResourceAccessor.cs" />
     <Compile Include="ResourceProvider\SlimTvResourceAccessor.cs" />
     <Compile Include="ResourceProvider\SlimTvResourceProvider.cs" />
+    <Compile Include="Settings\SlimTvGenreColorSettings.cs" />
+    <Compile Include="Settings\SlimTvLogoSettings.cs" />
     <Compile Include="UPnP\Consts.cs" />
     <Compile Include="UPnP\DataTypes\UPnPDtChannelGroupList.cs" />
     <Compile Include="UPnP\DataTypes\UPnPDtChannelList.cs" />
@@ -96,6 +98,10 @@
     <ProjectReference Include="..\..\..\Core\MediaPortal.Common\MediaPortal.Common.csproj">
       <Project>{ECF060E7-CAA1-4466-851F-F80B857641EA}</Project>
       <Name>MediaPortal.Common</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\Core\MediaPortal.Utilities\MediaPortal.Utilities.csproj">
+      <Project>{4FE7B8AE-1330-424A-91A1-C68D7ABF9CB8}</Project>
+      <Name>MediaPortal.Utilities</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\..\Core\UPnP\UPnP.csproj">
       <Project>{455E7D70-1C85-4D7F-9F01-DC801B8B8C34}</Project>

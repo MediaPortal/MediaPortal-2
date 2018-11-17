@@ -24,6 +24,7 @@
 
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using MediaPortal.Common;
 using MediaPortal.Common.Commands;
 using MediaPortal.Common.MediaManagement;
@@ -47,7 +48,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.MediaExtensions
       MediaNavigationModel.RegisterMediaNavigationInitializer(new RecordingsLibrary());
       // All non-default media item aspects must be registered
       IMediaItemAspectTypeRegistration miatr = ServiceRegistration.Get<IMediaItemAspectTypeRegistration>();
-      miatr.RegisterLocallyKnownMediaItemAspectType(RecordingAspect.Metadata);
+      miatr.RegisterLocallyKnownMediaItemAspectTypeAsync(RecordingAspect.Metadata);
     }
 
     public RecordingsLibrary()
@@ -58,9 +59,9 @@ namespace MediaPortal.Plugins.SlimTv.Client.MediaExtensions
       _necessaryMias = SlimTvConsts.NECESSARY_RECORDING_MIAS;
     }
 
-    protected override void Prepare()
+    protected override async Task PrepareAsync()
     {
-      base.Prepare();
+      await base.PrepareAsync();
 
       AbstractItemsScreenData.PlayableItemCreatorDelegate picd = mi => new RecordingItem(mi) { Command = new MethodDelegateCommand(() => PlayItemsModel.CheckQueryPlayAction(mi)) };
 

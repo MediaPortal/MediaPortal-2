@@ -22,27 +22,21 @@
 
 #endregion
 
-using System;
-using System.Collections.Generic;
+using MediaPortal.Common.FanArt;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
-using MediaPortal.Common;
-using MediaPortal.Common.Logging;
-using MediaPortal.Common.ResourceAccess;
-using System.IO;
 using MediaPortal.Common.MediaManagement.Helpers;
+using MediaPortal.Common.ResourceAccess;
 using MediaPortal.Common.Services.ResourceAccess;
-using MediaPortal.Extensions.MetadataExtractors.MatroskaLib;
-using System.Linq;
-using MediaPortal.Common.PathManager;
-using System.Drawing;
-using System.Threading.Tasks;
 using MediaPortal.Extensions.OnlineLibraries;
-using MediaPortal.Common.FanArt;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
 {
-  class SeriesFanArtHandler : IMediaFanArtHandler
+  public class SeriesFanArtHandler : BaseFanArtHandler
   {
     #region Constants
 
@@ -58,570 +52,339 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
     /// </summary>
     public static Guid FANARTHANDLER_ID = new Guid(FANARTHANDLER_ID_STR);
 
-    private static readonly ICollection<string> MKV_EXTENSIONS = new HashSet<string>(StringComparer.InvariantCultureIgnoreCase) { ".mkv", ".webm" };
+    #endregion
 
-    private static readonly ICollection<String> IMG_EXTENSIONS = new HashSet<string>(StringComparer.InvariantCultureIgnoreCase) { ".jpg", ".png", ".tbn" };
+    #region Constructor
 
-    public static string CACHE_PATH = ServiceRegistration.Get<IPathManager>().GetPath(@"<DATA>\FanArt\");
+    public SeriesFanArtHandler()
+      : base(new FanArtHandlerMetadata(FANARTHANDLER_ID, "Series FanArt handler"), FANART_ASPECTS)
+    {
+    }
 
     #endregion
 
-    protected FanArtHandlerMetadata _metadata;
-    private SynchronizedCollection<Guid> _checkCache = new SynchronizedCollection<Guid>();
+    #region Base overrides
 
-    public SeriesFanArtHandler()
-    {
-      _metadata = new FanArtHandlerMetadata(FANARTHANDLER_ID, "Series FanArt handler");
-    }
-
-    public Guid[] FanArtAspects
-    {
-      get
-      {
-        return FANART_ASPECTS;
-      }
-    }
-
-    public FanArtHandlerMetadata Metadata
-    {
-      get { return _metadata; }
-    }
-
-    public void CollectFanArt(Guid mediaItemId, IDictionary<Guid, IList<MediaItemAspect>> aspects)
-    {
-      if (_checkCache.Contains(mediaItemId))
-        return;
-
-      Guid? seriesMediaItemId = null;
-      Guid? seasonMediaItemId = null;
-      IDictionary<Guid, string> actorMediaItems = new Dictionary<Guid, string>();
-      SingleMediaItemAspect videoAspect;
-      List<string> actors = new List<string>();
-      if (MediaItemAspect.TryGetAspect(aspects, VideoAspect.Metadata, out videoAspect))
-      {
-        IEnumerable<string> actorObjects = videoAspect.GetCollectionAttribute<string>(VideoAspect.ATTR_ACTORS);
-        if (actorObjects != null)
-          actors.AddRange(actorObjects);
-      }
-
-      IList<MultipleMediaItemAspect> relationAspects;
-      if (MediaItemAspect.TryGetAspects(aspects, RelationshipAspect.Metadata, out relationAspects))
-      {
-        foreach (MultipleMediaItemAspect relation in relationAspects)
-        {
-          if ((Guid?)relation[RelationshipAspect.ATTR_LINKED_ROLE] == SeriesAspect.ROLE_SERIES)
-          {
-            seriesMediaItemId = (Guid)relation[RelationshipAspect.ATTR_LINKED_ID];
-          }
-          if ((Guid?)relation[RelationshipAspect.ATTR_LINKED_ROLE] == SeasonAspect.ROLE_SEASON)
-          {
-            seasonMediaItemId = (Guid)relation[RelationshipAspect.ATTR_LINKED_ID];
-          }
-          if ((Guid?)relation[RelationshipAspect.ATTR_LINKED_ROLE] == PersonAspect.ROLE_ACTOR)
-          {
-            int? index = (int?)relation[RelationshipAspect.ATTR_RELATIONSHIP_INDEX];
-            if (index.HasValue && actors.Count > index.Value && index.Value >= 0)
-              actorMediaItems.Add((Guid)relation[RelationshipAspect.ATTR_LINKED_ID], actors[index.Value]);
-          }
-        }
-      }
-      Task.Run(() => ExtractFanArt(mediaItemId, aspects, seriesMediaItemId, seasonMediaItemId, actorMediaItems));
-      _checkCache.Add(mediaItemId);
-    }
-
-    private void ExtractFanArt(Guid mediaItemId, IDictionary<Guid, IList<MediaItemAspect>> aspects, Guid? seriesMediaItemId, Guid? seasonMediaItemId, IDictionary<Guid, string> actorMediaItems)
+    public override async Task CollectFanArtAsync(Guid mediaItemId, IDictionary<Guid, IList<MediaItemAspect>> aspects)
     {
       if (aspects.ContainsKey(EpisodeAspect.ASPECT_ID))
       {
-        if (BaseInfo.IsVirtualResource(aspects))
-          return;
-
-        EpisodeInfo episodeInfo = new EpisodeInfo();
-        episodeInfo.FromMetadata(aspects);
-        bool forceFanart = !episodeInfo.IsRefreshed;
-        SeasonInfo seasonInfo = episodeInfo.CloneBasicInstance<SeasonInfo>();
-        SeriesInfo seriesInfo = episodeInfo.CloneBasicInstance<SeriesInfo>();
-        ExtractLocalImages(aspects, mediaItemId, seriesMediaItemId, seasonMediaItemId, episodeInfo, seriesInfo, seasonInfo, actorMediaItems);
-        if (!SeriesMetadataExtractor.SkipFanArtDownload)
-          OnlineMatcherService.Instance.DownloadSeriesFanArt(mediaItemId, episodeInfo, forceFanart);
-
-        //Take advantage of the audio language being known and download season and series too
-        if (seasonMediaItemId.HasValue && !_checkCache.Contains(seasonMediaItemId.Value))
-        {
-          if (!SeriesMetadataExtractor.SkipFanArtDownload)
-            OnlineMatcherService.Instance.DownloadSeriesFanArt(seasonMediaItemId.Value, seasonInfo, forceFanart);
-          _checkCache.Add(seasonMediaItemId.Value);
-        }
-        if (seriesMediaItemId.HasValue && !_checkCache.Contains(seriesMediaItemId.Value))
-        {
-          if (!SeriesMetadataExtractor.SkipFanArtDownload)
-            OnlineMatcherService.Instance.DownloadSeriesFanArt(seriesMediaItemId.Value, seriesInfo, forceFanart);
-          _checkCache.Add(seriesMediaItemId.Value);
-        }
+        //Episodes also handle season and series fanart extraction
+        await ExtractEpisodeFanArt(mediaItemId, aspects).ConfigureAwait(false);
+        return;
       }
-      else if (aspects.ContainsKey(PersonAspect.ASPECT_ID))
+
+      if (SeriesMetadataExtractor.SkipFanArtDownload || !AddToCache(mediaItemId))
+        return;
+
+      BaseInfo info = null;
+      if (aspects.ContainsKey(PersonAspect.ASPECT_ID))
       {
         PersonInfo personInfo = new PersonInfo();
         personInfo.FromMetadata(aspects);
         if (personInfo.Occupation == PersonAspect.OCCUPATION_ACTOR || personInfo.Occupation == PersonAspect.OCCUPATION_DIRECTOR ||
           personInfo.Occupation == PersonAspect.OCCUPATION_WRITER)
-        {
-            if (!SeriesMetadataExtractor.SkipFanArtDownload)
-              OnlineMatcherService.Instance.DownloadSeriesFanArt(mediaItemId, personInfo, !personInfo.IsRefreshed);
-        }
+          info = personInfo;
       }
       else if (aspects.ContainsKey(CharacterAspect.ASPECT_ID))
       {
         CharacterInfo characterInfo = new CharacterInfo();
         characterInfo.FromMetadata(aspects);
-        if (!SeriesMetadataExtractor.SkipFanArtDownload)
-          OnlineMatcherService.Instance.DownloadSeriesFanArt(mediaItemId, characterInfo, !characterInfo.IsRefreshed);
+        info = characterInfo;
       }
       else if (aspects.ContainsKey(CompanyAspect.ASPECT_ID))
       {
         CompanyInfo companyInfo = new CompanyInfo();
         companyInfo.FromMetadata(aspects);
         if (companyInfo.Type == CompanyAspect.COMPANY_PRODUCTION || companyInfo.Type == CompanyAspect.COMPANY_TV_NETWORK)
-        {
-          if (!SeriesMetadataExtractor.SkipFanArtDownload)
-            OnlineMatcherService.Instance.DownloadSeriesFanArt(mediaItemId, companyInfo, !companyInfo.IsRefreshed);
-        }
+          info = companyInfo;
       }
+
+      if(info != null)
+        await OnlineMatcherService.Instance.DownloadSeriesFanArtAsync(mediaItemId, info).ConfigureAwait(false);
     }
 
-    private IResourceLocator GetResourceLocator(IDictionary<Guid, IList<MediaItemAspect>> aspects)
-    {
-      IList<MultipleMediaItemAspect> providerAspects;
-      if (!MediaItemAspect.TryGetAspects(aspects, ProviderResourceAspect.Metadata, out providerAspects))
-        return null;
-      foreach (MultipleMediaItemAspect providerAspect in providerAspects)
-      {
-        string systemId = (string)providerAspect[ProviderResourceAspect.ATTR_SYSTEM_ID];
-        string resourceAccessorPath = (string)providerAspect[ProviderResourceAspect.ATTR_RESOURCE_ACCESSOR_PATH];
-        if(!string.IsNullOrEmpty(systemId) && !string.IsNullOrEmpty(resourceAccessorPath))
-          return new ResourceLocator(systemId, ResourcePath.Deserialize(resourceAccessorPath));
-      }
-      return null;
-    }
+    #endregion
 
-    private void ExtractLocalImages(IDictionary<Guid, IList<MediaItemAspect>> aspects, Guid? episodeMediaItemId, Guid? seriesMediaItemId, Guid? seasonMediaItemId, EpisodeInfo episode, SeriesInfo series, SeasonInfo season, IDictionary<Guid, string> actorMediaItems)
+    #region Protected methods
+
+    protected async Task ExtractEpisodeFanArt(Guid mediaItemId, IDictionary<Guid, IList<MediaItemAspect>> aspects)
     {
       if (BaseInfo.IsVirtualResource(aspects))
         return;
 
-      IResourceLocator mediaItemLocater = GetResourceLocator(aspects);
-      if (mediaItemLocater == null)
+      IResourceLocator mediaItemLocator = GetResourceLocator(aspects);
+      if (mediaItemLocator == null)
         return;
 
-      ExtractFolderImages(mediaItemLocater, episodeMediaItemId, seriesMediaItemId, seasonMediaItemId, episode, series, season, actorMediaItems);
-      using (IResourceAccessor mediaItemAccessor = mediaItemLocater.CreateAccessor())
+      //Whether local fanart should be stored in the fanart cache
+      bool shouldCacheLocal = ShouldCacheLocalFanArt(mediaItemLocator.NativeResourcePath,
+        SeriesMetadataExtractor.CacheLocalFanArt, SeriesMetadataExtractor.CacheOfflineFanArt);
+
+      if (!shouldCacheLocal && SeriesMetadataExtractor.SkipFanArtDownload)
+        return; //Nothing to do
+
+      EpisodeInfo episodeInfo = new EpisodeInfo();
+      episodeInfo.FromMetadata(aspects);
+
+      //Episode fanart
+      if (AddToCache(mediaItemId))
       {
-        using (LocalFsResourceAccessorHelper rah = new LocalFsResourceAccessorHelper(mediaItemAccessor))
-        {
-          using (rah.LocalFsResourceAccessor.EnsureLocalFileSystemAccess())
-          {
-            ExtractMkvImages(rah.LocalFsResourceAccessor, seriesMediaItemId, series);
-          }
-        }
+        if (shouldCacheLocal)
+          await ExtractEpisodeFolderFanArt(mediaItemLocator, mediaItemId, episodeInfo.ToString()).ConfigureAwait(false);
+        if (!SeriesMetadataExtractor.SkipFanArtDownload)
+          await OnlineMatcherService.Instance.DownloadSeriesFanArtAsync(mediaItemId, episodeInfo).ConfigureAwait(false);
+      }
+
+      //Actor fanart may be stored in the season or series directory, so get the actors now
+      IList<Tuple<Guid, string>> actors = null;
+      if (MediaItemAspect.TryGetAspect(aspects, VideoAspect.Metadata, out SingleMediaItemAspect videoAspect))
+      {
+        var actorNames = videoAspect.GetCollectionAttribute<string>(VideoAspect.ATTR_ACTORS);
+        if (actorNames != null)
+          RelationshipExtractorUtils.TryGetMappedLinkedIds(PersonAspect.ROLE_ACTOR, aspects, actorNames.ToList(), out actors);
+      }
+
+      //Take advantage of the audio language being known and download season and series too
+
+      //Season fanart
+      if (RelationshipExtractorUtils.TryGetLinkedId(SeasonAspect.ROLE_SEASON, aspects, out Guid seasonMediaItemId) &&
+        AddToCache(seasonMediaItemId))
+      {
+        SeasonInfo seasonInfo = episodeInfo.CloneBasicInstance<SeasonInfo>();
+        if (shouldCacheLocal)
+          await ExtractSeasonFolderFanArt(mediaItemLocator, seasonMediaItemId, seasonInfo.ToString(), seasonInfo.SeasonNumber, actors).ConfigureAwait(false);
+        if (!SeriesMetadataExtractor.SkipFanArtDownload)
+          await OnlineMatcherService.Instance.DownloadSeriesFanArtAsync(seasonMediaItemId, seasonInfo).ConfigureAwait(false);
+      }
+
+      //Series fanart
+      if (RelationshipExtractorUtils.TryGetLinkedId(SeriesAspect.ROLE_SERIES, aspects, out Guid seriesMediaItemId) &&
+        AddToCache(seriesMediaItemId))
+      {
+        SeriesInfo seriesInfo = episodeInfo.CloneBasicInstance<SeriesInfo>();
+        if (shouldCacheLocal)
+          await ExtractSeriesFolderFanArt(mediaItemLocator, seriesMediaItemId, seriesInfo.ToString(), actors).ConfigureAwait(false);
+        if (!SeriesMetadataExtractor.SkipFanArtDownload)
+          await OnlineMatcherService.Instance.DownloadSeriesFanArtAsync(seriesMediaItemId, seriesInfo).ConfigureAwait(false);
       }
     }
 
-    private void ExtractMkvImages(ILocalFsResourceAccessor lfsra, Guid? seriesMediaItemId, SeriesInfo series)
+    /// <summary>
+    /// Gets all episode folder images and caches them in the <see cref="IFanArtCache"/> service.
+    /// </summary>
+    /// <param name="mediaItemLocator"><see cref="IResourceLocator>"/> that points to the file.</param>
+    /// <param name="episodeMediaItemId">Id of the episode media item.</param>
+    /// <param name="title">Title of the media item.</param>
+    /// <returns><see cref="Task"/> that completes when the images have been cached.</returns>
+    protected async Task ExtractEpisodeFolderFanArt(IResourceLocator mediaItemLocator, Guid episodeMediaItemId, string title)
     {
-      if (!seriesMediaItemId.HasValue)
+      var episodeDirectory = ResourcePathHelper.Combine(mediaItemLocator.NativeResourcePath, "../");
+      try
+      {
+        var mediaItemFileName = ResourcePathHelper.GetFileNameWithoutExtension(mediaItemLocator.NativeResourcePath.ToString()).ToLowerInvariant();
+        FanArtPathCollection paths;
+        using (IResourceAccessor accessor = new ResourceLocator(mediaItemLocator.NativeSystemId, episodeDirectory).CreateAccessor())
+          paths = GetEpisodeFolderFanArt(accessor as IFileSystemResourceAccessor, mediaItemFileName);
+        await SaveFolderImagesToCache(mediaItemLocator.NativeSystemId, paths, episodeMediaItemId, title).ConfigureAwait(false);
+      }
+      catch (Exception ex)
+      {
+        Logger.Warn("SeriesFanArtHandler: Exception while reading folder images for '{0}'", ex, episodeDirectory);
+      }
+    }
+
+    /// <summary>
+    /// Gets a <see cref="FanArtPathCollection"/> containing all matching episode fanart paths in the specified <see cref="ResourcePath"/>.
+    /// </summary>
+    /// <param name="episodeDirectory"><see cref="IFileSystemResourceAccessor"/> that points to the episode directory.</param>
+    /// <param name="filename">The file name of the media item to extract images for.</param>
+    /// <returns><see cref="FanArtPathCollection"/> containing all matching paths.</returns>
+    protected FanArtPathCollection GetEpisodeFolderFanArt(IFileSystemResourceAccessor episodeDirectory, string filename)
+    {
+      FanArtPathCollection paths = new FanArtPathCollection();
+      if (episodeDirectory == null)
+        return paths;
+
+      List<ResourcePath> potentialFanArtFiles = LocalFanartHelper.GetPotentialFanArtFiles(episodeDirectory);
+      paths.AddRange(FanArtTypes.Thumbnail,
+        LocalFanartHelper.FilterPotentialFanArtFilesByNameOrPrefix(potentialFanArtFiles, "thumb", filename + "-thumb"));
+
+      return paths;
+    }
+
+    /// <summary>
+    /// Gets all series folder images and caches them in the <see cref="IFanArtCache"/> service.
+    /// </summary>
+    /// <param name="mediaItemLocator"><see cref="IResourceLocator>"/> that points to the file.</param>
+    /// <param name="seriesMediaItemId">Id of the series media item.</param>
+    /// <param name="title">Title of the media item.</param>
+    /// <param name="actors">Collection of actor ids and names.</param>
+    /// <returns><see cref="Task"/> that completes when the images have been cached.</returns>
+    protected async Task ExtractSeriesFolderFanArt(IResourceLocator mediaItemLocator, Guid seriesMediaItemId, string title, IList<Tuple<Guid, string>> actors)
+    {
+      var seriesDirectory = ResourcePathHelper.Combine(mediaItemLocator.NativeResourcePath, "../../");
+
+      try
+      {
+        FanArtPathCollection paths = null;
+        IList<ResourcePath> potentialActorImages = null;
+        using (IResourceAccessor accessor = new ResourceLocator(mediaItemLocator.NativeSystemId, seriesDirectory).CreateAccessor())
+          if (accessor is IFileSystemResourceAccessor fsra)
+          {
+            paths = GetSeriesFolderFanArt(fsra);
+            //See if there's an actor fanart directory and try and get any actor fanart
+            if (actors != null && actors.Count > 0 && fsra.ResourceExists(".actors"))
+              using (IFileSystemResourceAccessor actorsDirectory = fsra.GetResource(".actors"))
+                potentialActorImages = LocalFanartHelper.GetPotentialFanArtFiles(actorsDirectory);
+          }
+
+        if (paths != null)
+          await SaveFolderImagesToCache(mediaItemLocator.NativeSystemId, paths, seriesMediaItemId, title).ConfigureAwait(false);
+        if (potentialActorImages != null)
+          await SavePersonFolderImages(mediaItemLocator.NativeSystemId, potentialActorImages, actors).ConfigureAwait(false);
+      }
+      catch (Exception ex)
+      {
+        Logger.Warn("SeriesFanArtHandler: Exception while reading folder images for '{0}'", ex, seriesDirectory);
+      }
+    }
+
+    /// <summary>
+    /// Gets a <see cref="FanArtPathCollection"/> containing all matching series fanart paths in the specified <see cref="ResourcePath"/>.
+    /// </summary>
+    /// <param name="seriesDirectory"><see cref="IFileSystemResourceAccessor"/> that points to the series directory.</param>
+    /// <returns><see cref="FanArtPathCollection"/> containing all matching paths.</returns>
+    protected FanArtPathCollection GetSeriesFolderFanArt(IFileSystemResourceAccessor seriesDirectory)
+    {
+      FanArtPathCollection paths = new FanArtPathCollection();
+      if (seriesDirectory == null)
+        return paths;
+
+      if (seriesDirectory != null)
+      {
+        List<ResourcePath> potentialFanArtFiles = LocalFanartHelper.GetPotentialFanArtFiles(seriesDirectory);
+        ExtractAllFanArtImages(potentialFanArtFiles, paths);
+
+        if (seriesDirectory.ResourceExists("ExtraFanArt/"))
+          using (IFileSystemResourceAccessor extraFanArtDirectory = seriesDirectory.GetResource("ExtraFanArt/"))
+            paths.AddRange(FanArtTypes.FanArt, LocalFanartHelper.GetPotentialFanArtFiles(extraFanArtDirectory));
+      }
+
+      return paths;
+    }
+
+    /// <summary>
+    /// Gets all season folder images and caches them in the <see cref="IFanArtCache"/> service.
+    /// </summary>
+    /// <param name="mediaItemLocator"><see cref="IResourceLocator>"/> that points to the file.</param>
+    /// <param name="seasonMediaItemId">Id of the season media item.</param>
+    /// <param name="title">Title of the media item.</param>
+    /// <param name="seasonNumber">Season number.</param>
+    /// <param name="actors">Collection of actor ids and names.</param>
+    /// <returns><see cref="Task"/> that completes when the images have been cached.</returns>
+    protected async Task ExtractSeasonFolderFanArt(IResourceLocator mediaItemLocator, Guid seasonMediaItemId, string title, int? seasonNumber, IList<Tuple<Guid, string>> actors)
+    {
+      var seasonDirectory = ResourcePathHelper.Combine(mediaItemLocator.NativeResourcePath, "../");
+      try
+      {
+        FanArtPathCollection paths = null;
+        IList<ResourcePath> potentialActorImages = null;
+        using (IResourceAccessor accessor = new ResourceLocator(mediaItemLocator.NativeSystemId, seasonDirectory).CreateAccessor())
+          if (accessor is IFileSystemResourceAccessor fsra)
+          {
+            paths = GetSeasonFolderFanArt(fsra, seasonNumber);
+            //See if there's an actor fanart directory and try and get any actor fanart
+            if (actors != null && actors.Count > 0 && fsra.ResourceExists(".actors"))
+              using (IFileSystemResourceAccessor actorsDirectory = fsra.GetResource(".actors"))
+                potentialActorImages = LocalFanartHelper.GetPotentialFanArtFiles(actorsDirectory);
+          }
+
+        if (paths != null)
+          await SaveFolderImagesToCache(mediaItemLocator.NativeSystemId, paths, seasonMediaItemId, title).ConfigureAwait(false);
+        if (potentialActorImages != null)
+          await SavePersonFolderImages(mediaItemLocator.NativeSystemId, potentialActorImages, actors).ConfigureAwait(false);
+      }
+      catch (Exception ex)
+      {
+        Logger.Warn("SeriesFanArtHandler: Exception while reading folder images for '{0}'", ex, seasonDirectory);
+      }
+    }
+
+    /// <summary>
+    /// Gets a <see cref="FanArtPathCollection"/> containing all matching season fanart paths in the specified <see cref="ResourcePath"/>.
+    /// </summary>
+    /// <param name="seasonDirectory"><see cref="IFileSystemResourceAccessor"/> that points to the season directory.</param>
+    /// <param name="seasonNumber">Season number.</param>
+    /// <returns><see cref="FanArtPathCollection"/> containing all matching paths.</returns>
+    protected FanArtPathCollection GetSeasonFolderFanArt(IFileSystemResourceAccessor seasonDirectory, int? seasonNumber)
+    {
+      FanArtPathCollection paths = new FanArtPathCollection();
+      if (seasonDirectory == null)
+        return paths;
+
+      List<ResourcePath> potentialFanArtFiles = LocalFanartHelper.GetPotentialFanArtFiles(seasonDirectory);
+      ExtractAllFanArtImages(potentialFanArtFiles, paths);
+
+      if (!seasonNumber.HasValue || !seasonDirectory.ResourceExists("../"))
+        return paths;
+
+      //Try and populate any missing fanart from the series directory
+      using (IFileSystemResourceAccessor seriesDirectory = seasonDirectory.GetResource("../"))
+        potentialFanArtFiles = LocalFanartHelper.GetPotentialFanArtFiles(seriesDirectory);
+      GetAdditionalSeasonFolderFanArt(paths, potentialFanArtFiles, seasonNumber.Value);
+
+      return paths;
+    }
+
+    /// <summary>
+    /// Tries to populate any empty fanart types in the specified <see cref="FanArtPathCollection"/> with image paths
+    /// contained in <paramref name="potentialFanArtFiles"/> that start with 'season-all', 'season{<paramref name="seasonNumber"/>}' 
+    /// or, if <paramref name="seasonNumber"/> is 0, 'season-specials'.
+    /// </summary>
+    /// <param name="paths">The <see cref="FanArtPathCollection"/> to add matching paths to.</param>
+    /// <param name="potentialFanArtFiles">Collection of potential fanart paths.</param>
+    /// <param name="seasonNumber">The season number.</param>
+    protected void GetAdditionalSeasonFolderFanArt(FanArtPathCollection paths, ICollection<ResourcePath> potentialFanArtFiles, int seasonNumber)
+    {
+      if (potentialFanArtFiles == null || potentialFanArtFiles.Count == 0)
         return;
 
-      string mediaItemId = seriesMediaItemId.Value.ToString().ToUpperInvariant();
-      string fileSystemPath = string.Empty;
-      IDictionary<string, string> patterns = new Dictionary<string, string>()
+      string[] prefixes = new[]
       {
-        { "banner.", FanArtTypes.Banner },
-        { "clearart.", FanArtTypes.ClearArt },
-        { "cover.", FanArtTypes.Cover },
-        { "poster.", FanArtTypes.Poster },
-        { "folder.", FanArtTypes.Poster },
-        { "backdrop.", FanArtTypes.FanArt },
-        { "fanart.", FanArtTypes.FanArt },
+        string.Format("season{0:00}", seasonNumber),
+        seasonNumber == 0 ? "season-specials" : "season-all"
       };
 
-      // File based access
-      try
-      {
-        if (lfsra != null)
-        {
-          fileSystemPath = lfsra.LocalFileSystemPath;
-          var ext = ResourcePathHelper.GetExtension(lfsra.LocalFileSystemPath);
-          if (!MKV_EXTENSIONS.Contains(ext))
-            return;
+      if (paths.Count(FanArtTypes.Thumbnail) == 0)
+        paths.AddRange(FanArtTypes.Thumbnail, LocalFanartHelper.FilterPotentialFanArtFilesByName(potentialFanArtFiles,
+          LocalFanartHelper.THUMB_FILENAMES.SelectMany(f => prefixes.Select(p => p + "-" + f))));
 
-          MatroskaInfoReader mkvReader = new MatroskaInfoReader(lfsra);
-          byte[] binaryData = null;
-          foreach (string pattern in patterns.Keys)
-          {
-            if (mkvReader.GetAttachmentByName(pattern, out binaryData))
-            {
-              string fanArtType = patterns[pattern];
-              using (FanArtCache.FanArtCountLock countLock = FanArtCache.GetFanArtCountLock(mediaItemId, fanArtType))
-              {
-                if (countLock.Count >= FanArtCache.MAX_FANART_IMAGES[fanArtType])
-                  return;
+      if (paths.Count(FanArtTypes.Poster) == 0)
+        paths.AddRange(FanArtTypes.Poster, LocalFanartHelper.FilterPotentialFanArtFilesByName(potentialFanArtFiles,
+          LocalFanartHelper.POSTER_FILENAMES.SelectMany(f => prefixes.Select(p => p + "-" + f))));
 
-                FanArtCache.InitFanArtCache(mediaItemId, series.ToString());
-                string cacheFile = GetCacheFileName(mediaItemId, fanArtType,
-                  "File." + pattern + Path.GetFileNameWithoutExtension(lfsra.LocalFileSystemPath) + ".jpg");
-                if (!File.Exists(cacheFile))
-                {
-                  using (MemoryStream ms = new MemoryStream(binaryData))
-                  {
-                    using (Image img = Image.FromStream(ms, true, true))
-                    {
-                      img.Save(cacheFile, System.Drawing.Imaging.ImageFormat.Jpeg);
-                      countLock.Count++;
-                    }
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
-      catch (Exception ex)
-      {
-        Logger.Warn("SeriesFanArtHandler: Exception while reading mkv attachments from '{0}'", ex, fileSystemPath);
-      }
+      if (paths.Count(FanArtTypes.Logo) == 0)
+        paths.AddRange(FanArtTypes.Logo, LocalFanartHelper.FilterPotentialFanArtFilesByName(potentialFanArtFiles,
+          LocalFanartHelper.LOGO_FILENAMES.SelectMany(f => prefixes.Select(p => p + "-" + f))));
+
+      if (paths.Count(FanArtTypes.ClearArt) == 0)
+        paths.AddRange(FanArtTypes.ClearArt, LocalFanartHelper.FilterPotentialFanArtFilesByName(potentialFanArtFiles,
+          LocalFanartHelper.CLEARART_FILENAMES.SelectMany(f => prefixes.Select(p => p + "-" + f))));
+
+      if (paths.Count(FanArtTypes.DiscArt) == 0)
+        paths.AddRange(FanArtTypes.DiscArt, LocalFanartHelper.FilterPotentialFanArtFilesByName(potentialFanArtFiles,
+          LocalFanartHelper.DISCART_FILENAMES.SelectMany(f => prefixes.Select(p => p + "-" + f))));
+
+      if (paths.Count(FanArtTypes.Banner) == 0)
+        paths.AddRange(FanArtTypes.Banner, LocalFanartHelper.FilterPotentialFanArtFilesByName(potentialFanArtFiles,
+          LocalFanartHelper.BANNER_FILENAMES.SelectMany(f => prefixes.Select(p => p + "-" + f))));
+
+      if (paths.Count(FanArtTypes.FanArt) == 0)
+        paths.AddRange(FanArtTypes.FanArt, LocalFanartHelper.FilterPotentialFanArtFilesByName(potentialFanArtFiles,
+          LocalFanartHelper.BACKDROP_FILENAMES.SelectMany(f => prefixes.Select(p => p + "-" + f))));
     }
 
-    private void ExtractFolderImages(IResourceLocator mediaItemLocater, Guid? episodeMediaItemId, Guid? seriesMediaItemId, Guid? seasonMediaItemId, EpisodeInfo episode, SeriesInfo series, SeasonInfo season, IDictionary<Guid, string> actorMediaItems)
-    {
-      string fileSystemPath = string.Empty;
-
-      // File based access
-      try
-      {
-        if (mediaItemLocater != null)
-        {
-          fileSystemPath = mediaItemLocater.NativeResourcePath.FileName;
-          var mediaItemPath = mediaItemLocater.NativeResourcePath;
-          var mediaItemFileName = ResourcePathHelper.GetFileNameWithoutExtension(mediaItemPath.ToString()).ToLowerInvariant();
-          var seasonMediaItemDirectoryPath = ResourcePathHelper.Combine(mediaItemPath, "../");
-          var seriesMediaItemDirectoryPath = ResourcePathHelper.Combine(mediaItemPath, "../../");
-
-          //Series fanart
-          var fanArtPaths = new List<ResourcePath>();
-          var posterPaths = new List<ResourcePath>();
-          var bannerPaths = new List<ResourcePath>();
-          var logoPaths = new List<ResourcePath>();
-          var clearArtPaths = new List<ResourcePath>();
-          if (seriesMediaItemId.HasValue)
-          {
-            using (var directoryRa = new ResourceLocator(mediaItemLocater.NativeSystemId, seriesMediaItemDirectoryPath).CreateAccessor())
-            {
-              var directoryFsra = directoryRa as IFileSystemResourceAccessor;
-              if (directoryFsra != null)
-              {
-                if (actorMediaItems.Count > 0)
-                {
-                  //Get Actor thumbs
-                  IFileSystemResourceAccessor actorMediaItemDirectory = directoryFsra.GetResource(".actors");
-                  if (actorMediaItemDirectory != null)
-                  {
-                    foreach (var actor in actorMediaItems)
-                    {
-                      var potentialArtistFanArtFiles = GetPotentialFanArtFiles(actorMediaItemDirectory);
-
-                      foreach (ResourcePath thumbPath in
-                          from potentialFanArtFile in potentialArtistFanArtFiles
-                          let potentialFanArtFileNameWithoutExtension = ResourcePathHelper.GetFileNameWithoutExtension(potentialFanArtFile.ToString())
-                          where potentialFanArtFileNameWithoutExtension.StartsWith(actor.Value.Replace(" ", "_"), StringComparison.InvariantCultureIgnoreCase)
-                          select potentialFanArtFile)
-                        SaveFolderFile(mediaItemLocater, thumbPath, FanArtTypes.Thumbnail, actor.Key, actor.Value);
-                    }
-                  }
-                }
-
-                var potentialFanArtFiles = GetPotentialFanArtFiles(directoryFsra);
-
-                posterPaths.AddRange(
-                    from potentialFanArtFile in potentialFanArtFiles
-                    let potentialFanArtFileNameWithoutExtension = ResourcePathHelper.GetFileNameWithoutExtension(potentialFanArtFile.ToString()).ToLowerInvariant()
-                    where potentialFanArtFileNameWithoutExtension == "poster" || potentialFanArtFileNameWithoutExtension == "folder" || potentialFanArtFileNameWithoutExtension == "cover"
-                    select potentialFanArtFile);
-
-                logoPaths.AddRange(
-                    from potentialFanArtFile in potentialFanArtFiles
-                    let potentialFanArtFileNameWithoutExtension = ResourcePathHelper.GetFileNameWithoutExtension(potentialFanArtFile.ToString()).ToLowerInvariant()
-                    where potentialFanArtFileNameWithoutExtension == "logo"
-                    select potentialFanArtFile);
-
-                clearArtPaths.AddRange(
-                    from potentialFanArtFile in potentialFanArtFiles
-                    let potentialFanArtFileNameWithoutExtension = ResourcePathHelper.GetFileNameWithoutExtension(potentialFanArtFile.ToString()).ToLowerInvariant()
-                    where potentialFanArtFileNameWithoutExtension == "clearart"
-                    select potentialFanArtFile);
-
-                bannerPaths.AddRange(
-                    from potentialFanArtFile in potentialFanArtFiles
-                    let potentialFanArtFileNameWithoutExtension = ResourcePathHelper.GetFileNameWithoutExtension(potentialFanArtFile.ToString()).ToLowerInvariant()
-                    where potentialFanArtFileNameWithoutExtension == "banner"
-                    select potentialFanArtFile);
-
-                fanArtPaths.AddRange(
-                    from potentialFanArtFile in potentialFanArtFiles
-                    let potentialFanArtFileNameWithoutExtension = ResourcePathHelper.GetFileNameWithoutExtension(potentialFanArtFile.ToString()).ToLowerInvariant()
-                    where potentialFanArtFileNameWithoutExtension == "backdrop" || potentialFanArtFileNameWithoutExtension == "fanart"
-                    select potentialFanArtFile);
-
-                if (directoryFsra.ResourceExists("ExtraFanArt/"))
-                  using (var extraFanArtDirectoryFsra = directoryFsra.GetResource("ExtraFanArt/"))
-                    fanArtPaths.AddRange(GetPotentialFanArtFiles(extraFanArtDirectoryFsra));
-              }
-            }
-            foreach (ResourcePath posterPath in posterPaths)
-              SaveFolderFile(mediaItemLocater, posterPath, FanArtTypes.Poster, seriesMediaItemId.Value, series.ToString());
-            foreach (ResourcePath logoPath in logoPaths)
-              SaveFolderFile(mediaItemLocater, logoPath, FanArtTypes.Logo, seriesMediaItemId.Value, series.ToString());
-            foreach (ResourcePath clearArtPath in clearArtPaths)
-              SaveFolderFile(mediaItemLocater, clearArtPath, FanArtTypes.ClearArt, seriesMediaItemId.Value, series.ToString());
-            foreach (ResourcePath bannerPath in bannerPaths)
-              SaveFolderFile(mediaItemLocater, bannerPath, FanArtTypes.Banner, seriesMediaItemId.Value, series.ToString());
-            foreach (ResourcePath fanartPath in fanArtPaths)
-              SaveFolderFile(mediaItemLocater, fanartPath, FanArtTypes.FanArt, seriesMediaItemId.Value, series.ToString());
-          }
-
-          //Season fanart
-          fanArtPaths.Clear();
-          posterPaths.Clear();
-          bannerPaths.Clear();
-          logoPaths.Clear();
-          clearArtPaths.Clear();
-          if (seasonMediaItemId.HasValue)
-          {
-            using (var directoryRa = new ResourceLocator(mediaItemLocater.NativeSystemId, seasonMediaItemDirectoryPath).CreateAccessor())
-            {
-              var directoryFsra = directoryRa as IFileSystemResourceAccessor;
-              if (directoryFsra != null)
-              {
-                if (actorMediaItems.Count > 0)
-                {
-                  //Get Actor thumbs
-                  IFileSystemResourceAccessor actorMediaItemDirectory = directoryFsra.GetResource(".actors");
-                  if (actorMediaItemDirectory != null)
-                  {
-                    foreach (var actor in actorMediaItems)
-                    {
-                      var potentialArtistFanArtFiles = GetPotentialFanArtFiles(actorMediaItemDirectory);
-
-                      foreach (ResourcePath thumbPath in
-                          from potentialFanArtFile in potentialArtistFanArtFiles
-                          let potentialFanArtFileNameWithoutExtension = ResourcePathHelper.GetFileNameWithoutExtension(potentialFanArtFile.ToString())
-                          where potentialFanArtFileNameWithoutExtension.StartsWith(actor.Value.Replace(" ", "_"), StringComparison.InvariantCultureIgnoreCase)
-                          select potentialFanArtFile)
-                        SaveFolderFile(mediaItemLocater, thumbPath, FanArtTypes.Thumbnail, actor.Key, actor.Value);
-                    }
-                  }
-                }
-
-                var potentialFanArtFiles = GetPotentialFanArtFiles(directoryFsra);
-
-                posterPaths.AddRange(
-                    from potentialFanArtFile in potentialFanArtFiles
-                    let potentialFanArtFileNameWithoutExtension = ResourcePathHelper.GetFileNameWithoutExtension(potentialFanArtFile.ToString()).ToLowerInvariant()
-                    where potentialFanArtFileNameWithoutExtension == "poster" || potentialFanArtFileNameWithoutExtension == "folder" || potentialFanArtFileNameWithoutExtension == "cover"
-                    select potentialFanArtFile);
-
-                bannerPaths.AddRange(
-                    from potentialFanArtFile in potentialFanArtFiles
-                    let potentialFanArtFileNameWithoutExtension = ResourcePathHelper.GetFileNameWithoutExtension(potentialFanArtFile.ToString()).ToLowerInvariant()
-                    where potentialFanArtFileNameWithoutExtension == "banner"
-                    select potentialFanArtFile);
-
-                fanArtPaths.AddRange(
-                    from potentialFanArtFile in potentialFanArtFiles
-                    let potentialFanArtFileNameWithoutExtension = ResourcePathHelper.GetFileNameWithoutExtension(potentialFanArtFile.ToString()).ToLowerInvariant()
-                    where potentialFanArtFileNameWithoutExtension == "backdrop" || potentialFanArtFileNameWithoutExtension == "fanart"
-                    select potentialFanArtFile);
-
-                if (directoryFsra.ResourceExists("ExtraFanArt/"))
-                  using (var extraFanArtDirectoryFsra = directoryFsra.GetResource("ExtraFanArt/"))
-                    fanArtPaths.AddRange(GetPotentialFanArtFiles(extraFanArtDirectoryFsra));
-              }
-            }
-            using (var directoryRa = new ResourceLocator(mediaItemLocater.NativeSystemId, seriesMediaItemDirectoryPath).CreateAccessor())
-            {
-              var directoryFsra = directoryRa as IFileSystemResourceAccessor;
-              if (directoryFsra != null && season.SeasonNumber.HasValue)
-              {
-                var potentialFanArtFiles = GetPotentialFanArtFiles(directoryFsra);
-                List<string> prefixes = new List<string>();
-                prefixes.Add(string.Format("season{0:00}-", season.SeasonNumber.Value));
-                if (season.SeasonNumber.Value == 0)
-                {
-                  prefixes.Add("season-specials-");
-                }
-                else
-                {
-                  prefixes.Add("season-all-");
-                }
-
-                foreach (string prefix in prefixes)
-                {
-                  if (posterPaths.Count == 0)
-                    posterPaths.AddRange(
-                      from potentialFanArtFile in potentialFanArtFiles
-                      let potentialFanArtFileNameWithoutExtension = ResourcePathHelper.GetFileNameWithoutExtension(potentialFanArtFile.ToString()).ToLowerInvariant()
-                      where potentialFanArtFileNameWithoutExtension == prefix + "poster"
-                      select potentialFanArtFile);
-
-                  if (logoPaths.Count == 0)
-                    logoPaths.AddRange(
-                      from potentialFanArtFile in potentialFanArtFiles
-                      let potentialFanArtFileNameWithoutExtension = ResourcePathHelper.GetFileNameWithoutExtension(potentialFanArtFile.ToString()).ToLowerInvariant()
-                      where potentialFanArtFileNameWithoutExtension == prefix + "logo"
-                      select potentialFanArtFile);
-
-                  if (clearArtPaths.Count == 0)
-                    clearArtPaths.AddRange(
-                      from potentialFanArtFile in potentialFanArtFiles
-                      let potentialFanArtFileNameWithoutExtension = ResourcePathHelper.GetFileNameWithoutExtension(potentialFanArtFile.ToString()).ToLowerInvariant()
-                      where potentialFanArtFileNameWithoutExtension == prefix + "clearart"
-                      select potentialFanArtFile);
-
-                  if (bannerPaths.Count == 0)
-                    bannerPaths.AddRange(
-                      from potentialFanArtFile in potentialFanArtFiles
-                      let potentialFanArtFileNameWithoutExtension = ResourcePathHelper.GetFileNameWithoutExtension(potentialFanArtFile.ToString()).ToLowerInvariant()
-                      where potentialFanArtFileNameWithoutExtension == prefix + "banner"
-                      select potentialFanArtFile);
-
-                  if (fanArtPaths.Count == 0)
-                    fanArtPaths.AddRange(
-                      from potentialFanArtFile in potentialFanArtFiles
-                      let potentialFanArtFileNameWithoutExtension = ResourcePathHelper.GetFileNameWithoutExtension(potentialFanArtFile.ToString()).ToLowerInvariant()
-                      where potentialFanArtFileNameWithoutExtension == prefix + "fanart"
-                      select potentialFanArtFile);
-                }
-              }
-            }
-            foreach (ResourcePath posterPath in posterPaths)
-              SaveFolderFile(mediaItemLocater, posterPath, FanArtTypes.Poster, seasonMediaItemId.Value, season.ToString());
-            foreach (ResourcePath logoPath in logoPaths)
-              SaveFolderFile(mediaItemLocater, logoPath, FanArtTypes.Logo, seasonMediaItemId.Value, season.ToString());
-            foreach (ResourcePath clearArtPath in clearArtPaths)
-              SaveFolderFile(mediaItemLocater, clearArtPath, FanArtTypes.ClearArt, seasonMediaItemId.Value, season.ToString());
-            foreach (ResourcePath bannerPath in bannerPaths)
-              SaveFolderFile(mediaItemLocater, bannerPath, FanArtTypes.Banner, seasonMediaItemId.Value, season.ToString());
-            foreach (ResourcePath fanartPath in fanArtPaths)
-              SaveFolderFile(mediaItemLocater, fanartPath, FanArtTypes.FanArt, seasonMediaItemId.Value, season.ToString());
-          }
-
-          //Episode fanart
-          var thumbPaths = new List<ResourcePath>();
-          if (episodeMediaItemId.HasValue)
-          {
-            using (var directoryRa = new ResourceLocator(mediaItemLocater.NativeSystemId, seasonMediaItemDirectoryPath).CreateAccessor())
-            {
-              var directoryFsra = directoryRa as IFileSystemResourceAccessor;
-              if (directoryFsra != null)
-              {
-                var potentialFanArtFiles = GetPotentialFanArtFiles(directoryFsra);
-
-                thumbPaths.AddRange(
-                    from potentialFanArtFile in potentialFanArtFiles
-                    let potentialFanArtFileNameWithoutExtension = ResourcePathHelper.GetFileNameWithoutExtension(potentialFanArtFile.ToString()).ToLowerInvariant()
-                    where potentialFanArtFileNameWithoutExtension.StartsWith(mediaItemFileName + "-thumb") || potentialFanArtFileNameWithoutExtension == "thumb"
-                    select potentialFanArtFile);
-              }
-            }
-            foreach (ResourcePath thumbPath in thumbPaths)
-              SaveFolderFile(mediaItemLocater, thumbPath, FanArtTypes.Thumbnail, episodeMediaItemId.Value, episode.ToString());
-          }
-        }
-      }
-      catch (Exception ex)
-      {
-        Logger.Warn("SeriesFanArtHandler: Exception while reading folder images for '{0}'", ex, fileSystemPath);
-      }
-    }
-
-    private List<ResourcePath> GetPotentialFanArtFiles(IFileSystemResourceAccessor directoryAccessor)
-    {
-      var result = new List<ResourcePath>();
-      if (directoryAccessor.IsFile)
-        return result;
-      foreach (var file in directoryAccessor.GetFiles())
-        using (file)
-        {
-          var path = file.CanonicalLocalResourcePath;
-          if (IMG_EXTENSIONS.Contains(ResourcePathHelper.GetExtension(path.ToString())))
-            result.Add(path);
-        }
-      return result;
-    }
-
-    private void SaveFolderFile(IResourceLocator mediaItemLocater, ResourcePath file, string fanartType, Guid parentId, string title)
-    {
-      string mediaItemId = parentId.ToString().ToUpperInvariant();
-      using (FanArtCache.FanArtCountLock countLock = FanArtCache.GetFanArtCountLock(mediaItemId, fanartType))
-      {
-        if (countLock.Count >= FanArtCache.MAX_FANART_IMAGES[fanartType])
-          return;
-
-        if ((SeriesMetadataExtractor.CacheOfflineFanArt && mediaItemLocater.NativeResourcePath.IsNetworkResource) ||
-          (SeriesMetadataExtractor.CacheLocalFanArt && !mediaItemLocater.NativeResourcePath.IsNetworkResource && mediaItemLocater.NativeResourcePath.IsValidLocalPath)) 
-        {
-          FanArtCache.InitFanArtCache(mediaItemId, title);
-          string cacheFile = GetCacheFileName(mediaItemId, fanartType, "Folder." + ResourcePathHelper.GetFileName(file.ToString()));
-          if (!File.Exists(cacheFile))
-          {
-            using (var fileRa = new ResourceLocator(mediaItemLocater.NativeSystemId, file).CreateAccessor())
-            {
-              var fileFsra = fileRa as IFileSystemResourceAccessor;
-              if (fileFsra != null)
-              {
-                using (Stream ms = fileFsra.OpenRead())
-                {
-                  using (Image img = Image.FromStream(ms, true, true))
-                  {
-                    img.Save(cacheFile);
-                    countLock.Count++;
-                  }
-                }
-              }
-            }
-          }
-        }
-        else
-        {
-          //Also count local FanArt
-          countLock.Count++;
-        }
-      }
-    }
-
-    private string GetCacheFileName(string mediaItemId, string fanartType, string fileName)
-    {
-      string cacheFile = Path.Combine(CACHE_PATH, mediaItemId, fanartType, fileName);
-      string folder = Path.GetDirectoryName(cacheFile);
-      if (!Directory.Exists(folder))
-        Directory.CreateDirectory(folder);
-
-      return cacheFile;
-    }
-
-    public void DeleteFanArt(Guid mediaItemId)
-    {
-      _checkCache.Remove(mediaItemId);
-      Task.Run(() => FanArtCache.DeleteFanArtFiles(mediaItemId.ToString()));
-    }
-
-    public void ClearCache()
-    {
-      _checkCache.Clear();
-    }
-
-    private static ILogger Logger
-    {
-      get { return ServiceRegistration.Get<ILogger>(); }
-    }
+    #endregion
   }
 }

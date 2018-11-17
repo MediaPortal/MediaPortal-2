@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <string name="Settings.InputDeviceManager.Section">Gestor de mapeamento</string>
+  <string name="Settings.InputDeviceManager.EnterKeyConfig">Gestor de mapeamento de teclas</string>
+  <string name="Settings.InputDeviceManager.EnterScreenConfig">Gestor de mapeamento de ecrã</string>
+  <string name="InputDeviceManager.SelectDevice.Header">Pressione o botão que deseja configurar.</string>
+  <string name="InputDeviceManager.AddKey.Header">Pressiona a combinação de teclas desejada no dispositivo de entrada!</string>
+  <string name="InputDeviceManager.Screen">Ecrã</string>
+  <string name="InputDeviceManager.Key">Chave</string>
+
+  <string name="InputDeviceManager.KeyMapping.Button.ClearMapping">Limpar</string>
+  <string name="InputDeviceManager.KeyMapping.Dialog.RemoveMapping">Eliminar mapeamento?</string>
+  <string name="InputDeviceManager.KeyMapping.Dialog.AddMapping">Adicionar mapeamento?</string>
+</resources>

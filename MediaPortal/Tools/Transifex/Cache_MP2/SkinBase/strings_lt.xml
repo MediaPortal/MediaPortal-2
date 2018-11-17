@@ -109,8 +109,6 @@
   <string name="Settings.General.System">Sistema</string>
   <string name="Settings.General.System.Autostart">Autopaleidimas</string>
   <string name="Settings.General.System.Autostart.Help">Paleisti MediaPortal automatiškai startuojant Windows</string>
-  <string name="Settings.General.System.ClientDOKANDrive">Prijungiamo resurso disko raidė</string>
-  <string name="Settings.General.System.ClientDOKANDrive.Help">Konfiguruoja disko raidę prijungiamam nuotoliniam resursui šiame kliente.</string>
   <string name="Settings.General.Connectivity">Jungiamumas</string>
   <string name="Settings.General.Connectivity.HomeServer">Pagrindinis serveris</string>
   <string name="Settings.General.Connectivity.HomeServer.Help">Pagrindinio serverio informacija, prijungti ir atjungti pastarąjį</string>

@@ -22,20 +22,23 @@
 
 #endregion
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Common.MediaManagement.Helpers;
-using MediaPortal.Extensions.OnlineLibraries;
 using MediaPortal.Common.MediaManagement.MLQueries;
+using MediaPortal.Common.ResourceAccess;
+using MediaPortal.Extensions.OnlineLibraries;
+using MediaPortal.Utilities.Collections;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
 {
-  class SeriesCharacterRelationshipExtractor : ISeriesRelationshipExtractor, IRelationshipRoleExtractor
+  class SeriesCharacterRelationshipExtractor : IRelationshipRoleExtractor
   {
     private static readonly Guid[] ROLE_ASPECTS = { SeriesAspect.ASPECT_ID };
     private static readonly Guid[] LINKED_ROLE_ASPECTS = { CharacterAspect.ASPECT_ID };
@@ -72,65 +75,45 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
 
     public IFilter GetSearchFilter(IDictionary<Guid, IList<MediaItemAspect>> extractedAspects)
     {
-      return GetCharacterSearchFilter(extractedAspects);
+      if (!extractedAspects.ContainsKey(CharacterAspect.ASPECT_ID))
+        return null;
+      return BooleanCombinationFilter.CombineFilters(BooleanOperator.Or,
+        RelationshipExtractorUtils.CreateExternalItemFilter(extractedAspects, ExternalIdentifierAspect.TYPE_CHARACTER),
+        RelationshipExtractorUtils.CreateExternalItemFilter(extractedAspects, ExternalIdentifierAspect.TYPE_PERSON));
     }
 
-    public bool TryExtractRelationships(IDictionary<Guid, IList<MediaItemAspect>> aspects, bool importOnly, out IList<RelationshipItem> extractedLinkedAspects)
+    public ICollection<string> GetExternalIdentifiers(IDictionary<Guid, IList<MediaItemAspect>> extractedAspects)
     {
-      extractedLinkedAspects = null;
+      List<string> identifiers = new List<string>();
+      if (extractedAspects.ContainsKey(CharacterAspect.ASPECT_ID))
+      {
+        identifiers.AddRange(RelationshipExtractorUtils.CreateExternalItemIdentifiers(extractedAspects, ExternalIdentifierAspect.TYPE_CHARACTER));
+        identifiers.AddRange(RelationshipExtractorUtils.CreateExternalItemIdentifiers(extractedAspects, ExternalIdentifierAspect.TYPE_PERSON));
+      }
+      return identifiers;
+    }
 
-      if (!SeriesMetadataExtractor.IncludeCharacterDetails)
-        return false;
-
-      if (importOnly)
-        return false;
-
+    public async Task<bool> TryExtractRelationshipsAsync(IResourceAccessor mediaItemAccessor, IDictionary<Guid, IList<MediaItemAspect>> aspects, IList<IDictionary<Guid, IList<MediaItemAspect>>> extractedLinkedAspects)
+    {
       SeriesInfo seriesInfo = new SeriesInfo();
       if (!seriesInfo.FromMetadata(aspects))
         return false;
 
-      if (CheckCacheContains(seriesInfo))
-        return false;
+      if (RelationshipExtractorUtils.TryCreateInfoFromLinkedAspects(extractedLinkedAspects, out List<CharacterInfo> characters))
+        seriesInfo.Characters = characters;
 
-      int count = 0;
-      if (!SeriesMetadataExtractor.SkipOnlineSearches)
+      if (SeriesMetadataExtractor.IncludeCharacterDetails && !SeriesMetadataExtractor.SkipOnlineSearches)
+        await OnlineMatcherService.Instance.UpdateSeriesCharactersAsync(seriesInfo).ConfigureAwait(false);
+
+      foreach (CharacterInfo character in seriesInfo.Characters.Take(SeriesMetadataExtractor.MaximumCharacterCount))
       {
-        OnlineMatcherService.Instance.UpdateSeriesCharacters(seriesInfo, importOnly);
-        count = seriesInfo.Characters.Where(p => p.HasExternalId).Count();
-        if (!seriesInfo.IsRefreshed)
-          seriesInfo.HasChanged = true; //Force save to update external Ids for metadata found by other MDEs
-      }
-      else
-      {
-        count = seriesInfo.Characters.Where(p => !string.IsNullOrEmpty(p.Name)).Count();
-      }
-
-      if (seriesInfo.Characters.Count == 0)
-        return false;
-
-      if (BaseInfo.CountRelationships(aspects, LinkedRole) < count || (BaseInfo.CountRelationships(aspects, LinkedRole) == 0 && seriesInfo.Characters.Count > 0))
-        seriesInfo.HasChanged = true; //Force save if no relationship exists
-
-      if (!seriesInfo.HasChanged)
-        return false;
-
-      AddToCheckCache(seriesInfo);
-
-      extractedLinkedAspects = new List<RelationshipItem>();
-      foreach (CharacterInfo character in seriesInfo.Characters)
-      {
-        character.AssignNameId();
-        character.HasChanged = seriesInfo.HasChanged;
-        IDictionary<Guid, IList<MediaItemAspect>> characterAspects = new Dictionary<Guid, IList<MediaItemAspect>>();
-        character.SetMetadata(characterAspects);
-
-        if (characterAspects.ContainsKey(ExternalIdentifierAspect.ASPECT_ID))
+        if (character.LinkedAspects != null)
+          character.SetLinkedMetadata();
+        else
         {
-          Guid existingId;
-          if (TryGetIdFromCache(character, out existingId))
-            extractedLinkedAspects.Add(new RelationshipItem(characterAspects, existingId));
-          else
-            extractedLinkedAspects.Add(new RelationshipItem(characterAspects, Guid.Empty));
+          IDictionary<Guid, IList<MediaItemAspect>> characterAspects = new Dictionary<Guid, IList<MediaItemAspect>>();
+          if (character.SetMetadata(characterAspects) && characterAspects.ContainsKey(ExternalIdentifierAspect.ASPECT_ID))
+            extractedLinkedAspects.Add(characterAspects);
         }
       }
       return extractedLinkedAspects.Count > 0;
@@ -167,17 +150,10 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
         return false;
 
       IEnumerable<string> actors = aspect.GetCollectionAttribute<string>(SeriesAspect.ATTR_CHARACTERS);
-      List<string> nameList = new List<string>(actors);
+      List<string> nameList = new SafeList<string>(actors);
 
       index = nameList.IndexOf(name);
       return index >= 0;
-    }
-
-    public void CacheExtractedItem(Guid extractedItemId, IDictionary<Guid, IList<MediaItemAspect>> extractedAspects)
-    {
-      CharacterInfo character = new CharacterInfo();
-      character.FromMetadata(extractedAspects);
-      AddToCache(extractedItemId, character);
     }
 
     internal static ILogger Logger

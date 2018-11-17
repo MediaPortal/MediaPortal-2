@@ -49,6 +49,7 @@ using SharpDX.Direct3D9;
 using MediaPortal.UI.SkinEngine.DirectX;
 using MediaPortal.UI.SkinEngine.Controls.Visuals.Styles;
 using MediaPortal.Utilities.DeepCopy;
+using SharpDX.Mathematics.Interop;
 using Effect = MediaPortal.UI.SkinEngine.Controls.Visuals.Effects.Effect;
 using Size = SharpDX.Size2;
 using SizeF = SharpDX.Size2F;
@@ -1912,11 +1913,11 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
         // Fill the background of the texture with an alpha value of 0
         GraphicsDevice.Device.Clear(ClearFlags.Target, ColorConverter.FromArgb(0, Color.Black), 1.0f, 0,
-          new [] { new Rectangle(
-              (int)Math.Floor(bounds.X),
-              (int)Math.Floor(bounds.Y),
-              (int)Math.Ceiling(bounds.Width),
-              (int)Math.Ceiling(bounds.Height))});
+          new [] { new RawRectangle(
+              (int)Math.Floor(bounds.Left),
+              (int)Math.Floor(bounds.Top),
+              (int)Math.Ceiling(bounds.Right),
+              (int)Math.Ceiling(bounds.Bottom))});
 
         // Render the control into the given texture
         RenderOverride(renderContext);

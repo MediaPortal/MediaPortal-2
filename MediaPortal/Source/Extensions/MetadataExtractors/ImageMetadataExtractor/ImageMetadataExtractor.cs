@@ -22,23 +22,24 @@
 
 #endregion
 
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Device.Location;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Common.ResourceAccess;
+using MediaPortal.Common.Services.Settings;
 using MediaPortal.Common.Services.ThumbnailGenerator;
 using MediaPortal.Common.Settings;
 using MediaPortal.Extensions.MetadataExtractors.ImageMetadataExtractor.Settings;
 using MediaPortal.Extensions.OnlineLibraries;
 using MediaPortal.Utilities;
 using MediaPortal.Utilities.SystemAPI;
-using MediaPortal.Common.Services.Settings;
+using System;
+using System.Collections.Generic;
+using System.Device.Location;
+using System.IO;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace MediaPortal.Extensions.MetadataExtractors.ImageMetadataExtractor
 {
@@ -149,11 +150,13 @@ namespace MediaPortal.Extensions.MetadataExtractors.ImageMetadataExtractor
       get { return _metadata; }
     }
 
-    public bool TryExtractMetadata(IResourceAccessor mediaItemAccessor, IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData, bool importOnly)
+    public async Task<bool> TryExtractMetadataAsync(IResourceAccessor mediaItemAccessor, IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData, bool forceQuickMode)
     {
       string fileName = mediaItemAccessor.ResourceName;
       if (!HasImageExtension(fileName))
         return false;
+      if (DosPathHelper.GetFileNameWithoutExtension(fileName).ToLowerInvariant() == "folder")
+        return false; //Ignore folder images
 
       bool refresh = false;
       if (extractedAspectData.ContainsKey(ImageAspect.ASPECT_ID))
@@ -166,17 +169,25 @@ namespace MediaPortal.Extensions.MetadataExtractors.ImageMetadataExtractor
         {
           MultipleMediaItemAspect providerResourceAspect = MediaItemAspect.CreateAspect(extractedAspectData, ProviderResourceAspect.Metadata);
           providerResourceAspect.SetAttribute(ProviderResourceAspect.ATTR_RESOURCE_INDEX, 0);
-          providerResourceAspect.SetAttribute(ProviderResourceAspect.ATTR_PRIMARY, true);
+          providerResourceAspect.SetAttribute(ProviderResourceAspect.ATTR_TYPE, ProviderResourceAspect.TYPE_PRIMARY);
 
           if (!(mediaItemAccessor is IFileSystemResourceAccessor))
             return false;
 
-          // Open a stream for media item to detect mimeType.
-          using (Stream mediaStream = fsra.OpenRead())
+          providerResourceAspect.SetAttribute(ProviderResourceAspect.ATTR_SIZE, fsra.Size);
+          if (!forceQuickMode)
           {
-            string mimeType = MimeTypeDetector.GetMimeType(mediaStream) ?? DEFAULT_MIMETYPE;
+            // Open a stream for media item to detect mimeType.
+            using (Stream mediaStream = fsra.OpenRead())
+            {
+              string mimeType = MimeTypeDetector.GetMimeType(mediaStream) ?? DEFAULT_MIMETYPE;
+              providerResourceAspect.SetAttribute(ProviderResourceAspect.ATTR_MIME_TYPE, mimeType);
+            }
+          }
+          else
+          {
+            string mimeType = MimeTypeDetector.GetMimeTypeFromExtension(fileName) ?? DEFAULT_MIMETYPE;
             providerResourceAspect.SetAttribute(ProviderResourceAspect.ATTR_MIME_TYPE, mimeType);
-            providerResourceAspect.SetAttribute(ProviderResourceAspect.ATTR_SIZE, fsra.Size);
           }
         }
 
@@ -185,31 +196,40 @@ namespace MediaPortal.Extensions.MetadataExtractors.ImageMetadataExtractor
         MediaItemAspect imageAspect = MediaItemAspect.GetOrCreateAspect(extractedAspectData, ImageAspect.Metadata);
 
         if (!refresh)
-        { 
-          // Extract EXIF information from media item.
-          using (ExifMetaInfo.ExifMetaInfo exif = new ExifMetaInfo.ExifMetaInfo(fsra))
+        {
+          mediaAspect.SetAttribute(MediaAspect.ATTR_TITLE, ProviderPathHelper.GetFileNameWithoutExtension(fileName));
+
+          if (!forceQuickMode)
           {
-            mediaAspect.SetAttribute(MediaAspect.ATTR_TITLE, ProviderPathHelper.GetFileNameWithoutExtension(fileName));
-            mediaAspect.SetAttribute(MediaAspect.ATTR_RECORDINGTIME, exif.OriginalDate != DateTime.MinValue ? exif.OriginalDate : fsra.LastChanged);
-            mediaAspect.SetAttribute(MediaAspect.ATTR_COMMENT, StringUtils.TrimToNull(exif.ImageDescription));
-
-            if (exif.PixXDim.HasValue) imageAspect.SetAttribute(ImageAspect.ATTR_WIDTH, (int)exif.PixXDim);
-            if (exif.PixYDim.HasValue) imageAspect.SetAttribute(ImageAspect.ATTR_HEIGHT, (int)exif.PixYDim);
-            imageAspect.SetAttribute(ImageAspect.ATTR_MAKE, StringUtils.TrimToNull(exif.EquipMake));
-            imageAspect.SetAttribute(ImageAspect.ATTR_MODEL, StringUtils.TrimToNull(exif.EquipModel));
-            if (exif.ExposureBias.HasValue) imageAspect.SetAttribute(ImageAspect.ATTR_EXPOSURE_BIAS, ((double)exif.ExposureBias).ToString());
-            imageAspect.SetAttribute(ImageAspect.ATTR_EXPOSURE_TIME, exif.ExposureTime);
-            imageAspect.SetAttribute(ImageAspect.ATTR_FLASH_MODE, StringUtils.TrimToNull(exif.FlashMode));
-            if (exif.FNumber.HasValue) imageAspect.SetAttribute(ImageAspect.ATTR_FNUMBER, string.Format("F {0}", (double)exif.FNumber));
-            imageAspect.SetAttribute(ImageAspect.ATTR_ISO_SPEED, StringUtils.TrimToNull(exif.ISOSpeed));
-            imageAspect.SetAttribute(ImageAspect.ATTR_ORIENTATION, (Int32)(exif.OrientationType ?? 0));
-            imageAspect.SetAttribute(ImageAspect.ATTR_METERING_MODE, exif.MeteringMode.ToString());
-
-            if (exif.Latitude.HasValue && exif.Longitude.HasValue)
+            // Extract EXIF information from media item.
+            using (ExifMetaInfo.ExifMetaInfo exif = new ExifMetaInfo.ExifMetaInfo(fsra))
             {
-              imageAspect.SetAttribute(ImageAspect.ATTR_LATITUDE, exif.Latitude);
-              imageAspect.SetAttribute(ImageAspect.ATTR_LONGITUDE, exif.Longitude);
+              mediaAspect.SetAttribute(MediaAspect.ATTR_RECORDINGTIME, exif.OriginalDate != DateTime.MinValue ? exif.OriginalDate : fsra.LastChanged);
+              mediaAspect.SetAttribute(MediaAspect.ATTR_COMMENT, StringUtils.TrimToNull(exif.ImageDescription));
+
+              if (exif.PixXDim.HasValue) imageAspect.SetAttribute(ImageAspect.ATTR_WIDTH, (int)exif.PixXDim);
+              if (exif.PixYDim.HasValue) imageAspect.SetAttribute(ImageAspect.ATTR_HEIGHT, (int)exif.PixYDim);
+              imageAspect.SetAttribute(ImageAspect.ATTR_MAKE, StringUtils.TrimToNull(exif.EquipMake));
+              imageAspect.SetAttribute(ImageAspect.ATTR_MODEL, StringUtils.TrimToNull(exif.EquipModel));
+              if (exif.ExposureBias.HasValue) imageAspect.SetAttribute(ImageAspect.ATTR_EXPOSURE_BIAS, ((double)exif.ExposureBias).ToString());
+              imageAspect.SetAttribute(ImageAspect.ATTR_EXPOSURE_TIME, exif.ExposureTime);
+              imageAspect.SetAttribute(ImageAspect.ATTR_FLASH_MODE, StringUtils.TrimToNull(exif.FlashMode));
+              if (exif.FNumber.HasValue) imageAspect.SetAttribute(ImageAspect.ATTR_FNUMBER, string.Format("F {0}", (double)exif.FNumber));
+              imageAspect.SetAttribute(ImageAspect.ATTR_ISO_SPEED, StringUtils.TrimToNull(exif.ISOSpeed));
+              imageAspect.SetAttribute(ImageAspect.ATTR_ORIENTATION, (Int32)(exif.OrientationType ?? 0));
+              imageAspect.SetAttribute(ImageAspect.ATTR_METERING_MODE, exif.MeteringMode.ToString());
+
+              if (exif.Latitude.HasValue && exif.Longitude.HasValue)
+              {
+                imageAspect.SetAttribute(ImageAspect.ATTR_LATITUDE, exif.Latitude);
+                imageAspect.SetAttribute(ImageAspect.ATTR_LONGITUDE, exif.Longitude);
+              }
             }
+          }
+          else
+          {
+            mediaAspect.SetAttribute(MediaAspect.ATTR_RECORDINGTIME, fsra.LastChanged);
+            imageAspect.SetAttribute(ImageAspect.ATTR_ORIENTATION, 0);
           }
 
           byte[] thumbData;
@@ -226,7 +246,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.ImageMetadataExtractor
               // Thumbnail extraction
               IThumbnailGenerator generator = ServiceRegistration.Get<IThumbnailGenerator>();
               ImageType imageType;
-              if (generator.GetThumbnail(localFsResourcePath, true, out thumbData, out imageType))
+              if (generator.GetThumbnail(localFsResourcePath, forceQuickMode, out thumbData, out imageType))
                 MediaItemAspect.SetAttribute(extractedAspectData, ThumbnailLargeAspect.ATTR_THUMBNAIL, thumbData);
             }
           }
@@ -237,12 +257,14 @@ namespace MediaPortal.Extensions.MetadataExtractors.ImageMetadataExtractor
           bool updated = false;
           double? latitude = imageAspect.GetAttributeValue<double?>(ImageAspect.ATTR_LATITUDE);
           double? longitude = imageAspect.GetAttributeValue<double?>(ImageAspect.ATTR_LONGITUDE);
-          if (IncludeGeoLocationDetails && !importOnly && latitude.HasValue && longitude.HasValue &&
+          if (!forceQuickMode && IncludeGeoLocationDetails && latitude.HasValue && longitude.HasValue &&
             string.IsNullOrEmpty(imageAspect.GetAttributeValue<string>(ImageAspect.ATTR_COUNTRY)))
           {
-            CivicAddress locationInfo;
-            if (GeoLocationService.Instance.TryLookup(new GeoCoordinate(latitude.Value, longitude.Value), out locationInfo))
+            var geoCoordinate = new GeoCoordinate(latitude.Value, longitude.Value);
+            var lookupResult = await GeoLocationService.Instance.TryLookupAsync(geoCoordinate).ConfigureAwait(false);
+            if (lookupResult.Success)
             {
+              CivicAddress locationInfo = lookupResult.Result;
               imageAspect.SetAttribute(ImageAspect.ATTR_CITY, locationInfo.City);
               imageAspect.SetAttribute(ImageAspect.ATTR_STATE, locationInfo.StateProvince);
               imageAspect.SetAttribute(ImageAspect.ATTR_COUNTRY, locationInfo.CountryRegion);
@@ -261,10 +283,12 @@ namespace MediaPortal.Extensions.MetadataExtractors.ImageMetadataExtractor
             string localFsResourcePath = rah.LocalFsResourceAccessor.LocalFileSystemPath;
             if (localFsResourcePath != null)
             {
+              // In quick mode only allow thumbs taken from cache.
+              bool cachedOnly = forceQuickMode;
               // Thumbnail extraction
               IThumbnailGenerator generator = ServiceRegistration.Get<IThumbnailGenerator>();
               ImageType imageType;
-              if (generator.GetThumbnail(localFsResourcePath, false, out thumbData, out imageType))
+              if (generator.GetThumbnail(localFsResourcePath, cachedOnly, out thumbData, out imageType))
               {
                 MediaItemAspect.SetAttribute(extractedAspectData, ThumbnailLargeAspect.ATTR_THUMBNAIL, thumbData);
                 updated = true;
@@ -281,6 +305,31 @@ namespace MediaPortal.Extensions.MetadataExtractors.ImageMetadataExtractor
         ServiceRegistration.Get<ILogger>().Info("ImageMetadataExtractor: Exception reading resource '{0}' (Text: '{1}')", mediaItemAccessor.CanonicalLocalResourcePath, e.Message);
       }
       return false;
+    }
+
+    public bool IsDirectorySingleResource(IResourceAccessor mediaItemAccessor)
+    {
+      return false;
+    }
+
+    public bool IsStubResource(IResourceAccessor mediaItemAccessor)
+    {
+      return false;
+    }
+
+    public bool TryExtractStubItems(IResourceAccessor mediaItemAccessor, ICollection<IDictionary<Guid, IList<MediaItemAspect>>> extractedStubAspectData)
+    {
+      return false;
+    }
+
+    public Task<IList<MediaItemSearchResult>> SearchForMatchesAsync(IDictionary<Guid, IList<MediaItemAspect>> searchAspectData, ICollection<string> searchCategories)
+    {
+      return Task.FromResult<IList<MediaItemSearchResult>>(null);
+    }
+
+    public Task<bool> AddMatchedAspectDetailsAsync(IDictionary<Guid, IList<MediaItemAspect>> matchedAspectData)
+    {
+      return Task.FromResult(false);
     }
 
     #endregion IMetadataExtractor implementation

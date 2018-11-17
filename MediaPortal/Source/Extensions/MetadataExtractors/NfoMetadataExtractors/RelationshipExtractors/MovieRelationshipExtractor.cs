@@ -22,10 +22,12 @@
 
 #endregion
 
+using MediaPortal.Common;
+using MediaPortal.Common.MediaManagement;
+using MediaPortal.Common.MediaManagement.DefaultItemAspects;
+using MediaPortal.Common.MediaManagement.MLQueries;
 using System;
 using System.Collections.Generic;
-using MediaPortal.Common.MediaManagement;
-using MediaPortal.Common.MediaManagement.MLQueries;
 
 namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
 {
@@ -50,8 +52,13 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
 
     public MovieRelationshipExtractor()
     {
-      _metadata = new RelationshipExtractorMetadata(METADATAEXTRACTOR_ID, "NFO Movie relationship extractor");
+      _metadata = new RelationshipExtractorMetadata(METADATAEXTRACTOR_ID, "NFO Movie relationship extractor", MetadataExtractorPriority.Extended);
+      RegisterRelationships();
+      InitExtractors();
+    }
 
+    protected void InitExtractors()
+    {
       _extractors = new List<IRelationshipRoleExtractor>();
 
       _extractors.Add(new MovieCollectionRelationshipExtractor());
@@ -60,9 +67,24 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
       _extractors.Add(new MovieCharacterRelationshipExtractor());
     }
 
-    public IList<RelationshipHierarchy> Hierarchies
+    /// <summary>
+    /// Registers all relationships that are extracted by this relationship extractor.
+    /// </summary>
+    protected void RegisterRelationships()
     {
-      get { return null; }
+      IRelationshipTypeRegistration relationshipRegistration = ServiceRegistration.Get<IRelationshipTypeRegistration>();
+
+      //Relationships must be registered in order from movies up to all parent relationships
+
+      //Hierarchical relationships
+      relationshipRegistration.RegisterLocallyKnownRelationshipType(new RelationshipType("Movie->Collection", true,
+        MovieAspect.ROLE_MOVIE, MovieCollectionAspect.ROLE_MOVIE_COLLECTION, MovieAspect.ASPECT_ID, MovieCollectionAspect.ASPECT_ID,
+        MovieAspect.ATTR_MOVIE_NAME, MovieCollectionAspect.ATTR_AVAILABLE_MOVIES, true), true);
+
+      //Simple (non hierarchical) relationships
+      relationshipRegistration.RegisterLocallyKnownRelationshipType(new RelationshipType("Movie->Actor", MovieAspect.ROLE_MOVIE, PersonAspect.ROLE_ACTOR), true);
+      relationshipRegistration.RegisterLocallyKnownRelationshipType(new RelationshipType("Movie->Director", MovieAspect.ROLE_MOVIE, PersonAspect.ROLE_DIRECTOR), true);
+      relationshipRegistration.RegisterLocallyKnownRelationshipType(new RelationshipType("Movie->Character", MovieAspect.ROLE_MOVIE, CharacterAspect.ROLE_CHARACTER), true);
     }
 
     public RelationshipExtractorMetadata Metadata
@@ -82,6 +104,11 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
 
     public void ResetLastChangedItems()
     {
+    }
+
+    public IDictionary<Guid, IList<MediaItemAspect>> GetBaseChildAspectsFromExistingAspects(IDictionary<Guid, IList<MediaItemAspect>> existingChildAspects, IDictionary<Guid, IList<MediaItemAspect>> existingParentAspects)
+    {
+      return null;
     }
   }
 }

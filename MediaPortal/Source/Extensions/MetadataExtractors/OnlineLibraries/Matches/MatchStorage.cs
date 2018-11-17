@@ -38,7 +38,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matches
   /// </summary>
   /// <typeparam name="TMatch">Type of match</typeparam>
   /// <typeparam name="TId">Type of match's ID</typeparam>
-  public class MatchStorage<TMatch, TId> : IDisposable where TMatch : BaseMatch
+  public class MatchStorage<TMatch, TId> : IDisposable where TMatch : BaseMatch<TId>
   {
     protected readonly string _matchesSettingsFile;
     protected readonly ConcurrentDictionary<String, TMatch> _storage;
@@ -58,6 +58,16 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matches
     public bool TryAddMatch(TMatch match)
     {
       if (_storage.TryAdd(match.ItemName, match))
+      {
+        SaveMatches();
+        return true;
+      }
+      return false;
+    }
+
+    public bool TryRemoveMatch(TMatch match)
+    {
+      if (_storage.TryRemove(match.ItemName, out TMatch foundMatch))
       {
         SaveMatches();
         return true;

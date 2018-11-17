@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  
+  <!--Login-->
+  <string name="Login.Title">Benutzeranmeldung</string>
+  <string name="Login.Title.Help">Melde einen bestimmten Benutzer an</string>
+  <string name="Login.IncorrectPassword">Falsches Kennwort, bitte erneut versuchen</string>
+  <string name="Login.PasswordOk">OK</string>
+  <string name="Login.EnterPassword">Gib dein Kennwort ein</string>
+  <string name="Login.Logout">Abmelden</string>
+
+  <!--User Settings-->
+  <string name="Settings.Users">Benutzer</string> <!-- Section name -->
+  <string name="Settings.Users.Config">Benutzerverwaltung</string> <!-- Group name -->
+  <string name="Settings.Users.Config.UserManagement">Benutzerverwaltung</string> <!-- Setting -->
+  <string name="Settings.Users.Config.UserManagement.Help">Verwalte die Benutzer auf dem Heimserver</string>
+  <string name="Settings.Users.Config.UserEnable">Aktiviere Benutzeranmeldungen und Beschränkungen</string> <!-- Setting -->
+  <string name="Settings.Users.Config.UserEnable.Help">Lasse Benutzeranmeldungen zu, ändere den aktuellen Benutzer und ändere Benutzereinstellungen</string>
+  <string name="Settings.Users.Config.UserEnableScreen">Aktiviere den Anmeldebildschirm</string> <!-- Setting -->
+  <string name="Settings.Users.Config.UserEnableScreen.Help">Zeige den Anmeldebildschirm wenn niemand angemeldet ist</string>
+  <string name="Settings.Users.Config.AutoLogout">Automatisches Abmelden</string> <!-- Setting -->
+  <string name="Settings.Users.Config.AutoLogout.Help">Aktiviere das automatische Abmelden nach einer Zeit der Untätigkeit</string>
+  <string name="Settings.Users.Config.AutoLogoutTimeout">Zeitspanne für das automatische Abmelden</string> <!-- Setting -->
+  <string name="Settings.Users.Config.AutoLogoutTimeout.Help">Die Zeit die gewartet wird, bevor ein inaktiver Benutzer automatisch abgemeldet wird. </string>
+  <string name="Settings.Users.Config.AutoLoginUser">Automatisches Anmelden</string> <!-- Setting -->
+  <string name="Settings.Users.Config.AutoLoginUser.Help">Der Benutzer für das automatische Anmelden</string>
+  <string name="Settings.Users.Config.SystemDefault">Systemstandard</string>
+  <string name="Settings.Users.Config.AutoLoginUser.Title">Benutzer für automatisches Anmelden</string>
+
+  <!-- User configuration workflow -->
+  <string name="UserConfig.UserOverviewWorkflowNavigationContextDisplayLabel">Benutzerverwaltung</string>
+  <string name="UserConfig.UserConfiguration.Title">Benutzerverwaltung</string>
+  <string name="UserConfig.Users">Benutzer</string>
+  <string name="UserConfig.NoConfigUserHomeServerNotConnected">Der Heimserver ist im Moment nicht verbunden. Serverbenutzer können deshalb derzeit nicht verwaltet werden.</string>
+  <string name="UserConfig.UserName">Benutzername</string>
+  <string name="UserConfig.Password">Passwort</string>
+  <string name="UserConfig.ProfileType">Profiltyp</string>
+  <string name="UserConfig.AgeFilter">Aktiviere Altersfilter</string>
+  <string name="UserConfig.ShareRestrictions">Begrenze den Freigabenzugriff</string>
+  <string name="UserConfig.IncludePGContent">Inhalte für Erwachsene einschließen</string>
+  <string name="UserConfig.IncludeUnratedContent">Unbewerteten Inhalt einschließen</string>
+  <string name="UserConfig.LastLogin">Letzte Anmeldung</string>
+  <string name="UserConfig.NewUserText">Neuen Benutzer</string>
+  <string name="UserConfig.AddUser">Hinzufügen</string>
+  <string name="UserConfig.CopyUser">Kopieren</string>
+  <string name="UserConfig.DeleteUser">Löschen</string>
+  <string name="UserConfig.SaveUser">Speichern</string>
+  <string name="UserConfig.SelectImage">Wähle ein Bild für den Benutzer</string>
+  <string name="UserConfig.DeleteConfirmation.Title">Löschbestätigung</string>
+  <string name="UserConfig.DeleteConfirmation">Bist du sicher, dass du den ausgewählten Benutzer löschen willst?</string>
+  <string name="UserConfig.Yes">Ja</string>
+  <string name="UserConfig.No">Nein</string>
+  <string name="UserConfig.Ok">OK</string>
+  <string name="UserConfig.Disable">Deaktivieren</string>
+
+  <string name="UserConfig.SelectProfileTemplate">Wähle die Profilvorlage</string>
+  <string name="UserConfig.ClientProfile">Clientprofil</string>
+  <string name="UserConfig.UserProfile">Benutzerprofil</string>
+
+  <string name="UserConfig.RestrictionGroups">Beschränke Aktionen</string>
+  <string name="UserConfig.RestrictedAll">Alles erlaubt</string>
+  <string name="UserConfig.RestrictedNone">Nichts erlaubt</string>
+  <string name="UserConfig.RestrictedNumbers">{0} / {1} erlaubt</string>
+  <string name="UserConfig.SelectRestrictions">Wähle erlaubte Funktionen für den Benutzer</string>
+
+  <string name="UserConfig.SharesText">Freigaben</string>
+  <string name="UserConfig.SelectShares">Wähle Freigabenzugriff</string>
+  <string name="UserConfig.LocalShare">Client-Medienquelle</string>
+  <string name="UserConfig.LocalShares">Client-Medienquellen</string>
+  <string name="UserConfig.GlobalShare">Server-Medienquelle</string>
+  <string name="UserConfig.GlobalShares">Server-Medienquellen</string>
+  <string name="UserConfig.NoConfigGlobalSharesHomeServerNotConnected">Der MP2-Server ist aktuell nicht verbunden, deshalb können derzeit keine Server-Medienquellen verwaltet werden.</string>
+  <string name="UserConfig.NoConfigLocalSharesHomeServerLocal">Der MP2-Server befindet sich auf dem selben Computer, deshalb können nur Server-Medienquellen verwaltet werden.</string>
+
+  <string name="RestrictionGroup.Settings.UserProfile">Einstellungen: Verwalte alle Benutzerprofile</string>
+  <string name="RestrictionGroup.Settings.UserProfile.ManageOwn">Einstellungen: Verwalte dein eigenes Profil</string>
+
+  <string name="UserProfileTemplate.Admin">Administrator</string>
+  <string name="UserProfileTemplate.Teenager">Jugendlicher</string>
+  <string name="UserProfileTemplate.Child">Kind</string>
+
+</resources>

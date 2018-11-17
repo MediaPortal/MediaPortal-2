@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2017 Team MediaPortal
+#region Copyright (C) 2007-2015 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2017 Team MediaPortal
+    Copyright (C) 2007-2015 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -53,6 +53,7 @@ protected AbstractProperty _commentProperty;
 protected AbstractProperty _playCountProperty;
 protected AbstractProperty _lastPlayedProperty;
 protected AbstractProperty _isVirtualProperty;
+protected AbstractProperty _isStubProperty;
 protected AbstractProperty _mediaItemProperty;
 
 #endregion
@@ -147,6 +148,17 @@ public bool? IsVirtual
   set { _isVirtualProperty.SetValue(value); }
 }
 
+public AbstractProperty IsStubProperty
+{
+  get{ return _isStubProperty; }
+}
+
+public bool? IsStub
+{
+  get { return (bool?) _isStubProperty.GetValue(); }
+  set { _isStubProperty.SetValue(value); }
+}
+
 public AbstractProperty MediaItemProperty
 {
   get{ return _mediaItemProperty; }
@@ -172,6 +184,7 @@ public MediaAspectWrapper()
   _playCountProperty = new SProperty(typeof(int?));
   _lastPlayedProperty = new SProperty(typeof(DateTime?));
   _isVirtualProperty = new SProperty(typeof(bool?));
+  _isStubProperty = new SProperty(typeof(bool?));
   _mediaItemProperty = new SProperty(typeof(MediaItem));
   _mediaItemProperty.Attach(MediaItemChanged);
 }
@@ -202,6 +215,7 @@ public void Init(MediaItem mediaItem)
   PlayCount = (int?) aspect[MediaAspect.ATTR_PLAYCOUNT];
   LastPlayed = (DateTime?) aspect[MediaAspect.ATTR_LASTPLAYED];
   IsVirtual = (bool?) aspect[MediaAspect.ATTR_ISVIRTUAL];
+  IsStub = (bool?) aspect[MediaAspect.ATTR_ISSTUB];
 }
 
 public void SetEmpty()
@@ -214,6 +228,7 @@ public void SetEmpty()
   PlayCount = null;
   LastPlayed = null;
   IsVirtual = null;
+  IsStub = null;
 }
 
 #endregion

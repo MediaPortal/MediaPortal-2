@@ -14,7 +14,13 @@
     </Style.Resources>
   </Style>
 
-  <Style x:Key="SelectChapterButtonStyle" BasedOn="{ThemeResource BasePlayerControlButtonStyle}">
+  <Style x:Key="SelectContextMenuButtonStyle" BasedOn="{ThemeResource BasePlayerControlButtonStyle}">
+    <Style.Resources>
+      <ResourceWrapper x:Key="ContentControlTemplate" Resource="{ThemeResource SelectContextMenuControlTemplate}" />
+    </Style.Resources>
+  </Style>
+  
+    <Style x:Key="SelectChapterButtonStyle" BasedOn="{ThemeResource BasePlayerControlButtonStyle}">
     <Style.Resources>
       <ResourceWrapper x:Key="ContentControlTemplate" Resource="{ThemeResource SelectChapterControlTemplate}" />
     </Style.Resources>

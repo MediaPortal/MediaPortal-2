@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  
+  <string name="UserConfig.AddUser">Bæta við</string>
+  <string name="UserConfig.CopyUser">Afrita</string>
+  <string name="UserConfig.DeleteUser">Eyða</string>
+  <string name="UserConfig.Yes">Já</string>
+  <string name="UserConfig.No">Nei</string>
+  <string name="UserConfig.SharesText">Deilingar</string>
+  </resources>

@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  
+  <string name="UserConfig.AddUser">Dodaj</string>
+  <string name="UserConfig.CopyUser">Kopiraj</string>
+  <string name="UserConfig.Yes">Da</string>
+  <string name="UserConfig.No">Ne</string>
+  </resources>

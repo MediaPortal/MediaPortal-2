@@ -9,7 +9,7 @@
 
     <Border DockPanel.Dock="Center" Height="80" MinWidth="250" HorizontalAlignment="Center" 
             Margin="5" BorderBrush="{ThemeResource PlayControlsFillBrush}" BorderThickness="0"
-            Background="#D9666666">
+            Background="#FF666666">
       <Grid HorizontalAlignment="Center" VerticalAlignment="Center">
         <Grid.ColumnDefinitions>
           <ColumnDefinition Width="*"/>

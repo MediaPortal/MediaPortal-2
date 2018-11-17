@@ -22,20 +22,22 @@
 
 #endregion
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Common.MediaManagement.Helpers;
-using MediaPortal.Extensions.OnlineLibraries;
 using MediaPortal.Common.MediaManagement.MLQueries;
+using MediaPortal.Common.ResourceAccess;
+using MediaPortal.Extensions.OnlineLibraries;
+using MediaPortal.Utilities.Collections;
+using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
 {
-  class SeriesProductionRelationshipExtractor : ISeriesRelationshipExtractor, IRelationshipRoleExtractor
+  class SeriesProductionRelationshipExtractor : IRelationshipRoleExtractor
   {
     private static readonly Guid[] ROLE_ASPECTS = { SeriesAspect.ASPECT_ID };
     private static readonly Guid[] LINKED_ROLE_ASPECTS = { CompanyAspect.ASPECT_ID };
@@ -72,65 +74,39 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
 
     public IFilter GetSearchFilter(IDictionary<Guid, IList<MediaItemAspect>> extractedAspects)
     {
-      return GetCompanySearchFilter(extractedAspects);
+      if (!extractedAspects.ContainsKey(CompanyAspect.ASPECT_ID))
+        return null;
+      return RelationshipExtractorUtils.CreateExternalItemFilter(extractedAspects, ExternalIdentifierAspect.TYPE_COMPANY);
     }
 
-    public bool TryExtractRelationships(IDictionary<Guid, IList<MediaItemAspect>> aspects, bool importOnly, out IList<RelationshipItem> extractedLinkedAspects)
+    public ICollection<string> GetExternalIdentifiers(IDictionary<Guid, IList<MediaItemAspect>> extractedAspects)
     {
-      extractedLinkedAspects = null;
+      if (!extractedAspects.ContainsKey(CompanyAspect.ASPECT_ID))
+        return new List<string>();
+      return RelationshipExtractorUtils.CreateExternalItemIdentifiers(extractedAspects, ExternalIdentifierAspect.TYPE_COMPANY);
+    }
 
-      if (!SeriesMetadataExtractor.IncludeProductionCompanyDetails)
-        return false;
-
-      if (importOnly)
-        return false;
-
+    public async Task<bool> TryExtractRelationshipsAsync(IResourceAccessor mediaItemAccessor, IDictionary<Guid, IList<MediaItemAspect>> aspects, IList<IDictionary<Guid, IList<MediaItemAspect>>> extractedLinkedAspects)
+    {
       SeriesInfo seriesInfo = new SeriesInfo();
       if (!seriesInfo.FromMetadata(aspects))
         return false;
 
-      if (CheckCacheContains(seriesInfo))
-        return false;
-        
-      int count = 0;
-      if (!SeriesMetadataExtractor.SkipOnlineSearches)
-      {
-        OnlineMatcherService.Instance.UpdateSeriesCompanies(seriesInfo, CompanyAspect.COMPANY_PRODUCTION, importOnly);
-        count = seriesInfo.ProductionCompanies.Where(c => c.HasExternalId).Count();
-        if (!seriesInfo.IsRefreshed)
-          seriesInfo.HasChanged = true; //Force save to update external Ids for metadata found by other MDEs
-      }
-      else
-      {
-        count = seriesInfo.ProductionCompanies.Where(c => !string.IsNullOrEmpty(c.Name)).Count();
-      }
+      if (RelationshipExtractorUtils.TryCreateInfoFromLinkedAspects(extractedLinkedAspects, out List<CompanyInfo> companies))
+        seriesInfo.ProductionCompanies = companies;
 
-      if (seriesInfo.ProductionCompanies.Count == 0)
-        return false;
-
-      if (BaseInfo.CountRelationships(aspects, LinkedRole) < count || (BaseInfo.CountRelationships(aspects, LinkedRole) == 0 && seriesInfo.ProductionCompanies.Count > 0))
-        seriesInfo.HasChanged = true; //Force save if no relationship exists
-
-      if (!seriesInfo.HasChanged)
-        return false;
-
-      AddToCheckCache(seriesInfo);
-
-      extractedLinkedAspects = new List<RelationshipItem>();
+      if (SeriesMetadataExtractor.IncludeProductionCompanyDetails && !SeriesMetadataExtractor.SkipOnlineSearches)
+        await OnlineMatcherService.Instance.UpdateSeriesCompaniesAsync(seriesInfo, CompanyAspect.COMPANY_PRODUCTION).ConfigureAwait(false);
+      
       foreach (CompanyInfo company in seriesInfo.ProductionCompanies)
       {
-        company.AssignNameId();
-        company.HasChanged = seriesInfo.HasChanged;
-        IDictionary<Guid, IList<MediaItemAspect>> companyAspects = new Dictionary<Guid, IList<MediaItemAspect>>();
-        company.SetMetadata(companyAspects);
-
-        if (companyAspects.ContainsKey(ExternalIdentifierAspect.ASPECT_ID))
+        if (company.LinkedAspects != null)
+          company.SetLinkedMetadata();
+        else
         {
-          Guid existingId;
-          if (TryGetIdFromCache(company, out existingId))
-            extractedLinkedAspects.Add(new RelationshipItem(companyAspects, existingId));
-          else
-            extractedLinkedAspects.Add(new RelationshipItem(companyAspects, Guid.Empty));
+          IDictionary<Guid, IList<MediaItemAspect>> companyAspects = new Dictionary<Guid, IList<MediaItemAspect>>();
+          if (company.SetMetadata(companyAspects) && companyAspects.ContainsKey(ExternalIdentifierAspect.ASPECT_ID))
+            extractedLinkedAspects.Add(companyAspects);
         }
       }
       return extractedLinkedAspects.Count > 0;
@@ -167,17 +143,10 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
         return false;
 
       IEnumerable<string> actors = aspect.GetCollectionAttribute<string>(SeriesAspect.ATTR_COMPANIES);
-      List<string> nameList = new List<string>(actors);
+      List<string> nameList = new SafeList<string>(actors);
 
       index = nameList.IndexOf(name);
       return index >= 0;
-    }
-
-    public void CacheExtractedItem(Guid extractedItemId, IDictionary<Guid, IList<MediaItemAspect>> extractedAspects)
-    {
-      CompanyInfo company = new CompanyInfo();
-      company.FromMetadata(extractedAspects);
-      AddToCache(extractedItemId, company);
     }
 
     internal static ILogger Logger

@@ -1,0 +1,19 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<resources>
+  <string name="Settings.Players">Проигрыватели</string>
+  <string name="Settings.Players.AudioPlayer">Аудио-проигрыватель</string>
+  <string name="Settings.Players.BassPlayer.Setup">Настроить устройство вывода</string>
+  <string name="Settings.Players.BassPlayer.Setup.Help">Настраивает устройство вывода для BassPlayer и предоставляет другие опции</string>
+  <string name="Settings.Players.BassPlayer.Setup.DirectSound">Direct Sound</string>
+  <string name="Settings.Players.BassPlayer.Setup.WASAPI">WASAPI</string>
+  <string name="Settings.Players.BassPlayer.Setup.WASAPI.Exclusive">Режим эксклюзивного использования</string>
+  <string name="Settings.Players.BassPlayer.SongTransitionMode.Help">Установить длительность паузы/плавного затухания звука при смене треков</string>
+  <string name="Settings.Players.BassPlayer.SongTransitionMode.Setup.GaplessMode">Играть треки без пауз</string>
+  <string name="Settings.Players.BassPlayer.SongTransitionMode.Setup.CrossFading">Плавное затухание звука</string>
+  <string name="Settings.Players.BassPlayer.PlaybackBuffer.Setup">Буфер воспроизведения</string>
+  <string name="Settings.Players.BassPlayer.PlaybackBuffer.Help">Размер буфера в мс [0-300]</string>
+  <string name="Settings.Players.Rendering.DirectSoundBufferSize">DirectSound</string>
+  <string name="Settings.Players.Rendering.WasapiBufferSize">WASAPI</string>
+  <string name="Settings.Players.Rendering.CrossFading.CrossFadeDuration">Длительность плавного затухания звука</string>
+  <string name="Settings.Players.Rendering.CrossFading.CrossFadeDuration.Help">Время в сек. для плавного затухания звука</string>
+</resources>

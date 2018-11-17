@@ -24,6 +24,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace MediaPortal.Common.MediaManagement
 {
@@ -34,6 +35,12 @@ namespace MediaPortal.Common.MediaManagement
     /// </summary>
     /// <value>Mapping of aspect type ids to aspect types.</value>
     IDictionary<Guid, MediaItemAspectMetadata> LocallyKnownMediaItemAspectTypes { get; }
+
+    /// <summary>
+    /// Returns all media item types which were registered as supporting reimport in this registration instance.
+    /// </summary>
+    /// <value>Mapping of aspect type ids to aspect types.</value>
+    IDictionary<Guid, MediaItemAspectMetadata> LocallySupportedReimportMediaItemAspectTypes { get; }
 
     /// <summary>
     /// Registration method for all media item aspect types which are known by the local system.
@@ -48,6 +55,33 @@ namespace MediaPortal.Common.MediaManagement
     /// system.
     /// </remarks>
     /// <param name="miaType">Media item aspect type to register.</param>
-    void RegisterLocallyKnownMediaItemAspectType(MediaItemAspectMetadata miaType);
+    Task RegisterLocallyKnownMediaItemAspectTypeAsync(MediaItemAspectMetadata miaType);
+
+    /// <summary>
+    /// Registration method for all media item aspect types which are known by the local system.
+    /// Each module, which brings in new media item aspect types, must register them at each system start
+    /// (or at least before working with them).
+    /// </summary>
+    /// <remarks>
+    /// This method will store media item aspect types which are not registered yet; others, which were already
+    /// registered before, are ignored. It will also register the aspect types at the media portal server.
+    /// It is needed to register a media item aspect type 1) before the local importer can send media item
+    /// data of that type (extracted by a metadata extractor) to the MediaPortal server and 2) for the deserialization
+    /// system.
+    /// </remarks>
+    /// <param name="miaTypes">List of media item aspect type to register.</param>
+    Task RegisterLocallyKnownMediaItemAspectTypeAsync(IEnumerable<MediaItemAspectMetadata> miaTypes);
+
+    /// <summary>
+    /// Registration method for all media item aspect types which support reimport by the local system.
+    /// Each module, which brings in new media item aspect types, must register them at each system start
+    /// (or at least before working with them).
+    /// </summary>
+    /// <remarks>
+    /// This method will store media item aspect types which are not registered yet; others, which were already
+    /// registered before, are ignored. It will also register the aspect types at the media portal server.
+    /// </remarks>
+    /// <param name="miaType">Media item aspect type to register.</param>
+    Task RegisterLocallySupportedReimportMediaItemAspectTypeAsync(MediaItemAspectMetadata miaType);
   }
 }

@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  
+  <!--Login-->
+  <string name="Login.Title">Utilisateur en ligne</string>
+  <string name="Login.Title.Help">Se connecter à un utilisateur spécifique</string>
+  <string name="Login.IncorrectPassword">Mot de passe incorrect, veuillez réessayer</string>
+  <string name="Login.PasswordOk">OK</string>
+  <string name="Login.EnterPassword">Entrer le mot de passe</string>
+  <string name="Login.Logout">Déconnexion</string>
+
+  <!--User Settings-->
+  <string name="Settings.Users">Utilisateurs</string> <!-- Section name -->
+  <string name="Settings.Users.Config">Gestion des utilisateurs</string> <!-- Group name -->
+  <string name="Settings.Users.Config.UserManagement">Gestion des utilisateurs</string> <!-- Setting -->
+  <string name="Settings.Users.Config.UserManagement.Help">Gérer les utilisateurs sur le serveur domestique</string>
+  <string name="Settings.Users.Config.UserEnable">Activer les connexions et les restrictions des utilisateurs</string> <!-- Setting -->
+  <string name="Settings.Users.Config.UserEnable.Help">Permettre aux utilisateurs de se connecter, de modifier l\'utilisateur actuel et d\'appliquer des paramètres spécifiques à l\'utilisateur</string>
+  <string name="Settings.Users.Config.UserEnableScreen">Activer l\'écran de connexion</string> <!-- Setting -->
+  <string name="Settings.Users.Config.UserEnableScreen.Help">Afficher l\'écran de connexion lorsque aucun utilisateur n\'est connecté</string>
+  <string name="Settings.Users.Config.AutoLogout">Déconnexion automatique</string> <!-- Setting -->
+  <string name="Settings.Users.Config.AutoLogout.Help">Activer la déconnexion automatique d\'un utilisateur après une période d\'inactivité</string>
+  <string name="Settings.Users.Config.AutoLogoutTimeout">Déconnexion automatique du délai d\'inactivité</string> <!-- Setting -->
+  <string name="Settings.Users.Config.AutoLogoutTimeout.Help">La période de temps autorisée avant que l\'utilisateur ne soit déconnecté</string>
+  <string name="Settings.Users.Config.AutoLoginUser">Connexion automatique</string> <!-- Setting -->
+  <string name="Settings.Users.Config.AutoLoginUser.Help">Utilisateur pour une connexion automatique</string>
+  <string name="Settings.Users.Config.SystemDefault">Défaillance du système</string>
+  <string name="Settings.Users.Config.AutoLoginUser.Title">Connexion automatique de l\'utilisateur</string>
+
+  <!-- User configuration workflow -->
+  <string name="UserConfig.UserOverviewWorkflowNavigationContextDisplayLabel">Gestion des utilisateurs</string>
+  <string name="UserConfig.UserConfiguration.Title">Gestion des utilisateurs</string>
+  <string name="UserConfig.Users">Utilisateurs</string>
+  <string name="UserConfig.NoConfigUserHomeServerNotConnected">Le serveur domestique n\'est actuellement pas connecté, de sorte que les utilisateurs du serveur ne peuvent pas être gérés pour le moment.</string>
+  <string name="UserConfig.UserName">Nom de l\'utilisateur</string>
+  <string name="UserConfig.Password">Mot de passe</string>
+  <string name="UserConfig.ProfileType">Type de profil</string>
+  <string name="UserConfig.AgeFilter">Activer le filtre d\'âge</string>
+  <string name="UserConfig.ShareRestrictions">Limiter l\'accès au partage</string>
+  <string name="UserConfig.IncludePGContent">Inclure les contenus PG</string>
+  <string name="UserConfig.IncludeUnratedContent">Inclure les contenus non classés</string>
+  <string name="UserConfig.LastLogin">Dernière connexion</string>
+  <string name="UserConfig.NewUserText">Nouvel utilisateur</string>
+  <string name="UserConfig.AddUser">Ajouter</string>
+  <string name="UserConfig.CopyUser">Copier</string>
+  <string name="UserConfig.DeleteUser">Effacer</string>
+  <string name="UserConfig.SaveUser">Sauvegarder</string>
+  <string name="UserConfig.SelectImage">Sélectionnez une image pour l\'utilisateur</string>
+  <string name="UserConfig.DeleteConfirmation.Title">Supprimer la confirmation</string>
+  <string name="UserConfig.DeleteConfirmation">Êtes-vous sûr de vouloir supprimer l\'utilisateur sélectionné?</string>
+  <string name="UserConfig.Yes">Oui</string>
+  <string name="UserConfig.No">Non</string>
+  <string name="UserConfig.Ok">OK</string>
+  <string name="UserConfig.Disable">Désactivé</string>
+
+  <string name="UserConfig.SelectProfileTemplate">Sélectionnez un modèle de profil</string>
+  <string name="UserConfig.ClientProfile">Profil Clent</string>
+  <string name="UserConfig.UserProfile">Profil de l\'utilisateur</string>
+
+  <string name="UserConfig.RestrictionGroups">Restreindre les actions</string>
+  <string name="UserConfig.RestrictedAll">Tous autorisés</string>
+  <string name="UserConfig.RestrictedNone">Aucun autorisé</string>
+  <string name="UserConfig.RestrictedNumbers">{0} / {1} autorisé</string>
+  <string name="UserConfig.SelectRestrictions">Sélectionnez les fonctionnalités autorisées pour l\'utilisateur</string>
+
+  <string name="UserConfig.SharesText">Partages réseau</string>
+  <string name="UserConfig.SelectShares">Sélectionnez l\'accès au partage</string>
+  <string name="UserConfig.LocalShare">client de source de médias</string>
+  <string name="UserConfig.LocalShares">client de sources de médias</string>
+  <string name="UserConfig.GlobalShare">Serveur de source de médias</string>
+  <string name="UserConfig.GlobalShares">Serveur de sources de médias</string>
+  <string name="UserConfig.NoConfigGlobalSharesHomeServerNotConnected">Le serveur local est actuellement déconnecté, de fait les sources de médias ne peuvent pas être géré pour le moment.</string>
+  <string name="UserConfig.NoConfigLocalSharesHomeServerLocal">Le serveur local est située sur la même machine, seuls les partages réseaux globaux peuvent être configurés.</string>
+
+  <string name="RestrictionGroup.Settings.UserProfile">Paramètres : Gérer tous les profils d\'utilisateurs</string>
+  <string name="RestrictionGroup.Settings.UserProfile.ManageOwn">Paramètres : Gérer son propre profil</string>
+
+  <string name="UserProfileTemplate.Admin">Administrateur</string>
+  <string name="UserProfileTemplate.Teenager">Adolescent</string>
+  <string name="UserProfileTemplate.Child">Enfant</string>
+
+</resources>

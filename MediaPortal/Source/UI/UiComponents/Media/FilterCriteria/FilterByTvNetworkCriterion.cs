@@ -23,16 +23,14 @@
 #endregion
 
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
-using MediaPortal.Common.MediaManagement.MLQueries;
-using MediaPortal.UiComponents.Media.General;
+using System;
 
 namespace MediaPortal.UiComponents.Media.FilterCriteria
 {
-  public class FilterByTvNetworkCriterion : RelationshipMLFilterCriterion
+  public class FilterByTvNetworkCriterion : FilterByCompanyCriterion
   {
-    public FilterByTvNetworkCriterion() :
-      base(CompanyAspect.ROLE_TV_NETWORK, SeriesAspect.ROLE_SERIES, Consts.NECESSARY_COMPANY_MIAS, Consts.OPTIONAL_COMPANY_MIAS,
-        new SortInformation(CompanyAspect.ATTR_COMPANY_NAME, SortDirection.Ascending))
+    public FilterByTvNetworkCriterion(Guid linkedRole) :
+      base(CompanyAspect.ROLE_TV_NETWORK, linkedRole)
     {
     }
   }

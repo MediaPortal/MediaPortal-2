@@ -1,6 +1,6 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
-  <string name="SlimTvClient.Title">خزمەتگوزاری سەیرکردنی تەلەڤزیۆن</string>
+  <string name="SlimTvClient.Title">ڕێنمایی تەلەڤزیۆن</string>
   <string name="SlimTvClient.Main">تەلەڤزیۆن</string>
   <string name="SlimTvClient.TvGuide">ڕێنمایی تەلەڤزیۆن</string>
   <string name="SlimTvClient.CurrentlyPlayingInformationHeader">زانیاری بەرنامە</string>

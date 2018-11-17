@@ -1,7 +1,6 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
   <string name="Settings.Players">Reproductores</string>
-  <string name="Settings.Players.AudioPlayer">Reproductor de Audio</string>
   <string name="Settings.Players.BassPlayer.Setup">Configurar dispositivo de salida</string>
   <string name="Settings.Players.BassPlayer.Setup.Help">Configura el dispositivo de salida BassPlayer y sus opciones</string>
   <string name="Settings.Players.BassPlayer.Setup.DirectSound">Direct Sound</string>

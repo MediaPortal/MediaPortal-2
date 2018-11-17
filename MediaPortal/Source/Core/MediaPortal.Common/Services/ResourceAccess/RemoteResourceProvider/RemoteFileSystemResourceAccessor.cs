@@ -189,6 +189,8 @@ namespace MediaPortal.Common.Services.ResourceAccess.RemoteResourceProvider
     {
       IRemoteResourceInformationService rris = ServiceRegistration.Get<IRemoteResourceInformationService>();
       ResourcePath resourcePath = rris.ConcatenatePaths(_nativeSystemId, _nativeResourcePath, path);
+      if (resourcePath == null)
+        return false;
       return rris.ResourceExists(_nativeSystemId, resourcePath);
     }
 
@@ -196,6 +198,8 @@ namespace MediaPortal.Common.Services.ResourceAccess.RemoteResourceProvider
     {
       IRemoteResourceInformationService rris = ServiceRegistration.Get<IRemoteResourceInformationService>();
       ResourcePath resourcePath = rris.ConcatenatePaths(_nativeSystemId, _nativeResourcePath, path);
+      if(resourcePath == null)
+        return null;
       IFileSystemResourceAccessor result;
       return ConnectFileSystem(_nativeSystemId, resourcePath, out result) ? result : null;
     }

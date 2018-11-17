@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <string name="Match.Video.TVMovie">تەلەڤزیۆن</string>
+  <string name="Match.Video.News">هەواڵ</string>
+  <string name="Match.Epg.News">هەواڵ</string>
+  <string name="Label.Video.TVMovie">تەلەڤزیۆن</string>
+  <string name="Label.Video.News">هەواڵ</string>
+  <string name="Label.Epg.News">هەواڵ</string>
+  </resources>

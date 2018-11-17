@@ -715,12 +715,13 @@ namespace MediaPortal.Common.MediaManagement
     }
 
     public static void AddOrUpdateRelationship(IDictionary<Guid, IList<MediaItemAspect>> aspectData,
-      Guid role, Guid linkedRole, Guid linkedId, int linkedIndex)
+      Guid role, Guid linkedRole, Guid linkedId, bool playable, int linkedIndex)
     {
       MultipleMediaItemAspect aspect = new MultipleMediaItemAspect(RelationshipAspect.Metadata);
       aspect.SetAttribute(RelationshipAspect.ATTR_ROLE, role);
       aspect.SetAttribute(RelationshipAspect.ATTR_LINKED_ROLE, linkedRole);
       aspect.SetAttribute(RelationshipAspect.ATTR_LINKED_ID, linkedId);
+      aspect.SetAttribute(RelationshipAspect.ATTR_PLAYABLE, playable);
       aspect.SetAttribute(RelationshipAspect.ATTR_RELATIONSHIP_INDEX, linkedIndex);
       AddOrUpdateAspect(aspectData, aspect);
     }
@@ -731,6 +732,24 @@ namespace MediaPortal.Common.MediaManagement
       foreach (IList<MediaItemAspect> values in aspectData.Values)
         foreach (MediaItemAspect value in values)
           aspects.Add(value);
+      return aspects;
+    }
+
+    public static IDictionary<Guid, IList<MediaItemAspect>> GetAspects(IEnumerable<MediaItemAspect> aspectData)
+    {
+      IDictionary<Guid, IList<MediaItemAspect>> aspects = new Dictionary<Guid, IList<MediaItemAspect>>();
+      foreach (MediaItemAspect aspect in aspectData)
+      {
+        SingleMediaItemAspect singleAspect = aspect as SingleMediaItemAspect;
+        if (singleAspect != null)
+          SetAspect(aspects, singleAspect);
+        else
+        {
+          MultipleMediaItemAspect multiAspect = aspect as MultipleMediaItemAspect;
+          if (multiAspect != null)
+            AddOrUpdateAspect(aspects, multiAspect);
+        }
+      }
       return aspects;
     }
 

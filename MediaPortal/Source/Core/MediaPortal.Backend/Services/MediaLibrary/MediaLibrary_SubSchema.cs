@@ -82,6 +82,18 @@ namespace MediaPortal.Backend.Services.MediaLibrary
       return result;
     }
 
+    public static IDbCommand SelectAllMediaItemAspectMetadataNameAndCreationDatesCommand(ITransaction transaction,
+        out int aspectIdIndex, out int nameIndex, out int creationDateIndex)
+    {
+      IDbCommand result = transaction.CreateCommand();
+      result.CommandText = "SELECT MIAM_ID, NAME, CREATION_DATE FROM MIA_TYPES";
+
+      aspectIdIndex = 0;
+      nameIndex = 1;
+      creationDateIndex = 2;
+      return result;
+    }
+
     public static IDbCommand CreateMediaItemAspectMetadataCommand(ITransaction transaction, Guid miamId,
         string name, string serialization)
     {
@@ -268,6 +280,13 @@ namespace MediaPortal.Backend.Services.MediaLibrary
       result.CommandText = "DELETE FROM SHARES WHERE SYSTEM_ID = @SYSTEM_ID";
       ISQLDatabase database = transaction.Database;
       database.AddParameter(result, "SYSTEM_ID", systemId, typeof(string));
+      return result;
+    }
+
+    public static IDbCommand SelectAllMediaItemIdsCommand(ITransaction transaction)
+    {
+      IDbCommand result = transaction.CreateCommand();
+      result.CommandText = "SELECT " + MEDIA_ITEMS_ITEM_ID_COL_NAME + " FROM " + MEDIA_ITEMS_TABLE_NAME;
       return result;
     }
 

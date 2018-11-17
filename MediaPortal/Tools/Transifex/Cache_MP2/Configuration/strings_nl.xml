@@ -1,6 +1,7 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
   <string name="Configuration.Name">Instellingen</string>
+  <string name="Configuration.Name.Help">Configureer media bronnen en wijzig het uiterlijk van MediaPortal</string>
   <string name="Configuration.ConfigurationMainWorkflowNavigationContextDisplayLabel">Instellingen</string>
   <string name="Configuration.MainSettings">Hoofdinstellingen</string>
   <!--2nd Header for root configuration section-->
@@ -11,4 +12,6 @@
   <!--0 = current value, 1 = lower limit, 2 = upper limit-->
   <string name="Configuration.ErrorNumericUpperLimit">Gebruik een waarde tussen \'{1}\' en \'{2}\'</string>
   <!--0 = current value, 1 = lower limit, 2 = upper limit-->
+  <string name="RestrictionGroup.Settings">Instellingen: configuratie toegang</string>
+  <string name="RestrictionGroup.Settings.MediaSources">Instellingen: - beheer van mediabronnen</string>
 </resources>

@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  
+  <string name="UserConfig.AddUser">Ekle</string>
+  <string name="UserConfig.CopyUser">Kopyala</string>
+  <string name="UserConfig.DeleteUser">Sil</string>
+  <string name="UserConfig.Yes">Evet</string>
+  <string name="UserConfig.No">Hayır</string>
+  <string name="UserConfig.SharesText">Paylaşımlar</string>
+  <string name="UserConfig.LocalShare">İstemci medya kaynağı</string>
+  <string name="UserConfig.LocalShares">İstemci medya kaynağı</string>
+  <string name="UserConfig.GlobalShare">Sunucu medya kaynağı</string>
+  <string name="UserConfig.GlobalShares">Sunucu medya kaynağı</string>
+  <string name="UserConfig.NoConfigGlobalSharesHomeServerNotConnected">Şu an ev sunucusu bağlı olmadığından sunucu medya medya kaynakları yönetilemez.</string>
+  <string name="UserConfig.NoConfigLocalSharesHomeServerLocal">Ev sunucusu aynı makinede bulunduğundan sadece sunucu medya kaynakları paylaşımlar ayarlanabilir.</string>
+
+  </resources>

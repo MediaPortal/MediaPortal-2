@@ -113,12 +113,11 @@ namespace MediaPortal.UiComponents.Media.Models.AspectWrappers
         return;
       }
 
-      int currentPlayCount;
-      MediaItemAspect.TryGetAttribute(mediaItem.Aspects, MediaAspect.ATTR_PLAYCOUNT, 0, out currentPlayCount);
-
+      int? playPct = null;
+      int? playCnt = null;
       if (mediaItem.UserData.ContainsKey(UserDataKeysKnown.KEY_PLAY_PERCENTAGE))
       {
-        PlayPercentage = Convert.ToInt32(mediaItem.UserData[UserDataKeysKnown.KEY_PLAY_PERCENTAGE]);
+        playPct = Convert.ToInt32(mediaItem.UserData[UserDataKeysKnown.KEY_PLAY_PERCENTAGE]);
       }
       else if (mediaItem.UserData.ContainsKey(PlayerContext.KEY_RESUME_STATE))
       {
@@ -155,25 +154,19 @@ namespace MediaPortal.UiComponents.Media.Models.AspectWrappers
               duration = TimeSpan.FromSeconds(dur.Value);
           }
           if (duration.TotalSeconds > 0)
-            PlayPercentage = (int)(resumePosition.TotalSeconds * 100 / duration.TotalSeconds);
-          else if (currentPlayCount > 0)
-            PlayPercentage = 100;
-          else
-            PlayPercentage = 0;
+            playPct = (int)(resumePosition.TotalSeconds * 100 / duration.TotalSeconds);
         }
       }
-      else
-      {
-        PlayPercentage = 0;
-      }
+
       if (mediaItem.UserData.ContainsKey(UserDataKeysKnown.KEY_PLAY_COUNT))
       {
-        PlayCount = Convert.ToInt32(mediaItem.UserData[UserDataKeysKnown.KEY_PLAY_COUNT]);
+        playCnt = Convert.ToInt32(mediaItem.UserData[UserDataKeysKnown.KEY_PLAY_COUNT]);
+        if (!playPct.HasValue && playCnt > 0)
+          playPct = 100;
       }
-      else
-      {
-        PlayCount = currentPlayCount;
-      }
+
+      PlayCount = playCnt ?? 0;
+      PlayPercentage = playPct ?? 0;
     }
 
     public void SetEmpty()
@@ -182,9 +175,7 @@ namespace MediaPortal.UiComponents.Media.Models.AspectWrappers
       PlayPercentage = null;
     }
 
-
     #endregion
 
   }
-
 }

@@ -73,6 +73,7 @@ namespace MediaPortal.UiComponents.Media.Views
       return CombinedViewChangeNotificator.CombineViewChangeNotificators(_delegateVS.CreateChangeNotificator(), new RemovableDriveChangeNotificator(null));
     }
 
+    //protected internal override void ReLoadItemsAndSubViewSpecifications(out IList<MediaItem> mediaItems, out IList<ViewSpecification> subViewSpecifications)
     protected internal override void ReLoadItemsAndSubViewSpecifications(out IList<MediaItem> mediaItems, out IList<ViewSpecification> subViewSpecifications)
     {
       _delegateVS.ReLoadItemsAndSubViewSpecifications(out mediaItems, out subViewSpecifications);

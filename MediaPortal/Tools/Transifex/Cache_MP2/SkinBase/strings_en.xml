@@ -67,6 +67,7 @@
   <string name="Notifications.NMoreNotifications">({0} more)</string>
   <string name="Notifications.WatchNotificationsWorkflowStateLabel">Notifications</string>
   <string name="Notifications.Handle">Handle</string>
+  <string name="Notifications.Upgrading">Upgrading... </string>
 
   <string name="ImporterMessages.ImportStartedTitle">Import started</string>
   <string name="ImporterMessages.ImportStartedText">The import of \'{0}\' has started.</string>
@@ -123,9 +124,6 @@
   <string name="Settings.General.System">System</string>
   <string name="Settings.General.System.Autostart">Autostart</string>
   <string name="Settings.General.System.Autostart.Help">Start MediaPortal automatically on Windows startup</string>
-
-  <string name="Settings.General.System.ClientDOKANDrive">Resource mounting drive letter</string>
-  <string name="Settings.General.System.ClientDOKANDrive.Help">Configures the drive letter for mounting remote resources on this client.</string>
 
   <string name="Settings.General.Connectivity">Connectivity</string>
   <string name="Settings.General.Connectivity.HomeServer">Home server</string>

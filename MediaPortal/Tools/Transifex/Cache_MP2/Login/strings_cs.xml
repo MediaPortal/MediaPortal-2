@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  
+  <string name="UserConfig.Password">Heslo</string>
+  <string name="UserConfig.AddUser">Přidat</string>
+  <string name="UserConfig.CopyUser">Kopírovat</string>
+  <string name="UserConfig.DeleteUser">Odstranit</string>
+  <string name="UserConfig.SaveUser">Uložit</string>
+  <string name="UserConfig.Yes">Ano</string>
+  <string name="UserConfig.No">Ne</string>
+  <string name="UserConfig.SharesText">Sdílené složky</string>
+  <string name="UserConfig.LocalShare">Místní zdroj médií</string>
+  <string name="UserConfig.LocalShares">Místní zdroje médií</string>
+  <string name="UserConfig.GlobalShare">Serverový zdroj médií</string>
+  <string name="UserConfig.GlobalShares">Serverové zdroje médií</string>
+  </resources>

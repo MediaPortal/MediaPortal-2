@@ -22,9 +22,9 @@
 
 #endregion
 
-using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.UiComponents.Media.General;
-using System;
+using MediaPortal.UiComponents.Media.Models.Navigation;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace MediaPortal.UiComponents.Media.Models.ScreenData
@@ -35,7 +35,6 @@ namespace MediaPortal.UiComponents.Media.Models.ScreenData
         base(Consts.SCREEN_SERIES_SHOW_ITEMS, Consts.RES_COMMON_SHOW_ALL_MENU_ITEM,
         Consts.RES_FILTER_SERIES_ITEMS_NAVBAR_DISPLAY_LABEL, playableItemCreator, true)
     {
-      _filteredMias = new Guid[] { VideoAspect.ASPECT_ID };
       _availableMias = Consts.NECESSARY_EPISODE_MIAS;
       if (Consts.OPTIONAL_EPISODE_MIAS != null)
         _availableMias = _availableMias.Union(Consts.OPTIONAL_EPISODE_MIAS);
@@ -44,6 +43,20 @@ namespace MediaPortal.UiComponents.Media.Models.ScreenData
     public override AbstractItemsScreenData Derive()
     {
       return new SeriesShowItemsScreenData(PlayableItemCreator);
+    }
+
+    protected override bool SetSelectedItem(IEnumerable<PlayableMediaItem> items)
+    {
+      //Set the first unwatched episode as Selected so it has focus when [re]entering the view
+      bool selected = false;
+      foreach (PlayableMediaItem item in items)
+      {
+        if (!selected)
+          item.Selected = selected = item.WatchPercentage < 100;
+        else
+          item.Selected = false;
+      }
+      return selected;
     }
   }
 }

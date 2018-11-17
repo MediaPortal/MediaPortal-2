@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  
+  <string name="UserConfig.AddUser">Hozzáadás</string>
+  <string name="UserConfig.Yes">Igen</string>
+  <string name="UserConfig.No">Nem</string>
+  <string name="UserConfig.SharesText">Megosztások</string>
+  </resources>

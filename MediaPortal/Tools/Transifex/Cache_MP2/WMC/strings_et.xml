@@ -1,5 +1,4 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-  <string name="WMC.Configuration.EnableBanners.Movies">Filmid</string>
-  <string name="WMC.Configuration.EnableBanners.Series">Seeriad</string>
+  <string name="WMC.Home.Favorites">Lemmikud</string>
   </resources>

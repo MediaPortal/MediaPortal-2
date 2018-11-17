@@ -5,6 +5,7 @@
     xmlns:mp_special_controls="clr-namespace:MediaPortal.UI.SkinEngine.SpecialElements.Controls;assembly=SkinEngine"
     >
   <ResourceWrapper x:Key="FullScreenContentVideoPrimaryPlayerOSDWidth" Resource="1920"/>
+  <ResourceWrapper x:Key="FullScreenContentAudioPrimaryPlayerOSDWidth" Resource="1920"/>
   <ResourceWrapper x:Key="FullScreenContentVideoSecondaryPlayerOSDPipHeight" Resource="350"/>
   <ResourceWrapper x:Key="FullScreenContentVideoSecondaryPlayerOSDTextMaxWidth" Resource="300"/>
   

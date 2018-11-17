@@ -15,7 +15,7 @@
     <OldToolsVersion>3.5</OldToolsVersion>
     <UpgradeBackupLocation>
     </UpgradeBackupLocation>
-    <TargetFrameworkVersion>v4.5.1</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.7</TargetFrameworkVersion>
     <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' ">
@@ -145,6 +145,7 @@
     <Compile Include="ServerCommunication\Settings\FrontendServerSettings.cs" />
     <Compile Include="ServerCommunication\Settings\ServerConnectionSettings.cs" />
     <Compile Include="Services\FrontendServer\FrontendServer.cs" />
+    <Compile Include="Services\MediaManagement\RelationshipTypeRegistration.cs" />
     <Compile Include="Services\Players\Builders\PlayerBuilder.cs" />
     <Compile Include="Services\Players\PCMOpenPlayerStrategy\PreservePiP.cs" />
     <Compile Include="Services\Players\PCMOpenPlayerStrategy\Default.cs" />
@@ -169,8 +170,10 @@
     <Compile Include="Services\Shares\LocalSharesManagement.cs" />
     <Compile Include="Presentation\UiNotifications\DefaultNotification.cs" />
     <Compile Include="Services\UiNotifications\NotificationService.cs" />
-    <Compile Include="Services\UserManagement\IUserManagement.cs" />
+    <Compile Include="Services\UserManagement\UserMessageHandler.cs" />
     <Compile Include="Services\UserManagement\UserManagement.cs" />
+    <Compile Include="Services\UserManagement\UserMessaging.cs" />
+    <Compile Include="Services\UserManagement\UserSettings.cs" />
     <Compile Include="Services\Workflow\ShortcutResourcesLoader.cs" />
     <Compile Include="Services\Workflow\WorkflowStateBuilder.cs" />
     <Compile Include="Settings\StartupSettings.cs" />
@@ -185,11 +188,6 @@
     <Compile Include="UiExtension.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\HttpServer\HttpServer.csproj">
-      <Project>{B1C97BB7-8E27-4C1B-B086-A1204EF8FB79}</Project>
-      <Name>HttpServer</Name>
-      <Private>False</Private>
-    </ProjectReference>
     <ProjectReference Include="..\MediaPortal.Common\MediaPortal.Common.csproj">
       <Project>{ECF060E7-CAA1-4466-851F-F80B857641EA}</Project>
       <Name>MediaPortal.Common</Name>

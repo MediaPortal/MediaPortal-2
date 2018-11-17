@@ -1,0 +1,10 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<resources>
+  <string name="RefreshRateChanger.IsEnabled">Ativar alteracão da velocidade de refrescamento</string>
+  <string name="RefreshRateChanger.IsEnabled.Help">Se ativado a velocidade de refrescamento tenta igualar o número de fps do video.</string>
+  <string name="RefreshRateChanger.NoChangeForRate">Excluir valocidades de refrescamento</string>
+  <string name="RefreshRateChanger.NoChangeForRate.Help">Excluir a possibilidade e alterar as seguintes velocidades de refrescamento. Inserir os valores separados por virgulas  (ex. 23,25,50).</string>
+  <string name="RefreshRateChanger.RateMappings">Mapeamento de velocidades de refrescamento</string>
+  <string name="RefreshRateChanger.RateMappings.Help">Passar por cima das definições padrão. 
+Formato: fps:Hz; fps:Hz (i.e. \"23:24\": para video com fps=23.976 alterar a velocidade de resfrescamento para 24Hz).</string>
+</resources>

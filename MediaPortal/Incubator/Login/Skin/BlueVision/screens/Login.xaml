@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Screen
+    xmlns="www.team-mediaportal.com/2008/mpf/directx"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:mp_special_workflow="clr-namespace:MediaPortal.UI.SkinEngine.SpecialElements.Workflow;assembly=SkinEngine"
+    xmlns:mp_special_controls="clr-namespace:MediaPortal.UI.SkinEngine.SpecialElements.Controls;assembly=SkinEngine"
+    xmlns:bvc="clr-namespace:MediaPortal.UiComponents.BlueVision.Converters;assembly=BlueVision"
+    xmlns:bvm="clr-namespace:MediaPortal.UiComponents.BlueVision.Models;assembly=BlueVision"
+    mp_special_workflow:WorkflowContext.StateSlot="Root"
+    x:Name="LoginScreen"
+    >
+
+  <!-- Header>
+    <ResourceWrapper x:Key="Header_Text" Resource="[Login.Title]"/-->
+
+  <!-- Login model -->
+
+  <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+    <Grid.RowDefinitions>
+      <RowDefinition Height="*"/>
+      <RowDefinition Height="Auto"/>
+      <RowDefinition Height="Auto"/>
+      <RowDefinition Height="Auto"/>
+      <RowDefinition Height="*"/>
+    </Grid.RowDefinitions>
+    <Grid.ColumnDefinitions>
+      <ColumnDefinition Width="*"/>
+    </Grid.ColumnDefinitions>
+
+    <Grid.Resources>
+      <Model x:Key="Model" Id="82582433-FD64-41bd-9059-7F662DBDA713"/>
+    </Grid.Resources>
+
+    <Image Stretch="Fill" Source="Background.PNG" Grid.RowSpan="5"/>
+    <Image Source="shadow_top.png" Grid.Row="1" Margin="40,20,40,20"/>
+    <Image Source="shadow_bottom.png" Grid.Row="3" Margin="40,20,40,20"/>
+
+    <Button Style="{ThemeResource UserButtonStyle}" IsVisible="{Binding Source={StaticResource Model},Path=EnableUserLogin}" 
+            IsEnabled="{Binding Source={StaticResource MenuModel},Path=IsHomeScreen}" 
+            HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,25,40,0"
+            Command="{Command Source={Service WorkflowManager},Path=NavigatePush,Parameters=2529B0F0-8415-4A4E-971B-38D6CDD2406A}"/>
+
+    <DockPanel Grid.Row="2">
+      <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="-100,0,-100,0">
+        <Grid.ColumnDefinitions>
+          <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+          <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        <!-- User profile list -->
+        <ListView Margin="10" HorizontalAlignment="Stretch" VerticalAlignment="Center" DataContext="{Binding Source={StaticResource Model}}"
+                    HorizontalContentAlignment="Center" SetFocus="True"
+                    Style="{ThemeResource LoginListViewStyle}" ItemsSource="{Binding Path=Users}" RestoreFocus="True">
+          <ListView.Resources>
+            <Command x:Key="Menu_Command" Source="{StaticResource Model}" Path="SelectUser"
+                  Parameters="{LateBoundValue BindingValue={Binding}}"/>
+          </ListView.Resources>
+        </ListView>
+      </Grid>
+    </DockPanel>
+    <Button Grid.Row="4" x:Name="LogoutUserButton" Style="{ThemeResource LogoutButtonStyle}" 
+            HorizontalAlignment="Center" VerticalAlignment="Center" Width="280" Height="50" DataContext="{Binding Source={StaticResource Model}}"
+            Content="[Login.Logout]" IsVisible="{Binding IsUserLoggedIn}"  Command="{Command LogoutUser}">
+    </Button>
+  </Grid>
+</Screen>

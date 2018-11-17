@@ -2,9 +2,11 @@
 <resources>
   <string name="Menu.Audio">Audio</string>
   <string name="Menu.Image">Immagini</string>
+  <string name="Menu.MediaHub">Centro media</string>
   <string name="Menu.TV">TV</string>
   <string name="Menu.News">Notizie</string>
   <string name="Menu.Weather">Meteo</string>
   <string name="Menu.Settings">Impostazioni</string>
   <string name="Menu.Others">Altro</string>
+  <string name="Menu.Main">Menu principale</string>
 </resources>

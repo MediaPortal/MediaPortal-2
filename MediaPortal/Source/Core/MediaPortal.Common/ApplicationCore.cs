@@ -49,6 +49,8 @@ using MediaPortal.Common.TaskScheduler;
 using MediaPortal.Common.Threading;
 using MediaPortal.Common.FileEventNotification;
 using MediaPortal.Common.Services.FileEventNotification;
+using MediaPortal.Common.FanArt;
+using MediaPortal.Common.Services.GenreConverter;
 
 namespace MediaPortal.Common
 {
@@ -94,10 +96,21 @@ namespace MediaPortal.Common
 
       // Assembly and build information
       FileVersionInfo fileVersionInfo = FileVersionInfo.GetVersionInfo(System.Reflection.Assembly.GetCallingAssembly().Location);
-      logger.Info("ApplicationCore: Comments:   {0}", fileVersionInfo.Comments);
-      logger.Info("ApplicationCore: Copyright:  {0}", fileVersionInfo.LegalCopyright);
-      logger.Info("ApplicationCore: Version:    {0}", fileVersionInfo.FileVersion);
-      logger.Info("ApplicationCore: Source:     {0}", fileVersionInfo.ProductVersion);
+      logger.Info("ApplicationCore: Comments:         {0}", fileVersionInfo.Comments);
+      logger.Info("ApplicationCore: Copyright:        {0}", fileVersionInfo.LegalCopyright);
+      logger.Info("ApplicationCore: Version:          {0}", fileVersionInfo.FileVersion);
+      logger.Info("ApplicationCore: Source:           {0}", fileVersionInfo.ProductVersion);
+      // Operating system info
+      logger.Info("ApplicationCore: OS version:       {0}", Environment.OSVersion);
+      foreach (string key in new[] { "ProductName", "ReleaseId", "BuildLab", "InstallationType", "EditionID", "EditionSubstring" })
+      {
+        try
+        {
+          var value = Microsoft.Win32.Registry.GetValue(@"HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion", key, string.Empty).ToString();
+          logger.Info("ApplicationCore: {0,-18}{1}", key + ":", value);
+        }
+        catch { break; }
+      }
       logger.Info("ApplicationCore: ----------------------------------------------------------");
 
       logger.Debug("ApplicationCore: Registering ILogger service");
@@ -153,7 +166,7 @@ namespace MediaPortal.Common
       else
       {
         logger.Debug("ApplicationCore: Registering IImporterWorker service");
-        ServiceRegistration.Set<IImporterWorker>(new ImporterWorker());        
+        ServiceRegistration.Set<IImporterWorker>(new ImporterWorker());
       }
 
       logger.Debug("ApplicationCore: Registering IResourceServer service");
@@ -167,6 +180,12 @@ namespace MediaPortal.Common
 
       logger.Debug("ApplicationCore: Registering IThumbnailGenerator service");
       ServiceRegistration.Set<IThumbnailGenerator>(new ThumbnailGenerator());
+
+      logger.Debug("ApplicationCore: Registering IGenreConverter service");
+      ServiceRegistration.Set<IGenreConverter>(new GenreConverter());
+
+      logger.Debug("ApplicationCore: Registering IFanArtCache service");
+      ServiceRegistration.Set<IFanArtCache>(new FanArtCache());
 
       AdditionalPluginItemBuilders.Register();
     }
@@ -191,43 +210,39 @@ namespace MediaPortal.Common
       ServiceRegistration.Get<IThreadPool>().Shutdown();
     }
 
-    public static void RegisterDefaultMediaItemAspectTypes()
+    public static async System.Threading.Tasks.Task RegisterDefaultMediaItemAspectTypes()
     {
       IMediaItemAspectTypeRegistration miatr = ServiceRegistration.Get<IMediaItemAspectTypeRegistration>();
 
-      miatr.RegisterLocallyKnownMediaItemAspectType(ProviderResourceAspect.Metadata);
-      miatr.RegisterLocallyKnownMediaItemAspectType(ImporterAspect.Metadata);
-
-      miatr.RegisterLocallyKnownMediaItemAspectType(DirectoryAspect.Metadata);
-
-      miatr.RegisterLocallyKnownMediaItemAspectType(MediaAspect.Metadata);
-
-      miatr.RegisterLocallyKnownMediaItemAspectType(VideoAspect.Metadata);
-      miatr.RegisterLocallyKnownMediaItemAspectType(GenreAspect.Metadata);
-      miatr.RegisterLocallyKnownMediaItemAspectType(VideoStreamAspect.Metadata);
-      miatr.RegisterLocallyKnownMediaItemAspectType(VideoAudioStreamAspect.Metadata);
-      miatr.RegisterLocallyKnownMediaItemAspectType(SubtitleAspect.Metadata);
-
-      miatr.RegisterLocallyKnownMediaItemAspectType(AudioAspect.Metadata);
-      miatr.RegisterLocallyKnownMediaItemAspectType(AudioAlbumAspect.Metadata);
-
-      miatr.RegisterLocallyKnownMediaItemAspectType(ImageAspect.Metadata);
-
-      miatr.RegisterLocallyKnownMediaItemAspectType(EpisodeAspect.Metadata);
-      miatr.RegisterLocallyKnownMediaItemAspectType(SeasonAspect.Metadata);
-      miatr.RegisterLocallyKnownMediaItemAspectType(SeriesAspect.Metadata);
-
-      miatr.RegisterLocallyKnownMediaItemAspectType(MovieAspect.Metadata);
-      miatr.RegisterLocallyKnownMediaItemAspectType(MovieCollectionAspect.Metadata);
-
-      miatr.RegisterLocallyKnownMediaItemAspectType(CompanyAspect.Metadata);
-      miatr.RegisterLocallyKnownMediaItemAspectType(PersonAspect.Metadata);
-      miatr.RegisterLocallyKnownMediaItemAspectType(CharacterAspect.Metadata);
-
-      miatr.RegisterLocallyKnownMediaItemAspectType(ThumbnailLargeAspect.Metadata);
-
-      miatr.RegisterLocallyKnownMediaItemAspectType(ExternalIdentifierAspect.Metadata);
-      miatr.RegisterLocallyKnownMediaItemAspectType(RelationshipAspect.Metadata);
+      var knownAspects = new List<MediaItemAspectMetadata>
+      {
+        ProviderResourceAspect.Metadata,
+        ImporterAspect.Metadata,
+        DirectoryAspect.Metadata,
+        MediaAspect.Metadata,
+        VideoAspect.Metadata,
+        GenreAspect.Metadata,
+        VideoStreamAspect.Metadata,
+        VideoAudioStreamAspect.Metadata,
+        SubtitleAspect.Metadata,
+        AudioAspect.Metadata,
+        AudioAlbumAspect.Metadata,
+        ImageAspect.Metadata,
+        EpisodeAspect.Metadata,
+        SeasonAspect.Metadata,
+        SeriesAspect.Metadata,
+        MovieAspect.Metadata,
+        MovieCollectionAspect.Metadata,
+        CompanyAspect.Metadata,
+        PersonAspect.Metadata,
+        CharacterAspect.Metadata,
+        ThumbnailLargeAspect.Metadata,
+        ExternalIdentifierAspect.Metadata,
+        RelationshipAspect.Metadata,
+        StubAspect.Metadata,
+        ReimportAspect.Metadata
+      };
+      await miatr.RegisterLocallyKnownMediaItemAspectTypeAsync(knownAspects);
     }
 
     public static void DisposeCoreServices()
@@ -236,6 +251,9 @@ namespace MediaPortal.Common
 
       logger.Debug("ApplicationCore: Removing IThumbnailGenerator service");
       ServiceRegistration.RemoveAndDispose<IThumbnailGenerator>();
+
+      logger.Debug("ApplicationCore: Removing IGenreConverter service");
+      ServiceRegistration.RemoveAndDispose<IGenreConverter>();
 
       logger.Debug("ApplicationCore: Removing IRemoteResourceInformationService");
       ServiceRegistration.RemoveAndDispose<IRemoteResourceInformationService>();

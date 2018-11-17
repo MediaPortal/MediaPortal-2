@@ -48,11 +48,11 @@ namespace MediaPortal.UiComponents.Media.Actions
     void SubscribeToMessages()
     {
       _messageQueue.SubscribeToMessageChannel(WorkflowManagerMessaging.CHANNEL);
-      _messageQueue.MessageReceived += OnMessageReceived;
     }
 
-    void OnMessageReceived(AsynchronousMessageQueue queue, SystemMessage message)
+    protected override void OnMessageReceived(AsynchronousMessageQueue queue, SystemMessage message)
     {
+      base.OnMessageReceived(queue, message);
       if (message.ChannelName == WorkflowManagerMessaging.CHANNEL)
       {
         WorkflowManagerMessaging.MessageType messageType = (WorkflowManagerMessaging.MessageType) message.MessageType;

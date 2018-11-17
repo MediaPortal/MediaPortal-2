@@ -66,14 +66,15 @@ namespace MediaPortal.Extensions.ResourceProviders.NetworkNeighborhoodResourcePr
       using (var client = new NbNsClient())
       {
         foreach (var target in networks.SelectMany(NetworkUtils.GetAllAddressesInSubnet))
-          tasks.Add(target, client.SendUnicastNodeStatusRequestAsync(NbNsNodeStatusRequest.WildCardNodeStatusRequest, target));
+          if (!tasks.ContainsKey(target))
+            tasks.Add(target, client.SendUnicastNodeStatusRequestAsync(NbNsNodeStatusRequest.WildCardNodeStatusRequest, target));
         await Task.WhenAll(tasks.Values);
 
         // Uncomment the following two lines for extensive logging
         // foreach (var kvp in tasks.Where(kvp => kvp.Value.Result != null))
         //   ServiceRegistration.Get<ILogger>().Debug("NetbiosNameServiceNeighborhoodBrowser: Found {0} ({1})\r\n{2}", kvp.Value.Result.WorkstationName, kvp.Key, kvp.Value.Result);
       }
-      
+
       // If the computer has multiple network interfaces, it is found multiple times - once for each network interface.
       // Every occurence of the computer then has a different IP address (the one of the respective network interface).
       // As result we want this computer only as one IPHostEntry, but IPHostEntry.AddressList should show all IP addresses.

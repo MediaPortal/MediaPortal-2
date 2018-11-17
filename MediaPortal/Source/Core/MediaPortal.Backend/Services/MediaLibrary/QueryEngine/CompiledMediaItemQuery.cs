@@ -49,33 +49,42 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
     protected readonly MIA_Management _miaManagement;
     protected readonly ICollection<MediaItemAspectMetadata> _necessaryRequestedMIAs;
     protected readonly ICollection<MediaItemAspectMetadata> _optionalRequestedMIAs;
+    protected readonly ICollection<MediaItemAspectMetadata> _explicitRequestedMIAs;
     protected readonly IDictionary<MediaItemAspectMetadata.AttributeSpecification, QueryAttribute> _mainSelectAttributes;
     protected readonly ICollection<MediaItemAspectMetadata.AttributeSpecification> _explicitSelectAttributes;
     protected readonly IFilter _filter;
-    protected uint? _offset;
-    protected uint? _limit;
+    protected readonly IFilter _subqueryFilter;
+    protected readonly Guid? _userProfileId;
+    protected readonly uint? _offset;
+    protected readonly uint? _limit;
 
-    protected readonly IList<SortInformation> _sortInformation;
+    protected readonly IList<ISortInformation> _sortInformation;
 
     public CompiledMediaItemQuery(
         MIA_Management miaManagement,
         ICollection<MediaItemAspectMetadata> necessaryRequestedMIAs,
         ICollection<MediaItemAspectMetadata> optionalRequestedMIAs,
+        ICollection<MediaItemAspectMetadata> explicitRequestedMIAs,
         IDictionary<MediaItemAspectMetadata.AttributeSpecification, QueryAttribute> mainSelectedAttributes,
         ICollection<MediaItemAspectMetadata.AttributeSpecification> explicitSelectedAttributes,
-        IFilter filter, IList<SortInformation> sortInformation,
+        IFilter filter, IFilter subqueryFilter, IList<ISortInformation> sortInformation,
+        Guid? userProfileId = null,
         uint? limit = null,
-        uint? offset = null)
+        uint? offset = null
+        )
     {
       _miaManagement = miaManagement;
       _necessaryRequestedMIAs = necessaryRequestedMIAs;
       _optionalRequestedMIAs = optionalRequestedMIAs;
+      _explicitRequestedMIAs = explicitRequestedMIAs;
       _mainSelectAttributes = mainSelectedAttributes;
       _explicitSelectAttributes = explicitSelectedAttributes;
       _filter = filter;
+      _subqueryFilter = subqueryFilter;
       _sortInformation = sortInformation;
       _limit = limit;
       _offset = offset;
+      _userProfileId = userProfileId;
     }
 
     public IDictionary<MediaItemAspectMetadata.AttributeSpecification, QueryAttribute> MainSelectAttributes
@@ -93,7 +102,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
       get { return _filter; }
     }
 
-    public ICollection<SortInformation> SortInformation
+    public ICollection<ISortInformation> SortInformation
     {
       get { return _sortInformation; }
     }
@@ -114,7 +123,12 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
       get { return _limit; }
     }
 
-    public static CompiledMediaItemQuery Compile(MIA_Management miaManagement, MediaItemQuery query)
+    public Guid? UserProfileId
+    {
+      get { return _userProfileId; }
+    }
+
+    public static CompiledMediaItemQuery Compile(MIA_Management miaManagement, MediaItemQuery query, Guid? userProfileId = null)
     {
       IDictionary<Guid, MediaItemAspectMetadata> availableMIATypes = miaManagement.ManagedMediaItemAspectTypes;
       ICollection<MediaItemAspectMetadata> necessaryMIATypes = new List<MediaItemAspectMetadata>();
@@ -133,8 +147,14 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
         MediaItemAspectMetadata miam;
         if (!availableMIATypes.TryGetValue(miaTypeID, out miam))
           continue;
+        //Skip optional MultipleMIAs, they will be explicitly selected separately
+        if (miam is MultipleMediaItemAspectMetadata)
+          continue;
         optionalMIATypes.Add(miam);
       }
+
+      // Mias selected in explicit queries
+      ICollection<MediaItemAspectMetadata> explicitRequestedMias = new List<MediaItemAspectMetadata>();
 
       // Maps (all selected main) MIAM.Attributes to QueryAttributes
       IDictionary<MediaItemAspectMetadata.AttributeSpecification, QueryAttribute> mainSelectedAttributes = new Dictionary<MediaItemAspectMetadata.AttributeSpecification, QueryAttribute>();
@@ -151,6 +171,14 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
           // If one of the necessary MIA types is not available, an exception was raised above. So we only
           // come to here if an optional MIA type is not present - simply ignore that.
           continue;
+
+        //MultipleMIA attributes are explicilty selected separately
+        if (miam is MultipleMediaItemAspectMetadata)
+        {
+          explicitRequestedMias.Add(miam);
+          continue;
+        }
+
         foreach (MediaItemAspectMetadata.AttributeSpecification attr in miam.AttributeSpecifications.Values)
         {
           if (attr.Cardinality == Cardinality.Inline || attr.Cardinality == Cardinality.ManyToOne)
@@ -160,17 +188,21 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
         }
       }
 
-      return new CompiledMediaItemQuery(miaManagement, necessaryMIATypes, optionalMIATypes, mainSelectedAttributes, explicitSelectAttributes,
-        query.Filter, query.SortInformation, query.Limit, query.Offset);
+      return new CompiledMediaItemQuery(miaManagement, necessaryMIATypes, optionalMIATypes, explicitRequestedMias, mainSelectedAttributes, explicitSelectAttributes,
+        query.Filter, query.SubqueryFilter, query.SortInformation, userProfileId, query.Limit, query.Offset);
     }
 
-    private IList<MediaItem> GetMediaItems(ISQLDatabase database, ITransaction transaction, bool singleMode, IEnumerable<MediaItemAspectMetadata> selectedMIAs, out IList<Guid> mediaItemIds, out IDictionary<Guid, IList<Guid>> complexMediaItems)
+    private IList<MediaItem> GetMediaItems(ISQLDatabase database, ITransaction transaction, bool singleMode, IEnumerable<MediaItemAspectMetadata> selectedMIAs, out IList<Guid> mediaItemIds, out IDictionary<Guid, IList<Guid>> complexMediaItems, bool forceSingleMIAMode = false)
     {
       string statementStr;
       IList<BindVar> bindVars;
+      uint? limit = _limit;
+      uint? offset = _offset;
+      //Force Single MIA based selection if there are limit because Multiple MIAs will cause duplicate rows
+      forceSingleMIAMode = forceSingleMIAMode || limit.HasValue || offset.HasValue;
 
       MIAQueryBuilder builder = new MIAQueryBuilder(_miaManagement,
-          _mainSelectAttributes.Values, null, _necessaryRequestedMIAs, _optionalRequestedMIAs, _filter, _sortInformation);
+          _mainSelectAttributes.Values, null, _necessaryRequestedMIAs, _optionalRequestedMIAs, _filter, _subqueryFilter, _sortInformation, _userProfileId);
 
       using (IDbCommand command = transaction.CreateCommand())
       {
@@ -178,13 +210,15 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
         IDictionary<MediaItemAspectMetadata, string> miamAliases;
         // Maps (selected and filtered) QueryAttributes to CompiledQueryAttributes in the SQL query
         IDictionary<QueryAttribute, string> qa2a;
-        builder.GenerateSqlStatement(out mediaItemIdAlias2, out miamAliases, out qa2a,
-            out statementStr, out bindVars);
+        if (!forceSingleMIAMode)
+          builder.GenerateSqlStatement(out mediaItemIdAlias2, out miamAliases, out qa2a, out statementStr, out bindVars);
+        else
+          builder.GenerateSingleMIASqlStatement(out mediaItemIdAlias2, out miamAliases, out qa2a, out statementStr, out bindVars);
 
         // Try to use SQL side paging, which gives best performance if supported
         ISQLDatabasePaging paging = database as ISQLDatabasePaging;
         if (paging != null)
-          paging.Process(ref statementStr, ref bindVars, ref _offset, ref _limit);
+          paging.Process(ref statementStr, ref bindVars, ref offset, ref limit);
 
         command.CommandText = statementStr;
         foreach (BindVar bindVar in bindVars)
@@ -197,10 +231,10 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
           complexMediaItems = new Dictionary<Guid, IList<Guid>>();
 
           var records = fullReader.AsEnumerable();
-          if (_offset.HasValue)
-            records = records.Skip((int)_offset.Value);
-          if (_limit.HasValue)
-            records = records.Take((int)_limit.Value);
+          if (offset.HasValue)
+            records = records.Skip((int)offset.Value);
+          if (limit.HasValue)
+            records = records.Take((int)limit.Value);
           foreach (var reader in records)
           {
             Guid mediaItemId = database.ReadDBValue<Guid>(reader, reader.GetOrdinal(mediaItemIdAlias2));
@@ -251,7 +285,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
           continue;
 
         ComplexAttributeQueryBuilder builder = new ComplexAttributeQueryBuilder(
-            _miaManagement, attr, null, _necessaryRequestedMIAs, new MediaItemIdFilter(ids));
+            _miaManagement, attr, null, _necessaryRequestedMIAs, new MediaItemIdFilter(ids), _subqueryFilter);
         using (IDbCommand command = transaction.CreateCommand())
         {
           string mediaItemIdAlias;
@@ -298,23 +332,27 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
       foreach (MultipleMediaItemAspectMetadata miam in selectedMIAs.Where(x => x is MultipleMediaItemAspectMetadata))
       {
         //logger.Debug("Getting {0} rows for {1}", ids.Count, miam.Name);
-        AddMultipleMIAResults(database, transaction, miam, new MultipleMIAQueryBuilder(_miaManagement, _mainSelectAttributes.Values, miam, ids.ToArray()), multipleMiaValues);
+        IDictionary<MediaItemAspectMetadata.AttributeSpecification, QueryAttribute> attributes =
+          new Dictionary<MediaItemAspectMetadata.AttributeSpecification, QueryAttribute>();
+
+        foreach (MediaItemAspectMetadata.AttributeSpecification attr in miam.AttributeSpecifications.Values)
+          if (attr.Cardinality == Cardinality.Inline || attr.Cardinality == Cardinality.ManyToOne)
+            attributes[attr] = new QueryAttribute(attr);
+
+        AddMultipleMIAResults(database, transaction, miam, attributes, new MultipleMIAQueryBuilder(_miaManagement, attributes.Values, miam, ids.ToArray()), multipleMiaValues);
+
         if (miam.AspectId == RelationshipAspect.ASPECT_ID)
-        {
           // Special case for relationships where the IDs being processed could be at the linked end
-          IList<QueryAttribute> attributes = new List<QueryAttribute>();
-          foreach (MediaItemAspectMetadata.AttributeSpecification attr in miam.AttributeSpecifications.Values)
-          {
-            if (attr.Cardinality == Cardinality.Inline || attr.Cardinality == Cardinality.ManyToOne)
-              attributes.Add(new QueryAttribute(attr));
-          }
-          AddMultipleMIAResults(database, transaction, miam, new InverseRelationshipQueryBuilder(_miaManagement, attributes, ids.ToArray()), multipleMiaValues);
-        }
+          AddMultipleMIAResults(database, transaction, miam, attributes, new InverseRelationshipQueryBuilder(_miaManagement, attributes.Values, ids.ToArray()), multipleMiaValues);
       }
     }
 
-    private void AddMultipleMIAResults(ISQLDatabase database, ITransaction transaction, MultipleMediaItemAspectMetadata miam, MainQueryBuilder builder, IDictionary<Guid, ICollection<MultipleMediaItemAspect>> multipleMiaValues)
+    private void AddMultipleMIAResults(ISQLDatabase database, ITransaction transaction, MultipleMediaItemAspectMetadata miam,
+      IDictionary<MediaItemAspectMetadata.AttributeSpecification, QueryAttribute> attributes, MainQueryBuilder builder,
+      IDictionary<Guid, ICollection<MultipleMediaItemAspect>> multipleMiaValues)
     {
+      if (miam.IsTransientAspect)
+        return;
       using (IDbCommand command = transaction.CreateCommand())
       {
         string mediaItemIdAlias;
@@ -340,19 +378,10 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
             {
               if (attr.Cardinality == Cardinality.Inline)
               {
-                QueryAttribute qa = _mainSelectAttributes[attr];
-                try
-                {
-                  string alias = qa2a[qa];
-                  //logger.Debug("Reading multiple MIA attibute " + attr.AttributeName + " #" + index + " from column " + alias);
-                  mia.SetAttribute(attr, database.ReadDBValue(attr.AttributeType, reader, reader.GetOrdinal(alias)));
-                }
-                catch (KeyNotFoundException)
-                {
-                  ILogger logger = ServiceRegistration.Get<ILogger>();
-                  logger.Error("No attribute {0} in [{1}]", qa, string.Join(",", qa2a.Keys));
-                  throw;
-                }
+                QueryAttribute qa = attributes[attr];
+                string alias = qa2a[qa];
+                //logger.Debug("Reading multiple MIA attibute " + attr.AttributeName + " #" + index + " from column " + alias);
+                mia.SetAttribute(attr, database.ReadDBValue(attr.AttributeType, reader, reader.GetOrdinal(alias)));
               }
             }
 
@@ -397,7 +426,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
     public IList<MediaItem> Query(bool singleMode)
     {
       ISQLDatabase database = ServiceRegistration.Get<ISQLDatabase>();
-      ITransaction transaction = database.CreateTransaction();
+      ITransaction transaction = database.BeginTransaction();
       try
       {
         return Query(database, transaction, singleMode);
@@ -418,7 +447,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
 
         IList<Guid> mediaItemIds;
         IDictionary<Guid, IList<Guid>> complexMediaItemIds;
-        IList<MediaItem> mediaItems = GetMediaItems(database, transaction, singleMode, selectedMIAs, out mediaItemIds, out complexMediaItemIds);
+        IList<MediaItem> mediaItems = GetMediaItems(database, transaction, singleMode, selectedMIAs, out mediaItemIds, out complexMediaItemIds);     
 
         //logger.Debug("CompiledMediaItemQuery::Query got media items IDs [{0}]", string.Join(",", mediaItemIds));
 
@@ -455,7 +484,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
         IDictionary<Guid, ICollection<MultipleMediaItemAspect>> multipleMiaValues =
           new Dictionary<Guid, ICollection<MultipleMediaItemAspect>>();
         foreach (IList<Guid> mediaItemIdsCluster in mediaItemIdsClusters.Where(x => x.Count > 0))
-          AddMultipleMIAs(database, transaction, selectedMIAs, mediaItemIdsCluster, multipleMiaValues);
+          AddMultipleMIAs(database, transaction, _explicitRequestedMIAs, mediaItemIdsCluster, multipleMiaValues);
 
         if (multipleMiaValues.Count > 0)
         {
@@ -499,7 +528,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
       foreach (MediaItemAspectMetadata.AttributeSpecification attr in _explicitSelectAttributes)
       {
         ComplexAttributeQueryBuilder complexAttributeQueryBuilder = new ComplexAttributeQueryBuilder(
-            _miaManagement, attr, null, _necessaryRequestedMIAs, _filter);
+            _miaManagement, attr, null, _necessaryRequestedMIAs, _filter, _subqueryFilter);
         result.Append("External attribute query for ");
         result.Append(attr.ParentMIAM.Name);
         result.Append(".");
@@ -510,7 +539,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
       }
       result.Append("Main query:\r\n");
       MIAQueryBuilder mainQueryBuilder = new MIAQueryBuilder(_miaManagement,
-          _mainSelectAttributes.Values, null, _necessaryRequestedMIAs, _optionalRequestedMIAs, _filter, _sortInformation);
+          _mainSelectAttributes.Values, null, _necessaryRequestedMIAs, _optionalRequestedMIAs, _filter, _subqueryFilter, _sortInformation);
       result.Append(mainQueryBuilder.ToString());
       return result.ToString();
     }

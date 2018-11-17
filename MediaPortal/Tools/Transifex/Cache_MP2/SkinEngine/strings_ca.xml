@@ -12,8 +12,6 @@
   <string name="Settings.Appearance.System.ScreenSaverEnabled.Help">Configureu si s\'ha de mostrar l\'estalvi de pantalla</string>
   <string name="Settings.Appearance.System.ScreenSaverTimeout">Temps d\'espera de l\'estalvi de pantalla</string>
   <string name="Settings.Appearance.System.ScreenSaverTimeout.Help">Configureu la durada en minuts entre la darrera entrada de l\'usuari i la visualització de l\'estalvi de pantalla</string>
-  <string name="Settings.Appearance.System.Antialiasing">Antialiàsing de la GUI</string>
-  <string name="Settings.Appearance.System.Antialiasing.Help">L\'antialiàsing millora la qualitat visual de la GUI però pot abaixar el rendiment de vídeo</string>
   <string name="Settings.Appearance.Skin">Aparença</string>
   <string name="Settings.Appearance.Skin.SkinAndTheme">Aparença i tema</string>
   <string name="Settings.Appearance.Skin.SkinAndTheme.ChangeSkin">Canvia l\'aparença</string>

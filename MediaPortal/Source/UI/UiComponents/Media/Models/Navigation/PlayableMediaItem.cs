@@ -63,14 +63,12 @@ namespace MediaPortal.UiComponents.Media.Models.Navigation
       if (!_mediaItem.Equals(mediaItem))
         throw new ArgumentException("Update can only be done for the same MediaItem!", "mediaItem");
 
-      int? currentPlayCount = null;
       SingleMediaItemAspect mediaAspect;
       if (MediaItemAspect.TryGetAspect(mediaItem.Aspects, MediaAspect.Metadata, out mediaAspect))
       {
         Title = (string)mediaAspect[MediaAspect.ATTR_TITLE];
         SortString = (string)mediaAspect[MediaAspect.ATTR_SORT_TITLE];
         Rating = (int?)mediaAspect[MediaAspect.ATTR_RATING] ?? 0;
-        currentPlayCount = (int?)mediaAspect[MediaAspect.ATTR_PLAYCOUNT] ?? 0;
         Virtual = (bool?)mediaAspect[MediaAspect.ATTR_ISVIRTUAL];
       }
 
@@ -110,9 +108,11 @@ namespace MediaPortal.UiComponents.Media.Models.Navigation
       }
       Duration = duration.HasValue ? FormattingUtils.FormatMediaDuration(duration.Value) : string.Empty;
 
+      int? playPct = null;
+      int? playCnt = null;
       if (mediaItem.UserData.ContainsKey(UserDataKeysKnown.KEY_PLAY_PERCENTAGE))
       {
-        WatchPercentage = mediaItem.UserData[UserDataKeysKnown.KEY_PLAY_PERCENTAGE];
+        playPct = Convert.ToInt32(mediaItem.UserData[UserDataKeysKnown.KEY_PLAY_PERCENTAGE]);
       }
       else if (mediaItem.UserData.ContainsKey(PlayerContext.KEY_RESUME_STATE))
       {
@@ -122,22 +122,21 @@ namespace MediaPortal.UiComponents.Media.Models.Navigation
         {
           TimeSpan resumePosition = positionResume.ResumePosition;
           if (duration.Value.TotalSeconds > 0)
-            WatchPercentage = ((int)(resumePosition.TotalSeconds * 100 / duration.Value.TotalSeconds)).ToString();
-          else if (currentPlayCount > 0)
-            WatchPercentage = "100";
-          else
-            WatchPercentage = "0";
+            playPct = (int)(resumePosition.TotalSeconds * 100 / duration.Value.TotalSeconds);
         }
       }
 
       if (mediaItem.UserData.ContainsKey(UserDataKeysKnown.KEY_PLAY_COUNT))
       {
-        PlayCount = Convert.ToInt32(mediaItem.UserData[UserDataKeysKnown.KEY_PLAY_COUNT]);
+        int playCount;
+        if (int.TryParse(mediaItem.UserData[UserDataKeysKnown.KEY_PLAY_COUNT], out playCount))
+          playCnt = playCount;
+        if (!playPct.HasValue && playCnt > 0)
+          playPct = 100;
       }
-      else if(currentPlayCount.HasValue)
-      {
-        PlayCount = currentPlayCount.Value;
-      }
+
+      WatchPercentage = playPct ?? 0;
+      PlayCount = playCnt ?? 0;
 
       FireChange();
     }
@@ -176,10 +175,10 @@ namespace MediaPortal.UiComponents.Media.Models.Navigation
       set { AdditionalProperties[Consts.KEY_PLAYCOUNT] = value; }
     }
 
-    public string WatchPercentage
+    public int WatchPercentage
     {
-      get { return this[Consts.KEY_WATCH_PERCENTAGE]; }
-      set { SetLabel(Consts.KEY_WATCH_PERCENTAGE, value); }
+      get { return (int?)AdditionalProperties[Consts.KEY_WATCH_PERCENTAGE] ?? 0; }
+      set { AdditionalProperties[Consts.KEY_WATCH_PERCENTAGE] = value; }
     }
 
     public string Duration

@@ -367,7 +367,7 @@ namespace MediaPortal.UiComponents.Media.Models
     {
       WorkflowState newState = WorkflowState.CreateTransientState(
           "View: " + subViewSpecification.ViewDisplayName, subViewSpecification.ViewDisplayName,
-          false, null, true, WorkflowType.Workflow);
+          false, null, true, WorkflowType.Workflow, null);
 
       ScreenConfig nextScreenConfig;
       LoadLayoutSettings(visibleScreen.ToString(), out nextScreenConfig);
@@ -402,18 +402,18 @@ namespace MediaPortal.UiComponents.Media.Models
 
       WorkflowState newState = WorkflowState.CreateTransientState(
           "View: " + subViewSpecification.ViewDisplayName, subViewSpecification.ViewDisplayName,
-          false, null, false, WorkflowType.Workflow);
+          false, null, false, WorkflowType.Workflow, null);
 
       string nextScreenName;
       AbstractScreenData nextScreen = null;
 
       // Try to load the prefered next screen from settings.
       if (LoadScreenHierarchy(CurrentScreenData.GetType().ToString(), out nextScreenName))
-        nextScreen = remainingScreens.FirstOrDefault(s => s.GetType().ToString() == nextScreenName && s.CanFilter(currentScreen));
+        nextScreen = remainingScreens.FirstOrDefault(s => s.GetType().ToString() == nextScreenName);
 
       // Default way: always take the first of the available screens.
       if (nextScreen == null)
-        nextScreen = remainingScreens.First(s => s != currentScreen && s.CanFilter(currentScreen));
+        nextScreen = remainingScreens.First(s => s != currentScreen);
 
       ScreenConfig nextScreenConfig;
       LoadLayoutSettings(nextScreen.GetType().ToString(), out nextScreenConfig);
@@ -510,10 +510,8 @@ namespace MediaPortal.UiComponents.Media.Models
     public IList<WorkflowAction> GetWorkflowActions(bool onlySearchScreens = false)
     {
       IList<WorkflowAction> actions = new List<WorkflowAction>(_availableScreens.Count);
-      AbstractScreenData parentScreen = _parent != null ? _parent.CurrentScreenData : null;
-      IEnumerable<AbstractScreenData> screens = parentScreen != null ? _availableScreens.Where(s => s.CanFilter(parentScreen)) : _availableScreens;
       int ct = 0;
-      foreach (AbstractScreenData screen in screens)
+      foreach (AbstractScreenData screen in _availableScreens)
       {
         if (onlySearchScreens && !(screen is AbstractSearchScreenData))
           continue;

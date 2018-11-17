@@ -22,15 +22,15 @@
 
 #endregion
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
-using MediaPortal.Utilities;
 using MediaPortal.Common.MediaManagement.Helpers;
-using System.Text.RegularExpressions;
+using MediaPortal.Utilities;
+using System;
+using System.Collections.Generic;
 using System.IO;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
 {
@@ -267,12 +267,45 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
     /// </summary>
     /// <param name="movieSearch">Movie search parameters</param>
     /// <param name="language">Language, if <c>null</c> it takes the <see cref="PreferredLanguage"/></param>
-    /// <param name="movies">Returns the list of matches.</param>
-    /// <returns><c>true</c> if at least one Movie was found.</returns>
-    public virtual bool SearchMovie(MovieInfo movieSearch, TLang language, out List<MovieInfo> movies)
+    /// <returns>A list of matches..</returns>
+    public virtual Task<List<MovieInfo>> SearchMovieAsync(MovieInfo movieSearch, TLang language)
     {
-      movies = null;
-      return false;
+      return Task.FromResult<List<MovieInfo>>(null);
+    }
+
+    /// <summary>
+    /// Search for matches of Movie. This method tries to find the any matching Movies in following order:
+    /// - Exact match using PreferredLanguage
+    /// - Exact match using DefaultLanguage
+    /// - If movies name contains " - ", it splits on this and tries to runs again using the first part (combined titles)
+    /// </summary>
+    /// <param name="movieSearch">Movie search parameters</param>
+    /// <param name="language">Language, if <c>null</c> it takes the <see cref="PreferredLanguage"/></param>
+    /// <returns>A list of all matching movies found.</returns>
+    public async Task<IEnumerable<MovieInfo>> SearchMovieMatchesAsync(MovieInfo movieSearch, TLang language)
+    {
+      language = language != null ? language : PreferredLanguage;
+      List<MovieInfo> movies = await SearchMovieAsync(movieSearch, language).ConfigureAwait(false);
+      if (movies?.Count > 0)
+        return movies;
+
+      if (!language.Equals(_defaultLanguage))
+      {
+        movies = await SearchMovieAsync(movieSearch, _defaultLanguage).ConfigureAwait(false);
+        if (movies?.Count > 0)
+          return movies;
+
+        // If also no match in default language is found, we will look for combined movies names:
+        // i.e. "Sanctuary - Wächter der Kreaturen" is not found, but "Sanctuary" is.
+        SimpleTitle originalName = movieSearch.MovieName;
+        string namePart = movieSearch.MovieName.Text.Split(new[] { '-' })[0].Trim();
+        movieSearch.MovieName = new SimpleTitle(namePart);
+        movies = await SearchMovieAsync(movieSearch, _defaultLanguage).ConfigureAwait(false);
+        movieSearch.MovieName = originalName;
+        if (movies?.Count > 0)
+          return movies;
+      }
+      return null;
     }
 
     /// <summary>
@@ -284,12 +317,11 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
     /// <param name="movieSearch">Movie search parameters</param>
     /// <param name="language">Language, if <c>null</c> it takes the <see cref="PreferredLanguage"/></param>
     /// <returns><c>true</c> if at exactly one Movie was found.</returns>
-    public bool SearchMovieUniqueAndUpdate(MovieInfo movieSearch, TLang language)
+    public async Task<bool> SearchMovieUniqueAndUpdateAsync(MovieInfo movieSearch, TLang language)
     {
-      List<MovieInfo> movies;
       language = language != null ? language : PreferredLanguage;
-
-      if (!SearchMovie(movieSearch, language, out movies))
+      List<MovieInfo> movies = await SearchMovieAsync(movieSearch, language).ConfigureAwait(false);
+      if (movies == null)
         return false;
       if (TestMovieMatch(movieSearch, ref movies))
       {
@@ -299,7 +331,8 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
 
       if (movies.Count == 0 && !language.Equals(_defaultLanguage))
       {
-        if (!SearchMovie(movieSearch, _defaultLanguage, out movies))
+        movies = await SearchMovieAsync(movieSearch, _defaultLanguage).ConfigureAwait(false);
+        if (movies == null)
           return false;
 
         // If also no match in default language is found, we will look for combined movies names:
@@ -309,7 +342,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
           SimpleTitle originalName = movieSearch.MovieName;
           string namePart = movieSearch.MovieName.Text.Split(new[] { '-' })[0].Trim();
           movieSearch.MovieName = new SimpleTitle(namePart);
-          if (SearchMovieUniqueAndUpdate(movieSearch, language))
+          if (await SearchMovieUniqueAndUpdateAsync(movieSearch, language).ConfigureAwait(false))
             return true;
           movieSearch.MovieName = originalName;
           return false;
@@ -359,7 +392,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
         // Try to match the year, if available
         if (movieSearch.ReleaseDate.HasValue)
         {
-          var yearFiltered = movies.FindAll(s => s.ReleaseDate.HasValue && s.ReleaseDate.Value.Year == movieSearch.ReleaseDate.Value.Year);
+          var yearFiltered = movies.Where(s => s.ReleaseDate.HasValue && s.ReleaseDate.Value.Year == movieSearch.ReleaseDate.Value.Year).ToList();
           if (yearFiltered.Count == 1)
           {
             ServiceRegistration.Get<ILogger>().Debug(GetType().Name + ": Unique match found \"{0}\"!", movieSearch);
@@ -372,8 +405,8 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
           }
         }
 
-        var exactMatches = movies.FindAll(s => !s.MovieName.IsEmpty && 
-          (s.MovieName.IsEmpty && s.MovieName.Text == movieSearch.MovieName.Text || s.OriginalName == movieSearch.MovieName.Text || GetLevenshteinDistance(s, movieSearch) == 0));
+        var exactMatches = movies.Where(s => !s.MovieName.IsEmpty && 
+          (s.MovieName.IsEmpty && s.MovieName.Text == movieSearch.MovieName.Text || s.OriginalName == movieSearch.MovieName.Text || GetLevenshteinDistance(s, movieSearch) == 0)).ToList();
         if (exactMatches.Count == 1)
         {
           ServiceRegistration.Get<ILogger>().Debug(GetType().Name + ": Unique match found \"{0}\"!", movieSearch);
@@ -381,7 +414,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
           return true;
         }
 
-        exactMatches = movies.FindAll(s => NamesAreMostlyEqual(s, movieSearch));
+        exactMatches = movies.Where(s => NamesAreMostlyEqual(s, movieSearch)).ToList();
         if (exactMatches.Count == 1)
         {
           ServiceRegistration.Get<ILogger>().Debug(GetType().Name + ": Unique match found \"{0}\"!", movieSearch);
@@ -403,24 +436,24 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
       return false;
     }
 
-    public virtual bool UpdateFromOnlineMovie(MovieInfo movie, TLang language, bool cacheOnly)
+    public virtual Task<bool> UpdateFromOnlineMovieAsync(MovieInfo movie, TLang language, bool cacheOnly)
     {
-      return false;
+      return Task.FromResult(false);
     }
 
-    public virtual bool IsCacheChangedForOnlineMovie(MovieInfo movie, TLang language)
+    public virtual Task<bool> IsCacheChangedForOnlineMovieAsync(MovieInfo movie, TLang language)
     {
-      return false;
+      return Task.FromResult(false);
     }
 
-    public virtual bool UpdateFromOnlineMovieCollection(MovieCollectionInfo collection, TLang language, bool cacheOnly)
+    public virtual Task<bool> UpdateFromOnlineMovieCollectionAsync(MovieCollectionInfo collection, TLang language, bool cacheOnly)
     {
-      return false;
+      return Task.FromResult(false);
     }
 
-    public virtual bool IsCacheChangedForOnlineMovieCollection(MovieCollectionInfo collection, TLang language)
+    public virtual Task<bool> IsCacheChangedForOnlineMovieCollectionAsync(MovieCollectionInfo collection, TLang language)
     {
-      return false;
+      return Task.FromResult(false);
     }
 
     #endregion
@@ -430,13 +463,47 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
     /// <summary>
     /// Search for Series.
     /// </summary>
-    /// <param name="episodeSearch">Episode search parameters.</param>
-    /// <param name="series">Returns the list of matches.</param>
-    /// <returns><c>true</c> if at least one Episode was found.</returns>
-    public virtual bool SearchSeriesEpisode(EpisodeInfo episodeSearch, TLang language, out List<EpisodeInfo> episodes)
+    /// <param name="episodeSearch">Episode search parameters.</param>    /// 
+    /// <param name="language">Language, if <c>null</c> it takes the <see cref="PreferredLanguage"/></param>
+    /// <returns>A list of matches.</returns>
+    public virtual Task<List<EpisodeInfo>> SearchSeriesEpisodeAsync(EpisodeInfo episodeSearch, TLang language)
     {
-      episodes = null;
-      return false;
+      return Task.FromResult<List<EpisodeInfo>>(null);
+    }
+
+    /// <summary>
+    /// Search for any matches of Series episode names. This method tries to find the best matching Series episode in following order:
+    /// - Exact match using PreferredLanguage
+    /// - Exact match using DefaultLanguage
+    /// - If series name contains " - ", it splits on this and tries to runs again using the first part (combined titles)
+    /// </summary>
+    /// <param name="episodeSearch">Episode search parameters.</param>
+    /// <param name = "language" > Language, if <c>null</c> it takes the<see cref="PreferredLanguage"/></param>
+    /// <returns>List of matching episodes found.</returns>
+    public async Task<List<EpisodeInfo>> SearchSeriesEpisodeMatchesAsync(EpisodeInfo episodeSearch, TLang language)
+    {
+      language = language != null ? language : PreferredLanguage;
+      List<EpisodeInfo> episodes = await SearchSeriesEpisodeAsync(episodeSearch, language).ConfigureAwait(false);
+      if (episodes?.Count > 0)
+        return episodes;
+
+      if (!language.Equals(_defaultLanguage))
+      {
+        episodes = await SearchSeriesEpisodeAsync(episodeSearch, _defaultLanguage).ConfigureAwait(false);
+        if (episodes?.Count > 0)
+          return episodes;
+
+        // If also no match in default language is found, we will look for combined movies names:
+        // i.e. "Sanctuary - Wächter der Kreaturen" is not found, but "Sanctuary" is.
+        SimpleTitle originalName = episodeSearch.SeriesName;
+        string namePart = episodeSearch.SeriesName.Text.Split(new[] { '-' })[0].Trim();
+        episodeSearch.SeriesName = new SimpleTitle(namePart);
+        episodes = await SearchSeriesEpisodeAsync(episodeSearch, _defaultLanguage).ConfigureAwait(false);
+        episodeSearch.SeriesName = originalName;
+        if (episodes?.Count > 0)
+          return episodes;
+      }
+      return null;
     }
 
     /// <summary>
@@ -448,12 +515,12 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
     /// <param name="episodeSearch">Episode search parameters.</param>
     /// <param name = "language" > Language, if <c>null</c> it takes the<see cref="PreferredLanguage"/></param>
     /// <returns><c>true</c> if only one Episode was found.</returns>
-    public bool SearchSeriesEpisodeUniqueAndUpdate(EpisodeInfo episodeSearch, TLang language)
+    public async Task<bool> SearchSeriesEpisodeUniqueAndUpdateAsync(EpisodeInfo episodeSearch, TLang language)
     {
-      List<EpisodeInfo> episodes;
       language = language != null ? language : PreferredLanguage;
 
-      if (!SearchSeriesEpisode(episodeSearch, language, out episodes))
+      List<EpisodeInfo> episodes = await SearchSeriesEpisodeAsync(episodeSearch, language).ConfigureAwait(false);
+      if (episodes == null || episodes.Count == 0)
         return false;
       if (TestSeriesEpisodeMatch(episodeSearch, ref episodes))
       {
@@ -463,7 +530,8 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
 
       if (episodes.Count == 0 && !language.Equals(_defaultLanguage))
       {
-        if (!SearchSeriesEpisode(episodeSearch, _defaultLanguage, out episodes))
+        episodes = await SearchSeriesEpisodeAsync(episodeSearch, _defaultLanguage).ConfigureAwait(false);
+        if (episodes == null || episodes.Count == 0)
           return false;
 
         // If also no match in default language is found, we will look for combined movies names:
@@ -473,7 +541,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
           SimpleTitle originalName = episodeSearch.SeriesName;
           string namePart = episodeSearch.SeriesName.Text.Split(new[] { '-' })[0].Trim();
           episodeSearch.SeriesName = new SimpleTitle(namePart);
-          if (SearchSeriesEpisodeUniqueAndUpdate(episodeSearch, language))
+          if (await SearchSeriesEpisodeUniqueAndUpdateAsync(episodeSearch, language).ConfigureAwait(false))
             return true;
           episodeSearch.SeriesName = originalName;
           return false;
@@ -569,12 +637,46 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
     /// Search for Series.
     /// </summary>
     /// <param name="seriesSearch">Series search parameters.</param>
-    /// <param name="series">Returns the list of matches.</param>
-    /// <returns><c>true</c> if at least one Series was found.</returns>
-    public virtual bool SearchSeries(SeriesInfo seriesSearch, TLang language, out List<SeriesInfo> series)
+    /// <param name="language">Language, if <c>null</c> it takes the <see cref="PreferredLanguage"/></param>
+    /// <returns>A list of matches.</returns>
+    public virtual Task<List<SeriesInfo>> SearchSeriesAsync(SeriesInfo seriesSearch, TLang language)
     {
-      series = null;
-      return false;
+      return Task.FromResult<List<SeriesInfo>>(null);
+    }
+
+    /// <summary>
+    /// Search for any matches of Series names. This method tries to find the best matching Series in following order:
+    /// - Exact match using PreferredLanguage
+    /// - Exact match using DefaultLanguage
+    /// - If series name contains " - ", it splits on this and tries to runs again using the first part (combined titles)
+    /// </summary>
+    /// <param name="seriesSearch">Series search parameters.</param>
+    /// <param name = "language" > Language, if <c>null</c> it takes the<see cref="PreferredLanguage"/></param>
+    /// <returns>List of matching series
+    public async Task<List<SeriesInfo>> SearchSeriesMatchesAsync(SeriesInfo seriesSearch, TLang language)
+    {
+      language = language != null ? language : PreferredLanguage;
+      List<SeriesInfo> series = await SearchSeriesAsync(seriesSearch, language).ConfigureAwait(false);
+      if (series?.Count > 0)
+        return series;
+
+      if (!language.Equals(_defaultLanguage))
+      {
+        series = await SearchSeriesAsync(seriesSearch, _defaultLanguage).ConfigureAwait(false);
+        if (series?.Count > 0)
+          return series;
+
+        // If also no match in default language is found, we will look for combined movies names:
+        // i.e. "Sanctuary - Wächter der Kreaturen" is not found, but "Sanctuary" is.
+        SimpleTitle originalName = seriesSearch.SeriesName;
+        string namePart = seriesSearch.SeriesName.Text.Split(new[] { '-' })[0].Trim();
+        seriesSearch.SeriesName = new SimpleTitle(namePart);
+        series = await SearchSeriesAsync(seriesSearch, _defaultLanguage).ConfigureAwait(false);
+        seriesSearch.SeriesName = originalName;
+        if (series?.Count > 0)
+          return series;
+      }
+      return null;
     }
 
     /// <summary>
@@ -586,12 +688,12 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
     /// <param name="seriesSearch">Series search parameters.</param>
     /// <param name="language">Language, if <c>null</c> it takes the <see cref="PreferredLanguage"/></param>
     /// <returns><c>true</c> if only one Series was found.</returns>
-    public bool SearchSeriesUniqueAndUpdate(SeriesInfo seriesSearch, TLang language)
+    public async Task<bool> SearchSeriesUniqueAndUpdateAsync(SeriesInfo seriesSearch, TLang language)
     {
-      List<SeriesInfo> series;
       language = language != null ? language : PreferredLanguage;
 
-      if (!SearchSeries(seriesSearch, language, out series))
+      List<SeriesInfo> series = await SearchSeriesAsync(seriesSearch, language).ConfigureAwait(false);
+      if (series == null || series.Count == 0)
         return false;
       if (TestSeriesMatch(seriesSearch, ref series))
       {
@@ -601,7 +703,8 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
 
       if (series.Count == 0 && !language.Equals(_defaultLanguage))
       {
-        if (!SearchSeries(seriesSearch, _defaultLanguage, out series))
+        series = await SearchSeriesAsync(seriesSearch, _defaultLanguage).ConfigureAwait(false);
+        if (series == null || series.Count == 0)
           return false;
 
         // If also no match in default language is found, we will look for combined movies names:
@@ -611,7 +714,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
           SimpleTitle originalName = seriesSearch.SeriesName;
           string namePart = seriesSearch.SeriesName.Text.Split(new[] { '-' })[0].Trim();
           seriesSearch.SeriesName = new SimpleTitle(namePart);
-          if (SearchSeriesUniqueAndUpdate(seriesSearch, language))
+          if (await SearchSeriesUniqueAndUpdateAsync(seriesSearch, language).ConfigureAwait(false))
             return true;
           seriesSearch.SeriesName = originalName;
           return false;
@@ -703,69 +806,73 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
       return series.Count == 1;
     }
 
-    public virtual bool UpdateFromOnlineSeries(SeriesInfo series, TLang language, bool cacheOnly)
+    public virtual Task<bool> UpdateFromOnlineSeriesAsync(SeriesInfo series, TLang language, bool cacheOnly)
     {
-      return false;
+      return Task.FromResult(false);
     }
 
-    public virtual bool IsCacheChangedForOnlineSeries(SeriesInfo series, TLang language)
+    public virtual Task<bool> IsCacheChangedForOnlineSeriesAsync(SeriesInfo series, TLang language)
     {
-      return false;
+      return Task.FromResult(false);
     }
 
-    public virtual bool UpdateFromOnlineSeriesSeason(SeasonInfo season, TLang language, bool cacheOnly)
+    public virtual Task<bool> UpdateFromOnlineSeriesSeasonAsync(SeasonInfo season, TLang language, bool cacheOnly)
     {
-      return false;
+      return Task.FromResult(false);
     }
 
-    public virtual bool IsCacheChangedForOnlineSeriesSeason(SeasonInfo season, TLang language)
+    public virtual Task<bool> IsCacheChangedForOnlineSeriesSeasonAsync(SeasonInfo season, TLang language)
     {
-      return false;
+      return Task.FromResult(false);
     }
 
-    public virtual bool UpdateFromOnlineSeriesEpisode(EpisodeInfo episode, TLang language, bool cacheOnly)
+    public virtual Task<bool> UpdateFromOnlineSeriesEpisodeAsync(EpisodeInfo episode, TLang language, bool cacheOnly)
     {
-      return false;
+      return Task.FromResult(false);
     }
 
-    public virtual bool IsCacheChangedForOnlineSeriesEpisode(EpisodeInfo episode, TLang language)
+    public virtual Task<bool> IsCacheChangedForOnlineSeriesEpisodeAsync(EpisodeInfo episode, TLang language)
     {
-      return false;
+      return Task.FromResult(false);
     }
 
     protected virtual void SetMultiEpisodeDetails(EpisodeInfo episodeInfo, List<EpisodeInfo> episodeMatches)
     {
-      episodeInfo.ImdbId = episodeMatches.First().ImdbId;
-      episodeInfo.TvdbId = episodeMatches.First().TvdbId;
-      episodeInfo.MovieDbId = episodeMatches.First().MovieDbId;
-      episodeInfo.TvMazeId = episodeMatches.First().TvMazeId;
-      episodeInfo.TvRageId = episodeMatches.First().TvRageId;
+      EpisodeInfo firstEpisodeMatch = episodeMatches.First();
+      episodeInfo.ImdbId = firstEpisodeMatch.ImdbId;
+      episodeInfo.TvdbId = firstEpisodeMatch.TvdbId;
+      episodeInfo.MovieDbId = firstEpisodeMatch.MovieDbId;
+      episodeInfo.TvMazeId = firstEpisodeMatch.TvMazeId;
+      episodeInfo.TvRageId = firstEpisodeMatch.TvRageId;
 
-      episodeInfo.SeriesImdbId = episodeMatches.First().SeriesImdbId;
-      episodeInfo.SeriesMovieDbId = episodeMatches.First().SeriesMovieDbId;
-      episodeInfo.SeriesTvdbId = episodeMatches.First().SeriesTvdbId;
-      episodeInfo.SeriesTvRageId = episodeMatches.First().SeriesTvRageId;
-      episodeInfo.SeriesTvMazeId = episodeMatches.First().SeriesTvMazeId;
-      episodeInfo.SeriesName = episodeMatches.First().SeriesName;
-      episodeInfo.SeriesFirstAired = episodeMatches.First().SeriesFirstAired;
+      episodeInfo.SeriesImdbId = firstEpisodeMatch.SeriesImdbId;
+      episodeInfo.SeriesMovieDbId = firstEpisodeMatch.SeriesMovieDbId;
+      episodeInfo.SeriesTvdbId = firstEpisodeMatch.SeriesTvdbId;
+      episodeInfo.SeriesTvRageId = firstEpisodeMatch.SeriesTvRageId;
+      episodeInfo.SeriesTvMazeId = firstEpisodeMatch.SeriesTvMazeId;
+      episodeInfo.SeriesName = firstEpisodeMatch.SeriesName;
+      episodeInfo.SeriesFirstAired = firstEpisodeMatch.SeriesFirstAired;
 
-      episodeInfo.SeasonNumber = episodeMatches.First().SeasonNumber;
-      episodeInfo.EpisodeNumbers = episodeMatches.SelectMany(x => x.EpisodeNumbers).ToList();
-      episodeInfo.DvdEpisodeNumbers = episodeMatches.SelectMany(x => x.DvdEpisodeNumbers).ToList();
-      episodeInfo.FirstAired = episodeMatches.First().FirstAired;
-      episodeInfo.Rating = new SimpleRating(episodeMatches.Where(e => !e.Rating.IsEmpty).Sum(e => e.Rating.RatingValue.Value) / episodeMatches.Count); // Average rating
-      episodeInfo.Rating.VoteCount = episodeMatches.Where(e => !e.Rating.IsEmpty && e.Rating.VoteCount.HasValue).Sum(e => e.Rating.VoteCount.Value) / episodeMatches.Count; // Average rating count
+      episodeInfo.SeasonNumber = firstEpisodeMatch.SeasonNumber;
+      episodeInfo.EpisodeNumbers = episodeMatches.SelectMany(x => x.EpisodeNumbers).Distinct().ToList();
+      episodeInfo.DvdEpisodeNumbers = episodeMatches.SelectMany(x => x.DvdEpisodeNumbers).Distinct().ToList();
+      episodeInfo.FirstAired = firstEpisodeMatch.FirstAired;
+      episodeInfo.Rating = new SimpleRating(episodeMatches.Where(e => !e.Rating.IsEmpty).
+        Sum(e => e.Rating.RatingValue.Value) / episodeMatches.Where(e => !e.Rating.IsEmpty).Count()); // Average rating
+      episodeInfo.Rating.VoteCount = episodeMatches.Where(e => !e.Rating.IsEmpty && e.Rating.VoteCount.HasValue).Sum(e => e.Rating.VoteCount.Value); // Total rating count
       episodeInfo.EpisodeName = string.Join("; ", episodeMatches.OrderBy(e => e.FirstEpisodeNumber).Select(e => e.EpisodeName.Text).ToArray());
       episodeInfo.EpisodeName.DefaultLanguage = episodeMatches.First().EpisodeName.DefaultLanguage;
       episodeInfo.Summary = string.Join("\r\n\r\n", episodeMatches.OrderBy(e => e.FirstEpisodeNumber).
         Select(e => string.Format("{0,02}) {1}", e.FirstEpisodeNumber, e.Summary.Text)).ToArray());
-      episodeInfo.Summary.DefaultLanguage = episodeMatches.First().Summary.DefaultLanguage;
+      episodeInfo.Summary.DefaultLanguage = firstEpisodeMatch.Summary.DefaultLanguage;
 
       episodeInfo.Genres = episodeMatches.SelectMany(e => e.Genres).Distinct().ToList();
       episodeInfo.Actors = episodeMatches.SelectMany(e => e.Actors).Distinct().ToList();
       episodeInfo.Directors = episodeMatches.SelectMany(e => e.Directors).Distinct().ToList();
       episodeInfo.Writers = episodeMatches.SelectMany(e => e.Writers).Distinct().ToList();
       episodeInfo.Characters = episodeMatches.SelectMany(e => e.Characters).Distinct().ToList();
+
+      episodeInfo.Thumbnail = firstEpisodeMatch.Thumbnail;
     }
 
     protected virtual void SetEpisodeDetails(EpisodeInfo episodeInfo, EpisodeInfo episodeMatch)
@@ -785,18 +892,20 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
       episodeInfo.SeriesFirstAired = episodeMatch.SeriesFirstAired;
 
       episodeInfo.SeasonNumber = episodeMatch.SeasonNumber;
-      episodeInfo.EpisodeNumbers = episodeMatch.EpisodeNumbers;
-      episodeInfo.DvdEpisodeNumbers = episodeMatch.DvdEpisodeNumbers;
+      episodeInfo.EpisodeNumbers = episodeMatch.EpisodeNumbers.ToList();
+      episodeInfo.DvdEpisodeNumbers = episodeMatch.DvdEpisodeNumbers.ToList();
       episodeInfo.FirstAired = episodeMatch.FirstAired;
       episodeInfo.Rating = episodeMatch.Rating;
       episodeInfo.EpisodeName = episodeMatch.EpisodeName;
       episodeInfo.Summary = episodeMatch.Summary;
 
-      episodeInfo.Genres = episodeMatch.Genres;
-      episodeInfo.Actors = episodeMatch.Actors;
-      episodeInfo.Directors = episodeMatch.Directors;
-      episodeInfo.Writers = episodeMatch.Writers;
-      episodeInfo.Characters = episodeMatch.Characters;
+      episodeInfo.Genres = episodeMatch.Genres.ToList();
+      episodeInfo.Actors = episodeMatch.Actors.ToList();
+      episodeInfo.Directors = episodeMatch.Directors.ToList();
+      episodeInfo.Writers = episodeMatch.Writers.ToList();
+      episodeInfo.Characters = episodeMatch.Characters.ToList();
+
+      episodeInfo.Thumbnail = episodeMatch.Thumbnail;
     }
 
     #endregion
@@ -808,12 +917,10 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
     /// </summary>
     /// <param name="personSearch">Person search parameters.</param>
     /// <param name="language">Language, if <c>null</c> it takes the <see cref="PreferredLanguage"/></param>
-    /// <param name="persons">Returns the list of matches.</param>
-    /// <returns><c>true</c> if at least one Person was found.</returns>
-    public virtual bool SearchPerson(PersonInfo personSearch, TLang language, out List<PersonInfo> persons)
+    /// <returns> A list of matches.</returns>
+    public virtual Task<List<PersonInfo>> SearchPersonAsync(PersonInfo personSearch, TLang language)
     {
-      persons = null;
-      return false;
+      return Task.FromResult<List<PersonInfo>>(null);
     }
 
     /// <summary>
@@ -824,12 +931,12 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
     /// <param name="personSearch">Person search parameters.</param>
     /// <param name="language">Language, if <c>null</c> it takes the <see cref="PreferredLanguage"/></param>
     /// <returns><c>true</c> if at exactly one Person was found.</returns>
-    public bool SearchPersonUniqueAndUpdate(PersonInfo personSearch, TLang language)
+    public async Task<bool> SearchPersonUniqueAndUpdateAsync(PersonInfo personSearch, TLang language)
     {
-      List<PersonInfo> persons;
       language = language != null ? language : PreferredLanguage;
 
-      if (!SearchPerson(personSearch, language, out persons))
+      List<PersonInfo> persons = await SearchPersonAsync(personSearch, language).ConfigureAwait(false);
+      if (persons == null || persons.Count == 0)
         return false;
       if (TestPersonMatch(personSearch, ref persons))
       {
@@ -839,7 +946,8 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
 
       if (persons.Count == 0 && !language.Equals(_defaultLanguage))
       {
-        if (!SearchPerson(personSearch, _defaultLanguage, out persons))
+        persons = await SearchPersonAsync(personSearch, _defaultLanguage).ConfigureAwait(false);
+        if (persons == null || persons.Count == 0)
           return false;
         if (TestPersonMatch(personSearch, ref persons))
         {
@@ -916,54 +1024,54 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
       return persons.Count == 1;
     }
 
-    public virtual bool UpdateFromOnlineMoviePerson(MovieInfo movieInfo, PersonInfo person, TLang language, bool cacheOnly)
+    public virtual Task<bool> UpdateFromOnlineMoviePersonAsync(MovieInfo movieInfo, PersonInfo person, TLang language, bool cacheOnly)
     {
-      return false;
+      return Task.FromResult(false);
     }
 
-    public virtual bool IsCacheChangedForOnlineMoviePerson(MovieInfo movieInfo, PersonInfo person, TLang language)
+    public virtual Task<bool> IsCacheChangedForOnlineMoviePersonAsync(MovieInfo movieInfo, PersonInfo person, TLang language)
     {
-      return false;
+      return Task.FromResult(false);
     }
 
-    public virtual bool UpdateFromOnlineSeriesPerson(SeriesInfo seriesInfo, PersonInfo person, TLang language, bool cacheOnly)
+    public virtual Task<bool> UpdateFromOnlineSeriesPersonAsync(SeriesInfo seriesInfo, PersonInfo person, TLang language, bool cacheOnly)
     {
-      return false;
+      return Task.FromResult(false);
     }
 
-    public virtual bool IsCacheChangedForOnlineSeriesPerson(SeriesInfo seriesInfo, PersonInfo person, TLang language)
+    public virtual Task<bool> IsCacheChangedForOnlineSeriesPersonAsync(SeriesInfo seriesInfo, PersonInfo person, TLang language)
     {
-      return false;
+      return Task.FromResult(false);
     }
 
-    public virtual bool UpdateFromOnlineSeriesEpisodePerson(EpisodeInfo episodeInfo, PersonInfo person, TLang language, bool cacheOnly)
+    public virtual Task<bool> UpdateFromOnlineSeriesEpisodePersonAsync(EpisodeInfo episodeInfo, PersonInfo person, TLang language, bool cacheOnly)
     {
-      return false;
+      return Task.FromResult(false);
     }
 
-    public virtual bool IsCacheChangedForOnlineSeriesEpisodePerson(EpisodeInfo episodeInfo, PersonInfo person, TLang language)
+    public virtual Task<bool> IsCacheChangedForOnlineSeriesEpisodePersonAsync(EpisodeInfo episodeInfo, PersonInfo person, TLang language)
     {
-      return false;
+      return Task.FromResult(false);
     }
 
-    public virtual bool UpdateFromOnlineMusicTrackAlbumPerson(AlbumInfo albumInfo, PersonInfo person, TLang language, bool cacheOnly)
+    public virtual Task<bool> UpdateFromOnlineMusicTrackAlbumPersonAsync(AlbumInfo albumInfo, PersonInfo person, TLang language, bool cacheOnly)
     {
-      return false;
+      return Task.FromResult(false);
     }
 
-    public virtual bool IsCacheChangedForOnlineMusicTrackAlbumPerson(AlbumInfo albumInfo, PersonInfo person, TLang language)
+    public virtual Task<bool> IsCacheChangedForOnlineMusicTrackAlbumPersonAsync(AlbumInfo albumInfo, PersonInfo person, TLang language)
     {
-      return false;
+      return Task.FromResult(false);
     }
 
-    public virtual bool UpdateFromOnlineMusicTrackPerson(TrackInfo trackInfo, PersonInfo person, TLang language, bool cacheOnly)
+    public virtual Task<bool> UpdateFromOnlineMusicTrackPersonAsync(TrackInfo trackInfo, PersonInfo person, TLang language, bool cacheOnly)
     {
-      return false;
+      return Task.FromResult(false);
     }
 
-    public virtual bool IsCacheChangedForOnlineMusicTrackPerson(TrackInfo trackInfo, PersonInfo person, TLang language)
+    public virtual Task<bool> IsCacheChangedForOnlineMusicTrackPersonAsync(TrackInfo trackInfo, PersonInfo person, TLang language)
     {
-      return false;
+      return Task.FromResult(false);
     }
 
     #endregion
@@ -975,12 +1083,10 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
     /// </summary>
     /// <param name="characterSearch">Character search parameters.</param>
     /// <param name="language">Language, if <c>null</c> it takes the <see cref="PreferredLanguage"/></param>
-    /// <param name="persons">Returns the list of matches.</param>
-    /// <returns><c>true</c> if at least one Person was found.</returns>
-    public virtual bool SearchCharacter(CharacterInfo characterSearch, TLang language, out List<CharacterInfo> characters)
+    /// <returns>A list of matches.</returns>
+    public virtual Task<List<CharacterInfo>> SearchCharacterAsync(CharacterInfo characterSearch, TLang language)
     {
-      characters = null;
-      return false;
+      return Task.FromResult<List<CharacterInfo>>(null);
     }
 
     /// <summary>
@@ -991,12 +1097,12 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
     /// <param name="characterSearch">Character search parameters.</param>
     /// <param name="language">Language, if <c>null</c> it takes the <see cref="PreferredLanguage"/></param>
     /// <returns><c>true</c> if at exactly one Person was found.</returns>
-    public bool SearchCharacterUniqueAndUpdate(CharacterInfo characterSearch, TLang language)
+    public async Task<bool> SearchCharacterUniqueAndUpdateAsync(CharacterInfo characterSearch, TLang language)
     {
-      List<CharacterInfo> characters;
       language = language != null ? language : PreferredLanguage;
 
-      if (!SearchCharacter(characterSearch, language, out characters))
+      List<CharacterInfo> characters = await SearchCharacterAsync(characterSearch, language).ConfigureAwait(false);
+      if (characters == null || characters.Count == 0)
         return false;
       if (TestCharacterMatch(characterSearch, ref characters))
       {
@@ -1006,7 +1112,8 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
 
       if (characters.Count == 0 && !language.Equals(_defaultLanguage))
       {
-        if (!SearchCharacter(characterSearch, _defaultLanguage, out characters))
+        characters = await SearchCharacterAsync(characterSearch, _defaultLanguage).ConfigureAwait(false);
+        if (characters == null || characters.Count == 0)
           return false;
         if (TestCharacterMatch(characterSearch, ref characters))
         {
@@ -1071,34 +1178,34 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
       return characters.Count == 1;
     }
 
-    public virtual bool UpdateFromOnlineMovieCharacter(MovieInfo movieInfo, CharacterInfo character, TLang language, bool cacheOnly)
+    public virtual Task<bool> UpdateFromOnlineMovieCharacterAsync(MovieInfo movieInfo, CharacterInfo character, TLang language, bool cacheOnly)
     {
-      return false;
+      return Task.FromResult(false);
     }
 
-    public virtual bool IsCacheChangedForOnlineMovieCharacter(MovieInfo movieInfo, CharacterInfo character, TLang language)
+    public virtual Task<bool> IsCacheChangedForOnlineMovieCharacterAsync(MovieInfo movieInfo, CharacterInfo character, TLang language)
     {
-      return false;
+      return Task.FromResult(false);
     }
 
-    public virtual bool UpdateFromOnlineSeriesCharacter(SeriesInfo seriesInfo, CharacterInfo character, TLang language, bool cacheOnly)
+    public virtual Task<bool> UpdateFromOnlineSeriesCharacterAsync(SeriesInfo seriesInfo, CharacterInfo character, TLang language, bool cacheOnly)
     {
-      return false;
+      return Task.FromResult(false);
     }
 
-    public virtual bool IsCacheChangedForOnlineSeriesCharacter(SeriesInfo seriesInfo, CharacterInfo character, TLang language)
+    public virtual Task<bool> IsCacheChangedForOnlineSeriesCharacterAsync(SeriesInfo seriesInfo, CharacterInfo character, TLang language)
     {
-      return false;
+      return Task.FromResult(false);
     }
 
-    public virtual bool UpdateFromOnlineSeriesEpisodeCharacter(EpisodeInfo episodeInfo, CharacterInfo character, TLang language, bool cacheOnly)
+    public virtual Task<bool> UpdateFromOnlineSeriesEpisodeCharacterAsync(EpisodeInfo episodeInfo, CharacterInfo character, TLang language, bool cacheOnly)
     {
-      return false;
+      return Task.FromResult(false);
     }
 
-    public virtual bool IsCacheChangedForOnlineSeriesEpisodeCharacter(EpisodeInfo episodeInfo, CharacterInfo character, TLang language)
+    public virtual Task<bool> IsCacheChangedForOnlineSeriesEpisodeCharacterAsync(EpisodeInfo episodeInfo, CharacterInfo character, TLang language)
     {
-      return false;
+      return Task.FromResult(false);
     }
 
     #endregion
@@ -1110,12 +1217,10 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
     /// </summary>
     /// <param name="companySearch">Company search parameters.</param>
     /// <param name="language">Language, if <c>null</c> it takes the <see cref="PreferredLanguage"/></param>
-    /// <param name="companies">Returns the list of matches.</param>
-    /// <returns><c>true</c> if at least one Company was found.</returns>
-    public virtual bool SearchCompany(CompanyInfo companySearch, TLang language, out List<CompanyInfo> companies)
+    /// <returns>A list of matches.</returns>
+    public virtual Task<List<CompanyInfo>> SearchCompanyAsync(CompanyInfo companySearch, TLang language)
     {
-      companies = null;
-      return false;
+      return Task.FromResult<List<CompanyInfo>>(null);
     }
 
     /// <summary>
@@ -1126,12 +1231,12 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
     /// <param name="companySearch">Company search parameters.</param>
     /// <param name="language">Language, if <c>null</c> it takes the <see cref="PreferredLanguage"/></param>
     /// <returns><c>true</c> if at exactly one Company was found.</returns>
-    public bool SearchCompanyUniqueAndUpdate(CompanyInfo companySearch, TLang language)
+    public async Task<bool> SearchCompanyUniqueAndUpdateAsync(CompanyInfo companySearch, TLang language)
     {
-      List<CompanyInfo> companies;
       language = language != null ? language : PreferredLanguage;
 
-      if (!SearchCompany(companySearch, language, out companies))
+      List<CompanyInfo> companies = await SearchCompanyAsync(companySearch, language).ConfigureAwait(false);
+      if (companies == null || companies.Count == 0)
         return false;
       if (TestCompanyMatch(companySearch, ref companies))
       {
@@ -1141,7 +1246,8 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
 
       if (companies.Count == 0 && !language.Equals(_defaultLanguage))
       {
-        if (!SearchCompany(companySearch, _defaultLanguage, out companies))
+        companies = await SearchCompanyAsync(companySearch, _defaultLanguage).ConfigureAwait(false);
+        if (companies == null || companies.Count == 0)
           return false;
 
         if (TestCompanyMatch(companySearch, ref companies))
@@ -1207,56 +1313,81 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
       return companies.Count == 1;
     }
 
-    public virtual bool UpdateFromOnlineMovieCompany(MovieInfo movieInfo, CompanyInfo company, TLang language, bool cacheOnly)
+    public virtual Task<bool> UpdateFromOnlineMovieCompanyAsync(MovieInfo movieInfo, CompanyInfo company, TLang language, bool cacheOnly)
     {
-      return false;
+      return Task.FromResult(false);
     }
 
-    public virtual bool IsCacheChangedForOnlineMovieCompany(MovieInfo movieInfo, CompanyInfo company, TLang language)
+    public virtual Task<bool> IsCacheChangedForOnlineMovieCompanyAsync(MovieInfo movieInfo, CompanyInfo company, TLang language)
     {
-      return false;
+      return Task.FromResult(false);
     }
 
-    public virtual bool UpdateFromOnlineSeriesCompany(SeriesInfo seriesInfo, CompanyInfo company, TLang language, bool cacheOnly)
+    public virtual Task<bool> UpdateFromOnlineSeriesCompanyAsync(SeriesInfo seriesInfo, CompanyInfo company, TLang language, bool cacheOnly)
     {
-      return false;
+      return Task.FromResult(false);
     }
 
-    public virtual bool IsCacheChangedForOnlineSeriesCompany(SeriesInfo seriesInfo, CompanyInfo company, TLang language)
+    public virtual Task<bool> IsCacheChangedForOnlineSeriesCompanyAsync(SeriesInfo seriesInfo, CompanyInfo company, TLang language)
     {
-      return false;
+      return Task.FromResult(false);
     }
 
-    public virtual bool UpdateFromOnlineMusicTrackAlbumCompany(AlbumInfo albumInfo, CompanyInfo company, TLang language, bool cacheOnly)
+    public virtual Task<bool> UpdateFromOnlineMusicTrackAlbumCompanyAsync(AlbumInfo albumInfo, CompanyInfo company, TLang language, bool cacheOnly)
     {
-      return false;
+      return Task.FromResult(false);
     }
 
-    public virtual bool IsCacheChangedForOnlineMusicTrackAlbumCompany(AlbumInfo albumInfo, CompanyInfo company, TLang language)
+    public virtual Task<bool> IsCacheChangedForOnlineMusicTrackAlbumCompanyAsync(AlbumInfo albumInfo, CompanyInfo company, TLang language)
     {
-      return false;
+      return Task.FromResult(false);
     }
 
     #endregion
 
     #region Music
 
-    public virtual bool SearchTrack(TrackInfo trackSearch, TLang language, out List<TrackInfo> tracks)
+    /// <summary>
+    /// Search for track.
+    /// </summary>
+    /// <param name="characterSearch">Track search parameters.</param>
+    /// <param name="language">Language, if <c>null</c> it takes the <see cref="PreferredLanguage"/></param>
+    /// <returns>A list of matches.</returns>
+    public virtual Task<List<TrackInfo>> SearchTrackAsync(TrackInfo trackSearch, TLang language)
     {
-      tracks = null;
-      return false;
+      return Task.FromResult<List<TrackInfo>>(null);
     }
 
-    public bool SearchTrackUniqueAndUpdate(TrackInfo trackSearch, TLang language)
+    public async Task<List<TrackInfo>> SearchTrackMatchesAsync(TrackInfo trackSearch, TLang language)
+    {
+      //Don't try to search for a track without artists
+      if (trackSearch.AlbumArtists.Count == 0 && trackSearch.Artists.Count == 0)
+        return null;
+
+      language = language != null ? language : PreferredLanguage;
+      List<TrackInfo> tracks = await SearchTrackAsync(trackSearch, language).ConfigureAwait(false);
+      if (tracks?.Count == 0)
+        return tracks;
+
+      if (!language.Equals(_defaultLanguage))
+      {
+        tracks = await SearchTrackAsync(trackSearch, _defaultLanguage).ConfigureAwait(false);
+        if (tracks?.Count == 0)
+          return tracks;
+      }
+      return null;
+    }
+
+    public async Task<bool> SearchTrackUniqueAndUpdateAsync(TrackInfo trackSearch, TLang language)
     {
       //Don't try to search for a track without artists
       if (trackSearch.AlbumArtists.Count == 0 && trackSearch.Artists.Count == 0)
         return false;
 
-      List<TrackInfo> tracks;
       language = language != null ? language : PreferredLanguage;
 
-      if (!SearchTrack(trackSearch, language, out tracks))
+      List<TrackInfo> tracks = await SearchTrackAsync(trackSearch, language).ConfigureAwait(false);
+      if (tracks == null || tracks.Count == 0)
         return false;
       if (TestTrackMatch(trackSearch, ref tracks))
       {
@@ -1266,7 +1397,8 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
 
       if (tracks.Count == 0 && !language.Equals(_defaultLanguage))
       {
-        if (!SearchTrack(trackSearch, _defaultLanguage, out tracks))
+        tracks = await SearchTrackAsync(trackSearch, _defaultLanguage).ConfigureAwait(false);
+        if (tracks == null || tracks.Count == 0)
           return false;
         if (TestTrackMatch(trackSearch, ref tracks))
         {
@@ -1306,11 +1438,10 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
         }
         else
         {
-          tracks = tracks.FindAll(t => NamesAreMostlyEqual(t, trackSearch));
-          if (tracks.Count == 0)
+          exactMatches = tracks.FindAll(t => NamesAreMostlyEqual(t, trackSearch));
+          if (exactMatches.Count > 0)
           {
-            tracks.Clear();
-            return false;
+            tracks = exactMatches;
           }
         }
 
@@ -1426,22 +1557,47 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
       return false;
     }
 
-    public virtual bool SearchTrackAlbum(AlbumInfo albumSearch, TLang language, out List<AlbumInfo> albums)
+    /// <summary>
+    /// Search for album.
+    /// </summary>
+    /// <param name="characterSearch">Album search parameters.</param>
+    /// <param name="language">Language, if <c>null</c> it takes the <see cref="PreferredLanguage"/></param>
+    /// <returns>A list of matches.</returns>
+    public virtual Task<List<AlbumInfo>> SearchTrackAlbumAsync(AlbumInfo albumSearch, TLang language)
     {
-      albums = null;
-      return false;
+      return Task.FromResult<List<AlbumInfo>>(null);
     }
 
-    public bool SearchTrackAlbumUniqueAndUpdate(AlbumInfo albumSearch, TLang language)
+    public async Task<List<AlbumInfo>> SearchTrackAlbumMacthesAsync(AlbumInfo albumSearch, TLang language)
+    {
+      //Don't try to search for an album without artists
+      if (albumSearch.Artists.Count == 0)
+        return null;
+
+      language = language != null ? language : PreferredLanguage;
+      List<AlbumInfo> albums = await SearchTrackAlbumAsync(albumSearch, language).ConfigureAwait(false);
+      if (albums?.Count > 0)
+        return albums;
+
+      if (!language.Equals(_defaultLanguage))
+      {
+        albums = await SearchTrackAlbumAsync(albumSearch, _defaultLanguage).ConfigureAwait(false);
+        if (albums?.Count > 0)
+          return albums;
+      }
+      return null;
+    }
+
+    public async Task<bool> SearchTrackAlbumUniqueAndUpdateAsync(AlbumInfo albumSearch, TLang language)
     {
       //Don't try to search for an album without artists
       if (albumSearch.Artists.Count == 0)
         return false;
 
-      List<AlbumInfo> albums;
       language = language != null ? language : PreferredLanguage;
 
-      if (!SearchTrackAlbum(albumSearch, language, out albums))
+      List<AlbumInfo> albums = await SearchTrackAlbumAsync(albumSearch, language).ConfigureAwait(false);
+      if (albums == null || albums.Count == 0)
         return false;
       if (TestAlbumMatch(albumSearch, ref albums))
       {
@@ -1451,7 +1607,8 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
 
       if (albums.Count == 0 && !language.Equals(_defaultLanguage))
       {
-        if (!SearchTrackAlbum(albumSearch, _defaultLanguage, out albums))
+        albums = await SearchTrackAlbumAsync(albumSearch, _defaultLanguage).ConfigureAwait(false);
+        if (albums == null || albums.Count == 0)
           return false;
         if (TestAlbumMatch(albumSearch, ref albums))
         {
@@ -1607,24 +1764,24 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
       return false;
     }
 
-    public virtual bool UpdateFromOnlineMusicTrack(TrackInfo track, TLang language, bool cacheOnly)
+    public virtual Task<bool> UpdateFromOnlineMusicTrackAsync(TrackInfo track, TLang language, bool cacheOnly)
     {
-      return false;
+      return Task.FromResult(false);
     }
 
-    public virtual bool IsCacheChangedForOnlineMusicTrack(TrackInfo track, TLang language)
+    public virtual Task<bool> IsCacheChangedForOnlineMusicTrackAsync(TrackInfo track, TLang language)
     {
-      return false;
+      return Task.FromResult(false);
     }
 
-    public virtual bool UpdateFromOnlineMusicTrackAlbum(AlbumInfo album, TLang language, bool cacheOnly)
+    public virtual Task<bool> UpdateFromOnlineMusicTrackAlbumAsync(AlbumInfo album, TLang language, bool cacheOnly)
     {
-      return false;
+      return Task.FromResult(false);
     }
 
-    public virtual bool IsCacheChangedForOnlineMusicTrackAlbum(AlbumInfo album, TLang language)
+    public virtual Task<bool> IsCacheChangedForOnlineMusicTrackAlbumAsync(AlbumInfo album, TLang language)
     {
-      return false;
+      return Task.FromResult(false);
     }
 
     private bool CompareArtists(List<PersonInfo> trackArtists, List<PersonInfo> searchArtists, bool strict)
@@ -1663,15 +1820,14 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
 
     #region FanArt
 
-    public virtual bool GetFanArt<T>(T infoObject, TLang language, string fanartMediaType, out ApiWrapperImageCollection<TImg> images)
+    public virtual Task<ApiWrapperImageCollection<TImg>> GetFanArtAsync<T>(T infoObject, TLang language, string fanartMediaType) where T : BaseInfo
     {
-      images = null;
-      return false;
+      return Task.FromResult<ApiWrapperImageCollection<TImg>>(null);
     }
 
-    public virtual bool DownloadFanArt(string id, TImg image, string folderPath)
+    public virtual Task<bool> DownloadFanArtAsync(string id, TImg image, string folderPath)
     {
-      return false;
+      return Task.FromResult(false);
     }
 
     #endregion

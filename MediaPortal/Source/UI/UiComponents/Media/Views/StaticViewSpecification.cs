@@ -75,6 +75,11 @@ namespace MediaPortal.UiComponents.Media.Views
       get { return true; }
     }
 
+    public override int? AbsNumItems
+    {
+      get { return _subViewSpecifications.Count + _mediaItems.Count;  }
+    }
+
     protected internal override void ReLoadItemsAndSubViewSpecifications(out IList<MediaItem> mediaItems, out IList<ViewSpecification> subViewSpecifications)
     {
       mediaItems = _mediaItems;

@@ -22,15 +22,16 @@
 
 #endregion
 
+using MediaPortal.Common;
+using MediaPortal.Common.Logging;
+using MediaPortal.Utilities.Threading;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Net;
 using System.Text;
-using MediaPortal.Common;
-using MediaPortal.Common.Logging;
-using Newtonsoft.Json;
-using System.Threading;
+using System.Threading.Tasks;
 
 namespace MediaPortal.Extensions.OnlineLibraries.Libraries.Common
 {
@@ -46,8 +47,8 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.Common
     /// </summary>
     public bool EnableCompression { get; set; }
 
-    private ReaderWriterLockSlim _jsonLock = new ReaderWriterLockSlim();
-    private ReaderWriterLockSlim _fileLock = new ReaderWriterLockSlim();
+    private KeyedAsyncReaderWriterLock<string> _jsonLock = new KeyedAsyncReaderWriterLock<string>();
+    private KeyedAsyncReaderWriterLock<string> _fileLock = new KeyedAsyncReaderWriterLock<string>();
 
     public Downloader()
     {
@@ -62,15 +63,56 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.Common
     /// <param name="url">Url to download</param>
     /// <param name="saveCacheFile">Optional name for saving response to cache</param>
     /// <returns>Downloaded object</returns>
-    public TE Download<TE>(string url, string saveCacheFile = null)
+    public TE Download<TE>(string url, string saveCacheFile = null, bool allowCached = true)
     {
-      string json = DownloadJSON(url);
-      if (string.IsNullOrEmpty(json))
-        return default(TE);
-      //Console.WriteLine("JSON: {0}", json);
-      if (!string.IsNullOrEmpty(saveCacheFile))
-        WriteCache(saveCacheFile, json);
-      return JsonConvert.DeserializeObject<TE>(json);
+      var writeLock = !string.IsNullOrEmpty(saveCacheFile) ? _jsonLock.WriterLock(saveCacheFile) : null;
+      using (writeLock)
+      {
+        if (allowCached)
+        {
+          TE cached = ReadCacheInternal<TE>(saveCacheFile);
+          if (cached != null)
+            return cached;
+        }
+
+        string json = DownloadJSON(url).Result;
+        if (string.IsNullOrEmpty(json))
+          return default(TE);
+        //Console.WriteLine("JSON: {0}", json);
+        if (!string.IsNullOrEmpty(saveCacheFile))
+          WriteCache(saveCacheFile, json);
+        return JsonConvert.DeserializeObject<TE>(json);
+      }
+    }
+
+    /// <summary>
+    /// Asynchronously downloads the requested information from the JSON api and deserializes the response to the requested <typeparam name="TE">Type</typeparam>.
+    /// This method can save the response to local cache, if a valid path is passed in <paramref name="saveCacheFile"/>.
+    /// </summary>
+    /// <typeparam name="TE">Target type</typeparam>
+    /// <param name="url">Url to download</param>
+    /// <param name="saveCacheFile">Optional name for saving response to cache</param>
+    /// <returns>Downloaded object</returns>
+    public async Task<TE> DownloadAsync<TE>(string url, string saveCacheFile = null, bool allowCached = true)
+    {
+      var writeLock = !string.IsNullOrEmpty(saveCacheFile) ? await _jsonLock.WriterLockAsync(saveCacheFile).ConfigureAwait(false) : null;
+      using (writeLock)
+      {
+        if (allowCached)
+        {
+          TE cached = ReadCacheInternal<TE>(saveCacheFile);
+          if (cached != null)
+            return cached;
+        }
+
+        string json = await DownloadJSON(url).ConfigureAwait(false);
+        if (string.IsNullOrEmpty(json))
+          return default(TE);
+        //Console.WriteLine("JSON: {0}", json);
+        if (!string.IsNullOrEmpty(saveCacheFile))
+          WriteCache(saveCacheFile, json);
+        return JsonConvert.DeserializeObject<TE>(json);
+      }
     }
 
     /// <summary>
@@ -78,9 +120,9 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.Common
     /// </summary>
     /// <param name="url">Url to download</param>
     /// <returns>JSON result</returns>
-    protected virtual string DownloadJSON(string url)
+    protected virtual async Task<string> DownloadJSON(string url)
     {
-      return DownloadString(url);
+      return await DownloadStringAsync(url).ConfigureAwait(false);
     }
 
     public string DownloadString(string url)
@@ -94,6 +136,17 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.Common
       }
     }
 
+    public async Task<string> DownloadStringAsync(string url)
+    {
+      using (CompressionWebClient webClient = new CompressionWebClient(EnableCompression) { Encoding = Encoding.UTF8 })
+      {
+        foreach (KeyValuePair<string, string> headerEntry in Headers)
+          webClient.Headers[headerEntry.Key] = headerEntry.Value;
+
+        return await webClient.DownloadStringTaskAsync(url).ConfigureAwait(false);
+      }
+    }
+
     /// <summary>
     /// Donwload a file from given <paramref name="url"/> and save it to <paramref name="downloadFile"/>.
     /// </summary>
@@ -102,28 +155,45 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.Common
     /// <returns><c>true</c> if successful</returns>
     public bool DownloadFile(string url, string downloadFile)
     {
+      return DownloadFileAsync(url, downloadFile).Result;
+    }
+
+    /// <summary>
+    /// Donwload a file from given <paramref name="url"/> and save it to <paramref name="downloadFile"/>.
+    /// </summary>
+    /// <param name="url">Url to download</param>
+    /// <param name="downloadFile">Target file name</param>
+    /// <returns><c>true</c> if successful</returns>
+    public async Task<bool> DownloadFileAsync(string url, string downloadFile)
+    {
+      if (string.IsNullOrEmpty(downloadFile))
+        return false;
       if (File.Exists(downloadFile))
         return true;
-      try
+
+      using (await _fileLock.WriterLockAsync(downloadFile).ConfigureAwait(false))
       {
         try
         {
-          _fileLock.EnterWriteLock();
           if (File.Exists(downloadFile))
             return true;
+          byte[] data = null;
           using (WebClient webClient = new CompressionWebClient())
-            webClient.DownloadFile(url, downloadFile);
-          return true;
+            data = await webClient.DownloadDataTaskAsync(url).ConfigureAwait(false);
+          if (data?.LongLength > 0)
+          {
+            using (FileStream sourceStream = new FileStream(downloadFile, FileMode.Create, FileAccess.Write, FileShare.None, bufferSize: 4096, useAsync: true))
+              await sourceStream.WriteAsync(data, 0, data.Length);
+            return true;
+          }
+          ServiceRegistration.Get<ILogger>().Warn("OnlineLibraries.Downloader: No data received when downloading file {0} from {1}", downloadFile, url);
+          return false;
         }
         catch (Exception ex)
         {
           ServiceRegistration.Get<ILogger>().Warn("OnlineLibraries.Downloader: Exception when downloading file {0} from {1} ({2})", downloadFile, url, ex.Message);
           return false;
         }
-      }
-      finally
-      {
-        _fileLock.ExitWriteLock();
       }
     }
 
@@ -136,25 +206,14 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.Common
     {
       if (string.IsNullOrEmpty(cachePath))
         return;
-
-      try
+      using (FileStream fs = new FileStream(cachePath, FileMode.Create, FileAccess.Write))
       {
-        _jsonLock.EnterWriteLock();
-        if (string.IsNullOrEmpty(cachePath))
-          return;
-        using (FileStream fs = new FileStream(cachePath, FileMode.Create, FileAccess.Write))
+        using (StreamWriter sw = new StreamWriter(fs))
         {
-          using (StreamWriter sw = new StreamWriter(fs))
-          {
-            sw.Write(json);
-            sw.Close();
-          }
-          fs.Close();
+          sw.Write(json);
+          sw.Close();
         }
-      }
-      finally
-      {
-        _jsonLock.ExitWriteLock();
+        fs.Close();
       }
     }
 
@@ -169,25 +228,38 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.Common
       if (string.IsNullOrEmpty(cacheFile))
         return default(TE);
 
+      using (_jsonLock.ReaderLock(cacheFile))
+        return ReadCacheInternal<TE>(cacheFile);
+    }
+
+    /// <summary>
+    /// Asynchronously reads the requested information from the cached JSON file and deserializes the response to the requested <typeparam name="TE">Type</typeparam>.
+    /// </summary>
+    /// <typeparam name="TE">Target type</typeparam>
+    /// <param name="cacheFile">Name for the cached response</param>
+    /// <returns>Cached object</returns>
+    public async Task<TE> ReadCacheAsync<TE>(string cacheFile)
+    {
+      if (string.IsNullOrEmpty(cacheFile))
+        return default(TE);
+
+      using (await _jsonLock.ReaderLockAsync(cacheFile).ConfigureAwait(false))
+        return ReadCacheInternal<TE>(cacheFile);
+    }
+
+    protected TE ReadCacheInternal<TE>(string cacheFile)
+    {
       try
       {
-        try
-        {
-          _jsonLock.EnterReadLock();
-          if (string.IsNullOrEmpty(cacheFile))
-            return default(TE);
-          string json = File.ReadAllText(cacheFile, Encoding.UTF8);
-          return JsonConvert.DeserializeObject<TE>(json);
-        }
-        catch (Exception ex)
-        {
-          ServiceRegistration.Get<ILogger>().Warn("OnlineLibraries.Downloader: Exception when reading cache {0} ({1})", cacheFile, ex.Message);
+        if (string.IsNullOrEmpty(cacheFile) || !File.Exists(cacheFile))
           return default(TE);
-        }
+        string json = File.ReadAllText(cacheFile, Encoding.UTF8);
+        return JsonConvert.DeserializeObject<TE>(json);
       }
-      finally
+      catch (Exception ex)
       {
-        _jsonLock.ExitReadLock();
+        ServiceRegistration.Get<ILogger>().Warn("OnlineLibraries.Downloader: Exception when reading cache {0} ({1})", cacheFile, ex.Message);
+        return default(TE);
       }
     }
 
@@ -202,28 +274,18 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.Common
       if (string.IsNullOrEmpty(cacheFile))
         return false;
 
-      try
+      using (_jsonLock.ReaderLock(cacheFile))
       {
         try
         {
-          _jsonLock.EnterReadLock();
-          if (string.IsNullOrEmpty(cacheFile))
-            return false;
           FileInfo info = new FileInfo(cacheFile);
-          if ((DateTime.Now - info.CreationTime).TotalDays > maxAgeInDays)
-            return true;
-
-          return false;
+          return info.Exists && (DateTime.Now - info.CreationTime).TotalDays > maxAgeInDays;
         }
         catch (Exception ex)
         {
           ServiceRegistration.Get<ILogger>().Warn("OnlineLibraries.Downloader: Exception when determining cache {0} age ({1})", cacheFile, ex.Message);
           return false;
         }
-      }
-      finally
-      {
-        _jsonLock.ExitReadLock();
       }
     }
 
@@ -232,19 +294,15 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.Common
     /// </summary>
     /// <param name="cacheFile">Name for the cached response</param>
     /// <returns>Cached object</returns>
-    public bool DeleteCache(string cacheFile)
+    public async Task<bool> DeleteCacheAsync(string cacheFile)
     {
       if (string.IsNullOrEmpty(cacheFile))
         return true;
 
-      try
+      using (await _jsonLock.WriterLockAsync(cacheFile).ConfigureAwait(false))
       {
         try
         {
-          _jsonLock.EnterWriteLock();
-          if (string.IsNullOrEmpty(cacheFile))
-            return true;
-
           File.Delete(cacheFile);
           return true;
         }
@@ -253,10 +311,6 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.Common
           ServiceRegistration.Get<ILogger>().Warn("OnlineLibraries.Downloader: Exception when determining cache {0} age ({1})", cacheFile, ex.Message);
           return false;
         }
-      }
-      finally
-      {
-        _jsonLock.ExitWriteLock();
       }
     }
 
@@ -267,14 +321,14 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.Common
     /// <returns>File contents</returns>
     public byte[] ReadDownloadedFile(string downloadedFile)
     {
-      if (File.Exists(downloadedFile))
+      if (!File.Exists(downloadedFile))
         return null;
-      try
+
+      using (_fileLock.ReaderLock(downloadedFile))
       {
         try
         {
-          _fileLock.EnterReadLock();
-          if (File.Exists(downloadedFile))
+          if (!File.Exists(downloadedFile))
             return null;
           return File.ReadAllBytes(downloadedFile);
         }
@@ -284,9 +338,31 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.Common
           return null;
         }
       }
-      finally
+    }
+
+    /// <summary>
+    /// Returns contents of a file <paramref name="downloadFile"/> downloaded earlier.
+    /// </summary>
+    /// <param name="downloadedFile">Target file name</param>
+    /// <returns>File contents</returns>
+    public async Task<byte[]> ReadDownloadedFileAsync(string downloadedFile)
+    {
+      if (!File.Exists(downloadedFile))
+        return null;
+
+      using (await _fileLock.ReaderLockAsync(downloadedFile))
       {
-        _fileLock.ExitReadLock();
+        try
+        {
+          if (!File.Exists(downloadedFile))
+            return null;
+          return File.ReadAllBytes(downloadedFile);
+        }
+        catch (Exception ex)
+        {
+          ServiceRegistration.Get<ILogger>().Warn("OnlineLibraries.Downloader: Exception when reading file {0} ({1})", downloadedFile, ex.Message);
+          return null;
+        }
       }
     }
   }

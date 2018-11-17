@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <string name="Match.Video.Music">Glazba</string>
+  <string name="Match.Video.TVMovie">TV</string>
+  <string name="Match.Video.News">Vijesti</string>
+  <string name="Match.Epg.Series">Serije</string>
+  <string name="Match.Epg.Music">Glazba</string>
+  <string name="Match.Epg.News">Vijesti</string>
+  <string name="Label.Audio.World">Svijet</string>
+  <string name="Label.Video.Music">Glazba</string>
+  <string name="Label.Video.TVMovie">TV</string>
+  <string name="Label.Video.News">Vijesti</string>
+  <string name="Label.Epg.Series">Serije</string>
+  <string name="Label.Epg.Music">Glazba</string>
+  <string name="Label.Epg.News">Vijesti</string>
+  </resources>

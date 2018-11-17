@@ -18,6 +18,7 @@
   </DependsOn>
 
   <Runtime>
+    <Assembly FileName="SlimTv.Interfaces.dll"/>
     <Assembly FileName="SlimTv.Resources.dll"/>
     <Assembly FileName="FanArtService.Interfaces.dll"/>
   </Runtime>

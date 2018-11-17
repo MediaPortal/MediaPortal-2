@@ -22,13 +22,15 @@
 
 #endregion
 
-using System;
-using System.Collections.Generic;
+using MediaPortal.Common;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
+using MediaPortal.Common.MediaManagement.Helpers;
 using MediaPortal.Common.MediaManagement.MLQueries;
 using MediaPortal.Extensions.OnlineLibraries;
-using MediaPortal.Common.MediaManagement.Helpers;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
 {
@@ -50,13 +52,17 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
 
     protected RelationshipExtractorMetadata _metadata;
     private IList<IRelationshipRoleExtractor> _extractors;
-    private IList<RelationshipHierarchy> _hierarchies;
     private volatile bool includeFullSeriesFilter = true;
 
     public SeriesRelationshipExtractor()
     {
-      _metadata = new RelationshipExtractorMetadata(METADATAEXTRACTOR_ID, "Series relationship extractor");
+      _metadata = new RelationshipExtractorMetadata(METADATAEXTRACTOR_ID, "Series relationship extractor", MetadataExtractorPriority.External);
+      RegisterRelationships();
+      InitExtractors();
+    }
 
+    protected void InitExtractors()
+    {
       _extractors = new List<IRelationshipRoleExtractor>();
 
       _extractors.Add(new EpisodeSeriesRelationshipExtractor());
@@ -74,11 +80,40 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
       _extractors.Add(new SeriesProductionRelationshipExtractor());
 
       _extractors.Add(new SeriesEpisodeRelationshipExtractor());
+    }
 
-      _hierarchies = new List<RelationshipHierarchy>();
-      _hierarchies.Add(new RelationshipHierarchy(EpisodeAspect.ROLE_EPISODE, EpisodeAspect.ATTR_EPISODE, SeriesAspect.ROLE_SERIES, SeriesAspect.ATTR_AVAILABLE_EPISODES, true));
-      _hierarchies.Add(new RelationshipHierarchy(EpisodeAspect.ROLE_EPISODE, EpisodeAspect.ATTR_EPISODE, SeasonAspect.ROLE_SEASON, SeasonAspect.ATTR_AVAILABLE_EPISODES, true));
-      _hierarchies.Add(new RelationshipHierarchy(SeasonAspect.ROLE_SEASON, SeasonAspect.ATTR_SEASON, SeriesAspect.ROLE_SERIES, SeriesAspect.ATTR_AVAILABLE_SEASONS, false));
+    /// <summary>
+    /// Registers all relationships that are extracted by this relationship extractor.
+    /// </summary>
+    protected void RegisterRelationships()
+    {
+      IRelationshipTypeRegistration relationshipRegistration = ServiceRegistration.Get<IRelationshipTypeRegistration>();
+
+      //Relationships must be registered in order from episodes up to all parent relationships
+
+      //Hierarchical relationships
+      relationshipRegistration.RegisterLocallyKnownRelationshipType(new RelationshipType("Episode->Series", true,
+        EpisodeAspect.ROLE_EPISODE, SeriesAspect.ROLE_SERIES, EpisodeAspect.ASPECT_ID, SeriesAspect.ASPECT_ID,
+        EpisodeAspect.ATTR_EPISODE, SeriesAspect.ATTR_AVAILABLE_EPISODES, true), true);
+
+      relationshipRegistration.RegisterLocallyKnownRelationshipType(new RelationshipType("Episode->Season", false,
+        EpisodeAspect.ROLE_EPISODE, SeasonAspect.ROLE_SEASON, EpisodeAspect.ASPECT_ID, SeasonAspect.ASPECT_ID,
+        EpisodeAspect.ATTR_EPISODE, SeasonAspect.ATTR_AVAILABLE_EPISODES, true), true);
+
+      relationshipRegistration.RegisterLocallyKnownRelationshipType(new RelationshipType("Season->Series", false,
+        SeasonAspect.ROLE_SEASON, SeriesAspect.ROLE_SERIES, SeasonAspect.ASPECT_ID, SeriesAspect.ASPECT_ID,
+        SeasonAspect.ATTR_SEASON, SeriesAspect.ATTR_AVAILABLE_SEASONS, false), false);
+
+      //Simple (non hierarchical) relationships
+      relationshipRegistration.RegisterLocallyKnownRelationshipType(new RelationshipType("Episode->Actor", EpisodeAspect.ROLE_EPISODE, PersonAspect.ROLE_ACTOR), true);
+      relationshipRegistration.RegisterLocallyKnownRelationshipType(new RelationshipType("Episode->Director", EpisodeAspect.ROLE_EPISODE, PersonAspect.ROLE_DIRECTOR), true);
+      relationshipRegistration.RegisterLocallyKnownRelationshipType(new RelationshipType("Episode->Writer", EpisodeAspect.ROLE_EPISODE, PersonAspect.ROLE_WRITER), true);
+      relationshipRegistration.RegisterLocallyKnownRelationshipType(new RelationshipType("Episode->Character", EpisodeAspect.ROLE_EPISODE, CharacterAspect.ROLE_CHARACTER), true);
+
+      relationshipRegistration.RegisterLocallyKnownRelationshipType(new RelationshipType("Series->Actor", SeriesAspect.ROLE_SERIES, PersonAspect.ROLE_ACTOR), false);
+      relationshipRegistration.RegisterLocallyKnownRelationshipType(new RelationshipType("Series->Character", SeriesAspect.ROLE_SERIES, CharacterAspect.ROLE_CHARACTER), false);
+      relationshipRegistration.RegisterLocallyKnownRelationshipType(new RelationshipType("Series->TV Network", SeriesAspect.ROLE_SERIES, CompanyAspect.ROLE_TV_NETWORK), false);
+      relationshipRegistration.RegisterLocallyKnownRelationshipType(new RelationshipType("Series->Company", SeriesAspect.ROLE_SERIES, CompanyAspect.ROLE_COMPANY), false);
     }
 
     public IDictionary<IFilter, uint> GetLastChangedItemsFilters()
@@ -128,7 +163,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
         }
 
         if (seriesChangedFilter != null)
-          filters.Add(new FilteredRelationshipFilter(EpisodeAspect.ROLE_EPISODE, seriesChangedFilter), 1);
+          filters.Add(new FilteredRelationshipFilter(EpisodeAspect.ROLE_EPISODE, SeriesAspect.ROLE_SERIES, seriesChangedFilter), 1);
       }
 
       if (includeFullSeriesFilter)
@@ -136,7 +171,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
         includeFullSeriesFilter = false;
 
         //Add filter for outdated next episode
-        filters.Add(new FilteredRelationshipFilter(EpisodeAspect.ROLE_EPISODE,
+        filters.Add(new FilteredRelationshipFilter(EpisodeAspect.ROLE_EPISODE, SeriesAspect.ROLE_SERIES,
           BooleanCombinationFilter.CombineFilters(BooleanOperator.And,
           new RelationalFilter(SeriesAspect.ATTR_ENDED, RelationalOperator.EQ, false),
           new RelationalFilter(SeriesAspect.ATTR_NEXT_AIR_DATE, RelationalOperator.LT, DateTime.Now),
@@ -206,9 +241,66 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
       get { return _extractors; }
     }
 
-    public IList<RelationshipHierarchy> Hierarchies
+    public IDictionary<Guid, IList<MediaItemAspect>> GetBaseChildAspectsFromExistingAspects(IDictionary<Guid, IList<MediaItemAspect>> existingChildAspects, IDictionary<Guid, IList<MediaItemAspect>> existingParentAspects)
     {
-      get { return _hierarchies; }
+      if (existingParentAspects.ContainsKey(SeriesAspect.ASPECT_ID))
+      {
+        SeriesInfo series = new SeriesInfo();
+        series.FromMetadata(existingParentAspects);
+
+        if (existingChildAspects.ContainsKey(SeasonAspect.ASPECT_ID))
+        {
+          SeasonInfo season = new SeasonInfo();
+          season.FromMetadata(existingChildAspects);
+
+          SeasonInfo basicSeason = series.CloneBasicInstance<SeasonInfo>();
+          basicSeason.SeasonNumber = season.SeasonNumber;
+          IDictionary<Guid, IList<MediaItemAspect>> aspects = new Dictionary<Guid, IList<MediaItemAspect>>();
+          basicSeason.SetMetadata(aspects, true);
+          return aspects;
+        }
+        else if (existingChildAspects.ContainsKey(EpisodeAspect.ASPECT_ID))
+        {
+          EpisodeInfo episode = new EpisodeInfo();
+          episode.FromMetadata(existingChildAspects);
+
+          EpisodeInfo basicEpisode = series.CloneBasicInstance<EpisodeInfo>();
+          basicEpisode.SeasonNumber = episode.SeasonNumber;
+          basicEpisode.EpisodeNumbers = episode.EpisodeNumbers.ToList();
+          IDictionary<Guid, IList<MediaItemAspect>> aspects = new Dictionary<Guid, IList<MediaItemAspect>>();
+          basicEpisode.SetMetadata(aspects, true);
+          return aspects;
+        }
+      }
+      return null;
     }
+
+    #region Episode IFilter
+
+    public static IFilter GetEpisodeSearchFilter(IDictionary<Guid, IList<MediaItemAspect>> extractedAspects)
+    {
+      SingleMediaItemAspect episodeAspect;
+      if (!MediaItemAspect.TryGetAspect(extractedAspects, EpisodeAspect.Metadata, out episodeAspect))
+        return null;
+
+      IFilter episodeFilter = RelationshipExtractorUtils.CreateExternalItemFilter(extractedAspects, ExternalIdentifierAspect.TYPE_EPISODE);
+      IFilter seriesFilter = RelationshipExtractorUtils.CreateExternalItemFilter(extractedAspects, ExternalIdentifierAspect.TYPE_SERIES);
+      if (seriesFilter == null)
+        return episodeFilter;
+
+      int? seasonNumber = episodeAspect.GetAttributeValue<int?>(EpisodeAspect.ATTR_SEASON);
+      IFilter seasonNumberFilter = seasonNumber.HasValue ?
+        new RelationalFilter(EpisodeAspect.ATTR_SEASON, RelationalOperator.EQ, seasonNumber.Value) : null;
+
+      IEnumerable<int> episodeNumbers = episodeAspect.GetCollectionAttribute<int>(EpisodeAspect.ATTR_EPISODE);
+      IFilter episodeNumberFilter = episodeNumbers != null && episodeNumbers.Any() ?
+        new RelationalFilter(EpisodeAspect.ATTR_EPISODE, RelationalOperator.EQ, episodeNumbers.First()) : null;
+
+      seriesFilter = BooleanCombinationFilter.CombineFilters(BooleanOperator.And, seriesFilter, seasonNumberFilter, episodeNumberFilter);
+
+      return BooleanCombinationFilter.CombineFilters(BooleanOperator.Or, episodeFilter, seriesFilter);
+    }
+
+    #endregion
   }
 }

@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  
+  <string name="UserConfig.Password">סיסמה</string>
+  <string name="UserConfig.AddUser">הוסף</string>
+  <string name="UserConfig.CopyUser">העתק</string>
+  <string name="UserConfig.DeleteUser">מחק</string>
+  <string name="UserConfig.SaveUser">שמור</string>
+  <string name="UserConfig.Yes">כן</string>
+  <string name="UserConfig.No">לא</string>
+  <string name="UserConfig.SharesText">שיתופים</string>
+  </resources>

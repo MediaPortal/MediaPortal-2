@@ -29,6 +29,7 @@ using System.Globalization;
 using MediaPortal.Common.Localization;
 using System.Collections.Generic;
 using MediaPortal.Extensions.OnlineLibraries;
+using MediaPortal.Common.Settings;
 
 namespace MediaPortal.Plugins.ServerSettings.Settings.Configuration
 {
@@ -69,7 +70,7 @@ namespace MediaPortal.Plugins.ServerSettings.Settings.Configuration
       {
         CultureInfo ci = _cultures[i];
         _items.Add(LocalizationHelper.CreateStaticString(ci.DisplayName));
-        if (ci.LCID == current.LCID)
+        if (ci.Equals(current))
           Selected = i;
       }
     }
@@ -81,10 +82,12 @@ namespace MediaPortal.Plugins.ServerSettings.Settings.Configuration
 
       base.Save();
 
+      ISettingsManager localSettings = ServiceRegistration.Get<ISettingsManager>();
       IServerSettingsClient serverSettings = ServiceRegistration.Get<IServerSettingsClient>();
       OnlineLibrarySettings settings = serverSettings.Load<OnlineLibrarySettings>();
       settings.MusicLanguageCulture = _cultures[Selected].Name;
       serverSettings.Save(settings);    
+      localSettings.Save(settings);   
     }
 
     public void Dispose()

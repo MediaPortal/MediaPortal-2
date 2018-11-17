@@ -261,7 +261,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Controls
     {
       get
       {
-        return SlimTvMultiChannelGuideModel.ChannelList;
+        return SlimTvMultiChannelGuideModel?.ChannelList;
       }
     }
 
@@ -494,8 +494,11 @@ namespace MediaPortal.Plugins.SlimTv.Client.Controls
         return false;
 
       // Default: take viewport from model
-      DateTime viewportStart = SlimTvMultiChannelGuideModel.GuideStartTime;
-      DateTime viewportEnd = SlimTvMultiChannelGuideModel.GuideEndTime;
+      var model = SlimTvMultiChannelGuideModel;
+      if (model == null)
+        return false;
+      DateTime viewportStart = model.GuideStartTime;
+      DateTime viewportEnd = model.GuideEndTime;
 
       int colIndex = GroupButtonEnabled ? 1 : 0;
       if (!updateOnly)
@@ -669,6 +672,10 @@ namespace MediaPortal.Plugins.SlimTv.Client.Controls
 
     private void SetTimeIndicator()
     {
+      var model = SlimTvMultiChannelGuideModel;
+      if (model == null)
+        return;
+
       var timeIndicatorControl = _timeIndicatorControl;
       if (timeIndicatorControl == null)
       {
@@ -679,7 +686,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Controls
         SetRowSpan(timeIndicatorControl, _numberOfRows);
         Children.Add(timeIndicatorControl);
       }
-      DateTime viewportStart = SlimTvMultiChannelGuideModel.GuideStartTime;
+      DateTime viewportStart = model.GuideStartTime;
       var headerOffset = GroupButtonEnabled ? 2 : 1;
       int currentTimeColumn = (int)Math.Round((DateTime.Now - viewportStart).TotalMinutes / _perCellTime) + headerOffset; // Header offset
       if (currentTimeColumn <= headerOffset || currentTimeColumn > _numberOfColumns + headerOffset) // Outside viewport
@@ -806,8 +813,13 @@ namespace MediaPortal.Plugins.SlimTv.Client.Controls
     {
       get
       {
-        SlimTvMultiChannelGuideModel model = (SlimTvMultiChannelGuideModel)ServiceRegistration.Get<IWorkflowManager>().GetModel(SlimTvMultiChannelGuideModel.MODEL_ID);
-        return model;
+        try
+        {
+          SlimTvMultiChannelGuideModel model = (SlimTvMultiChannelGuideModel)ServiceRegistration.Get<IWorkflowManager>().GetModel(SlimTvMultiChannelGuideModel.MODEL_ID);
+          return model;
+        }
+        catch (WorkflowManagerLockException) { }
+        return null;
       }
     }
 
@@ -913,7 +925,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Controls
       }
       else
       {
-        SlimTvMultiChannelGuideModel.Scroll(TimeSpan.FromMinutes(30));
+        SlimTvMultiChannelGuideModel?.Scroll(TimeSpan.FromMinutes(30));
         UpdateViewportHorizontal();
       }
       return true;
@@ -934,7 +946,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Controls
       }
       if (!MoveFocus1(MoveFocusDirection.Left))
       {
-        SlimTvMultiChannelGuideModel.Scroll(TimeSpan.FromMinutes(-30));
+        SlimTvMultiChannelGuideModel?.Scroll(TimeSpan.FromMinutes(-30));
         UpdateViewportHorizontal();
       }
       return true;
@@ -994,8 +1006,12 @@ namespace MediaPortal.Plugins.SlimTv.Client.Controls
       FrameworkElement control;
       var startTime = program.Program.StartTime;
       // If program is running already, compare with viewport start
-      if (startTime < SlimTvMultiChannelGuideModel.GuideStartTime)
-        startTime = SlimTvMultiChannelGuideModel.GuideStartTime;
+      var model = SlimTvMultiChannelGuideModel;
+      if (model == null)
+        return false;
+
+      if (startTime < model.GuideStartTime)
+        startTime = model.GuideStartTime;
 
       if (FindNearestProgram(startTime, row, out control))
       {
@@ -1067,6 +1083,12 @@ namespace MediaPortal.Plugins.SlimTv.Client.Controls
     /// <returns><c>true</c> if matching program could be found</returns>
     private bool FindNearestProgram(DateTime startTime, int row, out FrameworkElement programControl)
     {
+      var model = SlimTvMultiChannelGuideModel;
+      if (model == null)
+      {
+        programControl = null;
+        return false;
+      }
       var rowItems = Children.Where(c => GetRow(c) == row && c.DataContext != null).ToList();
       double minDiff = Double.MaxValue;
       FrameworkElement nearestStartItem = null;
@@ -1077,8 +1099,8 @@ namespace MediaPortal.Plugins.SlimTv.Client.Controls
           continue;
 
         var programStartTime = pi.Program.StartTime;
-        if (programStartTime < SlimTvMultiChannelGuideModel.GuideStartTime)
-          programStartTime = SlimTvMultiChannelGuideModel.GuideStartTime;
+        if (programStartTime < model.GuideStartTime)
+          programStartTime = model.GuideStartTime;
 
         var diff = Math.Abs((startTime - programStartTime).TotalMinutes);
         if (nearestStartItem == null || diff < minDiff)

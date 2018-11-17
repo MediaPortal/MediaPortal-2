@@ -25,6 +25,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using MediaPortal.Common;
 using MediaPortal.Common.Commands;
 using MediaPortal.Common.Exceptions;
@@ -150,7 +151,7 @@ namespace MediaPortal.UiComponents.SkinBase.Models
           case ServerConnectionMessaging.MessageType.HomeServerDetached:
           case ServerConnectionMessaging.MessageType.HomeServerConnected:
             UpdateProperties_NoLock();
-            UpdateSharesLists_NoLock(false);
+            _ = UpdateSharesLists_NoLock(false);
             break;
           case ServerConnectionMessaging.MessageType.HomeServerDisconnected:
             if (_shareProxy is ServerShares)
@@ -159,7 +160,7 @@ namespace MediaPortal.UiComponents.SkinBase.Models
             else
             {
               UpdateProperties_NoLock();
-              UpdateSharesLists_NoLock(false);
+              _ = UpdateSharesLists_NoLock(false);
             }
             break;
         }
@@ -171,7 +172,7 @@ namespace MediaPortal.UiComponents.SkinBase.Models
         {
           case ContentDirectoryMessaging.MessageType.RegisteredSharesChanged:
             UpdateProperties_NoLock();
-            UpdateSharesLists_NoLock(false);
+            _ = UpdateSharesLists_NoLock(false);
             break;
         }
       }
@@ -183,7 +184,7 @@ namespace MediaPortal.UiComponents.SkinBase.Models
           case SharesMessaging.MessageType.ShareAdded:
           case SharesMessaging.MessageType.ShareRemoved:
             UpdateProperties_NoLock();
-            UpdateSharesLists_NoLock(false);
+            _ = UpdateSharesLists_NoLock(false);
             break;
         }
       }
@@ -673,7 +674,7 @@ namespace MediaPortal.UiComponents.SkinBase.Models
       _systemsList.Add(localSystemItem);
     }
 
-    protected internal void UpdateSharesLists_NoLock(bool create)
+    protected internal async Task UpdateSharesLists_NoLock(bool create)
     {
       lock (_syncObj)
       {
@@ -689,7 +690,7 @@ namespace MediaPortal.UiComponents.SkinBase.Models
       {
         List<Share> localShareDescriptors = new List<Share>(LocalShares.GetShares());
         List<Share> serverShareDescriptors = IsHomeServerConnected ?
-            new List<Share>(ServerShares.GetShares()) : new List<Share>(0);
+            new List<Share>(await ServerShares.GetSharesAsync()) : new List<Share>(0);
         int numShares = localShareDescriptors.Count + serverShareDescriptors.Count;
         UpdateSharesList_NoLock(_localSharesList, localShareDescriptors, ShareOrigin.Local, numShares == 1);
         try
@@ -708,6 +709,10 @@ namespace MediaPortal.UiComponents.SkinBase.Models
         lock (_syncObj)
           anySharesAvailable = _serverSharesList.Count > 0 || _localSharesList.Count > 0;
         AnyShareAvailable = anySharesAvailable;
+      }
+      catch(Exception ex)
+      {
+        ServiceRegistration.Get<ILogger>().Warn("Error updating shares list", ex);
       }
       finally
       {
@@ -838,7 +843,7 @@ namespace MediaPortal.UiComponents.SkinBase.Models
       {
         if (workflowState == Consts.WF_STATE_ID_SHARES_OVERVIEW)
         {
-          UpdateSharesLists_NoLock(true);
+          _ = UpdateSharesLists_NoLock(true);
         }
         else if (!push)
         {
@@ -848,7 +853,7 @@ namespace MediaPortal.UiComponents.SkinBase.Models
         }
         if (workflowState == Consts.WF_STATE_ID_SHARES_REMOVE)
         {
-          UpdateSharesLists_NoLock(push);
+          _ = UpdateSharesLists_NoLock(push);
         }
         else if (workflowState == Consts.WF_STATE_ID_SHARE_INFO)
         {

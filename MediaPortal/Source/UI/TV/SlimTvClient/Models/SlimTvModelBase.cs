@@ -24,6 +24,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using MediaPortal.Common;
 using MediaPortal.Common.Commands;
 using MediaPortal.Common.General;
@@ -169,6 +170,18 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
     {
     }
 
+    public static async Task TuneChannel(IChannel channel)
+    {
+      IWorkflowManager workflowManager = ServiceRegistration.Get<IWorkflowManager>();
+      SlimTvClientModel model = workflowManager.GetModel(SlimTvClientModel.MODEL_ID) as SlimTvClientModel;
+      if (model != null)
+      {
+        await model.Tune(channel);
+        // Always switch to fullscreen
+        workflowManager.NavigatePush(Consts.WF_STATE_ID_FULLSCREEN_VIDEO);
+      }
+    }
+
     /// <summary>
     /// Exposes the list of available series recording types or other user choices.
     /// </summary>
@@ -228,7 +241,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
       for (int idx = 0; idx < ChannelContext.Instance.ChannelGroups.Count; idx++)
       {
         IChannelGroup group = ChannelContext.Instance.ChannelGroups[idx];
-        ListItem channelGroupItem = new ListItem(UiComponents.Media.General.Consts.KEY_NAME, group.Name)
+        ListItem channelGroupItem = new ListItem(Consts.KEY_NAME, group.Name)
         {
           Command = new MethodDelegateCommand(() =>
           {
@@ -272,39 +285,50 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
 
     #region Recording related
 
-    protected virtual RecordingStatus? CreateOrDeleteSchedule(IProgram program, ScheduleRecordingType recordingType = ScheduleRecordingType.Once)
+    protected virtual async Task<RecordingStatus?> CreateOrDeleteSchedule(IProgram program, ScheduleRecordingType recordingType = ScheduleRecordingType.Once)
     {
-      IScheduleControl scheduleControl = _tvHandler.ScheduleControl;
+      IScheduleControlAsync scheduleControl = _tvHandler.ScheduleControl;
       RecordingStatus? newStatus = null;
       if (scheduleControl != null)
       {
-        RecordingStatus? recordingStatus = GetRecordingStatus(program);
-        if (!recordingStatus.HasValue)
-          return null;
-        if (recordingStatus.Value.HasFlag(RecordingStatus.Scheduled) || recordingStatus.Value.HasFlag(RecordingStatus.SeriesScheduled))
+        RecordingStatus? recordingStatus = await GetRecordingStatusAsync(program);
+        if (recordingStatus.HasValue && (recordingStatus.Value.HasFlag(RecordingStatus.Scheduled) || recordingStatus.Value.HasFlag(RecordingStatus.SeriesScheduled)))
         {
-          if (scheduleControl.RemoveScheduleForProgram(program, recordingType))
+          if (await scheduleControl.RemoveScheduleForProgramAsync(program, recordingType))
             newStatus = RecordingStatus.None;
         }
         else
         {
-          ISchedule schedule;
-          if (scheduleControl.CreateSchedule(program, recordingType, out schedule))
+          var result = await scheduleControl.CreateScheduleAsync(program, recordingType);
+          if (result.Success)
             newStatus = recordingType == ScheduleRecordingType.Once ? RecordingStatus.Scheduled : RecordingStatus.SeriesScheduled;
         }
       }
       return newStatus;
     }
 
-    protected virtual RecordingStatus? GetRecordingStatus(IProgram program)
+    protected virtual async Task<RecordingStatus?> CreateOrDeleteScheduleByTimeAsync(IChannel program, DateTime start, DateTime end)
     {
-      IScheduleControl scheduleControl = _tvHandler.ScheduleControl;
+      IScheduleControlAsync scheduleControl = _tvHandler.ScheduleControl;
+      RecordingStatus? newStatus = null;
+      if (scheduleControl != null)
+      {
+        var result = await scheduleControl.CreateScheduleByTimeAsync(program, start, end, ScheduleRecordingType.Once);
+        if (result.Success)
+          newStatus = RecordingStatus.Scheduled;
+      }
+      return newStatus;
+    }
+
+    protected virtual async Task<RecordingStatus?> GetRecordingStatusAsync(IProgram program)
+    {
+      IScheduleControlAsync scheduleControl = _tvHandler.ScheduleControl;
       if (scheduleControl == null)
         return null;
 
-      RecordingStatus recordingStatus;
-      if (scheduleControl.GetRecordingStatus(program, out recordingStatus))
-        return recordingStatus;
+      var result = await scheduleControl.GetRecordingStatusAsync(program);
+      if (result.Success)
+        return result.Result;
       return null;
     }
 

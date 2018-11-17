@@ -31,10 +31,10 @@ using System.Linq;
 namespace MediaPortal.UiComponents.Media.Models.ScreenData
 {
   public class SeriesFilterByCompanyScreenData : AbstractSeriesFilterScreenData<CompanyFilterItem>
-  { 
+  {
     public SeriesFilterByCompanyScreenData() :
         base(Consts.SCREEN_SERIES_FILTER_BY_COMPANY, Consts.RES_COMMON_BY_PRODUCTION_STUDIO_MENU_ITEM,
-        Consts.RES_FILTER_COMPANY_NAVBAR_DISPLAY_LABEL, new FilterByCompanyCriterion(SeriesAspect.ROLE_SERIES))
+        Consts.RES_FILTER_COMPANY_NAVBAR_DISPLAY_LABEL, new FilterByCompanyCriterion(CompanyAspect.ROLE_COMPANY, SeriesAspect.ROLE_SERIES))
     {
       _availableMias = Consts.NECESSARY_COMPANY_MIAS;
       if (Consts.OPTIONAL_COMPANY_MIAS != null)

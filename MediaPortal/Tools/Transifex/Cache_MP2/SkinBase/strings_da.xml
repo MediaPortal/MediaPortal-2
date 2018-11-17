@@ -104,8 +104,6 @@
   <string name="Settings.General.System">System</string>
   <string name="Settings.General.System.Autostart">Autostart</string>
   <string name="Settings.General.System.Autostart.Help">Start MediaPortal automatisk ved opstart af Windows</string>
-  <string name="Settings.General.System.ClientDOKANDrive">Resource montering drevbogstav</string>
-  <string name="Settings.General.System.ClientDOKANDrive.Help">Konfigurerer drevbogstavet til montering fjerne ressourcer på denne klient.</string>
   <string name="Settings.General.Connectivity">Tilslutning</string>
   <string name="Settings.General.Connectivity.HomeServer">Hjemmeserver</string>
   <string name="Settings.General.Connectivity.HomeServer.Help">Hjemmeserver oplysninger, tilknyt til og frigør fra hjemmeserver</string>

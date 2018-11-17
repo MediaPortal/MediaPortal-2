@@ -54,7 +54,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Player
         mimeType == LiveTvMediaItem.MIME_TYPE_RADIO ? (BaseDXPlayer)new LiveRadioPlayer(true) : new WTVPlayer();
       try
       {
-        player.SetMediaItem(locator, title);
+        player.SetMediaItem(locator, title, mediaItem);
       }
       catch (Exception e)
       {

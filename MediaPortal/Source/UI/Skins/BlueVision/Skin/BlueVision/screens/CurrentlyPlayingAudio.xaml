@@ -6,6 +6,9 @@
     xmlns:animation="clr-namespace:MediaPortal.UI.SkinEngine.Controls.Brushes.Animation;assembly=SkinEngine" 
     xmlns:mp_special_controls="clr-namespace:MediaPortal.UI.SkinEngine.SpecialElements.Controls;assembly=SkinEngine"
     xmlns:fanart="clr-namespace:MediaPortal.Extensions.UserServices.FanArtService.Client;assembly=FanArtService.Client"
+    xmlns:aspect="clr-namespace:MediaPortal.Common.MediaManagement.DefaultItemAspects;assembly=MediaPortal.Common"
+    xmlns:media="clr-namespace:MediaPortal.UiComponents.Media.Models.AspectWrappers;assembly=Media"
+    xmlns:media_consts="clr-namespace:MediaPortal.UiComponents.Media.General;assembly=Media"
     >
   <Include.Resources>
 
@@ -41,6 +44,35 @@
               </Label>
               <Label x:Name="Year" Content="{Binding AudioYear}" Color="{ThemeResource TextColor}" Opacity="0.6"/>
               <Label x:Name="Duration" Content="{Binding Duration}" Color="{ThemeResource TextColor}" Opacity="0.6"/>
+
+              <media:AudioAlbumAspectWrapper HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+                <media:AudioAlbumAspectWrapper.MediaItem>
+                  <RelationshipQuery
+                    NecessaryRequestedMIAs="{x:Static media_consts:Consts.NECESSARY_ALBUM_MIAS}"
+                    OptionalRequestedMIAs="{x:Static media_consts:Consts.OPTIONAL_ALBUM_MIAS}"
+                    Role="{x:Static aspect:AudioAlbumAspect.ROLE_ALBUM}"
+                    LinkedRole="{x:Static aspect:AudioAspect.ROLE_TRACK}"
+                    LinkedMediaItemId="{Binding Source={Binding MediaItem}, Path=MediaItemId}"/>
+                </media:AudioAlbumAspectWrapper.MediaItem>
+                <media:AudioAlbumAspectWrapper.Template>
+                  <ControlTemplate>
+                    <Grid DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}"
+                          HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+                      <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                      </Grid.RowDefinitions>
+                      <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                      </Grid.ColumnDefinitions>
+
+                      <Label Content="{Binding Path=Album}" Color="{ThemeResource TextColor}"
+                             FontFamily="DefaultBold" TextTrimming="WordEllipsis" Margin="-10,0,0,0"/>
+
+                    </Grid>
+                  </ControlTemplate>
+                </media:AudioAlbumAspectWrapper.Template>
+              </media:AudioAlbumAspectWrapper>
+
             </StackPanel>
 
             <Image x:Name="FanArt" Grid.Column="2" Stretch="Fill"
@@ -65,32 +97,31 @@
             <Image x:Name="CDImage" Grid.Row="0" Grid.Column="0" Stretch="Uniform" 
                 Source="CD.png" HorizontalAlignment="Right" RenderTransformOrigin="0.498,0.498"
                 VerticalAlignment="Bottom" Width="235" Height="235" Margin="0,0,110,30">
-              <Image.Resources>
-                <Storyboard x:Key="RotationStoryboard" FillBehavior="HoldEnd" RepeatBehavior="Forever">
-                  <DoubleAnimation  Storyboard.TargetProperty="RenderTransform.Angle"
-                                    From="0"
-                                    To="360"
-                                    Duration="0:0:2"
-                                    RepeatBehavior="Forever" />
-                </Storyboard>
-              </Image.Resources>
               <Image.RenderTransform>
                 <RotateTransform x:Name="AnimatedRotateTransform" Angle="0" />
               </Image.RenderTransform>
+
+              <Image.Resources>
+                <Storyboard x:Key="DiskRotationStoryboard" FillBehavior="HoldEnd" RepeatBehavior="Forever">
+                  <DoubleAnimation Storyboard.TargetProperty="RenderTransform.Angle"
+                                 From="0" To="360" Duration="0:0:4.5" RepeatBehavior="Forever" />
+                </Storyboard>
+              </Image.Resources>
+
               <Image.Triggers>
-                <Trigger Property="IsEnabled" Value="True">
-                  <Trigger.EnterActions>
-                    <BeginStoryboard x:Name="Disabled_BeginStoryBoard" Storyboard="{ThemeResource RotationStoryboard}"/>
-                  </Trigger.EnterActions>
-                  <Trigger.ExitActions>
+                <DataTrigger Binding="{Binding IsPlaying}" Value="True">
+                  <DataTrigger.EnterActions>
+                    <BeginStoryboard x:Name="Disabled_BeginStoryBoard" Storyboard="{ThemeResource DiskRotationStoryboard}"/>
+                  </DataTrigger.EnterActions>
+                  <DataTrigger.ExitActions>
                     <StopStoryboard BeginStoryboardName="Disabled_BeginStoryBoard"/>
-                  </Trigger.ExitActions>
-                </Trigger>
+                  </DataTrigger.ExitActions>
+                </DataTrigger>
               </Image.Triggers>
             </Image>
 
             <Image x:Name="ItemTypeImage" Grid.Row="0" Grid.Column="0" Stretch="Uniform" 
-                Source="{Binding MediaItem}" FallbackSource="AudioLarge.png" HorizontalAlignment="Right"
+                Source="{Binding MediaItem}" FallbackSource="Audio.png" HorizontalAlignment="Right"
                 VerticalAlignment="Bottom" Width="250" Height="250" Margin="0,0,0,20">
               <Image.OpacityMask>
                 <VisualBrush>

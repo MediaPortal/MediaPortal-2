@@ -24,9 +24,12 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 using MediaPortal.Common;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Backend.MediaLibrary;
+using System.Collections.Concurrent;
 
 namespace MediaPortal.Backend.Services.MediaManagement
 {
@@ -36,6 +39,8 @@ namespace MediaPortal.Backend.Services.MediaManagement
   /// </summary>
   public class MediaItemAspectTypeRegistration : IMediaItemAspectTypeRegistration
   {
+    private ConcurrentDictionary<Guid, MediaItemAspectMetadata> _locallySupportedReimportMediaItemAspectTypes = new ConcurrentDictionary<Guid, MediaItemAspectMetadata>();
+
     public IDictionary<Guid, MediaItemAspectMetadata> LocallyKnownMediaItemAspectTypes
     {
       get
@@ -45,10 +50,30 @@ namespace MediaPortal.Backend.Services.MediaManagement
       }
     }
 
-    public void RegisterLocallyKnownMediaItemAspectType(MediaItemAspectMetadata miam)
+    public IDictionary<Guid, MediaItemAspectMetadata> LocallySupportedReimportMediaItemAspectTypes
+    {
+      get
+      {
+        return _locallySupportedReimportMediaItemAspectTypes;
+      }
+    }
+
+    public async Task RegisterLocallyKnownMediaItemAspectTypeAsync(IEnumerable<MediaItemAspectMetadata> miaTypes)
+    {
+      await Task.WhenAll(miaTypes.Select(RegisterLocallyKnownMediaItemAspectTypeAsync));
+    }
+
+    public Task RegisterLocallyKnownMediaItemAspectTypeAsync(MediaItemAspectMetadata miam)
     {
       IMediaLibrary mediaLibrary = ServiceRegistration.Get<IMediaLibrary>();
       mediaLibrary.AddMediaItemAspectStorage(miam);
+      return Task.CompletedTask;
+    }
+
+    public Task RegisterLocallySupportedReimportMediaItemAspectTypeAsync(MediaItemAspectMetadata miaType)
+    {
+      _locallySupportedReimportMediaItemAspectTypes.TryAdd(miaType.AspectId, miaType);
+      return Task.CompletedTask;
     }
   }
 }

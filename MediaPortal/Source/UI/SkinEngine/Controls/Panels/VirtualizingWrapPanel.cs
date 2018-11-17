@@ -712,7 +712,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
 
       int start = _arrangedLines[_actualFirstRenderedLineIndex].StartIndex;
       int end = _arrangedLines[_actualLastRenderedLineIndex].EndIndex;
-      return _arrangedItems.Skip(start).Take(end - start + 1);
+      return _arrangedItems.Skip(start).Take(end - start + 1).Where(i => i != null);
     }
 
     #endregion

@@ -28,6 +28,8 @@
         ServiceClassName="MediaPortal.Extensions.OnlineLibraries.Matchers.MovieOmDbMatcher"/>
     <Service Id="MovieTheMovieDbMatcher" RegistrationClassName="MediaPortal.Extensions.OnlineLibraries.Matchers.MovieTheMovieDbMatcher"
         ServiceClassName="MediaPortal.Extensions.OnlineLibraries.Matchers.MovieTheMovieDbMatcher"/>
+    <Service Id="MovieSimApiMatcher" RegistrationClassName="MediaPortal.Extensions.OnlineLibraries.Matchers.MovieSimApiMatcher"
+        ServiceClassName="MediaPortal.Extensions.OnlineLibraries.Matchers.MovieSimApiMatcher"/>
     
     <!--Series Matchers-->
     <Service Id="SeriesTvDbMatcher" RegistrationClassName="MediaPortal.Extensions.OnlineLibraries.Matchers.SeriesTvDbMatcher"

@@ -10,7 +10,7 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor</RootNamespace>
     <AssemblyName>SeriesMetadataExtractor</AssemblyName>
-    <TargetFrameworkVersion>v4.5.1</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.7</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <TargetFrameworkProfile />
   </PropertyGroup>
@@ -64,8 +64,6 @@
     </Compile>
     <Compile Include="FanArtHandlers\SeriesFanArtHandler.cs" />
     <Compile Include="MergeHandlers\EpisodeMergeHandler.cs" />
-    <Compile Include="Metadata\TempSeriesAspect.cs" />
-    <Compile Include="RelationshipExtractors\ISeriesRelationshipExtractor.cs" />
     <Compile Include="RelationshipExtractors\SeasonSeriesRelationshipExtractor.cs" />
     <Compile Include="RelationshipExtractors\SeriesCharacterRelationshipExtractor.cs" />
     <Compile Include="RelationshipExtractors\SeriesEpisodeRelationshipExtractor.cs" />

@@ -12,7 +12,7 @@
   <ResourceWrapper x:Key="ChannelLogoLarge" Resource="180"/>
   <ResourceWrapper x:Key="ChannelLogoContainerLarge" Resource="68"/>
 
-  <ResourceWrapper x:Key="ChannelLogoWidth" Resource="130"/>
+  <ResourceWrapper x:Key="ChannelLogoWidth" Resource="145"/>
 
   <ResourceWrapper x:Key="MainListChannelNameLength" Resource="180"/>
   <ResourceWrapper x:Key="MainListTimeLength" Resource="80"/>
@@ -36,5 +36,6 @@
   <ResourceWrapper x:Key="ProgramInfoHeaderWidth" Resource="150"/>
 
   <ResourceWrapper x:Key="SeriesRecIndicatorHeight" Resource="40"/>
+  <ResourceWrapper x:Key="TvNotificationPanelMargin" Resource="10,10,10,500"/>
 
 </ResourceDictionary>

@@ -28,56 +28,10 @@ using System.Text;
 using System.Xml;
 using System.Xml.Serialization;
 using MediaPortal.Utilities;
+using System.Linq;
 
 namespace MediaPortal.Common.MediaManagement.MLQueries
 {
-  public enum SortDirection
-  {
-    Ascending,
-    Descending
-  }
-
-  public class SortInformation
-  {
-    protected MediaItemAspectMetadata.AttributeSpecification _attributeType;
-    protected SortDirection _sortDirection;
-
-    public SortInformation(MediaItemAspectMetadata.AttributeSpecification attributeType, SortDirection sortDirection)
-    {
-      _attributeType = attributeType;
-      _sortDirection = sortDirection;
-    }
-
-    [XmlIgnore]
-    public MediaItemAspectMetadata.AttributeSpecification AttributeType
-    {
-      get { return _attributeType; }
-      set { _attributeType = value; }
-    }
-
-    public SortDirection Direction
-    {
-      get { return _sortDirection; }
-      set { _sortDirection = value; }
-    }
-
-    #region Additional members for the XML serialization
-
-    internal SortInformation() { }
-
-    /// <summary>
-    /// For internal use of the XML serialization system only.
-    /// </summary>
-    [XmlElement("AttributeType", IsNullable=false)]
-    public string XML_AttributeType
-    {
-      get { return SerializationHelper.SerializeAttributeTypeReference(_attributeType); }
-      set { _attributeType = SerializationHelper.DeserializeAttributeTypeReference(value); }
-    }
-
-    #endregion
-  }
-
   /// <summary>
   /// Class to be used for XML serialization of <see cref="IFilter"/> values.
   /// </summary>
@@ -134,9 +88,10 @@ namespace MediaPortal.Common.MediaManagement.MLQueries
     #region Protected fields
 
     protected IFilter _filter;
+    protected IFilter _subqueryFilter; //additional filter that will be applied to all subqueries
     protected HashSet<Guid> _necessaryRequestedMIATypeIDs;
     protected HashSet<Guid> _optionalRequestedMIATypeIDs = null;
-    protected List<SortInformation> _sortInformation = null;
+    protected List<object> _sortInformation = new List<object>();
     protected uint? _offset = null;
     protected uint? _limit = null;
 
@@ -198,11 +153,21 @@ namespace MediaPortal.Common.MediaManagement.MLQueries
       set { _filter = value; }
     }
 
+    /// <summary>
+    /// Additional filter that will be applied to all subqueries.
+    /// </summary>
     [XmlIgnore]
-    public IList<SortInformation> SortInformation
+    public IFilter SubqueryFilter
     {
-      get { return _sortInformation; }
-      set { _sortInformation = value != null ? new List<SortInformation>(value) : null; }
+      get { return _subqueryFilter; }
+      set { _subqueryFilter = value; }
+    }
+
+    [XmlIgnore]
+    public IList<ISortInformation> SortInformation
+    {
+      get { return _sortInformation.Cast<ISortInformation>().ToList(); }
+      set { SetSortInformation(value); }
     }
 
     /// <summary>
@@ -233,6 +198,11 @@ namespace MediaPortal.Common.MediaManagement.MLQueries
     public void SetOptionalRequestedMIATypeIDs(IEnumerable<Guid> value)
     {
       _optionalRequestedMIATypeIDs = value == null ? new HashSet<Guid>() : new HashSet<Guid>(value);
+    }
+
+    public void SetSortInformation<T>(IEnumerable<T> value)
+    {
+      _sortInformation = value == null ? new List<object>() : new List<T>(value).Cast<object>().ToList();
     }
 
     public static void SerializeFilter(XmlWriter writer, IFilter filter)
@@ -349,12 +319,36 @@ namespace MediaPortal.Common.MediaManagement.MLQueries
     /// <summary>
     /// For internal use of the XML serialization system only.
     /// </summary>
+    [XmlElement("SubqueryBetweenFilter", typeof(BetweenFilter))]
+    [XmlElement("SubqueryBooleanCombinationFilter", typeof(BooleanCombinationFilter))]
+    [XmlElement("SubqueryInFilter", typeof(InFilter))]
+    [XmlElement("SubqueryLikeFilter", typeof(LikeFilter))]
+    [XmlElement("SubqueryNotFilter", typeof(NotFilter))]
+    [XmlElement("SubqueryRelationalFilter", typeof(RelationalFilter))]
+    [XmlElement("SubqueryEmpty", typeof(EmptyFilter))]
+    [XmlElement("SubqueryRelationalUserDataFilter", typeof(RelationalUserDataFilter))]
+    [XmlElement("SubqueryEmptyUserData", typeof(EmptyUserDataFilter))]
+    [XmlElement("SubqueryFalse", typeof(FalseFilter))]
+    [XmlElement("SubqueryMediaItemIds", typeof(MediaItemIdFilter))]
+    [XmlElement("SubqueryRelationship", typeof(RelationshipFilter))]
+    [XmlElement("SubqueryFilterRelationship", typeof(FilteredRelationshipFilter))]
+    // Necessary to have an object here, else the serialization algorithm cannot cope with polymorph values
+    public object XML_SubqueryFilter
+    {
+      get { return _subqueryFilter; }
+      set { _subqueryFilter = value as IFilter; }
+    }
+
+    /// <summary>
+    /// For internal use of the XML serialization system only.
+    /// </summary>
     [XmlArray("Sorting")]
-    [XmlArrayItem("SortInformation")]
-    public List<SortInformation> XML_SortInformation
+    [XmlArrayItem("AttributeSortInformation", typeof(AttributeSortInformation))]
+    [XmlArrayItem("DataSortInformation", typeof(DataSortInformation))]
+    public List<object> XML_SortInformation
     {
       get { return _sortInformation; }
-      set { _sortInformation = value; }
+      set { SetSortInformation(value); }
     }
 
     #endregion
