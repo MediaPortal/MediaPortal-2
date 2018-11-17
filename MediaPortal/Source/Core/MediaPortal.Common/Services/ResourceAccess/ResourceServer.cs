@@ -51,21 +51,28 @@ namespace MediaPortal.Common.Services.ResourceAccess
 
     private void CreateAndStartServer()
     {
-      ServerSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<ServerSettings>();
-      List<string> filters = settings.IPAddressBindingsList;
-
-      _servicePrefix = ResourceHttpAccessUrlUtils.RESOURCE_SERVER_BASE_PATH + Guid.NewGuid().GetHashCode().ToString("X");
-      var startOptions = UPnPServer.BuildStartOptions(_servicePrefix, filters);
-
-      lock (_syncObj)
+      try
       {
-        _httpServer = WebApp.Start(startOptions, builder =>
+        ServerSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<ServerSettings>();
+        List<string> filters = settings.IPAddressBindingsList;
+
+        _servicePrefix = ResourceHttpAccessUrlUtils.RESOURCE_SERVER_BASE_PATH + Guid.NewGuid().GetHashCode().ToString("X");
+        var startOptions = UPnPServer.BuildStartOptions(_servicePrefix, filters);
+
+        lock (_syncObj)
         {
-          foreach (Type middleWareType in _middleWares)
+          _httpServer = WebApp.Start(startOptions, builder =>
           {
-            builder.Use(middleWareType);
-          }
-        });
+            foreach (Type middleWareType in _middleWares)
+            {
+              builder.Use(middleWareType);
+            }
+          });
+        }
+      }
+      catch(Exception ex)
+      {
+        ServiceRegistration.Get<ILogger>().Error("ResourceServer: Error starting HTTP servers", ex);
       }
     }
 
