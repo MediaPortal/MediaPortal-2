@@ -99,7 +99,7 @@ namespace MediaPortal.UI.Players.Video.Tools
       {
         if (filter != null)
         {
-          Marshal.ReleaseComObject(filter);
+          TryReleaseComObject(filter);
           filter = null;
         }
       }
@@ -248,7 +248,7 @@ namespace MediaPortal.UI.Players.Video.Tools
             }
           }
 
-          Marshal.ReleaseComObject(filters[0]);
+          TryReleaseComObject(filters[0]);
           Marshal.FreeCoTaskMem(fetched);
         }
         Marshal.ReleaseComObject(enumFilters);
@@ -294,7 +294,7 @@ namespace MediaPortal.UI.Players.Video.Tools
             break;
           }
 
-          Marshal.ReleaseComObject(filters[0]);
+          TryReleaseComObject(filters[0]);
         }
         Marshal.ReleaseComObject(enumFilters);
         Marshal.FreeCoTaskMem(fetched);
@@ -335,8 +335,7 @@ namespace MediaPortal.UI.Players.Video.Tools
             filter = filters[0];
             break;
           }
-          if (Marshal.IsComObject(filters[0]))
-            Marshal.ReleaseComObject(filters[0]);
+          TryReleaseComObject(filters[0]);
         }
         Marshal.ReleaseComObject(enumFilters);
         Marshal.FreeCoTaskMem(fetched);
@@ -370,7 +369,7 @@ namespace MediaPortal.UI.Players.Video.Tools
           if (filters[0] is TE)
             matchingFilters.Add((TE)filters[0]);
           else
-            if (Marshal.IsComObject(filters[0])) Marshal.ReleaseComObject(filters[0]);
+            TryReleaseComObject(filters[0]);
         }
         Marshal.ReleaseComObject(enumFilters);
         Marshal.FreeCoTaskMem(fetched);
@@ -455,7 +454,7 @@ namespace MediaPortal.UI.Players.Video.Tools
             }
             finally
             {
-              Marshal.ReleaseComObject(pins[0]);
+              TryReleaseComObject(pins[0]);
             }
           }
         }
@@ -492,7 +491,7 @@ namespace MediaPortal.UI.Players.Video.Tools
         foreach (IBaseFilter filter in filtersArray)
         {
           RenderManualConnectPins(graphBuilder, filter);
-          Marshal.ReleaseComObject(filter);
+          TryReleaseComObject(filter);
         }
         filtersArray.Clear();
       }
@@ -537,7 +536,7 @@ namespace MediaPortal.UI.Players.Video.Tools
                 hr = graphBuilder.Render(pins[0]);
               }
               DsUtils.FreePinInfo(pinInfo);
-              Marshal.ReleaseComObject(pins[0]);
+              TryReleaseComObject(pins[0]);
             }
           }
           Marshal.ReleaseComObject(pinEnum);
@@ -581,7 +580,7 @@ namespace MediaPortal.UI.Players.Video.Tools
               if (pins[0].ConnectedTo(out pinConnect_ptr) == 0 && pinConnect_ptr != IntPtr.Zero)
                 pinList.Add(Marshal.GetObjectForIUnknown(pinConnect_ptr) as IPin);
 
-              Marshal.ReleaseComObject(pins[0]);
+              TryReleaseComObject(pins[0]);
             }
           }
         }
@@ -618,10 +617,10 @@ namespace MediaPortal.UI.Players.Video.Tools
             if (previousConnectedPins.Count > 0)
             {
               graphBuilder.Connect(previousConnectedPins[0], pins[0]);
-              Marshal.ReleaseComObject(previousConnectedPins[0]);
+              TryReleaseComObject(previousConnectedPins[0]);
               previousConnectedPins.RemoveAt(0);
             }
-            Marshal.ReleaseComObject(pins[0]);
+            TryReleaseComObject(pins[0]);
           }
         }
       }
@@ -662,7 +661,7 @@ namespace MediaPortal.UI.Players.Video.Tools
           }
           finally
           {
-            Marshal.ReleaseComObject(pins[0]);
+            TryReleaseComObject(pins[0]);
           }
         }
       }
@@ -705,7 +704,7 @@ namespace MediaPortal.UI.Players.Video.Tools
             DisconnectPins(filters[0]);
           }
           catch { }
-          Marshal.ReleaseComObject(filters[0]);
+          TryReleaseComObject(filters[0]);
         }
       }
       finally
@@ -1171,6 +1170,7 @@ namespace MediaPortal.UI.Players.Video.Tools
       }
       return false;
     }
+
     /// <summary>
     /// Disposes the object, if supported. Then sets reference to null.
     /// </summary>
@@ -1186,6 +1186,18 @@ namespace MediaPortal.UI.Players.Video.Tools
 
       objectToDispose = default(TE);
       return true;
+    }
+
+    /// <summary>
+    /// Releases the COM object, if supported.
+    /// </summary>
+    /// <param name="objectToRelease"></param>
+    public static void TryReleaseComObject(object objectToRelease)
+    {
+      if (Marshal.IsComObject(objectToRelease))
+      {
+        Marshal.ReleaseComObject(objectToRelease);
+      }
     }
 
     /// <summary>

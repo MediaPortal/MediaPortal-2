@@ -280,8 +280,7 @@ namespace MediaPortal.UI.Players.Video
       if (_streamSelectors != null)
         foreach (IAMStreamSelect streamSelector in _streamSelectors)
         {
-          if (Marshal.IsComObject(streamSelector))
-            Marshal.ReleaseComObject(streamSelector);
+          FilterGraphTools.TryReleaseComObject(streamSelector);
         }
       _streamSelectors = null;
       _streamInfoAudio = null;
@@ -301,7 +300,6 @@ namespace MediaPortal.UI.Players.Video
       SafeEvrDeinit();
       FreeEvrCallback();
       FilterGraphTools.TryRelease(ref _evr);
-
       base.FreeCodecs();
 
       FilterGraphTools.TryDispose(ref _mpcSubsRenderer);
