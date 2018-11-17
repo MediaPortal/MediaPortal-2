@@ -481,7 +481,10 @@ namespace MediaPortal.UI.Players.Video.Subtitles
                                 PresentTime = sub.TimeStamp / 90000.0f + _startPos,
                                 Height = (uint)SkinContext.SkinResources.SkinHeight,
                                 Width = (uint)SkinContext.SkinResources.SkinWidth,
-                                FirstScanLine = 0
+                                ScreenWidth = SkinContext.SkinResources.SkinWidth,
+                                ScreenHeight = SkinContext.SkinResources.SkinHeight,
+                                FirstScanLine = 0,
+                                HorizontalPosition = 0
                               };
 
         lock (_subtitles)
