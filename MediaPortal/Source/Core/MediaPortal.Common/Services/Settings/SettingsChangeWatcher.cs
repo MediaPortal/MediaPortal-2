@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2017 Team MediaPortal
+#region Copyright (C) 2007-2018 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2017 Team MediaPortal
+    Copyright (C) 2007-2018 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -23,8 +23,11 @@
 #endregion
 
 using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 using MediaPortal.Common.Messaging;
 using MediaPortal.Common.Settings;
+using MediaPortal.Common.UserManagement;
 
 namespace MediaPortal.Common.Services.Settings
 {
@@ -44,8 +47,14 @@ namespace MediaPortal.Common.Services.Settings
     #endregion
 
     public SettingsChangeWatcher()
+      : this(false) { }
+
+    public SettingsChangeWatcher(bool updateOnUserChange)
     {
-      _messageQueue = new AsynchronousMessageQueue(this, new string[] { SettingsManagerMessaging.CHANNEL });
+      List<string> channels = new List<string> { SettingsManagerMessaging.CHANNEL };
+      if (updateOnUserChange)
+        channels.Add(UserMessaging.CHANNEL);
+      _messageQueue = new AsynchronousMessageQueue(this, channels);
       _messageQueue.MessageReceived += OnMessageReceived;
       _messageQueue.Start();
     }
@@ -67,6 +76,14 @@ namespace MediaPortal.Common.Services.Settings
     }
 
     /// <summary>
+    /// Refreshes the settings asynchronously.
+    /// </summary>
+    public void RefreshAsync()
+    {
+      Task.Run(() => Refresh());
+    }
+
+    /// <summary>
     /// Forces the refresh of the settings.
     /// </summary>
     public void Refresh()
@@ -80,18 +97,29 @@ namespace MediaPortal.Common.Services.Settings
 
     protected void OnMessageReceived(AsynchronousMessageQueue queue, SystemMessage message)
     {
-      if (message.ChannelName != SettingsManagerMessaging.CHANNEL)
-        return;
-
-      SettingsManagerMessaging.MessageType messageType = (SettingsManagerMessaging.MessageType) message.MessageType;
-      switch (messageType)
+      if (message.ChannelName == UserMessaging.CHANNEL)
       {
-        case SettingsManagerMessaging.MessageType.SettingsChanged:
-          Type settingsType = (Type) message.MessageData[SettingsManagerMessaging.SETTINGSTYPE];
-          // If our contained Type has been changed, clear the cache and reload it
-          if (typeof(T) == settingsType)
-            Refresh();
-          break;
+        UserMessaging.MessageType messageType = (UserMessaging.MessageType)message.MessageType;
+        switch (messageType)
+        {
+          // If the user has been changed, refresh the settings in every case.
+          case UserMessaging.MessageType.UserChanged:
+            RefreshAsync();
+            break;
+        }
+      }
+      if (message.ChannelName == SettingsManagerMessaging.CHANNEL)
+      {
+        SettingsManagerMessaging.MessageType messageType = (SettingsManagerMessaging.MessageType)message.MessageType;
+        switch (messageType)
+        {
+          case SettingsManagerMessaging.MessageType.SettingsChanged:
+            Type settingsType = (Type)message.MessageData[SettingsManagerMessaging.SETTINGSTYPE];
+            // If our contained Type has been changed, clear the cache and reload it
+            if (typeof(T) == settingsType)
+              Refresh();
+            break;
+        }
       }
     }
 

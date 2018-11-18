@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2017 Team MediaPortal
+#region Copyright (C) 2007-2018 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2017 Team MediaPortal
+    Copyright (C) 2007-2018 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -422,7 +422,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
     {
       if (_settings != null)
         return;
-      _settings = new SettingsChangeWatcher<SlimTvClientSettings>();
+      _settings = new SettingsChangeWatcher<SlimTvClientSettings>(true);
       UpdatePropertiesFromSettings(_settings.Settings);
       _settings.SettingsChanged = OnSettingsChanged;
     }

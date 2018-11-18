@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2017 Team MediaPortal
+#region Copyright (C) 2007-2018 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2017 Team MediaPortal
+    Copyright (C) 2007-2018 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -75,6 +75,8 @@ namespace MediaPortal.Plugins.SlimTv.Providers.Items
     public string Title { get; set; }
     public string Description { get; set; }
     public string Genre { get; set; }
+    public int EpgGenreId { get; set; }
+    public string EpgGenreColor { get; set; }
     public DateTime StartTime { get; set; }
     public DateTime EndTime { get; set; }
     public RecordingStatus RecordingStatus { get; set; }

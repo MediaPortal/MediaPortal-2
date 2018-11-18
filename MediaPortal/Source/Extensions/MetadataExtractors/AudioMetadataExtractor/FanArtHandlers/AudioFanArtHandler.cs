@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2017 Team MediaPortal
+#region Copyright (C) 2007-2018 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2017 Team MediaPortal
+    Copyright (C) 2007-2018 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -96,16 +96,19 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
 
     protected async Task ExtractAlbumAndArtistFanArt(Guid mediaItemId, IDictionary<Guid, IList<MediaItemAspect>> aspects)
     {
-      if (BaseInfo.IsVirtualResource(aspects))
-        return;
+      bool shouldCacheLocal = false;
+      IResourceLocator mediaItemLocator = null;
 
-      IResourceLocator mediaItemLocator = GetResourceLocator(aspects);
-      if (mediaItemLocator == null)
-        return;
+      if (!BaseInfo.IsVirtualResource(aspects))
+      {
+        mediaItemLocator = GetResourceLocator(aspects);
+        if (mediaItemLocator == null)
+          return;
 
-      //Whether local fanart should be stored in the fanart cache
-      bool shouldCacheLocal = ShouldCacheLocalFanArt(mediaItemLocator.NativeResourcePath,
-        AudioMetadataExtractor.CacheLocalFanArt, AudioMetadataExtractor.CacheOfflineFanArt);
+        //Whether local fanart should be stored in the fanart cache
+        shouldCacheLocal = ShouldCacheLocalFanArt(mediaItemLocator.NativeResourcePath,
+          AudioMetadataExtractor.CacheLocalFanArt, AudioMetadataExtractor.CacheOfflineFanArt);
+      }
 
       if (!shouldCacheLocal && AudioMetadataExtractor.SkipFanArtDownload)
         return; //Nothing to do
@@ -115,10 +118,14 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
       AlbumInfo albumInfo = trackInfo.CloneBasicInstance<AlbumInfo>();
       string albumTitle = albumInfo.ToString();
 
-      var albumDirectory = ResourcePathHelper.Combine(mediaItemLocator.NativeResourcePath, "../");
-      if (AudioMetadataExtractor.IsDiscFolder(albumTitle, albumDirectory.FileName))
-        //Probably a CD folder so try next parent
-        albumDirectory = ResourcePathHelper.Combine(albumDirectory, "../");
+      ResourcePath albumDirectory = null;
+      if (shouldCacheLocal)
+      {
+        albumDirectory = ResourcePathHelper.Combine(mediaItemLocator.NativeResourcePath, "../");
+        if (AudioMetadataExtractor.IsDiscFolder(albumTitle, albumDirectory.FileName))
+          //Probably a CD folder so try next parent
+          albumDirectory = ResourcePathHelper.Combine(albumDirectory, "../");
+      }
 
       //Artist fanart may be stored in the album directory, so get the artists now
       IList<Tuple<Guid, string>> artists = GetArtists(aspects);
@@ -127,16 +134,18 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
       if (RelationshipExtractorUtils.TryGetLinkedId(AudioAlbumAspect.ROLE_ALBUM, aspects, out Guid albumMediaItemId) &&
         AddToCache(albumMediaItemId))
       {
-        //If the track is not a stub, Store track tag images in the album
-        if (!aspects.ContainsKey(ReimportAspect.ASPECT_ID) && MediaItemAspect.TryGetAttribute(aspects, MediaAspect.ATTR_ISSTUB, out bool isStub) && isStub == false)
-          await ExtractTagFanArt(mediaItemLocator, albumMediaItemId, albumTitle);
         if (shouldCacheLocal)
+        {
+          //If the track is not a stub, Store track tag images in the album
+          if (!aspects.ContainsKey(ReimportAspect.ASPECT_ID) && MediaItemAspect.TryGetAttribute(aspects, MediaAspect.ATTR_ISSTUB, out bool isStub) && isStub == false)
+            await ExtractTagFanArt(mediaItemLocator, albumMediaItemId, albumTitle);
           await ExtractAlbumFolderFanArt(mediaItemLocator.NativeSystemId, albumDirectory, albumMediaItemId, albumTitle, artists).ConfigureAwait(false);
+        }
         if (!AudioMetadataExtractor.SkipFanArtDownload)
           await OnlineMatcherService.Instance.DownloadAudioFanArtAsync(albumMediaItemId, albumInfo).ConfigureAwait(false);
       }
 
-      if (artists != null)
+      if (shouldCacheLocal && artists != null)
         await ExtractArtistFolderFanArt(mediaItemLocator.NativeSystemId, albumDirectory, artists).ConfigureAwait(false);
     }
 

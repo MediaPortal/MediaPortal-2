@@ -13,11 +13,11 @@
   <string name="Settings.Users">Benutzer</string> <!-- Section name -->
   <string name="Settings.Users.Config">Benutzerverwaltung</string> <!-- Group name -->
   <string name="Settings.Users.Config.UserManagement">Benutzerverwaltung</string> <!-- Setting -->
-  <string name="Settings.Users.Config.UserManagement.Help">Verwalte die Benutzer auf dem Heimserver</string>
+  <string name="Settings.Users.Config.UserManagement.Help">Verwalte die Benutzer auf dem MP2-Server</string>
   <string name="Settings.Users.Config.UserEnable">Aktiviere Benutzeranmeldungen und Beschränkungen</string> <!-- Setting -->
   <string name="Settings.Users.Config.UserEnable.Help">Lasse Benutzeranmeldungen zu, ändere den aktuellen Benutzer und ändere Benutzereinstellungen</string>
   <string name="Settings.Users.Config.UserEnableScreen">Aktiviere den Anmeldebildschirm</string> <!-- Setting -->
-  <string name="Settings.Users.Config.UserEnableScreen.Help">Zeige den Anmeldebildschirm wenn niemand angemeldet ist</string>
+  <string name="Settings.Users.Config.UserEnableScreen.Help">Anmeldebildschirm anzeigen, wenn niemand angemeldet ist</string>
   <string name="Settings.Users.Config.AutoLogout">Automatisches Abmelden</string> <!-- Setting -->
   <string name="Settings.Users.Config.AutoLogout.Help">Aktiviere das automatische Abmelden nach einer Zeit der Untätigkeit</string>
   <string name="Settings.Users.Config.AutoLogoutTimeout">Zeitspanne für das automatische Abmelden</string> <!-- Setting -->
@@ -31,7 +31,7 @@
   <string name="UserConfig.UserOverviewWorkflowNavigationContextDisplayLabel">Benutzerverwaltung</string>
   <string name="UserConfig.UserConfiguration.Title">Benutzerverwaltung</string>
   <string name="UserConfig.Users">Benutzer</string>
-  <string name="UserConfig.NoConfigUserHomeServerNotConnected">Der Heimserver ist im Moment nicht verbunden. Serverbenutzer können deshalb derzeit nicht verwaltet werden.</string>
+  <string name="UserConfig.NoConfigUserHomeServerNotConnected">Der MP2-Server ist im Moment nicht verbunden. Serverbenutzer können deshalb derzeit nicht verwaltet werden.</string>
   <string name="UserConfig.UserName">Benutzername</string>
   <string name="UserConfig.Password">Passwort</string>
   <string name="UserConfig.ProfileType">Profiltyp</string>

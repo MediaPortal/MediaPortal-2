@@ -188,11 +188,33 @@
     </Setter>
   </Style>
 
+  <!-- An item list container represented by a standard "Button", scrolling its "ItemLabel" label when focused -->
+  <Style x:Key="NewsMenuItemContainerStyle" BasedOn="{ThemeResource DefaultItemContainerStyle}">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="{x:Type ListViewItem}">
+          <Button Style="{ThemeResource MenuButtonWideStyle}" Margin="80,0,51,0" 
+                  Command="{DynamicResource ResourceKey=Menu_Command}"
+                  IsEnabled="{Binding Enabled}" SetFocus="{Binding Path=Selected,Mode=OneTime}">
+            <Button.Triggers>
+              <Trigger Property="HasFocus" Value="True">
+                <Setter TargetName="ItemLabel" Property="Opacity" Value="1"/>
+                <Setter TargetName="ItemLabel" Property="Color" Value="{ThemeResource TextColor}"/>
+                <Setter TargetName="ItemLabel" Property="Scroll" Value="Auto"/>
+                <Setter Property="StackPanel.ZIndex" Value="100.0"/>
+              </Trigger>
+            </Button.Triggers>
+          </Button>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+
   <!-- ListView style to be used for the list in the news feeds configuration dialog -->
   <Style x:Key="NewsFeedsBookmarksListViewStyle" BasedOn="{ThemeResource ContentsMenuListViewStyle}">
     <Setter Property="ItemTemplate" Value="{ThemeResource NewsFeedBookmarkItemDataTemplate}"/>
     <Setter Property="Background" Value="{ThemeResource ItemsControlDialogShadowBackgroundColor}"/>
-    <Setter Property="ItemContainerStyle" Value="{ThemeResource DefaultHighlightableItemContainerStyle}"/>
+    <Setter Property="ItemContainerStyle" Value="{ThemeResource NewsMenuItemContainerStyle}"/>
   </Style>
 
 </ResourceDictionary>

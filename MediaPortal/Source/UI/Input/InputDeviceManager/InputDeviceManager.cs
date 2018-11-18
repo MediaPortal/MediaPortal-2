@@ -1,7 +1,7 @@
-﻿#region Copyright (C) 2007-2017 Team MediaPortal
+#region Copyright (C) 2007-2018 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2017 Team MediaPortal
+    Copyright (C) 2007-2018 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -206,7 +206,7 @@ namespace MediaPortal.Plugins.InputDeviceManager
     public void UpdateLoadedSettings(InputManagerSettings settings)
     {
       _inputDevices.Clear();
-      if (settings != null)
+      if (settings != null && settings.InputDevices != null)
         try
         {
           foreach (InputDevice device in settings.InputDevices)
