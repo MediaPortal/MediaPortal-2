@@ -238,6 +238,7 @@ namespace MediaPortal.UI.Players.Video.Subtitles
 
     // DirectX DeviceEx to handle graphic operations
     protected DeviceEx _device;
+    protected Sprite _sprite;
     protected IDVBSubtitleSource _subFilter = null;
 
     /// <summary>
@@ -314,6 +315,7 @@ namespace MediaPortal.UI.Players.Video.Subtitles
       _resetCallBack = Reset;
       _updateTimeoutCallBack = UpdateTimeout;
       _device = SkinContext.Device;
+      _sprite = new Sprite(_device);
     }
 
     public void SetPlayer(IMediaPlaybackControl p)
@@ -678,9 +680,8 @@ namespace MediaPortal.UI.Players.Video.Subtitles
         // TemporaryRenderTarget changes RenderTarget to texture and restores settings when done (Dispose)
         using (new TemporaryRenderTarget(targetTexture))
         using (TemporaryRenderState temporaryRenderState = new TemporaryRenderState())
-        using (Sprite sprite = new Sprite(_device))
         {
-          sprite.Begin(SpriteFlags.AlphaBlend);
+          _sprite.Begin(SpriteFlags.AlphaBlend);
           // No alpha test here, allow all values
           temporaryRenderState.SetTemporaryRenderState(RenderState.AlphaTestEnable, 0);
 
@@ -703,9 +704,9 @@ namespace MediaPortal.UI.Players.Video.Subtitles
             transform *= Matrix.Scaling(factorW, factorH, 1);
           }
 
-          sprite.Transform = transform;
-          sprite.Draw(currentSubtitle.SubTexture, SharpDX.Color.White);
-          sprite.End();
+          _sprite.Transform = transform;
+          _sprite.Draw(currentSubtitle.SubTexture, SharpDX.Color.White);
+          _sprite.End();
         }
 
         if (_onTextureInvalidated != null)
@@ -731,7 +732,7 @@ namespace MediaPortal.UI.Players.Video.Subtitles
         gBmp.TextRenderingHint = System.Drawing.Text.TextRenderingHint.AntiAlias;
         for (int i = 0; i < lc.Length; i++)
         {
-          using (System.Drawing.Font fnt = new System.Drawing.Font("Courier", (lc[i].doubleHeight ? 22 : 15), FontStyle.Bold)) // fixed width font!
+          using (System.Drawing.Font fnt = new System.Drawing.Font("Consolas", (lc[i].doubleHeight ? 22 : 15), FontStyle.Bold)) // fixed width font!
           {
             int vertOffset = (h / lc.Length) * i;
 
@@ -820,6 +821,8 @@ namespace MediaPortal.UI.Players.Video.Subtitles
     {
       lock (_subtitles)
       {
+        _sprite?.Dispose();
+        _sprite = null;
         _subtitles.ToList().ForEach(s => s.Dispose());
         _subtitles.Clear();
       }
