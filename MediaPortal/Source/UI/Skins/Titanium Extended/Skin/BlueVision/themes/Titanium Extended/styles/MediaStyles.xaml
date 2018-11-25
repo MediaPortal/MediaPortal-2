@@ -119,20 +119,15 @@
                       <RowDefinition Height="Auto"/>
                     </Grid.RowDefinitions>
 
-                    <!--Label x:Name="PlayerStateLabel" Grid.Column="0" Grid.Row="1" HorizontalAlignment="Left" VerticalAlignment="Center"
-                        Content="{Binding PlayerStateText}" Scroll="Auto" FontSize="{ThemeResource SmallFontSize}"
-                        Color="{ThemeResource TextColor}" /-->
-
                     <Label x:Name="CurrentTimeLabel" Grid.Column="1" Grid.Row="1"  Content="{Binding CurrentTime}" FontSize="{ThemeResource SmallFontSize}"
-                        Color="{ThemeResource TextColor}"  Margin="0,0,0,0" HorizontalAlignment="Right" VerticalAlignment="Center"/>
+                           Color="{ThemeResource TextColor}"  Margin="0,0,0,0" HorizontalAlignment="Right" VerticalAlignment="Center"/>
 
                     <ProgressBar x:Name="ProgressBar" Grid.Row="1" Grid.Column="2" Height="12" HorizontalAlignment="Stretch" VerticalAlignment="Center" Margin="15,5,15,0"
-                        Value="{Binding Path=PercentPlayed, Mode=TwoWay}" />
+                                 Value="{Binding Path=PercentPlayed, Mode=TwoWay}" />
 
                     <Label x:Name="VideoDurationLabel" Grid.Column="3" Grid.Row="1" Margin="0,0,0,0"
-                        Content="{Binding Duration}"  FontSize="{ThemeResource SmallFontSize}"
-                        HorizontalAlignment="Left" VerticalAlignment="Center"
-                        Color="{ThemeResource TextColor}"/>
+                           Content="{Binding Duration}"  FontSize="{ThemeResource SmallFontSize}"
+                           HorizontalAlignment="Left" VerticalAlignment="Center" Color="{ThemeResource TextColor}"/>
                   </Grid>
                   <!-- PlayerGrid -->
               </ControlTemplate>

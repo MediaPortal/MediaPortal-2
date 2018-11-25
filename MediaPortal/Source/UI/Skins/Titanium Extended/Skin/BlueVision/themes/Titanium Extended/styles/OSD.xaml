@@ -33,12 +33,6 @@
 
             <Control x:Name="OSDBackgroundPresenter" Grid.ColumnSpan="2" Grid.RowSpan="4" Margin="-30,-30,-30,-20" HorizontalAlignment="Stretch" VerticalAlignment="Top"
                      Template="{DynamicResource ResourceKey=OSD_Background_Template}">
-              <!--Control.IsVisible>
-                <MultiBinding Converter="{StaticResource InvertedMediaItemAspectToBoolConverter}">
-                  <Binding Source="{StaticResource FanArtBackgroundModel}" Path="MediaItem" />
-                  <Binding Source="{x:Static aspect:AudioAspect.ASPECT_ID}" />
-                </MultiBinding>
-              </-->
             </Control>
 
             <Control x:Name="OSDCoverPresenter" Grid.Column="0" Grid.RowSpan="3" Margin="25,15,5,20" HorizontalAlignment="Stretch" VerticalAlignment="Top"

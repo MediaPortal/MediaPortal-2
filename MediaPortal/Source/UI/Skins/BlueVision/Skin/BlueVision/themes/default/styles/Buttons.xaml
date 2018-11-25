@@ -910,8 +910,8 @@
         <ControlTemplate TargetType="{x:Type Button}">
           <DockPanel>
             <Image x:Name="UserIcon" DockPanel.Dock="Left" Height="30" Width="30" Source="User.png" Stretch="Uniform"
-                   HorizontalAlignment="Center" VerticalAlignment="Center" Opacity="0.6"/>
-            <Label x:Name="UserLabel" DockPanel.Dock="Right" Opacity="0.6" IsVisible="{Binding Source={StaticResource LoginModel}, Path=IsUserLoggedIn}"
+                   HorizontalAlignment="Center" VerticalAlignment="Center" Opacity="0.4"/>
+            <Label x:Name="UserLabel" DockPanel.Dock="Right" Opacity="0.4" IsVisible="{Binding Source={StaticResource LoginModel}, Path=IsUserLoggedIn}"
                    DataContext="{Binding Source={StaticResource LoginModel}, Path=CurrentUser}" Content="{Binding Path=Name}" 
                    Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallerFontSize}" VerticalAlignment="Center">
               <!--Label.IsVisible>
