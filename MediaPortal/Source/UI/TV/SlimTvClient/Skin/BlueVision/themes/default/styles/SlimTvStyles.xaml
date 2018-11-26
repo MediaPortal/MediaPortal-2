@@ -301,6 +301,12 @@
                     <Button x:Name="AudioActiveButton" IsVisible="{Binding IsAudio}" Style="{ThemeResource AudioActiveButtonStyle}" Command="{Command AudioButtonPressed}"/>
                     <Button x:Name="AudioInactiveButton" IsVisible="{Binding !IsAudio}" Style="{ThemeResource AudioInactiveButtonStyle}" Command="{Command AudioButtonPressed}"/>
                   </Grid>
+
+                  <Button x:Name="BackButton" Style="{ThemeResource OSDBackButtonStyle}" Margin="{ThemeResource PlayerControlButtonMargins}"
+                            Command="{Command Source={Service WorkflowManager},Path=NavigatePop,Parameters=1}"/>
+                  <Button x:Name="CloseButton" Style="{ThemeResource OSDCloseButtonStyle}" Margin="{ThemeResource PlayerControlButtonMargins}"
+                            Command="{Command Source={Service WorkflowManager},Path=NavigatePush,Parameters=BBFA7DB7-5055-48D5-A904-0F0C79849369}"/>
+
                 </StackPanel>
               </ControlTemplate>
 

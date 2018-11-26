@@ -2501,6 +2501,11 @@
         <Button x:Name="AudioActiveButton" IsVisible="{Binding IsAudio}" Style="{ThemeResource AudioActiveButtonStyle}" Command="{Command AudioButtonPressed}"/>
         <Button x:Name="AudioInactiveButton" IsVisible="{Binding !IsAudio}" Style="{ThemeResource AudioInactiveButtonStyle}" Command="{Command AudioButtonPressed}"/>
       </Grid>
+
+      <Button x:Name="BackButton" Style="{ThemeResource OSDBackButtonStyle}" Margin="{ThemeResource PlayerControlButtonMargins}"
+                            Command="{Command Source={Service WorkflowManager},Path=NavigatePop,Parameters=1}"/>
+      <Button x:Name="CloseButton" Style="{ThemeResource OSDCloseButtonStyle}" Margin="{ThemeResource PlayerControlButtonMargins}"
+                            Command="{Command Source={Service WorkflowManager},Path=NavigatePush,Parameters=BBFA7DB7-5055-48D5-A904-0F0C79849369}"/>
     </StackPanel>
   </ControlTemplate>
 
@@ -2526,6 +2531,11 @@
         <Button x:Name="AudioActiveButton" IsVisible="{Binding IsAudio}" Style="{ThemeResource AudioActiveButtonStyle}" Command="{Command AudioButtonPressed}"/>
         <Button x:Name="AudioInactiveButton" IsVisible="{Binding !IsAudio}" Style="{ThemeResource AudioInactiveButtonStyle}" Command="{Command AudioButtonPressed}"/>
       </Grid>
+
+      <Button x:Name="BackButton" Style="{ThemeResource OSDBackButtonStyle}" Margin="{ThemeResource PlayerControlButtonMargins}"
+                            Command="{Command Source={Service WorkflowManager},Path=NavigatePop,Parameters=1}"/>
+      <Button x:Name="CloseButton" Style="{ThemeResource OSDCloseButtonStyle}" Margin="{ThemeResource PlayerControlButtonMargins}"
+                            Command="{Command Source={Service WorkflowManager},Path=NavigatePush,Parameters=BBFA7DB7-5055-48D5-A904-0F0C79849369}"/>
     </StackPanel>
   </ControlTemplate>
 
@@ -2661,28 +2671,33 @@
 
                   <StackPanel x:Name="PlayControlsPanel_Back" DockPanel.Dock="Right" Orientation="Horizontal" VerticalAlignment="Center" HorizontalAlignment="Stretch" Height="40">
                     <Button x:Name="SelectContextMenuButton" Style="{ThemeResource SelectContextMenuButtonStyle}" Margin="{ThemeResource PlayerControlButtonMargins}"
-                          Command="{Command Source={StaticResource VideoPlayerModel},Path=OpenPlayerConfigurationDialog}"/>
+                            Command="{Command Source={StaticResource VideoPlayerModel},Path=OpenPlayerConfigurationDialog}"/>
                     <Button x:Name="SelectTitleButton" Style="{ThemeResource ShowDvdMenuButtonStyle}" Margin="{ThemeResource PlayerControlButtonMargins}"
-                          IsVisible="{Binding Source={StaticResource VideoPlayerModel},Path=PlayerUIContributor.TitlesAvailable}"
-                          Command="{Command Source={StaticResource VideoPlayerModel},Path=PlayerUIContributor.OpenChooseTitleDialog}"/>
+                            IsVisible="{Binding Source={StaticResource VideoPlayerModel},Path=PlayerUIContributor.TitlesAvailable}"
+                            Command="{Command Source={StaticResource VideoPlayerModel},Path=PlayerUIContributor.OpenChooseTitleDialog}"/>
                     <Button x:Name="PreviousChapterButton" Style="{ThemeResource PreviousChapterButtonStyle}" Margin="{ThemeResource PlayerControlButtonMargins}"
-                          IsVisible="{Binding Source={StaticResource VideoPlayerModel},Path=PlayerUIContributor.ChaptersAvailable}"
-                          Command="{Command Source={StaticResource VideoPlayerModel},Path=PlayerUIContributor.PrevChapter}"/>
+                            IsVisible="{Binding Source={StaticResource VideoPlayerModel},Path=PlayerUIContributor.ChaptersAvailable}"
+                            Command="{Command Source={StaticResource VideoPlayerModel},Path=PlayerUIContributor.PrevChapter}"/>
                     <Button x:Name="SelectChapterButton" Style="{ThemeResource SelectChapterButtonStyle}" Margin="{ThemeResource PlayerControlButtonMargins}"
-                          IsVisible="{Binding Source={StaticResource VideoPlayerModel},Path=PlayerUIContributor.ChaptersAvailable}"
-                          Command="{Command Source={StaticResource VideoPlayerModel},Path=PlayerUIContributor.OpenChooseChapterDialog}"/>
+                            IsVisible="{Binding Source={StaticResource VideoPlayerModel},Path=PlayerUIContributor.ChaptersAvailable}"
+                            Command="{Command Source={StaticResource VideoPlayerModel},Path=PlayerUIContributor.OpenChooseChapterDialog}"/>
                     <Button x:Name="NextChapterButton" Style="{ThemeResource NextChapterButtonStyle}" Margin="{ThemeResource PlayerControlButtonMargins}"
-                          IsVisible="{Binding Source={StaticResource VideoPlayerModel},Path=PlayerUIContributor.ChaptersAvailable}"
-                          Command="{Command Source={StaticResource VideoPlayerModel},Path=PlayerUIContributor.NextChapter}"/>
+                            IsVisible="{Binding Source={StaticResource VideoPlayerModel},Path=PlayerUIContributor.ChaptersAvailable}"
+                            Command="{Command Source={StaticResource VideoPlayerModel},Path=PlayerUIContributor.NextChapter}"/>
                     <Button x:Name="SelectSubtitleButton" Style="{ThemeResource SelectSubtitleButtonStyle}" Margin="{ThemeResource PlayerControlButtonMargins}"
-                          IsVisible="{Binding Source={StaticResource VideoPlayerModel},Path=PlayerUIContributor.SubtitlesAvailable}"
-                          Command="{Command Source={StaticResource VideoPlayerModel},Path=PlayerUIContributor.OpenChooseSubtitleDialog}"/>
+                            IsVisible="{Binding Source={StaticResource VideoPlayerModel},Path=PlayerUIContributor.SubtitlesAvailable}"
+                            Command="{Command Source={StaticResource VideoPlayerModel},Path=PlayerUIContributor.OpenChooseSubtitleDialog}"/>
 
                     <!-- No difference between "Mouse" and "No Mouse" case here, always use buttons so they are functional in OSD -->
                     <Grid x:Name="AudioPanel" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="4">
                       <Button x:Name="AudioActiveButton" IsVisible="{Binding IsAudio}" Style="{ThemeResource AudioActiveButtonStyle}" Command="{Command AudioButtonPressed}"/>
                       <Button x:Name="AudioInactiveButton" IsVisible="{Binding !IsAudio}" Style="{ThemeResource AudioInactiveButtonStyle}" Command="{Command AudioButtonPressed}"/>
                     </Grid>
+
+                    <Button x:Name="BackButton" Style="{ThemeResource OSDBackButtonStyle}" Margin="{ThemeResource PlayerControlButtonMargins}"
+                            Command="{Command Source={Service WorkflowManager},Path=NavigatePop,Parameters=1}"/>
+                    <Button x:Name="CloseButton" Style="{ThemeResource OSDCloseButtonStyle}" Margin="{ThemeResource PlayerControlButtonMargins}"
+                            Command="{Command Source={Service WorkflowManager},Path=NavigatePush,Parameters=BBFA7DB7-5055-48D5-A904-0F0C79849369}"/>
                   </StackPanel>
 
                   <Control x:Name="ProgressPresenter" DockPanel.Dock="Center" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"

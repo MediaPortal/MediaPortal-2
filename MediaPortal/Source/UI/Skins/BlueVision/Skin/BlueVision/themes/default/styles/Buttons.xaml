@@ -904,6 +904,18 @@
 
   <Style x:Key="BasePlayerControlButtonStyle" BasedOn="{ThemeResource BaseWindowButtonStyle}"/>
 
+  <Style x:Key="OSDBackButtonStyle" BasedOn="{ThemeResource BaseWindowButtonStyle}">
+    <Style.Resources>
+      <ResourceWrapper x:Key="ContentControlTemplate" Resource="{ThemeResource OSDBackControlTemplate}" />
+    </Style.Resources>
+  </Style>
+
+  <Style x:Key="OSDCloseButtonStyle" BasedOn="{ThemeResource BaseWindowButtonStyle}">
+    <Style.Resources>
+      <ResourceWrapper x:Key="ContentControlTemplate" Resource="{ThemeResource OSDCloseControlTemplate}" />
+    </Style.Resources>
+  </Style>
+
   <Style x:Key="UserButtonStyle" TargetType="{x:Type Button}">
     <Setter Property="Template">
       <Setter.Value>
