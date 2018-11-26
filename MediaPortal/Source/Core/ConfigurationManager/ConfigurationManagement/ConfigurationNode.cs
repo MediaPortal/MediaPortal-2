@@ -45,6 +45,7 @@ namespace MediaPortal.Configuration.ConfigurationManagement
   {
     #region Protected fields
 
+    protected object _syncObj = new object();
     protected bool _childrenLoaded = false;
     protected IPluginItemStateTracker _childPluginItemStateTracker = null;
 
@@ -97,48 +98,56 @@ namespace MediaPortal.Configuration.ConfigurationManagement
 
     protected void LoadChildren()
     {
-      if (_childrenLoaded)
-        return;
-      ILogger logger = ServiceRegistration.Get<ILogger>();
-      IPluginManager pluginManager = ServiceRegistration.Get<IPluginManager>();
-      string itemLocation = Constants.PLUGINTREE_BASELOCATION + Location;
-      // We'll use a FixedItemStateTracker in the hope that the configuration will be disposed
-      // after usage. The alternative would be to use a plugin item state tracker which is able to
-      // remove a config element usage. But this would mean to also expose a listener registration
-      // to the outside. I think this is not worth the labor.
-      _childPluginItemStateTracker = new FixedItemStateTracker(string.Format("ConfigurationManager: ConfigurationNode '{0}'", itemLocation));
-      ICollection<PluginItemMetadata> items = pluginManager.GetAllPluginItemMetadata(itemLocation);
-      IDictionary<string, object> childSet = new Dictionary<string, object>();
-      foreach (PluginItemMetadata itemMetadata in items)
+      lock (_syncObj)
       {
-        try
+        if (_childrenLoaded)
+          return;
+        ILogger logger = ServiceRegistration.Get<ILogger>();
+        IPluginManager pluginManager = ServiceRegistration.Get<IPluginManager>();
+        string itemLocation = Constants.PLUGINTREE_BASELOCATION + Location;
+        // We'll use a FixedItemStateTracker in the hope that the configuration will be disposed
+        // after usage. The alternative would be to use a plugin item state tracker which is able to
+        // remove a config element usage. But this would mean to also expose a listener registration
+        // to the outside. I think this is not worth the labor.
+        _childPluginItemStateTracker = new FixedItemStateTracker(string.Format("ConfigurationManager: ConfigurationNode '{0}'", itemLocation));
+        ICollection<PluginItemMetadata> items = pluginManager.GetAllPluginItemMetadata(itemLocation);
+        ISet<string> childSet = new HashSet<string>();
+        foreach (PluginItemMetadata itemMetadata in items)
         {
-          ConfigBaseMetadata metadata = pluginManager.RequestPluginItem<ConfigBaseMetadata>(itemMetadata.RegistrationLocation, itemMetadata.Id, _childPluginItemStateTracker);
-          ConfigBase childObj = Instantiate(metadata, itemMetadata.PluginRuntime);
-          if (childObj == null)
+          try
+          {
+            ConfigBaseMetadata metadata = pluginManager.RequestPluginItem<ConfigBaseMetadata>(itemMetadata.RegistrationLocation, itemMetadata.Id, _childPluginItemStateTracker);
+            ConfigBase childObj = Instantiate(metadata, itemMetadata.PluginRuntime);
+            if (childObj == null)
+              continue;
+            AddChildNode(childObj);
+            childSet.Add(metadata.Id);
+          }
+          catch (PluginInvalidStateException e)
+          {
+            logger.Warn("Cannot add configuration node for {0}", e, itemMetadata);
+          }
+        }
+        ICollection<string> childLocations = pluginManager.GetAvailableChildLocations(itemLocation);
+        foreach (string childLocation in childLocations)
+        {
+          string childId = RegistryHelper.GetLastPathSegment(childLocation);
+          if (childSet.Contains(childId))
             continue;
-          AddChildNode(childObj);
-          childSet.Add(metadata.Id, null);
+          logger.Warn("Configuration: Configuration section '{0}' was found in the tree but not explicitly registered as section (config items in this section are registered by those plugins: {1})",
+                      childLocation, StringUtils.Join(", ", FindPluginRegistrations(childLocation)));
+          ConfigSectionMetadata dummyMetadata = new ConfigSectionMetadata(childLocation, Constants.INVALID_SECTION_TEXT, null, null, null, null);
+          ConfigSection dummySection = new ConfigSection();
+          dummySection.SetMetadata(dummyMetadata);
+          AddChildNode(dummySection);
         }
-        catch (PluginInvalidStateException e)
-        {
-          logger.Warn("Cannot add configuration node for {0}", e, itemMetadata);
-        }
+        _childrenLoaded = true;
       }
-      ICollection<string> childLocations = pluginManager.GetAvailableChildLocations(itemLocation);
-      foreach (string childLocation in childLocations)
-      {
-        string childId = RegistryHelper.GetLastPathSegment(childLocation);
-        if (childSet.ContainsKey(childId))
-          continue;
-        logger.Warn("Configuration: Configuration section '{0}' was found in the tree but not explicitly registered as section (config items in this section are registered by those plugins: {1})",
-                    childLocation, StringUtils.Join(", ", FindPluginRegistrations(childLocation)));
-        ConfigSectionMetadata dummyMetadata = new ConfigSectionMetadata(childLocation, Constants.INVALID_SECTION_TEXT, null, null, null, null);
-        ConfigSection dummySection = new ConfigSection();
-        dummySection.SetMetadata(dummyMetadata);
-        AddChildNode(dummySection);
-      }
-      _childrenLoaded = true;
+
+      // Attach listeners after all children have been loaded
+      // so that searching for child locations works correctly.
+      foreach (var node in _childNodes)
+        AttachListenToLocations(node.ConfigObj);
     }
 
     /// <summary>
@@ -182,17 +191,6 @@ namespace MediaPortal.Configuration.ConfigurationManagement
           if (cs == null)
             throw new ArgumentException(string.Format("Configuration class '{0}' not found", csm.ClassName));
           cs.Load();
-          if (csm.ListenTo != null)
-            foreach (string listenToLocation in csm.ListenTo)
-            {
-              IConfigurationNode node;
-              if (FindNode(listenToLocation, out node))
-                if (node.ConfigObj is ConfigSetting)
-                  cs.ListenTo((ConfigSetting) node.ConfigObj);
-                else
-                  ServiceRegistration.Get<ILogger>().Warn("ConfigurationNode '{0}': Trying to listen to setting, but location '{1}' references a {2}",
-                                                   Location, listenToLocation, node.ConfigObj.GetType().Name);
-            }
           result = cs;
         }
         catch (Exception ex)
@@ -205,6 +203,26 @@ namespace MediaPortal.Configuration.ConfigurationManagement
         throw new NotImplementedException(string.Format("Unknown child class '{0}' of '{1}'", metadata.GetType().FullName, typeof(ConfigBaseMetadata).FullName));
       result.SetMetadata(metadata);
       return result;
+    }
+
+    protected void AttachListenToLocations(ConfigBase config)
+    {
+      ConfigSetting setting = config as ConfigSetting;
+      if (setting == null)
+        return;
+      ConfigSettingMetadata csm = (ConfigSettingMetadata)setting.Metadata;
+      if (csm.ListenTo == null)
+        return;
+      foreach (string listenToLocation in csm.ListenTo)
+      {
+        IConfigurationNode node;
+        if (FindNode(listenToLocation, out node))
+          if (node.ConfigObj is ConfigSetting)
+            setting.ListenTo((ConfigSetting)node.ConfigObj);
+          else
+            ServiceRegistration.Get<ILogger>().Warn("ConfigurationNode '{0}': Trying to listen to setting, but location '{1}' references a {2}",
+                                             Location, listenToLocation, node.ConfigObj.GetType().Name);
+      }
     }
 
     #endregion
