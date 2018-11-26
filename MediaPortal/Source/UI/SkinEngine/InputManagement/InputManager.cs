@@ -186,6 +186,7 @@ namespace MediaPortal.UI.SkinEngine.InputManagement
     protected Queue<ParameterlessMethod> _commandQueue = new Queue<ParameterlessMethod>(30);
     protected ManualResetEvent _terminatedEvent = new ManualResetEvent(false);
     protected AutoResetEvent _inputAvailableEvent = new AutoResetEvent(false);
+    protected ManualResetEvent _timoutTimerResetEvent = new ManualResetEvent(false);
 
     protected static InputManager _instance = null;
     protected static object _syncObj = new object();
@@ -280,26 +281,9 @@ namespace MediaPortal.UI.SkinEngine.InputManagement
 
     protected void TryEvent_NoLock(InputEvent evt)
     {
-      bool showBusyScreen = false;
       lock (_syncObj)
-      {
         if (IsTerminated)
           return;
-        if (_callingClientStart.HasValue && _callingClientStart.Value < DateTime.Now - BUSY_TIMEOUT)
-        { // Client call lasts longer than our BUSY_TIMEOUT
-          ClearInputBuffer(); // Discard all later input
-          if (!_busyScreenVisible)
-            showBusyScreen = true;
-        }
-      }
-      if (showBusyScreen)
-      {
-        ISuperLayerManager superLayerManager = ServiceRegistration.Get<ISuperLayerManager>();
-        superLayerManager.ShowBusyScreen();
-        lock (_syncObj)
-          _busyScreenVisible = true;
-        return; // Finished, no further processing
-      }
       EnqueueEvent(evt);
     }
 
@@ -320,8 +304,18 @@ namespace MediaPortal.UI.SkinEngine.InputManagement
 
     protected void Dispatch(object o)
     {
+      System.Threading.Timer timer;
       lock (_syncObj)
+      {
         _callingClientStart = DateTime.Now;
+        // Start a timer to show the busy screen if we don't complete the event within the timeout.
+        // We create a new timer on every event so that we can use it's Dispose(WaitHandle) to
+        // ensure that the callback has either finished or is guaranteed not to run after we have
+        // checked whether to hide the busy screen below. This shouldn't have a negative performance
+        // impact because the Timer class is specifically designed for this scenario.
+        // See comment here: https://referencesource.microsoft.com/#mscorlib/system/threading/timer.cs,32
+        timer = new System.Threading.Timer(BusyTimeoutTimerCallback, null, BUSY_TIMEOUT, Timeout.InfiniteTimeSpan);
+      }
       try
       {
         ParameterlessMethod cmd = o as ParameterlessMethod;
@@ -337,6 +331,12 @@ namespace MediaPortal.UI.SkinEngine.InputManagement
       }
       finally
       {
+        // Make sure the timer callback is guaranteed not to run
+        // before checking whether the busy screen has been shown.
+        _timoutTimerResetEvent.Reset();
+        timer.Dispose(_timoutTimerResetEvent);
+        _timoutTimerResetEvent.WaitOne();
+
         bool hideBusyScreen;
         lock (_syncObj)
         {
@@ -350,6 +350,24 @@ namespace MediaPortal.UI.SkinEngine.InputManagement
           superLayerManager.HideBusyScreen();
         }
       }
+    }
+
+    private void BusyTimeoutTimerCallback(object state)
+    {
+      lock (_syncObj)
+      {
+        if (IsTerminated || !_callingClientStart.HasValue)
+          return;
+        // Client call lasts longer than our BUSY_TIMEOUT
+        ClearInputBuffer(); // Discard all later input
+        if (_busyScreenVisible)
+          return;
+      }
+
+      ISuperLayerManager superLayerManager = ServiceRegistration.Get<ISuperLayerManager>();
+      superLayerManager.ShowBusyScreen();
+      lock (_syncObj)
+        _busyScreenVisible = true;
     }
 
     protected void EnqueueEvent(InputEvent evt)
