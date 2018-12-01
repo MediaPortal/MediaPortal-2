@@ -39,7 +39,7 @@
     <Setter Property="Template">
       <Setter.Value>
         <ControlTemplate>
-          <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+          <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Height="265">
             <Grid.RowDefinitions>
               <RowDefinition Height="Auto"/>
               <RowDefinition Height="Auto"/>
@@ -83,11 +83,7 @@
                    Color="{DynamicResource ProgramFontColor}"/>
 
             <Label Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="5" x:Name="Description" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
-                   Wrap="True" Scroll="Auto"
-                   Height="{ThemeResource OSDDetailLabelHeight}"
-                   Content="{Binding Description}"
-                   Color="{ThemeResource TextColor}"
-                   ScrollSpeed="15" />
+                   Wrap="True" Scroll="Auto" Content="{Binding Description}" Color="{ThemeResource TextColor}" ScrollSpeed="15" />
 
             <!-- Dummy button which makes the panel focusable -->
             <Button Style="{ThemeResource EmptyStyle}" SetFocusPrio="{DynamicResource ButtonFocus}"/>
@@ -130,7 +126,7 @@
             </StackPanel>
 
             <!-- Arrow down -->
-            <StackPanel VerticalAlignment="Bottom" HorizontalAlignment="Center">
+            <StackPanel VerticalAlignment="Top" HorizontalAlignment="Center">
               <StackPanel.IsVisible>
                 <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0}==0 &amp;&amp; {1}">
                   <TemplateBinding Path="ScrollBarYKnobPos" />
@@ -172,142 +168,161 @@
             <Model x:Key="VideoPlayerModel" Id="4E2301B4-3C17-4a1d-8DE5-2CEA169A0256"/>
           </ControlTemplate.Resources>
 
-
-          <Control Style="{ThemeResource OSDContainer}" Width="{ThemeResource FullScreenContentVideoPrimaryPlayerOSDWidth}" DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}">
+          <Control Style="{ThemeResource OSDContainer}" Width="{ThemeResource FullScreenContentVideoPrimaryPlayerOSDWidth}" 
+                   DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}">
             <Control.Resources>
-              <ResourceWrapper x:Key="ProgramDetailsHeight" Resource="280"/>
-              <ControlTemplate x:Key="OSD_Cover_Template">
-                <Image x:Name="ChannelLogo" Stretch="Uniform" Width="180" Margin="10" VerticalAlignment="Top" Context="{StaticResource SlimTvClient}">
-                  <Image.Source>
-                    <fanart:FanArtImageSource fanart:FanArtMediaType="{Binding ChannelLogoType}" fanart:FanArtType="Banner" fanart:FanArtName="{Binding ChannelName}"
-                                              fanart:MaxWidth="0" fanart:MaxHeight="0"/>
-                  </Image.Source>
-                </Image>
+              <!--ResourceWrapper x:Key="ProgramDetailsHeight" Resource="180"/-->
+
+              <ControlTemplate x:Key="OSD_Background_Template">
+                <Grid HorizontalAlignment="Stretch" VerticalAlignment="Bottom" Margin="0,-110,0,0">
+                  <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                  </Grid.ColumnDefinitions>
+                  <Grid.RowDefinitions>
+                    <RowDefinition Height="*"/>
+                  </Grid.RowDefinitions>
+                  <Image Source="OSD_background_large.png" Stretch="Uniform" HorizontalAlignment="Stretch" VerticalAlignment="Bottom"/>
+                </Grid>
               </ControlTemplate>
+
+              <ControlTemplate x:Key="OSD_Cover_Template">
+                <Grid VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
+                  <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                  </Grid.ColumnDefinitions>
+                  <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                  </Grid.RowDefinitions>
+                  <Image x:Name="ChannelLogo" Stretch="Uniform" Height="90" Margin="-5,20,0,20" VerticalAlignment="Top" Context="{StaticResource SlimTvClient}">
+                    <Image.Source>
+                      <fanart:FanArtImageSource fanart:FanArtMediaType="{Binding ChannelLogoType}" fanart:FanArtType="Banner" fanart:FanArtName="{Binding ChannelName}"
+                                              fanart:MaxWidth="0" fanart:MaxHeight="0"/>
+                    </Image.Source>
+                  </Image>
+                </Grid>
+              </ControlTemplate>
+
               <ControlTemplate x:Key="OSD_InfoArea_Template">
+                <Grid x:Name="InfoGrid" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Margin="0,-110,0,0"
+                      DataContext="{Binding Source={StaticResource SlimTvClient}}">
+                  <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                  </Grid.ColumnDefinitions>
+                  <Grid.RowDefinitions>
+                    <RowDefinition Height="*"/>
+                  </Grid.RowDefinitions>
 
-                <DockPanel LastChildFill="true" Margin="3" DataContext="{Binding Source={StaticResource SlimTvClient}}">
+                  <!-- Now / next program informations -->
+                  <ListView Style="{ThemeResource ProgramInfoListViewStyle}" Margin="0,0,0,10" HorizontalAlignment="Stretch">
 
-                  <Grid DockPanel.Dock="Center" HorizontalAlignment="Stretch">
-                    <Grid.ColumnDefinitions>
-                      <ColumnDefinition Width="*"/>
-                    </Grid.ColumnDefinitions>
-                    <Grid.RowDefinitions>
-                      <RowDefinition Height="Auto"/>
-                      <RowDefinition Height="Auto"/>
-                    </Grid.RowDefinitions>
+                    <!-- Current Program detailed information -->
+                    <Control Style="{ThemeResource OSDProgramDetailsTemplate}" Context="{Binding Source={StaticResource SlimTvClient},Path=CurrentProgram}">
+                      <Control.Resources>
+                        <ResourceWrapper x:Key="ProgramFontColor" Resource="{ThemeResource TextColor}"/>
+                        <ResourceWrapper x:Key="ButtonFocus" Resource="Default"/>
+                      </Control.Resources>
+                    </Control>
 
-                    <!-- Now / next program informations -->
-                    <ListView Grid.Column="0" Grid.Row="1" Height="{StaticResource ProgramDetailsHeight}" Style="{ThemeResource ProgramInfoListViewStyle}"
-                              Margin="0,0,0,20">
+                    <!-- Next Program detailed information -->
+                    <Control Style="{ThemeResource OSDProgramDetailsTemplate}" Context="{Binding Source={StaticResource SlimTvClient},Path=NextProgram}">
+                      <Control.Resources>
+                        <ResourceWrapper x:Key="ProgramFontColor" Resource="{ThemeResource NextProgramLabelColor}"/>
+                        <ResourceWrapper x:Key="ButtonFocus" Resource="None"/>
+                      </Control.Resources>
+                    </Control>
 
-                      <!-- Current Program detailed information -->
-                      <Control Style="{ThemeResource OSDProgramDetailsTemplate}" Context="{Binding Source={StaticResource SlimTvClient},Path=CurrentProgram}">
-                        <Control.Resources>
-                          <ResourceWrapper x:Key="ProgramFontColor" Resource="{ThemeResource TextColor}"/>
-                          <ResourceWrapper x:Key="ButtonFocus" Resource="Default"/>
-                        </Control.Resources>
-                      </Control>
+                  </ListView>
 
-                      <!-- Next Program detailed information -->
-                      <Control Style="{ThemeResource OSDProgramDetailsTemplate}" Context="{Binding Source={StaticResource SlimTvClient},Path=NextProgram}">
-                        <Control.Resources>
-                          <ResourceWrapper x:Key="ProgramFontColor" Resource="{ThemeResource NextProgramLabelColor}"/>
-                          <ResourceWrapper x:Key="ButtonFocus" Resource="None"/>
-                        </Control.Resources>
-                      </Control>
-
-                    </ListView>
-
-                    <!--<Label x:Name="TimeLabel" Color="{ThemeResource TextColor}" FontSize="{ThemeResource BigFontSize}"
+                  <!--<Label x:Name="TimeLabel" Color="{ThemeResource TextColor}" FontSize="{ThemeResource BigFontSize}"
                         HorizontalAlignment="Center" VerticalAlignment="Center" Grid.Column="2" Grid.Row="0" Grid.RowSpan="2" 
                         Content="{Binding Source={StaticResource TimeModel}, Path=CurrentTime}" />-->
-
-                  </Grid>
-                </DockPanel>
+                </Grid>
               </ControlTemplate>
 
               <ControlTemplate x:Key="OSD_Progress_Template">
-
-                <DockPanel LastChildFill="true" Margin="10,3,30,3" DataContext="{Binding Source={StaticResource SlimTvClient}}">
-                  <Grid DockPanel.Dock="Center" HorizontalAlignment="Stretch">
+                <DockPanel LastChildFill="true" Margin="3" >
+                  <Grid DockPanel.Dock="Center" HorizontalAlignment="Stretch" DataContext="{Binding Source={StaticResource SlimTvClient}}">
                     <Grid.ColumnDefinitions>
-                      <ColumnDefinition Width="Auto"/>
+                      <ColumnDefinition Width="100"/>
                       <ColumnDefinition Width="*"/>
-                      <ColumnDefinition Width="Auto"/>
+                      <ColumnDefinition Width="100"/>
                     </Grid.ColumnDefinitions>
                     <Grid.RowDefinitions>
                       <RowDefinition Height="Auto"/>
                     </Grid.RowDefinitions>
 
-                    <Label x:Name="CurrentProgramStartLabel" Grid.Column="0"
+                    <Label x:Name="CurrentProgramStartLabel" Grid.Column="0" Margin="5,0,5,0"
                         Content="{Binding Path=CurrentProgram.StartTime, Converter={StaticResource SlimTvDateFormatConverter}}"
-                        Color="{ThemeResource TextColor}" HorizontalAlignment="Left" VerticalAlignment="Center"
-                        FontSize="{ThemeResource SmallFontSize}"/>
-
-                    <ProgressBar x:Name="CurrentProgramProgress" Grid.Column="1" Height="18" HorizontalAlignment="Stretch" VerticalAlignment="Center" Margin="30,5,30,0"
-                        Style="{ThemeResource OSDProgressBarStyle}" Value="{Binding Source={StaticResource SlimTvClient},Path=ProgramProgress}" />
-
-                    <Label x:Name="CurrentProgramEndLabel" Grid.Column="2"
-                        Content="{Binding Path=CurrentProgram.EndTime, Converter={StaticResource SlimTvDateFormatConverter}}"
                         Color="{ThemeResource TextColor}" HorizontalAlignment="Right" VerticalAlignment="Center"
                         FontSize="{ThemeResource SmallFontSize}"/>
 
+                    <ProgressBar x:Name="CurrentProgramProgress" Grid.Column="1" Height="18" HorizontalAlignment="Stretch" VerticalAlignment="Center" Margin="5,5,5,0"
+                        Style="{ThemeResource OSDProgressBarStyle}" Value="{Binding Source={StaticResource SlimTvClient},Path=ProgramProgress}" />
+
+                    <Label x:Name="CurrentProgramEndLabel" Grid.Column="2" Margin="5,0,5,0"
+                        Content="{Binding Path=CurrentProgram.EndTime, Converter={StaticResource SlimTvDateFormatConverter}}"
+                        Color="{ThemeResource TextColor}" HorizontalAlignment="Left" VerticalAlignment="Center"
+                        FontSize="{ThemeResource SmallFontSize}"/>
                   </Grid>
                 </DockPanel>
               </ControlTemplate>
 
               <ControlTemplate x:Key="OSD_Controls_Template">
-                <StackPanel x:Name="PlayControlsPanel" Orientation="Horizontal" VerticalAlignment="Center" HorizontalAlignment="Center">
-                  <!-- Morpheus_xx: we want to see buttons always, not only when using mouse // IsVisible="{Binding ShowMouseControls}" -->
-                  <Button x:Name="SkipBackButton" Style="{ThemeResource SkipBackButtonStyle}" Margin="{ThemeResource PlayerControlButtonMargins}" IsVisible="{Binding CanSkipBack}"
+                <DockPanel x:Name="PlayControlsPanel" LastChildFill="False" VerticalAlignment="Bottom" HorizontalAlignment="Stretch" Margin="0,0,0,0">
+
+                  <StackPanel x:Name="PlayControlsPanel_Front" DockPanel.Dock="Left" Orientation="Horizontal" VerticalAlignment="Center" HorizontalAlignment="Stretch" Height="40">
+                    <Button x:Name="SkipBackButton" Style="{ThemeResource SkipBackButtonStyle}" Margin="{ThemeResource PlayerControlButtonMargins}" IsVisible="{Binding CanSkipBack}"
                           Command="{Command Previous}"/>
-                  <Button x:Name="RewindButton" Style="{ThemeResource RewindButtonStyle}" Margin="{ThemeResource PlayerControlButtonMargins}" IsVisible="{Binding CanSeekBackward}"
+                    <Button x:Name="RewindButton" Style="{ThemeResource RewindButtonStyle}" Margin="{ThemeResource PlayerControlButtonMargins}" IsVisible="{Binding CanSeekBackward}"
                           Command="{Command SeekBackward}"/>
-                  <Button x:Name="PlayButton" Style="{ThemeResource PlayButtonStyle}" Margin="{ThemeResource PlayerControlButtonMargins}" IsVisible="{Binding CanPlay}"
+                    <Button x:Name="PlayButton" Style="{ThemeResource PlayButtonStyle}" Margin="{ThemeResource PlayerControlButtonMargins}" IsVisible="{Binding CanPlay}"
                           Command="{Command Play}"/>
-                  <Button x:Name="PauseButton" Style="{ThemeResource PauseButtonStyle}" Margin="{ThemeResource PlayerControlButtonMargins}" IsVisible="{Binding CanPause}"
+                    <Button x:Name="PauseButton" Style="{ThemeResource PauseButtonStyle}" Margin="{ThemeResource PlayerControlButtonMargins}" IsVisible="{Binding CanPause}"
                           Command="{Command Pause}"/>
-                  <Button x:Name="StopButton" Style="{ThemeResource StopButtonStyle}" Margin="{ThemeResource PlayerControlButtonMargins}" IsVisible="{Binding CanStop}"
+                    <Button x:Name="StopButton" Style="{ThemeResource StopButtonStyle}" Margin="{ThemeResource PlayerControlButtonMargins}" IsVisible="{Binding CanStop}"
                           Command="{Command Stop}"/>
-                  <Button x:Name="ForwardButton" Style="{ThemeResource ForwardButtonStyle}" Margin="{ThemeResource PlayerControlButtonMargins}" IsVisible="{Binding CanSeekForward}"
+                    <Button x:Name="ForwardButton" Style="{ThemeResource ForwardButtonStyle}" Margin="{ThemeResource PlayerControlButtonMargins}" IsVisible="{Binding CanSeekForward}"
                           Command="{Command SeekForward}"/>
-                  <Button x:Name="SkipForwardButton" Style="{ThemeResource SkipForwardButtonStyle}" Margin="{ThemeResource PlayerControlButtonMargins}" IsVisible="{Binding CanSkipForward}"
+                    <Button x:Name="SkipForwardButton" Style="{ThemeResource SkipForwardButtonStyle}" Margin="{ThemeResource PlayerControlButtonMargins}" IsVisible="{Binding CanSkipForward}"
                           Command="{Command Next}"/>
+                  </StackPanel>
 
-                  <Control x:Name="ProgressPresenter" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
-                           Template="{DynamicResource ResourceKey=OSD_Progress_Template}" Margin="20,0,20,0"/>
-
-                  <Button x:Name="SelectContextMenuButton" Style="{ThemeResource SelectContextMenuButtonStyle}" Margin="{ThemeResource PlayerControlButtonMargins}"
+                  <StackPanel x:Name="PlayControlsPanel_Back" DockPanel.Dock="Right" Orientation="Horizontal" VerticalAlignment="Center" HorizontalAlignment="Stretch" Height="40">
+                    <Button x:Name="SelectContextMenuButton" Style="{ThemeResource SelectContextMenuButtonStyle}" Margin="{ThemeResource PlayerControlButtonMargins}"
                           Command="{Command Source={StaticResource VideoPlayerModel},Path=OpenPlayerConfigurationDialog}"/>
-                  <Button x:Name="SelectTitleButton" Style="{ThemeResource ShowDvdMenuButtonStyle}" Margin="{ThemeResource PlayerControlButtonMargins}"
+                    <Button x:Name="SelectTitleButton" Style="{ThemeResource ShowDvdMenuButtonStyle}" Margin="{ThemeResource PlayerControlButtonMargins}"
                           IsVisible="{Binding Source={StaticResource VideoPlayerModel},Path=PlayerUIContributor.TitlesAvailable}"
                           Command="{Command Source={StaticResource VideoPlayerModel},Path=PlayerUIContributor.OpenChooseTitleDialog}"/>
-                  <Button x:Name="PreviousChapterButton" Style="{ThemeResource PreviousChapterButtonStyle}" Margin="{ThemeResource PlayerControlButtonMargins}"
+                    <Button x:Name="PreviousChapterButton" Style="{ThemeResource PreviousChapterButtonStyle}" Margin="{ThemeResource PlayerControlButtonMargins}"
                           IsVisible="{Binding Source={StaticResource VideoPlayerModel},Path=PlayerUIContributor.ChaptersAvailable}"
                           Command="{Command Source={StaticResource VideoPlayerModel},Path=PlayerUIContributor.PrevChapter}"/>
-                  <Button x:Name="SelectChapterButton" Style="{ThemeResource SelectChapterButtonStyle}" Margin="{ThemeResource PlayerControlButtonMargins}"
+                    <Button x:Name="SelectChapterButton" Style="{ThemeResource SelectChapterButtonStyle}" Margin="{ThemeResource PlayerControlButtonMargins}"
                           IsVisible="{Binding Source={StaticResource VideoPlayerModel},Path=PlayerUIContributor.ChaptersAvailable}"
                           Command="{Command Source={StaticResource VideoPlayerModel},Path=PlayerUIContributor.OpenChooseChapterDialog}"/>
-                  <Button x:Name="NextChapterButton" Style="{ThemeResource NextChapterButtonStyle}" Margin="{ThemeResource PlayerControlButtonMargins}"
+                    <Button x:Name="NextChapterButton" Style="{ThemeResource NextChapterButtonStyle}" Margin="{ThemeResource PlayerControlButtonMargins}"
                           IsVisible="{Binding Source={StaticResource VideoPlayerModel},Path=PlayerUIContributor.ChaptersAvailable}"
                           Command="{Command Source={StaticResource VideoPlayerModel},Path=PlayerUIContributor.NextChapter}"/>
-                  <Button x:Name="SelectSubtitleButton" Style="{ThemeResource SelectSubtitleButtonStyle}" Margin="{ThemeResource PlayerControlButtonMargins}"
+                    <Button x:Name="SelectSubtitleButton" Style="{ThemeResource SelectSubtitleButtonStyle}" Margin="{ThemeResource PlayerControlButtonMargins}"
                           IsVisible="{Binding Source={StaticResource VideoPlayerModel},Path=PlayerUIContributor.SubtitlesAvailable}"
                           Command="{Command Source={StaticResource VideoPlayerModel},Path=PlayerUIContributor.OpenChooseSubtitleDialog}"/>
 
-                  <!-- No difference between "Mouse" and "No Mouse" case here, always use buttons so they are functional in OSD -->
-                  <Grid x:Name="AudioPanel" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="4">
-                    <Button x:Name="AudioActiveButton" IsVisible="{Binding IsAudio}" Style="{ThemeResource AudioActiveButtonStyle}" Command="{Command AudioButtonPressed}"/>
-                    <Button x:Name="AudioInactiveButton" IsVisible="{Binding !IsAudio}" Style="{ThemeResource AudioInactiveButtonStyle}" Command="{Command AudioButtonPressed}"/>
-                  </Grid>
+                    <!-- No difference between "Mouse" and "No Mouse" case here, always use buttons so they are functional in OSD -->
+                    <Grid x:Name="AudioPanel" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="4">
+                      <Button x:Name="AudioActiveButton" IsVisible="{Binding IsAudio}" Style="{ThemeResource AudioActiveButtonStyle}" Command="{Command AudioButtonPressed}"/>
+                      <Button x:Name="AudioInactiveButton" IsVisible="{Binding !IsAudio}" Style="{ThemeResource AudioInactiveButtonStyle}" Command="{Command AudioButtonPressed}"/>
+                    </Grid>
 
-                  <Button x:Name="BackButton" Style="{ThemeResource OSDBackButtonStyle}" Margin="{ThemeResource PlayerControlButtonMargins}"
+                    <Button x:Name="BackButton" Style="{ThemeResource OSDBackButtonStyle}" Margin="{ThemeResource PlayerControlButtonMargins}"
                             Command="{Command Source={Service WorkflowManager},Path=NavigatePop,Parameters=1}"/>
-                  <Button x:Name="CloseButton" Style="{ThemeResource OSDCloseButtonStyle}" Margin="{ThemeResource PlayerControlButtonMargins}"
+                    <Button x:Name="CloseButton" Style="{ThemeResource OSDCloseButtonStyle}" Margin="{ThemeResource PlayerControlButtonMargins}"
                             Command="{Command Source={Service WorkflowManager},Path=NavigatePush,Parameters=BBFA7DB7-5055-48D5-A904-0F0C79849369}"/>
+                  </StackPanel>
 
-                </StackPanel>
+                  <Control x:Name="ProgressPresenter" DockPanel.Dock="Center" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+                           Template="{DynamicResource ResourceKey=OSD_Progress_Template}" Margin="20,0,20,0"/>
+
+                </DockPanel>
               </ControlTemplate>
 
             </Control.Resources>

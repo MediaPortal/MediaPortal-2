@@ -23,25 +23,24 @@
               <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
             <Grid.RowDefinitions>
-              <RowDefinition Height="Auto"/>
-              <RowDefinition Height="Auto"/>
+              <RowDefinition Height="*"/>
               <RowDefinition Height="70"/>
             </Grid.RowDefinitions>
 
-            <Control x:Name="OSDBackgroundPresenter" Grid.ColumnSpan="2" Grid.RowSpan="3" Margin="-85,-35,-85,-25" HorizontalAlignment="Stretch" VerticalAlignment="Top"
+            <Control x:Name="OSDBackgroundPresenter" Grid.ColumnSpan="2" Grid.RowSpan="2" Margin="-85,-35,-85,-25" HorizontalAlignment="Stretch" VerticalAlignment="Top"
                      Template="{DynamicResource ResourceKey=OSD_Background_Template}"/>
 
-            <Control Grid.Column="0" Grid.Row="0" Grid.RowSpan="2" x:Name="OSDCoverPresenter" HorizontalAlignment="Center" VerticalAlignment="Center"
-                     Template="{DynamicResource ResourceKey=OSD_Cover_Template}" Margin="25,0,10,0"/>
+            <Control Grid.Column="0" Grid.Row="0" x:Name="OSDCoverPresenter" HorizontalAlignment="Center" VerticalAlignment="Center"
+                     Template="{DynamicResource ResourceKey=OSD_Cover_Template}" Margin="25,20,10,0"/>
 
-            <Control Grid.Column="1" Grid.Row="0" Grid.RowSpan="2" x:Name="OSDInfoAreaPresenter" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+            <Control Grid.Column="1" Grid.Row="0" x:Name="OSDInfoAreaPresenter" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
                      Template="{DynamicResource ResourceKey=OSD_InfoArea_Template}" Margin="20,20,0,0"/>
 
             <!--Control Grid.Column="1" Grid.Row="2" x:Name="ProgressPresenter" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
                      Template="{DynamicResource ResourceKey=OSD_Progress_Template}" Margin="20,0,20,0"/-->
 
-            <Control x:Name="ControlsPresenter" Grid.ColumnSpan="2" Grid.Row="2" HorizontalAlignment="Stretch" VerticalAlignment="Top"
-                     Template="{DynamicResource ResourceKey=OSD_Controls_Template}" Margin="20,-20,20,0" SetFocusPrio="Default"/>
+            <Control x:Name="ControlsPresenter" Grid.ColumnSpan="2" Grid.Row="1" HorizontalAlignment="Stretch" VerticalAlignment="Top"
+                     Template="{DynamicResource ResourceKey=OSD_Controls_Template}" Margin="20,0,20,-20" SetFocusPrio="Default"/>
           </Grid>
         </ControlTemplate>
       </Setter.Value>

@@ -2621,8 +2621,8 @@
                   </Grid.RowDefinitions>
 
                   <Label x:Name="VideoName" Content="{Binding Path=MediaItemTitle}" Color="{ThemeResource TextColor}"
-                        FontSize="{ThemeResource OsdTitleFontSize}" FontFamily="DefaultBold"
-                        Scroll="Auto" HorizontalAlignment="Left" VerticalAlignment="Center"/>
+                         FontSize="{ThemeResource OsdTitleFontSize}" FontFamily="DefaultBold"
+                         Scroll="Auto" HorizontalAlignment="Left" VerticalAlignment="Center"/>
 
                   <media:VideoAspectWrapper MediaItem="{Binding Path=MediaItem}" Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2">
                     <media:VideoAspectWrapper.Template>
