@@ -269,7 +269,7 @@
               </ControlTemplate>
 
               <ControlTemplate x:Key="OSD_Controls_Template">
-                <DockPanel x:Name="PlayControlsPanel" LastChildFill="False" VerticalAlignment="Bottom" HorizontalAlignment="Stretch" Margin="0,0,0,0">
+                <DockPanel x:Name="PlayControlsPanel" LastChildFill="False" VerticalAlignment="Bottom" HorizontalAlignment="Stretch">
 
                   <StackPanel x:Name="PlayControlsPanel_Front" DockPanel.Dock="Left" Orientation="Horizontal" VerticalAlignment="Center" HorizontalAlignment="Stretch" Height="40">
                     <Button x:Name="SkipBackButton" Style="{ThemeResource SkipBackButtonStyle}" Margin="{ThemeResource PlayerControlButtonMargins}" IsVisible="{Binding CanSkipBack}"
