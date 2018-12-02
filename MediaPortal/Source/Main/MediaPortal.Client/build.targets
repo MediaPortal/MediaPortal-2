@@ -14,7 +14,7 @@
       <BaseFiles Include="$(SolutionDir)Base\Client\**\*.*" />
     </ItemGroup>
   
-      <Copy SourceFiles="@(References)" DestinationFolder="$(AppDestination)" />
+    <Copy SourceFiles="@(References)" DestinationFolder="$(AppDestination)" />
     <Copy SourceFiles="@(BaseFiles)"
           DestinationFiles="@(BaseFiles->'$(AppDestination)%(RecursiveDir)%(Filename)%(Extension)')" />
 
