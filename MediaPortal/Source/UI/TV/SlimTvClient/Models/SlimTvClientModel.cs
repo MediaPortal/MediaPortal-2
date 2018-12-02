@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2017 Team MediaPortal
+#region Copyright (C) 2007-2018 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2017 Team MediaPortal
+    Copyright (C) 2007-2018 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -893,7 +893,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
               {
                 currentProgram = result.Result[0];
                 nextProgram = result.Result[1];
-                double progress = (DateTime.Now - currentProgram.StartTime).TotalSeconds /
+                double progress = currentProgram == null ? 100d : (DateTime.Now - currentProgram.StartTime).TotalSeconds /
                                   (currentProgram.EndTime - currentProgram.StartTime).TotalSeconds * 100;
                 _programProgressProperty.SetValue(progress);
               }

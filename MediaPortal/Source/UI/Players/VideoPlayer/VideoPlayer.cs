@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2017 Team MediaPortal
+#region Copyright (C) 2007-2018 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2017 Team MediaPortal
+    Copyright (C) 2007-2018 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -284,8 +284,7 @@ namespace MediaPortal.UI.Players.Video
       if (_streamSelectors != null)
         foreach (IAMStreamSelect streamSelector in _streamSelectors)
         {
-          if (Marshal.IsComObject(streamSelector))
-            Marshal.ReleaseComObject(streamSelector);
+          FilterGraphTools.TryReleaseComObject(streamSelector);
         }
       _streamSelectors = null;
       _streamInfoAudio = null;
@@ -305,12 +304,7 @@ namespace MediaPortal.UI.Players.Video
       SafeEvrDeinit();
       FreeEvrCallback();
       FilterGraphTools.TryRelease(ref _evr);
-
       base.FreeCodecs();
-
-      // Free all filters from graph
-      if (_graphBuilder != null)
-        FilterGraphTools.RemoveAllFilters(_graphBuilder, true);
 
       FilterGraphTools.TryDispose(ref _mpcSubsRenderer);
       FilterGraphTools.TryDispose(ref _rot);
@@ -1229,6 +1223,9 @@ namespace MediaPortal.UI.Players.Video
     public virtual bool GetResumeState(out IResumeState state)
     {
       TimeSpan currentTime = CurrentTime;
+      // Workaround for TsReader handling on playback end: it reports a negative position, so we treat it to "stream end"
+      if (currentTime.TotalSeconds < 0)
+        currentTime = Duration;
       TimeSpan duration = Duration;
       // If we already played back more then 99%, we don't want to ask user to resume playback.
       if (currentTime.TotalSeconds / duration.TotalSeconds > 0.99)

@@ -1,7 +1,7 @@
-﻿#region Copyright (C) 2007-2017 Team MediaPortal
+﻿#region Copyright (C) 2007-2018 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2017 Team MediaPortal
+    Copyright (C) 2007-2018 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -19,6 +19,7 @@
     You should have received a copy of the GNU General Public License
     along with MediaPortal 2. If not, see <http://www.gnu.org/licenses/>.
 */
+
 #endregion
 
 using MediaPortal.Common.Configuration.ConfigurationClasses;

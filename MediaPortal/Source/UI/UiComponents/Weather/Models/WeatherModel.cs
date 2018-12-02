@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2017 Team MediaPortal
+#region Copyright (C) 2007-2018 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2017 Team MediaPortal
+    Copyright (C) 2007-2018 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -407,7 +407,8 @@ namespace MediaPortal.UiComponents.Weather.Models
 
     public void Reactivate(NavigationContext oldContext, NavigationContext newContext)
     {
-      // Nothing to do here
+      // Add citys from settings to the locations list
+      ReadSettings(false).Wait();
     }
 
     public void UpdateMenuActions(NavigationContext context, IDictionary<Guid, WorkflowAction> actions)

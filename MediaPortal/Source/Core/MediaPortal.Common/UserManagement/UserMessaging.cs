@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2017 Team MediaPortal
+#region Copyright (C) 2007-2018 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2017 Team MediaPortal
+    Copyright (C) 2007-2018 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -22,13 +22,9 @@
 
 #endregion
 
-using System.Windows.Forms;
-using MediaPortal.Common;
 using MediaPortal.Common.Messaging;
-using MediaPortal.Common.UserManagement;
-using MediaPortal.UI.Services.UserManagement;
 
-namespace MediaPortal.UI.General
+namespace MediaPortal.Common.UserManagement
 {
   /// <summary>
   /// This class provides an interface for broadcasting and receiving messages sent by the <see cref="IUserManagement"/> service.

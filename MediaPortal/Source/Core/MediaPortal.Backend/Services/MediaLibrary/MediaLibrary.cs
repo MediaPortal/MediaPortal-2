@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2017 Team MediaPortal
+#region Copyright (C) 2007-2018 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2017 Team MediaPortal
+    Copyright (C) 2007-2018 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -2088,15 +2088,51 @@ namespace MediaPortal.Backend.Services.MediaLibrary
       IEnumerable<IMediaMergeHandler> mergeHandlers = mediaAccessor.LocalMergeHandlers.Values;
       foreach (IMediaMergeHandler mergeHandler in mergeHandlers.Where(m => m.MergeableAspects.All(a => extractedAspects.ContainsKey(a))))
       {
-        MediaItem mergedItem = MatchExistingItem(database, transaction, mergeHandler, extractedAspects);
-        if (mergedItem != null)
+        IList<MediaItem> mergeItems = MatchExistingItems(database, transaction, mergeHandler, extractedAspects);
+        IDictionary<Guid, IList<MediaItemAspect>> mergedAspects = null;
+        if (mergeItems != null)
         {
           MergeProviderResourceAspects(providerResourceAspect, MediaItemAspect.GetAspects(extractedAspects));
-          if (mergeHandler.TryMerge(extractedAspects, mergedItem.Aspects))
+          bool success = false;
+          List<MediaItem> mergedMediaItems = new List<MediaItem>();
+          foreach (var mergedItem in mergeItems)
           {
-            Logger.Debug("Found mergeable media item {0}", mergedItem.MediaItemId);
-            mergedMediaItemId = mergedItem.MediaItemId;
-            UpdateMergedMediaItem(database, transaction, mergedItem.MediaItemId, MediaItemAspect.GetAspects(mergedItem.Aspects));
+            if (mergeHandler.TryMerge(extractedAspects, mergedItem.Aspects))
+            {
+              Logger.Debug("Found mergeable media item {0}", mergedItem.MediaItemId);
+              if (mergedMediaItemId == Guid.Empty && !BaseInfo.IsVirtualResource(mergedItem.Aspects))
+              {
+                mergedMediaItemId = mergedItem.MediaItemId;
+                mergedAspects = mergedItem.Aspects;
+              }
+              else
+              {
+                mergedMediaItems.Add(mergedItem);
+              }
+              success = true;
+            }
+          }
+          if (success)
+          {
+            //Merge all aspects
+            List<Guid> obsoleteMediaItems = new List<Guid>();
+            foreach (var mergedItem in mergedMediaItems)
+            {
+              if (mergeHandler.TryMerge(mergedItem.Aspects, mergedAspects))
+                obsoleteMediaItems.Add(mergedItem.MediaItemId);
+            }
+
+            //Delete obsolete media items
+            foreach (var obsoleteMediaItem in obsoleteMediaItems)
+            {
+              _relationshipManagement.DeleteMediaItemAndRelationships(transaction, obsoleteMediaItem);
+              Logger.Debug("Deleted media item {0} made obsolete by merge", obsoleteMediaItem);
+            }
+            if (obsoleteMediaItems.Any())
+              MediaLibraryMessaging.SendMediaItemsDeletedMessage();
+
+            //Update remaining existing media item
+            UpdateMergedMediaItem(database, transaction, mergedMediaItemId, MediaItemAspect.GetAspects(mergedAspects));
             return true;
           }
         }
@@ -2150,7 +2186,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
       }
     }
 
-    private MediaItem MatchExistingItem(ISQLDatabase database, ITransaction transaction, IMediaMergeHandler mergeHandler, IDictionary<Guid, IList<MediaItemAspect>> extractedAspects)
+    private IList<MediaItem> MatchExistingItems(ISQLDatabase database, ITransaction transaction, IMediaMergeHandler mergeHandler, IDictionary<Guid, IList<MediaItemAspect>> extractedAspects)
     {
       IFilter filter = mergeHandler.GetSearchFilter(extractedAspects);
       if (filter == null)
@@ -2163,14 +2199,15 @@ namespace MediaPortal.Backend.Services.MediaLibrary
       bool loadAllAspects = mergeHandler.RequiresMerge(extractedAspects);
       IEnumerable<Guid> optionalAspectIds = loadAllAspects ? allAspectIds : mergeHandler.MatchAspects.Where(a => a != RelationshipAspect.ASPECT_ID);
       IList<MediaItem> existingItems = Search(database, transaction, new MediaItemQuery(mergeHandler.MergeableAspects, optionalAspectIds, filter), false, null, true);
+      IList<MediaItem> matchingItems = new List<MediaItem>();
       foreach (MediaItem existingItem in existingItems.Where(mi => mergeHandler.TryMatch(extractedAspects, mi.Aspects)))
       {
         MediaItem matchedItem = loadAllAspects ? existingItem : Search(database, transaction, new MediaItemQuery(mergeHandler.MergeableAspects, allAspectIds,
               new MediaItemIdFilter(existingItem.MediaItemId)), false, null, true).FirstOrDefault();
         if (matchedItem != null)
-          return matchedItem;
+          matchingItems.Add(matchedItem);
       }
-      return null;
+      return matchingItems.Count > 0 ? matchingItems : null;
     }
 
     private MediaItem MatchExternalItem(ISQLDatabase database, ITransaction transaction, IRelationshipRoleExtractor roleExtractor,

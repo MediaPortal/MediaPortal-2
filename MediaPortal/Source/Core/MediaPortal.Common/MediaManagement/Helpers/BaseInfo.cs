@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2017 Team MediaPortal
+#region Copyright (C) 2007-2018 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2017 Team MediaPortal
+    Copyright (C) 2007-2018 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -140,7 +140,7 @@ namespace MediaPortal.Common.MediaManagement.Helpers
     private const string CLEAN_WHITESPACE_REGEX = @"[\.|_](\S|$)";
     private const string SORT_REGEX = @"(^The\s+)|(^An?\s+)|(^De[rsmn]\s+)|(^Die\s+)|(^Das\s+)|(^Ein(e[srmn]?)?\s+)";
     private const string CLEAN_REGEX = @"<[^>]+>|&nbsp;";
-    private const string CLEAN_NAME_REGEX = @"[©®™\s'.-]";
+    private const string CLEAN_NAME_REGEX = @"[ï¿½ï¿½ï¿½\s'.-]";
 
     #region Members
 

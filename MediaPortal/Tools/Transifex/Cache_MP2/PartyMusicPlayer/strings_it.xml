@@ -7,14 +7,14 @@
   <string name="PartyMusicPlayer.ConfigScreenTitle">Configurazione Party music player</string>
   <string name="PartyMusicPlayer.Playlist">Playlist</string>
   <string name="PartyMusicPlayer.ChoosePlaylist">Scegli playlist</string>
-  <string name="PartyMusicPlayer.UseEscapePassword">Usa escape password</string>
+  <string name="PartyMusicPlayer.UseEscapePassword">Usa password escape</string>
   <string name="PartyMusicPlayer.DisableScreenSaver">Disabilita salvaschermo</string>
   <string name="PartyMusicPlayer.StartPartyMode">Avvia modalità party</string>
   <string name="PartyMusicPlayer.ChoosePlaylistDialogHeader">Scegli playlist</string>
-  <string name="PartyMusicPlayer.EnterEscapePasswordDialogHeader">Escape password</string>
+  <string name="PartyMusicPlayer.EnterEscapePasswordDialogHeader">Password escape</string>
   <string name="PartyMusicPlayer.EnterEscapePasswordDialogText">Inserisci la password per l\'escape mode</string>
   <string name="PartyMusicPlayer.WrongEscapePasswordDialogHeader">Password escape errata</string>
-  <string name="PartyMusicPlayer.WrongEscapePasswordDialogText">Spiacente, escape password errata!</string>
+  <string name="PartyMusicPlayer.WrongEscapePasswordDialogText">Spiacente, password escape errata!</string>
   <string name="PartyMusicPlayer.ServerNotConnectedDialogHeader">Server non connesso</string>
   <string name="PartyMusicPlayer.ServerNotConnectedDialogText">Per questa azione, il server home deve essere connesso</string>
   <string name="PartyMusicPlayer.PlayerContextName">Party music player</string>

@@ -547,6 +547,11 @@
       <Version>4.2.0</Version>
     </PackageReference>
   </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\BlueVision\themes\Titanium Extended\screens\dialog_configuration_yesno.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="build.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

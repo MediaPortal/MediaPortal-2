@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2017 Team MediaPortal
+#region Copyright (C) 2007-2018 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2017 Team MediaPortal
+    Copyright (C) 2007-2018 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -44,7 +44,7 @@ namespace MediaPortal.Plugins.RefreshRateChanger
     protected Timer _timer;
     protected object _syncObj = new object();
     protected bool _isEnabled;
-    protected SettingsChangeWatcher<RefreshRateChangerSettings> _settings = new SettingsChangeWatcher<RefreshRateChangerSettings>();
+    protected SettingsChangeWatcher<RefreshRateChangerSettings> _settings = new SettingsChangeWatcher<RefreshRateChangerSettings>(true);
 
     public VideoFpsWatcher()
     {

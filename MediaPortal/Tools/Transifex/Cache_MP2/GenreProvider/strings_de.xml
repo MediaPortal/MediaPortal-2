@@ -36,7 +36,7 @@
   <string name="Match.Video.History">Geschichte</string>
   <string name="Match.Video.Horror">Horror</string>
   <string name="Match.Video.Music">Musik</string>
-  <string name="Match.Video.Mystery">Mysterie|Mystik</string>
+  <string name="Match.Video.Mystery">Mystery</string>
   <string name="Match.Video.Romance">Romanze|Romantik</string>
   <string name="Match.Video.ScienceFiction">Science Fiction|Science-Fiction|Sci-Fi</string>
   <string name="Match.Video.TVMovie">TV|Fernsehen</string>
@@ -67,7 +67,7 @@
   <string name="Label.Audio.NewAge">New Age</string>
   <string name="Label.Audio.Rock">Rock</string>
   <string name="Label.Audio.Metal">Metal</string>
-  <string name="Label.Audio.Country">Land</string>
+  <string name="Label.Audio.Country">Country</string>
   <string name="Label.Audio.Jazz">Jazz</string>
   <string name="Label.Audio.Soul">R&amp;B, Soul</string>
   <string name="Label.Audio.Rap">Hip Hop, Rap</string>
@@ -94,7 +94,7 @@
   <string name="Label.Video.Biography">Biographie</string>
   <string name="Label.Video.Drama">Drama</string>
   <string name="Label.Video.Family">Familie</string>
-  <string name="Label.Video.Fantasy">Fantasie</string>
+  <string name="Label.Video.Fantasy">Fantasy</string>
   <string name="Label.Video.History">Geschichte</string>
   <string name="Label.Video.Horror">Horror</string>
   <string name="Label.Video.Music">Musik</string>

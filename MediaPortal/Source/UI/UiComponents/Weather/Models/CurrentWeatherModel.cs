@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2017 Team MediaPortal
+#region Copyright (C) 2007-2018 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2017 Team MediaPortal
+    Copyright (C) 2007-2018 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -45,7 +45,7 @@ namespace MediaPortal.UiComponents.Weather.Models
     /// </summary>
     private const int WEATHER_UPDATE_INTERVAL = 30 * 60 * 1000;
 
-    protected readonly SettingsChangeWatcher<WeatherSettings> _settings = new SettingsChangeWatcher<WeatherSettings>();
+    protected readonly SettingsChangeWatcher<WeatherSettings> _settings = new SettingsChangeWatcher<WeatherSettings>(true);
 
     protected readonly AbstractProperty _currentLocationProperty = new WProperty(typeof(City), City.NoData);
 

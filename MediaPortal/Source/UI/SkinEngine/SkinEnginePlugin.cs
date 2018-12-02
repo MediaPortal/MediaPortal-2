@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2017 Team MediaPortal
+#region Copyright (C) 2007-2018 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2017 Team MediaPortal
+    Copyright (C) 2007-2018 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -23,6 +23,7 @@
 #endregion
 
 using System;
+using System.Threading;
 using MediaPortal.UI.Control.InputManager;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
@@ -216,6 +217,8 @@ namespace MediaPortal.UI.SkinEngine
       var skinSettings = ServiceRegistration.Get<ISettingsManager>().Load<SkinSettings>();
       if (screenManager.SkinName != skinSettings.Skin || screenManager.ThemeName != skinSettings.Theme)
       {
+        // Wait a while to allow all other parts to react on user context changes
+        Thread.Sleep(500);
         IWorkflowManager workflowManager = ServiceRegistration.Get<IWorkflowManager>();
         // Exclusively lock WF manager while changing skin, otherwise it will fail when models try to get lock.
         if (!workflowManager.Lock.TryEnterWriteLock(2000))

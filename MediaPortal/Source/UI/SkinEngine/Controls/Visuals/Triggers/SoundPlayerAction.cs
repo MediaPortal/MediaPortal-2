@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2017 Team MediaPortal
+#region Copyright (C) 2007-2018 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2017 Team MediaPortal
+    Copyright (C) 2007-2018 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -102,7 +102,13 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Triggers
           .Any(player => player is IAudioPlayer || player is IVideoPlayer))
           return;
       }
-      using (SoundPlayer simpleSound = new SoundPlayer(SkinContext.SkinResources.GetResourceFilePath(SkinResources.SOUNDS_DIRECTORY + "\\" + source)))
+
+      // The path can only be null during skin switching
+      var resourceFilePath = SkinContext.SkinResources.GetResourceFilePath(SkinResources.SOUNDS_DIRECTORY + "\\" + source);
+      if (resourceFilePath == null)
+        return;
+
+      using (SoundPlayer simpleSound = new SoundPlayer(resourceFilePath))
         simpleSound.Play();
     }
   }
