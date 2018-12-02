@@ -304,7 +304,7 @@ HRESULT D3DPresentEngine::PresentSample(IMFSample* pSample, LONGLONG llTarget)
   IMFMediaBuffer* pBuffer = NULL;
   IDirect3DTexture9* pTexture = NULL;
 
-  DWORD sharedResourceHandle;
+  LONG64 sharedResourceHandle;
   DWORD dataSize;
   if (pSample)
   {
@@ -338,7 +338,7 @@ HRESULT D3DPresentEngine::PresentSample(IMFSample* pSample, LONGLONG llTarget)
     //pSurface->AddRef();
   }
 
-  hr = m_EVRCallback->PresentSurface(m_Width, m_Height, m_ArX, m_ArY, (DWORD)&sharedResourceHandle); // Return reference, so C# side can modify the pointer after Dispose() to avoid duplicated releasing.
+  hr = m_EVRCallback->PresentSurface(m_Width, m_Height, m_ArX, m_ArY, (LONG64)&sharedResourceHandle); // Return reference, so C# side can modify the pointer after Dispose() to avoid duplicated releasing.
 
   SAFE_RELEASE(pTexture);
   SAFE_RELEASE(pBuffer);

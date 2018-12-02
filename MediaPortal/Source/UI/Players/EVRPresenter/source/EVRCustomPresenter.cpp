@@ -64,7 +64,7 @@ EVRCustomPresenter::~EVRCustomPresenter()
 
 
 // Init EVR Presenter (called by VideoPlayer.cs)
-__declspec(dllexport) int EvrInit(IEVRCallback* callback, DWORD dwD3DDevice, IBaseFilter* evrFilter, HWND hwnd, EVRCustomPresenter** ppPresenterInstance)
+__declspec(dllexport) int EvrInit(IEVRCallback* callback, IDirect3DDevice9Ex* dwD3DDevice, IBaseFilter* evrFilter, HWND hwnd, EVRCustomPresenter** ppPresenterInstance)
 {
   HRESULT hr;
   *ppPresenterInstance = NULL;
