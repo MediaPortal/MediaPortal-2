@@ -147,8 +147,8 @@ namespace MediaPortal.UI.SkinEngine.Fonts
         // DirectWrite font handling
         _fontResourceLoader.QueueRegisterFont(fontFilePath);
 
-        FontFamily family = new FontFamily(familyName, fontFilePath);
-        _families[familyName] = family;
+        //FontFamily family = new FontFamily(familyName, fontFilePath);
+        //_families[familyName] = family;
       }
     }
 

@@ -13,7 +13,7 @@
 
   <DependsOn>
     <PluginReference PluginId="{8B248D2D-C6DF-4263-BBF3-B424C6C81B31}" CompatibleAPI="2"/> <!-- AudioMetadataExtractor -->
-    <PluginReference PluginId="{2BA6F93C-B2A9-4795-A99C-BA19126B1359}" CompatibleAPI="1"/> <!-- BassLibraries -->
+    <!--<PluginReference PluginId="{2BA6F93C-B2A9-4795-A99C-BA19126B1359}" CompatibleAPI="1"/> --><!-- BassLibraries -->
 
     <CoreDependency Name="MediaPortal.Common" CompatibleAPI="2" />
     <CoreDependency Name="MediaPortal.Utilities" CompatibleAPI="1" />

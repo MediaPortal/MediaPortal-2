@@ -33,7 +33,7 @@ using MediaPortal.UI.SkinEngine.Controls.Visuals.Effects2D;
 using MediaPortal.UI.SkinEngine.Fonts;
 using MediaPortal.UI.SkinEngine.SkinManagement;
 using SharpDX;
-using FontFamily = MediaPortal.UI.SkinEngine.Fonts.FontFamily;
+//using FontFamily = MediaPortal.UI.SkinEngine.Fonts.FontFamily;
 
 namespace MediaPortal.UI.SkinEngine.ContentManagement
 {
@@ -243,36 +243,36 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement
           () => new EffectAssetCore<TE>(effectName)) as EffectAsset<EffectAssetCore<TE>>;
     }
 
-    /// <summary>
-    /// Retrieves a <see cref="FontAsset"/>, creating it if necessary.
-    /// </summary>
-    /// <param name="fontFamily">The font family to use for the text.</param>
-    /// <param name="fontSize">The size of the desired font.</param>
-    /// <returns>A <see cref="FontAsset"/> object.</returns>
-    public FontAsset GetFont(string fontFamily, float fontSize)
-    {
-      // Get the actual font file resource for this family
-      FontFamily family = FontManager.GetFontFamily(fontFamily);
-      if (family == null)
-      {
-        ServiceRegistration.Get<ILogger>().Warn("ContentManager: Could not get FontFamily '{0}', using default", fontFamily);
-        family = FontManager.GetFontFamily(FontManager.DefaultFontFamily);
-        if (family == null)
-          return null;
-      }
+    ///// <summary>
+    ///// Retrieves a <see cref="FontAsset"/>, creating it if necessary.
+    ///// </summary>
+    ///// <param name="fontFamily">The font family to use for the text.</param>
+    ///// <param name="fontSize">The size of the desired font.</param>
+    ///// <returns>A <see cref="FontAsset"/> object.</returns>
+    //public FontAsset GetFont(string fontFamily, float fontSize)
+    //{
+    //  // Get the actual font file resource for this family
+    //  FontFamily family = FontManager.GetFontFamily(fontFamily);
+    //  if (family == null)
+    //  {
+    //    ServiceRegistration.Get<ILogger>().Warn("ContentManager: Could not get FontFamily '{0}', using default", fontFamily);
+    //    family = FontManager.GetFontFamily(FontManager.DefaultFontFamily);
+    //    if (family == null)
+    //      return null;
+    //  }
 
-      // Round down font size
-      int baseSize = (int)Math.Ceiling(fontSize * SkinContext.MaxZoomHeight);
-      // If this function is called before the window is openned we get 0
-      if (baseSize == 0)
-        baseSize = (int)fontSize;
-      // Generate the asset key we'll use to store this font
-      string key = family.Name + "::" + baseSize;
+    //  // Round down font size
+    //  int baseSize = (int)Math.Ceiling(fontSize * SkinContext.MaxZoomHeight);
+    //  // If this function is called before the window is openned we get 0
+    //  if (baseSize == 0)
+    //    baseSize = (int)fontSize;
+    //  // Generate the asset key we'll use to store this font
+    //  string key = family.Name + "::" + baseSize;
 
-      return GetCreateAsset(AssetType.Font, key,
-          assetCore => new FontAsset(assetCore as FontAssetCore),
-          () => new FontAssetCore(family, baseSize, FontManager.DefaultDPI)) as FontAsset;
-    }
+    //  return GetCreateAsset(AssetType.Font, key,
+    //      assetCore => new FontAsset(assetCore as FontAssetCore),
+    //      () => new FontAssetCore(family, baseSize, FontManager.DefaultDPI)) as FontAsset;
+    //}
 
     /// <summary>
     /// Retrieves a <see cref="RenderTextureAsset"/>, creating it if necessary.

@@ -108,7 +108,6 @@
     <Compile Include="ContentManagement\AssetWrapper.cs" />
     <Compile Include="ContentManagement\AssetCore\RenderTargetAssetCore.cs" />
     <Compile Include="ContentManagement\AssetCore\EffectAssetCore.cs" />
-    <Compile Include="ContentManagement\AssetCore\FontAssetCore.cs" />
     <Compile Include="ContentManagement\AssetCore\IAssetCore.cs" />
     <Compile Include="ContentManagement\AssetCore\RenderTextureAssetCore.cs" />
     <Compile Include="ContentManagement\AssetCore\TemporaryAssetCoreBase.cs" />
@@ -117,7 +116,6 @@
     <Compile Include="ContentManagement\RenderTarget2DAsset.cs" />
     <Compile Include="ContentManagement\RenderTargetAsset.cs" />
     <Compile Include="ContentManagement\EffectAsset.cs" />
-    <Compile Include="ContentManagement\FontAsset.cs" />
     <Compile Include="ContentManagement\IAsset.cs" />
     <Compile Include="ContentManagement\ITextureAsset.cs" />
     <Compile Include="ContentManagement\RenderTextureAsset.cs" />
@@ -320,7 +318,6 @@
     <Compile Include="DirectX\Triangulate\Utility\Point2D.cs" />
     <Compile Include="DirectX\Triangulate\Utility\Point2DList.cs" />
     <Compile Include="DirectX\Triangulate\Utility\Rect2D.cs" />
-    <Compile Include="Fonts\FontFamily.cs" />
     <Compile Include="Fonts\ResourceFontFileEnumerator.cs" />
     <Compile Include="Fonts\ResourceFontFileStream.cs" />
     <Compile Include="Fonts\ResourceFontLoader.cs" />
@@ -470,7 +467,6 @@
     <Compile Include="Xaml\PathExpression.cs" />
     <Compile Include="Xaml\ReflectionHelper.cs" />
     <Compile Include="Xaml\TypeConverter.cs" />
-    <Compile Include="Fonts\FreeType.cs" />
     <Compile Include="MpfElements\DependencyObject.cs" />
     <Compile Include="Controls\Visuals\IScrollInfo.cs" />
     <Compile Include="Controls\Panels\Canvas.cs" />
