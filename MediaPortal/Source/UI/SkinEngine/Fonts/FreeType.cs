@@ -1009,13 +1009,29 @@ namespace Tao.FreeType
     public const int Err_Missing_Encoding_Field = (int)(0xB5 + 0);
     public const int Err_Missing_Bbx_Field = (int)(0xB6 + 0);
 
+    private const string FT_NATIVE_LIBRARY_X86 = "x86\\freetype.dll";
+    private const string FT_NATIVE_LIBRARY_X64 = "x64\\freetype.dll";
+    internal static bool is64 => IntPtr.Size > 4;
+
+    [DllImport(FT_NATIVE_LIBRARY_X86, CallingConvention = CALLING_CONVENTION, EntryPoint = "FT_Init_FreeType"), SuppressUnmanagedCodeSecurity]
+    private static extern int FT_Init_FreeType32(out IntPtr /*IntPtr LibraryRec_*/ alibrary);
+    [DllImport(FT_NATIVE_LIBRARY_X64, CallingConvention = CALLING_CONVENTION, EntryPoint = "FT_Init_FreeType"), SuppressUnmanagedCodeSecurity]
+    private static extern int FT_Init_FreeType64(out IntPtr /*IntPtr LibraryRec_*/ alibrary);
+
     /// <summary>
     /// Initialize a new FreeType library object. The set of modules that are registered by this function is determined at build time.
     /// </summary>
     /// <param name="alibrary">A handle to a new library object.</param>
     /// <returns>FreeType error code. 0 means success.</returns>
-    [DllImport(FT_NATIVE_LIBRARY, CallingConvention = CALLING_CONVENTION), SuppressUnmanagedCodeSecurity]
-    public static extern int FT_Init_FreeType(out IntPtr /*IntPtr LibraryRec_*/ alibrary);
+    public static int FT_Init_FreeType(out IntPtr /*IntPtr LibraryRec_*/ alibrary)
+    {
+      return is64 ? FT_Init_FreeType64(out alibrary) : FT_Init_FreeType32(out alibrary);
+    }
+
+    [DllImport(FT_NATIVE_LIBRARY_X86, CallingConvention = CALLING_CONVENTION, EntryPoint = "FT_Library_Version"), SuppressUnmanagedCodeSecurity]
+    private static extern void FT_Library_Version32(IntPtr /*LibraryRec_*/ library, ref int amajor, ref int aminor, ref int apatch);
+    [DllImport(FT_NATIVE_LIBRARY_X64, CallingConvention = CALLING_CONVENTION, EntryPoint = "FT_Library_Version"), SuppressUnmanagedCodeSecurity]
+    private static extern void FT_Library_Version64(IntPtr /*LibraryRec_*/ library, ref int amajor, ref int aminor, ref int apatch);
 
     /// <summary>
     /// Return the version of the FreeType library being used. This is useful when dynamically linking to the library, since one cannot use the macros FREETYPE_MAJOR, FREETYPE_MINOR, and FREETYPE_PATCH.
@@ -1024,16 +1040,30 @@ namespace Tao.FreeType
     /// <param name="amajor">The major version number.</param>
     /// <param name="aminor">The minor version number</param>
     /// <param name="apatch">The patch version number</param>
-    [DllImport(FT_NATIVE_LIBRARY, CallingConvention = CALLING_CONVENTION), SuppressUnmanagedCodeSecurity]
-    public static extern void FT_Library_Version(IntPtr /*LibraryRec_*/ library, ref int amajor, ref int aminor, ref int apatch);
+    public static void FT_Library_Version(IntPtr /*LibraryRec_*/ library, ref int amajor, ref int aminor, ref int apatch)
+    {
+      if (is64) FT_Library_Version64(library, ref amajor, ref aminor, ref apatch); else FT_Library_Version32(library, ref amajor, ref aminor, ref apatch);
+    }
+
+    [DllImport(FT_NATIVE_LIBRARY_X86, CallingConvention = CALLING_CONVENTION, EntryPoint = "FT_Done_FreeType"), SuppressUnmanagedCodeSecurity]
+    private static extern int FT_Done_FreeType32(IntPtr /*LibraryRec_*/ library);
+    [DllImport(FT_NATIVE_LIBRARY_X64, CallingConvention = CALLING_CONVENTION, EntryPoint = "FT_Done_FreeType"), SuppressUnmanagedCodeSecurity]
+    private static extern int FT_Done_FreeType64(IntPtr /*LibraryRec_*/ library);
 
     /// <summary>
     /// Destroy a given FreeType library object and all of its children, including resources, drivers, faces, sizes, etc.
     /// </summary>
     /// <param name="library">A handle to the target library object</param>
     /// <returns>FreeType error code. 0 means success</returns>
-    [DllImport(FT_NATIVE_LIBRARY, CallingConvention = CALLING_CONVENTION), SuppressUnmanagedCodeSecurity]
-    public static extern int FT_Done_FreeType(IntPtr /*LibraryRec_*/ library);
+    public static int FT_Done_FreeType(IntPtr /*LibraryRec_*/ library)
+    {
+      return is64 ? FT_Done_FreeType64(library) : FT_Done_FreeType32(library);
+    }
+
+    [DllImport(FT_NATIVE_LIBRARY_X86, CallingConvention = CALLING_CONVENTION, EntryPoint = "FT_New_Face"), SuppressUnmanagedCodeSecurity]
+    private static extern int FT_New_Face32(IntPtr /*LibraryRec_*/ library, string filepathname, int face_index, out IntPtr /*IntPtr FaceRec*/ aface);
+    [DllImport(FT_NATIVE_LIBRARY_X64, CallingConvention = CALLING_CONVENTION, EntryPoint = "FT_New_Face"), SuppressUnmanagedCodeSecurity]
+    private static extern int FT_New_Face64(IntPtr /*LibraryRec_*/ library, string filepathname, int face_index, out IntPtr /*IntPtr FaceRec*/ aface);
 
     /// <summary>
     /// This function calls FT_Open_Face to open a font by its pathname.
@@ -1043,8 +1073,10 @@ namespace Tao.FreeType
     /// <param name="face_index">The index of the face within the font. The first face has index 0</param>
     /// <param name="aface"> A handle to a new face object. If ?face_index? is greater than or equal to zero, it must be non-NULL. See FT_Open_Face for more details.</param>
     /// <returns>FreeType error code. 0 means success.</returns>
-    [DllImport(FT_NATIVE_LIBRARY, CallingConvention = CALLING_CONVENTION), SuppressUnmanagedCodeSecurity]
-    public static extern int FT_New_Face(IntPtr /*LibraryRec_*/ library, string filepathname, int face_index, out IntPtr /*IntPtr FaceRec*/ aface);
+    public static int FT_New_Face(IntPtr /*LibraryRec_*/ library, string filepathname, int face_index, out IntPtr /*IntPtr FaceRec*/ aface)
+    {
+      return is64 ? FT_New_Face64(library, filepathname, face_index, out aface) : FT_New_Face32(library, filepathname, face_index, out aface);
+    }
 
     /// <summary>
     /// This function calls FT_Open_Face to open a font which has been loaded into memory.
@@ -1056,8 +1088,8 @@ namespace Tao.FreeType
     /// <param name="face_index">The index of the face within the font. The first face has index 0</param>
     /// <param name="aface">A handle to a new face object. If ?face_index? is greater than or equal to zero, it must be non-NULL. See FT_Open_Face for more details.</param>
     /// <returns>FreeType error code. 0 means success.</returns>
-    [DllImport(FT_NATIVE_LIBRARY, CallingConvention = CALLING_CONVENTION), SuppressUnmanagedCodeSecurity]
-    public static extern int FT_New_Memory_Face(IntPtr /*LibraryRec_*/ library, [In] byte[] file_base, int file_size, int face_index, IntPtr /*IntPtr FaceRec*/ aface);
+    [DllImport(FT_NATIVE_LIBRARY_X86, CallingConvention = CALLING_CONVENTION, EntryPoint = "FT_New_Memory_Face"), SuppressUnmanagedCodeSecurity]
+    private static extern int FT_New_Memory_Face32(IntPtr /*LibraryRec_*/ library, [In] byte[] file_base, int file_size, int face_index, IntPtr /*IntPtr FaceRec*/ aface);
 
     /// <summary>
     /// Create a face object from a given resource described by FT_Open_Args.
@@ -1070,8 +1102,8 @@ namespace Tao.FreeType
     /// <param name="face_index">The index of the face within the font. The first face has index 0</param>
     /// <param name="aface">A handle to a new face object. If ?face_index? is greater than or equal to zero, it must be non-NULL. See note below</param>
     /// <returns>FreeType error code. 0 means success</returns>
-    [DllImport(FT_NATIVE_LIBRARY, CallingConvention = CALLING_CONVENTION), SuppressUnmanagedCodeSecurity]
-    public static extern int FT_Open_Face(IntPtr /*LibraryRec_*/ library, FT_Open_Args args, int face_index, IntPtr /*IntPtr FaceRec*/ aface);
+    [DllImport(FT_NATIVE_LIBRARY_X86, CallingConvention = CALLING_CONVENTION, EntryPoint = "FT_Open_Face"), SuppressUnmanagedCodeSecurity]
+    private static extern int FT_Open_Face32(IntPtr /*LibraryRec_*/ library, FT_Open_Args args, int face_index, IntPtr /*IntPtr FaceRec*/ aface);
 
     /// <summary>
     /// This function calls FT_Attach_Stream to attach a file.
@@ -1079,8 +1111,8 @@ namespace Tao.FreeType
     /// <param name="face">The target face object.</param>
     /// <param name="filepathname">The pathname</param>
     /// <returns>FreeType error code. 0 means success</returns>
-    [DllImport(FT_NATIVE_LIBRARY, CallingConvention = CALLING_CONVENTION), SuppressUnmanagedCodeSecurity]
-    public static extern int FT_Attach_File(IntPtr /*FaceRec*/ face, string filepathname);
+    [DllImport(FT_NATIVE_LIBRARY_X86, CallingConvention = CALLING_CONVENTION, EntryPoint = "FT_Attach_File"), SuppressUnmanagedCodeSecurity]
+    private static extern int FT_Attach_File32(IntPtr /*FaceRec*/ face, string filepathname);
 
     /// <summary>
     /// ?Attach? data to a face object. Normally, this is used to read additional information for the face object. For example, you can attach an AFM file that comes with a Type 1 font to get the kerning values and other metrics
@@ -1088,17 +1120,27 @@ namespace Tao.FreeType
     /// <param name="face">The target face object</param>
     /// <param name="parameters">A pointer to FT_Open_Args which must be filled by the caller</param>
     /// <returns>FreeType error code. 0 means success</returns>
-    [DllImport(FT_NATIVE_LIBRARY, CallingConvention = CALLING_CONVENTION), SuppressUnmanagedCodeSecurity]
-    public static extern int FT_Attach_Stream(IntPtr /*FaceRec*/ face, ref FT_Open_Args parameters);
+    [DllImport(FT_NATIVE_LIBRARY_X86, CallingConvention = CALLING_CONVENTION, EntryPoint = "FT_Attach_Stream"), SuppressUnmanagedCodeSecurity]
+    private static extern int FT_Attach_Stream32(IntPtr /*FaceRec*/ face, ref FT_Open_Args parameters);
 
+    [DllImport(FT_NATIVE_LIBRARY_X86, CallingConvention = CALLING_CONVENTION, EntryPoint = "FT_Done_Face"), SuppressUnmanagedCodeSecurity]
+    private static extern int FT_Done_Face32(IntPtr /*FaceRec*/ face);
+    [DllImport(FT_NATIVE_LIBRARY_X64, CallingConvention = CALLING_CONVENTION, EntryPoint = "FT_Done_Face"), SuppressUnmanagedCodeSecurity]
+    private static extern int FT_Done_Face64(IntPtr /*FaceRec*/ face);
     /// <summary>
     /// Discard a given face object, as well as all of its child slots and sizes.
     /// </summary>
     /// <param name="face">A handle to a target face object.</param>
     /// <returns>FreeType error code. 0 means success</returns>
-    [DllImport(FT_NATIVE_LIBRARY, CallingConvention = CALLING_CONVENTION), SuppressUnmanagedCodeSecurity]
-    public static extern int FT_Done_Face(IntPtr /*FaceRec*/ face);
+    public static int FT_Done_Face(IntPtr /*FaceRec*/ face)
+    {
+      return is64 ? FT_Done_Face64(face) : FT_Done_Face32(face);
+    }
 
+    [DllImport(FT_NATIVE_LIBRARY_X86, CallingConvention = CALLING_CONVENTION, EntryPoint = "FT_Set_Char_Size"), SuppressUnmanagedCodeSecurity]
+    private static extern int FT_Set_Char_Size32(IntPtr /*FaceRec*/ face, int char_width, int char_height, uint horz_resolution, uint vert_resolution);
+    [DllImport(FT_NATIVE_LIBRARY_X64, CallingConvention = CALLING_CONVENTION, EntryPoint = "FT_Set_Char_Size"), SuppressUnmanagedCodeSecurity]
+    private static extern int FT_Set_Char_Size64(IntPtr /*FaceRec*/ face, int char_width, int char_height, uint horz_resolution, uint vert_resolution);
     /// <summary>
     /// This function calls FT_Request_Size to request the nominal size (in points).
     /// If either the character width or height is zero, it is set equal to the other value.
@@ -1111,8 +1153,10 @@ namespace Tao.FreeType
     /// <param name="horz_resolution">The horizontal resolution in dpi</param>
     /// <param name="vert_resolution">The vertical resolution in dpi</param>
     /// <returns>FreeType error code. 0 means success</returns>
-    [DllImport(FT_NATIVE_LIBRARY, CallingConvention = CALLING_CONVENTION), SuppressUnmanagedCodeSecurity]
-    public static extern int FT_Set_Char_Size(IntPtr /*FaceRec*/ face, int char_width, int char_height, uint horz_resolution, uint vert_resolution);
+    public static int FT_Set_Char_Size(IntPtr /*FaceRec*/ face, int char_width, int char_height, uint horz_resolution, uint vert_resolution)
+    {
+      return is64 ? FT_Set_Char_Size64(face, char_width, char_height, horz_resolution, vert_resolution) : FT_Set_Char_Size32(face, char_width, char_height, horz_resolution, vert_resolution);
+    }
 
     /// <summary>
     /// This function calls FT_Request_Size to request the nominal size (in pixels).
@@ -1121,9 +1165,13 @@ namespace Tao.FreeType
     /// <param name="pixel_width">The nominal width, in pixels.</param>
     /// <param name="pixel_height">The nominal height, in pixels</param>
     /// <returns>FreeType error code. 0 means success</returns>
-    [DllImport(FT_NATIVE_LIBRARY, CallingConvention = CALLING_CONVENTION), SuppressUnmanagedCodeSecurity]
-    public static extern int FT_Set_Pixel_Sizes(IntPtr /*FaceRec*/ face, uint pixel_width, uint pixel_height);
+    [DllImport(FT_NATIVE_LIBRARY_X86, CallingConvention = CALLING_CONVENTION, EntryPoint = "FT_Set_Pixel_Sizes"), SuppressUnmanagedCodeSecurity]
+    private static extern int FT_Set_Pixel_Sizes32(IntPtr /*FaceRec*/ face, uint pixel_width, uint pixel_height);
 
+    [DllImport(FT_NATIVE_LIBRARY_X86, CallingConvention = CALLING_CONVENTION, EntryPoint = "FT_Load_Glyph"), SuppressUnmanagedCodeSecurity]
+    private static extern int FT_Load_Glyph32(IntPtr /*FaceRec*/ face, uint glyph_index, int load_flags);
+    [DllImport(FT_NATIVE_LIBRARY_X64, CallingConvention = CALLING_CONVENTION, EntryPoint = "FT_Load_Glyph"), SuppressUnmanagedCodeSecurity]
+    private static extern int FT_Load_Glyph64(IntPtr /*FaceRec*/ face, uint glyph_index, int load_flags);
     /// <summary>
     /// A function used to load a single glyph into the glyph slot of a face object.
     /// The loaded glyph may be transformed. See FT_Set_Transform for the details.
@@ -1132,8 +1180,10 @@ namespace Tao.FreeType
     /// <param name="glyph_index">The index of the glyph in the font file. For CID-keyed fonts (either in PS or in CFF format) this argument specifies the CID value.</param>
     /// <param name="load_flags">A flag indicating what to load for this glyph. The FT_LOAD_XXX constants can be used to control the glyph loading process (e.g., whether the outline should be scaled, whether to load bitmaps or not, whether to hint the outline, etc).</param>
     /// <returns>FreeType error code. 0 means success.</returns>
-    [DllImport(FT_NATIVE_LIBRARY, CallingConvention = CALLING_CONVENTION), SuppressUnmanagedCodeSecurity]
-    public static extern int FT_Load_Glyph(IntPtr /*FaceRec*/ face, uint glyph_index, int load_flags);
+    public static int FT_Load_Glyph(IntPtr /*FaceRec*/ face, uint glyph_index, int load_flags)
+    {
+      return is64 ? FT_Load_Glyph64(face, glyph_index, load_flags) : FT_Load_Glyph32(face, glyph_index, load_flags);
+    }
 
     /// <summary>
     /// A function used to load a single glyph into the glyph slot of a face object, according to its character code.
@@ -1143,8 +1193,8 @@ namespace Tao.FreeType
     /// <param name="char_code">The glyph's character code, according to the current charmap used in the face</param>
     /// <param name="load_flags">A flag indicating what to load for this glyph. The FT_LOAD_XXX constants can be used to control the glyph loading process (e.g., whether the outline should be scaled, whether to load bitmaps or not, whether to hint the outline, etc).</param>
     /// <returns>FreeType error code. 0 means success</returns>
-    [DllImport(FT_NATIVE_LIBRARY, CallingConvention = CALLING_CONVENTION), SuppressUnmanagedCodeSecurity]
-    public static extern int FT_Load_Char(IntPtr /*FaceRec*/ face, uint char_code, int load_flags);
+    [DllImport(FT_NATIVE_LIBRARY_X86, CallingConvention = CALLING_CONVENTION, EntryPoint = "FT_Load_Char"), SuppressUnmanagedCodeSecurity]
+    private static extern int FT_Load_Char32(IntPtr /*FaceRec*/ face, uint char_code, int load_flags);
 
     /// <summary>
     /// A function used to set the transformation that is applied to glyph images when they are loaded into a glyph slot through FT_Load_Glyph.
@@ -1154,8 +1204,8 @@ namespace Tao.FreeType
     /// <param name="face">A handle to the source face object</param>
     /// <param name="matrix">A pointer to the transformation's 2x2 matrix. Use 0 for the identity matrix</param>
     /// <param name="delta">A pointer to the translation vector. Use 0 for the null vector</param>
-    [DllImport(FT_NATIVE_LIBRARY, CallingConvention = CALLING_CONVENTION), SuppressUnmanagedCodeSecurity]
-    public static extern void FT_Set_Transform(IntPtr /*FaceRec*/ face, ref FT_Matrix matrix, ref FT_Vector delta);
+    [DllImport(FT_NATIVE_LIBRARY_X86, CallingConvention = CALLING_CONVENTION, EntryPoint = "FT_Set_Transform"), SuppressUnmanagedCodeSecurity]
+    private static extern void FT_Set_Transform32(IntPtr /*FaceRec*/ face, ref FT_Matrix matrix, ref FT_Vector delta);
 
     /// <summary>
     /// Convert a given glyph image to a bitmap. It does so by inspecting the glyph image format, finding the relevant renderer, and invoking it
@@ -1163,8 +1213,8 @@ namespace Tao.FreeType
     /// <param name="slot">A handle to the glyph slot containing the image to convert</param>
     /// <param name="render_mode">This is the render mode used to render the glyph image into a bitmap. See FT_Render_Mode for a list of possible values</param>
     /// <returns>FreeType error code. 0 means success</returns>
-    [DllImport(FT_NATIVE_LIBRARY, CallingConvention = CALLING_CONVENTION), SuppressUnmanagedCodeSecurity]
-    public static extern int FT_Render_Glyph(ref FT_GlyphSlotRec slot, FT_Render_Mode render_mode);
+    [DllImport(FT_NATIVE_LIBRARY_X86, CallingConvention = CALLING_CONVENTION, EntryPoint = "FT_Render_Glyph"), SuppressUnmanagedCodeSecurity]
+    private static extern int FT_Render_Glyph32(ref FT_GlyphSlotRec slot, FT_Render_Mode render_mode);
 
     /// <summary>
     /// Return the kerning vector between two glyphs of a same face
@@ -1175,8 +1225,8 @@ namespace Tao.FreeType
     /// <param name="kern_mode">See FT_Kerning_Mode for more information. Determines the scale and dimension of the returned kerning vector</param>
     /// <param name="akerning">The kerning vector. This is either in font units or in pixels (26.6 format) for scalable formats, and in pixels for fixed-sizes formats</param>
     /// <returns>FreeType error code. 0 means success</returns>
-    [DllImport(FT_NATIVE_LIBRARY, CallingConvention = CALLING_CONVENTION), SuppressUnmanagedCodeSecurity]
-    public static extern int FT_Get_Kerning(IntPtr /*FaceRec*/ face, uint left_glyph, uint right_glyph, uint kern_mode, out FT_Vector akerning);
+    [DllImport(FT_NATIVE_LIBRARY_X86, CallingConvention = CALLING_CONVENTION, EntryPoint = "FT_Get_Kerning"), SuppressUnmanagedCodeSecurity]
+    private static extern int FT_Get_Kerning32(IntPtr /*FaceRec*/ face, uint left_glyph, uint right_glyph, uint kern_mode, out FT_Vector akerning);
 
     /// <summary>
     /// Retrieve the ASCII name of a given glyph in a face. This only works for those faces where FT_HAS_GLYPH_NAMES(face) returns 1
@@ -1189,8 +1239,8 @@ namespace Tao.FreeType
     /// <param name="buffer">A pointer to a target buffer where the name is copied to</param>
     /// <param name="buffer_max">The maximal number of bytes available in the buffer</param>
     /// <returns>FreeType error code. 0 means success</returns>
-    [DllImport(FT_NATIVE_LIBRARY, CallingConvention = CALLING_CONVENTION), SuppressUnmanagedCodeSecurity]
-    public static extern int FT_Get_Glyph_Name(IntPtr /*FaceRec*/ face, uint glyph_index, IntPtr buffer, uint buffer_max);
+    [DllImport(FT_NATIVE_LIBRARY_X86, CallingConvention = CALLING_CONVENTION, EntryPoint = "FT_Get_Glyph_Name"), SuppressUnmanagedCodeSecurity]
+    private static extern int FT_Get_Glyph_Name32(IntPtr /*FaceRec*/ face, uint glyph_index, IntPtr buffer, uint buffer_max);
 
     /// <summary>
     /// Retrieve the ASCII Postscript name of a given face, if available. This only works with Postscript and TrueType fonts
@@ -1198,8 +1248,8 @@ namespace Tao.FreeType
     /// </summary>
     /// <param name="face">A handle to the source face object</param>
     /// <returns>A pointer to the face's Postscript name. NULL if unavailable</returns>
-    [DllImport(FT_NATIVE_LIBRARY, CallingConvention = CALLING_CONVENTION), SuppressUnmanagedCodeSecurity]
-    public static extern IntPtr /*sbyte*/ FT_Get_Postscript_Name(IntPtr /*FaceRec*/ face);
+    [DllImport(FT_NATIVE_LIBRARY_X86, CallingConvention = CALLING_CONVENTION, EntryPoint = "FT_Get_Postscript_Name"), SuppressUnmanagedCodeSecurity]
+    private static extern IntPtr /*sbyte*/ FT_Get_Postscript_Name32(IntPtr /*FaceRec*/ face);
 
     /// <summary>
     /// Select a given charmap by its encoding tag (as listed in ?freetype.h?).
@@ -1209,8 +1259,8 @@ namespace Tao.FreeType
     /// <param name="face">A handle to the source face object</param>
     /// <param name="encoding">A handle to the selected encoding</param>
     /// <returns>FreeType error code. 0 means success</returns>
-    [DllImport(FT_NATIVE_LIBRARY, CallingConvention = CALLING_CONVENTION), SuppressUnmanagedCodeSecurity]
-    public static extern int FT_Select_Charmap(IntPtr /*FaceRec*/ face, FT_Encoding encoding);
+    [DllImport(FT_NATIVE_LIBRARY_X86, CallingConvention = CALLING_CONVENTION, EntryPoint = "FT_Select_Charmap"), SuppressUnmanagedCodeSecurity]
+    private static extern int FT_Select_Charmap32(IntPtr /*FaceRec*/ face, FT_Encoding encoding);
 
     /// <summary>
     /// Select a given charmap for character code to glyph index mapping
@@ -1219,16 +1269,21 @@ namespace Tao.FreeType
     /// <param name="face">A handle to the source face object</param>
     /// <param name="charmap">A handle to the selected charmap</param>
     /// <returns>FreeType error code. 0 means success</returns>
-    [DllImport(FT_NATIVE_LIBRARY, CallingConvention = CALLING_CONVENTION), SuppressUnmanagedCodeSecurity]
-    public static extern int FT_Set_Charmap(IntPtr /*FaceRec*/ face, ref FT_CharMapRec charmap);
+    [DllImport(FT_NATIVE_LIBRARY_X86, CallingConvention = CALLING_CONVENTION, EntryPoint = "FT_Set_Charmap"), SuppressUnmanagedCodeSecurity]
+    private static extern int FT_Set_Charmap32(IntPtr /*FaceRec*/ face, ref FT_CharMapRec charmap);
 
     /// <summary>
     /// Retrieve index of a given charmap
     /// </summary>
     /// <param name="charmap">A handle to a charmap</param>
     /// <returns>The index into the array of character maps within the face to which ?charmap? belongs</returns>
-    [DllImport(FT_NATIVE_LIBRARY, CallingConvention = CALLING_CONVENTION), SuppressUnmanagedCodeSecurity]
-    public static extern int FT_Get_Charmap_Index(ref FT_CharMapRec charmap);
+    [DllImport(FT_NATIVE_LIBRARY_X86, CallingConvention = CALLING_CONVENTION, EntryPoint = "FT_Get_Charmap_Index"), SuppressUnmanagedCodeSecurity]
+    private static extern int FT_Get_Charmap_Index32(ref FT_CharMapRec charmap);
+
+    [DllImport(FT_NATIVE_LIBRARY_X86, CallingConvention = CALLING_CONVENTION, EntryPoint = "FT_Get_Char_Index"), SuppressUnmanagedCodeSecurity]
+    private static extern uint FT_Get_Char_Index32(IntPtr /*FaceRec*/ face, uint charcode);
+    [DllImport(FT_NATIVE_LIBRARY_X64, CallingConvention = CALLING_CONVENTION, EntryPoint = "FT_Get_Char_Index"), SuppressUnmanagedCodeSecurity]
+    private static extern uint FT_Get_Char_Index64(IntPtr /*FaceRec*/ face, uint charcode);
 
     /// <summary>
     /// Return the glyph index of a given character code. This function uses a charmap object to do the mapping
@@ -1237,8 +1292,10 @@ namespace Tao.FreeType
     /// <param name="face">A handle to the source face object</param>
     /// <param name="charcode">The character code</param>
     /// <returns>The glyph index. 0 means ?undefined character code?</returns>
-    [DllImport(FT_NATIVE_LIBRARY, CallingConvention = CALLING_CONVENTION), SuppressUnmanagedCodeSecurity]
-    public static extern uint FT_Get_Char_Index(IntPtr /*FaceRec*/ face, uint charcode);
+    public static uint FT_Get_Char_Index(IntPtr /*FaceRec*/ face, uint charcode)
+    {
+      return is64 ? FT_Get_Char_Index64(face, charcode) : FT_Get_Char_Index32(face, charcode);
+    }
 
     /// <summary>
     /// This function is used to return the first character code in the current charmap of a given face. It also returns the corresponding glyph index.
@@ -1248,8 +1305,8 @@ namespace Tao.FreeType
     /// <param name="face">A handle to the source face object</param>
     /// <param name="agindex">Glyph index of first character code. 0 if charmap is empty</param>
     /// <returns>The charmap's first character code</returns>
-    [DllImport(FT_NATIVE_LIBRARY, CallingConvention = CALLING_CONVENTION), SuppressUnmanagedCodeSecurity]
-    public static extern uint FT_Get_First_Char(IntPtr /*FaceRec*/ face, [In, Out] uint[] agindex);
+    [DllImport(FT_NATIVE_LIBRARY_X86, CallingConvention = CALLING_CONVENTION, EntryPoint = "FT_Get_First_Char"), SuppressUnmanagedCodeSecurity]
+    private static extern uint FT_Get_First_Char32(IntPtr /*FaceRec*/ face, [In, Out] uint[] agindex);
 
     /// <summary>
     /// This function is used to return the next character code in the current charmap of a given face following the value ?char_code?, as well as the corresponding glyph index.
@@ -1260,8 +1317,8 @@ namespace Tao.FreeType
     /// <param name="char_code">The starting character code</param>
     /// <param name="agindex">Glyph index of first character code. 0 if charmap is empty</param>
     /// <returns>The charmap's next character code</returns>
-    [DllImport(FT_NATIVE_LIBRARY, CallingConvention = CALLING_CONVENTION), SuppressUnmanagedCodeSecurity]
-    public static extern uint FT_Get_Next_Char(IntPtr /*FaceRec*/ face, uint char_code, [In, Out] uint[] agindex);
+    [DllImport(FT_NATIVE_LIBRARY_X86, CallingConvention = CALLING_CONVENTION, EntryPoint = "FT_Get_Next_Char"), SuppressUnmanagedCodeSecurity]
+    private static extern uint FT_Get_Next_Char32(IntPtr /*FaceRec*/ face, uint char_code, [In, Out] uint[] agindex);
 
     /// <summary>
     /// Return the glyph index of a given glyph name. This function uses driver specific objects to do the translation
@@ -1269,8 +1326,8 @@ namespace Tao.FreeType
     /// <param name="face">A handle to the source face object</param>
     /// <param name="glyph_name">The glyph name</param>
     /// <returns>The glyph index. 0 means ?undefined character code?</returns>
-    [DllImport(FT_NATIVE_LIBRARY, CallingConvention = CALLING_CONVENTION), SuppressUnmanagedCodeSecurity]
-    public static extern uint FT_Get_Name_Index(IntPtr /*FaceRec*/ face, [In, Out] sbyte[] glyph_name);
+    [DllImport(FT_NATIVE_LIBRARY_X86, CallingConvention = CALLING_CONVENTION, EntryPoint = "FT_Get_Name_Index"), SuppressUnmanagedCodeSecurity]
+    private static extern uint FT_Get_Name_Index32(IntPtr /*FaceRec*/ face, [In, Out] sbyte[] glyph_name);
 
     /// <summary>
     /// A very simple function used to perform the computation ?(a*b)/c? with maximal accuracy (it uses a 64-bit intermediate integer whenever necessary).
@@ -1280,8 +1337,8 @@ namespace Tao.FreeType
     /// <param name="b">The second multiplier</param>
     /// <param name="c">The divisor</param>
     /// <returns>The result of ?(a*b)/c?. This function never traps when trying to divide by zero; it simply returns ?MaxInt? or ?MinInt? depending on the signs of ?a? and ?b?</returns>
-    [DllImport(FT_NATIVE_LIBRARY, CallingConvention = CALLING_CONVENTION), SuppressUnmanagedCodeSecurity]
-    public static extern int FT_MulDiv(int a, int b, int c);
+    [DllImport(FT_NATIVE_LIBRARY_X86, CallingConvention = CALLING_CONVENTION, EntryPoint = "FT_MulDiv"), SuppressUnmanagedCodeSecurity]
+    private static extern int FT_MulDiv32(int a, int b, int c);
 
     /// <summary>
     /// A very simple function used to perform the computation ?(a*b)/0x10000? with maximal accuracy. Most of the time this is used to multiply a given value by a 16.16 fixed float factor
@@ -1291,8 +1348,8 @@ namespace Tao.FreeType
     /// <param name="a">The first multiplier</param>
     /// <param name="b">The second multiplier. Use a 16.16 factor here whenever possible</param>
     /// <returns>The result of ?(a*b)/0x10000?</returns>
-    [DllImport(FT_NATIVE_LIBRARY, CallingConvention = CALLING_CONVENTION), SuppressUnmanagedCodeSecurity]
-    public static extern int FT_MulFix(int a, int b);
+    [DllImport(FT_NATIVE_LIBRARY_X86, CallingConvention = CALLING_CONVENTION, EntryPoint = "FT_MulFix"), SuppressUnmanagedCodeSecurity]
+    private static extern int FT_MulFix32(int a, int b);
 
     /// <summary>
     /// A very simple function used to perform the computation ?(a*0x10000)/b? with maximal accuracy. Most of the time, this is used to divide a given value by a 16.16 fixed float factor
@@ -1301,32 +1358,32 @@ namespace Tao.FreeType
     /// <param name="a">The first multiplier</param>
     /// <param name="b">The second multiplier. Use a 16.16 factor here whenever possible</param>
     /// <returns>The result of ?(a*0x10000)/b?</returns>
-    [DllImport(FT_NATIVE_LIBRARY, CallingConvention = CALLING_CONVENTION), SuppressUnmanagedCodeSecurity]
-    public static extern int FT_DivFix(int a, int b);
+    [DllImport(FT_NATIVE_LIBRARY_X86, CallingConvention = CALLING_CONVENTION, EntryPoint = "FT_DivFix"), SuppressUnmanagedCodeSecurity]
+    private static extern int FT_DivFix32(int a, int b);
 
     /// <summary>
     /// A very simple function used to round a 16.16 fixed number
     /// </summary>
     /// <param name="a">The number to be rounded</param>
     /// <returns>The result of ?(a + 0x8000) &amp; -0x10000?</returns>
-    [DllImport(FT_NATIVE_LIBRARY, CallingConvention = CALLING_CONVENTION), SuppressUnmanagedCodeSecurity]
-    public static extern int FT_RoundFix(int a);
+    [DllImport(FT_NATIVE_LIBRARY_X86, CallingConvention = CALLING_CONVENTION, EntryPoint = "FT_RoundFix"), SuppressUnmanagedCodeSecurity]
+    private static extern int FT_RoundFix32(int a);
 
     /// <summary>
     /// A very simple function used to compute the ceiling function of a 16.16 fixed number
     /// </summary>
     /// <param name="a">The number for which the ceiling function is to be computed</param>
     /// <returns>The result of ?(a + 0x10000 - 1) &amp;-0x10000?</returns>
-    [DllImport(FT_NATIVE_LIBRARY, CallingConvention = CALLING_CONVENTION), SuppressUnmanagedCodeSecurity]
-    public static extern int FT_CeilFix(int a);
+    [DllImport(FT_NATIVE_LIBRARY_X86, CallingConvention = CALLING_CONVENTION, EntryPoint = "FT_CeilFix"), SuppressUnmanagedCodeSecurity]
+    private static extern int FT_CeilFix32(int a);
 
     /// <summary>
     /// A very simple function used to compute the floor function of a 16.16 fixed number
     /// </summary>
     /// <param name="a">The number for which the floor function is to be computed</param>
     /// <returns>The result of ?a &amp; -0x10000?</returns>
-    [DllImport(FT_NATIVE_LIBRARY, CallingConvention = CALLING_CONVENTION), SuppressUnmanagedCodeSecurity]
-    public static extern int FT_FloorFix(int a);
+    [DllImport(FT_NATIVE_LIBRARY_X86, CallingConvention = CALLING_CONVENTION, EntryPoint = "FT_FloorFix"), SuppressUnmanagedCodeSecurity]
+    private static extern int FT_FloorFix32(int a);
 
     /// <summary>
     /// Transform a single vector through a 2x2 matrix.  
@@ -1334,17 +1391,27 @@ namespace Tao.FreeType
     /// </summary>
     /// <param name="vec">The target vector to transform</param>
     /// <param name="matrix">A pointer to the source 2x2 matrix</param>
-    [DllImport(FT_NATIVE_LIBRARY, CallingConvention = CALLING_CONVENTION), SuppressUnmanagedCodeSecurity]
-    public static extern void FT_Vector_Transform(ref FT_Vector vec, ref FT_Matrix matrix);
+    [DllImport(FT_NATIVE_LIBRARY_X86, CallingConvention = CALLING_CONVENTION, EntryPoint = "FT_Vector_Transform"), SuppressUnmanagedCodeSecurity]
+    private static extern void FT_Vector_Transform32(ref FT_Vector vec, ref FT_Matrix matrix);
 
+    [DllImport(FT_NATIVE_LIBRARY_X86, CallingConvention = CALLING_CONVENTION, EntryPoint = "FT_Get_Glyph"), SuppressUnmanagedCodeSecurity]
+    private static extern int FT_Get_Glyph32(IntPtr /*GlyphSlotRec*/ slot, out IntPtr /*FT_Glyph*/ aglyph);
+    [DllImport(FT_NATIVE_LIBRARY_X64, CallingConvention = CALLING_CONVENTION, EntryPoint = "FT_Get_Glyph"), SuppressUnmanagedCodeSecurity]
+    private static extern int FT_Get_Glyph64(IntPtr /*GlyphSlotRec*/ slot, out IntPtr /*FT_Glyph*/ aglyph);
     /// <summary>
     /// A function used to extract a glyph image from a slot.
     /// </summary>
     /// <param name="slot">A handle to the source glyph slot.</param>
     /// <param name="aglyph">A handle to the glyph object</param>
-    [DllImport(FT_NATIVE_LIBRARY, CallingConvention = CALLING_CONVENTION), SuppressUnmanagedCodeSecurity]
-    public static extern int FT_Get_Glyph(IntPtr /*GlyphSlotRec*/ slot, out IntPtr /*FT_Glyph*/ aglyph);
+    public static int FT_Get_Glyph(IntPtr /*GlyphSlotRec*/ slot, out IntPtr /*FT_Glyph*/ aglyph)
+    {
+      return is64 ? FT_Get_Glyph64(slot, out aglyph) : FT_Get_Glyph32(slot, out aglyph);
+    }
 
+    [DllImport(FT_NATIVE_LIBRARY_X86, CallingConvention = CALLING_CONVENTION, EntryPoint = "FT_Glyph_To_Bitmap"), SuppressUnmanagedCodeSecurity]
+    private static extern int FT_Glyph_To_Bitmap32(ref IntPtr /*FT_Glyph* */ glyph, FT_Render_Mode render_mode, IntPtr /*FT_Vector* */ origin, byte /*FT_Bool*/destroy);
+    [DllImport(FT_NATIVE_LIBRARY_X64, CallingConvention = CALLING_CONVENTION, EntryPoint = "FT_Glyph_To_Bitmap"), SuppressUnmanagedCodeSecurity]
+    private static extern int FT_Glyph_To_Bitmap64(ref IntPtr /*FT_Glyph* */ glyph, FT_Render_Mode render_mode, IntPtr /*FT_Vector* */ origin, byte /*FT_Bool*/destroy);
     /// <summary>
     /// Convert a given glyph object to a bitmap glyph object.
     /// </summary>
@@ -1352,15 +1419,23 @@ namespace Tao.FreeType
     /// <param name="render_mode">An enumeration that describe how the data is rendered.</param>
     /// <param name="origin">A pointer to a vector used to translate the glyph image before rendering. Can be 0 (if no translation). The origin is expressed in 26.6 pixels.</param>
     /// <param name="destroy">A boolean that indicates that the original glyph image should be destroyed by this function. It is never destroyed in case of error.</param>
-    [DllImport(FT_NATIVE_LIBRARY, CallingConvention = CALLING_CONVENTION), SuppressUnmanagedCodeSecurity]
-    public static extern int FT_Glyph_To_Bitmap(ref IntPtr /*FT_Glyph* */ glyph, FT_Render_Mode render_mode, IntPtr /*FT_Vector* */ origin, byte /*FT_Bool*/destroy);
+    public static int FT_Glyph_To_Bitmap(ref IntPtr /*FT_Glyph* */ glyph, FT_Render_Mode render_mode, IntPtr /*FT_Vector* */ origin, byte /*FT_Bool*/destroy)
+    {
+      return is64 ? FT_Glyph_To_Bitmap64(ref glyph, render_mode, origin, destroy) : FT_Glyph_To_Bitmap32(ref glyph, render_mode, origin, destroy);
+    }
 
+    [DllImport(FT_NATIVE_LIBRARY_X86, CallingConvention = CALLING_CONVENTION, EntryPoint = "FT_Done_Glyph"), SuppressUnmanagedCodeSecurity]
+    private static extern int FT_Done_Glyph32(IntPtr /*FT_Glyph* */ glyph);
+    [DllImport(FT_NATIVE_LIBRARY_X64, CallingConvention = CALLING_CONVENTION, EntryPoint = "FT_Done_Glyph"), SuppressUnmanagedCodeSecurity]
+    private static extern int FT_Done_Glyph64(IntPtr /*FT_Glyph* */ glyph);
     /// <summary>
     /// Destroys a given glyph.
     /// </summary>
     /// <param name="glyph">A pointer to a handle to the target glyph.</param>
-    [DllImport(FT_NATIVE_LIBRARY, CallingConvention = CALLING_CONVENTION), SuppressUnmanagedCodeSecurity]
-    public static extern int FT_Done_Glyph(IntPtr /*FT_Glyph* */ glyph);
+    public static int FT_Done_Glyph(IntPtr /*FT_Glyph* */ glyph)
+    {
+      return is64 ? FT_Done_Glyph64(glyph) : FT_Done_Glyph32(glyph);
+    }
   }
 }
 
