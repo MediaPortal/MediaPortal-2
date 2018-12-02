@@ -72,17 +72,22 @@ namespace MediaPortal.UI.Players.Video
 
     #endregion
 
-    #region DLL imports
+#region DLL imports
 
+#if x86
     [DllImport("EVRPresenter.dll", ExactSpelling = true, CharSet = CharSet.Auto, SetLastError = true)]
     private static extern int EvrInit(IEVRPresentCallback callback, uint dwD3DDevice, IBaseFilter evrFilter, IntPtr monitor, out IntPtr presenterInstance);
+#else
+    [DllImport("EVRPresenter.dll", ExactSpelling = true, CharSet = CharSet.Auto, SetLastError = true)]
+    private static extern int EvrInit(IEVRPresentCallback callback, IntPtr dwD3DDevice, IBaseFilter evrFilter, IntPtr monitor, out IntPtr presenterInstance);
+#endif
 
     [DllImport("EVRPresenter.dll", ExactSpelling = true, CharSet = CharSet.Auto, SetLastError = true)]
     private static extern void EvrDeinit(IntPtr presenterInstance);
 
-    #endregion
+#endregion
 
-    #region Consts
+#region Consts
 
     protected const string EVR_FILTER_NAME = "Enhanced Video Renderer";
     protected IntPtr _presenterInstance;
@@ -98,9 +103,9 @@ namespace MediaPortal.UI.Players.Video
     public const string CCFILTER_NAME = "Core CC Parser";
     public const string CCFILTER_FILENAME = "cccp.ax";
 
-    #endregion
+#endregion
 
-    #region Variables
+#region Variables
 
     // DirectShow objects
     protected IBaseFilter _evr;
@@ -148,9 +153,9 @@ namespace MediaPortal.UI.Players.Video
     protected MpcSubsRenderer _mpcSubsRenderer;
     private FilterFileWrapper _ccFilter;
 
-    #endregion
+#endregion
 
-    #region Ctor & dtor
+#region Ctor & dtor
 
     public VideoPlayer()
     {
@@ -162,12 +167,14 @@ namespace MediaPortal.UI.Players.Video
         throw new EnvironmentException("This video player can only run on Windows Vista or above");
 
       PlayerTitle = "VideoPlayer";
+#if x86
       _mpcSubsRenderer = new MpcSubsRenderer(OnTextureInvalidated);
+#endif
     }
 
-    #endregion
+#endregion
 
-    #region EVR Callback
+#region EVR Callback
 
     protected void RenderFrame()
     {
@@ -176,9 +183,9 @@ namespace MediaPortal.UI.Players.Video
         dlgt();
     }
 
-    #endregion
+#endregion
 
-    #region IInitializablePlayer implementation
+#region IInitializablePlayer implementation
 
     protected override void AddPresenter()
     {
@@ -192,6 +199,7 @@ namespace MediaPortal.UI.Players.Video
     protected override void AddSubtitleFilter(bool isSourceFilterPresent)
     {
       VideoSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<VideoSettings>() ?? new VideoSettings();
+#if x86
       int preferredSubtitleLcid = settings.PreferredSubtitleLanguage;
       var fileSystemResourceAccessor = _resourceAccessor as IFileSystemResourceAccessor;
 
@@ -211,7 +219,7 @@ namespace MediaPortal.UI.Players.Video
           MpcSubtitles.SetEnable(true);
         }
       }
-
+#endif
       AddClosedCaptionsFilter();
     }
 
@@ -233,9 +241,9 @@ namespace MediaPortal.UI.Players.Video
       }
     }
 
-    #endregion
+#endregion
 
-    #region Graph building
+#region Graph building
 
     /// <summary>
     /// Adds the EVR to graph.
@@ -247,7 +255,11 @@ namespace MediaPortal.UI.Players.Video
       _evr = (IBaseFilter)new EnhancedVideoRenderer();
 
       IntPtr upDevice = SkinContext.Device.NativePointer;
+#if x86
       int hr = EvrInit(_evrCallback, (uint)upDevice.ToInt32(), _evr, SkinContext.Form.Handle, out _presenterInstance);
+#else
+      int hr = EvrInit(_evrCallback, upDevice, _evr, SkinContext.Form.Handle, out _presenterInstance);
+#endif
       if (hr != 0)
       {
         SafeEvrDeinit();
@@ -267,9 +279,9 @@ namespace MediaPortal.UI.Players.Video
       _graphBuilder.AddFilter(_evr, EVR_FILTER_NAME);
     }
 
-    #endregion
+#endregion
 
-    #region Graph shutdown
+#region Graph shutdown
 
     /// <summary>
     /// Release all COM object references to IAMStreamSelect instances.
@@ -318,9 +330,9 @@ namespace MediaPortal.UI.Players.Video
       _presenterInstance = IntPtr.Zero;
     }
 
-    #endregion
+#endregion
 
-    #region ISharpDXVideoPlayer implementation
+#region ISharpDXVideoPlayer implementation
 
     public override string Name
     {
@@ -404,7 +416,7 @@ namespace MediaPortal.UI.Players.Video
       set { _cropSettings = value; }
     }
 
-    #region Audio streams
+#region Audio streams
 
     /// <summary>
     /// Sets the preferred audio stream. The stream is chosen either by LCID or the last used stream name.
@@ -644,15 +656,18 @@ namespace MediaPortal.UI.Players.Video
           }
         }
 
+#if x86
         // MPC engine uses it's own way to enumerate subs.
         BaseStreamInfoHandler subtitleStreams = new MpcStreamInfoHandler();
         SetPreferredSubtitle_intern(ref subtitleStreams);
         SetPreferedAudio_intern(ref audioStreams, false);
-
+#endif
         lock (SyncObj)
         {
           _streamInfoAudio = audioStreams;
+#if x86
           _streamInfoSubtitles = subtitleStreams;
+#endif
           _streamInfoTitles = titleStreams;
         }
         return true;
@@ -809,7 +824,7 @@ namespace MediaPortal.UI.Players.Video
       return "-";
     }
 
-    #endregion
+#endregion
 
     public virtual void ReleaseGUIResources()
     {
@@ -885,9 +900,9 @@ namespace MediaPortal.UI.Players.Video
       }
     }
 
-    #endregion
+#endregion
 
-    #region ISubtitlePlayer implementation
+#region ISubtitlePlayer implementation
 
     protected virtual void SetPreferredSubtitle()
     {
@@ -988,8 +1003,10 @@ namespace MediaPortal.UI.Players.Video
         subtitleStreams.CurrentStreamName.ToLowerInvariant().Contains(FORCED_SUBTITLES.ToLowerInvariant()) == false;
       ServiceRegistration.Get<ISettingsManager>().Save(settings);
 
+#if x86
       // Make sure MPC subs engine is enabled when valid subtitle got selected.
       MpcSubtitles.SetEnable(settings.EnableSubtitles);
+#endif
     }
 
     public virtual void DisableSubtitle()
@@ -1010,9 +1027,9 @@ namespace MediaPortal.UI.Players.Video
       }
     }
 
-    #endregion
+#endregion
 
-    #region IChapterPlayer implementation
+#region IChapterPlayer implementation
 
     /// <summary>
     /// Gets a list of available chapters.
@@ -1139,9 +1156,9 @@ namespace MediaPortal.UI.Players.Video
       return ServiceRegistration.Get<ILocalization>().ToString(RES_PLAYBACK_CHAPTER, chapterNumber);
     }
 
-    #endregion
+#endregion
 
-    #region ITitlePlayer implementation
+#region ITitlePlayer implementation
 
     public virtual string[] Titles
     {
@@ -1197,18 +1214,18 @@ namespace MediaPortal.UI.Players.Video
       }
     }
 
-    #endregion
+#endregion
 
-    #region Base overrides
+#region Base overrides
 
     public override string ToString()
     {
       return string.Format("{0}: {1}", GetType().Name, _resourceAccessor != null ? _resourceAccessor.ResourceName : "no resource");
     }
 
-    #endregion
+#endregion
 
-    #region Implementation of IResumablePlayer
+#region Implementation of IResumablePlayer
 
     /// <summary>
     /// Gets a <see cref="IResumeState"/> from the player.
@@ -1262,6 +1279,6 @@ namespace MediaPortal.UI.Players.Video
       return true;
     }
 
-    #endregion
+#endregion
   }
 }
