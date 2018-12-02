@@ -188,7 +188,7 @@
     <Link>
       <AdditionalDependencies>winmm.lib;comsupp.lib;dxguid.lib;d3d9.lib;mfuuid.lib;dxva2.lib;evr.lib;mf.lib;strmiids.lib;strmbase.lib;Mfplat.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <ShowProgress>NotSet</ShowProgress>
-      <OutputFile>$(SolutionDir)\$(Configuration)\$(ProjectName).dll</OutputFile>
+      <OutputFile>$(SolutionDir)\$(Configuration)\$(Platform)\$(ProjectName).dll</OutputFile>
       <AdditionalLibraryDirectories>$(DXSDK_DIR)lib\x86;$(WINDOWS_SDK)lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <EnableUAC>true</EnableUAC>
       <IgnoreAllDefaultLibraries>false</IgnoreAllDefaultLibraries>
@@ -228,7 +228,7 @@
     <Link>
       <AdditionalDependencies>winmm.lib;comsupp.lib;dxguid.lib;d3d9.lib;mfuuid.lib;dxva2.lib;evr.lib;mf.lib;strmiids.lib;strmbase.lib;Mfplat.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <ShowProgress>NotSet</ShowProgress>
-      <OutputFile>$(SolutionDir)\$(Configuration)\$(ProjectName).dll</OutputFile>
+      <OutputFile>$(SolutionDir)\$(Configuration)\$(Platform)\$(ProjectName).dll</OutputFile>
       <AdditionalLibraryDirectories>$(DXSDK_DIR)lib\x64;$(WINDOWS_SDK)lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <EnableUAC>true</EnableUAC>
       <IgnoreAllDefaultLibraries>false</IgnoreAllDefaultLibraries>
