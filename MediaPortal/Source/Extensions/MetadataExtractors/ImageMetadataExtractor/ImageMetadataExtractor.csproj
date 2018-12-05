@@ -114,11 +114,8 @@
     <None Include="build.targets" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="FreeImage">
-      <Version>3.15.4</Version>
-    </PackageReference>
-    <PackageReference Include="FreeImageNET">
-      <Version>3.15.1</Version>
+    <PackageReference Include="MediaPortal.FreeImageNET">
+      <Version>3.18.0</Version>
     </PackageReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

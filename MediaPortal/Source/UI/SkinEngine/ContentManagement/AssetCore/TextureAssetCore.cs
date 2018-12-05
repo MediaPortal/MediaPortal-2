@@ -131,8 +131,8 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement.AssetCore
       // GDI decoding was measured to be faster in nearly all cases. WIC based was faster, but was missing rotation support and had other dependencies (WPF or SharpDX.WIC).
       // FreeImage decoding is kept in place as fallback to support image formats which are not handled by GDI.
       Texture texture = 
-        AllocateFromImageStream_GDI(dataStream, ref info); 
-        // ?? AllocateFromImageStream_FreeImage(dataStream, ref info);
+        AllocateFromImageStream_GDI(dataStream, ref info) ??
+        AllocateFromImageStream_FreeImage(dataStream, ref info);
       return texture;
     }
 
@@ -182,52 +182,52 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement.AssetCore
       return texture;
     }
 
-    //protected Texture AllocateFromImageStream_FreeImage(Stream dataStream, ref ImageInformation info)
-    //{
-    //  Texture texture = null;
-    //  FIBITMAP image = FIBITMAP.Zero;
-    //  try
-    //  {
-    //    if (dataStream.CanSeek)
-    //      dataStream.Position = 0;
-    //    image = FreeImage.LoadFromStream(dataStream);
+    protected Texture AllocateFromImageStream_FreeImage(Stream dataStream, ref ImageInformation info)
+    {
+      Texture texture = null;
+      FIBITMAP image = FIBITMAP.Zero;
+      try
+      {
+        if (dataStream.CanSeek)
+          dataStream.Position = 0;
+        image = FreeImage.LoadFromStream(dataStream);
 
-    //    // Write uncompressed data to temporary stream.
-    //    using (var memoryStream = new MemoryStream())
-    //    {
-    //      // Scale down larger images
-    //      int resizeWidth = MAX_TEXTURE_DIMENSION;
-    //      int resizeHeight = MAX_TEXTURE_DIMENSION;
+        // Write uncompressed data to temporary stream.
+        using (var memoryStream = new MemoryStream())
+        {
+          // Scale down larger images
+          int resizeWidth = MAX_TEXTURE_DIMENSION;
+          int resizeHeight = MAX_TEXTURE_DIMENSION;
 
-    //      if (_decodeWidth > 0)
-    //        resizeWidth = Math.Min(_decodeWidth, MAX_TEXTURE_DIMENSION);
+          if (_decodeWidth > 0)
+            resizeWidth = Math.Min(_decodeWidth, MAX_TEXTURE_DIMENSION);
 
-    //      if (_decodeHeight > 0)
-    //        resizeHeight = Math.Min(_decodeHeight, MAX_TEXTURE_DIMENSION);
+          if (_decodeHeight > 0)
+            resizeHeight = Math.Min(_decodeHeight, MAX_TEXTURE_DIMENSION);
 
-    //      Stream loadStream = dataStream;
-    //      if (!image.IsNull)
-    //      {
-    //        image = ResizeImage(image, resizeWidth, resizeHeight);
-    //        FreeImage.SaveToStream(image, memoryStream, FREE_IMAGE_FORMAT.FIF_BMP);
-    //        loadStream = memoryStream;
-    //      }
+          Stream loadStream = dataStream;
+          if (!image.IsNull)
+          {
+            image = ResizeImage(image, resizeWidth, resizeHeight);
+            FreeImage.SaveToStream(image, memoryStream, FREE_IMAGE_FORMAT.FIF_BMP);
+            loadStream = memoryStream;
+          }
 
-    //      loadStream.Position = 0;
-    //      texture = Texture.FromStream(GraphicsDevice.Device, loadStream, (int)loadStream.Length, _decodeWidth, _decodeHeight, 1,
-    //        Usage.None, Format.A8R8G8B8, Pool.Default, Filter.None, Filter.None, 0, out info);
-    //    }
-    //  }
-    //  catch (Exception ex)
-    //  {
-    //    ServiceRegistration.Get<ILogger>().Warn("TextureAssetCore: Error loading texture from stream using FreeImage", ex);
-    //  }
-    //  finally
-    //  {
-    //    FreeImage.UnloadEx(ref image);
-    //  }
-    //  return texture;
-    //}
+          loadStream.Position = 0;
+          texture = Texture.FromStream(GraphicsDevice.Device, loadStream, (int)loadStream.Length, _decodeWidth, _decodeHeight, 1,
+            Usage.None, Format.A8R8G8B8, Pool.Default, Filter.None, Filter.None, 0, out info);
+        }
+      }
+      catch (Exception ex)
+      {
+        ServiceRegistration.Get<ILogger>().Warn("TextureAssetCore: Error loading texture from stream using FreeImage", ex);
+      }
+      finally
+      {
+        FreeImage.UnloadEx(ref image);
+      }
+      return texture;
+    }
 
     /// <summary>
     /// Resizes the given <paramref name="fullsizeImage"/> to a maximum <paramref name="maxWidth"/> and <paramref name="maxHeight"/> while preserving
