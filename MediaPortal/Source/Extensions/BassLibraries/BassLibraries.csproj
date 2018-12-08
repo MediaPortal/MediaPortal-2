@@ -88,74 +88,16 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <None Include="build.targets" />
+    <None Include="build.targets">
+      <SubType>Designer</SubType>
+    </None>
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="BASS">
-      <Version>2.4.12.2</Version>
-    </PackageReference>
-    <PackageReference Include="bass.aac">
-      <Version>2.4.5.1</Version>
-    </PackageReference>
-    <PackageReference Include="bass.ac3">
-      <Version>2.4.0.5</Version>
-    </PackageReference>
-    <PackageReference Include="bass.adx">
-      <Version>2.4.1.1</Version>
-    </PackageReference>
-    <PackageReference Include="bass.aix">
-      <Version>2.4.1.1</Version>
-    </PackageReference>
-    <PackageReference Include="bass.alac">
-      <Version>2.4.3</Version>
-    </PackageReference>
-    <PackageReference Include="bass.ape">
-      <Version>2.4.2</Version>
-    </PackageReference>
-    <PackageReference Include="bass.cd">
-      <Version>2.4.6</Version>
-    </PackageReference>
-    <PackageReference Include="bass.dsd">
-      <Version>2.4.0.2</Version>
-    </PackageReference>
-    <PackageReference Include="bass.flac">
-      <Version>2.4.3</Version>
-    </PackageReference>
-    <PackageReference Include="bass.fx">
-      <Version>2.4.11.1</Version>
-    </PackageReference>
-    <PackageReference Include="bass.midi">
-      <Version>2.4.10</Version>
-    </PackageReference>
-    <PackageReference Include="bass.mix">
-      <Version>2.4.8</Version>
-    </PackageReference>
-    <PackageReference Include="bass.mpc">
-      <Version>2.4.1.2</Version>
+    <PackageReference Include="BASSCombined">
+      <Version>2.4.13.1</Version>
     </PackageReference>
     <PackageReference Include="BASS.NET">
       <Version>2.4.12.5</Version>
-    </PackageReference>
-    <PackageReference Include="bass.ofr">
-      <Version>2.4.0.2</Version>
-    </PackageReference>
-    <PackageReference Include="bass.spx">
-      <Version>2.4.3.2</Version>
-    </PackageReference>
-    <PackageReference Include="bass.tags">
-      <Version>0.0.17</Version>
-    </PackageReference>
-    <PackageReference Include="bass.tta">
-      <Version>2.4.0.2</Version>
-    </PackageReference>
-    <PackageReference Include="bass.wasapi">
-      <Version>2.4.1.2</Version>
-    </PackageReference>
-    <PackageReference Include="bass.wma">
-      <Version>2.4.5.1</Version>
-    </PackageReference>
-    <PackageReference Include="bass.wv">
-      <Version>2.4.6</Version>
     </PackageReference>
     <PackageReference Include="BassRegistration">
       <Version>2.4.12.5</Version>
