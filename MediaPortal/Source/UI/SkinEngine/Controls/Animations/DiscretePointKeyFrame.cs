@@ -30,7 +30,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Animations
   {
     public override Vector2 Interpolate(Vector2 start, double keyframe)
     {
-      if (double.IsNaN(keyframe) || keyframe <= 1.0)
+      if (double.IsNaN(keyframe) || keyframe < 1.0)
         return start;
       return Value;
     }
