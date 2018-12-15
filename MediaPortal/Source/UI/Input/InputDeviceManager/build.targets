@@ -7,6 +7,8 @@
 
   <ItemGroup>
     <PluginFiles Include="$(TargetDir)$(ProjectName).dll" />
+    <PluginFiles Include="$(TargetDir)SharpLibHid.dll" />
+    <PluginFiles Include="$(TargetDir)SharpLibWin32.dll" />
     <PluginFiles Include="$(ProjectDir)plugin.xml" />
   </ItemGroup>
 

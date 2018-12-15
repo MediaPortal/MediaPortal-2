@@ -40,7 +40,7 @@ namespace MediaPortal.Plugins.InputDeviceManager
     /// <summary>
     /// Gets the transceiver list.
     /// </summary>
-    [Setting(SettingScope.User)]
+    [Setting(SettingScope.Global)]
     public List<InputDevice> InputDevices
     {
       get { return _inputDevices; }
@@ -48,15 +48,5 @@ namespace MediaPortal.Plugins.InputDeviceManager
     }
 
     #endregion Properties
-
-    #region Additional members for the XML serialization
-
-    public List<InputDevice> XML_InputDevices
-    {
-      get { return _inputDevices; }
-      set { _inputDevices = value; }
-    }
-
-    #endregion
   }
 }

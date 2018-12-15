@@ -22,19 +22,42 @@
 
 #endregion
 
-using System;
+using System.Collections.Generic;
+using System.Xml.Serialization;
 
-namespace MediaPortal.Plugins.InputDeviceManager.RawInput
+namespace MediaPortal.Plugins.InputDeviceManager
 {
-   public class RawInputEventArg : EventArgs
-   {
-      public RawInputEventArg(KeyPressEvent arg)
-      {
-         KeyPressEvent = arg;
-      }
+  /// <summary>
+  /// Mapping of a remote button key code to a <see cref="Key"/> instance.
+  /// </summary>
+  [XmlRoot("KeyCode")]
+  public class KeyCode
+  {
+    #region Properties
 
-      public KeyPressEvent KeyPressEvent { get; private set; }
+    [XmlAttribute("Key")]
+    public string Key { get; set; }
 
-      public bool Handled { get; set; }
-   }
+    [XmlElement("Code")]
+    public long Code { get; set; }
+
+    #endregion Properties
+
+    #region Constructors
+
+    public KeyCode()  { }
+
+    public KeyCode(string key, long code)
+    {
+      Key  = key;
+      Code = code;
+    }
+
+    public override string ToString()
+    {
+      return Key.ToString();
+    }
+
+    #endregion Constructors
+  }
 }
