@@ -1775,10 +1775,9 @@ namespace MediaPortal.Backend.Services.MediaLibrary
 
     private Guid AddOrUpdateMediaItem(Guid parentDirectoryId, string systemId, ResourcePath path, Guid? existingMediaItemId, Guid? newMediaItemId, IEnumerable<MediaItemAspect> mediaItemAspects, bool isRefresh)
     {
-      Guid? mediaItemId = null;
-      mediaItemId = AddOrUpdateMediaItem(null, null, parentDirectoryId, systemId, path, existingMediaItemId, newMediaItemId, mediaItemAspects, isRefresh);
-      MediaLibraryMessaging.SendMediaItemsAddedOrUpdatedMessage(new MediaItem(mediaItemId.Value, MediaItemAspect.GetAspects(mediaItemAspects)));
-      return mediaItemId.Value;
+      Guid mediaItemId = AddOrUpdateMediaItem(null, null, parentDirectoryId, systemId, path, existingMediaItemId, newMediaItemId, mediaItemAspects, isRefresh);
+      MediaLibraryMessaging.SendMediaItemsAddedOrUpdatedMessage(mediaItemId);
+      return mediaItemId;
     }
 
     private Guid AddOrUpdateMediaItem(ISQLDatabase database, ITransaction transaction, Guid parentDirectoryId, string systemId, ResourcePath path, Guid? existingMediaItemId, Guid? newMediaItemId, IEnumerable<MediaItemAspect> mediaItemAspects, bool isRefresh)
@@ -1996,7 +1995,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
       }
 
       //Notify listeners that the reconciled item has changed
-      MediaLibraryMessaging.SendMediaItemsAddedOrUpdatedMessage(new MediaItem(mediaItemId, aspects));
+      MediaLibraryMessaging.SendMediaItemsAddedOrUpdatedMessage(mediaItemId);
 
       if (updatedItemIds.Count > 0)
       {
@@ -2007,7 +2006,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
       }
 
       if (result.Count > 0)
-        MediaLibraryMessaging.SendMediaItemsAddedOrUpdatedMessage(result);
+        MediaLibraryMessaging.SendMediaItemsAddedOrUpdatedMessage(result.Select(mi => mi.MediaItemId).ToArray());
       Logger.Info("Media item {0} with name {1} reconciled ({2} ms)", mediaItemId, name, swImport.ElapsedMilliseconds);
       return result;
     }
