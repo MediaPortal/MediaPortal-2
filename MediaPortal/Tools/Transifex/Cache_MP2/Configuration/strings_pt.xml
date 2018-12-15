@@ -1,6 +1,7 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
   <string name="Configuration.Name">Configurações</string>
+  <string name="Configuration.Name.Help">Configure a fontes de mídia e o aspeto do MediaPortal</string>
   <string name="Configuration.ConfigurationMainWorkflowNavigationContextDisplayLabel">Configurações</string>
   <string name="Configuration.MainSettings">Configurações Prinicipais</string>
   <!--2nd Header for root configuration section-->
@@ -11,4 +12,6 @@
   <!--0 = current value, 1 = lower limit, 2 = upper limit-->
   <string name="Configuration.ErrorNumericUpperLimit">Utilize um valor entre \'{1}\' e \'{2}\'</string>
   <!--0 = current value, 1 = lower limit, 2 = upper limit-->
+  <string name="RestrictionGroup.Settings">Configurações: Configuração de acessos</string>
+  <string name="RestrictionGroup.Settings.MediaSources">Configurações: -  Gestão fontes de mídia</string>
 </resources>

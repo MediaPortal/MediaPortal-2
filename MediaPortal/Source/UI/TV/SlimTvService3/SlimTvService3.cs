@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2017 Team MediaPortal
+#region Copyright (C) 2007-2018 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2017 Team MediaPortal
+    Copyright (C) 2007-2018 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -45,6 +45,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net;
+using System.Net.Sockets;
 using System.Threading;
 using System.Threading.Tasks;
 using TvControl;
@@ -175,8 +176,13 @@ namespace MediaPortal.Plugins.SlimTv.Service
       var server = Server.ListAll().FirstOrDefault(s => s.IsMaster);
       if (server != null)
       {
-        var hostName = Dns.GetHostName();
-        if (server.HostName != hostName)
+        // Check for valid entries: this is the hostname and all IP addresses
+        ICollection<string> nameAndAdresses = new HashSet<string>(StringComparer.InvariantCultureIgnoreCase);
+        string hostName = Dns.GetHostName();
+        nameAndAdresses.Add(hostName);
+        IPHostEntry local = Dns.GetHostEntry(hostName);
+        CollectionUtils.AddAll(nameAndAdresses, local.AddressList.Where(a => a.AddressFamily == AddressFamily.InterNetwork).Select(a => a.ToString()));
+        if (!nameAndAdresses.Contains(server.HostName))
         {
           server.HostName = hostName;
           server.Persist();

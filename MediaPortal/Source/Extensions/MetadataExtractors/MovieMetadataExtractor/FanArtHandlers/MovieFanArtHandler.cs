@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2017 Team MediaPortal
+#region Copyright (C) 2007-2018 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2017 Team MediaPortal
+    Copyright (C) 2007-2018 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -110,16 +110,19 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
 
     protected async Task ExtractMovieFanArt(Guid mediaItemId, IDictionary<Guid, IList<MediaItemAspect>> aspects)
     {
-      if (BaseInfo.IsVirtualResource(aspects))
-        return;
+      bool shouldCacheLocal = false;
+      IResourceLocator mediaItemLocator = null;
 
-      IResourceLocator mediaItemLocator = GetResourceLocator(aspects);
-      if (mediaItemLocator == null)
-        return;
+      if (!BaseInfo.IsVirtualResource(aspects))
+      {
+        mediaItemLocator = GetResourceLocator(aspects);
+        if (mediaItemLocator == null)
+          return;
 
-      //Whether local fanart should be stored in the fanart cache
-      bool shouldCacheLocal = ShouldCacheLocalFanArt(mediaItemLocator.NativeResourcePath,
-        MovieMetadataExtractor.CacheLocalFanArt, MovieMetadataExtractor.CacheOfflineFanArt);
+        //Whether local fanart should be stored in the fanart cache
+        shouldCacheLocal = ShouldCacheLocalFanArt(mediaItemLocator.NativeResourcePath,
+          MovieMetadataExtractor.CacheLocalFanArt, MovieMetadataExtractor.CacheOfflineFanArt);
+      }
 
       if (!shouldCacheLocal && MovieMetadataExtractor.SkipFanArtDownload)
         return; //Nothing to do

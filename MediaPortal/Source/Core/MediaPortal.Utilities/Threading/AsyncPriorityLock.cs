@@ -1,7 +1,7 @@
-﻿#region Copyright (C) 2007-2017 Team MediaPortal
+﻿#region Copyright (C) 2007-2018 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2015 Team MediaPortal
+    Copyright (C) 2007-2018 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -23,7 +23,7 @@
 #endregion
 
 using System;
-using System.Collections.Generic;
+using System.Collections.Concurrent;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -65,10 +65,10 @@ namespace MediaPortal.Utilities.Threading
     private readonly Task<Releaser> _lowPriorityReleaser;
 
     //Queue of waiting low priority lock requesters
-    private readonly Queue<TaskCompletionSource<Releaser>> _waitingLowPriorities = new Queue<TaskCompletionSource<Releaser>>();
+    private readonly ConcurrentQueue<TaskCompletionSource<Releaser>> _waitingLowPriorities = new ConcurrentQueue<TaskCompletionSource<Releaser>>();
 
     //Current number of priority locks.
-    private long _priorityLocks;
+    private int _priorityLocks;
 
     public AsyncPriorityLock()
     {
@@ -93,18 +93,18 @@ namespace MediaPortal.Utilities.Threading
     /// <returns></returns>
     public Task<Releaser> LowPriorityLockAsync()
     {
-      if (Interlocked.Read(ref _priorityLocks) == 0)
+      // Checking the priority lock count and the queuing of a low priority task
+      // must be atomic to avoid a race condition where the priority lock is
+      // decremented between the check and queuing, which would lead to the low
+      // priority task being queued without a corresponding priority lock to
+      // dequeue it.
+      lock (_syncObj)
       {
-        return _lowPriorityReleaser;
-      }
-      else
-      {
-        lock (_syncObj)
-        {
-          var waiter = new TaskCompletionSource<Releaser>();
-          _waitingLowPriorities.Enqueue(waiter);
-          return waiter.Task;
-        }
+        if (_priorityLocks == 0)
+          return _lowPriorityReleaser;
+        var waiter = new TaskCompletionSource<Releaser>();
+        _waitingLowPriorities.Enqueue(waiter);
+        return waiter.Task;
       }
     }
 
@@ -125,7 +125,13 @@ namespace MediaPortal.Utilities.Threading
     /// <returns></returns>
     public Task<Releaser> PriorityLockAsync()
     {
-      Interlocked.Increment(ref _priorityLocks);
+      // Technically we could use Interlocked.Increment here. However, in all other places
+      // we have to lock to ensure that the priority lock count isn't decremented whilst a
+      // low priority lock is being queued. If we used Interlocked here then we'd also have
+      // to use it inside those locks to ensure the value remains consistent so we use a
+      // lock here as well to avoid having to nest different synchronization methods.
+      lock (_syncObj)
+        _priorityLocks++;
       return _priorityReleaser;
     }
 
@@ -135,15 +141,22 @@ namespace MediaPortal.Utilities.Threading
 
     private void PriorityRelease()
     {
-      Interlocked.Decrement(ref _priorityLocks);
+      // We can't use Interlocked.Decrement here because we need to block
+      // whilst any low priority locks are being queued.
       lock (_syncObj)
-      {
-        while (_priorityLocks == 0 && _waitingLowPriorities.Count > 0)
-        {
-          TaskCompletionSource<Releaser> toWake = _waitingLowPriorities.Dequeue();
-          toWake.SetResult(new Releaser(this, false));
-        }
-      }
+        _priorityLocks--;
+
+      // Don't complete the TCSs inside the lock otherwise we'd need to allow the priority lock count
+      // to be incremented outside the lock using the Interlocked methods (see comment in PriorityLockAsync()).
+      // Additionally, the completions may run on the current thread which could lead to a deadlock if
+      // it synchronoulsy waits on a low priority lock and another thread has since obtained a priority
+      // lock, causing the low priority lock to be queued. We'd then be blocked here waiting for the other
+      // thread to dequeue it which it couldn't do because we are still holding the lock. We could avoid
+      // the second issue by creating the TCS with TaskCreationOptions.RunContinuationsAsynchronously
+      // however this wouldn't solve the first issue so we avoid the additional resource usage of running
+      // the completions asynchronously.
+      while (Volatile.Read(ref _priorityLocks) == 0 && _waitingLowPriorities.TryDequeue(out TaskCompletionSource<Releaser> toWake))
+        toWake.SetResult(new Releaser(this, false));
     }
   }
 }

@@ -1,7 +1,7 @@
-﻿#region Copyright (C) 2007-2017 Team MediaPortal
+#region Copyright (C) 2007-2018 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2017 Team MediaPortal
+    Copyright (C) 2007-2018 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -128,8 +128,11 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.FanArtDataflow
     {
       FanArtManagerAction removedAction;
       if (_pendingFanArtDownloads.TryRemove(action.ActionId, out removedAction))
+      {
+        removedAction.Aspects?.Clear();
         //Remove the completed action from the persisted list of pending actions
         _persistBlock.Post(null);
+      }
     }
     
     /// <summary>

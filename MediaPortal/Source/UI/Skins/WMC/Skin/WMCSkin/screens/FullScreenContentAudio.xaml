@@ -109,7 +109,7 @@
                  FallbackSource="CD.png" HorizontalAlignment="Right" RenderTransformOrigin="0.498,0.498"
                  VerticalAlignment="Bottom" Width="290" Height="290" Margin="0,0,150,25">
             <Image.Source>
-              <fanart:FanArtImageSource fanart:FanArtMediaType="Album" fanart:FanArtType="DiscArt" fanart:FanArtName="{Binding MediaItem.MediaItemId}"
+              <fanart:FanArtImageSource fanart:FanArtMediaType="Album" fanart:FanArtType="DiscArt" fanart:FanArtName="{Binding Source={Binding MediaItem}, Path=MediaItemId}"
                                         fanart:MaxWidth="290" fanart:MaxHeight="290"/>
             </Image.Source>
 

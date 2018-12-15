@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2017 Team MediaPortal
+#region Copyright (C) 2007-2018 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2017 Team MediaPortal
+    Copyright (C) 2007-2018 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -601,9 +601,9 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
           //Try to update artist based on album information
           AlbumInfo album = trackMatch.CloneBasicInstance<AlbumInfo>();
           if (forAlbum)
-            album.Artists = trackMatch.AlbumArtists;
+            album.Artists = trackMatch.AlbumArtists.ToList();
           else
-            album.Artists = trackMatch.Artists;
+            album.Artists = trackMatch.Artists.ToList();
           if (await UpdateAlbumPersonsAsync(album, occupation).ConfigureAwait(false))
           {
             trackMatch.HasChanged = album.HasChanged ? album.HasChanged : trackMatch.HasChanged;

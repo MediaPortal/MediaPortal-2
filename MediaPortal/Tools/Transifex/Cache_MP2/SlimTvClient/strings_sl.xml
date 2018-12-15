@@ -1,6 +1,6 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
-  <string name="SlimTvClient.Title">Tanek TV klient</string>
+  <string name="SlimTvClient.Title">TV Vodič</string>
   <string name="SlimTvClient.Main">TV</string>
   <string name="SlimTvClient.TvGuide">TV Vodič</string>
   <string name="SlimTvClient.SingleChannelGuide">Vodič po kanalih</string>
@@ -61,6 +61,7 @@
   <string name="SlimTvClient.EpgNumberOfHours">Število ur v EPG</string>
   <string name="SlimTvClient.EpgNumberOfHours.Help">Določa število ur (oddaj) v prikazu EPG</string>
   <string name="SlimTvClient.Notifications">Obvestila</string>
+  <string name="SlimTvClient.NoColor">Brez</string>
   <string name="SlimTvClient.RecordingsMenuItem">Posnetki</string>
   <string name="SlimTvClient.RecordingsRootViewName">TV posnetki</string>
   <string name="SlimTvClient.ChannelMenuItemLabel">Omeji po kanalu</string>

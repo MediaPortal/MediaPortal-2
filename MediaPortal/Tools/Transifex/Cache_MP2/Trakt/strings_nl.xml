@@ -1,12 +1,23 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
   <string name="Trakt.Enable">Scrobbling inschakelen</string>
+  <string name="Trakt.Close">Sluiten</string>
   <string name="Trakt.UsernamePasswordGroup">Accountdetails</string>
   <string name="Trakt.Username">Gebruikersnaam</string>
+  <string name="Trakt.PinUrl">http://trakt.tv/pin/6601</string>
+  <string name="Trakt.PinCode">Ontvangen pincode</string>
+  <string name="Trakt.Authorize">Autoriseer</string>
+  <string name="Trakt.Sync">Sync met trakt</string>
   <string name="Trakt.SyncMovies">Films synchroniseren... </string>
   <string name="Trakt.SyncSeries">Series synchroniseren...</string>
   <string name="Trakt.SyncFinished">Synchronisatie voltooid!</string>
   <string name="Trakt.MediaLibraryNotConnected">De server is momenteel niet verbonden. Kan niet synchroniseren!</string>
+  <string name="Trakt.WrongToken">Token niet beschikbaar</string>
+  <string name="Trakt.EmptyUsername">Voer uw gebruikersnaam in</string>
+  <string name="Trakt.NotAuthorized">Eerst autoriseren!</string>
+  <string name="Trakt.CheckPin">Niet mogelijk om bij trakt in te loggen, verkeerde pin?</string>
+  <string name="Trakt.LoggedIn">Login gelukt!</string>
+  <string name="Trakt.UnableLogin">Niet mogelijk om bij trakt in te loggen</string>
   <string name="Settings.Plugins.Trakt">Trakt.tv</string>
   <string name="Settings.Plugins.Trakt.TraktSetup">Trakt.tv instellen</string>
   <string name="Settings.Plugins.Trakt.TraktSetup.Help">Stel account in voor Trakt.tv service</string>

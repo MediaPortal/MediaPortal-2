@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2017 Team MediaPortal
+#region Copyright (C) 2007-2018 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2017 Team MediaPortal
+    Copyright (C) 2007-2018 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -303,20 +303,22 @@ namespace MediaPortal.UiComponents.Configuration
     /// </summary>
     /// <param name="sectionOrGroupNode">Section or group node to check.</param>
     /// <returns>Number of supported settings in the specified node.</returns>
-    protected int NumSettingsSupported(IConfigurationNode sectionOrGroupNode)
+    protected bool AnySettingsSupported(IConfigurationNode sectionOrGroupNode)
     {
-      int result = 0;
       foreach (IConfigurationNode childNode in sectionOrGroupNode.ChildNodes)
       {
         if (childNode.ConfigObj is ConfigSetting)
         {
-          if (IsSettingSupported((ConfigSetting) childNode.ConfigObj))
-            result++;
+          if (IsSettingSupported((ConfigSetting)childNode.ConfigObj))
+            return true;
         }
         else if (childNode.ConfigObj is ConfigGroup || childNode.ConfigObj is ConfigSection)
-          result += NumSettingsSupported(childNode);
+        {
+          if (AnySettingsSupported(childNode))
+            return true;
+        }
       }
-      return result;
+      return false;
     }
 
     /// <summary>
@@ -462,7 +464,7 @@ namespace MediaPortal.UiComponents.Configuration
       {
         if (childNode.ConfigObj is ConfigSection)
         {
-          bool supportedSettings = NumSettingsSupported(childNode) > 0;
+          bool supportedSettings = AnySettingsSupported(childNode);
           // Hint (Albert): Instead of skipping, we could disable the transition in case there are no supported
           // settings contained in it
           if (!supportedSettings)

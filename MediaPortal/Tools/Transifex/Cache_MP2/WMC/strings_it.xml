@@ -10,14 +10,27 @@
   <string name="WMC.Configuration.EnableWatchedFlags.GridView">Modalità griglia</string>
   <string name="WMC.Configuration.EnableWatchedFlags.CoverView">Modalità copertina</string>
   <string name="WMC.Configuration.EnableAgeCertificationLogos">Abilita la certificazione età dei logo</string>
-  <string name="WMC.Configuration.EnableAgeCertificationLogos.Help">Scegli se mostrare la certificazione età nelle schermate media.</string>
-  <string name="WMC.Configuration.EnableBanners">Mostra i banner</string>
-  <string name="WMC.Configuration.EnableBanners.Help">Scegli se mostrare i banner in modalità griglia invece che in modalità copertina</string>
-  <string name="WMC.Configuration.EnableBanners.Movies">Film</string>
-  <string name="WMC.Configuration.EnableBanners.Series">Serie TV</string>
-  <string name="WMC.Configuration.EnableBanners.Seasons">Stagioni</string>
-  <string name="WMC.Configuration.EnableAnimatedBackground">Abilita gli sfondi animati</string>
-  <string name="WMC.Configuration.EnableAnimatedBackground.Help">Scegli se mostrare la animazione Aurora nella schermata principale</string>
+  <string name="WMC.Configuration.EnableAgeCertificationLogos.Help">Scegli se mostrare la certificazione età nelle schermate media.</string>  
+  <string name="WMC.Configuration.MovieGridViewType">Disposizione dei film a griglia</string>
+  <string name="WMC.Configuration.MovieGridViewType.Help">Seleziona la disposizione usata dalla visualizzazione a griglia dei film</string>
+  <string name="WMC.Configuration.SeriesGridViewType">Disposizione delle Serie TV a griglia</string>
+  <string name="WMC.Configuration.SeriesGridViewType.Help">Seleziona la disposizione usata dalla visualizzazione a griglia delle Serie TV</string>
+  <string name="WMC.Configuration.SeasonGridViewType">Disposizione delle stagioni a griglia</string>
+  <string name="WMC.Configuration.SeasonGridViewType.Help">Seleziona la disposizione usata dalla visualizzazione a griglia delle stagioni</string>
+  <string name="WMC.Configuration.GridViewType.Poster">Poster</string>
+  <string name="WMC.Configuration.GridViewType.Banner">Banner</string>
+  <string name="WMC.Configuration.GridViewType.Thumbnail">Anteprime</string>  
+  <string name="WMC.Configuration.EnableHomeContent">Abilita Home Content</string>
+  <string name="WMC.Configuration.EnableHomeContent.Help">Seleziona per abilitare Home Content sulla schermata principale</string>
   <string name="WMC.Configuration.EnableMediaItemDetailsView">Abilita elementi multimediali nella vista dettaglii</string>
   <string name="WMC.Configuration.EnableMediaItemDetailsView.Help">Scegli se mostrare i dettagli del contenuto al posto di riprodurlo direttamente.</string>
+
+  <string name="WMC.Home.LatestAdded">Ultima aggiunta</string>
+  <string name="WMC.Home.LatestPlayed">Ultima riproduzione</string>
+  <string name="WMC.Home.ContinuePlayed">Continua riproduzione</string>
+  <string name="WMC.Home.CurrentPrograms">Programmi Correnti</string>
+  <string name="WMC.Home.CurrentSchedules">Registrazioni Correnti</string>
+  <string name="WMC.Home.Favorites">Preferiti</string>
+  <string name="WMC.Home.Unplayed">Mai riprodotto</string>
+
 </resources>

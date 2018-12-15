@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2017 Team MediaPortal
+#region Copyright (C) 2007-2018 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2017 Team MediaPortal
+    Copyright (C) 2007-2018 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -45,6 +45,10 @@ namespace MediaPortal.Mock
     {
       get { return uint.MaxValue; }
     }
+
+    public string ConcatOperator => throw new NotImplementedException();
+
+    public string LengthFunction => throw new NotImplementedException();
 
     public string GetSQLType(Type dotNetType)
     {
@@ -155,6 +159,21 @@ namespace MediaPortal.Mock
       }
 
       return command;
+    }
+
+    public bool BackupDatabase(string backupVersion)
+    {
+      throw new NotImplementedException();
+    }
+
+    public bool BackupTables(string tableSuffix)
+    {
+      throw new NotImplementedException();
+    }
+
+    public bool DropBackupTables(string tableSuffix)
+    {
+      throw new NotImplementedException();
     }
   }
 }

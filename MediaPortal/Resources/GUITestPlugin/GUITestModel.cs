@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2017 Team MediaPortal
+#region Copyright (C) 2007-2018 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2017 Team MediaPortal
+    Copyright (C) 2007-2018 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -31,6 +31,7 @@ using MediaPortal.Common.General;
 using MediaPortal.Common.Logging;
 using MediaPortal.UI.Presentation.DataObjects;
 using MediaPortal.UI.Presentation.Models;
+using MediaPortal.UI.Presentation.Screens;
 using MediaPortal.UI.Presentation.Workflow;
 using MediaPortal.UI.SkinEngine.Controls.Visuals;
 using MediaPortal.UI.SkinEngine.MpfElements.Input;
@@ -54,6 +55,9 @@ namespace MediaPortal.Test.GUITest
 
     protected AbstractProperty _itemsProperty = new WProperty(typeof(ItemsList), new ItemsList());
     protected AbstractProperty _layoutTypeProperty = new WProperty(typeof(int), 0);
+
+    protected AbstractProperty _toggleBusyScreenLabelProperty = new WProperty(typeof(string), "Show busy screen");
+    protected bool _isShowingBusyScreen = false;
 
     #endregion
 
@@ -126,6 +130,17 @@ namespace MediaPortal.Test.GUITest
     {
       get { return (int)_layoutTypeProperty.GetValue(); }
       set { _layoutTypeProperty.SetValue(value); }
+    }
+
+    public AbstractProperty ToggleBusyScreenLabelProperty
+    {
+      get { return _toggleBusyScreenLabelProperty; }
+    }
+
+    public string ToggleBusyScreenLabel
+    {
+      get { return (string)_toggleBusyScreenLabelProperty.GetValue(); }
+      set { _toggleBusyScreenLabelProperty.SetValue(value); }
     }
 
     #endregion
@@ -213,6 +228,23 @@ namespace MediaPortal.Test.GUITest
       }
       if (element != null)
         element.ReleaseMouseCapture();
+    }
+
+    public void ToggleBusyScreen()
+    {
+      var sm = ServiceRegistration.Get<ISuperLayerManager>();
+      if (_isShowingBusyScreen)
+      {
+        sm.HideBusyScreen();
+        _isShowingBusyScreen = false;
+        ToggleBusyScreenLabel = "Show busy screen";
+      }
+      else
+      {
+        sm.ShowBusyScreen();
+        _isShowingBusyScreen = true;
+        ToggleBusyScreenLabel = "Hide busy screen";
+      }
     }
 
     #endregion

@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2017 Team MediaPortal
+#region Copyright (C) 2007-2018 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2017 Team MediaPortal
+    Copyright (C) 2007-2018 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -41,13 +41,12 @@ namespace MediaPortal.Common.Services.FileEventNotification
   /// </summary>
   class WatchedPath : IDisposable
   {
-
     #region Constants
 
     /// <summary>
     /// The maximum interval between different polls.
     /// </summary>
-    private const int PollInterval = 1500;
+    private const int PollInterval = 5000;
 
     #endregion
 
@@ -74,6 +73,8 @@ namespace MediaPortal.Common.Services.FileEventNotification
     /// Object used for synchronization of the _pollTimer.
     /// </summary>
     private readonly object _syncPoll;
+
+    private bool _pingErrorLogged = false;
 
     #endregion
 
@@ -251,10 +252,18 @@ namespace MediaPortal.Common.Services.FileEventNotification
           if (!pingAble)
             return false;
         }
+        _pingErrorLogged = false;
       }
-      catch (System.Net.Sockets.SocketException)
+      catch (System.Net.Sockets.SocketException e)
       {
         // Can't resolve the DNS, meaning the server is not available.
+        if (!_pingErrorLogged)
+        {
+          _pingErrorLogged = true;
+          ServiceRegistration.Get<ILogger>().Warn(
+            "FileEventNotifier encountered an error for path \"{0}\": Can't resolve the DNS, meaning the server is not available.",
+            e, _path.FullName);
+        }
         return false;
       }
       return true;

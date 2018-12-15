@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2017 Team MediaPortal
+#region Copyright (C) 2007-2018 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2017 Team MediaPortal
+    Copyright (C) 2007-2018 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -76,22 +76,11 @@ namespace MediaPortal.Database.SQLite
 
     #region Constructors/Destructors
 
-    public SQLiteDatabase()
-      : this(false)
-    {
-    }
     /// <summary>
     /// Creates a new SQLiteDatabase instance.
     /// </summary>
-    /// <param name="skipUpgrades"><c>true</c> to skip version check and use the database as it is.</param>
-    public SQLiteDatabase(bool skipUpgrades)
+    public SQLiteDatabase()
     {
-      VersionUpgrade upgrade = new VersionUpgrade();
-      if (!skipUpgrades && !upgrade.Upgrade())
-      {
-        ServiceRegistration.Get<ILogger>().Warn("SQLiteDatabase: Could not upgrade existing database");
-      }
-
       try
       {
         _importingShareIds = new HashSet<Guid>();
@@ -158,7 +147,7 @@ namespace MediaPortal.Database.SQLite
 #if NO_POOL
           Pooling = true,
 #else
-          Pooling = false,
+        Pooling = false,
 #endif
 
           // Sychronization Mode "Normal" enables parallel database access while at the same time preventing database
@@ -405,6 +394,16 @@ namespace MediaPortal.Database.SQLite
       get { return 30; }
     }
 
+    public string ConcatOperator
+    {
+      get { return "||"; }
+    }
+
+    public string LengthFunction
+    {
+      get { return "LENGTH"; }
+    }
+
     public string GetSQLType(Type dotNetType)
     {
       // SQLite only knows five storage classes:
@@ -506,6 +505,224 @@ namespace MediaPortal.Database.SQLite
           return (cnt == 1);
         }
       }
+    }
+
+    public bool BackupDatabase(string backupVersion)
+    {
+      var pathManager = ServiceRegistration.Get<IPathManager>();
+      string dataDirectory = pathManager.GetPath("<DATABASE>");
+      string databaseFile = Path.Combine(dataDirectory, _settings.DatabaseFileName);
+      if (File.Exists(databaseFile))
+      {
+        string backupFile = Path.ChangeExtension(databaseFile, $".{backupVersion}.bak");
+        if (File.Exists(backupFile))
+        {
+          for (int i = 1; i <= 10; i++)
+          {
+            backupFile = Path.ChangeExtension(databaseFile, $".{backupVersion} {i}.bak");
+            if (!File.Exists(backupFile))
+              break;
+          }
+        }
+        File.Copy(databaseFile, backupFile, true);
+        return true;
+      }
+      return false;
+    }
+
+    public bool BackupTables(string tableSuffix)
+    {
+      bool result = false;
+      List<string> tables = new List<string>();
+      List<string> indexes = new List<string>();
+      List<string> constrainedTables = new List<string>();
+      Dictionary<string, string> tableSqls = new Dictionary<string, string> ();
+      using (var transaction = BeginTransaction())
+      {
+        using (var cmd = transaction.CreateCommand())
+        {
+          //Find all tables
+          cmd.CommandText = @"SELECT name, sql FROM sqlite_master WHERE type='table'";
+          using (IDataReader reader = cmd.ExecuteReader())
+          {
+            while (reader.Read())
+            {
+              string table = reader.GetString(0);
+              if (!table.StartsWith("sqlite", StringComparison.InvariantCultureIgnoreCase) && !table.EndsWith(tableSuffix, StringComparison.InvariantCultureIgnoreCase))
+              {
+                tables.Add(table);
+
+                //Get create sql
+                tableSqls[table] = reader.GetString(1);
+                if (tableSqls[table].IndexOf("REFERENCES", StringComparison.InvariantCultureIgnoreCase) >= 0)
+                  constrainedTables.Add(table);
+                //Change table name
+                tableSqls[table] = tableSqls[table].Replace(" " + table + " ", " " + table + tableSuffix + " ");
+                int idx = tableSqls[table].IndexOf("CONSTRAINT", StringComparison.InvariantCultureIgnoreCase);
+                if (idx >= 0)
+                {
+                  //Remove constraint
+                  tableSqls[table] = tableSqls[table].Substring(0, idx).Trim();
+                  //Remove comma and add parenthesis
+                  tableSqls[table] = tableSqls[table].Substring(0, tableSqls[table].Length - 1) + ")";
+                }
+              }
+            }
+          }
+
+          //Find all indexes
+          cmd.CommandText = @"SELECT name FROM sqlite_master WHERE type='index'";
+          using (IDataReader reader = cmd.ExecuteReader())
+          {
+            while (reader.Read())
+            {
+              string index = reader.GetString(0);
+              indexes.Add(index);
+            }
+          }
+
+          //Rename all tables and remove constraints
+          foreach (var table in tables)
+          {
+            //Check if backup table exists
+            cmd.CommandText = $"SELECT count(*) FROM sqlite_master WHERE name='{table + tableSuffix}' AND type='table'";
+            var cnt = (long)cmd.ExecuteScalar();
+            if (cnt == 0)
+            {
+              //Sqlite cannot remove constraints so we need to recreate tables and copy data
+
+              //Create old table without constraints
+              cmd.CommandText = tableSqls[table];
+              cmd.ExecuteNonQuery();
+
+              //Copy data
+              cmd.CommandText = $"INSERT INTO {table + tableSuffix} SELECT * FROM {table}";
+              cmd.ExecuteNonQuery();
+
+              result = true;
+            }
+            else
+            {
+              result = true;
+            }
+          }
+
+          //Disable foreign keys to avoid errors
+          cmd.CommandText = @"PRAGMA foreign_keys=OFF";
+          cmd.ExecuteNonQuery();
+          try
+          {
+            //Drop tables with references first to avoid errors
+            foreach (var table in constrainedTables)
+            {
+              //Drop table
+              cmd.CommandText = $"DROP TABLE IF EXISTS {table}";
+              cmd.ExecuteNonQuery();
+            }
+
+            //Drop all tables so they can be recreated
+            foreach (var table in tables)
+            {
+              //Drop table
+              cmd.CommandText = $"DROP TABLE IF EXISTS {table}";
+              cmd.ExecuteNonQuery();
+            }
+
+            //Drop all indexes so they can be recreated
+            foreach (var index in indexes)
+            {
+              //Drop index
+              cmd.CommandText = $"DROP INDEX IF EXISTS {index}";
+              cmd.ExecuteNonQuery();
+            }
+          }
+          finally
+          {
+            //Restore foreign keys
+            cmd.CommandText = @"PRAGMA foreign_keys=ON";
+            cmd.ExecuteNonQuery();
+          }
+          transaction.Commit();
+        }
+      }
+      return result;
+    }
+
+    public bool DropBackupTables(string tableSuffix)
+    {
+      List<string> tables = new List<string>();
+      using (var transaction = BeginTransaction())
+      {
+        using (var cmd = transaction.CreateCommand())
+        {
+          //Find all tables
+          cmd.CommandText = @"SELECT name FROM sqlite_master WHERE type='table'";
+          using (IDataReader reader = cmd.ExecuteReader())
+          {
+            while (reader.Read())
+            {
+              string table = reader.GetString(0);
+              if (table.EndsWith(tableSuffix, StringComparison.InvariantCultureIgnoreCase))
+                tables.Add(table);
+            }
+          }
+
+          //Disable foreign keys to avoid errors
+          cmd.CommandText = @"PRAGMA foreign_keys=OFF";
+          cmd.ExecuteNonQuery();
+          try
+          {
+            //Drop all backup tables as they are no longer needed
+            foreach (var table in tables)
+            {
+              //Drop table
+              cmd.CommandText = $"DROP TABLE IF EXISTS {table}";
+              cmd.ExecuteNonQuery();
+            }
+          }
+          finally
+          {
+            //Restore foreign keys
+            cmd.CommandText = @"PRAGMA foreign_keys=ON";
+            cmd.ExecuteNonQuery();
+          }
+
+          transaction.Commit();
+        }
+      }
+
+      using (var connection = CreateOpenAndInitializeConnection())
+      {
+        using (var cmd = connection.CreateCommand())
+        {
+          //File based temp storage to avoid OOM errors
+          cmd.CommandText = @"PRAGMA temp_store=FILE";
+          cmd.ExecuteNonQuery();
+          try
+          {
+            //Shrink and optimize database
+            cmd.CommandText = "VACUUM";
+            cmd.ExecuteNonQuery();
+          }
+          catch (Exception e)
+          {
+            ServiceRegistration.Get<ILogger>().Error("SQLiteDatabase: Error shrinking database", e);
+          }
+          finally
+          {
+            //Restore default temp storage
+            if (_settings.UseTempStoreMemory)
+              cmd.CommandText = @"PRAGMA temp_store=MEMORY";
+            else
+              cmd.CommandText = @"PRAGMA temp_store=DEFAULT";
+            cmd.ExecuteNonQuery();
+          }
+        }
+      }
+      //Wait for garbage collection of temporary files
+      GC.Collect();
+      GC.WaitForPendingFinalizers();
+      return true;
     }
 
     public string CreateStringConcatenationExpression(string str1, string str2)

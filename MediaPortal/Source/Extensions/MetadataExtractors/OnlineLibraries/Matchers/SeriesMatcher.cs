@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2017 Team MediaPortal
+#region Copyright (C) 2007-2018 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2017 Team MediaPortal
+    Copyright (C) 2007-2018 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -1121,7 +1121,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
         {
           //Try to update person based on series information
           SeriesInfo series = episodeMatch.CloneBasicInstance<SeriesInfo>();
-          series.Actors = episodeMatch.Actors;
+          series.Actors = episodeMatch.Actors.ToList();
           if (await UpdateSeriesPersonsAsync(series, occupation).ConfigureAwait(false))
             updated = true;
         }
@@ -1255,7 +1255,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
         {
           //Try to update character based on series information
           SeriesInfo series = episodeMatch.CloneBasicInstance<SeriesInfo>();
-          series.Characters = episodeMatch.Characters;
+          series.Characters = episodeMatch.Characters.ToList();
           if (await UpdateSeriesCharactersAsync(series).ConfigureAwait(false))
             updated = true;
         }

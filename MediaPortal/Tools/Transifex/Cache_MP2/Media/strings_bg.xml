@@ -1,5 +1,7 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
+  <!--Headlines for HomeContent-->
+  <string name="Media.Favorites">Любими</string>
   <!--Menu items for the five Media navigation parts-->
   <string name="Media.VideosMenuItem">Видеа</string>
   <!--General strings used in filter/sort/group menus-->
@@ -33,6 +35,8 @@
   <!--Playlists-->
   <string name="Media.OpenPlayerStrategy.MediaPortal.UI.Services.Players.PCMOpenPlayerStrategy.Default">По подразбиране</string>
   <!--MediaItemAction dialog-->
+  <string name="Media.Refresh">Опресни</string>
+  <string name="Media.ReimportMediaItem.Done">Готово</string>
   <!--Play items dialog-->
   <!--Player context names-->
   <!--Video currently playing-->
@@ -47,6 +51,8 @@
   <!--Video Player time units-->
   <string name="Media.SortByDate">Дата</string>
   <string name="Media.GroupingBrowseDefault">По подразбиране</string>
+  <!--Stubs-->
+  <!--Settings-->
   <!--Secondary filters-->
   <string name="Filter.RemoteNumericAlphabet0"></string>
   <string name="Filter.RemoteNumericAlphabet1"></string>

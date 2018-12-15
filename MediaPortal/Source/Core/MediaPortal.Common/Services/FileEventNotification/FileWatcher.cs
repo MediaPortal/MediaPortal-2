@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2017 Team MediaPortal
+#region Copyright (C) 2007-2018 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2017 Team MediaPortal
+    Copyright (C) 2007-2018 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -23,9 +23,12 @@
 #endregion
 
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Threading;
+using System.Threading.Tasks;
 using System.Timers;
 // Conflict between System.Timers.Timer and System.Threading.Timer
 using MediaPortal.Common.FileEventNotification;
@@ -76,18 +79,19 @@ namespace MediaPortal.Common.Services.FileEventNotification
     /// Indicates whether the current <see cref="FileWatcher"/> is active.
     /// </summary>
     private bool _watching;
+    private bool _watchingState;
     /// <summary>
     /// Indicates whether the current <see cref="FileWatcher"/> is disposed.
     /// </summary>
     private bool _isDisposed;
     /// <summary>
-    /// All subscriptions for events comming from the current <see cref="FileWatcher"/>.
+    /// All subscriptions for events coming from the current <see cref="FileWatcher"/>.
     /// </summary>
-    private readonly IList<FileWatcherInfo> _subscriptions;
+    private readonly ConcurrentDictionary<FileWatcherInfo, DateTime> _subscriptions;
     /// <summary>
     /// All events received and waiting to be filtered and raised.
     /// </summary>
-    private readonly IList<FileWatchEvent> _events;
+    private readonly ConcurrentDictionary<FileWatchEvent, DateTime> _events;
     /// <summary>
     /// Timer to periodically check if any events are received.
     /// </summary>
@@ -114,7 +118,7 @@ namespace MediaPortal.Common.Services.FileEventNotification
     /// </summary>
     public IEnumerable<FileWatcherInfo> Subscriptions
     {
-      get { return _subscriptions; }
+      get { return _subscriptions.Keys; }
     }
 
     /// <summary>
@@ -125,12 +129,9 @@ namespace MediaPortal.Common.Services.FileEventNotification
       get { return _watching; }
       set
       {
-        if (_watching == value)
+        if (_watchingState == value)
           return;
-        if (value)
-          EnableWatch();
-        else
-          DisableWatch();
+        _watchingState = value;
       }
     }
 
@@ -164,11 +165,15 @@ namespace MediaPortal.Common.Services.FileEventNotification
       _syncNotify = new object();
       if (!IsValidDriveType(path))
         throw new NotSupportedDriveTypeException("The drive type of \"" + path + "\" is not supported by the system.");
-      _subscriptions = new List<FileWatcherInfo>();
-      _events = new List<FileWatchEvent>();
+      _subscriptions = new ConcurrentDictionary<FileWatcherInfo, DateTime>();
+      _events = new ConcurrentDictionary<FileWatchEvent, DateTime>();
       // Initialize the Component to watch the path's availability.
       _watchedPath = new WatchedPath(path, false);
       _watchedPath.PathStateChangedEvent += WatchedPath_PathStateChangedEvent;
+
+      _notifyTimer = new SystemTimer(EventsConsolidationInterval);
+      _notifyTimer.Elapsed += NotifyTimer_Elapsed;
+      _notifyTimer.Enabled = true;
     }
 
     /// <summary>
@@ -196,19 +201,16 @@ namespace MediaPortal.Common.Services.FileEventNotification
     {
       if (!_watchedPath.IsEquivalentPath(fileWatcherInfo.Path))
         throw new InvalidFileWatchInfoException("The specified path does not equal the watched path.");
-      lock (_subscriptions)
-      {
-        if (_subscriptions.Contains(fileWatcherInfo))
-          return; // The given subscription already exists
-        _subscriptions.Add(fileWatcherInfo);
-        if (fileWatcherInfo.EventHandler == null)
-          return; // No event to call
-        var eventArgs = new FileWatchEventArgs(_watching
-                                                 ? FileWatchChangeType.Enabled
-                                                 : FileWatchChangeType.Disabled,
-                                               fileWatcherInfo.Path);
-        RaiseEvent(new EventData(fileWatcherInfo, eventArgs));
-      }
+
+      if (!_subscriptions.TryAdd(fileWatcherInfo, DateTime.Now))
+        return; // The given subscription already exists
+      if (fileWatcherInfo.EventHandler == null)
+        return; // No event to call
+      var eventArgs = new FileWatchEventArgs(_watching
+                                               ? FileWatchChangeType.Enabled
+                                               : FileWatchChangeType.Disabled,
+                                             fileWatcherInfo.Path);
+      RaiseEvent(new EventData(fileWatcherInfo, eventArgs));
     }
 
     /// <summary>
@@ -219,8 +221,7 @@ namespace MediaPortal.Common.Services.FileEventNotification
     /// <returns>True if the FileWatcherInfo is found and removed.</returns>
     public bool RemoveSubscription(FileWatcherInfo fileWatcherInfo)
     {
-      lock (_subscriptions)
-        return _subscriptions.Remove(fileWatcherInfo);
+      return _subscriptions.TryRemove(fileWatcherInfo, out _);
     }
 
     #endregion
@@ -236,6 +237,7 @@ namespace MediaPortal.Common.Services.FileEventNotification
         return;
       _isDisposed = true;
       string path = _watchedPath != null ? _watchedPath.Path.FullName : null;
+      _notifyTimer.Enabled = false;
       if (_notifyTimer != null)
         _notifyTimer.Dispose();
       if (_watchedPath != null)
@@ -266,17 +268,19 @@ namespace MediaPortal.Common.Services.FileEventNotification
         return;
       }
       if (!_watchedPath.Available)
+      {
         return;
+      }
       try
       {
         _watcher.EnableRaisingEvents = true;
       }
-      catch (FileNotFoundException)
+      catch (FileNotFoundException e)
       {
+        ServiceRegistration.Get<ILogger>().Error("FileWatcher: Error enabling events for path \"{0}\".", e, _watchedPath.Path);
         return;
       }
       _watching = true;
-      _notifyTimer.Enabled = true;
       RaiseSingleEvent(_watchedPath.Path.FullName, FileWatchChangeType.Enabled);
     }
 
@@ -287,7 +291,6 @@ namespace MediaPortal.Common.Services.FileEventNotification
     {
       if (_watcher == null)
         return;
-      _notifyTimer.Enabled = false;
       _watching = false;
       _watcher.Dispose();
       _watcher = null;
@@ -301,28 +304,22 @@ namespace MediaPortal.Common.Services.FileEventNotification
     private void TryInitializeService()
     {
       if (_watching || !_watchedPath.Available)
+      {
         return;
+      }
       try
       {
         _watcher = InitializeFileSystemWatcher(_watchedPath.Path.FullName);
         _watching = true;
-        _notifyTimer = new SystemTimer(EventsConsolidationInterval);
-        _notifyTimer.Elapsed += NotifyTimer_Elapsed;
-        _notifyTimer.Enabled = true;
       }
       catch (Exception)
       {
-        // If something went wrong: dispose both the watcher and the notifytimer.
+        // If something went wrong: dispose the watcher.
         _watching = false;
         if (_watcher != null)
         {
           _watcher.Dispose();
           _watcher = null;
-        }
-        if (_notifyTimer != null)
-        {
-          _notifyTimer.Dispose();
-          _notifyTimer = null;
         }
       }
       RaiseSingleEvent(_watchedPath.Path.FullName, _watcher != null ? FileWatchChangeType.Enabled : FileWatchChangeType.Disabled);
@@ -346,7 +343,6 @@ namespace MediaPortal.Common.Services.FileEventNotification
       watcher.Error += ErrorEventHandler;
       watcher.Disposed += FileSystemWatcher_Disposed;
       watcher.EnableRaisingEvents = true;
-      GC.KeepAlive(watcher);
       return watcher;
     }
 
@@ -377,13 +373,10 @@ namespace MediaPortal.Common.Services.FileEventNotification
       {
         var watchEvent = eventQueue.Dequeue();
         IFileWatchEventArgs args = new FileWatchEventArgs(watchEvent);
-        lock (_subscriptions)
+        foreach (var info in _subscriptions.Keys)
         {
-          foreach (var info in _subscriptions)
-          {
-            if (info.MayRaiseEventFor(args))
-              new Thread(RaiseEvent).Start(new EventData(info, args));
-          }
+          if (info.MayRaiseEventFor(args))
+            Task.Run(() => RaiseEvent(new EventData(info, args)));
         }
       }
     }
@@ -407,44 +400,43 @@ namespace MediaPortal.Common.Services.FileEventNotification
         // Set the current threads name for logging purpose.
         if (Thread.CurrentThread.Name == null)
           Thread.CurrentThread.Name = "FEN"; // FileEventNotifier
+
+        //Check state
+        if (_watchingState && !_watching)
+          EnableWatch();
+        else if(!_watchingState && _watching)
+          DisableWatch();
+
         // Only one thread at a time is processing the events.
         // We don't fire the events inside the lock. We will queue them here until the code exits the lock.
         eventsToBeFired = new Queue<FileWatchEvent>();
         // Lock the collection while processing the events
-        lock (_events)
+        foreach(var ev in _events.Keys.ToList())
         {
-          for (int i = 0; i < _events.Count; i++)
+          if (!_events.ContainsKey(ev))
+            continue;
+
+          if (ev.Delayed)
           {
-            if (_events[i].Delayed)
+            // This event has been delayed already so we can fire it
+            // We just need to remove any duplicates
+            _events.TakeWhile(d => d.Key != ev && d.Key.IsDuplicate(ev));
+
+            // Is the current event still delayed?
+            // FileWatchEvent.IsDuplicate() could have changed the state.
+            if (ev.Delayed)
             {
-              // This event has been delayed already so we can fire it
-              // We just need to remove any duplicates
-              for (int j = i + 1; j < _events.Count; j++)
-              {
-                if (_events[i].IsDuplicate(_events[j]))
-                {
-                  // Removing later duplicates
-                  _events.RemoveAt(j);
-                  j--; // Don't skip next event
-                }
-              }
-              // Is the current event still delayed?
-              // FileWatchEvent.IsDuplicate() could have changed the state.
-              if (_events[i].Delayed)
-              {
-                // Add the event to the list of events to be fired
-                eventsToBeFired.Enqueue(_events[i]);
-                // Remove it from the current list
-                _events.RemoveAt(i);
-                i--; // Don't skip next event
-              }
+              // Add the event to the list of events to be fired
+              eventsToBeFired.Enqueue(ev);
+              // Remove it from the current list
+              _events.TryRemove(ev, out _);
             }
-            else
-            {
-              // This event was not delayed yet, so we will delay processing
-              // this event for at least one timer interval
-              _events[i].Delayed = true;
-            }
+          }
+          else
+          {
+            // This event was not delayed yet, so we will delay processing
+            // this event for at least one timer interval
+            ev.Delayed = true;
           }
         }
       }
@@ -462,9 +454,7 @@ namespace MediaPortal.Common.Services.FileEventNotification
     /// <param name="pathAvailable"></param>
     private void WatchedPath_PathStateChangedEvent(WatchedPath sender, bool pathAvailable)
     {
-      if (pathAvailable && !_watching)
-        EnableWatch();
-      else if (!pathAvailable && _watching)
+      if (!pathAvailable && _watching)
         DisableWatch();
     }
 
@@ -475,10 +465,7 @@ namespace MediaPortal.Common.Services.FileEventNotification
     /// <param name="e"></param>
     private void FileSystemEventHandler(object sender, FileSystemEventArgs e)
     {
-      lock (_events)
-      {
-        _events.Add(new FileWatchEvent(e));
-      }
+       _events.TryAdd(new FileWatchEvent(e), DateTime.Now);
     }
 
     /// <summary>
@@ -491,48 +478,9 @@ namespace MediaPortal.Common.Services.FileEventNotification
       // An error occured, disable the watch.
       if (sender == _watcher)
       {
-        if(!HandleNotAccessibleError((FileSystemWatcher)sender, e))
-          DisableWatch();
+        ServiceRegistration.Get<ILogger>().Debug("FileWatcher: Path no longer available \"{0}\".", e.GetException(), _watcher.Path);
+        DisableWatch();
       }
-    }
-
-    private bool HandleNotAccessibleError(FileSystemWatcher source, ErrorEventArgs e)
-    {
-      int maxAttempts = 120;
-      int timeOut = 1500;
-      int attempt = 0;
-      while ((!Directory.Exists(source.Path) || source.EnableRaisingEvents == false) && attempt < maxAttempts)
-      {
-        attempt += 1;
-        try
-        {
-          if (_watcher == null)
-            return false;
-
-          source.EnableRaisingEvents = false;
-          if (!Directory.Exists(source.Path))
-          {
-            Thread.Sleep(timeOut);
-          }
-          else
-          {
-            // ReInitialize the Component
-            string path = source.Path;
-            source.Dispose();
-            source = null;
-
-            InitializeFileSystemWatcher(path);
-            _watching = true;
-            return true;
-          }
-        }
-        catch
-        {
-          source.EnableRaisingEvents = false;
-          Thread.Sleep(timeOut);
-        }
-      }
-      return false;
     }
 
     /// <summary>
@@ -594,7 +542,7 @@ namespace MediaPortal.Common.Services.FileEventNotification
       // Suppress all exceptions.
       catch (Exception e)
       {
-        ServiceRegistration.Get<ILogger>().Error("Unhandled FileWatchEvent for path \"{0}\".", e, data.Args.Path);
+        ServiceRegistration.Get<ILogger>().Error("FileWatcher: Unhandled FileWatchEvent for path \"{0}\".", e, data.Args.Path);
       }
     }
 

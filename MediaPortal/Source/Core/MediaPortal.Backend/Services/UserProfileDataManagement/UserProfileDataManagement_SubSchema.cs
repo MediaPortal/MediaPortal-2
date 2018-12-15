@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2017 Team MediaPortal
+#region Copyright (C) 2007-2018 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2017 Team MediaPortal
+    Copyright (C) 2007-2018 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -134,6 +134,29 @@ namespace MediaPortal.Backend.Services.UserProfileDataManagement
       return result;
     }
 
+    public static IDbCommand SelectUserProfileNameCommand(ITransaction transaction, Guid profileId, out int nameIndex)
+    {
+      IDbCommand result = transaction.CreateCommand();
+      result.CommandText = "SELECT NAME FROM USER_PROFILES WHERE PROFILE_ID=@PROFILE_ID";
+      ISQLDatabase database = transaction.Database;
+      database.AddParameter(result, "PROFILE_ID", profileId, typeof(Guid));
+
+      nameIndex = 0;
+      return result;
+    }
+
+    public static IDbCommand CopyUserProfileCommand(ITransaction transaction, Guid profileId, Guid newProfileId, string newName)
+    {
+      IDbCommand result = transaction.CreateCommand();
+      result.CommandText = "INSERT INTO USER_PROFILES (PROFILE_ID, NAME, PROFILE_TYPE, PASSWORD, IMAGE, LAST_LOGIN) " +
+        "SELECT @NEW_PROFILE_ID, @NAME, PROFILE_TYPE, PASSWORD, IMAGE, LAST_LOGIN FROM USER_PROFILES WHERE PROFILE_ID=@PROFILE_ID";
+      ISQLDatabase database = transaction.Database;
+      database.AddParameter(result, "PROFILE_ID", profileId, typeof(Guid));
+      database.AddParameter(result, "NEW_PROFILE_ID", newProfileId, typeof(Guid));
+      database.AddParameter(result, "NAME", newName, typeof(string));
+      return result;
+    }
+
     public static IDbCommand UpdateUserProfileCommand(ITransaction transaction, Guid profileId, string newName, string newPassword)
     {
       IDbCommand result = transaction.CreateCommand();
@@ -205,6 +228,17 @@ namespace MediaPortal.Backend.Services.UserProfileDataManagement
       return result;
     }
 
+    public static IDbCommand CopyUserPlaylistDataCommand(ITransaction transaction, Guid profileId, Guid newProfileId)
+    {
+      IDbCommand result = transaction.CreateCommand();
+      result.CommandText = "INSERT INTO USER_PLAYLIST_DATA (PROFILE_ID, PLAYLIST_ID, DATA_KEY, PLAYLIST_DATA) " +
+        "SELECT @NEW_PROFILE_ID, PLAYLIST_ID, DATA_KEY, PLAYLIST_DATA FROM USER_PLAYLIST_DATA WHERE PROFILE_ID=@PROFILE_ID";
+      ISQLDatabase database = transaction.Database;
+      database.AddParameter(result, "PROFILE_ID", profileId, typeof(Guid));
+      database.AddParameter(result, "NEW_PROFILE_ID", newProfileId, typeof(Guid));
+      return result;
+    }
+
     public static IDbCommand DeleteUserPlaylistDataCommand(ITransaction transaction, Guid profileId, Guid? playlistId, string dataKey)
     {
       IDbCommand result = transaction.CreateCommand();
@@ -269,6 +303,17 @@ namespace MediaPortal.Backend.Services.UserProfileDataManagement
       database.AddParameter(result, "MEDIA_ITEM_ID", mediaItemId, typeof(Guid));
       database.AddParameter(result, "DATA_KEY", dataKey, typeof(string));
       database.AddParameter(result, "MEDIA_ITEM_DATA", mediaItemData, typeof(string));
+      return result;
+    }
+
+    public static IDbCommand CopyUserMediaItemDataCommand(ITransaction transaction, Guid profileId, Guid newProfileId)
+    {
+      IDbCommand result = transaction.CreateCommand();
+      result.CommandText = "INSERT INTO USER_MEDIA_ITEM_DATA (PROFILE_ID, MEDIA_ITEM_ID, DATA_KEY, MEDIA_ITEM_DATA) " +
+        "SELECT @NEW_PROFILE_ID, MEDIA_ITEM_ID, DATA_KEY, MEDIA_ITEM_DATA FROM USER_MEDIA_ITEM_DATA WHERE PROFILE_ID=@PROFILE_ID";
+      ISQLDatabase database = transaction.Database;
+      database.AddParameter(result, "PROFILE_ID", profileId, typeof(Guid));
+      database.AddParameter(result, "NEW_PROFILE_ID", newProfileId, typeof(Guid));
       return result;
     }
 
@@ -352,6 +397,17 @@ namespace MediaPortal.Backend.Services.UserProfileDataManagement
       database.AddParameter(result, "DATA_KEY", dataKey, typeof(string));
       database.AddParameter(result, "DATA_NO", dataNo, typeof(int));
       database.AddParameter(result, "ADDITIONAL_DATA", additionalData, typeof(string));
+      return result;
+    }
+
+    public static IDbCommand CopyUserAdditionalDataCommand(ITransaction transaction, Guid profileId, Guid newProfileId)
+    {
+      IDbCommand result = transaction.CreateCommand();
+      result.CommandText = "INSERT INTO USER_ADDITIONAL_DATA (PROFILE_ID, DATA_KEY, DATA_NO, ADDITIONAL_DATA) " +
+        "SELECT @NEW_PROFILE_ID, DATA_KEY, DATA_NO, ADDITIONAL_DATA FROM USER_ADDITIONAL_DATA WHERE PROFILE_ID=@PROFILE_ID";
+      ISQLDatabase database = transaction.Database;
+      database.AddParameter(result, "PROFILE_ID", profileId, typeof(Guid));
+      database.AddParameter(result, "NEW_PROFILE_ID", newProfileId, typeof(Guid));
       return result;
     }
 

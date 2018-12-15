@@ -77,6 +77,9 @@
   <string name="Settings.Plugins.Weather">Väder</string>
   <string name="Settings.Plugins.Weather.LocationSetup">Konfigurera platser</string>
   <string name="Settings.Plugins.Weather.LocationSetup.Help">Konfigurerar platser som ska bli tillgängliga på vädersidan</string>
+  <string name="Settings.Plugins.Weather.ApiKey">Ange din personliga nyckel</string>
+  <string name="Settings.Plugins.Weather.ApiKey.Help">Konfigurerar en personlig nyckel skapad på https://openweathermap.org/api för att undvika begränsningar av begärda data.
+</string>
   <string name="WeatherSetup.Title">Konfigurera platser</string>
   <string name="WeatherSetup.ConfiguredCities">Konfigurerade platser</string>
   <string name="WeatherSetup.EnterCity">Skriv in namnet på platsen som du vill lägga till:</string>

@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2017 Team MediaPortal
+#region Copyright (C) 2007-2018 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2017 Team MediaPortal
+    Copyright (C) 2007-2018 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -94,7 +94,7 @@ namespace MediaPortal.Plugins.ServerSettings.Settings.Configuration
           setting.Enabled = _selected.Contains(selectedNo);
           selectedNo++;
         }
-        else if (setting.Id.Equals("CDFreeDbMatcher", StringComparison.InvariantCultureIgnoreCase))
+        else if (setting.Id.Equals("MusicFreeDbMatcher", StringComparison.InvariantCultureIgnoreCase))
         {
           setting.Enabled = _selected.Contains(selectedNo);
           selectedNo++;

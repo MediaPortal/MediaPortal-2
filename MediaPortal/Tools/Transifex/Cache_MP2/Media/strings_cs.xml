@@ -1,5 +1,7 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
+  <!--Headlines for HomeContent-->
+  <string name="Media.Favorites">Oblíbené</string>
   <!--Menu items for the five Media navigation parts-->
   <string name="Media.BrowseMediaMenuItem">Procházet média</string>
   <string name="Media.LocalMediaMenuItem">Místní média</string>
@@ -29,6 +31,7 @@
   <string name="Media.ImageFilterSmall">Malé</string>
   <string name="Media.ImageFilterMedium">Střední</string>
   <string name="Media.ImageFilterBig">Velké</string>
+  <string name="Media.ContentGroupFilter">{0}</string>
   <string name="Media.SwitchToBrowseMLView">Zobrazení serveru</string>
   <string name="Media.SwitchToLocalMediaView">Místní zobrazení</string>
   <string name="Media.SwitchToBrowseShareView">Přepnout do zobrazení složky</string>
@@ -171,9 +174,10 @@
   <string name="Media.OpenPlayerStrategy.MediaPortal.UI.Services.Players.PCMOpenPlayerStrategy.PreservePiP">Zachovat video PiP</string>
   <!--MediaItemAction dialog-->
   <string name="Media.MediaItemsActionDialogHeader">Akce položky médií</string>
-  <string name="Media.SetWatched">Nastavit jako zhlédnuté</string>
-  <string name="Media.SetUnwatched">Nastavit jako nezhlédnuté</string>
+  <string name="Media.Refresh">Obnovit</string>
   <string name="Media.DeleteFromStorage">Odstranit z úložiště</string>
+  <string name="Media.ReimportMediaItem.Done">Hotovo</string>
+  <string name="Media.ReimportMediaItem.Description">Popis</string>
   <!--Play items dialog-->
   <string name="Media.PlayItemDialogHeader">Přehrát položku</string>
   <string name="Media.PlayAudioItems">Přehrát položky audia</string>
@@ -284,6 +288,8 @@
   <string name="Media.SwitchSortingMenuItem">Řazení</string>
   <string name="Media.SortByDate">Datum</string>
   <string name="Media.GroupingBrowseDefault">Výchozí</string>
+  <!--Stubs-->
+  <!--Settings-->
   <string name="Settings.Players">Přehrávače</string>
   <string name="Settings.Players.ClosePlayersWhenFinished">Zavřít přehrávače po dokončení</string>
   <string name="Settings.Players.ClosePlayersWhenFinished.Help">Povolte toto nastavení, aby MediaPortal zavíral dokončené přehrávače automaticky</string>

@@ -104,6 +104,7 @@
   <ResourceWrapper x:Key="PercentageBarBackgroundColor" Resource="#26FFFFFF" />
   <ResourceWrapper x:Key="PercentageBarFillColor" Resource="#FFFFFFFF" />
 
+  <ResourceWrapper x:Key="OSDProgressBarBackgroundColor" Resource="#767676" />
   <ResourceWrapper x:Key="OSDProgressBarFillColor">
     <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
       <GradientStop Color="#00404040" Offset="0"/>

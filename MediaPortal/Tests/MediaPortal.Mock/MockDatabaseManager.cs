@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2017 Team MediaPortal
+#region Copyright (C) 2007-2018 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2017 Team MediaPortal
+    Copyright (C) 2007-2018 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -25,6 +25,7 @@
 using System;
 using System.Collections.Generic;
 using MediaPortal.Backend.Database;
+using MediaPortal.Utilities.DB;
 
 namespace MediaPortal.Mock
 {
@@ -32,10 +33,9 @@ namespace MediaPortal.Mock
   {
     public const string DUMMY_TABLE_NAME = "DUMMY";
 
-    public string DummyTableName
-    {
-      get { return DUMMY_TABLE_NAME; }
-    }
+    public string DummyTableName => DUMMY_TABLE_NAME;
+
+    public bool UpgradeInProgress => false;
 
     public void Startup()
     {
@@ -62,7 +62,22 @@ namespace MediaPortal.Mock
       throw new NotImplementedException();
     }
 
-    public void ExecuteBatch(ISQLDatabase database, Utilities.DB.InstructionList instructions)
+    public bool UpgradeDatabase()
+    {
+      throw new NotImplementedException();
+    }
+
+    public bool MigrateDatabaseData()
+    {
+      throw new NotImplementedException();
+    }
+
+    public void MigrateData(ITransaction transaction, string dataOwner, string migrateScriptFilePath, IDictionary<string, IList<string>> migrationPlaceholderTables)
+    {
+      throw new NotImplementedException();
+    }
+
+    public void ExecuteBatch(ITransaction transaction, InstructionList instructions, IDictionary<string, IList<string>> migrationPlaceholderTables = null)
     {
       throw new NotImplementedException();
     }

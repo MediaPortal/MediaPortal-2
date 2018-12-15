@@ -29,7 +29,9 @@
   <string name="Media.AudioComposersLabel">Compositores:</string>
   <string name="Media.AudioMimeTypeLabel">Tipo:</string>
   <string name="BlueVision.Configuration">Configuração BlueVision </string>
+  <string name="BlueVision.Configuration.Help">Permitir personalização do tema do BlueVision</string>
   <string name="BlueVision.DisableHomeTab">Desativar separador \"Início\"</string>
+  <string name="BlueVision.DisableAutoSelection">Desativar seleção automática do menu</string>
   <string name="BlueVision.UseAlternativeSplashscreen">Mostrar o ecrã de início do BlueVision </string>
   <string name="BlueVision.ResetMenuLayout">Repôr a configuração por defeito do menu</string>
 </resources>

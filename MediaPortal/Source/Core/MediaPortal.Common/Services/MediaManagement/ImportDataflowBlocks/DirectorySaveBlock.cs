@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2017 Team MediaPortal
+#region Copyright (C) 2007-2018 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2017 Team MediaPortal
+    Copyright (C) 2007-2018 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -48,7 +48,7 @@ namespace MediaPortal.Common.Services.MediaManagement.ImportDataflowBlocks
 
     #region Variables
 
-    private readonly ConcurrentDictionary<ResourcePath, Guid> _parentDirectoryIds = new ConcurrentDictionary<ResourcePath, Guid>();
+    private readonly ConcurrentDictionary<ResourcePath, Guid?> _parentDirectoryIds = new ConcurrentDictionary<ResourcePath, Guid?>();
 
     #endregion
 
@@ -172,7 +172,7 @@ namespace MediaPortal.Common.Services.MediaManagement.ImportDataflowBlocks
       // been saved before we try to save the child directory. When saving the parent directory
       // we store its ID in _parentDirectoryIds to cache them. So usually we should find the
       // parent directory ID in this cache.
-      Guid result;
+      Guid? result;
       if (_parentDirectoryIds.TryGetValue(parentResourcePath, out result))
         return result;
 
@@ -185,7 +185,9 @@ namespace MediaPortal.Common.Services.MediaManagement.ImportDataflowBlocks
       {
         // If the parent directory ID could not be found in the MediaLibrary, this is an error
         // case: The order of the directories to be saved was wrong.
-        ServiceRegistration.Get<ILogger>().Error("ImporterWorker.{0}.{1}: Could not find GUID of parent directory ({2}). Directories were posted to this block in the wrong order.", ParentImportJobController, ToString(), parentResourcePath);
+        ServiceRegistration.Get<ILogger>().Info("ImporterWorker.{0}.{1}: Could not find GUID of parent directory ({2}). Directories were posted to this block in the wrong order or the parent path does no longer exist.", ParentImportJobController, ToString(), parentResourcePath);
+        // Also cache the failure case to avoid duplicated logging.
+        _parentDirectoryIds[parentResourcePath] = null;
         return null;
       }
       // If we had to load the parent directory ID from the MediaLibrary, we store it in our

@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2017 Team MediaPortal
+#region Copyright (C) 2007-2018 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2017 Team MediaPortal
+    Copyright (C) 2007-2018 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -79,6 +79,18 @@ namespace MediaPortal.Backend.Services.MediaLibrary
 
       aspectIdIndex = 0;
       creationDateIndex = 1;
+      return result;
+    }
+
+    public static IDbCommand SelectAllMediaItemAspectMetadataNameAndCreationDatesCommand(ITransaction transaction,
+        out int aspectIdIndex, out int nameIndex, out int creationDateIndex)
+    {
+      IDbCommand result = transaction.CreateCommand();
+      result.CommandText = "SELECT MIAM_ID, NAME, CREATION_DATE FROM MIA_TYPES";
+
+      aspectIdIndex = 0;
+      nameIndex = 1;
+      creationDateIndex = 2;
       return result;
     }
 

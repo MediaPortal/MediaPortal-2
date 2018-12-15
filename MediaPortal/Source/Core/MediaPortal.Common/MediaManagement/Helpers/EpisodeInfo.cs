@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2017 Team MediaPortal
+#region Copyright (C) 2007-2018 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2017 Team MediaPortal
+    Copyright (C) 2007-2018 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -122,7 +122,7 @@ namespace MediaPortal.Common.MediaManagement.Helpers
     /// <summary>
     /// Gets a list of episode numbers.
     /// </summary>
-    public ICollection<int> EpisodeNumbers = new HashSet<int>();
+    public List<int> EpisodeNumbers = new List<int>();
     /// <summary>
     /// Gets the first episode number in ascending order.
     /// </summary>
@@ -261,6 +261,11 @@ namespace MediaPortal.Common.MediaManagement.Helpers
     {
       if (other is EpisodeInfo episode)
       {
+        bool forceMerge = false;
+        //Merge of single and multi-episode needs to force overwrite of properties
+        if (EpisodeNumbers.Count == 1 && episode.EpisodeNumbers.Count > 1)
+          forceMerge = true;
+
         HasChanged |= MetadataUpdater.SetOrUpdateId(ref ImdbId, episode.ImdbId);
         HasChanged |= MetadataUpdater.SetOrUpdateId(ref MovieDbId, episode.MovieDbId);
         HasChanged |= MetadataUpdater.SetOrUpdateId(ref TvdbId, episode.TvdbId);
@@ -273,8 +278,18 @@ namespace MediaPortal.Common.MediaManagement.Helpers
         HasChanged |= MetadataUpdater.SetOrUpdateId(ref SeriesTvMazeId, episode.SeriesTvMazeId);
         HasChanged |= MetadataUpdater.SetOrUpdateId(ref SeriesTvRageId, episode.SeriesTvRageId);
 
-        HasChanged |= MetadataUpdater.SetOrUpdateString(ref EpisodeName, episode.EpisodeName, overwriteShorterStrings);
-        HasChanged |= MetadataUpdater.SetOrUpdateString(ref Summary, episode.Summary, overwriteShorterStrings);
+        if (forceMerge)
+        {
+          //Merge of single and multi-episode needs to force overwrite of name and summery
+          EpisodeName = episode.EpisodeName;
+          Summary = episode.Summary;
+          HasChanged = true;
+        }
+        else
+        {
+          HasChanged |= MetadataUpdater.SetOrUpdateString(ref EpisodeName, episode.EpisodeName, overwriteShorterStrings);
+          HasChanged |= MetadataUpdater.SetOrUpdateString(ref Summary, episode.Summary, overwriteShorterStrings);
+        }
         HasChanged |= MetadataUpdater.SetOrUpdateString(ref SeriesName, episode.SeriesName, overwriteShorterStrings);
 
         HasChanged |= MetadataUpdater.SetOrUpdateValue(ref FirstAired, episode.FirstAired);
@@ -283,18 +298,12 @@ namespace MediaPortal.Common.MediaManagement.Helpers
 
         HasChanged |= MetadataUpdater.SetOrUpdateRatings(ref Rating, episode.Rating);
 
-        if (EpisodeNumbers.Count == 0)
-        {
-          List<int> tmpList = EpisodeNumbers.ToList();
-          HasChanged |= MetadataUpdater.SetOrUpdateList(tmpList, episode.EpisodeNumbers.Distinct().ToList(), true);
-          EpisodeNumbers = new HashSet<int>(tmpList);
-        }
-        if (DvdEpisodeNumbers.Count == 0)
+        if (EpisodeNumbers.Count == 0 || forceMerge)
+          HasChanged |= MetadataUpdater.SetOrUpdateList(EpisodeNumbers, episode.EpisodeNumbers.Distinct().ToList(), true);
+        if (DvdEpisodeNumbers.Count == 0 || forceMerge)
           HasChanged |= MetadataUpdater.SetOrUpdateList(DvdEpisodeNumbers, episode.DvdEpisodeNumbers.Distinct().ToList(), true);
         if (Genres.Count == 0)
-        {
           HasChanged |= MetadataUpdater.SetOrUpdateList(Genres, episode.Genres.Distinct().ToList(), true);
-        }
 
         if (!HasThumbnail && episode.HasThumbnail)
         {
@@ -335,8 +344,8 @@ namespace MediaPortal.Common.MediaManagement.Helpers
       if (!EpisodeName.IsEmpty) MediaItemAspect.SetAttribute(aspectData, EpisodeAspect.ATTR_EPISODE_NAME, EpisodeName.Text);
       if (SeasonNumber.HasValue) MediaItemAspect.SetAttribute(aspectData, EpisodeAspect.ATTR_SEASON, SeasonNumber.Value);
       if (FirstAired.HasValue) MediaItemAspect.SetAttribute(aspectData, MediaAspect.ATTR_RECORDINGTIME, FirstAired.Value);
-      MediaItemAspect.SetCollectionAttribute(aspectData, EpisodeAspect.ATTR_EPISODE, EpisodeNumbers);
-      MediaItemAspect.SetCollectionAttribute(aspectData, EpisodeAspect.ATTR_DVDEPISODE, DvdEpisodeNumbers);
+      MediaItemAspect.SetCollectionAttribute(aspectData, EpisodeAspect.ATTR_EPISODE, EpisodeNumbers.Distinct());
+      MediaItemAspect.SetCollectionAttribute(aspectData, EpisodeAspect.ATTR_DVDEPISODE, DvdEpisodeNumbers.Distinct());
 
       if (!string.IsNullOrEmpty(ImdbId)) MediaItemAspect.AddOrUpdateExternalIdentifier(aspectData, ExternalIdentifierAspect.SOURCE_IMDB, ExternalIdentifierAspect.TYPE_EPISODE, ImdbId);
       if (TvdbId > 0) MediaItemAspect.AddOrUpdateExternalIdentifier(aspectData, ExternalIdentifierAspect.SOURCE_TVDB, ExternalIdentifierAspect.TYPE_EPISODE, TvdbId.ToString());
@@ -367,10 +376,10 @@ namespace MediaPortal.Common.MediaManagement.Helpers
         MediaItemAspect.SetAttribute(aspectData, VideoAspect.ATTR_ISDVD, false);
 
       if (!Summary.IsEmpty) MediaItemAspect.SetAttribute(aspectData, VideoAspect.ATTR_STORYPLOT, CleanString(Summary.Text));
-      if (Actors.Count > 0) MediaItemAspect.SetCollectionAttribute(aspectData, VideoAspect.ATTR_ACTORS, Actors.Where(p => !string.IsNullOrEmpty(p.Name)).Select(p => p.Name).ToList());
-      if (Directors.Count > 0) MediaItemAspect.SetCollectionAttribute(aspectData, VideoAspect.ATTR_DIRECTORS, Directors.Where(p => !string.IsNullOrEmpty(p.Name)).Select(p => p.Name).ToList());
-      if (Writers.Count > 0) MediaItemAspect.SetCollectionAttribute(aspectData, VideoAspect.ATTR_WRITERS, Writers.Where(p => !string.IsNullOrEmpty(p.Name)).Select(p => p.Name).ToList());
-      if (Characters.Count > 0) MediaItemAspect.SetCollectionAttribute(aspectData, VideoAspect.ATTR_CHARACTERS, Characters.Where(p => !string.IsNullOrEmpty(p.Name)).Select(p => p.Name).ToList());
+      if (Actors.Count > 0) MediaItemAspect.SetCollectionAttribute(aspectData, VideoAspect.ATTR_ACTORS, Actors.Where(p => !string.IsNullOrEmpty(p.Name)).Select(p => p.Name).Distinct().ToList());
+      if (Directors.Count > 0) MediaItemAspect.SetCollectionAttribute(aspectData, VideoAspect.ATTR_DIRECTORS, Directors.Where(p => !string.IsNullOrEmpty(p.Name)).Select(p => p.Name).Distinct().ToList());
+      if (Writers.Count > 0) MediaItemAspect.SetCollectionAttribute(aspectData, VideoAspect.ATTR_WRITERS, Writers.Where(p => !string.IsNullOrEmpty(p.Name)).Select(p => p.Name).Distinct().ToList());
+      if (Characters.Count > 0) MediaItemAspect.SetCollectionAttribute(aspectData, VideoAspect.ATTR_CHARACTERS, Characters.Where(p => !string.IsNullOrEmpty(p.Name)).Select(p => p.Name).Distinct().ToList());
 
       aspectData.Remove(GenreAspect.ASPECT_ID);
       foreach (GenreInfo genre in Genres.Distinct())
@@ -480,11 +489,11 @@ namespace MediaPortal.Common.MediaManagement.Helpers
 
       EpisodeNumbers.Clear();
       if (MediaItemAspect.TryGetAttribute(aspectData, EpisodeAspect.ATTR_EPISODE, out collection))
-        CollectionUtils.AddAll(EpisodeNumbers, collection.Cast<int>());
+        CollectionUtils.AddAll(EpisodeNumbers, collection.Cast<int>().Distinct());
 
       DvdEpisodeNumbers.Clear();
       if (MediaItemAspect.TryGetAttribute(aspectData, EpisodeAspect.ATTR_DVDEPISODE, out collection))
-        DvdEpisodeNumbers.AddRange(collection.Cast<double>());
+        DvdEpisodeNumbers.AddRange(collection.Cast<double>().Distinct());
 
       byte[] data;
       if (MediaItemAspect.TryGetAttribute(aspectData, ThumbnailLargeAspect.ATTR_THUMBNAIL, out data))
@@ -640,11 +649,11 @@ namespace MediaPortal.Common.MediaManagement.Helpers
       {
         EpisodeInfo info = new EpisodeInfo();
         info.CopyIdsFrom(this);
-        info.SeriesName = SeriesName;
+        info.SeriesName = new SimpleTitle(SeriesName.Text, SeriesName.DefaultLanguage);
         info.SeasonNumber = SeasonNumber;
-        info.EpisodeNumbers = EpisodeNumbers;
-        info.EpisodeName = EpisodeName;
-        info.EpisodeNameSort = EpisodeNameSort;
+        info.EpisodeNumbers = EpisodeNumbers.ToList();
+        info.EpisodeName = new SimpleTitle(EpisodeName.Text, EpisodeName.DefaultLanguage);
+        info.EpisodeNameSort = new SimpleTitle(EpisodeName.Text, EpisodeName.DefaultLanguage);
         return (T)(object)info;
       }
       return default(T);
@@ -671,21 +680,30 @@ namespace MediaPortal.Common.MediaManagement.Helpers
     {
       EpisodeInfo other = obj as EpisodeInfo;
       if (obj == null) return false;
-      if (TvdbId > 0 && other.TvdbId > 0)
-        return TvdbId == other.TvdbId;
-      if (MovieDbId > 0 && other.MovieDbId > 0)
-        return MovieDbId == other.MovieDbId;
-      if (TvMazeId > 0 && other.TvMazeId > 0)
-        return TvMazeId == other.TvMazeId;
-      if (TvRageId > 0 && other.TvRageId > 0)
-        return TvRageId == other.TvRageId;
-      if (!string.IsNullOrEmpty(ImdbId) && !string.IsNullOrEmpty(other.ImdbId))
-        return string.Equals(ImdbId, other.ImdbId, StringComparison.InvariantCultureIgnoreCase);
 
-      //Name id is generated from name and can be unreliable so should only be used if matches
-      if (!string.IsNullOrEmpty(NameId) && !string.IsNullOrEmpty(other.NameId) &&
-        string.Equals(NameId, other.NameId, StringComparison.InvariantCultureIgnoreCase))
-        return true;
+      bool multiEpisodeComparison = false;
+      if ((EpisodeNumbers.Count > 1 || other.EpisodeNumbers.Count > 1) &&
+        EpisodeNumbers.Intersect(other.EpisodeNumbers).Any() && EpisodeNumbers.Count != other.EpisodeNumbers.Count)
+        multiEpisodeComparison = true;
+
+      if (!multiEpisodeComparison)
+      {
+        if (TvdbId > 0 && other.TvdbId > 0)
+          return TvdbId == other.TvdbId;
+        if (MovieDbId > 0 && other.MovieDbId > 0)
+          return MovieDbId == other.MovieDbId;
+        if (TvMazeId > 0 && other.TvMazeId > 0)
+          return TvMazeId == other.TvMazeId;
+        if (TvRageId > 0 && other.TvRageId > 0)
+          return TvRageId == other.TvRageId;
+        if (!string.IsNullOrEmpty(ImdbId) && !string.IsNullOrEmpty(other.ImdbId))
+          return string.Equals(ImdbId, other.ImdbId, StringComparison.InvariantCultureIgnoreCase);
+
+        //Name id is generated from name and can be unreliable so should only be used if matches
+        if (!string.IsNullOrEmpty(NameId) && !string.IsNullOrEmpty(other.NameId) &&
+          string.Equals(NameId, other.NameId, StringComparison.InvariantCultureIgnoreCase))
+          return true;
+      }
 
       if (SeriesTvdbId > 0 && other.SeriesTvdbId > 0 && SeriesTvdbId != other.SeriesTvdbId)
         return false;
@@ -702,16 +720,32 @@ namespace MediaPortal.Common.MediaManagement.Helpers
         !string.Equals(SeriesNameId, other.SeriesNameId, StringComparison.InvariantCultureIgnoreCase))
         return false;
 
-      if (!SeriesName.IsEmpty && !other.SeriesName.IsEmpty && SeriesName.Text == other.SeriesName.Text &&
+      bool matchSeriesId = false;
+      if (SeriesTvdbId > 0 && other.SeriesTvdbId > 0)
+        matchSeriesId |= SeriesTvdbId == other.SeriesTvdbId;
+      if (SeriesMovieDbId > 0 && other.SeriesMovieDbId > 0)
+        matchSeriesId |= SeriesMovieDbId == other.SeriesMovieDbId;
+      if (SeriesTvMazeId > 0 && other.SeriesTvMazeId > 0)
+        matchSeriesId |= SeriesTvMazeId == other.SeriesTvMazeId;
+      if (SeriesTvRageId > 0 && other.SeriesTvRageId > 0)
+        matchSeriesId |= SeriesTvRageId == other.SeriesTvRageId;
+      if (!string.IsNullOrEmpty(SeriesImdbId) && !string.IsNullOrEmpty(other.SeriesImdbId))
+        matchSeriesId |= string.Equals(SeriesImdbId, other.SeriesImdbId, StringComparison.InvariantCultureIgnoreCase);
+      if (!string.IsNullOrEmpty(SeriesNameId) && !string.IsNullOrEmpty(other.SeriesNameId))
+        matchSeriesId |= string.Equals(SeriesNameId, other.SeriesNameId, StringComparison.InvariantCultureIgnoreCase);
+      if (!SeriesName.IsEmpty && !other.SeriesName.IsEmpty)
+        matchSeriesId |= SeriesName.Text == other.SeriesName.Text;
+
+      if (matchSeriesId &&
         SeasonNumber.HasValue && other.SeasonNumber.HasValue && SeasonNumber.Value == other.SeasonNumber.Value &&
-        EpisodeNumbers.Count > 0 && other.EpisodeNumbers.Count > 0 && EpisodeNumbers.First() == other.EpisodeNumbers.First())
+        EpisodeNumbers.Count > 0 && other.EpisodeNumbers.Count > 0 && EpisodeNumbers.Intersect(other.EpisodeNumbers).Any())
         return true;
-      if (!SeriesName.IsEmpty && !other.SeriesName.IsEmpty && SeriesName.Text == other.SeriesName.Text &&
+      if (matchSeriesId &&
         SeasonNumber.HasValue && other.SeasonNumber.HasValue && SeasonNumber.Value == other.SeasonNumber.Value &&
         !EpisodeName.IsEmpty && !other.EpisodeName.IsEmpty && MatchNames(EpisodeName.Text, other.EpisodeName.Text))
         return true;
       if (SeasonNumber.HasValue && other.SeasonNumber.HasValue && SeasonNumber.Value == other.SeasonNumber.Value &&
-        EpisodeNumbers.Count > 0 && other.EpisodeNumbers.Count > 0 && EpisodeNumbers.First() == other.EpisodeNumbers.First() &&
+        EpisodeNumbers.Count > 0 && other.EpisodeNumbers.Count > 0 && EpisodeNumbers.Intersect(other.EpisodeNumbers).Any() &&
         !EpisodeName.IsEmpty && !other.EpisodeName.IsEmpty && MatchNames(EpisodeName.Text, other.EpisodeName.Text))
         return true;
 

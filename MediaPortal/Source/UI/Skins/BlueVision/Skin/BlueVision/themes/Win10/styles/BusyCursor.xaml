@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ResourceDictionary
+    xmlns="www.team-mediaportal.com/2008/mpf/directx"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    DependsOnStyleResources="Colors"
+    >
+
+  <Storyboard x:Key="RotationStoryboard" FillBehavior="HoldEnd" RepeatBehavior="Forever">
+    <DoubleAnimation Storyboard.TargetProperty="RenderTransform.Angle"
+                     From="0" To="360" Duration="0:0:2" RepeatBehavior="Forever" />
+  </Storyboard>
+
+  <Style x:Key="BusyCursorControlStyle" TargetType="{x:Type Control}">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="{x:Type Control}">
+          <Grid HorizontalAlignment="Center" VerticalAlignment="Center">
+            <Image x:Name="BusyIcon" Source="busycurser.png" Stretch="Uniform" RenderTransformOrigin="0.5,0.5" Width="150" Height="150"
+                   HorizontalAlignment="Center" VerticalAlignment="Center">
+              <Image.RenderTransform>
+                <RotateTransform x:Name="AnimatedRotateTransform" Angle="0" />
+              </Image.RenderTransform>
+              <Image.Triggers>
+                <Trigger Property="IsEnabled" Value="True">
+                  <Trigger.EnterActions>
+                    <BeginStoryboard x:Name="Disabled_BeginStoryBoard" Storyboard="{ThemeResource RotationStoryboard}"/>
+                  </Trigger.EnterActions>
+                  <Trigger.ExitActions>
+                    <StopStoryboard BeginStoryboardName="Disabled_BeginStoryBoard"/>
+                  </Trigger.ExitActions>
+                </Trigger>
+              </Image.Triggers>
+            </Image>
+          </Grid>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+
+</ResourceDictionary>

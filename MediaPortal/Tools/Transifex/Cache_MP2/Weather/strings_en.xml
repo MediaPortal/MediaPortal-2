@@ -78,6 +78,8 @@
   <string name="Settings.Plugins.Weather">Weather</string>
   <string name="Settings.Plugins.Weather.LocationSetup">Setup locations</string>
   <string name="Settings.Plugins.Weather.LocationSetup.Help">Configures cities to be available for the weather screen</string>
+  <string name="Settings.Plugins.Weather.ApiKey">Setup personal API key</string>
+  <string name="Settings.Plugins.Weather.ApiKey.Help">Configures a personal API key created at https://openweathermap.org/api to avoid request limits.</string>
 
   <string name="WeatherSetup.Title">Configure cities</string>
   <string name="WeatherSetup.ConfiguredCities">Configured cities</string>

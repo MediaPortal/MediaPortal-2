@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2017 Team MediaPortal
+#region Copyright (C) 2007-2018 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2017 Team MediaPortal
+    Copyright (C) 2007-2018 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -712,7 +712,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
 
       int start = _arrangedLines[_actualFirstRenderedLineIndex].StartIndex;
       int end = _arrangedLines[_actualLastRenderedLineIndex].EndIndex;
-      return _arrangedItems.Skip(start).Take(end - start + 1);
+      return _arrangedItems.Skip(start).Take(end - start + 1).Where(i => i != null);
     }
 
     #endregion

@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2017 Team MediaPortal
+#region Copyright (C) 2007-2018 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2017 Team MediaPortal
+    Copyright (C) 2007-2018 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -192,8 +192,11 @@ namespace MediaPortal.Plugins.SlimTv.Service
       ServiceRegistration.Get<ILogger>().Info("SlimTvService: Initialising");
       Task.Delay(MAX_INIT_MS).ContinueWith((t) =>
       {
-        _initComplete.TrySetResult(false);
-        ServiceRegistration.Get<ILogger>().Error("SlimTvService: Initialization timed out.");
+        if (_initComplete.Task.Status != TaskStatus.RanToCompletion)
+        {
+          _initComplete.TrySetResult(false);
+          ServiceRegistration.Get<ILogger>().Error("SlimTvService: Initialization timed out.");
+        }
       });
 
       ISQLDatabase database = ServiceRegistration.Get<ISQLDatabase>(false);
@@ -686,7 +689,7 @@ namespace MediaPortal.Plugins.SlimTv.Service
       return string.Format("{0}-{1}", clientName, slotIndex);
     }
 
-	  public abstract Task<AsyncResult<List<ICard>>> GetCardsAsync();
+	public abstract Task<AsyncResult<List<ICard>>> GetCardsAsync();
 
     public abstract Task<AsyncResult<List<IVirtualCard>>> GetActiveVirtualCardsAsync();
 

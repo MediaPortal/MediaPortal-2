@@ -1,16 +1,24 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
+  <string name="Trakt.Enable">Ativar registo de uso</string>
   <string name="Trakt.Close">Fechar</string>
   <string name="Trakt.UsernamePasswordGroup">Detalhes da conta</string>
   <string name="Trakt.Username">Utilizador</string>
   <string name="Trakt.PinUrl">http://trakt.tv/pin/6601</string>
   <string name="Trakt.PinCode">Receber código PIN</string>
   <string name="Trakt.Authorize">Autorizar</string>
+  <string name="Trakt.Sync">Sincronizar com o Trakt</string>
   <string name="Trakt.SyncMovies">A sincronizar filmes...</string>
   <string name="Trakt.SyncSeries">A sincronizar séries...</string>
   <string name="Trakt.SyncFinished">Sincronização completa!</string>
+  <string name="Trakt.MediaLibraryNotConnected">Neste momento o servidor não está disponível, não foi possível sincronizar!</string>
+  <string name="Trakt.WrongToken">Não existe nenhum token disponível</string>
   <string name="Trakt.EmptyUsername">Por favor insira o nome de utilizador</string>
+  <string name="Trakt.NotAuthorized">Tem que autorizar primeiro!</string>
   <string name="Trakt.CheckPin">Não foi possível ligar ao trakt, será o PIN errado?</string>
+  <string name="Trakt.LoggedIn">Ligação efetuada com sucesso!</string>
+  <string name="Trakt.UnableLogin">Não consigo entrar no Trakt</string>
   <string name="Settings.Plugins.Trakt">Trakt.tv</string>
   <string name="Settings.Plugins.Trakt.TraktSetup">Instalar Trakt.tv</string>
+  <string name="Settings.Plugins.Trakt.TraktSetup.Help">Configurar os detalhes da sua conta no serviço Trakt.tv</string>
 </resources>

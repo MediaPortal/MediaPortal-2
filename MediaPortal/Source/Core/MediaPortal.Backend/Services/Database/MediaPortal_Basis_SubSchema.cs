@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2017 Team MediaPortal
+#region Copyright (C) 2007-2018 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2017 Team MediaPortal
+    Copyright (C) 2007-2018 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -37,6 +37,7 @@ namespace MediaPortal.Backend.Services.Database
   {
     public const string SUBSCHEMA_NAME = "MediaPortal-Basis";
 
+    public const string DATABASE_VERSION_TABLE_NAME = "PRODUCT_VERSION";
     public const string MEDIAPORTAL_BASIS_TABLE_NAME = "MEDIAPORTAL_BASIS";
     public const string SUBSCHEMA_CREATE_SCRIPT_NAME = "MediaPortal-Basis-create-1.0.sql";
 
@@ -47,6 +48,35 @@ namespace MediaPortal.Backend.Services.Database
         IPathManager pathManager = ServiceRegistration.Get<IPathManager>();
         return Path.Combine(pathManager.GetPath(@"<APPLICATION_ROOT>\Scripts\"), SUBSCHEMA_CREATE_SCRIPT_NAME);
       }
+    }
+
+    public static string DatabaseUpgradeScriptDirectory
+    {
+      get
+      {
+        IPathManager pathManager = ServiceRegistration.Get<IPathManager>();
+        return pathManager.GetPath(@"<APPLICATION_ROOT>\Scripts\");
+      }
+    }
+
+    public static IDbCommand SelectDatabaseVersionByCommand(ITransaction transaction, out int versionParameterIndex)
+    {
+      IDbCommand result = transaction.CreateCommand();
+      result.CommandText = "SELECT VERSION FROM PRODUCT_VERSION WHERE PRODUCT = @PRODUCT_NAME";
+      ISQLDatabase database = transaction.Database;
+      database.AddParameter(result, "PRODUCT_NAME", "MediaPortal", typeof(string));
+      versionParameterIndex = 0;
+      return result;
+    }
+
+    public static IDbCommand UpdateDatabaseVersionCommand(ITransaction transaction, string version)
+    {
+      IDbCommand result = transaction.CreateCommand();
+      result.CommandText = "UPDATE PRODUCT_VERSION SET VERSION=@VERSION WHERE PRODUCT=@PRODUCT_NAME";
+      ISQLDatabase database = transaction.Database;
+      database.AddParameter(result, "VERSION", version, typeof(string));
+      database.AddParameter(result, "PRODUCT_NAME", "MediaPortal", typeof(string));
+      return result;
     }
 
     public static IDbCommand SelectAllSubSchemaNames(ITransaction transaction, out int nameIndex)

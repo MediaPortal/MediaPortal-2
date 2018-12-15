@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <string name="Settings.InputDeviceManager.Section">Gestione dispositivi di immissione</string>
+  <string name="Settings.InputDeviceManager.EnterKeyConfig">Gestore tasti</string>
+  <string name="Settings.InputDeviceManager.EnterKeyConfigHelp">Questa funzione ti permette di riassegnare i pulsanti di dispositivi HID come tasti differenti.</string>
+  <string name="Settings.InputDeviceManager.EnterScreenConfig">Gestione schermi</string>
+  <string name="Settings.InputDeviceManager.EnterScreenConfigHelp">Questa funzione permette di associare un dispositivo HID ad uno schermo specifico.</string>
+
+  <string name="InputDeviceManager.SelectDevice.Header">Premi un pulsante sul dispositivo di immissione che desideri configurare</string>
+  <string name="InputDeviceManager.FocusItem">Visualizza gli abbinamenti correnti e seleziona un elemento per cambiare l\'associazione.</string>
+
+  <string name="InputDeviceManager.AddKey.Header">Premi la combinazione di tasti che vuoi configurare!</string>
+  <string name="InputDeviceManager.Screen">Schermo</string>
+  <string name="InputDeviceManager.Key">Tasto</string>
+
+  <string name="InputDeviceManager.KeyMapping.Button.ClearMapping">Pulisci</string>
+  <string name="InputDeviceManager.KeyMapping.Dialog.RemoveMapping">Rimuovere l\'associazione?</string>
+  <string name="InputDeviceManager.KeyMapping.Dialog.AddMapping">Aggiungere un\'associazione?</string>
+</resources>

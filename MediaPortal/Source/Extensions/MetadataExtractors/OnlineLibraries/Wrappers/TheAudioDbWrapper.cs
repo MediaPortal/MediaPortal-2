@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2017 Team MediaPortal
+#region Copyright (C) 2007-2018 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2017 Team MediaPortal
+    Copyright (C) 2007-2018 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -435,8 +435,8 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
             if (!string.IsNullOrEmpty(trackDetail.Genre?.Trim()))
               track.Genres.Add(new GenreInfo { Name = trackDetail.Genre.Trim() });
 
-            track.AlbumArtists = album.Artists;
-            track.MusicLabels = album.MusicLabels;
+            track.AlbumArtists = album.Artists.ToList();
+            track.MusicLabels = album.MusicLabels.ToList();
 
             album.Tracks.Add(track);
           }

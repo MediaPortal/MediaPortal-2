@@ -1,7 +1,7 @@
-﻿#region Copyright (C) 2007-2017 Team MediaPortal
+#region Copyright (C) 2007-2018 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2017 Team MediaPortal
+    Copyright (C) 2007-2018 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -38,8 +38,8 @@ namespace CustomActions
 
     private const string LAV_SPLITTER_REGISTRY_PATH = @"CLSID\{171252A0-8820-4AFE-9DF8-5C92B2D66B04}\InprocServer32";
     private const string LAV_FILTERS_FILE_NAME = "LAVFilters.exe";
-    private const string LAV_FILTERS_URL = "http://install.team-mediaportal.com/MP2/install/LAVFilters.exe";
-    private const string LAV_FILTERS_METADATA_FILE = "http://install.team-mediaportal.com/MP2/install/metadata/LAVFilters.xml";
+    private const string LAV_FILTERS_URL = "http://install.team-mediaportal.com/MP2/install/LAVFilters-0.72.exe";
+    private const string LAV_FILTERS_METADATA_FILE = "http://install.team-mediaportal.com/MP2/install/metadata/LAVFilters-072.xml";
     private const string LAV_FILTERS_XSD_FILE = "CustomActions.LAVFilters.xsd";
 
     public CustomActionRunner(IRunnerHelper runnerHelper)

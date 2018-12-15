@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <string name="Settings.InputDeviceManager.Section">Gestionnaire HID</string>
+  <string name="Settings.InputDeviceManager.EnterKeyConfig">Gestionnaire de saisi des clés</string>
+  <string name="Settings.InputDeviceManager.EnterKeyConfigHelp">Ceci vous autorise de définir différentes actions pour un périphérique HID </string>
+  <string name="Settings.InputDeviceManager.EnterScreenConfig">Ecran du Gestionnaire des Entrées</string>
+  <string name="Settings.InputDeviceManager.EnterScreenConfigHelp">Ceci vous autorise de définir différentes vues pour un périphérique HID </string>
+
+  <string name="InputDeviceManager.SelectDevice.Header">Veuillez appuyer sur le bouton du périphérique, que vous souhaitez configurer.</string>
+  <string name="InputDeviceManager.FocusItem">Afficher le mapping actuel, et sélectionnez un élément à changer.</string>
+
+  <string name="InputDeviceManager.AddKey.Header">Appuyer sur la combinaison de touche souhaitée du périphérique !</string>
+  <string name="InputDeviceManager.Screen">Ecran</string>
+  <string name="InputDeviceManager.Key">Clé</string>
+
+  <string name="InputDeviceManager.KeyMapping.Button.ClearMapping">Supprimer</string>
+  <string name="InputDeviceManager.KeyMapping.Dialog.RemoveMapping">Supprimer le mapping ?</string>
+  <string name="InputDeviceManager.KeyMapping.Dialog.AddMapping">Ajouter le mapping ?</string>
+</resources>

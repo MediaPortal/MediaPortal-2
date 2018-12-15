@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2017 Team MediaPortal
+#region Copyright (C) 2007-2018 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2017 Team MediaPortal
+    Copyright (C) 2007-2018 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -47,6 +47,7 @@ namespace MediaPortal.Common.UserProfileDataManagement
     Task<bool> UpdateProfileAsync(Guid profileId, string profileName, UserProfileType profileType, string profilePassword);
     Task<bool> SetProfileImageAsync(Guid profileId, byte[] profileImage);
     Task<bool> RenameProfileAsync(Guid profileId, string newName);
+    Task<bool> ChangeProfileIdAsync(Guid profileId, Guid newProfileId);
     Task<bool> DeleteProfileAsync(Guid profileId);
     Task<bool> LoginProfileAsync(Guid profileId);
 

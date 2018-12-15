@@ -1,6 +1,7 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
   <string name="PartyMusicPlayer.MenuItem">Party music player</string>
+  <string name="PartyMusicPlayer.MenuItem.Help">Inicie a lista de reprodução e bloqueie o MediaPortal.</string>
   <string name="PartyMusicPlayer.ConfigWorkflowNavigationContextDisplayLabel">Party music player</string>
   <string name="PartyMusicPlayer.PlayerWorkflowNavigationContextDisplayLabel">Party music player</string>
   <string name="PartyMusicPlayer.ConfigScreenTitle">Configuração do Party music player</string>

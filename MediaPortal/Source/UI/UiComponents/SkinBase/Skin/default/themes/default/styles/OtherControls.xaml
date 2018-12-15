@@ -5,8 +5,11 @@
     xmlns:system="clr-namespace:System"
     xmlns:collections="clr-namespace:MediaPortal.UI.Presentation.DataObjects;assembly=MediaPortal.UI"
     xmlns:mp_special_controls="clr-namespace:MediaPortal.UI.SkinEngine.SpecialElements.Controls;assembly=SkinEngine"
+    xmlns:fanart="clr-namespace:MediaPortal.Extensions.UserServices.FanArtService.Client;assembly=FanArtService.Client"
     DependsOnStyleResources="Colors,Buttons,Consts,Brushes"
     >
+
+  <Model x:Key="FanArtBackgroundModel" Id="8F42C8E9-E8A3-475C-A50A-99E1E644DC91"/>
 
   <!-- ************************** Default conversions ****************************** -->
   <DataTemplate DataType="{x:Type system:String}">
@@ -1639,7 +1642,6 @@
               FixedImageWidth="{ThemeResource PiPVideoWidth}">
             <mp_special_controls:PlayerControl.TemplateControl>
               <Border x:Name="PiPControlBorder"
-                  IsVisible="{Binding IsPip}"
                   DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}"
                   BorderBrush="{ThemeResource PipBorderColor}" BorderThickness="{ThemeResource PipBorderThickness}">
                 <Grid>
@@ -1659,6 +1661,12 @@
                       <ImagePlayerImageSource Stream="1"
                           Transition="transitions\granular_dissolve;transitions\fade;transitions\dissolve;transitions\wipe_right;transitions\wipe_down;transitions\wipe_down-right;transitions\wipe_up-left"
                           TransitionInOut="False" />
+                    </Image.Source>
+                  </Image>
+                  <Image x:Name="PiPAudio" IsVisible="{Binding IsAudioPlayerPresent}" Stretch="Uniform" Width="200" Height="200">
+                    <Image.Source>
+                      <fanart:FanArtImageSource fanart:FanArtMediaType="Album" fanart:FanArtType="Poster" fanart:FanArtName="{Binding MediaItem.MediaItemId}"
+                                            fanart:MaxWidth="200" fanart:MaxHeight="200"/>
                     </Image.Source>
                   </Image>
                 </Grid>

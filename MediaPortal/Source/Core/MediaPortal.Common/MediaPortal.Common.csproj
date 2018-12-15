@@ -153,6 +153,7 @@
     <Compile Include="Services\GenreConverter\VideoGenre.cs" />
     <Compile Include="Services\Logging\LoggerConfig.cs" />
     <Compile Include="Services\Logging\LogSettings.cs" />
+    <Compile Include="Services\Database\DatabaseUpgradeServerState.cs" />
     <Compile Include="Services\MediaManagement\ImportDataflowBlocks\AsyncManualResetEvent.cs" />
     <Compile Include="Services\MediaManagement\ImportDataflowBlocks\DirectorySaveBlock.cs" />
     <Compile Include="Services\MediaManagement\ImportDataflowBlocks\FileUnfoldBlock.cs" />
@@ -493,6 +494,7 @@
     <Compile Include="UPnP\UPnPDtUserProfile.cs" />
     <Compile Include="UPnP\UPnPDtUserProfileEnumeration.cs" />
     <Compile Include="UserManagement\IUserManagement.cs" />
+    <Compile Include="UserManagement\UserMessaging.cs" />
     <Compile Include="UserProfileDataManagement\IUserProfileDataManagement.cs" />
     <Compile Include="UserProfileDataManagement\IUserRestriction.cs" />
     <Compile Include="UserProfileDataManagement\UserDataKeysKnown.cs" />
@@ -536,6 +538,7 @@
       <Version>10.0.3</Version>
     </PackageReference>
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="build.targets" />
 </Project>

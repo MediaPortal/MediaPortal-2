@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <string name="Match.Video.Music">מוסיקה</string>
+  <string name="Match.Video.TVMovie">טלויזיה</string>
+  <string name="Match.Video.News">חדשות</string>
+  <string name="Match.Epg.Series">סדרה</string>
+  <string name="Match.Epg.Music">מוסיקה</string>
+  <string name="Match.Epg.News">חדשות</string>
+  <string name="Label.Audio.Country">מדינה</string>
+  <string name="Label.Audio.World">העולם</string>
+  <string name="Label.Video.Music">מוסיקה</string>
+  <string name="Label.Video.TVMovie">טלויזיה</string>
+  <string name="Label.Video.News">חדשות</string>
+  <string name="Label.Epg.Series">סדרה</string>
+  <string name="Label.Epg.Music">מוסיקה</string>
+  <string name="Label.Epg.News">חדשות</string>
+  </resources>

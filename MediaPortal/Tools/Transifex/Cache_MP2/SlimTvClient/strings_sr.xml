@@ -1,6 +1,6 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
-  <string name="SlimTvClient.Title">Минимални ТВ клијент</string>
+  <string name="SlimTvClient.Title">ТВ водич</string>
   <string name="SlimTvClient.Main">ТВ</string>
   <string name="SlimTvClient.Main.Help">Овде можеш гледати омиљене ТВ и радио програме и мењати канале.</string>
   <string name="SlimTvClient.TvGuide">ТВ водич</string>
@@ -86,6 +86,7 @@
   <string name="SlimTvClient.HideAllChannelsGroup">Сакри групу \"Сви канали\"</string>
   <string name="SlimTvClient.HideAllChannelsGroup.Help">Уколико је омогућено, постојећа \"Сви канали\" група ће бити скривена</string>
   <string name="SlimTvClient.Notifications">Обавештавања</string>
+  <string name="SlimTvClient.NoColor">Ниједан</string>
   <string name="SlimTvClient.RecordingsMenuItem">Снимљено</string>
   <string name="SlimTvClient.Recordings.Help">Овде можете пронаћи списак за пуштање свих снимљених програма.</string>
   <string name="SlimTvClient.RecordingsRootViewName">ТВ снимци</string>

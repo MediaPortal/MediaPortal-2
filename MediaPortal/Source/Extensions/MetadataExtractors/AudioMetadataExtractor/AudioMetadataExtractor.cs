@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2017 Team MediaPortal
+#region Copyright (C) 2007-2018 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2017 Team MediaPortal
+    Copyright (C) 2007-2018 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -957,7 +957,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
             else //Fallabck to name search
             {
               searchData = searchData.Trim();
-              albumSearchinfo.Artists = new List<PersonInfo>(album.Artists);
+              albumSearchinfo.Artists = album.Artists.ToList();
               var match = _titleYearRegEx.Match(searchData);
               if (match.Success)
               {

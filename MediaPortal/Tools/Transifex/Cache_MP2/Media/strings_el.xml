@@ -1,5 +1,7 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
+  <!--Headlines for HomeContent-->
+  <string name="Media.Favorites">Αγαπημένα</string>
   <!--Menu items for the five Media navigation parts-->
   <string name="Media.AudioMenuItem">Ήχος</string>
   <string name="Media.VideosMenuItem">Βίντεο</string>
@@ -20,6 +22,7 @@
   <string name="Media.ImageFilterSmall">Μικρό</string>
   <string name="Media.ImageFilterMedium">Μέτριο</string>
   <string name="Media.ImageFilterBig">Μεγάλό</string>
+  <string name="Media.ContentGroupFilter">{0}</string>
   <!--Navbar display labels for sub view navigation-->
   <string name="Media.BrowseMediaNavigationNavbarDisplayLabel">{0}</string>
   <!--For example: "R.E.M."-->
@@ -61,6 +64,8 @@
   <!--Playlists-->
   <string name="Media.OpenPlayerStrategy.MediaPortal.UI.Services.Players.PCMOpenPlayerStrategy.Default">Προκαθορισμένο</string>
   <!--MediaItemAction dialog-->
+  <string name="Media.Refresh">Ανανέωση</string>
+  <string name="Media.ReimportMediaItem.Done">Έγινε</string>
   <!--Play items dialog-->
   <!--Player context names-->
   <string name="Media.AudioContextName">Ήχος</string>
@@ -76,6 +81,8 @@
   <!--Video Player time units-->
   <string name="Media.SortByDate">Ημερομηνία</string>
   <string name="Media.GroupingBrowseDefault">Προκαθορισμένο</string>
+  <!--Stubs-->
+  <!--Settings-->
   <string name="Settings.Players">Παίκτες</string>
   <!--Secondary filters-->
   <string name="Filter.RemoteNumericAlphabet0"></string>

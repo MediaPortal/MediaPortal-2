@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2017 Team MediaPortal
+#region Copyright (C) 2007-2018 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2017 Team MediaPortal
+    Copyright (C) 2007-2018 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -122,29 +122,25 @@ namespace MediaPortal.UiComponents.Media.Models.NavigationModel
 
       //Default configuration
       string viewName = _viewName;
-      AbstractScreenData defaultScreen = _defaultScreen;
-      ICollection<AbstractScreenData> availableScreens = _availableScreens;
 
       //Apply any custom configuration
       if (config != null)
       {
-        if (availableScreens != null)
+        if (_availableScreens != null)
         {
           //Use the configured root screen to load the next screen from the hierarchy
           //and remove it from the list of available screens
-          AbstractScreenData configRoot = config.RootScreenType != null ? availableScreens.FirstOrDefault(s => s.GetType() == config.RootScreenType) : null;
+          AbstractScreenData configRoot = config.RootScreenType != null ? _availableScreens.FirstOrDefault(s => s.GetType() == config.RootScreenType) : null;
           if (configRoot != null)
           {
             viewName = configRoot.GetType().ToString();
-            //don't modify the existing list
-            availableScreens = new List<AbstractScreenData>(availableScreens);
-            availableScreens.Remove(configRoot);
+            _availableScreens.Remove(configRoot);
           }
 
           //Use the configured default screen if there is no saved screen hierarchy
-          AbstractScreenData configDefault = config.DefaultScreenType != null ? availableScreens.FirstOrDefault(s => s.GetType() == config.DefaultScreenType) : null;
+          AbstractScreenData configDefault = config.DefaultScreenType != null ? _availableScreens.FirstOrDefault(s => s.GetType() == config.DefaultScreenType) : null;
           if (configDefault != null)
-            defaultScreen = configDefault;
+            _defaultScreen = configDefault;
         }
 
         //Apply any additional filters
@@ -154,6 +150,10 @@ namespace MediaPortal.UiComponents.Media.Models.NavigationModel
           filterTree.AddFilter(config.Filter, config.FilterPath);
       }
 
+      IEnumerable<Guid> optionalMIATypeIDs = MediaNavigationModel.GetMediaSkinOptionalMIATypes(MediaNavigationMode);
+      if (_optionalMias != null)
+        optionalMIATypeIDs = optionalMIATypeIDs.Union(_optionalMias).Except(_necessaryMias);
+
       string nextScreenName;
       AbstractScreenData nextScreen = null;
 
@@ -162,28 +162,26 @@ namespace MediaPortal.UiComponents.Media.Models.NavigationModel
       {
         // Support for browsing mode.
         if (nextScreenName == Consts.USE_BROWSE_MODE)
-          SetBrowseMode();
+          SetBrowseMode(optionalMIATypeIDs);
 
-        if (availableScreens != null)
-          nextScreen = availableScreens.FirstOrDefault(s => s.GetType().ToString() == nextScreenName);
-      }
-
-      IEnumerable<Guid> optionalMIATypeIDs = MediaNavigationModel.GetMediaSkinOptionalMIATypes(MediaNavigationMode);
-      if (_optionalMias != null)
-      {
-        optionalMIATypeIDs = optionalMIATypeIDs.Union(_optionalMias);
-        optionalMIATypeIDs = optionalMIATypeIDs.Except(_necessaryMias);
+        if (_availableScreens != null)
+          nextScreen = _availableScreens.FirstOrDefault(s => s.GetType().ToString() == nextScreenName);
       }
 
       // Prefer custom view specification.
       ViewSpecification rootViewSpecification = _customRootViewSpecification ??
-        new MediaLibraryQueryViewSpecification(viewName, filterTree, _necessaryMias, optionalMIATypeIDs, true)
+        // Always use the default view name for the root view specification, not any custom name that may
+        // have been specified in a navigation config, otherwise toggling browse mode won't work correctly.
+        // To switch to browse mode we update the root screen hierarchy to point to the browse screen and
+        // then navigate to the root wf state. The name of the root screen hierarchy is determined by the
+        // name specified here so it should always point to the actual root view name.
+        new MediaLibraryQueryViewSpecification(_viewName, filterTree, _necessaryMias, optionalMIATypeIDs, true)
         {
           MaxNumItems = Consts.MAX_NUM_ITEMS_VISIBLE,
         };
 
       if (nextScreen == null)
-        nextScreen = defaultScreen;
+        nextScreen = _defaultScreen;
 
       ScreenConfig nextScreenConfig;
       NavigationData.LoadLayoutSettings(nextScreen.GetType().ToString(), out nextScreenConfig);
@@ -192,7 +190,7 @@ namespace MediaPortal.UiComponents.Media.Models.NavigationModel
       Sorting.Sorting nextGroupingMode = _availableGroupings == null || String.IsNullOrEmpty(nextScreenConfig.Grouping) ? null : _availableGroupings.FirstOrDefault(grouping => grouping.GetType().ToString() == nextScreenConfig.Grouping) ?? _defaultGrouping;
 
       navigationData = new NavigationData(null, viewName, MediaNavigationRootState,
-        MediaNavigationRootState, rootViewSpecification, nextScreen, availableScreens, nextSortingMode, nextGroupingMode)
+        MediaNavigationRootState, rootViewSpecification, nextScreen, _availableScreens, nextSortingMode, nextGroupingMode)
       {
         AvailableSortings = _availableSortings,
         AvailableGroupings = _availableGroupings,
@@ -205,11 +203,12 @@ namespace MediaPortal.UiComponents.Media.Models.NavigationModel
     /// <summary>
     /// Switches to browsing by MediaLibray shares, limited to restricted MediaCategories.
     /// </summary>
-    protected void SetBrowseMode()
+    /// <param name="optionalMIATypeIDs">Optional MIAs to use.</param>
+    protected void SetBrowseMode(IEnumerable<Guid> optionalMIATypeIDs)
     {
       _availableScreens = null;
       _defaultScreen = new BrowseMediaNavigationScreenData(_genericPlayableItemCreatorDelegate);
-      _customRootViewSpecification = new BrowseMediaRootProxyViewSpecification(_viewName, _necessaryMias, null, _restrictedMediaCategories);
+      _customRootViewSpecification = new BrowseMediaRootProxyViewSpecification(_viewName, _necessaryMias, optionalMIATypeIDs, _restrictedMediaCategories);
     }
 
     /// <summary>

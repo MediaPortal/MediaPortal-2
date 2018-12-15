@@ -1,7 +1,7 @@
-﻿#region Copyright (C) 2007-2017 Team MediaPortal
+#region Copyright (C) 2007-2018 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2017 Team MediaPortal
+    Copyright (C) 2007-2018 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -808,6 +808,47 @@ namespace Tests.Server.Backend
       Assert.AreEqual(2, results[2].Aspects.Count, "MediaItem Aspects #2");
       Assert.AreEqual(itemId6, results[3].MediaItemId, "MediaItem ID #3");
       Assert.AreEqual(3, results[3].Aspects.Count, "MediaItem Aspects #3");
+    }
+
+    [Test]
+    public void Should_BuildSQLStatementForComplexMIAAttributes_When_QueryAttributeCardinalityIsManyToMany()
+    {
+      // Arrange
+      MultipleTestMIA mia = new MultipleTestMIA { ASPECT_ID = Guid.NewGuid() };
+
+      IList<MediaItemAspectMetadata.MultipleAttributeSpecification> attributes = new List<MediaItemAspectMetadata.MultipleAttributeSpecification>();
+      attributes.Add(mia.ATTR_ID = MediaItemAspectMetadata.CreateMultipleStringAttributeSpecification("EPISODE", 10, Cardinality.ManyToMany, true));
+      attributes.Add(mia.ATTR_STRING = MediaItemAspectMetadata.CreateMultipleStringAttributeSpecification("EPISODE", 10, Cardinality.ManyToMany, false));
+      mia.Metadata = new MultipleMediaItemAspectMetadata(mia.ASPECT_ID, "EpisodeItem", attributes.ToArray(), new[] { mia.ATTR_ID });
+      MockCore.AddMediaItemAspectStorage(mia.Metadata);
+
+      IList<Guid> ids = new List<Guid>
+      {
+        Guid.NewGuid(),
+        Guid.NewGuid()
+      };
+
+      IFilter filter = new MediaItemIdFilter(ids);
+
+      ICollection<MediaItemAspectMetadata> requiredMIATypes = new List<MediaItemAspectMetadata>
+      {
+        mia.Metadata
+      };
+
+      ComplexAttributeQueryBuilder builder = new ComplexAttributeQueryBuilder(MockCore.Management, mia.Metadata.AttributeSpecifications.Values.First(), null, requiredMIATypes, filter, null);
+
+      string mediaItemIdAlias = null;
+      string valueAlias = null;
+      string statementStr = null;
+      IList<BindVar> bindVars = null;
+
+      // Act
+      builder.GenerateSqlStatement(out mediaItemIdAlias, out valueAlias, out statementStr, out bindVars);
+
+      // Assert<
+      Assert.AreEqual("SELECT T0.MEDIA_ITEM_ID A0, T1.VALUE A1 FROM NM_EPISODEITEM_EPISODE T0 INNER JOIN " +
+                      "V_EPISODEITEM_EPISODE T1 ON T0.VALUE_ID = T1.VALUE_ID WHERE T0.MEDIA_ITEM_ID IN " +
+                      "(@V0, @V1) ORDER BY T0.VALUE_ORDER", statementStr);
     }
   }
 }
