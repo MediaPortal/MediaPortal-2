@@ -65,7 +65,6 @@
     <Compile Include="Settings\Configuration\AudioCodecAAC.cs" />
     <Compile Include="Settings\Configuration\GenericCodecSelection.cs" />
     <Compile Include="Settings\Configuration\AudioCodec.cs" />
-    <Compile Include="Settings\Configuration\ClosedCaptions.cs" />
     <Compile Include="Settings\Configuration\AudioRenderer.cs" />
     <Compile Include="Settings\Configuration\AudioCodecLATMAAC.cs" />
     <Compile Include="Settings\Configuration\AudioPreferMultiChannel.cs" />
@@ -148,8 +147,12 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Language\strings_en.xml" />
-    <Content Include="plugin.xml" />
+    <Content Include="Language\strings_en.xml">
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="plugin.xml">
+      <SubType>Designer</SubType>
+    </Content>
   </ItemGroup>
   <ItemGroup>
     <None Include="build.targets" />

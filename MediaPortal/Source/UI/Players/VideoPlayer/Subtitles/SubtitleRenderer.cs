@@ -33,6 +33,8 @@ using System.Threading;
 using DirectShow;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
+using MediaPortal.Common.Settings;
+using MediaPortal.UI.Players.Video.Settings;
 using MediaPortal.UI.Players.Video.Tools;
 using MediaPortal.UI.Presentation.Players;
 using MediaPortal.UI.SkinEngine.Rendering;
@@ -518,7 +520,7 @@ namespace MediaPortal.UI.Players.Video.Subtitles
     /// </summary>
     /// <param name="graphBuilder">The IGraphBuilder</param>
     /// <returns>DvbSub2(3) filter instance</returns>
-    public IBaseFilter AddSubtitleFilter(IGraphBuilder graphBuilder)
+    public IBaseFilter AddDvbSubtitleFilter(IGraphBuilder graphBuilder)
     {
       IBaseFilter baseFilter = null;
       try

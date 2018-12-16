@@ -59,6 +59,11 @@ namespace MediaPortal.UI.Players.Video
     private const string TSREADER_FILTER_NAME = "TsReader";
     private const int NO_STREAM_INDEX = -1;
 
+    // ClosedCaptions parser
+    private const string CCFILTER_CLSID = "{6F0B7D9C-7548-49A9-AC4C-1DA1927E6C15}";
+    private const string CCFILTER_NAME = "Core CC Parser";
+    private const string CCFILTER_FILENAME = "cccp.ax";
+
     #endregion
 
     #region Variables
@@ -126,26 +131,24 @@ namespace MediaPortal.UI.Players.Video
       _graphBuilder.AddFilter(baseFilter, TSREADER_FILTER_NAME);
 
       _subtitleRenderer = new SubtitleRenderer(OnTextureInvalidated);
-      _subtitleFilter = _subtitleRenderer.AddSubtitleFilter(_graphBuilder);
-      if (_subtitleFilter != null)
+      _subtitleRenderer.SetPlayer(this);
+      if (AddDvbSubtitleFilter(settings))
       {
+        _subtitleFilter = _subtitleRenderer.AddDvbSubtitleFilter(_graphBuilder);
+        if (_subtitleFilter != null)
+        {
+          _subtitleRenderer.RenderSubtitles = true;
+        }
+      }
+      else if (RenderTeletextSubtitles(baseFilter, settings))
+      {
+        TeletextSubtitleDecoder ttxtDecoder = new TeletextSubtitleDecoder(_subtitleRenderer);
+        _ttxtReceiver = new TeletextReceiver(_teletextSource, ttxtDecoder);
         _subtitleRenderer.RenderSubtitles = true;
-        _subtitleRenderer.SetPlayer(this);
       }
 
+      AddClosedCaptionsFilter(settings);
 
-      _teletextSource = (ITeletextSource)baseFilter;
-      TeletextSubtitleDecoder ttxtDecoder = new TeletextSubtitleDecoder(_subtitleRenderer);
-      _ttxtReceiver = new TeletextReceiver(_teletextSource, ttxtDecoder);
-
-      //_subtitleFilter = _subtitleRenderer.AddSubtitleFilter(_graphBuilder);
-      //if (_subtitleFilter != null)
-      //{
-      //  _subtitleRenderer.RenderSubtitles = settings.EnableSubtitles;
-      //  _subtitleRenderer.SetPlayer(this);
-      //}
-
-      // AddClosedCaptionsFilter();
       if (_resourceLocator.NativeResourcePath.IsNetworkResource)
       {
         // _resourceAccessor points to an rtsp:// stream or network file
@@ -183,6 +186,36 @@ namespace MediaPortal.UI.Players.Video
       }
       // Init GraphRebuilder
       _graphRebuilder = new GraphRebuilder(_graphBuilder, baseFilter, OnAfterGraphRebuild) { PlayerName = PlayerTitle };
+    }
+
+    private bool RenderTeletextSubtitles(IBaseFilter baseFilter, VideoSettings settings)
+    {
+      _teletextSource = (ITeletextSource)baseFilter;
+
+      return _teletextSource != null && settings.EnableTeletextSubtitles;
+    }
+
+    private bool AddDvbSubtitleFilter(VideoSettings settings)
+    {
+      ISubtitleStream subtitleStream = _tsReader as ISubtitleStream;
+      return settings.EnableDvbSubtitles && subtitleStream != null;
+    }
+
+    private void AddClosedCaptionsFilter(VideoSettings settings)
+    {
+      if (settings.EnableAtscClosedCaptions && _streamInfoSubtitles == null && _ttxtReceiver == null)
+      {
+        _sourceFilter = FilterLoader.LoadFilterFromDll(CCFILTER_FILENAME, new Guid(CCFILTER_CLSID), true);
+        var baseFilter = _sourceFilter.GetFilter();
+        if (baseFilter == null)
+        {
+          _sourceFilter.Dispose();
+          ServiceRegistration.Get<ILogger>().Warn("{0}: Failed to add {1} to graph", PlayerTitle, CCFILTER_FILENAME);
+          return;
+        }
+        _graphBuilder.AddFilter(baseFilter, CCFILTER_NAME);
+        _closedCaptionsFilterAdded = true;
+      }
     }
 
     protected override void OnBeforeGraphRunning()
@@ -344,7 +377,7 @@ namespace MediaPortal.UI.Players.Video
 
       // first try to find a stream by it's exact LCID.
       StreamInfo streamInfo = _streamInfoSubtitles.FindStream(settings.PreferredSubtitleLanguage) ?? _streamInfoSubtitles.FindSimilarStream(settings.PreferredSubtitleStreamName);
-      if (streamInfo == null || !settings.EnableSubtitles)
+      if (streamInfo == null || !settings.EnableDvbSubtitles)
       {
         // Tell the renderer it should not render subtitles
         if (_subtitleRenderer != null)

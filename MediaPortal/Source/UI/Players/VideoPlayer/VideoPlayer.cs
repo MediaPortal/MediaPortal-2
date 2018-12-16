@@ -93,11 +93,6 @@ namespace MediaPortal.UI.Players.Video
 
     public const string RES_PLAYBACK_CHAPTER = "[Playback.Chapter]";
 
-    // ClosedCaptions parser
-    public const string CCFILTER_CLSID = "{6F0B7D9C-7548-49A9-AC4C-1DA1927E6C15}";
-    public const string CCFILTER_NAME = "Core CC Parser";
-    public const string CCFILTER_FILENAME = "cccp.ax";
-
     #endregion
 
     #region Variables
@@ -147,6 +142,7 @@ namespace MediaPortal.UI.Players.Video
     protected bool _textureInvalid = true;
     protected MpcSubsRenderer _mpcSubsRenderer;
     private FilterFileWrapper _ccFilter;
+    protected bool _closedCaptionsFilterAdded = false;
 
     #endregion
 
@@ -206,30 +202,10 @@ namespace MediaPortal.UI.Players.Video
         string filename = fileSystemResourceAccessor.ResourcePathName;
 
         MpcSubtitles.LoadSubtitles(upDevice, _displaySize, filename, _graphBuilder, @".\", preferredSubtitleLcid);
-        if (settings.EnableSubtitles)
+        if (settings.EnableMpcSubtitlesEngine)
         {
           MpcSubtitles.SetEnable(true);
         }
-      }
-
-      AddClosedCaptionsFilter();
-    }
-
-    protected virtual void AddClosedCaptionsFilter()
-    {
-      VideoSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<VideoSettings>();
-      if (settings.EnableClosedCaption)
-      {
-        // ClosedCaptions filter
-        _ccFilter = FilterLoader.LoadFilterFromDll(CCFILTER_FILENAME, new Guid(CCFILTER_CLSID), true);
-        var baseFilter = _ccFilter.GetFilter();
-        if (baseFilter == null)
-        {
-          _ccFilter.Dispose();
-          ServiceRegistration.Get<ILogger>().Warn("{0}: Failed to add {1} to graph", PlayerTitle, CCFILTER_FILENAME);
-          return;
-        }
-        _graphBuilder.AddFilter(baseFilter, CCFILTER_NAME);
       }
     }
 
@@ -255,9 +231,8 @@ namespace MediaPortal.UI.Players.Video
         throw new VideoPlayerException("Initializing of EVR failed");
       }
 
-      // Check if CC is enabled, in this case the EVR needs one more input pin
-      VideoSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<VideoSettings>();
-      if (settings.EnableClosedCaption)
+      // Check if CC is added, in this case the EVR needs one more input pin
+      if (_closedCaptionsFilterAdded)
         _streamCount++;
 
       // Set the number of video/subtitle/cc streams that are allowed to be connected to EVR. This has to be done after the custom presenter is initialized.
@@ -907,7 +882,7 @@ namespace MediaPortal.UI.Players.Video
 
       // first try to find a stream by it's exact LCID.
       StreamInfo streamInfo = subtitleStreams.FindStream(settings.PreferredSubtitleLanguage) ?? subtitleStreams.FindSimilarStream(settings.PreferredSubtitleStreamName);
-      if (streamInfo == null || !settings.EnableSubtitles)
+      if (streamInfo == null || !settings.EnableMpcSubtitlesEngine)
       {
         // auto-activate forced subtitles
         StreamInfo forced = subtitleStreams.FindForcedStream();
@@ -984,12 +959,12 @@ namespace MediaPortal.UI.Players.Video
         settings.PreferredSubtitleLanguage = lcid;
 
       // if selected stream is "No subtitles" or "forced subtitle", we disable the setting
-      settings.EnableSubtitles = subtitleStreams.CurrentStreamName.ToLowerInvariant().Contains(NO_SUBTITLES.ToLowerInvariant()) == false &&
+      settings.EnableMpcSubtitlesEngine = subtitleStreams.CurrentStreamName.ToLowerInvariant().Contains(NO_SUBTITLES.ToLowerInvariant()) == false &&
         subtitleStreams.CurrentStreamName.ToLowerInvariant().Contains(FORCED_SUBTITLES.ToLowerInvariant()) == false;
       ServiceRegistration.Get<ISettingsManager>().Save(settings);
 
       // Make sure MPC subs engine is enabled when valid subtitle got selected.
-      MpcSubtitles.SetEnable(settings.EnableSubtitles);
+      MpcSubtitles.SetEnable(settings.EnableMpcSubtitlesEngine);
     }
 
     public virtual void DisableSubtitle()
