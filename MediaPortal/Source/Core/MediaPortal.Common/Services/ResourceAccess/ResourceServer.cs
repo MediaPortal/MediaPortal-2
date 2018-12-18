@@ -66,13 +66,12 @@ namespace MediaPortal.Common.Services.ResourceAccess
     {
       ServerSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<ServerSettings>();
       List<string> filters = settings.IPAddressBindingsList;
-      if(NetworkUtils.UseHttpServerPort)
-        _serverPort = settings.HttpServerPort == 0 ? UPnPServer.DEFAULT_UPNP_AND_SERVICE_PORT_NUMBER + 1 : settings.HttpServerPort;
+      if (NetworkUtils.UseClientPort)
+        _serverPort = UPnPServer.DEFAULT_UPNP_AND_SERVICE_PORT_NUMBER + 1;
       else
         _serverPort = UPnPServer.DEFAULT_UPNP_AND_SERVICE_PORT_NUMBER;
 
-      //TODO: Why is a service prefix needed for the resource server?
-      _servicePrefix = ""; // ResourceHttpAccessUrlUtils.RESOURCE_SERVER_BASE_PATH + Guid.NewGuid().GetHashCode().ToString("X");
+      _servicePrefix = ResourceHttpAccessUrlUtils.RESOURCE_SERVER_BASE_PATH;
       var startOptions = UPnPServer.BuildStartOptions(_servicePrefix, filters, _serverPort);
 
       lock (_syncObj)
@@ -107,7 +106,7 @@ namespace MediaPortal.Common.Services.ResourceAccess
           // Support conventional routing
           config.Routes.MapHttpRoute(
               name: "DefaultApi",
-              routeTemplate: "api/{controller}/{id}",
+              routeTemplate: "MediaPortal/api/{controller}/{id}",
               defaults: new { id = RouteParameter.Optional }
           );
 

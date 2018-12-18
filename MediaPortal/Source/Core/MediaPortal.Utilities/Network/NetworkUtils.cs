@@ -44,9 +44,9 @@ namespace MediaPortal.Utilities.Network
     public static bool LimitIPEndpoints { get; set; }
 
     /// <summary>
-    /// Controls if the resource server should use the HTTP server port.
+    /// Controls if the servers should use the client port.
     /// </summary>
-    public static bool UseHttpServerPort { get; set; } = false;
+    public static bool UseClientPort { get; set; } = false;
 
     /// <summary>
     /// Returns a string representation of an <see cref="IPAddress"/> in the form <c>123.123.123.123</c> (for IPv4 addresses)
