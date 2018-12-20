@@ -215,7 +215,8 @@ namespace MediaPortal.UI.Players.Video
       if (settings.EnableClosedCaption)
       {
         // ClosedCaptions filter
-        _ccFilter = FilterLoader.LoadFilterFromDll(CCFILTER_FILENAME, new Guid(CCFILTER_CLSID), true);
+        var platform = IntPtr.Size > 4 ? "x64" : "x86";
+        _ccFilter = FilterLoader.LoadFilterFromDll($"{platform}\\{CCFILTER_FILENAME}", new Guid(CCFILTER_CLSID), true);
         var baseFilter = _ccFilter.GetFilter();
         if (baseFilter == null)
         {

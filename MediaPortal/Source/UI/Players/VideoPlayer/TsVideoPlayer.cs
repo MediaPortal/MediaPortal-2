@@ -110,7 +110,8 @@ namespace MediaPortal.UI.Players.Video
     {
       VideoSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<VideoSettings>() ?? new VideoSettings();
       // Render the file
-      _sourceFilter = FilterLoader.LoadFilterFromDll("TsReader.ax", typeof(TsReader).GUID, true);
+      var platform = IntPtr.Size > 4 ? "x64" : "x86";
+      _sourceFilter = FilterLoader.LoadFilterFromDll($"{platform}\\TsReader.ax", typeof(TsReader).GUID, true);
       var baseFilter = _sourceFilter.GetFilter();
 
       IFileSourceFilter fileSourceFilter = (IFileSourceFilter)baseFilter;

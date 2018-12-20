@@ -53,13 +53,13 @@ namespace MediaPortal.UI.Players.Video.Native
     [DllImport("x86\\EVRPresenter.dll", ExactSpelling = true, CharSet = CharSet.Auto, SetLastError = true, EntryPoint = "EvrInit")]
     private static extern int EvrInit32(IEVRPresentCallback callback, IntPtr dwD3DDevice, IBaseFilter evrFilter, IntPtr monitor, out IntPtr presenterInstance);
 
-    [DllImport("x86\\EVRPresenter.dll", ExactSpelling = true, CharSet = CharSet.Auto, SetLastError = true)]
+    [DllImport("x86\\EVRPresenter.dll", ExactSpelling = true, CharSet = CharSet.Auto, SetLastError = true, EntryPoint = "EvrDeinit")]
     private static extern void EvrDeinit32(IntPtr presenterInstance);
 
     [DllImport("x64\\EVRPresenter.dll", ExactSpelling = true, CharSet = CharSet.Auto, SetLastError = true, EntryPoint = "EvrInit")]
     private static extern int EvrInit64(IEVRPresentCallback callback, IntPtr dwD3DDevice, IBaseFilter evrFilter, IntPtr monitor, out IntPtr presenterInstance);
 
-    [DllImport("x64\\EVRPresenter.dll", ExactSpelling = true, CharSet = CharSet.Auto, SetLastError = true)]
+    [DllImport("x64\\EVRPresenter.dll", ExactSpelling = true, CharSet = CharSet.Auto, SetLastError = true, EntryPoint = "EvrDeinit")]
     private static extern void EvrDeinit64(IntPtr presenterInstance);
 
     #endregion

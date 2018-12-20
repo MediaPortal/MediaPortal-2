@@ -518,7 +518,8 @@ namespace MediaPortal.UI.Players.Video.Subtitles
       IBaseFilter baseFilter = null;
       try
       {
-        _filter = FilterLoader.LoadFilterFromDll("DVBSub3.ax", CLSID_DVBSUB3, true);
+        var platform = IntPtr.Size > 4 ? "x64" : "x86";
+        _filter = FilterLoader.LoadFilterFromDll($"{platform}\\DVBSub3.ax", CLSID_DVBSUB3, true);
         baseFilter = _filter.GetFilter();
         _subFilter = baseFilter as IDVBSubtitleSource;
         ServiceRegistration.Get<ILogger>().Debug("SubtitleRenderer: CreateFilter success: " + (_filter != null) + " & " + (_subFilter != null));
