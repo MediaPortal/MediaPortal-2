@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2017 Team MediaPortal
+#region Copyright (C) 2007-2018 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2017 Team MediaPortal
+    Copyright (C) 2007-2018 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -63,20 +63,20 @@ namespace MediaPortal.Backend.Services.Database
   /// </remarks>
   public class SqlScriptPreprocessor : StringReader
   {
-    public SqlScriptPreprocessor(string scriptFilePath) : base(PreprocessScript(scriptFilePath)) { }
-    public SqlScriptPreprocessor(TextReader reader) : base(PreprocessScript(reader)) { }
+    public SqlScriptPreprocessor(string scriptFilePath, IDictionary<string, string> customPlaceholders = null) : base(PreprocessScript(scriptFilePath, customPlaceholders)) { }
+    public SqlScriptPreprocessor(TextReader reader, IDictionary<string, string> customPlaceholders = null) : base(PreprocessScript(reader, customPlaceholders)) { }
 
-    protected static string PreprocessScript(string scriptFilePath)
+    protected static string PreprocessScript(string scriptFilePath, IDictionary<string, string> customPlaceholders = null)
     {
       using (StreamReader reader = new StreamReader(new FileStream(scriptFilePath, FileMode.Open, FileAccess.Read)))
-        return PreprocessScript(reader);
+        return PreprocessScript(reader, customPlaceholders);
     }
 
-    protected static string PreprocessScript(TextReader reader)
+    protected static string PreprocessScript(TextReader reader, IDictionary<string, string> customPlaceholders = null)
     {
       string orig = reader.ReadToEnd();
       ISQLDatabase database = ServiceRegistration.Get<ISQLDatabase>();
-      return Preprocess(orig, database);
+      return Preprocess(orig, database, customPlaceholders);
     }
 
     protected static string GetType(Type type, ISQLDatabase database)
@@ -87,7 +87,7 @@ namespace MediaPortal.Backend.Services.Database
       return result;
     }
 
-    protected static string Preprocess(string origScript, ISQLDatabase database)
+    protected static string Preprocess(string origScript, ISQLDatabase database, IDictionary<string, string> customPlaceholders = null)
     {
       // Replace simple types
       StringBuilder result = new StringBuilder(origScript);
@@ -104,6 +104,11 @@ namespace MediaPortal.Backend.Services.Database
 
       // For extended replacements: First collect all patterns to be replaced...
       IDictionary<string, string> replacements = new Dictionary<string, string>();
+      if (customPlaceholders != null)
+      {
+        foreach (var placeholder in customPlaceholders)
+          replacements.Add(placeholder.Key, placeholder.Value);
+      }
 
       string interimStr = result.ToString();
 

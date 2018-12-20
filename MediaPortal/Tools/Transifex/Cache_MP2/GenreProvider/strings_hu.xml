@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <string name="Match.Video.Music">Zene</string>
+  <string name="Match.Video.TVMovie">TV</string>
+  <string name="Match.Epg.Series">Sorozatok</string>
+  <string name="Match.Epg.Music">Zene</string>
+  <string name="Label.Audio.World">Világ</string>
+  <string name="Label.Video.Music">Zene</string>
+  <string name="Label.Video.TVMovie">TV</string>
+  <string name="Label.Epg.Series">Sorozatok</string>
+  <string name="Label.Epg.Music">Zene</string>
+  </resources>

@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2017 Team MediaPortal
+#region Copyright (C) 2007-2018 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2017 Team MediaPortal
+    Copyright (C) 2007-2018 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -40,6 +40,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net;
+using System.Net.Sockets;
 using System.Threading;
 using System.Threading.Tasks;
 using TvControl;
@@ -167,8 +168,13 @@ namespace MediaPortal.Plugins.SlimTv.Service
       var server = Server.ListAll().FirstOrDefault(s => s.IsMaster);
       if (server != null)
       {
-        var hostName = Dns.GetHostName();
-        if (server.HostName != hostName)
+        // Check for valid entries: this is the hostname and all IP addresses
+        ICollection<string> nameAndAdresses = new HashSet<string>(StringComparer.InvariantCultureIgnoreCase);
+        string hostName = Dns.GetHostName();
+        nameAndAdresses.Add(hostName);
+        IPHostEntry local = Dns.GetHostEntry(hostName);
+        CollectionUtils.AddAll(nameAndAdresses, local.AddressList.Where(a => a.AddressFamily == AddressFamily.InterNetwork).Select(a => a.ToString()));
+        if (!nameAndAdresses.Contains(server.HostName))
         {
           server.HostName = hostName;
           server.Persist();
@@ -731,7 +737,23 @@ namespace MediaPortal.Plugins.SlimTv.Service
       var canceledProgram = TvDatabase.Program.Retrieve(program.ProgramId);
       if (canceledProgram == null)
         return false;
-      foreach (TvDatabase.Schedule schedule in TvDatabase.Schedule.ListAll().Where(schedule => schedule.IsRecordingProgram(canceledProgram, true)))
+      var allSchedules = TvDatabase.Schedule.ListAll();
+      var matchingSchedules = allSchedules.Where(schedule => schedule.IsRecordingProgram(canceledProgram, true));
+      if (matchingSchedules.Count() == 0)
+      {
+        List<TvDatabase.Schedule> manualSchedules = new List<TvDatabase.Schedule>();
+        //Check for matching manual recordings because they will not match any programs start and/or end times
+        foreach (TvDatabase.Schedule schedule in allSchedules.Where(schedule => schedule.IsManual || schedule.ProgramName == "Manual"))
+        {
+          if ((canceledProgram.StartTime <= schedule.StartTime && canceledProgram.EndTime >= schedule.StartTime) || //Recording was started during this program
+            (canceledProgram.StartTime <= schedule.EndTime && canceledProgram.EndTime >= schedule.EndTime) || //Recording is ending during this program
+            (canceledProgram.StartTime >= schedule.StartTime && canceledProgram.EndTime <= schedule.StartTime)) //The program is "inside" the recording
+            manualSchedules.Add(schedule);
+        }
+        matchingSchedules = manualSchedules;
+      }
+      //Delete matching schedules
+      foreach (TvDatabase.Schedule schedule in matchingSchedules)
       {
         switch (schedule.ScheduleType)
         {

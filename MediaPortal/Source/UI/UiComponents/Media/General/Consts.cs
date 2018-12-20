@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2017 Team MediaPortal
+#region Copyright (C) 2007-2018 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2017 Team MediaPortal
+    Copyright (C) 2007-2018 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -585,6 +585,7 @@ namespace MediaPortal.UiComponents.Media.General
     // Keys for workflow state variables
     public const string KEY_NAVIGATION_MODE = "MediaNavigationModel: NAVIGATION_MODE";
     public const string KEY_NAVIGATION_DATA = "MediaNavigationModel: NAVIGATION_DATA";
+    public const string KEY_NAVIGATION_CONFIG = "MediaNavigationModel: NAVIGATION_CONFIG";
 
     public static float DEFAULT_PIP_HEIGHT = 108;
     public static float DEFAULT_PIP_WIDTH = 192;

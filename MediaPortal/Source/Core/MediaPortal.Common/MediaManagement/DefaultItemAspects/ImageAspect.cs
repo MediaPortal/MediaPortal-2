@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2017 Team MediaPortal
+#region Copyright (C) 2007-2018 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2017 Team MediaPortal
+    Copyright (C) 2007-2018 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -39,6 +39,8 @@ namespace MediaPortal.Common.MediaManagement.DefaultItemAspects
   /// </summary>
   public static class ImageAspect
   {
+    private const int SIZE_SEARCH_INDEX_ID = 1;
+
     /// <summary>
     /// Media item aspect id of the image aspect.
     /// </summary>
@@ -48,13 +50,13 @@ namespace MediaPortal.Common.MediaManagement.DefaultItemAspects
     /// Width of the image in pixels.
     /// </summary>
     public static readonly MediaItemAspectMetadata.SingleAttributeSpecification ATTR_WIDTH =
-      MediaItemAspectMetadata.CreateSingleAttributeSpecification("Width", typeof(int), Cardinality.Inline, false);
+      MediaItemAspectMetadata.CreateSingleAttributeSpecification("Width", typeof(int), Cardinality.Inline, false, SIZE_SEARCH_INDEX_ID);
 
     /// <summary>
     /// Height of the image in pixels.
     /// </summary>
     public static readonly MediaItemAspectMetadata.SingleAttributeSpecification ATTR_HEIGHT =
-      MediaItemAspectMetadata.CreateSingleAttributeSpecification("Height", typeof(int), Cardinality.Inline, false);
+      MediaItemAspectMetadata.CreateSingleAttributeSpecification("Height", typeof(int), Cardinality.Inline, false, SIZE_SEARCH_INDEX_ID);
 
     /// <summary>
     /// Contains the manufacturer of the equipment used to record the image.

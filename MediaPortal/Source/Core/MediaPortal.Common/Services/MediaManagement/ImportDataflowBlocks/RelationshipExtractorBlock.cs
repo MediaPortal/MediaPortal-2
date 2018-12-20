@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2017 Team MediaPortal
+#region Copyright (C) 2007-2018 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2015 Team MediaPortal
+    Copyright (C) 2007-2018 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -132,10 +132,8 @@ namespace MediaPortal.Common.Services.MediaManagement.ImportDataflowBlocks
         }
 
         importResource.IsValid = false;
-        if (importResource.Aspects != null)
-          importResource.Aspects.Clear();
-        if (importResource.ExistingAspects != null)
-          importResource.ExistingAspects.Clear();
+        importResource.Aspects?.Clear();
+        importResource.ExistingAspects?.Clear();
         return importResource;
       }
       catch (OperationCanceledException)
@@ -292,7 +290,7 @@ namespace MediaPortal.Common.Services.MediaManagement.ImportDataflowBlocks
         _cacheSync.Release();
       }
 
-      ServiceRegistration.Get<ILogger>().Info(
+      ServiceRegistration.Get<ILogger>().Debug(
         $"{BLOCK_NAME}: Added {relations.Count} relations ({newMediaItems.Count} new, {cacheMisses} recached) to {GetMediaItemName(aspects)} ({mediaItemId})");
 
       TransferTransientAspects(aspects, newMediaItems);

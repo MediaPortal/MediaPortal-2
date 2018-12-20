@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2017 Team MediaPortal
+#region Copyright (C) 2007-2018 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2017 Team MediaPortal
+    Copyright (C) 2007-2018 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -48,6 +48,7 @@ namespace MediaPortal.Common.MediaManagement
     protected Guid _id;
     protected readonly IDictionary<Guid, IList<MediaItemAspect>> _aspects;
     protected readonly IDictionary<string, string> _userData = new Dictionary<string, string>();
+    protected readonly string[] _opticalDiscMimes = new string[] { "video/dvd", "video/bluray" };
 
     #endregion
 
@@ -148,27 +149,14 @@ namespace MediaPortal.Common.MediaManagement
         if (!MediaItemAspect.TryGetAspects(_aspects, ProviderResourceAspect.Metadata, out providerAspects))
           return new List<MultipleMediaItemAspect>();
 
-        List<int> nonPartSets = new List<int>();
-        IList<MultipleMediaItemAspect> videoStreamAspects;
-        if (MediaItemAspect.TryGetAspects(_aspects, VideoStreamAspect.Metadata, out videoStreamAspects))
-        {
-          nonPartSets = videoStreamAspects.Where(pra => pra.GetAttributeValue<int>(VideoStreamAspect.ATTR_VIDEO_PART_SET) == -1)
-            .Select(pra => pra.GetAttributeValue<int>(VideoStreamAspect.ATTR_RESOURCE_INDEX))
-            .ToList();
-        }
-
         // If there are different Editions we need to filter the resources to the current selected edition
-        int? selectedEdition = HasEditions ? 
-          Editions[ActiveEditionIndex].GetAttributeValue<int>(VideoStreamAspect.ATTR_RESOURCE_INDEX) : 
-          (int?)null;
+        IList<int> selectedResources = HasEditions ? Editions[ActiveEditionIndex].PrimaryResourceIndexes :
+          providerAspects.Where(pra => pra.GetAttributeValue<int>(ProviderResourceAspect.ATTR_TYPE) == ProviderResourceAspect.TYPE_PRIMARY).
+          Select(pra => pra.GetAttributeValue<int>(ProviderResourceAspect.ATTR_RESOURCE_INDEX)).OrderBy(i => i).ToList();
 
         // Consider only primary resources (physical main parts), but not extra resources (like subtitles)...
-        return providerAspects.Where(pra =>
-            pra.GetAttributeValue<int>(ProviderResourceAspect.ATTR_TYPE) == ProviderResourceAspect.TYPE_PRIMARY &&
-            // ... and only non-part sets (single file items)
-            !nonPartSets.Contains(pra.GetAttributeValue<int>(ProviderResourceAspect.ATTR_RESOURCE_INDEX)) &&
-            (!selectedEdition.HasValue || pra.GetAttributeValue<int>(ProviderResourceAspect.ATTR_RESOURCE_INDEX) == selectedEdition.Value)
-          ).ToList();
+        return selectedResources.Select(idx => providerAspects.FirstOrDefault(pra => pra.GetAttributeValue<int>(ProviderResourceAspect.ATTR_RESOURCE_INDEX) == idx)).
+          Where(pra => pra.GetAttributeValue<int>(ProviderResourceAspect.ATTR_TYPE) == ProviderResourceAspect.TYPE_PRIMARY).ToList();
       }
     }
 
@@ -192,23 +180,124 @@ namespace MediaPortal.Common.MediaManagement
     }
 
     /// <summary>
-    /// Indicates if this <see cref="MediaItem"/> represents a multi-edition item.
+    /// Indicates if the active resource is the last part of the current edition.
     /// </summary>
-    public bool HasEditions { get { return Editions.Count > 1; } }
+    public bool IsLastPart
+    {
+      get
+      {
+        if (PrimaryResources.Count <= ActiveResourceLocatorIndex)
+          return true;
+
+        IList<MultipleMediaItemAspect> videoStreamAspects;
+        if (!MediaItemAspect.TryGetAspects(_aspects, VideoStreamAspect.Metadata, out videoStreamAspects))
+          return true;
+
+        if (HasEditions)
+        {
+          var setNo = Editions[ActiveEditionIndex].SetNo;
+          var currentResourceIndex = PrimaryResources[ActiveResourceLocatorIndex].GetAttributeValue<int>(ProviderResourceAspect.ATTR_RESOURCE_INDEX);
+          int maxPart = videoStreamAspects.Where(p => p.GetAttributeValue<int>(VideoStreamAspect.ATTR_VIDEO_PART_SET) == setNo).Max(p => p.GetAttributeValue<int>(VideoStreamAspect.ATTR_VIDEO_PART));
+          if (!videoStreamAspects.Any(p => p.GetAttributeValue<int>(VideoStreamAspect.ATTR_VIDEO_PART_SET) == setNo &&
+            p.GetAttributeValue<int>(VideoStreamAspect.ATTR_VIDEO_PART) == maxPart &&
+            p.GetAttributeValue<int>(VideoStreamAspect.ATTR_RESOURCE_INDEX) == currentResourceIndex))
+            return false;
+        }
+        return true;
+      }
+    }
 
     /// <summary>
-    /// Gets the primary resources of current MediaItem (presents physical parts of multi-file items) that can be used to start playback.
-    /// Secondary resources (like subtitles) are not considered here.
+    /// Indicates if this <see cref="MediaItem"/> represents a multi-edition item.
     /// </summary>
-    public IList<MultipleMediaItemAspect> Editions
+    public bool HasEditions
     {
       get
       {
         IList<MultipleMediaItemAspect> videoStreamAspects;
         if (!MediaItemAspect.TryGetAspects(_aspects, VideoStreamAspect.Metadata, out videoStreamAspects))
-          return new List<MultipleMediaItemAspect>();
+          return false;
 
-        return videoStreamAspects.Where(pra => pra.GetAttributeValue<int>(VideoStreamAspect.ATTR_VIDEO_PART_SET) > -1).ToList();
+        if (videoStreamAspects.Select(pra => pra.GetAttributeValue<int>(VideoStreamAspect.ATTR_VIDEO_PART_SET)).Distinct().Count() > 1)
+          return true;
+
+        //Special case for optical discs
+        IList<MultipleMediaItemAspect> providerAspects;
+        if (MediaItemAspect.TryGetAspects(_aspects, ProviderResourceAspect.Metadata, out providerAspects) &&
+          providerAspects.Where(pra => _opticalDiscMimes.Any(m => m.Equals(pra.GetAttributeValue<string>(ProviderResourceAspect.ATTR_MIME_TYPE), StringComparison.InvariantCultureIgnoreCase))).Count() > 1)
+            return true;
+
+        return false;
+      }
+    }
+
+    /// <summary>
+    /// Gets a map of sets and their primary resources indexes for the current MediaItem 
+    /// (presents physical parts of multi-file items) that can be used to start playback.
+    /// Secondary resources (like subtitles) are not considered here.
+    /// </summary>
+    public IDictionary<int, (int SetNo, string Name, IList<int> PrimaryResourceIndexes, TimeSpan Duration)> Editions
+    {
+      get
+      {
+        var map = new Dictionary<int, (int, string, IList<int>, TimeSpan)>();
+        IList<MultipleMediaItemAspect> videoStreamAspects;
+        if (!MediaItemAspect.TryGetAspects(_aspects, VideoStreamAspect.Metadata, out videoStreamAspects))
+          return map;
+
+        int editionIdx = 0;
+        List<int> usedSets = new List<int>();
+        foreach(var stream in videoStreamAspects.Where(pra => pra.GetAttributeValue<int>(VideoStreamAspect.ATTR_VIDEO_PART_SET) > -1).
+          OrderBy(pra => pra.GetAttributeValue<int>(VideoStreamAspect.ATTR_VIDEO_PART)))
+        {
+          var setNo = stream.GetAttributeValue<int>(VideoStreamAspect.ATTR_VIDEO_PART_SET);
+          var videoStreams = videoStreamAspects.Where(v => v.GetAttributeValue<int>(VideoStreamAspect.ATTR_VIDEO_PART_SET) == setNo);
+
+          bool isOpticalDisc = false;
+          IList<MultipleMediaItemAspect> providerAspects;
+          if (MediaItemAspect.TryGetAspects(_aspects, ProviderResourceAspect.Metadata, out providerAspects))
+            isOpticalDisc = providerAspects.Any(pra => _opticalDiscMimes.Any(m => m.Equals(pra.GetAttributeValue<string>(ProviderResourceAspect.ATTR_MIME_TYPE), StringComparison.InvariantCultureIgnoreCase)) &&
+            videoStreams.Any(s => s.GetAttributeValue<int>(VideoStreamAspect.ATTR_RESOURCE_INDEX) == pra.GetAttributeValue<int>(ProviderResourceAspect.ATTR_RESOURCE_INDEX)));
+
+          if (usedSets.Contains(setNo) && !isOpticalDisc)
+            continue;
+
+          if (!usedSets.Contains(setNo))
+            usedSets.Add(setNo);
+
+          (int SetNo, string Name, IList<int> PrimaryResourceIndexes, TimeSpan Duration) edition = 
+            (setNo, stream.GetAttributeValue<string>(VideoStreamAspect.ATTR_VIDEO_PART_SET_NAME), new List<int>(), new TimeSpan());
+
+          bool durationIsValid = true;
+          if (isOpticalDisc)
+          {
+            long? durSecs = stream.GetAttributeValue<long?>(VideoStreamAspect.ATTR_DURATION);
+            if (durSecs.HasValue)
+              edition.Duration = edition.Duration.Add(TimeSpan.FromSeconds(durSecs.Value));
+            else
+              durationIsValid = false;
+            edition.PrimaryResourceIndexes.Add(stream.GetAttributeValue<int>(VideoStreamAspect.ATTR_RESOURCE_INDEX));
+          }
+          else
+          {
+            foreach (var res in videoStreams)
+            {
+              long? durSecs = res.GetAttributeValue<long?>(VideoStreamAspect.ATTR_DURATION);
+              if (durSecs.HasValue)
+                edition.Duration = edition.Duration.Add(TimeSpan.FromSeconds(durSecs.Value));
+              else
+                durationIsValid = false;
+              edition.PrimaryResourceIndexes.Add(res.GetAttributeValue<int>(VideoStreamAspect.ATTR_RESOURCE_INDEX));
+            }
+          }
+
+          if (durationIsValid)
+            edition.Name += $": {edition.Duration.ToString()}";
+
+          map[editionIdx] = edition;
+          editionIdx++;
+        }
+        return map;
       }
     }
 
@@ -277,9 +366,9 @@ namespace MediaPortal.Common.MediaManagement
         if (ActiveEditionIndex <= MaximumEditionIndex)
         {
           var currentEdition = Editions[ActiveEditionIndex];
-          var resourceIndex = currentEdition.GetAttributeValue<int>(VideoStreamAspect.ATTR_RESOURCE_INDEX);
+          var resourceIndex = Editions[ActiveEditionIndex].PrimaryResourceIndexes.First();
           if (resourceIndex < providerAspects.Count)
-            aspect = providerAspects[resourceIndex];
+            aspect = providerAspects.First(p => p.GetAttributeValue<int>(ProviderResourceAspect.ATTR_RESOURCE_INDEX) == resourceIndex);
         }
       }
       else if (IsStub)
@@ -433,9 +522,9 @@ namespace MediaPortal.Common.MediaManagement
       IList<MediaItemAspect> otherProviderAspect;
       if (!other._aspects.TryGetValue(ProviderResourceAspect.ASPECT_ID, out otherProviderAspect))
         return false;
-      // TODO: FIX THIS
-      return myProviderAspect[0][ProviderResourceAspect.ATTR_RESOURCE_ACCESSOR_PATH] ==
-          otherProviderAspect[0][ProviderResourceAspect.ATTR_RESOURCE_ACCESSOR_PATH];
+
+      return myProviderAspect.Any(ma => otherProviderAspect.Any(oa => string.Compare(oa.GetAttributeValue<string>(ProviderResourceAspect.ATTR_RESOURCE_ACCESSOR_PATH),
+        ma.GetAttributeValue<string>(ProviderResourceAspect.ATTR_RESOURCE_ACCESSOR_PATH), true) == 0));
     }
 
     #endregion

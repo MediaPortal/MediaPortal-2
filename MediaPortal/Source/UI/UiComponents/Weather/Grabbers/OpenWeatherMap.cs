@@ -1,7 +1,7 @@
-﻿#region Copyright (C) 2007-2017 Team MediaPortal
+#region Copyright (C) 2007-2018 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2017 Team MediaPortal
+    Copyright (C) 2007-2018 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -58,13 +58,13 @@ namespace MediaPortal.UiComponents.Weather.Grabbers
     private SemaphoreSlim _lock = new SemaphoreSlim(1, 1);
     private Dictionary<int, Tuple<City, DateTime>> _cache = new Dictionary<int, Tuple<City, DateTime>>();
     private TimeSpan MAX_CACHE_DURATION = TimeSpan.FromMinutes(30);
-    private SettingsChangeWatcher<WeatherSettings> _settings = new SettingsChangeWatcher<WeatherSettings>();
+    private SettingsChangeWatcher<WeatherSettings> _settings = new SettingsChangeWatcher<WeatherSettings>(true);
 
     public OpenWeatherMapCatcher()
     {
       CultureInfo currentCulture = ServiceRegistration.Get<ILocalization>().CurrentCulture;
       _dateFormat = currentCulture.DateTimeFormat;
-      _metricSystem = new RegionInfo(currentCulture.LCID).IsMetric ? MetricSystem.Metric : MetricSystem.Imperial;
+      _metricSystem = new RegionInfo(currentCulture.Name).IsMetric ? MetricSystem.Metric : MetricSystem.Imperial;
       if (!Enum.TryParse(currentCulture.TwoLetterISOLanguageName, true, out _language))
         _language = OpenWeatherMapLanguage.EN;
 

@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2017 Team MediaPortal
+#region Copyright (C) 2007-2018 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2017 Team MediaPortal
+    Copyright (C) 2007-2018 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -46,6 +46,7 @@ namespace MediaPortal.UiComponents.Login.General
     public const string RES_ANY_TEXT = "[UserConfig.AnyText]";
     public const string RES_NEW_USER_TEXT = "[UserConfig.NewUserText]";
     public const string RES_SELECT_USER_IMAGE = "[UserConfig.SelectImage]";
+    public const string RES_DISABLE = "[UserConfig.Disable]";
 
     public const string RES_SYSTEM_DEFAULT_TEXT = "[Settings.Users.Config.SystemDefault]";
 

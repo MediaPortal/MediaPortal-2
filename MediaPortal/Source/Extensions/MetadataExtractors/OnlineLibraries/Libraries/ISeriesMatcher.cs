@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2017 Team MediaPortal
+#region Copyright (C) 2007-2018 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2017 Team MediaPortal
+    Copyright (C) 2007-2018 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -35,6 +35,9 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries
     void ResetLastChangedSeries();
     List<EpisodeInfo> GetLastChangedEpisodes();
     void ResetLastChangedEpisodes();
+
+    Task<IEnumerable<EpisodeInfo>> FindMatchingEpisodesAsync(EpisodeInfo episodeInfo);
+    Task<IEnumerable<SeriesInfo>> FindMatchingSeriesAsync(SeriesInfo seriesInfo);
 
     Task<bool> FindAndUpdateEpisodeAsync(EpisodeInfo episodeInfo);
     Task<bool> UpdateSeriesAsync(SeriesInfo seriesInfo, bool updateEpisodeList);

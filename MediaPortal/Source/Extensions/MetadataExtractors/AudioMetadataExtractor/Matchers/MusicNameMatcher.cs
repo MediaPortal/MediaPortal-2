@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2017 Team MediaPortal
+#region Copyright (C) 2007-2018 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2017 Team MediaPortal
+    Copyright (C) 2007-2018 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -69,7 +69,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor.Match
     {
       foreach (Regex regex in REGEXP_TRACK)
       {
-        Match match = regex.Match(trackInfo.TrackName);
+        Match match = regex.Match(string.IsNullOrEmpty(trackInfo.TrackName) ? filename : trackInfo.TrackName);
         if (match.Groups[GROUP_ARTIST].Length > 0 && match.Groups[GROUP_ALBUM].Length > 0 && match.Groups[GROUP_TRACK].Length > 0)
         {
           trackInfo.HasChanged |= MetadataUpdater.SetOrUpdateString(ref trackInfo.TrackName, match.Groups[GROUP_TRACK].Value.Trim(new[] { ' ', '-' }));

@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2017 Team MediaPortal
+#region Copyright (C) 2007-2018 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2017 Team MediaPortal
+    Copyright (C) 2007-2018 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -135,7 +135,7 @@ namespace MediaPortal.UiComponents.Media.Models.Navigation
           playPct = 100;
       }
 
-      WatchPercentage = (playPct ?? 0).ToString();
+      WatchPercentage = playPct ?? 0;
       PlayCount = playCnt ?? 0;
 
       FireChange();
@@ -175,10 +175,10 @@ namespace MediaPortal.UiComponents.Media.Models.Navigation
       set { AdditionalProperties[Consts.KEY_PLAYCOUNT] = value; }
     }
 
-    public string WatchPercentage
+    public int WatchPercentage
     {
-      get { return this[Consts.KEY_WATCH_PERCENTAGE]; }
-      set { SetLabel(Consts.KEY_WATCH_PERCENTAGE, value); }
+      get { return (int?)AdditionalProperties[Consts.KEY_WATCH_PERCENTAGE] ?? 0; }
+      set { AdditionalProperties[Consts.KEY_WATCH_PERCENTAGE] = value; }
     }
 
     public string Duration

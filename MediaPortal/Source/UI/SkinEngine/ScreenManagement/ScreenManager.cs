@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2017 Team MediaPortal
+#region Copyright (C) 2007-2018 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2017 Team MediaPortal
+    Copyright (C) 2007-2018 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -960,6 +960,8 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
       Screen currentSuperLayer;
       lock (_syncObj)
       {
+        if (_currentSuperLayer == null && _nextSuperLayer == null)
+          return;
         // Has the current screen finished closing?
         if (_currentSuperLayer != null && (_currentSuperLayer.ScreenState != Screen.State.Closing || !_currentSuperLayer.DoneClosing))
           return;
@@ -975,10 +977,14 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
       if (currentSuperLayer != null)
         ScheduleDisposeScreen(currentSuperLayer);
 
-      if (nextSuperLayer == null)
-        SetInputFocus_NoLock();
-      else
-        UnfocusCurrentScreen_NoLock();
+      // Brownard 2018-11-26: Focus/unfocus here is pointless as superayers are
+      // never given focus by the skin engine. It just leads to the currently
+      // focused element being unfocused then immediately refocused in the next
+      // pass of the render loop.
+      //if (nextSuperLayer == null)
+      //  SetInputFocus_NoLock();
+      //else
+      //  UnfocusCurrentScreen_NoLock();
     }
 
     protected internal void DoReloadScreens_NoLock()

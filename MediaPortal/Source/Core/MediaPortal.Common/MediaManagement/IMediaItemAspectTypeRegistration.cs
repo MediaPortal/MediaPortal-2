@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2017 Team MediaPortal
+#region Copyright (C) 2007-2018 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2017 Team MediaPortal
+    Copyright (C) 2007-2018 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -37,6 +37,12 @@ namespace MediaPortal.Common.MediaManagement
     IDictionary<Guid, MediaItemAspectMetadata> LocallyKnownMediaItemAspectTypes { get; }
 
     /// <summary>
+    /// Returns all media item types which were registered as supporting reimport in this registration instance.
+    /// </summary>
+    /// <value>Mapping of aspect type ids to aspect types.</value>
+    IDictionary<Guid, MediaItemAspectMetadata> LocallySupportedReimportMediaItemAspectTypes { get; }
+
+    /// <summary>
     /// Registration method for all media item aspect types which are known by the local system.
     /// Each module, which brings in new media item aspect types, must register them at each system start
     /// (or at least before working with them).
@@ -65,5 +71,17 @@ namespace MediaPortal.Common.MediaManagement
     /// </remarks>
     /// <param name="miaTypes">List of media item aspect type to register.</param>
     Task RegisterLocallyKnownMediaItemAspectTypeAsync(IEnumerable<MediaItemAspectMetadata> miaTypes);
+
+    /// <summary>
+    /// Registration method for all media item aspect types which support reimport by the local system.
+    /// Each module, which brings in new media item aspect types, must register them at each system start
+    /// (or at least before working with them).
+    /// </summary>
+    /// <remarks>
+    /// This method will store media item aspect types which are not registered yet; others, which were already
+    /// registered before, are ignored. It will also register the aspect types at the media portal server.
+    /// </remarks>
+    /// <param name="miaType">Media item aspect type to register.</param>
+    Task RegisterLocallySupportedReimportMediaItemAspectTypeAsync(MediaItemAspectMetadata miaType);
   }
 }

@@ -1,5 +1,13 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
+  <!--Headlines for HomeContent-->
+  <string name="Media.LatestPlayed">Ultima riproduzione</string>
+  <string name="Media.LatestAdded">Ultima aggiunta</string>
+  <string name="Media.ContinueWatching">Continua riproduzione</string>
+  <string name="Media.Favorites">Preferiti</string>
+  <string name="Media.Unplayed">Mai riprodotto</string>
+  <string name="Media.CurrentPrograms">Programmi Correnti</string>
+  <string name="Media.CurrentSchedules">Registrazioni Correnti</string>
   <!--Menu items for the five Media navigation parts-->
   <string name="Media.BrowseMediaMenuItem">Sfoglia contenuti multimediali</string>
   <string name="Media.BrowseMediaMenuItem.Help">Sfoglia la libreria multimediale per qualsiasi tipo di contenuto in base alla struttura delle sorgenti. Da qui puoi anche accedere ai supporti rimovibili.</string>
@@ -47,7 +55,7 @@
   <string name="Media.MusicLabelMenuItem">Etichetta discografica</string>
   <string name="Media.CompanyMenuItem">Studio di produzione</string>
   <string name="Media.ShowAllMenuItem">Mostra tutto</string>
-  <string name="Media.VideoPlayCountMenuItem">Non visti</string>
+  <string name="Media.VideoPlayCountMenuItem">(Non-)Visti</string>
   <string name="Media.AudioLanguageMenuItem">Lingua</string>
   <string name="Media.ImageCountryMenuItem">Nazione</string>
   <string name="Media.ImageStateMenuItem">Stato</string>
@@ -55,6 +63,11 @@
   <string name="Media.MoviesCollectionMenuItem">Collezione</string>
   <string name="Media.SeriesNameMenuItem">Serie TV</string>
   <string name="Media.SeriesSeasonMenuItem">Stagione</string>
+  <string name="Media.ConductorMenuItem">Direttore</string>
+  <string name="Media.CompilationMenuItem">Raccolta</string>
+  <string name="Media.AlbumCompilationMenuItem">Raccolta Album</string>
+  <string name="Media.ContentGroupMenuItem">Gruppo tematico</string>
+  <string name="Media.CertificationMenuItem">Certificazioni</string>
   <string name="Media.SimpleSearchFilterMenuItem">Ricerca</string>
   <!--Filter titles-->
   <string name="Media.SwitchFilterMenuItem">Filtro</string>
@@ -64,6 +77,9 @@
   <string name="Media.ImageFilterMedium">Medio</string>
   <string name="Media.ImageFilterBig">Grande</string>
   <string name="Media.DiscNumberFilter">Disco {0}</string>
+  <string name="Media.CompilationFilterCompiled">Raccolte</string>
+  <string name="Media.CompilationFilterUncompiled">Fuori raccolta</string>
+  <string name="Media.ContentGroupFilter">{0}</string>
   <string name="Media.SwitchToBrowseMLView">Alla vista server</string>
   <string name="Media.SwitchToLocalMediaView">Alla vista locale</string>
   <string name="Media.SwitchToBrowseShareView">Alla vista cartelle</string>
@@ -105,6 +121,11 @@
   <string name="Media.FilterImageItemsNavbarDisplayLabel">Nome: {0}</string>
   <string name="Media.FilterSystemNavbarDisplayLabel">Sistema: {0}</string>
   <string name="Media.FilterMoviesNavbarDisplayLabel">Film: {0}</string>
+  <string name="Media.FilterConductorNavbarDisplayLabel">Conduttore: {0}</string>
+  <string name="Media.FilterCompilationNavbarDisplayLabel">Raccolte</string>
+  <string name="Media.FilterAlbumCompilationNavbarDisplayLabel">Raccolte album</string>
+  <string name="Media.FilterContentGroupNavbarDisplayLabel">Gruppo tematico: {0}</string>
+  <string name="Media.FilterCertificationNavbarDisplayLabel">Certificazione: {0}</string>
   <!--Display labels for workflow navigation contexts-->
   <string name="Media.BrowseMediaNavigationRootWorkflowNavigationContextDisplayLabel">Sfoglia contenuti multimediali</string>
   <string name="Media.LocalMediaNavigationRootWorkflowNavigationContextDisplayLabel">Contenuti locali</string>
@@ -140,7 +161,7 @@
   <string name="Media.SeasonItemsHeader">Stagione/i</string>
   <string name="Media.MoviesItemsHeader">Film</string>
   <string name="Media.ImageItemsHeader">Immagine/i</string>
-  <string name="Media.DiscItemsHeader">Disco(i)</string>
+  <string name="Media.DiscItemsHeader">Disco/i</string>
   <string name="Media.TrackItemsHeader">Traccia/e</string>
   <string name="Media.SimpleSearchHeader">Ricerca semplice</string>
   <string name="Media.ChooseCollectionHeader">Collezioni</string>
@@ -175,6 +196,11 @@
   <string name="Media.ChooseVideoHeader">Filmati</string>
   <string name="Media.ChooseVideoLanguageHeader">Lingue</string>
   <string name="Media.ChoosePlayCountHeader">Già visti/non visti</string>
+  <string name="Media.ChooseAlbumCompilationHeader">Raccolte album</string>
+  <string name="Media.ChooseCompilationHeader">Raccolte</string>
+  <string name="Media.ChooseConductorHeader">Direttori</string>
+  <string name="Media.ChooseContentGroupHeader">Gruppi tematici</string>
+  <string name="Media.ChooseCertificationHeader">Controllo Parentale</string>
   <string name="Media.PlaylistsOverviewHeader">Playlist</string>
   <string name="Media.SavePlaylistEditNameHeader">Salva playlist</string>
   <string name="Media.SavePlaylistFailedHeader">Salva playlist</string>
@@ -250,11 +276,23 @@
   <string name="Media.OpenPlayerStrategy.MediaPortal.UI.Services.Players.PCMOpenPlayerStrategy.PreservePiP">Mantieni video PiP</string>
   <!--MediaItemAction dialog-->
   <string name="Media.MediaItemsActionDialogHeader">Azioni su contenuti multimediali</string>
-  <string name="Media.SetWatched">Imposta come già visto</string>
-  <string name="Media.SetUnwatched">Imposta come non ancora visto</string>
+  <string name="Media.SetPlayed">Marca come riprodotto</string>
+  <string name="Media.SetUnplayed">Marca come non riprodotto.</string>
+  <string name="Media.Refresh">Aggiorna</string>
+  <string name="Media.Reimport">Reimporta</string>
   <string name="Media.DeleteFromStorage">Cancella dal supporto</string>
   <string name="Media.DeleteFromStorage.Confirmation">Sei sicuro di volere rimuovere questo elemento? L\'azione non può essere annullata.</string>
   <string name="Media.ConfirmAction">Conferma l\'azione</string>
+  <string name="Media.ReimportMediaItem.Confirmation">Sei sicuro di voler reimportare l\'elemento multimediale desiderato e sostituire i dati esistenti con quelli selezionati? L\'operazione non può essere annullata.</string>
+  <string name="Media.ReimportMediaItem.Title">Seleziona la corrispondenza corretta.</string>
+  <string name="Media.ReimportMediaItem.Id">Id</string>
+  <string name="Media.ReimportMediaItem.Done">Fatto</string>
+  <string name="Media.ReimportMediaItem.SearchResultHeader">Risultato ricerca</string>
+  <string name="Media.ReimportMediaItem.SearchTypeHeader">Tipo ricerca</string>
+  <string name="Media.ReimportMediaItem.AutoMatch">Corrispondenza Automatica</string>
+  <string name="Media.ReimportMediaItem.ManualSearch">Ricerca Manuale</string>
+  <string name="Media.ReimportMediaItem.Description">Descrizione</string>
+  <string name="Media.ReimportMediaItem.Hint">Nota: richiede una connessione e almeno uno scraper selezionato su impostazioni libreria.</string>
   <!--Play items dialog-->
   <string name="Media.PlayItemDialogHeader">Riproduci contenuto</string>
   <string name="Media.PlayAudioItems">Riproduci audio</string>
@@ -341,6 +379,7 @@
   <string name="Media.CannotPlayItemDialogText">Impossibile riprodurre contenuto</string>
   <string name="Media.CannotPlayItemsDialogText">Impossibile riprodurre contenuto</string>
   <string name="Media.ValueEmptyTitle">&lt;Vuoto&gt;</string>
+  <string name="Media.UnratedTitle">Non Classificato</string>
   <string name="Media.ChoosePlayModeDialogHeader">Scegli modalità di Play</string>
   <string name="Media.PlayMode">Modalità riproduzione</string>
   <string name="Media.PlayMode.Continuous">Continuo</string>
@@ -379,6 +418,10 @@
   <string name="Media.SwitchGroupingMenuItem">Raggruppamento</string>
   <string name="Media.SwitchGroupingDialogTitle">Raggruppa per</string>
   <string name="Media.NoGrouping">Nessun raggruppamento</string>
+  <!--Stubs-->
+  <string name="Media.Stub.Title">Inserisci disco</string>
+  <string name="Media.Stub.Message">Inserire disco</string>
+  <!--Settings-->
   <string name="Settings.Players">Player</string>
   <string name="Settings.Players.ClosePlayersWhenFinished">Chiudi i player quando finito</string>
   <string name="Settings.Players.ClosePlayersWhenFinished.Help">Abilita questa impostazione per far chiudere automaticamente i player da MediaPortal</string>
@@ -400,6 +443,12 @@
   <string name="Settings.Media.ShowVirtual.Audio">Mostra tutte le tracce note degli album</string>
   <string name="Settings.Media.ShowVirtual.Movie">Mostra tutte le collezioni note di film</string>
   <string name="Settings.Media.ShowVirtual.Series">Mostra tutte le stagioni ed episodi noti</string>
+  <string name="Settings.Media.Certification">Paesi di certificazione</string>
+  <string name="Settings.Media.Certification.None">Originale (come importato)</string>
+  <string name="Settings.Media.Certification.Movie">Paese da usare per il controllo parentale dei film</string>
+  <string name="Settings.Media.Certification.Movie.Help">Seleziona il sistema certificazione da usare per il controllo parentale dei film</string>
+  <string name="Settings.Media.Certification.Series">Paese da usare per il controllo parentale delle serie TV</string>
+  <string name="Settings.Media.Certification.Series.Help">Seleziona il sistema certificazione da usare per il controllo parentale delle serie TV</string>
   <!--Secondary filters-->
   <string name="Filter.RemoteNumericAlphabet0"></string>
   <string name="Filter.RemoteNumericAlphabet1"></string>
@@ -413,4 +462,5 @@
   <string name="Filter.RemoteNumericAlphabet9">wxyz</string>
   <string name="Filter.Filtered">Filtrato</string>
   <string name="Filter.StartsWith">Inizia con: {0}</string>
+  <string name="RestrictionGroup.Media.DeleteMediaItem">Media: elimina oggetti dallo spazio di archiviazione</string>
 </resources>

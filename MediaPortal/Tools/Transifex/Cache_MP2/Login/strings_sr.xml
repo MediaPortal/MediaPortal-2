@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  
+  <string name="UserConfig.AddUser">Додај</string>
+  <string name="UserConfig.CopyUser">Копирај</string>
+  <string name="UserConfig.DeleteUser">Обриши</string>
+  <string name="UserConfig.Yes">Да</string>
+  <string name="UserConfig.No">Не</string>
+  <string name="UserConfig.SharesText">Фајлови за размену</string>
+  <string name="UserConfig.LocalShare">Извори медија на клијенту</string>
+  <string name="UserConfig.LocalShares">Извори медија на клијенту</string>
+  <string name="UserConfig.GlobalShare">Извори медија на серверу</string>
+  <string name="UserConfig.GlobalShares">Извори медија на серверу</string>
+  <string name="UserConfig.NoConfigGlobalSharesHomeServerNotConnected">Главни сервер тренутно није прикачен, извори медија са сервера се не могу тренутно управљати.</string>
+  <string name="UserConfig.NoConfigLocalSharesHomeServerLocal">Главни сервер се налаз на истом компјутеру, тако да се једино могу подесити извори медија са сервера</string>
+
+  </resources>

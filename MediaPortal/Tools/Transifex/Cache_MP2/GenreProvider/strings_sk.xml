@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <string name="Match.Video.Music">Hudba</string>
+  <string name="Match.Video.TVMovie">TV</string>
+  <string name="Match.Video.News">Novinky</string>
+  <string name="Match.Epg.Series">Seriály</string>
+  <string name="Match.Epg.Music">Hudba</string>
+  <string name="Match.Epg.News">Novinky</string>
+  <string name="Label.Audio.Country">Krajina</string>
+  <string name="Label.Audio.World">Svet</string>
+  <string name="Label.Video.Music">Hudba</string>
+  <string name="Label.Video.TVMovie">TV</string>
+  <string name="Label.Video.News">Novinky</string>
+  <string name="Label.Epg.Series">Seriály</string>
+  <string name="Label.Epg.Music">Hudba</string>
+  <string name="Label.Epg.News">Novinky</string>
+  </resources>

@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2017 Team MediaPortal
+#region Copyright (C) 2007-2018 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2017 Team MediaPortal
+    Copyright (C) 2007-2018 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -26,6 +26,7 @@ using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.UiComponents.Media.FilterCriteria;
 using MediaPortal.UiComponents.Media.General;
 using MediaPortal.UiComponents.Media.Models.Navigation;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace MediaPortal.UiComponents.Media.Models.ScreenData
@@ -44,6 +45,20 @@ namespace MediaPortal.UiComponents.Media.Models.ScreenData
     public override AbstractFiltersScreenData<SeasonFilterItem> Derive()
     {
       return new SeriesFilterBySeasonScreenData();
+    }
+
+    protected override bool SetSelectedItem(IEnumerable<FilterItem> items)
+    {
+      //Set the first unwatched season as Selected so it has focus when [re]entering the view
+      bool selected = false;
+      foreach (PlayableContainerMediaItem item in items.OfType<PlayableContainerMediaItem>())
+      {
+        if (!selected)
+          item.Selected = selected = item.WatchPercentage < 100;
+        else
+          item.Selected = false;
+      }
+      return selected;
     }
   }
 }

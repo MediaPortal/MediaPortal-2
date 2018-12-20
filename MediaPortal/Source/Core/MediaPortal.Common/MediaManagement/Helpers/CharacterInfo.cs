@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2017 Team MediaPortal
+#region Copyright (C) 2007-2018 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2017 Team MediaPortal
+    Copyright (C) 2007-2018 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -121,7 +121,27 @@ namespace MediaPortal.Common.MediaManagement.Helpers
 
     public CharacterInfo Clone()
     {
-      return CloneProperties(this);
+      return (CharacterInfo)this.MemberwiseClone();
+    }
+
+    public override bool MergeWith(object other, bool overwriteShorterStrings = true, bool updatePrimaryChildList = false)
+    {
+      if (other is CharacterInfo character)
+      {
+        HasChanged |= MetadataUpdater.SetOrUpdateId(ref TvdbId, character.TvdbId);
+        HasChanged |= MetadataUpdater.SetOrUpdateId(ref MovieDbId, character.MovieDbId);
+        HasChanged |= MetadataUpdater.SetOrUpdateId(ref TvMazeId, character.TvMazeId);
+        HasChanged |= MetadataUpdater.SetOrUpdateId(ref ActorTvdbId, character.ActorTvdbId);
+        HasChanged |= MetadataUpdater.SetOrUpdateId(ref ActorMovieDbId, character.ActorMovieDbId);
+        HasChanged |= MetadataUpdater.SetOrUpdateId(ref ActorTvMazeId, character.ActorTvMazeId);
+        HasChanged |= MetadataUpdater.SetOrUpdateId(ref ActorTvRageId, character.ActorTvRageId);
+
+        HasChanged |= MetadataUpdater.SetOrUpdateString(ref Name, character.Name, overwriteShorterStrings);
+        HasChanged |= MetadataUpdater.SetOrUpdateString(ref ActorName, character.ActorName, overwriteShorterStrings);
+
+        return true;
+      }
+      return false;
     }
 
     #region Members
@@ -130,9 +150,10 @@ namespace MediaPortal.Common.MediaManagement.Helpers
     /// Copies the contained character information into MediaItemAspect.
     /// </summary>
     /// <param name="aspectData">Dictionary with extracted aspects.</param>
-    public override bool SetMetadata(IDictionary<Guid, IList<MediaItemAspect>> aspectData)
+    public override bool SetMetadata(IDictionary<Guid, IList<MediaItemAspect>> aspectData, bool force = false)
     {
-      if (string.IsNullOrEmpty(Name)) return false;
+      if (!force && !IsBaseInfoPresent)
+        return false;
 
       AssignNameId();
       SetMetadataChanged(aspectData);

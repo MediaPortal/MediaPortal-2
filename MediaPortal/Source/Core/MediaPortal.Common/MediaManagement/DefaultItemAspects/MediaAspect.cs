@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2017 Team MediaPortal
+#region Copyright (C) 2007-2018 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2017 Team MediaPortal
+    Copyright (C) 2007-2018 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -31,6 +31,9 @@ namespace MediaPortal.Common.MediaManagement.DefaultItemAspects
   /// </summary>
   public static class MediaAspect
   {
+    private const int TITLE_SEARCH_INDEX_ID = 1;
+    private const int YEAR_SEARCH_INDEX_ID = 2;
+
     /// <summary>
     /// Media item aspect id of the media aspect.
     /// </summary>
@@ -40,7 +43,7 @@ namespace MediaPortal.Common.MediaManagement.DefaultItemAspects
     /// Contains a human readable title of the media item.
     /// </summary>
     public static readonly MediaItemAspectMetadata.SingleAttributeSpecification ATTR_TITLE =
-        MediaItemAspectMetadata.CreateSingleStringAttributeSpecification("Title", 1000, Cardinality.Inline, true);
+        MediaItemAspectMetadata.CreateSingleStringAttributeSpecification("Title", 1000, Cardinality.Inline, true, TITLE_SEARCH_INDEX_ID);
 
     /// <summary>
     /// Contains the sortable title of the media item.
@@ -53,7 +56,7 @@ namespace MediaPortal.Common.MediaManagement.DefaultItemAspects
     /// (e.g. for images) as well as for only storing a recording year (e.g. for movies).
     /// </summary>
     public static readonly MediaItemAspectMetadata.SingleAttributeSpecification ATTR_RECORDINGTIME =
-        MediaItemAspectMetadata.CreateSingleAttributeSpecification("RecordingTime", typeof(DateTime), Cardinality.Inline, true);
+        MediaItemAspectMetadata.CreateSingleAttributeSpecification("RecordingTime", typeof(DateTime), Cardinality.Inline, true, YEAR_SEARCH_INDEX_ID);
 
     /// <summary>
     /// Contains the user's rating of the media item. Value ranges from 0 (very bad) to 10 (very good).
@@ -84,7 +87,7 @@ namespace MediaPortal.Common.MediaManagement.DefaultItemAspects
     /// Set to <c>true</c> if this media item represents a virtual resource.
     /// </summary>
     public static readonly MediaItemAspectMetadata.SingleAttributeSpecification ATTR_ISVIRTUAL =
-        MediaItemAspectMetadata.CreateSingleAttributeSpecification("IsVirtual", typeof(bool), Cardinality.Inline, true);
+        MediaItemAspectMetadata.CreateSingleAttributeSpecification("IsVirtual", typeof(bool), Cardinality.Inline, true, TITLE_SEARCH_INDEX_ID, YEAR_SEARCH_INDEX_ID);
 
     /// <summary>
     /// Set to <c>true</c> if this media item represents a stub resource.

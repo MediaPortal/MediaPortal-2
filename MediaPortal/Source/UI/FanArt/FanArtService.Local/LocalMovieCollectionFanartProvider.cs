@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2017 Team MediaPortal
+#region Copyright (C) 2007-2018 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2017 Team MediaPortal
+    Copyright (C) 2007-2018 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -74,7 +74,7 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Local
 
       IFilter filter = new RelationshipFilter(MovieAspect.ROLE_MOVIE, MovieCollectionAspect.ROLE_MOVIE_COLLECTION, mediaItemId);
       MediaItemQuery movieQuery = new MediaItemQuery(NECESSARY_MIAS, filter);
-      IList<MediaItem> items = mediaLibrary.Search(movieQuery, false, null, true);
+      IList<MediaItem> items = mediaLibrary.Search(movieQuery, false, null, false);
       if (items == null || items.Count == 0)
         return false;
 
@@ -94,7 +94,6 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Local
           var mediaItemDirectoryPath = ResourcePathHelper.Combine(mediaItemPath, "../");
           var mediaItemCollectionDirectoryPath = ResourcePathHelper.Combine(mediaItemPath, "../../");
           var mediaItemFileNameWithoutExtension = ResourcePathHelper.GetFileNameWithoutExtension(mediaItemPath.ToString()).ToLowerInvariant();
-          var mediaItemExtension = ResourcePathHelper.GetExtension(mediaItemPath.ToString());
 
           using (var directoryRa = new ResourceLocator(mediaIteamLocator.NativeSystemId, mediaItemDirectoryPath).CreateAccessor())
           {
@@ -169,9 +168,34 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Local
               files.AddRange(fanArtPaths.Select(path => new ResourceLocator(mediaIteamLocator.NativeSystemId, path)));
             }
           }
+        }
+        catch (Exception ex)
+        {
+#if DEBUG
+          ServiceRegistration.Get<ILogger>().Warn("LocalMovieCollectionFanArtProvider: Error while searching fanart of type '{0}' for '{1}'", ex, fanArtType, mediaIteamLocator);
+#endif
+        }
 
-          if (files.Count == 0)
+        if (files.Count > 0)
+          break;
+      }
+      if (files.Count == 0)
+      {
+        foreach (MediaItem mediaItem in items)
+        {
+          // Virtual resources won't have any local fanart
+          if (mediaItem.IsVirtual)
+            continue;
+          var mediaIteamLocator = mediaItem.GetResourceLocator();
+          var fanArtPaths = new List<ResourcePath>();
+
+          // File based access
+          try
           {
+            var mediaItemPath = mediaIteamLocator.NativeResourcePath;
+            var mediaItemDirectoryPath = ResourcePathHelper.Combine(mediaItemPath, "../");
+            var mediaItemFileNameWithoutExtension = ResourcePathHelper.GetFileNameWithoutExtension(mediaItemPath.ToString()).ToLowerInvariant();
+
             using (var directoryRa = new ResourceLocator(mediaIteamLocator.NativeSystemId, mediaItemDirectoryPath).CreateAccessor())
             {
               var directoryFsra = directoryRa as IFileSystemResourceAccessor;
@@ -210,16 +234,16 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Local
               }
             }
           }
-        }
-        catch (Exception ex)
-        {
+          catch (Exception ex)
+          {
 #if DEBUG
-          ServiceRegistration.Get<ILogger>().Warn("LocalMovieCollectionFanArtProvider: Error while searching fanart of type '{0}' for '{1}'", ex, fanArtType, mediaIteamLocator);
+            ServiceRegistration.Get<ILogger>().Warn("LocalMovieCollectionFanArtProvider: Error while searching fanart of type '{0}' for '{1}'", ex, fanArtType, mediaIteamLocator);
 #endif
-        }
+          }
 
-        if (files.Count > 0)
-          break;
+          if (files.Count > 0)
+            break;
+        }
       }
       result = files;
       return files.Count > 0;

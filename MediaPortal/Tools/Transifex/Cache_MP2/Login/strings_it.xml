@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  
+  <!--Login-->
+  <string name="Login.Title">Accesso utente</string>
+  <string name="Login.Title.Help">Accedi con un utente</string>
+  <string name="Login.IncorrectPassword">Password non corretta, prova di nuovo.</string>
+  <string name="Login.PasswordOk">OK</string>
+  <string name="Login.EnterPassword">Inserisci la password</string>
+  <string name="Login.Logout">Disconnessione utente</string>
+
+  <!--User Settings-->
+  <string name="Settings.Users">Utenti</string> <!-- Section name -->
+  <string name="Settings.Users.Config">Gestione Utente</string> <!-- Group name -->
+  <string name="Settings.Users.Config.UserManagement">Gestione Utente</string> <!-- Setting -->
+  <string name="Settings.Users.Config.UserManagement.Help">Gestisci gli utenti sul server home</string>
+  <string name="Settings.Users.Config.UserEnable">Abilita l\'accesso utente e le restrizioni</string> <!-- Setting -->
+  <string name="Settings.Users.Config.UserEnable.Help">Permetti all\'utente di collegarsi, cambia l\'utente corrente e applica le impostazioni specifiche dell\'utente.</string>
+  <string name="Settings.Users.Config.UserEnableScreen">Abilita la schermata di accesso</string> <!-- Setting -->
+  <string name="Settings.Users.Config.UserEnableScreen.Help">Mostra la schermata di accesso quando non ci sono utenti connessi</string>
+  <string name="Settings.Users.Config.AutoLogout">Disconnessione automatica</string> <!-- Setting -->
+  <string name="Settings.Users.Config.AutoLogout.Help">Abilita la disconnessione automatica di un utente dopo un periodo di inattività</string>
+  <string name="Settings.Users.Config.AutoLogoutTimeout">Disconnessione automatica da inattività</string> <!-- Setting -->
+  <string name="Settings.Users.Config.AutoLogoutTimeout.Help">Periodo di inattività permesso prima che l\'utente sia disconnesso</string>
+  <string name="Settings.Users.Config.AutoLoginUser">Accesso automatico</string> <!-- Setting -->
+  <string name="Settings.Users.Config.AutoLoginUser.Help">Utente da utilizzare per l\'accesso automatico</string>
+  <string name="Settings.Users.Config.SystemDefault">Impostazioni predefinite</string>
+  <string name="Settings.Users.Config.AutoLoginUser.Title">Utente per l\'accesso automatico</string>
+
+  <!-- User configuration workflow -->
+  <string name="UserConfig.UserOverviewWorkflowNavigationContextDisplayLabel">Gestione Utente</string>
+  <string name="UserConfig.UserConfiguration.Title">Gestione Utente</string>
+  <string name="UserConfig.Users">Utenti</string>
+  <string name="UserConfig.NoConfigUserHomeServerNotConnected">Il server home non è connesso al momento, quindi gli utenti non possono essere gestiti.</string>
+  <string name="UserConfig.UserName">Nome Utente</string>
+  <string name="UserConfig.Password">Password</string>
+  <string name="UserConfig.ProfileType">Tipo Profilo</string>
+  <string name="UserConfig.AgeFilter">Abilità il filtro sull\'età</string>
+  <string name="UserConfig.ShareRestrictions">Limita l\'accesso alle share</string>
+  <string name="UserConfig.IncludePGContent">Includi contenuto che richiede la presenza di un adulto</string>
+  <string name="UserConfig.IncludeUnratedContent">Includi contenuto non classificato</string>
+  <string name="UserConfig.LastLogin">Ultimo accesso</string>
+  <string name="UserConfig.NewUserText">Nuovo utente</string>
+  <string name="UserConfig.AddUser">Aggiungi</string>
+  <string name="UserConfig.CopyUser">Copia</string>
+  <string name="UserConfig.DeleteUser">Cancella</string>
+  <string name="UserConfig.SaveUser">Salva</string>
+  <string name="UserConfig.SelectImage">Seleziona l\'immagine utente</string>
+  <string name="UserConfig.DeleteConfirmation.Title">Conferma cancellazione</string>
+  <string name="UserConfig.DeleteConfirmation">Sei sicuro di voler cancellare l\'utente selezionato?</string>
+  <string name="UserConfig.Yes">Sì</string>
+  <string name="UserConfig.No">No</string>
+  <string name="UserConfig.Ok">OK</string>
+  <string name="UserConfig.Disable">Disattiva</string>
+
+  <string name="UserConfig.SelectProfileTemplate">Seleziona la tipologia per il profilo</string>
+  <string name="UserConfig.ClientProfile">Profilo client</string>
+  <string name="UserConfig.UserProfile">Profilo utente</string>
+
+  <string name="UserConfig.RestrictionGroups">Limita permessi</string>
+  <string name="UserConfig.RestrictedAll">Permessi completi</string>
+  <string name="UserConfig.RestrictedNone">Nessun permesso</string>
+  <string name="UserConfig.RestrictedNumbers">{0} / {1} permesso</string>
+  <string name="UserConfig.SelectRestrictions">Seleziona permessi per l\'utente</string>
+
+  <string name="UserConfig.SharesText">Shares</string>
+  <string name="UserConfig.SelectShares">Configura accesso alla condivisione</string>
+  <string name="UserConfig.LocalShare">Sorgente di contenuti del client</string>
+  <string name="UserConfig.LocalShares">Sorgenti di contenuti del client</string>
+  <string name="UserConfig.GlobalShare">Sorgente di contenuti del server</string>
+  <string name="UserConfig.GlobalShares">Sorgenti di contenuti del server</string>
+  <string name="UserConfig.NoConfigGlobalSharesHomeServerNotConnected">Il server home non è al momento connesso, quindi le sorgenti del non possono essere gestite.</string>
+  <string name="UserConfig.NoConfigLocalSharesHomeServerLocal">Il server home è installato nella stessa macchina, quindi possono essere configurate solo le sorgenti del server.</string>
+
+  <string name="RestrictionGroup.Settings.UserProfile">Impostazioni: Gestisci tutti i profili utente</string>
+  <string name="RestrictionGroup.Settings.UserProfile.ManageOwn">Impostazioni: Gestisci il tuo profilo</string>
+
+  <string name="UserProfileTemplate.Admin">Amministratore</string>
+  <string name="UserProfileTemplate.Teenager">Teenager</string>
+  <string name="UserProfileTemplate.Child">Bambino</string>
+
+</resources>

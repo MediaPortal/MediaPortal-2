@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2017 Team MediaPortal
+#region Copyright (C) 2007-2018 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2017 Team MediaPortal
+    Copyright (C) 2007-2018 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -23,6 +23,7 @@
 #endregion
 
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
@@ -162,7 +163,7 @@ namespace MediaPortal.UI.SkinEngine.SkinManagement
     /// <summary>
     /// Models currently loaded for the style.
     /// </summary>
-    protected IDictionary<Guid, object> _styleGUIModels = new Dictionary<Guid, object>();
+    protected IDictionary<Guid, object> _styleGUIModels = new ConcurrentDictionary<Guid, object>();
 
     #endregion
 

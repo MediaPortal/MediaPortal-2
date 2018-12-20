@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2017 Team MediaPortal
+#region Copyright (C) 2007-2018 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2017 Team MediaPortal
+    Copyright (C) 2007-2018 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -26,9 +26,12 @@ using MediaPortal.Common;
 using MediaPortal.Common.General;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.MediaManagement;
+using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Common.MediaManagement.Helpers;
 using MediaPortal.Common.Messaging;
 using MediaPortal.Common.ResourceAccess;
+using MediaPortal.Common.Runtime;
+using MediaPortal.Common.Services.Database;
 using MediaPortal.Common.Services.MediaManagement;
 using MediaPortal.Common.Services.ServerCommunication;
 using MediaPortal.Common.Settings;
@@ -48,6 +51,26 @@ namespace MediaPortal.UI.Services.ServerCommunication
 {
   public class ServerConnectionManager : IServerConnectionManager
   {
+    public static readonly Guid[] NECESSARY_MIAS = new Guid[]
+      {
+          ProviderResourceAspect.ASPECT_ID,
+          MediaAspect.ASPECT_ID,
+      };
+
+    public static readonly Guid[] OPTIONAL_MIAS = new Guid[]
+      {
+          MovieAspect.ASPECT_ID,
+          EpisodeAspect.ASPECT_ID,
+          AudioAspect.ASPECT_ID,
+          VideoAspect.ASPECT_ID,
+          ImageAspect.ASPECT_ID,
+          VideoStreamAspect.ASPECT_ID,
+          VideoAudioStreamAspect.ASPECT_ID,
+          SubtitleAspect.ASPECT_ID,
+          GenreAspect.ASPECT_ID,
+          StubAspect.ASPECT_ID
+      };
+
     /// <summary>
     /// Callback instance for the importer worker, implementing the callback interfaces
     /// <see cref="IMediaBrowsing"/> and <see cref="IImportResultHandler"/>.
@@ -323,6 +346,15 @@ namespace MediaPortal.UI.Services.ServerCommunication
                 UpdateCurrentlyImportingShares(shareStates.Where(s => s.IsImporting).Select(s => s.ShareId).ToList());
                 UpdateCurrentlyImportingSharesProgresses(shareStates.Where(s => s.IsImporting).ToDictionary(s => s.ShareId, s => s.Progress));
               }
+            }
+          }
+          else if (states != null && states.ContainsKey(DatabaseUpgradeServerState.STATE_ID))
+          {
+            DatabaseUpgradeServerState upgradeState = states[DatabaseUpgradeServerState.STATE_ID] as DatabaseUpgradeServerState;
+            if (upgradeState != null && !upgradeState.IsUpgrading && upgradeState.Progress == 100)
+            {
+              ServerConnectionMessaging.SendServerConnectionStateChangedMessage(ServerConnectionMessaging.MessageType.HomeServerDisconnected);
+              ServerConnectionMessaging.SendServerConnectionStateChangedMessage(ServerConnectionMessaging.MessageType.HomeServerConnected);
             }
           }
         }

@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2017 Team MediaPortal
+#region Copyright (C) 2007-2018 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2017 Team MediaPortal
+    Copyright (C) 2007-2018 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -100,6 +100,7 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
     // Derived properties/fields
     protected MediaItem _currentMediaItem;
     protected AbstractProperty _isPlayerPresentProperty;
+    protected AbstractProperty _isAudioPlayerPresentProperty;
     protected AbstractProperty _isVideoPlayerPresentProperty;
     protected AbstractProperty _isImagePlayerPresentProperty;
     protected AbstractProperty _titleProperty;
@@ -172,6 +173,7 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
       _autoVisibilityProperty = new SProperty(typeof(bool), false);
       _isPlayerPresentProperty = new SProperty(typeof(bool), false);
       _isVideoPlayerPresentProperty = new SProperty(typeof(bool), false);
+      _isAudioPlayerPresentProperty = new SProperty(typeof(bool), false);
       _isImagePlayerPresentProperty = new SProperty(typeof(bool), false);
       _titleProperty = new SProperty(typeof(string), null);
       _mediaItemProperty = new SProperty(typeof(MediaItem), null);
@@ -475,6 +477,7 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
         IsPlayerPresent = player != null;
         IVideoPlayer vp = player as IVideoPlayer;
         IImagePlayer pp = player as IImagePlayer;
+        IAudioPlayer ap = player as IAudioPlayer;
         if (vp == null)
         {
           IsVideoPlayerPresent = false;
@@ -525,6 +528,14 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
             ImageWidth = FixedImageHeight * pp.ImageSize.Width / pp.ImageSize.Height;
           }
           ImageSourceLocator = pp.CurrentImageResourceLocator;
+        }
+        if (ap == null)
+        {
+          IsAudioPlayerPresent = false;
+        }
+        else
+        {
+          IsAudioPlayerPresent = true;
         }
 
         SingleMediaItemAspect mediaAspect;
@@ -882,6 +893,20 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
     {
       get { return (bool)_isVideoPlayerPresentProperty.GetValue(); }
       internal set { _isVideoPlayerPresentProperty.SetValue(value); }
+    }
+
+    public AbstractProperty IsAudioPlayerPresentProperty
+    {
+      get { return _isAudioPlayerPresentProperty; }
+    }
+
+    /// <summary>
+    /// Gets the information if the underlaying player slot currently has a audio player.
+    /// </summary>
+    public bool IsAudioPlayerPresent
+    {
+      get { return (bool)_isAudioPlayerPresentProperty.GetValue(); }
+      internal set { _isAudioPlayerPresentProperty.SetValue(value); }
     }
 
     public AbstractProperty IsImagePlayerPresentProperty

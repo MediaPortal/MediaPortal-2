@@ -1,7 +1,7 @@
-﻿#region Copyright (C) 2007-2017 Team MediaPortal
+#region Copyright (C) 2007-2018 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2017 Team MediaPortal
+    Copyright (C) 2007-2018 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -176,6 +176,42 @@ namespace MediaPortal.Common.FanArt
       
       paths.AddRange(FanArtTypes.FanArt, LocalFanartHelper.FilterPotentialFanArtFilesByNameOrPrefix(potentialFanArtFiles,
         LocalFanartHelper.BACKDROP_FILENAMES, LocalFanartHelper.BACKDROP_FILENAMES.Select(f => filename + "-" + f)));
+    }
+
+    /// <summary>
+    /// Populates the <paramref name="paths"/> with all matching image paths in <paramref name="potentialFanArtFiles"/>
+    /// including only image paths that start with the specified <paramref name="prefix"/>. 
+    /// </summary>
+    /// <param name="potentialFanArtFiles"><see cref="ResourcePath"/> collection containing potential fanart paths.</param>
+    /// <param name="paths"><see cref="FanArtPathCollection"/> to populate</param>
+    /// <param name="prefix">The filename prefix of the media item.</param>
+    protected void ExtractAllFanArtImagesByPrefix(ICollection<ResourcePath> potentialFanArtFiles, FanArtPathCollection paths, string prefix)
+    {
+      if (potentialFanArtFiles == null && potentialFanArtFiles.Count == 0)
+        return;
+
+      prefix = prefix.ToLowerInvariant();
+
+      paths.AddRange(FanArtTypes.Thumbnail, LocalFanartHelper.FilterPotentialFanArtFilesByNameOrPrefix(potentialFanArtFiles,
+        null, LocalFanartHelper.THUMB_FILENAMES.Select(f => prefix + "-" + f)));
+
+      paths.AddRange(FanArtTypes.Poster, LocalFanartHelper.FilterPotentialFanArtFilesByNameOrPrefix(potentialFanArtFiles,
+        null, LocalFanartHelper.POSTER_FILENAMES.Select(f => prefix + "-" + f)));
+
+      paths.AddRange(FanArtTypes.Logo, LocalFanartHelper.FilterPotentialFanArtFilesByNameOrPrefix(potentialFanArtFiles,
+        null, LocalFanartHelper.LOGO_FILENAMES.Select(f => prefix + "-" + f)));
+
+      paths.AddRange(FanArtTypes.ClearArt, LocalFanartHelper.FilterPotentialFanArtFilesByNameOrPrefix(potentialFanArtFiles,
+        null, LocalFanartHelper.CLEARART_FILENAMES.Select(f => prefix + "-" + f)));
+
+      paths.AddRange(FanArtTypes.DiscArt, LocalFanartHelper.FilterPotentialFanArtFilesByNameOrPrefix(potentialFanArtFiles,
+        null, LocalFanartHelper.DISCART_FILENAMES.Select(f => prefix + "-" + f)));
+
+      paths.AddRange(FanArtTypes.Banner, LocalFanartHelper.FilterPotentialFanArtFilesByNameOrPrefix(potentialFanArtFiles,
+        null, LocalFanartHelper.BANNER_FILENAMES.Select(f => prefix + "-" + f)));
+
+      paths.AddRange(FanArtTypes.FanArt, LocalFanartHelper.FilterPotentialFanArtFilesByNameOrPrefix(potentialFanArtFiles,
+        null, LocalFanartHelper.BACKDROP_FILENAMES.Select(f => prefix + "-" + f)));
     }
 
     /// <summary>

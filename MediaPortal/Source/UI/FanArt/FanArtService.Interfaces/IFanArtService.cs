@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2017 Team MediaPortal
+#region Copyright (C) 2007-2018 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2017 Team MediaPortal
+    Copyright (C) 2007-2018 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -30,17 +30,17 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Interfaces
   public enum FanArtProviderSource
   {
     /// <summary>
-    /// Uses fanart cache as source.
+    /// Uses fanart cache as source. Should be used first to avoid NAS access.
     /// </summary>
     Cache,
+    /// <summary>
+    /// Uses database as fanart source. Should be used first to avoid NAS access.
+    /// </summary>
+    Database,
     /// <summary>
     /// Looks for fanart files that can be used as source.
     /// </summary>
     File,
-    /// <summary>
-    /// Uses database as fanart source.
-    /// </summary>
-    Database,
     /// <summary>
     /// Retrieves fanart from external sources like online sources (like IMDB, TMDB, TvDB, ...).
     /// </summary>

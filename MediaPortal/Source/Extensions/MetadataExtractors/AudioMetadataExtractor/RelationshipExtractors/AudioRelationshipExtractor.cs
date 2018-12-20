@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2017 Team MediaPortal
+#region Copyright (C) 2007-2018 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2017 Team MediaPortal
+    Copyright (C) 2007-2018 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -205,6 +205,28 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
     {
       OnlineMatcherService.Instance.ResetLastChangedAudioAlbums();
       OnlineMatcherService.Instance.ResetLastChangedAudio();
+    }
+
+    public IDictionary<Guid, IList<MediaItemAspect>> GetBaseChildAspectsFromExistingAspects(IDictionary<Guid, IList<MediaItemAspect>> existingChildAspects, IDictionary<Guid, IList<MediaItemAspect>> existingParentAspects)
+    {
+      if (existingParentAspects.ContainsKey(AudioAlbumAspect.ASPECT_ID))
+      {
+        AlbumInfo album = new AlbumInfo();
+        album.FromMetadata(existingParentAspects);
+
+        if (existingChildAspects.ContainsKey(AudioAspect.ASPECT_ID))
+        {
+          TrackInfo track = new TrackInfo();
+          track.FromMetadata(existingChildAspects);
+
+          TrackInfo basicTrack = album.CloneBasicInstance<TrackInfo>();
+          basicTrack.TrackNum = track.TrackNum;
+          IDictionary<Guid, IList<MediaItemAspect>> aspects = new Dictionary<Guid, IList<MediaItemAspect>>();
+          basicTrack.SetMetadata(aspects, true);
+          return aspects;
+        }
+      }
+      return null;
     }
 
     public RelationshipExtractorMetadata Metadata

@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2017 Team MediaPortal
+#region Copyright (C) 2007-2018 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2017 Team MediaPortal
+    Copyright (C) 2007-2018 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -72,7 +72,7 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Local
         return false;
 
       IFilter filter = new MediaItemIdFilter(mediaItemId);
-      IList<MediaItem> items = mediaLibrary.Search(new MediaItemQuery(NECESSARY_MIAS, filter), false, null, true);
+      IList<MediaItem> items = mediaLibrary.Search(new MediaItemQuery(NECESSARY_MIAS, filter), false, null, false);
       if (items == null || items.Count == 0)
         return false;
 
@@ -81,6 +81,8 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Local
       if (mediaItem.IsVirtual)
         return false;
       var mediaIteamLocator = mediaItem.GetResourceLocator();
+      if (mediaIteamLocator == null)
+        return false;
       var fanArtPaths = new List<ResourcePath>();
       var files = new List<IResourceLocator>();
       // File based access

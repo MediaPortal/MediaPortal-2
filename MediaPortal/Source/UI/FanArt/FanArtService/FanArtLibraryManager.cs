@@ -1,7 +1,7 @@
-﻿#region Copyright (C) 2007-2017 Team MediaPortal
+#region Copyright (C) 2007-2018 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2017 Team MediaPortal
+    Copyright (C) 2007-2018 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -200,10 +200,10 @@ namespace MediaPortal.Extensions.UserServices.FanArtService
         MediaLibraryMessaging.MessageType messageType = (MediaLibraryMessaging.MessageType)message.MessageType;
         if (messageType == MediaLibraryMessaging.MessageType.MediaItemsAddedOrUpdated)
         {
-          IEnumerable<MediaItem> items = message.MessageData[MediaLibraryMessaging.PARAM] as IEnumerable<MediaItem>;
-          if (items != null)
-            foreach (MediaItem item in items)
-              ScheduleFanArtCollection(item.MediaItemId, item.Aspects);
+          IEnumerable<Guid> ids = message.MessageData[MediaLibraryMessaging.PARAM] as IEnumerable<Guid>;
+          if (ids != null)
+            foreach (Guid id in ids)
+              ScheduleFanArtCollection(id);
         }
         else if (messageType == MediaLibraryMessaging.MessageType.MediaItemsDeleted)
         {
@@ -217,17 +217,14 @@ namespace MediaPortal.Extensions.UserServices.FanArtService
     #region Public methods
 
     /// <summary>
-    /// Schedules the collection of fanart for the media item with the specified <paramref name="mediaItemId"/> and <paramref name="aspects"/>.
+    /// Schedules the collection of fanart for the media item with the specified <paramref name="mediaItemId"/>.
     /// </summary>
     /// <param name="mediaItemId">The media item id of the media item to collect fanart for.</param>
-    /// <param name="aspects">The media item aspects of the media item to collect fanart for.</param>
-    public void ScheduleFanArtCollection(Guid mediaItemId, IDictionary<Guid, IList<MediaItemAspect>> aspects)
+    public void ScheduleFanArtCollection(Guid mediaItemId)
     {
-      if (aspects == null)
-        throw new ArgumentNullException("aspects", "cannot be null");
-
       ServiceRegistration.Get<ILogger>().Debug("FanArtManagement: Scheduling fanart collection for {0}.", mediaItemId);
-      _fanartActionBlock.Post(new FanArtManagerAction(ActionType.Collect, mediaItemId, aspects));
+      if (!_fanartActionBlock.Post(new FanArtManagerAction(ActionType.Collect, mediaItemId)))
+        ServiceRegistration.Get<ILogger>().Warn("FanArtManagement: Failed to scheduling fanart collection for {0}.", mediaItemId);
     }
 
     /// <summary>
@@ -237,7 +234,8 @@ namespace MediaPortal.Extensions.UserServices.FanArtService
     public void ScheduleFanArtDeletion(Guid mediaItemId)
     {
       ServiceRegistration.Get<ILogger>().Debug("FanArtManagement: Scheduling fanart deletion for {0}.", mediaItemId);
-      _fanartActionBlock.Post(new FanArtManagerAction(ActionType.Delete, mediaItemId, null));
+      if (!_fanartActionBlock.Post(new FanArtManagerAction(ActionType.Delete, mediaItemId)))
+        ServiceRegistration.Get<ILogger>().Warn("FanArtManagement: Failed to schedule delete fanart for {0}.", mediaItemId);
     }
     
     /// <summary>

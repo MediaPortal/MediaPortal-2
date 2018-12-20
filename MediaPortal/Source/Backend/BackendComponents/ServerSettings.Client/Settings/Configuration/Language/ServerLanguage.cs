@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2017 Team MediaPortal
+#region Copyright (C) 2007-2018 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2017 Team MediaPortal
+    Copyright (C) 2007-2018 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -68,7 +68,7 @@ namespace MediaPortal.Plugins.ServerSettings.Settings.Configuration
       {
         CultureInfo ci = _cultures[i];
         _items.Add(LocalizationHelper.CreateStaticString(ci.DisplayName));
-        if (ci.LCID == current.LCID)
+        if (ci.Equals(current))
           Selected = i;
       }
     }

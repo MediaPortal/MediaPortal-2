@@ -4,7 +4,7 @@
   <string name="MainForm.AttachedClients">Client connessi</string>
   <string name="MainForm.Client">Client</string>
   <string name="MainForm.System">Sistema</string>
-  <string name="MainForm.ConnectionState">Stato Connessione</string>
+  <string name="MainForm.ConnectionState">Stato connessione</string>
   <string name="MainForm.Connected">Connesso</string>
   <string name="MainForm.Disconnected">Disconnesso</string>
   <string name="UPnPBackendServer.DefaultFriendlyName">Server MediaPortal 2</string>

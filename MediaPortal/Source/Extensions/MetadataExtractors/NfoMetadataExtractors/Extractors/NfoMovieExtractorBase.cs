@@ -1,7 +1,7 @@
-﻿#region Copyright (C) 2007-2017 Team MediaPortal
+#region Copyright (C) 2007-2018 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2017 Team MediaPortal
+    Copyright (C) 2007-2018 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -24,6 +24,8 @@
 
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
+using MediaPortal.Common.MediaManagement;
+using MediaPortal.Common.MediaManagement.Helpers;
 using MediaPortal.Common.ResourceAccess;
 using MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoReaders;
 using MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.Settings;
@@ -90,6 +92,28 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.Extrac
         _debugLogger.Error("[#{0}]: Exception while extracting metadata", e, miNumber);
       }
       return null;
+    }
+
+    /// <summary>
+    /// Verifies if the movie being reimported matches the movie in the nfo file
+    /// </summary>
+    /// <param name="reader">Reader used read the movie information from the nfo file</param>
+    /// <param name="reimport">The movie being reimported</param>
+    /// <returns>Result of the verification</returns>
+    protected bool VerifyMovieReimport(NfoMovieReader reader, MovieInfo reimport)
+    {
+      if (reimport == null)
+        return true;
+
+      IDictionary<Guid, IList<MediaItemAspect>> aspectData = new Dictionary<Guid, IList<MediaItemAspect>>();
+      if (reader.TryWriteMetadata(aspectData))
+      {
+        MovieInfo info = new MovieInfo();
+        info.FromMetadata(aspectData);
+        if (reimport.Equals(info))
+          return true;
+      }
+      return false;
     }
 
     #endregion

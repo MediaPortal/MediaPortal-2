@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2017 Team MediaPortal
+#region Copyright (C) 2007-2018 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2017 Team MediaPortal
+    Copyright (C) 2007-2018 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -38,12 +38,17 @@ namespace MediaPortal.DevTools
   /// </summary>
   public class MediaItemAspectTypeRegistration : IMediaItemAspectTypeRegistration
   {
-    protected IDictionary<Guid, MediaItemAspectMetadata> _locallyKnownMediaItemAspectTypes =
-        new Dictionary<Guid, MediaItemAspectMetadata>();
+    protected IDictionary<Guid, MediaItemAspectMetadata> _locallyKnownMediaItemAspectTypes = new Dictionary<Guid, MediaItemAspectMetadata>();
+    protected IDictionary<Guid, MediaItemAspectMetadata> _locallySupportedReimportMediaItemAspectTypes = new Dictionary<Guid, MediaItemAspectMetadata>();
 
     public IDictionary<Guid, MediaItemAspectMetadata> LocallyKnownMediaItemAspectTypes
     {
       get { return _locallyKnownMediaItemAspectTypes; }
+    }
+
+    public IDictionary<Guid, MediaItemAspectMetadata> LocallySupportedReimportMediaItemAspectTypes
+    {
+      get { return _locallySupportedReimportMediaItemAspectTypes; }
     }
 
     public async Task RegisterLocallyKnownMediaItemAspectTypeAsync(IEnumerable<MediaItemAspectMetadata> miaTypes)
@@ -64,16 +69,12 @@ namespace MediaPortal.DevTools
       return Task.CompletedTask;
     }
 
-    public void RegisterLocallyKnownMediaItemAspectType(MediaItemAspectMetadata miaType, MediaItemAspectMetadata.AttributeSpecification[] fkSpecs, MediaItemAspectMetadata refType, MediaItemAspectMetadata.AttributeSpecification[] refSpecs)
+    public Task RegisterLocallySupportedReimportMediaItemAspectTypeAsync(MediaItemAspectMetadata miaType)
     {
-    }
-
-    public void RegisterMediaItemAspectRoleHierarchy(Guid role, Guid parentRole)
-    {
-    }
-
-    public void RegisterMediaItemAspectRoleHierarchyChildCountAttribute(Guid childRole, Guid parentRole, MediaItemAspectMetadata parentMiaType, MediaItemAspectMetadata.AttributeSpecification childCountAttribute, bool includeVirtual)
-    {
+      Console.WriteLine("Registering reimport support " + miaType.Name);
+      if (!_locallySupportedReimportMediaItemAspectTypes.ContainsKey(miaType.AspectId))
+        _locallySupportedReimportMediaItemAspectTypes.Add(miaType.AspectId, miaType);
+      return Task.CompletedTask;
     }
   }
 }

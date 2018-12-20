@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2017 Team MediaPortal
+#region Copyright (C) 2007-2018 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2017 Team MediaPortal
+    Copyright (C) 2007-2018 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -288,10 +288,17 @@ namespace MediaPortal.Common.Services.ServerCommunication
       return (MediaItem)outParameters[0];
     }
 
-    public async Task RefreshMediaItemMetadataAsync(string systemId, Guid mediaItemId, bool clearMetadata)
+    public async Task RefreshMediaItemMetadataAsync(Guid mediaItemId, bool clearMetadata)
     {
       CpAction action = GetAction("X_MediaPortal_RefreshMediaItem");
-      IList<object> inParameters = new List<object> { systemId, MarshallingHelper.SerializeGuid(mediaItemId), clearMetadata };
+      IList<object> inParameters = new List<object> { MarshallingHelper.SerializeGuid(mediaItemId), clearMetadata };
+      await action.InvokeAsync(inParameters);
+    }
+
+    public async Task ReimportMediaItemMetadataAsync(Guid mediaItemId, IEnumerable<MediaItemAspect> matchedAspects)
+    {
+      CpAction action = GetAction("X_MediaPortal_ReimportMediaItem");
+      IList<object> inParameters = new List<object> { MarshallingHelper.SerializeGuid(mediaItemId), matchedAspects };
       await action.InvokeAsync(inParameters);
     }
 

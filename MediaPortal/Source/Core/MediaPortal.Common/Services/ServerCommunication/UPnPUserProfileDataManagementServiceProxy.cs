@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2017 Team MediaPortal
+#region Copyright (C) 2007-2018 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2017 Team MediaPortal
+    Copyright (C) 2007-2018 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -113,6 +113,14 @@ namespace MediaPortal.Common.Services.ServerCommunication
     {
       CpAction action = GetAction("RenameProfile");
       IList<object> inParameters = new List<object> { MarshallingHelper.SerializeGuid(profileId), newName };
+      IList<object> outParameters = await action.InvokeAsync(inParameters);
+      return (bool)outParameters[0];
+    }
+
+    public async Task<bool> ChangeProfileIdAsync(Guid profileId, Guid newProfileId)
+    {
+      CpAction action = GetAction("ChangeProfileId");
+      IList<object> inParameters = new List<object> { MarshallingHelper.SerializeGuid(profileId), MarshallingHelper.SerializeGuid(newProfileId) };
       IList<object> outParameters = await action.InvokeAsync(inParameters);
       return (bool)outParameters[0];
     }

@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2017 Team MediaPortal
+#region Copyright (C) 2007-2018 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2017 Team MediaPortal
+    Copyright (C) 2007-2018 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -54,7 +54,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
 
     #region Search
 
-    public override async Task<IList<MovieInfo>> SearchMovieAsync(MovieInfo movieSearch, string language)
+    public override async Task<List<MovieInfo>> SearchMovieAsync(MovieInfo movieSearch, string language)
     {
       List<OmDbSearchItem> foundMovies = await _omDbHandler.SearchMovieAsync(movieSearch.MovieName.Text, 
         movieSearch.ReleaseDate.HasValue ? movieSearch.ReleaseDate.Value.Year : 0).ConfigureAwait(false);
@@ -117,7 +117,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
           EpisodeName = episodeSearch.EpisodeName,
         };
         info.CopyIdsFrom(seriesSearch);
-        CollectionUtils.AddAll(info.EpisodeNumbers, episodeSearch.EpisodeNumbers);
+        info.EpisodeNumbers = info.EpisodeNumbers.Union(episodeSearch.EpisodeNumbers).ToList();
         episodes.Add(info);
       }
 
@@ -185,7 +185,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
           {
             awards.Add("Golden Globe");
           }
-          movie.Awards = awards;
+          movie.Awards = awards.ToList();
         }
 
         if (movieDetail.ImdbRating.HasValue)
@@ -258,7 +258,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
           {
             awards.Add("Golden Globe");
           }
-          series.Awards = awards;
+          series.Awards = awards.ToList();
         }
 
         if (seriesDetail.ImdbRating.HasValue)

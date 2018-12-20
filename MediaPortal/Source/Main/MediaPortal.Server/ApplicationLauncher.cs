@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2017 Team MediaPortal
+#region Copyright (C) 2007-2018 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2017 Team MediaPortal
+    Copyright (C) 2007-2018 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -139,8 +139,10 @@ namespace MediaPortal.Server
 
           logger.Info("Switching to running state");
           _systemStateService.SwitchSystemState(SystemState.Running, true);
+          // Do before importers are activated and after server is running so it is possible to use other parts of the client
+          BackendExtension.MigrateDatabaseData();
+          // To be done after default media item aspect types are present and when the system is running (other plugins might also install media item aspect types)
           BackendExtension.ActivateImporterWorker();
-            // To be done after default media item aspect types are present and when the system is running (other plugins might also install media item aspect types)
         }
         catch (Exception e)
         {

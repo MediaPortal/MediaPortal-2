@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2017 Team MediaPortal
+#region Copyright (C) 2007-2018 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2017 Team MediaPortal
+    Copyright (C) 2007-2018 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -177,9 +177,17 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.Common
         {
           if (File.Exists(downloadFile))
             return true;
+          byte[] data = null;
           using (WebClient webClient = new CompressionWebClient())
-            await webClient.DownloadFileTaskAsync(url, downloadFile).ConfigureAwait(false);
-          return true;
+            data = await webClient.DownloadDataTaskAsync(url).ConfigureAwait(false);
+          if (data?.LongLength > 0)
+          {
+            using (FileStream sourceStream = new FileStream(downloadFile, FileMode.Create, FileAccess.Write, FileShare.None, bufferSize: 4096, useAsync: true))
+              await sourceStream.WriteAsync(data, 0, data.Length);
+            return true;
+          }
+          ServiceRegistration.Get<ILogger>().Warn("OnlineLibraries.Downloader: No data received when downloading file {0} from {1}", downloadFile, url);
+          return false;
         }
         catch (Exception ex)
         {

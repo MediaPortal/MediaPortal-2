@@ -1,7 +1,7 @@
-﻿#region Copyright (C) 2007-2017 Team MediaPortal
+#region Copyright (C) 2007-2018 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2017 Team MediaPortal
+    Copyright (C) 2007-2018 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -22,6 +22,7 @@
 
 #endregion
 
+using MediaPortal.Common.Commands;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.UiComponents.Media.General;
 using MediaPortal.UiComponents.Media.Models.Navigation;
@@ -37,7 +38,10 @@ namespace MediaPortal.UiComponents.Media.MediaLists
       _linkedRole = AudioAspect.ROLE_TRACK;
       _necessaryMias = Consts.NECESSARY_ALBUM_MIAS;
       _necessaryLinkedMias = Consts.NECESSARY_AUDIO_MIAS;
-      _playableContainerConverterAction = item => new AlbumFilterItem(item);
+      _playableContainerConverterAction = item => new AlbumFilterItem(item)
+      {
+        Command = new MethodDelegateCommand(() => AudioNavigationInitializer.NavigateToAlbum(item.MediaItemId))
+      };
       _navigationInitializerType = typeof(AudioNavigationInitializer);
     }
   }

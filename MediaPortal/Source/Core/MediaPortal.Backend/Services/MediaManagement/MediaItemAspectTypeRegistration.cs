@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2017 Team MediaPortal
+#region Copyright (C) 2007-2018 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2017 Team MediaPortal
+    Copyright (C) 2007-2018 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -29,6 +29,7 @@ using System.Threading.Tasks;
 using MediaPortal.Common;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Backend.MediaLibrary;
+using System.Collections.Concurrent;
 
 namespace MediaPortal.Backend.Services.MediaManagement
 {
@@ -38,12 +39,22 @@ namespace MediaPortal.Backend.Services.MediaManagement
   /// </summary>
   public class MediaItemAspectTypeRegistration : IMediaItemAspectTypeRegistration
   {
+    private ConcurrentDictionary<Guid, MediaItemAspectMetadata> _locallySupportedReimportMediaItemAspectTypes = new ConcurrentDictionary<Guid, MediaItemAspectMetadata>();
+
     public IDictionary<Guid, MediaItemAspectMetadata> LocallyKnownMediaItemAspectTypes
     {
       get
       {
         IMediaLibrary mediaLibrary = ServiceRegistration.Get<IMediaLibrary>();
         return mediaLibrary.GetManagedMediaItemAspectMetadata();
+      }
+    }
+
+    public IDictionary<Guid, MediaItemAspectMetadata> LocallySupportedReimportMediaItemAspectTypes
+    {
+      get
+      {
+        return _locallySupportedReimportMediaItemAspectTypes;
       }
     }
 
@@ -56,6 +67,12 @@ namespace MediaPortal.Backend.Services.MediaManagement
     {
       IMediaLibrary mediaLibrary = ServiceRegistration.Get<IMediaLibrary>();
       mediaLibrary.AddMediaItemAspectStorage(miam);
+      return Task.CompletedTask;
+    }
+
+    public Task RegisterLocallySupportedReimportMediaItemAspectTypeAsync(MediaItemAspectMetadata miaType)
+    {
+      _locallySupportedReimportMediaItemAspectTypes.TryAdd(miaType.AspectId, miaType);
       return Task.CompletedTask;
     }
   }

@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2017 Team MediaPortal
+#region Copyright (C) 2007-2018 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2017 Team MediaPortal
+    Copyright (C) 2007-2018 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -110,16 +110,19 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
 
     protected async Task ExtractMovieFanArt(Guid mediaItemId, IDictionary<Guid, IList<MediaItemAspect>> aspects)
     {
-      if (BaseInfo.IsVirtualResource(aspects))
-        return;
+      bool shouldCacheLocal = false;
+      IResourceLocator mediaItemLocator = null;
 
-      IResourceLocator mediaItemLocator = GetResourceLocator(aspects);
-      if (mediaItemLocator == null)
-        return;
+      if (!BaseInfo.IsVirtualResource(aspects))
+      {
+        mediaItemLocator = GetResourceLocator(aspects);
+        if (mediaItemLocator == null)
+          return;
 
-      //Whether local fanart should be stored in the fanart cache
-      bool shouldCacheLocal = ShouldCacheLocalFanArt(mediaItemLocator.NativeResourcePath,
-        MovieMetadataExtractor.CacheLocalFanArt, MovieMetadataExtractor.CacheOfflineFanArt);
+        //Whether local fanart should be stored in the fanart cache
+        shouldCacheLocal = ShouldCacheLocalFanArt(mediaItemLocator.NativeResourcePath,
+          MovieMetadataExtractor.CacheLocalFanArt, MovieMetadataExtractor.CacheOfflineFanArt);
+      }
 
       if (!shouldCacheLocal && MovieMetadataExtractor.SkipFanArtDownload)
         return; //Nothing to do
@@ -227,11 +230,14 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
     protected async Task ExtractCollectionFolderFanArt(IResourceLocator mediaItemLocator, Guid collectionMediaItemId, string title)
     {
       var collectionDirectory = ResourcePathHelper.Combine(mediaItemLocator.NativeResourcePath, "../../");
+      var movieDirectory = ResourcePathHelper.Combine(mediaItemLocator.NativeResourcePath, "../");
       try
       {
-        FanArtPathCollection paths;
+        FanArtPathCollection paths = new FanArtPathCollection();
         using (IResourceAccessor accessor = new ResourceLocator(mediaItemLocator.NativeSystemId, collectionDirectory).CreateAccessor())
-          paths = GetCollectionFolderFanArt(accessor as IFileSystemResourceAccessor);
+          paths.AddRange(GetCollectionFolderFanArt(accessor as IFileSystemResourceAccessor));
+        using (IResourceAccessor accessor = new ResourceLocator(mediaItemLocator.NativeSystemId, movieDirectory).CreateAccessor())
+          paths.AddRange(GetMovieFolderCollectionFanArt(accessor as IFileSystemResourceAccessor));
         await SaveFolderImagesToCache(mediaItemLocator.NativeSystemId, paths, collectionMediaItemId, title).ConfigureAwait(false);
       }
       catch (Exception ex)
@@ -257,6 +263,23 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
       if (collectionDirectory.ResourceExists("ExtraFanArt/"))
         using (IFileSystemResourceAccessor extraFanArtDirectory = collectionDirectory.GetResource("ExtraFanArt/"))
           paths.AddRange(FanArtTypes.FanArt, LocalFanartHelper.GetPotentialFanArtFiles(extraFanArtDirectory));
+
+      return paths;
+    }
+
+    /// <summary>
+    /// Gets a <see cref="FanArtPathCollection"/> containing all matching collection fanart paths in the specified <see cref="ResourcePath"/>.
+    /// </summary>
+    /// <param name="movieDirectory"><see cref="IFileSystemResourceAccessor"/> that points to the movie directory.</param>
+    /// <returns><see cref="FanArtPathCollection"/> containing all matching paths.</returns>
+    protected FanArtPathCollection GetMovieFolderCollectionFanArt(IFileSystemResourceAccessor movieDirectory)
+    {
+      FanArtPathCollection paths = new FanArtPathCollection();
+      if (movieDirectory == null)
+        return paths;
+
+      List<ResourcePath> potentialFanArtFiles = LocalFanartHelper.GetPotentialFanArtFiles(movieDirectory);
+      ExtractAllFanArtImagesByPrefix(potentialFanArtFiles, paths, "movieset");
 
       return paths;
     }

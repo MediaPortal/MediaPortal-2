@@ -1,6 +1,6 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
-  <string name="SlimTvClient.Title">Slim TV Client</string>
+  <string name="SlimTvClient.Title">TV opas</string>
   <string name="SlimTvClient.Main">TV</string>
   <string name="SlimTvClient.Main.Help">Täällä voit katsoa suosikki TV ja radio ohjelmiasi ja vaihtaa kanavia.</string>
   <string name="SlimTvClient.TvGuide">TV opas</string>
@@ -70,6 +70,7 @@
   <string name="SlimTvClient.ShowSeriesInfo">Näytä sarjojen tiedot</string>
   <string name="SlimTvClient.ShowSeriesInfo.Help">Jos päällä, ohjelmaopas näyttää sarjan ja jakson tiedot, jos saatavilla.</string>
   <string name="SlimTvClient.Notifications">Ilmoitukset</string>
+  <string name="SlimTvClient.NoColor">Tyhjä</string>
   <string name="SlimTvClient.RecordingsMenuItem">Tallennukset</string>
   <string name="SlimTvClient.Recordings.Help">Täällä voit löytää listan tallennetuista ohjelmistasi.</string>
   <string name="SlimTvClient.RecordingsRootViewName">TV tallennukset</string>

@@ -1,7 +1,7 @@
-﻿#region Copyright (C) 2007-2017 Team MediaPortal
+#region Copyright (C) 2007-2018 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2017 Team MediaPortal
+    Copyright (C) 2007-2018 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -469,9 +469,11 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoRea
               _debugLogger.Warn("[#{0}]: Key element missing {1}", _miNumber, childElement);
               break;
             case "imdbId":
+            case "imdb":
               result = ((_currentStub.IdsImdbId = ParseSimpleString(childElement.Element("value"))) != null);
               break;
             case "tmdbId":
+            case "tmdb":
               result = ((_currentStub.IdsTmdbId = ParseSimpleInt(childElement.Element("value"))) != null) || result;
               break;
             default:

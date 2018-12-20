@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2017 Team MediaPortal
+#region Copyright (C) 2007-2018 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2017 Team MediaPortal
+    Copyright (C) 2007-2018 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -73,6 +73,13 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
           if (foundTracks != null)
             break;
         }
+      }
+      if (foundTracks == null && !string.IsNullOrEmpty(trackSearch.MusicBrainzId))
+      {
+        //Use last because the MusicBarainz id is used for finding a track from a random album
+        var track = await _audioDbHandler.GetTrackByMbidAsync(trackSearch.MusicBrainzId, language, false).ConfigureAwait(false);
+        if (track != null)
+          foundTracks = new List<AudioDbTrack> { track };
       }
       if (foundTracks == null) return null;
 
@@ -281,20 +288,28 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
 
         if (track.AudioDbId > 0)
           trackDetail = await _audioDbHandler.GetTrackAsync(track.AudioDbId, language, cacheOnly).ConfigureAwait(false);
-
-        if (trackDetail == null && track.TrackNum > 0 && track.AlbumAudioDbId > 0)
-        {
-          List<AudioDbTrack> foundTracks = await _audioDbHandler.GetTracksByAlbumIdAsync(track.AlbumAudioDbId, language, cacheOnly).ConfigureAwait(false);
-          if (foundTracks != null && foundTracks.Count > 0)
-            trackDetail = foundTracks.FirstOrDefault(t => t.TrackNumber == track.TrackNum);
-        }
-
-        //Musicbrainz Id can be unreliable in this regard because it is linked to a recording and the same recording can 
+        //Musicbrainz Id can be unreliable in this regard because it is linked to a recording and the same recording can
         //be across multiple different albums. In other words the Id is unique per song not per album song, so using this can
         //lead to the wrong album id.
         //if (trackDetail == null && !string.IsNullOrEmpty(track.MusicBrainzId))
         //  trackDetail = _audioDbHandler.GetTrackByMbid(track.MusicBrainzId, language, cacheOnly);
+        if (trackDetail == null && track.TrackNum > 0 && (track.AlbumAudioDbId > 0 || !string.IsNullOrEmpty(track.AlbumMusicBrainzGroupId)))
+        {
+          List<AudioDbTrack> foundTracks = await _audioDbHandler.GetTracksByAlbumIdAsync(track.AlbumAudioDbId, language, cacheOnly).ConfigureAwait(false);
+          if (foundTracks == null && !string.IsNullOrEmpty(track.AlbumMusicBrainzGroupId))
+          {
+            List<AudioDbAlbum> foundAlbums = await _audioDbHandler.GetAlbumByMbidAsync(track.AlbumMusicBrainzGroupId, language, cacheOnly).ConfigureAwait(false);
+            if (foundAlbums != null && foundAlbums.Count == 1)
+            {
+              var albumDetail = await _audioDbHandler.GetAlbumAsync(foundAlbums[0].AlbumId, language, cacheOnly).ConfigureAwait(false);
+              if (albumDetail != null)
+                foundTracks = await _audioDbHandler.GetTracksByAlbumIdAsync(albumDetail.AlbumId, language, cacheOnly).ConfigureAwait(false);
+            }
+          }
 
+          if (foundTracks != null && foundTracks.Count > 0)
+            trackDetail = foundTracks.FirstOrDefault(t => t.TrackNumber == track.TrackNum);
+        }
         if (trackDetail == null) return false;
 
         //Get the track into the cache
@@ -420,8 +435,8 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
             if (!string.IsNullOrEmpty(trackDetail.Genre?.Trim()))
               track.Genres.Add(new GenreInfo { Name = trackDetail.Genre.Trim() });
 
-            track.AlbumArtists = album.Artists;
-            track.MusicLabels = album.MusicLabels;
+            track.AlbumArtists = album.Artists.ToList();
+            track.MusicLabels = album.MusicLabels.ToList();
 
             album.Tracks.Add(track);
           }

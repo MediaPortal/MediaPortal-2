@@ -39,7 +39,7 @@
     <Setter Property="Template">
       <Setter.Value>
         <ControlTemplate>
-          <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+          <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Height="265">
             <Grid.RowDefinitions>
               <RowDefinition Height="Auto"/>
               <RowDefinition Height="Auto"/>
@@ -83,11 +83,7 @@
                    Color="{DynamicResource ProgramFontColor}"/>
 
             <Label Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="5" x:Name="Description" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
-                   Wrap="True" Scroll="Auto"
-                   Height="{ThemeResource OSDDetailLabelHeight}"
-                   Content="{Binding Description}"
-                   Color="{ThemeResource TextColor}"
-                   ScrollSpeed="15" />
+                   Wrap="True" Scroll="Auto" Content="{Binding Description}" Color="{ThemeResource TextColor}" ScrollSpeed="15" />
 
             <!-- Dummy button which makes the panel focusable -->
             <Button Style="{ThemeResource EmptyStyle}" SetFocusPrio="{DynamicResource ButtonFocus}"/>
@@ -130,7 +126,7 @@
             </StackPanel>
 
             <!-- Arrow down -->
-            <StackPanel VerticalAlignment="Bottom" HorizontalAlignment="Center">
+            <StackPanel VerticalAlignment="Top" HorizontalAlignment="Center">
               <StackPanel.IsVisible>
                 <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0}==0 &amp;&amp; {1}">
                   <TemplateBinding Path="ScrollBarYKnobPos" />
@@ -172,93 +168,161 @@
             <Model x:Key="VideoPlayerModel" Id="4E2301B4-3C17-4a1d-8DE5-2CEA169A0256"/>
           </ControlTemplate.Resources>
 
-
-          <Control Style="{ThemeResource OSDContainer}" Width="{ThemeResource FullScreenContentVideoPrimaryPlayerOSDWidth}" DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}">
+          <Control Style="{ThemeResource OSDContainer}" Width="{ThemeResource FullScreenContentVideoPrimaryPlayerOSDWidth}" 
+                   DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}">
             <Control.Resources>
-              <ResourceWrapper x:Key="ProgramDetailsHeight" Resource="280"/>
-              <ControlTemplate x:Key="OSD_Cover_Template">
-                <Image x:Name="ChannelLogo" Stretch="Uniform" Width="180" Margin="10" VerticalAlignment="Top" Context="{StaticResource SlimTvClient}">
-                  <Image.Source>
-                    <fanart:FanArtImageSource fanart:FanArtMediaType="{Binding ChannelLogoType}" fanart:FanArtType="Banner" fanart:FanArtName="{Binding ChannelName}"
-                                              fanart:MaxWidth="0" fanart:MaxHeight="0"/>
-                  </Image.Source>
-                </Image>
+              <!--ResourceWrapper x:Key="ProgramDetailsHeight" Resource="180"/-->
+
+              <ControlTemplate x:Key="OSD_Background_Template">
+                <Grid HorizontalAlignment="Stretch" VerticalAlignment="Bottom" Margin="0,-110,0,0">
+                  <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                  </Grid.ColumnDefinitions>
+                  <Grid.RowDefinitions>
+                    <RowDefinition Height="*"/>
+                  </Grid.RowDefinitions>
+                  <Image Source="OSD_background_large.png" Stretch="Uniform" HorizontalAlignment="Stretch" VerticalAlignment="Bottom"/>
+                </Grid>
               </ControlTemplate>
+
+              <ControlTemplate x:Key="OSD_Cover_Template">
+                <Grid VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
+                  <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                  </Grid.ColumnDefinitions>
+                  <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                  </Grid.RowDefinitions>
+                  <Image x:Name="ChannelLogo" Stretch="Uniform" Height="90" Margin="-5,20,0,20" VerticalAlignment="Top" Context="{StaticResource SlimTvClient}">
+                    <Image.Source>
+                      <fanart:FanArtImageSource fanart:FanArtMediaType="{Binding ChannelLogoType}" fanart:FanArtType="Banner" fanart:FanArtName="{Binding ChannelName}"
+                                              fanart:MaxWidth="0" fanart:MaxHeight="0"/>
+                    </Image.Source>
+                  </Image>
+                </Grid>
+              </ControlTemplate>
+
               <ControlTemplate x:Key="OSD_InfoArea_Template">
+                <Grid x:Name="InfoGrid" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Margin="0,-110,0,0"
+                      DataContext="{Binding Source={StaticResource SlimTvClient}}">
+                  <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                  </Grid.ColumnDefinitions>
+                  <Grid.RowDefinitions>
+                    <RowDefinition Height="*"/>
+                  </Grid.RowDefinitions>
 
-                <DockPanel LastChildFill="true" Margin="3" DataContext="{Binding Source={StaticResource SlimTvClient}}">
+                  <!-- Now / next program informations -->
+                  <ListView Style="{ThemeResource ProgramInfoListViewStyle}" Margin="0,0,0,10" HorizontalAlignment="Stretch">
 
-                  <Grid DockPanel.Dock="Center" HorizontalAlignment="Stretch">
-                    <Grid.ColumnDefinitions>
-                      <ColumnDefinition Width="*"/>
-                    </Grid.ColumnDefinitions>
-                    <Grid.RowDefinitions>
-                      <RowDefinition Height="Auto"/>
-                      <RowDefinition Height="Auto"/>
-                    </Grid.RowDefinitions>
+                    <!-- Current Program detailed information -->
+                    <Control Style="{ThemeResource OSDProgramDetailsTemplate}" Context="{Binding Source={StaticResource SlimTvClient},Path=CurrentProgram}">
+                      <Control.Resources>
+                        <ResourceWrapper x:Key="ProgramFontColor" Resource="{ThemeResource TextColor}"/>
+                        <ResourceWrapper x:Key="ButtonFocus" Resource="Default"/>
+                      </Control.Resources>
+                    </Control>
 
-                    <!-- Now / next program informations -->
-                    <ListView Grid.Column="0" Grid.Row="1" Height="{StaticResource ProgramDetailsHeight}" Style="{ThemeResource ProgramInfoListViewStyle}"
-                              Margin="0,0,0,20">
+                    <!-- Next Program detailed information -->
+                    <Control Style="{ThemeResource OSDProgramDetailsTemplate}" Context="{Binding Source={StaticResource SlimTvClient},Path=NextProgram}">
+                      <Control.Resources>
+                        <ResourceWrapper x:Key="ProgramFontColor" Resource="{ThemeResource NextProgramLabelColor}"/>
+                        <ResourceWrapper x:Key="ButtonFocus" Resource="None"/>
+                      </Control.Resources>
+                    </Control>
 
-                      <!-- Current Program detailed information -->
-                      <Control Style="{ThemeResource OSDProgramDetailsTemplate}" Context="{Binding Source={StaticResource SlimTvClient},Path=CurrentProgram}">
-                        <Control.Resources>
-                          <ResourceWrapper x:Key="ProgramFontColor" Resource="{ThemeResource TextColor}"/>
-                          <ResourceWrapper x:Key="ButtonFocus" Resource="Default"/>
-                        </Control.Resources>
-                      </Control>
+                  </ListView>
 
-                      <!-- Next Program detailed information -->
-                      <Control Style="{ThemeResource OSDProgramDetailsTemplate}" Context="{Binding Source={StaticResource SlimTvClient},Path=NextProgram}">
-                        <Control.Resources>
-                          <ResourceWrapper x:Key="ProgramFontColor" Resource="{ThemeResource NextProgramLabelColor}"/>
-                          <ResourceWrapper x:Key="ButtonFocus" Resource="None"/>
-                        </Control.Resources>
-                      </Control>
-
-                    </ListView>
-
-                    <!--<Label x:Name="TimeLabel" Color="{ThemeResource TextColor}" FontSize="{ThemeResource BigFontSize}"
+                  <!--<Label x:Name="TimeLabel" Color="{ThemeResource TextColor}" FontSize="{ThemeResource BigFontSize}"
                         HorizontalAlignment="Center" VerticalAlignment="Center" Grid.Column="2" Grid.Row="0" Grid.RowSpan="2" 
                         Content="{Binding Source={StaticResource TimeModel}, Path=CurrentTime}" />-->
-
-                  </Grid>
-                </DockPanel>
+                </Grid>
               </ControlTemplate>
 
               <ControlTemplate x:Key="OSD_Progress_Template">
-
-                <DockPanel LastChildFill="true" Margin="10,3,30,3" DataContext="{Binding Source={StaticResource SlimTvClient}}">
-                  <Grid DockPanel.Dock="Center" HorizontalAlignment="Stretch">
+                <DockPanel LastChildFill="true" Margin="3" >
+                  <Grid DockPanel.Dock="Center" HorizontalAlignment="Stretch" DataContext="{Binding Source={StaticResource SlimTvClient}}">
                     <Grid.ColumnDefinitions>
-                      <ColumnDefinition Width="Auto"/>
+                      <ColumnDefinition Width="100"/>
                       <ColumnDefinition Width="*"/>
-                      <ColumnDefinition Width="Auto"/>
+                      <ColumnDefinition Width="100"/>
                     </Grid.ColumnDefinitions>
                     <Grid.RowDefinitions>
                       <RowDefinition Height="Auto"/>
                     </Grid.RowDefinitions>
 
-                    <Label x:Name="CurrentProgramStartLabel" Grid.Column="0"
+                    <Label x:Name="CurrentProgramStartLabel" Grid.Column="0" Margin="5,0,5,0"
                         Content="{Binding Path=CurrentProgram.StartTime, Converter={StaticResource SlimTvDateFormatConverter}}"
-                        Color="{ThemeResource TextColor}" HorizontalAlignment="Left" VerticalAlignment="Center"
-                        FontSize="{ThemeResource SmallFontSize}"/>
-
-                    <ProgressBar x:Name="CurrentProgramProgress" Grid.Column="1" Height="18" HorizontalAlignment="Stretch" VerticalAlignment="Center" Margin="30,5,30,0"
-                        Style="{ThemeResource OSDProgressBarStyle}" Value="{Binding Source={StaticResource SlimTvClient},Path=ProgramProgress}" />
-
-                    <Label x:Name="CurrentProgramEndLabel" Grid.Column="2"
-                        Content="{Binding Path=CurrentProgram.EndTime, Converter={StaticResource SlimTvDateFormatConverter}}"
                         Color="{ThemeResource TextColor}" HorizontalAlignment="Right" VerticalAlignment="Center"
                         FontSize="{ThemeResource SmallFontSize}"/>
 
+                    <ProgressBar x:Name="CurrentProgramProgress" Grid.Column="1" Height="18" HorizontalAlignment="Stretch" VerticalAlignment="Center" Margin="5,5,5,0"
+                        Style="{ThemeResource OSDProgressBarStyle}" Value="{Binding Source={StaticResource SlimTvClient},Path=ProgramProgress}" />
+
+                    <Label x:Name="CurrentProgramEndLabel" Grid.Column="2" Margin="5,0,5,0"
+                        Content="{Binding Path=CurrentProgram.EndTime, Converter={StaticResource SlimTvDateFormatConverter}}"
+                        Color="{ThemeResource TextColor}" HorizontalAlignment="Left" VerticalAlignment="Center"
+                        FontSize="{ThemeResource SmallFontSize}"/>
                   </Grid>
                 </DockPanel>
               </ControlTemplate>
 
               <ControlTemplate x:Key="OSD_Controls_Template">
-                <Control Template="{ThemeResource GenericVideoOSDControlsControl}"/>
+                <DockPanel x:Name="PlayControlsPanel" LastChildFill="False" VerticalAlignment="Bottom" HorizontalAlignment="Stretch">
+
+                  <StackPanel x:Name="PlayControlsPanel_Front" DockPanel.Dock="Left" Orientation="Horizontal" VerticalAlignment="Center" HorizontalAlignment="Stretch" Height="40">
+                    <Button x:Name="SkipBackButton" Style="{ThemeResource SkipBackButtonStyle}" Margin="{ThemeResource PlayerControlButtonMargins}" IsVisible="{Binding CanSkipBack}"
+                          Command="{Command Previous}"/>
+                    <Button x:Name="RewindButton" Style="{ThemeResource RewindButtonStyle}" Margin="{ThemeResource PlayerControlButtonMargins}" IsVisible="{Binding CanSeekBackward}"
+                          Command="{Command SeekBackward}"/>
+                    <Button x:Name="PlayButton" Style="{ThemeResource PlayButtonStyle}" Margin="{ThemeResource PlayerControlButtonMargins}" IsVisible="{Binding CanPlay}"
+                          Command="{Command Play}"/>
+                    <Button x:Name="PauseButton" Style="{ThemeResource PauseButtonStyle}" Margin="{ThemeResource PlayerControlButtonMargins}" IsVisible="{Binding CanPause}"
+                          Command="{Command Pause}"/>
+                    <Button x:Name="StopButton" Style="{ThemeResource StopButtonStyle}" Margin="{ThemeResource PlayerControlButtonMargins}" IsVisible="{Binding CanStop}"
+                          Command="{Command Stop}"/>
+                    <Button x:Name="ForwardButton" Style="{ThemeResource ForwardButtonStyle}" Margin="{ThemeResource PlayerControlButtonMargins}" IsVisible="{Binding CanSeekForward}"
+                          Command="{Command SeekForward}"/>
+                    <Button x:Name="SkipForwardButton" Style="{ThemeResource SkipForwardButtonStyle}" Margin="{ThemeResource PlayerControlButtonMargins}" IsVisible="{Binding CanSkipForward}"
+                          Command="{Command Next}"/>
+                  </StackPanel>
+
+                  <StackPanel x:Name="PlayControlsPanel_Back" DockPanel.Dock="Right" Orientation="Horizontal" VerticalAlignment="Center" HorizontalAlignment="Stretch" Height="40">
+                    <Button x:Name="SelectContextMenuButton" Style="{ThemeResource SelectContextMenuButtonStyle}" Margin="{ThemeResource PlayerControlButtonMargins}"
+                          Command="{Command Source={StaticResource VideoPlayerModel},Path=OpenPlayerConfigurationDialog}"/>
+                    <Button x:Name="SelectTitleButton" Style="{ThemeResource ShowDvdMenuButtonStyle}" Margin="{ThemeResource PlayerControlButtonMargins}"
+                          IsVisible="{Binding Source={StaticResource VideoPlayerModel},Path=PlayerUIContributor.TitlesAvailable}"
+                          Command="{Command Source={StaticResource VideoPlayerModel},Path=PlayerUIContributor.OpenChooseTitleDialog}"/>
+                    <Button x:Name="PreviousChapterButton" Style="{ThemeResource PreviousChapterButtonStyle}" Margin="{ThemeResource PlayerControlButtonMargins}"
+                          IsVisible="{Binding Source={StaticResource VideoPlayerModel},Path=PlayerUIContributor.ChaptersAvailable}"
+                          Command="{Command Source={StaticResource VideoPlayerModel},Path=PlayerUIContributor.PrevChapter}"/>
+                    <Button x:Name="SelectChapterButton" Style="{ThemeResource SelectChapterButtonStyle}" Margin="{ThemeResource PlayerControlButtonMargins}"
+                          IsVisible="{Binding Source={StaticResource VideoPlayerModel},Path=PlayerUIContributor.ChaptersAvailable}"
+                          Command="{Command Source={StaticResource VideoPlayerModel},Path=PlayerUIContributor.OpenChooseChapterDialog}"/>
+                    <Button x:Name="NextChapterButton" Style="{ThemeResource NextChapterButtonStyle}" Margin="{ThemeResource PlayerControlButtonMargins}"
+                          IsVisible="{Binding Source={StaticResource VideoPlayerModel},Path=PlayerUIContributor.ChaptersAvailable}"
+                          Command="{Command Source={StaticResource VideoPlayerModel},Path=PlayerUIContributor.NextChapter}"/>
+                    <Button x:Name="SelectSubtitleButton" Style="{ThemeResource SelectSubtitleButtonStyle}" Margin="{ThemeResource PlayerControlButtonMargins}"
+                          IsVisible="{Binding Source={StaticResource VideoPlayerModel},Path=PlayerUIContributor.SubtitlesAvailable}"
+                          Command="{Command Source={StaticResource VideoPlayerModel},Path=PlayerUIContributor.OpenChooseSubtitleDialog}"/>
+
+                    <!-- No difference between "Mouse" and "No Mouse" case here, always use buttons so they are functional in OSD -->
+                    <Grid x:Name="AudioPanel" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="4">
+                      <Button x:Name="AudioActiveButton" IsVisible="{Binding IsAudio}" Style="{ThemeResource AudioActiveButtonStyle}" Command="{Command AudioButtonPressed}"/>
+                      <Button x:Name="AudioInactiveButton" IsVisible="{Binding !IsAudio}" Style="{ThemeResource AudioInactiveButtonStyle}" Command="{Command AudioButtonPressed}"/>
+                    </Grid>
+
+                    <Button x:Name="BackButton" Style="{ThemeResource OSDBackButtonStyle}" Margin="{ThemeResource PlayerControlButtonMargins}"
+                            Command="{Command Source={Service WorkflowManager},Path=NavigatePop,Parameters=1}"/>
+                    <Button x:Name="CloseButton" Style="{ThemeResource OSDCloseButtonStyle}" Margin="{ThemeResource PlayerControlButtonMargins}"
+                            Command="{Command Source={Service WorkflowManager},Path=NavigatePush,Parameters=BBFA7DB7-5055-48D5-A904-0F0C79849369}"/>
+                  </StackPanel>
+
+                  <Control x:Name="ProgressPresenter" DockPanel.Dock="Center" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+                           Template="{DynamicResource ResourceKey=OSD_Progress_Template}" Margin="20,0,20,0"/>
+
+                </DockPanel>
               </ControlTemplate>
 
             </Control.Resources>
@@ -469,8 +533,11 @@
         <ControlTemplate>
           <DockPanel Name="ButtonControlRectangle">
             <Rectangle DockPanel.Dock="Center" RadiusX="0" RadiusY="0" Name="ButtonBase" Fill="{ThemeResource ProgramBaseFill}" Stroke="Transparent"/>
-            <Rectangle DockPanel.Dock="Center" Name="ButtonHover" Fill=""/>
+            <Rectangle DockPanel.Dock="Center" Name="ButtonHover" Fill="" IsVisible="{Binding Source={StaticResource SlimTvMultiChannelGuide}, Path=!ShowGenreColors}"/>
+            <Rectangle DockPanel.Dock="Center" Name="ButtonGenre" Fill="{Binding Program.EpgGenreColor}"
+                       StrokeThickness="0" IsVisible="{Binding Source={StaticResource SlimTvMultiChannelGuide}, Path=ShowGenreColors}"/>
             <Rectangle DockPanel.Dock="Center" Name="ButtonOverlay" Fill=""/>
+            <Rectangle DockPanel.Dock="Center" Name="ButtonFocusFrame" StrokeThickness="3" RadiusX="3" RadiusY="3" Margin="0" Stroke="White" Fill="" IsVisible="False"/>
           </DockPanel>
         </ControlTemplate>
       </Setter.Value>
@@ -501,40 +568,68 @@
             </Grid.RenderTransform>
             <Control Grid.ColumnSpan="2" Style="{ThemeResource ProgramGuideButtonControlStyle}" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
             <ContentPresenter Grid.ColumnSpan="2" x:Name="ButtonContentPresenter" Margin="3,5,0,5" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
-            <Image Grid.Column="1" x:Name="SeriesRecIndicator" Source="tvguide_recordserie_button.png" IsVisible="False"
-                   Height="{ThemeResource SeriesRecIndicatorHeight}" Stretch="Uniform"/>
+            <Image Grid.Column="1" x:Name="RecIndicator" Source="RECORD.SINGLE.PNG" IsVisible="False" Height="32"
+                   Stretch="Uniform" Margin="0,4,2,4" HorizontalAlignment="Right"/>
+            <Image Grid.Column="1" x:Name="SeriesRecIndicator" Source="RECORD.SERIES.PNG" IsVisible="False" Height="32"
+                   Stretch="Uniform" Margin="0,4,2,4" HorizontalAlignment="Right"/>
           </Grid>
+          
           <ControlTemplate.Triggers>
             <!-- Handling of different program states -->
-            <DataTrigger Binding="{Binding IsRunning}" Value="True">
+            <MultiTrigger>
+              <MultiTrigger.Conditions>
+                <Condition Binding="{Binding IsRunning}" Value="True" />
+                <Condition Binding="{Binding Source={StaticResource SlimTvMultiChannelGuide}, Path=ShowGenreColors}" Value="False" />
+              </MultiTrigger.Conditions>
               <Setter TargetName="ButtonBase" Property="Fill" Value="{ThemeResource ProgramRunningFill}"/>
-            </DataTrigger>
-            <DataTrigger Binding="{Binding Program.IsScheduled}" Value="True">
-              <Setter TargetName="ButtonOverlay" Property="Fill" Value="{ThemeResource ProgramScheduledFill}"/>
-            </DataTrigger>
-            <DataTrigger Binding="{Binding Program.IsSeriesScheduled}" Value="True">
+            </MultiTrigger>
+
+            <MultiTrigger>
+              <MultiTrigger.Conditions>
+                <Condition Binding="{Binding Program.IsScheduled}" Value="True" />
+                <Condition Binding="{Binding Source={StaticResource SlimTvMultiChannelGuide}, Path=ShowGenreColors}" Value="False" />
+              </MultiTrigger.Conditions>
+              <Setter TargetName="ButtonBase" Property="Fill" Value="{ThemeResource ProgramScheduledFill}"/>
+            </MultiTrigger>
+
+            <MultiTrigger>
+              <MultiTrigger.Conditions>
+                <Condition Binding="{Binding Program.IsScheduled}" Value="True" />
+                <Condition Binding="{Binding Program.IsSeriesScheduled}" Value="False" />
+                <Condition Binding="{Binding Source={StaticResource SlimTvMultiChannelGuide}, Path=ShowGenreColors}" Value="True" />
+              </MultiTrigger.Conditions>
+              <Setter TargetName="RecIndicator" Property="IsVisible" Value="True"/>
+            </MultiTrigger>
+
+            <MultiTrigger>
+              <MultiTrigger.Conditions>
+                <Condition Binding="{Binding Program.IsSeriesScheduled}" Value="True" />
+                <Condition Binding="{Binding Source={StaticResource SlimTvMultiChannelGuide}, Path=ShowGenreColors}" Value="True" />
+              </MultiTrigger.Conditions>
               <Setter TargetName="SeriesRecIndicator" Property="IsVisible" Value="True"/>
-            </DataTrigger>
+            </MultiTrigger>
+
+            <MultiTrigger>
+              <MultiTrigger.Conditions>
+                <Condition Binding="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Button}, Path=HasFocus}" Value="True"/>
+                <Condition Binding="{Binding Source={StaticResource SlimTvMultiChannelGuide}, Path=ShowGenreColors}" Value="True" />
+              </MultiTrigger.Conditions>
+              <Setter TargetName="ButtonFocusFrame" Property="IsVisible" Value="True"/>
+            </MultiTrigger>
+
             <Trigger Property="HasFocus" Value="True">
               <Setter TargetName="ButtonHover" Property="Fill" Value="{ThemeResource ProgramFocusedFill}"/>
               <Trigger.EnterActions>
-                <!--BeginStoryboard x:Name="Focused_BeginStoryboard" Storyboard="{ThemeResource FocusedButtonWideStoryboard}"/-->
                 <SoundPlayerAction Source="navigate.wav" DisableOnAudioOutput="True"/>
               </Trigger.EnterActions>
-              <Trigger.ExitActions>
-                <!--StopStoryboard BeginStoryboardName="Focused_BeginStoryboard"/-->
-              </Trigger.ExitActions>
             </Trigger>
+            
             <Trigger Property="IsPressed" Value="True">
               <Trigger.EnterActions>
-                <!--BeginStoryboard x:Name="Pressed_BeginStoryboard" Storyboard="{ThemeResource PressedButtonWideStoryboard}"
-                    HandoffBehavior="TemporaryReplace"/-->
                 <SoundPlayerAction Source="click.wav" DisableOnAudioOutput="True"/>
               </Trigger.EnterActions>
-              <Trigger.ExitActions>
-                <!--StopStoryboard BeginStoryboardName="Pressed_BeginStoryboard"/-->
-              </Trigger.ExitActions>
             </Trigger>
+            
             <Trigger Property="IsEnabled" Value="False">
               <Trigger.EnterActions>
                 <BeginStoryboard x:Name="Disabled_BeginStoryBoard" Storyboard="{ThemeResource DisabledButtonStoryboard}"/>
@@ -557,12 +652,6 @@
         <ControlTemplate>
           <Button Style="{ThemeResource ProgramGuideButtonStyle}" Command="{Command Source={StaticResource SlimTvMultiChannelGuide}, Path=SelectGroup}">
             <StackPanel Orientation="Horizontal" Margin="0,0,10,0">
-              <!--Label x:Name="GroupLabel" VerticalAlignment="Center" HorizontalAlignment="Center"
-                     Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}"
-                     Opacity="0.6" Content="[SlimTvClient.ChannelGroupButton]"/>
-              <Label VerticalAlignment="Center" HorizontalAlignment="Center"
-                     Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}"
-                     Opacity="0.6" Content=": "/-->
               <Label x:Name="GroupNameLabel" Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}"
                      Opacity="0.6" Content="{Binding GroupName}" VerticalAlignment="Center"/>
               <StackPanel.LayoutTransform>
@@ -573,7 +662,6 @@
         </ControlTemplate>
       </Setter.Value>
     </Setter>
-    <!--Setter Property="HeaderWidth" Value="{ThemeResource MultiGuideHeaderWidth}" /-->
     <Setter Property="HeaderTemplate">
       <Setter.Value>
         <ControlTemplate>
@@ -661,7 +749,9 @@
               </Grid.RowDefinitions>
 
               <Label x:Name="ItemLabel" Content="{Binding [Name]}" VerticalAlignment="Center" Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}"
-                     Margin="2,0,0,0" FontFamily="DefaultBold"/>
+                     Margin="2,0,0,0" Opacity="0.8" IsVisible="{Binding !IsRunning}"/>
+              <Label x:Name="ItemLabel2" Content="{Binding [Name]}" VerticalAlignment="Center" Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}"
+                     Margin="2,0,0,0" FontFamily="DefaultBold" IsVisible="{Binding IsRunning}"/>
               <Label x:Name="SeriesLabel" Grid.Column="1" Content="{Binding [Series]}" VerticalAlignment="Center" Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}"
                      Margin="5,0,0,0"/>
             </Grid>
@@ -739,9 +829,23 @@
               <Setter TargetName="Item2_record" Property="Background" Value="{ThemeResource ProgramScheduledFill}"/>
               <Setter TargetName="Item3_record" Property="Background" Value="{ThemeResource ProgramRecordFill}"/>
             </DataTrigger>
-            <DataTrigger Binding="{Binding Program.IsSeriesScheduled}" Value="True">
+
+            <MultiTrigger>
+              <MultiTrigger.Conditions>
+                <Condition Binding="{Binding Program.IsScheduled}" Value="True" />
+                <Condition Binding="{Binding Source={StaticResource SlimTvMultiChannelGuide}, Path=ShowGenreColors}" Value="True" />
+              </MultiTrigger.Conditions>
+              <Setter TargetName="RecIndicator" Property="IsVisible" Value="True"/>
+            </MultiTrigger>
+
+            <MultiTrigger>
+              <MultiTrigger.Conditions>
+                <Condition Binding="{Binding Program.IsSeriesScheduled}" Value="True" />
+                <Condition Binding="{Binding Source={StaticResource SlimTvMultiChannelGuide}, Path=ShowGenreColors}" Value="True" />
+              </MultiTrigger.Conditions>
               <Setter TargetName="SeriesRecIndicator" Property="IsVisible" Value="True"/>
-            </DataTrigger>
+            </MultiTrigger>
+
             <Trigger Property="HasFocus" Value="True">
               <Setter TargetName="Item1_overlay" Property="Background" Value="{ThemeResource ProgramFocusedFill}"/>
               <Setter TargetName="Item2_overlay" Property="Background" Value="{ThemeResource ProgramFocusedFill}"/>
@@ -785,9 +889,23 @@
               <Setter TargetName="Item3_record" Property="Background" Value="{ThemeResource ProgramScheduledFill}"/>
               <Setter TargetName="Item4_record" Property="Background" Value="{ThemeResource ProgramRecordFill}"/>
             </DataTrigger>
-            <DataTrigger Binding="{Binding Program.IsSeriesScheduled}" Value="True">
+
+            <MultiTrigger>
+              <MultiTrigger.Conditions>
+                <Condition Binding="{Binding Program.IsScheduled}" Value="True" />
+                <Condition Binding="{Binding Source={StaticResource SlimTvMultiChannelGuide}, Path=ShowGenreColors}" Value="True" />
+              </MultiTrigger.Conditions>
+              <Setter TargetName="RecIndicator" Property="IsVisible" Value="True"/>
+            </MultiTrigger>
+
+            <MultiTrigger>
+              <MultiTrigger.Conditions>
+                <Condition Binding="{Binding Program.IsSeriesScheduled}" Value="True" />
+                <Condition Binding="{Binding Source={StaticResource SlimTvMultiChannelGuide}, Path=ShowGenreColors}" Value="True" />
+              </MultiTrigger.Conditions>
               <Setter TargetName="SeriesRecIndicator" Property="IsVisible" Value="True"/>
-            </DataTrigger>
+            </MultiTrigger>
+
             <Trigger Property="HasFocus" Value="True">
               <Setter TargetName="Item1_overlay" Property="Background" Value="{ThemeResource ProgramFocusedFill}"/>
               <Setter TargetName="Item2_overlay" Property="Background" Value="{ThemeResource ProgramFocusedFill}"/>

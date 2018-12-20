@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2017 Team MediaPortal
+#region Copyright (C) 2007-2018 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2017 Team MediaPortal
+    Copyright (C) 2007-2018 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -46,7 +46,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor.Match
       string extensionUpper = StringUtils.TrimToEmpty(Path.GetExtension(folderOrFileLfsra.LocalFileSystemPath)).ToUpper();
 
       // Try to get extended information out of MP4 files)
-      if (extensionUpper != ".MP4") return false;
+      if (extensionUpper != ".MP4" || extensionUpper != ".M4V") return false;
 
       using (folderOrFileLfsra.EnsureLocalFileSystemAccess())
       {
@@ -59,12 +59,6 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor.Match
         if (!ReferenceEquals(tag.Genres, null) && tag.Genres.Length > 0)
         {
           List<GenreInfo> genreList = tag.Genres.Where(s => !string.IsNullOrEmpty(s?.Trim())).Select(s => new GenreInfo { Name = s.Trim() }).ToList();
-          IGenreConverter converter = ServiceRegistration.Get<IGenreConverter>();
-          foreach (var genre in genreList)
-          {
-            if (!genre.Id.HasValue && converter.GetGenreId(genre.Name, GenreCategory.Movie, null, out int genreId))
-              genre.Id = genreId;
-          }
           movieInfo.HasChanged |= MetadataUpdater.SetOrUpdateList(movieInfo.Genres, genreList, movieInfo.Genres.Count == 0);
         }
 

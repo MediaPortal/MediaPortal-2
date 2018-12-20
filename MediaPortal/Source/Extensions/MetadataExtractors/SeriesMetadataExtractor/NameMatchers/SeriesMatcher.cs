@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2017 Team MediaPortal
+#region Copyright (C) 2007-2018 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2017 Team MediaPortal
+    Copyright (C) 2007-2018 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -197,9 +197,11 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor.Name
               episodeNums.Add(episodeNum);
           }
         }
-        List<int> tmpList = episodeInfo.EpisodeNumbers.ToList();
-        episodeInfo.HasChanged |= MetadataUpdater.SetOrUpdateList(tmpList, episodeNums, true);
-        episodeInfo.EpisodeNumbers = new HashSet<int>(tmpList);
+        if (episodeNums.Count > 0 && !episodeInfo.EpisodeNumbers.SequenceEqual(episodeNums))
+        {
+          episodeInfo.HasChanged = true;
+          episodeInfo.EpisodeNumbers = new List<int>(episodeNums);
+        }
       }
       return true;
     }

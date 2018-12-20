@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2017 Team MediaPortal
+#region Copyright (C) 2007-2018 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2017 Team MediaPortal
+    Copyright (C) 2007-2018 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -68,7 +68,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
         TheAudioDbWrapper wrapper = new TheAudioDbWrapper();
         // Try to lookup online content in the configured language
         CultureInfo currentCulture = new CultureInfo(PreferredLanguageCulture);
-        string lang = new RegionInfo(currentCulture.LCID).TwoLetterISORegionName;
+        string lang = new RegionInfo(currentCulture.Name).TwoLetterISORegionName;
         if(currentCulture.TwoLetterISOLanguageName.Equals("en", StringComparison.InvariantCultureIgnoreCase))
         {
           lang = "EN";
@@ -124,6 +124,8 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
       id = null;
       if (album.AudioDbId > 0)
         id = album.AudioDbId.ToString();
+      else if (!string.IsNullOrEmpty(album.MusicBrainzGroupId))
+        id = album.MusicBrainzGroupId;
       return id != null;
     }
 
@@ -131,7 +133,10 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
     {
       if (!string.IsNullOrEmpty(id))
       {
-        album.AudioDbId = Convert.ToInt64(id);
+        if (Guid.TryParse(id, out Guid guid))
+          album.MusicBrainzGroupId = id;
+        else
+          album.AudioDbId = Convert.ToInt64(id);
         return true;
       }
       return false;

@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2017 Team MediaPortal
+#region Copyright (C) 2007-2018 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2017 Team MediaPortal
+    Copyright (C) 2007-2018 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -64,8 +64,9 @@ namespace MediaPortal.Mock
     static MockCore()
     {
       ServiceRegistration.Set<IPathManager>(new PathManager());
-      ServiceRegistration.Get<IPathManager>().SetPath("LOG", "_Mock/log");
-      ServiceRegistration.Get<IPathManager>().SetPath("CONFIG", "_Mock/config");
+      ServiceRegistration.Get<IPathManager>().SetPath("DATA", "_Mock");
+      ServiceRegistration.Get<IPathManager>().SetPath("LOG", "<DATA>/log");
+      ServiceRegistration.Get<IPathManager>().SetPath("CONFIG", "<DATA>/config");
       ServiceRegistration.Set<ILogger>(new ConsoleLogger(LogLevel.All, true));
 
       logger = ServiceRegistration.Get<ILogger>();

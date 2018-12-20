@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2017 Team MediaPortal
+#region Copyright (C) 2007-2018 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2017 Team MediaPortal
+    Copyright (C) 2007-2018 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -22,6 +22,7 @@
 
 #endregion
 
+using MediaPortal.Common.MediaManagement;
 using System;
 
 namespace MediaPortal.UiComponents.Media.Models.NavigationModel
@@ -44,8 +45,9 @@ namespace MediaPortal.UiComponents.Media.Models.NavigationModel
     /// <summary>
     /// Initializes the media navigation, returns the required <see cref="NavigationData"/>.
     /// </summary>
+    /// <param name="config">Configuration for the media navigation</param>
     /// <param name="mediaNavigationMode">MediaNavigationMode</param>
     /// <param name="navigationData">NavigationData</param>
-    void InitMediaNavigation(out string mediaNavigationMode, out NavigationData navigationData);
+    void InitMediaNavigation(MediaNavigationConfig config, out string mediaNavigationMode, out NavigationData navigationData);
   }
 }

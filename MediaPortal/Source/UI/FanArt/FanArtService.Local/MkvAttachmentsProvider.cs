@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2017 Team MediaPortal
+#region Copyright (C) 2007-2018 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2017 Team MediaPortal
+    Copyright (C) 2007-2018 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -108,7 +108,7 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Local
       // File based access
       try
       {
-        using (var accessor = resourceLocator.CreateAccessor())
+        using (var accessor = resourceLocator?.CreateAccessor())
         {
           ILocalFsResourceAccessor fsra = accessor as ILocalFsResourceAccessor;
           if (fsra != null)

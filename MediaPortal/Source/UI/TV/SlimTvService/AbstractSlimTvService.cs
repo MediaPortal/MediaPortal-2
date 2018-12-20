@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2017 Team MediaPortal
+#region Copyright (C) 2007-2018 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2017 Team MediaPortal
+    Copyright (C) 2007-2018 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -63,7 +63,7 @@ namespace MediaPortal.Plugins.SlimTv.Service
     public static readonly MediaCategory Movie = new MediaCategory("Movie", null);
 
     protected const int MAX_WAIT_MS = 10000;
-    protected const int MAX_INIT_MS = 10000;
+    protected const int MAX_INIT_MS = 20000;
     public const string LOCAL_USERNAME = "Local";
     public const string TVDB_NAME = "MP2TVE";
     protected DbProviderFactory _dbProviderFactory;
@@ -190,7 +190,14 @@ namespace MediaPortal.Plugins.SlimTv.Service
     private void InitAsync()
     {
       ServiceRegistration.Get<ILogger>().Info("SlimTvService: Initialising");
-      Task.Delay(MAX_INIT_MS).ContinueWith((t) => _initComplete.TrySetResult(false));
+      Task.Delay(MAX_INIT_MS).ContinueWith((t) =>
+      {
+        if (_initComplete.Task.Status != TaskStatus.RanToCompletion)
+        {
+          _initComplete.TrySetResult(false);
+          ServiceRegistration.Get<ILogger>().Error("SlimTvService: Initialization timed out.");
+        }
+      });
 
       ISQLDatabase database = ServiceRegistration.Get<ISQLDatabase>(false);
       if (database == null)
@@ -223,6 +230,7 @@ namespace MediaPortal.Plugins.SlimTv.Service
       InitTvCore();
       if (_abortInit)
       {
+        ServiceRegistration.Get<ILogger>().Error("SlimTvService: Initialization aborted.");
         _initComplete.TrySetResult(false);
         DeInit();
         return;
@@ -306,7 +314,7 @@ namespace MediaPortal.Plugins.SlimTv.Service
         return null;
 
       //Map genre color if possible
-      if (_tvGenres.Count > 0 && !string.IsNullOrEmpty(prog?.Genre))
+      if (_tvGenres.Count > 0 && !string.IsNullOrEmpty(prog.Genre))
       {
         var genre = _tvGenres.FirstOrDefault(g => g.Value.Any(e => prog.Genre.Equals(e, StringComparison.InvariantCultureIgnoreCase)));
         if (genre.Key != EpgGenre.Unknown)

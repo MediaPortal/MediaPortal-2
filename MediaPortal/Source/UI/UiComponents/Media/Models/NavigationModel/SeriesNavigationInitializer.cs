@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2017 Team MediaPortal
+#region Copyright (C) 2007-2018 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2017 Team MediaPortal
+    Copyright (C) 2007-2018 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -22,23 +22,22 @@
 
 #endregion
 
-using System.Collections.Generic;
-using System.Threading.Tasks;
-using MediaPortal.UiComponents.Media.General;
-using MediaPortal.UiComponents.Media.Models.ScreenData;
-using MediaPortal.UiComponents.Media.Models.Sorting;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Common.MediaManagement.MLQueries;
-using MediaPortal.UiComponents.Media.Helpers;
 using MediaPortal.UiComponents.Media.FilterTrees;
+using MediaPortal.UiComponents.Media.General;
+using MediaPortal.UiComponents.Media.Helpers;
+using MediaPortal.UiComponents.Media.Models.ScreenData;
+using MediaPortal.UiComponents.Media.Models.Sorting;
+using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace MediaPortal.UiComponents.Media.Models.NavigationModel
 {
   internal class SeriesNavigationInitializer : BaseNavigationInitializer
   {
     internal static IEnumerable<string> RESTRICTED_MEDIA_CATEGORIES = new List<string> { Models.MediaNavigationMode.Series }; // "Series"
-
-    protected SeriesFilterByNameScreenData _seriesScreen;
 
     public SeriesNavigationInitializer()
     {
@@ -51,25 +50,53 @@ namespace MediaPortal.UiComponents.Media.Models.NavigationModel
       _rootRole = EpisodeAspect.ROLE_EPISODE;
     }
 
+    public static void NavigateToSeries(Guid seriesId)
+    {
+      MediaNavigationConfig config = new MediaNavigationConfig
+      {
+        RootScreenType = typeof(SeriesFilterByNameScreenData),
+        DefaultScreenType = typeof(SeriesFilterBySeasonScreenData),
+        FilterPath = new FilterTreePath(SeriesAspect.ROLE_SERIES),
+        LinkedId = seriesId
+      };
+      MediaNavigationModel.NavigateToRootState(Consts.WF_STATE_ID_SERIES_NAVIGATION_ROOT, config);
+    }
+
+    public static void NavigateToSeason(Guid seasonId)
+    {
+      MediaNavigationConfig config = new MediaNavigationConfig
+      {
+        RootScreenType = typeof(SeriesFilterBySeasonScreenData),
+        DefaultScreenType = typeof(SeriesShowItemsScreenData),
+        FilterPath = new FilterTreePath(SeasonAspect.ROLE_SEASON),
+        LinkedId = seasonId
+      };
+      MediaNavigationModel.NavigateToRootState(Consts.WF_STATE_ID_SERIES_NAVIGATION_ROOT, config);
+    }
+
+    protected virtual async Task PrepareFilterTree()
+    {
+      if (!_rootRole.HasValue)
+        return;
+
+      _customFilterTree = new RelationshipFilterTree(_rootRole.Value);
+
+      //Update filter by adding the user filter to the already loaded filters
+      IFilter userFilter = await CertificationHelper.GetUserCertificateFilter(_necessaryMias);
+      if (userFilter != null)
+        _customFilterTree.AddFilter(userFilter);
+
+      userFilter = await CertificationHelper.GetUserCertificateFilter(new[] { SeriesAspect.ASPECT_ID });
+      if (userFilter != null)
+        _customFilterTree.AddFilter(userFilter, new FilterTreePath(SeriesAspect.ROLE_SERIES));
+    }
+
     protected override async Task PrepareAsync()
     {
       await base.PrepareAsync();
+      await PrepareFilterTree();
 
-      if (_rootRole.HasValue)
-      {
-        _customFilterTree = new RelationshipFilterTree(_rootRole.Value);
-
-        //Update filter by adding the user filter to the already loaded filters
-        IFilter userFilter = await CertificationHelper.GetUserCertificateFilter(_necessaryMias);
-        if (userFilter != null)
-          _customFilterTree.AddFilter(userFilter);
-
-        userFilter = await CertificationHelper.GetUserCertificateFilter(new[] { SeriesAspect.ASPECT_ID });
-        if (userFilter != null)
-          _customFilterTree.AddFilter(userFilter, new FilterTreePath(SeriesAspect.ROLE_SERIES));
-      }
-
-      _defaultScreen = _seriesScreen = new SeriesFilterByNameScreenData();
+      _defaultScreen = new SeriesFilterByNameScreenData();
       _availableScreens = new List<AbstractScreenData>
       {
         new SeriesShowItemsScreenData(_genericPlayableItemCreatorDelegate),

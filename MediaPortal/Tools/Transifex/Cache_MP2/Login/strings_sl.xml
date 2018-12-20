@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  
+  <string name="UserConfig.Password">Geslo</string>
+  <string name="UserConfig.AddUser">Dodaj</string>
+  <string name="UserConfig.CopyUser">Kopiraj</string>
+  <string name="UserConfig.DeleteUser">Izbriši</string>
+  <string name="UserConfig.SaveUser">Shrani</string>
+  <string name="UserConfig.Yes">Da</string>
+  <string name="UserConfig.No">Ne</string>
+  <string name="UserConfig.SharesText">Deljene datoteke</string>
+  <string name="UserConfig.LocalShare">Vir medijev na klientu</string>
+  <string name="UserConfig.LocalShares">Viri medijev na klientu</string>
+  <string name="UserConfig.GlobalShare">Vir medijev na strežniku</string>
+  <string name="UserConfig.GlobalShares">Viri medijev na strežniku</string>
+  <string name="UserConfig.NoConfigGlobalSharesHomeServerNotConnected">Strežnik trenutno ni povezan, zato strežnikovih virov medijev ne moreš urejati.</string>
+  <string name="UserConfig.NoConfigLocalSharesHomeServerLocal">Strežnik je na istem računalniku, zato lahko urejaš le njegove vire medijev.</string>
+
+  </resources>

@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2017 Team MediaPortal
+#region Copyright (C) 2007-2018 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2017 Team MediaPortal
+    Copyright (C) 2007-2018 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -53,7 +53,10 @@ namespace MediaPortal.UI.Players.Video
       // Will be played by SlimTV WTVPlayer
       // EXTENSIONS2PLAYER.Add(".wtv", typeof(VideoPlayer));
       EXTENSIONS2PLAYER.Add(".mp4", typeof(VideoPlayer));
+      EXTENSIONS2PLAYER.Add(".m4v", typeof(VideoPlayer));
       EXTENSIONS2PLAYER.Add(".mkv", typeof(VideoPlayer));
+      EXTENSIONS2PLAYER.Add(".mk3d", typeof(VideoPlayer));
+      EXTENSIONS2PLAYER.Add(".webm", typeof(VideoPlayer));
       EXTENSIONS2PLAYER.Add(".mov", typeof(VideoPlayer));
       EXTENSIONS2PLAYER.Add(".flv", typeof(VideoPlayer));
       EXTENSIONS2PLAYER.Add(".vob", typeof(DvdPlayer));

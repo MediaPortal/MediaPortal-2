@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2017 Team MediaPortal
+#region Copyright (C) 2007-2018 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2017 Team MediaPortal
+    Copyright (C) 2007-2018 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -33,6 +33,7 @@ namespace MediaPortal.Common.MediaManagement.DefaultItemAspects
   public static class RelationshipAspect
   {
     private const int LINKED_SEARCH_INDEX_ID = 1;
+    private const int ROLE_SEARCH_INDEX_ID = 2;
 
     /// <summary>
     /// Media item aspect id of the relationship aspect.
@@ -43,7 +44,7 @@ namespace MediaPortal.Common.MediaManagement.DefaultItemAspects
     /// The role played by this media item
     /// </summary>
     public static readonly MediaItemAspectMetadata.MultipleAttributeSpecification ATTR_ROLE =
-        MediaItemAspectMetadata.CreateMultipleAttributeSpecification("Role", typeof(Guid), Cardinality.Inline, true);
+        MediaItemAspectMetadata.CreateMultipleAttributeSpecification("Role", typeof(Guid), Cardinality.Inline, true, ROLE_SEARCH_INDEX_ID);
 
     /// <summary>
     /// If set to <c>true</c>, this media item is playable. Used for updating parent after playback.
@@ -55,7 +56,7 @@ namespace MediaPortal.Common.MediaManagement.DefaultItemAspects
     /// The role played by the media item being linked to
     /// </summary>
     public static readonly MediaItemAspectMetadata.MultipleAttributeSpecification ATTR_LINKED_ROLE =
-        MediaItemAspectMetadata.CreateMultipleAttributeSpecification("LinkedRole", typeof(Guid), Cardinality.Inline, true);
+        MediaItemAspectMetadata.CreateMultipleAttributeSpecification("LinkedRole", typeof(Guid), Cardinality.Inline, true, ROLE_SEARCH_INDEX_ID);
 
     /// <summary>
     /// The media item being linked to

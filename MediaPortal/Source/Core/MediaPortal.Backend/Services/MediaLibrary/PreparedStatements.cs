@@ -1,7 +1,7 @@
-﻿#region Copyright (C) 2007-2017 Team MediaPortal
+#region Copyright (C) 2007-2018 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2017 Team MediaPortal
+    Copyright (C) 2007-2018 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -40,6 +40,8 @@ namespace MediaPortal.Backend.Services.MediaLibrary
     private string _insertUserPlayCountSQL;
     private string _deleteMediaItemRelationshipsFromIdSQL;
     private string _selectOrphanCountSQL;
+    private string _updateSetsSQL;
+    private string _updateSetsForIdSQL;
     private string _updateUserPlayDataFromIdSQL;
     private string _insertUserPlayDataForIdSQL;
     private string _selectMediaItemUserDataFromIdsSQL;
@@ -196,6 +198,53 @@ namespace MediaPortal.Backend.Services.MediaLibrary
           " OR " + _miaManagement.GetMIAAttributeColumnName(RelationshipAspect.ATTR_LINKED_ID) + " = @ITEM_ID" +
           "))";
         return _selectOrphanCountSQL;
+      }
+    }
+
+    public string UpdateSetsSQL
+    {
+      get
+      {
+        if (_updateSetsSQL == null)
+          _updateSetsSQL = "UPDATE " + _miaManagement.GetMIATableName(VideoStreamAspect.Metadata) +
+          " SET " + _miaManagement.GetMIAAttributeColumnName(VideoStreamAspect.ATTR_VIDEO_PART_SET) + " = -1" +
+          " WHERE " + MediaLibrary_SubSchema.MEDIA_ITEMS_ITEM_ID_COL_NAME + " NOT IN (" +
+          " SELECT " + MediaLibrary_SubSchema.MEDIA_ITEMS_ITEM_ID_COL_NAME +
+          " FROM " + _miaManagement.GetMIATableName(VideoStreamAspect.Metadata) +
+          " WHERE " + _miaManagement.GetMIAAttributeColumnName(VideoStreamAspect.ATTR_VIDEO_PART) + " >= 0" +
+          " UNION " +
+          " SELECT " + MediaLibrary_SubSchema.MEDIA_ITEMS_ITEM_ID_COL_NAME + 
+          " FROM " + _miaManagement.GetMIATableName(ProviderResourceAspect.Metadata) +
+          " WHERE " + _miaManagement.GetMIAAttributeColumnName(ProviderResourceAspect.ATTR_TYPE) + " IN (" +
+          ProviderResourceAspect.TYPE_PRIMARY + "," + ProviderResourceAspect.TYPE_STUB + ")" +
+          " GROUP BY " + MediaLibrary_SubSchema.MEDIA_ITEMS_ITEM_ID_COL_NAME + " HAVING COUNT(*) > 1" +
+          ")";
+        return _updateSetsSQL;
+      }
+    }
+
+    public string UpdateSetsForIdSQL
+    {
+      get
+      {
+        if (_updateSetsForIdSQL == null)
+          _updateSetsForIdSQL = "UPDATE " + _miaManagement.GetMIATableName(VideoStreamAspect.Metadata) +
+          " SET " + _miaManagement.GetMIAAttributeColumnName(VideoStreamAspect.ATTR_VIDEO_PART_SET) + " = -1" +
+          " WHERE " + MediaLibrary_SubSchema.MEDIA_ITEMS_ITEM_ID_COL_NAME + " = @ITEM_ID" +
+          " AND NOT EXISTS(" + 
+          " SELECT " + MediaLibrary_SubSchema.MEDIA_ITEMS_ITEM_ID_COL_NAME +
+          " WHERE " + MediaLibrary_SubSchema.MEDIA_ITEMS_ITEM_ID_COL_NAME + " = @ITEM_ID" +
+          " FROM " + _miaManagement.GetMIATableName(VideoStreamAspect.Metadata) +
+          " WHERE " + _miaManagement.GetMIAAttributeColumnName(VideoStreamAspect.ATTR_VIDEO_PART) + " >= 0" +
+          ") AND NOT EXISTS(" +
+          " SELECT " + MediaLibrary_SubSchema.MEDIA_ITEMS_ITEM_ID_COL_NAME +
+          " FROM " + _miaManagement.GetMIATableName(ProviderResourceAspect.Metadata) +
+          " WHERE " + MediaLibrary_SubSchema.MEDIA_ITEMS_ITEM_ID_COL_NAME + " = @ITEM_ID" +
+          " AND " + _miaManagement.GetMIAAttributeColumnName(ProviderResourceAspect.ATTR_TYPE) + " IN (" +
+          ProviderResourceAspect.TYPE_PRIMARY + "," + ProviderResourceAspect.TYPE_STUB + ")" +
+          " GROUP BY " + MediaLibrary_SubSchema.MEDIA_ITEMS_ITEM_ID_COL_NAME + " HAVING COUNT(*) > 1" +
+          ")";
+        return _updateSetsForIdSQL;
       }
     }
 

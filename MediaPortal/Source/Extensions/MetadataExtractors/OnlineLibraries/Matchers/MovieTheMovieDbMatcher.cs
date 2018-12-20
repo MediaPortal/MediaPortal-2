@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2017 Team MediaPortal
+#region Copyright (C) 2007-2018 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2017 Team MediaPortal
+    Copyright (C) 2007-2018 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -88,7 +88,10 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
     {
       if (!string.IsNullOrEmpty(id))
       {
-        movie.MovieDbId = Convert.ToInt32(id);
+        if (id.StartsWith("tt", StringComparison.InvariantCultureIgnoreCase))
+          movie.ImdbId = id;
+        else
+          movie.MovieDbId = Convert.ToInt32(id);
         return true;
       }
       return false;
@@ -99,6 +102,8 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
       id = null;
       if (movie.MovieDbId > 0)
         id = movie.MovieDbId.ToString();
+      else if (!string.IsNullOrEmpty(movie.ImdbId))
+        id = movie.ImdbId;
       return id != null;
     }
 

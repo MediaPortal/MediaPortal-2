@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <string name="Settings.InputDeviceManager.Section">Input Management</string>
+  <string name="Settings.InputDeviceManager.EnterKeyConfig">Key Input Manager</string>
+  <string name="Settings.InputDeviceManager.EnterKeyConfigHelp">This allows you to map HID devices to different key actions.</string>
+  <string name="Settings.InputDeviceManager.EnterScreenConfig">Screen Input Manager</string>
+  <string name="Settings.InputDeviceManager.EnterScreenConfigHelp">This allows you to map HID devices to different screens.</string>
+
+  <string name="InputDeviceManager.SelectDevice.Header">Press a button on the input device you would like to configure.</string>
+  <string name="InputDeviceManager.FocusItem">See the current mappings and select an item to change the mapping.</string>
+
+  <string name="InputDeviceManager.AddKey.Header">Press the desired key combination on the input device!</string>
+  <string name="InputDeviceManager.Screen">Screen</string>
+  <string name="InputDeviceManager.Key">Key</string>
+
+  <string name="InputDeviceManager.KeyMapping.Button.ClearMapping">Clear</string>
+  <string name="InputDeviceManager.KeyMapping.Dialog.RemoveMapping">Remove mapping?</string>
+  <string name="InputDeviceManager.KeyMapping.Dialog.AddMapping">Add mapping?</string>
+</resources>

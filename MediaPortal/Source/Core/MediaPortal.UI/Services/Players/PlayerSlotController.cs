@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2017 Team MediaPortal
+#region Copyright (C) 2007-2018 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2017 Team MediaPortal
+    Copyright (C) 2007-2018 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -252,6 +252,7 @@ namespace MediaPortal.UI.Services.Players
       Reset();
       InvokeSlotClosed_NoLock();
       PlayerManagerMessaging.SendPlayerMessage(PlayerManagerMessaging.MessageType.PlayerSlotClosed, this);
+      _isClosed = true;
     }
 
     protected void InvokeSlotClosed_NoLock()
@@ -462,6 +463,12 @@ namespace MediaPortal.UI.Services.Players
         player = _playerManager.BuildPlayer_NoLock(mediaItem, out exceptions);
         if (player == null)
         {
+          if (mediaItem.IsStub || mediaItem.IsVirtual) //No player found for stub or virtual item which is expected
+          {
+            Close_NoLock();
+            return false;
+          }
+
           HandleUnableToPlay(mediaItem, exceptions);
           OnPlaybackError(null);
         }

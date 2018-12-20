@@ -1,5 +1,6 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
+  <!--Headlines for HomeContent-->
   <!--Menu items for the five Media navigation parts-->
   <string name="Media.AudioMenuItem">Audio</string>
   <string name="Media.VideosMenuItem">Video sadržaj</string>
@@ -18,6 +19,7 @@
   <string name="Media.SimpleSearchFilterMenuItem">Traži</string>
   <!--Filter titles-->
   <!--Special filters names-->
+  <string name="Media.ContentGroupFilter">{0}</string>
   <!--Navbar display labels for sub view navigation-->
   <string name="Media.BrowseMediaNavigationNavbarDisplayLabel">{0}</string>
   <!--For example: "R.E.M."-->
@@ -65,6 +67,9 @@
   <!--Playlists-->
   <string name="Media.AddToPlaylistProgressDialogHeader">Napredak</string>
   <!--MediaItemAction dialog-->
+  <string name="Media.Refresh">Osvježi</string>
+  <string name="Media.ReimportMediaItem.Done">Završeno</string>
+  <string name="Media.ReimportMediaItem.Description">Opis</string>
   <!--Play items dialog-->
   <!--Player context names-->
   <string name="Media.AudioContextName">Audio</string>
@@ -98,6 +103,8 @@
   <!--Video Player time units-->
   <string name="Media.SwitchViewModeMenuItem">Način pogleda</string>
   <string name="Media.SwitchSortingMenuItem">Sortiranje</string>
+  <!--Stubs-->
+  <!--Settings-->
   <string name="Settings.Players">Reproduktori</string>
   <!--Secondary filters-->
   <string name="Filter.RemoteNumericAlphabet0"></string>

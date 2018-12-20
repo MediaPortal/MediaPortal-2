@@ -1,7 +1,7 @@
-﻿#region Copyright (C) 2007-2017 Team MediaPortal
+#region Copyright (C) 2007-2018 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2017 Team MediaPortal
+    Copyright (C) 2007-2018 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -46,6 +46,18 @@ namespace MediaPortal.Common.FanArt
         return;
       List<ResourcePath> typePaths = GetOrAddPathList(fanArtType);
       typePaths.AddRange(paths);
+    }
+
+    public void AddRange(FanArtPathCollection collection)
+    {
+      if (collection == null)
+        return;
+      foreach (var fanArtPath in collection.Paths)
+      {
+        string fanArtType = fanArtPath.Key;
+        List<ResourcePath> typePaths = GetOrAddPathList(fanArtType);
+        typePaths.AddRange(fanArtPath.Value);
+      }
     }
 
     public int Count(string fanArtType)

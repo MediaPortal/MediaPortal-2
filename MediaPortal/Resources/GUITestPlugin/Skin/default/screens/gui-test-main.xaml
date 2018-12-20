@@ -47,6 +47,9 @@
             <Button Style="{StaticResource ButtonWideStyle}" Content="ListView grouping test"
                 HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
                 Command="{Command Source={StaticResource Model},Path=ShowScreenInTransientState,Parameters=test-listviewgrouping}"/>
+            <Button Style="{StaticResource ButtonWideStyle}" Content="{Binding Source={StaticResource Model}, Path=ToggleBusyScreenLabel}"
+                HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+                Command="{Command Source={StaticResource Model},Path=ToggleBusyScreen}"/>
           </StackPanel>
           <StackPanel Orientation="Vertical" Margin="5,0,0,0">
             <Button Style="{StaticResource ButtonWideStyle}" Content="Border test"

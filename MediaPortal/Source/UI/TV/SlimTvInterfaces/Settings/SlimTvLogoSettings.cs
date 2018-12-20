@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2017 Team MediaPortal
+#region Copyright (C) 2007-2018 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2017 Team MediaPortal
+    Copyright (C) 2007-2018 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -57,10 +57,10 @@ namespace MediaPortal.Plugins.SlimTv.Interfaces.Settings
       set { _logoThemes = new List<string>(value); }
     }
 
-    [Setting(SettingScope.Global, "http://channellogos.nocrosshair.de/")]
+    [Setting(SettingScope.Global, "http://logomanager.team-mediaportal.com/")]
     public string RepositoryUrl { get; set; }
 
-    [Setting(SettingScope.Global, "Modern-StreamedMP 16x9-max")]
+    [Setting(SettingScope.Global, "Flat-default")]
     public string LogoTheme { get; set; }
   }
 }

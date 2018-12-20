@@ -1,7 +1,7 @@
-﻿#region Copyright (C) 2007-2017 Team MediaPortal
+#region Copyright (C) 2007-2018 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2017 Team MediaPortal
+    Copyright (C) 2007-2018 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -357,7 +357,7 @@ namespace MediaPortal.DevTools
       settings.DatabaseFileName = Path.GetFileName(file);
       ServiceRegistration.Get<ISettingsManager>().Save(settings);
 
-      return new SQLiteDatabase(true);
+      return new SQLiteDatabase();
     }
 
     private static string GetValue(MediaItemAspectMetadata.AttributeSpecification spec, object value)

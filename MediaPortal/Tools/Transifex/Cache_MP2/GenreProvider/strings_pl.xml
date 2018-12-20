@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <string name="Match.Video.Music">Myzuka</string>
+  <string name="Match.Video.TVMovie">TV</string>
+  <string name="Match.Video.News">Wiadomości</string>
+  <string name="Match.Epg.Series">Serial</string>
+  <string name="Match.Epg.Music">Myzuka</string>
+  <string name="Match.Epg.News">Wiadomości</string>
+  <string name="Label.Audio.World">Świat</string>
+  <string name="Label.Video.Music">Myzuka</string>
+  <string name="Label.Video.TVMovie">TV</string>
+  <string name="Label.Video.News">Wiadomości</string>
+  <string name="Label.Epg.Series">Serial</string>
+  <string name="Label.Epg.Music">Myzuka</string>
+  <string name="Label.Epg.News">Wiadomości</string>
+  </resources>

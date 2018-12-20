@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2017 Team MediaPortal
+#region Copyright (C) 2007-2018 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2017 Team MediaPortal
+    Copyright (C) 2007-2018 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -69,6 +69,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.WICThumbnailProvider
       if (cachedOnly)
         return false;
 
+      Bitmap cachedBitmap = null; // used only for rotation
       try
       {
         if (stream.CanSeek)
@@ -118,11 +119,6 @@ namespace MediaPortal.Extensions.MetadataExtractors.WICThumbnailProvider
             }
           }
 
-          // Note: when the image is rotated, the processing takes ages here (from msec to minute for 20MPix image!). Leave this job to other 
-          // thumbnail provider (like GDI) which can handle this better.
-          if (bitmapTransformationOptions != BitmapTransformOptions.Rotate0)
-            return false;
-
           // Scale down larger images
           int sourceWidth = source.Size.Width;
           int sourceHeight = source.Size.Height;
@@ -143,10 +139,13 @@ namespace MediaPortal.Extensions.MetadataExtractors.WICThumbnailProvider
             source = scaler;
           }
 
-          // Rotate first
+          // Rotate
           if (bitmapTransformationOptions != BitmapTransformOptions.Rotate0)
           {
-            rotator.Initialize(source, bitmapTransformationOptions);
+            // For fast rotation a cached bitmap is needed, otherwise only per-pixel-decoding happens which makes the process extremly slow. 
+            // See https://social.msdn.microsoft.com/Forums/windowsdesktop/en-US/5ff2b52b-602f-4b22-9fb2-371539ff5ebb/hang-in-createbitmapfromwicbitmap-when-using-iwicbitmapfliprotator?forum=windowswic
+            cachedBitmap = new Bitmap(factory, source, BitmapCreateCacheOption.CacheOnLoad);
+            rotator.Initialize(cachedBitmap, bitmapTransformationOptions);
             source = rotator;
           }
 
@@ -182,6 +181,10 @@ namespace MediaPortal.Extensions.MetadataExtractors.WICThumbnailProvider
       {
         //ServiceRegistration.Get<ILogger>().Warn("WICThumbnailProvider: Error loading bitmapSource from file data stream", ex);
         return false;
+      }
+      finally
+      {
+        cachedBitmap?.Dispose();
       }
     }
   }

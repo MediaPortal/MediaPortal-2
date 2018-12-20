@@ -1,4 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+  <string name="HomeEditor.OthersMenuItem">Extras</string>
+  <string name="HomeEditor.Configuration">Bewerk Home Menu</string>
+  <string name="HomeEditor.Configuration.Header">Home Menu groepen</string>
+  <string name="HomeEditor.Configuration.Help">Bewerk het Home Menu</string>
+  <string name="HomeEditor.Configuration.Label">Home menu groepen</string>
+  <string name="HomeEditor.Configuration.AddGroup">Voeg een groep toe</string>
+  <string name="HomeEditor.Configuration.GroupEdit.Header">Bewerk een groep</string>
   <string name="HomeEditor.Configuration.GroupRemove.Header">Verwijder groep</string>
-  </resources>
+  <string name="HomeEditor.Configuration.GroupRemove.Label">Kies de groepen om te verwijderen</string>
+  <string name="HomeEditor.Configuration.DisplayName">Naamweergave</string>
+  <string name="HomeEditor.Configuration.RestoreDefaults">Herstel standaardwaarden</string>
+  
+  <string name="HomeEditor.Configuration.ActionEdit.Header">Bewerk actie</string>
+  <string name="HomeEditor.Configuration.ActionRemove.Header">Verwijder actie</string>
+  <string name="HomeEditor.Configuration.ActionRemove.Label">Kies te verwijderen acties</string>
+  <string name="HomeEditor.Configuration.ActionEdit.Label">Kies actie</string>
+  <string name="HomeEditor.Configuration.AddAction">Voeg actie toe</string>
+</resources>

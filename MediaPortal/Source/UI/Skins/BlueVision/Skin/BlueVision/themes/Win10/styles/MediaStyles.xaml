@@ -2095,8 +2095,9 @@
       <Setter.Value>
         <ControlTemplate TargetType="{x:Type ListViewItem}">
           <Button Style="{ThemeResource MediaItemButtonWideStyle}"
-              Command="{DynamicResource ResourceKey=Menu_Command}"
-              IsEnabled="{Binding Enabled}" SetFocus="{Binding Path=Selected,Mode=OneTime}">
+                  Command="{DynamicResource ResourceKey=Menu_Command}"
+                  IsEnabled="{Binding Enabled}"
+                  SetFocusPrio="{Binding Path=Selected,Mode=OneTime,Converter={StaticResource BoolToFocusPriorityConverter},ConverterParameter=Highest}">
             <Button.Triggers>
               <Trigger Property="HasFocus" Value="True">
                 <Setter TargetName="ItemLabel" Property="Scroll" Value="Auto"/>
@@ -2117,8 +2118,9 @@
       <Setter.Value>
         <ControlTemplate TargetType="{x:Type ListViewItem}">
           <Button Style="{ThemeResource MediaItemButtonCoverStyle}"
-              Command="{DynamicResource ResourceKey=Menu_Command}"
-              IsEnabled="{Binding Enabled}" SetFocus="{Binding Path=Selected,Mode=OneTime}">
+                  Command="{DynamicResource ResourceKey=Menu_Command}"
+                  IsEnabled="{Binding Enabled}"
+                  SetFocusPrio="{Binding Path=Selected,Mode=OneTime,Converter={StaticResource BoolToFocusPriorityConverter},ConverterParameter=Highest}">
             <Button.Triggers>
               <Trigger Property="HasFocus" Value="True">
                 <Setter TargetName="ItemLabel" Property="Scroll" Value="Auto"/>
@@ -2139,8 +2141,9 @@
       <Setter.Value>
         <ControlTemplate TargetType="{x:Type ListViewItem}">
           <Button Style="{ThemeResource MediaItemButtonCoverFlowStyle}"
-              Command="{DynamicResource ResourceKey=Menu_Command}"
-              IsEnabled="{Binding Enabled}" SetFocus="{Binding Path=Selected,Mode=OneTime}">
+                  Command="{DynamicResource ResourceKey=Menu_Command}"
+                  IsEnabled="{Binding Enabled}"
+                  SetFocusPrio="{Binding Path=Selected,Mode=OneTime,Converter={StaticResource BoolToFocusPriorityConverter},ConverterParameter=Highest}">
             <Button.Triggers>
               <Trigger Property="HasFocus" Value="True">
                 <Setter TargetName="ItemLabel" Property="Scroll" Value="Auto"/>
@@ -2403,6 +2406,80 @@
     </DockPanel>
   </ControlTemplate>
 
+  <ControlTemplate x:Key="GenericDVDOSDControlsControl">
+    <DockPanel x:Name="PlayControlsPanel" VerticalAlignment="Top" HorizontalAlignment="Stretch" LastChildFill="True">
+
+      <StackPanel DockPanel.Dock="Left" Orientation="Horizontal" HorizontalAlignment="Left">
+        <Button x:Name="PowerButton" Style="{ThemeResource PowerButtonStyle}" Margin="0,-2,5,0" Height="72"
+                HorizontalAlignment="Right" Command="{Command Source={Service WorkflowManager},Path=NavigatePush,Parameters=BBFA7DB7-5055-48D5-A904-0F0C79849369}"
+                IsEnabled="{Binding IsEnabled}"/>
+        <Button x:Name="BackButton" Style="{ThemeResource NavigateBackButtonStyle}" Margin="{ThemeResource PlayerControlButtonMargins}"
+                HorizontalAlignment="Left" Command="{Command Source={Service WorkflowManager},Path=NavigatePop,Parameters=1}"
+                IsEnabled="{Binding IsEnabled}"/>
+      </StackPanel>
+
+      <StackPanel DockPanel.Dock="Right" Orientation="Horizontal">
+        <Button x:Name="VolUpButton" Style="{ThemeResource VolUpButtonStyle}" Margin="{ThemeResource PlayerControlButtonMargins}"
+                Command="{Command Source={StaticResource GeneralPlayerModel},Path=VolumeUp}" VerticalAlignment="Top" IsEnabled="{Binding IsEnabled}"/>
+        <Button x:Name="VolDownButton" Style="{ThemeResource VolDownButtonStyle}" Margin="{ThemeResource PlayerControlButtonMargins}"
+                Command="{Command Source={StaticResource GeneralPlayerModel},Path=VolumeDown}" VerticalAlignment="Top" IsEnabled="{Binding IsEnabled}"/>
+        <Grid x:Name="AudioPanel" VerticalAlignment="Top" Margin="5,8,0,-7">
+          <Button x:Name="AudioActiveButton" IsVisible="{Binding IsAudio}" Style="{ThemeResource AudioActiveButtonStyle}" Command="{Command AudioButtonPressed}"
+                  IsEnabled="{Binding IsEnabled}"/>
+          <Button x:Name="AudioInactiveButton" IsVisible="{Binding !IsAudio}" Style="{ThemeResource AudioInactiveButtonStyle}" Command="{Command AudioButtonPressed}"
+                  IsEnabled="{Binding IsEnabled}"/>
+        </Grid>
+      </StackPanel>
+
+      <DockPanel LastChildFill="False" Margin="80,0,80,0">
+        <StackPanel Orientation="Horizontal" VerticalAlignment="Top" DockPanel.Dock="Left" Margin="0,0,40,0">
+          <Button x:Name="SkipBackButton" Style="{ThemeResource SkipBackButtonStyle}" Margin="{ThemeResource PlayerControlButtonMargins}" IsVisible="{Binding CanSkipBack}"
+                  Command="{Command Previous}" IsEnabled="{Binding IsEnabled}"/>
+          <Button x:Name="RewindButton" Style="{ThemeResource RewindButtonStyle}" Margin="{ThemeResource PlayerControlButtonMargins}" IsVisible="{Binding CanSeekBackward}"
+                  Command="{Command SeekBackward}" IsEnabled="{Binding IsEnabled}"/>
+          <Button x:Name="PlayButton" Style="{ThemeResource PlayButtonStyle}" Margin="{ThemeResource PlayerControlButtonMargins}" IsVisible="{Binding CanPlay}"
+                  Command="{Command Play}" IsEnabled="{Binding IsEnabled}"/>
+          <Button x:Name="PauseButton" Style="{ThemeResource PauseButtonStyle}" Margin="{ThemeResource PlayerControlButtonMargins}" IsVisible="{Binding CanPause}"
+                  Command="{Command Pause}" IsEnabled="{Binding IsEnabled}"/>
+          <Button x:Name="StopButton" Style="{ThemeResource StopButtonStyle}" Margin="{ThemeResource PlayerControlButtonMargins}" IsVisible="{Binding CanStop}"
+                  Command="{Command Stop}" IsEnabled="{Binding IsEnabled}"/>
+          <Button x:Name="ForwardButton" Style="{ThemeResource ForwardButtonStyle}" Margin="{ThemeResource PlayerControlButtonMargins}" IsVisible="{Binding CanSeekForward}"
+                  Command="{Command SeekForward}" IsEnabled="{Binding IsEnabled}"/>
+          <Button x:Name="SkipForwardButton" Style="{ThemeResource SkipForwardButtonStyle}" Margin="{ThemeResource PlayerControlButtonMargins}" IsVisible="{Binding CanSkipForward}"
+                  Command="{Command Next}" IsEnabled="{Binding IsEnabled}"/>
+          <DockPanel LastChildFill="False">
+            <Label DockPanel.Dock="Top" x:Name="DurationLabel" Content="{Binding Duration}" Margin="10,10,20,0"
+                   Color="{ThemeResource TextColor}" FontSize="28" FontFamily="DefaultBold"/>
+            <Label DockPanel.Dock="Bottom" x:Name="CurrentTimeLabel" Content="{Binding CurrentTime}" Margin="10,0,20,10"
+                   Color="{ThemeResource OSDProgressBarFillColor}" FontSize="28" FontFamily="DefaultBold"/>
+          </DockPanel>
+        </StackPanel>
+        <StackPanel Orientation="Horizontal" VerticalAlignment="Top" DockPanel.Dock="Right" Margin="40,0,0,0">
+          <Button x:Name="SelectMenuButton" Style="{ThemeResource SelectContextMenuButtonStyle}" Margin="{ThemeResource PlayerControlButtonMargins}"
+                  Command="{Command Source={StaticResource VideoPlayerModel},Path=OpenPlayerConfigurationDialog}" IsEnabled="{Binding IsEnabled}"/>
+          <Button x:Name="ShowDvdMenuButton" Style="{ThemeResource ShowDvdMenuButtonStyle}"  Margin="{ThemeResource PlayerControlButtonMargins}"
+                  Command="{Command Source={StaticResource VideoPlayerModel},Path=PlayerUIContributor.ShowDvdMenu}"/>
+          <Button x:Name="SelectTitleButton" Style="{ThemeResource ShowDvdMenuButtonStyle}" Margin="{ThemeResource PlayerControlButtonMargins}"
+                  IsVisible="{Binding Source={StaticResource VideoPlayerModel},Path=PlayerUIContributor.TitlesAvailable}"
+                  Command="{Command Source={StaticResource VideoPlayerModel},Path=PlayerUIContributor.OpenChooseTitleDialog}" IsEnabled="{Binding IsEnabled}"/>
+          <Button x:Name="PreviousChapterButton" Style="{ThemeResource PreviousChapterButtonStyle}" Margin="{ThemeResource PlayerControlButtonMargins}"
+                  IsVisible="{Binding Source={StaticResource VideoPlayerModel},Path=PlayerUIContributor.ChaptersAvailable}"
+                  Command="{Command Source={StaticResource VideoPlayerModel},Path=PlayerUIContributor.PrevChapter}" IsEnabled="{Binding IsEnabled}"/>
+          <Button x:Name="SelectChapterButton" Style="{ThemeResource SelectChapterButtonStyle}" Margin="{ThemeResource PlayerControlButtonMargins}"
+                  IsVisible="{Binding Source={StaticResource VideoPlayerModel},Path=PlayerUIContributor.ChaptersAvailable}"
+                  Command="{Command Source={StaticResource VideoPlayerModel},Path=PlayerUIContributor.OpenChooseChapterDialog}" IsEnabled="{Binding IsEnabled}"/>
+          <Button x:Name="NextChapterButton" Style="{ThemeResource NextChapterButtonStyle}" Margin="{ThemeResource PlayerControlButtonMargins}"
+                  IsVisible="{Binding Source={StaticResource VideoPlayerModel},Path=PlayerUIContributor.ChaptersAvailable}"
+                  Command="{Command Source={StaticResource VideoPlayerModel},Path=PlayerUIContributor.NextChapter}" IsEnabled="{Binding IsEnabled}"/>
+          <Button x:Name="SelectSubtitleButton" Style="{ThemeResource SelectSubtitleButtonStyle}" Margin="{ThemeResource PlayerControlButtonMargins}"
+                  IsVisible="{Binding Source={StaticResource VideoPlayerModel},Path=PlayerUIContributor.SubtitlesAvailable}"
+                  Command="{Command Source={StaticResource VideoPlayerModel},Path=PlayerUIContributor.OpenChooseSubtitleDialog}" IsEnabled="{Binding IsEnabled}"/>
+        </StackPanel>
+      </DockPanel>
+    </DockPanel>
+  </ControlTemplate>
+
+
   <ControlTemplate x:Key="GenericAudioOSDControlsControl">
     <DockPanel x:Name="PlayControlsPanel" VerticalAlignment="Top" HorizontalAlignment="Stretch" LastChildFill="True">
 
@@ -2605,6 +2682,50 @@
     </Setter>
     <Setter Property="PlayerContext" Value="PrimaryPlayer"/>
   </Style>
+
+  <Style x:Key="PrimaryDVDOSDStyle" TargetType="{x:Type mp_special_controls:PlayerControl}">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="{x:Type mp_special_controls:PlayerControl}">
+          <Control Style="{ThemeResource OSDContainer}" Width="{ThemeResource FullScreenContentVideoPrimaryPlayerOSDWidth}"
+                   DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}">
+            <Control.Resources>
+              <ControlTemplate x:Key="OSD_Cover_Template">
+              </ControlTemplate>
+
+              <ControlTemplate x:Key="OSD_InfoArea_Template">
+                <Grid x:Name="InfoGrid" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+                  <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                  </Grid.ColumnDefinitions>
+                  <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="180"/>
+                  </Grid.RowDefinitions>
+
+                  <Label x:Name="VideoName" Content="{Binding Path=MediaItemTitle}" Color="{ThemeResource TextColor}" Margin="0,10,0,0"
+                         FontFamily="DefaultBold" HorizontalAlignment="Left" VerticalAlignment="Center" TextTrimming="WordEllipsis"/>
+
+                </Grid>
+              </ControlTemplate>
+
+              <ControlTemplate x:Key="OSD_Progress_Template">
+                <Control Template="{ThemeResource GenericVideoOSDProgressControl}" />
+              </ControlTemplate>
+
+              <ControlTemplate x:Key="OSD_Controls_Template">
+                <Control Template="{ThemeResource GenericDVDOSDControlsControl}" />
+              </ControlTemplate>
+
+            </Control.Resources>
+          </Control>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+    <Setter Property="PlayerContext" Value="PrimaryPlayer"/>
+  </Style>
+
 
   <Style x:Key="PrimaryAudioOSDStyle" TargetType="{x:Type mp_special_controls:PlayerControl}">
     <Setter Property="Template">

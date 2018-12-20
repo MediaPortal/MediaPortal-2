@@ -1,6 +1,6 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
-  <string name="SlimTvClient.Title">Slim TV Client</string>
+  <string name="SlimTvClient.Title">Guide Télé</string>
   <string name="SlimTvClient.Main">TV</string>
   <string name="SlimTvClient.Main.Help">Ici vous pouvez regarder vos émissions TV préférées, écouter la radio.</string>
   <string name="SlimTvClient.TvGuide">Guide Télé</string>
@@ -99,6 +99,7 @@ Vous ne pourrez pas revenir sur ce choix. </string>
   <string name="SlimTvClient.ShowRecordingStartedNotifications.Help">Indique que cela affiche une notification lorsqu\'un enregistrement commence.</string>
   <string name="SlimTvClient.ShowRecordingEndedNotifications">Afficher une notification lorsqu\'un enregistrement est fini</string>
   <string name="SlimTvClient.ShowRecordingEndedNotifications.Help">Indique que cela affiche une notification lorsqu\'un enregistrement se termine.</string>
+  <string name="SlimTvClient.NoColor">Aucun</string>
   <string name="SlimTvClient.RecordingsMenuItem">Enregistrements</string>
   <string name="SlimTvClient.Recordings.Help">Ici vous trouverez une liste de vos programmes enregistrés accessible à la lecture.</string>
   <string name="SlimTvClient.RecordingsRootViewName">Enregistrements TV</string>

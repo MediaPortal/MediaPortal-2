@@ -83,6 +83,8 @@
     <Compile Include="Controls\Animations\ColorAnimation.cs" />
     <Compile Include="Controls\Animations\ColorAnimationUsingKeyFrames.cs" />
     <Compile Include="Controls\Animations\ColorKeyFrame.cs" />
+    <Compile Include="Controls\Animations\DiscretePointKeyFrame.cs" />
+    <Compile Include="Controls\Animations\DiscreteColorKeyFrame.cs" />
     <Compile Include="Controls\Animations\DiscreteObjectKeyFrame.cs" />
     <Compile Include="Controls\Animations\ColorKeyFrameCollection.cs" />
     <Compile Include="Controls\Animations\EasingColorKeyFrame.cs" />
@@ -110,6 +112,7 @@
     <Compile Include="Controls\Animations\DoubleAnimationUsingKeyFrames.cs" />
     <Compile Include="Controls\Animations\DoubleKeyFrame.cs" />
     <Compile Include="Controls\Animations\PropertyAnimationTimeline.cs" />
+    <Compile Include="Controls\Animations\DiscreteDoubleKeyFrame.cs" />
     <Compile Include="Controls\Animations\TimeLineCollection.cs" />
     <Compile Include="Controls\Animations\TimelineContext.cs" />
     <Compile Include="Controls\Animations\ValueKeyFrame.cs" />
@@ -377,6 +380,8 @@
     <Compile Include="Settings\Configuration\Appearance\StartupScreen.cs" />
     <Compile Include="Settings\Configuration\General\ApplicationSuspendLevel.cs" />
     <Compile Include="SharpDX\SharpDXExtensions.cs" />
+    <Compile Include="SpecialElements\Behaviors\FocusSelectedItemAction.cs" />
+    <Compile Include="SpecialElements\Behaviors\SelectedItemBehavior.cs" />
     <Compile Include="Utils\DoubleUtils.cs" />
     <Compile Include="Utils\ImageSourceFactory.cs" />
     <Compile Include="Utils\UIResourcesHelper.cs" />

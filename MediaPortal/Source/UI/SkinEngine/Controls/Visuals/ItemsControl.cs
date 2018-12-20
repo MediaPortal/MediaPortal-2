@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2017 Team MediaPortal
+#region Copyright (C) 2007-2018 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2017 Team MediaPortal
+    Copyright (C) 2007-2018 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -886,16 +886,37 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     {
       if (_itemsHostPanel == null || Screen == null)
         return;
+      IEnumerable itemsSource = ItemsSource;
+      if (itemsSource == null)
+        return;
       FrameworkElement item = null;
+      int itemIndex = 0;
       lock (_itemsHostPanel.Children.SyncRoot)
-          foreach (FrameworkElement child in _itemsHostPanel.Children)
-          if (child.DataContext == dataItem)
-            item = child;
+      {
+        int index = 0;
+        // Don't look for the matching dataItem in the panel's children as all
+        // children might not have been created yet in virtualized panels.
+        // Try and find it in the items source instead.
+        foreach (object source in itemsSource)
+        {
+          if (source == dataItem)
+          {
+            item = _itemsHostPanel.GetElement(index);
+            itemIndex = index;
+            break;
+          }
+          index++;
+        }
+      }
       if (item == null)
         return;
+      _itemsHostPanel.BringIntoView(itemIndex);
       FrameworkElement focusable = Screen.FindFirstFocusableElement(item);
-      if (focusable != null)
-        focusable.TrySetFocus(true);
+      if (focusable != null && focusable.SetFocusPrio < SetFocusPriority.Default)
+        // For virtualized panels, the item might not be in the visual tree yet
+        // so defer the focus setting to the next layouting if it hasn't already been
+        // set with a higher priority elsewhere
+        focusable.SetFocusPrio = SetFocusPriority.Default;
     }
 
     #endregion

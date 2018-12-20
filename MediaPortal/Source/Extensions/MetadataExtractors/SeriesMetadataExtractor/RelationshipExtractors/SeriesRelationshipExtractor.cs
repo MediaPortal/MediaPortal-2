@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2017 Team MediaPortal
+#region Copyright (C) 2007-2018 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2017 Team MediaPortal
+    Copyright (C) 2007-2018 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -241,6 +241,40 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
       get { return _extractors; }
     }
 
+    public IDictionary<Guid, IList<MediaItemAspect>> GetBaseChildAspectsFromExistingAspects(IDictionary<Guid, IList<MediaItemAspect>> existingChildAspects, IDictionary<Guid, IList<MediaItemAspect>> existingParentAspects)
+    {
+      if (existingParentAspects.ContainsKey(SeriesAspect.ASPECT_ID))
+      {
+        SeriesInfo series = new SeriesInfo();
+        series.FromMetadata(existingParentAspects);
+
+        if (existingChildAspects.ContainsKey(SeasonAspect.ASPECT_ID))
+        {
+          SeasonInfo season = new SeasonInfo();
+          season.FromMetadata(existingChildAspects);
+
+          SeasonInfo basicSeason = series.CloneBasicInstance<SeasonInfo>();
+          basicSeason.SeasonNumber = season.SeasonNumber;
+          IDictionary<Guid, IList<MediaItemAspect>> aspects = new Dictionary<Guid, IList<MediaItemAspect>>();
+          basicSeason.SetMetadata(aspects, true);
+          return aspects;
+        }
+        else if (existingChildAspects.ContainsKey(EpisodeAspect.ASPECT_ID))
+        {
+          EpisodeInfo episode = new EpisodeInfo();
+          episode.FromMetadata(existingChildAspects);
+
+          EpisodeInfo basicEpisode = series.CloneBasicInstance<EpisodeInfo>();
+          basicEpisode.SeasonNumber = episode.SeasonNumber;
+          basicEpisode.EpisodeNumbers = episode.EpisodeNumbers.ToList();
+          IDictionary<Guid, IList<MediaItemAspect>> aspects = new Dictionary<Guid, IList<MediaItemAspect>>();
+          basicEpisode.SetMetadata(aspects, true);
+          return aspects;
+        }
+      }
+      return null;
+    }
+
     #region Episode IFilter
 
     public static IFilter GetEpisodeSearchFilter(IDictionary<Guid, IList<MediaItemAspect>> extractedAspects)
@@ -259,8 +293,11 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
         new RelationalFilter(EpisodeAspect.ATTR_SEASON, RelationalOperator.EQ, seasonNumber.Value) : null;
 
       IEnumerable<int> episodeNumbers = episodeAspect.GetCollectionAttribute<int>(EpisodeAspect.ATTR_EPISODE);
-      IFilter episodeNumberFilter = episodeNumbers != null && episodeNumbers.Any() ?
-        new RelationalFilter(EpisodeAspect.ATTR_EPISODE, RelationalOperator.EQ, episodeNumbers.First()) : null;
+      IFilter episodeNumberFilter = null;
+      if (episodeNumbers.Count() > 1)
+        episodeNumberFilter = BooleanCombinationFilter.CombineFilters(BooleanOperator.Or, episodeNumbers.Select(e => new RelationalFilter(EpisodeAspect.ATTR_EPISODE, RelationalOperator.EQ, e)));
+      else if (episodeNumbers.Any())
+        episodeNumberFilter = new RelationalFilter(EpisodeAspect.ATTR_EPISODE, RelationalOperator.EQ, episodeNumbers.First());
 
       seriesFilter = BooleanCombinationFilter.CombineFilters(BooleanOperator.And, seriesFilter, seasonNumberFilter, episodeNumberFilter);
 

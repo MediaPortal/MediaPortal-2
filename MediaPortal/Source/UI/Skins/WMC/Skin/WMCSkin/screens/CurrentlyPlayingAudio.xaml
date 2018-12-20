@@ -148,7 +148,7 @@
                   <Image Stretch="Fill" HorizontalAlignment="Stretch" IsVisible="{Binding ElementName=Album, Path=IsChecked}"
                          VerticalAlignment="Stretch" Width="300" Height="300">
                     <Image.Source>
-                      <fanart:FanArtImageSource fanart:FanArtMediaType="Album" fanart:FanArtType="Poster" fanart:FanArtName="{Binding MediaItem.MediaItemId}"
+                      <fanart:FanArtImageSource fanart:FanArtMediaType="Album" fanart:FanArtType="Poster" fanart:FanArtName="{Binding Source={Binding MediaItem}, Path=MediaItemId}"
                                             fanart:MaxWidth="{StaticResource FANART_POSTER_WIDTH}" fanart:MaxHeight="{StaticResource FANART_POSTER_HEIGHT}"/>
                     </Image.Source>
                   </Image>

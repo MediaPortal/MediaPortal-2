@@ -1,7 +1,7 @@
-﻿#region Copyright (C) 2007-2015 Team MediaPortal
+﻿#region Copyright (C) 2007-2018 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2015 Team MediaPortal
+    Copyright (C) 2007-2018 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -28,6 +28,7 @@ using MediaPortal.Common;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.Settings;
 using System;
+using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
 using System.Data.SqlTypes;
@@ -68,7 +69,7 @@ namespace MediaPortal.Database.MSSQL
       }
       catch (Exception e)
       {
-        ServiceRegistration.Get<ILogger>().Critical("Error establishing database connection", e);
+        ServiceRegistration.Get<ILogger>().Critical("MSSQLDatabase: Error establishing database connection", e);
         throw;
       }
     }
@@ -148,6 +149,10 @@ namespace MediaPortal.Database.MSSQL
           //Ensure that database is always available
           sqlCmd.CommandText = "ALTER DATABASE [" + _settings.DatabaseName + "] SET AUTO_CLOSE OFF";
           sqlCmd.ExecuteNonQuery();
+
+          //Enable snapshot isolation so deadlocks can be avoided during import
+          sqlCmd.CommandText = "ALTER DATABASE [" + _settings.DatabaseName + "] SET ALLOW_SNAPSHOT_ISOLATION ON";
+          sqlCmd.ExecuteNonQuery();
         }
 
         sqlCmd.CommandText = "SELECT COUNT(*) FROM SYSLOGINS WHERE LOGINNAME = N'" + _settings.DatabaseUser + "'";
@@ -213,6 +218,16 @@ namespace MediaPortal.Database.MSSQL
     public uint MaxObjectNameLength
     {
       get { return 30; }
+    }
+
+    public string ConcatOperator
+    {
+      get { return "+"; }
+    }
+
+    public string LengthFunction
+    {
+      get { return "LEN"; }
     }
 
     public string GetSQLType(Type dotNetType)
@@ -304,7 +319,11 @@ namespace MediaPortal.Database.MSSQL
 
     public ITransaction BeginTransaction()
     {
-      return BeginTransaction(IsolationLevel.Serializable);
+      // Always use snapshot isolation level to avoid deadlocks in the database in multi-threaded scenarios like 
+      // MP2 does during import. If using other isolation levels where shared read locks are used during queries,
+      // the database will get into a deadlock when write locks need to escalate their locks on the same table/row,
+      // so we override any requested IsolationLevel other than Snapshot.
+      return BeginTransaction(IsolationLevel.Snapshot);
     }
 
     public bool TableExists(string tableName)
@@ -319,6 +338,158 @@ namespace MediaPortal.Database.MSSQL
           return (cnt == 1);
         }
       }
+    }
+
+    public bool BackupDatabase(string backupVersion)
+    {
+      using (SqlConnection conn = new SqlConnection(_connectionString))
+      {
+        conn.Open();
+        using (IDbCommand cmd = conn.CreateCommand())
+        {
+          cmd.CommandText = $"BACKUP DATABASE {_settings.DatabaseName} TO DISK='{_settings.DatabaseName}.{backupVersion}.bak' WITH NAME='MediaPortal Database {backupVersion}'";
+          cmd.ExecuteNonQuery();
+          return true;
+        }
+      }
+    }
+
+    public bool BackupTables(string tableSuffix)
+    {
+      bool result = false;
+      List<string> tables = new List<string>();
+      using (var transaction = BeginTransaction())
+      {
+        using (var cmd = transaction.CreateCommand())
+        {
+          //Find all tables
+          cmd.CommandText = @"SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_TYPE='BASE TABLE' AND TABLE_NAME <> 'sysdiagrams'";
+          using (IDataReader reader = cmd.ExecuteReader())
+          {
+            while (reader.Read())
+            {
+              string table = reader.GetString(0);
+              if (!table.EndsWith(tableSuffix, StringComparison.InvariantCultureIgnoreCase))
+              {
+                tables.Add(table);
+              }
+            }
+          }
+
+          //Drop all foreign keys
+          List<string> dropSqls = new List<string>();
+          cmd.CommandText = @"SELECT TABLE_NAME,CONSTRAINT_NAME FROM INFORMATION_SCHEMA.TABLE_CONSTRAINTS WHERE CONSTRAINT_TYPE = 'FOREIGN KEY'";
+          using (IDataReader reader = cmd.ExecuteReader())
+          {
+            while (reader.Read())
+            {
+              string table = reader.GetString(0);
+              if (tables.Contains(table))
+              {
+                dropSqls.Add($"ALTER TABLE [{table}] DROP CONSTRAINT [{reader.GetString(1)}]");
+              }
+            }
+          }
+          foreach(string dropSql in dropSqls)
+          {
+            cmd.CommandText = dropSql;
+            cmd.ExecuteNonQuery();
+          }
+
+          //Rename all primary keys
+          List<string> renameSqls = new List<string>();
+          cmd.CommandText = @"SELECT TABLE_NAME,CONSTRAINT_NAME FROM INFORMATION_SCHEMA.TABLE_CONSTRAINTS WHERE CONSTRAINT_TYPE='PRIMARY KEY' OR CONSTRAINT_TYPE='UNIQUE'";
+          using (IDataReader reader = cmd.ExecuteReader())
+          {
+            while (reader.Read())
+            {
+              string table = reader.GetString(0);
+              if (tables.Contains(table))
+              {
+                renameSqls.Add($"EXEC sp_rename '{table}.{reader.GetString(1)}', 'PK_{renameSqls.Count + 1}{tableSuffix}'");
+              }
+            }
+          }
+          foreach (string renameSql in renameSqls)
+          {
+            cmd.CommandText = renameSql;
+            cmd.ExecuteNonQuery();
+          }
+
+          //Rename all tables and remove constraints
+          foreach (var table in tables)
+          {
+            //Check if backup table exists
+            cmd.CommandText = $"SELECT COUNT(*) FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_TYPE='BASE TABLE' AND TABLE_NAME='{table + tableSuffix}'";
+            var cnt = Convert.ToInt64(cmd.ExecuteScalar());
+            if (cnt == 0)
+            {
+              //Rename table
+              cmd.CommandText = $"EXEC sp_rename '{table}','{table + tableSuffix}'";
+              cmd.ExecuteNonQuery();
+
+              result = true;
+            }
+            else
+            {
+              result = true;
+            }
+          }
+
+          transaction.Commit();
+        }
+      }
+      return result;
+    }
+
+    public bool DropBackupTables(string tableSuffix)
+    {
+      List<string> tables = new List<string>();
+      using (var transaction = BeginTransaction())
+      {
+        using (var cmd = transaction.CreateCommand())
+        {
+          //Find all tables
+          cmd.CommandText = @"SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_TYPE='BASE TABLE' AND TABLE_NAME <> 'sysdiagrams'";
+          using (IDataReader reader = cmd.ExecuteReader())
+          {
+            while (reader.Read())
+            {
+              string table = reader.GetString(0);
+              if (table.EndsWith(tableSuffix, StringComparison.InvariantCultureIgnoreCase))
+                tables.Add(table);
+            }
+          }
+
+          //Drop all backup tables as they are no longer needed
+          foreach (var table in tables)
+          {
+            //Drop table
+            cmd.CommandText = $"DROP TABLE {table}";
+            cmd.ExecuteNonQuery();
+          }
+
+          transaction.Commit();
+        }
+      }
+
+      using (var connection = new SqlConnection(_connectionString))
+      {
+        using (var cmd = connection.CreateCommand())
+        {
+          try
+          {
+            //Shrink database
+            cmd.CommandText = "DBCC SHRINKDATABASE(0)";
+            cmd.ExecuteNonQuery();
+          }
+          catch (Exception e)
+          {
+            ServiceRegistration.Get<ILogger>().Error("MSSQLDatabase: Error shrinking database", e);
+          }
+        }
+      }
+      return true;
     }
 
     public string CreateStringConcatenationExpression(string str1, string str2)

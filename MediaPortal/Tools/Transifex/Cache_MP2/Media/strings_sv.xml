@@ -1,5 +1,13 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
+  <!--Headlines for HomeContent-->
+  <string name="Media.LatestPlayed">Senast spelad</string>
+  <string name="Media.LatestAdded">Senast tillagda</string>
+  <string name="Media.ContinueWatching">Fortsätt titta</string>
+  <string name="Media.Favorites">Favoriter</string>
+  <string name="Media.Unplayed">Inte spelad</string>
+  <string name="Media.CurrentPrograms">Pågående program</string>
+  <string name="Media.CurrentSchedules">Pågående inspelningar</string>
   <!--Menu items for the five Media navigation parts-->
   <string name="Media.BrowseMediaMenuItem">Utforska media</string>
   <string name="Media.BrowseMediaMenuItem.Help">Utforska mediabiblioteket för alla typer av media. Här kan du även komma åt flyttbara medier.</string>
@@ -21,7 +29,7 @@
   <string name="Media.SortTitleMenuItem">Sorteringstitel</string>
   <string name="Media.AlbumMenuItem">Album och titel</string>
   <string name="Media.AlbumTrackMenuItem">Album och spår</string>
-  <string name="Media.AlbumArtistMenuItem">Album Artist</string>
+  <string name="Media.AlbumArtistMenuItem">Album artist</string>
   <string name="Media.AlbumLabelMenuItem">Musikbolag</string>
   <string name="Media.TrackMenuItem">Spår</string>
   <string name="Media.ArtistMenuItem">Artist</string>
@@ -55,6 +63,11 @@
   <string name="Media.MoviesCollectionMenuItem">Samling</string>
   <string name="Media.SeriesNameMenuItem">TV-serier</string>
   <string name="Media.SeriesSeasonMenuItem">Säsong</string>
+  <string name="Media.ConductorMenuItem">Dirigent</string>
+  <string name="Media.CompilationMenuItem">Samling</string>
+  <string name="Media.AlbumCompilationMenuItem">Album Samling</string>
+  <string name="Media.ContentGroupMenuItem">Grupperat innehåll</string>
+  <string name="Media.CertificationMenuItem">Certifiering</string>
   <string name="Media.SimpleSearchFilterMenuItem">Sök</string>
   <!--Filter titles-->
   <string name="Media.SwitchFilterMenuItem">Filter</string>
@@ -64,6 +77,9 @@
   <string name="Media.ImageFilterMedium">Medelstora</string>
   <string name="Media.ImageFilterBig">Stora</string>
   <string name="Media.DiscNumberFilter">Skiva: {0}</string>
+  <string name="Media.CompilationFilterCompiled">Samlingar</string>
+  <string name="Media.CompilationFilterUncompiled">Inte sammanställda</string>
+  <string name="Media.ContentGroupFilter">{0}</string>
   <string name="Media.SwitchToBrowseMLView">Till servervy</string>
   <string name="Media.SwitchToLocalMediaView">Till lokal vy</string>
   <string name="Media.SwitchToBrowseShareView">Till mappvy</string>
@@ -105,6 +121,11 @@
   <string name="Media.FilterImageItemsNavbarDisplayLabel">Namn: {0}</string>
   <string name="Media.FilterSystemNavbarDisplayLabel">System: {0}</string>
   <string name="Media.FilterMoviesNavbarDisplayLabel">Filmer: {0}</string>
+  <string name="Media.FilterConductorNavbarDisplayLabel">Dirigent: {0}</string>
+  <string name="Media.FilterCompilationNavbarDisplayLabel">Samlingar</string>
+  <string name="Media.FilterAlbumCompilationNavbarDisplayLabel">Album Samlingar</string>
+  <string name="Media.FilterContentGroupNavbarDisplayLabel">Grupperat innehåll: {0}</string>
+  <string name="Media.FilterCertificationNavbarDisplayLabel">Åldersgräns: {0}</string>
   <!--Display labels for workflow navigation contexts-->
   <string name="Media.BrowseMediaNavigationRootWorkflowNavigationContextDisplayLabel">Utforska media</string>
   <string name="Media.LocalMediaNavigationRootWorkflowNavigationContextDisplayLabel">Lokal media</string>
@@ -143,7 +164,7 @@
   <string name="Media.DiscItemsHeader">Skivor</string>
   <string name="Media.TrackItemsHeader">Spår</string>
   <string name="Media.SimpleSearchHeader">Enkel sökning</string>
-  <string name="Media.ChooseCollectionHeader">Samling(ar)</string>
+  <string name="Media.ChooseCollectionHeader">Samlingar</string>
   <string name="Media.ChooseActorHeader">Skådespelare</string>
   <string name="Media.ChooseDirectorHeader">Regi</string>
   <string name="Media.ChooseMovieHeader">Filmer</string>
@@ -175,6 +196,11 @@
   <string name="Media.ChooseVideoHeader">Videor</string>
   <string name="Media.ChooseVideoLanguageHeader">Språk</string>
   <string name="Media.ChoosePlayCountHeader">Sedd</string>
+  <string name="Media.ChooseAlbumCompilationHeader">Album Samlingar</string>
+  <string name="Media.ChooseCompilationHeader">Samlingar</string>
+  <string name="Media.ChooseConductorHeader">Dirigenter</string>
+  <string name="Media.ChooseContentGroupHeader">Grupperat innehåll</string>
+  <string name="Media.ChooseCertificationHeader">Åldersgränser</string>
   <string name="Media.PlaylistsOverviewHeader">Spellistor</string>
   <string name="Media.SavePlaylistEditNameHeader">Spara spellista</string>
   <string name="Media.SavePlaylistFailedHeader">Spara spellista</string>
@@ -250,11 +276,24 @@
   <string name="Media.OpenPlayerStrategy.MediaPortal.UI.Services.Players.PCMOpenPlayerStrategy.PreservePiP">Bevara bild-i-bild video</string>
   <!--MediaItemAction dialog-->
   <string name="Media.MediaItemsActionDialogHeader">Mediaalternativ</string>
-  <string name="Media.SetWatched">Markera som sedda</string>
-  <string name="Media.SetUnwatched">Markera som inte sedda</string>
-  <string name="Media.DeleteFromStorage">Ta bort filen.</string>
+  <string name="Media.SetPlayed">Markera som spelad</string>
+  <string name="Media.SetUnplayed">Merkera som inte spelad</string>
+  <string name="Media.Refresh">Uppdatera</string>
+  <string name="Media.Reimport">Återimportera</string>
+  <string name="Media.DeleteFromStorage">Ta bort filen</string>
   <string name="Media.DeleteFromStorage.Confirmation">Är du säker på att du vill ta bort filen? Du kan inte ångra borttagningen.</string>
   <string name="Media.ConfirmAction">Bekräfta</string>
+  <string name="Media.ReimportMediaItem.Confirmation">Är du säker på att du vill återimportera media-filen och ersätta nuvarande data med en vald matchning? 
+Du kan inte ångra ersättningen.</string>
+  <string name="Media.ReimportMediaItem.Title">Välj rätt matchning</string>
+  <string name="Media.ReimportMediaItem.Id">Id</string>
+  <string name="Media.ReimportMediaItem.Done">Färdig</string>
+  <string name="Media.ReimportMediaItem.SearchResultHeader">Sökresultat</string>
+  <string name="Media.ReimportMediaItem.SearchTypeHeader">Typ av sökning</string>
+  <string name="Media.ReimportMediaItem.AutoMatch">Automatisk matchning</string>
+  <string name="Media.ReimportMediaItem.ManualSearch">Manuell sökning</string>
+  <string name="Media.ReimportMediaItem.Description">Beskrivning</string>
+  <string name="Media.ReimportMediaItem.Hint">OBS: Kräver internetanslutning och minst en hemsida vald i inställningar för mediabibliotek</string>
   <!--Play items dialog-->
   <string name="Media.PlayItemDialogHeader">Spela media-fil</string>
   <string name="Media.PlayAudioItems">Spela ljud-fil</string>
@@ -341,6 +380,7 @@
   <string name="Media.CannotPlayItemDialogText">Kan inte spela media-fil</string>
   <string name="Media.CannotPlayItemsDialogText">Kan inte spela media-filer</string>
   <string name="Media.ValueEmptyTitle">&lt;Tomt&gt;</string>
+  <string name="Media.UnratedTitle">Saknar åldersgräns</string>
   <string name="Media.ChoosePlayModeDialogHeader">Välj spelsätt</string>
   <string name="Media.PlayMode">Spelsätt</string>
   <string name="Media.PlayMode.Continuous">Kontinuerligt</string>
@@ -379,6 +419,10 @@
   <string name="Media.SwitchGroupingMenuItem">Gruppering</string>
   <string name="Media.SwitchGroupingDialogTitle">Gruppera på</string>
   <string name="Media.NoGrouping">Ingen gruppering</string>
+  <!--Stubs-->
+  <string name="Media.Stub.Title">Sätt i skiva</string>
+  <string name="Media.Stub.Message">Sätt i skiva</string>
+  <!--Settings-->
   <string name="Settings.Players">Spelare</string>
   <string name="Settings.Players.ClosePlayersWhenFinished">Stäng av spelarna när speltiden är slut</string>
   <string name="Settings.Players.ClosePlayersWhenFinished.Help">Aktivera denna inställning för att MediaPortal 2 ska stänga av spelarna när speltiden är slut</string>
@@ -400,6 +444,12 @@
   <string name="Settings.Media.ShowVirtual.Audio">Visa alla kända albumspår</string>
   <string name="Settings.Media.ShowVirtual.Movie">Visa alla kända filmsamlingar</string>
   <string name="Settings.Media.ShowVirtual.Series">Visa alla kända säsonger och avsnitt</string>
+  <string name="Settings.Media.Certification">Åldersgränser för länder</string>
+  <string name="Settings.Media.Certification.None">Original (som vid importen)</string>
+  <string name="Settings.Media.Certification.Movie">Åldersgränser för film från land </string>
+  <string name="Settings.Media.Certification.Movie.Help">Välj vilket lands åldersgränser som ska användas för filmer</string>
+  <string name="Settings.Media.Certification.Series">Åldersgränser för TV-serier från land </string>
+  <string name="Settings.Media.Certification.Series.Help">Välj vilket lands åldersgränser som ska användas för TV-serier</string>
   <!--Secondary filters-->
   <string name="Filter.RemoteNumericAlphabet0"></string>
   <string name="Filter.RemoteNumericAlphabet1"></string>
@@ -413,4 +463,5 @@
   <string name="Filter.RemoteNumericAlphabet9">wxyz</string>
   <string name="Filter.Filtered">Filtrerad</string>
   <string name="Filter.StartsWith">Börjar med: {0}</string>
+  <string name="RestrictionGroup.Media.DeleteMediaItem">Media: Ta bort från disk</string>
 </resources>

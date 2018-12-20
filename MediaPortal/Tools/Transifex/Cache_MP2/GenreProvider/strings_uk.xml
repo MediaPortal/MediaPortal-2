@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <string name="Match.Video.Music">Музика</string>
+  <string name="Match.Video.TVMovie">ТБ</string>
+  <string name="Match.Video.News">Новини</string>
+  <string name="Match.Epg.Music">Музика</string>
+  <string name="Match.Epg.News">Новини</string>
+  <string name="Label.Audio.World">Світ</string>
+  <string name="Label.Video.Music">Музика</string>
+  <string name="Label.Video.TVMovie">ТБ</string>
+  <string name="Label.Video.News">Новини</string>
+  <string name="Label.Epg.Music">Музика</string>
+  <string name="Label.Epg.News">Новини</string>
+  </resources>

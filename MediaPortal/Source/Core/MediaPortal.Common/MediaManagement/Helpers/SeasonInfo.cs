@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2017 Team MediaPortal
+#region Copyright (C) 2007-2018 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2017 Team MediaPortal
+    Copyright (C) 2007-2018 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -167,34 +167,46 @@ namespace MediaPortal.Common.MediaManagement.Helpers
 
     public SeasonInfo Clone()
     {
-      return CloneProperties(this);
+      SeasonInfo clone = (SeasonInfo)this.MemberwiseClone();
+      clone.SeriesName = new SimpleTitle(SeriesName.Text, SeriesName.DefaultLanguage);
+      clone.Description = new SimpleTitle(Description.Text, Description.DefaultLanguage);
+      clone.Languages = new List<string>();
+      foreach (var l in Languages)
+        clone.Languages.Add(l);
+
+      return clone;
     }
 
-    public void MergeWith(SeasonInfo other, bool overwriteShorterStrings = true)
+    public override bool MergeWith(object other, bool overwriteShorterStrings = true, bool updatePrimaryChildList = false)
     {
-      HasChanged |= MetadataUpdater.SetOrUpdateId(ref TvdbId, other.TvdbId);
-      HasChanged |= MetadataUpdater.SetOrUpdateId(ref ImdbId, other.ImdbId);
-      HasChanged |= MetadataUpdater.SetOrUpdateId(ref MovieDbId, other.MovieDbId);
-      HasChanged |= MetadataUpdater.SetOrUpdateId(ref TvMazeId, other.TvMazeId);
-      HasChanged |= MetadataUpdater.SetOrUpdateId(ref TvRageId, other.TvRageId);
-
-      HasChanged |= MetadataUpdater.SetOrUpdateId(ref SeriesImdbId, other.SeriesImdbId);
-      HasChanged |= MetadataUpdater.SetOrUpdateId(ref SeriesMovieDbId, other.SeriesMovieDbId);
-      HasChanged |= MetadataUpdater.SetOrUpdateId(ref SeriesTvdbId, other.SeriesTvdbId);
-      HasChanged |= MetadataUpdater.SetOrUpdateId(ref SeriesTvMazeId, other.SeriesTvMazeId);
-      HasChanged |= MetadataUpdater.SetOrUpdateId(ref SeriesTvRageId, other.SeriesTvRageId);
-
-      HasChanged |= MetadataUpdater.SetOrUpdateString(ref SeriesName, other.SeriesName, overwriteShorterStrings);
-      HasChanged |= MetadataUpdater.SetOrUpdateString(ref Description, other.Description, overwriteShorterStrings);
-
-      if (TotalEpisodes < other.TotalEpisodes)
+      if (other is SeasonInfo season)
       {
-        HasChanged = true;
-        TotalEpisodes = other.TotalEpisodes;
-      }
+        HasChanged |= MetadataUpdater.SetOrUpdateId(ref TvdbId, season.TvdbId);
+        HasChanged |= MetadataUpdater.SetOrUpdateId(ref ImdbId, season.ImdbId);
+        HasChanged |= MetadataUpdater.SetOrUpdateId(ref MovieDbId, season.MovieDbId);
+        HasChanged |= MetadataUpdater.SetOrUpdateId(ref TvMazeId, season.TvMazeId);
+        HasChanged |= MetadataUpdater.SetOrUpdateId(ref TvRageId, season.TvRageId);
 
-      HasChanged |= MetadataUpdater.SetOrUpdateValue(ref FirstAired, other.FirstAired);
-      HasChanged |= MetadataUpdater.SetOrUpdateValue(ref SeasonNumber, other.SeasonNumber);
+        HasChanged |= MetadataUpdater.SetOrUpdateId(ref SeriesImdbId, season.SeriesImdbId);
+        HasChanged |= MetadataUpdater.SetOrUpdateId(ref SeriesMovieDbId, season.SeriesMovieDbId);
+        HasChanged |= MetadataUpdater.SetOrUpdateId(ref SeriesTvdbId, season.SeriesTvdbId);
+        HasChanged |= MetadataUpdater.SetOrUpdateId(ref SeriesTvMazeId, season.SeriesTvMazeId);
+        HasChanged |= MetadataUpdater.SetOrUpdateId(ref SeriesTvRageId, season.SeriesTvRageId);
+
+        HasChanged |= MetadataUpdater.SetOrUpdateString(ref SeriesName, season.SeriesName, overwriteShorterStrings);
+        HasChanged |= MetadataUpdater.SetOrUpdateString(ref Description, season.Description, overwriteShorterStrings);
+
+        if (TotalEpisodes < season.TotalEpisodes)
+        {
+          HasChanged = true;
+          TotalEpisodes = season.TotalEpisodes;
+        }
+
+        HasChanged |= MetadataUpdater.SetOrUpdateValue(ref FirstAired, season.FirstAired);
+        HasChanged |= MetadataUpdater.SetOrUpdateValue(ref SeasonNumber, season.SeasonNumber);
+        return true;
+      }
+      return false;
     }
 
     #region Members
@@ -203,10 +215,12 @@ namespace MediaPortal.Common.MediaManagement.Helpers
     /// Copies the contained series information into MediaItemAspect.
     /// </summary>
     /// <param name="aspectData">Dictionary with extracted aspects.</param>
-    public override bool SetMetadata(IDictionary<Guid, IList<MediaItemAspect>> aspectData)
+    public override bool SetMetadata(IDictionary<Guid, IList<MediaItemAspect>> aspectData, bool force = false)
     {
-      if (SeriesName.IsEmpty || !SeasonNumber.HasValue) return false;
+      if (!force && !IsBaseInfoPresent)
+        return false;
 
+      AssignNameId();
       SetMetadataChanged(aspectData);
 
       MediaItemAspect.SetAttribute(aspectData, MediaAspect.ATTR_TITLE, ToString());
@@ -247,9 +261,9 @@ namespace MediaPortal.Common.MediaManagement.Helpers
 
         string tempString;
         MediaItemAspect.TryGetAttribute(aspectData, SeasonAspect.ATTR_SERIES_NAME, out tempString);
-        SeriesName = new SimpleTitle(tempString, false);
+        SeriesName = new SimpleTitle(tempString, string.IsNullOrWhiteSpace(tempString));
         MediaItemAspect.TryGetAttribute(aspectData, SeasonAspect.ATTR_DESCRIPTION, out tempString);
-        Description = new SimpleTitle(tempString, false);
+        Description = new SimpleTitle(tempString, string.IsNullOrWhiteSpace(tempString));
 
         int? count;
         if (MediaItemAspect.TryGetAttribute(aspectData, SeasonAspect.ATTR_NUM_EPISODES, out count))
@@ -414,9 +428,9 @@ namespace MediaPortal.Common.MediaManagement.Helpers
         info.SeasonNumber = SeasonNumber;
         return (T)(object)info;
       }
-      else if (typeof(T) == typeof(SeasonInfo))
+      else if (typeof(T) == typeof(EpisodeInfo))
       {
-        SeasonInfo info = new SeasonInfo();
+        EpisodeInfo info = new EpisodeInfo();
         info.CopyIdsFrom(this);
         info.SeriesName = SeriesName;
         info.SeasonNumber = SeasonNumber;

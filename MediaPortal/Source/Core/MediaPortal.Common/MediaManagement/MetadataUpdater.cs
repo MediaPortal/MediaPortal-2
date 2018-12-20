@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2017 Team MediaPortal
+#region Copyright (C) 2007-2018 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2017 Team MediaPortal
+    Copyright (C) 2007-2018 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -27,7 +27,6 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
 
 namespace MediaPortal.Common.MediaManagement
 {
@@ -63,167 +62,145 @@ namespace MediaPortal.Common.MediaManagement
           object newObj = (object)newList[iNew];
           if (currentObj == null)
             continue;
-          Type objType = currentObj.GetType();
-          if (objType.IsClass)
+
+          if (currentObj is BaseInfo info)
           {
-            FieldInfo[] fields = currentObj.GetType().GetFields(BindingFlags.Instance | BindingFlags.Public);
-            if (fields != null)
+            ((BaseInfo)currentObj).MergeWith((BaseInfo)newObj);
+          }
+          else if (currentObj is string && newObj is string)
+          {
+            string currentVal = (string)currentObj;
+            string newVal = (string)newObj;
+            changed |= SetOrUpdateString(ref currentVal, newVal, overwriteShorterStrings);
+          }
+          else if (currentObj is SimpleTitle && newObj is string)
+          {
+            SimpleTitle currentVal = (SimpleTitle)currentObj;
+            string newVal = (string)newObj;
+            changed |= SetOrUpdateString(ref currentVal, newVal, overwriteShorterStrings);
+          }
+          else if (currentObj is string && newObj is SimpleTitle)
+          {
+            string currentVal = (string)currentObj;
+            SimpleTitle newVal = (SimpleTitle)newObj;
+            changed |= SetOrUpdateString(ref currentVal, newVal, overwriteShorterStrings);
+          }
+          else if (currentObj is SimpleTitle && newObj is SimpleTitle)
+          {
+            SimpleTitle currentVal = (SimpleTitle)currentObj;
+            SimpleTitle newVal = (SimpleTitle)newObj;
+            changed |= SetOrUpdateString(ref currentVal, newVal, overwriteShorterStrings);
+          }
+          else if (currentObj is SimpleRating && newObj is SimpleRating)
+          {
+            SimpleRating currentVal = (SimpleRating)currentObj;
+            SimpleRating newVal = (SimpleRating)newObj;
+            changed |= SetOrUpdateRatings(ref currentVal, newVal);
+          }
+          else if (currentObj is SimpleRating && newObj is double)
+          {
+            SimpleRating currentVal = (SimpleRating)currentObj;
+            SimpleRating newVal = new SimpleRating((double)newObj);
+            changed |= SetOrUpdateRatings(ref currentVal, newVal);
+          }
+          else if (currentObj is byte[])
+          {
+            byte[] currentVal = (byte[])currentObj;
+            byte[] newVal = (byte[])newObj;
+            changed |= SetOrUpdateValue(ref currentVal, newVal);
+          }
+          else if (currentObj is IList)
+          {
+            IList currentVal = (IList)currentObj;
+            IList newVal = (IList)newObj;
+            Type listElementType = currentVal.GetType().GetGenericArguments().Single();
+            bool itemAdded = false;
+            if (listElementType == typeof(long))
             {
-              foreach (FieldInfo field in fields)
+              changed |= SetOrUpdateList((List<long>)currentVal, (List<long>)newVal, true, out itemAdded);
+            }
+            else if (listElementType == typeof(int))
+            {
+              changed |= SetOrUpdateList((List<int>)currentVal, (List<int>)newVal, true, out itemAdded);
+            }
+            else if (listElementType == typeof(short))
+            {
+              changed |= SetOrUpdateList((List<short>)currentVal, (List<short>)newVal, true, out itemAdded);
+            }
+            else if (listElementType == typeof(ulong))
+            {
+              changed |= SetOrUpdateList((List<ulong>)currentVal, (List<ulong>)newVal, true, out itemAdded);
+            }
+            else if (listElementType == typeof(uint))
+            {
+              changed |= SetOrUpdateList((List<uint>)currentVal, (List<uint>)newVal, true, out itemAdded);
+            }
+            else if (listElementType == typeof(ushort))
+            {
+              changed |= SetOrUpdateList((List<ushort>)currentVal, (List<ushort>)newVal, true, out itemAdded);
+            }
+            else if (listElementType == typeof(double))
+            {
+              changed |= SetOrUpdateList((List<double>)currentVal, (List<double>)newVal, true, out itemAdded);
+            }
+            else if (listElementType == typeof(float))
+            {
+              changed |= SetOrUpdateList((List<float>)currentVal, (List<float>)newVal, true, out itemAdded);
+            }
+            else if (listElementType == typeof(string))
+            {
+              changed |= SetOrUpdateList((List<string>)currentVal, (List<string>)newVal, true, out itemAdded, overwriteShorterStrings);
+            }
+            else if (listElementType == typeof(PersonInfo))
+            {
+              changed |= SetOrUpdateList((List<PersonInfo>)currentVal, (List<PersonInfo>)newVal, true, out itemAdded, overwriteShorterStrings);
+            }
+            else if (listElementType == typeof(CompanyInfo))
+            {
+              changed |= SetOrUpdateList((List<CompanyInfo>)currentVal, (List<CompanyInfo>)newVal, true, out itemAdded, overwriteShorterStrings);
+            }
+            else if (listElementType == typeof(CharacterInfo))
+            {
+              changed |= SetOrUpdateList((List<CharacterInfo>)currentVal, (List<CharacterInfo>)newVal, true, out itemAdded, overwriteShorterStrings);
+            }
+            else if (listElementType == typeof(SeasonInfo))
+            {
+              changed |= SetOrUpdateList((List<SeasonInfo>)currentVal, (List<SeasonInfo>)newVal, true, out itemAdded, overwriteShorterStrings);
+            }
+            else if (listElementType == typeof(EpisodeInfo))
+            {
+              changed |= SetOrUpdateList((List<EpisodeInfo>)currentVal, (List<EpisodeInfo>)newVal, true, out itemAdded, overwriteShorterStrings);
+            }
+            else if (listElementType == typeof(MovieInfo))
+            {
+              changed |= SetOrUpdateList((List<MovieInfo>)currentVal, (List<MovieInfo>)newVal, true, out itemAdded, overwriteShorterStrings);
+            }
+            else if (listElementType == typeof(TrackInfo))
+            {
+              changed |= SetOrUpdateList((List<TrackInfo>)currentVal, (List<TrackInfo>)newVal, true, out itemAdded, overwriteShorterStrings);
+            }
+            else
+            {
+              throw new ArgumentException("SetOrUpdateList: IList is of an unsupported type");
+            }
+            if (itemAdded)
+              itemWasAdded = true;
+          }
+          else
+          {
+            object currentVal = currentObj;
+            object newVal = newObj;
+            if (Nullable.GetUnderlyingType(currentVal.GetType()) != null)
+            {
+              if (currentVal == null && newVal != null)
               {
-                if (field.Name.EndsWith("Id", StringComparison.InvariantCultureIgnoreCase))
-                {
-                  object currentVal = field.GetValue(currentObj);
-                  object newVal = field.GetValue(newObj);
-                  changed |= SetOrUpdateId(ref currentVal, newVal);
-                  field.SetValue(currentObj, currentVal);
-                }
-                else if (field.GetValue(currentObj) is string && field.GetValue(newObj) is string)
-                {
-                  string currentVal = (string)field.GetValue(currentObj);
-                  string newVal = (string)field.GetValue(newObj);
-                  changed |= SetOrUpdateString(ref currentVal, newVal, overwriteShorterStrings);
-                  field.SetValue(currentObj, currentVal);
-                }
-                else if (field.GetValue(currentObj) is SimpleTitle && field.GetValue(newObj) is string)
-                {
-                  SimpleTitle currentVal = (SimpleTitle)field.GetValue(currentObj);
-                  string newVal = (string)field.GetValue(newObj);
-                  changed |= SetOrUpdateString(ref currentVal, newVal, overwriteShorterStrings);
-                  field.SetValue(currentObj, currentVal);
-                }
-                else if (field.GetValue(currentObj) is string && field.GetValue(newObj) is SimpleTitle)
-                {
-                  string currentVal = (string)field.GetValue(currentObj);
-                  SimpleTitle newVal = (SimpleTitle)field.GetValue(newObj);
-                  changed |= SetOrUpdateString(ref currentVal, newVal, overwriteShorterStrings);
-                  field.SetValue(currentObj, currentVal);
-                }
-                else if (field.GetValue(currentObj) is SimpleTitle && field.GetValue(newObj) is SimpleTitle)
-                {
-                  SimpleTitle currentVal = (SimpleTitle)field.GetValue(currentObj);
-                  SimpleTitle newVal = (SimpleTitle)field.GetValue(newObj);
-                  changed |= SetOrUpdateString(ref currentVal, newVal, overwriteShorterStrings);
-                  field.SetValue(currentObj, currentVal);
-                }
-                else if (field.GetValue(currentObj) is SimpleRating && field.GetValue(newObj) is SimpleRating)
-                {
-                  SimpleRating currentVal = (SimpleRating)field.GetValue(currentObj);
-                  SimpleRating newVal = (SimpleRating)field.GetValue(newObj);
-                  changed |= SetOrUpdateRatings(ref currentVal, newVal);
-                  field.SetValue(currentObj, currentVal);
-                }
-                else if (field.GetValue(currentObj) is SimpleRating && field.GetValue(newObj) is double)
-                {
-                  SimpleRating currentVal = (SimpleRating)field.GetValue(currentObj);
-                  SimpleRating newVal = new SimpleRating((double)field.GetValue(newObj));
-                  changed |= SetOrUpdateRatings(ref currentVal, newVal);
-                  field.SetValue(currentObj, currentVal);
-                }
-                else if (field.GetValue(currentObj) is byte[])
-                {
-                  byte[] currentVal = (byte[])field.GetValue(currentObj);
-                  byte[] newVal = (byte[])field.GetValue(newObj);
-                  changed |= SetOrUpdateValue(ref currentVal, newVal);
-                  field.SetValue(currentObj, currentVal);
-                }
-                else if (field.GetValue(currentObj) is IList)
-                {
-                  IList currentVal = (IList)field.GetValue(currentObj);
-                  IList newVal = (IList)field.GetValue(newObj);
-                  Type listElementType = currentVal.GetType().GetGenericArguments().Single();
-                  bool itemAdded = false;
-                  if (listElementType == typeof(long))
-                  {
-                    changed |= SetOrUpdateList((List<long>)currentVal, (List<long>)newVal, true, out itemAdded);
-                  }
-                  else if (listElementType == typeof(int))
-                  {
-                    changed |= SetOrUpdateList((List<int>)currentVal, (List<int>)newVal, true, out itemAdded);
-                  }
-                  else if (listElementType == typeof(short))
-                  {
-                    changed |= SetOrUpdateList((List<short>)currentVal, (List<short>)newVal, true, out itemAdded);
-                  }
-                  else if (listElementType == typeof(ulong))
-                  {
-                    changed |= SetOrUpdateList((List<ulong>)currentVal, (List<ulong>)newVal, true, out itemAdded);
-                  }
-                  else if (listElementType == typeof(uint))
-                  {
-                    changed |= SetOrUpdateList((List<uint>)currentVal, (List<uint>)newVal, true, out itemAdded);
-                  }
-                  else if (listElementType == typeof(ushort))
-                  {
-                    changed |= SetOrUpdateList((List<ushort>)currentVal, (List<ushort>)newVal, true, out itemAdded);
-                  }
-                  else if (listElementType == typeof(double))
-                  {
-                    changed |= SetOrUpdateList((List<double>)currentVal, (List<double>)newVal, true, out itemAdded);
-                  }
-                  else if (listElementType == typeof(float))
-                  {
-                    changed |= SetOrUpdateList((List<float>)currentVal, (List<float>)newVal, true, out itemAdded);
-                  }
-                  else if (listElementType == typeof(string))
-                  {
-                    changed |= SetOrUpdateList((List<string>)currentVal, (List<string>)newVal, true, out itemAdded, overwriteShorterStrings);
-                  }
-                  else if (listElementType == typeof(PersonInfo))
-                  {
-                    changed |= SetOrUpdateList((List<PersonInfo>)currentVal, (List<PersonInfo>)newVal, true, out itemAdded, overwriteShorterStrings);
-                  }
-                  else if (listElementType == typeof(CompanyInfo))
-                  {
-                    changed |= SetOrUpdateList((List<CompanyInfo>)currentVal, (List<CompanyInfo>)newVal, true, out itemAdded, overwriteShorterStrings);
-                  }
-                  else if (listElementType == typeof(CharacterInfo))
-                  {
-                    changed |= SetOrUpdateList((List<CharacterInfo>)currentVal, (List<CharacterInfo>)newVal, true, out itemAdded, overwriteShorterStrings);
-                  }
-                  else if (listElementType == typeof(SeasonInfo))
-                  {
-                    changed |= SetOrUpdateList((List<SeasonInfo>)currentVal, (List<SeasonInfo>)newVal, true, out itemAdded, overwriteShorterStrings);
-                  }
-                  else if (listElementType == typeof(EpisodeInfo))
-                  {
-                    changed |= SetOrUpdateList((List<EpisodeInfo>)currentVal, (List<EpisodeInfo>)newVal, true, out itemAdded, overwriteShorterStrings);
-                  }
-                  else if (listElementType == typeof(MovieInfo))
-                  {
-                    changed |= SetOrUpdateList((List<MovieInfo>)currentVal, (List<MovieInfo>)newVal, true, out itemAdded, overwriteShorterStrings);
-                  }
-                  else if (listElementType == typeof(TrackInfo))
-                  {
-                    changed |= SetOrUpdateList((List<TrackInfo>)currentVal, (List<TrackInfo>)newVal, true, out itemAdded, overwriteShorterStrings);
-                  }
-                  else
-                  {
-                    throw new ArgumentException("SetOrUpdateList: IList is of an unsupported type");
-                  }
-                  field.SetValue(currentObj, currentVal);
-                  if (itemAdded)
-                    itemWasAdded = true;
-                }
-                else
-                {
-                  object currentVal = field.GetValue(currentObj);
-                  object newVal = field.GetValue(newObj);
-                  if (Nullable.GetUnderlyingType(field.FieldType) != null)
-                  {
-                    if (currentVal == null && newVal != null)
-                    {
-                      field.SetValue(currentObj, newVal);
-                      changed = true;
-                    }
-                  }
-                  else
-                  {
-                    changed |= SetOrUpdateValue(ref currentVal, newVal);
-                    field.SetValue(currentObj, currentVal);
-                  }
-                }
+                currentObj = newVal;
+                changed = true;
               }
+            }
+            else
+            {
+              changed |= SetOrUpdateValue(ref currentVal, newVal);
             }
           }
         }

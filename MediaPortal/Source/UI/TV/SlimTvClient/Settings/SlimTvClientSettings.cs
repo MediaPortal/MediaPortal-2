@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2017 Team MediaPortal
+#region Copyright (C) 2007-2018 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2017 Team MediaPortal
+    Copyright (C) 2007-2018 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -61,7 +61,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Settings
     /// <summary>
     /// Whether to show genre colors in EPG.
     /// </summary>
-    [Setting(SettingScope.User, DefaultValue = true)]
+    [Setting(SettingScope.User, DefaultValue = false)]
     public bool EpgShowGenreColors { get; set; }
 
     /// <summary>
@@ -119,5 +119,11 @@ namespace MediaPortal.Plugins.SlimTv.Client.Settings
     /// </summary>
     [Setting(SettingScope.User, DefaultValue = 5)]
     public int RecordingNotificationDuration { get; set; }
+
+    /// <summary>
+    /// The number of days of EPG data to load when viewing the single channel guide.
+    /// </summary>
+    [Setting(SettingScope.User, DefaultValue = 14)]
+    public int SingleChannelGuideDays { get; set; }
   }
 }
