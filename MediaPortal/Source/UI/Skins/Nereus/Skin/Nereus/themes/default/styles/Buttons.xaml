@@ -32,6 +32,28 @@
     </DoubleAnimationUsingKeyFrames>
   </Storyboard>
 
+  <Storyboard x:Key="FocusedNereusStoryboard" FillBehavior="HoldEnd">
+    <DoubleAnimationUsingKeyFrames BeginTime="00:00:00" FillBehavior="HoldEnd" Storyboard.TargetName="ItemFrame" Storyboard.TargetProperty="Opacity">
+      <SplineDoubleKeyFrame KeyTime="00:00:00" Value="0"/>
+      <SplineDoubleKeyFrame KeyTime="00:00:00.4" Value="1"/>
+    </DoubleAnimationUsingKeyFrames>
+    <DoubleAnimationUsingKeyFrames BeginTime="00:00:00" FillBehavior="HoldEnd" Storyboard.TargetName="ItemImage" Storyboard.TargetProperty="Opacity">
+        <SplineDoubleKeyFrame KeyTime="00:00:00" Value="0.7"/>
+        <SplineDoubleKeyFrame KeyTime="00:00:00.4" Value="1"/>
+      </DoubleAnimationUsingKeyFrames>
+  </Storyboard>
+
+  <Storyboard x:Key="NotFocusedNereusStoryboard" FillBehavior="HoldEnd">
+    <DoubleAnimationUsingKeyFrames BeginTime="00:00:00" FillBehavior="HoldEnd" Storyboard.TargetName="ItemFrame" Storyboard.TargetProperty="Opacity">
+      <SplineDoubleKeyFrame KeyTime="00:00:00" Value="1"/>
+      <SplineDoubleKeyFrame KeyTime="00:00:00.4" Value="0"/>
+    </DoubleAnimationUsingKeyFrames>
+    <DoubleAnimationUsingKeyFrames BeginTime="00:00:00" FillBehavior="HoldEnd" Storyboard.TargetName="ItemImage" Storyboard.TargetProperty="Opacity">
+        <SplineDoubleKeyFrame KeyTime="00:00:00" Value="1"/>
+        <SplineDoubleKeyFrame KeyTime="00:00:00.4" Value="0.7"/>
+      </DoubleAnimationUsingKeyFrames>
+  </Storyboard>
+
   <Storyboard x:Key="FocusedButtonWideStoryboard_Poster" FillBehavior="HoldEnd">
     <DoubleAnimationUsingKeyFrames BeginTime="00:00:00" FillBehavior="HoldEnd" Storyboard.TargetName="GrowControl" Storyboard.TargetProperty="RenderTransform.Children[0].ScaleX">
       <SplineDoubleKeyFrame KeyTime="00:00:00" Value="1"/>
@@ -562,12 +584,12 @@
           <ControlTemplate.Triggers>
             <Trigger Property="HasFocus" Value="True">
               <Trigger.EnterActions>
-                <BeginStoryboard x:Name="Focused_BeginStoryboard" Storyboard="{ThemeResource FocusedButtonWideStoryboard_Poster}"/>
+                <BeginStoryboard x:Name="Focused_BeginStoryboard" Storyboard="{ThemeResource FocusedNereusStoryboard}"/>
                 <SoundPlayerAction Source="navigate.wav" DisableOnAudioOutput="True"/>
               </Trigger.EnterActions>
               <Trigger.ExitActions>
                 <StopStoryboard BeginStoryboardName="Focused_BeginStoryboard"/>
-                <BeginStoryboard x:Name="Focus_EndStoryboard" Storyboard="{ThemeResource FocusedButtonWideStoryboard_End_Poster}"/>
+                <BeginStoryboard x:Name="Focus_EndStoryboard" Storyboard="{ThemeResource NotFocusedNereusStoryboard}"/>
               </Trigger.ExitActions>
             </Trigger>
             <Trigger Property="IsPressed" Value="True">

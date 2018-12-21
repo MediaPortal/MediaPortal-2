@@ -788,8 +788,11 @@
         <RowDefinition Height="130"/>
         <RowDefinition Height="Auto"/>
       </Grid.RowDefinitions>
+
+      <Image x:Name="ItemFrame" Grid.RowSpan="2" HorizontalAlignment="Center" VerticalAlignment="Center" Opacity="0"
+             Stretch="Fill" Source="TileFrameGlow.png" Margin="-25,-25,-25,-25" Width="210" Height="213"/>
       <Rectangle Fill="#222222" Grid.RowSpan="2" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
-      <Image x:Name="ItemImage" Grid.RowSpan="2" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Stretch="Fill">
+      <Image x:Name="ItemImage" Grid.RowSpan="2" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Stretch="Fill" Opacity="0.7">
         <Image.Source>
           <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0}+{1}">
             <Binding Source="HomeMenu\"/>
@@ -814,8 +817,6 @@
                FontSize="{ThemeResource SmallerFontSize}" Color="{ThemeResource MenuTextForeground}" Margin="5,-5,5,1"
                ScrollDelay="0" Scroll="None" FontFamily="SegoeUIBold"/>
       </Grid>
-      <Image x:Name="ItemFrame" Grid.RowSpan="2" HorizontalAlignment="Center" VerticalAlignment="Center" Opacity="0"
-             Stretch="Fill" Source="TileFrameOverlay.png"/>
     </Grid>
   </DataTemplate>
 
@@ -880,7 +881,7 @@
             <Button.Triggers>
               <Trigger Property="HasFocus" Value="True">
                 <Setter TargetName="ItemLabel" Property="Scroll" Value="Auto"/>
-                <Setter TargetName="ItemFrame" Property="Opacity" Value="1.2"/>
+                <Setter TargetName="ItemFrame" Property="Opacity" Value="1"/>
                 <Trigger.EnterActions>
                   <BeginStoryboard x:Name="SlideOut">
                     <BeginStoryboard.Storyboard>

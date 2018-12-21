@@ -83,14 +83,6 @@
                 </LinearGradientBrush>
               </Border.Background>
             </Border>
-            <!--Border BorderThickness="0" Width="10" HorizontalAlignment="Left" VerticalAlignment="Stretch" Margin="-10,0,0,0" Opacity="0.9">
-              <Border.Background>
-                <LinearGradientBrush StartPoint="0,0.5" EndPoint="1,0.5">
-                  <GradientStop Color="#00FFFFFF" Offset="0.0"/>
-                  <GradientStop Color="#33FFFFFF" Offset="1"/>
-                </LinearGradientBrush>
-              </Border.Background>
-            </-->
           </Grid>
 
           <!---Listview Details-->
