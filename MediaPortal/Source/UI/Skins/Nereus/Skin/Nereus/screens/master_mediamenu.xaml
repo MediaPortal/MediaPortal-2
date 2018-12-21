@@ -170,6 +170,7 @@ Parameters which have to be accessible by a DynamicResource lookup:
             <RowDefinition Height="*"/>
           </Grid.RowDefinitions>
 
+          <Image Source="MenuGlow.png" Stretch="Uniform" VerticalAlignment="Stretch" Margin="0,0,-38,0"/>
           <Rectangle Fill="Black" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Opacity="0.9"/>
           <Image Source="LeftMenuIndicator.PNG" HorizontalAlignment="Right" Stretch="Fill" Width="25" Height="45" 
                  Opacity="0.9" VerticalAlignment="Center" Margin="0,0,-25,0"/>

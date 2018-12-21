@@ -74,16 +74,23 @@
                 </MultiBinding>
               </Image.Source>
             </Image>
-            <Border Background="#44000000" BorderThickness="0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="0,0,0,0">
+            <Image Source="ContentGlow.png" Stretch="Uniform" VerticalAlignment="Stretch" HorizontalAlignment="Left" Margin="-20,0,0,0"/>
+            <Border BorderThickness="0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
               <Border.Background>
                 <LinearGradientBrush StartPoint="1,0.3" EndPoint="0,1">
                   <GradientStop Color="#44000000" Offset="0.0"/>
-                  <!--GradientStop Color="#44000000" Offset="0.991"/-->
                   <GradientStop Color="#77000000" Offset="1"/>
-                  <!--GradientStop Color="#00000000" Offset="1.0"/-->
                 </LinearGradientBrush>
               </Border.Background>
             </Border>
+            <!--Border BorderThickness="0" Width="10" HorizontalAlignment="Left" VerticalAlignment="Stretch" Margin="-10,0,0,0" Opacity="0.9">
+              <Border.Background>
+                <LinearGradientBrush StartPoint="0,0.5" EndPoint="1,0.5">
+                  <GradientStop Color="#00FFFFFF" Offset="0.0"/>
+                  <GradientStop Color="#33FFFFFF" Offset="1"/>
+                </LinearGradientBrush>
+              </Border.Background>
+            </-->
           </Grid>
 
           <!---Listview Details-->
