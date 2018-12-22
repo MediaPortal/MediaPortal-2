@@ -32,6 +32,19 @@ namespace MediaPortal.Extensions.BassLibraries
 {
   public class BassUtils
   {
+
+    #region Fields
+
+    protected static BassLibraryManager _lib;
+
+    #endregion
+
+    static BassUtils()
+    {
+      // Make sure to initialize library first, otherwise required dll paths are not set.
+      _lib = BassLibraryManager.Get();
+    }
+
     public class AudioTrack
     {
       protected byte _trackNo;
