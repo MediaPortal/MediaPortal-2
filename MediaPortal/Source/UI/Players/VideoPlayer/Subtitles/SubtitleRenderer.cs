@@ -40,6 +40,7 @@ using MediaPortal.UI.SkinEngine.SkinManagement;
 using SharpDX;
 using SharpDX.Direct3D9;
 using Color = System.Drawing.Color;
+using NativeMethods = MediaPortal.Utilities.SystemAPI.NativeMethods;
 using Rectangle = System.Drawing.Rectangle;
 
 namespace MediaPortal.UI.Players.Video.Subtitles
@@ -308,6 +309,10 @@ namespace MediaPortal.UI.Players.Video.Subtitles
     /// </summary>
     public SubtitleRenderer(Action onTextureInvalidated)
     {
+      string absolutePlatformDir;
+      if (!NativeMethods.SetPlatformSearchDirectories(out absolutePlatformDir))
+        throw new Exception("Error adding dll probe path");
+
       _onTextureInvalidated = onTextureInvalidated;
       _subtitles = new LinkedList<Subtitle>();
       //instance.textCallBack = new TextSubtitleCallback(instance.OnTextSubtitle);

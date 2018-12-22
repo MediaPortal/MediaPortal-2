@@ -153,9 +153,8 @@ namespace MediaPortal.UI.Players.Video
         throw new EnvironmentException("This video player can only run on Windows Vista or above");
 
       PlayerTitle = "VideoPlayer";
-#if x86
+
       _mpcSubsRenderer = new MpcSubsRenderer(OnTextureInvalidated);
-#endif
     }
 
     #endregion
@@ -185,7 +184,6 @@ namespace MediaPortal.UI.Players.Video
     protected override void AddSubtitleFilter(bool isSourceFilterPresent)
     {
       VideoSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<VideoSettings>() ?? new VideoSettings();
-#if x86
       int preferredSubtitleLcid = settings.PreferredSubtitleLanguage;
       var fileSystemResourceAccessor = _resourceAccessor as IFileSystemResourceAccessor;
 
@@ -205,7 +203,6 @@ namespace MediaPortal.UI.Players.Video
           MpcSubtitles.SetEnable(true);
         }
       }
-#endif
       AddClosedCaptionsFilter();
     }
 
@@ -639,18 +636,15 @@ namespace MediaPortal.UI.Players.Video
           }
         }
 
-#if x86
         // MPC engine uses it's own way to enumerate subs.
         BaseStreamInfoHandler subtitleStreams = new MpcStreamInfoHandler();
         SetPreferredSubtitle_intern(ref subtitleStreams);
         SetPreferedAudio_intern(ref audioStreams, false);
-#endif
+
         lock (SyncObj)
         {
           _streamInfoAudio = audioStreams;
-#if x86
           _streamInfoSubtitles = subtitleStreams;
-#endif
           _streamInfoTitles = titleStreams;
         }
         return true;
@@ -986,10 +980,8 @@ namespace MediaPortal.UI.Players.Video
         subtitleStreams.CurrentStreamName.ToLowerInvariant().Contains(FORCED_SUBTITLES.ToLowerInvariant()) == false;
       ServiceRegistration.Get<ISettingsManager>().Save(settings);
 
-#if x86
       // Make sure MPC subs engine is enabled when valid subtitle got selected.
       MpcSubtitles.SetEnable(settings.EnableSubtitles);
-#endif
     }
 
     public virtual void DisableSubtitle()
