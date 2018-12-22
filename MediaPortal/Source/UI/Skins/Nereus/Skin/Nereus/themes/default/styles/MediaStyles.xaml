@@ -873,7 +873,7 @@
   <ControlTemplate x:Key="Cover_WatchedFlag_Template">
     <Grid>
       <Grid>
-        <Image Source="flag.png" Height="90" Stretch="Uniform" Margin="0,-3,1,0" HorizontalAlignment="Right" VerticalAlignment="Top">
+        <Image Source="flag.png" Height="90" Stretch="Uniform" HorizontalAlignment="Right" VerticalAlignment="Top">
           <Image.IsVisible>
             <Binding Path="WatchPercentage" Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0} > 0"/>
           </Image.IsVisible>
@@ -888,9 +888,9 @@
         <Grid.IsVisible>
           <Binding Path="WatchPercentage" Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0} == 100"/>
         </Grid.IsVisible>
-        <Image Source="flag.png" Height="90" Stretch="Uniform"/>
+        <Image Source="flag.png" Height="90" Stretch="Uniform" HorizontalAlignment="Right" VerticalAlignment="Top"/>
         <Image x:Name="WatchedLabel" Height="25" Margin="0,7,7,0" Stretch="Uniform"
-                     Source="watched.png" HorizontalAlignment="Right" VerticalAlignment="Top"/>
+               Source="watched.png" HorizontalAlignment="Right" VerticalAlignment="Top"/>
       </Grid>
     </Grid>
   </ControlTemplate>
