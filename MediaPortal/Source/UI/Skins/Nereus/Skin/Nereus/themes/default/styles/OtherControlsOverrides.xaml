@@ -1183,7 +1183,7 @@
       <Setter.Value>
         <ControlTemplate TargetType="{x:Type ContentPresenter}">
           <StackPanel Context="{StaticResource NotificationsModel}" IsVisible="{Binding IsNotificationsHintVisible}" Orientation="Horizontal">
-            <Button Style="{ThemeResource NavigationButtonStyle}" Command="{Command GoToNotification}">
+            <Button Style="{ThemeResource NotificationButtonStyle}" Command="{Command GoToNotification}">
               <Button.Triggers>
                 <Trigger Property="HasFocus" Value="True">
                   <Setter TargetName="icon" Property="Opacity" Value="1"/>
