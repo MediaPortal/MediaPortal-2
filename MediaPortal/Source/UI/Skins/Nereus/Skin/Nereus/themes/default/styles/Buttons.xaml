@@ -1984,7 +1984,7 @@
       <Setter.Value>
         <ControlTemplate TargetType="{x:Type Button}">
           <Grid>
-            <Image x:Name="image" Source="PlayerControl\Maximize.nofocus.png" Stretch="Uniform" Height="80" Width="80" Opacity="0.7" VerticalAlignment="Center"/>
+            <Image x:Name="image" Source="PlayerControl\Maximize.nofocus.png" Stretch="Uniform" Height="80" Width="80" Opacity="0.6" VerticalAlignment="Center"/>
           </Grid>
           <ControlTemplate.Triggers>
             <Trigger Property="HasFocus" Value="True">
@@ -2002,7 +2002,7 @@
       <Setter.Value>
         <ControlTemplate TargetType="{x:Type Button}">
           <Grid>
-            <Image x:Name="image" Source="PlayerControl\PLAY.NOFOCUS.PNG" Stretch="Uniform" Height="80" Width="80" Opacity="0.7" VerticalAlignment="Center"/>
+            <Image x:Name="image" Source="PlayerControl\PLAY.NOFOCUS.PNG" Stretch="Uniform" Height="80" Width="80" Opacity="0.6" VerticalAlignment="Center"/>
           </Grid>
           <ControlTemplate.Triggers>
             <Trigger Property="HasFocus" Value="True">
@@ -2020,7 +2020,7 @@
       <Setter.Value>
         <ControlTemplate TargetType="{x:Type Button}">
           <Grid>
-            <Image x:Name="image" Source="PlayerControl\PAUSE.NOFOCUS.PNG" Stretch="Uniform" Height="80" Width="80" Opacity="0.7" VerticalAlignment="Center"/>
+            <Image x:Name="image" Source="PlayerControl\PAUSE.NOFOCUS.PNG" Stretch="Uniform" Height="80" Width="80" Opacity="0.6" VerticalAlignment="Center"/>
           </Grid>
           <ControlTemplate.Triggers>
             <Trigger Property="HasFocus" Value="True">
@@ -2038,7 +2038,7 @@
       <Setter.Value>
         <ControlTemplate TargetType="{x:Type Button}">
           <Grid>
-            <Image x:Name="image" Source="PlayerControl\STOP.NOFOCUS.PNG" Stretch="Uniform" Height="80" Width="80" Opacity="0.7" VerticalAlignment="Center"/>
+            <Image x:Name="image" Source="PlayerControl\STOP.NOFOCUS.PNG" Stretch="Uniform" Height="80" Width="80" Opacity="0.6" VerticalAlignment="Center"/>
           </Grid>
           <ControlTemplate.Triggers>
             <Trigger Property="HasFocus" Value="True">
@@ -2056,7 +2056,7 @@
       <Setter.Value>
         <ControlTemplate TargetType="{x:Type Button}">
           <Grid>
-            <Image x:Name="image" Source="PlayerControl\FORWARD.NOFOCUS.PNG" Stretch="Uniform" Height="80" Width="80" Opacity="0.7" VerticalAlignment="Center"/>
+            <Image x:Name="image" Source="PlayerControl\FORWARD.NOFOCUS.PNG" Stretch="Uniform" Height="80" Width="80" Opacity="0.6" VerticalAlignment="Center"/>
           </Grid>
           <ControlTemplate.Triggers>
             <Trigger Property="HasFocus" Value="True">
@@ -2074,7 +2074,7 @@
       <Setter.Value>
         <ControlTemplate TargetType="{x:Type Button}">
           <Grid>
-            <Image x:Name="image" Source="PlayerControl\BACKWARD.NOFOCUS.PNG" Stretch="Uniform" Height="80" Width="80" Opacity="0.7" VerticalAlignment="Center"/>
+            <Image x:Name="image" Source="PlayerControl\BACKWARD.NOFOCUS.PNG" Stretch="Uniform" Height="80" Width="80" Opacity="0.6" VerticalAlignment="Center"/>
           </Grid>
           <ControlTemplate.Triggers>
             <Trigger Property="HasFocus" Value="True">
@@ -2092,7 +2092,7 @@
       <Setter.Value>
         <ControlTemplate TargetType="{x:Type Button}">
           <Grid>
-            <Image x:Name="image" Source="PlayerControl\NEXT.NOFOCUS.PNG" Stretch="Uniform" Height="80" Width="80" Opacity="0.7" VerticalAlignment="Center"/>
+            <Image x:Name="image" Source="PlayerControl\NEXT.NOFOCUS.PNG" Stretch="Uniform" Height="80" Width="80" Opacity="0.6" VerticalAlignment="Center"/>
           </Grid>
           <ControlTemplate.Triggers>
             <Trigger Property="HasFocus" Value="True">
@@ -2110,7 +2110,7 @@
       <Setter.Value>
         <ControlTemplate TargetType="{x:Type Button}">
           <Grid>
-            <Image x:Name="image" Source="PlayerControl\PREVIOUS.NOFOCUS.PNG" Stretch="Uniform" Height="80" Width="80" Opacity="0.7" VerticalAlignment="Center"/>
+            <Image x:Name="image" Source="PlayerControl\PREVIOUS.NOFOCUS.PNG" Stretch="Uniform" Height="80" Width="80" Opacity="0.6" VerticalAlignment="Center"/>
           </Grid>
           <ControlTemplate.Triggers>
             <Trigger Property="HasFocus" Value="True">
@@ -2128,7 +2128,7 @@
       <Setter.Value>
         <ControlTemplate TargetType="{x:Type Button}">
           <Grid>
-            <Image x:Name="image" Source="PlayerControl\SUBTITLES.NOFOCUS.PNG" Stretch="Uniform" Height="80" Width="80" Opacity="0.7" VerticalAlignment="Center"/>
+            <Image x:Name="image" Source="PlayerControl\SUBTITLES.NOFOCUS.PNG" Stretch="Uniform" Height="80" Width="80" Opacity="0.6" VerticalAlignment="Center"/>
           </Grid>
           <ControlTemplate.Triggers>
             <Trigger Property="HasFocus" Value="True">
@@ -2146,7 +2146,7 @@
       <Setter.Value>
         <ControlTemplate TargetType="{x:Type Button}">
           <Grid>
-            <Image x:Name="image" Source="PlayerControl\Record.NOFOCUS.PNG" Stretch="Uniform" Height="80" Width="80" Opacity="0.7" VerticalAlignment="Center"/>
+            <Image x:Name="image" Source="PlayerControl\Record.NOFOCUS.PNG" Stretch="Uniform" Height="80" Width="80" Opacity="0.6" VerticalAlignment="Center"/>
           </Grid>
           <ControlTemplate.Triggers>
             <Trigger Property="HasFocus" Value="True">
@@ -2164,7 +2164,7 @@
       <Setter.Value>
         <ControlTemplate TargetType="{x:Type Button}">
           <Grid>
-            <Image x:Name="image" Source="PlayerControl\Chapter.NOFOCUS.PNG" Stretch="Uniform" Height="80" Width="80" Opacity="0.7" VerticalAlignment="Center"/>
+            <Image x:Name="image" Source="PlayerControl\Chapter.NOFOCUS.PNG" Stretch="Uniform" Height="80" Width="80" Opacity="0.6" VerticalAlignment="Center"/>
           </Grid>
           <ControlTemplate.Triggers>
             <Trigger Property="HasFocus" Value="True">
@@ -2182,7 +2182,7 @@
       <Setter.Value>
         <ControlTemplate TargetType="{x:Type Button}">
           <Grid>
-            <Image x:Name="image" Source="PlayerControl\GUIDE.NOFOCUS.PNG" Stretch="Uniform" Height="80" Width="80" Opacity="0.7" VerticalAlignment="Center"/>
+            <Image x:Name="image" Source="PlayerControl\GUIDE.NOFOCUS.PNG" Stretch="Uniform" Height="80" Width="80" Opacity="0.6" VerticalAlignment="Center"/>
           </Grid>
           <ControlTemplate.Triggers>
             <Trigger Property="HasFocus" Value="True">
@@ -2200,7 +2200,7 @@
       <Setter.Value>
         <ControlTemplate TargetType="{x:Type Button}">
           <Grid>
-            <Image x:Name="image" Source="PlayerControl\MINUS.NOFOCUS.PNG" Stretch="Uniform" Height="80" Width="80" Opacity="0.7" VerticalAlignment="Center"/>
+            <Image x:Name="image" Source="PlayerControl\MINUS.NOFOCUS.PNG" Stretch="Uniform" Height="80" Width="80" Opacity="0.6" VerticalAlignment="Center"/>
           </Grid>
           <ControlTemplate.Triggers>
             <Trigger Property="HasFocus" Value="True">
@@ -2218,7 +2218,7 @@
       <Setter.Value>
         <ControlTemplate TargetType="{x:Type Button}">
           <Grid>
-            <Image x:Name="image" Source="PlayerControl\PLUS.NOFOCUS.PNG" Stretch="Uniform" Height="80" Width="80" Opacity="0.7" VerticalAlignment="Center"/>
+            <Image x:Name="image" Source="PlayerControl\PLUS.NOFOCUS.PNG" Stretch="Uniform" Height="80" Width="80" Opacity="0.6" VerticalAlignment="Center"/>
           </Grid>
           <ControlTemplate.Triggers>
             <Trigger Property="HasFocus" Value="True">
@@ -2236,7 +2236,7 @@
       <Setter.Value>
         <ControlTemplate TargetType="{x:Type Button}">
           <Grid>
-            <Image x:Name="image" Source="PlayerControl\MINUS.NOFOCUS.PNG" Stretch="Uniform" Height="80" Width="80" Opacity="0.7" VerticalAlignment="Center"/>
+            <Image x:Name="image" Source="PlayerControl\MINUS.NOFOCUS.PNG" Stretch="Uniform" Height="80" Width="80" Opacity="0.6" VerticalAlignment="Center"/>
           </Grid>
           <ControlTemplate.Triggers>
             <Trigger Property="HasFocus" Value="True">
@@ -2254,7 +2254,7 @@
       <Setter.Value>
         <ControlTemplate TargetType="{x:Type Button}">
           <Grid>
-            <Image x:Name="image" Source="PlayerControl\PLUS.NOFOCUS.PNG" Stretch="Uniform" Height="80" Width="80" Opacity="0.7" VerticalAlignment="Center"/>
+            <Image x:Name="image" Source="PlayerControl\PLUS.NOFOCUS.PNG" Stretch="Uniform" Height="80" Width="80" Opacity="0.6" VerticalAlignment="Center"/>
           </Grid>
           <ControlTemplate.Triggers>
             <Trigger Property="HasFocus" Value="True">
@@ -2272,7 +2272,7 @@
       <Setter.Value>
         <ControlTemplate TargetType="{x:Type Button}">
           <Grid>
-            <Image x:Name="image" Source="PlayerControl\PREVIOUS_NOFOCUS.PNG" Stretch="Uniform" Height="80" Width="80" Opacity="0.7" VerticalAlignment="Center"/>
+            <Image x:Name="image" Source="PlayerControl\PREVIOUS_NOFOCUS.PNG" Stretch="Uniform" Height="80" Width="80" Opacity="0.6" VerticalAlignment="Center"/>
           </Grid>
           <ControlTemplate.Triggers>
             <Trigger Property="HasFocus" Value="True">
@@ -2290,7 +2290,7 @@
       <Setter.Value>
         <ControlTemplate TargetType="{x:Type Button}">
           <Grid>
-            <Image x:Name="image" Source="PlayerControl\NEXT_NOFOCUS.PNG" Stretch="Uniform" Height="80" Width="80" Opacity="0.7" VerticalAlignment="Center"/>
+            <Image x:Name="image" Source="PlayerControl\NEXT_NOFOCUS.PNG" Stretch="Uniform" Height="80" Width="80" Opacity="0.6" VerticalAlignment="Center"/>
           </Grid>
           <ControlTemplate.Triggers>
             <Trigger Property="HasFocus" Value="True">
@@ -2310,7 +2310,7 @@
       <Setter.Value>
         <ControlTemplate TargetType="{x:Type Button}">
           <Grid>
-            <Image x:Name="image" Source="PlayerControl\UP.NOFOCUS.PNG" Stretch="Uniform" Height="70" Width="70" Margin="0,0,0,0" VerticalAlignment="Center"/>
+            <Image x:Name="image" Source="PlayerControl\UP.NOFOCUS.PNG" Stretch="Uniform" Height="70" Width="70" VerticalAlignment="Center"/>
           </Grid>
           <ControlTemplate.Triggers>
             <Trigger Property="HasFocus" Value="True">
@@ -2327,7 +2327,7 @@
       <Setter.Value>
         <ControlTemplate TargetType="{x:Type Button}">
           <Grid>
-            <Image x:Name="image" Source="PlayerControl\DOWN.NOFOCUS.PNG" Stretch="Uniform" Height="70" Width="70" Margin="0,0,0,0" VerticalAlignment="Center"/>
+            <Image x:Name="image" Source="PlayerControl\DOWN.NOFOCUS.PNG" Stretch="Uniform" Height="70" Width="70" VerticalAlignment="Center"/>
           </Grid>
           <ControlTemplate.Triggers>
             <Trigger Property="HasFocus" Value="True">
@@ -2349,7 +2349,7 @@
       <Setter.Value>
         <ControlTemplate TargetType="{x:Type Button}">
           <Grid>
-            <Image x:Name="image" Source="PlayerControl\SEARCH.NOFOCUS.PNG" Stretch="Uniform" Height="45" Width="45" Margin="0,0,0,0" VerticalAlignment="Center"/>
+            <Image x:Name="image" Source="PlayerControl\SEARCH.NOFOCUS.PNG" Stretch="Uniform" Height="45" Width="45" VerticalAlignment="Center"/>
           </Grid>
           <ControlTemplate.Triggers>
             <Trigger Property="HasFocus" Value="True">

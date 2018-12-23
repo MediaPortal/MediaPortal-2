@@ -813,9 +813,6 @@
       <SubType>Designer</SubType>
     </Content>
     <Content Include="Skin\Nereus\themes\default\styles\MediaStyles.xaml" />
-    <Content Include="Skin\Nereus\superlayers\ScreenSaver.xaml">
-      <SubType>Designer</SubType>
-    </Content>
     <Content Include="Skin\Nereus\themes\default\styles\MediaConsts.xaml" />
     <Content Include="Skin\Nereus\screens\master_menu.xaml" />
   </ItemGroup>

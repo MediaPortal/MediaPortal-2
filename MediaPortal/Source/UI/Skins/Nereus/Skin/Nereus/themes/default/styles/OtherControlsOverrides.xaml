@@ -1070,25 +1070,25 @@
               <StackPanel Grid.Row="1" Grid.Column="0"  HorizontalAlignment="Stretch" Orientation="Horizontal">
                 <!-- Workaround to avoid layouting problems with LayoutTransform -->
                 <StackPanel x:Name="MouseControlsPanel" Orientation="Horizontal">
-                  <StackPanel.LayoutTransform>
+                  <!--StackPanel.LayoutTransform>
                     <TransformGroup>
                       <ScaleTransform ScaleX="1" ScaleY="1"/>
                     </TransformGroup>
-                  </StackPanel.LayoutTransform>
-                  <Button x:Name="ToogleFullScreen" Style="{ThemeResource ToogleFullscreenButtonStyle}" Margin="0,0,-2,0"
+                  </-->
+                  <Button x:Name="ToogleFullScreen" Style="{ThemeResource ToogleFullscreenButtonStyle}" 
                           Command="{Command Source={Service WorkflowManager},Path=NavigatePush,Parameters=882C1142-8028-4112-A67D-370E6E483A33}"/>
-                  <Button x:Name="StopButton" Style="{ThemeResource StopButtonStyle}" IsVisible="{Binding CanStop}" Command="{Command Stop}" Margin="-2,0,-2,0"/>
+                  <Button x:Name="StopButton" Style="{ThemeResource StopButtonStyle}" IsVisible="{Binding CanStop}" Command="{Command Stop}" />
                   <Image Source="PlayerControl\DIVIDER.PNG" Height="35" Stretch="Uniform" VerticalAlignment="Center" Margin="3,0,3,0"/>
-                  <Button x:Name="SkipBackButton" Style="{ThemeResource SkipBackButtonStyle}" IsVisible="{Binding CanSkipBack}" Command="{Command Previous}" Margin="-2,0,-2,0"/>
-                  <Button x:Name="RewindButton" Style="{ThemeResource RewindButtonStyle}" IsVisible="{Binding CanSeekBackward}" Command="{Command SeekBackward}" Margin="-2,0,-2,0"/>
-                  <Button x:Name="PlayButton" Style="{ThemeResource PlayButtonStyle}" IsVisible="{Binding CanPlay}" Command="{Command Play}" Margin="-2,0,-2,0"/>
-                  <Button x:Name="PauseButton" Style="{ThemeResource PauseButtonStyle}" IsVisible="{Binding CanPause}" Command="{Command Pause}" Margin="-2,0,-2,0"/>
-                  <Button x:Name="ForwardButton" Style="{ThemeResource ForwardButtonStyle}" IsVisible="{Binding CanSeekForward}" Command="{Command SeekForward}" Margin="-2,0,-2,0"/>
-                  <Button x:Name="SkipForwardButton" Style="{ThemeResource SkipForwardButtonStyle}" IsVisible="{Binding CanSkipForward}" Command="{Command Next}" Margin="-2,0,-2,0"/>
+                  <Button x:Name="SkipBackButton" Style="{ThemeResource SkipBackButtonStyle}" IsVisible="{Binding CanSkipBack}" Command="{Command Previous}" />
+                  <Button x:Name="RewindButton" Style="{ThemeResource RewindButtonStyle}" IsVisible="{Binding CanSeekBackward}" Command="{Command SeekBackward}" />
+                  <Button x:Name="PlayButton" Style="{ThemeResource PlayButtonStyle}" IsVisible="{Binding CanPlay}" Command="{Command Play}" />
+                  <Button x:Name="PauseButton" Style="{ThemeResource PauseButtonStyle}" IsVisible="{Binding CanPause}" Command="{Command Pause}" />
+                  <Button x:Name="ForwardButton" Style="{ThemeResource ForwardButtonStyle}" IsVisible="{Binding CanSeekForward}" Command="{Command SeekForward}" />
+                  <Button x:Name="SkipForwardButton" Style="{ThemeResource SkipForwardButtonStyle}" IsVisible="{Binding CanSkipForward}" Command="{Command Next}"/>
                   <Image Source="PlayerControl\DIVIDER.PNG" Height="35" Stretch="Uniform" VerticalAlignment="Center" Margin="3,0,3,0"/>
-                  <Button x:Name="Audio" Style="{ThemeResource AudioActiveButtonStyle}" IsVisible="{Binding IsAudio}" Command="{Command AudioButtonPressed}" Margin="-2,0,-2,0"/>
-                  <Button x:Name="VolumeDownButton" Style="{ThemeResource VolumeDownButtonStyle}" Margin="-2,0,-2,0"/>
-                  <Button x:Name="VolumeUpButton" Style="{ThemeResource VolumeUpButtonStyle}" Margin="-2,0,0,0"/>
+                  <Button x:Name="Audio" Style="{ThemeResource AudioActiveButtonStyle}" IsVisible="{Binding IsAudio}" Command="{Command AudioButtonPressed}"/>
+                  <Button x:Name="VolumeDownButton" Style="{ThemeResource VolumeDownButtonStyle}"/>
+                  <Button x:Name="VolumeUpButton" Style="{ThemeResource VolumeUpButtonStyle}"/>
                 </StackPanel>
               </StackPanel>
             </Grid>
