@@ -1550,9 +1550,9 @@
       <Setter.Value>
         <ControlTemplate TargetType="{x:Type Button}">
           <DockPanel>
-            <Grid DockPanel.Dock="Left" Height="84" Width="84">
+            <Grid DockPanel.Dock="Left" Height="80" Width="80">
               <Image x:Name="ItemImage" HorizontalAlignment="Center" VerticalAlignment="Center" Stretch="Uniform" 
-                     DockPanel.Dock="Center" Margin="9" RenderTransformOrigin="0.5,0.5">
+                     DockPanel.Dock="Center" Margin="10" RenderTransformOrigin="0.5,0.5">
                 <Image.RenderTransform>
                   <RotateTransform x:Name="AnimatedRotateTransform" Angle="0" />
                 </Image.RenderTransform>
@@ -1581,7 +1581,7 @@
                   </Trigger>
                 </Image.Triggers>
               </Image>
-              <Image x:Name="image2" Source="CP_Play.png" Stretch="Uniform" Margin="36,33,33,33" Opacity="0.6" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+              <Image x:Name="image2" Source="CP_Play.png" Stretch="Uniform" Margin="34,31,31,31" Opacity="0.6" HorizontalAlignment="Center" VerticalAlignment="Center"/>
             </Grid>
             
             <StackPanel Orientation="Vertical" Margin="5,15,5,15" DockPanel.Dock="Right" IsVisible="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}},Path=HasFocus}">
@@ -1680,7 +1680,25 @@
               <!-- Outer grid is needed because of DataContext used by Button -->
               <Grid Context="{StaticResource NotificationsModel}">
                 <!-- Need to repeat the context here because the Button (ContentControl) sets the DataContext on the Content element -->
-                <Image x:Name="icon" Source="{Binding NotificationSymbolRelFilePath}" Width="50" Stretch="Uniform" Opacity="0.7"/>
+                <Image x:Name="icon" Source="{Binding NotificationSymbolRelFilePath}" Width="80" Stretch="Uniform" Opacity="0.7" Margin="10"
+                       IsVisible="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}},Path=!HasFocus}"/>
+                <Image x:Name="icon_focus" Width="80" Stretch="Uniform" Margin="10"
+                       IsVisible="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}},Path=HasFocus}">
+                  <Image.Source>
+                    <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0}=={1} ? {2} : ({0}=={3} ? {4} : ({0}=={5} ? {6} : ({0}=={7} ? {8} : {9})))">
+                      <Binding Path="NotificationSymbolRelFilePath"/>
+                      <Binding Source="error-icon.png"/>
+                      <Binding Source="error-icon_focus.png"/>
+                      <Binding Source="info-icon.png"/>
+                      <Binding Source="info-icon_focus.png"/>
+                      <Binding Source="user-interaction-required-icon.png"/>
+                      <Binding Source="user-interaction-required-icon_focus.png"/>
+                      <Binding Source="warning-icon.png"/>
+                      <Binding Source="warning-icon_focus.png"/>
+                      <Binding Source=""/>
+                    </MultiBinding>
+                  </Image.Source>
+                </Image>
                 <StackPanel Orientation="Horizontal" IsVisible="{Binding IsMoreThanOneNotificationAvailable}"
                             HorizontalAlignment="Right" VerticalAlignment="Bottom">
                   <Label Content="(" FontSize="{ThemeResource TinyFontSize}" Color="{ThemeResource TextColor}"/>
