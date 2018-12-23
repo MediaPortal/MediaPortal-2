@@ -143,39 +143,12 @@ Parameters which have to be accessible by a DynamicResource lookup:
               <TriggerCommand Command="{Command Source={StaticResource MenuModel}, Path=CloseMenu}"/>
             </EventTrigger>
           </StackPanel.Triggers>
-          <Button Height="80" Width="80" Style="{ThemeResource EmptyButtonStyle}" VerticalAlignment="Center" 
-                  Command="{Command Source={Service WorkflowManager},Path=NavigatePush,Parameters=BBFA7DB7-5055-48D5-A904-0F0C79849369}">
-            <DockPanel LastChildFill="False" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
-              <Image x:Name="ItemImage" HorizontalAlignment="Center" VerticalAlignment="Center" Stretch="Uniform" 
-                     DockPanel.Dock="Center" Source="power.png" Opacity="0.6" Margin="10"
-                     IsVisible="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}},Path=!HasFocus}"/>
-              <Image x:Name="ItemImageFocus" HorizontalAlignment="Center" VerticalAlignment="Center" Stretch="Uniform" 
-                     DockPanel.Dock="Center" Source="power_focus.png" Opacity="1" Margin="10"
-                     IsVisible="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}},Path=HasFocus}"/>
-            </DockPanel>
-          </Button>
-          <Button Height="80" Width="80" Style="{ThemeResource EmptyButtonStyle}" IsVisible="{Binding Source={StaticResource LoginModel},Path=EnableUserLogin}"
-                  Command="{Command Source={Service WorkflowManager},Path=NavigatePush,Parameters=2529B0F0-8415-4A4E-971B-38D6CDD2406A}">
-            <DockPanel LastChildFill="False" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
-              <Image x:Name="ItemImage2" HorizontalAlignment="Center" VerticalAlignment="Center" Stretch="Uniform" 
-                     DockPanel.Dock="Center" Source="user.png" Opacity="0.6" Margin="10"
-                     IsVisible="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}},Path=!HasFocus}"/>
-              <Image x:Name="ItemImageFocus2" HorizontalAlignment="Center" VerticalAlignment="Center" Stretch="Uniform" 
-                     DockPanel.Dock="Center" Source="user_focus.png" Opacity="1" Margin="10"
-                     IsVisible="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}},Path=HasFocus}"/>
-            </DockPanel>
-          </Button>
-          <Button Height="80" Width="80" Style="{ThemeResource EmptyButtonStyle}"
-                  Command="{Command Source={Service WorkflowManager},Path=NavigatePush,Parameters=E7422BB8-2779-49ab-BC99-E3F56138061B}">
-            <DockPanel LastChildFill="False" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
-              <Image x:Name="ItemImage3" HorizontalAlignment="Center" VerticalAlignment="Center" Stretch="Uniform" 
-                     DockPanel.Dock="Center" Source="settings.png" Opacity="0.6" Margin="10"
-                     IsVisible="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}},Path=!HasFocus}"/>
-              <Image x:Name="ItemImageFocus3" HorizontalAlignment="Center" VerticalAlignment="Center" Stretch="Uniform" 
-                     DockPanel.Dock="Center" Source="settings_focus.png" Opacity="1" Margin="10"
-                     IsVisible="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}},Path=HasFocus}"/>
-            </DockPanel>
-          </Button>
+          <Button Height="80" Width="80" Style="{ThemeResource EmptyButtonStyle}" VerticalAlignment="Center"
+                  Command="{Command Source={Service WorkflowManager},Path=NavigatePush,Parameters=BBFA7DB7-5055-48D5-A904-0F0C79849369}"/>
+          <Button Height="80" Width="80" Style="{ThemeResource UserButtonStyle}" IsVisible="{Binding Source={StaticResource LoginModel},Path=EnableUserLogin}"
+                  Command="{Command Source={Service WorkflowManager},Path=NavigatePush,Parameters=2529B0F0-8415-4A4E-971B-38D6CDD2406A}"/>
+          <Button Height="80" Width="80" Style="{ThemeResource SettingsButtonStyle}"
+                  Command="{Command Source={Service WorkflowManager},Path=NavigatePush,Parameters=E7422BB8-2779-49ab-BC99-E3F56138061B}"/>
         </StackPanel>
         
         <StackPanel Orientation="Horizontal" Context="{Service Window}" IsVisible="{Binding Source={StaticResource MouseModel},Path=IsMouseUsed}" VerticalAlignment="Center">
@@ -186,8 +159,9 @@ Parameters which have to be accessible by a DynamicResource lookup:
         <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Height="80"
                     DataContext="{Binding Source={StaticResource StateModel}, Path=[C37B62D0-8E87-42A4-877E-B41944DA9FC9]}"
                     IsVisible="{Binding Converter={StaticResource ReferenceToBoolConverter}}">
-          <Label FontSize="{ThemeResource SmallerFontSize}" Margin="10,0,0,0"
-                     Color="{ThemeResource TextColor}" VerticalAlignment="Center" HorizontalAlignment="Right">
+          <Button Style="{ThemeResource ImportingButtonStyle}" IsVisible="{Binding IsImporting}" Height="80" Width="80"/>
+          <Label FontSize="{ThemeResource SmallerFontSize}" Margin="0,0,10,0"
+                 Color="{ThemeResource TextColor}" VerticalAlignment="Center" HorizontalAlignment="Left">
             <Label.IsVisible>
               <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0}>=0">
                 <Binding Path="Progress"/>
@@ -197,7 +171,6 @@ Parameters which have to be accessible by a DynamicResource lookup:
               <Binding Path="Progress" Converter="{StaticResource StringFormatConverter}" ConverterParameter="{}{0}%"/>
             </Label.Content>
           </Label>
-          <Button Style="{ThemeResource ImportingButtonStyle}" IsVisible="{Binding IsImporting}" Height="80" Width="80"/>
         </StackPanel>
         
         <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="0,0,5,0"

@@ -1400,12 +1400,6 @@
 
   <!-- Global buttons -->
 
-  <Style x:Key="PowerButtonStyle" BasedOn="{ThemeResource BaseWindowButtonStyle}">
-    <Style.Resources>
-      <ResourceWrapper x:Key="ContentControlTemplate" Resource="{ThemeResource PowerControlTemplate}" />
-    </Style.Resources>
-  </Style>
-
   <Style x:Key="WindowCloseButtonStyle" BasedOn="{ThemeResource BaseWindowButtonStyle}">
     <Style.Resources>
       <ResourceWrapper x:Key="ContentControlTemplate" Resource="{ThemeResource WindowCloseControlTemplate}" />
@@ -1552,7 +1546,7 @@
           <DockPanel>
             <Grid DockPanel.Dock="Left" Height="80" Width="80">
               <Image x:Name="ItemImage" HorizontalAlignment="Center" VerticalAlignment="Center" Stretch="Uniform" 
-                     DockPanel.Dock="Center" Margin="10" RenderTransformOrigin="0.5,0.5">
+                     Margin="10" RenderTransformOrigin="0.5,0.5">
                 <Image.RenderTransform>
                   <RotateTransform x:Name="AnimatedRotateTransform" Angle="0" />
                 </Image.RenderTransform>
@@ -1600,7 +1594,7 @@
     <Setter Property="Template">
       <Setter.Value>
         <ControlTemplate TargetType="{x:Type Button}">
-          <Grid Height="58" Width="58">
+          <Grid Height="80" Width="80">
             <Image x:Name="RecordingIcon" Source="Recording.png" Stretch="Uniform" Margin="10" HorizontalAlignment="Center" VerticalAlignment="Center">
               <Image.Triggers>
                 <Trigger Property="IsEnabled" Value="True">
@@ -1655,13 +1649,13 @@
               </Image.Triggers>
             </Image>
             <Image x:Name="image2" Source="Import.png" Stretch="Uniform" Margin="31,31,31,31" Opacity="0.6" HorizontalAlignment="Center" VerticalAlignment="Center">
-              <Image.Triggers>
-                <Trigger Property="HasFocus" Value="True">
-                  <Setter TargetName="image2" Property="Opacity" Value="1"/>
-                </Trigger>
-              </Image.Triggers>
             </Image>
           </Grid>
+          <ControlTemplate.Triggers>
+            <Trigger Property="HasFocus" Value="True">
+              <Setter TargetName="image2" Property="Opacity" Value="1"/>
+            </Trigger>
+          </ControlTemplate.Triggers>
         </ControlTemplate>
       </Setter.Value>
     </Setter>
@@ -1671,20 +1665,84 @@
     <Setter Property="Template">
       <Setter.Value>
         <ControlTemplate TargetType="{x:Type Button}">
-          <DockPanel>
-            <Image x:Name="UserIcon" DockPanel.Dock="Left" Height="80" Width="80" Source="Person.png" Stretch="Uniform"
-                   HorizontalAlignment="Center" VerticalAlignment="Center" Opacity="0.9"/>
+          <DockPanel HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+            <Grid DockPanel.Dock="Left" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+              <Image x:Name="UserIcon" HorizontalAlignment="Center" VerticalAlignment="Center" Stretch="Uniform" Margin="10">
+                <Image.Source>
+                  <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
+                    <Binding RelativeSource="{RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}}" Path="HasFocus"/>
+                    <Binding Source="User_focus.png"/>
+                    <Binding Source="User.png"/>
+                  </MultiBinding>
+                </Image.Source>
+                <Image.Opacity>
+                  <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
+                    <Binding RelativeSource="{RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}}" Path="HasFocus"/>
+                    <Binding Source="1"/>
+                    <Binding Source="0.6"/>
+                  </MultiBinding>
+                </Image.Opacity>
+              </Image>
+            </Grid>
             <Label x:Name="UserLabel" DockPanel.Dock="Right" Margin="-12,0,0,0" IsVisible="{Binding Source={StaticResource LoginModel}, Path=IsUserLoggedIn}"
                    DataContext="{Binding Source={StaticResource LoginModel}, Path=CurrentUser}" Content="{Binding Path=Name}" 
                    Color="{ThemeResource MenuTextBackground}" FontSize="{ThemeResource SmallerFontSize}" VerticalAlignment="Center">
             </Label>
           </DockPanel>
-          <ControlTemplate.Triggers>
-            <Trigger Property="HasFocus" Value="True">
-              <Setter TargetName="UserLabel" Property="Color" Value="{ThemeResource TextColor}"/>
-              <Setter TargetName="UserIcon" Property="Opacity" Value="1.2"/>
-            </Trigger>
-          </ControlTemplate.Triggers>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+
+  <Style x:Key="SettingsButtonStyle" TargetType="{x:Type Button}">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="{x:Type Button}">
+          <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+            <Image x:Name="SettingsIcon" HorizontalAlignment="Center" VerticalAlignment="Center" Stretch="Uniform" Margin="10">
+              <Image.Source>
+                <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
+                  <Binding RelativeSource="{RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}}" Path="HasFocus"/>
+                  <Binding Source="Settings_focus.png"/>
+                  <Binding Source="Settings.png"/>
+                </MultiBinding>
+              </Image.Source>
+              <Image.Opacity>
+                <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
+                  <Binding RelativeSource="{RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}}" Path="HasFocus"/>
+                  <Binding Source="1"/>
+                  <Binding Source="0.6"/>
+                </MultiBinding>
+              </Image.Opacity>
+            </Image>
+          </Grid>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+
+  <Style x:Key="PowerButtonStyle" TargetType="{x:Type Button}">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="{x:Type Button}">
+          <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+            <Image x:Name="PowerIcon" HorizontalAlignment="Center" VerticalAlignment="Center" Stretch="Uniform" Margin="10">
+              <Image.Source>
+                <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
+                  <Binding RelativeSource="{RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}}" Path="HasFocus"/>
+                  <Binding Source="Power_focus.png"/>
+                  <Binding Source="Power.png"/>
+                </MultiBinding>
+              </Image.Source>
+              <Image.Opacity>
+                <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
+                  <Binding RelativeSource="{RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}}" Path="HasFocus"/>
+                  <Binding Source="1"/>
+                  <Binding Source="0.6"/>
+                </MultiBinding>
+              </Image.Opacity>
+            </Image>
+          </Grid>
         </ControlTemplate>
       </Setter.Value>
     </Setter>
