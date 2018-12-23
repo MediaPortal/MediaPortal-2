@@ -68,8 +68,7 @@ Parameters which have to be accessible by a DynamicResource lookup:
     <Control x:Name="BottomGradient" Grid.Column="0" Grid.Row="1" HorizontalAlignment="Stretch" VerticalAlignment="Bottom" Margin="-1"
              Template="{DynamicResource ResourceKey=BottomGradient_Template}"/>
 
-    <DockPanel Grid.Column="0" Grid.Row="0" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Panel.ZIndex="100"
-               LastChildFill="True">
+    <DockPanel Grid.Column="0" Grid.Row="0" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Panel.ZIndex="100" LastChildFill="True">
       <Grid x:Name="HeaderPanel" DockPanel.Dock="Top">
         <Grid.RowDefinitions>
           <RowDefinition Height="90"/>
@@ -78,6 +77,7 @@ Parameters which have to be accessible by a DynamicResource lookup:
           <ColumnDefinition Width="450"/>
           <ColumnDefinition Width="*"/>
         </Grid.ColumnDefinitions>
+        
         <Grid x:Name="WindowButtonsPanel" Grid.Column="0" Grid.Row="0" HorizontalAlignment="Stretch" VerticalAlignment="Top" Margin="30,10,0,10">
           <Grid.Resources>
             <Model x:Key="NotificationsModel" Id="843F373D-0B4B-47ba-8DD1-0D18F00FAAD3"/>
@@ -91,8 +91,6 @@ Parameters which have to be accessible by a DynamicResource lookup:
               <Control Style="{ThemeResource NotificationControlStyle}" Margin="5,2,5,5" IsVisible="{Binding Source={StaticResource NotificationsModel},Path=IsNotificationsHintVisible}"
                        HorizontalAlignment="Left" VerticalAlignment="Center"/>
             </StackPanel>
-            <!--Button Style="{ThemeResource UserButtonStyle}" Margin="0,0,5,0" IsEnabled="False" IsVisible="{Binding Source={StaticResource LoginModel},Path=EnableUserLogin}"
-                    Command="{Command Source={Service WorkflowManager},Path=NavigatePush,Parameters=2529B0F0-8415-4A4E-971B-38D6CDD2406A}"/-->
             <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="0,0,5,0"
                         DataContext="{Binding Source={StaticResource StateModel}, Path=[C37B62D0-8E87-42A4-877E-B41944DA9FC9]}"
                         IsVisible="{Binding Converter={StaticResource ReferenceToBoolConverter}}">
@@ -114,9 +112,8 @@ Parameters which have to be accessible by a DynamicResource lookup:
                         IsVisible="{Binding Converter={StaticResource ReferenceToBoolConverter}}">
               <Button Style="{ThemeResource RecordingButtonStyle}" IsVisible="{Binding IsRecording}"/>
             </StackPanel>
-            <mp_special_controls:PlayerControl Style="{ThemeResource CPPlayerControlStyle}" VerticalAlignment="Center"
-                  AutoVisibility="True" HorizontalAlignment="Left">
-            </mp_special_controls:PlayerControl>
+            <mp_special_controls:PlayerControl Style="{ThemeResource CPPlayerControlStyle}" 
+                                               VerticalAlignment="Center" AutoVisibility="True" HorizontalAlignment="Left"/>
           </StackPanel>
         </Grid>
         <!-- WindowButtonsPanel -->
@@ -128,8 +125,8 @@ Parameters which have to be accessible by a DynamicResource lookup:
             <ColumnDefinition Width="Auto"/>
           </Grid.ColumnDefinitions>
           <Label x:Name="HeaderLabel" HorizontalAlignment="Right" Margin="0,0,50,0"
-                       FontSize="{ThemeResource HeaderFontSize}" Color="{ThemeResource WindowHeaderColor}"
-                       Content="{Binding Source={DynamicResource Header_Text},Path=Resource}">
+                 FontSize="{ThemeResource HeaderFontSize}" Color="{ThemeResource WindowHeaderColor}"
+                 Content="{Binding Source={DynamicResource Header_Text},Path=Resource}">
           </Label>
           <Grid.OpacityMask>
             <LinearGradientBrush StartPoint="0.5,0.0" EndPoint="0.5,1.0">
@@ -141,13 +138,13 @@ Parameters which have to be accessible by a DynamicResource lookup:
       </Grid>
 
       <!-- Order matters here: The client area control has to be the last control (LastChildFill) -->
-      <Control x:Name="ClientArea" DockPanel.Dock="Center" 
+      <Control x:Name="ClientArea" DockPanel.Dock="Center"
                Template="{DynamicResource ResourceKey=Client_Template}">
       </Control>
     </DockPanel>
 
     <!-- FooterPanel -->
-    <Grid Grid.Row="1" x:Name="FooterPanel" Margin="1000,0,0,0">
+    <Grid Grid.Row="1" x:Name="FooterPanel" Margin="1000,0,0,0" Panel.ZIndex="2000">
       <Grid.RowDefinitions>
          <RowDefinition Height="*"/>
       </Grid.RowDefinitions>
@@ -157,9 +154,9 @@ Parameters which have to be accessible by a DynamicResource lookup:
       <Control x:Name="AlternativeFooterControl" HorizontalAlignment="Stretch"
                Template="{DynamicResource ResourceKey=Alternative_Footer_Template}">
       </Control>
-      <mp_special_controls:PlayerControl Margin="15" Style="{ThemeResource NavigationScreenPlayerControlStyle}" 
+      <mp_special_controls:PlayerControl Margin="10" Style="{ThemeResource NavigationScreenPlayerControlStyle}" 
                   AutoVisibility="True" PlayerContext="PrimaryPlayer" HorizontalAlignment="Right" VerticalAlignment="Bottom"/>
-      <mp_special_controls:PlayerControl Margin="15" Style="{ThemeResource NavigationScreenPlayerControlStyle}"
+      <mp_special_controls:PlayerControl Margin="10" Style="{ThemeResource NavigationScreenPlayerControlStyle}"
                   AutoVisibility="True" PlayerContext="SecondaryPlayer" HorizontalAlignment="Right" VerticalAlignment="Bottom"/>
     </Grid>
 

@@ -130,7 +130,7 @@ Parameters which have to be accessible by a DynamicResource lookup:
           </Grid.Triggers>
 
           <!-- Top Gradient Overlay-->
-          <Border HorizontalAlignment="Stretch" VerticalAlignment="Stretch" BorderThickness="0" Margin="-200,0,-30,0">
+          <Border HorizontalAlignment="Stretch" VerticalAlignment="Stretch" BorderThickness="0" Margin="-200,0,-30,0" Panel.ZIndex="1000">
             <Border.Background>
               <LinearGradientBrush StartPoint="0.5,0" EndPoint="0.5,1">
                 <GradientStop Color="#E6000000" Offset="0" />
@@ -140,7 +140,7 @@ Parameters which have to be accessible by a DynamicResource lookup:
           </Border>
 
           <!-- Bottom Gradient Overlay-->
-          <Border Grid.Row="1" HorizontalAlignment="Stretch" VerticalAlignment="Bottom" BorderThickness="0" Margin="-200,0,-30,-100" Height="100">
+          <Border Grid.Row="1" HorizontalAlignment="Stretch" VerticalAlignment="Bottom" BorderThickness="0" Margin="-200,0,-30,-100" Height="100" Panel.ZIndex="1000">
             <Border.Background>
               <LinearGradientBrush StartPoint="0.5,0" EndPoint="0.5,1">
                 <GradientStop Color="#00000000" Offset="0" />

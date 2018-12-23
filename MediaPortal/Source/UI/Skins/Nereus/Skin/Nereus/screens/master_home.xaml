@@ -63,7 +63,7 @@ Parameters which have to be accessible by a DynamicResource lookup:
 
       </Grid>
       <!-- FooterPanel -->
-      <Grid x:Name="FooterPanel" Margin="2" DockPanel.Dock="Bottom">
+      <Grid x:Name="FooterPanel" Margin="2" DockPanel.Dock="Bottom" Panel.ZIndex="200">
         <Grid.RowDefinitions>
           <RowDefinition Height="100"/>
         </Grid.RowDefinitions>
@@ -79,7 +79,7 @@ Parameters which have to be accessible by a DynamicResource lookup:
         </StackPanel>
       </Grid>
       <!-- Order matters here: The client area control has to be the last control (LastChildFill) -->
-      <Control DockPanel.Dock="Center" x:Name="ClientArea" Template="{DynamicResource Client_Template}"/>
+      <Control DockPanel.Dock="Center" x:Name="ClientArea" Template="{DynamicResource Client_Template}" Panel.ZIndex="100"/>
       
     </DockPanel>
 
@@ -136,14 +136,14 @@ Parameters which have to be accessible by a DynamicResource lookup:
       </Grid.ColumnDefinitions>
       
       <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-        <StackPanel Orientation="Horizontal" Margin="0,0,20,0">
+        <StackPanel Orientation="Horizontal" Margin="0,0,10,0">
           <StackPanel.Triggers>
             <!--Close the hidden menu when the main content gets focus-->
             <EventTrigger RoutedEvent="FrameworkElement.GotFocus">
               <TriggerCommand Command="{Command Source={StaticResource MenuModel}, Path=CloseMenu}"/>
             </EventTrigger>
           </StackPanel.Triggers>
-          <Button Height="80" Width="80" Style="{ThemeResource EmptyButtonStyle}" VerticalAlignment="Center"
+          <Button Height="80" Width="80" Style="{ThemeResource PowerButtonStyle}" VerticalAlignment="Center"
                   Command="{Command Source={Service WorkflowManager},Path=NavigatePush,Parameters=BBFA7DB7-5055-48D5-A904-0F0C79849369}"/>
           <Button Height="80" Width="80" Style="{ThemeResource UserButtonStyle}" IsVisible="{Binding Source={StaticResource LoginModel},Path=EnableUserLogin}"
                   Command="{Command Source={Service WorkflowManager},Path=NavigatePush,Parameters=2529B0F0-8415-4A4E-971B-38D6CDD2406A}"/>
@@ -160,7 +160,7 @@ Parameters which have to be accessible by a DynamicResource lookup:
                     DataContext="{Binding Source={StaticResource StateModel}, Path=[C37B62D0-8E87-42A4-877E-B41944DA9FC9]}"
                     IsVisible="{Binding Converter={StaticResource ReferenceToBoolConverter}}">
           <Button Style="{ThemeResource ImportingButtonStyle}" IsVisible="{Binding IsImporting}" Height="80" Width="80"/>
-          <Label FontSize="{ThemeResource SmallerFontSize}" Margin="0,0,10,0"
+          <Label FontSize="{ThemeResource SmallerFontSize}" Margin="-5,0,10,0"
                  Color="{ThemeResource TextColor}" VerticalAlignment="Center" HorizontalAlignment="Left">
             <Label.IsVisible>
               <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0}>=0">
