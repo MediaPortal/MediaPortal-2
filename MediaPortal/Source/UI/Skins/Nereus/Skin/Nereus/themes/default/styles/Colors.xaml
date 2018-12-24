@@ -7,6 +7,7 @@
   <!-- ************************** Nereus colors start ****************************** -->
   <ResourceWrapper x:Key="MainColorForeground" Resource="#009999"/>
   <ResourceWrapper x:Key="TextColorForeground" Resource="#00CCCC"/>
+  <ResourceWrapper x:Key="DialogHeaderColor" Resource="{ThemeResource MainColorForeground}"/>
 
   <ResourceWrapper x:Key="StarRatingSelectedColor" Resource="#FFFFFFFF"/>
   <ResourceWrapper x:Key="StarRatingBackgroundColor" Resource="#009999"/>
@@ -15,8 +16,9 @@
   
   <ResourceWrapper x:Key="MenuTextForeground" Resource="White"/> 
   <ResourceWrapper x:Key="MenuTextBackground" Resource="#FF757575"/>
-  <ResourceWrapper x:Key="SlideMenuUnfocusedColor" Resource="#66000000"/>
 
+  <ResourceWrapper x:Key="SlideMenuUnfocusedColor" Resource="#66000000"/>
+ 
   <ResourceWrapper x:Key="MediaItemOfflineColor" Resource="#FF475671"/>
   <ResourceWrapper x:Key="MediaItemUnwatchedColor" Resource="#FF99b9c0"/>
   <ResourceWrapper x:Key="MediaItemWatchedColor" Resource="#FF5383b1"/>
@@ -43,6 +45,7 @@
 
   <ResourceWrapper x:Key="DialogBackgroundGradient1Color" Resource="#F2447da7"/>
   <ResourceWrapper x:Key="DialogBackgroundGradient2Color" Resource="#F2124273"/>
+  <ResourceWrapper x:Key="DialogScreenBackgroundColor" Resource="#4D000000"/>
   <ResourceWrapper x:Key="DialogBackgroundFadeColor" Resource="#081643"/>
 
   <ResourceWrapper x:Key="DialogBorderColor">
@@ -59,7 +62,6 @@
   <ResourceWrapper x:Key="ProgressBarBackgroundColor" Resource="#FFc1c1c1"/>
   <ResourceWrapper x:Key="ProgressBarFillColor" Resource="#FF4b76a0"/>
 
-  <ResourceWrapper x:Key="DialogHeaderColor" Resource="#80FFFFFF"/>
   <ResourceWrapper x:Key="TextColor" Resource="White"/>
   <ResourceWrapper x:Key="HintTextColor" Resource="{ThemeResource DialogHeaderColor}"/>
   <ResourceWrapper x:Key="EmphasisTextColor" Resource="Yellow"/>
@@ -145,7 +147,6 @@
   <!-- Black -->
   <ResourceWrapper x:Key="DialogCloseButtonCrossColor" Resource="#FF484848"/>
 
-  <ResourceWrapper x:Key="DialogScreenBackgroundColor" Resource="#4D000000"/>
     
 
     <!-- Light blue with some green -->

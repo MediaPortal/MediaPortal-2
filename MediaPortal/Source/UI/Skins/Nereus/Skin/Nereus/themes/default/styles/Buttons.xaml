@@ -285,15 +285,7 @@
       <Setter.Value>
         <ControlTemplate>
           <DockPanel Name="ButtonControlRectangle" Margin="2" IsVisible="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}},Path=HasFocus}">
-            <Rectangle Name="ButtonBottomShadow" DockPanel.Dock="Center" RadiusX="4" RadiusY="4" StrokeThickness="0">
-              <Rectangle.Fill>
-                <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
-                  <GradientStop Color="#00000000" Offset="0"/>
-                  <GradientStop Color="#00000000" Offset="0.5"/>
-                  <GradientStop Color="#59000000" Offset="1"/>
-                </LinearGradientBrush>
-              </Rectangle.Fill>
-            </Rectangle>
+            <Rectangle Name="ButtonBottomShadow" DockPanel.Dock="Center" StrokeThickness="0" Fill="{ThemeResource MainColorForeground}"/>
           </DockPanel>
         </ControlTemplate>
       </Setter.Value>
@@ -304,21 +296,16 @@
     <Setter Property="Template">
       <Setter.Value>
         <ControlTemplate>
-          <DockPanel Name="ButtonControlRectangle" Margin="2" IsVisible="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}},Path=HasFocus}">
-            <Rectangle Name="ButtonFrame" DockPanel.Dock="Center" RadiusX="4" RadiusY="4" StrokeThickness="3">
-              <Rectangle.Stroke>
-                <LinearGradientBrush StartPoint="0,0" EndPoint="0.02,1.4">
-                  <GradientStop Color="#CCFFFFFF" Offset="0"/>
-                  <GradientStop Color="#CCFFFFFF" Offset="0.7"/>
-                  <GradientStop Color="#66FFFFFF" Offset="1"/>
-                </LinearGradientBrush>
-              </Rectangle.Stroke>
-            </Rectangle>
-            <Rectangle Name="ButtonUpperShine" DockPanel.Dock="Center" RadiusX="3.5" RadiusY="3.5" StrokeThickness="0" Margin="2">
-              <Rectangle.Fill>
-                <ImageBrush ImageSource="Glass_frame.PNG" Stretch="Fill"/>
-              </Rectangle.Fill>
-            </Rectangle>
+          <DockPanel Name="ButtonControlRectangle" Margin="0,0,0,-10"
+                     IsVisible="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}},Path=HasFocus}">
+            <DockPanel.Background>
+              <LinearGradientBrush StartPoint="0.5,0" EndPoint="0.5,1">
+                <GradientStop Color="#FF009999" Offset="0.0"/>
+                <GradientStop Color="#FF009999" Offset="0.85"/>
+                <GradientStop Color="#66000000" Offset="0.85"/>
+                <GradientStop Color="#00000000" Offset="1.0"/>
+              </LinearGradientBrush>
+            </DockPanel.Background>
           </DockPanel>
         </ControlTemplate>
       </Setter.Value>
@@ -759,7 +746,7 @@
     <Setter Property="Template">
       <Setter.Value>
         <ControlTemplate>
-          <Grid x:Name="GrowControl" RenderTransformOrigin="0.5,0.5" Margin="0,1,0,1">
+          <Grid x:Name="GrowControl" RenderTransformOrigin="0.5,0.5" Margin="0,2,0,2">
             <Grid.ColumnDefinitions>
               <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
@@ -771,9 +758,9 @@
                 <ScaleTransform ScaleX="1" ScaleY="1"/>
               </TransformGroup>
             </Grid.RenderTransform>
-            <Control Style="{ThemeResource ButtonControlStyle}" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Grid.ZIndex="2"/>
-            <ContentPresenter x:Name="ButtonContentPresenter" Margin="10,5,40,5" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Grid.ZIndex="1"/>
-            <Control Style="{ThemeResource ButtonBaseControlStyle}" Margin="3" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Grid.ZIndex="0"/>
+            <Control Style="{ThemeResource ButtonListViewControlStyle}" Margin="-20,0,-20,0" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Grid.ZIndex="1"/>
+            <ContentPresenter x:Name="ButtonContentPresenter" Margin="0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Grid.ZIndex="2"/>
+            <!--Control Style="{ThemeResource ButtonBaseControlStyle}" Margin="3" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Grid.ZIndex="0"/-->
           </Grid>
           <ControlTemplate.Triggers>
             <Trigger Property="HasFocus" Value="True">
@@ -825,10 +812,9 @@
                 <ScaleTransform ScaleX="1" ScaleY="1"/>
               </TransformGroup>
             </Grid.RenderTransform>
+            <Control Style="{ThemeResource ButtonControlStyle}" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Grid.ZIndex="1"/>
             <Image Stretch="Uniform" HorizontalAlignment="Right" Height="30" Source="Playercontrol\Current.position.PNG" IsVisible="{Binding Path=Selected}" Margin="10"/>
-            <Control Style="{ThemeResource ButtonControlStyle}" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Grid.ZIndex="2"/>
-            <ContentPresenter x:Name="ButtonContentPresenter" Margin="10,5,45,5" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Grid.ZIndex="1"/>
-            <Control Style="{ThemeResource ButtonBaseControlStyle}" Margin="3" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Grid.ZIndex="0"/>
+            <ContentPresenter x:Name="ButtonContentPresenter" Margin="10,5,45,5" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Grid.ZIndex="2"/>
           </Grid>
           <ControlTemplate.Triggers>
             <Trigger Property="HasFocus" Value="True">
@@ -1553,8 +1539,8 @@
                 <Image.Source>
                   <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
                     <Binding RelativeSource="{RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}}" Path="HasFocus"/>
-                    <Binding Source="CP_Circle_focus.png"/>
-                    <Binding Source="CP_Circle.png"/>
+                    <Binding Source="NotificationMenu\CP_Circle_focus.png"/>
+                    <Binding Source="NotificationMenu\CP_Circle.png"/>
                   </MultiBinding>
                 </Image.Source>
                 <Image.Opacity>
@@ -1575,7 +1561,7 @@
                   </Trigger>
                 </Image.Triggers>
               </Image>
-              <Image x:Name="image2" Source="CP_Play.png" Stretch="Uniform" Margin="34,31,31,31" Opacity="0.6" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+              <Image x:Name="image2" Source="NotificationMenu\CP_Play.png" Stretch="Uniform" Margin="34,31,31,31" Opacity="0.6" HorizontalAlignment="Center" VerticalAlignment="Center"/>
             </Grid>
             
             <StackPanel Orientation="Vertical" Margin="5,15,5,15" DockPanel.Dock="Right" IsVisible="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}},Path=HasFocus}">
@@ -1626,8 +1612,8 @@
               <Image.Source>
                 <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
                   <Binding RelativeSource="{RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}}" Path="HasFocus"/>
-                  <Binding Source="CP_Circle_focus.png"/>
-                  <Binding Source="CP_Circle.png"/>
+                  <Binding Source="NotificationMenu\CP_Circle_focus.png"/>
+                  <Binding Source="NotificationMenu\CP_Circle.png"/>
                 </MultiBinding>
               </Image.Source>
               <Image.Opacity>
@@ -1648,7 +1634,7 @@
                 </Trigger>
               </Image.Triggers>
             </Image>
-            <Image x:Name="image2" Source="Import.png" Stretch="Uniform" Margin="31,31,31,31" Opacity="0.6" HorizontalAlignment="Center" VerticalAlignment="Center">
+            <Image x:Name="image2" Source="NotificationMenu\Import.png" Stretch="Uniform" Margin="31,31,31,31" Opacity="0.6" HorizontalAlignment="Center" VerticalAlignment="Center">
             </Image>
           </Grid>
           <ControlTemplate.Triggers>
@@ -1671,8 +1657,8 @@
                 <Image.Source>
                   <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
                     <Binding RelativeSource="{RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}}" Path="HasFocus"/>
-                    <Binding Source="User_focus.png"/>
-                    <Binding Source="User.png"/>
+                    <Binding Source="NotificationMenu\User_focus.png"/>
+                    <Binding Source="NotificationMenu\User.png"/>
                   </MultiBinding>
                 </Image.Source>
                 <Image.Opacity>
@@ -1703,8 +1689,8 @@
               <Image.Source>
                 <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
                   <Binding RelativeSource="{RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}}" Path="HasFocus"/>
-                  <Binding Source="Settings_focus.png"/>
-                  <Binding Source="Settings.png"/>
+                  <Binding Source="NotificationMenu\Settings_focus.png"/>
+                  <Binding Source="NotificationMenu\Settings.png"/>
                 </MultiBinding>
               </Image.Source>
               <Image.Opacity>
@@ -1730,8 +1716,8 @@
               <Image.Source>
                 <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
                   <Binding RelativeSource="{RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}}" Path="HasFocus"/>
-                  <Binding Source="Power_focus.png"/>
-                  <Binding Source="Power.png"/>
+                  <Binding Source="NotificationMenu\Power_focus.png"/>
+                  <Binding Source="NotificationMenu\Power.png"/>
                 </MultiBinding>
               </Image.Source>
               <Image.Opacity>
@@ -1755,31 +1741,31 @@
       <Setter.Value>
         <ControlTemplate TargetType="{x:Type Button}">
           <DockPanel>
-            <Grid DockPanel.Dock="Center">
+            <Grid DockPanel.Dock="Center" Width="80">
               <!-- Outer grid is needed because of DataContext used by Button -->
               <Grid Context="{StaticResource NotificationsModel}">
                 <!-- Need to repeat the context here because the Button (ContentControl) sets the DataContext on the Content element -->
-                <Image x:Name="icon" Source="{Binding NotificationSymbolRelFilePath}" Width="80" Stretch="Uniform" Opacity="0.7" Margin="10"
+                <Image x:Name="icon" Source="{Binding NotificationSymbolRelFilePath}" Width="80" Stretch="Uniform" Opacity="0.7" Margin="0,10,0,10"
                        IsVisible="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}},Path=!HasFocus}"/>
-                <Image x:Name="icon_focus" Width="80" Stretch="Uniform" Margin="10"
+                <Image x:Name="icon_focus" Width="80" Stretch="Uniform" Margin="0,10,0,10"
                        IsVisible="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}},Path=HasFocus}">
                   <Image.Source>
                     <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0}=={1} ? {2} : ({0}=={3} ? {4} : ({0}=={5} ? {6} : ({0}=={7} ? {8} : {9})))">
                       <Binding Path="NotificationSymbolRelFilePath"/>
                       <Binding Source="error-icon.png"/>
-                      <Binding Source="error-icon_focus.png"/>
+                      <Binding Source="NotificationMenu\error-icon_focus.png"/>
                       <Binding Source="info-icon.png"/>
-                      <Binding Source="info-icon_focus.png"/>
+                      <Binding Source="NotificationMenu\info-icon_focus.png"/>
                       <Binding Source="user-interaction-required-icon.png"/>
-                      <Binding Source="user-interaction-required-icon_focus.png"/>
+                      <Binding Source="NotificationMenu\user-interaction-required-icon_focus.png"/>
                       <Binding Source="warning-icon.png"/>
-                      <Binding Source="warning-icon_focus.png"/>
+                      <Binding Source="NotificationMenu\warning-icon_focus.png"/>
                       <Binding Source=""/>
                     </MultiBinding>
                   </Image.Source>
                 </Image>
                 <StackPanel Orientation="Horizontal" IsVisible="{Binding IsMoreThanOneNotificationAvailable}"
-                            HorizontalAlignment="Right" VerticalAlignment="Bottom">
+                            HorizontalAlignment="Center" VerticalAlignment="Bottom">
                   <Label Content="(" FontSize="{ThemeResource TinyFontSize}" Color="{ThemeResource TextColor}"/>
                   <Label Content="{Binding NumNotificationsTotal}" FontSize="{ThemeResource TinyFontSize}" Color="{ThemeResource TextColor}"/>
                   <Label Content=")" FontSize="{ThemeResource TinyFontSize}" Color="{ThemeResource TextColor}"/>
@@ -1796,17 +1782,24 @@
     <Setter Property="Template">
       <Setter.Value>
         <ControlTemplate TargetType="{x:Type Button}">
-          <Grid>
-            <Image x:Name="image" Source="GOBACK.NOFOCUS.PNG" Stretch="Uniform" Height="55" Width="55" Margin="0,0,0,0" VerticalAlignment="Center"/>
+          <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+            <Image x:Name="SettingsIcon" HorizontalAlignment="Center" VerticalAlignment="Center" Stretch="Uniform" Margin="0,10,0,10">
+              <Image.Source>
+                <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
+                  <Binding RelativeSource="{RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}}" Path="HasFocus"/>
+                  <Binding Source="NotificationMenu\goback.focus.png"/>
+                  <Binding Source="NotificationMenu\goback.nofocus.png"/>
+                </MultiBinding>
+              </Image.Source>
+              <Image.Opacity>
+                <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
+                  <Binding RelativeSource="{RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}}" Path="HasFocus"/>
+                  <Binding Source="1"/>
+                  <Binding Source="0.6"/>
+                </MultiBinding>
+              </Image.Opacity>
+            </Image>
           </Grid>
-          <ControlTemplate.Triggers>
-            <Trigger Property="HasFocus" Value="True">
-              <Setter TargetName="image" Property="Source" Value="GOBACK.FOCUS.PNG"/>
-            </Trigger>
-            <Trigger Property="IsEnabled" Value="False">
-              <Setter TargetName="image" Property="Source" Value="GOBACK.DISABLED.PNG"/>
-            </Trigger>
-          </ControlTemplate.Triggers>
         </ControlTemplate>
       </Setter.Value>
     </Setter>

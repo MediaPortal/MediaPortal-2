@@ -54,23 +54,8 @@ Parameters which have to be accessible by a DynamicResource lookup:
       <RowDefinition Height="*"/>
     </Grid.RowDefinitions>
 
-    <Border x:Name="DialogBorder" Margin="50" VerticalAlignment="Center" HorizontalAlignment="Center" CornerRadius="4" BorderThickness="3">
-      <Border.BorderBrush>
-        <LinearGradientBrush StartPoint="0,0" EndPoint="0.02,1.4">
-          <GradientStop Color="#8CFFFFFF" Offset="0"/>
-          <GradientStop Color="#8CFFFFFF" Offset="0.7"/>
-          <GradientStop Color="#8CFFFFFF" Offset="1"/>
-        </LinearGradientBrush>
-      </Border.BorderBrush>
-      <Border.Background>
-        <LinearGradientBrush StartPoint="0,1" EndPoint="1,0">
-          <GradientStop Color="{ThemeResource DialogBackgroundGradient1Color}" Offset="0"/>
-          <GradientStop Color="{ThemeResource DialogBackgroundGradient2Color}" Offset="1"/>
-        </LinearGradientBrush>
-      </Border.Background>
-
-      <DockPanel x:Name="DialogBackgroundPanel" 
-                 LastChildFill="True">
+    <Border x:Name="DialogBorder" Margin="50" VerticalAlignment="Center" HorizontalAlignment="Center" BorderThickness="0" Background="#DD000000">
+      <DockPanel x:Name="DialogBackgroundPanel" LastChildFill="True">
         <DockPanel.Resources>
           <Model x:Key="MenuModel" Id="8AA7C126-DCCB-4DC7-AB17-34BF0C368F6D"/>
         </DockPanel.Resources>
