@@ -7,7 +7,8 @@
   <!-- ************************** Nereus colors start ****************************** -->
   <ResourceWrapper x:Key="MainColorForeground" Resource="#009999"/>
   <ResourceWrapper x:Key="TextColorForeground" Resource="#00CCCC"/>
-  <ResourceWrapper x:Key="DialogHeaderColor" Resource="{ThemeResource MainColorForeground}"/>
+  <ResourceWrapper x:Key="DialogHeaderColor" Resource="White"/>
+  <ResourceWrapper x:Key="DialogHeaderBackgroundColor" Resource="#FF244043"/>
 
   <ResourceWrapper x:Key="StarRatingSelectedColor" Resource="#FFFFFFFF"/>
   <ResourceWrapper x:Key="StarRatingBackgroundColor" Resource="#009999"/>
