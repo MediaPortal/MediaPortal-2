@@ -41,9 +41,10 @@ Parameters which have to be accessible by a DynamicResource lookup:
       <TriggerCommand Command="{Command Source={StaticResource MenuModel}, Path=CloseMenu}"/>
     </EventTrigger>
   </Screen.Triggers>
-  
+
   <Grid x:Name="RootElement">
     <Grid.RowDefinitions>
+      <RowDefinition Height="100"/>
       <RowDefinition Height="*"/>
       <RowDefinition Height="260"/>
     </Grid.RowDefinitions>
@@ -59,94 +60,110 @@ Parameters which have to be accessible by a DynamicResource lookup:
       <Model x:Key="LoginModel" Id="82582433-FD64-41bd-9059-7F662DBDA713"/>
     </Grid.Resources>
 
-    <Control x:Name="FanArtBackground" Grid.Column="0" Grid.Row="0" Grid.RowSpan="2" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="-1"
+    <Control x:Name="FanArtBackground" Grid.RowSpan="3" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="-1"
              Template="{DynamicResource ResourceKey=FanArtBackground_Template}"/>
 
-    <Control x:Name="TopGradient" Grid.Column="0" Grid.Row="0" HorizontalAlignment="Stretch" VerticalAlignment="Top" Margin="-1"
+    <Control x:Name="ClientArea" DockPanel.Dock="Center" Grid.Row="1" Template="{DynamicResource ResourceKey=Client_Template}" Margin="0,-10,0,0"/>
+
+    <Control x:Name="TopGradient" Grid.Row="0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="-1"
              Template="{DynamicResource ResourceKey=TopGradient_Template}"/>
 
-    <Control x:Name="BottomGradient" Grid.Column="0" Grid.Row="1" HorizontalAlignment="Stretch" VerticalAlignment="Bottom" Margin="-1"
+    <Control x:Name="BottomGradient" Grid.Row="2" HorizontalAlignment="Stretch" VerticalAlignment="Bottom" Margin="-1"
              Template="{DynamicResource ResourceKey=BottomGradient_Template}"/>
 
-    <DockPanel Grid.Column="0" Grid.Row="0" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Panel.ZIndex="100" LastChildFill="True">
-      <Grid x:Name="HeaderPanel" DockPanel.Dock="Top">
-        <Grid.RowDefinitions>
-          <RowDefinition Height="90"/>
-        </Grid.RowDefinitions>
-        <Grid.ColumnDefinitions>
-          <ColumnDefinition Width="450"/>
-          <ColumnDefinition Width="*"/>
-        </Grid.ColumnDefinitions>
-        
-        <Grid x:Name="WindowButtonsPanel" Grid.Column="0" Grid.Row="0" HorizontalAlignment="Stretch" VerticalAlignment="Top" Margin="30,10,0,10">
-          <Grid.Resources>
-            <Model x:Key="NotificationsModel" Id="843F373D-0B4B-47ba-8DD1-0D18F00FAAD3"/>
-          </Grid.Resources>
-          <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-            <StackPanel Orientation="Horizontal" Context="{Service Window}" IsVisible="{Binding Source={StaticResource MouseModel},Path=IsMouseUsed}">
-              <Button x:Name="BackButton" Style="{ThemeResource NavigateBackButtonStyle}" Margin="5" HorizontalAlignment="Left" VerticalAlignment="Center"
+    <Grid x:Name="WindowButtonsPanel" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="220,10,0,10">
+      <Grid.Resources>
+        <Model x:Key="NotificationsModel" Id="843F373D-0B4B-47ba-8DD1-0D18F00FAAD3"/>
+      </Grid.Resources>
+      <Grid.RowDefinitions>
+        <RowDefinition Height="*"/>
+      </Grid.RowDefinitions>
+      <Grid.ColumnDefinitions>
+        <ColumnDefinition Width="450"/>
+        <ColumnDefinition Width="*"/>
+      </Grid.ColumnDefinitions>
+      <Grid.RenderTransform>
+        <TranslateTransform X="0"/>
+      </Grid.RenderTransform>
+
+      <!--Slide content in and out depending on hidden menu state-->
+      <Grid.Triggers>
+        <DataTrigger Binding="{Binding Source={StaticResource MenuModel},Path=IsMenuOpen}" Value="True">
+          <DataTrigger.EnterActions>
+            <BeginStoryboard x:Name="SlideIn">
+              <BeginStoryboard.Storyboard>
+                <Storyboard>
+                  <DoubleAnimation
+                           Storyboard.TargetName="WindowButtonsPanel"
+                           Storyboard.TargetProperty="RenderTransform.X"
+                           From="-200" To="0" BeginTime="0:0:0" Duration="00:00:00.35"
+                           FillBehavior="HoldEnd"/>
+                </Storyboard>
+              </BeginStoryboard.Storyboard>
+            </BeginStoryboard>
+          </DataTrigger.EnterActions>
+          <DataTrigger.ExitActions>
+            <BeginStoryboard x:Name="SlideOut">
+              <BeginStoryboard.Storyboard>
+                <Storyboard>
+                  <DoubleAnimation
+                           Storyboard.TargetName="WindowButtonsPanel"
+                           Storyboard.TargetProperty="RenderTransform.X"
+                           From="0" To="-200" BeginTime="0:0:0" Duration="00:00:00.35"
+                           FillBehavior="HoldEnd"/>
+                </Storyboard>
+              </BeginStoryboard.Storyboard>
+            </BeginStoryboard>
+            <StopStoryboard BeginStoryboardName="SlideIn"/>
+          </DataTrigger.ExitActions>
+        </DataTrigger>
+      </Grid.Triggers>
+
+      <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+        <StackPanel.Triggers>
+          <!--Close the hidden menu when the main content gets focus-->
+          <EventTrigger RoutedEvent="FrameworkElement.GotFocus">
+            <TriggerCommand Command="{Command Source={StaticResource MenuModel}, Path=CloseMenu}"/>
+          </EventTrigger>
+        </StackPanel.Triggers>
+        <StackPanel Orientation="Horizontal" Context="{Service Window}" IsVisible="{Binding Source={StaticResource MouseModel},Path=IsMouseUsed}">
+          <Button x:Name="BackButton" Style="{ThemeResource NavigateBackButtonStyle}" Margin="5" HorizontalAlignment="Left" VerticalAlignment="Center"
                       Command="{Command Source={Service WorkflowManager},Path=NavigatePop,Parameters=1}"/>
-              <Button x:Name="HomeButton" Style="{ThemeResource HomeButtonStyle}" Margin="5" HorizontalAlignment="Left" VerticalAlignment="Center"
+          <Button x:Name="HomeButton" Style="{ThemeResource HomeButtonStyle}" Margin="5" HorizontalAlignment="Left" VerticalAlignment="Center"
                       Command="{Command Source={Service WorkflowManager},Path=NavigatePush,Parameters=7F702D9C-F2DD-42da-9ED8-0BA92F07787F}"/>
-              <Control Style="{ThemeResource NotificationControlStyle}" Margin="5,2,5,5" IsVisible="{Binding Source={StaticResource NotificationsModel},Path=IsNotificationsHintVisible}"
+          <Control Style="{ThemeResource NotificationControlStyle}" Margin="5,2,5,5" IsVisible="{Binding Source={StaticResource NotificationsModel},Path=IsNotificationsHintVisible}"
                        HorizontalAlignment="Left" VerticalAlignment="Center"/>
-            </StackPanel>
-            <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="0,0,5,0"
+        </StackPanel>
+        <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="0,0,5,0"
                         DataContext="{Binding Source={StaticResource StateModel}, Path=[C37B62D0-8E87-42A4-877E-B41944DA9FC9]}"
                         IsVisible="{Binding Converter={StaticResource ReferenceToBoolConverter}}">
-              <Label FontSize="{ThemeResource SmallerFontSize}" Margin="10,0,0,0"
+          <Label FontSize="{ThemeResource SmallerFontSize}" Margin="10,0,0,0"
                      Color="{ThemeResource TextColor}" VerticalAlignment="Center" HorizontalAlignment="Right">
-                <Label.IsVisible>
-                  <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0}>=0">
-                    <Binding Path="Progress"/>
-                  </MultiBinding>
-                </Label.IsVisible>
-                <Label.Content>
-                  <Binding Path="Progress" Converter="{StaticResource StringFormatConverter}" ConverterParameter="{}{0}%"/>
-                </Label.Content>
-              </Label>
-              <Button Style="{ThemeResource ImportingButtonStyle}" IsVisible="{Binding IsImporting}"/>
-            </StackPanel>
-            <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="0,0,5,0"
+            <Label.IsVisible>
+              <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0}>=0">
+                <Binding Path="Progress"/>
+              </MultiBinding>
+            </Label.IsVisible>
+            <Label.Content>
+              <Binding Path="Progress" Converter="{StaticResource StringFormatConverter}" ConverterParameter="{}{0}%"/>
+            </Label.Content>
+          </Label>
+          <Button Style="{ThemeResource ImportingButtonStyle}" IsVisible="{Binding IsImporting}"/>
+        </StackPanel>
+        <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="0,0,5,0"
                         DataContext="{Binding Source={StaticResource StateModel}, Path=[2A58935C-3363-4FA1-B48D-1EF0E81F830D]}"
                         IsVisible="{Binding Converter={StaticResource ReferenceToBoolConverter}}">
-              <Button Style="{ThemeResource RecordingButtonStyle}" IsVisible="{Binding IsRecording}"/>
-            </StackPanel>
-            <mp_special_controls:PlayerControl Style="{ThemeResource CPPlayerControlStyle}" 
-                                               VerticalAlignment="Center" AutoVisibility="True" HorizontalAlignment="Left"/>
-          </StackPanel>
-        </Grid>
-        <!-- WindowButtonsPanel -->
-        <Grid x:Name="HeaderTextPanel" Grid.Column="1" Grid.Row="0" HorizontalAlignment="Right">
-          <Grid.RowDefinitions>
-            <RowDefinition Height="*"/>
-          </Grid.RowDefinitions>
-          <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="Auto"/>
-          </Grid.ColumnDefinitions>
-          <Label x:Name="HeaderLabel" HorizontalAlignment="Right" Margin="0,0,50,0"
-                 FontSize="{ThemeResource HeaderFontSize}" Color="{ThemeResource WindowHeaderColor}"
-                 Content="{Binding Source={DynamicResource Header_Text},Path=Resource}">
-          </Label>
-          <Grid.OpacityMask>
-            <LinearGradientBrush StartPoint="0.5,0.0" EndPoint="0.5,1.0">
-              <GradientStop Offset="0.0" Color="#FF000000" />
-              <GradientStop Offset="1.0" Color="#1A000000" />
-            </LinearGradientBrush>
-          </Grid.OpacityMask>
-        </Grid>
-      </Grid>
-
-      <!-- Order matters here: The client area control has to be the last control (LastChildFill) -->
-      <Control x:Name="ClientArea" DockPanel.Dock="Center"
-               Template="{DynamicResource ResourceKey=Client_Template}">
-      </Control>
-    </DockPanel>
+          <Button Style="{ThemeResource RecordingButtonStyle}" IsVisible="{Binding IsRecording}"/>
+        </StackPanel>
+        <mp_special_controls:PlayerControl Style="{ThemeResource CPPlayerControlStyle}" 
+                                           VerticalAlignment="Center" AutoVisibility="True" HorizontalAlignment="Left"/>
+      </StackPanel>
+    </Grid>
 
     <!-- FooterPanel -->
-    <Grid Grid.Row="1" x:Name="FooterPanel" Margin="1000,0,0,0" Panel.ZIndex="2000">
+    <Grid Grid.Row="2" x:Name="FooterPanel" Margin="1000,0,0,0" Panel.ZIndex="2000">
       <Grid.RowDefinitions>
-         <RowDefinition Height="*"/>
+        <RowDefinition Height="*"/>
       </Grid.RowDefinitions>
       <Grid.ColumnDefinitions>
         <ColumnDefinition Width="*"/>
@@ -161,7 +178,7 @@ Parameters which have to be accessible by a DynamicResource lookup:
     </Grid>
 
     <!-- Mouse control buttons -->
-    <Grid x:Name="MouseButtonsPanel" Grid.Column="0" Grid.Row="0" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,0,5,0">
+    <Grid x:Name="MouseButtonsPanel" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,0,5,0">
       <StackPanel Orientation="Horizontal">
         <StackPanel Margin="0,0,0,0" Orientation="Horizontal" Context="{Service Window}"  IsVisible="{Binding Source={StaticResource MouseModel},Path=IsMouseUsed}">
           <Button x:Name="WindowedButton" Style="{ThemeResource MinMaxButtonStyle}" Margin="5,2,0,0" HorizontalAlignment="Right"
@@ -185,6 +202,5 @@ Parameters which have to be accessible by a DynamicResource lookup:
         </StackPanel>
       </StackPanel>
     </Grid>
-
   </Grid>
 </Screen>
