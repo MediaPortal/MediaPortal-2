@@ -38,7 +38,7 @@
       <SplineDoubleKeyFrame KeyTime="00:00:00.4" Value="1"/>
     </-->
     <DoubleAnimationUsingKeyFrames BeginTime="00:00:00" FillBehavior="HoldEnd" Storyboard.TargetName="ItemImage" Storyboard.TargetProperty="Opacity">
-        <SplineDoubleKeyFrame KeyTime="00:00:00" Value="0.7"/>
+        <SplineDoubleKeyFrame KeyTime="00:00:00" Value="0.6"/>
         <SplineDoubleKeyFrame KeyTime="00:00:00.4" Value="1.2"/>
       </DoubleAnimationUsingKeyFrames>
     <DoubleAnimationUsingKeyFrames BeginTime="00:00:00" FillBehavior="HoldEnd" Storyboard.TargetName="GrowControl" Storyboard.TargetProperty="RenderTransform.Children[0].ScaleX">
@@ -58,7 +58,7 @@
     </-->
     <DoubleAnimationUsingKeyFrames BeginTime="00:00:00" FillBehavior="HoldEnd" Storyboard.TargetName="ItemImage" Storyboard.TargetProperty="Opacity">
         <SplineDoubleKeyFrame KeyTime="00:00:00" Value="1.2"/>
-        <SplineDoubleKeyFrame KeyTime="00:00:00.4" Value="0.7"/>
+        <SplineDoubleKeyFrame KeyTime="00:00:00.4" Value="0.6"/>
       </DoubleAnimationUsingKeyFrames>
     <DoubleAnimationUsingKeyFrames BeginTime="00:00:00" FillBehavior="HoldEnd" Storyboard.TargetName="GrowControl" Storyboard.TargetProperty="RenderTransform.Children[0].ScaleX">
       <SplineDoubleKeyFrame KeyTime="00:00:00" Value="1.16"/>
