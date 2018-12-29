@@ -1158,6 +1158,43 @@
     </Setter>
   </Style>
 
+  <Style x:Key="OSDProgressBarStyle" TargetType="{x:Type ProgressBar}">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="{x:Type ProgressBar}">
+          <Grid x:Name="ProgressBarGrid" UIElement.MouseClick="{CommandStencil RelativeSource={RelativeSource TemplatedParent}, Path=OnMouseClick}">
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+              <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+            <Rectangle x:Name="ProgressBarTrack" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Height="10" Opacity="0.5"
+                       Fill="{ThemeResource OSDProgressBarBackgroundColor}" RadiusX="5" RadiusY="5"/>
+            <!--Rectangle x:Name="ProgressBarIndicator" Width="{TemplateBinding PartIndicatorWidth}" HorizontalAlignment="Left" Height="10"
+                       Fill="{ThemeResource ProgressBarFillColor}" RadiusX="5" RadiusY="5"/-->
+
+            <Grid x:Name="ProgressBarIndicator" HorizontalAlignment="Left" VerticalAlignment="Center">
+              <Grid VerticalAlignment="Center" HorizontalAlignment="Right" Margin="-160,-40,-40,0" Height="55">
+                <Label x:Name="CurrentTimeLabel" Content="{Binding CurrentTime}"
+                       HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0,0,0,24"
+                       Color="White" FontSize="{ThemeResource SmallerFontSize}"/>
+              </Grid>
+              <Rectangle Width="{TemplateBinding PartIndicatorWidth}" HorizontalAlignment="Left" VerticalAlignment="Center"
+                         RadiusX="5" RadiusY="5" Height="10" Fill="{ThemeResource ProgressBarFillColor}"/>
+            </Grid>
+
+            <StackPanel Orientation="Horizontal">
+              <StackPanel Width="{TemplateBinding PartIndicatorWidth}"/>
+              <Image Source="PlayerControl\Current.Position.png" Width="35" Height="35" Stretch="Fill" Margin="-15,-15,10,-15"
+                     VerticalAlignment="Center" HorizontalAlignment="Center"/>
+            </StackPanel>
+          </Grid>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+
   <!-- ****************************** Notification area ********************************** -->
 
   <Model x:Key="NotificationsModel" Id="843F373D-0B4B-47ba-8DD1-0D18F00FAAD3"/>

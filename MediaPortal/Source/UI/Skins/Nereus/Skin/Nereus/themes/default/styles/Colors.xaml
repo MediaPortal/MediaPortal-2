@@ -32,6 +32,9 @@
   <ResourceWrapper x:Key="InfoScreenGradientColor2" Resource="#D9074381"/>
   <ResourceWrapper x:Key="InfoScreenGradientColor3" Resource="#F2081a42"/>
 
+  <ResourceWrapper x:Key="OSDProgressBarBackgroundColor" Resource="#636363"/>
+  <ResourceWrapper x:Key="ProgressBarFillColor" Resource="#009999"/>
+
   <!-- ************************** Black theme colors ****************************** -->
 
   <ResourceWrapper x:Key="BackgroundGradientLightColor" Resource="#FF505050"/>
@@ -61,7 +64,7 @@
 
   <ResourceWrapper x:Key="ProgressBarBorderColor" Resource="#80000000"/>
   <ResourceWrapper x:Key="ProgressBarBackgroundColor" Resource="#FFc1c1c1"/>
-  <ResourceWrapper x:Key="ProgressBarFillColor" Resource="#FF4b76a0"/>
+  
 
   <ResourceWrapper x:Key="TextColor" Resource="White"/>
   <ResourceWrapper x:Key="HintTextColor" Resource="{ThemeResource DialogHeaderColor}"/>
