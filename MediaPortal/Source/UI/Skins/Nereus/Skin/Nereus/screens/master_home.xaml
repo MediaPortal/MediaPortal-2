@@ -50,6 +50,9 @@ Parameters which have to be accessible by a DynamicResource lookup:
       <Model x:Key="StateModel" Id="B23D8DC1-405E-4564-92D0-E247C299FFAE"/>
     </Grid.Resources>
 
+    <Control x:Name="FanArtBackground" Grid.Column="0" Grid.Row="0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="-1"
+             Template="{DynamicResource ResourceKey=FanArtBackgroundHome_Template}"/>
+
     <DockPanel Grid.Column="0" Grid.Row="0" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" LastChildFill="False">
       <Grid x:Name="HeaderPanel" Margin="5" DockPanel.Dock="Top">
         <Grid.RowDefinitions>

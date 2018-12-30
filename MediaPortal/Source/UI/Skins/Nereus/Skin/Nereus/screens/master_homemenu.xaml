@@ -32,6 +32,8 @@ Parameters which have to be accessible by a DynamicResource lookup:
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     Source="screens\master_home.xaml"
     xmlns:nereus_markup_extensions="clr-namespace:MediaPortal.UiComponents.Nereus.MarkupExtensions;assembly=Nereus"
+    xmlns:imagesources="clr-namespace:MediaPortal.UI.SkinEngine.Controls.ImageSources;assembly=SkinEngine"
+    xmlns:fanart="clr-namespace:MediaPortal.Extensions.UserServices.FanArtService.Client;assembly=FanArtService.Client"
     >
   <Include.Resources>
 
@@ -40,7 +42,36 @@ Parameters which have to be accessible by a DynamicResource lookup:
     <Model x:Key="HomeMenuModel" Id="CED34107-565C-48D9-BEC8-195F7969F90F"/>
     <Model x:Key="MouseModel" Id="CA6428A7-A6E2-4dd3-9661-F89CEBAF8E62"/>
     <Model x:Key="MenuModel" Id="9E9D0CD9-4FDB-4c0f-A0C4-F356E151BDE0"/>
-    
+
+    <ControlTemplate x:Key="FanArtBackgroundHome_Template">
+      <ControlTemplate.Resources>
+        <fanart:FanArtImageSourceConverter x:Key="FanArtImageSourceConverter"/>
+        <Model x:Key="FanArtBackgroundModel" Id="8F42C8E9-E8A3-475C-A50A-99E1E644DC91"/>
+        <Model x:Key="SkinSettingsModel" Id="13961014-16C4-4361-9751-8E2C585EFD44"/>
+      </ControlTemplate.Resources>
+      <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch" >
+        <Grid.ColumnDefinitions>
+          <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+          <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <Grid.Background>
+          <VideoBrush Stream="0"/>
+        </Grid.Background>
+
+        <Image x:Name="FanArtImageBackground" Stretch="UniformToFill"
+               IsVisible="{Binding Source={StaticResource SkinSettingsModel}, Path=[Nereus].EnableFanart}">
+          <Image.Source>
+            <imagesources:ImageSourceWrapper Delay="0.5" DelayInOut="true" Transition="transitions\dissolve" TransitionDuration="0.5"
+                   Source="{Binding Source={StaticResource FanArtBackgroundModel}, Path=ImageSource, Converter={StaticResource FanArtImageSourceConverter}, ConverterParameter=FanArt;1920;1080;False}"/>
+          </Image.Source>
+        </Image>
+        <Image Stretch="Fill" Source="Background.png" Opacity="{Binding Source={StaticResource SkinSettingsModel}, Path=[Nereus].FanartOverlayOpacity}"/>
+      </Grid>
+    </ControlTemplate>
+
     <!-- Client_Template -->
     <ControlTemplate x:Key="Client_Template">
       <Grid x:Name="MainLayoutPanel" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Margin="0,-110,-205,-5">

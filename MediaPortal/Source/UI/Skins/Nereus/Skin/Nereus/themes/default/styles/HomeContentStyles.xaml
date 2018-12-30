@@ -8,9 +8,9 @@
     DependsOnStyleResources="OtherControls,OtherControlsOverrides,MediaConsts,Colors,Buttons,Consts"
     >
 
-  <ResourceWrapper x:Key="TileGroupHeight" Resource="800" />
+  <ResourceWrapper x:Key="TileGroupHeight" Resource="900" />
   
-  <ResourceWrapper x:Key="TileGroupWidthMedium" Resource="700" />
+  <ResourceWrapper x:Key="TileGroupWidthMedium" Resource="760" />
 
   <!--The margin around each tile-->
   <ResourceWrapper x:Key="TileMargin" Resource="5" />
