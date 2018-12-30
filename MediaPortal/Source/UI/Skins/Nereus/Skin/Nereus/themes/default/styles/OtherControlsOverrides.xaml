@@ -1169,10 +1169,9 @@
             <Grid.RowDefinitions>
               <RowDefinition Height="*"/>
             </Grid.RowDefinitions>
+            
             <Rectangle x:Name="ProgressBarTrack" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Height="10" Opacity="0.5"
                        Fill="{ThemeResource OSDProgressBarBackgroundColor}" RadiusX="5" RadiusY="5"/>
-            <!--Rectangle x:Name="ProgressBarIndicator" Width="{TemplateBinding PartIndicatorWidth}" HorizontalAlignment="Left" Height="10"
-                       Fill="{ThemeResource ProgressBarFillColor}" RadiusX="5" RadiusY="5"/-->
 
             <Grid x:Name="ProgressBarIndicator" HorizontalAlignment="Left" VerticalAlignment="Center">
               <Grid VerticalAlignment="Center" HorizontalAlignment="Right" Margin="-160,-40,-40,0" Height="55">
@@ -1189,6 +1188,7 @@
               <Image Source="PlayerControl\Current.Position.png" Width="35" Height="35" Stretch="Fill" Margin="-15,-15,10,-15"
                      VerticalAlignment="Center" HorizontalAlignment="Center"/>
             </StackPanel>
+            
           </Grid>
         </ControlTemplate>
       </Setter.Value>

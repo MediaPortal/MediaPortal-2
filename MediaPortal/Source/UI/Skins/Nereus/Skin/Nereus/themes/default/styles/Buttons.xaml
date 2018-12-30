@@ -1948,6 +1948,42 @@
     </Setter>
   </Style>
 
+  <Style x:Key="VolumeUpButtonStyle" TargetType="{x:Type Button}">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="{x:Type Button}">
+          <Grid>
+            <Image x:Name="image" Source="PlayerControl\plus.small.nofocus.PNG" Stretch="Uniform" Height="40" Width="60" Opacity="0.6" VerticalAlignment="Center"/>
+          </Grid>
+          <ControlTemplate.Triggers>
+            <Trigger Property="HasFocus" Value="True">
+              <Setter TargetName="image" Property="Source" Value="PlayerControl\plus.small.focus.PNG"/>
+              <Setter TargetName="image" Property="Opacity" Value="1"/>
+            </Trigger>
+          </ControlTemplate.Triggers>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+
+  <Style x:Key="VolumeDownButtonStyle" TargetType="{x:Type Button}">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="{x:Type Button}">
+          <Grid>
+            <Image x:Name="image" Source="PlayerControl\minus.small.nofocus.PNG" Stretch="Uniform" Height="40" Width="60" Opacity="0.6" VerticalAlignment="Center"/>
+          </Grid>
+          <ControlTemplate.Triggers>
+            <Trigger Property="HasFocus" Value="True">
+              <Setter TargetName="image" Property="Source" Value="PlayerControl\minus.small.focus.PNG"/>
+              <Setter TargetName="image" Property="Opacity" Value="1"/>
+            </Trigger>
+          </ControlTemplate.Triggers>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+
   <Style x:Key="SubMenuLeftButtonStyle" TargetType="{x:Type Button}">
     <Setter Property="Template">
       <Setter.Value>
@@ -2234,7 +2270,7 @@
     </Setter>
   </Style>
 
-  <Style x:Key="VolumeDownButtonStyle" TargetType="{x:Type Button}">
+  <!--Style x:Key="VolumeDownButtonStyle" TargetType="{x:Type Button}">
     <Setter Property="Template">
       <Setter.Value>
         <ControlTemplate TargetType="{x:Type Button}">
@@ -2250,7 +2286,7 @@
         </ControlTemplate>
       </Setter.Value>
     </Setter>
-  </Style>
+  </>
 
   <Style x:Key="VolumeUpButtonStyle" TargetType="{x:Type Button}">
     <Setter Property="Template">
@@ -2268,7 +2304,7 @@
         </ControlTemplate>
       </Setter.Value>
     </Setter>
-  </Style>
+  </Style-->
 
   <Style x:Key="PreviousButtonStyle" TargetType="{x:Type Button}">
     <Setter Property="Template">

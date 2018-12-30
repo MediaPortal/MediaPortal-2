@@ -25,6 +25,7 @@
           <ColumnDefinition Width="37*"/>
         </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
+          <RowDefinition Height="140"/>
           <RowDefinition Height="*"/>
           <RowDefinition Height="350"/>
         </Grid.RowDefinitions>
@@ -59,7 +60,7 @@
         <Include Source="screens\FullScreenContentAudioKeyBindings.inc"/>
 
         <!--Playerstate overlay-->
-        <Grid Grid.ColumnSpan="3" Grid.RowSpan="2" HorizontalAlignment="Center" VerticalAlignment="Center">
+        <Grid Grid.ColumnSpan="3" Grid.RowSpan="3" HorizontalAlignment="Center" VerticalAlignment="Center">
           <Image Width="250" Stretch="Uniform" Opacity="0.7" VerticalAlignment="Center" HorizontalAlignment="Center">
             <Image.Source>
               <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {3} : ({1} ? {4} : ({2} ? {5} : {6}))">
@@ -77,7 +78,7 @@
                  Color="Black" VerticalAlignment="Center" HorizontalAlignment="Center"/>
         </Grid>
 
-        <Control Grid.RowSpan="2" Grid.ColumnSpan="3">
+        <Control Grid.RowSpan="3" Grid.ColumnSpan="3">
           <Control.Background>
             <LinearGradientBrush StartPoint="0.5,0" EndPoint="0.5,1">
               <GradientStop Color="{ThemeResource InfoScreenGradientColor1}" Offset="0"/>
@@ -88,16 +89,7 @@
           </Control.Background>
         </Control>
 
-        <Grid Height="90" VerticalAlignment="Top" HorizontalAlignment="Left" Margin="30,5,0,0">
-          <StackPanel Orientation="Horizontal" Context="{Service Window}" IsVisible="{Binding Source={StaticResource MouseModel},Path=IsMouseUsed}">
-            <Button x:Name="BackButton" Style="{ThemeResource NavigateBackButtonStyle}" Margin="5" HorizontalAlignment="Left" VerticalAlignment="Center"
-                    Command="{Command Source={Service WorkflowManager},Path=NavigatePop,Parameters=1}"/>
-            <Button x:Name="HomeButton" Style="{ThemeResource HomeButtonStyle}" Margin="5" HorizontalAlignment="Left" VerticalAlignment="Center"
-                    Command="{Command Source={Service WorkflowManager},Path=NavigatePush,Parameters=7F702D9C-F2DD-42da-9ED8-0BA92F07787F}"/>
-          </StackPanel>
-        </Grid>
-
-        <Grid Grid.Row="1" Grid.Column="0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+        <Grid Grid.Row="2" Grid.Column="0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
           <Grid.RowDefinitions>
             <RowDefinition Height="*"/>
           </Grid.RowDefinitions>
@@ -143,13 +135,6 @@
                 <GradientStop Color="{ThemeResource DialogBackgroundGradient2Color}" Offset="1"/>
               </LinearGradientBrush>
             </Grid.Background>
-            <Grid.OpacityMask>
-              <VisualBrush>
-                <VisualBrush.Visual>
-                  <Border Background="White" CornerRadius="12" BorderThickness="0" BorderBrush="Black"/>
-                </VisualBrush.Visual>
-              </VisualBrush>
-            </Grid.OpacityMask>
             <Grid.RowDefinitions>
               <RowDefinition Height="*"/>
             </Grid.RowDefinitions>
@@ -164,10 +149,9 @@
                    VerticalAlignment="Stretch" Width="300" Height="300" Margin="0,0,0,0">
             </Image>
           </Grid>
-          
         </Grid>
 
-        <media:AudioAspectWrapper MediaItem="{Binding MediaItem}" Grid.Column="1" Grid.Row="1" 
+        <media:AudioAspectWrapper MediaItem="{Binding MediaItem}" Grid.Column="1" Grid.Row="2" 
                                   Margin="60,30,0,0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
           <media:AudioAspectWrapper.Template>
             <ControlTemplate>
@@ -252,7 +236,7 @@
           </media:AudioAspectWrapper.Template>
         </media:AudioAspectWrapper>
 
-        <media:AudioAspectWrapper MediaItem="{Binding MediaItem}" Grid.Column="2" Grid.Row="1" 
+        <media:AudioAspectWrapper MediaItem="{Binding MediaItem}" Grid.Column="2" Grid.Row="2" 
                                   Margin="30,30,0,0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
           <media:AudioAspectWrapper.Template>
             <ControlTemplate>
@@ -266,37 +250,11 @@
           </media:AudioAspectWrapper.Template>
         </media:AudioAspectWrapper>
 
-        <mp_audio_viz:AudioSpectrumAnalyzer Grid.Row="1" Grid.ColumnSpan="3" Width="1900" Height="280"
+        <mp_audio_viz:AudioSpectrumAnalyzer Grid.Row="2" Grid.ColumnSpan="3" Width="1900" Height="280"
           HorizontalAlignment="Center" VerticalAlignment="Top" Margin="0,-260,0,0"
           x:Name="SpectrumAnalyzer" Style="{ThemeResource SpectrumAnalyzerStyle}"/>
 
-        <!-- Mouse control buttons -->
-        <Grid x:Name="MouseButtonsPanel" Grid.Column="2" Grid.Row="0" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,0,5,0">
-          <StackPanel Orientation="Horizontal">
-            <StackPanel Margin="0,0,0,0" Orientation="Horizontal" Context="{Service Window}"  IsVisible="{Binding Source={StaticResource MouseModel},Path=IsMouseUsed}">
-              <Button x:Name="WindowedButton" Style="{ThemeResource MinMaxButtonStyle}" Margin="5,2,0,0" HorizontalAlignment="Right"
-                      Command="{Command Source={Service Window},Path=SwitchMode,Parameters=NormalWindowed}">
-                <Button.IsVisible>
-                  <Binding Source="{StaticResource ScreenModeModel}" Path="CurrentScreenMode" Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0} == {ScreenMode}.{FullScreen}"/>
-                </Button.IsVisible>
-              </Button>
-              <Button x:Name="MaximizedButton" Style="{ThemeResource MinMaxButtonStyle}" Margin="5,2,0,0" HorizontalAlignment="Right"
-                      Command="{Command Source={Service Window},Path=SwitchMode,Parameters=FullScreen}">
-                <Button.IsVisible>
-                  <Binding Source="{StaticResource ScreenModeModel}" Path="CurrentScreenMode" Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0} != {ScreenMode}.{FullScreen}"/>
-                </Button.IsVisible>
-              </Button>
-              <Button x:Name="ExitButton" Style="{ThemeResource ExitButtonStyle}" Margin="5,2,0,0" HorizontalAlignment="Right"
-                      Command="{Command Source={Service Window},Path=Shutdown}">
-                <Button.IsVisible>
-                  <Binding Source="{StaticResource ScreenModeModel}" Path="CurrentScreenMode" Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0} == {ScreenMode}.{FullScreen}"/>
-                </Button.IsVisible>
-              </Button>
-            </StackPanel>
-          </StackPanel>
-        </Grid>
-
-        <DockPanel x:Name="OSD_RightPanel" Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="2" LastChildFill="false"
+        <DockPanel x:Name="OSD_RightPanel" Grid.Row="2" Grid.Column="1" Grid.ColumnSpan="2" LastChildFill="false"
                    IsVisible="{Binding Source={StaticResource AudioPlayerModel}, Path=IsOSDVisible}">
           <mp_special_controls:PlayerControl x:Name="PrimaryOSD" DockPanel.Dock="Bottom"
             Style="{ThemeResource PrimaryAudioOSDStyle}" VerticalAlignment="Stretch" HorizontalAlignment="Right"/>

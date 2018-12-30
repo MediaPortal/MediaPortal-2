@@ -30,8 +30,8 @@
   </LinearGradientBrush>
 
   <LinearGradientBrush x:Key="SpectrumPeakBrush" EndPoint="0.5,1" StartPoint="0.5,0">
-    <GradientStop Color="#E6cd7e02" Offset="1" />
-    <GradientStop Color="#FFffae00" Offset="0" />
+    <GradientStop Color="{ThemeResource MainColorForeground}" Offset="1" />
+    <GradientStop Color="{ThemeResource DialogHeaderBackgroundColor}" Offset="0" />
   </LinearGradientBrush>
 
   <Style x:Key="SpectrumAnalyzerStyle" TargetType="{x:Type mp_audio_viz:AudioSpectrumAnalyzer}">
