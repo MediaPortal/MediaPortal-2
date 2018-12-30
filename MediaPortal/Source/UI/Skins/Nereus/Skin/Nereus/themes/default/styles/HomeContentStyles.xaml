@@ -651,10 +651,10 @@
       <Setter.Value>
         <ItemsPanelTemplate>
 
-          <AnimatedStackPanel x:Name="ListItemsHost" IsItemsHost="True" Orientation="Horizontal">
+          <AnimatedStackPanel x:Name="ListItemsHost" IsItemsHost="True" Orientation="Horizontal" Margin="-800,0,-800,0" ScrollMargin="800,0,800,0">
             <AnimatedStackPanel.Resources>
               <Storyboard x:Key="ScrollAnimation" FillBehavior="HoldEnd">
-                <DoubleAnimation BeginTime="00:00:00" From="0" To="1" Duration="00:00:00.300" 
+                <DoubleAnimation BeginTime="00:00:00" From="0" To="1" Duration="00:00:00.600" 
                                  FillBehavior="HoldEnd" Storyboard.TargetName="ListItemsHost" Storyboard.TargetProperty="ScrollOffsetMultiplier" />
               </Storyboard>
             </AnimatedStackPanel.Resources>
