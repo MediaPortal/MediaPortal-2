@@ -36,26 +36,26 @@ namespace MediaPortal.UiComponents.Nereus.Settings.Configuration
   {
     public EnableAgeCertificationLogosConfiguration()
     {
-      SkinChangeMonitor.Instance.RegisterConfiguration(WMCSkinSettings.SKIN_NAME, this);
+      SkinChangeMonitor.Instance.RegisterConfiguration(NereusSkinSettings.SKIN_NAME, this);
     }
 
     public override void Load()
     {
       base.Load();
-      _yes = SettingsManager.Load<WMCSkinSettings>().EnableAgeCertificationLogos;
+      _yes = SettingsManager.Load<NereusSkinSettings>().EnableAgeCertificationLogos;
     }
 
     public override void Save()
     {
       base.Save();
-      var settings = SettingsManager.Load<WMCSkinSettings>();
+      var settings = SettingsManager.Load<NereusSkinSettings>();
       settings.EnableAgeCertificationLogos = _yes;
       SettingsManager.Save(settings);
     }
 
     public void Dispose()
     {
-      SkinChangeMonitor.Instance.UnregisterConfiguration(WMCSkinSettings.SKIN_NAME, this);
+      SkinChangeMonitor.Instance.UnregisterConfiguration(NereusSkinSettings.SKIN_NAME, this);
     }
   }
 }

@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2017 Team MediaPortal
+﻿#region Copyright (C) 2007-2018 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2017 Team MediaPortal
+    Copyright (C) 2007-2018 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -22,251 +22,111 @@
 
 #endregion
 
-using HomeEditor.Groups;
 using MediaPortal.Common;
-using MediaPortal.Common.Commands;
 using MediaPortal.Common.General;
-using MediaPortal.Common.Logging;
-using MediaPortal.Common.Messaging;
-using MediaPortal.Common.Runtime;
+using MediaPortal.Extensions.UserServices.FanArtService.Client.Models;
 using MediaPortal.UI.Presentation.DataObjects;
 using MediaPortal.UI.Presentation.Screens;
 using MediaPortal.UI.Presentation.Workflow;
 using MediaPortal.UI.SkinEngine.MpfElements;
-using MediaPortal.UI.SkinEngine.MpfElements.Input;
 using MediaPortal.UiComponents.Media.Models;
-using MediaPortal.UiComponents.Media.Settings;
 using MediaPortal.UiComponents.SkinBase.General;
-using MediaPortal.UiComponents.SkinBase.Models;
-using MediaPortal.Utilities;
 using MediaPortal.Utilities.Events;
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Windows.Forms;
 
 namespace MediaPortal.UiComponents.Nereus.Models
 {
-  public enum ScrollDirection
+  public class HomeMenuModel
   {
-    None,
-    Up,
-    Down
-  }
+    protected class ActionEventArgs : EventArgs
+    {
+      public WorkflowAction Action { get; set; }
+    }
 
-  public class HomeMenuModel : MenuModel
-  {
-    #region Protected Members
+    public static readonly Guid MODEL_ID = new Guid("CED34107-565C-48D9-BEC8-195F7969F90F");
 
-    public static readonly Guid MODEL_ID = new Guid("8AA7C126-DCCB-4DC7-AB17-34BF0C368F6D");
-    public static readonly Guid HOME_STATE_ID = new Guid("7F702D9C-F2DD-42da-9ED8-0BA92F07787F");
-    public static readonly Guid CUSTOM_HOME_STATE_ID = new Guid("B285DC02-AA8C-47F2-8795-0B13B6E66306");
-    protected const string KEY_ITEM_GROUP = "HomeMenuModel: Group";
-    protected const string KEY_ITEM_SELECTED_ACTION_ID = "HomeMenuModel: SelectedActionId";
-    protected const string KEY_ITEM_ACTION_ID = "HomeMenuModel: ActionId";
+    protected const int UPDATE_DELAY_MS = 500;
 
-    protected AbstractProperty _enableSubMenuAnimationsProperty;
-    protected AbstractProperty _enableMainMenuAnimationsProperty;
-    protected AbstractProperty _scrollDirectionProperty;
-    protected AbstractProperty _currentSubItemIndexProperty;
-    protected AbstractProperty _currentSubItemProperty;
+    protected readonly object _syncObj = new object();
 
-    protected readonly object _homeMenuSyncObj = new object();
-    protected HomeMenuActionProxy _homeProxy;
-    protected bool _updatingMenu;
-    protected bool _attachedToMenuItems;
-    protected NavigationList<ListItem> _navigationList;
-    protected ItemsList _mainItems;
-    protected ItemsList _subItems;
+    protected AbstractProperty _content0ActionIdProperty;
+    protected AbstractProperty _content1ActionIdProperty;
+    protected AbstractProperty _contentIndexProperty;
+    protected AbstractProperty _selectedItemProperty;
 
-    private readonly DelayedEvent _delayedMenuUpdateEvent;
-    private readonly DelayedEvent _delayedAnimationEnableEvent;
-
-    #endregion
-
-    #region Ctor
+    protected DelayedEvent _updateEvent;
 
     public HomeMenuModel()
     {
-      _enableSubMenuAnimationsProperty = new WProperty(typeof(bool), false);
-      _enableMainMenuAnimationsProperty = new WProperty(typeof(bool), false);
-      _scrollDirectionProperty = new WProperty(typeof(ScrollDirection), ScrollDirection.None);
-      _currentSubItemIndexProperty = new WProperty(typeof(int), 0);
-      _currentSubItemProperty = new WProperty(typeof(ListItem), null);
+      _content0ActionIdProperty = new WProperty(typeof(string), null);
+      _content1ActionIdProperty = new WProperty(typeof(string), null);
+      _contentIndexProperty = new WProperty(typeof(int), 0);
+      _selectedItemProperty = new WProperty(typeof(ListItem), null);
 
-      _homeProxy = new HomeMenuActionProxy();
-      _navigationList = new NavigationList<ListItem>();
-      _mainItems = new ItemsList();
-      _subItems = new ItemsList();
-      _delayedMenuUpdateEvent = new DelayedEvent(200); // Update menu items only if no more requests are following after 200 ms
-      _delayedMenuUpdateEvent.OnEventHandler += OnUpdateMenu;
-      _delayedAnimationEnableEvent = new DelayedEvent(200);
-      _delayedAnimationEnableEvent.OnEventHandler += OnEnableAnimations;
-      _navigationList.OnCurrentChanged += OnNavigationListCurrentChanged;
-      _currentSubItemIndexProperty.Attach(OnCurrentSubItemIndexChanged);
-      SubscribeToMessages();
+      _updateEvent = new DelayedEvent(UPDATE_DELAY_MS);
+      _updateEvent.OnEventHandler += OnUpdate;
+      _selectedItemProperty.Attach(OnSelectedItemChanged);
+
+      GetMediaListModel().Limit = 6;
     }
 
-    #endregion
+    #region Members to be accessed from the GUI
 
-    #region Message Handling
-
-    private void SubscribeToMessages()
+    public AbstractProperty Content0ActionIdProperty
     {
-      if (_messageQueue == null)
-        return;
-      _messageQueue.SubscribeToMessageChannel(SystemMessaging.CHANNEL);
-      _messageQueue.MessageReceived += OnMessageReceived;
+      get { return _content0ActionIdProperty; }
     }
 
-    private void OnMessageReceived(AsynchronousMessageQueue queue, SystemMessage message)
+    public string Content0ActionId
     {
-      if (!IsSystemActive())
-        return;
-
-      if (!_attachedToMenuItems)
-      {
-        SetLayout();
-        UpdateMenu();
-      }
-
-      if (message.ChannelName == WorkflowManagerMessaging.CHANNEL)
-      {
-        WorkflowManagerMessaging.MessageType messageType = (WorkflowManagerMessaging.MessageType)message.MessageType;
-        if (messageType == WorkflowManagerMessaging.MessageType.NavigationComplete)
-        {
-          var context = ServiceRegistration.Get<IWorkflowManager>().CurrentNavigationContext;
-          if (context != null && context.WorkflowState.StateId == HOME_STATE_ID)
-          {
-            SetLayout();
-            UpdateMenu();
-          }
-        }
-      }
+      get { return (string)_content0ActionIdProperty.GetValue(); }
+      set { _content0ActionIdProperty.SetValue(value); }
     }
 
-    #endregion
-
-    #region Public Properties
-
-    public ItemsList NestedMenuItems
+    public AbstractProperty Content1ActionIdProperty
     {
-      get { return _mainItems; }
+      get { return _content1ActionIdProperty; }
     }
 
-    public ItemsList SubItems
+    public string Content1ActionId
     {
-      get { return _subItems; }
+      get { return (string)_content1ActionIdProperty.GetValue(); }
+      set { _content1ActionIdProperty.SetValue(value); }
     }
 
-    public AbstractProperty EnableSubMenuAnimationsProperty
+    public AbstractProperty ContentIndexProperty
     {
-      get { return _enableSubMenuAnimationsProperty; }
+      get { return _contentIndexProperty; }
     }
 
-    public bool EnableSubMenuAnimations
+    public int ContentIndex
     {
-      get { return (bool)_enableSubMenuAnimationsProperty.GetValue(); }
-      set { _enableSubMenuAnimationsProperty.SetValue(value); }
+      get { return (int)_contentIndexProperty.GetValue(); }
+      protected set { _contentIndexProperty.SetValue(value); }
     }
 
-    public AbstractProperty EnableMainMenuAnimationsProperty
+    public AbstractProperty SelectedItemProperty
     {
-      get { return _enableMainMenuAnimationsProperty; }
+      get { return _selectedItemProperty; }
     }
 
-    public bool EnableMainMenuAnimations
+    public ListItem SelectedItem
     {
-      get { return (bool)_enableMainMenuAnimationsProperty.GetValue(); }
-      set { _enableMainMenuAnimationsProperty.SetValue(value); }
-    }
-
-    public AbstractProperty ScrollDirectionProperty
-    {
-      get { return _scrollDirectionProperty; }
-    }
-
-    public ScrollDirection ScrollDirection
-    {
-      get { return (ScrollDirection)_scrollDirectionProperty.GetValue(); }
-      set { _scrollDirectionProperty.SetValue(value); }
-    }
-
-    public AbstractProperty CurrentSubItemIndexProperty
-    {
-      get { return _currentSubItemIndexProperty; }
-    }
-
-    public int CurrentSubItemIndex
-    {
-      get { return (int)_currentSubItemIndexProperty.GetValue(); }
-      set { _currentSubItemIndexProperty.SetValue(value); }
-    }
-
-    public AbstractProperty CurrentSubItemProperty
-    {
-      get { return _currentSubItemProperty; }
-    }
-
-    public ListItem CurrentSubItem
-    {
-      get { return (ListItem)_currentSubItemProperty.GetValue(); }
-      set { _currentSubItemProperty.SetValue(value); }
-    }
-
-    #endregion
-
-    #region Public Methods
-
-    public void MoveNext()
-    {
-      _navigationList.MoveNext();
-    }
-
-    public void MovePrevious()
-    {
-      _navigationList.MovePrevious();
-    }
-
-    public void MoveNextSubItem()
-    {
-      MoveToSubItem(CurrentSubItemIndex + 1);
-    }
-
-    public void MovePreviousSubItem()
-    {
-      MoveToSubItem(CurrentSubItemIndex - 1);
-    }
-
-    private void MoveToSubItem(int newIndex)
-    {
-      SubItem previousItem;
-      SubItem nextItem;
-      lock (_homeMenuSyncObj)
-      {
-        if (newIndex < 0 || newIndex >= _subItems.Count)
-          return;
-        previousItem = _subItems.FirstOrDefault(i => ((SubItem)i).BringIntoView) as SubItem;
-        nextItem = _subItems[newIndex] as SubItem;
-      }
-      if (previousItem != null)
-        previousItem.BringIntoView = false;
-      nextItem.BringIntoView = true;
+      get { return (ListItem)_selectedItemProperty.GetValue(); }
+      set { _selectedItemProperty.SetValue(value); }
     }
 
     public void SetSelectedItem(object sender, SelectionChangedEventArgs e)
     {
-      var item = e.FirstAddedItem as ListItem;
-      if (item != null && !EnableSubMenuAnimations && EnableMainMenuAnimations)
-        EnableSubMenuAnimations = true;
+      ListItem item = e.FirstAddedItem as ListItem;
+      if (item != null)
+        SelectedItem = item;
     }
 
-    public void OnMouseWheel(object sender, MouseWheelEventArgs e)
+    public void SetSelectedHomeTile(object item)
     {
-      if (e.NumDetents > 0)
-        _navigationList.MovePrevious(e.NumDetents);
-      else
-        _navigationList.MoveNext(-e.NumDetents);
+      UpdateSelectedFanArtItem(item as ListItem);
     }
 
     public void CloseTopmostDialog(MouseButtons buttons, float x, float y)
@@ -276,302 +136,74 @@ namespace MediaPortal.UiComponents.Nereus.Models
 
     #endregion
 
-    #region Enable/Disable Animations
-
-    public void EnableAnimations()
+    private void OnSelectedItemChanged(AbstractProperty property, object oldValue)
     {
-      _delayedAnimationEnableEvent.EnqueueEvent(this, EventArgs.Empty);
-    }
-
-    public void DisableAnimations()
-    {
-      _delayedAnimationEnableEvent.Stop();
-      EnableSubMenuAnimations = false;
-      EnableMainMenuAnimations = false;
-      ScrollDirection = ScrollDirection.None;
-    }
-
-    protected void OnEnableAnimations(object sender, EventArgs e)
-    {
-      EnableSubMenuAnimations = true;
-      EnableMainMenuAnimations = true;
-    }
-
-    #endregion
-
-    #region Menu Update
-
-    protected ItemsList GetHomeMenuItems()
-    {
-      NavigationContext homeContext;
-      IWorkflowManager workflowManager = ServiceRegistration.Get<IWorkflowManager>();
-      workflowManager.Lock.EnterReadLock();
-      try
-      {
-        homeContext = workflowManager.NavigationContextStack.FirstOrDefault(c => c.WorkflowState.StateId == HOME_STATE_ID);
-      }
-      finally
-      {
-        workflowManager.Lock.ExitReadLock();
-      }
-
-      if (homeContext == null)
-      {
-        ServiceRegistration.Get<ILogger>().Warn("WMCHomeModel: Unable to get menu items for home state");
-        return new ItemsList();
-      }
-
-      lock (homeContext.SyncRoot)
-      {
-        ItemsList menu = GetMenuItems(homeContext);
-        return menu != null ? menu : UpdateMenu(homeContext);
-      }
-    }
-
-    protected void UpdateMenu()
-    {
-      _delayedMenuUpdateEvent.EnqueueEvent(this, EventArgs.Empty);
-    }
-
-    private void OnNavigationListCurrentChanged(int oldindex, int newindex)
-    {
-      lock (_homeMenuSyncObj)
-      {
-        if (_updatingMenu)
-          return;
-        _updatingMenu = true;
-      }
-      try
-      {
-        ScrollDirection = newindex > oldindex ? ScrollDirection.Down : ScrollDirection.Up;
-        EnableSubMenuAnimations = false;
-        UpdateList(false);
-      }
-      finally
-      {
-        _updatingMenu = false;
-      }
-    }
-
-    private void OnCurrentSubItemIndexChanged(AbstractProperty property, object oldValue)
-    {
-      if (_updatingMenu)
+      ListItem item = SelectedItem;
+      if (item == null)
         return;
+      WorkflowAction action;
+      if (!TryGetAction(item, out action))
+        action = null;
+      EnqueueUpdate(action);
+    }
 
-      int newIndex = CurrentSubItemIndex;
-      ListItem oldItem;
-      ListItem newItem;
-      lock (_homeMenuSyncObj)
+    private void EnqueueUpdate(WorkflowAction action)
+    {
+      _updateEvent.EnqueueEvent(this, new ActionEventArgs { Action = action });
+    }
+
+    private void OnUpdate(object sender, EventArgs e)
+    {
+      UpdateContent(((ActionEventArgs)e).Action);
+    }
+
+    protected void UpdateContent(WorkflowAction action)
+    {
+      string nextContentActionId = action?.ActionId.ToString();
+      AbstractProperty nextContentActionIdProperty;
+      int nextContentIndex;
+      int currentContentIndex = ContentIndex;
+      if (currentContentIndex == 0)
       {
-        if (newIndex < 0 || newIndex >= _subItems.Count)
+        if (Content0ActionId == nextContentActionId)
           return;
-        oldItem = _subItems.FirstOrDefault(i => i.Selected);
-        newItem = _subItems[newIndex];
+        nextContentIndex = 1;
+        nextContentActionIdProperty = _content1ActionIdProperty;
       }
-
-      if (oldItem != null)
-        oldItem.Selected = false;
-      newItem.Selected = true;
-      ((SubItem)newItem).BringIntoView = false;
-      SetCurrentSubItem(newItem);
-    }
-
-    private void OnUpdateMenu(object sender, EventArgs e)
-    {
-      lock (_homeMenuSyncObj)
+      else
       {
-        if (_updatingMenu)
+        if (Content1ActionId == nextContentActionId)
           return;
-        _updatingMenu = true;
+        nextContentIndex = 0;
+        nextContentActionIdProperty = _content0ActionIdProperty;
       }
-      try
-      {
-        AttachToMenuItems();
-        UpdateList(true);
-        EnableAnimations();
-      }
-      finally
-      {
-        _updatingMenu = false;
-      }
+      nextContentActionIdProperty.SetValue(nextContentActionId);
+      ContentIndex = nextContentIndex;
     }
 
-    protected void AttachToMenuItems()
-    {
-      if (_attachedToMenuItems)
-        return;
-      GetHomeMenuItems().ObjectChanged += OnMenuItemsChanged;
-      _attachedToMenuItems = true;
-    }
-
-    private void OnMenuItemsChanged(IObservable observable)
-    {
-      var context = ServiceRegistration.Get<IWorkflowManager>().CurrentNavigationContext;
-      if (context != null && context.WorkflowState.StateId == HOME_STATE_ID)
-        UpdateMenu();
-    }
-
-    protected void UpdateList(bool recreateList)
-    {
-      bool forceSubItemUpdate = true;
-      // Get new menu entries from base list
-      if (recreateList)
-      {
-        if (UpdateNavigationList())
-        {
-          _mainItems.Clear();
-          CollectionUtils.AddAll(_mainItems, _navigationList);
-          _navigationList.CurrentIndex = 0;
-        }
-        else
-        {
-          forceSubItemUpdate = false;
-          recreateList = false;
-        }
-      }
-
-      bool afterSelected = false;
-      for (int i = 0; i < _mainItems.Count; i++)
-      {
-        var item = (NestedItem)_mainItems[i];
-        item.AfterSelected = afterSelected;
-        bool selected = item == _navigationList.Current;
-        item.Selected = selected;
-        afterSelected |= selected;
-      }
-      if (recreateList)
-        _mainItems.FireChange();
-      SetSubItems(_navigationList.Current, forceSubItemUpdate);
-    }
-
-    protected void SetSubItems(ListItem item, bool forceUpdate)
+    protected void UpdateSelectedFanArtItem(ListItem item)
     {
       if (item == null)
         return;
-
-      HomeMenuGroup group = item.AdditionalProperties[KEY_ITEM_GROUP] as HomeMenuGroup;
-      bool fireChange = false;
-      var actions = _homeProxy.GetGroupActions(group);
-      if (forceUpdate || SubItemsNeedUpdate(_subItems, actions))
-      {
-        _subItems.Clear();
-        CollectionUtils.AddAll(_subItems, CreateSubItems(actions));
-        fireChange = true;
-      }
-      FocusCurrentSubItem(item);
-      if (fireChange)
-        _subItems.FireChange();
+      var fm = GetFanArtBackgroundModel();
+      if (fm != null)
+        fm.SelectedItem = item;
     }
 
-    protected bool UpdateNavigationList()
+    protected static FanArtBackgroundModel GetFanArtBackgroundModel()
     {
-      _homeProxy.UpdateActions(GetHomeMenuItems());
-      if (!_homeProxy.GroupsUpdated)
-        return false; ;
-      _navigationList.Clear();
-      foreach (HomeMenuGroup group in _homeProxy.Groups)
-      {
-        NestedItem item = new NestedItem(Consts.KEY_NAME, group.DisplayName);
-        item.AdditionalProperties[KEY_ITEM_GROUP] = group;
-        _navigationList.Add(item);
-      }
-      //Entry for all actions without a group
-      NestedItem extrasItem = new NestedItem(Consts.KEY_NAME, _homeProxy.OthersName.Evaluate());
-      _navigationList.Add(extrasItem);
-      return true;
+      return (FanArtBackgroundModel)ServiceRegistration.Get<IWorkflowManager>().GetModel(FanArtBackgroundModel.FANART_MODEL_ID);
     }
 
-    protected bool SubItemsNeedUpdate(IList<ListItem> currentItems, IList<WorkflowAction> actions)
+    protected static MediaListModel GetMediaListModel()
     {
-      if (currentItems.Count != actions.Count)
-        return true;
-      if (currentItems.Count == 0)
-        return false;
-
-      int currentIndex = 0;
-      foreach (ListItem item in currentItems)
-      {
-        WorkflowAction action = actions[currentIndex++];
-        if (item.AdditionalProperties[Consts.KEY_ITEM_ACTION] != action)
-          return true;
-      }
-      return false;
-    }
-
-    protected List<SubItem> CreateSubItems(IList<WorkflowAction> actions)
-    {
-      var groupedActions = _homeProxy.GroupedActions;
-      List<SubItem> items = new List<SubItem>();
-      foreach (var action in actions)
-      {
-        WorkflowAction workflowAction = action;
-        HomeMenuAction groupedAction;
-        SubItem listItem;
-        if (groupedActions.TryGetValue(workflowAction.ActionId, out groupedAction))
-          listItem = new SubItem(Consts.KEY_NAME, groupedAction.DisplayName);
-        else
-          listItem = new SubItem(Consts.KEY_NAME, workflowAction.DisplayTitle);
-        listItem.AdditionalProperties[Consts.KEY_ITEM_ACTION] = workflowAction;
-        listItem.AdditionalProperties[KEY_ITEM_ACTION_ID] = workflowAction.ActionId.ToString();
-        listItem.Command = new MethodDelegateCommand(workflowAction.Execute);
-        items.Add(listItem);
-      }
-      return items;
-    }
-
-    protected void SetCurrentSubItem(ListItem item)
-    {
-      CurrentSubItem = item;
-      ListItem currentItem = _navigationList.Current;
-      WorkflowAction action;
-      if (currentItem != null && TryGetAction(item, out action))
-        currentItem.AdditionalProperties[KEY_ITEM_SELECTED_ACTION_ID] = action.ActionId;
-    }
-
-    protected void FocusCurrentSubItem(ListItem parentItem)
-    {
-      Guid? currentActionId = null;
-      if (parentItem != null)
-        currentActionId = parentItem.AdditionalProperties[KEY_ITEM_SELECTED_ACTION_ID] as Guid?;
-
-      WorkflowAction action;
-      int index = 0;
-      foreach (ListItem subItem in _subItems)
-      {
-        bool selected = (currentActionId == null && index == 0) ||
-          (TryGetAction(subItem, out action) && action.ActionId == currentActionId);
-        subItem.Selected = selected;
-        if (selected)
-        {
-          CurrentSubItemIndex = index;
-          CurrentSubItem = subItem;
-        }
-        index++;
-      }
+      return (MediaListModel)ServiceRegistration.Get<IWorkflowManager>().GetModel(MediaListModel.MEDIA_LIST_MODEL_ID);
     }
 
     protected static bool TryGetAction(ListItem item, out WorkflowAction action)
     {
-      if (item != null)
-      {
-        action = item.AdditionalProperties[Consts.KEY_ITEM_ACTION] as WorkflowAction;
-        return action != null;
-      }
-      action = null;
-      return false;
+      action = item.AdditionalProperties[Consts.KEY_ITEM_ACTION] as WorkflowAction;
+      return action != null;
     }
-
-    protected void SetLayout()
-    {
-      IWorkflowManager workflowManager = ServiceRegistration.Get<IWorkflowManager>();
-      ViewModeModel vwm = workflowManager.GetModel(ViewModeModel.VM_MODEL_ID) as ViewModeModel;
-      if (vwm != null)
-      {
-        vwm.LayoutType = LayoutType.GridLayout;
-        vwm.LayoutSize = LayoutSize.Medium;
-      }
-    }
-
-    #endregion
   }
 }

@@ -32,7 +32,7 @@ using System.Threading.Tasks;
 
 namespace MediaPortal.UiComponents.Nereus.Settings
 {
-  public class WMCSkinSettings
+  public class NereusSkinSettings
   {
     public const string SKIN_NAME = "Nereus";
 

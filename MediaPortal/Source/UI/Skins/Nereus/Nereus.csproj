@@ -58,20 +58,16 @@
       <Link>Properties\VersionInfo.cs</Link>
     </Compile>
     <Compile Include="Actions\SkinSettingsAction.cs" />
-    <Compile Include="Controls\HomeMenuContentPresenter.cs" />
+    <Compile Include="Controls\TileGroupWrapper.cs" />
     <Compile Include="Controls\ItemsListFilter.cs" />
-    <Compile Include="Controls\SubItemsContentPresenter.cs" />
     <Compile Include="Converters\ItemsListActionFilter.cs" />
     <Compile Include="Converters\MediaListVisibilityConverter.cs" />
     <Compile Include="Converters\RoundingFormatConverter.cs" />
     <Compile Include="MarkupExtensions\DynamicResourceBindingExtension.cs" />
-    <Compile Include="Models\HomeContentModel.cs" />
-    <Compile Include="Models\HomeMenuActionProxy.cs" />
     <Compile Include="Models\HomeMenuModel.cs" />
-    <Compile Include="Models\NavigationList.cs" />
-    <Compile Include="Models\NestedItem.cs" />
+    <Compile Include="Models\HomeTiles\HomeTile.cs" />
+    <Compile Include="Models\HomeTiles\HomeTileGroup.cs" />
     <Compile Include="Models\ScreenModeModel.cs" />
-    <Compile Include="Models\SubItem.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Settings\Configuration\EnableBannersConfiguration.cs" />
     <Compile Include="Settings\Configuration\EnableAnimatedBackgroundConfiguration.cs" />
@@ -80,7 +76,7 @@
     <Compile Include="Settings\Configuration\EnableMediaItemDetailsViewConfiguration.cs" />
     <Compile Include="Settings\Configuration\EnableWatchedFlagsConfiguration.cs" />
     <Compile Include="Settings\Configuration\EnableFanartConfiguration.cs" />
-    <Compile Include="Settings\WMCSkinSettings.cs" />
+    <Compile Include="Settings\NereusSkinSettings.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Language\strings_en.xml" />
@@ -839,6 +835,10 @@
     <ProjectReference Include="..\..\..\Core\MediaPortal.Utilities\MediaPortal.Utilities.csproj">
       <Project>{4FE7B8AE-1330-424A-91A1-C68D7ABF9CB8}</Project>
       <Name>MediaPortal.Utilities</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\FanArt\FanArtService.Client\FanArtService.Client.csproj">
+      <Project>{CDA7272F-E218-42A0-A53A-2D44E4015FF7}</Project>
+      <Name>FanArtService.Client</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\SkinEngine\SkinEngine.csproj">
       <Project>{7E943389-3589-40C9-B481-2E223554CC49}</Project>
