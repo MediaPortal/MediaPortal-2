@@ -215,7 +215,7 @@
               <ControlTemplate x:Key="OSD_Cover_Template">
                 <Grid VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
                   <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="210"/>
                   </Grid.ColumnDefinitions>
                   <Grid.RowDefinitions>
                     <RowDefinition Height="Auto"/>
@@ -321,19 +321,22 @@
                     <Button x:Name="SelectTitleButton" Style="{ThemeResource ShowDvdMenuButtonStyle}" Margin="{ThemeResource PlayerControlButtonMargins}"
                           IsVisible="{Binding Source={StaticResource VideoPlayerModel},Path=PlayerUIContributor.TitlesAvailable}"
                           Command="{Command Source={StaticResource VideoPlayerModel},Path=PlayerUIContributor.OpenChooseTitleDialog}"/>
-                    <Button x:Name="PreviousChapterButton" Style="{ThemeResource PreviousChapterButtonStyle}" Margin="{ThemeResource PlayerControlButtonMargins}"
-                          IsVisible="{Binding Source={StaticResource VideoPlayerModel},Path=PlayerUIContributor.ChaptersAvailable}"
-                          Command="{Command Source={StaticResource VideoPlayerModel},Path=PlayerUIContributor.PrevChapter}"/>
-                    <Button x:Name="SelectChapterButton" Style="{ThemeResource SelectChapterButtonStyle}" Margin="{ThemeResource PlayerControlButtonMargins}"
-                          IsVisible="{Binding Source={StaticResource VideoPlayerModel},Path=PlayerUIContributor.ChaptersAvailable}"
-                          Command="{Command Source={StaticResource VideoPlayerModel},Path=PlayerUIContributor.OpenChooseChapterDialog}"/>
-                    <Button x:Name="NextChapterButton" Style="{ThemeResource NextChapterButtonStyle}" Margin="{ThemeResource PlayerControlButtonMargins}"
-                          IsVisible="{Binding Source={StaticResource VideoPlayerModel},Path=PlayerUIContributor.ChaptersAvailable}"
-                          Command="{Command Source={StaticResource VideoPlayerModel},Path=PlayerUIContributor.NextChapter}"/>
+                    <StackPanel Orientation="Vertical" Margin="0,7,1,2">
+                      <Button x:Name="NextChapterButton" Style="{ThemeResource ChapterUpButtonStyle}"
+                              Command="{Command Source={StaticResource SlimTvClient},Path=ZapNextChannel}"/>
+                      <Button x:Name="PreviousChapterButton" Style="{ThemeResource ChapterDownButtonStyle}" 
+                              Command="{Command Source={StaticResource SlimTvClient},Path=ZapPrevChannel}"/>
+                    </StackPanel>
                     <Button x:Name="SelectSubtitleButton" Style="{ThemeResource SelectSubtitleButtonStyle}" Margin="{ThemeResource PlayerControlButtonMargins}"
                           IsVisible="{Binding Source={StaticResource VideoPlayerModel},Path=PlayerUIContributor.SubtitlesAvailable}"
                           Command="{Command Source={StaticResource VideoPlayerModel},Path=PlayerUIContributor.OpenChooseSubtitleDialog}"/>
                     <Button x:Name="AudioActiveButton" IsVisible="{Binding IsAudio}" Style="{ThemeResource AudioActiveButtonStyle}" Command="{Command AudioButtonPressed}"/>
+                    <StackPanel Orientation="Vertical" Margin="0,3,1,-3">
+                      <Button x:Name="VolumeUpButton" Style="{ThemeResource VolumeUpButtonStyle}"  
+                              Command="{Command Source={StaticResource GeneralPlayerModel},Path=VolumeUp}"/>
+                      <Button x:Name="VolumeDownButton" Style="{ThemeResource VolumeDownButtonStyle}"
+                              Command="{Command Source={StaticResource GeneralPlayerModel},Path=VolumeDown}"/>
+                    </StackPanel>
                     <Button x:Name="BackButton" Style="{ThemeResource NavigateBackButtonStyle}" Margin="{ThemeResource PlayerControlButtonMargins}"
                             Command="{Command Source={Service WorkflowManager},Path=NavigatePop,Parameters=1}"/>
                     <Button x:Name="CloseButton" Style="{ThemeResource CloseButtonStyle}" Margin="{ThemeResource PlayerControlButtonMargins}"
