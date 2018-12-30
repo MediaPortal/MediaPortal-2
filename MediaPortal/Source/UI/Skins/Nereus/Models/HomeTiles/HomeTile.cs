@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2017 Team MediaPortal
+﻿#region Copyright (C) 2007-2018 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2017 Team MediaPortal
+    Copyright (C) 2007-2018 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -25,29 +25,42 @@
 using MediaPortal.Common.General;
 using MediaPortal.UI.Presentation.DataObjects;
 
-namespace MediaPortal.UiComponents.Nereus.Models
+namespace MediaPortal.UiComponents.Nereus.Models.HomeTiles
 {
-  public class NestedItem : ListItem
+  /// <summary>
+  /// Holds a single item of a <see cref="HomeTileGroup"/>.
+  /// </summary>
+  public class HomeTile : ListItem
   {
-    protected AbstractProperty _afterSelectedProperty = new WProperty(typeof(bool), false);
+    protected AbstractProperty _itemProperty = new WProperty(typeof(object), null);
 
-    public NestedItem(string name, string value) :
-      base(name, value)
+    public HomeTile()
     {
-    }
-    public NestedItem()
-    {
+
     }
 
-    public AbstractProperty AfterSelectedProperty
+    public HomeTile(object item)
     {
-      get { return _afterSelectedProperty; }
+      UpdateItem(item);
     }
 
-    public bool AfterSelected
+    public void UpdateItem(object item)
     {
-      get { return (bool)_afterSelectedProperty.GetValue(); }
-      set { _afterSelectedProperty.SetValue(value); }
+      TileItem = item;
+
+      ListItem listItem = item as ListItem;
+      Command = listItem != null ? listItem.Command : null;
+    }
+
+    public AbstractProperty TileItemProperty
+    {
+      get { return _itemProperty; }
+    }
+
+    public object TileItem
+    {
+      get { return _itemProperty.GetValue(); }
+      set { _itemProperty.SetValue(value); }
     }
   }
 }

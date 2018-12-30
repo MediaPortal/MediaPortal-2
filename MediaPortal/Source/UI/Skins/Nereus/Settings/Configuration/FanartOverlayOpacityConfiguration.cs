@@ -36,7 +36,7 @@ namespace MediaPortal.UiComponents.Nereus.Settings.Configuration
   {
     public FanartOverlayOpacityConfiguration()
     {
-      SkinChangeMonitor.Instance.RegisterConfiguration(WMCSkinSettings.SKIN_NAME, this);
+      SkinChangeMonitor.Instance.RegisterConfiguration(NereusSkinSettings.SKIN_NAME, this);
     }
 
     public override void Load()
@@ -46,20 +46,20 @@ namespace MediaPortal.UiComponents.Nereus.Settings.Configuration
       _upperLimit = 1.1;
       _step = 0.1;
       _type = NumberType.FloatingPoint;
-      _value = SettingsManager.Load<WMCSkinSettings>().FanartOverlayOpacity;
+      _value = SettingsManager.Load<NereusSkinSettings>().FanartOverlayOpacity;
     }
 
     public override void Save()
     {
       base.Save();
-      var settings = SettingsManager.Load<WMCSkinSettings>();
+      var settings = SettingsManager.Load<NereusSkinSettings>();
       settings.FanartOverlayOpacity = _value;
       SettingsManager.Save(settings);
     }
 
     public void Dispose()
     {
-      SkinChangeMonitor.Instance.UnregisterConfiguration(WMCSkinSettings.SKIN_NAME, this);
+      SkinChangeMonitor.Instance.UnregisterConfiguration(NereusSkinSettings.SKIN_NAME, this);
     }
   }
 }

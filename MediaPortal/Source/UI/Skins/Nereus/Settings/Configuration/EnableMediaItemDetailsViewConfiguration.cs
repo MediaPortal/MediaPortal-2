@@ -36,26 +36,26 @@ namespace MediaPortal.UiComponents.Nereus.Settings.Configuration
   {
     public EnableMediaItemDetailsViewConfiguration()
     {
-      SkinChangeMonitor.Instance.RegisterConfiguration(WMCSkinSettings.SKIN_NAME, this);
+      SkinChangeMonitor.Instance.RegisterConfiguration(NereusSkinSettings.SKIN_NAME, this);
     }
 
     public override void Load()
     {
       base.Load();
-      _yes = SettingsManager.Load<WMCSkinSettings>().EnableMediaItemDetailsView;
+      _yes = SettingsManager.Load<NereusSkinSettings>().EnableMediaItemDetailsView;
     }
 
     public override void Save()
     {
       base.Save();
-      var settings = SettingsManager.Load<WMCSkinSettings>();
+      var settings = SettingsManager.Load<NereusSkinSettings>();
       settings.EnableMediaItemDetailsView = _yes;
       SettingsManager.Save(settings);
     }
 
     public void Dispose()
     {
-      SkinChangeMonitor.Instance.UnregisterConfiguration(WMCSkinSettings.SKIN_NAME, this);
+      SkinChangeMonitor.Instance.UnregisterConfiguration(NereusSkinSettings.SKIN_NAME, this);
     }
   }
 }

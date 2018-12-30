@@ -57,7 +57,7 @@ Parameters which have to be accessible by a DynamicResource lookup:
     <Border x:Name="DialogBorder" Margin="50" VerticalAlignment="Center" HorizontalAlignment="Center" BorderThickness="0" Background="#DD000000">
       <DockPanel x:Name="DialogBackgroundPanel" LastChildFill="True">
         <DockPanel.Resources>
-          <Model x:Key="MenuModel" Id="8AA7C126-DCCB-4DC7-AB17-34BF0C368F6D"/>
+          <Model x:Key="MenuModel" Id="CED34107-565C-48D9-BEC8-195F7969F90F"/>
         </DockPanel.Resources>
 
         <mp_special_controls:UserInputCapture VerticalAlignment="Stretch" HorizontalAlignment="Stretch"

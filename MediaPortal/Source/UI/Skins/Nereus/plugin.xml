@@ -27,9 +27,8 @@
   </DependsOn>
 
   <Register Location="/Models">
-    <Model Id="8AA7C126-DCCB-4DC7-AB17-34BF0C368F6D" Name="WMCHomeMenuModel" ClassName="MediaPortal.UiComponents.Nereus.Models.HomeMenuModel"/>
+    <Model Id="CED34107-565C-48D9-BEC8-195F7969F90F" Name="NereusHomeMenuModel" ClassName="MediaPortal.UiComponents.Nereus.Models.HomeMenuModel"/>
     <Model Id="6A232D95-9BDE-4005-905E-69CB092B012B" Name="ScreenModeModel" ClassName="MediaPortal.UiComponents.Nereus.Models.ScreenModeModel"/>
-    <Model Id="93F2124B-08A3-4FC0-AA7D-7709A65F8240" Name="HomeContentModel" ClassName="MediaPortal.UiComponents.Nereus.Models.HomeContentModel"/>
     <Model Id="E06B2C11-AB3F-41DA-8E91-33D83EA30A9A" Name="SkinSettingsActionContributor" ClassName="MediaPortal.UiComponents.Nereus.Actions.SkinSettingsAction"/>
   </Register>
   
@@ -43,7 +42,7 @@
   </Register>
 
   <Register Location="/SkinSettings">
-    <SkinSettings Id="CC3C2ED3-027A-47EE-A12D-652D79D02676" Name="Nereus" ClassName="MediaPortal.UiComponents.Nereus.Settings.WMCSkinSettings"/>
+    <SkinSettings Id="CC3C2ED3-027A-47EE-A12D-652D79D02676" Name="Nereus" ClassName="MediaPortal.UiComponents.Nereus.Settings.NereusSkinSettings"/>
   </Register>
 
   <!--Register support for the home editor to ensure its configuration is visible in this skin-->

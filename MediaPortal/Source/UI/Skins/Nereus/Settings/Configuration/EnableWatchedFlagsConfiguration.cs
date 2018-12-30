@@ -37,7 +37,7 @@ namespace MediaPortal.UiComponents.Nereus.Settings.Configuration
   {
     public EnableWatchedFlagsConfiguration()
     {
-      SkinChangeMonitor.Instance.RegisterConfiguration(WMCSkinSettings.SKIN_NAME, this);
+      SkinChangeMonitor.Instance.RegisterConfiguration(NereusSkinSettings.SKIN_NAME, this);
       _items.Add(LocalizationHelper.CreateResourceString("[Nereus.Configuration.EnableWatchedFlags.ListView]"));
       _items.Add(LocalizationHelper.CreateResourceString("[Nereus.Configuration.EnableWatchedFlags.GridView]"));
       _items.Add(LocalizationHelper.CreateResourceString("[Nereus.Configuration.EnableWatchedFlags.CoverView]"));
@@ -46,7 +46,7 @@ namespace MediaPortal.UiComponents.Nereus.Settings.Configuration
     public override void Load()
     {
       base.Load();
-      var settings = SettingsManager.Load<WMCSkinSettings>();
+      var settings = SettingsManager.Load<NereusSkinSettings>();
       if (settings.EnableListWatchedFlags)
         _selected.Add(0);
       if (settings.EnableGridWatchedFlags)
@@ -58,7 +58,7 @@ namespace MediaPortal.UiComponents.Nereus.Settings.Configuration
     public override void Save()
     {
       base.Save();
-      var settings = SettingsManager.Load<WMCSkinSettings>();
+      var settings = SettingsManager.Load<NereusSkinSettings>();
       settings.EnableListWatchedFlags = _selected.Contains(0);
       settings.EnableGridWatchedFlags = _selected.Contains(1);
       settings.EnableCoverWatchedFlags = _selected.Contains(2);
@@ -67,7 +67,7 @@ namespace MediaPortal.UiComponents.Nereus.Settings.Configuration
 
     public void Dispose()
     {
-      SkinChangeMonitor.Instance.UnregisterConfiguration(WMCSkinSettings.SKIN_NAME, this);
+      SkinChangeMonitor.Instance.UnregisterConfiguration(NereusSkinSettings.SKIN_NAME, this);
     }
   }
 }

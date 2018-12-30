@@ -36,26 +36,26 @@ namespace MediaPortal.UiComponents.Nereus.Settings.Configuration
   {
     public EnableFanartConfiguration()
     {
-      SkinChangeMonitor.Instance.RegisterConfiguration(WMCSkinSettings.SKIN_NAME, this);
+      SkinChangeMonitor.Instance.RegisterConfiguration(NereusSkinSettings.SKIN_NAME, this);
     }
 
     public override void Load()
     {
       base.Load();
-      _yes = SettingsManager.Load<WMCSkinSettings>().EnableFanart;
+      _yes = SettingsManager.Load<NereusSkinSettings>().EnableFanart;
     }
 
     public override void Save()
     {
       base.Save();
-      var settings = SettingsManager.Load<WMCSkinSettings>();
+      var settings = SettingsManager.Load<NereusSkinSettings>();
       settings.EnableFanart = _yes;
       SettingsManager.Save(settings);
     }
 
     public void Dispose()
     {
-      SkinChangeMonitor.Instance.UnregisterConfiguration(WMCSkinSettings.SKIN_NAME, this);
+      SkinChangeMonitor.Instance.UnregisterConfiguration(NereusSkinSettings.SKIN_NAME, this);
     }
   }
 }
