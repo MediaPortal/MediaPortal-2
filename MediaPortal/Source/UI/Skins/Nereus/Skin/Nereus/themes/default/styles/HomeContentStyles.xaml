@@ -9,8 +9,8 @@
     >
 
   <ResourceWrapper x:Key="TileGroupHeight" Resource="900" />
-  
   <ResourceWrapper x:Key="TileGroupWidthMedium" Resource="760" />
+  <ResourceWrapper x:Key="TileGroupMargin" Resource="20,0" />
 
   <!--The margin around each tile-->
   <ResourceWrapper x:Key="TileMargin" Resource="5" />
@@ -241,7 +241,7 @@
 
       <!-- Light blue background fill -->
       <Rectangle Grid.Row="0" Grid.Column="0" Grid.RowSpan="2"
-                   x:Name="HomeFill" Fill="black" Opacity="0.4" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
+                 x:Name="HomeFill" Fill="black" Opacity="0.4" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
 
       <!-- Image -->
       <Image Grid.Row="0" Grid.Column="0" Grid.RowSpan="2" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Stretch="Fill">
@@ -614,7 +614,7 @@
   <Style x:Key="MediaGridTemplateStyle" BasedOn="{ThemeResource DefaultItemContainerStyle}">
     <Setter Property="Content">
       <Setter.Value>
-        <DockPanel Width="{ThemeResource TileGroupWidthMedium}" Height="{ThemeResource TileGroupHeight}" Margin="10,0">
+        <DockPanel Width="{ThemeResource TileGroupWidthMedium}" Height="{ThemeResource TileGroupHeight}" Margin="{ThemeResource TileGroupMargin}">
 
           <Label x:Name="MediaListLabel" FontFamily="SegoeUIBold" DockPanel.Dock="Top" HorizontalAlignment="Left"
                  Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallerFontSize}"
@@ -654,7 +654,7 @@
           <AnimatedStackPanel x:Name="ListItemsHost" IsItemsHost="True" Orientation="Horizontal" Margin="-800,0,-800,0" ScrollMargin="800,0,800,0">
             <AnimatedStackPanel.Resources>
               <Storyboard x:Key="ScrollAnimation" FillBehavior="HoldEnd">
-                <DoubleAnimation BeginTime="00:00:00" From="0" To="1" Duration="00:00:00.600" 
+                <DoubleAnimation BeginTime="00:00:00" From="0" To="1" Duration="00:00:00.600" DecelerationRatio="0.3" AccelerationRatio="0.3"
                                  FillBehavior="HoldEnd" Storyboard.TargetName="ListItemsHost" Storyboard.TargetProperty="ScrollOffsetMultiplier" />
               </Storyboard>
             </AnimatedStackPanel.Resources>
