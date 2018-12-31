@@ -86,7 +86,7 @@ Parameters which have to be accessible by a DynamicResource lookup:
       
     </DockPanel>
 
-    <Grid x:Name="WindowButtonsPanel" HorizontalAlignment="Stretch" VerticalAlignment="Top" Margin="220,10,0,10">
+    <Grid x:Name="WindowButtonsPanel" HorizontalAlignment="Stretch" VerticalAlignment="Top" Margin="20,10,0,10">
       <Grid.Resources>
         <Model x:Key="NotificationsModel" Id="843F373D-0B4B-47ba-8DD1-0D18F00FAAD3"/>
         <Model x:Key="StateModel" Id="B23D8DC1-405E-4564-92D0-E247C299FFAE"/>
@@ -100,35 +100,17 @@ Parameters which have to be accessible by a DynamicResource lookup:
 
       <!--Slide content in and out depending on hidden menu state-->
       <Grid.Triggers>
+
         <DataTrigger Binding="{Binding Source={StaticResource MenuModel},Path=IsMenuOpen}" Value="True">
           <DataTrigger.EnterActions>
-            <BeginStoryboard x:Name="SlideIn">
-              <BeginStoryboard.Storyboard>
-                <Storyboard>
-                  <DoubleAnimation
-                           Storyboard.TargetName="WindowButtonsPanel"
-                           Storyboard.TargetProperty="RenderTransform.X"
-                           From="-200" To="0" BeginTime="0:0:0" Duration="00:00:00.35"
-                           FillBehavior="HoldEnd"/>
-                </Storyboard>
-              </BeginStoryboard.Storyboard>
-            </BeginStoryboard>
+            <BeginStoryboard x:Name="SlideIn" Storyboard="{ThemeResource HiddenMenuSlideIn}"/>
           </DataTrigger.EnterActions>
           <DataTrigger.ExitActions>
-            <BeginStoryboard x:Name="SlideOut">
-              <BeginStoryboard.Storyboard>
-                <Storyboard>
-                  <DoubleAnimation
-                           Storyboard.TargetName="WindowButtonsPanel"
-                           Storyboard.TargetProperty="RenderTransform.X"
-                           From="0" To="-200" BeginTime="0:0:0" Duration="00:00:00.35"
-                           FillBehavior="HoldEnd"/>
-                </Storyboard>
-              </BeginStoryboard.Storyboard>
-            </BeginStoryboard>
+            <BeginStoryboard x:Name="SlideOut" Storyboard="{ThemeResource HiddenMenuSlideOut}"/>
             <StopStoryboard BeginStoryboardName="SlideIn"/>
           </DataTrigger.ExitActions>
         </DataTrigger>
+        
       </Grid.Triggers>
 
       <Grid.RowDefinitions>

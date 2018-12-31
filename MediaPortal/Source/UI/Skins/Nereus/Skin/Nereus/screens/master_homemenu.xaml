@@ -74,7 +74,7 @@ Parameters which have to be accessible by a DynamicResource lookup:
 
     <!-- Client_Template -->
     <ControlTemplate x:Key="Client_Template">
-      <Grid x:Name="MainLayoutPanel" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Margin="0,-110,-205,-5">
+      <Grid x:Name="MainLayoutPanel" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Margin="-200,-110,-205,-5">
         <Grid.ColumnDefinitions>
           <ColumnDefinition Width="200"/>
           <ColumnDefinition Width="*"/>
@@ -89,58 +89,18 @@ Parameters which have to be accessible by a DynamicResource lookup:
 
         <!--Slide content in and out depending on hidden menu state-->
         <Grid.Triggers>
+
           <DataTrigger Binding="{Binding Source={StaticResource MenuModel},Path=IsMenuOpen}" Value="True">
             <DataTrigger.EnterActions>
-              <BeginStoryboard x:Name="SlideIn">
-                <BeginStoryboard.Storyboard>
-                  <Storyboard>
-                    <DoubleAnimation
-                           Storyboard.TargetName="MainLayoutPanel"
-                           Storyboard.TargetProperty="RenderTransform.X"
-                           From="-200" To="0" BeginTime="0:0:0" Duration="00:00:00.35"
-                           FillBehavior="HoldEnd"/>
-                  </Storyboard>
-                </BeginStoryboard.Storyboard>
-              </BeginStoryboard>
+              <BeginStoryboard x:Name="SlideIn" Storyboard="{ThemeResource HiddenMenuSlideIn}"/>
             </DataTrigger.EnterActions>
             <DataTrigger.ExitActions>
-              <BeginStoryboard x:Name="SlideOut">
-                <BeginStoryboard.Storyboard>
-                  <Storyboard>
-                    <DoubleAnimation
-                           Storyboard.TargetName="MainLayoutPanel"
-                           Storyboard.TargetProperty="RenderTransform.X"
-                           From="0" To="-200" BeginTime="0:0:0" Duration="00:00:00.35"
-                           FillBehavior="HoldEnd"/>
-                  </Storyboard>
-                </BeginStoryboard.Storyboard>
-              </BeginStoryboard>
+              <BeginStoryboard x:Name="SlideOut" Storyboard="{ThemeResource HiddenMenuSlideOut}"/>
               <StopStoryboard BeginStoryboardName="SlideIn"/>
             </DataTrigger.ExitActions>
           </DataTrigger>
+          
         </Grid.Triggers>
-
-        <Grid Width="200" VerticalAlignment="Stretch" Margin="0,0,0,-100">
-          <Grid.Triggers>
-            <!--Open the menu when the grid gets focus-->
-            <EventTrigger RoutedEvent="FrameworkElement.GotFocus">
-              <TriggerCommand Command="{Command Source={StaticResource MenuModel}, Path=OpenMenu}"/>
-            </EventTrigger>
-          </Grid.Triggers>
-          <Image Source="MenuGlow.png" Stretch="Uniform" VerticalAlignment="Stretch" Margin="0,0,-38,0"/>
-          <Rectangle Fill="Black" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Opacity="0.9"/>
-          <Image Source="LeftMenuIndicator.PNG" HorizontalAlignment="Right" Stretch="Fill" Width="25" Height="45" 
-                 Opacity="0.9" VerticalAlignment="Center" Margin="0,0,-25,0"/>
-
-          <ListView x:Name="MainMenu" Style="{ThemeResource HomeMenuListViewStyle}" RestoreFocus="True" Height="1200"
-                    HorizontalAlignment="Center" VerticalAlignment="Stretch" SetFocusPrio="DefaultHigh"
-                    ItemsSource="{Binding Source={StaticResource MenuModel},Path=MenuItems,Mode=OneTime,Converter={StaticResource IncludeItemsListActionFilter},ConverterParameter={StaticResource ActionIdFilter}}"
-                    SelectionChanged="{CommandStencil Source={StaticResource HomeMenuModel}, Path=SetSelectedItem}">
-            <ListView.Resources>
-              <CommandBridge x:Key="Menu_Command" Command="{Binding Path=Command,Mode=OneTime}"/>
-            </ListView.Resources>
-          </ListView>
-        </Grid>
 
         <Grid x:Name="ContentView" Grid.Column="1" HorizontalAlignment="Left" VerticalAlignment="Stretch">
           <Grid.ColumnDefinitions>
@@ -328,6 +288,29 @@ Parameters which have to be accessible by a DynamicResource lookup:
             </Grid>
             
           </Grid>
+        </Grid>
+
+        <!--Main menu list-->
+        <Grid Width="200" VerticalAlignment="Stretch" Margin="0,0,0,-100">
+          <Grid.Triggers>
+            <!--Open the menu when the grid gets focus-->
+            <EventTrigger RoutedEvent="FrameworkElement.GotFocus">
+              <TriggerCommand Command="{Command Source={StaticResource MenuModel}, Path=OpenMenu}"/>
+            </EventTrigger>
+          </Grid.Triggers>
+          <Image Source="MenuGlow.png" Stretch="Uniform" VerticalAlignment="Stretch" Margin="0,0,-38,0"/>
+          <Rectangle Fill="Black" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Opacity="0.9"/>
+          <Image Source="LeftMenuIndicator.PNG" HorizontalAlignment="Right" Stretch="Fill" Width="25" Height="45" 
+                 Opacity="0.9" VerticalAlignment="Center" Margin="0,0,-25,0"/>
+
+          <ListView x:Name="MainMenu" Style="{ThemeResource HomeMenuListViewStyle}" RestoreFocus="True" Height="1200"
+                    HorizontalAlignment="Center" VerticalAlignment="Stretch" SetFocusPrio="DefaultHigh"
+                    ItemsSource="{Binding Source={StaticResource MenuModel},Path=MenuItems,Mode=OneTime,Converter={StaticResource IncludeItemsListActionFilter},ConverterParameter={StaticResource ActionIdFilter}}"
+                    SelectionChanged="{CommandStencil Source={StaticResource HomeMenuModel}, Path=SetSelectedItem}">
+            <ListView.Resources>
+              <CommandBridge x:Key="Menu_Command" Command="{Binding Path=Command,Mode=OneTime}"/>
+            </ListView.Resources>
+          </ListView>
         </Grid>
 
         <!-- Order matters here: The content grid has to be the last control to fill the rest of the space -->
