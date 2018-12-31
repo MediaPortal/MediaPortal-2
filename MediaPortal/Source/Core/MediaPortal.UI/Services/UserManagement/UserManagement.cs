@@ -58,8 +58,9 @@ namespace MediaPortal.UI.Services.UserManagement
       get { return _currentUser ?? (_currentUser = GetOrCreateDefaultUser().TryWait() ?? UNKNOWN_USER); }
       set
       {
-        bool changed = _currentUser != value;
-        _currentUser = value;
+        var newUser = value ?? UNKNOWN_USER;
+        bool changed = !Equals(_currentUser, newUser);
+        _currentUser = newUser;
         if (changed)
         {
           // Set new user name to allow overriding settings, but only if explicit user management is enabled
