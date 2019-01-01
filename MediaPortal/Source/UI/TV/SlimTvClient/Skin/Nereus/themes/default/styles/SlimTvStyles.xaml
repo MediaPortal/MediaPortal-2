@@ -50,10 +50,11 @@
                        Fill="{ThemeResource OSDProgressBarBackgroundColor}" RadiusX="5" RadiusY="5"/>
 
             <Grid x:Name="ProgressBarIndicator" HorizontalAlignment="Left" VerticalAlignment="Center">
-              <Grid VerticalAlignment="Center" HorizontalAlignment="Right" Margin="-160,-40,-35,0" Height="55">
+              <Grid VerticalAlignment="Center" HorizontalAlignment="Right" Margin="-144,-45,-51,1" Height="55">
+                <Image Source="PlayerControl\Time.Indicator.png" Height="55" Stretch="Uniform" VerticalAlignment="Center" HorizontalAlignment="Center" Opacity="0.9"/>
                 <Label x:Name="CurrentTimeLabel" Content="{Binding Source={StaticResource TimeModel}, Path=CurrentTime}"
-                       HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0,0,0,24"
-                       Color="White" FontSize="{ThemeResource SmallerFontSize}"/>
+                       HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0,0,0,12" Opacity="0.9" 
+                       Color="Black" FontSize="{ThemeResource SmallerFontSize}" FontFamily="SegoeUIBold"/>
               </Grid>
               <Rectangle Width="{TemplateBinding PartIndicatorWidth}" HorizontalAlignment="Left" VerticalAlignment="Center"
                          RadiusX="5" RadiusY="5" Height="10" Fill="{ThemeResource ProgressBarFillColor}"/>
@@ -282,7 +283,7 @@
                     <Label x:Name="CurrentProgramStartLabel" Grid.Column="0" Margin="5,0,5,0"
                            Content="{Binding Path=CurrentProgram.StartTime, Converter={StaticResource SlimTvDateFormatConverter}}"
                            Color="{ThemeResource TextColor}" HorizontalAlignment="Right" VerticalAlignment="Center"
-                           FontSize="{ThemeResource SmallerFontSize}"/>
+                           FontSize="{ThemeResource SmallerFontSize}" Scroll="Auto" ScrollDelay="0" ScrollSpeed="20"/>
 
                     <ProgressBar x:Name="CurrentProgramProgress" Grid.Column="1" Height="18" HorizontalAlignment="Stretch" VerticalAlignment="Center" Margin="5,5,5,0"
                                  Style="{ThemeResource OSDTVProgressBarStyle}" Value="{Binding Source={StaticResource SlimTvClient},Path=ProgramProgress}" />
@@ -290,7 +291,7 @@
                     <Label x:Name="CurrentProgramEndLabel" Grid.Column="2" Margin="5,0,5,0"
                            Content="{Binding Path=CurrentProgram.EndTime, Converter={StaticResource SlimTvDateFormatConverter}}"
                            Color="{ThemeResource TextColor}" HorizontalAlignment="Left" VerticalAlignment="Center"
-                           FontSize="{ThemeResource SmallerFontSize}"/>
+                           FontSize="{ThemeResource SmallerFontSize}" Scroll="Auto" ScrollDelay="0" ScrollSpeed="20"/>
                   </Grid>
                 </DockPanel>
               </ControlTemplate>
@@ -300,19 +301,21 @@
 
                   <StackPanel x:Name="PlayControlsPanel_Front" DockPanel.Dock="Left" Orientation="Horizontal" VerticalAlignment="Center" HorizontalAlignment="Stretch" Height="90">
                     <Button x:Name="SkipBackButton" Style="{ThemeResource SkipBackButtonStyle}" Margin="{ThemeResource PlayerControlButtonMargins}" IsVisible="{Binding CanSkipBack}"
-                          Command="{Command Previous}"/>
+                            Command="{Command Previous}"/>
                     <Button x:Name="RewindButton" Style="{ThemeResource RewindButtonStyle}" Margin="{ThemeResource PlayerControlButtonMargins}" IsVisible="{Binding CanSeekBackward}"
-                          Command="{Command SeekBackward}"/>
+                            Command="{Command SeekBackward}"/>
                     <Button x:Name="PlayButton" Style="{ThemeResource PlayButtonStyle}" Margin="{ThemeResource PlayerControlButtonMargins}" IsVisible="{Binding CanPlay}"
-                          Command="{Command Play}"/>
+                            Command="{Command Play}"/>
                     <Button x:Name="PauseButton" Style="{ThemeResource PauseButtonStyle}" Margin="{ThemeResource PlayerControlButtonMargins}" IsVisible="{Binding CanPause}"
-                          Command="{Command Pause}"/>
+                            Command="{Command Pause}"/>
                     <Button x:Name="StopButton" Style="{ThemeResource StopButtonStyle}" Margin="{ThemeResource PlayerControlButtonMargins}" IsVisible="{Binding CanStop}"
-                          Command="{Command Stop}"/>
+                            Command="{Command Stop}"/>
                     <Button x:Name="ForwardButton" Style="{ThemeResource ForwardButtonStyle}" Margin="{ThemeResource PlayerControlButtonMargins}" IsVisible="{Binding CanSeekForward}"
-                          Command="{Command SeekForward}"/>
+                            Command="{Command SeekForward}"/>
                     <Button x:Name="SkipForwardButton" Style="{ThemeResource SkipForwardButtonStyle}" Margin="{ThemeResource PlayerControlButtonMargins}" IsVisible="{Binding CanSkipForward}"
-                          Command="{Command Next}"/>
+                            Command="{Command Next}"/>
+                    <Button x:Name="RecordButton" Style="{ThemeResource RecordButtonStyle}" Command="{Command RecordDialog}"
+                            Context="{Model Id=8BEC1372-1C76-484c-8A69-C7F3103708EC}"/>
                   </StackPanel>
 
                   <StackPanel x:Name="PlayControlsPanel_Back" DockPanel.Dock="Right" Orientation="Horizontal" VerticalAlignment="Center" HorizontalAlignment="Stretch" Height="90">
