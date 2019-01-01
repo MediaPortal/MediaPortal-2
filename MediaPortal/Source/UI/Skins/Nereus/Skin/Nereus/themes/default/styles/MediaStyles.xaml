@@ -75,7 +75,7 @@
                   <Grid.RowDefinitions>
                     <RowDefinition Height="*"/>
                   </Grid.RowDefinitions>
-                  <Image Source="OSD_background.png" Stretch="Uniform" HorizontalAlignment="Stretch" VerticalAlignment="Bottom"/>
+                  <Image Source="OSD_background.png" Stretch="Fill" HorizontalAlignment="Stretch" VerticalAlignment="Bottom" Margin="0"/>
                 </Grid>
               </ControlTemplate>
 

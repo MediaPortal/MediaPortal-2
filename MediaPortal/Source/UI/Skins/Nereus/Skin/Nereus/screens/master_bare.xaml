@@ -69,7 +69,12 @@ Parameters which have to be accessible by a DynamicResource lookup:
              Template="{DynamicResource ResourceKey=TopGradient_Template}"/>
 
     <Control x:Name="BottomGradient" Grid.Row="2" HorizontalAlignment="Stretch" VerticalAlignment="Bottom" Margin="-1"
-             Template="{DynamicResource ResourceKey=BottomGradient_Template}"/>
+             Template="{DynamicResource ResourceKey=BottomGradient_Template}">
+      <Control.IsVisible>
+        <Binding Source="{StaticResource ViewModeModel}" Path="LayoutType" 
+                   Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0} != {LayoutType}.{CoverLayout}"/>
+      </Control.IsVisible>
+    </Control>
 
     <Grid x:Name="WindowButtonsPanel" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="20,10,0,10">
       <Grid.Resources>
@@ -142,6 +147,10 @@ Parameters which have to be accessible by a DynamicResource lookup:
 
     <!-- FooterPanel -->
     <Grid Grid.Row="2" x:Name="FooterPanel" Margin="1000,0,0,0" Panel.ZIndex="2000">
+      <Grid.IsVisible>
+        <Binding Source="{StaticResource ViewModeModel}" Path="LayoutType" 
+                 Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0} != {LayoutType}.{CoverLayout}"/>
+      </Grid.IsVisible>
       <Grid.RowDefinitions>
         <RowDefinition Height="*"/>
       </Grid.RowDefinitions>
