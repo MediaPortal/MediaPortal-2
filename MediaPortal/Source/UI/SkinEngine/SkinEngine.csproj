@@ -652,11 +652,8 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="FreeImage">
-      <Version>3.15.4</Version>
-    </PackageReference>
-    <PackageReference Include="FreeImageNET">
-      <Version>3.15.1</Version>
+    <PackageReference Include="MediaPortal.FreeImageNET">
+      <Version>3.18.3</Version>
     </PackageReference>
     <PackageReference Include="SharpDX.Direct3D9">
       <Version>4.0.1</Version>
