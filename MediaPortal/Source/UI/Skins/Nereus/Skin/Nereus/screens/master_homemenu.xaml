@@ -305,7 +305,7 @@ Parameters which have to be accessible by a DynamicResource lookup:
 
           <ListView x:Name="MainMenu" Style="{ThemeResource HomeMenuListViewStyle}" RestoreFocus="True" Height="1200"
                     HorizontalAlignment="Center" VerticalAlignment="Stretch" SetFocusPrio="DefaultHigh"
-                    ItemsSource="{Binding Source={StaticResource MenuModel},Path=MenuItems,Mode=OneTime,Converter={StaticResource IncludeItemsListActionFilter},ConverterParameter={StaticResource ActionIdFilter}}"
+                    ItemsSource="{Binding Source={Binding Source={StaticResource MenuModel},Path=MenuItems,Mode=OneTime},Converter={StaticResource IncludeItemsListActionFilter},ConverterParameter={StaticResource ActionIdFilter}}"
                     SelectionChanged="{CommandStencil Source={StaticResource HomeMenuModel}, Path=SetSelectedItem}">
             <ListView.Resources>
               <CommandBridge x:Key="Menu_Command" Command="{Binding Path=Command,Mode=OneTime}"/>
