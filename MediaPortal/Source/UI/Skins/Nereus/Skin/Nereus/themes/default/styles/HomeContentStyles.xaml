@@ -18,6 +18,9 @@
   <ResourceWrapper x:Key="TileMargin" Resource="5" />
 
   <Model x:Key="MediaListModel" Id="6121E6CC-EB66-4ABC-8AA0-D952B64C0414"/>
+  <Model x:Key="CurrentWeatherModel" Id="FC57FF5C-F72F-47E9-B973-338E31FF7FF1"/>
+  <Model x:Key="CurrentNewsModel" Id="EE1BBF83-AE5C-491C-9978-14737A2B0883"/>
+  <Model x:Key="TimeModel" Id="E821B1C8-0666-4339-8027-AA45A4F6F107"/>
 
   <nereus_converters:MediaListVisibilityConverter x:Key="MediaListVisibilityConverter"/>
 
@@ -900,7 +903,7 @@
 
   <!--++++++++++ Audio +++++++++++-->
 
-  <ControlTemplate x:Key="30715D73-4205-417f-80AA-E82F0834171F">
+  <ControlTemplate x:Key="30715d73-4205-417f-80aa-e82f0834171f">
     <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
       <Grid.ColumnDefinitions>
         <ColumnDefinition Width="*"/>
@@ -913,8 +916,17 @@
         <ControlTemplate x:Key="Square_Tile_Template">
           <Control Template="{ThemeResource SquareTileTemplate}"/>
         </ControlTemplate>
+        <ControlTemplate x:Key="Thumbnail_Tile_Template">
+          <Control Template="{ThemeResource SquareTileTemplate}"/>
+        </ControlTemplate>
+        <ControlTemplate x:Key="Poster_Tile_Template">
+          <Control Template="{ThemeResource SeriesPosterTileTemplate}"/>
+        </ControlTemplate>
+        <ControlTemplate x:Key="Banner_Tile_Template">
+          <Control Template="{ThemeResource SeriesBannerTileTemplate}"/>
+        </ControlTemplate>
       </Grid.Resources>
-
+     
       <ListView Style="{ThemeResource HomeTilesListViewStyle}"
                 IsEnabled="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=IsEnabled}">
 
@@ -956,6 +968,64 @@
         </ListViewItem>
 
       </ListView>
+    </Grid>
+  </ControlTemplate>
+
+  <!--++++++++++ News +++++++++++-->
+
+  <ControlTemplate x:Key="bb49a591-7705-408f-8177-45d633fdfad0">
+    <Grid Margin="0,70,0,0" Height="350" Width="980" HorizontalAlignment="Left" VerticalAlignment="Top"
+          DataContext="{Binding Source={StaticResource CurrentNewsModel}}">
+      <Grid.ColumnDefinitions>
+        <ColumnDefinition Width="*" />
+      </Grid.ColumnDefinitions>
+      <Grid.RowDefinitions>
+        <RowDefinition Height="Auto" />
+        <RowDefinition Height="*" />
+        <RowDefinition Height="Auto" />
+      </Grid.RowDefinitions>
+
+      <Label Grid.Row="0" x:Name="News" FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColor}" Wrap="True"
+             Content="{Binding CurrentNewsItem.Title}" FontFamily="SegoeUIBold" HorizontalAlignment="Stretch"/>
+      <Label Grid.Row="1" Margin="0,10,0,20" x:Name="NewSummary" Wrap="True"
+             Content="{Binding CurrentNewsItem.Summary}" HorizontalAlignment="Stretch" Opacity="1.3"
+             Color="{ThemeResource MenuTextBackground}" FontSize="{ThemeResource SmallFontSize}"/>
+    </Grid>
+  </ControlTemplate>
+
+  <!--++++++++++ Weather +++++++++++-->
+
+  <ControlTemplate x:Key="e34fdb62-1f3e-4aa9-8a61-d143e0af77b5">
+    <Grid DataContext="{Binding Source={StaticResource CurrentWeatherModel}}" VerticalAlignment="Top" Margin="0,70,0,0">
+      <Grid.ColumnDefinitions>
+        <ColumnDefinition Width="Auto" />
+        <ColumnDefinition Width="30" />
+        <ColumnDefinition Width="Auto" />
+      </Grid.ColumnDefinitions>
+      <Grid.RowDefinitions>
+        <RowDefinition Height="Auto" />
+        <RowDefinition Height="Auto" />
+      </Grid.RowDefinitions>
+
+      <Label x:Name="Temperature" FontSize="{ThemeResource HugeFontSize}" Color="{ThemeResource TextColor}" 
+             Content="{Binding CurrentLocation.Condition.Temperature}" HorizontalAlignment="Center"/>
+      <Label Grid.Column="2" x:Name="LocName" FontSize="{ThemeResource HugeFontSize}" Color="{ThemeResource TextColor}" Content="{Binding CurrentLocation.Name}"/>
+      <Image Grid.Row="1" x:Name="BigIcon" Stretch="Fill" Height="175" Width="175" HorizontalAlignment="Center" VerticalAlignment="Center"
+             Source="{Binding CurrentLocation.Condition.BigIconProperty}"/>
+
+      <StackPanel Grid.Row="1" Grid.Column="2">
+        <Label x:Name="Date" FontSize="{ThemeResource NormalFontSize}"
+               Content="{Binding Source={StaticResource TimeModel}, Path=CurrentDate}" Color="{ThemeResource TextColor}"/>
+        <Label x:Name="Wind" FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource MenuTextBackground}" 
+               Content="{Binding CurrentLocation.Condition.Wind}" Opacity="1.3"/>
+        <StackPanel Orientation="Horizontal">
+          <Label x:Name="Humidity" FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource MenuTextBackground}" 
+                 Content="{Binding CurrentLocation.Condition.Humidity}" Opacity="1.3"/>
+          <Label FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource MenuTextBackground}" Content="   " Opacity="1.3"/>
+          <Label x:Name="Pressure" FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource MenuTextBackground}" 
+                 Content="{Binding CurrentLocation.Condition.Pressure}" Opacity="1.3"/>
+        </StackPanel>
+      </StackPanel>
     </Grid>
   </ControlTemplate>
 

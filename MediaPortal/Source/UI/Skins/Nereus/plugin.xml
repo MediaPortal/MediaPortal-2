@@ -2,10 +2,10 @@
     DescriptorVersion="1.0"
     Name="Nereus"
     PluginId="{DFD14B03-F168-4020-8CE4-B14AE337083A}"
-    Author="Morpheus_xx, ge2301, Brownard"
+    Author="Ge2301, Brownard"
     Copyright="GPL"
     AutoActivate="true"
-    Description="WMC skin for MP2.">
+    Description="Nereus skin for MP2.">
 
   <Version
     PluginVersion="1.0"
