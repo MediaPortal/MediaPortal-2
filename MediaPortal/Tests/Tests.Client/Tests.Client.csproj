@@ -62,9 +62,11 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
+    <Reference Include="System.Device" />
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Common\TestAsync.cs" />
     <Compile Include="Common\TestGenres.cs" />
     <Compile Include="Common\TestHelpers.cs" />
     <Compile Include="Common\TestMediaItem.cs" />
@@ -109,6 +111,10 @@
     <ProjectReference Include="..\..\Source\Extensions\MetadataExtractors\GenreProvider\GenreProvider.csproj">
       <Project>{1973ad5b-ef7e-41da-a668-58ac37e1154e}</Project>
       <Name>GenreProvider</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\Source\Extensions\MetadataExtractors\OnlineLibraries\OnlineLibraries.csproj">
+      <Project>{DCA4D19E-75F4-4A8A-B70A-F3F4291DC62B}</Project>
+      <Name>OnlineLibraries</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\Source\Extensions\MetadataExtractors\WICThumbnailProvider\WICThumbnailProvider.csproj">
       <Project>{7f790d8d-3a5a-499f-b9d3-8d9a1ef4f73a}</Project>
