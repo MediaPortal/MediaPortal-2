@@ -89,16 +89,16 @@ namespace MediaPortal.Extensions.OnlineLibraries
       OnlineLibrarySettings settings = ServiceRegistration.Get<ISettingsManager>().Load<OnlineLibrarySettings>();
 
       //Music matchers
-      ConfigureMatchers(MUSIC_MATCHERS, settings.MusicMatchers, settings.MusicLanguageCulture);
+      ConfigureMatchers(MUSIC_MATCHERS, settings.MusicMatchers, settings.MusicLanguageCulture, settings.UseMusicAudioLanguageIfUnmatched);
 
       //Movie matchers
-      ConfigureMatchers(MOVIE_MATCHERS, settings.MovieMatchers, settings.MovieLanguageCulture);
+      ConfigureMatchers(MOVIE_MATCHERS, settings.MovieMatchers, settings.MovieLanguageCulture, settings.UseMovieAudioLanguageIfUnmatched);
 
       //Series matchers
-      ConfigureMatchers(SERIES_MATCHERS, settings.SeriesMatchers, settings.SeriesLanguageCulture);
+      ConfigureMatchers(SERIES_MATCHERS, settings.SeriesMatchers, settings.SeriesLanguageCulture, settings.UseSeriesAudioLanguageIfUnmatched);
     }
 
-    protected void ConfigureMatchers<T>(ICollection<T> matchers, ICollection<MatcherSetting> settings, string languageCulture) where T : IMatcher
+    protected void ConfigureMatchers<T>(ICollection<T> matchers, ICollection<MatcherSetting> settings, string languageCulture, bool useMediaAudioIfUnmatched) where T : IMatcher
     {
       foreach (MatcherSetting setting in settings)
       {
@@ -107,6 +107,7 @@ namespace MediaPortal.Extensions.OnlineLibraries
         {
           matcher.Enabled = setting.Enabled;
           matcher.PreferredLanguageCulture = languageCulture;
+          matcher.UseMediaAudioIfUnmatched = useMediaAudioIfUnmatched;
         }
       }
     }

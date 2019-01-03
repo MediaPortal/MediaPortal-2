@@ -59,18 +59,41 @@ namespace MediaPortal.Common.Services.ResourceAccess
         _servicePrefix = ResourceHttpAccessUrlUtils.RESOURCE_SERVER_BASE_PATH + Guid.NewGuid().GetHashCode().ToString("X");
         var startOptions = UPnPServer.BuildStartOptions(_servicePrefix, filters);
 
-        lock (_syncObj)
+        try
         {
-          _httpServer = WebApp.Start(startOptions, builder =>
+          lock (_syncObj)
           {
-            foreach (Type middleWareType in _middleWares)
+            _httpServer = WebApp.Start(startOptions, builder =>
             {
-              builder.Use(middleWareType);
-            }
-          });
+              foreach (Type middleWareType in _middleWares)
+              {
+                builder.Use(middleWareType);
+              }
+            });
+          }
+        }
+        catch (Exception ex)
+        {
+          if (filters.Count > 0)
+            ServiceRegistration.Get<ILogger>().Warn("ResourceServer: Error starting HTTP server with filters. Fallback to no filters", ex);
+          else
+            throw ex;
+
+          _httpServer?.Dispose();
+          startOptions = UPnPServer.BuildStartOptions(_servicePrefix, new List<string>());
+          lock (_syncObj)
+          {
+            _httpServer = WebApp.Start(startOptions, builder =>
+            {
+              foreach (Type middleWareType in _middleWares)
+              {
+                builder.Use(middleWareType);
+              }
+            });
+          }
         }
       }
-      catch(Exception ex)
+      catch (Exception ex)
       {
         ServiceRegistration.Get<ILogger>().Error("ResourceServer: Error starting HTTP servers", ex);
       }

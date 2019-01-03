@@ -159,6 +159,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
     private DateTime? _lastCacheRefresh;
     private DateTime _lastCacheCheck = DateTime.MinValue;
     private string _preferredLanguageCulture = "en-US";
+    private bool _useMediaAudioIfUnmatched = false;
 
     private SimpleNameMatcher _companyMatcher;
     private SimpleNameMatcher _networkMatcher;
@@ -187,6 +188,12 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
     {
       get { return _preferredLanguageCulture; }
       set { _preferredLanguageCulture = value; }
+    }
+
+    public bool UseMediaAudioIfUnmatched
+    {
+      get { return _useMediaAudioIfUnmatched; }
+      set { _useMediaAudioIfUnmatched = value; }
     }
 
     #endregion
@@ -1347,8 +1354,8 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
         if (mediaLanguages.Count == 0 || mediaLanguages.Contains(mpLocal.TwoLetterISOLanguageName))
           return (TLang)Convert.ChangeType(mpLocal.TwoLetterISOLanguageName, typeof(TLang));
 
-        // If there is only one language available, use this one.
-        if (mediaLanguages.Count == 1)
+        // If there is one language available, use this one.
+        if (_useMediaAudioIfUnmatched && mediaLanguages.Count > 0)
           return (TLang)Convert.ChangeType(mediaLanguages[0], typeof(TLang));
 
         // If there are multiple languages, that are different to MP2 setting, we cannot guess which one is the "best".
