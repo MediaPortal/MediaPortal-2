@@ -602,6 +602,13 @@
         </ControlTemplate>
       </Setter.Value>
     </Setter>
+    <Setter TargetName="GrowControl" Property="Margin" Value="-10,0"/>
+    <Setter TargetName="ButtonContentPresenter" Property="Margin" Value="20,0"/>
+  </Style>
+
+  <Style x:Key="HomeItemContainerStyleHorizontal" BasedOn="{ThemeResource HomeItemContainerStyle}">
+    <Setter TargetName="GrowControl" Property="Margin" Value="0,-10"/>
+    <Setter TargetName="ButtonContentPresenter" Property="Margin" Value="0,20"/>
   </Style>
 
   <Style x:Key="HomeMenuListViewStyle" BasedOn="{ThemeResource DefaultListViewStyle}">
@@ -712,7 +719,7 @@
       </Setter.Value>
     </Setter>
     <Setter Property="ItemTemplate" Value="{ThemeResource MediaMenuItemDataTemplate}"/>
-    <Setter Property="ItemContainerStyle" Value="{ThemeResource HomeItemContainerStyle}"/>
+    <Setter Property="ItemContainerStyle" Value="{ThemeResource HomeItemContainerStyleHorizontal}"/>
   </Style>
 
 
