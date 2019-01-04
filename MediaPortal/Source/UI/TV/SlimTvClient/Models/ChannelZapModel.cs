@@ -141,13 +141,22 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
     {
       // Zap to channel
       int number;
-      if (!int.TryParse(ChannelNumberOrIndex, out number) || number < 1)
+      if (!int.TryParse(ChannelNumberOrIndex, out number))
         return;
+
+      ClearZapTimer();
 
       IWorkflowManager workflowManager = ServiceRegistration.Get<IWorkflowManager>();
       SlimTvClientModel model = workflowManager.GetModel(SlimTvClientModel.MODEL_ID) as SlimTvClientModel;
       if (model == null)
         return;
+
+      // Special case "0", we use it for "zap back" to tune previous watched channel
+      if (number == 0)
+      {
+        _ = model.ZapBack();
+        return;
+      }
 
       SlimTvClientSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<SlimTvClientSettings>();
       if (settings.ZapByChannelIndex)
@@ -160,8 +169,6 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
       {
         _ = model.TuneByChannelNumber(number);
       }
-
-      ClearZapTimer();
     }
 
     #endregion
