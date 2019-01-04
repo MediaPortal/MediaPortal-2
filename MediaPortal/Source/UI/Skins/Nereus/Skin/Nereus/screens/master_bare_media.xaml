@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <!--
-This is the master template for all screens:
+This is the master template for all media screens that
+adjust the view based on the ViewModeModel's LayoutType:
 A header text, player controls and a client area.
 Below the client area, the navigation bar is visible.
 
@@ -65,7 +66,12 @@ Parameters which have to be accessible by a DynamicResource lookup:
              Template="{DynamicResource ResourceKey=TopGradient_Template}"/>
 
     <Control x:Name="BottomGradient" Grid.Row="2" HorizontalAlignment="Stretch" VerticalAlignment="Bottom" Margin="-1"
-             Template="{DynamicResource ResourceKey=BottomGradient_Template}"/>
+             Template="{DynamicResource ResourceKey=BottomGradient_Template}">
+      <Control.IsVisible>
+        <Binding Source="{StaticResource ViewModeModel}" Path="LayoutType" 
+                 Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0} != {LayoutType}.{CoverLayout}"/>
+      </Control.IsVisible>
+    </Control>
 
     <Grid x:Name="WindowButtonsPanel" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="20,10,0,10">
       <Grid.RowDefinitions>
@@ -81,39 +87,53 @@ Parameters which have to be accessible by a DynamicResource lookup:
 
       <!--Slide content in and out depending on hidden menu state-->
       <Grid.Triggers>
-        <DataTrigger Binding="{Binding Source={StaticResource MenuModel},Path=IsMenuOpen}" Value="True">
-          <DataTrigger.EnterActions>
+        
+        <!--Close the hidden menu when the main content gets focus-->
+        <EventTrigger RoutedEvent="FrameworkElement.GotFocus">
+          <TriggerCommand Command="{Command Source={StaticResource MenuModel}, Path=CloseMenu}"/>
+        </EventTrigger>
+
+        <MultiTrigger>
+          <MultiTrigger.Conditions>
+            <Condition Binding="{Binding Source={StaticResource MenuModel},Path=IsMenuOpen}" Value="True" />
+            <Condition Value="True">
+              <Condition.Binding>
+                <Binding Source="{StaticResource ViewModeModel}" Path="LayoutType" 
+                           Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0} != {LayoutType}.{CoverLayout}"/>
+              </Condition.Binding>
+            </Condition>
+          </MultiTrigger.Conditions>
+          <MultiTrigger.EnterActions>
             <BeginStoryboard x:Name="SlideIn" Storyboard="{ThemeResource HiddenMenuSlideIn}"/>
-          </DataTrigger.EnterActions>
-          <DataTrigger.ExitActions>
+          </MultiTrigger.EnterActions>
+          <MultiTrigger.ExitActions>
             <BeginStoryboard x:Name="SlideOut" Storyboard="{ThemeResource HiddenMenuSlideOut}"/>
             <StopStoryboard BeginStoryboardName="SlideIn"/>
-          </DataTrigger.ExitActions>
-        </DataTrigger>
+          </MultiTrigger.ExitActions>
+        </MultiTrigger>
+
       </Grid.Triggers>
 
       <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-        <StackPanel.Triggers>
-          <!--Close the hidden menu when the main content gets focus-->
-          <EventTrigger RoutedEvent="FrameworkElement.GotFocus">
-            <TriggerCommand Command="{Command Source={StaticResource MenuModel}, Path=CloseMenu}"/>
-          </EventTrigger>
-        </StackPanel.Triggers>
         <StackPanel Orientation="Horizontal" Context="{Service Window}" IsVisible="{Binding Source={StaticResource MouseModel},Path=IsMouseUsed}">
           <Button x:Name="BackButton" Style="{ThemeResource NavigateBackButtonStyle}" Margin="5" HorizontalAlignment="Left" VerticalAlignment="Center"
                   Command="{Command Source={Service WorkflowManager},Path=NavigatePop,Parameters=1}"/>
           <Button x:Name="HomeButton" Style="{ThemeResource HomeButtonStyle}" Margin="5" HorizontalAlignment="Left" VerticalAlignment="Center"
                   Command="{Command Source={Service WorkflowManager},Path=NavigatePush,Parameters=7F702D9C-F2DD-42da-9ED8-0BA92F07787F}"/>
         </StackPanel>
-        
+
         <!-- Notifications bar -->
         <Include Source="screens\NotificationsBar.inc"/>
-        
+
       </StackPanel>
     </Grid>
 
     <!-- FooterPanel -->
     <Grid Grid.Row="2" x:Name="FooterPanel" Margin="1000,0,0,0" Panel.ZIndex="2000">
+      <Grid.IsVisible>
+        <Binding Source="{StaticResource ViewModeModel}" Path="LayoutType" 
+                 Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0} != {LayoutType}.{CoverLayout}"/>
+      </Grid.IsVisible>
       <Grid.RowDefinitions>
         <RowDefinition Height="*"/>
       </Grid.RowDefinitions>
