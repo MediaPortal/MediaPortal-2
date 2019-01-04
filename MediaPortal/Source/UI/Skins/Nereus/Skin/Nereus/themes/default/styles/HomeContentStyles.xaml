@@ -9,6 +9,8 @@
     >
 
   <ResourceWrapper x:Key="TileGroupHeight" Resource="900" />
+  
+  <ResourceWrapper x:Key="TileGroupWidthTiny" Resource="223" />
   <ResourceWrapper x:Key="TileGroupWidthVeryNarrow" Resource="400" />
   <ResourceWrapper x:Key="TileGroupWidthNarrow" Resource="650" />
   <ResourceWrapper x:Key="TileGroupWidthMedium" Resource="760" />
@@ -764,58 +766,11 @@
   <!--++++ HOME CONTENT LIST ITEM STYLES ++++-->
   <!--+++++++++++++++++++++++++++++++++++++++-->
 
-  <Style x:Key="MediaGridMediumTemplateStyle" BasedOn="{ThemeResource DefaultItemContainerStyle}">
+  <Style x:Key="MediaGridTemplateStyle" BasedOn="{ThemeResource DefaultItemContainerStyle}">
     <Setter Property="Content">
       <Setter.Value>
-        <DockPanel Width="{ThemeResource TileGroupWidthMedium}" Height="{ThemeResource TileGroupHeight}" Margin="{ThemeResource TileGroupMargin}">
-
-          <Label x:Name="MediaListLabel" FontFamily="SegoeUIBold" DockPanel.Dock="Top" HorizontalAlignment="Left"
-                 Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallerFontSize}"
-                 Content="{Binding Source={DynamicResource Grid_Label},Path=Resource}"/>
-
-          <nereus_controls:TileGroupWrapper ItemsSource="{Binding Path=AllItems}"
-                                            Template="{Binding Source={DynamicResource Grid_Style},Path=Resource}"/>
-        </DockPanel>
-      </Setter.Value>
-    </Setter>
-  </Style>
-
-  <Style x:Key="MediaGridWideTemplateStyle" BasedOn="{ThemeResource DefaultItemContainerStyle}">
-    <Setter Property="Content">
-      <Setter.Value>
-        <DockPanel Width="{ThemeResource TileGroupWidthWide}" Height="{ThemeResource TileGroupHeight}" Margin="{ThemeResource TileGroupMargin}">
-
-          <Label x:Name="MediaListLabel" FontFamily="SegoeUIBold" DockPanel.Dock="Top" HorizontalAlignment="Left"
-                 Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallerFontSize}"
-                 Content="{Binding Source={DynamicResource Grid_Label},Path=Resource}"/>
-
-          <nereus_controls:TileGroupWrapper ItemsSource="{Binding Path=AllItems}"
-                                            Template="{Binding Source={DynamicResource Grid_Style},Path=Resource}"/>
-        </DockPanel>
-      </Setter.Value>
-    </Setter>
-  </Style>
-
-  <Style x:Key="MediaGridNarrowTemplateStyle" BasedOn="{ThemeResource DefaultItemContainerStyle}">
-    <Setter Property="Content">
-      <Setter.Value>
-        <DockPanel Width="{ThemeResource TileGroupWidthNarrow}" Height="{ThemeResource TileGroupHeight}" Margin="{ThemeResource TileGroupMargin}">
-
-          <Label x:Name="MediaListLabel" FontFamily="SegoeUIBold" DockPanel.Dock="Top" HorizontalAlignment="Left"
-                 Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallerFontSize}"
-                 Content="{Binding Source={DynamicResource Grid_Label},Path=Resource}"/>
-
-          <nereus_controls:TileGroupWrapper ItemsSource="{Binding Path=AllItems}"
-                                            Template="{Binding Source={DynamicResource Grid_Style},Path=Resource}"/>
-        </DockPanel>
-      </Setter.Value>
-    </Setter>
-  </Style>
-
-  <Style x:Key="MediaGridVeryNarrowTemplateStyle" BasedOn="{ThemeResource DefaultItemContainerStyle}">
-    <Setter Property="Content">
-      <Setter.Value>
-        <DockPanel Width="{ThemeResource TileGroupWidthVeryNarrow}" Height="{ThemeResource TileGroupHeight}" Margin="{ThemeResource TileGroupMargin}">
+        <DockPanel x:Name="MediaGridPanel"
+                   Height="{ThemeResource TileGroupHeight}" Margin="{ThemeResource TileGroupMargin}">
 
           <Label x:Name="MediaListLabel" FontFamily="SegoeUIBold" DockPanel.Dock="Top" HorizontalAlignment="Left"
                  Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallerFontSize}"
@@ -955,7 +910,7 @@
         </ListView>
 
         <ListViewItem DataContext="{Binding Source={StaticResource MediaListModel}, Path=Lists[LatestMovies]}"
-                      Style="{ThemeResource MediaGridMediumTemplateStyle}"
+                      Style="{ThemeResource MediaGridTemplateStyle}" Width="{ThemeResource TileGroupWidthMedium}"
                       Visibility="{Binding Source={Binding AllItems}, Converter={StaticResource MediaListVisibilityConverter}}">
           <ListViewItem.Resources>
             <ResourceWrapper x:Key="Grid_Label" Resource="[Nereus.Home.LatestAdded]"/>
@@ -964,7 +919,7 @@
         </ListViewItem>
         
         <ListViewItem DataContext="{Binding Source={StaticResource MediaListModel}, Path=Lists[ContinuePlayMovies]}"
-                      Style="{ThemeResource MediaGridMediumTemplateStyle}"
+                      Style="{ThemeResource MediaGridTemplateStyle}" Width="{ThemeResource TileGroupWidthMedium}"
                       Visibility="{Binding Source={Binding AllItems}, Converter={StaticResource MediaListVisibilityConverter}}">
           <ListViewItem.Resources>
             <ResourceWrapper x:Key="Grid_Label" Resource="[Nereus.Home.ContinuePlayed]"/>
@@ -973,7 +928,7 @@
         </ListViewItem>
         
         <ListViewItem DataContext="{Binding Source={StaticResource MediaListModel}, Path=Lists[FavoriteMovies]}"
-                      Style="{ThemeResource MediaGridMediumTemplateStyle}"
+                      Style="{ThemeResource MediaGridTemplateStyle}" Width="{ThemeResource TileGroupWidthMedium}"
                       Visibility="{Binding Source={Binding AllItems}, Converter={StaticResource MediaListVisibilityConverter}}">
           <ListViewItem.Resources>
             <ResourceWrapper x:Key="Grid_Label" Resource="[Nereus.Home.Favorites]"/>
@@ -983,7 +938,7 @@
         
         
         <ListViewItem DataContext="{Binding Source={StaticResource MediaListModel}, Path=Lists[UnplayedMovies]}"
-                      Style="{ThemeResource MediaGridMediumTemplateStyle}"
+                      Style="{ThemeResource MediaGridTemplateStyle}" Width="{ThemeResource TileGroupWidthMedium}"
                       Visibility="{Binding Source={Binding AllItems}, Converter={StaticResource MediaListVisibilityConverter}}">
           <ListViewItem.Resources>
             <ResourceWrapper x:Key="Grid_Label" Resource="[Nereus.Home.Unplayed]"/>
@@ -1025,7 +980,7 @@
                 IsEnabled="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=IsEnabled}">
 
         <ListViewItem DataContext="{Binding Source={StaticResource MediaListModel}, Path=Lists[LatestEpisodes]}"
-                      Style="{ThemeResource MediaGridWideTemplateStyle}"
+                      Style="{ThemeResource MediaGridTemplateStyle}" Width="{ThemeResource TileGroupWidthWide}"
                       Visibility="{Binding Source={Binding AllItems}, Converter={StaticResource MediaListVisibilityConverter}}">
           <ListViewItem.Resources>
             <ResourceWrapper x:Key="Grid_Label" Resource="[Nereus.Home.LatestAdded]"/>
@@ -1034,7 +989,7 @@
         </ListViewItem>
 
         <ListViewItem DataContext="{Binding Source={StaticResource MediaListModel}, Path=Lists[ContinuePlayEpisodes]}"
-                      Style="{ThemeResource MediaGridWideTemplateStyle}"
+                      Style="{ThemeResource MediaGridTemplateStyle}" Width="{ThemeResource TileGroupWidthWide}"
                       Visibility="{Binding Source={Binding AllItems}, Converter={StaticResource MediaListVisibilityConverter}}">
           <ListViewItem.Resources>
             <ResourceWrapper x:Key="Grid_Label" Resource="[Nereus.Home.ContinuePlayed]"/>
@@ -1043,7 +998,7 @@
         </ListViewItem>
 
         <ListViewItem DataContext="{Binding Source={StaticResource MediaListModel}, Path=Lists[FavoriteSeries]}"
-                      Style="{ThemeResource MediaGridMediumTemplateStyle}"
+                      Style="{ThemeResource MediaGridTemplateStyle}" Width="{ThemeResource TileGroupWidthMedium}"
                       Visibility="{Binding Source={Binding AllItems}, Converter={StaticResource MediaListVisibilityConverter}}">
           <ListViewItem.Resources>
             <ResourceWrapper x:Key="Grid_Label" Resource="[Nereus.Home.Favorites]"/>
@@ -1053,7 +1008,7 @@
 
 
         <ListViewItem DataContext="{Binding Source={StaticResource MediaListModel}, Path=Lists[UnplayedSeries]}"
-                      Style="{ThemeResource MediaGridMediumTemplateStyle}"
+                      Style="{ThemeResource MediaGridTemplateStyle}" Width="{ThemeResource TileGroupWidthMedium}"
                       Visibility="{Binding Source={Binding AllItems}, Converter={StaticResource MediaListVisibilityConverter}}">
           <ListViewItem.Resources>
             <ResourceWrapper x:Key="Grid_Label" Resource="[Nereus.Home.Unplayed]"/>
@@ -1095,7 +1050,7 @@
                 IsEnabled="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=IsEnabled}">
 
         <ListViewItem DataContext="{Binding Source={StaticResource MediaListModel}, Path=Lists[LatestAudio]}"
-                      Style="{ThemeResource MediaGridNarrowTemplateStyle}"
+                      Style="{ThemeResource MediaGridTemplateStyle}" Width="{ThemeResource TileGroupWidthNarrow}"
                       Visibility="{Binding Source={Binding AllItems}, Converter={StaticResource MediaListVisibilityConverter}}">
           <ListViewItem.Resources>
             <ResourceWrapper x:Key="Grid_Label" Resource="[Nereus.Home.LatestAdded]"/>
@@ -1104,7 +1059,7 @@
         </ListViewItem>
 
         <ListViewItem DataContext="{Binding Source={StaticResource MediaListModel}, Path=Lists[ContinuePlayAlbum]}"
-                      Style="{ThemeResource MediaGridNarrowTemplateStyle}"
+                      Style="{ThemeResource MediaGridTemplateStyle}" Width="{ThemeResource TileGroupWidthNarrow}"
                       Visibility="{Binding Source={Binding AllItems}, Converter={StaticResource MediaListVisibilityConverter}}">
           <ListViewItem.Resources>
             <ResourceWrapper x:Key="Grid_Label" Resource="[Nereus.Home.ContinuePlayed]"/>
@@ -1113,7 +1068,7 @@
         </ListViewItem>
 
         <ListViewItem DataContext="{Binding Source={StaticResource MediaListModel}, Path=Lists[FavoriteAudio]}"
-                      Style="{ThemeResource MediaGridNarrowTemplateStyle}"
+                      Style="{ThemeResource MediaGridTemplateStyle}" Width="{ThemeResource TileGroupWidthNarrow}"
                       Visibility="{Binding Source={Binding AllItems}, Converter={StaticResource MediaListVisibilityConverter}}">
           <ListViewItem.Resources>
             <ResourceWrapper x:Key="Grid_Label" Resource="[Nereus.Home.Favorites]"/>
@@ -1123,7 +1078,7 @@
 
 
         <ListViewItem DataContext="{Binding Source={StaticResource MediaListModel}, Path=Lists[UnplayedAlbums]}"
-                      Style="{ThemeResource MediaGridNarrowTemplateStyle}"
+                      Style="{ThemeResource MediaGridTemplateStyle}" Width="{ThemeResource TileGroupWidthNarrow}"
                       Visibility="{Binding Source={Binding AllItems}, Converter={StaticResource MediaListVisibilityConverter}}">
           <ListViewItem.Resources>
             <ResourceWrapper x:Key="Grid_Label" Resource="[Nereus.Home.Unplayed]"/>
@@ -1223,7 +1178,7 @@
                 IsEnabled="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=IsEnabled}">
 
         <ListViewItem DataContext="{Binding Source={StaticResource MediaListModel}, Path=Lists[LastPlayTV]}"
-                      Style="{ThemeResource MediaGridVeryNarrowTemplateStyle}"
+                      Style="{ThemeResource MediaGridTemplateStyle}" Width="{ThemeResource TileGroupWidthVeryNarrow}"
                       Visibility="{Binding Source={Binding AllItems}, Converter={StaticResource MediaListVisibilityConverter}}">
           <ListViewItem.Resources>
             <ResourceWrapper x:Key="Grid_Label" Resource="[Nereus.Home.LatestPlayed]"/>
@@ -1232,7 +1187,7 @@
         </ListViewItem>
         
         <ListViewItem DataContext="{Binding Source={StaticResource MediaListModel}, Path=Lists[FavoriteTV]}"
-                      Style="{ThemeResource MediaGridVeryNarrowTemplateStyle}"
+                      Style="{ThemeResource MediaGridTemplateStyle}" Width="{ThemeResource TileGroupWidthTiny}"
                       Visibility="{Binding Source={Binding AllItems}, Converter={StaticResource MediaListVisibilityConverter}}">
           <ListViewItem.Resources>
             <ResourceWrapper x:Key="Grid_Label" Resource="[Nereus.Home.Favorites]"/>
@@ -1241,7 +1196,7 @@
         </ListViewItem>
 
         <ListViewItem DataContext="{Binding Source={StaticResource MediaListModel}, Path=Lists[CurrentPrograms]}"
-                      Style="{ThemeResource MediaGridNarrowTemplateStyle}"
+                      Style="{ThemeResource MediaGridTemplateStyle}" Width="{ThemeResource TileGroupWidthNarrow}"
                       Visibility="{Binding Source={Binding AllItems}, Converter={StaticResource MediaListVisibilityConverter}}">
           <ListViewItem.Resources>
             <ResourceWrapper x:Key="Grid_Label" Resource="[Nereus.Home.CurrentPrograms]"/>
