@@ -4464,10 +4464,10 @@
                 <Binding.Source>
                   <ItemsPanelTemplate>
                     <!--VirtualizingStackPanel x:Name="CoverListItemsHost" IsItemsHost="True" Orientation="Horizontal"/-->
-                    <AnimatedStackPanel x:Name="CoverListItemsHost" IsItemsHost="True" Orientation="Horizontal" ScrollMargin="280,260" Margin="-140,0,-170,0">
+                    <AnimatedStackPanel x:Name="CoverListItemsHost" IsItemsHost="True" Orientation="Horizontal" ScrollMargin="280,260" Margin="-140,0,-140,0">
                       <AnimatedStackPanel.Resources>
                         <Storyboard x:Key="ScrollAnimation" FillBehavior="HoldEnd">
-                          <DoubleAnimation BeginTime="00:00:00" From="0" To="1" Duration="00:00:00.300" 
+                          <DoubleAnimation BeginTime="00:00:00" From="0" To="1" Duration="00:00:00.400" DecelerationRatio="0.3" AccelerationRatio="0.3"
                                            FillBehavior="HoldEnd" Storyboard.TargetName="CoverListItemsHost" Storyboard.TargetProperty="ScrollOffsetMultiplier" />
                         </Storyboard>
                       </AnimatedStackPanel.Resources>

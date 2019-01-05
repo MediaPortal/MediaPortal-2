@@ -56,11 +56,19 @@
 
       <!-- Darkened band -->
       <Rectangle Grid.Row="1" Grid.Column="0" Fill="#FF000000" Opacity="0.749"
-                   HorizontalAlignment="Stretch" VerticalAlignment="Stretch" />
+                 HorizontalAlignment="Stretch" VerticalAlignment="Stretch" />
 
       <!-- Item label -->
       <Label Grid.Row="1" Grid.Column="0" x:Name="ItemLabel" HorizontalAlignment="Center" VerticalAlignment="Center" Content="{Binding SimpleTitle}"
-               FontSize="{ThemeResource BigFontSize}" Color="{ThemeResource TextColor}"/>
+             FontSize="{ThemeResource BigFontSize}" Color="{ThemeResource TextColor}" Margin="5,0,5,0" ScrollDelay="0">
+        <Label.Scroll>
+          <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
+            <Binding RelativeSource="{RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}}" Path="HasFocus"/>
+            <Binding Source="Auto"/>
+            <Binding Source="None"/>
+          </MultiBinding>
+        </Label.Scroll>
+      </Label>
     </Grid>
   </ControlTemplate>
 
@@ -96,7 +104,16 @@
 
       <!-- Item label -->
       <Label Grid.Row="1" Grid.Column="0" x:Name="ItemLabel" HorizontalAlignment="Center" VerticalAlignment="Center" Content="{Binding SimpleTitle}"
-               FontSize="{ThemeResource BigFontSize}" Color="{ThemeResource TextColor}"/>
+             FontSize="{ThemeResource BigFontSize}" Color="{ThemeResource TextColor}" Margin="5,0,5,0" ScrollDelay="0">
+        <Label.Scroll>
+          <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
+            <Binding RelativeSource="{RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}}" Path="HasFocus"/>
+            <Binding Source="Auto"/>
+            <Binding Source="None"/>
+          </MultiBinding>
+        </Label.Scroll>
+      </Label>
+      
     </Grid>
   </ControlTemplate>
 
@@ -120,7 +137,7 @@
       <Image Grid.Row="0" Grid.Column="0" Grid.RowSpan="2" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Stretch="Fill">
         <Image.Source>
           <fanart:FanArtImageSource fanart:FanArtMediaType="Movie" fanart:FanArtType="Poster" fanart:FanArtName="{Binding Source={Binding MediaItem}, Path=MediaItemId}"
-               fanart:MaxWidth="{StaticResource FANART_POSTER_WIDTH}" fanart:MaxHeight="{StaticResource FANART_POSTER_HEIGHT}"/>
+               fanart:MaxWidth="0" fanart:MaxHeight="0"/>
         </Image.Source>
       </Image>
 
@@ -325,9 +342,66 @@
           </Label.Content>
         </Label>
       </Grid>
-
     </Grid>
   </ControlTemplate>
+
+  <ControlTemplate x:Key="TVScheduleTileTemplate">
+    <Grid x:Name="ItemControl">
+      <Grid.ColumnDefinitions>
+        <ColumnDefinition Width="Auto"/>
+        <ColumnDefinition Width="*"/>
+        <ColumnDefinition Width="150"/>
+      </Grid.ColumnDefinitions>
+      <Grid.RowDefinitions>
+        <RowDefinition Height="*"/>
+        <RowDefinition Height="Auto"/>
+        <RowDefinition Height="Auto"/>
+      </Grid.RowDefinitions>
+
+      <Border Grid.ColumnSpan="3" Grid.RowSpan="3" BorderThickness="0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+        <Border.Background>
+          <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
+            <Binding RelativeSource="{RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}}" Path="HasFocus"/>
+            <Binding Source="#FF009999"/>
+            <Binding Source="#FF175f5d"/>
+          </MultiBinding>
+        </Border.Background>
+      </Border>
+
+      <Image x:Name="ItemTypeImage" Grid.RowSpan="2" Grid.Column="2" Stretch="Uniform" Margin="10" >
+        <Image.Source>
+          <fanart:FanArtImageSource fanart:FanArtMediaType="{Binding Program.ChannelLogoType}" fanart:FanArtType="Banner" fanart:FanArtName="{Binding Program.ChannelName}"
+                                    fanart:MaxWidth="{StaticResource VIDEO_GRID_WIDTH_S}" fanart:MaxHeight="{StaticResource VIDEO_GRID_HEIGHT_S}"/>
+        </Image.Source>
+      </Image>
+
+      <Label x:Name="ItemLabel" Grid.RowSpan="2" Grid.Column="2" HorizontalAlignment="Center" VerticalAlignment="Center" 
+             TextTrimming="CharacterEllipsis" IsVisible="{Binding ElementName=ItemTypeImage, Path=!HasImage}"
+             Content="{Binding Program.ChannelName}" Color="Black" FontSize="{ThemeResource SmallFontSize}" Margin="5"/>
+
+      <Label x:Name="ProgramLabel" VerticalAlignment="Top" HorizontalAlignment="Stretch" Grid.ColumnSpan="2" Margin="10,10,0,0" Content="{Binding Program.Title}"
+             TextTrimming="CharacterEllipsis" Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}" />
+      
+      <Label x:Name="StartTimeLabel" VerticalAlignment="Center" Grid.ColumnSpan="2" Grid.Row="1" Margin="10,0,0,0" Content="{Binding Program.StartTime}"
+             Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}" Opacity="0.6"/>
+
+      <Image Grid.Row="2" x:Name="SeriesRecIndicator" Source="RECORD.SERIES.png" IsVisible="{Binding Program.IsSeriesScheduled}"
+                 VerticalAlignment="Center" HorizontalAlignment="Left" Height="30" Stretch="Uniform" Margin="10,5,0,5"/>
+      <Image Grid.Row="2" x:Name="RecIndicator" Source="RECORD.SINGLE.png" IsVisible="{Binding !Program.IsSeriesScheduled}"
+                 VerticalAlignment="Center" HorizontalAlignment="Left" Height="30" Stretch="Uniform" Margin="10,10,0,10"/>
+
+      <Label x:Name="ScheduleTypeLabel" VerticalAlignment="Center" Grid.Column="1" Grid.ColumnSpan="2" Grid.Row="2" 
+             Content="{Binding [ScheduleType]}" ScrollDelay="0" Scroll="None" Margin="10,0,10,0"
+             Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}" HorizontalAlignment="Left" >
+        <Label.Triggers>
+          <DataTrigger Binding="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Button}, Path=HasFocus}" Value="True">
+            <Setter Property="Scroll" Value="Auto"/>
+          </DataTrigger>
+        </Label.Triggers>
+      </Label>
+    </Grid>
+  </ControlTemplate>
+
 
   <!--
 		##############################################################################################################################################################################################
@@ -349,12 +423,22 @@
     <Setter Property="Template">
       <Setter.Value>
         <ControlTemplate>
-          <Border x:Name="ButtonControlRectangle"
-              IsVisible ="False"
+          <Grid x:Name="ButtonControlRectangle" IsVisible ="False">
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+              <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+            <Border 
+              BorderThickness="5" Margin="0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
               CornerRadius="{ThemeResource ButtonControlRadiusX}"
-              BorderBrush="{ThemeResource TileFocusedBorderBrush}"
-              BorderThickness="4"
-              Margin="-4"/>
+              BorderBrush="#80000000"/>
+            <Border 
+              BorderThickness="4" Margin="0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+              CornerRadius="{ThemeResource ButtonControlRadiusX}"
+              BorderBrush="{ThemeResource TileFocusedBorderBrush}"/>
+          </Grid>
         </ControlTemplate>
       </Setter.Value>
     </Setter>
@@ -371,8 +455,8 @@
             <Grid.RowDefinitions>
               <RowDefinition Height="*"/>
             </Grid.RowDefinitions>
-            <Control Style="{ThemeResource HomeTileButtonControlStyle}" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
             <Control x:Name="ContentControl" Template="{DynamicResource ResourceKey=ContentControlTemplate}" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
+            <Control Style="{ThemeResource HomeTileButtonControlStyle}" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
           </Grid>
           <ControlTemplate.Triggers>
             <Trigger Property="HasFocus" Value="True">
@@ -1201,7 +1285,6 @@
           <ListViewItem.Resources>
             <ResourceWrapper x:Key="Grid_Label" Resource="[Nereus.Home.CurrentPrograms]"/>
             <ResourceWrapper x:Key="Grid_Style" Resource="{ThemeResource SquareTileLayout4Template}"/>
-
             <ControlTemplate x:Key="Square_Tile_Template">
               <Control Template="{ThemeResource TVProgramTileTemplate}"/>
             </ControlTemplate>
@@ -1214,10 +1297,30 @@
             <ControlTemplate x:Key="Banner_Tile_Template">
               <Control Template="{ThemeResource TVProgramTileTemplate}"/>
             </ControlTemplate>
-
           </ListViewItem.Resources>
         </ListViewItem>
 
+        <ListViewItem DataContext="{Binding Source={StaticResource MediaListModel}, Path=Lists[CurrentSchedules]}"
+                      Style="{ThemeResource MediaGridTemplateStyle}" Width="{ThemeResource TileGroupWidthNarrow}"
+                      Visibility="{Binding Source={Binding AllItems}, Converter={StaticResource MediaListVisibilityConverter}}">
+          <ListViewItem.Resources>
+            <ResourceWrapper x:Key="Grid_Label" Resource="[Nereus.Home.CurrentSchedules]"/>
+            <ResourceWrapper x:Key="Grid_Style" Resource="{ThemeResource SquareTileLayout4Template}"/>
+            <ControlTemplate x:Key="Square_Tile_Template">
+              <Control Template="{ThemeResource TVScheduleTileTemplate}"/>
+            </ControlTemplate>
+            <ControlTemplate x:Key="Thumbnail_Tile_Template">
+              <Control Template="{ThemeResource TVScheduleTileTemplate}"/>
+            </ControlTemplate>
+            <ControlTemplate x:Key="Poster_Tile_Template">
+              <Control Template="{ThemeResource TVScheduleTileTemplate}"/>
+            </ControlTemplate>
+            <ControlTemplate x:Key="Banner_Tile_Template">
+              <Control Template="{ThemeResource TVScheduleTileTemplate}"/>
+            </ControlTemplate>
+          </ListViewItem.Resources>
+        </ListViewItem>
+        
       </ListView>
     </Grid>
   </ControlTemplate>
