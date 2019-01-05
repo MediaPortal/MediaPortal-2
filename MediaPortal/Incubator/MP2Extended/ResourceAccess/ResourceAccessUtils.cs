@@ -79,25 +79,24 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess
     internal static IList<IChannelGroup> FilterGroups(Guid? userId, IList<IChannelGroup> channelGroups)
     {
       UserProfile userProfile = null;
-      bool applyUserRestrictions = false;
       IUserProfileDataManagement userProfileDataManagement = ServiceRegistration.Get<IUserProfileDataManagement>();
       if (userProfileDataManagement != null)
       {
         userProfile = (userProfileDataManagement.GetProfileAsync(userId.Value).Result)?.Result;
-        applyUserRestrictions = true;
+        if (userProfile != null)
+        {
+          IList<IChannelGroup> filteredGroups = new List<IChannelGroup>();
+          foreach (IChannelGroup channelGroup in channelGroups)
+          {
+            IUserRestriction restriction = channelGroup as IUserRestriction;
+            if (restriction != null && !userProfile.CheckUserAccess(restriction))
+              continue;
+            filteredGroups.Add(channelGroup);
+          }
+          return filteredGroups;
+        }
       }
-      if (userProfile == null || !applyUserRestrictions)
-        return channelGroups;
-
-      IList<IChannelGroup> filteredGroups = new List<IChannelGroup>();
-      foreach (IChannelGroup channelGroup in channelGroups)
-      {
-        IUserRestriction restriction = channelGroup as IUserRestriction;
-        if (restriction != null && !CheckUserAccess(userProfile, restriction))
-          continue;
-        filteredGroups.Add(channelGroup);
-      }
-      return filteredGroups;
+      return channelGroups;
     }
 
     internal static bool CheckUserAccess(UserProfile userProfile, IUserRestriction restrictedElement)
@@ -113,182 +112,35 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess
 
     internal static IFilter AppendUserFilter(Guid? userId, IFilter filter, IEnumerable<Guid> filterMias)
     {
-      IFilter userFilter = GetUserFilter(userId, filterMias);
-      if (userFilter != null)
-        return filter != null ? BooleanCombinationFilter.CombineFilters(BooleanOperator.And, filter, userFilter) : userFilter;
-
-      return filter;
-    }
-
-    internal static IFilter GetUserFilter(Guid? userId, IEnumerable<Guid> necessaryMias)
-    {
-      if (!userId.HasValue)
-        return null;
-
-      UserProfile userProfile = null;
-      bool applyUserRestrictions = false;
-      IUserProfileDataManagement userProfileDataManagement = ServiceRegistration.Get<IUserProfileDataManagement>();
-      if (userProfileDataManagement != null)
+      IFilter userFilter = null;
+      if (userId.HasValue)
       {
-        userProfile = (userProfileDataManagement.GetProfileAsync(userId.Value).Result)?.Result;
-        applyUserRestrictions = true;
-      }
-      if (userProfile == null || !applyUserRestrictions)
-        return null;
-
-      IMediaLibrary mediaLibrary = ServiceRegistration.Get<IMediaLibrary>(false);
-      var shares = mediaLibrary?.GetShares(null);
-
-      int? allowedAge = null;
-      bool? includeParentalGuidedContent = null;
-      bool? includeUnratedContent = null;
-      bool allowAllShares = true;
-      bool allowAllAges = true;
-      List<IFilter> shareFilters = new List<IFilter>();
-      foreach (var key in userProfile.AdditionalData)
-      {
-        foreach (var val in key.Value)
+        IUserProfileDataManagement userProfileDataManagement = ServiceRegistration.Get<IUserProfileDataManagement>();
+        var res = userProfileDataManagement.GetProfileAsync(userId.Value).Result;
+        if (res.Success)
         {
-          if (key.Key == UserDataKeysKnown.KEY_ALLOW_ALL_SHARES)
-          {
-            string allow = val.Value;
-            if (!string.IsNullOrEmpty(allow) && Convert.ToInt32(allow) >= 0)
-            {
-              allowAllShares = Convert.ToInt32(allow) > 0;
-            }
-          }
-          else if (key.Key == UserDataKeysKnown.KEY_ALLOWED_SHARE)
-          {
-            Guid shareId = new Guid(val.Value);
-            if (shares == null || !shares.Values.Where(s => s.ShareId == shareId).Any())
-              continue;
-            shareFilters.Add(new LikeFilter(ProviderResourceAspect.ATTR_RESOURCE_ACCESSOR_PATH, shares.Values.Where(s => s.ShareId == shareId).First().BaseResourcePath + "%", null, true));
-          }
-          else if (key.Key == UserDataKeysKnown.KEY_ALLOW_ALL_AGES)
-          {
-            string allow = val.Value;
-            if (!string.IsNullOrEmpty(allow) && Convert.ToInt32(allow) >= 0)
-            {
-              allowAllAges = Convert.ToInt32(allow) > 0;
-            }
-          }
-          else if (key.Key == UserDataKeysKnown.KEY_ALLOWED_AGE)
-          {
-            string age = val.Value;
-            if (!string.IsNullOrEmpty(age) && Convert.ToInt32(age) >= 0)
-            {
-              allowedAge = Convert.ToInt32(age);
-            }
-          }
-          else if (key.Key == UserDataKeysKnown.KEY_INCLUDE_PARENT_GUIDED_CONTENT)
-          {
-            string allow = val.Value;
-            if (!string.IsNullOrEmpty(allow) && Convert.ToInt32(allow) >= 0)
-            {
-              includeParentalGuidedContent = Convert.ToInt32(allow) > 0;
-            }
-          }
-          else if (key.Key == UserDataKeysKnown.KEY_INCLUDE_UNRATED_CONTENT)
-          {
-            string allow = val.Value;
-            if (!string.IsNullOrEmpty(allow) && Convert.ToInt32(allow) >= 0)
-            {
-              includeUnratedContent = Convert.ToInt32(allow) > 0;
-            }
-          }
+          IMediaLibrary library = ServiceRegistration.Get<IMediaLibrary>();
+          ICollection<Share> shares = library.GetShares(null)?.Values;
+          userFilter = res.Result.GetUserFilter(filterMias, shares);
         }
       }
-
-      List<IFilter> filters = new List<IFilter>();
-
-      // Shares filter
-      if (allowAllShares == false)
-      {
-        if (shareFilters.Count > 0)
-          filters.Add(BooleanCombinationFilter.CombineFilters(BooleanOperator.Or, shareFilters.ToArray()));
-        else
-          filters.Add(new RelationalFilter(ProviderResourceAspect.ATTR_RESOURCE_ACCESSOR_PATH, RelationalOperator.EQ, ""));
-      }
-
-      // Content filter
-      if (allowedAge.HasValue && allowAllAges == false)
-      {
-        if (necessaryMias.Contains(MovieAspect.ASPECT_ID))
-        {
-          IEnumerable<CertificationMapping> certs = CertificationMapper.GetMovieCertificationsForAge(allowedAge.Value, includeParentalGuidedContent ?? false);
-          if (certs.Count() > 0)
-          {
-            if (!includeUnratedContent ?? false)
-              filters.Add(new InFilter(MovieAspect.ATTR_CERTIFICATION, certs.Select(c => c.CertificationId)));
-            else
-              filters.Add(BooleanCombinationFilter.CombineFilters(BooleanOperator.Or,
-                new InFilter(MovieAspect.ATTR_CERTIFICATION, certs.Select(c => c.CertificationId)),
-                new EmptyFilter(MovieAspect.ATTR_CERTIFICATION)));
-          }
-          else if (!includeUnratedContent ?? false)
-          {
-            filters.Add(new NotFilter(new EmptyFilter(MovieAspect.ATTR_CERTIFICATION)));
-          }
-        }
-        else if (necessaryMias.Contains(SeriesAspect.ASPECT_ID))
-        {
-          //TODO: Should series filters reset the share filter? Series have no share dependency
-          IEnumerable<CertificationMapping> certs = CertificationMapper.GetSeriesCertificationsForAge(allowedAge.Value, includeParentalGuidedContent ?? false);
-          if (certs.Count() > 0)
-          {
-            if (!includeUnratedContent ?? false)
-              filters.Add(new InFilter(SeriesAspect.ATTR_CERTIFICATION, certs.Select(c => c.CertificationId)));
-            else
-              filters.Add(BooleanCombinationFilter.CombineFilters(BooleanOperator.Or,
-                new InFilter(SeriesAspect.ATTR_CERTIFICATION, certs.Select(c => c.CertificationId)),
-                new EmptyFilter(SeriesAspect.ATTR_CERTIFICATION)));
-          }
-          else if (!includeUnratedContent ?? false)
-          {
-            filters.Add(new NotFilter(new EmptyFilter(SeriesAspect.ATTR_CERTIFICATION)));
-          }
-        }
-        else if (necessaryMias.Contains(EpisodeAspect.ASPECT_ID))
-        {
-          IEnumerable<CertificationMapping> certs = CertificationMapper.GetSeriesCertificationsForAge(allowedAge.Value, includeParentalGuidedContent ?? false);
-          if (certs.Count() > 0)
-          {
-            if (!includeUnratedContent ?? false)
-              filters.Add(new FilteredRelationshipFilter(EpisodeAspect.ROLE_EPISODE, SeriesAspect.ROLE_SERIES, new InFilter(SeriesAspect.ATTR_CERTIFICATION, certs.Select(c => c.CertificationId))));
-            else
-              filters.Add(new FilteredRelationshipFilter(EpisodeAspect.ROLE_EPISODE, SeriesAspect.ROLE_SERIES,
-                BooleanCombinationFilter.CombineFilters(BooleanOperator.Or,
-                new InFilter(SeriesAspect.ATTR_CERTIFICATION, certs.Select(c => c.CertificationId)),
-                new EmptyFilter(SeriesAspect.ATTR_CERTIFICATION))));
-          }
-          else if (!includeUnratedContent ?? false)
-          {
-            filters.Add(new FilteredRelationshipFilter(EpisodeAspect.ROLE_EPISODE, SeriesAspect.ROLE_SERIES,
-                new NotFilter(new EmptyFilter(SeriesAspect.ATTR_CERTIFICATION))));
-          }
-        }
-      }
-
-      if (filters.Count > 1)
-        return BooleanCombinationFilter.CombineFilters(BooleanOperator.And, filters.ToArray());
-      else if (filters.Count > 0)
-        return filters[0];
-
-      return null;
+      return filter == null ? userFilter : userFilter != null ? BooleanCombinationFilter.CombineFilters(BooleanOperator.And, filter, userFilter) : filter;
     }
 
     public static async Task<bool> AddPreferredLanguagesAsync(Guid? userId, IList<string> preferredAudioLanguuages, IList<string> preferredSubtitleLanguuages)
     {
-      IUserProfileDataManagement userManager = ServiceRegistration.Get<IUserProfileDataManagement>();
+      IUserProfileDataManagement userProfileDataManagement = ServiceRegistration.Get<IUserProfileDataManagement>();
       if (userId.HasValue)
       {
-        await userManager.LoginProfileAsync(userId.Value);
-        var audioList = await userManager.GetUserAdditionalDataListAsync(userId.Value, UserDataKeysKnown.KEY_PREFERRED_AUDIO_LANGUAGE);
-        foreach (var lang in audioList.Result.Select(l => l.Item2))
-          preferredAudioLanguuages.Add(lang);
-        var subtitleList = await userManager.GetUserAdditionalDataListAsync(userId.Value, UserDataKeysKnown.KEY_PREFERRED_SUBTITLE_LANGUAGE);
-        foreach(var lang in subtitleList.Result.Select(l => l.Item2))
-          preferredSubtitleLanguuages.Add(lang);
+        var res = userProfileDataManagement.GetProfileAsync(userId.Value).Result;
+        if (res.Success)
+        {
+          await userProfileDataManagement.LoginProfileAsync(userId.Value);
+          foreach (var lang in res.Result.GetPreferredAudioLanguages())
+            preferredAudioLanguuages.Add(lang);
+          foreach (var lang in res.Result.GetPreferredSubtitleLanguages())
+            preferredSubtitleLanguuages.Add(lang);
+        }
       }
       if (preferredAudioLanguuages.Count == 0)
         preferredAudioLanguuages = new List<string>() { "EN" };

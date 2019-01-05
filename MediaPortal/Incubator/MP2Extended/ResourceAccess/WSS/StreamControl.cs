@@ -165,7 +165,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS
               stream.TranscoderObject.StopStreaming();
 
             if (stream.StreamContext != null)
-              stream.StreamContext.InUse = false;
+              stream.StreamContext.UpdateStreamUse(false);
 
             return true;
           }

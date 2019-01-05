@@ -59,32 +59,32 @@ namespace MediaPortal.Plugins.MP2Extended.Controllers.json
     [HttpGet]
     [ApiExplorerSettings]
     [AllowAnonymous]
-    public async Task<WebTVServiceDescription> GetServiceDescription()
+    public Task<WebTVServiceDescription> GetServiceDescription()
     {
       Logger.Debug("TAS Request: {0}", Request.GetOwinContext().Request.Uri);
-      return await new GetServiceDescription().ProcessAsync(Request.GetOwinContext());
+      return new GetServiceDescription().ProcessAsync(Request.GetOwinContext());
     }
 
     [HttpGet]
     [ApiExplorerSettings]
     [AllowAnonymous]
-    public async Task<WebBoolResult> TestConnectionToTVService()
+    public Task<WebBoolResult> TestConnectionToTVService()
     {
       Logger.Debug("TAS Request: {0}", Request.GetOwinContext().Request.Uri);
-      return await new TestConnectionToTVService().ProcessAsync(Request.GetOwinContext());
+      return new TestConnectionToTVService().ProcessAsync(Request.GetOwinContext());
     }
 
     [HttpGet]
     [ApiExplorerSettings]
-    public async Task<WebStringResult> ReadSettingFromDatabase(string tagName)
+    public Task<WebStringResult> ReadSettingFromDatabase(string tagName)
     {
       Logger.Debug("TAS Request: {0}", Request.GetOwinContext().Request.Uri);
-      return await new ReadSettingFromDatabase().ProcessAsync(Request.GetOwinContext(), tagName);
+      return new ReadSettingFromDatabase().ProcessAsync(Request.GetOwinContext(), tagName);
     }
 
     [HttpGet]
     [ApiExplorerSettings]
-    public async Task<WebBoolResult> WriteSettingToDatabase(string tagName, string value)
+    public Task<WebBoolResult> WriteSettingToDatabase(string tagName, string value)
     {
       Logger.Debug("TAS Request: {0}", Request.GetOwinContext().Request.Uri);
       throw new NotImplementedException();
@@ -92,29 +92,13 @@ namespace MediaPortal.Plugins.MP2Extended.Controllers.json
 
     [HttpGet]
     [ApiExplorerSettings]
-    public async Task<IList<WebDiskSpaceInformation>> GetLocalDiskInformation()
+    public Task<IList<WebDiskSpaceInformation>> GetLocalDiskInformation()
     {
       Logger.Debug("TAS Request: {0}", Request.GetOwinContext().Request.Uri);
-      return await new GetLocalDiskInformation().ProcessAsync(Request.GetOwinContext());
+      return new GetLocalDiskInformation().ProcessAsync(Request.GetOwinContext());
     }
 
-    /*public async Task<IList<WebTVSearchResult>> Search(string text, WebTVSearchResultType? type = null)
-    {
-      Logger.Debug("TAS Request: {0}", Request.GetOwinContext().Request.Uri);
-      throw new NotImplementedException();
-    }*/
-
-    [HttpGet]
-    [ApiExplorerSettings]
-    public async Task<WebDictionary<string>> GetExternalMediaInfo(WebMediaType? type, string id)
-    {
-      Logger.Debug("TAS Request: {0}", Request.GetOwinContext().Request.Uri);
-      throw new NotImplementedException();
-    }
-
-    /*[HttpGet]
-    [ApiExplorerSettings]
-    public async Task<IList<WebTVSearchResult>> SearchResultsByRange(string text, int start, int end, WebTVSearchResultType? type = null)
+    /*public Task<IList<WebTVSearchResult>> Search(string text, WebTVSearchResultType? type = null)
     {
       Logger.Debug("TAS Request: {0}", Request.GetOwinContext().Request.Uri);
       throw new NotImplementedException();
@@ -122,31 +106,47 @@ namespace MediaPortal.Plugins.MP2Extended.Controllers.json
 
     [HttpGet]
     [ApiExplorerSettings]
-    public async Task<IList<WebCard>> GetCards()
+    public Task<WebDictionary<string>> GetExternalMediaInfo(WebMediaType? type, string id)
     {
       Logger.Debug("TAS Request: {0}", Request.GetOwinContext().Request.Uri);
-      return await new GetCards().ProcessAsync(Request.GetOwinContext());
-    }
-
-    [HttpGet]
-    [ApiExplorerSettings]
-    public async Task<IList<WebVirtualCard>> GetActiveCards()
-    {
-      Logger.Debug("TAS Request: {0}", Request.GetOwinContext().Request.Uri);
-      return await new GetActiveCards().ProcessAsync(Request.GetOwinContext());
-    }
-
-    [HttpGet]
-    [ApiExplorerSettings]
-    public async Task<IList<WebUser>> GetActiveUsers()
-    {
-      Logger.Debug("TAS Request: {0}", Request.GetOwinContext().Request.Uri);
-      return await new GetActiveUsers().ProcessAsync(Request.GetOwinContext());
+      throw new NotImplementedException();
     }
 
     /*[HttpGet]
     [ApiExplorerSettings]
-    public async Task<IList<WebRtspClient>> GetStreamingClients(string filter = null)
+    public Task<IList<WebTVSearchResult>> SearchResultsByRange(string text, int start, int end, WebTVSearchResultType? type = null)
+    {
+      Logger.Debug("TAS Request: {0}", Request.GetOwinContext().Request.Uri);
+      throw new NotImplementedException();
+    }*/
+
+    [HttpGet]
+    [ApiExplorerSettings]
+    public Task<IList<WebCard>> GetCards()
+    {
+      Logger.Debug("TAS Request: {0}", Request.GetOwinContext().Request.Uri);
+      return new GetCards().ProcessAsync(Request.GetOwinContext());
+    }
+
+    [HttpGet]
+    [ApiExplorerSettings]
+    public Task<IList<WebVirtualCard>> GetActiveCards()
+    {
+      Logger.Debug("TAS Request: {0}", Request.GetOwinContext().Request.Uri);
+      return new GetActiveCards().ProcessAsync(Request.GetOwinContext());
+    }
+
+    [HttpGet]
+    [ApiExplorerSettings]
+    public Task<IList<WebUser>> GetActiveUsers()
+    {
+      Logger.Debug("TAS Request: {0}", Request.GetOwinContext().Request.Uri);
+      return new GetActiveUsers().ProcessAsync(Request.GetOwinContext());
+    }
+
+    /*[HttpGet]
+    [ApiExplorerSettings]
+    public Task<IList<WebRtspClient>> GetStreamingClients(string filter = null)
     {
       Logger.Debug("TAS Request: {0}", Request.GetOwinContext().Request.Uri);
       throw new NotImplementedException();
@@ -158,87 +158,87 @@ namespace MediaPortal.Plugins.MP2Extended.Controllers.json
 
     [HttpGet]
     [ApiExplorerSettings]
-    public async Task<WebBoolResult> AddSchedule(int channelId, string title, DateTime startTime, DateTime endTime, WebScheduleType scheduleType)
+    public Task<WebBoolResult> AddSchedule(int channelId, string title, DateTime startTime, DateTime endTime, WebScheduleType scheduleType)
     {
       Logger.Debug("TAS Request: {0}", Request.GetOwinContext().Request.Uri);
-      return await new AddSchedule().ProcessAsync(Request.GetOwinContext(), channelId, title, startTime, startTime, scheduleType);
+      return new AddSchedule().ProcessAsync(Request.GetOwinContext(), channelId, title, startTime, startTime, scheduleType);
     }
 
     [HttpGet]
     [ApiExplorerSettings]
-    public async Task<WebBoolResult> AddScheduleDetailed(int channelId, string title, DateTime startTime, DateTime endTime, WebScheduleType scheduleType, int preRecordInterval, int postRecordInterval, string directory, int priority)
+    public Task<WebBoolResult> AddScheduleDetailed(int channelId, string title, DateTime startTime, DateTime endTime, WebScheduleType scheduleType, int preRecordInterval, int postRecordInterval, string directory, int priority)
     {
       Logger.Debug("TAS Request: {0}", Request.GetOwinContext().Request.Uri);
-      return await new AddScheduleDetailed().ProcessAsync(Request.GetOwinContext(), channelId, title, startTime, endTime, scheduleType, preRecordInterval, postRecordInterval, directory, priority);
+      return new AddScheduleDetailed().ProcessAsync(Request.GetOwinContext(), channelId, title, startTime, endTime, scheduleType, preRecordInterval, postRecordInterval, directory, priority);
     }
 
     [HttpGet]
     [ApiExplorerSettings]
-    public async Task<WebIntResult> GetScheduleCount()
+    public Task<WebIntResult> GetScheduleCount()
     {
       Logger.Debug("TAS Request: {0}", Request.GetOwinContext().Request.Uri);
-      return await new GetScheduleCount().ProcessAsync(Request.GetOwinContext());
+      return new GetScheduleCount().ProcessAsync(Request.GetOwinContext());
     }
 
     [HttpGet]
     [ApiExplorerSettings]
-    public async Task<IList<WebScheduleBasic>> GetSchedules(WebSortField? sort, WebSortOrder? order, string filter = null)
+    public Task<IList<WebScheduleBasic>> GetSchedules(WebSortField? sort, WebSortOrder? order, string filter = null)
     {
       Logger.Debug("TAS Request: {0}", Request.GetOwinContext().Request.Uri);
-      return await new GetSchedules().ProcessAsync(Request.GetOwinContext(), filter, sort, order);
+      return new GetSchedules().ProcessAsync(Request.GetOwinContext(), filter, sort, order);
     }
 
     [HttpGet]
     [ApiExplorerSettings]
-    public async Task<IList<WebScheduleBasic>> GetSchedulesByRange(int start, int end, WebSortField? sort, WebSortOrder? order, string filter = null)
+    public Task<IList<WebScheduleBasic>> GetSchedulesByRange(int start, int end, WebSortField? sort, WebSortOrder? order, string filter = null)
     {
       Logger.Debug("TAS Request: {0}", Request.GetOwinContext().Request.Uri);
-      return await new GetSchedulesByRange().ProcessAsync(Request.GetOwinContext(), start, end, filter, sort, order);
+      return new GetSchedulesByRange().ProcessAsync(Request.GetOwinContext(), start, end, filter, sort, order);
     }
 
     [HttpGet]
     [ApiExplorerSettings]
-    public async Task<WebScheduleBasic> GetScheduleById(int scheduleId)
+    public Task<WebScheduleBasic> GetScheduleById(int scheduleId)
     {
       Logger.Debug("TAS Request: {0}", Request.GetOwinContext().Request.Uri);
-      return await new GetScheduleById().ProcessAsync(Request.GetOwinContext(), scheduleId);
+      return new GetScheduleById().ProcessAsync(Request.GetOwinContext(), scheduleId);
     }
 
     [HttpGet]
     [ApiExplorerSettings]
-    public async Task<WebBoolResult> CancelSchedule(int programId)
+    public Task<WebBoolResult> CancelSchedule(int programId)
     {
       Logger.Debug("TAS Request: {0}", Request.GetOwinContext().Request.Uri);
-      return await new CancelSchedule().ProcessAsync(Request.GetOwinContext(), programId);
+      return new CancelSchedule().ProcessAsync(Request.GetOwinContext(), programId);
     }
 
     [HttpGet]
     [ApiExplorerSettings]
-    public async Task<WebBoolResult> UnCancelSchedule(int programId)
+    public Task<WebBoolResult> UnCancelSchedule(int programId)
     {
       Logger.Debug("TAS Request: {0}", Request.GetOwinContext().Request.Uri);
-      return await new UnCancelSchedule().ProcessAsync(Request.GetOwinContext(), programId);
+      return new UnCancelSchedule().ProcessAsync(Request.GetOwinContext(), programId);
     }
 
     [HttpGet]
     [ApiExplorerSettings]
-    public async Task<WebBoolResult> EditSchedule(int scheduleId, int? channelId = null, string title = null, DateTime? startTime = null, DateTime? endTime = null, WebScheduleType? scheduleType = null, int? preRecordInterval = null, int? postRecordInterval = null, string directory = null, int? priority = null)
+    public Task<WebBoolResult> EditSchedule(int scheduleId, int? channelId = null, string title = null, DateTime? startTime = null, DateTime? endTime = null, WebScheduleType? scheduleType = null, int? preRecordInterval = null, int? postRecordInterval = null, string directory = null, int? priority = null)
     {
       Logger.Debug("TAS Request: {0}", Request.GetOwinContext().Request.Uri);
-      return await new EditSchedule().ProcessAsync(Request.GetOwinContext(), scheduleId, scheduleId, title, startTime, endTime, scheduleType, preRecordInterval, postRecordInterval, directory, priority);
+      return new EditSchedule().ProcessAsync(Request.GetOwinContext(), scheduleId, scheduleId, title, startTime, endTime, scheduleType, preRecordInterval, postRecordInterval, directory, priority);
     }
 
     [HttpGet]
     [ApiExplorerSettings]
-    public async Task<WebBoolResult> DeleteSchedule(int scheduleId)
+    public Task<WebBoolResult> DeleteSchedule(int scheduleId)
     {
       Logger.Debug("TAS Request: {0}", Request.GetOwinContext().Request.Uri);
-      return await new DeleteSchedule().ProcessAsync(Request.GetOwinContext(), scheduleId);
+      return new DeleteSchedule().ProcessAsync(Request.GetOwinContext(), scheduleId);
     }
 
     [HttpGet]
     [ApiExplorerSettings]
-    public async Task<WebBoolResult> StopRecording(int scheduleId)
+    public Task<WebBoolResult> StopRecording(int scheduleId)
     {
       Logger.Debug("TAS Request: {0}", Request.GetOwinContext().Request.Uri);
       throw new NotImplementedException();
@@ -246,18 +246,18 @@ namespace MediaPortal.Plugins.MP2Extended.Controllers.json
 
     [HttpGet]
     [ApiExplorerSettings]
-    public async Task<IList<WebScheduledRecording>> GetScheduledRecordingsForDate(DateTime date, WebSortField? sort, WebSortOrder? order, string filter = null)
+    public Task<IList<WebScheduledRecording>> GetScheduledRecordingsForDate(DateTime date, WebSortField? sort, WebSortOrder? order, string filter = null)
     {
       Logger.Debug("TAS Request: {0}", Request.GetOwinContext().Request.Uri);
-      return await new GetScheduledRecordingsForDate().ProcessAsync(Request.GetOwinContext(), date, sort, order, filter);
+      return new GetScheduledRecordingsForDate().ProcessAsync(Request.GetOwinContext(), date, sort, order, filter);
     }
 
     [HttpGet]
     [ApiExplorerSettings]
-    public async Task<IList<WebScheduledRecording>> GetScheduledRecordingsForToday(WebSortField? sort, WebSortOrder? order, string filter = null)
+    public Task<IList<WebScheduledRecording>> GetScheduledRecordingsForToday(WebSortField? sort, WebSortOrder? order, string filter = null)
     {
       Logger.Debug("TAS Request: {0}", Request.GetOwinContext().Request.Uri);
-      return await new GetScheduledRecordingsForToday().ProcessAsync(Request.GetOwinContext(), sort, order, filter);
+      return new GetScheduledRecordingsForToday().ProcessAsync(Request.GetOwinContext(), sort, order, filter);
     }
 
     #endregion
@@ -266,64 +266,24 @@ namespace MediaPortal.Plugins.MP2Extended.Controllers.json
 
     [HttpGet]
     [ApiExplorerSettings]
-    public async Task<IList<WebDiskSpaceInformation>> GetAllRecordingDiskInformation()
+    public Task<IList<WebDiskSpaceInformation>> GetAllRecordingDiskInformation()
     {
       Logger.Debug("TAS Request: {0}", Request.GetOwinContext().Request.Uri);
-      return await new GetAllRecordingDiskInformation().ProcessAsync(Request.GetOwinContext());
+      return new GetAllRecordingDiskInformation().ProcessAsync(Request.GetOwinContext());
     }
 
     [HttpGet]
     [ApiExplorerSettings]
-    public async Task<WebDiskSpaceInformation> GetRecordingDiskInformationForCard(int id)
+    public Task<WebDiskSpaceInformation> GetRecordingDiskInformationForCard(int id)
     {
       Logger.Debug("TAS Request: {0}", Request.GetOwinContext().Request.Uri);
-      return await new GetRecordingDiskInformationForCard().ProcessAsync(Request.GetOwinContext(), id);
+      return new GetRecordingDiskInformationForCard().ProcessAsync(Request.GetOwinContext(), id);
     }
 
 
     [HttpGet]
     [ApiExplorerSettings]
-    public async Task<WebBoolResult> StartRecordingManual(string userName, int channelId, string title)
-    {
-      Logger.Debug("TAS Request: {0}", Request.GetOwinContext().Request.Uri);
-      throw new NotImplementedException();
-    }
-
-    [HttpGet]
-    [ApiExplorerSettings]
-    public async Task<WebIntResult> GetRecordingCount()
-    {
-      Logger.Debug("TAS Request: {0}", Request.GetOwinContext().Request.Uri);
-      return await new GetRecordingCount().ProcessAsync(Request.GetOwinContext());
-    }
-
-    [HttpGet]
-    [ApiExplorerSettings]
-    public async Task<IList<WebRecordingBasic>> GetRecordings(WebSortField? sort, WebSortOrder? order, string filter = null)
-    {
-      Logger.Debug("TAS Request: {0}", Request.GetOwinContext().Request.Uri);
-      return await new GetRecordings().ProcessAsync(Request.GetOwinContext(), sort, order, filter);
-    }
-
-    [HttpGet]
-    [ApiExplorerSettings]
-    public async Task<IList<WebRecordingBasic>> GetRecordingsByRange(int start, int end, WebSortField? sort, WebSortOrder? order, string filter = null)
-    {
-      Logger.Debug("TAS Request: {0}", Request.GetOwinContext().Request.Uri);
-      return await new GetRecordingsByRange().ProcessAsync(Request.GetOwinContext(), start, end, sort, order, filter);
-    }
-
-    [HttpGet]
-    [ApiExplorerSettings]
-    public async Task<WebRecordingBasic> GetRecordingById(Guid id)
-    {
-      Logger.Debug("TAS Request: {0}", Request.GetOwinContext().Request.Uri);
-      return await new GetRecordingById().ProcessAsync(Request.GetOwinContext(), id);
-    }
-
-    [HttpGet]
-    [ApiExplorerSettings]
-    public async Task<WebBoolResult> DeleteRecording(int id)
+    public Task<WebBoolResult> StartRecordingManual(string userName, int channelId, string title)
     {
       Logger.Debug("TAS Request: {0}", Request.GetOwinContext().Request.Uri);
       throw new NotImplementedException();
@@ -331,7 +291,39 @@ namespace MediaPortal.Plugins.MP2Extended.Controllers.json
 
     [HttpGet]
     [ApiExplorerSettings]
-    public async Task<WebRecordingFileInfo> GetRecordingFileInfo(int id)
+    public Task<WebIntResult> GetRecordingCount()
+    {
+      Logger.Debug("TAS Request: {0}", Request.GetOwinContext().Request.Uri);
+      return new GetRecordingCount().ProcessAsync(Request.GetOwinContext());
+    }
+
+    [HttpGet]
+    [ApiExplorerSettings]
+    public Task<IList<WebRecordingBasic>> GetRecordings(WebSortField? sort, WebSortOrder? order, string filter = null)
+    {
+      Logger.Debug("TAS Request: {0}", Request.GetOwinContext().Request.Uri);
+      return new GetRecordings().ProcessAsync(Request.GetOwinContext(), sort, order, filter);
+    }
+
+    [HttpGet]
+    [ApiExplorerSettings]
+    public Task<IList<WebRecordingBasic>> GetRecordingsByRange(int start, int end, WebSortField? sort, WebSortOrder? order, string filter = null)
+    {
+      Logger.Debug("TAS Request: {0}", Request.GetOwinContext().Request.Uri);
+      return new GetRecordingsByRange().ProcessAsync(Request.GetOwinContext(), start, end, sort, order, filter);
+    }
+
+    [HttpGet]
+    [ApiExplorerSettings]
+    public Task<WebRecordingBasic> GetRecordingById(Guid id)
+    {
+      Logger.Debug("TAS Request: {0}", Request.GetOwinContext().Request.Uri);
+      return new GetRecordingById().ProcessAsync(Request.GetOwinContext(), id);
+    }
+
+    [HttpGet]
+    [ApiExplorerSettings]
+    public Task<WebBoolResult> DeleteRecording(int id)
     {
       Logger.Debug("TAS Request: {0}", Request.GetOwinContext().Request.Uri);
       throw new NotImplementedException();
@@ -339,7 +331,15 @@ namespace MediaPortal.Plugins.MP2Extended.Controllers.json
 
     [HttpGet]
     [ApiExplorerSettings]
-    public async Task<Stream> ReadRecordingFile(int id)
+    public Task<WebRecordingFileInfo> GetRecordingFileInfo(int id)
+    {
+      Logger.Debug("TAS Request: {0}", Request.GetOwinContext().Request.Uri);
+      throw new NotImplementedException();
+    }
+
+    [HttpGet]
+    [ApiExplorerSettings]
+    public Task<Stream> ReadRecordingFile(int id)
     {
       Logger.Debug("TAS Request: {0}", Request.GetOwinContext().Request.Uri);
       throw new NotImplementedException();
@@ -351,90 +351,90 @@ namespace MediaPortal.Plugins.MP2Extended.Controllers.json
 
     [HttpGet]
     [ApiExplorerSettings]
-    public async Task<WebChannelBasic> GetChannelBasicById(int channelId)
+    public Task<WebChannelBasic> GetChannelBasicById(int channelId)
     {
       Logger.Debug("TAS Request: {0}", Request.GetOwinContext().Request.Uri);
-      return await new GetChannelBasicById().ProcessAsync(Request.GetOwinContext(), channelId);
+      return new GetChannelBasicById().ProcessAsync(Request.GetOwinContext(), channelId);
     }
 
     [HttpGet]
     [ApiExplorerSettings]
-    public async Task<WebChannelDetailed> GetChannelDetailedById(int channelId)
+    public Task<WebChannelDetailed> GetChannelDetailedById(int channelId)
     {
       Logger.Debug("TAS Request: {0}", Request.GetOwinContext().Request.Uri);
-      return await new GetChannelDetailedById().ProcessAsync(Request.GetOwinContext(), channelId);
+      return new GetChannelDetailedById().ProcessAsync(Request.GetOwinContext(), channelId);
     }
 
     [HttpGet]
     [ApiExplorerSettings]
-    public async Task<WebIntResult> GetGroupCount()
+    public Task<WebIntResult> GetGroupCount()
     {
       Logger.Debug("TAS Request: {0}", Request.GetOwinContext().Request.Uri);
-      return await new GetGroupCount().ProcessAsync(Request.GetOwinContext());
+      return new GetGroupCount().ProcessAsync(Request.GetOwinContext());
     }
 
     [HttpGet]
     [ApiExplorerSettings]
-    public async Task<IList<WebChannelGroup>> GetGroups(WebSortField? sort, WebSortOrder? order)
+    public Task<IList<WebChannelGroup>> GetGroups(WebSortField? sort, WebSortOrder? order)
     {
       Logger.Debug("TAS Request: {0}", Request.GetOwinContext().Request.Uri);
-      return await new GetGroups().ProcessAsync(Request.GetOwinContext(), sort, order);
+      return new GetGroups().ProcessAsync(Request.GetOwinContext(), sort, order);
     }
 
     [HttpGet]
     [ApiExplorerSettings]
-    public async Task<IList<WebChannelGroup>> GetGroupsByRange(int start, int end, WebSortField? sort, WebSortOrder? order)
+    public Task<IList<WebChannelGroup>> GetGroupsByRange(int start, int end, WebSortField? sort, WebSortOrder? order)
     {
       Logger.Debug("TAS Request: {0}", Request.GetOwinContext().Request.Uri);
-      return await new GetGroupsByRange().ProcessAsync(Request.GetOwinContext(), start, end, sort, order);
+      return new GetGroupsByRange().ProcessAsync(Request.GetOwinContext(), start, end, sort, order);
     }
 
     [HttpGet]
     [ApiExplorerSettings]
-    public async Task<WebChannelGroup> GetGroupById(int groupId)
+    public Task<WebChannelGroup> GetGroupById(int groupId)
     {
       Logger.Debug("TAS Request: {0}", Request.GetOwinContext().Request.Uri);
-      return await new GetGroupById().ProcessAsync(Request.GetOwinContext(), groupId);
+      return new GetGroupById().ProcessAsync(Request.GetOwinContext(), groupId);
     }
 
     [HttpGet]
     [ApiExplorerSettings]
-    public async Task<WebIntResult> GetChannelCount(int? groupId = null)
+    public Task<WebIntResult> GetChannelCount(int? groupId = null)
     {
       Logger.Debug("TAS Request: {0}", Request.GetOwinContext().Request.Uri);
-      return await new GetChannelCount().ProcessAsync(Request.GetOwinContext(), groupId);
+      return new GetChannelCount().ProcessAsync(Request.GetOwinContext(), groupId);
     }
 
     [HttpGet]
     [ApiExplorerSettings]
-    public async Task<IList<WebChannelBasic>> GetChannelsBasic(int? groupId, WebSortField? sort, WebSortOrder? order)
+    public Task<IList<WebChannelBasic>> GetChannelsBasic(int? groupId, WebSortField? sort, WebSortOrder? order)
     {
       Logger.Debug("TAS Request: {0}", Request.GetOwinContext().Request.Uri);
-      return await new GetChannelsBasic().ProcessAsync(Request.GetOwinContext(), sort, order, groupId);
+      return new GetChannelsBasic().ProcessAsync(Request.GetOwinContext(), sort, order, groupId);
     }
 
     [HttpGet]
     [ApiExplorerSettings]
-    public async Task<IList<WebChannelBasic>> GetChannelsBasicByRange(int start, int end, int? groupId, WebSortField? sort, WebSortOrder? order)
+    public Task<IList<WebChannelBasic>> GetChannelsBasicByRange(int start, int end, int? groupId, WebSortField? sort, WebSortOrder? order)
     {
       Logger.Debug("TAS Request: {0}", Request.GetOwinContext().Request.Uri);
-      return await new GetChannelsBasicByRange().ProcessAsync(Request.GetOwinContext(), start, end, sort, order, groupId);
+      return new GetChannelsBasicByRange().ProcessAsync(Request.GetOwinContext(), start, end, sort, order, groupId);
     }
 
     [HttpGet]
     [ApiExplorerSettings]
-    public async Task<IList<WebChannelDetailed>> GetChannelsDetailed(int? groupId, WebSortField? sort, WebSortOrder? order)
+    public Task<IList<WebChannelDetailed>> GetChannelsDetailed(int? groupId, WebSortField? sort, WebSortOrder? order)
     {
       Logger.Debug("TAS Request: {0}", Request.GetOwinContext().Request.Uri);
-      return await new GetChannelsDetailed().ProcessAsync(Request.GetOwinContext(), groupId, sort, order);
+      return new GetChannelsDetailed().ProcessAsync(Request.GetOwinContext(), groupId, sort, order);
     }
 
     [HttpGet]
     [ApiExplorerSettings]
-    public async Task<IList<WebChannelDetailed>> GetChannelsDetailedByRange(int start, int end, int? groupId, WebSortField? sort, WebSortOrder? order)
+    public Task<IList<WebChannelDetailed>> GetChannelsDetailedByRange(int start, int end, int? groupId, WebSortField? sort, WebSortOrder? order)
     {
       Logger.Debug("TAS Request: {0}", Request.GetOwinContext().Request.Uri);
-      return await new GetChannelsDetailedByRange().ProcessAsync(Request.GetOwinContext(), start, end, groupId, sort, order);
+      return new GetChannelsDetailedByRange().ProcessAsync(Request.GetOwinContext(), start, end, groupId, sort, order);
     }
 
     #endregion
@@ -443,79 +443,79 @@ namespace MediaPortal.Plugins.MP2Extended.Controllers.json
 
     [HttpGet]
     [ApiExplorerSettings]
-    public async Task<WebIntResult> GetRadioGroupCount()
+    public Task<WebIntResult> GetRadioGroupCount()
     {
       Logger.Debug("TAS Request: {0}", Request.GetOwinContext().Request.Uri);
-      return await new GetRadioGroupCount().ProcessAsync(Request.GetOwinContext());
+      return new GetRadioGroupCount().ProcessAsync(Request.GetOwinContext());
     }
 
     [HttpGet]
     [ApiExplorerSettings]
-    public async Task<IList<WebChannelGroup>> GetRadioGroups(WebSortField? sort, WebSortOrder? order)
+    public Task<IList<WebChannelGroup>> GetRadioGroups(WebSortField? sort, WebSortOrder? order)
     {
       Logger.Debug("TAS Request: {0}", Request.GetOwinContext().Request.Uri);
-      return await new GetRadioGroups().ProcessAsync(Request.GetOwinContext(), sort, order);
+      return new GetRadioGroups().ProcessAsync(Request.GetOwinContext(), sort, order);
     }
 
     [HttpGet]
     [ApiExplorerSettings]
-    public async Task<IList<WebChannelGroup>> GetRadioGroupsByRange(int start, int end, WebSortField? sort, WebSortOrder? order)
+    public Task<IList<WebChannelGroup>> GetRadioGroupsByRange(int start, int end, WebSortField? sort, WebSortOrder? order)
     {
       Logger.Debug("TAS Request: {0}", Request.GetOwinContext().Request.Uri);
-      return await new GetRadioGroupsByRange().ProcessAsync(Request.GetOwinContext(), start, end, sort, order);
+      return new GetRadioGroupsByRange().ProcessAsync(Request.GetOwinContext(), start, end, sort, order);
     }
 
     [HttpGet]
     [ApiExplorerSettings]
-    public async Task<WebChannelGroup> GetRadioGroupById(int groupId)
+    public Task<WebChannelGroup> GetRadioGroupById(int groupId)
     {
       Logger.Debug("TAS Request: {0}", Request.GetOwinContext().Request.Uri);
-      return await new GetRadioGroupById().ProcessAsync(Request.GetOwinContext(), groupId);
+      return new GetRadioGroupById().ProcessAsync(Request.GetOwinContext(), groupId);
     }
 
     [HttpGet]
     [ApiExplorerSettings]
-    public async Task<WebIntResult> GetRadioChannelCount(int? groupId = null)
+    public Task<WebIntResult> GetRadioChannelCount(int? groupId = null)
     {
       Logger.Debug("TAS Request: {0}", Request.GetOwinContext().Request.Uri);
-      return await new GetRadioChannelCount().ProcessAsync(Request.GetOwinContext(), groupId);
+      return new GetRadioChannelCount().ProcessAsync(Request.GetOwinContext(), groupId);
     }
 
     [HttpGet]
     [ApiExplorerSettings]
-    public async Task<IList<WebChannelBasic>> GetRadioChannelsBasic(int? groupId, WebSortField? sort, WebSortOrder? order)
+    public Task<IList<WebChannelBasic>> GetRadioChannelsBasic(int? groupId, WebSortField? sort, WebSortOrder? order)
     {
       Logger.Debug("TAS Request: {0}", Request.GetOwinContext().Request.Uri);
-      return await new GetRadioChannelsBasic().ProcessAsync(Request.GetOwinContext(), groupId, sort, order);
+      return new GetRadioChannelsBasic().ProcessAsync(Request.GetOwinContext(), groupId, sort, order);
     }
 
     [HttpGet]
     [ApiExplorerSettings]
-    public async Task<IList<WebChannelBasic>> GetRadioChannelsBasicByRange(int start, int end, int? groupId, WebSortField? sort, WebSortOrder? order)
+    public Task<IList<WebChannelBasic>> GetRadioChannelsBasicByRange(int start, int end, int? groupId, WebSortField? sort, WebSortOrder? order)
     {
       Logger.Debug("TAS Request: {0}", Request.GetOwinContext().Request.Uri);
-      return await new GetRadioChannelsBasicByRange().ProcessAsync(Request.GetOwinContext(), start, end, groupId, sort, order);
+      return new GetRadioChannelsBasicByRange().ProcessAsync(Request.GetOwinContext(), start, end, groupId, sort, order);
     }
 
     [HttpGet]
     [ApiExplorerSettings]
-    public async Task<IList<WebChannelDetailed>> GetRadioChannelsDetailed(int? groupId, WebSortField? sort, WebSortOrder? order)
+    public Task<IList<WebChannelDetailed>> GetRadioChannelsDetailed(int? groupId, WebSortField? sort, WebSortOrder? order)
     {
       Logger.Debug("TAS Request: {0}", Request.GetOwinContext().Request.Uri);
-      return await new GetRadioChannelsDetailed().ProcessAsync(Request.GetOwinContext(), groupId, sort, order);
+      return new GetRadioChannelsDetailed().ProcessAsync(Request.GetOwinContext(), groupId, sort, order);
     }
 
     [HttpGet]
     [ApiExplorerSettings]
-    public async Task<IList<WebChannelDetailed>> GetRadioChannelsDetailedByRange(int start, int end, int? groupId, WebSortField? sort, WebSortOrder? order)
+    public Task<IList<WebChannelDetailed>> GetRadioChannelsDetailedByRange(int start, int end, int? groupId, WebSortField? sort, WebSortOrder? order)
     {
       Logger.Debug("TAS Request: {0}", Request.GetOwinContext().Request.Uri);
-      return await new GetRadioChannelsDetailedByRange().ProcessAsync(Request.GetOwinContext(), start, end, groupId, sort, order);
+      return new GetRadioChannelsDetailedByRange().ProcessAsync(Request.GetOwinContext(), start, end, groupId, sort, order);
     }
 
     [HttpGet]
     [ApiExplorerSettings]
-    public async Task<IList<WebChannelState>> GetAllRadioChannelStatesForGroup(int groupId, string userName)
+    public Task<IList<WebChannelState>> GetAllRadioChannelStatesForGroup(int groupId, string userName)
     {
       Logger.Debug("TAS Request: {0}", Request.GetOwinContext().Request.Uri);
       throw new NotImplementedException();
@@ -527,18 +527,18 @@ namespace MediaPortal.Plugins.MP2Extended.Controllers.json
 
     [HttpGet]
     [ApiExplorerSettings]
-    public async Task<WebChannelState> GetChannelState(int channelId, string userName)
+    public Task<WebChannelState> GetChannelState(int channelId, string userName)
     {
       Logger.Debug("TAS Request: {0}", Request.GetOwinContext().Request.Uri);
-      return await new GetChannelState().ProcessAsync(Request.GetOwinContext(), channelId, userName);
+      return new GetChannelState().ProcessAsync(Request.GetOwinContext(), channelId, userName);
     }
 
     [HttpGet]
     [ApiExplorerSettings]
-    public async Task<IList<WebChannelState>> GetAllChannelStatesForGroup(int groupId, string userName)
+    public Task<IList<WebChannelState>> GetAllChannelStatesForGroup(int groupId, string userName)
     {
       Logger.Debug("TAS Request: {0}", Request.GetOwinContext().Request.Uri);
-      return await new GetAllChannelStatesForGroup().ProcessAsync(Request.GetOwinContext(), groupId, userName);
+      return new GetAllChannelStatesForGroup().ProcessAsync(Request.GetOwinContext(), groupId, userName);
     }
 
     #endregion
@@ -547,7 +547,7 @@ namespace MediaPortal.Plugins.MP2Extended.Controllers.json
 
     [HttpGet]
     [ApiExplorerSettings]
-    public async Task<WebVirtualCard> SwitchTVServerToChannelAndGetVirtualCard(string userName, int channelId)
+    public Task<WebVirtualCard> SwitchTVServerToChannelAndGetVirtualCard(string userName, int channelId)
     {
       Logger.Debug("TAS Request: {0}", Request.GetOwinContext().Request.Uri);
       throw new NotImplementedException();
@@ -555,23 +555,23 @@ namespace MediaPortal.Plugins.MP2Extended.Controllers.json
 
     [HttpGet]
     [ApiExplorerSettings]
-    public async Task<WebStringResult> SwitchTVServerToChannelAndGetStreamingUrl(string userName, int channelId)
+    public Task<WebStringResult> SwitchTVServerToChannelAndGetStreamingUrl(string userName, int channelId)
     {
       Logger.Debug("TAS Request: {0}", Request.GetOwinContext().Request.Uri);
-      return await new SwitchTVServerToChannelAndGetStreamingUrl().ProcessAsync(Request.GetOwinContext(), userName, channelId);
+      return new SwitchTVServerToChannelAndGetStreamingUrl().ProcessAsync(Request.GetOwinContext(), userName, channelId);
     }
 
     [HttpGet]
     [ApiExplorerSettings]
-    public async Task<WebStringResult> SwitchTVServerToChannelAndGetTimeshiftFilename(string userName, int channelId)
+    public Task<WebStringResult> SwitchTVServerToChannelAndGetTimeshiftFilename(string userName, int channelId)
     {
       Logger.Debug("TAS Request: {0}", Request.GetOwinContext().Request.Uri);
-      return await new SwitchTVServerToChannelAndGetTimeshiftFilename().ProcessAsync(Request.GetOwinContext(), userName, channelId);
+      return new SwitchTVServerToChannelAndGetTimeshiftFilename().ProcessAsync(Request.GetOwinContext(), userName, channelId);
     }
 
     [HttpGet]
     [ApiExplorerSettings]
-    public async Task<WebBoolResult> SendHeartbeat(string userName)
+    public Task<WebBoolResult> SendHeartbeat(string userName)
     {
       Logger.Debug("TAS Request: {0}", Request.GetOwinContext().Request.Uri);
       throw new NotImplementedException();
@@ -579,10 +579,10 @@ namespace MediaPortal.Plugins.MP2Extended.Controllers.json
 
     [HttpGet]
     [ApiExplorerSettings]
-    public async Task<WebBoolResult> CancelCurrentTimeShifting(string userName)
+    public Task<WebBoolResult> CancelCurrentTimeShifting(string userName)
     {
       Logger.Debug("TAS Request: {0}", Request.GetOwinContext().Request.Uri);
-      return await new CancelCurrentTimeShifting().ProcessAsync(Request.GetOwinContext(), userName);
+      return new CancelCurrentTimeShifting().ProcessAsync(Request.GetOwinContext(), userName);
     }
 
     #endregion
@@ -591,127 +591,127 @@ namespace MediaPortal.Plugins.MP2Extended.Controllers.json
 
     [HttpGet]
     [ApiExplorerSettings]
-    public async Task<IList<WebProgramBasic>> GetProgramsBasicForChannel(int channelId, DateTime startTime, DateTime endTime)
+    public Task<IList<WebProgramBasic>> GetProgramsBasicForChannel(int channelId, DateTime startTime, DateTime endTime)
     {
       Logger.Debug("TAS Request: {0}", Request.GetOwinContext().Request.Uri);
-      return await new GetProgramsBasicForChannel().ProcessAsync(Request.GetOwinContext(), channelId, startTime, endTime);
+      return new GetProgramsBasicForChannel().ProcessAsync(Request.GetOwinContext(), channelId, startTime, endTime);
     }
 
     [HttpGet]
     [ApiExplorerSettings]
-    public async Task<IList<WebProgramDetailed>> GetProgramsDetailedForChannel(int channelId, DateTime startTime, DateTime endTime)
+    public Task<IList<WebProgramDetailed>> GetProgramsDetailedForChannel(int channelId, DateTime startTime, DateTime endTime)
     {
       Logger.Debug("TAS Request: {0}", Request.GetOwinContext().Request.Uri);
-      return await new GetProgramsDetailedForChannel().ProcessAsync(Request.GetOwinContext(), channelId, startTime, endTime);
+      return new GetProgramsDetailedForChannel().ProcessAsync(Request.GetOwinContext(), channelId, startTime, endTime);
     }
 
     [HttpGet]
     [ApiExplorerSettings]
-    public async Task<IList<WebChannelPrograms<WebProgramBasic>>> GetProgramsBasicForGroup(int groupId, DateTime startTime, DateTime endTime)
+    public Task<IList<WebChannelPrograms<WebProgramBasic>>> GetProgramsBasicForGroup(int groupId, DateTime startTime, DateTime endTime)
     {
       Logger.Debug("TAS Request: {0}", Request.GetOwinContext().Request.Uri);
-      return await new GetProgramsBasicForGroup().ProcessAsync(Request.GetOwinContext(), groupId, startTime, endTime);
+      return new GetProgramsBasicForGroup().ProcessAsync(Request.GetOwinContext(), groupId, startTime, endTime);
     }
 
     [HttpGet]
     [ApiExplorerSettings]
-    public async Task<IList<WebChannelPrograms<WebProgramDetailed>>> GetProgramsDetailedForGroup(int groupId, DateTime startTime, DateTime endTime)
+    public Task<IList<WebChannelPrograms<WebProgramDetailed>>> GetProgramsDetailedForGroup(int groupId, DateTime startTime, DateTime endTime)
     {
       Logger.Debug("TAS Request: {0}", Request.GetOwinContext().Request.Uri);
-      return await new GetProgramsDetailedForGroup().ProcessAsync(Request.GetOwinContext(), groupId, startTime, endTime);
+      return new GetProgramsDetailedForGroup().ProcessAsync(Request.GetOwinContext(), groupId, startTime, endTime);
     }
 
     [HttpGet]
     [ApiExplorerSettings]
-    public async Task<WebProgramDetailed> GetCurrentProgramOnChannel(int channelId)
+    public Task<WebProgramDetailed> GetCurrentProgramOnChannel(int channelId)
     {
       Logger.Debug("TAS Request: {0}", Request.GetOwinContext().Request.Uri);
-      return await new GetCurrentProgramOnChannel().ProcessAsync(Request.GetOwinContext(), channelId);
+      return new GetCurrentProgramOnChannel().ProcessAsync(Request.GetOwinContext(), channelId);
     }
 
     [HttpGet]
     [ApiExplorerSettings]
-    public async Task<WebProgramDetailed> GetNextProgramOnChannel(int channelId)
+    public Task<WebProgramDetailed> GetNextProgramOnChannel(int channelId)
     {
       Logger.Debug("TAS Request: {0}", Request.GetOwinContext().Request.Uri);
-      return await new GetNextProgramOnChannel().ProcessAsync(Request.GetOwinContext(), channelId);
+      return new GetNextProgramOnChannel().ProcessAsync(Request.GetOwinContext(), channelId);
     }
 
     [HttpGet]
     [ApiExplorerSettings]
-    public async Task<WebIntResult> SearchProgramsCount(string searchTerm)
+    public Task<WebIntResult> SearchProgramsCount(string searchTerm)
     {
       Logger.Debug("TAS Request: {0}", Request.GetOwinContext().Request.Uri);
-      return await new SearchProgramsCount().ProcessAsync(Request.GetOwinContext(), searchTerm);
+      return new SearchProgramsCount().ProcessAsync(Request.GetOwinContext(), searchTerm);
     }
 
     [HttpGet]
     [ApiExplorerSettings]
-    public async Task<IList<WebProgramBasic>> SearchProgramsBasic(string searchTerm)
+    public Task<IList<WebProgramBasic>> SearchProgramsBasic(string searchTerm)
     {
       Logger.Debug("TAS Request: {0}", Request.GetOwinContext().Request.Uri);
-      return await new SearchProgramsBasic().ProcessAsync(Request.GetOwinContext(), searchTerm);
+      return new SearchProgramsBasic().ProcessAsync(Request.GetOwinContext(), searchTerm);
     }
 
     [HttpGet]
     [ApiExplorerSettings]
-    public async Task<IList<WebProgramBasic>> SearchProgramsBasicByRange(string searchTerm, int start, int end)
+    public Task<IList<WebProgramBasic>> SearchProgramsBasicByRange(string searchTerm, int start, int end)
     {
       Logger.Debug("TAS Request: {0}", Request.GetOwinContext().Request.Uri);
-      return await new SearchProgramsBasicByRange().ProcessAsync(Request.GetOwinContext(), searchTerm, start, end);
+      return new SearchProgramsBasicByRange().ProcessAsync(Request.GetOwinContext(), searchTerm, start, end);
     }
 
     [HttpGet]
     [ApiExplorerSettings]
-    public async Task<IList<WebProgramDetailed>> SearchProgramsDetailed(string searchTerm)
+    public Task<IList<WebProgramDetailed>> SearchProgramsDetailed(string searchTerm)
     {
       Logger.Debug("TAS Request: {0}", Request.GetOwinContext().Request.Uri);
-      return await new SearchProgramsDetailed().ProcessAsync(Request.GetOwinContext(), searchTerm);
+      return new SearchProgramsDetailed().ProcessAsync(Request.GetOwinContext(), searchTerm);
     }
 
     [HttpGet]
     [ApiExplorerSettings]
-    public async Task<IList<WebProgramDetailed>> SearchProgramsDetailedByRange(string searchTerm, int start, int end)
+    public Task<IList<WebProgramDetailed>> SearchProgramsDetailedByRange(string searchTerm, int start, int end)
     {
       Logger.Debug("TAS Request: {0}", Request.GetOwinContext().Request.Uri);
-      return await new SearchProgramsDetailedByRange().ProcessAsync(Request.GetOwinContext(), searchTerm, start, end);
+      return new SearchProgramsDetailedByRange().ProcessAsync(Request.GetOwinContext(), searchTerm, start, end);
     }
 
     [HttpGet]
     [ApiExplorerSettings]
-    public async Task<IList<WebProgramBasic>> GetNowNextWebProgramBasicForChannel(int channelId)
+    public Task<IList<WebProgramBasic>> GetNowNextWebProgramBasicForChannel(int channelId)
     {
       Logger.Debug("TAS Request: {0}", Request.GetOwinContext().Request.Uri);
-      return await new GetNowNextWebProgramBasicForChannel().ProcessAsync(Request.GetOwinContext(), channelId);
+      return new GetNowNextWebProgramBasicForChannel().ProcessAsync(Request.GetOwinContext(), channelId);
     }
 
     [HttpGet]
     [ApiExplorerSettings]
-    public async Task<IList<WebProgramDetailed>> GetNowNextWebProgramDetailedForChannel(int channelId)
+    public Task<IList<WebProgramDetailed>> GetNowNextWebProgramDetailedForChannel(int channelId)
     {
       Logger.Debug("TAS Request: {0}", Request.GetOwinContext().Request.Uri);
-      return await new GetNowNextWebProgramDetailedForChannel().ProcessAsync(Request.GetOwinContext(), channelId);
+      return new GetNowNextWebProgramDetailedForChannel().ProcessAsync(Request.GetOwinContext(), channelId);
     }
 
     [HttpGet]
     [ApiExplorerSettings]
-    public async Task<WebProgramBasic> GetProgramBasicById(int programId)
+    public Task<WebProgramBasic> GetProgramBasicById(int programId)
     {
       Logger.Debug("TAS Request: {0}", Request.GetOwinContext().Request.Uri);
-      return await new GetProgramBasicById().ProcessAsync(Request.GetOwinContext(), programId);
+      return new GetProgramBasicById().ProcessAsync(Request.GetOwinContext(), programId);
     }
 
     [HttpGet]
     [ApiExplorerSettings]
-    public async Task<WebProgramDetailed> GetProgramDetailedById(int programId)
+    public Task<WebProgramDetailed> GetProgramDetailedById(int programId)
     {
       Logger.Debug("TAS Request: {0}", Request.GetOwinContext().Request.Uri);
-      return await new GetProgramDetailedById().ProcessAsync(Request.GetOwinContext(), programId);
+      return new GetProgramDetailedById().ProcessAsync(Request.GetOwinContext(), programId);
     }
 
     [HttpGet]
     [ApiExplorerSettings]
-    public async Task<WebBoolResult> GetProgramIsScheduledOnChannel(int channelId, int programId)
+    public Task<WebBoolResult> GetProgramIsScheduledOnChannel(int channelId, int programId)
     {
       Logger.Debug("TAS Request: {0}", Request.GetOwinContext().Request.Uri);
       throw new NotImplementedException();
@@ -719,10 +719,10 @@ namespace MediaPortal.Plugins.MP2Extended.Controllers.json
 
     [HttpGet]
     [ApiExplorerSettings]
-    public async Task<WebBoolResult> GetProgramIsScheduled(int programId)
+    public Task<WebBoolResult> GetProgramIsScheduled(int programId)
     {
       Logger.Debug("TAS Request: {0}", Request.GetOwinContext().Request.Uri);
-      return await new GetProgramIsScheduled().ProcessAsync(Request.GetOwinContext(), programId);
+      return new GetProgramIsScheduled().ProcessAsync(Request.GetOwinContext(), programId);
     }
 
     #endregion

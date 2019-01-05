@@ -56,10 +56,10 @@ namespace MediaPortal.Plugins.MP2Extended.Controllers.json
     [HttpGet]
     [ApiExplorerSettings]
     [AllowAnonymous]
-    public async Task<WebStreamServiceDescription> GetServiceDescription()
+    public Task<WebStreamServiceDescription> GetServiceDescription()
     {
       Logger.Debug("WSS Request: {0}", Request.GetOwinContext().Request.Uri);
-      return await new GetServiceDescription().ProcessAsync(Request.GetOwinContext());
+      return new GetServiceDescription().ProcessAsync(Request.GetOwinContext());
     }
 
     #endregion
@@ -68,26 +68,26 @@ namespace MediaPortal.Plugins.MP2Extended.Controllers.json
 
     [HttpGet]
     [ApiExplorerSettings]
-    public async Task<IList<WebTranscoderProfile>> GetTranscoderProfiles()
+    public Task<IList<WebTranscoderProfile>> GetTranscoderProfiles()
     {
       Logger.Debug("WSS Request: {0}", Request.GetOwinContext().Request.Uri);
-      return await new GetTranscoderProfiles().ProcessAsync(Request.GetOwinContext());
+      return new GetTranscoderProfiles().ProcessAsync(Request.GetOwinContext());
     }
 
     [HttpGet]
     [ApiExplorerSettings]
-    public async Task<IList<WebTranscoderProfile>> GetTranscoderProfilesForTarget(string target)
+    public Task<IList<WebTranscoderProfile>> GetTranscoderProfilesForTarget(string target)
     {
       Logger.Debug("WSS Request: {0}", Request.GetOwinContext().Request.Uri);
-      return await new GetTranscoderProfilesForTarget().ProcessAsync(Request.GetOwinContext(), target);
+      return new GetTranscoderProfilesForTarget().ProcessAsync(Request.GetOwinContext(), target);
     }
 
     [HttpGet]
     [ApiExplorerSettings]
-    public async Task<WebTranscoderProfile> GetTranscoderProfileByName(string name)
+    public Task<WebTranscoderProfile> GetTranscoderProfileByName(string name)
     {
       Logger.Debug("WSS Request: {0}", Request.GetOwinContext().Request.Uri);
-      return await new GetTranscoderProfileByName().ProcessAsync(Request.GetOwinContext(), name);
+      return new GetTranscoderProfileByName().ProcessAsync(Request.GetOwinContext(), name);
     }
 
     #endregion
@@ -96,10 +96,10 @@ namespace MediaPortal.Plugins.MP2Extended.Controllers.json
 
     [HttpGet]
     [ApiExplorerSettings]
-    public async Task<WebMediaInfo> GetMediaInfo(string itemId, WebMediaType type)
+    public Task<WebMediaInfo> GetMediaInfo(string itemId, WebMediaType type)
     {
       Logger.Debug("WSS Request: {0}", Request.GetOwinContext().Request.Uri);
-      return await new GetMediaInfo().ProcessAsync(Request.GetOwinContext(), itemId, type);
+      return new GetMediaInfo().ProcessAsync(Request.GetOwinContext(), itemId, type);
     }
 
     #endregion
@@ -108,7 +108,7 @@ namespace MediaPortal.Plugins.MP2Extended.Controllers.json
 
     [HttpGet]
     [ApiExplorerSettings]
-    public async Task<WebTranscodingInfo> GetTranscodingInfo(string identifier, long? playerPosition)
+    public Task<WebTranscodingInfo> GetTranscodingInfo(string identifier, long? playerPosition)
     {
       Logger.Debug("WSS Request: {0}", Request.GetOwinContext().Request.Uri);
       throw new NotImplementedException();
@@ -116,55 +116,55 @@ namespace MediaPortal.Plugins.MP2Extended.Controllers.json
 
     [HttpGet]
     [ApiExplorerSettings]
-    public async Task<WebBoolResult> InitStream(string itemId, string clientDescription, string identifier, WebMediaType type, int? idleTimeout)
+    public Task<WebBoolResult> InitStream(string itemId, string clientDescription, string identifier, WebMediaType type, int? idleTimeout)
     {
       Logger.Debug("WSS Request: {0}", Request.GetOwinContext().Request.Uri);
-      return await new InitStream().ProcessAsync(Request.GetOwinContext(), itemId, clientDescription, identifier, type, idleTimeout);
+      return new InitStream().ProcessAsync(Request.GetOwinContext(), itemId, clientDescription, identifier, type, idleTimeout);
     }
 
     [HttpGet]
     [ApiExplorerSettings]
-    public async Task<WebStringResult> StartStream(string identifier, string profileName, long startPosition)
+    public Task<WebStringResult> StartStream(string identifier, string profileName, long startPosition)
     {
       Logger.Debug("WSS Request: {0}", Request.GetOwinContext().Request.Uri);
-      return await new StartStream().ProcessAsync(Request.GetOwinContext(), identifier, profileName, startPosition);
+      return new StartStream().ProcessAsync(Request.GetOwinContext(), identifier, profileName, startPosition);
     }
 
     [HttpGet]
     [ApiExplorerSettings]
-    public async Task<WebStringResult> StartStreamWithStreamSelection(string identifier, string profileName, long startPosition, int audioId, int subtitleId)
+    public Task<WebStringResult> StartStreamWithStreamSelection(string identifier, string profileName, long startPosition, int audioId, int subtitleId)
     {
       Logger.Debug("WSS Request: {0}", Request.GetOwinContext().Request.Uri);
-      return await new StartStreamWithStreamSelection().ProcessAsync(Request.GetOwinContext(), identifier, profileName, startPosition, audioId, subtitleId);
+      return new StartStreamWithStreamSelection().ProcessAsync(Request.GetOwinContext(), identifier, profileName, startPosition, audioId, subtitleId);
     }
 
     [HttpGet]
     [ApiExplorerSettings]
-    public async Task<WebBoolResult> StopStream(string identifier)
+    public Task<WebBoolResult> StopStream(string identifier)
     {
       Logger.Debug("WSS Request: {0}", Request.GetOwinContext().Request.Uri);
-      return await new StopStream().ProcessAsync(Request.GetOwinContext(), identifier);
+      return new StopStream().ProcessAsync(Request.GetOwinContext(), identifier);
     }
 
     [HttpGet]
     [ApiExplorerSettings]
-    public async Task<WebBoolResult> FinishStream(string identifier)
+    public Task<WebBoolResult> FinishStream(string identifier)
     {
       Logger.Debug("WSS Request: {0}", Request.GetOwinContext().Request.Uri);
-      return await new FinishStream().ProcessAsync(Request.GetOwinContext(), identifier);
+      return new FinishStream().ProcessAsync(Request.GetOwinContext(), identifier);
     }
 
     [HttpGet]
     [ApiExplorerSettings]
-    public async Task<IList<WebStreamingSession>> GetStreamingSessions(string filter = null)
+    public Task<IList<WebStreamingSession>> GetStreamingSessions(string filter = null)
     {
       Logger.Debug("WSS Request: {0}", Request.GetOwinContext().Request.Uri);
-      return await new GetStreamingSessions().ProcessAsync(Request.GetOwinContext(), filter);
+      return new GetStreamingSessions().ProcessAsync(Request.GetOwinContext(), filter);
     }
 
     [HttpGet]
     [ApiExplorerSettings]
-    public async Task<WebResolution> GetStreamSize(WebMediaType type, int? provider, string itemId, int? offset, string profile)
+    public Task<WebResolution> GetStreamSize(WebMediaType type, int? provider, string itemId, int? offset, string profile)
     {
       Logger.Debug("WSS Request: {0}", Request.GetOwinContext().Request.Uri);
       throw new NotImplementedException();
@@ -188,15 +188,15 @@ namespace MediaPortal.Plugins.MP2Extended.Controllers.json
 
     [HttpGet]
     [ApiExplorerSettings]
-    public async Task<WebItemSupportStatus> GetItemSupportStatus(WebMediaType type, int? provider, string itemId, int? offset)
+    public Task<WebItemSupportStatus> GetItemSupportStatus(WebMediaType type, int? provider, string itemId, int? offset)
     {
       Logger.Debug("WSS Request: {0}", Request.GetOwinContext().Request.Uri);
-      return await new GetItemSupportStatus().ProcessAsync(Request.GetOwinContext(), type, provider, itemId, offset);
+      return new GetItemSupportStatus().ProcessAsync(Request.GetOwinContext(), type, provider, itemId, offset);
     }
 
     [HttpGet]
     [ApiExplorerSettings]
-    public async Task<WebBoolResult> RequestImageResize(WebMediaType mediatype, int? provider, string id, WebFileType imagetype, int offset, int maxWidth, int maxHeight, string borders = null, string format = null)
+    public Task<WebBoolResult> RequestImageResize(WebMediaType mediatype, int? provider, string id, WebFileType imagetype, int offset, int maxWidth, int maxHeight, string borders = null, string format = null)
     {
       Logger.Debug("WSS Request: {0}", Request.GetOwinContext().Request.Uri);
       throw new NotImplementedException();
