@@ -37,8 +37,9 @@ namespace MediaPortal.Extensions.TranscodingService.Interfaces
     /// Parses a local media file and returns a MetadataContainer with the information (codecs, container, streams, ...) found
     /// </summary>
     /// <param name="MediaResource">The IResourceAccessor to the media file</param>
+    /// <param name="AnalysisName">Name for the analysis if it needs to be other than the resource name</param>
     /// <returns>Metadata Container with all information about the media</returns>
-    Task<MetadataContainer> ParseMediaStreamAsync(IResourceAccessor MediaResource);
+    Task<MetadataContainer> ParseMediaStreamAsync(IResourceAccessor MediaResource, string AnalysisName = null);
 
     /// <summary>
     /// Parses a MediaItem and returns a MetadataContainer with the information (codecs, container, streams, ...) found

@@ -950,11 +950,12 @@ namespace MediaPortal.Extensions.TranscodingService.Service.Transcoders
       try
       {
         if (video.TargetSubtitleSupport == SubtitleSupport.None)
-          return null;
+          return new Dictionary<int, List<SubtitleStream>>();
 
         Dictionary<int, List<SubtitleStream>> sourceSubtitles = new Dictionary<int, List<SubtitleStream>>();
         Dictionary<int, SubtitleStream> primarySubs = FindPrimarySubtitle(video);
-        if (primarySubs == null) return null;
+        if (primarySubs == null)
+          return new Dictionary<int, List<SubtitleStream>>();
         foreach (var primarySub in primarySubs)
         {
           sourceSubtitles.Add(primarySub.Key, new List<SubtitleStream>() { primarySub.Value });
@@ -1045,7 +1046,7 @@ namespace MediaPortal.Extensions.TranscodingService.Service.Transcoders
             // Burn external subtitle into video
             if (sub.Source == null)
             {
-              return null;
+              return new Dictionary<int, List<SubtitleStream>>();
             }
 
             if (await ConvertSubtitleFileAsync(clientId, video, timeStart, transcodingFile, srcStream, sub).ConfigureAwait(false))
@@ -1091,7 +1092,7 @@ namespace MediaPortal.Extensions.TranscodingService.Service.Transcoders
       {
         _logger.Error("MediaConverter: Error getting subtitle", ex);
       }
-      return null;
+      return new Dictionary<int, List<SubtitleStream>>();
     }
 
     protected async Task<bool> MergeSrtSubtitlesAsync(string mergeFile, Dictionary<int, SubtitleStream> subtitles, Dictionary<int, double> subtitleTimeOffsets, double timeStart)
@@ -1206,7 +1207,7 @@ namespace MediaPortal.Extensions.TranscodingService.Service.Transcoders
       return transcodingFile;
     }
 
-    protected async Task<bool> AssignExistingTranscodeContextAsync(string clientId, string transcodeId, TranscodeContext context)
+    protected async Task<TranscodeContext> GetExistingTranscodeContextAsync(string clientId, string transcodeId)
     {
       try
       {
@@ -1216,17 +1217,16 @@ namespace MediaPortal.Extensions.TranscodingService.Service.Transcoders
           {
             List<TranscodeContext> runningContexts = _runningClientTranscodes[clientId][transcodeId];
             //Non partial have first priority
-            context = runningContexts?.FirstOrDefault(c => !c.Partial);
-            return context != null;
+            return runningContexts?.FirstOrDefault(c => !c.Partial);
           }
-          return false;
+          return null;
         }
       }
       catch (Exception ex)
       {
         _logger.Error("MediaConverter: Error assigning context", ex);
       }
-      return false;
+      return null;
     }
 
     public async Task<TranscodeContext> GetLiveStreamAsync(string ClientId, BaseTranscoding TranscodingInfo, int ChannelId, bool WaitForBuffer)

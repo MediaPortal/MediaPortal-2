@@ -34,6 +34,7 @@ using MediaPortal.Utilities.Process;
 using MediaPortal.Extensions.TranscodingService.Interfaces.Metadata;
 using MediaPortal.Extensions.TranscodingService.Interfaces.Analyzers;
 using MediaPortal.Extensions.TranscodingService.Interfaces;
+using System.Text;
 
 namespace MediaPortal.Extensions.TranscodingService.Service.Transcoders.FFMpeg.Parsers
 {
@@ -45,32 +46,48 @@ namespace MediaPortal.Extensions.TranscodingService.Service.Transcoders.FFMpeg.P
 
     #endregion
 
-    internal static void ParseH264Info(ref MetadataContainer info, Dictionary<float, long> h264MaxDpbMbs, int transcoderTimeout)
+    internal static void ParseH264Info(MetadataContainer info, IResourceAccessor res, Dictionary<float, long> h264MaxDpbMbs, int transcoderTimeout)
     {
-      if (info.Video.Codec == VideoCodec.H264 && info.Metadata.Source is ILocalFsResourceAccessor)
+      if (info.Video.Codec == VideoCodec.H264)
       {
+        if (res is ILocalFsResourceAccessor fileRes && !fileRes.IsFile)
+          return;
+        if (!(res is INetworkResourceAccessor))
+          return;
+
         //TODO: Remove this debug code when error found
         string debug = "";
         string tempFileName = Path.GetTempPath() + Guid.NewGuid() + ".bin";
         try
         {
-          string arguments = string.Format("-i \"{0}\" -frames:v 1 -c:v copy -f h264", info.Metadata.Source);
+          byte[] data = null;
+          //string arguments = string.Format("-i \"{0}\" -frames:v 1 -c:v copy -f h264", info.Metadata.Source);
+          //if (info.Metadata.VideoContainerType != VideoContainer.Mpeg2Ts)
+          //{
+          //  arguments += " -bsf:v h264_mp4toannexb";
+          //}
+          //arguments += string.Format(" -an \"{0}\"", tempFileName);
+          //debug = arguments;
+
+          //ProcessExecutionResult result;
+          //lock (FFPROBE_THROTTLE_LOCK)
+          //  result = FFMpegBinary.FFMpegExecuteWithResourceAccessAsync((ILocalFsResourceAccessor)info.Metadata.Source, arguments, ProcessPriorityClass.Idle, transcoderTimeout).Result;
+          //debug = result.StandardError;
+          //if (!result.Success || !File.Exists(tempFileName))
+          //{
+          //  ServiceRegistration.Get<ILogger>().Warn("MediaAnalyzer: Failed to extract h264 annex b header information for resource: '{0}'", info.Metadata.Source);
+          //  return;
+          //}
+          //data = File.ReadAllBytes(tempFileName);
+
+          string arguments = string.Format("-i \"{0}\" -frames:v 1 -c:v copy -f h264", res);
           if (info.Metadata.VideoContainerType != VideoContainer.Mpeg2Ts)
           {
             arguments += " -bsf:v h264_mp4toannexb";
           }
-          arguments += string.Format(" -an \"{0}\"", tempFileName);
-          debug = arguments;
-
-          ProcessExecutionResult result;
+          arguments += " -an -";
           lock (FFPROBE_THROTTLE_LOCK)
-            result = FFMpegBinary.FFMpegExecuteWithResourceAccessAsync((ILocalFsResourceAccessor)info.Metadata.Source, arguments, ProcessPriorityClass.Idle, transcoderTimeout).Result;
-          debug = result.StandardError;
-          if (result.Success && File.Exists(tempFileName) == false)
-          {
-            ServiceRegistration.Get<ILogger>().Warn("MediaAnalyzer: Failed to extract h264 annex b header information for resource: '{0}'", info.Metadata.VideoContainerType);
-            return;
-          }
+            data = ProbeResource(res, arguments);
 
           debug = "Parse binary dump: " + tempFileName;
           H264Analyzer avcAnalyzer = new H264Analyzer();
@@ -140,6 +157,61 @@ namespace MediaPortal.Extensions.TranscodingService.Service.Transcoders.FFMpeg.P
             File.Delete(tempFileName);
         }
         catch { }
+      }
+    }
+
+    private static byte[] ProbeResource(IResourceAccessor accessor, string arguments)
+    {
+      ProcessStartInfo startInfo = new ProcessStartInfo()
+      {
+        FileName = FFMpegBinary.FFMpegPath,
+        Arguments = arguments,
+        UseShellExecute = false,
+        CreateNoWindow = true,
+        RedirectStandardOutput = true,
+        StandardOutputEncoding = Encoding.UTF8,
+        StandardErrorEncoding = Encoding.UTF8
+      };
+#if !TRANSCODE_CONSOLE_TEST
+      using (ServiceRegistration.Get<IImpersonationService>().CheckImpersonationFor((mediaAccessor).CanonicalLocalResourcePath))
+      {
+        //Only when the server is running as a service it will have elevation rights
+        using (ImpersonationProcess ffmpeg = new ImpersonationProcess { StartInfo = startInfo })
+        {
+          IntPtr userToken = IntPtr.Zero;
+          if (!ImpersonationHelper.GetTokenByProcess(out userToken, true))
+            return null;
+#else
+      {
+        {
+          Process ffmpeg = new Process() { StartInfo = startInfo };
+#endif
+#if !TRANSCODE_CONSOLE_TEST
+          ffmpeg.StartAsUser(userToken);
+#else
+          ffmpeg.Start();
+#endif
+          ffmpeg.BeginErrorReadLine();
+
+          var stream = ffmpeg.StandardOutput.BaseStream;
+          ffmpeg.WaitForExit();
+          //ffmpeg.ExitCode;
+          //iExitCode = executionResult.Result.ExitCode;
+          //if (data.TranscodeData.InputResourceAccessor is FFMpegLiveAccessor)
+          //{
+          //  ffmpeg.StandardInput.Close();
+          //}
+          ffmpeg.Close();
+
+          byte[] data = new byte[stream.Length];
+          stream.Position = 0;
+          stream.Write(data, 0, data.Length);
+          stream.Dispose();
+#if !TRANSCODE_CONSOLE_TEST
+          NativeMethods.CloseHandle(userToken);
+#endif
+          return data;
+        }
       }
     }
 

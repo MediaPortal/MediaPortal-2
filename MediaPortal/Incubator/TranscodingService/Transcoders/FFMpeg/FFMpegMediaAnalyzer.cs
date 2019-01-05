@@ -36,6 +36,8 @@ using System.IO;
 using MediaPortal.Extensions.TranscodingService.Interfaces;
 using System.Threading.Tasks;
 using System.Threading;
+using MediaPortal.Common.Services.ResourceAccess.LocalFsResourceProvider;
+using System.Linq;
 
 namespace MediaPortal.Extensions.TranscodingService.Service.Transcoders.FFMpeg
 {
@@ -90,18 +92,21 @@ namespace MediaPortal.Extensions.TranscodingService.Service.Transcoders.FFMpeg
       return null;
     }
 
-    public override async Task<MetadataContainer> ParseMediaStreamAsync(IResourceAccessor MediaResource)
+    public override async Task<MetadataContainer> ParseMediaStreamAsync(IResourceAccessor MediaResource, string AnalysisName = null)
     {
-      if (MediaResource is ILocalFsResourceAccessor)
+      if (MediaResource is ILocalFsResourceAccessor fileRes)
       {
-        ILocalFsResourceAccessor fileResource = (ILocalFsResourceAccessor)MediaResource;
-        string fileName = fileResource.LocalFileSystemPath;
+        if (!fileRes.IsFile)
+          return null;
+
+        string name = AnalysisName ?? fileRes.ResourceName;
+        string fileName = fileRes.LocalFileSystemPath;
         if (!(HasImageExtension(fileName) || HasVideoExtension(fileName) || HasAudioExtension(fileName)))
           return null;
         string arguments = "";
 
         //Check cache
-        MetadataContainer info = await LoadAnalysisAsync(MediaResource);
+        MetadataContainer info = await LoadAnalysisAsync(MediaResource, name);
         if (info != null)
           return info;
 
@@ -115,12 +120,12 @@ namespace MediaPortal.Extensions.TranscodingService.Service.Transcoders.FFMpeg
           arguments = string.Format("-threads {0} -i \"{1}\"", _analyzerMaximumThreads, fileName);
         }
 
-        ProcessExecutionResult executionResult = await ParseFileAsync(fileResource, arguments);
+        ProcessExecutionResult executionResult = await ParseFileAsync(fileRes, arguments);
         if (executionResult != null && executionResult.Success && executionResult.ExitCode == 0 && !string.IsNullOrEmpty(executionResult.StandardError))
         {
           //_logger.Debug("MediaAnalyzer: Successfully ran FFProbe:\n {0}", executionResult.StandardError);
           info = new MetadataContainer { Metadata = { Source = MediaResource } };
-          info.Metadata.Size = fileResource.Size;
+          info.Metadata.Size = fileRes.Size;
           FFMpegParseFFMpegOutput.ParseFFMpegOutput(executionResult.StandardError, ref info, _countryCodesMapping);
 
           // Special handling for files like OGG which will be falsely identified as videos
@@ -131,34 +136,34 @@ namespace MediaPortal.Extensions.TranscodingService.Service.Transcoders.FFMpeg
 
           if (info.IsImage || HasImageExtension(fileName))
           {
-            info.Metadata.Mime = MimeDetector.GetFileMime(fileResource, "image/unknown");
+            info.Metadata.Mime = MimeDetector.GetFileMime(fileRes, "image/unknown");
           }
           else if (info.IsVideo|| HasVideoExtension(fileName))
           {
-            info.Metadata.Mime = MimeDetector.GetFileMime(fileResource, "video/unknown");
-            FFMpegParseH264Info.ParseH264Info(ref info, _h264MaxDpbMbs, H264_TIMEOUT_MS);
-            FFMpegParseMPEG2TSInfo.ParseMPEG2TSInfo(ref info);
+            info.Metadata.Mime = MimeDetector.GetFileMime(fileRes, "video/unknown");
+            FFMpegParseH264Info.ParseH264Info(info, fileRes, _h264MaxDpbMbs, H264_TIMEOUT_MS);
+            FFMpegParseMPEG2TSInfo.ParseMPEG2TSInfo(info, fileRes);
           }
           else if (info.IsAudio || HasAudioExtension(fileName))
           {
-            info.Metadata.Mime = MimeDetector.GetFileMime(fileResource, "audio/unknown");
+            info.Metadata.Mime = MimeDetector.GetFileMime(fileRes, "audio/unknown");
           }
           else
           {
-            info.Metadata.Mime = MimeDetector.GetFileMime(fileResource, "unknown/unknown");
+            info.Metadata.Mime = MimeDetector.GetFileMime(fileRes, "unknown/unknown");
           }
-          await SaveAnalysisAsync(MediaResource, info);
+          await SaveAnalysisAsync(fileRes, info, name);
           return info;
         }
 
         if (executionResult != null)
           _logger.Error("FFMpegMediaAnalyzer: Failed to extract media type information for resource '{0}', Result: {1}, ExitCode: {2}, Success: {3}", fileName, executionResult.StandardError, executionResult.ExitCode, executionResult.Success);
         else
-          _logger.Error("FFMpegMediaAnalyzer: Failed to extract media type information for resource '{0}', executionResult=null", fileName);
+          _logger.Error("FFMpegMediaAnalyzer: Failed to extract media type information for resource '{0}', Execution result empty", fileName);
       }
-      else if (MediaResource is INetworkResourceAccessor)
+      else if (MediaResource is INetworkResourceAccessor urlRes)
       {
-        string url = ((INetworkResourceAccessor)MediaResource).URL;
+        string url = urlRes.URL;
 
         string arguments = "";
         if (url.StartsWith("rtsp://", StringComparison.InvariantCultureIgnoreCase) == true)
@@ -211,8 +216,8 @@ namespace MediaPortal.Extensions.TranscodingService.Service.Transcoders.FFMpeg
           else if (info.IsVideo)
           {
             info.Metadata.Mime = MimeDetector.GetUrlMime(url, "video/unknown");
-            FFMpegParseH264Info.ParseH264Info(ref info, _h264MaxDpbMbs, H264_TIMEOUT_MS);
-            FFMpegParseMPEG2TSInfo.ParseMPEG2TSInfo(ref info);
+            FFMpegParseH264Info.ParseH264Info(info, urlRes, _h264MaxDpbMbs, H264_TIMEOUT_MS);
+            FFMpegParseMPEG2TSInfo.ParseMPEG2TSInfo(info, urlRes);
           }
           else if (info.IsAudio)
           {
@@ -228,7 +233,11 @@ namespace MediaPortal.Extensions.TranscodingService.Service.Transcoders.FFMpeg
         if (executionResult != null)
           _logger.Error("FFMpegMediaAnalyzer: Failed to extract media type information for resource '{0}', Result: {1}, ExitCode: {2}, Success: {3}", url, executionResult.StandardError, executionResult.ExitCode, executionResult.Success);
         else
-          _logger.Error("FFMpegMediaAnalyzer: Failed to extract media type information for resource '{0}', executionResult=null", url);
+          _logger.Error("FFMpegMediaAnalyzer: Failed to extract media type information for resource '{0}', Execution result empty", url);
+      }
+      else
+      {
+        _logger.Error("FFMpegMediaAnalyzer: Failed to extract media type information for resource '{0}', Unsupported media format ", MediaResource);
       }
       return null;
     }

@@ -47,19 +47,15 @@ namespace MediaPortal.Extensions.TranscodingService.Service.Transcoders.FFMpeg
       _cachePath = cachePath;
     }
 
-    public new bool InUse
+    public override void UpdateStreamUse(bool inUse)
     {
-      get { return _streamInUse; }
-      set
+      if (_streamInUse == true && inUse == false && (Partial == true || _useCache == false || Live == true))
       {
-        if (_streamInUse == true && value == false && (Partial == true || _useCache == false || Live == true))
-        {
-          //Delete transcodes if no longer used
-          Stop();
-          DeleteFiles();
-        }
-        _streamInUse = value;
+        //Delete transcodes if no longer used
+        Stop();
+        DeleteFiles();
       }
+      _streamInUse = inUse;
     }
 
     public string ConsoleErrorOutput

@@ -42,12 +42,34 @@ namespace MediaPortal.Extensions.TranscodingService.Service.Transcoders.FFMpeg.P
           string duration = token.Substring(10).Trim();
           if (duration.IndexOf("N/A") == -1)
           {
+            string hours = "0";
+            string minutes = "0";
+            string seconds = "0";
+            string fractions = "0";
+            string[] parts;
             if (duration.Contains(".") == true)
             {
-              string[] parts = duration.Split('.');
+              parts = duration.Split('.');
               duration = parts[0];
+              fractions = parts[1];
             }
-            info.Metadata.Duration = TimeSpan.ParseExact(duration, @"hh\:mm\:ss", CultureInfo.InvariantCulture).TotalSeconds;
+            parts = duration.Split(':');
+            if(parts.Length == 3)
+            {
+              hours = parts[0];
+              minutes = parts[1];
+              seconds = parts[2];
+            }
+            else if (parts.Length == 2)
+            {
+              minutes = parts[0];
+              seconds = parts[1];
+            }
+            var timeSpan = TimeSpan.FromMilliseconds(Convert.ToDouble(fractions));
+            timeSpan += TimeSpan.FromSeconds(Convert.ToDouble(seconds));
+            timeSpan += TimeSpan.FromMinutes(Convert.ToDouble(minutes));
+            timeSpan += TimeSpan.FromHours(Convert.ToDouble(hours));
+            info.Metadata.Duration = timeSpan.TotalSeconds;
           }
         }
         else if (token.StartsWith("bitrate: ", StringComparison.InvariantCultureIgnoreCase))

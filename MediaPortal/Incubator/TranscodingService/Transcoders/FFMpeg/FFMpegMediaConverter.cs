@@ -248,8 +248,8 @@ namespace MediaPortal.Extensions.TranscodingService.Service.Transcoders.FFMpeg
       if (File.Exists(transcodingFile))
       {
         //Use non-partial transcode if possible
-        TranscodeContext existingContext = null;
-        if (await AssignExistingTranscodeContextAsync(clientId, video.TranscodeId, existingContext).ConfigureAwait(false))
+        TranscodeContext existingContext = await GetExistingTranscodeContextAsync(clientId, video.TranscodeId).ConfigureAwait(false);
+        if (existingContext != null)
         {
           existingContext.TargetFile = transcodingFile;
           if (existingContext.TranscodedStream == null)
@@ -302,8 +302,8 @@ namespace MediaPortal.Extensions.TranscodingService.Service.Transcoders.FFMpeg
         if (File.Exists(playlist) == true && File.Exists(segmentFile) == true)
         {
           //Use exisitng context if possible
-          TranscodeContext existingContext = null;
-          if (await AssignExistingTranscodeContextAsync(clientId, video.TranscodeId, existingContext).ConfigureAwait(false))
+          TranscodeContext existingContext = await GetExistingTranscodeContextAsync(clientId, video.TranscodeId).ConfigureAwait(false);
+          if (existingContext != null)
           {
             if (existingContext.LastSegment > requestedSegmentSequence)
             {
@@ -364,7 +364,7 @@ namespace MediaPortal.Extensions.TranscodingService.Service.Transcoders.FFMpeg
         _ffMpegCommandline.AddTranscodingThreadsParameters(!useX26XLib, ref data);
 
         int subCopyStream = -1;
-        if (video.PreferredSourceSubtitles != null)
+        if (video.PreferredSourceSubtitles.Any())
         {
           if (video.FirstPreferredSourceSubtitle.IsEmbedded)
           {
@@ -397,7 +397,7 @@ namespace MediaPortal.Extensions.TranscodingService.Service.Transcoders.FFMpeg
         var result = await _ffMpegCommandline.AddTargetVideoFormatAndOutputFileParametersAsync(video, transcodingFile, timeStart, data).ConfigureAwait(false);
         context.TargetFile = result.TranscodingFile;
         context.CurrentSegment = result.StartSegment;
-        if (video.PreferredSourceSubtitles != null)
+        if (video.PreferredSourceSubtitles.Any())
         {
           foreach (var sub in video.PreferredSourceSubtitles.SelectMany(s => s.Value))
           {
@@ -442,8 +442,8 @@ namespace MediaPortal.Extensions.TranscodingService.Service.Transcoders.FFMpeg
       if (File.Exists(transcodingFile))
       {
         //Use non-partial context if possible
-        TranscodeContext existingContext = null;
-        if (await AssignExistingTranscodeContextAsync(clientId, audio.TranscodeId, existingContext).ConfigureAwait(false))
+        TranscodeContext existingContext = await GetExistingTranscodeContextAsync(clientId, audio.TranscodeId).ConfigureAwait(false);
+        if (existingContext != null)
         {
           existingContext.TargetFile = transcodingFile;
           if (existingContext.TranscodedStream == null)
@@ -525,8 +525,8 @@ namespace MediaPortal.Extensions.TranscodingService.Service.Transcoders.FFMpeg
       if (File.Exists(transcodingFile) == true)
       {
         //Use existing context if possible
-        TranscodeContext existingContext = null;
-        if (await AssignExistingTranscodeContextAsync(clientId, image.TranscodeId, existingContext).ConfigureAwait(false))
+        TranscodeContext existingContext = await GetExistingTranscodeContextAsync(clientId, image.TranscodeId).ConfigureAwait(false);
+        if (existingContext != null)
         {
           existingContext.TargetFile = transcodingFile;
           if (existingContext.TranscodedStream == null)

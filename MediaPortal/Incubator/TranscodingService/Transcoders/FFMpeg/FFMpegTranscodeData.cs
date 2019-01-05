@@ -118,13 +118,13 @@ namespace MediaPortal.Extensions.TranscodingService.Service.Transcoders.FFMpeg
               {
                 result.Append("-i pipe: ");
               }
-              else if (InputResourceAccessor[sourceMediaIndex] is ILocalFsResourceAccessor)
+              else if (InputResourceAccessor[sourceMediaIndex] is ILocalFsResourceAccessor fileRes)
               {
-                result.Append("-i \"" + ((ILocalFsResourceAccessor)InputResourceAccessor[sourceMediaIndex]).LocalFileSystemPath + "\" ");
+                result.Append("-i \"" + fileRes.LocalFileSystemPath + "\" ");
               }
-              else if (InputResourceAccessor[sourceMediaIndex] is INetworkResourceAccessor)
+              else if (InputResourceAccessor[sourceMediaIndex] is INetworkResourceAccessor urlRes)
               {
-                var resolvedUrl = UrlHelper.ResolveHostToIPv4Url(((INetworkResourceAccessor)InputResourceAccessor[sourceMediaIndex]).URL);
+                var resolvedUrl = UrlHelper.ResolveHostToIPv4Url(urlRes.URL);
                 result.Append("-i \"" + resolvedUrl + "\" ");
               }
             }

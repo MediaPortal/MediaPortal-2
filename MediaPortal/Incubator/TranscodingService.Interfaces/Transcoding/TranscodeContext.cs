@@ -52,18 +52,8 @@ namespace MediaPortal.Extensions.TranscodingService.Interfaces.Transcoding
     public bool Partial { get; set; }
     public bool Segmented => !string.IsNullOrEmpty(SegmentDir);
     public bool Live { get; set; }
-    public bool InUse 
-    {
-      get { return _streamInUse; }
-      set
-      {
-        if (_streamInUse == true && value == false)
-        {
-          Stop();
-        }
-        _streamInUse = value;
-      }
-    }
+    public bool InUse { get; }
+
     public long LastSegment { get; set; }
     public long CurrentSegment { get; set; }
     public TimeSpan TargetDuration { get; set; }
@@ -243,6 +233,15 @@ namespace MediaPortal.Extensions.TranscodingService.Interfaces.Transcoding
       TranscodedStream = stream;
     }
 
+    public virtual void UpdateStreamUse(bool inUse)
+    {
+      if (_streamInUse == true && inUse == false)
+      {
+        Stop();
+      }
+      _streamInUse = inUse;
+    }
+
     public void Start()
     {
       lock (_syncLock)
@@ -290,8 +289,9 @@ namespace MediaPortal.Extensions.TranscodingService.Interfaces.Transcoding
 
     public void Dispose()
     {
-      Running = false;
+      Abort();
       _completeTask?.TrySetResult(true);
+      UpdateStreamUse(false);
       if (TranscodedStream != null)
         TranscodedStream.Dispose();
     }

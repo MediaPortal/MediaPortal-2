@@ -112,7 +112,7 @@ namespace MediaPortal.Extensions.TranscodingService.Service.Transcoders
       return _imageExtensions.Contains(ext);
     }
 
-    public abstract Task<MetadataContainer> ParseMediaStreamAsync(IResourceAccessor MediaResource);
+    public abstract Task<MetadataContainer> ParseMediaStreamAsync(IResourceAccessor MediaResource, string AnalysisName = null);
 
     private void CopyAspects(MediaItem SourceMediaItem, MediaItem DestinationMediaItem)
     {
@@ -222,47 +222,102 @@ namespace MediaPortal.Extensions.TranscodingService.Service.Transcoders
               ToDictionary(pra => pra.GetAttributeValue<int>(ProviderResourceAspect.ATTR_RESOURCE_INDEX), pra => new ResourceLocator(pra.GetAttributeValue<string>(ProviderResourceAspect.ATTR_SYSTEM_ID), ResourcePath.Deserialize(pra.GetAttributeValue<string>(ProviderResourceAspect.ATTR_RESOURCE_ACCESSOR_PATH))));
         }
 
-        //Analyze media
+        //Process media resources
+        Dictionary<int, (string Name, List<IResourceAccessor> Files)> processedResources = new Dictionary<int, (string, List<IResourceAccessor>)>();
         foreach (var res in resources)
         {
           IResourceAccessor mia = res.Value.CreateAccessor();
-          MetadataContainer info = await ParseMediaStreamAsync(mia).ConfigureAwait(false);
-          if (info == null)
+          if (!processedResources.ContainsKey(res.Key))
+            processedResources.Add(res.Key, (mia.ResourceName, new List<IResourceAccessor>()));
+          if (mia is ILocalFsResourceAccessor fileRes && !fileRes.IsFile)
           {
-            _logger.Error("MediaAnalyzer: Mediaitem {0} could not be parsed for information", Media.MediaItemId);
-            return null;
+            if (fileRes.ResourceExists("VIDEO_TS"))
+            {
+              using (IFileSystemResourceAccessor fsraVideoTs = fileRes.GetResource("VIDEO_TS"))
+              {
+                if (fsraVideoTs != null && fsraVideoTs.ResourceExists("VIDEO_TS.IFO"))
+                {
+                  using (var mainRes = fsraVideoTs.GetFiles().Where(f => f.ResourceName.EndsWith(".vob", StringComparison.InvariantCultureIgnoreCase)).OrderByDescending(f => f.Size).ThenBy(f => f.ResourceName).FirstOrDefault())
+                  {
+                    if (mainRes != null)
+                    {
+                      var fileMask = mainRes.ResourceName.Substring(0, mainRes.ResourceName.LastIndexOf("_"));
+                      var orderedFileList = fsraVideoTs.GetFiles().Where(f => f.ResourceName.StartsWith(fileMask, StringComparison.InvariantCultureIgnoreCase) &&
+                        !Path.GetFileNameWithoutExtension(f.ResourcePathName).EndsWith("_0") &&
+                        f.ResourceName.EndsWith(".vob", StringComparison.InvariantCultureIgnoreCase)).Select(f => f as ILocalFsResourceAccessor).OrderBy(f => f.ResourceName);
+                      foreach (var file in orderedFileList)
+                        processedResources[res.Key].Files.Add(file);
+                    }
+                  }
+                }
+              }
+            }
+            else if (fileRes.ResourceExists("BDMV"))
+            {
+              using (IFileSystemResourceAccessor fsraBDMV = fileRes.GetResource("BDMV"))
+              {
+                if (fsraBDMV != null && fsraBDMV.ResourceExists("index.bdmv") && fsraBDMV.ResourceExists("STREAM"))
+                {
+                  using (IFileSystemResourceAccessor fsraStream = fsraBDMV.GetResource("STREAM"))
+                  {
+                    var orderedFileList = fsraStream.GetFiles().Where(f => f.ResourceName.EndsWith(".m2ts", StringComparison.InvariantCultureIgnoreCase)).Select(f => f as ILocalFsResourceAccessor).OrderBy(f => f.ResourceName);
+                    processedResources[res.Key].Files.Add(orderedFileList.First());
+                  }
+                }
+              }
+            }
+            mia.Dispose();
           }
           else
           {
-            info.Metadata.Source = mia;
-
-            //Add external subtitles (embedded ones should already be included)
-            IList<MultipleMediaItemAspect> subtitleAspects;
-            if (MediaItemAspect.TryGetAspects(Media.Aspects, SubtitleAspect.Metadata, out subtitleAspects))
-            {
-              IResourceAccessor ra = null;
-              info.Subtitles.AddRange(subtitleAspects.Where(sa => sa.GetAttributeValue<int>(SubtitleAspect.ATTR_VIDEO_RESOURCE_INDEX) == res.Key && sa.GetAttributeValue<bool>(SubtitleAspect.ATTR_INTERNAL) == false &&
-                ResourcePath.Deserialize(providerAspects.FirstOrDefault(pra => pra.GetAttributeValue<int>(ProviderResourceAspect.ATTR_RESOURCE_INDEX) == sa.GetAttributeValue<int>(SubtitleAspect.ATTR_RESOURCE_INDEX))?.
-                    GetAttributeValue<string>(ProviderResourceAspect.ATTR_RESOURCE_ACCESSOR_PATH) ?? "").TryCreateLocalResourceAccessor(out ra) && ra is ILocalFsResourceAccessor).
-                Select(sa => new SubtitleStream
-                {
-                  StreamIndex = -1,
-                  CharacterEncoding = sa.GetAttributeValue<string>(SubtitleAspect.ATTR_SUBTITLE_ENCODING),
-                  Codec = SubtitleHelper.GetSubtitleCodec(sa.GetAttributeValue<string>(SubtitleAspect.ATTR_SUBTITLE_FORMAT)),
-                  Default = sa.GetAttributeValue<bool>(SubtitleAspect.ATTR_DEFAULT),
-                  Language = sa.GetAttributeValue<string>(SubtitleAspect.ATTR_SUBTITLE_LANGUAGE),
-                  IsPartial = resources.Count > 1,
-                  Source = (ra as ILocalFsResourceAccessor).LocalFileSystemPath
-                }));
-            }
+            processedResources[res.Key].Files.Add(mia);
           }
-          int edition = -1;
-          if (Media.HasEditions)
-            edition = Media.Editions.First(e => e.Value.PrimaryResourceIndexes.Contains(res.Key)).Key;
-          if (!mediaContainers.ContainsKey(edition))
-            mediaContainers.Add(edition, new List<MetadataContainer>());
+        }
 
-          mediaContainers[edition].Add(info);
+        //Analyze media
+        foreach (var res in processedResources)
+        {
+          int fileIndex = 0;
+          foreach (var file in res.Value.Files)
+          {
+            MetadataContainer info = await ParseMediaStreamAsync(file, $"{res.Value.Name}-{fileIndex++}").ConfigureAwait(false);
+            if (info == null)
+            {
+              _logger.Error("MediaAnalyzer: Mediaitem {0} could not be parsed for information", Media.MediaItemId);
+              return null;
+            }
+            else
+            {
+              info.Metadata.Source = file;
+
+              //Add external subtitles (embedded ones should already be included)
+              IList<MultipleMediaItemAspect> subtitleAspects;
+              if (MediaItemAspect.TryGetAspects(Media.Aspects, SubtitleAspect.Metadata, out subtitleAspects))
+              {
+                IResourceAccessor ra = null;
+                info.Subtitles.AddRange(subtitleAspects.Where(sa => sa.GetAttributeValue<int>(SubtitleAspect.ATTR_VIDEO_RESOURCE_INDEX) == res.Key && sa.GetAttributeValue<bool>(SubtitleAspect.ATTR_INTERNAL) == false &&
+                  ResourcePath.Deserialize(providerAspects.FirstOrDefault(pra => pra.GetAttributeValue<int>(ProviderResourceAspect.ATTR_RESOURCE_INDEX) == sa.GetAttributeValue<int>(SubtitleAspect.ATTR_RESOURCE_INDEX))?.
+                      GetAttributeValue<string>(ProviderResourceAspect.ATTR_RESOURCE_ACCESSOR_PATH) ?? "").TryCreateLocalResourceAccessor(out ra) && ra is ILocalFsResourceAccessor).
+                  Select(sa => new SubtitleStream
+                  {
+                    StreamIndex = -1,
+                    CharacterEncoding = sa.GetAttributeValue<string>(SubtitleAspect.ATTR_SUBTITLE_ENCODING),
+                    Codec = SubtitleHelper.GetSubtitleCodec(sa.GetAttributeValue<string>(SubtitleAspect.ATTR_SUBTITLE_FORMAT)),
+                    Default = sa.GetAttributeValue<bool>(SubtitleAspect.ATTR_DEFAULT),
+                    Language = sa.GetAttributeValue<string>(SubtitleAspect.ATTR_SUBTITLE_LANGUAGE),
+                    IsPartial = processedResources.Count > 1,
+                    Source = (ra as ILocalFsResourceAccessor).LocalFileSystemPath
+                  }));
+              }
+            }
+            int edition = -1;
+            if (Media.HasEditions)
+              edition = Media.Editions.First(e => e.Value.PrimaryResourceIndexes.Contains(res.Key)).Key;
+            if (!mediaContainers.ContainsKey(edition))
+              mediaContainers.Add(edition, new List<MetadataContainer>());
+
+            mediaContainers[edition].Add(info);
+          }
         }
         return mediaContainers;
       }
@@ -290,20 +345,13 @@ namespace MediaPortal.Extensions.TranscodingService.Service.Transcoders
       return "";
     }
 
-    protected async Task SaveAnalysisAsync(IResourceAccessor accessor, MetadataContainer analysis)
+    protected async Task SaveAnalysisAsync(IResourceAccessor accessor, MetadataContainer analysis, string analysisName)
     {
       try
       {
         string filePath = DEFAULT_ANALYSIS_CACHE_PATH;
-        if (accessor is ILocalFsResourceAccessor file)
-        {
-          filePath = Path.Combine(filePath, GetResourceCategory(file.ResourceName));
-          filePath = Path.Combine(filePath, $"{file.ResourceName}.analysis");
-        }
-        else
-        {
-          return;
-        }
+        filePath = Path.Combine(filePath, GetResourceCategory(accessor.ResourceName));
+        filePath = Path.Combine(filePath, $"{analysisName}.analysis");
         if (!File.Exists(filePath))
         {
           if (!Directory.Exists(Path.GetDirectoryName(filePath)))
@@ -319,16 +367,13 @@ namespace MediaPortal.Extensions.TranscodingService.Service.Transcoders
       }
     }
 
-    protected async Task<MetadataContainer> LoadAnalysisAsync(IResourceAccessor accessor)
+    protected async Task<MetadataContainer> LoadAnalysisAsync(IResourceAccessor accessor, string analysisName)
     {
       try
       {
         string filePath = DEFAULT_ANALYSIS_CACHE_PATH;
-        if (accessor is ILocalFsResourceAccessor file)
-        {
-          filePath = Path.Combine(filePath, GetResourceCategory(file.ResourceName));
-          filePath = Path.Combine(filePath, $"{file.ResourceName}.analysis");
-        }
+        filePath = Path.Combine(filePath, GetResourceCategory(accessor.ResourceName));
+        filePath = Path.Combine(filePath, $"{analysisName}.analysis");
         if (File.Exists(filePath))
         {
           MetadataContainer info = null;

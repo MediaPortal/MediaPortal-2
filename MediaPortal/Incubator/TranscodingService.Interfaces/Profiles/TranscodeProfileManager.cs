@@ -40,6 +40,7 @@ using MediaPortal.Extensions.TranscodingService.Interfaces.Metadata.Streams;
 using System.Linq;
 using MediaPortal.Extensions.TranscodingService.Interfaces.Analyzers;
 using System.Threading.Tasks;
+using MediaPortal.Common.ResourceAccess;
 
 //Thanks goes to the Serviio team over at http://www.serviio.org/
 //Their profile structure was inspiring and the community driven DLNA profiling is very effective 
@@ -763,7 +764,7 @@ namespace MediaPortal.Extensions.TranscodingService.Interfaces.Profiles
     private int GetPreferredAudioStream(MetadataContainer info, IEnumerable<string> preferredAudioLanguages)
     {
       int matchedAudioStream = info.FirstAudioStream?.StreamIndex ?? -1;
-      if (preferredAudioLanguages.Any())
+      if (preferredAudioLanguages?.Any() ?? false)
       {
         List<string> valuesLangs = preferredAudioLanguages.ToList();
         int currentPriority = -1;

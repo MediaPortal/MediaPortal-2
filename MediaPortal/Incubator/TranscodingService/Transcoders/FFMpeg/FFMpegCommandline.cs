@@ -180,6 +180,7 @@ namespace MediaPortal.Extensions.TranscodingService.Service.Transcoders.FFMpeg
       foreach (var mediaSourceIndex in sourceFiles.Keys)
         data.InputArguments.Add(mediaSourceIndex, new List<string>());
 
+      data.GlobalArguments.Add("-hide_banner");
       data.InputResourceAccessor = sourceFiles;
       AddInputOptions(ref data);
       data.OutputArguments.Add("-y");
@@ -901,12 +902,13 @@ namespace MediaPortal.Extensions.TranscodingService.Service.Transcoders.FFMpeg
         string vidFilter = GetVideoFilters(video, out newSize, data);
         if (video.SourceMedia.Count > 1 || !string.IsNullOrEmpty(vidFilter))
         {
-          //Add video graph
+          //Add video and audio graphs
           int inputNo = 0;
+          int audioCount = 0;
           foreach (var media in video.SourceMedia)
           {
             data.OutputFilter.Add(string.Format("[{0}:v:{1}]", inputNo, video.SourceVideoStreams[media.Key].StreamIndex)); //Only first video stream supported
-            if (video.PreferredSourceSubtitles != null && video.TargetSubtitleSupport == SubtitleSupport.HardCoded)
+            if (video.PreferredSourceSubtitles.Any() && video.TargetSubtitleSupport == SubtitleSupport.HardCoded)
             {
               foreach (var sub in video.PreferredSourceSubtitles[media.Key])
               {
@@ -916,24 +918,13 @@ namespace MediaPortal.Extensions.TranscodingService.Service.Transcoders.FFMpeg
                 data.OutputFilter.Add(GetSubtitleFilter(data.InputResourceAccessor.Count + data.InputSubtitleFilePaths.Count - 1, video, sub, newSize, data));
               }
             }
-            data.OutputFilter.Add(string.Format("[v{0}];", inputNo));
-            inputNo++;
-          }
-
-          //Add audio graph
-          inputNo = 0;
-          int audioCount = 0;
-          foreach (var media in video.SourceMedia)
-          {
-            audioCount = 0;
-            data.OutputFilter.Add(string.Format("[v{0}]", inputNo));
             if (Checks.AreMultipleAudioStreamsSupported(video))
             {
-              foreach(var audio in video.SourceAudioStreams)
+              foreach (var audio in video.SourceAudioStreams)
               {
                 data.OutputFilter.Add(string.Format("[{0}:a:{1}]", inputNo, audio.Key));
                 audioCount++;
-              }             
+              }
             }
             else
             {
@@ -946,12 +937,12 @@ namespace MediaPortal.Extensions.TranscodingService.Service.Transcoders.FFMpeg
 
           if (string.IsNullOrEmpty(vidFilter))
           {
-            data.OutputFilter.Add(string.Format(" concat=n={0}:v=1:a={1}[v][a]", video.SourceMedia.Count, audioCount));
+            data.OutputFilter.Add(string.Format("concat=n={0}:v=1:a={1}[v][a]", video.SourceMedia.Count, audioCount));
           }
           else
           {
-            data.OutputFilter.Add(string.Format(" concat=n={0}:v=1:a={1}[vf][a];", video.SourceMedia.Count, audioCount));
-            data.OutputFilter.Add(string.Format(" [vf]{0}[v]", vidFilter));
+            data.OutputFilter.Add(string.Format("concat=n={0}:v=1:a={1}[vf][a];", video.SourceMedia.Count, audioCount));
+            data.OutputFilter.Add(string.Format("[vf]{0}[v]", vidFilter));
           }
           data.OutputArguments.Add("-map \"[v]\"");
           data.OutputArguments.Add("-map \"[a]\"");
@@ -974,12 +965,13 @@ namespace MediaPortal.Extensions.TranscodingService.Service.Transcoders.FFMpeg
 
           if (video.PreferredSourceSubtitles?.Count > 0)
           {
+            var subList = video.SourceSubtitles.First().Value.Where(s => s.IsEmbedded).OrderBy(s => s.StreamIndex).ToList();
             foreach (var sub in video.PreferredSourceSubtitles.SelectMany(s => s.Value).Where(s => !s.IsPartial))
             {
               if (sub.IsEmbedded)
               {
-                data.AddSubtitle(-1, sub.Source);
-                data.OutputArguments.Add(string.Format("-map {0}:s:{1}", data.InputResourceAccessor.Count + data.InputSubtitleFilePaths.Count - 1, sub.StreamIndex));
+                var sourceSub = subList.First(s => s.StreamIndex == sub.StreamIndex);
+                data.OutputArguments.Add(string.Format("-map 0:s:{0}", subList.IndexOf(sourceSub)));
               }
             }
           }

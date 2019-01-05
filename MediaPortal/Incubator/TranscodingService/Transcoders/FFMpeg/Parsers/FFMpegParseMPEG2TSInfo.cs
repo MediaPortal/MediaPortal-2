@@ -33,20 +33,21 @@ namespace MediaPortal.Extensions.TranscodingService.Service.Transcoders.FFMpeg.P
 {
   public class FFMpegParseMPEG2TSInfo
   {
-    internal static void ParseMPEG2TSInfo(ref MetadataContainer info)
+    internal static void ParseMPEG2TSInfo(MetadataContainer info, IResourceAccessor res)
     {
       if (info.Metadata.VideoContainerType == VideoContainer.Mpeg2Ts || info.Metadata.VideoContainerType == VideoContainer.M2Ts)
       {
         info.Video.TimestampType = Timestamp.None;
         FileStream raf = null;
-        ILocalFsResourceAccessor lfsra = (ILocalFsResourceAccessor)info.Metadata.Source;
+        if (!(res is ILocalFsResourceAccessor fileRes) || !fileRes.IsFile)
+          return;
 
         // Impersonation
-        using (ServiceRegistration.Get<IImpersonationService>().CheckImpersonationFor(lfsra.CanonicalLocalResourcePath))
+        using (ServiceRegistration.Get<IImpersonationService>().CheckImpersonationFor(res.CanonicalLocalResourcePath))
         {
           try
           {
-            raf = File.Open(lfsra.LocalFileSystemPath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
+            raf = File.Open(fileRes.LocalFileSystemPath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
             byte[] packetBuffer = new byte[193];
             raf.Read(packetBuffer, 0, packetBuffer.Length);
             if (packetBuffer[0] == 0x47) //Sync byte (Standard MPEG2 TS)
