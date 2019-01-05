@@ -23,6 +23,12 @@
 #endregion
 
 using System;
+using System.Linq;
+using MediaPortal.Common;
+using MediaPortal.Common.MediaManagement;
+using MediaPortal.Plugins.SlimTv.Interfaces;
+using MediaPortal.Plugins.SlimTv.Interfaces.Items;
+using MediaPortal.Plugins.SlimTv.Interfaces.LiveTvMediaItem;
 using MediaPortal.Plugins.WifiRemote.Messages.Now_Playing;
 
 namespace MediaPortal.Plugins.WifiRemote
@@ -115,32 +121,31 @@ namespace MediaPortal.Plugins.WifiRemote
     /// <summary>
     /// Constructor
     /// </summary>
-    public NowPlayingTv()
+    public NowPlayingTv(MediaItem mediaItem)
     {
-      /*TvDatabase.Channel current = MpTvServerHelper.GetCurrentTimeShiftingTVChannel();
-      if (current != null)
+      if (mediaItem is LiveTvMediaItem tvItem && tvItem.TimeshiftContexes.FirstOrDefault()?.Channel is IChannel channel)
       {
-        ChannelId = current.IdChannel;
-        ChannelName = current.DisplayName;
+        ITvHandler tvHandler = ServiceRegistration.Get<ITvHandler>();
+        var result = tvHandler.ProgramInfo.GetNowNextProgramAsync(channel).Result;
 
-        if (current.CurrentProgram != null)
-        {
-          CurrentProgramId = current.CurrentProgram.IdProgram;
-          CurrentProgramName = current.CurrentProgram.Title;
-          CurrentProgramDescription = current.CurrentProgram.Description;
-          CurrentProgramBegin = current.CurrentProgram.StartTime;
-          CurrentProgramEnd = current.CurrentProgram.EndTime;
-        }
+        ChannelId = channel.ChannelId;
+        ChannelName = channel.Name;
 
-        if (current.NextProgram != null)
+        if (result.Success)
         {
-          NextProgramId = current.NextProgram.IdProgram;
-          NextProgramName = current.NextProgram.Title;
-          NextProgramDescription = current.NextProgram.Description;
-          NextProgramBegin = current.NextProgram.StartTime;
-          NextProgramEnd = current.NextProgram.EndTime;
+          CurrentProgramId = result.Result[0].ProgramId;
+          CurrentProgramName = result.Result[0].Title;
+          CurrentProgramDescription = result.Result[0].Description;
+          CurrentProgramBegin = result.Result[0].StartTime;
+          CurrentProgramEnd = result.Result[0].EndTime;
+
+          NextProgramId = result.Result[1].ProgramId;
+          NextProgramName = result.Result[1].Title;
+          NextProgramDescription = result.Result[1].Description;
+          NextProgramBegin = result.Result[1].StartTime;
+          NextProgramEnd = result.Result[1].EndTime;
         }
-      }*/
+      }
     }
   }
 }

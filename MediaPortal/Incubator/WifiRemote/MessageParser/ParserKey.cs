@@ -25,6 +25,9 @@
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using Deusty.Net;
+using MediaPortal.Common;
+using MediaPortal.Common.Logging;
+using MediaPortal.UI.Control.InputManager;
 using Newtonsoft.Json.Linq;
 
 namespace MediaPortal.Plugins.WifiRemote.MessageParser
@@ -35,10 +38,12 @@ namespace MediaPortal.Plugins.WifiRemote.MessageParser
     {
       string key = (string)message["Key"];
       string modifier = (message["Modifier"] != null) ? (string)message["Modifier"] : null;
+      ServiceRegistration.Get<ILogger>().Debug("WifiRemote Parser Key: Key: {0}", key);
 
       if (key == "{DONE}")
       {
         //TODO: simulate pressing "done" on the virtual keyboard -> needs MediaPortal patch
+        ServiceRegistration.Get<IInputManager>().KeyPress(Key.Enter);
       }
       else
       {

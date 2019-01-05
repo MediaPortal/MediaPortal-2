@@ -28,48 +28,105 @@ using MediaPortal.Common.Settings;
 namespace MediaPortal.Plugins.WifiRemote.Settings
 {
   /// <summary>
-  /// Settings class for IrInputPlugin.
+  /// Settings class for WifiRemote.
   /// </summary>
   public class WifiRemoteSettings
   {
     #region Variables
 
-    protected string _serverHost;
-    protected List<string> _remoteMap;
+    protected string _user = "user";
+    protected string _password = "mediaportal";
+    protected string _passCode = "mediaportal";
+    protected int _port = 8017;
+    protected bool _enableBonjour = true;
+    protected string _serviceName = "MP2 Wifi Remote";
+    protected int _authenticationMethod = 1;
+    protected int _autoLoginTimeout = 0;
 
     #endregion Variables
 
     #region Properties
 
     /// <summary>
-    /// Gets or sets the server host.
+    /// Gets or sets the user name to use for athentication.
     /// </summary>
-    [Setting(SettingScope.Global, "localhost")]
-    public string ServerHost
+    [Setting(SettingScope.Global, "user")]
+    public string UserName
     {
-      get { return _serverHost; }
-      set { _serverHost = value; }
+      get { return _user; }
+      set { _user = value; }
     }
 
     /// <summary>
-    /// Gets or sets the remote map.
+    /// Gets or sets the user password to use for athentication.
     /// </summary>
-    [Setting(SettingScope.User)]
-    public ICollection<string> RemoteMap
+    [Setting(SettingScope.Global, "mediaportal")]
+    public string Password
     {
-      get { return _remoteMap; }
+      get { return _password; }
+      set { _password = value; }
+    }
+
+    /// <summary>
+    /// Gets or sets the pass code to use for athentication.
+    /// </summary>
+    [Setting(SettingScope.Global, "mediaportal")]
+    public string PassCode
+    {
+      get { return _passCode; }
+      set { _passCode = value; }
+    }
+
+    /// <summary>
+    /// Gets or sets the server port to use.
+    /// </summary>
+    [Setting(SettingScope.Global, 8017)]
+    public int Port
+    {
+      get { return _port; }
+      set { _port = value; }
+    }
+
+    /// <summary>
+    /// Gets or sets whether Bonjour (Zero config) should be enabled.
+    /// </summary>
+    [Setting(SettingScope.Global, true)]
+    public bool EnableBonjour
+    {
+      get { return _enableBonjour; }
+      set { _enableBonjour = value; }
+    }
+
+    /// <summary>
+    /// Gets or sets the pass code to use for athentication.
+    /// </summary>
+    [Setting(SettingScope.Global, "MP2 Wifi Remote")]
+    public string ServiceName
+    {
+      get { return _serviceName; }
+      set { _serviceName = value; }
+    }
+
+    /// <summary>
+    /// Gets or sets the authentication method to use.
+    /// </summary>
+    [Setting(SettingScope.Global, 1)]
+    public int AuthenticationMethod
+    {
+      get { return _authenticationMethod; }
+      set { _authenticationMethod = value; }
+    }
+
+    /// <summary>
+    /// Gets or sets the auto login timeout.
+    /// </summary>
+    [Setting(SettingScope.Global, 0)]
+    public int AutoLoginTimeout
+    {
+      get { return _autoLoginTimeout; }
+      set { _autoLoginTimeout = value; }
     }
 
     #endregion Properties
-
-    #region Additional members for the XML serialization
-
-    public List<string> XML_RemoteMap
-    {
-      get { return _remoteMap; }
-      set { _remoteMap = value; }
-    }
-
-    #endregion
   }
 }

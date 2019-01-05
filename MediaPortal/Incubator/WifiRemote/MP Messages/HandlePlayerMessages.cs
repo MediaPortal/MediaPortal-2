@@ -43,29 +43,29 @@ namespace MediaPortal.Plugins.WifiRemote.MP_Messages
       switch (messageType)
       {
         case PlayerManagerMessaging.MessageType.PlayerResumeState:
-          Logger.Debug("Player Resume");
+          Logger.Debug("WifiRemote Status: Player Resume");
           //Resume();
           break;
         case PlayerManagerMessaging.MessageType.PlaybackStateChanged:
-          Logger.Debug("Player PlaybackStateChanged");
-          SendMessageToAllClients.Send(WifiRemote.MessageStatus, ref SocketServer.Instance.connectedSockets);
+          Logger.Debug("WifiRemote Status: Playback State Changed");
+          SendMessageToAllClients.Send(WifiRemotePlugin.MessageStatus, ref SocketServer.Instance.connectedSockets);
           break;
         case PlayerManagerMessaging.MessageType.PlayerError:
-          Logger.Error("Player Error");
+          Logger.Error("WifiRemote Status: Player Error");
           break;
         case PlayerManagerMessaging.MessageType.PlayerEnded:
         case PlayerManagerMessaging.MessageType.PlayerStopped:
-          Logger.Debug("Player Stopped or Ended");
-          SendMessageToAllClients.Send(WifiRemote.MessageStatus, ref SocketServer.Instance.connectedSockets);
+          Logger.Debug("WifiRemote Status: Player Stopped or Ended");
+          SendMessageToAllClients.Send(WifiRemotePlugin.MessageStatus, ref SocketServer.Instance.connectedSockets);
           NowPlayingUpdater.Stop();
           break;
         case PlayerManagerMessaging.MessageType.PlayerStarted:
-          Logger.Debug("Player Started");
-          SendMessageToAllClients.Send(WifiRemote.MessageStatus, ref SocketServer.Instance.connectedSockets);
+          Logger.Debug("WifiRemote Status: Player Started");
+          SendMessageToAllClients.Send(WifiRemotePlugin.MessageStatus, ref SocketServer.Instance.connectedSockets);
           NowPlayingUpdater.Start();
           break;
         case PlayerManagerMessaging.MessageType.VolumeChanged:
-          Logger.Debug("Volume changed");
+          Logger.Debug("WifiRemote Status: Volume changed");
           SendMessageToAllClients.Send(new MessageVolume(), ref SocketServer.Instance.connectedSockets);
           break;
       }

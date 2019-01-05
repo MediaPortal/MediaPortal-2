@@ -192,7 +192,7 @@ namespace MediaPortal.Plugins.WifiRemote.Utils
             }
 
             Image image = (width > 0) ? ImageHelper.ResizedImage(Screenshot, width) : Screenshot;
-            return ImageHelper.imageToByteArray(image, System.Drawing.Imaging.ImageFormat.Jpeg);
+            return ImageHelper.ImageToByteArray(image, System.Drawing.Imaging.ImageFormat.Jpeg);
         }
 
         /// <summary>
@@ -256,7 +256,7 @@ namespace MediaPortal.Plugins.WifiRemote.Utils
         /// </summary>
         /// <param name="img"></param>
         /// <returns></returns>
-        public static byte[] imageToByteArray(Image img, System.Drawing.Imaging.ImageFormat format)
+        public static byte[] ImageToByteArray(Image img, System.Drawing.Imaging.ImageFormat format)
         {
             byte[] byteArray = new byte[0];
             using (MemoryStream stream = new MemoryStream())
@@ -265,7 +265,6 @@ namespace MediaPortal.Plugins.WifiRemote.Utils
                 stream.Close();
                 byteArray = stream.ToArray();
             }
-
             return byteArray;
         }
 

@@ -22,6 +22,8 @@
 
 #endregion
 
+using MediaPortal.Common;
+using MediaPortal.Plugins.SlimTv.Interfaces;
 using System;
 using System.Collections.Generic;
 
@@ -30,7 +32,7 @@ namespace MediaPortal.Plugins.WifiRemote.Messages
   internal class MessageWelcome : IMessage
   {
     private string type = "welcome";
-    private int server_version = 17;
+    private int server_version = 20;
     private AuthMethod authMethod = AuthMethod.UserPassword;
 
     /// <summary>
@@ -65,9 +67,9 @@ namespace MediaPortal.Plugins.WifiRemote.Messages
       {
         return new Dictionary<string, bool>()
         {
-          { "MAS", false },
-          { "TAS", false },
-          { "WSS", false }
+          { "MAS", true },
+          { "TAS", ServiceRegistration.IsRegistered<ITvHandler>() },
+          { "WSS", true }
         };
       }
     }

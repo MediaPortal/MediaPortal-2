@@ -40,7 +40,7 @@ namespace MediaPortal.Plugins.WifiRemote
         /// <returns>remote client</returns>
         public static RemoteClient GetRemoteClient(this AsyncSocket socket)
         {
-            return remoteClient;
+            return RemoteClient;
         }
 
         /// <summary>
@@ -50,12 +50,12 @@ namespace MediaPortal.Plugins.WifiRemote
         /// <param name="client">remote clien</param>
         public static void SetRemoteClient(this AsyncSocket socket, RemoteClient client)
         {
-            remoteClient = client;
+            RemoteClient = client;
         }
 
         /// <summary>
         /// Remote client associated with this socket
         /// </summary>
-        public static RemoteClient remoteClient { get; set; }
+        public static RemoteClient RemoteClient { get; set; }
     }
 }

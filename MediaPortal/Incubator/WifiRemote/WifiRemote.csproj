@@ -50,6 +50,8 @@
     <Compile Include="AutoLoginToken.cs" />
     <Compile Include="Data.cs" />
     <Compile Include="MessageParser\ParserCommand.cs" />
+    <Compile Include="MessageParser\ParserImage.cs" />
+    <Compile Include="MessageParser\ParserTVSeries.cs" />
     <Compile Include="MessageParser\ParserRequeststatus.cs" />
     <Compile Include="MessageParser\ParserPlaychannel.cs" />
     <Compile Include="MessageParser\ParserScreenshot.cs" />
@@ -71,6 +73,7 @@
     <Compile Include="Messages\MessagePlaylistDetails.cs" />
     <Compile Include="Messages\MessagePlaylists.cs" />
     <Compile Include="Messages\MessageProperties.cs" />
+    <Compile Include="Messages\MessageImage.cs" />
     <Compile Include="Messages\MessageScreenshot.cs" />
     <Compile Include="Messages\MessageStatus.cs" />
     <Compile Include="Messages\MessageVolume.cs" />
@@ -97,11 +100,18 @@
     <Compile Include="SendMessages\SendMessageOverviewInformation.cs" />
     <Compile Include="SendMessages\SendMessageToAllClients.cs" />
     <Compile Include="SendMessages\SendMessageToClient.cs" />
+    <Compile Include="Settings\Configuration\AuthenticationMethod.cs" />
+    <Compile Include="Settings\Configuration\Passcode.cs" />
+    <Compile Include="Settings\Configuration\Password.cs" />
+    <Compile Include="Settings\Configuration\AutoLoginTimeout.cs" />
+    <Compile Include="Settings\Configuration\UserName.cs" />
+    <Compile Include="Settings\Configuration\EnableBonjour.cs" />
+    <Compile Include="Settings\Configuration\Port.cs" />
     <Compile Include="Settings\WifiRemoteSettings.cs" />
     <Compile Include="SocketServer.cs" />
     <Compile Include="Helper.cs" />
     <Compile Include="Utils\ImageHelper.cs" />
-    <Compile Include="WifiRemote.cs" />
+    <Compile Include="WifiRemotePlugin.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ZeroConfig.cs" />
   </ItemGroup>
@@ -140,6 +150,9 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <Content Include="Language\strings_en.xml">
+      <SubType>Designer</SubType>
+    </Content>
     <Content Include="plugin.xml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>

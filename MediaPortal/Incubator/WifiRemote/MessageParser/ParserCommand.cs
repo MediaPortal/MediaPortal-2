@@ -51,7 +51,7 @@ namespace MediaPortal.Plugins.WifiRemote.MessageParser
 
     public static Task<bool> ParseAsync(JObject message, SocketServer server, AsyncSocket sender)
     {
-      ServiceRegistration.Get<ILogger>().Debug("ParserCommand: command: {0}", (string)message["Command"]);
+      ServiceRegistration.Get<ILogger>().Debug("WifiRemote Parser Command: Command: {0}", (string)message["Command"]);
       SendCommand((string)message["Command"]);
       return Task.FromResult(true);
     }
@@ -126,11 +126,11 @@ namespace MediaPortal.Plugins.WifiRemote.MessageParser
           break;
 
         case "replay":
-          //button = RemoteButton.Replay;
+          button = Key.Previous;
           break;
 
         case "skip":
-          //button = Key.Skip;
+          button = Key.Next;
           break;
 
         case "back":
@@ -189,45 +189,18 @@ namespace MediaPortal.Plugins.WifiRemote.MessageParser
           button = Key.DVDMenu;
           break;
 
-        /*case "0":
-          button = RemoteButton.NumPad0;
-          break;
-
-        case "1":
-          button = RemoteButton.NumPad1;
-          break;
-
-        case "2":
-          button = RemoteButton.NumPad2;
-          break;
-
-        case "3":
-          button = RemoteButton.NumPad3;
-          break;
-
-        case "4":
-          button = RemoteButton.NumPad4;
-          break;
-
-        case "5":
-          button = RemoteButton.NumPad5;
-          break;
-
-        case "6":
-          button = RemoteButton.NumPad6;
-          break;
-
-        case "7":
-          button = RemoteButton.NumPad7;
-          break;
-
-        case "8":
-          button = RemoteButton.NumPad8;
-          break;
-
-        case "9":
-          button = RemoteButton.NumPad9;
-          break;*/
+        //case "0":
+        //case "1":
+        //case "2":
+        //case "3":
+        //case "4":
+        //case "5":
+        //case "6":
+        //case "7":
+        //case "8":
+        //case "9":
+        //  button = new Key(command.ToLower());
+        //  break;
 
         case "clear":
           button = Key.Clear;
@@ -278,7 +251,7 @@ namespace MediaPortal.Plugins.WifiRemote.MessageParser
           break;
 
         case "dvd":
-          //button = Key.PlayDVD;
+          button = Key.DVDMenu;
           break;
 
         case "playlists":
@@ -369,7 +342,8 @@ namespace MediaPortal.Plugins.WifiRemote.MessageParser
           break;
       }
 
-      if (button != null) ServiceRegistration.Get<IInputManager>().KeyPress(button);
+      if (button != null)
+        ServiceRegistration.Get<IInputManager>().KeyPress(button);
     }
   }
 }

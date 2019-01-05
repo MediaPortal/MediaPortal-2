@@ -39,6 +39,10 @@ using MediaPortal.Common.Services.ResourceAccess.Settings;
 using System.Net.Sockets;
 using System.Net;
 using MediaPortal.Common.Settings;
+using MediaPortal.Common.UserManagement;
+using MediaPortal.Common.SystemCommunication;
+using MediaPortal.Common.SystemResolver;
+using MediaPortal.Utilities;
 
 namespace MediaPortal.Plugins.WifiRemote
 {
@@ -65,13 +69,146 @@ namespace MediaPortal.Plugins.WifiRemote
       optionalMIATypes.Add(VideoAspect.ASPECT_ID);
       optionalMIATypes.Add(MovieAspect.ASPECT_ID);
       optionalMIATypes.Add(SeriesAspect.ASPECT_ID);
-
+      optionalMIATypes.Add(ImageAspect.ASPECT_ID);
 
       IFilter searchFilter = new MediaItemIdFilter(id);
-      MediaItemQuery searchQuery = new MediaItemQuery(necessaryMIATypes, optionalMIATypes, searchFilter) { Limit = 1 };
-      IList<MediaItem> items = await ServiceRegistration.Get<IServerConnectionManager>().ContentDirectory.SearchAsync(searchQuery, false, null, false);
+      IList<MediaItem> items = await SearchAsync(necessaryMIATypes, optionalMIATypes, searchFilter, 1);
 
       return items[0];
+    }
+
+    internal static async Task<MediaItem> GetMediaItemByNameAsync(string name)
+    {
+      ISet<Guid> necessaryMIATypes = new HashSet<Guid>();
+      necessaryMIATypes.Add(MediaAspect.ASPECT_ID);
+      necessaryMIATypes.Add(ProviderResourceAspect.ASPECT_ID);
+      necessaryMIATypes.Add(ImporterAspect.ASPECT_ID);
+
+      ISet<Guid> optionalMIATypes = new HashSet<Guid>();
+      optionalMIATypes.Add(AudioAspect.ASPECT_ID);
+      optionalMIATypes.Add(VideoAspect.ASPECT_ID);
+      optionalMIATypes.Add(MovieAspect.ASPECT_ID);
+      optionalMIATypes.Add(SeriesAspect.ASPECT_ID);
+      optionalMIATypes.Add(ImageAspect.ASPECT_ID);
+
+      IFilter searchFilter = new RelationalFilter(MediaAspect.ATTR_TITLE, RelationalOperator.EQ, name);
+      IList<MediaItem> items = await SearchAsync(necessaryMIATypes, optionalMIATypes, searchFilter, 1);
+
+      return items[0];
+    }
+
+    internal static async Task<MediaItem> GetMediaItemByMovieNameAsync(string movieName)
+    {
+      ISet<Guid> necessaryMIATypes = new HashSet<Guid>();
+      necessaryMIATypes.Add(MediaAspect.ASPECT_ID);
+      necessaryMIATypes.Add(ProviderResourceAspect.ASPECT_ID);
+      necessaryMIATypes.Add(ImporterAspect.ASPECT_ID);
+      necessaryMIATypes.Add(VideoAspect.ASPECT_ID);
+      necessaryMIATypes.Add(MovieAspect.ASPECT_ID);
+
+      ISet<Guid> optionalMIATypes = new HashSet<Guid>();
+
+      IFilter searchFilter = new RelationalFilter(MovieAspect.ATTR_MOVIE_NAME, RelationalOperator.EQ, movieName);
+      IList<MediaItem> items = await SearchAsync(necessaryMIATypes, optionalMIATypes, searchFilter, 1);
+
+      return items[0];
+    }
+
+    internal static async Task<MediaItem> GetMediaItemBySeriesNameAsync(string seriesName)
+    {
+      ISet<Guid> necessaryMIATypes = new HashSet<Guid>();
+      necessaryMIATypes.Add(MediaAspect.ASPECT_ID);
+      necessaryMIATypes.Add(ProviderResourceAspect.ASPECT_ID);
+      necessaryMIATypes.Add(ImporterAspect.ASPECT_ID);
+      necessaryMIATypes.Add(SeriesAspect.ASPECT_ID);
+
+      ISet<Guid> optionalMIATypes = new HashSet<Guid>();
+
+      IFilter searchFilter = new RelationalFilter(SeriesAspect.ATTR_SERIES_NAME, RelationalOperator.EQ, seriesName);
+      IList<MediaItem> items = await SearchAsync(necessaryMIATypes, optionalMIATypes, searchFilter, 1);
+
+      return items[0];
+    }
+
+    internal static Task<IList<MediaItem>> GetMediaItemsByEpisodeAsync(Guid seriesId, int seasonNo, int episodeNo)
+    {
+      ISet<Guid> necessaryMIATypes = new HashSet<Guid>();
+      necessaryMIATypes.Add(MediaAspect.ASPECT_ID);
+      necessaryMIATypes.Add(ProviderResourceAspect.ASPECT_ID);
+      necessaryMIATypes.Add(ImporterAspect.ASPECT_ID);
+      necessaryMIATypes.Add(EpisodeAspect.ASPECT_ID);
+
+      ISet<Guid> optionalMIATypes = new HashSet<Guid>();
+
+      IFilter filter = new RelationalFilter(EpisodeAspect.ATTR_SEASON, RelationalOperator.EQ, seasonNo);
+      filter = BooleanCombinationFilter.CombineFilters(BooleanOperator.And, filter, new InFilter(EpisodeAspect.ATTR_EPISODE, new object[] { episodeNo }));
+      return GetMediaItemsByGroupAsync(EpisodeAspect.ROLE_EPISODE, SeriesAspect.ROLE_SERIES, seriesId, necessaryMIATypes, optionalMIATypes, filter);
+    }
+
+    internal static Task<IList<MediaItem>> GetMediaItemsBySeriesAsync(Guid seriesId)
+    {
+      ISet<Guid> necessaryMIATypes = new HashSet<Guid>();
+      necessaryMIATypes.Add(MediaAspect.ASPECT_ID);
+      necessaryMIATypes.Add(ProviderResourceAspect.ASPECT_ID);
+      necessaryMIATypes.Add(ImporterAspect.ASPECT_ID);
+      necessaryMIATypes.Add(EpisodeAspect.ASPECT_ID);
+
+      ISet<Guid> optionalMIATypes = new HashSet<Guid>();
+
+      return GetMediaItemsByGroupAsync(EpisodeAspect.ROLE_EPISODE, SeriesAspect.ROLE_SERIES, seriesId, necessaryMIATypes, optionalMIATypes);
+    }
+
+    internal static Task<IList<MediaItem>> GetMediaItemsByGroupAsync(Guid itemRole, Guid groupRole, Guid groupId, ISet<Guid> necessaryMIATypes, ISet<Guid> optionalMIATypes, IFilter filter = null)
+    {
+      if (filter != null)
+        filter = BooleanCombinationFilter.CombineFilters(BooleanOperator.And, filter, new RelationshipFilter(itemRole, groupRole, groupId));
+      else
+        filter = new RelationshipFilter(itemRole, groupRole, groupId);
+      return SearchAsync(necessaryMIATypes, optionalMIATypes, filter);
+    }
+
+    private static async Task<IList<MediaItem>> SearchAsync(ISet<Guid> necessaryMIATypes, ISet<Guid> optionalMIATypes, IFilter filter, uint? limit = null)
+    {
+      var scm = ServiceRegistration.Get<IServerConnectionManager>();
+      var library = scm.ContentDirectory;
+      var userProfileDataManagement = ServiceRegistration.Get<IUserManagement>();
+      if (userProfileDataManagement.CurrentUser != null)
+      {
+        ISystemResolver systemResolver = ServiceRegistration.Get<ISystemResolver>();
+        IDictionary<Guid, Share> serverShares = new Dictionary<Guid, Share>();
+        ICollection<Share> shares = await library.GetSharesAsync(systemResolver.LocalSystemId, SharesFilter.All);
+        var userFilter = userProfileDataManagement.CurrentUser.GetUserFilter(necessaryMIATypes, shares);
+        filter = filter == null ? userFilter : userFilter != null ? BooleanCombinationFilter.CombineFilters(BooleanOperator.And, filter, userFilter) : filter;
+
+        MediaItemQuery searchQuery = new MediaItemQuery(necessaryMIATypes, optionalMIATypes, filter) { Limit = limit };
+        return await library.SearchAsync(searchQuery, false, userProfileDataManagement.CurrentUser.ProfileId, false);
+      }
+
+      return new List<MediaItem>();
+    }
+
+    internal static async Task<IEnumerable<MediaItem>> LoadPlayListsAsync(Guid playlistId)
+    {
+      IContentDirectory cd = ServiceRegistration.Get<IServerConnectionManager>().ContentDirectory;
+      Guid[] necessaryMIATypes = new Guid[]
+      {
+              ProviderResourceAspect.ASPECT_ID,
+              MediaAspect.ASPECT_ID,
+      };
+      Guid[] optionalMIATypes = new Guid[]
+      {
+              AudioAspect.ASPECT_ID,
+              VideoAspect.ASPECT_ID,
+              ImageAspect.ASPECT_ID,
+      };
+
+      PlaylistRawData playlistData = await cd.ExportPlaylistAsync(playlistId);
+      List<MediaItem> items = new List<MediaItem>();
+      foreach (var cluster in CollectionUtils.Cluster(playlistData.MediaItemIds, 1000))
+      {
+        items.AddRange(await cd.LoadCustomPlaylistAsync(cluster, necessaryMIATypes, optionalMIATypes));
+      }
+      return items;
     }
 
     internal static async Task PlayMediaItemAsync(Guid mediaItemGuid, int startPos)
@@ -86,7 +223,7 @@ namespace MediaPortal.Plugins.WifiRemote
       optionalMIATypes.Add(VideoAspect.ASPECT_ID);
       optionalMIATypes.Add(MovieAspect.ASPECT_ID);
       optionalMIATypes.Add(SeriesAspect.ASPECT_ID);
-
+      optionalMIATypes.Add(ImageAspect.ASPECT_ID);
 
       IFilter searchFilter = new MediaItemIdFilter(mediaItemGuid);
       MediaItemQuery searchQuery = new MediaItemQuery(necessaryMIATypes, optionalMIATypes, searchFilter) { Limit = 1 };
@@ -100,7 +237,8 @@ namespace MediaPortal.Plugins.WifiRemote
 
       await PlayItemsModel.PlayItem(items[0]);
 
-      SetPosition(startPos, true);
+      if (startPos > 0)
+        SetPosition(startPos, true);
     }
 
     /// <summary>

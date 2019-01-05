@@ -222,7 +222,6 @@ namespace MediaPortal.Plugins.WifiRemote
     /// <summary>
     /// Constructor.
     /// </summary>
-    /// <param name="filename">Filename of the currently played media file</param>
     public NowPlayingMovingPictures(MediaItem mediaItem)
     {
       try

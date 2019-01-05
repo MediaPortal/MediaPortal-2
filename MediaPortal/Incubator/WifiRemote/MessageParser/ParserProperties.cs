@@ -46,19 +46,43 @@ namespace MediaPortal.Plugins.WifiRemote.MessageParser
         foreach (JValue v in array)
         {
           String propString = (string)v.Value;
-          ServiceRegistration.Get<ILogger>().Info("ParserProperties: propertiy: {0}", propString);
+          ServiceRegistration.Get<ILogger>().Info("WifiRemote Properties: Property: {0}", propString);
           client.Properties.Add(propString);
         }
 
         List<Property> properties = new List<Property>();
         foreach (String s in client.Properties)
         {
-          // TODO: MP2 doesn' have properties like '#TV.TuningDetails.ChannelName'
-          //String value = GUIPropertyManager.GetProperty(s);
+          // TODO: Implement?:
+          //"#Play.Current.Title",
+          //"#Play.Current.File",
+          //"#Play.Current.Thumb",
+          //"#Play.Current.Plot",
+          //"#Play.Current.PlotOutline",
+          //"#Play.Current.Channel",
+          //"#Play.Current.Genre",
+          //"#Play.Current.Title",
+          //"#Play.Current.Artist",
+          //"#Play.Current.Album",
+          //"#Play.Current.Track",
+          //"#Play.Current.Year",
+          //"#TV.View.channel",
+          //"#TV.View.thumb",
+          //"#TV.View.start",
+          //"#TV.View.stop",
+          //"#TV.View.remaining",
+          //"#TV.View.genre",
+          //"#TV.View.title",
+          //"#TV.View.description",
+          //"#TV.Next.start",
+          //"#TV.Next.stop",
+          //"#TV.Next.title",
+          //"#TV.Next.description"
 
+          //String value = GUIPropertyManager.GetProperty(s);
           //if (value != null && !value.Equals("") && CheckProperty(s))
           //{
-            //properties.Add(new Property(s, value));
+          //properties.Add(new Property(s, value));
           //}
         }
 

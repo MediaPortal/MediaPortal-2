@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+  <string name="Settings.WifiRemote.Title">Wifi Remote</string> <!-- Section name -->
+  <string name="Settings.WifiRemote.AuthMode.None">No authentication</string>
+  <string name="Settings.WifiRemote.AuthMode.UserPassword">User name and password</string>
+  <string name="Settings.WifiRemote.AuthMode.Passcode">Passcode</string> 
+  <string name="Settings.WifiRemote.AuthMode.Both">User name and password or passcode</string>
+
+  <string name="Settings.WifiRemote.AuthenticationMethod">Authentication method</string> <!-- Setting -->
+  <string name="Settings.WifiRemote.AuthenticationMethod.Help">Authentication method allowed when connecting a remote control client</string>
+  <string name="Settings.WifiRemote.UserName">Authentication user name</string> <!-- Setting -->
+  <string name="Settings.WifiRemote.UserName.Help">User name to allow during user name and password authentication</string>
+  <string name="Settings.WifiRemote.Password">Authentication user password</string> <!-- Setting -->
+  <string name="Settings.WifiRemote.Password.Help">User password to allow during user name and password authentication</string>
+  <string name="Settings.WifiRemote.Passcode">Authentication passcode</string> <!-- Setting -->
+  <string name="Settings.WifiRemote.Passcode.Help">Passcode to allow during passcode authentication</string>
+  <string name="Settings.WifiRemote.AutoLoginTimeout">Authentication timeout</string> <!-- Setting -->
+  <string name="Settings.WifiRemote.AutoLoginTimeout.Help">Duration in minutes after which client re-authentication is required</string>
+  <string name="Settings.WifiRemote.EnableBonjour">Broadcast service availability (Bonjour, ZeroConf)</string> <!-- Setting -->
+  <string name="Settings.WifiRemote.EnableBonjour.Help">Broadcasts the service availability so it is easier to detect from clients</string>
+  <string name="Settings.WifiRemote.Port">Service Port</string> <!-- Setting -->
+  <string name="Settings.WifiRemote.Port.Help">The service port number clients can connect to</string>
+
+</resources>

@@ -49,12 +49,12 @@ namespace MediaPortal.Plugins.WifiRemote.MessageParser
         if (action.Equals("play"))
         {
           //play the item in MediaPortal
-          Logger.Debug("play mediaitem: ItemId: " + itemId + ", itemType: " + itemType + ", providerId: " + providerId);
+          Logger.Debug("WifiRemote Play: ItemId: " + itemId + ", ItemType: " + itemType + ", ProviderId: " + providerId);
 
           Guid mediaItemGuid;
           if (!Guid.TryParse(itemId, out mediaItemGuid))
           {
-            ServiceRegistration.Get<ILogger>().Info("ParserMPExt: Couldn't convert fileHandler '{0} to Guid", itemId);
+            ServiceRegistration.Get<ILogger>().Error("WifiRemote Play: Couldn't convert fileHandler '{0} to Guid", itemId);
             return false;
           }
 
@@ -71,7 +71,7 @@ namespace MediaPortal.Plugins.WifiRemote.MessageParser
         else if (action.Equals("enqueue"))
         {
           //enqueue the mpextended item to the currently active playlist
-          Logger.Debug("enqueue mediaitem: ItemId: " + itemId + ", itemType: " + itemType + ", providerId: " + providerId);
+          Logger.Debug("WifiRemote Enqueue: ItemId: " + itemId + ", ItemType: " + itemType + ", ProviderId: " + providerId);
 
           int startIndex = (message["StartIndex"] != null) ? (int)message["StartIndex"] : -1;
 

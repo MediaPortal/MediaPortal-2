@@ -58,10 +58,10 @@ namespace MediaPortal.Plugins.WifiRemote.Messages
       {
         if (_statusUpdateThreadRunning)
         {
-          if (WifiRemote.MessageStatus.IsChanged())
+          if (WifiRemotePlugin.MessageStatus.IsChanged())
           {
             ServiceRegistration.Get<ILogger>().Debug("Send Statusupdate");
-            SendMessageToAllClients.Send(WifiRemote.MessageStatus, ref SocketServer.Instance.connectedSockets);
+            SendMessageToAllClients.Send(WifiRemotePlugin.MessageStatus, ref SocketServer.Instance.connectedSockets);
           }
         }
         Thread.Sleep(UPDATE_INTERVAL);

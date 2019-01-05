@@ -39,33 +39,32 @@ namespace MediaPortal.Plugins.WifiRemote.MessageParser
 
       if (!string.IsNullOrEmpty(action))
       {
-        // TODO: implement
         // Show movie details for this movie
         if (action == "moviedetails")
         {
-          //MediaNavigationModel.GetCurrentInstance().NavigationData.AvailableScreens.First().
-          /*string movieName = (string)message["MovieName"];
-          if (!string.IsNullOrEmpty(movieName))
-          {
-            int movieId = MovingPicturesHelper.GetMovieIdByName(movieName);
-            MovingPicturesHelper.ShowMovieDetails(movieId);
-          }*/
+          // TODO: implement?
         }
-        // Play a movie with MovingPictures
+        // Play a movie
         else if (action == "playmovie")
         {
           // we use the FileHandler as MediaItem id
-          string fileType = (string)message["FileType"];
-          string filePath = (string)message["Filepath"];
+          string movieName = (string)message["MovieName"];
           string id = (string)message["MovieId"];
           int startPos = (message["StartPosition"] != null) ? (int)message["StartPosition"] : 0;
 
-          ServiceRegistration.Get<ILogger>().Debug("PlayFile: fileType: {0}, filePath: {1}, FileHandler/id: {2}, StartPos: {3}", fileType, filePath, id, startPos);
+          ServiceRegistration.Get<ILogger>().Debug("WifiRemote Play Movie: MovieName: {0}, MovieId: {1}, StartPos: {2}", movieName, id, startPos);
+
+          if (!string.IsNullOrEmpty(movieName) && string.IsNullOrEmpty(id))
+          {
+            var item = await Helper.GetMediaItemByMovieNameAsync(movieName);
+            if (item != null)
+              id = item.MediaItemId.ToString();
+          }
 
           Guid mediaItemGuid;
           if (!Guid.TryParse(id, out mediaItemGuid))
           {
-            ServiceRegistration.Get<ILogger>().Info("PlayFile: Couldn't convert fileHandler '{0} to Guid", id);
+            ServiceRegistration.Get<ILogger>().Error("WifiRemote Play Movie: Couldn't convert MovieId '{0}' to Guid", id);
             return false;
           }
 

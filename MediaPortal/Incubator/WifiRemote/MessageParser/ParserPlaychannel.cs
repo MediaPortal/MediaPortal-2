@@ -47,7 +47,7 @@ namespace MediaPortal.Plugins.WifiRemote.MessageParser
 
       if (!ServiceRegistration.IsRegistered<ITvHandler>())
       {
-        Logger.Info("WifiRemote: playchannel - no tv handler");
+        Logger.Error("WifiRemote Play Channel: No tv handler");
         return false;
       }
 
@@ -55,7 +55,7 @@ namespace MediaPortal.Plugins.WifiRemote.MessageParser
       var channel = await tvHandler.ChannelAndGroupInfo.GetChannelAsync(channelId);
       if (!channel.Success)
       {
-        Logger.Info("WifiRemote: playchannel - Channel with id '{0}' not found", channelId);
+        Logger.Info("WifiRemote Play Channel: Channel with id '{0}' not found", channelId);
         return false;
       }
 

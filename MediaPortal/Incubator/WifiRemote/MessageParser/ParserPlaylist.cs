@@ -29,15 +29,11 @@ using Deusty.Net;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.MediaManagement;
-using MediaPortal.Common.MediaManagement.DefaultItemAspects;
-using MediaPortal.Common.SystemCommunication;
 using MediaPortal.Plugins.WifiRemote.Messages;
 using MediaPortal.Plugins.WifiRemote.Messages.Playlist;
 using MediaPortal.Plugins.WifiRemote.SendMessages;
 using MediaPortal.UiComponents.Media.Models;
 using MediaPortal.UI.Presentation.Players;
-using MediaPortal.UI.ServerCommunication;
-using MediaPortal.Utilities;
 using Newtonsoft.Json.Linq;
 using System.Threading.Tasks;
 
@@ -85,14 +81,14 @@ namespace MediaPortal.Plugins.WifiRemote.MessageParser
               Guid itemid;
               if (!Guid.TryParse((string)o["FileName"], out itemid))
               {
-                ServiceRegistration.Get<ILogger>().Warn("ParserPlaylist: Couldn't parse Filename to Guid");
+                ServiceRegistration.Get<ILogger>().Warn("WifiRemote Playlist: Couldn't parse FileName to Guid");
                 continue;
               }
 
               MediaItem item = await Helper.GetMediaItemByIdAsync(itemid);
               if (item == null)
               {
-                ServiceRegistration.Get<ILogger>().Warn("ParserPlaylist: Not media item found");
+                ServiceRegistration.Get<ILogger>().Warn("WifiRemote Playlist: Not media item found");
                 continue;
               }
 
@@ -130,7 +126,7 @@ namespace MediaPortal.Plugins.WifiRemote.MessageParser
         if ((!string.IsNullOrEmpty(playlistName) || !string.IsNullOrEmpty(playlistPath)) && Guid.TryParse(playlistPath, out playlistId))
         {
           // TODO: does this work?!
-          var items = await LoadPlayListsAsync(playlistId);
+          var items = await Helper.LoadPlayListsAsync(playlistId);
           PlayItemsModel.CheckQueryPlayAction(() => items, AVType.None); // AvType?!
           /*PlaylistHelper.LoadPlaylist(playlistType, (!string.IsNullOrEmpty(playlistName)) ? playlistName : playlistPath, shuffle);
           if (autoPlay)
@@ -202,7 +198,7 @@ namespace MediaPortal.Plugins.WifiRemote.MessageParser
         }
         else
         {
-          Logger.Warn("Must specify a name to save a playlist");
+          Logger.Warn("WifiRemote Playlist: Must specify a name to save a playlist");
         }
       }
       else if (action.Equals("shuffle"))
@@ -225,35 +221,11 @@ namespace MediaPortal.Plugins.WifiRemote.MessageParser
         }
         else
         {
-          Logger.Warn("Must specify repeat to change playlist repeat mode");
+          Logger.Warn("WifiRemote Playlist: Must specify repeat to change playlist repeat mode");
         }
       }
 
       return true;
-    }
-
-    internal static async Task<IEnumerable<MediaItem>> LoadPlayListsAsync(Guid playlistId)
-    {
-      IContentDirectory cd = ServiceRegistration.Get<IServerConnectionManager>().ContentDirectory;
-      Guid[] necessaryMIATypes = new Guid[]
-      {
-              ProviderResourceAspect.ASPECT_ID,
-              MediaAspect.ASPECT_ID,
-      };
-      Guid[] optionalMIATypes = new Guid[]
-      {
-              AudioAspect.ASPECT_ID,
-              VideoAspect.ASPECT_ID,
-              ImageAspect.ASPECT_ID,
-      };
-
-      PlaylistRawData playlistData = await cd.ExportPlaylistAsync(playlistId);
-      List<MediaItem> items = new List<MediaItem>();
-      foreach (var cluster in CollectionUtils.Cluster(playlistData.MediaItemIds, 1000))
-      {
-        items.AddRange(await cd.LoadCustomPlaylistAsync(cluster, necessaryMIATypes, optionalMIATypes));
-      }
-      return items;
     }
 
     internal static ILogger Logger

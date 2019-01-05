@@ -22,34 +22,25 @@
 
 #endregion
 
-using System.Threading.Tasks;
-using Deusty.Net;
-using MediaPortal.Common;
-using MediaPortal.Common.Logging;
-using MediaPortal.UI.Presentation.Players;
-using Newtonsoft.Json.Linq;
+using MediaPortal.Plugins.WifiRemote.Utils;
 
-namespace MediaPortal.Plugins.WifiRemote.MessageParser
+namespace MediaPortal.Plugins.WifiRemote.Messages
 {
-  internal class ParserVolume
+  /// <summary>
+  /// Sends an image to the client that requested it with the
+  /// image command.
+  /// </summary>
+  class MessageImage : IMessage
   {
-    public static Task<bool> ParseAsync(JObject message, SocketServer server, AsyncSocket sender)
+    public string Type
     {
-      int volume = (int)message["Volume"];
-      if (message["Relative"] != null && (bool)message["Relative"])
-      {
-        volume += ServiceRegistration.Get<IPlayerManager>().Volume;
-      }
-
-      if (volume >= 0 && volume <= 100)
-      {
-        ServiceRegistration.Get<IPlayerManager>().Volume = volume;
-      }
-      else
-      {
-        ServiceRegistration.Get<ILogger>().Warn("WifiRemote Volume: Trying to set wrong Volume level: {0}", volume);
-      }
-      return Task.FromResult(true);
+      get { return "image"; }
     }
+
+    public string ImagePath { get; set; }
+
+    public string Image { get; set; }
+
+    public string UserTag { get; set; }
   }
 }

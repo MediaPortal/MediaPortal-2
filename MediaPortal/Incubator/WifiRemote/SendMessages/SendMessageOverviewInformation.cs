@@ -31,7 +31,7 @@ namespace MediaPortal.Plugins.WifiRemote.SendMessages
   {
     public static void Send(AsyncSocket client)
     {
-      SendMessageToClient.Send(WifiRemote.MessageStatus, client);
+      SendMessageToClient.Send(WifiRemotePlugin.MessageStatus, client);
       SendMessageToClient.Send(new MessageVolume(), client);
 
       // If we are playing a file send detailed information about it

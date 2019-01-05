@@ -29,6 +29,8 @@ using System.Threading.Tasks;
 using Deusty.Net;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
+using MediaPortal.Common.UserManagement;
+using MediaPortal.Common.UserProfileDataManagement;
 using MediaPortal.Plugins.WifiRemote.MessageParser;
 using MediaPortal.Plugins.WifiRemote.Messages;
 using MediaPortal.Plugins.WifiRemote.SendMessages;
@@ -40,20 +42,17 @@ namespace MediaPortal.Plugins.WifiRemote
   {
     // SocketServer
     private readonly UInt16 _port;
-
-    private bool isStarted = false;
+    private bool _isStarted = false;
+    private AsyncSocket _listenSocket;
+    private AuthMethod _allowedAuth;
+    private List<AutoLoginToken> _loginTokens;
+    private Dictionary<AsyncSocket, int> _socketsWaitingForScreenshot;
 
     public List<AsyncSocket> connectedSockets;
 
-    private AsyncSocket listenSocket;
-    private AuthMethod allowedAuth;
-    private List<AutoLoginToken> loginTokens;
-    private Dictionary<AsyncSocket, int> socketsWaitingForScreenshot;
-
-    protected static SocketServer _instance = null;
+    private static SocketServer _instance = null;
     public static SocketServer Instance { get { return _instance; } }
     
-
     // This function specifies all the different Message Types and Maps the processing function to it.
     private readonly Dictionary<string, Func<JObject, SocketServer, AsyncSocket, Task<bool>>> MessageType = new Dictionary<string, Func<JObject, SocketServer, AsyncSocket, Task<bool>>>()
     {
@@ -75,16 +74,17 @@ namespace MediaPortal.Plugins.WifiRemote
       { "mpext", ParserMPExt.ParseAsync },
       //{ "plugins", new Func<int, int, int>(Func1) },
       { "properties", ParserProperties.ParseAsync },
-      /*{ "image", new Func<int, int, int>(Func1) },*/
+      { "image", ParserImage.ParseAsync },
       { "screenshot", ParserScreenshot.ParseAsync },
       { "playlist", ParserPlaylist.ParseAsync },
       { "requeststatus", ParserRequeststatus.ParseAsync },
       { "requestnowplaying", ParserRequestnowplaying.ParseAsync },
+      { "movies", ParserMovingpictures.ParseAsync },
       { "movingpictures", ParserMovingpictures.ParseAsync },
-      /*{ "tvseries", new Func<int, int, int>(Func1) },
-      { "message", new Func<int, int, int>(Func1) },
+      { "series", ParserTVSeries.ParseAsync },
+      { "tvseries", ParserTVSeries.ParseAsync  },
+      /*{ "message", new Func<int, int, int>(Func1) },
       { "showdialog", new Func<int, int, int>(Func1) }*/
-
     };   
 
     private readonly MessageWelcome _welcomeMessage;
@@ -119,18 +119,18 @@ namespace MediaPortal.Plugins.WifiRemote
     {
       get
       {
-        return allowedAuth;
+        return _allowedAuth;
       }
 
       set
       {
-        allowedAuth = value;
-        _welcomeMessage.AuthMethod = allowedAuth;
+        _allowedAuth = value;
+        _welcomeMessage.AuthMethod = _allowedAuth;
       }
     }
 
     /// <summary>
-    /// Display Notifications when clients connect/disconnect (needs MpNotifications plugin)
+    /// Display Notifications when clients connect/disconnect
     /// </summary>
     internal bool ShowNotifications { get; set; }
     
@@ -144,20 +144,20 @@ namespace MediaPortal.Plugins.WifiRemote
       _port = port;
       _instance = this;
 
-      initSocket();
+      InitSocket();
     }
 
     /// <summary>
     /// Initialise the socket
     /// </summary>
-    private void initSocket()
+    private void InitSocket()
     {
-      listenSocket = new AsyncSocket { AllowMultithreadedCallbacks = true };
+      _listenSocket = new AsyncSocket { AllowMultithreadedCallbacks = true };
 
       // Tell AsyncSocket to allow multi-threaded delegate methods
 
       // Register for client connect event
-      listenSocket.DidAccept += listenSocket_DidAccept;
+      _listenSocket.DidAccept += ListenSocket_DidAccept;
 
       // Initialize list to hold connected sockets
       connectedSockets = new List<AsyncSocket>();
@@ -169,27 +169,27 @@ namespace MediaPortal.Plugins.WifiRemote
     public void Start()
     {
       // Abort if already started
-      if (isStarted)
+      if (_isStarted)
       {
-        Logger.Debug("ListenSocket already accepting connections, aborting start ...");
+        Logger.Debug("WifiRemote: ListenSocket already accepting connections, aborting start ...");
         return;
       }
 
-      if (listenSocket == null)
+      if (_listenSocket == null)
       {
-        initSocket();
+        InitSocket();
       }
 
       Exception error;
-      if (!listenSocket.Accept(_port, out error))
+      if (!_listenSocket.Accept(_port, out error))
       {
-        Logger.Error("Error starting server: " + error.Message);
+        Logger.Error("WifiRemote: Error starting server: " + error.Message);
         return;
       }
 
-      isStarted = true;
-      loginTokens = new List<AutoLoginToken>();
-      Logger.Info("Now accepting connections.");
+      _isStarted = true;
+      _loginTokens = new List<AutoLoginToken>();
+      Logger.Info("WifiRemote: Now accepting connections");
     }
 
     /// <summary>
@@ -197,14 +197,14 @@ namespace MediaPortal.Plugins.WifiRemote
     /// </summary>
     public void Stop()
     {
-      if (!isStarted)
+      if (!_isStarted)
       {
-        Logger.Debug("ListenSocket already stopped, ignoring stop command");
+        Logger.Debug("WifiRemote: ListenSocket already stopped, ignoring stop command");
         return;
       }
 
       // Stop accepting connections
-      listenSocket.Close();
+      _listenSocket.Close();
 
       // Stop any client connections
       lock (connectedSockets)
@@ -216,10 +216,10 @@ namespace MediaPortal.Plugins.WifiRemote
         }
       }
 
-      isStarted = false;
-      listenSocket = null;
+      _isStarted = false;
+      _listenSocket = null;
 
-      Logger.Info("SocketServer stopped.");
+      Logger.Info("WifiRemote: Server stopped");
     }
 
     /// <summary>
@@ -227,13 +227,13 @@ namespace MediaPortal.Plugins.WifiRemote
     /// </summary>
     /// <param name="sender"></param>
     /// <param name="newSocket"></param>
-    void listenSocket_DidAccept(AsyncSocket sender, AsyncSocket newSocket)
+    private void ListenSocket_DidAccept(AsyncSocket sender, AsyncSocket newSocket)
     {
       // Subsribe to worker socket events
-      newSocket.DidRead += newSocket_DidRead;
-      newSocket.DidWrite += newSocket_DidWrite;
-      newSocket.WillClose += newSocket_WillClose;
-      newSocket.DidClose += newSocket_DidClose;
+      newSocket.DidRead += NewSocket_DidRead;
+      newSocket.DidWrite += NewSocket_DidWrite;
+      newSocket.WillClose += NewSocket_WillClose;
+      newSocket.DidClose += NewSocket_DidClose;
 
       newSocket.SetRemoteClient(new RemoteClient());
 
@@ -244,7 +244,7 @@ namespace MediaPortal.Plugins.WifiRemote
       }
 
       // Send welcome message to client
-      Logger.Debug("Client connected, sending welcome msg.");
+      Logger.Debug("WifiRemote: Client connected, sending welcome msg.");
       SendMessageToClient.Send(_welcomeMessage, newSocket, true);
     }
 
@@ -252,12 +252,12 @@ namespace MediaPortal.Plugins.WifiRemote
     /// A client closed the connection.
     /// </summary>
     /// <param name="sender"></param>
-    void newSocket_DidClose(AsyncSocket sender)
+    private void NewSocket_DidClose(AsyncSocket sender)
     {
       // Remove the client from the client list.
       lock (connectedSockets)
       {
-        Logger.Info("removing client " + sender.GetRemoteClient().ClientName + " from connected sockets");
+        Logger.Info("WifiRemote: Removing client " + sender.GetRemoteClient().ClientName + " from connected sockets");
         connectedSockets.Remove(sender);
       }
     }
@@ -267,9 +267,9 @@ namespace MediaPortal.Plugins.WifiRemote
     /// </summary>
     /// <param name="sender"></param>
     /// <param name="e"></param>
-    void newSocket_WillClose(AsyncSocket sender, Exception e)
+    private void NewSocket_WillClose(AsyncSocket sender, Exception e)
     {
-      Logger.Debug("A client is about to disconnect.");
+      Logger.Debug("WifiRemote: A client is about to disconnect.");
     }
 
     /// <summary>
@@ -277,7 +277,7 @@ namespace MediaPortal.Plugins.WifiRemote
     /// </summary>
     /// <param name="sender"></param>
     /// <param name="tag"></param>
-    void newSocket_DidWrite(AsyncSocket sender, long tag)
+    private void NewSocket_DidWrite(AsyncSocket sender, long tag)
     {
       sender.Read(AsyncSocket.CRLFData, -1, 0);
     }
@@ -288,7 +288,7 @@ namespace MediaPortal.Plugins.WifiRemote
     /// <param name="sender"></param>
     /// <param name="data"></param>
     /// <param name="tag"></param>
-    void newSocket_DidRead(AsyncSocket sender, byte[] data, long tag)
+    private void NewSocket_DidRead(AsyncSocket sender, byte[] data, long tag)
     {
       string msg = null;
 
@@ -316,7 +316,7 @@ namespace MediaPortal.Plugins.WifiRemote
           {
             AutoLoginToken token = new AutoLoginToken(clientKey, client);
             // the client token is in the list
-            foreach (AutoLoginToken aToken in loginTokens)
+            foreach (AutoLoginToken aToken in _loginTokens)
             {
               if (aToken.Key == token.Key)
               {
@@ -336,14 +336,14 @@ namespace MediaPortal.Plugins.WifiRemote
             // Tell the client to reauthenticate.
             if (!client.IsAuthenticated)
             {
-              Logger.Debug("AutoLoginToken timed out. Client needs to reauthenticate.");
+              Logger.Debug("WifiRemote: AutoLoginToken timed out. Client needs to reauthenticate.");
               TellClientToReAuthenticate(sender);
               return;
             }
           }
           else
           {
-            Logger.Debug("AutoLogin is disabled but client tried to auto-authenticate.");
+            Logger.Debug("WifiRemote: AutoLogin is disabled but client tried to auto-authenticate.");
             TellClientToReAuthenticate(sender);
             return;
           }
@@ -355,12 +355,12 @@ namespace MediaPortal.Plugins.WifiRemote
           Func<JObject, SocketServer, AsyncSocket, Task<bool>> function;
           if (MessageType.TryGetValue(type, out function))
           {
-            Logger.Info("WifiRemote: MessageType: {0} got called", type);
+            Logger.Debug("WifiRemote: MessageType: {0} got called", type);
             function.Invoke(message, this, sender);
           }
           else
           {
-            Logger.Info("WifiRemote: Couldn't get MessageType: {0}", type);
+            Logger.Warn("WifiRemote: Couldn't get MessageType: {0}", type);
           }
 
         }
@@ -414,19 +414,10 @@ namespace MediaPortal.Plugins.WifiRemote
             TellClientToReAuthenticate(sender);
           }
         }
-
-
-        //WifiRemote.LogMessage("Received: " + msg, WifiRemote.LogType.Info);
       }
       catch (Exception e)
       {
-        Logger.Warn("WifiRemote Communication Error: " + e.Message);
-        //WifiRemote.LogMessage("Error converting received data into UTF-8 String: " + e.Message, WifiRemote.LogType.Error);
-        //MediaPortal.Dialogs.GUIDialogNotify dialog = (MediaPortal.Dialogs.GUIDialogNotify)MediaPortal.GUI.Library.GUIWindowManager.GetWindow((int)MediaPortal.GUI.Library.GUIWindow.Window.WINDOW_DIALOG_NOTIFY);
-        //dialog.Reset();
-        //dialog.SetHeading("WifiRemote Communication Error");
-        //dialog.SetText(e.Message);
-        //dialog.DoModal(MediaPortal.GUI.Library.GUIWindowManager.ActiveWindow);
+        Logger.Error("WifiRemote: Communication Error", e);
       }
 
       // Continue listening
@@ -452,12 +443,11 @@ namespace MediaPortal.Plugins.WifiRemote
     {
       if (msg == null || !msg.HasValues)
       {
-        Logger.Warn("Client sent empty authentication String");
+        Logger.Warn("WifiRemote: Client sent empty authentication String");
         return false;
       }
 
       AuthMethod auth = AllowedAuth;
-
       if (auth == AuthMethod.None)
       {
         // Every auth request is valid for AuthMethod.None
@@ -470,7 +460,7 @@ namespace MediaPortal.Plugins.WifiRemote
       {
         if (message["AuthMethod"] == null)
         {
-          Logger.Info("User {0} authentification failed, no authMethod submitted", client);
+          Logger.Warn("WifiRemote: Client {0} authentification failed, no AuthMethod submitted", client);
           return false;
         }
         else
@@ -488,7 +478,7 @@ namespace MediaPortal.Plugins.WifiRemote
             }
             else
             {
-              Logger.Info("User " + client.ToString() + " authentification failed, invalid authMethod '" + authString + "'");
+              Logger.Warn("WifiRemote: Client " + client.ToString() + " authentification failed, invalid authMethod '" + authString + "'");
               return false;
             }
           }
@@ -508,7 +498,7 @@ namespace MediaPortal.Plugins.WifiRemote
             client.User = user;
             client.Password = pass;
             client.IsAuthenticated = true;
-            Logger.Debug("User " + client.ToString() + " successfully authentificated by username and password");
+            Logger.Debug("WifiRemote: Client " + client.ToString() + " successfully authentificated by username and password");
             return true;
           }
         }
@@ -523,24 +513,19 @@ namespace MediaPortal.Plugins.WifiRemote
             client.AuthenticatedBy = auth;
             client.PassCode = pass;
             client.IsAuthenticated = true;
-            Logger.Debug("User " + client.ToString() + " successfully authentificated by passcode");
+            Logger.Debug("WifiRemote: Client " + client.ToString() + " successfully authentificated by passcode");
             return true;
           }
         }
       }
 
-      Logger.Info("User " + client.ToString() + " authentification failed");
+      Logger.Warn("WifiRemote: Client " + client.ToString() + " authentification failed");
       return false;
     }
 
     #endregion
 
-    #region send Messages
-
-    
-
-
-    
+    #region Send Messages
 
     private void SendAuthenticationResponse(AsyncSocket socket, bool _success)
     {
@@ -551,10 +536,10 @@ namespace MediaPortal.Plugins.WifiRemote
       }
       else
       {
-        Logger.Debug("Client identified: " + socket.GetRemoteClient().ToString());
-        string key = getRandomMD5();
+        Logger.Debug("WifiRemote: Client identified: " + socket.GetRemoteClient().ToString());
+        string key = GetRandomMD5();
         authResponse.AutologinKey = key;
-        loginTokens.Add(new AutoLoginToken(key, socket.GetRemoteClient()));
+        _loginTokens.Add(new AutoLoginToken(key, socket.GetRemoteClient()));
       }
 
       SendMessageToClient.Send(authResponse, socket, true);
@@ -568,7 +553,7 @@ namespace MediaPortal.Plugins.WifiRemote
     /// Get a random md5 hash
     /// </summary>
     /// <returns></returns>
-    private String getRandomMD5()
+    private String GetRandomMD5()
     {
       string randomString = System.IO.Path.GetRandomFileName();
       randomString = randomString.Replace(".", "");

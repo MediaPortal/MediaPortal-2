@@ -23,6 +23,12 @@
 #endregion
 
 using System;
+using System.Linq;
+using MediaPortal.Common;
+using MediaPortal.Common.MediaManagement;
+using MediaPortal.Plugins.SlimTv.Interfaces;
+using MediaPortal.Plugins.SlimTv.Interfaces.Items;
+using MediaPortal.Plugins.SlimTv.Interfaces.LiveTvMediaItem;
 using MediaPortal.Plugins.WifiRemote.Messages.Now_Playing;
 
 namespace MediaPortal.Plugins.WifiRemote
@@ -130,48 +136,31 @@ namespace MediaPortal.Plugins.WifiRemote
     /// <summary>
     /// Constructor
     /// </summary>
-    public NowPlayingRadio()
+    public NowPlayingRadio(MediaItem mediaItem)
     {
-      /*TvPlugin.TVHome.Navigator.UpdateCurrentChannel();
-      TvDatabase.Channel current = TvPlugin.Radio.CurrentChannel;
-
-      if (current != null && current.IsWebstream())
+      if (mediaItem is LiveTvMediaItem radioItem && radioItem.TimeshiftContexes.FirstOrDefault()?.Channel is IChannel channel)
       {
-        if (current.ReferringTuningDetail() != null && current.ReferringTuningDetail().Count > 0)
+        ITvHandler tvHandler = ServiceRegistration.Get<ITvHandler>();
+        var result = tvHandler.ProgramInfo.GetNowNextProgramAsync(channel).Result;
+
+        ChannelId = channel.ChannelId;
+        ChannelName = channel.Name;
+
+        if (result.Success)
         {
-          IList<TuningDetail> details = current.ReferringTuningDetail();
-          TuningDetail detail = details[0];
-          CurrentProgramName = detail.Name;
-          CurrentProgramId = detail.IdChannel;
-          CurrentUrl = detail.Url;
-          ChannelName = GUIPropertyManager.GetProperty("#Play.Current.Album");
-          ArtistName = GUIPropertyManager.GetProperty("#Play.Current.Artist");
+          CurrentProgramId = result.Result[0].ProgramId;
+          CurrentProgramName = result.Result[0].Title;
+          CurrentProgramDescription = result.Result[0].Description;
+          CurrentProgramBegin = result.Result[0].StartTime;
+          CurrentProgramEnd = result.Result[0].EndTime;
+
+          NextProgramId = result.Result[1].ProgramId;
+          NextProgramName = result.Result[1].Title;
+          NextProgramDescription = result.Result[1].Description;
+          NextProgramBegin = result.Result[1].StartTime;
+          NextProgramEnd = result.Result[1].EndTime;
         }
       }
-      else if (current != null && !current.IsWebstream())
-      {
-        ChannelId = current.IdChannel;
-        ChannelName = current.DisplayName;
-        ArtistName = GUIPropertyManager.GetProperty("#Play.Current.Artist");
-
-        if (current.CurrentProgram != null)
-        {
-          CurrentProgramId = current.CurrentProgram.IdProgram;
-          CurrentProgramName = current.CurrentProgram.Title;
-          CurrentProgramDescription = current.CurrentProgram.Description;
-          CurrentProgramBegin = current.CurrentProgram.StartTime;
-          CurrentProgramEnd = current.CurrentProgram.EndTime;
-        }
-
-        if (current.NextProgram != null)
-        {
-          NextProgramId = current.NextProgram.IdProgram;
-          NextProgramName = current.NextProgram.Title;
-          NextProgramDescription = current.NextProgram.Description;
-          NextProgramBegin = current.NextProgram.StartTime;
-          NextProgramEnd = current.NextProgram.EndTime;
-        }
-      }*/
     }
   }
 }

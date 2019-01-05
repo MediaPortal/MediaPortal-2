@@ -35,18 +35,20 @@ namespace MediaPortal.Plugins.WifiRemote.MessageParser
   {
     public static async Task<bool> ParseAsync(JObject message, SocketServer server, AsyncSocket sender)
     {
-      // we use the FileHandler as MediaItem id
       string fileType = (string)message["FileType"];
       string filePath = (string)message["Filepath"];
-      string id = (string)message["FileHandler"];
+      string id = (string)message["FileId"];
       int startPos = (message["StartPosition"] != null) ? (int)message["StartPosition"] : 0;
 
-      ServiceRegistration.Get<ILogger>().Debug("PlayFile: fileType: {0}, filePath: {1}, FileHandler/id: {2}, StartPos: {3}", fileType, filePath, id, startPos);
+      ServiceRegistration.Get<ILogger>().Debug("WifiRemote Play File: FileType: {0}, FilePath: {1}, FileId: {2}, StartPos: {3}", fileType, filePath, id, startPos);
 
       Guid mediaItemGuid;
+      if (Guid.TryParse(filePath, out mediaItemGuid))
+        id = mediaItemGuid.ToString();
+
       if (!Guid.TryParse(id, out mediaItemGuid))
       {
-        ServiceRegistration.Get<ILogger>().Info("PlayFile: Couldn't convert fileHandler '{0} to Guid", id);
+        ServiceRegistration.Get<ILogger>().Info("WifiRemote Play File: Couldn't convert FileId '{0} to Guid", id);
         return false;
       }
 

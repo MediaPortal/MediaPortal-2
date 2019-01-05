@@ -36,7 +36,7 @@ namespace MediaPortal.Plugins.WifiRemote.MessageParser
     {
       int seekType = (int)message["SeekType"];
 
-      Logger.Debug("ParserPosition: SeekType: {0}", seekType);
+      Logger.Debug("WifiRemote Position: SeekType: {0}", seekType);
 
       if (seekType == 0)
       {

@@ -10,6 +10,14 @@
     <PluginFiles Include="$(ProjectDir)plugin.xml" />
   </ItemGroup>
 
+  <ItemGroup Condition=" '$(Configuration)' == 'Debug'">
+    <PluginFiles Include="$(TargetDir)$(ProjectName).pdb" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <LanguageFiles Include="$(ProjectDir)Language\*.*" />
+  </ItemGroup>
+
   <ItemGroup>
     <References Include="$(TargetDir)Newtonsoft.Json.dll" />
     <References Include="$(TargetDir)ZeroconfService.dll" />
@@ -18,6 +26,7 @@
   <Target Name="AfterBuild">
     <Copy SourceFiles="@(PluginFiles)" DestinationFolder="$(PluginDestination)" />
     <Copy SourceFiles="@(References)" DestinationFolder="$(PluginDestination)" />
+    <Copy SourceFiles="@(LanguageFiles)" DestinationFolder="$(PluginDestination)Language\" />
   </Target>
 
 </Project>

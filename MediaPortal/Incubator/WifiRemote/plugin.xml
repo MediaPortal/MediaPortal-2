@@ -1,24 +1,92 @@
 <Plugin
     DescriptorVersion="1.0"
     Name="WifiRemote"
-    PluginId="{B0052E71-BBF0-47C7-86C1-C53E2ABC6679}"
-    Author="FreakyJ"
+    PluginId="B0052E71-BBF0-47C7-86C1-C53E2ABC6679"
+    Author="FreakyJ, henso"
     Copyright="GPL"
     AutoActivate="true"
     Description="WifiRemote for MP2">
 
   <Version
     PluginVersion="1.0"
-    ReleaseDate="2013-11-11 01:00:00 GMT+01:00"
+    ReleaseDate="2018-11-11 01:00:00 GMT+01:00"
     CurrentAPI="1"/>
   
   <DependsOn>
     <CoreDependency Name="MediaPortal.Common" CompatibleAPI="2" />
-    <CoreDependency Name="MediaPortal.UI" CompatibleAPI="2" />    
+    <CoreDependency Name="MediaPortal.UI" CompatibleAPI="2" />
+
+    <PluginReference PluginId="{1AFF4467-64B0-4ca1-AF28-9AEDF3525BCE}" CompatibleAPI="1"/> <!-- ConfigurationManager -->
+    <PluginReference PluginId="{B765A4B6-F455-4941-BDAE-2CE45208BFEB}" CompatibleAPI="1"/> <!-- Configuration plugin -->
   </DependsOn>
 
   <Runtime>
     <Assembly FileName="WifiRemote.dll"/>
-    <PluginStateTracker ClassName="MediaPortal.Plugins.WifiRemote.WifiRemote"/>
+    <PluginStateTracker ClassName="MediaPortal.Plugins.WifiRemote.WifiRemotePlugin"/>
   </Runtime>
+
+  <Register Location="/Resources/Language">
+    <Resource Id="WifiRemoteLanguage" Directory="Language" Type="Language"/>
+  </Register>
+
+  <!-- Root configuration sections -->
+  <Register Location="/Configuration/Settings">
+    <ConfigSection
+        Id="WifiRemote"
+        Sort="X100"
+        Redundant="true"
+        Text="[Settings.WifiRemote.Title]"/>
+  </Register>
+
+  <!-- Contents of '/WifiRemote' section -->
+  <Register Location="/Configuration/Settings/WifiRemote">
+    <ConfigSetting
+        Id="WifiRemoteAuthenticationMethod"
+        RestrictionGroup="Settings"
+        Text="[Settings.WifiRemote.AuthenticationMethod]"
+        HelpText="[Settings.WifiRemote.AuthenticationMethod.Help]"
+        ClassName="MediaPortal.Plugins.WifiRemote.Settings.Configuration.AuthenticationMethod"/>
+
+    <ConfigSetting
+        Id="WifiRemoteUserName"
+        RestrictionGroup="Settings"
+        Text="[Settings.WifiRemote.UserName]"
+        HelpText="[Settings.WifiRemote.UserName.Help]"
+        ClassName="MediaPortal.Plugins.WifiRemote.Settings.Configuration.UserName"/>
+
+    <ConfigSetting
+        Id="WifiRemotePassword"
+        RestrictionGroup="Settings"
+        Text="[Settings.WifiRemote.Password]"
+        HelpText="[Settings.WifiRemote.Password.Help]"
+        ClassName="MediaPortal.Plugins.WifiRemote.Settings.Configuration.Password"/>
+
+    <ConfigSetting
+        Id="WifiRemotePasscode"
+        RestrictionGroup="Settings"
+        Text="[Settings.WifiRemote.Passcode]"
+        HelpText="[Settings.WifiRemote.Passcode.Help]"
+        ClassName="MediaPortal.Plugins.WifiRemote.Settings.Configuration.Passcode"/>
+    
+    <ConfigSetting
+        Id="WifiRemoteAutoLoginTimeout"
+        RestrictionGroup="Settings"
+        Text="[Settings.WifiRemote.AutoLoginTimeout]"
+        HelpText="[Settings.WifiRemote.AutoLoginTimeout.Help]"
+        ClassName="MediaPortal.Plugins.WifiRemote.Settings.Configuration.AutoLoginTimeout"/>    
+    
+    <ConfigSetting
+        Id="WifiRemoteEnableBonjour"
+        RestrictionGroup="Settings"
+        Text="[Settings.WifiRemote.EnableBonjour]"
+        HelpText="[Settings.WifiRemote.EnableBonjour.Help]"
+        ClassName="MediaPortal.Plugins.WifiRemote.Settings.Configuration.EnableBonjour"/>  
+    
+    <ConfigSetting
+        Id="WifiRemotePort"
+        RestrictionGroup="Settings"
+        Text="[Settings.WifiRemote.Port]"
+        HelpText="[Settings.WifiRemote.Port.Help]"
+        ClassName="MediaPortal.Plugins.WifiRemote.Settings.Configuration.Port"/>      
+  </Register>
 </Plugin>
