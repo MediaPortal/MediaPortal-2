@@ -48,16 +48,15 @@ namespace MediaPortal.Extensions.MediaServer.Objects.MediaLibrary
 
     private IDictionary<Guid, Share> GetShares()
     {
-      ICollection<Guid> allowedShares = GetAllowedShares();
+      var allowedShares = GetAllowedShares();
       IDictionary<Guid, Share> shares = new Dictionary<Guid, Share>();
 
       IMediaLibrary library = ServiceRegistration.Get<IMediaLibrary>();
-      foreach (KeyValuePair<Guid, Share> share in library.GetShares(null))
+      foreach (var share in GetAllowedShares())
       {
-        if ((CategoryFilter == null || CategoryFilter.Count == 0 || share.Value.MediaCategories.Any(x => CategoryFilter.Contains(x))) &&
-          (allowedShares == null || allowedShares.Contains(share.Key)))
+        if (CategoryFilter == null || CategoryFilter.Count == 0 || share.MediaCategories.Any(x => CategoryFilter.Contains(x)))
         {
-          shares.Add(share.Key, share.Value);
+          shares.Add(share.ShareId, share);
         }
       }
       return shares;

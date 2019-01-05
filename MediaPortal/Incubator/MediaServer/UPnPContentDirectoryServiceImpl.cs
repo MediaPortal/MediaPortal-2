@@ -42,6 +42,9 @@ using MediaPortal.Extensions.MediaServer.Objects.MediaLibrary;
 using MediaPortal.Extensions.MediaServer.Parser;
 using MediaPortal.Extensions.MediaServer.Profiles;
 using System.Net;
+using MediaPortal.Common.UserProfileDataManagement;
+using MediaPortal.Common.Threading;
+using System.Collections.Concurrent;
 
 namespace MediaPortal.Extensions.MediaServer
 {
@@ -561,6 +564,11 @@ namespace MediaPortal.Extensions.MediaServer
         deviceClient.UserId = Guid.TryParse(objectId.Substring(MediaLibraryHelper.CONTAINER_USERS_KEY.Length + 1), out Guid g) ? g : (Guid?)null;
         deviceClient.InitializeUserAsync().Wait();
       }
+    }
+
+    private static IUserProfileDataManagement UserProfileManager
+    {
+      get { return ServiceRegistration.Get<IUserProfileDataManagement>(false); }
     }
 
     internal static ILogger Logger

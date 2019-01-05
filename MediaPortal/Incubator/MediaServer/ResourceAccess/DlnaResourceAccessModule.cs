@@ -633,7 +633,7 @@ namespace MediaPortal.Extensions.MediaServer.ResourceAccess
               double duration = Convert.ToDouble(dlnaItem.DlnaMetadata.Metadata.Duration);
               //if (dlnaItem.IsSegmented)
               //{
-              //  //Is this possible?
+              //  //TODO: Check if this is works
               //  duration = MediaConverter.HLSSegmentTimeInSeconds;
               //}
               ranges = ParseTimeRanges(rangeSpecifier, duration);
@@ -1201,6 +1201,7 @@ namespace MediaPortal.Extensions.MediaServer.ResourceAccess
           (item.TranscodingContext.Segmented && item.TranscodingContext.CurrentSegment >= item.TranscodingContext.LastSegment))
         {
           //If end of media or client disconnected
+          Logger.Debug("DlnaResourceAccessModule: Ending stream");
           StreamControl.StopStreaming(client);
           _clientManager.DetachClient(client.ClientId);
 
@@ -1209,8 +1210,8 @@ namespace MediaPortal.Extensions.MediaServer.ResourceAccess
             //Everything sent to client so presume watched
             if (item.IsLive == false)
             {
-              IMediaLibrary library = ServiceRegistration.Get<IMediaLibrary>();
-              library.NotifyUserPlayback(client.UserId.HasValue ? client.UserId.Value : client.ClientId, item.MediaSource.MediaItemId, 100, true);
+              IMediaLibrary library = ServiceRegistration.Get<IMediaLibrary>(false);
+              library?.NotifyUserPlayback(client.UserId.HasValue ? client.UserId.Value : client.ClientId, item.MediaSource.MediaItemId, 100, true);
             }
           }
         }

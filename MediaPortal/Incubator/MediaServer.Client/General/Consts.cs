@@ -33,5 +33,8 @@ namespace MediaPortal.Extensions.MediaServer.Client.General
     public const string KEY_CLIENT = "Client";
     public const string KEY_USER = "User";
     public const string KEY_PROFILE = "Profile";
+
+    public const string RES_NOUSER = "[Settings.DLNA.Clients.Config.NoUser]";
+    public const string RES_AUTO = "[Settings.DLNA.Clients.Config.AutoProfile]";
   }
 }

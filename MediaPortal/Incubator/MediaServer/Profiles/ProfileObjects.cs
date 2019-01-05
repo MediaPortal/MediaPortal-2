@@ -143,9 +143,10 @@ namespace MediaPortal.Extensions.MediaServer.Profiles
   public class EndPointSettings
   {
     public EndPointProfile Profile { get; set; } = null;
-    public IEnumerable<string> PreferredSubtitleLanguages { get; set; } = null;
-    public IEnumerable<string> PreferredAudioLanguages { get; set; } = null;
+    public IEnumerable<string> PreferredSubtitleLanguages { get; set; } = new List<string>();
+    public IEnumerable<string> PreferredAudioLanguages { get; set; } = new List<string>();
     public Guid ClientId { get; set; } = Guid.Empty;
+    public string ClientName { get; set; }
     public Guid? UserId { get; set; } = null;
     public bool EstimateTransodedSize { get; set; } = true;
     public bool AutoProfile { get; set; } = true;
@@ -303,7 +304,12 @@ namespace MediaPortal.Extensions.MediaServer.Profiles
       if (RootContainer == null)
       {
         IUserProfileDataManagement userManager = ServiceRegistration.Get<IUserProfileDataManagement>();
-        ClientId = await userManager.CreateProfileAsync($"DLNA ({id})", UserProfileType.ClientProfile, "");
+        ClientName = $"DLNA ({id})";
+        var profile = await userManager.GetProfileByNameAsync(ClientName);
+        if (profile.Success)
+          ClientId = profile.Result.ProfileId;
+        else
+          ClientId = await userManager.CreateProfileAsync(ClientName, UserProfileType.ClientProfile, "");
         await userManager.LoginProfileAsync(ClientId);
 
         if (UserId.HasValue)

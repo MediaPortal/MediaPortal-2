@@ -44,20 +44,15 @@ namespace MediaPortal.Extensions.MediaServer.Objects.MediaLibrary
     public override void Initialise()
     {
       IMediaLibrary library = ServiceRegistration.Get<IMediaLibrary>();
-      ICollection<Guid> allowedShares = GetAllowedShares();
+      var allowedShares = GetAllowedShares();
       List<MediaItem> shares = new List<MediaItem>();
-      foreach (KeyValuePair<Guid, Share> share in library.GetShares(null))
+      foreach (var share in allowedShares)
       {
-        if (share.Value.MediaCategories.Any(x => x.Contains("Image")))
+        if (share.MediaCategories.Any(x => x.Contains("Image")))
         {
-          if (allowedShares == null || allowedShares.Contains(share.Key))
-          {
-            MediaItem item = library.LoadItem(share.Value.SystemId, share.Value.BaseResourcePath, NECESSARY_SHARE_MIA_TYPE_IDS, OPTIONAL_SHARE_MIA_TYPE_IDS, _userId);
-            if (item != null && item.Aspects.ContainsKey(DirectoryAspect.ASPECT_ID))
-            {
-              shares.Add(item);
-            }
-          }
+          MediaItem item = library.LoadItem(share.SystemId, share.BaseResourcePath, NECESSARY_SHARE_MIA_TYPE_IDS, OPTIONAL_SHARE_MIA_TYPE_IDS, _userId);
+          if (item != null && item.Aspects.ContainsKey(DirectoryAspect.ASPECT_ID))
+            shares.Add(item);
         }
       }
 
@@ -67,9 +62,7 @@ namespace MediaPortal.Extensions.MediaServer.Objects.MediaLibrary
         foreach (MediaItem album in albums)
         {
           if (album != null && album.Aspects.ContainsKey(DirectoryAspect.ASPECT_ID))
-          {
             Add(new MediaLibraryBrowser(album, Client));
-          }
         }
       }
     }

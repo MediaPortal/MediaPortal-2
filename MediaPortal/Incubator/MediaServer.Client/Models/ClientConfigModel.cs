@@ -41,6 +41,7 @@ using MediaPortal.Common.UserManagement;
 using MediaPortal.Extensions.MediaServer.Client.General;
 using MediaPortal.Extensions.MediaServer.Interfaces.Settings;
 using MediaPortal.Plugins.ServerSettings;
+using MediaPortal.Common.Localization;
 
 namespace MediaPortal.Extensions.MediaServer.Client.Models
 {
@@ -229,17 +230,17 @@ namespace MediaPortal.Extensions.MediaServer.Client.Models
 
     public void OpenSelectUserDialog()
     {
-      ServiceRegistration.Get<IScreenManager>().ShowDialog("DialogSelectUser");
+      ServiceRegistration.Get<IScreenManager>().ShowDialog("DialogSelectClientUser");
     }
 
     public void OpenSelectProfileDialog()
     {
-      ServiceRegistration.Get<IScreenManager>().ShowDialog("DialogSelectProfile");
+      ServiceRegistration.Get<IScreenManager>().ShowDialog("DialogSelectClientProfile");
     }
 
     public void OpenConfirmDeleteDialog()
     {
-      ServiceRegistration.Get<IScreenManager>().ShowDialog("DialogDeleteConfirm");
+      ServiceRegistration.Get<IScreenManager>().ShowDialog("DialogDeleteClientConfirm");
     }
 
 
@@ -285,8 +286,13 @@ namespace MediaPortal.Extensions.MediaServer.Client.Models
       try
       {
         ProfileLinkSettings settings = new ProfileLinkSettings();
-        foreach(var item in _clientList)
-          settings.Links.Add((ProfileLink)item.AdditionalProperties[Consts.KEY_CLIENT]);
+        foreach (var item in _clientList)
+        {
+          var client = (ProfileLink)item.AdditionalProperties[Consts.KEY_CLIENT];
+          if (client.DefaultUserProfile == Guid.Empty.ToString())
+            client.DefaultUserProfile = null;
+          settings.Links.Add(client);
+        }
 
         IServerSettingsClient serverSettings = ServiceRegistration.Get<IServerSettingsClient>();
         serverSettings.Save(settings);
@@ -312,8 +318,8 @@ namespace MediaPortal.Extensions.MediaServer.Client.Models
         _selectedClient = client;
         IsClientSelected = client != null;
         SelectedClientName = client?.ClientName ?? "";
-        SelectedUserInfo = client?.DefaultUserProfile ?? "";
-        SelectedProfileInfo = client?.Profile ?? "";
+        SelectedUserInfo = _userList.FirstOrDefault(p => ((UserProfile)p.AdditionalProperties[Consts.KEY_USER]).ProfileId.ToString() == client?.DefaultUserProfile)?.Labels[Consts.KEY_NAME].Evaluate() ?? LocalizationHelper.Translate(Consts.RES_NOUSER) ?? "";
+        SelectedProfileInfo = _profileList.FirstOrDefault(p => p.AdditionalProperties[Consts.KEY_PROFILE].ToString() == client?.Profile)?.Labels[Consts.KEY_NAME].Evaluate() ?? client?.Profile ?? "";
       }
       catch (Exception e)
       {
@@ -349,7 +355,10 @@ namespace MediaPortal.Extensions.MediaServer.Client.Models
           return;
         _updatingProperties = true;
         if (create)
+        {
           _clientList = new ItemsList();
+          _profileList = new ItemsList();
+        }
       }
       try
       {
@@ -362,16 +371,14 @@ namespace MediaPortal.Extensions.MediaServer.Client.Models
 
         IServerSettingsClient serverSettings = ServiceRegistration.Get<IServerSettingsClient>();
         ProfileLinkSettings settings = serverSettings.Load<ProfileLinkSettings>();
+        ListItem item = null;
 
         _clientList.Clear();
-        bool selectedOnce = false;
         foreach (ProfileLink client in settings.Links)
         {
-          ListItem item = new ListItem();
+          item = new ListItem();
           item.SetLabel(Consts.KEY_NAME, client.ClientName);
           item.AdditionalProperties[Consts.KEY_CLIENT] = client;
-          if (!string.IsNullOrEmpty(selectedClientName))
-            selectedOnce |= item.Selected = client.ClientName == selectedClientName;
           item.SelectedProperty.Attach(OnClientItemSelectionChanged);
           lock (_syncObj)
             _clientList.Add(item);
@@ -379,9 +386,14 @@ namespace MediaPortal.Extensions.MediaServer.Client.Models
         _clientList.FireChange();
 
         _profileList.Clear();
+        item = new ListItem();
+        item.SetLabel(Consts.KEY_NAME, LocalizationHelper.Translate(Consts.RES_AUTO));
+        item.AdditionalProperties[Consts.KEY_PROFILE] = "Auto";
+        lock (_syncObj)
+          _profileList.Add(item);
         foreach (var profile in ProfileLinkSettings.Profiles)
         {
-          ListItem item = new ListItem();
+          item = new ListItem();
           item.SetLabel(Consts.KEY_NAME, profile.Value);
           item.AdditionalProperties[Consts.KEY_PROFILE] = profile.Key;
           lock (_syncObj)
@@ -423,9 +435,14 @@ namespace MediaPortal.Extensions.MediaServer.Client.Models
         // add users to expose them
         var users = await userManagement.UserProfileDataManagement.GetProfilesAsync();
         _userList.Clear();
+        ListItem item = new ListItem();
+        item.SetLabel(Consts.KEY_NAME, LocalizationHelper.Translate(Consts.RES_NOUSER));
+        item.AdditionalProperties[Consts.KEY_USER] = new UserProfile(Guid.Empty, LocalizationHelper.Translate(Consts.RES_NOUSER));
+        lock(_syncObj)
+            _userList.Add(item);
         foreach (UserProfile user in users)
         {
-          ListItem item = new ListItem();
+          item = new ListItem();
           item.SetLabel(Consts.KEY_NAME, user.Name);
           item.AdditionalProperties[Consts.KEY_USER] = user;
           lock (_syncObj)

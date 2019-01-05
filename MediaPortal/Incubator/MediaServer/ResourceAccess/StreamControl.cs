@@ -169,7 +169,7 @@ namespace MediaPortal.Extensions.MediaServer.ResourceAccess
           {
             _streamItems[client.ClientId].StreamContext = MediaConverter.GetMediaStreamAsync(client.ClientId.ToString(), _streamItems[client.ClientId].TranscoderObject.TranscodingParameter, startTime, lengthTime, true).Result;
           }
-          _streamItems[client.ClientId].StreamContext.InUse = true;
+          _streamItems[client.ClientId].StreamContext.UpdateStreamUse(true);
           _streamItems[client.ClientId].IsActive = true;
           _streamItems[client.ClientId].TranscoderObject.TranscodingContext = _streamItems[client.ClientId].StreamContext;
         }
@@ -190,7 +190,7 @@ namespace MediaPortal.Extensions.MediaServer.ResourceAccess
             _streamItems[client.ClientId].TranscoderObject.StopStreaming();
 
           if (_streamItems[client.ClientId].StreamContext != null)
-            _streamItems[client.ClientId].StreamContext.InUse = false;
+            _streamItems[client.ClientId].StreamContext.UpdateStreamUse(false);
         }
       }
     }

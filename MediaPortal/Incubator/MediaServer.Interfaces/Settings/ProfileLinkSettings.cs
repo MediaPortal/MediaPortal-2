@@ -18,10 +18,12 @@
 
 #endregion
 
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Xml.Serialization;
 using MediaPortal.Common.Settings;
+using MediaPortal.Utilities.UPnP;
 
 namespace MediaPortal.Extensions.MediaServer.Interfaces.Settings
 {
@@ -43,26 +45,30 @@ namespace MediaPortal.Extensions.MediaServer.Interfaces.Settings
 
     #region Additional members for the XML serialization
 
-    /// <summary>
-    /// Workaround property to enable automatic serialization because the <see cref="Dictionary{TKey,TValue}"/> cannot be serialized.
-    /// </summary>
     [XmlAttribute("Profiles")]
-    public DictionaryEntry[] XML_Profiles
+    public string XML_Profiles
     {
       get
       {
-        DictionaryEntry[] entries = new DictionaryEntry[Profiles.Count];
-        int count = 0;
-        foreach (var entry in Profiles)
-          entries[count++] = new DictionaryEntry(entry.Key, entry.Value);
-        return entries;
+        List<Tuple<string, string>> convert = new List<Tuple<string, string>>();
+        foreach (var key in Profiles)
+        {
+          convert.Add(new Tuple<string, string>(key.Key.ToString(), key.Value));
+        }
+        if (convert.Count > 0)
+          return MarshallingHelper.SerializeTuple2EnumerationToCsv(convert);
+        return null;
       }
       set
       {
+        IEnumerable<Tuple<string, string>> convert = MarshallingHelper.ParseCsvTuple2Collection(value);
+        if (convert == null)
+          return;
+
         if (Profiles.Count == 0)
         {
-          foreach (DictionaryEntry entry in value)
-            Profiles.Add((string)entry.Key, (string)entry.Value);
+          foreach (var entry in convert)
+            Profiles.Add(entry.Item1, entry.Item2);
         }
       }
     }
@@ -72,6 +78,7 @@ namespace MediaPortal.Extensions.MediaServer.Interfaces.Settings
 
   public class ProfileLink
   {
+    public string ClientId { get; set; }
     public string ClientName { get; set; }
     public string Profile { get; set; }
     public string DefaultUserProfile { get; set; }

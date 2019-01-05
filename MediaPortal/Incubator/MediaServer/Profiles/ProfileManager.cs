@@ -56,7 +56,6 @@ namespace MediaPortal.Extensions.MediaServer.Profiles
     private const string NO_PROFILE = "None";
 
     private readonly static SettingsChangeWatcher<ProfileLinkSettings> ProfileLinkChangeWatcher;
-    private static bool UpdatingProfileLinks = false;
 
     public const string TRANSCODE_PROFILE_SECTION = "DLNA";
 
@@ -71,16 +70,8 @@ namespace MediaPortal.Extensions.MediaServer.Profiles
 
     private static async void ProfileLinkChanged(object sender, EventArgs e)
     {
-      if (UpdatingProfileLinks)
-        return;
-      UpdatingProfileLinks = true;
-
-      //Save any new links
-      SaveProfileLinks();
       //Reload all links
       await LoadProfileLinksAsync();
-
-      UpdatingProfileLinks = false;
     }
 
     public static IPAddress ResolveIpAddress(string address)
@@ -132,17 +123,17 @@ namespace MediaPortal.Extensions.MediaServer.Profiles
       IPAddress ip = ResolveIpAddress(request.RemoteIpAddress);
       string clientName = EndPointSettings.GetClientName(ip);
 
-      // Overwrite the automatic profile detection
+      // Check links
       if (ProfileLinks.TryGetValue(clientName, out var link))
       {
         if (link.Profile != null)
         {
-          Logger.Debug("DetectProfile: Overwrite automatic profile detection for IP: {0}, using: {1}", ip, link.Profile.ID);
+          Logger.Debug("DetectProfile: IP: {0}, using: {1}", ip, link.Profile.ID);
           return link;
         }
-        else if(link.AutoProfile == false)
+        else if (link.AutoProfile == false)
         {
-          Logger.Debug("DetectProfile: Overwrite automatic profile detection for IP: {0}, using: None", ip);
+          Logger.Debug("DetectProfile: IP: {0}, using: None", ip);
           return null;
         }
       }      
@@ -234,7 +225,7 @@ namespace MediaPortal.Extensions.MediaServer.Profiles
               {
                 match = false;
 #if DEBUG
-                Logger.Info("DetectProfile: No Manufacturer Tracked: {0}, Search: {1}", trackedDevice.Manufacturer, detection.UPnPSearch.Manufacturer);
+                Logger.Debug("DetectProfile: No Manufacturer Tracked: {0}, Search: {1}", trackedDevice.Manufacturer, detection.UPnPSearch.Manufacturer);
 #endif
                 break;
               }
@@ -247,6 +238,8 @@ namespace MediaPortal.Extensions.MediaServer.Profiles
             var eps = await GetEndPointSettingsAsync(ip.ToString(), profile.Value.ID);
             if (ProfileLinks.TryAdd(clientName, eps) == false)
               ProfileLinks[clientName] = eps;
+            else
+              SaveProfileLinks();
             return eps;
           }
         }
@@ -257,6 +250,8 @@ namespace MediaPortal.Extensions.MediaServer.Profiles
       var def = await GetEndPointSettingsAsync(ip.ToString(), DLNA_DEFAULT_PROFILE_ID);
       if (ProfileLinks.TryAdd(clientName, def) == false)
         ProfileLinks[clientName] = def;
+      else
+        SaveProfileLinks();
       return def;
     }
 
@@ -625,14 +620,25 @@ namespace MediaPortal.Extensions.MediaServer.Profiles
     {
       try
       {
-        ProfileLinks.Clear();
         IUserProfileDataManagement userManager = ServiceRegistration.Get<IUserProfileDataManagement>();
         ISettingsManager settingsManager = ServiceRegistration.Get<ISettingsManager>();
         ProfileLinkSettings profileLinks = settingsManager.Load<ProfileLinkSettings>();
 
+        //Remove deleted profiles
+        var deletedProfiles = ProfileLinks.Where(p => !profileLinks.Links.Any(lp => lp.ClientName == p.Key)).Select(p => p.Key).ToList();
+        foreach (var profile in deletedProfiles)
+          ProfileLinks.TryRemove(profile, out _);
+
+        //Add and update profiles
         foreach (ProfileLink link in profileLinks.Links)
         {
-          EndPointSettings settings = new EndPointSettings();
+          EndPointSettings settings = null;
+          if (!ProfileLinks.TryGetValue(link.ClientName, out settings))
+          {
+            settings = new EndPointSettings();
+            ProfileLinks.TryAdd(link.ClientName, settings);
+          }
+
           settings.AutoProfile = false;
 
           if (Profiles.ContainsKey(link.Profile) == true)
@@ -659,7 +665,6 @@ namespace MediaPortal.Extensions.MediaServer.Profiles
             Logger.Info("DlnaMediaServer: Client: {0}, using profile: {1}", link.ClientName, NO_PROFILE);
           else
             Logger.Info("DlnaMediaServer: Client: {0}, using profile: {1}", link.ClientName, settings.Profile.ID);
-          ProfileLinks.TryAdd(link.ClientName, settings);
         }
       }
       catch (Exception e)
@@ -683,6 +688,7 @@ namespace MediaPortal.Extensions.MediaServer.Profiles
             link = new ProfileLink
             {
               ClientName = pair.Key.ToString(),
+              ClientId = pair.Value.ClientId.ToString(),
               Profile = pair.Value.AutoProfile ? AUTO_PROFILE : pair.Value.Profile.ID
             };
             profileLinks.Links.Add(link);
@@ -692,6 +698,7 @@ namespace MediaPortal.Extensions.MediaServer.Profiles
             link = new ProfileLink
             {
               ClientName = pair.Key.ToString(),
+              ClientId = pair.Value.ClientId.ToString(),
               Profile = AUTO_PROFILE
             };
             profileLinks.Links.Add(link);

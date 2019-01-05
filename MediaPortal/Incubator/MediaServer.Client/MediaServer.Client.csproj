@@ -77,12 +77,12 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="build.targets" />
-    <None Include="Skin\default\screens\DialogSelectProfile.xaml">
+    <None Include="Skin\default\screens\DialogSelectClientProfile.xaml">
       <SubType>Designer</SubType>
     </None>
   </ItemGroup>
   <ItemGroup>
-    <None Include="Skin\default\screens\DialogDeleteConfirm.xaml">
+    <None Include="Skin\default\screens\DialogDeleteClientConfirm.xaml">
       <SubType>Designer</SubType>
     </None>
   </ItemGroup>
@@ -93,7 +93,7 @@
     <Content Include="plugin.xml">
       <SubType>Designer</SubType>
     </Content>
-    <Content Include="Skin\default\screens\DialogSelectUser.xaml">
+    <Content Include="Skin\default\screens\DialogSelectClientUser.xaml">
       <SubType>Designer</SubType>
     </Content>
   </ItemGroup>
