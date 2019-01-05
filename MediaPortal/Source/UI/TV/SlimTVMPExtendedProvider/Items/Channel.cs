@@ -56,7 +56,7 @@ namespace MediaPortal.Plugins.SlimTv.Providers.Items
 
     public bool VisibleInGuide { get; set; }
 
-    public List<string> GroupNames { get; set; }
+    public IList<string> GroupNames { get; set; }
 
     #endregion
   }

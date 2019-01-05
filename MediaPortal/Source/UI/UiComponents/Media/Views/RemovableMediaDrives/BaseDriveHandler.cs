@@ -172,6 +172,8 @@ namespace MediaPortal.UiComponents.Media.Views.RemovableMediaDrives
                   if (mergeHandler.TryMerge(match.Aspects, mediaItem.Aspects))
                   {
                     mediaItem.AssignMissingId(match.MediaItemId);
+                    foreach (var data in match.UserData)
+                      mediaItem.UserData.Add(data);
                     break;
                   }
                 }
@@ -199,10 +201,12 @@ namespace MediaPortal.UiComponents.Media.Views.RemovableMediaDrives
                 bool merged = false;
                 if (existingItems.Count == 1)
                 {
-                  MediaItem macth = existingItems.First();
-                  if ((merged = mergeHandler.TryMerge(macth.Aspects, mediaItem.Aspects)))
+                  MediaItem match = existingItems.First();
+                  if ((merged = mergeHandler.TryMerge(match.Aspects, mediaItem.Aspects)))
                   {
-                    mediaItem.AssignMissingId(macth.MediaItemId);
+                    mediaItem.AssignMissingId(match.MediaItemId);
+                    foreach (var data in match.UserData)
+                      mediaItem.UserData.Add(data);
                     break;
                   }
                 }
@@ -215,6 +219,8 @@ namespace MediaPortal.UiComponents.Media.Views.RemovableMediaDrives
                       if ((merged = mergeHandler.TryMerge(existingItem.Aspects, mediaItem.Aspects)))
                       {
                         mediaItem.AssignMissingId(existingItem.MediaItemId);
+                        foreach (var data in existingItem.UserData)
+                          mediaItem.UserData.Add(data);
                         break;
                       }
                     }
@@ -258,6 +264,8 @@ namespace MediaPortal.UiComponents.Media.Views.RemovableMediaDrives
                       if (mergeHandler.TryMerge(existingItem.Aspects, mediaItem.Aspects))
                       {
                         mediaItem.AssignMissingId(existingItem.MediaItemId);
+                        foreach (var data in existingItem.UserData)
+                          mediaItem.UserData.Add(data);
                         break;
                       }
                     }

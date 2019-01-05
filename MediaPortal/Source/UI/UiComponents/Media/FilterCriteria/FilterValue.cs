@@ -58,6 +58,15 @@ namespace MediaPortal.UiComponents.Media.FilterCriteria
       _criterion = criterion;
     }
 
+    public FilterValue(string title, FilterTreePath relativeFilterPath, IFilter selectAttributeFilter, int numItems, MLFilterCriterion criterion)
+    {
+      _title = title;
+      _relativeFilterPath = relativeFilterPath;
+      _selectAttributeFilter = selectAttributeFilter;
+      _numItems = numItems;
+      _criterion = criterion;
+    }
+
     public FilterValue(object id, string title, IFilter filter, IFilter selectAttributeFilter, int numItems, MLFilterCriterion criterion)
     {
       _id = id;

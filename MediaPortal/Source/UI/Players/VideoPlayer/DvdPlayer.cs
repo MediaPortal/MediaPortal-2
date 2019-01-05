@@ -127,6 +127,9 @@ namespace MediaPortal.UI.Players.Video
     {
       _dvdGraph = (IDvdGraphBuilder) new DvdGraphBuilder();
       new HRESULT(_dvdGraph.GetFiltergraph(out _graphBuilder)).Throw();
+      _mc = (IMediaControl)_graphBuilder;
+      _me = (IMediaEventEx)_graphBuilder;
+      _ms = (IMediaSeeking)_graphBuilder;
       _streamCount = 3; // Allow Video, CC, and Subtitle
     }
 

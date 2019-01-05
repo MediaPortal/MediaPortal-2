@@ -180,9 +180,25 @@ namespace UPnP.Infrastructure.CP
         IDisposable server = null;
         try
         {
-          server = WebApp.Start(startOptions, builder => { builder.Use((context, func) => HandleHTTPRequest(context)); });
-          UPnPConfiguration.LOGGER.Info("UPnPControlPoint: HTTP listener started on addresses {0}", String.Join(", ", startOptions.Urls));
-          _httpListeners.Add(server);
+          try
+          {
+            server = WebApp.Start(startOptions, builder => { builder.Use((context, func) => HandleHTTPRequest(context)); });
+            UPnPConfiguration.LOGGER.Info("UPnPControlPoint: HTTP listener started on addresses {0}", String.Join(", ", startOptions.Urls));
+            _httpListeners.Add(server);
+          }
+          catch (Exception ex)
+          {
+            if (UPnPConfiguration.IP_ADDRESS_BINDINGS.Count > 0)
+              UPnPConfiguration.LOGGER.Warn("UPnPControlPoint: Error starting HTTP server with filters. Fallback to no filters", ex);
+            else
+              throw ex;
+
+            server?.Dispose();
+            startOptions = UPnPServer.BuildStartOptions(servicePrefix, new List<string>(), UPnPServer.DEFAULT_UPNP_AND_SERVICE_PORT_NUMBER);
+            server = WebApp.Start(startOptions, builder => { builder.Use((context, func) => HandleHTTPRequest(context)); });
+            UPnPConfiguration.LOGGER.Info("UPnPControlPoint: HTTP listener started on addresses {0}", String.Join(", ", startOptions.Urls));
+            _httpListeners.Add(server);
+          }
         }
         catch (SocketException e)
         {

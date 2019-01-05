@@ -265,6 +265,8 @@ namespace MediaPortal.UI.Services.Players
       subMi = null;
       IPathManager pathManager = ServiceRegistration.Get<IPathManager>();
       string resourceDirectory = pathManager.GetPath(@"<DATA>\Resources\");
+      if (!Directory.Exists(resourceDirectory))
+        return false;
       string[] files = Directory.GetFiles(resourceDirectory, "InsertAudioMedia.*");
       if (files == null || files.Length == 0)
         return false;
@@ -292,6 +294,8 @@ namespace MediaPortal.UI.Services.Players
       subMi = null;
       IPathManager pathManager = ServiceRegistration.Get<IPathManager>();
       string resourceDirectory = pathManager.GetPath(@"<DATA>\Resources\");
+      if (!Directory.Exists(resourceDirectory))
+        return false;
       string[] files = Directory.GetFiles(resourceDirectory, "InsertVideoMedia.*");
       if (files == null || files.Length == 0)
         return false;
