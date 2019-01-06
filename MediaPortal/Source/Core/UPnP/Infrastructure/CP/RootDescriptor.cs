@@ -87,7 +87,7 @@ namespace UPnP.Infrastructure.CP
     }
 
     /// <summary>
-    /// Gets the ynchronization object to use inside <c>lock()</c> statements when accessing data in this instance.
+    /// Gets the synchronization object to use inside <c>lock()</c> statements when accessing data in this instance.
     /// </summary>
     public object SyncObj
     {
