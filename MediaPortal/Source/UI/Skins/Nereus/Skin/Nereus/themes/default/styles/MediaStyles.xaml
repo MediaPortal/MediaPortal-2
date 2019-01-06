@@ -37,17 +37,12 @@
     <DockPanel LastChildFill="true" Margin="3">
       <Grid DockPanel.Dock="Center" HorizontalAlignment="Stretch">
         <Grid.ColumnDefinitions>
-          <!--ColumnDefinition Width="100"/-->
           <ColumnDefinition Width="*"/>
-          <ColumnDefinition Width="100"/>
+          <ColumnDefinition Width="Auto"/>
         </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
           <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
-
-        <!--Label x:Name="CurrentTimeLabel" Grid.Column="0" Content="{Binding CurrentTime}"
-               Color="{ThemeResource TextColor}" HorizontalAlignment="Right" VerticalAlignment="Center"
-               FontSize="{ThemeResource SmallerFontSize}" Margin="5,0,5,0"/-->
 
         <ProgressBar x:Name="ProgressBar" Height="18" HorizontalAlignment="Stretch" VerticalAlignment="Center" Margin="15,5,5,0"
                      Style="{ThemeResource OSDProgressBarStyle}" Value="{Binding Path=PercentPlayed, Mode=TwoWay}" />

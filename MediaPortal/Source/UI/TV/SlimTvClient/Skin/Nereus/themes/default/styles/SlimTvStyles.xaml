@@ -50,11 +50,30 @@
                        Fill="{ThemeResource OSDProgressBarBackgroundColor}" RadiusX="5" RadiusY="5"/>
 
             <Grid x:Name="ProgressBarIndicator" HorizontalAlignment="Left" VerticalAlignment="Center">
-              <Grid VerticalAlignment="Center" HorizontalAlignment="Right" Margin="-144,-45,-51,1" Height="55">
-                <Image Source="PlayerControl\Time.Indicator.png" Height="55" Stretch="Uniform" VerticalAlignment="Center" HorizontalAlignment="Center" Opacity="0.9"/>
-                <Label x:Name="CurrentTimeLabel" Content="{Binding Source={StaticResource TimeModel}, Path=CurrentTime}"
-                       HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0,0,0,12" Opacity="0.9" 
-                       Color="Black" FontSize="{ThemeResource SmallerFontSize}" FontFamily="SegoeUIBold"/>
+              <Grid VerticalAlignment="Center" HorizontalAlignment="Right" Margin="-80,-45,-80,1" Width="160">
+                <Grid.ColumnDefinitions>
+                  <ColumnDefinition Width="*"/>
+                  <ColumnDefinition Width="Auto"/>
+                  <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                <Grid HorizontalAlignment="Center" Grid.Column="1">
+                  <Grid.RowDefinitions>
+                    <RowDefinition Height="55"/>
+                  </Grid.RowDefinitions>
+                  <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                  </Grid.ColumnDefinitions>
+                  
+                  <Border Background="White" BorderThickness="0" CornerRadius="5" Opacity="0.9" VerticalAlignment="Top" Margin="-5,10,-5,0" Height="26"/>
+                  
+                  <Image Source="PlayerControl\Time.Indicator.center.png" Stretch="Uniform" Margin="2,35,-2,0" Width="20"
+                       VerticalAlignment="Top" HorizontalAlignment="Center" Opacity="0.9"/>
+
+                  <Label x:Name="CurrentTimeLabel" Grid.Row="0" Content="{Binding Source={StaticResource TimeModel}, Path=CurrentTime}" Opacity="0.9"
+                       HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0,0,0,12" FontFamily="SegoeUIBold"
+                       Color="Black" FontSize="{ThemeResource SmallerFontSize}"/>
+                  
+                </Grid>
               </Grid>
               <Rectangle Width="{TemplateBinding PartIndicatorWidth}" HorizontalAlignment="Left" VerticalAlignment="Center"
                          RadiusX="5" RadiusY="5" Height="10" Fill="{ThemeResource ProgressBarFillColor}"/>
@@ -67,6 +86,7 @@
             </StackPanel>
 
           </Grid>
+
         </ControlTemplate>
       </Setter.Value>
     </Setter>
@@ -272,9 +292,9 @@
                 <DockPanel LastChildFill="true" Margin="3,3,3,15">
                   <Grid DockPanel.Dock="Center" HorizontalAlignment="Stretch" DataContext="{Binding Source={StaticResource SlimTvClient}}">
                     <Grid.ColumnDefinitions>
-                      <ColumnDefinition Width="100"/>
+                      <ColumnDefinition Width="Auto"/>
                       <ColumnDefinition Width="*"/>
-                      <ColumnDefinition Width="100"/>
+                      <ColumnDefinition Width="Auto"/>
                     </Grid.ColumnDefinitions>
                     <Grid.RowDefinitions>
                       <RowDefinition Height="Auto"/>

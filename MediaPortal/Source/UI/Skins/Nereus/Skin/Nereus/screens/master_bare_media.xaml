@@ -135,7 +135,7 @@ Parameters which have to be accessible by a DynamicResource lookup:
                  Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0} != {LayoutType}.{CoverLayout}"/>
       </Grid.IsVisible>
       <Grid.RowDefinitions>
-        <RowDefinition Height="*"/>
+        <RowDefinition Height="100"/>
       </Grid.RowDefinitions>
       <Grid.ColumnDefinitions>
         <ColumnDefinition Width="*"/>
@@ -143,10 +143,10 @@ Parameters which have to be accessible by a DynamicResource lookup:
       <Control x:Name="AlternativeFooterControl" HorizontalAlignment="Stretch"
                Template="{DynamicResource ResourceKey=Alternative_Footer_Template}">
       </Control>
-      <mp_special_controls:PlayerControl Margin="10" Style="{ThemeResource NavigationScreenPlayerControlStyle}" 
-                  AutoVisibility="True" PlayerContext="PrimaryPlayer" HorizontalAlignment="Right" VerticalAlignment="Bottom"/>
-      <mp_special_controls:PlayerControl Margin="10" Style="{ThemeResource NavigationScreenPlayerControlStyle}"
-                  AutoVisibility="True" PlayerContext="SecondaryPlayer" HorizontalAlignment="Right" VerticalAlignment="Bottom"/>
+      <mp_special_controls:PlayerControl Margin="5" Style="{ThemeResource NavigationScreenPlayerControlStyle}" 
+                  AutoVisibility="True" PlayerContext="PrimaryPlayer" HorizontalAlignment="Right" VerticalAlignment="Stretch"/>
+      <mp_special_controls:PlayerControl Margin="5" Style="{ThemeResource NavigationScreenPlayerControlStyle}"
+                  AutoVisibility="True" PlayerContext="SecondaryPlayer" HorizontalAlignment="Right" VerticalAlignment="Stretch"/>
     </Grid>
 
     <!-- Window control buttons -->

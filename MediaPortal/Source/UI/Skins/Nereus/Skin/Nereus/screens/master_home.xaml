@@ -134,6 +134,8 @@ Parameters which have to be accessible by a DynamicResource lookup:
                   Command="{Command Source={Service WorkflowManager},Path=NavigatePush,Parameters=2529B0F0-8415-4A4E-971B-38D6CDD2406A}"/>
           <Button Height="80" Width="80" Style="{ThemeResource SettingsButtonStyle}"
                   Command="{Command Source={Service WorkflowManager},Path=NavigatePush,Parameters=E7422BB8-2779-49ab-BC99-E3F56138061B}"/>
+          <Button Height="80" Width="80" Style="{ThemeResource BrowseMediaButtonStyle}"
+                  Command="{Command Source={Service WorkflowManager},Path=NavigatePush,Parameters=387044A0-83BA-435d-B262-C90CF70A9858}"/>
         </StackPanel>
         
         <!-- Notifications bar -->
