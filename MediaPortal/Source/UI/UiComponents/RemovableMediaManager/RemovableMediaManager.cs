@@ -99,9 +99,11 @@ namespace MediaPortal.UiComponents.RemovableMediaManager
         else if (messageType == RemovableMediaMessaging.MessageType.MediaRemoved)
         {
           string drive = (string)message.MessageData[RemovableMediaMessaging.DRIVE_LETTER];
-          _removableMediaItems.TryRemove(drive, out _);
-          _removableMediaItems.TryRemove(drive + @"\", out _);
-          UpdateRemovableMediaItems();
+          IEnumerable<MediaItem> items;
+          _removableMediaItems.TryRemove(drive, out items);
+          RemoveRemovableMediaItems(items);
+          _removableMediaItems.TryRemove(drive + @"\", out items);
+          RemoveRemovableMediaItems(items);
         }
       }
       else if (message.ChannelName == ServerConnectionMessaging.CHANNEL)
@@ -182,9 +184,14 @@ namespace MediaPortal.UiComponents.RemovableMediaManager
 
     protected void UpdateRemovableMediaItems()
     {
-      PlayItemsModel.RemovableMediaItems.Clear();
       foreach (var item in _removableMediaItems.Values.SelectMany(i => i))
         PlayItemsModel.RemovableMediaItems.AddOrUpdate(item.MediaItemId, item, (g, i) => item);
+    }
+
+    protected void RemoveRemovableMediaItems(IEnumerable<MediaItem> mediaItems)
+    {
+      foreach (var item in mediaItems)
+        PlayItemsModel.RemovableMediaItems.TryRemove(item.MediaItemId, out _);
     }
 
     #region IPluginStateTracker implementation
