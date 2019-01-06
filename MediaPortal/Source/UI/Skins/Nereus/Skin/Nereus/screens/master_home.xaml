@@ -66,7 +66,7 @@ Parameters which have to be accessible by a DynamicResource lookup:
 
       </Grid>
       <!-- FooterPanel -->
-      <Grid x:Name="FooterPanel" Margin="2" DockPanel.Dock="Bottom" Panel.ZIndex="200">
+      <Grid x:Name="FooterPanel" DockPanel.Dock="Bottom" Panel.ZIndex="200">
         <Grid.RowDefinitions>
           <RowDefinition Height="100"/>
         </Grid.RowDefinitions>
@@ -75,9 +75,9 @@ Parameters which have to be accessible by a DynamicResource lookup:
           <ColumnDefinition Width="Auto"/>
         </Grid.ColumnDefinitions>
         <StackPanel x:Name="PlayerControls" Grid.Column="1" Grid.Row="0" Orientation="Horizontal">
-          <mp_special_controls:PlayerControl Margin="15" Style="{ThemeResource NavigationScreenPlayerControlStyle}" 
+          <mp_special_controls:PlayerControl Margin="10" Style="{ThemeResource NavigationScreenPlayerControlStyle}" 
                   AutoVisibility="True" PlayerContext="PrimaryPlayer" HorizontalAlignment="Right" VerticalAlignment="Bottom"/>
-          <mp_special_controls:PlayerControl Margin="15" Style="{ThemeResource NavigationScreenPlayerControlStyle}"
+          <mp_special_controls:PlayerControl Margin="10" Style="{ThemeResource NavigationScreenPlayerControlStyle}"
                   AutoVisibility="True" PlayerContext="SecondaryPlayer" HorizontalAlignment="Right" VerticalAlignment="Bottom"/>
         </StackPanel>
       </Grid>
