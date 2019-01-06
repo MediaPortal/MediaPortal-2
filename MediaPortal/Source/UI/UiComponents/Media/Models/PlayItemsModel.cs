@@ -23,6 +23,7 @@
 #endregion
 
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -73,6 +74,8 @@ namespace MediaPortal.UiComponents.Media.Models
   /// </remarks>
   public class PlayItemsModel : IWorkflowModel
   {
+    public static ConcurrentDictionary<Guid, MediaItem> RemovableMediaItems { get; } = new ConcurrentDictionary<Guid, MediaItem>();
+
     #region Consts
 
     public const string STR_MODEL_ID = "3750D3FE-CA2A-4c8a-97B3-A08EF305C084";
@@ -527,6 +530,10 @@ namespace MediaPortal.UiComponents.Media.Models
 
     protected async Task CheckResumeMenuInternal(MediaItem item, int edition)
     {
+      // Use actual removable media item if present for stub
+      if (item.IsStub && RemovableMediaItems.TryGetValue(item.MediaItemId, out var removableItem))
+        item = removableItem;
+
       // First make sure the correct edition is selected
       if (edition <= item.MaximumEditionIndex)
         item.ActiveEditionIndex = edition;
@@ -545,7 +552,7 @@ namespace MediaPortal.UiComponents.Media.Models
       if (rse != null && rse.ActiveEditionIndex != edition)
         resumeState = null;
 
-      if (resumeState == null)
+      if (item.IsStub || resumeState == null)
       {
         // Asynchronously leave the current workflow state because we're called from a workflow model method
         //await Task.Yield();
