@@ -87,7 +87,8 @@ namespace MediaPortal.UiComponents.RemovableMediaManager
         {
           string drive = (string) message.MessageData[RemovableMediaMessaging.DRIVE_LETTER];
           var type = ExamineVolume(drive);
-          UpdateRemovableMediaItems();
+          if (_removableMediaItems.TryGetValue(drive, out var items))
+            PlayItemsModel.AddOrUpdateRemovableMediaItems(items);
           RemovableMediaManagerSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<RemovableMediaManagerSettings>();
           if (settings.AutoPlay == AutoPlayType.AutoPlay)
           {
@@ -100,10 +101,10 @@ namespace MediaPortal.UiComponents.RemovableMediaManager
         {
           string drive = (string)message.MessageData[RemovableMediaMessaging.DRIVE_LETTER];
           IEnumerable<MediaItem> items;
-          _removableMediaItems.TryRemove(drive, out items);
-          RemoveRemovableMediaItems(items);
-          _removableMediaItems.TryRemove(drive + @"\", out items);
-          RemoveRemovableMediaItems(items);
+          if (_removableMediaItems.TryRemove(drive, out items))
+            PlayItemsModel.RemoveRemovableMediaItems(items);
+          if (_removableMediaItems.TryRemove(drive + @"\", out items))
+            PlayItemsModel.RemoveRemovableMediaItems(items);
         }
       }
       else if (message.ChannelName == ServerConnectionMessaging.CHANNEL)
@@ -123,7 +124,7 @@ namespace MediaPortal.UiComponents.RemovableMediaManager
       var tasks = DriveInfo.GetDrives().Where(driveInfo => driveInfo.DriveType == DriveType.CDRom || driveInfo.DriveType == DriveType.Removable).
         Select(driveInfo => Task.Run(() => ExamineVolume(driveInfo.Name)));
       await Task.WhenAll(tasks);
-      UpdateRemovableMediaItems();
+      PlayItemsModel.AddOrUpdateRemovableMediaItems(_removableMediaItems.Values.SelectMany(i => i));
     }
 
     /// <summary>
@@ -180,18 +181,6 @@ namespace MediaPortal.UiComponents.RemovableMediaManager
         else
           PlayItemsModel.CheckQueryPlayAction(() => items, type);
       }
-    }
-
-    protected void UpdateRemovableMediaItems()
-    {
-      foreach (var item in _removableMediaItems.Values.SelectMany(i => i))
-        PlayItemsModel.RemovableMediaItems.AddOrUpdate(item.MediaItemId, item, (g, i) => item);
-    }
-
-    protected void RemoveRemovableMediaItems(IEnumerable<MediaItem> mediaItems)
-    {
-      foreach (var item in mediaItems)
-        PlayItemsModel.RemovableMediaItems.TryRemove(item.MediaItemId, out _);
     }
 
     #region IPluginStateTracker implementation

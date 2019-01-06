@@ -74,7 +74,7 @@ namespace MediaPortal.UiComponents.Media.Models
   /// </remarks>
   public class PlayItemsModel : IWorkflowModel
   {
-    public static ConcurrentDictionary<Guid, MediaItem> RemovableMediaItems { get; } = new ConcurrentDictionary<Guid, MediaItem>();
+    private static ConcurrentDictionary<Guid, MediaItem> RemovableMediaItems { get; } = new ConcurrentDictionary<Guid, MediaItem>();
 
     #region Consts
 
@@ -159,6 +159,18 @@ namespace MediaPortal.UiComponents.Media.Models
     #endregion
 
     #region Static methods which also can be called from other models
+
+    public static void AddOrUpdateRemovableMediaItems(IEnumerable<MediaItem> mediaItems)
+    {
+      foreach (var item in mediaItems)
+        RemovableMediaItems.AddOrUpdate(item.MediaItemId, item, (g, i) => item);
+    }
+
+    public static void RemoveRemovableMediaItems(IEnumerable<MediaItem> mediaItems)
+    {
+      foreach (var item in mediaItems)
+        RemovableMediaItems.TryRemove(item.MediaItemId, out _);
+    }
 
     /// <summary>
     /// Checks if we need to show a menu for playing all items provided by the given <paramref name="getMediaItemsFunction"/>
