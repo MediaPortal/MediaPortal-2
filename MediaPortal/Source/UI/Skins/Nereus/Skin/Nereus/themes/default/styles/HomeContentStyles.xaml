@@ -17,6 +17,13 @@
   <ResourceWrapper x:Key="TileGroupWidthWide" Resource="900" />
   <ResourceWrapper x:Key="TileGroupMargin" Resource="20,0" />
 
+  <ResourceWrapper x:Key="PosterChacheWidth" Resource="334" />
+  <ResourceWrapper x:Key="PosterChacheHeight" Resource="500" />
+  <ResourceWrapper x:Key="BannerChacheWidth" Resource="500" />
+  <ResourceWrapper x:Key="BannerChacheHeight" Resource="100" />
+  <ResourceWrapper x:Key="TvLogoChacheWidth" Resource="300" />
+  <ResourceWrapper x:Key="TvLogoChacheHeight" Resource="100" />
+
   <!--The margin around each tile-->
   <ResourceWrapper x:Key="TileMargin" Resource="5" />
 
@@ -137,7 +144,7 @@
       <Image Grid.Row="0" Grid.Column="0" Grid.RowSpan="2" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Stretch="Fill">
         <Image.Source>
           <fanart:FanArtImageSource fanart:FanArtMediaType="Movie" fanart:FanArtType="Poster" fanart:FanArtName="{Binding Source={Binding MediaItem}, Path=MediaItemId}"
-               fanart:MaxWidth="0" fanart:MaxHeight="0"/>
+               fanart:MaxWidth="{ThemeResource PosterChacheWidth}" fanart:MaxHeight="{ThemeResource PosterChacheHeight}"/>
         </Image.Source>
       </Image>
 
@@ -162,7 +169,7 @@
       <Image VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Stretch="Fill">
         <Image.Source>
           <fanart:FanArtImageSource fanart:FanArtMediaType="Movie" fanart:FanArtType="Banner" fanart:FanArtName="{Binding Source={Binding MediaItem}, Path=MediaItemId}"
-               fanart:MaxWidth="{StaticResource FANART_BANNER_WIDTH}" fanart:MaxHeight="{StaticResource FANART_BANNER_HEIGHT}"/>
+               fanart:MaxWidth="{StaticResource BannerChacheWidth}" fanart:MaxHeight="{StaticResource BannerChacheHeight}"/>
         </Image.Source>
       </Image>
 
@@ -195,7 +202,7 @@
       <Image Grid.Row="0" Grid.Column="0" Grid.RowSpan="2" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Stretch="Fill">
         <Image.Source>
           <fanart:FanArtImageSource fanart:FanArtMediaType="Series" fanart:FanArtType="Poster" fanart:FanArtName="{Binding Source={Binding MediaItem}, Path=MediaItemId}"
-               fanart:MaxWidth="{StaticResource FANART_POSTER_WIDTH}" fanart:MaxHeight="{StaticResource FANART_POSTER_HEIGHT}"/>
+               fanart:MaxWidth="{StaticResource PosterChacheWidth}" fanart:MaxHeight="{StaticResource PosterChacheHeight}"/>
         </Image.Source>
       </Image>
 
@@ -230,7 +237,7 @@
       <Image VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Stretch="Fill">
         <Image.Source>
           <fanart:FanArtImageSource fanart:FanArtMediaType="Series" fanart:FanArtType="Banner" fanart:FanArtName="{Binding Source={Binding MediaItem}, Path=MediaItemId}"
-               fanart:MaxWidth="{StaticResource FANART_BANNER_WIDTH}" fanart:MaxHeight="{StaticResource FANART_BANNER_HEIGHT}"/>
+               fanart:MaxWidth="{StaticResource BannerChacheWidth}" fanart:MaxHeight="{StaticResource BannerChacheHeight}"/>
         </Image.Source>
       </Image>
 
@@ -261,7 +268,7 @@
       <Image Grid.Row="0" Grid.Column="0" Grid.RowSpan="2" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Stretch="Fill">
         <Image.Source>
           <fanart:FanArtImageSource fanart:FanArtMediaType="Album" fanart:FanArtType="Poster" fanart:FanArtName="{Binding Source={Binding MediaItem}, Path=MediaItemId}"
-                    fanart:MaxWidth="{StaticResource FANART_POSTER_WIDTH}" fanart:MaxHeight="{StaticResource FANART_POSTER_HEIGHT}"/>
+                    fanart:MaxWidth="{StaticResource PosterChacheWidth}" fanart:MaxHeight="{StaticResource PosterChacheWidth}"/>
         </Image.Source>
       </Image>
 
@@ -296,7 +303,7 @@
       <Image VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Stretch="Uniform" Margin="10">
         <Image.Source>
           <fanart:FanArtImageSource fanart:FanArtMediaType="{Binding ChannelLogoType}" fanart:FanArtType="Banner" fanart:FanArtName="{Binding Channel.Name}"
-                                    fanart:MaxWidth="{StaticResource CHANNEL_GRID_WIDTH_S}" fanart:MaxHeight="{StaticResource CHANNEL_GRID_HEIGHT_S}"/>
+                                    fanart:MaxWidth="{StaticResource TvLogoChacheWidth}" fanart:MaxHeight="{StaticResource TvLogoChacheHeight}"/>
         </Image.Source>
       </Image>
 
@@ -371,7 +378,7 @@
       <Image x:Name="ItemTypeImage" Grid.RowSpan="2" Grid.Column="2" Stretch="Uniform" Margin="10" >
         <Image.Source>
           <fanart:FanArtImageSource fanart:FanArtMediaType="{Binding Program.ChannelLogoType}" fanart:FanArtType="Banner" fanart:FanArtName="{Binding Program.ChannelName}"
-                                    fanart:MaxWidth="{StaticResource VIDEO_GRID_WIDTH_S}" fanart:MaxHeight="{StaticResource VIDEO_GRID_HEIGHT_S}"/>
+                                    fanart:MaxWidth="{StaticResource TvLogoChacheWidth}" fanart:MaxHeight="{StaticResource TvLogoChacheHeight}"/>
         </Image.Source>
       </Image>
 
@@ -951,7 +958,7 @@
                     VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
                     Command="{Command Source={Service WorkflowManager},Path=NavigatePush,Parameters=2529B0F0-8415-4A4E-971B-38D6CDD2406A}">
               <Button.Content>
-                <Image Source="MediaMenu\search.png" Stretch="Uniform" Opacity="1"/>
+                <Image Source="MediaMenu\genre.png" Stretch="Uniform" Opacity="1"/>
               </Button.Content>
             </Button>
           </ListViewItem>
@@ -960,7 +967,7 @@
                     VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
                     Command="{Command Source={Service WorkflowManager},Path=NavigatePush,Parameters=2529B0F0-8415-4A4E-971B-38D6CDD2406A}">
               <Button.Content>
-                <Image Source="MediaMenu\search.png" Stretch="Uniform" Opacity="1"/>
+                <Image Source="MediaMenu\schedules.png" Stretch="Uniform" Opacity="1"/>
               </Button.Content>
             </Button>
           </ListViewItem>
@@ -969,7 +976,7 @@
                     VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
                     Command="{Command Source={Service WorkflowManager},Path=NavigatePush,Parameters=2529B0F0-8415-4A4E-971B-38D6CDD2406A}">
               <Button.Content>
-                <Image Source="MediaMenu\search.png" Stretch="Uniform" Opacity="1"/>
+                <Image Source="MediaMenu\age.png" Stretch="Uniform" Opacity="1"/>
               </Button.Content>
             </Button>
           </ListViewItem>
@@ -978,7 +985,7 @@
                     VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
                     Command="{Command Source={Service WorkflowManager},Path=NavigatePush,Parameters=2529B0F0-8415-4A4E-971B-38D6CDD2406A}">
               <Button.Content>
-                <Image Source="MediaMenu\search.png" Stretch="Uniform" Opacity="1"/>
+                <Image Source="MediaMenu\collection.png" Stretch="Uniform" Opacity="1"/>
               </Button.Content>
             </Button>
           </ListViewItem>
@@ -1062,6 +1069,54 @@
 
       <ListView Style="{ThemeResource HomeTilesListViewStyle}"
                 IsEnabled="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=IsEnabled}">
+
+        <ListView Width="190" Margin="0,35,10,0">
+          <ListViewItem>
+            <Button Width="170" Height="159" Focusable="True" Margin="{ThemeResource TileMargin}" Style="{ThemeResource QuickAccessButtonStyle}"
+                    VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
+                    Command="{Command Source={Service WorkflowManager},Path=NavigatePush,Parameters=2529B0F0-8415-4A4E-971B-38D6CDD2406A}">
+              <Button.Content>
+                <Image Source="MediaMenu\genre.png" Stretch="Uniform" Opacity="1"/>
+              </Button.Content>
+            </Button>
+          </ListViewItem>
+          <ListViewItem>
+            <Button Width="170" Height="159" Focusable="True" Margin="{ThemeResource TileMargin}" Style="{ThemeResource QuickAccessButtonStyle}"
+                    VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
+                    Command="{Command Source={Service WorkflowManager},Path=NavigatePush,Parameters=2529B0F0-8415-4A4E-971B-38D6CDD2406A}">
+              <Button.Content>
+                <Image Source="MediaMenu\schedules.png" Stretch="Uniform" Opacity="1"/>
+              </Button.Content>
+            </Button>
+          </ListViewItem>
+          <ListViewItem>
+            <Button Width="170" Height="159" Focusable="True" Margin="{ThemeResource TileMargin}" Style="{ThemeResource QuickAccessButtonStyle}"
+                    VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
+                    Command="{Command Source={Service WorkflowManager},Path=NavigatePush,Parameters=2529B0F0-8415-4A4E-971B-38D6CDD2406A}">
+              <Button.Content>
+                <Image Source="MediaMenu\age.png" Stretch="Uniform" Opacity="1"/>
+              </Button.Content>
+            </Button>
+          </ListViewItem>
+          <ListViewItem>
+            <Button Width="170" Height="159" Focusable="True" Margin="{ThemeResource TileMargin}" Style="{ThemeResource QuickAccessButtonStyle}"
+                    VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
+                    Command="{Command Source={Service WorkflowManager},Path=NavigatePush,Parameters=2529B0F0-8415-4A4E-971B-38D6CDD2406A}">
+              <Button.Content>
+                <Image Source="MediaMenu\collection.png" Stretch="Uniform" Opacity="1"/>
+              </Button.Content>
+            </Button>
+          </ListViewItem>
+          <ListViewItem>
+            <Button Width="170" Height="159" Focusable="True" Margin="{ThemeResource TileMargin}" Style="{ThemeResource QuickAccessButtonStyle}"
+                    VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
+                    Command="{Command Source={Service WorkflowManager},Path=NavigatePush,Parameters=2529B0F0-8415-4A4E-971B-38D6CDD2406A}">
+              <Button.Content>
+                <Image Source="MediaMenu\search.png" Stretch="Uniform" Opacity="1"/>
+              </Button.Content>
+            </Button>
+          </ListViewItem>
+        </ListView>
 
         <ListViewItem DataContext="{Binding Source={StaticResource MediaListModel}, Path=Lists[LatestEpisodes]}"
                       Style="{ThemeResource MediaGridTemplateStyle}" Width="{ThemeResource TileGroupWidthWide}"
@@ -1260,6 +1315,54 @@
 
       <ListView Style="{ThemeResource HomeTilesListViewStyle}"
                 IsEnabled="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=IsEnabled}">
+
+        <ListView Width="190" Margin="0,35,10,0">
+          <ListViewItem>
+            <Button Width="170" Height="159" Focusable="True" Margin="{ThemeResource TileMargin}" Style="{ThemeResource QuickAccessButtonStyle}"
+                    VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
+                    Command="{Command Source={Service WorkflowManager},Path=NavigatePush,Parameters=C7646667-5E63-48c7-A490-A58AC9518CFA}">
+              <Button.Content>
+                <Image Source="MediaMenu\LiveTV.png" Stretch="Uniform" Opacity="1"/>
+              </Button.Content>
+            </Button>
+          </ListViewItem>
+          <ListViewItem>
+            <Button Width="170" Height="159" Focusable="True" Margin="{ThemeResource TileMargin}" Style="{ThemeResource QuickAccessButtonStyle}"
+                    VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
+                    Command="{Command Source={Service WorkflowManager},Path=NavigatePush,Parameters=7323BEB9-F7B0-48c8-80FF-8B59A4DB5385}">
+              <Button.Content>
+                <Image Source="MediaMenu\EPG.png" Stretch="Uniform" Opacity="1"/>
+              </Button.Content>
+            </Button>
+          </ListViewItem>
+          <ListViewItem>
+            <Button Width="170" Height="159" Focusable="True" Margin="{ThemeResource TileMargin}" Style="{ThemeResource QuickAccessButtonStyle}"
+                    VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
+                    Command="{Command Source={Service WorkflowManager},Path=NavigatePush,Parameters=88842E97-2EF9-4658-AD35-8D74E3C689A4}">
+              <Button.Content>
+                <Image Source="MediaMenu\schedules.png" Stretch="Uniform" Opacity="1"/>
+              </Button.Content>
+            </Button>
+          </ListViewItem>
+          <ListViewItem>
+            <Button Width="170" Height="159" Focusable="True" Margin="{ThemeResource TileMargin}" Style="{ThemeResource QuickAccessButtonStyle}"
+                    VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
+                    Command="{Command Source={Service WorkflowManager},Path=NavigatePush,Parameters=9D5B01A7-035F-46CF-8246-3C158C6CA960}">
+              <Button.Content>
+                <Image Source="MediaMenu\Recordings.png" Stretch="Uniform" Opacity="1"/>
+              </Button.Content>
+            </Button>
+          </ListViewItem>
+          <ListViewItem>
+            <Button Width="170" Height="159" Focusable="True" Margin="{ThemeResource TileMargin}" Style="{ThemeResource QuickAccessButtonStyle}"
+                    VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
+                    Command="{Command Source={Service WorkflowManager},Path=NavigatePush,Parameters=CB5D4851-27D2-4222-B6A0-703EDC2071B5}">
+              <Button.Content>
+                <Image Source="MediaMenu\searchprogram.png" Stretch="Uniform" Opacity="1"/>
+              </Button.Content>
+            </Button>
+          </ListViewItem>
+        </ListView>
 
         <ListViewItem DataContext="{Binding Source={StaticResource MediaListModel}, Path=Lists[LastPlayTV]}"
                       Style="{ThemeResource MediaGridTemplateStyle}" Width="{ThemeResource TileGroupWidthVeryNarrow}"

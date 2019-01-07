@@ -717,7 +717,7 @@
     <Setter Property="Template">
       <Setter.Value>
         <ControlTemplate>
-          <Grid x:Name="GrowControl" RenderTransformOrigin="0.5,0.5" Margin="0">
+          <Grid x:Name="GrowControl" RenderTransformOrigin="0.5,0.5" Margin="-8">
             <Grid.ColumnDefinitions>
               <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
@@ -730,20 +730,33 @@
               </TransformGroup>
             </Grid.RenderTransform>
             <Grid.Background>
-              <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
-                <Binding RelativeSource="{RelativeSource TemplatedParent}" Path="HasFocus"/>
-                <Binding Source="#FF009999"/>
-                <Binding Source="#FF175f5d"/>
-              </MultiBinding>
+              <ImageBrush Stretch="Fill" ImageSource="square_shadow.png"/>
             </Grid.Background>
-            <ContentPresenter x:Name="ButtonContentPresenter" Margin="0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
+            <Border BorderThickness="0" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Margin="8">
+              <Border.Background>
+                <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
+                  <Binding RelativeSource="{RelativeSource TemplatedParent}" Path="HasFocus"/>
+                  <Binding Source="#FF666666"/>
+                  <Binding Source="#FF444444"/>
+                </MultiBinding>
+              </Border.Background>
+            </Border>
+            <ContentPresenter x:Name="ButtonContentPresenter" Margin="8" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
           </Grid>
           <ControlTemplate.Triggers>
             <Trigger Property="HasFocus" Value="True">
               <Setter TargetName="ButtonContentPresenter" Property="Opacity" Value="1"/>
+              <Trigger.EnterActions>
+                <SoundPlayerAction Source="navigate.wav" DisableOnAudioOutput="True"/>
+              </Trigger.EnterActions>
             </Trigger>
             <Trigger Property="HasFocus" Value="False">
               <Setter TargetName="ButtonContentPresenter" Property="Opacity" Value="0.6"/>
+            </Trigger>
+            <Trigger Property="IsPressed" Value="True">
+              <Trigger.EnterActions>
+                <SoundPlayerAction Source="click.wav" DisableOnAudioOutput="True"/>
+              </Trigger.EnterActions>
             </Trigger>
           </ControlTemplate.Triggers>
         </ControlTemplate>
@@ -1082,65 +1095,6 @@
             </Image>
             <ContentPresenter DockPanel.Dock="Center" HorizontalAlignment="Stretch" VerticalAlignment="Center"/>
           </DockPanel>
-        </ControlTemplate>
-      </Setter.Value>
-    </Setter>
-  </Style>
-
-  <!-- ***************************** Dialog close button ******************************** -->
-
-  <!-- Style for a close button (used on dialog windows) -->
-  <Style x:Key="DialogCloseButtonStyle" TargetType="{x:Type Button}">
-    <Setter Property="Template">
-      <Setter.Value>
-        <ControlTemplate TargetType="{x:Type Button}">
-          <ControlTemplate.Resources>
-            <Storyboard x:Key="FocusedStoryboard" FillBehavior="HoldEnd">
-              <ColorAnimationUsingKeyFrames BeginTime="00:00:00" Storyboard.TargetName="ButtonShape" Storyboard.TargetProperty="Fill.GradientStops[1].Color">
-                <SplineColorKeyFrame KeyTime="00:00:00" Value="{ThemeResource DialogCloseButtonShape2Color}"/>
-                <SplineColorKeyFrame KeyTime="00:00:00.2000000" Value="{ThemeResource DialogCloseButtonShape2HighlightColor}"/>
-              </ColorAnimationUsingKeyFrames>
-              <ColorAnimationUsingKeyFrames BeginTime="00:00:00" Storyboard.TargetName="ButtonShape" Storyboard.TargetProperty="Fill.GradientStops[2].Color">
-                <SplineColorKeyFrame KeyTime="00:00:00" Value="{ThemeResource DialogCloseButtonShape3Color}"/>
-                <!-- Dreckig hellblau -->
-                <SplineColorKeyFrame KeyTime="00:00:00.2000000" Value="{ThemeResource DialogCloseButtonShape3HighlightColor}"/>
-                <!-- sehr hellblau, fast grau -->
-              </ColorAnimationUsingKeyFrames>
-            </Storyboard>
-          </ControlTemplate.Resources>
-          <Grid Width="48" Height="48">
-            <Ellipse x:Name="ButtonBackground" StrokeThickness="4" Width="48" Height="48">
-              <Ellipse.Fill>
-                <RadialGradientBrush>
-                  <GradientStop Color="{ThemeResource DialogCloseButtonBackgroundRadius1Color}" Offset="0.827"/>
-                  <GradientStop Color="{ThemeResource DialogCloseButtonBackgroundRadius2Color}" Offset="0.909"/>
-                  <GradientStop Color="{ThemeResource DialogCloseButtonBackgroundRadius3Color}" Offset="1"/>
-                </RadialGradientBrush>
-              </Ellipse.Fill>
-            </Ellipse>
-            <Ellipse x:Name="ButtonShape" StrokeThickness="2" VerticalAlignment="Top" Margin="3.5,3.5,3.5,0" Width="41" Height="41">
-              <Ellipse.Fill>
-                <RadialGradientBrush GradientOrigin="0.499,0.915">
-                  <GradientStop Color="{ThemeResource DialogCloseButtonShape1Color}" Offset="0"/>
-                  <GradientStop Color="{ThemeResource DialogCloseButtonShape2Color}" Offset="0.332"/>
-                  <GradientStop Color="{ThemeResource DialogCloseButtonShape3Color}" Offset="0.798"/>
-                  <GradientStop Color="{ThemeResource DialogCloseButtonShape4Color}" Offset="1"/>
-                </RadialGradientBrush>
-              </Ellipse.Fill>
-            </Ellipse>
-            <Path x:Name="Cross" Stretch="Fill" Stroke="{ThemeResource DialogCloseButtonCrossColor}" StrokeThickness="2" HorizontalAlignment="Left" VerticalAlignment="Top"
-                Margin="15,15,0,0" Width="18" Height="18" Data="M0,20 L20,0 z M0,0 L20,20 z" RenderTransformOrigin="0.5,0.5"/>
-          </Grid>
-          <ControlTemplate.Triggers>
-            <Trigger Property="HasFocus" Value="True">
-              <Trigger.EnterActions>
-                <BeginStoryboard x:Name="Focused_BeginStoryboard" Storyboard="{ThemeResource FocusedStoryboard}"/>
-              </Trigger.EnterActions>
-              <Trigger.ExitActions>
-                <StopStoryboard BeginStoryboardName="Focused_BeginStoryboard"/>
-              </Trigger.ExitActions>
-            </Trigger>
-          </ControlTemplate.Triggers>
         </ControlTemplate>
       </Setter.Value>
     </Setter>
@@ -2388,42 +2342,6 @@
       </Setter.Value>
     </Setter>
   </Style>
-
-  <!--Style x:Key="VolumeDownButtonStyle" TargetType="{x:Type Button}">
-    <Setter Property="Template">
-      <Setter.Value>
-        <ControlTemplate TargetType="{x:Type Button}">
-          <Grid>
-            <Image x:Name="image" Source="PlayerControl\MINUS.NOFOCUS.PNG" Stretch="Uniform" Height="80" Width="80" Opacity="0.6" VerticalAlignment="Center"/>
-          </Grid>
-          <ControlTemplate.Triggers>
-            <Trigger Property="HasFocus" Value="True">
-              <Setter TargetName="image" Property="Source" Value="PlayerControl\MINUS.FOCUS.PNG"/>
-              <Setter TargetName="image" Property="Opacity" Value="1"/>
-            </Trigger>
-          </ControlTemplate.Triggers>
-        </ControlTemplate>
-      </Setter.Value>
-    </Setter>
-  </>
-
-  <Style x:Key="VolumeUpButtonStyle" TargetType="{x:Type Button}">
-    <Setter Property="Template">
-      <Setter.Value>
-        <ControlTemplate TargetType="{x:Type Button}">
-          <Grid>
-            <Image x:Name="image" Source="PlayerControl\PLUS.NOFOCUS.PNG" Stretch="Uniform" Height="80" Width="80" Opacity="0.6" VerticalAlignment="Center"/>
-          </Grid>
-          <ControlTemplate.Triggers>
-            <Trigger Property="HasFocus" Value="True">
-              <Setter TargetName="image" Property="Source" Value="PlayerControl\PLUS.FOCUS.PNG"/>
-              <Setter TargetName="image" Property="Opacity" Value="1"/>
-            </Trigger>
-          </ControlTemplate.Triggers>
-        </ControlTemplate>
-      </Setter.Value>
-    </Setter>
-  </Style-->
 
   <Style x:Key="PreviousButtonStyle" TargetType="{x:Type Button}">
     <Setter Property="Template">
