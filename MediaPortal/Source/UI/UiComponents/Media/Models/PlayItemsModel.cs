@@ -160,12 +160,20 @@ namespace MediaPortal.UiComponents.Media.Models
 
     #region Static methods which also can be called from other models
 
+    /// <summary>
+    /// Adds removabale media items, so they can stand in for stubs while available
+    /// </summary>
+    /// <param name="mediaItems"></param>
     public static void AddOrUpdateRemovableMediaItems(IEnumerable<MediaItem> mediaItems)
     {
       foreach (var item in mediaItems)
         RemovableMediaItems.AddOrUpdate(item.MediaItemId, item, (g, i) => item);
     }
 
+    /// <summary>
+    /// Removes removable media items that are no longer availabale
+    /// </summary>
+    /// <param name="mediaItems"></param>
     public static void RemoveRemovableMediaItems(IEnumerable<MediaItem> mediaItems)
     {
       foreach (var item in mediaItems)
