@@ -9,13 +9,13 @@
     >
 
   <ResourceWrapper x:Key="TileGroupHeight" Resource="900" />
-  
+  <ResourceWrapper x:Key="TileGroupMargin" Resource="20,0" />
+
   <ResourceWrapper x:Key="TileGroupWidthTiny" Resource="223" />
   <ResourceWrapper x:Key="TileGroupWidthVeryNarrow" Resource="400" />
   <ResourceWrapper x:Key="TileGroupWidthNarrow" Resource="650" />
   <ResourceWrapper x:Key="TileGroupWidthMedium" Resource="760" />
   <ResourceWrapper x:Key="TileGroupWidthWide" Resource="900" />
-  <ResourceWrapper x:Key="TileGroupMargin" Resource="20,0" />
 
   <ResourceWrapper x:Key="PosterChacheWidth" Resource="334" />
   <ResourceWrapper x:Key="PosterChacheHeight" Resource="500" />
@@ -952,7 +952,7 @@
       <ListView Style="{ThemeResource HomeTilesListViewStyle}"
                 IsEnabled="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=IsEnabled}">
 
-        <ListView Width="190" Margin="0,35,10,0">
+        <ListView Width="190" Margin="0,35,15,0">
           <ListViewItem>
             <Button Width="170" Height="159" Focusable="True" Margin="{ThemeResource TileMargin}" Style="{ThemeResource QuickAccessButtonStyle}"
                     VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
@@ -960,6 +960,11 @@
               <Button.Content>
                 <Image Source="MediaMenu\genre.png" Stretch="Uniform" Opacity="1"/>
               </Button.Content>
+              <Button.Triggers>
+                <Trigger Property="HasFocus" Value="True">
+                  <Setter TargetName="ItemLabel" Property="Content" Value="Genre"/>
+                </Trigger>
+              </Button.Triggers>
             </Button>
           </ListViewItem>
           <ListViewItem>
@@ -969,6 +974,11 @@
               <Button.Content>
                 <Image Source="MediaMenu\schedules.png" Stretch="Uniform" Opacity="1"/>
               </Button.Content>
+              <Button.Triggers>
+                <Trigger Property="HasFocus" Value="True">
+                  <Setter TargetName="ItemLabel" Property="Content" Value="Year"/>
+                </Trigger>
+              </Button.Triggers>
             </Button>
           </ListViewItem>
           <ListViewItem>
@@ -978,6 +988,11 @@
               <Button.Content>
                 <Image Source="MediaMenu\age.png" Stretch="Uniform" Opacity="1"/>
               </Button.Content>
+              <Button.Triggers>
+                <Trigger Property="HasFocus" Value="True">
+                  <Setter TargetName="ItemLabel" Property="Content" Value="Age Rating"/>
+                </Trigger>
+              </Button.Triggers>
             </Button>
           </ListViewItem>
           <ListViewItem>
@@ -987,6 +1002,11 @@
               <Button.Content>
                 <Image Source="MediaMenu\collection.png" Stretch="Uniform" Opacity="1"/>
               </Button.Content>
+              <Button.Triggers>
+                <Trigger Property="HasFocus" Value="True">
+                  <Setter TargetName="ItemLabel" Property="Content" Value="Collection"/>
+                </Trigger>
+              </Button.Triggers>
             </Button>
           </ListViewItem>
           <ListViewItem>
@@ -996,6 +1016,11 @@
               <Button.Content>
                 <Image Source="MediaMenu\search.png" Stretch="Uniform" Opacity="1"/>
               </Button.Content>
+              <Button.Triggers>
+                <Trigger Property="HasFocus" Value="True">
+                  <Setter TargetName="ItemLabel" Property="Content" Value="Search"/>
+                </Trigger>
+              </Button.Triggers>
             </Button>
           </ListViewItem>
         </ListView>
@@ -1070,7 +1095,7 @@
       <ListView Style="{ThemeResource HomeTilesListViewStyle}"
                 IsEnabled="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=IsEnabled}">
 
-        <ListView Width="190" Margin="0,35,10,0">
+        <ListView Width="190" Margin="0,35,15,0">
           <ListViewItem>
             <Button Width="170" Height="159" Focusable="True" Margin="{ThemeResource TileMargin}" Style="{ThemeResource QuickAccessButtonStyle}"
                     VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
@@ -1078,6 +1103,11 @@
               <Button.Content>
                 <Image Source="MediaMenu\genre.png" Stretch="Uniform" Opacity="1"/>
               </Button.Content>
+              <Button.Triggers>
+                <Trigger Property="HasFocus" Value="True">
+                  <Setter TargetName="ItemLabel" Property="Content" Value="Genre"/>
+                </Trigger>
+              </Button.Triggers>
             </Button>
           </ListViewItem>
           <ListViewItem>
@@ -1087,6 +1117,11 @@
               <Button.Content>
                 <Image Source="MediaMenu\schedules.png" Stretch="Uniform" Opacity="1"/>
               </Button.Content>
+              <Button.Triggers>
+                <Trigger Property="HasFocus" Value="True">
+                  <Setter TargetName="ItemLabel" Property="Content" Value="Year"/>
+                </Trigger>
+              </Button.Triggers>
             </Button>
           </ListViewItem>
           <ListViewItem>
@@ -1096,6 +1131,11 @@
               <Button.Content>
                 <Image Source="MediaMenu\age.png" Stretch="Uniform" Opacity="1"/>
               </Button.Content>
+              <Button.Triggers>
+                <Trigger Property="HasFocus" Value="True">
+                  <Setter TargetName="ItemLabel" Property="Content" Value="Age Rating"/>
+                </Trigger>
+              </Button.Triggers>
             </Button>
           </ListViewItem>
           <ListViewItem>
@@ -1105,6 +1145,11 @@
               <Button.Content>
                 <Image Source="MediaMenu\collection.png" Stretch="Uniform" Opacity="1"/>
               </Button.Content>
+              <Button.Triggers>
+                <Trigger Property="HasFocus" Value="True">
+                  <Setter TargetName="ItemLabel" Property="Content" Value="Collection"/>
+                </Trigger>
+              </Button.Triggers>
             </Button>
           </ListViewItem>
           <ListViewItem>
@@ -1114,6 +1159,11 @@
               <Button.Content>
                 <Image Source="MediaMenu\search.png" Stretch="Uniform" Opacity="1"/>
               </Button.Content>
+              <Button.Triggers>
+                <Trigger Property="HasFocus" Value="True">
+                  <Setter TargetName="ItemLabel" Property="Content" Value="Search"/>
+                </Trigger>
+              </Button.Triggers>
             </Button>
           </ListViewItem>
         </ListView>
@@ -1316,7 +1366,7 @@
       <ListView Style="{ThemeResource HomeTilesListViewStyle}"
                 IsEnabled="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=IsEnabled}">
 
-        <ListView Width="190" Margin="0,35,10,0">
+        <ListView Width="190" Margin="0,35,15,0">
           <ListViewItem>
             <Button Width="170" Height="159" Focusable="True" Margin="{ThemeResource TileMargin}" Style="{ThemeResource QuickAccessButtonStyle}"
                     VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
@@ -1324,6 +1374,11 @@
               <Button.Content>
                 <Image Source="MediaMenu\LiveTV.png" Stretch="Uniform" Opacity="1"/>
               </Button.Content>
+              <Button.Triggers>
+                <Trigger Property="HasFocus" Value="True">
+                  <Setter TargetName="ItemLabel" Property="Content" Value="LiveTV"/>
+                </Trigger>
+              </Button.Triggers>
             </Button>
           </ListViewItem>
           <ListViewItem>
@@ -1333,6 +1388,11 @@
               <Button.Content>
                 <Image Source="MediaMenu\EPG.png" Stretch="Uniform" Opacity="1"/>
               </Button.Content>
+              <Button.Triggers>
+                <Trigger Property="HasFocus" Value="True">
+                  <Setter TargetName="ItemLabel" Property="Content" Value="TV-Guide"/>
+                </Trigger>
+              </Button.Triggers>
             </Button>
           </ListViewItem>
           <ListViewItem>
@@ -1342,6 +1402,11 @@
               <Button.Content>
                 <Image Source="MediaMenu\schedules.png" Stretch="Uniform" Opacity="1"/>
               </Button.Content>
+              <Button.Triggers>
+                <Trigger Property="HasFocus" Value="True">
+                  <Setter TargetName="ItemLabel" Property="Content" Value="Schedules"/>
+                </Trigger>
+              </Button.Triggers>
             </Button>
           </ListViewItem>
           <ListViewItem>
@@ -1351,6 +1416,11 @@
               <Button.Content>
                 <Image Source="MediaMenu\Recordings.png" Stretch="Uniform" Opacity="1"/>
               </Button.Content>
+              <Button.Triggers>
+                <Trigger Property="HasFocus" Value="True">
+                  <Setter TargetName="ItemLabel" Property="Content" Value="Recordings"/>
+                </Trigger>
+              </Button.Triggers>
             </Button>
           </ListViewItem>
           <ListViewItem>
@@ -1360,6 +1430,11 @@
               <Button.Content>
                 <Image Source="MediaMenu\searchprogram.png" Stretch="Uniform" Opacity="1"/>
               </Button.Content>
+              <Button.Triggers>
+                <Trigger Property="HasFocus" Value="True">
+                  <Setter TargetName="ItemLabel" Property="Content" Value="Search Program"/>
+                </Trigger>
+              </Button.Triggers>
             </Button>
           </ListViewItem>
         </ListView>

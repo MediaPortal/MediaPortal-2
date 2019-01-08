@@ -637,86 +637,11 @@
     </Setter>
   </Style>
 
-  <Style x:Key="SubItemButtonStyle" TargetType="{x:Type Button}">
-    <Setter Property="Template">
-      <Setter.Value>
-        <ControlTemplate>
-          <Grid>
-            <Grid.Resources>
-              <Model x:Key="MouseModel" Id="CA6428A7-A6E2-4dd3-9661-F89CEBAF8E62"/>
-            </Grid.Resources>
-            <Grid.ColumnDefinitions>
-              <ColumnDefinition Width="310"/>
-            </Grid.ColumnDefinitions>
-            <Grid.RowDefinitions>
-              <RowDefinition Height="195"/>
-              <RowDefinition Height="54"/>
-            </Grid.RowDefinitions>
-            <Label x:Name="ItemLabelUnfocused" Grid.Column="0" Grid.Row="0" Content="{Binding [Name]}" TextTrimming="CharacterEllipsis" Width="280" HorizontalContentAlignment="Center"
-                   HorizontalAlignment="Center" VerticalAlignment="Bottom" Opacity="0.4" Color="{ThemeResource TextColor}"/>
-            <Label x:Name="ItemLabel" Grid.Column="0" Grid.Row="1" Content="{Binding [Name]}" IsVisible="False" Height="54" Scroll="Auto"
-                   HorizontalAlignment="Left" VerticalAlignment="Center" Color="{ThemeResource TextColor}"/>
-            <ContentPresenter x:Name="ButtonContentPresenter" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
-          </Grid>
-          <ControlTemplate.Triggers>
-            <Trigger Property="HasFocus" Value="True">
-              <Trigger.EnterActions>
-                <SoundPlayerAction Source="navigate.wav" DisableOnAudioOutput="True"/>
-              </Trigger.EnterActions>
-            </Trigger>
-            <Trigger Property="IsPressed" Value="True">
-              <Trigger.EnterActions>
-                <SoundPlayerAction Source="click.wav" DisableOnAudioOutput="True"/>
-              </Trigger.EnterActions>
-              <Trigger.ExitActions>
-              </Trigger.ExitActions>
-            </Trigger>
-            <Trigger Property="IsEnabled" Value="False">
-              <Trigger.EnterActions>
-                <BeginStoryboard x:Name="Disabled_BeginStoryBoard" Storyboard="{ThemeResource DisabledButtonStoryboard}"/>
-              </Trigger.EnterActions>
-              <Trigger.ExitActions>
-                <StopStoryboard BeginStoryboardName="Disabled_BeginStoryBoard"/>
-              </Trigger.ExitActions>
-            </Trigger>
-          </ControlTemplate.Triggers>
-        </ControlTemplate>
-      </Setter.Value>
-    </Setter>
-  </Style>
-
-  <Style x:Key="TopMenuButtonWideStyle" TargetType="{x:Type Button}">
-    <Setter Property="Template">
-      <Setter.Value>
-        <ControlTemplate>
-          <Grid x:Name="GrowControl" RenderTransformOrigin="0.5,0.5" Margin="0,1,0,1">
-            <Grid.ColumnDefinitions>
-              <ColumnDefinition Width="*"/>
-            </Grid.ColumnDefinitions>
-            <Grid.RowDefinitions>
-              <RowDefinition Height="*"/>
-            </Grid.RowDefinitions>
-            <Grid.RenderTransform>
-              <TransformGroup>
-                <ScaleTransform ScaleX="1" ScaleY="1"/>
-              </TransformGroup>
-            </Grid.RenderTransform>
-            <DockPanel Name="ButtonControlRectangle" Margin="0" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Grid.ZIndex="2"
-                       IsVisible="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}},Path=HasFocus}">
-              <Image Source="TopMenu\Focus_Frame.png" Stretch="Uniform" Opacity="1.1"/>
-            </DockPanel>
-            <ContentPresenter x:Name="ButtonContentPresenter" Margin="10,5,10,5" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Grid.ZIndex="1"/>
-            <Control Style="{ThemeResource ButtonBaseControlStyle}" Margin="3" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Grid.ZIndex="0"/>
-          </Grid>
-        </ControlTemplate>
-      </Setter.Value>
-    </Setter>
-  </Style>
-
   <Style x:Key="QuickAccessButtonStyle" TargetType="{x:Type Button}">
     <Setter Property="Template">
       <Setter.Value>
         <ControlTemplate>
+          
           <Grid x:Name="GrowControl" RenderTransformOrigin="0.5,0.5" Margin="-8">
             <Grid.ColumnDefinitions>
               <ColumnDefinition Width="*"/>
@@ -732,6 +657,7 @@
             <Grid.Background>
               <ImageBrush Stretch="Fill" ImageSource="square_shadow.png"/>
             </Grid.Background>
+            
             <Border BorderThickness="0" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Margin="8">
               <Border.Background>
                 <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
@@ -741,14 +667,60 @@
                 </MultiBinding>
               </Border.Background>
             </Border>
+            
             <ContentPresenter x:Name="ButtonContentPresenter" Margin="8" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
+
+            <Grid x:Name="ItemBandGrid" HorizontalAlignment="Stretch" VerticalAlignment="Bottom" RenderTransformOrigin="0.5,1" Margin="8">
+              <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+              </Grid.ColumnDefinitions>
+              <Grid.RowDefinitions>
+                <RowDefinition Height="40"/>
+              </Grid.RowDefinitions>
+              <Grid.RenderTransform>
+                <TransformGroup>
+                  <ScaleTransform ScaleX="1" ScaleY="0"/>
+                </TransformGroup>
+              </Grid.RenderTransform>
+              <Rectangle x:Name="ItemBand" Fill="Black" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Opacity="0.4"/>
+              <Label x:Name="ItemLabel" HorizontalAlignment="Center" VerticalAlignment="Center" Content="" 
+               FontSize="{ThemeResource SmallerFontSize}" Color="{ThemeResource MenuTextForeground}" Margin="5,-5,5,1"
+               ScrollDelay="0" Scroll="None" FontFamily="SegoeUIBold"/>
+            </Grid>
           </Grid>
+          
           <ControlTemplate.Triggers>
             <Trigger Property="HasFocus" Value="True">
               <Setter TargetName="ButtonContentPresenter" Property="Opacity" Value="1"/>
+              <Setter TargetName="ItemLabel" Property="Scroll" Value="Auto"/>
               <Trigger.EnterActions>
                 <SoundPlayerAction Source="navigate.wav" DisableOnAudioOutput="True"/>
+                <BeginStoryboard x:Name="SlideOut">
+                  <BeginStoryboard.Storyboard>
+                    <Storyboard>
+                      <DoubleAnimation BeginTime="00:00:00" From="0" To="1" Duration="00:00:00.7" DecelerationRatio="1"
+                                FillBehavior="HoldEnd" Storyboard.TargetName="ItemBandGrid" Storyboard.TargetProperty="RenderTransform.Children[0].ScaleY">
+                        <DoubleAnimation.EasingFunction>
+                          <BackEase Amplitude="0.6" EasingMode="EaseOut"/>
+                        </DoubleAnimation.EasingFunction>
+                      </DoubleAnimation>
+                    </Storyboard>
+                  </BeginStoryboard.Storyboard>
+                </BeginStoryboard>
               </Trigger.EnterActions>
+              <Trigger.ExitActions>
+                <BeginStoryboard x:Name="SlideBack">
+                  <BeginStoryboard.Storyboard>
+                    <Storyboard>
+                      <DoubleAnimation
+                           Storyboard.TargetName="ItemBandGrid"
+                           Storyboard.TargetProperty="RenderTransform.Children[0].ScaleY"
+                           From="1" To="0" BeginTime="0:0:0" Duration="00:00:00.35"
+                           FillBehavior="HoldEnd"/>
+                    </Storyboard>
+                  </BeginStoryboard.Storyboard>
+                </BeginStoryboard>
+              </Trigger.ExitActions>
             </Trigger>
             <Trigger Property="HasFocus" Value="False">
               <Setter TargetName="ButtonContentPresenter" Property="Opacity" Value="0.6"/>
