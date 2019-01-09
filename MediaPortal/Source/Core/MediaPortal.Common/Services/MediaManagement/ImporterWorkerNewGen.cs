@@ -609,7 +609,7 @@ namespace MediaPortal.Common.Services.MediaManagement
         SendProgressNotificationMessage();
         return;
       }
-      if (Interlocked.Increment(ref _numberOfProgressNotifications) % 4 == 0)
+      if (Interlocked.Increment(ref _numberOfProgressNotifications) % (_importJobControllers.Count > 0 ? _importJobControllers.Count : 1) == 0)
       {
         LogProgress();
         SendProgressNotificationMessage();
