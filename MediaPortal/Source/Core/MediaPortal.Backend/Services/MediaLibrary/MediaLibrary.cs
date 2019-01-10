@@ -509,7 +509,14 @@ namespace MediaPortal.Backend.Services.MediaLibrary
                 lock (_shareImportSync)
                 {
                   if (_shareImportStates.ContainsKey(share.ShareId))
-                    _shareImportStates.Remove(share.ShareId);
+                  {
+                    _shareImportStates[share.ShareId].IsImporting = false;
+                    if (messageType == ImporterWorkerMessaging.MessageType.ImportCompleted)
+                      _shareImportStates[share.ShareId].Progress = 100;
+                  }
+
+                  if (!_shareImportStates.Any(s => s.Value.IsImporting))
+                    _shareImportStates.Clear();
                 }
                 //Delay state update to ensure it's last
                 Task.Run(async () =>
@@ -569,8 +576,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
         lock (_shareImportSync)
           shareStates.AddRange(_shareImportStates.Values);
         bool importing = shareStates.Any(s => s.IsImporting);
-        var activeShares = shareStates.Where(s => s.IsImporting && s.Progress > 0);
-        int? progress = importing ? activeShares?.Count() > 0 ? activeShares.Min(s => s.Progress) : 0 : (int?)null;
+        int? progress = importing ? shareStates?.Count() > 0 ? Convert.ToInt32(shareStates.Average(s => s.Progress)) : 0 : (int?)null;
         var state = new ShareImportServerState
         {
           IsImporting = importing,
