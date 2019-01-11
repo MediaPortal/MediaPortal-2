@@ -853,6 +853,55 @@
     </Grid>
   </ControlTemplate>
 
+  <!-- 6 poster tiles, 2 large and 4 small -->
+  <ControlTemplate x:Key="PosterTileLayout3Template">
+    <Grid DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=TileGroup}">
+      <Grid.ColumnDefinitions>
+        <ColumnDefinition Width="*"/>
+        <ColumnDefinition Width="*"/>
+        <ColumnDefinition Width="*"/>
+        <ColumnDefinition Width="*"/>
+      </Grid.ColumnDefinitions>
+
+      <Grid.RowDefinitions>
+        <RowDefinition Height="*"/>
+        <RowDefinition Height="*"/>
+        <RowDefinition Height="*"/>
+      </Grid.RowDefinitions>
+
+      <Control x:Name="Tile1" Grid.Column="0" Grid.Row="0" Grid.ColumnSpan="2" Grid.RowSpan="2"
+               Template="{ThemeResource PosterTileContainerTemplate}"
+               DataContext="{Binding Tiles[0]}"
+               IsVisible="{Binding Path=TileItem, Converter={StaticResource ReferenceToBoolConverter}}"/>
+
+      <Control x:Name="Tile2" Grid.Column="2" Grid.Row="0" Grid.ColumnSpan="2" Grid.RowSpan="2"
+               Template="{ThemeResource PosterTileContainerTemplate}"
+               DataContext="{Binding Tiles[1]}"
+               IsVisible="{Binding Path=TileItem, Converter={StaticResource ReferenceToBoolConverter}}"/>
+
+      <Control x:Name="Tile3" Grid.Column="0" Grid.Row="2"
+               Template="{ThemeResource PosterTileContainerTemplate}"
+               DataContext="{Binding Tiles[2]}"
+               IsVisible="{Binding Path=TileItem, Converter={StaticResource ReferenceToBoolConverter}}"/>
+
+      <Control x:Name="Tile4" Grid.Column="1" Grid.Row="2"
+               Template="{ThemeResource PosterTileContainerTemplate}"
+               DataContext="{Binding Tiles[3]}"
+               IsVisible="{Binding Path=TileItem, Converter={StaticResource ReferenceToBoolConverter}}"/>
+
+      <Control x:Name="Tile5" Grid.Column="2" Grid.Row="2"
+               Template="{ThemeResource PosterTileContainerTemplate}"
+               DataContext="{Binding Tiles[4]}"
+               IsVisible="{Binding Path=TileItem, Converter={StaticResource ReferenceToBoolConverter}}"/>
+
+      <Control x:Name="Tile6" Grid.Column="3" Grid.Row="2" 
+               Template="{ThemeResource PosterTileContainerTemplate}"
+               DataContext="{Binding Tiles[5]}"
+               IsVisible="{Binding Path=TileItem, Converter={StaticResource ReferenceToBoolConverter}}"/>
+
+    </Grid>
+  </ControlTemplate>
+
   <!--+++++++++++++++++++++++++++++++++++++++-->
   <!--++++ HOME CONTENT LIST ITEM STYLES ++++-->
   <!--+++++++++++++++++++++++++++++++++++++++-->
@@ -972,7 +1021,7 @@
                     VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
                     Command="{Command Source={Service WorkflowManager},Path=NavigatePush,Parameters=2529B0F0-8415-4A4E-971B-38D6CDD2406A}">
               <Button.Content>
-                <Image Source="MediaMenu\schedules.png" Stretch="Uniform" Opacity="1"/>
+                <Image Source="MediaMenu\year.png" Stretch="Uniform" Opacity="1"/>
               </Button.Content>
               <Button.Triggers>
                 <Trigger Property="HasFocus" Value="True">
@@ -1000,11 +1049,11 @@
                     VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
                     Command="{Command Source={Service WorkflowManager},Path=NavigatePush,Parameters=2529B0F0-8415-4A4E-971B-38D6CDD2406A}">
               <Button.Content>
-                <Image Source="MediaMenu\collection.png" Stretch="Uniform" Opacity="1"/>
+                <Image Source="MediaMenu\actor.png" Stretch="Uniform" Opacity="1"/>
               </Button.Content>
               <Button.Triggers>
                 <Trigger Property="HasFocus" Value="True">
-                  <Setter TargetName="ItemLabel" Property="Content" Value="Collection"/>
+                  <Setter TargetName="ItemLabel" Property="Content" Value="Actor"/>
                 </Trigger>
               </Button.Triggers>
             </Button>
@@ -1115,7 +1164,7 @@
                     VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
                     Command="{Command Source={Service WorkflowManager},Path=NavigatePush,Parameters=2529B0F0-8415-4A4E-971B-38D6CDD2406A}">
               <Button.Content>
-                <Image Source="MediaMenu\schedules.png" Stretch="Uniform" Opacity="1"/>
+                <Image Source="MediaMenu\year.png" Stretch="Uniform" Opacity="1"/>
               </Button.Content>
               <Button.Triggers>
                 <Trigger Property="HasFocus" Value="True">
@@ -1143,11 +1192,11 @@
                     VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
                     Command="{Command Source={Service WorkflowManager},Path=NavigatePush,Parameters=2529B0F0-8415-4A4E-971B-38D6CDD2406A}">
               <Button.Content>
-                <Image Source="MediaMenu\collection.png" Stretch="Uniform" Opacity="1"/>
+                <Image Source="MediaMenu\actor.png" Stretch="Uniform" Opacity="1"/>
               </Button.Content>
               <Button.Triggers>
                 <Trigger Property="HasFocus" Value="True">
-                  <Setter TargetName="ItemLabel" Property="Content" Value="Collection"/>
+                  <Setter TargetName="ItemLabel" Property="Content" Value="Actor"/>
                 </Trigger>
               </Button.Triggers>
             </Button>
@@ -1168,21 +1217,21 @@
           </ListViewItem>
         </ListView>
 
-        <ListViewItem DataContext="{Binding Source={StaticResource MediaListModel}, Path=Lists[LatestEpisodes]}"
-                      Style="{ThemeResource MediaGridTemplateStyle}" Width="{ThemeResource TileGroupWidthWide}"
+        <ListViewItem DataContext="{Binding Source={StaticResource MediaListModel}, Path=Lists[LatestSeries]}"
+                      Style="{ThemeResource MediaGridTemplateStyle}" Width="{ThemeResource TileGroupWidthMedium}"
                       Visibility="{Binding Source={Binding AllItems}, Converter={StaticResource MediaListVisibilityConverter}}">
           <ListViewItem.Resources>
             <ResourceWrapper x:Key="Grid_Label" Resource="[Nereus.Home.LatestAdded]"/>
-            <ResourceWrapper x:Key="Grid_Style" Resource="{ThemeResource SquareTileLayout1Template}"/>
+            <ResourceWrapper x:Key="Grid_Style" Resource="{ThemeResource PosterTileLayout1Template}"/>
           </ListViewItem.Resources>
         </ListViewItem>
 
-        <ListViewItem DataContext="{Binding Source={StaticResource MediaListModel}, Path=Lists[ContinuePlayEpisodes]}"
-                      Style="{ThemeResource MediaGridTemplateStyle}" Width="{ThemeResource TileGroupWidthWide}"
+        <ListViewItem DataContext="{Binding Source={StaticResource MediaListModel}, Path=Lists[ContinuePlaySeries]}"
+                      Style="{ThemeResource MediaGridTemplateStyle}" Width="{ThemeResource TileGroupWidthMedium}"
                       Visibility="{Binding Source={Binding AllItems}, Converter={StaticResource MediaListVisibilityConverter}}">
           <ListViewItem.Resources>
             <ResourceWrapper x:Key="Grid_Label" Resource="[Nereus.Home.ContinuePlayed]"/>
-            <ResourceWrapper x:Key="Grid_Style" Resource="{ThemeResource SquareTileLayout2Template}"/>
+            <ResourceWrapper x:Key="Grid_Style" Resource="{ThemeResource PosterTileLayout3Template}"/>
           </ListViewItem.Resources>
         </ListViewItem>
 
@@ -1237,6 +1286,80 @@
      
       <ListView Style="{ThemeResource HomeTilesListViewStyle}"
                 IsEnabled="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=IsEnabled}">
+
+        <ListView Width="190" Margin="0,35,15,0">
+          <ListViewItem>
+            <Button Width="170" Height="159" Focusable="True" Margin="{ThemeResource TileMargin}" Style="{ThemeResource QuickAccessButtonStyle}"
+                    VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
+                    Command="{Command Source={Service WorkflowManager},Path=NavigatePush,Parameters=2529B0F0-8415-4A4E-971B-38D6CDD2406A}">
+              <Button.Content>
+                <Image Source="MediaMenu\genre.png" Stretch="Uniform" Opacity="1"/>
+              </Button.Content>
+              <Button.Triggers>
+                <Trigger Property="HasFocus" Value="True">
+                  <Setter TargetName="ItemLabel" Property="Content" Value="Genre"/>
+                </Trigger>
+              </Button.Triggers>
+            </Button>
+          </ListViewItem>
+          <ListViewItem>
+            <Button Width="170" Height="159" Focusable="True" Margin="{ThemeResource TileMargin}" Style="{ThemeResource QuickAccessButtonStyle}"
+                    VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
+                    Command="{Command Source={Service WorkflowManager},Path=NavigatePush,Parameters=2529B0F0-8415-4A4E-971B-38D6CDD2406A}">
+              <Button.Content>
+                <Image Source="MediaMenu\track.png" Stretch="Uniform" Opacity="1"/>
+              </Button.Content>
+              <Button.Triggers>
+                <Trigger Property="HasFocus" Value="True">
+                  <Setter TargetName="ItemLabel" Property="Content" Value="Tracks"/>
+                </Trigger>
+              </Button.Triggers>
+            </Button>
+          </ListViewItem>
+          <ListViewItem>
+            <Button Width="170" Height="159" Focusable="True" Margin="{ThemeResource TileMargin}" Style="{ThemeResource QuickAccessButtonStyle}"
+                    VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
+                    Command="{Command Source={Service WorkflowManager},Path=NavigatePush,Parameters=2529B0F0-8415-4A4E-971B-38D6CDD2406A}">
+              <Button.Content>
+                <Image Source="MediaMenu\Album.png" Stretch="Uniform" Opacity="1"/>
+              </Button.Content>
+              <Button.Triggers>
+                <Trigger Property="HasFocus" Value="True">
+                  <Setter TargetName="ItemLabel" Property="Content" Value="Album"/>
+                </Trigger>
+              </Button.Triggers>
+            </Button>
+          </ListViewItem>
+          <ListViewItem>
+            <Button Width="170" Height="159" Focusable="True" Margin="{ThemeResource TileMargin}" Style="{ThemeResource QuickAccessButtonStyle}"
+                    VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
+                    Command="{Command Source={Service WorkflowManager},Path=NavigatePush,Parameters=2529B0F0-8415-4A4E-971B-38D6CDD2406A}">
+              <Button.Content>
+                <Image Source="MediaMenu\actor.png" Stretch="Uniform" Opacity="1"/>
+              </Button.Content>
+              <Button.Triggers>
+                <Trigger Property="HasFocus" Value="True">
+                  <Setter TargetName="ItemLabel" Property="Content" Value="Interpret"/>
+                </Trigger>
+              </Button.Triggers>
+            </Button>
+          </ListViewItem>
+          <ListViewItem>
+            <Button Width="170" Height="159" Focusable="True" Margin="{ThemeResource TileMargin}" Style="{ThemeResource QuickAccessButtonStyle}"
+                    VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
+                    Command="{Command Source={Service WorkflowManager},Path=NavigatePush,Parameters=2529B0F0-8415-4A4E-971B-38D6CDD2406A}">
+              <Button.Content>
+                <Image Source="MediaMenu\year.png" Stretch="Uniform" Opacity="1"/>
+              </Button.Content>
+              <Button.Triggers>
+                <Trigger Property="HasFocus" Value="True">
+                  <Setter TargetName="ItemLabel" Property="Content" Value="Year"/>
+                </Trigger>
+              </Button.Triggers>
+            </Button>
+          </ListViewItem>
+        </ListView>
+
 
         <ListViewItem DataContext="{Binding Source={StaticResource MediaListModel}, Path=Lists[LatestAudio]}"
                       Style="{ThemeResource MediaGridTemplateStyle}" Width="{ThemeResource TileGroupWidthNarrow}"
@@ -1428,7 +1551,7 @@
                     VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
                     Command="{Command Source={Service WorkflowManager},Path=NavigatePush,Parameters=CB5D4851-27D2-4222-B6A0-703EDC2071B5}">
               <Button.Content>
-                <Image Source="MediaMenu\searchprogram.png" Stretch="Uniform" Opacity="1"/>
+                <Image Source="MediaMenu\search.png" Stretch="Uniform" Opacity="1"/>
               </Button.Content>
               <Button.Triggers>
                 <Trigger Property="HasFocus" Value="True">
@@ -1499,6 +1622,141 @@
           </ListViewItem.Resources>
         </ListViewItem>
         
+      </ListView>
+    </Grid>
+  </ControlTemplate>
+
+  <!--++++++++++ Image +++++++++++-->
+
+  <ControlTemplate x:Key="55556593-9fe9-436c-a3b6-a971e10c9d44">
+    <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+      <Grid.ColumnDefinitions>
+        <ColumnDefinition Width="*"/>
+      </Grid.ColumnDefinitions>
+      <Grid.RowDefinitions>
+        <RowDefinition Height="*"/>
+      </Grid.RowDefinitions>
+
+      <Grid.Resources>
+        <ControlTemplate x:Key="Square_Tile_Template">
+          <Control Template="{ThemeResource SquareTileTemplate}"/>
+        </ControlTemplate>
+        <ControlTemplate x:Key="Thumbnail_Tile_Template">
+          <Control Template="{ThemeResource SquareTileTemplate}"/>
+        </ControlTemplate>
+        <ControlTemplate x:Key="Poster_Tile_Template">
+          <Control Template="{ThemeResource SeriesPosterTileTemplate}"/>
+        </ControlTemplate>
+        <ControlTemplate x:Key="Banner_Tile_Template">
+          <Control Template="{ThemeResource SeriesBannerTileTemplate}"/>
+        </ControlTemplate>
+      </Grid.Resources>
+
+      <ListView Style="{ThemeResource HomeTilesListViewStyle}"
+                IsEnabled="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=IsEnabled}">
+
+        <ListView Width="190" Margin="0,35,15,0">
+          <ListViewItem>
+            <Button Width="170" Height="159" Focusable="True" Margin="{ThemeResource TileMargin}" Style="{ThemeResource QuickAccessButtonStyle}"
+                    VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
+                    Command="{Command Source={Service WorkflowManager},Path=NavigatePush,Parameters=2529B0F0-8415-4A4E-971B-38D6CDD2406A}">
+              <Button.Content>
+                <Image Source="MediaMenu\year.png" Stretch="Uniform" Opacity="1"/>
+              </Button.Content>
+              <Button.Triggers>
+                <Trigger Property="HasFocus" Value="True">
+                  <Setter TargetName="ItemLabel" Property="Content" Value="Year"/>
+                </Trigger>
+              </Button.Triggers>
+            </Button>
+          </ListViewItem>
+          <ListViewItem>
+            <Button Width="170" Height="159" Focusable="True" Margin="{ThemeResource TileMargin}" Style="{ThemeResource QuickAccessButtonStyle}"
+                    VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
+                    Command="{Command Source={Service WorkflowManager},Path=NavigatePush,Parameters=2529B0F0-8415-4A4E-971B-38D6CDD2406A}">
+              <Button.Content>
+                <Image Source="MediaMenu\place.png" Stretch="Uniform" Opacity="1"/>
+              </Button.Content>
+              <Button.Triggers>
+                <Trigger Property="HasFocus" Value="True">
+                  <Setter TargetName="ItemLabel" Property="Content" Value="Place"/>
+                </Trigger>
+              </Button.Triggers>
+            </Button>
+          </ListViewItem>
+          <ListViewItem>
+            <Button Width="170" Height="159" Focusable="True" Margin="{ThemeResource TileMargin}" Style="{ThemeResource QuickAccessButtonStyle}"
+                    VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
+                    Command="{Command Source={Service WorkflowManager},Path=NavigatePush,Parameters=2529B0F0-8415-4A4E-971B-38D6CDD2406A}">
+              <Button.Content>
+                <Image Source="MediaMenu\System.png" Stretch="Uniform" Opacity="1"/>
+              </Button.Content>
+              <Button.Triggers>
+                <Trigger Property="HasFocus" Value="True">
+                  <Setter TargetName="ItemLabel" Property="Content" Value="System"/>
+                </Trigger>
+              </Button.Triggers>
+            </Button>
+          </ListViewItem>
+          <ListViewItem>
+            <Button Width="170" Height="159" Focusable="True" Margin="{ThemeResource TileMargin}" Style="{ThemeResource QuickAccessButtonStyle}"
+                    VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
+                    Command="{Command Source={Service WorkflowManager},Path=NavigatePush,Parameters=2529B0F0-8415-4A4E-971B-38D6CDD2406A}">
+              <Button.Content>
+                <Image Source="MediaMenu\Size.png" Stretch="Uniform" Opacity="1"/>
+              </Button.Content>
+              <Button.Triggers>
+                <Trigger Property="HasFocus" Value="True">
+                  <Setter TargetName="ItemLabel" Property="Content" Value="Size"/>
+                </Trigger>
+              </Button.Triggers>
+            </Button>
+          </ListViewItem>
+          <ListViewItem>
+            <Button Width="170" Height="159" Focusable="True" Margin="{ThemeResource TileMargin}" Style="{ThemeResource QuickAccessButtonStyle}"
+                    VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
+                    Command="{Command Source={Service WorkflowManager},Path=NavigatePush,Parameters=2529B0F0-8415-4A4E-971B-38D6CDD2406A}">
+              <Button.Content>
+                <Image Source="MediaMenu\Search.png" Stretch="Uniform" Opacity="1"/>
+              </Button.Content>
+              <Button.Triggers>
+                <Trigger Property="HasFocus" Value="True">
+                  <Setter TargetName="ItemLabel" Property="Content" Value="Search"/>
+                </Trigger>
+              </Button.Triggers>
+            </Button>
+          </ListViewItem>
+        </ListView>
+
+
+        <ListViewItem DataContext="{Binding Source={StaticResource MediaListModel}, Path=Lists[LatestImages]}"
+                      Style="{ThemeResource MediaGridTemplateStyle}" Width="{ThemeResource TileGroupWidthWide}"
+                      Visibility="{Binding Source={Binding AllItems}, Converter={StaticResource MediaListVisibilityConverter}}">
+          <ListViewItem.Resources>
+            <ResourceWrapper x:Key="Grid_Label" Resource="[Nereus.Home.LatestAdded]"/>
+            <ResourceWrapper x:Key="Grid_Style" Resource="{ThemeResource SquareTileLayout1Template}"/>
+          </ListViewItem.Resources>
+        </ListViewItem>
+
+        <ListViewItem DataContext="{Binding Source={StaticResource MediaListModel}, Path=Lists[FavoriteImages]}"
+                      Style="{ThemeResource MediaGridTemplateStyle}" Width="{ThemeResource TileGroupWidthWide}"
+                      Visibility="{Binding Source={Binding AllItems}, Converter={StaticResource MediaListVisibilityConverter}}">
+          <ListViewItem.Resources>
+            <ResourceWrapper x:Key="Grid_Label" Resource="[Nereus.Home.Favorites]"/>
+            <ResourceWrapper x:Key="Grid_Style" Resource="{ThemeResource SquareTileLayout1Template}"/>
+          </ListViewItem.Resources>
+        </ListViewItem>
+
+
+        <ListViewItem DataContext="{Binding Source={StaticResource MediaListModel}, Path=Lists[UnplayedImages]}"
+                      Style="{ThemeResource MediaGridTemplateStyle}" Width="{ThemeResource TileGroupWidthWide}"
+                      Visibility="{Binding Source={Binding AllItems}, Converter={StaticResource MediaListVisibilityConverter}}">
+          <ListViewItem.Resources>
+            <ResourceWrapper x:Key="Grid_Label" Resource="[Nereus.Home.Unplayed]"/>
+            <ResourceWrapper x:Key="Grid_Style" Resource="{ThemeResource SquareTileLayout2Template}"/>
+          </ListViewItem.Resources>
+        </ListViewItem>
+
       </ListView>
     </Grid>
   </ControlTemplate>
