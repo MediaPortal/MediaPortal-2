@@ -31,6 +31,7 @@ using MediaPortal.Common;
 using MediaPortal.Common.Logging;
 using MediaPortal.UI.Players.Video.Interfaces;
 using MediaPortal.UI.Players.Video.Subtitles;
+using MediaPortal.UI.Players.Video.Teletext;
 
 namespace MediaPortal.UI.Players.Video.Tools
 {
@@ -38,26 +39,55 @@ namespace MediaPortal.UI.Players.Video.Tools
   {
     private const int NO_STREAM_INDEX = -1;
     private readonly ISubtitleStream _subtitleStream;
+    private readonly ITeletextSource _teletextSource;
+
     public TsReaderStreamInfoHandler(ISubtitleStream subtitleStream)
     {
       if (subtitleStream == null)
+      {
         return;
-
-      int count = 0;
+      }
+      int subtitleStreamCount = 0;
       _subtitleStream = subtitleStream;
-      subtitleStream.GetSubtitleStreamCount(ref count);
-      if (count > 0)
+      subtitleStream.GetSubtitleStreamCount(ref subtitleStreamCount);
+      if (subtitleStreamCount > 0)
       {
         StreamInfo subStream = new StreamInfo(null, NO_STREAM_INDEX, VideoPlayer.NO_SUBTITLES, 0);
         AddUnique(subStream);
       }
-      for (int i = 0; i < count; ++i)
+      for (int i = 0; i < subtitleStreamCount; ++i)
       {
         //FIXME: language should be passed back also as LCID
         SubtitleLanguage language = new SubtitleLanguage();
         subtitleStream.GetSubtitleStreamLanguage(i, ref language);
         int lcid = BaseDXPlayer.LookupLcidFromName(language.lang);
         // Note: the "type" is no longer considered in MP1 code as well, so I guess DVBSub3 only supports Bitmap subs at all.
+        string name = language.lang;
+        StreamInfo subStream = new StreamInfo(null, i, name, lcid);
+        AddUnique(subStream);
+      }
+    }
+
+    public TsReaderStreamInfoHandler(ITeletextSource teletextSource)
+    {
+      if (teletextSource == null)
+      {
+        return;
+      }
+      int teletextStreamCount = 0;
+      _teletextSource = teletextSource;
+      teletextSource.GetTeletextStreamCount(ref teletextStreamCount);
+      if (teletextStreamCount > 0)
+      {
+        StreamInfo subStream = new StreamInfo(null, NO_STREAM_INDEX, VideoPlayer.NO_SUBTITLES, 0);
+        AddUnique(subStream);
+      }
+      for (int i = 0; i < teletextStreamCount; ++i)
+      {
+        //FIXME: language should be passed back also as LCID
+        SubtitleLanguage language = new SubtitleLanguage();
+        teletextSource.GetTeletextStreamLanguage(i, ref language);
+        int lcid = BaseDXPlayer.LookupLcidFromName(language.lang);
         string name = language.lang;
         StreamInfo subStream = new StreamInfo(null, i, name, lcid);
         AddUnique(subStream);

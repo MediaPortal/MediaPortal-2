@@ -74,6 +74,7 @@
     <Compile Include="Settings\Configuration\VideoAVCCodec.cs" />
     <Compile Include="Settings\Configuration\VideoMPEG4Codec.cs" />
     <Compile Include="Settings\Configuration\VideoMPEG2Codec.cs" />
+    <Compile Include="Subtitles\ISubtitleRenderer.cs" />
     <Compile Include="Subtitles\MpcEngine.cs" />
     <Compile Include="Settings\MpcSubsSettings.cs" />
     <Compile Include="Subtitles\MpcSubsRenderer.cs" />

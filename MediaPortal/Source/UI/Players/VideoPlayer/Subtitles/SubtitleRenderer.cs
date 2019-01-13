@@ -35,6 +35,7 @@ using MediaPortal.Common;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.Settings;
 using MediaPortal.UI.Players.Video.Settings;
+using MediaPortal.UI.Players.Video.Teletext;
 using MediaPortal.UI.Players.Video.Tools;
 using MediaPortal.UI.Presentation.Players;
 using MediaPortal.UI.SkinEngine.Rendering;
@@ -226,13 +227,18 @@ namespace MediaPortal.UI.Players.Video.Subtitles
   /// SubtitleRenderer uses the DVBSub2 direct show filter in the video graph to retrieve subtitles.
   /// The subtitles are handled by drawing bitmap to the video frame (<see cref="DrawOverlay"/>).
   /// </summary>
-  public class SubtitleRenderer : IDisposable
+  public class SubtitleRenderer : ISubtitleRenderer, IDisposable
   {
     #region Constants
 
     private const int MAX_SUBTITLES_IN_QUEUE = 20;
     public static Guid CLSID_DVBSUB2 = new Guid("{1CF3606B-6F89-4813-9D05-F9CA324CF2EA}");
     public static Guid CLSID_DVBSUB3 = new Guid("{3B4C4F66-739F-452c-AFC4-1C039BED3299}");
+
+    // ClosedCaptions parser
+    private const string CCFILTER_CLSID = "{6F0B7D9C-7548-49A9-AC4C-1DA1927E6C15}";
+    private const string CCFILTER_NAME = "Core CC Parser";
+    private const string CCFILTER_FILENAME = "cccp.ax";
 
     #endregion
 
@@ -257,6 +263,7 @@ namespace MediaPortal.UI.Players.Video.Subtitles
     protected SubtitleCallback _callBack;
     protected readonly ResetCallback _resetCallBack;
     protected readonly UpdateTimeoutCallback _updateTimeoutCallBack;
+    protected TeletextReceiver _ttxtReceiver = null;
 
     // Timestamp offset in MILLISECONDS
     protected double _startPos = 0;
@@ -552,6 +559,29 @@ namespace MediaPortal.UI.Players.Video.Subtitles
         _subFilter.SetUpdateTimeoutCallback(pUpdateTimeoutCallBack);
       }
       return baseFilter;
+    }
+
+    public IBaseFilter AddClosedCaptionsFilter(IGraphBuilder graphBuilder)
+    {
+      FilterFileWrapper ccFilter = FilterLoader.LoadFilterFromDll(CCFILTER_FILENAME, new Guid(CCFILTER_CLSID), true);
+      IBaseFilter baseFilter = ccFilter.GetFilter();
+      if (baseFilter != null)
+      {
+        graphBuilder.AddFilter(baseFilter, CCFILTER_NAME);
+      }
+      else
+      {
+        ccFilter.Dispose();
+        ServiceRegistration.Get<ILogger>().Warn("SubtitleRenderer: Failed to add {1} to graph", CCFILTER_FILENAME);
+      }
+      return baseFilter;
+    }
+
+
+    public void AddTeletextSubtitleDecoder(ITeletextSource teletextSource)
+    {
+      TeletextSubtitleDecoder ttxtDecoder = new TeletextSubtitleDecoder(this);
+      _ttxtReceiver = new TeletextReceiver(teletextSource, ttxtDecoder);
     }
 
     protected virtual void EnableSubtitleHandling()

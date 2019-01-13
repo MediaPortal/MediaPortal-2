@@ -57,7 +57,7 @@ namespace MediaPortal.UI.Players.Video
 
     protected readonly string[] _emptyStringArray = new string[0];
     protected FilterFileWrapper _fileSource;
-    protected SubtitleRenderer _subtitleRenderer;
+    protected ISubtitleRenderer _subtitleRenderer;
     protected IBaseFilter _subtitleFilter;
     protected IBDReader _bdReader;
     protected BluRayOSDRenderer _osdRenderer;
@@ -165,15 +165,15 @@ namespace MediaPortal.UI.Players.Video
       _bdReader.SetBDReaderCallback(this);
 
       _graphBuilder.AddFilter(baseFilter, BluRayAPI.BDREADER_FILTER_NAME);
-
-      _subtitleRenderer = new SubtitleRenderer(OnTextureInvalidated);
+      // TODO: add the correct subtitle filter
+   /*   _subtitleRenderer = new SubtitleRenderer(OnTextureInvalidated);
       _subtitleFilter = _subtitleRenderer.AddSubtitleFilter(_graphBuilder);
       if (_subtitleFilter != null)
       {
         _subtitleRenderer.RenderSubtitles = true;
         _subtitleRenderer.SetPlayer(this);
       }
-
+      */
       // Prepare event handling
       _eventThread = new Thread(HandleBDEvent);
       _eventThread.Start();
@@ -544,7 +544,8 @@ namespace MediaPortal.UI.Players.Video
     protected override void PostProcessTexture(Texture targetTexture)
     {
       //_osdRenderer.DrawOverlay(targetTexture);
-      _subtitleRenderer.DrawOverlay(targetTexture);
+      // TODO: disabled until the right subtitle filter has been chosen  
+      // _subtitleRenderer.DrawOverlay(targetTexture);
     }
 
     public Texture[] TexturePlanes
