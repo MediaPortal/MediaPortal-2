@@ -5,7 +5,7 @@
   xmlns:fanart="clr-namespace:MediaPortal.Extensions.UserServices.FanArtService.Client;assembly=FanArtService.Client"
   xmlns:media="clr-namespace:MediaPortal.UiComponents.Media.Models.AspectWrappers;assembly=Media"
   xmlns:aspect="clr-namespace:MediaPortal.Common.MediaManagement.DefaultItemAspects;assembly=MediaPortal.Common"
-  x:Name="MediaItemDetails" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="-50,0,0,0">
+  x:Name="MediaItemDetails" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="0,0,0,0">
 
   <Grid.RowDefinitions>
     <RowDefinition Height="*"/>
@@ -103,7 +103,7 @@
       </MultiBinding>
     </Control.IsVisible>
     <Control.TemplateControl>
-      <Include Source="screens\MediaItemHomeOthersDetails.inc"/>
+      <!--Include Source="screens\MediaItemHomeOthersDetails.inc"/-->
     </Control.TemplateControl>
   </Control>
   
