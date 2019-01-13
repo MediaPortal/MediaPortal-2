@@ -42,7 +42,7 @@ namespace MediaPortal.Common.Services.ResourceAccess
   {
     #region Constants
 
-    public const int CHUNK_SIZE = 4 * 512 * 1024; // 4 * 512 kB chunk size
+    public const int CHUNK_SIZE = 256 * 1024; // 256 kB chunk size
     public const int NUM_READAHEAD_CHUNKS = 2;
     public const int MAX_NUM_CACHES = 10;
 
@@ -278,9 +278,9 @@ namespace MediaPortal.Common.Services.ResourceAccess
     /// Creates a <see cref="CachedMultiSegmentHttpStream"/> that can read data over HTTP.
     /// </summary>
     /// <param name="url">URL to retrieve the contents from.</param>
-    /// <param name="localIpAddress">Local IP address to help the underlaying HTTP request modules finding the correct outgoing
+    /// <param name="localIpAddress">Local IP address to help the underlying HTTP request modules finding the correct outgoing
     /// network interface. If this parameter is set, the outgoing request will be made on the network interface this local IP address
-    /// is bound to. If this parameter is set to <c>null</c>, the interface will be choosen automatically, which can fail.</param>
+    /// is bound to. If this parameter is set to <c>null</c>, the interface will be chosen automatically, which can fail.</param>
     /// <param name="streamLength">Expected length of the resource stream.</param>
     public CachedMultiSegmentHttpStream(string url, IPAddress localIpAddress, long streamLength)
     {
