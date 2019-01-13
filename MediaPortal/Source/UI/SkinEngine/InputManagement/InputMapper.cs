@@ -161,54 +161,78 @@ namespace MediaPortal.UI.SkinEngine.InputManagement
           return Key.Power;
 
         case Keys.F1:
+          if (alt || control || shift) break;
           return Key.F1;
         case Keys.F2:
+          if (alt || control || shift) break;
           return Key.F2;
         case Keys.F3:
+          if (alt || control || shift) break;
           return Key.F3;
         case Keys.F4:
           if (alt)
             return Key.Close;
           return Key.F4;
         case Keys.F5:
+          if (alt || control || shift) break;
           return Key.F5;
         case Keys.F6:
+          if (alt || control || shift) break;
           return Key.F6;
         case Keys.F7:
+          if (alt || control || shift) break;
           return Key.F7;
         case Keys.F8:
+          if (alt || control || shift) break;
           return Key.F8;
         case Keys.F9:
+          if (alt || control || shift) break;
           return Key.F9;
         case Keys.F10:
+          if (alt || control) break;
+          if (shift) return Key.ContextMenu;
           return Key.F10;
         case Keys.F11:
+          if (alt || control || shift) break;
           return Key.F11;
         case Keys.F12:
+          if (alt || control || shift) break;
           return Key.F12;
         case Keys.F13:
+          if (alt || control || shift) break;
           return Key.F13;
         case Keys.F14:
+          if (alt || control || shift) break;
           return Key.F14;
         case Keys.F15:
+          if (alt || control || shift) break;
           return Key.F15;
         case Keys.F16:
+          if (alt || control || shift) break;
           return Key.F16;
         case Keys.F17:
+          if (alt || control || shift) break;
           return Key.F17;
         case Keys.F18:
+          if (alt || control || shift) break;
           return Key.F18;
         case Keys.F19:
+          if (alt || control || shift) break;
           return Key.F19;
         case Keys.F20:
+          if (alt || control || shift) break;
           return Key.F20;
         case Keys.F21:
+          if (alt || control || shift) break;
           return Key.F21;
         case Keys.F22:
+          if (alt || control || shift) break;
           return Key.F22;
         case Keys.F23:
+          if (alt || control || shift) break;
           return Key.F23;
         case Keys.F24:
+          if (alt || control || shift) break;
           return Key.F24;
 
         case Keys.X:
