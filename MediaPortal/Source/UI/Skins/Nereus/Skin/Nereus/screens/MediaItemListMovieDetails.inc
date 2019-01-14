@@ -22,17 +22,17 @@
   </Grid.ColumnDefinitions>
 
   <Image Grid.Row="1" Grid.Column="1" HorizontalAlignment="Right" VerticalAlignment="Stretch" Stretch="Fill"
-       Margin="-35,-15,-23,-25" Width="350" Height="470">
+         Margin="0" Width="285" Height="420">
     <Image.Source>
       <ImageSourceWrapper Delay="0.5" DelayInOut="true" Transition="transitions\dissolve" TransitionDuration="0.5"
-                     Source="Poster_Shadow_large.png"/>
+                          Source="Poster_large.png"/>
     </Image.Source>
   </Image>
   <Image Grid.Row="1" Grid.Column="1" HorizontalAlignment="Right" VerticalAlignment="Stretch" Stretch="Fill"
-         Margin="0,10,10,0" Width="285" Height="420">
+         Margin="8" Width="278" Height="412">
     <Image.Source>
       <ImageSourceWrapper Delay="0.5" DelayInOut="true" Transition="transitions\dissolve" TransitionDuration="0.5"
-                     Source="{Binding Source={StaticResource FanArtBackgroundModel}, Path=ImageSource, Converter={StaticResource FanArtImageSourceConverter}, ConverterParameter=Poster;380;520}"/>
+                          Source="{Binding Source={StaticResource FanArtBackgroundModel}, Path=ImageSource, Converter={StaticResource FanArtImageSourceConverter}, ConverterParameter=Poster;380;520}"/>
     </Image.Source>
   </Image>
 
