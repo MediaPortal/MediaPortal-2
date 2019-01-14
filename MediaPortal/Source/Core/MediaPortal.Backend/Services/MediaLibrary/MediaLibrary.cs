@@ -2505,10 +2505,10 @@ namespace MediaPortal.Backend.Services.MediaLibrary
               }
               Logger.Debug("MediaLibrary: Set parent media item {0} watch count = {1}", parentId, valueParam.Value);
 
-              if (updatePlayDate)
+              if (updatePlayDate && watchPercentage > 0)
               {
                 keyParam.Value = UserDataKeysKnown.KEY_PLAY_DATE;
-                valueParam.Value = watchPercentage >= 100 ? UserDataKeysKnown.GetSortablePlayDateString(DateTime.Now) : "";
+                valueParam.Value = UserDataKeysKnown.GetSortablePlayDateString(DateTime.Now);
                 if (command.ExecuteNonQuery() == 0)
                 {
                   command.CommandText = _preparedStatements.InsertUserPlayDataForIdSQL;
@@ -2593,10 +2593,10 @@ namespace MediaPortal.Backend.Services.MediaLibrary
               }
               Logger.Debug("MediaLibrary: Set parent media item {0} watch count = {1}", key.Key, valueParam.Value);
 
-              if (updateWatchedDate)
+              if (updateWatchedDate && key.Value > 0)
               {
                 keyParam.Value = UserDataKeysKnown.KEY_PLAY_DATE;
-                valueParam.Value = key.Value > 0 ? UserDataKeysKnown.GetSortablePlayDateString(DateTime.Now) : "";
+                valueParam.Value = UserDataKeysKnown.GetSortablePlayDateString(DateTime.Now);
                 if (command.ExecuteNonQuery() == 0)
                 {
                   command.CommandText = _preparedStatements.InsertUserPlayDataForIdSQL;
