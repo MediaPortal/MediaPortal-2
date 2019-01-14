@@ -52,7 +52,7 @@ namespace MediaPortal.UI.SkinEngine.InputManagement
   /// <summary>
   /// Delegate for a key handler.
   /// </summary>
-  /// <param name="key">The key which was pressed. This parmeter should be set to <see cref="Key.None"/> when the
+  /// <param name="key">The key which was pressed. This parameter should be set to <see cref="Key.None"/> when the
   /// key was consumed.</param>
   public delegate void KeyPressedHandler(ref Key key);
 
@@ -168,6 +168,7 @@ namespace MediaPortal.UI.SkinEngine.InputManagement
 
     // TODO: Make this configurable
     protected static TimeSpan MOUSE_CONTROLS_TIMEOUT = TimeSpan.FromSeconds(5);
+    protected static int MOUSE_ACTIVATION_DELTA = 10;
 
     protected static TimeSpan BUSY_TIMEOUT = TimeSpan.FromSeconds(1);
 
@@ -574,6 +575,9 @@ namespace MediaPortal.UI.SkinEngine.InputManagement
 
     public void MouseMove(float x, float y)
     {
+      if (!IsMouseUsed && Math.Abs(x - _mousePosition.X) < MOUSE_ACTIVATION_DELTA && Math.Abs(y - _mousePosition.Y) < MOUSE_ACTIVATION_DELTA)
+        return;
+
       DateTime now = DateTime.Now;
       _lastInputTime = now;
       _lastMouseUsageTime = now;
