@@ -284,9 +284,22 @@
     <Setter Property="Template">
       <Setter.Value>
         <ControlTemplate>
-          <DockPanel Name="ButtonControlRectangle" Margin="2" IsVisible="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}},Path=HasFocus}">
-            <Rectangle Name="ButtonBottomShadow" DockPanel.Dock="Center" StrokeThickness="0" Fill="{ThemeResource MainColorForeground}"/>
-          </DockPanel>
+          <Grid x:Name="ButtonControlRectangle" IsVisible="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}},Path=HasFocus}">
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+              <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+            <Border 
+              BorderThickness="5" Margin="0,1,0,0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+              CornerRadius="{ThemeResource ButtonControlRadiusX}"
+              BorderBrush="#80000000"/>
+            <Border 
+              BorderThickness="4" Margin="0,1,0,0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+              CornerRadius="{ThemeResource ButtonControlRadiusX}"
+              BorderBrush="{ThemeResource TileFocusedBorderBrush}"/>
+          </Grid>
         </ControlTemplate>
       </Setter.Value>
     </Setter>
@@ -476,8 +489,8 @@
               </TransformGroup>
             </Grid.RenderTransform>
             <!--Control Style="{ThemeResource ButtonControlStyle}" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Grid.ZIndex="100"/-->
-            <!--Control Style="{ThemeResource ButtonBaseControlStyle}" Margin="3" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Grid.ZIndex="0"/-->
-            <ContentPresenter x:Name="ButtonContentPresenter" Margin="4" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Grid.ZIndex="1"/>
+            <ContentPresenter x:Name="ButtonContentPresenter" Margin="3" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Grid.ZIndex="0"/>
+            <Control Style="{ThemeResource ButtonBaseControlStyle}" Margin="3" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Grid.ZIndex="1"/>
           </Grid>
           <ControlTemplate.Triggers>
             <Trigger Property="HasFocus" Value="True">

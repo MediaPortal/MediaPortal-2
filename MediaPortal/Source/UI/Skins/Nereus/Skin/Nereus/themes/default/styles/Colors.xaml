@@ -9,7 +9,8 @@
   <ResourceWrapper x:Key="NereusColorLight" Resource="#FF009999"/>
   <ResourceWrapper x:Key="NereusColorMedium" Resource="#FF175f5d"/>
   <ResourceWrapper x:Key="NereusColorDark" Resource="#FF244043"/>
- 
+
+  <ResourceWrapper x:Key="TileFocusedBorderBrush" Resource="#FFFFFFFF"/>
   <ResourceWrapper x:Key="MainColorForeground" Resource="#009999"/>
   <ResourceWrapper x:Key="TextColorForeground" Resource="#00CCCC"/>
   <ResourceWrapper x:Key="DialogHeaderColor" Resource="White"/>
