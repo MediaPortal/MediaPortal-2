@@ -3483,34 +3483,24 @@
   <ControlTemplate x:Key="GridViewMovieGenreFilterItemTemplate">
     <Grid x:Name="ItemControl">
       <Grid.ColumnDefinitions>
-        <ColumnDefinition Width="{StaticResource ARTIST_GRID_WIDTH}"/>
+        <ColumnDefinition Width="{StaticResource THUMBNAIL_GRID_WIDTH}"/>
       </Grid.ColumnDefinitions>
       <Grid.RowDefinitions>
-        <RowDefinition Height="{StaticResource ARTIST_GRID_HEIGHT}"/>
+        <RowDefinition Height="{StaticResource THUMBNAIL_GRID_HEIGHT}"/>
       </Grid.RowDefinitions>
-      <Grid.OpacityMask>
-        <VisualBrush>
-          <VisualBrush.Visual>
-            <Border Background="White" CornerRadius="6" BorderThickness="0" BorderBrush="Black"/>
-          </VisualBrush.Visual>
-        </VisualBrush>
-      </Grid.OpacityMask>
-      <Border VerticalAlignment="Stretch" HorizontalAlignment="Stretch" BorderThickness="0">
-        <Border.Background>
-          <LinearGradientBrush StartPoint="0,1" EndPoint="1,0">
-            <GradientStop Color="{ThemeResource MediaItemBackgroundColor1}" Offset="0"/>
-            <GradientStop Color="{ThemeResource MediaItemBackgroundColor2}" Offset="1"/>
-          </LinearGradientBrush>
-        </Border.Background>
-      </Border>
-      <Image x:Name="ItemTypeImage" Stretch="Uniform" Margin="5">
+      <Image Stretch="Fill" Source="thumbnail_small.png" Margin="-5"/>
+      <Image x:Name="thumbnail" Stretch="Fill" Margin="3">
         <Image.Source>
-          <Binding Path="Id" Converter="{StaticResource StringFormatConverter}" ConverterParameter="{}GenreMovie\{0}.png"/>
+          <Binding Path="Id" Converter="{StaticResource StringFormatConverter}" ConverterParameter="{}GenreVideo\Wide\{0}.jpg"/>
         </Image.Source>
       </Image>
-      <Label x:Name="ItemLabel" HorizontalAlignment="Center" VerticalAlignment="Bottom" 
-             TextTrimming="CharacterEllipsis" IsVisible="{Binding ElementName=ItemTypeImage, Path=!HasImage}"
-             Content="{Binding SimpleTitle}" Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallerFontSize}" Margin="5"/>
+      <Image Source="genre.png" HorizontalAlignment="Left" VerticalAlignment="Top" Height="70" Width="70" Stretch="Uniform" Margin="-5"
+               IsVisible="{Binding ElementName=thumbnail, Path=!HasImage}"/>
+      <Border VerticalAlignment="Bottom" HorizontalAlignment="Stretch" BorderThickness="0" Background="Black" 
+              Opacity="0.5" Height="37" Margin="3"/>
+      <Label x:Name="ItemLabel" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center" VerticalAlignment="Bottom" Margin="5" 
+             Color="{ThemeResource TextColor}" Height="35" TextTrimming="CharacterEllipsis"
+             FontSize="{ThemeResource SmallerFontSize}" Content="{Binding Path=SimpleTitle}"/>
     </Grid>
   </ControlTemplate>
 
@@ -3529,7 +3519,7 @@
         <Image x:Name="ItemTypeSmall" Stretch="Uniform" Margin="0"
                Width="{StaticResource MEDIA_THUMB_WIDTH_S}" Height="{StaticResource MEDIA_THUMB_HEIGHT_S}">
           <Image.Source>
-            <Binding Path="Id" Converter="{StaticResource StringFormatConverter}" ConverterParameter="{}GenreMovie\{0}.png"/>
+            <Binding Path="Id" Converter="{StaticResource StringFormatConverter}" ConverterParameter="{}GenreVideo\Wide\{0}.jpg"/>
           </Image.Source>
           <Image.IsVisible>
             <Binding Source="{StaticResource ViewModeModel}" Path="LayoutSize" Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0} == {LayoutSize}.{Small}"/>
@@ -3538,7 +3528,7 @@
         <Image x:Name="ItemTypeMedium" Stretch="Uniform" Margin="-15,-5,0,-5"
                Width="{StaticResource MEDIA_THUMB_WIDTH_M}" Height="{StaticResource MEDIA_THUMB_HEIGHT_M}">
           <Image.Source>
-            <Binding Path="Id" Converter="{StaticResource StringFormatConverter}" ConverterParameter="{}GenreMovie\{0}.png"/>
+            <Binding Path="Id" Converter="{StaticResource StringFormatConverter}" ConverterParameter="{}GenreVideo\Wide\{0}.jpg"/>
           </Image.Source>
           <Image.IsVisible>
             <Binding Source="{StaticResource ViewModeModel}" Path="LayoutSize" Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0} == {LayoutSize}.{Medium}"/>
@@ -3547,7 +3537,7 @@
         <Image x:Name="ItemTypeLarge" Stretch="Uniform" Margin="-25,-5,0,-5"
                Width="{StaticResource MEDIA_THUMB_WIDTH_L}" Height="{StaticResource MEDIA_THUMB_HEIGHT_L}">
           <Image.Source>
-            <Binding Path="Id" Converter="{StaticResource StringFormatConverter}" ConverterParameter="{}GenreMovie\{0}.png"/>
+            <Binding Path="Id" Converter="{StaticResource StringFormatConverter}" ConverterParameter="{}GenreVideo\Wide\{0}.jpg"/>
           </Image.Source>
           <Image.IsVisible>
             <Binding Source="{StaticResource ViewModeModel}" Path="LayoutSize" Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0} == {LayoutSize}.{Large}"/>
@@ -3602,7 +3592,7 @@
 
       <Image x:Name="thumb" Grid.Row="1" Width="{StaticResource AUDIO_COVER_WIDTH}" Height="{StaticResource AUDIO_COVER_HEIGHT}" Stretch="Uniform" Margin="10">
         <Image.Source>
-          <Binding Path="Id" Converter="{StaticResource StringFormatConverter}" ConverterParameter="{}GenreMovie\{0}.png"/>
+          <Binding Path="Id" Converter="{StaticResource StringFormatConverter}" ConverterParameter="{}GenreVideo\Square\{0}.jpg"/>
         </Image.Source>
       </Image>
 
@@ -3634,34 +3624,24 @@
   <ControlTemplate x:Key="GridViewSeriesGenreFilterItemTemplate">
     <Grid x:Name="ItemControl">
       <Grid.ColumnDefinitions>
-        <ColumnDefinition Width="{StaticResource ARTIST_GRID_WIDTH}"/>
+        <ColumnDefinition Width="{StaticResource THUMBNAIL_GRID_WIDTH}"/>
       </Grid.ColumnDefinitions>
       <Grid.RowDefinitions>
-        <RowDefinition Height="{StaticResource ARTIST_GRID_HEIGHT}"/>
+        <RowDefinition Height="{StaticResource THUMBNAIL_GRID_HEIGHT}"/>
       </Grid.RowDefinitions>
-      <Grid.OpacityMask>
-        <VisualBrush>
-          <VisualBrush.Visual>
-            <Border Background="White" CornerRadius="6" BorderThickness="0" BorderBrush="Black"/>
-          </VisualBrush.Visual>
-        </VisualBrush>
-      </Grid.OpacityMask>
-      <Border VerticalAlignment="Stretch" HorizontalAlignment="Stretch" BorderThickness="0">
-        <Border.Background>
-          <LinearGradientBrush StartPoint="0,1" EndPoint="1,0">
-            <GradientStop Color="{ThemeResource MediaItemBackgroundColor1}" Offset="0"/>
-            <GradientStop Color="{ThemeResource MediaItemBackgroundColor2}" Offset="1"/>
-          </LinearGradientBrush>
-        </Border.Background>
-      </Border>
-      <Image x:Name="ItemTypeImage" Stretch="Uniform" Margin="5">
+      <Image Stretch="Fill" Source="thumbnail_small.png" Margin="-5"/>
+      <Image x:Name="thumbnail" Stretch="Fill" Margin="3">
         <Image.Source>
-          <Binding Path="Id" Converter="{StaticResource StringFormatConverter}" ConverterParameter="{}GenreSeries\{0}.png"/>
+          <Binding Path="Id" Converter="{StaticResource StringFormatConverter}" ConverterParameter="{}GenreVideo\Wide\{0}.jpg"/>
         </Image.Source>
       </Image>
-      <Label x:Name="ItemLabel" HorizontalAlignment="Center" VerticalAlignment="Bottom" 
-             TextTrimming="CharacterEllipsis" IsVisible="{Binding ElementName=ItemTypeImage, Path=!HasImage}"
-             Content="{Binding SimpleTitle}" Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallerFontSize}" Margin="5"/>
+      <Image Source="genre.png" HorizontalAlignment="Left" VerticalAlignment="Top" Height="70" Width="70" Stretch="Uniform" Margin="-5"
+               IsVisible="{Binding ElementName=thumbnail, Path=!HasImage}"/>
+      <Border VerticalAlignment="Bottom" HorizontalAlignment="Stretch" BorderThickness="0" Background="Black" 
+              Opacity="0.5" Height="37" Margin="3"/>
+      <Label x:Name="ItemLabel" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center" VerticalAlignment="Bottom" Margin="5" 
+             Color="{ThemeResource TextColor}" Height="35" TextTrimming="CharacterEllipsis"
+             FontSize="{ThemeResource SmallerFontSize}" Content="{Binding Path=SimpleTitle}"/>
     </Grid>
   </ControlTemplate>
 
@@ -3680,7 +3660,7 @@
         <Image x:Name="ItemTypeSmall" Stretch="Uniform" Margin="0"
                Width="{StaticResource MEDIA_THUMB_WIDTH_S}" Height="{StaticResource MEDIA_THUMB_HEIGHT_S}">
           <Image.Source>
-            <Binding Path="Id" Converter="{StaticResource StringFormatConverter}" ConverterParameter="{}GenreSeries\{0}.png"/>
+              <Binding Path="Id" Converter="{StaticResource StringFormatConverter}" ConverterParameter="{}GenreVideo\Wide\{0}.jpg"/>
           </Image.Source>
           <Image.IsVisible>
             <Binding Source="{StaticResource ViewModeModel}" Path="LayoutSize" Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0} == {LayoutSize}.{Small}"/>
@@ -3689,7 +3669,7 @@
         <Image x:Name="ItemTypeMedium" Stretch="Uniform" Margin="-15,-5,0,-5"
                Width="{StaticResource MEDIA_THUMB_WIDTH_M}" Height="{StaticResource MEDIA_THUMB_HEIGHT_M}">
           <Image.Source>
-            <Binding Path="Id" Converter="{StaticResource StringFormatConverter}" ConverterParameter="{}GenreSeries\{0}.png"/>
+              <Binding Path="Id" Converter="{StaticResource StringFormatConverter}" ConverterParameter="{}GenreVideo\Wide\{0}.jpg"/>
           </Image.Source>
           <Image.IsVisible>
             <Binding Source="{StaticResource ViewModeModel}" Path="LayoutSize" Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0} == {LayoutSize}.{Medium}"/>
@@ -3698,7 +3678,7 @@
         <Image x:Name="ItemTypeLarge" Stretch="Uniform" Margin="-25,-5,0,-5"
                Width="{StaticResource MEDIA_THUMB_WIDTH_L}" Height="{StaticResource MEDIA_THUMB_HEIGHT_L}">
           <Image.Source>
-            <Binding Path="Id" Converter="{StaticResource StringFormatConverter}" ConverterParameter="{}GenreSeries\{0}.png"/>
+              <Binding Path="Id" Converter="{StaticResource StringFormatConverter}" ConverterParameter="{}GenreVideo\Wide\{0}.jpg"/>
           </Image.Source>
           <Image.IsVisible>
             <Binding Source="{StaticResource ViewModeModel}" Path="LayoutSize" Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0} == {LayoutSize}.{Large}"/>
@@ -3753,7 +3733,7 @@
 
       <Image x:Name="thumb" Grid.Row="1" Width="{StaticResource AUDIO_COVER_WIDTH}" Height="{StaticResource AUDIO_COVER_HEIGHT}" Stretch="Uniform" Margin="10">
         <Image.Source>
-          <Binding Path="Id" Converter="{StaticResource StringFormatConverter}" ConverterParameter="{}GenreSeries\{0}.png"/>
+          <Binding Path="Id" Converter="{StaticResource StringFormatConverter}" ConverterParameter="{}GenreVideo\Square\{0}.jpg"/>
         </Image.Source>
       </Image>
 
@@ -3785,34 +3765,24 @@
   <ControlTemplate x:Key="GridViewAudioGenreFilterItemTemplate">
     <Grid x:Name="ItemControl">
       <Grid.ColumnDefinitions>
-        <ColumnDefinition Width="{StaticResource ARTIST_GRID_WIDTH}"/>
+        <ColumnDefinition Width="{StaticResource THUMBNAIL_GRID_WIDTH}"/>
       </Grid.ColumnDefinitions>
       <Grid.RowDefinitions>
-        <RowDefinition Height="{StaticResource ARTIST_GRID_HEIGHT}"/>
+        <RowDefinition Height="{StaticResource THUMBNAIL_GRID_HEIGHT}"/>
       </Grid.RowDefinitions>
-      <Grid.OpacityMask>
-        <VisualBrush>
-          <VisualBrush.Visual>
-            <Border Background="White" CornerRadius="6" BorderThickness="0" BorderBrush="Black"/>
-          </VisualBrush.Visual>
-        </VisualBrush>
-      </Grid.OpacityMask>
-      <Border VerticalAlignment="Stretch" HorizontalAlignment="Stretch" BorderThickness="0">
-        <Border.Background>
-          <LinearGradientBrush StartPoint="0,1" EndPoint="1,0">
-            <GradientStop Color="{ThemeResource MediaItemBackgroundColor1}" Offset="0"/>
-            <GradientStop Color="{ThemeResource MediaItemBackgroundColor2}" Offset="1"/>
-          </LinearGradientBrush>
-        </Border.Background>
-      </Border>
-      <Image x:Name="ItemTypeImage" Stretch="Uniform" Margin="5">
+      <Image Stretch="Fill" Source="thumbnail_small.png" Margin="-5"/>
+      <Image x:Name="thumbnail" Stretch="Fill" Margin="3">
         <Image.Source>
-          <Binding Path="Id" Converter="{StaticResource StringFormatConverter}" ConverterParameter="{}GenreAudio\{0}.png"/>
+          <Binding Path="Id" Converter="{StaticResource StringFormatConverter}" ConverterParameter="{}GenreAudio\Wide\{0}.jpg"/>
         </Image.Source>
       </Image>
-      <Label x:Name="ItemLabel" HorizontalAlignment="Center" VerticalAlignment="Bottom" 
-             TextTrimming="CharacterEllipsis" IsVisible="{Binding ElementName=ItemTypeImage, Path=!HasImage}"
-             Content="{Binding SimpleTitle}" Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallerFontSize}" Margin="5"/>
+      <Image Source="genre.png" HorizontalAlignment="Left" VerticalAlignment="Top" Height="70" Width="70" Stretch="Uniform" Margin="-5"
+               IsVisible="{Binding ElementName=thumbnail, Path=!HasImage}"/>
+      <Border VerticalAlignment="Bottom" HorizontalAlignment="Stretch" BorderThickness="0" Background="Black" 
+              Opacity="0.5" Height="37" Margin="3"/>
+      <Label x:Name="ItemLabel" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center" VerticalAlignment="Bottom" Margin="5" 
+             Color="{ThemeResource TextColor}" Height="35" TextTrimming="CharacterEllipsis"
+             FontSize="{ThemeResource SmallerFontSize}" Content="{Binding Path=SimpleTitle}"/>
     </Grid>
   </ControlTemplate>
 
@@ -3831,7 +3801,7 @@
         <Image x:Name="ItemTypeSmall" Stretch="Uniform" Margin="0"
                Width="{StaticResource MEDIA_THUMB_WIDTH_S}" Height="{StaticResource MEDIA_THUMB_HEIGHT_S}">
           <Image.Source>
-            <Binding Path="Id" Converter="{StaticResource StringFormatConverter}" ConverterParameter="{}GenreAudio\{0}.png"/>
+            <Binding Path="Id" Converter="{StaticResource StringFormatConverter}" ConverterParameter="{}GenreAudio\Wide\{0}.jpg"/>
           </Image.Source>
           <Image.IsVisible>
             <Binding Source="{StaticResource ViewModeModel}" Path="LayoutSize" Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0} == {LayoutSize}.{Small}"/>
@@ -3840,7 +3810,7 @@
         <Image x:Name="ItemTypeMedium" Stretch="Uniform" Margin="-15,-5,0,-5"
                Width="{StaticResource MEDIA_THUMB_WIDTH_M}" Height="{StaticResource MEDIA_THUMB_HEIGHT_M}">
           <Image.Source>
-            <Binding Path="Id" Converter="{StaticResource StringFormatConverter}" ConverterParameter="{}GenreAudio\{0}.png"/>
+            <Binding Path="Id" Converter="{StaticResource StringFormatConverter}" ConverterParameter="{}GenreAudio\Wide\{0}.jpg"/>
           </Image.Source>
           <Image.IsVisible>
             <Binding Source="{StaticResource ViewModeModel}" Path="LayoutSize" Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0} == {LayoutSize}.{Medium}"/>
@@ -3849,7 +3819,7 @@
         <Image x:Name="ItemTypeLarge" Stretch="Uniform" Margin="-25,-5,0,-5"
                Width="{StaticResource MEDIA_THUMB_WIDTH_L}" Height="{StaticResource MEDIA_THUMB_HEIGHT_L}">
           <Image.Source>
-            <Binding Path="Id" Converter="{StaticResource StringFormatConverter}" ConverterParameter="{}GenreAudio\{0}.png"/>
+            <Binding Path="Id" Converter="{StaticResource StringFormatConverter}" ConverterParameter="{}GenreAudio\Wide\{0}.jpg"/>
           </Image.Source>
           <Image.IsVisible>
             <Binding Source="{StaticResource ViewModeModel}" Path="LayoutSize" Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0} == {LayoutSize}.{Large}"/>
@@ -3904,7 +3874,7 @@
 
       <Image x:Name="thumb" Grid.Row="1" Width="{StaticResource AUDIO_COVER_WIDTH}" Height="{StaticResource AUDIO_COVER_HEIGHT}" Stretch="Uniform" Margin="10">
         <Image.Source>
-          <Binding Path="Id" Converter="{StaticResource StringFormatConverter}" ConverterParameter="{}GenreAudio\{0}.png"/>
+          <Binding Path="Id" Converter="{StaticResource StringFormatConverter}" ConverterParameter="{}GenreAudio\Square\{0}.jpg"/>
         </Image.Source>
       </Image>
 
