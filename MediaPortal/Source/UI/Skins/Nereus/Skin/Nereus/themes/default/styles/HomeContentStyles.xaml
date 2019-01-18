@@ -1431,7 +1431,7 @@
                     VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
                     Command="{Command Source={Service WorkflowManager},Path=NavigatePush,Parameters=2529B0F0-8415-4A4E-971B-38D6CDD2406A}">
               <Button.Content>
-                <Image Source="MediaMenu\genre.png" Stretch="Uniform" Opacity="1"/>
+                <Image Source="MediaMenu\audiogenre.png" Stretch="Uniform" Opacity="1"/>
               </Button.Content>
               <Button.Triggers>
                 <Trigger Property="HasFocus" Value="True">

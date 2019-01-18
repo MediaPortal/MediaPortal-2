@@ -1409,7 +1409,7 @@
           <Binding Source="{StaticResource ViewModeModel}" Path="LayoutSize" Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0} == {LayoutSize}.{Medium}"/>
         </Image.IsVisible>
       </Image>
-      <Image x:Name="ItemTypeLarge" Stretch="Uniform" Margin="-40,2,-40,2"
+      <Image x:Name="ItemTypeLarge" Stretch="Uniform" Margin="-40,2,-40,10"
              Width="{StaticResource MEDIA_THUMB_WIDTH_L}" Height="{StaticResource MEDIA_THUMB_HEIGHT_L}">
         <Image.Source>
           <fanart:FanArtImageSource fanart:FanArtMediaType="Series" fanart:FanArtType="Poster" fanart:FanArtName="{Binding MediaItem.MediaItemId}"
@@ -1445,6 +1445,20 @@
                                       fanart:MaxWidth="{StaticResource POSTER_GRID_WIDTH}" fanart:MaxHeight="{StaticResource POSTER_GRID_HEIGHT}"/>
           </Image.Source>
         </Image>
+
+        <!-- Fallback Content, if no poster existing -->
+        <Image Source="video.png" HorizontalAlignment="Left" VerticalAlignment="Top" Height="70" Width="70" Stretch="Uniform" Margin="-5"
+               IsVisible="{Binding ElementName=poster, Path=!HasImage}"/>
+        <media:SeriesAspectWrapper MediaItem="{Binding MediaItem}" IsVisible="{Binding ElementName=poster, Path=!HasImage}">
+          <media:SeriesAspectWrapper.Template>
+            <ControlTemplate>
+              <Label FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColor}" Wrap="True" Margin="15,50,10,10"
+                     Content="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=SeriesName}" 
+                     VerticalAlignment="Center" HorizontalAlignment="Stretch" TextTrimming="CharacterEllipsis"/>
+            </ControlTemplate>
+          </media:SeriesAspectWrapper.Template>
+        </media:SeriesAspectWrapper>
+        
         <!-- watched indicator -->
         <Control HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0" Template="{StaticResource Cover_WatchedFlag_Template}" 
                  IsVisible="{Binding Source={StaticResource SkinSettingsModel}, Path=[Nereus].EnableGridWatchedFlags}"/>
@@ -1462,6 +1476,20 @@
                                     fanart:MaxWidth="{StaticResource BANNER_GRID_WIDTH}" fanart:MaxHeight="{StaticResource BANNER_GRID_HEIGHT}"/>
           </Image.Source>
         </Image>
+
+        <!-- Fallback Content, if no poster existing -->
+        <Image Source="video.png" HorizontalAlignment="Left" VerticalAlignment="Top" Height="70" Width="70" Stretch="Uniform" Margin="-5"
+               IsVisible="{Binding ElementName=banner, Path=!HasImage}"/>
+        <media:SeriesAspectWrapper MediaItem="{Binding MediaItem}" IsVisible="{Binding ElementName=banner, Path=!HasImage}">
+          <media:SeriesAspectWrapper.Template>
+            <ControlTemplate>
+              <Label FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColor}" Wrap="True" Margin="15,50,10,10"
+                     Content="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=SeriesName}" 
+                     VerticalAlignment="Center" HorizontalAlignment="Stretch" TextTrimming="CharacterEllipsis"/>
+            </ControlTemplate>
+          </media:SeriesAspectWrapper.Template>
+        </media:SeriesAspectWrapper>
+
         <!-- watched indicator -->
         <Control HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0" Template="{StaticResource Cover_WatchedFlag_Template}" 
                  IsVisible="{Binding Source={StaticResource SkinSettingsModel}, Path=[Nereus].EnableGridWatchedFlags}"/>
@@ -1479,11 +1507,24 @@
                                       fanart:MaxWidth="{StaticResource THUMBNAIL_GRID_WIDTH}" fanart:MaxHeight="{StaticResource THUMBNAIL_GRID_HEIGHT}"/>
           </Image.Source>
         </Image>
+
+        <!-- Fallback Content, if no poster existing -->
+        <Image Source="video.png" HorizontalAlignment="Left" VerticalAlignment="Top" Height="70" Width="70" Stretch="Uniform" Margin="-5"
+               IsVisible="{Binding ElementName=thumbnail, Path=!HasImage}"/>
+        <media:SeriesAspectWrapper MediaItem="{Binding MediaItem}" IsVisible="{Binding ElementName=thumbnail, Path=!HasImage}">
+          <media:SeriesAspectWrapper.Template>
+            <ControlTemplate>
+              <Label FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColor}" Wrap="True" Margin="15,50,10,10"
+                     Content="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=SeriesName}" 
+                     VerticalAlignment="Center" HorizontalAlignment="Stretch" TextTrimming="CharacterEllipsis"/>
+            </ControlTemplate>
+          </media:SeriesAspectWrapper.Template>
+        </media:SeriesAspectWrapper>
+
         <!-- watched indicator -->
         <Control HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0" Template="{StaticResource Cover_WatchedFlag_Template}" 
                  IsVisible="{Binding Source={StaticResource SkinSettingsModel}, Path=[WMC].EnableListWatchedFlags}"/>
       </Grid>
-
     </Grid>
   </ControlTemplate>
 
@@ -1624,7 +1665,7 @@
           <Binding Source="{StaticResource ViewModeModel}" Path="LayoutSize" Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0} == {LayoutSize}.{Medium}"/>
         </Image.IsVisible>
       </Image>
-      <Image x:Name="ItemTypeLarge" Stretch="Uniform" Margin="-40,2,-40,2"
+      <Image x:Name="ItemTypeLarge" Stretch="Uniform" Margin="-40,2,-40,10"
              Width="{StaticResource MEDIA_THUMB_WIDTH_L}" Height="{StaticResource MEDIA_THUMB_HEIGHT_L}">
         <Image.Source>
           <fanart:FanArtImageSource fanart:FanArtMediaType="SeriesSeason" fanart:FanArtType="Poster" fanart:FanArtName="{Binding MediaItem.MediaItemId}"
@@ -1993,7 +2034,7 @@
           <Binding Source="{StaticResource ViewModeModel}" Path="LayoutSize" Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0} == {LayoutSize}.{Medium}"/>
         </Image.IsVisible>
       </Image>
-      <Image x:Name="ItemTypeLarge" Stretch="Uniform" Margin="-40,2,-40,2"
+      <Image x:Name="ItemTypeLarge" Stretch="Uniform" Margin="-40,2,-40,10"
              Width="{StaticResource MEDIA_THUMB_WIDTH_L}" Height="{StaticResource MEDIA_THUMB_HEIGHT_L}">
         <Image.Source>
           <fanart:FanArtImageSource fanart:FanArtMediaType="MovieCollection" fanart:FanArtType="Poster" fanart:FanArtName="{Binding MediaItem.MediaItemId}"
@@ -2719,68 +2760,38 @@
   </ControlTemplate>
 
    <ControlTemplate x:Key="GridViewAudioItemTemplate">
-    <Grid x:Name="ItemControl">
-      <Grid.ColumnDefinitions>
-        <ColumnDefinition Width="{StaticResource AUDIO_GRID_WIDTH}"/>
-      </Grid.ColumnDefinitions>
-      <Grid.RowDefinitions>
-        <RowDefinition Height="{StaticResource AUDIO_GRID_HEIGHT}"/>
-      </Grid.RowDefinitions>
-      <Image x:Name="thumb" Stretch="Fill" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" 
-             Source="{Binding MediaItem}">
-        <Image.OpacityMask>
-          <VisualBrush>
-            <VisualBrush.Visual>
-              <Border Name="mask" Background="White" CornerRadius="6" BorderThickness="0" BorderBrush="Black"/>
-            </VisualBrush.Visual>
-          </VisualBrush>
-        </Image.OpacityMask>
-      </Image>
-      <Border VerticalAlignment="Stretch" HorizontalAlignment="Stretch" CornerRadius="4" BorderThickness="0" 
-              IsVisible="{Binding ElementName=thumb, Path=!HasImage}">
-        <Border.Background>
-          <LinearGradientBrush StartPoint="0,1" EndPoint="1,0">
-            <GradientStop Color="{ThemeResource MediaItemBackgroundColor1}" Offset="0"/>
-            <GradientStop Color="{ThemeResource MediaItemBackgroundColor2}" Offset="1"/>
-          </LinearGradientBrush>
-        </Border.Background>
-      </Border>
-      <Image VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
-             Source="audio.png" Stretch="Uniform" IsVisible="{Binding ElementName=thumb, Path=!HasImage}"/>
-      <Control HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,-3,-3,0" Template="{StaticResource Cover_OfflineFlag_Template}" 
-               IsVisible="{Binding Source={StaticResource SkinSettingsModel}, Path=[Nereus].EnableGridWatchedFlags}"/>
-    </Grid>
-  </ControlTemplate>
+    <Grid x:Name="ItemControl" Width="{StaticResource AUDIO_GRID_WIDTH}" Height="{StaticResource AUDIO_GRID_HEIGHT}">
+      <Image Stretch="Fill" Source="square_small.png" Margin="-5"/>
+      <Image x:Name="poster" Source="{Binding MediaItem}" Stretch="Fill" Margin="3"/>
 
-  <ControlTemplate x:Key="GridViewAudioItemSmallTemplate">
-    <Grid x:Name="ItemControl">
-      <Grid.ColumnDefinitions>
-        <ColumnDefinition Width="{StaticResource AUDIO_GRID_WIDTH_S}"/>
-      </Grid.ColumnDefinitions>
-      <Grid.RowDefinitions>
-        <RowDefinition Height="{StaticResource AUDIO_GRID_HEIGHT_S}"/>
-      </Grid.RowDefinitions>
-      <Image x:Name="thumb" Stretch="Fill" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" 
-             Source="{Binding MediaItem}">
-        <Image.OpacityMask>
-          <VisualBrush>
-            <VisualBrush.Visual>
-              <Border Name="mask" Background="White" CornerRadius="6" BorderThickness="0" BorderBrush="Black"/>
-            </VisualBrush.Visual>
-          </VisualBrush>
-        </Image.OpacityMask>
-      </Image>
-      <Border VerticalAlignment="Stretch" HorizontalAlignment="Stretch" CornerRadius="4" BorderThickness="0" 
-              IsVisible="{Binding ElementName=thumb, Path=!HasImage}">
-        <Border.Background>
-          <LinearGradientBrush StartPoint="0,1" EndPoint="1,0">
-            <GradientStop Color="{ThemeResource MediaItemBackgroundColor1}" Offset="0"/>
-            <GradientStop Color="{ThemeResource MediaItemBackgroundColor2}" Offset="1"/>
-          </LinearGradientBrush>
-        </Border.Background>
-      </Border>
-      <Image VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
-             Source="audio.png" Stretch="Uniform" IsVisible="{Binding ElementName=thumb, Path=!HasImage}"/>
+      <!-- Fallback Content, if no poster existing -->
+      <Image Source="audio.png" HorizontalAlignment="Left" VerticalAlignment="Top" Height="70" Width="70" Stretch="Uniform" Margin="-5"
+             IsVisible="{Binding ElementName=poster, Path=!HasImage}"/>
+      <media:AudioAspectWrapper MediaItem="{Binding MediaItem}" 
+                                Margin="15,50,10,10" IsVisible="{Binding ElementName=poster, Path=!HasImage}">
+        <media:AudioAspectWrapper.Template>
+          <ControlTemplate>
+            <Grid DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}">
+              <Label x:Name="ItemLabel" FontSize="{ThemeResource SmallFontSize}" 
+                     Color="{ThemeResource TextColor}" TextTrimming="CharacterEllipsis" Wrap="True">
+                <Label.Content>
+                  <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} + {1} + {2}">
+                    <Binding Path="Track"/>
+                    <Binding Source=" - "/>
+                    <Binding Path="TrackName"/>
+                  </MultiBinding>
+                </Label.Content>
+              </Label>
+            </Grid>
+          </ControlTemplate>
+        </media:AudioAspectWrapper.Template>
+      </media:AudioAspectWrapper>
+
+      <!-- watched indicator -->
+      <Control HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0" Template="{StaticResource Cover_WatchedFlag_Template}" 
+               IsVisible="{Binding Source={StaticResource SkinSettingsModel}, Path=[Nereus].EnableGridWatchedFlags}"/>
+      <Control HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0" Template="{StaticResource Cover_OfflineFlag_Template}" 
+               IsVisible="{Binding Source={StaticResource SkinSettingsModel}, Path=[Nereus].EnableGridWatchedFlags}"/>
     </Grid>
   </ControlTemplate>
 
@@ -2917,70 +2928,25 @@
   </ControlTemplate>
 
   <ControlTemplate x:Key="GridViewAlbumItemTemplate">
-    <Grid x:Name="ItemControl">
-      <Grid.ColumnDefinitions>
-        <ColumnDefinition Width="{StaticResource AUDIO_GRID_WIDTH}"/>
-      </Grid.ColumnDefinitions>
-      <Grid.RowDefinitions>
-        <RowDefinition Height="{StaticResource AUDIO_GRID_HEIGHT}"/>
-      </Grid.RowDefinitions>
-      <Image x:Name="thumb" Stretch="Fill">
+    <Grid x:Name="PosterGrid" Width="{StaticResource AUDIO_GRID_WIDTH}" Height="{StaticResource AUDIO_GRID_HEIGHT}">
+      <Image Stretch="Fill" Source="square_small.png" Margin="-5"/>
+      <Image x:Name="poster" Stretch="Fill" Margin="3">
         <Image.Source>
           <fanart:FanArtImageSource fanart:FanArtMediaType="Album" fanart:FanArtType="Poster" fanart:FanArtName="{Binding MediaItem.MediaItemId}"
-                    fanart:MaxWidth="{StaticResource FANART_POSTER_WIDTH}" fanart:MaxHeight="{StaticResource FANART_POSTER_HEIGHT}"/>
+                                    fanart:MaxWidth="{StaticResource AUDIO_GRID_WIDTH}" fanart:MaxHeight="{StaticResource AUDIO_GRID_HEIGHT}"/>
         </Image.Source>
-        <Image.OpacityMask>
-          <VisualBrush>
-            <VisualBrush.Visual>
-              <Border Name="mask" Background="White" CornerRadius="6" BorderThickness="0" BorderBrush="Black"/>
-            </VisualBrush.Visual>
-          </VisualBrush>
-        </Image.OpacityMask>
       </Image>
-      <Border VerticalAlignment="Center" HorizontalAlignment="Center" CornerRadius="4" BorderThickness="0" 
-              IsVisible="{Binding ElementName=thumb, Path=!HasImage}">
-        <Border.Background>
-          <LinearGradientBrush StartPoint="0,1" EndPoint="1,0">
-            <GradientStop Color="{ThemeResource MediaItemBackgroundColor1}" Offset="0"/>
-            <GradientStop Color="{ThemeResource MediaItemBackgroundColor2}" Offset="1"/>
-          </LinearGradientBrush>
-        </Border.Background>
-      </Border>
-      <Image Source="audio.png" Stretch="Uniform" IsVisible="{Binding ElementName=thumb, Path=!HasImage}"/>
-    </Grid>
-  </ControlTemplate>
 
-  <ControlTemplate x:Key="GridViewAlbumItemSmallTemplate">
-    <Grid x:Name="ItemControl">
-      <Grid.ColumnDefinitions>
-        <ColumnDefinition Width="{StaticResource AUDIO_GRID_WIDTH_S}"/>
-      </Grid.ColumnDefinitions>
-      <Grid.RowDefinitions>
-        <RowDefinition Height="{StaticResource AUDIO_GRID_HEIGHT_S}"/>
-      </Grid.RowDefinitions>
-      <Image x:Name="thumb" Stretch="Fill">
-        <Image.Source>
-          <fanart:FanArtImageSource fanart:FanArtMediaType="Album" fanart:FanArtType="Poster" fanart:FanArtName="{Binding MediaItem.MediaItemId}"
-                    fanart:MaxWidth="{StaticResource FANART_POSTER_WIDTH}" fanart:MaxHeight="{StaticResource FANART_POSTER_HEIGHT}"/>
-        </Image.Source>
-        <Image.OpacityMask>
-          <VisualBrush>
-            <VisualBrush.Visual>
-              <Border Name="mask" Background="White" CornerRadius="6" BorderThickness="0" BorderBrush="Black"/>
-            </VisualBrush.Visual>
-          </VisualBrush>
-        </Image.OpacityMask>
-      </Image>
-      <Border VerticalAlignment="Center" HorizontalAlignment="Center" CornerRadius="4" BorderThickness="0" 
-              IsVisible="{Binding ElementName=thumb, Path=!HasImage}">
-        <Border.Background>
-          <LinearGradientBrush StartPoint="0,1" EndPoint="1,0">
-            <GradientStop Color="{ThemeResource MediaItemBackgroundColor1}" Offset="0"/>
-            <GradientStop Color="{ThemeResource MediaItemBackgroundColor2}" Offset="1"/>
-          </LinearGradientBrush>
-        </Border.Background>
-      </Border>
-      <Image Source="audio.png" Stretch="Uniform" IsVisible="{Binding ElementName=thumb, Path=!HasImage}"/>
+      <!-- Fallback Content, if no poster existing -->
+      <Image Source="audio.png" HorizontalAlignment="Left" VerticalAlignment="Top" Height="70" Width="70" Stretch="Uniform" Margin="-5"
+             IsVisible="{Binding ElementName=poster, Path=!HasImage}"/>
+      <Label IsVisible="{Binding ElementName=poster, Path=!HasImage}" TextTrimming="CharacterEllipsis"
+             FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColor}" Wrap="True" Margin="15,50,10,10"
+             Content="{Binding SimpleTitle}" VerticalAlignment="Center" HorizontalAlignment="Stretch" />
+
+      <!-- watched indicator -->
+      <Control HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0" Template="{StaticResource Cover_WatchedFlag_Template}" 
+                 IsVisible="{Binding Source={StaticResource SkinSettingsModel}, Path=[Nereus].EnableGridWatchedFlags}"/>
     </Grid>
   </ControlTemplate>
 
@@ -4187,7 +4153,7 @@
             <Button.Triggers>
               <Trigger Property="HasFocus" Value="True">
                 <Setter TargetName="ItemLabel" Property="Scroll" Value="Auto"/>
-                <Setter TargetName="ItemLabel" Property="Color" Value="Black"/>
+                <Setter TargetName="ItemLabel" Property="Color" Value="{ThemeResource MediaItemFocussedColor}"/>
                 <Setter TargetName="NumberLabel" Property="Color" Value="{ThemeResource MediaItemFocussedColor}"/>
                 <Setter TargetName="PartlyWatchedLabel" Property="Opacity" Value="1"/>
                 <Setter TargetName="WatchedLabel" Property="Opacity" Value="1"/>
@@ -4365,7 +4331,7 @@
                 <Binding.Source>
                   <ItemsPanelTemplate>
                     <!--VirtualizingWrapPanel x:Name="GridItemsHost" IsItemsHost="True" Orientation="Vertical"/-->
-                    <AnimatedWrapPanel x:Name="GridItemsHost" IsItemsHost="True" Orientation="Horizontal" ScrollMargin="400,400" Margin="43,-260,0,-290">
+                    <AnimatedWrapPanel x:Name="GridItemsHost" IsItemsHost="True" Orientation="Horizontal" ScrollMargin="400,400" Margin="43,-270,0,-305">
                       <AnimatedWrapPanel.Resources>
                         <Storyboard x:Key="ScrollAnimation" FillBehavior="HoldEnd">
                           <DoubleAnimation BeginTime="00:00:00" From="0" To="1" Duration="00:00:00.400" 

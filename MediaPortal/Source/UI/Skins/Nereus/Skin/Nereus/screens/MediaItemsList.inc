@@ -33,30 +33,30 @@
             Parameters="{LateBoundValue BindingValue={Binding}}"/>
       </ListView.Resources>
     </ListView>
-    
+
     <DockPanel DataContext="{Binding Source={Model 4CDD601F-E280-43b9-AD0A-6D7B2403C856},Path=NavigationData.CurrentScreenData}"
-               VerticalAlignment="Bottom" HorizontalAlignment="Right" LastChildFill="false"
-               IsVisible="{Binding IsItemsValid}"> 
+               VerticalAlignment="Bottom" HorizontalAlignment="Right" LastChildFill="false" IsVisible="{Binding IsItemsValid}">
       <!---Grid+ListView-->
-      <StackPanel DockPanel.Dock="Right" Margin="0,60,15,-60" Orientation="Horizontal">
-        <Label HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0,0,10,0"
-               Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallerFontSize}">
-          <Label.Content>
-            <MultiBinding Converter="{StaticResource GetIndexMultiConverter}" ConverterParameter="1">
-              <Binding Source="{StaticResource FanArtBackgroundModel}" Path="SelectedItem"/>
-              <Binding Source="{Binding ElementName=MediaItemsList}" Path="ItemsSource"/>
-            </MultiBinding>
-          </Label.Content>
-        </Label>
-        <Label Color="{ThemeResource TextColor}" Content="| " FontSize="{ThemeResource SmallerFontSize}"
-               Opacity="0.4"/>
-        <Label Color="{ThemeResource TextColor}" Content="{Binding NumItems}" FontSize="{ThemeResource SmallerFontSize}"
-               Opacity="0.4"/>
-        <StackPanel.IsVisible>
-          <Binding Source="{StaticResource ViewModeModel}" Path="LayoutType"
-                   Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0} != {LayoutType}.{CoverLayout}"/>
-        </StackPanel.IsVisible>
-      </StackPanel>
+      <Grid DockPanel.Dock="Right" Margin="115,0,-120,20" Width="100">
+        <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" >
+          <Label VerticalAlignment="Center" Margin="0,0,10,0"
+                 Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallerFontSize}">
+            <Label.Content>
+              <MultiBinding Converter="{StaticResource GetIndexMultiConverter}" ConverterParameter="1">
+                <Binding Source="{StaticResource FanArtBackgroundModel}" Path="SelectedItem"/>
+                <Binding Source="{Binding ElementName=MediaItemsList}" Path="ItemsSource"/>
+              </MultiBinding>
+            </Label.Content>
+          </Label>
+          <Label Color="{ThemeResource TextColorForeground}" Content="| " FontSize="25" VerticalAlignment="Center" Margin="0,-3,0,3"/>
+          <Label Color="{ThemeResource TextColorForeground}" Content="{Binding NumItems}"
+                 FontSize="{ThemeResource SmallerFontSize}" VerticalAlignment="Center"/>
+          <StackPanel.IsVisible>
+            <Binding Source="{StaticResource ViewModeModel}" Path="LayoutType"
+                     Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0} != {LayoutType}.{CoverLayout}"/>
+          </StackPanel.IsVisible>
+        </StackPanel>
+      </Grid>
     </DockPanel>
     
     <Label IsVisible="{Binding ShowListHint}"

@@ -63,7 +63,7 @@
   </media:SeriesAspectWrapper>
 
   <media:SeriesAspectWrapper MediaItem="{Binding Source={StaticResource FanArtBackgroundModel},Path=MediaItem}" VerticalAlignment="Stretch"
-                             Grid.Column="0" Grid.Row="1" Margin="0,40,10,50">
+                             Grid.Column="0" Grid.Row="1" Margin="0,40,10,80">
     <media:SeriesAspectWrapper.Template>
       <ControlTemplate>
         <Grid VerticalAlignment="Stretch">
@@ -80,7 +80,7 @@
     <media:SeriesAspectWrapper MediaItem="{Binding Source={StaticResource FanArtBackgroundModel},Path=MediaItem}" VerticalAlignment="Stretch">
       <media:SeriesAspectWrapper.Template>
         <ControlTemplate>
-          <Label x:Name="SeriesNameLabel" Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}" FontFamily="SegoeUIBold" Wrap="True"
+          <Label x:Name="SeriesNameLabel" Color="{ThemeResource TextColor}" FontSize="{ThemeResource NormalFontSize}" FontFamily="SegoeUIBold" Wrap="True"
                  DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}" VerticalAlignment="Stretch">
             <Label.Content>
               <Binding Path="SeriesName"/>
@@ -121,40 +121,15 @@
         </media:SeriesAspectWrapper.Template>
       </media:SeriesAspectWrapper>
     </StackPanel>
-    
-    <media:MediaAspectWrapper MediaItem="{Binding Source={StaticResource FanArtBackgroundModel},Path=MediaItem}" >
-      <media:MediaAspectWrapper.Template>
-        <ControlTemplate>
-          <Grid DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}">
-            <Grid.RowDefinitions>
-              <RowDefinition Height="*"/>
-            </Grid.RowDefinitions>
-            <Grid.ColumnDefinitions>
-              <ColumnDefinition Width="*"/>
-            </Grid.ColumnDefinitions>
-            <Label x:Name="Year" HorizontalAlignment="Left" FontSize="{ThemeResource SmallFontSize}"
-                   Content="{Binding Path=RecordingTime, Converter={StaticResource DateFormatConverter}, ConverterParameter=yyyy}" Color="{ThemeResource TextColor}"/>
-          </Grid>
-        </ControlTemplate>
-      </media:MediaAspectWrapper.Template>
-    </media:MediaAspectWrapper>
-
-    <Label x:Name="Genre" FontSize="{ThemeResource SmallFontSize}" TextTrimming="WordEllipsis" Color="{ThemeResource TextColorForeground}">
-      <Label.Content>
-        <MultiBinding Converter="{StaticResource MultiAspectAttributeConverter}">
-          <Binding Source="{StaticResource FanArtBackgroundModel}" Path="MediaItem"/>
-          <Binding Source="{x:Static aspect:GenreAspect.ATTR_GENRE}" />
-        </MultiBinding>
-      </Label.Content>
-    </Label>
 
     <StackPanel Orientation="Horizontal" DataContext="{Binding Source={StaticResource FanArtBackgroundModel},Path=SelectedItem}">
+      <Image Source="HomeContentIcons\series.png" Height="25" Width="25" Stretch="Uniform" Margin="2,-1,5,1" VerticalAlignment="Center"/>
       <Label FontSize="{ThemeResource SmallFontSize}" Content="{Binding Seasons}"
              Margin="0,0,8,0" Color="{ThemeResource TextColorForeground}"/>
       <Label FontSize="{ThemeResource SmallFontSize}" Content="[Media.SeasonItemsHeader]"
              IsVisible="{Binding Path=Seasons,Converter={StaticResource ReferenceToBoolConverter}}"
              Margin="0,0,8,0" Color="{ThemeResource TextColorForeground}"/>
-      <Label FontSize="{ThemeResource SmallFontSize}" Content=" | "
+      <Label FontSize="{ThemeResource SmallerFontSize}" Content=" | " VerticalAlignment="Center"
              IsVisible="{Binding Path=Seasons,Converter={StaticResource ReferenceToBoolConverter}}"
              Margin="0,0,8,0" Color="{ThemeResource TextColorForeground}"/>
       <Label FontSize="{ThemeResource SmallFontSize}" Content="{Binding Episodes}"
@@ -163,6 +138,30 @@
              IsVisible="{Binding Path=Episodes,Converter={StaticResource ReferenceToBoolConverter}}"
              Margin="0,0,8,0" Color="{ThemeResource TextColorForeground}"/>
     </StackPanel>
+
+    <StackPanel Orientation="Horizontal">
+      <Image Source="HomeContentIcons\genre.png" Height="30" Width="30" Stretch="Uniform" Margin="0,0,5,0" VerticalAlignment="Center"/>
+      <Label x:Name="Genre" FontSize="{ThemeResource SmallFontSize}" TextTrimming="WordEllipsis" Color="{ThemeResource TextColorForeground}">
+        <Label.Content>
+          <MultiBinding Converter="{StaticResource MultiAspectAttributeConverter}">
+            <Binding Source="{StaticResource FanArtBackgroundModel}" Path="MediaItem"/>
+            <Binding Source="{x:Static aspect:GenreAspect.ATTR_GENRE}" />
+          </MultiBinding>
+        </Label.Content>
+      </Label>
+    </StackPanel>
+
+    <media:MediaAspectWrapper MediaItem="{Binding Source={StaticResource FanArtBackgroundModel},Path=MediaItem}" >
+      <media:MediaAspectWrapper.Template>
+        <ControlTemplate>
+          <StackPanel Orientation="Horizontal" DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}">
+            <Image Source="HomeContentIcons\year.png" Height="27" Width="27" Stretch="Uniform" Margin="0,-1,5,1" VerticalAlignment="Center"/>
+            <Label x:Name="Year" HorizontalAlignment="Left" FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColorForeground}"
+                   Content="{Binding Path=RecordingTime, Converter={StaticResource DateFormatConverter}, ConverterParameter=yyyy}" />
+          </StackPanel>
+        </ControlTemplate>
+      </media:MediaAspectWrapper.Template>
+    </media:MediaAspectWrapper>
 
     <StackPanel Orientation="Horizontal">
       <media:UserDataWrapper MediaItem="{Binding Source={StaticResource FanArtBackgroundModel},Path=MediaItem}">
@@ -208,6 +207,11 @@
           </ControlTemplate>
         </media:SeriesAspectWrapper.Template>
       </media:SeriesAspectWrapper>
+      <Image HorizontalAlignment="Right" VerticalAlignment="Center" Stretch="Uniform" Height="140" Margin="60,-30,-280,-40">
+        <Image.Source>
+          <ImageSourceWrapper Delay="0.5" Source="{Binding Source={StaticResource FanArtBackgroundModel}, Path=ImageSource, Converter={StaticResource FanArtImageSourceConverter}, ConverterParameter=ClearArt;140;240}"/>
+        </Image.Source>
+      </Image>
     </StackPanel>
 
   </StackPanel>

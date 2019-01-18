@@ -40,5 +40,5 @@
   </StackPanel>
 
   <mp_special_controls:PlayerControl Style="{ThemeResource CPPlayerControlStyle}"
-                                     VerticalAlignment="Center" AutoVisibility="True" HorizontalAlignment="Left"/>
+                       VerticalAlignment="Center" AutoVisibility="True" HorizontalAlignment="Left"/>
 </StackPanel>

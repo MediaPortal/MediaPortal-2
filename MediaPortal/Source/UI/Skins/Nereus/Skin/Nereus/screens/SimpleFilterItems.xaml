@@ -23,22 +23,8 @@
           <ColumnDefinition Width="Auto"/>
         </Grid.ColumnDefinitions>
 
-        <!--Loads MediaItemList and adjusts margin according to layout-->
-        <Control Grid.Column="0" Grid.Row="0" VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
-          <Control.TemplateControl>
-            <Include Source="screens\MediaItemsList.inc"/>
-          </Control.TemplateControl>
-          <Control.Margin>
-            <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} != {LayoutType}.{CoverLayout} ? {1} : {2}">
-              <Binding Source="{StaticResource ViewModeModel}" Path="LayoutType"/>
-              <Binding Source="-15,-80,-50,-240"/>
-              <Binding Source="0,250,-180,-150"/>
-            </MultiBinding>
-          </Control.Margin>
-        </Control>
-
         <!---Space for Listview Details-->
-        <Grid Grid.Column="1" Width="1000" Height="1200" Background="#33000000" Margin="40,-90,-20,-270">
+        <Grid Grid.Column="1" Width="1000" Height="1200" Background="#33000000" Margin="45,-90,-20,-270">
           <Grid.RowDefinitions>
             <RowDefinition Height="*"/>
           </Grid.RowDefinitions>
@@ -96,6 +82,21 @@
           </Control>
 
         </Grid>
+
+        <!--Loads MediaItemList and adjusts margin according to layout-->
+        <Control Grid.Column="0" Grid.Row="0" VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
+          <Control.TemplateControl>
+            <Include Source="screens\MediaItemsList.inc"/>
+          </Control.TemplateControl>
+          <Control.Margin>
+            <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} != {LayoutType}.{CoverLayout} ? {1} : {2}">
+              <Binding Source="{StaticResource ViewModeModel}" Path="LayoutType"/>
+              <Binding Source="-15,-80,-50,-240"/>
+              <Binding Source="0,250,-180,-150"/>
+            </MultiBinding>
+          </Control.Margin>
+        </Control>
+
       </Grid>
     </ControlTemplate>
 
