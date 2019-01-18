@@ -25,51 +25,22 @@
 using System.Collections.Concurrent;
 using System.Threading.Tasks;
 using Deusty.Net;
-using MediaPortal.Common;
-using MediaPortal.Common.Logging;
-using MediaPortal.Plugins.SlimTv.Client.Models;
-using MediaPortal.Plugins.SlimTv.Interfaces;
 using MediaPortal.Plugins.WifiRemote.Utils;
-using MediaPortal.UI.Presentation.Workflow;
 using Newtonsoft.Json.Linq;
 
 namespace MediaPortal.Plugins.WifiRemote.MessageParser
 {
-  internal class ParserPlaychannel
+  internal class ParserPlaychannel : BaseParser
   {
     private static ImageHelper _imageHelper;
     private static ConcurrentDictionary<AsyncSocket, int> _socketsWaitingForScreenshot;
     
     public static async Task<bool> ParseAsync(JObject message, SocketServer server, AsyncSocket sender)
     {
-      int channelId = (int)message["ChannelId"];
-      bool startFullscreen = (message["StartFullscreen"] != null) && (bool)message["StartFullscreen"];
+      int channelId = GetMessageValue<int>(message, "ChannelId");
+      bool startFullscreen = GetMessageValue<bool>(message, "StartFullscreen");
 
-      if (!ServiceRegistration.IsRegistered<ITvHandler>())
-      {
-        Logger.Error("WifiRemote Play Channel: No tv handler");
-        return false;
-      }
-
-      ITvHandler tvHandler = ServiceRegistration.Get<ITvHandler>();
-      var channel = await tvHandler.ChannelAndGroupInfo.GetChannelAsync(channelId);
-      if (!channel.Success)
-      {
-        Logger.Info("WifiRemote Play Channel: Channel with id '{0}' not found", channelId);
-        return false;
-      }
-
-      IWorkflowManager workflowManager = ServiceRegistration.Get<IWorkflowManager>();
-      SlimTvClientModel model = workflowManager.GetModel(SlimTvClientModel.MODEL_ID) as SlimTvClientModel;
-      if (model != null)
-        await model.Tune(channel.Result);
-
-      return true;
-    }
-
-    internal static ILogger Logger
-    {
-      get { return ServiceRegistration.Get<ILogger>(); }
+      return await PlayChannelAsync(channelId);
     }
   }
 }

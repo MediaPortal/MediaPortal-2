@@ -22,22 +22,22 @@
 
 #endregion
 
-namespace MediaPortal.Plugins.WifiRemote.Messages.Now_Playing
+using MediaPortal.Plugins.WifiRemote.Messages.Plugins;
+using System;
+using System.Collections.Generic;
+
+namespace MediaPortal.Plugins.WifiRemote.Messages
 {
-    /// <summary>
-    /// Hardcoded list of MpExtended providers that are supported in WifiRemote
-    /// </summary>
-    public enum MpExtendedProviders
+  class MessagePlugins : IMessage
+  {
+    public string Type
     {
-        FsPictures = 1,
-        LocalFileSystem = 2,
-        MovingPictures = 3,
-        MPMusic = 4,
-        MPShares = 5,
-        MPTvSeries = 6,
-        MPVideo = 7,
-        MpMusicShare = 9,
-        MpVideosShare = 10,
-        MpPicturesShare = 11
+      get { return "plugins"; }
     }
+
+    /// <summary>
+    /// List of available plugins
+    /// </summary>
+    public List<PluginEntry> Plugins { get; set; }
+  }
 }

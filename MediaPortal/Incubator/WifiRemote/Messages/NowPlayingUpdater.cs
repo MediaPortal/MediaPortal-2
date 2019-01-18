@@ -27,7 +27,7 @@ using MediaPortal.Common;
 using MediaPortal.Common.Logging;
 using MediaPortal.Plugins.WifiRemote.SendMessages;
 
-namespace MediaPortal.Plugins.WifiRemote.Messages.Now_Playing
+namespace MediaPortal.Plugins.WifiRemote.Messages
 {
   internal static class NowPlayingUpdater
   {

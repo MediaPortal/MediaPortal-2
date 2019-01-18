@@ -32,12 +32,12 @@ using Newtonsoft.Json.Linq;
 
 namespace MediaPortal.Plugins.WifiRemote.MessageParser
 {
-  internal class ParserKey
+  internal class ParserKey : BaseParser
   {
     public static Task<bool> ParseAsync(JObject message, SocketServer server, AsyncSocket sender)
     {
-      string key = (string)message["Key"];
-      string modifier = (message["Modifier"] != null) ? (string)message["Modifier"] : null;
+      string key = GetMessageValue<string>(message, "Key");
+      string modifier = GetMessageValue<string>(message, "Modifier");
       ServiceRegistration.Get<ILogger>().Debug("WifiRemote Parser Key: Key: {0}", key);
 
       if (key == "{DONE}")

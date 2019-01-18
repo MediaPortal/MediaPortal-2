@@ -31,28 +31,26 @@ using Newtonsoft.Json.Linq;
 
 namespace MediaPortal.Plugins.WifiRemote.MessageParser
 {
-  internal class ParserPlayFile
+  internal class ParserPlayFile : BaseParser
   {
     public static async Task<bool> ParseAsync(JObject message, SocketServer server, AsyncSocket sender)
     {
-      string fileType = (string)message["FileType"];
-      string filePath = (string)message["Filepath"];
-      string id = (string)message["FileId"];
-      int startPos = (message["StartPosition"] != null) ? (int)message["StartPosition"] : 0;
+      string fileType = GetMessageValue<string>(message, "FileType");
+      string filePath = GetMessageValue<string>(message, "FilePath");
+      string id = GetMessageValue<string>(message, "FileId");
+      int startPos = GetMessageValue<int>(message, "StartPosition");
+      var client = sender.GetRemoteClient();
 
       ServiceRegistration.Get<ILogger>().Debug("WifiRemote Play File: FileType: {0}, FilePath: {1}, FileId: {2}, StartPos: {3}", fileType, filePath, id, startPos);
 
-      Guid mediaItemGuid;
-      if (Guid.TryParse(filePath, out mediaItemGuid))
-        id = mediaItemGuid.ToString();
-
-      if (!Guid.TryParse(id, out mediaItemGuid))
+      var mediaItemGuid = await GetIdFromNameAsync(client, filePath, id, Helper.GetMediaItemByFileNameAsync);
+      if (mediaItemGuid == null)
       {
-        ServiceRegistration.Get<ILogger>().Info("WifiRemote Play File: Couldn't convert FileId '{0} to Guid", id);
+        ServiceRegistration.Get<ILogger>().Error("WifiRemote Play File: Couldn't convert FileId '{0} to Guid", id);
         return false;
       }
 
-      await Helper.PlayMediaItemAsync(mediaItemGuid, startPos);
+      await Helper.PlayMediaItemAsync(mediaItemGuid.Value, startPos);
 
       return true;
     }

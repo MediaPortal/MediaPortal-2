@@ -39,7 +39,7 @@ using Newtonsoft.Json.Linq;
 
 namespace MediaPortal.Plugins.WifiRemote.MessageParser
 {
-  internal class ParserCommand
+  internal class ParserCommand : BaseParser
   {
     private const int KEY_DOWN_TIMEOUT = 2000;
     private static Thread _commandDownThread;
@@ -51,15 +51,16 @@ namespace MediaPortal.Plugins.WifiRemote.MessageParser
 
     public static Task<bool> ParseAsync(JObject message, SocketServer server, AsyncSocket sender)
     {
-      ServiceRegistration.Get<ILogger>().Debug("WifiRemote Parser Command: Command: {0}", (string)message["Command"]);
-      SendCommand((string)message["Command"]);
+      string command = GetMessageValue<string>(message, "Command");
+      ServiceRegistration.Get<ILogger>().Debug("WifiRemote Parser Command: Command: {0}", command);
+      SendCommand(command);
       return Task.FromResult(true);
     }
 
     public static Task<bool> ParseCommandStartRepeatAsync(JObject message, SocketServer server, AsyncSocket sender)
     {
-      _commandDownChar = (string)message["Command"];
-      _commandDownPauses = (int)message["Pause"];
+      _commandDownChar = GetMessageValue<string>(message, "Command");
+      _commandDownPauses = GetMessageValue<int>(message, "Pause");
       _mKeyDownTimer.Restart();
 
       if (!_isCommandDown)

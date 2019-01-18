@@ -29,6 +29,7 @@ using System.Threading.Tasks;
 using Deusty.Net;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
+using MediaPortal.Common.SystemResolver;
 using MediaPortal.Common.UserManagement;
 using MediaPortal.Common.UserProfileDataManagement;
 using MediaPortal.Plugins.WifiRemote.MessageParser;
@@ -70,11 +71,12 @@ namespace MediaPortal.Plugins.WifiRemote
       { "playfile", ParserPlayFile.ParseAsync },
       { "playchannel", ParserPlaychannel.ParseAsync },
       { "playradiochannel", ParserPlaychannel.ParseAsync },  // should be the same as playchannel in MP2
-      /*{ "playrecording", new Func<int, int, int>(Func1) },*/
-      { "mpext", ParserMPExt.ParseAsync },
-      //{ "plugins", new Func<int, int, int>(Func1) },
-      { "properties", ParserProperties.ParseAsync },
+      //{ "mpext", ParserMPExt.ParseAsync },
+      { "plugins", ParserPlugins.ParseAsync },
+      //{ "properties", ParserProperties.ParseAsync },
       { "image", ParserImage.ParseAsync },
+      { "images", ParserImages.ParseAsync },
+      { "music", ParserMusic.ParseAsync },
       { "screenshot", ParserScreenshot.ParseAsync },
       { "playlist", ParserPlaylist.ParseAsync },
       { "requeststatus", ParserRequeststatus.ParseAsync },
@@ -83,21 +85,15 @@ namespace MediaPortal.Plugins.WifiRemote
       { "movingpictures", ParserMovingpictures.ParseAsync },
       { "series", ParserTVSeries.ParseAsync },
       { "tvseries", ParserTVSeries.ParseAsync  },
-      /*{ "message", new Func<int, int, int>(Func1) },
-      { "showdialog", new Func<int, int, int>(Func1) }*/
+      { "videos", ParserVideos.ParseAsync },
+      //{ "message", new Func<int, int, int>(Func1) },
+      //{ "showdialog", new Func<int, int, int>(Func1) },
+      { "recordings", ParserRecordings.ParseAsync },
+      { "tv", (msg, svr, sender) => ParserChannels.ParseAsync(msg, svr, sender, true) },
+      { "radio", (msg, svr, sender) => ParserChannels.ParseAsync(msg, svr, sender, false) },
     };   
 
     private readonly MessageWelcome _welcomeMessage;
-
-    /// <summary>
-    /// Username  for client authentification
-    /// </summary>
-    internal String UserName { get; set; }
-
-    /// <summary>
-    /// Password for client authentification
-    /// </summary>
-    internal String Password { get; set; }
 
     /// <summary>
     /// Passcode for client authentification
@@ -451,6 +447,8 @@ namespace MediaPortal.Plugins.WifiRemote
       if (auth == AuthMethod.None)
       {
         // Every auth request is valid for AuthMethod.None
+        client.UserId = null; //Use current client or logged in user
+        client.IsAuthenticated = true;
         return true;
       }
 
@@ -492,11 +490,13 @@ namespace MediaPortal.Plugins.WifiRemote
         {
           String user = (string)message["User"];
           String pass = (string)message["Password"];
-          if (user.Equals(this.UserName) && pass.Equals(this.Password))
+          var id = VerifyUser(user, pass);
+          if (id != null)
           {
             client.AuthenticatedBy = auth;
             client.User = user;
             client.Password = pass;
+            client.UserId = id.Value;
             client.IsAuthenticated = true;
             Logger.Debug("WifiRemote: Client " + client.ToString() + " successfully authentificated by username and password");
             return true;
@@ -512,6 +512,7 @@ namespace MediaPortal.Plugins.WifiRemote
           {
             client.AuthenticatedBy = auth;
             client.PassCode = pass;
+            client.UserId = null; //Use current client or logged in user
             client.IsAuthenticated = true;
             Logger.Debug("WifiRemote: Client " + client.ToString() + " successfully authentificated by passcode");
             return true;
@@ -521,6 +522,27 @@ namespace MediaPortal.Plugins.WifiRemote
 
       Logger.Warn("WifiRemote: Client " + client.ToString() + " authentification failed");
       return false;
+    }
+
+    private Guid?  VerifyUser(string username, string password)
+    {
+      IUserManagement clientUserManagement = ServiceRegistration.Get<IUserManagement>();
+      var userManagement = clientUserManagement.UserProfileDataManagement;
+      if (userManagement != null)
+      {
+        var user = userManagement.GetProfileByNameAsync(username).Result;
+        if (user.Success)
+        {
+          byte[] converted = Convert.FromBase64String(password);
+          var pass = Encoding.UTF8.GetString(converted);
+          if (UserProfile.VerifyPassword(pass, user.Result.Password))
+          {
+            userManagement.LoginProfileAsync(user.Result.ProfileId).Wait();
+            return user.Result.ProfileId;
+          }
+        }
+      }
+      return null;
     }
 
     #endregion

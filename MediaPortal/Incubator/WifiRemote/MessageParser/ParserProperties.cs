@@ -35,11 +35,11 @@ using Newtonsoft.Json.Linq;
 
 namespace MediaPortal.Plugins.WifiRemote.MessageParser
 {
-  internal class ParserProperties
+  internal class ParserProperties : BaseParser
   {
     public static Task<bool> ParseAsync(JObject message, SocketServer server, AsyncSocket sender)
     {
-      JArray array = (JArray)message["Properties"];
+      JArray array = GetMessageValue<JArray>(message, "Properties");
       if (array != null)
       {
         var client = SocketServer.Instance.connectedSockets.Single(x => x == sender).GetRemoteClient();

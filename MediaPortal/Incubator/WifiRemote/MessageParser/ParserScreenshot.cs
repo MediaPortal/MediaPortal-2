@@ -34,7 +34,7 @@ using Newtonsoft.Json.Linq;
 
 namespace MediaPortal.Plugins.WifiRemote.MessageParser
 {
-  internal class ParserScreenshot
+  internal class ParserScreenshot : BaseParser
   {
     private static ImageHelper _imageHelper;
     private static ConcurrentDictionary<AsyncSocket, int> _socketsWaitingForScreenshot;
@@ -47,7 +47,7 @@ namespace MediaPortal.Plugins.WifiRemote.MessageParser
       }
 
       // Width to resize the image to, 0 to keep original width
-      int imageWidth = (message["Width"] != null) ? (int)message["Width"] : 0;
+      int imageWidth = GetMessageValue<int>(message, "Width");
 
       // Requests are added to a "waiting queue" because taking the screenshot happens 
       // async.

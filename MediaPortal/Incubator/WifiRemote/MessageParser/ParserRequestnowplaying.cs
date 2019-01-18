@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-#region Copyright (C) 2007-2015 Team MediaPortal
+﻿#region Copyright (C) 2007-2015 Team MediaPortal
 
 /*
     Copyright (C) 2007-2015 Team MediaPortal
@@ -33,7 +30,7 @@ using Newtonsoft.Json.Linq;
 
 namespace MediaPortal.Plugins.WifiRemote.MessageParser
 {
-  internal class ParserRequestnowplaying
+  internal class ParserRequestnowplaying : BaseParser
   {
     public static Task<bool> ParseAsync(JObject message, SocketServer server, AsyncSocket sender)
     {

@@ -48,20 +48,6 @@
         ClassName="MediaPortal.Plugins.WifiRemote.Settings.Configuration.AuthenticationMethod"/>
 
     <ConfigSetting
-        Id="WifiRemoteUserName"
-        RestrictionGroup="Settings"
-        Text="[Settings.WifiRemote.UserName]"
-        HelpText="[Settings.WifiRemote.UserName.Help]"
-        ClassName="MediaPortal.Plugins.WifiRemote.Settings.Configuration.UserName"/>
-
-    <ConfigSetting
-        Id="WifiRemotePassword"
-        RestrictionGroup="Settings"
-        Text="[Settings.WifiRemote.Password]"
-        HelpText="[Settings.WifiRemote.Password.Help]"
-        ClassName="MediaPortal.Plugins.WifiRemote.Settings.Configuration.Password"/>
-
-    <ConfigSetting
         Id="WifiRemotePasscode"
         RestrictionGroup="Settings"
         Text="[Settings.WifiRemote.Passcode]"

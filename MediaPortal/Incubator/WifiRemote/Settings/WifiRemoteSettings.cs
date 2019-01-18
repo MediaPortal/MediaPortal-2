@@ -34,8 +34,6 @@ namespace MediaPortal.Plugins.WifiRemote.Settings
   {
     #region Variables
 
-    protected string _user = "user";
-    protected string _password = "mediaportal";
     protected string _passCode = "mediaportal";
     protected int _port = 8017;
     protected bool _enableBonjour = true;
@@ -46,26 +44,6 @@ namespace MediaPortal.Plugins.WifiRemote.Settings
     #endregion Variables
 
     #region Properties
-
-    /// <summary>
-    /// Gets or sets the user name to use for athentication.
-    /// </summary>
-    [Setting(SettingScope.Global, "user")]
-    public string UserName
-    {
-      get { return _user; }
-      set { _user = value; }
-    }
-
-    /// <summary>
-    /// Gets or sets the user password to use for athentication.
-    /// </summary>
-    [Setting(SettingScope.Global, "mediaportal")]
-    public string Password
-    {
-      get { return _password; }
-      set { _password = value; }
-    }
 
     /// <summary>
     /// Gets or sets the pass code to use for athentication.

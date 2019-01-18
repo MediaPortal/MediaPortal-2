@@ -23,39 +23,42 @@
 #endregion
 
 using Deusty.Net;
+using System.Collections.Concurrent;
 
 namespace MediaPortal.Plugins.WifiRemote
 {
+  /// <summary>
+  /// Extends the AsyncSocket class so additional properties can
+  /// be added to the class AsyncSocket without changing the code of
+  /// this class (so we can update the class later on)
+  /// </summary>
+  public static class AsyncSocketExtension
+  {
     /// <summary>
-    /// Extends the AsyncSocket class so additional properties can
-    /// be added to the class AsyncSocket without changing the code of
-    /// this class (so we can update the class later on)
+    /// Remote clients associated with sockets
     /// </summary>
-    public static class AsyncSocketExtension
+    private static ConcurrentDictionary<AsyncSocket, RemoteClient> RemoteClients = new ConcurrentDictionary<AsyncSocket, RemoteClient>();
+
+    /// <summary>
+    /// Get the remote client associated with the socket
+    /// </summary>
+    /// <param name="socket">socket</param>
+    /// <returns>remote client</returns>
+    public static RemoteClient GetRemoteClient(this AsyncSocket socket)
     {
-        /// <summary>
-        /// Get the remote client associated with the socket
-        /// </summary>
-        /// <param name="socket">socket</param>
-        /// <returns>remote client</returns>
-        public static RemoteClient GetRemoteClient(this AsyncSocket socket)
-        {
-            return RemoteClient;
-        }
-
-        /// <summary>
-        /// Sets the remote client associated with the socket
-        /// </summary>
-        /// <param name="socket">socket</param>
-        /// <param name="client">remote clien</param>
-        public static void SetRemoteClient(this AsyncSocket socket, RemoteClient client)
-        {
-            RemoteClient = client;
-        }
-
-        /// <summary>
-        /// Remote client associated with this socket
-        /// </summary>
-        public static RemoteClient RemoteClient { get; set; }
+      if (RemoteClients.TryGetValue(socket, out var client))
+        return client;
+      return null;
     }
+
+    /// <summary>
+    /// Sets the remote client associated with the socket
+    /// </summary>
+    /// <param name="socket">socket</param>
+    /// <param name="client">remote clien</param>
+    public static void SetRemoteClient(this AsyncSocket socket, RemoteClient client)
+    {
+      RemoteClients.TryAdd(socket, client);
+    }
+  }
 }

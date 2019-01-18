@@ -31,12 +31,13 @@ using Newtonsoft.Json.Linq;
 
 namespace MediaPortal.Plugins.WifiRemote.MessageParser
 {
-  internal class ParserVolume
+  internal class ParserVolume : BaseParser
   {
     public static Task<bool> ParseAsync(JObject message, SocketServer server, AsyncSocket sender)
     {
-      int volume = (int)message["Volume"];
-      if (message["Relative"] != null && (bool)message["Relative"])
+      int volume = GetMessageValue<int>(message, "Volume");
+      bool relative = GetMessageValue<bool>(message, "Relative");
+      if (relative)
       {
         volume += ServiceRegistration.Get<IPlayerManager>().Volume;
       }
@@ -47,7 +48,7 @@ namespace MediaPortal.Plugins.WifiRemote.MessageParser
       }
       else
       {
-        ServiceRegistration.Get<ILogger>().Warn("WifiRemote Volume: Trying to set wrong Volume level: {0}", volume);
+        Logger.Warn("WifiRemote Volume: Trying to set wrong Volume level: {0}", volume);
       }
       return Task.FromResult(true);
     }

@@ -22,31 +22,32 @@
 
 #endregion
 
-using MediaPortal.Plugins.WifiRemote.Messages.Now_Playing;
+using MediaPortal.Plugins.SlimTv.Interfaces.Items;
+using MediaPortal.Plugins.WifiRemote.Messages.MediaInfo;
 
 namespace MediaPortal.Plugins.WifiRemote
 {
-    class NowPlayingDVD : IAdditionalNowPlayingInfo
+  public class ChannelGroupInfo : IAdditionalMediaInfo
+  {
+    public string MediaType { get; }
+    public string MpExtId => GroupId.ToString();
+    public int MpExtMediaType => (int)MpExtendedMediaTypes.Tv;
+    public int MpExtProviderId => 0; //no tv providers yet
+
+    /// <summary>
+    /// ID of the channel
+    /// </summary>
+    public int GroupId { get; set; }
+    /// <summary>
+    /// Name of the channel
+    /// </summary>
+    public string Name { get; set; }
+
+    public ChannelGroupInfo(IChannelGroup group)
     {
-        string mediaType = "dvd";
-        public string MediaType
-        {
-            get { return mediaType; }
-        }
-
-        public string MpExtId
-        {
-            get { return null; }
-        }
-
-        public int MpExtMediaType
-        {
-            get { return (int)MpExtendedMediaTypes.Movie; }
-        }
-
-        public int MpExtProviderId
-        {
-            get { return -1; }
-        }
+      GroupId = group.ChannelGroupId;
+      Name = group.Name;
+      MediaType = (group.MediaType == SlimTv.Interfaces.Items.MediaType.TV ? "tvgroup" : "radiogroup");
     }
+  }
 }

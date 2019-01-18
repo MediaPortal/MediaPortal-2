@@ -27,48 +27,58 @@ using System.Threading.Tasks;
 using Deusty.Net;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
+using MediaPortal.Plugins.WifiRemote.Messages;
+using MediaPortal.Plugins.WifiRemote.SendMessages;
 using Newtonsoft.Json.Linq;
 
 namespace MediaPortal.Plugins.WifiRemote.MessageParser
 {
-  internal class ParserMovingpictures
+  internal class ParserMovingpictures : BaseParser
   {
     public static async Task<bool> ParseAsync(JObject message, SocketServer server, AsyncSocket sender)
     {
-      string action = (string)message["Action"];
+      string action = GetMessageValue<string>(message, "Action");
+      var client = sender.GetRemoteClient();
 
       if (!string.IsNullOrEmpty(action))
       {
-        // Show movie details for this movie
-        if (action == "moviedetails")
+        string search = GetMessageValue<string>(message, "Search");
+        int count = GetMessageValue<int>(message, "Count", 10);
+        int offset = GetMessageValue<int>(message, "Offset");
+        string movieName = GetMessageValue<string>(message, "MovieName");
+        string id = GetMessageValue<string>(message, "MovieId");
+        int startPos = GetMessageValue<int>(message, "StartPosition");
+
+        // Search for movie
+        if (action.Equals("moviesearch", StringComparison.InvariantCultureIgnoreCase))
         {
-          // TODO: implement?
+          var list = await GetItemListAsync<MovingPicturesInfo>(client, search, Convert.ToUInt32(count), null, Helper.GetMoviesByMovieSearchAsync);
+          SendMessageToClient.Send(new MessageMovies { Movies = list }, sender, true);
+        }
+        // Show movie list
+        else if (action.Equals("movielist", StringComparison.InvariantCultureIgnoreCase))
+        {
+          var list = await GetItemListAsync<MovingPicturesInfo>(client, null, Convert.ToUInt32(count), Convert.ToUInt32(offset), Helper.GetMoviesByMovieSearchAsync);
+          SendMessageToClient.Send(new MessageMovies { Movies = list }, sender, true);
+        }
+        // Show movie details for this movie
+        else if (action.Equals("moviedetails", StringComparison.InvariantCultureIgnoreCase))
+        {
+          // TODO: implementation possible?
         }
         // Play a movie
-        else if (action == "playmovie")
+        else if (action.Equals("playmovie", StringComparison.InvariantCultureIgnoreCase))
         {
-          // we use the FileHandler as MediaItem id
-          string movieName = (string)message["MovieName"];
-          string id = (string)message["MovieId"];
-          int startPos = (message["StartPosition"] != null) ? (int)message["StartPosition"] : 0;
-
           ServiceRegistration.Get<ILogger>().Debug("WifiRemote Play Movie: MovieName: {0}, MovieId: {1}, StartPos: {2}", movieName, id, startPos);
 
-          if (!string.IsNullOrEmpty(movieName) && string.IsNullOrEmpty(id))
+          var mediaItemGuid = await GetIdFromNameAsync(client, movieName, id, Helper.GetMovieByMovieNameAsync);
+          if (mediaItemGuid == null)
           {
-            var item = await Helper.GetMediaItemByMovieNameAsync(movieName);
-            if (item != null)
-              id = item.MediaItemId.ToString();
-          }
-
-          Guid mediaItemGuid;
-          if (!Guid.TryParse(id, out mediaItemGuid))
-          {
-            ServiceRegistration.Get<ILogger>().Error("WifiRemote Play Movie: Couldn't convert MovieId '{0}' to Guid", id);
+            ServiceRegistration.Get<ILogger>().Error("WifiRemote Play Movie: Couldn't convert MovieId '{0} to Guid", id);
             return false;
           }
 
-          await Helper.PlayMediaItemAsync(mediaItemGuid, startPos);
+          await Helper.PlayMediaItemAsync(mediaItemGuid.Value, startPos);
         }
       }
 

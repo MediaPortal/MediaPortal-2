@@ -22,40 +22,21 @@
 
 #endregion
 
-namespace MediaPortal.Plugins.WifiRemote.Messages.Now_Playing
+using System;
+using System.Collections.Generic;
+
+namespace MediaPortal.Plugins.WifiRemote.Messages
 {
-    interface IAdditionalNowPlayingInfo
+  class MessageEpisodes : IMessage
+  {
+    public string Type
     {
-        /// <summary>
-        /// Name of the current Media Type
-        /// </summary>
-        string MediaType
-        {
-            get;
-        }
-
-        /// <summary>
-        /// MpExtended id of currently playing item
-        /// </summary>
-        string MpExtId
-        {
-            get;
-        }
-
-        /// <summary>
-        /// MpExtended media type of currently playing item
-        /// </summary>
-        int MpExtMediaType
-        {
-            get;
-        }
-
-        /// <summary>
-        /// MpExtended provider id of currently playing item
-        /// </summary>
-        int MpExtProviderId
-        {
-            get;
-        }
+      get { return "episodes"; }
     }
+
+    /// <summary>
+    /// List of series episodes
+    /// </summary>
+    public List<SeriesEpisodeInfo> Episodes { get; set; }
+  }
 }

@@ -23,67 +23,46 @@
 #endregion
 
 using System;
+using MediaPortal.Common;
+using MediaPortal.Common.Logging;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Plugins.SlimTv.Interfaces.Aspects;
-using MediaPortal.Plugins.WifiRemote.Messages.Now_Playing;
+using MediaPortal.Plugins.WifiRemote.Messages.MediaInfo;
 
 namespace MediaPortal.Plugins.WifiRemote
 {
-  public class NowPlayingRecording : IAdditionalNowPlayingInfo
+  public class RecordingInfo : IAdditionalMediaInfo
   {
-    private string mediaType = "recording";
-
-    public string MediaType
-    {
-      get { return mediaType; }
-    }
-
-    public string MpExtId
-    {
-      get { return RecordingId.ToString(); }
-    }
-
-    public int MpExtMediaType
-    {
-      get { return (int)MpExtendedMediaTypes.Recording; }
-    }
-
-    public int MpExtProviderId
-    {
-      get { return 0; } //no tv providers yet
-    }
+    public string MediaType => "recording";
+    public string MpExtId => RecordingId.ToString();
+    public int MpExtMediaType => (int)MpExtendedMediaTypes.Recording;
+    public int MpExtProviderId => 0; //no tv providers yet
 
     /// <summary>
     /// ID of the channel
     /// </summary>
     public int ChannelId { get; set; }
-
     /// <summary>
     /// Id of recording
     /// </summary>
     public int RecordingId { get; set; }
-
     /// <summary>
     /// Name of channel
     /// </summary>
     public String ChannelName { get; set; }
-
     /// <summary>
     /// Name of program
     /// </summary>
     public string ProgramName { get; set; }
-
     /// <summary>
     /// Description of program
     /// </summary>
     public string ProgramDescription { get; set; }
-
     /// <summary>
     /// Start date of program
     /// </summary>
     public DateTime ProgramBegin { get; set; }
-
     /// <summary>
     /// End date of program
     /// </summary>
@@ -93,20 +72,27 @@ namespace MediaPortal.Plugins.WifiRemote
     /// <summary>
     /// Constructor
     /// </summary>
-    public NowPlayingRecording(MediaItem mediItem)
+    public RecordingInfo(MediaItem mediItem)
     {
-      var mediaAspect = MediaItemAspect.GetAspect(mediItem.Aspects, MediaAspect.Metadata);
-      var videoAspect = MediaItemAspect.GetAspect(mediItem.Aspects, VideoAspect.Metadata);
-      var recordingAspect = MediaItemAspect.GetAspect(mediItem.Aspects, RecordingAspect.Metadata);
-      if (recordingAspect != null)
+      try
       {
-        ChannelId = recordingAspect.GetAttributeValue<string>(RecordingAspect.ATTR_CHANNEL).GetHashCode();
-        ChannelName = recordingAspect.GetAttributeValue<string>(RecordingAspect.ATTR_CHANNEL);
-        RecordingId = mediItem.MediaItemId.GetHashCode();
-        ProgramName = mediaAspect?.GetAttributeValue<string>(MediaAspect.ATTR_TITLE);
-        ProgramDescription = videoAspect?.GetAttributeValue<string>(VideoAspect.ATTR_STORYPLOT);
-        ProgramBegin = recordingAspect.GetAttributeValue<DateTime>(RecordingAspect.ATTR_STARTTIME);
-        ProgramEnd = recordingAspect.GetAttributeValue<DateTime>(RecordingAspect.ATTR_ENDTIME);
+        var mediaAspect = MediaItemAspect.GetAspect(mediItem.Aspects, MediaAspect.Metadata);
+        var videoAspect = MediaItemAspect.GetAspect(mediItem.Aspects, VideoAspect.Metadata);
+        var recordingAspect = MediaItemAspect.GetAspect(mediItem.Aspects, RecordingAspect.Metadata);
+        if (recordingAspect != null)
+        {
+          ChannelId = recordingAspect.GetAttributeValue<string>(RecordingAspect.ATTR_CHANNEL).GetHashCode();
+          ChannelName = recordingAspect.GetAttributeValue<string>(RecordingAspect.ATTR_CHANNEL);
+          RecordingId = mediItem.MediaItemId.GetHashCode();
+          ProgramName = mediaAspect?.GetAttributeValue<string>(MediaAspect.ATTR_TITLE);
+          ProgramDescription = videoAspect?.GetAttributeValue<string>(VideoAspect.ATTR_STORYPLOT);
+          ProgramBegin = recordingAspect.GetAttributeValue<DateTime>(RecordingAspect.ATTR_STARTTIME);
+          ProgramEnd = recordingAspect.GetAttributeValue<DateTime>(RecordingAspect.ATTR_ENDTIME);
+        }
+      }
+      catch (Exception e)
+      {
+        ServiceRegistration.Get<ILogger>().Error("WifiRemote: Error getting recording info", e);
       }
     }
   }

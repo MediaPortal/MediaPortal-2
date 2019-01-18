@@ -33,20 +33,20 @@ using Newtonsoft.Json.Linq;
 
 namespace MediaPortal.Plugins.WifiRemote.MessageParser
 {
-  internal class ParserMPExt
+  internal class ParserMPExt : BaseParser
   {
     public static async Task<bool> ParseAsync(JObject message, SocketServer server, AsyncSocket sender)
     {
-      string itemId = (string)message["ItemId"];
-      int itemType = (int)message["MediaType"];
-      int providerId = (int)message["ProviderId"];
-      String action = (String)message["Action"];
-      Dictionary<string, string> values = JsonConvert.DeserializeObject<Dictionary<string, string>>(message["PlayInfo"].ToString());
-      int startPos = (message["StartPosition"] != null) ? (int)message["StartPosition"] : 0;
+      string itemId = GetMessageValue<string>(message, "ItemId");
+      int itemType = GetMessageValue<int>(message, "MediaType"); 
+      int providerId = GetMessageValue<int>(message, "ProviderId");
+      String action = GetMessageValue<string>(message, "Action");
+      Dictionary<string, string> values = JsonConvert.DeserializeObject<Dictionary<string, string>>(GetMessageValue<string>(message, "PlayInfo"));
+      int startPos = GetMessageValue<int>(message, "StartPosition");
 
       if (action != null)
       {
-        if (action.Equals("play"))
+        if (action.Equals("play", StringComparison.InvariantCultureIgnoreCase))
         {
           //play the item in MediaPortal
           Logger.Debug("WifiRemote Play: ItemId: " + itemId + ", ItemType: " + itemType + ", ProviderId: " + providerId);
@@ -61,19 +61,19 @@ namespace MediaPortal.Plugins.WifiRemote.MessageParser
           await Helper.PlayMediaItemAsync(mediaItemGuid, startPos);
           //MpExtendedHelper.PlayMediaItem(itemId, itemType, providerId, values, startPos);
         }
-        else if (action.Equals("show"))
+        else if (action.Equals("show", StringComparison.InvariantCultureIgnoreCase))
         {
           //show the item details in mediaportal (without starting playback)
           //WifiRemote.LogMessage("show mediaitem: ItemId: " + itemId + ", itemType: " + itemType + ", providerId: " + providerId, WifiRemote.LogType.Debug);
 
           //MpExtendedHelper.ShowMediaItem(itemId, itemType, providerId, values);
         }
-        else if (action.Equals("enqueue"))
+        else if (action.Equals("enqueue", StringComparison.InvariantCultureIgnoreCase))
         {
           //enqueue the mpextended item to the currently active playlist
           Logger.Debug("WifiRemote Enqueue: ItemId: " + itemId + ", ItemType: " + itemType + ", ProviderId: " + providerId);
 
-          int startIndex = (message["StartIndex"] != null) ? (int)message["StartIndex"] : -1;
+          int startIndex = GetMessageValue<int>(message, "StartIndex", -1);
 
           /*PlayListType playlistType = PlayListType.PLAYLIST_VIDEO;
           List<PlayListItem> items = MpExtendedHelper.CreatePlayListItemItem(itemId, itemType, providerId, values, out playlistType);

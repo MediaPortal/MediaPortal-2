@@ -30,7 +30,7 @@ using Newtonsoft.Json.Linq;
 
 namespace MediaPortal.Plugins.WifiRemote.MessageParser
 {
-  internal class ParserRequeststatus
+  internal class ParserRequeststatus : BaseParser
   {
     public static Task<bool> ParseAsync(JObject message, SocketServer server, AsyncSocket sender)
     {

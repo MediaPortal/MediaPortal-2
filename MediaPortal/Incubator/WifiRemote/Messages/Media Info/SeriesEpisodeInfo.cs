@@ -32,162 +32,63 @@ using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Common.MediaManagement.Helpers;
 using MediaPortal.Plugins.WifiRemote;
-using MediaPortal.Plugins.WifiRemote.Messages.Now_Playing;
+using MediaPortal.Plugins.WifiRemote.Messages.MediaInfo;
 
 namespace MediaPortal.Plugins.WifiRemote
 {
-  internal class NowPlayingSeries : IAdditionalNowPlayingInfo
+  internal class SeriesEpisodeInfo : IAdditionalMediaInfo
   {
-    private bool episodeFound = false;
-
-    private string mediaType = "series";
-
-    public string MediaType
-    {
-      get { return mediaType; }
-    }
-
-    public string MpExtId
-    {
-      get { return CompositeId ?? String.Empty; }
-    }
-
-    public int MpExtMediaType
-    {
-      get { return (int)MpExtendedMediaTypes.TVEpisode; }
-    }
-
-    public int MpExtProviderId
-    {
-      get { return (int)MpExtendedProviders.MPTvSeries; }
-    }
+    public string MediaType => "episode";
+    public string MpExtId => EpisodeId.ToString();
+    public int MpExtMediaType => (int)MpExtendedMediaTypes.TVEpisode; 
+    public int MpExtProviderId => (int)MpExtendedProviders.MPTvSeries;
 
     private Guid seriesId;
 
     /// <summary>
     /// ID of the series in TVSeries' DB
     /// </summary>
-    public Guid SeriesId
-    {
-      get { return seriesId; }
-      set { seriesId = value; }
-    }
-
-    private Guid seasonId;
-
+    public Guid SeriesId { get; set; }
     /// <summary>
     /// ID of the season in TVSeries' DB
     /// </summary>
-    public Guid SeasonId
-    {
-      get { return seasonId; }
-      set { seasonId = value; }
-    }
-
-    private Guid episodeId;
-
+    public Guid SeasonId { get; set; }
     /// <summary>
     /// ID of the episode in TVSeries' DB
     /// </summary>
-    public Guid EpisodeId
-    {
-      get { return episodeId; }
-      set { episodeId = value; }
-    }
-
-    private string compositeId;
-
-    /// <summary>
-    /// Composite ID of the episode in TVSeries' DB
-    /// </summary>
-    public string CompositeId
-    {
-      get { return compositeId; }
-      set { compositeId = value; }
-    }
-
-    private string series;
-
+    public Guid EpisodeId { get; set; }
     /// <summary>
     /// Series name
     /// </summary>
-    public string Series
-    {
-      get { return series; }
-      set { series = value; }
-    }
-
-    private int episode;
-
+    public string Series { get; set; }
     /// <summary>
     /// Episode number
     /// </summary>
-    public int Episode
-    {
-      get { return episode; }
-      set { episode = value; }
-    }
-
-    private int season;
-
+    public int Episode { get; set; }
     /// <summary>
     /// Season number
     /// </summary>
-    public int Season
-    {
-      get { return season; }
-      set { season = value; }
-    }
-
-    private string plot;
-
+    public int Season { get; set; }
     /// <summary>
     /// Plot summary
     /// </summary>
-    public string Plot
-    {
-      get { return plot; }
-      set { plot = value; }
-    }
-
-    private string title;
-
+    public string Plot { get; set; }
     /// <summary>
     /// Episode title
     /// </summary>
-    public string Title
-    {
-      get { return title; }
-      set { title = value; }
-    }
-
-    private string director;
-
+    public string Title { get; set; }
     /// <summary>
     /// Director of this episode
     /// </summary>
-    public string Director
-    {
-      get { return director; }
-      set { director = value; }
-    }
-
-    private string writer;
-
+    public string Director { get; set; }
     /// <summary>
     /// Writer of this episode
     /// </summary>
-    public string Writer
-    {
-      get { return writer; }
-      set { writer = value; }
-    }
-
-    private string rating;
-
+    public string Writer { get; set; }
     /// <summary>
     /// Online episode rating
     /// </summary>
+    private string rating;
     public string Rating
     {
       get { return rating; }
@@ -202,84 +103,31 @@ namespace MediaPortal.Plugins.WifiRemote
         rating = value;
       }
     }
-
-    private string myRating;
-
-    /// <summary>
-    /// My episode rating
-    /// </summary>
-    public string MyRating
-    {
-      get { return myRating; }
-      set { myRating = value; }
-    }
-
-    private string ratingCount;
-
     /// <summary>
     /// Number of online votes
     /// </summary>
-    public string RatingCount
-    {
-      get { return ratingCount; }
-      set { ratingCount = value; }
-    }
-
-    private string airDate;
-
+    public string RatingCount { get; set; }
     /// <summary>
     /// Episode air date
     /// </summary>
-    public string AirDate
-    {
-      get { return airDate; }
-      set { airDate = value; }
-    }
-
-    private string status;
-
-    /// <summary>
-    /// Status of the series
-    /// </summary>
-    public string Status
-    {
-      get { return status; }
-      set { status = value; }
-    }
-
-    private string genre;
-
+    public string AirDate { get; set; }
     /// <summary>
     /// Genre of the series
     /// </summary>
-    public string Genre
-    {
-      get { return genre; }
-      set { genre = value; }
-    }
-
-    private string imageName;
-
-    /// <summary>
+    public string Genre { get; set; }
+     /// <summary>
     /// Season poster filepath
     /// </summary>
-    public string ImageName
-    {
-      get { return imageName; }
-      set { imageName = value; }
-    }
-
+    public string ImageName { get; set; }
 
     /// <summary>
     /// Constructor.
     /// </summary>
     /// <param name="filename">Filename of the currently played episode</param>
-    public NowPlayingSeries(MediaItem mediaItem)
+    public SeriesEpisodeInfo(MediaItem mediaItem)
     {
       try
       {
-        episodeFound = true;
-
         SeriesId = Guid.Empty;
         SeasonId = Guid.Empty;
         if (mediaItem.Aspects.ContainsKey(EpisodeAspect.ASPECT_ID))
@@ -296,8 +144,6 @@ namespace MediaPortal.Plugins.WifiRemote
           }
         }
 
-        //CompositeId = episodes[0].fullItem[DBEpisode.cCompositeID];
-
         EpisodeInfo episode = new EpisodeInfo();
         episode.FromMetadata(mediaItem.Aspects);
 
@@ -309,24 +155,15 @@ namespace MediaPortal.Plugins.WifiRemote
         Writer = String.Join(", ", episode.Writers);
         Genre = String.Join(", ", episode.Genres.Select(g => g.Name));
         AirDate = episode.FirstAired.HasValue ? episode.FirstAired.Value.ToLongDateString() : "";
-        MyRating = Convert.ToString(episode.Rating.RatingValue ?? 0);
+        Rating = Convert.ToString(episode.Rating.RatingValue ?? 0);
+        RatingCount = Convert.ToString(episode.Rating.VoteCount ?? 0);
         Series = episode.SeriesName.Text;
-        //Status = s[DBOnlineSeries.cStatus];
         ImageName = Helper.GetImageBaseURL(mediaItem, FanArtMediaTypes.Episode, FanArtTypes.Thumbnail);
       }
       catch (Exception e)
       {
-        ServiceRegistration.Get<ILogger>().Error("Error getting now playing tvseries: " + e.Message);
+        ServiceRegistration.Get<ILogger>().Error("WifiRemote: Error getting episode info", e);
       }
-    }
-
-    /// <summary>
-    /// Is this file a tv series episode?
-    /// </summary>
-    /// <returns><code>true</code> if the file is a tv series episode</returns>
-    public bool IsEpisode()
-    {
-      return episodeFound;
     }
   }
 }

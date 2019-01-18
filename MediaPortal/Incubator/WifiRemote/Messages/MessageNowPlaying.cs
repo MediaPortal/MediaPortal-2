@@ -30,7 +30,7 @@ using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Plugins.SlimTv.Interfaces.Aspects;
 using MediaPortal.Plugins.SlimTv.Interfaces.LiveTvMediaItem;
-using MediaPortal.Plugins.WifiRemote.Messages.Now_Playing;
+using MediaPortal.Plugins.WifiRemote.Messages.MediaInfo;
 using MediaPortal.UI.Presentation.Players;
 
 namespace MediaPortal.Plugins.WifiRemote.Messages
@@ -43,9 +43,9 @@ namespace MediaPortal.Plugins.WifiRemote.Messages
     {
       get { return "nowplaying"; }
     }
-    
 
-    public IAdditionalNowPlayingInfo MediaInfo
+
+    public IAdditionalMediaInfo MediaInfo
     {
       get
       {
@@ -56,30 +56,30 @@ namespace MediaPortal.Plugins.WifiRemote.Messages
           IList<MultipleMediaItemAspect> providerAspects;
           if (MediaItemAspect.TryGetAspects(mediaItem.Aspects, ProviderResourceAspect.Metadata, out providerAspects) &&
             providerAspects.Any(pra => _opticalDiscMimes.Any(m => m.Equals(pra.GetAttributeValue<string>(ProviderResourceAspect.ATTR_MIME_TYPE), StringComparison.InvariantCultureIgnoreCase))))
-            return new NowPlayingDVD();
+            return new DVDInfo();
 
           if (MediaItemAspect.TryGetAspects(mediaItem.Aspects, ProviderResourceAspect.Metadata, out providerAspects) &&
             providerAspects.Any(pra => LiveTvMediaItem.MIME_TYPE_TV.Equals(pra.GetAttributeValue<string>(ProviderResourceAspect.ATTR_MIME_TYPE), StringComparison.InvariantCultureIgnoreCase)))
-            return new NowPlayingTv(mediaItem);
+            return new TvInfo(mediaItem);
 
           if (MediaItemAspect.TryGetAspects(mediaItem.Aspects, ProviderResourceAspect.Metadata, out providerAspects) &&
             providerAspects.Any(pra => LiveTvMediaItem.MIME_TYPE_RADIO.Equals(pra.GetAttributeValue<string>(ProviderResourceAspect.ATTR_MIME_TYPE), StringComparison.InvariantCultureIgnoreCase)))
-            return new NowPlayingRadio(mediaItem);
+            return new RadioInfo(mediaItem);
 
           if (mediaItem.Aspects.ContainsKey(RecordingAspect.ASPECT_ID))
-            return new NowPlayingRecording(mediaItem);
+            return new RecordingInfo(mediaItem);
 
           if (mediaItem.Aspects.ContainsKey(AudioAspect.ASPECT_ID))
-            return new NowPlayingMusic(mediaItem);
+            return new MusicInfo(mediaItem);
 
           if (mediaItem.Aspects.ContainsKey(MovieAspect.ASPECT_ID))
-            return new NowPlayingMovingPictures(mediaItem);
+            return new MovingPicturesInfo(mediaItem);
 
           if (mediaItem.Aspects.ContainsKey(EpisodeAspect.ASPECT_ID))
-            return new NowPlayingSeries(mediaItem);
+            return new SeriesEpisodeInfo(mediaItem);
 
           if (mediaItem.Aspects.ContainsKey(VideoAspect.ASPECT_ID))
-            return new NowPlayingVideo(mediaItem);
+            return new VideoInfo(mediaItem);
         }
 
         return null;

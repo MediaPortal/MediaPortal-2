@@ -42,6 +42,11 @@ namespace MediaPortal.Plugins.WifiRemote
     public List<String> Properties { get; set; }
 
     /// <summary>
+    /// The user id that will be used for user data like watch states etc.
+    /// </summary>
+    public Guid? UserId { get; set; }
+
+    /// <summary>
     /// Username for client authentification
     /// </summary>
     public String User { get; set; }

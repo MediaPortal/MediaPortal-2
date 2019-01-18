@@ -22,25 +22,21 @@
 
 #endregion
 
-namespace MediaPortal.Plugins.WifiRemote.Messages.Now_Playing
+using System;
+using System.Collections.Generic;
+
+namespace MediaPortal.Plugins.WifiRemote.Messages
 {
-    /// <summary>
-    /// MediaTypes for mapping 
-    /// </summary>
-    public enum MpExtendedMediaTypes
+  class MessageMovies : IMessage
+  {
+    public string Type
     {
-        Movie = 0,
-        MusicTrack = 1,
-        Picture = 2,
-        TVEpisode = 3,
-        File = 4,
-        TVShow = 5,
-        TVSeason = 6,
-        MusicAlbum = 7,
-        MusicArtist = 8,
-        Folder = 9,
-        Drive = 10,
-        Tv = 12,
-        Recording = 13
+      get { return "movies"; }
     }
+
+    /// <summary>
+    /// List of movies
+    /// </summary>
+    public List<MovingPicturesInfo> Movies { get; set; }
+  }
 }

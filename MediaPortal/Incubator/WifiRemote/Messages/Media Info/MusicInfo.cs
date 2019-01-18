@@ -31,33 +31,16 @@ using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Common.MediaManagement.Helpers;
 using MediaPortal.Plugins.WifiRemote;
-using MediaPortal.Plugins.WifiRemote.Messages.Now_Playing;
+using MediaPortal.Plugins.WifiRemote.Messages.MediaInfo;
 
 namespace MediaPortal.Plugins.WifiRemote
 {
-  internal class NowPlayingMusic : IAdditionalNowPlayingInfo
+  internal class MusicInfo : IAdditionalMediaInfo
   {
-    private string mediaType = "music";
-
-    public string MediaType
-    {
-      get { return mediaType; }
-    }
-
-    public string MpExtId
-    {
-      get { return ItemId.ToString(); }
-    }
-
-    public int MpExtMediaType
-    {
-      get { return (int)MpExtendedMediaTypes.MusicTrack; }
-    }
-
-    public int MpExtProviderId
-    {
-      get { return (int)MpExtendedProviders.MPMusic; }
-    }
+    public string MediaType => "music";
+    public string MpExtId => ItemId.ToString();
+    public int MpExtMediaType => (int)MpExtendedMediaTypes.MusicTrack;
+    public int MpExtProviderId => (int)MpExtendedProviders.MPMusic;
 
     public Guid ItemId { get; set; }
     public string Album { get; set; }
@@ -68,28 +51,45 @@ namespace MediaPortal.Plugins.WifiRemote
     public int BPM { get; set; }
     public int Channels { get; set; }
     public string Codec { get; set; }
-    public string Comment { get; set; }
     public string Composer { get; set; }
     public string Conductor { get; set; }
-    public DateTime DateTimeModified { get; set; }
     public DateTime DateTimePlayed { get; set; }
     public int DiscId { get; set; }
     public int DiscTotal { get; set; }
     public long Duration { get; set; }
     public string Genre { get; set; }
     public string Lyrics { get; set; }
-    public int Rating { get; set; }
+    /// <summary>
+    /// Online rating
+    /// </summary>
+    private string rating;
+    public string Rating
+    {
+      get { return rating; }
+      set
+      {
+        // Shorten to 3 chars, ie
+        // 5.67676767 to 5.6
+        if (value.Length > 3)
+        {
+          value = value.Remove(3);
+        }
+        rating = value;
+      }
+    }
+    /// <summary>
+    /// Number of online votes
+    /// </summary>
+    public string RatingCount { get; set; }
     public int SampleRate { get; set; }
     public int TimesPlayed { get; set; }
     public string Title { get; set; }
     public int Track { get; set; }
     public int TrackTotal { get; set; }
-    public string URL { get; set; }
-    public string WebImage { get; set; }
     public int Year { get; set; }
     public string ImageName { get; set; }
 
-    public NowPlayingMusic(MediaItem song)
+    public MusicInfo(MediaItem song)
     {
       try
       {
@@ -110,27 +110,24 @@ namespace MediaPortal.Plugins.WifiRemote
         BPM = 0;
         Channels = track.Channels;
         Codec = track.Encoding;
-        Comment = string.Empty;
-        DateTimeModified = DateTime.Now;
         DateTimePlayed = DateTime.Now;
         DiscId = track.DiscNum;
         DiscTotal = track.TotalDiscs;
         Duration = track.Duration;
         Lyrics = track.TrackLyrics;
-        Rating = Convert.ToInt32(track.Rating.RatingValue ?? 0);
+        Rating = Convert.ToString(track.Rating.RatingValue ?? 0);
+        RatingCount = Convert.ToString(track.Rating.VoteCount ?? 0);
         SampleRate = Convert.ToInt32(track.SampleRate);
         TimesPlayed = mediaAspect.GetAttributeValue<int>(MediaAspect.ATTR_PLAYCOUNT);
         Title = track.TrackName;
         Track = track.TrackNum;
         TrackTotal = track.TotalTracks;
-        URL = String.Empty;
-        WebImage = String.Empty;
         Year = track.ReleaseDate.Value.Year;
         ImageName = Helper.GetImageBaseURL(song, FanArtMediaTypes.Audio, FanArtTypes.Cover);
       }
       catch (Exception e)
       {
-        ServiceRegistration.Get<ILogger>().Error("Error getting now playing music: " + e.Message);
+        ServiceRegistration.Get<ILogger>().Error("WifiRemote: Error getting music info", e);
       }
     }
   }

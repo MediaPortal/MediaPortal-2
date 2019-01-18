@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2018 Team MediaPortal
+﻿#region Copyright (C) 2007-2015 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2018 Team MediaPortal
+    Copyright (C) 2007-2015 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -22,29 +22,21 @@
 
 #endregion
 
-using MediaPortal.Common.Configuration.ConfigurationClasses;
+using System;
+using System.Collections.Generic;
 
-namespace MediaPortal.Plugins.WifiRemote.Settings.Configuration
+namespace MediaPortal.Plugins.WifiRemote.Messages
 {
-  public class Password : Entry
+  class MessageSeries : IMessage
   {
-    public override void Load()
+    public string Type
     {
-      base.Load();
-      _value = SettingsManager.Load<WifiRemoteSettings>().Password;
+      get { return "series"; }
     }
 
-    public override void Save()
-    {
-      base.Save();
-      WifiRemoteSettings settings = SettingsManager.Load<WifiRemoteSettings>();
-      settings.Password = _value;
-      SettingsManager.Save(settings);
-    }
-
-    public override int DisplayLength
-    {
-      get { return 30; }
-    }
+    /// <summary>
+    /// List of series
+    /// </summary>
+    public List<SeriesShowInfo> Series { get; set; }
   }
 }

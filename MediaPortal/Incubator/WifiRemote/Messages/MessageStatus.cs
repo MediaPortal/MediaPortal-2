@@ -147,7 +147,7 @@ namespace MediaPortal.Plugins.WifiRemote.Messages
         {
           currentModule = LocalizationHelper.Translate(ServiceRegistration.Get<IWorkflowManager>().CurrentNavigationContext.WorkflowState.DisplayLabel);
           //currentModule = ServiceRegistration.Get<IScreenManager>().ActiveScreenName;
-          
+
           return currentModule;
         }
         catch (Exception)
@@ -200,7 +200,7 @@ namespace MediaPortal.Plugins.WifiRemote.Messages
     {
       get
       {
-        
+
         return 0;
       }
     }
@@ -224,7 +224,7 @@ namespace MediaPortal.Plugins.WifiRemote.Messages
     {
       return (isPlaying != IsPlaying
               || isPaused != IsPaused
-//                || isRecording != IsRecording
+              //                || isRecording != IsRecording
               || title != Title
               || currentModule != CurrentModule
               || selectedItem != SelectedItem

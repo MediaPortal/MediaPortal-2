@@ -30,124 +30,53 @@ using MediaPortal.Common.Logging;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.Helpers;
 using MediaPortal.Plugins.WifiRemote;
-using MediaPortal.Plugins.WifiRemote.Messages.Now_Playing;
+using MediaPortal.Plugins.WifiRemote.Messages.MediaInfo;
 
 namespace MediaPortal.Plugins.WifiRemote
 {
-  internal class NowPlayingMovingPictures : IAdditionalNowPlayingInfo
+  internal class MovingPicturesInfo : IAdditionalMediaInfo
   {
-    private bool movieFound = false;
-
-    private string mediaType = "movie";
-
-    public string MediaType
-    {
-      get { return mediaType; }
-    }
-
-    public string MpExtId
-    {
-      get { return ItemId.ToString(); }
-    }
-
-    public int MpExtMediaType
-    {
-      get { return (int)MpExtendedMediaTypes.Movie; }
-    }
-
-    public int MpExtProviderId
-    {
-      get { return (int)MpExtendedProviders.MovingPictures; }
-    }
+    public string MediaType => "movie";
+    public string MpExtId => ItemId.ToString();
+    public int MpExtMediaType => (int)MpExtendedMediaTypes.Movie;
+    public int MpExtProviderId => (int)MpExtendedProviders.MovingPictures;
 
     /// <summary>
     /// Movie ID in moving pictures database table "movie_info"
     /// </summary>
     public Guid ItemId { get; set; }
-
-    private string summary;
-
     /// <summary>
     /// Plot summary
     /// </summary>
-    public string Summary
-    {
-      get { return summary; }
-      set { summary = value; }
-    }
-
-    private string title;
-
+    public string Summary { get; set; }
     /// <summary>
     /// Movie title
     /// </summary>
-    public string Title
-    {
-      get { return title; }
-      set { title = value; }
-    }
-
-    private string alternateTitles;
-
+    public string Title { get; set; }
     /// <summary>
     /// Alternate titles of this movie
     /// </summary>
-    public string AlternateTitles
-    {
-      get { return alternateTitles; }
-      set { alternateTitles = value; }
-    }
-
-    private string tagline;
-
+    public string AlternateTitles { get; set; }
     /// <summary>
     /// Tagline of the movie
     /// </summary>
-    public string Tagline
-    {
-      get { return tagline; }
-      set { tagline = value; }
-    }
-
-    private string directors;
-
+    public string Tagline { get; set; }
     /// <summary>
     /// Director of this movie
     /// </summary>
-    public string Directors
-    {
-      get { return directors; }
-      set { directors = value; }
-    }
-
-    private string writers;
-
+    public string Directors { get; set; }
     /// <summary>
     /// Writer of this movie
     /// </summary>
-    public string Writers
-    {
-      get { return writers; }
-      set { writers = value; }
-    }
-
-    private string actors;
-
+    public string Writers { get; set; }
     /// <summary>
     /// Actors in this movie
     /// </summary>
-    public string Actors
-    {
-      get { return actors; }
-      set { actors = value; }
-    }
-
-
-    private string rating;
-
+    public string Actors { get; set; }
     /// <summary>
     /// Online rating
     /// </summary>
+    private string rating;
     public string Rating
     {
       get { return rating; }
@@ -162,72 +91,34 @@ namespace MediaPortal.Plugins.WifiRemote
         rating = value;
       }
     }
-
-    private int year;
-
+    /// <summary>
+    /// Number of online votes
+    /// </summary>
+    public string RatingCount { get; set; }
     /// <summary>
     /// Movie air date
     /// </summary>
-    public int Year
-    {
-      get { return year; }
-      set { year = value; }
-    }
-
-    private string genres;
-
+    public int Year { get; set; }
     /// <summary>
     /// Genres of the movie
     /// </summary>
-    public string Genres
-    {
-      get { return genres; }
-      set { genres = value; }
-    }
-
-    private string certification;
-
+    public string Genres { get; set; }
     /// <summary>
     /// Certification of the movie
     /// </summary>
-    public string Certification
-    {
-      get { return certification; }
-      set { certification = value; }
-    }
-
-    private string detailsUrl;
-
-    /// <summary>
-    /// Get more info about the movie at this URL
-    /// </summary>
-    public string DetailsUrl
-    {
-      get { return detailsUrl; }
-      set { detailsUrl = value; }
-    }
-
-    private string imageName;
-
+    public string Certification { get; set; }
     /// <summary>
     /// Movie poster filepath
     /// </summary>
-    public string ImageName
-    {
-      get { return imageName; }
-      set { imageName = value; }
-    }
-
+    public string ImageName { get; set; }
 
     /// <summary>
     /// Constructor.
     /// </summary>
-    public NowPlayingMovingPictures(MediaItem mediaItem)
+    public MovingPicturesInfo(MediaItem mediaItem)
     {
       try
       {
-        movieFound = true;
-
         MovieInfo movie = new MovieInfo();
         movie.FromMetadata(mediaItem.Aspects);
 
@@ -239,26 +130,17 @@ namespace MediaPortal.Plugins.WifiRemote
         Actors = String.Join(", ", movie.Actors);
         Genres = String.Join(", ", movie.Genres.Select(g => g.Name));
         Rating = Convert.ToString(movie.Rating.RatingValue ?? 0);
+        RatingCount = Convert.ToString(movie.Rating.VoteCount ?? 0);
         Year = movie.ReleaseDate.Value.Year;
         Certification = movie.Certification;
         Tagline = movie.Tagline;
         Summary = movie.Summary.Text;
-        //DetailsUrl = match.DetailsURL;
         ImageName = Helper.GetImageBaseURL(mediaItem, FanArtMediaTypes.Movie, FanArtTypes.Cover);
       }
       catch (Exception e)
       {
-        ServiceRegistration.Get<ILogger>().Error("Error getting now playing moving pictures: " + e.Message);
+        ServiceRegistration.Get<ILogger>().Error("WifiRemote: Error getting movie info", e);
       }
-    }
-
-    /// <summary>
-    /// Checks if the supplied filename is a moving pictures movie
-    /// </summary>
-    /// <returns></returns>
-    public bool IsMovingPicturesMovie()
-    {
-      return movieFound;
     }
   }
 }

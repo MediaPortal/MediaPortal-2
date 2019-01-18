@@ -25,93 +25,66 @@
 using System;
 using System.Linq;
 using MediaPortal.Common;
+using MediaPortal.Common.Logging;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Plugins.SlimTv.Interfaces;
 using MediaPortal.Plugins.SlimTv.Interfaces.Items;
 using MediaPortal.Plugins.SlimTv.Interfaces.LiveTvMediaItem;
-using MediaPortal.Plugins.WifiRemote.Messages.Now_Playing;
+using MediaPortal.Plugins.WifiRemote.Messages.MediaInfo;
 
 namespace MediaPortal.Plugins.WifiRemote
 {
-  public class NowPlayingTv : IAdditionalNowPlayingInfo
+  public class TvInfo : IAdditionalMediaInfo
   {
-    private string mediaType = "tv";
-
-    public string MediaType
-    {
-      get { return mediaType; }
-    }
-
-    public string MpExtId
-    {
-      get { return ChannelId.ToString(); }
-    }
-
-    public int MpExtMediaType
-    {
-      get { return (int)MpExtendedMediaTypes.Tv; }
-    }
-
-    public int MpExtProviderId
-    {
-      get { return 0; } //no tv providers yet
-    }
+    public string MediaType => "tv";
+    public string MpExtId => ChannelId.ToString();
+    public int MpExtMediaType => (int)MpExtendedMediaTypes.Tv;
+    public int MpExtProviderId => 0; //no tv providers yet
 
     /// <summary>
     /// ID of the current channel
     /// </summary>
     public int ChannelId { get; set; }
-
     /// <summary>
     /// Name of the current channel
     /// </summary>
     public string ChannelName { get; set; }
-
     /// <summary>
     /// Id of current program
     /// </summary>
     public int CurrentProgramId { get; set; }
-
     /// <summary>
     /// Name of current program
     /// </summary>
     public string CurrentProgramName { get; set; }
-
     /// <summary>
     /// Description of current program
     /// </summary>
     public string CurrentProgramDescription { get; set; }
-
     /// <summary>
     /// Start date of current program
     /// </summary>
     public DateTime CurrentProgramBegin { get; set; }
-
     /// <summary>
     /// End date of current program
     /// </summary>
     public DateTime CurrentProgramEnd { get; set; }
-
     /// <summary>
     /// Id of next program
     /// </summary>
     public int NextProgramId { get; set; }
-
     /// <summary>
     /// Name of next program
     /// </summary>
     public string NextProgramName { get; set; }
-
     /// <summary>
     /// Description of next program
     /// </summary>
     public string NextProgramDescription { get; set; }
-
     /// <summary>
     /// Start date of next program
     /// </summary>
     public DateTime NextProgramBegin { get; set; }
-
     /// <summary>
     /// End date of next program
     /// </summary>
@@ -121,30 +94,37 @@ namespace MediaPortal.Plugins.WifiRemote
     /// <summary>
     /// Constructor
     /// </summary>
-    public NowPlayingTv(MediaItem mediaItem)
+    public TvInfo(MediaItem mediaItem)
     {
-      if (mediaItem is LiveTvMediaItem tvItem && tvItem.TimeshiftContexes.FirstOrDefault()?.Channel is IChannel channel)
+      try
       {
-        ITvHandler tvHandler = ServiceRegistration.Get<ITvHandler>();
-        var result = tvHandler.ProgramInfo.GetNowNextProgramAsync(channel).Result;
-
-        ChannelId = channel.ChannelId;
-        ChannelName = channel.Name;
-
-        if (result.Success)
+        if (mediaItem is LiveTvMediaItem tvItem && tvItem.TimeshiftContexes.FirstOrDefault()?.Channel is IChannel channel)
         {
-          CurrentProgramId = result.Result[0].ProgramId;
-          CurrentProgramName = result.Result[0].Title;
-          CurrentProgramDescription = result.Result[0].Description;
-          CurrentProgramBegin = result.Result[0].StartTime;
-          CurrentProgramEnd = result.Result[0].EndTime;
+          ITvHandler tvHandler = ServiceRegistration.Get<ITvHandler>();
+          var result = tvHandler.ProgramInfo.GetNowNextProgramAsync(channel).Result;
 
-          NextProgramId = result.Result[1].ProgramId;
-          NextProgramName = result.Result[1].Title;
-          NextProgramDescription = result.Result[1].Description;
-          NextProgramBegin = result.Result[1].StartTime;
-          NextProgramEnd = result.Result[1].EndTime;
+          ChannelId = channel.ChannelId;
+          ChannelName = channel.Name;
+
+          if (result.Success)
+          {
+            CurrentProgramId = result.Result[0].ProgramId;
+            CurrentProgramName = result.Result[0].Title;
+            CurrentProgramDescription = result.Result[0].Description;
+            CurrentProgramBegin = result.Result[0].StartTime;
+            CurrentProgramEnd = result.Result[0].EndTime;
+
+            NextProgramId = result.Result[1].ProgramId;
+            NextProgramName = result.Result[1].Title;
+            NextProgramDescription = result.Result[1].Description;
+            NextProgramBegin = result.Result[1].StartTime;
+            NextProgramEnd = result.Result[1].EndTime;
+          }
         }
+      }
+      catch (Exception e)
+      {
+        ServiceRegistration.Get<ILogger>().Error("WifiRemote: Error getting tv info", e);
       }
     }
   }

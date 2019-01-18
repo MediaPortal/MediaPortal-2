@@ -26,7 +26,7 @@ using MediaPortal.Common;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.Messaging;
 using MediaPortal.Plugins.WifiRemote.Messages;
-using MediaPortal.Plugins.WifiRemote.Messages.Now_Playing;
+using MediaPortal.Plugins.WifiRemote.Messages.MediaInfo;
 using MediaPortal.Plugins.WifiRemote.SendMessages;
 using MediaPortal.UI.Presentation.Players;
 using Newtonsoft.Json;

@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-#region Copyright (C) 2007-2015 Team MediaPortal
+﻿#region Copyright (C) 2007-2015 Team MediaPortal
 
 /*
     Copyright (C) 2007-2015 Team MediaPortal
@@ -25,6 +22,9 @@ using System.Linq;
 
 #endregion
 
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using Deusty.Net;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
@@ -36,201 +36,254 @@ using MediaPortal.UiComponents.Media.Models;
 using MediaPortal.UI.Presentation.Players;
 using Newtonsoft.Json.Linq;
 using System.Threading.Tasks;
+using MediaPortal.Common.MediaManagement.DefaultItemAspects;
+using MediaPortal.Plugins.WifiRemote.Messages.MediaInfo;
+using MediaPortal.Common.UserProfileDataManagement;
 
 namespace MediaPortal.Plugins.WifiRemote.MessageParser
 {
-  internal class ParserPlaylist
+  internal class ParserPlaylist : BaseParser
   {
+    private static string LastLoadedPlayList = null;
+
     public static async Task<bool> ParseAsync(JObject message, SocketServer server, AsyncSocket sender)
     {
-      string action = (string)message["PlaylistAction"];
-      string playlistType = (message["PlaylistType"] != null) ? (string)message["PlaylistType"] : "music";
-      bool shuffle = (message["Shuffle"] != null) ? (bool)message["Shuffle"] : false;
-      bool autoPlay = (message["AutoPlay"] != null) ? (bool)message["AutoPlay"] : false;
-      bool showPlaylist = (message["ShowPlaylist"] != null) ? (bool)message["ShowPlaylist"] : true;
+      string action = GetMessageValue<string>(message, "PlaylistAction");
+      string playlistType = GetMessageValue<string>(message, "PlaylistType", "music");
+      bool autoPlay = GetMessageValue<bool>(message, "AutoPlay");
+      int index = GetMessageValue<int>(message, "Index");
+      var playList = ServiceRegistration.Get<IPlayerContextManager>().CurrentPlayerContext.Playlist;
+      var client = sender.GetRemoteClient();
 
-      if (action.Equals("new") || action.Equals("append"))
+      if (action.Equals("new", StringComparison.InvariantCultureIgnoreCase) || action.Equals("append", StringComparison.InvariantCultureIgnoreCase))
       {
         //new playlist or append to playlist
-        int insertIndex = 0;
-        if (message["InsertIndex"] != null)
-        {
-          insertIndex = (int)message["InsertIndex"];
-        }
+        int insertIndex = GetMessageValue<int>(message, "InsertIndex");
+        bool shuffle = GetMessageValue<bool>(message, "Shuffle");
 
         // Add items from JSON or SQL
-        JArray array = (message["PlaylistItems"] != null) ? (JArray)message["PlaylistItems"] : null;
-        JObject sql = (message["PlayListSQL"] != null) ? (JObject)message["PlayListSQL"] : null;
-        if (array != null || sql != null)
+        JArray array = GetMessageValue<JArray>(message, "PlaylistItems");
+        
+        if (array != null)
         {
-          if (action.Equals("new"))
-          {
-            ServiceRegistration.Get<IPlayerContextManager>().CurrentPlayerContext.Playlist.Clear();
-          }
+          if (action.Equals("new", StringComparison.InvariantCultureIgnoreCase))
+            playList.Clear();
 
-          int index = insertIndex;
-
+          int idx = insertIndex;
           if (array != null)
           {
+            playList.StartBatchUpdate();
+
             // Add items from JSON
             foreach (JObject o in array)
             {
-              if (o["FileName"] == null)
-                continue;
+              string fileName = GetMessageValue<string>(o, "FileName");
+              string id = GetMessageValue<string>(o, "FileId");
 
-              Guid itemid;
-              if (!Guid.TryParse((string)o["FileName"], out itemid))
+              var mediaItemGuid = await GetIdFromNameAsync(client, fileName, id, Helper.GetMediaItemByFileNameAsync);
+              if (mediaItemGuid == null)
               {
-                ServiceRegistration.Get<ILogger>().Warn("WifiRemote Playlist: Couldn't parse FileName to Guid");
-                continue;
+                ServiceRegistration.Get<ILogger>().Error("WifiRemote Playlist: Couldn't convert FileId '{0} to Guid", id);
+                return false;
               }
 
-              MediaItem item = await Helper.GetMediaItemByIdAsync(itemid);
+              MediaItem item = await Helper.GetMediaItemByIdAsync(client.UserId, mediaItemGuid.Value);
               if (item == null)
               {
                 ServiceRegistration.Get<ILogger>().Warn("WifiRemote Playlist: Not media item found");
                 continue;
               }
 
-              ServiceRegistration.Get<IPlayerContextManager>().CurrentPlayerContext.Playlist.Insert(index, item);
+              playList.Insert(idx, item);
 
-              index++;
+              idx++;
             }
+            playList.EndBatchUpdate();
 
-            // TODO: Add shuffle
-            /*if (shuffle)
-            {
-              PlaylistHelper.Shuffle(playlistType);
-            }*/
+            playList.PlayMode = PlayMode.Continuous;
+            if (shuffle)
+              playList.PlayMode = PlayMode.Shuffle;
           }
 
           if (autoPlay)
           {
-            if (message["StartPosition"] != null)
-            {
-              int startPos = (int)message["StartPosition"];
-              insertIndex += startPos;
-            }
-            // TODO
-            //PlaylistHelper.StartPlayingPlaylist(playlistType, insertIndex, showPlaylist);
+            playList.ItemListIndex = 0;
+            ServiceRegistration.Get<IPlayerContextManager>().CurrentPlayerContext.Play();
           }
         }
       }
-      else if (action.Equals("load"))
+      else if (action.Equals("load", StringComparison.InvariantCultureIgnoreCase))
       {
         //load a playlist
-        string playlistName = (string)message["PlayListName"];
-        string playlistPath = (string)message["PlaylistPath"];
-
-        Guid playlistId;
-        if ((!string.IsNullOrEmpty(playlistName) || !string.IsNullOrEmpty(playlistPath)) && Guid.TryParse(playlistPath, out playlistId))
+        string playlistName = GetMessageValue<string>(message, "PlayListName");
+        string playlistPath = GetMessageValue<string>(message, "PlaylistPath");
+        bool shuffle = GetMessageValue<bool>(message, "Shuffle");
+        if (string.IsNullOrEmpty(playlistPath))
         {
-          // TODO: does this work?!
-          var items = await Helper.LoadPlayListsAsync(playlistId);
-          PlayItemsModel.CheckQueryPlayAction(() => items, AVType.None); // AvType?!
-          /*PlaylistHelper.LoadPlaylist(playlistType, (!string.IsNullOrEmpty(playlistName)) ? playlistName : playlistPath, shuffle);
+          List<PlaylistInformationData> playLists = ServerPlaylists.GetPlaylists().ToList();
+          playlistPath = playLists.FirstOrDefault(p => p.Name == playlistName)?.PlaylistId.ToString();
+        }
+
+        if (Guid.TryParse(playlistPath, out Guid playlistId))
+        {
+          var data = await Helper.LoadPlayListAsync(playlistId);
+          LastLoadedPlayList = data.Name;
+          playList.StartBatchUpdate();
+          playList.Clear();
+          foreach(var item in data.Items)
+            playList.Add(item);
+          playList.EndBatchUpdate();
+
           if (autoPlay)
           {
-            PlaylistHelper.StartPlayingPlaylist(playlistType, 0, showPlaylist);
-          }*/
+            playList.ItemListIndex = 0;
+            ServiceRegistration.Get<IPlayerContextManager>().CurrentPlayerContext.Play();
+          }
         }
       }
-      else if (action.Equals("get"))
+      else if (action.Equals("get", StringComparison.InvariantCultureIgnoreCase))
       {
         //get all playlist items of the currently active playlist
-        IPlaylist playlist = ServiceRegistration.Get<IPlayerContextManager>().CurrentPlayerContext.Playlist;
-        IList<MediaItem> items = playlist.ItemList;
-
+        IList<MediaItem> items = playList.ItemList;
         MessagePlaylistDetails returnPlaylist = new MessagePlaylistDetails
         {
-          PlaylistType = playlistType,
-          //PlaylistName = PlaylistHelper.GetPlaylistName(playlistType),
-          PlaylistRepeat = playlist.RepeatMode != RepeatMode.None,
-          // TODO: Fill
+          PlaylistName = LastLoadedPlayList ?? "Play list",
+          PlaylistRepeat = playList.RepeatMode != RepeatMode.None,
           PlaylistItems = new List<PlaylistEntry>()
         };
+        foreach (var mediaItem in playList.ItemList)
+        {
+          var ple = new PlaylistEntry
+          {
+            FileId = mediaItem.MediaItemId.ToString(),
+          };
 
-        SendMessageToAllClients.Send(returnPlaylist, ref SocketServer.Instance.connectedSockets);
+          if (mediaItem.Aspects.ContainsKey(VideoAspect.ASPECT_ID))
+          {
+            if (returnPlaylist.PlaylistType != "video")
+            {
+              if (returnPlaylist.PlaylistType == null)
+                returnPlaylist.PlaylistType = "video";
+              else
+                continue;
+            }
+
+            IList<MultipleMediaItemAspect> videoStreamAspects;
+            MediaItemAspect.TryGetAspects(mediaItem.Aspects, VideoStreamAspect.Metadata, out videoStreamAspects);
+            var mediaAspect = MediaItemAspect.GetAspect(mediaItem.Aspects, MediaAspect.Metadata);
+            var movieAspect = MediaItemAspect.GetAspect(mediaItem.Aspects, MovieAspect.Metadata);
+            var episodeAspect = MediaItemAspect.GetAspect(mediaItem.Aspects, EpisodeAspect.Metadata);
+
+            TimeSpan duration = TimeSpan.FromSeconds(0);
+            int? setNo = videoStreamAspects?.FirstOrDefault()?.GetAttributeValue<int>(VideoStreamAspect.ATTR_VIDEO_PART_SET);
+            if (setNo.HasValue)
+            {
+              foreach (var stream in videoStreamAspects.Where(s => s.GetAttributeValue<int>(VideoStreamAspect.ATTR_VIDEO_PART_SET) == setNo.Value))
+              {
+                long? durSecs = stream.GetAttributeValue<long?>(VideoStreamAspect.ATTR_DURATION);
+                if (durSecs.HasValue)
+                  duration.Add(TimeSpan.FromSeconds(durSecs.Value));
+              }
+            }
+
+            ple.MpExtMediaType = (int)MpExtendedMediaTypes.Movie;
+            ple.MpExtProviderId = (int)MpExtendedProviders.MPVideo;
+            ple.MediaType = returnPlaylist.PlaylistType;
+            ple.Name = movieAspect?.GetAttributeValue<string>(MovieAspect.ATTR_MOVIE_NAME) ?? episodeAspect?.GetAttributeValue<string>(EpisodeAspect.ATTR_EPISODE_NAME) ?? mediaAspect.GetAttributeValue<string>(MediaAspect.ATTR_TITLE);
+            ple.Name2 = episodeAspect?.GetAttributeValue<string>(EpisodeAspect.ATTR_SERIES_NAME);
+            ple.Duration = Convert.ToInt32(duration.TotalSeconds);
+            ple.Played = Convert.ToInt32(mediaItem.UserData.FirstOrDefault(d => d.Key == UserDataKeysKnown.KEY_PLAY_PERCENTAGE).Value ?? "0") == 100;
+            returnPlaylist.PlaylistItems.Add(ple);
+          }
+          else if (mediaItem.Aspects.ContainsKey(VideoAspect.ASPECT_ID))
+          {
+            if (returnPlaylist.PlaylistType != "music")
+            {
+              if (returnPlaylist.PlaylistType == null)
+                returnPlaylist.PlaylistType = "music";
+              else
+                continue;
+            }
+
+            var mediaAspect = MediaItemAspect.GetAspect(mediaItem.Aspects, MediaAspect.Metadata);
+            var audioAspect = MediaItemAspect.GetAspect(mediaItem.Aspects, AudioAspect.Metadata);
+
+            ple.MpExtMediaType = (int)MpExtendedMediaTypes.MusicTrack;
+            ple.MpExtProviderId = (int)MpExtendedProviders.MPMusic;
+            ple.MediaType = returnPlaylist.PlaylistType;
+            ple.Name = audioAspect.GetAttributeValue<string>(AudioAspect.ATTR_TRACKNAME);
+            ple.Name2 = audioAspect.GetAttributeValue<string>(AudioAspect.ATTR_ALBUM);
+            ple.AlbumArtist = string.Join(", ", audioAspect.GetCollectionAttribute<string>(AudioAspect.ATTR_ALBUMARTISTS));
+            ple.Duration = Convert.ToInt32(audioAspect.GetAttributeValue<long>(AudioAspect.ATTR_DURATION));
+            ple.Played = Convert.ToInt32(mediaItem.UserData.FirstOrDefault(d => d.Key == UserDataKeysKnown.KEY_PLAY_PERCENTAGE).Value ?? "0") == 100;
+          }
+        }
+        SendMessageToClient.Send(returnPlaylist, sender, true);
       }
-      else if (action.Equals("remove"))
+      else if (action.Equals("remove", StringComparison.InvariantCultureIgnoreCase))
       {
+        
         //remove an item from the playlist
-        int indexToRemove = (message["Index"] != null) ? (int)message["Index"] : 0;
-
-        ServiceRegistration.Get<IPlayerContextManager>().CurrentPlayerContext.Playlist.RemoveAt(indexToRemove);
+        playList.RemoveAt(index);
       }
-      else if (action.Equals("move"))
+      else if (action.Equals("move", StringComparison.InvariantCultureIgnoreCase))
       {
         //move a playlist item to a new index
-        int oldIndex = (message["OldIndex"] != null) ? (int)message["OldIndex"] : 0;
-        int newIndex = (message["NewIndex"] != null) ? (int)message["NewIndex"] : 0;
-        // TODO
-        //PlaylistHelper.ChangePlaylistItemPosition(playlistType, oldIndex, newIndex);
+        int oldIndex = GetMessageValue<int>(message, "OldIndex");
+        int newIndex = GetMessageValue<int>(message, "NewIndex");
+        var mediaItem = playList.ItemList[oldIndex];
+        playList.RemoveAt(oldIndex);
+        playList.Insert(newIndex, mediaItem);
       }
-      else if (action.Equals("play"))
+      else if (action.Equals("play", StringComparison.InvariantCultureIgnoreCase))
       {
         //start playback of a playlist item
-        int index = (message["Index"] != null) ? (int)message["Index"] : 0;
-        ServiceRegistration.Get<IPlayerContextManager>().CurrentPlayerContext.Playlist.ItemListIndex = index;
+        playList.ItemListIndex = index;
         ServiceRegistration.Get<IPlayerContextManager>().CurrentPlayerContext.Play();
       }
-      else if (action.Equals("clear"))
+      else if (action.Equals("clear", StringComparison.InvariantCultureIgnoreCase))
       {
         //clear the playlist
-        ServiceRegistration.Get<IPlayerContextManager>().CurrentPlayerContext.Playlist.Clear();
+        playList.Clear();
       }
-      else if (action.Equals("list"))
+      else if (action.Equals("list", StringComparison.InvariantCultureIgnoreCase))
       {
         //get a list of all available playlists
         List<PlaylistInformationData> playLists = ServerPlaylists.GetPlaylists().ToList();
-
         MessagePlaylists returnList = new MessagePlaylists { PlayLists = playLists.Select(x => x.Name).ToList() };
         SendMessageToAllClients.Send(returnList, ref SocketServer.Instance.connectedSockets);
       }
-      else if (action.Equals("save"))
+      else if (action.Equals("save", StringComparison.InvariantCultureIgnoreCase))
       {
         //save the current playlist to file
-        String name = (message["Name"] != null) ? (String)message["Name"] : null;
+        string name = GetMessageValue<string>(message, "Name");
         if (name != null)
         {
-          // TODO
-          //PlaylistHelper.SaveCurrentPlaylist(name);
+          await Helper.SavePlayListAsync(Guid.NewGuid(), name, playlistType, playList.ItemList.Select(i => i.MediaItemId));
         }
         else
         {
           Logger.Warn("WifiRemote Playlist: Must specify a name to save a playlist");
         }
       }
-      else if (action.Equals("shuffle"))
+      else if (action.Equals("shuffle", StringComparison.InvariantCultureIgnoreCase))
       {
-        var playMode = ServiceRegistration.Get<IPlayerContextManager>().CurrentPlayerContext.Playlist.PlayMode == PlayMode.Shuffle ? PlayMode.Continuous : PlayMode.Shuffle;
-        ServiceRegistration.Get<IPlayerContextManager>().CurrentPlayerContext.Playlist.PlayMode = playMode;
+        var playMode = playList.PlayMode == PlayMode.Shuffle ? PlayMode.Continuous : PlayMode.Shuffle;
+        playList.PlayMode = playMode;
       }
-      else if (action.Equals("repeat"))
+      else if (action.Equals("repeat", StringComparison.InvariantCultureIgnoreCase))
       {
         Logger.Debug("Playlist action repeat");
-        if (message["Repeat"] != null)
-        {
-          bool repeat = (bool)message["Repeat"];
-          RepeatMode repeatMode;
-          if (repeat)
-            repeatMode = RepeatMode.All;
-          else
-            repeatMode = RepeatMode.None;
-          ServiceRegistration.Get<IPlayerContextManager>().CurrentPlayerContext.Playlist.RepeatMode = repeatMode;
-        }
+        bool repeat = GetMessageValue<bool>(message, "Repeat");
+        RepeatMode repeatMode;
+        if (repeat)
+          repeatMode = RepeatMode.All;
         else
-        {
-          Logger.Warn("WifiRemote Playlist: Must specify repeat to change playlist repeat mode");
-        }
+          repeatMode = RepeatMode.None;
+        playList.RepeatMode = repeatMode;
       }
 
       return true;
-    }
-
-    internal static ILogger Logger
-    {
-      get { return ServiceRegistration.Get<ILogger>(); }
     }
   }
 }

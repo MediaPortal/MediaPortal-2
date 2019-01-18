@@ -23,48 +23,39 @@
 #endregion
 
 using Deusty.Net;
-using MediaPortal.Common;
-using MediaPortal.Common.Logging;
 using Newtonsoft.Json.Linq;
 using System.Threading.Tasks;
 
 namespace MediaPortal.Plugins.WifiRemote.MessageParser
 {
-  internal class ParserPosition
+  internal class ParserPosition : BaseParser
   {
     public static Task<bool> ParseAsync(JObject message, SocketServer server, AsyncSocket sender)
     {
-      int seekType = (int)message["SeekType"];
+      int seekType = GetMessageValue<int>(message, "SeekType");
+      int position = GetMessageValue<int>(message, "Position");
 
       Logger.Debug("WifiRemote Position: SeekType: {0}", seekType);
 
       if (seekType == 0)
       {
-        int position = (int)message["Position"];
         Helper.SetPositionPercent(position, true);
       }
       if (seekType == 1)
       {
-        int position = (int)message["Position"];
         Helper.SetPositionPercent(position, false);
       }
       if (seekType == 2)
       {
-        int position = (int)message["Position"];
+        
         Helper.SetPosition(position, true);
       }
       else if (seekType == 3)
       {
-        int position = (int)message["Position"];
         Helper.SetPosition(position, false);
       }
 
       return Task.FromResult(true);
-    }
-
-    internal static ILogger Logger
-    {
-      get { return ServiceRegistration.Get<ILogger>(); }
     }
   }
 }

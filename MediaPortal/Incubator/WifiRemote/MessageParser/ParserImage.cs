@@ -37,77 +37,73 @@ using Newtonsoft.Json.Linq;
 
 namespace MediaPortal.Plugins.WifiRemote.MessageParser
 {
-  internal class ParserImage
+  internal class ParserImage : BaseParser
   {
     public static async Task<bool> ParseAsync(JObject message, SocketServer server, AsyncSocket sender)
     {
-      string action = (string)message["Action"];
+      string imagePath = GetMessageValue<string>(message, "ImagePath");
+      string userTag = GetMessageValue<string>(message, "UserTag");
+      int maxWidth = GetMessageValue<int>(message, "MaximumWidth");
+      int maxHeight = GetMessageValue<int>(message, "MaximumHeight");
+      string id = GetMessageValue<string>(message, "ImageId");
+      var client = sender.GetRemoteClient();
 
-      if (!string.IsNullOrEmpty(action))
+      ServiceRegistration.Get<ILogger>().Debug("WifiRemote Get Image: UserTag: {0}, ImageId: {1}, ImagePath: {2}, MaximumWidth: {3}, MaximumHeight: {4}", userTag, id, imagePath, maxWidth, maxHeight);
+
+      if (!string.IsNullOrEmpty(imagePath) && string.IsNullOrEmpty(id))
       {
-        string imagePath = (string)message["ImagePath"];
-        string userTag = (string)message["UserTag"];
-        int maxWidth = (int)message["MaximumWidth"];
-        int maxHeight = (int)message["MaximumHeight"];
-        string id = (string)message["ImageId"];
+        var item = await Helper.GetMediaItemByFileNameAsync(client.UserId, imagePath);
+        id = item?.MediaItemId.ToString();
+      }
 
-        ServiceRegistration.Get<ILogger>().Debug("WifiRemote Play Image: UserTag: {0}, ImageId: {1}, ImagePath: {2}, MaximumWidth: {3}, MaximumHeight: {4}", userTag, id, imagePath, maxWidth, maxHeight);
+      if (!Guid.TryParse(id, out Guid mediaItemGuid))
+      {
+        ServiceRegistration.Get<ILogger>().Error("WifiRemote Get Image: Couldn't convert ImageId {0} to Guid", id);
+        return false;
+      }
 
-        Guid mediaItemGuid;
-        if (Guid.TryParse(imagePath, out mediaItemGuid))
-          id = mediaItemGuid.ToString();
-
-        if (!Guid.TryParse(id, out mediaItemGuid))
+      MessageImage msg = new MessageImage();
+      var mediaItem = await Helper.GetMediaItemByIdAsync(client.UserId, mediaItemGuid);
+      Image image = null;
+      IResourceLocator locator = mediaItem.GetResourceLocator();
+      using (IResourceAccessor ra = locator.CreateAccessor())
+      {
+        IFileSystemResourceAccessor fsra = ra as IFileSystemResourceAccessor;
+        if (fsra == null)
         {
-          ServiceRegistration.Get<ILogger>().Error("WifiRemote Play Image: Couldn't convert ImageId {0} to Guid", id);
+          ServiceRegistration.Get<ILogger>().Error("WifiRemote Get Image: Couldn't read image {0}", id);
           return false;
         }
-
-        MessageImage msg = new MessageImage();
-        var mediaItem = await Helper.GetMediaItemByIdAsync(mediaItemGuid);
-        Image image = null;
-        IResourceLocator locator = mediaItem.GetResourceLocator();
-        using (IResourceAccessor ra = locator.CreateAccessor())
+        using (Stream stream = fsra.OpenRead())
         {
-          IFileSystemResourceAccessor fsra = ra as IFileSystemResourceAccessor;
-          if (fsra == null)
-          {
-            ServiceRegistration.Get<ILogger>().Error("WifiRemote Play Image: Couldn't read image {0}", id);
-            return false;
-          }
-          using (Stream stream = fsra.OpenRead())
-          {
-            image = Image.FromStream(stream);
-          }
+          image = Image.FromStream(stream);
         }
-
-        if ((maxWidth > 0 && image.Width > maxWidth) || (maxHeight > 0 && image.Height > maxHeight))
-        {
-          int height = image.Height;
-          int width = image.Width;
-          if (maxHeight > 0 && height > maxHeight)
-          {
-            float ratio = (float)height / (float)maxHeight;
-            width = Convert.ToInt32((float)width / ratio);
-          }
-          if (maxWidth > 0 && width > maxWidth)
-          {
-            width = maxWidth;
-          }
-          var newImage = ImageHelper.ResizedImage(image, width);
-          image.Dispose();
-          image = newImage;
-        }
-
-        byte[] data = ImageHelper.ImageToByteArray(image, System.Drawing.Imaging.ImageFormat.Jpeg);
-        image?.Dispose();
-        msg.ImagePath = mediaItem.ToString();
-        msg.UserTag = userTag;
-        msg.Image = Convert.ToBase64String(data);
-        SendMessageToClient.Send(msg, sender);
-
-        //await Helper.PlayMediaItemAsync(mediaItemGuid, 0);
       }
+
+      if ((maxWidth > 0 && image.Width > maxWidth) || (maxHeight > 0 && image.Height > maxHeight))
+      {
+        int height = image.Height;
+        int width = image.Width;
+        if (maxHeight > 0 && height > maxHeight)
+        {
+          float ratio = (float)height / (float)maxHeight;
+          width = Convert.ToInt32((float)width / ratio);
+        }
+        if (maxWidth > 0 && width > maxWidth)
+        {
+          width = maxWidth;
+        }
+        var newImage = ImageHelper.ResizedImage(image, width);
+        image.Dispose();
+        image = newImage;
+      }
+
+      byte[] data = ImageHelper.ImageToByteArray(image, System.Drawing.Imaging.ImageFormat.Jpeg);
+      image?.Dispose();
+      msg.ImagePath = mediaItem.ToString();
+      msg.UserTag = userTag;
+      msg.Image = Convert.ToBase64String(data);
+      SendMessageToClient.Send(msg, sender);
 
       return true;
     }

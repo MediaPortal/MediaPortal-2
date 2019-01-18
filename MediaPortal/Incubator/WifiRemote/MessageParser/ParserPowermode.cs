@@ -31,11 +31,12 @@ using System.Threading.Tasks;
 
 namespace MediaPortal.Plugins.WifiRemote.MessageParser
 {
-  internal class ParserPowermode
+  internal class ParserPowermode : BaseParser
   {
     public static Task<bool> ParseAsync(JObject message, SocketServer server, AsyncSocket sender)
     {
-      switch (((string)message["PowerMode"]).ToLower())
+      string powerMode = GetMessageValue<string>(message, "PowerMode")?.ToLowerInvariant();
+      switch (powerMode)
       {
         case "logoff":
           ServiceRegistration.Get<ISystemStateService>().Logoff(true);

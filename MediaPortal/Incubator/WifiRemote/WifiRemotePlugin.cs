@@ -29,7 +29,7 @@ using MediaPortal.Common.PluginManager;
 using MediaPortal.Common.Services.Settings;
 using MediaPortal.Common.Settings;
 using MediaPortal.Plugins.WifiRemote.Messages;
-using MediaPortal.Plugins.WifiRemote.Messages.Now_Playing;
+using MediaPortal.Plugins.WifiRemote.Messages.MediaInfo;
 using MediaPortal.Plugins.WifiRemote.MP_Messages;
 using MediaPortal.Plugins.WifiRemote.Settings;
 
@@ -70,8 +70,6 @@ namespace MediaPortal.Plugins.WifiRemote
         // Start listening for client connections
         _socketServer = new SocketServer(Convert.ToUInt16(settings.Port))
         {
-          UserName = settings.UserName,
-          Password = settings.Password,
           PassCode = settings.PassCode,
           AllowedAuth = (AuthMethod)settings.AuthenticationMethod,
           AutologinTimeout = settings.AutoLoginTimeout,
