@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2017 Team MediaPortal
+#region Copyright (C) 2007-2018 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2017 Team MediaPortal
+    Copyright (C) 2007-2018 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -22,23 +22,22 @@
 
 #endregion
 
-using HomeEditor.Actions;
-using MediaPortal.Common.Localization;
-
-namespace MediaPortal.UiComponents.Nereus.Actions
+namespace MediaPortal.UiComponents.Nereus.Settings.Configuration
 {
-  public class SkinSettingsAction : AbstractConfigurationAction
+  public class SeasonGridViewTypeConfiguration : BaseGridViewTypeConfiguration
   {
-    public const string CONFIG_LOCATION = "/Appearance/Skin/SkinSettings";
-
-    public override IResourceString DisplayTitle
+    public override void Load()
     {
-      get { return LocalizationHelper.CreateResourceString("[SkinSettings.Configuration.SkinSettings]"); }
+      base.Load();
+      SelectedViewType = SettingsManager.Load<NereusSkinSettings>().SeasonGridViewType;
     }
 
-    protected override string ConfigLocation
+    public override void Save()
     {
-      get { return CONFIG_LOCATION; }
+      base.Save();
+      NereusSkinSettings settings = SettingsManager.Load<NereusSkinSettings>();
+      settings.SeasonGridViewType = SelectedViewType;
+      SettingsManager.Save(settings);
     }
   }
 }

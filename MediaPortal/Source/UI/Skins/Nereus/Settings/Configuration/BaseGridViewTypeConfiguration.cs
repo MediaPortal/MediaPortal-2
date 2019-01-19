@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2017 Team MediaPortal
+#region Copyright (C) 2007-2018 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2017 Team MediaPortal
+    Copyright (C) 2007-2018 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -23,34 +23,36 @@
 #endregion
 
 using MediaPortal.Common.Configuration.ConfigurationClasses;
+using MediaPortal.Common.Localization;
 using SkinSettings;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace MediaPortal.UiComponents.Nereus.Settings.Configuration
 {
-  public class EnableAnimatedBackgroundConfiguration : YesNo, IDisposable
+  public abstract class BaseGridViewTypeConfiguration : SingleSelectionList, IDisposable
   {
-    public EnableAnimatedBackgroundConfiguration()
+    protected IList<GridViewType> _viewTypes;
+
+    public BaseGridViewTypeConfiguration()
     {
       SkinChangeMonitor.Instance.RegisterConfiguration(NereusSkinSettings.SKIN_NAME, this);
+
+      _viewTypes = new List<GridViewType>
+      {
+        GridViewType.Poster,
+        GridViewType.Banner,
+        GridViewType.Thumbnail
+      };
+
+      foreach (GridViewType viewType in _viewTypes)
+        _items.Add(LocalizationHelper.CreateResourceString("[Nereus.Configuration.GridViewType." + Enum.GetName(typeof(GridViewType), viewType) + "]"));
     }
 
-    public override void Load()
+    protected GridViewType SelectedViewType
     {
-      base.Load();
-      _yes = SettingsManager.Load<NereusSkinSettings>().EnableAnimatedBackground;
-    }
-
-    public override void Save()
-    {
-      base.Save();
-      var settings = SettingsManager.Load<NereusSkinSettings>();
-      settings.EnableAnimatedBackground = _yes;
-      SettingsManager.Save(settings);
+      get { return _viewTypes[Selected]; }
+      set { Selected = _viewTypes.IndexOf(value); }
     }
 
     public void Dispose()

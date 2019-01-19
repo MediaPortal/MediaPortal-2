@@ -1435,7 +1435,7 @@
 
       <Grid x:Name="PosterGrid" Width="{StaticResource POSTER_GRID_WIDTH}" Height="{StaticResource POSTER_GRID_HEIGHT}">
         <Grid.IsVisible>
-          <Binding Source="{StaticResource SkinSettingsModel}" Path="[WMC].SeriesGridViewType"
+          <Binding Source="{StaticResource SkinSettingsModel}" Path="[Nereus].SeriesGridViewType"
                    Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0} == {GridViewType}.{Poster}"/>
         </Grid.IsVisible>
         <Image Stretch="Fill" Source="Poster_small.png" Margin="-5"/>
@@ -1466,7 +1466,7 @@
 
       <Grid x:Name="BannerGrid" Width="{StaticResource BANNER_GRID_WIDTH}" Height="{StaticResource BANNER_GRID_HEIGHT}">
         <Grid.IsVisible>
-          <Binding Source="{StaticResource SkinSettingsModel}" Path="[WMC].SeriesGridViewType"
+          <Binding Source="{StaticResource SkinSettingsModel}" Path="[Nereus].SeriesGridViewType"
                    Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0} == {GridViewType}.{Banner}"/>
         </Grid.IsVisible>
         <Image Stretch="Fill" Source="banner_small.png" Margin="-5"/>
@@ -1497,7 +1497,7 @@
 
       <Grid x:Name="ThumbnailGrid" Width="{StaticResource THUMBNAIL_GRID_WIDTH}" Height="{StaticResource THUMBNAIL_GRID_HEIGHT}">
         <Grid.IsVisible>
-          <Binding Source="{StaticResource SkinSettingsModel}" Path="[WMC].SeriesGridViewType"
+          <Binding Source="{StaticResource SkinSettingsModel}" Path="[Nereus].SeriesGridViewType"
                    Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0} == {GridViewType}.{Thumbnail}"/>
         </Grid.IsVisible>
         <Image Stretch="Fill" Source="thumbnail_small.png" Margin="-5"/>
@@ -1523,7 +1523,7 @@
 
         <!-- watched indicator -->
         <Control HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0" Template="{StaticResource Cover_WatchedFlag_Template}" 
-                 IsVisible="{Binding Source={StaticResource SkinSettingsModel}, Path=[WMC].EnableListWatchedFlags}"/>
+                 IsVisible="{Binding Source={StaticResource SkinSettingsModel}, Path=[Nereus].EnableListWatchedFlags}"/>
       </Grid>
     </Grid>
   </ControlTemplate>
@@ -1691,7 +1691,7 @@
 
       <Grid x:Name="PosterGrid" Width="{StaticResource POSTER_GRID_WIDTH}" Height="{StaticResource POSTER_GRID_HEIGHT}">
         <Grid.IsVisible>
-          <Binding Source="{StaticResource SkinSettingsModel}" Path="[WMC].SeasonGridViewType"
+          <Binding Source="{StaticResource SkinSettingsModel}" Path="[Nereus].SeasonGridViewType"
                    Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0} == {GridViewType}.{Poster}"/>
         </Grid.IsVisible>
         <Image Stretch="Fill" Source="Poster_small.png" Margin="-5"/>
@@ -1708,7 +1708,7 @@
 
       <Grid x:Name="BannerGrid" Width="{StaticResource BANNER_GRID_WIDTH}" Height="{StaticResource BANNER_GRID_HEIGHT}">
         <Grid.IsVisible>
-          <Binding Source="{StaticResource SkinSettingsModel}" Path="[WMC].SeasonGridViewType"
+          <Binding Source="{StaticResource SkinSettingsModel}" Path="[Nereus].SeasonGridViewType"
                    Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0} == {GridViewType}.{Banner}"/>
         </Grid.IsVisible>
         <Image Stretch="Fill" Source="banner_small.png" Margin="-5"/>
@@ -1733,7 +1733,7 @@
 
       <Grid x:Name="ThumbnailGrid" Width="{StaticResource THUMBNAIL_GRID_WIDTH}" Height="{StaticResource THUMBNAIL_GRID_HEIGHT}">
         <Grid.IsVisible>
-          <Binding Source="{StaticResource SkinSettingsModel}" Path="[WMC].SeasonGridViewType"
+          <Binding Source="{StaticResource SkinSettingsModel}" Path="[Nereus].SeasonGridViewType"
                    Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0} == {GridViewType}.{Thumbnail}"/>
         </Grid.IsVisible>
         <Image Stretch="Fill" Source="thumbnail_small.png" Margin="-5"/>
@@ -1753,7 +1753,7 @@
 
         <!-- watched indicator -->
         <Control HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0" Template="{StaticResource Cover_WatchedFlag_Template}" 
-                 IsVisible="{Binding Source={StaticResource SkinSettingsModel}, Path=[WMC].EnableGridWatchedFlags}"/>
+                 IsVisible="{Binding Source={StaticResource SkinSettingsModel}, Path=[Nereus].EnableGridWatchedFlags}"/>
       </Grid>
     </Grid>
   </ControlTemplate>
@@ -1905,9 +1905,9 @@
 
       <!-- watched indicator -->
       <Control HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0" Template="{StaticResource Cover_WatchedFlag_Template}" 
-               IsVisible="{Binding Source={StaticResource SkinSettingsModel}, Path=[WMC].EnableGridWatchedFlags}"/>
+               IsVisible="{Binding Source={StaticResource SkinSettingsModel}, Path=[Nereus].EnableGridWatchedFlags}"/>
       <Control HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0" Template="{StaticResource Cover_OfflineFlag_Template}" 
-               IsVisible="{Binding Source={StaticResource SkinSettingsModel}, Path=[WMC].EnableGridWatchedFlags}"/>
+               IsVisible="{Binding Source={StaticResource SkinSettingsModel}, Path=[Nereus].EnableGridWatchedFlags}"/>
     </Grid>
   </ControlTemplate>
 
@@ -2060,7 +2060,7 @@
 
       <Grid x:Name="PosterGrid" Width="{StaticResource POSTER_GRID_WIDTH}" Height="{StaticResource POSTER_GRID_HEIGHT}">
         <Grid.IsVisible>
-          <Binding Source="{StaticResource SkinSettingsModel}" Path="[WMC].MovieGridViewType"
+          <Binding Source="{StaticResource SkinSettingsModel}" Path="[Nereus].MovieGridViewType"
                    Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0} == {GridViewType}.{Poster}"/>
         </Grid.IsVisible>
         <Image Stretch="Fill" Source="Poster_small.png" Margin="-5"/>
@@ -2085,7 +2085,7 @@
 
       <Grid x:Name="BannerGrid" Width="{StaticResource BANNER_GRID_WIDTH}" Height="{StaticResource BANNER_GRID_HEIGHT}">
         <Grid.IsVisible>
-          <Binding Source="{StaticResource SkinSettingsModel}" Path="[WMC].MovieGridViewType"
+          <Binding Source="{StaticResource SkinSettingsModel}" Path="[Nereus].MovieGridViewType"
                    Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0} == {GridViewType}.{Banner}"/>
         </Grid.IsVisible>
         <Image Stretch="Fill" Source="banner_small.png" Margin="-5"/>
@@ -2110,7 +2110,7 @@
 
       <Grid x:Name="ThumbnailGrid" Width="{StaticResource THUMBNAIL_GRID_WIDTH}" Height="{StaticResource THUMBNAIL_GRID_HEIGHT}">
         <Grid.IsVisible>
-          <Binding Source="{StaticResource SkinSettingsModel}" Path="[WMC].MovieGridViewType"
+          <Binding Source="{StaticResource SkinSettingsModel}" Path="[Nereus].MovieGridViewType"
                    Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0} == {GridViewType}.{Thumbnail}"/>
         </Grid.IsVisible>
         <Image Stretch="Fill" Source="thumbnail_small.png" Margin="-5"/>
@@ -2130,7 +2130,7 @@
 
         <!-- watched indicator -->
         <Control HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0" Template="{StaticResource Cover_WatchedFlag_Template}" 
-                 IsVisible="{Binding Source={StaticResource SkinSettingsModel}, Path=[WMC].EnableGridWatchedFlags}"/>
+                 IsVisible="{Binding Source={StaticResource SkinSettingsModel}, Path=[Nereus].EnableGridWatchedFlags}"/>
       </Grid>
       
     </Grid>
@@ -2292,7 +2292,7 @@
 
       <Grid x:Name="PosterGrid" Width="{StaticResource POSTER_GRID_WIDTH}" Height="{StaticResource POSTER_GRID_HEIGHT}">
         <Grid.IsVisible>
-          <Binding Source="{StaticResource SkinSettingsModel}" Path="[WMC].MovieGridViewType"
+          <Binding Source="{StaticResource SkinSettingsModel}" Path="[Nereus].MovieGridViewType"
                    Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0} == {GridViewType}.{Poster}"/>
         </Grid.IsVisible>
         <Image Stretch="Fill" Source="Poster_small.png" Margin="-5"/>
@@ -2328,7 +2328,7 @@
 
       <Grid x:Name="BannerGrid" Width="{StaticResource BANNER_GRID_WIDTH}" Height="{StaticResource BANNER_GRID_HEIGHT}">
         <Grid.IsVisible>
-          <Binding Source="{StaticResource SkinSettingsModel}" Path="[WMC].MovieGridViewType"
+          <Binding Source="{StaticResource SkinSettingsModel}" Path="[Nereus].MovieGridViewType"
                    Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0} == {GridViewType}.{Banner}"/>
         </Grid.IsVisible>
         <Image Stretch="Fill" Source="banner_small.png" Margin="-5"/>
@@ -2364,7 +2364,7 @@
 
       <Grid x:Name="ThumbnailGrid" Width="{StaticResource THUMBNAIL_GRID_WIDTH}" Height="{StaticResource THUMBNAIL_GRID_HEIGHT}">
         <Grid.IsVisible>
-          <Binding Source="{StaticResource SkinSettingsModel}" Path="[WMC].MovieGridViewType"
+          <Binding Source="{StaticResource SkinSettingsModel}" Path="[Nereus].MovieGridViewType"
                    Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0} == {GridViewType}.{Thumbnail}"/>
         </Grid.IsVisible>
         <Image Stretch="Fill" Source="thumbnail_small.png" Margin="-5"/>
@@ -2393,9 +2393,9 @@
 
         <!-- watched indicator -->
         <Control HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0" Template="{StaticResource Cover_WatchedFlag_Template}" 
-               IsVisible="{Binding Source={StaticResource SkinSettingsModel}, Path=[WMC].EnableGridWatchedFlags}"/>
+               IsVisible="{Binding Source={StaticResource SkinSettingsModel}, Path=[Nereus].EnableGridWatchedFlags}"/>
         <Control HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0" Template="{StaticResource Cover_OfflineFlag_Template}" 
-               IsVisible="{Binding Source={StaticResource SkinSettingsModel}, Path=[WMC].EnableGridWatchedFlags}"/>
+               IsVisible="{Binding Source={StaticResource SkinSettingsModel}, Path=[Nereus].EnableGridWatchedFlags}"/>
       </Grid>
     </Grid>
   </ControlTemplate>

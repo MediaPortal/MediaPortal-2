@@ -93,16 +93,28 @@
         ClassName="MediaPortal.UiComponents.Nereus.Settings.Configuration.EnableAgeCertificationLogosConfiguration"/>
 
     <ConfigSetting
-        Id="NereusEnableBanners"
-        Text="[Nereus.Configuration.EnableBanners]"
-        HelpText="[Nereus.Configuration.EnableBanners.Help]"
-        ClassName="MediaPortal.UiComponents.Nereus.Settings.Configuration.EnableBannersConfiguration"/>
+        Id="NereusMovieGridViewType"
+        Text="[Nereus.Configuration.MovieGridViewType]"
+        HelpText="[Nereus.Configuration.MovieGridViewType.Help]"
+        ClassName="MediaPortal.UiComponents.Nereus.Settings.Configuration.MovieGridViewTypeConfiguration"/>
 
     <ConfigSetting
-        Id="NereusEnableAnimatedBackground"
-        Text="[Nereus.Configuration.EnableAnimatedBackground]"
-        HelpText="[Nereus.Configuration.EnableAnimatedBackground.Help]"
-        ClassName="MediaPortal.UiComponents.Nereus.Settings.Configuration.EnableAnimatedBackgroundConfiguration"/>
+        Id="NereusSeriesGridViewType"
+        Text="[Nereus.Configuration.SeriesGridViewType]"
+        HelpText="[Nereus.Configuration.SeriesGridViewType.Help]"
+        ClassName="MediaPortal.UiComponents.Nereus.Settings.Configuration.SeriesGridViewTypeConfiguration"/>
+
+    <ConfigSetting
+        Id="NereusSeasonGridViewType"
+        Text="[Nereus.Configuration.SeasonGridViewType]"
+        HelpText="[Nereus.Configuration.SeasonGridViewType.Help]"
+        ClassName="MediaPortal.UiComponents.Nereus.Settings.Configuration.SeasonGridViewTypeConfiguration"/>
+
+    <ConfigSetting
+        Id="NereusEnableHomeContent"
+        Text="[Nereus.Configuration.EnableHomeContent]"
+        HelpText="[Nereus.Configuration.EnableHomeContent.Help]"
+        ClassName="MediaPortal.UiComponents.Nereus.Settings.Configuration.EnableHomeContentConfiguration"/>
 
     <ConfigSetting
         Id="NereusEnableMediaItemDetailsView"
