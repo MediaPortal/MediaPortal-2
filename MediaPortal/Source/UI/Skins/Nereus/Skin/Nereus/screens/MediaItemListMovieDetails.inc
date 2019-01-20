@@ -21,20 +21,22 @@
     <ColumnDefinition Width="*"/>
   </Grid.ColumnDefinitions>
 
-  <Image Grid.Row="1" Grid.Column="1" HorizontalAlignment="Right" VerticalAlignment="Stretch" Stretch="Fill"
-         Margin="0" Width="294" Height="428">
-    <Image.Source>
-      <ImageSourceWrapper Delay="0.5" DelayInOut="true" Transition="transitions\dissolve" TransitionDuration="0.5"
-                          Source="Poster_large.png"/>
-    </Image.Source>
-  </Image>
-  <Image Grid.Row="1" Grid.Column="1" HorizontalAlignment="Right" VerticalAlignment="Stretch" Stretch="Fill"
-         Margin="8" Width="278" Height="412">
-    <Image.Source>
-      <ImageSourceWrapper Delay="0.5" DelayInOut="true" Transition="transitions\dissolve" TransitionDuration="0.5"
-                          Source="{Binding Source={StaticResource FanArtBackgroundModel}, Path=ImageSource, Converter={StaticResource FanArtImageSourceConverter}, ConverterParameter=Poster;294;412}"/>
-    </Image.Source>
-  </Image>
+  <Grid Grid.Row="1" Grid.Column="1" HorizontalAlignment="Right" VerticalAlignment="Stretch" Width="294" Height="428">
+    <Image HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Stretch="Fill" Width="294" Height="428">
+      <Image.Source>
+        <ImageSourceWrapper Delay="0.5" DelayInOut="true" Transition="transitions\dissolve" TransitionDuration="0.5"
+                            Source="Poster_large.png"/>
+      </Image.Source>
+    </Image>
+    <Image x:Name="MoviePoster" HorizontalAlignment="Center" VerticalAlignment="Center" Stretch="Fill" Margin="8" Width="278" Height="412">
+      <Image.Source>
+        <ImageSourceWrapper Delay="0.5" DelayInOut="true" Transition="transitions\dissolve" TransitionDuration="0.5"
+                            Source="{Binding Source={StaticResource FanArtBackgroundModel}, Path=ImageSource, Converter={StaticResource FanArtImageSourceConverter}, ConverterParameter=Poster;294;412}"/>
+      </Image.Source>
+    </Image>
+    <Image HorizontalAlignment="Center" VerticalAlignment="Center" Stretch="Uniform" Width="200" Height="200"
+           Source="video.png" IsVisible="{Binding ElementName=MoviePoster, Path=!HasImage}"/>
+  </Grid>
 
   <media:MovieAspectWrapper MediaItem="{Binding Source={StaticResource FanArtBackgroundModel},Path=MediaItem}" Grid.Column="1"
                             IsVisible="{Binding Source={StaticResource SkinSettingsModel}, Path=[WMC].EnableAgeCertificationLogos}">

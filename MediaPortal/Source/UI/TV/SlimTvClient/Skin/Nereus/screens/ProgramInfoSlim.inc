@@ -1,15 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
-<DockPanel xmlns="www.team-mediaportal.com/2008/mpf/directx"
+<Grid xmlns="www.team-mediaportal.com/2008/mpf/directx"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:fanart="clr-namespace:MediaPortal.Extensions.UserServices.FanArtService.Client;assembly=FanArtService.Client"
-    x:Name="ProgramInfoPanel" LastChildFill="true" Height="170">
+    x:Name="ProgramInfoPanel" Height="170" Margin="-35,-10,-30,0"
+    HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+    DataContext="{Binding Source={StaticResource SlimTvMultiChannelGuide}}">
   
-  <Grid DockPanel.Dock="Center" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="-35,-10,-30,0" 
-        DataContext="{Binding Source={StaticResource SlimTvMultiChannelGuide}}">
     <Grid.RowDefinitions>
       <RowDefinition Height="Auto"/>
       <RowDefinition Height="*"/>
     </Grid.RowDefinitions>
+
     <Grid.ColumnDefinitions>
       <ColumnDefinition Width="420"/>
       <ColumnDefinition Width="1400"/> 
@@ -44,5 +45,5 @@
     <Label Grid.Row="1" Grid.Column="1" x:Name="Description" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
            Wrap="True" Scroll="Auto" ScrollDelay="5" Opacity="0.6" Content="{Binding Path=CurrentProgram.Description}"
            Color="{ThemeResource TextColor}" Margin="0,0,10,35"/>
-  </Grid>
-</DockPanel>
+
+</Grid>

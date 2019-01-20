@@ -7,48 +7,49 @@
   xmlns:aspect="clr-namespace:MediaPortal.Common.MediaManagement.DefaultItemAspects;assembly=MediaPortal.Common"
   Grid.Column="0" Grid.Row="0" x:Name="MediaItemDetails" Margin="0,280,20,-10"
   HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
-  
-          <Grid.Resources>
-            <fanart:FanArtImageSourceConverter x:Key="FanArtImageSourceConverter"/>
-            <MultiAspectAttributeConverter x:Key="MultiAspectAttributeConverter"/>
-          </Grid.Resources>
-          
-          <Grid.RowDefinitions>
-            <RowDefinition Height="*"/>
-            <RowDefinition Height="456"/>
-          </Grid.RowDefinitions>
-          <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="*"/>
-            <ColumnDefinition Width="456"/>
-          </Grid.ColumnDefinitions>
 
-          <Grid Grid.Row="1" Grid.Column="1" Height="456" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
-            <Grid.RowDefinitions>
-              <RowDefinition Height="*"/>
-            </Grid.RowDefinitions>
-            <Grid.ColumnDefinitions>
-              <ColumnDefinition Width="*"/>
-            </Grid.ColumnDefinitions>
-            <Image Stretch="Fill" Margin="0,-190,0,0" Width="420" Height="420" HorizontalAlignment="Center" VerticalAlignment="Top">
-              <Image.Source>
-                <ImageSourceWrapper Delay="0.5" DelayInOut="true" FallbackSource="CD.png" VerticalTextureAlignment="Center"
-                                    Source="{Binding Source={StaticResource FanArtBackgroundModel}, Path=ImageSource, Converter={StaticResource FanArtImageSourceConverter}, ConverterParameter=DiscArt;420;420}"/>
-              </Image.Source>
-            </Image>
+  <Grid.Resources>
+    <fanart:FanArtImageSourceConverter x:Key="FanArtImageSourceConverter"/>
+    <MultiAspectAttributeConverter x:Key="MultiAspectAttributeConverter"/>
+  </Grid.Resources>
 
-            <Image HorizontalAlignment="Right" VerticalAlignment="Center" Stretch="Fill" Margin="0" Width="456" Height="456">
-              <Image.Source>
-                <ImageSourceWrapper Delay="0.5" DelayInOut="true" Transition="transitions\dissolve" TransitionDuration="0.5"
-                                    Source="Square_large.png"/>
-              </Image.Source>
-            </Image>
-            <Image HorizontalAlignment="Right" VerticalAlignment="Center" Stretch="Fill" Margin="8" Width="440" Height="440">
-              <Image.Source>
-                <ImageSourceWrapper Delay="0.5" DelayInOut="true" Transition="transitions\dissolve" TransitionDuration="0.5"
-                                    Source="{Binding Source={StaticResource FanArtBackgroundModel},Path=MediaItem}"/>
-              </Image.Source>
-            </Image>
-          </Grid>
+  <Grid.RowDefinitions>
+    <RowDefinition Height="*"/>
+    <RowDefinition Height="456"/>
+  </Grid.RowDefinitions>
+  <Grid.ColumnDefinitions>
+    <ColumnDefinition Width="*"/>
+    <ColumnDefinition Width="456"/>
+  </Grid.ColumnDefinitions>
+
+  <Grid Grid.Row="1" Grid.Column="1" Height="456" Width="456" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+    <Grid.RowDefinitions>
+      <RowDefinition Height="*"/>
+    </Grid.RowDefinitions>
+    <Grid.ColumnDefinitions>
+      <ColumnDefinition Width="*"/>
+    </Grid.ColumnDefinitions>
+    <Image Stretch="Fill" Margin="0,-190,0,0" Width="420" Height="420" HorizontalAlignment="Center" VerticalAlignment="Top">
+      <Image.Source>
+        <ImageSourceWrapper Delay="0.5" DelayInOut="true" FallbackSource="CD.png" VerticalTextureAlignment="Center"
+                            Source="{Binding Source={StaticResource FanArtBackgroundModel}, Path=ImageSource, Converter={StaticResource FanArtImageSourceConverter}, ConverterParameter=DiscArt;420;420}"/>
+      </Image.Source>
+    </Image>
+    <Image HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Stretch="Fill" Width="456" Height="456">
+      <Image.Source>
+        <ImageSourceWrapper Delay="0.5" DelayInOut="true" Transition="transitions\dissolve" TransitionDuration="0.5"
+                            Source="Square_large.png"/>
+      </Image.Source>
+    </Image>
+    <Image x:Name="AlbumCover" HorizontalAlignment="Center" VerticalAlignment="Center" Stretch="Fill" Margin="8" Width="440" Height="440">
+      <Image.Source>
+        <ImageSourceWrapper Delay="0.5" DelayInOut="true" Transition="transitions\dissolve" TransitionDuration="0.5"
+                            Source="{Binding Source={StaticResource FanArtBackgroundModel},Path=MediaItem}"/>
+      </Image.Source>
+    </Image>
+    <Image HorizontalAlignment="Center" VerticalAlignment="Center" Stretch="Uniform" Width="200" Height="200" 
+           Source="audio.png" IsVisible="{Binding ElementName=AlbumCover, Path=!HasImage}"/>
+  </Grid>
 
   <media:AudioAlbumAspectWrapper MediaItem="{Binding Source={StaticResource FanArtBackgroundModel},Path=MediaItem}"
                                  HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="0,0,20,0" Grid.RowSpan="2">
@@ -64,7 +65,7 @@
           </Grid.ColumnDefinitions>
 
           <StackPanel Grid.Row="0" Orientation="Vertical" Margin="0,0,-500,0">
-            
+
             <Label Content="{Binding Path=Album}" Wrap="True" Margin="0,0,0,0" Color="{ThemeResource TextColor}"
                    FontFamily="SegoeUIBold" FontSize="{ThemeResource NormalFontSize}" TextTrimming="WordEllipsis"
                    IsVisible="{Binding Path=Album,Converter={StaticResource ReferenceToBoolConverter}}"/>
@@ -139,8 +140,8 @@
       </ControlTemplate>
     </media:AudioAlbumAspectWrapper.Template>
   </media:AudioAlbumAspectWrapper>
-          
-          <!--media:UserDataWrapper MediaItem="{Binding Source={StaticResource FanArtBackgroundModel},Path=MediaItem}" Grid.Row="5">
+
+  <!--media:UserDataWrapper MediaItem="{Binding Source={StaticResource FanArtBackgroundModel},Path=MediaItem}" Grid.Row="5">
               <media:UserDataWrapper.Template>
                 <ControlTemplate>
                   <Grid DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}"
@@ -153,7 +154,7 @@
                   </Grid>
                 </ControlTemplate>
               </media:UserDataWrapper.Template>
-            </media:UserDataWrapper-->      
+            </media:UserDataWrapper-->
 
 
 </Grid>

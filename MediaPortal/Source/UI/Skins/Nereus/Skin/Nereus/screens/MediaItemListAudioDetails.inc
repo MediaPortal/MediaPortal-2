@@ -19,26 +19,27 @@
     <ColumnDefinition Width="*"/>
   </Grid.ColumnDefinitions>
 
-  <Grid Height="456" HorizontalAlignment="Right" VerticalAlignment="Bottom">
-    <Image Stretch="Fill" Margin="0,0,230,0" Width="420" Height="420" HorizontalAlignment="Right" VerticalAlignment="Center">
+  <Grid Height="456" Width="456" HorizontalAlignment="Right" VerticalAlignment="Bottom">
+    <Image Stretch="Fill" Margin="-230,0,230,0" Width="420" Height="420" HorizontalAlignment="Right" VerticalAlignment="Center">
       <Image.Source>
         <ImageSourceWrapper Delay="0.5" DelayInOut="true" FallbackSource="CD.png" VerticalTextureAlignment="Center"
                             Source="{Binding Source={StaticResource FanArtBackgroundModel}, Path=ImageSource, Converter={StaticResource FanArtImageSourceConverter}, ConverterParameter=DiscArt;420;420}"/>
       </Image.Source>
     </Image>
-
     <Image HorizontalAlignment="Right" VerticalAlignment="Center" Stretch="Fill" Margin="0" Width="456" Height="456">
       <Image.Source>
         <ImageSourceWrapper Delay="0.5" DelayInOut="true" Transition="transitions\dissolve" TransitionDuration="0.5"
                             Source="Square_large.png"/>
       </Image.Source>
     </Image>
-    <Image HorizontalAlignment="Right" VerticalAlignment="Center" Stretch="Fill" Margin="8" Width="440" Height="440">
+    <Image x:Name="AlbumCover" HorizontalAlignment="Right" VerticalAlignment="Center" Stretch="Fill" Margin="8" Width="440" Height="440">
       <Image.Source>
         <ImageSourceWrapper Delay="0.5" DelayInOut="true" Transition="transitions\dissolve" TransitionDuration="0.5"
                             Source="{Binding Source={StaticResource FanArtBackgroundModel},Path=MediaItem}"/>
       </Image.Source>
     </Image>
+    <Image HorizontalAlignment="Center" VerticalAlignment="Center" Stretch="Uniform" Width="200" Height="200"
+           Source="audio.png" IsVisible="{Binding ElementName=AlbumCover, Path=!HasImage}"/>
   </Grid>
 
   <media:AudioAspectWrapper MediaItem="{Binding Source={StaticResource FanArtBackgroundModel},Path=MediaItem}" >

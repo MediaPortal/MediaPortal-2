@@ -100,25 +100,5 @@
       </Grid>
     </ControlTemplate>
 
-    <!--ControlTemplate x:Key="Alternative_Footer_Template">
-      <Grid VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
-        <Grid.RowDefinitions>
-          <RowDefinition Height="*"/>
-        </Grid.RowDefinitions>
-        <Grid.ColumnDefinitions>
-          <ColumnDefinition Width="*"/>
-        </Grid.ColumnDefinitions>
-        <Control Grid.Column="0" Grid.Row="0" VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
-          <Control.TemplateControl>
-            <Include Source="screens\MultiDetails.inc"/>
-          </Control.TemplateControl>
-          <Control.IsVisible>
-            <Binding Source="{StaticResource ViewModeModel}" Path="LayoutType"
-                     Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0} != {LayoutType}.{ListLayout}"/>
-          </Control.IsVisible>
-        </Control>
-      </Grid>
-    </-->
-
   </Include.Resources>
 </Include>

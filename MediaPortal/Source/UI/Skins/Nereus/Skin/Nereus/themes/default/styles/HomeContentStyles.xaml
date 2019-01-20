@@ -558,7 +558,7 @@
               <ImageBrush Stretch="Fill" ImageSource="square_shadow.png"/>
             </Grid.Background>
 
-            <Border BorderThickness="0" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Margin="8">
+            <!--Border BorderThickness="0" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Margin="8">
               <Border.Background>
                 <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
                   <Binding RelativeSource="{RelativeSource TemplatedParent}" Path="HasFocus"/>
@@ -566,8 +566,19 @@
                   <Binding Source="{ThemeResource SubMenuTileBackgroundColor}"/>
                 </MultiBinding>
               </Border.Background>
-            </Border>
-            
+            </Border-->
+
+            <Image x:Name="ItemBackground" Margin="8" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Stretch="Fill">
+              <Image.Source>
+                <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? ({3}+{1}) : ({3}+{2})">
+                  <Binding RelativeSource="{RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}}" Path="HasFocus"/>
+                  <Binding Source="g_tile_background_focus.jpg"/>
+                  <Binding Source="g_tile_background_nofocus.jpg"/>
+                  <Binding Source="MediaMenu\"/>
+                </MultiBinding>
+              </Image.Source>
+            </Image>
+
             <ContentPresenter x:Name="ButtonContentPresenter" Margin="8" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
 
             <Grid x:Name="ItemBandGrid" HorizontalAlignment="Stretch" VerticalAlignment="Bottom" RenderTransformOrigin="0.5,1" Margin="8">
