@@ -183,8 +183,8 @@ namespace MediaPortal.UiComponents.Nereus.Models
 
     protected void UpdateSelectedFanArtItem(ListItem item)
     {
-      //if (item == null)
-      //  return;
+      if (item == null)
+        return;
       var fm = GetFanArtBackgroundModel();
       if (fm != null)
         fm.SelectedItem = item;
