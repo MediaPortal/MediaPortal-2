@@ -168,6 +168,12 @@ Parameters which have to be accessible by a DynamicResource lookup:
               </Storyboard>
             </Grid.Resources>
 
+            <Grid.Triggers>
+              <EventTrigger RoutedEvent="FrameworkElement.LostFocus">
+                <TriggerCommand Command="{Command Source={StaticResource HomeMenuModel}, Path=ClearSelectedHomeTile}"/>
+              </EventTrigger>
+            </Grid.Triggers>
+
             <!-- To allow the next home content to slide in whilst the previous slides out we use the HomeMenuModel
                To alternate the content between HomeContent0Control and HomeContent1Control below -->
 
