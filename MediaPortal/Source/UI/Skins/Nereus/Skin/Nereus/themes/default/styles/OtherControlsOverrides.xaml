@@ -434,11 +434,10 @@
         <ColumnDefinition Width="170"/>
       </Grid.ColumnDefinitions>
       <Grid.RowDefinitions>
-        <RowDefinition Height="130"/>
-        <RowDefinition Height="Auto"/>
+        <RowDefinition Height="170"/>
       </Grid.RowDefinitions>
       
-      <Image x:Name="ItemBackground" Grid.RowSpan="2" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Stretch="Fill">
+      <Image x:Name="ItemBackground" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Stretch="Fill">
         <Image.Source>
           <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? ({3}+{1}) : ({3}+{2})">
             <Binding RelativeSource="{RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}}" Path="HasFocus"/>
@@ -448,7 +447,7 @@
           </MultiBinding>
         </Image.Source>
       </Image>
-      <Image x:Name="ItemImage" Grid.RowSpan="2" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Stretch="Fill" FallbackSource="MediaMenu\Search.png">
+      <Image x:Name="ItemImage" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Stretch="Fill" FallbackSource="MediaMenu\Search.png">
         <Image.Source>
           <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0}+{1}">
             <Binding Source="MediaMenu\"/>
@@ -456,8 +455,8 @@
           </MultiBinding>
         </Image.Source>
       </Image>
-      
-      <Grid x:Name="ItemBandGrid" Grid.Row="1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" RenderTransformOrigin="0.5,1">
+
+      <Grid x:Name="ItemBandGrid" HorizontalAlignment="Stretch" VerticalAlignment="Bottom" RenderTransformOrigin="0.5,1">
         <Grid.ColumnDefinitions>
           <ColumnDefinition Width="*"/>
         </Grid.ColumnDefinitions>

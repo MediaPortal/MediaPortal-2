@@ -5,7 +5,7 @@
   xmlns:fanart="clr-namespace:MediaPortal.Extensions.UserServices.FanArtService.Client;assembly=FanArtService.Client"
   xmlns:media="clr-namespace:MediaPortal.UiComponents.Media.Models.AspectWrappers;assembly=Media"
   xmlns:aspect="clr-namespace:MediaPortal.Common.MediaManagement.DefaultItemAspects;assembly=MediaPortal.Common"
-  Grid.Column="0" Grid.Row="0" x:Name="MediaItemDetails" Margin="0,260,20,-100"
+  Grid.Column="0" Grid.Row="0" x:Name="MediaItemDetails" Margin="0,260,20,-70"
   HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
 
   <Grid.Resources>
@@ -13,7 +13,6 @@
     <MultiAspectAttributeConverter x:Key="MultiAspectAttributeConverter"/>
   </Grid.Resources>
   <Grid.RowDefinitions>
-    <RowDefinition Height="Auto"/>
     <RowDefinition Height="*"/>
   </Grid.RowDefinitions>
   <Grid.ColumnDefinitions>
@@ -21,7 +20,7 @@
     <ColumnDefinition Width="*"/>
   </Grid.ColumnDefinitions>
 
-  <Grid Grid.Row="1" Grid.Column="1" HorizontalAlignment="Right" VerticalAlignment="Stretch" Width="294" Height="428">
+  <Grid Grid.Column="1" HorizontalAlignment="Right" VerticalAlignment="Bottom" Width="294" Height="428">
     <Image HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Stretch="Fill" Width="294" Height="428">
       <Image.Source>
         <ImageSourceWrapper Delay="0.5" DelayInOut="true" Transition="transitions\dissolve" TransitionDuration="0.5"
@@ -36,46 +35,35 @@
     </Image>
     <Image HorizontalAlignment="Center" VerticalAlignment="Center" Stretch="Uniform" Width="200" Height="200"
        Source="video.png" IsVisible="{Binding ElementName=SeriesPoster, Path=!HasImage}"/>
+
+    <media:SeriesAspectWrapper MediaItem="{Binding Source={StaticResource FanArtBackgroundModel},Path=MediaItem}" 
+                               HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,-90,0,0"
+                               IsVisible="{Binding Source={StaticResource SkinSettingsModel}, Path=[Nereus].EnableAgeCertificationLogos}">
+      <media:SeriesAspectWrapper.Template>
+        <ControlTemplate>
+          <Grid DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}"
+                IsVisible="{Binding Path=Certification,Converter={StaticResource ReferenceToBoolConverter}}">
+            <Grid.RowDefinitions>
+              <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <Image HorizontalAlignment="Right" VerticalAlignment="Top" Stretch="Uniform" Height="80" MaxWidth="150" Margin="0,0,10,0">
+              <Image.Source>
+                <ImageSourceWrapper Delay="0" DelayInOut="false" VerticalTextureAlignment="Top" HorizontalTextureAlignment="Right">
+                  <ImageSourceWrapper.Source>
+                    <Binding Path="Certification" Converter="{StaticResource SafeFilenameConverter}" ConverterParameter="{}Certification\{0}.png"/>
+                  </ImageSourceWrapper.Source>
+                </ImageSourceWrapper>
+              </Image.Source>
+            </Image>
+          </Grid>
+        </ControlTemplate>
+      </media:SeriesAspectWrapper.Template>
+    </media:SeriesAspectWrapper>
+    
   </Grid>
-
-  <media:SeriesAspectWrapper MediaItem="{Binding Source={StaticResource FanArtBackgroundModel},Path=MediaItem}" Grid.Column="1"
-                             IsVisible="{Binding Source={StaticResource SkinSettingsModel}, Path=[Nereus].EnableAgeCertificationLogos}">
-    <media:SeriesAspectWrapper.Template>
-      <ControlTemplate>
-        <Grid DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}"
-              IsVisible="{Binding Path=Certification,Converter={StaticResource ReferenceToBoolConverter}}">
-          <Grid.RowDefinitions>
-            <RowDefinition Height="*"/>
-          </Grid.RowDefinitions>
-          <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="*"/>
-          </Grid.ColumnDefinitions>
-          <Image HorizontalAlignment="Right" VerticalAlignment="Bottom" Stretch="Uniform" Height="80" MaxWidth="150" Margin="0,0,10,0">
-            <Image.Source>
-              <ImageSourceWrapper Delay="0" DelayInOut="false" VerticalTextureAlignment="Bottom" HorizontalTextureAlignment="Right">
-                <ImageSourceWrapper.Source>
-                  <Binding Path="Certification" Converter="{StaticResource SafeFilenameConverter}" ConverterParameter="{}Certification\{0}.png"/>
-                </ImageSourceWrapper.Source>
-              </ImageSourceWrapper>
-            </Image.Source>
-          </Image>
-        </Grid>
-      </ControlTemplate>
-    </media:SeriesAspectWrapper.Template>
-  </media:SeriesAspectWrapper>
-
-  <media:SeriesAspectWrapper MediaItem="{Binding Source={StaticResource FanArtBackgroundModel},Path=MediaItem}" VerticalAlignment="Stretch"
-                             Grid.Column="0" Grid.Row="1" Margin="0,40,10,80">
-    <media:SeriesAspectWrapper.Template>
-      <ControlTemplate>
-        <Grid VerticalAlignment="Stretch">
-          <Label x:Name="MediaItemDescription" DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}"
-                 Wrap="True" TextTrimming="WordEllipsis" FontSize="{ThemeResource SmallFontSize}" Opacity="0.6"
-                 VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Content="{Binding Description}" Color="{ThemeResource TextColor}"/>
-        </Grid>
-      </ControlTemplate>
-    </media:SeriesAspectWrapper.Template>
-  </media:SeriesAspectWrapper>
 
   <StackPanel Grid.ColumnSpan="2" Grid.Row="0" Margin="0,0,10,0" VerticalAlignment="Stretch">
     
@@ -209,12 +197,26 @@
           </ControlTemplate>
         </media:SeriesAspectWrapper.Template>
       </media:SeriesAspectWrapper>
+      
       <Image HorizontalAlignment="Right" VerticalAlignment="Center" Stretch="Uniform" Height="140" Margin="60,-30,-280,-40">
         <Image.Source>
           <ImageSourceWrapper Delay="0.5" Source="{Binding Source={StaticResource FanArtBackgroundModel}, Path=ImageSource, Converter={StaticResource FanArtImageSourceConverter}, ConverterParameter=ClearArt;140;240}"/>
         </Image.Source>
       </Image>
     </StackPanel>
+
+    <media:SeriesAspectWrapper MediaItem="{Binding Source={StaticResource FanArtBackgroundModel},Path=MediaItem}" VerticalAlignment="Stretch"
+                               Margin="0,40,300,80">
+      <media:SeriesAspectWrapper.Template>
+        <ControlTemplate>
+          <Grid VerticalAlignment="Stretch" MaxHeight="300">
+            <Label x:Name="MediaItemDescription" DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}"
+                   Wrap="True" TextTrimming="WordEllipsis" FontSize="{ThemeResource SmallFontSize}" Opacity="0.6"
+                   VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Content="{Binding Description}" Color="{ThemeResource TextColor}"/>
+          </Grid>
+        </ControlTemplate>
+      </media:SeriesAspectWrapper.Template>
+    </media:SeriesAspectWrapper>
 
   </StackPanel>
       

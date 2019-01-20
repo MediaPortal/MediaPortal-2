@@ -577,7 +577,7 @@
             <Rectangle DockPanel.Dock="Center" Name="ButtonGenre" Fill="{Binding Program.EpgGenreColor}"
                        StrokeThickness="0" IsVisible="{Binding Source={StaticResource SlimTvMultiChannelGuide}, Path=ShowGenreColors}"/>
             <Rectangle DockPanel.Dock="Center" Name="ButtonOverlay" Fill=""/>
-            <Rectangle DockPanel.Dock="Center" Name="ButtonFocusFrame" StrokeThickness="3" RadiusX="3" RadiusY="3" Margin="0" Stroke="White" Fill="" IsVisible="False"/>
+            <Rectangle DockPanel.Dock="Center" Name="ButtonFocusFrame" StrokeThickness="3" Margin="0" Stroke="White" Fill="" IsVisible="False"/>
           </DockPanel>
         </ControlTemplate>
       </Setter.Value>
