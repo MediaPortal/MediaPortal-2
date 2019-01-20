@@ -129,6 +129,11 @@ namespace MediaPortal.UiComponents.Nereus.Models
       UpdateSelectedFanArtItem(item as ListItem);
     }
 
+    public void ClearSelectedHomeTile()
+    {
+      UpdateSelectedFanArtItem(null);
+    }
+
     public void CloseTopmostDialog(MouseButtons buttons, float x, float y)
     {
       ServiceRegistration.Get<IScreenManager>().CloseTopmostDialog();
@@ -183,11 +188,10 @@ namespace MediaPortal.UiComponents.Nereus.Models
 
     protected void UpdateSelectedFanArtItem(ListItem item)
     {
-      if (item == null)
-        return;
+      //if (item == null)
+        //return;
       var fm = GetFanArtBackgroundModel();
-      if (fm != null)
-        fm.SelectedItem = item;
+      fm.SelectedItem = item;
     }
 
     protected static FanArtBackgroundModel GetFanArtBackgroundModel()
