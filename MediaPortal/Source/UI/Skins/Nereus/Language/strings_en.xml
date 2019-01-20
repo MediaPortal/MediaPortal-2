@@ -11,13 +11,17 @@
   <string name="Nereus.Configuration.EnableWatchedFlags.CoverView">Cover View</string>
   <string name="Nereus.Configuration.EnableAgeCertificationLogos">Enable Age Certification Logos</string>
   <string name="Nereus.Configuration.EnableAgeCertificationLogos.Help">Whether to display age certification logos in media screens.</string>
-  <string name="Nereus.Configuration.EnableBanners">Show Banners</string>
-  <string name="Nereus.Configuration.EnableBanners.Help">Whether to show banners in grid view instead of covers.</string>
-  <string name="Nereus.Configuration.EnableBanners.Movies">Movies</string>
-  <string name="Nereus.Configuration.EnableBanners.Series">Series</string>
-  <string name="Nereus.Configuration.EnableBanners.Seasons">Seasons</string>
-  <string name="Nereus.Configuration.EnableAnimatedBackground">Enable Animated Background</string>
-  <string name="Nereus.Configuration.EnableAnimatedBackground.Help">Whether to enable the aurora animation on the home screen.</string>
+  <string name="Nereus.Configuration.MovieGridViewType">Movie grid layout</string>
+  <string name="Nereus.Configuration.MovieGridViewType.Help">Select the layout used in movie grid views.</string>
+  <string name="Nereus.Configuration.SeriesGridViewType">Series grid layout</string>
+  <string name="Nereus.Configuration.SeriesGridViewType.Help">Select the layout used in series grid views.</string>
+  <string name="Nereus.Configuration.SeasonGridViewType">Season grid layout</string>
+  <string name="Nereus.Configuration.SeasonGridViewType.Help">Select the layout used in season grid views.</string>
+  <string name="Nereus.Configuration.GridViewType.Poster">Posters</string>
+  <string name="Nereus.Configuration.GridViewType.Banner">Banners</string>
+  <string name="Nereus.Configuration.GridViewType.Thumbnail">Thumbnails</string>
+  <string name="Nereus.Configuration.EnableHomeContent">Enable Home Content</string>
+  <string name="Nereus.Configuration.EnableHomeContent.Help">Whether to enable to show Home Content on the home screen.</string>
   <string name="Nereus.Configuration.EnableMediaItemDetailsView">Enable Media Item Details View</string>
   <string name="Nereus.Configuration.EnableMediaItemDetailsView.Help">Whether to show media item details instead of playing media item directly.</string>
 

@@ -23,15 +23,16 @@
 #endregion
 
 using MediaPortal.Common.Settings;
-using SkinSettings;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace MediaPortal.UiComponents.Nereus.Settings
 {
+  public enum GridViewType
+  {
+    Poster,
+    Banner,
+    Thumbnail
+  }
+
   public class NereusSkinSettings
   {
     public const string SKIN_NAME = "Nereus";
@@ -51,17 +52,17 @@ namespace MediaPortal.UiComponents.Nereus.Settings
     [Setting(SettingScope.User, true)]
     public bool EnableCoverWatchedFlags { get; set; }
 
-    [Setting(SettingScope.User, false)]
-    public bool EnableMovieGridBanners { get; set; }
+    [Setting(SettingScope.User, GridViewType.Poster)]
+    public GridViewType MovieGridViewType { get; set; }
 
-    [Setting(SettingScope.User, false)]
-    public bool EnableSeriesGridBanners { get; set; }
+    [Setting(SettingScope.User, GridViewType.Poster)]
+    public GridViewType SeriesGridViewType { get; set; }
 
-    [Setting(SettingScope.User, false)]
-    public bool EnableSeasonGridBanners { get; set; }
+    [Setting(SettingScope.User, GridViewType.Poster)]
+    public GridViewType SeasonGridViewType { get; set; }
 
     [Setting(SettingScope.User, true)]
-    public bool EnableAnimatedBackground { get; set; }
+    public bool EnableHomeContent { get; set; }
 
     [Setting(SettingScope.User, false)]
     public bool EnableMediaItemDetailsView { get; set; }

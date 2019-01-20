@@ -605,6 +605,7 @@
               <Setter TargetName="ButtonContentPresenter" Property="Opacity" Value="1"/>
               <Setter TargetName="ItemLabel" Property="Scroll" Value="Auto"/>
               <Trigger.EnterActions>
+                <TriggerCommand Command="{DynamicResource Menu_Focus_Command}"/>
                 <SoundPlayerAction Source="navigate.wav" DisableOnAudioOutput="True"/>
                 <BeginStoryboard x:Name="SlideOut">
                   <BeginStoryboard.Storyboard>

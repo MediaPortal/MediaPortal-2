@@ -89,13 +89,13 @@ Parameters which have to be accessible by a DynamicResource lookup:
       <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
 
         <Image x:Name="FanArtImageBackground" Stretch="UniformToFill"
-               IsVisible="{Binding Source={StaticResource SkinSettingsModel}, Path=[WMC].EnableFanart}">
+               IsVisible="{Binding Source={StaticResource SkinSettingsModel}, Path=[Nereus].EnableFanart}">
           <Image.Source>
             <ImageSourceWrapper Delay="0.5" DelayInOut="true" Transition="transitions\dissolve" TransitionDuration="0.5"
                    Source="{Binding Source={StaticResource FanArtBackgroundModel}, Path=ImageSource, Converter={StaticResource FanArtImageSourceConverter}, ConverterParameter=FanArt;1920;1080;False}"/>
           </Image.Source>
         </Image>
-        <Image Stretch="Fill" Opacity="{Binding Source={StaticResource SkinSettingsModel}, Path=[WMC].FanartOverlayOpacity}">
+        <Image Stretch="Fill" Opacity="{Binding Source={StaticResource SkinSettingsModel}, Path=[Nereus].FanartOverlayOpacity}">
           <Image.Source>
             <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} == {LayoutType}.{GridLayout} ? {1} : ({0} == {LayoutType}.{ListLayout} ? {2} : {3})">
               <Binding Source="{StaticResource ViewModeModel}" Path="LayoutType"/>
