@@ -54,7 +54,7 @@ namespace MediaPortal.UiComponents.Media.MediaLists
 
     protected override bool ShouldUpdate(UpdateReason updateReason)
     {
-      return updateReason.HasFlag(UpdateReason.PlaybackComplete) || base.ShouldUpdate(updateReason);
+      return updateReason.HasFlag(UpdateReason.MediaItemChanged) || base.ShouldUpdate(updateReason);
     }
   }
 
