@@ -47,7 +47,7 @@ namespace MediaPortal.Plugins.WifiRemote.MessageParser
 
     protected static T GetMessageValue<T>(JObject message, string property, T defaultValue)
     {
-      if (message.TryGetValue(property, out var val))
+      if (message.TryGetValue(property, StringComparison.InvariantCultureIgnoreCase, out var val))
         return (T)Convert.ChangeType(val, typeof(T));
 
       return defaultValue;

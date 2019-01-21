@@ -443,7 +443,7 @@ namespace MediaPortal.Plugins.WifiRemote
         user = userProfileDataManagement?.CurrentUser;
       else
         user = (await userProfileDataManagement?.UserProfileDataManagement.GetProfileAsync(userId.Value))?.Result;
-      if (userId != null)
+      if (user != null)
       {
         ISystemResolver systemResolver = ServiceRegistration.Get<ISystemResolver>();
         IDictionary<Guid, Share> serverShares = new Dictionary<Guid, Share>();
@@ -457,7 +457,7 @@ namespace MediaPortal.Plugins.WifiRemote
           Offset = offset,
           SortInformation = sort
         };
-        return await library.SearchAsync(searchQuery, false, userId, false);
+        return await library.SearchAsync(searchQuery, false, user.ProfileId, false);
       }
 
       return new List<MediaItem>();
