@@ -35,7 +35,8 @@ namespace MediaPortal.UiComponents.Media.MediaLists
     Forced = 1,
     PeriodicMinute = 2,
     ImportComplete = 4,
-    PlaybackComplete = 8
+    PlaybackComplete = 8,
+    MediaItemChanged = 16
   }
 
   public interface IMediaListProvider

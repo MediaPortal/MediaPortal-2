@@ -110,6 +110,8 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
 
     // Contains the channel that was tuned the last time. Used for selecting channels in group list.
     protected IChannel _lastTunedChannel;
+    // Contains the channel that was tuned before the _lastTunedChannel. Used for ZapBack.
+    protected IChannel _previousTunedChannel;
 
     // Counter for updates
     protected int _updateCounter = 0;
@@ -484,6 +486,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
       if (await _tvHandler.StartTimeshiftAsync(SlotIndex, channel))
       {
         _watchStart[channel] = DateTime.UtcNow;
+        _previousTunedChannel = _lastTunedChannel;
         _lastTunedChannel = channel;
         EndZap();
         Update();
@@ -557,6 +560,16 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
         _zapChannelIndex = ChannelContext.Instance.Channels.Count - 1;
 
       await ReSetSkipTimer();
+    }
+
+    /// <summary>
+    /// Zaps back to the previously tuned channel.
+    /// </summary>
+    /// <returns></returns>
+    public async Task ZapBack()
+    {
+      if (_previousTunedChannel != null && _lastTunedChannel != _previousTunedChannel)
+        await Tune(_previousTunedChannel);
     }
 
     /// <summary>
