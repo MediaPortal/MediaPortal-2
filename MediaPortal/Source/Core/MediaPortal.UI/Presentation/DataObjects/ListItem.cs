@@ -317,4 +317,15 @@ namespace MediaPortal.UI.Presentation.DataObjects
       return GetType().Name + ": " + StringUtils.Join(", ", l);
     }
   }
+
+  /// <summary>
+  /// Separator item for lists.
+  /// </summary>
+  public class SeparatorListItem : ListItem
+  {
+    public SeparatorListItem()
+    {
+      SetLabel("name", "--- Separator ---");
+    }
+  }
 }

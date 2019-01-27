@@ -419,6 +419,11 @@ namespace MediaPortal.UiComponents.SkinBase.Models
         }
         if (_showToggleMute)
         {
+          if (_playerSlotAudioMenu.Count > 0)
+          {
+            SeparatorListItem separatorItem = new SeparatorListItem();
+            _playerSlotAudioMenu.Add(separatorItem);
+          }
           ListItem item;
           if (playerManager.Muted)
             item = new ListItem(Consts.KEY_NAME, Consts.RES_MUTE_OFF)
