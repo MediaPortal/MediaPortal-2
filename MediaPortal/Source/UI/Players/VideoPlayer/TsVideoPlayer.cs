@@ -59,6 +59,8 @@ namespace MediaPortal.UI.Players.Video
     public const string TSREADER_CLSID = "b9559486-E1BB-45D3-A2A2-9A7AFE49B23F";
     private const string TSREADER_FILTER_NAME = "TsReader";
     private const int NO_STREAM_INDEX = -1;
+    private bool _dvbFilterAdded;
+    private bool _txtSourceActive;
 
     #endregion
 
@@ -183,6 +185,8 @@ namespace MediaPortal.UI.Players.Video
         {
           _subtitleRenderer.RenderSubtitles = true;
         }
+
+        _dvbFilterAdded = true;
       }
       else if (shouldRenderTeletextSubtitles)
       {
@@ -192,12 +196,13 @@ namespace MediaPortal.UI.Players.Video
         {
           _subtitleRenderer.RenderSubtitles = true;
         }
+        _txtSourceActive = true;
       }
       else if (shouldAddClosedCaptionsFilter)
       {
         _subtitleRenderer.AddClosedCaptionsFilter(_graphBuilder);
         _closedCaptionsFilterAdded = true;
-      }     
+      }
     }
 
     protected override void SetSubtitleRenderer()
@@ -331,13 +336,16 @@ namespace MediaPortal.UI.Players.Video
       bool refreshed = base.EnumerateStreams(forceRefresh);
       if (refreshed)
       {
-        // If base class has refreshed the stream infos, then update the subtitle streams.
-        ISubtitleStream subtitleStream = _tsReader as ISubtitleStream;
-        if (subtitleStream != null)
+        if (_dvbFilterAdded)
+        {
+          ISubtitleStream subtitleStream = _tsReader as ISubtitleStream;
           _streamInfoSubtitles = new TsReaderStreamInfoHandler(subtitleStream);
-
-      //  ITeletextSource teletextSource = _tsReader as ITeletextSource;
-      //  _streamInfoSubtitles = new TsReaderStreamInfoHandler(teletextSource);
+        }
+        else if (_txtSourceActive)
+        {
+          ITeletextSource teletextSource = _tsReader as ITeletextSource;
+          _streamInfoSubtitles = new TsReaderTeletextInfoHandler(teletextSource);
+        }
       }
       return refreshed;
     }
@@ -347,9 +355,19 @@ namespace MediaPortal.UI.Players.Video
       EnumerateStreams();
       TsReaderStreamInfoHandler tsStreamInfoHandler = _streamInfoSubtitles as TsReaderStreamInfoHandler;
       if (tsStreamInfoHandler == null)
-        return;
-
-      if (tsStreamInfoHandler.EnableStream(subtitle))
+      {
+        TsReaderTeletextInfoHandler tsReaderTeletextInfoHandler = _streamInfoSubtitles as TsReaderTeletextInfoHandler;
+        if (tsReaderTeletextInfoHandler == null)
+        {
+          return;
+        }
+        if (tsReaderTeletextInfoHandler.EnableStream(subtitle))
+        {
+          _subtitleRenderer.RenderSubtitles = !tsReaderTeletextInfoHandler.DisableSubs;
+          SaveSubtitlePreference();
+        }
+      }
+      else if (tsStreamInfoHandler.EnableStream(subtitle))
       {
         _subtitleRenderer.RenderSubtitles = !tsStreamInfoHandler.DisableSubs;
         SaveSubtitlePreference();
@@ -375,12 +393,14 @@ namespace MediaPortal.UI.Players.Video
 
       // if selected stream is "No subtitles" or "forced subtitle", we disable the setting
       settings.EnableDvbSubtitles = subtitleStreams.CurrentStreamName.ToLowerInvariant().Contains(NO_SUBTITLES.ToLowerInvariant()) == false &&
-                                          subtitleStreams.CurrentStreamName.ToLowerInvariant().Contains(FORCED_SUBTITLES.ToLowerInvariant()) == false;
+                                    subtitleStreams.CurrentStreamName.ToLowerInvariant().Contains(FORCED_SUBTITLES.ToLowerInvariant()) == false;
       ServiceRegistration.Get<ISettingsManager>().Save(settings); */
     }
 
     protected override void SetPreferredSubtitle()
     {
+      // TODO: read the previously saved preferred subtitle kind (DVB, TXT or CC)
+
       EnumerateStreams();
       ISubtitleStream subtitleStream = _tsReader as ISubtitleStream;
       if (_streamInfoSubtitles == null || subtitleStream == null)

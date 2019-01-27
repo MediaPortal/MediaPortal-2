@@ -39,7 +39,6 @@ namespace MediaPortal.UI.Players.Video.Tools
   {
     private const int NO_STREAM_INDEX = -1;
     private readonly ISubtitleStream _subtitleStream;
-    private readonly ITeletextSource _teletextSource;
 
     public TsReaderStreamInfoHandler(ISubtitleStream subtitleStream)
     {
@@ -62,32 +61,6 @@ namespace MediaPortal.UI.Players.Video.Tools
         subtitleStream.GetSubtitleStreamLanguage(i, ref language);
         int lcid = BaseDXPlayer.LookupLcidFromName(language.lang);
         // Note: the "type" is no longer considered in MP1 code as well, so I guess DVBSub3 only supports Bitmap subs at all.
-        string name = language.lang;
-        StreamInfo subStream = new StreamInfo(null, i, name, lcid);
-        AddUnique(subStream);
-      }
-    }
-
-    public TsReaderStreamInfoHandler(ITeletextSource teletextSource)
-    {
-      if (teletextSource == null)
-      {
-        return;
-      }
-      int teletextStreamCount = 0;
-      _teletextSource = teletextSource;
-      teletextSource.GetTeletextStreamCount(ref teletextStreamCount);
-      if (teletextStreamCount > 0)
-      {
-        StreamInfo subStream = new StreamInfo(null, NO_STREAM_INDEX, VideoPlayer.NO_SUBTITLES, 0);
-        AddUnique(subStream);
-      }
-      for (int i = 0; i < teletextStreamCount; ++i)
-      {
-        //FIXME: language should be passed back also as LCID
-        SubtitleLanguage language = new SubtitleLanguage();
-        teletextSource.GetTeletextStreamLanguage(i, ref language);
-        int lcid = BaseDXPlayer.LookupLcidFromName(language.lang);
         string name = language.lang;
         StreamInfo subStream = new StreamInfo(null, i, name, lcid);
         AddUnique(subStream);
@@ -127,6 +100,42 @@ namespace MediaPortal.UI.Players.Video.Tools
     public bool DisableSubs
     {
       get { return _currentStream == null || _currentStream.StreamIndex == NO_STREAM_INDEX; }
+    }
+  }
+
+  public class TsReaderTeletextInfoHandler : BaseStreamInfoHandler
+  {
+    public TsReaderTeletextInfoHandler(ITeletextSource teletextSource)
+    {
+      if (teletextSource == null)
+      {
+        return;
+      }
+      int teletextStreamCount = 0;
+      teletextSource.GetTeletextStreamCount(ref teletextStreamCount);
+      if (teletextStreamCount > 0)
+      {
+        StreamInfo subStream = new StreamInfo(null, -1, VideoPlayer.NO_SUBTITLES, 0);
+        AddUnique(subStream);
+      }
+      for (int i = 0; i < teletextStreamCount; ++i)
+      {
+        //FIXME: language should be passed back also as LCID
+        SubtitleLanguage language = new SubtitleLanguage();
+        teletextSource.GetTeletextStreamLanguage(i, ref language);
+        int lcid = BaseDXPlayer.LookupLcidFromName(language.lang);
+        string name = language.lang;
+        StreamInfo subStream = new StreamInfo(null, i, name, lcid);
+        AddUnique(subStream);
+      }
+    }
+
+    public bool DisableSubs { get; set; }
+
+    public override bool EnableStream(string selectedStream)
+    {
+      // txt has always one stream
+      return true;
     }
   }
 
