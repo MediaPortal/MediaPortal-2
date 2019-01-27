@@ -7,9 +7,9 @@
   <ResourceWrapper x:Key="NextProgramLabelColor" Resource="#009999"/>
 
   <!-- Program guide colors -->
-  <ResourceWrapper x:Key="ProgramBaseFill" Resource="#000000"/>
-  <ResourceWrapper x:Key="ProgramFocusedFill" Resource="#244563"/>
-  <ResourceWrapper x:Key="ProgramRunningFill" Resource="#004444"/>
+  <ResourceWrapper x:Key="ProgramBaseFill" Resource="#2c2c2c"/>
+  <ResourceWrapper x:Key="ProgramFocusedFill" Resource="{ThemeResource NereusColorLight}"/>
+  <ResourceWrapper x:Key="ProgramRunningFill" Resource="{ThemeResource NereusColorMedium}"/>
   <ResourceWrapper x:Key="ProgramRecordFill" Resource="#8F0000"/>
   <ResourceWrapper x:Key="ProgramScheduledFill">
     <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">

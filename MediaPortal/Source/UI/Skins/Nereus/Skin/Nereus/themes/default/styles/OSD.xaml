@@ -26,6 +26,36 @@
               <RowDefinition Height="*"/>
               <RowDefinition Height="90"/>
             </Grid.RowDefinitions>
+            <Grid.RenderTransform>
+              <TranslateTransform Y="280"/>
+            </Grid.RenderTransform>
+
+            <Grid.Resources>
+              <Storyboard x:Key="SlideInStoryboard" FillBehavior="HoldEnd">
+                <DoubleAnimationUsingKeyFrames BeginTime="00:00:00" FillBehavior="HoldEnd" Storyboard.TargetName="MainOSDGrid" Storyboard.TargetProperty="RenderTransform.Y">
+                  <SplineDoubleKeyFrame KeyTime="00:00:00" Value="280"/>
+                  <SplineDoubleKeyFrame KeyTime="00:00:00.35" Value="0"/>
+                </DoubleAnimationUsingKeyFrames>
+              </Storyboard>
+              <Storyboard x:Key="SlideOutStoryboard" FillBehavior="HoldEnd">
+                <DoubleAnimationUsingKeyFrames BeginTime="00:00:00" FillBehavior="HoldEnd" Storyboard.TargetName="MainOSDGrid" Storyboard.TargetProperty="RenderTransform.Y">
+                  <SplineDoubleKeyFrame KeyTime="00:00:00" Value="0"/>
+                  <SplineDoubleKeyFrame KeyTime="00:00:00.35" Value="280"/>
+                </DoubleAnimationUsingKeyFrames>
+              </Storyboard>
+            </Grid.Resources>
+
+            <Grid.Triggers>
+              <DataTrigger Binding="{Binding Source={StaticResource VideoPlayerModel},Path=IsOSDVisible}" Value="True">
+                <DataTrigger.EnterActions>
+                  <BeginStoryboard x:Name="SlideIn_BeginStoryboard" Storyboard="{StaticResource SlideInStoryboard}"/>
+                </DataTrigger.EnterActions>
+                <DataTrigger.ExitActions>
+                  <StopStoryboard BeginStoryboardName="SlideIn_BeginStoryboard"/>
+                  <BeginStoryboard Storyboard="{StaticResource SlideOutStoryboard}"/>
+                </DataTrigger.ExitActions>
+              </DataTrigger>
+            </Grid.Triggers>
 
             <Control x:Name="OSDBackgroundPresenter" Grid.ColumnSpan="2" Grid.RowSpan="2" Margin="0,-35,0,-25" HorizontalAlignment="Stretch" VerticalAlignment="Top"
                      Template="{DynamicResource ResourceKey=OSD_Background_Template}"/>
@@ -81,4 +111,69 @@
     </Setter>
   </Style>
 
+  <Style x:Key="OSDTvContainer" TargetType="{x:Type Control}">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate>
+          <ControlTemplate.Resources>
+            <Model x:Key="VideoPlayerModel" Id="4E2301B4-3C17-4a1d-8DE5-2CEA169A0256"/>
+          </ControlTemplate.Resources>
+
+          <Grid x:Name="MainOSDGrid" HorizontalAlignment="Stretch" VerticalAlignment="Bottom" Height="260" Width="1920" Margin="0,0,0,0">
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="Auto"/>
+              <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+              <RowDefinition Height="*"/>
+              <RowDefinition Height="90"/>
+            </Grid.RowDefinitions>
+            <Grid.RenderTransform>
+              <TranslateTransform Y="370"/>
+            </Grid.RenderTransform>
+
+            <Grid.Resources>
+              <Storyboard x:Key="SlideInStoryboard" FillBehavior="HoldEnd">
+                <DoubleAnimationUsingKeyFrames BeginTime="00:00:00" FillBehavior="HoldEnd" Storyboard.TargetName="MainOSDGrid" Storyboard.TargetProperty="RenderTransform.Y">
+                  <SplineDoubleKeyFrame KeyTime="00:00:00" Value="370"/>
+                  <SplineDoubleKeyFrame KeyTime="00:00:00.35" Value="0"/>
+                </DoubleAnimationUsingKeyFrames>
+              </Storyboard>
+              <Storyboard x:Key="SlideOutStoryboard" FillBehavior="HoldEnd">
+                <DoubleAnimationUsingKeyFrames BeginTime="00:00:00" FillBehavior="HoldEnd" Storyboard.TargetName="MainOSDGrid" Storyboard.TargetProperty="RenderTransform.Y">
+                  <SplineDoubleKeyFrame KeyTime="00:00:00" Value="0"/>
+                  <SplineDoubleKeyFrame KeyTime="00:00:00.35" Value="370"/>
+                </DoubleAnimationUsingKeyFrames>
+              </Storyboard>
+            </Grid.Resources>
+
+            <Grid.Triggers>
+              <DataTrigger Binding="{Binding Source={StaticResource VideoPlayerModel},Path=IsOSDVisible}" Value="True">
+                <DataTrigger.EnterActions>
+                  <BeginStoryboard x:Name="SlideIn_BeginStoryboard" Storyboard="{StaticResource SlideInStoryboard}"/>
+                </DataTrigger.EnterActions>
+                <DataTrigger.ExitActions>
+                  <StopStoryboard BeginStoryboardName="SlideIn_BeginStoryboard"/>
+                  <BeginStoryboard Storyboard="{StaticResource SlideOutStoryboard}"/>
+                </DataTrigger.ExitActions>
+              </DataTrigger>
+            </Grid.Triggers>
+
+            <Control x:Name="OSDBackgroundPresenter" Grid.ColumnSpan="2" Grid.RowSpan="2" Margin="0,-35,0,-25" HorizontalAlignment="Stretch" VerticalAlignment="Top"
+                     Template="{DynamicResource ResourceKey=OSD_Background_Template}"/>
+
+            <Control Grid.Column="0" Grid.Row="0" x:Name="OSDCoverPresenter" HorizontalAlignment="Center" VerticalAlignment="Center"
+                     Template="{DynamicResource ResourceKey=OSD_Cover_Template}" Margin="25,20,10,0"/>
+
+            <Control Grid.Column="1" Grid.Row="0" x:Name="OSDInfoAreaPresenter" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+                     Template="{DynamicResource ResourceKey=OSD_InfoArea_Template}" Margin="20,20,0,0"/>
+
+            <Control x:Name="ControlsPresenter" Grid.ColumnSpan="2" Grid.Row="1" HorizontalAlignment="Stretch" VerticalAlignment="Top"
+                     Template="{DynamicResource ResourceKey=OSD_Controls_Template}" Margin="20,0,20,-20" SetFocusPrio="Default"/>
+          </Grid>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+  
 </ResourceDictionary>

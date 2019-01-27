@@ -58,6 +58,20 @@ Parameters which have to be accessible by a DynamicResource lookup:
       </Label>
     </ControlTemplate>
 
+    <ControlTemplate x:Key="FanArtBackground_Template">
+      <ControlTemplate.Resources>
+        <fanart:FanArtImageSourceConverter x:Key="FanArtImageSourceConverter"/>
+        <Model x:Key="FanArtBackgroundModel" Id="8F42C8E9-E8A3-475C-A50A-99E1E644DC91"/>
+        <Model x:Key="SkinSettingsModel" Id="13961014-16C4-4361-9751-8E2C585EFD44"/>
+      </ControlTemplate.Resources>
+      <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+        <Grid.Background>
+          <VideoBrush Stream="0"/>
+        </Grid.Background>
+        <Image Stretch="Fill" Source="Background_CoverView.png" Opacity="1"/>
+      </Grid>
+    </ControlTemplate>
+
     <ControlTemplate x:Key="TopGradient_Template">
       <Border HorizontalAlignment="Stretch" VerticalAlignment="Stretch" BorderThickness="0" Margin="0,0,0,0" Panel.ZIndex="1000">
         <Border.Background>
