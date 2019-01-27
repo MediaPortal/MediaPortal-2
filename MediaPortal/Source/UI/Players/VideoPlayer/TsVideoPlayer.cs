@@ -353,71 +353,84 @@ namespace MediaPortal.UI.Players.Video
     public override void SetSubtitle(string subtitle)
     {
       EnumerateStreams();
-      TsReaderStreamInfoHandler tsStreamInfoHandler = _streamInfoSubtitles as TsReaderStreamInfoHandler;
-      if (tsStreamInfoHandler == null)
-      {
-        TsReaderTeletextInfoHandler tsReaderTeletextInfoHandler = _streamInfoSubtitles as TsReaderTeletextInfoHandler;
-        if (tsReaderTeletextInfoHandler == null)
-        {
-          return;
-        }
-        if (tsReaderTeletextInfoHandler.EnableStream(subtitle))
-        {
-          _subtitleRenderer.RenderSubtitles = !tsReaderTeletextInfoHandler.DisableSubs;
-          SaveSubtitlePreference();
-        }
-      }
-      else if (tsStreamInfoHandler.EnableStream(subtitle))
+      if (_streamInfoSubtitles is TsReaderStreamInfoHandler tsStreamInfoHandler)
       {
         _subtitleRenderer.RenderSubtitles = !tsStreamInfoHandler.DisableSubs;
+        SaveSubtitlePreference();
+      }
+      else if (_streamInfoSubtitles is TsReaderTeletextInfoHandler tsTeletextInfoHandler)
+      {
+        _subtitleRenderer.RenderSubtitles = !tsTeletextInfoHandler.DisableSubs;
         SaveSubtitlePreference();
       }
     }
 
     protected override void SaveSubtitlePreference()
     {
-      // TODO: know the active subtitle type (DVB, TXT or CC) and enable the setting for it
-      /*BaseStreamInfoHandler subtitleStreams;
+      BaseStreamInfoHandler subtitleStreams;
       lock (SyncObj)
+      {
         subtitleStreams = _streamInfoSubtitles;
-
+      }
       if (subtitleStreams == null)
+      {
         return;
+      }
 
       VideoSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<VideoSettings>() ?? new VideoSettings();
       settings.PreferredSubtitleStreamName = subtitleStreams.CurrentStreamName;
       // if the subtitle stream has proper LCID, remember it.
       int lcid = subtitleStreams.CurrentStream.IsAutoSubtitle ? 0 : subtitleStreams.CurrentStream.LCID;
       if (lcid != 0)
+      {
         settings.PreferredSubtitleLanguage = lcid;
+      }
 
-      // if selected stream is "No subtitles" or "forced subtitle", we disable the setting
-      settings.EnableDvbSubtitles = subtitleStreams.CurrentStreamName.ToLowerInvariant().Contains(NO_SUBTITLES.ToLowerInvariant()) == false &&
-                                    subtitleStreams.CurrentStreamName.ToLowerInvariant().Contains(FORCED_SUBTITLES.ToLowerInvariant()) == false;
-      ServiceRegistration.Get<ISettingsManager>().Save(settings); */
+      if (subtitleStreams is TsReaderStreamInfoHandler)
+      {
+        // if selected stream is "No subtitles" or "forced subtitle", we disable the setting
+        settings.EnableDvbSubtitles = subtitleStreams.CurrentStreamName.ToLowerInvariant().Contains(NO_SUBTITLES.ToLowerInvariant()) == false &&
+                                      subtitleStreams.CurrentStreamName.ToLowerInvariant().Contains(FORCED_SUBTITLES.ToLowerInvariant()) == false;
+      }
+      else if(subtitleStreams is TsReaderTeletextInfoHandler)
+      {
+        // if selected stream is "No subtitles" or "forced subtitle", we disable the setting
+        settings.EnableTeletextSubtitles = subtitleStreams.CurrentStreamName.ToLowerInvariant().Contains(NO_SUBTITLES.ToLowerInvariant()) == false &&
+                                      subtitleStreams.CurrentStreamName.ToLowerInvariant().Contains(FORCED_SUBTITLES.ToLowerInvariant()) == false;
+      }
+      ServiceRegistration.Get<ISettingsManager>().Save(settings);
     }
 
     protected override void SetPreferredSubtitle()
     {
-      // TODO: read the previously saved preferred subtitle kind (DVB, TXT or CC)
-
       EnumerateStreams();
       ISubtitleStream subtitleStream = _tsReader as ISubtitleStream;
-      if (_streamInfoSubtitles == null || subtitleStream == null)
+      ITeletextSource teletextSource = _tsReader as ITeletextSource;
+      if (_streamInfoSubtitles == null || (subtitleStream == null && teletextSource == null))
+      {
         return;
+      }
 
       VideoSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<VideoSettings>() ?? new VideoSettings();
 
       // first try to find a stream by it's exact LCID.
       StreamInfo streamInfo = _streamInfoSubtitles.FindStream(settings.PreferredSubtitleLanguage) ?? _streamInfoSubtitles.FindSimilarStream(settings.PreferredSubtitleStreamName);
-      if (streamInfo == null || !settings.EnableDvbSubtitles)
+      if (streamInfo == null || !settings.EnableDvbSubtitles && subtitleStream != null)
+      {
+        // Tell the renderer it should not render subtitles
+        if (_subtitleRenderer != null)
+          _subtitleRenderer.RenderSubtitles = false;
+      }
+      else if(!settings.EnableTeletextSubtitles && teletextSource != null)
       {
         // Tell the renderer it should not render subtitles
         if (_subtitleRenderer != null)
           _subtitleRenderer.RenderSubtitles = false;
       }
       else
+      {
         _streamInfoSubtitles.EnableStream(streamInfo.Name);
+      }
     }
 
     #endregion

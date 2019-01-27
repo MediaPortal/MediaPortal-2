@@ -105,6 +105,9 @@ namespace MediaPortal.UI.Players.Video.Tools
 
   public class TsReaderTeletextInfoHandler : BaseStreamInfoHandler
   {
+    private const int NO_STREAM_INDEX = -1;
+    private readonly ITeletextSource _teletextSource;
+
     public TsReaderTeletextInfoHandler(ITeletextSource teletextSource)
     {
       if (teletextSource == null)
@@ -112,10 +115,11 @@ namespace MediaPortal.UI.Players.Video.Tools
         return;
       }
       int teletextStreamCount = 0;
+      _teletextSource = teletextSource;
       teletextSource.GetTeletextStreamCount(ref teletextStreamCount);
       if (teletextStreamCount > 0)
       {
-        StreamInfo subStream = new StreamInfo(null, -1, VideoPlayer.NO_SUBTITLES, 0);
+        StreamInfo subStream = new StreamInfo(null, NO_STREAM_INDEX, VideoPlayer.NO_SUBTITLES, 0);
         AddUnique(subStream);
       }
       for (int i = 0; i < teletextStreamCount; ++i)
@@ -130,12 +134,40 @@ namespace MediaPortal.UI.Players.Video.Tools
       }
     }
 
-    public bool DisableSubs { get; set; }
+    public bool DisableSubs
+    {
+      get { return _currentStream == null || _currentStream.StreamIndex == NO_STREAM_INDEX; }
+    }
 
     public override bool EnableStream(string selectedStream)
     {
-      // txt has always one stream
-      return true;
+      if (_teletextSource == null)
+      {
+        return false;
+      }
+
+      // Do not enumerate raw stream names again, as they were made unique (adding counters)
+      for (int i = 0; i < Count; ++i)
+      {
+        string subtitleTrackName = this[i].Name;
+        if (!subtitleTrackName.Equals(selectedStream))
+          continue;
+
+        if (this[i].StreamIndex == NO_STREAM_INDEX)
+        {
+          // Disable subtitles
+          ServiceRegistration.Get<ILogger>().Debug("TsReaderTeletextInfoHandler: Disable stream");
+          lock (_syncObj)
+            _currentStream = null;
+          return true;
+        }
+
+        ServiceRegistration.Get<ILogger>().Debug("TsReaderTeletextInfoHandler: Enable stream '{0}'", selectedStream);
+        lock (_syncObj)
+          _currentStream = this[i];
+        return true;
+      }
+      return false;
     }
   }
 
