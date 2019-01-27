@@ -184,6 +184,7 @@ namespace MediaPortal.UiComponents.Media.Models
     protected bool _updatePending = true;
     protected bool _importUpdatePending = false;
     protected bool _playbackUpdatePending = false;
+    protected bool _mediaItemUpdatePending = false;
     protected IPluginItemStateTracker _providerPluginItemStateTracker;
     protected MediaListProviderDictionary _listProviders;
     protected DateTime _nextGet = DateTime.MinValue;
@@ -248,6 +249,10 @@ namespace MediaPortal.UiComponents.Media.Models
         {
           case ContentDirectoryMessaging.MessageType.ShareImportCompleted:
             _importUpdatePending = true; //Update latest added
+            break;
+          case ContentDirectoryMessaging.MessageType.MediaItemChanged:
+            if ((ContentDirectoryMessaging.MediaItemChangeType)message.MessageData[ContentDirectoryMessaging.MEDIA_ITEM_CHANGE_TYPE] != ContentDirectoryMessaging.MediaItemChangeType.None)
+              _mediaItemUpdatePending = true;
             break;
         }
       }
@@ -356,12 +361,14 @@ namespace MediaPortal.UiComponents.Media.Models
         if (_importUpdatePending) updateReason |= UpdateReason.ImportComplete;
         if (_playbackUpdatePending) updateReason |= UpdateReason.PlaybackComplete;
         if (_nextMinute < DateTime.Now) updateReason |= UpdateReason.PeriodicMinute;
+        if (_mediaItemUpdatePending) updateReason |= UpdateReason.MediaItemChanged;
         if (updateReason == UpdateReason.None)
           return false;
 
         _updatePending = false;
         _importUpdatePending = false;
         _playbackUpdatePending = false;
+        _mediaItemUpdatePending = false;
         _nextMinute = DateTime.Now.AddMinutes(1);
 
         int maxItems = Limit;

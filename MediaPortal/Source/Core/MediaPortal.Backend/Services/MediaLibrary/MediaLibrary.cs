@@ -2451,7 +2451,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
               command.CommandText = _preparedStatements.SelectPlayDataFromParentIdSQL;
               float nonVirtualChildCount = 0;
               float watchedCount = 0;
-              float playCountSum = 0;
+              int playCountSum = 0;
               int maxPlayCount = 0;
               using (IDataReader reader = command.ExecuteReader())
               {
@@ -2495,7 +2495,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
               Logger.Debug("MediaLibrary: Set parent media item {0} watch percentage = {1}", parentId, valueParam.Value);
 
               keyParam.Value = UserDataKeysKnown.KEY_PLAY_COUNT;
-              valueParam.Value = UserDataKeysKnown.GetSortablePlayCountString(maxPlayCount);
+              valueParam.Value = UserDataKeysKnown.GetSortablePlayCountString(playCountSum);
               //valueParam.Value = UserDataKeysKnown.GetSortablePlayCountString(Convert.ToInt32(playCountSum / nonVirtualChildCount));
               if (command.ExecuteNonQuery() == 0)
               {
@@ -2504,6 +2504,16 @@ namespace MediaPortal.Backend.Services.MediaLibrary
                 command.CommandText = _preparedStatements.UpdateUserPlayDataFromIdSQL;
               }
               Logger.Debug("MediaLibrary: Set parent media item {0} watch count = {1}", parentId, valueParam.Value);
+
+              keyParam.Value = UserDataKeysKnown.KEY_PLAY_MAX_CHILD_COUNT;
+              valueParam.Value = UserDataKeysKnown.GetSortablePlayCountString(maxPlayCount);
+              if (command.ExecuteNonQuery() == 0)
+              {
+                command.CommandText = _preparedStatements.InsertUserPlayDataForIdSQL;
+                command.ExecuteNonQuery();
+                command.CommandText = _preparedStatements.UpdateUserPlayDataFromIdSQL;
+              }
+              Logger.Debug("MediaLibrary: Set parent media item {0} max child play count = {1}", parentId, valueParam.Value);
 
               if (updatePlayDate && watchPercentage > 0)
               {
@@ -2581,7 +2591,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
                 command.ExecuteNonQuery();
                 command.CommandText = _preparedStatements.UpdateUserPlayDataFromIdSQL;
               }
-              Logger.Debug("MediaLibrary: Set parent media item {0} watch percentage = {1}", key.Key, valueParam.Value);
+              Logger.Debug("MediaLibrary: Set child media item {0} watch percentage = {1}", key.Key, valueParam.Value);
 
               keyParam.Value = UserDataKeysKnown.KEY_PLAY_COUNT;
               valueParam.Value = UserDataKeysKnown.GetSortablePlayCountString(key.Value);
@@ -2591,7 +2601,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
                 command.ExecuteNonQuery();
                 command.CommandText = _preparedStatements.UpdateUserPlayDataFromIdSQL;
               }
-              Logger.Debug("MediaLibrary: Set parent media item {0} watch count = {1}", key.Key, valueParam.Value);
+              Logger.Debug("MediaLibrary: Set child media item {0} watch count = {1}", key.Key, valueParam.Value);
 
               if (updateWatchedDate && key.Value > 0)
               {
@@ -2603,7 +2613,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
                   command.ExecuteNonQuery();
                   command.CommandText = _preparedStatements.UpdateUserPlayDataFromIdSQL;
                 }
-                Logger.Debug("MediaLibrary: Set parent media item {0} watch date = {1}", key.Key, valueParam.Value);
+                Logger.Debug("MediaLibrary: Set child media item {0} watch date = {1}", key.Key, valueParam.Value);
               }
             }
           }
@@ -2613,7 +2623,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
         if (childPlayCounts.Count > 0)
         {
           //Update parents
-          UpdateParentPlayUserData(userProfileId, childPlayCounts.Keys.ToArray(), updateWatchedDate);
+          UpdateParentPlayUserData(userProfileId, new[] { mediaItemId }.Concat(childPlayCounts.Keys).ToArray(), updateWatchedDate);
           return true;
         }
         return false;
