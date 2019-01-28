@@ -110,10 +110,11 @@ namespace UPnP.Infrastructure.CP.SSDP
 
     private void OnSSDPMulticastReceive(IAsyncResult ar)
     {
-      lock (_cpData.SyncObj)
+      using (_cpData.Lock.EnterRead())
         if (!_isActive)
           return;
-      UDPAsyncReceiveState<EndpointConfiguration> state = (UDPAsyncReceiveState<EndpointConfiguration>) ar.AsyncState;
+
+      UDPAsyncReceiveState<EndpointConfiguration> state = (UDPAsyncReceiveState<EndpointConfiguration>)ar.AsyncState;
       EndpointConfiguration config = state.Endpoint;
       Socket socket = config.SSDP_UDP_MulticastReceiveSocket;
       if (socket == null)
@@ -128,7 +129,7 @@ namespace UPnP.Infrastructure.CP.SSDP
           {
             SimpleHTTPRequest header;
             SimpleHTTPRequest.Parse(stream, out header);
-            HandleSSDPRequest(header, config, (IPEndPoint) remoteEP);
+            HandleSSDPRequest(header, config, (IPEndPoint)remoteEP);
           }
           catch (Exception e)
           {
@@ -148,10 +149,11 @@ namespace UPnP.Infrastructure.CP.SSDP
 
     private void OnSSDPUnicastReceive(IAsyncResult ar)
     {
-      lock (_cpData.SyncObj)
+      using (_cpData.Lock.EnterRead())
         if (!_isActive)
           return;
-      UDPAsyncReceiveState<EndpointConfiguration> state = (UDPAsyncReceiveState<EndpointConfiguration>) ar.AsyncState;
+
+      UDPAsyncReceiveState<EndpointConfiguration> state = (UDPAsyncReceiveState<EndpointConfiguration>)ar.AsyncState;
       EndpointConfiguration config = state.Endpoint;
       Socket socket = config.SSDP_UDP_UnicastSocket;
       if (socket == null)
@@ -165,7 +167,7 @@ namespace UPnP.Infrastructure.CP.SSDP
         {
           SimpleHTTPResponse header;
           SimpleHTTPResponse.Parse(stream, out header);
-          HandleSSDPResponse(header, config, (IPEndPoint) remoteEP);
+          HandleSSDPResponse(header, config, (IPEndPoint)remoteEP);
         }
         catch (Exception e)
         {
@@ -183,33 +185,26 @@ namespace UPnP.Infrastructure.CP.SSDP
 
     private void OnExpirationTimerElapsed(object state)
     {
+      ICollection<KeyValuePair<string, RootEntry>> removeEntries;
       // If we cannot acquire our lock for some reason, avoid blocking an infinite number of timer threads here
-      if (Monitor.TryEnter(_cpData.SyncObj, UPnPConsts.TIMEOUT_TIMER_LOCK_ACCESS))
+      using (_cpData.Lock.EnterWrite())
       {
-        ICollection<KeyValuePair<string, RootEntry>> removeEntries;
-        try
-        {
-          DateTime now = DateTime.Now;
-          // Expire pending entries
-          ICollection<RootEntry> removePendingEntries = _pendingDeviceEntries.Where(entry => entry.ExpirationTime < now).ToList();
-          foreach (RootEntry entry in removePendingEntries)
-            _pendingDeviceEntries.Remove(entry);
-          // Expire finished entries
-          removeEntries = new List<KeyValuePair<string, RootEntry>>(
-              _cpData.DeviceEntries.Where(kvp => kvp.Value.ExpirationTime < now));
-          foreach (KeyValuePair<string, RootEntry> kvp in removeEntries)
-            _cpData.DeviceEntries.Remove(kvp);
-        }
-        finally
-        {
-          Monitor.Exit(_cpData.SyncObj);
-        }
-        // Outside the lock
+        DateTime now = DateTime.Now;
+        // Expire pending entries
+        ICollection<RootEntry> removePendingEntries = _pendingDeviceEntries.Where(entry => entry.ExpirationTime < now).ToList();
+        foreach (RootEntry entry in removePendingEntries)
+          _pendingDeviceEntries.Remove(entry);
+        // Expire finished entries
+        removeEntries = new List<KeyValuePair<string, RootEntry>>(_cpData.DeviceEntries.Where(kvp => kvp.Value.ExpirationTime < now));
         foreach (KeyValuePair<string, RootEntry> kvp in removeEntries)
-          InvokeRootDeviceRemoved(kvp.Value);
+          _cpData.DeviceEntries.Remove(kvp);
       }
-      else
-        UPnPConfiguration.LOGGER.Error("SSDPClientController.OnExpirationTimerElapsed: Cannot acquire synchronization lock. Maybe a deadlock happened.");
+
+      // Outside the lock
+      foreach (KeyValuePair<string, RootEntry> kvp in removeEntries)
+        InvokeRootDeviceRemoved(kvp.Value);
+      //else
+      //  UPnPConfiguration.LOGGER.Error("SSDPClientController.OnExpirationTimerElapsed: Cannot acquire synchronization lock. Maybe a deadlock happened.");
     }
 
     #endregion
@@ -271,7 +266,7 @@ namespace UPnP.Infrastructure.CP.SSDP
     {
       get
       {
-        lock (_cpData.SyncObj)
+        using (_cpData.Lock.EnterRead())
           return new List<RootEntry>(_cpData.DeviceEntries.Values);
       }
     }
@@ -285,7 +280,7 @@ namespace UPnP.Infrastructure.CP.SSDP
     /// </summary>
     public void Start()
     {
-      lock (_cpData.SyncObj)
+      using (_cpData.Lock.EnterWrite())
       {
         if (_isActive)
           throw new IllegalCallException("SSDPClientController is already active");
@@ -301,10 +296,10 @@ namespace UPnP.Infrastructure.CP.SSDP
           if (family == AddressFamily.InterNetworkV6 && !UPnPConfiguration.USE_IPV6)
             continue;
           EndpointConfiguration config = new EndpointConfiguration
-            {
-              SSDPMulticastAddress = NetworkHelper.GetSSDPMulticastAddressForInterface(address),
-              EndPointIPAddress = address
-            };
+          {
+            SSDPMulticastAddress = NetworkHelper.GetSSDPMulticastAddressForInterface(address),
+            EndPointIPAddress = address
+          };
 
           // Multicast receiver socket - used for receiving multicast messages
           Socket socket = new Socket(family, SocketType.Dgram, ProtocolType.Udp);
@@ -349,7 +344,7 @@ namespace UPnP.Infrastructure.CP.SSDP
     /// </summary>
     public void Close()
     {
-      lock (_cpData.SyncObj)
+      using (_cpData.Lock.EnterWrite())
       {
         if (!_isActive)
           return;
@@ -358,14 +353,14 @@ namespace UPnP.Infrastructure.CP.SSDP
       foreach (EndpointConfiguration config in _cpData.Endpoints)
       {
         Socket socket;
-        lock (_cpData.SyncObj)
+        using (_cpData.Lock.EnterWrite())
         {
           socket = config.SSDP_UDP_MulticastReceiveSocket;
           config.SSDP_UDP_MulticastReceiveSocket = null;
         }
         if (socket != null)
           NetworkHelper.DisposeSSDPMulticastSocket(socket);
-        lock (_cpData.SyncObj)
+        using (_cpData.Lock.EnterWrite())
         {
           socket = config.SSDP_UDP_UnicastSocket;
           config.SSDP_UDP_UnicastSocket = null;
@@ -373,7 +368,7 @@ namespace UPnP.Infrastructure.CP.SSDP
         if (socket != null)
           socket.Close();
       }
-      lock (_cpData.SyncObj)
+      using (_cpData.Lock.EnterWrite())
       {
         _cpData.Endpoints.Clear();
         _cpData.DeviceEntries.Clear();
@@ -494,7 +489,7 @@ namespace UPnP.Infrastructure.CP.SSDP
       // To face that situation, we first add all advertised devices to _pendingDeviceEntries. When a upnp:rootdevice message is received,
       // we either simply move the root entry from _pendingDeviceEntries into _cpData.DeviceEntries or we merge the pending entry with an already existing
       // entry in _cpData.DeviceEntries. At that time the merge is possible because we then have the root device id for both root entries.
-      lock (_cpData.SyncObj)
+      using (_cpData.Lock.EnterWrite())
       {
         RootEntry result = GetRootEntryByContainedDeviceUUID(deviceUUID) ?? GetRootEntryByDescriptionLocation(descriptionLocation);
         if (result != null)
@@ -504,7 +499,7 @@ namespace UPnP.Infrastructure.CP.SSDP
         }
         else
         {
-          result = new RootEntry(_cpData.SyncObj, upnpVersion, osVersion, productVersion, expirationTime);
+          result = new RootEntry(_cpData.Lock, upnpVersion, osVersion, productVersion, expirationTime);
           _pendingDeviceEntries.Add(result);
           wasAdded = true;
         }
@@ -514,7 +509,7 @@ namespace UPnP.Infrastructure.CP.SSDP
 
     protected RootEntry MergeOrMoveRootEntry(RootEntry pendingRootEntry, string rootDeviceUUID)
     {
-      lock (_cpData.SyncObj)
+      using (_cpData.Lock.EnterWrite())
       {
         _pendingDeviceEntries.Remove(pendingRootEntry);
         RootEntry targetEntry;
@@ -537,7 +532,7 @@ namespace UPnP.Infrastructure.CP.SSDP
     /// <returns>Root entry instance or <c>null</c>, if no device with the given UUID was found.</returns>
     protected RootEntry GetRootEntryByContainedDeviceUUID(string deviceUUID)
     {
-      lock (_cpData.SyncObj)
+      using (_cpData.Lock.EnterRead())
       {
         RootEntry result = _cpData.DeviceEntries.Values.FirstOrDefault(rootEntry => rootEntry.Devices.ContainsKey(deviceUUID));
         if (result != null)
@@ -555,7 +550,7 @@ namespace UPnP.Infrastructure.CP.SSDP
 
     protected void RemoveRootEntry(RootEntry rootEntry)
     {
-      lock (_cpData.SyncObj)
+      using (_cpData.Lock.EnterWrite())
       {
         _cpData.DeviceEntries.Remove(rootEntry.RootDeviceUUID);
         _pendingDeviceEntries.Remove(rootEntry);
@@ -577,7 +572,7 @@ namespace UPnP.Infrastructure.CP.SSDP
       request.SetHeader("MAN", "\"ssdp:discover\"");
       request.SetHeader("ST", st);
       request.SetHeader("USER-AGENT", UPnPConfiguration.UPnPMachineInfoHeader);
-      lock (_cpData.SyncObj)
+      using (_cpData.Lock.EnterRead())
       {
         foreach (EndpointConfiguration config in _cpData.Endpoints)
         {
@@ -600,7 +595,7 @@ namespace UPnP.Infrastructure.CP.SSDP
       request.SetHeader("MX", UPnPConfiguration.SEARCH_MX.ToString());
       request.SetHeader("ST", st);
       request.SetHeader("USER-AGENT", UPnPConfiguration.UPnPMachineInfoHeader);
-      lock (_cpData.SyncObj)
+      using (_cpData.Lock.EnterRead())
       {
         foreach (EndpointConfiguration config in _cpData.Endpoints)
         {
@@ -647,7 +642,7 @@ namespace UPnP.Infrastructure.CP.SSDP
       string ci = header["CONFIGID.UPNP.ORG"];
       string sp = header["SEARCHPORT.UPNP.ORG"];
       string error;
-      if(!HandleNotifyPacket(config, remoteEndPoint, httpVersion, date, cacheControl, location, server, "ssdp:alive", usn, bi, ci, sp, st, out error))
+      if (!HandleNotifyPacket(config, remoteEndPoint, httpVersion, date, cacheControl, location, server, "ssdp:alive", usn, bi, ci, sp, st, out error))
         UPnPConfiguration.LOGGER.Debug("SSDPClientController: Cannot handle SSDP response from {0}:{1} ({2} [{3}]): {4}", remoteEndPoint.Address, remoteEndPoint.Port, location, server, error);
     }
 
@@ -673,7 +668,7 @@ namespace UPnP.Infrastructure.CP.SSDP
       string ci = header["CONFIGID.UPNP.ORG"];
       string sp = header["SEARCHPORT.UPNP.ORG"];
       string error;
-      if(!HandleNotifyPacket(config, remoteEndPoint, httpVersion, DateTime.Now.ToUniversalTime().ToString("R"), cacheControl, location, server, nts, usn, bi, ci, sp, null, out error))
+      if (!HandleNotifyPacket(config, remoteEndPoint, httpVersion, DateTime.Now.ToUniversalTime().ToString("R"), cacheControl, location, server, nts, usn, bi, ci, sp, null, out error))
         UPnPConfiguration.LOGGER.Debug("SSDPClientController: Cannot handle notify request from {0}:{1} ({2} [{3}]): {4}", remoteEndPoint.Address, remoteEndPoint.Port, location, server, error);
     }
 
@@ -822,7 +817,7 @@ namespace UPnP.Infrastructure.CP.SSDP
         bool fireRootDeviceAdded = false;
         bool fireDeviceAdded = false;
         bool fireServiceAdded = false;
-        lock (_cpData.SyncObj)
+        using (_cpData.Lock.EnterWrite())
         {
           bool rootEntryAdded;
           string osVersion = string.Join(separator.ToString(), osVersionTokens);
@@ -959,7 +954,7 @@ namespace UPnP.Infrastructure.CP.SSDP
         // Invalid message
         return;
       bool fireDeviceRebooted = false;
-      lock (_cpData.SyncObj)
+      using (_cpData.Lock.EnterWrite())
       {
         if (rootEntry.BootID < bootID)
           // Device reboot

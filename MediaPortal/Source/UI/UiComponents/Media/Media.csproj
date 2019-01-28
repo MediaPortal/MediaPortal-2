@@ -188,6 +188,8 @@
     <Compile Include="MediaLists\ContinueWatchMovieMediaListProvider.cs" />
     <Compile Include="MediaLists\ContinueWatchRecordingMediaListProvider.cs" />
     <Compile Include="MediaLists\ContinueWatchVideoMediaListProvider.cs" />
+    <Compile Include="MediaLists\LatestAlbumMediaListProvider.cs" />
+    <Compile Include="MediaLists\LatestSeriesMediaListProvider.cs" />
     <Compile Include="MediaLists\UnwatchedSeriesMediaListProvider.cs" />
     <Compile Include="MediaLists\UnwatchedAudioMediaListProvider.cs" />
     <Compile Include="MediaLists\UnwatchedEpisodeMediaListProvider.cs" />

@@ -30,6 +30,7 @@ namespace MediaPortal.Common.UserProfileDataManagement
   public class UserDataKeysKnown
   {
     public const string KEY_PLAY_COUNT = "PlayCount"; //Number of times a user played an media item
+    public const string KEY_PLAY_MAX_CHILD_COUNT = "PlayMaxChildCount"; //The maximum number of times a user played a child media item
     public const string KEY_PLAY_PERCENTAGE = "PlayPercentage"; //Percentage of media item played during last playback
     public const string KEY_PLAY_DATE = "PlayDate"; //Date the media item was last played
     public const string KEY_ALLOWED_SHARE = "AllowedShare"; //Share ID's to which a user has access

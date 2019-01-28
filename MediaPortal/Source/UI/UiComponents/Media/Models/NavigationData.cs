@@ -63,6 +63,7 @@ namespace MediaPortal.UiComponents.Media.Models
     protected AbstractScreenData _currentScreenData;
     protected ICollection<AbstractScreenData> _availableScreens;
     protected ICollection<WorkflowAction> _dynamicWorkflowActions;
+    protected bool _inheritActions = false;
 
     protected Sorting.Sorting _currentSorting = null;
     protected Sorting.Sorting _currentGrouping = null;
@@ -98,7 +99,7 @@ namespace MediaPortal.UiComponents.Media.Models
     // workflow actions.
     protected NavigationData(NavigationData parent, string navigationContextName, Guid parentWorkflowStateId, Guid currentWorkflowStateId,
         ViewSpecification baseViewSpecification, AbstractScreenData defaultScreen, ICollection<AbstractScreenData> availableScreens,
-        Sorting.Sorting currentSorting, Sorting.Sorting currentGrouping, bool suppressActions)
+        Sorting.Sorting currentSorting, Sorting.Sorting currentGrouping, bool inheritActions)
     {
       _parent = parent;
       _navigationContextName = navigationContextName;
@@ -109,7 +110,8 @@ namespace MediaPortal.UiComponents.Media.Models
       _availableScreens = availableScreens ?? new List<AbstractScreenData>();
       _currentSorting = currentSorting;
       _currentGrouping = currentGrouping;
-      if (suppressActions)
+      _inheritActions = inheritActions;
+      if (inheritActions)
         _dynamicWorkflowActions = null;
       else
         BuildWorkflowActions();
@@ -509,6 +511,12 @@ namespace MediaPortal.UiComponents.Media.Models
     /// <returns>List of workflow actions</returns>
     public IList<WorkflowAction> GetWorkflowActions(bool onlySearchScreens = false)
     {
+      // Inherit the actions of the parent if necessary. This is particularly the case if this is a sub-view
+      // as we need to ensure that the base/parent view is updated when switching screens as any sub-views
+      // will be popped from the navigation stack.
+      if (_inheritActions)
+        return Parent != null ? Parent.GetWorkflowActions(onlySearchScreens) : new List<WorkflowAction>();
+
       IList<WorkflowAction> actions = new List<WorkflowAction>(_availableScreens.Count);
       int ct = 0;
       foreach (AbstractScreenData screen in _availableScreens)

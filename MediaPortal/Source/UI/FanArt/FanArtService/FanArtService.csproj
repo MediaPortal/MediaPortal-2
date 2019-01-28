@@ -57,6 +57,7 @@
     <Compile Include="AlbumThumbs.cs" />
     <Compile Include="FanArtDataflow\FanArtActionBlock.cs" />
     <Compile Include="FanArtDataflow\FanArtManagerAction.cs" />
+    <Compile Include="FanArtDataflow\TimeoutBatchBlock.cs" />
     <Compile Include="FanArtLibraryManager.cs" />
     <Compile Include="FanArtService.cs" />
     <Compile Include="FanArtServicePlugin.cs" />
@@ -98,7 +99,7 @@
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Microsoft.Owin">
-      <Version>4.0.0</Version>
+      <Version>4.0.1</Version>
     </PackageReference>
     <PackageReference Include="Microsoft.Tpl.Dataflow">
       <Version>4.5.24</Version>

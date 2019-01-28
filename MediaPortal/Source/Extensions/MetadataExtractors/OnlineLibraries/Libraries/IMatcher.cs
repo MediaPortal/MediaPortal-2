@@ -32,5 +32,6 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries
     bool Enabled { get; set; }
     string Id { get; }
     string PreferredLanguageCulture { get; set; }
+    bool UseMediaAudioIfUnmatched { get; set; }
   }
 }

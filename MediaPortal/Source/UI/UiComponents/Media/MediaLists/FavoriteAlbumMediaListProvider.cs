@@ -29,7 +29,7 @@ using MediaPortal.UiComponents.Media.Models.NavigationModel;
 
 namespace MediaPortal.UiComponents.Media.MediaLists
 {
-  public class FavoriteAlbumMediaListProvider : BaseFavoriteMediaListProvider
+  public class FavoriteAlbumMediaListProvider : BaseFavoriteRelationshipMediaListProvider
   {
     public FavoriteAlbumMediaListProvider()
     {
