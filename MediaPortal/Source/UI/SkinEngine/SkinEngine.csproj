@@ -146,6 +146,7 @@
     <Compile Include="Controls\Panels\AnimatedStackPanel.cs" />
     <Compile Include="Controls\Panels\AnimatedWrapPanel.cs" />
     <Compile Include="Controls\Panels\IGroupingValueProvider.cs" />
+    <Compile Include="Controls\Selectos\StyleSelector.cs" />
     <Compile Include="Controls\Visuals\GroupHeaderItem.cs" />
     <Compile Include="Controls\Panels\IGroupedItemProvider.cs" />
     <Compile Include="Controls\Panels\IVirtualizingPanel.cs" />

@@ -42,7 +42,9 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
             LogicalParent = this,
         };
       // Set this after the other properties have been initialized to avoid duplicate work
-      container.Style = MpfCopyManager.DeepCopyCutLVPs(ItemContainerStyle) ?? container.CopyDefaultStyle();
+      container.Style = MpfCopyManager.DeepCopyCutLVPs(ItemContainerStyle) ?? // Priority has the own ItemContainerStyle
+                        ItemContainerStyleSelector?.SelectStyle(dataItem, this) ?? // If not set, check for a StyleSelector
+                        container.CopyDefaultStyle(); // Last option is to use the default.
       container.ContentTemplate = MpfCopyManager.DeepCopyCutLVPs(ItemTemplate);
       return container;
     }

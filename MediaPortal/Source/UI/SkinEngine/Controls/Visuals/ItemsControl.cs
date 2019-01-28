@@ -54,6 +54,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     protected AbstractProperty _itemsSourceProperty;
     protected AbstractProperty _itemTemplateProperty;
     protected AbstractProperty _itemContainerStyleProperty;
+    protected AbstractProperty _itemContainerStyleSelectorProperty;
     protected AbstractProperty _groupHeaderContainerStyleProperty;
     protected AbstractProperty _groupHeaderTemplateProperty;
     protected AbstractProperty _itemsPanelProperty;
@@ -100,6 +101,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       _itemsSourceProperty = new SProperty(typeof(IEnumerable), null);
       _itemTemplateProperty = new SProperty(typeof(DataTemplate), null);
       _itemContainerStyleProperty = new SProperty(typeof(Style), null);
+      _itemContainerStyleSelectorProperty = new SProperty(typeof(StyleSelector), null);
       _groupHeaderContainerStyleProperty = new SProperty(typeof(Style), null);
       _groupHeaderTemplateProperty = new SProperty(typeof(DataTemplate), null);
       _groupingValueProviderProperty = new SProperty(typeof(IGroupingValueProvider), null);
@@ -120,6 +122,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       _itemsPanelProperty.Attach(OnItemsPanelChanged);
       _dataStringProviderProperty.Attach(OnDataStringProviderChanged);
       _itemContainerStyleProperty.Attach(OnItemContainerStyleChanged);
+      _itemContainerStyleSelectorProperty.Attach(OnItemContainerStyleChanged);
       _groupHeaderContainerStyleProperty.Attach(OnGroupHeaderContainerStyleChanged);
 
       _templateControlProperty.Attach(OnTemplateControlChanged);
@@ -136,6 +139,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       _itemsPanelProperty.Detach(OnItemsPanelChanged);
       _dataStringProviderProperty.Detach(OnDataStringProviderChanged);
       _itemContainerStyleProperty.Detach(OnItemContainerStyleChanged);
+      _itemContainerStyleSelectorProperty.Detach(OnItemContainerStyleChanged);
       _groupHeaderContainerStyleProperty.Detach(OnGroupHeaderContainerStyleChanged);
 
       _templateControlProperty.Detach(OnTemplateControlChanged);
@@ -154,6 +158,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       foreach (object item in c.Items)
         _items.Add(copyManager.GetCopy(item));
       ItemContainerStyle = copyManager.GetCopy(c.ItemContainerStyle);
+      ItemContainerStyleSelector = copyManager.GetCopy(c.ItemContainerStyleSelector);
       ItemTemplate = copyManager.GetCopy(c.ItemTemplate);
       GroupHeaderContainerStyle = copyManager.GetCopy(c.GroupHeaderContainerStyle);
       GroupHeaderTemplate = copyManager.GetCopy(c.GroupHeaderTemplate);
@@ -383,17 +388,28 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       set { _itemsSourceProperty.SetValue(value); }
     }
 
-    public AbstractProperty ItemContainerStyleProperty
-    {
-      get { return _itemContainerStyleProperty; }
-    }
-
     /// <summary>
     /// Gets the items of the ItemsControl directly.
     /// </summary>
     public ItemCollection Items
     {
       get { return _items; }
+    }
+
+    public StyleSelector ItemContainerStyleSelector
+    {
+      get { return (StyleSelector)_itemContainerStyleSelectorProperty.GetValue(); }
+      set { _itemContainerStyleSelectorProperty.SetValue(value); }
+    }
+
+    public AbstractProperty ItemContainerStyleSelectorProperty
+    {
+      get { return _itemContainerStyleSelectorProperty; }
+    }
+
+    public AbstractProperty ItemContainerStyleProperty
+    {
+      get { return _itemContainerStyleProperty; }
     }
 
     /// <summary>

@@ -271,6 +271,23 @@
     </Setter>
   </Style>
 
+  <Style x:Key="DefaultSeparatorContainerStyle" TargetType="{x:Type ListViewItem}">
+    <Style.Triggers>
+      <Trigger Property="Selected" Value="True">
+        <!-- Hack: It is sufficient to set the attached ZIndex property for one panel type; the MP2 SkinEngine maps it to the
+             same internal property for all panel types -->
+        <Setter Property="StackPanel.ZIndex" Value="100.0"/>
+      </Trigger>
+    </Style.Triggers>
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="{x:Type ListViewItem}">
+          <ContentPresenter/>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+
   <!-- An item list container represented by a standard "Button", scrolling its "ItemLabel" label when focused -->
   <Style x:Key="DefaultMenuItemContainerStyle" BasedOn="{ThemeResource DefaultItemContainerStyle}">
     <Setter Property="Template">
@@ -688,6 +705,35 @@
     <Setter Property="ItemContainerStyle" Value="{ThemeResource DefaultItemContainerStyle}"/>
   </Style>
 
+  <Style x:Key="DefaultListViewSeparatorStyle" TargetType="{x:Type ListView}">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="{x:Type ListView}">
+          <ScrollViewer CanContentScroll="True">
+            <ItemsPresenter VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
+          </ScrollViewer>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+    <Setter Property="ItemsPanel">
+      <Setter.Value>
+        <ItemsPanelTemplate>
+          <StackPanel x:Name="ListItemsHost" IsItemsHost="True"/>
+        </ItemsPanelTemplate>
+      </Setter.Value>
+    </Setter>
+    <Setter Property="ItemTemplate" Value="{ThemeResource DefaultItemDataTemplate}"/>
+    <Setter Property="DataStringProvider" Value="{ThemeResource DefaultItemDataStringProvider}"/>
+    <Setter Property="ItemContainerStyleSelector">
+      <Setter.Value>
+        <SeparatorStyleSelector
+          ItemContainerStyle="{ThemeResource DefaultMenuItemContainerStyle}"
+          SeparatorStyle="{ThemeResource DefaultSeparatorContainerStyle}"
+          />
+      </Setter.Value>
+    </Setter>
+  </Style>
+
   <!-- Implicit default style for ListView controls -->
   <Style BasedOn="{ThemeResource DefaultListViewStyle}" TargetType="{x:Type ListView}"/>
 
@@ -699,10 +745,10 @@
   </Style>
 
   <!-- ListView style to be used for all menus (main menu, dialog menus, context menus, ...) -->
-  <Style x:Key="MenuListViewStyle" BasedOn="{ThemeResource DefaultListViewStyle}">
+  <Style x:Key="MenuListViewStyle" BasedOn="{ThemeResource DefaultListViewSeparatorStyle}">
     <Setter Property="ItemTemplate" Value="{ThemeResource DefaultItemDataTemplate}"/>
     <Setter Property="DataStringProvider" Value="{ThemeResource DefaultItemDataStringProvider}"/>
-    <Setter Property="ItemContainerStyle" Value="{ThemeResource DefaultMenuItemContainerStyle}"/>
+    <!--<Setter Property="ItemContainerStyle" Value="{ThemeResource DefaultMenuItemContainerStyle}"/>-->
   </Style>
 
   <!-- ListView style to be used in the content area of the screens -->
