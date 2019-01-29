@@ -37,6 +37,7 @@ using MediaPortal.Plugins.MP2Extended.Extensions;
 using MediaPortal.Plugins.MP2Extended.MAS.Picture;
 using MP2Extended.Extensions;
 using Microsoft.Owin;
+using MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.Picture.BaseClasses;
 
 namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.Picture
 {
@@ -44,52 +45,16 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.Picture
   [ApiFunctionParam(Name = "sort", Type = typeof(WebSortField), Nullable = true)]
   [ApiFunctionParam(Name = "order", Type = typeof(WebSortOrder), Nullable = true)]
   [ApiFunctionParam(Name = "filter", Type = typeof(string), Nullable = true)]
-  internal class GetPicturesDetailed
+  internal class GetPicturesDetailed : BasePictureDetailed
   {
-    public Task<IList<WebPictureDetailed>> ProcessAsync(IOwinContext context, string filter, WebSortField? sort, WebSortOrder? order)
+    public static Task<IList<WebPictureDetailed>> ProcessAsync(IOwinContext context, string filter, WebSortField? sort, WebSortOrder? order)
     {
-      ISet<Guid> necessaryMIATypes = new HashSet<Guid>();
-      necessaryMIATypes.Add(MediaAspect.ASPECT_ID);
-      necessaryMIATypes.Add(ProviderResourceAspect.ASPECT_ID);
-      necessaryMIATypes.Add(ImporterAspect.ASPECT_ID);
-      necessaryMIATypes.Add(ImageAspect.ASPECT_ID);
-
-      IList<MediaItem> items = MediaLibraryAccess.GetMediaItemsByAspect(context, necessaryMIATypes, null);
+      IList<MediaItem> items = MediaLibraryAccess.GetMediaItemsByAspect(context, BasicNecessaryMIATypeIds, BasicOptionalMIATypeIds);
 
       if (items.Count == 0)
         throw new BadRequestException("No Images found");
 
-      var output = new List<WebPictureDetailed>();
-
-      foreach (var item in items)
-      {
-        MediaItemAspect imageAspects = item.GetAspect(ImageAspect.Metadata);
-
-        WebPictureDetailed webPictureDetailed = new WebPictureDetailed();
-
-        //webPictureBasic.Categories = imageAspects.GetAttributeValue(ImageAspect);
-        //webPictureBasic.DateTaken = imageAspects.GetAttributeValue(ImageAspect.);
-        webPictureDetailed.Type = WebMediaType.Picture;
-        //webPictureBasic.Artwork;
-        webPictureDetailed.DateAdded = (DateTime)item.GetAspect(ImporterAspect.Metadata).GetAttributeValue(ImporterAspect.ATTR_DATEADDED);
-        webPictureDetailed.Id = item.MediaItemId.ToString();
-        webPictureDetailed.PID = 0;
-        //webPictureBasic.Path;
-        webPictureDetailed.Title = (string)item.GetAspect(MediaAspect.Metadata).GetAttributeValue(MediaAspect.ATTR_TITLE);
-        //webPictureDetailed.Rating = imageAspects.GetAttributeValue(ImageAspect.);
-        //webPictureDetailed.Author = imageAspects.GetAttributeValue(ImageAspect.);
-        //webPictureDetailed.Dpi = imageAspects.GetAttributeValue(ImageAspect.);
-        webPictureDetailed.Width = (string)(imageAspects.GetAttributeValue(ImageAspect.ATTR_WIDTH) ?? string.Empty);
-        webPictureDetailed.Height = (string)(imageAspects.GetAttributeValue(ImageAspect.ATTR_HEIGHT) ?? string.Empty);
-        //webPictureDetailed.Mpixel = imageAspects.GetAttributeValue(ImageAspect.);
-        //webPictureDetailed.Copyright;
-        webPictureDetailed.CameraModel = (string)(imageAspects.GetAttributeValue(ImageAspect.ATTR_MODEL) ?? string.Empty);
-        webPictureDetailed.CameraManufacturer = (string)(imageAspects.GetAttributeValue(ImageAspect.ATTR_MAKE) ?? string.Empty);
-        //webPictureDetailed.Comment;
-        //webPictureDetailed.Subject;
-
-        output.Add(webPictureDetailed);
-      }
+      var output = items.Select(i => PictureDetailed(i)).ToList();
 
       // sort and filter
       if (sort != null && order != null)

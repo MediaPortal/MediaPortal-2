@@ -43,29 +43,29 @@ namespace MediaPortal.Plugins.MP2Extended.Settings
     }
 
     [Setting(SettingScope.Global)]
-    public bool TranscodingAllowed { get; private set; }
+    public bool TranscodingAllowed { get; set; }
     [Setting(SettingScope.Global)]
-    public bool HardcodedSubtitlesAllowed { get; private set; }
+    public bool HardcodedSubtitlesAllowed { get; set; }
     [Setting(SettingScope.Global)]
-    public int PreRecordInterval { get; private set; }
+    public int PreRecordInterval { get; set; }
     [Setting(SettingScope.Global)]
-    public int PostRecordInterval { get; private set; }
+    public int PostRecordInterval { get; set; }
     [Setting(SettingScope.Global)]
-    public bool UseAuth { get; private set; }
+    public bool UseAuth { get; set; }
     [Setting(SettingScope.Global)]
-    public string SkinName { get; private set; }
+    public string SkinName { get; set; }
 
     // OnlineVideos
     [Setting(SettingScope.Global)]
-    public bool OnlineVideosEnabled { get; private set; }
+    public bool OnlineVideosEnabled { get; set; }
     [Setting(SettingScope.Global)]
-    public bool OnlineVideosUseAgeConfirmation { get; private set; }
+    public bool OnlineVideosUseAgeConfirmation { get; set; }
     [Setting(SettingScope.Global)]
-    public int OnlineVideosCacheTimeout { get; private set; }
+    public int OnlineVideosCacheTimeout { get; set; }
     [Setting(SettingScope.Global)]
-    public int OnlineVideosUtilTimeout { get; private set; }
+    public int OnlineVideosUtilTimeout { get; set; }
     [Setting(SettingScope.Global)]
-    public string OnlineVideosDownloadFolder { get; private set; }
+    public string OnlineVideosDownloadFolder { get; set; }
     [Setting(SettingScope.Global)]
     public DateTime OnlineVideosLastAutomaticUpdate { get; set; }
   }

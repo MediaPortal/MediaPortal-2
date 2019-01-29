@@ -40,7 +40,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.TAS.EPG
   [ApiFunctionParam(Name = "channelId", Type = typeof(int), Nullable = false)]
   internal class GetNowNextWebProgramBasicForChannel : BaseProgramBasic
   {
-    public async Task<IList<WebProgramBasic>> ProcessAsync(IOwinContext context, int channelId)
+    public static async Task<IList<WebProgramBasic>> ProcessAsync(IOwinContext context, string channelId)
     {
       if (!ServiceRegistration.IsRegistered<ITvProvider>())
         throw new BadRequestException("GetNowNextWebProgramBasicForChannel: ITvProvider not found");
@@ -48,7 +48,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.TAS.EPG
       IChannelAndGroupInfoAsync channelAndGroupInfo = ServiceRegistration.Get<ITvProvider>() as IChannelAndGroupInfoAsync;
       IProgramInfoAsync programInfo = ServiceRegistration.Get<ITvProvider>() as IProgramInfoAsync;
 
-      var programs = await TVAccess.GetChannelNowNextProgramAsync(context, channelId);
+      var programs = await TVAccess.GetChannelNowNextProgramAsync(context, int.Parse(channelId));
       if (programs == null)
         throw new BadRequestException(string.Format("GetNowNextWebProgramBasicForChannel: Couldn't get Now/Next Info for channel with Id: {0}", channelId));
 

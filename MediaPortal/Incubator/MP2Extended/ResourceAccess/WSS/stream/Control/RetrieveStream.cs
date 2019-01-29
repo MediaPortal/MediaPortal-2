@@ -50,7 +50,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.stream.Control
   [ApiFunctionParam(Name = "hls", Type = typeof(string), Nullable = true)]
   internal class RetrieveStream : BaseSendData
   {
-    public async Task<bool> ProcessAsync(IOwinContext context, string identifier, string file, string hls)
+    public static async Task<bool> ProcessAsync(IOwinContext context, string identifier, string file, string hls)
     {
       Stream resourceStream = null;
       bool onlyHeaders = false;
@@ -290,7 +290,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.stream.Control
         return true;
     }
 
-    private async Task<bool> SendSegmentAsync(string fileName, IOwinContext context, StreamItem streamItem)
+    private static async Task<bool> SendSegmentAsync(string fileName, IOwinContext context, StreamItem streamItem)
     {
       if (fileName != null)
       {

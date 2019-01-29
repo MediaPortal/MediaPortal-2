@@ -23,63 +23,29 @@
 #endregion
 
 using System;
-using System.Collections.Generic;
 using System.Threading.Tasks;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.MediaManagement;
-using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Plugins.MP2Extended.Attributes;
-using MediaPortal.Plugins.MP2Extended.Common;
 using MediaPortal.Plugins.MP2Extended.Exceptions;
 using MediaPortal.Plugins.MP2Extended.MAS.Picture;
-using MP2Extended.Extensions;
 using Microsoft.Owin;
-using MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS;
+using MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.Picture.BaseClasses;
 
 namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.Picture
 {
   [ApiFunctionDescription(Type = ApiFunctionDescription.FunctionType.Json, Summary = "")]
   [ApiFunctionParam(Name = "id", Type = typeof(Guid), Nullable = false)]
-  internal class GetPictureDetailedById
+  internal class GetPictureDetailedById : BasePictureDetailed
   {
-    public Task<WebPictureDetailed> ProcessAsync(IOwinContext context, Guid id)
+    public static Task<WebPictureDetailed> ProcessAsync(IOwinContext context, string id)
     {
-      ISet<Guid> necessaryMIATypes = new HashSet<Guid>();
-      necessaryMIATypes.Add(MediaAspect.ASPECT_ID);
-      necessaryMIATypes.Add(ProviderResourceAspect.ASPECT_ID);
-      necessaryMIATypes.Add(ImporterAspect.ASPECT_ID);
-      necessaryMIATypes.Add(ImageAspect.ASPECT_ID);
-
-      MediaItem item = MediaLibraryAccess.GetMediaItemById(context, id, necessaryMIATypes, null);
+      MediaItem item = MediaLibraryAccess.GetMediaItemById(context, Guid.Parse(id), BasicNecessaryMIATypeIds, BasicOptionalMIATypeIds);
       if (item == null)
         throw new BadRequestException(string.Format("No Image found with id: {0}", id));
 
-      MediaItemAspect imageAspects = item.GetAspect(ImageAspect.Metadata);
-      WebPictureDetailed webPictureDetailed = new WebPictureDetailed();
-
-      //webPictureBasic.Categories = imageAspects.GetAttributeValue(ImageAspect);
-      //webPictureBasic.DateTaken = imageAspects.GetAttributeValue(ImageAspect.);
-      webPictureDetailed.Type = WebMediaType.Picture;
-      //webPictureBasic.Artwork;
-      webPictureDetailed.DateAdded = (DateTime)item.GetAspect(ImporterAspect.Metadata).GetAttributeValue(ImporterAspect.ATTR_DATEADDED);
-      webPictureDetailed.Id = item.MediaItemId.ToString();
-      webPictureDetailed.PID = 0;
-      //webPictureBasic.Path;
-      webPictureDetailed.Title = (string)item.GetAspect(MediaAspect.Metadata).GetAttributeValue(MediaAspect.ATTR_TITLE);
-      //webPictureDetailed.Rating = imageAspects.GetAttributeValue(ImageAspect.);
-      //webPictureDetailed.Author = imageAspects.GetAttributeValue(ImageAspect.);
-      //webPictureDetailed.Dpi = imageAspects.GetAttributeValue(ImageAspect.);
-      webPictureDetailed.Width = (string)(imageAspects.GetAttributeValue(ImageAspect.ATTR_WIDTH) ?? string.Empty);
-      webPictureDetailed.Height = (string)(imageAspects.GetAttributeValue(ImageAspect.ATTR_HEIGHT) ?? string.Empty);
-      //webPictureDetailed.Mpixel = imageAspects.GetAttributeValue(ImageAspect.);
-      //webPictureDetailed.Copyright;
-      webPictureDetailed.CameraModel = (string)(imageAspects.GetAttributeValue(ImageAspect.ATTR_MODEL) ?? string.Empty);
-      webPictureDetailed.CameraManufacturer = (string)(imageAspects.GetAttributeValue(ImageAspect.ATTR_MAKE) ?? string.Empty);
-      //webPictureDetailed.Comment;
-      //webPictureDetailed.Subject;
-
-      return Task.FromResult(webPictureDetailed);
+      return Task.FromResult(PictureDetailed(item));
     }
 
     internal static ILogger Logger

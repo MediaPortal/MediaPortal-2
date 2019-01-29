@@ -51,7 +51,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.stream.Images
   [ApiFunctionParam(Name = "offset", Type = typeof(string), Nullable = true)]
   internal class GetArtworkResized : BaseGetArtwork
   {
-    public async Task ProcessAsync(IOwinContext context, WebMediaType mediatype, string id, WebFileType artworktype, int offset, int maxWidth, int maxHeight, string borders = null)
+    public static async Task ProcessAsync(IOwinContext context, WebMediaType mediatype, string id, WebFileType artworktype, int offset, int maxWidth, int maxHeight, string borders = null)
     {
       int offsetInt = 0;
 

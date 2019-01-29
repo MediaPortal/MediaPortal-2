@@ -46,7 +46,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.TAS.Radio
   [ApiFunctionParam(Name = "order", Type = typeof(WebSortOrder), Nullable = true)]
   internal class GetRadioGroupsByRange : BaseChannelGroup
   {
-    public async Task<IList<WebChannelGroup>> ProcessAsync(IOwinContext context, int start, int end, WebSortField? sort, WebSortOrder? order)
+    public static async Task<IList<WebChannelGroup>> ProcessAsync(IOwinContext context, int start, int end, WebSortField? sort, WebSortOrder? order)
     {
       if (!ServiceRegistration.IsRegistered<ITvProvider>())
         throw new BadRequestException("GetRadioGroupsByRange: ITvProvider not found");

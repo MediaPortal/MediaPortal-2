@@ -35,7 +35,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.TAS.Misc
   [ApiFunctionDescription(Type = ApiFunctionDescription.FunctionType.Json, Summary = "")]
   internal class TestConnectionToTVService
   {
-    public Task<WebBoolResult> ProcessAsync(IOwinContext context)
+    public static Task<WebBoolResult> ProcessAsync(IOwinContext context)
     {
       return Task.FromResult(new WebBoolResult { Result = ServiceRegistration.IsRegistered<ITvProvider>() });
     }

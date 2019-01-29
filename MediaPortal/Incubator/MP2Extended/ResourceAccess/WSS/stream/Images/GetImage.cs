@@ -46,7 +46,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.stream.Images
   [ApiFunctionParam(Name = "id", Type = typeof(string), Nullable = false)]
   internal class GetImage : BaseSendData
   {
-    public async Task<bool> ProcessAsync(IOwinContext context, WebMediaType type, string id)
+    public static async Task<bool> ProcessAsync(IOwinContext context, WebMediaType type, string id)
     {
       if (id == null)
         throw new BadRequestException("GetImage: id is null");

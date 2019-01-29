@@ -36,15 +36,15 @@ using Microsoft.Owin;
 namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.TAS.Tv
 {
   [ApiFunctionDescription(Type = ApiFunctionDescription.FunctionType.Json, Summary = "")]
-  [ApiFunctionParam(Name = "channelId", Type = typeof(int), Nullable = false)]
+  [ApiFunctionParam(Name = "channelId", Type = typeof(string), Nullable = false)]
   internal class GetChannelDetailedById : BaseChannelDetailed
   {
-    public async Task<WebChannelDetailed> ProcessAsync(IOwinContext context, int channelId)
+    public static async Task<WebChannelDetailed> ProcessAsync(IOwinContext context, string channelId)
     {
       if (!ServiceRegistration.IsRegistered<ITvProvider>())
         throw new BadRequestException("GetChannelDetailedById: ITvProvider not found");
 
-      var channel = await TVAccess.GetChannelAsync(channelId);
+      var channel = await TVAccess.GetChannelAsync(int.Parse(channelId));
       if (channel == null)
         throw new BadRequestException(string.Format("GetChannelDetailedById: Couldn't get channel with Id: {0}", channelId));
 

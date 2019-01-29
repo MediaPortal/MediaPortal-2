@@ -36,7 +36,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.TAS.Misc
   [ApiFunctionParam(Name = "tagName", Type = typeof(string), Nullable = false)]
   internal class ReadSettingFromDatabase
   {
-    public Task<WebStringResult> ProcessAsync(IOwinContext context, string tagName)
+    public static Task<WebStringResult> ProcessAsync(IOwinContext context, string tagName)
     {
       if (tagName == null)
         throw new BadRequestException("ReadSettingFromDatabase: tagName is null");

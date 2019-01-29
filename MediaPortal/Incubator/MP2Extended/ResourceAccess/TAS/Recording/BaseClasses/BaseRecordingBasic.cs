@@ -24,9 +24,11 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Common.ResourceAccess;
+using MediaPortal.Common.UserProfileDataManagement;
 using MediaPortal.Plugins.MP2Extended.TAS.Tv;
 using MediaPortal.Plugins.SlimTv.Interfaces.Aspects;
 using MediaPortal.Utilities;
@@ -36,15 +38,23 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.TAS.Recording.BaseClass
 {
   class BaseRecordingBasic
   {
-    internal WebRecordingBasic RecordingBasic(MediaItem item)
+    internal static ISet<Guid> BasicNecessaryMIATypeIds = new HashSet<Guid>
+    {
+      MediaAspect.ASPECT_ID,
+      ImporterAspect.ASPECT_ID,
+      ProviderResourceAspect.ASPECT_ID,
+      VideoAspect.ASPECT_ID,
+      RecordingAspect.ASPECT_ID
+    };
+
+    internal static ISet<Guid> BasicOptionalMIATypeIds = new HashSet<Guid>
+    {
+    };
+
+    internal static WebRecordingBasic RecordingBasic(MediaItem item)
     {
       MediaItemAspect recordingAspect = item.GetAspect(RecordingAspect.Metadata);
-      string path = "";
-      if (item.PrimaryResources.Count > 0)
-      {
-        ResourcePath resourcePath = ResourcePath.Deserialize(item.PrimaryProviderResourcePath());
-        path = resourcePath.PathSegments.Count > 0 ? StringUtils.RemovePrefixIfPresent(resourcePath.LastPathSegment.Path, "/") : string.Empty;
-      }
+
       string genre = string.Empty;
       if (MediaItemAspect.TryGetAttribute(item.Aspects, GenreAspect.ATTR_GENRE, out List<string> genres))
         genre = string.Join(", ", genres);
@@ -58,8 +68,8 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.TAS.Recording.BaseClass
         StartTime = (DateTime) (recordingAspect.GetAttributeValue(RecordingAspect.ATTR_STARTTIME) ?? DateTime.Now),
         EndTime = (DateTime) (recordingAspect.GetAttributeValue(RecordingAspect.ATTR_ENDTIME) ?? DateTime.Now),
         Genre = genre,
-        TimesWatched = (int)(item.GetAspect(MediaAspect.Metadata)[MediaAspect.ATTR_PLAYCOUNT] ?? 0),
-        FileName = path,
+        TimesWatched = Convert.ToInt32(item.UserData.FirstOrDefault(d => d.Key == UserDataKeysKnown.KEY_PLAY_COUNT).Value ?? "0"),
+        FileName = ResourceAccessUtils.GetPaths(item).FirstOrDefault(),
       };
     }
   }

@@ -45,17 +45,17 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.stream.General
   [ApiFunctionParam(Name = "path", Type = typeof(string), Nullable = false)]
   internal class GetHtmlResource : BaseSendData
   {
-    private string _localPath;
-    private string _appDataPath;
+    private static string _localPath;
+    private static string _appDataPath;
 
-    public GetHtmlResource()
+    static GetHtmlResource()
     {
       Assembly assembly = Assembly.GetExecutingAssembly();
       _localPath = Path.GetDirectoryName(assembly.Location);
       _appDataPath = ServiceRegistration.Get<IPathManager>().GetPath(@"<DATA>\Web\");
     }
 
-    public async Task<bool> ProcessAsync(IOwinContext context, string path)
+    public static async Task<bool> ProcessAsync(IOwinContext context, string path)
     {
       if (path == null)
       {

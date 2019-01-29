@@ -45,7 +45,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.Movie
   [ApiFunctionParam(Name = "filter", Type = typeof(string), Nullable = true)]
   internal class GetMoviesDetailed : BaseMovieDetailed
   {
-    public Task<IList<WebMovieDetailed>> ProcessAsync(IOwinContext context, string filter, WebSortField? sort, WebSortOrder? order)
+    public static Task<IList<WebMovieDetailed>> ProcessAsync(IOwinContext context, string filter, WebSortField? sort, WebSortOrder? order)
     {
       IList<MediaItem> items = MediaLibraryAccess.GetMediaItemsByAspect(context, BasicNecessaryMIATypeIds, BasicOptionalMIATypeIds, null);
       if (items.Count == 0)

@@ -41,7 +41,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.Filter
   [ApiFunctionParam(Name = "conjunction", Type = typeof(string), Nullable = true)]
   internal class CreateFilterString
   {
-    public Task<WebStringResult> ProcessAsync(IOwinContext context, string field, string op, string value, string conjunction)
+    public static Task<WebStringResult> ProcessAsync(IOwinContext context, string field, string op, string value, string conjunction)
     {
       if (field == null)
         throw new BadRequestException("CreateFilterString: field is null");

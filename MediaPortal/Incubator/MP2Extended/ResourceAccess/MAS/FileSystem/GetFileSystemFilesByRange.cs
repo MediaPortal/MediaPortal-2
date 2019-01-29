@@ -46,7 +46,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.FileSystem
     [ApiFunctionParam(Name = "end", Type = typeof(int), Nullable = false)]
     [ApiFunctionParam(Name = "sort", Type = typeof(WebSortField), Nullable = true)]
     [ApiFunctionParam(Name = "order", Type = typeof(WebSortOrder), Nullable = true)]
-    public Task<IList<WebFileBasic>> ProcessAsync(IOwinContext context, string id, int start, int end, WebSortField? sort, WebSortOrder? order)
+    public static Task<IList<WebFileBasic>> ProcessAsync(IOwinContext context, string id, int start, int end, WebSortField? sort, WebSortOrder? order)
     {
       List<WebFileBasic> output = new List<WebFileBasic>();
       string path = Base64.Decode(id);

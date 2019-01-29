@@ -37,15 +37,15 @@ using MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS;
 namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.TAS.EPG
 {
   [ApiFunctionDescription(Type = ApiFunctionDescription.FunctionType.Json, Summary = "")]
-  [ApiFunctionParam(Name = "programId", Type = typeof(int), Nullable = false)]
+  [ApiFunctionParam(Name = "programId", Type = typeof(string), Nullable = false)]
   internal class GetProgramBasicById : BaseProgramBasic
   {
-    public async Task<WebProgramBasic> ProcessAsync(IOwinContext context, int programId)
+    public static async Task<WebProgramBasic> ProcessAsync(IOwinContext context, string programId)
     {
       if (!ServiceRegistration.IsRegistered<ITvProvider>())
         throw new BadRequestException("GetProgramBasicById: ITvProvider not found");
 
-      IProgram program = await TVAccess.GetProgramAsync(context, programId);
+      IProgram program = await TVAccess.GetProgramAsync(context, int.Parse(programId));
       if (program == null)
         throw new BadRequestException(string.Format("GetProgramBasicById: Couldn't get Now/Next Info for channel with Id: {0}", programId));
 

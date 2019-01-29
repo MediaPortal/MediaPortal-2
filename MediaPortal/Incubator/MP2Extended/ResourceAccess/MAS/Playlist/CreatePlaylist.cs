@@ -38,7 +38,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.Playlist
   [ApiFunctionParam(Name = "playlistName", Type = typeof(string), Nullable = false)]
   internal class CreatePlaylist
   {
-    public Task<WebStringResult> ProcessAsync(IOwinContext context, string playlistName)
+    public static Task<WebStringResult> ProcessAsync(IOwinContext context, string playlistName)
     {
       Guid playListGuid = Guid.NewGuid();
 

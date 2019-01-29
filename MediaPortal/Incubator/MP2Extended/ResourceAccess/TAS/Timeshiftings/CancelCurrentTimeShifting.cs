@@ -37,7 +37,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.TAS.Timeshiftings
   [ApiFunctionParam(Name = "userName", Type = typeof(string), Nullable = false)]
   internal class CancelCurrentTimeShifting
   {
-    public async Task<WebBoolResult> ProcessAsync(IOwinContext context, string userName)
+    public static async Task<WebBoolResult> ProcessAsync(IOwinContext context, string userName)
     {
       if (!ServiceRegistration.IsRegistered<ITvProvider>())
         throw new BadRequestException("CancelCurrentTimeShifting: ITvProvider not found");

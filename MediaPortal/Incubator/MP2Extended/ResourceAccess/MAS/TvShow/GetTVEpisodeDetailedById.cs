@@ -39,9 +39,9 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.TvShow
   [ApiFunctionParam(Name = "id", Type = typeof(string), Nullable = false)]
   internal class GetTVEpisodeDetailedById : BaseEpisodeDetailed
   {
-    public Task<WebTVEpisodeDetailed> ProcessAsync(IOwinContext context, Guid id)
+    public static Task<WebTVEpisodeDetailed> ProcessAsync(IOwinContext context, string id)
     {
-      MediaItem item = MediaLibraryAccess.GetMediaItemById(context, id, DetailedNecessaryMIATypeIds, DetailedOptionalMIATypeIds);
+      MediaItem item = MediaLibraryAccess.GetMediaItemById(context, Guid.Parse(id), DetailedNecessaryMIATypeIds, DetailedOptionalMIATypeIds);
       if (item == null)
         throw new BadRequestException(String.Format("GetTvEpisodeBasicById: No MediaItem found with id: {0}", id));
 

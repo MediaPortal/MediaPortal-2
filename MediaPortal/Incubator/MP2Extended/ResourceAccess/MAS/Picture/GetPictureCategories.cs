@@ -35,42 +35,22 @@ using MediaPortal.Plugins.MP2Extended.MAS;
 using MP2Extended.Extensions;
 using Newtonsoft.Json;
 using Microsoft.Owin;
+using MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.Picture.BaseClasses;
+using System.Linq;
 
 namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.Picture
 {
   [ApiFunctionDescription(Type = ApiFunctionDescription.FunctionType.Json, Summary = "")]
-  internal class GetPictureCategories
+  internal class GetPictureCategories : BasePictureBasic
   {
-    public Task<IList<WebCategory>> ProcessAsync(IOwinContext context)
+    public static Task<IList<WebCategory>> ProcessAsync(IOwinContext context)
     {
-      ISet<Guid> necessaryMIATypes = new HashSet<Guid>();
-      necessaryMIATypes.Add(MediaAspect.ASPECT_ID);
-      necessaryMIATypes.Add(ProviderResourceAspect.ASPECT_ID);
-      necessaryMIATypes.Add(ImporterAspect.ASPECT_ID);
-      necessaryMIATypes.Add(ImageAspect.ASPECT_ID);
-
-      IList<MediaItem> items = MediaLibraryAccess.GetMediaItemsByAspect(context, necessaryMIATypes, null);
+      IList<MediaItem> items = MediaLibraryAccess.GetMediaItemsByAspect(context, BasicNecessaryMIATypeIds, BasicOptionalMIATypeIds);
       if (items.Count == 0)
         throw new BadRequestException("No Images found");
 
-      var output = new List<WebCategory>();
-
-      foreach (var item in items)
-      {
-        var recodringTime = item.GetAspect(MediaAspect.Metadata)[MediaAspect.ATTR_RECORDINGTIME];
-        if (recodringTime == null)
-          continue;
-        string recordingTimeString = ((DateTime)recodringTime).ToString("yyyy");
-
-        if (output.FindIndex(x => x.Title == recordingTimeString) == -1)
-          output.Add(new WebCategory
-          {
-            Id = JsonConvert.SerializeObject((DateTime)recodringTime),
-            Title = recordingTimeString,
-            PID = 0,
-          });
-
-      }
+      var output = items.Select(i => (i.GetAspect(MediaAspect.Metadata).GetAttributeValue<DateTime>(MediaAspect.ATTR_RECORDINGTIME)).ToString("yyyy")).
+        Distinct().Select(y => new WebCategory { Id = y, Title = y }).ToList();
 
       return Task.FromResult<IList<WebCategory>>(output);
     }

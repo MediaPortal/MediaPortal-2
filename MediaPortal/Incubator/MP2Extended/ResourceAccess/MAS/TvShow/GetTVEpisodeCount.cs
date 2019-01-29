@@ -37,7 +37,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.TvShow
   [ApiFunctionDescription(Type = ApiFunctionDescription.FunctionType.Json, Summary = "")]
   internal class GetTVEpisodeCount
   {
-    public Task<WebIntResult> ProcessAsync(IOwinContext context)
+    public static Task<WebIntResult> ProcessAsync(IOwinContext context)
     {
       ISet<Guid> necessaryMIATypes = new HashSet<Guid>();
       necessaryMIATypes.Add(MediaAspect.ASPECT_ID);

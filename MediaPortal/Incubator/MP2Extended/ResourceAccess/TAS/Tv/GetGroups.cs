@@ -43,7 +43,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.TAS.Tv
   [ApiFunctionParam(Name = "order", Type = typeof(WebSortOrder), Nullable = true)]
   internal class GetGroups : BaseChannelGroup
   {
-    public async Task<IList<WebChannelGroup>> ProcessAsync(IOwinContext context, WebSortField? sort, WebSortOrder? order)
+    public static async Task<IList<WebChannelGroup>> ProcessAsync(IOwinContext context, WebSortField? sort, WebSortOrder? order)
     {
       if (!ServiceRegistration.IsRegistered<ITvProvider>())
         throw new BadRequestException("GetChannelsBasic: ITvProvider not found");

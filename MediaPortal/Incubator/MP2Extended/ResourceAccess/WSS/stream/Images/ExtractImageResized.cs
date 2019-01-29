@@ -49,7 +49,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.stream.Images
   internal class ExtractImageResized : BaseGetArtwork
   {
     // We just return a Thumbnail from MP
-    public async Task ProcessAsync(IOwinContext context, WebMediaType type, string itemId, int maxWidth, int maxHeight, string borders = null)
+    public static async Task ProcessAsync(IOwinContext context, WebMediaType type, string itemId, int maxWidth, int maxHeight, string borders = null)
     {
       // set borders to transparent
       borders = "transparent";

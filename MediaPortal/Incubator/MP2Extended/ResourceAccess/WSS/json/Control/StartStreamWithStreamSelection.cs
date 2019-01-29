@@ -50,7 +50,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.json.Control
   [ApiFunctionParam(Name = "subtitleId", Type = typeof(string), Nullable = true)]
   internal class StartStreamWithStreamSelection
   {
-    public async Task<WebStringResult> ProcessAsync(IOwinContext context, string identifier, string profileName, long startPosition, int audioId = -1, int subtitleId = -1)
+    public static async Task<WebStringResult> ProcessAsync(IOwinContext context, string identifier, string profileName, long startPosition, int audioId = -1, int subtitleId = -1)
     {
       if (identifier == null)
         throw new BadRequestException("StartStreamWithStreamSelection: identifier is null");

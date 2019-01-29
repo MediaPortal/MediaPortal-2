@@ -40,9 +40,9 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.Movie
   [ApiFunctionParam(Name = "id", Type = typeof(Guid), Nullable = false)]
   internal class GetMovieBasicById : BaseMovieBasic
   {
-    public Task<WebMovieBasic> ProcessAsync(IOwinContext context, Guid id)
+    public static Task<WebMovieBasic> ProcessAsync(IOwinContext context, string id)
     {
-      MediaItem item = MediaLibraryAccess.GetMediaItemById(context, id, BasicNecessaryMIATypeIds, BasicOptionalMIATypeIds);
+      MediaItem item = MediaLibraryAccess.GetMediaItemById(context, Guid.Parse(id), BasicNecessaryMIATypeIds, BasicOptionalMIATypeIds);
       if (item == null)
         throw new BadRequestException(String.Format("GetMovieBasicById: No MediaItem found with id: {0}", id));
 

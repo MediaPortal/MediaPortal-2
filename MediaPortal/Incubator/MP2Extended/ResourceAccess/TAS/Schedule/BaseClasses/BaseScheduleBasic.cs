@@ -31,7 +31,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.TAS.Schedule.BaseClasse
 {
   class BaseScheduleBasic
   {
-    internal WebScheduleBasic ScheduleBasic(ISchedule schedule)
+    internal static WebScheduleBasic ScheduleBasic(ISchedule schedule)
     {
        WebScheduleBasic webScheduleBasic = new WebScheduleBasic
         {

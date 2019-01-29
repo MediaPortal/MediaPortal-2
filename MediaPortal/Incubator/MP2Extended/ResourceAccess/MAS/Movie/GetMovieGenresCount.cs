@@ -33,11 +33,11 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.Movie
 {
   [ApiFunctionDescription(Type = ApiFunctionDescription.FunctionType.Json, Summary = "")]
   [ApiFunctionParam(Name = "filter", Type = typeof(string), Nullable = true)]
-  internal class GetMovieGenresCount : GetMovieGenres
+  internal class GetMovieGenresCount
   {
-    public async Task<WebIntResult> ProcessAsync(IOwinContext context, string filter)
+    public static async Task<WebIntResult> ProcessAsync(IOwinContext context, string filter)
     {
-      var output = (await base.ProcessAsync(context, null, null))
+      var output = (await GetMovieGenres.ProcessAsync(context, null, null))
         .Filter(filter);
 
       return new WebIntResult { Result = output.Count() };

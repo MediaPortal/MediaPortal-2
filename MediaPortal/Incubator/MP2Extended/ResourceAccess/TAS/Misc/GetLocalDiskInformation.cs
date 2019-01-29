@@ -39,7 +39,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.TAS.Misc
   [ApiFunctionDescription(Type = ApiFunctionDescription.FunctionType.Json, Summary = "")]
   internal class GetLocalDiskInformation : BaseCard
   {
-    public Task<IList<WebDiskSpaceInformation>> ProcessAsync(IOwinContext context)
+    public static Task<IList<WebDiskSpaceInformation>> ProcessAsync(IOwinContext context)
     {
       return Task.FromResult<IList<WebDiskSpaceInformation>>(DriveInfo.GetDrives().Select(x => DiskSpaceInformation.GetSpaceInformation(x.Name)).ToList());
     }

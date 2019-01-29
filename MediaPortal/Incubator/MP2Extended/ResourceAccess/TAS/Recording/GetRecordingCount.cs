@@ -42,19 +42,12 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.TAS.Recording
   [ApiFunctionDescription(Type = ApiFunctionDescription.FunctionType.Json, Summary = "")]
   internal class GetRecordingCount : BaseRecordingBasic
   {
-    public Task<WebIntResult> ProcessAsync(IOwinContext context)
+    public static Task<WebIntResult> ProcessAsync(IOwinContext context)
     {
       if (!ServiceRegistration.IsRegistered<ITvProvider>())
         throw new BadRequestException("GetRecordingCount: ITvProvider not found");
 
-      ISet<Guid> necessaryMIATypes = new HashSet<Guid>();
-      necessaryMIATypes.Add(MediaAspect.ASPECT_ID);
-      necessaryMIATypes.Add(ProviderResourceAspect.ASPECT_ID);
-      necessaryMIATypes.Add(ImporterAspect.ASPECT_ID);
-      necessaryMIATypes.Add(VideoAspect.ASPECT_ID);
-      necessaryMIATypes.Add(RecordingAspect.ASPECT_ID);
-
-      IList<MediaItem> items = MediaLibraryAccess.GetMediaItemsByAspect(context, necessaryMIATypes, null);
+      IList<MediaItem> items = MediaLibraryAccess.GetMediaItemsByAspect(context, BasicNecessaryMIATypeIds, BasicOptionalMIATypeIds);
       return Task.FromResult(new WebIntResult { Result = items.Count });
     }
 

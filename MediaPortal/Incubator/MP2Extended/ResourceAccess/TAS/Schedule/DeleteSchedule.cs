@@ -37,15 +37,15 @@ using Microsoft.Owin;
 namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.TAS.Schedule
 {
   [ApiFunctionDescription(Type = ApiFunctionDescription.FunctionType.Json, Summary = "")]
-  [ApiFunctionParam(Name = "scheduleId", Type = typeof(int), Nullable = false)]
+  [ApiFunctionParam(Name = "scheduleId", Type = typeof(string), Nullable = false)]
   internal class DeleteSchedule
   {
-    public async Task<WebBoolResult> ProcessAsync(IOwinContext context, int scheduleId)
+    public static async Task<WebBoolResult> ProcessAsync(IOwinContext context, string scheduleId)
     {
       if (!ServiceRegistration.IsRegistered<ITvProvider>())
         throw new BadRequestException("DeleteSchedule: ITvProvider not found");
 
-      bool result = await TVAccess.DeleteScheduleAsync(context, scheduleId);
+      bool result = await TVAccess.DeleteScheduleAsync(context, int.Parse(scheduleId));
       return new WebBoolResult { Result = result };
     }
 

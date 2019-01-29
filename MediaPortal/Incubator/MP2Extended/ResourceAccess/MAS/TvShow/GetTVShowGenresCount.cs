@@ -29,11 +29,11 @@ using Microsoft.Owin;
 
 namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.TvShow
 {
-  internal class GetTVShowGenresCount : GetTVShowGenres
+  internal class GetTVShowGenresCount 
   {
-    public async Task<WebIntResult> ProcessAsync(IOwinContext context)
+    public static async Task<WebIntResult> ProcessAsync(IOwinContext context)
     {
-      var output = (await base.ProcessAsync(context, null, null)).ToList();
+      var output = (await GetTVShowGenres.ProcessAsync(context, null, null)).ToList();
 
       return new WebIntResult { Result = output.Count };
     }

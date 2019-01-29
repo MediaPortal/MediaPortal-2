@@ -38,7 +38,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.OnlineVideos
   [ApiFunctionParam(Name = "id", Type = typeof(string), Nullable = false)]
   internal class GetOnlineVideosSiteSettings
   {
-    public Task<IList<WebOnlineVideosSiteSetting>> ProcessAsync(IOwinContext context, string id)
+    public static Task<IList<WebOnlineVideosSiteSetting>> ProcessAsync(IOwinContext context, string id)
     {
       if (id == null)
         throw new BadRequestException("GetOnlineVideosSiteSettings: id is null");

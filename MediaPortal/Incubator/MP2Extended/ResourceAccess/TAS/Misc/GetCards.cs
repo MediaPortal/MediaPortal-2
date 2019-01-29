@@ -40,7 +40,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.TAS.Misc
   [ApiFunctionDescription(Type = ApiFunctionDescription.FunctionType.Json, Summary = "")]
   internal class GetCards : BaseCard
   {
-    public async Task<IList<WebCard>> ProcessAsync(IOwinContext context)
+    public static async Task<IList<WebCard>> ProcessAsync(IOwinContext context)
     {
       if (!ServiceRegistration.IsRegistered<ITvProvider>())
         throw new BadRequestException("GetCards: ITvProvider not found");

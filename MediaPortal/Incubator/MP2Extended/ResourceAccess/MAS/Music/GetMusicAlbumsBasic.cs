@@ -22,20 +22,17 @@
 
 #endregion
 
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.MediaManagement;
-using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Plugins.MP2Extended.Common;
 using MediaPortal.Plugins.MP2Extended.Exceptions;
 using MediaPortal.Plugins.MP2Extended.Extensions;
 using MediaPortal.Plugins.MP2Extended.MAS.Music;
 using MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.Music.BaseClasses;
-using MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS;
 using Microsoft.Owin;
 
 namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.Music
@@ -43,28 +40,20 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.Music
   // TODO: This one doesn't to work in the MIA rework yet
   internal class GetMusicAlbumsBasic : BaseMusicAlbumBasic
   {
-    public Task<IList<WebMusicAlbumBasic>> ProcessAsync(IOwinContext context, string filter, WebSortField? sort, WebSortOrder? order)
+    public static Task<IList<WebMusicAlbumBasic>> ProcessAsync(IOwinContext context, string filter, WebSortField? sort, WebSortOrder? order)
     {
-      ISet<Guid> necessaryMIATypes = new HashSet<Guid>();
-      necessaryMIATypes.Add(MediaAspect.ASPECT_ID);
-      necessaryMIATypes.Add(AudioAlbumAspect.ASPECT_ID);
+      IList<MediaItem> items = MediaLibraryAccess.GetMediaItemsByAspect(context, BasicNecessaryMIATypeIds, BasicOptionalMIATypeIds, null);
+      if (items.Count == 0)
+        throw new BadRequestException("No Albums found");
 
-      ISet<Guid> optionalMIATypes = new HashSet<Guid>();
-      optionalMIATypes.Add(GenreAspect.ASPECT_ID);
-
-      IList<MediaItem> items = MediaLibraryAccess.GetMediaItemsByAspect(context, necessaryMIATypes, optionalMIATypes, null);
-
-      var output = items.Select(item => MusicAlbumBasic(item)).ToList();
+      var output = items.Select(item => MusicAlbumBasic(item))
+        .Filter(filter);
 
       // sort and filter
       if (sort != null && order != null)
-      {
-        output = output.Filter(filter).AsQueryable().SortMediaItemList(sort, order).ToList();
-      }
-      else
-        output = output.Filter(filter).ToList();
+        output = output.Filter(filter).SortWebMusicAlbumBasic(sort, order);
 
-      return System.Threading.Tasks.Task.FromResult<IList<WebMusicAlbumBasic>>(output);
+      return System.Threading.Tasks.Task.FromResult<IList<WebMusicAlbumBasic>>(output.ToList());
     }
 
     internal static ILogger Logger

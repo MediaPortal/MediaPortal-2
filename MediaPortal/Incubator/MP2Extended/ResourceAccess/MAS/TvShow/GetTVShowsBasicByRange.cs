@@ -45,9 +45,9 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.TvShow
   [ApiFunctionParam(Name = "filter", Type = typeof(string), Nullable = true)]
   internal class GetTVShowsBasicByRange
   {
-    public async Task<IList<WebTVShowBasic>> ProcessAsync(IOwinContext context, int start, int end, string filter, WebSortField? sort, WebSortOrder? order)
+    public static async Task<IList<WebTVShowBasic>> ProcessAsync(IOwinContext context, int start, int end, string filter, WebSortField? sort, WebSortOrder? order)
     {
-      var output = await new GetTVShowsBasic().ProcessAsync(context, filter, sort, order);
+      var output = await GetTVShowsBasic.ProcessAsync(context, filter, sort, order);
 
       // get range
       output = output.TakeRange(start, end).ToList();

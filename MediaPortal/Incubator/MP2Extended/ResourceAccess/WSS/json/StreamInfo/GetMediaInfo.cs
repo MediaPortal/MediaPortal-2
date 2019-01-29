@@ -51,7 +51,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.json.StreamInfo
   {
     private const string UNDEFINED = "?";
 
-    public async Task<WebMediaInfo> ProcessAsync(IOwinContext context, string itemId, WebMediaType type)
+    public static async Task<WebMediaInfo> ProcessAsync(IOwinContext context, string itemId, WebMediaType type)
     {
       if (itemId == null)
         throw new BadRequestException("GetMediaInfo: itemId is null");

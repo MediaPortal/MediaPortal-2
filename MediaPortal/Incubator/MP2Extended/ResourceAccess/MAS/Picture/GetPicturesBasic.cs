@@ -46,15 +46,9 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.Picture
   [ApiFunctionParam(Name = "filter", Type = typeof(string), Nullable = true)]
   internal class GetPicturesBasic : BasePictureBasic
   {
-    public Task<IList<WebPictureBasic>> ProcessAsync(IOwinContext context, string filter, WebSortField? sort, WebSortOrder? order)
+    public static Task<IList<WebPictureBasic>> ProcessAsync(IOwinContext context, string filter, WebSortField? sort, WebSortOrder? order)
     {
-      ISet<Guid> necessaryMIATypes = new HashSet<Guid>();
-      necessaryMIATypes.Add(MediaAspect.ASPECT_ID);
-      necessaryMIATypes.Add(ProviderResourceAspect.ASPECT_ID);
-      necessaryMIATypes.Add(ImporterAspect.ASPECT_ID);
-      necessaryMIATypes.Add(ImageAspect.ASPECT_ID);
-
-      IList<MediaItem> items = MediaLibraryAccess.GetMediaItemsByAspect(context, necessaryMIATypes, null);
+      IList<MediaItem> items = MediaLibraryAccess.GetMediaItemsByAspect(context, BasicNecessaryMIATypeIds, BasicOptionalMIATypeIds);
 
       if (items.Count == 0)
         throw new BadRequestException("No Images found");

@@ -31,7 +31,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.FileSystem.BaseClas
 {
   internal class BaseFolderBasic
   {
-    internal WebFolderBasic FolderBasic(DirectoryInfo folderInfo)
+    internal static WebFolderBasic FolderBasic(DirectoryInfo folderInfo)
     {
       return new WebFolderBasic
       {

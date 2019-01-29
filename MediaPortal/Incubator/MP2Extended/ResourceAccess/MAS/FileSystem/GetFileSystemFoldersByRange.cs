@@ -46,7 +46,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.FileSystem
   [ApiFunctionParam(Name = "order", Type = typeof(WebSortOrder), Nullable = true)]
   internal class GetFileSystemFoldersByRange : BaseFolderBasic
   {
-    public Task<IList<WebFolderBasic>> ProcessAsync(IOwinContext context, string id, int start, int end, WebSortField? sort, WebSortOrder? order)
+    public static Task<IList<WebFolderBasic>> ProcessAsync(IOwinContext context, string id, int start, int end, WebSortField? sort, WebSortOrder? order)
     {
       string path = Base64.Decode(id);
 

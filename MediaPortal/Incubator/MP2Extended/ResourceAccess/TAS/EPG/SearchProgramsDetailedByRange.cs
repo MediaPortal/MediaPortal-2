@@ -40,9 +40,9 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.TAS.EPG
   [ApiFunctionParam(Name = "end", Type = typeof(int), Nullable = false)]
   internal class SearchProgramsDetailedByRange
   {
-    public async Task<IList<WebProgramDetailed>> ProcessAsync(IOwinContext context, string searchTerm, int start, int end)
+    public static async Task<IList<WebProgramDetailed>> ProcessAsync(IOwinContext context, string searchTerm, int start, int end)
     {
-      IList<WebProgramDetailed> output = await new SearchProgramsDetailed().ProcessAsync(context, searchTerm);
+      IList<WebProgramDetailed> output = await SearchProgramsDetailed.ProcessAsync(context, searchTerm);
 
       // Get Range
       output = output.TakeRange(start, end).ToList();

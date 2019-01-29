@@ -42,15 +42,9 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.Picture
   [ApiFunctionParam(Name = "id", Type = typeof(Guid), Nullable = false)]
   internal class GetPictureBasicById : BasePictureBasic
   {
-    public Task<WebPictureBasic> ProcessAsync(IOwinContext context, Guid id)
+    public static Task<WebPictureBasic> ProcessAsync(IOwinContext context, string id)
     {
-      ISet<Guid> necessaryMIATypes = new HashSet<Guid>();
-      necessaryMIATypes.Add(MediaAspect.ASPECT_ID);
-      necessaryMIATypes.Add(ProviderResourceAspect.ASPECT_ID);
-      necessaryMIATypes.Add(ImporterAspect.ASPECT_ID);
-      necessaryMIATypes.Add(ImageAspect.ASPECT_ID);
-
-      MediaItem item = MediaLibraryAccess.GetMediaItemById(context, id, necessaryMIATypes, null);
+      MediaItem item = MediaLibraryAccess.GetMediaItemById(context, Guid.Parse(id), BasicNecessaryMIATypeIds, BasicOptionalMIATypeIds);
       if (item == null)
         throw new BadRequestException(string.Format("No Image found with id: {0}", id));
 

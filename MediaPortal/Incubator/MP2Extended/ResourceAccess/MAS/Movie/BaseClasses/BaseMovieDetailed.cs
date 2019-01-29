@@ -35,7 +35,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.Movie.BaseClasses
 {
   class BaseMovieDetailed : BaseMovieBasic
   {
-    internal WebMovieDetailed MovieDetailed(MediaItem item)
+    internal static WebMovieDetailed MovieDetailed(MediaItem item)
     {
       WebMovieBasic webMovieBasic = MovieBasic(item);
 

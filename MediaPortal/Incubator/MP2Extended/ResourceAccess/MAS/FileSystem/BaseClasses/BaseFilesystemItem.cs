@@ -29,17 +29,17 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.FileSystem.BaseClas
 {
   internal class BaseFilesystemItem
   {
-    internal WebFilesystemItem FilesystemItem(FileInfo fileInfo)
+    internal static WebFilesystemItem FilesystemItem(FileInfo fileInfo)
     {
-      return FilesystemItem(new BaseFileBasic().FileBasic(fileInfo));
+      return FilesystemItem(BaseFileBasic.FileBasic(fileInfo));
     }
 
-    internal WebFilesystemItem FilesystemItem(DirectoryInfo folderInfo)
+    internal static WebFilesystemItem FilesystemItem(DirectoryInfo folderInfo)
     {
-      return FilesystemItem(new BaseFolderBasic().FolderBasic(folderInfo));
+      return FilesystemItem(BaseFolderBasic.FolderBasic(folderInfo));
     }
 
-    internal WebFilesystemItem FilesystemItem(WebFilesystemItem item)
+    internal static WebFilesystemItem FilesystemItem(WebFilesystemItem item)
     {
       return new WebFilesystemItem
       {

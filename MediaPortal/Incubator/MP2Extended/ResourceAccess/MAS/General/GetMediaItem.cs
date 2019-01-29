@@ -34,7 +34,6 @@ using MediaPortal.Plugins.MP2Extended.Exceptions;
 using MediaPortal.Plugins.MP2Extended.MAS.General;
 using MP2Extended.Extensions;
 using Microsoft.Owin;
-using MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS;
 
 namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.General
 {
@@ -42,7 +41,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.General
   [ApiFunctionParam(Name = "id", Type = typeof(string), Nullable = false)]
   internal class GetMediaItem
   {
-    public Task<WebMediaItem> ProcessAsync(IOwinContext context, Guid id)
+    public static Task<WebMediaItem> ProcessAsync(IOwinContext context, string id)
     {
       if (id == null)
         throw new BadRequestException("GetMediaItem: id is null");
@@ -55,20 +54,19 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.General
       ISet<Guid> optionalMIATypes = new HashSet<Guid>();
       optionalMIATypes.Add(VideoAspect.ASPECT_ID);
       optionalMIATypes.Add(MovieAspect.ASPECT_ID);
-      optionalMIATypes.Add(SeriesAspect.ASPECT_ID);
+      optionalMIATypes.Add(EpisodeAspect.ASPECT_ID);
       optionalMIATypes.Add(AudioAspect.ASPECT_ID);
       optionalMIATypes.Add(ImageAspect.ASPECT_ID);
 
-      MediaItem item = MediaLibraryAccess.GetMediaItemById(context, id, necessaryMIATypes, optionalMIATypes);
+      MediaItem item = MediaLibraryAccess.GetMediaItemById(context, Guid.Parse(id), necessaryMIATypes, optionalMIATypes);
       if (item == null)
         throw new BadRequestException(String.Format("GetMediaItem: No MediaItem found with id: {0}", id));
 
       WebMediaItem webMediaItem = new WebMediaItem();
       webMediaItem.Id = item.MediaItemId.ToString();
-      // TODO: Add Artwork
-      //webMediaItem.Artwork
+      webMediaItem.Artwork = ResourceAccessUtils.GetWebArtwork(item);
       webMediaItem.DateAdded = item.GetAspect(ImporterAspect.Metadata).GetAttributeValue<DateTime>(ImporterAspect.ATTR_DATEADDED);
-      //webMediaItem.Path
+      webMediaItem.Path = ResourceAccessUtils.GetPaths(item);
       webMediaItem.Type = ResourceAccessUtils.GetWebMediaType(item);
       webMediaItem.Title = item.GetAspect(MediaAspect.Metadata).GetAttributeValue<string>(MediaAspect.ATTR_TITLE);
 

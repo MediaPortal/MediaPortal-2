@@ -26,17 +26,13 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using MediaPortal.Backend.MediaLibrary;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.MediaManagement;
-using MediaPortal.Common.MediaManagement.DefaultItemAspects;
-using MediaPortal.Common.MediaManagement.MLQueries;
 using MediaPortal.Plugins.MP2Extended.Attributes;
 using MediaPortal.Plugins.MP2Extended.Exceptions;
 using MediaPortal.Plugins.MP2Extended.MAS.Picture;
 using MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.Picture.BaseClasses;
-using Newtonsoft.Json;
 using Microsoft.Owin;
 
 namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.Picture
@@ -45,19 +41,14 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.Picture
   [ApiFunctionParam(Name = "id", Type = typeof(string), Nullable = false)]
   internal class GetPicturesBasicByCategory : BasePictureBasic
   {
-    public Task<IList<WebPictureBasic>> ProcessAsync(IOwinContext context, string id)
+    public static Task<IList<WebPictureBasic>> ProcessAsync(IOwinContext context, string id)
     {
-      DateTime recordingTime = (DateTime)JsonConvert.DeserializeObject(id, typeof(DateTime));
-      if (recordingTime == null)
-        throw new BadRequestException("GetPicturesBasicByCategory: couldn't convert id to DateTime");
-      
-      ISet<Guid> necessaryMIATypes = new HashSet<Guid>();
-      necessaryMIATypes.Add(MediaAspect.ASPECT_ID);
-      necessaryMIATypes.Add(ProviderResourceAspect.ASPECT_ID);
-      necessaryMIATypes.Add(ImporterAspect.ASPECT_ID);
-      necessaryMIATypes.Add(ImageAspect.ASPECT_ID);
+      if (string.IsNullOrEmpty(id) || id.Length != 4)
+        throw new BadRequestException("GetPicturesBasicByCategory: Couldn't convert id to year");
 
-      IList<MediaItem> items = MediaLibraryAccess.GetMediaItemsByRecordingTime(context, new DateTime(recordingTime.Year, 1, 1), new DateTime(recordingTime.Year, 12, 31), necessaryMIATypes, null);
+      DateTime start = new DateTime(Convert.ToInt32(id), 1, 1);
+      DateTime end = new DateTime(Convert.ToInt32(id), 12, 31);
+      IList<MediaItem> items = MediaLibraryAccess.GetMediaItemsByRecordingTime(context, start, end, BasicNecessaryMIATypeIds, BasicOptionalMIATypeIds);
 
       var output = items.Select(item => PictureBasic(item)).ToList();
 

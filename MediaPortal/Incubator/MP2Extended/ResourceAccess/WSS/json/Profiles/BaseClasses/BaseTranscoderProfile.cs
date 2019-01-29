@@ -32,7 +32,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.json.Profiles.BaseC
 {
   class BaseTranscoderProfile
   {
-    internal WebTranscoderProfile TranscoderProfile(KeyValuePair<string, EndPointProfile> profile)
+    internal static WebTranscoderProfile TranscoderProfile(KeyValuePair<string, EndPointProfile> profile)
     {
       int bandwith = 0;
       string mime = "video/MP2T";

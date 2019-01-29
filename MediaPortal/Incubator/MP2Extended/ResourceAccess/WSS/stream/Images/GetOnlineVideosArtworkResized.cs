@@ -47,7 +47,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.stream.Images
   [ApiFunctionParam(Name = "borders", Type = typeof(string), Nullable = true)]
   internal class GetOnlineVideosArtworkResized : BaseGetArtwork
   {
-    public async Task ProcessAsync(IOwinContext context, WebOnlineVideosMediaType mediatype, string id, int maxWidth, int maxHeight, string borders = null)
+    public static async Task ProcessAsync(IOwinContext context, WebOnlineVideosMediaType mediatype, string id, int maxWidth, int maxHeight, string borders = null)
     {
       if (id == null)
         throw new BadRequestException("GetOnlineVideosArtworkResized: id is null");

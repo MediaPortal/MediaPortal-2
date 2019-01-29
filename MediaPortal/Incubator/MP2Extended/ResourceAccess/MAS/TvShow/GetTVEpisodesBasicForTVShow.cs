@@ -41,16 +41,16 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.TvShow
 {
   internal class GetTVEpisodesBasicForTVShow : BaseEpisodeBasic
   {
-    public Task<IList<WebTVEpisodeBasic>> ProcessAsync(IOwinContext context, Guid id, WebSortField? sort, WebSortOrder? order)
+    public static Task<IList<WebTVEpisodeBasic>> ProcessAsync(IOwinContext context, string id, WebSortField? sort, WebSortOrder? order)
     {
-      IList<MediaItem> episodes = MediaLibraryAccess.GetMediaItemsByGroup(context, EpisodeAspect.ROLE_EPISODE, SeriesAspect.ROLE_SERIES, id, BasicNecessaryMIATypeIds, BasicOptionalMIATypeIds);
+      IList<MediaItem> episodes = MediaLibraryAccess.GetMediaItemsByGroup(context, EpisodeAspect.ROLE_EPISODE, SeriesAspect.ROLE_SERIES, Guid.Parse(id), BasicNecessaryMIATypeIds, BasicOptionalMIATypeIds);
 
       var output = new List<WebTVEpisodeBasic>();
 
       if (episodes.Count == 0)
         return Task.FromResult<IList<WebTVEpisodeBasic>>(output);
 
-      output.AddRange(episodes.Select(episode => EpisodeBasic(episode, id)));
+      output.AddRange(episodes.Select(episode => EpisodeBasic(episode, Guid.Parse(id))));
 
       // sort
       if (sort != null && order != null)

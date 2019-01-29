@@ -38,7 +38,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.json.Profiles
   [ApiFunctionDescription(Type = ApiFunctionDescription.FunctionType.Json, Summary = "")]
   internal class GetTranscoderProfiles : BaseTranscoderProfile
   {
-    public Task<IList<WebTranscoderProfile>> ProcessAsync(IOwinContext context)
+    public static Task<IList<WebTranscoderProfile>> ProcessAsync(IOwinContext context)
     {
       return Task.FromResult<IList<WebTranscoderProfile>>(ProfileManager.Profiles.Select(profile => TranscoderProfile(profile)).ToList());
     }

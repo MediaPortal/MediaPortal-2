@@ -55,7 +55,7 @@ namespace MediaPortal.Plugins.MP2Extended.Controllers.Interfaces
     Task<WebBoolResult> AuthorizeRemoteHostForStreaming(string host);
     Task<WebItemSupportStatus> GetItemSupportStatus(WebMediaType type, int? provider, string itemId, int? offset);
     //Task<WebStreamLogs> GetStreamLogs(string identifier);
-    //Task<WebMediaHash> GetItemHash(WebMediaType type, int? provider, string itemId, int? offset, bool smartHash);*/
+    //Task<WebMediaHash> GetItemHash(WebMediaType type, int? provider, string itemId, int? offset, bool smartHash);
     Task<WebBoolResult> RequestImageResize(WebMediaType mediatype, int? provider, string id, WebFileType imagetype, int offset, int maxWidth, int maxHeight, string borders = null, string format = null);
   }
 }

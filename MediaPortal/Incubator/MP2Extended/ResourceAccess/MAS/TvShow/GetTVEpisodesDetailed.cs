@@ -43,7 +43,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.TvShow
   [ApiFunctionParam(Name = "order", Type = typeof(WebSortOrder), Nullable = true)]
   internal class GetTVEpisodesDetailed : BaseEpisodeDetailed
   {
-    public Task<IList<WebTVEpisodeDetailed>> ProcessAsync(IOwinContext context, string filter, WebSortField? sort, WebSortOrder? order)
+    public static Task<IList<WebTVEpisodeDetailed>> ProcessAsync(IOwinContext context, string filter, WebSortField? sort, WebSortOrder? order)
     {
       IList<MediaItem> items = MediaLibraryAccess.GetMediaItemsByAspect(context, DetailedNecessaryMIATypeIds, DetailedOptionalMIATypeIds, null);
 

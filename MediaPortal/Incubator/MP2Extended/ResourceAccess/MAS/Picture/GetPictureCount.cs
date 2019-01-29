@@ -38,16 +38,15 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.Picture
   [ApiFunctionDescription(Type = ApiFunctionDescription.FunctionType.Json, Summary = "")]
   internal class GetPictureCount
   {
-    public Task<WebIntResult> ProcessAsync(IOwinContext context)
+    public static Task<WebIntResult> ProcessAsync(IOwinContext context)
     {
       ISet<Guid> necessaryMIATypes = new HashSet<Guid>();
       necessaryMIATypes.Add(MediaAspect.ASPECT_ID);
-      necessaryMIATypes.Add(ProviderResourceAspect.ASPECT_ID);
-      necessaryMIATypes.Add(ImporterAspect.ASPECT_ID);
       necessaryMIATypes.Add(ImageAspect.ASPECT_ID);
 
-      IList<MediaItem> items = MediaLibraryAccess.GetMediaItemsByAspect(context, necessaryMIATypes, null);
-      return Task.FromResult(new WebIntResult {Result = items.Count});
+      int count = MediaLibraryAccess.CountMediaItems(context, necessaryMIATypes);
+
+      return Task.FromResult(new WebIntResult {Result = count });
     }
 
     internal static ILogger Logger

@@ -38,15 +38,15 @@ using Microsoft.Owin;
 namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.TAS.Tv
 {
   [ApiFunctionDescription(Type = ApiFunctionDescription.FunctionType.Json, Summary = "")]
-  [ApiFunctionParam(Name = "groupId", Type = typeof(int), Nullable = false)]
+  [ApiFunctionParam(Name = "groupId", Type = typeof(string), Nullable = true)]
   internal class GetChannelCount
   {
-    public async Task<WebIntResult> ProcessAsync(IOwinContext context, int? groupId = null)
+    public static async Task<WebIntResult> ProcessAsync(IOwinContext context, string groupId = null)
     {
       if (!ServiceRegistration.IsRegistered<ITvProvider>())
         throw new BadRequestException("GetChannelCount: ITvProvider not found");
 
-      var channels = await TVAccess.GetGroupChannelsAsync(context, groupId);
+      var channels = await TVAccess.GetGroupChannelsAsync(context, groupId != null ? int.Parse(groupId) : (int?)null);
       return new WebIntResult { Result = channels.Where(c => c.MediaType == MediaType.TV).Count() };
     }
 

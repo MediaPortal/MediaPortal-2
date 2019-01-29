@@ -35,18 +35,18 @@ using Microsoft.Owin;
 namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.TAS.Schedule
 {
   [ApiFunctionDescription(Type = ApiFunctionDescription.FunctionType.Json, Summary = "")]
-  [ApiFunctionParam(Name = "programId", Type = typeof(int), Nullable = false)]
+  [ApiFunctionParam(Name = "programId", Type = typeof(string), Nullable = false)]
   internal class GetProgramIsScheduled
   {
-    public async Task<WebBoolResult> ProcessAsync(IOwinContext context, int programId)
+    public static async Task<WebBoolResult> ProcessAsync(IOwinContext context, string programId)
     {
-      if (programId == 0)
+      if (programId == null)
         throw new BadRequestException("GetProgramIsScheduled: programId is null");
 
       if (!ServiceRegistration.IsRegistered<ITvProvider>())
         throw new BadRequestException("GetProgramIsScheduled: ITvProvider not found");
 
-      var recordingStatus = await TVAccess.GetProgramRecordingStatusAsync(context, programId);
+      var recordingStatus = await TVAccess.GetProgramRecordingStatusAsync(context, int.Parse(programId));
 
       bool result = recordingStatus == RecordingStatus.Recording || recordingStatus == RecordingStatus.RuleScheduled
         || recordingStatus == RecordingStatus.Scheduled || recordingStatus == RecordingStatus.SeriesScheduled;

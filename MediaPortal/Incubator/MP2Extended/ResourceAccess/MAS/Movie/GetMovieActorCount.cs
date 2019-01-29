@@ -30,11 +30,11 @@ using Microsoft.Owin;
 namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.Movie
 {
   [ApiFunctionDescription(Type = ApiFunctionDescription.FunctionType.Json, Summary = "")]
-  internal class GetMovieActorCount : GetMovieActors
+  internal class GetMovieActorCount
   {
-    public async Task<WebIntResult> ProcessAsync(IOwinContext context, string filter)
+    public static async Task<WebIntResult> ProcessAsync(IOwinContext context, string filter)
     {
-      var output = await base.ProcessAsync(context, filter, null, null);
+      var output = await GetMovieActors.ProcessAsync(context, filter, null, null);
 
       return new WebIntResult { Result = output.Count };
     }

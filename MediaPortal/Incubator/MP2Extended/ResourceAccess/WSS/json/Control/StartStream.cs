@@ -47,7 +47,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.json.Control
   [ApiFunctionParam(Name = "startPosition", Type = typeof(long), Nullable = false)]
   internal class StartStream
   {
-    public async Task<WebStringResult> ProcessAsync(IOwinContext context, string identifier, string profileName, long startPosition)
+    public static async Task<WebStringResult> ProcessAsync(IOwinContext context, string identifier, string profileName, long startPosition)
     {
       if (identifier == null)
         throw new BadRequestException("InitStream: identifier is null");

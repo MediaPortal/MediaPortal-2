@@ -35,18 +35,18 @@ using Microsoft.Owin;
 namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.TAS.Schedule
 {
   [ApiFunctionDescription(Type = ApiFunctionDescription.FunctionType.Json, Summary = "")]
-  [ApiFunctionParam(Name = "programId", Type = typeof(int), Nullable = false)]
+  [ApiFunctionParam(Name = "programId", Type = typeof(string), Nullable = false)]
   internal class UnCancelSchedule
   {
-    public async Task<WebBoolResult> ProcessAsync(IOwinContext context, int programId)
+    public static async Task<WebBoolResult> ProcessAsync(IOwinContext context, string programId)
     {
-      if (programId == 0)
+      if (programId == null)
         throw new BadRequestException("CancelSchedule: programId is null");
 
       if (!ServiceRegistration.IsRegistered<ITvProvider>())
         throw new BadRequestException("CancelSchedule: ITvProvider not found");
 
-      bool result = await TVAccess.UnCancelScheduleAsync(context, programId);
+      bool result = await TVAccess.UnCancelScheduleAsync(context, int.Parse(programId));
       return new WebBoolResult { Result = result };
     }
 

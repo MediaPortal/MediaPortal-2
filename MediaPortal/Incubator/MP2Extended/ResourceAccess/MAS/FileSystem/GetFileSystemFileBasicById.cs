@@ -38,10 +38,10 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.FileSystem
   [ApiFunctionParam(Name = "id", Type = typeof(string), Nullable = false)]
   internal class GetFileSystemFileBasicById : BaseFileBasic
   {
-    public Task<WebFileBasic> ProcessAsync(IOwinContext context, string id)
+    public static Task<WebFileBasic> ProcessAsync(IOwinContext context, string id)
     {
       string path = Base64.Decode(id);
-      if (!File.Exists(path))
+      if (!System.IO.File.Exists(path))
         return null;
 
       return Task.FromResult(FileBasic(new FileInfo(path.StartsWith("file://") ? path.Substring(7) : path)));

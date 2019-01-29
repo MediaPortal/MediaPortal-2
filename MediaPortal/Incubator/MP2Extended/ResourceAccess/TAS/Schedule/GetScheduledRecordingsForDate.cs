@@ -47,7 +47,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.TAS.Schedule
   [ApiFunctionParam(Name = "filter", Type = typeof(string), Nullable = true)]
   internal class GetScheduledRecordingsForDate : BaseScheduledRecording
   {
-    public async Task<IList<WebScheduledRecording>> ProcessAsync(IOwinContext context, DateTime date, WebSortField? sort, WebSortOrder? order, string filter = null)
+    public static async Task<IList<WebScheduledRecording>> ProcessAsync(IOwinContext context, DateTime date, WebSortField? sort, WebSortOrder? order, string filter = null)
     {
        if (!ServiceRegistration.IsRegistered<ITvProvider>())
         throw new BadRequestException("GetScheduledRecordingsForDate: ITvProvider not found");

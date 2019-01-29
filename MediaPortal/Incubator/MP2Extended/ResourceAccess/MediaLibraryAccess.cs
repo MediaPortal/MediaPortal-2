@@ -24,12 +24,14 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using MediaPortal.Backend.MediaLibrary;
 using MediaPortal.Common;
 using MediaPortal.Common.General;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Common.MediaManagement.MLQueries;
+using MediaPortal.Common.ResourceAccess;
 using MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS;
 using Microsoft.Owin;
 using static MediaPortal.Common.MediaManagement.MediaItemAspectMetadata;
@@ -159,6 +161,23 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess
       IFilter searchFilter = ResourceAccessUtils.AppendUserFilter(user, filter, necessaryMIATypes);
       MediaItemQuery searchQuery = new MediaItemQuery(necessaryMIATypes, optionalMIATypes, searchFilter) { Limit = limit };
       return MediaLibrary.Search(searchQuery, false, user, false);
+    }
+
+    internal static bool Delete(IOwinContext context, MediaItem item)
+    {
+      Guid? user = ResourceAccessUtils.GetUser(context);
+      IList<MultipleMediaItemAspect> providerResourceAspects;
+      if (MediaItemAspect.TryGetAspects(item.Aspects, ProviderResourceAspect.Metadata, out providerResourceAspects))
+      {
+        foreach (var res in providerResourceAspects.Where(p => p.GetAttributeValue<int>(ProviderResourceAspect.ATTR_TYPE) == ProviderResourceAspect.TYPE_PRIMARY))
+        {
+          var systemId = res.GetAttributeValue<string>(ProviderResourceAspect.ATTR_SYSTEM_ID);
+          var resourcePathStr = res.GetAttributeValue<string>(ProviderResourceAspect.ATTR_RESOURCE_ACCESSOR_PATH);
+          var resourcePath = ResourcePath.Deserialize(resourcePathStr.ToString());
+          MediaLibrary.DeleteMediaItemOrPath(systemId, resourcePath, true);
+        }
+      }
+      return true;
     }
 
     #endregion

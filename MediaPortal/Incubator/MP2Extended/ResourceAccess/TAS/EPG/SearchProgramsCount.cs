@@ -37,9 +37,9 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.TAS.EPG
   [ApiFunctionParam(Name = "searchTerm", Type = typeof(string), Nullable = false)]
   internal class SearchProgramsCount
   {
-    public async Task<WebIntResult> ProcessAsync(IOwinContext context, string searchTerm)
+    public static async Task<WebIntResult> ProcessAsync(IOwinContext context, string searchTerm)
     {
-      IList<WebProgramBasic> output = await new SearchProgramsBasic().ProcessAsync(context, searchTerm);
+      IList<WebProgramBasic> output = await SearchProgramsBasic.ProcessAsync(context, searchTerm);
       return new WebIntResult { Result = output.Count };
     }
 

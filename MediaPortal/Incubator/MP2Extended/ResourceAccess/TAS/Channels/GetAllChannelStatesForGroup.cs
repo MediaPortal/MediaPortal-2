@@ -39,11 +39,11 @@ using Microsoft.Owin;
 namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.TAS.Channels
 {
   [ApiFunctionDescription(Type = ApiFunctionDescription.FunctionType.Json, Summary = "")]
-  [ApiFunctionParam(Name = "groupId", Type = typeof(int), Nullable = false)]
+  [ApiFunctionParam(Name = "groupId", Type = typeof(string), Nullable = false)]
   [ApiFunctionParam(Name = "userName", Type = typeof(string), Nullable = false)]
   internal class GetAllChannelStatesForGroup
   {
-    public async Task<IList<WebChannelState>> ProcessAsync(IOwinContext context, int groupId, string userName)
+    public static async Task<IList<WebChannelState>> ProcessAsync(IOwinContext context, string groupId, string userName)
     {
 
       if (!ServiceRegistration.IsRegistered<ITvProvider>())
@@ -54,7 +54,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.TAS.Channels
 
       List<WebChannelState> output = new List<WebChannelState>();
       IChannelAndGroupInfoAsync channelAndGroupInfo = ServiceRegistration.Get<ITvProvider>() as IChannelAndGroupInfoAsync;
-      IChannelGroup channelGroup = new ChannelGroup { ChannelGroupId = groupId };
+      IChannelGroup channelGroup = new ChannelGroup { ChannelGroupId = int.Parse(groupId) };
       var channels = await channelAndGroupInfo.GetChannelsAsync(channelGroup);
       if (!channels.Success)
         throw new BadRequestException(string.Format("GetAllChannelStatesForGroup: Couldn't get channels for group: {0}", groupId));

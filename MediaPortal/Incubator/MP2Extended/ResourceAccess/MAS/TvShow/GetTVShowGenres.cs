@@ -44,7 +44,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.TvShow
   [ApiFunctionParam(Name = "order", Type = typeof(WebSortOrder), Nullable = true)]
   internal class GetTVShowGenres
   {
-    public Task<IList<WebGenre>> ProcessAsync(IOwinContext context, WebSortField? sort, WebSortOrder? order)
+    public static Task<IList<WebGenre>> ProcessAsync(IOwinContext context, WebSortField? sort, WebSortOrder? order)
     {
       ISet<Guid> necessaryMIATypes = new HashSet<Guid>();
       necessaryMIATypes.Add(MediaAspect.ASPECT_ID);

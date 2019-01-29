@@ -37,7 +37,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.Filter
   [ApiFunctionDescription(Type = ApiFunctionDescription.FunctionType.Json, Summary = "")]
   internal class GetFilterOperators
   {
-    public Task<IList<WebFilterOperator>> ProcessAsync(IOwinContext context)
+    public static Task<IList<WebFilterOperator>> ProcessAsync(IOwinContext context)
     {
       return Task.FromResult<IList<WebFilterOperator>>(Operator.GetAll().Select(x => new WebFilterOperator()
       {

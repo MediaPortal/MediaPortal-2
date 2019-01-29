@@ -33,9 +33,9 @@ using Microsoft.Owin;
 namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.General
 {
   [ApiFunctionDescription(Type = ApiFunctionDescription.FunctionType.Json, Summary = "")]
-  internal class GetServiceDescription
+  internal static class GetServiceDescription
   {
-    public Task<WebMediaServiceDescription> ProcessAsync(IOwinContext context)
+    public static Task<WebMediaServiceDescription> ProcessAsync(IOwinContext context)
     {
       WebMediaServiceDescription webMediaServiceDescription = new WebMediaServiceDescription();
       webMediaServiceDescription.ApiVersion = GlobalVersion.API_VERSION;
@@ -64,14 +64,20 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.General
           Id = 9,
           Name = "MP Music Shares",
           Version = GlobalVersion.VERSION
-        }
+        },
+        new WebBackendProvider
+        {
+          Id = 14,
+          Name = "MP Series Shares",
+          Version = GlobalVersion.VERSION
+        },
       };
       webMediaServiceDescription.AvailableMovieLibraries = new List<WebBackendProvider>
       {
         new WebBackendProvider
         {
           Id = 7,
-          Name = "MP MyVideo",
+          Name = "MP Video",
           Version = GlobalVersion.VERSION
         }
       };
@@ -80,7 +86,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.General
         new WebBackendProvider
         {
           Id = 4,
-          Name = "MP MyMusic",
+          Name = "MP Music",
           Version = GlobalVersion.VERSION
         }
       };
@@ -89,7 +95,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.General
         new WebBackendProvider
         {
           Id = 8,
-          Name = "MP Picture Shares",
+          Name = "MP Pictures",
           Version = GlobalVersion.VERSION
         }
       };
@@ -98,14 +104,14 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.General
         new WebBackendProvider
         {
           Id = 6,
-          Name = "MP-TVSeries",
+          Name = "MP Series",
           Version = GlobalVersion.VERSION
         }
       };
       webMediaServiceDescription.DefaultFileSystemLibrary = 5;
-      webMediaServiceDescription.DefaultMovieLibrary = 0;
+      webMediaServiceDescription.DefaultMovieLibrary = 7;
       webMediaServiceDescription.DefaultMusicLibrary = 4;
-      webMediaServiceDescription.DefaultPictureLibrary = 0;
+      webMediaServiceDescription.DefaultPictureLibrary = 8;
       webMediaServiceDescription.DefaultTvShowLibrary = 6;
       webMediaServiceDescription.ServiceVersion = GlobalVersion.VERSION;
 

@@ -39,17 +39,17 @@ using Microsoft.Owin;
 namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.TAS.EPG
 {
   [ApiFunctionDescription(Type = ApiFunctionDescription.FunctionType.Json, Summary = "")]
-  [ApiFunctionParam(Name = "channelId", Type = typeof(int), Nullable = false)]
+  [ApiFunctionParam(Name = "channelId", Type = typeof(string), Nullable = false)]
   [ApiFunctionParam(Name = "startTime", Type = typeof(DateTime), Nullable = false)]
   [ApiFunctionParam(Name = "endTime", Type = typeof(DateTime), Nullable = false)]
   internal class GetProgramsDetailedForChannel : BaseProgramDetailed
   {
-    public async Task<IList<WebProgramDetailed>> ProcessAsync(IOwinContext context, int channelId, DateTime startTime, DateTime endTime)
+    public static async Task<IList<WebProgramDetailed>> ProcessAsync(IOwinContext context, string channelId, DateTime startTime, DateTime endTime)
     {
       if (!ServiceRegistration.IsRegistered<ITvProvider>())
         throw new BadRequestException("GetProgramsDetailedForChannel: ITvProvider not found");
 
-      var programs = await TVAccess.GetChannelProgramsAsync(context, channelId, startTime, endTime);
+      var programs = await TVAccess.GetChannelProgramsAsync(context, int.Parse(channelId), startTime, endTime);
       if (programs.Count == 0)
         Logger.Warn("GetProgramsDetailedForChannel: Couldn't get Now/Next Info for channel with Id: {0}", channelId);
 

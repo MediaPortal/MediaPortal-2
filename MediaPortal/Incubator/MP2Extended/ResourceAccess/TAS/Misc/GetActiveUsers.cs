@@ -39,7 +39,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.TAS.Misc
   [ApiFunctionDescription(Type = ApiFunctionDescription.FunctionType.Json, Summary = "")]
   internal class GetActiveUsers
   {
-    public async Task<IList<WebUser>> ProcessAsync(IOwinContext context)
+    public static async Task<IList<WebUser>> ProcessAsync(IOwinContext context)
     {
       if (!ServiceRegistration.IsRegistered<ITvProvider>())
         throw new BadRequestException("GetActiveUsers: ITvProvider not found");

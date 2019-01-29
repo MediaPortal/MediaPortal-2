@@ -42,7 +42,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.OnlineVideos
   [ApiFunctionParam(Name = "filter", Type = typeof(string), Nullable = true)]
   internal class GetOnlineVideosSites
   {
-    public Task<IList<WebOnlineVideosSite>> ProcessAsync(IOwinContext context, string filter, WebSortField? sort, WebSortOrder? order)
+    public static Task<IList<WebOnlineVideosSite>> ProcessAsync(IOwinContext context, string filter, WebSortField? sort, WebSortOrder? order)
     {
       List<WebOnlineVideosSite> output = MP2Extended.OnlineVideosManager.GetSites().Select(site => new WebOnlineVideosSite
       {

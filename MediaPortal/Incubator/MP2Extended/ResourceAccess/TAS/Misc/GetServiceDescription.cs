@@ -35,7 +35,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.TAS.Misc
   [ApiFunctionDescription(Type = ApiFunctionDescription.FunctionType.Json, Summary = "")]
   internal class GetServiceDescription
   {
-    public Task<WebTVServiceDescription> ProcessAsync(IOwinContext context)
+    public static Task<WebTVServiceDescription> ProcessAsync(IOwinContext context)
     { 
       WebTVServiceDescription webTVServiceDescription = new WebTVServiceDescription
       {

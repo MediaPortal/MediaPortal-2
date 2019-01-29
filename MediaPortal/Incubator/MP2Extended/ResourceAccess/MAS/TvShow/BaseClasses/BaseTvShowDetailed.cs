@@ -34,7 +34,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.TvShow.BaseClasses
   // TODO: Add more detailes
   class BaseTvShowDetailed : BaseTvShowBasic
   {
-    internal WebTVShowDetailed TVShowDetailed(IOwinContext context, MediaItem item, MediaItem showItem = null)
+    internal static WebTVShowDetailed TVShowDetailed(IOwinContext context, MediaItem item, MediaItem showItem = null)
     {
       var seriesAspect = item.GetAspect(SeriesAspect.Metadata);
       var tvShowBasic = TVShowBasic(context, item);

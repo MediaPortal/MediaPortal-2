@@ -41,7 +41,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.TAS.Recording
   [ApiFunctionDescription(Type = ApiFunctionDescription.FunctionType.Json, Summary = "")]
   internal class GetAllRecordingDiskInformation : BaseCard
   {
-    public async Task<IList<WebDiskSpaceInformation>> ProcessAsync(IOwinContext context)
+    public static async Task<IList<WebDiskSpaceInformation>> ProcessAsync(IOwinContext context)
     {
       if (!ServiceRegistration.IsRegistered<ITvProvider>())
         throw new BadRequestException("GetAllRecordingDiskInformation: ITvProvider not found");

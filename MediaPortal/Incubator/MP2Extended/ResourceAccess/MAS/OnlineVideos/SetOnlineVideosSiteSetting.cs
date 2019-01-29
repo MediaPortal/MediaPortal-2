@@ -39,7 +39,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.OnlineVideos
   [ApiFunctionParam(Name = "value", Type = typeof(string), Nullable = false)]
   internal class SetOnlineVideosSiteSetting
   {
-    public Task<WebBoolResult> ProcessAsync(IOwinContext context, string siteId, string property, string value)
+    public static Task<WebBoolResult> ProcessAsync(IOwinContext context, string siteId, string property, string value)
     {
       if (siteId == null)
         throw new BadRequestException("SetOnlineVideosSiteSetting: siteId is null");

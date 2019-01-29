@@ -39,11 +39,11 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.Movie
   [ApiFunctionParam(Name = "sort", Type = typeof(WebSortField), Nullable = true)]
   [ApiFunctionParam(Name = "order", Type = typeof(WebSortOrder), Nullable = true)]
   [ApiFunctionParam(Name = "filter", Type = typeof(string), Nullable = true)]
-  internal class GetMoviesDetailedByRange : GetMoviesDetailed
+  internal class GetMoviesDetailedByRange
   {
-    public async Task<IList<WebMovieDetailed>> ProcessAsync(IOwinContext context, int start, int end, string filter, WebSortField? sort, WebSortOrder? order)
+    public static async Task<IList<WebMovieDetailed>> ProcessAsync(IOwinContext context, int start, int end, string filter, WebSortField? sort, WebSortOrder? order)
     {
-      IEnumerable<WebMovieDetailed> output = await base.ProcessAsync(context, filter, sort, order);
+      IEnumerable<WebMovieDetailed> output = await GetMoviesDetailed.ProcessAsync(context, filter, sort, order);
 
       // get range
       output = output.TakeRange(start, end);

@@ -41,7 +41,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.stream.Images
   [ApiFunctionParam(Name = "mediatype", Type = typeof(WebOnlineVideosMediaType), Nullable = false)]
   internal class GetOnlineVideosArtwork : BaseGetArtwork
   {
-    public async Task ProcessAsync(IOwinContext context, WebOnlineVideosMediaType mediatype, string id)
+    public static async Task ProcessAsync(IOwinContext context, WebOnlineVideosMediaType mediatype, string id)
     {
       if (id == null)
         throw new BadRequestException("GetOnlineVideosArtwork: id is null");

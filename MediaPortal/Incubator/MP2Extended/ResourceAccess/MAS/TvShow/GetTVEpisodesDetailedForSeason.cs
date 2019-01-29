@@ -47,15 +47,15 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.TvShow
   [ApiFunctionParam(Name = "order", Type = typeof(WebSortOrder), Nullable = true)]
   internal class GetTVEpisodesDetailedForSeason : BaseEpisodeDetailed
   {
-    public Task<IList<WebTVEpisodeDetailed>> ProcessAsync(IOwinContext context, Guid id, WebSortField? sort, WebSortOrder? order)
+    public static Task<IList<WebTVEpisodeDetailed>> ProcessAsync(IOwinContext context, string id, WebSortField? sort, WebSortOrder? order)
     {
       // Get all episodes for season
-      IList<MediaItem> episodes = MediaLibraryAccess.GetMediaItemsByGroup(context, EpisodeAspect.ROLE_EPISODE, SeasonAspect.ROLE_SEASON, id, DetailedNecessaryMIATypeIds, DetailedOptionalMIATypeIds);
+      IList<MediaItem> episodes = MediaLibraryAccess.GetMediaItemsByGroup(context, EpisodeAspect.ROLE_EPISODE, SeasonAspect.ROLE_SEASON, Guid.Parse(id), DetailedNecessaryMIATypeIds, DetailedOptionalMIATypeIds);
 
       if (episodes.Count == 0)
         throw new BadRequestException("No Tv Episodes found");
 
-      var output = episodes.Select(episode => EpisodeDetailed(episode, null, id));
+      var output = episodes.Select(episode => EpisodeDetailed(episode, null, Guid.Parse(id)));
 
       // sort
       if (sort != null && order != null)

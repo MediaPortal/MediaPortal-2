@@ -37,15 +37,12 @@ using Microsoft.Owin;
 using System.Net;
 using System.Threading.Tasks;
 using MediaPortal.Backend.MediaLibrary;
+using System.Collections.Concurrent;
 
 namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.stream.BaseClasses
 {
-  class BaseSendData : IDisposable
+  class BaseSendData
   {
-    protected readonly IDictionary<string, CachedResource> _resourceAccessorCache = new Dictionary<string, CachedResource>(10);
-    protected IntervalWork _tidyUpCacheWork;
-    protected readonly object _syncObj = new object();
-
     public static TimeSpan RESOURCE_CACHE_TIME = TimeSpan.FromMinutes(5);
     public static TimeSpan CACHE_CLEANUP_INTERVAL = TimeSpan.FromMinutes(1);
     public static CancellationTokenSource SendDataCancellation = new CancellationTokenSource();
@@ -74,7 +71,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.stream.BaseClasses
 
     #region send
 
-    protected async Task SendRangeAsync(IOwinContext context, Stream resourceStream, Range range, bool onlyHeaders)
+    protected static async Task SendRangeAsync(IOwinContext context, Stream resourceStream, Range range, bool onlyHeaders)
     {
       if (range.From > resourceStream.Length)
       {
@@ -103,7 +100,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.stream.BaseClasses
       await SendAsync(context, resourceStream, range.Length);
     }
 
-    protected async Task SendWholeFileAsync(IOwinContext context, Stream resourceStream, bool onlyHeaders)
+    protected static async Task SendWholeFileAsync(IOwinContext context, Stream resourceStream, bool onlyHeaders)
     {
       if (context.Response.StatusCode != (int)HttpStatusCode.NotModified) // respect the If-Modified-Since Header
         context.Response.StatusCode = (int)HttpStatusCode.OK;
@@ -115,7 +112,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.stream.BaseClasses
       await SendAsync(context, resourceStream, resourceStream.Length);
     }
 
-    protected async Task SendWholeFileAsync(IOwinContext context, Stream resourceStream, ProfileMediaItem item, EndPointProfile profile, bool onlyHeaders, bool partialResource, TransferMode mediaTransferMode)
+    protected static async Task SendWholeFileAsync(IOwinContext context, Stream resourceStream, ProfileMediaItem item, EndPointProfile profile, bool onlyHeaders, bool partialResource, TransferMode mediaTransferMode)
     {
       if (await WaitForMinimumFileSizeAsync(resourceStream, 1) == false)
       {
@@ -147,7 +144,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.stream.BaseClasses
       await SendAsync(context, resourceStream, item, profile, onlyHeaders, partialResource, byteRange);
     }
 
-    protected async Task SendAsync(IOwinContext context, Stream resourceStream, long length)
+    protected static async Task SendAsync(IOwinContext context, Stream resourceStream, long length)
     {
       context.Response.StatusCode = (int)HttpStatusCode.OK;
       context.Response.ContentLength = resourceStream.Length;
@@ -168,7 +165,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.stream.BaseClasses
       Logger.Debug("Sending data complete");
     }
 
-    protected async Task SendAsync(IOwinContext context, Stream resourceStream, ProfileMediaItem item, EndPointProfile profile, bool onlyHeaders, bool partialResource, Range byteRange)
+    protected static async Task SendAsync(IOwinContext context, Stream resourceStream, ProfileMediaItem item, EndPointProfile profile, bool onlyHeaders, bool partialResource, Range byteRange)
     {
       if (onlyHeaders)
         return;
@@ -308,7 +305,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.stream.BaseClasses
       }
     }
 
-    protected async Task SendByteRangeAsync(IOwinContext context, Stream resourceStream, ProfileMediaItem item, EndPointProfile profile, Range range, bool onlyHeaders, bool partialResource, TransferMode mediaTransferMode)
+    protected static async Task SendByteRangeAsync(IOwinContext context, Stream resourceStream, ProfileMediaItem item, EndPointProfile profile, Range range, bool onlyHeaders, bool partialResource, TransferMode mediaTransferMode)
     {
       if (range.From > 0 && range.From == range.To)
       {
@@ -373,7 +370,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.stream.BaseClasses
       await SendAsync(context, resourceStream, item, profile, onlyHeaders, partialResource, fileRange);
     }
 
-    protected Range ConvertToByteRange(Range timeRange, ProfileMediaItem item)
+    protected static Range ConvertToByteRange(Range timeRange, ProfileMediaItem item)
     {
       if (timeRange.Length <= 0.0)
       {
@@ -401,7 +398,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.stream.BaseClasses
       return new Range(startByte, endByte);
     }
 
-    protected Range ConvertToTimeRange(Range byteRange, ProfileMediaItem item)
+    protected static Range ConvertToTimeRange(Range byteRange, ProfileMediaItem item)
     {
       if (byteRange.Length <= 0.0)
       {
@@ -433,7 +430,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.stream.BaseClasses
       return new Range(Convert.ToInt64(startSeconds), Convert.ToInt64(endSeconds));
     }
 
-    protected Range ConvertToFileRange(Range requestedByteRange, ProfileMediaItem item, long length)
+    protected static Range ConvertToFileRange(Range requestedByteRange, ProfileMediaItem item, long length)
     {
       long toRange = requestedByteRange.To;
       long fromRange = requestedByteRange.From;
@@ -454,37 +451,18 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.stream.BaseClasses
 
     #endregion send
 
-    public void Dispose()
+    protected static IResourceAccessor GetResourceAccessor(ResourcePath resourcePath)
     {
-      if (_tidyUpCacheWork != null)
-      {
-        IThreadPool threadPool = ServiceRegistration.Get<IThreadPool>();
-        threadPool.RemoveIntervalWork(_tidyUpCacheWork);
-        _tidyUpCacheWork = null;
-      }
-      ClearResourceAccessorCache();
-    }
-
-    protected IResourceAccessor GetResourceAccessor(ResourcePath resourcePath)
-    {
-      lock (_syncObj)
-      {
-        CachedResource resource;
-        string resourcePathStr = resourcePath.Serialize();
-        if (_resourceAccessorCache.TryGetValue(resourcePathStr, out resource))
-          return resource.ResourceAccessor;
-        // TODO: Security check. Only deliver resources which are located inside local shares.
-        ServiceRegistration.Get<ILogger>().Debug("BaseSendData: Access of resource '{0}'", resourcePathStr);
-        IResourceAccessor result;
-        if (resourcePath.TryCreateLocalResourceAccessor(out result))
-        {
-          _resourceAccessorCache[resourcePathStr] = new CachedResource(result);
-        }
+      // TODO: Security check. Only deliver resources which are located inside local shares.
+      ServiceRegistration.Get<ILogger>().Debug("BaseSendData: Access of resource '{0}'", resourcePath.ToString());
+      IResourceAccessor result;
+      if (resourcePath.TryCreateLocalResourceAccessor(out result))
         return result;
-      }
+
+      return null;
     }
 
-    internal async Task<bool> WaitForMinimumFileSizeAsync(Stream resourceStream, long minimumSize)
+    internal static async Task<bool> WaitForMinimumFileSizeAsync(Stream resourceStream, long minimumSize)
     {
       if (resourceStream.CanSeek == false)
         return resourceStream.CanRead;
@@ -502,7 +480,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.stream.BaseClasses
       return true;
     }
 
-    internal long GetStreamSize(ProfileMediaItem item)
+    internal static long GetStreamSize(ProfileMediaItem item)
     {
       long length = item?.WebMetadata?.Metadata?.Size ?? 0;
       if (item.IsTranscoding == true || item.IsLive == true || length <= 0)
@@ -516,87 +494,9 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.stream.BaseClasses
       return length;
     }
 
-    #region cache
-
-    protected class CachedResource : IDisposable
-    {
-      private IResourceAccessor _resourceAccessor;
-
-      public CachedResource(IResourceAccessor resourceAccessor)
-      {
-        LastTimeUsed = DateTime.Now;
-        _resourceAccessor = resourceAccessor;
-      }
-
-      public void Dispose()
-      {
-        _resourceAccessor.Dispose();
-        _resourceAccessor = null;
-      }
-
-      public DateTime LastTimeUsed { get; private set; }
-
-      public IResourceAccessor ResourceAccessor
-      {
-        get
-        {
-          LastTimeUsed = DateTime.Now;
-          return _resourceAccessor;
-        }
-      }
-    }
-
-    protected void TidyUpResourceAccessorCache()
-    {
-      lock (_syncObj)
-      {
-        DateTime threshold = DateTime.Now - RESOURCE_CACHE_TIME;
-        ICollection<string> removedResources = new List<string>(_resourceAccessorCache.Count);
-        foreach (KeyValuePair<string, CachedResource> entry in _resourceAccessorCache)
-        {
-          CachedResource resource = entry.Value;
-          if (resource.LastTimeUsed > threshold)
-            continue;
-          try
-          {
-            resource.Dispose();
-          }
-          catch (Exception e)
-          {
-            ServiceRegistration.Get<ILogger>().Warn("BaseSendData: Error disposing resource accessor '{0}'", e, entry.Key);
-          }
-          removedResources.Add(entry.Key);
-        }
-        foreach (string resourcePathStr in removedResources)
-          _resourceAccessorCache.Remove(resourcePathStr);
-      }
-    }
-
-    protected void ClearResourceAccessorCache()
-    {
-      lock (_syncObj)
-      {
-        foreach (KeyValuePair<string, CachedResource> entry in _resourceAccessorCache)
-        {
-          CachedResource resource = entry.Value;
-          try
-          {
-            resource.Dispose();
-          }
-          catch (Exception e)
-          {
-            ServiceRegistration.Get<ILogger>().Warn("BaseSendData: Error disposing resource accessor '{0}'", e, entry.Key);
-          }
-        }
-        _resourceAccessorCache.Clear();
-      }
-    }
-
-    #endregion cache
-
     #region parse ranges
 
-    protected IList<Range> ParseByteRanges(string byteRangesSpecifier, long size)
+    protected static IList<Range> ParseByteRanges(string byteRangesSpecifier, long size)
     {
       if (string.IsNullOrEmpty(byteRangesSpecifier))
         return null;

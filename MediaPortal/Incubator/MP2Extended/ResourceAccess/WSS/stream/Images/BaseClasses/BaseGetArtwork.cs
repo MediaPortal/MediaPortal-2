@@ -77,7 +77,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.stream.Images.BaseC
     };
 
 
-    internal void MapTypes(WebFileType webFileType, WebMediaType webMediaType, out string fanartType, out string fanArtMediaType)
+    internal static void MapTypes(WebFileType webFileType, WebMediaType webMediaType, out string fanartType, out string fanArtMediaType)
     {
       // Map the Fanart Type
       if (!_fanArtTypeMapping.TryGetValue(webFileType, out fanartType))
@@ -89,7 +89,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.stream.Images.BaseC
         fanArtMediaType = FanArtMediaTypes.Undefined;
     }
 
-    internal IList<FanArtImage> GetFanArtImages(IOwinContext context, string id, bool isTvRadio, bool isRecording, string fanartType, string fanArtMediaType)
+    internal static IList<FanArtImage> GetFanArtImages(IOwinContext context, string id, bool isTvRadio, bool isRecording, string fanartType, string fanArtMediaType)
     {
       ISet<Guid> necessaryMIATypes = new HashSet<Guid>();
       necessaryMIATypes.Add(MediaAspect.ASPECT_ID);
@@ -172,14 +172,14 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.stream.Images.BaseC
       return fanart;
     }
 
-    internal Guid IntToGuid(int value)
+    internal static Guid IntToGuid(int value)
     {
       byte[] bytes = new byte[16];
       BitConverter.GetBytes(value).CopyTo(bytes, 0);
       return new Guid(bytes);
     }
 
-    internal Guid StringToGuid(string value)
+    internal static Guid StringToGuid(string value)
     {
       byte[] bytes = ResourceAccessUtils.GetBytes(value);
       return new Guid(bytes);

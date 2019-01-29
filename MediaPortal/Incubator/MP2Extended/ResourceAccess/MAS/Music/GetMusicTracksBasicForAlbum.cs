@@ -39,7 +39,7 @@ using MediaPortal.Plugins.MP2Extended.Exceptions;
 using MediaPortal.Plugins.MP2Extended.MAS.Music;
 using MP2Extended.Extensions;
 using Microsoft.Owin;
-using MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS;
+using MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.Music.BaseClasses;
 
 namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.Music
 {
@@ -47,59 +47,18 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.Music
   [ApiFunctionParam(Name = "id", Type = typeof(string), Nullable = false)]
   [ApiFunctionParam(Name = "sort", Type = typeof(WebSortField), Nullable = true)]
   [ApiFunctionParam(Name = "order", Type = typeof(WebSortOrder), Nullable = true)]
-  internal class GetMusicTracksBasicForAlbum
+  internal class GetMusicTracksBasicForAlbum : BaseMusicTrackBasic
   {
-    public Task<IList<WebMusicTrackBasic>> ProcessAsync(IOwinContext context, Guid id, string filter, WebSortField? sort, WebSortOrder? order)
+    public static Task<IList<WebMusicTrackBasic>> ProcessAsync(IOwinContext context, string id, string filter, WebSortField? sort, WebSortOrder? order)
     {
       if (id == null)
         throw new BadRequestException("GetMusicTracksBasicForAlbum: id is null");
 
-      // Get all episodes for this
-      ISet<Guid> necessaryMIATypes = new HashSet<Guid>();
-      necessaryMIATypes.Add(MediaAspect.ASPECT_ID);
-      necessaryMIATypes.Add(AudioAspect.ASPECT_ID);
-      necessaryMIATypes.Add(ImporterAspect.ASPECT_ID);
-
-      IList<MediaItem> tracks = MediaLibraryAccess.GetMediaItemsByGroup(context, AudioAspect.ROLE_TRACK, AudioAlbumAspect.ROLE_ALBUM, id, necessaryMIATypes, null);
+      IList<MediaItem> tracks = MediaLibraryAccess.GetMediaItemsByGroup(context, AudioAspect.ROLE_TRACK, AudioAlbumAspect.ROLE_ALBUM, Guid.Parse(id), BasicNecessaryMIATypeIds, BasicOptionalMIATypeIds);
       if (tracks.Count == 0)
         throw new BadRequestException("No Tracks found");
 
-      var output = new List<WebMusicTrackBasic>();
-
-      foreach (var item in tracks)
-      {
-        MediaItemAspect audioAspects = item.GetAspect(AudioAspect.Metadata);
-
-        WebMusicTrackBasic webMusicTrackBasic = new WebMusicTrackBasic();
-        webMusicTrackBasic.Album = (string)audioAspects[AudioAspect.ATTR_ALBUM];
-        var albumArtists = (HashSet<object>)audioAspects[AudioAspect.ATTR_ALBUMARTISTS];
-        if (albumArtists != null)
-          webMusicTrackBasic.AlbumArtist = String.Join(", ", albumArtists.Cast<string>().ToArray());
-        //webMusicTrackBasic.AlbumArtistId;
-        // TODO: We have to wait for the MIA Rework, until than the ID is just the name as bas64
-        webMusicTrackBasic.AlbumId = Convert.ToBase64String((new UTF8Encoding()).GetBytes((string)audioAspects[AudioAspect.ATTR_ALBUM]));
-        var trackArtists = (HashSet<object>)audioAspects[AudioAspect.ATTR_ARTISTS];
-        if (albumArtists != null)
-          webMusicTrackBasic.Artist = trackArtists.Cast<string>().ToList();
-        //webMusicTrackBasic.ArtistId;
-        webMusicTrackBasic.DiscNumber = audioAspects[AudioAspect.ATTR_DISCID] != null ? (int)audioAspects[AudioAspect.ATTR_DISCID] : 0;
-        webMusicTrackBasic.Duration = Convert.ToInt32((long)audioAspects[AudioAspect.ATTR_DURATION]);
-        //var trackGenres = (HashSet<object>)audioAspects[AudioAspect.ATTR_GENRES];
-        //if (trackGenres != null)
-        //  webMusicTrackBasic.Genres = trackGenres.Cast<string>().ToList();
-        //webMusicTrackBasic.Rating = Convert.ToSingle((double)movieAspects[AudioAspect.]);
-        webMusicTrackBasic.TrackNumber = (int)audioAspects[AudioAspect.ATTR_TRACK];
-        webMusicTrackBasic.Type = WebMediaType.MusicTrack;
-        //webMusicTrackBasic.Year;
-        //webMusicTrackBasic.Artwork;
-        webMusicTrackBasic.DateAdded = item.GetAspect(ImporterAspect.Metadata).GetAttributeValue<DateTime>(ImporterAspect.ATTR_DATEADDED);
-        webMusicTrackBasic.Id = item.MediaItemId.ToString();
-        webMusicTrackBasic.PID = 0;
-        //webMusicTrackBasic.Path;
-        webMusicTrackBasic.Title = item.GetAspect(MediaAspect.Metadata).GetAttributeValue<string>(MediaAspect.ATTR_TITLE);
-
-        output.Add(webMusicTrackBasic);
-      }
+      var output = tracks.Select(t => MusicTrackBasic(t)).ToList();
 
       // sort
       if (sort != null && order != null)

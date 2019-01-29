@@ -35,11 +35,11 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.TvShow
   [ApiFunctionParam(Name = "filter", Type = typeof(string), Nullable = true)]
   [ApiFunctionParam(Name = "sort", Type = typeof(WebSortField), Nullable = true)]
   [ApiFunctionParam(Name = "order", Type = typeof(WebSortOrder), Nullable = true)]
-  internal class GetTVShowActorCount : GetTVShowActors
+  internal class GetTVShowActorCount
   {
-    public async Task<WebIntResult> ProcessAsync(IOwinContext context, string filter)
+    public static async Task<WebIntResult> ProcessAsync(IOwinContext context, string filter)
     {
-      var output = await base.ProcessAsync(context, filter, null, null);
+      var output = await GetTVShowActors.ProcessAsync(context, filter, null, null);
 
       return new WebIntResult { Result = output.Count };
     }

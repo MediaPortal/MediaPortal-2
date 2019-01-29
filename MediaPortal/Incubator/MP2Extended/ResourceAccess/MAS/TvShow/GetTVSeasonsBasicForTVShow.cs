@@ -48,10 +48,10 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.TvShow
   [ApiFunctionParam(Name = "order", Type = typeof(WebSortOrder), Nullable = true)]
   internal class GetTVSeasonsBasicForTVShow : BaseTvSeasonBasic
   {
-    public Task<IList<WebTVSeasonBasic>> ProcessAsync(IOwinContext context, Guid id, string filter, WebSortField? sort, WebSortOrder? order)
+    public static Task<IList<WebTVSeasonBasic>> ProcessAsync(IOwinContext context, string id, string filter, WebSortField? sort, WebSortOrder? order)
     {
       // Get all seasons for this series
-      IList<MediaItem> seasons = MediaLibraryAccess.GetMediaItemsByGroup(context, SeasonAspect.ROLE_SEASON, SeriesAspect.ROLE_SERIES, id, BasicNecessaryMIATypeIds, BasicOptionalMIATypeIds);
+      IList<MediaItem> seasons = MediaLibraryAccess.GetMediaItemsByGroup(context, SeasonAspect.ROLE_SEASON, SeriesAspect.ROLE_SERIES, Guid.Parse(id), BasicNecessaryMIATypeIds, BasicOptionalMIATypeIds);
 
       if (seasons.Count == 0)
         throw new BadRequestException("No seasons found");
@@ -59,7 +59,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.TvShow
       var output = new List<WebTVSeasonBasic>();
 
       foreach (var season in seasons)
-        output.Add(TVSeasonBasic(context, season, id));
+        output.Add(TVSeasonBasic(context, season, Guid.Parse(id)));
 
       // sort
       if (sort != null && order != null)

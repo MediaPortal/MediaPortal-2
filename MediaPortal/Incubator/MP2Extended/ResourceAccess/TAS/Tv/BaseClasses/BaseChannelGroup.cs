@@ -29,7 +29,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.TAS.Tv.BaseClasses
 {
   class BaseChannelGroup
   {
-    internal WebChannelGroup ChannelGroup(IChannelGroup group)
+    internal static WebChannelGroup ChannelGroup(IChannelGroup group)
     {
       WebChannelGroup webChannelGroup = new WebChannelGroup
       {

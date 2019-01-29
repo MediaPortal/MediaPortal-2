@@ -25,6 +25,7 @@
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Common.MediaManagement.MLQueries;
+using MediaPortal.Common.UserProfileDataManagement;
 using MediaPortal.Plugins.MP2Extended.MAS.TvShow;
 using Microsoft.Owin;
 using MP2Extended.Extensions;
@@ -37,7 +38,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.TvShow.BaseClasses
   // TODO: Add more detailes
   class BaseTvSeasonBasic
   {
-    internal ISet<Guid> BasicNecessaryMIATypeIds = new HashSet<Guid>
+    internal static ISet<Guid> BasicNecessaryMIATypeIds = new HashSet<Guid>
     {
       MediaAspect.ASPECT_ID,
       SeasonAspect.ASPECT_ID,
@@ -45,21 +46,21 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.TvShow.BaseClasses
       RelationshipAspect.ASPECT_ID
     };
 
-    internal ISet<Guid> BasicOptionalMIATypeIds = new HashSet<Guid>
+    internal static ISet<Guid> BasicOptionalMIATypeIds = new HashSet<Guid>
     {
     };
 
-    internal WebTVSeasonBasic TVSeasonBasic(IOwinContext context, MediaItem item, Guid? showId = null)
+    internal static WebTVSeasonBasic TVSeasonBasic(IOwinContext context, MediaItem item, Guid? showId = null)
     {
+      Guid? user = ResourceAccessUtils.GetUser(context);
       ISet<Guid> necessaryMIATypespisodes = new HashSet<Guid>();
       necessaryMIATypespisodes.Add(MediaAspect.ASPECT_ID);
       necessaryMIATypespisodes.Add(EpisodeAspect.ASPECT_ID);
 
       IFilter unwatchedEpisodeFilter = BooleanCombinationFilter.CombineFilters(BooleanOperator.And,
         new RelationshipFilter(EpisodeAspect.ROLE_EPISODE, SeasonAspect.ROLE_SEASON, item.MediaItemId),
-        BooleanCombinationFilter.CombineFilters(BooleanOperator.Or,
-          new EmptyFilter(MediaAspect.ATTR_PLAYCOUNT), new RelationalFilter(MediaAspect.ATTR_PLAYCOUNT, RelationalOperator.EQ, 0)));
-
+        new RelationalUserDataFilter(user.Value, UserDataKeysKnown.KEY_PLAY_PERCENTAGE, RelationalOperator.LT, UserDataKeysKnown.GetSortablePlayPercentageString(100), true));
+    
       int unwatchedCount = MediaLibraryAccess.CountMediaItems(context, necessaryMIATypespisodes, unwatchedEpisodeFilter);
 
       GetShowId(item, ref showId);
@@ -80,12 +81,10 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.TvShow.BaseClasses
         UnwatchedEpisodeCount = unwatchedCount,
         DateAdded = importerAspect.GetAttributeValue<DateTime>(ImporterAspect.ATTR_DATEADDED),
         Year = firstAired.HasValue ? firstAired.Value.Year : 0,
-        IsProtected = false,
-        PID = 0
       };
     }
 
-    protected void GetShowId(MediaItem item, ref Guid? showId)
+    protected static void GetShowId(MediaItem item, ref Guid? showId)
     {
       if (showId.HasValue)
         return;

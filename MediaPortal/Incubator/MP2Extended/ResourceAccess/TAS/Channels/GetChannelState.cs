@@ -35,22 +35,22 @@ using Microsoft.Owin;
 namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.TAS.Channels
 {
   [ApiFunctionDescription(Type = ApiFunctionDescription.FunctionType.Json, Summary = "")]
-  [ApiFunctionParam(Name = "channelId", Type = typeof(int), Nullable = false)]
+  [ApiFunctionParam(Name = "channelId", Type = typeof(string), Nullable = false)]
   [ApiFunctionParam(Name = "userName", Type = typeof(string), Nullable = false)]
   internal class GetChannelState
   {
-    public async Task<WebChannelState> ProcessAsync(IOwinContext context, int channelId, string userName)
+    public static async Task<WebChannelState> ProcessAsync(IOwinContext context, string channelId, string userName)
     {
       if (!ServiceRegistration.IsRegistered<ITvProvider>())
         throw new BadRequestException("GetChannelState: ITvProvider not found");
 
-      if (channelId == 0)
+      if (channelId == null)
         throw new BadRequestException("GetChannelState: channelId is null");
       if (userName == null)
         throw new BadRequestException("GetChannelState: userName is null");
 
       IChannelAndGroupInfoAsync channelAndGroupInfo = ServiceRegistration.Get<ITvProvider>() as IChannelAndGroupInfoAsync;
-      var channel = await channelAndGroupInfo.GetChannelAsync(channelId);
+      var channel = await channelAndGroupInfo.GetChannelAsync(int.Parse(channelId));
       if (!channel.Success)
         throw new BadRequestException(string.Format("GetChannelState: Couldn't get channel with id: {0}", channelId));
 

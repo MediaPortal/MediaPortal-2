@@ -48,7 +48,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.stream.Images
   internal class ExtractImage : BaseGetArtwork
   {
     // We just return a Thumbnail from MP
-    public async Task ProcessAsync(IOwinContext context, WebMediaType type, string itemId)
+    public static async Task ProcessAsync(IOwinContext context, WebMediaType type, string itemId)
     {
       bool isSeason = false;
       string showId = string.Empty;

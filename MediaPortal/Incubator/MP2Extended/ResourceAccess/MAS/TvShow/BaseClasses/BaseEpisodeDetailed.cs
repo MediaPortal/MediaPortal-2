@@ -33,7 +33,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.TvShow.BaseClasses
 {
   class BaseEpisodeDetailed : BaseEpisodeBasic
   {
-    internal ISet<Guid> DetailedNecessaryMIATypeIds = new HashSet<Guid>
+    internal static ISet<Guid> DetailedNecessaryMIATypeIds = new HashSet<Guid>
     {
       MediaAspect.ASPECT_ID,
       ImporterAspect.ASPECT_ID,
@@ -42,13 +42,13 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.TvShow.BaseClasses
       VideoAspect.ASPECT_ID
     };
 
-    internal ISet<Guid> DetailedOptionalMIATypeIds = new HashSet<Guid>
+    internal static ISet<Guid> DetailedOptionalMIATypeIds = new HashSet<Guid>
     {
       RelationshipAspect.ASPECT_ID,
       ExternalIdentifierAspect.ASPECT_ID
     };
 
-    internal WebTVEpisodeDetailed EpisodeDetailed(MediaItem item, Guid? showId = null, Guid? seasonId = null)
+    internal static WebTVEpisodeDetailed EpisodeDetailed(MediaItem item, Guid? showId = null, Guid? seasonId = null)
     {
       WebTVEpisodeBasic episodeBasic = EpisodeBasic(item, showId, seasonId);
       MediaItemAspect episodeAspect = MediaItemAspect.GetAspect(item.Aspects, EpisodeAspect.Metadata);

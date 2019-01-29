@@ -42,7 +42,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.TAS.Schedule
   [ApiFunctionDescription(Type = ApiFunctionDescription.FunctionType.Json, Summary = "")]
   internal class GetSchedules : BaseScheduleBasic
   {
-    public async Task<IList<WebScheduleBasic>> ProcessAsync(IOwinContext context, string filter, WebSortField? sort, WebSortOrder? order)
+    public static async Task<IList<WebScheduleBasic>> ProcessAsync(IOwinContext context, string filter, WebSortField? sort, WebSortOrder? order)
     {
       if (!ServiceRegistration.IsRegistered<ITvProvider>())
         throw new BadRequestException("GetSchedules: ITvProvider not found");

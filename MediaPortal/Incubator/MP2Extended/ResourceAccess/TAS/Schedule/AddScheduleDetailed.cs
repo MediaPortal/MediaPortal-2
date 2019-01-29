@@ -37,7 +37,7 @@ using Microsoft.Owin;
 namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.TAS.Schedule
 {
   [ApiFunctionDescription(Type = ApiFunctionDescription.FunctionType.Json, Summary = "Adds a new Schedule with detailed infomration to TVE.")]
-  [ApiFunctionParam(Name = "channelId", Type = typeof(int), Nullable = false)]
+  [ApiFunctionParam(Name = "channelId", Type = typeof(string), Nullable = false)]
   [ApiFunctionParam(Name = "title", Type = typeof(string), Nullable = false)]
   [ApiFunctionParam(Name = "startTime", Type = typeof(DateTime), Nullable = false)]
   [ApiFunctionParam(Name = "endTime", Type = typeof(DateTime), Nullable = false)]
@@ -48,12 +48,12 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.TAS.Schedule
   [ApiFunctionParam(Name = "priority", Type = typeof(int), Nullable = true)]
   internal class AddScheduleDetailed
   {
-    public async Task<WebBoolResult> ProcessAsync(IOwinContext context, int channelId, string title, DateTime startTime, DateTime endTime, WebScheduleType scheduleType, int preRecordInterval, int postRecordInterval, string directory, int priority)
+    public static async Task<WebBoolResult> ProcessAsync(IOwinContext context, string channelId, string title, DateTime startTime, DateTime endTime, WebScheduleType scheduleType, int preRecordInterval, int postRecordInterval, string directory, int priority)
     {
       if (!ServiceRegistration.IsRegistered<ITvProvider>())
         throw new BadRequestException("AddScheduleDetailed: ITvProvider not found");
 
-      bool result = await TVAccess.CreateScheduleAsync(context, channelId, title, startTime, endTime, scheduleType, preRecordInterval, postRecordInterval, directory, priority);
+      bool result = await TVAccess.CreateScheduleAsync(context, int.Parse(channelId), title, startTime, endTime, scheduleType, preRecordInterval, postRecordInterval, directory, priority);
       return new WebBoolResult { Result = result };
     }
 

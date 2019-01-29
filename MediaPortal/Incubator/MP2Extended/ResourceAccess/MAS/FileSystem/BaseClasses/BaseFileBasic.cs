@@ -31,7 +31,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.FileSystem.BaseClas
 {
   internal class BaseFileBasic
   {
-    internal WebFileBasic FileBasic(FileInfo fileInfo)
+    internal static WebFileBasic FileBasic(FileInfo fileInfo)
     {
       return new WebFileBasic
       {

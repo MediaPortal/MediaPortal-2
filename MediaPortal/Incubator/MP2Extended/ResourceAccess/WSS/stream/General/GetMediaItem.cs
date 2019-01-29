@@ -46,7 +46,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.stream.General
   [ApiFunctionParam(Name = "itemId", Type = typeof(string), Nullable = false)]
   internal class GetMediaItem : BaseSendData
   {
-    public async Task ProcessAsync(IOwinContext context, Guid itemId)
+    public static async Task ProcessAsync(IOwinContext context, Guid itemId)
     {
       // Grab the media item given in the request.
       try

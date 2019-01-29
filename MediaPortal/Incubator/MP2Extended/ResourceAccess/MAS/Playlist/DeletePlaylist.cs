@@ -37,9 +37,10 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.Playlist
   [ApiFunctionParam(Name = "playlistId", Type = typeof(string), Nullable = false)]
   internal class DeletePlaylist
   {
-    public Task<WebBoolResult> ProcessAsync(IOwinContext context, Guid playlistId)
+    public static Task<WebBoolResult> ProcessAsync(IOwinContext context, string playlistId)
     {
-      bool result = ServiceRegistration.Get<IMediaLibrary>().DeletePlaylist(playlistId);
+      bool result = ServiceRegistration.Get<IMediaLibrary>().DeletePlaylist(Guid.Parse(playlistId));
+
       return Task.FromResult(new WebBoolResult { Result = result });
     }
 

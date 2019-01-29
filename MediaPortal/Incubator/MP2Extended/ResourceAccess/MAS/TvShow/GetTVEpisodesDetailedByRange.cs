@@ -40,12 +40,12 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.TvShow
   [ApiFunctionParam(Name = "end", Type = typeof(string), Nullable = false)]
   [ApiFunctionParam(Name = "sort", Type = typeof(WebSortField), Nullable = true)]
   [ApiFunctionParam(Name = "order", Type = typeof(WebSortOrder), Nullable = true)]
-  internal class GetTVEpisodesDetailedByRange : GetTVEpisodesDetailed
+  internal class GetTVEpisodesDetailedByRange 
   {
-    public async Task<IList<WebTVEpisodeDetailed>> ProcessAsync(IOwinContext context, int start, int end, WebSortField? sort, WebSortOrder? order)
+    public static async Task<IList<WebTVEpisodeDetailed>> ProcessAsync(IOwinContext context, int start, int end, WebSortField? sort, WebSortOrder? order)
     {
       // output
-      IEnumerable<WebTVEpisodeDetailed> output = await base.ProcessAsync(context, null, sort, order);
+      IEnumerable<WebTVEpisodeDetailed> output = await GetTVEpisodesDetailed.ProcessAsync(context, null, sort, order);
 
       // get range
       output = output.TakeRange(start, end);

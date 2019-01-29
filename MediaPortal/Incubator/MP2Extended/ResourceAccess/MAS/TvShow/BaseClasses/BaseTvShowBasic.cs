@@ -42,20 +42,20 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.TvShow.BaseClasses
   // TODO: Add more detailes
   class BaseTvShowBasic
   {
-    internal ISet<Guid> BasicNecessaryMIATypeIds = new HashSet<Guid>
+    internal static ISet<Guid> BasicNecessaryMIATypeIds = new HashSet<Guid>
     {
       MediaAspect.ASPECT_ID,
       ImporterAspect.ASPECT_ID,
       SeriesAspect.ASPECT_ID
     };
 
-    internal ISet<Guid> BasicOptionalMIATypeIds = new HashSet<Guid>
+    internal static ISet<Guid> BasicOptionalMIATypeIds = new HashSet<Guid>
     {
       GenreAspect.ASPECT_ID,
       ExternalIdentifierAspect.ASPECT_ID
     };
 
-    internal WebTVShowBasic TVShowBasic(IOwinContext context, MediaItem item)
+    internal static WebTVShowBasic TVShowBasic(IOwinContext context, MediaItem item)
     {
       ISet<Guid> necessaryMIATypespisodes = new HashSet<Guid>();
       necessaryMIATypespisodes.Add(MediaAspect.ASPECT_ID);

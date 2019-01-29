@@ -36,19 +36,19 @@ using Microsoft.Owin;
 namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.TAS.Schedule
 {
   [ApiFunctionDescription(Type = ApiFunctionDescription.FunctionType.Json, Summary = "")]
-  [ApiFunctionParam(Name = "channelId", Type = typeof(int), Nullable = false)]
+  [ApiFunctionParam(Name = "channelId", Type = typeof(string), Nullable = false)]
   [ApiFunctionParam(Name = "title", Type = typeof(string), Nullable = false)]
   [ApiFunctionParam(Name = "startTime", Type = typeof(DateTime), Nullable = false)]
   [ApiFunctionParam(Name = "endTime", Type = typeof(DateTime), Nullable = false)]
   [ApiFunctionParam(Name = "scheduleType", Type = typeof(WebScheduleType), Nullable = false)]
   internal class AddSchedule
   {
-    public async Task<WebBoolResult> ProcessAsync(IOwinContext context, int channelId, string title, DateTime startTime, DateTime endTime, WebScheduleType scheduleType)
+    public static async Task<WebBoolResult> ProcessAsync(IOwinContext context, string channelId, string title, DateTime startTime, DateTime endTime, WebScheduleType scheduleType)
     {
       if (!ServiceRegistration.IsRegistered<ITvProvider>())
         throw new BadRequestException("AddSchedule: ITvProvider not found");
 
-      bool result = await TVAccess.CreateScheduleAsync(context, channelId, title, startTime, endTime, scheduleType);
+      bool result = await TVAccess.CreateScheduleAsync(context, int.Parse(channelId), title, startTime, endTime, scheduleType);
       return new WebBoolResult { Result = result };
     }
 

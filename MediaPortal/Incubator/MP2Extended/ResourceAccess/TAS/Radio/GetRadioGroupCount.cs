@@ -38,7 +38,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.TAS.Radio
   [ApiFunctionDescription(Type = ApiFunctionDescription.FunctionType.Json, Summary = "")]
   internal class GetRadioGroupCount
   {
-    public async Task<WebIntResult> ProcessAsync(IOwinContext context)
+    public static async Task<WebIntResult> ProcessAsync(IOwinContext context)
     {
       if (!ServiceRegistration.IsRegistered<ITvProvider>())
         throw new BadRequestException("GetRadioGroupCount: ITvProvider not found");

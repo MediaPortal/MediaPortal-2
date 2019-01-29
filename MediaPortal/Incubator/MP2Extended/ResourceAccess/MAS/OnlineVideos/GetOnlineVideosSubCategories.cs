@@ -39,7 +39,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.OnlineVideos
   [ApiFunctionParam(Name = "id", Type = typeof(string), Nullable = false)]
   internal class GetOnlineVideosSubCategories
   {
-    public Task<IList<WebOnlineVideosSiteCategory>> ProcessAsync(IOwinContext context, string id)
+    public static Task<IList<WebOnlineVideosSiteCategory>> ProcessAsync(IOwinContext context, string id)
     {
       if (id == null)
         throw new BadRequestException("GetOnlineVideosSubCategories: id is null");

@@ -41,14 +41,14 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.TvShow
   [ApiFunctionParam(Name = "id", Type = typeof(Guid), Nullable = false)]
   internal class GetTVEpisodeCountForSeason
   {
-    public Task<WebIntResult> ProcessAsync(IOwinContext context, Guid id)
+    public static Task<WebIntResult> ProcessAsync(IOwinContext context, string id)
     {
       ISet<Guid> necessaryMIATypes = new HashSet<Guid>();
       necessaryMIATypes.Add(MediaAspect.ASPECT_ID);
       necessaryMIATypes.Add(SeasonAspect.ASPECT_ID);
 
       // this is the MediaItem for the season
-      MediaItem item = MediaLibraryAccess.GetMediaItemById(context, id, necessaryMIATypes, null);
+      MediaItem item = MediaLibraryAccess.GetMediaItemById(context, Guid.Parse(id), necessaryMIATypes, null);
 
       if (item == null)
         throw new BadRequestException(String.Format("GetTVEpisodeCountForSeason: No MediaItem found with id: {0}", id));

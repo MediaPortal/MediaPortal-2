@@ -52,7 +52,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.stream.Images
   [ApiFunctionParam(Name = "borders", Type = typeof(string), Nullable = true)]
   internal class GetImageResized : BaseSendData
   {
-    public async Task ProcessAsync(IOwinContext context, WebMediaType type, string id, int maxWidth, int maxHeight, string borders = null)
+    public static async Task ProcessAsync(IOwinContext context, WebMediaType type, string id, int maxWidth, int maxHeight, string borders = null)
     {
       if (id == null)
         throw new BadRequestException("GetImageResized: id is null");

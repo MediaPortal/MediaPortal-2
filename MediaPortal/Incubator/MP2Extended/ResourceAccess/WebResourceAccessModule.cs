@@ -38,11 +38,8 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess
     public const string LOGIN_PAGE = "Login.html";
     public const string RESOURCE_ACCESS_PATH = "/MPExtended";
 
-    private GetHtmlResource _htmlResourceProvider;
-
     public WebResourceAccessModule(OwinMiddleware next) : base(next)
     {
-      _htmlResourceProvider = new GetHtmlResource();
     }
 
     /// <summary>
@@ -70,7 +67,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess
       }
 
       Logger.Debug("MP2Extended: Received request for {0}", context.Request.Path);
-      await _htmlResourceProvider.ProcessAsync(context, path);
+      await GetHtmlResource.ProcessAsync(context, path);
     }
 
     public void Dispose()

@@ -38,16 +38,16 @@ using Microsoft.Owin;
 namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.TAS.Radio
 {
   [ApiFunctionDescription(Type = ApiFunctionDescription.FunctionType.Json, Summary = "")]
-  [ApiFunctionParam(Name = "groupId", Type = typeof(int), Nullable = false)]
+  [ApiFunctionParam(Name = "groupId", Type = typeof(string), Nullable = false)]
   internal class GetRadioGroupById : BaseChannelGroup
   {
-    public async Task<WebChannelGroup> ProcessAsync(IOwinContext context, int groupId)
+    public static async Task<WebChannelGroup> ProcessAsync(IOwinContext context, string groupId)
     {
       if (!ServiceRegistration.IsRegistered<ITvProvider>())
         throw new BadRequestException("GetRadioGroupById: ITvProvider not found");
 
       // select the channel Group we are looking for
-      var group = await TVAccess.GetGroupAsync(context, groupId);
+      var group = await TVAccess.GetGroupAsync(context, int.Parse(groupId));
       if (group == null)
         throw new BadRequestException(string.Format("GetRadioGroupById: group with id: {0} not found", groupId));
 

@@ -38,7 +38,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.Playlist
   [ApiFunctionDescription(Type = ApiFunctionDescription.FunctionType.Json, ReturnType = typeof(List<WebPlaylist>), Summary = "")]
   internal class GetPlaylists
   {
-    public Task<IList<WebPlaylist>> ProcessAsync(IOwinContext context)
+    public static Task<IList<WebPlaylist>> ProcessAsync(IOwinContext context)
     {
       ICollection<PlaylistInformationData> playlists = ServiceRegistration.Get<IMediaLibrary>().GetPlaylists();
 
@@ -51,7 +51,6 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.Playlist
           ItemCount = playlist.NumItems,
           Type = WebMediaType.Playlist,
           Id = playlist.PlaylistId.ToString(),
-          PID = 0,
           Title = playlist.Name
         };
         //webPlaylist.Artwork;

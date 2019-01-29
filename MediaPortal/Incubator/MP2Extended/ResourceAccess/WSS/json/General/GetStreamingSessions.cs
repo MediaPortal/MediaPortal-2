@@ -38,7 +38,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.json.General
   [ApiFunctionParam(Name = "filter", Type = typeof(string), Nullable = true)]
   internal class GetStreamingSessions
   {
-    public Task<IList<WebStreamingSession>> ProcessAsync(IOwinContext context, string filter = null)
+    public static Task<IList<WebStreamingSession>> ProcessAsync(IOwinContext context, string filter = null)
     {
       return Task.FromResult<IList<WebStreamingSession>>(StreamControl.GetStreamItems().Select(streamItem => new WebStreamingSession
       {

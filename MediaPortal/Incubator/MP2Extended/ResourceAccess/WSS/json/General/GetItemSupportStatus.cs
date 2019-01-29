@@ -41,7 +41,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.json.General
   [ApiFunctionParam(Name = "itemId", Type = typeof(string), Nullable = false)]
   internal class GetItemSupportStatus
   {
-    public Task<WebItemSupportStatus> ProcessAsync(IOwinContext context, WebMediaType type, int? provider, string itemId, int? offset)
+    public static Task<WebItemSupportStatus> ProcessAsync(IOwinContext context, WebMediaType type, int? provider, string itemId, int? offset)
     {
       if (itemId == null)
         throw new BadRequestException("GetItemSupportStatus: itemId is null");

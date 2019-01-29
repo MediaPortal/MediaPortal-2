@@ -40,16 +40,16 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.Playlist
   [ApiFunctionParam(Name = "position", Type = typeof(int), Nullable = true)]
   internal class AddPlaylistItem
   {
-    public Task<WebBoolResult> ProcessAsync(IOwinContext context, Guid playlistId, WebMediaType type, Guid id, int? position)
+    public static Task<WebBoolResult> ProcessAsync(IOwinContext context, string playlistId, WebMediaType type, string id, int? position)
     {
       // get the playlist
-      PlaylistRawData playlistRawData = ServiceRegistration.Get<IMediaLibrary>().ExportPlaylist(playlistId);
+      PlaylistRawData playlistRawData = ServiceRegistration.Get<IMediaLibrary>().ExportPlaylist(Guid.Parse(playlistId));
 
       // insert the data
       if (position > -1 && position < playlistRawData.MediaItemIds.Count)
-        playlistRawData.MediaItemIds.Insert(position.Value, id); // List{0,1,2} -Insert@index:1Value:5-> List{0,5,1,2}
+        playlistRawData.MediaItemIds.Insert(position.Value, Guid.Parse(id)); // List{0,1,2} -Insert@index:1Value:5-> List{0,5,1,2}
       else
-        playlistRawData.MediaItemIds.Add(id);
+        playlistRawData.MediaItemIds.Add(Guid.Parse(id));
 
       // save playlist
       ServiceRegistration.Get<IMediaLibrary>().SavePlaylist(playlistRawData);

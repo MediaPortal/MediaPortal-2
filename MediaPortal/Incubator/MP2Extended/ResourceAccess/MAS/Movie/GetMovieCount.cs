@@ -39,7 +39,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.Movie
   [ApiFunctionDescription(Type = ApiFunctionDescription.FunctionType.Json, Summary = "")]
   internal class GetMovieCount
   {
-    public Task<WebIntResult> ProcessAsync(IOwinContext context)
+    public static Task<WebIntResult> ProcessAsync(IOwinContext context)
     {
       ISet<Guid> necessaryMIATypes = new HashSet<Guid>();
       necessaryMIATypes.Add(MediaAspect.ASPECT_ID);

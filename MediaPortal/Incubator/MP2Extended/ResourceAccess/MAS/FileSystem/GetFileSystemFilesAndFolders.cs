@@ -44,7 +44,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.FileSystem
   [ApiFunctionParam(Name = "order", Type = typeof(WebSortOrder), Nullable = true)]
   internal class GetFileSystemFilesAndFolders : BaseFilesystemItem
   {
-    public Task<IList<WebFilesystemItem>> ProcessAsync(IOwinContext context, string id, WebSortField? sort, WebSortOrder? order)
+    public static Task<IList<WebFilesystemItem>> ProcessAsync(IOwinContext context, string id, WebSortField? sort, WebSortOrder? order)
     {
       string path = Base64.Decode(id);
 

@@ -35,11 +35,11 @@ using Microsoft.Owin;
 
 namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.TvShow
 {
-  internal class GetTVEpisodesBasicForTVShowByRange : GetTVEpisodesBasicForTVShow
+  internal class GetTVEpisodesBasicForTVShowByRange
   {
-    public async Task<IList<WebTVEpisodeBasic>> ProcessAsync(IOwinContext context, Guid id, int start, int end, WebSortField? sort, WebSortOrder? order)
+    public static async Task<IList<WebTVEpisodeBasic>> ProcessAsync(IOwinContext context, string id, int start, int end, WebSortField? sort, WebSortOrder? order)
     {
-      var output = await base.ProcessAsync(context, id, sort, order);
+      var output = await GetTVEpisodesBasicForTVShow.ProcessAsync(context, id, sort, order);
 
       // get range
       output = output.TakeRange(start, end).ToList();

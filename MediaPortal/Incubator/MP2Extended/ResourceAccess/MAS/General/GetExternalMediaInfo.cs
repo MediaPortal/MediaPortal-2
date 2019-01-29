@@ -38,14 +38,14 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.General
   [ApiFunctionParam(Name = "id", Type = typeof(string), Nullable = false)]
   internal class GetExternalMediaInfo
   {
-    public Task<WebDictionary<string>> ProcessAsync(IOwinContext context, Guid id)
+    public static Task<WebDictionary<string>> ProcessAsync(IOwinContext context, string id)
     {
       if (id == null)
         throw new BadRequestException("GetExternalMediaInfo: id is null");
 
       WebDictionary<string> webDictionary = new WebDictionary<string>
       {
-        { "Id", id.ToString() }
+        { "Id", id }
       };
 
       return Task.FromResult(webDictionary);

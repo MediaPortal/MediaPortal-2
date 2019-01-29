@@ -46,7 +46,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.General
   [ApiFunctionParam(Name = "id", Type = typeof(string), Nullable = false)]
   internal class GetFileInfo : BaseSendData
   {
-    public Task<WebFileInfo> ProcessAsync(IOwinContext context, WebMediaType mediatype, WebFileType filetype, Guid id, int offset)
+    public static Task<WebFileInfo> ProcessAsync(IOwinContext context, WebMediaType mediatype, WebFileType filetype, string id, int offset)
     {
       ISet<Guid> necessaryMIATypes = new HashSet<Guid>();
       necessaryMIATypes.Add(MediaAspect.ASPECT_ID);
@@ -57,10 +57,8 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.General
       if (item == null)
         throw new BadRequestException("GetFileInfo: no media item found");
 
-      var resourcePathStr = item.PrimaryProviderResourcePath();
-      var resourcePath = ResourcePath.Deserialize(resourcePathStr.ToString());
-
-      var ra = GetResourceAccessor(resourcePath);
+      var files = ResourceAccessUtils.GetResourcePaths(item);
+      var ra = GetResourceAccessor(files[offset]);
       IFileSystemResourceAccessor fsra = ra as IFileSystemResourceAccessor;
       if (fsra == null)
         throw new InternalServerException("GetFileInfo: failed to create IFileSystemResourceAccessor");
@@ -75,9 +73,8 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.General
         LastModifiedTime = fsra.LastChanged,
         Name = fsra.ResourceName,
         OnNetworkDrive = false,
-        Path = item.MediaItemId.ToString(),
+        Path = files[offset].FileName,
         Size = fsra.Size,
-        PID = 0
       };
       return Task.FromResult(webFileInfo);
     }

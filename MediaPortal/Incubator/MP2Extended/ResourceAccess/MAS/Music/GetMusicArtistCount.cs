@@ -37,9 +37,9 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.Music
   [ApiFunctionParam(Name = "filter", Type = typeof(string), Nullable = true)]
   internal class GetMusicArtistCount
   {
-    public async Task<WebIntResult> ProcessAsync(IOwinContext context, string filter)
+    public static async Task<WebIntResult> ProcessAsync(IOwinContext context, string filter)
     {
-      IList<WebMusicArtistBasic> output = await new GetMusicArtistsBasic().ProcessAsync(context, filter, null, null);
+      IList<WebMusicArtistBasic> output = await GetMusicArtistsBasic.ProcessAsync(context, filter, null, null);
 
       return new WebIntResult { Result = output.Count};
     }

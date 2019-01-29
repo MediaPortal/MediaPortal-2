@@ -28,15 +28,16 @@ using MediaPortal.Plugins.MP2Extended.Common;
 using MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.Music.BaseClasses;
 using System.Threading.Tasks;
 using Microsoft.Owin;
+using System.Collections.Generic;
+using MediaPortal.Plugins.MP2Extended.MAS.Music;
 
 namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.Music
 {
-  // TODO: This one doesn't to work in the MIA rework yet
   internal class GetMusicAlbumCount : BaseMusicAlbumBasic
   {
-    public async Task<WebIntResult> ProcessAsync(IOwinContext context, string filter)
+    public static async Task<WebIntResult> ProcessAsync(IOwinContext context, string filter)
     {
-      var output = await new GetMusicAlbumsBasic().ProcessAsync(context, filter, null, null);
+      IList<WebMusicAlbumBasic> output = await GetMusicAlbumsBasic.ProcessAsync(context, filter, null, null);
 
       return new WebIntResult { Result = output.Count };
     }

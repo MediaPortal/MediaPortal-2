@@ -256,6 +256,16 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess
       return Task.FromResult<IList<IVirtualCard>>(new List<IVirtualCard>());
     }
 
+    internal static async Task<bool> GetProgramIsScheduledOnChannel(IOwinContext context, int channelId, int programId)
+    {
+      if (ProgramInfo.GetProgram(programId, out IProgram prog))
+      {
+        var channel = await ProgramInfo.GetChannelAsync(prog);
+        return channel.Success && channel.Result.ChannelId == channelId;
+      }
+      return false;
+    }
+
     internal static ITunerInfo TunerInfo
     {
       get { return ServiceRegistration.Get<ITvProvider>() as ITunerInfo; }

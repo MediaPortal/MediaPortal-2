@@ -40,18 +40,18 @@ using Microsoft.Owin;
 namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.TAS.Tv
 {
   [ApiFunctionDescription(Type = ApiFunctionDescription.FunctionType.Json, Summary = "")]
-  [ApiFunctionParam(Name = "groupId", Type = typeof(int), Nullable = false)]
+  [ApiFunctionParam(Name = "groupId", Type = typeof(string), Nullable = true)]
   [ApiFunctionParam(Name = "sort", Type = typeof(WebSortField), Nullable = true)]
   [ApiFunctionParam(Name = "order", Type = typeof(WebSortOrder), Nullable = true)]
   internal class GetChannelsDetailed : BaseChannelDetailed
   {
-    public async Task<IList<WebChannelDetailed>> ProcessAsync(IOwinContext context, int? groupId, WebSortField? sort, WebSortOrder? order)
+    public static async Task<IList<WebChannelDetailed>> ProcessAsync(IOwinContext context, string groupId, WebSortField? sort, WebSortOrder? order)
     {
       if (!ServiceRegistration.IsRegistered<ITvProvider>())
         throw new BadRequestException("GetChannelsDetailed: ITvProvider not found");
 
       List<WebChannelDetailed> output = new List<WebChannelDetailed>();
-      var channels = await TVAccess.GetGroupChannelsAsync(context, groupId);
+      var channels = await TVAccess.GetGroupChannelsAsync(context, groupId != null ? int.Parse(groupId) : (int?)null);
       output.AddRange(channels.Where(x => x.MediaType == MediaType.TV).Select(channel => ChannelDetailed(channel)));
 
       // sort

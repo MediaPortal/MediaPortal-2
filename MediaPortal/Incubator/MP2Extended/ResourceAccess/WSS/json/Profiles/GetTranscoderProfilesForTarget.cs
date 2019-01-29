@@ -40,7 +40,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.json.Profiles
   [ApiFunctionParam(Name = "target", Type = typeof(string), Nullable = false)]
   internal class GetTranscoderProfilesForTarget : BaseTranscoderProfile
   {
-    public Task<IList<WebTranscoderProfile>> ProcessAsync(IOwinContext context, string target)
+    public static Task<IList<WebTranscoderProfile>> ProcessAsync(IOwinContext context, string target)
     {
       TargetComparer targetComparer = new TargetComparer();
       return Task.FromResult<IList<WebTranscoderProfile>>(ProfileManager.Profiles.Where(x => x.Value.Targets.Contains(target, targetComparer) || 

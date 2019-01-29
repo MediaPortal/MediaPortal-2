@@ -32,7 +32,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.TvShow.BaseClasses
   // TODO: Add more detailes
   class BaseTvSeasonDetailed : BaseTvSeasonBasic
   {
-    internal WebTVSeasonDetailed TVSeasonDetailed(IOwinContext context, MediaItem item, Guid? showId)
+    internal static WebTVSeasonDetailed TVSeasonDetailed(IOwinContext context, MediaItem item, Guid? showId)
     {
       WebTVSeasonBasic basic = TVSeasonBasic(context, item, showId);
 

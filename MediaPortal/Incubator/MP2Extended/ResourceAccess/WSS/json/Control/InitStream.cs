@@ -48,7 +48,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.json.Control
   [ApiFunctionParam(Name = "idleTimeout", Type = typeof(int), Nullable = true)]
   internal class InitStream
   {
-    public async Task<WebBoolResult> ProcessAsync(IOwinContext context, string itemId, string clientDescription, string identifier, WebMediaType type, int? idleTimeout)
+    public static async Task<WebBoolResult> ProcessAsync(IOwinContext context, string itemId, string clientDescription, string identifier, WebMediaType type, int? idleTimeout)
     {
       if (itemId == null)
         throw new BadRequestException("InitStream: itemId is null");

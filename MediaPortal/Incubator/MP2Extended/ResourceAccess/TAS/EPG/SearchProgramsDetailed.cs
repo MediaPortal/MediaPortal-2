@@ -43,7 +43,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.TAS.EPG
   [ApiFunctionParam(Name = "searchTerm", Type = typeof(string), Nullable = false)]
   internal class SearchProgramsDetailed : BaseProgramDetailed
   {
-    public async Task<IList<WebProgramDetailed>> ProcessAsync(IOwinContext context, string searchTerm)
+    public static async Task<IList<WebProgramDetailed>> ProcessAsync(IOwinContext context, string searchTerm)
     {
       if (searchTerm == null)
         throw new BadRequestException("SearchProgramsDetailed: searchTerm is null");

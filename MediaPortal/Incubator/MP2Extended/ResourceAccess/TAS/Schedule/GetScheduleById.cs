@@ -38,15 +38,15 @@ using Microsoft.Owin;
 namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.TAS.Schedule
 {
   [ApiFunctionDescription(Type = ApiFunctionDescription.FunctionType.Json, Summary = "")]
-  [ApiFunctionParam(Name = "scheduleId", Type = typeof(int), Nullable = false)]
+  [ApiFunctionParam(Name = "scheduleId", Type = typeof(string), Nullable = false)]
   internal class GetScheduleById : BaseScheduleBasic
   {
-    public async Task<WebScheduleBasic> ProcessAsync(IOwinContext context, int scheduleId)
+    public static async Task<WebScheduleBasic> ProcessAsync(IOwinContext context, string scheduleId)
     {
       if (!ServiceRegistration.IsRegistered<ITvProvider>())
         throw new BadRequestException("GetScheduleById: ITvProvider not found");
 
-      var schedule = await TVAccess.GetScheduleAsync(context, scheduleId);
+      var schedule = await TVAccess.GetScheduleAsync(context, int.Parse(scheduleId));
       if (schedule == null)
         throw new BadRequestException(string.Format("GetScheduleById: Couldn't get schedule with Id: {0}", scheduleId));
 

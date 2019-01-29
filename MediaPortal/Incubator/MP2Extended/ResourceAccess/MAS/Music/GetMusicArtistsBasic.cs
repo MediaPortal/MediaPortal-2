@@ -37,7 +37,7 @@ using MediaPortal.Plugins.MP2Extended.Common;
 using MediaPortal.Plugins.MP2Extended.Exceptions;
 using MediaPortal.Plugins.MP2Extended.Extensions;
 using MediaPortal.Plugins.MP2Extended.MAS.Music;
-using MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS;
+using MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.Music.BaseClasses;
 using Microsoft.Owin;
 
 namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.Music
@@ -46,39 +46,21 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.Music
   [ApiFunctionParam(Name = "sort", Type = typeof(WebSortField), Nullable = true)]
   [ApiFunctionParam(Name = "order", Type = typeof(WebSortOrder), Nullable = true)]
   [ApiFunctionParam(Name = "filter", Type = typeof(string), Nullable = true)]
-  internal class GetMusicArtistsBasic
+  internal class GetMusicArtistsBasic : BaseMusicArtistBasic
   {
-    public Task<IList<WebMusicArtistBasic>> ProcessAsync(IOwinContext context, string filter, WebSortField? sort, WebSortOrder? order)
+    public static Task<IList<WebMusicArtistBasic>> ProcessAsync(IOwinContext context, string filter, WebSortField? sort, WebSortOrder? order)
     {
-      ISet<Guid> necessaryMIATypes = new HashSet<Guid>();
-      necessaryMIATypes.Add(MediaAspect.ASPECT_ID);
-
-      HomogenousMap items = MediaLibraryAccess.GetGroups(context, necessaryMIATypes, AudioAspect.ATTR_ARTISTS);
-      HomogenousMap itemsAlbum = MediaLibraryAccess.GetGroups(context, necessaryMIATypes, AudioAspect.ATTR_ALBUMARTISTS);
-
-      List<WebMusicArtistBasic> output = new List<WebMusicArtistBasic>();
-
+      var items = MediaLibraryAccess.GetMediaItemsByGroup(context, PersonAspect.ROLE_ARTIST, AudioAspect.ROLE_TRACK, Guid.Empty, BasicNecessaryMIATypeIds, BasicOptionalMIATypeIds);
       if (items.Count == 0)
-        return System.Threading.Tasks.Task.FromResult<IList<WebMusicArtistBasic>>(output);
+        throw new BadRequestException("No Artists found");
 
-      output = (from item in items
-        where item.Key is string
-        select new WebMusicArtistBasic
-        {
-          Id = Convert.ToBase64String((new UTF8Encoding().GetBytes(item.Key.ToString()))), Title = item.Key.ToString(), PID = 0, HasAlbums = itemsAlbum.ContainsKey(item.Key)
-        }).ToList();
+      var output = items.Select(mi => MusicArtistBasic(mi)).Filter(filter);
 
-      
       // sort and filter
       if (sort != null && order != null)
-      {
-       output = output.AsQueryable().Filter(filter).SortMediaItemList(sort, order).ToList();
-      }
-      else
-        output = output.AsQueryable().Filter(filter).ToList();
+        output = output.SortWebMusicArtistBasic(sort, order);
 
-
-      return System.Threading.Tasks.Task.FromResult<IList<WebMusicArtistBasic>>(output);
+      return System.Threading.Tasks.Task.FromResult<IList<WebMusicArtistBasic>>(output.ToList());
     }
 
     internal static ILogger Logger

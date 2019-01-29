@@ -41,21 +41,21 @@ using Microsoft.Owin;
 namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.TAS.Radio
 {
   [ApiFunctionDescription(Type = ApiFunctionDescription.FunctionType.Json, Summary = "")]
-  [ApiFunctionParam(Name = "groupId", Type = typeof(int), Nullable = false)]
+  [ApiFunctionParam(Name = "groupId", Type = typeof(string), Nullable = true)]
   [ApiFunctionParam(Name = "start", Type = typeof(int), Nullable = false)]
   [ApiFunctionParam(Name = "end", Type = typeof(int), Nullable = false)]
   [ApiFunctionParam(Name = "sort", Type = typeof(WebSortField), Nullable = true)]
   [ApiFunctionParam(Name = "order", Type = typeof(WebSortOrder), Nullable = true)]
   internal class GetRadioChannelsBasicByRange : BaseChannelBasic
   {
-    public async Task<IList<WebChannelBasic>> ProcessAsync(IOwinContext context, int start, int end, int? groupId, WebSortField? sort, WebSortOrder? order)
+    public static async Task<IList<WebChannelBasic>> ProcessAsync(IOwinContext context, int start, int end, string groupId, WebSortField? sort, WebSortOrder? order)
     {
       List<WebChannelBasic> output = new List<WebChannelBasic>();
 
       if (!ServiceRegistration.IsRegistered<ITvProvider>())
         throw new BadRequestException("GetRadioChannelsBasicByRange: ITvProvider not found");
 
-      var channels = await TVAccess.GetGroupChannelsAsync(context, groupId);
+      var channels = await TVAccess.GetGroupChannelsAsync(context, groupId != null ? int.Parse(groupId) : (int?)null);
       output.AddRange(channels.Where(x => x.MediaType == MediaType.Radio).Select(channel => ChannelBasic(channel)));
 
       // sort

@@ -25,6 +25,7 @@
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Common.ResourceAccess;
+using MediaPortal.Common.UserProfileDataManagement;
 using MediaPortal.Plugins.MP2Extended.Common;
 using MediaPortal.Plugins.MP2Extended.MAS;
 using MediaPortal.Plugins.MP2Extended.MAS.TvShow;
@@ -38,7 +39,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.TvShow.BaseClasses
 {
   class BaseEpisodeBasic
   {
-    internal ISet<Guid> BasicNecessaryMIATypeIds = new HashSet<Guid>
+    internal static ISet<Guid> BasicNecessaryMIATypeIds = new HashSet<Guid>
     {
       MediaAspect.ASPECT_ID,
       ImporterAspect.ASPECT_ID,
@@ -46,24 +47,17 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.TvShow.BaseClasses
       EpisodeAspect.ASPECT_ID
     };
 
-    internal ISet<Guid> BasicOptionalMIATypeIds = new HashSet<Guid>
+    internal static ISet<Guid> BasicOptionalMIATypeIds = new HashSet<Guid>
     {
       RelationshipAspect.ASPECT_ID,
       ExternalIdentifierAspect.ASPECT_ID
     };
 
-    internal WebTVEpisodeBasic EpisodeBasic(MediaItem item, Guid? showId = null, Guid? seasonId = null)
+    internal static WebTVEpisodeBasic EpisodeBasic(MediaItem item, Guid? showId = null, Guid? seasonId = null)
     {
       MediaItemAspect episodeAspect = item.GetAspect(EpisodeAspect.Metadata);
       MediaItemAspect importerAspect = item.GetAspect(ImporterAspect.Metadata);
       MediaItemAspect mediaAspect = item.GetAspect(MediaAspect.Metadata);
-
-      string path = "";
-      if (item.PrimaryResources.Count > 0)
-      {
-        ResourcePath resourcePath = ResourcePath.Deserialize(item.PrimaryProviderResourcePath());
-        path = resourcePath.PathSegments.Count > 0 ? StringUtils.RemovePrefixIfPresent(resourcePath.LastPathSegment.Path, "/") : string.Empty;
-      }
 
       IEnumerable<int> episodeNumbers = episodeAspect.GetCollectionAttribute<int>(EpisodeAspect.ATTR_EPISODE);
       int episodeNumber = episodeNumbers != null ? episodeNumbers.FirstOrDefault() : 0;
@@ -78,12 +72,13 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.TvShow.BaseClasses
         ShowId = showId.HasValue ? showId.Value.ToString() : null,
         SeasonId = seasonId.HasValue ? seasonId.Value.ToString() : null,
         Type = WebMediaType.TVEpisode,
-        Path = new List<string> { path },
-        Watched = mediaAspect.GetAttributeValue<int>(MediaAspect.ATTR_PLAYCOUNT) > 0,
+        Path = ResourceAccessUtils.GetPaths(item),
+        Watched = Convert.ToInt32(item.UserData.FirstOrDefault(d => d.Key == UserDataKeysKnown.KEY_PLAY_PERCENTAGE).Value ?? "0") >= 100,
         DateAdded = importerAspect.GetAttributeValue<DateTime>(ImporterAspect.ATTR_DATEADDED),
         SeasonNumber = episodeAspect.GetAttributeValue<int>(EpisodeAspect.ATTR_SEASON),
         FirstAired = mediaAspect.GetAttributeValue<DateTime>(MediaAspect.ATTR_RECORDINGTIME),
         Rating = Convert.ToSingle(episodeAspect.GetAttributeValue<double>(EpisodeAspect.ATTR_TOTAL_RATING)),
+        Artwork = ResourceAccessUtils.GetWebArtwork(item),
       };
       
       string TvDbId;
@@ -98,7 +93,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.TvShow.BaseClasses
       return webTvEpisodeBasic;
     }
 
-    protected void GetParentIds(MediaItem item, ref Guid? showId, ref Guid? seasonId)
+    protected static void GetParentIds(MediaItem item, ref Guid? showId, ref Guid? seasonId)
     {
       if (showId.HasValue && seasonId.HasValue)
         return;

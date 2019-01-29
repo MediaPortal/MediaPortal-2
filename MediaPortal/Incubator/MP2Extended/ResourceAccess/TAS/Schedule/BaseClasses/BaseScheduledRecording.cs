@@ -32,7 +32,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.TAS.Schedule.BaseClasse
 {
   class BaseScheduledRecording
   {
-    internal WebScheduledRecording ScheduledRecording(ISchedule schedule)
+    internal static WebScheduledRecording ScheduledRecording(ISchedule schedule)
     {
       IChannelAndGroupInfoAsync channelAndGroupInfo = ServiceRegistration.Get<ITvProvider>() as IChannelAndGroupInfoAsync;
       var channel = channelAndGroupInfo.GetChannelAsync(schedule.ChannelId).Result;

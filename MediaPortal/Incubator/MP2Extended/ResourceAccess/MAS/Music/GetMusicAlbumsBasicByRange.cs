@@ -37,9 +37,9 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.Music
 {
   internal class GetMusicAlbumsBasicByRange : BaseMusicAlbumBasic
   {
-    public async Task<IList<WebMusicAlbumBasic>> ProcessAsync(IOwinContext context, int start, int end, string filter, WebSortField? sort, WebSortOrder? order)
+    public static async Task<IList<WebMusicAlbumBasic>> ProcessAsync(IOwinContext context, int start, int end, string filter, WebSortField? sort, WebSortOrder? order)
     {
-      var output = await new GetMusicAlbumsBasic().ProcessAsync(context, filter, sort, order);
+      var output = await GetMusicAlbumsBasic.ProcessAsync(context, filter, sort, order);
 
       // get range
       output = output.TakeRange(start, end).ToList();

@@ -43,7 +43,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.FileSystem
   [ApiFunctionParam(Name = "end", Type = typeof(int), Nullable = false)]
   internal class GetFileSystemDrivesByRange : BaseDriveBasic
   {
-    public Task<IList<WebDriveBasic>> ProcessAsync(IOwinContext context, int start, int end, WebSortField? sort, WebSortOrder? order)
+    public static Task<IList<WebDriveBasic>> ProcessAsync(IOwinContext context, int start, int end, WebSortField? sort, WebSortOrder? order)
     {
       List<WebDriveBasic> output = DriveBasic();
 

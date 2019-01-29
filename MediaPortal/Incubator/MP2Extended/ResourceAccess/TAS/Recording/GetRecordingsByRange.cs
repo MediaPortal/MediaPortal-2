@@ -50,19 +50,12 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.TAS.Recording
   [ApiFunctionParam(Name = "filter", Type = typeof(string), Nullable = true)]
   internal class GetRecordingsByRange : BaseRecordingBasic
   {
-    public Task<IList<WebRecordingBasic>> ProcessAsync(IOwinContext context, int start, int end, WebSortField? sort, WebSortOrder? order, string filter = null)
+    public static Task<IList<WebRecordingBasic>> ProcessAsync(IOwinContext context, int start, int end, WebSortField? sort, WebSortOrder? order, string filter = null)
     {
       if (!ServiceRegistration.IsRegistered<ITvProvider>())
         throw new BadRequestException("GetRecordingsByRange: ITvProvider not found");
 
-      ISet<Guid> necessaryMIATypes = new HashSet<Guid>();
-      necessaryMIATypes.Add(MediaAspect.ASPECT_ID);
-      necessaryMIATypes.Add(ProviderResourceAspect.ASPECT_ID);
-      necessaryMIATypes.Add(ImporterAspect.ASPECT_ID);
-      necessaryMIATypes.Add(VideoAspect.ASPECT_ID);
-      necessaryMIATypes.Add(RecordingAspect.ASPECT_ID);
-
-      IList<MediaItem> items = MediaLibraryAccess.GetMediaItemsByAspect(context, necessaryMIATypes, null);
+      IList<MediaItem> items = MediaLibraryAccess.GetMediaItemsByAspect(context, BasicNecessaryMIATypeIds, BasicOptionalMIATypeIds);
 
       List<WebRecordingBasic> output = items.Select(item => RecordingBasic(item)).ToList();
 

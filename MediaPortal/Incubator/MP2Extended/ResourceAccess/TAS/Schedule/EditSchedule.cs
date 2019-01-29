@@ -39,8 +39,8 @@ using Microsoft.Owin;
 namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.TAS.Schedule
 {
   [ApiFunctionDescription(Type = ApiFunctionDescription.FunctionType.Json, Summary = "Enables you to edit a already existend schedule.")]
-  [ApiFunctionParam(Name = "scheduleId", Type = typeof(int), Nullable = false)]
-  [ApiFunctionParam(Name = "channelId", Type = typeof(int), Nullable = true)]
+  [ApiFunctionParam(Name = "scheduleId", Type = typeof(string), Nullable = false)]
+  [ApiFunctionParam(Name = "channelId", Type = typeof(string), Nullable = true)]
   [ApiFunctionParam(Name = "title", Type = typeof(string), Nullable = true)]
   [ApiFunctionParam(Name = "startTime", Type = typeof(DateTime), Nullable = true)]
   [ApiFunctionParam(Name = "endTime", Type = typeof(DateTime), Nullable = true)]
@@ -51,13 +51,13 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.TAS.Schedule
   [ApiFunctionParam(Name = "priority", Type = typeof(int), Nullable = true)]
   internal class EditSchedule
   {
-    public async Task<WebBoolResult> ProcessAsync(IOwinContext context, int scheduleId, int? channelId = null, string title = null, DateTime? startTime = null, DateTime? endTime = null, WebScheduleType? scheduleType = null, int? preRecordInterval = null, int? postRecordInterval = null, string directory = null, int? priority = null)
+    public static async Task<WebBoolResult> ProcessAsync(IOwinContext context, string scheduleId, string channelId = null, string title = null, DateTime? startTime = null, DateTime? endTime = null, WebScheduleType? scheduleType = null, int? preRecordInterval = null, int? postRecordInterval = null, string directory = null, int? priority = null)
     {
       if (!ServiceRegistration.IsRegistered<ITvProvider>())
         throw new BadRequestException("EditSchedule: ITvProvider not found");
 
-      bool result = await TVAccess.EditScheduleAsync(context, scheduleId, 
-        channelId,
+      bool result = await TVAccess.EditScheduleAsync(context, int.Parse(scheduleId),
+        channelId != null ? int.Parse(channelId) : (int?)null,
         title,
         startTime,
         endTime,

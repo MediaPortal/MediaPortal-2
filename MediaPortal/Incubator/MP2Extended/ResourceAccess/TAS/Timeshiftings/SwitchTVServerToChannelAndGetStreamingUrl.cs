@@ -39,11 +39,11 @@ using Microsoft.Owin;
 namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.TAS.Timeshiftings
 {
   [ApiFunctionDescription(Type = ApiFunctionDescription.FunctionType.Json, Summary = "")]
-  [ApiFunctionParam(Name = "channelId", Type = typeof(int), Nullable = false)]
+  [ApiFunctionParam(Name = "channelId", Type = typeof(string), Nullable = false)]
   [ApiFunctionParam(Name = "userName", Type = typeof(string), Nullable = false)]
   internal class SwitchTVServerToChannelAndGetStreamingUrl
   {
-    public async Task<WebStringResult> ProcessAsync(IOwinContext context, string userName, int channelId)
+    public static async Task<WebStringResult> ProcessAsync(IOwinContext context, string userName, string channelId)
     {
       if (!ServiceRegistration.IsRegistered<ITvProvider>())
         throw new BadRequestException("SwitchTVServerToChannelAndGetStreamingUrl: ITvProvider not found");
@@ -51,7 +51,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.TAS.Timeshiftings
       if (userName == null)
         throw new BadRequestException("SwitchTVServerToChannelAndGetStreamingUrl: userName is null");
 
-      var item = await TVAccess.StartTimeshiftAsync(context, channelId, userName);
+      var item = await TVAccess.StartTimeshiftAsync(context, int.Parse(channelId), userName);
       if (item == null)
         throw new BadRequestException("SwitchTVServerToChannelAndGetStreamingUrl: Couldn't start timeshifting");
 
@@ -65,7 +65,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.TAS.Timeshiftings
       }
       else
       {
-        await TVAccess.StopTimeshiftAsync(context, channelId, userName);
+        await TVAccess.StopTimeshiftAsync(context, int.Parse(channelId), userName);
       }
 
       return new WebStringResult { Result = url };

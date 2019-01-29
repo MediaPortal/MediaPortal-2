@@ -43,13 +43,13 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.Playlist
   [ApiFunctionParam(Name = "position", Type = typeof(int), Nullable = true)]
   internal class ClearAndAddPlaylistItems
   {
-    public Task<WebBoolResult> ProcessAsync(IOwinContext context, Guid playlistId, WebMediaType type, int? position, List<Guid> ids)
+    public static Task<WebBoolResult> ProcessAsync(IOwinContext context, string playlistId, WebMediaType type, int? position, List<string> ids)
     {
       if (ids.Count == 0)
         throw new BadRequestException(String.Format("AddPlaylistItems: id array is empty - itemIds: {0}", ids));
 
      // get the playlist
-      PlaylistRawData playlistRawData = ServiceRegistration.Get<IMediaLibrary>().ExportPlaylist(playlistId);
+      PlaylistRawData playlistRawData = ServiceRegistration.Get<IMediaLibrary>().ExportPlaylist(Guid.Parse(playlistId));
 
       // clear the data
       playlistRawData.MediaItemIds.Clear();
@@ -57,7 +57,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.Playlist
       // insert the data
       foreach (var itemId in ids)
       {
-       playlistRawData.MediaItemIds.Add(itemId);
+       playlistRawData.MediaItemIds.Add(Guid.Parse(itemId));
       }
 
       // save playlist

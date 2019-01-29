@@ -31,14 +31,14 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.TAS.EPG.BaseClasses
 {
   class BaseProgramDetailed
   {
-    internal WebProgramDetailed ProgramDetailed(IProgram program)
+    internal static WebProgramDetailed ProgramDetailed(IProgram program)
     {
       if (program == null)
         return new WebProgramDetailed();
 
       IProgramRecordingStatus recordingStatus = program as IProgramRecordingStatus;
       IProgramSeries programSeries = program as IProgramSeries;
-      WebProgramBasic webProgramBasic = new BaseProgramBasic().ProgramBasic(program);
+      WebProgramBasic webProgramBasic = BaseProgramBasic.ProgramBasic(program);
 
       WebProgramDetailed webProgramDetailed = new WebProgramDetailed
       {

@@ -46,9 +46,9 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.Filter
   [ApiFunctionParam(Name = "end", Type = typeof(int), Nullable = false)]
   internal class GetFilterValuesByRange
   {
-    public async Task<IList<string>> ProcessAsync(IOwinContext context, int start, int end, WebMediaType mediaType, string filterField, string op, int? limit, WebSortOrder? order)
+    public static async Task<IList<string>> ProcessAsync(IOwinContext context, int start, int end, WebMediaType mediaType, string filterField, string op, int? limit, WebSortOrder? order)
     {
-     IList<string> output = await new GetFilterValues().ProcessAsync(context, mediaType, filterField, op, limit, order);
+     IList<string> output = await GetFilterValues.ProcessAsync(context, mediaType, filterField, op, limit, order);
 
       // Get Range
       output = output.TakeRange(start, end).ToList();

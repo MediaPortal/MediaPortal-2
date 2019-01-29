@@ -38,7 +38,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.FileSystem
   [ApiFunctionParam(Name = "id", Type = typeof(string), Nullable = false)]
   internal class GetFileSystemDriveBasicById : BaseDriveBasic
   {
-    public Task<WebDriveBasic> ProcessAsync(IOwinContext context, string id)
+    public static Task<WebDriveBasic> ProcessAsync(IOwinContext context, string id)
     {
       List<WebDriveBasic> driveList = DriveBasic();
 

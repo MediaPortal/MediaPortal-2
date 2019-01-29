@@ -30,7 +30,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.TAS.EPG.BaseClasses
 {
   class BaseProgramBasic
   {
-    internal WebProgramBasic ProgramBasic(IProgram program)
+    internal static WebProgramBasic ProgramBasic(IProgram program)
     {
       if (program == null)
         return new WebProgramBasic();

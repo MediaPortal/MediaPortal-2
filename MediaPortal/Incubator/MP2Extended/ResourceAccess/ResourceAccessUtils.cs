@@ -24,22 +24,24 @@
 
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
 using MediaPortal.Backend.MediaLibrary;
 using MediaPortal.Common;
-using MediaPortal.Common.Certifications;
+using MediaPortal.Common.FanArt;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Common.MediaManagement.MLQueries;
-using MediaPortal.Common.Settings;
+using MediaPortal.Common.ResourceAccess;
 using MediaPortal.Common.UserProfileDataManagement;
 using MediaPortal.Plugins.MP2Extended.Common;
+using MediaPortal.Plugins.MP2Extended.MAS.General;
 using MediaPortal.Plugins.SlimTv.Interfaces.Items;
+using MediaPortal.Utilities;
 using Microsoft.Owin;
-using Newtonsoft.Json;
 
 namespace MediaPortal.Plugins.MP2Extended.ResourceAccess
 {
@@ -150,24 +152,165 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess
       return true;
     }
 
-    internal static WebMediaType GetWebMediaType(MediaItem mediaItem)
+    internal static WebMediaType GetWebMediaType(MediaItem item)
     {
-      if (mediaItem.Aspects.ContainsKey(VideoAspect.ASPECT_ID) || mediaItem.Aspects.ContainsKey(MovieAspect.ASPECT_ID))
-      {
-        return WebMediaType.Movie;
-      }
-
-      if (mediaItem.Aspects.ContainsKey(SeriesAspect.ASPECT_ID))
-      {
-        return WebMediaType.TVEpisode;
-      }
-
-      if (mediaItem.Aspects.ContainsKey(AudioAspect.ASPECT_ID))
-      {
+      string type;
+      if (item.Aspects.ContainsKey(AudioAlbumAspect.ASPECT_ID))
+        return WebMediaType.MusicAlbum;
+      else if (item.Aspects.ContainsKey(PersonAspect.ASPECT_ID) && MediaItemAspect.TryGetAttribute(item.Aspects, PersonAspect.ATTR_OCCUPATION, out type) && type == PersonAspect.OCCUPATION_ARTIST)
+        return WebMediaType.MusicArtist;
+      else if (item.Aspects.ContainsKey(AudioAspect.ASPECT_ID))
         return WebMediaType.MusicTrack;
-      }
+      else if (item.Aspects.ContainsKey(EpisodeAspect.ASPECT_ID))
+        return WebMediaType.TVEpisode;
+      else if (item.Aspects.ContainsKey(ImageAspect.ASPECT_ID))
+        return WebMediaType.Picture;
+      else if (item.Aspects.ContainsKey(MovieAspect.ASPECT_ID))
+        return WebMediaType.Movie;
+      else if (item.Aspects.ContainsKey(SeriesAspect.ASPECT_ID))
+        return WebMediaType.TVShow;
+      else if (item.Aspects.ContainsKey(SeasonAspect.ASPECT_ID))
+        return WebMediaType.TVSeason;
 
       return WebMediaType.File;
+    }
+
+    internal static IList<WebArtwork> GetWebArtwork(MediaItem item)
+    {
+      string mediaItemId = item.MediaItemId.ToString();
+      string fileType = FanArtMediaTypes.Undefined;
+      string type;
+      if (item.Aspects.ContainsKey(PersonAspect.ASPECT_ID) && MediaItemAspect.TryGetAttribute(item.Aspects, PersonAspect.ATTR_OCCUPATION, out type) && type == PersonAspect.OCCUPATION_ACTOR)
+        fileType = FanArtMediaTypes.Actor;
+      else if (item.Aspects.ContainsKey(AudioAlbumAspect.ASPECT_ID))
+        fileType = FanArtMediaTypes.Album;
+      else if (item.Aspects.ContainsKey(PersonAspect.ASPECT_ID) && MediaItemAspect.TryGetAttribute(item.Aspects, PersonAspect.ATTR_OCCUPATION, out type) && type == PersonAspect.OCCUPATION_ARTIST)
+        fileType = FanArtMediaTypes.Artist;
+      else if (item.Aspects.ContainsKey(AudioAspect.ASPECT_ID))
+        fileType = FanArtMediaTypes.Audio;
+      else if (item.Aspects.ContainsKey(CharacterAspect.ASPECT_ID))
+        fileType = FanArtMediaTypes.Character;
+      else if (item.Aspects.ContainsKey(CompanyAspect.ASPECT_ID) && MediaItemAspect.TryGetAttribute(item.Aspects, CompanyAspect.ATTR_COMPANY_TYPE, out type) && type == CompanyAspect.COMPANY_PRODUCTION)
+        fileType = FanArtMediaTypes.Company;
+      else if (item.Aspects.ContainsKey(PersonAspect.ASPECT_ID) && MediaItemAspect.TryGetAttribute(item.Aspects, PersonAspect.ATTR_OCCUPATION, out type) && type == PersonAspect.OCCUPATION_COMPOSER)
+        fileType = FanArtMediaTypes.Composer;
+      else if (item.Aspects.ContainsKey(PersonAspect.ASPECT_ID) && MediaItemAspect.TryGetAttribute(item.Aspects, PersonAspect.ATTR_OCCUPATION, out type) && type == PersonAspect.OCCUPATION_DIRECTOR)
+        fileType = FanArtMediaTypes.Director;
+      else if (item.Aspects.ContainsKey(EpisodeAspect.ASPECT_ID))
+        fileType = FanArtMediaTypes.Episode;
+      else if (item.Aspects.ContainsKey(ImageAspect.ASPECT_ID))
+        fileType = FanArtMediaTypes.Image;
+      else if (item.Aspects.ContainsKey(MovieAspect.ASPECT_ID))
+        fileType = FanArtMediaTypes.Movie;
+      else if (item.Aspects.ContainsKey(MovieCollectionAspect.ASPECT_ID))
+        fileType = FanArtMediaTypes.MovieCollection;
+      else if (item.Aspects.ContainsKey(CompanyAspect.ASPECT_ID) && MediaItemAspect.TryGetAttribute(item.Aspects, CompanyAspect.ATTR_COMPANY_TYPE, out type) && type == CompanyAspect.COMPANY_MUSIC_LABEL)
+        fileType = FanArtMediaTypes.MusicLabel;
+      else if (item.Aspects.ContainsKey(SeriesAspect.ASPECT_ID))
+        fileType = FanArtMediaTypes.Series;
+      else if (item.Aspects.ContainsKey(SeasonAspect.ASPECT_ID))
+        fileType = FanArtMediaTypes.SeriesSeason;
+      else if (item.Aspects.ContainsKey(CompanyAspect.ASPECT_ID) && MediaItemAspect.TryGetAttribute(item.Aspects, CompanyAspect.ATTR_COMPANY_TYPE, out type) && type == CompanyAspect.COMPANY_TV_NETWORK)
+        fileType = FanArtMediaTypes.TVNetwork;
+      else if (item.Aspects.ContainsKey(PersonAspect.ASPECT_ID) && MediaItemAspect.TryGetAttribute(item.Aspects, PersonAspect.ATTR_OCCUPATION, out type) && type == PersonAspect.OCCUPATION_WRITER)
+        fileType = FanArtMediaTypes.Writer;
+
+      var cache = ServiceRegistration.Get<IFanArtCache>();
+      var banners = cache.GetFanArtFiles(item.MediaItemId, FanArtTypes.Banner);
+      var covers = cache.GetFanArtFiles(item.MediaItemId, FanArtTypes.Cover);
+      var logos = cache.GetFanArtFiles(item.MediaItemId, FanArtTypes.Logo);
+      var posters = cache.GetFanArtFiles(item.MediaItemId, FanArtTypes.Poster);
+      var backdrops = cache.GetFanArtFiles(item.MediaItemId, FanArtTypes.Thumbnail);
+      var content = cache.GetFanArtFiles(item.MediaItemId, FanArtTypes.FanArt);
+      var list = new List<WebArtwork>();
+      for (int idx = 0; idx < banners.Count; idx++)
+        list.Add(new WebArtwork { Id = mediaItemId, Type = Common.WebFileType.Banner, Filetype = fileType, Offset = idx });
+      for (int idx = 0; idx < backdrops.Count; idx++)
+        list.Add(new WebArtwork { Id = mediaItemId, Type = Common.WebFileType.Backdrop, Filetype = fileType, Offset = idx });
+      for (int idx = 0; idx < content.Count; idx++)
+        list.Add(new WebArtwork { Id = mediaItemId, Type = Common.WebFileType.Content, Filetype = fileType, Offset = idx });
+      for (int idx = 0; idx < covers.Count; idx++)
+        list.Add(new WebArtwork { Id = mediaItemId, Type = Common.WebFileType.Cover, Filetype = fileType, Offset = idx });
+      for (int idx = 0; idx < logos.Count; idx++)
+        list.Add(new WebArtwork { Id = mediaItemId, Type = Common.WebFileType.Logo, Filetype = fileType, Offset = idx });
+      for (int idx = 0; idx < posters.Count; idx++)
+        list.Add(new WebArtwork { Id = mediaItemId, Type = Common.WebFileType.Poster, Filetype = fileType, Offset = idx });
+
+      return list;
+    }
+
+    internal static IList<WebArtwork> GetWebArtwork(WebMediaType mediaType, Guid mediaItemId)
+    {
+      string fileType = FanArtMediaTypes.Undefined;
+      string type;
+      if (mediaType == WebMediaType.Movie)
+        fileType = FanArtMediaTypes.Movie;
+      else if (mediaType == WebMediaType.MusicAlbum)
+        fileType = FanArtMediaTypes.Album;
+      else if (mediaType == WebMediaType.MusicArtist)
+        fileType = FanArtMediaTypes.Artist;
+      else if (mediaType == WebMediaType.MusicTrack)
+        fileType = FanArtMediaTypes.Audio;
+      else if (mediaType == WebMediaType.Picture)
+        fileType = FanArtMediaTypes.Image;
+      else if (mediaType == WebMediaType.TVEpisode)
+        fileType = FanArtMediaTypes.Episode;
+      else if (mediaType == WebMediaType.TVSeason)
+        fileType = FanArtMediaTypes.SeriesSeason;
+      else if (mediaType == WebMediaType.TVShow)
+        fileType = FanArtMediaTypes.Series;
+
+      var cache = ServiceRegistration.Get<IFanArtCache>();
+      var banners = cache.GetFanArtFiles(mediaItemId, FanArtTypes.Banner);
+      var covers = cache.GetFanArtFiles(mediaItemId, FanArtTypes.Cover);
+      var logos = cache.GetFanArtFiles(mediaItemId, FanArtTypes.Logo);
+      var posters = cache.GetFanArtFiles(mediaItemId, FanArtTypes.Poster);
+      var backdrops = cache.GetFanArtFiles(mediaItemId, FanArtTypes.Thumbnail);
+      var content = cache.GetFanArtFiles(mediaItemId, FanArtTypes.FanArt);
+      var list = new List<WebArtwork>();
+      for (int idx = 0; idx < banners.Count; idx++)
+        list.Add(new WebArtwork { Id = mediaItemId.ToString(), Type = Common.WebFileType.Banner, Filetype = fileType, Offset = idx });
+      for (int idx = 0; idx < backdrops.Count; idx++)
+        list.Add(new WebArtwork { Id = mediaItemId.ToString(), Type = Common.WebFileType.Backdrop, Filetype = fileType, Offset = idx });
+      for (int idx = 0; idx < content.Count; idx++)
+        list.Add(new WebArtwork { Id = mediaItemId.ToString(), Type = Common.WebFileType.Content, Filetype = fileType, Offset = idx });
+      for (int idx = 0; idx < covers.Count; idx++)
+        list.Add(new WebArtwork { Id = mediaItemId.ToString(), Type = Common.WebFileType.Cover, Filetype = fileType, Offset = idx });
+      for (int idx = 0; idx < logos.Count; idx++)
+        list.Add(new WebArtwork { Id = mediaItemId.ToString(), Type = Common.WebFileType.Logo, Filetype = fileType, Offset = idx });
+      for (int idx = 0; idx < posters.Count; idx++)
+        list.Add(new WebArtwork { Id = mediaItemId.ToString(), Type = Common.WebFileType.Poster, Filetype = fileType, Offset = idx });
+
+      return list;
+    }
+
+    internal static IList<ResourcePath> GetResourcePaths(MediaItem item)
+    {
+      List<ResourcePath> paths = new List<ResourcePath>();
+      IList<MultipleMediaItemAspect> providerResourceAspects;
+      if (MediaItemAspect.TryGetAspects(item.Aspects, ProviderResourceAspect.Metadata, out providerResourceAspects))
+      {
+        foreach (var res in providerResourceAspects.Where(p => p.GetAttributeValue<int>(ProviderResourceAspect.ATTR_TYPE) == ProviderResourceAspect.TYPE_PRIMARY))
+        {
+          var resourcePathStr = res.GetAttributeValue<string>(ProviderResourceAspect.ATTR_RESOURCE_ACCESSOR_PATH);
+          var resourcePath = ResourcePath.Deserialize(resourcePathStr.ToString());
+          paths.Add(resourcePath);
+        }
+      }
+      return paths;
+    }
+
+    internal static IList<string> GetPaths(MediaItem item)
+    {
+      var resPaths = GetResourcePaths(item);
+
+      List<string> paths = new List<string>();
+      foreach (var res in resPaths)
+      {
+        string path = res.PathSegments.Count > 0 ? StringUtils.RemovePrefixIfPresent(res.LastPathSegment.Path, "/") : string.Empty;
+        paths.Add(path);
+      }
+      return paths;
     }
   }
 }

@@ -33,7 +33,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.FileSystem.BaseClas
 {
   internal class BaseDriveBasic
   {
-    internal List<WebDriveBasic> DriveBasic()
+    internal static List<WebDriveBasic> DriveBasic()
     {
       return DriveInfo.GetDrives().Select(x => new WebDriveBasic()
       {

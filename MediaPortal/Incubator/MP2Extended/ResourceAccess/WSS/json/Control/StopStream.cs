@@ -35,7 +35,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.json.Control
   [ApiFunctionParam(Name = "identifier", Type = typeof(string), Nullable = false)]
   internal class StopStream
   {
-    public async Task<WebBoolResult> ProcessAsync(IOwinContext context, string identifier)
+    public static async Task<WebBoolResult> ProcessAsync(IOwinContext context, string identifier)
     {
       bool result = true;
 

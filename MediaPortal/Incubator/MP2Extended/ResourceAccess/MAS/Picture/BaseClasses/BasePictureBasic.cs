@@ -28,6 +28,7 @@ using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Common.ResourceAccess;
 using MediaPortal.Plugins.MP2Extended.Common;
+using MediaPortal.Plugins.MP2Extended.MAS;
 using MediaPortal.Plugins.MP2Extended.MAS.Picture;
 using MediaPortal.Utilities;
 using MP2Extended.Extensions;
@@ -36,30 +37,37 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.Picture.BaseClasses
 {
   class BasePictureBasic
   {
-    internal WebPictureBasic PictureBasic(MediaItem item)
+    internal static ISet<Guid> BasicNecessaryMIATypeIds = new HashSet<Guid>
+    {
+      MediaAspect.ASPECT_ID,
+      ImporterAspect.ASPECT_ID,
+      ProviderResourceAspect.ASPECT_ID,
+      ImageAspect.ASPECT_ID
+    };
+
+    internal static ISet<Guid> BasicOptionalMIATypeIds = new HashSet<Guid>
+    {
+    };
+
+    internal static WebPictureBasic PictureBasic(MediaItem item)
     {
       MediaItemAspect imageAspects = item.GetAspect(ImageAspect.Metadata);
-
-      string path = "";
-      if (item.PrimaryResources.Count > 0)
-      {
-        ResourcePath resourcePath = ResourcePath.Deserialize(item.PrimaryProviderResourcePath());
-        path = resourcePath.PathSegments.Count > 0 ? StringUtils.RemovePrefixIfPresent(resourcePath.LastPathSegment.Path, "/") : string.Empty;
-      }
 
       WebPictureBasic webPictureBasic = new WebPictureBasic
       {
         Type = WebMediaType.Picture,
         DateAdded = (DateTime)item.GetAspect(ImporterAspect.Metadata).GetAttributeValue(ImporterAspect.ATTR_DATEADDED),
         Id = item.MediaItemId.ToString(),
-        PID = 0,
         Title = (string)item.GetAspect(MediaAspect.Metadata).GetAttributeValue(MediaAspect.ATTR_TITLE),
         DateTaken = (DateTime)item.GetAspect(MediaAspect.Metadata)[MediaAspect.ATTR_RECORDINGTIME],
-        Path = new List<string> { path },
+        Path = ResourceAccessUtils.GetPaths(item),
+        Artwork = ResourceAccessUtils.GetWebArtwork(item),
       };
 
-      //webPictureBasic.Categories = imageAspects.GetAttributeValue(ImageAspect);
-      //webPictureBasic.Artwork;
+      webPictureBasic.Categories = new[] 
+      {
+        new WebCategory { Title = (webPictureBasic.DateTaken).ToString("yyyy"), Id = (webPictureBasic.DateTaken).ToString("yyyy") }
+      };
 
       return webPictureBasic;
     }

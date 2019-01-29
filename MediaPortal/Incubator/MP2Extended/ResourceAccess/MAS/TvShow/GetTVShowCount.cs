@@ -44,7 +44,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.TvShow
   [ApiFunctionParam(Name = "filter", Type = typeof(string), Nullable = true)]
   internal class GetTVShowCount
   {
-    public Task<WebIntResult> ProcessAsync(IOwinContext context, string filter)
+    public static Task<WebIntResult> ProcessAsync(IOwinContext context, string filter)
     {
       ISet<Guid> necessaryMIATypes = new HashSet<Guid>();
       necessaryMIATypes.Add(MediaAspect.ASPECT_ID);

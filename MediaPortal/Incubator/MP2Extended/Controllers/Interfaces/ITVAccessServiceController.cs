@@ -45,7 +45,7 @@ namespace MediaPortal.Plugins.MP2Extended.Controllers.Interfaces
     Task<WebBoolResult> WriteSettingToDatabase(string tagName, string value);
     Task<IList<WebDiskSpaceInformation>> GetLocalDiskInformation();
     //Task<IList<WebTVSearchResult>> Search(string text, WebTVSearchResultType? type = null);
-    Task<WebDictionary<string>> GetExternalMediaInfo(WebMediaType? type, string id);
+    //Task<WebDictionary<string>> GetExternalMediaInfo(WebMediaType? type, string id);
     //Task<IList<WebTVSearchResult>> SearchResultsByRange(string text, int start, int end, WebTVSearchResultType? type = null);
 
     #endregion
@@ -57,23 +57,23 @@ namespace MediaPortal.Plugins.MP2Extended.Controllers.Interfaces
     Task<IList<WebUser>> GetActiveUsers();
     //Task<IList<WebRtspClient>> GetStreamingClients();
     Task<IList<WebDiskSpaceInformation>> GetAllRecordingDiskInformation();
-    Task<WebDiskSpaceInformation> GetRecordingDiskInformationForCard(int id);
+    Task<WebDiskSpaceInformation> GetRecordingDiskInformationForCard(string id);
 
     #endregion
 
     #region Schedules
 
-    Task<WebBoolResult> StartRecordingManual(string userName, int channelId, string title);
-    Task<WebBoolResult> AddSchedule(int channelId, string title, DateTime startTime, DateTime endTime, WebScheduleType scheduleType);
-    Task<WebBoolResult> AddScheduleDetailed(int channelId, string title, DateTime startTime, DateTime endTime, WebScheduleType scheduleType, int preRecordInterval, int postRecordInterval, string directory, int priority);
+    Task<WebBoolResult> StartRecordingManual(string userName, string channelId, string title);
+    Task<WebBoolResult> AddSchedule(string channelId, string title, DateTime startTime, DateTime endTime, WebScheduleType scheduleType);
+    Task<WebBoolResult> AddScheduleDetailed(string channelId, string title, DateTime startTime, DateTime endTime, WebScheduleType scheduleType, int preRecordInterval, int postRecordInterval, string directory, int priority);
     Task<WebIntResult> GetScheduleCount();
     Task<IList<WebScheduleBasic>> GetSchedules(WebSortField? sort = WebSortField.Title, WebSortOrder? order = WebSortOrder.Asc, string filter = null);
     Task<IList<WebScheduleBasic>> GetSchedulesByRange(int start, int end, WebSortField? sort = WebSortField.Title, WebSortOrder? order = WebSortOrder.Asc, string filter = null);
-    Task<WebScheduleBasic> GetScheduleById(int scheduleId);
-    Task<WebBoolResult> CancelSchedule(int programId);
-    Task<WebBoolResult> EditSchedule(int scheduleId, int? channelId = null, string title = null, DateTime? startTime = null, DateTime? endTime = null, WebScheduleType? scheduleType = null, int? preRecordInterval = null, int? postRecordInterval = null, string directory = null, int? priority = null);
-    Task<WebBoolResult> DeleteSchedule(int scheduleId);
-    Task<WebBoolResult> StopRecording(int scheduleId);
+    Task<WebScheduleBasic> GetScheduleById(string scheduleId);
+    Task<WebBoolResult> CancelSchedule(string programId);
+    Task<WebBoolResult> EditSchedule(string scheduleId, string channelId = null, string title = null, DateTime? startTime = null, DateTime? endTime = null, WebScheduleType? scheduleType = null, int? preRecordInterval = null, int? postRecordInterval = null, string directory = null, int? priority = null);
+    Task<WebBoolResult> DeleteSchedule(string scheduleId);
+    Task<WebBoolResult> StopRecording(string scheduleId);
     Task<IList<WebScheduledRecording>> GetScheduledRecordingsForDate(DateTime date, WebSortField? sort = WebSortField.Title, WebSortOrder? order = WebSortOrder.Asc, string filter = null);
     Task<IList<WebScheduledRecording>> GetScheduledRecordingsForToday(WebSortField? sort = WebSortField.Title, WebSortOrder? order = WebSortOrder.Asc, string filter = null);
     
@@ -84,10 +84,10 @@ namespace MediaPortal.Plugins.MP2Extended.Controllers.Interfaces
     Task<WebIntResult> GetRecordingCount();
     Task<IList<WebRecordingBasic>> GetRecordings(WebSortField? sort = WebSortField.Title, WebSortOrder? order = WebSortOrder.Asc, string filter = null);
     Task<IList<WebRecordingBasic>> GetRecordingsByRange(int start, int end, WebSortField? sort = WebSortField.Title, WebSortOrder? order = WebSortOrder.Asc, string filter = null);
-    Task<WebRecordingBasic> GetRecordingById(Guid id);
-    Task<WebBoolResult> DeleteRecording(int id);
-    Task<WebRecordingFileInfo> GetRecordingFileInfo(int id);
-    Task<Stream> ReadRecordingFile(int id);
+    Task<WebRecordingBasic> GetRecordingById(string id);
+    Task<WebBoolResult> DeleteRecording(string id);
+    Task<WebRecordingFileInfo> GetRecordingFileInfo(string id);
+    Task<Stream> ReadRecordingFile(string id);
 
     #endregion
 
@@ -96,13 +96,13 @@ namespace MediaPortal.Plugins.MP2Extended.Controllers.Interfaces
     Task<WebIntResult> GetGroupCount();
     Task<IList<WebChannelGroup>> GetGroups(WebSortField? sort = WebSortField.User, WebSortOrder? order = WebSortOrder.Asc);
     Task<IList<WebChannelGroup>> GetGroupsByRange(int start, int end, WebSortField? sort = WebSortField.User, WebSortOrder? order = WebSortOrder.Asc);
-    Task<WebChannelGroup> GetGroupById(int groupId);
-    Task<WebIntResult> GetChannelCount(int? groupId = null);
-    Task<IList<WebChannelBasic>> GetChannelsBasic(int? groupId = null, WebSortField? sort = WebSortField.User, WebSortOrder? order = WebSortOrder.Asc);
-    Task<IList<WebChannelBasic>> GetChannelsBasicByRange(int start, int end, int? groupId = null, WebSortField? sort = WebSortField.User, WebSortOrder? order = WebSortOrder.Asc);
-    Task<IList<WebChannelDetailed>> GetChannelsDetailed(int? groupId = null, WebSortField? sort = WebSortField.User, WebSortOrder? order = WebSortOrder.Asc);
-    Task<IList<WebChannelDetailed>> GetChannelsDetailedByRange(int start, int end, int? groupId = null, WebSortField? sort = WebSortField.User, WebSortOrder? order = WebSortOrder.Asc);
-    Task<IList<WebChannelState>> GetAllChannelStatesForGroup(int groupId, string userName);
+    Task<WebChannelGroup> GetGroupById(string groupId);
+    Task<WebIntResult> GetChannelCount(string groupId = null);
+    Task<IList<WebChannelBasic>> GetChannelsBasic(string groupId = null, WebSortField? sort = WebSortField.User, WebSortOrder? order = WebSortOrder.Asc);
+    Task<IList<WebChannelBasic>> GetChannelsBasicByRange(int start, int end, string groupId = null, WebSortField? sort = WebSortField.User, WebSortOrder? order = WebSortOrder.Asc);
+    Task<IList<WebChannelDetailed>> GetChannelsDetailed(string groupId = null, WebSortField? sort = WebSortField.User, WebSortOrder? order = WebSortOrder.Asc);
+    Task<IList<WebChannelDetailed>> GetChannelsDetailedByRange(int start, int end, string groupId = null, WebSortField? sort = WebSortField.User, WebSortOrder? order = WebSortOrder.Asc);
+    Task<IList<WebChannelState>> GetAllChannelStatesForGroup(string groupId, string userName);
 
     #endregion
 
@@ -111,29 +111,29 @@ namespace MediaPortal.Plugins.MP2Extended.Controllers.Interfaces
     Task<WebIntResult> GetRadioGroupCount();
     Task<IList<WebChannelGroup>> GetRadioGroups(WebSortField? sort = WebSortField.User, WebSortOrder? order = WebSortOrder.Asc);
     Task<IList<WebChannelGroup>> GetRadioGroupsByRange(int start, int end, WebSortField? sort = WebSortField.User, WebSortOrder? order = WebSortOrder.Asc);
-    Task<WebChannelGroup> GetRadioGroupById(int groupId);
-    Task<WebIntResult> GetRadioChannelCount(int? groupId = null);
-    Task<IList<WebChannelBasic>> GetRadioChannelsBasic(int? groupId = null, WebSortField? sort = WebSortField.User, WebSortOrder? order = WebSortOrder.Asc);
-    Task<IList<WebChannelBasic>> GetRadioChannelsBasicByRange(int start, int end, int? groupId = null, WebSortField? sort = WebSortField.User, WebSortOrder? order = WebSortOrder.Asc);
-    Task<IList<WebChannelDetailed>> GetRadioChannelsDetailed(int? groupId = null, WebSortField? sort = WebSortField.User, WebSortOrder? order = WebSortOrder.Asc);
-    Task<IList<WebChannelDetailed>> GetRadioChannelsDetailedByRange(int start, int end, int? groupId = null, WebSortField? sort = WebSortField.User, WebSortOrder? order = WebSortOrder.Asc);
-    Task<IList<WebChannelState>> GetAllRadioChannelStatesForGroup(int groupId, string userName);
+    Task<WebChannelGroup> GetRadioGroupById(string groupId);
+    Task<WebIntResult> GetRadioChannelCount(string groupId = null);
+    Task<IList<WebChannelBasic>> GetRadioChannelsBasic(string groupId = null, WebSortField? sort = WebSortField.User, WebSortOrder? order = WebSortOrder.Asc);
+    Task<IList<WebChannelBasic>> GetRadioChannelsBasicByRange(int start, int end, string groupId = null, WebSortField? sort = WebSortField.User, WebSortOrder? order = WebSortOrder.Asc);
+    Task<IList<WebChannelDetailed>> GetRadioChannelsDetailed(string groupId = null, WebSortField? sort = WebSortField.User, WebSortOrder? order = WebSortOrder.Asc);
+    Task<IList<WebChannelDetailed>> GetRadioChannelsDetailedByRange(int start, int end, string groupId = null, WebSortField? sort = WebSortField.User, WebSortOrder? order = WebSortOrder.Asc);
+    Task<IList<WebChannelState>> GetAllRadioChannelStatesForGroup(string groupId, string userName);
 
     #endregion
 
     #region Channels
 
-    Task<WebChannelBasic> GetChannelBasicById(int channelId);
-    Task<WebChannelDetailed> GetChannelDetailedById(int channelId);
-    Task<WebChannelState> GetChannelState(int channelId, string userName);
+    Task<WebChannelBasic> GetChannelBasicById(string channelId);
+    Task<WebChannelDetailed> GetChannelDetailedById(string channelId);
+    Task<WebChannelState> GetChannelState(string channelId, string userName);
 
     #endregion
 
     #region Timeshifting
-    
-    Task<WebVirtualCard> SwitchTVServerToChannelAndGetVirtualCard(string userName, int channelId);
-    Task<WebStringResult> SwitchTVServerToChannelAndGetStreamingUrl(string userName, int channelId);
-    Task<WebStringResult> SwitchTVServerToChannelAndGetTimeshiftFilename(string userName, int channelId);
+
+    //Task<WebVirtualCard> SwitchTVServerToChannelAndGetVirtualCard(string userName, string channelId);
+    Task<WebStringResult> SwitchTVServerToChannelAndGetStreamingUrl(string userName, string channelId);
+    Task<WebStringResult> SwitchTVServerToChannelAndGetTimeshiftFilename(string userName, string channelId);
     Task<WebBoolResult> SendHeartbeat(string userName);
     Task<WebBoolResult> CancelCurrentTimeShifting(string userName);
 
@@ -141,23 +141,23 @@ namespace MediaPortal.Plugins.MP2Extended.Controllers.Interfaces
 
     #region EPG
     
-    Task<IList<WebProgramBasic>> GetProgramsBasicForChannel(int channelId, DateTime startTime, DateTime endTime);
-    Task<IList<WebProgramDetailed>> GetProgramsDetailedForChannel(int channelId, DateTime startTime, DateTime endTime);
-    Task<IList<WebChannelPrograms<WebProgramBasic>>> GetProgramsBasicForGroup(int groupId, DateTime startTime, DateTime endTime);
-    Task<IList<WebChannelPrograms<WebProgramDetailed>>> GetProgramsDetailedForGroup(int groupId, DateTime startTime, DateTime endTime);
-    Task<WebProgramDetailed> GetCurrentProgramOnChannel(int channelId);
-    Task<WebProgramDetailed> GetNextProgramOnChannel(int channelId);
+    Task<IList<WebProgramBasic>> GetProgramsBasicForChannel(string channelId, DateTime startTime, DateTime endTime);
+    Task<IList<WebProgramDetailed>> GetProgramsDetailedForChannel(string channelId, DateTime startTime, DateTime endTime);
+    Task<IList<WebChannelPrograms<WebProgramBasic>>> GetProgramsBasicForGroup(string groupId, DateTime startTime, DateTime endTime);
+    Task<IList<WebChannelPrograms<WebProgramDetailed>>> GetProgramsDetailedForGroup(string groupId, DateTime startTime, DateTime endTime);
+    Task<WebProgramDetailed> GetCurrentProgramOnChannel(string channelId);
+    Task<WebProgramDetailed> GetNextProgramOnChannel(string channelId);
     Task<WebIntResult> SearchProgramsCount(string searchTerm);
     Task<IList<WebProgramBasic>> SearchProgramsBasic(string searchTerm);
     Task<IList<WebProgramBasic>> SearchProgramsBasicByRange(string searchTerm, int start, int end);
     Task<IList<WebProgramDetailed>> SearchProgramsDetailed(string searchTerm);
     Task<IList<WebProgramDetailed>> SearchProgramsDetailedByRange(string searchTerm, int start, int end);
-    Task<IList<WebProgramBasic>> GetNowNextWebProgramBasicForChannel(int channelId);
-    Task<IList<WebProgramDetailed>> GetNowNextWebProgramDetailedForChannel(int channelId);
-    Task<WebProgramBasic> GetProgramBasicById(int programId);
-    Task<WebProgramDetailed> GetProgramDetailedById(int programId);
-    Task<WebBoolResult> GetProgramIsScheduledOnChannel(int channelId, int programId);
-    Task<WebBoolResult> GetProgramIsScheduled(int programId);
+    Task<IList<WebProgramBasic>> GetNowNextWebProgramBasicForChannel(string channelId);
+    Task<IList<WebProgramDetailed>> GetNowNextWebProgramDetailedForChannel(string channelId);
+    Task<WebProgramBasic> GetProgramBasicById(string programId);
+    Task<WebProgramDetailed> GetProgramDetailedById(string programId);
+    Task<WebBoolResult> GetProgramIsScheduledOnChannel(string channelId, string programId);
+    Task<WebBoolResult> GetProgramIsScheduled(string programId);
 
     #endregion
   }

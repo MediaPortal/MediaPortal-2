@@ -41,7 +41,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.FileSystem
     [ApiFunctionDescription(Type = ApiFunctionDescription.FunctionType.Json, ReturnType = typeof(List<WebDriveBasic>), Summary = "")]
     [ApiFunctionParam(Name = "sort", Type = typeof(WebSortField), Nullable = true)]
     [ApiFunctionParam(Name = "order", Type = typeof(WebSortOrder), Nullable = true)]
-    public Task<IList<WebDriveBasic>> ProcessAsync(IOwinContext context, WebSortField? sort, WebSortOrder? order)
+    public static Task<IList<WebDriveBasic>> ProcessAsync(IOwinContext context, WebSortField? sort, WebSortOrder? order)
     {
       List<WebDriveBasic> output = DriveBasic();
 

@@ -40,16 +40,16 @@ using Microsoft.Owin;
 namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.TAS.Recording
 {
   [ApiFunctionDescription(Type = ApiFunctionDescription.FunctionType.Json, Summary = "")]
-  [ApiFunctionParam(Name = "id", Type = typeof(int), Nullable = false)]
+  [ApiFunctionParam(Name = "id", Type = typeof(string), Nullable = false)]
   internal class GetRecordingDiskInformationForCard : BaseCard
   {
-    public async Task<WebDiskSpaceInformation> ProcessAsync(IOwinContext context, int id)
+    public static async Task<WebDiskSpaceInformation> ProcessAsync(IOwinContext context, string id)
     {
       if (!ServiceRegistration.IsRegistered<ITvProvider>())
         throw new BadRequestException("GetRecordingDiskInformationForCard: ITvProvider not found");
 
       IList<ICard> cards = await TVAccess.GetTunerCardsAsync(context);
-      return DiskSpaceInformation.GetSpaceInformation(cards.Select(card => Card(card)).Single(x => x.Id == id).RecordingFolder);
+      return DiskSpaceInformation.GetSpaceInformation(cards.Select(card => Card(card)).Single(x => x.Id == int.Parse(id)).RecordingFolder);
     }
 
     internal static ILogger Logger

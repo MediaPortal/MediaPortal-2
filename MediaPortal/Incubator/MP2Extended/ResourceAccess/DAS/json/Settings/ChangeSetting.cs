@@ -37,9 +37,9 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.DAS.json.Settings
   [ApiFunctionDescription(Type = ApiFunctionDescription.FunctionType.Json, ReturnType = typeof(WebBoolResult), Summary = "Allowes to change a MP2Ext setting.")]
   [ApiFunctionParam(Name = "name", Type = typeof(string), Nullable = false)]
   [ApiFunctionParam(Name = "value", Type = typeof(string), Nullable = false)]
-  internal class ChangeSetting
+  internal static class ChangeSetting
   {
-    public Task<WebBoolResult> ProcessAsync(IOwinContext context, string name, string value)
+    public static Task<WebBoolResult> ProcessAsync(IOwinContext context, string name, string value)
     {
       // Security
       if (!(context.Authentication.User?.Identity?.IsAuthenticated ?? false))

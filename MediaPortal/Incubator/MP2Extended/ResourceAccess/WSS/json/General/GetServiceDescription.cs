@@ -34,15 +34,15 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.json.General
   [ApiFunctionDescription(Type = ApiFunctionDescription.FunctionType.Json, Summary = "")]
   internal class GetServiceDescription
   {
-    public Task<WebStreamServiceDescription> ProcessAsync(IOwinContext context)
+    public static Task<WebStreamServiceDescription> ProcessAsync(IOwinContext context)
     {
       WebStreamServiceDescription webStreamServiceDescription = new WebStreamServiceDescription
       {
         ApiVersion = GlobalVersion.API_VERSION,
         ServiceVersion = GlobalVersion.VERSION,
         SupportsMedia = true,
-        SupportsRecordings = false,
-        SupportsTV = false
+        SupportsRecordings = true,
+        SupportsTV = ServiceRegistration.IsRegistered<SlimTv.Interfaces.ITvProvider>()
       };
 
       return Task.FromResult(webStreamServiceDescription);

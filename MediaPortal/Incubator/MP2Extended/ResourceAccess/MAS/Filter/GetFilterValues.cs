@@ -30,13 +30,12 @@ using MediaPortal.Plugins.MP2Extended.Attributes;
 using MediaPortal.Plugins.MP2Extended.Common;
 using MediaPortal.Plugins.MP2Extended.Exceptions;
 using MediaPortal.Plugins.MP2Extended.Filters;
-using MediaPortal.Plugins.MP2Extended.MAS.FileSystem;
-using MediaPortal.Plugins.MP2Extended.MAS.Picture;
-using MediaPortal.Plugins.MP2Extended.MAS.Playlist;
 using MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.FileSystem;
 using MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.Picture;
 using MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.Playlist;
-using MediaPortal.Plugins.MP2Extended.Extensions;
+using MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.Movie;
+using MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.Music;
+using MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.TvShow;
 using System.Threading.Tasks;
 using Microsoft.Owin;
 
@@ -53,28 +52,28 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.Filter
   // TODO: add the missing functions once these are implemented
   internal class GetFilterValues
   {
-    public async Task<IList<string>> ProcessAsync(IOwinContext context, WebMediaType mediaType, string filterField, string op, int? limit, WebSortOrder? order)
+    public static async Task<IList<string>> ProcessAsync(IOwinContext context, WebMediaType mediaType, string filterField, string op, int? limit, WebSortOrder? order)
     {
       switch (mediaType)
       {
         case WebMediaType.Drive:
-          return AutoSuggestion.GetValuesForField(filterField, await new GetFileSystemDrives().ProcessAsync(context, null, null), op, limit).OrderBy(x => x, order).ToList();
+          return AutoSuggestion.GetValuesForField(filterField, await GetFileSystemDrives.ProcessAsync(context, null, order), op, limit).ToList();
         case WebMediaType.Movie:
-        //return AutoSuggestion.GetValuesForField(filterField, new GetMoviesDetailed().ProcessAsync(context, provider), op, limitInt).OrderBy(x => x, webSortOrder).ToList();
+          return AutoSuggestion.GetValuesForField(filterField, await GetMoviesDetailed.ProcessAsync(context, null, null, order), op, limit).ToList();
         case WebMediaType.MusicAlbum:
-        //return AutoSuggestion.GetValuesForField(filterField, new GetMusicAlbumsBasic().ProcessAsync(context, provider), op, limitInt).OrderBy(x => x, webSortOrder).ToList();
+          return AutoSuggestion.GetValuesForField(filterField, await GetMusicAlbumsBasic.ProcessAsync(context, null, null, order), op, limit).ToList();
         case WebMediaType.MusicArtist:
-        //return AutoSuggestion.GetValuesForField(filterField, GetMusicArtistsDetailed(provider), op, limitInt).OrderBy(x => x, webSortOrder).ToList();
+          return AutoSuggestion.GetValuesForField(filterField, await GetMusicArtistsDetailed.ProcessAsync(context, null, null, order), op, limit).ToList();
         case WebMediaType.MusicTrack:
-        //return AutoSuggestion.GetValuesForField(filterField, GetMusicTracksDetailed(provider), op, limitInt).OrderBy(x => x, webSortOrder).ToList();
+          return AutoSuggestion.GetValuesForField(filterField, await GetMusicTracksDetailed.ProcessAsync(context, null, null, order), op, limit).ToList();
         case WebMediaType.Picture:
-          return AutoSuggestion.GetValuesForField(filterField, await new GetPicturesDetailed().ProcessAsync(context, null, null, null), op, limit).OrderBy(x => x, order).ToList();
+          return AutoSuggestion.GetValuesForField(filterField, await GetPicturesDetailed.ProcessAsync(context, null, null, null), op, limit).ToList();
         case WebMediaType.Playlist:
-          return AutoSuggestion.GetValuesForField(filterField, await new GetPlaylists().ProcessAsync(context), op, limit).OrderBy(x => x, order).ToList();
+          return AutoSuggestion.GetValuesForField(filterField, await GetPlaylists.ProcessAsync(context), op, limit).ToList();
         case WebMediaType.TVEpisode:
-        //return AutoSuggestion.GetValuesForField(filterField, GetTVEpisodesDetailed(provider), op, limitInt).OrderBy(x => x, webSortOrder).ToList();
+          return AutoSuggestion.GetValuesForField(filterField, await GetTVEpisodesDetailed.ProcessAsync(context, null, null, order), op, limit).ToList();
         case WebMediaType.TVShow:
-        //return AutoSuggestion.GetValuesForField(filterField, GetTVShowsDetailed(provider), op, limitInt).OrderBy(x => x, webSortOrder).ToList();
+          return AutoSuggestion.GetValuesForField(filterField, await GetTVShowsDetailed.ProcessAsync(context, null, null, order), op, limit).ToList();
         default:
           throw new BadRequestException(string.Format("GetFilterValues() called with unsupported mediaType='{0}' filterField='{1}' op='{2}' limit='{3}'", mediaType, filterField, op, limit));
       }

@@ -34,7 +34,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.TAS.Tv.BaseClasses
 {
   class BaseChannelDetailed : BaseProgramDetailed
   {
-    internal WebChannelDetailed ChannelDetailed(IChannel channel)
+    internal static WebChannelDetailed ChannelDetailed(IChannel channel)
     {
       IProgramInfoAsync programInfo = ServiceRegistration.Get<ITvProvider>() as IProgramInfoAsync;
 

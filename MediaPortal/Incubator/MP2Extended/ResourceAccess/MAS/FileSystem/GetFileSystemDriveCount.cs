@@ -37,7 +37,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.FileSystem
   [ApiFunctionDescription(Type = ApiFunctionDescription.FunctionType.Json, ReturnType = typeof(WebIntResult), Summary = "")]
   internal class GetFileSystemDriveCount : BaseDriveBasic
   {
-    public Task<WebIntResult> ProcessAsync(IOwinContext context)
+    public static Task<WebIntResult> ProcessAsync(IOwinContext context)
     {
       List<WebDriveBasic> output = DriveBasic();
 
