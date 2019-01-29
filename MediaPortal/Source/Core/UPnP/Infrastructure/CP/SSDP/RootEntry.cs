@@ -25,6 +25,7 @@
 using System;
 using System.Collections.Generic;
 using System.Net;
+using System.Threading;
 using UPnP.Infrastructure.Common;
 using UPnP.Infrastructure.Utils;
 
@@ -146,19 +147,20 @@ namespace UPnP.Infrastructure.CP.SSDP
     protected uint _bootID = 0;
     protected readonly IDictionary<IPEndPoint, uint> _configIDs = new Dictionary<IPEndPoint, uint>();
     protected readonly IDictionary<string, object> _clientProperties = new Dictionary<string, object>();
+    private ReaderWriterLockSlim _rwLock;
 
     /// <summary>
     /// Creates a new <see cref="RootEntry"/> instance.
     /// </summary>
-    /// <param name="syncObj">Synchronization object to use for multithread access.</param>
+    /// <param name="rwLock">Synchronization object to use for multi-threaded access.</param>
     /// <param name="upnpVersion">UPnP version the remote device is using.</param>
     /// <param name="osVersion">OS and version our partner is using.</param>
     /// <param name="productVersion">Product and version our partner is using.</param>
     /// <param name="expirationTime">Time when the advertisement will expire.</param>
-    public RootEntry(object syncObj, UPnPVersion upnpVersion, string osVersion,
+    public RootEntry(ReaderWriterLockSlim rwLock, UPnPVersion upnpVersion, string osVersion,
         string productVersion, DateTime expirationTime)
     {
-      _syncObj = syncObj;
+      _rwLock = rwLock;
       _upnpVersion = upnpVersion;
       _osVersion = osVersion;
       _productVersion = productVersion;
@@ -166,11 +168,20 @@ namespace UPnP.Infrastructure.CP.SSDP
     }
 
     /// <summary>
-    /// Gets the ynchronization object to use inside <c>lock()</c> statements when accessing data in this instance.
+    /// Gets the synchronization object to use inside <c>lock()</c> statements when accessing data in this instance.
     /// </summary>
+    [Obsolete]
     public object SyncObj
     {
       get { return _syncObj; }
+    }
+
+    /// <summary>
+    /// Synchronization object for the UPnP control point system.
+    /// </summary>
+    public ReaderWriterLockSlim Lock
+    {
+      get { return _rwLock; }
     }
 
     /// <summary>

@@ -526,10 +526,13 @@
       <Version>1.0.1</Version>
     </PackageReference>
     <PackageReference Include="Microsoft.AspNet.WebApi.Owin">
-      <Version>5.2.6</Version>
+      <Version>5.2.7</Version>
     </PackageReference>
     <PackageReference Include="Microsoft.Owin.Security.OAuth">
-      <Version>4.0.0</Version>
+      <Version>4.0.1</Version>
+    </PackageReference>
+    <PackageReference Include="Microsoft.Owin">
+      <Version>4.0.1</Version>
     </PackageReference>
     <PackageReference Include="Microsoft.Tpl.Dataflow">
       <Version>4.5.24</Version>

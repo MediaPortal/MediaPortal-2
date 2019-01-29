@@ -286,7 +286,7 @@ namespace UPnP.Infrastructure.CP.DeviceTree
 
     internal static CpDevice ConnectDevice(DeviceConnection connection, DeviceDescriptor deviceDescriptor, DataTypeResolverDlgt dataTypeResolver)
     {
-      lock (connection.CPData.SyncObj)
+      using (connection.CPData.Lock.EnterWrite())
       {
         string type;
         int version;
@@ -315,7 +315,7 @@ namespace UPnP.Infrastructure.CP.DeviceTree
         return;
       ICollection<CpDevice> embeddedDevices;
       ICollection<CpService> services;
-      lock (connection.CPData.SyncObj)
+      using (connection.CPData.Lock.EnterWrite())
       {
         _connection = null;
         embeddedDevices = new List<CpDevice>(_embeddedDevices.Values);

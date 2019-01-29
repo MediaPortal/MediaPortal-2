@@ -188,7 +188,7 @@ namespace UPnP.Infrastructure.Dv
           }
           catch (Exception ex)
           {
-            if (UPnPConfiguration.IP_ADDRESS_BINDINGS.Count > 0)
+            if (UPnPConfiguration.IP_ADDRESS_BINDINGS?.Count > 0)
               UPnPConfiguration.LOGGER.Warn("UPnP server: Error starting HTTP server with filters. Fallback to no filters", ex);
             else
               throw ex;
