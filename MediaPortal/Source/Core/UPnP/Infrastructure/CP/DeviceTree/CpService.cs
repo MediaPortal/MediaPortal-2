@@ -318,7 +318,7 @@ namespace UPnP.Infrastructure.CP.DeviceTree
     internal static CpService ConnectService(DeviceConnection connection, CpDevice parentDevice,
         ServiceDescriptor serviceDescriptor, DataTypeResolverDlgt dataTypeResolver)
     {
-      lock (connection.CPData.SyncObj)
+      using (connection.CPData.Lock.EnterWrite())
       {
         CpService result = new CpService(connection, parentDevice, serviceDescriptor.ServiceType, serviceDescriptor.ServiceTypeVersion,
             serviceDescriptor.ServiceId);
@@ -342,7 +342,7 @@ namespace UPnP.Infrastructure.CP.DeviceTree
       DeviceConnection connection = _connection;
       if (connection == null)
         return;
-      lock (connection.CPData.SyncObj)
+      using (connection.CPData.Lock.EnterWrite())
         _connection = null;
     }
 

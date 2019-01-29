@@ -222,10 +222,8 @@ namespace UPnP.Infrastructure.CP.DeviceTree
       DeviceConnection connection = _connection;
       if (connection == null)
         return;
-      lock (connection.CPData.SyncObj)
-      {
+      using (connection.CPData.Lock.EnterWrite())
         _connection = null;
-      }
     }
 
     #endregion
