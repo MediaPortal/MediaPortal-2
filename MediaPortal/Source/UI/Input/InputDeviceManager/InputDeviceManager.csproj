@@ -124,6 +124,10 @@
       <SubType>Designer</SubType>
     </Content>
   </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Skin\default\themes\nereus\screens\" />
+    <Folder Include="Skin\default\themes\nereus\styles\" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="build.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

@@ -748,9 +748,9 @@
                 <ScaleTransform ScaleX="1" ScaleY="1"/>
               </TransformGroup>
             </Grid.RenderTransform>
-            <Control Style="{ThemeResource ButtonControlStyle}" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Grid.ZIndex="1"/>
-            <Image Stretch="Uniform" HorizontalAlignment="Right" Height="30" Source="Playercontrol\Current.position.PNG" IsVisible="{Binding Path=Selected}" Margin="10"/>
+            <Control Style="{ThemeResource ButtonControlStyle}" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Grid.ZIndex="1" Margin="-10,0,-10,0"/>
             <ContentPresenter x:Name="ButtonContentPresenter" Margin="10,5,45,5" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Grid.ZIndex="2"/>
+            <Image Stretch="Uniform" HorizontalAlignment="Right" Height="30" Source="Playercontrol\Current.position.PNG" IsVisible="{Binding Path=Selected}" Margin="10" Grid.ZIndex="3"/>
           </Grid>
           <ControlTemplate.Triggers>
             <Trigger Property="HasFocus" Value="True">
@@ -799,10 +799,10 @@
               <RowDefinition Height="*"/>
             </Grid.RowDefinitions>
             <Control x:Name="GrowControl" Grid.Column="0" Grid.Row="0" Style="{ThemeResource ButtonControlStyle}"
-                VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Grid.ZIndex="2">
+                     VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Grid.ZIndex="2">
             </Control>
             <ContentPresenter x:Name="ContentPresenter" Grid.Column="0" Grid.Row="0" Margin="10,0,10,2" Grid.ZIndex="1"
-                HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                              HorizontalAlignment="Center" VerticalAlignment="Center"/>
             <Rectangle DockPanel.Dock="Center" RadiusX="3" RadiusY="3" Margin="3" StrokeThickness="0" 
                        IsVisible="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}},Path=HasFocus}" 
                        VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Grid.ZIndex="0">

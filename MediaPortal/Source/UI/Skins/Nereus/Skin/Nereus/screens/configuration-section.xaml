@@ -15,21 +15,16 @@
     <!-- Contents -->
     <ControlTemplate x:Key="Contents_Template">
       <DockPanel LastChildFill="False">
-        <DockPanel LastChildFill="True" DockPanel.Dock="Bottom" Height="120" Margin="10,0,20,0"
+        <DockPanel LastChildFill="True" DockPanel.Dock="Bottom" Height="120" Margin="10,0,20,40"
                    HorizontalAlignment="Stretch" VerticalAlignment="Bottom">
-          <Label Color="{ThemeResource WindowHeaderColor}" DockPanel.Dock="Center"
-                 HorizontalAlignment="Stretch"
-                 DataContext="{Binding ElementName=ConfigItemsList,Path=CurrentItem}"
-                 Content="{Binding [Help]}" Wrap="True"
-                 IsVisible="{Binding Converter={StaticResource ReferenceToBoolConverter}}"/>
+          <Label Color="{ThemeResource NereusColorLight}" DockPanel.Dock="Bottom" VerticalAlignment="Bottom"
+                 HorizontalAlignment="Stretch" DataContext="{Binding ElementName=ConfigItemsList,Path=CurrentItem}"
+                 Content="{Binding [Help]}" Wrap="True" IsVisible="{Binding Converter={StaticResource ReferenceToBoolConverter}}"/>
         </DockPanel>
 
-        <ListView x:Name="ConfigItemsList"
-                  DockPanel.Dock="Center"
-                  HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
-                  Style="{ThemeResource LeftMenuListViewStyle}"
-                  DataContext="{Binding Source={StaticResource Model}}"
-                  ItemsSource="{Binding ConfigSettings}">
+        <ListView x:Name="ConfigItemsList" ItemsSource="{Binding ConfigSettings}"
+                  DockPanel.Dock="Center" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+                  Style="{ThemeResource MainMenuListViewStyle}" DataContext="{Binding Source={StaticResource Model}}">
           <ListView.Resources>
             <CommandBridge x:Key="Menu_Command" Command="{Binding Path=Command,Mode=OneTime}"/>
           </ListView.Resources>
