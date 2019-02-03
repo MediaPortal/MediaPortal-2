@@ -509,22 +509,21 @@
             <Trigger Property="HasFocus" Value="True">
               <Setter TargetName="ButtonControlRectangle" Property="IsVisible" Value="True"/>
               <Trigger.EnterActions>
+                <SoundPlayerAction Source="navigate.wav" DisableOnAudioOutput="True"/>
                 <BeginStoryboard x:Name="Focused_BeginStoryboard" Storyboard="{ThemeResource GotFocusStoryBoard}"/>
               </Trigger.EnterActions>
               <Trigger.ExitActions>
               </Trigger.ExitActions>
             </Trigger>
                        
-            <!--Trigger Property="IsPressed" Value="True">
+            <Trigger Property="IsPressed" Value="True">
               <Trigger.EnterActions>
-                <BeginStoryboard x:Name="Pressed_BeginStoryboard" Storyboard="{ThemeResource PressedButtonWideStoryboard}"
-                    HandoffBehavior="TemporaryReplace"/>
                 <SoundPlayerAction Source="click.wav" DisableOnAudioOutput="True"/>
               </Trigger.EnterActions>
               <Trigger.ExitActions>
                 <StopStoryboard BeginStoryboardName="Pressed_BeginStoryboard"/>
               </Trigger.ExitActions>
-            </Trigger-->
+            </Trigger>
             
             <Trigger Property="IsEnabled" Value="False">
               <Trigger.EnterActions>
@@ -1768,7 +1767,7 @@
       <Setter.Value>
         <ControlTemplate TargetType="{x:Type Button}">
           <Grid>
-            <Image x:Name="image" Source="topbar_play.png" Stretch="Uniform" Height="85" Width="100" VerticalAlignment="Center"/>
+            <Image x:Name="image" Source="topbar_play.png" Stretch="Uniform" Height="68" Width="80" Margin="-4,0,-4,0" VerticalAlignment="Center"/>
           </Grid>
           <ControlTemplate.Triggers>
             <Trigger Property="HasFocus" Value="True">
@@ -1802,7 +1801,7 @@
       <Setter.Value>
         <ControlTemplate TargetType="{x:Type Button}">
           <Grid>
-            <Image x:Name="image" Source="topbar_pause.png" Stretch="Uniform" Height="85" Width="100" VerticalAlignment="Center"/>
+            <Image x:Name="image" Source="topbar_pause.png" Stretch="Uniform" Height="68" Width="80" Margin="-4,0,-4,0" VerticalAlignment="Center"/>
           </Grid>
           <ControlTemplate.Triggers>
             <Trigger Property="HasFocus" Value="True">
@@ -1836,7 +1835,7 @@
       <Setter.Value>
         <ControlTemplate TargetType="{x:Type Button}">
           <Grid>
-            <Image x:Name="image" Source="topbar_stop.png" Stretch="Uniform" Height="85" Width="100" VerticalAlignment="Center"/>
+            <Image x:Name="image" Source="topbar_stop.png" Stretch="Uniform" Height="68" Width="80" Margin="-4,0,-4,0" VerticalAlignment="Center"/>
           </Grid>
           <ControlTemplate.Triggers>
             <Trigger Property="HasFocus" Value="True">
@@ -1870,7 +1869,7 @@
       <Setter.Value>
         <ControlTemplate TargetType="{x:Type Button}">
           <Grid>
-            <Image x:Name="image" Source="topbar_FF.png" Stretch="Uniform" Height="85" Width="100" VerticalAlignment="Center"/>
+            <Image x:Name="image" Source="topbar_FF.png" Stretch="Uniform" Height="68" Width="80" Margin="-4,0,-4,0" VerticalAlignment="Center"/>
           </Grid>
           <ControlTemplate.Triggers>
             <Trigger Property="HasFocus" Value="True">
@@ -1904,7 +1903,7 @@
       <Setter.Value>
         <ControlTemplate TargetType="{x:Type Button}">
           <Grid>
-            <Image x:Name="image" Source="topbar_rew.png" Stretch="Uniform" Height="85" Width="100" VerticalAlignment="Center"/>
+            <Image x:Name="image" Source="topbar_rew.png" Stretch="Uniform" Height="68" Width="80" Margin="-4,0,-4,0" VerticalAlignment="Center"/>
           </Grid>
           <ControlTemplate.Triggers>
             <Trigger Property="HasFocus" Value="True">
@@ -1938,7 +1937,7 @@
       <Setter.Value>
         <ControlTemplate TargetType="{x:Type Button}">
           <Grid>
-            <Image x:Name="image" Source="topbar_skipforward.png" Stretch="Uniform" Height="85" Width="100" VerticalAlignment="Center"/>
+            <Image x:Name="image" Source="topbar_skipforward.png" Stretch="Uniform" Height="68" Width="80" Margin="-4,0,-4,0" VerticalAlignment="Center"/>
           </Grid>
           <ControlTemplate.Triggers>
             <Trigger Property="HasFocus" Value="True">
@@ -1972,7 +1971,8 @@
       <Setter.Value>
         <ControlTemplate TargetType="{x:Type Button}">
           <Grid>
-            <Image x:Name="image" Source="topbar_skipback.png" Stretch="Uniform" Height="85" Width="100" VerticalAlignment="Center"/>
+            <Image x:Name="image" Source="topbar_skipback.png" Stretch="Uniform" 
+                   Height="68" Width="80" Margin="-4,0,-4,0" VerticalAlignment="Center"/>
           </Grid>
           <ControlTemplate.Triggers>
             <Trigger Property="HasFocus" Value="True">
@@ -1989,7 +1989,8 @@
       <Setter.Value>
         <ControlTemplate TargetType="{x:Type Button}">
           <Grid>
-            <Image x:Name="image" Source="DarkPlayerControls\skipbackward.png" Stretch="Uniform" Height="85" Width="100" VerticalAlignment="Center"/>
+            <Image x:Name="image" Source="DarkPlayerControls\skipbackward.png" Stretch="Uniform" 
+                   Height="85" Width="100" Margin="-4,0,-4,0" VerticalAlignment="Center"/>
           </Grid>
           <ControlTemplate.Triggers>
             <Trigger Property="HasFocus" Value="True">
@@ -2023,11 +2024,62 @@
       <Setter.Value>
         <ControlTemplate TargetType="{x:Type Button}">
           <Grid>
-            <Image x:Name="image" Source="sub_nofocus.png" Stretch="Uniform" Height="75" Width="100" Margin="0,10,0,0" VerticalAlignment="Center"/>
+            <Image x:Name="image" Source="sub_nofocus.png" Stretch="Uniform" Height="56" Width="80" Margin="-4,10,-4,0" VerticalAlignment="Center"/>
           </Grid>
           <ControlTemplate.Triggers>
             <Trigger Property="HasFocus" Value="True">
               <Setter TargetName="image" Property="Source" Value="sub_focus.png"/>
+            </Trigger>
+          </ControlTemplate.Triggers>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+
+  <Style x:Key="MinMaxButtonStyle" TargetType="{x:Type Button}">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="{x:Type Button}">
+          <Grid>
+            <Image x:Name="image" Source="MAXIMIZE.NOFOCUS.PNG" Stretch="Uniform" Height="35" Width="35" VerticalAlignment="Center"/>
+          </Grid>
+          <ControlTemplate.Triggers>
+            <Trigger Property="HasFocus" Value="True">
+              <Setter TargetName="image" Property="Source" Value="MAXIMIZE.FOCUS.PNG"/>
+            </Trigger>
+          </ControlTemplate.Triggers>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+
+  <Style x:Key="ExitButtonStyle" TargetType="{x:Type Button}">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="{x:Type Button}">
+          <Grid>
+            <Image x:Name="image" Source="Exit.nofocus.png" Stretch="Uniform" Height="35" Width="35" VerticalAlignment="Center"/>
+          </Grid>
+          <ControlTemplate.Triggers>
+            <Trigger Property="HasFocus" Value="True">
+              <Setter TargetName="image" Property="Source" Value="Exit.focus.png"/>
+            </Trigger>
+          </ControlTemplate.Triggers>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+  
+  <Style x:Key="BackButtonStyle" TargetType="{x:Type Button}">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="{x:Type Button}">
+          <Grid>
+            <Image x:Name="image" Source="BACK.NOFOCUS.PNG" Stretch="Uniform" Height="35" Width="35" VerticalAlignment="Center"/>
+          </Grid>
+          <ControlTemplate.Triggers>
+            <Trigger Property="HasFocus" Value="True">
+              <Setter TargetName="image" Property="Source" Value="BACK.FOCUS.PNG"/>
             </Trigger>
           </ControlTemplate.Triggers>
         </ControlTemplate>
@@ -2040,7 +2092,7 @@
       <Setter.Value>
         <ControlTemplate TargetType="{x:Type Button}" >
           <Grid>
-            <Image Source="topbar_audio_nofocus.png" Stretch="Uniform" Height="75" Width="100" Margin="0,5,0,5" VerticalAlignment="Center">
+            <Image Source="topbar_audio_nofocus.png" Stretch="Uniform" Height="56" Width="80" Margin="-4,5,-4,5" VerticalAlignment="Center">
               <Image.IsVisible>
                 <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} &amp;&amp; {1}">
                   <Binding RelativeSource="{RelativeSource TemplatedParent}" Path="!HasFocus"/>
@@ -2048,7 +2100,7 @@
                 </MultiBinding>
               </Image.IsVisible>
             </Image>
-            <Image Source="topbar_audio_focus.png" Stretch="Uniform" Height="75" Width="100" Margin="0,5,0,5" VerticalAlignment="Center">
+            <Image Source="topbar_audio_focus.png" Stretch="Uniform" Height="56" Width="80" Margin="-4,5,-4,5" VerticalAlignment="Center">
               <Image.IsVisible>
                 <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} &amp;&amp; {1}">
                   <Binding RelativeSource="{RelativeSource TemplatedParent}" Path="HasFocus"/>
@@ -2056,7 +2108,7 @@
                 </MultiBinding>
               </Image.IsVisible>
             </Image>
-            <Image Source="topbar_audio_mute_nofocus.png" Stretch="Uniform" Height="75" Width="100" Margin="0,5,0,5" VerticalAlignment="Center">
+            <Image Source="topbar_audio_mute_nofocus.png" Stretch="Uniform" Height="56" Width="80" Margin="-4,5,-4,5" VerticalAlignment="Center">
               <Image.IsVisible>
                 <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} &amp;&amp; {1}">
                   <Binding RelativeSource="{RelativeSource TemplatedParent}" Path="!HasFocus"/>
@@ -2064,7 +2116,7 @@
                 </MultiBinding>
               </Image.IsVisible>
             </Image>
-            <Image Source="topbar_audio_mute_focus.png" Stretch="Uniform" Height="75" Width="100" Margin="0,5,0,5" VerticalAlignment="Center">
+            <Image Source="topbar_audio_mute_focus.png" Stretch="Uniform" Height="56" Width="80" Margin="-4,5,-4,5" VerticalAlignment="Center">
               <Image.IsVisible>
                 <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} &amp;&amp; {1}">
                   <Binding RelativeSource="{RelativeSource TemplatedParent}" Path="HasFocus"/>
@@ -2083,7 +2135,7 @@
       <Setter.Value>
         <ControlTemplate TargetType="{x:Type Button}">
           <Grid>
-            <Image x:Name="image" Source="topbar_exit.png" Stretch="Uniform" Height="85" Width="100" Margin="0,0,0,0" VerticalAlignment="Center"/>
+            <Image x:Name="image" Source="topbar_exit.png" Stretch="Uniform" Height="68" Width="80" Margin="-4,0,-4,0" VerticalAlignment="Center"/>
           </Grid>
           <ControlTemplate.Triggers>
             <Trigger Property="HasFocus" Value="True">
@@ -2100,7 +2152,7 @@
       <Setter.Value>
         <ControlTemplate TargetType="{x:Type Button}">
           <Grid>
-            <Image x:Name="image" Source="topbar_back.png" Stretch="Uniform" Height="85" Width="100" Margin="0,0,0,0" VerticalAlignment="Center"/>
+            <Image x:Name="image" Source="topbar_back.png" Stretch="Uniform" Height="68" Width="80" Margin="-4,0,-4,0" VerticalAlignment="Center"/>
           </Grid>
           <ControlTemplate.Triggers>
             <Trigger Property="HasFocus" Value="True">
@@ -2117,7 +2169,7 @@
       <Setter.Value>
         <ControlTemplate TargetType="{x:Type Button}">
           <Grid>
-            <Image x:Name="image" Source="topbar_nex_chapter.png" Stretch="Uniform" Height="85" Width="100" Margin="0,0,0,0" VerticalAlignment="Center"/>
+            <Image x:Name="image" Source="topbar_nex_chapter.png" Stretch="Uniform" Height="68" Width="80" Margin="-4,0,-4,0" VerticalAlignment="Center"/>
           </Grid>
           <ControlTemplate.Triggers>
             <Trigger Property="HasFocus" Value="True">
@@ -2134,7 +2186,7 @@
       <Setter.Value>
         <ControlTemplate TargetType="{x:Type Button}">
           <Grid>
-            <Image x:Name="image" Source="topbar_pre_chapter.png" Stretch="Uniform" Height="85" Width="100" Margin="0,0,0,0" VerticalAlignment="Center"/>
+            <Image x:Name="image" Source="topbar_pre_chapter.png" Stretch="Uniform" Height="68" Width="80" Margin="-4,0,-4,0" VerticalAlignment="Center"/>
           </Grid>
           <ControlTemplate.Triggers>
             <Trigger Property="HasFocus" Value="True">
@@ -2151,7 +2203,7 @@
       <Setter.Value>
         <ControlTemplate TargetType="{x:Type Button}">
           <Grid>
-            <Image x:Name="image" Source="topbar_chapter.png" Stretch="Uniform" Height="75" Width="100" Margin="0,5,0,0" VerticalAlignment="Center"/>
+            <Image x:Name="image" Source="topbar_chapter.png" Stretch="Uniform" Height="60" Width="80" Margin="-4,5,-4,0" VerticalAlignment="Center"/>
           </Grid>
           <ControlTemplate.Triggers>
             <Trigger Property="HasFocus" Value="True">
@@ -2168,7 +2220,7 @@
       <Setter.Value>
         <ControlTemplate TargetType="{x:Type Button}">
           <Grid>
-            <Image x:Name="image" Source="topbar_dvd.png" Stretch="Uniform" Height="70" Width="100" Margin="0,0,0,0" VerticalAlignment="Center"/>
+            <Image x:Name="image" Source="topbar_dvd.png" Stretch="Uniform" Height="56" Width="80" Margin="-4,0,-4,0" VerticalAlignment="Center"/>
           </Grid>
           <ControlTemplate.Triggers>
             <Trigger Property="HasFocus" Value="True">
@@ -2185,7 +2237,7 @@
       <Setter.Value>
         <ControlTemplate TargetType="{x:Type Button}">
           <Grid>
-            <Image x:Name="image" Source="topbar_menu.png" Stretch="Uniform" Height="75" Width="100" Margin="0,5,0,0" VerticalAlignment="Center"/>
+            <Image x:Name="image" Source="topbar_menu.png" Stretch="Uniform" Height="60" Width="80" Margin="-4,5,-4,0" VerticalAlignment="Center"/>
           </Grid>
           <ControlTemplate.Triggers>
             <Trigger Property="HasFocus" Value="True">

@@ -94,7 +94,7 @@ namespace MediaPortal.Plugins.ServerSettings.Settings.Configuration
           setting.Enabled = _selected.Contains(selectedNo);
           selectedNo++;
         }
-        else if (setting.Id.Equals("CDFreeDbMatcher", StringComparison.InvariantCultureIgnoreCase))
+        else if (setting.Id.Equals("MusicFreeDbMatcher", StringComparison.InvariantCultureIgnoreCase))
         {
           setting.Enabled = _selected.Contains(selectedNo);
           selectedNo++;

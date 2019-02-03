@@ -144,7 +144,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
         return;
       }
 
-      var result = await _tvHandler.ProgramInfo.GetProgramsAsync(channel, DateTime.Now.AddHours(-2), DateTime.Now.AddHours(24));
+      var result = await _tvHandler.ProgramInfo.GetProgramsAsync(channel, DateTime.Now.AddHours(-2), DateTime.Now.AddDays(_settings.Settings.SingleChannelGuideDays));
       if (result.Success)
       {
         _programs = result.Result;

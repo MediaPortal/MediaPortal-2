@@ -78,6 +78,8 @@ namespace MediaPortal.UiComponents.Media.MediaItemActions
       try
       {
         var rl = mediaItem.GetResourceLocator();
+        if (rl == null)
+          return false;
         using (var ra = rl.CreateAccessor())
           return ra is IResourceDeletor;
       }

@@ -1117,6 +1117,9 @@
     <Content Include="Skin\BlueVision\themes\Win10\superlayers\Volume.xaml">
       <SubType>Designer</SubType>
     </Content>
+    <Content Include="Skin\BlueVision\themes\Win10\styles\BusyCursor.xaml">
+      <SubType>Designer</SubType>
+    </Content>
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="SharpDX">

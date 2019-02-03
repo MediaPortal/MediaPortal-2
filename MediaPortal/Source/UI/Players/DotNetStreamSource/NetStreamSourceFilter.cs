@@ -158,6 +158,23 @@ namespace MediaPortal.UI.Players
     public void Dispose()
     {
       _sourceStream = null;
+      m_Filter = null;
+      if (m_pAllocator != IntPtr.Zero)
+      {
+        Marshal.Release(m_pAllocator);
+        m_pAllocator = IntPtr.Zero;
+      }
+      AMMediaType.Free(ref m_mt);
+      if (m_ConnectedPin != IntPtr.Zero)
+      {
+        Marshal.Release(m_ConnectedPin);
+        m_ConnectedPin = IntPtr.Zero;
+      }
+      if (m_QualitySink != IntPtr.Zero)
+      {
+        Marshal.Release(m_QualitySink);
+        m_QualitySink = IntPtr.Zero;
+      }
     }
 
     #endregion

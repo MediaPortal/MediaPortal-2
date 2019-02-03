@@ -214,8 +214,8 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
           return returnVal;
       }
 
-      // If there is only one language available, use this one.
-      if (mediaLanguages.Count == 1)
+      // If there is one language available, use this one.
+      if (UseMediaAudioIfUnmatched && mediaLanguages.Count > 0)
       {
         returnVal = TvDbUtils.ParseLanguage(mediaLanguages[0]);
         if (returnVal.Id != Util.NO_VALUE)
