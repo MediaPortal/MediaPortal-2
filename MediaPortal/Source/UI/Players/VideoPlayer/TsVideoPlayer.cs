@@ -332,22 +332,27 @@ namespace MediaPortal.UI.Players.Video
 
     protected override bool EnumerateStreams(bool forceRefresh)
     {
-      //FIXME: TSReader only offers Audio in IAMStreamSelect, it would be cleaner to expose subs as well.
-      bool refreshed = base.EnumerateStreams(forceRefresh);
-      if (refreshed)
+      if (forceRefresh)
       {
-        if (_dvbFilterAdded)
+        ISubtitleStream subtitleStream = _tsReader as ISubtitleStream;
+        int subtitleStreamCount = 0;
+        subtitleStream?.GetSubtitleStreamCount(ref subtitleStreamCount);
+
+        if (subtitleStreamCount >= 1)
         {
-          ISubtitleStream subtitleStream = _tsReader as ISubtitleStream;
           _streamInfoSubtitles = new TsReaderStreamInfoHandler(subtitleStream);
+          return true;
         }
-        else if (_txtSourceActive)
+        ITeletextSource teletextSource = _tsReader as ITeletextSource;
+        int teletextStreamCount = 0;
+        teletextSource?.GetTeletextStreamCount(ref teletextStreamCount);
+        if (teletextStreamCount >= 1)
         {
-          ITeletextSource teletextSource = _tsReader as ITeletextSource;
           _streamInfoSubtitles = new TsReaderTeletextInfoHandler(teletextSource);
+          return true;
         }
       }
-      return refreshed;
+      return false;
     }
 
     public override void SetSubtitle(string subtitle)
@@ -355,11 +360,13 @@ namespace MediaPortal.UI.Players.Video
       EnumerateStreams();
       if (_streamInfoSubtitles is TsReaderStreamInfoHandler tsStreamInfoHandler)
       {
+        _streamInfoSubtitles.EnableStream(subtitle);
         _subtitleRenderer.RenderSubtitles = !tsStreamInfoHandler.DisableSubs;
         SaveSubtitlePreference();
       }
       else if (_streamInfoSubtitles is TsReaderTeletextInfoHandler tsTeletextInfoHandler)
       {
+        _streamInfoSubtitles.EnableStream(subtitle);
         _subtitleRenderer.RenderSubtitles = !tsTeletextInfoHandler.DisableSubs;
         SaveSubtitlePreference();
       }
@@ -403,7 +410,7 @@ namespace MediaPortal.UI.Players.Video
 
     protected override void SetPreferredSubtitle()
     {
-      EnumerateStreams();
+      EnumerateStreams(true);
       ISubtitleStream subtitleStream = _tsReader as ISubtitleStream;
       ITeletextSource teletextSource = _tsReader as ITeletextSource;
       if (_streamInfoSubtitles == null || (subtitleStream == null && teletextSource == null))
@@ -415,13 +422,7 @@ namespace MediaPortal.UI.Players.Video
 
       // first try to find a stream by it's exact LCID.
       StreamInfo streamInfo = _streamInfoSubtitles.FindStream(settings.PreferredSubtitleLanguage) ?? _streamInfoSubtitles.FindSimilarStream(settings.PreferredSubtitleStreamName);
-      if (streamInfo == null || !settings.EnableDvbSubtitles && subtitleStream != null)
-      {
-        // Tell the renderer it should not render subtitles
-        if (_subtitleRenderer != null)
-          _subtitleRenderer.RenderSubtitles = false;
-      }
-      else if(!settings.EnableTeletextSubtitles && teletextSource != null)
+      if (streamInfo == null || !settings.EnableDvbSubtitles || !settings.EnableTeletextSubtitles)
       {
         // Tell the renderer it should not render subtitles
         if (_subtitleRenderer != null)
