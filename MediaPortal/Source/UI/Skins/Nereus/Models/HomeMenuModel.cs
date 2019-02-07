@@ -73,36 +73,37 @@ namespace MediaPortal.UiComponents.Nereus.Models
       _updateEvent.OnEventHandler += OnUpdate;
       _selectedItemProperty.Attach(OnSelectedItemChanged);
 
+      GetMediaListModel().Limit = 6;
+
       SubscribeToMessages();
     }
 
     void InitDefaultLists()
     {
       var mlm = GetMediaListModel();
-      mlm.Limit = 6;
-      var list = mlm.Lists["LatestAudio"].AllItems;
-      list = mlm.Lists["ContinuePlayAlbum"].AllItems;
-      list = mlm.Lists["FavoriteAudio"].AllItems;
-      list = mlm.Lists["UnplayedAlbums"].AllItems;
+      var list = mlm.Lists["LatestAudio"]?.AllItems;
+      list = mlm.Lists["ContinuePlayAlbum"]?.AllItems;
+      list = mlm.Lists["FavoriteAudio"]?.AllItems;
+      list = mlm.Lists["UnplayedAlbums"]?.AllItems;
 
-      list = mlm.Lists["LatestMovies"].AllItems;
-      list = mlm.Lists["ContinuePlayMovies"].AllItems;
-      list = mlm.Lists["FavoriteMovies"].AllItems;
-      list = mlm.Lists["UnplayedMovies"].AllItems;
+      list = mlm.Lists["LatestMovies"]?.AllItems;
+      list = mlm.Lists["ContinuePlayMovies"]?.AllItems;
+      list = mlm.Lists["FavoriteMovies"]?.AllItems;
+      list = mlm.Lists["UnplayedMovies"]?.AllItems;
 
-      list = mlm.Lists["LatestEpisodes"].AllItems;
-      list = mlm.Lists["ContinuePlaySeries"].AllItems;
-      list = mlm.Lists["FavoriteSeries"].AllItems;
-      list = mlm.Lists["UnplayedSeries"].AllItems;
+      list = mlm.Lists["LatestEpisodes"]?.AllItems;
+      list = mlm.Lists["ContinuePlaySeries"]?.AllItems;
+      list = mlm.Lists["FavoriteSeries"]?.AllItems;
+      list = mlm.Lists["UnplayedSeries"]?.AllItems;
 
-      list = mlm.Lists["LatestImages"].AllItems;
-      list = mlm.Lists["FavoriteImages"].AllItems;
-      list = mlm.Lists["UnplayedImages"].AllItems;
+      list = mlm.Lists["LatestImages"]?.AllItems;
+      list = mlm.Lists["FavoriteImages"]?.AllItems;
+      list = mlm.Lists["UnplayedImages"]?.AllItems;
 
-      list = mlm.Lists["LastPlayTV"].AllItems;
-      list = mlm.Lists["FavoriteTV"].AllItems;
-      list = mlm.Lists["CurrentPrograms"].AllItems;
-      list = mlm.Lists["CurrentSchedules"].AllItems;
+      list = mlm.Lists["LastPlayTV"]?.AllItems;
+      list = mlm.Lists["FavoriteTV"]?.AllItems;
+      list = mlm.Lists["CurrentPrograms"]?.AllItems;
+      list = mlm.Lists["CurrentSchedules"]?.AllItems;
     }
 
     #region Message Handling
@@ -111,7 +112,7 @@ namespace MediaPortal.UiComponents.Nereus.Models
     {
       if (_messageQueue == null)
         return;
-      _messageQueue.SubscribeToMessageChannel(SystemMessaging.CHANNEL);
+      _messageQueue.SubscribeToMessageChannel(WorkflowManagerMessaging.CHANNEL);
       _messageQueue.MessageReceived += OnMessageReceived;
     }
 
