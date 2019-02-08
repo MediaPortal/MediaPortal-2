@@ -289,7 +289,8 @@ namespace MediaPortal.UiComponents.SkinBase.Services
     protected void AddResources(IEnumerable<ResourcePathMetadata> resources, ItemsList items, bool isFolder)
     {
       List<ResourcePathMetadata> resourcesMetadata = new List<ResourcePathMetadata>(resources);
-      resourcesMetadata.Sort((a, b) => a.ResourceName.CompareTo(b.ResourceName));
+      MediaPortal.Utilities.OrdinalStringComparer comparer = new Utilities.OrdinalStringComparer(true);
+      resourcesMetadata.Sort((a, b) => comparer.Compare(a.ResourceName, b.ResourceName));
       foreach (ResourcePathMetadata resourceMetadata in resourcesMetadata)
       {
         TreeItem directoryItem = new TreeItem(Consts.KEY_NAME, resourceMetadata.ResourceName);
