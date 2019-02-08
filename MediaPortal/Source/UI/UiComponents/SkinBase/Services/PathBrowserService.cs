@@ -269,17 +269,17 @@ namespace MediaPortal.UiComponents.SkinBase.Services
       items.Clear();
       IEnumerable<ResourcePathMetadata> res = GetChildDirectoriesData(path);
       if (res != null)
-        AddResources(res, items);
+        AddResources(res, items, true);
       if (_enumerateFiles)
       {
         res = GetFilesData(path);
         if (res != null)
-          AddResources(res, items);
+          AddResources(res, items, false);
       }
       items.FireChange();
     }
 
-    protected void AddResources(IEnumerable<ResourcePathMetadata> resources, ItemsList items)
+    protected void AddResources(IEnumerable<ResourcePathMetadata> resources, ItemsList items, bool isFolder)
     {
       List<ResourcePathMetadata> resourcesMetadata = new List<ResourcePathMetadata>(resources);
       resourcesMetadata.Sort((a, b) => a.ResourceName.CompareTo(b.ResourceName));
@@ -292,6 +292,11 @@ namespace MediaPortal.UiComponents.SkinBase.Services
           directoryItem.Selected = true;
         directoryItem.SelectedProperty.Attach(OnTreePathSelectionChanged);
         directoryItem.AdditionalProperties[Consts.KEY_EXPANSION] = new ExpansionHelper(directoryItem, this);
+        if(isFolder) {
+          // For folders, add a dummy subitem, so HeaderedItemsControl says the item is expandable.
+          // This will be overwritten when the user clicks on the + and OnExpandedChanged is called
+          directoryItem.SubItems.Add(new TreeItem());
+        }
         items.Add(directoryItem);
       }
     }

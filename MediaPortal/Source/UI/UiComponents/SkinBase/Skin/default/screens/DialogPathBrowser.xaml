@@ -25,7 +25,6 @@
         </Grid.ColumnDefinitions>
         <TreeView Grid.Row="0" Style="{ThemeResource SingleMarkableTreeViewStyle}"
             VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
-            ForceExpander="True"
             ItemsSource="{Binding Path=PathTreeRoot,Mode=OneTime}">
           <TreeView.Resources>
             <BindingWrapper x:Key="Expander_Binding" Binding="{Binding Path=AdditionalProperties[Expansion].IsExpanded,Mode=OneWayToSource}"/>
