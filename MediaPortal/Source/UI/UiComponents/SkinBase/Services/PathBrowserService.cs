@@ -24,6 +24,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using MediaPortal.Common;
 using MediaPortal.Common.General;
 using MediaPortal.Common.Logging;
@@ -56,6 +57,7 @@ namespace MediaPortal.UiComponents.SkinBase.Services
     protected bool _dialogAccepted = false;
     protected bool _enumerateFiles = false;
     protected ValidatePathDlgt _validatePathDlgt = null;
+    protected ValidateFileDlgt _validateFileDlgt = null;
 
     #endregion
 
@@ -223,6 +225,11 @@ namespace MediaPortal.UiComponents.SkinBase.Services
       return _validatePathDlgt == null ? true : _validatePathDlgt(path);
     }
 
+    protected bool GetIsFileValid(ResourcePath path) 
+    {
+      return _validateFileDlgt == null ? true : _validateFileDlgt(path);
+    }
+
     protected void UpdateChoosenPathDisplayName()
     {
       ResourcePath path = ChoosenResourcePath;
@@ -344,12 +351,15 @@ namespace MediaPortal.UiComponents.SkinBase.Services
             foreach (IFileSystemResourceAccessor fileAccessor in res)
               using(fileAccessor)
               {
-                yield return new ResourcePathMetadata
+                if (GetIsFileValid(fileAccessor.CanonicalLocalResourcePath))
+                {
+                  yield return new ResourcePathMetadata
                   {
-                      ResourceName = fileAccessor.ResourceName,
-                      HumanReadablePath = fileAccessor.ResourcePathName,
-                      ResourcePath = fileAccessor.CanonicalLocalResourcePath
+                    ResourceName = fileAccessor.ResourceName,
+                    HumanReadablePath = fileAccessor.ResourcePathName,
+                    ResourcePath = fileAccessor.CanonicalLocalResourcePath
                   };
+                }
               }
         }
       }
@@ -370,10 +380,14 @@ namespace MediaPortal.UiComponents.SkinBase.Services
 
     public Guid ShowPathBrowser(string headerText, bool enumerateFiles, bool showSystemResources, ValidatePathDlgt validatePathDlgt)
     {
-      return ShowPathBrowser(headerText, enumerateFiles, showSystemResources, null, validatePathDlgt);
+      return ShowPathBrowser(headerText, enumerateFiles, showSystemResources, null, validatePathDlgt, null);
     }
 
-    public Guid ShowPathBrowser(string headerText, bool enumerateFiles, bool showSystemResources, ResourcePath initialPath, ValidatePathDlgt validatePathDlgt)
+    public Guid ShowPathBrowser(string headerText, bool enumerateFiles, bool showSystemResources, ResourcePath initialPath, ValidatePathDlgt validatePathDlgt) {
+      return ShowPathBrowser(headerText, enumerateFiles, showSystemResources, initialPath, validatePathDlgt, null);
+    }
+
+    public Guid ShowPathBrowser(string headerText, bool enumerateFiles, bool showSystemResources, ResourcePath initialPath, ValidatePathDlgt validatePathDlgt, ValidateFileDlgt validateFileDlgt)
     {
       ChoosenResourcePath = null;
       UpdateResourceProviderPathTree();
@@ -382,6 +396,7 @@ namespace MediaPortal.UiComponents.SkinBase.Services
       _dialogAccepted = false;
       _enumerateFiles = enumerateFiles;
       _validatePathDlgt = validatePathDlgt;
+      _validateFileDlgt = validateFileDlgt;
       ShowSystemResources = showSystemResources;
 
       IScreenManager screenManager = ServiceRegistration.Get<IScreenManager>();
