@@ -18,10 +18,12 @@
   <ResourceWrapper x:Key="EmphasisTextColor" Resource="{ThemeResource NereusColorLight}"/>
 
   <ResourceWrapper x:Key="TileFocusedBorderBrush" Resource="#FFFFFFFF"/>
-  <ResourceWrapper x:Key="DialogHeaderBackgroundColor" Resource="#FF244043"/>
 
   <ResourceWrapper x:Key="StarRatingSelectedColor" Resource="#FFFFFFFF"/>
   <ResourceWrapper x:Key="StarRatingBackgroundColor" Resource="#009999"/>
+
+  <ResourceWrapper x:Key="DialogHeaderBackgroundColor" Resource="#FF244043"/>
+  <ResourceWrapper x:Key="DialogScreenBackgroundColor" Resource="#4D000000"/>
 
   <!-- ************************** Nereus colors end ****************************** -->
   
@@ -60,7 +62,7 @@
 
   <ResourceWrapper x:Key="DialogBackgroundGradient1Color" Resource="#F2447da7"/>
   <ResourceWrapper x:Key="DialogBackgroundGradient2Color" Resource="#F2124273"/>
-  <ResourceWrapper x:Key="DialogScreenBackgroundColor" Resource="#4D000000"/>
+
   <ResourceWrapper x:Key="DialogBackgroundFadeColor" Resource="{ThemeResource NereusColorMedium}"/>
 
   <ResourceWrapper x:Key="DialogBorderColor">
