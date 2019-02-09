@@ -330,6 +330,10 @@ namespace MediaPortal.Plugins.InputDeviceManager.Models
           else
             UpdateKeymapping();
         }
+
+        //Remove key if was both a down and up event
+        if (buttonUp)
+          _pressedKeys.TryRemove(name, out _);
       }
       catch (Exception ex)
       {

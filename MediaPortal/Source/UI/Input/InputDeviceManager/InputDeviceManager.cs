@@ -128,9 +128,10 @@ namespace MediaPortal.Plugins.InputDeviceManager
       }
     }
 
-    private static string GetLogEventData(SharpLib.Hid.Event hidEvent)
+    private static string GetLogEventData(SharpLib.Hid.Event hidEvent, bool unsupported)
     {
-      string str = "HID Event";
+      string str = unsupported ? "Unsupported" : ""; 
+      str += "HID Event";
       if (hidEvent.IsButtonDown)
         str += ", DOWN";
       if (hidEvent.IsButtonUp)
@@ -182,6 +183,11 @@ namespace MediaPortal.Plugins.InputDeviceManager
       return str;
     }
 
+    private static void LogUnsupportedEvent(SharpLib.Hid.Event hidEvent)
+    {
+      ServiceRegistration.Get<ILogger>().Debug(GetLogEventData(hidEvent, true));
+    }
+
     public static bool TryDecodeEvent(SharpLib.Hid.Event hidEvent, out string device, out string name, out long code, out bool buttonUp, out bool buttonDown)
     {
       device = "";
@@ -190,15 +196,14 @@ namespace MediaPortal.Plugins.InputDeviceManager
       buttonUp = hidEvent.IsButtonUp;
       buttonDown = hidEvent.IsButtonDown;
 
-      //TODO: Make debug
-      if ((hidEvent.IsMouse && hidEvent.RawInput.mouse.buttonsStr.usButtonFlags > 0) || !hidEvent.IsMouse)
-        ServiceRegistration.Get<ILogger>().Info(GetLogEventData(hidEvent));
+      //if ((hidEvent.IsMouse && hidEvent.RawInput.mouse.buttonsStr.usButtonFlags > 0) || !hidEvent.IsMouse)
+      //  ServiceRegistration.Get<ILogger>().Info(GetLogEventData(hidEvent, true));
 
       if (hidEvent.IsKeyboard)
       {
         if (hidEvent.VirtualKey != Keys.None)
         {
-          if (hidEvent.VirtualKey != Keys.Escape) //Escape reserved for dialog close
+          if (hidEvent.VirtualKey != Keys.Escape) 
           {
             device = "Keyboard";
             name = KeyMapper.GetMicrosoftKeyName((int)hidEvent.VirtualKey);
@@ -206,11 +211,12 @@ namespace MediaPortal.Plugins.InputDeviceManager
           }
           else
           {
-            return false; //Unsupported
+            return false; //Escape reserved for dialog close
           }
         }
         else
         {
+          LogUnsupportedEvent(hidEvent);
           return false; //Unsupported
         }
       }
@@ -258,6 +264,14 @@ namespace MediaPortal.Plugins.InputDeviceManager
       }
       else if (hidEvent.IsGeneric)
       {
+        //If a usage is exiting and there are no button states, it must be a combined event
+        //Sometimes button down events are without usage and therefore unknown
+        if (hidEvent.Usages.Any() && !buttonDown && !buttonUp) 
+        {
+          buttonDown = true;
+          buttonUp = true;
+        }
+
         if (hidEvent.Device != null && hidEvent.Device.IsGamePad)
         {
           device = "GamePad";
@@ -275,6 +289,7 @@ namespace MediaPortal.Plugins.InputDeviceManager
           }
           else
           {
+            LogUnsupportedEvent(hidEvent);
             return false; //Unsupported
           }
         }
@@ -297,6 +312,7 @@ namespace MediaPortal.Plugins.InputDeviceManager
           }
           else
           {
+            LogUnsupportedEvent(hidEvent);
             return false; //Unsupported
           }
         }
@@ -314,6 +330,7 @@ namespace MediaPortal.Plugins.InputDeviceManager
           }
           else
           {
+            LogUnsupportedEvent(hidEvent);
             return false; //Unsupported
           }
         }
@@ -331,6 +348,7 @@ namespace MediaPortal.Plugins.InputDeviceManager
           }
           else
           {
+            LogUnsupportedEvent(hidEvent);
             return false; //Unsupported
           }
         }
@@ -348,6 +366,7 @@ namespace MediaPortal.Plugins.InputDeviceManager
           }
           else
           {
+            LogUnsupportedEvent(hidEvent);
             return false; //Unsupported
           }
         }
@@ -365,6 +384,7 @@ namespace MediaPortal.Plugins.InputDeviceManager
           }
           else
           {
+            LogUnsupportedEvent(hidEvent);
             return false; //Unsupported
           }
         }
@@ -379,12 +399,14 @@ namespace MediaPortal.Plugins.InputDeviceManager
           }
           else
           {
+            LogUnsupportedEvent(hidEvent);
             return false; //Unsupported
           }
         }
       }
       else
       {
+        LogUnsupportedEvent(hidEvent);
         return false; //Unsupported
       }
       return true;
