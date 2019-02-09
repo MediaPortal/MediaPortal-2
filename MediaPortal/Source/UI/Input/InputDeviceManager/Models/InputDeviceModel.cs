@@ -290,43 +290,50 @@ namespace MediaPortal.Plugins.InputDeviceManager.Models
 
     private void OnKeyPressed(object sender, SharpLib.Hid.Event hidEvent)
     {
-      if (!InputDeviceManager.TryDecodeEvent(hidEvent, out string device, out string name, out long code, out bool buttonUp, out bool buttonDown))
-        return;
-
-      if (_currentInputDevice.Type == device)
+      try
       {
-        if (buttonDown)
-          _pressedKeys.GetOrAdd(name, code);
-        else if (buttonUp)
-          _pressedKeys.TryRemove(name, out _);
-      }
+        if (!InputDeviceManager.TryDecodeEvent(hidEvent, out string device, out string name, out long code, out bool buttonUp, out bool buttonDown))
+          return;
 
-      if (ShowKeyMapping || _inWorkflowAddKey)
-      {
-        if (_inWorkflowAddKey)
+        if (_currentInputDevice.Type == device)
         {
-          if (_pressedKeys.Count > _maxPressedKeys)
+          if (buttonDown)
+            _pressedKeys.GetOrAdd(name, code);
+          else if (buttonUp)
+            _pressedKeys.TryRemove(name, out _);
+        }
+
+        if (ShowKeyMapping || _inWorkflowAddKey)
+        {
+          if (_inWorkflowAddKey)
           {
-            _pressedAddKeyCombo = _pressedKeys.ToDictionary(pair => pair.Key, pair => pair.Value);
-            _maxPressedKeys = _pressedKeys.Count;
-            //ServiceRegistration.Get<ILogger>().Info("pressedKeys: {0}, maxPressedKEys: {1}, _pressedAddKeyCombo: {2}", _pressedKeys.Count, _maxPressedKeys, _pressedAddKeyCombo.Count);
-            _endTime = DateTime.Now.AddSeconds(5);
-            if (!_timer.Enabled)
-              _timer.Start();
+            if (_pressedKeys.Count > _maxPressedKeys)
+            {
+              _pressedAddKeyCombo = _pressedKeys.ToDictionary(pair => pair.Key, pair => pair.Value);
+              _maxPressedKeys = _pressedKeys.Count;
+              //ServiceRegistration.Get<ILogger>().Info("pressedKeys: {0}, maxPressedKEys: {1}, _pressedAddKeyCombo: {2}", _pressedKeys.Count, _maxPressedKeys, _pressedAddKeyCombo.Count);
+              _endTime = DateTime.Now.AddSeconds(5);
+              if (!_timer.Enabled)
+                _timer.Start();
+            }
+            AddKeyLabel = String.Join(" + ", string.Join(" + ", _pressedAddKeyCombo.Select(kv => kv.Key.ToString())));
           }
-          AddKeyLabel = String.Join(" + ", string.Join(" + ", _pressedAddKeyCombo.Select(kv => kv.Key.ToString())));
+        }
+        else
+        {
+          _currentInputDevice = (device, hidEvent.Device?.FriendlyName ?? "?");
+          SelectedInputName = hidEvent.Device?.FriendlyName ?? "?";
+          if (hidEvent.IsKeyboard)
+            UpdateKeymapping(GetDefaultKeyboardMap());
+          else if (hidEvent.UsagePageEnum == SharpLib.Hid.UsagePage.WindowsMediaCenterRemoteControl)
+            UpdateKeymapping(GetDefaultRemoteMap());
+          else
+            UpdateKeymapping();
         }
       }
-      else
+      catch (Exception ex)
       {
-        _currentInputDevice = (device, hidEvent.Device?.FriendlyName ?? "?");
-        SelectedInputName = hidEvent.Device?.FriendlyName ?? "?";
-        if (hidEvent.IsKeyboard)
-          UpdateKeymapping(GetDefaultKeyboardMap());
-        else if (hidEvent.UsagePageEnum == SharpLib.Hid.UsagePage.WindowsMediaCenterRemoteControl)
-          UpdateKeymapping(GetDefaultRemoteMap());
-        else
-          UpdateKeymapping();
+        ServiceRegistration.Get<ILogger>().Error("InputDeviceManager: Key press failed", ex);
       }
     }
 
