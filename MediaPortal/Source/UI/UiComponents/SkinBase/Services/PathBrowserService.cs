@@ -300,7 +300,8 @@ namespace MediaPortal.UiComponents.SkinBase.Services
           directoryItem.Selected = true;
         directoryItem.SelectedProperty.Attach(OnTreePathSelectionChanged);
         directoryItem.AdditionalProperties[Consts.KEY_EXPANSION] = new ExpansionHelper(directoryItem, this);
-        if(isFolder) {
+        if (isFolder)
+        {
           // For folders, add a dummy subitem, so HeaderedItemsControl says the item is expandable.
           // This will be overwritten when the user clicks on the + and OnExpandedChanged is called
           directoryItem.SubItems.Add(new TreeItem());
@@ -384,7 +385,8 @@ namespace MediaPortal.UiComponents.SkinBase.Services
       return ShowPathBrowser(headerText, enumerateFiles, showSystemResources, null, validatePathDlgt, null);
     }
 
-    public Guid ShowPathBrowser(string headerText, bool enumerateFiles, bool showSystemResources, ResourcePath initialPath, ValidatePathDlgt validatePathDlgt) {
+    public Guid ShowPathBrowser(string headerText, bool enumerateFiles, bool showSystemResources, ResourcePath initialPath, ValidatePathDlgt validatePathDlgt)
+    {
       return ShowPathBrowser(headerText, enumerateFiles, showSystemResources, initialPath, validatePathDlgt, null);
     }
 
