@@ -24,9 +24,9 @@
 
 namespace MediaPortal.Plugins.InputDeviceManager.RawInput
 {
-  public enum RemoteButton
+  public enum RemoteButton : ushort
   {
-    None = -1,
+    None = 0,
     Power1 = 165,
     Power2 = 12,
     PowerTV = 101,
