@@ -38,7 +38,6 @@ using MediaPortal.UI.Players.Video.Interfaces;
 using MediaPortal.UI.Players.Video.Settings;
 using MediaPortal.UI.Players.Video.Subtitles;
 using MediaPortal.UI.Players.Video.Teletext;
-using MediaPortal.UI.Players.Video.Teletext_v2;
 using MediaPortal.UI.Players.Video.Tools;
 using MediaPortal.Utilities.Exceptions;
 using SharpDX.Direct3D9;
@@ -58,9 +57,6 @@ namespace MediaPortal.UI.Players.Video
 
     public const string TSREADER_CLSID = "b9559486-E1BB-45D3-A2A2-9A7AFE49B23F";
     private const string TSREADER_FILTER_NAME = "TsReader";
-    private const int NO_STREAM_INDEX = -1;
-    private bool _dvbFilterAdded;
-    private bool _txtSourceActive;
 
     #endregion
 
@@ -185,8 +181,6 @@ namespace MediaPortal.UI.Players.Video
         {
           _subtitleRenderer.RenderSubtitles = true;
         }
-
-        _dvbFilterAdded = true;
       }
       else if (shouldRenderTeletextSubtitles)
       {
@@ -196,7 +190,6 @@ namespace MediaPortal.UI.Players.Video
         {
           _subtitleRenderer.RenderSubtitles = true;
         }
-        _txtSourceActive = true;
       }
       else if (shouldAddClosedCaptionsFilter)
       {
