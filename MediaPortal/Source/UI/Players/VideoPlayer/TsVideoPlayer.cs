@@ -186,10 +186,7 @@ namespace MediaPortal.UI.Players.Video
       {
         _subtitleRenderer.AddTeletextSubtitleDecoder(teletextSource);
         _subtitleRenderer.SetPlayer(this);
-        if (_subtitleFilter != null)
-        {
-          _subtitleRenderer.RenderSubtitles = true;
-        }
+        _subtitleRenderer.RenderSubtitles = true;
       }
       else if (shouldAddClosedCaptionsFilter)
       {
@@ -325,7 +322,8 @@ namespace MediaPortal.UI.Players.Video
 
     protected override bool EnumerateStreams(bool forceRefresh)
     {
-      if (forceRefresh)
+      bool refreshed = base.EnumerateStreams(forceRefresh);
+      if (refreshed)
       {
         ISubtitleStream subtitleStream = _tsReader as ISubtitleStream;
         int subtitleStreamCount = 0;
@@ -334,6 +332,7 @@ namespace MediaPortal.UI.Players.Video
         if (subtitleStreamCount >= 1)
         {
           _streamInfoSubtitles = new TsReaderStreamInfoHandler(subtitleStream);
+          SetPreferredSubtitle();
           return true;
         }
         ITeletextSource teletextSource = _tsReader as ITeletextSource;
@@ -342,6 +341,7 @@ namespace MediaPortal.UI.Players.Video
         if (teletextStreamCount >= 1)
         {
           _streamInfoSubtitles = new TsReaderTeletextInfoHandler(teletextSource);
+          SetPreferredSubtitle();
           return true;
         }
       }
@@ -403,7 +403,6 @@ namespace MediaPortal.UI.Players.Video
 
     protected override void SetPreferredSubtitle()
     {
-      EnumerateStreams(true);
       ISubtitleStream subtitleStream = _tsReader as ISubtitleStream;
       ITeletextSource teletextSource = _tsReader as ITeletextSource;
       if (_streamInfoSubtitles == null || (subtitleStream == null && teletextSource == null))

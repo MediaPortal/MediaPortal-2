@@ -227,37 +227,37 @@ namespace MediaPortal.UI.Players.Video.Settings
     /// <summary>
     /// Gets or sets a flag if ATSC closed captions should be enabled by default.
     /// </summary>
-    [Setting(SettingScope.User, false)]
+    [Setting(SettingScope.User, true)]
     public bool EnableAtscClosedCaptions { get; set; }
 
     /// <summary>
     /// Gets or sets a flag if DVB subtitles should be enabled by default.
     /// </summary>
-    [Setting(SettingScope.User, false)]
+    [Setting(SettingScope.User, true)]
     public bool EnableDvbSubtitles { get; set; }
 
     /// <summary>
     /// Gets or sets a flag if teletext subtitles should be enabled by default.
     /// </summary>
-    [Setting(SettingScope.User, false)]
+    [Setting(SettingScope.User, true)]
     public bool EnableTeletextSubtitles { get; set; }
 
     /// <summary>
     /// Gets or sets a flag if mpc-hc subtitle engine for videos should be enabled by default.
     /// </summary>
-    [Setting(SettingScope.User, false)]
+    [Setting(SettingScope.User, true)]
     public bool EnableMpcSubtitlesEngine { get; set; }
 
     /// <summary>
     /// Gets or sets a flag if DVD subtitles should be enabled by default.
     /// </summary>
-    [Setting(SettingScope.User, false)]
+    [Setting(SettingScope.User, true)]
     public bool EnableDvdSubtitles { get; set; }
 
     /// <summary>
     /// Gets or sets a flag if DVD closed captions should be enabled by default.
     /// </summary>
-    [Setting(SettingScope.User, false)]
+    [Setting(SettingScope.User, true)]
     public bool EnableDvdClosedCaptions { get; set; }
 
     /// <summary>
