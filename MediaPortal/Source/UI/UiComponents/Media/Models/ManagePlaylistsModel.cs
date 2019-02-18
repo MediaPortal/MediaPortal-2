@@ -326,7 +326,7 @@ namespace MediaPortal.UiComponents.Media.Models
       // 1) Load media item ids in the playlist
       // 2) Load media items in clusters - for each cluster, an own query will be executed at the content directory
       PlaylistRawData playlistData = await cd.ExportPlaylistAsync(_playlist.PlaylistId);
-      PlayItemsModel.CheckQueryPlayAction(() => CollectionUtils.Cluster(playlistData.MediaItemIds, 1000).SelectMany(itemIds =>
+      PlayItemsModel.CheckQueryPlayAction(() => CollectionUtils.Cluster(playlistData.MediaItemIds, 500).SelectMany(itemIds =>
             cd.LoadCustomPlaylistAsync(itemIds, necessaryMIATypes, optionalMIATypes).Result), avType.Value);
     }
 

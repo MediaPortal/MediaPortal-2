@@ -356,7 +356,7 @@ namespace MediaPortal.UiComponents.Utilities.Models
                 return false;
               string extension = StringUtils.TrimToEmpty(DosPathHelper.GetExtension(choosenPath)).ToLowerInvariant();
               return (extension == ".m3u" || extension == ".m3u8") && File.Exists(choosenPath);
-            });
+            }, new FileExtensionFilter(".m3u", ".m3u8").ValidateFile);
       if (_pathBrowserCloseWatcher != null)
         _pathBrowserCloseWatcher.Dispose();
       _pathBrowserCloseWatcher = new PathBrowserCloseWatcher(this, dialogHandle, choosenPath =>
