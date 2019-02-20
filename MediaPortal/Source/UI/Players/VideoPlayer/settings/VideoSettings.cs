@@ -239,7 +239,7 @@ namespace MediaPortal.UI.Players.Video.Settings
     /// <summary>
     /// Gets or sets a flag if teletext subtitles should be enabled by default.
     /// </summary>
-    [Setting(SettingScope.User, true)]
+    [Setting(SettingScope.User, false)]
     public bool EnableTeletextSubtitles { get; set; }
 
     /// <summary>
