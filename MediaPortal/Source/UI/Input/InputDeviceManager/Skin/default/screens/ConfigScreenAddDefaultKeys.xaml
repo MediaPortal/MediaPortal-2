@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Include
+    xmlns="www.team-mediaportal.com/2008/mpf/directx"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    Source="screens\master_dialog_menu.xaml"
+    >
+  <Include.Resources>
+
+    <!-- Input device manager model -->
+    <Model x:Key="Model" Id="CC11183C-01A9-4F96-AF90-FAA046981006"/>
+
+    <!-- Contents -->
+    <ControlTemplate x:Key="Contents_Template">
+      <DockPanel DataContext="{Binding Source={StaticResource Model}}">
+        <Label Content="[InputDeviceManager.DefaultConfig.Title]" Color="{ThemeResource TextColor}" FontSize="36" DockPanel.Dock="Top" HorizontalAlignment="Center"/>
+        <Label Content="[InputDeviceManager.DefaultConfig.Description]" Color="{ThemeResource TextColor}" FontSize="36" DockPanel.Dock="Top" HorizontalAlignment="Left" Wrap="True"/>
+        <!-- Default config list -->
+        <ListView Margin="10" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" SetFocus="True"
+                    Style="{ThemeResource MenuListViewStyle}" RestoreFocus="True"
+                    ItemsSource="{Binding Path=DefaultConfigItems}" >
+          <ListView.Resources>
+            <Command x:Key="Menu_Command" Source="{StaticResource Model}" Path="SelectDefaultConfig"
+                       Parameters="{LateBoundValue BindingValue={Binding}}"/>
+          </ListView.Resources>
+        </ListView>
+      </DockPanel>
+    </ControlTemplate>
+
+  </Include.Resources>
+</Include>

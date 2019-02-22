@@ -51,15 +51,24 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="RawInput\KeyMapper.cs" />
     <Compile Include="RawInput\RemoteButton.cs" />
+    <Compile Include="RemoteKeyCode.cs" />
     <Compile Include="Settings\ConfigScreenKeys.cs" />
+    <Compile Include="Settings\HomeScreenScreens.cs" />
     <Compile Include="Settings\ConfigScreenScreens.cs" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="DefaultRemoteMap.xml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <SubType>Designer</SubType>
+    </Content>
     <Content Include="Language\strings_en.xml">
       <SubType>Designer</SubType>
     </Content>
     <Content Include="plugin.xml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Skin\default\screens\HomeScreenScreenMapping.inc">
+      <SubType>Designer</SubType>
     </Content>
     <Content Include="Skin\default\screens\ConfigScreenScreenMapping.inc">
       <SubType>Designer</SubType>
@@ -121,6 +130,16 @@
     <PackageReference Include="SharpLibHid">
       <Version>1.4.3</Version>
     </PackageReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\default\screens\ConfigScreenAddDefaultKeys.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\default\screens\HomeScreenScreens.xaml">
+      <SubType>Designer</SubType>
+    </Content>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="build.targets" />

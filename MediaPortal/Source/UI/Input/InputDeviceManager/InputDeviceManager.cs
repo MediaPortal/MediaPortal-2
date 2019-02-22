@@ -25,11 +25,11 @@
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
-using System.Runtime.InteropServices;
 using System.Threading;
-using System.Threading.Tasks;
 using System.Windows.Forms;
+using System.Xml.Serialization;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.Messaging;
@@ -41,7 +41,6 @@ using MediaPortal.UI.Control.InputManager;
 using MediaPortal.UI.General;
 using MediaPortal.UI.Presentation.Screens;
 using MediaPortal.UI.Presentation.Workflow;
-using MediaPortal.UI.Services.UserManagement;
 using SharpLib.Hid;
 using SharpLib.Win32;
 
@@ -50,7 +49,12 @@ namespace MediaPortal.Plugins.InputDeviceManager
   public class InputDeviceManager : IPluginStateTracker
   {
     private const bool CAPTURE_ONLY_IN_FOREGROUND = true;
-    private static readonly Dictionary<string, InputDevice> _inputDevices = new Dictionary<string, InputDevice>();
+    private const int WM_KEYDOWN = 0x100;
+    private const int WM_KEYUP = 0x101;
+    private const int WM_SYSKEYDOWN = 0x0104;
+    private const int WM_SYSKEYUP = 0x0105;
+
+    private static readonly ConcurrentDictionary<string, InputDevice> _inputDevices = new ConcurrentDictionary<string, InputDevice>();
     private static IScreenControl _screenControl;
     private static readonly ConcurrentDictionary<string, long> _pressedKeys = new ConcurrentDictionary<string, long>();
     private static SharpLib.Hid.Handler _hidHandler;
@@ -59,12 +63,248 @@ namespace MediaPortal.Plugins.InputDeviceManager
     private static object _listSyncObject = new object();
     private static Message _currentMessage;
     private static bool _currentMessageHandled;
+    private static ConcurrentDictionary<long, (string Name, long Code)> _genericKeyDownEvents = new ConcurrentDictionary<long, (string Name, long Code)>();
+    private static readonly ConcurrentDictionary<string, long> _pressedPreviewKeys = new ConcurrentDictionary<string, long>();
+    private static System.Timers.Timer _pressedKeyTimer = new System.Timers.Timer(2000);
+    private static ConcurrentDictionary<long, Key> _defaultRemoteKeyCodes = new ConcurrentDictionary<long, Key>();
 
     private SynchronousMessageQueue _messageQueue;
+
+    public static InputDeviceManager Instance { get; private set; }
+    public static IDictionary<string, InputDevice> InputDevices
+    {
+      get { return _inputDevices; }
+    }
+
+    #region Initialization
 
     public InputDeviceManager()
     {
       Instance = this;
+
+      _pressedKeyTimer.AutoReset = false;
+      _pressedKeyTimer.Elapsed += (s, e) =>
+      {
+        if (_pressedPreviewKeys.Count > 0 || _pressedKeys.Count > 0)
+          ServiceRegistration.Get<ILogger>().Debug("InputDeviceManager: Pressed keys reset");
+
+        _pressedPreviewKeys.Clear();
+        _genericKeyDownEvents.Clear();
+        _pressedKeys.Clear();
+      };
+    }
+
+    private static void StartThread()
+    {
+      while (_screenControl == null)
+      {
+        try
+        {
+          if (ServiceRegistration.IsRegistered<IScreenControl>())
+          {
+            _screenControl = ServiceRegistration.Get<IScreenControl>();
+
+            SharpLib.Win32.RawInputDeviceFlags flags = CAPTURE_ONLY_IN_FOREGROUND ? 0 : SharpLib.Win32.RawInputDeviceFlags.RIDEV_INPUTSINK;
+            //SharpLib.Win32.RawInputDeviceFlags flags = SharpLib.Win32.RawInputDeviceFlags.RIDEV_EXINPUTSINK;
+            //SharpLib.Win32.RawInputDeviceFlags flags = SharpLib.Win32.RawInputDeviceFlags.RIDEV_INPUTSINK;
+            IntPtr handle = _screenControl.MainWindowHandle;
+            List<RAWINPUTDEVICE> devices = new List<RAWINPUTDEVICE>();
+            devices.Add(new RAWINPUTDEVICE
+            {
+              usUsagePage = (ushort)SharpLib.Hid.UsagePage.WindowsMediaCenterRemoteControl,
+              usUsage = (ushort)SharpLib.Hid.UsageCollection.WindowsMediaCenter.WindowsMediaCenterRemoteControl,
+              dwFlags = flags,
+              hwndTarget = handle
+            });
+            //devices.Add(new RAWINPUTDEVICE
+            //{
+            //  usUsagePage = (ushort)SharpLib.Hid.UsagePage.WindowsMediaCenterRemoteControl,
+            //  usUsage = (ushort)SharpLib.Hid.UsageCollection.WindowsMediaCenter.WindowsMediaCenterLowLevel,
+            //  dwFlags = flags,
+            //  hwndTarget = handle
+            //});
+
+            devices.Add(new RAWINPUTDEVICE
+            {
+              usUsagePage = (ushort)SharpLib.Hid.UsagePage.Consumer,
+              usUsage = (ushort)SharpLib.Hid.UsageCollection.Consumer.ConsumerControl,
+              dwFlags = flags,
+              hwndTarget = handle
+            });
+            devices.Add(new RAWINPUTDEVICE
+            {
+              usUsagePage = (ushort)SharpLib.Hid.UsagePage.Consumer,
+              usUsage = (ushort)SharpLib.Hid.UsageCollection.Consumer.ApplicationLaunchButtons,
+              dwFlags = flags,
+              hwndTarget = handle
+            });
+            devices.Add(new RAWINPUTDEVICE
+            {
+              usUsagePage = (ushort)SharpLib.Hid.UsagePage.Consumer,
+              usUsage = (ushort)SharpLib.Hid.UsageCollection.Consumer.FunctionButtons,
+              dwFlags = flags,
+              hwndTarget = handle
+            });
+            devices.Add(new RAWINPUTDEVICE
+            {
+              usUsagePage = (ushort)SharpLib.Hid.UsagePage.Consumer,
+              usUsage = (ushort)SharpLib.Hid.UsageCollection.Consumer.GenericGuiApplicationControls,
+              dwFlags = flags,
+              hwndTarget = handle
+            });
+            devices.Add(new RAWINPUTDEVICE
+            {
+              usUsagePage = (ushort)SharpLib.Hid.UsagePage.Consumer,
+              usUsage = (ushort)SharpLib.Hid.UsageCollection.Consumer.MediaSelection,
+              dwFlags = flags,
+              hwndTarget = handle
+            });
+            devices.Add(new RAWINPUTDEVICE
+            {
+              usUsagePage = (ushort)SharpLib.Hid.UsagePage.Consumer,
+              usUsage = (ushort)SharpLib.Hid.UsageCollection.Consumer.NumericKeyPad,
+              dwFlags = flags,
+              hwndTarget = handle
+            });
+            devices.Add(new RAWINPUTDEVICE
+            {
+              usUsagePage = (ushort)SharpLib.Hid.UsagePage.Consumer,
+              usUsage = (ushort)SharpLib.Hid.UsageCollection.Consumer.PlaybackSpeed,
+              dwFlags = flags,
+              hwndTarget = handle
+            });
+            devices.Add(new RAWINPUTDEVICE
+            {
+              usUsagePage = (ushort)SharpLib.Hid.UsagePage.Consumer,
+              usUsage = (ushort)SharpLib.Hid.UsageCollection.Consumer.ProgrammableButtons,
+              dwFlags = flags,
+              hwndTarget = handle
+            });
+            devices.Add(new RAWINPUTDEVICE
+            {
+              usUsagePage = (ushort)SharpLib.Hid.UsagePage.Consumer,
+              usUsage = (ushort)SharpLib.Hid.UsageCollection.Consumer.SelectDisc,
+              dwFlags = flags,
+              hwndTarget = handle
+            });
+            devices.Add(new RAWINPUTDEVICE
+            {
+              usUsagePage = (ushort)SharpLib.Hid.UsagePage.Consumer,
+              usUsage = (ushort)SharpLib.Hid.UsageCollection.Consumer.Selection,
+              dwFlags = flags,
+              hwndTarget = handle
+            });
+
+            devices.Add(new RAWINPUTDEVICE
+            {
+              usUsagePage = (ushort)SharpLib.Hid.UsagePage.GenericDesktopControls,
+              usUsage = (ushort)SharpLib.Hid.UsageCollection.GenericDesktop.SystemControl,
+              dwFlags = flags,
+              hwndTarget = handle
+            });
+            devices.Add(new RAWINPUTDEVICE
+            {
+              usUsagePage = (ushort)SharpLib.Hid.UsagePage.GenericDesktopControls,
+              usUsage = (ushort)SharpLib.Hid.UsageCollection.GenericDesktop.GamePad,
+              dwFlags = flags,
+              hwndTarget = handle
+            });
+            devices.Add(new RAWINPUTDEVICE
+            {
+              usUsagePage = (ushort)SharpLib.Hid.UsagePage.GenericDesktopControls,
+              usUsage = (ushort)SharpLib.Hid.UsageCollection.GenericDesktop.Joystick,
+              dwFlags = flags,
+              hwndTarget = handle
+            });
+            devices.Add(new RAWINPUTDEVICE
+            {
+              usUsagePage = (ushort)SharpLib.Hid.UsagePage.GenericDesktopControls,
+              usUsage = (ushort)SharpLib.Hid.UsageCollection.GenericDesktop.Keyboard,
+              dwFlags = flags,
+              hwndTarget = handle
+            });
+            devices.Add(new RAWINPUTDEVICE
+            {
+              usUsagePage = (ushort)SharpLib.Hid.UsagePage.GenericDesktopControls,
+              usUsage = (ushort)SharpLib.Hid.UsageCollection.GenericDesktop.KeyPad,
+              dwFlags = flags,
+              hwndTarget = handle
+            });
+            devices.Add(new RAWINPUTDEVICE
+            {
+              usUsagePage = (ushort)SharpLib.Hid.UsagePage.GenericDesktopControls,
+              usUsage = (ushort)SharpLib.Hid.UsageCollection.GenericDesktop.Mouse,
+              dwFlags = flags,
+              hwndTarget = handle
+            });
+
+            _hidHandler = new SharpLib.Hid.Handler(devices.ToArray(), true, -1, -1);
+            _hidHandler.OnHidEvent += new Handler.HidEventHandler(OnHidEvent);
+          }
+        }
+        catch (Exception ex)
+        {
+          // ignored
+          ServiceRegistration.Get<ILogger>().Error("InputDeviceManager: Failure to register HID handler", ex);
+        }
+        Thread.Sleep(500);
+      }
+    }
+
+    #endregion
+
+    #region Form key handling
+
+    private void OnPreviewMessage(SynchronousMessageQueue queue)
+    {
+      try
+      {
+        SystemMessage message;
+        while ((message = queue.Dequeue()) != null)
+        {
+          if (message.ChannelName == WindowsMessaging.CHANNEL)
+          {
+            WindowsMessaging.MessageType messageType = (WindowsMessaging.MessageType)message.MessageType;
+            switch (messageType)
+            {
+              case WindowsMessaging.MessageType.WindowsBroadcast:
+                _currentMessage = (Message)message.MessageData[WindowsMessaging.MESSAGE];
+                _currentMessageHandled = false;
+                //WM_KEYDOWN and WM_KEYUP are not handled by SharpLibHid so we need to handle them to avoid a duplicate key press
+                if (_externalKeyPressHandlers.Count == 0 && (_currentMessage.Msg == WM_KEYDOWN || _currentMessage.Msg == WM_KEYUP || _currentMessage.Msg == WM_SYSKEYDOWN || _currentMessage.Msg == WM_SYSKEYUP))
+                {
+                  var key = ConvertSystemKey((Keys)_currentMessage.WParam);
+                  if (_currentMessage.Msg == WM_KEYDOWN || _currentMessage.Msg == WM_SYSKEYDOWN)
+                  {
+                    _pressedPreviewKeys.TryAdd(key.ToString(), (long)key);
+                    RestartKeyPressedTimer();
+                  }
+                  if (_inputDevices.TryGetValue("Keyboard", out InputDevice device))
+                  {
+                    if (device.KeyMap.Any(m => KeyCombinationsMatch(m.Codes.Select(c => c.Code), _pressedPreviewKeys.Values)))
+                    {
+                      _currentMessageHandled = true;
+                      ServiceRegistration.Get<ILogger>().Debug("InputDeviceManager: Preview message handled for keys: {0}", string.Join(", ", _pressedPreviewKeys.Keys));
+                    }
+                  }
+                  if (_currentMessage.Msg == WM_KEYUP || _currentMessage.Msg == WM_SYSKEYUP)
+                  {
+                    _pressedPreviewKeys.TryRemove(key.ToString(), out _);
+                  }
+                }
+                _hidHandler?.ProcessInput(ref _currentMessage);
+                message.MessageData[WindowsMessaging.MESSAGE] = _currentMessage;
+                if (_currentMessageHandled)
+                  message.MessageData[WindowsMessaging.HANDLED] = true;
+                break;
+            }
+          }
+        }
+      }
+      catch (Exception ex)
+      {
+        ServiceRegistration.Get<ILogger>().Error("InputDeviceManager: Preview message failed", ex);
+      }
     }
 
     private void SubscribeToMessages()
@@ -84,53 +324,13 @@ namespace MediaPortal.Plugins.InputDeviceManager
       _messageQueue = null;
     }
 
-    public static InputDeviceManager Instance { get; private set; }
+    #endregion
 
-    public static IDictionary<string, InputDevice> InputDevices
-    {
-      get { return _inputDevices; }
-    }
+    #region Logging   
 
-    private void OnPreviewMessage(SynchronousMessageQueue queue)
+    private static string GetLogEventData(string info, SharpLib.Hid.Event hidEvent)
     {
-      try
-      {
-        SystemMessage message;
-        while ((message = queue.Dequeue()) != null)
-        {
-          if (message.ChannelName == WindowsMessaging.CHANNEL)
-          {
-            WindowsMessaging.MessageType messageType = (WindowsMessaging.MessageType)message.MessageType;
-            switch (messageType)
-            {
-              case WindowsMessaging.MessageType.WindowsBroadcast:
-                _currentMessage = (Message)message.MessageData[WindowsMessaging.MESSAGE];
-                _currentMessageHandled = false;
-                //WM_KEYDOWN and WM_KEYUP are not handled by SharpLibHid so wee need to handle them to avoid a duplicate key press
-                if (_externalKeyPressHandlers.Count == 0 && (_currentMessage.Msg == 0x100 || _currentMessage.Msg == 0x101))
-                {
-                  var key = (Keys)_currentMessage.WParam;
-                  if (_inputDevices.TryGetValue("Keyboard", out InputDevice device) && device.KeyMap.Any(m => m.Codes.FirstOrDefault()?.Code == (long)key))
-                    _currentMessageHandled = true;
-                }
-                _hidHandler?.ProcessInput(ref _currentMessage);
-                message.MessageData[WindowsMessaging.MESSAGE] = _currentMessage;
-                if (_currentMessageHandled)
-                  message.MessageData[WindowsMessaging.HANDLED] = true;
-                break;
-            }
-          }
-        }
-      }
-      catch (Exception ex)
-      {
-        ServiceRegistration.Get<ILogger>().Error("InputDeviceManager: Preview message failed", ex);
-      }
-    }
-
-    private static string GetLogEventData(SharpLib.Hid.Event hidEvent, bool unsupported)
-    {
-      string str = unsupported ? "Unsupported" : ""; 
+      string str = string.IsNullOrEmpty(info) ? "" : $"{info} "; 
       str += "HID Event";
       if (hidEvent.IsButtonDown)
         str += ", DOWN";
@@ -179,14 +379,30 @@ namespace MediaPortal.Plugins.InputDeviceManager
         str += ", ShiftKey";
       if (hidEvent.HasModifierWindows)
         str += ", WindowsKey";
+      if (!string.IsNullOrEmpty(hidEvent.Device?.FriendlyName))
+        str += ", FriendlyName: " + hidEvent.Device.FriendlyName;
+      if (!string.IsNullOrEmpty(hidEvent.Device?.Manufacturer))
+        str += ", Manufacturer: " + hidEvent.Device.Manufacturer;
+      if (!string.IsNullOrEmpty(hidEvent.Device?.Product))
+        str += ", Product: " + hidEvent.Device.Product;
+      if (!string.IsNullOrEmpty(hidEvent.Device?.ProductId.ToString()))
+        str += ", ProductId: " + hidEvent.Device.ProductId.ToString();
+      if (!string.IsNullOrEmpty(hidEvent.Device?.VendorId.ToString()))
+        str += ", VendorId: " + hidEvent.Device.VendorId.ToString();
+      if (!string.IsNullOrEmpty(hidEvent.Device?.Version.ToString()))
+        str += ", Version: " + hidEvent.Device.Version.ToString();
 
       return str;
     }
 
-    private static void LogUnsupportedEvent(SharpLib.Hid.Event hidEvent)
+    private static void LogEvent(string info, SharpLib.Hid.Event hidEvent)
     {
-      ServiceRegistration.Get<ILogger>().Debug(GetLogEventData(hidEvent, true));
+      ServiceRegistration.Get<ILogger>().Debug(GetLogEventData(info, hidEvent));
     }
+
+    #endregion
+
+    #region HID event handling
 
     public static bool TryDecodeEvent(SharpLib.Hid.Event hidEvent, out string device, out string name, out long code, out bool buttonUp, out bool buttonDown)
     {
@@ -196,18 +412,19 @@ namespace MediaPortal.Plugins.InputDeviceManager
       buttonUp = hidEvent.IsButtonUp;
       buttonDown = hidEvent.IsButtonDown;
 
-      //if ((hidEvent.IsMouse && hidEvent.RawInput.mouse.buttonsStr.usButtonFlags > 0) || !hidEvent.IsMouse)
-      //  ServiceRegistration.Get<ILogger>().Info(GetLogEventData(hidEvent, true));
+      if ((hidEvent.IsMouse && hidEvent.RawInput.mouse.buttonsStr.usButtonFlags > 0) || !hidEvent.IsMouse)
+        ServiceRegistration.Get<ILogger>().Debug(GetLogEventData("Log", hidEvent));
 
       if (hidEvent.IsKeyboard)
       {
         if (hidEvent.VirtualKey != Keys.None)
         {
-          if (hidEvent.VirtualKey != Keys.Escape) 
+          if (hidEvent.VirtualKey != Keys.Escape)
           {
+            var key = ConvertSystemKey(hidEvent.VirtualKey);
             device = "Keyboard";
-            name = KeyMapper.GetMicrosoftKeyName((int)hidEvent.VirtualKey);
-            code = (long)hidEvent.VirtualKey;
+            name = KeyMapper.GetMicrosoftKeyName((int)key);
+            code = (long)key;
           }
           else
           {
@@ -216,7 +433,7 @@ namespace MediaPortal.Plugins.InputDeviceManager
         }
         else
         {
-          LogUnsupportedEvent(hidEvent);
+          LogEvent("Invalid key", hidEvent);
           return false; //Unsupported
         }
       }
@@ -264,152 +481,179 @@ namespace MediaPortal.Plugins.InputDeviceManager
       }
       else if (hidEvent.IsGeneric)
       {
-        //If a usage is exiting and there are no button states, it must be a combined event
-        //Sometimes button down events are without usage and therefore unknown
-        if (hidEvent.Usages.Any() && !buttonDown && !buttonUp) 
+        if (hidEvent.Device == null)
+        {
+          LogEvent("Invalid device", hidEvent);
+          return false;
+        }
+        long deviceId = (hidEvent.Device.VendorId << 16) | hidEvent.Device.ProductId;
+        device = deviceId.ToString("X");
+        long usageCategoryId = (hidEvent.UsagePage << 16) | hidEvent.UsageCollection;
+
+        //Genric events with no usages are button up
+        if (!hidEvent.Usages.Any())
+        {
+          buttonUp = true;
+          
+          //Usage was saved from button down because its usage cannot be determined here
+          if (!_genericKeyDownEvents.TryRemove(usageCategoryId, out var button))
+          {
+            //Some devices send duplicate button up events so ignore
+            LogEvent("Unknown key", hidEvent);
+            return false;
+          }
+
+          name = button.Name;
+          code = button.Code;
+        }
+        else //Genric events with usages are button down
         {
           buttonDown = true;
-          buttonUp = true;
-        }
 
-        if (hidEvent.Device != null && hidEvent.Device.IsGamePad)
-        {
-          device = "GamePad";
-          var state = hidEvent.GetDirectionPadState();
           var id = hidEvent.Usages.FirstOrDefault();
-          if (state != DirectionPadState.Rest)
+          if (string.IsNullOrEmpty(device) || id == 0)
           {
-            name = $"Pad{state.ToString()}";
-            code = -(long)state;
+            LogEvent("Invalid usage", hidEvent);
+            return false;
           }
-          else if ((buttonDown || buttonUp) && id > 0)
-          {
-            name = $"PadButton{id}";
-            code = id;
-          }
-          else
-          {
-            LogUnsupportedEvent(hidEvent);
-            return false; //Unsupported
-          }
-        }
-        else if (hidEvent.UsagePageEnum == UsagePage.WindowsMediaCenterRemoteControl)
-        {
-          device = "Remote";
-          var id = hidEvent.Usages.FirstOrDefault();
-          if ((buttonDown || buttonUp) && id > 0)
-          {
-            string usage = id.ToString();
-            if (Enum.IsDefined(typeof(RemoteButton), id))
-              usage = Enum.GetName(typeof(RemoteButton), id);
-            else if (Enum.IsDefined(typeof(SharpLib.Hid.Usage.WindowsMediaCenterRemoteControl), id))
-              usage = Enum.GetName(typeof(SharpLib.Hid.Usage.WindowsMediaCenterRemoteControl), id);
-            else if (Enum.IsDefined(typeof(SharpLib.Hid.Usage.HpWindowsMediaCenterRemoteControl), id))
-              usage = Enum.GetName(typeof(SharpLib.Hid.Usage.HpWindowsMediaCenterRemoteControl), id);
 
-            name = $"Remote{usage}";
-            code = id;
+          //Some devices send duplicate button down events so ignore
+          if (_genericKeyDownEvents.Values.Any(b => b.Code == id))
+          {
+            LogEvent("Duplicate key", hidEvent);
+            return false;
+          }
+
+          if (hidEvent.Device?.IsGamePad == true)
+          {
+            var state = hidEvent.GetDirectionPadState();
+            if (state != DirectionPadState.Rest)
+            {
+              name = $"Pad{state.ToString()}";
+              code = -(long)state;
+            }
+            else if (buttonDown || buttonUp)
+            {
+              name = $"PadButton{id}";
+              code = id;
+            }
+          }
+          else if (hidEvent.UsagePageEnum == UsagePage.WindowsMediaCenterRemoteControl)
+          {
+            if (buttonDown || buttonUp)
+            {
+              string usage = id.ToString();
+              if (Enum.IsDefined(typeof(RemoteButton), id))
+                usage = Enum.GetName(typeof(RemoteButton), id);
+              else if (Enum.IsDefined(typeof(SharpLib.Hid.Usage.WindowsMediaCenterRemoteControl), id))
+                usage = Enum.GetName(typeof(SharpLib.Hid.Usage.WindowsMediaCenterRemoteControl), id);
+              else if (Enum.IsDefined(typeof(SharpLib.Hid.Usage.HpWindowsMediaCenterRemoteControl), id))
+                usage = Enum.GetName(typeof(SharpLib.Hid.Usage.HpWindowsMediaCenterRemoteControl), id);
+
+              name = $"Remote{usage}";
+              code = id;
+            }
+          }
+          else if (hidEvent.UsagePageEnum == UsagePage.Consumer)
+          {
+            if (buttonDown || buttonUp)
+            {
+              string usage = id.ToString();
+              if (Enum.IsDefined(typeof(SharpLib.Hid.Usage.ConsumerControl), id))
+                usage = Enum.GetName(typeof(SharpLib.Hid.Usage.ConsumerControl), id);
+              name = $"{usage}";
+              code = id;
+            }
+          }
+          else if (hidEvent.UsagePageEnum == UsagePage.GameControls)
+          {
+            if (buttonDown || buttonUp)
+            {
+              string usage = id.ToString();
+              if (Enum.IsDefined(typeof(SharpLib.Hid.Usage.GameControl), id))
+                usage = Enum.GetName(typeof(SharpLib.Hid.Usage.GameControl), id);
+              name = $"{usage}";
+              code = id;
+            }
+          }
+          else if (hidEvent.UsagePageEnum == UsagePage.SimulationControls)
+          {
+            if (buttonDown || buttonUp)
+            {
+              string usage = id.ToString();
+              if (Enum.IsDefined(typeof(SharpLib.Hid.Usage.SimulationControl), id))
+                usage = Enum.GetName(typeof(SharpLib.Hid.Usage.SimulationControl), id);
+              name = $"{usage}";
+              code = id;
+            }
+          }
+          else if (hidEvent.UsagePageEnum == UsagePage.Telephony)
+          {
+            if (buttonDown || buttonUp)
+            {
+              string usage = id.ToString();
+              if (Enum.IsDefined(typeof(SharpLib.Hid.Usage.TelephonyDevice), id))
+                usage = Enum.GetName(typeof(SharpLib.Hid.Usage.TelephonyDevice), id);
+              name = $"{usage}";
+              code = id;
+            }
           }
           else
           {
-            LogUnsupportedEvent(hidEvent);
-            return false; //Unsupported
+            if (buttonDown || buttonUp)
+            {
+              name = $"Event{id}";
+              code = id;
+            }
           }
-        }
-        else if (hidEvent.UsagePageEnum == UsagePage.Consumer)
-        {
-          device = "Consumer";
-          var id = hidEvent.Usages.FirstOrDefault();
-          if ((buttonDown || buttonUp) && id > 0)
-          {
-            string usage = id.ToString();
-            if (Enum.IsDefined(typeof(SharpLib.Hid.Usage.ConsumerControl), id))
-              usage = Enum.GetName(typeof(SharpLib.Hid.Usage.ConsumerControl), id);
-            name = $"{usage}";
-            code = id;
-          }
-          else
-          {
-            LogUnsupportedEvent(hidEvent);
-            return false; //Unsupported
-          }
-        }
-        else if (hidEvent.UsagePageEnum == UsagePage.GameControls)
-        {
-          device = "Game";
-          var id = hidEvent.Usages.FirstOrDefault();
-          if ((buttonDown || buttonUp) && id > 0)
-          {
-            string usage = id.ToString();
-            if (Enum.IsDefined(typeof(SharpLib.Hid.Usage.GameControl), id))
-              usage = Enum.GetName(typeof(SharpLib.Hid.Usage.GameControl), id);
-            name = $"{usage}";
-            code = id;
-          }
-          else
-          {
-            LogUnsupportedEvent(hidEvent);
-            return false; //Unsupported
-          }
-        }
-        else if (hidEvent.UsagePageEnum == UsagePage.SimulationControls)
-        {
-          device = "Sim";
-          var id = hidEvent.Usages.FirstOrDefault();
-          if ((buttonDown || buttonUp) && id > 0)
-          {
-            string usage = id.ToString();
-            if (Enum.IsDefined(typeof(SharpLib.Hid.Usage.SimulationControl), id))
-              usage = Enum.GetName(typeof(SharpLib.Hid.Usage.SimulationControl), id);
-            name = $"{usage}";
-            code = id;
-          }
-          else
-          {
-            LogUnsupportedEvent(hidEvent);
-            return false; //Unsupported
-          }
-        }
-        else if (hidEvent.UsagePageEnum == UsagePage.Telephony)
-        {
-          device = "Mobile";
-          var id = hidEvent.Usages.FirstOrDefault();
-          if ((buttonDown || buttonUp) && id > 0)
-          {
-            string usage = id.ToString();
-            if (Enum.IsDefined(typeof(SharpLib.Hid.Usage.TelephonyDevice), id))
-              usage = Enum.GetName(typeof(SharpLib.Hid.Usage.TelephonyDevice), id);
-            name = $"{usage}";
-            code = id;
-          }
-          else
-          {
-            LogUnsupportedEvent(hidEvent);
-            return false; //Unsupported
-          }
-        }
-        else if (hidEvent.Device != null)
-        {
-          device = hidEvent.Device.Name;
-          var id = hidEvent.Usages.FirstOrDefault();
-          if ((buttonDown || buttonUp) && id > 0)
-          {
-            name = $"Event{id}";
-            code = id;
-          }
-          else
-          {
-            LogUnsupportedEvent(hidEvent);
-            return false; //Unsupported
-          }
+
+          //Save so it can be used for button up
+          _genericKeyDownEvents.TryAdd(usageCategoryId, (name, code));
         }
       }
       else
       {
-        LogUnsupportedEvent(hidEvent);
-        return false; //Unsupported
+        LogEvent("Unsupported", hidEvent);
+        return false;
       }
+
       return true;
+    }
+
+    private static bool KeyCombinationsMatch(IEnumerable<long> keyMapping, IEnumerable<long> pressedKeys)
+    {
+      if (keyMapping.Count() == 0 || pressedKeys.Count() == 0)
+        return false;
+
+      return keyMapping.All(c => pressedKeys.Contains(c)) && pressedKeys.All(c => keyMapping.Contains(c));
+    }
+
+    /// <summary>
+    /// Windows message key and HID key might be different for the same key, so convert them to the same base key if needed
+    /// </summary>
+    private static Keys ConvertSystemKey(Keys key)
+    {
+      if (key == Keys.LControlKey || key == Keys.RControlKey || key == Keys.Control)
+        return Keys.ControlKey;
+      if (key == Keys.LMenu || key == Keys.RMenu || key == Keys.Alt)
+        return Keys.Menu;
+      if (key == Keys.LShiftKey || key == Keys.RShiftKey || key == Keys.Shift)
+        return Keys.ShiftKey;
+
+      return key;
+    }
+
+    private static Key ConvertToKeyboardKey(long code, SharpLib.Hid.Event hidEvent)
+    {
+      if (hidEvent.UsagePageEnum == UsagePage.WindowsMediaCenterRemoteControl)
+      {
+        if (_defaultRemoteKeyCodes.TryGetValue(code, out Key key))
+        {
+          ServiceRegistration.Get<ILogger>().Debug("InputDeviceManager: Mapped remote button {0} to {1}", code, key);
+          return key;
+        }
+      }
+      return null;
     }
 
     private static void OnHidEvent(object sender, SharpLib.Hid.Event hidEvent)
@@ -422,22 +666,35 @@ namespace MediaPortal.Plugins.InputDeviceManager
           return;
 
         if (hidEvent.IsRepeat)
-          ServiceRegistration.Get<ILogger>().Debug("HID Event: Repeat");
-
-        if (!TryDecodeEvent(hidEvent, out string type, out string name, out long code, out bool buttonUp, out bool buttonDown))
-          return;
-
-        if (buttonDown)
-          _pressedKeys.TryAdd(name, code);
+          ServiceRegistration.Get<ILogger>().Debug("InputDeviceManager: HID Event Repeat {0}", hidEvent.RepeatCount);
 
         if (_externalKeyPressHandlers.Count == 0)
         {
+          if (!TryDecodeEvent(hidEvent, out string type, out string name, out long code, out bool buttonUp, out bool buttonDown))
+            return;
+
+          if (buttonDown)
+          {
+            _pressedKeys.TryAdd(name, code);
+
+            RestartKeyPressedTimer();
+          }
+
+          ServiceRegistration.Get<ILogger>().Debug("InputDeviceManager: Checking keys: " + string.Join(", ", _pressedKeys.Select(k => k.Key)));
+          ServiceRegistration.Get<ILogger>().Debug("InputDeviceManager: Checking codes: " + string.Join(", ", _pressedKeys.Select(k => k.Value)));
+
           InputDevice device;
+          bool keyHandled = false;
           if (_inputDevices.TryGetValue(type, out device))
           {
-            var keyMappings = device.KeyMap.Where(m => m.Codes.Select(c => c.Code).SequenceEqual(_pressedKeys.Values));
+            ServiceRegistration.Get<ILogger>().Debug("InputDeviceManager: Checking mapping for device: " + device.Name);
+
+            var keyMappings = device.KeyMap.Where(m => KeyCombinationsMatch(m.Codes.Select(c => c.Code), _pressedKeys.Values));
             if (keyMappings?.Count() > 0)
             {
+              ServiceRegistration.Get<ILogger>().Debug("InputDeviceManager: Found matching mappings: " + keyMappings.Count());
+              ServiceRegistration.Get<ILogger>().Debug("InputDeviceManager: Button states: {0}/{1}", buttonDown, buttonUp);
+
               //_currentMessage.Result = new IntPtr(1);
               _currentMessageHandled = true;
               if (buttonUp)
@@ -449,24 +706,39 @@ namespace MediaPortal.Plugins.InputDeviceManager
                   {
                     if (keyMapping.Key.StartsWith(InputDeviceModel.KEY_PREFIX, StringComparison.InvariantCultureIgnoreCase))
                     {
-                      ServiceRegistration.Get<ILogger>().Debug("Executing key action: " + actionArray[1]);
+                      ServiceRegistration.Get<ILogger>().Debug("InputDeviceManager: Executing key action: " + actionArray[1]);
                       ServiceRegistration.Get<IInputManager>().KeyPress(Key.GetSpecialKeyByName(actionArray[1]));
+                      keyHandled = true;
                     }
                     else if (keyMapping.Key.StartsWith(InputDeviceModel.HOME_PREFIX, StringComparison.InvariantCultureIgnoreCase))
                     {
-                      ServiceRegistration.Get<ILogger>().Debug("Executing home action: " + actionArray[1]);
+                      ServiceRegistration.Get<ILogger>().Debug("InputDeviceManager: Executing home action: " + actionArray[1]);
                       NavigateToScreen(actionArray[1]);
+                      keyHandled = true;
                     }
                     else if (keyMapping.Key.StartsWith(InputDeviceModel.CONFIG_PREFIX, StringComparison.InvariantCultureIgnoreCase))
                     {
-                      ServiceRegistration.Get<ILogger>().Debug("Executing config action: " + actionArray[1]);
+                      ServiceRegistration.Get<ILogger>().Debug("InputDeviceManager: Executing config action: " + actionArray[1]);
                       NavigateToScreen(actionArray[1], InputDeviceModel.CONFIGURATION_STATE_ID);
+                      keyHandled = true;
                     }
                   }
                 }
               }
             }
           }
+
+          //Check if default handling is available for unhandled single key presses from non-keyboard devices
+          if (!keyHandled && _pressedKeys.Count == 1 && hidEvent.IsGeneric && buttonUp)
+          {
+            ServiceRegistration.Get<ILogger>().Debug("InputDeviceManager: Checking for unmapped handling of button: " + _pressedKeys.First().Key);
+            var key = ConvertToKeyboardKey(_pressedKeys.Values.First(), hidEvent);
+            if (key != null)
+              ServiceRegistration.Get<IInputManager>().KeyPress(key);
+          }
+
+          if (buttonUp)
+            _pressedKeys.TryRemove(name, out _);
         }
         else
         {
@@ -477,9 +749,6 @@ namespace MediaPortal.Plugins.InputDeviceManager
           }
           _currentMessageHandled = true;
         }
-
-        if (buttonUp)
-          _pressedKeys.TryRemove(name, out _);
       }
       catch (Exception ex)
       {
@@ -508,162 +777,31 @@ namespace MediaPortal.Plugins.InputDeviceManager
       return false;
     }
 
-    private static void StartThread()
+    /// <summary>
+    /// Reset timer so key presses will be reset after timeout in case focus is lost and key up events are never received
+    /// </summary>
+    private static void RestartKeyPressedTimer()
     {
-      while (_screenControl == null)
-      {
-        try
-        {
-          if (ServiceRegistration.IsRegistered<IScreenControl>())
-          {
-            _screenControl = ServiceRegistration.Get<IScreenControl>();
+      _pressedKeyTimer.Stop();
+      _pressedKeyTimer.Start();
+    }
 
-            SharpLib.Win32.RawInputDeviceFlags flags = CAPTURE_ONLY_IN_FOREGROUND ? 0 : SharpLib.Win32.RawInputDeviceFlags.RIDEV_INPUTSINK;
-            //SharpLib.Win32.RawInputDeviceFlags flags = SharpLib.Win32.RawInputDeviceFlags.RIDEV_EXINPUTSINK;
-            //SharpLib.Win32.RawInputDeviceFlags flags = SharpLib.Win32.RawInputDeviceFlags.RIDEV_INPUTSINK;
+    #endregion
 
-            List<RAWINPUTDEVICE> devices = new List<RAWINPUTDEVICE>();
+    #region Settings
 
-            devices.Add(new RAWINPUTDEVICE
-            {
-              usUsagePage = (ushort)SharpLib.Hid.UsagePage.WindowsMediaCenterRemoteControl,
-              usUsage = (ushort)SharpLib.Hid.UsageCollection.WindowsMediaCenter.WindowsMediaCenterRemoteControl,
-              dwFlags = flags,
-              hwndTarget = _screenControl.MainWindowHandle
-            });
-            devices.Add(new RAWINPUTDEVICE
-            {
-              usUsagePage = (ushort)SharpLib.Hid.UsagePage.WindowsMediaCenterRemoteControl,
-              usUsage = (ushort)SharpLib.Hid.UsageCollection.WindowsMediaCenter.WindowsMediaCenterLowLevel,
-              dwFlags = flags,
-              hwndTarget = _screenControl.MainWindowHandle
-            });
+    private ICollection<RemoteKeyCode> LoadRemoteMap(string remoteFile)
+    {
+      XmlSerializer reader = new XmlSerializer(typeof(List<RemoteKeyCode>));
+      using (StreamReader file = new StreamReader(remoteFile))
+        return (ICollection<RemoteKeyCode>)reader.Deserialize(file);
+    }
 
-            devices.Add(new RAWINPUTDEVICE
-            {
-              usUsagePage = (ushort)SharpLib.Hid.UsagePage.Consumer,
-              usUsage = (ushort)SharpLib.Hid.UsageCollection.Consumer.ConsumerControl,
-              dwFlags = flags,
-              hwndTarget = _screenControl.MainWindowHandle
-            });
-            devices.Add(new RAWINPUTDEVICE
-            {
-              usUsagePage = (ushort)SharpLib.Hid.UsagePage.Consumer,
-              usUsage = (ushort)SharpLib.Hid.UsageCollection.Consumer.ApplicationLaunchButtons,
-              dwFlags = flags,
-              hwndTarget = _screenControl.MainWindowHandle
-            });
-            devices.Add(new RAWINPUTDEVICE
-            {
-              usUsagePage = (ushort)SharpLib.Hid.UsagePage.Consumer,
-              usUsage = (ushort)SharpLib.Hid.UsageCollection.Consumer.FunctionButtons,
-              dwFlags = flags,
-              hwndTarget = _screenControl.MainWindowHandle
-            });
-            devices.Add(new RAWINPUTDEVICE
-            {
-              usUsagePage = (ushort)SharpLib.Hid.UsagePage.Consumer,
-              usUsage = (ushort)SharpLib.Hid.UsageCollection.Consumer.GenericGuiApplicationControls,
-              dwFlags = flags,
-              hwndTarget = _screenControl.MainWindowHandle
-            });
-            devices.Add(new RAWINPUTDEVICE
-            {
-              usUsagePage = (ushort)SharpLib.Hid.UsagePage.Consumer,
-              usUsage = (ushort)SharpLib.Hid.UsageCollection.Consumer.MediaSelection,
-              dwFlags = flags,
-              hwndTarget = _screenControl.MainWindowHandle
-            });
-            devices.Add(new RAWINPUTDEVICE
-            {
-              usUsagePage = (ushort)SharpLib.Hid.UsagePage.Consumer,
-              usUsage = (ushort)SharpLib.Hid.UsageCollection.Consumer.NumericKeyPad,
-              dwFlags = flags,
-              hwndTarget = _screenControl.MainWindowHandle
-            });
-            devices.Add(new RAWINPUTDEVICE
-            {
-              usUsagePage = (ushort)SharpLib.Hid.UsagePage.Consumer,
-              usUsage = (ushort)SharpLib.Hid.UsageCollection.Consumer.PlaybackSpeed,
-              dwFlags = flags,
-              hwndTarget = _screenControl.MainWindowHandle
-            });
-            devices.Add(new RAWINPUTDEVICE
-            {
-              usUsagePage = (ushort)SharpLib.Hid.UsagePage.Consumer,
-              usUsage = (ushort)SharpLib.Hid.UsageCollection.Consumer.ProgrammableButtons,
-              dwFlags = flags,
-              hwndTarget = _screenControl.MainWindowHandle
-            });
-            devices.Add(new RAWINPUTDEVICE
-            {
-              usUsagePage = (ushort)SharpLib.Hid.UsagePage.Consumer,
-              usUsage = (ushort)SharpLib.Hid.UsageCollection.Consumer.SelectDisc,
-              dwFlags = flags,
-              hwndTarget = _screenControl.MainWindowHandle
-            });
-            devices.Add(new RAWINPUTDEVICE
-            {
-              usUsagePage = (ushort)SharpLib.Hid.UsagePage.Consumer,
-              usUsage = (ushort)SharpLib.Hid.UsageCollection.Consumer.Selection,
-              dwFlags = flags,
-              hwndTarget = _screenControl.MainWindowHandle
-            });
-
-            devices.Add(new RAWINPUTDEVICE
-            {
-              usUsagePage = (ushort)SharpLib.Hid.UsagePage.GenericDesktopControls,
-              usUsage = (ushort)SharpLib.Hid.UsageCollection.GenericDesktop.SystemControl,
-              dwFlags = flags,
-              hwndTarget = _screenControl.MainWindowHandle
-            });
-            devices.Add(new RAWINPUTDEVICE
-            {
-              usUsagePage = (ushort)SharpLib.Hid.UsagePage.GenericDesktopControls,
-              usUsage = (ushort)SharpLib.Hid.UsageCollection.GenericDesktop.GamePad,
-              dwFlags = flags,
-              hwndTarget = _screenControl.MainWindowHandle
-            });
-            devices.Add(new RAWINPUTDEVICE
-            {
-              usUsagePage = (ushort)SharpLib.Hid.UsagePage.GenericDesktopControls,
-              usUsage = (ushort)SharpLib.Hid.UsageCollection.GenericDesktop.Joystick,
-              dwFlags = flags,
-              hwndTarget = _screenControl.MainWindowHandle
-            });
-            devices.Add(new RAWINPUTDEVICE
-            {
-              usUsagePage = (ushort)SharpLib.Hid.UsagePage.GenericDesktopControls,
-              usUsage = (ushort)SharpLib.Hid.UsageCollection.GenericDesktop.Keyboard,
-              dwFlags = flags,
-              hwndTarget = _screenControl.MainWindowHandle
-            });
-            devices.Add(new RAWINPUTDEVICE
-            {
-              usUsagePage = (ushort)SharpLib.Hid.UsagePage.GenericDesktopControls,
-              usUsage = (ushort)SharpLib.Hid.UsageCollection.GenericDesktop.KeyPad,
-              dwFlags = flags,
-              hwndTarget = _screenControl.MainWindowHandle
-            });
-            devices.Add(new RAWINPUTDEVICE
-            {
-              usUsagePage = (ushort)SharpLib.Hid.UsagePage.GenericDesktopControls,
-              usUsage = (ushort)SharpLib.Hid.UsageCollection.GenericDesktop.Mouse,
-              dwFlags = flags,
-              hwndTarget = _screenControl.MainWindowHandle
-            });
-
-            _hidHandler = new SharpLib.Hid.Handler(devices.ToArray(), true, -1, -1);
-            _hidHandler.OnHidEvent += new Handler.HidEventHandler(OnHidEvent);
-          }
-        }
-        catch (Exception ex)
-        {
-          // ignored
-          ServiceRegistration.Get<ILogger>().Error("InputDeviceManager: Failure to register HID handler", ex);
-        }
-        Thread.Sleep(500);
-      }
+    private void LoadDefaulRemoteMap(PluginRuntime pluginRuntime)
+    {
+      var keyCodes = LoadRemoteMap(pluginRuntime.Metadata.GetAbsolutePath("DefaultRemoteMap.xml"));
+      foreach (RemoteKeyCode mkc in keyCodes)
+        _defaultRemoteKeyCodes.TryAdd(mkc.Code, mkc.Key);
     }
 
     private void LoadSettings()
@@ -685,13 +823,17 @@ namespace MediaPortal.Plugins.InputDeviceManager
         try
         {
           foreach (InputDevice device in settings.InputDevices)
-            _inputDevices.Add(device.Type, device);
+            _inputDevices.TryAdd(device.Type, device);
         }
         catch
         {
           // ignored
         }
     }
+
+    #endregion
+
+    #region External event handling
 
     public bool RegisterExternalKeyHandling(Action<object, SharpLib.Hid.Event> hidEvent)
     {
@@ -727,6 +869,8 @@ namespace MediaPortal.Plugins.InputDeviceManager
       }
     }
 
+    #endregion
+
     #region Implementation of IPluginStateTracker
 
     /// <summary>
@@ -737,6 +881,7 @@ namespace MediaPortal.Plugins.InputDeviceManager
     public void Activated(PluginRuntime pluginRuntime)
     {
       LoadSettings();
+      LoadDefaulRemoteMap(pluginRuntime);
       SubscribeToMessages();
       var thread = new Thread(StartThread);
       thread.Start();
