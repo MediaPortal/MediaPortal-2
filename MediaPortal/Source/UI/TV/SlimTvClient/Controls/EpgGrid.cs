@@ -775,6 +775,10 @@ namespace MediaPortal.Plugins.SlimTv.Client.Controls
         e.Handled = true;
       else if (e.Key == Key.PageUp && OnPageUp())
         e.Handled = true;
+      else if (e.Key == Key.ChannelDown && OnPageDown())
+        e.Handled = true;
+      else if (e.Key == Key.ChannelUp && OnPageUp())
+        e.Handled = true;
     }
 
     protected override void OnMouseWheel(MouseWheelEventArgs e)
