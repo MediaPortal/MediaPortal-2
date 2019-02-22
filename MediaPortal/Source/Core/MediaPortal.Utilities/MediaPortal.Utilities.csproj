@@ -77,6 +77,7 @@
     <Compile Include="Network\Netbios\NbNsResourceRecordBase.cs" />
     <Compile Include="Network\Netbios\NbNsStatistics.cs" />
     <Compile Include="Network\Netbios\NbPacketSegmentBase.cs" />
+    <Compile Include="OrdinalStringComparer.cs" />
     <Compile Include="Process\Ipc.cs" />
     <Compile Include="Process\IpcClient.cs" />
     <Compile Include="Process\IpcServer.cs" />

@@ -23,6 +23,8 @@
 #endregion
 
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using MediaPortal.Common.ResourceAccess;
 
 namespace MediaPortal.UI.Presentation.Utilities
@@ -35,6 +37,13 @@ namespace MediaPortal.UI.Presentation.Utilities
   public delegate bool ValidatePathDlgt(ResourcePath path);
 
   /// <summary>
+  /// Validates a file name to see if it should be included (for implementing file filters).
+  /// </summary>
+  /// <param name="path">File to check.</param>
+  /// <returns><c>true</c>, if the file is to be included in the dialog, else <c>false</c>.</returns>
+  public delegate bool ValidateFileDlgt(ResourcePath path);
+
+  /// <summary>
   /// Generic path browser API.
   /// </summary>
   /// <remarks>
@@ -45,5 +54,35 @@ namespace MediaPortal.UI.Presentation.Utilities
   {
     Guid ShowPathBrowser(string headerText, bool enumerateFiles, bool showSystemResources, ValidatePathDlgt validatePathDlgt);
     Guid ShowPathBrowser(string headerText, bool enumerateFiles, bool showSystemResources, ResourcePath initialPath, ValidatePathDlgt validatePathDlgt);
+    Guid ShowPathBrowser(string headerText, bool enumerateFiles, bool showSystemResources, ResourcePath initialPath, ValidatePathDlgt validatePathDlgt, ValidateFileDlgt validateFileDlgt);
+  }
+
+  /// <summary>
+  /// Class to provide a file name filter that only accepts certain extensions (case insensitive)
+  /// </summary>
+  public class FileExtensionFilter {
+    IEnumerable<string> _permittedExtensions;
+
+    /// <summary>
+    /// Call with one parameter per permitted extension.
+    /// NB The extension should contain the leading dot (.) - e.g. ".png"
+    /// </summary>
+    public FileExtensionFilter(params string[] extensions) {
+      _permittedExtensions = extensions;
+    }
+    /// <summary>
+    /// Call with enumerable (List/Array/etc.) of permitted extensions.
+    /// NB The extension should contain the leading dot (.) - e.g. ".png"
+    /// </summary>
+    /// <param name="extensions"></param>
+    public FileExtensionFilter(IEnumerable<string> permittedExtensions) {
+      _permittedExtensions = permittedExtensions;
+    }
+    /// <summary>
+    /// The ValidateFile method matches ValidateFileDlgt
+    /// </summary>
+    public bool ValidateFile(ResourcePath path) {
+      return _permittedExtensions.Any(e => path.FileName.ToLower().EndsWith(e.ToLower()));
+    }
   }
 }
