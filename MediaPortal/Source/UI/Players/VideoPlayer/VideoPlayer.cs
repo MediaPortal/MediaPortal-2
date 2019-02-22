@@ -88,7 +88,7 @@ namespace MediaPortal.UI.Players.Video
     protected IntPtr _presenterInstance;
 
     // The default name for "No subtitles available" or "Subtitles disabled".
-    protected internal const string NO_SUBTITLES = "No subtitles";
+    private const string NO_SUBTITLES = "[Playback.Players.No.Subtitles]";
     protected const string FORCED_SUBTITLES = "forced subtitles";
 
     public const string RES_PLAYBACK_CHAPTER = "[Playback.Chapter]";
@@ -892,7 +892,7 @@ namespace MediaPortal.UI.Players.Video
         }
         else
         {
-          StreamInfo noSubtitleStream = subtitleStreams.FindSimilarStream(NO_SUBTITLES);
+          StreamInfo noSubtitleStream = subtitleStreams.FindSimilarStream(GetNoSubsName());
           if (noSubtitleStream != null)
             subtitleStreams.EnableStream(noSubtitleStream.Name);
         }
@@ -918,7 +918,7 @@ namespace MediaPortal.UI.Players.Video
 
         // Check if there are real subtitle streams available. If not, the splitter only offers "No subtitles".
         string[] subtitleStreamNames = subtitleStreams.GetStreamNames();
-        return subtitleStreamNames.Length == 1 && subtitleStreamNames[0] == NO_SUBTITLES
+        return subtitleStreamNames.Length == 1 && subtitleStreamNames[0] == GetNoSubsName()
                  ? EMPTY_STRING_ARRAY
                  : subtitleStreamNames;
       }
@@ -959,7 +959,7 @@ namespace MediaPortal.UI.Players.Video
         settings.PreferredSubtitleLanguage = lcid;
 
       // if selected stream is "No subtitles" or "forced subtitle", we disable the setting
-      settings.EnableMpcSubtitlesEngine = subtitleStreams.CurrentStreamName.ToLowerInvariant().Contains(NO_SUBTITLES.ToLowerInvariant()) == false &&
+      settings.EnableMpcSubtitlesEngine = subtitleStreams.CurrentStreamName.ToLowerInvariant().Contains(GetNoSubsName().ToLowerInvariant()) == false &&
         subtitleStreams.CurrentStreamName.ToLowerInvariant().Contains(FORCED_SUBTITLES.ToLowerInvariant()) == false;
       ServiceRegistration.Get<ISettingsManager>().Save(settings);
 
@@ -1112,6 +1112,11 @@ namespace MediaPortal.UI.Players.Video
     {
       // Idea: we could scrape chapter names and store them in MediaAspects. When they are available, return the full names here.
       return ServiceRegistration.Get<ILocalization>().ToString(RES_PLAYBACK_CHAPTER, chapterNumber);
+    }
+
+    public static string GetNoSubsName()
+    {
+      return ServiceRegistration.Get<ILocalization>().ToString(NO_SUBTITLES);
     }
 
     #endregion

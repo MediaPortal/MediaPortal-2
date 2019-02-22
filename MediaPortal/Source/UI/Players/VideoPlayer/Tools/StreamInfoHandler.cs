@@ -28,6 +28,7 @@ using System.Collections.Generic;
 using System.Linq;
 using DirectShow;
 using MediaPortal.Common;
+using MediaPortal.Common.Localization;
 using MediaPortal.Common.Logging;
 using MediaPortal.UI.Players.Video.Interfaces;
 using MediaPortal.UI.Players.Video.Subtitles;
@@ -51,7 +52,7 @@ namespace MediaPortal.UI.Players.Video.Tools
       subtitleStream.GetSubtitleStreamCount(ref subtitleStreamCount);
       if (subtitleStreamCount > 0)
       {
-        StreamInfo subStream = new StreamInfo(null, NO_STREAM_INDEX, VideoPlayer.NO_SUBTITLES, 0);
+        StreamInfo subStream = new StreamInfo(null, NO_STREAM_INDEX, VideoPlayer.GetNoSubsName(), 0);
         AddUnique(subStream);
       }
       for (int i = 0; i < subtitleStreamCount; ++i)
@@ -119,7 +120,7 @@ namespace MediaPortal.UI.Players.Video.Tools
       teletextSource.GetTeletextStreamCount(ref teletextStreamCount);
       if (teletextStreamCount > 0)
       {
-        StreamInfo subStream = new StreamInfo(null, NO_STREAM_INDEX, VideoPlayer.NO_SUBTITLES, 0);
+        StreamInfo subStream = new StreamInfo(null, NO_STREAM_INDEX, VideoPlayer.GetNoSubsName(), 0);
         AddUnique(subStream);
       }
       for (int i = 0; i < teletextStreamCount; ++i)
@@ -183,7 +184,7 @@ namespace MediaPortal.UI.Players.Video.Tools
         StreamInfo subStream = new StreamInfo(null, i, subtitleTrackName, lcid);
         AddUnique(subStream);
       }
-      AddUnique(new StreamInfo(null, subtitleCount + 1, VideoPlayer.NO_SUBTITLES, 0));
+      AddUnique(new StreamInfo(null, subtitleCount + 1, VideoPlayer.GetNoSubsName(), 0));
     }
 
     public override bool EnableStream(string selectedStream)

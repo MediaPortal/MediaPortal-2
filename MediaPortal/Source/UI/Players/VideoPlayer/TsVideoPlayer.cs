@@ -29,6 +29,7 @@ using System.Runtime.InteropServices;
 using DirectShow;
 using DirectShow.Helper;
 using MediaPortal.Common;
+using MediaPortal.Common.Localization;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
@@ -389,13 +390,13 @@ namespace MediaPortal.UI.Players.Video
       if (subtitleStreams is TsReaderStreamInfoHandler)
       {
         // if selected stream is "No subtitles" or "forced subtitle", we disable the setting
-        settings.EnableDvbSubtitles = subtitleStreams.CurrentStreamName.ToLowerInvariant().Contains(NO_SUBTITLES.ToLowerInvariant()) == false &&
+        settings.EnableDvbSubtitles = subtitleStreams.CurrentStreamName.ToLowerInvariant().Contains(GetNoSubsName().ToLowerInvariant()) == false &&
                                       subtitleStreams.CurrentStreamName.ToLowerInvariant().Contains(FORCED_SUBTITLES.ToLowerInvariant()) == false;
       }
       else if(subtitleStreams is TsReaderTeletextInfoHandler)
       {
         // if selected stream is "No subtitles" or "forced subtitle", we disable the setting
-        settings.EnableTeletextSubtitles = subtitleStreams.CurrentStreamName.ToLowerInvariant().Contains(NO_SUBTITLES.ToLowerInvariant()) == false &&
+        settings.EnableTeletextSubtitles = subtitleStreams.CurrentStreamName.ToLowerInvariant().Contains(GetNoSubsName().ToLowerInvariant()) == false &&
                                       subtitleStreams.CurrentStreamName.ToLowerInvariant().Contains(FORCED_SUBTITLES.ToLowerInvariant()) == false;
       }
       ServiceRegistration.Get<ISettingsManager>().Save(settings);

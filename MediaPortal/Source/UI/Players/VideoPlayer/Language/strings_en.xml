@@ -51,4 +51,5 @@
 
   <string name="Playback.Chapter">Chapter {0}</string> <!-- For example: "Chapter 1" -->
   <string name="Playback.Title">Title {0}</string> <!-- For example: "Title 1" -->
+  <string name="Playback.Players.No.Subtitles">No subtitles</string>
 </resources>
