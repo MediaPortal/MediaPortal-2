@@ -2095,7 +2095,7 @@
       <Setter.Value>
         <ControlTemplate TargetType="{x:Type ContentPresenter}">
           <StackPanel Context="{StaticResource NotificationsModel}" IsVisible="{Binding IsNotificationsHintVisible}" Orientation="Horizontal">
-            <Button Command="{Command GoToNotification}">
+            <Button Command="{Command GoToNotification}" Style="{StaticResource MenuButtonWideStyle}">
               <Grid> <!-- Outer grid is needed because of DataContext used by Button -->
                 <Grid Context="{StaticResource NotificationsModel}"> <!-- Need to repeat the context here because the Button (ContentControl) sets the DataContext on the Content element -->
                   <Image Source="{Binding NotificationSymbolRelFilePath}" Width="48" Stretch="Uniform"/>
