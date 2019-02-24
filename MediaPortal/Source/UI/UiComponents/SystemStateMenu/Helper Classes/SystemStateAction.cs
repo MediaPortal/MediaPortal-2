@@ -33,6 +33,7 @@ namespace MediaPortal.Plugins.SystemStateMenu
     Restart,
     Logoff,
     MinimizeMP,
-    CloseMP
+    CloseMP,
+    RestartMP
   }
 }
