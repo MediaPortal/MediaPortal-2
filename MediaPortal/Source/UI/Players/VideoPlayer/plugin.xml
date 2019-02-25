@@ -156,15 +156,10 @@
         HelpText="[Settings.Players.VideoPlayer.PreferMultiChannelAudio.Help]"
         ClassName="MediaPortal.UI.Players.Video.Settings.Configuration.AudioPreferMultiChannel"/>
     <ConfigSetting
-        Id="EnableClosedCaptions"
-        Text="[Settings.Players.DVDPlayer.EnableClosedCaption]"
-        HelpText="[Settings.Players.DVDPlayer.EnableClosedCaption.Help]"
-        ClassName="MediaPortal.UI.Players.Video.Settings.Configuration.ClosedCaptions"/>
-    <ConfigSetting
-        Id="EnableSubtitles"
-        Text="[Settings.Players.DVDPlayer.EnableSubtitles]"
-        HelpText="[Settings.Players.DVDPlayer.EnableSubtitles.Help]"
-        ClassName="MediaPortal.UI.Players.Video.Settings.Configuration.Subtitles"/>
+      Id="Subtitles"
+      Text="[Settings.Players.Subtitles]"
+      HelpText="[Settings.Players.Subtitles.Help]"
+      ClassName="MediaPortal.UI.Players.Video.Settings.Configuration.Subtitles"/>
   </Register>
 
 </Plugin>

@@ -270,6 +270,10 @@ Parameters which have to be accessible by a DynamicResource lookup:
       
     </Grid>
 
+    <StackPanel Grid.Row="0" Grid.RowSpan="2" HorizontalAlignment="Right" VerticalAlignment="Top" Orientation="Horizontal">
+      <Control x:Name="NotificationControl" Margin="0,0,155,0" Height="45" Style="{ThemeResource NotificationControlStyle}" />
+    </StackPanel>
+
     <!-- Mouse control buttons -->
     <Grid x:Name="MouseButtonsPanel" Grid.Column="0" Grid.Row="0" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,-5,0,0">
       <StackPanel Orientation="Horizontal">

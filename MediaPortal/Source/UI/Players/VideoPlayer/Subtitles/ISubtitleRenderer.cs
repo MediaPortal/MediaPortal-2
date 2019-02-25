@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2018 Team MediaPortal
+﻿#region Copyright (C) 2007-2019 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2018 Team MediaPortal
+    Copyright (C) 2007-2019 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -22,18 +22,31 @@
 
 #endregion
 
-namespace MediaPortal.Plugins.SystemStateMenu
+using DirectShow;
+using MediaPortal.UI.Players.Video.Teletext;
+using MediaPortal.UI.Presentation.Players;
+using SharpDX.Direct3D9;
+
+namespace MediaPortal.UI.Players.Video.Subtitles
 {
-  public enum SystemStateAction
+  public interface ISubtitleRenderer
   {
-    Shutdown,
-    Suspend,
-    Hibernate,
-    SleepTimer,
-    Restart,
-    Logoff,
-    MinimizeMP,
-    CloseMP,
-    RestartMP
+    bool RenderSubtitles { get; set; }
+
+    void SetPlayer(IMediaPlaybackControl p);
+
+    void OnTextSubtitle(ref TextSubtitle sub);
+
+    IBaseFilter AddDvbSubtitleFilter(IGraphBuilder graphBuilder);
+
+    IBaseFilter AddClosedCaptionsFilter(IGraphBuilder graphBuilder);
+
+    void AddTeletextSubtitleDecoder(ITeletextSource teletextSource);
+
+    void DrawOverlay(Texture targetTexture);
+
+    int OnSeek(double startPos);
+
+    int Reset();
   }
 }
