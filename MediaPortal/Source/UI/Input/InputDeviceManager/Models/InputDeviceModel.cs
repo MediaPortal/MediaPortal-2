@@ -81,7 +81,6 @@ namespace MediaPortal.Plugins.InputDeviceManager.Models
 
     private static (string Type, string Name) _currentInputDevice;
     private static bool _inWorkflowAddKey = false;
-    private static ConcurrentDictionary<string, long> _pressedKeys = new ConcurrentDictionary<string, long>();
     private static Dictionary<string, long> _pressedAddKeyCombo = new Dictionary<string, long>();
     private static int _maxPressedKeys = 0;
     private static readonly Timer _keyInputTimer = new Timer(100);
@@ -91,7 +90,7 @@ namespace MediaPortal.Plugins.InputDeviceManager.Models
     private string _chosenAction = null;
 
     #region Properties
-  
+
     public string AddKeyLabel
     {
       get { return (string)_addKeyLabelProperty.GetValue(); }
@@ -259,6 +258,8 @@ namespace MediaPortal.Plugins.InputDeviceManager.Models
 
     private void ResetCompleteModel(bool removeOnKeyPressed = true)
     {
+      ServiceRegistration.Get<ILogger>().Debug("InputDeviceManager: Reset model");
+
       ResetAddKey();
 
       // Reset screens
@@ -336,41 +337,31 @@ namespace MediaPortal.Plugins.InputDeviceManager.Models
 
     #region Key input handling
 
-    private void OnKeyPressed(object sender, SharpLib.Hid.Event hidEvent)
+    private void OnKeyPressed(object sender, SharpLib.Hid.Event hidEvent, string device, IDictionary<string, long> pressedKeys)
     {
       try
       {
-        if (!InputDeviceManager.TryDecodeEvent(hidEvent, out string device, out string name, out long code, out bool buttonUp, out bool buttonDown))
-          return;
-
-        if (ShowKeyMapping || _inWorkflowAddKey)
+        if (_inWorkflowAddKey)
         {
-          if (_inWorkflowAddKey && _currentInputDevice.Type == device)
+          //Add key screen
+          if (_currentInputDevice.Type == device)
           {
-            if (buttonDown)
-              _pressedKeys.TryAdd(name, code);
-            else if (buttonUp)
-              _pressedKeys.TryRemove(name, out _);
-
-            if (_pressedKeys.Count > _maxPressedKeys)
+            if (pressedKeys.Count > _maxPressedKeys)
             {
-              _pressedAddKeyCombo = _pressedKeys.ToDictionary(pair => pair.Key, pair => pair.Value);
+              _pressedAddKeyCombo = pressedKeys.ToDictionary(pair => pair.Key, pair => pair.Value);
               ServiceRegistration.Get<ILogger>().Debug("InputDeviceManager: Currently mapped keys: " + string.Join(", ", _pressedAddKeyCombo.Select(k => k.Key)));
               ServiceRegistration.Get<ILogger>().Debug("InputDeviceManager: Currently mapped codes: " + string.Join(", ", _pressedAddKeyCombo.Select(k => k.Value)));
-              _maxPressedKeys = _pressedKeys.Count;
+              _maxPressedKeys = pressedKeys.Count;
               _endTime = DateTime.Now.AddSeconds(5);
               if (!_keyInputTimer.Enabled)
                 _keyInputTimer.Start();
             }
             AddKeyLabel = String.Join(" + ", string.Join(" + ", _pressedAddKeyCombo.Select(kv => kv.Key.ToString())));
-
-            //Remove key if was both a down and up event
-            if (buttonUp)
-              _pressedKeys.TryRemove(name, out _);
           }
         }
-        else
+        else if (!ShowKeyMapping)
         {
+          //Device selection screen
           _currentInputDevice = (device, hidEvent.Device?.FriendlyName ?? "?");
           SelectedInputName = hidEvent.Device?.FriendlyName ?? "?";
           UpdateKeymapping();
@@ -566,7 +557,6 @@ namespace MediaPortal.Plugins.InputDeviceManager.Models
     {
       _keyInputTimer.Stop();
       _maxPressedKeys = 0;
-      _pressedKeys.Clear();
       _pressedAddKeyCombo.Clear();
       AddKeyLabel = "";
       AddKeyCountdownLabel = "5";

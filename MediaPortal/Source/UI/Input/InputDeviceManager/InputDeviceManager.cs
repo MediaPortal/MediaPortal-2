@@ -49,6 +49,7 @@ namespace MediaPortal.Plugins.InputDeviceManager
   public class InputDeviceManager : IPluginStateTracker
   {
     private const bool CAPTURE_ONLY_IN_FOREGROUND = true;
+    private const bool SUPPORT_REPEATS = true;
     private const int WM_KEYDOWN = 0x100;
     private const int WM_KEYUP = 0x101;
     private const int WM_SYSKEYDOWN = 0x0104;
@@ -58,15 +59,16 @@ namespace MediaPortal.Plugins.InputDeviceManager
     private static IScreenControl _screenControl;
     private static readonly ConcurrentDictionary<string, long> _pressedKeys = new ConcurrentDictionary<string, long>();
     private static SharpLib.Hid.Handler _hidHandler;
-    private delegate void OnHidEventDelegate(object sender, SharpLib.Hid.Event hidEvent);
-    private static List<Action<object, SharpLib.Hid.Event>> _externalKeyPressHandlers = new List<Action<object, SharpLib.Hid.Event>>();
+    private static List<Action<object, SharpLib.Hid.Event, string, IDictionary<string, long>>> _externalKeyPressHandlers = new List<Action<object, SharpLib.Hid.Event, string, IDictionary<string, long>>>();
     private static object _listSyncObject = new object();
     private static Message _currentMessage;
     private static bool _currentMessageHandled;
     private static ConcurrentDictionary<long, (string Name, long Code)> _genericKeyDownEvents = new ConcurrentDictionary<long, (string Name, long Code)>();
     private static readonly ConcurrentDictionary<string, long> _pressedPreviewKeys = new ConcurrentDictionary<string, long>();
     private static System.Timers.Timer _pressedKeyTimer = new System.Timers.Timer(2000);
-    private static ConcurrentDictionary<long, Key> _defaultRemoteKeyCodes = new ConcurrentDictionary<long, Key>();
+    private static Dictionary<UsagePage, Dictionary<long, Key>> _defaultRemoteKeyCodes = new Dictionary<UsagePage, Dictionary<long, Key>>();
+    private static Dictionary<UsagePage, Dictionary<long, string>> _defaultRemoteScreenCodes = new Dictionary<UsagePage, Dictionary<long, string>>();
+    private static readonly Key[] _navigationKeys = new[] { Key.Ok, Key.Escape, Key.Left, Key.Right, Key.Up, Key.Down };
 
     private SynchronousMessageQueue _messageQueue;
 
@@ -404,7 +406,7 @@ namespace MediaPortal.Plugins.InputDeviceManager
 
     #region HID event handling
 
-    public static bool TryDecodeEvent(SharpLib.Hid.Event hidEvent, out string device, out string name, out long code, out bool buttonUp, out bool buttonDown)
+    private static bool TryDecodeEvent(SharpLib.Hid.Event hidEvent, out string device, out string name, out long code, out bool buttonUp, out bool buttonDown)
     {
       device = "";
       name = "";
@@ -490,23 +492,42 @@ namespace MediaPortal.Plugins.InputDeviceManager
         device = deviceId.ToString("X");
         long usageCategoryId = (hidEvent.UsagePage << 16) | hidEvent.UsageCollection;
 
-        //Genric events with no usages are button up
-        if (!hidEvent.Usages.Any())
+        //Generic events with no usages are button up
+        if (!hidEvent.Usages.Any() || buttonUp)
         {
           buttonUp = true;
-          
+
           //Usage was saved from button down because its usage cannot be determined here
           if (!_genericKeyDownEvents.TryRemove(usageCategoryId, out var button))
           {
-            //Some devices send duplicate button up events so ignore
-            LogEvent("Unknown key", hidEvent);
-            return false;
+            bool handled = false;
+            if (hidEvent.Device?.IsGamePad == true)
+            {
+              //Button down never happened so presume this is it if possible
+              //because sometimes button down events are triggered as button up events
+              var state = hidEvent.GetDirectionPadState();
+              if (state != DirectionPadState.Rest)
+              {
+                name = $"Pad{state.ToString()}";
+                code = -(long)state;
+                buttonDown = true;
+                handled = true;
+              }
+            }
+            if (!handled)
+            {
+              //Some devices send duplicate button up events so ignore
+              LogEvent("Unknown key", hidEvent);
+              return false;
+            }
           }
-
-          name = button.Name;
-          code = button.Code;
+          else
+          {
+            name = button.Name;
+            code = button.Code;
+          }
         }
-        else //Genric events with usages are button down
+        else //Generic events with usages are button down
         {
           buttonDown = true;
 
@@ -606,7 +627,9 @@ namespace MediaPortal.Plugins.InputDeviceManager
               code = id;
             }
           }
-
+        }
+        if (buttonDown)
+        {
           //Save so it can be used for button up
           _genericKeyDownEvents.TryAdd(usageCategoryId, (name, code));
         }
@@ -643,74 +666,121 @@ namespace MediaPortal.Plugins.InputDeviceManager
       return key;
     }
 
-    private static Key ConvertToKeyboardKey(long code, SharpLib.Hid.Event hidEvent)
+    private static bool TryExecuteDefaultAction(long code, SharpLib.Hid.Event hidEvent)
     {
-      if (hidEvent.UsagePageEnum == UsagePage.WindowsMediaCenterRemoteControl)
+      if (_defaultRemoteKeyCodes.TryGetValue(hidEvent.UsagePageEnum, out var keyDic) && keyDic.TryGetValue(code, out Key key))
       {
-        if (_defaultRemoteKeyCodes.TryGetValue(code, out Key key))
+        ServiceRegistration.Get<ILogger>().Debug("InputDeviceManager: Executing default key {0} action: {1}", code, key);
+        if (key != null && key != Key.None && (_navigationKeys.Any(k => k == key) || _externalKeyPressHandlers.Count == 0)) //Only allow navigation key during external handling
         {
-          ServiceRegistration.Get<ILogger>().Debug("InputDeviceManager: Mapped remote button {0} to {1}", code, key);
-          return key;
+          ServiceRegistration.Get<IInputManager>().KeyPress(key);
+          return true;
         }
       }
-      return null;
+      if (_defaultRemoteScreenCodes.TryGetValue(hidEvent.UsagePageEnum, out var screenDic) && screenDic.TryGetValue(code, out string screen))
+      {
+        if (screen.StartsWith(InputDeviceModel.HOME_PREFIX, StringComparison.InvariantCultureIgnoreCase))
+        {
+          var homeScreen = screen.Replace(InputDeviceModel.HOME_PREFIX, "");
+          ServiceRegistration.Get<ILogger>().Debug("InputDeviceManager: Executing default home action: " + homeScreen);
+          NavigateToScreen(homeScreen);
+          return true;
+        }
+        else if (screen.StartsWith(InputDeviceModel.CONFIG_PREFIX, StringComparison.InvariantCultureIgnoreCase))
+        {
+          var configScreen = screen.Replace(InputDeviceModel.CONFIG_PREFIX, "");
+          ServiceRegistration.Get<ILogger>().Debug("InputDeviceManager: Executing defauly config action: " + configScreen);
+          NavigateToScreen(configScreen, InputDeviceModel.CONFIGURATION_STATE_ID);
+          return true;
+        }
+      }
+      return false;
+    }
+
+    private static bool IsModifierKey(long code)
+    {
+      return code == (long)Keys.ControlKey || code == (long)Keys.Menu || code == (long)Keys.ShiftKey || code == (long)Keys.RWin || code == (long)Keys.LWin;
+    }
+
+    /// <summary>
+    /// Reset timer so key presses will be reset after timeout in case focus is lost and key up events are never received
+    /// </summary>
+    private static void RestartKeyPressedTimer()
+    {
+      _pressedKeyTimer.Stop();
+      _pressedKeyTimer.Start();
+    }
+
+    private static void AddPressedKey(string name, long code)
+    {
+      if (_pressedKeys.Values.Any(c => !IsModifierKey(c)) && !IsModifierKey(code))
+        ServiceRegistration.Get<ILogger>().Debug("InputDeviceManager: Invalid key {0} in combination with {1}", name, string.Join(", ", _pressedKeys.Keys));
+      else
+        _pressedKeys.TryAdd(name, code);
+
+      RestartKeyPressedTimer();
+    }
+
+    private static void RemovePressedKey(string name)
+    {
+      _pressedKeys.TryRemove(name, out _);
     }
 
     private static void OnHidEvent(object sender, SharpLib.Hid.Event hidEvent)
     {
       try
       {
-        if (!hidEvent.IsValid)
-          return;
         if (CAPTURE_ONLY_IN_FOREGROUND && hidEvent.IsBackground)
           return;
 
-        if (hidEvent.IsRepeat)
-          ServiceRegistration.Get<ILogger>().Debug("InputDeviceManager: HID Event Repeat {0}", hidEvent.RepeatCount);
-
-        if (_externalKeyPressHandlers.Count == 0)
+        if (!hidEvent.IsValid)
         {
-          if (!TryDecodeEvent(hidEvent, out string type, out string name, out long code, out bool buttonUp, out bool buttonDown))
-            return;
+          ServiceRegistration.Get<ILogger>().Debug("InputDeviceManager: HID Event Invalid");
+          return;
+        }
 
-          if (buttonDown)
-          {
-            _pressedKeys.TryAdd(name, code);
+        if (!TryDecodeEvent(hidEvent, out string type, out string name, out long code, out bool buttonUp, out bool buttonDown))
+          return;
 
-            RestartKeyPressedTimer();
-          }
+        if (buttonDown)
+          AddPressedKey(name, code);
 
+        InputDevice device;
+        bool keyHandled = false;
+        bool handleKeyPress = (SUPPORT_REPEATS && buttonDown) || (!SUPPORT_REPEATS && buttonUp);
+        if (_inputDevices.TryGetValue(type, out device))
+        {
+          ServiceRegistration.Get<ILogger>().Debug("InputDeviceManager: Checking mapping for device: " + device.Name);
           ServiceRegistration.Get<ILogger>().Debug("InputDeviceManager: Checking keys: " + string.Join(", ", _pressedKeys.Select(k => k.Key)));
           ServiceRegistration.Get<ILogger>().Debug("InputDeviceManager: Checking codes: " + string.Join(", ", _pressedKeys.Select(k => k.Value)));
 
-          InputDevice device;
-          bool keyHandled = false;
-          if (_inputDevices.TryGetValue(type, out device))
+          var keyMappings = device.KeyMap.Where(m => KeyCombinationsMatch(m.Codes.Select(c => c.Code), _pressedKeys.Values));
+          if (keyMappings?.Count() > 0)
           {
-            ServiceRegistration.Get<ILogger>().Debug("InputDeviceManager: Checking mapping for device: " + device.Name);
+            ServiceRegistration.Get<ILogger>().Debug("InputDeviceManager: Found matching mappings: " + keyMappings.Count());
+            ServiceRegistration.Get<ILogger>().Debug("InputDeviceManager: Button states: {0}/{1}", buttonDown, buttonUp);
 
-            var keyMappings = device.KeyMap.Where(m => KeyCombinationsMatch(m.Codes.Select(c => c.Code), _pressedKeys.Values));
-            if (keyMappings?.Count() > 0)
+            //_currentMessage.Result = new IntPtr(1);
+            _currentMessageHandled = true;
+            if (handleKeyPress)
             {
-              ServiceRegistration.Get<ILogger>().Debug("InputDeviceManager: Found matching mappings: " + keyMappings.Count());
-              ServiceRegistration.Get<ILogger>().Debug("InputDeviceManager: Button states: {0}/{1}", buttonDown, buttonUp);
-
-              //_currentMessage.Result = new IntPtr(1);
-              _currentMessageHandled = true;
-              if (buttonUp)
+              foreach (var keyMapping in keyMappings)
               {
-                foreach (var keyMapping in keyMappings)
+                string[] actionArray = keyMapping.Key.Split('.');
+                if (actionArray.Length >= 2)
                 {
-                  string[] actionArray = keyMapping.Key.Split('.');
-                  if (actionArray.Length >= 2)
+                  if (keyMapping.Key.StartsWith(InputDeviceModel.KEY_PREFIX, StringComparison.InvariantCultureIgnoreCase))
                   {
-                    if (keyMapping.Key.StartsWith(InputDeviceModel.KEY_PREFIX, StringComparison.InvariantCultureIgnoreCase))
+                    if (_navigationKeys.Any(k => k.Name == actionArray[1]) || _externalKeyPressHandlers.Count == 0) //Only allow navigation key during external handling
                     {
                       ServiceRegistration.Get<ILogger>().Debug("InputDeviceManager: Executing key action: " + actionArray[1]);
                       ServiceRegistration.Get<IInputManager>().KeyPress(Key.GetSpecialKeyByName(actionArray[1]));
                       keyHandled = true;
                     }
-                    else if (keyMapping.Key.StartsWith(InputDeviceModel.HOME_PREFIX, StringComparison.InvariantCultureIgnoreCase))
+                  }
+                  else if (_externalKeyPressHandlers.Count == 0) //Don't interfere with external handlers by executing screen changes
+                  {
+                    if (keyMapping.Key.StartsWith(InputDeviceModel.HOME_PREFIX, StringComparison.InvariantCultureIgnoreCase))
                     {
                       ServiceRegistration.Get<ILogger>().Debug("InputDeviceManager: Executing home action: " + actionArray[1]);
                       NavigateToScreen(actionArray[1]);
@@ -727,28 +797,33 @@ namespace MediaPortal.Plugins.InputDeviceManager
               }
             }
           }
-
-          //Check if default handling is available for unhandled single key presses from non-keyboard devices
-          if (!keyHandled && _pressedKeys.Count == 1 && hidEvent.IsGeneric && buttonUp)
-          {
-            ServiceRegistration.Get<ILogger>().Debug("InputDeviceManager: Checking for unmapped handling of button: " + _pressedKeys.First().Key);
-            var key = ConvertToKeyboardKey(_pressedKeys.Values.First(), hidEvent);
-            if (key != null)
-              ServiceRegistration.Get<IInputManager>().KeyPress(key);
-          }
-
-          if (buttonUp)
-            _pressedKeys.TryRemove(name, out _);
         }
-        else
+
+        //Check if default handling is available for unhandled single key presses from non-keyboard devices
+        if (!keyHandled && _pressedKeys.Count == 1 && hidEvent.IsGeneric && handleKeyPress)
         {
-          lock (_listSyncObject)
+          ServiceRegistration.Get<ILogger>().Debug("InputDeviceManager: Checking default keys: " + string.Join(", ", _pressedKeys.Select(k => k.Key)));
+          ServiceRegistration.Get<ILogger>().Debug("InputDeviceManager: Checking default codes: " + string.Join(", ", _pressedKeys.Select(k => k.Value)));
+
+          if (TryExecuteDefaultAction(_pressedKeys.Values.First(), hidEvent))
+            keyHandled = true;
+        }
+
+        if (_externalKeyPressHandlers.Count > 0)
+        {
+          if (buttonDown && !hidEvent.IsRepeat) //Only send button down and no repeats for better consitency
           {
-            foreach (var action in _externalKeyPressHandlers)
-              action.Invoke(sender, hidEvent);
+            lock (_listSyncObject)
+            {
+              foreach (var action in _externalKeyPressHandlers)
+                action.Invoke(sender, hidEvent, type, _pressedKeys);
+            }
           }
           _currentMessageHandled = true;
         }
+
+        if (buttonUp)
+          RemovePressedKey(name);
       }
       catch (Exception ex)
       {
@@ -777,31 +852,42 @@ namespace MediaPortal.Plugins.InputDeviceManager
       return false;
     }
 
-    /// <summary>
-    /// Reset timer so key presses will be reset after timeout in case focus is lost and key up events are never received
-    /// </summary>
-    private static void RestartKeyPressedTimer()
-    {
-      _pressedKeyTimer.Stop();
-      _pressedKeyTimer.Start();
-    }
-
     #endregion
 
     #region Settings
 
     private ICollection<RemoteKeyCode> LoadRemoteMap(string remoteFile)
     {
+      if (!File.Exists(remoteFile))
+        return new List<RemoteKeyCode>();
+
       XmlSerializer reader = new XmlSerializer(typeof(List<RemoteKeyCode>));
       using (StreamReader file = new StreamReader(remoteFile))
         return (ICollection<RemoteKeyCode>)reader.Deserialize(file);
     }
 
-    private void LoadDefaulRemoteMap(PluginRuntime pluginRuntime)
+    private void LoadDefaulRemoteMaps(PluginRuntime pluginRuntime)
     {
+      _defaultRemoteKeyCodes[UsagePage.WindowsMediaCenterRemoteControl] = new Dictionary<long, Key>();
+      _defaultRemoteKeyCodes[UsagePage.Consumer] = new Dictionary<long, Key>();
+      _defaultRemoteScreenCodes[UsagePage.WindowsMediaCenterRemoteControl] = new Dictionary<long, string>();
+      _defaultRemoteScreenCodes[UsagePage.Consumer] = new Dictionary<long, string>();
       var keyCodes = LoadRemoteMap(pluginRuntime.Metadata.GetAbsolutePath("DefaultRemoteMap.xml"));
       foreach (RemoteKeyCode mkc in keyCodes)
-        _defaultRemoteKeyCodes.TryAdd(mkc.Code, mkc.Key);
+      {
+        if (mkc.FuncName.StartsWith("S:") || mkc.FuncName.StartsWith("P:"))
+          _defaultRemoteKeyCodes[UsagePage.WindowsMediaCenterRemoteControl][mkc.Code] = Key.DeserializeKey(mkc.FuncName);
+        else
+          _defaultRemoteScreenCodes[UsagePage.WindowsMediaCenterRemoteControl][mkc.Code] = mkc.FuncName;
+      }
+      keyCodes = LoadRemoteMap(pluginRuntime.Metadata.GetAbsolutePath("DefaultConsumerRemoteMap.xml"));
+      foreach (RemoteKeyCode mkc in keyCodes)
+      {
+        if (mkc.FuncName.StartsWith("S:") || mkc.FuncName.StartsWith("P:"))
+          _defaultRemoteKeyCodes[UsagePage.Consumer][mkc.Code] = Key.DeserializeKey(mkc.FuncName);
+        else
+          _defaultRemoteScreenCodes[UsagePage.Consumer][mkc.Code] = mkc.FuncName;
+      }
     }
 
     private void LoadSettings()
@@ -835,7 +921,7 @@ namespace MediaPortal.Plugins.InputDeviceManager
 
     #region External event handling
 
-    public bool RegisterExternalKeyHandling(Action<object, SharpLib.Hid.Event> hidEvent)
+    public bool RegisterExternalKeyHandling(Action<object, SharpLib.Hid.Event, string, IDictionary<string, long>> hidEvent)
     {
       lock (_listSyncObject)
       {
@@ -848,7 +934,7 @@ namespace MediaPortal.Plugins.InputDeviceManager
       return false;
     }
 
-    public bool UnRegisterExternalKeyHandling(Action<object, SharpLib.Hid.Event> hidEvent)
+    public bool UnRegisterExternalKeyHandling(Action<object, SharpLib.Hid.Event, string, IDictionary<string, long>> hidEvent)
     {
       lock (_listSyncObject)
       {
@@ -881,7 +967,7 @@ namespace MediaPortal.Plugins.InputDeviceManager
     public void Activated(PluginRuntime pluginRuntime)
     {
       LoadSettings();
-      LoadDefaulRemoteMap(pluginRuntime);
+      LoadDefaulRemoteMaps(pluginRuntime);
       SubscribeToMessages();
       var thread = new Thread(StartThread);
       thread.Start();

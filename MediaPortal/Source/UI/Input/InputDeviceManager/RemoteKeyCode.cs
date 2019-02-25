@@ -29,15 +29,15 @@ using System.Xml.Serialization;
 namespace MediaPortal.Plugins.InputDeviceManager
 {
   /// <summary>
-  /// Mapping of a remote button key code to a <see cref="Key"/> instance.
+  /// Mapping of a remote button key code to a function.
   /// </summary>
   [XmlRoot("RemoteKeyCode")]
   public class RemoteKeyCode
   {
     #region Properties
 
-    [XmlIgnore]
-    public Key Key { get; set; }
+    [XmlAttribute("Func_Name")]
+    public string FuncName { get; set; }
 
     [XmlAttribute("Code")]
     public long Code { get; set; }
@@ -46,11 +46,11 @@ namespace MediaPortal.Plugins.InputDeviceManager
 
     #region Constructors
 
-    public RemoteKeyCode() : this(Key.None, -1) { }
+    public RemoteKeyCode() : this("", -1) { }
 
-    public RemoteKeyCode(Key key, int code)
+    public RemoteKeyCode(string func, int code)
     {
-      Key = key;
+      FuncName = func;
       Code = code;
     }
 
@@ -60,16 +60,5 @@ namespace MediaPortal.Plugins.InputDeviceManager
     }
 
     #endregion Constructors
-
-    #region Extra members for XML serialization
-
-    [XmlAttribute("Key_Name")]
-    public string KeyName
-    {
-      get { return Key.SerializeKey(Key); }
-      set { Key = Key.DeserializeKey(value); }
-    }
-
-    #endregion
   }
 }

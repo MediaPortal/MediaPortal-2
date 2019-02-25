@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Contains a default mapping of remote keys to MP2 keys.
+  For each key mapping to be interpreted by MP2, there must be a RemoteKeyCode element.
+  The Code attribute contains the code representing the key pressed. The Func_Name attribute contains
+  a reference to a MP2 key or secreen. The prefix (S: or P:) determines if the key is a special (S:) or printable (P:) key.
+  The suffix is the special key name or the printable key's character. The prefix (Home: or Config:) determines if the 
+  screen is a home (Home:) or configuration (Config:) screen. The suffix is the name of the screen.
+
+  Each key code may only be mapped once (i.e. a key code given in the Code attribute may only be at most once).
+  It is not necessary to add a RemoteKeyCode entry for each key code, but it is recommended to do so. If a remote key
+  should not be mapped to an MP2 key, the special key None (S:None) can be used.
+-->
+<ArrayOfRemoteKeyCode xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <RemoteKeyCode Code="48" Func_Name="S:Power" />
+
+  <RemoteKeyCode Code="548" Func_Name="S:Escape" />
+
+  <RemoteKeyCode Code="141" Func_Name="S:Guide" />
+  <RemoteKeyCode Code="137" Func_Name="S:LiveTV" />
+  <RemoteKeyCode Code="139" Func_Name="S:DVDMenu" />
+
+  <RemoteKeyCode Code="233" Func_Name="S:VolumeUp" />
+  <RemoteKeyCode Code="234" Func_Name="S:VolumeDown" />
+  <RemoteKeyCode Code="226" Func_Name="S:Mute" />
+
+  <!-- Default mapping:  
+  <RemoteKeyCode Code="156" Func_Name="S:ChannelUp" />
+  <RemoteKeyCode Code="157" Func_Name="S:ChannelDown" />
+  -->
+  <RemoteKeyCode Code="156" Func_Name="S:PageUp" />
+  <RemoteKeyCode Code="157" Func_Name="S:PageDown" />
+
+  <RemoteKeyCode Code="521" Func_Name="S:Info" />
+
+  <RemoteKeyCode Code="183" Func_Name="S:Stop" />
+  <RemoteKeyCode Code="177" Func_Name="S:Pause" />
+  <RemoteKeyCode Code="178" Func_Name="S:Record" />
+  <RemoteKeyCode Code="176" Func_Name="S:Play" />
+  <RemoteKeyCode Code="205" Func_Name="S:PlayPause" />
+  <RemoteKeyCode Code="180" Func_Name="S:Rew" />
+  <RemoteKeyCode Code="179" Func_Name="S:Fwd" />
+  <RemoteKeyCode Code="182" Func_Name="S:Previous" />
+  <RemoteKeyCode Code="181" Func_Name="S:Next" />
+
+
+  <RemoteKeyCode Code="618" Func_Name="S:Clear" />
+  <RemoteKeyCode Code="559" Func_Name="S:ZoomMode" />
+
+  <RemoteKeyCode Code="540" Func_Name="S:Cut" />
+  <RemoteKeyCode Code="539" Func_Name="S:Copy" />
+  <RemoteKeyCode Code="541" Func_Name="S:Paste" />
+
+  <!-- Music -->
+  <RemoteKeyCode Code="439" Func_Name="Home.Home-&gt;Audio" />
+  <!-- Pictures -->
+  <RemoteKeyCode Code="438" Func_Name="Home.Home-&gt;Images" />
+  <!-- TV -->
+  <RemoteKeyCode Code="137" Func_Name="Home.Home-&gt;SlimTvClient" />
+  <!-- Videos -->
+  <RemoteKeyCode Code="440" Func_Name="Home.Home-&gt;Videos" />
+</ArrayOfRemoteKeyCode>
