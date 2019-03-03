@@ -102,6 +102,36 @@ namespace Tests.Client.VideoPlayers.Subtitles
       Mock.Get(mockSubtitleRenderer).Verify(x => x.AddTeletextSubtitleDecoder(It.IsAny<ITeletextSource>()), Times.Never);
     }
 
+    [Test, Description("Do not add DvbSub3 filter to graph if DVB subtitles setting is disabled and TS stream contains DVB subtitles")]
+    public void DoNotAddDvbSubsFilterIfEnableDvbSubsIsFalse()
+    {
+      // Arranges
+      SetMockServices();
+      FakeVideoSettings settings = new FakeVideoSettings(new VideoSettings
+      {
+        EnableDvbSubtitles = false,
+        EnableTeletextSubtitles = true,
+        EnableAtscClosedCaptions = true
+      });
+      ServiceRegistration.Set<ISettingsManager>(settings);
+
+      ISubtitleRenderer mockSubtitleRenderer = Mock.Of<ISubtitleRenderer>();
+      TsReaderStub tsReaderStub = new TsReaderStub
+      {
+        TeletextStreamCount = 0,
+        SubtitleStreamCount = 1
+      };
+      MockedTsVideoPlayer tsVideoPlayer = new MockedTsVideoPlayer(mockSubtitleRenderer, tsReaderStub);
+
+      // Act
+      tsVideoPlayer.AddSubtitleFilter();
+
+      // Assert
+      Mock.Get(mockSubtitleRenderer).Verify(x => x.AddDvbSubtitleFilter(It.IsAny<IGraphBuilder>()), Times.Never);
+      Mock.Get(mockSubtitleRenderer).Verify(x => x.AddClosedCaptionsFilter(It.IsAny<IGraphBuilder>()), Times.Never);
+      Mock.Get(mockSubtitleRenderer).Verify(x => x.AddTeletextSubtitleDecoder(It.IsAny<ITeletextSource>()), Times.Never);
+    }
+
     [Test, Description("Render teletext subtitles if teletext subtitles setting is enabled and TS stream contains only teletext subtitles")]
     public void ShouldRenderTeletextSubtitles()
     {
@@ -126,6 +156,36 @@ namespace Tests.Client.VideoPlayers.Subtitles
 
       // Assert
       Mock.Get(mockSubtitleRenderer).Verify(x => x.AddTeletextSubtitleDecoder(It.IsAny<ITeletextSource>()), Times.Once);
+      Mock.Get(mockSubtitleRenderer).Verify(x => x.AddDvbSubtitleFilter(It.IsAny<IGraphBuilder>()), Times.Never);
+      Mock.Get(mockSubtitleRenderer).Verify(x => x.AddClosedCaptionsFilter(It.IsAny<IGraphBuilder>()), Times.Never);
+    }
+
+    [Test, Description("Do no render teletext subtitles if teletext subtitles setting is disabled and TS stream contains teletext subtitles")]
+    public void DoNotRenderTeletextSubtitlesIfEnableTeletextSubtitlesIsFalse()
+    {
+      // Arranges
+      SetMockServices();
+      FakeVideoSettings settings = new FakeVideoSettings(new VideoSettings
+      {
+        EnableTeletextSubtitles = false,
+        EnableDvbSubtitles = true,
+        EnableAtscClosedCaptions = true
+      });
+      ServiceRegistration.Set<ISettingsManager>(settings);
+
+      ISubtitleRenderer mockSubtitleRenderer = Mock.Of<ISubtitleRenderer>();
+      TsReaderStub tsReaderStub = new TsReaderStub
+      {
+        TeletextStreamCount = 1,
+        SubtitleStreamCount = 0
+      };
+      MockedTsVideoPlayer tsVideoPlayer = new MockedTsVideoPlayer(mockSubtitleRenderer, tsReaderStub);
+
+      // Act
+      tsVideoPlayer.AddSubtitleFilter();
+
+      // Assert
+      Mock.Get(mockSubtitleRenderer).Verify(x => x.AddTeletextSubtitleDecoder(It.IsAny<ITeletextSource>()), Times.Never);
       Mock.Get(mockSubtitleRenderer).Verify(x => x.AddDvbSubtitleFilter(It.IsAny<IGraphBuilder>()), Times.Never);
       Mock.Get(mockSubtitleRenderer).Verify(x => x.AddClosedCaptionsFilter(It.IsAny<IGraphBuilder>()), Times.Never);
     }
@@ -160,8 +220,36 @@ namespace Tests.Client.VideoPlayers.Subtitles
       Mock.Get(mockSubtitleRenderer).Verify(x => x.AddClosedCaptionsFilter(It.IsAny<IGraphBuilder>()), Times.Never);
     }
 
-    [Test, Description("Do NOT add CC filter to graph if TS stream contains DVB or teletext subtitles")]
-    public void DoNotAddClosedCaptionsFilter()
+    [Test, Description("Do NOT add CC filter to graph if TS stream contains DVB subtitles")]
+    public void DoNotAddClosedCaptionsFilterForDvbSubsStream()
+    {
+      // Arranges
+      SetMockServices();
+      FakeVideoSettings settings = new FakeVideoSettings(new VideoSettings
+      {
+        EnableAtscClosedCaptions = true, EnableDvbSubtitles = true, EnableTeletextSubtitles = true
+      });
+      ServiceRegistration.Set<ISettingsManager>(settings);
+
+      ISubtitleRenderer mockSubtitleRenderer = Mock.Of<ISubtitleRenderer>();
+      TsReaderStub tsReaderStub = new TsReaderStub
+      {
+        TeletextStreamCount = 0,
+        SubtitleStreamCount = 1
+      };
+      MockedTsVideoPlayer tsVideoPlayer = new MockedTsVideoPlayer(mockSubtitleRenderer, tsReaderStub);
+
+      // Act
+      tsVideoPlayer.AddSubtitleFilter();
+
+      // Assert
+      Mock.Get(mockSubtitleRenderer).Verify(x => x.AddClosedCaptionsFilter(It.IsAny<IGraphBuilder>()), Times.Never);
+      Mock.Get(mockSubtitleRenderer).Verify(x => x.AddTeletextSubtitleDecoder(It.IsAny<ITeletextSource>()), Times.Never);
+      Mock.Get(mockSubtitleRenderer).Verify(x => x.AddDvbSubtitleFilter(It.IsAny<IGraphBuilder>()), Times.Once);
+    }
+
+    [Test, Description("Do NOT add CC filter to graph if TS stream contains teletext subtitles")]
+    public void DoNotAddClosedCaptionsFilterForTeletextSubsStream()
     {
       // Arranges
       SetMockServices();
@@ -175,7 +263,7 @@ namespace Tests.Client.VideoPlayers.Subtitles
       TsReaderStub tsReaderStub = new TsReaderStub
       {
         TeletextStreamCount = 1,
-        SubtitleStreamCount = 1
+        SubtitleStreamCount = 0
       };
       MockedTsVideoPlayer tsVideoPlayer = new MockedTsVideoPlayer(mockSubtitleRenderer, tsReaderStub);
 
@@ -184,8 +272,8 @@ namespace Tests.Client.VideoPlayers.Subtitles
 
       // Assert
       Mock.Get(mockSubtitleRenderer).Verify(x => x.AddClosedCaptionsFilter(It.IsAny<IGraphBuilder>()), Times.Never);
-      Mock.Get(mockSubtitleRenderer).Verify(x => x.AddTeletextSubtitleDecoder(It.IsAny<ITeletextSource>()), Times.Never);
-      Mock.Get(mockSubtitleRenderer).Verify(x => x.AddDvbSubtitleFilter(It.IsAny<IGraphBuilder>()), Times.Once);
+      Mock.Get(mockSubtitleRenderer).Verify(x => x.AddTeletextSubtitleDecoder(It.IsAny<ITeletextSource>()), Times.Once);
+      Mock.Get(mockSubtitleRenderer).Verify(x => x.AddDvbSubtitleFilter(It.IsAny<IGraphBuilder>()), Times.Never);
     }
 
     private static void SetMockServices()
