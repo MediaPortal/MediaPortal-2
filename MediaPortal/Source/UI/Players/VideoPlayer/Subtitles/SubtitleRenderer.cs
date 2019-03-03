@@ -38,12 +38,14 @@ using MediaPortal.UI.Players.Video.Settings;
 using MediaPortal.UI.Players.Video.Teletext;
 using MediaPortal.UI.Players.Video.Tools;
 using MediaPortal.UI.Presentation.Players;
+using MediaPortal.UI.SkinEngine.Fonts;
 using MediaPortal.UI.SkinEngine.Rendering;
 using MediaPortal.UI.SkinEngine.SkinManagement;
 using SharpDX;
 using SharpDX.Direct3D9;
 using Color = System.Drawing.Color;
 using Rectangle = System.Drawing.Rectangle;
+using RectangleF = SharpDX.RectangleF;
 
 namespace MediaPortal.UI.Players.Video.Subtitles
 {
@@ -246,7 +248,6 @@ namespace MediaPortal.UI.Players.Video.Subtitles
 
     // DirectX DeviceEx to handle graphic operations
     protected DeviceEx _device;
-    protected Sprite _sprite;
     protected IDVBSubtitleSource _subFilter = null;
 
     /// <summary>
@@ -324,7 +325,6 @@ namespace MediaPortal.UI.Players.Video.Subtitles
       _resetCallBack = Reset;
       _updateTimeoutCallBack = UpdateTimeout;
       _device = SkinContext.Device;
-      _sprite = new Sprite(_device);
     }
 
     public void SetPlayer(IMediaPlaybackControl p)
@@ -713,7 +713,6 @@ namespace MediaPortal.UI.Players.Video.Subtitles
         using (new TemporaryRenderTarget(targetTexture))
         using (TemporaryRenderState temporaryRenderState = new TemporaryRenderState())
         {
-          _sprite.Begin(SpriteFlags.AlphaBlend);
           // No alpha test here, allow all values
           temporaryRenderState.SetTemporaryRenderState(RenderState.AlphaTestEnable, 0);
 
@@ -736,9 +735,11 @@ namespace MediaPortal.UI.Players.Video.Subtitles
             transform *= Matrix.Scaling(factorW, factorH, 1);
           }
 
-          _sprite.Transform = transform;
-          _sprite.Draw(currentSubtitle.SubTexture, SharpDX.Color.White);
-          _sprite.End();
+          TextBuffer buffer = new TextBuffer(FontManager.DefaultFontFamily, 18) { Text = currentSubtitle.ToString() };
+          RectangleF rectangleF = new RectangleF(0, 0, SkinContext.SkinResources.SkinWidth, SkinContext.SkinResources.SkinWidth);
+          HorizontalTextAlignEnum horzAlign = HorizontalTextAlignEnum.Left;
+          VerticalTextAlignEnum vertAlign = VerticalTextAlignEnum.Top;
+          buffer.Render(rectangleF, horzAlign, vertAlign, 0, Color4.White, 0, transform);
         }
 
         if (_onTextureInvalidated != null)
@@ -853,8 +854,6 @@ namespace MediaPortal.UI.Players.Video.Subtitles
     {
       lock (_subtitles)
       {
-        _sprite?.Dispose();
-        _sprite = null;
         _subtitles.ToList().ForEach(s => s.Dispose());
         _subtitles.Clear();
       }
