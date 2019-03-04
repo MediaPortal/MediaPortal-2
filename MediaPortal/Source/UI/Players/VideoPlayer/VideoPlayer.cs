@@ -817,12 +817,11 @@ namespace MediaPortal.UI.Players.Video
       _initialized = false;
 
       FilterState state;
-      IMediaControl mc = (IMediaControl)_graphBuilder;
-      mc.GetState(10, out state);
+      _mc.GetState(10, out state);
       if (state != FilterState.Stopped)
       {
-        mc.StopWhenReady();
-        mc.Stop();
+        _mc.StopWhenReady();
+        _mc.Stop();
       }
 
       if (_evr != null)
@@ -861,11 +860,10 @@ namespace MediaPortal.UI.Players.Video
 
       if (State == PlayerState.Active)
       {
-        IMediaControl mc = (IMediaControl)_graphBuilder;
         if (_isPaused)
-          mc.Pause();
+          _mc.Pause();
         else
-          mc.Run();
+          _mc.Run();
       }
       _initialized = true;
     }
