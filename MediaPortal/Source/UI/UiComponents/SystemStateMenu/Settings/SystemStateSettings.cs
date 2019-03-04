@@ -60,7 +60,7 @@ namespace MediaPortal.Plugins.SystemStateMenu.Settings
       get
       {
         if (_shutdownItemList == null)
-          CreateDefaultShutdownMenu();
+          _shutdownItemList = CreateDefaultShutdownMenu();
 
         return _shutdownItemList;
       }
@@ -70,9 +70,9 @@ namespace MediaPortal.Plugins.SystemStateMenu.Settings
       }
     }
 
-    private void CreateDefaultShutdownMenu()
+    public static List<SystemStateItem> CreateDefaultShutdownMenu()
     {
-      _shutdownItemList = new List<SystemStateItem>
+      return new List<SystemStateItem>
                             {
                               new SystemStateItem(SystemStateAction.Suspend, true),
                               new SystemStateItem(SystemStateAction.Hibernate, true),
@@ -80,6 +80,7 @@ namespace MediaPortal.Plugins.SystemStateMenu.Settings
                               new SystemStateItem(SystemStateAction.SleepTimer, true),
                               new SystemStateItem(SystemStateAction.Restart, true),
                               new SystemStateItem(SystemStateAction.CloseMP, true),
+                              new SystemStateItem(SystemStateAction.RestartMP, true),
                               new SystemStateItem(SystemStateAction.MinimizeMP, false),
                               new SystemStateItem(SystemStateAction.Logoff, false)
                             };

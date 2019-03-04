@@ -38,7 +38,8 @@ namespace MediaPortal.Utilities.Process
     public enum Command : ushort
     {
       GetProcessId = 0x0001,
-      Shutdown = 0x0002
+      Shutdown = 0x0002,
+      Restart = 0x0003,
     }
 
     /// <summary>
@@ -68,7 +69,7 @@ namespace MediaPortal.Utilities.Process
     /// </summary>
     /// <param name="str">String to encode</param>
     /// <param name="bytes">byte array to write to</param>
-    /// <param name="bytesOffset">Currefnt offset in <paramref name="bytes"/>. After the operation the offset is set to the 1st byte after the string.</param>
+    /// <param name="bytesOffset">Current offset in <paramref name="bytes"/>. After the operation the offset is set to the 1st byte after the string.</param>
     public static void StringToBytes(string str, byte[] bytes, ref int bytesOffset)
     {
       if (String.IsNullOrEmpty(str))
@@ -85,7 +86,7 @@ namespace MediaPortal.Utilities.Process
     }
 
     /// <summary>
-    /// Reads a UTF8 endoced string with 2 byte length information up front from an byte array.
+    /// Reads a UTF8 encoded string with 2 byte length information up front from an byte array.
     /// </summary>
     /// <param name="bytes">Byte array to read from</param>
     /// <param name="bytesOffset">Offset to start reading from. After the operation the offset is set to the 1st byte after the string.</param>

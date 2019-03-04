@@ -149,6 +149,7 @@ namespace MediaPortal.Plugins.SlimTv.Service
       IRecordingService recordings = GlobalServiceProvider.Get<IRecordingService>();
       IList<ISchedule> currentlyRecordingSchedules = recordings.ListAllActiveRecordingsByMediaType(MediaTypeEnum.TV)
         .Union(recordings.ListAllActiveRecordingsByMediaType(MediaTypeEnum.Radio))
+        .Where(r => r.Schedule != null)
         .Select(r => r.Schedule.ToSchedule()).ToList();
 
       TvServerState state = new TvServerState

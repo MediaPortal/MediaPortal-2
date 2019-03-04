@@ -163,7 +163,7 @@ namespace MediaPortal.Client.Launcher
 
     private static void InitIpc()
     {
-      if(_ipcServer != null)
+      if (_ipcServer != null)
         return;
       ServiceRegistration.Get<ILogger>().Debug("Initializing IPC");
       try
@@ -171,12 +171,18 @@ namespace MediaPortal.Client.Launcher
         _ipcServer = new IpcServer("ClientLauncher");
         _ipcServer.CustomShutdownCallback = () =>
         {
-          if (_systemNotificationAreaIcon != null) 
+          if (_systemNotificationAreaIcon != null)
           {
             _systemNotificationAreaIcon.Visible = false;
             _systemNotificationAreaIcon = null;
           }
           Application.Exit();
+          return true;
+        };
+        _ipcServer.CustomRestartCallback = () =>
+        {
+          StopClient();
+          StartClient();
           return true;
         };
         _ipcServer.Open();
@@ -210,23 +216,28 @@ namespace MediaPortal.Client.Launcher
         try
         {
           MenuItem closeItem = new MenuItem { Index = 0, Text = "Close" };
+          MenuItem startClientItem = new MenuItem { Index = 0, Text = "Start MP2-Client" };
           MenuItem addAutostartItem = new MenuItem { Index = 0, Text = "Add to Autostart" };
           MenuItem removeAutostartItem = new MenuItem { Index = 0, Text = "Remove from Autostart" };
 
-          closeItem.Click += delegate(object sender, EventArgs args)
+          closeItem.Click += delegate (object sender, EventArgs args)
           {
             _systemNotificationAreaIcon.Visible = false;
             _systemNotificationAreaIcon = null;
             Application.Exit();
           };
-          addAutostartItem.Click += delegate(object sender, EventArgs args)
+          startClientItem.Click += delegate (object sender, EventArgs args)
+          {
+            StartClient();
+          };
+          addAutostartItem.Click += delegate (object sender, EventArgs args)
           {
             IsAutoStartEnabled = true;
             addAutostartItem.Enabled = !IsAutoStartEnabled;
             removeAutostartItem.Enabled = IsAutoStartEnabled;
             WriteAutostartAppEntryInRegistry();
           };
-          removeAutostartItem.Click += delegate(object sender, EventArgs args)
+          removeAutostartItem.Click += delegate (object sender, EventArgs args)
           {
             IsAutoStartEnabled = false;
             addAutostartItem.Enabled = !IsAutoStartEnabled;
@@ -239,7 +250,14 @@ namespace MediaPortal.Client.Launcher
 
           // Initialize contextMenuTray
           ContextMenu contextMenuTray = new ContextMenu();
-          contextMenuTray.MenuItems.AddRange(new[] { addAutostartItem, removeAutostartItem, closeItem });
+          contextMenuTray.MenuItems.AddRange(new[]
+          {
+            startClientItem,
+            new MenuItem("-"),
+            addAutostartItem, removeAutostartItem,
+            new MenuItem("-"),
+            closeItem
+          });
 
 
           _systemNotificationAreaIcon = new NotifyIcon
@@ -297,6 +315,27 @@ namespace MediaPortal.Client.Launcher
         ProcessStartInfo psi = new ProcessStartInfo(clientExe);
         psi.WorkingDirectory = Directory.GetParent(clientExe).FullName;
         Process.Start(psi);
+      }
+      catch (Exception ex)
+      {
+        ServiceRegistration.Get<ILogger>().Error("MP2-Client.exe couldn't be started.", ex);
+      }
+    }
+
+    private static void StopClient()
+    {
+      try
+      {
+        Process[] processes = Process.GetProcessesByName("MP2-Client");
+        if (processes.Length == 0)
+          return;
+
+        // If process is running, send an IPC command to force closing.
+        using (var client = new IpcClient("Client"))
+        {
+          client.Connect();
+          client.ShutdownApplication(2000, true);
+        }
       }
       catch (Exception ex)
       {

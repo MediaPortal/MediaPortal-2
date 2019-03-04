@@ -164,7 +164,7 @@ namespace UPnP.Infrastructure.CP
     {
       get
       {
-        lock (_cpData.SyncObj)
+        using (_cpData.Lock.EnterRead())
         {
           if (!_active)
             return null;
@@ -196,7 +196,7 @@ namespace UPnP.Infrastructure.CP
     /// </summary>
     public void Start()
     {
-      lock (_cpData.SyncObj)
+      using (_cpData.Lock.EnterWrite())
       {
         if (_active)
           throw new IllegalCallException("UPnPNetworkTracker is already active");
@@ -218,7 +218,7 @@ namespace UPnP.Infrastructure.CP
     /// </summary>
     public void Close()
     {
-      lock (_cpData.SyncObj)
+      using (_cpData.Lock.EnterWrite())
       {
         if (!_active)
           return;
@@ -300,21 +300,23 @@ namespace UPnP.Infrastructure.CP
         {
             State = RootDescriptorState.AwaitingDeviceDescription
         };
-      lock (_cpData.SyncObj)
+      using (_cpData.Lock.EnterWrite())
         SetRootDescriptor(rootEntry, rd);
+
       try
       {
         LinkData preferredLink = rootEntry.PreferredLink;
         HttpWebRequest request = CreateHttpGetRequest(new Uri(preferredLink.DescriptionLocation), preferredLink.Endpoint.EndPointIPAddress);
         DescriptionRequestState state = new DescriptionRequestState(rd, request);
-        lock (_cpData.SyncObj)
+        using (_cpData.Lock.EnterWrite())
           _pendingRequests.Add(state);
+
         IAsyncResult result = request.BeginGetResponse(OnDeviceDescriptionReceived, state);
         NetworkHelper.AddTimeout(request, result, PENDING_REQUEST_TIMEOUT * 1000);
       }
       catch (Exception) // Don't log messages at this low protocol level
       {
-        lock (_cpData.SyncObj)
+        using (_cpData.Lock.EnterWrite())
           rd.State = RootDescriptorState.Erroneous;
       }
     }
@@ -334,7 +336,7 @@ namespace UPnP.Infrastructure.CP
           using (Stream body = CompressionHelper.Decompress(response))
           {
             XPathDocument xmlDeviceDescription = new XPathDocument(body);
-            lock (_cpData.SyncObj)
+            using (_cpData.Lock.EnterWrite())
             {
               rd.DeviceDescription = xmlDeviceDescription;
               DeviceDescriptor rootDeviceDescriptor = DeviceDescriptor.CreateRootDeviceDescriptor(rd);
@@ -374,7 +376,7 @@ namespace UPnP.Infrastructure.CP
       IEnumerator<ServiceDescriptor> enumer = state.PendingServiceDescriptions.GetEnumerator();
       if (!enumer.MoveNext())
       {
-        lock (_cpData.SyncObj)
+        using (_cpData.Lock.EnterWrite())
         {
           if (rootDescriptor.State != RootDescriptorState.AwaitingServiceDescriptions)
             return;
@@ -386,9 +388,10 @@ namespace UPnP.Infrastructure.CP
       }
       else
       {
-        lock (_cpData.SyncObj)
+        using (_cpData.Lock.EnterRead())
           if (rootDescriptor.State != RootDescriptorState.AwaitingServiceDescriptions)
             return;
+
         state.CurrentServiceDescriptor = enumer.Current;
         string url = state.CurrentServiceDescriptor.DescriptionURL;
         state.PendingServiceDescriptions.Remove(state.CurrentServiceDescriptor);
@@ -404,7 +407,7 @@ namespace UPnP.Infrastructure.CP
         }
         catch (Exception) // Don't log exceptions at this low protocol level
         {
-          lock (_cpData.SyncObj)
+          using (_cpData.Lock.EnterWrite())
             state.CurrentServiceDescriptor.State = ServiceDescriptorState.Erroneous;
         }
       }
@@ -412,47 +415,48 @@ namespace UPnP.Infrastructure.CP
 
     private void OnServiceDescriptionReceived(IAsyncResult asyncResult)
     {
-      DescriptionRequestState state = (DescriptionRequestState) asyncResult.AsyncState;
+      DescriptionRequestState state = (DescriptionRequestState)asyncResult.AsyncState;
       RootDescriptor rd = state.RootDescriptor;
-      lock (_cpData.SyncObj)
+      HttpWebRequest request = state.Request;
+      try
       {
-        HttpWebRequest request = state.Request;
-        try
+        using (WebResponse response = request.EndGetResponse(asyncResult))
         {
-          using (WebResponse response = request.EndGetResponse(asyncResult))
-          {
+          using (_cpData.Lock.EnterRead())
             if (rd.State != RootDescriptorState.AwaitingServiceDescriptions)
               return;
-            try
+          try
+          {
+            using (Stream body = CompressionHelper.Decompress(response))
             {
-              using (Stream body = CompressionHelper.Decompress(response))
-              {
-                XPathDocument xmlServiceDescription = new XPathDocument(body);
-                state.CurrentServiceDescriptor.ServiceDescription = xmlServiceDescription;
-                state.CurrentServiceDescriptor.State = ServiceDescriptorState.Ready;
-              }
-            }
-            catch (Exception) // Don't log exceptions at this low protocol level
-            {
-              state.CurrentServiceDescriptor.State = ServiceDescriptorState.Erroneous;
-              lock (_cpData.SyncObj)
-                rd.State = RootDescriptorState.Erroneous;
-            }
-            finally
-            {
-              response.Close();
+              XPathDocument xmlServiceDescription = new XPathDocument(body);
+              state.CurrentServiceDescriptor.ServiceDescription = xmlServiceDescription;
+              state.CurrentServiceDescriptor.State = ServiceDescriptorState.Ready;
             }
           }
-        }
-        catch (WebException e)
-        {
-          state.CurrentServiceDescriptor.State = ServiceDescriptorState.Erroneous;
-          lock (_cpData.SyncObj)
-            rd.State = RootDescriptorState.Erroneous;
-        if (e.Response != null)
-            e.Response.Close();
+          catch (Exception) // Don't log exceptions at this low protocol level
+          {
+            using (_cpData.Lock.EnterWrite())
+            {
+              state.CurrentServiceDescriptor.State = ServiceDescriptorState.Erroneous;
+              rd.State = RootDescriptorState.Erroneous;
+            }
+          }
+          finally
+          {
+            response.Close();
+          }
         }
       }
+      catch (WebException e)
+      {
+        state.CurrentServiceDescriptor.State = ServiceDescriptorState.Erroneous;
+        using (_cpData.Lock.EnterWrite())
+          rd.State = RootDescriptorState.Erroneous;
+        if (e.Response != null)
+          e.Response.Close();
+      }
+
       // Don't hold the lock while calling ContinueGetServiceDescription - that method is calling event handlers
       try
       {
@@ -460,7 +464,8 @@ namespace UPnP.Infrastructure.CP
       }
       catch (Exception) // Don't log exceptions at this low protocol level
       {
-        rd.State = RootDescriptorState.Erroneous;
+        using (_cpData.Lock.EnterWrite())
+          rd.State = RootDescriptorState.Erroneous;
       }
     }
 
@@ -469,7 +474,7 @@ namespace UPnP.Infrastructure.CP
       RootDescriptor rd = GetRootDescriptor(rootEntry);
       if (rd == null)
         return;
-      lock (_cpData.SyncObj)
+      using (_cpData.Lock.EnterWrite())
         InvalidateDescriptor(rd);
       InvokeRootDeviceRemoved(rd);
     }

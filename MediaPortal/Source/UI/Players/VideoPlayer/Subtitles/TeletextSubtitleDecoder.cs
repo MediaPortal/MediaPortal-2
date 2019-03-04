@@ -38,7 +38,7 @@ namespace MediaPortal.UI.Players.Video.Subtitles
     #endregion
 
     private const int DATA_FIELD_SIZE = 44;
-    private readonly SubtitleRenderer _subRender;
+    private readonly ISubtitleRenderer _subRender;
 
     private readonly byte[] _invtab =
       {
@@ -79,7 +79,7 @@ namespace MediaPortal.UI.Players.Video.Subtitles
     private readonly TeletextMagazine[] _magazines;
     private PageInfoCallback _pageInfoCallback;
 
-    public TeletextSubtitleDecoder(SubtitleRenderer subRender)
+    public TeletextSubtitleDecoder(ISubtitleRenderer subRender)
     {
       Assert(subRender != null, "SubtitleRender is null!");
       _subRender = subRender;
@@ -93,7 +93,7 @@ namespace MediaPortal.UI.Players.Video.Subtitles
       }
     }
 
-    public SubtitleRenderer SubtitleRender
+    public ISubtitleRenderer SubtitleRender
     {
       get { return _subRender; }
     }

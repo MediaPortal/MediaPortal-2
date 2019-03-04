@@ -249,6 +249,7 @@ namespace MediaPortal.UI.Players.Video
         AddSourceFilter();
 
         ServiceRegistration.Get<ILogger>().Debug("{0}: Adding subtitle filter", PlayerTitle);
+        SetSubtitleRenderer();
         AddSubtitleFilter(true);
 
         ServiceRegistration.Get<ILogger>().Debug("{0}: Run graph", PlayerTitle);
@@ -492,6 +493,10 @@ namespace MediaPortal.UI.Players.Video
     /// </summary>
     /// <param name="isSourceFilterPresent">Indicates if the source filter already has been added to graph.</param>
     protected virtual void AddSubtitleFilter(bool isSourceFilterPresent)
+    {
+    }
+
+    protected virtual void SetSubtitleRenderer()
     {
     }
 
