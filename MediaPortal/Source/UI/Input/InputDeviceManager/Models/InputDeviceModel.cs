@@ -58,6 +58,7 @@ namespace MediaPortal.Plugins.InputDeviceManager.Models
     public const string KEY_KEYMAP_NAME = "MapName";
     public const string KEY_MENU_MODEL = "MenuModel: Item-Action";
     public const string KEY_PREFIX = "Key.";
+    public const string KEY_PRINTABLE_PREFIX = "PrintableKey.";
     public const string HOME_PREFIX = "Home.";
     public const string CONFIG_PREFIX = "Config.";
 
@@ -460,6 +461,7 @@ namespace MediaPortal.Plugins.InputDeviceManager.Models
         { new MappedKeyCode { Key = KEY_PREFIX + Key.Mute.Name, Codes = new List<KeyCode> { new KeyCode { Key = KeyMapper.GetMicrosoftKeyName((int)Keys.VolumeMute), Code = (int)Keys.VolumeMute } } } },
         { new MappedKeyCode { Key = KEY_PREFIX + Key.VolumeUp.Name, Codes = new List<KeyCode> { new KeyCode { Key = KeyMapper.GetMicrosoftKeyName((int)Keys.Add), Code = (int)Keys.Add } } } },
         { new MappedKeyCode { Key = KEY_PREFIX + Key.VolumeDown.Name, Codes = new List<KeyCode> { new KeyCode { Key = KeyMapper.GetMicrosoftKeyName((int)Keys.Subtract), Code = (int)Keys.Subtract } } } },
+        { new MappedKeyCode { Key = KEY_PREFIX + Key.ZapBack.Name, Codes = new List<KeyCode> { new KeyCode { Key = KeyMapper.GetMicrosoftKeyName((int)Keys.Multiply), Code = (int)Keys.Multiply } } } },
       };
     }
 

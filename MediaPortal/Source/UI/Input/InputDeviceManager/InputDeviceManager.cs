@@ -61,13 +61,11 @@ namespace MediaPortal.Plugins.InputDeviceManager
     private static SharpLib.Hid.Handler _hidHandler;
     private static List<Action<object, SharpLib.Hid.Event, string, IDictionary<string, long>>> _externalKeyPressHandlers = new List<Action<object, SharpLib.Hid.Event, string, IDictionary<string, long>>>();
     private static object _listSyncObject = new object();
-    private static Message _currentMessage;
     private static bool _currentMessageHandled;
     private static ConcurrentDictionary<long, (string Name, long Code)> _genericKeyDownEvents = new ConcurrentDictionary<long, (string Name, long Code)>();
     private static readonly ConcurrentDictionary<string, long> _pressedPreviewKeys = new ConcurrentDictionary<string, long>();
     private static System.Timers.Timer _pressedKeyTimer = new System.Timers.Timer(2000);
-    private static Dictionary<UsagePage, Dictionary<long, Key>> _defaultRemoteKeyCodes = new Dictionary<UsagePage, Dictionary<long, Key>>();
-    private static Dictionary<UsagePage, Dictionary<long, string>> _defaultRemoteScreenCodes = new Dictionary<UsagePage, Dictionary<long, string>>();
+    private static List<MappedKeyCode> _defaultRemoteKeyCodes = new List<MappedKeyCode>();
     private static readonly Key[] _navigationKeys = new[] { Key.Ok, Key.Escape, Key.Left, Key.Right, Key.Up, Key.Down };
 
     private SynchronousMessageQueue _messageQueue;
@@ -270,34 +268,38 @@ namespace MediaPortal.Plugins.InputDeviceManager
             switch (messageType)
             {
               case WindowsMessaging.MessageType.WindowsBroadcast:
-                _currentMessage = (Message)message.MessageData[WindowsMessaging.MESSAGE];
+                Message msg = (Message)message.MessageData[WindowsMessaging.MESSAGE];
                 _currentMessageHandled = false;
+                bool? keyUp = null;
                 //WM_KEYDOWN and WM_KEYUP are not handled by SharpLibHid so we need to handle them to avoid a duplicate key press
-                if (_externalKeyPressHandlers.Count == 0 && (_currentMessage.Msg == WM_KEYDOWN || _currentMessage.Msg == WM_KEYUP || _currentMessage.Msg == WM_SYSKEYDOWN || _currentMessage.Msg == WM_SYSKEYUP))
+                if (_externalKeyPressHandlers.Count == 0 && (msg.Msg == WM_KEYDOWN || msg.Msg == WM_KEYUP || msg.Msg == WM_SYSKEYDOWN || msg.Msg == WM_SYSKEYUP))
                 {
-                  var key = ConvertSystemKey((Keys)_currentMessage.WParam);
-                  if (_currentMessage.Msg == WM_KEYDOWN || _currentMessage.Msg == WM_SYSKEYDOWN)
+                  var key = ConvertSystemKey((Keys)msg.WParam);
+                  if (msg.Msg == WM_KEYDOWN || msg.Msg == WM_SYSKEYDOWN)
                   {
+                    keyUp = false;
                     _pressedPreviewKeys.TryAdd(key.ToString(), (long)key);
                     RestartKeyPressedTimer();
                   }
                   if (_inputDevices.TryGetValue("Keyboard", out InputDevice device))
                   {
-                    if (device.KeyMap.Any(m => KeyCombinationsMatch(m.Codes.Select(c => c.Code), _pressedPreviewKeys.Values)))
-                    {
+                    if (CheckMappedKeys(device, _pressedPreviewKeys.Values, false))
                       _currentMessageHandled = true;
-                      ServiceRegistration.Get<ILogger>().Debug("InputDeviceManager: Preview message handled for keys: {0}", string.Join(", ", _pressedPreviewKeys.Keys));
-                    }
                   }
-                  if (_currentMessage.Msg == WM_KEYUP || _currentMessage.Msg == WM_SYSKEYUP)
+                  if (msg.Msg == WM_KEYUP || msg.Msg == WM_SYSKEYUP)
                   {
+                    keyUp = true;
                     _pressedPreviewKeys.TryRemove(key.ToString(), out _);
                   }
                 }
-                _hidHandler?.ProcessInput(ref _currentMessage);
-                message.MessageData[WindowsMessaging.MESSAGE] = _currentMessage;
+                _hidHandler?.ProcessInput(ref msg);
                 if (_currentMessageHandled)
+                {
+                  //msg.Result = new IntPtr(1);
                   message.MessageData[WindowsMessaging.HANDLED] = true;
+                  ServiceRegistration.Get<ILogger>().Debug("InputDeviceManager: Preview message handled {0}", keyUp.HasValue ? keyUp.Value ? "UP" : "DOWN" : "");
+                }
+                message.MessageData[WindowsMessaging.MESSAGE] = msg;
                 break;
             }
           }
@@ -666,35 +668,21 @@ namespace MediaPortal.Plugins.InputDeviceManager
       return key;
     }
 
-    private static bool TryExecuteDefaultAction(long code, SharpLib.Hid.Event hidEvent)
+    private static bool CheckMappedKeys(InputDevice device, IEnumerable<long> codes, bool handleKeyPressIfFound)
     {
-      if (_defaultRemoteKeyCodes.TryGetValue(hidEvent.UsagePageEnum, out var keyDic) && keyDic.TryGetValue(code, out Key key))
+      if (device?.KeyMap.Count > 0)
       {
-        ServiceRegistration.Get<ILogger>().Debug("InputDeviceManager: Executing default key {0} action: {1}", code, key);
-        if (key != null && key != Key.None && (_navigationKeys.Any(k => k == key) || _externalKeyPressHandlers.Count == 0)) //Only allow navigation key during external handling
-        {
-          ServiceRegistration.Get<IInputManager>().KeyPress(key);
-          return true;
-        }
-      }
-      if (_defaultRemoteScreenCodes.TryGetValue(hidEvent.UsagePageEnum, out var screenDic) && screenDic.TryGetValue(code, out string screen))
-      {
-        if (screen.StartsWith(InputDeviceModel.HOME_PREFIX, StringComparison.InvariantCultureIgnoreCase))
-        {
-          var homeScreen = screen.Replace(InputDeviceModel.HOME_PREFIX, "");
-          ServiceRegistration.Get<ILogger>().Debug("InputDeviceManager: Executing default home action: " + homeScreen);
-          NavigateToScreen(homeScreen);
-          return true;
-        }
-        else if (screen.StartsWith(InputDeviceModel.CONFIG_PREFIX, StringComparison.InvariantCultureIgnoreCase))
-        {
-          var configScreen = screen.Replace(InputDeviceModel.CONFIG_PREFIX, "");
-          ServiceRegistration.Get<ILogger>().Debug("InputDeviceManager: Executing defauly config action: " + configScreen);
-          NavigateToScreen(configScreen, InputDeviceModel.CONFIGURATION_STATE_ID);
-          return true;
-        }
+        var keyMappings = device.KeyMap.Where(m => KeyCombinationsMatch(m.Codes.Select(c => c.Code), _pressedKeys.Values));
+        if (keyMappings?.Count() > 0)
+          return HandleKeyPress(keyMappings, handleKeyPressIfFound);
       }
       return false;
+    }
+
+    private static bool CheckDefaultRemoteKeys(IEnumerable<long> codes, bool handleKeyPressIfFound)
+    {
+      var keyMappings = _defaultRemoteKeyCodes.Where(m => KeyCombinationsMatch(m.Codes.Select(c => c.Code), codes));
+      return HandleKeyPress(keyMappings, handleKeyPressIfFound);
     }
 
     private static bool IsModifierKey(long code)
@@ -745,73 +733,40 @@ namespace MediaPortal.Plugins.InputDeviceManager
         if (buttonDown)
           AddPressedKey(name, code);
 
-        InputDevice device;
         bool keyHandled = false;
         bool handleKeyPress = (SUPPORT_REPEATS && buttonDown) || (!SUPPORT_REPEATS && buttonUp);
-        if (_inputDevices.TryGetValue(type, out device))
+
+        //Check mapped keys
+        if (_inputDevices.TryGetValue(type, out var device))
         {
           ServiceRegistration.Get<ILogger>().Debug("InputDeviceManager: Checking mapping for device: " + device.Name);
           ServiceRegistration.Get<ILogger>().Debug("InputDeviceManager: Checking keys: " + string.Join(", ", _pressedKeys.Select(k => k.Key)));
           ServiceRegistration.Get<ILogger>().Debug("InputDeviceManager: Checking codes: " + string.Join(", ", _pressedKeys.Select(k => k.Value)));
 
-          var keyMappings = device.KeyMap.Where(m => KeyCombinationsMatch(m.Codes.Select(c => c.Code), _pressedKeys.Values));
-          if (keyMappings?.Count() > 0)
-          {
-            ServiceRegistration.Get<ILogger>().Debug("InputDeviceManager: Found matching mappings: " + keyMappings.Count());
-            ServiceRegistration.Get<ILogger>().Debug("InputDeviceManager: Button states: {0}/{1}", buttonDown, buttonUp);
-
-            //_currentMessage.Result = new IntPtr(1);
-            _currentMessageHandled = true;
-            if (handleKeyPress)
-            {
-              foreach (var keyMapping in keyMappings)
-              {
-                string[] actionArray = keyMapping.Key.Split('.');
-                if (actionArray.Length >= 2)
-                {
-                  if (keyMapping.Key.StartsWith(InputDeviceModel.KEY_PREFIX, StringComparison.InvariantCultureIgnoreCase))
-                  {
-                    if (_navigationKeys.Any(k => k.Name == actionArray[1]) || _externalKeyPressHandlers.Count == 0) //Only allow navigation key during external handling
-                    {
-                      ServiceRegistration.Get<ILogger>().Debug("InputDeviceManager: Executing key action: " + actionArray[1]);
-                      ServiceRegistration.Get<IInputManager>().KeyPress(Key.GetSpecialKeyByName(actionArray[1]));
-                      keyHandled = true;
-                    }
-                  }
-                  else if (_externalKeyPressHandlers.Count == 0) //Don't interfere with external handlers by executing screen changes
-                  {
-                    if (keyMapping.Key.StartsWith(InputDeviceModel.HOME_PREFIX, StringComparison.InvariantCultureIgnoreCase))
-                    {
-                      ServiceRegistration.Get<ILogger>().Debug("InputDeviceManager: Executing home action: " + actionArray[1]);
-                      NavigateToScreen(actionArray[1]);
-                      keyHandled = true;
-                    }
-                    else if (keyMapping.Key.StartsWith(InputDeviceModel.CONFIG_PREFIX, StringComparison.InvariantCultureIgnoreCase))
-                    {
-                      ServiceRegistration.Get<ILogger>().Debug("InputDeviceManager: Executing config action: " + actionArray[1]);
-                      NavigateToScreen(actionArray[1], InputDeviceModel.CONFIGURATION_STATE_ID);
-                      keyHandled = true;
-                    }
-                  }
-                }
-              }
-            }
-          }
+          if (CheckMappedKeys(device, _pressedKeys.Values, handleKeyPress))
+            keyHandled = true;
         }
 
-        //Check if default handling is available for unhandled single key presses from non-keyboard devices
-        if (!keyHandled && _pressedKeys.Count == 1 && hidEvent.IsGeneric && handleKeyPress)
+        //Check if default handling is available for unhandled key presses from non-keyboard devices
+        if (!keyHandled && hidEvent.IsGeneric)
         {
           ServiceRegistration.Get<ILogger>().Debug("InputDeviceManager: Checking default keys: " + string.Join(", ", _pressedKeys.Select(k => k.Key)));
           ServiceRegistration.Get<ILogger>().Debug("InputDeviceManager: Checking default codes: " + string.Join(", ", _pressedKeys.Select(k => k.Value)));
 
-          if (TryExecuteDefaultAction(_pressedKeys.Values.First(), hidEvent))
+          if (CheckDefaultRemoteKeys(_pressedKeys.Values, handleKeyPress))
             keyHandled = true;
+        }
+
+        if (keyHandled)
+        {
+          //Set as handled so it doesn't get processed by the default key press handler
+          //Remember that both key up and down needs to be set as handled
+          _currentMessageHandled = true;
         }
 
         if (_externalKeyPressHandlers.Count > 0)
         {
-          if (buttonDown && !hidEvent.IsRepeat) //Only send button down and no repeats for better consitency
+          if (buttonDown && !hidEvent.IsRepeat) //Only send button down and no repeats for better consistency
           {
             lock (_listSyncObject)
             {
@@ -829,6 +784,65 @@ namespace MediaPortal.Plugins.InputDeviceManager
       {
         ServiceRegistration.Get<ILogger>().Error("InputDeviceManager: HID event failed", ex);
       }
+    }
+
+    private static bool HandleKeyPress(IEnumerable<MappedKeyCode> keyMappings, bool handleKeyPressIfFound)
+    {
+      if (!(keyMappings?.Count() > 0))
+        return false;
+
+      bool keyHandled = false;
+      foreach (var keyMapping in keyMappings)
+      {
+        string[] actionArray = keyMapping.Key.Split('.');
+        if (actionArray.Length >= 2)
+        {
+          if (keyMapping.Key.StartsWith(InputDeviceModel.KEY_PREFIX, StringComparison.InvariantCultureIgnoreCase))
+          {
+            if (_navigationKeys.Any(k => k.Name == actionArray[1]) || _externalKeyPressHandlers.Count == 0) //Only allow navigation key during external handling
+            {
+              if (handleKeyPressIfFound)
+              {
+                ServiceRegistration.Get<ILogger>().Debug("InputDeviceManager: Executing key action: " + actionArray[1]);
+                if (!actionArray[1].Equals("None", StringComparison.InvariantCultureIgnoreCase))
+                  ServiceRegistration.Get<IInputManager>().KeyPress(Key.GetSpecialKeyByName(actionArray[1]));
+              }
+              keyHandled = true;
+            }
+          }
+          else if (_externalKeyPressHandlers.Count == 0) //Don't interfere with external handlers by executing screen changes
+          {
+            if (keyMapping.Key.StartsWith(InputDeviceModel.KEY_PRINTABLE_PREFIX, StringComparison.InvariantCultureIgnoreCase))
+            {
+              if (handleKeyPressIfFound)
+              {
+                ServiceRegistration.Get<ILogger>().Debug("InputDeviceManager: Executing printable key: " + actionArray[1]);
+                ServiceRegistration.Get<IInputManager>().KeyPress(new Key(actionArray[1][0]));
+              }
+              keyHandled = true;
+            }
+            else if (keyMapping.Key.StartsWith(InputDeviceModel.HOME_PREFIX, StringComparison.InvariantCultureIgnoreCase))
+            {
+              if (handleKeyPressIfFound)
+              {
+                ServiceRegistration.Get<ILogger>().Debug("InputDeviceManager: Executing home action: " + actionArray[1]);
+                NavigateToScreen(actionArray[1]);
+              }
+              keyHandled = true;
+            }
+            else if (keyMapping.Key.StartsWith(InputDeviceModel.CONFIG_PREFIX, StringComparison.InvariantCultureIgnoreCase))
+            {
+              if (handleKeyPressIfFound)
+              {
+                ServiceRegistration.Get<ILogger>().Debug("InputDeviceManager: Executing config action: " + actionArray[1]);
+                NavigateToScreen(actionArray[1], InputDeviceModel.CONFIGURATION_STATE_ID);
+              }
+              keyHandled = true;
+            }
+          }
+        }
+      }
+      return keyHandled;
     }
 
     private static bool NavigateToScreen(string name, Guid? requiredState = null)
@@ -856,37 +870,23 @@ namespace MediaPortal.Plugins.InputDeviceManager
 
     #region Settings
 
-    private ICollection<RemoteKeyCode> LoadRemoteMap(string remoteFile)
+    private ICollection<MappedKeyCode> LoadRemoteMap(string remoteFile)
     {
       if (!File.Exists(remoteFile))
-        return new List<RemoteKeyCode>();
+        return new List<MappedKeyCode>();
 
-      XmlSerializer reader = new XmlSerializer(typeof(List<RemoteKeyCode>));
+      XmlSerializer reader = new XmlSerializer(typeof(List<MappedKeyCode>));
       using (StreamReader file = new StreamReader(remoteFile))
-        return (ICollection<RemoteKeyCode>)reader.Deserialize(file);
+        return (ICollection<MappedKeyCode>)reader.Deserialize(file);
     }
 
     private void LoadDefaulRemoteMaps(PluginRuntime pluginRuntime)
     {
-      _defaultRemoteKeyCodes[UsagePage.WindowsMediaCenterRemoteControl] = new Dictionary<long, Key>();
-      _defaultRemoteKeyCodes[UsagePage.Consumer] = new Dictionary<long, Key>();
-      _defaultRemoteScreenCodes[UsagePage.WindowsMediaCenterRemoteControl] = new Dictionary<long, string>();
-      _defaultRemoteScreenCodes[UsagePage.Consumer] = new Dictionary<long, string>();
+      _defaultRemoteKeyCodes.Clear();
       var keyCodes = LoadRemoteMap(pluginRuntime.Metadata.GetAbsolutePath("DefaultRemoteMap.xml"));
-      foreach (RemoteKeyCode mkc in keyCodes)
+      foreach (MappedKeyCode mkc in keyCodes)
       {
-        if (mkc.FuncName.StartsWith("S:") || mkc.FuncName.StartsWith("P:"))
-          _defaultRemoteKeyCodes[UsagePage.WindowsMediaCenterRemoteControl][mkc.Code] = Key.DeserializeKey(mkc.FuncName);
-        else
-          _defaultRemoteScreenCodes[UsagePage.WindowsMediaCenterRemoteControl][mkc.Code] = mkc.FuncName;
-      }
-      keyCodes = LoadRemoteMap(pluginRuntime.Metadata.GetAbsolutePath("DefaultConsumerRemoteMap.xml"));
-      foreach (RemoteKeyCode mkc in keyCodes)
-      {
-        if (mkc.FuncName.StartsWith("S:") || mkc.FuncName.StartsWith("P:"))
-          _defaultRemoteKeyCodes[UsagePage.Consumer][mkc.Code] = Key.DeserializeKey(mkc.FuncName);
-        else
-          _defaultRemoteScreenCodes[UsagePage.Consumer][mkc.Code] = mkc.FuncName;
+        _defaultRemoteKeyCodes.Add(mkc);
       }
     }
 

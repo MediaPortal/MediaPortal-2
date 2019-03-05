@@ -1,91 +1,340 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
   Contains a default mapping of remote keys to MP2 keys.
-  For each key mapping to be interpreted by MP2, there must be a RemoteKeyCode element.
-  The Code attribute contains the code representing the key pressed. The Func_Name attribute contains
-  a reference to a MP2 key or secreen. The prefix (S: or P:) determines if the key is a special (S:) or printable (P:) key.
-  The suffix is the special key name or the printable key's character. The prefix (Home: or Config:) determines if the 
-  screen is a home (Home:) or configuration (Config:) screen. The suffix is the name of the screen.
+  For each key mapping to be interpreted by MP2, there must be a MappedKeyCode element.
+  The Code attribute contains the code representing the key pressed. The MappedKeyCode.Key attribute contains
+  a reference to a MP2 key or secreen. The prefix (Key. or PrintableKey.) determines if the key is a special (Key.) or 
+  printable (PrintableKey.) key. The suffix is the special key name or the printable key's character. The prefix (Home. or
+  Config.) determines if the screen is a home (Home.) or configuration (Config.) screen. The suffix is the name of the screen.
 
-  Each key code may only be mapped once (i.e. a key code given in the Code attribute may only be at most once).
-  It is not necessary to add a RemoteKeyCode entry for each key code, but it is recommended to do so. If a remote key
-  should not be mapped to an MP2 key, the special key None (S:None) can be used.
+  Each Code.Key code may only be mapped once (i.e. a key code given in the Code attribute may only be at most once).
+  It is not necessary to add a MappedKeyCode entry for each key code, but it is recommended to do so. If a key
+  should not be mapped to any MP2 key, the special key None (Key.None) can be used.
 -->
-<ArrayOfRemoteKeyCode xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
-  <RemoteKeyCode Code="101" Func_Name="S:Power" />
-  <!-- Default mapping: 
-  <RemoteKeyCode Code="35" Func_Name="S:Back" />
-  -->
-  <RemoteKeyCode Code="35" Func_Name="S:Escape" />
-  <!-- Unmappable, handled by OS
-  <RemoteKeyCode Code="34" Func_Name="S:Ok" />
-  -->
-  <RemoteKeyCode Code="13" Func_Name="S:Start" />
+<ArrayOfMappedKeyCode xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <!--Remote codes-->
+  <MappedKeyCode Key="Key.Power">
+    <Code Key="PowerTV">
+      <Code>101</Code>
+    </Code>
+  </MappedKeyCode>
 
-  <RemoteKeyCode Code="72" Func_Name="S:RecordedTV" />
-  <RemoteKeyCode Code="38" Func_Name="S:Guide" />
-  <RemoteKeyCode Code="37" Func_Name="S:LiveTV" />
-  <RemoteKeyCode Code="36" Func_Name="S:DVDMenu" />
+  <MappedKeyCode Key="Key.Escape">
+    <Code Key="Back">
+      <Code>35</Code>
+    </Code>
+  </MappedKeyCode>
+  <MappedKeyCode Key="Key.Start">
+    <Code Key="Start">
+      <Code>13</Code>
+    </Code>
+  </MappedKeyCode>
 
-  <RemoteKeyCode Code="16" Func_Name="S:VolumeUp" />
-  <RemoteKeyCode Code="17" Func_Name="S:VolumeDown" />
-  <RemoteKeyCode Code="14" Func_Name="S:Mute" />
+  <MappedKeyCode Key="Key.RecordedTV">
+    <Code Key="RecordedTV">
+      <Code>72</Code>
+    </Code>
+  </MappedKeyCode>
+  <MappedKeyCode Key="Key.Guide">
+    <Code Key="Guide">
+      <Code>38</Code>
+    </Code>
+  </MappedKeyCode>
+  <MappedKeyCode Key="Key.LiveTV">
+    <Code Key="LiveTV">
+      <Code>37</Code>
+    </Code>
+  </MappedKeyCode>
+  <MappedKeyCode Key="Key.DVDMenu">
+    <Code Key="DVDMenu">
+      <Code>36</Code>
+    </Code>
+  </MappedKeyCode>
 
-  <!-- Default mapping:  
-  <RemoteKeyCode Code="18" Func_Name="S:ChannelUp" />
-  <RemoteKeyCode Code="19" Func_Name="S:ChannelDown" />
-  -->
-  <RemoteKeyCode Code="18" Func_Name="S:PageUp" />
-  <RemoteKeyCode Code="19" Func_Name="S:PageDown" />
+  <MappedKeyCode Key="Key.VolumeUp">
+    <Code Key="VolumeUp">
+      <Code>16</Code>
+    </Code>
+  </MappedKeyCode>
+  <MappedKeyCode Key="Key.VolumeDown">
+    <Code Key="VolumeDown">
+      <Code>17</Code>
+    </Code>
+  </MappedKeyCode>
+  <MappedKeyCode Key="Key.Mute">
+    <Code Key="Mute">
+      <Code>14</Code>
+    </Code>
+  </MappedKeyCode>
 
-  <!-- Unmappable, handled by OS
-  <RemoteKeyCode Code="30" Func_Name="S:Up" />
-  <RemoteKeyCode Code="31" Func_Name="S:Down" />
-  <RemoteKeyCode Code="32" Func_Name="S:Left" />
-  <RemoteKeyCode Code="33" Func_Name="S:Right" />
-  -->
-  <RemoteKeyCode Code="15" Func_Name="S:Info" />
+  <MappedKeyCode Key="Key.PageUp">
+    <Code Key="ChannelUp">
+      <Code>18</Code>
+    </Code>
+  </MappedKeyCode>
+  <MappedKeyCode Key="Key.PageDown">
+    <Code Key="ChannelDown">
+      <Code>19</Code>
+    </Code>
+  </MappedKeyCode>
 
-  <RemoteKeyCode Code="25" Func_Name="S:Stop" />
-  <RemoteKeyCode Code="24" Func_Name="S:Pause" />
-  <RemoteKeyCode Code="23" Func_Name="S:Record" />
-  <RemoteKeyCode Code="22" Func_Name="S:Play" />
-  <RemoteKeyCode Code="21" Func_Name="S:Rew" />
-  <RemoteKeyCode Code="20" Func_Name="S:Fwd" />
+  <MappedKeyCode Key="Key.Info">
+    <Code Key="Info">
+      <Code>15</Code>
+    </Code>
+  </MappedKeyCode>
+  
+  <MappedKeyCode Key="Key.Stop">
+    <Code Key="Stop">
+      <Code>25</Code>
+    </Code>
+  </MappedKeyCode>
+  <MappedKeyCode Key="Key.Pause">
+    <Code Key="Pause">
+      <Code>24</Code>
+    </Code>
+  </MappedKeyCode>
+  <MappedKeyCode Key="Key.Record">
+    <Code Key="Record">
+      <Code>23</Code>
+    </Code>
+  </MappedKeyCode>
+  <MappedKeyCode Key="Key.Play">
+    <Code Key="Play">
+      <Code>22</Code>
+    </Code>
+  </MappedKeyCode>
+  <MappedKeyCode Key="Key.Rew">
+    <Code Key="Rewind">
+      <Code>21</Code>
+    </Code>
+  </MappedKeyCode>
+  <MappedKeyCode Key="Key.Fwd">
+    <Code Key="Forward">
+      <Code>20</Code>
+    </Code>
+  </MappedKeyCode>
+  <MappedKeyCode Key="Key.TeleText">
+    <Code Key="Teletext">
+      <Code>90</Code>
+    </Code>
+  </MappedKeyCode>
 
-  <!-- Unmappable, handled by OS
-  <RemoteKeyCode Code="27" Func_Name="S:Previous" />
-  <RemoteKeyCode Code="26" Func_Name="S:Next" />
-  <RemoteKeyCode Code="0" Func_Name="P:0" />
-  <RemoteKeyCode Code="1" Func_Name="P:1" />
-  <RemoteKeyCode Code="2" Func_Name="P:2" />
-  <RemoteKeyCode Code="3" Func_Name="P:3" />
-  <RemoteKeyCode Code="4" Func_Name="P:4" />
-  <RemoteKeyCode Code="5" Func_Name="P:5" />
-  <RemoteKeyCode Code="6" Func_Name="P:6" />
-  <RemoteKeyCode Code="7" Func_Name="P:7" />
-  <RemoteKeyCode Code="8" Func_Name="P:8" />
-  <RemoteKeyCode Code="9" Func_Name="P:9" />
+  <MappedKeyCode Key="Key.Red">
+    <Code Key="Red">
+      <Code>91</Code>
+    </Code>
+  </MappedKeyCode>
+  <MappedKeyCode Key="Key.Green">
+    <Code Key="Green">
+      <Code>92</Code>
+    </Code>
+  </MappedKeyCode>
+  <MappedKeyCode Key="Key.Yellow">
+    <Code Key="Yellow">
+      <Code>93</Code>
+    </Code>
+  </MappedKeyCode>
+  <MappedKeyCode Key="Key.Blue">
+    <Code Key="Blue">
+      <Code>94</Code>
+    </Code>
+  </MappedKeyCode>
 
-  <RemoteKeyCode Code="10" Func_Name="S:Clear" />
-  <RemoteKeyCode Code="11" Func_Name="S:Enter" />
-  -->
+  <MappedKeyCode Key="Home.Home-&gt;Audio">
+    <Code Key="MyMusic">
+      <Code>71</Code>
+    </Code>
+  </MappedKeyCode>
+  <MappedKeyCode Key="Home.Home-&gt;Images">
+    <Code Key="MyPictures">
+      <Code>73</Code>
+    </Code>
+  </MappedKeyCode>
+  <MappedKeyCode Key="Home.Home-&gt;SlimTvClient">
+    <Code Key="MyRadio">
+      <Code>80</Code>
+    </Code>
+  </MappedKeyCode>
+  <MappedKeyCode Key="Home.Home-&gt;SlimTvClient">
+    <Code Key="MyTV">
+      <Code>70</Code>
+    </Code>
+  </MappedKeyCode>
+  <MappedKeyCode Key="Home.Home-&gt;Videos">
+    <Code Key="MyVideos">
+      <Code>74</Code>
+    </Code>
+  </MappedKeyCode>
+  
+  <!--Consumer codes-->
+  <MappedKeyCode Key="Key.Power">
+    <Code Key="Power">
+      <Code>48</Code>
+    </Code>
+  </MappedKeyCode>
 
-  <RemoteKeyCode Code="90" Func_Name="S:TeleText" />
+  <MappedKeyCode Key="Key.Escape">
+    <Code Key="AppCtrlBack">
+      <Code>548</Code>
+    </Code>
+  </MappedKeyCode>
+  <MappedKeyCode Key="Key.Guide">
+    <Code Key="MediaSelectProgramGuide">
+      <Code>141</Code>
+    </Code>
+  </MappedKeyCode>
+  <MappedKeyCode Key="Key.LiveTV">
+    <Code Key="MediaSelectTv">
+      <Code>137</Code>
+    </Code>
+  </MappedKeyCode>
+  <MappedKeyCode Key="Key.DVDMenu">
+    <Code Key="MediaSelectDvd">
+      <Code>139</Code>
+    </Code>
+  </MappedKeyCode>
 
-  <RemoteKeyCode Code="91" Func_Name="S:Red" />
-  <RemoteKeyCode Code="92" Func_Name="S:Green" />
-  <RemoteKeyCode Code="93" Func_Name="S:Yellow" />
-  <RemoteKeyCode Code="94" Func_Name="S:Blue" />
+  <MappedKeyCode Key="Key.VolumeUp">
+    <Code Key="VolumeIncrement">
+      <Code>233</Code>
+    </Code>
+  </MappedKeyCode>
+  <MappedKeyCode Key="Key.VolumeDown">
+    <Code Key="VolumeDecrement">
+      <Code>234</Code>
+    </Code>
+  </MappedKeyCode>
+  <MappedKeyCode Key="Key.Mute">
+    <Code Key="Mute">
+      <Code>226</Code>
+    </Code>
+  </MappedKeyCode>
 
-  <!-- Music -->
-  <RemoteKeyCode Code="71" Func_Name="Home.Home-&gt;Audio" />
-  <!-- Pictures -->
-  <RemoteKeyCode Code="73" Func_Name="Home.Home-&gt;Images" />
-  <!-- Radio -->
-  <RemoteKeyCode Code="80" Func_Name="Home.Home-&gt;SlimTvClient" />
-  <!-- TV -->
-  <RemoteKeyCode Code="70" Func_Name="Home.Home-&gt;SlimTvClient" />
-  <!-- Videos -->
-  <RemoteKeyCode Code="74" Func_Name="Home.Home-&gt;Videos" />
-</ArrayOfRemoteKeyCode>
+
+  <MappedKeyCode Key="Key.PageUp">
+    <Code Key="ChannelIncrement">
+      <Code>156</Code>
+    </Code>
+  </MappedKeyCode>
+  <MappedKeyCode Key="Key.PageDown">
+    <Code Key="ChannelDecrement">
+      <Code>157</Code>
+    </Code>
+  </MappedKeyCode>
+
+  <MappedKeyCode Key="Key.Info">
+    <Code Key="AppCtrlProperties">
+      <Code>521</Code>
+    </Code>
+  </MappedKeyCode>
+
+  <MappedKeyCode Key="Key.Stop">
+    <Code Key="Stop">
+      <Code>183</Code>
+    </Code>
+  </MappedKeyCode>
+  <MappedKeyCode Key="Key.Pause">
+    <Code Key="Pause">
+      <Code>177</Code>
+    </Code>
+  </MappedKeyCode>
+  <MappedKeyCode Key="Key.Record">
+    <Code Key="Record">
+      <Code>178</Code>
+    </Code>
+  </MappedKeyCode>
+  <MappedKeyCode Key="Key.Play">
+    <Code Key="Play">
+      <Code>176</Code>
+    </Code>
+  </MappedKeyCode>
+  <MappedKeyCode Key="Key.PlayPause">
+    <Code Key="PlayPause">
+      <Code>205</Code>
+    </Code>
+  </MappedKeyCode>
+  <MappedKeyCode Key="Key.Rew">
+    <Code Key="Rewind">
+      <Code>180</Code>
+    </Code>
+  </MappedKeyCode>
+  <MappedKeyCode Key="Key.Fwd">
+    <Code Key="FastForward">
+      <Code>179</Code>
+    </Code>
+  </MappedKeyCode>
+  <MappedKeyCode Key="Key.Previous">
+    <Code Key="ScanPreviousTrack">
+      <Code>182</Code>
+    </Code>
+  </MappedKeyCode>
+  <MappedKeyCode Key="Key.Next">
+    <Code Key="ScanNextTrack">
+      <Code>181</Code>
+    </Code>
+  </MappedKeyCode>
+
+  <MappedKeyCode Key="Key.ZoomMode">
+    <Code Key="AppCtrlZoom">
+      <Code>559</Code>
+    </Code>
+  </MappedKeyCode>
+  <MappedKeyCode Key="Key.Fullscreen">
+    <Code Key="AppCtrlFullScreenView">
+      <Code>560</Code>
+    </Code>
+  </MappedKeyCode>
+
+  <MappedKeyCode Key="Key.Cut">
+    <Code Key="AppCtrlCut">
+      <Code>540</Code>
+    </Code>
+  </MappedKeyCode>
+  <MappedKeyCode Key="Key.Copy">
+    <Code Key="AppCtrlCopy">
+      <Code>539</Code>
+    </Code>
+  </MappedKeyCode>
+  <MappedKeyCode Key="Key.Paste">
+    <Code Key="AppCtrlPaste">
+      <Code>541</Code>
+    </Code>
+  </MappedKeyCode>
+  <MappedKeyCode Key="Key.Clear">
+    <Code Key="AppCtrlDelete">
+      <Code>618</Code>
+    </Code>
+  </MappedKeyCode>
+
+  <MappedKeyCode Key="Home.Home-&gt;Audio">
+    <Code Key="AppLaunchAudioBrowser">
+      <Code>439</Code>
+    </Code>
+  </MappedKeyCode>
+  <MappedKeyCode Key="Home.Home-&gt;Images">
+    <Code Key="AppLaunchImageBrowser">
+      <Code>438</Code>
+    </Code>
+  </MappedKeyCode>
+  <MappedKeyCode Key="Home.Home-&gt;SlimTvClient">
+    <Code Key="MediaSelectTv">
+      <Code>137</Code>
+    </Code>
+  </MappedKeyCode>
+  <MappedKeyCode Key="Home.Home-&gt;Videos">
+    <Code Key="AppLaunchMovieBrowser">
+      <Code>440</Code>
+    </Code>
+  </MappedKeyCode>
+  
+  <!--Keyboard codes-->
+  <MappedKeyCode Key="Key.ZapBack">
+    <Code Key="ShiftKey">
+      <Code>16</Code>
+    </Code>
+    <Code Key="D8">
+      <Code>56</Code>
+    </Code>
+  </MappedKeyCode>
+</ArrayOfMappedKeyCode>
