@@ -28,7 +28,8 @@
   <KeyBinding Key="PageDown" Command="{Command ZapPrevChannel}"/>
   <KeyBinding Key="ChannelUp" Command="{Command ZapNextChannel}"/>
   <KeyBinding Key="ChannelDown" Command="{Command ZapPrevChannel}"/>
-  <KeyBinding Key="#" Command="{Command ZapBack}"/>
+  <KeyBinding Key="ZapBack" Command="{Command ZapBack}"/>
+  <KeyBinding Key="*" Command="{Command ZapBack}"/>
 
   <KeyBinding Key="Record" Command="{Command RecordDialog}"/>
   <KeyBinding Key="R" Command="{Command RecordDialog}"/>
