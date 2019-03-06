@@ -142,7 +142,6 @@
     <Compile Include="Models\RecordingsAction.cs" />
     <Compile Include="Models\ScreenData\AbstractChannelFilterScreenData.cs" />
     <Compile Include="Models\ScreenData\RecordingsSimpleSearchScreenData.cs" />
-    <Compile Include="Models\ScreenData\RecordingFilterByNameScreenData.cs" />
     <Compile Include="Models\ScreenData\RecordingsShowItemsScreenData.cs" />
     <Compile Include="Models\SlimTvManualScheduleModel.cs" />
     <Compile Include="Models\SlimTvNotificationModel.cs" />
@@ -225,7 +224,6 @@
     <Content Include="Skin\Reflexion\themes\default\styles\SlimTvStyles.xaml" />
     <Content Include="Skin\Reflexion\themes\default\styles\SlimTvConsts.xaml" />
     <Content Include="Skin\default\screens\RecordingsByChannel.xaml" />
-    <Content Include="Skin\default\screens\RecordingsByName.xaml" />
     <Content Include="Skin\Titanium\screens\ProgramInfoSlim.inc" />
     <Content Include="Skin\Titanium\themes\default\styles\SlimTvConsts.xaml" />
     <Content Include="Skin\Titanium\themes\default\styles\SlimTvStyles.xaml" />
@@ -454,9 +452,6 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Skin\BlueVision\themes\Titanium Extended\screens\RecordingsByChannel.xaml">
-      <SubType>Designer</SubType>
-    </Content>
-    <Content Include="Skin\BlueVision\themes\Titanium Extended\screens\RecordingsByName.xaml">
       <SubType>Designer</SubType>
     </Content>
     <Content Include="Skin\BlueVision\themes\Titanium Extended\screens\RecordingsShowItems.xaml">
