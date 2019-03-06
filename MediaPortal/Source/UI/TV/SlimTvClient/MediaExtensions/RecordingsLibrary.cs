@@ -69,7 +69,6 @@ namespace MediaPortal.Plugins.SlimTv.Client.MediaExtensions
       _availableScreens = new List<AbstractScreenData>
         {
           _defaultScreen,
-          new RecordingFilterByNameScreenData(),
           new RecordingsFilterByChannelScreenData(),
           //new VideosFilterByActorScreenData(),
           //new VideosFilterByDirectorScreenData(),
