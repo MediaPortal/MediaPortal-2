@@ -39,9 +39,9 @@ using MediaPortal.UI.Presentation.DataObjects;
 using MediaPortal.UI.Presentation.Models;
 using MediaPortal.UI.Presentation.Screens;
 using MediaPortal.UI.Presentation.Workflow;
-using MediaPortal.Utilities;
 using System.Threading.Tasks;
 using MediaPortal.Plugins.InputDeviceManager.RawInput;
+using Keys = System.Windows.Forms.Keys;
 
 namespace MediaPortal.Plugins.InputDeviceManager.Models
 {
@@ -51,11 +51,14 @@ namespace MediaPortal.Plugins.InputDeviceManager.Models
     public const string RES_REMOVE_MAPPING_TEXT = "[InputDeviceManager.KeyMapping.Dialog.RemoveMapping]";
     public const string RES_KEY_TEXT = "[InputDeviceManager.Key]";
     public const string RES_SCREEN_TEXT = "[InputDeviceManager.Screen]";
+    public const string RES_DEFAULT_KEYBOARD_TEXT = "[InputDeviceManager.DefaultConfig.Keyboard]";
+    public const string RES_DEFAULT_REMOTE_TEXT = "[InputDeviceManager.DefaultConfig.Remote]";
     public const string KEY_KEYMAP_DATA = "KeyMapData";
     public const string KEY_KEYMAP = "KeyMap";
     public const string KEY_KEYMAP_NAME = "MapName";
     public const string KEY_MENU_MODEL = "MenuModel: Item-Action";
     public const string KEY_PREFIX = "Key.";
+    public const string KEY_PRINTABLE_PREFIX = "PrintableKey.";
     public const string HOME_PREFIX = "Home.";
     public const string CONFIG_PREFIX = "Config.";
 
@@ -70,20 +73,24 @@ namespace MediaPortal.Plugins.InputDeviceManager.Models
     protected AbstractProperty _showAddKeyProperty;
     protected AbstractProperty _showAddActionProperty;
     protected AbstractProperty _selectedItemProperty;
+    protected AbstractProperty _selectedInputProperty;
     protected ItemsList _items;
     protected ItemsList _keyItems;
-    protected ItemsList _screenItems;
+    protected ItemsList _homeScreenItems;
+    protected ItemsList _configScreenItems;
+    protected ItemsList _defaultConfigItems;
 
-    private static string _currentInputDevice;
+    private static (string Type, string Name) _currentInputDevice;
     private static bool _inWorkflowAddKey = false;
-    private static ConcurrentDictionary<string, int> _pressedKeys = new ConcurrentDictionary<string, int>();
-    private static Dictionary<string, int> _pressedAddKeyCombo = new Dictionary<string, int>();
+    private static Dictionary<string, long> _pressedAddKeyCombo = new Dictionary<string, long>();
     private static int _maxPressedKeys = 0;
-    private static readonly Timer _timer = new Timer(100);
+    private static readonly Timer _keyInputTimer = new Timer(100);
     private DateTime _endTime;
     private Guid? _addKeyDialogHandle = null;
     private DialogCloseWatcher _dialogCloseWatcher = null;
     private string _chosenAction = null;
+
+    #region Properties
 
     public string AddKeyLabel
     {
@@ -123,9 +130,19 @@ namespace MediaPortal.Plugins.InputDeviceManager.Models
       get { return _keyItems; }
     }
 
-    public ItemsList ScreenItems
+    public ItemsList HomeScreenItems
     {
-      get { return _screenItems; }
+      get { return _homeScreenItems; }
+    }
+
+    public ItemsList ConfigScreenItems
+    {
+      get { return _configScreenItems; }
+    }
+
+    public ItemsList DefaultConfigItems
+    {
+      get { return _defaultConfigItems; }
     }
 
     public bool ShowInputDeviceSelection
@@ -161,7 +178,22 @@ namespace MediaPortal.Plugins.InputDeviceManager.Models
       get { return _selectedItemProperty; }
     }
 
-    private async Task InitModel()
+    public string SelectedInputName
+    {
+      get { return (string)_selectedInputProperty.GetValue(); }
+      set { _selectedInputProperty.SetValue(value); }
+    }
+
+    public AbstractProperty SelectedInputNameProperty
+    {
+      get { return _selectedInputProperty; }
+    }
+
+    #endregion
+
+    #region Initialization
+
+    private Task InitModel()
     {
       _inputDevicesProperty = new WProperty(typeof(string), "TEST");
       _addKeyLabelProperty = new WProperty(typeof(string), "No Keys");
@@ -171,17 +203,26 @@ namespace MediaPortal.Plugins.InputDeviceManager.Models
       _showAddKeyProperty = new WProperty(typeof(bool), false);
       _showAddActionProperty = new WProperty(typeof(bool), false);
       _selectedItemProperty = new WProperty(typeof(ListItem), null);
+      _selectedInputProperty = new WProperty(typeof(string), "");
 
       if (_items == null)
       {
         _items = new ItemsList();
         _keyItems = new ItemsList();
-        _screenItems = new ItemsList();
-        _timer.Elapsed += timer_Tick;
+        _configScreenItems = new ItemsList();
+        _homeScreenItems = new ItemsList();
+        _defaultConfigItems = new ItemsList();
+        _keyInputTimer.Elapsed += KeyInputTimer_Tick;
 
         foreach (var key in Key.NAME2SPECIALKEY)
         {
-          var listItem = new ListItem(Consts.KEY_NAME, $"{LocalizationHelper.Translate(RES_KEY_TEXT)} \"{key.Key}\"") { Command = new MethodDelegateCommand(() => ChooseKeyAction(KEY_PREFIX + key.Key)) };
+          if (key.Value == Key.None)
+            continue;
+
+          var listItem = new ListItem(Consts.KEY_NAME, $"{LocalizationHelper.Translate(RES_KEY_TEXT)} \"{key.Key}\"")
+          {
+            Command = new MethodDelegateCommand(() => ChooseKeyAction(KEY_PREFIX + key.Key))
+          };
           listItem.SetLabel(KEY_KEYMAP, "");
           listItem.SetLabel(KEY_KEYMAP_NAME, key.Key);
           listItem.AdditionalProperties[KEY_KEYMAP_DATA] = KEY_PREFIX + key.Key;
@@ -208,8 +249,34 @@ namespace MediaPortal.Plugins.InputDeviceManager.Models
             }
           }
         }
+
+        AddDefaultConfig(RES_DEFAULT_KEYBOARD_TEXT, GetDefaultKeyboardMap());
+        AddDefaultConfig(RES_DEFAULT_REMOTE_TEXT, GetDefaultRemoteMap());
       }
       InputDeviceManager.Instance.RegisterExternalKeyHandling(OnKeyPressed);
+      return Task.CompletedTask;
+    }
+
+    private void ResetCompleteModel(bool removeOnKeyPressed = true)
+    {
+      ServiceRegistration.Get<ILogger>().Debug("InputDeviceManager: Reset model");
+
+      ResetAddKey();
+
+      // Reset screens
+      SelectedInputName = "";
+      _currentInputDevice = ("", "");
+      ShowInputDeviceSelection = false;
+      ShowKeyMapping = false;
+      if (removeOnKeyPressed)
+        InputDeviceManager.Instance.UnRegisterExternalKeyHandling(OnKeyPressed);
+    }
+
+    protected void AddDefaultConfig(string text, List<MappedKeyCode> config)
+    {
+      ListItem listItem = new ListItem(Consts.KEY_NAME, $"{LocalizationHelper.Translate(text)}");
+      listItem.AdditionalProperties[KEY_KEYMAP_DATA] = config;
+      _defaultConfigItems.Add(listItem);
     }
 
     protected void AddScreen(WorkflowAction item, string prefix)
@@ -267,56 +334,142 @@ namespace MediaPortal.Plugins.InputDeviceManager.Models
       return result;
     }
 
-    private void OnKeyPressed(object sender, RawInputEventArg e)
-    {
-      switch (e.KeyPressEvent.Message)
-      {
-        case Win32.WM_KEYDOWN:
-        case Win32.WM_SYSKEYDOWN:
-          _pressedKeys.GetOrAdd(e.KeyPressEvent.VKeyName, e.KeyPressEvent.VKey);
-          break;
-        case Win32.WM_KEYUP:
-          _pressedKeys.TryRemove(e.KeyPressEvent.VKeyName, out int tmp);
-          break;
-      }
-      e.Handled = true;
+    #endregion
 
-      if (ShowKeyMapping || _inWorkflowAddKey)
+    #region Key input handling
+
+    private void OnKeyPressed(object sender, SharpLib.Hid.Event hidEvent, string device, IDictionary<string, long> pressedKeys)
+    {
+      try
       {
         if (_inWorkflowAddKey)
         {
-          if (_pressedKeys.Count > _maxPressedKeys)
+          //Add key screen
+          if (_currentInputDevice.Type == device)
           {
-            _pressedAddKeyCombo = _pressedKeys.ToDictionary(pair => pair.Key, pair => pair.Value);
-            _maxPressedKeys = _pressedKeys.Count;
-            //ServiceRegistration.Get<ILogger>().Info("pressedKeys: {0}, maxPressedKEys: {1}, _pressedAddKeyCombo: {2}", _pressedKeys.Count, _maxPressedKeys, _pressedAddKeyCombo.Count);
-            
-            _endTime = DateTime.Now.AddSeconds(5);
-            if (!_timer.Enabled)
-              _timer.Start();
+            if (pressedKeys.Count > _maxPressedKeys)
+            {
+              _pressedAddKeyCombo = pressedKeys.ToDictionary(pair => pair.Key, pair => pair.Value);
+              ServiceRegistration.Get<ILogger>().Debug("InputDeviceManager: Currently mapped keys: " + string.Join(", ", _pressedAddKeyCombo.Select(k => k.Key)));
+              ServiceRegistration.Get<ILogger>().Debug("InputDeviceManager: Currently mapped codes: " + string.Join(", ", _pressedAddKeyCombo.Select(k => k.Value)));
+              _maxPressedKeys = pressedKeys.Count;
+              _endTime = DateTime.Now.AddSeconds(5);
+              if (!_keyInputTimer.Enabled)
+                _keyInputTimer.Start();
+            }
+            AddKeyLabel = String.Join(" + ", string.Join(" + ", _pressedAddKeyCombo.Select(kv => kv.Key.ToString())));
           }
-          AddKeyLabel = String.Join(" + ", string.Join(" + ", _pressedAddKeyCombo.Select(kv => kv.Key.ToString())));
+        }
+        else if (!ShowKeyMapping)
+        {
+          //Device selection screen
+          _currentInputDevice = (device, hidEvent.Device?.FriendlyName ?? "?");
+          SelectedInputName = hidEvent.Device?.FriendlyName ?? "?";
+          UpdateKeymapping();
         }
       }
-      else
+      catch (Exception ex)
       {
-        _currentInputDevice = e.KeyPressEvent.Source;
-        UpdateKeymapping();
+        ServiceRegistration.Get<ILogger>().Error("InputDeviceManager: Key press failed", ex);
       }
-
-      /*ServiceRegistration.Get<ILogger>().Info("Confscren: {0}", e.KeyPressEvent.DeviceHandle.ToString());
-      ServiceRegistration.Get<ILogger>().Info("Confscren: {0}", e.KeyPressEvent.DeviceType);
-      ServiceRegistration.Get<ILogger>().Info("Confscren: {0}", e.KeyPressEvent.DeviceName);
-      ServiceRegistration.Get<ILogger>().Info("Confscren: {0}", e.KeyPressEvent.Name);
-      ServiceRegistration.Get<ILogger>().Info("Confscren: {0}", e.KeyPressEvent.VKey.ToString(CultureInfo.InvariantCulture));
-      ServiceRegistration.Get<ILogger>().Info("Confscren: {0}", _rawinput.NumberOfKeyboards.ToString(CultureInfo.InvariantCulture));
-      ServiceRegistration.Get<ILogger>().Info("Confscren: {0}", e.KeyPressEvent.VKeyName);
-      ServiceRegistration.Get<ILogger>().Info("Confscren: {0}", e.KeyPressEvent.Source);
-      ServiceRegistration.Get<ILogger>().Info("Confscren: {0}", e.KeyPressEvent.KeyPressState);
-      ServiceRegistration.Get<ILogger>().Info("0x{0:X4} ({0})", e.KeyPressEvent.Message);*/
     }
 
-    private void timer_Tick(object sender, EventArgs e)
+    #endregion
+
+    #region Dialog handling
+
+    public void OpenDefaultConfigurationDialog()
+    {
+      ServiceRegistration.Get<IScreenManager>().ShowDialog("ConfigScreenAddDefaultKeys");
+    }
+
+    public void SelectDefaultConfig(ListItem item)
+    {
+      if (item == null)
+        return;
+
+      List<MappedKeyCode> config = (List<MappedKeyCode>)item.AdditionalProperties[KEY_KEYMAP_DATA];
+      UpdateKeymapping(config);
+      ServiceRegistration.Get<IScreenManager>().CloseTopmostDialog();
+    }
+
+    #endregion
+
+    #region Default mappings
+
+    private List<MappedKeyCode> GetDefaultRemoteMap()
+    {
+      return new List<MappedKeyCode>
+      {
+        { new MappedKeyCode { Key = KEY_PREFIX + Key.Power.Name, Codes = new List<KeyCode> { new KeyCode { Key = RemoteButton.Power2.ToString(), Code = (int)RemoteButton.Power2 } } } },
+        { new MappedKeyCode { Key = KEY_PREFIX + Key.Escape.Name, Codes = new List<KeyCode> { new KeyCode { Key = RemoteButton.Back.ToString(), Code = (int)RemoteButton.Back } } } },
+        { new MappedKeyCode { Key = KEY_PREFIX + Key.Ok.Name, Codes = new List<KeyCode> { new KeyCode { Key = RemoteButton.Ok.ToString(), Code = (int)RemoteButton.Ok } } } },
+        { new MappedKeyCode { Key = KEY_PREFIX + Key.Start.Name, Codes = new List<KeyCode> { new KeyCode { Key = RemoteButton.Start.ToString(), Code = (int)RemoteButton.Start } } } },
+        { new MappedKeyCode { Key = KEY_PREFIX + Key.RecordedTV.Name, Codes = new List<KeyCode> { new KeyCode { Key = RemoteButton.RecordedTV.ToString(), Code = (int)RemoteButton.RecordedTV } } } },
+        { new MappedKeyCode { Key = KEY_PREFIX + Key.Guide.Name, Codes = new List<KeyCode> { new KeyCode { Key = RemoteButton.Guide.ToString(), Code = (int)RemoteButton.Guide } } } },
+        { new MappedKeyCode { Key = KEY_PREFIX + Key.LiveTV.Name, Codes = new List<KeyCode> { new KeyCode { Key = RemoteButton.LiveTV.ToString(), Code = (int)RemoteButton.LiveTV } } } },
+        { new MappedKeyCode { Key = KEY_PREFIX + Key.DVDMenu.Name, Codes = new List<KeyCode> { new KeyCode { Key = RemoteButton.DVDMenu.ToString(), Code = (int)RemoteButton.DVDMenu } } } },
+        { new MappedKeyCode { Key = KEY_PREFIX + Key.VolumeUp.Name, Codes = new List<KeyCode> { new KeyCode { Key = RemoteButton.VolumeUp.ToString(), Code = (int)RemoteButton.VolumeUp } } } },
+        { new MappedKeyCode { Key = KEY_PREFIX + Key.VolumeDown.Name, Codes = new List<KeyCode> { new KeyCode { Key = RemoteButton.VolumeDown.ToString(), Code = (int)RemoteButton.VolumeDown } } } },
+        { new MappedKeyCode { Key = KEY_PREFIX + Key.Mute.Name, Codes = new List<KeyCode> { new KeyCode { Key = RemoteButton.Mute.ToString(), Code = (int)RemoteButton.Mute } } } },
+        { new MappedKeyCode { Key = KEY_PREFIX + Key.PageUp.Name, Codes = new List<KeyCode> { new KeyCode { Key = RemoteButton.ChannelUp.ToString(), Code = (int)RemoteButton.ChannelUp } } } },
+        { new MappedKeyCode { Key = KEY_PREFIX + Key.PageDown.Name, Codes = new List<KeyCode> { new KeyCode { Key = RemoteButton.ChannelDown.ToString(), Code = (int)RemoteButton.ChannelDown } } } },
+        { new MappedKeyCode { Key = KEY_PREFIX + Key.Up.Name, Codes = new List<KeyCode> { new KeyCode { Key = RemoteButton.Up.ToString(), Code = (int)RemoteButton.Up } } } },
+        { new MappedKeyCode { Key = KEY_PREFIX + Key.Down.Name, Codes = new List<KeyCode> { new KeyCode { Key = RemoteButton.Down.ToString(), Code = (int)RemoteButton.Down } } } },
+        { new MappedKeyCode { Key = KEY_PREFIX + Key.Left.Name, Codes = new List<KeyCode> { new KeyCode { Key = RemoteButton.Left.ToString(), Code = (int)RemoteButton.Left } } } },
+        { new MappedKeyCode { Key = KEY_PREFIX + Key.Right.Name, Codes = new List<KeyCode> { new KeyCode { Key = RemoteButton.Right.ToString(), Code = (int)RemoteButton.Right } } } },
+        { new MappedKeyCode { Key = KEY_PREFIX + Key.Info.Name, Codes = new List<KeyCode> { new KeyCode { Key = RemoteButton.Info.ToString(), Code = (int)RemoteButton.Info } } } },
+        { new MappedKeyCode { Key = KEY_PREFIX + Key.Stop.Name, Codes = new List<KeyCode> { new KeyCode { Key = RemoteButton.Stop.ToString(), Code = (int)RemoteButton.Stop } } } },
+        { new MappedKeyCode { Key = KEY_PREFIX + Key.Pause.Name, Codes = new List<KeyCode> { new KeyCode { Key = RemoteButton.Pause.ToString(), Code = (int)RemoteButton.Pause } } } },
+        { new MappedKeyCode { Key = KEY_PREFIX + Key.Record.Name, Codes = new List<KeyCode> { new KeyCode { Key = RemoteButton.Record.ToString(), Code = (int)RemoteButton.Record } } } },
+        { new MappedKeyCode { Key = KEY_PREFIX + Key.Play.Name, Codes = new List<KeyCode> { new KeyCode { Key = RemoteButton.Play.ToString(), Code = (int)RemoteButton.Play } } } },
+        { new MappedKeyCode { Key = KEY_PREFIX + Key.Rew.Name, Codes = new List<KeyCode> { new KeyCode { Key = RemoteButton.Rewind.ToString(), Code = (int)RemoteButton.Rewind } } } },
+        { new MappedKeyCode { Key = KEY_PREFIX + Key.Fwd.Name, Codes = new List<KeyCode> { new KeyCode { Key = RemoteButton.Forward.ToString(), Code = (int)RemoteButton.Forward } } } },
+        { new MappedKeyCode { Key = KEY_PREFIX + Key.Previous.Name, Codes = new List<KeyCode> { new KeyCode { Key = RemoteButton.Replay.ToString(), Code = (int)RemoteButton.Replay } } } },
+        { new MappedKeyCode { Key = KEY_PREFIX + Key.Next.Name, Codes = new List<KeyCode> { new KeyCode { Key = RemoteButton.Skip.ToString(), Code = (int)RemoteButton.Skip } } } },
+        { new MappedKeyCode { Key = KEY_PREFIX + Key.Clear.Name, Codes = new List<KeyCode> { new KeyCode { Key = RemoteButton.Clear.ToString(), Code = (int)RemoteButton.Clear } } } },
+        { new MappedKeyCode { Key = KEY_PREFIX + Key.Enter.Name, Codes = new List<KeyCode> { new KeyCode { Key = RemoteButton.Enter.ToString(), Code = (int)RemoteButton.Enter } } } },
+        { new MappedKeyCode { Key = KEY_PREFIX + Key.TeleText.Name, Codes = new List<KeyCode> { new KeyCode { Key = RemoteButton.Teletext.ToString(), Code = (int)RemoteButton.Teletext } } } },
+        { new MappedKeyCode { Key = KEY_PREFIX + Key.Red.Name, Codes = new List<KeyCode> { new KeyCode { Key = RemoteButton.Red.ToString(), Code = (int)RemoteButton.Red } } } },
+        { new MappedKeyCode { Key = KEY_PREFIX + Key.Green.Name, Codes = new List<KeyCode> { new KeyCode { Key = RemoteButton.Green.ToString(), Code = (int)RemoteButton.Green } } } },
+        { new MappedKeyCode { Key = KEY_PREFIX + Key.Yellow.Name, Codes = new List<KeyCode> { new KeyCode { Key = RemoteButton.Yellow.ToString(), Code = (int)RemoteButton.Yellow } } } },
+        { new MappedKeyCode { Key = KEY_PREFIX + Key.Blue.Name, Codes = new List<KeyCode> { new KeyCode { Key = RemoteButton.Blue.ToString(), Code = (int)RemoteButton.Blue } } } },
+      };
+    }
+
+    private List<MappedKeyCode> GetDefaultKeyboardMap()
+    {
+      return new List<MappedKeyCode>
+      {
+        { new MappedKeyCode { Key = KEY_PREFIX + Key.Info.Name, Codes = new List<KeyCode> { new KeyCode { Key = KeyMapper.GetMicrosoftKeyName((int)Keys.Apps), Code = (int)Keys.Apps } } } },
+        { new MappedKeyCode { Key = KEY_PREFIX + Key.Up.Name, Codes = new List<KeyCode> { new KeyCode { Key = KeyMapper.GetMicrosoftKeyName((int)Keys.Up), Code = (int)Keys.Up } } } },
+        { new MappedKeyCode { Key = KEY_PREFIX + Key.Down.Name, Codes = new List<KeyCode> { new KeyCode { Key = KeyMapper.GetMicrosoftKeyName((int)Keys.Down), Code = (int)Keys.Down } } } },
+        { new MappedKeyCode { Key = KEY_PREFIX + Key.Right.Name, Codes = new List<KeyCode> { new KeyCode { Key = KeyMapper.GetMicrosoftKeyName((int)Keys.Right), Code = (int)Keys.Right } } } },
+        { new MappedKeyCode { Key = KEY_PREFIX + Key.Left.Name, Codes = new List<KeyCode> { new KeyCode { Key = KeyMapper.GetMicrosoftKeyName((int)Keys.Left), Code = (int)Keys.Left } } } },
+        //{ new MappedKeyCode { Key = KEY_PREFIX + Key.Escape.Name, Codes = new List<KeyCode> { new KeyCode { Key = KeyMapper.GetMicrosoftKeyName((int)Keys.Escape), Code = (int)Keys.Escape } } } },
+        { new MappedKeyCode { Key = KEY_PREFIX + Key.Ok.Name, Codes = new List<KeyCode> { new KeyCode { Key = KeyMapper.GetMicrosoftKeyName((int)Keys.Return), Code = (int)Keys.Return } } } },
+        { new MappedKeyCode { Key = KEY_PREFIX + Key.PageUp.Name, Codes = new List<KeyCode> { new KeyCode { Key = KeyMapper.GetMicrosoftKeyName((int)Keys.PageUp), Code = (int)Keys.PageUp } } } },
+        { new MappedKeyCode { Key = KEY_PREFIX + Key.PageDown.Name, Codes = new List<KeyCode> { new KeyCode { Key = KeyMapper.GetMicrosoftKeyName((int)Keys.PageDown), Code = (int)Keys.PageDown } } } },
+        { new MappedKeyCode { Key = KEY_PREFIX + Key.Record.Name, Codes = new List<KeyCode> { new KeyCode { Key = KeyMapper.GetMicrosoftKeyName((int)Keys.R), Code = (int)Keys.R } } } },
+        { new MappedKeyCode { Key = KEY_PREFIX + Key.Fullscreen.Name, Codes = new List<KeyCode> { new KeyCode { Key = KeyMapper.GetMicrosoftKeyName((int)Keys.F), Code = (int)Keys.F } } } },
+        { new MappedKeyCode { Key = KEY_PREFIX + Key.Play.Name, Codes = new List<KeyCode> { new KeyCode { Key = KeyMapper.GetMicrosoftKeyName((int)Keys.Play), Code = (int)Keys.Play } } } },
+        { new MappedKeyCode { Key = KEY_PREFIX + Key.Pause.Name, Codes = new List<KeyCode> { new KeyCode { Key = KeyMapper.GetMicrosoftKeyName((int)Keys.Pause), Code = (int)Keys.Pause } } } },
+        { new MappedKeyCode { Key = KEY_PREFIX + Key.PlayPause.Name, Codes = new List<KeyCode> { new KeyCode { Key = KeyMapper.GetMicrosoftKeyName((int)Keys.MediaPlayPause), Code = (int)Keys.MediaPlayPause } } } },
+        { new MappedKeyCode { Key = KEY_PREFIX + Key.Stop.Name, Codes = new List<KeyCode> { new KeyCode { Key = KeyMapper.GetMicrosoftKeyName((int)Keys.MediaStop), Code = (int)Keys.MediaStop } } } },
+        { new MappedKeyCode { Key = KEY_PREFIX + Key.Previous.Name, Codes = new List<KeyCode> { new KeyCode { Key = KeyMapper.GetMicrosoftKeyName((int)Keys.MediaPreviousTrack), Code = (int)Keys.MediaPreviousTrack } } } },
+        { new MappedKeyCode { Key = KEY_PREFIX + Key.Next.Name, Codes = new List<KeyCode> { new KeyCode { Key = KeyMapper.GetMicrosoftKeyName((int)Keys.MediaNextTrack), Code = (int)Keys.MediaNextTrack } } } },
+        { new MappedKeyCode { Key = KEY_PREFIX + Key.Mute.Name, Codes = new List<KeyCode> { new KeyCode { Key = KeyMapper.GetMicrosoftKeyName((int)Keys.VolumeMute), Code = (int)Keys.VolumeMute } } } },
+        { new MappedKeyCode { Key = KEY_PREFIX + Key.VolumeUp.Name, Codes = new List<KeyCode> { new KeyCode { Key = KeyMapper.GetMicrosoftKeyName((int)Keys.Add), Code = (int)Keys.Add } } } },
+        { new MappedKeyCode { Key = KEY_PREFIX + Key.VolumeDown.Name, Codes = new List<KeyCode> { new KeyCode { Key = KeyMapper.GetMicrosoftKeyName((int)Keys.Subtract), Code = (int)Keys.Subtract } } } },
+        { new MappedKeyCode { Key = KEY_PREFIX + Key.ZapBack.Name, Codes = new List<KeyCode> { new KeyCode { Key = KeyMapper.GetMicrosoftKeyName((int)Keys.Multiply), Code = (int)Keys.Multiply } } } },
+      };
+    }
+
+    #endregion
+
+    #region Mapping input and storage
+
+    private void KeyInputTimer_Tick(object sender, EventArgs e)
     {
       try
       {
@@ -324,47 +477,16 @@ namespace MediaPortal.Plugins.InputDeviceManager.Models
         if (leftTime.TotalSeconds < 0)
         {
           AddKeyCountdownLabel = "0";
-          _timer.Stop();
+          _keyInputTimer.Stop();
           _inWorkflowAddKey = false;
 
-          List<int> keys = _pressedAddKeyCombo.Select(key => key.Value).ToList();
-          if (keys.Count > 0 && _chosenAction != null)
+          if (_pressedAddKeyCombo.Count > 0 && _chosenAction != null)
           {
-            ISettingsManager settingsManager = ServiceRegistration.Get<ISettingsManager>();
-            InputManagerSettings settings = settingsManager.Load<InputManagerSettings>();
-            List<InputDevice> inputDevices = new List<InputDevice>();
-            if (settings != null)
-            {
-              try
-              {
-                inputDevices = settings.InputDevices.ToList();
-              }
-              catch { }
-            }
-
-            var device = inputDevices.FirstOrDefault(d => d.DeviceID == _currentInputDevice);
-            if (device != null)
-            {
-              device.KeyMap.Add(new MappedKeyCode(_chosenAction, keys));
-            }
-            else
-            {
-              var inputDevice = new InputDevice
-              {
-                DeviceID = _currentInputDevice,
-                Name = _currentInputDevice,
-                KeyMap = new List<MappedKeyCode> { new MappedKeyCode(_chosenAction, keys) }
-              };
-              inputDevices.Add(inputDevice);
-            }
-            if (settings != null)
-              settings.InputDevices = inputDevices;
-            else
-              settings = new InputManagerSettings { InputDevices = inputDevices };
-            settingsManager.Save(settings);
-
-            // update settings in the main plugin
-            InputDeviceManager.Instance.UpdateLoadedSettings(settings);
+            var keys = _pressedAddKeyCombo.Select(c => new KeyCode(c.Key, c.Value)).ToList();
+            UpdateSettings(new List<MappedKeyCode> { new MappedKeyCode(_chosenAction, keys) }, false);
+            ServiceRegistration.Get<ILogger>().Debug("InputDeviceManager: Saved mapped keys: " + string.Join(", ", _pressedAddKeyCombo.Select(k => k.Key)));
+            ServiceRegistration.Get<ILogger>().Debug("InputDeviceManager: Saved mapped codes: " + string.Join(", ", _pressedAddKeyCombo.Select(k => k.Value)));
+            ServiceRegistration.Get<ILogger>().Debug("InputDeviceManager: Saved action: " + _chosenAction);
           }
 
           ResetAddKey();
@@ -384,23 +506,115 @@ namespace MediaPortal.Plugins.InputDeviceManager.Models
       }
     }
 
+    private void UpdateSettings(List<MappedKeyCode> actions, bool overwrite)
+    {
+      ISettingsManager settingsManager = ServiceRegistration.Get<ISettingsManager>();
+      InputManagerSettings settings = settingsManager.Load<InputManagerSettings>();
+      List<InputDevice> inputDevices = new List<InputDevice>();
+      if (settings != null)
+      {
+        try
+        {
+          inputDevices = settings.InputDevices.ToList();
+        }
+        catch { }
+      }
+
+      var device = inputDevices.FirstOrDefault(d => d.Type == _currentInputDevice.Type);
+      if (device != null)
+      {
+        if (overwrite)
+          device.KeyMap.Clear();
+
+        foreach (var action in actions)
+        {
+          device.KeyMap.RemoveAll(k => k.Key == action.Key);
+          device.KeyMap.Add(action);
+        }
+      }
+      else
+      {
+        var inputDevice = new InputDevice
+        {
+          Type = _currentInputDevice.Type,
+          Name = _currentInputDevice.Name,
+          KeyMap = actions
+        };
+        inputDevices.Add(inputDevice);
+      }
+      if (settings != null)
+        settings.InputDevices = inputDevices;
+      else
+        settings = new InputManagerSettings { InputDevices = inputDevices };
+      settingsManager.Save(settings);
+
+      // update settings in the main plugin
+      InputDeviceManager.Instance.UpdateLoadedSettings(settings);
+    }
+
+    /// <summary>
+    /// This function makes us ready to accept new key mappings
+    /// </summary>
+    private void ResetAddKey()
+    {
+      _keyInputTimer.Stop();
+      _maxPressedKeys = 0;
+      _pressedAddKeyCombo.Clear();
+      AddKeyLabel = "";
+      AddKeyCountdownLabel = "5";
+      _inWorkflowAddKey = false;
+    }
+
+    #endregion
+
+    #region Screen switching functions
+
+    private void ShowKeyMappingScreen()
+    {
+      ResetAddKey();
+
+      ShowInputDeviceSelection = false;
+      ShowKeyMapping = true;
+      if (_addKeyDialogHandle.HasValue)
+        ServiceRegistration.Get<IScreenManager>().CloseDialog(_addKeyDialogHandle.Value);
+    }
+
+    private void ShowAddKeyScreen()
+    {
+      ResetAddKey();
+      _inWorkflowAddKey = true;
+
+      _addKeyDialogHandle = ServiceRegistration.Get<IScreenManager>().ShowDialog("ConfigScreenAddKey", (s, g) =>
+      {
+        _addKeyDialogHandle = null;
+        _keyInputTimer.Stop();
+      });
+    }
+
     /// <summary>
     /// This updates the screen where the user can select which Keys he wants to add to the current input device.
     /// </summary>
-    private void UpdateKeymapping()
+    private void UpdateKeymapping(List<MappedKeyCode> defaultKeys = null)
     {
       InputDevice device;
-      if (InputDeviceManager.InputDevices.TryGetValue(_currentInputDevice, out device))
+      List<MappedKeyCode> mappedKeys = null;
+      if (defaultKeys != null)
       {
-        List<MappedKeyCode> mappedKeys = device.KeyMap.ToList();
-
+        UpdateSettings(defaultKeys, true);
+      }
+      if (InputDeviceManager.InputDevices.TryGetValue(_currentInputDevice.Type, out device))
+      {
+        mappedKeys = device.KeyMap.ToList();
+      }
+      if (mappedKeys != null)
+      {
         //Update labels
         foreach (var item in _items)
         {
           var itemMap = (string)item.AdditionalProperties[KEY_KEYMAP_DATA];
           var keyMapping = device.KeyMap.FirstOrDefault(k => k.Key.Equals(itemMap, StringComparison.InvariantCultureIgnoreCase));
-          if (keyMapping?.Code?.Count > 0)
-            item.SetLabel(KEY_KEYMAP, string.Join(" + ", keyMapping.Code.Select(KeyMapper.GetKeyName)));
+          if (keyMapping?.Codes?.Count > 0)
+            item.SetLabel(KEY_KEYMAP, string.Join(" + ", keyMapping.Codes.Select(c => c.Key)));
           else
             item.SetLabel(KEY_KEYMAP, "");
           if (keyMapping != null)
@@ -424,63 +638,21 @@ namespace MediaPortal.Plugins.InputDeviceManager.Models
         _keyItems.Add(item);
       _keyItems.FireChange();
 
-      _screenItems.Clear();
+      _homeScreenItems.Clear();
       foreach (var item in _items.
-          Where(i => !((string)i.AdditionalProperties[KEY_KEYMAP_DATA]).StartsWith(KEY_PREFIX, StringComparison.InvariantCultureIgnoreCase)).
+          Where(i => ((string)i.AdditionalProperties[KEY_KEYMAP_DATA]).StartsWith(HOME_PREFIX, StringComparison.InvariantCultureIgnoreCase)).
           OrderBy(i => i.Labels[Consts.KEY_NAME].Evaluate()))
-        _screenItems.Add(item);
-      _screenItems.FireChange();
+        _homeScreenItems.Add(item);
+      _homeScreenItems.FireChange();
+
+      _configScreenItems.Clear();
+      foreach (var item in _items.
+          Where(i => ((string)i.AdditionalProperties[KEY_KEYMAP_DATA]).StartsWith(CONFIG_PREFIX, StringComparison.InvariantCultureIgnoreCase)).
+          OrderBy(i => i.Labels[Consts.KEY_NAME].Evaluate()))
+        _configScreenItems.Add(item);
+      _configScreenItems.FireChange();
 
       ShowKeyMappingScreen();
-    }
-
-    /// <summary>
-    /// This function makes us ready to accept new key mappings
-    /// </summary>
-    private void ResetAddKey()
-    {
-      _timer.Stop();
-      _maxPressedKeys = 0;
-      _pressedKeys.Clear();
-      _pressedAddKeyCombo.Clear();
-      AddKeyLabel = "";
-      AddKeyCountdownLabel = "5";
-      _inWorkflowAddKey = false;
-    }
-
-    private void ResetCompleteModel(bool removeOnKeyPressed = true)
-    {
-      ResetAddKey();
-
-      // Reset screens
-      ShowInputDeviceSelection = false;
-      ShowKeyMapping = false;
-      if (removeOnKeyPressed)
-        InputDeviceManager.Instance.UnRegisterExternalKeyHandling(OnKeyPressed);
-    }
-
-    #region Screen switching functions
-
-    private void ShowKeyMappingScreen()
-    {
-      ResetAddKey();
-
-      ShowInputDeviceSelection = false;
-      ShowKeyMapping = true;
-      if (_addKeyDialogHandle.HasValue)
-        ServiceRegistration.Get<IScreenManager>().CloseDialog(_addKeyDialogHandle.Value);
-    }
-
-    private void ShowAddKeyScreen()
-    {
-      ResetAddKey();
-      _inWorkflowAddKey = true;
-
-      _addKeyDialogHandle = ServiceRegistration.Get<IScreenManager>().ShowDialog("ConfigScreenAddKey", (s, g) =>
-      {
-        _addKeyDialogHandle = null;
-        _timer.Stop();
-      });
     }
 
     #endregion Screen switching functions
@@ -512,7 +684,7 @@ namespace MediaPortal.Plugins.InputDeviceManager.Models
           if (dialogResult == DialogResult.Yes && selectedItem != null)
           {
             InputDevice device;
-            if (InputDeviceManager.InputDevices.TryGetValue(_currentInputDevice, out device))
+            if (InputDeviceManager.InputDevices.TryGetValue(_currentInputDevice.Type, out device))
             {
               MappedKeyCode mappedKeyCode = device.KeyMap.FirstOrDefault(k => k.Key == (string)selectedItem.AdditionalProperties[KEY_KEYMAP_DATA]);
               if (mappedKeyCode != null)
@@ -521,7 +693,7 @@ namespace MediaPortal.Plugins.InputDeviceManager.Models
 
                 ISettingsManager settingsManager = ServiceRegistration.Get<ISettingsManager>();
                 var settings = settingsManager.Load<InputManagerSettings>();
-                var inputDevice = settings?.InputDevices.FirstOrDefault(d => d.DeviceID == _currentInputDevice);
+                var inputDevice = settings?.InputDevices.FirstOrDefault(d => d.Type == _currentInputDevice.Type);
                 if (inputDevice != null)
                 {
                   inputDevice.KeyMap = device.KeyMap;
@@ -580,7 +752,7 @@ namespace MediaPortal.Plugins.InputDeviceManager.Models
 
     public void Deactivate(NavigationContext oldContext, NavigationContext newContext)
     {
-      // Nothing to do here
+      ResetCompleteModel();
     }
 
     public void Reactivate(NavigationContext oldContext, NavigationContext newContext)
