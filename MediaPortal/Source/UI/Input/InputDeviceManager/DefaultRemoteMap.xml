@@ -3,9 +3,9 @@
   Contains a default mapping of remote keys to MP2 keys.
   For each key mapping to be interpreted by MP2, there must be a MappedKeyCode element.
   The Code attribute contains the code representing the key pressed. The MappedKeyCode.Key attribute contains
-  a reference to a MP2 key or secreen. The prefix (Key. or PrintableKey.) determines if the key is a special (Key.) or 
-  printable (PrintableKey.) key. The suffix is the special key name or the printable key's character. The prefix (Home. or
-  Config.) determines if the screen is a home (Home.) or configuration (Config.) screen. The suffix is the name of the screen.
+  a reference to a MP2 key or secreen. The prefix (Key.) can be used to specify a special or a printable key. The suffix is
+  the special key name or the printable key's character. The prefix (Home. or Config.) determines if the screen is a 
+  home (Home.) or configuration (Config.) screen. The suffix is the name of the screen.
 
   Each Code.Key code may only be mapped once (i.e. a key code given in the Code attribute may only be at most once).
   It is not necessary to add a MappedKeyCode entry for each key code, but it is recommended to do so. If a key

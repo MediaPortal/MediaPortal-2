@@ -58,7 +58,6 @@ namespace MediaPortal.Plugins.InputDeviceManager.Models
     public const string KEY_KEYMAP_NAME = "MapName";
     public const string KEY_MENU_MODEL = "MenuModel: Item-Action";
     public const string KEY_PREFIX = "Key.";
-    public const string KEY_PRINTABLE_PREFIX = "PrintableKey.";
     public const string HOME_PREFIX = "Home.";
     public const string CONFIG_PREFIX = "Config.";
 

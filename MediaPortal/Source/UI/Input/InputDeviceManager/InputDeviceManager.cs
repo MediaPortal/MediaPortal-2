@@ -805,25 +805,22 @@ namespace MediaPortal.Plugins.InputDeviceManager
             {
               if (handleKeyPressIfFound)
               {
-                ServiceRegistration.Get<ILogger>().Debug("InputDeviceManager: Executing key action: " + actionArray[1]);
+                ServiceRegistration.Get<ILogger>().Debug("InputDeviceManager: Executing key action: '{0}'", actionArray[1]);
                 if (!actionArray[1].Equals("None", StringComparison.InvariantCultureIgnoreCase))
-                  ServiceRegistration.Get<IInputManager>().KeyPress(Key.GetSpecialKeyByName(actionArray[1]));
+                {
+                  var key = Key.GetSpecialKeyByName(actionArray[1]);
+                  if (key != null) //It is a special key
+                    ServiceRegistration.Get<IInputManager>().KeyPress(key);
+                  else //Presume it is a printable key
+                    ServiceRegistration.Get<IInputManager>().KeyPress(new Key(actionArray[1][0]));
+                }
               }
               keyHandled = true;
             }
           }
           else if (_externalKeyPressHandlers.Count == 0) //Don't interfere with external handlers by executing screen changes
           {
-            if (keyMapping.Key.StartsWith(InputDeviceModel.KEY_PRINTABLE_PREFIX, StringComparison.InvariantCultureIgnoreCase))
-            {
-              if (handleKeyPressIfFound)
-              {
-                ServiceRegistration.Get<ILogger>().Debug("InputDeviceManager: Executing printable key: " + actionArray[1]);
-                ServiceRegistration.Get<IInputManager>().KeyPress(new Key(actionArray[1][0]));
-              }
-              keyHandled = true;
-            }
-            else if (keyMapping.Key.StartsWith(InputDeviceModel.HOME_PREFIX, StringComparison.InvariantCultureIgnoreCase))
+            if (keyMapping.Key.StartsWith(InputDeviceModel.HOME_PREFIX, StringComparison.InvariantCultureIgnoreCase))
             {
               if (handleKeyPressIfFound)
               {
