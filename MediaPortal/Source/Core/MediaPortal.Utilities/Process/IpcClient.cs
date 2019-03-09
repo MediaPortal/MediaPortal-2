@@ -1,7 +1,7 @@
-﻿#region Copyright (C) 2007-2017 Team MediaPortal
+#region Copyright (C) 2007-2018 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2017 Team MediaPortal
+    Copyright (C) 2007-2018 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -26,14 +26,13 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.IO.Pipes;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
 namespace MediaPortal.Utilities.Process
 {
   /// <summary>
-  /// InpterProcessCommunication client
+  /// InterProcessCommunication client
   /// </summary>
   public class IpcClient : IDisposable
   {
@@ -63,9 +62,9 @@ namespace MediaPortal.Utilities.Process
     /// <c>0</c> to not wait for the shutdown.
     /// <see cref="Timeout.Infinite"/> or <c>-1</c> to wait infinite.</param>
     /// <param name="killAfterTimeout"><c>true</c> if the process of the applications should be killed when a timeout occurs.
-    /// <c>false</c> if the pocess should be left running when a timeout occurs.
+    /// <c>false</c> if the process should be left running when a timeout occurs.
     /// If <paramref name="exitTimeout"/> is <c>0</c> or <see cref="Timeout.Infinite"/> this parameter has no effect.</param>
-    /// <returns>Returns <c>true</c> if all processs were successfully shut down or killed. <c>false</c> if any process is still running.
+    /// <returns>Returns <c>true</c> if all processes were successfully shut down or killed. <c>false</c> if any process is still running.
     /// If <paramref name="exitTimeout"/> is <c>0</c> <c>true</c> is returned.</returns>
     /// <remarks>The shut down for all applications is requested in parallel.</remarks>
     public static bool ShutdownAllApplications(int exitTimeout, bool killAfterTimeout)
@@ -79,7 +78,7 @@ namespace MediaPortal.Utilities.Process
            {
              var client = new IpcClient(appName);
              client.Connect();
-             if (client.ShudownApplication(exitTimeout, killAfterTimeout))
+             if (client.ShutdownApplication(exitTimeout, killAfterTimeout))
                ++succeededCnt;
            }
            catch (Exception)
@@ -211,17 +210,31 @@ namespace MediaPortal.Utilities.Process
     }
 
     /// <summary>
+    /// Requests the application to be restarted.
+    /// </summary>
+    /// <returns>Returns <c>>true</c> if successful.</returns>
+    public bool RequestRestart()
+    {
+      CheckConnected();
+      int offset;
+      var data = GetCommandBuffer(0, out offset);
+      byte[] response;
+      var responseCode = SendReceive(Ipc.Command.Restart, data, offset, out response);
+      return responseCode == Ipc.ResponseCode.Ok;
+    }
+
+    /// <summary>
     /// Request the application to shut down.
     /// </summary>
     /// <param name="exitTimeout">Timeout im milliseconds to wait for the application to shut down.
     /// <c>0</c> to not wait for the shutdown.
     /// <see cref="Timeout.Infinite"/> or <c>-1</c> to wait infinite.</param>
     /// <param name="killAfterTimeout"><c>true</c> if the process of the application should be killed when a timeout occurs.
-    /// <c>false</c> if the pocess should be left running when a timeout occurs.
+    /// <c>false</c> if the process should be left running when a timeout occurs.
     /// If <paramref name="exitTimeout"/> is <c>0</c> or <see cref="Timeout.Infinite"/> this parameter has no effect.</param>
     /// <returns>Returns <c>true</c> if the process was successfully shut down or killed. <c>false</c> if the process is still running.
     /// If <paramref name="exitTimeout"/> is <c>0</c> <c>true</c> is returned.</returns>
-    public bool ShudownApplication(int exitTimeout, bool killAfterTimeout)
+    public bool ShutdownApplication(int exitTimeout, bool killAfterTimeout)
     {
       CheckConnected();
       int processId = -1;

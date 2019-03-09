@@ -1,7 +1,7 @@
-﻿#region Copyright (C) 2007-2017 Team MediaPortal
+#region Copyright (C) 2007-2018 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2017 Team MediaPortal
+    Copyright (C) 2007-2018 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -22,17 +22,17 @@
 
 #endregion
 
-using System.Windows.Forms;
+using SharpDX;
 
-namespace MediaPortal.Plugins.InputDeviceManager.RawInput
+namespace MediaPortal.UI.SkinEngine.Controls.Animations
 {
-    public class PreMessageFilter : IMessageFilter
+  public class DiscretePointKeyFrame : PointKeyFrame
+  {
+    public override Vector2 Interpolate(Vector2 start, double keyframe)
     {
-        // true  to filter the message and stop it from being dispatched 
-        // false to allow the message to continue to the next filter or control.
-        public bool PreFilterMessage(ref Message m)
-        {
-            return m.Msg == Win32.WM_KEYDOWN;
-        }
+      if (double.IsNaN(keyframe) || keyframe < 1.0)
+        return start;
+      return Value;
     }
+  }
 }

@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2017 Team MediaPortal
+#region Copyright (C) 2007-2018 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2017 Team MediaPortal
+    Copyright (C) 2007-2018 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -690,7 +690,7 @@ namespace MediaPortal.Common.Services.MediaManagement
       IFileSystemResourceAccessor fsra = mediaItemAccessor as IFileSystemResourceAccessor;
       if (fsra != null)
       {
-        ServiceRegistration.Get<ILogger>().Debug("MediaAccessor: Importing file '" + fsra.ResourceName + "'");
+        ServiceRegistration.Get<ILogger>().Debug("MediaAccessor: Importing file '{0}'", fsra.ResourceName);
       }
 
       bool success = false;

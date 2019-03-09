@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2017 Team MediaPortal
+#region Copyright (C) 2007-2018 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2017 Team MediaPortal
+    Copyright (C) 2007-2018 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -28,6 +28,7 @@ using System.Linq;
 using System.Threading;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
+using MediaPortal.Common.Services.Settings;
 using MediaPortal.Common.Settings;
 using MediaPortal.Common.Threading;
 using MediaPortal.UI.Presentation.DataObjects;
@@ -44,12 +45,13 @@ namespace MediaPortal.UiComponents.News
     protected NewsItem _lastRandomNewsItem = null;
     protected List<NewsFeed> _feeds = new List<NewsFeed>();
     protected bool _refeshInProgress = false;
+    protected SettingsChangeWatcher<NewsSettings> _settings = new SettingsChangeWatcher<NewsSettings>(true);
     IntervalWork _work = null;
 
     public NewsCollector()
     {
-      NewsSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<NewsSettings>();
-      _work = new IntervalWork(RefreshFeeds, TimeSpan.FromMinutes(settings.RefreshInterval));
+      _settings.SettingsChanged += (sender, args) => RefreshFeeds();
+      _work = new IntervalWork(RefreshFeeds, TimeSpan.FromMinutes(_settings.Settings.RefreshInterval));
       ServiceRegistration.Get<IThreadPool>().AddIntervalWork(_work, true);
     }
 
@@ -97,12 +99,11 @@ namespace MediaPortal.UiComponents.News
 
     List<string> GetConfiguredFeedUrls()
     {
-      NewsSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<NewsSettings>();
-      lock (settings.FeedsList)
+      lock (_settings.Settings.FeedsList)
       {
-        if (settings.FeedsList.Count == 0)
+        if (_settings.Settings.FeedsList.Count == 0)
           return NewsSettings.GetDefaultRegionalFeeds().Select(f => f.Url).ToList();
-        return settings.FeedsList.Select(f => f.Url).ToList();
+        return _settings.Settings.FeedsList.Select(f => f.Url).ToList();
       }
     }
 

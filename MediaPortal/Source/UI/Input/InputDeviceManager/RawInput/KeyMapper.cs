@@ -1,7 +1,7 @@
-﻿#region Copyright (C) 2007-2017 Team MediaPortal
+#region Copyright (C) 2007-2018 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2017 Team MediaPortal
+    Copyright (C) 2007-2018 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -31,7 +31,7 @@ namespace MediaPortal.Plugins.InputDeviceManager.RawInput
     {
         // I prefer to have control over the key mapping
         // This mapping could be loading from file to allow mapping changes without a recompile
-        public  static string GetKeyName(int value)
+        public  static string GetKeyName(long value)
         {
             switch (value)
             {

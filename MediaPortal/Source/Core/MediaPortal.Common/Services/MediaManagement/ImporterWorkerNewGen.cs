@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2017 Team MediaPortal
+#region Copyright (C) 2007-2018 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2017 Team MediaPortal
+    Copyright (C) 2007-2018 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -609,7 +609,7 @@ namespace MediaPortal.Common.Services.MediaManagement
         SendProgressNotificationMessage();
         return;
       }
-      if (Interlocked.Increment(ref _numberOfProgressNotifications) % 4 == 0)
+      if (Interlocked.Increment(ref _numberOfProgressNotifications) % (_importJobControllers.Count > 0 ? _importJobControllers.Count : 1) == 0)
       {
         LogProgress();
         SendProgressNotificationMessage();

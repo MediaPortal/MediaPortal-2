@@ -1,7 +1,7 @@
-﻿#region Copyright (C) 2007-2017 Team MediaPortal
+#region Copyright (C) 2007-2018 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2017 Team MediaPortal
+    Copyright (C) 2007-2018 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -29,8 +29,8 @@ namespace MediaPortal.Plugins.InputDeviceManager
 {
   public class InputDevice
   {
-    [XmlAttribute("DeviceID")]
-    public string DeviceID { get; set; }
+    [XmlAttribute("Type")]
+    public string Type { get; set; }
     [XmlAttribute("Name")]
     public string Name { get; set; }
     [XmlElement("KeyMap")]

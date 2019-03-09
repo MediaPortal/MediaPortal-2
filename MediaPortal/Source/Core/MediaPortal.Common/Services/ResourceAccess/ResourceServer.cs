@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2017 Team MediaPortal
+#region Copyright (C) 2007-2018 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2017 Team MediaPortal
+    Copyright (C) 2007-2018 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -51,21 +51,51 @@ namespace MediaPortal.Common.Services.ResourceAccess
 
     private void CreateAndStartServer()
     {
-      ServerSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<ServerSettings>();
-      List<string> filters = settings.IPAddressBindingsList;
-
-      _servicePrefix = ResourceHttpAccessUrlUtils.RESOURCE_SERVER_BASE_PATH + Guid.NewGuid().GetHashCode().ToString("X");
-      var startOptions = UPnPServer.BuildStartOptions(_servicePrefix, filters);
-
-      lock (_syncObj)
+      try
       {
-        _httpServer = WebApp.Start(startOptions, builder =>
+        ServerSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<ServerSettings>();
+        List<string> filters = settings.IPAddressBindingsList;
+
+        _servicePrefix = ResourceHttpAccessUrlUtils.RESOURCE_SERVER_BASE_PATH + Guid.NewGuid().GetHashCode().ToString("X");
+        var startOptions = UPnPServer.BuildStartOptions(_servicePrefix, filters);
+
+        try
         {
-          foreach (Type middleWareType in _middleWares)
+          lock (_syncObj)
           {
-            builder.Use(middleWareType);
+            _httpServer = WebApp.Start(startOptions, builder =>
+            {
+              foreach (Type middleWareType in _middleWares)
+              {
+                builder.Use(middleWareType);
+              }
+            });
           }
-        });
+        }
+        catch (Exception ex)
+        {
+          if (filters.Count > 0)
+            ServiceRegistration.Get<ILogger>().Warn("ResourceServer: Error starting HTTP server with filters. Fallback to no filters", ex);
+          else
+            throw ex;
+
+          _httpServer?.Dispose();
+          startOptions = UPnPServer.BuildStartOptions(_servicePrefix, new List<string>());
+          lock (_syncObj)
+          {
+            _httpServer = WebApp.Start(startOptions, builder =>
+            {
+              foreach (Type middleWareType in _middleWares)
+              {
+                builder.Use(middleWareType);
+              }
+            });
+          }
+        }
+      }
+      catch (Exception ex)
+      {
+        ServiceRegistration.Get<ILogger>().Error("ResourceServer: Error starting HTTP servers", ex);
       }
     }
 

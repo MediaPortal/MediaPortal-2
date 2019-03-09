@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2017 Team MediaPortal
+#region Copyright (C) 2007-2018 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2017 Team MediaPortal
+    Copyright (C) 2007-2018 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -50,16 +50,23 @@ namespace MediaPortal.UI.Services.UserManagement
 
     public bool IsValidUser
     {
-      get { return CurrentUser != UNKNOWN_USER; }
+      get { return _currentUser != UNKNOWN_USER; }
     }
 
     public UserProfile CurrentUser
     {
-      get { return _currentUser ?? (_currentUser = GetOrCreateDefaultUser().TryWait() ?? UNKNOWN_USER); }
+      get
+      {
+        if (_currentUser == null || !IsValidUser)
+          _currentUser = GetOrCreateDefaultUser().TryWait();
+        _currentUser = _currentUser ?? UNKNOWN_USER;
+        return _currentUser;
+      }
       set
       {
-        bool changed = _currentUser != value;
-        _currentUser = value;
+        var newUser = value ?? UNKNOWN_USER;
+        bool changed = !Equals(_currentUser, newUser);
+        _currentUser = newUser;
         if (changed)
         {
           // Set new user name to allow overriding settings, but only if explicit user management is enabled

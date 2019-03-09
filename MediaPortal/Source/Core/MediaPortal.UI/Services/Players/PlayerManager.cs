@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2017 Team MediaPortal
+#region Copyright (C) 2007-2018 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2017 Team MediaPortal
+    Copyright (C) 2007-2018 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -265,6 +265,8 @@ namespace MediaPortal.UI.Services.Players
       subMi = null;
       IPathManager pathManager = ServiceRegistration.Get<IPathManager>();
       string resourceDirectory = pathManager.GetPath(@"<DATA>\Resources\");
+      if (!Directory.Exists(resourceDirectory))
+        return false;
       string[] files = Directory.GetFiles(resourceDirectory, "InsertAudioMedia.*");
       if (files == null || files.Length == 0)
         return false;
@@ -292,6 +294,8 @@ namespace MediaPortal.UI.Services.Players
       subMi = null;
       IPathManager pathManager = ServiceRegistration.Get<IPathManager>();
       string resourceDirectory = pathManager.GetPath(@"<DATA>\Resources\");
+      if (!Directory.Exists(resourceDirectory))
+        return false;
       string[] files = Directory.GetFiles(resourceDirectory, "InsertVideoMedia.*");
       if (files == null || files.Length == 0)
         return false;
@@ -359,6 +363,14 @@ namespace MediaPortal.UI.Services.Players
         }
       }
 
+      if (mediaItem.IsVirtual)
+      {
+        string header = LocalizationHelper.Translate("[Media.Virtual.Title]");
+        string text = LocalizationHelper.Translate("[Media.Virtual.Message]");
+        IDialogManager dialogManager = ServiceRegistration.Get<IDialogManager>();
+        dialogManager.ShowDialog(header, text, DialogType.OkDialog, false, DialogButtonType.Ok);
+        return null;
+      }
 
       foreach (IPlayerBuilder playerBuilder in builders)
       {

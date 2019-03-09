@@ -38,6 +38,7 @@ Parameters which have to be accessible by a DynamicResource lookup:
     <Model x:Key="HomeServerModel" Id="854ABA9A-71A1-420b-A657-9641815F9C01"/>
     <Model x:Key="MenuModel" Id="A6C6D5DA-55FE-4b5f-AE83-B03E8BBFA177"/>
     <Model x:Key="TimeModel" Id="E821B1C8-0666-4339-8027-AA45A4F6F107"/>
+    <Model x:Key="ScreenModeModel" Id="0E621AA5-0733-4E88-A0F0-887F8D73A055"/>
     <Model x:Key="StateModel" Id="B23D8DC1-405E-4564-92D0-E247C299FFAE"/>
     <ResourceWrapper x:Key="Header_Text" Resource="[Media.AudioCurrentlyPlayingHeader]"/>
     <Storyboard x:Key="SlideInStoryboard" FillBehavior="HoldEnd">
@@ -96,11 +97,12 @@ Parameters which have to be accessible by a DynamicResource lookup:
 
       <mp_special_controls:WorkflowNavigationBar Style="{ThemeResource WorkflowNavigationBarStyle}" Grid.Column="0"
           IsVisible="{Binding Source={StaticResource MouseModel},Path=IsMouseUsed}"/>
-
-      <StackPanel Grid.Column="0" HorizontalAlignment="Right" VerticalAlignment="Bottom" Orientation="Horizontal">
-        <Control x:Name="NotificationControl" Margin="0,-10,20,-20"  Style="{ThemeResource NotificationControlStyle}" />
-      </StackPanel>
     </Grid>
+
+    <StackPanel Grid.Column="0" HorizontalAlignment="Left" VerticalAlignment="Top" Orientation="Horizontal">
+      <Control x:Name="NotificationControl" Margin="60,45,0,0" Style="{ThemeResource NotificationControlStyle}" Height="50"/>
+    </StackPanel>
+
     <!-- HeaderPanel -->
 
     <Grid x:Name="Content" Grid.Row="1" HorizontalAlignment="Stretch">
@@ -172,7 +174,7 @@ Parameters which have to be accessible by a DynamicResource lookup:
           <StackPanel Orientation="Horizontal" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="0,0,10,0"
                       DataContext="{Binding Source={StaticResource StateModel}, Path=[431528C9-5610-45CD-9807-0130AE1761DA]}"
                       IsVisible="{Binding Converter={StaticResource ReferenceToBoolConverter}}">
-            <Label FontSize="{ThemeResource TinyFontSize}" Content="[Notifications.Upgrading]" Margin="10,-5,0,-10" 
+            <Label FontSize="{ThemeResource TinyFontSize}" Content="[Notifications.Upgrading]" Margin="10,-5,0,-10"/>
             <Label FontSize="{ThemeResource TinyFontSize}" Margin="0,-5,0,-10" 
                    Color="{ThemeResource TextColor}" VerticalAlignment="Center" HorizontalAlignment="Right">
               <Label.IsVisible>
@@ -254,9 +256,33 @@ Parameters which have to be accessible by a DynamicResource lookup:
                 AutoVisibility="True" PlayerContext="SecondaryPlayer"/>
         </DockPanel>
       </Grid>
-
     </Grid>
-    <!-- FooterPanel -->
+
+    <!-- Mouse control buttons -->
+    <Grid x:Name="MouseButtonsPanel" Grid.Column="0" Grid.Row="0" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,1,2,0">
+      <StackPanel Orientation="Horizontal">
+        <StackPanel Margin="0,0,0,0" Orientation="Horizontal" Context="{Service Window}"  IsVisible="{Binding Source={StaticResource MouseModel},Path=IsMouseUsed}">
+          <Button x:Name="WindowedButton" Style="{ThemeResource MinMaxButtonStyle}" Margin="2,0,0,0" HorizontalAlignment="Right"
+                  Command="{Command Source={Service Window},Path=SwitchMode,Parameters=NormalWindowed}">
+            <Button.IsVisible>
+              <Binding Source="{StaticResource ScreenModeModel}" Path="CurrentScreenMode" Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0} == {ScreenMode}.{FullScreen}"/>
+            </Button.IsVisible>
+          </Button>
+          <Button x:Name="MaximizedButton" Style="{ThemeResource MinMaxButtonStyle}" Margin="2,0,0,0" HorizontalAlignment="Right"
+                  Command="{Command Source={Service Window},Path=SwitchMode,Parameters=FullScreen}">
+            <Button.IsVisible>
+              <Binding Source="{StaticResource ScreenModeModel}" Path="CurrentScreenMode" Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0} != {ScreenMode}.{FullScreen}"/>
+            </Button.IsVisible>
+          </Button>
+          <Button x:Name="ExitButton" Style="{ThemeResource ExitButtonStyle}" Margin="2,0,0,0" HorizontalAlignment="Right"
+                  Command="{Command Source={Service Window},Path=Shutdown}">
+            <Button.IsVisible>
+              <Binding Source="{StaticResource ScreenModeModel}" Path="CurrentScreenMode" Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0} == {ScreenMode}.{FullScreen}"/>
+            </Button.IsVisible>
+          </Button>
+        </StackPanel>
+      </StackPanel>
+    </Grid>
 
   </Grid>
 </Screen>

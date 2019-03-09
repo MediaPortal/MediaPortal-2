@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2017 Team MediaPortal
+#region Copyright (C) 2007-2018 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2017 Team MediaPortal
+    Copyright (C) 2007-2018 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -33,6 +33,9 @@ using System.Threading;
 using DirectShow;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
+using MediaPortal.Common.Settings;
+using MediaPortal.UI.Players.Video.Settings;
+using MediaPortal.UI.Players.Video.Teletext;
 using MediaPortal.UI.Players.Video.Tools;
 using MediaPortal.UI.Presentation.Players;
 using MediaPortal.UI.SkinEngine.Rendering;
@@ -224,7 +227,7 @@ namespace MediaPortal.UI.Players.Video.Subtitles
   /// SubtitleRenderer uses the DVBSub2 direct show filter in the video graph to retrieve subtitles.
   /// The subtitles are handled by drawing bitmap to the video frame (<see cref="DrawOverlay"/>).
   /// </summary>
-  public class SubtitleRenderer : IDisposable
+  public class SubtitleRenderer : ISubtitleRenderer, IDisposable
   {
     #region Constants
 
@@ -232,12 +235,18 @@ namespace MediaPortal.UI.Players.Video.Subtitles
     public static Guid CLSID_DVBSUB2 = new Guid("{1CF3606B-6F89-4813-9D05-F9CA324CF2EA}");
     public static Guid CLSID_DVBSUB3 = new Guid("{3B4C4F66-739F-452c-AFC4-1C039BED3299}");
 
+    // ClosedCaptions parser
+    private const string CCFILTER_CLSID = "{6F0B7D9C-7548-49A9-AC4C-1DA1927E6C15}";
+    private const string CCFILTER_NAME = "Core CC Parser";
+    private const string CCFILTER_FILENAME = "cccp.ax";
+
     #endregion
 
     #region Fields
 
     // DirectX DeviceEx to handle graphic operations
     protected DeviceEx _device;
+    protected Sprite _sprite;
     protected IDVBSubtitleSource _subFilter = null;
 
     /// <summary>
@@ -254,6 +263,7 @@ namespace MediaPortal.UI.Players.Video.Subtitles
     protected SubtitleCallback _callBack;
     protected readonly ResetCallback _resetCallBack;
     protected readonly UpdateTimeoutCallback _updateTimeoutCallBack;
+    protected TeletextReceiver _ttxtReceiver = null;
 
     // Timestamp offset in MILLISECONDS
     protected double _startPos = 0;
@@ -314,6 +324,7 @@ namespace MediaPortal.UI.Players.Video.Subtitles
       _resetCallBack = Reset;
       _updateTimeoutCallBack = UpdateTimeout;
       _device = SkinContext.Device;
+      _sprite = new Sprite(_device);
     }
 
     public void SetPlayer(IMediaPlaybackControl p)
@@ -442,8 +453,8 @@ namespace MediaPortal.UI.Players.Video.Subtitles
       ServiceRegistration.Get<ILogger>().Debug("On TextSubtitle called");
       try
       {
-        if (sub.Page == _activeSubPage)
-        {
+       // if (sub.Page == _activeSubPage)
+       // {
           ServiceRegistration.Get<ILogger>().Debug("Page: " + sub.Page);
           ServiceRegistration.Get<ILogger>().Debug("Character table: " + sub.Encoding);
           ServiceRegistration.Get<ILogger>().Debug("Timeout: " + sub.TimeOut);
@@ -456,7 +467,7 @@ namespace MediaPortal.UI.Players.Video.Subtitles
             ServiceRegistration.Get<ILogger>().Error("OnTextSubtitle: sub.txt == null!");
             return;
           }
-        }
+       // }
       }
       catch (Exception e)
       {
@@ -467,7 +478,7 @@ namespace MediaPortal.UI.Players.Video.Subtitles
       try
       {
         // if we dont need the subtitle
-        if (!_renderSubtitles || _useBitmap || (_activeSubPage != sub.Page))
+        if (!_renderSubtitles /*|| _useBitmap || (_activeSubPage != sub.Page)*/)
         {
           ServiceRegistration.Get<ILogger>().Debug("Text subtitle (page {0}) discarded: useBitmap is {1} and activeSubPage is {2}", sub.Page, _useBitmap, _activeSubPage);
           return;
@@ -481,7 +492,10 @@ namespace MediaPortal.UI.Players.Video.Subtitles
                                 PresentTime = sub.TimeStamp / 90000.0f + _startPos,
                                 Height = (uint)SkinContext.SkinResources.SkinHeight,
                                 Width = (uint)SkinContext.SkinResources.SkinWidth,
-                                FirstScanLine = 0
+                                ScreenWidth = SkinContext.SkinResources.SkinWidth,
+                                ScreenHeight = SkinContext.SkinResources.SkinHeight,
+                                FirstScanLine = 0,
+                                HorizontalPosition = 0
                               };
 
         lock (_subtitles)
@@ -513,7 +527,7 @@ namespace MediaPortal.UI.Players.Video.Subtitles
     /// </summary>
     /// <param name="graphBuilder">The IGraphBuilder</param>
     /// <returns>DvbSub2(3) filter instance</returns>
-    public IBaseFilter AddSubtitleFilter(IGraphBuilder graphBuilder)
+    public IBaseFilter AddDvbSubtitleFilter(IGraphBuilder graphBuilder)
     {
       IBaseFilter baseFilter = null;
       try
@@ -545,6 +559,29 @@ namespace MediaPortal.UI.Players.Video.Subtitles
         _subFilter.SetUpdateTimeoutCallback(pUpdateTimeoutCallBack);
       }
       return baseFilter;
+    }
+
+    public IBaseFilter AddClosedCaptionsFilter(IGraphBuilder graphBuilder)
+    {
+      FilterFileWrapper ccFilter = FilterLoader.LoadFilterFromDll(CCFILTER_FILENAME, new Guid(CCFILTER_CLSID), true);
+      IBaseFilter baseFilter = ccFilter.GetFilter();
+      if (baseFilter != null)
+      {
+        graphBuilder.AddFilter(baseFilter, CCFILTER_NAME);
+      }
+      else
+      {
+        ccFilter.Dispose();
+        ServiceRegistration.Get<ILogger>().Warn("SubtitleRenderer: Failed to add {1} to graph", CCFILTER_FILENAME);
+      }
+      return baseFilter;
+    }
+
+
+    public void AddTeletextSubtitleDecoder(ITeletextSource teletextSource)
+    {
+      TeletextSubtitleDecoder ttxtDecoder = new TeletextSubtitleDecoder(this);
+      _ttxtReceiver = new TeletextReceiver(teletextSource, ttxtDecoder);
     }
 
     protected virtual void EnableSubtitleHandling()
@@ -675,9 +712,8 @@ namespace MediaPortal.UI.Players.Video.Subtitles
         // TemporaryRenderTarget changes RenderTarget to texture and restores settings when done (Dispose)
         using (new TemporaryRenderTarget(targetTexture))
         using (TemporaryRenderState temporaryRenderState = new TemporaryRenderState())
-        using (Sprite sprite = new Sprite(_device))
         {
-          sprite.Begin(SpriteFlags.AlphaBlend);
+          _sprite.Begin(SpriteFlags.AlphaBlend);
           // No alpha test here, allow all values
           temporaryRenderState.SetTemporaryRenderState(RenderState.AlphaTestEnable, 0);
 
@@ -700,9 +736,9 @@ namespace MediaPortal.UI.Players.Video.Subtitles
             transform *= Matrix.Scaling(factorW, factorH, 1);
           }
 
-          sprite.Transform = transform;
-          sprite.Draw(currentSubtitle.SubTexture, SharpDX.Color.White);
-          sprite.End();
+          _sprite.Transform = transform;
+          _sprite.Draw(currentSubtitle.SubTexture, SharpDX.Color.White);
+          _sprite.End();
         }
 
         if (_onTextureInvalidated != null)
@@ -728,7 +764,7 @@ namespace MediaPortal.UI.Players.Video.Subtitles
         gBmp.TextRenderingHint = System.Drawing.Text.TextRenderingHint.AntiAlias;
         for (int i = 0; i < lc.Length; i++)
         {
-          using (System.Drawing.Font fnt = new System.Drawing.Font("Courier", (lc[i].doubleHeight ? 22 : 15), FontStyle.Bold)) // fixed width font!
+          using (System.Drawing.Font fnt = new System.Drawing.Font("Consolas", (lc[i].doubleHeight ? 22 : 15), FontStyle.Bold)) // fixed width font!
           {
             int vertOffset = (h / lc.Length) * i;
 
@@ -817,6 +853,8 @@ namespace MediaPortal.UI.Players.Video.Subtitles
     {
       lock (_subtitles)
       {
+        _sprite?.Dispose();
+        _sprite = null;
         _subtitles.ToList().ForEach(s => s.Dispose());
         _subtitles.Clear();
       }

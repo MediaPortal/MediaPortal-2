@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2017 Team MediaPortal
+#region Copyright (C) 2007-2018 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2017 Team MediaPortal
+    Copyright (C) 2007-2018 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -509,7 +509,14 @@ namespace MediaPortal.Backend.Services.MediaLibrary
                 lock (_shareImportSync)
                 {
                   if (_shareImportStates.ContainsKey(share.ShareId))
-                    _shareImportStates.Remove(share.ShareId);
+                  {
+                    _shareImportStates[share.ShareId].IsImporting = false;
+                    if (messageType == ImporterWorkerMessaging.MessageType.ImportCompleted)
+                      _shareImportStates[share.ShareId].Progress = 100;
+                  }
+
+                  if (!_shareImportStates.Any(s => s.Value.IsImporting))
+                    _shareImportStates.Clear();
                 }
                 //Delay state update to ensure it's last
                 Task.Run(async () =>
@@ -569,8 +576,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
         lock (_shareImportSync)
           shareStates.AddRange(_shareImportStates.Values);
         bool importing = shareStates.Any(s => s.IsImporting);
-        var activeShares = shareStates.Where(s => s.IsImporting && s.Progress > 0);
-        int? progress = importing ? activeShares?.Count() > 0 ? activeShares.Min(s => s.Progress) : 0 : (int?)null;
+        int? progress = importing ? shareStates?.Count() > 0 ? Convert.ToInt32(shareStates.Average(s => s.Progress)) : 0 : (int?)null;
         var state = new ShareImportServerState
         {
           IsImporting = importing,
@@ -1775,10 +1781,9 @@ namespace MediaPortal.Backend.Services.MediaLibrary
 
     private Guid AddOrUpdateMediaItem(Guid parentDirectoryId, string systemId, ResourcePath path, Guid? existingMediaItemId, Guid? newMediaItemId, IEnumerable<MediaItemAspect> mediaItemAspects, bool isRefresh)
     {
-      Guid? mediaItemId = null;
-      mediaItemId = AddOrUpdateMediaItem(null, null, parentDirectoryId, systemId, path, existingMediaItemId, newMediaItemId, mediaItemAspects, isRefresh);
-      MediaLibraryMessaging.SendMediaItemsAddedOrUpdatedMessage(new MediaItem(mediaItemId.Value, MediaItemAspect.GetAspects(mediaItemAspects)));
-      return mediaItemId.Value;
+      Guid mediaItemId = AddOrUpdateMediaItem(null, null, parentDirectoryId, systemId, path, existingMediaItemId, newMediaItemId, mediaItemAspects, isRefresh);
+      MediaLibraryMessaging.SendMediaItemsAddedOrUpdatedMessage(mediaItemId);
+      return mediaItemId;
     }
 
     private Guid AddOrUpdateMediaItem(ISQLDatabase database, ITransaction transaction, Guid parentDirectoryId, string systemId, ResourcePath path, Guid? existingMediaItemId, Guid? newMediaItemId, IEnumerable<MediaItemAspect> mediaItemAspects, bool isRefresh)
@@ -1996,7 +2001,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
       }
 
       //Notify listeners that the reconciled item has changed
-      MediaLibraryMessaging.SendMediaItemsAddedOrUpdatedMessage(new MediaItem(mediaItemId, aspects));
+      MediaLibraryMessaging.SendMediaItemsAddedOrUpdatedMessage(mediaItemId);
 
       if (updatedItemIds.Count > 0)
       {
@@ -2007,7 +2012,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
       }
 
       if (result.Count > 0)
-        MediaLibraryMessaging.SendMediaItemsAddedOrUpdatedMessage(result);
+        MediaLibraryMessaging.SendMediaItemsAddedOrUpdatedMessage(result.Select(mi => mi.MediaItemId).ToArray());
       Logger.Info("Media item {0} with name {1} reconciled ({2} ms)", mediaItemId, name, swImport.ElapsedMilliseconds);
       return result;
     }
@@ -2088,15 +2093,51 @@ namespace MediaPortal.Backend.Services.MediaLibrary
       IEnumerable<IMediaMergeHandler> mergeHandlers = mediaAccessor.LocalMergeHandlers.Values;
       foreach (IMediaMergeHandler mergeHandler in mergeHandlers.Where(m => m.MergeableAspects.All(a => extractedAspects.ContainsKey(a))))
       {
-        MediaItem mergedItem = MatchExistingItem(database, transaction, mergeHandler, extractedAspects);
-        if (mergedItem != null)
+        IList<MediaItem> mergeItems = MatchExistingItems(database, transaction, mergeHandler, extractedAspects);
+        IDictionary<Guid, IList<MediaItemAspect>> mergedAspects = null;
+        if (mergeItems != null)
         {
           MergeProviderResourceAspects(providerResourceAspect, MediaItemAspect.GetAspects(extractedAspects));
-          if (mergeHandler.TryMerge(extractedAspects, mergedItem.Aspects))
+          bool success = false;
+          List<MediaItem> mergedMediaItems = new List<MediaItem>();
+          foreach (var mergedItem in mergeItems)
           {
-            Logger.Debug("Found mergeable media item {0}", mergedItem.MediaItemId);
-            mergedMediaItemId = mergedItem.MediaItemId;
-            UpdateMergedMediaItem(database, transaction, mergedItem.MediaItemId, MediaItemAspect.GetAspects(mergedItem.Aspects));
+            if (mergeHandler.TryMerge(extractedAspects, mergedItem.Aspects))
+            {
+              Logger.Debug("Found mergeable media item {0}", mergedItem.MediaItemId);
+              if (mergedMediaItemId == Guid.Empty && !BaseInfo.IsVirtualResource(mergedItem.Aspects))
+              {
+                mergedMediaItemId = mergedItem.MediaItemId;
+                mergedAspects = mergedItem.Aspects;
+              }
+              else
+              {
+                mergedMediaItems.Add(mergedItem);
+              }
+              success = true;
+            }
+          }
+          if (success)
+          {
+            //Merge all aspects
+            List<Guid> obsoleteMediaItems = new List<Guid>();
+            foreach (var mergedItem in mergedMediaItems)
+            {
+              if (mergeHandler.TryMerge(mergedItem.Aspects, mergedAspects))
+                obsoleteMediaItems.Add(mergedItem.MediaItemId);
+            }
+
+            //Delete obsolete media items
+            foreach (var obsoleteMediaItem in obsoleteMediaItems)
+            {
+              _relationshipManagement.DeleteMediaItemAndRelationships(transaction, obsoleteMediaItem);
+              Logger.Debug("Deleted media item {0} made obsolete by merge", obsoleteMediaItem);
+            }
+            if (obsoleteMediaItems.Any())
+              MediaLibraryMessaging.SendMediaItemsDeletedMessage();
+
+            //Update remaining existing media item
+            UpdateMergedMediaItem(database, transaction, mergedMediaItemId, MediaItemAspect.GetAspects(mergedAspects));
             return true;
           }
         }
@@ -2150,7 +2191,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
       }
     }
 
-    private MediaItem MatchExistingItem(ISQLDatabase database, ITransaction transaction, IMediaMergeHandler mergeHandler, IDictionary<Guid, IList<MediaItemAspect>> extractedAspects)
+    private IList<MediaItem> MatchExistingItems(ISQLDatabase database, ITransaction transaction, IMediaMergeHandler mergeHandler, IDictionary<Guid, IList<MediaItemAspect>> extractedAspects)
     {
       IFilter filter = mergeHandler.GetSearchFilter(extractedAspects);
       if (filter == null)
@@ -2163,14 +2204,15 @@ namespace MediaPortal.Backend.Services.MediaLibrary
       bool loadAllAspects = mergeHandler.RequiresMerge(extractedAspects);
       IEnumerable<Guid> optionalAspectIds = loadAllAspects ? allAspectIds : mergeHandler.MatchAspects.Where(a => a != RelationshipAspect.ASPECT_ID);
       IList<MediaItem> existingItems = Search(database, transaction, new MediaItemQuery(mergeHandler.MergeableAspects, optionalAspectIds, filter), false, null, true);
+      IList<MediaItem> matchingItems = new List<MediaItem>();
       foreach (MediaItem existingItem in existingItems.Where(mi => mergeHandler.TryMatch(extractedAspects, mi.Aspects)))
       {
         MediaItem matchedItem = loadAllAspects ? existingItem : Search(database, transaction, new MediaItemQuery(mergeHandler.MergeableAspects, allAspectIds,
               new MediaItemIdFilter(existingItem.MediaItemId)), false, null, true).FirstOrDefault();
         if (matchedItem != null)
-          return matchedItem;
+          matchingItems.Add(matchedItem);
       }
-      return null;
+      return matchingItems.Count > 0 ? matchingItems : null;
     }
 
     private MediaItem MatchExternalItem(ISQLDatabase database, ITransaction transaction, IRelationshipRoleExtractor roleExtractor,
@@ -2409,7 +2451,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
               command.CommandText = _preparedStatements.SelectPlayDataFromParentIdSQL;
               float nonVirtualChildCount = 0;
               float watchedCount = 0;
-              float playCountSum = 0;
+              int playCountSum = 0;
               int maxPlayCount = 0;
               using (IDataReader reader = command.ExecuteReader())
               {
@@ -2453,7 +2495,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
               Logger.Debug("MediaLibrary: Set parent media item {0} watch percentage = {1}", parentId, valueParam.Value);
 
               keyParam.Value = UserDataKeysKnown.KEY_PLAY_COUNT;
-              valueParam.Value = UserDataKeysKnown.GetSortablePlayCountString(maxPlayCount);
+              valueParam.Value = UserDataKeysKnown.GetSortablePlayCountString(playCountSum);
               //valueParam.Value = UserDataKeysKnown.GetSortablePlayCountString(Convert.ToInt32(playCountSum / nonVirtualChildCount));
               if (command.ExecuteNonQuery() == 0)
               {
@@ -2463,10 +2505,20 @@ namespace MediaPortal.Backend.Services.MediaLibrary
               }
               Logger.Debug("MediaLibrary: Set parent media item {0} watch count = {1}", parentId, valueParam.Value);
 
-              if (updatePlayDate)
+              keyParam.Value = UserDataKeysKnown.KEY_PLAY_MAX_CHILD_COUNT;
+              valueParam.Value = UserDataKeysKnown.GetSortablePlayCountString(maxPlayCount);
+              if (command.ExecuteNonQuery() == 0)
+              {
+                command.CommandText = _preparedStatements.InsertUserPlayDataForIdSQL;
+                command.ExecuteNonQuery();
+                command.CommandText = _preparedStatements.UpdateUserPlayDataFromIdSQL;
+              }
+              Logger.Debug("MediaLibrary: Set parent media item {0} max child play count = {1}", parentId, valueParam.Value);
+
+              if (updatePlayDate && watchPercentage > 0)
               {
                 keyParam.Value = UserDataKeysKnown.KEY_PLAY_DATE;
-                valueParam.Value = watchPercentage >= 100 ? UserDataKeysKnown.GetSortablePlayDateString(DateTime.Now) : "";
+                valueParam.Value = UserDataKeysKnown.GetSortablePlayDateString(DateTime.Now);
                 if (command.ExecuteNonQuery() == 0)
                 {
                   command.CommandText = _preparedStatements.InsertUserPlayDataForIdSQL;
@@ -2539,7 +2591,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
                 command.ExecuteNonQuery();
                 command.CommandText = _preparedStatements.UpdateUserPlayDataFromIdSQL;
               }
-              Logger.Debug("MediaLibrary: Set parent media item {0} watch percentage = {1}", key.Key, valueParam.Value);
+              Logger.Debug("MediaLibrary: Set child media item {0} watch percentage = {1}", key.Key, valueParam.Value);
 
               keyParam.Value = UserDataKeysKnown.KEY_PLAY_COUNT;
               valueParam.Value = UserDataKeysKnown.GetSortablePlayCountString(key.Value);
@@ -2549,19 +2601,19 @@ namespace MediaPortal.Backend.Services.MediaLibrary
                 command.ExecuteNonQuery();
                 command.CommandText = _preparedStatements.UpdateUserPlayDataFromIdSQL;
               }
-              Logger.Debug("MediaLibrary: Set parent media item {0} watch count = {1}", key.Key, valueParam.Value);
+              Logger.Debug("MediaLibrary: Set child media item {0} watch count = {1}", key.Key, valueParam.Value);
 
-              if (updateWatchedDate)
+              if (updateWatchedDate && key.Value > 0)
               {
                 keyParam.Value = UserDataKeysKnown.KEY_PLAY_DATE;
-                valueParam.Value = key.Value > 0 ? UserDataKeysKnown.GetSortablePlayDateString(DateTime.Now) : "";
+                valueParam.Value = UserDataKeysKnown.GetSortablePlayDateString(DateTime.Now);
                 if (command.ExecuteNonQuery() == 0)
                 {
                   command.CommandText = _preparedStatements.InsertUserPlayDataForIdSQL;
                   command.ExecuteNonQuery();
                   command.CommandText = _preparedStatements.UpdateUserPlayDataFromIdSQL;
                 }
-                Logger.Debug("MediaLibrary: Set parent media item {0} watch date = {1}", key.Key, valueParam.Value);
+                Logger.Debug("MediaLibrary: Set child media item {0} watch date = {1}", key.Key, valueParam.Value);
               }
             }
           }
@@ -2571,7 +2623,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
         if (childPlayCounts.Count > 0)
         {
           //Update parents
-          UpdateParentPlayUserData(userProfileId, childPlayCounts.Keys.ToArray(), updateWatchedDate);
+          UpdateParentPlayUserData(userProfileId, new[] { mediaItemId }.Concat(childPlayCounts.Keys).ToArray(), updateWatchedDate);
           return true;
         }
         return false;

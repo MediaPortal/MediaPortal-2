@@ -288,6 +288,8 @@
     <MediaListProviderBuilder Id="{E55D1A11-5D07-4F76-8DA9-E8A4CF4B7B67}" Key="LatestMovies" ClassName="MediaPortal.UiComponents.Media.MediaLists.LatestMovieMediaListProvider"/>
     <MediaListProviderBuilder Id="{769B1C3B-8E3B-455D-93CA-2BFD2AE863AF}" Key="LatestRecordings" ClassName="MediaPortal.UiComponents.Media.MediaLists.LatestRecordingMediaListProvider"/>
     <MediaListProviderBuilder Id="{2A75CFE3-8167-4686-BD5D-F399F8F7E7F0}" Key="LatestVideo" ClassName="MediaPortal.UiComponents.Media.MediaLists.LatestVideoMediaListProvider"/>
+    <MediaListProviderBuilder Id="{1D39FE2C-20DA-4896-948B-B46B30250C9D}" Key="LatestAlbums" ClassName="MediaPortal.UiComponents.Media.MediaLists.LatestAlbumMediaListProvider"/>
+    <MediaListProviderBuilder Id="{E923EBD2-2E5E-43DF-9134-324A66C12FE6}" Key="LatestSeries" ClassName="MediaPortal.UiComponents.Media.MediaLists.LatestSeriesMediaListProvider"/>
     
     <!--Latest watched media lists-->
     <MediaListProviderBuilder Id="{3C9021E5-01AE-4F62-8B0B-DB65ABBF602A}" Key="LastPlayImages" ClassName="MediaPortal.UiComponents.Media.MediaLists.LastWatchedImageMediaListProvider"/>

@@ -1,7 +1,7 @@
-﻿#region Copyright (C) 2007-2017 Team MediaPortal
+#region Copyright (C) 2007-2018 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2017 Team MediaPortal
+    Copyright (C) 2007-2018 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -23,8 +23,6 @@
 #endregion
 
 using System;
-using System.Collections.Generic;
-using MediaPortal.Common.MediaManagement;
 
 namespace MediaPortal.Extensions.UserServices.FanArtService.Interfaces
 {
@@ -39,11 +37,10 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Interfaces
     void ScheduleFanArtCleanup();
 
     /// <summary>
-    /// Schedules the collection of fanart for the media item with the specified <paramref name="mediaItemId"/> and <paramref name="aspects"/>.
+    /// Schedules the collection of fanart for the media item with the specified <paramref name="mediaItemId"/>.
     /// </summary>
     /// <param name="mediaItemId">The media item id of the media item to collect fanart for.</param>
-    /// <param name="aspects">The media item aspects of the media item to collect fanart for.</param>
-    void ScheduleFanArtCollection(Guid mediaItemId, IDictionary<Guid, IList<MediaItemAspect>> aspects);
+    void ScheduleFanArtCollection(Guid mediaItemId);
 
     /// <summary>
     /// Schedules the deletion of fanart for the media item with the specified <paramref name="mediaItemId"/>.

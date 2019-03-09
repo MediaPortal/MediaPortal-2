@@ -1,7 +1,7 @@
-﻿#region Copyright (C) 2007-2017 Team MediaPortal
+#region Copyright (C) 2007-2018 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2017 Team MediaPortal
+    Copyright (C) 2007-2018 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -22,6 +22,7 @@
 
 #endregion
 
+using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Common.MediaManagement.MLQueries;
 using MediaPortal.Common.UserProfileDataManagement;
 using System;
@@ -53,7 +54,7 @@ namespace MediaPortal.UiComponents.Media.MediaLists
 
     protected override bool ShouldUpdate(UpdateReason updateReason)
     {
-      return updateReason.HasFlag(UpdateReason.PlaybackComplete) || base.ShouldUpdate(updateReason);
+      return updateReason.HasFlag(UpdateReason.MediaItemChanged) || base.ShouldUpdate(updateReason);
     }
   }
 
@@ -68,11 +69,10 @@ namespace MediaPortal.UiComponents.Media.MediaLists
       Guid? userProfile = CurrentUserProfile?.ProfileId;
       return new MediaItemQuery(_necessaryMias, _optionalMias, null)
       {
-        Filter = userProfile.HasValue ? new FilteredRelationshipFilter(_role, _linkedRole, await AppendUserFilterAsync(
-          BooleanCombinationFilter.CombineFilters(BooleanOperator.And,
-          new NotFilter(new EmptyUserDataFilter(userProfile.Value, UserDataKeysKnown.KEY_PLAY_DATE)),
-          new RelationalUserDataFilter(userProfile.Value, UserDataKeysKnown.KEY_PLAY_PERCENTAGE, RelationalOperator.LT, UserDataKeysKnown.GetSortablePlayPercentageString(100)),
-          new RelationalUserDataFilter(userProfile.Value, UserDataKeysKnown.KEY_PLAY_PERCENTAGE, RelationalOperator.GT, UserDataKeysKnown.GetSortablePlayPercentageString(0))),
+        Filter = userProfile.HasValue ? new FilteredRelationshipFilter(_role, _linkedRole, await AppendUserFilterAsync(BooleanCombinationFilter.CombineFilters(BooleanOperator.And,
+              new NotFilter(new EmptyUserDataFilter(userProfile.Value, UserDataKeysKnown.KEY_PLAY_DATE)),
+              new RelationalUserDataFilter(userProfile.Value, UserDataKeysKnown.KEY_PLAY_PERCENTAGE, RelationalOperator.LT, UserDataKeysKnown.GetSortablePlayPercentageString(100)),
+              new RelationalUserDataFilter(userProfile.Value, UserDataKeysKnown.KEY_PLAY_PERCENTAGE, RelationalOperator.GT, UserDataKeysKnown.GetSortablePlayPercentageString(0))),
           _necessaryLinkedMias)) : null,
         SubqueryFilter = GetNavigationFilter(_navigationInitializerType),
         SortInformation = new List<ISortInformation> { new DataSortInformation(UserDataKeysKnown.KEY_PLAY_DATE, SortDirection.Descending) }

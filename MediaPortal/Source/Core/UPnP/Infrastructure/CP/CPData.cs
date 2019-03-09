@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2017 Team MediaPortal
+#region Copyright (C) 2007-2018 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2017 Team MediaPortal
+    Copyright (C) 2007-2018 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -22,7 +22,9 @@
 
 #endregion
 
+using System;
 using System.Collections.Generic;
+using System.Threading;
 using UPnP.Infrastructure.CP.SSDP;
 
 namespace UPnP.Infrastructure.CP
@@ -36,13 +38,23 @@ namespace UPnP.Infrastructure.CP
     protected SSDPClientController _ssdpClientController = null;
     protected ICollection<EndpointConfiguration> _endpoints = new List<EndpointConfiguration>();
     protected IDictionary<string, RootEntry> _deviceEntries = new Dictionary<string, RootEntry>();
+    protected ReaderWriterLockSlim _lock = new ReaderWriterLockSlim(LockRecursionPolicy.SupportsRecursion);
 
     /// <summary>
     /// Synchronization object for the UPnP control point system.
     /// </summary>
+    [Obsolete("Use Lock property for synchronizing access.")]
     public object SyncObj
     {
       get { return _syncObj; }
+    }
+
+    /// <summary>
+    /// Synchronization object for the UPnP control point system.
+    /// </summary>
+    public ReaderWriterLockSlim Lock
+    {
+      get { return _lock; }
     }
 
     /// <summary>

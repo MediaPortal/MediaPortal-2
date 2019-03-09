@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2017 Team MediaPortal
+#region Copyright (C) 2007-2018 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2017 Team MediaPortal
+    Copyright (C) 2007-2018 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -87,7 +87,7 @@ namespace UPnP.Infrastructure.CP
     }
 
     /// <summary>
-    /// Gets the ynchronization object to use inside <c>lock()</c> statements when accessing data in this instance.
+    /// Gets the synchronization object to use inside <c>lock()</c> statements when accessing data in this instance.
     /// </summary>
     public object SyncObj
     {

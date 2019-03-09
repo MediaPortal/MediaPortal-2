@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2017 Team MediaPortal
+#region Copyright (C) 2007-2018 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2017 Team MediaPortal
+    Copyright (C) 2007-2018 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -260,7 +260,7 @@ namespace UPnP.Infrastructure.CP.DeviceTree
         return inParameters == null || inParameters.Count == 0;
       if (inParameters == null)
         return false;
-      for (int i=0; i<_inArguments.Count; i++)
+      for (int i = 0; i < _inArguments.Count; i++)
       {
         if (inParameters.Count <= i)
           return false;
@@ -329,19 +329,19 @@ namespace UPnP.Infrastructure.CP.DeviceTree
     /// <exception cref="UPnPException">If an error occured during the action call.</exception>
     public IList<object> InvokeAction(IList<object> inParameters)
     {
-      AsyncActionCallResult ar = (AsyncActionCallResult) BeginInvokeAction(inParameters, null, null);
+      AsyncActionCallResult ar = (AsyncActionCallResult)BeginInvokeAction(inParameters, null, null);
       return EndInvokeAction(ar);
     }
 
     internal void ActionResultPresent(IList<object> outParams, object handle)
     {
-      AsyncActionCallResult asyncResult = (AsyncActionCallResult) handle;
+      AsyncActionCallResult asyncResult = (AsyncActionCallResult)handle;
       asyncResult.ActionResultPresent(outParams);
     }
 
     internal void ActionErrorResultPresent(UPnPError error, object handle)
     {
-      AsyncActionCallResult asyncResult = (AsyncActionCallResult) handle;
+      AsyncActionCallResult asyncResult = (AsyncActionCallResult)handle;
       asyncResult.ActionErrorResultPresent(error);
     }
 
@@ -367,10 +367,9 @@ namespace UPnP.Infrastructure.CP.DeviceTree
       _outArguments.Add(argument);
     }
 
-    internal static CpAction ConnectAction(DeviceConnection connection, CpService parentService, XPathNavigator actionNav,
-        IXmlNamespaceResolver nsmgr)
+    internal static CpAction ConnectAction(DeviceConnection connection, CpService parentService, XPathNavigator actionNav, IXmlNamespaceResolver nsmgr)
     {
-      lock (connection.CPData.SyncObj)
+      using (connection.CPData.Lock.EnterWrite())
       {
         string name = ParserHelper.SelectText(actionNav, "s:name/text()", nsmgr);
         CpAction result = new CpAction(connection, parentService, name);
@@ -392,10 +391,8 @@ namespace UPnP.Infrastructure.CP.DeviceTree
       DeviceConnection connection = _connection;
       if (connection == null)
         return;
-      lock (connection.CPData.SyncObj)
-      {
+      using (_connection.CPData.Lock.EnterWrite())
         _connection = null;
-      }
     }
 
     #endregion

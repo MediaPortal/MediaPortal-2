@@ -1778,7 +1778,7 @@
       <Setter.Value>
         <ControlTemplate TargetType="{x:Type Button}">
           <Grid>
-            <Image x:Name="image" Source="MAXIMIZE.NOFOCUS.PNG" Stretch="Uniform" Height="30" Width="30" Margin="0,0,0,0" VerticalAlignment="Center"/>
+            <Image x:Name="image" Source="MAXIMIZE.NOFOCUS.PNG" Stretch="Uniform" Height="40" Width="40" Margin="0,0,0,0" VerticalAlignment="Center"/>
           </Grid>
           <ControlTemplate.Triggers>
             <Trigger Property="HasFocus" Value="True">
@@ -1795,7 +1795,7 @@
       <Setter.Value>
         <ControlTemplate TargetType="{x:Type Button}">
           <Grid>
-            <Image x:Name="image" Source="Exit.nofocus.png" Stretch="Uniform" Height="30" Width="30" Margin="0,0,0,0" VerticalAlignment="Center"/>
+            <Image x:Name="image" Source="Exit.nofocus.png" Stretch="Uniform" Height="40" Width="40" Margin="0,0,0,0" VerticalAlignment="Center"/>
           </Grid>
           <ControlTemplate.Triggers>
             <Trigger Property="HasFocus" Value="True">

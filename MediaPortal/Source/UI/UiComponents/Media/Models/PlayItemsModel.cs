@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2017 Team MediaPortal
+#region Copyright (C) 2007-2018 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2017 Team MediaPortal
+    Copyright (C) 2007-2018 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -23,6 +23,7 @@
 #endregion
 
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -73,6 +74,8 @@ namespace MediaPortal.UiComponents.Media.Models
   /// </remarks>
   public class PlayItemsModel : IWorkflowModel
   {
+    private static ConcurrentDictionary<Guid, MediaItem> RemovableMediaItems { get; } = new ConcurrentDictionary<Guid, MediaItem>();
+
     #region Consts
 
     public const string STR_MODEL_ID = "3750D3FE-CA2A-4c8a-97B3-A08EF305C084";
@@ -156,6 +159,26 @@ namespace MediaPortal.UiComponents.Media.Models
     #endregion
 
     #region Static methods which also can be called from other models
+
+    /// <summary>
+    /// Adds removabale media items, so they can stand in for stubs while available
+    /// </summary>
+    /// <param name="mediaItems"></param>
+    public static void AddOrUpdateRemovableMediaItems(IEnumerable<MediaItem> mediaItems)
+    {
+      foreach (var item in mediaItems)
+        RemovableMediaItems.AddOrUpdate(item.MediaItemId, item, (g, i) => item);
+    }
+
+    /// <summary>
+    /// Removes removable media items that are no longer availabale
+    /// </summary>
+    /// <param name="mediaItems"></param>
+    public static void RemoveRemovableMediaItems(IEnumerable<MediaItem> mediaItems)
+    {
+      foreach (var item in mediaItems)
+        RemovableMediaItems.TryRemove(item.MediaItemId, out _);
+    }
 
     /// <summary>
     /// Checks if we need to show a menu for playing all items provided by the given <paramref name="getMediaItemsFunction"/>
@@ -527,6 +550,10 @@ namespace MediaPortal.UiComponents.Media.Models
 
     protected async Task CheckResumeMenuInternal(MediaItem item, int edition)
     {
+      // Use actual removable media item if present for stub
+      if (item.IsStub && RemovableMediaItems.TryGetValue(item.MediaItemId, out var removableItem))
+        item = removableItem;
+
       // First make sure the correct edition is selected
       if (edition <= item.MaximumEditionIndex)
         item.ActiveEditionIndex = edition;
@@ -545,7 +572,7 @@ namespace MediaPortal.UiComponents.Media.Models
       if (rse != null && rse.ActiveEditionIndex != edition)
         resumeState = null;
 
-      if (resumeState == null)
+      if (item.IsStub || resumeState == null)
       {
         // Asynchronously leave the current workflow state because we're called from a workflow model method
         //await Task.Yield();

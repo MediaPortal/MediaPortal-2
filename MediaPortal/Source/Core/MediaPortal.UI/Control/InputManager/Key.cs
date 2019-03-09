@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2017 Team MediaPortal
+#region Copyright (C) 2007-2018 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2017 Team MediaPortal
+    Copyright (C) 2007-2018 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -72,6 +72,7 @@ namespace MediaPortal.UI.Control.InputManager
 
     public static readonly Key ChannelUp = new Key("ChannelUp");
     public static readonly Key ChannelDown = new Key("ChannelDown");
+    public static readonly Key ZapBack = new Key("ZapBack");
 
     public static readonly Key Start = new Key("Start");
     public static readonly Key RecordedTV = new Key("RecordedTV");

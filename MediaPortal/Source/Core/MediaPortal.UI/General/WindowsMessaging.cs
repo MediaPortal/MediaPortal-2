@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2017 Team MediaPortal
+#region Copyright (C) 2007-2018 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2017 Team MediaPortal
+    Copyright (C) 2007-2018 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -45,14 +45,17 @@ namespace MediaPortal.UI.General
 
     // Message data
     public const string MESSAGE = "Message"; // Windows message stored as System.Windows.Forms.Message - Take care to copy the message back to the message data after modifying it, else the auto unboxing will prevent applying the new values
+    public const string HANDLED = "Handled"; // Indication of handled state
 
-    public static void BroadcastWindowsMessage(ref Message message)
+    public static bool BroadcastWindowsMessage(ref Message message)
     {
       SystemMessage msg = new SystemMessage(MessageType.WindowsBroadcast);
       msg.MessageData[MESSAGE] = message;
+      msg.MessageData[HANDLED] = false;
       ServiceRegistration.Get<IMessageBroker>().Send(CHANNEL, msg);
       // Copy message back to the ref message
-      message = (Message) msg.MessageData[MESSAGE];
+      message = (Message)msg.MessageData[MESSAGE];
+      return (bool)msg.MessageData[HANDLED];
     }
   }
 }

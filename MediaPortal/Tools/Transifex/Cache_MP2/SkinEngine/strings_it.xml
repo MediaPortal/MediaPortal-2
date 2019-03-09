@@ -6,7 +6,7 @@
   <string name="Settings.Appearance.System.StartupScreen">Schermata di avvio</string>
   <string name="Settings.Appearance.System.StartupScreen.Help">Scegli la schermata di avvio</string>
   <string name="Settings.Appearance.System.StartupScreen.DoNotUseSelection">Non usare la selezione schermo</string>
-  <string name="Settings.Appearance.System.CellPhoneInputStyle">Inserimento in modalità cellulare</string>
+  <string name="Settings.Appearance.System.CellPhoneInputStyle">Inserimento in modalità tastierino telefonico</string>
   <string name="Settings.Appearance.System.CellPhoneInputStyle.Help">Usa immissione in modalità cellulare/SMS</string>
   <string name="Settings.Appearance.System.ScreenSaverEnabled">Abilita salvaschermo</string>
   <string name="Settings.Appearance.System.ScreenSaverEnabled.Help">Decidi se usare il slvaschermo</string>
@@ -25,7 +25,7 @@
   <string name="Settings.Players.Rendering.DefaultGeometry">Modalità di zoom predefinita</string>
   <string name="Settings.Players.Rendering.DefaultGeometry.Help">Seleziona la modalità zoom che verrà applicata al player video all\'avvio</string>
   <string name="Settings.General.System.ApplicationSuspendLevel">Configura il risparmio energetico di Windows</string>
-  <string name="Settings.General.System.ApplicationSuspendLevel.Help">Disabilita la sospensione/arresto automatico di Windows o la disattivazione del video mentre Mediaportal 2 è attivo</string>
+  <string name="Settings.General.System.ApplicationSuspendLevel.Help">Disabilita la sospensione/arresto automatico di Windows o la disattivazione del video mentre MediaPortal 2 è attivo</string>
   <string name="Settings.General.System.ApplicationSuspendLevel.None">Permetti tutti i livelli risparmio energia del sistema</string>
   <string name="Settings.General.System.ApplicationSuspendLevel.AvoidSuspend">Evita la sospensione del sistema ma permetti la disattivazione del video</string>
   <string name="Settings.General.System.ApplicationSuspendLevel.DisplayRequired">Evita la sospensione del sistema e la disattivazione del video</string>
@@ -56,8 +56,8 @@
   <string name="Effects.none">Niente</string>
   <string name="Effects.pixelate">Pixelate</string>
   <string name="Effects.sepia">Seppia</string>
-  <string name="Effects.sharpen">Sharpen</string>
-  <string name="Effects.sharpen_complex">Sharpen (complex)</string>
+  <string name="Effects.sharpen">Esalta dettagli</string>
+  <string name="Effects.sharpen_complex">Esalta dettagli (sharpen complex)</string>
   <string name="Effects.zoom_blur">Sfocatura Zoom</string>
   <string name="PlayerControl.NoPlayer">No player</string>
   <string name="PlayerControl.NoMediaItem">- Nessun contenuto -</string>

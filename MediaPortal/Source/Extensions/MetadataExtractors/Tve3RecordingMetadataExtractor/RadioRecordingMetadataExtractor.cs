@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2017 Team MediaPortal
+#region Copyright (C) 2007-2018 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2017 Team MediaPortal
+    Copyright (C) 2007-2018 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -60,6 +60,7 @@ namespace MediaPortal.Extensions.MetadataExtractors
     static RadioRecordingMetadataExtractor()
     {
       MEDIA_CATEGORIES.Add(DefaultMediaCategories.Audio);
+      MEDIA_CATEGORIES.Add(DefaultMediaCategories.Video);
     }
 
     public RadioRecordingMetadataExtractor()
@@ -102,6 +103,7 @@ namespace MediaPortal.Extensions.MetadataExtractors
           string fileName = ProviderPathHelper.GetFileNameWithoutExtension(fsra.Path) ?? string.Empty;
           MediaItemAspect.SetAttribute(extractedAspectData, MediaAspect.ATTR_TITLE, fileName);
           MultipleMediaItemAspect providerResourceAspect = MediaItemAspect.CreateAspect(extractedAspectData, ProviderResourceAspect.Metadata);
+          providerResourceAspect.SetAttribute(ProviderResourceAspect.ATTR_RESOURCE_INDEX, 0);
           providerResourceAspect.SetAttribute(ProviderResourceAspect.ATTR_SIZE, fsra.Size);
           providerResourceAspect.SetAttribute(ProviderResourceAspect.ATTR_MIME_TYPE, "slimtv/radio");
 

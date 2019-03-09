@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2017 Team MediaPortal
+#region Copyright (C) 2007-2018 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2017 Team MediaPortal
+    Copyright (C) 2007-2018 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -151,6 +151,9 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
             MediaItemAspect.SetAttribute(existingAspects, MediaAspect.ATTR_ISVIRTUAL, false);
             MediaItemAspect.SetAttribute(existingAspects, MediaAspect.ATTR_ISSTUB, 
               providerResourceAspects.Where(p => p.GetAttributeValue<int>(ProviderResourceAspect.ATTR_TYPE) == ProviderResourceAspect.TYPE_STUB).Any());
+            var now = DateTime.Now;
+            MediaItemAspect.SetAttribute(existingAspects, ImporterAspect.ATTR_DATEADDED, now);
+            MediaItemAspect.SetAttribute(existingAspects, ImporterAspect.ATTR_LAST_IMPORT_DATE, now);
             existingAspects.Remove(ProviderResourceAspect.ASPECT_ID);
             foreach (Guid aspect in extractedAspects.Keys)
             {

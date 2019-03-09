@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2017 Team MediaPortal
+#region Copyright (C) 2007-2018 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2017 Team MediaPortal
+    Copyright (C) 2007-2018 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -49,13 +49,13 @@ namespace MediaPortal.Plugins.RefreshRateChanger.Settings
     /// <summary>
     /// IsEnabled or disable refresh rate changes
     /// </summary>
-    [Setting(SettingScope.User, true)]
+    [Setting(SettingScope.Global, false)]
     public bool IsEnabled { get; set; }
 
     /// <summary>
     /// Contains a custom mapping of refresh rates. This can be used to override the default mappings.
     /// </summary>
-    [Setting(SettingScope.User)]
+    [Setting(SettingScope.Global)]
     public SerializableDictionary<int, int> RateMappings { get; set; }
   }
 }

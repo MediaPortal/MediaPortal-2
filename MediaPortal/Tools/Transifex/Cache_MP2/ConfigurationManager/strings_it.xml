@@ -5,5 +5,5 @@
   <string name="configuration.unsaved_warning">Attenzione: modifiche non salvate</string>
   <string name="configuration.browse">Sfoglia</string>
   <string name="configuration.areas.settings">Impostazioni</string>
-  <string name="configuration.areas.logs">Log</string>
+  <string name="configuration.areas.logs">Registro eventi</string>
 </resources>

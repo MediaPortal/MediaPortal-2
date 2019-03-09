@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2017 Team MediaPortal
+#region Copyright (C) 2007-2018 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2017 Team MediaPortal
+    Copyright (C) 2007-2018 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -144,7 +144,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
         return;
       }
 
-      var result = await _tvHandler.ProgramInfo.GetProgramsAsync(channel, DateTime.Now.AddHours(-2), DateTime.Now.AddHours(24));
+      var result = await _tvHandler.ProgramInfo.GetProgramsAsync(channel, DateTime.Now.AddHours(-2), DateTime.Now.AddDays(_settings.Settings.SingleChannelGuideDays));
       if (result.Success)
       {
         _programs = result.Result;

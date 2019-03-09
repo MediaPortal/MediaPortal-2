@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2017 Team MediaPortal
+#region Copyright (C) 2007-2018 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2017 Team MediaPortal
+    Copyright (C) 2007-2018 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -124,6 +124,9 @@ namespace MediaPortal.UI.Players.Video
     {
       _dvdGraph = (IDvdGraphBuilder) new DvdGraphBuilder();
       new HRESULT(_dvdGraph.GetFiltergraph(out _graphBuilder)).Throw();
+      _mc = (IMediaControl)_graphBuilder;
+      _me = (IMediaEventEx)_graphBuilder;
+      _ms = (IMediaSeeking)_graphBuilder;
       _streamCount = 3; // Allow Video, CC, and Subtitle
     }
 
@@ -225,14 +228,14 @@ namespace MediaPortal.UI.Players.Video
 
       _pendingCmd = false;
 
-      _dvdCtrl.SetSubpictureState(settings.EnableSubtitles, DvdCmdFlags.None, out _cmdOption);
+      _dvdCtrl.SetSubpictureState(settings.EnableDvdSubtitles, DvdCmdFlags.None, out _cmdOption);
 
       _line21Decoder = FilterGraphTools.FindFilterByInterface<IAMLine21Decoder>(_graphBuilder);
       if (_line21Decoder != null)
       {
-        AMLine21CCState state = settings.EnableClosedCaption ? AMLine21CCState.On : AMLine21CCState.Off;
+        AMLine21CCState state = settings.EnableDvdClosedCaptions ? AMLine21CCState.On : AMLine21CCState.Off;
         if (_line21Decoder.SetServiceState(state) == 0)
-          ServiceRegistration.Get<ILogger>().Debug("DVDPlayer: {0} Closed Captions", settings.EnableClosedCaption ? "Enabled" : "Disabled");
+          ServiceRegistration.Get<ILogger>().Debug("DVDPlayer: {0} Closed Captions", settings.EnableDvdClosedCaptions ? "Enabled" : "Disabled");
         else
           ServiceRegistration.Get<ILogger>().Debug("DVDPlayer: Failed to set Closed Captions state.");
       }
@@ -275,7 +278,7 @@ namespace MediaPortal.UI.Players.Video
       errorText = GetErrorText(setError);
       ServiceRegistration.Get<ILogger>().Info("DVDPlayer: Set default subtitle language:{0}. {1}", settings.PreferredSubtitleLanguage, errorText);
 
-      _dvdCtrl.SetSubpictureState(settings.EnableSubtitles, DvdCmdFlags.None, out _cmdOption);
+      _dvdCtrl.SetSubpictureState(settings.EnableDvdSubtitles, DvdCmdFlags.None, out _cmdOption);
     }
 
     /// <summary>
@@ -903,7 +906,7 @@ namespace MediaPortal.UI.Players.Video
 
       VideoSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<VideoSettings>();
       settings.PreferredSubtitleLanguage = iLanguage;
-      settings.EnableSubtitles = true;
+      settings.EnableDvdSubtitles = true;
       ServiceRegistration.Get<ISettingsManager>().Save(settings);
     }
 
@@ -913,7 +916,7 @@ namespace MediaPortal.UI.Players.Video
       _dvdCtrl.SetSubpictureState(false, DvdCmdFlags.None, out _cmdOption);
 
       VideoSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<VideoSettings>();
-      settings.EnableSubtitles = false;
+      settings.EnableDvdSubtitles = false;
       ServiceRegistration.Get<ISettingsManager>().Save(settings);
 
     }

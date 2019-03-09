@@ -1,7 +1,7 @@
-﻿#region Copyright (C) 2007-2017 Team MediaPortal
+#region Copyright (C) 2007-2018 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2017 Team MediaPortal
+    Copyright (C) 2007-2018 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -23,18 +23,14 @@
 #endregion
 
 using System;
+using MediaPortal.Common.Configuration.ConfigurationClasses;
 
-namespace MediaPortal.Plugins.InputDeviceManager.RawInput
+namespace MediaPortal.Plugins.InputDeviceManager.Settings
 {
-   public class RawInputEventArg : EventArgs
-   {
-      public RawInputEventArg(KeyPressEvent arg)
-      {
-         KeyPressEvent = arg;
-      }
+  public class HomeScreenScreens : CustomConfigSetting, IDisposable
+  {
+    public HomeScreenScreens() { }
 
-      public KeyPressEvent KeyPressEvent { get; private set; }
-
-      public bool Handled { get; set; }
-   }
+    public void Dispose() { }
+  }
 }

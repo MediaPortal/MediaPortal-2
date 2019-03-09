@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2017 Team MediaPortal
+#region Copyright (C) 2007-2018 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2017 Team MediaPortal
+    Copyright (C) 2007-2018 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -774,6 +774,10 @@ namespace MediaPortal.Plugins.SlimTv.Client.Controls
       else if (e.Key == Key.PageDown && OnPageDown())
         e.Handled = true;
       else if (e.Key == Key.PageUp && OnPageUp())
+        e.Handled = true;
+      else if (e.Key == Key.ChannelDown && OnPageDown())
+        e.Handled = true;
+      else if (e.Key == Key.ChannelUp && OnPageUp())
         e.Handled = true;
     }
 

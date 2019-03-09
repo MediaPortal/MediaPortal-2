@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2017 Team MediaPortal
+#region Copyright (C) 2007-2018 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2017 Team MediaPortal
+    Copyright (C) 2007-2018 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -34,7 +34,6 @@ using System.Xml.Serialization;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.PathManager;
-using MediaPortal.Plugins.MceRemoteReceiver.Hardware;
 using MediaPortal.Utilities.Process;
 using MediaPortal.Utilities.SystemAPI;
 
@@ -59,6 +58,7 @@ namespace MediaPortal.Client.Launcher
     private static Mutex _mutex = null;
     private static NotifyIcon _systemNotificationAreaIcon;
     private static IpcServer _ipcServer;
+    private static RawMessageHandler _msgHandler;
 
     #endregion
 
@@ -123,17 +123,13 @@ namespace MediaPortal.Client.Launcher
         if (TerminateProcess("ehtray"))
           logger.Info("Terminating running instance(s) of ehtray.exe");
 
-        Remote.Transceivers.AddRange(GetTransceiverList());
-        Remote.Click += OnClick;
-        Device.DeviceArrival += OnDeviceArrival;
-        Device.DeviceRemoval += OnDeviceRemoval;
-
         IsAutoStartEnabled = !string.IsNullOrEmpty(WindowsAPI.GetAutostartApplicationPath(AUTOSTART_REGISTER_NAME, true));
 
         if (!mpOptions.NoIcon)
           InitTrayIcon();
 
         InitIpc();
+        InitMsgHandler();
 
         Application.Run();
       }
@@ -144,6 +140,7 @@ namespace MediaPortal.Client.Launcher
 
       logger.Info("Exiting...");
 
+      CloseMsgHandler();
       CloseIpc();
 
       // Release mutex for single instance
@@ -161,9 +158,66 @@ namespace MediaPortal.Client.Launcher
 
     #region Methods
 
+    private static void InitMsgHandler()
+    {
+      if (_msgHandler != null)
+        return;
+      ServiceRegistration.Get<ILogger>().Debug("Initializing Message Handler");
+      try
+      {
+        _msgHandler = new RawMessageHandler();
+        _msgHandler.OnStartRequest += (s, e) =>
+        {
+          ILogger logger = ServiceRegistration.Get<ILogger>();
+          logger.Info("Received StartButton press");
+
+          Process[] processes = Process.GetProcessesByName("MP2-Client");
+
+          if (processes.Length == 0)
+          {
+            logger.Info("MP2-Client is not running - starting it.");
+            StartClient();
+          }
+          else if (processes.Length == 1)
+          {
+            logger.Info("MP2-Client is already running - switching focus.");
+            SwitchFocus();
+          }
+          else
+          {
+            logger.Info("More than one window named 'MediaPortal' has been found!");
+            foreach (Process procName in processes)
+            {
+              logger.Debug("MPTray: {0} (Started: {1}, ID: {2})", procName.ProcessName,
+                           procName.StartTime.ToShortTimeString(), procName.Id);
+            }
+          }
+        };
+      }
+      catch (Exception ex)
+      {
+        ServiceRegistration.Get<ILogger>().Error(ex);
+      }
+    }
+
+    private static void CloseMsgHandler()
+    {
+      if (_msgHandler == null)
+        return;
+      try
+      {
+        _msgHandler.Dispose();
+      }
+      catch (Exception ex)
+      {
+        ServiceRegistration.Get<ILogger>().Error(ex);
+      }
+      _msgHandler = null;
+    }
+
     private static void InitIpc()
     {
-      if(_ipcServer != null)
+      if (_ipcServer != null)
         return;
       ServiceRegistration.Get<ILogger>().Debug("Initializing IPC");
       try
@@ -171,12 +225,18 @@ namespace MediaPortal.Client.Launcher
         _ipcServer = new IpcServer("ClientLauncher");
         _ipcServer.CustomShutdownCallback = () =>
         {
-          if (_systemNotificationAreaIcon != null) 
+          if (_systemNotificationAreaIcon != null)
           {
             _systemNotificationAreaIcon.Visible = false;
             _systemNotificationAreaIcon = null;
           }
           Application.Exit();
+          return true;
+        };
+        _ipcServer.CustomRestartCallback = () =>
+        {
+          StopClient();
+          StartClient();
           return true;
         };
         _ipcServer.Open();
@@ -210,23 +270,28 @@ namespace MediaPortal.Client.Launcher
         try
         {
           MenuItem closeItem = new MenuItem { Index = 0, Text = "Close" };
+          MenuItem startClientItem = new MenuItem { Index = 0, Text = "Start MP2-Client" };
           MenuItem addAutostartItem = new MenuItem { Index = 0, Text = "Add to Autostart" };
           MenuItem removeAutostartItem = new MenuItem { Index = 0, Text = "Remove from Autostart" };
 
-          closeItem.Click += delegate(object sender, EventArgs args)
+          closeItem.Click += delegate (object sender, EventArgs args)
           {
             _systemNotificationAreaIcon.Visible = false;
             _systemNotificationAreaIcon = null;
             Application.Exit();
           };
-          addAutostartItem.Click += delegate(object sender, EventArgs args)
+          startClientItem.Click += delegate (object sender, EventArgs args)
+          {
+            StartClient();
+          };
+          addAutostartItem.Click += delegate (object sender, EventArgs args)
           {
             IsAutoStartEnabled = true;
             addAutostartItem.Enabled = !IsAutoStartEnabled;
             removeAutostartItem.Enabled = IsAutoStartEnabled;
             WriteAutostartAppEntryInRegistry();
           };
-          removeAutostartItem.Click += delegate(object sender, EventArgs args)
+          removeAutostartItem.Click += delegate (object sender, EventArgs args)
           {
             IsAutoStartEnabled = false;
             addAutostartItem.Enabled = !IsAutoStartEnabled;
@@ -239,7 +304,14 @@ namespace MediaPortal.Client.Launcher
 
           // Initialize contextMenuTray
           ContextMenu contextMenuTray = new ContextMenu();
-          contextMenuTray.MenuItems.AddRange(new[] { addAutostartItem, removeAutostartItem, closeItem });
+          contextMenuTray.MenuItems.AddRange(new[]
+          {
+            startClientItem,
+            new MenuItem("-"),
+            addAutostartItem, removeAutostartItem,
+            new MenuItem("-"),
+            closeItem
+          });
 
 
           _systemNotificationAreaIcon = new NotifyIcon
@@ -278,17 +350,6 @@ namespace MediaPortal.Client.Launcher
       return path;
     }
 
-    private static IEnumerable<eHomeTransceiver> GetTransceiverList()
-    {
-      string remoteFile = Assembly.GetExecutingAssembly().Location;
-      remoteFile = Directory.GetParent(remoteFile).FullName;
-      remoteFile = Path.Combine(remoteFile, "eHomeTransceiverList.xml");
-
-      XmlSerializer reader = new XmlSerializer(typeof(List<eHomeTransceiver>));
-      using (StreamReader file = new StreamReader(remoteFile))
-        return (ICollection<eHomeTransceiver>)reader.Deserialize(file);
-    }
-
     private static void StartClient()
     {
       try
@@ -297,6 +358,27 @@ namespace MediaPortal.Client.Launcher
         ProcessStartInfo psi = new ProcessStartInfo(clientExe);
         psi.WorkingDirectory = Directory.GetParent(clientExe).FullName;
         Process.Start(psi);
+      }
+      catch (Exception ex)
+      {
+        ServiceRegistration.Get<ILogger>().Error("MP2-Client.exe couldn't be started.", ex);
+      }
+    }
+
+    private static void StopClient()
+    {
+      try
+      {
+        Process[] processes = Process.GetProcessesByName("MP2-Client");
+        if (processes.Length == 0)
+          return;
+
+        // If process is running, send an IPC command to force closing.
+        using (var client = new IpcClient("Client"))
+        {
+          client.Connect();
+          client.ShutdownApplication(2000, true);
+        }
       }
       catch (Exception ex)
       {
@@ -321,47 +403,6 @@ namespace MediaPortal.Client.Launcher
       }
       else
         ServiceRegistration.Get<ILogger>().Info("MediaPortal is not running (yet).");
-    }
-
-    private static void OnClick(object sender, RemoteEventArgs e)
-    {
-      if (e.Button != RemoteButton.Start)
-        return;
-
-      ILogger logger = ServiceRegistration.Get<ILogger>();
-      logger.Info("Received StartButton press");
-
-      Process[] processes = Process.GetProcessesByName("MP2-Client");
-
-      if (processes.Length == 0)
-      {
-        logger.Info("MP2-Client is not running - starting it.");
-        StartClient();
-      }
-      else if (processes.Length == 1)
-      {
-        logger.Info("MP2-Client is already running - switching focus.");
-        SwitchFocus();
-      }
-      else
-      {
-        logger.Info("More than one window named 'MediaPortal' has been found!");
-        foreach (Process procName in processes)
-        {
-          logger.Debug("MPTray: {0} (Started: {1}, ID: {2})", procName.ProcessName,
-                       procName.StartTime.ToShortTimeString(), procName.Id);
-        }
-      }
-    }
-
-    private static void OnDeviceArrival(object sender, EventArgs e)
-    {
-      ServiceRegistration.Get<ILogger>().Debug("Device installed");
-    }
-
-    private static void OnDeviceRemoval(object sender, EventArgs e)
-    {
-      ServiceRegistration.Get<ILogger>().Debug("Device removed");
     }
 
     private static bool TerminateProcess(string processName)

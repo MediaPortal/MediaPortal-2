@@ -1,7 +1,7 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
   <!--Headlines for HomeContent-->
-  <string name="Media.LatestPlayed">Zuletzt gespielt</string>
+  <string name="Media.LatestPlayed">Zuletzt abgespielt</string>
   <string name="Media.LatestAdded">Zuletzt hinzugefügt</string>
   <string name="Media.ContinueWatching">Wiedergabe fortsetzen</string>
   <string name="Media.Favorites">Favoriten</string>
@@ -50,7 +50,7 @@
   <string name="Media.RecordingDateMenuItem">Aufnahmedatum</string>
   <string name="Media.AddedDateMenuItem">Hinzugefügt</string>
   <string name="Media.EpisodeMenuItem">Episode</string>
-  <string name="Media.DVDEpisodeMenuItem">DVD Episode</string>
+  <string name="Media.DVDEpisodeMenuItem">DVD-Episode</string>
   <string name="Media.TVNetworkMenuItem">Medienkonzern</string>
   <string name="Media.MusicLabelMenuItem">Musiklabel</string>
   <string name="Media.CompanyMenuItem">Studio</string>
@@ -67,7 +67,7 @@
   <string name="Media.CompilationMenuItem">Zusammenstellung</string>
   <string name="Media.AlbumCompilationMenuItem">Albensammlung</string>
   <string name="Media.ContentGroupMenuItem">Inhaltsgruppe</string>
-  <string name="Media.CertificationMenuItem">Zertifizierung</string>
+  <string name="Media.CertificationMenuItem">Altersfreigabe</string>
   <string name="Media.SimpleSearchFilterMenuItem">Suche</string>
   <!--Filter titles-->
   <string name="Media.SwitchFilterMenuItem">Filter</string>
@@ -81,9 +81,9 @@
   <string name="Media.CompilationFilterUncompiled">Keine Zusammenstellungen</string>
   <string name="Media.ContentGroupFilter">{0}</string>
   <string name="Media.SwitchToBrowseMLView">Zur Serveransicht</string>
-  <string name="Media.SwitchToLocalMediaView">Zu lokaler Ansicht</string>
-  <string name="Media.SwitchToBrowseShareView">Zur Ordneransicht</string>
-  <string name="Media.SwitchToMediaLibraryView">Zur Bibliotheksansicht</string>
+  <string name="Media.SwitchToLocalMediaView">Lokale Ansicht</string>
+  <string name="Media.SwitchToBrowseShareView">Ordneransicht</string>
+  <string name="Media.SwitchToMediaLibraryView">Bibliotheksansicht</string>
   <!--Navbar display labels for sub view navigation-->
   <string name="Media.BrowseMediaNavigationNavbarDisplayLabel">{0}</string>
   <!--For example: "R.E.M."-->
@@ -125,7 +125,7 @@
   <string name="Media.FilterCompilationNavbarDisplayLabel">Zusammenstellungen</string>
   <string name="Media.FilterAlbumCompilationNavbarDisplayLabel">Album Zusammenstellung</string>
   <string name="Media.FilterContentGroupNavbarDisplayLabel">Inhaltsgruppe: {0}</string>
-  <string name="Media.FilterCertificationNavbarDisplayLabel">Zertifizierung: {0}</string>
+  <string name="Media.FilterCertificationNavbarDisplayLabel">Altersfreigabe: {0}</string>
   <!--Display labels for workflow navigation contexts-->
   <string name="Media.BrowseMediaNavigationRootWorkflowNavigationContextDisplayLabel">Medien durchsuchen</string>
   <string name="Media.LocalMediaNavigationRootWorkflowNavigationContextDisplayLabel">Lokale Medien</string>
@@ -200,7 +200,7 @@
   <string name="Media.ChooseCompilationHeader">Zusammenstellungen</string>
   <string name="Media.ChooseConductorHeader">Dirigenten</string>
   <string name="Media.ChooseContentGroupHeader">Inhaltsgruppen</string>
-  <string name="Media.ChooseCertificationHeader">Zertifizierungen</string>
+  <string name="Media.ChooseCertificationHeader">Altersfreigaben</string>
   <string name="Media.PlaylistsOverviewHeader">Playlisten</string>
   <string name="Media.SavePlaylistEditNameHeader">Playlist speichern</string>
   <string name="Media.SavePlaylistFailedHeader">Playlist speichern</string>
@@ -443,12 +443,12 @@
   <string name="Settings.Media.ShowVirtual.Audio">Alle bekannten Album-Titel anzeigen</string>
   <string name="Settings.Media.ShowVirtual.Movie">Alle bekannten Filme der Sammlung anzeigen</string>
   <string name="Settings.Media.ShowVirtual.Series">Alle bekannten Staffeln und Episoden anzeigen</string>
-  <string name="Settings.Media.Certification">Zertifikationsländer</string>
+  <string name="Settings.Media.Certification">Altersfreigabe-Länder</string>
   <string name="Settings.Media.Certification.None">Original (wie importiert)</string>
-  <string name="Settings.Media.Certification.Movie">Zertifikationsland Filme</string>
-  <string name="Settings.Media.Certification.Movie.Help">Wähle ein Zertifikationsland für Filme</string>
-  <string name="Settings.Media.Certification.Series">Zertifikationsland Serien </string>
-  <string name="Settings.Media.Certification.Series.Help">Wähle ein Zertifikationsland für Serien</string>
+  <string name="Settings.Media.Certification.Movie">Altersfreigabe-Land Filme</string>
+  <string name="Settings.Media.Certification.Movie.Help">Altersfreigabe-Land für Filme auswählen</string>
+  <string name="Settings.Media.Certification.Series">Altersfreigabe-Land Serien</string>
+  <string name="Settings.Media.Certification.Series.Help">Altersfreigabe-Land für Serien auswählen</string>
   <!--Secondary filters-->
   <string name="Filter.RemoteNumericAlphabet0"></string>
   <string name="Filter.RemoteNumericAlphabet1"></string>
@@ -462,5 +462,5 @@
   <string name="Filter.RemoteNumericAlphabet9">wxyz</string>
   <string name="Filter.Filtered">Filter aktiv</string>
   <string name="Filter.StartsWith">Beginnt mit: {0}</string>
-  <string name="RestrictionGroup.Media.DeleteMediaItem">Medien: Entferne Objekte vom Speicher</string>
+  <string name="RestrictionGroup.Media.DeleteMediaItem">Medien: Lösche Objekte vom Speicher</string>
 </resources>

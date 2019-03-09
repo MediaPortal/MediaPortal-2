@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2017 Team MediaPortal
+#region Copyright (C) 2007-2018 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2017 Team MediaPortal
+    Copyright (C) 2007-2018 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -117,6 +117,9 @@ namespace MediaPortal.Plugins.SystemStateMenu.Models
           return;
         case SystemStateAction.MinimizeMP:
           ServiceRegistration.Get<IScreenControl>().Minimize();
+          return;
+        case SystemStateAction.RestartMP:
+          ServiceRegistration.Get<IScreenControl>().Restart();
           return;
         case SystemStateAction.SleepTimer:
           SleepTimerModel stm = ServiceRegistration.Get<IWorkflowManager>().GetModel(Consts.WF_STATE_ID_SLEEP_TIMER_MODEL) as SleepTimerModel;

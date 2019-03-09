@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2017 Team MediaPortal
+#region Copyright (C) 2007-2018 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2017 Team MediaPortal
+    Copyright (C) 2007-2018 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -53,6 +53,15 @@ namespace MediaPortal.UiComponents.Media.FilterCriteria
     {
       _title = title;
       _filter = filter;
+      _selectAttributeFilter = selectAttributeFilter;
+      _numItems = numItems;
+      _criterion = criterion;
+    }
+
+    public FilterValue(string title, FilterTreePath relativeFilterPath, IFilter selectAttributeFilter, int numItems, MLFilterCriterion criterion)
+    {
+      _title = title;
+      _relativeFilterPath = relativeFilterPath;
       _selectAttributeFilter = selectAttributeFilter;
       _numItems = numItems;
       _criterion = criterion;

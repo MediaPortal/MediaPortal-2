@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2017 Team MediaPortal
+#region Copyright (C) 2007-2018 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2017 Team MediaPortal
+    Copyright (C) 2007-2018 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -33,6 +33,12 @@ using MediaPortal.UiComponents.Media.General;
 using MediaPortal.UiComponents.Media.Views.RemovableMediaDrives;
 using MediaPortal.UiComponents.Media.Models;
 using MediaPortal.UiComponents.RemovableMediaManager.Settings;
+using System.Collections.Generic;
+using MediaPortal.Common.MediaManagement;
+using System.Collections.Concurrent;
+using System.Threading.Tasks;
+using System.Linq;
+using MediaPortal.UI.ServerCommunication;
 
 namespace MediaPortal.UiComponents.RemovableMediaManager
 {
@@ -42,6 +48,8 @@ namespace MediaPortal.UiComponents.RemovableMediaManager
 
     protected AsynchronousMessageQueue _messageQueue = null;
     protected readonly object _syncObj = new object();
+    protected ConcurrentDictionary<string, IEnumerable<MediaItem>> _removableMediaItems = new ConcurrentDictionary<string, IEnumerable<MediaItem>>();
+    protected bool _runStartupCheck = true;
 
     #endregion
 
@@ -51,7 +59,8 @@ namespace MediaPortal.UiComponents.RemovableMediaManager
       {
         _messageQueue = new AsynchronousMessageQueue(this, new string[]
           {
-             RemovableMediaMessaging.CHANNEL
+             RemovableMediaMessaging.CHANNEL,
+             ServerConnectionMessaging.CHANNEL
           });
         _messageQueue.MessageReceived += OnMessageReceived;
         _messageQueue.Start();
@@ -77,15 +86,45 @@ namespace MediaPortal.UiComponents.RemovableMediaManager
         if (messageType == RemovableMediaMessaging.MessageType.MediaInserted)
         {
           string drive = (string) message.MessageData[RemovableMediaMessaging.DRIVE_LETTER];
+          var type = ExamineVolume(drive);
+          if (_removableMediaItems.TryGetValue(drive, out var items))
+            PlayItemsModel.AddOrUpdateRemovableMediaItems(items);
           RemovableMediaManagerSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<RemovableMediaManagerSettings>();
           if (settings.AutoPlay == AutoPlayType.AutoPlay)
           {
             IPlayerContextManager pcm = ServiceRegistration.Get<IPlayerContextManager>();
             if (!pcm.IsFullscreenContentWorkflowStateActive)
-              ExamineVolume(drive);
+              CheckAutoPlay(drive, type);
           }
         }
+        else if (messageType == RemovableMediaMessaging.MessageType.MediaRemoved)
+        {
+          string drive = (string)message.MessageData[RemovableMediaMessaging.DRIVE_LETTER];
+          IEnumerable<MediaItem> items;
+          if (_removableMediaItems.TryRemove(drive, out items))
+            PlayItemsModel.RemoveRemovableMediaItems(items);
+          if (_removableMediaItems.TryRemove(drive + @"\", out items))
+            PlayItemsModel.RemoveRemovableMediaItems(items);
+        }
       }
+      else if (message.ChannelName == ServerConnectionMessaging.CHANNEL)
+      {
+        ServerConnectionMessaging.MessageType messageType = (ServerConnectionMessaging.MessageType)message.MessageType;
+        if (messageType == ServerConnectionMessaging.MessageType.HomeServerConnected && _runStartupCheck)
+        {
+          _runStartupCheck = false;
+          StartupCheck();
+        }
+      }
+    }
+
+    protected async void StartupCheck()
+    {
+      //Check if any removable drives are currently mounted
+      var tasks = DriveInfo.GetDrives().Where(driveInfo => driveInfo.DriveType == DriveType.CDRom || driveInfo.DriveType == DriveType.Removable).
+        Select(driveInfo => Task.Run(() => ExamineVolume(driveInfo.Name)));
+      await Task.WhenAll(tasks);
+      PlayItemsModel.AddOrUpdateRemovableMediaItems(_removableMediaItems.Values.SelectMany(i => i));
     }
 
     /// <summary>
@@ -93,35 +132,55 @@ namespace MediaPortal.UiComponents.RemovableMediaManager
     /// inserted media, different play modes are choosen.
     /// </summary>
     /// <param name="drive">Drive to be examined. Format: <c>D:</c>.</param>
-    protected void ExamineVolume(string drive)
+    protected AVType ExamineVolume(string drive)
     {
       if (string.IsNullOrEmpty(drive))
-        return;
+        return AVType.None;
 
       DriveInfo driveInfo = new DriveInfo(drive);
       VideoDriveHandler vdh;
       AudioCDDriveHandler acddh;
       MultimediaDriveHandler mcddh;
       if ((vdh = VideoDriveHandler.TryCreateVideoDriveHandler(driveInfo, Consts.NECESSARY_VIDEO_MIAS)) != null)
-        PlayItemsModel.CheckQueryPlayAction(vdh.VideoItem);
+      {
+        var items = new[] { vdh.VideoItem };
+        _removableMediaItems.AddOrUpdate(drive, items, (d, e) => items);
+        return AVType.Video;
+      }
       else if ((acddh = AudioCDDriveHandler.TryCreateAudioCDDriveHandler(driveInfo)) != null)
-        PlayItemsModel.CheckQueryPlayAction(() => acddh.GetAllMediaItems(), AVType.Audio);
-      else if ((mcddh = MultimediaDriveHandler.TryCreateMultimediaCDDriveHandler(driveInfo,
-          Consts.NECESSARY_VIDEO_MIAS, Consts.NECESSARY_AUDIO_MIAS, Consts.NECESSARY_IMAGE_MIAS)) != null)
+      {
+        var items = acddh.GetAllMediaItems();
+        _removableMediaItems.AddOrUpdate(drive, items, (d, e) => items);
+        return AVType.Audio;
+      }
+      else if ((mcddh = MultimediaDriveHandler.TryCreateMultimediaCDDriveHandler(driveInfo, Consts.NECESSARY_VIDEO_MIAS, Consts.NECESSARY_AUDIO_MIAS, Consts.NECESSARY_IMAGE_MIAS)) != null)
+      {
+        var items = mcddh.GetAllMediaItems();
+        _removableMediaItems.AddOrUpdate(drive, items, (d, e) => items);
         switch (mcddh.MediaType)
         {
           case MultiMediaType.Video:
           case MultiMediaType.Image:
-            PlayItemsModel.CheckQueryPlayAction(() => mcddh.GetAllMediaItems(), AVType.Video);
-            break;
+            return AVType.Video;
           case MultiMediaType.Audio:
-            PlayItemsModel.CheckQueryPlayAction(() => mcddh.GetAllMediaItems(), AVType.Audio);
-            break;
-          case MultiMediaType.Diverse:
-            PlayItemsModel.CheckQueryPlayAction(() => mcddh.GetAllMediaItems());
-            break;
+            return AVType.Audio;
         }
-      return;
+      }
+      return AVType.None;
+    }
+
+    protected void CheckAutoPlay(string drive, AVType type)
+    {
+      if (string.IsNullOrEmpty(drive))
+        return;
+
+      if(_removableMediaItems.TryGetValue(drive, out var items))
+      {
+        if (type == AVType.None)
+          PlayItemsModel.CheckQueryPlayAction(() => items);
+        else
+          PlayItemsModel.CheckQueryPlayAction(() => items, type);
+      }
     }
 
     #region IPluginStateTracker implementation

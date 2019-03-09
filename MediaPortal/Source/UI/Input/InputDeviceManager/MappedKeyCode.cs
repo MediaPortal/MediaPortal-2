@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2015 Team MediaPortal
+#region Copyright (C) 2007-2018 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2015 Team MediaPortal
+    Copyright (C) 2007-2018 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -40,7 +40,7 @@ namespace MediaPortal.Plugins.InputDeviceManager
     public string Key { get; set; }
 
     [XmlElement("Code")]
-    public List<int> Code { get; set; }
+    public List<KeyCode> Codes { get; set; }
 
     #endregion Properties
 
@@ -48,25 +48,12 @@ namespace MediaPortal.Plugins.InputDeviceManager
 
     public MappedKeyCode()  { }
 
-    public MappedKeyCode(string key, List<int> codes)
+    public MappedKeyCode(string key, List<KeyCode> codes)
     {
       Key  = key;
-      Code = codes;
-    }
-
-    public override string ToString()
-    {
-      return Code.ToString();
+      Codes = codes;
     }
 
     #endregion Constructors
-
-    #region Extra members for XML serialization
-
-    [XmlAttribute("Key_Name")]
-    public string KeyName { get; set; }
-    
-
-    #endregion
   }
 }

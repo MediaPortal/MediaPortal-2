@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2017 Team MediaPortal
+#region Copyright (C) 2007-2018 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2017 Team MediaPortal
+    Copyright (C) 2007-2018 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -81,13 +81,13 @@ namespace MediaPortal.UiComponents.Media.FilterCriteria
       HomogenousMap valueKeys = null;
       if (_keyAttributeType != null)
       {
-        Tuple<HomogenousMap, HomogenousMap> values = await cd.GetKeyValueGroupsAsync(_keyAttributeType, _valueAttributeType, selectAttributeFilter, ProjectionFunction.None, necessaryMIATypeIds, filter, true, showVirtual);
+        Tuple<HomogenousMap, HomogenousMap> values = await cd.GetKeyValueGroupsAsync(_keyAttributeType, _valueAttributeType, selectAttributeFilter, ProjectionFunction.None, necessaryMIATypeIds, filter, true, showVirtual).ConfigureAwait(false);
         valueGroups = values.Item1;
         valueKeys = values.Item2;
       }
       else
       {
-        valueGroups = await cd.GetValueGroupsAsync(_valueAttributeType, selectAttributeFilter, ProjectionFunction.None, necessaryMIATypeIds, filter, true, showVirtual);
+        valueGroups = await cd.GetValueGroupsAsync(_valueAttributeType, selectAttributeFilter, ProjectionFunction.None, necessaryMIATypeIds, filter, true, showVirtual).ConfigureAwait(false);
       }
       IList<FilterValue> result = new List<FilterValue>(valueGroups.Count);
       int numEmptyEntries = 0;
@@ -132,7 +132,7 @@ namespace MediaPortal.UiComponents.Media.FilterCriteria
       if (_necessaryMIATypeIds != null)
         necessaryMIATypeIds = _necessaryMIATypeIds.ToList();
       IList<MLQueryResultGroup> valueGroups = await cd.GroupValueGroupsAsync(_valueAttributeType, selectAttributeFilter, ProjectionFunction.None,
-          necessaryMIATypeIds, filter, true, GroupingFunction.FirstCharacter, showVirtual);
+          necessaryMIATypeIds, filter, true, GroupingFunction.FirstCharacter, showVirtual).ConfigureAwait(false);
       IList<FilterValue> result = new List<FilterValue>(valueGroups.Count);
       int numEmptyEntries = 0;
       foreach (MLQueryResultGroup group in valueGroups)
@@ -142,7 +142,7 @@ namespace MediaPortal.UiComponents.Media.FilterCriteria
         if (name == string.Empty)
           numEmptyEntries += group.NumItemsInGroup;
         else
-          result.Add(new FilterValue(name, null, group.AdditionalFilter, group.NumItemsInGroup, this));
+          result.Add(new FilterValue(name, (IFilter)null, group.AdditionalFilter, group.NumItemsInGroup, this));
       }
       if (numEmptyEntries > 0)
         result.Insert(0, new FilterValue(Consts.RES_VALUE_EMPTY_TITLE, new EmptyFilter(_valueAttributeType), null, numEmptyEntries, this));

@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2017 Team MediaPortal
+#region Copyright (C) 2007-2018 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2017 Team MediaPortal
+    Copyright (C) 2007-2018 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -214,8 +214,8 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
           return returnVal;
       }
 
-      // If there is only one language available, use this one.
-      if (mediaLanguages.Count == 1)
+      // If there is one language available, use this one.
+      if (UseMediaAudioIfUnmatched && mediaLanguages.Count > 0)
       {
         returnVal = TvDbUtils.ParseLanguage(mediaLanguages[0]);
         if (returnVal.Id != Util.NO_VALUE)

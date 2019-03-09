@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2017 Team MediaPortal
+#region Copyright (C) 2007-2018 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2017 Team MediaPortal
+    Copyright (C) 2007-2018 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -149,6 +149,7 @@ namespace MediaPortal.Plugins.SlimTv.Service
       IRecordingService recordings = GlobalServiceProvider.Get<IRecordingService>();
       IList<ISchedule> currentlyRecordingSchedules = recordings.ListAllActiveRecordingsByMediaType(MediaTypeEnum.TV)
         .Union(recordings.ListAllActiveRecordingsByMediaType(MediaTypeEnum.Radio))
+        .Where(r => r.Schedule != null)
         .Select(r => r.Schedule.ToSchedule()).ToList();
 
       TvServerState state = new TvServerState

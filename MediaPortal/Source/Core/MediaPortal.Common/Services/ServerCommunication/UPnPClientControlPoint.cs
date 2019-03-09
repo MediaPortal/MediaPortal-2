@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2017 Team MediaPortal
+#region Copyright (C) 2007-2018 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2017 Team MediaPortal
+    Copyright (C) 2007-2018 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -25,13 +25,15 @@
 using System;
 using System.Collections.Generic;
 using MediaPortal.Common.General;
-using MediaPortal.Common.Logging;
 using MediaPortal.Common.Services.ResourceAccess;
+using MediaPortal.Common.Threading;
 using MediaPortal.Common.UPnP;
 using MediaPortal.Utilities.Exceptions;
+using UPnP.Infrastructure;
 using UPnP.Infrastructure.CP;
 using UPnP.Infrastructure.CP.Description;
 using UPnP.Infrastructure.CP.DeviceTree;
+using ILogger = MediaPortal.Common.Logging.ILogger;
 
 namespace MediaPortal.Common.Services.ServerCommunication
 {
@@ -113,7 +115,7 @@ namespace MediaPortal.Common.Services.ServerCommunication
     {
       get
       {
-        lock (_networkTracker.SharedControlPointData.SyncObj)
+        using (_networkTracker.SharedControlPointData.Lock.EnterRead())
           return new List<UPnPServiceProxyBase>(_additionalServices);
       }
     }
@@ -131,7 +133,7 @@ namespace MediaPortal.Common.Services.ServerCommunication
     /// <param name="additionalServiceCreatorDlgt">Delegate which is able to create a service proxy object.</param>
     public void RegisterAdditionalService(AdditionalServiceRegisterDlgt additionalServiceCreatorDlgt)
     {
-      lock (_networkTracker.SharedControlPointData.SyncObj)
+      using (_networkTracker.SharedControlPointData.Lock.EnterWrite())
         _additionalServiceRegistrations.Add(additionalServiceCreatorDlgt);
     }
 
@@ -159,13 +161,13 @@ namespace MediaPortal.Common.Services.ServerCommunication
     {
       DeviceConnection connection;
       string deviceUuid;
-      lock (_networkTracker.SharedControlPointData.SyncObj)
+      using (_networkTracker.SharedControlPointData.Lock.EnterWrite())
       {
         if (_connection != null)
           return;
         DeviceDescriptor rootDeviceDescriptor = DeviceDescriptor.CreateRootDeviceDescriptor(rootDescriptor);
         DeviceDescriptor backendServerDescriptor = rootDeviceDescriptor.FindFirstDevice(
-            UPnPTypesAndIds.BACKEND_SERVER_DEVICE_TYPE, UPnPTypesAndIds.BACKEND_SERVER_DEVICE_TYPE_VERSION);
+          UPnPTypesAndIds.BACKEND_SERVER_DEVICE_TYPE, UPnPTypesAndIds.BACKEND_SERVER_DEVICE_TYPE_VERSION);
         if (backendServerDescriptor == null)
           return;
         deviceUuid = backendServerDescriptor.DeviceUUID;
@@ -180,6 +182,7 @@ namespace MediaPortal.Common.Services.ServerCommunication
               friendlyName, deviceUuid, system.HostName, system.Address);
           return;
         }
+
         try
         {
           connection = _connection = _controlPoint.Connect(rootDescriptor, deviceUuid, UPnPExtendedDataTypes.ResolveDataType);
@@ -209,7 +212,7 @@ namespace MediaPortal.Common.Services.ServerCommunication
         if (updmStub == null)
           throw new InvalidDataException("UserProfileDataManagement service not found in device '{0}' of type '{1}:{2}'",
               deviceUuid, UPnPTypesAndIds.BACKEND_SERVER_DEVICE_TYPE, UPnPTypesAndIds.BACKEND_SERVER_DEVICE_TYPE_VERSION);
-        lock (_networkTracker.SharedControlPointData.SyncObj)
+        using (_networkTracker.SharedControlPointData.Lock.EnterWrite())
         {
           _contentDirectoryService = new UPnPContentDirectoryServiceProxy(cdsStub);
           _resourceInformationService = new UPnPResourceInformationServiceProxy(risStub);
@@ -229,7 +232,8 @@ namespace MediaPortal.Common.Services.ServerCommunication
             ServiceRegistration.Get<ILogger>().Warn("UPnPClientControlPoint: Error registering user service for UPnP MP2 backend server '{0}'", e, deviceUuid);
           }
         }
-        lock (_networkTracker.SharedControlPointData.SyncObj)
+
+        using (_networkTracker.SharedControlPointData.Lock.EnterWrite())
           _additionalServices = additionalServices;
       }
       catch (Exception e)
@@ -245,7 +249,7 @@ namespace MediaPortal.Common.Services.ServerCommunication
     void OnUPnPDeviceDisconnected(DeviceConnection connection)
     {
       IEnumerable<UPnPServiceProxyBase> servicesToDispose;
-      lock (_networkTracker.SharedControlPointData.SyncObj)
+      using (_networkTracker.SharedControlPointData.Lock.EnterWrite())
       {
         _connection = null;
         _contentDirectoryService = null;

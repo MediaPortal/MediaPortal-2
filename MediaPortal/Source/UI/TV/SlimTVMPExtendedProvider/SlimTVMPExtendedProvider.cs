@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2017 Team MediaPortal
+#region Copyright (C) 2007-2018 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2017 Team MediaPortal
+    Copyright (C) 2007-2018 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -27,11 +27,15 @@ using System.Collections.Generic;
 using System.Linq;
 using System.ServiceModel;
 using System.ServiceModel.Channels;
+using System.Threading.Tasks;
 using MediaPortal.Common;
+using MediaPortal.Common.Async;
 using MediaPortal.Common.General;
 using MediaPortal.Common.Localization;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.MediaManagement;
+using MediaPortal.Common.Messaging;
+using MediaPortal.Common.Runtime;
 using MediaPortal.Common.Services.Settings;
 using MediaPortal.Common.Settings;
 using MediaPortal.Plugins.SlimTv.Interfaces;
@@ -47,7 +51,7 @@ using IChannel = MediaPortal.Plugins.SlimTv.Interfaces.Items.IChannel;
 
 namespace MediaPortal.Plugins.SlimTv.Providers
 {
-  public class SlimTVMPExtendedProvider : ITvProvider, ITimeshiftControl, IProgramInfo, IChannelAndGroupInfo, IScheduleControl
+  public class SlimTVMPExtendedProvider : ITvProvider, ITimeshiftControlAsync, IProgramInfoAsync, IChannelAndGroupInfoAsync, IScheduleControlAsync
   {
     #region Internal class
 
@@ -128,6 +132,7 @@ namespace MediaPortal.Plugins.SlimTv.Providers
     private readonly SettingsChangeWatcher<MPExtendedProviderSettings> _settings = new SettingsChangeWatcher<MPExtendedProviderSettings>();
     private string _serverNames = null;
     private readonly TimeSpan _checkDuration = TimeSpan.FromSeconds(CONNECTION_CHECK_INTERVAL_SEC);
+    private AsynchronousMessageQueue _messageQueue;
 
     #endregion
 
@@ -150,10 +155,36 @@ namespace MediaPortal.Plugins.SlimTv.Providers
     public bool Init()
     {
       _settings.SettingsChanged += ReCreateConnections;
+      _messageQueue = new AsynchronousMessageQueue(this, new[] { SystemMessaging.CHANNEL });
+      _messageQueue.PreviewMessage += OnMessageReceived;
+
       CreateAllTvServerConnections();
       return true;
     }
 
+    private void OnMessageReceived(AsynchronousMessageQueue queue, SystemMessage message)
+    {
+      if (message.ChannelName == SystemMessaging.CHANNEL)
+      {
+        SystemMessaging.MessageType messageType = (SystemMessaging.MessageType)message.MessageType;
+        switch (messageType)
+        {
+          case SystemMessaging.MessageType.SystemStateChanged:
+            SystemState newState = (SystemState)message.MessageData[SystemMessaging.NEW_STATE];
+            if (newState == SystemState.Suspending)
+            {
+              ServiceRegistration.Get<ILogger>().Info("SlimTVMPExtendedProvider: System suspending, stopping timeshift.");
+              DeInit();
+            }
+            if (newState == SystemState.Resuming)
+            {
+              ServiceRegistration.Get<ILogger>().Info("SlimTVMPExtendedProvider: System resuming, init connections.");
+              Init();
+            }
+            break;
+        }
+      }
+    }
     private void ReCreateConnections(object sender, EventArgs e)
     {
       // Settings will be changed for various reasons, we only need to handle changed server name(s).
@@ -166,6 +197,9 @@ namespace MediaPortal.Plugins.SlimTv.Providers
 
     public bool DeInit()
     {
+      _messageQueue.Dispose();
+      _messageQueue = null;
+
       _settings.SettingsChanged -= ReCreateConnections;
 
       if (_tvServers == null)
@@ -193,15 +227,12 @@ namespace MediaPortal.Plugins.SlimTv.Providers
       return String.Format("STC_{0}_{1}", LOCAL_SYSTEM, slotIndex);
     }
 
-    public bool StartTimeshift(int slotIndex, IChannel channel, out MediaItem timeshiftMediaItem)
+    public async Task<AsyncResult<MediaItem>> StartTimeshiftAsync(int slotIndex, IChannel channel)
     {
-      timeshiftMediaItem = null;
       Channel indexChannel = channel as Channel;
-      if (indexChannel == null)
-        return false;
+      if (indexChannel == null || !CheckConnection(indexChannel.ServerIndex))
+        return new AsyncResult<MediaItem>(false, null);
 
-      if (!CheckConnection(indexChannel.ServerIndex))
-        return false;
       try
       {
         ITVAccessService tvServer = TvServer(indexChannel.ServerIndex);
@@ -211,22 +242,22 @@ namespace MediaPortal.Plugins.SlimTv.Providers
           tvServer.SwitchTVServerToChannelAndGetStreamingUrl(GetTimeshiftUserName(slotIndex), channel.ChannelId);
 
         if (String.IsNullOrEmpty(streamUrl))
-          return false;
+          return new AsyncResult<MediaItem>(false, null);
 
         _channels[slotIndex] = channel;
 
         // assign a MediaItem, can be null if streamUrl is the same.
-        timeshiftMediaItem = CreateMediaItem(slotIndex, streamUrl, channel);
-        return true;
+        var timeshiftMediaItem = CreateMediaItem(slotIndex, streamUrl, channel);
+        return new AsyncResult<MediaItem>(true, timeshiftMediaItem);
       }
       catch (Exception ex)
       {
         NotifyException(ex, indexChannel.ServerIndex);
-        return false;
+        return new AsyncResult<MediaItem>(false, null);
       }
     }
 
-    public bool StopTimeshift(int slotIndex)
+    public async Task<bool> StopTimeshiftAsync(int slotIndex)
     {
       Channel slotChannel = _channels[slotIndex] as Channel;
       if (slotChannel == null)
@@ -328,12 +359,12 @@ namespace MediaPortal.Plugins.SlimTv.Providers
         {
           string serverName = serverNames[serverIndex].Trim();
           ServerContext tvServer = new ServerContext
-                                     {
-                                       ServerName = serverName,
-                                       ConnectionOk = false,
-                                       Username = setting.Username,
-                                       Password = setting.Password
-                                     };
+          {
+            ServerName = serverName,
+            ConnectionOk = false,
+            Username = setting.Username,
+            Password = setting.Password
+          };
           _tvServers[serverIndex] = tvServer;
           tvServer.CreateChannel();
         }
@@ -378,9 +409,9 @@ namespace MediaPortal.Plugins.SlimTv.Providers
       return string.Format("{0}: ", _tvServers[serverIndex].ServerName);
     }
 
-    public bool GetChannelGroups(out IList<IChannelGroup> groups)
+    public async Task<AsyncResult<IList<IChannelGroup>>> GetChannelGroupsAsync()
     {
-      groups = new List<IChannelGroup>();
+      var groups = new List<IChannelGroup>();
       try
       {
         int idx = 0;
@@ -395,46 +426,45 @@ namespace MediaPortal.Plugins.SlimTv.Providers
           }
           idx++;
         }
-        return true;
+        return new AsyncResult<IList<IChannelGroup>>(true, groups);
       }
       catch (Exception ex)
       {
         ServiceRegistration.Get<ILogger>().Error(ex.Message);
-        return false;
+        return new AsyncResult<IList<IChannelGroup>>(false, null);
       }
     }
 
-    public bool GetChannel(int channelId, out IChannel channel)
+    public async Task<AsyncResult<IChannel>> GetChannelAsync(int channelId)
     {
+      IChannel channel;
       if (_channelCache.TryGetValue(channelId, out channel))
-        return true;
+        return new AsyncResult<IChannel>(true, channel);
 
       // TODO: lookup by ID cannot guess which server might be adressed, so we force the first one.
       int serverIndex = 0;
       if (!CheckConnection(serverIndex))
-        return false;
+        return new AsyncResult<IChannel>(false, null);
       try
       {
         WebChannelBasic webChannel = TvServer(serverIndex).GetChannelBasicById(channelId);
         channel = new Channel { ChannelId = webChannel.Id, Name = webChannel.Title, ServerIndex = serverIndex };
         _channelCache[channelId] = channel;
-        return true;
+        return new AsyncResult<IChannel>(true, channel);
       }
       catch (Exception ex)
       {
         ServiceRegistration.Get<ILogger>().Error(ex.Message);
-        return false;
+        return new AsyncResult<IChannel>(false, null);
       }
     }
 
-    public bool GetChannels(IChannelGroup group, out IList<IChannel> channels)
+    public async Task<AsyncResult<IList<IChannel>>> GetChannelsAsync(IChannelGroup group)
     {
-      channels = new List<IChannel>();
+      var channels = new List<IChannel>();
       ChannelGroup indexGroup = group as ChannelGroup;
-      if (indexGroup == null)
-        return false;
-      if (!CheckConnection(indexGroup.ServerIndex))
-        return false;
+      if (indexGroup == null || !CheckConnection(indexGroup.ServerIndex))
+        return new AsyncResult<IList<IChannel>>(false, null);
       try
       {
         IList<WebChannelBasic> tvChannels = TvServer(indexGroup.ServerIndex).GetChannelsBasic(group.ChannelGroupId);
@@ -442,39 +472,18 @@ namespace MediaPortal.Plugins.SlimTv.Providers
         {
           channels.Add(new Channel { ChannelId = webChannel.Id, Name = webChannel.Title, ServerIndex = indexGroup.ServerIndex });
         }
-        return true;
+        return new AsyncResult<IList<IChannel>>(true, channels);
       }
       catch (Exception ex)
       {
         ServiceRegistration.Get<ILogger>().Error(ex.Message);
-        return false;
+        return new AsyncResult<IList<IChannel>>(false, null);
       }
     }
 
-    public bool GetChannel(IProgram program, out IChannel channel)
+    public async Task<AsyncResult<IChannel>> GetChannelAsync(IProgram program)
     {
-      channel = null;
-      Program indexProgram = program as Program;
-      if (indexProgram == null)
-        return false;
-
-      if (!CheckConnection(indexProgram.ServerIndex))
-        return false;
-
-      try
-      {
-        WebChannelBasic tvChannel = TvServer(indexProgram.ServerIndex).GetChannelBasicById(indexProgram.ChannelId);
-        if (tvChannel != null)
-        {
-          channel = new Channel { ChannelId = tvChannel.Id, Name = tvChannel.Title, ServerIndex = indexProgram.ServerIndex };
-          return true;
-        }
-      }
-      catch (Exception ex)
-      {
-        ServiceRegistration.Get<ILogger>().Error(ex.Message);
-      }
-      return false;
+      return await GetChannelAsync(program.ChannelId);
     }
 
     /// <summary>
@@ -575,55 +584,46 @@ namespace MediaPortal.Plugins.SlimTv.Providers
     /// Tries to get the current and next program for the given <paramref name="channel"/>.
     /// </summary>
     /// <param name="channel">Channel</param>
-    /// <param name="programNow">Returns current program</param>
-    /// <param name="programNext">Returns next program</param>
     /// <returns><c>true</c> if a program could be found</returns>
-    public bool GetNowNextProgram(IChannel channel, out IProgram programNow, out IProgram programNext)
+    public async Task<AsyncResult<IProgram[]>> GetNowNextProgramAsync(IChannel channel)
     {
       // TODO: caching from NativeProvider?
-      programNow = null;
-      programNext = null;
+      IProgram[] programNowNext = new IProgram[2];
       Channel indexChannel = channel as Channel;
-      if (indexChannel == null)
-        return false;
-
-      if (!CheckConnection(indexChannel.ServerIndex))
-        return false;
+      if (indexChannel == null || !CheckConnection(indexChannel.ServerIndex))
+        return new AsyncResult<IProgram[]>(false, null);
 
       try
       {
         IList<WebProgramDetailed> tvPrograms = TvServer(indexChannel.ServerIndex).GetNowNextWebProgramDetailedForChannel(channel.ChannelId);
         if (tvPrograms.Count > 0 && tvPrograms[0] != null)
-          programNow = new Program(tvPrograms[0], indexChannel.ServerIndex);
+          programNowNext[0] = new Program(tvPrograms[0], indexChannel.ServerIndex);
         if (tvPrograms.Count > 1 && tvPrograms[1] != null)
-          programNext = new Program(tvPrograms[1], indexChannel.ServerIndex);
+          programNowNext[1] = new Program(tvPrograms[1], indexChannel.ServerIndex);
       }
       catch (Exception ex)
       {
         ServiceRegistration.Get<ILogger>().Error(ex.Message);
-        return false;
+        return new AsyncResult<IProgram[]>(false, null);
       }
-      return programNow != null;
+      return new AsyncResult<IProgram[]>(programNowNext[0] != null, programNowNext);
     }
 
-    public bool GetNowAndNextForChannelGroup(IChannelGroup channelGroup, out IDictionary<int, IProgram[]> programs)
+    public async Task<AsyncResult<IDictionary<int, IProgram[]>>> GetNowAndNextForChannelGroupAsync(IChannelGroup channelGroup)
     {
-      programs = null;
       ChannelGroup indexGroup = channelGroup as ChannelGroup;
-      if (indexGroup == null)
-        return false;
+      if (indexGroup == null || !CheckConnection(indexGroup.ServerIndex))
+        return new AsyncResult<IDictionary<int, IProgram[]>>(false, null);
 
-      if (!CheckConnection(indexGroup.ServerIndex))
-        return false;
-
-      programs = new Dictionary<int, IProgram[]>();
+      var programs = new Dictionary<int, IProgram[]>();
       try
       {
         IList<IChannel> channels;
-        if (!GetChannels(indexGroup, out channels))
-          return false;
+        var result = await GetChannelsAsync(indexGroup);
+        if (!result.Success)
+          return new AsyncResult<IDictionary<int, IProgram[]>>(false, null);
 
-        foreach (IChannel channel in channels)
+        foreach (IChannel channel in result.Result)
         {
           IProgram[] nowNext = new IProgram[2];
           IList<WebProgramDetailed> tvPrograms = TvServer(indexGroup.ServerIndex).GetNowNextWebProgramDetailedForChannel(channel.ChannelId);
@@ -631,31 +631,27 @@ namespace MediaPortal.Plugins.SlimTv.Providers
             continue;
 
           if (tvPrograms.Count > 0 && tvPrograms[0] != null)
-            nowNext[0]= new Program(tvPrograms[0], indexGroup.ServerIndex);
+            nowNext[0] = new Program(tvPrograms[0], indexGroup.ServerIndex);
           if (tvPrograms.Count > 1 && tvPrograms[1] != null)
-            nowNext[1]= new Program(tvPrograms[1], indexGroup.ServerIndex);
+            nowNext[1] = new Program(tvPrograms[1], indexGroup.ServerIndex);
           programs[channel.ChannelId] = nowNext;
         }
       }
       catch (Exception ex)
       {
         ServiceRegistration.Get<ILogger>().Error(ex.Message);
-        return false;
+        return new AsyncResult<IDictionary<int, IProgram[]>>(false, null);
       }
-      return true;
+      return new AsyncResult<IDictionary<int, IProgram[]>>(true, programs);
     }
 
-    public bool GetPrograms(IChannel channel, DateTime from, DateTime to, out IList<IProgram> programs)
+    public async Task<AsyncResult<IList<IProgram>>> GetProgramsAsync(IChannel channel, DateTime from, DateTime to)
     {
-      programs = null;
       Channel indexChannel = channel as Channel;
-      if (indexChannel == null)
-        return false;
+      if (indexChannel == null || !CheckConnection(indexChannel.ServerIndex))
+        return new AsyncResult<IList<IProgram>>(false, null);
 
-      if (!CheckConnection(indexChannel.ServerIndex))
-        return false;
-
-      programs = new List<IProgram>();
+      var programs = new List<IProgram>();
       try
       {
         IList<WebProgramDetailed> tvPrograms = TvServer(indexChannel.ServerIndex).GetProgramsDetailedForChannel(channel.ChannelId, from, to);
@@ -665,20 +661,19 @@ namespace MediaPortal.Plugins.SlimTv.Providers
       catch (Exception ex)
       {
         ServiceRegistration.Get<ILogger>().Error(ex.Message);
-        return false;
+        return new AsyncResult<IList<IProgram>>(false, null);
       }
-      return programs.Count > 0;
+      return new AsyncResult<IList<IProgram>>(programs.Count > 0, programs);
     }
 
-    public bool GetPrograms(string title, DateTime from, DateTime to, out IList<IProgram> programs)
+    public async Task<AsyncResult<IList<IProgram>>> GetProgramsAsync(string title, DateTime from, DateTime to)
     {
-      programs = null;
       // TODO: lookup by ID cannot guess which server might be adressed, so we force the first one.
       int serverIndex = 0;
       if (!CheckConnection(serverIndex))
-        return false;
+        return new AsyncResult<IList<IProgram>>(false, null);
 
-      programs = new List<IProgram>();
+      var programs = new List<IProgram>();
       try
       {
         IList<WebProgramDetailed> tvPrograms = TvServer(serverIndex).SearchProgramsDetailed(title).
@@ -689,9 +684,9 @@ namespace MediaPortal.Plugins.SlimTv.Providers
       catch (Exception ex)
       {
         ServiceRegistration.Get<ILogger>().Error(ex.Message);
-        return false;
+        return new AsyncResult<IList<IProgram>>(false, null);
       }
-      return programs.Count > 0;
+      return new AsyncResult<IList<IProgram>>(programs.Count > 0, programs);
     }
 
     /// <summary>
@@ -700,19 +695,14 @@ namespace MediaPortal.Plugins.SlimTv.Providers
     /// <param name="channelGroup">Channel group</param>
     /// <param name="from">Time from</param>
     /// <param name="to">Time to</param>
-    /// <param name="programs">Returns programs</param>
     /// <returns><c>true</c> if at least one program could be found</returns>
-    public bool GetProgramsGroup(IChannelGroup channelGroup, DateTime @from, DateTime to, out IList<IProgram> programs)
+    public async Task<AsyncResult<IList<IProgram>>> GetProgramsGroupAsync(IChannelGroup channelGroup, DateTime from, DateTime to)
     {
-      programs = null;
       ChannelGroup indexGroup = channelGroup as ChannelGroup;
-      if (indexGroup == null)
-        return false;
+      if (indexGroup == null || !CheckConnection(indexGroup.ServerIndex))
+        return new AsyncResult<IList<IProgram>>(false, null);
 
-      if (!CheckConnection(indexGroup.ServerIndex))
-        return false;
-
-      programs = new List<IProgram>();
+      var programs = new List<IProgram>();
       try
       {
         IList<WebChannelPrograms<WebProgramDetailed>> tvPrograms = TvServer(indexGroup.ServerIndex).GetProgramsDetailedForGroup(channelGroup.ChannelGroupId, from, to);
@@ -722,21 +712,20 @@ namespace MediaPortal.Plugins.SlimTv.Providers
       catch (Exception ex)
       {
         ServiceRegistration.Get<ILogger>().Error(ex.Message);
-        return false;
+        return new AsyncResult<IList<IProgram>>(false, null);
       }
-      return programs.Count > 0;
+      return new AsyncResult<IList<IProgram>>(programs.Count > 0, programs);
     }
 
-    public bool GetProgramsForSchedule(ISchedule schedule, out IList<IProgram> programs)
+    public async Task<AsyncResult<IList<IProgram>>> GetProgramsForScheduleAsync(ISchedule schedule)
     {
       //Schedule indexSchedule = (Schedule)schedule;
       //programs = null;
       //if (!CheckConnection(indexSchedule.ServerIndex))
       //  return false;
 
-      programs = new List<IProgram>();
       ServiceRegistration.Get<ILogger>().Error("SlimTV MPExtendedProvider: GetProgramsForSchedule is not implemented!");
-      return false;
+      return new AsyncResult<IList<IProgram>>(false, null);
     }
 
     public bool GetScheduledPrograms(IChannel channel, out IList<IProgram> programs)
@@ -748,48 +737,42 @@ namespace MediaPortal.Plugins.SlimTv.Providers
 
     #region IScheduleControl Member
 
-    public bool CreateSchedule(IProgram program, ScheduleRecordingType recordingType, out ISchedule schedule)
+    public async Task<AsyncResult<ISchedule>> CreateScheduleAsync(IProgram program, ScheduleRecordingType recordingType)
     {
       Program indexProgram = program as Program;
-      schedule = null;
-      if (indexProgram == null)
-        return false;
-
-      if (!CheckConnection(indexProgram.ServerIndex))
-        return false;
+      if (indexProgram == null || !CheckConnection(indexProgram.ServerIndex))
+        return new AsyncResult<ISchedule>(false, null);
 
       try
       {
         // Note: the enums WebScheduleType and ScheduleRecordingType are defined equally. If one of them gets extended, the other must be changed the same way.
-        return TvServer(indexProgram.ServerIndex).AddSchedule(program.ChannelId, program.Title, program.StartTime, program.EndTime, (WebScheduleType)recordingType);
+        var result = TvServer(indexProgram.ServerIndex).AddSchedule(program.ChannelId, program.Title, program.StartTime, program.EndTime, (WebScheduleType)recordingType);
+        return new AsyncResult<ISchedule>(true, null);
       }
       catch
       {
-        return false;
+        return new AsyncResult<ISchedule>(false, null);
       }
     }
 
-    public bool CreateScheduleByTime(IChannel channel, DateTime from, DateTime to, ScheduleRecordingType recordingType, out ISchedule schedule)
+    public async Task<AsyncResult<ISchedule>> CreateScheduleByTimeAsync(IChannel channel, DateTime from, DateTime to, ScheduleRecordingType recordingType)
     {
       Channel indexChannel = channel as Channel;
-      schedule = null;
-      if (indexChannel == null)
-        return false;
-
-      if (!CheckConnection(indexChannel.ServerIndex))
-        return false;
+      if (indexChannel == null || !CheckConnection(indexChannel.ServerIndex))
+        return new AsyncResult<ISchedule>(false, null);
 
       try
       {
-        return TvServer(indexChannel.ServerIndex).AddSchedule(channel.ChannelId, "Manual", from, to, (WebScheduleType)recordingType);
+        var result = TvServer(indexChannel.ServerIndex).AddSchedule(channel.ChannelId, "Manual", from, to, (WebScheduleType)recordingType);
+        return new AsyncResult<ISchedule>(true, null);
       }
       catch
       {
-        return false;
+        return new AsyncResult<ISchedule>(false, null);
       }
     }
 
-    public bool RemoveScheduleForProgram(IProgram program, ScheduleRecordingType recordingType)
+    public async Task<bool> RemoveScheduleForProgramAsync(IProgram program, ScheduleRecordingType recordingType)
     {
       Program indexProgram = program as Program;
       if (indexProgram == null)
@@ -815,7 +798,7 @@ namespace MediaPortal.Plugins.SlimTv.Providers
       }
     }
 
-    public bool RemoveSchedule(ISchedule schedule)
+    public async Task<bool> RemoveScheduleAsync(ISchedule schedule)
     {
       Schedule indexSchedule = schedule as Schedule;
       if (indexSchedule == null)
@@ -835,81 +818,69 @@ namespace MediaPortal.Plugins.SlimTv.Providers
       }
     }
 
-    public bool GetSchedules(out IList<ISchedule> schedules)
+    public async Task<AsyncResult<IList<ISchedule>>> GetSchedulesAsync()
     {
-      schedules = new List<ISchedule>();
-
       // TODO: lookup by ID cannot guess which server might be adressed, so we force the first one.
       int serverIndex = 0;
       if (!CheckConnection(serverIndex))
-        return false;
+        return new AsyncResult<IList<ISchedule>>(false, null);
 
       try
       {
         ITVAccessService tvAccessService = TvServer(serverIndex);
         var webSchedules = tvAccessService.GetSchedules();
-        schedules = webSchedules.Select(s => new Schedule(s, serverIndex)).Cast<ISchedule>().ToList();
+        var schedules = webSchedules.Select(s => new Schedule(s, serverIndex)).Cast<ISchedule>().ToList();
+        return new AsyncResult<IList<ISchedule>>(true, schedules);
       }
       catch
       {
-        return false;
+        return new AsyncResult<IList<ISchedule>>(false, null);
       }
-      return true;
     }
 
-    public bool IsCurrentlyRecording(string fileName, out ISchedule schedule)
+    public async Task<AsyncResult<ISchedule>> IsCurrentlyRecordingAsync(string fileName)
     {
       // TODO
-      schedule = null;
-      return false;
+      return new AsyncResult<ISchedule>(false, null);
     }
 
-    public bool GetRecordingStatus(IProgram program, out RecordingStatus recordingStatus)
+    public async Task<AsyncResult<RecordingStatus>> GetRecordingStatusAsync(IProgram program)
     {
-      recordingStatus = RecordingStatus.None;
+      var recordingStatus = RecordingStatus.None;
 
       Program indexProgram = program as Program;
-      if (indexProgram == null)
-        return false;
-
-      if (!CheckConnection(indexProgram.ServerIndex))
-        return false;
+      if (indexProgram == null || !CheckConnection(indexProgram.ServerIndex))
+        return new AsyncResult<RecordingStatus>(false, recordingStatus);
 
       try
       {
         WebProgramDetailed programDetailed = TvServer(indexProgram.ServerIndex).GetProgramDetailedById(program.ProgramId);
         recordingStatus = Program.GetRecordingStatus(programDetailed);
+        return new AsyncResult<RecordingStatus>(true, recordingStatus);
       }
       catch
       {
-        return false;
+        return new AsyncResult<RecordingStatus>(false, recordingStatus);
       }
-      return true;
     }
 
-    public bool GetRecordingFileOrStream(IProgram program, out string fileOrStream)
+    public async Task<AsyncResult<string>> GetRecordingFileOrStreamAsync(IProgram program)
     {
-      fileOrStream = null;
       Program indexProgram = program as Program;
-      if (indexProgram == null)
-        return false;
-
-      if (!CheckConnection(indexProgram.ServerIndex))
-        return false;
+      if (indexProgram == null || !CheckConnection(indexProgram.ServerIndex))
+        return new AsyncResult<string>(false, null);
 
       try
       {
         // TODO: GetRecordings will return all recordings from server and we filter the list on client side. This could be optimized with MPExtended 0.6, where a server filter argument was added.
         var recording = TvServer(indexProgram.ServerIndex).GetRecordings(WebSortField.StartTime, WebSortOrder.Desc).
           FirstOrDefault(r => r.IsRecording && r.ChannelId == program.ChannelId && r.Title == program.Title);
-        if (recording != null)
-          fileOrStream = recording.FileName;
+        return new AsyncResult<string>(recording != null, recording?.FileName);
       }
       catch
       {
-        return false;
+        return new AsyncResult<string>(false, null);
       }
-      return !string.IsNullOrEmpty(fileOrStream);
     }
     #endregion
   }

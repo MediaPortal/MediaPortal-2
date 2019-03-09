@@ -3,8 +3,8 @@
   <string name="HelloWorld.MenuEntry">Ciao mondo</string>
   <string name="HelloWorld.StateDisplayLabel">Stato ciao mondo</string>
   <string name="HelloWorld.ScreenTitle">Schermata ciao mondo</string>
-  <string name="HelloWorld.HelloWorldText">Premendo il pulsante cambierà il testo</string>
-  <string name="HelloWorld.SampleText">Questo è una schermata di esempio del plugin Ciao Mondo</string>
+  <string name="HelloWorld.HelloWorldText">Premendo il pulsante il testo cambierà</string>
+  <string name="HelloWorld.SampleText">Questa è una schermata di esempio del plugin Ciao Mondo</string>
   <string name="HelloWorld.ButtonText">Premi qui</string>
   <string name="HelloWorld.ButtonTextCommandExecuted">Congratulazioni, hai appena inviato un comando!</string>
 </resources>

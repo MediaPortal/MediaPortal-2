@@ -1,7 +1,7 @@
-﻿#region Copyright (C) 2007-2017 Team MediaPortal
+#region Copyright (C) 2007-2018 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2017 Team MediaPortal
+    Copyright (C) 2007-2018 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -50,7 +50,7 @@ namespace MediaPortal.UiComponents.Media.MediaLists
 
     protected override bool ShouldUpdate(UpdateReason updateReason)
     {
-      return updateReason.HasFlag(UpdateReason.PlaybackComplete) || base.ShouldUpdate(updateReason);
+      return updateReason.HasFlag(UpdateReason.MediaItemChanged) || base.ShouldUpdate(updateReason);
     }
   }
 

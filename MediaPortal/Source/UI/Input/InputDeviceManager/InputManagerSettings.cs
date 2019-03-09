@@ -1,7 +1,7 @@
-﻿#region Copyright (C) 2007-2017 Team MediaPortal
+#region Copyright (C) 2007-2018 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2017 Team MediaPortal
+    Copyright (C) 2007-2018 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -40,7 +40,7 @@ namespace MediaPortal.Plugins.InputDeviceManager
     /// <summary>
     /// Gets the transceiver list.
     /// </summary>
-    [Setting(SettingScope.User)]
+    [Setting(SettingScope.Global)]
     public List<InputDevice> InputDevices
     {
       get { return _inputDevices; }
@@ -48,15 +48,5 @@ namespace MediaPortal.Plugins.InputDeviceManager
     }
 
     #endregion Properties
-
-    #region Additional members for the XML serialization
-
-    public List<InputDevice> XML_InputDevices
-    {
-      get { return _inputDevices; }
-      set { _inputDevices = value; }
-    }
-
-    #endregion
   }
 }

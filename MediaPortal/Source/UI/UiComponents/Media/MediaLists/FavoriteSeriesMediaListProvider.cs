@@ -1,7 +1,7 @@
-﻿#region Copyright (C) 2007-2017 Team MediaPortal
+#region Copyright (C) 2007-2018 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2017 Team MediaPortal
+    Copyright (C) 2007-2018 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -30,7 +30,7 @@ using MediaPortal.UiComponents.Media.Models.NavigationModel;
 
 namespace MediaPortal.UiComponents.Media.MediaLists
 {
-  public class FavoriteSeriesMediaListProvider : BaseFavoriteMediaListProvider
+  public class FavoriteSeriesMediaListProvider : BaseFavoriteRelationshipMediaListProvider
   {
     public FavoriteSeriesMediaListProvider()
     {

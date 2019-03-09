@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2017 Team MediaPortal
+#region Copyright (C) 2007-2018 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2017 Team MediaPortal
+    Copyright (C) 2007-2018 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -154,6 +154,7 @@ namespace MediaPortal.Media.MetadataExtractors
                   BDInfoExt bdinfo = new BDInfoExt(rah.LocalFsResourceAccessor.LocalFileSystemPath);
                   string title = bdinfo.GetTitle();
                   mediaAspect.SetAttribute(MediaAspect.ATTR_TITLE, title ?? bdinfo.VolumeLabel);
+                  videoStreamAspect.SetAttribute(VideoStreamAspect.ATTR_VIDEO_PART_SET_NAME, bdinfo.VolumeLabel);
 
                   // Check for BD disc thumbs
                   FileInfo thumbnail = bdinfo.GetBiggestThumb();

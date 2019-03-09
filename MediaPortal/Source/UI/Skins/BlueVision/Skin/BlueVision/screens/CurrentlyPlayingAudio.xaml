@@ -94,9 +94,14 @@
               </Image.OpacityMask>
             </Image>
 
-            <Image x:Name="CDImage" Grid.Row="0" Grid.Column="0" Stretch="Uniform" 
-                Source="CD.png" HorizontalAlignment="Right" RenderTransformOrigin="0.498,0.498"
-                VerticalAlignment="Bottom" Width="235" Height="235" Margin="0,0,110,30">
+            <Image x:Name="CDImage" Stretch="Uniform" 
+                   FallbackSource="CD.png" HorizontalAlignment="Right" RenderTransformOrigin="0.498,0.498"
+                   VerticalAlignment="Bottom" Width="235" Height="235" Margin="0,0,110,30">
+              <Image.Source>
+                <fanart:FanArtImageSource fanart:FanArtMediaType="Album" fanart:FanArtType="DiscArt" fanart:FanArtName="{Binding Source={Binding MediaItem}, Path=MediaItemId}"
+                                          fanart:MaxWidth="290" fanart:MaxHeight="290"/>
+              </Image.Source>
+
               <Image.RenderTransform>
                 <RotateTransform x:Name="AnimatedRotateTransform" Angle="0" />
               </Image.RenderTransform>
@@ -104,7 +109,7 @@
               <Image.Resources>
                 <Storyboard x:Key="DiskRotationStoryboard" FillBehavior="HoldEnd" RepeatBehavior="Forever">
                   <DoubleAnimation Storyboard.TargetProperty="RenderTransform.Angle"
-                                 From="0" To="360" Duration="0:0:4.5" RepeatBehavior="Forever" />
+                                   From="0" To="360" Duration="0:0:4.5" RepeatBehavior="Forever" />
                 </Storyboard>
               </Image.Resources>
 
@@ -121,8 +126,8 @@
             </Image>
 
             <Image x:Name="ItemTypeImage" Grid.Row="0" Grid.Column="0" Stretch="Uniform" 
-                Source="{Binding MediaItem}" FallbackSource="Audio.png" HorizontalAlignment="Right"
-                VerticalAlignment="Bottom" Width="250" Height="250" Margin="0,0,0,20">
+                   Source="{Binding MediaItem}" FallbackSource="Audio.png" HorizontalAlignment="Right"
+                   VerticalAlignment="Bottom" Width="250" Height="250" Margin="0,0,0,20">
               <Image.OpacityMask>
                 <VisualBrush>
                   <VisualBrush.Visual>

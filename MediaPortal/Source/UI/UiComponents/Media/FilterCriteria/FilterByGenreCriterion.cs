@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2017 Team MediaPortal
+#region Copyright (C) 2007-2018 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2017 Team MediaPortal
+    Copyright (C) 2007-2018 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -38,6 +38,7 @@ using Task = System.Threading.Tasks.Task;
 using MediaPortal.UiComponents.Media.Settings;
 using MediaPortal.Common.Settings;
 using MediaPortal.Common.Services.GenreConverter;
+using MediaPortal.Common.Localization;
 
 namespace MediaPortal.UiComponents.Media.FilterCriteria
 {
@@ -64,6 +65,9 @@ namespace MediaPortal.UiComponents.Media.FilterCriteria
       IGenreConverter converter = ServiceRegistration.Get<IGenreConverter>();
       Dictionary<int, FilterValue> genredFilters = new Dictionary<int, FilterValue>();
       List<FilterValue> ungenredFilters = new List<FilterValue>();
+      string languageCulture = null;
+      if (ServiceRegistration.IsRegistered<ILocalization>())
+        languageCulture = ServiceRegistration.Get<ILocalization>().CurrentCulture.Name;
 
       if (_necessaryMIATypeIds != null)
         necessaryMIATypeIds = _necessaryMIATypeIds;
@@ -97,7 +101,7 @@ namespace MediaPortal.UiComponents.Media.FilterCriteria
           }
           else if (!genredFilters.ContainsKey(genreId.Value))
           {
-            if (converter.GetGenreName(genreId.Value, _genreCategory, null, out string genreName))
+            if (converter.GetGenreName(genreId.Value, _genreCategory, languageCulture, out string genreName))
               name = genreName;
             genredFilters.Add(genreId.Value, new FilterValue(genreId.Value, name, new RelationalFilter(_valueAttributeType, RelationalOperator.EQ, group.Key), null, (int)group.Value, this));
           }
