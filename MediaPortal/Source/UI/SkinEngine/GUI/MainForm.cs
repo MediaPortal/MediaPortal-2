@@ -1094,7 +1094,8 @@ namespace MediaPortal.UI.SkinEngine.GUI
         }
       }
       // Send windows message through the system if any component needs to access windows messages
-      WindowsMessaging.BroadcastWindowsMessage(ref m);
+      if (WindowsMessaging.BroadcastWindowsMessage(ref m))
+        return;
       base.WndProc(ref m);
     }
 
