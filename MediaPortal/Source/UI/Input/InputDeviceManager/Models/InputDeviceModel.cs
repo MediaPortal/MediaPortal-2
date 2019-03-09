@@ -338,7 +338,7 @@ namespace MediaPortal.Plugins.InputDeviceManager.Models
 
     #region Key input handling
 
-    private void OnKeyPressed(object sender, SharpLib.Hid.Event hidEvent, string device, IDictionary<string, long> pressedKeys)
+    private void OnKeyPressed(object sender, string name, string device, IDictionary<string, long> pressedKeys)
     {
       try
       {
@@ -363,8 +363,8 @@ namespace MediaPortal.Plugins.InputDeviceManager.Models
         else if (!ShowKeyMapping)
         {
           //Device selection screen
-          _currentInputDevice = (device, hidEvent.Device?.FriendlyName ?? "?");
-          SelectedInputName = hidEvent.Device?.FriendlyName ?? "?";
+          _currentInputDevice = (device, name ?? "?");
+          SelectedInputName = name ?? "?";
           UpdateKeymapping();
         }
       }

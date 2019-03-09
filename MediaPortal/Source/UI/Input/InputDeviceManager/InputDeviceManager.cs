@@ -54,17 +54,18 @@ namespace MediaPortal.Plugins.InputDeviceManager
     private const int WM_KEYUP = 0x101;
     private const int WM_SYSKEYDOWN = 0x0104;
     private const int WM_SYSKEYUP = 0x0105;
+    private const int WM_ACTIVATE = 0x0006;
+    private const int WA_INACTIVE = 0;
 
     private static readonly ConcurrentDictionary<string, InputDevice> _inputDevices = new ConcurrentDictionary<string, InputDevice>();
     private static IScreenControl _screenControl;
     private static readonly ConcurrentDictionary<string, long> _pressedKeys = new ConcurrentDictionary<string, long>();
     private static SharpLib.Hid.Handler _hidHandler;
-    private static List<Action<object, SharpLib.Hid.Event, string, IDictionary<string, long>>> _externalKeyPressHandlers = new List<Action<object, SharpLib.Hid.Event, string, IDictionary<string, long>>>();
+    private static List<Action<object, string, string, IDictionary<string, long>>> _externalKeyPressHandlers = new List<Action<object, string, string, IDictionary<string, long>>>();
     private static object _listSyncObject = new object();
     private static bool _currentMessageHandled;
     private static ConcurrentDictionary<long, (string Name, long Code)> _genericKeyDownEvents = new ConcurrentDictionary<long, (string Name, long Code)>();
     private static readonly ConcurrentDictionary<string, long> _pressedPreviewKeys = new ConcurrentDictionary<string, long>();
-    private static System.Timers.Timer _pressedKeyTimer = new System.Timers.Timer(2000);
     private static List<MappedKeyCode> _defaultRemoteKeyCodes = new List<MappedKeyCode>();
     private static readonly Key[] _navigationKeys = new[] { Key.Ok, Key.Escape, Key.Left, Key.Right, Key.Up, Key.Down };
 
@@ -81,17 +82,6 @@ namespace MediaPortal.Plugins.InputDeviceManager
     public InputDeviceManager()
     {
       Instance = this;
-
-      _pressedKeyTimer.AutoReset = false;
-      _pressedKeyTimer.Elapsed += (s, e) =>
-      {
-        if (_pressedPreviewKeys.Count > 0 || _pressedKeys.Count > 0)
-          ServiceRegistration.Get<ILogger>().Debug("InputDeviceManager: Pressed keys reset");
-
-        _pressedPreviewKeys.Clear();
-        _genericKeyDownEvents.Clear();
-        _pressedKeys.Clear();
-      };
     }
 
     private static void StartThread()
@@ -272,26 +262,38 @@ namespace MediaPortal.Plugins.InputDeviceManager
                 _currentMessageHandled = false;
                 bool? keyUp = null;
                 //WM_KEYDOWN and WM_KEYUP are not handled by SharpLibHid so we need to handle them to avoid a duplicate key press
-                if (_externalKeyPressHandlers.Count == 0 && (msg.Msg == WM_KEYDOWN || msg.Msg == WM_KEYUP || msg.Msg == WM_SYSKEYDOWN || msg.Msg == WM_SYSKEYUP))
+                //We need to handle the keyboard keys in HID handler because we need know which device sends them
+                //Keyboard key events are not exclusive to keyboards
+                if (msg.Msg == WM_KEYDOWN || msg.Msg == WM_KEYUP || msg.Msg == WM_SYSKEYDOWN || msg.Msg == WM_SYSKEYUP)
                 {
-                  var key = ConvertSystemKey((Keys)msg.WParam);
                   if (msg.Msg == WM_KEYDOWN || msg.Msg == WM_SYSKEYDOWN)
-                  {
                     keyUp = false;
-                    _pressedPreviewKeys.TryAdd(key.ToString(), (long)key);
-                    RestartKeyPressedTimer();
-                  }
+                  if (msg.Msg == WM_KEYUP || msg.Msg == WM_SYSKEYUP)
+                    keyUp = true;
+
+                  var key = ConvertSystemKey((Keys)msg.WParam);
+                  bool wasAdded = false;
+                  if (keyUp == false)
+                    wasAdded = _pressedPreviewKeys.TryAdd(key.ToString(), (long)key);
+
                   if (_inputDevices.TryGetValue("Keyboard", out InputDevice device))
                   {
                     if (CheckMappedKeys(device, _pressedPreviewKeys.Values, false))
                       _currentMessageHandled = true;
                   }
-                  if (msg.Msg == WM_KEYUP || msg.Msg == WM_SYSKEYUP)
-                  {
-                    keyUp = true;
+
+                  if (keyUp == true)
                     _pressedPreviewKeys.TryRemove(key.ToString(), out _);
-                  }
                 }
+                else if (msg.Msg == WM_ACTIVATE & msg.WParam == (IntPtr)WA_INACTIVE)
+                {
+                  ServiceRegistration.Get<ILogger>().Debug("InputDeviceManager: Pressed keys reset");
+
+                  _pressedPreviewKeys.Clear();
+                  _genericKeyDownEvents.Clear();
+                  _pressedKeys.Clear();
+                }
+
                 _hidHandler?.ProcessInput(ref msg);
                 if (_currentMessageHandled)
                 {
@@ -690,28 +692,76 @@ namespace MediaPortal.Plugins.InputDeviceManager
       return code == (long)Keys.ControlKey || code == (long)Keys.Menu || code == (long)Keys.ShiftKey || code == (long)Keys.RWin || code == (long)Keys.LWin;
     }
 
-    /// <summary>
-    /// Reset timer so key presses will be reset after timeout in case focus is lost and key up events are never received
-    /// </summary>
-    private static void RestartKeyPressedTimer()
-    {
-      _pressedKeyTimer.Stop();
-      _pressedKeyTimer.Start();
-    }
-
     private static void AddPressedKey(string name, long code)
     {
       if (_pressedKeys.Values.Any(c => !IsModifierKey(c)) && !IsModifierKey(code))
         ServiceRegistration.Get<ILogger>().Debug("InputDeviceManager: Invalid key {0} in combination with {1}", name, string.Join(", ", _pressedKeys.Keys));
       else
         _pressedKeys.TryAdd(name, code);
-
-      RestartKeyPressedTimer();
     }
 
     private static void RemovePressedKey(string name)
     {
       _pressedKeys.TryRemove(name, out _);
+    }
+
+    private static void CheckKeyPresses(string type, string deviceName, bool isGeneric, bool isRepeat, IEnumerable<KeyCode> keys, bool buttonUp, bool buttonDown)
+    {
+      if (buttonDown)
+      {
+        foreach(var key in keys)
+          AddPressedKey(key.Key, key.Code);
+      }
+
+      bool keyHandled = false;
+      bool handleKeyPress = (SUPPORT_REPEATS && buttonDown) || (!SUPPORT_REPEATS && buttonUp);
+
+      //Check mapped keys
+      if (_inputDevices.TryGetValue(type, out var device))
+      {
+        ServiceRegistration.Get<ILogger>().Debug("InputDeviceManager: Checking mapping for device: " + device.Name);
+        ServiceRegistration.Get<ILogger>().Debug("InputDeviceManager: Checking keys: " + string.Join(", ", _pressedKeys.Select(k => k.Key)));
+        ServiceRegistration.Get<ILogger>().Debug("InputDeviceManager: Checking codes: " + string.Join(", ", _pressedKeys.Select(k => k.Value)));
+
+        if (CheckMappedKeys(device, _pressedKeys.Values, handleKeyPress))
+          keyHandled = true;
+      }
+
+      //Check if default handling is available for unhandled key presses from non-keyboard devices
+      if (!keyHandled && isGeneric)
+      {
+        ServiceRegistration.Get<ILogger>().Debug("InputDeviceManager: Checking default keys: " + string.Join(", ", _pressedKeys.Select(k => k.Key)));
+        ServiceRegistration.Get<ILogger>().Debug("InputDeviceManager: Checking default codes: " + string.Join(", ", _pressedKeys.Select(k => k.Value)));
+
+        if (CheckDefaultRemoteKeys(_pressedKeys.Values, handleKeyPress))
+          keyHandled = true;
+      }
+
+      if (keyHandled)
+      {
+        //Set as handled so it doesn't get processed by the default key press handler
+        //Remember that both key up and down needs to be set as handled
+        _currentMessageHandled = true;
+      }
+
+      if (_externalKeyPressHandlers.Count > 0)
+      {
+        if (buttonDown && !isRepeat) //Only send button down and no repeats for better consistency
+        {
+          lock (_listSyncObject)
+          {
+            foreach (var action in _externalKeyPressHandlers)
+              action.Invoke(Instance, deviceName, type, _pressedKeys);
+          }
+        }
+        _currentMessageHandled = true;
+      }
+
+      if (buttonUp)
+      {
+        foreach (var key in keys)
+          RemovePressedKey(key.Key);
+      }
     }
 
     private static void OnHidEvent(object sender, SharpLib.Hid.Event hidEvent)
@@ -730,55 +780,7 @@ namespace MediaPortal.Plugins.InputDeviceManager
         if (!TryDecodeEvent(hidEvent, out string type, out string name, out long code, out bool buttonUp, out bool buttonDown))
           return;
 
-        if (buttonDown)
-          AddPressedKey(name, code);
-
-        bool keyHandled = false;
-        bool handleKeyPress = (SUPPORT_REPEATS && buttonDown) || (!SUPPORT_REPEATS && buttonUp);
-
-        //Check mapped keys
-        if (_inputDevices.TryGetValue(type, out var device))
-        {
-          ServiceRegistration.Get<ILogger>().Debug("InputDeviceManager: Checking mapping for device: " + device.Name);
-          ServiceRegistration.Get<ILogger>().Debug("InputDeviceManager: Checking keys: " + string.Join(", ", _pressedKeys.Select(k => k.Key)));
-          ServiceRegistration.Get<ILogger>().Debug("InputDeviceManager: Checking codes: " + string.Join(", ", _pressedKeys.Select(k => k.Value)));
-
-          if (CheckMappedKeys(device, _pressedKeys.Values, handleKeyPress))
-            keyHandled = true;
-        }
-
-        //Check if default handling is available for unhandled key presses from non-keyboard devices
-        if (!keyHandled && hidEvent.IsGeneric)
-        {
-          ServiceRegistration.Get<ILogger>().Debug("InputDeviceManager: Checking default keys: " + string.Join(", ", _pressedKeys.Select(k => k.Key)));
-          ServiceRegistration.Get<ILogger>().Debug("InputDeviceManager: Checking default codes: " + string.Join(", ", _pressedKeys.Select(k => k.Value)));
-
-          if (CheckDefaultRemoteKeys(_pressedKeys.Values, handleKeyPress))
-            keyHandled = true;
-        }
-
-        if (keyHandled)
-        {
-          //Set as handled so it doesn't get processed by the default key press handler
-          //Remember that both key up and down needs to be set as handled
-          _currentMessageHandled = true;
-        }
-
-        if (_externalKeyPressHandlers.Count > 0)
-        {
-          if (buttonDown && !hidEvent.IsRepeat) //Only send button down and no repeats for better consistency
-          {
-            lock (_listSyncObject)
-            {
-              foreach (var action in _externalKeyPressHandlers)
-                action.Invoke(sender, hidEvent, type, _pressedKeys);
-            }
-          }
-          _currentMessageHandled = true;
-        }
-
-        if (buttonUp)
-          RemovePressedKey(name);
+        CheckKeyPresses(type, hidEvent.Device?.FriendlyName, hidEvent.IsGeneric, hidEvent.IsRepeat, new[] { new KeyCode(name, code) }, buttonUp, buttonDown);
       }
       catch (Exception ex)
       {
@@ -921,7 +923,7 @@ namespace MediaPortal.Plugins.InputDeviceManager
 
     #region External event handling
 
-    public bool RegisterExternalKeyHandling(Action<object, SharpLib.Hid.Event, string, IDictionary<string, long>> hidEvent)
+    public bool RegisterExternalKeyHandling(Action<object, string, string, IDictionary<string, long>> hidEvent)
     {
       lock (_listSyncObject)
       {
@@ -934,7 +936,7 @@ namespace MediaPortal.Plugins.InputDeviceManager
       return false;
     }
 
-    public bool UnRegisterExternalKeyHandling(Action<object, SharpLib.Hid.Event, string, IDictionary<string, long>> hidEvent)
+    public bool UnRegisterExternalKeyHandling(Action<object, string, string, IDictionary<string, long>> hidEvent)
     {
       lock (_listSyncObject)
       {
