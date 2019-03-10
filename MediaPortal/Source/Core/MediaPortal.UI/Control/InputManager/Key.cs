@@ -72,6 +72,7 @@ namespace MediaPortal.UI.Control.InputManager
 
     public static readonly Key ChannelUp = new Key("ChannelUp");
     public static readonly Key ChannelDown = new Key("ChannelDown");
+    public static readonly Key ZapBack = new Key("ZapBack");
 
     public static readonly Key Start = new Key("Start");
     public static readonly Key RecordedTV = new Key("RecordedTV");

@@ -9,8 +9,6 @@
     <ItemGroup>
       <PluginFiles Include="$(TargetPath)" />
       <PluginFiles Include="$(TargetPath).config" />
-      <PluginFiles Include="$(TargetDir)DefaultRemoteMap.xml" />
-      <PluginFiles Include="$(TargetDir)eHomeTransceiverList.xml" />
     </ItemGroup>
 
     <ItemGroup>

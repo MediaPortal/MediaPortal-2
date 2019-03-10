@@ -59,6 +59,10 @@
     <Compile Include="VideoPlayers\ComSkip\ComSkipChaptersTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="VideoPlayers\ComSkip\VideoPlayerForComSkipTests.cs" />
+    <Compile Include="VideoPlayers\Subtitles\FakeVideoSettings.cs" />
+    <Compile Include="VideoPlayers\Subtitles\MockedTsVideoPlayer.cs" />
+    <Compile Include="VideoPlayers\Subtitles\AddSubtitleFilterTests.cs" />
+    <Compile Include="VideoPlayers\Subtitles\TsReaderStub.cs" />
     <Compile Include="WifiRemote\TestWifiRemote.cs" />
   </ItemGroup>
   <ItemGroup>

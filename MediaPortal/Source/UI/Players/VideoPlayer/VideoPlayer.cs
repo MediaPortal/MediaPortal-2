@@ -90,15 +90,10 @@ namespace MediaPortal.UI.Players.Video
     protected IntPtr _presenterInstance;
 
     // The default name for "No subtitles available" or "Subtitles disabled".
-    protected internal const string NO_SUBTITLES = "No subtitles";
+    private const string NO_SUBTITLES = "[Playback.Players.No.Subtitles]";
     protected const string FORCED_SUBTITLES = "forced subtitles";
 
     public const string RES_PLAYBACK_CHAPTER = "[Playback.Chapter]";
-
-    // ClosedCaptions parser
-    public const string CCFILTER_CLSID = "{6F0B7D9C-7548-49A9-AC4C-1DA1927E6C15}";
-    public const string CCFILTER_NAME = "Core CC Parser";
-    public const string CCFILTER_FILENAME = "cccp.ax";
 
     #endregion
 
@@ -149,6 +144,7 @@ namespace MediaPortal.UI.Players.Video
     protected bool _textureInvalid = true;
     protected MpcSubsRenderer _mpcSubsRenderer;
     private FilterFileWrapper _ccFilter;
+    protected bool _closedCaptionsFilterAdded = false;
 
     #endregion
 
@@ -195,7 +191,6 @@ namespace MediaPortal.UI.Players.Video
     {
       VideoSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<VideoSettings>() ?? new VideoSettings();
       var fileSystemResourceAccessor = _resourceAccessor as IFileSystemResourceAccessor;
-
       if (fileSystemResourceAccessor != null)
       {
         ServiceRegistration.Get<ILogger>().Debug("{0}: Adding MPC-HC subtitle engine", PlayerTitle);
@@ -231,30 +226,10 @@ namespace MediaPortal.UI.Players.Video
           loaded = MpcSubtitles.LoadSubtitles(upDevice, _displaySize, filename, _graphBuilder, @".\", settings.PreferredSubtitleLanguage);
         }
         
-        if (settings.EnableSubtitles)
+        if (settings.EnableMpcSubtitlesEngine)
         {
           MpcSubtitles.SetEnable(true);
         }
-      }
-
-      AddClosedCaptionsFilter();
-    }
-
-    protected virtual void AddClosedCaptionsFilter()
-    {
-      VideoSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<VideoSettings>();
-      if (settings.EnableClosedCaption)
-      {
-        // ClosedCaptions filter
-        _ccFilter = FilterLoader.LoadFilterFromDll(CCFILTER_FILENAME, new Guid(CCFILTER_CLSID), true);
-        var baseFilter = _ccFilter.GetFilter();
-        if (baseFilter == null)
-        {
-          _ccFilter.Dispose();
-          ServiceRegistration.Get<ILogger>().Warn("{0}: Failed to add {1} to graph", PlayerTitle, CCFILTER_FILENAME);
-          return;
-        }
-        _graphBuilder.AddFilter(baseFilter, CCFILTER_NAME);
       }
     }
 
@@ -280,9 +255,8 @@ namespace MediaPortal.UI.Players.Video
         throw new VideoPlayerException("Initializing of EVR failed");
       }
 
-      // Check if CC is enabled, in this case the EVR needs one more input pin
-      VideoSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<VideoSettings>();
-      if (settings.EnableClosedCaption)
+      // Check if CC is added, in this case the EVR needs one more input pin
+      if (_closedCaptionsFilterAdded)
         _streamCount++;
 
       // Set the number of video/subtitle/cc streams that are allowed to be connected to EVR. This has to be done after the custom presenter is initialized.
@@ -862,12 +836,11 @@ namespace MediaPortal.UI.Players.Video
       _initialized = false;
 
       FilterState state;
-      IMediaControl mc = (IMediaControl)_graphBuilder;
-      mc.GetState(10, out state);
+      _mc.GetState(10, out state);
       if (state != FilterState.Stopped)
       {
-        mc.StopWhenReady();
-        mc.Stop();
+        _mc.StopWhenReady();
+        _mc.Stop();
       }
 
       if (_evr != null)
@@ -906,11 +879,10 @@ namespace MediaPortal.UI.Players.Video
 
       if (State == PlayerState.Active)
       {
-        IMediaControl mc = (IMediaControl)_graphBuilder;
         if (_isPaused)
-          mc.Pause();
+          _mc.Pause();
         else
-          mc.Run();
+          _mc.Run();
       }
       _initialized = true;
     }
@@ -976,7 +948,7 @@ namespace MediaPortal.UI.Players.Video
       }
 
       StreamInfo streamInfo = subtitleStreams.FindStream(preferredSubtitleLanguage) ?? subtitleStreams.FindSimilarStream(settings.PreferredSubtitleStreamName);
-      if (streamInfo == null || !settings.EnableSubtitles)
+      if (streamInfo == null || !settings.EnableMpcSubtitlesEngine)
       {
         // auto-activate forced subtitles
         StreamInfo forced = subtitleStreams.FindForcedStream();
@@ -986,7 +958,7 @@ namespace MediaPortal.UI.Players.Video
         }
         else
         {
-          StreamInfo noSubtitleStream = subtitleStreams.FindSimilarStream(NO_SUBTITLES);
+          StreamInfo noSubtitleStream = subtitleStreams.FindSimilarStream(GetNoSubsName());
           if (noSubtitleStream != null)
             subtitleStreams.EnableStream(noSubtitleStream.Name);
         }
@@ -1012,7 +984,7 @@ namespace MediaPortal.UI.Players.Video
 
         // Check if there are real subtitle streams available. If not, the splitter only offers "No subtitles".
         string[] subtitleStreamNames = subtitleStreams.GetStreamNames();
-        return subtitleStreamNames.Length == 1 && subtitleStreamNames[0] == NO_SUBTITLES
+        return subtitleStreamNames.Length == 1 && subtitleStreamNames[0] == GetNoSubsName()
                  ? EMPTY_STRING_ARRAY
                  : subtitleStreamNames;
       }
@@ -1053,12 +1025,12 @@ namespace MediaPortal.UI.Players.Video
         settings.PreferredSubtitleLanguage = lcid;
 
       // if selected stream is "No subtitles" or "forced subtitle", we disable the setting
-      settings.EnableSubtitles = subtitleStreams.CurrentStreamName.ToLowerInvariant().Contains(NO_SUBTITLES.ToLowerInvariant()) == false &&
+      settings.EnableMpcSubtitlesEngine = subtitleStreams.CurrentStreamName.ToLowerInvariant().Contains(GetNoSubsName().ToLowerInvariant()) == false &&
         subtitleStreams.CurrentStreamName.ToLowerInvariant().Contains(FORCED_SUBTITLES.ToLowerInvariant()) == false;
       ServiceRegistration.Get<ISettingsManager>().Save(settings);
 
       // Make sure MPC subs engine is enabled when valid subtitle got selected.
-      MpcSubtitles.SetEnable(settings.EnableSubtitles);
+      MpcSubtitles.SetEnable(settings.EnableMpcSubtitlesEngine);
     }
 
     public virtual void DisableSubtitle()
@@ -1206,6 +1178,11 @@ namespace MediaPortal.UI.Players.Video
     {
       // Idea: we could scrape chapter names and store them in MediaAspects. When they are available, return the full names here.
       return ServiceRegistration.Get<ILocalization>().ToString(RES_PLAYBACK_CHAPTER, chapterNumber);
+    }
+
+    public static string GetNoSubsName()
+    {
+      return ServiceRegistration.Get<ILocalization>().ToString(NO_SUBTITLES);
     }
 
     #endregion

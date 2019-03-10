@@ -55,6 +55,7 @@
     <Compile Include="CommandLineOptions.cs" />
     <Compile Include="ApplicationLauncher.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="RawMessageHandler.cs" />
     <Content Include="Defaults\Paths.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
@@ -69,18 +70,19 @@
       <Project>{4FE7B8AE-1330-424A-91A1-C68D7ABF9CB8}</Project>
       <Name>MediaPortal.Utilities</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\UI\Input\MceRemoteReceiver\MceRemoteReceiver.csproj">
-      <Project>{aa23a7f2-8b6d-4c0c-8fad-f2f58e3f8b08}</Project>
-      <Name>MceRemoteReceiver</Name>
-    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
-    <None Include="build.targets" />
+    <None Include="build.targets">
+      <SubType>Designer</SubType>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="CommandLineParser">
       <Version>1.9.71</Version>
+    </PackageReference>
+    <PackageReference Include="SharpLibHid">
+      <Version>1.4.3</Version>
     </PackageReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

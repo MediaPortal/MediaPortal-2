@@ -29,8 +29,8 @@ namespace MediaPortal.Plugins.InputDeviceManager
 {
   public class InputDevice
   {
-    [XmlAttribute("DeviceID")]
-    public string DeviceID { get; set; }
+    [XmlAttribute("Type")]
+    public string Type { get; set; }
     [XmlAttribute("Name")]
     public string Name { get; set; }
     [XmlElement("KeyMap")]

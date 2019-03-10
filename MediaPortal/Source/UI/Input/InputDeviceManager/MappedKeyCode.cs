@@ -40,7 +40,7 @@ namespace MediaPortal.Plugins.InputDeviceManager
     public string Key { get; set; }
 
     [XmlElement("Code")]
-    public List<int> Code { get; set; }
+    public List<KeyCode> Codes { get; set; }
 
     #endregion Properties
 
@@ -48,25 +48,12 @@ namespace MediaPortal.Plugins.InputDeviceManager
 
     public MappedKeyCode()  { }
 
-    public MappedKeyCode(string key, List<int> codes)
+    public MappedKeyCode(string key, List<KeyCode> codes)
     {
       Key  = key;
-      Code = codes;
-    }
-
-    public override string ToString()
-    {
-      return Code.ToString();
+      Codes = codes;
     }
 
     #endregion Constructors
-
-    #region Extra members for XML serialization
-
-    [XmlAttribute("Key_Name")]
-    public string KeyName { get; set; }
-    
-
-    #endregion
   }
 }

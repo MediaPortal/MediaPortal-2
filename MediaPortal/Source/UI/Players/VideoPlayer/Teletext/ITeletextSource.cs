@@ -24,6 +24,7 @@
 
 using System;
 using System.Runtime.InteropServices;
+using MediaPortal.UI.Players.Video.Interfaces;
 
 namespace MediaPortal.UI.Players.Video.Teletext
 {
@@ -47,5 +48,8 @@ namespace MediaPortal.UI.Players.Video.Teletext
     void SetTeletextTSPacketCallback(IntPtr callback);
     void SetTeletextEventCallback(IntPtr callback);
     void SetTeletextServiceInfoCallback(IntPtr callback);
+    void GetTeletextStreamType(Int32 stream, ref Int32 type);
+    void GetTeletextStreamCount(ref Int32 count);
+    void GetTeletextStreamLanguage(Int32 stream, ref SubtitleLanguage szLanguage);
   }
 }
