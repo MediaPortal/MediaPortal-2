@@ -19,16 +19,13 @@
     <ColumnDefinition Width="*"/>
   </Grid.ColumnDefinitions>
 
-  <Button Grid.Column="0" x:Name="ShowConfigButton" Style="{ThemeResource MenuButtonWideStyle}" FontSize="{ThemeResource SmallFontSize}" VerticalAlignment="Top"
+  <Button Grid.Column="0" x:Name="ShowConfigButton" Style="{ThemeResource ButtonWideStyle}" FontSize="{ThemeResource SmallFontSize}" VerticalAlignment="Top"
           Content="[InputDeviceManager.DefaultConfig.Title]" Command="{Command Source={StaticResource Model},Path=OpenDefaultConfigurationDialog}"/>
 
   <ListView Grid.Column="1" Style="{StaticResource InputManagerListViewStyle}" SetFocus="True"
             ItemsSource="{Binding Path=KeyItems,Mode=OneTime}" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" IsVisible="true"
             CurrentItem="{Binding Path=SelectedItem, Mode=TwoWay}">
     <ListView.Resources>
-      <ResourceWrapper x:Key="VerticalScrollbarRenderTransform">
-        <TranslateTransform X="40" />
-      </ResourceWrapper>
       <CommandBridge x:Key="Menu_Command" Command="{Binding Path=Command,Mode=OneTime}"/>
     </ListView.Resources>
   </ListView>

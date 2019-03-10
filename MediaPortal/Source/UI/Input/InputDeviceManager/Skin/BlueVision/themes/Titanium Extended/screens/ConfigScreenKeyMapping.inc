@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<Grid IsVisible="{Binding ShowKeyMapping}" Margin="-400,0,0,0"
+<Grid IsVisible="{Binding ShowKeyMapping}" Margin="-488,0,0,0"
   xmlns="www.team-mediaportal.com/2008/mpf/directx"
   xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
 
@@ -15,19 +15,20 @@
     <RowDefinition Height="Auto"/>
   </Grid.RowDefinitions>
   <Grid.ColumnDefinitions>
-    <ColumnDefinition Width="410"/>
+    <ColumnDefinition Width="407"/>
     <ColumnDefinition Width="*"/>
   </Grid.ColumnDefinitions>
 
   <Button Grid.Column="0" x:Name="ShowConfigButton" Style="{ThemeResource MenuButtonWideStyle}" FontSize="{ThemeResource SmallFontSize}" VerticalAlignment="Top"
-          Content="[InputDeviceManager.DefaultConfig.Title]" Command="{Command Source={StaticResource Model},Path=OpenDefaultConfigurationDialog}"/>
-
-  <ListView Grid.Column="1" Style="{StaticResource InputManagerListViewStyle}" SetFocus="True"
+          Content="[InputDeviceManager.DefaultConfig.Title]" Command="{Command Source={StaticResource Model},Path=OpenDefaultConfigurationDialog}">
+  </Button>
+    
+  <ListView Grid.Column="1" Style="{StaticResource InputManagerListViewStyle}" SetFocus="True" Margin="80,0,-15,0"
             ItemsSource="{Binding Path=KeyItems,Mode=OneTime}" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" IsVisible="true"
             CurrentItem="{Binding Path=SelectedItem, Mode=TwoWay}">
     <ListView.Resources>
       <ResourceWrapper x:Key="VerticalScrollbarRenderTransform">
-        <TranslateTransform X="40" />
+        <TranslateTransform X="80" />
       </ResourceWrapper>
       <CommandBridge x:Key="Menu_Command" Command="{Binding Path=Command,Mode=OneTime}"/>
     </ListView.Resources>

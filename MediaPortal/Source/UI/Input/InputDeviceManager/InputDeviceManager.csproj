@@ -67,6 +67,18 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       <SubType>Designer</SubType>
     </Content>
+    <Content Include="Skin\BlueVision\themes\Titanium Extended\screens\ConfigScreenKeyMapping.inc">
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="Skin\BlueVision\themes\Titanium Extended\screens\ConfigScreenScreenMapping.inc">
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="Skin\BlueVision\themes\Titanium Extended\screens\HomeScreenScreenMapping.inc">
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="Skin\BlueVision\themes\Win10\screens\ConfigScreenKeyMapping.inc">
+      <SubType>Designer</SubType>
+    </Content>
     <Content Include="Skin\default\screens\HomeScreenScreenMapping.inc">
       <SubType>Designer</SubType>
     </Content>
@@ -74,6 +86,15 @@
       <SubType>Designer</SubType>
     </Content>
     <Content Include="Skin\default\screens\ConfigScreenSelectDevice.inc" />
+    <Content Include="Skin\WMCSkin\screens\ConfigScreenKeyMapping.inc">
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="Skin\WMCSkin\screens\ConfigScreenScreenMapping.inc">
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="Skin\WMCSkin\screens\HomeScreenScreenMapping.inc">
+      <SubType>Designer</SubType>
+    </Content>
   </ItemGroup>
   <ItemGroup>
     <None Include="build.targets">
@@ -140,6 +161,26 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Skin\default\screens\HomeScreenScreens.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\BlueVision\themes\Win10\screens\ConfigScreenAddDefaultKeys.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\BlueVision\themes\Win10\styles\InputManagerStyles.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\BlueVision\themes\Titanium Extended\styles\InputManagerStyles.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\BlueVision\themes\Titanium Extended\screens\ConfigScreenAddDefaultKeys.xaml">
       <SubType>Designer</SubType>
     </Content>
   </ItemGroup>

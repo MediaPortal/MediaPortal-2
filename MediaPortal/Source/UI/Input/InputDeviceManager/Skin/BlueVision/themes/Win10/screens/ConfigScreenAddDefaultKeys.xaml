@@ -15,7 +15,7 @@
         <Label Content="[InputDeviceManager.DefaultConfig.Title]" Color="{ThemeResource TextColor}" DockPanel.Dock="Top" HorizontalAlignment="Center"/>
         <Label Content="[InputDeviceManager.DefaultConfig.Description]" Color="{ThemeResource TextColor}" DockPanel.Dock="Top" HorizontalAlignment="Left" Wrap="True"/>
         <!-- Default config list -->
-        <ListView Margin="10" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" SetFocus="True"
+        <ListView Margin="35,0,21,0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" SetFocus="True"
                     Style="{ThemeResource MenuListViewStyle}" RestoreFocus="True"
                     ItemsSource="{Binding Path=DefaultConfigItems}" >
           <ListView.Resources>
