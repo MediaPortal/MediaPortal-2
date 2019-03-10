@@ -50,19 +50,19 @@ namespace MediaPortal.Plugins.WifiRemote.MessageParser
         bool startFullscreen = GetMessageValue<bool>(message, "StartFullscreen", true);
 
         // Show channel group list
-        if (action.Equals("channelgrouplist", StringComparison.InvariantCultureIgnoreCase))
+        if (action.Equals("grouplist", StringComparison.InvariantCultureIgnoreCase))
         {
           var list = await GetChannelGroupsAsync(isTV);
           SendMessageToClient.Send(new MessageChannelGroups { ChannelGroups = list.Select(g => new ChannelGroupInfo(g)).ToList() }, sender, true);
         }
         // Search group EPG
-        else if (action.Equals("epgsearch", StringComparison.InvariantCultureIgnoreCase))
+        else if (action.Equals("groupepgsearch", StringComparison.InvariantCultureIgnoreCase))
         {
           var list = await GetEpgAsync(channelGroupId, hours, isTV);
           SendMessageToClient.Send(new MessagePrograms { Programs = list.Where(p => p.Title.Contains(search)).OrderBy(p => p.StartTime).Select(p => new ProgramInfo(p)).ToList() }, sender, true);
         }
         // Show group EPG
-        else if (action.Equals("epglist", StringComparison.InvariantCultureIgnoreCase))
+        else if (action.Equals("groupepglist", StringComparison.InvariantCultureIgnoreCase))
         {
           var list = await GetEpgAsync(channelGroupId, hours, isTV);
           SendMessageToClient.Send(new MessagePrograms { Programs = list.OrderBy(p => p.StartTime).Select(p => new ProgramInfo(p)).ToList() }, sender, true);
@@ -80,13 +80,13 @@ namespace MediaPortal.Plugins.WifiRemote.MessageParser
           SendMessageToClient.Send(new MessageChannels { Channels = list.OrderBy(c => c.Name).Skip(offset).Take(count).Select(c => new ChannelInfo(c)).ToList() }, sender, true);
         }
         //Search channel EPG
-        else if (action.Equals("epgsearch", StringComparison.InvariantCultureIgnoreCase))
+        else if (action.Equals("channelepgsearch", StringComparison.InvariantCultureIgnoreCase))
         {
           var list = await GetItemListAsync<VideoInfo>(client, search, Convert.ToUInt32(count), null, Helper.GetVideosByVideoSearchAsync);
           SendMessageToClient.Send(new MessageVideos { Videos = list }, sender, true);
         }
         // Show channel EPG
-        else if (action.Equals("epglist", StringComparison.InvariantCultureIgnoreCase))
+        else if (action.Equals("channelepglist", StringComparison.InvariantCultureIgnoreCase))
         {
           var list = await GetChannelEpgAsync(channelId, hours, isTV);
           SendMessageToClient.Send(new MessagePrograms { Programs = list.Where(p => p.Title.Contains(search)).OrderBy(p => p.StartTime).Select(p => new ProgramInfo(p)).ToList() }, sender, true);

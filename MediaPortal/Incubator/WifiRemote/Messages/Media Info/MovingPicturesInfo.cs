@@ -37,9 +37,9 @@ namespace MediaPortal.Plugins.WifiRemote
   internal class MovingPicturesInfo : IAdditionalMediaInfo
   {
     public string MediaType => "movie";
-    public string MpExtId => ItemId.ToString();
-    public int MpExtMediaType => (int)MpExtendedMediaTypes.Movie;
-    public int MpExtProviderId => (int)MpExtendedProviders.MovingPictures;
+    public string Id => ItemId.ToString();
+    public int MpMediaType => (int)MpMediaTypes.Movie;
+    public int MpProviderId => (int)MpProviders.MPMovie;
 
     /// <summary>
     /// Movie ID in moving pictures database table "movie_info"

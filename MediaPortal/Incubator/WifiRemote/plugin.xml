@@ -2,7 +2,7 @@
     DescriptorVersion="1.0"
     Name="WifiRemote"
     PluginId="B0052E71-BBF0-47C7-86C1-C53E2ABC6679"
-    Author="FreakyJ, henso"
+    Author="FreakyJ, Henso"
     Copyright="GPL"
     AutoActivate="true"
     Description="WifiRemote for MP2">

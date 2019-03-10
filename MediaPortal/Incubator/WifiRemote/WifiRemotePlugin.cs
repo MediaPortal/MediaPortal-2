@@ -127,8 +127,11 @@ namespace MediaPortal.Plugins.WifiRemote
 
     public void Activated(PluginRuntime pluginRuntime)
     {
-      var meta = pluginRuntime.Metadata;
-      Logger.Info(string.Format("{0} v{1} [{2}] by {3}", meta.Name, meta.PluginVersion, meta.Description, meta.Author));
+      if (pluginRuntime != null)
+      {
+        var meta = pluginRuntime.Metadata;
+        Logger.Info(string.Format("{0} v{1} [{2}] by {3}", meta.Name, meta.PluginVersion, meta.Description, meta.Author));
+      }
       StartClient();
     }
 

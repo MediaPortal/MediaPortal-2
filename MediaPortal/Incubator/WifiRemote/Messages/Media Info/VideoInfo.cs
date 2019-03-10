@@ -32,12 +32,12 @@ using MediaPortal.Plugins.WifiRemote.Messages.MediaInfo;
 
 namespace MediaPortal.Plugins.WifiRemote
 {
-  public class VideoInfo : IAdditionalMediaInfo
+  internal class VideoInfo : IAdditionalMediaInfo
   {
     public string MediaType => "video";
-    public string MpExtId => ItemId.ToString();
-    public int MpExtMediaType => (int)MpExtendedMediaTypes.Movie; 
-    public int MpExtProviderId => (int)MpExtendedProviders.MPVideo; 
+    public string Id => ItemId.ToString();
+    public int MpMediaType => (int)MpMediaTypes.Movie; 
+    public int MpProviderId => (int)MpProviders.MPVideo; 
 
     /// <summary>
     /// ID of the video

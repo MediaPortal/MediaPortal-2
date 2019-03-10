@@ -71,7 +71,6 @@ namespace MediaPortal.Plugins.WifiRemote
       { "playfile", ParserPlayFile.ParseAsync },
       { "playchannel", ParserPlaychannel.ParseAsync },
       { "playradiochannel", ParserPlaychannel.ParseAsync },  // should be the same as playchannel in MP2
-      //{ "mpext", ParserMPExt.ParseAsync },
       { "plugins", ParserPlugins.ParseAsync },
       //{ "properties", ParserProperties.ParseAsync },
       { "image", ParserImage.ParseAsync },
@@ -91,6 +90,7 @@ namespace MediaPortal.Plugins.WifiRemote
       { "recordings", ParserRecordings.ParseAsync },
       { "tv", (msg, svr, sender) => ParserChannels.ParseAsync(msg, svr, sender, true) },
       { "radio", (msg, svr, sender) => ParserChannels.ParseAsync(msg, svr, sender, false) },
+      { "schedules", ParserSchedules.ParseAsync },
     };   
 
     private readonly MessageWelcome _welcomeMessage;
@@ -293,7 +293,7 @@ namespace MediaPortal.Plugins.WifiRemote
         msg = Encoding.UTF8.GetString(data);
 
         //comment this out to log all received commands
-        //WifiRemote.LogMessage(msg, WifiRemote.LogType.Debug);
+        //Logger.Debug("WifiRemote: " + msg);
 
         // Get json object
         JObject message = JObject.Parse(msg);
@@ -301,7 +301,6 @@ namespace MediaPortal.Plugins.WifiRemote
         RemoteClient client = sender.GetRemoteClient();
 
         // Autologin handling
-        //
         // Has to be activated in WifiRemote configuration.
         string clientKey = (string)message["AutologinKey"];
 

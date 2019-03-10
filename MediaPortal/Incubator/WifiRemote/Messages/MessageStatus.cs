@@ -81,21 +81,6 @@ namespace MediaPortal.Plugins.WifiRemote.Messages
       }
     }
 
-    /*
-        private bool isRecording;
-        /// <summary>
-        /// <code>true</code> if TV Server is available and recording
-        /// </summary>
-        public bool IsRecording
-        {
-            get
-            {
-                isRecording = WifiRemote.IsAvailableTVPlugin && TvPlugin.TVHome.IsAnyCardRecording;
-                return isRecording;
-            }
-        }
-        */
-
     /// <summary>
     /// <code>true</code> if g_Play is in fullscreen and on top
     /// </summary>
@@ -158,54 +143,6 @@ namespace MediaPortal.Plugins.WifiRemote.Messages
       }
     }
 
-    private string selectedItem;
-
-    // TODO: reimplement
-    /// <summary>
-    /// Currently selected GUI item label
-    /// </summary>
-    public string SelectedItem
-    {
-      get
-      {
-        // The currently selected item may hide in the property 
-        // #selecteditem or #highlightedbutton.
-        //string selected;
-
-        return selectedItem;
-      }
-    }
-
-    /*private Guid? windowId = Guid.Empty;
-
-    public Guid? WindowId
-    {
-      get
-      {
-        try
-        {
-          windowId = ServiceRegistration.Get<IWorkflowManager>().CurrentNavigationContext.WorkflowState.StateId;
-        }
-        catch (Exception ex)
-        {
-          ServiceRegistration.Get<ILogger>().Error("Error on retrieving current window id: {0}", ex.ToString());
-        }
-        return windowId;
-      }
-    }*/
-
-    private int windowId = 0;
-
-    public int WindowId
-    {
-      get
-      {
-
-        return 0;
-      }
-    }
-
-
     /// <summary>
     /// Contructor.
     /// </summary>
@@ -213,7 +150,6 @@ namespace MediaPortal.Plugins.WifiRemote.Messages
     {
 
     }
-
 
     /// <summary>
     /// Checks if the status message has changed since 
@@ -224,11 +160,8 @@ namespace MediaPortal.Plugins.WifiRemote.Messages
     {
       return (isPlaying != IsPlaying
               || isPaused != IsPaused
-              //                || isRecording != IsRecording
               || title != Title
-              || currentModule != CurrentModule
-              || selectedItem != SelectedItem
-              || windowId != WindowId);
+              || currentModule != CurrentModule);
     }
   }
 }

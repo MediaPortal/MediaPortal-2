@@ -26,27 +26,27 @@ using MediaPortal.Plugins.WifiRemote.Messages.MediaInfo;
 
 namespace MediaPortal.Plugins.WifiRemote
 {
-    class DVDInfo : IAdditionalMediaInfo
+  internal class DVDInfo : IAdditionalMediaInfo
+  {
+    string mediaType = "dvd";
+    public string MediaType
     {
-        string mediaType = "dvd";
-        public string MediaType
-        {
-            get { return mediaType; }
-        }
-
-        public string MpExtId
-        {
-            get { return null; }
-        }
-
-        public int MpExtMediaType
-        {
-            get { return (int)MpExtendedMediaTypes.Movie; }
-        }
-
-        public int MpExtProviderId
-        {
-            get { return -1; }
-        }
+      get { return mediaType; }
     }
+
+    public string Id
+    {
+      get { return null; }
+    }
+
+    public int MpMediaType
+    {
+      get { return (int)MpMediaTypes.Movie; }
+    }
+
+    public int MpProviderId
+    {
+      get { return -1; }
+    }
+  }
 }

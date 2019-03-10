@@ -48,7 +48,7 @@ namespace MediaPortal.Plugins.WifiRemote.MessageParser
 
     public static async Task<bool> ParseAsync(JObject message, SocketServer server, AsyncSocket sender)
     {
-      string action = GetMessageValue<string>(message, "PlaylistAction");
+      string action = GetMessageValue<string>(message, "Action");
       string playlistType = GetMessageValue<string>(message, "PlaylistType", "music");
       bool autoPlay = GetMessageValue<bool>(message, "AutoPlay");
       int index = GetMessageValue<int>(message, "Index");
@@ -116,17 +116,17 @@ namespace MediaPortal.Plugins.WifiRemote.MessageParser
       {
         //load a playlist
         string playlistName = GetMessageValue<string>(message, "PlayListName");
-        string playlistPath = GetMessageValue<string>(message, "PlaylistPath");
+        string playlistId = GetMessageValue<string>(message, "PlaylistId");
         bool shuffle = GetMessageValue<bool>(message, "Shuffle");
-        if (string.IsNullOrEmpty(playlistPath))
+        if (string.IsNullOrEmpty(playlistId))
         {
           List<PlaylistInformationData> playLists = ServerPlaylists.GetPlaylists().ToList();
-          playlistPath = playLists.FirstOrDefault(p => p.Name == playlistName)?.PlaylistId.ToString();
+          playlistId = playLists.FirstOrDefault(p => p.Name == playlistName)?.PlaylistId.ToString();
         }
 
-        if (Guid.TryParse(playlistPath, out Guid playlistId))
+        if (Guid.TryParse(playlistId, out Guid id))
         {
-          var data = await Helper.LoadPlayListAsync(playlistId);
+          var data = await Helper.LoadPlayListAsync(id);
           LastLoadedPlayList = data.Name;
           playList.StartBatchUpdate();
           playList.Clear();
@@ -186,8 +186,8 @@ namespace MediaPortal.Plugins.WifiRemote.MessageParser
               }
             }
 
-            ple.MpExtMediaType = (int)MpExtendedMediaTypes.Movie;
-            ple.MpExtProviderId = (int)MpExtendedProviders.MPVideo;
+            ple.MpMediaType = (int)MpMediaTypes.Movie;
+            ple.MpProviderId = (int)MpProviders.MPVideo;
             ple.MediaType = returnPlaylist.PlaylistType;
             ple.Name = movieAspect?.GetAttributeValue<string>(MovieAspect.ATTR_MOVIE_NAME) ?? episodeAspect?.GetAttributeValue<string>(EpisodeAspect.ATTR_EPISODE_NAME) ?? mediaAspect.GetAttributeValue<string>(MediaAspect.ATTR_TITLE);
             ple.Name2 = episodeAspect?.GetAttributeValue<string>(EpisodeAspect.ATTR_SERIES_NAME);
@@ -195,7 +195,7 @@ namespace MediaPortal.Plugins.WifiRemote.MessageParser
             ple.Played = Convert.ToInt32(mediaItem.UserData.FirstOrDefault(d => d.Key == UserDataKeysKnown.KEY_PLAY_PERCENTAGE).Value ?? "0") == 100;
             returnPlaylist.PlaylistItems.Add(ple);
           }
-          else if (mediaItem.Aspects.ContainsKey(VideoAspect.ASPECT_ID))
+          else if (mediaItem.Aspects.ContainsKey(AudioAspect.ASPECT_ID))
           {
             if (returnPlaylist.PlaylistType != "music")
             {
@@ -208,21 +208,23 @@ namespace MediaPortal.Plugins.WifiRemote.MessageParser
             var mediaAspect = MediaItemAspect.GetAspect(mediaItem.Aspects, MediaAspect.Metadata);
             var audioAspect = MediaItemAspect.GetAspect(mediaItem.Aspects, AudioAspect.Metadata);
 
-            ple.MpExtMediaType = (int)MpExtendedMediaTypes.MusicTrack;
-            ple.MpExtProviderId = (int)MpExtendedProviders.MPMusic;
+            ple.MpMediaType = (int)MpMediaTypes.MusicTrack;
+            ple.MpProviderId = (int)MpProviders.MPMusic;
             ple.MediaType = returnPlaylist.PlaylistType;
             ple.Name = audioAspect.GetAttributeValue<string>(AudioAspect.ATTR_TRACKNAME);
             ple.Name2 = audioAspect.GetAttributeValue<string>(AudioAspect.ATTR_ALBUM);
-            ple.AlbumArtist = string.Join(", ", audioAspect.GetCollectionAttribute<string>(AudioAspect.ATTR_ALBUMARTISTS));
+            var albumArtists = audioAspect.GetCollectionAttribute<string>(AudioAspect.ATTR_ALBUMARTISTS);
+            if (albumArtists?.Count() > 0)
+              ple.AlbumArtist = string.Join(", ", albumArtists);
             ple.Duration = Convert.ToInt32(audioAspect.GetAttributeValue<long>(AudioAspect.ATTR_DURATION));
             ple.Played = Convert.ToInt32(mediaItem.UserData.FirstOrDefault(d => d.Key == UserDataKeysKnown.KEY_PLAY_PERCENTAGE).Value ?? "0") == 100;
+            returnPlaylist.PlaylistItems.Add(ple);
           }
         }
         SendMessageToClient.Send(returnPlaylist, sender, true);
       }
       else if (action.Equals("remove", StringComparison.InvariantCultureIgnoreCase))
       {
-        
         //remove an item from the playlist
         playList.RemoveAt(index);
       }
@@ -256,7 +258,7 @@ namespace MediaPortal.Plugins.WifiRemote.MessageParser
       else if (action.Equals("save", StringComparison.InvariantCultureIgnoreCase))
       {
         //save the current playlist to file
-        string name = GetMessageValue<string>(message, "Name");
+        string name = GetMessageValue<string>(message, "PlayListName");
         if (name != null)
         {
           await Helper.SavePlayListAsync(Guid.NewGuid(), name, playlistType, playList.ItemList.Select(i => i.MediaItemId));

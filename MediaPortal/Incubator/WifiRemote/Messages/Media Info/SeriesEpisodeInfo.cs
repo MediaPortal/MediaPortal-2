@@ -39,9 +39,9 @@ namespace MediaPortal.Plugins.WifiRemote
   internal class SeriesEpisodeInfo : IAdditionalMediaInfo
   {
     public string MediaType => "episode";
-    public string MpExtId => EpisodeId.ToString();
-    public int MpExtMediaType => (int)MpExtendedMediaTypes.TVEpisode; 
-    public int MpExtProviderId => (int)MpExtendedProviders.MPTvSeries;
+    public string Id => EpisodeId.ToString();
+    public int MpMediaType => (int)MpMediaTypes.TVEpisode; 
+    public int MpProviderId => (int)MpProviders.MPSeries;
 
     private Guid seriesId;
 

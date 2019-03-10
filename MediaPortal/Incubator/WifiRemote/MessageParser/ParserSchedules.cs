@@ -63,7 +63,7 @@ namespace MediaPortal.Plugins.WifiRemote.MessageParser
         {
           // TODO: implementation possible?
         }
-        // Play a movie
+        // Delete schedule
         else if (action.Equals("deleteschedule", StringComparison.InvariantCultureIgnoreCase))
         {
           await RemoveSchedulesAsync(id);

@@ -23,7 +23,12 @@
 #endregion
 
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using MediaPortal.Common;
+using MediaPortal.Common.MediaManagement;
+using MediaPortal.Common.MediaManagement.DefaultItemAspects;
+using MediaPortal.Plugins.SlimTv.Interfaces.LiveTvMediaItem;
 using MediaPortal.UI.Presentation.Players;
 
 namespace MediaPortal.Plugins.WifiRemote.Messages
@@ -90,7 +95,6 @@ namespace MediaPortal.Plugins.WifiRemote.Messages
       }
     }
 
-    // TODO: reimplement
     /// <summary>
     /// Is the current playing item tv
     /// </summary>
@@ -98,6 +102,17 @@ namespace MediaPortal.Plugins.WifiRemote.Messages
     {
       get
       {
+        MediaItem mediaItem = ServiceRegistration.Get<IPlayerContextManager>().CurrentPlayerContext.CurrentMediaItem;
+
+        IList<MultipleMediaItemAspect> providerAspects;
+        if (MediaItemAspect.TryGetAspects(mediaItem.Aspects, ProviderResourceAspect.Metadata, out providerAspects) &&
+          providerAspects.Any(pra => LiveTvMediaItem.MIME_TYPE_TV.Equals(pra.GetAttributeValue<string>(ProviderResourceAspect.ATTR_MIME_TYPE), StringComparison.InvariantCultureIgnoreCase)))
+          return true;
+
+        if (MediaItemAspect.TryGetAspects(mediaItem.Aspects, ProviderResourceAspect.Metadata, out providerAspects) &&
+          providerAspects.Any(pra => LiveTvMediaItem.MIME_TYPE_RADIO.Equals(pra.GetAttributeValue<string>(ProviderResourceAspect.ATTR_MIME_TYPE), StringComparison.InvariantCultureIgnoreCase)))
+          return true;
+
         return false;
       }
     }

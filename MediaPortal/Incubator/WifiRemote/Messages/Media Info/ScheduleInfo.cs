@@ -28,12 +28,12 @@ using MediaPortal.Plugins.WifiRemote.Messages.MediaInfo;
 
 namespace MediaPortal.Plugins.WifiRemote
 {
-  public class ScheduleInfo : IAdditionalMediaInfo
+  internal class ScheduleInfo : IAdditionalMediaInfo
   {
     public string MediaType => "schedule";
-    public string MpExtId => ScheduleId.ToString();
-    public int MpExtMediaType => (int)MpExtendedMediaTypes.Tv; 
-    public int MpExtProviderId => 0; 
+    public string Id => ScheduleId.ToString();
+    public int MpMediaType => (int)MpMediaTypes.Schedule;
+    public int MpProviderId => (int)MpProviders.MPTvServer;
 
     /// <summary>
     /// ID of the schedule

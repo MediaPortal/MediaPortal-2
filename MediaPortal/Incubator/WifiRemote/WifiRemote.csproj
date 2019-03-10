@@ -67,7 +67,6 @@
     <Compile Include="MessageParser\ParserMovingpictures.cs" />
     <Compile Include="MessageParser\ParserPlaylist.cs" />
     <Compile Include="MessageParser\ParserPosition.cs" />
-    <Compile Include="MessageParser\ParserMPExt.cs" />
     <Compile Include="MessageParser\ParserProperties.cs" />
     <Compile Include="MessageParser\ParserPlayFile.cs" />
     <Compile Include="MessageParser\ParserKey.cs" />
@@ -109,8 +108,8 @@
     <Compile Include="Messages\MessageVolume.cs" />
     <Compile Include="Messages\MessageWelcome.cs" />
     <Compile Include="Messages\Media Info\IAdditionalMediaInfo.cs" />
-    <Compile Include="Messages\Media Info\MpExtendedMediaTypes.cs" />
-    <Compile Include="Messages\Media Info\MpExtendedProviders.cs" />
+    <Compile Include="Messages\Media Info\MpMediaTypes.cs" />
+    <Compile Include="Messages\Media Info\MpProviders.cs" />
     <Compile Include="Messages\Media Info\DVDInfo.cs" />
     <Compile Include="Messages\Media Info\MovingPicturesInfo.cs" />
     <Compile Include="Messages\Media Info\MusicInfo.cs" />
@@ -184,13 +183,11 @@
     </Content>
     <Content Include="plugin.xml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      <SubType>Designer</SubType>
     </Content>
   </ItemGroup>
   <ItemGroup>
     <None Include="build.targets" />
-  </ItemGroup>
-  <ItemGroup>
-    <WCFMetadata Include="Service References\" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Newtonsoft.Json">

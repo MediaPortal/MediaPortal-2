@@ -38,9 +38,9 @@ namespace MediaPortal.Plugins.WifiRemote
   internal class MusicInfo : IAdditionalMediaInfo
   {
     public string MediaType => "music";
-    public string MpExtId => ItemId.ToString();
-    public int MpExtMediaType => (int)MpExtendedMediaTypes.MusicTrack;
-    public int MpExtProviderId => (int)MpExtendedProviders.MPMusic;
+    public string Id => ItemId.ToString();
+    public int MpMediaType => (int)MpMediaTypes.MusicTrack;
+    public int MpProviderId => (int)MpProviders.MPMusic;
 
     public Guid ItemId { get; set; }
     public string Album { get; set; }

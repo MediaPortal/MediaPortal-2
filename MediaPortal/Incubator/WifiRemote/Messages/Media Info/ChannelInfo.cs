@@ -28,12 +28,12 @@ using MediaPortal.Plugins.WifiRemote.Messages.MediaInfo;
 
 namespace MediaPortal.Plugins.WifiRemote
 {
-  public class ChannelInfo : IAdditionalMediaInfo
+  internal class ChannelInfo : IAdditionalMediaInfo
   {
     public string MediaType { get; }
-    public string MpExtId => ChannelId.ToString();
-    public int MpExtMediaType => (int)MpExtendedMediaTypes.Tv;
-    public int MpExtProviderId => 0; //no tv providers yet
+    public string Id => ChannelId.ToString();
+    public int MpMediaType => (int)MpMediaTypes.Tv;
+    public int MpProviderId => (int)MpProviders.MPTvServer;
 
     /// <summary>
     /// ID of the channel

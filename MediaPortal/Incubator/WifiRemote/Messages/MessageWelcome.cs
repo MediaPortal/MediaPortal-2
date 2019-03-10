@@ -61,22 +61,9 @@ namespace MediaPortal.Plugins.WifiRemote.Messages
       set { authMethod = value; }
     }
 
-    public Dictionary<string, bool> MPExtendedServicesInstalled
-    {
-      get
-      {
-        return new Dictionary<string, bool>()
-        {
-          { "MAS", true },
-          { "TAS", ServiceRegistration.IsRegistered<ITvHandler>() },
-          { "WSS", true }
-        };
-      }
-    }
-
     public Boolean TvPluginInstalled
     {
-      get { return false; }
+      get { return ServiceRegistration.IsRegistered<ITvHandler>(); }
     }
 
     /// <summary>

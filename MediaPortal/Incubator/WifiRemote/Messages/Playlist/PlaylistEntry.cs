@@ -32,9 +32,9 @@ namespace MediaPortal.Plugins.WifiRemote.Messages.Playlist
   public class PlaylistEntry
   {
     public string MediaType { get; set; }
-    public string MpExtId => FileId.ToString();
-    public int MpExtMediaType { get; set; }
-    public int MpExtProviderId { get; set; }
+    public string Id => FileId.ToString();
+    public int MpMediaType { get; set; }
+    public int MpProviderId { get; set; }
 
     /// <summary>
     /// Name of the file that will get displayed in the playlist

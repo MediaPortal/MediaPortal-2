@@ -25,19 +25,24 @@
 namespace MediaPortal.Plugins.WifiRemote.Messages.MediaInfo
 {
     /// <summary>
-    /// Hardcoded list of MpExtended providers that are supported in WifiRemote
+    /// MediaTypes for mapping 
     /// </summary>
-    public enum MpExtendedProviders
+    public enum MpMediaTypes
     {
-        FsPictures = 1,
-        LocalFileSystem = 2,
-        MovingPictures = 3,
-        MPMusic = 4,
-        MPShares = 5,
-        MPTvSeries = 6,
-        MPVideo = 7,
-        MpMusicShare = 9,
-        MpVideosShare = 10,
-        MpPicturesShare = 11
+        Movie = 0,
+        MusicTrack = 1,
+        Picture = 2,
+        TVEpisode = 3,
+        File = 4,
+        TVShow = 5,
+        TVSeason = 6,
+        MusicAlbum = 7,
+        MusicArtist = 8,
+        Folder = 9,
+        Drive = 10,
+        Tv = 12,
+        Recording = 13,
+        Schedule = 14,
+        Program = 15
     }
 }

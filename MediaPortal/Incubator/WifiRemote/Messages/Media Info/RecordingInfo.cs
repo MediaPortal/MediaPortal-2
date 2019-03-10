@@ -32,12 +32,12 @@ using MediaPortal.Plugins.WifiRemote.Messages.MediaInfo;
 
 namespace MediaPortal.Plugins.WifiRemote
 {
-  public class RecordingInfo : IAdditionalMediaInfo
+  internal class RecordingInfo : IAdditionalMediaInfo
   {
     public string MediaType => "recording";
-    public string MpExtId => RecordingId.ToString();
-    public int MpExtMediaType => (int)MpExtendedMediaTypes.Recording;
-    public int MpExtProviderId => 0; //no tv providers yet
+    public string Id => RecordingId.ToString();
+    public int MpMediaType => (int)MpMediaTypes.Recording;
+    public int MpProviderId => (int)MpProviders.MPTvServer;
 
     /// <summary>
     /// ID of the channel

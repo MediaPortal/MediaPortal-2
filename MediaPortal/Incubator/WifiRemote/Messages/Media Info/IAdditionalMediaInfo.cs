@@ -24,38 +24,38 @@
 
 namespace MediaPortal.Plugins.WifiRemote.Messages.MediaInfo
 {
-    interface IAdditionalMediaInfo
+  interface IAdditionalMediaInfo
+  {
+    /// <summary>
+    /// Name of the current Media Type
+    /// </summary>
+    string MediaType
     {
-        /// <summary>
-        /// Name of the current Media Type
-        /// </summary>
-        string MediaType
-        {
-            get;
-        }
-
-        /// <summary>
-        /// MpExtended id of currently playing item
-        /// </summary>
-        string MpExtId
-        {
-            get;
-        }
-
-        /// <summary>
-        /// MpExtended media type of currently playing item
-        /// </summary>
-        int MpExtMediaType
-        {
-            get;
-        }
-
-        /// <summary>
-        /// MpExtended provider id of currently playing item
-        /// </summary>
-        int MpExtProviderId
-        {
-            get;
-        }
+      get;
     }
+
+    /// <summary>
+    /// Id of currently playing item
+    /// </summary>
+    string Id
+    {
+      get;
+    }
+
+    /// <summary>
+    /// Media type of currently playing item
+    /// </summary>
+    int MpMediaType
+    {
+      get;
+    }
+
+    /// <summary>
+    /// Provider id of currently playing item
+    /// </summary>
+    int MpProviderId
+    {
+      get;
+    }
+  }
 }

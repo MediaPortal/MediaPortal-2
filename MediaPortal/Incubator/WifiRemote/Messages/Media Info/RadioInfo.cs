@@ -34,12 +34,12 @@ using MediaPortal.Plugins.WifiRemote.Messages.MediaInfo;
 
 namespace MediaPortal.Plugins.WifiRemote
 {
-  public class RadioInfo : IAdditionalMediaInfo
+  internal class RadioInfo : IAdditionalMediaInfo
   {
     public string MediaType => "radio";
-    public string MpExtId => ChannelId.ToString();
-    public int MpExtMediaType => (int)MpExtendedMediaTypes.Tv;
-    public int MpExtProviderId => 0; //no radio providers yet
+    public string Id => ChannelId.ToString();
+    public int MpMediaType => (int)MpMediaTypes.Tv;
+    public int MpProviderId => 0; //no radio providers yet
 
     /// <summary>
     /// ID of the current channel
