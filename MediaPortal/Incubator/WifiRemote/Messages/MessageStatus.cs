@@ -35,23 +35,15 @@ namespace MediaPortal.Plugins.WifiRemote.Messages
   /// </summary>
   internal class MessageStatus : IMessage
   {
-    /// <summary>
-    /// The localized name of "fullscreen".
-    /// Used to detect if the player is in fullscreen
-    /// mode without any dialog on top.
-    /// </summary>
-    private String localizedFullscreen;
-
-    private String localizedFullscreenVideo;
-    private String localizedFullscreenTV;
-    private String localizedFullscreenMusic;
+    private bool _isPlaying;
+    private bool _isPaused;
+    private string _title;
+    private string _currentModule;
 
     public string Type
     {
       get { return "status"; }
     }
-
-    private bool isPlaying;
 
     /// <summary>
     /// <code>true</code> if MediaPortal is playing a file
@@ -60,13 +52,13 @@ namespace MediaPortal.Plugins.WifiRemote.Messages
     {
       get
       {
-        if (ServiceRegistration.Get<IPlayerManager>().NumActiveSlots > 0)
-          isPlaying = Helper.IsNowPlaying();
-        return isPlaying;
+        var playerManager = ServiceRegistration.Get<IPlayerManager>(false);
+        if (playerManager?.NumActiveSlots > 0)
+          return Helper.IsNowPlaying();
+
+        return false;
       }
     }
-
-    private bool isPaused;
 
     /// <summary>
     /// <code>true</code> if MediaPortal is playing a file but it's paused
@@ -75,9 +67,11 @@ namespace MediaPortal.Plugins.WifiRemote.Messages
     {
       get
       {
-        if (ServiceRegistration.Get<IPlayerManager>().NumActiveSlots > 0)
-          isPaused = ServiceRegistration.Get<IPlayerContextManager>().PrimaryPlayerContext.PlaybackState == PlaybackState.Paused;
-        return isPaused;
+        var playerManager = ServiceRegistration.Get<IPlayerManager>(false);
+        if (playerManager?.NumActiveSlots > 0)
+          return ServiceRegistration.Get<IPlayerContextManager>(false)?.PrimaryPlayerContext?.PlaybackState == PlaybackState.Paused;
+
+        return false;
       }
     }
 
@@ -88,15 +82,13 @@ namespace MediaPortal.Plugins.WifiRemote.Messages
     {
       get
       {
-        return ServiceRegistration.Get<IPlayerContextManager>().IsFullscreenContentWorkflowStateActive;
+        return ServiceRegistration.Get<IPlayerContextManager>(false)?.IsFullscreenContentWorkflowStateActive ?? false;
         /*return (currentModule == localizedFullscreen ||
                 currentModule == localizedFullscreenMusic ||
                 currentModule == localizedFullscreenTV ||
                 currentModule == localizedFullscreenVideo);*/
       }
     }
-
-    private string title;
 
     /// <summary>
     /// Media title
@@ -107,19 +99,18 @@ namespace MediaPortal.Plugins.WifiRemote.Messages
       {
         try
         {
-          if (ServiceRegistration.Get<IPlayerManager>().NumActiveSlots > 0)
-            title = ServiceRegistration.Get<IPlayerContextManager>().PrimaryPlayerContext.CurrentPlayer.MediaItemTitle;
-          return title;
+          var playerManager = ServiceRegistration.Get<IPlayerManager>(false);
+          if (playerManager?.NumActiveSlots > 0)
+            return ServiceRegistration.Get<IPlayerContextManager>(false).PrimaryPlayerContext?.CurrentPlayer?.MediaItemTitle;
+
+          return "";
         }
         catch (Exception)
         {
-          title = "";
           return "";
         }
       }
     }
-
-    private string currentModule;
 
     /// <summary>
     /// Currently active module
@@ -130,14 +121,14 @@ namespace MediaPortal.Plugins.WifiRemote.Messages
       {
         try
         {
-          currentModule = LocalizationHelper.Translate(ServiceRegistration.Get<IWorkflowManager>().CurrentNavigationContext.WorkflowState.DisplayLabel);
-          //currentModule = ServiceRegistration.Get<IScreenManager>().ActiveScreenName;
+          var label = ServiceRegistration.Get<IWorkflowManager>(false)?.CurrentNavigationContext?.WorkflowState?.DisplayLabel;
+          if (label != null)
+            return LocalizationHelper.Translate(label);
 
-          return currentModule;
+          return "";
         }
         catch (Exception)
         {
-          currentModule = "";
           return "";
         }
       }
@@ -152,16 +143,23 @@ namespace MediaPortal.Plugins.WifiRemote.Messages
     }
 
     /// <summary>
-    /// Checks if the status message has changed since 
-    /// the last call.
+    /// Checks if the status message has changed since the last call.
     /// </summary>
     /// <returns>true if the status has changed, false otherwise</returns>
     public bool IsChanged()
     {
-      return (isPlaying != IsPlaying
-              || isPaused != IsPaused
-              || title != Title
-              || currentModule != CurrentModule);
+      bool changed = (_isPlaying != IsPlaying
+              || _isPaused != IsPaused
+              || _title != Title
+              || _currentModule != CurrentModule);
+      if (changed)
+      {
+        _isPlaying = IsPlaying;
+        _isPaused = IsPaused;
+        _title = Title;
+        _currentModule = CurrentModule;
+      }
+      return changed;
     }
   }
 }
