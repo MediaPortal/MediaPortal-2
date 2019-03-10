@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<Grid IsVisible="{Binding ShowKeyMapping}"
+<Grid IsVisible="{Binding ShowKeyMapping}" Margin="-400,0,0,0"
   xmlns="www.team-mediaportal.com/2008/mpf/directx"
   xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
 
@@ -10,18 +10,19 @@
   </Grid.Resources>
 
   <Grid.RowDefinitions>
-    <RowDefinition Height="Auto"/>
     <RowDefinition Height="*"/>
+    <RowDefinition Height="Auto"/>
     <RowDefinition Height="Auto"/>
   </Grid.RowDefinitions>
   <Grid.ColumnDefinitions>
+    <ColumnDefinition Width="410"/>
     <ColumnDefinition Width="*"/>
   </Grid.ColumnDefinitions>
 
-  <Button Grid.Row="0" x:Name="ShowConfigButton" Style="{ThemeResource WizardButtonStyle}" Margin="10,10,0,10" VerticalAlignment="Stretch"
-                  Content="[InputDeviceManager.DefaultConfig.Title]" Command="{Command Source={StaticResource Model},Path=OpenDefaultConfigurationDialog}"/>
+  <Button Grid.Column="0" x:Name="ShowConfigButton" Style="{ThemeResource MenuButtonWideStyle}" FontSize="{ThemeResource SmallFontSize}" VerticalAlignment="Top"
+          Content="[InputDeviceManager.DefaultConfig.Title]" Command="{Command Source={StaticResource Model},Path=OpenDefaultConfigurationDialog}"/>
 
-  <ListView Grid.Row="1" Style="{StaticResource InputManagerListViewStyle}"
+  <ListView Grid.Column="1" Style="{StaticResource InputManagerListViewStyle}" SetFocus="True"
             ItemsSource="{Binding Path=KeyItems,Mode=OneTime}" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" IsVisible="true"
             CurrentItem="{Binding Path=SelectedItem, Mode=TwoWay}">
     <ListView.Resources>
