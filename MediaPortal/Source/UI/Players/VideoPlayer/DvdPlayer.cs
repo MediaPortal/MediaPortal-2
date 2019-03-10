@@ -345,7 +345,7 @@ namespace MediaPortal.UI.Players.Video
         errorText = GetErrorText(setError);
         ServiceRegistration.Get<ILogger>().Info("DVDPlayer: Set default subtitle language:{0}. {1}", settings.PreferredSubtitleLanguage, errorText);
       }
-      dvdCtrl.SetSubpictureState(settings.EnableDvdSubtitles, DvdCmdFlags.None, out _cmdOption);
+      _dvdCtrl.SetSubpictureState(settings.EnableDvdSubtitles, DvdCmdFlags.None, out _cmdOption);
     }
 
     /// <summary>

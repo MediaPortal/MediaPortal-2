@@ -65,7 +65,7 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using NUnit.Framework;
 
-namespace WifiRemote
+namespace Tests.WifiRemote
 {
   [TestFixture]
   public class WifiRemoteTests
