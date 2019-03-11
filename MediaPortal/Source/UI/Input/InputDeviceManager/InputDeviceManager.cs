@@ -68,6 +68,7 @@ namespace MediaPortal.Plugins.InputDeviceManager
     private static readonly ConcurrentDictionary<string, long> _pressedPreviewKeys = new ConcurrentDictionary<string, long>();
     private static List<MappedKeyCode> _defaultRemoteKeyCodes = new List<MappedKeyCode>();
     private static readonly Key[] _navigationKeys = new[] { Key.Ok, Key.Escape, Key.Left, Key.Right, Key.Up, Key.Down };
+    private static ConcurrentDictionary<ushort, object> _ignoredKeys = new ConcurrentDictionary<ushort, object>();
 
     private SynchronousMessageQueue _messageQueue;
 
@@ -541,6 +542,8 @@ namespace MediaPortal.Plugins.InputDeviceManager
             LogEvent("Invalid usage", hidEvent);
             return false;
           }
+          if (_ignoredKeys.ContainsKey(id))
+            return false;
 
           //Some devices send duplicate button down events so ignore
           if (_genericKeyDownEvents.Values.Any(b => b.Code == id))
@@ -574,6 +577,11 @@ namespace MediaPortal.Plugins.InputDeviceManager
                 usage = Enum.GetName(typeof(SharpLib.Hid.Usage.WindowsMediaCenterRemoteControl), id);
               else if (Enum.IsDefined(typeof(SharpLib.Hid.Usage.HpWindowsMediaCenterRemoteControl), id))
                 usage = Enum.GetName(typeof(SharpLib.Hid.Usage.HpWindowsMediaCenterRemoteControl), id);
+              else
+              {
+                IgnoreKey(id, hidEvent);
+                return false;
+              }
 
               name = $"Remote{usage}";
               code = id;
@@ -586,6 +594,12 @@ namespace MediaPortal.Plugins.InputDeviceManager
               string usage = id.ToString();
               if (Enum.IsDefined(typeof(SharpLib.Hid.Usage.ConsumerControl), id))
                 usage = Enum.GetName(typeof(SharpLib.Hid.Usage.ConsumerControl), id);
+              else
+              {
+                IgnoreKey(id, hidEvent);
+                return false;
+              }
+
               name = $"{usage}";
               code = id;
             }
@@ -597,6 +611,12 @@ namespace MediaPortal.Plugins.InputDeviceManager
               string usage = id.ToString();
               if (Enum.IsDefined(typeof(SharpLib.Hid.Usage.GameControl), id))
                 usage = Enum.GetName(typeof(SharpLib.Hid.Usage.GameControl), id);
+              else
+              {
+                IgnoreKey(id, hidEvent);
+                return false;
+              }
+
               name = $"{usage}";
               code = id;
             }
@@ -608,6 +628,12 @@ namespace MediaPortal.Plugins.InputDeviceManager
               string usage = id.ToString();
               if (Enum.IsDefined(typeof(SharpLib.Hid.Usage.SimulationControl), id))
                 usage = Enum.GetName(typeof(SharpLib.Hid.Usage.SimulationControl), id);
+              else
+              {
+                IgnoreKey(id, hidEvent);
+                return false;
+              }
+
               name = $"{usage}";
               code = id;
             }
@@ -619,6 +645,12 @@ namespace MediaPortal.Plugins.InputDeviceManager
               string usage = id.ToString();
               if (Enum.IsDefined(typeof(SharpLib.Hid.Usage.TelephonyDevice), id))
                 usage = Enum.GetName(typeof(SharpLib.Hid.Usage.TelephonyDevice), id);
+              else
+              {
+                IgnoreKey(id, hidEvent);
+                return false;
+              }
+
               name = $"{usage}";
               code = id;
             }
@@ -653,6 +685,12 @@ namespace MediaPortal.Plugins.InputDeviceManager
         return false;
 
       return keyMapping.All(c => pressedKeys.Contains(c)) && pressedKeys.All(c => keyMapping.Contains(c));
+    }
+
+    private static void IgnoreKey(ushort id, SharpLib.Hid.Event hidEvent)
+    {
+      if (_ignoredKeys.TryAdd(id, null))
+        ServiceRegistration.Get<ILogger>().Debug(GetLogEventData("Ignored", hidEvent));
     }
 
     /// <summary>
