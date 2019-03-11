@@ -12,12 +12,12 @@
   </Grid.ColumnDefinitions>
 
   <!--Column 1 is "Name" and Column 2 is "KeyMap"-->
-  <ListView Grid.Row="0" Style="{StaticResource InputManagerListViewStyle}" SetFocus="True"
+  <ListView Grid.Row="0" Style="{StaticResource InputManagerListViewStyle}" SetFocus="True" Margin="0,0,-15,0"
             ItemsSource="{Binding Path=HomeScreenItems, Mode=OneTime}" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" IsVisible="true"
             CurrentItem="{Binding Path=SelectedItem, Mode=TwoWay}">
     <ListView.Resources>
       <ResourceWrapper x:Key="VerticalScrollbarRenderTransform">
-        <TranslateTransform X="40" />
+        <TranslateTransform X="80" />
       </ResourceWrapper>
       <CommandBridge x:Key="Menu_Command" Command="{Binding Path=Command,Mode=OneTime}"/>
     </ListView.Resources>

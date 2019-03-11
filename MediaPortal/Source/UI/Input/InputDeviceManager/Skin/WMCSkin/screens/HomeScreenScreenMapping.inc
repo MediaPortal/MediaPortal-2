@@ -16,9 +16,6 @@
             ItemsSource="{Binding Path=HomeScreenItems, Mode=OneTime}" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" IsVisible="true"
             CurrentItem="{Binding Path=SelectedItem, Mode=TwoWay}">
     <ListView.Resources>
-      <ResourceWrapper x:Key="VerticalScrollbarRenderTransform">
-        <TranslateTransform X="40" />
-      </ResourceWrapper>
       <CommandBridge x:Key="Menu_Command" Command="{Binding Path=Command,Mode=OneTime}"/>
     </ListView.Resources>
   </ListView>

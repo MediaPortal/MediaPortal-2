@@ -19,7 +19,7 @@
         <ColumnDefinition Width="*"/>
         <ColumnDefinition Width="*"/>
       </Grid.ColumnDefinitions>
-      <Image Thumbnail="True" Stretch="Uniform" Height="45" Width="45" Margin="0,-2,4,-5" VerticalAlignment="Center" FallbackSource="keys\fallback.png">
+      <Image Thumbnail="True" Stretch="Uniform" Height="45" Width="45" Margin="0,-3,4,-6" VerticalAlignment="Center" FallbackSource="keys\fallback.png">
         <Image.Source>
           <Binding Path="[MapName]" Converter="{StaticResource SafeFilenameConverter}" ConverterParameter="{}keys\{0}.png"/>
         </Image.Source>
@@ -42,7 +42,7 @@
               <ColumnDefinition Width="*"/>
               <ColumnDefinition Width="Auto"/>
             </Grid.ColumnDefinitions>
-            <Button Grid.Column="0" Style="{ThemeResource ButtonWideStyle}" Command="{DynamicResource ResourceKey=Menu_Command}"
+            <Button Grid.Column="0" Style="{ThemeResource PopupMenuButtonWideStyle}" Command="{DynamicResource ResourceKey=Menu_Command}"
                     IsEnabled="{Binding Enabled}" SetFocus="{Binding Path=Selected,Mode=OneTime}">
               <Button.Triggers>
                 <Trigger Property="HasFocus" Value="True">
@@ -53,7 +53,7 @@
               </Button.Triggers>
             </Button>
             <Button Grid.Column="1" Content="[InputDeviceManager.KeyMapping.Button.ClearMapping]" FontSize="{ThemeResource SmallFontSize}"
-                    Style="{ThemeResource ButtonWideStyle}" HorizontalAlignment="Right" VerticalAlignment="Stretch" VerticalContentAlignment="Center"
+                    Style="{ThemeResource PopupMenuButtonWideStyle}" HorizontalAlignment="Right" VerticalAlignment="Stretch" VerticalContentAlignment="Center"
                     Command="{Command Source={StaticResource InputManagerModel}, Path=DeleteKeyMapping}"
                     IsVisible="{Binding Path=[KeyMap],Converter={StaticResource EmptyStringToFalseConverter}}"/>
           </Grid>
