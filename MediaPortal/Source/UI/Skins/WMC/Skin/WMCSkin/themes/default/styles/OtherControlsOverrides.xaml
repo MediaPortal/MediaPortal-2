@@ -758,6 +758,45 @@
 
   <!-- ****************************** PlayerControl ********************************** -->
 
+  <Style x:Key="PipControlStyle" TargetType="{x:Type Control}">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate>
+          <mp_special_controls:PlayerControl x:Name="PiPControl" AutoVisibility="True" PlayerContext="SecondaryPlayer"
+              FixedImageWidth="{ThemeResource PiPVideoWidth}">
+            <mp_special_controls:PlayerControl.TemplateControl>
+              <Border x:Name="PiPControlBorder"
+                  IsVisible="{Binding IsPip}"
+                  DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}"
+                  BorderBrush="{ThemeResource PipBorderColor}" BorderThickness="{ThemeResource PipBorderThickness}">
+                <Grid>
+                  <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                  </Grid.ColumnDefinitions>
+                  <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                  </Grid.RowDefinitions>
+                  <Control x:Name="PiPVideo" IsVisible="{Binding IsVideoPlayerPresent}" Width="{Binding ImageWidth}" Height="{Binding ImageHeight}">
+                    <Control.Background>
+                      <VideoBrush Stream="1"/>
+                    </Control.Background>
+                  </Control>
+                  <Image x:Name="PiPImage" IsVisible="{Binding IsImagePlayerPresent}" Width="{Binding ImageWidth}" Height="{Binding ImageHeight}" Stretch="Uniform">
+                    <Image.Source>
+                      <ImagePlayerImageSource Stream="1"
+                          Transition="transitions\granular_dissolve;transitions\fade;transitions\dissolve;transitions\wipe_right;transitions\wipe_down;transitions\wipe_down-right;transitions\wipe_up-left"
+                          TransitionInOut="False" />
+                    </Image.Source>
+                  </Image>
+                </Grid>
+              </Border>
+            </mp_special_controls:PlayerControl.TemplateControl>
+          </mp_special_controls:PlayerControl>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+
   <Style x:Key="CPPlayerControlStyle" TargetType="{x:Type mp_special_controls:PlayerControl}">
     <Setter Property="Template">
       <Setter.Value>
