@@ -2087,7 +2087,87 @@
     </Setter>
   </Style>
 
-  <Style x:Key="AudioActiveButtonStyle" TargetType="{x:Type Button}">
+  <Style x:Key="AudioActiveButtonStyle" TargetType="{x:Type CheckBox}">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="{x:Type CheckBox}">
+          <Grid x:Name="GrowControl" RenderTransformOrigin="0.5,0.5">
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+              <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+            <Grid.RenderTransform>
+              <TransformGroup>
+                <ScaleTransform ScaleX="1" ScaleY="1"/>
+              </TransformGroup>
+            </Grid.RenderTransform>
+            <Image Source="topbar_audio_nofocus.png" Stretch="Uniform" Height="56" Width="80" Margin="-4,5,-4,5" VerticalAlignment="Center">
+              <Image.IsVisible>
+                <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} &amp;&amp; {1}">
+                  <Binding RelativeSource="{RelativeSource TemplatedParent}" Path="!HasFocus"/>
+                  <Binding Path="!IsMuted"/>
+                </MultiBinding>
+              </Image.IsVisible>
+            </Image>
+            <Image Source="topbar_audio_focus.png" Stretch="Uniform" Height="56" Width="80" Margin="-4,5,-4,5" VerticalAlignment="Center">
+              <Image.IsVisible>
+                <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} &amp;&amp; {1}">
+                  <Binding RelativeSource="{RelativeSource TemplatedParent}" Path="HasFocus"/>
+                  <Binding Path="!IsMuted"/>
+                </MultiBinding>
+              </Image.IsVisible>
+            </Image>
+            <Image Source="topbar_audio_mute_nofocus.png" Stretch="Uniform" Height="56" Width="80" Margin="-4,5,-4,5" VerticalAlignment="Center">
+              <Image.IsVisible>
+                <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} &amp;&amp; {1}">
+                  <Binding RelativeSource="{RelativeSource TemplatedParent}" Path="!HasFocus"/>
+                  <Binding Path="IsMuted"/>
+                </MultiBinding>
+              </Image.IsVisible>
+            </Image>
+            <Image Source="topbar_audio_mute_focus.png" Stretch="Uniform" Height="56" Width="80" Margin="-4,5,-4,5" VerticalAlignment="Center">
+              <Image.IsVisible>
+                <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} &amp;&amp; {1}">
+                  <Binding RelativeSource="{RelativeSource TemplatedParent}" Path="HasFocus"/>
+                  <Binding Path="IsMuted"/>
+                </MultiBinding>
+              </Image.IsVisible>
+            </Image>
+          </Grid>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+
+  <Style x:Key="AudioInactiveButtonStyle" TargetType="{x:Type CheckBox}">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="{x:Type CheckBox}">
+          <Grid x:Name="GrowControl" RenderTransformOrigin="0.5,0.5">
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+              <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+            <Grid.RenderTransform>
+              <TransformGroup>
+                <ScaleTransform ScaleX="1" ScaleY="1"/>
+              </TransformGroup>
+            </Grid.RenderTransform>
+            <Image Source="topbar_audio_mute_nofocus.png" Stretch="Uniform" Height="56" Width="80" Margin="-4,5,-4,5" VerticalAlignment="Center"
+                   IsVisible="{Binding RelativeSource={RelativeSource TemplatedParent},Path=!HasFocus}"/>
+            <Image Source="topbar_audio_mute_focus.png" Stretch="Uniform" Height="56" Width="80" Margin="-4,5,-4,5" VerticalAlignment="Center"
+                   IsVisible="{Binding RelativeSource={RelativeSource TemplatedParent},Path=HasFocus}"/>
+          </Grid>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+
+  <!--Style x:Key="AudioActiveButtonStyle" TargetType="{x:Type Button}">
     <Setter Property="Template">
       <Setter.Value>
         <ControlTemplate TargetType="{x:Type Button}" >
@@ -2128,7 +2208,7 @@
         </ControlTemplate>
       </Setter.Value>
     </Setter>
-  </Style>
+  </-->
 
   <Style x:Key="PowerButtonStyle" TargetType="{x:Type Button}">
     <Setter Property="Template">

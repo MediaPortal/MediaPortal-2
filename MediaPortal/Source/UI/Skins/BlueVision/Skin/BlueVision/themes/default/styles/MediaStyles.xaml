@@ -2895,12 +2895,12 @@
                     </Control>
                   </Grid>
                   <Grid x:Name="Audio_Mouse" IsVisible="{Binding ShowMouseControls}"
-                      VerticalAlignment="Center" HorizontalAlignment="Center">
+                        VerticalAlignment="Center" HorizontalAlignment="Center">
                     <!-- Must be located the same as Audio_NoMouse -->
                     <Button x:Name="AudioActiveButton" IsVisible="{Binding IsAudio}" Style="{ThemeResource AudioActiveButtonStyle}"
-                        Command="{Command AudioButtonPressed}"/>
+                            Command="{Command AudioButtonPressed}"/>
                     <Button x:Name="AudioInactiveButton" IsVisible="{Binding !IsAudio}" Style="{ThemeResource AudioInactiveButtonStyle}"
-                        Command="{Command AudioButtonPressed}"/>
+                            Command="{Command AudioButtonPressed}"/>
                   </Grid>
                 </Grid>
                 <Grid DockPanel.Dock="Center">
