@@ -510,7 +510,7 @@ namespace MediaPortal.Plugins.InputDeviceManager
             {
               //Button down never happened so presume this is it if possible
               //because sometimes button down events are triggered as button up events
-              var state = hidEvent.GetDirectionPadState();
+              var state = GetDirectionPadState(hidEvent);
               if (state != DirectionPadState.Rest)
               {
                 name = $"Pad{state.ToString()}";
@@ -554,7 +554,7 @@ namespace MediaPortal.Plugins.InputDeviceManager
 
           if (hidEvent.Device?.IsGamePad == true)
           {
-            var state = hidEvent.GetDirectionPadState();
+            var state = GetDirectionPadState(hidEvent);
             if (state != DirectionPadState.Rest)
             {
               name = $"Pad{state.ToString()}";
@@ -677,6 +677,18 @@ namespace MediaPortal.Plugins.InputDeviceManager
       }
 
       return true;
+    }
+
+    private static DirectionPadState GetDirectionPadState(SharpLib.Hid.Event hidEvent)
+    {
+      try
+      {
+        return hidEvent.GetDirectionPadState();
+      }
+      catch
+      {
+        return DirectionPadState.Rest;
+      }
     }
 
     private static bool KeyCombinationsMatch(IEnumerable<long> keyMapping, IEnumerable<long> pressedKeys)
