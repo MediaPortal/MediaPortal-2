@@ -1167,8 +1167,11 @@ namespace MediaPortal.Extensions.TranscodingService.Interfaces.Profiles
 
       video.TargetSubtitleSupport = transSetup.SubtitleSettings.SubtitleMode;
       if (transSetup.SubtitleSettings.SubtitleMode == SubtitleSupport.HardCoded)
+      {
         video.TargetSubtitleSupport = SubtitleSupport.None;
-  
+        Logger.Debug("TranscodeProfileManager: Forcing hardcoded subtitles");
+      }
+
       video.TargetIsLive = live;
       video.TranscodeId = transcodeId;
       return video;

@@ -238,6 +238,10 @@ namespace MediaPortal.Extensions.TranscodingService.Service.Transcoders.FFMpeg
         //  embeddedSubCodec = SubtitleCodec.DvbSub;
         //  video.TargetSubtitleCodec = SubtitleCodec.VobSub;
         //}
+        else
+        {
+          _logger.Debug("FFMpegMediaConverter: Container {0} does not support embedded subtitles", video.TargetVideoContainer);
+        }
       }
       video.TargetSubtitleMime = SubtitleHelper.GetSubtitleMime(video.TargetSubtitleCodec);
       video.PreferredSourceSubtitles = await GetSubtitlesAsync(clientId, video, timeStart).ConfigureAwait(false);
@@ -381,6 +385,7 @@ namespace MediaPortal.Extensions.TranscodingService.Service.Transcoders.FFMpeg
           else if (video.TargetSubtitleSupport != SubtitleSupport.SoftCoded)
           {
             video.TargetSubtitleSupport = SubtitleSupport.HardCoded; //Fallback to hardcoded subtitles
+            _logger.Debug("FFMpegMediaConverter: Soft subs not supported. Fallback to hardcoded subtitles");
           }
         }
         else
