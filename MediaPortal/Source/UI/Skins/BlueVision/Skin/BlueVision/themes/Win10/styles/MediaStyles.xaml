@@ -2384,6 +2384,8 @@
           </DockPanel>
         </StackPanel>
         <StackPanel Orientation="Horizontal" VerticalAlignment="Top" DockPanel.Dock="Right" Margin="40,0,0,0">
+          <Button x:Name="ShowDvdMenuButton" Style="{ThemeResource ShowDvdMenuButtonStyle}"  Margin="{ThemeResource PlayerControlButtonMargins}"
+                  Command="{Command Source={StaticResource VideoPlayerModel},Path=PlayerUIContributor.ShowDvdMenu}" IsVisible="{Binding IsDVD}"/>
           <Button x:Name="SelectMenuButton" Style="{ThemeResource SelectContextMenuButtonStyle}" Margin="{ThemeResource PlayerControlButtonMargins}"
                   Command="{Command Source={StaticResource VideoPlayerModel},Path=OpenPlayerConfigurationDialog}" IsEnabled="{Binding IsEnabled}"/>
           <Button x:Name="SelectTitleButton" Style="{ThemeResource ShowDvdMenuButtonStyle}" Margin="{ThemeResource PlayerControlButtonMargins}"
@@ -2455,10 +2457,10 @@
           </DockPanel>
         </StackPanel>
         <StackPanel Orientation="Horizontal" VerticalAlignment="Top" DockPanel.Dock="Right" Margin="40,0,0,0">
-          <Button x:Name="SelectMenuButton" Style="{ThemeResource SelectContextMenuButtonStyle}" Margin="{ThemeResource PlayerControlButtonMargins}"
-                  Command="{Command Source={StaticResource VideoPlayerModel},Path=OpenPlayerConfigurationDialog}" IsEnabled="{Binding IsEnabled}"/>
           <Button x:Name="ShowDvdMenuButton" Style="{ThemeResource ShowDvdMenuButtonStyle}"  Margin="{ThemeResource PlayerControlButtonMargins}"
                   Command="{Command Source={StaticResource VideoPlayerModel},Path=PlayerUIContributor.ShowDvdMenu}"/>
+          <Button x:Name="SelectMenuButton" Style="{ThemeResource SelectContextMenuButtonStyle}" Margin="{ThemeResource PlayerControlButtonMargins}"
+                  Command="{Command Source={StaticResource VideoPlayerModel},Path=OpenPlayerConfigurationDialog}" IsEnabled="{Binding IsEnabled}"/>
           <Button x:Name="SelectTitleButton" Style="{ThemeResource ShowDvdMenuButtonStyle}" Margin="{ThemeResource PlayerControlButtonMargins}"
                   IsVisible="{Binding Source={StaticResource VideoPlayerModel},Path=PlayerUIContributor.TitlesAvailable}"
                   Command="{Command Source={StaticResource VideoPlayerModel},Path=PlayerUIContributor.OpenChooseTitleDialog}" IsEnabled="{Binding IsEnabled}"/>
@@ -2476,9 +2478,9 @@
                   Command="{Command Source={StaticResource VideoPlayerModel},Path=PlayerUIContributor.OpenChooseSubtitleDialog}" IsEnabled="{Binding IsEnabled}"/>
         </StackPanel>
       </DockPanel>
+      
     </DockPanel>
   </ControlTemplate>
-
 
   <ControlTemplate x:Key="GenericAudioOSDControlsControl">
     <DockPanel x:Name="PlayControlsPanel" VerticalAlignment="Top" HorizontalAlignment="Stretch" LastChildFill="True">
@@ -2576,6 +2578,7 @@
                  HorizontalAlignment="Left" VerticalAlignment="Top"/>
         </StackPanel>
       </DockPanel>
+      
     </DockPanel>
   </ControlTemplate>
 
@@ -2690,8 +2693,6 @@
           <Control Style="{ThemeResource OSDContainer}" Width="{ThemeResource FullScreenContentVideoPrimaryPlayerOSDWidth}"
                    DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}">
             <Control.Resources>
-              <ControlTemplate x:Key="OSD_Cover_Template">
-              </ControlTemplate>
 
               <ControlTemplate x:Key="OSD_InfoArea_Template">
                 <Grid x:Name="InfoGrid" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
@@ -2706,6 +2707,18 @@
 
                   <Label x:Name="VideoName" Content="{Binding Path=MediaItemTitle}" Color="{ThemeResource TextColor}" Margin="0,10,0,0"
                          FontFamily="DefaultBold" HorizontalAlignment="Left" VerticalAlignment="Center" TextTrimming="WordEllipsis"/>
+
+                  <media:VideoAspectWrapper MediaItem="{Binding Path=MediaItem}" Grid.Row="1" Grid.ColumnSpan="2" Margin="0,0,0,0"
+                                            HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+                    <media:VideoAspectWrapper.Template>
+                      <ControlTemplate>
+                        <Label x:Name="StoryPlot" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+                               TextTrimming="WordEllipsis" Opacity="0.6" Wrap="True"
+                               DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}"
+                               Content="{Binding Path=StoryPlot}" Color="{ThemeResource TextColor}" />
+                      </ControlTemplate>
+                    </media:VideoAspectWrapper.Template>
+                  </media:VideoAspectWrapper>
 
                 </Grid>
               </ControlTemplate>

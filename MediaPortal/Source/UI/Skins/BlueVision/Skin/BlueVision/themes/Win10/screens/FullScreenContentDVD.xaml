@@ -31,7 +31,7 @@
         MouseMovedCommand="{CommandStencil PlayerUIContributor.OnMouseMove}"
         MouseClickedCommand="{CommandStencil PlayerUIContributor.OnMouseClick}"/>
 
-    <Include Source="screens\FullScreenContentDVDKeyBindings.inc"/>
+    <Include Source="screens\FullScreenContentVideoKeyBindings.inc"/>
 
     <!--Playerstate overlay-->
     <Grid Grid.ColumnSpan="3" Grid.RowSpan="4" HorizontalAlignment="Center" VerticalAlignment="Center"
@@ -57,8 +57,7 @@
              IsVisible="{Binding !IsOSDVisible}"/>
 
     <mp_special_controls:PlayerControl x:Name="PrimaryOSD"  Grid.Column="0" Grid.ColumnSpan="3" Grid.Row="0" Grid.RowSpan="4"
-            IsEnabled="{Binding IsOSDVisible}"
-            Style="{ThemeResource PrimaryDvdOSDStyle}" Margin="0,0,0,0"
+            IsEnabled="{Binding IsOSDVisible}" Style="{ThemeResource PrimaryVideoOSDStyle}"
             VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
       <mp_special_controls:PlayerControl.IsVisible>
         <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} &amp;&amp; {1}">
@@ -69,10 +68,8 @@
     </mp_special_controls:PlayerControl>
 
     <DockPanel x:Name="OSD_RightPanel"  Grid.Column="1" Grid.ColumnSpan="2" Grid.Row="1" LastChildFill="false">
-      <mp_special_controls:PlayerControl x:Name="SecondaryOSD"
-            Style="{ThemeResource SecondaryMediaOSDStyle}"
-            VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
-            AutoVisibility="true">
+      <mp_special_controls:PlayerControl x:Name="SecondaryOSD" Style="{ThemeResource SecondaryMediaOSDStyle}"
+            VerticalAlignment="Stretch" HorizontalAlignment="Stretch" AutoVisibility="true">
         <mp_special_controls:PlayerControl.IsVisible>
           <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} &amp;&amp; {1}">
             <Binding Path="IsOSDVisible"/>
