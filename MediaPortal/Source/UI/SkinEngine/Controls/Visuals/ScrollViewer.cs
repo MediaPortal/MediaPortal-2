@@ -503,9 +503,9 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
         e.Handled = true;
       else if (e.Key == Key.Right && OnRight())
         e.Handled = true;
-      else if (e.Key == Key.Home && OnHome())
+      else if ((e.Key == Key.Home || e.Key == Key.Rew) && OnHome())
         e.Handled = true;
-      else if (e.Key == Key.End && OnEnd())
+      else if ((e.Key == Key.End || e.Key == Key.Fwd) && OnEnd())
         e.Handled = true;
       else if (e.Key == Key.PageDown && OnPageDown())
         e.Handled = true;
