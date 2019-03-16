@@ -22,17 +22,42 @@
 
 #endregion
 
-using System.Windows.Forms;
+using System.Collections.Generic;
+using System.Xml.Serialization;
 
-namespace MediaPortal.Plugins.InputDeviceManager.RawInput
+namespace MediaPortal.Plugins.InputDeviceManager
 {
-    public class PreMessageFilter : IMessageFilter
+  /// <summary>
+  /// Mapping of a remote button key code to a <see cref="Key"/> instance.
+  /// </summary>
+  [XmlRoot("KeyCode")]
+  public class KeyCode
+  {
+    #region Properties
+
+    [XmlAttribute("Key")]
+    public string Key { get; set; }
+
+    [XmlElement("Code")]
+    public long Code { get; set; }
+
+    #endregion Properties
+
+    #region Constructors
+
+    public KeyCode()  { }
+
+    public KeyCode(string key, long code)
     {
-        // true  to filter the message and stop it from being dispatched 
-        // false to allow the message to continue to the next filter or control.
-        public bool PreFilterMessage(ref Message m)
-        {
-            return m.Msg == Win32.WM_KEYDOWN;
-        }
+      Key  = key;
+      Code = code;
     }
+
+    public override string ToString()
+    {
+      return Key.ToString();
+    }
+
+    #endregion Constructors
+  }
 }

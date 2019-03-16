@@ -15,7 +15,7 @@
           <SolidColorBrush Color="#333333"/>
         </Border.Background>
         <Image Source="PlayerControls.Large\Audio.png" VerticalAlignment="Center" HorizontalAlignment="Center" 
-               Stretch="Uniform" Width="30" Height="30" Opacity="1" Margin="0"/>
+               Stretch="Uniform" Width="34" Height="34" Opacity="1" Margin="0"/>
       </Border>
     </Grid>
   </ControlTemplate>
@@ -27,7 +27,7 @@
           <SolidColorBrush Color="#333333"/>
         </Border.Background>
         <Image Source="PlayerControls.Large\AudioMute.png" VerticalAlignment="Center" HorizontalAlignment="Center" 
-               Stretch="Uniform" Width="30" Height="30" Opacity="1" Margin="0"/>
+               Stretch="Uniform" Width="34" Height="34" Opacity="1" Margin="0"/>
       </Border>
     </Grid>
   </ControlTemplate>

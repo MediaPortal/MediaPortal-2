@@ -40,10 +40,6 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
   /// </summary>
   public class ChannelZapModel : IDisposable
   {
-    protected int _skipStepIndex = 0;
-    protected int _skipStepDirection = 1;
-    protected bool _skipStepValid = true;
-    protected List<int> _skipSteps = new List<int>();
     protected DelayedEvent _zapTimer;
     protected AbstractProperty _channelNumberOrIndexProperty;
     private const string CHANNEL_ZAP_SUPERLAYER_SCREEN_NAME = "ChannelZapOSD";
@@ -66,12 +62,12 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
         _zapTimer.Dispose();
     }
 
-    #region GUI Properties
+  #region GUI Properties
 
-    /// <summary>
-    /// Contains the user inputs of numbers which are either treated as channel index or absolute (logical) channel number.
-    /// </summary>
-    public string ChannelNumberOrIndex
+  /// <summary>
+  /// Contains the user inputs of numbers which are either treated as channel index or absolute (logical) channel number.
+  /// </summary>
+  public string ChannelNumberOrIndex
     {
       get { return (string) _channelNumberOrIndexProperty.GetValue(); }
       internal set { _channelNumberOrIndexProperty.SetValue(value); }
@@ -94,13 +90,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
 
     #endregion
 
-    #region Skip Step handling
-
-    protected IPlayerContext GetPlayerContext()
-    {
-      IPlayerContextManager playerContextManager = ServiceRegistration.Get<IPlayerContextManager>();
-      return playerContextManager.GetPlayerContext(PlayerChoice.CurrentPlayer);
-    }
+    #region Timer handling
 
     private void ReSetZapTimer()
     {
@@ -146,7 +136,27 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
 
       ClearZapTimer();
 
+#if DEBUG_FOCUS
+      ServiceRegistration.Get<MediaPortal.Common.Logging.ILogger>().Debug("EPG: ChannelZapModel goto {0}", number);
+#endif
+      SlimTvClientSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<SlimTvClientSettings>();
       IWorkflowManager workflowManager = ServiceRegistration.Get<IWorkflowManager>();
+      if (workflowManager.CurrentNavigationContext.WorkflowModelId == SlimTvMultiChannelGuideModel.MODEL_ID)
+      {
+        SlimTvMultiChannelGuideModel guide = workflowManager.GetModel(SlimTvMultiChannelGuideModel.MODEL_ID) as SlimTvMultiChannelGuideModel;
+        if (guide == null)
+          return;
+        if (settings.ZapByChannelIndex)
+        {
+          // Channel index starts by 0, user enters 1 based numbers
+          number--;
+          guide.GoToChannelIndex(number);
+        } else
+        {
+          guide.GoToChannelNumber(number);
+        }
+        return;
+      }
       SlimTvClientModel model = workflowManager.GetModel(SlimTvClientModel.MODEL_ID) as SlimTvClientModel;
       if (model == null)
         return;
@@ -158,7 +168,6 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
         return;
       }
 
-      SlimTvClientSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<SlimTvClientSettings>();
       if (settings.ZapByChannelIndex)
       {
         // Channel index starts by 0, user enters 1 based numbers

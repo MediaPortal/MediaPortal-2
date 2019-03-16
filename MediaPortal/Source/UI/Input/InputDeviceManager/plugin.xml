@@ -2,7 +2,7 @@
     DescriptorVersion="1.0"
     Name="InputManager"
     PluginId="{359A4AA5-B25F-4961-896B-C1323AF4A4A4}"
-    Author="FreakyJ"
+    Author="FreakyJ, Henso"
     Copyright="GPL"
     AutoActivate="true"
     Description="Control your MP2 by any HID device">
@@ -45,12 +45,20 @@
     <WorkflowState Id="CB09DF01-65FA-4550-977C-B685C237ED3D"
         Name="InputDeviceManagerConfigScreenKeys"
         MainScreen="ConfigScreenKeys"
+        HideGroups="Global"
         DisplayLabel="Input Devices Keys"
         WorkflowModel="CC11183C-01A9-4F96-AF90-FAA046981006"/>
     <WorkflowState Id="A1399A7B-AD02-4F72-8F80-F0C43362953E"
         Name="InputDeviceManagerConfigScreenScreens"
         MainScreen="ConfigScreenScreens"
-        DisplayLabel="Input Devices Screens"
+        HideGroups="Global"
+        DisplayLabel="Input Devices Config Screens"
+        WorkflowModel="CC11183C-01A9-4F96-AF90-FAA046981006"/>
+    <WorkflowState Id="DD892D10-F8B2-4146-A335-3392AC3670F7"
+        Name="InputDeviceManagerHomeScreenScreens"
+        MainScreen="HomeScreenScreens"
+        HideGroups="Global"
+        DisplayLabel="Input Devices Home Screens"
         WorkflowModel="CC11183C-01A9-4F96-AF90-FAA046981006"/>
   </Register>
 
@@ -68,6 +76,12 @@
         HelpText="[Settings.InputDeviceManager.EnterKeyConfigHelp]"
         ClassName="MediaPortal.Plugins.InputDeviceManager.Settings.ConfigScreenKeys"
         AdditionalData="WorkflowState=CB09DF01-65FA-4550-977C-B685C237ED3D,ConfAppPanel=..."/>
+    <CustomConfigSetting
+        Id="InputDevicesHomeScreens"
+        Text="[Settings.InputDeviceManager.EnterScreenHome]"
+        HelpText="[Settings.InputDeviceManager.EnterScreenHomeHelp]"
+        ClassName="MediaPortal.Plugins.InputDeviceManager.Settings.HomeScreenScreens"
+        AdditionalData="WorkflowState=DD892D10-F8B2-4146-A335-3392AC3670F7,ConfAppPanel=..."/>
     <CustomConfigSetting
         Id="InputDevicesConfScreens"
         Text="[Settings.InputDeviceManager.EnterScreenConfig]"

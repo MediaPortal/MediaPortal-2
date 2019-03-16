@@ -173,7 +173,7 @@ namespace MediaPortal.UI.Players.Video
 
       bool shouldAddDvbFilter = isSourceFilterPresent && subtitleStreamCount >= 1 && settings.EnableDvbSubtitles;
       bool shouldRenderTeletextSubtitles = isSourceFilterPresent && teletextStreamCount >= 1 && settings.EnableTeletextSubtitles;
-      bool shouldAddClosedCaptionsFilter = settings.EnableAtscClosedCaptions && (subtitleStreamCount == 0 || teletextStreamCount == 0);
+      bool shouldAddClosedCaptionsFilter = settings.EnableAtscClosedCaptions && (subtitleStreamCount == 0 && teletextStreamCount == 0);
       if (shouldAddDvbFilter)
       {
         _subtitleRenderer.SetPlayer(this);

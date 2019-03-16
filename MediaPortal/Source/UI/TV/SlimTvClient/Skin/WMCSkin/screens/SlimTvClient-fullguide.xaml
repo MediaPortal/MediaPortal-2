@@ -25,7 +25,7 @@
         </MultiBinding>
       </ResourceWrapper.Resource>
     </ResourceWrapper>
-    
+
     <!-- Appearance of the background -->
     <ControlTemplate x:Key="FanArtBackground_Template">
       <ControlTemplate.Resources>
@@ -168,9 +168,8 @@
             </Control.TemplateControl>
           </Control>
         </GroupBox>
-        <KeyBinding Key="Yellow" Command="{Command Path=NextGroup}"/>
-        <KeyBinding Key="Green" Command="{Command Path=PrevGroup}"/>
-        <KeyBinding Key="Guide" Command="{Command Source={Service WorkflowManager},Path=TryExecuteAction,Parameters=9C3E6701-6856-49ec-A4CD-0CEB15F385F6}"/>
+        <!-- All KeyBindings are included from shared resource -->
+        <Include Source="screens\TvGuideKeybindings.inc"/>
       </Grid>
     </ControlTemplate>
   </Include.Resources>

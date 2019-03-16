@@ -171,6 +171,9 @@ namespace MediaPortal.UiComponents.BlueVision.Models
         case SystemStateAction.CloseMP:
           ServiceRegistration.Get<IScreenControl>().Shutdown();
           return;
+        case SystemStateAction.RestartMP:
+          ServiceRegistration.Get<IScreenControl>().Restart();
+          return;
         case SystemStateAction.MinimizeMP:
           ServiceRegistration.Get<IScreenControl>().Minimize();
           return;

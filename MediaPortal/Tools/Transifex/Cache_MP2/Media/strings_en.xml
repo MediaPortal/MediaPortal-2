@@ -471,6 +471,10 @@
   <!--Stubs-->
   <string name="Media.Stub.Title">Insert disc</string>
   <string name="Media.Stub.Message">Please insert disc</string>
+  
+  <!--Virtual-->
+  <string name="Media.Virtual.Title">Unplayable media</string>
+  <string name="Media.Virtual.Message">Unable to play media because it is virtual.</string>
 
   <!--Settings-->
   <string name="Settings.Players">Players</string>
@@ -512,6 +516,8 @@
   <string name="Settings.Media.Certification.Series.Help">Select the series certification system country to use when displaying series certifications</string>
 
   <!-- Secondary filters -->
+  <string name="Filter.RemoteNumericAlphabet0"></string>
+  <string name="Filter.RemoteNumericAlphabet1"></string>
   <string name="Filter.RemoteNumericAlphabet2">abc</string>
   <string name="Filter.RemoteNumericAlphabet3">def</string>
   <string name="Filter.RemoteNumericAlphabet4">ghi</string>

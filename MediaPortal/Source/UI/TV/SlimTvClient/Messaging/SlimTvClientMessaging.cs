@@ -22,6 +22,7 @@
 
 #endregion
 
+using System.Collections.Generic;
 using MediaPortal.Common;
 using MediaPortal.Common.Messaging;
 using MediaPortal.Plugins.SlimTv.Interfaces.Items;
@@ -50,6 +51,10 @@ namespace MediaPortal.Plugins.SlimTv.Client.Messaging
       /// The message data contains the affected <see cref="IProgram"/> under key <see cref="SlimTvClientMessaging.KEY_PROGRAM"/>.
       /// </summary>
       ProgramStatusChanged,
+      /// <summary>
+      /// This indicates that the focus should move to another channel
+      /// </summary>
+      GoToChannelIndex
     }
 
     /// <summary>
@@ -70,6 +75,17 @@ namespace MediaPortal.Plugins.SlimTv.Client.Messaging
     public static void SendSlimTvClientMessage(MessageType type)
     {
       SendMessage(new SystemMessage(type));
+    }
+
+    /// <summary>
+    /// Sends a message with a parameter announces a change in TV client.
+    /// </summary>
+    /// <param name="type">Type of the message.</param>
+    public static void SendSlimTvClientMessage(MessageType type, string name, object parameter)
+    {
+      Dictionary<string, object> dict = new Dictionary<string, object>();
+      dict[name] = parameter;
+      SendMessage(new SystemMessage(type) { MessageData = dict });
     }
 
     private static void SendMessage(SystemMessage msg)
