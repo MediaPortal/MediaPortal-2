@@ -131,76 +131,6 @@ namespace MediaPortal.UI.Players.Video.Subtitles
     public string Language;
   }
 
-  public class Subtitle : IDisposable
-  {
-    public static int IdCount = 0;
-    protected DeviceEx _device;
-
-    public Subtitle(DeviceEx device)
-    {
-      _device = device;
-      Id = IdCount++;
-    }
-    public Bitmap SubBitmap;
-    public uint Width;
-    public uint Height;
-    public double PresentTime;  // NOTE: in seconds
-    public double TimeOut;      // NOTE: in seconds
-    public int FirstScanLine;
-    public long Id = 0;
-    public bool ShouldDraw;
-    public Int32 ScreenHeight; // Required for aspect ratio correction
-    public Int32 ScreenWidth; // Required for aspect ratio correction
-    public Int32 HorizontalPosition;
-    public Texture SubTexture;
-
-    /// <summary>
-    /// Update the subtitle texture from a Bitmap.
-    /// </summary>
-    public bool Allocate()
-    {
-      if (SubTexture != null)
-        return true;
-
-      try
-      {
-        if (SubBitmap != null)
-        {
-          using (MemoryStream stream = new MemoryStream())
-          {
-            ImageInformation imageInformation;
-            SubBitmap.Save(stream, ImageFormat.Bmp);
-            stream.Position = 0;
-            SubTexture = Texture.FromStream(_device, stream, (int)stream.Length, (int)Width,
-              (int)Height, 1,
-              Usage.Dynamic, Format.A8R8G8B8, Pool.Default, Filter.None, Filter.None, 0,
-              out imageInformation);
-          }
-          // Free bitmap
-          FilterGraphTools.TryDispose(ref SubBitmap);
-        }
-      }
-      catch (Exception e)
-      {
-        ServiceRegistration.Get<ILogger>().Error("SubtitleRenderer: Failed to create subtitle texture!!!", e);
-        return false;
-      }
-      return true;
-    }
-
-    public override string ToString()
-    {
-      return "Subtitle " + Id + " meta data: Timeout=" + TimeOut + " timestamp=" + PresentTime;
-    }
-
-    public void Dispose()
-    {
-      if (SubTexture != null)
-        SubTexture.Dispose();
-      SubTexture = null;
-    }
-  }
-
   #endregion
 
   #region DVBSub2(3) interfaces
@@ -248,6 +178,7 @@ namespace MediaPortal.UI.Players.Video.Subtitles
 
     // DirectX DeviceEx to handle graphic operations
     protected DeviceEx _device;
+    protected Sprite _sprite;
     protected IDVBSubtitleSource _subFilter = null;
 
     /// <summary>
@@ -278,7 +209,6 @@ namespace MediaPortal.UI.Players.Video.Subtitles
     protected bool _clearOnNextRender = false;
     protected bool _renderSubtitles = true;
     protected int _activeSubPage; // If use teletext, what page
-    protected int _drawCount = 0;
 
     protected readonly Action _onTextureInvalidated;
     protected Thread _subtitleSyncThread;
@@ -325,6 +255,7 @@ namespace MediaPortal.UI.Players.Video.Subtitles
       _resetCallBack = Reset;
       _updateTimeoutCallBack = UpdateTimeout;
       _device = SkinContext.Device;
+      _sprite = new Sprite(_device);
     }
 
     public void SetPlayer(IMediaPlaybackControl p)
@@ -448,7 +379,7 @@ namespace MediaPortal.UI.Players.Video.Subtitles
     }
 
     // Currently unused, teletext subtitles are not yet (re-)implemented!
-    public void OnTextSubtitle(ref TextSubtitle sub)
+    public void OnTextSubtitle(TextSubtitle sub)
     {
       ServiceRegistration.Get<ILogger>().Debug("On TextSubtitle called");
       try
@@ -487,7 +418,7 @@ namespace MediaPortal.UI.Players.Video.Subtitles
 
         Subtitle subtitle = new Subtitle(_device)
                               {
-                                SubBitmap = RenderText(sub.LineContents),
+                                Text = sub.Text,
                                 TimeOut = sub.TimeOut,
                                 PresentTime = sub.TimeStamp / 90000.0f + _startPos,
                                 Height = (uint)SkinContext.SkinResources.SkinHeight,
@@ -696,15 +627,6 @@ namespace MediaPortal.UI.Players.Video.Subtitles
         currentSubtitle = _subtitles.ToList().FirstOrDefault(s => s.ShouldDraw);
         if (currentSubtitle == null)
           return;
-
-        if (targetTexture == null || targetTexture.IsDisposed || currentSubtitle.SubTexture == null || currentSubtitle.SubTexture.IsDisposed)
-        {
-          if (_drawCount > 0)
-            ServiceRegistration.Get<ILogger>().Debug("Draw count for last sub: {0}", _drawCount);
-          _drawCount = 0;
-          return;
-        }
-        _drawCount++;
       }
 
       try
@@ -735,11 +657,23 @@ namespace MediaPortal.UI.Players.Video.Subtitles
             transform *= Matrix.Scaling(factorW, factorH, 1);
           }
 
-          TextBuffer buffer = new TextBuffer(FontManager.DefaultFontFamily, 18) { Text = currentSubtitle.ToString() };
-          RectangleF rectangleF = new RectangleF(0, 0, SkinContext.SkinResources.SkinWidth, SkinContext.SkinResources.SkinWidth);
-          HorizontalTextAlignEnum horzAlign = HorizontalTextAlignEnum.Left;
-          VerticalTextAlignEnum vertAlign = VerticalTextAlignEnum.Top;
-          buffer.Render(rectangleF, horzAlign, vertAlign, 0, Color4.White, 0, transform);
+          if (currentSubtitle.SubTexture != null && !currentSubtitle.SubTexture.IsDisposed)
+          {
+            _sprite.Begin(SpriteFlags.AlphaBlend);
+            _sprite.Transform = transform;
+            _sprite.Draw(currentSubtitle.SubTexture, SharpDX.Color.White);
+            _sprite.End();
+          }
+          else if (currentSubtitle.Text != null)
+          {
+            using (TextBuffer buffer = new TextBuffer(FontManager.DefaultFontFamily, 32) { Text = currentSubtitle.Text })
+            {
+              RectangleF rectangleF = new RectangleF(0, 0, SkinContext.SkinResources.SkinWidth, SkinContext.SkinResources.SkinHeight);
+              HorizontalTextAlignEnum horzAlign = HorizontalTextAlignEnum.Center;
+              VerticalTextAlignEnum vertAlign = VerticalTextAlignEnum.Top;
+              buffer.Render(rectangleF, horzAlign, vertAlign, 0, Color4.White, 0, transform);
+            }
+          }
         }
 
         if (_onTextureInvalidated != null)
@@ -854,6 +788,8 @@ namespace MediaPortal.UI.Players.Video.Subtitles
     {
       lock (_subtitles)
       {
+        _sprite?.Dispose();
+        _sprite = null;
         _subtitles.ToList().ForEach(s => s.Dispose());
         _subtitles.Clear();
       }

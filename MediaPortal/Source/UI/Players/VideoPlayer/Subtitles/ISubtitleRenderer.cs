@@ -35,7 +35,7 @@ namespace MediaPortal.UI.Players.Video.Subtitles
 
     void SetPlayer(IMediaPlaybackControl p);
 
-    void OnTextSubtitle(ref TextSubtitle sub);
+    void OnTextSubtitle(TextSubtitle sub);
 
     IBaseFilter AddDvbSubtitleFilter(IGraphBuilder graphBuilder);
 
