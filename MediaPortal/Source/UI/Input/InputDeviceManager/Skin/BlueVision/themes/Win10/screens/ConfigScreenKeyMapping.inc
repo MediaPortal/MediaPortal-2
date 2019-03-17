@@ -20,7 +20,15 @@
   </Grid.ColumnDefinitions>
 
   <Button Grid.Column="0" x:Name="ShowConfigButton" Style="{ThemeResource MenuButtonWideStyle}" FontSize="{ThemeResource SmallFontSize}" VerticalAlignment="Top"
-          Content="[InputDeviceManager.DefaultConfig.Title]" Command="{Command Source={StaticResource Model},Path=OpenDefaultConfigurationDialog}">
+          Command="{Command Source={StaticResource Model},Path=OpenDefaultConfigurationDialog}">
+    <Label x:Name="ItemLabel" Content="[InputDeviceManager.DefaultConfig.Title]" Color="Black" Margin="-60,0,0,0"/>
+
+    <Button.Triggers>
+      <Trigger Property="HasFocus" Value="True">
+        <Setter TargetName="ItemLabel" Property="Scroll" Value="Auto"/>
+        <Setter TargetName="ItemLabel" Property="Color" Value="White"/>
+      </Trigger>
+    </Button.Triggers>
   </Button>
     
   <ListView Grid.Column="1" Style="{StaticResource InputManagerListViewStyle}" SetFocus="True" Margin="80,0,0,0"

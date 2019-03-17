@@ -45,16 +45,19 @@
     <WorkflowState Id="CB09DF01-65FA-4550-977C-B685C237ED3D"
         Name="InputDeviceManagerConfigScreenKeys"
         MainScreen="ConfigScreenKeys"
+        HideGroups="Global"
         DisplayLabel="Input Devices Keys"
         WorkflowModel="CC11183C-01A9-4F96-AF90-FAA046981006"/>
     <WorkflowState Id="A1399A7B-AD02-4F72-8F80-F0C43362953E"
         Name="InputDeviceManagerConfigScreenScreens"
         MainScreen="ConfigScreenScreens"
+        HideGroups="Global"
         DisplayLabel="Input Devices Config Screens"
         WorkflowModel="CC11183C-01A9-4F96-AF90-FAA046981006"/>
     <WorkflowState Id="DD892D10-F8B2-4146-A335-3392AC3670F7"
         Name="InputDeviceManagerHomeScreenScreens"
         MainScreen="HomeScreenScreens"
+        HideGroups="Global"
         DisplayLabel="Input Devices Home Screens"
         WorkflowModel="CC11183C-01A9-4F96-AF90-FAA046981006"/>
   </Register>
