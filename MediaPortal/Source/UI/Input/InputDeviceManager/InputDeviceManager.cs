@@ -69,6 +69,8 @@ namespace MediaPortal.Plugins.InputDeviceManager
     private static List<MappedKeyCode> _defaultRemoteKeyCodes = new List<MappedKeyCode>();
     private static readonly Key[] _navigationKeys = new[] { Key.Ok, Key.Escape, Key.Left, Key.Right, Key.Up, Key.Down };
     private static ConcurrentDictionary<ushort, object> _ignoredKeys = new ConcurrentDictionary<ushort, object>();
+    private static int _keyDeadZoneInMs = 395 - 12 * SystemInformation.KeyboardSpeed; //Should be smaller than the repeat speed so held down keys can still do repeats
+    private static DateTime _lastKeyPress = DateTime.UtcNow;
 
     private SynchronousMessageQueue _messageQueue;
 
@@ -724,7 +726,7 @@ namespace MediaPortal.Plugins.InputDeviceManager
     {
       if (device?.KeyMap.Count > 0)
       {
-        var keyMappings = device.KeyMap.Where(m => KeyCombinationsMatch(m.Codes.Select(c => c.Code), _pressedKeys.Values));
+        var keyMappings = device.KeyMap.Where(m => KeyCombinationsMatch(m.Codes.Select(c => c.Code), codes));
         if (keyMappings?.Count() > 0)
           return HandleKeyPress(keyMappings, handleKeyPressIfFound);
       }
@@ -742,12 +744,18 @@ namespace MediaPortal.Plugins.InputDeviceManager
       return code == (long)Keys.ControlKey || code == (long)Keys.Menu || code == (long)Keys.ShiftKey || code == (long)Keys.RWin || code == (long)Keys.LWin;
     }
 
-    private static void AddPressedKey(string name, long code)
+    private static bool AddPressedKey(string name, long code)
     {
-      if (_pressedKeys.Values.Any(c => !IsModifierKey(c)) && !IsModifierKey(code))
+      if (_pressedKeys.Values.Any(c => !IsModifierKey(c)) && !IsModifierKey(code) && !_pressedKeys.Values.Any(c => c == code))
+      {
         ServiceRegistration.Get<ILogger>().Debug("InputDeviceManager: Invalid key {0} in combination with {1}", name, string.Join(", ", _pressedKeys.Keys));
+        return false;
+      }
       else
+      {
         _pressedKeys.TryAdd(name, code);
+        return true;
+      }
     }
 
     private static void RemovePressedKey(string name)
@@ -757,16 +765,39 @@ namespace MediaPortal.Plugins.InputDeviceManager
 
     private static void CheckKeyPresses(string type, string deviceName, bool isGeneric, bool isRepeat, IEnumerable<KeyCode> keys, bool buttonUp, bool buttonDown)
     {
-      if (buttonDown)
+      bool handleKeyPress = (SUPPORT_REPEATS && buttonDown) || (!SUPPORT_REPEATS && buttonUp);
+      if (handleKeyPress && !isRepeat && !keys.Any(k => IsModifierKey(k.Code)))
       {
-        foreach(var key in keys)
-          AddPressedKey(key.Key, key.Code);
+        //Check if keypress is during a dead zone period
+        if ((DateTime.UtcNow - _lastKeyPress).TotalMilliseconds < _keyDeadZoneInMs)
+        {
+          //Ignore key press because it's inside dead zone
+          handleKeyPress = false;
+        }
       }
 
-      bool keyHandled = false;
-      bool handleKeyPress = (SUPPORT_REPEATS && buttonDown) || (!SUPPORT_REPEATS && buttonUp);
+      //Check both button up and down because we need to avoid that any key press is passed on 
+      //if it should be handled here
+      if (buttonDown || buttonUp)
+      {
+        foreach (var key in keys)
+        {
+          if (buttonUp && !_pressedKeys.Any(k => k.Value == key.Code))
+          {
+            //A key up without a key down should not be handled
+            handleKeyPress = false;
+          }
+
+          if (!AddPressedKey(key.Key, key.Code))
+          {
+            //Key should not be handled if it could not be added because then the previously added key will be handled again instead
+            handleKeyPress = false;
+          }
+        }
+      }
 
       //Check mapped keys
+      bool keyHandled = false;
       if (_inputDevices.TryGetValue(type, out var device))
       {
         ServiceRegistration.Get<ILogger>().Debug("InputDeviceManager: Checking mapping for device: " + device.Name);
@@ -796,7 +827,7 @@ namespace MediaPortal.Plugins.InputDeviceManager
 
       if (_externalKeyPressHandlers.Count > 0)
       {
-        if (buttonDown && !isRepeat) //Only send button down and no repeats for better consistency
+        if (handleKeyPress && !isRepeat) //Only send handled presses and no repeats for better consistency
         {
           lock (_listSyncObject)
           {
@@ -812,6 +843,10 @@ namespace MediaPortal.Plugins.InputDeviceManager
         foreach (var key in keys)
           RemovePressedKey(key.Key);
       }
+
+      //Remember last keypress so we can ignore any double presses during the dead zone period
+      //Consumer and keyboard keys can come in pairs for some keys like media keys
+      _lastKeyPress = DateTime.UtcNow;
     }
 
     private static void OnHidEvent(object sender, SharpLib.Hid.Event hidEvent)
