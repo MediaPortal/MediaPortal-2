@@ -48,20 +48,6 @@
         <Rectangle Grid.Column="0" Fill="#66000000" Grid.ColumnSpan="2" Grid.RowSpan="2" Margin="0,0,15,0" RadiusX="16" RadiusY="16" />
         <Rectangle Grid.Column="2" Fill="#66000000" Grid.ColumnSpan="2" Grid.RowSpan="2" RadiusX="16" RadiusY="16"/>
 
-        <StackPanel x:Name="Groups" Margin="10,10,0,0" Grid.Column="0" Grid.ColumnSpan="2" Grid.Row="0"
-            HorizontalAlignment="Left" VerticalAlignment="Center" Orientation="Horizontal">
-          <Button x:Name="PrevGroupButton" Style="{StaticResource SmallButtonStyle}" Content=" &lt; "
-              Command="{Command PrevGroup}">
-            <Image Source="details_arrow_left.png" HorizontalAlignment="Center" VerticalAlignment="Center"
-                   Height="20" Stretch="Uniform" Margin="5"/>
-          </Button>
-          <Button x:Name="NextGroupButton" Style="{StaticResource SmallButtonStyle}" Content=" &gt; "
-              Command="{Command NextGroup}" Margin="5,0,7,0">
-            <Image Source="details_arrow_right.png" HorizontalAlignment="Center" VerticalAlignment="Center"
-                   Height="20" Stretch="Uniform" Margin="5"/>
-          </Button>
-        </StackPanel>
-
         <Grid x:Name="EpgTimeGrid" Grid.Column="2" Grid.ColumnSpan="2" 
               Grid.Row="0" HorizontalAlignment="Stretch" Margin="0,10,0,0">
           <Grid.ColumnDefinitions>
@@ -124,6 +110,21 @@
 
         <!-- All KeyBindings are included from shared resource -->
         <Include Source="screens\TvGuideKeybindings.inc"/>
+
+        <StackPanel x:Name="Groups" Margin="10,10,0,0" Grid.Column="0" Grid.ColumnSpan="2" Grid.Row="0"
+            HorizontalAlignment="Left" VerticalAlignment="Center" Orientation="Horizontal">
+          <Button x:Name="PrevGroupButton" Style="{StaticResource SmallButtonStyle}" Content=" &lt; "
+              Command="{Command PrevGroup}">
+            <Image Source="details_arrow_left.png" HorizontalAlignment="Center" VerticalAlignment="Center"
+                   Height="20" Stretch="Uniform" Margin="5"/>
+          </Button>
+          <Button x:Name="NextGroupButton" Style="{StaticResource SmallButtonStyle}" Content=" &gt; "
+              Command="{Command NextGroup}" Margin="5,0,7,0">
+            <Image Source="details_arrow_right.png" HorizontalAlignment="Center" VerticalAlignment="Center"
+                   Height="20" Stretch="Uniform" Margin="5"/>
+          </Button>
+        </StackPanel>
+
       </Grid>
     </ControlTemplate>
 
