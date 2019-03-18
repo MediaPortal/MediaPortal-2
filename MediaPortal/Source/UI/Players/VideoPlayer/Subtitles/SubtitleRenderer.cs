@@ -37,6 +37,7 @@ using MediaPortal.Common.Settings;
 using MediaPortal.UI.Players.Video.Settings;
 using MediaPortal.UI.Players.Video.Teletext;
 using MediaPortal.UI.Players.Video.Tools;
+using MediaPortal.UI.Presentation;
 using MediaPortal.UI.Presentation.Players;
 using MediaPortal.UI.SkinEngine.Fonts;
 using MediaPortal.UI.SkinEngine.Rendering;
@@ -649,10 +650,13 @@ namespace MediaPortal.UI.Players.Video.Subtitles
 
           if (!string.IsNullOrWhiteSpace(currentSubtitle.Text))
           {
-            using (TextBuffer buffer = new TextBuffer(FontManager.DefaultFontFamily, 32) { Text = currentSubtitle.Text })
+            // Calculate font size by the available target height divided by the number of teletext lines (25).
+            float fontSize = (float)Math.Floor(desc.Height / 25f); 
+            using (TextBuffer buffer = new TextBuffer(FontManager.DefaultFontFamily, fontSize) { Text = currentSubtitle.Text })
             {
-              RectangleF rectangleF = new RectangleF(0, 0, SkinContext.SkinResources.SkinWidth, SkinContext.SkinResources.SkinHeight);
-              HorizontalTextAlignEnum horzAlign = HorizontalTextAlignEnum.Left;
+              RectangleF rectangleF = new RectangleF(0, 0, desc.Width, desc.Height);
+
+              HorizontalTextAlignEnum horzAlign = HorizontalTextAlignEnum.Center;
               VerticalTextAlignEnum vertAlign = VerticalTextAlignEnum.Top;
 
               // Render "glow"
