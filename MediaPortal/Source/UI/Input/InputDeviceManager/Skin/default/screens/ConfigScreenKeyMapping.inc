@@ -22,6 +22,7 @@
   <Button Grid.Column="0" x:Name="ShowConfigButton" Style="{ThemeResource MenuButtonWideStyle}" FontSize="{ThemeResource SmallFontSize}" VerticalAlignment="Top"
           Content="[InputDeviceManager.DefaultConfig.Title]" Command="{Command Source={StaticResource Model},Path=OpenDefaultConfigurationDialog}"/>
 
+  <!--Column 1 is "Name" and Column 2 is "KeyMap"-->
   <ListView Grid.Column="1" Style="{StaticResource InputManagerListViewStyle}" SetFocus="True"
             ItemsSource="{Binding Path=KeyItems,Mode=OneTime}" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" IsVisible="true"
             CurrentItem="{Binding Path=SelectedItem, Mode=TwoWay}">
@@ -33,7 +34,6 @@
     </ListView.Resources>
   </ListView>
 
-  <!--Column 1 is "Name" and Column 2 is "KeyMap"-->
   <Grid Grid.Row="2" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" IsVisible="true">
     <Grid.RowDefinitions>
       <RowDefinition Height="*"/>
