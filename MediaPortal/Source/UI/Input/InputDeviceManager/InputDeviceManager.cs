@@ -290,7 +290,6 @@ namespace MediaPortal.Plugins.InputDeviceManager
               case WindowsMessaging.MessageType.WindowsBroadcast:
                 Message msg = (Message)message.MessageData[WindowsMessaging.MESSAGE];
                 //We need to handle the keyboard keys in HID handler because we need know which device sends them
-                //Keyboard key events are not exclusive to keyboards
                 if (msg.Msg == WM_KEYDOWN || msg.Msg == WM_KEYUP || msg.Msg == WM_SYSKEYDOWN || msg.Msg == WM_SYSKEYUP)
                 {
                   var key = ConvertSystemKey((Keys)msg.WParam);
@@ -301,7 +300,8 @@ namespace MediaPortal.Plugins.InputDeviceManager
 
                   if (_nextKeyEventHandled)
                   {
-                    //WM_KEYDOWN and WM_KEYUP are not handled by SharpLibHid so we need to handle them to avoid a duplicate key press
+                    //SharpLibHid handles WM_INPUT messages from which Windows creates WM_KEYDOWN, WM_KEYUP, WM_SYSKEYDOWN and WM_SYSKEYUP messages.
+                    //So to avoid a duplicate key press we need to handle (consume) the following WM_KEYDOWN, WM_KEYUP, WM_SYSKEYDOWN and WM_SYSKEYUP messages.
                     _nextKeyEventHandled = false;
                     message.MessageData[WindowsMessaging.HANDLED] = true;
                     //ServiceRegistration.Get<ILogger>().Debug("InputDeviceManager: Preview message handled {0}", key);
