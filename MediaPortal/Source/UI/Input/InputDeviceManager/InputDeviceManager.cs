@@ -74,7 +74,11 @@ namespace MediaPortal.Plugins.InputDeviceManager
       (long)Keys.Left,
       (long)Keys.Right,
       (long)Keys.Up,
-      (long)Keys.Down
+      (long)Keys.Down,
+      (long)Keys.PageDown,
+      (long)Keys.PageUp,
+      (long)Keys.Home,
+      (long)Keys.End,
     };
     private static readonly List<Key> _navigationMp2Keys = new List<Key>
     {
@@ -83,7 +87,11 @@ namespace MediaPortal.Plugins.InputDeviceManager
       Key.Left,
       Key.Right,
       Key.Up,
-      Key.Down
+      Key.Down,
+      Key.PageDown,
+      Key.PageUp,
+      Key.Fwd,
+      Key.Rew
     };
     //Windows is automatically generating keyboard codes for some consumer usages. We need to ignore those, 
     //because they lack device information needed to map them.
@@ -872,7 +880,7 @@ namespace MediaPortal.Plugins.InputDeviceManager
         }
 
         //Allow navigation keys if unhandled
-        if (keyHandled || isGeneric || !keys.All(k => _navigationKeyboardKeys.Contains(k.Code)))
+        if (isGeneric || !keys.All(k => _navigationKeyboardKeys.Contains(k.Code)))
           keyHandled = true;
       }
 
@@ -915,6 +923,7 @@ namespace MediaPortal.Plugins.InputDeviceManager
         return false;
 
       bool keyHandled = false;
+      bool externalHandling = _externalKeyPressHandlers.Count > 0;
       foreach (var keyMapping in keyMappings)
       {
         string[] actionArray = keyMapping.Key.Split('.');
@@ -922,7 +931,7 @@ namespace MediaPortal.Plugins.InputDeviceManager
         {
           if (keyMapping.Key.StartsWith(InputDeviceModel.KEY_PREFIX, StringComparison.InvariantCultureIgnoreCase))
           {
-            if (_navigationMp2Keys.Any(k => k.Name == actionArray[1]) || _externalKeyPressHandlers.Count == 0) //Only allow navigation key during external handling
+            if (_navigationMp2Keys.Any(k => k.Name == actionArray[1]) || !externalHandling) //Only allow navigation key during external handling
             {
               if (handleKeyPressIfFound)
               {
@@ -939,7 +948,7 @@ namespace MediaPortal.Plugins.InputDeviceManager
               keyHandled = true;
             }
           }
-          else if (_externalKeyPressHandlers.Count == 0) //Don't interfere with external handlers by executing screen changes
+          else if (!externalHandling) //Don't interfere with external handlers by executing screen changes
           {
             if (keyMapping.Key.StartsWith(InputDeviceModel.HOME_PREFIX, StringComparison.InvariantCultureIgnoreCase))
             {
