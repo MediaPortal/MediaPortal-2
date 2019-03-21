@@ -775,7 +775,7 @@ namespace MediaPortal.Plugins.InputDeviceManager
       return key;
     }
 
-    private static bool CheckMappedKeys(InputDevice device, IEnumerable<long> codes, bool handleKeyPressIfFound)
+    private static bool CheckMappedKeys(InputDevice device, IEnumerable<long> codes, bool isRepeat, bool handleKeyPressIfFound)
     {
       if (device?.KeyMap.Count > 0)
       {
@@ -784,20 +784,20 @@ namespace MediaPortal.Plugins.InputDeviceManager
         {
           //ServiceRegistration.Get<ILogger>().Debug("InputDeviceManager: Found keys: " + string.Join(", ", keyMappings.SelectMany(k => k.Codes).Select(k => k.Key)));
           //ServiceRegistration.Get<ILogger>().Debug("InputDeviceManager: Found codes: " + string.Join(", ", keyMappings.SelectMany(k => k.Codes).Select(k => k.Code)));
-          return HandleKeyPress(keyMappings, handleKeyPressIfFound);
+          return HandleKeyPress(keyMappings, isRepeat, handleKeyPressIfFound);
         }
       }
       return false;
     }
 
-    private static bool CheckDefaultRemoteKeys(IEnumerable<long> codes, bool handleKeyPressIfFound)
+    private static bool CheckDefaultRemoteKeys(IEnumerable<long> codes, bool isRepeat, bool handleKeyPressIfFound)
     {
       var keyMappings = _defaultRemoteKeyCodes.Where(m => KeyCombinationsMatch(m.Codes.Select(c => c.Code), codes));
       if (keyMappings?.Count() > 0)
       {
         //ServiceRegistration.Get<ILogger>().Debug("InputDeviceManager: Found default keys: " + string.Join(", ", keyMappings.SelectMany(k => k.Codes).Select(k => k.Key)));
         //ServiceRegistration.Get<ILogger>().Debug("InputDeviceManager: Found default codes: " + string.Join(", ", keyMappings.SelectMany(k => k.Codes).Select(k => k.Code)));
-        return HandleKeyPress(keyMappings, handleKeyPressIfFound);
+        return HandleKeyPress(keyMappings, isRepeat, handleKeyPressIfFound);
       }
       return false;
     }
@@ -854,7 +854,7 @@ namespace MediaPortal.Plugins.InputDeviceManager
         //ServiceRegistration.Get<ILogger>().Debug("InputDeviceManager: Checking keys: " + string.Join(", ", _pressedKeys.Select(k => k.Key)));
         //ServiceRegistration.Get<ILogger>().Debug("InputDeviceManager: Checking codes: " + string.Join(", ", _pressedKeys.Select(k => k.Value)));
 
-        if (CheckMappedKeys(device, _pressedKeys.Values, handleKeyPress))
+        if (CheckMappedKeys(device, _pressedKeys.Values, isRepeat, handleKeyPress))
           keyHandled = true;
       }
 
@@ -864,7 +864,7 @@ namespace MediaPortal.Plugins.InputDeviceManager
         //ServiceRegistration.Get<ILogger>().Debug("InputDeviceManager: Checking default keys: " + string.Join(", ", _pressedKeys.Select(k => k.Key)));
         //ServiceRegistration.Get<ILogger>().Debug("InputDeviceManager: Checking default codes: " + string.Join(", ", _pressedKeys.Select(k => k.Value)));
 
-        if (CheckDefaultRemoteKeys(_pressedKeys.Values, handleKeyPress))
+        if (CheckDefaultRemoteKeys(_pressedKeys.Values, isRepeat, handleKeyPress))
           keyHandled = true;
       }
 
@@ -917,7 +917,7 @@ namespace MediaPortal.Plugins.InputDeviceManager
       }
     }
 
-    private static bool HandleKeyPress(IEnumerable<MappedKeyCode> keyMappings, bool handleKeyPressIfFound)
+    private static bool HandleKeyPress(IEnumerable<MappedKeyCode> keyMappings, bool isRepeat, bool handleKeyPressIfFound)
     {
       if (!(keyMappings?.Count() > 0))
         return false;
@@ -952,7 +952,7 @@ namespace MediaPortal.Plugins.InputDeviceManager
           {
             if (keyMapping.Key.StartsWith(InputDeviceModel.HOME_PREFIX, StringComparison.InvariantCultureIgnoreCase))
             {
-              if (handleKeyPressIfFound)
+              if (handleKeyPressIfFound && !isRepeat)
               {
                 ServiceRegistration.Get<ILogger>().Debug("InputDeviceManager: Executing home action: " + actionArray[1]);
                 NavigateToScreen(actionArray[1], InputDeviceModel.HOME_STATE_ID);
@@ -961,7 +961,7 @@ namespace MediaPortal.Plugins.InputDeviceManager
             }
             else if (keyMapping.Key.StartsWith(InputDeviceModel.CONFIG_PREFIX, StringComparison.InvariantCultureIgnoreCase))
             {
-              if (handleKeyPressIfFound)
+              if (handleKeyPressIfFound && !isRepeat)
               {
                 ServiceRegistration.Get<ILogger>().Debug("InputDeviceManager: Executing config action: " + actionArray[1]);
                 NavigateToScreen(actionArray[1], InputDeviceModel.CONFIGURATION_STATE_ID);
