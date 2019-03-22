@@ -82,10 +82,10 @@
 
   <ResourceWrapper x:Key="ErrorTextColor" Resource="Orange"/>
   <ResourceWrapper x:Key="WatchedTextColor" Resource="Orange"/>
-    
-  <ResourceWrapper x:Key="TextBoxBackgroundColor" Resource="#59CCFFFF"/>
+
+  <ResourceWrapper x:Key="TextBoxBackgroundColor" Resource="{ThemeResource NereusColorLight}"/>
   <ResourceWrapper x:Key="TextBoxBorderColor" Resource="Transparent"/>
-  <ResourceWrapper x:Key="TextBoxBorderFocusColor" Resource="#CCFFFFFF"/>
+  <ResourceWrapper x:Key="TextBoxBorderFocusColor" Resource="#FFFFFFFF"/>
 
   <ResourceWrapper x:Key="ButtonStrokeColor" Resource="#B0E0E0E0"/>
   <ResourceWrapper x:Key="ButtonGradientLightColor" Resource="#FF505050"/>
