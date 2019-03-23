@@ -486,6 +486,16 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       }
     }
 
+    protected override void OnPreviewKeyPress(KeyEventArgs e)
+    {
+      base.OnPreviewKeyPress(e);
+      // If list has focus, handle these keys here, to prevent them getting processed by other handlers
+      if (e.Key == Key.Rew && OnHome())
+        e.Handled = true;
+      else if (e.Key == Key.Fwd && OnEnd())
+        e.Handled = true;
+    }
+
     protected override void OnKeyPress(KeyEventArgs e)
     {
       // migration from OnKeyPressed(ref Key key)
@@ -503,9 +513,9 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
         e.Handled = true;
       else if (e.Key == Key.Right && OnRight())
         e.Handled = true;
-      else if ((e.Key == Key.Home || e.Key == Key.Rew) && OnHome())
+      else if (e.Key == Key.Home && OnHome())
         e.Handled = true;
-      else if ((e.Key == Key.End || e.Key == Key.Fwd) && OnEnd())
+      else if (e.Key == Key.End && OnEnd())
         e.Handled = true;
       else if (e.Key == Key.PageDown && OnPageDown())
         e.Handled = true;

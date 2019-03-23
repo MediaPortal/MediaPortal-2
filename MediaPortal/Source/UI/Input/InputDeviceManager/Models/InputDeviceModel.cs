@@ -42,6 +42,7 @@ using MediaPortal.UI.Presentation.Workflow;
 using System.Threading.Tasks;
 using MediaPortal.Plugins.InputDeviceManager.RawInput;
 using Keys = System.Windows.Forms.Keys;
+using SharpLib.Hid.Usage;
 
 namespace MediaPortal.Plugins.InputDeviceManager.Models
 {
@@ -349,8 +350,8 @@ namespace MediaPortal.Plugins.InputDeviceManager.Models
             if (pressedKeys.Count > _maxPressedKeys)
             {
               _pressedAddKeyCombo = pressedKeys.ToDictionary(pair => pair.Key, pair => pair.Value);
-              ServiceRegistration.Get<ILogger>().Debug("InputDeviceManager: Currently mapped keys: " + string.Join(", ", _pressedAddKeyCombo.Select(k => k.Key)));
-              ServiceRegistration.Get<ILogger>().Debug("InputDeviceManager: Currently mapped codes: " + string.Join(", ", _pressedAddKeyCombo.Select(k => k.Value)));
+              //ServiceRegistration.Get<ILogger>().Debug("InputDeviceManager: Currently mapped keys: " + string.Join(", ", _pressedAddKeyCombo.Select(k => k.Key)));
+              //ServiceRegistration.Get<ILogger>().Debug("InputDeviceManager: Currently mapped codes: " + string.Join(", ", _pressedAddKeyCombo.Select(k => k.Value)));
               _maxPressedKeys = pressedKeys.Count;
               _endTime = DateTime.Now.AddSeconds(5);
               if (!_keyInputTimer.Enabled)
@@ -400,39 +401,32 @@ namespace MediaPortal.Plugins.InputDeviceManager.Models
     {
       return new List<MappedKeyCode>
       {
-        { new MappedKeyCode { Key = KEY_PREFIX + Key.Power.Name, Codes = new List<KeyCode> { new KeyCode { Key = RemoteButton.Power2.ToString(), Code = (int)RemoteButton.Power2 } } } },
-        { new MappedKeyCode { Key = KEY_PREFIX + Key.Escape.Name, Codes = new List<KeyCode> { new KeyCode { Key = RemoteButton.Back.ToString(), Code = (int)RemoteButton.Back } } } },
-        { new MappedKeyCode { Key = KEY_PREFIX + Key.Ok.Name, Codes = new List<KeyCode> { new KeyCode { Key = RemoteButton.Ok.ToString(), Code = (int)RemoteButton.Ok } } } },
-        { new MappedKeyCode { Key = KEY_PREFIX + Key.Start.Name, Codes = new List<KeyCode> { new KeyCode { Key = RemoteButton.Start.ToString(), Code = (int)RemoteButton.Start } } } },
-        { new MappedKeyCode { Key = KEY_PREFIX + Key.RecordedTV.Name, Codes = new List<KeyCode> { new KeyCode { Key = RemoteButton.RecordedTV.ToString(), Code = (int)RemoteButton.RecordedTV } } } },
-        { new MappedKeyCode { Key = KEY_PREFIX + Key.Guide.Name, Codes = new List<KeyCode> { new KeyCode { Key = RemoteButton.Guide.ToString(), Code = (int)RemoteButton.Guide } } } },
-        { new MappedKeyCode { Key = KEY_PREFIX + Key.LiveTV.Name, Codes = new List<KeyCode> { new KeyCode { Key = RemoteButton.LiveTV.ToString(), Code = (int)RemoteButton.LiveTV } } } },
-        { new MappedKeyCode { Key = KEY_PREFIX + Key.DVDMenu.Name, Codes = new List<KeyCode> { new KeyCode { Key = RemoteButton.DVDMenu.ToString(), Code = (int)RemoteButton.DVDMenu } } } },
-        { new MappedKeyCode { Key = KEY_PREFIX + Key.VolumeUp.Name, Codes = new List<KeyCode> { new KeyCode { Key = RemoteButton.VolumeUp.ToString(), Code = (int)RemoteButton.VolumeUp } } } },
-        { new MappedKeyCode { Key = KEY_PREFIX + Key.VolumeDown.Name, Codes = new List<KeyCode> { new KeyCode { Key = RemoteButton.VolumeDown.ToString(), Code = (int)RemoteButton.VolumeDown } } } },
-        { new MappedKeyCode { Key = KEY_PREFIX + Key.Mute.Name, Codes = new List<KeyCode> { new KeyCode { Key = RemoteButton.Mute.ToString(), Code = (int)RemoteButton.Mute } } } },
-        { new MappedKeyCode { Key = KEY_PREFIX + Key.PageUp.Name, Codes = new List<KeyCode> { new KeyCode { Key = RemoteButton.ChannelUp.ToString(), Code = (int)RemoteButton.ChannelUp } } } },
-        { new MappedKeyCode { Key = KEY_PREFIX + Key.PageDown.Name, Codes = new List<KeyCode> { new KeyCode { Key = RemoteButton.ChannelDown.ToString(), Code = (int)RemoteButton.ChannelDown } } } },
-        { new MappedKeyCode { Key = KEY_PREFIX + Key.Up.Name, Codes = new List<KeyCode> { new KeyCode { Key = RemoteButton.Up.ToString(), Code = (int)RemoteButton.Up } } } },
-        { new MappedKeyCode { Key = KEY_PREFIX + Key.Down.Name, Codes = new List<KeyCode> { new KeyCode { Key = RemoteButton.Down.ToString(), Code = (int)RemoteButton.Down } } } },
-        { new MappedKeyCode { Key = KEY_PREFIX + Key.Left.Name, Codes = new List<KeyCode> { new KeyCode { Key = RemoteButton.Left.ToString(), Code = (int)RemoteButton.Left } } } },
-        { new MappedKeyCode { Key = KEY_PREFIX + Key.Right.Name, Codes = new List<KeyCode> { new KeyCode { Key = RemoteButton.Right.ToString(), Code = (int)RemoteButton.Right } } } },
-        { new MappedKeyCode { Key = KEY_PREFIX + Key.Info.Name, Codes = new List<KeyCode> { new KeyCode { Key = RemoteButton.Info.ToString(), Code = (int)RemoteButton.Info } } } },
-        { new MappedKeyCode { Key = KEY_PREFIX + Key.Stop.Name, Codes = new List<KeyCode> { new KeyCode { Key = RemoteButton.Stop.ToString(), Code = (int)RemoteButton.Stop } } } },
-        { new MappedKeyCode { Key = KEY_PREFIX + Key.Pause.Name, Codes = new List<KeyCode> { new KeyCode { Key = RemoteButton.Pause.ToString(), Code = (int)RemoteButton.Pause } } } },
-        { new MappedKeyCode { Key = KEY_PREFIX + Key.Record.Name, Codes = new List<KeyCode> { new KeyCode { Key = RemoteButton.Record.ToString(), Code = (int)RemoteButton.Record } } } },
-        { new MappedKeyCode { Key = KEY_PREFIX + Key.Play.Name, Codes = new List<KeyCode> { new KeyCode { Key = RemoteButton.Play.ToString(), Code = (int)RemoteButton.Play } } } },
-        { new MappedKeyCode { Key = KEY_PREFIX + Key.Rew.Name, Codes = new List<KeyCode> { new KeyCode { Key = RemoteButton.Rewind.ToString(), Code = (int)RemoteButton.Rewind } } } },
-        { new MappedKeyCode { Key = KEY_PREFIX + Key.Fwd.Name, Codes = new List<KeyCode> { new KeyCode { Key = RemoteButton.Forward.ToString(), Code = (int)RemoteButton.Forward } } } },
-        { new MappedKeyCode { Key = KEY_PREFIX + Key.Previous.Name, Codes = new List<KeyCode> { new KeyCode { Key = RemoteButton.Replay.ToString(), Code = (int)RemoteButton.Replay } } } },
-        { new MappedKeyCode { Key = KEY_PREFIX + Key.Next.Name, Codes = new List<KeyCode> { new KeyCode { Key = RemoteButton.Skip.ToString(), Code = (int)RemoteButton.Skip } } } },
-        { new MappedKeyCode { Key = KEY_PREFIX + Key.Clear.Name, Codes = new List<KeyCode> { new KeyCode { Key = RemoteButton.Clear.ToString(), Code = (int)RemoteButton.Clear } } } },
-        { new MappedKeyCode { Key = KEY_PREFIX + Key.Enter.Name, Codes = new List<KeyCode> { new KeyCode { Key = RemoteButton.Enter.ToString(), Code = (int)RemoteButton.Enter } } } },
-        { new MappedKeyCode { Key = KEY_PREFIX + Key.TeleText.Name, Codes = new List<KeyCode> { new KeyCode { Key = RemoteButton.Teletext.ToString(), Code = (int)RemoteButton.Teletext } } } },
-        { new MappedKeyCode { Key = KEY_PREFIX + Key.Red.Name, Codes = new List<KeyCode> { new KeyCode { Key = RemoteButton.Red.ToString(), Code = (int)RemoteButton.Red } } } },
-        { new MappedKeyCode { Key = KEY_PREFIX + Key.Green.Name, Codes = new List<KeyCode> { new KeyCode { Key = RemoteButton.Green.ToString(), Code = (int)RemoteButton.Green } } } },
-        { new MappedKeyCode { Key = KEY_PREFIX + Key.Yellow.Name, Codes = new List<KeyCode> { new KeyCode { Key = RemoteButton.Yellow.ToString(), Code = (int)RemoteButton.Yellow } } } },
-        { new MappedKeyCode { Key = KEY_PREFIX + Key.Blue.Name, Codes = new List<KeyCode> { new KeyCode { Key = RemoteButton.Blue.ToString(), Code = (int)RemoteButton.Blue } } } },
+        { new MappedKeyCode { Key = KEY_PREFIX + Key.Power.Name, Codes = new List<KeyCode> { new KeyCode { Key = WindowsMediaCenterRemoteControl.TvPower.ToString(), Code = InputDeviceManager.GetUniqueGenericKeyCode(SharpLib.Hid.UsagePage.WindowsMediaCenterRemoteControl, (int)WindowsMediaCenterRemoteControl.TvPower) } } } },
+        { new MappedKeyCode { Key = KEY_PREFIX + Key.Escape.Name, Codes = new List<KeyCode> { new KeyCode { Key = ConsumerControl.AppCtrlBack.ToString(), Code = InputDeviceManager.GetUniqueGenericKeyCode(SharpLib.Hid.UsagePage.Consumer, (int)ConsumerControl.AppCtrlBack) } } } },
+        { new MappedKeyCode { Key = KEY_PREFIX + Key.Start.Name, Codes = new List<KeyCode> { new KeyCode { Key = WindowsMediaCenterRemoteControl.GreenStart.ToString(), Code = InputDeviceManager.GetUniqueGenericKeyCode(SharpLib.Hid.UsagePage.WindowsMediaCenterRemoteControl, (int)WindowsMediaCenterRemoteControl.GreenStart) } } } },
+        { new MappedKeyCode { Key = KEY_PREFIX + Key.RecordedTV.Name, Codes = new List<KeyCode> { new KeyCode { Key = WindowsMediaCenterRemoteControl.RecordedTv.ToString(), Code = InputDeviceManager.GetUniqueGenericKeyCode(SharpLib.Hid.UsagePage.WindowsMediaCenterRemoteControl, (int)WindowsMediaCenterRemoteControl.RecordedTv) } } } },
+        { new MappedKeyCode { Key = KEY_PREFIX + Key.Guide.Name, Codes = new List<KeyCode> { new KeyCode { Key = ConsumerControl.MediaSelectProgramGuide.ToString(), Code = InputDeviceManager.GetUniqueGenericKeyCode(SharpLib.Hid.UsagePage.Consumer, (int)ConsumerControl.MediaSelectProgramGuide) } } } },
+        { new MappedKeyCode { Key = KEY_PREFIX + Key.LiveTV.Name, Codes = new List<KeyCode> { new KeyCode { Key = WindowsMediaCenterRemoteControl.LiveTv.ToString(), Code = InputDeviceManager.GetUniqueGenericKeyCode(SharpLib.Hid.UsagePage.WindowsMediaCenterRemoteControl, (int)WindowsMediaCenterRemoteControl.LiveTv) } } } },
+        { new MappedKeyCode { Key = KEY_PREFIX + Key.DVDMenu.Name, Codes = new List<KeyCode> { new KeyCode { Key = WindowsMediaCenterRemoteControl.DvdMenu.ToString(), Code = InputDeviceManager.GetUniqueGenericKeyCode(SharpLib.Hid.UsagePage.WindowsMediaCenterRemoteControl, (int)WindowsMediaCenterRemoteControl.DvdMenu) } } } },
+        { new MappedKeyCode { Key = KEY_PREFIX + Key.VolumeUp.Name, Codes = new List<KeyCode> { new KeyCode { Key = ConsumerControl.VolumeIncrement.ToString(), Code = InputDeviceManager.GetUniqueGenericKeyCode(SharpLib.Hid.UsagePage.Consumer, (int)ConsumerControl.VolumeIncrement) } } } },
+        { new MappedKeyCode { Key = KEY_PREFIX + Key.VolumeDown.Name, Codes = new List<KeyCode> { new KeyCode { Key = ConsumerControl.VolumeDecrement.ToString(), Code = InputDeviceManager.GetUniqueGenericKeyCode(SharpLib.Hid.UsagePage.Consumer, (int)ConsumerControl.VolumeDecrement) } } } },
+        { new MappedKeyCode { Key = KEY_PREFIX + Key.Mute.Name, Codes = new List<KeyCode> { new KeyCode { Key = ConsumerControl.Mute.ToString(), Code = InputDeviceManager.GetUniqueGenericKeyCode(SharpLib.Hid.UsagePage.Consumer, (int)ConsumerControl.Mute) } } } },
+        { new MappedKeyCode { Key = KEY_PREFIX + Key.PageUp.Name, Codes = new List<KeyCode> { new KeyCode { Key = ConsumerControl.ChannelIncrement.ToString(), Code = InputDeviceManager.GetUniqueGenericKeyCode(SharpLib.Hid.UsagePage.Consumer, (int)ConsumerControl.ChannelIncrement) } } } },
+        { new MappedKeyCode { Key = KEY_PREFIX + Key.PageDown.Name, Codes = new List<KeyCode> { new KeyCode { Key = ConsumerControl.ChannelDecrement.ToString(), Code = InputDeviceManager.GetUniqueGenericKeyCode(SharpLib.Hid.UsagePage.Consumer, (int)ConsumerControl.ChannelDecrement) } } } },
+        { new MappedKeyCode { Key = KEY_PREFIX + Key.Info.Name, Codes = new List<KeyCode> { new KeyCode { Key = ConsumerControl.AppCtrlProperties.ToString(), Code = InputDeviceManager.GetUniqueGenericKeyCode(SharpLib.Hid.UsagePage.Consumer, (int)ConsumerControl.AppCtrlProperties) } } } },
+        { new MappedKeyCode { Key = KEY_PREFIX + Key.Stop.Name, Codes = new List<KeyCode> { new KeyCode { Key = ConsumerControl.Stop.ToString(), Code = InputDeviceManager.GetUniqueGenericKeyCode(SharpLib.Hid.UsagePage.Consumer, (int)ConsumerControl.Stop) } } } },
+        { new MappedKeyCode { Key = KEY_PREFIX + Key.Pause.Name, Codes = new List<KeyCode> { new KeyCode { Key = ConsumerControl.Pause.ToString(), Code = InputDeviceManager.GetUniqueGenericKeyCode(SharpLib.Hid.UsagePage.Consumer, (int)ConsumerControl.Pause) } } } },
+        { new MappedKeyCode { Key = KEY_PREFIX + Key.Record.Name, Codes = new List<KeyCode> { new KeyCode { Key = ConsumerControl.Record.ToString(), Code = InputDeviceManager.GetUniqueGenericKeyCode(SharpLib.Hid.UsagePage.Consumer, (int)ConsumerControl.Record) } } } },
+        { new MappedKeyCode { Key = KEY_PREFIX + Key.Play.Name, Codes = new List<KeyCode> { new KeyCode { Key = ConsumerControl.Play.ToString(), Code = InputDeviceManager.GetUniqueGenericKeyCode(SharpLib.Hid.UsagePage.Consumer, (int)ConsumerControl.Play) } } } },
+        { new MappedKeyCode { Key = KEY_PREFIX + Key.Rew.Name, Codes = new List<KeyCode> { new KeyCode { Key = ConsumerControl.Rewind.ToString(), Code = InputDeviceManager.GetUniqueGenericKeyCode(SharpLib.Hid.UsagePage.Consumer, (int)ConsumerControl.Rewind) } } } },
+        { new MappedKeyCode { Key = KEY_PREFIX + Key.Fwd.Name, Codes = new List<KeyCode> { new KeyCode { Key = ConsumerControl.FastForward.ToString(), Code = InputDeviceManager.GetUniqueGenericKeyCode(SharpLib.Hid.UsagePage.Consumer, (int)ConsumerControl.FastForward) } } } },
+        { new MappedKeyCode { Key = KEY_PREFIX + Key.Previous.Name, Codes = new List<KeyCode> { new KeyCode { Key = ConsumerControl.ScanPreviousTrack.ToString(), Code = InputDeviceManager.GetUniqueGenericKeyCode(SharpLib.Hid.UsagePage.Consumer, (int)ConsumerControl.ScanPreviousTrack) } } } },
+        { new MappedKeyCode { Key = KEY_PREFIX + Key.Next.Name, Codes = new List<KeyCode> { new KeyCode { Key = ConsumerControl.ScanNextTrack.ToString(), Code = InputDeviceManager.GetUniqueGenericKeyCode(SharpLib.Hid.UsagePage.Consumer, (int)ConsumerControl.ScanNextTrack) } } } },
+        { new MappedKeyCode { Key = KEY_PREFIX + Key.TeleText.Name, Codes = new List<KeyCode> { new KeyCode { Key = WindowsMediaCenterRemoteControl.Teletext.ToString(), Code = InputDeviceManager.GetUniqueGenericKeyCode(SharpLib.Hid.UsagePage.WindowsMediaCenterRemoteControl, (int)WindowsMediaCenterRemoteControl.Teletext) } } } },
+        { new MappedKeyCode { Key = KEY_PREFIX + Key.Red.Name, Codes = new List<KeyCode> { new KeyCode { Key = WindowsMediaCenterRemoteControl.TeletextRed.ToString(), Code = InputDeviceManager.GetUniqueGenericKeyCode(SharpLib.Hid.UsagePage.WindowsMediaCenterRemoteControl, (int)WindowsMediaCenterRemoteControl.TeletextRed) } } } },
+        { new MappedKeyCode { Key = KEY_PREFIX + Key.Green.Name, Codes = new List<KeyCode> { new KeyCode { Key = WindowsMediaCenterRemoteControl.TeletextGreen.ToString(), Code = InputDeviceManager.GetUniqueGenericKeyCode(SharpLib.Hid.UsagePage.WindowsMediaCenterRemoteControl, (int)WindowsMediaCenterRemoteControl.TeletextGreen) } } } },
+        { new MappedKeyCode { Key = KEY_PREFIX + Key.Yellow.Name, Codes = new List<KeyCode> { new KeyCode { Key = WindowsMediaCenterRemoteControl.TeletextYellow.ToString(), Code = InputDeviceManager.GetUniqueGenericKeyCode(SharpLib.Hid.UsagePage.WindowsMediaCenterRemoteControl, (int)WindowsMediaCenterRemoteControl.TeletextYellow) } } } },
+        { new MappedKeyCode { Key = KEY_PREFIX + Key.Blue.Name, Codes = new List<KeyCode> { new KeyCode { Key = WindowsMediaCenterRemoteControl.TeletextBlue.ToString(), Code = InputDeviceManager.GetUniqueGenericKeyCode(SharpLib.Hid.UsagePage.WindowsMediaCenterRemoteControl, (int)WindowsMediaCenterRemoteControl.TeletextBlue) } } } },
       };
     }
 
@@ -440,27 +434,26 @@ namespace MediaPortal.Plugins.InputDeviceManager.Models
     {
       return new List<MappedKeyCode>
       {
-        { new MappedKeyCode { Key = KEY_PREFIX + Key.Info.Name, Codes = new List<KeyCode> { new KeyCode { Key = KeyMapper.GetMicrosoftKeyName((int)Keys.Apps), Code = (int)Keys.Apps } } } },
-        { new MappedKeyCode { Key = KEY_PREFIX + Key.Up.Name, Codes = new List<KeyCode> { new KeyCode { Key = KeyMapper.GetMicrosoftKeyName((int)Keys.Up), Code = (int)Keys.Up } } } },
-        { new MappedKeyCode { Key = KEY_PREFIX + Key.Down.Name, Codes = new List<KeyCode> { new KeyCode { Key = KeyMapper.GetMicrosoftKeyName((int)Keys.Down), Code = (int)Keys.Down } } } },
-        { new MappedKeyCode { Key = KEY_PREFIX + Key.Right.Name, Codes = new List<KeyCode> { new KeyCode { Key = KeyMapper.GetMicrosoftKeyName((int)Keys.Right), Code = (int)Keys.Right } } } },
-        { new MappedKeyCode { Key = KEY_PREFIX + Key.Left.Name, Codes = new List<KeyCode> { new KeyCode { Key = KeyMapper.GetMicrosoftKeyName((int)Keys.Left), Code = (int)Keys.Left } } } },
-        //{ new MappedKeyCode { Key = KEY_PREFIX + Key.Escape.Name, Codes = new List<KeyCode> { new KeyCode { Key = KeyMapper.GetMicrosoftKeyName((int)Keys.Escape), Code = (int)Keys.Escape } } } },
-        { new MappedKeyCode { Key = KEY_PREFIX + Key.Ok.Name, Codes = new List<KeyCode> { new KeyCode { Key = KeyMapper.GetMicrosoftKeyName((int)Keys.Return), Code = (int)Keys.Return } } } },
-        { new MappedKeyCode { Key = KEY_PREFIX + Key.PageUp.Name, Codes = new List<KeyCode> { new KeyCode { Key = KeyMapper.GetMicrosoftKeyName((int)Keys.PageUp), Code = (int)Keys.PageUp } } } },
-        { new MappedKeyCode { Key = KEY_PREFIX + Key.PageDown.Name, Codes = new List<KeyCode> { new KeyCode { Key = KeyMapper.GetMicrosoftKeyName((int)Keys.PageDown), Code = (int)Keys.PageDown } } } },
-        { new MappedKeyCode { Key = KEY_PREFIX + Key.Record.Name, Codes = new List<KeyCode> { new KeyCode { Key = KeyMapper.GetMicrosoftKeyName((int)Keys.R), Code = (int)Keys.R } } } },
-        { new MappedKeyCode { Key = KEY_PREFIX + Key.Fullscreen.Name, Codes = new List<KeyCode> { new KeyCode { Key = KeyMapper.GetMicrosoftKeyName((int)Keys.F), Code = (int)Keys.F } } } },
-        { new MappedKeyCode { Key = KEY_PREFIX + Key.Play.Name, Codes = new List<KeyCode> { new KeyCode { Key = KeyMapper.GetMicrosoftKeyName((int)Keys.Play), Code = (int)Keys.Play } } } },
-        { new MappedKeyCode { Key = KEY_PREFIX + Key.Pause.Name, Codes = new List<KeyCode> { new KeyCode { Key = KeyMapper.GetMicrosoftKeyName((int)Keys.Pause), Code = (int)Keys.Pause } } } },
-        { new MappedKeyCode { Key = KEY_PREFIX + Key.PlayPause.Name, Codes = new List<KeyCode> { new KeyCode { Key = KeyMapper.GetMicrosoftKeyName((int)Keys.MediaPlayPause), Code = (int)Keys.MediaPlayPause } } } },
-        { new MappedKeyCode { Key = KEY_PREFIX + Key.Stop.Name, Codes = new List<KeyCode> { new KeyCode { Key = KeyMapper.GetMicrosoftKeyName((int)Keys.MediaStop), Code = (int)Keys.MediaStop } } } },
-        { new MappedKeyCode { Key = KEY_PREFIX + Key.Previous.Name, Codes = new List<KeyCode> { new KeyCode { Key = KeyMapper.GetMicrosoftKeyName((int)Keys.MediaPreviousTrack), Code = (int)Keys.MediaPreviousTrack } } } },
-        { new MappedKeyCode { Key = KEY_PREFIX + Key.Next.Name, Codes = new List<KeyCode> { new KeyCode { Key = KeyMapper.GetMicrosoftKeyName((int)Keys.MediaNextTrack), Code = (int)Keys.MediaNextTrack } } } },
-        { new MappedKeyCode { Key = KEY_PREFIX + Key.Mute.Name, Codes = new List<KeyCode> { new KeyCode { Key = KeyMapper.GetMicrosoftKeyName((int)Keys.VolumeMute), Code = (int)Keys.VolumeMute } } } },
-        { new MappedKeyCode { Key = KEY_PREFIX + Key.VolumeUp.Name, Codes = new List<KeyCode> { new KeyCode { Key = KeyMapper.GetMicrosoftKeyName((int)Keys.Add), Code = (int)Keys.Add } } } },
-        { new MappedKeyCode { Key = KEY_PREFIX + Key.VolumeDown.Name, Codes = new List<KeyCode> { new KeyCode { Key = KeyMapper.GetMicrosoftKeyName((int)Keys.Subtract), Code = (int)Keys.Subtract } } } },
-        { new MappedKeyCode { Key = KEY_PREFIX + Key.ZapBack.Name, Codes = new List<KeyCode> { new KeyCode { Key = KeyMapper.GetMicrosoftKeyName((int)Keys.Multiply), Code = (int)Keys.Multiply } } } },
+        { new MappedKeyCode { Key = KEY_PREFIX + Key.Info.Name, Codes = new List<KeyCode> { new KeyCode { Key = KeyMapper.GetMicrosoftKeyName((int)Keys.Apps), Code = InputDeviceManager.GetUniqueGenericKeyCode(true, false, (int)Keys.Apps) } } } },
+        { new MappedKeyCode { Key = KEY_PREFIX + Key.Up.Name, Codes = new List<KeyCode> { new KeyCode { Key = KeyMapper.GetMicrosoftKeyName((int)Keys.Up), Code = InputDeviceManager.GetUniqueGenericKeyCode(true, false, (int)Keys.Up) } } } },
+        { new MappedKeyCode { Key = KEY_PREFIX + Key.Down.Name, Codes = new List<KeyCode> { new KeyCode { Key = KeyMapper.GetMicrosoftKeyName((int)Keys.Down), Code = InputDeviceManager.GetUniqueGenericKeyCode(true, false, (int)Keys.Down) } } } },
+        { new MappedKeyCode { Key = KEY_PREFIX + Key.Right.Name, Codes = new List<KeyCode> { new KeyCode { Key = KeyMapper.GetMicrosoftKeyName((int)Keys.Right), Code = InputDeviceManager.GetUniqueGenericKeyCode(true, false, (int)Keys.Right) } } } },
+        { new MappedKeyCode { Key = KEY_PREFIX + Key.Left.Name, Codes = new List<KeyCode> { new KeyCode { Key = KeyMapper.GetMicrosoftKeyName((int)Keys.Left), Code = InputDeviceManager.GetUniqueGenericKeyCode(true, false, (int)Keys.Left) } } } },
+        { new MappedKeyCode { Key = KEY_PREFIX + Key.Ok.Name, Codes = new List<KeyCode> { new KeyCode { Key = KeyMapper.GetMicrosoftKeyName((int)Keys.Return), Code = InputDeviceManager.GetUniqueGenericKeyCode(true, false, (int)Keys.Return) } } } },
+        { new MappedKeyCode { Key = KEY_PREFIX + Key.PageUp.Name, Codes = new List<KeyCode> { new KeyCode { Key = KeyMapper.GetMicrosoftKeyName((int)Keys.PageUp), Code = InputDeviceManager.GetUniqueGenericKeyCode(true, false, (int)Keys.PageUp) } } } },
+        { new MappedKeyCode { Key = KEY_PREFIX + Key.PageDown.Name, Codes = new List<KeyCode> { new KeyCode { Key = KeyMapper.GetMicrosoftKeyName((int)Keys.PageDown), Code = InputDeviceManager.GetUniqueGenericKeyCode(true, false, (int)Keys.PageDown) } } } },
+        { new MappedKeyCode { Key = KEY_PREFIX + Key.Record.Name, Codes = new List<KeyCode> { new KeyCode { Key = KeyMapper.GetMicrosoftKeyName((int)Keys.R), Code = InputDeviceManager.GetUniqueGenericKeyCode(true, false, (int)Keys.R) } } } },
+        { new MappedKeyCode { Key = KEY_PREFIX + Key.Fullscreen.Name, Codes = new List<KeyCode> { new KeyCode { Key = KeyMapper.GetMicrosoftKeyName((int)Keys.F), Code = InputDeviceManager.GetUniqueGenericKeyCode(true, false, (int)Keys.F) } } } },
+        { new MappedKeyCode { Key = KEY_PREFIX + Key.Play.Name, Codes = new List<KeyCode> { new KeyCode { Key = KeyMapper.GetMicrosoftKeyName((int)Keys.Play), Code = InputDeviceManager.GetUniqueGenericKeyCode(true, false, (int)Keys.Play) } } } },
+        { new MappedKeyCode { Key = KEY_PREFIX + Key.Pause.Name, Codes = new List<KeyCode> { new KeyCode { Key = KeyMapper.GetMicrosoftKeyName((int)Keys.Pause), Code = InputDeviceManager.GetUniqueGenericKeyCode(true, false, (int)Keys.Pause) } } } },
+        { new MappedKeyCode { Key = KEY_PREFIX + Key.PlayPause.Name, Codes = new List<KeyCode> { new KeyCode { Key = KeyMapper.GetMicrosoftKeyName((int)Keys.MediaPlayPause), Code = InputDeviceManager.GetUniqueGenericKeyCode(true, false, (int)Keys.MediaPlayPause) } } } },
+        { new MappedKeyCode { Key = KEY_PREFIX + Key.Stop.Name, Codes = new List<KeyCode> { new KeyCode { Key = KeyMapper.GetMicrosoftKeyName((int)Keys.MediaStop), Code = InputDeviceManager.GetUniqueGenericKeyCode(true, false, (int)Keys.MediaStop) } } } },
+        { new MappedKeyCode { Key = KEY_PREFIX + Key.Previous.Name, Codes = new List<KeyCode> { new KeyCode { Key = ConsumerControl.ScanPreviousTrack.ToString(), Code = InputDeviceManager.GetUniqueGenericKeyCode(SharpLib.Hid.UsagePage.Consumer, (int)ConsumerControl.ScanPreviousTrack) } } } },
+        { new MappedKeyCode { Key = KEY_PREFIX + Key.Next.Name, Codes = new List<KeyCode> { new KeyCode { Key = ConsumerControl.ScanNextTrack.ToString(), Code = InputDeviceManager.GetUniqueGenericKeyCode(SharpLib.Hid.UsagePage.Consumer, (int)ConsumerControl.ScanNextTrack) } } } },
+        { new MappedKeyCode { Key = KEY_PREFIX + Key.Mute.Name, Codes = new List<KeyCode> { new KeyCode { Key = ConsumerControl.Mute.ToString(), Code = InputDeviceManager.GetUniqueGenericKeyCode(SharpLib.Hid.UsagePage.Consumer, (int)ConsumerControl.Mute) } } } },
+        { new MappedKeyCode { Key = KEY_PREFIX + Key.VolumeUp.Name, Codes = new List<KeyCode> { new KeyCode { Key = KeyMapper.GetMicrosoftKeyName((int)Keys.Add), Code = InputDeviceManager.GetUniqueGenericKeyCode(true, false, (int)Keys.Add) } } } },
+        { new MappedKeyCode { Key = KEY_PREFIX + Key.VolumeDown.Name, Codes = new List<KeyCode> { new KeyCode { Key = KeyMapper.GetMicrosoftKeyName((int)Keys.Subtract), Code = InputDeviceManager.GetUniqueGenericKeyCode(true, false, (int)Keys.Subtract) } } } },
+        { new MappedKeyCode { Key = KEY_PREFIX + Key.ZapBack.Name, Codes = new List<KeyCode> { new KeyCode { Key = KeyMapper.GetMicrosoftKeyName((int)Keys.Multiply), Code = InputDeviceManager.GetUniqueGenericKeyCode(true, false, (int)Keys.Multiply) } } } },
       };
     }
 
@@ -483,9 +476,9 @@ namespace MediaPortal.Plugins.InputDeviceManager.Models
           {
             var keys = _pressedAddKeyCombo.Select(c => new KeyCode(c.Key, c.Value)).ToList();
             UpdateSettings(new List<MappedKeyCode> { new MappedKeyCode(_chosenAction, keys) }, false);
-            ServiceRegistration.Get<ILogger>().Debug("InputDeviceManager: Saved mapped keys: " + string.Join(", ", _pressedAddKeyCombo.Select(k => k.Key)));
-            ServiceRegistration.Get<ILogger>().Debug("InputDeviceManager: Saved mapped codes: " + string.Join(", ", _pressedAddKeyCombo.Select(k => k.Value)));
-            ServiceRegistration.Get<ILogger>().Debug("InputDeviceManager: Saved action: " + _chosenAction);
+            //ServiceRegistration.Get<ILogger>().Debug("InputDeviceManager: Saved mapped keys: " + string.Join(", ", _pressedAddKeyCombo.Select(k => k.Key)));
+            //ServiceRegistration.Get<ILogger>().Debug("InputDeviceManager: Saved mapped codes: " + string.Join(", ", _pressedAddKeyCombo.Select(k => k.Value)));
+            //ServiceRegistration.Get<ILogger>().Debug("InputDeviceManager: Saved action: " + _chosenAction);
           }
 
           ResetAddKey();

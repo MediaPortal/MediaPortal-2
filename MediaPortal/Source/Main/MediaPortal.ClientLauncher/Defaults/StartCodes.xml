@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Contains a default key combination that can be used to start the client.
+  To add any other key combination, copy this file to the config directory and edit it there. It is also possible to 
+  edit this file directly where it's installed but it will probably be overwritten on the next update if you do.
+  Possble StartCode types are "Remote", "Consumer" and "Keyboard". That and the comma separated list of keys part of 
+  the combination needs to be determined first.
+-->
+<ArrayOfStartCode xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <!--Green button-->
+  <StartCode Type="Remote" Codes="13" />
+  <!--Movie browser launcher-->
+  <StartCode Type="Consumer" Codes="440" />
+  <!--Entertainment content launcher-->
+  <StartCode Type="Consumer" Codes="448" />
+  <!--WMC launcher-->
+  <StartCode Type="Keyboard" Codes="91,164,13" />
+</ArrayOfStartCode>

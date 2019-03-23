@@ -24,33 +24,82 @@
 
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
+using MediaPortal.Common.PathManager;
 using MediaPortal.Utilities.SystemAPI;
 using SharpLib.Hid;
 using SharpLib.Win32;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Threading;
 using System.Windows.Forms;
+using System.Xml.Serialization;
 
 namespace MediaPortal.Client.Launcher
 {
   public class RawMessageHandler : IDisposable
   {
     private readonly IntPtr HWND_MESSAGE = new IntPtr(-3);
+    private const string REMOTE_INPUT_TYPE = "Remote";
+    private const string CONSUMER_INPUT_TYPE = "Consumer";
+    private const string KEYBOARD_INPUT_TYPE = "Keyboard";
 
     private uint _hidThreadId;
     private Thread _hidEventThread;
     private IntPtr _dummyWindow;
     private SharpLib.Hid.Handler _hidHandler;
+    private List<StartCode> _startCodes;
+    private Dictionary<string, List<string>> _currentCodes;
+    private System.Timers.Timer _resetTimer = new System.Timers.Timer(3000);
 
     public event EventHandler OnStartRequest;
 
     public RawMessageHandler()
     {
+      _resetTimer.AutoReset = false;
+      _resetTimer.Elapsed += (s, e) =>
+      {
+        ClearInput();
+      };
+
+      _currentCodes = new Dictionary<string, List<string>>();
+      _currentCodes[REMOTE_INPUT_TYPE] = new List<string>();
+      _currentCodes[CONSUMER_INPUT_TYPE] = new List<string>();
+      _currentCodes[KEYBOARD_INPUT_TYPE] = new List<string>();
+
+      _startCodes = new List<StartCode>();
+      LoadStartCodes();
+
       _hidEventThread = new Thread(HidEventHandlerThread) { Name = "hidEvtHnd", IsBackground = true, Priority = ThreadPriority.Normal };
       _hidEventThread.Start();
+    }
+
+    private void LoadStartCodes()
+    {
+      _startCodes.Clear();
+      string startCodeFile = ServiceRegistration.Get<IPathManager>().GetPath(@"<CONFIG>\StartCodes.xml");
+      if (!File.Exists(startCodeFile))
+        startCodeFile = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), @"Defaults\StartCodes.xml");
+      if (!File.Exists(startCodeFile))
+      {
+        ServiceRegistration.Get<ILogger>().Info("Unable to load start codes. Using defaults");
+        _startCodes.Add(new StartCode(REMOTE_INPUT_TYPE, "13")); //GreenStart
+        _startCodes.Add(new StartCode(CONSUMER_INPUT_TYPE, "440")); //AppLaunchMovieBrowser
+        _startCodes.Add(new StartCode(CONSUMER_INPUT_TYPE, "448")); //AppLaunchEntertainmentContentBrowser
+        _startCodes.Add(new StartCode(KEYBOARD_INPUT_TYPE, "91,164,13")); //WMC launch
+        return;
+      }
+
+      XmlSerializer reader = new XmlSerializer(typeof(List<StartCode>));
+      using (StreamReader file = new StreamReader(startCodeFile))
+      {
+        var list = (List<StartCode>)reader.Deserialize(file);
+        foreach (var item in list)
+          _startCodes.Add(new StartCode(item.Type.Trim(), item.Codes.Replace(" ", "").Trim()));
+      }
     }
 
     private void HidEventHandlerThread()
@@ -146,6 +195,24 @@ namespace MediaPortal.Client.Launcher
     {
       try
       {
+        if (hidEvent.IsButtonDown)
+        {
+          if (hidEvent.IsGeneric)
+          {
+            var id = hidEvent.Usages.FirstOrDefault();
+            if (hidEvent.UsagePageEnum == UsagePage.WindowsMediaCenterRemoteControl && !_currentCodes[REMOTE_INPUT_TYPE].Contains(id.ToString()))
+              _currentCodes[REMOTE_INPUT_TYPE].Add(id.ToString());
+            if (hidEvent.UsagePageEnum == UsagePage.Consumer && !_currentCodes[CONSUMER_INPUT_TYPE].Contains(id.ToString()))
+              _currentCodes[CONSUMER_INPUT_TYPE].Add(id.ToString());
+          }
+          else if (hidEvent.IsKeyboard)
+          {
+            int key = (int)hidEvent.VirtualKey;
+            if (!_currentCodes[KEYBOARD_INPUT_TYPE].Contains(key.ToString()))
+              _currentCodes[KEYBOARD_INPUT_TYPE].Add(key.ToString());
+          }
+          _resetTimer.Enabled = true;
+        }
         if (hidEvent.IsButtonUp)
         {
           if (hidEvent.IsGeneric)
@@ -153,26 +220,29 @@ namespace MediaPortal.Client.Launcher
             var id = hidEvent.Usages.FirstOrDefault();
             if (hidEvent.UsagePageEnum == UsagePage.WindowsMediaCenterRemoteControl)
             {
-              if (Enum.IsDefined(typeof(SharpLib.Hid.Usage.WindowsMediaCenterRemoteControl), id) && (SharpLib.Hid.Usage.WindowsMediaCenterRemoteControl)id == SharpLib.Hid.Usage.WindowsMediaCenterRemoteControl.GreenStart)
-              {
+              if (IsCombinationMatch(REMOTE_INPUT_TYPE))
                 OnStartRequest?.Invoke(this, EventArgs.Empty);
-              }
+
+              if (_currentCodes[REMOTE_INPUT_TYPE].Contains(id.ToString()))
+                _currentCodes[REMOTE_INPUT_TYPE].Remove(id.ToString());
             }
             else if (hidEvent.UsagePageEnum == UsagePage.Consumer)
             {
-              if (Enum.IsDefined(typeof(SharpLib.Hid.Usage.ConsumerControl), id) && ((SharpLib.Hid.Usage.ConsumerControl)id == SharpLib.Hid.Usage.ConsumerControl.AppLaunchEntertainmentContentBrowser ||
-                (SharpLib.Hid.Usage.ConsumerControl)id == SharpLib.Hid.Usage.ConsumerControl.AppLaunchMovieBrowser))
-              {
+              if (IsCombinationMatch(CONSUMER_INPUT_TYPE))
                 OnStartRequest?.Invoke(this, EventArgs.Empty);
-              }
+
+              if (_currentCodes[CONSUMER_INPUT_TYPE].Contains(id.ToString()))
+                _currentCodes[CONSUMER_INPUT_TYPE].Remove(id.ToString());
             }
           }
           else if (hidEvent.IsKeyboard)
           {
-            if (hidEvent.VirtualKey == Keys.LaunchApplication1)
-            {
+            if (IsCombinationMatch(KEYBOARD_INPUT_TYPE))
               OnStartRequest?.Invoke(this, EventArgs.Empty);
-            }
+
+            int key = (int)hidEvent.VirtualKey;
+            if (_currentCodes[KEYBOARD_INPUT_TYPE].Contains(key.ToString()))
+              _currentCodes[KEYBOARD_INPUT_TYPE].Remove(key.ToString());
           }
         }
       }
@@ -180,6 +250,28 @@ namespace MediaPortal.Client.Launcher
       {
         ServiceRegistration.Get<ILogger>().Error("HID event failed", ex);
       }
+    }
+
+    private void ClearInput()
+    {
+      _resetTimer.Enabled = false;
+      _currentCodes[REMOTE_INPUT_TYPE].Clear();
+      _currentCodes[CONSUMER_INPUT_TYPE].Clear();
+      _currentCodes[KEYBOARD_INPUT_TYPE].Clear();
+    }
+
+    private bool IsCombinationMatch(string type)
+    {
+      foreach (var startCode in _startCodes.Where(s => s.Type == type))
+      {
+        string[] codes = startCode.Codes.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
+        if (_currentCodes[type].All(c => codes.Contains(c)) && codes.All(c => _currentCodes[type].Contains(c)))
+        {
+          ClearInput();
+          return true;
+        }
+      }
+      return false;
     }
 
     public void Dispose()

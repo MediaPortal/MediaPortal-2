@@ -54,9 +54,13 @@
     </Compile>
     <Compile Include="CommandLineOptions.cs" />
     <Compile Include="ApplicationLauncher.cs" />
+    <Compile Include="StartCode.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="RawMessageHandler.cs" />
     <Content Include="Defaults\Paths.xml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Defaults\StartCodes.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="MP2.ico" />
