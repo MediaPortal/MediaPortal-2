@@ -204,8 +204,11 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
         if (pics.Length > 0)
         {
           string filename = Path.GetFileNameWithoutExtension(lfsra.LocalFileSystemPath);
-          await fanArtCache.TrySaveFanArt(mediaItemId, title, FanArtTypes.Thumbnail,
-            p => TrySaveFileImage(pics[0].Data.Data, p, filename)).ConfigureAwait(false);
+          foreach (var pic in pics)
+          {
+            if (pic.Type == PictureType.FrontCover)
+              await fanArtCache.TrySaveFanArt(mediaItemId, title, FanArtTypes.Thumbnail, p => TrySaveFileImage(pic.Data.Data, p, filename)).ConfigureAwait(false);
+          }
         }
       }
     }
