@@ -188,7 +188,6 @@
     <Compile Include="Player\SlimTvPlayerBuilder.cs" />
     <Compile Include="TvHandler\TimeshiftContext.cs" />
     <Compile Include="MediaExtensions\RecordingsFilterByChannelScreenData.cs" />
-    <Content Include="Skin\ApolloOne\screens\ProgramInfoSlim.inc" />
     <Content Include="Skin\BlueVision\screens\MediaItemRecordingDetails.inc" />
     <Content Include="Skin\BlueVision\screens\ProgramInfo.inc" />
     <Content Include="Skin\BlueVision\screens\ProgramInfoSlim.inc" />
@@ -219,15 +218,8 @@
     <Content Include="Skin\default\screens\DialogProgramActionsFull.xaml" />
     <Content Include="Skin\default\themes\default\styles\SlimTvConsts.xaml" />
     <Content Include="Skin\default\screens\SlimTvClient-miniguide.xaml" />
-    <Content Include="Skin\Reflexion\themes\default\styles\ProgramInfoSlim.inc" />
-    <Content Include="Skin\RisingSkin\themes\Silver\styles\SlimTvStyles.xaml" />
     <Content Include="Skin\default\themes\default\styles\SlimTvColors.xaml" />
-    <Content Include="Skin\Reflexion\themes\default\styles\SlimTvStyles.xaml" />
-    <Content Include="Skin\Reflexion\themes\default\styles\SlimTvConsts.xaml" />
     <Content Include="Skin\default\screens\RecordingsByChannel.xaml" />
-    <Content Include="Skin\Titanium\screens\ProgramInfoSlim.inc" />
-    <Content Include="Skin\Titanium\themes\default\styles\SlimTvConsts.xaml" />
-    <Content Include="Skin\Titanium\themes\default\styles\SlimTvStyles.xaml" />
   </ItemGroup>
   <ItemGroup>
     <None Include="build.targets">
@@ -241,11 +233,6 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Skin\default\screens\SlimTvClient-extschedule.xaml">
-      <SubType>Designer</SubType>
-    </Content>
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="Skin\Titanium\screens\SlimTvClient-extschedule.xaml">
       <SubType>Designer</SubType>
     </Content>
   </ItemGroup>
@@ -264,71 +251,9 @@
       <SubType>Designer</SubType>
     </Content>
   </ItemGroup>
-  <ItemGroup>
-    <Content Include="Skin\Titanium\screens\SlimTvClient-schedulelist.xaml">
-      <SubType>Designer</SubType>
-    </Content>
-  </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Skin\Reflexion\screens\" />
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="Skin\Titanium\screens\SlimTvClient-guide.xaml">
-      <SubType>Designer</SubType>
-    </Content>
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="Skin\Titanium\screens\FullScreenContentTv.xaml">
-      <SubType>Designer</SubType>
-    </Content>
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="Skin\Titanium\screens\SlimTvClient-fullguide.xaml">
-      <SubType>Designer</SubType>
-    </Content>
-  </ItemGroup>
+  <ItemGroup />
   <ItemGroup>
     <Content Include="Skin\default\screens\DialogClientModel.xaml">
-      <SubType>Designer</SubType>
-    </Content>
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="Skin\Titanium\screens\SlimTvClient-main.xaml">
-      <SubType>Designer</SubType>
-    </Content>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Skin\Titanium\screens\master_tv_menu.xaml">
-      <SubType>Designer</SubType>
-    </None>
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="Skin\ApolloOne\screens\FullScreenContentTv.xaml">
-      <SubType>Designer</SubType>
-    </Content>
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="Skin\ApolloOne\screens\SlimTvClient-fullguide.xaml">
-      <SubType>Designer</SubType>
-    </Content>
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="Skin\ApolloOne\screens\SlimTvClient-guide.xaml">
-      <SubType>Designer</SubType>
-    </Content>
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="Skin\ApolloOne\themes\default\styles\SlimTvConsts.xaml">
-      <SubType>Designer</SubType>
-    </Content>
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="Skin\ApolloOne\themes\default\styles\SlimTvStyles.xaml">
-      <SubType>Designer</SubType>
-    </Content>
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="Skin\ApolloOne\themes\default\styles\SlimTvColors.xaml">
       <SubType>Designer</SubType>
     </Content>
   </ItemGroup>
