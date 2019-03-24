@@ -31,7 +31,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Settings
     /// <summary>
     /// Defines the number of rows to be visible in EPG.
     /// </summary>
-    [Setting(SettingScope.User, DefaultValue = 7)]
+    [Setting(SettingScope.User, DefaultValue = 9)]
     public int EpgNumberOfRows { get; set; }
 
     /// <summary>

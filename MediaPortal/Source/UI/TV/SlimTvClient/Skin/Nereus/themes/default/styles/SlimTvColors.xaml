@@ -7,7 +7,8 @@
   <ResourceWrapper x:Key="NextProgramLabelColor" Resource="#009999"/>
 
   <!-- Program guide colors -->
-  <ResourceWrapper x:Key="ProgramBaseFill" Resource="#2c2c2c"/>
+  <ResourceWrapper x:Key="BaseFill" Resource="#2c2c2c"/>
+  <ResourceWrapper x:Key="ProgramBaseFill" Resource="{ThemeResource NereusColorDark}"/>
   <ResourceWrapper x:Key="ProgramFocusedFill" Resource="{ThemeResource NereusColorLight}"/>
   <ResourceWrapper x:Key="ProgramRunningFill" Resource="{ThemeResource NereusColorMedium}"/>
   <ResourceWrapper x:Key="ProgramRecordFill" Resource="#8F0000"/>

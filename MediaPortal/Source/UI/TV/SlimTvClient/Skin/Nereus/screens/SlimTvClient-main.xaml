@@ -42,7 +42,7 @@
         <!--Control Template="{ThemeResource PiPControlTemplate}" Margin="20,9,20,8" Grid.Column="2" Grid.Row="0"
                  HorizontalAlignment="Left"/-->
 
-        <Button Style="{ThemeResource ProgramGuideButtonStyle}" Command="{Command Source={StaticResource SlimTvMultiChannelGuide}, Path=SelectGroup}" 
+        <Button Style="{ThemeResource BaseGuideButtonStyle}" Command="{Command Source={StaticResource SlimTvMultiChannelGuide}, Path=SelectGroup}" 
                 VerticalAlignment="Stretch" Grid.Row="1" Margin="0,5,0,22">
           <Label x:Name="GroupNameLabel" Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}" VerticalContentAlignment="Center" HorizontalContentAlignment="Center"
                  Opacity="0.5" Content="{Binding CurrentGroupName}" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="0,0,8,0">
@@ -57,7 +57,7 @@
           </Label>
         </Button>
 
-        <ListView  x:Name="ProgramsListView" Grid.Column="1" Grid.Row="1" Grid.ColumnSpan="2"
+        <ListView  x:Name="ProgramsListView" Grid.Column="1" Grid.Row="1" Grid.ColumnSpan="2" 
                    HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="20,5,-10,0"
                    Style="{ThemeResource ChannelWithLogoAndProgramListViewStyle}"
                    ItemsSource="{Binding Path=CurrentGroupChannels}" RestoreFocus="True"
