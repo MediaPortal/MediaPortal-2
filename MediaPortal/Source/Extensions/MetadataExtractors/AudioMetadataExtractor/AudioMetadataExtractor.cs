@@ -696,24 +696,25 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
                 if (year >= 1930 && year <= 2030)
                   trackInfo.ReleaseDate = new DateTime(year, 1, 1);
 
-                if (!trackInfo.HasThumbnail)
-                {
-                  // The following code gets cover art images from file (embedded) or from windows explorer cache (supports folder.jpg).
-                  IPicture[] pics = tag.Tag.Pictures;
-                  if (pics.Length > 0)
-                  {
-                    try
-                    {
-                      using (MemoryStream stream = new MemoryStream(pics[0].Data.Data))
-                      {
-                        trackInfo.Thumbnail = stream.ToArray();
-                        trackInfo.HasChanged = true;
-                      }
-                    }
-                    // Decoding of invalid image data can fail, but main MediaItem is correct.
-                    catch { }
-                  }
-                }
+                //Thumbnails in tags will be displayed through the fanart provider
+                //if (!trackInfo.HasThumbnail)
+                //{
+                //  // The following code gets cover art images from file (embedded) or from windows explorer cache (supports folder.jpg).
+                //  IPicture[] pics = tag.Tag.Pictures;
+                //  if (pics.Length > 0)
+                //  {
+                //    try
+                //    {
+                //      using (MemoryStream stream = new MemoryStream(pics[0].Data.Data))
+                //      {
+                //        trackInfo.Thumbnail = stream.ToArray();
+                //        trackInfo.HasChanged = true;
+                //      }
+                //    }
+                //    // Decoding of invalid image data can fail, but main MediaItem is correct.
+                //    catch { }
+                //  }
+                //}
               }
 
               if (tag.Properties.Codecs.Count() > 0)

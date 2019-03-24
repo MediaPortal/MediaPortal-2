@@ -180,7 +180,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
       }
       catch (Exception ex)
       {
-        Logger.Warn("VideoFanArtHandler: Exception while reading MKV tag images for '{0}'", ex, mediaItemLocator.NativeResourcePath);
+        Logger.Warn("AudioFanArtHandler: Exception while reading MKV tag images for '{0}'", ex, mediaItemLocator.NativeResourcePath);
       }
     }
 
@@ -204,10 +204,18 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
         if (pics.Length > 0)
         {
           string filename = Path.GetFileNameWithoutExtension(lfsra.LocalFileSystemPath);
+          bool imageFound = false;
           foreach (var pic in pics)
           {
-            if (pic.Type == PictureType.FrontCover)
+            if (pic.Type == PictureType.FrontCover || pic.Type == PictureType.Other)
+            {
+              imageFound = true;
               await fanArtCache.TrySaveFanArt(mediaItemId, title, FanArtTypes.Thumbnail, p => TrySaveFileImage(pic.Data.Data, p, filename)).ConfigureAwait(false);
+            }
+          }
+          if (!imageFound) //If no matching image type found, use first image
+          {
+            await fanArtCache.TrySaveFanArt(mediaItemId, title, FanArtTypes.Thumbnail, p => TrySaveFileImage(pics[0].Data.Data, p, filename)).ConfigureAwait(false);
           }
         }
       }
@@ -266,7 +274,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
       }
       catch (Exception ex)
       {
-        Logger.Warn("MovieFanArtHandler: Exception while reading folder images for '{0}'", ex, albumDirectory);
+        Logger.Warn("AudioFanArtHandler: Exception while reading folder images for '{0}'", ex, albumDirectory);
       }
     }
 
@@ -338,7 +346,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
       }
       catch (Exception ex)
       {
-        Logger.Warn("MovieFanArtHandler: Exception while reading folder images for '{0}'", ex, artistDirectory);
+        Logger.Warn("AudioFanArtHandler: Exception while reading folder images for '{0}'", ex, artistDirectory);
       }
     }
 
