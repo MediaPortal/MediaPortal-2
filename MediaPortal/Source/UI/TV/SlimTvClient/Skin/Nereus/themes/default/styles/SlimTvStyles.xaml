@@ -1035,7 +1035,7 @@
             </DataTrigger>
             
             <DataTrigger Binding="{Binding Programs[1].Program.IsSeriesScheduled}" Value="True">
-              <Setter TargetName="SeriesRecIndicator" Property="IsVisible" Value="True"/>
+              <Setter TargetName="SeriesRecIndicator2" Property="IsVisible" Value="True"/>
             </DataTrigger>
 
             <Trigger Property="HasFocus" Value="True">
@@ -1315,7 +1315,7 @@
                FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColor}" FontFamily="SegoeUIBold" Scroll="Auto"
                IsVisible="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}},Path=HasFocus}"/>
         <Label x:Name="CurrentSeriesLabel" Grid.Column="1" VerticalAlignment="Center" Color="{ThemeResource TextColor}" 
-               FontSize="{ThemeResource SmallFontSize}" Opacity="0.8" Margin="5,1,0,3"
+               FontSize="{ThemeResource SmallFontSize}" Opacity="0.8" Margin="5,0,0,2"
                IsVisible="{Binding Path=Programs[0].Program.Series, Converter={StaticResource EmptyStringToFalseConverter}}">
           <Label.Content>
             <Binding Path="Programs[0].Program.Series" Converter="{StaticResource StringFormatConverter}" ConverterParameter="{} ({0})"/>
@@ -1331,15 +1331,10 @@
                Stretch="Uniform" Margin="0,2,2,2" HorizontalAlignment="Right" VerticalAlignment="Center"/>
         <Image Grid.Column="2" x:Name="SeriesRecIndicator" Source="record_series.png" IsVisible="False" Width="25"
                Stretch="Uniform" Margin="0,2,2,2" HorizontalAlignment="Right" VerticalAlignment="Center"/>
-        <ProgressBar x:Name="CurrentProgramProgress" Grid.ColumnSpan="3" Height="10" HorizontalAlignment="Stretch" VerticalAlignment="Bottom"
-                     Value="{Binding Programs[0].Progress}" Style="{ThemeResource SimpleProgressBarStyle}" Margin="-5,0,5,-5">
-          <ProgressBar.Triggers>
-            <DataTrigger Binding="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Button}, Path=HasFocus}" Value="True">
-              <Setter TargetName="CurrentProgramProgress" Property="Margin" Value="-5,0,5,-9"/>
-            </DataTrigger>
-          </ProgressBar.Triggers>
-        </ProgressBar>
       </Grid>
+
+      <ProgressBar x:Name="CurrentProgramProgress" Grid.Column="2" Height="10" HorizontalAlignment="Stretch" VerticalAlignment="Bottom"
+                   Value="{Binding Programs[0].Progress}" Style="{ThemeResource SimpleProgressBarStyle}" Margin="0,0,5,-5"/>
 
       <Grid Grid.Column="3" Grid.Row="0" Margin="5,0,15,0">
         <Grid.ColumnDefinitions>
@@ -1355,7 +1350,7 @@
                FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColor}" FontFamily="SegoeUIBold" Scroll="Auto"
                IsVisible="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}},Path=HasFocus}"/>
         <Label x:Name="NextSeriesLabel" Grid.Column="1" VerticalAlignment="Center" Color="{ThemeResource TextColor}" 
-               FontSize="{ThemeResource SmallFontSize}" Margin="5,1,0,3" Opacity="0.8"
+               FontSize="{ThemeResource SmallFontSize}" Margin="5,0,0,2" Opacity="0.8"
                IsVisible="{Binding Path=Programs[1].Program.Series, Converter={StaticResource EmptyStringToFalseConverter}}">
           <Label.Content>
             <Binding Path="Programs[1].Program.Series" Converter="{StaticResource StringFormatConverter}" ConverterParameter="{} ({0})"/>

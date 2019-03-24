@@ -34,10 +34,17 @@
         <Image Source="BottomGlow.png" Grid.ColumnSpan="3" Grid.Row="1" Stretch="Fill" VerticalAlignment="Bottom" HorizontalAlignment="Stretch" 
                Height="20" Margin="0,0,-30,-20"/>
 
-        <Label x:Name="CurrentProgramLabel" Content="[SlimTvClient.CurrentProgram]" VerticalAlignment="Center" Grid.Column="2"
+        <Label x:Name="Time" FontSize="{ThemeResource SmallFontSize}" VerticalAlignment="Center" Margin="20,5,10,5" FontFamily="SegoeUIBold"
+               Content="{Binding Source={StaticResource TimeModel}, Path=CurrentTime}" Color="{ThemeResource TextColor}" Grid.ColumnSpan="2">
+          <Label.Resources>
+            <Model x:Key="TimeModel" Id="E821B1C8-0666-4339-8027-AA45A4F6F107"/>
+          </Label.Resources>
+        </Label>
+
+        <Label x:Name="CurrentProgramLabel" Grid.Column="2" Content="[SlimTvClient.CurrentProgram]" VerticalAlignment="Center" 
                Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}" Margin="380,5,10,5"/>
-        <Label x:Name="NextProgramLabel" Content="[SlimTvClient.NextProgram]" VerticalAlignment="Center" Grid.Column="2"
-               Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}" Margin="1120,5,10,5"/>
+        <Label x:Name="NextProgramLabel" Grid.Column="2" Content="[SlimTvClient.NextProgram]" VerticalAlignment="Center" 
+               Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}" Margin="1200,5,10,5"/>
 
         <!--Control Template="{ThemeResource PiPControlTemplate}" Margin="20,9,20,8" Grid.Column="2" Grid.Row="0"
                  HorizontalAlignment="Left"/-->
