@@ -63,7 +63,7 @@
             <RowDefinition Height="Auto"/>
           </Grid.RowDefinitions>
 
-          <StackPanel x:Name="TimeControls" Margin="-20,0,0,0" VerticalAlignment="Center" Orientation="Horizontal">
+          <StackPanel x:Name="TimeControls" Margin="-35,0,0,0" VerticalAlignment="Center" Orientation="Horizontal">
             <Button x:Name="ScrollBackwardButton" Style="{StaticResource SubMenuRightButtonStyle}" 
                     Command="{Command ScrollBackward}" Height="30" VerticalAlignment="Center" Margin="0,-1,0,1"/>
             <Label Grid.Column="0" Content="{Binding Path=GuideStartTime, Converter={StaticResource SlimTvDateFormatConverter}}"

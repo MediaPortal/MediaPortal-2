@@ -43,7 +43,7 @@
                  HorizontalAlignment="Left"/-->
 
         <Button Style="{ThemeResource ProgramGuideButtonStyle}" Command="{Command Source={StaticResource SlimTvMultiChannelGuide}, Path=SelectGroup}" 
-                VerticalAlignment="Stretch" Grid.Row="1" Margin="0,5,0,46">
+                VerticalAlignment="Stretch" Grid.Row="1" Margin="0,5,0,22">
           <Label x:Name="GroupNameLabel" Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}" VerticalContentAlignment="Center" HorizontalContentAlignment="Center"
                  Opacity="0.5" Content="{Binding CurrentGroupName}" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="0,0,8,0">
             <Label.LayoutTransform>

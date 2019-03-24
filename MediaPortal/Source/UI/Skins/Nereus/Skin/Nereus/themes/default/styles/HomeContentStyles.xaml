@@ -1150,7 +1150,7 @@
       <ListView Style="{ThemeResource HomeTilesListViewStyle}"
                 IsEnabled="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=IsEnabled}">
 
-        <ListView Width="190" Margin="0,35,15,0">
+        <ListView Width="190" Margin="0,35,15,0" RestoreFocus="True">
           <ListViewItem>
             <Button Width="170" Height="159" Focusable="True" Margin="{ThemeResource TileMargin}" Style="{ThemeResource SubMenuButtonStyle}"
                     VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
