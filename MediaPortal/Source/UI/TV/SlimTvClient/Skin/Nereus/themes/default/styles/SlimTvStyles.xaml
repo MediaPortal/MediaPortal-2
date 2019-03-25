@@ -944,41 +944,27 @@
             <Grid.RowDefinitions>
               <RowDefinition Height="*"/>
             </Grid.RowDefinitions>
-            <Grid.RenderTransform>
-              <TransformGroup>
-                <ScaleTransform ScaleX="1" ScaleY="1"/>
-              </TransformGroup>
-            </Grid.RenderTransform>
-            <Control x:Name="ButtonControlBackground" Style="{ThemeResource ButtonControlStyle}" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
+
             <ContentPresenter x:Name="ButtonContentPresenter" Margin="10,5,10,5" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
           </Grid>
 
           <ControlTemplate.Triggers>
             <DataTrigger Binding="{Binding IsRunning}" Value="True">
-              <Setter TargetName="Item1" Property="Background" Value="{ThemeResource ProgramRunningFill}"/>
               <Setter TargetName="Item2" Property="Background" Value="{ThemeResource ProgramRunningFill}"/>
               <Setter TargetName="Item3" Property="Background" Value="{ThemeResource ProgramRunningFill}"/>
             </DataTrigger>
-            <DataTrigger Binding="{Binding Program.IsScheduled}" Value="True">
-              <Setter TargetName="Item2_record" Property="Background" Value="{ThemeResource ProgramScheduledFill}"/>
-              <Setter TargetName="Item3_record" Property="Background" Value="{ThemeResource ProgramRecordFill}"/>
-            </DataTrigger>
-
+            
             <MultiTrigger>
               <MultiTrigger.Conditions>
                 <Condition Binding="{Binding Program.IsScheduled}" Value="True" />
-                <Condition Binding="{Binding Source={StaticResource SlimTvMultiChannelGuide}, Path=ShowGenreColors}" Value="True" />
+                <Condition Binding="{Binding Program.IsSeriesScheduled}" Value="False" />
               </MultiTrigger.Conditions>
               <Setter TargetName="RecIndicator" Property="IsVisible" Value="True"/>
             </MultiTrigger>
 
-            <MultiTrigger>
-              <MultiTrigger.Conditions>
-                <Condition Binding="{Binding Program.IsSeriesScheduled}" Value="True" />
-                <Condition Binding="{Binding Source={StaticResource SlimTvMultiChannelGuide}, Path=ShowGenreColors}" Value="True" />
-              </MultiTrigger.Conditions>
+            <DataTrigger Binding="{Binding Program.IsSeriesScheduled}" Value="True">
               <Setter TargetName="SeriesRecIndicator" Property="IsVisible" Value="True"/>
-            </MultiTrigger>
+            </DataTrigger>
 
             <Trigger Property="HasFocus" Value="True">
               <Setter TargetName="Item1_overlay" Property="Background" Value="{ThemeResource ProgramFocusedFill}"/>
@@ -1065,13 +1051,6 @@
           <Button Margin="50,0,20,0" Style="{ThemeResource TVButtonWideStyle}"
                   Command="{DynamicResource ResourceKey=Menu_Command}"
                   IsEnabled="{Binding Enabled}" SetFocus="{Binding Path=Selected,Mode=OneTime}">
-            <!--Button.Triggers>
-              <Trigger Property="HasFocus" Value="True">
-                <Setter TargetName="Item1" Property="Background" Value="#003366"/>
-                <Setter TargetName="Item2" Property="Background" Value="#003366"/>
-                <Setter TargetName="Item3" Property="Background" Value="#003366"/>
-              </Trigger>
-            </Button.Triggers-->
           </Button>
         </ControlTemplate>
       </Setter.Value>
@@ -1178,60 +1157,113 @@
   </Style>
 
   <DataTemplate x:Key="SingleChannelWithCurrentProgramDataTemplate" DataType="{x:Type collections:ListItem}">
-    <Grid x:Name="ItemControl" VerticalAlignment="Center" HorizontalAlignment="Stretch" RenderTransformOrigin="0.5,0.5" Margin="-80,0,0,0">
+    <Grid x:Name="ItemControl" VerticalAlignment="Center" HorizontalAlignment="Stretch" RenderTransformOrigin="0.5,0.5" Margin="-80,0,0,0" Height="50">
       <Grid.ColumnDefinitions>
         <ColumnDefinition Width="Auto"/>
-        <!-- Channel Logo -->
-        <ColumnDefinition Width="400"/>
-        <!-- Channel Name -->
         <ColumnDefinition Width="*"/>
-        <!-- Program Title -->
-        <ColumnDefinition Width="300"/>
-        <!-- Program Time -->
+        <ColumnDefinition Width="400"/>
       </Grid.ColumnDefinitions>
       <Grid.RowDefinitions>
-        <RowDefinition Height="Auto"/>
+        <RowDefinition Height="*"/>
       </Grid.RowDefinitions>
-      <Grid.RenderTransform>
-        <TransformGroup>
-          <ScaleTransform ScaleX="1" ScaleY="1"/>
-        </TransformGroup>
-      </Grid.RenderTransform>
 
-      <Border x:Name="Item1" Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
-              Background="#FF000000" BorderThickness="0" Margin="0,-5,5,-5"/>
-      <Border x:Name="Item2" Grid.Row="0" Grid.Column="2" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
-              Background="#FF000000" BorderThickness="0" Margin="0,-5,15,-5"/>
-      <Border x:Name="Item3" Grid.Row="0" Grid.Column="3" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
-              Background="#FF000000" BorderThickness="0" Margin="-10,-5,-15,-5"/>
+      <Border x:Name="Item1" Grid.Row="0" Grid.Column="0" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
+              Background="{ThemeResource BaseFill}" BorderThickness="0" Margin="0,-5,4,-5"/>
+      <Border x:Name="Item2" Grid.Row="0" Grid.Column="1" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
+              Background="{ThemeResource ProgramBaseFill}" BorderThickness="0" Margin="0,-5,4,-5"/>
+      <Border x:Name="Item3" Grid.Row="0" Grid.Column="2" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
+              Background="{ThemeResource ProgramBaseFill}" BorderThickness="0" Margin="0,-5,4,-5"/>
 
-      <Border x:Name="Item2_record" Grid.Row="0" Grid.Column="2" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
-              Background="Transparent" BorderThickness="0" Margin="0,-5,15,-5"/>
-      <Border x:Name="Item3_record" Grid.Row="0" Grid.Column="3" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
-              Background="Transparent" BorderThickness="0" Margin="-10,-5,-15,-5"/>
+      <Border x:Name="Item1_overlay" Grid.Row="0" Grid.Column="0" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
+              Background="Transparent" BorderThickness="0" Margin="0,-5,4,-5"/>
+      <Border x:Name="Item2_overlay" Grid.Row="0" Grid.Column="1" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
+              Background="Transparent" BorderThickness="0" Margin="0,-5,4,-5"/>
+      <Border x:Name="Item3_overlay" Grid.Row="0" Grid.Column="2" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
+              Background="Transparent" BorderThickness="0" Margin="0,-5,4,-5"/>
 
-      <Border x:Name="Item1_overlay" Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
-              Background="Transparent" BorderThickness="0" Margin="0,-5,5,-5"/>
-      <Border x:Name="Item2_overlay" Grid.Row="0" Grid.Column="2" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
-              Background="Transparent" BorderThickness="0" Margin="0,-5,15,-5"/>
-      <Border x:Name="Item3_overlay" Grid.Row="0" Grid.Column="3" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
-              Background="Transparent" BorderThickness="0" Margin="-10,-5,-15,-5"/>
+      <Grid>
+        <Grid.ColumnDefinitions>
+          <ColumnDefinition Width="Auto"/>
+          <ColumnDefinition Width="Auto"/>
+          <ColumnDefinition Width="Auto"/>
+        </Grid.ColumnDefinitions>
 
-      <Image x:Name="ChannelLogo" Grid.Column="0" Grid.Row="0" Width="{ThemeResource ChannelLogoMedium}" Stretch="Uniform" Margin="10,0,10,0" VerticalAlignment="Center">
-        <Image.Source>
-          <fanart:FanArtImageSource fanart:FanArtMediaType="{Binding Program.ChannelLogoType}" fanart:FanArtType="Banner" fanart:FanArtName="{Binding Program.ChannelName}" fanart:MaxWidth="0" fanart:MaxHeight="0"/>
-        </Image.Source>
-      </Image>
+        <Label x:Name="ChannelNumber" Grid.Column="0" Content="{Binding [ChannelNumber]}" VerticalAlignment="Center" FontFamily="SegoeUIBold" Opacity="0.4"
+               Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}" Margin="5,-2,0,-2" MinWidth="50">
+          <Label.IsVisible>
+            <Binding Source="{StaticResource SlimTvMultiChannelGuide}" Path="ShowChannelNumbers" />
+          </Label.IsVisible>
+        </Label>
 
-      <Label Grid.Column="1" Grid.Row="0" x:Name="NameLabel" Margin="3,4,0,4" Content="{Binding Program.ChannelName}" Color="{ThemeResource TextColor}"
-             VerticalAlignment="Center" FontSize="{ThemeResource SmallFontSize}"/>
+        <Image x:Name="ChannelLogo" Grid.Column="1" Width="{ThemeResource ChannelLogoWidth}" Stretch="Uniform" Margin="10,0,10,0" VerticalAlignment="Center">
+          <Image.Source>
+            <fanart:FanArtImageSource fanart:FanArtMediaType="{Binding Program.ChannelLogoType}" fanart:FanArtType="Banner" fanart:FanArtName="{Binding Program.ChannelName}" fanart:MaxWidth="0" fanart:MaxHeight="0"/>
+          </Image.Source>
+          <Image.IsVisible>
+            <Binding Source="{StaticResource SlimTvMultiChannelGuide}" Path="ShowChannelLogo" />
+          </Image.IsVisible>
+        </Image>
 
-      <Label Grid.Column="2" Grid.Row="0" x:Name="CurrentProgramLabel" Margin="5,4,0,4" VerticalAlignment="Center" ScrollDelay="0"
-             Content="{Binding [Title]}" FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColor}"/>
+        <Label x:Name="NameLabel" Grid.Column="2" Margin="3,1,5,3" Content="{Binding Program.ChannelName}" Color="{ThemeResource TextColor}" Width="280"
+               VerticalAlignment="Center" FontSize="{ThemeResource SmallFontSize}" ScrollDelay="0" Scroll="None">
+          <Label.IsVisible>
+            <Binding Source="{StaticResource SlimTvMultiChannelGuide}" Path="ShowChannelNames" />
+          </Label.IsVisible>
+          <Label.Triggers>
+            <DataTrigger Binding="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Button}, Path=HasFocus}" Value="True">
+              <Setter TargetName="NameLabel" Property="Scroll" Value="Auto"/>
+            </DataTrigger>
+          </Label.Triggers>
+        </Label>
+      </Grid>
+
+      <Grid Grid.Column="1" Grid.Row="0" Margin="5,0,5,0">
+        <Grid.ColumnDefinitions>
+          <ColumnDefinition Width="Auto"/>
+          <ColumnDefinition Width="*"/>
+          <ColumnDefinition Width="Auto"/>
+        </Grid.ColumnDefinitions>
+
+        <Label x:Name="CurrentProgramLabel" Opacity="0.8" ScrollDelay="0" Content="{Binding [Title]}"
+               FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColor}" Margin="0,1,0,3"
+               IsVisible="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}},Path=!HasFocus}"/>
+        <Label x:Name="CurrentProgramLabelFocus" ScrollDelay="0" Content="{Binding [Title]}" Margin="0,1,0,3"
+               FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColor}" FontFamily="SegoeUIBold" Scroll="Auto"
+               IsVisible="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}},Path=HasFocus}"/>
+        <Label x:Name="CurrentSeriesLabel" Grid.Column="1" VerticalAlignment="Center" Color="{ThemeResource TextColor}" 
+               FontSize="{ThemeResource SmallFontSize}" Opacity="0.8" Margin="5,0,0,2"
+               IsVisible="{Binding Path=[Series], Converter={StaticResource EmptyStringToFalseConverter}}">
+          <Label.Content>
+            <Binding Path="[Series]"/>
+          </Label.Content>
+          <Label.Triggers>
+            <DataTrigger Binding="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Button}, Path=HasFocus}" Value="True">
+              <Setter TargetName="CurrentSeriesLabel" Property="Scroll" Value="Auto"/>
+            </DataTrigger>
+          </Label.Triggers>
+        </Label>
+
+        <Image Grid.Column="2" x:Name="RecIndicator" Source="record_single.png" IsVisible="False" Width="25"
+               Stretch="Uniform" Margin="0,2,2,2" HorizontalAlignment="Right" VerticalAlignment="Center"/>
+        <Image Grid.Column="2" x:Name="SeriesRecIndicator" Source="record_series.png" IsVisible="False" Width="25"
+               Stretch="Uniform" Margin="0,2,2,2" HorizontalAlignment="Right" VerticalAlignment="Center"/>
+      </Grid>
+
+      <ProgressBar x:Name="CurrentProgramProgress" Grid.Column="1" Height="10" HorizontalAlignment="Stretch" VerticalAlignment="Bottom"
+                   Value="{Binding [SelectedProgramProgress]}" Style="{ThemeResource SimpleProgressBarStyle}" Margin="0,0,5,-5"/>
 
       <!-- Shows the progress of current time in relation to the current playing program -->
-      <Label Grid.Column="3" Grid.Row="0" x:Name="ProgramLabel" Margin="5,4,0,4" VerticalAlignment="Center" ScrollDelay="0"
-             Content="{Binding [StartTime]}" FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColor}"/>
+      <Grid Grid.Column="2" Grid.Row="0" Margin="5,0,5,0">
+        <Grid.ColumnDefinitions>
+          <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+        <Label x:Name="ProgramLabel" Margin="5,4,0,4" VerticalAlignment="Center"
+               Content="{Binding [StartTime]}" FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColor}"
+               IsVisible="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}},Path=!HasFocus}"/>
+        <Label x:Name="ProgramLabelFocus" Margin="5,4,0,4" VerticalAlignment="Center" ScrollDelay="0" Scroll="Auto" FontFamily="SegoeUIBold" 
+               Content="{Binding [StartTime]}" FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColor}"
+               IsVisible="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}},Path=HasFocus}"/>
+      </Grid>
     </Grid>
   </DataTemplate>
 
@@ -1254,9 +1286,6 @@
               Background="{ThemeResource ProgramRunningFill}" BorderThickness="0" Margin="0,-5,4,-5"/>
       <Border x:Name="Item3" Grid.Row="0" Grid.Column="3" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
               Background="{ThemeResource ProgramBaseFill}" BorderThickness="0" Margin="0,-5,4,-5"/>
-
-      <Border x:Name="Item3_record" Grid.Row="0" Grid.Column="3" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
-              Background="Transparent" BorderThickness="0" Margin="0,-5,4,-5"/>
 
       <Border x:Name="Item1_overlay" Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
               Background="Transparent" BorderThickness="0" Margin="0,-5,4,-5"/>
