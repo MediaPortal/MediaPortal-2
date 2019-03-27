@@ -12,6 +12,7 @@
   <!-- SlimTvClient model -->
   <Model x:Key="SlimTvClient" Id="8BEC1372-1C76-484c-8A69-C7F3103708EC"/>
   <Model x:Key="SlimTvMultiChannelGuide" Id="5054408D-C2A9-451f-A702-E84AFCD29C10"/>
+  <!--Model x:Key="SlimTvSingleChannelGuide" Id="74F50A53-BEF7-415c-A240-2EC718DA8C0F"/-->
   <Model x:Key="TimeModel" Id="E821B1C8-0666-4339-8027-AA45A4F6F107"/>
   <Model x:Key="VideoPlayerModel" Id="4E2301B4-3C17-4a1d-8DE5-2CEA169A0256"/>
   <tv:SlimTvDateFormatConverter x:Key="SlimTvDateFormatConverter" />
@@ -48,7 +49,7 @@
 
             <Rectangle x:Name="ProgressBarTrack" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Height="10" Fill="Transparent"/>
             <StackPanel Orientation="Horizontal">
-              <StackPanel Width="{TemplateBinding PartIndicatorWidth}" Background="#B3FFFFFF">
+              <StackPanel Width="{TemplateBinding PartIndicatorWidth}" Background="#B3FFFFFF" MaxWidth="{TemplateBinding ActualWidth}">
                 <StackPanel.Triggers>
                   <DataTrigger Binding="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Button}, Path=HasFocus}" Value="True">
                     <Setter Property="Background" Value="#FFFFFFFF"/>
@@ -909,7 +910,7 @@
     </Setter>
   </Style>
 
-  <Style x:Key="TVButtonSimpleWideStyle" TargetType="{x:Type Button}">
+  <Style x:Key="TVButtonScheduleWideStyle" TargetType="{x:Type Button}">
     <Setter Property="Template">
       <Setter.Value>
         <ControlTemplate>
@@ -920,14 +921,30 @@
             <Grid.RowDefinitions>
               <RowDefinition Height="*"/>
             </Grid.RowDefinitions>
-            <Grid.RenderTransform>
-              <TransformGroup>
-                <ScaleTransform ScaleX="1" ScaleY="1"/>
-              </TransformGroup>
-            </Grid.RenderTransform>
-            <Control x:Name="ButtonControlBackground" Style="{ThemeResource ButtonControlStyle}" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
             <ContentPresenter x:Name="ButtonContentPresenter" Margin="10,5,10,5" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
           </Grid>
+
+          <ControlTemplate.Triggers>
+            <MultiTrigger>
+              <MultiTrigger.Conditions>
+                <Condition Binding="{Binding Program.IsScheduled}" Value="True" />
+                <Condition Binding="{Binding Program.IsSeriesScheduled}" Value="False" />
+              </MultiTrigger.Conditions>
+              <Setter TargetName="RecIndicator" Property="IsVisible" Value="True"/>
+            </MultiTrigger>
+
+            <DataTrigger Binding="{Binding Program.IsSeriesScheduled}" Value="True">
+              <Setter TargetName="SeriesRecIndicator" Property="IsVisible" Value="True"/>
+            </DataTrigger>
+
+            <Trigger Property="HasFocus" Value="True">
+              <Setter TargetName="Item1_overlay" Property="Background" Value="{ThemeResource ProgramFocusedFill}"/>
+              <Setter TargetName="Item2_overlay" Property="Background" Value="{ThemeResource ProgramFocusedFill}"/>
+              <Setter TargetName="Item3_overlay" Property="Background" Value="{ThemeResource ProgramFocusedFill}"/>
+              <Setter TargetName="Item4_overlay" Property="Background" Value="{ThemeResource ProgramFocusedFill}"/>
+            </Trigger>
+          </ControlTemplate.Triggers>
+          
         </ControlTemplate>
       </Setter.Value>
     </Setter>
@@ -944,7 +961,6 @@
             <Grid.RowDefinitions>
               <RowDefinition Height="*"/>
             </Grid.RowDefinitions>
-
             <ContentPresenter x:Name="ButtonContentPresenter" Margin="10,5,10,5" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
           </Grid>
 
@@ -953,7 +969,7 @@
               <Setter TargetName="Item2" Property="Background" Value="{ThemeResource ProgramRunningFill}"/>
               <Setter TargetName="Item3" Property="Background" Value="{ThemeResource ProgramRunningFill}"/>
             </DataTrigger>
-            
+
             <MultiTrigger>
               <MultiTrigger.Conditions>
                 <Condition Binding="{Binding Program.IsScheduled}" Value="True" />
@@ -971,8 +987,8 @@
               <Setter TargetName="Item2_overlay" Property="Background" Value="{ThemeResource ProgramFocusedFill}"/>
               <Setter TargetName="Item3_overlay" Property="Background" Value="{ThemeResource ProgramFocusedFill}"/>
             </Trigger>
-          </ControlTemplate.Triggers>
 
+          </ControlTemplate.Triggers>
         </ControlTemplate>
       </Setter.Value>
     </Setter>
@@ -989,7 +1005,6 @@
             <Grid.RowDefinitions>
               <RowDefinition Height="*"/>
             </Grid.RowDefinitions>
-
             <ContentPresenter x:Name="ButtonContentPresenter" Margin="10,5,10,5" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Grid.ZIndex="2"/>
           </Grid>
 
@@ -1088,21 +1103,9 @@
     <Setter Property="Template">
       <Setter.Value>
         <ControlTemplate TargetType="{x:Type ListViewItem}">
-          <Button Margin="0,0,0,0" Style="{ThemeResource TVButtonSimpleWideStyle}"
+          <Button Style="{ThemeResource TVButtonScheduleWideStyle}"
                   Command="{DynamicResource ResourceKey=Menu_Command}"
                   IsEnabled="{Binding Enabled}" SetFocus="{Binding Path=Selected,Mode=OneTime}">
-            <Button.Triggers>
-              <Trigger Property="HasFocus" Value="True">
-                <Setter TargetName="Item1" Property="Background" Value="{ThemeResource ProgramFocusedFill}"/>
-                <Setter TargetName="Item2" Property="Background" Value="{ThemeResource ProgramFocusedFill}"/>
-                <Setter TargetName="Item3" Property="Background" Value="{ThemeResource ProgramFocusedFill}"/>
-                <Setter TargetName="Item4" Property="Background" Value="{ThemeResource ProgramFocusedFill}"/>
-                <Setter TargetName="ChannelText" Property="Scroll" Value="Auto"/>
-                <Setter TargetName="ItemLabel" Property="Scroll" Value="Auto"/>
-                <Setter TargetName="TypeLabel" Property="Scroll" Value="Auto"/>
-                <Setter TargetName="ProgramStartEnd" Property="Scroll" Value="Auto"/>
-              </Trigger>
-            </Button.Triggers>
           </Button>
         </ControlTemplate>
       </Setter.Value>
@@ -1120,7 +1123,7 @@
     <Setter Property="Template">
       <Setter.Value>
         <ControlTemplate TargetType="{x:Type ListViewItem}">
-          <Button Margin="0,0,0,0" Style="{ThemeResource TVButtonWideStyle}"
+          <Button Style="{ThemeResource TVButtonWideStyle}"
                   Command="{DynamicResource ResourceKey=Menu_Command}"
                   IsEnabled="{Binding Enabled}" SetFocus="{Binding Path=Selected,Mode=OneTime}">
             <Button.Triggers>
@@ -1157,7 +1160,7 @@
   </Style>
 
   <DataTemplate x:Key="SingleChannelWithCurrentProgramDataTemplate" DataType="{x:Type collections:ListItem}">
-    <Grid x:Name="ItemControl" VerticalAlignment="Center" HorizontalAlignment="Stretch" RenderTransformOrigin="0.5,0.5" Margin="-80,0,0,0" Height="50">
+    <Grid x:Name="ItemControl" VerticalAlignment="Center" HorizontalAlignment="Stretch" Margin="-80,0,0,0" Height="50">
       <Grid.ColumnDefinitions>
         <ColumnDefinition Width="Auto"/>
         <ColumnDefinition Width="*"/>
@@ -1188,7 +1191,7 @@
           <ColumnDefinition Width="Auto"/>
         </Grid.ColumnDefinitions>
 
-        <Label x:Name="ChannelNumber" Grid.Column="0" Content="{Binding [ChannelNumber]}" VerticalAlignment="Center" FontFamily="SegoeUIBold" Opacity="0.4"
+        <Label x:Name="ChannelNumber" Grid.Column="0" Content="{Binding Source={StaticResource SlimTvMultiChannelGuide}, Path=CurrentChannel.ChannelNumber}" VerticalAlignment="Center" FontFamily="SegoeUIBold" Opacity="0.4"
                Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}" Margin="5,-2,0,-2" MinWidth="50">
           <Label.IsVisible>
             <Binding Source="{StaticResource SlimTvMultiChannelGuide}" Path="ShowChannelNumbers" />
@@ -1250,7 +1253,7 @@
       </Grid>
 
       <ProgressBar x:Name="CurrentProgramProgress" Grid.Column="1" Height="10" HorizontalAlignment="Stretch" VerticalAlignment="Bottom"
-                   Value="{Binding [SelectedProgramProgress]}" Style="{ThemeResource SimpleProgressBarStyle}" Margin="0,0,5,-5"/>
+                   Value="{Binding Progress}" Style="{ThemeResource SimpleProgressBarStyle}" Margin="0,0,5,-5"/>
 
       <!-- Shows the progress of current time in relation to the current playing program -->
       <Grid Grid.Column="2" Grid.Row="0" Margin="5,0,5,0">
@@ -1268,9 +1271,8 @@
   </DataTemplate>
 
   <DataTemplate x:Key="ChannelWithCurrentProgramDataTemplate" DataType="{x:Type collections:ListItem}">
-    <Grid x:Name="ItemControl" VerticalAlignment="Center" HorizontalAlignment="Stretch" RenderTransformOrigin="0.5,0.5" Margin="-80,0,0,0" Height="50">
+    <Grid x:Name="ItemControl" VerticalAlignment="Center" HorizontalAlignment="Stretch" Margin="-80,0,0,0" Height="50">
       <Grid.ColumnDefinitions>
-        <ColumnDefinition Width="Auto"/>
         <ColumnDefinition Width="Auto"/>
         <ColumnDefinition Width="*"/>
         <ColumnDefinition Width="*"/>
@@ -1280,18 +1282,18 @@
         <RowDefinition Height="*"/>
       </Grid.RowDefinitions>
 
-      <Border x:Name="Item1" Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
+      <Border x:Name="Item1" Grid.Row="0" Grid.Column="0" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
               Background="{ThemeResource BaseFill}" BorderThickness="0" Margin="0,-5,4,-5"/>
-      <Border x:Name="Item2" Grid.Row="0" Grid.Column="2" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
+      <Border x:Name="Item2" Grid.Row="0" Grid.Column="1" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
               Background="{ThemeResource ProgramRunningFill}" BorderThickness="0" Margin="0,-5,4,-5"/>
-      <Border x:Name="Item3" Grid.Row="0" Grid.Column="3" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
+      <Border x:Name="Item3" Grid.Row="0" Grid.Column="2" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
               Background="{ThemeResource ProgramBaseFill}" BorderThickness="0" Margin="0,-5,4,-5"/>
 
-      <Border x:Name="Item1_overlay" Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
+      <Border x:Name="Item1_overlay" Grid.Row="0" Grid.Column="0" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
               Background="Transparent" BorderThickness="0" Margin="0,-5,4,-5"/>
-      <Border x:Name="Item2_overlay" Grid.Row="0" Grid.Column="2" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
+      <Border x:Name="Item2_overlay" Grid.Row="0" Grid.Column="1" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
               Background="Transparent" BorderThickness="0" Margin="0,-5,4,-5"/>
-      <Border x:Name="Item3_overlay" Grid.Row="0" Grid.Column="3" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
+      <Border x:Name="Item3_overlay" Grid.Row="0" Grid.Column="2" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
               Background="Transparent" BorderThickness="0" Margin="0,-5,4,-5"/>
 
       <Grid>
@@ -1330,7 +1332,7 @@
         </Label>
       </Grid>
 
-      <Grid Grid.Column="2" Grid.Row="0" Margin="5,0,5,0">
+      <Grid Grid.Column="1" Grid.Row="0" Margin="5,0,5,0">
         <Grid.ColumnDefinitions>
           <ColumnDefinition Width="Auto"/>
           <ColumnDefinition Width="*"/>
@@ -1362,10 +1364,10 @@
                Stretch="Uniform" Margin="0,2,2,2" HorizontalAlignment="Right" VerticalAlignment="Center"/>
       </Grid>
 
-      <ProgressBar x:Name="CurrentProgramProgress" Grid.Column="2" Height="10" HorizontalAlignment="Stretch" VerticalAlignment="Bottom"
+      <ProgressBar x:Name="CurrentProgramProgress" Grid.Column="1" Height="10" HorizontalAlignment="Stretch" VerticalAlignment="Bottom"
                    Value="{Binding Programs[0].Progress}" Style="{ThemeResource SimpleProgressBarStyle}" Margin="0,0,5,-5"/>
 
-      <Grid Grid.Column="3" Grid.Row="0" Margin="5,0,15,0">
+      <Grid Grid.Column="2" Grid.Row="0" Margin="5,0,15,0">
         <Grid.ColumnDefinitions>
           <ColumnDefinition Width="Auto"/>
           <ColumnDefinition Width="*"/>
@@ -1401,20 +1403,15 @@
   </DataTemplate>
 
   <DataTemplate x:Key="SearchProgramDataTemplate" DataType="{x:Type collections:ListItem}">
-    <Grid x:Name="ItemControl" VerticalAlignment="Center" HorizontalAlignment="Stretch" RenderTransformOrigin="0.5,0.5"
-          Margin="-80,0,0,0">
+    <Grid x:Name="ItemControl" VerticalAlignment="Center" HorizontalAlignment="Stretch" Margin="-80,0,0,0" Height="50">
       <Grid.ColumnDefinitions>
         <ColumnDefinition Width="Auto"/>
-        <!-- Channel Logo -->
         <ColumnDefinition Width="350"/>
-        <!-- Channel Name -->
         <ColumnDefinition Width="*"/>
-        <!-- Program Title -->
         <ColumnDefinition Width="400"/>
-        <!-- Program Time -->
       </Grid.ColumnDefinitions>
       <Grid.RowDefinitions>
-        <RowDefinition Height="Auto"/>
+        <RowDefinition Height="*"/>
       </Grid.RowDefinitions>
       <Grid.RenderTransform>
         <TransformGroup>
@@ -1425,39 +1422,35 @@
       <Image Grid.Column="2" x:Name="SeriesRecIndicator" Source="tvguide_recordserie_button.png" IsVisible="False"
              Height="{ThemeResource SeriesRecIndicatorHeight}" Stretch="Uniform" HorizontalAlignment="Right"/>
 
-      <Border x:Name="Item1" Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
-              Background="#66000000" BorderThickness="0" Margin="0,-5,5,-5"/>
-      <Border x:Name="Item2" Grid.Row="0" Grid.Column="2" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
-              Background="#66000000" BorderThickness="0" Margin="0,-5,15,-5"/>
-      <Border x:Name="Item3" Grid.Row="0" Grid.Column="3" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
-              Background="#66000000" BorderThickness="0" Margin="-10,-5,-15,-5"/>
-
-      <Border x:Name="Item2_record" Grid.Row="0" Grid.Column="2" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
-              Background="Transparent" BorderThickness="0" Margin="0,-5,15,-5"/>
-      <Border x:Name="Item3_record" Grid.Row="0" Grid.Column="3" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
-              Background="Transparent" BorderThickness="0" Margin="-10,-5,-15,-5"/>
+      <Border x:Name="Item1" Grid.Row="0" Grid.Column="0" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
+              Background="{ThemeResource BaseFill}" BorderThickness="0" Margin="0,-5,4,-5"/>
+      <Border x:Name="Item2" Grid.Row="0" Grid.Column="1" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
+              Background="{ThemeResource BaseFill}" BorderThickness="0" Margin="0,-5,4,-5"/>
+      <Border x:Name="Item3" Grid.Row="0" Grid.Column="2" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
+              Background="{ThemeResource BaseFill}" BorderThickness="0" Margin="0,-5,4,-5"/>
 
       <Border x:Name="Item1_overlay" Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
-        Background="Transparent" BorderThickness="0" Margin="0,-5,5,-5"/>
-      <Border x:Name="Item2_overlay" Grid.Row="0" Grid.Column="2" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
-              Background="Transparent" BorderThickness="0" Margin="0,-5,15,-5"/>
-      <Border x:Name="Item3_overlay" Grid.Row="0" Grid.Column="3" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
-              Background="Transparent" BorderThickness="0" Margin="-10,-5,-15,-5"/>
+              Background="Transparent" BorderThickness="0" Margin="0,-5,4,-5"/>
+      <Border x:Name="Item2_overlay" Grid.Row="0" Grid.Column="1" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
+              Background="Transparent" BorderThickness="0" Margin="0,-5,4,-5"/>
+      <Border x:Name="Item3_overlay" Grid.Row="0" Grid.Column="2" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
+              Background="Transparent" BorderThickness="0" Margin="0,-5,4,-5"/>
 
-      <Label Grid.Column="1" Grid.Row="0" x:Name="NameLabel" Margin="3,5,20,5" Content="{Binding Program.ChannelName}" Color="{ThemeResource TextColor}"
-       VerticalAlignment="Center" FontSize="{ThemeResource SmallFontSize}"/>
+      <StackPanel Orientation="Horizontal">
+        <Image x:Name="ChannelLogo" Width="{ThemeResource ChannelLogoMedium}" Stretch="Uniform" Margin="10,0,10,0" VerticalAlignment="Center">
+          <Image.Source>
+            <fanart:FanArtImageSource fanart:FanArtMediaType="{Binding Program.ChannelLogoType}" fanart:FanArtType="Banner" fanart:FanArtName="{Binding Program.ChannelName}" fanart:MaxWidth="0" fanart:MaxHeight="0"/>
+          </Image.Source>
+        </Image>
+        <Label x:Name="NameLabel" Margin="3,5,20,5" Content="{Binding Program.ChannelName}" Color="{ThemeResource TextColor}"
+             VerticalAlignment="Center" FontSize="{ThemeResource SmallFontSize}"/>
+      </StackPanel>
 
-      <Image x:Name="ChannelLogo" Grid.Column="0" Grid.Row="0" Width="{ThemeResource ChannelLogoMedium}" Stretch="Uniform" Margin="10,0,10,0" VerticalAlignment="Center">
-        <Image.Source>
-          <fanart:FanArtImageSource fanart:FanArtMediaType="{Binding Program.ChannelLogoType}" fanart:FanArtType="Banner" fanart:FanArtName="{Binding Program.ChannelName}" fanart:MaxWidth="0" fanart:MaxHeight="0"/>
-        </Image.Source>
-      </Image>
-
-      <Label Grid.Column="2" Grid.Row="0" x:Name="CurrentProgramLabel" Margin="5,5,20,5"
+      <Label Grid.Column="1" Grid.Row="0" x:Name="CurrentProgramLabel" Margin="5,5,20,5"
         Content="{Binding [Name]}" FontSize="{ThemeResource SmallFontSize}"
         Color="{ThemeResource TextColor}"/>
 
-      <StackPanel Orientation="Horizontal"  Grid.Column="3" Grid.Row="0" Margin="5,5,15,5">
+      <StackPanel Orientation="Horizontal" Grid.Column="2" Grid.Row="0" Margin="5,5,15,5">
         <Label x:Name="ProgramStart" Margin="0,0,0,0"  Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}"
                Content="{Binding [StartTime]}"/>
         <Label Margin="5,0,5,0" Content="—" Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}"/>
@@ -1547,22 +1540,31 @@
 
   <!-- ScheduleDataTemplate contains channel logo, title, recording type -->
   <DataTemplate x:Key="ScheduleDataTemplate" DataType="{x:Type collections:ListItem}">
-    <Grid x:Name="ItemControl" VerticalAlignment="Center" HorizontalAlignment="Stretch">
+    <Grid x:Name="ItemControl" VerticalAlignment="Center" HorizontalAlignment="Stretch" Height="50">
       <Grid.ColumnDefinitions>
-        <ColumnDefinition Width="425"/>
+        <ColumnDefinition Width="Auto"/>
         <ColumnDefinition Width="545"/>
         <ColumnDefinition Width="*"/>
         <ColumnDefinition Width="410"/>
       </Grid.ColumnDefinitions>
 
       <Border x:Name="Item1" Grid.Row="0" Grid.Column="0" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
-              Background="#66000000" BorderThickness="0" Margin="-2,-5,2,-5"/>
+              Background="{ThemeResource ProgramBaseFill}" BorderThickness="0" Margin="0,-5,4,-5"/>
       <Border x:Name="Item2" Grid.Row="0" Grid.Column="1" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
-              Background="#66000000" BorderThickness="0" Margin="2,-5,2,-5"/>
+              Background="{ThemeResource ProgramBaseFill}" BorderThickness="0" Margin="0,-5,4,-5"/>
       <Border x:Name="Item3" Grid.Row="0" Grid.Column="2" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
-              Background="#66000000" BorderThickness="0" Margin="2,-5,2,-5"/>
+              Background="{ThemeResource ProgramBaseFill}" BorderThickness="0" Margin="0,-5,4,-5"/>
       <Border x:Name="Item4" Grid.Row="0" Grid.Column="3" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
-              Background="#66000000" BorderThickness="0" Margin="2,-5,0,-5"/>
+              Background="{ThemeResource ProgramBaseFill}" BorderThickness="0" Margin="0,-5,4,-5"/>
+
+      <Border x:Name="Item1_overlay" Grid.Row="0" Grid.Column="0" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
+              Background="Transparent" BorderThickness="0" Margin="0,-5,2,-5"/>
+      <Border x:Name="Item2_overlay" Grid.Row="0" Grid.Column="1" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
+              Background="Transparent" BorderThickness="0" Margin="2,-5,2,-5"/>
+      <Border x:Name="Item3_overlay" Grid.Row="0" Grid.Column="2" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
+              Background="Transparent" BorderThickness="0" Margin="2,-5,-2,-5"/>
+      <Border x:Name="Item4_overlay" Grid.Row="0" Grid.Column="3" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
+              Background="Transparent" BorderThickness="0" Margin="2,-5,-2,-5"/>
 
       <StackPanel Orientation="Horizontal" Grid.Column="0" x:Name="Channel">
         <Image x:Name="ChannelLogo" Height="40" Stretch="Uniform" Margin="5,2,5,2">
@@ -1586,7 +1588,7 @@
         <Label.Content>
           <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0}+{1}+{2}">
             <Binding Path="[StartTime]"/>
-            <Binding Source=" — "/>
+            <Binding Source=" - "/>
             <Binding Path="[EndTime]"/>
           </MultiBinding>
         </Label.Content>
