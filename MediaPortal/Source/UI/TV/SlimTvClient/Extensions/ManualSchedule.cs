@@ -23,6 +23,7 @@
 #endregion
 
 using MediaPortal.Plugins.SlimTv.Client.Models;
+using MediaPortal.Plugins.SlimTv.Interfaces;
 using MediaPortal.Plugins.SlimTv.Interfaces.Extensions;
 using MediaPortal.Plugins.SlimTv.Interfaces.Items;
 
@@ -39,9 +40,10 @@ namespace MediaPortal.Plugins.SlimTv.Client.Extensions
       return true;
     }
 
-    public bool IsAvailable(IProgram program)
+    public bool IsAvailable(IProgram program )
     {
-      return true;
+      IProgramRecordingStatus s = program as IProgramRecordingStatus;
+      return s == null || s.RecordingStatus != RecordingStatus.Recording;
     }
 
     public ProgramActionDelegate ProgramAction

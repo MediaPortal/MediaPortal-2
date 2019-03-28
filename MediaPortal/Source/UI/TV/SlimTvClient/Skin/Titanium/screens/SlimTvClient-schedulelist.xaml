@@ -89,6 +89,7 @@
               <Label x:Name="ChannelName" Content="{Binding ChannelName}" Color="{ThemeResource TextColor}"/>
             </StackPanel>
 
+            <KeyBinding Key="Record" Command="{Command Path=RecordMenu}" />
           </Grid>
         </GroupBox>
 

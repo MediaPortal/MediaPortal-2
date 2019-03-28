@@ -584,6 +584,31 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
       }
     }
 
+    /// <summary>
+    /// Presents a dialog with recording options for the currently selected program/channel.
+    /// </summary>
+    public async void RecordMenu()
+    {
+      if (SlimTvExtScheduleModel.CurrentItem == null)
+        return;
+      ChannelProgramListItem item = SlimTvExtScheduleModel.CurrentItem as ChannelProgramListItem;
+      if (item == null || item.Programs == null)
+        return;
+      IProgram program = null;
+      IChannel channel = null;
+      lock (item.Programs.SyncRoot)
+        if (item.Programs.Count == 2)
+        {
+          program = item.Programs[0].AdditionalProperties["PROGRAM"] as IProgram;
+          channel = item.AdditionalProperties["CHANNEL"] as IChannel;
+        }
+      if (program != null && channel != null && await InitActionsList(program, channel))
+      {
+        IScreenManager screenManager = ServiceRegistration.Get<IScreenManager>();
+        screenManager.ShowDialog("DialogClientModel");
+      }
+    }
+
     private void ShowOSD()
     {
       IWorkflowManager workflowManager = ServiceRegistration.Get<IWorkflowManager>();
@@ -608,8 +633,6 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
 
     private async Task<bool> InitActionsList()
     {
-      _dialogActionsList.Clear();
-      DialogHeader = "[SlimTvClient.RecordActions]";
       IPlayerContextManager playerContextManager = ServiceRegistration.Get<IPlayerContextManager>();
       IPlayerContext playerContext = playerContextManager.GetPlayerContext(PlayerChoice.PrimaryPlayer);
       if (playerContext == null)
@@ -623,28 +646,20 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
       if (context == null || context.Channel == null)
         return false;
 
-      ListItem item;
       ILocalization localization = ServiceRegistration.Get<ILocalization>();
-      bool isRecording = false;
       var result = await _tvHandler.ProgramInfo.GetNowNextProgramAsync(context.Channel);
-      if (result.Success)
+      return await InitActionsList(result.Success ? result.Result[0] : null, context.Channel);
+    }
+
+    private async Task<bool> InitActionsList(IProgram program, IChannel channel)
+    {
+      _dialogActionsList.Clear();
+      DialogHeader = "[SlimTvClient.RecordActions]";
+      if (program != null)
       {
-        IProgram programNow = result.Result[0];
-        var recStatus = await GetRecordingStatusAsync(programNow);
-        isRecording = recStatus.HasValue && recStatus.Value.HasFlag(RecordingStatus.Scheduled | RecordingStatus.Recording);
-        item = new ListItem(Consts.KEY_NAME, localization.ToString(isRecording ? "[SlimTvClient.StopCurrentRecording]" : "[SlimTvClient.RecordCurrentProgram]", programNow.Title))
-        {
-          Command = new AsyncMethodDelegateCommand(() => CreateOrDeleteSchedule(programNow))
-        };
-        _dialogActionsList.Add(item);
-      }
-      if (!isRecording)
-      {
-        item = new ListItem(Consts.KEY_NAME, "[SlimTvClient.RecordManual]")
-        {
-          Command = new AsyncMethodDelegateCommand(() => CreateOrDeleteScheduleByTimeAsync(context.Channel, DateTime.Now, DateTime.Now.AddDays(1)))
-        };
-        _dialogActionsList.Add(item);
+        var recStatus = await GetRecordingStatusAsync(program);
+        if (recStatus.HasValue)
+          AddRecordingOptions(_dialogActionsList, program, recStatus.Value);
       }
       _dialogActionsList.FireChange();
       return true;
