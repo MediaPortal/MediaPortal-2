@@ -110,6 +110,12 @@
           <Label x:Name="Description" Grid.Row="8" Grid.Column="0" Grid.ColumnSpan="2" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
               Wrap="True" Scroll="Auto" Content="{Binding Path=CurrentProgram.Description}" Color="{ThemeResource TextColor}"/>
         </Grid>
+        <Grid xmlns="www.team-mediaportal.com/2008/mpf/directx"
+            xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+            >
+          <KeyBinding Key="Record" Command="{Command Path=RecordMenu}" />
+          <KeyBinding Key="Info" Command="{Command Path=RecordMenu}" />
+        </Grid>
       </Grid>
     </ControlTemplate>
   </Include.Resources>

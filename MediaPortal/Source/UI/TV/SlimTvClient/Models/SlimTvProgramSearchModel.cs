@@ -119,6 +119,13 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
       get { return _programsList; }
     }
 
+    public void RecordMenu()
+    {
+      ProgramListItem item = SlimTvExtScheduleModel.CurrentItem as ProgramListItem;
+      if (item != null)
+        ShowProgramActions(item.AdditionalProperties["PROGRAM"] as IProgram);
+    }
+
     public void RecordSingleProgram(IProgram program)
     {
       _ = CreateOrDeleteSchedule(program);

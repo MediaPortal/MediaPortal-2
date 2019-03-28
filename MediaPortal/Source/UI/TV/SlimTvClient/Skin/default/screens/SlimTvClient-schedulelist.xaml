@@ -113,6 +113,7 @@
                 Wrap="True" Scroll="Auto" Content="{Binding Path=CurrentProgram.Description}" Color="{ThemeResource TextColor}"/>
           </Grid>
         </GroupBox>
+        <KeyBinding Key="Record" Command="{Command Path=RecordMenu}" />
 
       </Grid>
     </ControlTemplate>

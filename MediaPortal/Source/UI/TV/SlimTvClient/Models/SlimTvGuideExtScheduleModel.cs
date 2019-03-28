@@ -128,6 +128,14 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
     }
 
     /// <summary>
+    /// Used by the template xaml to keep track of the focused item (program, schedule, ChannelProgram or whatever)
+    /// </summary>
+    public void FocusToItem(ListItem item)
+    {
+      _selectedItem = item;
+    }
+
+    /// <summary>
     /// Exposes the list of channels in current group.
     /// </summary>
     public ItemsList ProgramsList
@@ -154,6 +162,12 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
       UpdateButtonStateForSchedule();
     }
 
+    public async Task RecordSeries(ScheduleRecordingType scheduleRecordingType)
+    {
+      await CreateSchedule(_selectedProgram, scheduleRecordingType);
+      _selectedSchedule = null;
+    }
+
     public void CancelSchedule()
     {
       InitDeleteChoicesList();
@@ -161,6 +175,31 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
       screenManager.ShowDialog("DialogExtSchedule");
     }
 
+    public void RecordMenu()
+    {
+      ListItem item = SelectedItem;
+      if (item == null)
+        return;
+      if(_isScheduleMode)
+      {
+        item.Command.Execute();
+        return;
+      }
+      IProgram program = item.AdditionalProperties["PROGRAM"] as IProgram;
+      if (program == null || _tvHandler.ScheduleControl == null)
+        return;
+      var result = _tvHandler.ScheduleControl.GetRecordingStatusAsync(program).Result;
+      if (result.Success)
+      {
+        DialogHeader = "SlimTvClient.RecordActions";
+        _dialogActionsList.Clear();
+        AddRecordingOptions(_dialogActionsList, program, result.Result);
+        IScreenManager screenManager = ServiceRegistration.Get<IScreenManager>();
+        screenManager.ShowDialog("DialogExtSchedule");
+      }
+    }
+
+    #region Static methods fopr other models to call
     public static void Show(ISchedule schedule)
     {
       NavigationContextConfig navigationContextConfig = new NavigationContextConfig();
@@ -179,6 +218,44 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
       Show(navigationContextConfig);
     }
 
+    /// <summary>
+    /// Put up the series type menu, and, if an item is selected, set up a series recording for the program
+    /// </summary>
+    /// <param name="program"></param>
+    public static void RecordSeries(IProgram program)
+    {
+      var wf = ServiceRegistration.Get<IWorkflowManager>();
+      SlimTvExtScheduleModel model = wf.GetModel(SlimTvExtScheduleModel.MODEL_ID) as SlimTvExtScheduleModel;
+      model.InitModel();
+      model._selectedProgram = program;
+      model.RecordSeries();
+    }
+
+    public static void ShowDialog(string title, ItemsList list)
+    {
+      var wf = ServiceRegistration.Get<IWorkflowManager>();
+      SlimTvExtScheduleModel model = wf.GetModel(SlimTvExtScheduleModel.MODEL_ID) as SlimTvExtScheduleModel;
+      model.InitModel();
+      model.DialogHeader = title;
+      model._dialogActionsList.Clear();
+      foreach (ListItem i in list)    // ItemsList doesn't have AddRange method :-(
+        model._dialogActionsList.Add(i);
+      IScreenManager screenManager = ServiceRegistration.Get<IScreenManager>();
+      screenManager.ShowDialog("DialogExtSchedule");
+    }
+
+    /// <summary>
+    /// For other models to find out which ListItem has the focus
+    /// </summary>
+    public static ListItem CurrentItem
+    {
+      get
+      {
+        SlimTvExtScheduleModel model = ServiceRegistration.Get<IWorkflowManager>().GetModel(SlimTvExtScheduleModel.MODEL_ID) as SlimTvExtScheduleModel;
+        return model.SelectedItem;
+      }
+    }
+
     private static void Show(NavigationContextConfig context)
     {
       IWorkflowManager workflowManager = ServiceRegistration.Get<IWorkflowManager>();
@@ -189,6 +266,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
         workflowManager.NavigatePush(stateId, context);
     }
 
+    #endregion
     #endregion
 
     #region Inits and Updates
@@ -368,6 +446,21 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
     {
       _lastProgramId = program.ProgramId;
       var newStatus = await base.CreateOrDeleteSchedule(program, recordingType);
+
+      UpdateButtonStateForSchedule();
+
+      if (!newStatus.HasValue)
+        return RecordingStatus.None;
+
+      UpdatePrograms(); // Reload all programs, as series scheduling will affect multiple programs
+      NotifyAllPrograms();
+      return newStatus.Value;
+    }
+
+    protected override async Task<RecordingStatus?> CreateSchedule(IProgram program, ScheduleRecordingType recordingType = ScheduleRecordingType.Once)
+    {
+      _lastProgramId = program.ProgramId;
+      var newStatus = await base.CreateSchedule(program, recordingType);
 
       UpdateButtonStateForSchedule();
 
