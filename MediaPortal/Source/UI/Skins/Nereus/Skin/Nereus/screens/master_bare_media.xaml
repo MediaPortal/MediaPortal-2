@@ -75,7 +75,7 @@ Parameters which have to be accessible by a DynamicResource lookup:
 
     <Grid x:Name="WindowButtonsPanel" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="20,10,0,10">
       <Grid.RowDefinitions>
-        <RowDefinition Height="*"/>
+        <RowDefinition Height="90"/>
       </Grid.RowDefinitions>
       <Grid.ColumnDefinitions>
         <ColumnDefinition Width="450"/>

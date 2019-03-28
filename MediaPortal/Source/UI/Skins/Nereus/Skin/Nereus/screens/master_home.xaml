@@ -122,7 +122,7 @@ Parameters which have to be accessible by a DynamicResource lookup:
       </Grid.ColumnDefinitions>
       
       <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-        <StackPanel Orientation="Horizontal" Margin="0,0,10,0">
+        <StackPanel Orientation="Horizontal" Margin="0,0,0,0">
           <StackPanel.Triggers>
             <!--Close the hidden menu when the main content gets focus-->
             <EventTrigger RoutedEvent="FrameworkElement.GotFocus">
