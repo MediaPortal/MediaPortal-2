@@ -327,13 +327,13 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
           if (isRecording)
             prompt = "[SlimTvClient.StopCurrentRecording]";
           else if (isRunning)
-            prompt = "[SlimTvClient.RecordCurrentProgram]";
+            prompt = localization.ToString("[SlimTvClient.RecordCurrentProgram]", program.Title);
           else if (status.HasFlag(RecordingStatus.Scheduled))
             prompt = "[SlimTvClient.DeleteSchedule]";
           else if(program.EndTime > DateTime.Now)
             prompt = "[SlimTvClient.CreateSchedule]";
-          if (prompt != null)
-            items.Add(new ListItem(Consts.KEY_NAME, localization.ToString(prompt, program.Title))
+          if(prompt != null)
+            items.Add(new ListItem(Consts.KEY_NAME, prompt)
             {
               Command = new AsyncMethodDelegateCommand(() => CreateOrDeleteSchedule(program))
             });
