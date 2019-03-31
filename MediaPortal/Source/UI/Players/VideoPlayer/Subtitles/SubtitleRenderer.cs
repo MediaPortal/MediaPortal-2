@@ -197,6 +197,7 @@ namespace MediaPortal.UI.Players.Video.Subtitles
     protected readonly ResetCallback _resetCallBack;
     protected readonly UpdateTimeoutCallback _updateTimeoutCallBack;
     protected TeletextReceiver _ttxtReceiver = null;
+    protected TextBuffer _textBuffer;
 
     // Timestamp offset in MILLISECONDS
     protected double _startPos = 0;
@@ -628,75 +629,77 @@ namespace MediaPortal.UI.Players.Video.Subtitles
         currentSubtitle = _subtitles.ToList().FirstOrDefault(s => s.ShouldDraw);
         if (currentSubtitle == null)
           return;
-      }
 
-      try
-      {
-        // TemporaryRenderTarget changes RenderTarget to texture and restores settings when done (Dispose)
-        using (new TemporaryRenderTarget(targetTexture))
+        try
         {
-          // Check the target texture dimensions and adjust scaling and translation
-          SurfaceDescription desc = targetTexture.GetLevelDescription(0);
-          Matrix transform = Matrix.Identity;
-
-          // Position subtitle and scale it to match video frame size, if required
-          transform *= Matrix.Translation(currentSubtitle.HorizontalPosition, currentSubtitle.FirstScanLine, 0);
-          if (currentSubtitle.ScreenWidth != desc.Width || currentSubtitle.ScreenHeight != desc.Height)
+          // TemporaryRenderTarget changes RenderTarget to texture and restores settings when done (Dispose)
+          using (new TemporaryRenderTarget(targetTexture))
           {
-            var factorW = (float)desc.Width / currentSubtitle.ScreenWidth;
-            var factorH = (float)desc.Height / currentSubtitle.ScreenHeight;
-            transform *= Matrix.Scaling(factorW, factorH, 1);
-          }
+            // Check the target texture dimensions and adjust scaling and translation
+            SurfaceDescription desc = targetTexture.GetLevelDescription(0);
+            Matrix transform = Matrix.Identity;
 
-          if (!string.IsNullOrWhiteSpace(currentSubtitle.Text))
-          {
-            // Calculate font size by the available target height divided by the number of teletext lines (25).
-            float fontSize = (float)Math.Floor(desc.Height / 25f); 
-            using (TextBuffer buffer = new TextBuffer(FontManager.DefaultFontFamily, fontSize) { Text = currentSubtitle.Text })
+            // Position subtitle and scale it to match video frame size, if required
+            transform *= Matrix.Translation(currentSubtitle.HorizontalPosition, currentSubtitle.FirstScanLine, 0);
+            if (currentSubtitle.ScreenWidth != desc.Width || currentSubtitle.ScreenHeight != desc.Height)
             {
+              var factorW = (float)desc.Width / currentSubtitle.ScreenWidth;
+              var factorH = (float)desc.Height / currentSubtitle.ScreenHeight;
+              transform *= Matrix.Scaling(factorW, factorH, 1);
+            }
+
+            if (!string.IsNullOrWhiteSpace(currentSubtitle.Text))
+            {
+              // TODO: this calculation works at the moment only in fullscreen mode. When using windowed mode, the text is off screen on bottom and not visible.
+              // Calculate font size by the available target height divided by the number of teletext lines (25).
+              float fontSize = (float)Math.Floor(desc.Height / 25f);
+              if (_textBuffer == null)
+                _textBuffer = new TextBuffer(FontManager.DefaultFontFamily, fontSize);
+              _textBuffer.Text = currentSubtitle.Text;
+
               RectangleF rectangleF = new RectangleF(0, 0, desc.Width, desc.Height);
 
               HorizontalTextAlignEnum horzAlign = HorizontalTextAlignEnum.Center;
               VerticalTextAlignEnum vertAlign = VerticalTextAlignEnum.Top;
 
               // Render "glow"
-              var offset = 0.5f;
-              buffer.Render(rectangleF, horzAlign, vertAlign, 0, Color4.Black, 0, transform * Matrix.Translation(-offset, 0f, 0));
-              buffer.Render(rectangleF, horzAlign, vertAlign, 0, Color4.Black, 0, transform * Matrix.Translation(-offset, -offset, 0));
-              buffer.Render(rectangleF, horzAlign, vertAlign, 0, Color4.Black, 0, transform * Matrix.Translation(0.0f, offset, 0));
-              buffer.Render(rectangleF, horzAlign, vertAlign, 0, Color4.Black, 0, transform * Matrix.Translation(offset, offset, 0));
+              var offset = 1f;
+              _textBuffer.Render(rectangleF, horzAlign, vertAlign, 0, Color4.Black, 0, transform * Matrix.Translation(-offset, 0f, 0));
+              _textBuffer.Render(rectangleF, horzAlign, vertAlign, 0, Color4.Black, 0, transform * Matrix.Translation(-offset, -offset, 0));
+              _textBuffer.Render(rectangleF, horzAlign, vertAlign, 0, Color4.Black, 0, transform * Matrix.Translation(0.0f, offset, 0));
+              _textBuffer.Render(rectangleF, horzAlign, vertAlign, 0, Color4.Black, 0, transform * Matrix.Translation(offset, offset, 0));
               // Text
-              buffer.Render(rectangleF, horzAlign, vertAlign, 0, Color4.White, 0, transform);
+              _textBuffer.Render(rectangleF, horzAlign, vertAlign, 0, Color4.White, 0, transform);
             }
-          }
-          else
-          {
-            using (TemporaryRenderState temporaryRenderState = new TemporaryRenderState())
+            else
             {
-              // No alpha test here, allow all values
-              temporaryRenderState.SetTemporaryRenderState(RenderState.AlphaTestEnable, 0);
-
-              // Use the SourceAlpha channel and InverseSourceAlpha for destination
-              temporaryRenderState.SetTemporaryRenderState(RenderState.BlendOperation, (int)BlendOperation.Add);
-              temporaryRenderState.SetTemporaryRenderState(RenderState.SourceBlend, (int)Blend.SourceAlpha);
-              temporaryRenderState.SetTemporaryRenderState(RenderState.DestinationBlend, (int)Blend.InverseSourceAlpha);
-
-              if (currentSubtitle.SubTexture != null && !currentSubtitle.SubTexture.IsDisposed)
+              using (TemporaryRenderState temporaryRenderState = new TemporaryRenderState())
               {
-                _sprite.Begin(SpriteFlags.AlphaBlend);
-                _sprite.Transform = transform;
-                _sprite.Draw(currentSubtitle.SubTexture, SharpDX.Color.White);
-                _sprite.End();
+                // No alpha test here, allow all values
+                temporaryRenderState.SetTemporaryRenderState(RenderState.AlphaTestEnable, 0);
+
+                // Use the SourceAlpha channel and InverseSourceAlpha for destination
+                temporaryRenderState.SetTemporaryRenderState(RenderState.BlendOperation, (int)BlendOperation.Add);
+                temporaryRenderState.SetTemporaryRenderState(RenderState.SourceBlend, (int)Blend.SourceAlpha);
+                temporaryRenderState.SetTemporaryRenderState(RenderState.DestinationBlend, (int)Blend.InverseSourceAlpha);
+
+                if (currentSubtitle.SubTexture != null && !currentSubtitle.SubTexture.IsDisposed)
+                {
+                  _sprite.Begin(SpriteFlags.AlphaBlend);
+                  _sprite.Transform = transform;
+                  _sprite.Draw(currentSubtitle.SubTexture, SharpDX.Color.White);
+                  _sprite.End();
+                }
               }
             }
           }
         }
+        catch (Exception ex)
+        {
+          ServiceRegistration.Get<ILogger>().Debug("Error in DrawOverlay", ex);
+        }
 
         _onTextureInvalidated?.Invoke();
-      }
-      catch (Exception ex)
-      {
-        ServiceRegistration.Get<ILogger>().Debug("Error in DrawOverlay", ex);
       }
     }
 
@@ -807,6 +810,7 @@ namespace MediaPortal.UI.Players.Video.Subtitles
         _sprite = null;
         _subtitles.ToList().ForEach(s => s.Dispose());
         _subtitles.Clear();
+        _textBuffer?.Dispose();
       }
       DisableSubtitleHandling();
     }
