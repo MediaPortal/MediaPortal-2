@@ -51,6 +51,8 @@
     <Compile Include="LocalSeasonFanartProvider.cs" />
     <Compile Include="LocalArtistFanartProvider.cs" />
     <Compile Include="LocalAlbumFanartProvider.cs" />
+    <Compile Include="AudioTagProvider.cs" />
+    <Compile Include="Mp4VideoTagProvider.cs" />
     <Compile Include="MkvAttachmentsProvider.cs" />
     <Compile Include="LocalFanartProvider.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -80,6 +82,11 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="build.targets" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="MediaPortal.TagLib">
+      <Version>2.1.0.4</Version>
+    </PackageReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="build.targets" />

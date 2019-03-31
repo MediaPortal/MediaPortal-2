@@ -462,6 +462,8 @@ namespace MediaPortal.Plugins.InputDeviceManager
           return 5000 + keyCode;
         else if (usagePage == UsagePage.Telephony)
           return 6000 + keyCode;
+        else if (usagePage == UsagePage.GenericDesktopControls)
+          return 7000 + keyCode;
 
         return keyCode;
       }
@@ -715,9 +717,31 @@ namespace MediaPortal.Plugins.InputDeviceManager
               code = GetUniqueGenericKeyCode(hidEvent.UsagePageEnum, id);
             }
           }
+          else if (hidEvent.UsagePageEnum == UsagePage.GenericDesktopControls)
+          {
+            if (buttonDown || buttonUp)
+            {
+              string usage = id.ToString();
+              if (Enum.IsDefined(typeof(GenericDesktop), id))
+                usage = Enum.GetName(typeof(GenericDesktop), id);
+              else
+              {
+                IgnoreKey(id, hidEvent);
+                return false;
+              }
+
+              name = $"{usage}";
+              code = GetUniqueGenericKeyCode(hidEvent.UsagePageEnum, id);
+            }
+          }
+          else if (buttonDown || buttonUp)
+          {
+            //LogEvent("Unsupported", hidEvent);
+            return false;
+          }
           else
           {
-            LogEvent("Unsupported", hidEvent);
+            //Is not a key up or down event so this is not possible to support
             return false;
           }
 
@@ -727,7 +751,7 @@ namespace MediaPortal.Plugins.InputDeviceManager
       }
       else
       {
-        LogEvent("Unsupported", hidEvent);
+        //LogEvent("Unsupported", hidEvent);
         return false;
       }
 
