@@ -5,9 +5,8 @@
 
   <!-- This should NEVER be changed ! This is the product ID of MP2 main package. -->
   <?define UpgradeCode = "9743129C-FED3-404A-A66E-3C1557BE0178" ?>
-
-  <Bundle Name="MediaPortal 2" Version="9.0.0.0" Manufacturer="Team MediaPortal" UpgradeCode="$(var.UpgradeCode)" Compressed="no">
-    <!--   <Bundle Name="MediaPortal 2" Version="!(bind.packageVersion.MP2Client)" Manufacturer="Team MediaPortal" UpgradeCode="$(var.UpgradeCode)" Compressed="no"> -->
+  
+  <Bundle Name="MediaPortal 2" Version="!(bind.packageVersion.MP2Client)" Manufacturer="Team MediaPortal" UpgradeCode="$(var.UpgradeCode)" Compressed="no">
     <BootstrapperApplicationRef Id="ManagedBootstrapperApplicationHost">
       <Payload SourceFile="..\MP2BootstrapperApp\Bin\$(var.Configuration)\MP2BootstrapperApp.dll"/>
       <Payload SourceFile="..\MP2BootstrapperApp\Bin\$(var.Configuration)\BootstrapperCore.config"/>
@@ -31,10 +30,9 @@
       <PackageGroupRef Id="LAVFilters"/>
 
       <RollbackBoundary />
-<!-- 
       <MsiPackage Id="MP2Client" SourceFile="..\MP2Client\Bin\$(var.Configuration)\en-us\MP2Client.msi" DisplayInternalUI="no" Compressed="yes" Vital="yes" Visible="yes"/>
       <MsiPackage Id="MP2Common" SourceFile="..\MP2Common\Bin\$(var.Configuration)\en-us\MP2Common.msi" DisplayInternalUI="no" Compressed="yes" Vital="yes" Visible="yes"/>
-      <MsiPackage Id="MP2Server" SourceFile="..\MP2Server\Bin\$(var.Configuration)\en-us\MP2Server.msi" DisplayInternalUI="no" Compressed="yes" Vital="yes" Visible="yes"/> -->
+      <MsiPackage Id="MP2Server" SourceFile="..\MP2Server\Bin\$(var.Configuration)\en-us\MP2Server.msi" DisplayInternalUI="no" Compressed="yes" Vital="yes" Visible="yes"/>
     </Chain>
   </Bundle>
 </Wix>
