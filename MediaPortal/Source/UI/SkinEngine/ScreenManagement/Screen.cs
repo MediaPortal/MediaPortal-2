@@ -488,6 +488,8 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
           // in the first Measure() call, which then need to invalidate the element tree again. That can happen multiple times.
           _root.UpdateLayoutRoot(skinSize);
         }
+        if (_scheduledFocus.Count == 0 && !_root.IsKeyboardFocusWithin)
+          _root.SetFocusPrio = SetFocusPriority.Fallback;   // Make sure something has focus if at all possible
         HandleScheduledFocus();
       }
     }
