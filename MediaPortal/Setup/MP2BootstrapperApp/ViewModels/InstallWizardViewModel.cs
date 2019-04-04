@@ -170,7 +170,7 @@ namespace MP2BootstrapperApp.ViewModels
 
     internal void Install()
     {
-      //_bootstrapperApplicationModel.PlanAction(LaunchAction.Install);
+      _bootstrapperApplicationModel.PlanAction(LaunchAction.Install);
     }
 
     protected void DetectedPackageComplete(object sender, DetectPackageCompleteEventArgs e)
@@ -180,16 +180,14 @@ namespace MP2BootstrapperApp.ViewModels
       if (package != null)
       {
         PackageId id = (PackageId)Enum.Parse(typeof(PackageId), package.Id);
-        package.CurrentInstallState = PackageState.Absent; //_packageContext.CheckInstallState(id) ? PackageState.Present : PackageState.Absent;
+        package.CurrentInstallState = _packageContext.CheckInstallState(id) ? PackageState.Present : PackageState.Absent;
       }
     }
 
     private void DetectRelatedBundle(object sender, DetectRelatedBundleEventArgs e)
     {
-      // UNCOMMENT THOSE TWO LINES TO VIEW THE EXIST INSTALL PAGE
-      
-      // _wizard.Step = new InstallExistInstallStep(this);
-      // CurrentPage = new InstallExistTypePageViewModel(this);
+      _wizard.Step = new InstallExistInstallStep(this);
+      CurrentPage = new InstallExistTypePageViewModel(this);
     }
 
     protected void PlanComplete(object sender, PlanCompleteEventArgs e)
