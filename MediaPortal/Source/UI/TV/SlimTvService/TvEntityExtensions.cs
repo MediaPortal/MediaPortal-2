@@ -61,9 +61,9 @@ namespace MediaPortal.Plugins.SlimTv.Service
       };
 
       program.RecordingStatus = tvProgram.IsRecording ? RecordingStatus.Recording : RecordingStatus.None;
-      if (tvProgram.IsRecordingOncePending)
+      if (tvProgram.IsRecordingOncePending || tvProgram.IsRecordingOnce)
         program.RecordingStatus |= RecordingStatus.Scheduled;
-      if (tvProgram.IsRecordingSeriesPending)
+      if (tvProgram.IsRecordingSeriesPending || tvProgram.IsRecordingSeries)
         program.RecordingStatus |= RecordingStatus.SeriesScheduled;
 
       return program;
@@ -140,9 +140,9 @@ namespace MediaPortal.Plugins.SlimTv.Service
 
       ProgramBLL programLogic = new ProgramBLL(tvProgram);
       program.RecordingStatus = programLogic.IsRecording ? RecordingStatus.Recording : RecordingStatus.None;
-      if (programLogic.IsRecordingOncePending)
+      if (programLogic.IsRecordingOncePending || programLogic.IsRecordingOnce)
         program.RecordingStatus |= RecordingStatus.Scheduled;
-      if (programLogic.IsRecordingSeriesPending)
+      if (programLogic.IsRecordingSeriesPending || programLogic.IsRecordingSeries)
         program.RecordingStatus |= RecordingStatus.SeriesScheduled;
 
       return program;

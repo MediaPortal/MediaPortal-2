@@ -1808,10 +1808,10 @@
   </Style>
 
   <!--PlayerControlButtons-->
-  <Style x:Key="AudioActiveButtonStyle" TargetType="{x:Type Button}">
+  <Style x:Key="AudioActiveButtonStyle" TargetType="{x:Type CheckBox}">
     <Setter Property="Template">
       <Setter.Value>
-        <ControlTemplate TargetType="{x:Type Button}" >
+        <ControlTemplate TargetType="{x:Type CheckBox}" >
           <Grid>
             <Image Source="PlayerControl\MUTE.NOFOCUS.PNG" Stretch="Uniform" Height="45" Width="45" Margin="0" VerticalAlignment="Center">
               <Image.IsVisible>
@@ -1851,13 +1851,15 @@
     </Setter>
   </Style>
 
-  <Style x:Key="AudioInactiveButtonStyle" TargetType="{x:Type Button}">
+  <Style x:Key="AudioInactiveButtonStyle" TargetType="{x:Type CheckBox}">
     <Setter Property="Template">
       <Setter.Value>
-        <ControlTemplate TargetType="{x:Type Button}" >
+        <ControlTemplate TargetType="{x:Type CheckBox}" >
           <Grid>
-            <Image Source="PlayerControl\MUTEON.NOFOCUS.PNG" Stretch="Uniform" Height="45" Width="45" Margin="0" VerticalAlignment="Center" IsVisible="{Binding !HasFocus}"/>
-            <Image Source="PlayerControl\MUTEON.FOCUS.PNG" Stretch="Uniform" Height="45" Width="45" Margin="0" VerticalAlignment="Center" IsVisible="{Binding HasFocus}"/>
+            <Image Source="PlayerControl\MUTEON.NOFOCUS.PNG" Stretch="Uniform" Height="45" Width="45" Margin="0" VerticalAlignment="Center" 
+                   IsVisible="{Binding RelativeSource={RelativeSource TemplatedParent},Path=!HasFocus}"/>
+            <Image Source="PlayerControl\MUTEON.FOCUS.PNG" Stretch="Uniform" Height="45" Width="45" Margin="0" VerticalAlignment="Center"
+                   IsVisible="{Binding RelativeSource={RelativeSource TemplatedParent},Path=HasFocus}"/>
           </Grid>
         </ControlTemplate>
       </Setter.Value>

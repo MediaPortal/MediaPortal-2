@@ -12,8 +12,8 @@
     <!-- Contents -->
     <ControlTemplate x:Key="Contents_Template">
       <DockPanel DataContext="{Binding Source={StaticResource Model}}">
-        <Label Content="[InputDeviceManager.DefaultConfig.Title]" Color="{ThemeResource TextColor}" FontSize="36" DockPanel.Dock="Top" HorizontalAlignment="Center"/>
-        <Label Content="[InputDeviceManager.DefaultConfig.Description]" Color="{ThemeResource TextColor}" FontSize="36" DockPanel.Dock="Top" HorizontalAlignment="Left" Wrap="True"/>
+        <Label Content="[InputDeviceManager.DefaultConfig.Title]" Color="{ThemeResource TextColor}" DockPanel.Dock="Top" HorizontalAlignment="Center"/>
+        <Label Content="[InputDeviceManager.DefaultConfig.Description]" Color="{ThemeResource TextColor}" DockPanel.Dock="Top" HorizontalAlignment="Left" Wrap="True"/>
         <!-- Default config list -->
         <ListView Margin="10" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" SetFocus="True"
                     Style="{ThemeResource MenuListViewStyle}" RestoreFocus="True"
