@@ -208,6 +208,7 @@
   <string name="Media.LargeGrid">Rács</string>
   <string name="Media.SwitchSortingMenuItem">Rendezés</string>
   <!--Stubs-->
+  <!--Virtual-->
   <!--Settings-->
   <string name="Settings.Players">Lejátszók</string>
   <string name="Settings.Players.ClosePlayersWhenFinished">Lejátszók bezárása amikor kész</string>

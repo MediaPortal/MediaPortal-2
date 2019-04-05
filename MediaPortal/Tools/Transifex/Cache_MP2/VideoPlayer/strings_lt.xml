@@ -22,10 +22,7 @@
   <string name="Settings.Players.VideoPlayer.PreferMultiChannelAudio">Bevelyti daugiakanalius audio srautus</string>
   <string name="Settings.Players.VideoPlayer.PreferMultiChannelAudio.Help">Jei įgalinta, bevelijama 6 kanalų srautai (t.y. AC3, AAC)</string>
   <string name="Settings.Players.DVDPlayer">DVD grotuvas</string>
-  <string name="Settings.Players.DVDPlayer.EnableClosedCaption">Subtitrai</string>
-  <string name="Settings.Players.DVDPlayer.EnableClosedCaption.Help">Pasirinkti, kad subtitrai būtų rodomi numatytai</string>
-  <string name="Settings.Players.DVDPlayer.EnableSubtitles">Subtitrai</string>
-  <string name="Settings.Players.DVDPlayer.EnableSubtitles.Help">Pasirinkti, kad subtitrai būtų rodomi numatytai</string>
+  <string name="Settings.Players.Subtitles">Subtitrai</string>
   <string name="Playback.NotSpecified">Nenustatyta</string>
   <string name="Playback.CaptionNormal">Normalūs subtitrai</string>
   <string name="Playback.CaptionBig">Dideli subtitrai</string>

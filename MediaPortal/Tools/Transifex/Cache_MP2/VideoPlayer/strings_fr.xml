@@ -26,10 +26,14 @@
   <string name="Settings.Players.VideoPlayer.PreferMultiChannelAudio">Préférer les flux audio multicanaux</string>
   <string name="Settings.Players.VideoPlayer.PreferMultiChannelAudio.Help">Le flux 6 canaux sera préféré (ex : AC3, AAC...), s\'il est disponible</string>
   <string name="Settings.Players.DVDPlayer">Lecteur DVD</string>
-  <string name="Settings.Players.DVDPlayer.EnableClosedCaption">Audio description</string>
-  <string name="Settings.Players.DVDPlayer.EnableClosedCaption.Help">Audio description actif par défaut ?</string>
-  <string name="Settings.Players.DVDPlayer.EnableSubtitles">Sous-titre</string>
-  <string name="Settings.Players.DVDPlayer.EnableSubtitles.Help">Sous-titre actif par défaut ?</string>
+  <string name="Settings.Players.Subtitles">Sous-titre</string>
+  <string name="Settings.Players.Subtitles.Help">Choisissez quel type de sous-titres doit être activé. </string>
+  <string name="Settings.Players.EnableAtscClosedCaptions">ATSC Closed Captions</string>
+  <string name="Settings.Players.EnableDvbSubtitles">DVB</string>
+  <string name="Settings.Players.EnableTeletextSubtitles">Télétexte </string>
+  <string name="Settings.Players.EnableDvdSubtitles">DVD Sous-titres </string>
+  <string name="Settings.Players.EnableDvdClosedCaptions">DVD Closed Captions</string>
+  <string name="Settings.Players.EnableMpcHcEngineSubtitles">Moteur de sous-titre MPC-HC pour les vidéos</string>
   <string name="Playback.NotSpecified">Non spécifié</string>
   <string name="Playback.CaptionNormal">Audio description normale</string>
   <string name="Playback.CaptionBig">Audio description étendue</string>
@@ -48,4 +52,5 @@
   <!--For example: "Chapter 1"-->
   <string name="Playback.Title">Scène {0}</string>
   <!--For example: "Title 1"-->
+  <string name="Playback.Players.No.Subtitles">Aucun sous-titres</string>
 </resources>

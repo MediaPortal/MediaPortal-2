@@ -26,10 +26,14 @@
   <string name="Settings.Players.VideoPlayer.PreferMultiChannelAudio">Föredra flerkanaliga ljudströmmar</string>
   <string name="Settings.Players.VideoPlayer.PreferMultiChannelAudio.Help">Om aktiverad, så prioriteras sexkanaliga strömmar (dvs. AC3, AAC)</string>
   <string name="Settings.Players.DVDPlayer">DVD-spelare</string>
-  <string name="Settings.Players.DVDPlayer.EnableClosedCaption">Textning (utökade undertexter, t ex även textade ljudeffekter)</string>
-  <string name="Settings.Players.DVDPlayer.EnableClosedCaption.Help">Välj om textning ska vara på som standard</string>
-  <string name="Settings.Players.DVDPlayer.EnableSubtitles">Undertexter</string>
-  <string name="Settings.Players.DVDPlayer.EnableSubtitles.Help">Välj om undertexter ska vara på som standard</string>
+  <string name="Settings.Players.Subtitles">Undertexter</string>
+  <string name="Settings.Players.Subtitles.Help">Välj typ av undertext</string>
+  <string name="Settings.Players.EnableAtscClosedCaptions">ATSC Closed Captions (CC)</string>
+  <string name="Settings.Players.EnableDvbSubtitles">Digital Video Broadcasting (DVB)</string>
+  <string name="Settings.Players.EnableTeletextSubtitles">Text-TV</string>
+  <string name="Settings.Players.EnableDvdSubtitles">DVD undertext</string>
+  <string name="Settings.Players.EnableDvdClosedCaptions">DVD Closed Captions (CC)</string>
+  <string name="Settings.Players.EnableMpcHcEngineSubtitles">MPC-HC undertext för för Video</string>
   <string name="Playback.NotSpecified">Ej specifierat</string>
   <string name="Playback.CaptionNormal">Normal text</string>
   <string name="Playback.CaptionBig">Stor text</string>
@@ -48,4 +52,5 @@
   <!--For example: "Chapter 1"-->
   <string name="Playback.Title">Titel {0}</string>
   <!--For example: "Title 1"-->
+  <string name="Playback.Players.No.Subtitles">Ingen undertext</string>
 </resources>

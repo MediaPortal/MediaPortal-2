@@ -21,7 +21,10 @@
   <string name="SlimTvClient.DeleteSchedule">अनुसूची हटाएँ</string>
   <string name="SlimTvClient.CreateSchedule">अनुसूची रिकॉर्ड हो रहा है</string>
   <!--Extended recording features-->
+  <string name="SlimTvClient.ShowAllRecordingsItemsMenuItem">नाम</string>
+  <string name="SlimTvClient.FilterRecordingsItemsNavbarDisplayLabel">नाम</string>
   <!--Schedule management-->
   <!--Settings-->
   <string name="SlimTvClient.NoColor">कोई नहीं</string>
+  <string name="SlimTvClient.ChannelMenuItemLabel">चैनल</string>
 </resources>

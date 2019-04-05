@@ -23,10 +23,7 @@
   <string name="Settings.Players.VideoPlayer.PreferMultiChannelAudio">Raje uporabi večkanalne audio vire</string>
   <string name="Settings.Players.VideoPlayer.PreferMultiChannelAudio.Help">Če je to izbrano, potem bo predvajalnik raje uporabil 6 kanalne audio vire (AC3, AAC, ...)</string>
   <string name="Settings.Players.DVDPlayer">DVD predvajalnik</string>
-  <string name="Settings.Players.DVDPlayer.EnableClosedCaption">Tekstovne razlage</string>
-  <string name="Settings.Players.DVDPlayer.EnableClosedCaption.Help">Označi, če želiš, da so tekstovne razlage zvoka privzeto vključene</string>
-  <string name="Settings.Players.DVDPlayer.EnableSubtitles">Podnapisi</string>
-  <string name="Settings.Players.DVDPlayer.EnableSubtitles.Help">Označi, če želiš, da so podnapisi privzeto vključeni</string>
+  <string name="Settings.Players.Subtitles">Podnapisi</string>
   <string name="Playback.NotSpecified">Ni določeno</string>
   <string name="Playback.CaptionNormal">Normalna velikost</string>
   <string name="Playback.CaptionBig">Velika velikost</string>

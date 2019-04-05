@@ -1,4 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+  <string name="InputDeviceManager.Screen">Scherm</string>
   <string name="InputDeviceManager.KeyMapping.Button.ClearMapping">Helder</string>
   </resources>

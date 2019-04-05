@@ -22,10 +22,7 @@
   <string name="Settings.Players.VideoPlayer.PreferMultiChannelAudio">Foretrekker flerkanals lydstrøm</string>
   <string name="Settings.Players.VideoPlayer.PreferMultiChannelAudio.Help">Hvis valgt, 6-kanalsstrøm er foretrukket (f.eks. AC3, AAC)</string>
   <string name="Settings.Players.DVDPlayer">DVD-avspiller</string>
-  <string name="Settings.Players.DVDPlayer.EnableClosedCaption">Teksting (CC)</string>
-  <string name="Settings.Players.DVDPlayer.EnableClosedCaption.Help">Velg om teksting (CC) skal være på som standard</string>
-  <string name="Settings.Players.DVDPlayer.EnableSubtitles">Undertekst</string>
-  <string name="Settings.Players.DVDPlayer.EnableSubtitles.Help">Velg om undertekst skal være på som standard</string>
+  <string name="Settings.Players.Subtitles">Undertekst</string>
   <string name="Playback.NotSpecified">Ikke spesifisert</string>
   <string name="Playback.CaptionNormal">Normal tekst (CC)</string>
   <string name="Playback.CaptionBig">Stor tekst (CC)</string>

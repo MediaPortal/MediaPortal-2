@@ -421,6 +421,7 @@
   <!--Stubs-->
   <string name="Media.Stub.Title">Inserisci disco</string>
   <string name="Media.Stub.Message">Inserire disco</string>
+  <!--Virtual-->
   <!--Settings-->
   <string name="Settings.Players">Player</string>
   <string name="Settings.Players.ClosePlayersWhenFinished">Chiudi i player quando finito</string>

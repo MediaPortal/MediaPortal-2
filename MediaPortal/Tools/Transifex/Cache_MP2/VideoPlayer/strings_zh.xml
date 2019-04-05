@@ -26,10 +26,7 @@
   <string name="Settings.Players.VideoPlayer.PreferMultiChannelAudio">首选的多声轨流</string>
   <string name="Settings.Players.VideoPlayer.PreferMultiChannelAudio.Help">如果启用，6CH流是首选 (i.e. AC3, AAC)</string>
   <string name="Settings.Players.DVDPlayer">DVD播放器</string>
-  <string name="Settings.Players.DVDPlayer.EnableClosedCaption">隐藏字幕</string>
-  <string name="Settings.Players.DVDPlayer.EnableClosedCaption.Help">选择默认启用隐藏字幕</string>
-  <string name="Settings.Players.DVDPlayer.EnableSubtitles">字幕</string>
-  <string name="Settings.Players.DVDPlayer.EnableSubtitles.Help">选择默认启用字幕</string>
+  <string name="Settings.Players.Subtitles">字幕</string>
   <string name="Playback.NotSpecified">未指定</string>
   <string name="Playback.CaptionNormal">字幕 正常</string>
   <string name="Playback.CaptionBig">字幕 大</string>
