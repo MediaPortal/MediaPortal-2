@@ -75,4 +75,7 @@
   <ResourceWrapper x:Key="OSDPlayControlCornerRadius" Resource="0"/>
   <ResourceWrapper x:Key="OSDPlayControlBorderThickness" Resource="0"/>
 
+  <ResourceWrapper x:Key="PiPVideoWidth" Resource="100"/>
+  <ResourceWrapper x:Key="FullScreenContentVideoSecondaryPlayerOSDPipHeight" Resource="140"/>
+
 </ResourceDictionary>

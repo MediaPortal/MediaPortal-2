@@ -86,7 +86,7 @@ Parameters which have to be accessible by a DynamicResource lookup:
       <RowDefinition Height="Auto"/>
     </Grid.RowDefinitions>
 
-    <Grid x:Name="HeaderPanel" Grid.Row="0"  Height="{ThemeResource HeaderPanelHeight}" IsEnabled="{Binding Source={StaticResource MenuModel},Path=!IsMenuOpen}">
+    <Grid x:Name="HeaderPanel" Margin="0,-6,0,0" Height="{ThemeResource HeaderPanelHeight}" IsEnabled="{Binding Source={StaticResource MenuModel},Path=!IsMenuOpen}">
       <Grid.RowDefinitions>
         <RowDefinition Height="Auto"/>
       </Grid.RowDefinitions>
@@ -96,11 +96,12 @@ Parameters which have to be accessible by a DynamicResource lookup:
 
       <mp_special_controls:WorkflowNavigationBar Style="{ThemeResource WorkflowNavigationBarStyle}" Grid.Column="0"
           IsVisible="{Binding Source={StaticResource MouseModel},Path=IsMouseUsed}"/>
-
-      <StackPanel Grid.Column="0" HorizontalAlignment="Right" VerticalAlignment="Bottom" Orientation="Horizontal">
-        <Control x:Name="NotificationControl" Margin="0,-10,20,-20"  Style="{ThemeResource NotificationControlStyle}" />
-      </StackPanel>
     </Grid>
+
+    <StackPanel Grid.Column="0" HorizontalAlignment="Left" VerticalAlignment="Top" Orientation="Horizontal">
+      <Control x:Name="NotificationControl" Margin="60,45,0,0" Style="{ThemeResource NotificationControlStyle}" Height="50"/>
+    </StackPanel>
+
     <!-- HeaderPanel -->
 
     <Grid  Grid.Row="1" HorizontalAlignment="Stretch">

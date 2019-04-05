@@ -472,15 +472,15 @@
     <Setter Property="Template">
       <Setter.Value>
         <ControlTemplate TargetType="{x:Type mp_special_controls:PlayerControl}">
-          <Border x:Name="OSD_Background" BorderBrush="{ThemeResource DialogBorderColor}"
+          <Border x:Name="OSD_Background" BorderBrush="{ThemeResource DialogBorderColor}" Background="#D8000000"
                   CornerRadius="{ThemeResource OSDPlayControlCornerRadius}" BorderThickness="{ThemeResource OSDPlayControlBorderThickness}"
                   DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}">
-            <Border.Background>
+            <!--Border.Background>
               <LinearGradientBrush StartPoint="0,1" EndPoint="1,0">
                 <GradientStop Color="{ThemeResource DialogBackgroundGradient1Color}" Offset="0"/>
                 <GradientStop Color="{ThemeResource DialogBackgroundGradient2Color}" Offset="1"/>
               </LinearGradientBrush>
-            </Border.Background>
+            </Border.Background-->
             <Grid x:Name="PlayerGrid" Margin="10,0,10,0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
               <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*"/>
@@ -492,7 +492,7 @@
                 <RowDefinition Height="Auto"/>
               </Grid.RowDefinitions>
               
-              <DockPanel x:Name="PiPHeaderPanel" Grid.Column="0" Grid.Row="0" LastChildFill="true" Margin="3">
+              <DockPanel x:Name="PiPHeaderPanel" LastChildFill="true" Margin="3">
                 <Grid DockPanel.Dock="Center">
                   <!-- Has to be last control in DockPanel, LastChildFill! -->
                   <Grid.ColumnDefinitions>
@@ -502,7 +502,7 @@
                     <RowDefinition Height="*"/>
                   </Grid.RowDefinitions>
                   <Label x:Name="MediaName" Content="{Binding Path=MediaItemTitle}" Color="{ThemeResource TextColor}" Scroll="Auto"
-                         HorizontalAlignment="Left" VerticalAlignment="Center" MaxWidth="500"/>
+                         HorizontalAlignment="Left" VerticalAlignment="Center" MaxWidth="400" FontSize="{ThemeResource SmallerFontSize}" />
                 </Grid>
               </DockPanel>
               
@@ -528,7 +528,7 @@
                           VerticalAlignment="Center" HorizontalAlignment="Center" IsVisible="{Binding ShowMouseControls}">
                 <StackPanel.LayoutTransform>
                   <TransformGroup>
-                    <ScaleTransform ScaleX="1.3" ScaleY="1.3"/>
+                    <ScaleTransform ScaleX="1" ScaleY="1"/>
                   </TransformGroup>
                 </StackPanel.LayoutTransform>
                 <Button x:Name="SkipBackButton" Style="{ThemeResource SkipBackButtonStyle}" Margin="5,0,5,0" IsVisible="{Binding CanSkipBack}"

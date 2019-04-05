@@ -48,6 +48,7 @@ namespace MediaPortal.Plugins.SystemStateMenu
     public const string RES_SYSTEM_SLEEPTIMER_STOP_MENU_ITEM = "[SystemState.SleepTimerStop]";
 
     public const string RES_MEDIAPORTAL_MINIMIZE_MENU_ITEM = "[SystemState.MinimizeMP]";
+    public const string RES_MEDIAPORTAL_RESTATRT_MENU_ITEM = "[SystemState.RestartMP]";
     public const string RES_MEDIAPORTAL_SHUTDOWN_MENU_ITEM = "[SystemState.ShutdownMP]";
 
     // Accessor keys for GUI communication
@@ -83,6 +84,8 @@ namespace MediaPortal.Plugins.SystemStateMenu
           return RES_MEDIAPORTAL_SHUTDOWN_MENU_ITEM;
         case SystemStateAction.MinimizeMP:
           return RES_MEDIAPORTAL_MINIMIZE_MENU_ITEM;
+        case SystemStateAction.RestartMP:
+          return RES_MEDIAPORTAL_RESTATRT_MENU_ITEM;
         default:
           return string.Empty;
       }

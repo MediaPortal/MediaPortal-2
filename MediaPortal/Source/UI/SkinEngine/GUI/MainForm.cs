@@ -23,9 +23,14 @@
 #endregion
 
 using System;
+using System.Diagnostics;
 using System.Drawing;
+using System.IO;
+using System.Linq;
+using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Threading;
+using System.Threading.Tasks;
 using System.Windows.Forms;
 using MediaPortal.Common;
 using MediaPortal.Common.PathManager;
@@ -424,7 +429,7 @@ namespace MediaPortal.UI.SkinEngine.GUI
       if (SkinContext.RenderThread == null)
         return;
       ServiceRegistration.Get<ILogger>().Debug("SkinEngine MainForm: Stopping render thread");
-      if(!SkinContext.RenderThread.Join(5000))
+      if (!SkinContext.RenderThread.Join(5000))
       {
         SkinContext.RenderThread.Abort();
       }
@@ -496,11 +501,11 @@ namespace MediaPortal.UI.SkinEngine.GUI
         }
         ServiceRegistration.Get<ILogger>().Debug("SkinEngine MainForm: Main render loop was stopped");
       }
-      catch(ThreadAbortException)
+      catch (ThreadAbortException)
       {
         ServiceRegistration.Get<ILogger>().Error("SkinEngine MainForm: Main render loop was aborted");
       }
-      catch(Exception ex)
+      catch (Exception ex)
       {
         ServiceRegistration.Get<ILogger>().Error("SkinEngine MainForm: Main render loop crashed", ex);
       }
@@ -519,6 +524,38 @@ namespace MediaPortal.UI.SkinEngine.GUI
       VideoPlayerSynchronizationStrategy = null; // Stops the strategy component
       Close();
       _videoRenderFrameEvent.Close();
+    }
+
+    public void Restart()
+    {
+      // Do not block UI when calling other process via named pipe
+      Task.Run(() =>
+      {
+        try
+        {
+          if (!IpcClient.GetRunningApps().Contains("ClientLauncher"))
+          {
+            string clPath = Path.Combine(Path.GetDirectoryName(Assembly.GetEntryAssembly().Location), "Tools", "MP2-ClientLauncher", "MP2-ClientLauncher.exe");
+            Process.Start(clPath);
+            int waitCounter = 10;
+            // Wait until process is running and the pipe was created.
+            while (waitCounter-- > 0 && !IpcClient.GetRunningApps().Contains("ClientLauncher"))
+            {
+              Thread.Sleep(200);
+            }
+          }
+          // Sends a command to tray launcher that we want to be restarted.
+          using (var client = new IpcClient("ClientLauncher"))
+          {
+            client.Connect();
+            client.RequestRestart();
+          }
+        }
+        catch (Exception ex)
+        {
+          ServiceRegistration.Get<ILogger>().Error("Error trying to send restart request.", ex);
+        }
+      });
     }
 
     public void Minimize()
@@ -1057,7 +1094,8 @@ namespace MediaPortal.UI.SkinEngine.GUI
         }
       }
       // Send windows message through the system if any component needs to access windows messages
-      WindowsMessaging.BroadcastWindowsMessage(ref m);
+      if (WindowsMessaging.BroadcastWindowsMessage(ref m))
+        return;
       base.WndProc(ref m);
     }
 

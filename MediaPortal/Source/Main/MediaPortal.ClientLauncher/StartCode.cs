@@ -22,19 +22,38 @@
 
 #endregion
 
-using System;
+using System.Xml.Serialization;
 
-namespace MediaPortal.Plugins.InputDeviceManager.RawInput
+namespace MediaPortal.Client.Launcher
 {
-   public class RawInputEventArg : EventArgs
-   {
-      public RawInputEventArg(KeyPressEvent arg)
-      {
-         KeyPressEvent = arg;
-      }
+  [XmlRoot("StartCode")]
+  public class StartCode
+  {
+    #region Properties
 
-      public KeyPressEvent KeyPressEvent { get; private set; }
+    [XmlAttribute("Type")]
+    public string Type { get; set; }
 
-      public bool Handled { get; set; }
-   }
+    [XmlAttribute("Codes")]
+    public string Codes { get; set; }
+
+    #endregion Properties
+
+    #region Constructors
+
+    public StartCode()  { }
+
+    public StartCode(string type, string codes)
+    {
+      Type  = type;
+      Codes = codes;
+    }
+
+    public override string ToString()
+    {
+      return $"{Type}: {Codes}";
+    }
+
+    #endregion Constructors
+  }
 }

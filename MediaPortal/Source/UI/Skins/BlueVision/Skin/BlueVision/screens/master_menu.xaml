@@ -76,8 +76,8 @@ Parameters which have to be accessible by a DynamicResource lookup:
 
     <ControlTemplate x:Key="Header_Text_Template">
       <Label x:Name="HeaderLabel" FontFamily="DefaultBold" FontSize="{ThemeResource BiggerFontSize}"
-               VerticalAlignment="Center" HorizontalAlignment="Left" Color="{ThemeResource TextColor}"
-               Content="{Binding Source={DynamicResource Header_Text},Path=Resource}">
+             VerticalAlignment="Center" HorizontalAlignment="Left" Color="{ThemeResource TextColor}"
+             Content="{Binding Source={DynamicResource Header_Text},Path=Resource}">
       </Label>
     </ControlTemplate>
 
@@ -164,7 +164,7 @@ Parameters which have to be accessible by a DynamicResource lookup:
                 Width="645" HorizontalAlignment="Right">
             <Grid.IsVisible>
               <Binding Source="{StaticResource ViewModeModel}" Path="LayoutType"
-                     Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0} != {LayoutType}.{CoverLayout}"/>
+                       Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0} != {LayoutType}.{CoverLayout}"/>
             </Grid.IsVisible>
             <Grid.Resources>
               <Storyboard x:Key="SlideInStoryboard" FillBehavior="HoldEnd">
@@ -256,7 +256,7 @@ Parameters which have to be accessible by a DynamicResource lookup:
               Width="600" Height="1150" HorizontalAlignment="Right">
             <Grid.IsVisible>
               <Binding Source="{StaticResource ViewModeModel}" Path="LayoutType"
-                     Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0} == {LayoutType}.{CoverLayout}"/>
+                       Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0} == {LayoutType}.{CoverLayout}"/>
             </Grid.IsVisible>
             <Grid.Resources>
               <Storyboard x:Key="SlideDownStoryboard" FillBehavior="HoldEnd">
@@ -324,18 +324,18 @@ Parameters which have to be accessible by a DynamicResource lookup:
                     HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="0,20,40,20">
             </Border>
             <ListView x:Name="TopMenu" Grid.Row="2" Style="{ThemeResource PopupMenuListViewStyle}" Margin="20,40,60,40"
-              HorizontalAlignment="Stretch" VerticalAlignment="Stretch" SetFocusPrio="Default"
-              ItemsSource="{Binding Source={StaticResource MenuModel},Path=MenuItems,Mode=OneTime}"
-              IsEnabled="{Binding Source={StaticResource MenuModel},Path=IsMenuOpen}">
+                      HorizontalAlignment="Stretch" VerticalAlignment="Stretch" SetFocusPrio="Default"
+                      ItemsSource="{Binding Source={StaticResource MenuModel},Path=MenuItems,Mode=OneTime}"
+                      IsEnabled="{Binding Source={StaticResource MenuModel},Path=IsMenuOpen}">
               <ListView.Resources>
                 <CommandBridge x:Key="Menu_Command" Command="{Binding Path=Command,Mode=OneTime}"/>
               </ListView.Resources>
             </ListView>
             <Button x:Name="MenuShowTopButton" Content="Menu" Style="{ThemeResource MenuButtonWideStyle}"
-                  Grid.Row="1" Grid.Column="0" VerticalAlignment="Bottom" Width="180" Margin="0,0,0,0"
-                  IsEnabled="{Binding Source={StaticResource MenuModel},Path=!IsMenuOpen}"
-                  IsVisible="{Binding Source={StaticResource MenuModel},Path=!IsMenuOpen}"
-                  Command="{Command Source={StaticResource MenuModel}, Path=ToggleMenu}">
+                    Grid.Row="1" Grid.Column="0" VerticalAlignment="Bottom" Width="180" Margin="0,0,0,0"
+                    IsEnabled="{Binding Source={StaticResource MenuModel},Path=!IsMenuOpen}"
+                    IsVisible="{Binding Source={StaticResource MenuModel},Path=!IsMenuOpen}"
+                    Command="{Command Source={StaticResource MenuModel}, Path=ToggleMenu}">
               <Image Source="hiddenmenu_tab_up.png" Stretch="Uniform" Height="40" Margin="0,15,0,-30"/>
             </Button>
           </Grid>

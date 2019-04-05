@@ -28,9 +28,11 @@ using System.Collections.Generic;
 using System.Linq;
 using DirectShow;
 using MediaPortal.Common;
+using MediaPortal.Common.Localization;
 using MediaPortal.Common.Logging;
 using MediaPortal.UI.Players.Video.Interfaces;
 using MediaPortal.UI.Players.Video.Subtitles;
+using MediaPortal.UI.Players.Video.Teletext;
 
 namespace MediaPortal.UI.Players.Video.Tools
 {
@@ -38,20 +40,22 @@ namespace MediaPortal.UI.Players.Video.Tools
   {
     private const int NO_STREAM_INDEX = -1;
     private readonly ISubtitleStream _subtitleStream;
+
     public TsReaderStreamInfoHandler(ISubtitleStream subtitleStream)
     {
       if (subtitleStream == null)
-        return;
-
-      int count = 0;
-      _subtitleStream = subtitleStream;
-      subtitleStream.GetSubtitleStreamCount(ref count);
-      if (count > 0)
       {
-        StreamInfo subStream = new StreamInfo(null, NO_STREAM_INDEX, VideoPlayer.NO_SUBTITLES, 0);
+        return;
+      }
+      int subtitleStreamCount = 0;
+      _subtitleStream = subtitleStream;
+      subtitleStream.GetSubtitleStreamCount(ref subtitleStreamCount);
+      if (subtitleStreamCount > 0)
+      {
+        StreamInfo subStream = new StreamInfo(null, NO_STREAM_INDEX, VideoPlayer.GetNoSubsName(), 0);
         AddUnique(subStream);
       }
-      for (int i = 0; i < count; ++i)
+      for (int i = 0; i < subtitleStreamCount; ++i)
       {
         //FIXME: language should be passed back also as LCID
         SubtitleLanguage language = new SubtitleLanguage();
@@ -100,6 +104,74 @@ namespace MediaPortal.UI.Players.Video.Tools
     }
   }
 
+  public class TsReaderTeletextInfoHandler : BaseStreamInfoHandler
+  {
+    private const int NO_STREAM_INDEX = -1;
+    private readonly ITeletextSource _teletextSource;
+
+    public TsReaderTeletextInfoHandler(ITeletextSource teletextSource)
+    {
+      if (teletextSource == null)
+      {
+        return;
+      }
+      int teletextStreamCount = 0;
+      _teletextSource = teletextSource;
+      teletextSource.GetTeletextStreamCount(ref teletextStreamCount);
+      if (teletextStreamCount > 0)
+      {
+        StreamInfo subStream = new StreamInfo(null, NO_STREAM_INDEX, VideoPlayer.GetNoSubsName(), 0);
+        AddUnique(subStream);
+      }
+      for (int i = 0; i < teletextStreamCount; ++i)
+      {
+        //FIXME: language should be passed back also as LCID
+        SubtitleLanguage language = new SubtitleLanguage();
+        teletextSource.GetTeletextStreamLanguage(i, ref language);
+        int lcid = BaseDXPlayer.LookupLcidFromName(language.lang);
+        string name = language.lang;
+        StreamInfo subStream = new StreamInfo(null, i, name, lcid);
+        AddUnique(subStream);
+      }
+    }
+
+    public bool DisableSubs
+    {
+      get { return _currentStream == null || _currentStream.StreamIndex == NO_STREAM_INDEX; }
+    }
+
+    public override bool EnableStream(string selectedStream)
+    {
+      if (_teletextSource == null)
+      {
+        return false;
+      }
+
+      // Do not enumerate raw stream names again, as they were made unique (adding counters)
+      for (int i = 0; i < Count; ++i)
+      {
+        string subtitleTrackName = this[i].Name;
+        if (!subtitleTrackName.Equals(selectedStream))
+          continue;
+
+        if (this[i].StreamIndex == NO_STREAM_INDEX)
+        {
+          // Disable subtitles
+          ServiceRegistration.Get<ILogger>().Debug("TsReaderTeletextInfoHandler: Disable stream");
+          lock (_syncObj)
+            _currentStream = null;
+          return true;
+        }
+
+        ServiceRegistration.Get<ILogger>().Debug("TsReaderTeletextInfoHandler: Enable stream '{0}'", selectedStream);
+        lock (_syncObj)
+          _currentStream = this[i];
+        return true;
+      }
+      return false;
+    }
+  }
+
   public class MpcStreamInfoHandler : BaseStreamInfoHandler
   {
     public MpcStreamInfoHandler()
@@ -112,7 +184,7 @@ namespace MediaPortal.UI.Players.Video.Tools
         StreamInfo subStream = new StreamInfo(null, i, subtitleTrackName, lcid);
         AddUnique(subStream);
       }
-      AddUnique(new StreamInfo(null, subtitleCount + 1, VideoPlayer.NO_SUBTITLES, 0));
+      AddUnique(new StreamInfo(null, subtitleCount + 1, VideoPlayer.GetNoSubsName(), 0));
     }
 
     public override bool EnableStream(string selectedStream)

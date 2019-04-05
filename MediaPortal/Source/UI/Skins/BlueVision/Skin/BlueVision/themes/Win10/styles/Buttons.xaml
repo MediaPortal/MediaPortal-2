@@ -351,10 +351,9 @@
     <Setter Property="Template">
       <Setter.Value>
         <ControlTemplate>
-          <Rectangle x:Name="ButtonControlRectangle"
-              Opacity="0"
-              RadiusX="{ThemeResource ButtonControlRadiusX}" RadiusY="{ThemeResource ButtonControlRadiusY}"
-              Margin="0,0,0,0" Fill="{ThemeResource ButtonFillColor}" Stroke="{ThemeResource ButtonStrokeColor}" StrokeThickness="0">
+          <Rectangle x:Name="ButtonControlRectangle" Opacity="0"
+                     RadiusX="{ThemeResource ButtonControlRadiusX}" RadiusY="{ThemeResource ButtonControlRadiusY}"
+                     Fill="{ThemeResource ButtonFillColor}" Stroke="{ThemeResource ButtonStrokeColor}" StrokeThickness="0">
           </Rectangle>
         </ControlTemplate>
       </Setter.Value>
@@ -955,12 +954,12 @@
     <Setter Property="Template">
       <Setter.Value>
         <ControlTemplate TargetType="{x:Type CheckBox}">
-          <Grid x:Name="GrowControl" RenderTransformOrigin="0.5,0.5" Opacity="{ThemeResource PlayerControlButtonOpacity}">
+          <Grid x:Name="GrowControl" RenderTransformOrigin="0.5,0.5" Opacity="{ThemeResource PlayerControlButtonOpacity}" Margin="5,8,5,8">
             <Grid.ColumnDefinitions>
-              <ColumnDefinition Width="72"/>
+              <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
             <Grid.RowDefinitions>
-              <RowDefinition Height="72"/>
+              <RowDefinition Height="*"/>
             </Grid.RowDefinitions>
             <Grid.RenderTransform>
               <TransformGroup>
@@ -1001,7 +1000,7 @@
     <Setter Property="Template">
       <Setter.Value>
         <ControlTemplate TargetType="{x:Type CheckBox}">
-          <Grid x:Name="GrowControl" RenderTransformOrigin="0.5,0.5" Opacity="{ThemeResource PlayerControlButtonOpacity}">
+          <Grid x:Name="GrowControl" RenderTransformOrigin="0.5,0.5" Opacity="{ThemeResource PlayerControlButtonOpacity}" Margin="5,8,5,8">
             <Grid.ColumnDefinitions>
               <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>

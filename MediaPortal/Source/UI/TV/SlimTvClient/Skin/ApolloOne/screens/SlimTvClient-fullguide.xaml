@@ -57,8 +57,8 @@
         <tv:EpgGrid x:Name="EpgGrid" Style="{ThemeResource EpgGridStyle}" Grid.Column="0" Grid.Row="1" Grid.ColumnSpan="2" Margin="10"
             HorizontalAlignment="Stretch" VerticalAlignment="Stretch" />
 
-        <KeyBinding Key="Yellow" Command="{Command Path=NextGroup}"/>
-        <KeyBinding Key="Green" Command="{Command Path=PrevGroup}"/>
+        <!-- All KeyBindings are included from shared resource -->
+        <Include Source="screens\TvGuideKeybindings.inc"/>
       </Grid>
     </ControlTemplate>
 

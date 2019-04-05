@@ -22,17 +22,15 @@
 
 #endregion
 
-using System.Windows.Forms;
+using System;
+using MediaPortal.Common.Configuration.ConfigurationClasses;
 
-namespace MediaPortal.Plugins.InputDeviceManager.RawInput
+namespace MediaPortal.Plugins.InputDeviceManager.Settings
 {
-    public class PreMessageFilter : IMessageFilter
-    {
-        // true  to filter the message and stop it from being dispatched 
-        // false to allow the message to continue to the next filter or control.
-        public bool PreFilterMessage(ref Message m)
-        {
-            return m.Msg == Win32.WM_KEYDOWN;
-        }
-    }
+  public class HomeScreenScreens : CustomConfigSetting, IDisposable
+  {
+    public HomeScreenScreens() { }
+
+    public void Dispose() { }
+  }
 }

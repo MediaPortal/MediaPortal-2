@@ -52,8 +52,8 @@
                 </Trigger>
               </Button.Triggers>
             </Button>
-            <Button Grid.Column="1" Content="[InputDeviceManager.KeyMapping.Button.ClearMapping]"
-                    Style="{ThemeResource ButtonWideStyle}" HorizontalAlignment="Right" VerticalAlignment="Center"
+            <Button Grid.Column="1" Content="[InputDeviceManager.KeyMapping.Button.ClearMapping]" FontSize="{ThemeResource SmallFontSize}"
+                    Style="{ThemeResource ButtonWideStyle}" HorizontalAlignment="Right" VerticalAlignment="Stretch" VerticalContentAlignment="Center"
                     Command="{Command Source={StaticResource InputManagerModel}, Path=DeleteKeyMapping}"
                     IsVisible="{Binding Path=[KeyMap],Converter={StaticResource EmptyStringToFalseConverter}}"/>
           </Grid>

@@ -22,25 +22,42 @@
 
 #endregion
 
-using MediaPortal.Common.MediaManagement.DefaultItemAspects;
-using MediaPortal.Plugins.SlimTv.Client.TvHandler;
-using MediaPortal.UiComponents.Media.FilterCriteria;
-using MediaPortal.UiComponents.Media.Models.Navigation;
-using MediaPortal.UiComponents.Media.Models.ScreenData;
+using System.Collections.Generic;
+using System.Xml.Serialization;
 
-namespace MediaPortal.Plugins.SlimTv.Client.Models.ScreenData
+namespace MediaPortal.Plugins.InputDeviceManager
 {
-  public class RecordingFilterByNameScreenData : AbstractVideosFilterScreenData<FilterItem>
+  /// <summary>
+  /// Mapping of a remote button key code to a <see cref="Key"/> instance.
+  /// </summary>
+  [XmlRoot("KeyCode")]
+  public class KeyCode
   {
-    public RecordingFilterByNameScreenData() :
-      base(SlimTvConsts.SCREEN_RECORDINGS_FILTER_BY_NAME, SlimTvConsts.RES_FILTER_BY_NAME_MENU_ITEM,
-        SlimTvConsts.RES_FILTER_NAME_NAVBAR_DISPLAY_LABEL, new SimpleMLFilterCriterion(MediaAspect.ATTR_TITLE))
+    #region Properties
+
+    [XmlAttribute("Key")]
+    public string Key { get; set; }
+
+    [XmlElement("Code")]
+    public long Code { get; set; }
+
+    #endregion Properties
+
+    #region Constructors
+
+    public KeyCode()  { }
+
+    public KeyCode(string key, long code)
     {
+      Key  = key;
+      Code = code;
     }
 
-    public override AbstractFiltersScreenData<FilterItem> Derive()
+    public override string ToString()
     {
-      return new RecordingFilterByNameScreenData();
+      return Key.ToString();
     }
+
+    #endregion Constructors
   }
 }

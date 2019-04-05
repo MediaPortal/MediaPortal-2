@@ -200,7 +200,7 @@ namespace MediaPortal.UI.Players.Video.Subtitles
             // if we are not in boxed mode,
             // we dont want to keep the content
             lineContent[j] = TELETEXT_BLANK;
-            Assert(true, "EndPage: Boxed not set as expected");
+            Assert(!boxed, "EndPage: Boxed not set as expected");
           }
         }
         SetLine(i, lineContent);
@@ -211,9 +211,9 @@ namespace MediaPortal.UI.Players.Video.Subtitles
         ServiceRegistration.Get<ILogger>().Debug("(BLANK PAGE)");
       }*/
 
-      byte[] text = new byte[TELETEXT_WIDTH*TELETEXT_LINES];
-      Array.Copy(_pageContent, text, TELETEXT_LINES*TELETEXT_WIDTH);
-      TextConversion.Convert(_language, text);
+      byte[] byte_text = new byte[TELETEXT_WIDTH*TELETEXT_LINES];
+      Array.Copy(_pageContent, byte_text, TELETEXT_LINES*TELETEXT_WIDTH);
+      char[] text = TextConversion.Convert(_language, byte_text);
 
       LineContent[] lc = new LineContent[TELETEXT_LINES];
 
@@ -270,8 +270,7 @@ namespace MediaPortal.UI.Players.Video.Subtitles
       sub.LineContents = lc;
       sub.TimeOut = ulong.MaxValue; // never timeout (will be replaced by other page)
       sub.TimeStamp = _presentTime;
-      Assert(String.IsNullOrEmpty(sub.Text), "Sub.text == null!");
-
+     // Assert(String.IsNullOrEmpty(sub.Text), "Sub.text == null!");
       if (_owner.SubPageInfoCallback != null)
       {
         TeletextPageEntry pageEntry = new TeletextPageEntry
@@ -284,7 +283,7 @@ namespace MediaPortal.UI.Players.Video.Subtitles
         _owner.SubPageInfoCallback(pageEntry);
       }
 
-      _owner.SubtitleRender.OnTextSubtitle(ref sub);
+      _owner.SubtitleRender.OnTextSubtitle(sub);
       _pageNumInProgress = -1;
     }
 
