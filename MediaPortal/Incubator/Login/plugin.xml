@@ -43,6 +43,7 @@
         Name="Login"
         MainScreen="Login"
         DisplayLabel="[Login.Title]"
+        HideGroups="Global"
         WorkflowModel="82582433-FD64-41bd-9059-7F662DBDA713"/> <!-- Login model -->/>
 
     <WorkflowState Id="D3C5EC78-F901-4851-8DB8-83CF27E80EA8"
