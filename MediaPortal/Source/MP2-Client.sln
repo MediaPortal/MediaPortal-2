@@ -232,7 +232,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GenreProvider", "Extensions
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "InputDeviceManager", "UI\Input\InputDeviceManager\InputDeviceManager.csproj", "{D1FAF942-00D0-4B71-859C-7D14E93B9286}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OCVVideoThumbnailer", "..\..\..\MP2 Subtitles\MediaPortal\Source\Extensions\MetadataExtractors\OCVVideoThumbnailer\OCVVideoThumbnailer.csproj", "{9049F675-1A23-46A1-B0A9-BBA94C492AAD}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OCVVideoThumbnailer", "Extensions\MetadataExtractors\OCVVideoThumbnailer\OCVVideoThumbnailer.csproj", "{9049F675-1A23-46A1-B0A9-BBA94C492AAD}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
