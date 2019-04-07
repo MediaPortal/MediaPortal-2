@@ -39,11 +39,11 @@
       </Grid.RowDefinitions>
       
       <DockPanel x:Name="OSD_LayoutPanel" Grid.Row="0" Grid.RowSpan="3"  Grid.Column="1" Grid.ColumnSpan="2" LastChildFill="false"
-               VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
+                 VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
 
         <mp_special_controls:PlayerControl x:Name="PrimaryOSD" DockPanel.Dock="Bottom" IsVisible="{Binding IsOSDVisible}"
-                                         Style="{ThemeResource PrimarySlimTvOSDStyle}"
-                                         VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
+                                           Style="{ThemeResource PrimarySlimTvOSDStyle}"
+                                           VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
       </DockPanel>
 
       <Control x:Name="PiP" Grid.Column="1" Grid.Row="1" Style="{ThemeResource PipControlStyle}"
