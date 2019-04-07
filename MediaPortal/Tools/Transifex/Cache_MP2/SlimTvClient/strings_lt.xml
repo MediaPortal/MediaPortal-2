@@ -45,8 +45,8 @@
   <string name="SlimTvClient.ScheduleRecordingType_Weekends">Savaitgaliais</string>
   <string name="SlimTvClient.ScheduleRecordingType_WorkingDays">Darbo dienomis</string>
   <string name="SlimTvClient.ScheduleRecordingType_WeeklyEveryTimeOnThisChannel">Kartą savaitėje šiuo laiku, šiam kanalui</string>
-  <string name="SlimTvClient.ShowAllRecordingsItemsMenuItem">Įrašai pagal pavadinimą</string>
-  <string name="SlimTvClient.FilterRecordingsItemsNavbarDisplayLabel">Įrašai pagal pavadinimą</string>
+  <string name="SlimTvClient.ShowAllRecordingsItemsMenuItem">Vardas</string>
+  <string name="SlimTvClient.FilterRecordingsItemsNavbarDisplayLabel">Vardas</string>
   <!--Schedule management-->
   <string name="SlimTvClient.ScheduleDetails">Tvarkaraščio detalės</string>
   <string name="SlimTvClient.ScheduleName">Tvarkaraščio pavadinimas</string>
@@ -64,10 +64,7 @@
   <string name="SlimTvClient.NoColor">Joks</string>
   <string name="SlimTvClient.RecordingsMenuItem">Įrašai</string>
   <string name="SlimTvClient.RecordingsRootViewName">TV įrašai</string>
-  <string name="SlimTvClient.ChannelMenuItemLabel">Filtruoti pagal kanalą</string>
+  <string name="SlimTvClient.ChannelMenuItemLabel">Kanalas</string>
   <string name="SlimTvClient.ChannelNavBarItemLabel">Kanalas: {0}</string>
   <string name="SlimTvClient.RecordingsByChannelHeader">Įrašai pagal kanalą</string>
-  <string name="SlimTvClient.NameFilterMenuItemLabel">Filtruoti pagal pavadinimą</string>
-  <string name="SlimTvClient.NameFilterNavBarItemLabel">{0}</string>
-  <string name="SlimTvClient.RecordingsByNameHeader">Įrašai pagal pavadinimą</string>
 </resources>

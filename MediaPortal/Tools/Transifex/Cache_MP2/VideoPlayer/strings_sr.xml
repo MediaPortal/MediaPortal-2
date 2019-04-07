@@ -26,10 +26,7 @@
   <string name="Settings.Players.VideoPlayer.PreferMultiChannelAudio">Вишеканално аудио емитовање</string>
   <string name="Settings.Players.VideoPlayer.PreferMultiChannelAudio.Help">Уколико је омогућено - 6-канално емитовање је пожељно (нпр. AC3, AAC)</string>
   <string name="Settings.Players.DVDPlayer">ДВД плејер</string>
-  <string name="Settings.Players.DVDPlayer.EnableClosedCaption">Титлови</string>
-  <string name="Settings.Players.DVDPlayer.EnableClosedCaption.Help">Изаберите опцију уколико желите да се титл увек појављује</string>
-  <string name="Settings.Players.DVDPlayer.EnableSubtitles">Преводи</string>
-  <string name="Settings.Players.DVDPlayer.EnableSubtitles.Help">Изаберите опцију уколико желите да се превод увек појављује</string>
+  <string name="Settings.Players.Subtitles">Преводи</string>
   <string name="Playback.NotSpecified">Није наведено</string>
   <string name="Playback.CaptionNormal">Нормални титл</string>
   <string name="Playback.CaptionBig">Велики титл</string>

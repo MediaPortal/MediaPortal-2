@@ -21,8 +21,8 @@
   <string name="SlimTvClient.DeleteSchedule">Hapus jadwal</string>
   <string name="SlimTvClient.CreateSchedule">Jadwal perekaman</string>
   <!--Extended recording features-->
-  <string name="SlimTvClient.ShowAllRecordingsItemsMenuItem">Rekaman berdasarkan nama</string>
-  <string name="SlimTvClient.FilterRecordingsItemsNavbarDisplayLabel">Rekaman berdasarkan nama</string>
+  <string name="SlimTvClient.ShowAllRecordingsItemsMenuItem">Nama</string>
+  <string name="SlimTvClient.FilterRecordingsItemsNavbarDisplayLabel">Nama</string>
   <!--Schedule management-->
   <string name="SlimTvClient.ErrorNoTvProvider">Tidak ada penyedia TV tersedia (belum)</string>
   <!--Settings-->
@@ -30,10 +30,7 @@
   <string name="SlimTvClient.NoColor">Nihil</string>
   <string name="SlimTvClient.RecordingsMenuItem">Rekaman</string>
   <string name="SlimTvClient.RecordingsRootViewName">Rekaman TV</string>
-  <string name="SlimTvClient.ChannelMenuItemLabel">Saring berdasarkan saluran</string>
+  <string name="SlimTvClient.ChannelMenuItemLabel">Saluran</string>
   <string name="SlimTvClient.ChannelNavBarItemLabel">Saluran: {0}</string>
   <string name="SlimTvClient.RecordingsByChannelHeader">Rekaman berdasarkan saluran</string>
-  <string name="SlimTvClient.NameFilterMenuItemLabel">Saring berdasarkan nama</string>
-  <string name="SlimTvClient.NameFilterNavBarItemLabel">{0}</string>
-  <string name="SlimTvClient.RecordingsByNameHeader">Rekaman berdasarkan nama</string>
 </resources>

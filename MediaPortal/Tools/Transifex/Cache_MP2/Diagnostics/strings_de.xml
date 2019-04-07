@@ -6,7 +6,7 @@
     <string name="Diagnostics.Settings.Image.FocusStealing">Fokusverlust protokollieren</string>
     <string name="Diagnostics.Settings.Image.FocusStealingHelpText">Diagnose von Fokusverlusten durch andere Anwendungen</string>
     <string name="Diagnostics.Settings.Collectlogs">Protokolldateien zusammenstellen</string>
-    <string name="Diagnostics.Settings.CollectlogsHelpText">Startet den Log Collector um alle Log-Dateien in einem Zip-Archiv bereitzustellen</string>
+    <string name="Diagnostics.Settings.CollectlogsHelpText">Startet den Log Collector, um alle Log-Dateien in einem Zip-Archiv bereitzustellen</string>
     <string name="Diagnostics.Settings.ShowLogs">Logs anzeigen</string>
     <string name="Diagnostics.Settings.ShowLogsHelpText">Anwendungsprotokolle in eigenem Fenster anzeigen</string>
 </resources>

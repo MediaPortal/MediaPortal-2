@@ -8,6 +8,7 @@
   <string name="SystemState.Shutdown">Stäng av datorn</string>
   <string name="SystemState.Suspend">Sätt datorn i vänteläge</string>
   <string name="SystemState.Restart">Starta om datorn</string>
+  <string name="SystemState.RestartMP">Starta om MediaPortal 2</string>
   <string name="SystemState.Logoff">Logga ut</string>
   <string name="SystemState.SleepTimerConfig">Sätt upp avstängningstimer</string>
   <string name="SystemState.SleepTimerStop">Stoppa avstängningstimer</string>

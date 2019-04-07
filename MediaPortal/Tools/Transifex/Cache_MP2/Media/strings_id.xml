@@ -274,6 +274,7 @@
   <string name="Media.SortByDate">Tanggal</string>
   <string name="Media.GroupingBrowseDefault">Baku</string>
   <!--Stubs-->
+  <!--Virtual-->
   <!--Settings-->
   <string name="Settings.Players">Pemutar</string>
   <string name="Settings.Players.ClosePlayersWhenFinished">Tutup pemutar bila selesai</string>

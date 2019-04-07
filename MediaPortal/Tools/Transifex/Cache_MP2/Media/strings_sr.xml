@@ -379,6 +379,7 @@
   <string name="Media.SwitchGroupingDialogTitle">Групиши по</string>
   <string name="Media.NoGrouping">Без груписања</string>
   <!--Stubs-->
+  <!--Virtual-->
   <!--Settings-->
   <string name="Settings.Players">Плејери</string>
   <string name="Settings.Players.ClosePlayersWhenFinished">Одабери плејер</string>

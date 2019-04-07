@@ -21,9 +21,11 @@
   <string name="SlimTvClient.DeleteSchedule">Kustuta salvestuste plaan</string>
   <string name="SlimTvClient.CreateSchedule">Planeeri salvestus</string>
   <!--Extended recording features-->
+  <string name="SlimTvClient.ShowAllRecordingsItemsMenuItem">Nimi</string>
+  <string name="SlimTvClient.FilterRecordingsItemsNavbarDisplayLabel">Nimi</string>
   <!--Schedule management-->
   <!--Settings-->
   <string name="SlimTvClient.Notifications">Teatised</string>
   <string name="SlimTvClient.NoColor">Ei midagi</string>
-  <string name="SlimTvClient.NameFilterNavBarItemLabel">{0}</string>
+  <string name="SlimTvClient.ChannelMenuItemLabel">Kanal</string>
 </resources>

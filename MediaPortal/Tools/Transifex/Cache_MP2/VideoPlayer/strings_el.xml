@@ -10,7 +10,7 @@
   <string name="Settings.Players.Codecs.AudioCodecs.AudioCodecLATMAAC">Κωδικοποιητής LATM-AAC</string>
   <string name="Settings.Players.Codecs.AudioCodecs.AudioCodecAAC">Κωδικοποιητής AAC</string>
   <string name="Settings.Players.VideoPlayer.PreferMultiChannelAudio.Help">Εαν ενεργό, πρoτίμηση 6καναλου (π.χ. AC3, AAC)</string>
-  <string name="Settings.Players.DVDPlayer.EnableSubtitles">Υποτίτλοι</string>
+  <string name="Settings.Players.Subtitles">Υποτίτλοι</string>
   <string name="Playback.DirectorCommentsNormal">Κανονικά Σχόλια Σκηνοθέτη</string>
   <string name="Playback.DirectorCommentsBig">Μεγάλα Σχόλια Σκηνοθέτη</string>
   <string name="Playback.DirectorComments1">Σχόλια Σκηνοθέτη</string>

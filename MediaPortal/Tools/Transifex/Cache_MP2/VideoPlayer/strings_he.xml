@@ -22,10 +22,7 @@
   <string name="Settings.Players.VideoPlayer.PreferMultiChannelAudio">העדף סטרים אודיו רב-ערוצי</string>
   <string name="Settings.Players.VideoPlayer.PreferMultiChannelAudio.Help">אם נבחר, זרם רב ערוצי יקבל עדיפות</string>
   <string name="Settings.Players.DVDPlayer">נגן די.וי.די</string>
-  <string name="Settings.Players.DVDPlayer.EnableClosedCaption">כתוביות</string>
-  <string name="Settings.Players.DVDPlayer.EnableClosedCaption.Help">בחר באם ברצונך לאפשר כתוביות כברירת מחדל</string>
-  <string name="Settings.Players.DVDPlayer.EnableSubtitles">כתוביות</string>
-  <string name="Settings.Players.DVDPlayer.EnableSubtitles.Help">סמן אם כתוביות יוצגו כברירת מחדל</string>
+  <string name="Settings.Players.Subtitles">כתוביות</string>
   <string name="Playback.NotSpecified">לא מוגדר</string>
   <string name="Playback.CaptionNormal">כותרת רגילה</string>
   <string name="Playback.CaptionBig">כותרת גדולה</string>

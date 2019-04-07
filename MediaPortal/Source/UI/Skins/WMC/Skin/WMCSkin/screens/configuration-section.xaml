@@ -16,27 +16,28 @@
     <ControlTemplate x:Key="Contents_Template">
       <DockPanel LastChildFill="False" Margin="0,0,0,-150">
         <DockPanel LastChildFill="True" DockPanel.Dock="Bottom" Height="120" Margin="10,0,20,-50"
-            HorizontalAlignment="Stretch" VerticalAlignment="Bottom">
+                   HorizontalAlignment="Stretch" VerticalAlignment="Bottom">
           <Label Color="{ThemeResource WindowHeaderColor}" DockPanel.Dock="Center"
-              HorizontalAlignment="Stretch"
-              DataContext="{Binding ElementName=ConfigItemsList,Path=CurrentItem}"
-              Content="{Binding [Help]}" Wrap="True"
-              IsVisible="{Binding Converter={StaticResource ReferenceToBoolConverter}}"/>
+                 HorizontalAlignment="Stretch"
+                 DataContext="{Binding ElementName=ConfigItemsList,Path=CurrentItem}"
+                 Content="{Binding [Help]}" Wrap="True"
+                 IsVisible="{Binding Converter={StaticResource ReferenceToBoolConverter}}"/>
         </DockPanel>
 
         <ListView x:Name="ConfigItemsList"
-            DockPanel.Dock="Center"
-            HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
-            Style="{ThemeResource LeftMenuListViewStyle}"
-            DataContext="{Binding Source={StaticResource Model}}"
-            ItemsSource="{Binding ConfigSettings}">
+                  DockPanel.Dock="Center"
+                  HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+                  Style="{ThemeResource LeftMenuListViewStyle}"
+                  DataContext="{Binding Source={StaticResource Model}}"
+                  ItemsSource="{Binding ConfigSettings}">
           <ListView.Resources>
             <CommandBridge x:Key="Menu_Command" Command="{Binding Path=Command,Mode=OneTime}"/>
           </ListView.Resources>
         </ListView>
-        <Label DockPanel.Dock="Center" Content="[Configuration.NoSettingsInThisSection]" IsVisible="{Binding ElementName=ConfigItemsList,Path=IsEmpty}"
-            HorizontalAlignment="Center" VerticalAlignment="Center"
-            Color="{ThemeResource HintTextColor}" FontSize="{ThemeResource SmallFontSize}"/>
+        <Label DockPanel.Dock="Center" Content="[Configuration.NoSettingsInThisSection]"
+               IsVisible="{Binding ElementName=ConfigItemsList,Path=IsEmpty}"
+               HorizontalAlignment="Center" VerticalAlignment="Center"
+               Color="{ThemeResource HintTextColor}" FontSize="{ThemeResource SmallFontSize}"/>
       </DockPanel>
     </ControlTemplate>
 

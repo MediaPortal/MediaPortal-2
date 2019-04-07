@@ -241,6 +241,7 @@
   <string name="Media.SortByDate">Дата</string>
   <string name="Media.GroupingBrowseDefault">Стандарт</string>
   <!--Stubs-->
+  <!--Virtual-->
   <!--Settings-->
   <string name="Settings.Players">Проигрыватели</string>
   <string name="Settings.Players.ClosePlayersWhenFinished">Закрывать проигрыватель</string>

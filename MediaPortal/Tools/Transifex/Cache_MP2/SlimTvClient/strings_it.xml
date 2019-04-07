@@ -54,8 +54,8 @@
   <string name="SlimTvClient.ScheduleRecordingType_Weekends">Nei fine settimana</string>
   <string name="SlimTvClient.ScheduleRecordingType_WorkingDays">Giorni feriali</string>
   <string name="SlimTvClient.ScheduleRecordingType_WeeklyEveryTimeOnThisChannel">Settimanalmente ogni volta su questo canale</string>
-  <string name="SlimTvClient.ShowAllRecordingsItemsMenuItem">Registrazioni per nome</string>
-  <string name="SlimTvClient.FilterRecordingsItemsNavbarDisplayLabel">Registrazioni per nome</string>
+  <string name="SlimTvClient.ShowAllRecordingsItemsMenuItem">Nome</string>
+  <string name="SlimTvClient.FilterRecordingsItemsNavbarDisplayLabel">Nome</string>
   <!--Schedule management-->
   <string name="SlimTvClient.ScheduleDetails">Dettagli programmazione</string>
   <string name="SlimTvClient.ScheduleName">Nome programmazione</string>
@@ -122,12 +122,9 @@
   <string name="SlimTvClient.ChannelsMenuItem">Canali</string>
   <string name="SlimTvClient.Recordings.Help">Qui trovi al lista dei programmi registrati, per poterli riprodurre.</string>
   <string name="SlimTvClient.RecordingsRootViewName">Registrazioni TV</string>
-  <string name="SlimTvClient.ChannelMenuItemLabel">Filtra per canale</string>
+  <string name="SlimTvClient.ChannelMenuItemLabel">Canale</string>
   <string name="SlimTvClient.ChannelNavBarItemLabel">Canale: {0}</string>
   <string name="SlimTvClient.RecordingsByChannelHeader">Registrazioni per canale</string>
-  <string name="SlimTvClient.NameFilterMenuItemLabel">Filtra per nome</string>
-  <string name="SlimTvClient.NameFilterNavBarItemLabel">{0}</string>
-  <string name="SlimTvClient.RecordingsByNameHeader">Registrazioni per nome</string>
   <string name="SlimTvClient.RecordingStartedHeader">Inizio registrazione</string>
   <string name="SlimTvClient.RecordingEndedHeader">Fine registrazione</string>
   <string name="RestrictionGroup.SlimTvClient.DeleteRecording">TV: Elimina registrazioni</string>

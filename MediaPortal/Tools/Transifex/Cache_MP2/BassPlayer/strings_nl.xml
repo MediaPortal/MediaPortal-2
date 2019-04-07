@@ -7,6 +7,7 @@
   <string name="Settings.Players.BassPlayer.Setup.DirectSound">Direct Sound</string>
   <string name="Settings.Players.BassPlayer.Setup.WASAPI">WASAPI</string>
   <string name="Settings.Players.BassPlayer.Setup.WASAPI.Exclusive">Exclusieve modus</string>
+  <string name="Settings.Players.BassPlayer.SongTransitionMode.Help">Stel pauze / cross-fade tijd in bij het veranderen van tracks</string>
   <string name="Settings.Players.BassPlayer.SongTransitionMode.Setup.NormalMode">normaal</string>
   <string name="Settings.Players.BassPlayer.SongTransitionMode.Setup.CrossFading">Cross-fading</string>
   <string name="Settings.Players.BassPlayer.PlaybackBuffer.Setup">Buffer voor afspelen</string>
@@ -16,4 +17,6 @@
   <string name="Settings.Players.Rendering">Weergave</string>
   <string name="Settings.Players.Rendering.CrossFading.CrossFadeDuration">Tijdsduur geleidelijke overgang</string>
   <string name="Settings.Players.Rendering.CrossFading.CrossFadeDuration.Help">Tijd van de geleidelijke overgang in seconden</string>
+  <string name="Settings.Players.Rendering.Playback.SeekIncrementSeconds">Zoek oplopende seconden</string>
+  <string name="Settings.Players.Rendering.Playback.SeekIncrementSeconds.Help">Zoek hulptekst voor oplopende seconden ...</string>
 </resources>
