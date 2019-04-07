@@ -350,7 +350,10 @@ namespace MediaPortal.Extensions.MetadataExtractors
         if (recordingStart.HasValue)
           MediaItemAspect.SetAttribute(extractedAspectData, RecordingAspect.ATTR_STARTTIME, recordingStart.Value);
         if (recordingEnd.HasValue)
+        {
           MediaItemAspect.SetAttribute(extractedAspectData, RecordingAspect.ATTR_ENDTIME, recordingEnd.Value);
+          RecordingUtils.CheckAndPrepareAspectRefresh(extractedAspectData);
+        }
 
         return Task.FromResult(true);
       }
