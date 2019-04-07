@@ -1809,10 +1809,10 @@
   </Style>
 
   <!--PlayerControlButtons-->
-  <Style x:Key="AudioActiveButtonStyle" TargetType="{x:Type Button}">
+  <Style x:Key="AudioActiveButtonStyle" TargetType="{x:Type CheckBox}">
     <Setter Property="Template">
       <Setter.Value>
-        <ControlTemplate TargetType="{x:Type Button}" >
+        <ControlTemplate TargetType="{x:Type CheckBox}" >
           <Grid>
             <Image Source="PlayerControl\MUTE.NOFOCUS.PNG" Stretch="Uniform" Height="80" Width="80" Opacity="0.6" VerticalAlignment="Center">
               <Image.IsVisible>
@@ -1846,6 +1846,21 @@
                 </MultiBinding>
               </Image.IsVisible>
             </Image>
+          </Grid>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+
+  <Style x:Key="AudioInactiveButtonStyle" TargetType="{x:Type CheckBox}">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="{x:Type CheckBox}" >
+          <Grid>
+            <Image Source="PlayerControl\MUTEON.NOFOCUS.PNG" Stretch="Uniform" Height="80" Width="80" VerticalAlignment="Center" 
+                   IsVisible="{Binding RelativeSource={RelativeSource TemplatedParent},Path=!HasFocus}" Opacity="0.6" />
+            <Image Source="PlayerControl\MUTEON.FOCUS.PNG" Stretch="Uniform" Height="80" Width="80" Margin="0" VerticalAlignment="Center"
+                   IsVisible="{Binding RelativeSource={RelativeSource TemplatedParent},Path=HasFocus}"/>
           </Grid>
         </ControlTemplate>
       </Setter.Value>
