@@ -575,16 +575,6 @@
                   </Trigger>
                 </Button.Triggers>
               </Button>
-
-              <Image Width="70" Stretch="Uniform" Opacity="0.7" VerticalAlignment="Center" HorizontalAlignment="Center" Grid.Column="0" Grid.Row="1">
-                <Image.Source>
-                  <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
-                    <Binding Path="IsPaused"/>
-                    <Binding Source="pause.png"/>
-                    <Binding Source=""/>
-                  </MultiBinding>
-                </Image.Source>
-              </Image>
               
               <StackPanel x:Name="PlayControlsPanel" Orientation="Horizontal" Grid.Column="0" Grid.Row="3" Margin="10,10,10,0"
                   VerticalAlignment="Center" HorizontalAlignment="Center" IsVisible="{Binding ShowMouseControls}" >
