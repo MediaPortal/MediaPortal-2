@@ -27,10 +27,7 @@
   <string name="Settings.Players.VideoPlayer.PreferMultiChannelAudio.Help">Jos käytössä, suositaan 6-kanavaisia virtoja (esim. AC3, AAC)
 </string>
   <string name="Settings.Players.DVDPlayer">DVD Soitin</string>
-  <string name="Settings.Players.DVDPlayer.EnableClosedCaption">Kuvatekstit</string>
-  <string name="Settings.Players.DVDPlayer.EnableClosedCaption.Help">Valitse ovatko kuvatekstit oletuksena päällä</string>
-  <string name="Settings.Players.DVDPlayer.EnableSubtitles">Tekstitykset</string>
-  <string name="Settings.Players.DVDPlayer.EnableSubtitles.Help">Valitse ovatko tekstitykset oletuksena päällä</string>
+  <string name="Settings.Players.Subtitles">Tekstitykset</string>
   <string name="Playback.NotSpecified">Ei määritelty</string>
   <string name="Playback.CaptionNormal">Normaali kuvateksti</string>
   <string name="Playback.CaptionBig">Iso kuvateksti</string>

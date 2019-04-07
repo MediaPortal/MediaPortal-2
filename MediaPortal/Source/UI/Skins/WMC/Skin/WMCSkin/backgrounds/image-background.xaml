@@ -12,7 +12,7 @@
     <Grid.RowDefinitions>
       <RowDefinition Height="*"/>
     </Grid.RowDefinitions>
-    <mp_special_controls:PlayerControl x:Name="BackgroundImage" Grid.Column="0" Grid.Row="0"
+    <mp_special_controls:PlayerControl x:Name="BackgroundImage" Grid.Column="0" Grid.Row="0" Margin="-2"
         VerticalAlignment="Stretch" HorizontalAlignment="Stretch" PlayerContext="PrimaryPlayer">
       <mp_special_controls:PlayerControl.TemplateControl>
         <Image Stretch="Uniform" DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}" SkinNeutralAR="True">

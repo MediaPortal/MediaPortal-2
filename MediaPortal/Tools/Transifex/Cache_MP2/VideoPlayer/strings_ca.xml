@@ -22,10 +22,7 @@
   <string name="Settings.Players.VideoPlayer.PreferMultiChannelAudio">Prioritza els fluxos d\'audio multicanal</string>
   <string name="Settings.Players.VideoPlayer.PreferMultiChannelAudio.Help">Si s\'activa, es prioritzaran els fluxos de 6 canals (p. ex. AC3, AAC)</string>
   <string name="Settings.Players.DVDPlayer">Reproductor DVD</string>
-  <string name="Settings.Players.DVDPlayer.EnableClosedCaption">Audio Descripció</string>
-  <string name="Settings.Players.DVDPlayer.EnableClosedCaption.Help">Definiu si s\'ha d\'activar l\'Audio Descripció per defecte</string>
-  <string name="Settings.Players.DVDPlayer.EnableSubtitles">Subtítols</string>
-  <string name="Settings.Players.DVDPlayer.EnableSubtitles.Help">Definiu si s\'han d\'activar els subtítols per defecte</string>
+  <string name="Settings.Players.Subtitles">Subtítols</string>
   <string name="Playback.NotSpecified">No s\'ha especificat</string>
   <string name="Playback.CaptionNormal">Subtítol en normal</string>
   <string name="Playback.CaptionBig">Subtítol en gran</string>

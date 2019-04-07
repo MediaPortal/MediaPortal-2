@@ -11,4 +11,5 @@
   <!--Extended recording features-->
   <!--Schedule management-->
   <!--Settings-->
+  <string name="SlimTvClient.ChannelMenuItemLabel">Канал</string>
 </resources>

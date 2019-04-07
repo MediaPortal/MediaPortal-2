@@ -325,10 +325,12 @@ namespace MediaPortal.UI.SkinEngine.Rendering
     }
 
     /// <summary>
-    /// Allocates or re-alocates this resource.
+    /// Allocates or re-allocates this resource.
     /// </summary>
     /// <param name="boxWidth"></param>
+    /// <param name="boxHeight"></param>
     /// <param name="wrap"></param>
+    /// <param name="textTrimming"></param>
     public void Allocate(float boxWidth, float boxHeight, bool wrap, TextTrimming textTrimming)
     {
       if (String.IsNullOrEmpty(_text))

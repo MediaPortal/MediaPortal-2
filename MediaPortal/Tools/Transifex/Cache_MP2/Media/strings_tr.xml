@@ -279,6 +279,7 @@
   <string name="Media.SortByDate">Tarih</string>
   <string name="Media.GroupingBrowseDefault">Öntanımlı</string>
   <!--Stubs-->
+  <!--Virtual-->
   <!--Settings-->
   <string name="Settings.Players">Oynatıcılar</string>
   <string name="Settings.Players.ClosePlayersWhenFinished">Bitince oynatıcıyı kapat</string>

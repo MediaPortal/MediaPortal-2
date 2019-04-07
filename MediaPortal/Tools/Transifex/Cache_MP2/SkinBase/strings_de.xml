@@ -50,7 +50,7 @@
   <string name="ServerConnection.SearchForServers">Nach MP2-Servern suchen</string>
   <string name="ServerConnection.DetachFromServer">Vom MP2-Server abkoppeln</string>
   <string name="ServerConnection.AttachToServerHeader">An den MP2-Server anbinden</string>
-  <string name="ServerConnection.AttachToMultipleText">Es sind mehrere MP2-Server im Netzwerk verfügbar. Soll einer als Server ausgewählt werden?</string>
+  <string name="ServerConnection.AttachToMultipleText">Es sind mehrere MP2-Server im Netzwerk verfügbar. Soll einer davon als Server ausgewählt werden?</string>
   <string name="ServerConnection.AttachToSingleText.Before">Der MP2-Server</string>
   <string name="ServerConnection.AttachToSingleText.After">ist im Netzwerk verfügbar. Soll eine Verbindung hergestellt werden?</string>
   <string name="ServerConnection.AttachToServerNoServerText">Zur Zeit ist kein MP2-Server im Netzwerk verfügbar.</string>
@@ -114,7 +114,7 @@
   <string name="Settings.General">Allgemein</string>
   <string name="Settings.General.System">System</string>
   <string name="Settings.General.System.Autostart">Autostart</string>
-  <string name="Settings.General.System.Autostart.Help">MediaPortal zusammen mit Windows starten</string>
+  <string name="Settings.General.System.Autostart.Help">MediaPortal automatisch beim Start von Windows ausführen</string>
   <string name="Settings.General.Connectivity">Verbindungen</string>
   <string name="Settings.General.Connectivity.HomeServer">MP2-Server</string>
   <string name="Settings.General.Connectivity.HomeServer.Help">Informationen zum MP2-Server, Anbinden und Trennen</string>
@@ -133,14 +133,14 @@
   <string name="Settings.Regional">Spracheinstellungen</string>
   <string name="Settings.Regional.Language">Sprache</string>
   <string name="Settings.Regional.Language.Main">Sprache</string>
-  <string name="Settings.Regional.Language.Main.Help">Legt die Hauptsprache des MediaPortal-2-Clients fest</string>
+  <string name="Settings.Regional.Language.Main.Help">Legt die Hauptsprache des Clients fest</string>
   <string name="Settings.Shares">Medienquellen</string>
   <!--Section name-->
   <string name="Settings.Shares.Configure">Medienquellen konfigurieren</string>
   <!--Group name-->
   <string name="Settings.Shares.ConfigureShares.SharesConfiguration">Medienquellen-Konfiguration</string>
   <!--Setting-->
-  <string name="Settings.Shares.ConfigureShares.SharesConfiguration.Help">Medienquellen konfigurieren</string>
+  <string name="Settings.Shares.ConfigureShares.SharesConfiguration.Help">Alle Medienquellen konfigurieren</string>
   <string name="Settings.Shares.Overview">Übersicht</string>
   <!--Group name-->
   <string name="Settings.Shares.Overview.SharesOverview">Medienquellen-Übersicht</string>
@@ -202,7 +202,7 @@
   <string name="SharesConfig.ShareNameExists">Eine Medienquelle mit diesem Namen ist bereits vorhanden</string>
   <string name="SharesConfig.ShareNameEmpty">Gib einen Namen für die Medienquelle ein</string>
   <string name="SharesConfig.EditShareProblemHeader">Problem beim Konfigurieren der Medienquelle</string>
-  <string name="SharesConfig.EditShareProblemText">Es ist ein interner Fehler beim Konfigurieren der Medienquelle aufgetreten.</string>
+  <string name="SharesConfig.EditShareProblemText">Beim Konfigurieren der Medienquelle ist ein interner Fehler aufgetreten.</string>
   <string name="SharesConfig.MenuAddShare">Hinzufügen</string>
   <string name="SharesConfig.MenuEditShares">Bearbeiten</string>
   <string name="SharesConfig.MenuRemoveShares">Entfernen</string>
@@ -213,7 +213,7 @@
   <string name="SharesConfig.AddLocalShare">Client-Medienquelle hinzufügen</string>
   <string name="SharesConfig.EditLocalShare">Client-Medienquelle bearbeiten</string>
   <string name="SharesConfig.UpdateShareRelocateItemsQueryDialogHeader">Medienquelle aktualisieren</string>
-  <string name="SharesConfig.UpdateShareRelocateItemsQueryText.Info">Der Ressourcen-Provider und/oder der Pfad haben sich geändert.</string>
+  <string name="SharesConfig.UpdateShareRelocateItemsQueryText.Info">Der Ressourcen-Provider und/oder -Pfad der Medienquelle wurden aktualisiert.</string>
   <string name="SharesConfig.UpdateShareRelocateItemsQueryText.Description">Die Informationen in der Medienbibliothek über die Medienelemente in dieser Medienquelle können entweder aktualisiert (verschoben) oder gelöscht und neu importiert werden.</string>
   <string name="SharesConfig.UpdateShareRelocateItemsQueryText.Query">Möchtest du verschieben oder löschen und neu importieren?</string>
   <string name="SharesConfig.Relocate">Verschieben</string>

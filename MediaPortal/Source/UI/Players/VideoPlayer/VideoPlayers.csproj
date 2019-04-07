@@ -78,6 +78,7 @@
     <Compile Include="Subtitles\MpcEngine.cs" />
     <Compile Include="Settings\MpcSubsSettings.cs" />
     <Compile Include="Subtitles\MpcSubsRenderer.cs" />
+    <Compile Include="Subtitles\Subtitle.cs" />
     <Compile Include="Teletext_v2\TeletextHeaderPacket.cs" />
     <Compile Include="Teletext_v2\TeletextMagazine.cs" />
     <Compile Include="Teletext_v2\TeletextPacket.cs" />

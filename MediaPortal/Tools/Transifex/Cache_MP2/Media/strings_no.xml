@@ -281,6 +281,7 @@
   <string name="Media.SortByDate">Dato</string>
   <string name="Media.GroupingBrowseDefault">Standard</string>
   <!--Stubs-->
+  <!--Virtual-->
   <!--Settings-->
   <string name="Settings.Players">Avspillere</string>
   <string name="Settings.Players.ClosePlayersWhenFinished">Lukk spilleren når den er ferdig</string>

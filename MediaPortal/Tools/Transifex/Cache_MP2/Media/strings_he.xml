@@ -286,6 +286,7 @@
   <string name="Media.SortByDate">תאריך</string>
   <string name="Media.GroupingBrowseDefault">ברירת מחדל</string>
   <!--Stubs-->
+  <!--Virtual-->
   <!--Settings-->
   <string name="Settings.Players">נגנים</string>
   <string name="Settings.Players.ClosePlayersWhenFinished">סגור נגן בעת סיום</string>

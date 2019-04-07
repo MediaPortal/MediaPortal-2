@@ -48,8 +48,8 @@
   <string name="SlimTvClient.ScheduleRecordingType_Weekends">Viikonloppuisin</string>
   <string name="SlimTvClient.ScheduleRecordingType_WorkingDays">Arkisin</string>
   <string name="SlimTvClient.ScheduleRecordingType_WeeklyEveryTimeOnThisChannel">Viikottain joka kerta tällä kanavalla</string>
-  <string name="SlimTvClient.ShowAllRecordingsItemsMenuItem">Tallennukset nimen mukaan</string>
-  <string name="SlimTvClient.FilterRecordingsItemsNavbarDisplayLabel">Tallennukset nimen mukaan</string>
+  <string name="SlimTvClient.ShowAllRecordingsItemsMenuItem">Nimi</string>
+  <string name="SlimTvClient.FilterRecordingsItemsNavbarDisplayLabel">Nimi</string>
   <!--Schedule management-->
   <string name="SlimTvClient.ScheduleDetails">Ajastuksen tiedot</string>
   <string name="SlimTvClient.ScheduleName">Ajastuksen nimi</string>
@@ -74,10 +74,7 @@
   <string name="SlimTvClient.RecordingsMenuItem">Tallennukset</string>
   <string name="SlimTvClient.Recordings.Help">Täällä voit löytää listan tallennetuista ohjelmistasi.</string>
   <string name="SlimTvClient.RecordingsRootViewName">TV tallennukset</string>
-  <string name="SlimTvClient.ChannelMenuItemLabel">Suodata kanavan mukaan</string>
+  <string name="SlimTvClient.ChannelMenuItemLabel">Kanava</string>
   <string name="SlimTvClient.ChannelNavBarItemLabel">Kanava: {0}</string>
   <string name="SlimTvClient.RecordingsByChannelHeader">Tallennukset kanavan mukaan</string>
-  <string name="SlimTvClient.NameFilterMenuItemLabel">Suodata nimen mukaan</string>
-  <string name="SlimTvClient.NameFilterNavBarItemLabel">{0}</string>
-  <string name="SlimTvClient.RecordingsByNameHeader">Tallennukset nimen mukaan</string>
 </resources>

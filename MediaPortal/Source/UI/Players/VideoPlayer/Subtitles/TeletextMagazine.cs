@@ -283,7 +283,7 @@ namespace MediaPortal.UI.Players.Video.Subtitles
         _owner.SubPageInfoCallback(pageEntry);
       }
 
-      _owner.SubtitleRender.OnTextSubtitle(ref sub);
+      _owner.SubtitleRender.OnTextSubtitle(sub);
       _pageNumInProgress = -1;
     }
 

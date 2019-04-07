@@ -2,7 +2,7 @@
 <resources>
   <string name="Settings.ServerSettings">Server-Einstellungen</string>
   <string name="Settings.ServerSettings.NetworkCredentials">Netzwerk-Zugangsdaten</string>
-  <string name="Settings.ServerSettings.NetworkCredentials.Help">Hier wird der Benutzername und das Passwort für den Zugriff auf die Server-Quellen verwaltet</string>
+  <string name="Settings.ServerSettings.NetworkCredentials.Help">Hier werden Benutzername und Passwort für den Zugriff auf die Server-Quellen verwaltet</string>
   <string name="Settings.ServerSettings.UseCredentials">Benutzername/Passwort für Netzwerk-Zugriff verwenden</string>
   <string name="Settings.ServerSettings.UsernamePasswordGroup">Benutzername und Passwort</string>
   <string name="Settings.ServerSettings.Username">Benutzername:</string>
@@ -27,7 +27,7 @@ Das Abwählen einzelner Quellen erhöht die Import-Geschwindigkeit, aber manche 
   <string name="Settings.ServerSettings.MDESettings.MDEOnlineData.FanArt">Nur FanArt herunterladen</string>
   <string name="Settings.ServerSettings.MDESettings.MDEOnlineData.None">Keine Online-Daten herunterladen</string>
   <string name="Settings.ServerSettings.MDESettings.MDEFilter">Online-Informationen filtern</string>
-  <string name="Settings.ServerSettings.MDESettings.MDEFilter.Help">Wähle welche Filter auf die Online-Informationen angewandt werden sollen. Das Deaktivieren der Filter erhöht die Import-Geschwindigkeit.</string>
+  <string name="Settings.ServerSettings.MDESettings.MDEFilter.Help">Wähle welche Filter auf die Online-Informationen angewandt werden sollen. Das Deaktivieren von Filtern erhöht die Import-Geschwindigkeit.</string>
   <string name="Settings.ServerSettings.MDESettings.MDEBrowseOffline">FanArt für offline-Betrieb cachen</string>
   <string name="Settings.ServerSettings.MDESettings.MDEBrowseOffline.Help">Legt zu nutzenden FanArt fest, auch wenn der Share nicht erreichbar ist.</string>
   <string name="Settings.ServerSettings.MDESettings.MDEBrowseOfflineNetwork">FanArt auf Netzwerk-Laufwerk cachen</string>
@@ -60,7 +60,7 @@ Das Abwählen einzelner Quellen erhöht die Import-Geschwindigkeit, aber manche 
   <string name="Settings.ServerSettings.FanArtSettings.ServerFanArtMaxDiscArts">DiscArt-Bilder - Maximale Anzahl </string>
   <string name="Settings.ServerSettings.FanArtSettings.ServerFanArtMaxDiscArts.Help">Legt die maximal Anzahl verfügbarer DiscArt-Bilder fest. Je höher die Anzahl, desto mehr Plattenplatz wird benötigt.</string>
   <string name="Settings.ServerSettings.FanArtSettings.ServerFanArtMaxLogos">Logos - Maximale Anzahl</string>
-  <string name="Settings.ServerSettings.FanArtSettings.ServerFanArtMaxLogos.Help">Legt die maximal Anzahl verfügbarer Logos fest. Je höher die Anzahl, desto mehr Plattenplatz wird benötigt.</string>
+  <string name="Settings.ServerSettings.FanArtSettings.ServerFanArtMaxLogos.Help">Legt die maximale Anzahl verfügbarer Logos fest. Je höher die Anzahl, desto mehr Plattenplatz wird benötigt.</string>
   <string name="Settings.ServerSettings.LanguageSettings">Spracheinstellungen</string>
   <string name="Settings.ServerSettings.LanguageSettings.ServerLanguage">Bevorzugte Sprache</string>
   <string name="Settings.ServerSettings.LanguageSettings.ServerLanguage.Help">Bevorzugte Sprache des Servers</string>

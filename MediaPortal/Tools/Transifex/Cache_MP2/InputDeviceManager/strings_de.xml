@@ -1,19 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-  <string name="Settings.InputDeviceManager.Section">Eingabe-Management</string>
-  <string name="Settings.InputDeviceManager.EnterKeyConfig">Tasten Eingabe-Manager</string>
-  <string name="Settings.InputDeviceManager.EnterKeyConfigHelp">Hier können HID-Geräte verschiedenen Tasten-Aktionen zugeordnet werden.</string>
-  <string name="Settings.InputDeviceManager.EnterScreenConfig">Screen Eingabe-Manager</string>
-  <string name="Settings.InputDeviceManager.EnterScreenConfigHelp">Hier können HID-Geräte verschiedenen Screens zugeordnet werden.</string>
-
-  <string name="InputDeviceManager.SelectDevice.Header">Drücken Sie bitte einen Taste auf dem Eingabegerät, das sie konfigurieren wollen.</string>
-  <string name="InputDeviceManager.FocusItem">Überprüfen der aktuellen Zuordnungen. Zum Ändern den betreffenden Eintrag auswählen.</string>
-
-  <string name="InputDeviceManager.AddKey.Header">Drücken Sie bitte die gewünschte Tastenkombination auf dem Eingabegerät!</string>
+  <string name="Settings.InputDeviceManager.Section">Eingabegeräte</string>
   <string name="InputDeviceManager.Screen">Screen</string>
-  <string name="InputDeviceManager.Key">Taste</string>
-
   <string name="InputDeviceManager.KeyMapping.Button.ClearMapping">Löschen</string>
   <string name="InputDeviceManager.KeyMapping.Dialog.RemoveMapping">Zuordnung aufheben?</string>
   <string name="InputDeviceManager.KeyMapping.Dialog.AddMapping">Zuordnung hinzufügen?</string>
+
+  <string name="InputDeviceManager.DefaultConfig.Keyboard">Standard-Tastatur</string>
+  <string name="InputDeviceManager.DefaultConfig.Remote">Standard-Fernbedienung</string>
 </resources>

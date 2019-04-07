@@ -26,10 +26,7 @@
   <string name="Settings.Players.VideoPlayer.PreferMultiChannelAudio">Preferir faixas de áudio multi-canal</string>
   <string name="Settings.Players.VideoPlayer.PreferMultiChannelAudio.Help">Se habilitado, faixas de 6cn são preferidas (ex.: AC3, AAC)</string>
   <string name="Settings.Players.DVDPlayer">Visualizador de DVD</string>
-  <string name="Settings.Players.DVDPlayer.EnableClosedCaption">Closed Captions</string>
-  <string name="Settings.Players.DVDPlayer.EnableClosedCaption.Help">Selecione se as Closed Captions devem ser habilitadas por padrão</string>
-  <string name="Settings.Players.DVDPlayer.EnableSubtitles">Legendas</string>
-  <string name="Settings.Players.DVDPlayer.EnableSubtitles.Help">Selecione se as Legendas devem ser habilitadas por padrão</string>
+  <string name="Settings.Players.Subtitles">Legendas</string>
   <string name="Playback.NotSpecified">Não especificado</string>
   <string name="Playback.CaptionNormal">Legenda Normal</string>
   <string name="Playback.CaptionBig">Legenda Grande</string>

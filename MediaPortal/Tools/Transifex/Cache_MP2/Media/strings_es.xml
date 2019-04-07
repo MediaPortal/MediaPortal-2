@@ -308,6 +308,7 @@
   <string name="Media.SortByDate">Fecha</string>
   <string name="Media.GroupingBrowseDefault">Por defecto</string>
   <!--Stubs-->
+  <!--Virtual-->
   <!--Settings-->
   <string name="Settings.Players">Reproducciones</string>
   <string name="Settings.Players.ClosePlayersWhenFinished">Cerrar reproducciones cuando terminen</string>

@@ -23,10 +23,7 @@
   <string name="Settings.Players.VideoPlayer.PreferMultiChannelAudio.Help">Ef virkt, 6 rásir í forgangi (þ.e. AC3, AAC)</string>
   <string name="Settings.Players.DVDPlayer">DVD spilari
 </string>
-  <string name="Settings.Players.DVDPlayer.EnableClosedCaption">Myndtextar</string>
-  <string name="Settings.Players.DVDPlayer.EnableClosedCaption.Help">Veljið ef myndtexta á virkja sjálfvirkt</string>
-  <string name="Settings.Players.DVDPlayer.EnableSubtitles">Textun</string>
-  <string name="Settings.Players.DVDPlayer.EnableSubtitles.Help">Veljið ef textun á að virkja sjálfvirkt</string>
+  <string name="Settings.Players.Subtitles">Textun</string>
   <string name="Playback.NotSpecified">Ekki tiltekið</string>
   <string name="Playback.CaptionNormal">Staðlaður myndtexti</string>
   <string name="Playback.CaptionBig">Stór myndtexti</string>
