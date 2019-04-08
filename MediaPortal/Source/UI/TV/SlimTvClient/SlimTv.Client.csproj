@@ -44,15 +44,19 @@
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="PresentationCore" />
+    <Reference Include="PresentationFramework" />
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Drawing" />
     <Reference Include="System.ServiceModel" />
     <Reference Include="System.Windows.Forms" />
+    <Reference Include="System.Xaml" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
+    <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\..\Backend\BackendComponents\ServerSettings.Interfaces\ServerSettings.Interfaces.csproj">
@@ -216,10 +220,8 @@
     </Content>
     <Content Include="Skin\default\screens\SlimTvClient-guide.xaml" />
     <Content Include="Skin\default\screens\ProgramInfo.inc" />
-    <Content Include="Skin\default\screens\DialogProgramActions.xaml" />
     <Content Include="Skin\default\screens\ProgramInfoSlim.inc" />
     <Content Include="Skin\default\screens\SlimTvClient-fullguide.xaml" />
-    <Content Include="Skin\default\screens\DialogProgramActionsFull.xaml" />
     <Content Include="Skin\default\themes\default\styles\SlimTvConsts.xaml" />
     <Content Include="Skin\default\screens\SlimTvClient-miniguide.xaml" />
     <Content Include="Skin\Reflexion\themes\default\styles\ProgramInfoSlim.inc" />

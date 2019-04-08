@@ -112,8 +112,9 @@
             <Label x:Name="Description" Grid.Row="8" Grid.Column="0" Grid.ColumnSpan="2" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
                 Wrap="True" Scroll="Auto" Content="{Binding Path=CurrentProgram.Description}" Color="{ThemeResource TextColor}"/>
           </Grid>
-        
-       </Grid>
+        <KeyBinding Key="Record" Command="{Command Path=RecordMenu}" />
+
+      </Grid>
     </ControlTemplate>
   </Include.Resources>
 </Include>
