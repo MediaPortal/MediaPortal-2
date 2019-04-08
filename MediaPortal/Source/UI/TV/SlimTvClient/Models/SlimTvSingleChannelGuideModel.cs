@@ -121,6 +121,14 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
 
     #region Channel, groups and programs
 
+    public void RecordMenu()
+    {
+      ProgramListItem item = SlimTvExtScheduleModel.CurrentItem as ProgramListItem;
+      if (item == null)
+        return;
+      ShowProgramActions(item.AdditionalProperties["PROGRAM"] as IProgram);
+    }
+
     protected override void Update()
     { }
 

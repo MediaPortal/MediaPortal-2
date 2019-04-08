@@ -73,6 +73,13 @@
           </ListView.Resources>
         </ListView>
 
+        <Grid xmlns="www.team-mediaportal.com/2008/mpf/directx"
+            xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+            >
+          <KeyBinding Key="Record" Command="{Command Path=RecordMenu}" />
+          <KeyBinding Key="Info" Command="{Command Path=RecordMenu}" />
+        </Grid>
+
         <!-- Actual Item / Total items -->
         <DockPanel VerticalAlignment="Top" HorizontalAlignment="Left" LastChildFill="false" IsVisible="{Binding IsItemsValid}" Margin="60,-113,25,-10">
           <StackPanel DockPanel.Dock="Left" Orientation="Horizontal" VerticalAlignment="Top">

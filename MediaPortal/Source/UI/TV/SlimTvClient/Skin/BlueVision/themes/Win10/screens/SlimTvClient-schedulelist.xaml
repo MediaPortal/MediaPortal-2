@@ -113,6 +113,7 @@
                 <Binding Path="CurrentProgram.Series" Converter="{StaticResource StringFormatConverter}" ConverterParameter="{} ({0})"/>
               </Label.Content>
             </Label>
+            <KeyBinding Key="Record" Command="{Command Path=RecordMenu}" />
           </Grid>
 
           <Label Grid.Row="1" Grid.Column="1" x:Name="Description" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
