@@ -93,6 +93,9 @@
           </StackPanel>
         </DockPanel>
 
+        <KeyBinding Key="Record" Command="{Command Path=RecordMenu}" />
+        <KeyBinding Key="Info" Command="{Command Path=RecordMenu}" />
+
         <Border Grid.Column="0" Grid.ColumnSpan="2" Grid.Row="2" Margin="30,10,0,40">
           <Control VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
             <Control.TemplateControl>
