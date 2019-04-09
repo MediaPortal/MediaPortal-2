@@ -72,7 +72,9 @@
     <ProjectsToBuild Include="$(ProjectRoot)\Source\MP2-Server.sln" Condition="$(BuildServer) == 'true'" />
     <ProjectsToBuild Include="$(ProjectRoot)\Source\MP2-ServiceMonitor.sln" Condition="$(BuildServiceMonitor) == 'true'" />
     <ProjectsToBuild Include="$(ProjectRoot)\..\OnlineVideos\OnlineVideos.MediaPortal2.sln" Condition="$(BuildOnlineVideos) == 'true'" />
-    <ProjectsToBuild Include="$(ProjectRoot)\Setup\MP2-Setup.sln" Condition="$(BuildSetup) == 'true'" />
+    <ProjectsToBuild Include="$(ProjectRoot)\Setup\MP2Client\MP2Client.wixproj" Condition="$(BuildSetup) == 'true'" />
+    <ProjectsToBuild Include="$(ProjectRoot)\Setup\MP2Server\MP2Server.wixproj" Condition="$(BuildSetup) == 'true'" />
+    <ProjectsToBuild Include="$(ProjectRoot)\Setup\Bootstrapper\MP2-Bootstrapper.wixproj" Condition="$(BuildSetup) == 'true'" />
   </ItemGroup>
 
 
