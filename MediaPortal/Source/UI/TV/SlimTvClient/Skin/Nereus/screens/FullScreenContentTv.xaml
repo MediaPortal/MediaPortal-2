@@ -42,18 +42,15 @@
     </Image>
 
     <Control x:Name="PiP" Grid.Column="1" Grid.ColumnSpan="2" Grid.Row="1" Style="{ThemeResource PipControlStyle}"
-          IsVisible="{Binding !IsOSDVisible}"/>
+             IsVisible="{Binding !IsOSDVisible}" Margin="0,0,30,0"/>
 
     <DockPanel x:Name="OSD_RightPanel"  Grid.Column="1" Grid.ColumnSpan="2" Grid.Row="1" LastChildFill="false" IsVisible="{Binding IsOSDVisible}">
-      <mp_special_controls:PlayerControl x:Name="SecondaryOSD"
-            Style="{ThemeResource SecondaryMediaOSDStyle}"
-            VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
-            AutoVisibility="true"/>
+      <mp_special_controls:PlayerControl x:Name="SecondaryOSD" Style="{ThemeResource SecondaryMediaOSDStyle}" Margin="0,0,30,0"
+            VerticalAlignment="Stretch" HorizontalAlignment="Stretch" AutoVisibility="true"/>
     </DockPanel>
 
     <mp_special_controls:PlayerControl x:Name="PrimaryOSD"  Grid.Column="0" Grid.ColumnSpan="3" Grid.Row="3" IsEnabled="{Binding IsOSDVisible}"
-            Style="{ThemeResource PrimarySlimTvOSDStyle}"
-            VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
+            Style="{ThemeResource PrimarySlimTvOSDStyle}" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
   </Grid>
 </Screen>
 
