@@ -40,7 +40,7 @@
             <Button Grid.Column="0" x:Name="ChooseChannelGroupButton" MaxWidth="350" Style="{ThemeResource ButtonWideStyle}"
                     Content="{Binding Source={Binding ChannelGroup}, Path=Name}" HorizontalAlignment="Stretch"
                     Command="{Command ShowChannelGroupDialog}" SetFocusPrio="DefaultLow"/>
-            <Button Grid.Column="1" x:Name="ChooseChannelButton" Style="{ThemeResource ButtonWideStyle}" Margin="5,0,0,0"
+            <Button Grid.Column="1" x:Name="ChooseChannelButton" Style="{ThemeResource ButtonWideStyle}" Margin="40,0,0,0"
                     Content="{Binding Source={Binding Channel}, Path=Name}" HorizontalAlignment="Stretch"
                     Command="{Command ShowChannelDialog}"/>
           </Grid>
@@ -168,7 +168,6 @@
                       Content="{Binding Path=EndTime, Converter={StaticResource DateFormatConverter}, ConverterParameter=mm}"/>
               <Button Grid.Column="4" Grid.Row="2" Width="30" Height="30" HorizontalAlignment="Center" Margin="0,2,0,0"
                       Style="{ThemeResource ArrowButtonDownStyle}" Command="{Command Path=AddEndTime, Parameters=-1}"/>
-
             </Grid>
           </Grid>
         </StackPanel>
