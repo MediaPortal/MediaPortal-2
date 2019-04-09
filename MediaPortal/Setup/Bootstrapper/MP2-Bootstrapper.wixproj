@@ -8,7 +8,7 @@
     <SchemaVersion>2.0</SchemaVersion>
     <OutputName>MP2-Setup</OutputName>
     <OutputType>Bundle</OutputType>
-	<WixToolPath>C:\Program Files (x86)\WiX Toolset v3.11\bin</WixToolPath>
+	<WixToolPath>C:\Program Files (x86)\WiX Toolset v3.11\bin\</WixToolPath>
     <WixTargetsPath>C:\Program Files (x86)\MSBuild\Microsoft\WiX\v3.x\wix.targets</WixTargetsPath>
     <WixTasksPath>$(WixToolPath)WixTasks.dll</WixTasksPath>
     <Name>MP2-Bootstrapper</Name>
