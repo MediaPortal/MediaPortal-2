@@ -125,7 +125,8 @@ namespace MediaPortal.UiComponents.Media.Models
         return typeof(DefaultVideoPlayerUIContributor);
 
       if((player is IAudioPlayer))
-        return typeof(DefaultVideoPlayerUIContributor);
+        return typeof(DefaultAudioPlayerUIContributor);
+
       return null;
     }
 
