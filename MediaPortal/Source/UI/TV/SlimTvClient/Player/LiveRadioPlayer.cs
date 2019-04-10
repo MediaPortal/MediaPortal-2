@@ -33,11 +33,12 @@ using MediaPortal.UI.Players.Video;
 using MediaPortal.UI.Players.Video.Interfaces;
 using MediaPortal.UI.Players.Video.Tools;
 using MediaPortal.UI.Presentation.Players;
+using MediaPortal.UI.Presentation.Players.ResumeState;
 using MediaPortal.Utilities.Exceptions;
 
 namespace MediaPortal.Plugins.SlimTv.Client.Player
 {
-  class LiveRadioPlayer : BaseDXPlayer, IAudioPlayer, ITsReaderCallback, ITsReaderCallbackAudioChange
+  class LiveRadioPlayer : BaseDXPlayer, IAudioPlayer, IResumablePlayer, ITsReaderCallback, ITsReaderCallbackAudioChange
   {
     #region Imports
 
@@ -178,5 +179,61 @@ namespace MediaPortal.Plugins.SlimTv.Client.Player
     {
       return 0;
     }
+
+    #region Implementation of IResumablePlayer
+
+    /// <summary>
+    /// Gets a <see cref="IResumeState"/> from the player.
+    /// </summary>
+    /// <param name="state">Outputs resume state.</param>
+    /// <returns><c>true</c> if successful, otherwise <c>false</c>.</returns>
+    public virtual bool GetResumeState(out IResumeState state)
+    {
+      TimeSpan currentTime = CurrentTime;
+      // Workaround for TsReader handling on playback end: it reports a negative position, so we treat it to "stream end"
+      if (currentTime.TotalSeconds < 0)
+        currentTime = Duration;
+      TimeSpan duration = Duration;
+      // If we already played back more then 99%, we don't want to ask user to resume playback.
+      if (currentTime.TotalSeconds / duration.TotalSeconds > 0.99)
+        state = null;
+      else
+        state = new PositionResumeState
+        {
+          ResumePosition = CurrentTime,
+          ActiveResourceLocatorIndex = _mediaItem?.ActiveResourceLocatorIndex ?? 0,
+          ActiveEditionIndex = _mediaItem?.ActiveEditionIndex ?? 0
+        };
+      return true;
+    }
+
+    /// <summary>
+    /// Sets a <see cref="IResumeState"/> to the player. The player is responsible to make the required initializations.
+    /// </summary>
+    /// <param name="state">Resume state.</param>
+    /// <returns><c>true</c> if successful, otherwise <c>false</c>.</returns>
+    public virtual bool SetResumeState(IResumeState state)
+    {
+      PositionResumeState pos = state as PositionResumeState;
+      if (pos == null)
+        return false;
+
+      if (_mediaItem != null)
+      {
+        // Check for multi-resource media items, first set the matching part, then the position
+        if (pos.ActiveResourceLocatorIndex != _mediaItem.ActiveResourceLocatorIndex && pos.ActiveResourceLocatorIndex <= _mediaItem.MaximumResourceLocatorIndex ||
+            pos.ActiveEditionIndex != _mediaItem.ActiveEditionIndex && pos.ActiveEditionIndex <= _mediaItem.MaximumEditionIndex)
+        {
+          _mediaItem.ActiveResourceLocatorIndex = pos.ActiveResourceLocatorIndex;
+          _mediaItem.ActiveEditionIndex = pos.ActiveEditionIndex;
+          if (!NextItem(_mediaItem, StartTime.AtOnce))
+            return false;
+        }
+      }
+      CurrentTime = pos.ResumePosition;
+      return true;
+    }
+
+    #endregion
   }
 }
