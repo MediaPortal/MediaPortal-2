@@ -371,6 +371,13 @@ namespace MediaPortal.Extensions.MetadataExtractors
             genreAspect.SetAttribute(GenreAspect.ATTR_GENRE, genreList[0].Name);
           }
         }
+        else //Add comment for radio recordings
+        {
+          if (TryGet(tags, TAG_PLOT, out value))
+          {
+            MediaItemAspect.SetAttribute(extractedAspectData, MediaAspect.ATTR_COMMENT, value);
+          }
+        }
 
         return Task.FromResult(true);
       }
