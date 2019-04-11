@@ -35,10 +35,11 @@ using MediaPortal.UI.Players.Video.Tools;
 using MediaPortal.UI.Presentation.Players;
 using MediaPortal.UI.Presentation.Players.ResumeState;
 using MediaPortal.Utilities.Exceptions;
+using MediaPortal.Plugins.SlimTv.Interfaces.LiveTvMediaItem;
 
 namespace MediaPortal.Plugins.SlimTv.Client.Player
 {
-  class LiveRadioPlayer : BaseDXPlayer, IAudioPlayer, IResumablePlayer, ITsReaderCallback, ITsReaderCallbackAudioChange
+  class LiveRadioPlayer : BaseDXPlayer, IAudioPlayer, IResumablePlayer, ITsReaderCallback, ITsReaderCallbackAudioChange, IUIContributorPlayer
   {
     #region Imports
 
@@ -68,6 +69,14 @@ namespace MediaPortal.Plugins.SlimTv.Client.Player
     {
       get { return "Live Radio"; }
     }
+
+    public bool IsLiveRadio {  get { return _mediaItem is LiveTvMediaItem; } }
+
+    #region IUIContributorPlayer Member
+
+    public Type UIContributorType => typeof(LiveRadioUIContributor);
+
+    #endregion
 
     /// <summary>
     /// Adds a source filter to the graph and sets the input.
