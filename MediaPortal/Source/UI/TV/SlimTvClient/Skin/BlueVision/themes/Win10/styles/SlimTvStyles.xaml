@@ -55,12 +55,10 @@
         <Button x:Name="VolDownButton" Style="{ThemeResource VolDownButtonStyle}" Margin="{ThemeResource PlayerControlButtonMargins}"
                 Command="{Command Source={StaticResource GeneralPlayerModel},Path=VolumeDown}" VerticalAlignment="Top"
                 IsEnabled="{Binding IsEnabled}"/>
-        <Grid x:Name="AudioPanel" VerticalAlignment="Top" Margin="4,9,0,-8">
-          <Button x:Name="AudioActiveButton" IsVisible="{Binding IsAudio}" Style="{ThemeResource AudioActiveButtonStyle}" Command="{Command AudioButtonPressed}"
-                  IsEnabled="{Binding IsEnabled}"/>
-          <Button x:Name="AudioInactiveButton" IsVisible="{Binding !IsAudio}" Style="{ThemeResource AudioInactiveButtonStyle}" Command="{Command AudioButtonPressed}"
-                  IsEnabled="{Binding IsEnabled}"/>
-        </Grid>
+        <Button x:Name="AudioActiveButton" IsVisible="{Binding IsAudio}" Style="{ThemeResource AudioActiveButtonStyle}" Command="{Command AudioButtonPressed}"
+                IsEnabled="{Binding IsEnabled}" VerticalAlignment="Top"/>
+        <Button x:Name="AudioInactiveButton" IsVisible="{Binding !IsAudio}" Style="{ThemeResource AudioInactiveButtonStyle}" Command="{Command AudioButtonPressed}"
+                IsEnabled="{Binding IsEnabled}" VerticalAlignment="Top"/>
       </StackPanel>
 
       <DockPanel LastChildFill="False" Margin="80,0,80,0">
