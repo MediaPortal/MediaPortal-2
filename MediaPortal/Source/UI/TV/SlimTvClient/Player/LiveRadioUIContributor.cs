@@ -29,33 +29,21 @@ using MediaPortal.UiComponents.Media.Models;
 
 namespace MediaPortal.Plugins.SlimTv.Client.Player
 {
+  /// <summary>
+  /// Class to tell the player model what screen to put up
+  /// </summary>
   public class LiveRadioUIContributor : BaseVideoPlayerUIContributor
   {
-#if ZAPPING_RADIO
-    private readonly AbstractProperty _isZappingProperty;
     private LiveRadioPlayer _player;
-#endif
 
     public const string SCREEN_FULLSCREEN_RADIO = "FullscreenContentRadio";
+    public const string SCREEN_FULLSCREEN_RADIO_RECORDING = "FullscreenContentRadioRecording";
     public const string SCREEN_CURRENTLY_PLAYING_RADIO = "CurrentlyPlayingRadio";
 
     public override bool BackgroundDisabled
     {
       get { return true; }
     }
-
-#if ZAPPING_RADIO
-    public AbstractProperty IsZappingProperty
-    {
-      get { return _isZappingProperty; }
-    }
-
-    public bool IsZapping
-    {
-      get { return (bool)_isZappingProperty.GetValue(); }
-      set { _isZappingProperty.SetValue(value); }
-    }
-#endif
 
     public override string Screen
     {
@@ -64,47 +52,16 @@ namespace MediaPortal.Plugins.SlimTv.Client.Player
         if (_mediaWorkflowStateType == MediaWorkflowStateType.CurrentlyPlaying)
           return SCREEN_CURRENTLY_PLAYING_RADIO;
         if (_mediaWorkflowStateType == MediaWorkflowStateType.FullscreenContent)
-          return SCREEN_FULLSCREEN_RADIO;
+          return _player == null || _player.IsLiveRadio ? SCREEN_FULLSCREEN_RADIO : SCREEN_FULLSCREEN_RADIO_RECORDING;
         return null;
       }
-    }
-
-#if ZAPPING_RADIO
-    public LiveRadioUIContributor()
-    {
-      _isZappingProperty = new WProperty(typeof(bool), false);
     }
 
     public override void Initialize(MediaWorkflowStateType stateType, IPlayer player)
     {
       base.Initialize(stateType, player);
       _player = player as LiveRadioPlayer;
-      if (_player != null)
-      {
-        _player.OnBeginZap += OnBeginZap;
-        _player.OnEndZap += OnEndZap;
-      }
     }
 
-    private void OnBeginZap(object sender, EventArgs e)
-    {
-      IsZapping = true;
-    }
-
-    private void OnEndZap(object sender, EventArgs e)
-    {
-      IsZapping = false;
-    }
-
-    public override void Dispose()
-    {
-      base.Dispose();
-      if (_player != null)
-      {
-        _player.OnBeginZap -= OnBeginZap;
-        _player.OnEndZap -= OnEndZap;
-      }
-    }
-#endif
   }
 }
