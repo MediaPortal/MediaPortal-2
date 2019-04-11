@@ -279,7 +279,6 @@
     <Content Include="Skin\BlueVision\themes\Titanium Extended\screens\MultiDetails.inc">
       <SubType>Designer</SubType>
     </Content>
-    <Content Include="Skin\BlueVision\themes\Titanium Extended\screens\ProgramInfoSlim.inc" />
     <Content Include="Skin\BlueVision\themes\Titanium Extended\sounds\click.wav" />
     <Content Include="Skin\BlueVision\themes\Titanium Extended\sounds\navigate.wav" />
     <Content Include="Skin\BlueVision\themes\Titanium Extended\theme.xml" />
