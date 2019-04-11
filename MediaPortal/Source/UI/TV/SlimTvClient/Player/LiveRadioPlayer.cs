@@ -70,6 +70,10 @@ namespace MediaPortal.Plugins.SlimTv.Client.Player
       get { return "Live Radio"; }
     }
 
+    /// <summary>
+    /// Whether this player is playing live radio, or a recording.
+    /// Used by LiveRadioUIContributer to find out what screen to put up.
+    /// </summary>
     public bool IsLiveRadio {  get { return _mediaItem is LiveTvMediaItem; } }
 
     #region IUIContributorPlayer Member
