@@ -10,7 +10,9 @@
     xmlns:aspect="clr-namespace:MediaPortal.Common.MediaManagement.DefaultItemAspects;assembly=MediaPortal.Common"
     xmlns:tv="clr-namespace:MediaPortal.Plugins.SlimTv.Client.Models.AspectWrappers;assembly=SlimTv.Client"
     xmlns:media="clr-namespace:MediaPortal.UiComponents.Media.Models.AspectWrappers;assembly=Media"
-    x:Name="FullscreenContentRadioScreen">
+    x:Name="FullscreenContentRadioRecordingScreen">
+
+  <Include Source="screens\FullScreenContentAudioKeyBindings.inc"/>
 
   <mp_special_controls:PlayerControl PlayerContext="CurrentPlayer" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
     <mp_special_controls:PlayerControl.TemplateControl>
@@ -48,8 +50,6 @@
           <RowDefinition Height="*"/>
           <RowDefinition Height="350"/>
         </Grid.RowDefinitions>
-
-        <Include Source="screens\FullScreenContentAudioKeyBindings.inc"/>
 
         <Control Grid.RowSpan="2" Grid.ColumnSpan="3">
           <Control.Background>
