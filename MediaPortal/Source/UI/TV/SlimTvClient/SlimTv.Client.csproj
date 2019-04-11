@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -162,6 +162,7 @@
     <Compile Include="Notifications\SlimTvNotificationService.cs" />
     <Compile Include="Notifications\SlimTvRecordingNotification.cs" />
     <Compile Include="Player\LiveRadioPlayer.cs" />
+    <Compile Include="Player\LiveRadioUIContributor.cs" />
     <Compile Include="Player\WTVPlayer.cs" />
     <Compile Include="Player\LiveTvPlayer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -612,6 +613,14 @@
     <PackageReference Include="SharpDX">
       <Version>4.0.1</Version>
     </PackageReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\WMCSkin\screens\CurrentlyPlayingRadio.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="Skin\WMCSkin\screens\FullScreenContentRadio.xaml">
+      <SubType>Designer</SubType>
+    </Content>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="build.targets" />
