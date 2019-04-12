@@ -755,6 +755,7 @@ namespace MediaPortal.Plugins.SlimTv.Service
       //Delete matching schedules
       foreach (TvDatabase.Schedule schedule in matchingSchedules)
       {
+        _tvControl.StopRecordingSchedule(schedule.IdSchedule);
         if (schedule.ScheduleType == (int)ScheduleRecordingType.Once || recordingType != ScheduleRecordingType.Once)
         {
           // Delete single schedule, or whole series

@@ -36,6 +36,7 @@ using MediaPortal.Plugins.SlimTv.Client.Helpers;
 using MediaPortal.Plugins.SlimTv.Interfaces;
 using MediaPortal.Plugins.SlimTv.Interfaces.Extensions;
 using MediaPortal.Plugins.SlimTv.Interfaces.Items;
+using MediaPortal.Plugins.SlimTv.Client.Messaging;
 using MediaPortal.UiComponents.Media.General;
 using MediaPortal.UI.Presentation.DataObjects;
 using MediaPortal.UI.Presentation.Models;
@@ -411,6 +412,11 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
           if (result.Success)
             newStatus = recordingType == ScheduleRecordingType.Once ? RecordingStatus.Scheduled : RecordingStatus.SeriesScheduled;
         }
+        if (newStatus != null)
+        {
+          UpdateRecordingStatus(program, (RecordingStatus)newStatus, recordingType);
+          SlimTvClientMessaging.SendSlimTvProgramChangedMessage(program);
+        }
       }
       return newStatus;
     }
@@ -431,22 +437,28 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
         // Now create new schedule
         var result = await scheduleControl.CreateScheduleAsync(program, recordingType);
         if (result.Success)
+        { 
           newStatus = recordingType == ScheduleRecordingType.Once ? RecordingStatus.Scheduled : RecordingStatus.SeriesScheduled;
+          UpdateRecordingStatus(program, (RecordingStatus)newStatus, recordingType);
+          SlimTvClientMessaging.SendSlimTvProgramChangedMessage(program);
+        }
       }
       return newStatus;
     }
 
-    protected virtual async Task<RecordingStatus?> CreateScheduleByTimeAsync(IChannel program, DateTime start, DateTime end)
+    protected virtual bool UpdateRecordingStatus(IProgram program, RecordingStatus status, ScheduleRecordingType type)
     {
-      IScheduleControlAsync scheduleControl = _tvHandler.ScheduleControl;
-      RecordingStatus? newStatus = null;
-      if (scheduleControl != null)
-      {
-        var result = await scheduleControl.CreateScheduleByTimeAsync(program, start, end, ScheduleRecordingType.Once);
-        if (result.Success)
-          newStatus = RecordingStatus.Scheduled;
-      }
-      return newStatus;
+      IProgramRecordingStatus recordingStatus = program as IProgramRecordingStatus;
+      if (recordingStatus == null || recordingStatus.RecordingStatus == status)
+        return false;
+      RecordingStatus oldStatus = recordingStatus.RecordingStatus;
+      recordingStatus.RecordingStatus = (RecordingStatus)status;
+      OnRecordingStatusChanged(program, oldStatus, status, type);
+      return true;
+    }
+
+    protected virtual void OnRecordingStatusChanged(IProgram program, RecordingStatus oldStatus, RecordingStatus newStatus, ScheduleRecordingType type)
+    {
     }
 
     protected virtual async Task<RecordingStatus?> GetRecordingStatusAsync(IProgram program)
