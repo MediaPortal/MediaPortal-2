@@ -6,40 +6,65 @@
   xmlns:media="clr-namespace:MediaPortal.UiComponents.Media.Models.AspectWrappers;assembly=Media"
   x:Name="MediaItemDetails" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
 
-  <StackPanel Orientation="Vertical">
-            <media:MediaAspectWrapper MediaItem="{Binding Source={StaticResource FanArtBackgroundModel},Path=MediaItem}">
-              <media:MediaAspectWrapper.Template>
-                <ControlTemplate>
-                  <StackPanel DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}" Margin="0,0,20,0">
-                    <Label x:Name="Title" Scroll="Auto" FontSize="{ThemeResource SmallFontSize}" FontFamily="SegoeUIBold"
-                        Content="{Binding Title}" Color="{ThemeResource TextColor}" TextTrimming="CharacterEllipsis"/>
-                    <Label x:Name="Year" FontSize="{ThemeResource SmallFontSize}"
-                        Content="{Binding Path=RecordingTime, Converter={StaticResource DateFormatConverter}, ConverterParameter=g}" Color="{ThemeResource TextColor}"/>
-                  </StackPanel>
-                </ControlTemplate>
-              </media:MediaAspectWrapper.Template>
-            </media:MediaAspectWrapper>
-            
-            <!--Resolution-->
-            <media:ImageAspectWrapper MediaItem="{Binding Source={StaticResource FanArtBackgroundModel},Path=MediaItem}">
-              <media:ImageAspectWrapper.Template>
-                <ControlTemplate>
-                  <Grid DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}" Margin="0,0,20,0"
-                        IsVisible="{Binding Path=AspectHeight,Converter={StaticResource ReferenceToBoolConverter}}">
-                  <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="Auto"/>
-                    <ColumnDefinition Width="Auto"/>
-                    <ColumnDefinition Width="Auto"/>
-                  </Grid.ColumnDefinitions>
-                   <Label  Content="{Binding AspectWidth}"
-                           Color="{ThemeResource MenuTextBackground}" FontSize="{ThemeResource SmallFontSize}" Opacity="1.3"/>
-                  <Label Content=" x " Grid.Column="1" FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource MenuTextBackground}" Opacity="1.3"/>    
-                  <Label Content="{Binding AspectHeight}" Grid.Column="2" Color="{ThemeResource MenuTextBackground}" 
-                         FontSize="{ThemeResource SmallFontSize}" Opacity="1.3"/>
-                  </Grid>
-                </ControlTemplate>
-              </media:ImageAspectWrapper.Template>
-            </media:ImageAspectWrapper>    
+  <Grid.RowDefinitions>
+    <RowDefinition Height="Auto"/>
+    <RowDefinition Height="Auto"/>
+  </Grid.RowDefinitions>
+  <Grid.ColumnDefinitions>
+    <ColumnDefinition Width="Auto"/>
+  </Grid.ColumnDefinitions>
 
-          </StackPanel>
+  <media:MediaAspectWrapper MediaItem="{Binding Source={StaticResource FanArtBackgroundModel},Path=MediaItem}">
+    <media:MediaAspectWrapper.Template>
+      <ControlTemplate>
+        <Label x:Name="Title" Scroll="Auto" FontSize="{ThemeResource SmallerFontSize}" FontFamily="SegoeUIBold"
+               DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}"
+               Content="{Binding Title}" Color="{ThemeResource TextColor}" TextTrimming="CharacterEllipsis"/>
+      </ControlTemplate>
+    </media:MediaAspectWrapper.Template>
+  </media:MediaAspectWrapper>
+
+  <StackPanel Orientation="Horizontal" Grid.Row="1">
+    <media:MediaAspectWrapper MediaItem="{Binding Source={StaticResource FanArtBackgroundModel},Path=MediaItem}">
+      <media:MediaAspectWrapper.Template>
+        <ControlTemplate>
+          <Grid DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}">
+            <Grid.RowDefinitions>
+              <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="Auto"/>
+              <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+            <Image Source="HomeContentIcons\year.png" Stretch="Uniform" Height="25" VerticalAlignment="Center" Margin="0,-1,0,1"/>
+            <Label x:Name="Year" FontSize="{ThemeResource SmallerFontSize}" Grid.Column="1" Margin="5,0,0,0" Opacity="0.6"
+                   Content="{Binding Path=RecordingTime, Converter={StaticResource DateFormatConverter}, ConverterParameter=g}" Color="{ThemeResource TextColor}"/>
+          </Grid>
+        </ControlTemplate>
+      </media:MediaAspectWrapper.Template>
+    </media:MediaAspectWrapper>
+            
+    <!--Resolution-->
+    <media:ImageAspectWrapper MediaItem="{Binding Source={StaticResource FanArtBackgroundModel},Path=MediaItem}">
+      <media:ImageAspectWrapper.Template>
+        <ControlTemplate>
+          <Grid DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}" Margin="20,0,0,0"
+                IsVisible="{Binding Path=AspectHeight,Converter={StaticResource ReferenceToBoolConverter}}">
+            <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="Auto"/>
+              <ColumnDefinition Width="Auto"/>
+              <ColumnDefinition Width="Auto"/>
+              <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+            <Image Source="HomeContentIcons\settings.png" Stretch="Uniform" Height="25" VerticalAlignment="Center" Margin="0,-1,5,1"/>
+            <Label Content="{Binding AspectWidth}" Grid.Column="1" Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallerFontSize}" Opacity="0.6"/>
+            <Label Content=" x " Grid.Column="2" FontSize="{ThemeResource SmallerFontSize}" Color="{ThemeResource TextColor}" Opacity="0.6"/>    
+            <Label Content="{Binding AspectHeight}" Grid.Column="3" Color="{ThemeResource TextColor}" 
+                   FontSize="{ThemeResource SmallerFontSize}" Opacity="0.6"/>
+          </Grid>
+        </ControlTemplate>
+      </media:ImageAspectWrapper.Template>
+    </media:ImageAspectWrapper>    
+
+  </StackPanel>
 </Grid>
