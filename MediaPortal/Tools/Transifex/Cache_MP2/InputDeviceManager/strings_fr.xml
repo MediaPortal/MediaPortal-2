@@ -1,11 +1,26 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
   <string name="Settings.InputDeviceManager.Section">Périphériques d\'Entrés</string>
+  <string name="Settings.InputDeviceManager.EnterKeyConfig">Gestionnaire de saisi des clés</string>
+  <string name="Settings.InputDeviceManager.EnterKeyConfigHelp">Cela vous permet de lier les fonctions de MediaPortal aux touches de vos périphériques d’entrée. Vous pouvez par exemple affecter VolumeUp / Down à \'+\' et \'-\' sur votre clavier si vous n\'avez pas de touches de volume sur votre clavier.</string>
+  <string name="Settings.InputDeviceManager.EnterScreenConfig"> Ecran de Configuration du Gestionnaire des Entrées </string>
+  <string name="Settings.InputDeviceManager.EnterScreenConfigHelp">Cela vous permet de définir des accès aux différent écran de MediaPortal grâce à une touche de votre périphérique d\'entrée pour un accès rapide.</string>
+  <string name="Settings.InputDeviceManager.EnterScreenHome"> Ecran Principal du Gestionnaire des Entrées </string>
+  <string name="Settings.InputDeviceManager.EnterScreenHomeHelp">Cela vous permet d\'accéder aux écrans de menu de MediaPortal à partir des touches de votre périphérique d\'entrée pour un accès rapide. Par exemple, vous pouvez définir \"F2\" sur votre clavier pour ouvrir l\'écran \"Actualités\".</string>
+
+  <string name="InputDeviceManager.SelectDevice.Header">Veuillez appuyer sur le bouton du périphérique, que vous souhaitez configurer.</string>
+  <string name="InputDeviceManager.FocusItem">Afficher le mapping actuel, et sélectionnez un élément à changer.</string>
+
+  <string name="InputDeviceManager.AddKey.Header">Appuyer sur la combinaison de touche souhaitée du périphérique !</string>
   <string name="InputDeviceManager.Screen">Ecran</string>
+  <string name="InputDeviceManager.Key">Clé</string>
+
   <string name="InputDeviceManager.KeyMapping.Button.ClearMapping">Supprimer</string>
   <string name="InputDeviceManager.KeyMapping.Dialog.RemoveMapping">Supprimer le mapping ?</string>
   <string name="InputDeviceManager.KeyMapping.Dialog.AddMapping">Ajouter le mapping ?</string>
 
+  <string name="InputDeviceManager.DefaultConfig.Title">Choisissez le mappage par défaut</string>
+  <string name="InputDeviceManager.DefaultConfig.Description">Notez que le mappage choisi écrasera tous les mappages existants!</string>
   <string name="InputDeviceManager.DefaultConfig.Keyboard">Clavier par Défaut</string>
   <string name="InputDeviceManager.DefaultConfig.Remote">Télécommande par Défaut</string>
 </resources>

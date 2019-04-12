@@ -47,12 +47,12 @@
   <string name="SlimTvClient.DeleteFullSchedule">Gesamten Serien-Aufnahmeplan löschen</string>
   <string name="SlimTvClient.CancelProgramsOfSeriesSchedule">Einzelne Sendung löschen</string>
   <string name="SlimTvClient.ScheduleRecordingType_Once">Einmalig</string>
-  <string name="SlimTvClient.ScheduleRecordingType_Daily">Täglich</string>
-  <string name="SlimTvClient.ScheduleRecordingType_Weekly">Wöchentlich</string>
+  <string name="SlimTvClient.ScheduleRecordingType_Daily">Täglich um diese Zeit</string>
+  <string name="SlimTvClient.ScheduleRecordingType_Weekly">Wöchentlich um diese Zeit</string>
   <string name="SlimTvClient.ScheduleRecordingType_EveryTimeOnThisChannel">Immer auf diesem Kanal</string>
   <string name="SlimTvClient.ScheduleRecordingType_EveryTimeOnEveryChannel">Immer auf allen Kanälen</string>
-  <string name="SlimTvClient.ScheduleRecordingType_Weekends">Am Wochenende</string>
-  <string name="SlimTvClient.ScheduleRecordingType_WorkingDays">Werktage</string>
+  <string name="SlimTvClient.ScheduleRecordingType_Weekends">Wochenende um diese Zeit</string>
+  <string name="SlimTvClient.ScheduleRecordingType_WorkingDays">Werktags um diese Zeit</string>
   <string name="SlimTvClient.ScheduleRecordingType_WeeklyEveryTimeOnThisChannel">Wöchentlich auf diesem Kanal</string>
   <string name="SlimTvClient.ShowAllRecordingsItemsMenuItem">Name</string>
   <string name="SlimTvClient.FilterRecordingsItemsNavbarDisplayLabel">Name</string>
