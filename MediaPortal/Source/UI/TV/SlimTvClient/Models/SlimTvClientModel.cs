@@ -612,7 +612,8 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
     private void ShowOSD()
     {
       IWorkflowManager workflowManager = ServiceRegistration.Get<IWorkflowManager>();
-      VideoPlayerModel model = workflowManager.GetModel(VideoPlayerModel.MODEL_ID) as VideoPlayerModel;
+      BaseOSDPlayerModel model = workflowManager.GetModel(_tvHandler.GetChannel(SlotIndex).MediaType == MediaType.Radio ?
+        AudioPlayerModel.MODEL_ID : VideoPlayerModel.MODEL_ID) as BaseOSDPlayerModel;
       if (model == null)
         return;
 
@@ -623,7 +624,8 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
     private void CloseOSD()
     {
       IWorkflowManager workflowManager = ServiceRegistration.Get<IWorkflowManager>();
-      VideoPlayerModel model = workflowManager.GetModel(VideoPlayerModel.MODEL_ID) as VideoPlayerModel;
+      BaseOSDPlayerModel model = workflowManager.GetModel(_tvHandler.GetChannel(SlotIndex).MediaType == MediaType.Radio ?
+        AudioPlayerModel.MODEL_ID : VideoPlayerModel.MODEL_ID) as BaseOSDPlayerModel;
       if (model == null)
         return;
 
