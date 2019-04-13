@@ -256,7 +256,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
         {
           await model.Tune(result.Result);
           // Always switch to fullscreen
-          workflowManager.NavigatePush(Consts.WF_STATE_ID_FULLSCREEN_VIDEO);
+          workflowManager.NavigatePush(result.Result.MediaType == MediaType.Radio ? Consts.WF_STATE_ID_FULLSCREEN_AUDIO : Consts.WF_STATE_ID_FULLSCREEN_VIDEO);
         }
       }
     }
