@@ -8,9 +8,6 @@
     <SchemaVersion>2.0</SchemaVersion>
     <OutputName>MP2-Setup</OutputName>
     <OutputType>Bundle</OutputType>
-    <WixToolPath>C:\SourceControl\WiX39\</WixToolPath>
-    <WixTargetsPath>$(WixToolPath)wix.targets</WixTargetsPath>
-    <WixTasksPath>$(WixToolPath)WixTasks.dll</WixTasksPath>
     <Name>MP2-Bootstrapper</Name>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' ">
@@ -68,6 +65,30 @@
     <ProjectReference Include="..\MP2BootstrapperApp\MP2BootstrapperApp.csproj">
       <Name>MP2BootstrapperApp</Name>
       <Project>{690c4618-718b-4d07-916d-456b5c211a7a}</Project>
+      <Private>True</Private>
+      <DoNotHarvest>True</DoNotHarvest>
+      <RefProjectOutputGroups>Binaries;Content;Satellites</RefProjectOutputGroups>
+      <RefTargetDir>INSTALLFOLDER</RefTargetDir>
+    </ProjectReference>
+    <ProjectReference Include="..\MP2Client\MP2Client.wixproj">
+      <Name>MP2Client</Name>
+      <Project>{a40959da-344f-4086-b815-0a943dbaa234}</Project>
+      <Private>True</Private>
+      <DoNotHarvest>True</DoNotHarvest>
+      <RefProjectOutputGroups>Binaries;Content;Satellites</RefProjectOutputGroups>
+      <RefTargetDir>INSTALLFOLDER</RefTargetDir>
+    </ProjectReference>
+    <ProjectReference Include="..\MP2Common\MP2Common.wixproj">
+      <Name>MP2Common</Name>
+      <Project>{0e06fddf-cc58-44fa-ac74-c97f9b0e66be}</Project>
+      <Private>True</Private>
+      <DoNotHarvest>True</DoNotHarvest>
+      <RefProjectOutputGroups>Binaries;Content;Satellites</RefProjectOutputGroups>
+      <RefTargetDir>INSTALLFOLDER</RefTargetDir>
+    </ProjectReference>
+    <ProjectReference Include="..\MP2Server\MP2Server.wixproj">
+      <Name>MP2Server</Name>
+      <Project>{109958fb-395a-4311-9bd9-3be80ce3e54f}</Project>
       <Private>True</Private>
       <DoNotHarvest>True</DoNotHarvest>
       <RefProjectOutputGroups>Binaries;Content;Satellites</RefProjectOutputGroups>
