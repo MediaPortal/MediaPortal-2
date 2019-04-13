@@ -8,7 +8,7 @@
     <SchemaVersion>2.0</SchemaVersion>
     <OutputName>MP2-Setup</OutputName>
     <OutputType>Bundle</OutputType>
-    <WixToolPath>"C:\SourceControl\WiX39\"</WixToolPath>
+    <WixToolPath>C:\SourceControl\WiX39\</WixToolPath>
     <WixTargetsPath>$(WixToolPath)wix.targets</WixTargetsPath>
     <WixTasksPath>$(WixToolPath)WixTasks.dll</WixTasksPath>
     <Name>MP2-Bootstrapper</Name>
