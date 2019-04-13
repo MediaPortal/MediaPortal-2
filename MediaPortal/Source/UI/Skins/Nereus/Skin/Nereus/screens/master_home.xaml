@@ -89,7 +89,7 @@ Parameters which have to be accessible by a DynamicResource lookup:
       
     </DockPanel>
 
-    <Grid x:Name="WindowButtonsPanel" HorizontalAlignment="Stretch" VerticalAlignment="Top" Margin="20,10,0,10" Panel.ZIndex="1000">
+    <Grid x:Name="WindowButtonsPanel" HorizontalAlignment="Stretch" VerticalAlignment="Top" Margin="20,10,0,10">
       <Grid.Resources>
         <Model x:Key="NotificationsModel" Id="843F373D-0B4B-47ba-8DD1-0D18F00FAAD3"/>
         <Model x:Key="StateModel" Id="B23D8DC1-405E-4564-92D0-E247C299FFAE"/>
