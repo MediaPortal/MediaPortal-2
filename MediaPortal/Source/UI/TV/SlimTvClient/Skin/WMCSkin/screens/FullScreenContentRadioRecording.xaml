@@ -124,7 +124,7 @@
         </Grid>
 
         <tv:RecordingAspectWrapper MediaItem="{Binding MediaItem}" Grid.Column="1" Grid.Row="1" 
-                                  Margin="60,30,0,0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+                                   Margin="60,30,0,0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
           <tv:RecordingAspectWrapper.Template>
             <ControlTemplate>
               <StackPanel Orientation="Vertical" Margin="0,0,20,0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
@@ -135,7 +135,7 @@
                     <ControlTemplate>
                       <Grid DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}" Margin="0,0,20,10">
                         <Label x:Name="Title" FontSize="{ThemeResource SmallFontSize}" Scroll="Auto" ScrollDelay="0"
-                                 Content="{Binding Title}" Color="{ThemeResource TextColor}" FontFamily="SegoeUIBold"/>
+                               Content="{Binding Title}" Color="{ThemeResource TextColor}" FontFamily="SegoeUIBold"/>
                       </Grid>
                     </ControlTemplate>
                   </media:MediaAspectWrapper.Template>
@@ -143,16 +143,25 @@
 
                 <Label x:Name="StartTime" FontSize="{ThemeResource SmallFontSize}"
                        Content="{Binding Path=StartTime}" Color="{ThemeResource TextColor}"/>
-                <Label x:Name="EndTime" FontSize="{ThemeResource SmallFontSize}"
-                       Content="{Binding Path=EndTime}" Color="{ThemeResource TextColor}"/>
+                <!--Label x:Name="EndTime" FontSize="{ThemeResource SmallFontSize}"
+                       Content="{Binding Path=EndTime}" Color="{ThemeResource TextColor}"/-->
 
                 <media:AudioAspectWrapper MediaItem="{Binding MediaItem}">
                   <media:AudioAspectWrapper.Template>
                     <ControlTemplate>
-                      <Grid DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}" Margin="0,0,20,10">
-                        <Label x:Name="Duration" FontSize="{ThemeResource SmallFontSize}" Scroll="Auto" ScrollDelay="0"
-                               Content="{Binding Duration}" Color="{ThemeResource TextColor}"/>
-                      </Grid>
+                      <StackPanel Orientation="Horizontal" DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}">
+                        <Label x:Name="Duration" FontSize="{ThemeResource SmallFontSize}" Opacity="1.3" Color="{ThemeResource MenuTextBackground}"
+                               IsVisible="{Binding Path=Duration,Converter={StaticResource ReferenceToBoolConverter}}">
+                          <Label.Content>
+                            <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0}/60">
+                              <Binding Path="Duration"/>
+                            </MultiBinding>
+                          </Label.Content>
+                        </Label>
+                        <Label Content=" " IsVisible="{Binding Path=Duration,Converter={StaticResource ReferenceToBoolConverter}}"/>
+                        <Label Content="[Media.Minutes]" FontSize="{ThemeResource SmallFontSize}" Opacity="1.3" Color="{ThemeResource MenuTextBackground}"
+                               IsVisible="{Binding Path=Duration,Converter={StaticResource ReferenceToBoolConverter}}"/>
+                      </StackPanel>
                     </ControlTemplate>
                   </media:AudioAspectWrapper.Template>
                 </media:AudioAspectWrapper>
