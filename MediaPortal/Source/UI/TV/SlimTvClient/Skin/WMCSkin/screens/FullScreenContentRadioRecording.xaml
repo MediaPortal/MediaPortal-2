@@ -90,44 +90,13 @@
           </StackPanel>
         </Grid>
 
-        <Grid Grid.Row="1" Grid.Column="0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+        <Grid Grid.Row="1" Grid.Column="0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="0,0,0,0">
           <Grid.RowDefinitions>
             <RowDefinition Height="*"/>
           </Grid.RowDefinitions>
           <Grid.ColumnDefinitions>
             <ColumnDefinition Width="*"/>
           </Grid.ColumnDefinitions>
-
-          <Image x:Name="CDImage" Stretch="Uniform" IsVisible="{Binding IsPlaying}"
-                 FallbackSource="CD.png" HorizontalAlignment="Right" RenderTransformOrigin="0.498,0.498"
-                 VerticalAlignment="Bottom" Width="290" Height="290" Margin="0,0,150,25">
-            <Image.Source>
-              <fanart:FanArtImageSource fanart:FanArtMediaType="Album" fanart:FanArtType="DiscArt" fanart:FanArtName="{Binding Source={Binding MediaItem}, Path=MediaItemId}"
-                                        fanart:MaxWidth="290" fanart:MaxHeight="290"/>
-            </Image.Source>
-
-            <Image.Resources>
-              <Storyboard x:Key="DiskRotationStoryboard" FillBehavior="HoldEnd" RepeatBehavior="Forever">
-                <DoubleAnimation Storyboard.TargetProperty="RenderTransform.Angle"
-                                 From="0" To="360" Duration="0:0:4.5" RepeatBehavior="Forever" />
-              </Storyboard>
-            </Image.Resources>
-
-            <Image.Triggers>
-              <DataTrigger Binding="{Binding IsPlaying}" Value="True">
-                <DataTrigger.EnterActions>
-                  <BeginStoryboard x:Name="Disabled_BeginStoryBoard" Storyboard="{ThemeResource DiskRotationStoryboard}"/>
-                </DataTrigger.EnterActions>
-                <DataTrigger.ExitActions>
-                  <StopStoryboard BeginStoryboardName="Disabled_BeginStoryBoard"/>
-                </DataTrigger.ExitActions>
-              </DataTrigger>
-            </Image.Triggers>
-
-            <Image.RenderTransform>
-              <RotateTransform Angle="0" />
-            </Image.RenderTransform>
-          </Image>
 
           <Grid HorizontalAlignment="Right" VerticalAlignment="Bottom" Width="300" Height="300" Margin="0,0,0,20">
             <Grid.Background>
@@ -159,11 +128,11 @@
           <tv:RecordingAspectWrapper.Template>
             <ControlTemplate>
               <StackPanel Orientation="Vertical" Margin="0,0,20,0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
-                         DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}">
+                          DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}">
                 <Image x:Name="ChannelLogo" Width="{ThemeResource ChannelLogoWidth}" Margin="0,10,0,0" 
-                         DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}"
-                         Stretch="Uniform" HorizontalAlignment="Left" VerticalAlignment="Top"
-                         IsVisible="{Binding RelativeSource={RelativeSource TemplatedParent},Path=Channel,Converter={StaticResource ReferenceToBoolConverter}}">
+                       DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}"
+                       Stretch="Uniform" HorizontalAlignment="Left" VerticalAlignment="Top"
+                       IsVisible="{Binding RelativeSource={RelativeSource TemplatedParent},Path=Channel,Converter={StaticResource ReferenceToBoolConverter}}">
                     <Image.Source>
                       <fanart:FanArtImageSource fanart:FanArtMediaType="ChannelTv" fanart:FanArtType="Banner"
                                         fanart:FanArtName="{Binding Channel}" fanart:MaxWidth="0" fanart:MaxHeight="0"/>
@@ -200,9 +169,16 @@
                   </Label.Content>
                 </Label>
 
-                <Label x:Name="Duration" FontSize="{ThemeResource SmallFontSize}" Opacity="1.3" Color="{ThemeResource MenuTextBackground}"
-                       IsVisible="{Binding Path=Duration,Converter={StaticResource ReferenceToBoolConverter}}"
-                       Content="{Binding Path=Duration, Converter={StaticResource DurationConverter}, ConverterParameter=mm\:ss}"/>
+                <media:MediaAspectWrapper MediaItem="{Binding Source={StaticResource FanArtBackgroundModel},Path=MediaItem}">
+                  <media:MediaAspectWrapper.Template>
+                    <ControlTemplate>
+                      <Grid DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}" Margin="0,0,20,0">
+                        <Label x:Name="Comment" FontSize="{ThemeResource SmallFontSize}" Opacity="1.3" Color="{ThemeResource MenuTextBackground}"
+                               Content="{Binding Comment}" />
+                      </Grid>
+                    </ControlTemplate>
+                  </media:MediaAspectWrapper.Template>
+                </media:MediaAspectWrapper>
 
               </StackPanel>
             </ControlTemplate>
