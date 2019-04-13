@@ -23,10 +23,24 @@
     <ColumnDefinition Width="*"/>
   </Grid.ColumnDefinitions>
 
+  <!-- Description for TV Recordings-->
   <Label x:Name="MediaItemDescription" Wrap="True" Grid.Column="0" Grid.Row="2" Grid.ColumnSpan="2"
          HorizontalAlignment="Stretch" VerticalAlignment="Stretch" FontSize="{ThemeResource SmallFontSize}" TextTrimming="WordEllipsis"
          Content="{Binding Source={StaticResource FanArtBackgroundModel}, Path=ItemDescription}"
          Opacity="1.3" Color="{ThemeResource MenuTextBackground}" Margin="0,20,0,5"/>
+
+  <!-- Description for Radio Recordings-->
+  <media:MediaAspectWrapper MediaItem="{Binding Source={StaticResource FanArtBackgroundModel},Path=MediaItem}" 
+                            Grid.Column="0" Grid.Row="2" Grid.ColumnSpan="2" Margin="0,20,0,5" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+    <media:MediaAspectWrapper.Template>
+      <ControlTemplate>
+        <Grid DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}" Margin="0,0,20,0">
+          <Label x:Name="Comment" FontSize="{ThemeResource SmallFontSize}" Opacity="1.3" Color="{ThemeResource MenuTextBackground}"
+                 Content="{Binding Comment}" Wrap="True" HorizontalAlignment="Stretch" TextTrimming="WordEllipsis"/>
+        </Grid>
+      </ControlTemplate>
+    </media:MediaAspectWrapper.Template>
+  </media:MediaAspectWrapper>
 
   <StackPanel Orientation="Vertical" Grid.Column="0" Grid.Row="0" Grid.RowSpan="2" VerticalAlignment="Stretch">
     <Label x:Name="MediaItemName" Wrap="True" Margin="0" TextTrimming="WordEllipsis"
@@ -91,7 +105,27 @@
       </media:VideoStreamAspectWrapper.Template>
     </media:VideoStreamAspectWrapper>
 
-    <!--Label x:Name="Genre" FontSize="{ThemeResource SmallFontSize}" TextTrimming="WordEllipsis"
+    <media:AudioAspectWrapper MediaItem="{Binding Source={StaticResource FanArtBackgroundModel},Path=MediaItem}">
+      <media:AudioAspectWrapper.Template>
+        <ControlTemplate>
+          <StackPanel Orientation="Horizontal" DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}">
+            <Label x:Name="Duration" FontSize="{ThemeResource SmallFontSize}" Opacity="1.3" Color="{ThemeResource MenuTextBackground}"
+                   IsVisible="{Binding Path=Duration,Converter={StaticResource ReferenceToBoolConverter}}">
+              <Label.Content>
+                <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0}/60">
+                  <Binding Path="Duration"/>
+                </MultiBinding>
+              </Label.Content>
+            </Label>
+            <Label Content=" " IsVisible="{Binding Path=Duration,Converter={StaticResource ReferenceToBoolConverter}}"/>
+            <Label Content="[Media.Minutes]" FontSize="{ThemeResource SmallFontSize}" Opacity="1.3" Color="{ThemeResource MenuTextBackground}"
+                   IsVisible="{Binding Path=Duration,Converter={StaticResource ReferenceToBoolConverter}}"/>
+          </StackPanel>
+        </ControlTemplate>
+      </media:AudioAspectWrapper.Template>
+    </media:AudioAspectWrapper>
+
+    <Label x:Name="Genre" FontSize="{ThemeResource SmallFontSize}" TextTrimming="WordEllipsis"
            Opacity="1.3" Color="{ThemeResource MenuTextBackground}">
       <Label.Content>
         <MultiBinding Converter="{StaticResource MultiAspectAttributeConverter}">
@@ -99,10 +133,9 @@
           <Binding Source="{x:Static aspect:GenreAspect.ATTR_GENRE}" />
         </MultiBinding>
       </Label.Content>
-    </Label-->
+    </Label>
 
-    <media:UserDataWrapper MediaItem="{Binding Source={StaticResource FanArtBackgroundModel},Path=MediaItem}"
-                           Margin="0,5,0,0">
+    <media:UserDataWrapper MediaItem="{Binding Source={StaticResource FanArtBackgroundModel},Path=MediaItem}" Margin="0,5,0,0">
       <media:UserDataWrapper.Template>
         <ControlTemplate>
           <Grid DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}"

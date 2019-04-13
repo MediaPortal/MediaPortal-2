@@ -116,8 +116,22 @@
     </media:SeriesAspectWrapper>
   </Grid>
    
+  <!-- Description for TV Recordings-->
   <Label x:Name="MediaItemDescription" Wrap="True" Grid.Column="1" Grid.Row="1" Opacity="1.3" Color="{ThemeResource MenuTextBackground}"
          TextTrimming="WordEllipsis" HorizontalAlignment="Stretch" FontSize="{ThemeResource SmallFontSize}"
          Content="{Binding Source={StaticResource FanArtBackgroundModel}, Path=ItemDescription}" Margin="0,0,10,25"/>
+
+  <!-- Description for Radio Recordings-->
+  <media:MediaAspectWrapper MediaItem="{Binding Source={StaticResource FanArtBackgroundModel},Path=MediaItem}"
+                            Grid.Column="1" Grid.Row="1" Margin="0,0,10,25" HorizontalAlignment="Stretch" >
+    <media:MediaAspectWrapper.Template>
+      <ControlTemplate>
+        <Grid DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}">
+          <Label x:Name="Comment" FontSize="{ThemeResource SmallFontSize}" Opacity="1.3" Color="{ThemeResource MenuTextBackground}"
+                 Content="{Binding Comment}" Wrap="True" HorizontalAlignment="Stretch" TextTrimming="WordEllipsis"/>
+        </Grid>
+      </ControlTemplate>
+    </media:MediaAspectWrapper.Template>
+  </media:MediaAspectWrapper>
 
 </Grid>
