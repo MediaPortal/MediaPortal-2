@@ -356,20 +356,6 @@ namespace MediaPortal.Extensions.MetadataExtractors
             if (int.TryParse(yearMatch.Value, out guessedYear))
               MediaItemAspect.SetAttribute(extractedAspectData, MediaAspect.ATTR_RECORDINGTIME, new DateTime(guessedYear, 1, 1));
           }
-
-          if (TryGet(tags, TAG_GENRE, out value) && !string.IsNullOrEmpty(value?.Trim()))
-          {
-            List<GenreInfo> genreList = new List<GenreInfo>(new GenreInfo[] { new GenreInfo { Name = value.Trim() } });
-            IGenreConverter converter = ServiceRegistration.Get<IGenreConverter>();
-            foreach (var genre in genreList)
-            {
-              if (!genre.Id.HasValue && converter.GetGenreId(genre.Name, GenreCategory.Movie, null, out int genreId))
-                genre.Id = genreId;
-            }
-            MultipleMediaItemAspect genreAspect = MediaItemAspect.CreateAspect(extractedAspectData, GenreAspect.Metadata);
-            genreAspect.SetAttribute(GenreAspect.ATTR_ID, genreList[0].Id);
-            genreAspect.SetAttribute(GenreAspect.ATTR_GENRE, genreList[0].Name);
-          }
         }
         else //Add comment for radio recordings
         {
@@ -377,6 +363,19 @@ namespace MediaPortal.Extensions.MetadataExtractors
           {
             MediaItemAspect.SetAttribute(extractedAspectData, MediaAspect.ATTR_COMMENT, value);
           }
+        }
+        if (TryGet(tags, TAG_GENRE, out value) && !string.IsNullOrEmpty(value?.Trim()))
+        {
+          List<GenreInfo> genreList = new List<GenreInfo>(new GenreInfo[] { new GenreInfo { Name = value.Trim() } });
+          IGenreConverter converter = ServiceRegistration.Get<IGenreConverter>();
+          foreach (var genre in genreList)
+          {
+            if (!genre.Id.HasValue && converter.GetGenreId(genre.Name, GenreCategory.Movie, null, out int genreId))
+              genre.Id = genreId;
+          }
+          MultipleMediaItemAspect genreAspect = MediaItemAspect.CreateAspect(extractedAspectData, GenreAspect.Metadata);
+          genreAspect.SetAttribute(GenreAspect.ATTR_ID, genreList[0].Id);
+          genreAspect.SetAttribute(GenreAspect.ATTR_GENRE, genreList[0].Name);
         }
 
         return Task.FromResult(true);
