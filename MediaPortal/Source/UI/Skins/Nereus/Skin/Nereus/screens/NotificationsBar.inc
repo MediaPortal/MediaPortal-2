@@ -12,15 +12,16 @@
   </StackPanel.Resources>
 
   <StackPanel Orientation="Horizontal" Context="{Service Window}" IsVisible="{Binding Source={StaticResource MouseModel},Path=IsMouseUsed}" VerticalAlignment="Center">
-    <Control Style="{ThemeResource NotificationControlStyle}" Margin="5,2,5,5" IsVisible="{Binding Source={StaticResource NotificationsModel},Path=IsNotificationsHintVisible}"
+    <Control Style="{ThemeResource NotificationControlStyle}" Margin="5,0,5,0" IsVisible="{Binding Source={StaticResource NotificationsModel},Path=IsNotificationsHintVisible}"
              HorizontalAlignment="Left" VerticalAlignment="Center"/>
   </StackPanel>
 
-  <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="0,0,5,0"
-              DataContext="{Binding Source={StaticResource StateModel}, Path=[C37B62D0-8E87-42A4-877E-B41944DA9FC9]}"
-              IsVisible="{Binding Converter={StaticResource ReferenceToBoolConverter}}">
-    <Label FontSize="{ThemeResource SmallerFontSize}" Margin="10,0,0,0"
-           Color="{ThemeResource TextColor}" VerticalAlignment="Center" HorizontalAlignment="Right">
+  <Grid VerticalAlignment="Center" HorizontalAlignment="Center" Margin="0,0,5,0"
+        DataContext="{Binding Source={StaticResource StateModel}, Path=[C37B62D0-8E87-42A4-877E-B41944DA9FC9]}"
+        IsVisible="{Binding Converter={StaticResource ReferenceToBoolConverter}}">
+    <Button Style="{ThemeResource ImportingButtonStyle}" IsVisible="{Binding IsImporting}"/>
+    <Label FontSize="20" Margin="5,-7,0,0" Color="{ThemeResource TextColor}" FontFamily="SegoeUIBold"
+           VerticalAlignment="Top" HorizontalAlignment="Center">
       <Label.IsVisible>
         <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0}>=0">
           <Binding Path="Progress"/>
@@ -30,8 +31,7 @@
         <Binding Path="Progress" Converter="{StaticResource StringFormatConverter}" ConverterParameter="{}{0}%"/>
       </Label.Content>
     </Label>
-    <Button Style="{ThemeResource ImportingButtonStyle}" IsVisible="{Binding IsImporting}"/>
-  </StackPanel>
+  </Grid>
 
   <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="0,0,5,0"
               DataContext="{Binding Source={StaticResource StateModel}, Path=[2A58935C-3363-4FA1-B48D-1EF0E81F830D]}"
