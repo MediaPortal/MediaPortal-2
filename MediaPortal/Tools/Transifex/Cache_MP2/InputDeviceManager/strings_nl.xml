@@ -1,5 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+  <string name="Settings.InputDeviceManager.Section">Input Management</string>
+  <string name="Settings.InputDeviceManager.EnterKeyConfigHelp">Hiermee kunt u HID-apparaten toewijzen aan verschillende belangrijke acties.</string>
+  <string name="Settings.InputDeviceManager.EnterScreenConfigHelp">Hiermee kunt u HID-apparaten toewijzen aan verschillende schermen.</string>
+  <string name="InputDeviceManager.SelectDevice.Header">Druk op een knop op het invoerapparaat dat u wilt configureren.</string>
+  <string name="InputDeviceManager.FocusItem">Bekijk de huidige toewijzingen en selecteer een item om de toewijzing te wijzigen.</string>
+
   <string name="InputDeviceManager.Screen">Scherm</string>
   <string name="InputDeviceManager.KeyMapping.Button.ClearMapping">Helder</string>
   </resources>

@@ -12,6 +12,7 @@
       <KeyBinding Key="Rew" Command="{Command Path=ScrollBackward1Screen}"/>
       <KeyBinding Key="Next" Command="{Command Path=ScrollForward12Hours}"/>
       <KeyBinding Key="Previous" Command="{Command Path=ScrollBackward12Hours}"/>
+      <KeyBinding Key="Record" Command="{Command Path=RecordPressed}"/>
     </Grid>
     <Grid xmlns="www.team-mediaportal.com/2008/mpf/directx"
       xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"

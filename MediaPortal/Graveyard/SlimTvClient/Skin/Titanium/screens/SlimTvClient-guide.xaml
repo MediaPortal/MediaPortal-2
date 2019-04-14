@@ -7,8 +7,11 @@
     >
   <Include.Resources>
 
+    <!-- Custom margin that will be applied to the content area -->
+    <ResourceWrapper x:Key="CustomContentMargin" Resource="0,110,-4,-35" />
+
     <!-- Header -->
-    <ResourceWrapper x:Key="Header_Text" Resource="[SlimTvClient.Guide]"/>
+    <ResourceWrapper x:Key="Header_Text" Resource="[SlimTvClient.Guide]"/> 
 
     <!-- SlimTvClient model -->
     <Model x:Key="SlimTvSingleChannelGuide" Id="74F50A53-BEF7-415c-A240-2EC718DA8C0F"/>
@@ -16,19 +19,19 @@
     <!-- Contents -->
     <!--<ControlTemplate x:Key="Client_Template">-->
     <ControlTemplate x:Key="Contents_Template">
-      <Grid x:Name="MainGrid" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" 
+        <Grid x:Name="MainGrid" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" 
               DataContext="{Binding Source={StaticResource SlimTvSingleChannelGuide}}">
-
+          
         <Grid.ColumnDefinitions>
           <ColumnDefinition Width="{ThemeResource SingleGuideProgramWidth}"/>
           <ColumnDefinition Width="*"/>
         </Grid.ColumnDefinitions>
-
+          
         <Grid.RowDefinitions>
           <RowDefinition Height="Auto"/>
           <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
-
+          
         <StackPanel x:Name="Groups" Margin="20,0,20,0" Grid.Column="0" Grid.Row="0"
             HorizontalAlignment="Left" VerticalAlignment="Top" Orientation="Horizontal">
           <Button x:Name="PrevGroupButton" Style="{StaticResource SmallButtonStyle}" Content=" &lt; "
@@ -48,7 +51,7 @@
           <Label x:Name="CurrentChannelNameLabel" Content="{Binding ChannelName}"
               Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}"/>
         </StackPanel>
-
+         
         <ListView  Grid.Column="0" Grid.Row="1"
               Margin="10" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
               Style="{ThemeResource SingleProgramGuideListViewStyle}"
@@ -59,19 +62,21 @@
           </ListView.Resources>
         </ListView>
 
-        <!--<GroupBox  Grid.Column="1" Grid.Row="1" Header="[SlimTvClient.CurrentlyPlayingInformationHeader]" 
+        <GroupBox  Grid.Column="1" Grid.Row="1" Header="[SlimTvClient.CurrentlyPlayingInformationHeader]" 
                    Style="{ThemeResource ContentGroupBoxStyle}">
           <Control VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
             <Control.TemplateControl>
               <Include Source="screens\ProgramInfo.inc"/>
             </Control.TemplateControl>
           </Control>
-        </GroupBox>-->
+        </GroupBox>
+        <Grid xmlns="www.team-mediaportal.com/2008/mpf/directx"
+            xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+            >
+          <KeyBinding Key="Record" Command="{Command Path=RecordMenu}" />
+          <KeyBinding Key="Info" Command="{Command Path=RecordMenu}" />
+        </Grid>
       </Grid>
-    </ControlTemplate>
-
-    <ControlTemplate x:Key="Alternative_Footer_Template">
-      <Include Source="screens\ProgramInfoSlim.inc"/>
     </ControlTemplate>
   </Include.Resources>
 </Include>

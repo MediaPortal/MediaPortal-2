@@ -65,7 +65,7 @@ namespace MediaPortal.Extensions.MetadataExtractors
 
     public RadioRecordingMetadataExtractor()
     {
-      _metadata = new MetadataExtractorMetadata(METADATAEXTRACTOR_ID, "Radio recording metadata extractor", MetadataExtractorPriority.Core, false,
+      _metadata = new MetadataExtractorMetadata(METADATAEXTRACTOR_ID, "Radio recording metadata extractor", MetadataExtractorPriority.Extended, false,
           MEDIA_CATEGORIES, new MediaItemAspectMetadata[]
               {
                 MediaAspect.Metadata,
@@ -86,6 +86,8 @@ namespace MediaPortal.Extensions.MetadataExtractors
       IFileSystemResourceAccessor fsra = mediaItemAccessor as IFileSystemResourceAccessor;
       if (fsra == null || !fsra.IsFile)
         return Task.FromResult(false);
+      if (extractedAspectData.ContainsKey(VideoAspect.ASPECT_ID))
+        return Task.FromResult(false); //Ignore video recordings
       if (extractedAspectData.ContainsKey(AudioAspect.ASPECT_ID))
         return Task.FromResult(false);
 
@@ -97,9 +99,10 @@ namespace MediaPortal.Extensions.MetadataExtractors
 
         using (MediaInfoWrapper mediaInfo = ReadMediaInfo(fsra))
         {
-          // Before we start evaluating the file, check if it is not a video file (
+          // Before we start evaluating the file, check if it is not a video file
           if (mediaInfo.IsValid && (mediaInfo.GetVideoCount() != 0 || mediaInfo.GetAudioCount() == 0))
             return Task.FromResult(false);
+
           string fileName = ProviderPathHelper.GetFileNameWithoutExtension(fsra.Path) ?? string.Empty;
           MediaItemAspect.SetAttribute(extractedAspectData, MediaAspect.ATTR_TITLE, fileName);
           MultipleMediaItemAspect providerResourceAspect = MediaItemAspect.CreateAspect(extractedAspectData, ProviderResourceAspect.Metadata);

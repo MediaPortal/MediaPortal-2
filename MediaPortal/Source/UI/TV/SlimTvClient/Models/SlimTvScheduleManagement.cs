@@ -225,6 +225,13 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
       }
     }
 
+    public void RecordMenu()
+    {
+      ListItem item = SlimTvExtScheduleModel.CurrentItem;
+      if(item != null)
+        ShowActions(item.AdditionalProperties["SCHEDULE"] as ISchedule, item.AdditionalProperties["PROGRAM"] as IProgram);
+    }
+
     private async Task UpdateScheduleDetails(ISchedule schedule)
     {
       // Clear properties if no schedule is given
@@ -415,29 +422,26 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
       DialogHeader = currentSchedule.Name;
       _dialogActionsList.Clear();
 
-      if (program != null)
+      if (program != null && currentSchedule.IsSeries)
       {
-        ListItem item = new ListItem(Consts.KEY_NAME, "[SlimTvClient.DeleteSingle]")
+        // In program list, offer to delete single program of series
+        _dialogActionsList.Add(new ListItem(Consts.KEY_NAME, "[SlimTvClient.DeleteSingle]")
         {
           Command = new AsyncMethodDelegateCommand(() => CreateOrDeleteSchedule(program))
-        };
-        _dialogActionsList.Add(item);
+        });
       }
-      else
+      // Always offer to delete schedule (prompt is same as single program if recording isn't a series)
+      _dialogActionsList.Add(new ListItem(Consts.KEY_NAME, currentSchedule.IsSeries ? "[SlimTvClient.DeleteFullSchedule]" : "[SlimTvClient.DeleteSingle]")
       {
-        ListItem item = new ListItem(Consts.KEY_NAME, currentSchedule.IsSeries ? "[SlimTvClient.DeleteFullSchedule]" : "[SlimTvClient.DeleteSingle]")
+        Command = new AsyncMethodDelegateCommand(() => DeleteSchedule(currentSchedule))
+      });
+      if (program == null && currentSchedule.IsSeries)
+      {
+        // In series list - offer to delete individual programs - will go to ExtSchedule to show all the programs
+        _dialogActionsList.Add(new ListItem(Consts.KEY_NAME, "[SlimTvClient.CancelProgramsOfSeriesSchedule]")
         {
-          Command = new AsyncMethodDelegateCommand(() => DeleteSchedule(currentSchedule))
-        };
-        _dialogActionsList.Add(item);
-        if (currentSchedule.IsSeries)
-        {
-          item = new ListItem(Consts.KEY_NAME, "[SlimTvClient.CancelProgramsOfSeriesSchedule]")
-          {
-            Command = new MethodDelegateCommand(() => ShowAndEditPrograms(currentSchedule))
-          };
-          _dialogActionsList.Add(item);
-        }
+          Command = new MethodDelegateCommand(() => ShowAndEditPrograms(currentSchedule))
+        });
       }
       _dialogActionsList.FireChange();
 

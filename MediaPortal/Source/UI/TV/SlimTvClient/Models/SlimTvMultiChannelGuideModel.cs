@@ -54,15 +54,6 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
     protected double _programWidthFactor = 6;
     protected double _programsStartOffset = 370;
 
-    #region Constructor
-
-    public SlimTvMultiChannelGuideModel()
-    {
-      _programActionsDialogName = "DialogProgramActionsFull"; // for MultiChannelGuide we need another dialog
-    }
-
-    #endregion
-
     #region Protected fields
 
     protected AbstractProperty _guideStartTimeProperty = null;
@@ -313,6 +304,12 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
       item.AdditionalProperties["PROGRAM"] = placeholderProgram;
 
       return item;
+    }
+
+    public void RecordPressed()
+    {
+      if (_selectedItem != null)
+        base.ShowProgramActions(_selectedItem.AdditionalProperties["PROGRAM"] as IProgram);
     }
 
     /// <summary>
