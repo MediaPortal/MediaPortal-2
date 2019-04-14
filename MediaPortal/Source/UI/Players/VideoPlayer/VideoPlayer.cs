@@ -36,6 +36,7 @@ using MediaPortal.Common.Localization;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.ResourceAccess;
 using MediaPortal.Common.Settings;
+using MediaPortal.UI.Players.Video.Native;
 using MediaPortal.UI.Players.Video.Settings;
 using MediaPortal.UI.Players.Video.Subtitles;
 using MediaPortal.UI.Players.Video.Tools;
@@ -69,16 +70,6 @@ namespace MediaPortal.UI.Players.Video
       int SetNumberOfStreams(uint dwMaxStreams);
       int GetNumberOfStreams(ref uint pdwMaxStreams);
     }
-
-    #endregion
-
-    #region DLL imports
-
-    [DllImport("EVRPresenter.dll", ExactSpelling = true, CharSet = CharSet.Auto, SetLastError = true)]
-    private static extern int EvrInit(IEVRPresentCallback callback, uint dwD3DDevice, IBaseFilter evrFilter, IntPtr monitor, out IntPtr presenterInstance);
-
-    [DllImport("EVRPresenter.dll", ExactSpelling = true, CharSet = CharSet.Auto, SetLastError = true)]
-    private static extern void EvrDeinit(IntPtr presenterInstance);
 
     #endregion
 
@@ -158,6 +149,7 @@ namespace MediaPortal.UI.Players.Video
         throw new EnvironmentException("This video player can only run on Windows Vista or above");
 
       PlayerTitle = "VideoPlayer";
+
       _mpcSubsRenderer = new MpcSubsRenderer(OnTextureInvalidated);
     }
 
@@ -223,7 +215,7 @@ namespace MediaPortal.UI.Players.Video
       _evr = (IBaseFilter)new EnhancedVideoRenderer();
 
       IntPtr upDevice = SkinContext.Device.NativePointer;
-      int hr = EvrInit(_evrCallback, (uint)upDevice.ToInt32(), _evr, SkinContext.Form.Handle, out _presenterInstance);
+      int hr = EvrPresenterWrapper.EvrInit(_evrCallback, upDevice, _evr, SkinContext.Form.Handle, out _presenterInstance);
       if (hr != 0)
       {
         SafeEvrDeinit();
@@ -289,7 +281,7 @@ namespace MediaPortal.UI.Players.Video
     {
       if (_presenterInstance == IntPtr.Zero)
         return;
-      EvrDeinit(_presenterInstance);
+      EvrPresenterWrapper.EvrDeinit(_presenterInstance);
       _presenterInstance = IntPtr.Zero;
     }
 
@@ -454,7 +446,7 @@ namespace MediaPortal.UI.Players.Video
         audioStreams.EnableStream(streamInfo.Name);
       else
         if (useFirstAsDefault)
-          audioStreams.EnableStream(audioStreams[0].Name);
+        audioStreams.EnableStream(audioStreams[0].Name);
     }
 
     public virtual void SetAudioStream(string audioStream)

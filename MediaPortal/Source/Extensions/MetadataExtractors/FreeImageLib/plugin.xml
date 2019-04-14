@@ -7,8 +7,8 @@
     Description="Library plugin providing the FreeImage functionality needed for SkinEngine and some default metadata extractors">
 
   <Version
-    PluginVersion="3.15.4.1"
-    ReleaseDate="2013-11-11 01:00:00 GMT+01:00"
+    PluginVersion="3.18"
+    ReleaseDate="2018-12-05 01:00:00 GMT+01:00"
     CurrentAPI="1"/>
   
   <Runtime>

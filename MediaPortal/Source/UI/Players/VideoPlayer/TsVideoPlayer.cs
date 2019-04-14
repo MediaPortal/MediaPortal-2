@@ -109,7 +109,8 @@ namespace MediaPortal.UI.Players.Video
     /// </summary>
     protected override void AddSourceFilter()
     {
-      _sourceFilter = FilterLoader.LoadFilterFromDll("TsReader.ax", typeof(TsReader).GUID, true);
+      var platform = IntPtr.Size > 4 ? "x64" : "x86";
+      _sourceFilter = FilterLoader.LoadFilterFromDll($"{platform}\\TsReader.ax", typeof(TsReader).GUID, true);
       var baseFilter = _sourceFilter.GetFilter();
 
       IFileSourceFilter fileSourceFilter = (IFileSourceFilter)baseFilter;

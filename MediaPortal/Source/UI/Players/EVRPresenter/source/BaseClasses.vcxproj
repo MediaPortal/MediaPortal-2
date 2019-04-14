@@ -5,9 +5,17 @@
       <Configuration>Debug</Configuration>
       <Platform>Win32</Platform>
     </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
     <ProjectConfiguration Include="Release|Win32">
       <Configuration>Release</Configuration>
       <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
     </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
@@ -22,7 +30,18 @@
     <CharacterSet>Unicode</CharacterSet>
     <PlatformToolset>v141</PlatformToolset>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <CharacterSet>Unicode</CharacterSet>
+    <PlatformToolset>v141</PlatformToolset>
+  </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <CharacterSet>Unicode</CharacterSet>
+    <UseOfMfc>Dynamic</UseOfMfc>
+    <PlatformToolset>v141</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
     <ConfigurationType>StaticLibrary</ConfigurationType>
     <CharacterSet>Unicode</CharacterSet>
     <UseOfMfc>Dynamic</UseOfMfc>
@@ -34,7 +53,13 @@
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
   </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
@@ -45,18 +70,31 @@
     <OutDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(SolutionDir)obj\$(Configuration)\</OutDir>
     <IntDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(SolutionDir)obj\$(Configuration)\</IntDir>
     <CodeAnalysisRules Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" />
+    <CodeAnalysisRules Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" />
     <CodeAnalysisRuleAssemblies Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" />
+    <CodeAnalysisRuleAssemblies Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" />
     <CodeAnalysisRuleSet Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">AllRules.ruleset</CodeAnalysisRuleSet>
+    <CodeAnalysisRuleSet Condition="'$(Configuration)|$(Platform)'=='Release|x64'">AllRules.ruleset</CodeAnalysisRuleSet>
     <CodeAnalysisRules Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" />
+    <CodeAnalysisRules Condition="'$(Configuration)|$(Platform)'=='Release|x64'" />
     <CodeAnalysisRuleAssemblies Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" />
+    <CodeAnalysisRuleAssemblies Condition="'$(Configuration)|$(Platform)'=='Release|x64'" />
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <IncludePath>..\..\..\..\..\Packages\MediaPortal.DirectShow.BaseClasses.Source.1.0.0\src\;$(IncludePath)</IncludePath>
-    <LibraryPath>..\..\..\..\..\Packages\MediaPortal.DirectShow.BaseClasses.Source.1.0.0\src\$(Configuration);$(LibraryPath)</LibraryPath>
+    <IncludePath>BaseClasses\;$(IncludePath)</IncludePath>
+    <LibraryPath>BaseClasses\$(Configuration);$(LibraryPath)</LibraryPath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <IncludePath>BaseClasses\;$(IncludePath)</IncludePath>
+    <LibraryPath>BaseClasses\$(Configuration);$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <IncludePath>..\..\..\..\..\Packages\MediaPortal.DirectShow.BaseClasses.Source.1.0.0\src\;$(IncludePath)</IncludePath>
-    <LibraryPath>..\..\..\..\..\Packages\MediaPortal.DirectShow.BaseClasses.Source.1.0.0\src\$(Configuration);$(LibraryPath)</LibraryPath>
+    <IncludePath>BaseClasses\;$(IncludePath)</IncludePath>
+    <LibraryPath>BaseClasses\$(Configuration);$(LibraryPath)</LibraryPath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <IncludePath>BaseClasses\;$(IncludePath)</IncludePath>
+    <LibraryPath>BaseClasses\$(Configuration);$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -70,6 +108,27 @@
       </PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <AdditionalOptions>/FS %(AdditionalOptions)</AdditionalOptions>
+    </ClCompile>
+    <Lib>
+      <AdditionalDependencies>strmiids.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <OutputFile>$(OutDir)strmbasd.lib</OutputFile>
+      <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+    </Lib>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile>
+      <Optimization>Disabled</Optimization>
+      <AdditionalIncludeDirectories>.;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <MinimalRebuild>false</MinimalRebuild>
+      <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <AdditionalOptions>/FS %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
@@ -97,76 +156,94 @@
       <OutputFile>$(OutDir)strmbase.lib</OutputFile>
     </Lib>
   </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClCompile>
+      <Optimization>MaxSpeed</Optimization>
+      <AdditionalIncludeDirectories>.;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <AdditionalOptions>/FS %(AdditionalOptions)</AdditionalOptions>
+    </ClCompile>
+    <Lib>
+      <AdditionalDependencies>strmiids.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <OutputFile>$(OutDir)strmbase.lib</OutputFile>
+    </Lib>
+  </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\..\..\..\Packages\MediaPortal.DirectShow.BaseClasses.Source.1.0.0\src\amextra.cpp" />
-    <ClCompile Include="..\..\..\..\..\Packages\MediaPortal.DirectShow.BaseClasses.Source.1.0.0\src\amfilter.cpp" />
-    <ClCompile Include="..\..\..\..\..\Packages\MediaPortal.DirectShow.BaseClasses.Source.1.0.0\src\amvideo.cpp" />
-    <ClCompile Include="..\..\..\..\..\Packages\MediaPortal.DirectShow.BaseClasses.Source.1.0.0\src\arithutil.cpp" />
-    <ClCompile Include="..\..\..\..\..\Packages\MediaPortal.DirectShow.BaseClasses.Source.1.0.0\src\combase.cpp" />
-    <ClCompile Include="..\..\..\..\..\Packages\MediaPortal.DirectShow.BaseClasses.Source.1.0.0\src\cprop.cpp" />
-    <ClCompile Include="..\..\..\..\..\Packages\MediaPortal.DirectShow.BaseClasses.Source.1.0.0\src\ctlutil.cpp" />
-    <ClCompile Include="..\..\..\..\..\Packages\MediaPortal.DirectShow.BaseClasses.Source.1.0.0\src\ddmm.cpp" />
-    <ClCompile Include="..\..\..\..\..\Packages\MediaPortal.DirectShow.BaseClasses.Source.1.0.0\src\dllentry.cpp" />
-    <ClCompile Include="..\..\..\..\..\Packages\MediaPortal.DirectShow.BaseClasses.Source.1.0.0\src\dllsetup.cpp" />
-    <ClCompile Include="..\..\..\..\..\Packages\MediaPortal.DirectShow.BaseClasses.Source.1.0.0\src\mtype.cpp" />
-    <ClCompile Include="..\..\..\..\..\Packages\MediaPortal.DirectShow.BaseClasses.Source.1.0.0\src\outputq.cpp" />
-    <ClCompile Include="..\..\..\..\..\Packages\MediaPortal.DirectShow.BaseClasses.Source.1.0.0\src\perflog.cpp" />
-    <ClCompile Include="..\..\..\..\..\Packages\MediaPortal.DirectShow.BaseClasses.Source.1.0.0\src\pstream.cpp" />
-    <ClCompile Include="..\..\..\..\..\Packages\MediaPortal.DirectShow.BaseClasses.Source.1.0.0\src\pullpin.cpp" />
-    <ClCompile Include="..\..\..\..\..\Packages\MediaPortal.DirectShow.BaseClasses.Source.1.0.0\src\refclock.cpp" />
-    <ClCompile Include="..\..\..\..\..\Packages\MediaPortal.DirectShow.BaseClasses.Source.1.0.0\src\renbase.cpp" />
-    <ClCompile Include="..\..\..\..\..\Packages\MediaPortal.DirectShow.BaseClasses.Source.1.0.0\src\schedule.cpp" />
-    <ClCompile Include="..\..\..\..\..\Packages\MediaPortal.DirectShow.BaseClasses.Source.1.0.0\src\seekpt.cpp" />
-    <ClCompile Include="..\..\..\..\..\Packages\MediaPortal.DirectShow.BaseClasses.Source.1.0.0\src\source.cpp" />
-    <ClCompile Include="..\..\..\..\..\Packages\MediaPortal.DirectShow.BaseClasses.Source.1.0.0\src\strmctl.cpp" />
-    <ClCompile Include="..\..\..\..\..\Packages\MediaPortal.DirectShow.BaseClasses.Source.1.0.0\src\sysclock.cpp" />
-    <ClCompile Include="..\..\..\..\..\Packages\MediaPortal.DirectShow.BaseClasses.Source.1.0.0\src\transfrm.cpp" />
-    <ClCompile Include="..\..\..\..\..\Packages\MediaPortal.DirectShow.BaseClasses.Source.1.0.0\src\transip.cpp" />
-    <ClCompile Include="..\..\..\..\..\Packages\MediaPortal.DirectShow.BaseClasses.Source.1.0.0\src\videoctl.cpp" />
-    <ClCompile Include="..\..\..\..\..\Packages\MediaPortal.DirectShow.BaseClasses.Source.1.0.0\src\vtrans.cpp" />
-    <ClCompile Include="..\..\..\..\..\Packages\MediaPortal.DirectShow.BaseClasses.Source.1.0.0\src\winctrl.cpp" />
-    <ClCompile Include="..\..\..\..\..\Packages\MediaPortal.DirectShow.BaseClasses.Source.1.0.0\src\winutil.cpp" />
-    <ClCompile Include="..\..\..\..\..\Packages\MediaPortal.DirectShow.BaseClasses.Source.1.0.0\src\wxdebug.cpp" />
-    <ClCompile Include="..\..\..\..\..\Packages\MediaPortal.DirectShow.BaseClasses.Source.1.0.0\src\wxlist.cpp" />
-    <ClCompile Include="..\..\..\..\..\Packages\MediaPortal.DirectShow.BaseClasses.Source.1.0.0\src\wxutil.cpp" />
+    <ClCompile Include="BaseClasses\amextra.cpp" />
+    <ClCompile Include="BaseClasses\amfilter.cpp" />
+    <ClCompile Include="BaseClasses\amvideo.cpp" />
+    <ClCompile Include="BaseClasses\arithutil.cpp" />
+    <ClCompile Include="BaseClasses\combase.cpp" />
+    <ClCompile Include="BaseClasses\cprop.cpp" />
+    <ClCompile Include="BaseClasses\ctlutil.cpp" />
+    <ClCompile Include="BaseClasses\ddmm.cpp" />
+    <ClCompile Include="BaseClasses\dllentry.cpp" />
+    <ClCompile Include="BaseClasses\dllsetup.cpp" />
+    <ClCompile Include="BaseClasses\mtype.cpp" />
+    <ClCompile Include="BaseClasses\outputq.cpp" />
+    <ClCompile Include="BaseClasses\perflog.cpp" />
+    <ClCompile Include="BaseClasses\pstream.cpp" />
+    <ClCompile Include="BaseClasses\pullpin.cpp" />
+    <ClCompile Include="BaseClasses\refclock.cpp" />
+    <ClCompile Include="BaseClasses\renbase.cpp" />
+    <ClCompile Include="BaseClasses\schedule.cpp" />
+    <ClCompile Include="BaseClasses\seekpt.cpp" />
+    <ClCompile Include="BaseClasses\source.cpp" />
+    <ClCompile Include="BaseClasses\strmctl.cpp" />
+    <ClCompile Include="BaseClasses\sysclock.cpp" />
+    <ClCompile Include="BaseClasses\transfrm.cpp" />
+    <ClCompile Include="BaseClasses\transip.cpp" />
+    <ClCompile Include="BaseClasses\videoctl.cpp" />
+    <ClCompile Include="BaseClasses\vtrans.cpp" />
+    <ClCompile Include="BaseClasses\winctrl.cpp" />
+    <ClCompile Include="BaseClasses\winutil.cpp" />
+    <ClCompile Include="BaseClasses\wxdebug.cpp" />
+    <ClCompile Include="BaseClasses\wxlist.cpp" />
+    <ClCompile Include="BaseClasses\wxutil.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\..\..\..\Packages\MediaPortal.DirectShow.BaseClasses.Source.1.0.0\src\amextra.h" />
-    <ClInclude Include="..\..\..\..\..\Packages\MediaPortal.DirectShow.BaseClasses.Source.1.0.0\src\amfilter.h" />
-    <ClInclude Include="..\..\..\..\..\Packages\MediaPortal.DirectShow.BaseClasses.Source.1.0.0\src\cache.h" />
-    <ClInclude Include="..\..\..\..\..\Packages\MediaPortal.DirectShow.BaseClasses.Source.1.0.0\src\combase.h" />
-    <ClInclude Include="..\..\..\..\..\Packages\MediaPortal.DirectShow.BaseClasses.Source.1.0.0\src\cprop.h" />
-    <ClInclude Include="..\..\..\..\..\Packages\MediaPortal.DirectShow.BaseClasses.Source.1.0.0\src\ctlutil.h" />
-    <ClInclude Include="..\..\..\..\..\Packages\MediaPortal.DirectShow.BaseClasses.Source.1.0.0\src\ddmm.h" />
-    <ClInclude Include="..\..\..\..\..\Packages\MediaPortal.DirectShow.BaseClasses.Source.1.0.0\src\dllsetup.h" />
-    <ClInclude Include="..\..\..\..\..\Packages\MediaPortal.DirectShow.BaseClasses.Source.1.0.0\src\dxmperf.h" />
-    <ClInclude Include="..\..\..\..\..\Packages\MediaPortal.DirectShow.BaseClasses.Source.1.0.0\src\fourcc.h" />
-    <ClInclude Include="..\..\..\..\..\Packages\MediaPortal.DirectShow.BaseClasses.Source.1.0.0\src\measure.h" />
-    <ClInclude Include="..\..\..\..\..\Packages\MediaPortal.DirectShow.BaseClasses.Source.1.0.0\src\msgthrd.h" />
-    <ClInclude Include="..\..\..\..\..\Packages\MediaPortal.DirectShow.BaseClasses.Source.1.0.0\src\mtype.h" />
-    <ClInclude Include="..\..\..\..\..\Packages\MediaPortal.DirectShow.BaseClasses.Source.1.0.0\src\outputq.h" />
-    <ClInclude Include="..\..\..\..\..\Packages\MediaPortal.DirectShow.BaseClasses.Source.1.0.0\src\perflog.h" />
-    <ClInclude Include="..\..\..\..\..\Packages\MediaPortal.DirectShow.BaseClasses.Source.1.0.0\src\perfstruct.h" />
-    <ClInclude Include="..\..\..\..\..\Packages\MediaPortal.DirectShow.BaseClasses.Source.1.0.0\src\pstream.h" />
-    <ClInclude Include="..\..\..\..\..\Packages\MediaPortal.DirectShow.BaseClasses.Source.1.0.0\src\pullpin.h" />
-    <ClInclude Include="..\..\..\..\..\Packages\MediaPortal.DirectShow.BaseClasses.Source.1.0.0\src\refclock.h" />
-    <ClInclude Include="..\..\..\..\..\Packages\MediaPortal.DirectShow.BaseClasses.Source.1.0.0\src\reftime.h" />
-    <ClInclude Include="..\..\..\..\..\Packages\MediaPortal.DirectShow.BaseClasses.Source.1.0.0\src\renbase.h" />
-    <ClInclude Include="..\..\..\..\..\Packages\MediaPortal.DirectShow.BaseClasses.Source.1.0.0\src\schedule.h" />
-    <ClInclude Include="..\..\..\..\..\Packages\MediaPortal.DirectShow.BaseClasses.Source.1.0.0\src\seekpt.h" />
-    <ClInclude Include="..\..\..\..\..\Packages\MediaPortal.DirectShow.BaseClasses.Source.1.0.0\src\source.h" />
-    <ClInclude Include="..\..\..\..\..\Packages\MediaPortal.DirectShow.BaseClasses.Source.1.0.0\src\streams.h" />
-    <ClInclude Include="..\..\..\..\..\Packages\MediaPortal.DirectShow.BaseClasses.Source.1.0.0\src\strmctl.h" />
-    <ClInclude Include="..\..\..\..\..\Packages\MediaPortal.DirectShow.BaseClasses.Source.1.0.0\src\sysclock.h" />
-    <ClInclude Include="..\..\..\..\..\Packages\MediaPortal.DirectShow.BaseClasses.Source.1.0.0\src\transfrm.h" />
-    <ClInclude Include="..\..\..\..\..\Packages\MediaPortal.DirectShow.BaseClasses.Source.1.0.0\src\transip.h" />
-    <ClInclude Include="..\..\..\..\..\Packages\MediaPortal.DirectShow.BaseClasses.Source.1.0.0\src\videoctl.h" />
-    <ClInclude Include="..\..\..\..\..\Packages\MediaPortal.DirectShow.BaseClasses.Source.1.0.0\src\vtrans.h" />
-    <ClInclude Include="..\..\..\..\..\Packages\MediaPortal.DirectShow.BaseClasses.Source.1.0.0\src\winctrl.h" />
-    <ClInclude Include="..\..\..\..\..\Packages\MediaPortal.DirectShow.BaseClasses.Source.1.0.0\src\winutil.h" />
-    <ClInclude Include="..\..\..\..\..\Packages\MediaPortal.DirectShow.BaseClasses.Source.1.0.0\src\wxdebug.h" />
-    <ClInclude Include="..\..\..\..\..\Packages\MediaPortal.DirectShow.BaseClasses.Source.1.0.0\src\wxlist.h" />
-    <ClInclude Include="..\..\..\..\..\Packages\MediaPortal.DirectShow.BaseClasses.Source.1.0.0\src\wxutil.h" />
+    <ClInclude Include="BaseClasses\amextra.h" />
+    <ClInclude Include="BaseClasses\amfilter.h" />
+    <ClInclude Include="BaseClasses\cache.h" />
+    <ClInclude Include="BaseClasses\combase.h" />
+    <ClInclude Include="BaseClasses\cprop.h" />
+    <ClInclude Include="BaseClasses\ctlutil.h" />
+    <ClInclude Include="BaseClasses\ddmm.h" />
+    <ClInclude Include="BaseClasses\dllsetup.h" />
+    <ClInclude Include="BaseClasses\dxmperf.h" />
+    <ClInclude Include="BaseClasses\fourcc.h" />
+    <ClInclude Include="BaseClasses\measure.h" />
+    <ClInclude Include="BaseClasses\msgthrd.h" />
+    <ClInclude Include="BaseClasses\mtype.h" />
+    <ClInclude Include="BaseClasses\outputq.h" />
+    <ClInclude Include="BaseClasses\perflog.h" />
+    <ClInclude Include="BaseClasses\perfstruct.h" />
+    <ClInclude Include="BaseClasses\pstream.h" />
+    <ClInclude Include="BaseClasses\pullpin.h" />
+    <ClInclude Include="BaseClasses\refclock.h" />
+    <ClInclude Include="BaseClasses\reftime.h" />
+    <ClInclude Include="BaseClasses\renbase.h" />
+    <ClInclude Include="BaseClasses\schedule.h" />
+    <ClInclude Include="BaseClasses\seekpt.h" />
+    <ClInclude Include="BaseClasses\source.h" />
+    <ClInclude Include="BaseClasses\streams.h" />
+    <ClInclude Include="BaseClasses\strmctl.h" />
+    <ClInclude Include="BaseClasses\sysclock.h" />
+    <ClInclude Include="BaseClasses\transfrm.h" />
+    <ClInclude Include="BaseClasses\transip.h" />
+    <ClInclude Include="BaseClasses\videoctl.h" />
+    <ClInclude Include="BaseClasses\vtrans.h" />
+    <ClInclude Include="BaseClasses\winctrl.h" />
+    <ClInclude Include="BaseClasses\winutil.h" />
+    <ClInclude Include="BaseClasses\wxdebug.h" />
+    <ClInclude Include="BaseClasses\wxlist.h" />
+    <ClInclude Include="BaseClasses\wxutil.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

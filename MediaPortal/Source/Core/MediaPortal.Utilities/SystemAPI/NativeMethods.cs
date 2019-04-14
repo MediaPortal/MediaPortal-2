@@ -23,7 +23,10 @@
 #endregion
 
 using System;
+using System.IO;
+using System.Reflection;
 using System.Runtime.InteropServices;
+using MediaPortal.Utilities.FileSystem;
 using Microsoft.Win32.SafeHandles;
 
 namespace MediaPortal.Utilities.SystemAPI
@@ -37,6 +40,7 @@ namespace MediaPortal.Utilities.SystemAPI
 
     public const uint LOAD_LIBRARY_SEARCH_DLL_LOAD_DIR = 0x00000100;
     public const uint LOAD_LIBRARY_SEARCH_DEFAULT_DIRS = 0x00001000;
+    public const uint LOAD_LIBRARY_SEARCH_USER_DIRS = 0x00000400;
 
     #endregion
 
@@ -370,6 +374,12 @@ namespace MediaPortal.Utilities.SystemAPI
     public static extern bool DuplicateHandle(IntPtr hSourceProcessHandle, SafeFileHandle hSourceHandle, IntPtr hTargetProcess, out SafeFileHandle targetHandle, int dwDesiredAccess, bool bInheritHandle, int dwOptions);
 
     [DllImport("kernel32.dll", CharSet = CharSet.Ansi, SetLastError = true)]
+    public static extern bool SetDefaultDllDirectories(uint flags);
+
+    [DllImport("kernel32.dll", CharSet = CharSet.Unicode, SetLastError = true)]
+    public static extern bool AddDllDirectory(string path);
+
+    [DllImport("kernel32.dll", CharSet = CharSet.Ansi, SetLastError = true)]
     [Obsolete("Any impersonation related functionality has been moved to the ImpersonationService")]
     public static extern IntPtr GetCurrentProcess();
 
@@ -544,6 +554,29 @@ namespace MediaPortal.Utilities.SystemAPI
 
     [DllImport("shell32.dll")]
     public static extern IntPtr ExtractIcon(IntPtr hInst, string lpszExeFileName, int nIconIndex);
+
+    #endregion
+
+    #region Support for x86/x64 native libraries
+
+    /// <summary>
+    /// Helper method to set the native Dll search path to a subfolder relative to calling assembly.
+    /// <example>
+    /// BassPlugin.dll with following subfolders for platform specific binaries:
+    ///   \x86\
+    ///   \x64\
+    /// </example>
+    /// </summary>
+    /// <returns><c>true</c> if path could be set successfully.</returns>
+    public static bool SetPlatformSearchDirectories(out string selectedPath)
+    {
+      string platformDir = IntPtr.Size > 4 ? "x64" : "x86";
+      string executingPath = Assembly.GetCallingAssembly().Location;
+      string absolutePlatformDir = Path.Combine(Path.GetDirectoryName(executingPath), platformDir);
+      SetDefaultDllDirectories(LOAD_LIBRARY_SEARCH_USER_DIRS | LOAD_LIBRARY_SEARCH_DEFAULT_DIRS);
+      selectedPath = absolutePlatformDir;
+      return AddDllDirectory(absolutePlatformDir);
+    }
 
     #endregion
   }
