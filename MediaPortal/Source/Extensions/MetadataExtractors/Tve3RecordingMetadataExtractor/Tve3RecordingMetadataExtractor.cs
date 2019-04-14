@@ -289,6 +289,11 @@ namespace MediaPortal.Extensions.MetadataExtractors
         //Assign all tags to the aspects for both tv and radio recordings
         string value;
         MediaItemAspect.SetAttribute(extractedAspectData, MediaAspect.ATTR_ISVIRTUAL, false);
+        if (TryGet(tags, TAG_TITLE, out value) && !string.IsNullOrEmpty(value) && !value.Equals("manual", StringComparison.InvariantCultureIgnoreCase))
+        {
+          MediaItemAspect.SetAttribute(extractedAspectData, MediaAspect.ATTR_TITLE, value);
+          MediaItemAspect.SetAttribute(extractedAspectData, MediaAspect.ATTR_SORT_TITLE, BaseInfo.GetSortTitle(value));
+        }
 
         if (TryGet(tags, TAG_CHANNEL, out value))
           MediaItemAspect.SetAttribute(extractedAspectData, RecordingAspect.ATTR_CHANNEL, value);
@@ -342,11 +347,6 @@ namespace MediaPortal.Extensions.MetadataExtractors
           }
 
           MediaItemAspect.SetAttribute(extractedAspectData, VideoAspect.ATTR_ISDVD, false);
-          if (TryGet(tags, TAG_TITLE, out value) && !string.IsNullOrEmpty(value))
-          {
-            MediaItemAspect.SetAttribute(extractedAspectData, MediaAspect.ATTR_TITLE, value);
-            MediaItemAspect.SetAttribute(extractedAspectData, MediaAspect.ATTR_SORT_TITLE, BaseInfo.GetSortTitle(value));
-          }
           if (TryGet(tags, TAG_PLOT, out value))
           {
             MediaItemAspect.SetAttribute(extractedAspectData, VideoAspect.ATTR_STORYPLOT, value);
