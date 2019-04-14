@@ -77,6 +77,9 @@
           </ListView.Resources>
         </ListView>
 
+        <KeyBinding Key="Record" Command="{Command Path=RecordMenu}" />
+        <KeyBinding Key="Info" Command="{Command Path=RecordMenu}" />
+
         <Grid Grid.Row="2" Grid.Column="1" Grid.ColumnSpan="2" x:Name="Description_details" 
               HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="0,30,30,0">
           <Grid.RowDefinitions>

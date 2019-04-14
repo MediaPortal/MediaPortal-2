@@ -122,6 +122,9 @@
                  Wrap="True" Scroll="Auto" ScrollDelay="5" ScrollSpeed="10" Opacity="0.6" Content="{Binding Path=CurrentProgram.Description}"
                  Color="{ThemeResource TextColor}" Margin="0,0,0,5" />
         </Grid>
+        <KeyBinding Key="Record" Command="{Command Path=RecordMenu}" />
+        <KeyBinding Key="Info" Command="{Command Path=RecordMenu}" />
+
       </Grid>
     </ControlTemplate>
   </Include.Resources>

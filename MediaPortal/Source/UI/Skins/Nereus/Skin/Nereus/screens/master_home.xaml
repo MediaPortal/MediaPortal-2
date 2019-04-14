@@ -53,8 +53,8 @@ Parameters which have to be accessible by a DynamicResource lookup:
     <Control x:Name="FanArtBackground" Grid.Column="0" Grid.Row="0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="-1"
              Template="{DynamicResource ResourceKey=FanArtBackgroundHome_Template}"/>
 
-    <DockPanel Grid.Column="0" Grid.Row="0" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" LastChildFill="False">
-      <Grid x:Name="HeaderPanel" Margin="5" DockPanel.Dock="Top">
+    <DockPanel VerticalAlignment="Stretch" HorizontalAlignment="Stretch" LastChildFill="False">
+      <Grid x:Name="HeaderPanel" Margin="5,0,5,5" DockPanel.Dock="Top" Panel.ZIndex="300">
         <Grid.RowDefinitions>
           <RowDefinition Height="100"/>
         </Grid.RowDefinitions>
@@ -103,6 +103,13 @@ Parameters which have to be accessible by a DynamicResource lookup:
 
       <!--Slide content in and out depending on hidden menu state-->
       <Grid.Triggers>
+        <Grid.RowDefinitions>
+          <RowDefinition Height="90"/>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+          <ColumnDefinition Width="Auto"/>
+        </Grid.ColumnDefinitions>
+
         <DataTrigger Binding="{Binding Source={StaticResource MenuModel},Path=IsMenuOpen}" Value="True">
           <DataTrigger.EnterActions>
             <BeginStoryboard x:Name="SlideIn" Storyboard="{ThemeResource HiddenMenuSlideIn}"/>
@@ -114,34 +121,28 @@ Parameters which have to be accessible by a DynamicResource lookup:
         </DataTrigger>
       </Grid.Triggers>
 
-      <Grid.RowDefinitions>
-        <RowDefinition Height="90"/>
-      </Grid.RowDefinitions>
-      <Grid.ColumnDefinitions>
-        <ColumnDefinition Width="450"/>
-      </Grid.ColumnDefinitions>
-      
-      <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-        <StackPanel Orientation="Horizontal" Margin="0,0,0,0">
+      <StackPanel Orientation="Horizontal">
+        <StackPanel Orientation="Horizontal">
           <StackPanel.Triggers>
             <!--Close the hidden menu when the main content gets focus-->
             <EventTrigger RoutedEvent="FrameworkElement.GotFocus">
               <TriggerCommand Command="{Command Source={StaticResource MenuModel}, Path=CloseMenu}"/>
             </EventTrigger>
           </StackPanel.Triggers>
-          <Button Height="80" Width="80" Style="{ThemeResource PowerButtonStyle}" VerticalAlignment="Center"
+          <Button Style="{ThemeResource PowerButtonStyle}" VerticalAlignment="Center"
                   Command="{Command Source={Service WorkflowManager},Path=NavigatePush,Parameters=BBFA7DB7-5055-48D5-A904-0F0C79849369}"/>
-          <Button Height="80" Width="80" Style="{ThemeResource UserButtonStyle}" IsVisible="{Binding Source={StaticResource LoginModel},Path=EnableUserLogin}"
+          <Button Style="{ThemeResource UserButtonStyle}" IsVisible="{Binding Source={StaticResource LoginModel},Path=EnableUserLogin}"
                   Command="{Command Source={Service WorkflowManager},Path=NavigatePush,Parameters=2529B0F0-8415-4A4E-971B-38D6CDD2406A}"/>
-          <Button Height="80" Width="80" Style="{ThemeResource SettingsButtonStyle}"
+          <Button Style="{ThemeResource SettingsButtonStyle}" VerticalAlignment="Center"
                   Command="{Command Source={Service WorkflowManager},Path=NavigatePush,Parameters=E7422BB8-2779-49ab-BC99-E3F56138061B}"/>
-          <Button Height="80" Width="80" Style="{ThemeResource BrowseMediaButtonStyle}"
+          <Button Style="{ThemeResource BrowseMediaButtonStyle}" VerticalAlignment="Center"
                   Command="{Command Source={Service WorkflowManager},Path=NavigatePush,Parameters=387044A0-83BA-435d-B262-C90CF70A9858}"/>
         </StackPanel>
-        
+
         <!-- Notifications bar -->
         <Include Source="screens\NotificationsBar.inc"/>
       </StackPanel>
+
     </Grid>
 
     <!-- Time Label -->

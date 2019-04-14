@@ -111,9 +111,8 @@
         <tv:EpgGrid x:Name="EpgGrid" Style="{ThemeResource EpgGridStyle}" Grid.Column="0" Grid.Row="1" Grid.ColumnSpan="4" Margin="0,5,0,20"
                     HorizontalAlignment="Stretch" VerticalAlignment="Stretch" HeaderWidth="{StaticResource DynamicMultiGuideHeaderWidth}"/>
 
-        <KeyBinding Key="Yellow" Command="{Command Path=NextGroup}"/>
-        <KeyBinding Key="Green" Command="{Command Path=PrevGroup}"/>
-        <KeyBinding Key="Guide" Command="{Command Source={Service WorkflowManager},Path=TryExecuteAction,Parameters=9C3E6701-6856-49ec-A4CD-0CEB15F385F6}" />
+        <!-- All KeyBindings are included from shared resource -->
+        <Include Source="screens\TvGuideKeybindings.inc"/>
       </Grid>
     </ControlTemplate>
 
