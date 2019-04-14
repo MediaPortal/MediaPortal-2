@@ -63,6 +63,7 @@
         <ControlTemplate TargetType="{x:Type mp_special_controls:PlayerControl}">
           <ControlTemplate.Resources>
             <Model x:Key="VideoPlayerModel" Id="4E2301B4-3C17-4a1d-8DE5-2CEA169A0256"/>
+            <Model x:Key="AudioPlayerModel" Id="D8998340-DA2D-42be-A29B-6D7A72AEA2DC"/>
           </ControlTemplate.Resources>
 
           <Grid x:Name="MainOSDGrid" HorizontalAlignment="Stretch" VerticalAlignment="Bottom" Margin="10" 
@@ -77,7 +78,7 @@
             </Grid.RowDefinitions>
 
             <Image Source="PlayerControl\BOTTOM.SHADOW.PNG" Stretch="Fill" Grid.ColumnSpan="2"
-                   Margin="-190,-10,-20,-20" Opacity="0.8" Grid.Row="1" Panel.ZIndex="0" />
+                   Margin="-890,-10,-20,-20" Opacity="0.8" Grid.Row="1" Panel.ZIndex="0" />
 
             <Image x:Name="ChannelLogo" Grid.Column="0" Grid.RowSpan="2" Stretch="Uniform" Margin="10" Width="150">
               <Image.Source>

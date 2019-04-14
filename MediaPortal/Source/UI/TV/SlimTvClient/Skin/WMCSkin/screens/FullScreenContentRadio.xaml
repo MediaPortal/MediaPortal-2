@@ -41,9 +41,9 @@
     </Grid.Resources>
 
     <Grid.ColumnDefinitions>
-      <ColumnDefinition Width="25*"/>
-      <ColumnDefinition Width="38*"/>
-      <ColumnDefinition Width="37*"/>
+      <ColumnDefinition Width="18*"/>
+      <ColumnDefinition Width="30*"/>
+      <ColumnDefinition Width="52*"/>
     </Grid.ColumnDefinitions>
     <Grid.RowDefinitions>
       <RowDefinition Height="*"/>
@@ -80,15 +80,6 @@
              Color="Black" VerticalAlignment="Center" HorizontalAlignment="Center"/>
     </Grid>
 
-    <Grid Height="90" VerticalAlignment="Top" HorizontalAlignment="Left" Margin="30,5,0,0">
-      <StackPanel Orientation="Horizontal" Context="{Service Window}" IsVisible="{Binding Source={StaticResource MouseModel},Path=IsMouseUsed}">
-        <Button x:Name="BackButton" Style="{ThemeResource NavigateBackButtonStyle}" Margin="5" HorizontalAlignment="Left" VerticalAlignment="Center"
-                Command="{Command Source={Service WorkflowManager},Path=NavigatePop,Parameters=1}"/>
-        <Button x:Name="HomeButton" Style="{ThemeResource HomeButtonStyle}" Margin="5" HorizontalAlignment="Left" VerticalAlignment="Center"
-                Command="{Command Source={Service WorkflowManager},Path=NavigatePush,Parameters=7F702D9C-F2DD-42da-9ED8-0BA92F07787F}"/>
-      </StackPanel>
-    </Grid>
-
     <Grid Grid.Row="1" Grid.Column="0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
       <Grid.RowDefinitions>
         <RowDefinition Height="*"/>
@@ -97,7 +88,7 @@
         <ColumnDefinition Width="*"/>
       </Grid.ColumnDefinitions>
 
-      <Grid HorizontalAlignment="Right" VerticalAlignment="Bottom" Width="300" Height="300" Margin="0,0,0,20">
+      <Grid HorizontalAlignment="Left" VerticalAlignment="Bottom" Width="300" Height="300" Margin="40,0,0,20">
         <Grid.Background>
           <LinearGradientBrush StartPoint="0,1" EndPoint="1,0">
             <GradientStop Color="{ThemeResource DialogBackgroundGradient1Color}" Offset="0"/>
@@ -170,11 +161,11 @@
 
     </StackPanel>
 
-    <Grid x:Name="OSD_LayoutPanel" Grid.RowSpan="2" Grid.ColumnSpan="2" Grid.Column="1"
+    <Grid x:Name="OSD_LayoutPanel" Grid.RowSpan="2" Grid.ColumnSpan="3" Grid.Column="0"
           VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
       <Grid.ColumnDefinitions>
+        <ColumnDefinition Width="800"/>
         <ColumnDefinition Width="*"/>
-        <ColumnDefinition Width="Auto"/>
         <ColumnDefinition Width="40"/>
       </Grid.ColumnDefinitions>
       <Grid.RowDefinitions>
@@ -198,6 +189,15 @@
                   Style="{ThemeResource SecondaryMediaOSDStyle}" AutoVisibility="true"/>
       </DockPanel>
 
+    </Grid>
+
+    <Grid Height="90" VerticalAlignment="Top" HorizontalAlignment="Left" Margin="30,5,0,0">
+      <StackPanel Orientation="Horizontal" Context="{Service Window}" IsVisible="{Binding Source={StaticResource MouseModel},Path=IsMouseUsed}">
+        <Button x:Name="BackButton" Style="{ThemeResource NavigateBackButtonStyle}" Margin="5" HorizontalAlignment="Left" VerticalAlignment="Center"
+                Command="{Command Source={Service WorkflowManager},Path=NavigatePop,Parameters=1}"/>
+        <Button x:Name="HomeButton" Style="{ThemeResource HomeButtonStyle}" Margin="5" HorizontalAlignment="Left" VerticalAlignment="Center"
+                Command="{Command Source={Service WorkflowManager},Path=NavigatePush,Parameters=7F702D9C-F2DD-42da-9ED8-0BA92F07787F}"/>
+      </StackPanel>
     </Grid>
 
     <!-- Mouse control buttons -->
