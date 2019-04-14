@@ -143,8 +143,18 @@
 
                 <Label x:Name="StartTime" FontSize="{ThemeResource SmallFontSize}"
                        Content="{Binding Path=StartTime}" Color="{ThemeResource TextColor}"/>
-                <!--Label x:Name="EndTime" FontSize="{ThemeResource SmallFontSize}"
-                       Content="{Binding Path=EndTime}" Color="{ThemeResource TextColor}"/-->
+
+                <Image x:Name="ChannelLogo" Width="{ThemeResource ChannelLogoWidth}" Margin="0,10,0,0" 
+                       DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}"
+                       Stretch="Uniform" HorizontalAlignment="Left" VerticalAlignment="Center"
+                       IsVisible="{Binding RelativeSource={RelativeSource TemplatedParent},Path=Channel,Converter={StaticResource ReferenceToBoolConverter}}">
+                  <Image.Source>
+                    <fanart:FanArtImageSource fanart:FanArtMediaType="ChannelTv" fanart:FanArtType="Banner"
+                                        fanart:FanArtName="{Binding Channel}" fanart:MaxWidth="0" fanart:MaxHeight="0"/>
+                  </Image.Source>
+                </Image>
+                <Label x:Name="Channel" FontSize="{ThemeResource SmallFontSize}" TextTrimming="WordEllipsis"
+                       Content="{Binding Channel}" Color="{ThemeResource TextColor}"/>
 
                 <media:AudioAspectWrapper MediaItem="{Binding MediaItem}">
                   <media:AudioAspectWrapper.Template>
@@ -165,18 +175,6 @@
                     </ControlTemplate>
                   </media:AudioAspectWrapper.Template>
                 </media:AudioAspectWrapper>
-
-                <Image x:Name="ChannelLogo" Width="{ThemeResource ChannelLogoWidth}" Margin="0,10,0,0" 
-                       DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}"
-                       Stretch="Uniform" HorizontalAlignment="Left" VerticalAlignment="Center"
-                       IsVisible="{Binding RelativeSource={RelativeSource TemplatedParent},Path=Channel,Converter={StaticResource ReferenceToBoolConverter}}">
-                  <Image.Source>
-                    <fanart:FanArtImageSource fanart:FanArtMediaType="ChannelTv" fanart:FanArtType="Banner"
-                                        fanart:FanArtName="{Binding Channel}" fanart:MaxWidth="0" fanart:MaxHeight="0"/>
-                  </Image.Source>
-                </Image>
-                <Label x:Name="Channel" FontSize="{ThemeResource SmallFontSize}" TextTrimming="WordEllipsis"
-                       Content="{Binding Channel}" Color="{ThemeResource TextColor}"/>
 
                 <Label x:Name="Genre" FontSize="{ThemeResource SmallFontSize}" TextTrimming="WordEllipsis"
                        IsVisible="{Binding Path=MediaItem, Converter={StaticResource ReferenceToBoolConverter}}"
