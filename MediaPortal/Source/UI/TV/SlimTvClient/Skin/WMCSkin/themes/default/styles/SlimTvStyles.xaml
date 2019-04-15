@@ -142,11 +142,11 @@
                   <ColumnDefinition Width="*"/>
                 </Grid.ColumnDefinitions>
                 <Label x:Name="CurrentProgramTitleLabel" Grid.Column="0" Content="{Binding Source={StaticResource SlimTvClient},Path=CurrentProgram.Title}" 
-                   HorizontalAlignment="Stretch" VerticalAlignment="Center" FontFamily="SegoeUIBold" Panel.ZIndex="1" Margin="20,0,20,0"
-                   Color="{ThemeResource TextColor}" Scroll="Auto"/>
+                       HorizontalAlignment="Stretch" VerticalAlignment="Center" FontFamily="SegoeUIBold" Panel.ZIndex="1" Margin="20,0,20,0"
+                       Color="{ThemeResource TextColor}" Scroll="Auto"/>
                 <Label x:Name="CurrentProgramSeriesLabel" Color="{ThemeResource TextColor}" Grid.Column="1" Panel.ZIndex="1" 
-                   IsVisible="{Binding Source={StaticResource SlimTvClient},Path=CurrentProgram.Series, Converter={StaticResource EmptyStringToFalseConverter}}"
-                   HorizontalAlignment="Left" VerticalAlignment="Center" FontFamily="SegoeUIBold" Scroll="Auto" ScrollDelay="0">
+                       IsVisible="{Binding Source={StaticResource SlimTvClient},Path=CurrentProgram.Series, Converter={StaticResource EmptyStringToFalseConverter}}"
+                       HorizontalAlignment="Left" VerticalAlignment="Center" FontFamily="SegoeUIBold" Scroll="Auto" ScrollDelay="0">
                   <Label.Content>
                     <Binding Source="{StaticResource SlimTvClient}" Path="CurrentProgram.Series" Converter="{StaticResource StringFormatConverter}" ConverterParameter="{} ({0})"/>
                   </Label.Content>
