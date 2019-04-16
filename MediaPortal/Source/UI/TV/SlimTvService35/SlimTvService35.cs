@@ -389,6 +389,7 @@ namespace MediaPortal.Plugins.SlimTv.Service
         switch (schedule.ScheduleType)
         {
           case (int)ScheduleRecordingType.Once:
+            StopRecording(schedule);
             scheduleService.DeleteSchedule(schedule.IdSchedule);
             break;
           default:
