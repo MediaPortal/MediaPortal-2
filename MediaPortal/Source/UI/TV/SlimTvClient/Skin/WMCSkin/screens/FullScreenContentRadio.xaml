@@ -13,7 +13,7 @@
     Context="{Model Id=D8998340-DA2D-42be-A29B-6D7A72AEA2DC}"
     x:Name="FullscreenContentRadioScreen">
 
-  <Include Source="screens\FullscreenTvKeybindings.inc"/>
+  <Include Source="screens\FullscreenRadioKeybindings.inc"/>
 
   <Grid>
     <Grid.Background>
@@ -120,7 +120,7 @@
              Stretch="Uniform" HorizontalAlignment="Left" VerticalAlignment="Top"
              IsVisible="{Binding RelativeSource={RelativeSource TemplatedParent},Path=ChannelName,Converter={StaticResource ReferenceToBoolConverter}}">
         <Image.Source>
-          <fanart:FanArtImageSource fanart:FanArtMediaType="ChannelTv" fanart:FanArtType="Banner"
+          <fanart:FanArtImageSource fanart:FanArtMediaType="ChannelRadio" fanart:FanArtType="Banner"
                                     fanart:FanArtName="{Binding Channel}" fanart:MaxWidth="0" fanart:MaxHeight="0"/>
         </Image.Source>
       </Image>

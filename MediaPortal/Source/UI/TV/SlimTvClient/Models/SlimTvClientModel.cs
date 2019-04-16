@@ -432,14 +432,14 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
 
     #region TV control methods
 
-    protected LiveTvPlayer SlotPlayer
+    protected ILivePlayer SlotPlayer
     {
       get
       {
         IPlayerContextManager pcm = ServiceRegistration.Get<IPlayerContextManager>();
         if (pcm == null)
           return null;
-        LiveTvPlayer player = pcm[SlotIndex] as LiveTvPlayer;
+        ILivePlayer player = pcm[SlotIndex] as ILivePlayer;
         return player;
       }
     }
@@ -470,7 +470,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
         return false;
 
       // Invoke event handler before pausing to avoid flashing of pause symbol
-      SlotPlayer?.OnBeginZap?.Invoke(this, EventArgs.Empty);
+      SlotPlayer?.NotifyBeginZap(this);
       SlotPlayer?.Pause();
 
       // Set the current index of the tuned channel
@@ -494,7 +494,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
       }
 
       // Notify end of zapping
-      SlotPlayer?.OnEndZap?.Invoke(this, EventArgs.Empty);
+      SlotPlayer?.NotifyEndZap(this);
       return true;
     }
 
@@ -640,11 +640,11 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
       if (playerContext == null)
         return false;
       LiveTvMediaItem liveTvMediaItem = playerContext.CurrentMediaItem as LiveTvMediaItem;
-      LiveTvPlayer player = playerContext.CurrentPlayer as LiveTvPlayer;
+      ILivePlayer player = playerContext.CurrentPlayer as ILivePlayer;
       if (liveTvMediaItem == null || player == null)
         return false;
 
-      ITimeshiftContext context = player.TimeshiftContexes.LastOrDefault();
+      ITimeshiftContext context = liveTvMediaItem.TimeshiftContexes.LastOrDefault();
       if (context == null || context.Channel == null)
         return false;
 
@@ -904,10 +904,11 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
       IPlayerContext playerContext = playerContextManager.GetPlayerContext(PlayerChoice.PrimaryPlayer);
       if (playerContext != null)
       {
-        LiveTvPlayer player = playerContext.CurrentPlayer as LiveTvPlayer;
+        ILivePlayer player = playerContext.CurrentPlayer as ILivePlayer;
         if (player != null)
         {
-          ITimeshiftContext context = player.TimeshiftContexes.LastOrDefault();
+          LiveTvMediaItem item = player.CurrentItem;
+          ITimeshiftContext context = item == null ? null : item.TimeshiftContexes.LastOrDefault();
           IProgram currentProgram = null;
           IProgram nextProgram = null;
           IChannel channel = null;

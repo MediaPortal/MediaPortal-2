@@ -39,7 +39,8 @@ using MediaPortal.Plugins.SlimTv.Interfaces.LiveTvMediaItem;
 
 namespace MediaPortal.Plugins.SlimTv.Client.Player
 {
-  class LiveRadioPlayer : BaseDXPlayer, IAudioPlayer, IResumablePlayer, ITsReaderCallback, ITsReaderCallbackAudioChange, IUIContributorPlayer
+  class LiveRadioPlayer : BaseDXPlayer, IAudioPlayer, IResumablePlayer, ITsReaderCallback, ITsReaderCallbackAudioChange, 
+    IUIContributorPlayer, ILivePlayer
   {
     #region Imports
 
@@ -79,6 +80,9 @@ namespace MediaPortal.Plugins.SlimTv.Client.Player
     #region IUIContributorPlayer Member
 
     public Type UIContributorType => typeof(LiveRadioUIContributor);
+
+    public EventHandler OnBeginZap;
+    public EventHandler OnEndZap;
 
     #endregion
 
@@ -246,6 +250,50 @@ namespace MediaPortal.Plugins.SlimTv.Client.Player
       CurrentTime = pos.ResumePosition;
       return true;
     }
+
+    public LiveTvMediaItem CurrentItem
+    {
+      get
+      {
+        IPlayerContextManager playerContextManager = ServiceRegistration.Get<IPlayerContextManager>();
+        for (int index = 0; index < playerContextManager.NumActivePlayerContexts; index++)
+        {
+          IPlayerContext playerContext = playerContextManager.GetPlayerContext(index);
+          if (playerContext == null || playerContext.CurrentPlayer != this)
+            continue;
+
+          LiveTvMediaItem liveTvMediaItem = playerContext.CurrentMediaItem as LiveTvMediaItem;
+          if (liveTvMediaItem != null)
+            return liveTvMediaItem;
+        }
+        return null;
+      }
+    }
+
+    public void NotifyBeginZap(object sender)
+    {
+      OnBeginZap?.Invoke(sender, EventArgs.Empty);
+    }
+
+    public void NotifyEndZap(object sender)
+    {
+      OnEndZap?.Invoke(sender, EventArgs.Empty);
+    }
+
+    public void BeginZap()
+    {
+      ServiceRegistration.Get<ILogger>().Debug("{0}: Begin zapping", PlayerTitle);
+      // Tell the TsReader that we are zapping, before we actually tune the new channel.
+      if (_useTsReader)
+        _tsReader.OnZapping(0x80);
+    }
+
+    public void EndZap()
+    {
+      Resume();
+      ServiceRegistration.Get<ILogger>().Debug("{0}: End zapping", PlayerTitle);
+    }
+
 
     #endregion
   }
