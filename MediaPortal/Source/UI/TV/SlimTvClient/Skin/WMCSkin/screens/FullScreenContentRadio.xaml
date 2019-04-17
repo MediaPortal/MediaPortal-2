@@ -131,9 +131,12 @@
              Content="{Binding Source={StaticResource SlimTvClient}, Path=ChannelName}" Color="{ThemeResource TextColor}"/>
       <Label x:Name="StartTime" Grid.Row="0" Grid.Column="1" FontSize="{ThemeResource SmallFontSize}"
              Content="{Binding Source={StaticResource SlimTvClient}, Path=CurrentProgram.StartTime}" Color="{ThemeResource TextColor}"/>
-      <Label x:Name="EndTime" Grid.Row="0" Grid.Column="1" FontSize="{ThemeResource SmallFontSize}"
-             Content="{Binding Source={StaticResource SlimTvClient}, Path=CurrentProgram.EndTime}" Color="{ThemeResource TextColor}"/>
-
+      <StackPanel Orientation="Horizontal">
+        <Label x:Name="RemainingDuration" Grid.Row="0" Grid.Column="1" FontSize="{ThemeResource SmallFontSize}" 
+			Color="{ThemeResource TextColor}" Content="{Binding Source={StaticResource SlimTvClient}, Path=CurrentProgram.RemainingDuration}" />
+        <Label Content=" " />
+        <Label Content="[Media.Minutes]" FontSize="{ThemeResource SmallFontSize}" Opacity="1.3" Color="{ThemeResource MenuTextBackground}"/>
+      </StackPanel>
       <Label x:Name="Genre" FontSize="{ThemeResource SmallFontSize}" TextTrimming="WordEllipsis"
              Opacity="1.3" Color="{ThemeResource MenuTextBackground}"
              Content="{Binding Source={StaticResource SlimTvClient}, Path=CurrentProgram.Genre}">
