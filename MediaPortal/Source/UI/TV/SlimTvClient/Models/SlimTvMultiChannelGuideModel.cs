@@ -429,6 +429,34 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
       return true;
     }
 
+    protected override void OnRecordingStatusChanged(IProgram program, RecordingStatus oldStatus, RecordingStatus newStatus, ScheduleRecordingType type)
+    {
+      base.OnRecordingStatusChanged(program, oldStatus, newStatus, type);
+      if (type == ScheduleRecordingType.Once)
+        return;     // Change only affected one program
+      // Look for all other programs that might be affected
+      List<IProgram> candidates = new List<IProgram>();
+      foreach(IProgram p in _groupPrograms)
+      {
+        if (p.ChannelId == program.ChannelId && p.StartTime == program.StartTime && p.EndTime == program.EndTime)
+          candidates.Add(p);
+        else if (p.Title == program.Title)
+          candidates.Add(p);
+      }
+      if (candidates.Count > 0)
+        UpdateRecordingStatus(candidates).Start();
+    }
+
+    async Task UpdateRecordingStatus(List<IProgram> programs)
+    {
+      foreach(IProgram p in programs)
+      {
+        RecordingStatus? status = await GetRecordingStatusAsync(p);
+        if (status != null)
+          UpdateRecordingStatus(p, (RecordingStatus)status);
+      }
+    }
+
     private void UpdateProgramsState()
     {
       lock (_channelList.SyncRoot)
