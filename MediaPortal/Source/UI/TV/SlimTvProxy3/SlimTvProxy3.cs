@@ -769,6 +769,7 @@ namespace MediaPortal.Plugins.SlimTv.Service
         return false;
       foreach (TvDatabase.Schedule schedule in TvDatabase.Schedule.ListAll().Where(schedule => schedule.IsRecordingProgram(canceledProgram, true)))
       {
+        RemoteControl.Instance.StopRecordingSchedule(schedule.IdSchedule);
         if (schedule.ScheduleType == (int)ScheduleRecordingType.Once || recordingType != ScheduleRecordingType.Once)
         {
           // Delete single schedule, or whole series
