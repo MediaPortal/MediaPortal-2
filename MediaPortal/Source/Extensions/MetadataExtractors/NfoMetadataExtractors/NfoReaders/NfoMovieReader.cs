@@ -1283,7 +1283,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoRea
     {
       if (_stubs[0].Title != null)
       {
-        string title = CultureInfo.InvariantCulture.TextInfo.ToTitleCase(_stubs[0].Title);
+        string title = _stubs[0].Title;
         MediaItemAspect.SetAttribute(extractedAspectData, MediaAspect.ATTR_TITLE, title);
         return true;
       }
@@ -1299,7 +1299,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoRea
     {
       if (_stubs[0].SortTitle != null)
       {
-        string title = CultureInfo.InvariantCulture.TextInfo.ToTitleCase(_stubs[0].SortTitle);
+        string title = _stubs[0].SortTitle;
         MediaItemAspect.SetAttribute(extractedAspectData, MediaAspect.ATTR_SORT_TITLE, title);
         return true;
       }
@@ -1501,7 +1501,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoRea
     {
       if (_stubs[0].Title != null)
       {
-        string title = CultureInfo.InvariantCulture.TextInfo.ToTitleCase(_stubs[0].Title);
+        string title = _stubs[0].Title;
         MediaItemAspect.SetAttribute(extractedAspectData, MovieAspect.ATTR_MOVIE_NAME, title);
         return true;
       }

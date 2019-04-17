@@ -76,7 +76,6 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor.Name
         string title = tagsToExtract[MatroskaConsts.TAG_EPISODE_TITLE].FirstOrDefault();
         if (!string.IsNullOrEmpty(title))
         {
-          title = CultureInfo.InvariantCulture.TextInfo.ToTitleCase(title);
           episodeInfo.HasChanged |= MetadataUpdater.SetOrUpdateString(ref episodeInfo.EpisodeName, title, true);
         }
       }
@@ -86,7 +85,6 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor.Name
         string title = tagsToExtract[MatroskaConsts.TAG_SERIES_TITLE].FirstOrDefault();
         if (!string.IsNullOrEmpty(title))
         {
-          title = CultureInfo.InvariantCulture.TextInfo.ToTitleCase(title);
           episodeInfo.HasChanged |= MetadataUpdater.SetOrUpdateString(ref episodeInfo.SeriesName, title, true);
         }
       }
