@@ -135,14 +135,8 @@
              Content="{Binding Source={StaticResource SlimTvClient}, Path=CurrentProgram.EndTime}" Color="{ThemeResource TextColor}"/>
 
       <Label x:Name="Genre" FontSize="{ThemeResource SmallFontSize}" TextTrimming="WordEllipsis"
-             IsVisible="{Binding Path=MediaItem, Converter={StaticResource ReferenceToBoolConverter}}"
-             Opacity="1.3" Color="{ThemeResource MenuTextBackground}">
-        <Label.Content>
-          <MultiBinding Converter="{StaticResource MultiAspectAttributeConverter}">
-            <Binding Source="{Binding MediaItem}"/>
-            <Binding Source="{x:Static aspect:GenreAspect.ATTR_GENRE}" />
-          </MultiBinding>
-        </Label.Content>
+             Opacity="1.3" Color="{ThemeResource MenuTextBackground}"
+             Content="{Binding Source={StaticResource SlimTvClient}, Path=CurrentProgram.Genre}">
       </Label>
 
     </StackPanel>
