@@ -164,8 +164,8 @@
                 <RowDefinition Height="Auto"/>
               </Grid.RowDefinitions>
               <Label x:Name="StartTimeLabel" Grid.Column="0" Grid.Row="0" FontFamily="SegoeUIBold" Opacity="0.9" Panel.ZIndex="101"
-                       Content="{Binding Source={StaticResource SlimTvClient},Path=CurrentProgram.StartTime, Converter={StaticResource SlimTvDateFormatConverter}}"
-                       HorizontalAlignment="Center" VerticalAlignment="Center" Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}"/>
+                     Content="{Binding Source={StaticResource SlimTvClient},Path=CurrentProgram.StartTime, Converter={StaticResource SlimTvDateFormatConverter},ConverterParameter=Time}"
+                     HorizontalAlignment="Center" VerticalAlignment="Center" Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}"/>
 
               <Image Grid.Column="0" Grid.Row="0" Source="PlayerControl\Time.shadow.png" Stretch="Fill" Height="70" Margin="-30,0,-30,0" Panel.ZIndex="100">
                 <Image.Width>
@@ -176,8 +176,8 @@
               </Image>
 
               <Label x:Name="EndTimeLabel" Grid.Column="2" Grid.Row="0" FontFamily="SegoeUIBold" Opacity="0.9" Panel.ZIndex="101"
-                       Content="{Binding Source={StaticResource SlimTvClient},Path=CurrentProgram.EndTime, Converter={StaticResource SlimTvDateFormatConverter}}"
-                       Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                     Content="{Binding Source={StaticResource SlimTvClient},Path=CurrentProgram.EndTime, Converter={StaticResource SlimTvDateFormatConverter},ConverterParameter=Time}"
+                     Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
               <Image Grid.Column="2" Grid.Row="0" Source="PlayerControl\Time.shadow.png" Stretch="Fill" Height="70" Margin="-30,0,-30,0" Panel.ZIndex="100">
                 <Image.Width>
                   <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0}+60">
