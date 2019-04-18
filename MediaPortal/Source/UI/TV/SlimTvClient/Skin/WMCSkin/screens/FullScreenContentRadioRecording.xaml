@@ -142,7 +142,7 @@
                 </media:MediaAspectWrapper>
 
                 <Label x:Name="StartTime" FontSize="{ThemeResource SmallFontSize}"
-                       Content="{Binding Path=StartTime}" Color="{ThemeResource TextColor}"/>
+                       Content="{Binding Path=StartTime, Converter={StaticResource SlimTvDateFormatConverter}}" Color="{ThemeResource TextColor}"/>
 
                 <Image x:Name="ChannelLogo" Width="{ThemeResource ChannelLogoWidth}" Margin="0,10,0,0" 
                        DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}"
