@@ -893,7 +893,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoRea
     {
       string seriesName = _stubs[0].ShowTitle;
       if (seriesName == null && _useSeriesStubs && _seriesStubs[0].ShowTitle != null)
-        seriesName = CultureInfo.InvariantCulture.TextInfo.ToTitleCase(_seriesStubs[0].ShowTitle);
+        seriesName = _seriesStubs[0].ShowTitle;
 
       var season = _stubs[0].Season;
       if (!season.HasValue)
@@ -908,7 +908,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoRea
           string.Join("; ", _stubs.OrderBy(e => e.Episodes.First()).Select(e => e.Title).ToArray()));
         MediaItemAspect.SetAttribute(extractedAspectData, MediaAspect.ATTR_TITLE, name);
 
-        string episodeName = string.Join("; ", _stubs.OrderBy(e => e.Episodes.First()).Select(e => CultureInfo.InvariantCulture.TextInfo.ToTitleCase(e.Title)));
+        string episodeName = string.Join("; ", _stubs.OrderBy(e => e.Episodes.First()).Select(e => e.Title));
         if (episodeName != null)
           MediaItemAspect.SetAttribute(extractedAspectData, MediaAspect.ATTR_SORT_TITLE, BaseInfo.GetSortTitle(episodeName));
         else
@@ -1134,15 +1134,13 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoRea
       //priority 1:
       if (_stubs[0].ShowTitle != null)
       {
-        MediaItemAspect.SetAttribute(extractedAspectData, EpisodeAspect.ATTR_SERIES_NAME,
-          CultureInfo.InvariantCulture.TextInfo.ToTitleCase(_stubs[0].ShowTitle));
+        MediaItemAspect.SetAttribute(extractedAspectData, EpisodeAspect.ATTR_SERIES_NAME, _stubs[0].ShowTitle);
         return true;
       }
       //priority 2:
       if (_useSeriesStubs && _seriesStubs[0].ShowTitle != null)
       {
-        MediaItemAspect.SetAttribute(extractedAspectData, EpisodeAspect.ATTR_SERIES_NAME,
-          CultureInfo.InvariantCulture.TextInfo.ToTitleCase(_seriesStubs[0].ShowTitle));
+        MediaItemAspect.SetAttribute(extractedAspectData, EpisodeAspect.ATTR_SERIES_NAME, _seriesStubs[0].ShowTitle);
         return true;
       }
       return false;
@@ -1201,7 +1199,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoRea
     {
       var series = _stubs[0].ShowTitle;
       if (_useSeriesStubs && series == null && _seriesStubs[0].ShowTitle != null)
-        series = CultureInfo.InvariantCulture.TextInfo.ToTitleCase(_seriesStubs[0].ShowTitle);
+        series = _seriesStubs[0].ShowTitle;
 
       var season = _stubs[0].Season;
       if (!season.HasValue)
@@ -1257,7 +1255,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoRea
       if (_stubs[0].Title != null)
       {
         MediaItemAspect.SetAttribute(extractedAspectData, EpisodeAspect.ATTR_EPISODE_NAME, string.Join("; ", _stubs.OrderBy(e => e.Episodes.First()).
-          Select(e => CultureInfo.InvariantCulture.TextInfo.ToTitleCase(e.Title)).ToArray()));
+          Select(e => e.Title).ToArray()));
         return true;
       }
       return false;
