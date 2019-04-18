@@ -142,10 +142,10 @@
       </Label>
     </StackPanel>
 
-    <Label x:Name="Description" Grid.Row="0" Grid.Column="2" FontSize="{ThemeResource SmallFontSize}" 
-           Opacity="1.3" Margin="0,20,0,0" Height="150" Color="{ThemeResource MenuTextBackground}"
-           VerticalAlignment="Top" HorizontalAlignment="Stretch"
-			     Content="{Binding Description}" />
+    <Label x:Name="Description" Grid.Row="1" Grid.Column="2" FontSize="{ThemeResource SmallFontSize}" 
+           Opacity="1.3" Margin="00,20,20,00" Height="150" Color="{ThemeResource MenuTextBackground}"
+           VerticalAlignment="Top" HorizontalAlignment="Stretch" Wrap="True"
+		   Content="{Binding Source={StaticResource SlimTvClient}, Path=CurrentProgram.Description}" />
 
     <Grid x:Name="OSD_LayoutPanel" Grid.RowSpan="2" Grid.ColumnSpan="3"
           VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
