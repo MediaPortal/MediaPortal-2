@@ -120,7 +120,7 @@
              HorizontalAlignment="Stretch" VerticalAlignment="Center" FontFamily="SegoeUIBold" 
              Color="{ThemeResource TextColor}" Scroll="Auto"/>
       <Label x:Name="StartTime" Grid.Row="0" Grid.Column="1" FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColor}"
-             Content="{Binding Source={StaticResource SlimTvClient}, Path=CurrentProgram.StartTime}" />
+             Content="{Binding Source={StaticResource SlimTvClient}, Path=CurrentProgram.StartTime, Converter={StaticResource SlimTvDateFormatConverter},ConverterParameter=Time}" />
       <Image x:Name="ChannelLogo" Width="{ThemeResource ChannelLogoWidth}" Margin="0,10,0,0" 
              Stretch="Uniform" HorizontalAlignment="Left" VerticalAlignment="Top">
         <Image.Source>
