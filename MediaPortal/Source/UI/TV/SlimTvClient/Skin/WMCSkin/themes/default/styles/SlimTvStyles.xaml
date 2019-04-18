@@ -136,7 +136,7 @@
                         Command="{Command Source={StaticResource GeneralPlayerModel},Path=VolumeUp}"/>
               </StackPanel>
 
-              <Grid DockPanel.Dock="Left" VerticalAlignment="Bottom" Margin="0,0,0,10">
+              <Grid DockPanel.Dock="Left" VerticalAlignment="Bottom" Margin="0,0,0,10" IsVisible="{Binding !IsRadio}">
                 <Grid.ColumnDefinitions>
                   <ColumnDefinition Width="Auto"/>
                   <ColumnDefinition Width="*"/>
