@@ -122,16 +122,16 @@
         <ColumnDefinition Width="40"/>
       </Grid.ColumnDefinitions>
       <Grid.RowDefinitions>
-        <RowDefinition Height="150"/>
+        <RowDefinition Height="200"/>
         <RowDefinition Height="Auto"/>
         <RowDefinition Height="*"/>
       </Grid.RowDefinitions>
 
-      <DockPanel x:Name="OSD_RightPanel" Grid.Row="0" Grid.RowSpan="3"  Grid.Column="1" Grid.ColumnSpan="2"
-                 LastChildFill="false" HorizontalAlignment="Right">
-        <mp_special_controls:PlayerControl x:Name="PrimaryOSD" DockPanel.Dock="Bottom"
+      <DockPanel x:Name="OSD_RightPanel" Grid.Row="1" Grid.RowSpan="2" Grid.Column="1" Grid.ColumnSpan="2"
+                 LastChildFill="false" HorizontalAlignment="Right" VerticalAlignment="Bottom">
+        <mp_special_controls:PlayerControl x:Name="PrimaryOSD" DockPanel.Dock="Bottom" Margin="-30,0,-130,-150"
                                            Style="{ThemeResource PrimaryRadioOSDStyle}" IsVisible="{Binding IsOSDVisible}"
-                                           VerticalAlignment="Stretch" HorizontalAlignment="Right"/>
+                                           VerticalAlignment="Bottom" HorizontalAlignment="Right"/>
       </DockPanel>
 
       <Control x:Name="PiP" Grid.Column="1" Grid.Row="1" Style="{ThemeResource PipControlStyle}"
