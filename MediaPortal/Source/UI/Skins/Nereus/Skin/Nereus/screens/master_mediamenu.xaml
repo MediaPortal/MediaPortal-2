@@ -263,21 +263,17 @@ Parameters which have to be accessible by a DynamicResource lookup:
             <RowDefinition Height="200"/>
           </Grid.RowDefinitions>
 
-          <!--Image Source="MenuGlow.png" Stretch="Fill" VerticalAlignment="Stretch" Width="90" Height="1920" HorizontalAlignment="Right" Margin="0,-95,0,0" RenderTransformOrigin="0.5,0.5">
-            <Image.RenderTransform>
-              <RotateTransform Angle="-90" />
-            </Image.RenderTransform>
-          </-->
+          <Image Source="MenuGlowBottom.png" Stretch="Fill" HorizontalAlignment="Stretch" Height="270" VerticalAlignment="Top" Margin="220,-28,20,-30"/>
           <Rectangle Fill="Black" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Opacity="0.9" Margin="0,10,0,-10"/>
           <Image Source="LeftMenuIndicator.PNG" VerticalAlignment="Top" Stretch="Fill" Width="25" Height="45" 
-                 Opacity="0.9" HorizontalAlignment="Center" Margin="0,-25,0,0" RenderTransformOrigin="0.5,0.5">
+                 Opacity="0.9" HorizontalAlignment="Center" Margin="240,-25,0,0" RenderTransformOrigin="0.5,0.5">
             <Image.RenderTransform>
               <RotateTransform Angle="-90" />
             </Image.RenderTransform>
           </Image>
 
-          <ListView x:Name="MainListMenuBottom" Style="{ThemeResource MediaMenuCoverViewStyle}" Margin="0,5,0,0"
-                    HorizontalAlignment="Center" VerticalAlignment="Stretch" RestoreFocus="True"
+          <ListView x:Name="MainListMenuBottom" Style="{ThemeResource MediaMenuCoverViewStyle}" Margin="0,18,0,0"
+                    HorizontalAlignment="Center" VerticalAlignment="Stretch" RestoreFocus="True" HorizontalContentAlignment="Center"
                     ItemsSource="{Binding Source={StaticResource MenuModel},Path=MenuItems,Mode=OneTime}">
             <ListView.Resources>
               <CommandBridge x:Key="Menu_Command" Command="{Binding Path=Command,Mode=OneTime}"/>
