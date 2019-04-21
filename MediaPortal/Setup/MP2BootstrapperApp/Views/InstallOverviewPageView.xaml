@@ -21,7 +21,9 @@
       </ItemsControl.ItemsPanel>
       <ItemsControl.ItemTemplate>
         <DataTemplate>
-          <Image Source="{Binding}" Height="53.649" Width="159.933" Margin="10"/>
+          <Grid Height="61" Width="169" Margin="5" Background="#20FFFFFF">
+            <Image Source="{Binding}" Margin="5"/>
+          </Grid>
         </DataTemplate>
       </ItemsControl.ItemTemplate>
     </ItemsControl>

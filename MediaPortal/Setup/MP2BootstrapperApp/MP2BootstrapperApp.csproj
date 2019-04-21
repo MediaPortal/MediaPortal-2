@@ -207,12 +207,6 @@
     <Resource Include="Resources\MP2Client.png" />
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="Resources\custom_install.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <Resource Include="Resources\full_install.png" />
-  </ItemGroup>
-  <ItemGroup>
     <Resource Include="Resources\MP2Server.png" />
   </ItemGroup>
   <ItemGroup>
@@ -230,6 +224,16 @@
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Resources\MP2Common.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\InstallTypes\custom_install.png" />
+    <Resource Include="Resources\InstallTypes\full_install.png" />
+    <Resource Include="Resources\InstallTypes\MP2Client.png" />
+    <Resource Include="Resources\InstallTypes\MP2Common.png" />
+    <Resource Include="Resources\InstallTypes\MP2Server.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\VC2017_x86.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

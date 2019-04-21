@@ -68,33 +68,33 @@
     </Grid.RowDefinitions>
 
     <StackPanel Orientation="Vertical" Grid.Column="0" Grid.Row="0" HorizontalAlignment="Center" VerticalAlignment="Center">
-      <RadioButton Name="Radio1" GroupName="InstallTypes" Style="{StaticResource InstallerButton}" Content="..\resources\full_install.png"
+      <RadioButton Name="Radio1" GroupName="InstallTypes" Style="{StaticResource InstallerButton}" Content="..\resources\InstallTypes\full_install.png"
                    IsChecked="{Binding Path=InstallType, Converter={StaticResource EnumToBooleanConverter}, ConverterParameter={x:Static conv:InstallType.ClientServer}}"
-                   HorizontalAlignment="Center" HorizontalContentAlignment="Center" Margin="10"  VerticalAlignment="Top"/>
+                   HorizontalAlignment="Center" HorizontalContentAlignment="Center" VerticalAlignment="Top"/>
       <Label FontSize="22" Foreground=" White" HorizontalContentAlignment="Center" Content="Client and Server"
              Opacity="{Binding Opacity, ElementName=Radio1, Mode=Default}"/>
     </StackPanel>
 
     <StackPanel Orientation="Vertical" Grid.Column="1" Grid.Row="0" HorizontalAlignment="Center" VerticalAlignment="Center">
-      <RadioButton Name="Radio2" GroupName="InstallTypes" Style="{StaticResource InstallerButton}" Content="..\resources\MP2Client.png"
+      <RadioButton Name="Radio2" GroupName="InstallTypes" Style="{StaticResource InstallerButton}" Content="..\resources\InstallTypes\MP2Client.png"
                    IsChecked="{Binding Path=InstallType, Converter={StaticResource EnumToBooleanConverter}, ConverterParameter={x:Static conv:InstallType.Client}}"
-                   HorizontalAlignment="Center" HorizontalContentAlignment="Center" Margin="10" VerticalAlignment="Top" />
+                   HorizontalAlignment="Center" HorizontalContentAlignment="Center" VerticalAlignment="Top" />
       <Label FontSize="22" Foreground="White" HorizontalContentAlignment="Center" Content="Client"
              Opacity="{Binding Opacity, ElementName=Radio2, Mode=Default}"/>
     </StackPanel>
 
     <StackPanel Orientation="Vertical" Grid.Column="2" Grid.Row="0" HorizontalAlignment="Center" VerticalAlignment="Center">
-      <RadioButton Name="Radio3" GroupName="InstallTypes" Style="{StaticResource InstallerButton}" Content="..\resources\MP2Server.png"
+      <RadioButton Name="Radio3" GroupName="InstallTypes" Style="{StaticResource InstallerButton}" Content="..\resources\InstallTypes\MP2Server.png"
                    IsChecked="{Binding Path=InstallType, Converter={StaticResource EnumToBooleanConverter}, ConverterParameter={x:Static conv:InstallType.Server}}"
-                   HorizontalAlignment="Center" HorizontalContentAlignment="Center" Margin="10"  VerticalAlignment="Top" />
+                   HorizontalAlignment="Center" HorizontalContentAlignment="Center" VerticalAlignment="Top" />
       <Label FontSize="22" Foreground="White" HorizontalContentAlignment="Center" Content="Server"
              Opacity="{Binding Opacity, ElementName=Radio3, Mode=Default}"/>
     </StackPanel>
 
     <StackPanel Orientation="Vertical" Grid.Column="3" Grid.Row="0" HorizontalAlignment="Center" VerticalAlignment="Center">
-      <RadioButton Name="Radio4" GroupName="InstallTypes" Style="{StaticResource InstallerButton}" Content="..\resources\custom_install.png"
+      <RadioButton Name="Radio4" GroupName="InstallTypes" Style="{StaticResource InstallerButton}" Content="..\resources\InstallTypes\custom_install.png"
                    IsChecked="{Binding Path=InstallType, Converter={StaticResource EnumToBooleanConverter}, ConverterParameter={x:Static conv:InstallType.Custom}}"
-                   HorizontalAlignment="Center" HorizontalContentAlignment="Center" Margin="10" VerticalAlignment="Top" />
+                   HorizontalAlignment="Center" HorizontalContentAlignment="Center" VerticalAlignment="Top" />
       <Label FontSize="22" Foreground="White" HorizontalContentAlignment="Center" Content="Custom"
              Opacity="{Binding Opacity, ElementName=Radio4, Mode=Default}"/>
     </StackPanel>
