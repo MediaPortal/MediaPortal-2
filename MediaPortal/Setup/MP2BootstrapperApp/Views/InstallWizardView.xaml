@@ -102,6 +102,9 @@
         <Trigger Property="IsMouseOver" Value="True">
           <Setter Property="Foreground" Value="#FFFFFFFF"/>
         </Trigger>
+        <Trigger Property="IsEnabled" Value="False">
+          <Setter Property="Visibility" Value="Collapsed" />
+        </Trigger>
       </Style.Triggers>
     </Style>
 
@@ -190,15 +193,16 @@
         <ColumnDefinition Width="*" />
       </Grid.ColumnDefinitions>
 
-      <Button Grid.Row="0" Grid.Column="0" x:Name="Abort" IsEnabled="True" Command="{Binding Path=CancelCommand}" Content="Abort" 
+      <Button Grid.Row="0" Grid.Column="0" x:Name="Abort" IsEnabled="True" Command="{Binding Path=CancelCommand}" Content="Abort"
               HorizontalAlignment="Left" HorizontalContentAlignment="Center" VerticalAlignment="Center" FontSize="22" Margin="50,0,0,0"/>
-      <Button Grid.Row="0" Grid.Column="1" x:Name="Back" IsEnabled="True" Command="{Binding Path=BackCommand}" Content="Back" 
+      <Button Grid.Row="0" Grid.Column="1" x:Name="Back" IsEnabled="True" Command="{Binding Path=BackCommand}" Content="Back"
               HorizontalAlignment="Right" HorizontalContentAlignment="Center" VerticalAlignment="Center" FontSize="22" Margin="0,0,0,0"/>
-      <Button Grid.Row="0" Grid.Column="2" x:Name="Next" IsEnabled="True" Command="{Binding Path=NextCommand}" Content="Next" 
+      <Button Grid.Row="0" Grid.Column="2" x:Name="Next" IsEnabled="True" Command="{Binding Path=NextCommand}" Content="Next"
               HorizontalAlignment="Right" HorizontalContentAlignment="Center" VerticalAlignment="Center" FontSize="22" Margin="0,0,50,0"/>
     </Grid>
 
-    <ProgressBar Grid.Column="0" Grid.Row="3" HorizontalAlignment="Left" Height="5"  VerticalAlignment="Bottom" Width="1000" Foreground="#FFE8641B" Minimum="0" Value="{Binding Path=Progress}" BorderThickness="0"/>
+    <ProgressBar Grid.Column="0" Grid.Row="3" HorizontalAlignment="Left" Height="5"  VerticalAlignment="Bottom" 
+                 Width="1000" Foreground="#FFE8641B" Minimum="0" Value="{Binding Path=Progress}" BorderThickness="0"/>
         <Grid Grid.Column="0" Grid.Row="4">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="26*"/>
