@@ -6,8 +6,9 @@
         xmlns:view="clr-namespace:MP2BootstrapperApp.Views"
         xmlns:viewModels="clr-namespace:MP2BootstrapperApp.ViewModels"
         mc:Ignorable="d"
-        Title="Mediaportal" Height="600" Width="1000" ResizeMode="NoResize" WindowStyle="None" WindowStartupLocation="CenterScreen" UseLayoutRounding="False" AllowsTransparency="True"
->
+        Title="Mediaportal" Height="600" Width="1000" ResizeMode="NoResize" WindowStyle="None"
+        WindowStartupLocation="CenterScreen" UseLayoutRounding="False" AllowsTransparency="True">
+  
     <Window.Effect>
         <DropShadowEffect ShadowDepth="3" BlurRadius="25"/>
     </Window.Effect>
@@ -113,9 +114,9 @@
                 <Setter.Value>
                     <ControlTemplate TargetType="{x:Type HeaderedContentControl}">
                         <StackPanel>
-                            <Grid>
+                            <Grid Margin="0,-120,-30,60" HorizontalAlignment="Right" Width="500">
                                 <Rectangle Stroke="{TemplateBinding Background}"/>
-                                <ContentPresenter ContentSource="Header"/>
+                                <ContentPresenter ContentSource="Header" VerticalAlignment="Bottom" HorizontalAlignment="Right"/>
                             </Grid>
                             <Grid>
                                 <Rectangle Fill="{TemplateBinding Background}"/>
