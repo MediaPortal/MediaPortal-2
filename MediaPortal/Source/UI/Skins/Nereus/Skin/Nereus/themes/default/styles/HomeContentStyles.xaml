@@ -1294,7 +1294,7 @@
 
   <DataTemplate DataType="{x:Type nereus_home_content:LatestEpisodeList}">
 
-    <Control Style="{ThemeResource MediaGridTemplateStyle}" Width="{ThemeResource TileGroupWidthMedium}">
+    <Control Style="{ThemeResource MediaGridTemplateStyle}" Width="{ThemeResource TileGroupWidthWide}">
       <Control.Resources>
         <ResourceWrapper x:Key="Tile_Layout_Template" Value="{ThemeResource SquareTileLayout1Template}"/>
       </Control.Resources>
@@ -1387,7 +1387,7 @@
 
   <DataTemplate DataType="{x:Type nereus_home_content:LatestAudioList}">
 
-    <Control Style="{ThemeResource MediaGridTemplateStyle}" Width="{ThemeResource TileGroupWidthMedium}">
+    <Control Style="{ThemeResource MediaGridTemplateStyle}" Width="{ThemeResource TileGroupWidthNarrow}">
       <Control.Resources>
         <ResourceWrapper x:Key="Tile_Layout_Template" Value="{ThemeResource SquareTileLayout1Template}"/>
       </Control.Resources>
@@ -1397,7 +1397,7 @@
 
   <DataTemplate DataType="{x:Type nereus_home_content:ContinueAlbumList}">
 
-    <Control Style="{ThemeResource MediaGridTemplateStyle}" Width="{ThemeResource TileGroupWidthMedium}">
+    <Control Style="{ThemeResource MediaGridTemplateStyle}" Width="{ThemeResource TileGroupWidthNarrow}">
       <Control.Resources>
         <ResourceWrapper x:Key="Tile_Layout_Template" Value="{ThemeResource SquareTileLayout2Template}"/>
       </Control.Resources>
@@ -1407,7 +1407,7 @@
 
   <DataTemplate DataType="{x:Type nereus_home_content:FavoriteAudioList}">
 
-    <Control Style="{ThemeResource MediaGridTemplateStyle}" Width="{ThemeResource TileGroupWidthMedium}">
+    <Control Style="{ThemeResource MediaGridTemplateStyle}" Width="{ThemeResource TileGroupWidthNarrow}">
       <Control.Resources>
         <ResourceWrapper x:Key="Tile_Layout_Template" Value="{ThemeResource SquareTileLayout1Template}"/>
       </Control.Resources>
@@ -1417,7 +1417,7 @@
 
   <DataTemplate DataType="{x:Type nereus_home_content:UnplayedAlbumList}">
 
-    <Control Style="{ThemeResource MediaGridTemplateStyle}" Width="{ThemeResource TileGroupWidthMedium}">
+    <Control Style="{ThemeResource MediaGridTemplateStyle}" Width="{ThemeResource TileGroupWidthNarrow}">
       <Control.Resources>
         <ResourceWrapper x:Key="Tile_Layout_Template" Value="{ThemeResource SquareTileLayout2Template}"/>
       </Control.Resources>
@@ -1645,7 +1645,7 @@
 
   <DataTemplate DataType="{x:Type nereus_home_content:LatestImageList}">
 
-    <Control Style="{ThemeResource MediaGridTemplateStyle}">
+    <Control Style="{ThemeResource MediaGridTemplateStyle}" Width="{ThemeResource TileGroupWidthWide}">
       <Control.Resources>
         <ResourceWrapper x:Key="Tile_Layout_Template" Value="{ThemeResource SquareTileLayout1Template}"/>
       </Control.Resources>
@@ -1655,7 +1655,7 @@
 
   <DataTemplate DataType="{x:Type nereus_home_content:FavoriteImageList}">
 
-    <Control Style="{ThemeResource MediaGridTemplateStyle}">
+    <Control Style="{ThemeResource MediaGridTemplateStyle}" Width="{ThemeResource TileGroupWidthWide}">
       <Control.Resources>
         <ResourceWrapper x:Key="Tile_Layout_Template" Value="{ThemeResource SquareTileLayout1Template}"/>
       </Control.Resources>
@@ -1665,7 +1665,7 @@
 
   <DataTemplate DataType="{x:Type nereus_home_content:UnplayedImageList}">
 
-    <Control Style="{ThemeResource MediaGridTemplateStyle}">
+    <Control Style="{ThemeResource MediaGridTemplateStyle}" Width="{ThemeResource TileGroupWidthWide}">
       <Control.Resources>
         <ResourceWrapper x:Key="Tile_Layout_Template" Value="{ThemeResource SquareTileLayout2Template}"/>
       </Control.Resources>
