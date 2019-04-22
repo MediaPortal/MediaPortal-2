@@ -799,10 +799,11 @@
               <RowDefinition Height="*"/>
             </Grid.RowDefinitions>
             
-            <Control x:Name="GrowControl" Grid.Column="0" Grid.Row="0" Style="{ThemeResource ButtonControlStyle}"
+            <Control x:Name="GrowControl" Style="{ThemeResource ButtonControlStyle}"
                      VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Grid.ZIndex="1">
             </Control>
-            <ContentPresenter x:Name="ContentPresenter" Grid.Column="0" Grid.Row="0" Margin="10,0,10,2" Grid.ZIndex="2"
+            <ContentPresenter x:Name="ContentPresenter" Margin="10,0,10,2" Grid.ZIndex="2"
+                              HorizontalContentAlignment="Center" VerticalContentAlignment="Center"
                               HorizontalAlignment="Center" VerticalAlignment="Center"/>
           </Grid>
         </ControlTemplate>
@@ -2360,28 +2361,14 @@
 
   <Style x:Key="VKButtonStyle" BasedOn="{ThemeResource WizardButtonStyle}" TargetType="{x:Type Button}">
     <Setter Property="FontSize" Value="{ThemeResource NormalFontSize}"/>
-    <Setter Property="FontFamily" Value="SegoeUIBold"/>
   </Style>
 
   <Style x:Key="VirtualKeyboardControlStyle" TargetType="{x:Type VirtualKeyboardControl}" >
     <Setter Property="Template">
       <Setter.Value>
         <ControlTemplate>
-          <Border BorderThickness="5" CornerRadius="6">
-            <Border.BorderBrush>
-              <LinearGradientBrush StartPoint="0,0" EndPoint="0.02,1.4">
-                <GradientStop Color="#D9FFFFFF" Offset="0"/>
-                <GradientStop Color="#59FFFFFF" Offset="0.7"/>
-                <GradientStop Color="#59FFFFFF" Offset="1"/>
-              </LinearGradientBrush>
-            </Border.BorderBrush>
-            <Border.Background>
-              <LinearGradientBrush StartPoint="0,1" EndPoint="1,0">
-                <GradientStop Color="#FF447da7" Offset="0"/>
-                <GradientStop Color="#FF124273" Offset="1"/>
-              </LinearGradientBrush>
-            </Border.Background>
-            <StackPanel>
+          <Border BorderThickness="3" Background="#FF000000" BorderBrush="{ThemeResource DialogBorderColor}">
+            <StackPanel Margin="5">
               <Label Content="{Binding RelativeSource={RelativeSource TemplatedParent},Path=VisibleText}"
                      IsVisible="{Binding RelativeSource={RelativeSource TemplatedParent},Path=ShowVisibleText}" FontSize="{ThemeResource NormalFontSize}"
                      Color="{ThemeResource TextColor}" HorizontalAlignment="Center"/>
