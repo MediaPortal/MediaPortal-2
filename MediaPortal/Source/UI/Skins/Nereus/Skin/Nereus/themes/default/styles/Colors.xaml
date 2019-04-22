@@ -23,7 +23,7 @@
   <ResourceWrapper x:Key="StarRatingBackgroundColor" Resource="#009999"/>
 
   <ResourceWrapper x:Key="DialogHeaderBackgroundColor" Resource="#FF244043"/>
-  <ResourceWrapper x:Key="DialogScreenBackgroundColor" Resource="#5D000000"/>
+  <ResourceWrapper x:Key="DialogScreenBackgroundColor" Resource="#80000000"/>
   <ResourceWrapper x:Key="DialogBorderColor" Resource="#A0FFFFFF"/>
 
   <!-- ************************** Nereus colors end ****************************** -->
