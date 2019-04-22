@@ -470,23 +470,8 @@
             <Grid.RowDefinitions>
               <RowDefinition Height="*"/>
             </Grid.RowDefinitions>
-            <!--<Image x:Name="ItemShadow" Stretch="Fill">
-              <Image.Source>
-                <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" 
-                              ConverterParameter="{}{0}/{1} &gt; 1.1 ? ({1} &gt; 210 ? {2}:{3}) : ({0}/{1} &gt; 0.85 ? ({0} &gt; 210 ? {4}:{5}) : ({0}/{1} &gt; 0.3 ? ({1} &gt; 300 ? {6}:{7}) : ({1} &gt; 590 ? {8}:{9})))">
-                  <Binding RelativeSource="{RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}}" Path="ActualHeight"/>
-                  <Binding RelativeSource="{RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}}" Path="ActualWidth"/>
-                  <Binding Source="poster_large.png"/>
-                  <Binding Source="poster_small.png"/>
-                  <Binding Source="square_large.png"/>
-                  <Binding Source="square_small.png"/>
-                  <Binding Source="thumbnail_large.png"/>
-                  <Binding Source="thumbnail_small.png"/>
-                  <Binding Source="banner_large.png"/>
-                  <Binding Source="banner_small.png"/>
-                </MultiBinding>
-              </Image.Source>
-            </Image>-->
+            
+            <Control x:Name="ItemShadow" Template="{DynamicResource ContentShadowTemplate}"/>
             <Control Margin="8" x:Name="ContentControl" Template="{DynamicResource ResourceKey=ContentControlTemplate}" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
             <Control Margin="8" Style="{ThemeResource HomeTileButtonControlStyle}" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
             <!--Label FontSize="18" Margin="8">
@@ -664,6 +649,11 @@
   <ControlTemplate x:Key="SquareTileContainerTemplate">
     <ControlTemplate.Resources>
 
+      <!--Square shadow-->
+      <ControlTemplate x:Key="ContentShadowTemplate">
+        <Image Source="square_large.png" Stretch="Fill"/>
+      </ControlTemplate>
+
       <!--Square plugin tile-->
       <ControlTemplate x:Key="ContentControlTemplate">
         <Control Template="{DynamicResource Square_Tile_Template}"/>
@@ -680,6 +670,11 @@
   <ControlTemplate x:Key="PosterTileContainerTemplate">
     <ControlTemplate.Resources>
 
+      <!--Poster shadow-->
+      <ControlTemplate x:Key="ContentShadowTemplate">
+        <Image Source="poster_large.png" Stretch="Fill"/>
+      </ControlTemplate>
+
       <!--Poster tile template-->
       <ControlTemplate x:Key="ContentControlTemplate">
         <Control Template="{DynamicResource Poster_Tile_Template}"/>
@@ -695,6 +690,11 @@
   <!--Base Template for all banner tiles-->
   <ControlTemplate x:Key="BannerTileContainerTemplate">
     <ControlTemplate.Resources>
+
+      <!--Banner shadow-->
+      <ControlTemplate x:Key="ContentShadowTemplate">
+        <Image Source="banner_large.png" Stretch="Fill"/>
+      </ControlTemplate>
 
       <!--Banner tile template-->
         <ControlTemplate x:Key="ContentControlTemplate">
