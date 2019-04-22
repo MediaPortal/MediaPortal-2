@@ -3,8 +3,8 @@
     xmlns="www.team-mediaportal.com/2008/mpf/directx"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:fanart="clr-namespace:MediaPortal.Extensions.UserServices.FanArtService.Client;assembly=FanArtService.Client"
-    xmlns:nereus_controls="clr-namespace:MediaPortal.UiComponents.Nereus.Controls;assembly=Nereus"
     xmlns:nereus_converters="clr-namespace:MediaPortal.UiComponents.Nereus.Converters;assembly=Nereus"
+    xmlns:nereus_home_content="clr-namespace:MediaPortal.UiComponents.Nereus.Models.HomeContent;assembly=Nereus"
     DependsOnStyleResources="OtherControls,OtherControlsOverrides,MediaConsts,Colors,Buttons,Consts"
     >
 
@@ -41,7 +41,6 @@
   <Model x:Key="CurrentNewsModel" Id="EE1BBF83-AE5C-491C-9978-14737A2B0883"/>
   <Model x:Key="TimeModel" Id="E821B1C8-0666-4339-8027-AA45A4F6F107"/>
 
-  <nereus_converters:MediaListVisibilityConverter x:Key="MediaListVisibilityConverter"/>
   <nereus_converters:RoundingFormatConverter x:Key="RoundingFormatConverter"/>
 
   <!--
@@ -471,7 +470,7 @@
             <Grid.RowDefinitions>
               <RowDefinition Height="*"/>
             </Grid.RowDefinitions>
-            <Image x:Name="ItemShadow" Stretch="Fill">
+            <!--<Image x:Name="ItemShadow" Stretch="Fill">
               <Image.Source>
                 <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" 
                               ConverterParameter="{}{0}/{1} &gt; 1.1 ? ({1} &gt; 210 ? {2}:{3}) : ({0}/{1} &gt; 0.85 ? ({0} &gt; 210 ? {4}:{5}) : ({0}/{1} &gt; 0.3 ? ({1} &gt; 300 ? {6}:{7}) : ({1} &gt; 590 ? {8}:{9})))">
@@ -487,7 +486,7 @@
                   <Binding Source="banner_small.png"/>
                 </MultiBinding>
               </Image.Source>
-            </Image>
+            </Image>-->
             <Control Margin="8" x:Name="ContentControl" Template="{DynamicResource ResourceKey=ContentControlTemplate}" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
             <Control Margin="8" Style="{ThemeResource HomeTileButtonControlStyle}" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
             <!--Label FontSize="18" Margin="8">
@@ -673,7 +672,7 @@
     </ControlTemplate.Resources>
 
     <!--Actual container for the tile that displays the template-->
-    <Control Template="{ThemeResource TileButtonTemplate}" DataContext="{Binding TileItem}" />
+    <Control Template="{ThemeResource TileButtonTemplate}" />
 
   </ControlTemplate>
 
@@ -689,7 +688,7 @@
     </ControlTemplate.Resources>
 
     <!--Actual container for the tile that displays the template-->
-    <Control Template="{ThemeResource TileButtonTemplate}" DataContext="{Binding TileItem}" />
+    <Control Template="{ThemeResource TileButtonTemplate}"/>
 
   </ControlTemplate>
 
@@ -705,7 +704,7 @@
       </ControlTemplate.Resources>
 
     <!--Actual container for the tile that displays the template-->
-    <Control Template="{ThemeResource TileButtonTemplate}" DataContext="{Binding TileItem}" />
+    <Control Template="{ThemeResource TileButtonTemplate}" />
 
   </ControlTemplate>
 
@@ -717,7 +716,7 @@
   
   <!-- 6 square tiles, 2 large and 4 small -->
   <ControlTemplate x:Key="SquareTileLayout1Template">
-    <Grid DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=TileGroup}">
+    <Grid>
       <Grid.ColumnDefinitions>
         <ColumnDefinition Width="*"/>
         <ColumnDefinition Width="*"/>
@@ -733,40 +732,40 @@
 
       <Control x:Name="Tile1" Grid.Column="0" Grid.Row="0" Grid.ColumnSpan="2" Grid.RowSpan="2"
                Template="{ThemeResource SquareTileContainerTemplate}"
-               DataContext="{Binding Tiles[0]}"
-               IsVisible="{Binding Path=TileItem, Converter={StaticResource ReferenceToBoolConverter}}"/>
+               DataContext="{Binding Item1}"
+               IsVisible="{Binding Path=Item1, Converter={StaticResource ReferenceToBoolConverter}}"/>
 
       <Control x:Name="Tile2" Grid.Column="2" Grid.Row="0"
                Template="{ThemeResource SquareTileContainerTemplate}"
-               DataContext="{Binding Tiles[1]}"
-               IsVisible="{Binding Path=TileItem, Converter={StaticResource ReferenceToBoolConverter}}"/>
+               DataContext="{Binding Item2}"
+               IsVisible="{Binding Path=Item2, Converter={StaticResource ReferenceToBoolConverter}}"/>
 
       <Control x:Name="Tile3" Grid.Column="2" Grid.Row="1"
                Template="{ThemeResource SquareTileContainerTemplate}"
-               DataContext="{Binding Tiles[2]}"
-               IsVisible="{Binding Path=TileItem, Converter={StaticResource ReferenceToBoolConverter}}"/>
+               DataContext="{Binding Item3}"
+               IsVisible="{Binding Path=Item3, Converter={StaticResource ReferenceToBoolConverter}}"/>
 
       <Control x:Name="Tile4" Grid.Column="0" Grid.Row="2"
                Template="{ThemeResource SquareTileContainerTemplate}"
-               DataContext="{Binding Tiles[3]}"
-               IsVisible="{Binding Path=TileItem, Converter={StaticResource ReferenceToBoolConverter}}"/>
+               DataContext="{Binding Item4}"
+               IsVisible="{Binding Path=Item4, Converter={StaticResource ReferenceToBoolConverter}}"/>
 
       <Control x:Name="Tile5" Grid.Column="0" Grid.Row="3"
                Template="{ThemeResource SquareTileContainerTemplate}"
-               DataContext="{Binding Tiles[4]}"
-               IsVisible="{Binding Path=TileItem, Converter={StaticResource ReferenceToBoolConverter}}"/>
+               DataContext="{Binding Item5}"
+               IsVisible="{Binding Path=Item5, Converter={StaticResource ReferenceToBoolConverter}}"/>
 
       <Control x:Name="Tile6" Grid.Column="1" Grid.Row="2" Grid.ColumnSpan="2" Grid.RowSpan="2"
                Template="{ThemeResource SquareTileContainerTemplate}"
-               DataContext="{Binding Tiles[5]}"
-               IsVisible="{Binding Path=TileItem, Converter={StaticResource ReferenceToBoolConverter}}"/>
+               DataContext="{Binding Item6}"
+               IsVisible="{Binding Path=Item6, Converter={StaticResource ReferenceToBoolConverter}}"/>
 
     </Grid>
   </ControlTemplate>
 
   <!-- 6 square tiles, 2 large and 4 small, mirrors SquareTileLayout1Template -->
   <ControlTemplate x:Key="SquareTileLayout2Template">
-    <Grid DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=TileGroup}">
+    <Grid>
       <Grid.ColumnDefinitions>
         <ColumnDefinition Width="*"/>
         <ColumnDefinition Width="*"/>
@@ -782,40 +781,40 @@
 
       <Control x:Name="Tile1" Grid.Column="0" Grid.Row="0"
                Template="{ThemeResource SquareTileContainerTemplate}"
-               DataContext="{Binding Tiles[0]}"
-               IsVisible="{Binding Path=TileItem, Converter={StaticResource ReferenceToBoolConverter}}"/>
+               DataContext="{Binding Item1}"
+               IsVisible="{Binding Path=Item1, Converter={StaticResource ReferenceToBoolConverter}}"/>
 
       <Control x:Name="Tile2" Grid.Column="0" Grid.Row="1"
                Template="{ThemeResource SquareTileContainerTemplate}"
-               DataContext="{Binding Tiles[1]}"
-               IsVisible="{Binding Path=TileItem, Converter={StaticResource ReferenceToBoolConverter}}"/>
+               DataContext="{Binding Item2}"
+               IsVisible="{Binding Path=Item2, Converter={StaticResource ReferenceToBoolConverter}}"/>
 
       <Control x:Name="Tile3" Grid.Column="1" Grid.Row="0" Grid.ColumnSpan="2" Grid.RowSpan="2"
                Template="{ThemeResource SquareTileContainerTemplate}"
-               DataContext="{Binding Tiles[2]}"
-               IsVisible="{Binding Path=TileItem, Converter={StaticResource ReferenceToBoolConverter}}"/>
+               DataContext="{Binding Item3}"
+               IsVisible="{Binding Path=Item3, Converter={StaticResource ReferenceToBoolConverter}}"/>
 
       <Control x:Name="Tile4" Grid.Column="0" Grid.Row="2" Grid.ColumnSpan="2" Grid.RowSpan="2"
                Template="{ThemeResource SquareTileContainerTemplate}"
-               DataContext="{Binding Tiles[3]}"
-               IsVisible="{Binding Path=TileItem, Converter={StaticResource ReferenceToBoolConverter}}"/>
+               DataContext="{Binding Item4}"
+               IsVisible="{Binding Path=Item4, Converter={StaticResource ReferenceToBoolConverter}}"/>
 
       <Control x:Name="Tile5" Grid.Column="2" Grid.Row="2"
                Template="{ThemeResource SquareTileContainerTemplate}"
-               DataContext="{Binding Tiles[4]}"
-               IsVisible="{Binding Path=TileItem, Converter={StaticResource ReferenceToBoolConverter}}"/>
+               DataContext="{Binding Item5}"
+               IsVisible="{Binding Path=Item5, Converter={StaticResource ReferenceToBoolConverter}}"/>
 
       <Control x:Name="Tile6" Grid.Column="2" Grid.Row="3"
                Template="{ThemeResource SquareTileContainerTemplate}"
-               DataContext="{Binding Tiles[5]}"
-               IsVisible="{Binding Path=TileItem, Converter={StaticResource ReferenceToBoolConverter}}"/>
+               DataContext="{Binding Item6}"
+               IsVisible="{Binding Path=Item6, Converter={StaticResource ReferenceToBoolConverter}}"/>
 
     </Grid>
   </ControlTemplate>
 
   <!-- 6 square tiles, 1 large and 5 small -->
   <ControlTemplate x:Key="SquareTileLayout3Template">
-    <Grid DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=TileGroup}">
+    <Grid>
       <Grid.ColumnDefinitions>
         <ColumnDefinition Width="*"/>
         <ColumnDefinition Width="*"/>
@@ -831,40 +830,40 @@
 
       <Control x:Name="Tile1" Grid.Column="0" Grid.Row="0" Grid.ColumnSpan="2" Grid.RowSpan="2"
                Template="{ThemeResource SquareTileContainerTemplate}"
-               DataContext="{Binding Tiles[0]}"
-               IsVisible="{Binding Path=TileItem, Converter={StaticResource ReferenceToBoolConverter}}"/>
+               DataContext="{Binding Item1}"
+               IsVisible="{Binding Path=Item1, Converter={StaticResource ReferenceToBoolConverter}}"/>
 
       <Control x:Name="Tile2" Grid.Column="0" Grid.Row="2"
                Template="{ThemeResource SquareTileContainerTemplate}"
-               DataContext="{Binding Tiles[1]}"
-               IsVisible="{Binding Path=TileItem, Converter={StaticResource ReferenceToBoolConverter}}"/>
+               DataContext="{Binding Item2}"
+               IsVisible="{Binding Path=Item2, Converter={StaticResource ReferenceToBoolConverter}}"/>
 
       <Control x:Name="Tile3" Grid.Column="1" Grid.Row="2"
                Template="{ThemeResource SquareTileContainerTemplate}"
-               DataContext="{Binding Tiles[2]}"
-               IsVisible="{Binding Path=TileItem, Converter={StaticResource ReferenceToBoolConverter}}"/>
+               DataContext="{Binding Item3}"
+               IsVisible="{Binding Path=Item3, Converter={StaticResource ReferenceToBoolConverter}}"/>
 
       <Control x:Name="Tile4" Grid.Column="0" Grid.Row="3"
                Template="{ThemeResource SquareTileContainerTemplate}"
-               DataContext="{Binding Tiles[3]}"
-               IsVisible="{Binding Path=TileItem, Converter={StaticResource ReferenceToBoolConverter}}"/>
+               DataContext="{Binding Item4}"
+               IsVisible="{Binding Path=Item4, Converter={StaticResource ReferenceToBoolConverter}}"/>
 
       <Control x:Name="Tile5" Grid.Column="1" Grid.Row="3"
                Template="{ThemeResource SquareTileContainerTemplate}"
-               DataContext="{Binding Tiles[4]}"
-               IsVisible="{Binding Path=TileItem, Converter={StaticResource ReferenceToBoolConverter}}"/>
+               DataContext="{Binding Item5}"
+               IsVisible="{Binding Path=Item5, Converter={StaticResource ReferenceToBoolConverter}}"/>
 
       <Control x:Name="Tile6" Grid.Column="0" Grid.Row="4"
                Template="{ThemeResource SquareTileContainerTemplate}"
-               DataContext="{Binding Tiles[5]}"
-               IsVisible="{Binding Path=TileItem, Converter={StaticResource ReferenceToBoolConverter}}"/>
+               DataContext="{Binding Item6}"
+               IsVisible="{Binding Path=Item6, Converter={StaticResource ReferenceToBoolConverter}}"/>
 
     </Grid>
   </ControlTemplate>
 
   <!-- 5 equal square tiles -->
   <ControlTemplate x:Key="SquareTileLayout4Template">
-    <Grid DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=TileGroup}">
+    <Grid>
       <Grid.ColumnDefinitions>
         <ColumnDefinition Width="*"/>
       </Grid.ColumnDefinitions>
@@ -875,38 +874,39 @@
         <RowDefinition Height="*"/>
         <RowDefinition Height="*"/>
         <RowDefinition Height="*"/>
-      </Grid.RowDefinitions>
+      </Grid.RowDefinitions>     
+      
 
       <Control x:Name="Tile1" Grid.Row="0"
                Template="{ThemeResource SquareTileContainerTemplate}"
-               DataContext="{Binding Tiles[0]}"
-               IsVisible="{Binding Path=TileItem, Converter={StaticResource ReferenceToBoolConverter}}"/>
+               DataContext="{Binding Item1}"
+               IsVisible="{Binding Path=Item1, Converter={StaticResource ReferenceToBoolConverter}}"/>
 
       <Control x:Name="Tile2" Grid.Row="1"
                Template="{ThemeResource SquareTileContainerTemplate}"
-               DataContext="{Binding Tiles[1]}"
-               IsVisible="{Binding Path=TileItem, Converter={StaticResource ReferenceToBoolConverter}}"/>
+               DataContext="{Binding Item2}"
+               IsVisible="{Binding Path=Item2, Converter={StaticResource ReferenceToBoolConverter}}"/>
 
       <Control x:Name="Tile3" Grid.Row="2"
                Template="{ThemeResource SquareTileContainerTemplate}"
-               DataContext="{Binding Tiles[2]}"
-               IsVisible="{Binding Path=TileItem, Converter={StaticResource ReferenceToBoolConverter}}"/>
+               DataContext="{Binding Item3}"
+               IsVisible="{Binding Path=Item3, Converter={StaticResource ReferenceToBoolConverter}}"/>
 
       <Control x:Name="Tile4" Grid.Row="3"
                Template="{ThemeResource SquareTileContainerTemplate}"
-               DataContext="{Binding Tiles[3]}"
-               IsVisible="{Binding Path=TileItem, Converter={StaticResource ReferenceToBoolConverter}}"/>
+               DataContext="{Binding Item4}"
+               IsVisible="{Binding Path=Item4, Converter={StaticResource ReferenceToBoolConverter}}"/>
 
       <Control x:Name="Tile5" Grid.Row="4"
                Template="{ThemeResource SquareTileContainerTemplate}"
-               DataContext="{Binding Tiles[4]}"
-               IsVisible="{Binding Path=TileItem, Converter={StaticResource ReferenceToBoolConverter}}"/>
+               DataContext="{Binding Item5}"
+               IsVisible="{Binding Path=Item5, Converter={StaticResource ReferenceToBoolConverter}}"/>
     </Grid>
   </ControlTemplate>
 
   <!-- 6 poster tiles, 2 large and 4 small -->
   <ControlTemplate x:Key="PosterTileLayout1Template">
-    <Grid DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=TileGroup}">
+    <Grid>
       <Grid.ColumnDefinitions>
         <ColumnDefinition Width="*"/>
         <ColumnDefinition Width="*"/>
@@ -922,40 +922,40 @@
 
       <Control x:Name="Tile1" Grid.Column="0" Grid.Row="0" Grid.ColumnSpan="2" Grid.RowSpan="2"
                Template="{ThemeResource PosterTileContainerTemplate}"
-               DataContext="{Binding Tiles[0]}"
-               IsVisible="{Binding Path=TileItem, Converter={StaticResource ReferenceToBoolConverter}}"/>
+               DataContext="{Binding Item1}"
+               IsVisible="{Binding Path=Item1, Converter={StaticResource ReferenceToBoolConverter}}"/>
 
       <Control x:Name="Tile2" Grid.Column="2" Grid.Row="0"
                Template="{ThemeResource PosterTileContainerTemplate}"
-               DataContext="{Binding Tiles[1]}"
-               IsVisible="{Binding Path=TileItem, Converter={StaticResource ReferenceToBoolConverter}}"/>
+               DataContext="{Binding Item2}"
+               IsVisible="{Binding Path=Item2, Converter={StaticResource ReferenceToBoolConverter}}"/>
 
       <Control x:Name="Tile3" Grid.Column="3" Grid.Row="0"
                Template="{ThemeResource PosterTileContainerTemplate}"
-               DataContext="{Binding Tiles[2]}"
-               IsVisible="{Binding Path=TileItem, Converter={StaticResource ReferenceToBoolConverter}}"/>
+               DataContext="{Binding Item3}"
+               IsVisible="{Binding Path=Item3, Converter={StaticResource ReferenceToBoolConverter}}"/>
 
       <Control x:Name="Tile4" Grid.Column="0" Grid.Row="2"
                Template="{ThemeResource PosterTileContainerTemplate}"
-               DataContext="{Binding Tiles[3]}"
-               IsVisible="{Binding Path=TileItem, Converter={StaticResource ReferenceToBoolConverter}}"/>
+               DataContext="{Binding Item4}"
+               IsVisible="{Binding Path=Item4, Converter={StaticResource ReferenceToBoolConverter}}"/>
 
       <Control x:Name="Tile5" Grid.Column="1" Grid.Row="2"
                Template="{ThemeResource PosterTileContainerTemplate}"
-               DataContext="{Binding Tiles[4]}"
-               IsVisible="{Binding Path=TileItem, Converter={StaticResource ReferenceToBoolConverter}}"/>
+               DataContext="{Binding Item5}"
+               IsVisible="{Binding Path=Item5, Converter={StaticResource ReferenceToBoolConverter}}"/>
 
       <Control x:Name="Tile6" Grid.Column="2" Grid.Row="1" Grid.ColumnSpan="2" Grid.RowSpan="2"
                Template="{ThemeResource PosterTileContainerTemplate}"
-               DataContext="{Binding Tiles[5]}"
-               IsVisible="{Binding Path=TileItem, Converter={StaticResource ReferenceToBoolConverter}}"/>
+               DataContext="{Binding Item6}"
+               IsVisible="{Binding Path=Item6, Converter={StaticResource ReferenceToBoolConverter}}"/>
 
     </Grid>
   </ControlTemplate>
 
   <!-- 6 poster tiles, 2 large and 4 small, mirrors PosterTileLayout1Template -->
   <ControlTemplate x:Key="PosterTileLayout2Template">
-    <Grid DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=TileGroup}">
+    <Grid>
       <Grid.ColumnDefinitions>
         <ColumnDefinition Width="*"/>
         <ColumnDefinition Width="*"/>
@@ -971,40 +971,40 @@
 
       <Control x:Name="Tile1" Grid.Column="0" Grid.Row="0"
                Template="{ThemeResource PosterTileContainerTemplate}"
-               DataContext="{Binding Tiles[0]}"
-               IsVisible="{Binding Path=TileItem, Converter={StaticResource ReferenceToBoolConverter}}"/>
+               DataContext="{Binding Item1}"
+               IsVisible="{Binding Path=Item1, Converter={StaticResource ReferenceToBoolConverter}}"/>
 
       <Control x:Name="Tile2" Grid.Column="1" Grid.Row="0"
                Template="{ThemeResource PosterTileContainerTemplate}"
-               DataContext="{Binding Tiles[1]}"
-               IsVisible="{Binding Path=TileItem, Converter={StaticResource ReferenceToBoolConverter}}"/>
+               DataContext="{Binding Item2}"
+               IsVisible="{Binding Path=Item2, Converter={StaticResource ReferenceToBoolConverter}}"/>
 
       <Control x:Name="Tile3" Grid.Column="2" Grid.Row="0" Grid.ColumnSpan="2" Grid.RowSpan="2"
                Template="{ThemeResource PosterTileContainerTemplate}"
-               DataContext="{Binding Tiles[2]}"
-               IsVisible="{Binding Path=TileItem, Converter={StaticResource ReferenceToBoolConverter}}"/>
+               DataContext="{Binding Item3}"
+               IsVisible="{Binding Path=Item3, Converter={StaticResource ReferenceToBoolConverter}}"/>
 
       <Control x:Name="Tile4" Grid.Column="0" Grid.Row="1" Grid.ColumnSpan="2" Grid.RowSpan="2"
                Template="{ThemeResource PosterTileContainerTemplate}"
-               DataContext="{Binding Tiles[3]}"
-               IsVisible="{Binding Path=TileItem, Converter={StaticResource ReferenceToBoolConverter}}"/>
+               DataContext="{Binding Item4}"
+               IsVisible="{Binding Path=Item4, Converter={StaticResource ReferenceToBoolConverter}}"/>
 
       <Control x:Name="Tile5" Grid.Column="2" Grid.Row="2"
                Template="{ThemeResource PosterTileContainerTemplate}"
-               DataContext="{Binding Tiles[4]}"
-               IsVisible="{Binding Path=TileItem, Converter={StaticResource ReferenceToBoolConverter}}"/>
+               DataContext="{Binding Item5}"
+               IsVisible="{Binding Path=Item5, Converter={StaticResource ReferenceToBoolConverter}}"/>
 
       <Control x:Name="Tile6" Grid.Column="3" Grid.Row="2"
                Template="{ThemeResource PosterTileContainerTemplate}"
-               DataContext="{Binding Tiles[5]}"
-               IsVisible="{Binding Path=TileItem, Converter={StaticResource ReferenceToBoolConverter}}"/>
+               DataContext="{Binding Item6}"
+               IsVisible="{Binding Path=Item6, Converter={StaticResource ReferenceToBoolConverter}}"/>
 
     </Grid>
   </ControlTemplate>
 
   <!-- 6 poster tiles, 2 large and 4 small -->
   <ControlTemplate x:Key="PosterTileLayout3Template">
-    <Grid DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=TileGroup}">
+    <Grid>
       <Grid.ColumnDefinitions>
         <ColumnDefinition Width="*"/>
         <ColumnDefinition Width="*"/>
@@ -1020,33 +1020,33 @@
 
       <Control x:Name="Tile1" Grid.Column="0" Grid.Row="0" Grid.ColumnSpan="2" Grid.RowSpan="2"
                Template="{ThemeResource PosterTileContainerTemplate}"
-               DataContext="{Binding Tiles[0]}"
-               IsVisible="{Binding Path=TileItem, Converter={StaticResource ReferenceToBoolConverter}}"/>
+               DataContext="{Binding Item1}"
+               IsVisible="{Binding Path=Item1, Converter={StaticResource ReferenceToBoolConverter}}"/>
 
       <Control x:Name="Tile2" Grid.Column="2" Grid.Row="0" Grid.ColumnSpan="2" Grid.RowSpan="2"
                Template="{ThemeResource PosterTileContainerTemplate}"
-               DataContext="{Binding Tiles[1]}"
-               IsVisible="{Binding Path=TileItem, Converter={StaticResource ReferenceToBoolConverter}}"/>
+               DataContext="{Binding Item2}"
+               IsVisible="{Binding Path=Item2, Converter={StaticResource ReferenceToBoolConverter}}"/>
 
       <Control x:Name="Tile3" Grid.Column="0" Grid.Row="2"
                Template="{ThemeResource PosterTileContainerTemplate}"
-               DataContext="{Binding Tiles[2]}"
-               IsVisible="{Binding Path=TileItem, Converter={StaticResource ReferenceToBoolConverter}}"/>
+               DataContext="{Binding Item3}"
+               IsVisible="{Binding Path=Item3, Converter={StaticResource ReferenceToBoolConverter}}"/>
 
       <Control x:Name="Tile4" Grid.Column="1" Grid.Row="2"
                Template="{ThemeResource PosterTileContainerTemplate}"
-               DataContext="{Binding Tiles[3]}"
-               IsVisible="{Binding Path=TileItem, Converter={StaticResource ReferenceToBoolConverter}}"/>
+               DataContext="{Binding Item4}"
+               IsVisible="{Binding Path=Item4, Converter={StaticResource ReferenceToBoolConverter}}"/>
 
       <Control x:Name="Tile5" Grid.Column="2" Grid.Row="2"
                Template="{ThemeResource PosterTileContainerTemplate}"
-               DataContext="{Binding Tiles[4]}"
-               IsVisible="{Binding Path=TileItem, Converter={StaticResource ReferenceToBoolConverter}}"/>
+               DataContext="{Binding Item5}"
+               IsVisible="{Binding Path=Item4, Converter={StaticResource ReferenceToBoolConverter}}"/>
 
       <Control x:Name="Tile6" Grid.Column="3" Grid.Row="2" 
                Template="{ThemeResource PosterTileContainerTemplate}"
-               DataContext="{Binding Tiles[5]}"
-               IsVisible="{Binding Path=TileItem, Converter={StaticResource ReferenceToBoolConverter}}"/>
+               DataContext="{Binding Item6}"
+               IsVisible="{Binding Path=Item6, Converter={StaticResource ReferenceToBoolConverter}}"/>
 
     </Grid>
   </ControlTemplate>
@@ -1056,21 +1056,133 @@
   <!--+++++++++++++++++++++++++++++++++++++++-->
 
   <Style x:Key="MediaGridTemplateStyle" BasedOn="{ThemeResource DefaultItemContainerStyle}">
-    <Setter Property="Content">
+    <Setter Property="Template">
       <Setter.Value>
-        <DockPanel x:Name="MediaGridPanel"
-                   Height="{ThemeResource TileGroupHeight}" Margin="{ThemeResource TileGroupMargin}">
+        <ControlTemplate>
+          <DockPanel x:Name="MediaGridPanel" Margin="{ThemeResource TileGroupMargin}"
+                     Height="{ThemeResource TileGroupHeight}">
 
-          <Label x:Name="MediaListLabel" FontFamily="SegoeUIBold" DockPanel.Dock="Top" HorizontalAlignment="Left"
-                 Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallerFontSize}"
-                 Content="{Binding Source={DynamicResource Grid_Label},Path=Resource}"/>
+            <Label x:Name="MediaListLabel" FontFamily="SegoeUIBold" DockPanel.Dock="Top" HorizontalAlignment="Left"
+                   Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallerFontSize}"
+                   Content="{Binding [Name]}"/>
 
-          <nereus_controls:TileGroupWrapper ItemsSource="{Binding Path=AllItems}"
-                                            Template="{Binding Source={DynamicResource Grid_Style},Path=Resource}"/>
-        </DockPanel>
+            <Control Template="{DynamicResource Tile_Layout_Template}"/>
+
+          </DockPanel>
+        </ControlTemplate>
       </Setter.Value>
     </Setter>
   </Style>
+
+  <!--
+  Default home content template that is displayed when there is no configured
+  home content for the selected item.
+  -->
+  <DataTemplate DataType="{x:Type nereus_home_content:DefaultHomeContent}">
+    <Control/>
+  </DataTemplate>
+
+  <!--
+		##############################################################################################################################################################################################
+		############################################################### MEDIA SHORTCUT TEMPLATES #####################################################################################################
+		##############################################################################################################################################################################################
+	-->
+
+  <!--Base style for all media shortcut buttons-->
+  <Style x:Key="BaseShortcutItemControlStyle" TargetType="{x:Type Control}">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate>
+          <Button Width="170" Height="159" Focusable="True" Margin="{ThemeResource TileMargin}" Style="{ThemeResource SubMenuButtonStyle}"
+                    VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
+                    Command="{Binding Command}">
+            <Button.Content>
+              <Image Source="{Binding Source={DynamicResource Shortcut_Item_Image}, Path=Value}" Stretch="Uniform" Opacity="1"/>
+            </Button.Content>
+            <Button.Triggers>
+              <Trigger Property="HasFocus" Value="True">
+                <Setter TargetName="ItemLabel" Property="Content" Value="{DynamicResource Shortcut_Item_Label}"/>
+              </Trigger>
+            </Button.Triggers>
+          </Button>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+
+  <!--Generic genre shortcut button-->
+  <Style x:Key="GenreShortcutItemControlStyle" BasedOn="{ThemeResource BaseShortcutItemControlStyle}">
+    <Style.Resources>
+      <ResourceWrapper x:Key="Shortcut_Item_Label" Value="Genre"/>
+      <ResourceWrapper x:Key="Shortcut_Item_Image" Value="MediaMenu\genre.png"/>
+    </Style.Resources>
+  </Style>
+
+  <!--Generic year shortcut button-->
+  <Style x:Key="YearShortcutItemControlStyle" BasedOn="{ThemeResource BaseShortcutItemControlStyle}">
+    <Style.Resources>
+      <ResourceWrapper x:Key="Shortcut_Item_Label" Value="Year"/>
+      <ResourceWrapper x:Key="Shortcut_Item_Image" Value="MediaMenu\year.png"/>
+    </Style.Resources>
+  </Style>
+
+  <!--Generic age shortcut button-->
+  <Style x:Key="AgeShortcutItemControlStyle" BasedOn="{ThemeResource BaseShortcutItemControlStyle}">
+    <Style.Resources>
+      <ResourceWrapper x:Key="Shortcut_Item_Label" Value="Age"/>
+      <ResourceWrapper x:Key="Shortcut_Item_Image" Value="MediaMenu\age.png"/>
+    </Style.Resources>
+  </Style>
+
+  <!--Generic actor shortcut button-->
+  <Style x:Key="ActorShortcutItemControlStyle" BasedOn="{ThemeResource BaseShortcutItemControlStyle}">
+    <Style.Resources>
+      <ResourceWrapper x:Key="Shortcut_Item_Label" Value="Actor"/>
+      <ResourceWrapper x:Key="Shortcut_Item_Image" Value="MediaMenu\actor.png"/>
+    </Style.Resources>
+  </Style>
+
+  <!--Generic search shortcut button-->
+  <Style x:Key="SearchShortcutItemControlStyle" BasedOn="{ThemeResource BaseShortcutItemControlStyle}">
+    <Style.Resources>
+      <ResourceWrapper x:Key="Shortcut_Item_Label" Value="Search"/>
+      <ResourceWrapper x:Key="Shortcut_Item_Image" Value="MediaMenu\search.png"/>
+    </Style.Resources>
+  </Style>
+
+  <!--Data templates that automatically select the appropriate shortcut button style based on type-->
+  
+  <DataTemplate DataType="{x:Type nereus_home_content:GenreShortcutItem}">
+    <Control Style="{ThemeResource GenreShortcutItemControlStyle}"/>
+  </DataTemplate>
+
+  <DataTemplate DataType="{x:Type nereus_home_content:YearShortcutItem}">
+    <Control Style="{ThemeResource YearShortcutItemControlStyle}"/>
+  </DataTemplate>
+
+  <DataTemplate DataType="{x:Type nereus_home_content:AgeShortcutItem}">
+    <Control Style="{ThemeResource AgeShortcutItemControlStyle}"/>
+  </DataTemplate>
+
+  <DataTemplate DataType="{x:Type nereus_home_content:ActorShortcutItem}">
+    <Control Style="{ThemeResource ActorShortcutItemControlStyle}"/>
+  </DataTemplate>
+
+  <DataTemplate DataType="{x:Type nereus_home_content:SearchShortcutItem}">
+    <Control Style="{ThemeResource SearchShortcutItemControlStyle}"/>
+  </DataTemplate>
+
+  <!--Style for a listview showing shortcut buttons in a vertical list-->
+  <Style x:Key="MediaShortcutListViewStyle" BasedOn="{ThemeResource DefaultListViewStyle}">
+    <Setter Property="ItemTemplate"/>
+    <!-- Don't inherit the ItemTemplate from DefaultListViewStyle - It should remain null to make the SkinEngine choose an appropriate template -->
+  </Style>
+
+  <DataTemplate DataType="{x:Type nereus_home_content:MediaShortcutListWrapper}">
+    <ListView Width="190" Margin="0,35,15,0" RestoreFocus="True"
+              Style="{ThemeResource MediaShortcutListViewStyle}"
+              ItemsSource="{Binding Items}"/>
+  </DataTemplate>
 
   <!--
 		##############################################################################################################################################################################################
@@ -1123,437 +1235,214 @@
 
   <!--++++++++++ Movies +++++++++++-->
 
-  <ControlTemplate x:Key="80d2e2cc-baaa-4750-807b-f37714153751">
-    <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
-      <Grid.ColumnDefinitions>
-        <ColumnDefinition Width="*"/>
-      </Grid.ColumnDefinitions>
-      <Grid.RowDefinitions>
-        <RowDefinition Height="*"/>
-      </Grid.RowDefinitions>
+  <DataTemplate DataType="{x:Type nereus_home_content:LatestMovieList}">
 
-      <Grid.Resources>
-        <ControlTemplate x:Key="Square_Tile_Template">
-          <Control Template="{ThemeResource SquareTileTemplate}"/>
-        </ControlTemplate>
-        <ControlTemplate x:Key="Thumbnail_Tile_Template">
-          <Control Template="{ThemeResource SquareTileTemplate}"/>
-        </ControlTemplate>
-        <ControlTemplate x:Key="Poster_Tile_Template">
-          <Control Template="{ThemeResource MoviePosterTileTemplate}"/>
-        </ControlTemplate>
-        <ControlTemplate x:Key="Banner_Tile_Template">
-          <Control Template="{ThemeResource MovieBannerTileTemplate}"/>
-        </ControlTemplate>
-      </Grid.Resources>
-      
-      <ListView Style="{ThemeResource HomeTilesListViewStyle}"
-                IsEnabled="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=IsEnabled}">
+    <Control Style="{ThemeResource MediaGridTemplateStyle}" Width="{ThemeResource TileGroupWidthMedium}">
+      <Control.Resources>
+        <ResourceWrapper x:Key="Tile_Layout_Template" Value="{ThemeResource PosterTileLayout1Template}"/>
+      </Control.Resources>
+    </Control>
 
-        <ListView Width="190" Margin="0,35,15,0" RestoreFocus="True">
-          <ListViewItem>
-            <Button Width="170" Height="159" Focusable="True" Margin="{ThemeResource TileMargin}" Style="{ThemeResource SubMenuButtonStyle}"
-                    VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
-                    Command="{Command Source={Service WorkflowManager},Path=NavigatePush,Parameters=2529B0F0-8415-4A4E-971B-38D6CDD2406A}">
-              <Button.Content>
-                <Image Source="MediaMenu\genre.png" Stretch="Uniform" Opacity="1"/>
-              </Button.Content>
-              <Button.Triggers>
-                <Trigger Property="HasFocus" Value="True">
-                  <Setter TargetName="ItemLabel" Property="Content" Value="Genre"/>
-                </Trigger>
-              </Button.Triggers>
-            </Button>
-          </ListViewItem>
-          <ListViewItem>
-            <Button Width="170" Height="159" Focusable="True" Margin="{ThemeResource TileMargin}" Style="{ThemeResource SubMenuButtonStyle}"
-                    VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
-                    Command="{Command Source={Service WorkflowManager},Path=NavigatePush,Parameters=2529B0F0-8415-4A4E-971B-38D6CDD2406A}">
-              <Button.Content>
-                <Image Source="MediaMenu\year.png" Stretch="Uniform" Opacity="1"/>
-              </Button.Content>
-              <Button.Triggers>
-                <Trigger Property="HasFocus" Value="True">
-                  <Setter TargetName="ItemLabel" Property="Content" Value="Year"/>
-                </Trigger>
-              </Button.Triggers>
-            </Button>
-          </ListViewItem>
-          <ListViewItem>
-            <Button Width="170" Height="159" Focusable="True" Margin="{ThemeResource TileMargin}" Style="{ThemeResource SubMenuButtonStyle}"
-                    VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
-                    Command="{Command Source={Service WorkflowManager},Path=NavigatePush,Parameters=2529B0F0-8415-4A4E-971B-38D6CDD2406A}">
-              <Button.Content>
-                <Image Source="MediaMenu\age.png" Stretch="Uniform" Opacity="1"/>
-              </Button.Content>
-              <Button.Triggers>
-                <Trigger Property="HasFocus" Value="True">
-                  <Setter TargetName="ItemLabel" Property="Content" Value="Age Rating"/>
-                </Trigger>
-              </Button.Triggers>
-            </Button>
-          </ListViewItem>
-          <ListViewItem>
-            <Button Width="170" Height="159" Focusable="True" Margin="{ThemeResource TileMargin}" Style="{ThemeResource SubMenuButtonStyle}"
-                    VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
-                    Command="{Command Source={Service WorkflowManager},Path=NavigatePush,Parameters=2529B0F0-8415-4A4E-971B-38D6CDD2406A}">
-              <Button.Content>
-                <Image Source="MediaMenu\actor.png" Stretch="Uniform" Opacity="1"/>
-              </Button.Content>
-              <Button.Triggers>
-                <Trigger Property="HasFocus" Value="True">
-                  <Setter TargetName="ItemLabel" Property="Content" Value="Actor"/>
-                </Trigger>
-              </Button.Triggers>
-            </Button>
-          </ListViewItem>
-          <ListViewItem>
-            <Button Width="170" Height="159" Focusable="True" Margin="{ThemeResource TileMargin}" Style="{ThemeResource SubMenuButtonStyle}"
-                    VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
-                    Command="{Command Source={Service WorkflowManager},Path=NavigatePush,Parameters=2529B0F0-8415-4A4E-971B-38D6CDD2406A}">
-              <Button.Content>
-                <Image Source="MediaMenu\search.png" Stretch="Uniform" Opacity="1"/>
-              </Button.Content>
-              <Button.Triggers>
-                <Trigger Property="HasFocus" Value="True">
-                  <Setter TargetName="ItemLabel" Property="Content" Value="Search"/>
-                </Trigger>
-              </Button.Triggers>
-            </Button>
-          </ListViewItem>
-        </ListView>
+  </DataTemplate>
 
-        <ListViewItem DataContext="{Binding Source={StaticResource MediaListModel}, Path=Lists[LatestMovies]}"
-                      Style="{ThemeResource MediaGridTemplateStyle}" Width="{ThemeResource TileGroupWidthMedium}"
-                      Visibility="{Binding Source={Binding AllItems}, Converter={StaticResource MediaListVisibilityConverter}}">
-          <ListViewItem.Resources>
-            <ResourceWrapper x:Key="Grid_Label" Resource="[Nereus.Home.LatestAdded]"/>
-            <ResourceWrapper x:Key="Grid_Style" Resource="{ThemeResource PosterTileLayout1Template}"/>
-          </ListViewItem.Resources>
-        </ListViewItem>
-        
-        <ListViewItem DataContext="{Binding Source={StaticResource MediaListModel}, Path=Lists[ContinuePlayMovies]}"
-                      Style="{ThemeResource MediaGridTemplateStyle}" Width="{ThemeResource TileGroupWidthMedium}"
-                      Visibility="{Binding Source={Binding AllItems}, Converter={StaticResource MediaListVisibilityConverter}}">
-          <ListViewItem.Resources>
-            <ResourceWrapper x:Key="Grid_Label" Resource="[Nereus.Home.ContinuePlayed]"/>
-            <ResourceWrapper x:Key="Grid_Style" Resource="{ThemeResource PosterTileLayout2Template}"/>
-          </ListViewItem.Resources>
-        </ListViewItem>
-        
-        <ListViewItem DataContext="{Binding Source={StaticResource MediaListModel}, Path=Lists[FavoriteMovies]}"
-                      Style="{ThemeResource MediaGridTemplateStyle}" Width="{ThemeResource TileGroupWidthMedium}"
-                      Visibility="{Binding Source={Binding AllItems}, Converter={StaticResource MediaListVisibilityConverter}}">
-          <ListViewItem.Resources>
-            <ResourceWrapper x:Key="Grid_Label" Resource="[Nereus.Home.Favorites]"/>
-            <ResourceWrapper x:Key="Grid_Style" Resource="{ThemeResource PosterTileLayout1Template}"/>
-          </ListViewItem.Resources>
-        </ListViewItem>
-        
-        
-        <ListViewItem DataContext="{Binding Source={StaticResource MediaListModel}, Path=Lists[UnplayedMovies]}"
-                      Style="{ThemeResource MediaGridTemplateStyle}" Width="{ThemeResource TileGroupWidthMedium}"
-                      Visibility="{Binding Source={Binding AllItems}, Converter={StaticResource MediaListVisibilityConverter}}">
-          <ListViewItem.Resources>
-            <ResourceWrapper x:Key="Grid_Label" Resource="[Nereus.Home.Unplayed]"/>
-            <ResourceWrapper x:Key="Grid_Style" Resource="{ThemeResource PosterTileLayout2Template}"/>
-          </ListViewItem.Resources>
-        </ListViewItem>
-        
-      </ListView>
-    </Grid>
-  </ControlTemplate>
+  <DataTemplate DataType="{x:Type nereus_home_content:ContinueMovieList}">
+
+    <Control Style="{ThemeResource MediaGridTemplateStyle}" Width="{ThemeResource TileGroupWidthMedium}">
+      <Control.Resources>
+        <ResourceWrapper x:Key="Tile_Layout_Template" Value="{ThemeResource PosterTileLayout2Template}"/>
+      </Control.Resources>
+    </Control>
+
+  </DataTemplate>
+
+  <DataTemplate DataType="{x:Type nereus_home_content:FavoriteMovieList}">
+
+    <Control Style="{ThemeResource MediaGridTemplateStyle}" Width="{ThemeResource TileGroupWidthMedium}">
+      <Control.Resources>
+        <ResourceWrapper x:Key="Tile_Layout_Template" Value="{ThemeResource PosterTileLayout1Template}"/>
+      </Control.Resources>
+    </Control>
+
+  </DataTemplate>
+
+  <DataTemplate DataType="{x:Type nereus_home_content:UnplayedMovieList}">
+
+    <Control Style="{ThemeResource MediaGridTemplateStyle}" Width="{ThemeResource TileGroupWidthMedium}">
+      <Control.Resources>
+        <ResourceWrapper x:Key="Tile_Layout_Template" Value="{ThemeResource PosterTileLayout2Template}"/>
+      </Control.Resources>
+    </Control>
+
+  </DataTemplate>
+
+  <DataTemplate DataType="{x:Type nereus_home_content:MovieHomeContent}">
+
+    <ListView Style="{ThemeResource HomeTilesListViewStyle}" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+              IsEnabled="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=IsEnabled}"
+              ItemsSource="{Binding Items}">
+      <ListView.Resources>
+        <ResourceWrapper x:Key="Square_Tile_Template" Value="{ThemeResource SquareTileTemplate}"/>
+        <ResourceWrapper x:Key="Thumbnail_Tile_Template" Value="{ThemeResource SquareTileTemplate}"/>
+        <ResourceWrapper x:Key="Poster_Tile_Template" Value="{ThemeResource MoviePosterTileTemplate}"/>
+        <ResourceWrapper x:Key="Banner_Tile_Template" Value="{ThemeResource MovieBannerTileTemplate}"/>
+      </ListView.Resources>
+    </ListView>
+
+  </DataTemplate>
 
   <!--++++++++++ Series +++++++++++-->
 
-  <ControlTemplate x:Key="30f57cba-459c-4202-a587-09fff5098251">
-    <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
-      <Grid.ColumnDefinitions>
-        <ColumnDefinition Width="*"/>
-      </Grid.ColumnDefinitions>
-      <Grid.RowDefinitions>
-        <RowDefinition Height="*"/>
-      </Grid.RowDefinitions>
+  <DataTemplate DataType="{x:Type nereus_home_content:LatestEpisodeList}">
 
-      <Grid.Resources>
-        <ControlTemplate x:Key="Square_Tile_Template">
-          <Control Template="{ThemeResource SquareTileTemplate}"/>
-        </ControlTemplate>
-        <ControlTemplate x:Key="Thumbnail_Tile_Template">
-          <Control Template="{ThemeResource SquareTileTemplate}"/>
-        </ControlTemplate>
-        <ControlTemplate x:Key="Poster_Tile_Template">
-          <Control Template="{ThemeResource SeriesPosterTileTemplate}"/>
-        </ControlTemplate>
-        <ControlTemplate x:Key="Banner_Tile_Template">
-          <Control Template="{ThemeResource SeriesBannerTileTemplate}"/>
-        </ControlTemplate>
-      </Grid.Resources>
+    <Control Style="{ThemeResource MediaGridTemplateStyle}" Width="{ThemeResource TileGroupWidthMedium}">
+      <Control.Resources>
+        <ResourceWrapper x:Key="Tile_Layout_Template" Value="{ThemeResource SquareTileLayout1Template}"/>
+      </Control.Resources>
+    </Control>
 
-      <ListView Style="{ThemeResource HomeTilesListViewStyle}"
-                IsEnabled="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=IsEnabled}">
+  </DataTemplate>
 
-        <ListView Width="190" Margin="0,35,15,0">
-          <ListViewItem>
-            <Button Width="170" Height="159" Focusable="True" Margin="{ThemeResource TileMargin}" Style="{ThemeResource SubMenuButtonStyle}"
-                    VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
-                    Command="{Command Source={Service WorkflowManager},Path=NavigatePush,Parameters=2529B0F0-8415-4A4E-971B-38D6CDD2406A}">
-              <Button.Content>
-                <Image Source="MediaMenu\genre.png" Stretch="Uniform" Opacity="1"/>
-              </Button.Content>
-              <Button.Triggers>
-                <Trigger Property="HasFocus" Value="True">
-                  <Setter TargetName="ItemLabel" Property="Content" Value="Genre"/>
-                </Trigger>
-              </Button.Triggers>
-            </Button>
-          </ListViewItem>
-          <ListViewItem>
-            <Button Width="170" Height="159" Focusable="True" Margin="{ThemeResource TileMargin}" Style="{ThemeResource SubMenuButtonStyle}"
-                    VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
-                    Command="{Command Source={Service WorkflowManager},Path=NavigatePush,Parameters=2529B0F0-8415-4A4E-971B-38D6CDD2406A}">
-              <Button.Content>
-                <Image Source="MediaMenu\year.png" Stretch="Uniform" Opacity="1"/>
-              </Button.Content>
-              <Button.Triggers>
-                <Trigger Property="HasFocus" Value="True">
-                  <Setter TargetName="ItemLabel" Property="Content" Value="Year"/>
-                </Trigger>
-              </Button.Triggers>
-            </Button>
-          </ListViewItem>
-          <ListViewItem>
-            <Button Width="170" Height="159" Focusable="True" Margin="{ThemeResource TileMargin}" Style="{ThemeResource SubMenuButtonStyle}"
-                    VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
-                    Command="{Command Source={Service WorkflowManager},Path=NavigatePush,Parameters=2529B0F0-8415-4A4E-971B-38D6CDD2406A}">
-              <Button.Content>
-                <Image Source="MediaMenu\age.png" Stretch="Uniform" Opacity="1"/>
-              </Button.Content>
-              <Button.Triggers>
-                <Trigger Property="HasFocus" Value="True">
-                  <Setter TargetName="ItemLabel" Property="Content" Value="Age Rating"/>
-                </Trigger>
-              </Button.Triggers>
-            </Button>
-          </ListViewItem>
-          <ListViewItem>
-            <Button Width="170" Height="159" Focusable="True" Margin="{ThemeResource TileMargin}" Style="{ThemeResource SubMenuButtonStyle}"
-                    VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
-                    Command="{Command Source={Service WorkflowManager},Path=NavigatePush,Parameters=2529B0F0-8415-4A4E-971B-38D6CDD2406A}">
-              <Button.Content>
-                <Image Source="MediaMenu\actor.png" Stretch="Uniform" Opacity="1"/>
-              </Button.Content>
-              <Button.Triggers>
-                <Trigger Property="HasFocus" Value="True">
-                  <Setter TargetName="ItemLabel" Property="Content" Value="Actor"/>
-                </Trigger>
-              </Button.Triggers>
-            </Button>
-          </ListViewItem>
-          <ListViewItem>
-            <Button Width="170" Height="159" Focusable="True" Margin="{ThemeResource TileMargin}" Style="{ThemeResource SubMenuButtonStyle}"
-                    VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
-                    Command="{Command Source={Service WorkflowManager},Path=NavigatePush,Parameters=2529B0F0-8415-4A4E-971B-38D6CDD2406A}">
-              <Button.Content>
-                <Image Source="MediaMenu\search.png" Stretch="Uniform" Opacity="1"/>
-              </Button.Content>
-              <Button.Triggers>
-                <Trigger Property="HasFocus" Value="True">
-                  <Setter TargetName="ItemLabel" Property="Content" Value="Search"/>
-                </Trigger>
-              </Button.Triggers>
-            </Button>
-          </ListViewItem>
-        </ListView>
+  <DataTemplate DataType="{x:Type nereus_home_content:ContinueSeriesList}">
 
-        <ListViewItem DataContext="{Binding Source={StaticResource MediaListModel}, Path=Lists[LatestEpisodes]}"
-                      Style="{ThemeResource MediaGridTemplateStyle}" Width="{ThemeResource TileGroupWidthWide}"
-                      Visibility="{Binding Source={Binding AllItems}, Converter={StaticResource MediaListVisibilityConverter}}">
-          <ListViewItem.Resources>
-            <ResourceWrapper x:Key="Grid_Label" Resource="[Nereus.Home.LatestAdded]"/>
-            <ResourceWrapper x:Key="Grid_Style" Resource="{ThemeResource SquareTileLayout1Template}"/>
-          </ListViewItem.Resources>
-        </ListViewItem>
+    <Control Style="{ThemeResource MediaGridTemplateStyle}" Width="{ThemeResource TileGroupWidthMedium}">
+      <Control.Resources>
+        <ResourceWrapper x:Key="Tile_Layout_Template" Value="{ThemeResource PosterTileLayout3Template}"/>
+      </Control.Resources>
+    </Control>
 
-        <ListViewItem DataContext="{Binding Source={StaticResource MediaListModel}, Path=Lists[ContinuePlaySeries]}"
-                      Style="{ThemeResource MediaGridTemplateStyle}" Width="{ThemeResource TileGroupWidthMedium}"
-                      Visibility="{Binding Source={Binding AllItems}, Converter={StaticResource MediaListVisibilityConverter}}">
-          <ListViewItem.Resources>
-            <ResourceWrapper x:Key="Grid_Label" Resource="[Nereus.Home.ContinuePlayed]"/>
-            <ResourceWrapper x:Key="Grid_Style" Resource="{ThemeResource PosterTileLayout3Template}"/>
-          </ListViewItem.Resources>
-        </ListViewItem>
+  </DataTemplate>
 
-        <ListViewItem DataContext="{Binding Source={StaticResource MediaListModel}, Path=Lists[FavoriteSeries]}"
-                      Style="{ThemeResource MediaGridTemplateStyle}" Width="{ThemeResource TileGroupWidthMedium}"
-                      Visibility="{Binding Source={Binding AllItems}, Converter={StaticResource MediaListVisibilityConverter}}">
-          <ListViewItem.Resources>
-            <ResourceWrapper x:Key="Grid_Label" Resource="[Nereus.Home.Favorites]"/>
-            <ResourceWrapper x:Key="Grid_Style" Resource="{ThemeResource PosterTileLayout1Template}"/>
-          </ListViewItem.Resources>
-        </ListViewItem>
+  <DataTemplate DataType="{x:Type nereus_home_content:FavoriteSeriesList}">
 
+    <Control Style="{ThemeResource MediaGridTemplateStyle}" Width="{ThemeResource TileGroupWidthMedium}">
+      <Control.Resources>
+        <ResourceWrapper x:Key="Tile_Layout_Template" Value="{ThemeResource PosterTileLayout1Template}"/>
+      </Control.Resources>
+    </Control>
 
-        <ListViewItem DataContext="{Binding Source={StaticResource MediaListModel}, Path=Lists[UnplayedSeries]}"
-                      Style="{ThemeResource MediaGridTemplateStyle}" Width="{ThemeResource TileGroupWidthMedium}"
-                      Visibility="{Binding Source={Binding AllItems}, Converter={StaticResource MediaListVisibilityConverter}}">
-          <ListViewItem.Resources>
-            <ResourceWrapper x:Key="Grid_Label" Resource="[Nereus.Home.Unplayed]"/>
-            <ResourceWrapper x:Key="Grid_Style" Resource="{ThemeResource PosterTileLayout2Template}"/>
-          </ListViewItem.Resources>
-        </ListViewItem>
+  </DataTemplate>
 
-      </ListView>
-    </Grid>
-  </ControlTemplate>
+  <DataTemplate DataType="{x:Type nereus_home_content:UnplayedSeriesList}">
+
+    <Control Style="{ThemeResource MediaGridTemplateStyle}" Width="{ThemeResource TileGroupWidthMedium}">
+      <Control.Resources>
+        <ResourceWrapper x:Key="Tile_Layout_Template" Value="{ThemeResource PosterTileLayout2Template}"/>
+      </Control.Resources>
+    </Control>
+
+  </DataTemplate>
+
+  <DataTemplate DataType="{x:Type nereus_home_content:SeriesHomeContent}">
+
+    <ListView Style="{ThemeResource HomeTilesListViewStyle}" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+              IsEnabled="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=IsEnabled}"
+              ItemsSource="{Binding Items}">
+      <ListView.Resources>
+        <ResourceWrapper x:Key="Square_Tile_Template" Value="{ThemeResource SquareTileTemplate}"/>
+        <ResourceWrapper x:Key="Thumbnail_Tile_Template" Value="{ThemeResource SquareTileTemplate}"/>
+        <ResourceWrapper x:Key="Poster_Tile_Template" Value="{ThemeResource SeriesPosterTileTemplate}"/>
+        <ResourceWrapper x:Key="Banner_Tile_Template" Value="{ThemeResource SeriesBannerTileTemplate}"/>
+      </ListView.Resources>
+    </ListView>
+
+  </DataTemplate>
 
   <!--++++++++++ Audio +++++++++++-->
 
-  <ControlTemplate x:Key="30715d73-4205-417f-80aa-e82f0834171f">
-    <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
-      <Grid.ColumnDefinitions>
-        <ColumnDefinition Width="*"/>
-      </Grid.ColumnDefinitions>
-      <Grid.RowDefinitions>
-        <RowDefinition Height="*"/>
-      </Grid.RowDefinitions>
+  <!--Audio genre shortcut button-->
+  <Style x:Key="AudioGenreShortcutItemControlStyle" BasedOn="{ThemeResource BaseShortcutItemControlStyle}">
+    <Style.Resources>
+      <ResourceWrapper x:Key="Shortcut_Item_Label" Value="Genre"/>
+      <ResourceWrapper x:Key="Shortcut_Item_Image" Value="MediaMenu\audiogenre.png"/>
+    </Style.Resources>
+  </Style>
 
-      <Grid.Resources>
-        <ControlTemplate x:Key="Square_Tile_Template">
-          <Control Template="{ThemeResource SquareTileTemplate}"/>
-        </ControlTemplate>
-        <ControlTemplate x:Key="Thumbnail_Tile_Template">
-          <Control Template="{ThemeResource SquareTileTemplate}"/>
-        </ControlTemplate>
-        <ControlTemplate x:Key="Poster_Tile_Template">
-          <Control Template="{ThemeResource SeriesPosterTileTemplate}"/>
-        </ControlTemplate>
-        <ControlTemplate x:Key="Banner_Tile_Template">
-          <Control Template="{ThemeResource SeriesBannerTileTemplate}"/>
-        </ControlTemplate>
-      </Grid.Resources>
-     
-      <ListView Style="{ThemeResource HomeTilesListViewStyle}"
-                IsEnabled="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=IsEnabled}">
+  <!--Track shortcut button-->
+  <Style x:Key="TrackShortcutItemControlStyle" BasedOn="{ThemeResource BaseShortcutItemControlStyle}">
+    <Style.Resources>
+      <ResourceWrapper x:Key="Shortcut_Item_Label" Value="Track"/>
+      <ResourceWrapper x:Key="Shortcut_Item_Image" Value="MediaMenu\track.png"/>
+    </Style.Resources>
+  </Style>
 
-        <ListView Width="190" Margin="0,35,15,0">
-          <ListViewItem>
-            <Button Width="170" Height="159" Focusable="True" Margin="{ThemeResource TileMargin}" Style="{ThemeResource SubMenuButtonStyle}"
-                    VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
-                    Command="{Command Source={Service WorkflowManager},Path=NavigatePush,Parameters=2529B0F0-8415-4A4E-971B-38D6CDD2406A}">
-              <Button.Content>
-                <Image Source="MediaMenu\audiogenre.png" Stretch="Uniform" Opacity="1"/>
-              </Button.Content>
-              <Button.Triggers>
-                <Trigger Property="HasFocus" Value="True">
-                  <Setter TargetName="ItemLabel" Property="Content" Value="Genre"/>
-                </Trigger>
-              </Button.Triggers>
-            </Button>
-          </ListViewItem>
-          <ListViewItem>
-            <Button Width="170" Height="159" Focusable="True" Margin="{ThemeResource TileMargin}" Style="{ThemeResource SubMenuButtonStyle}"
-                    VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
-                    Command="{Command Source={Service WorkflowManager},Path=NavigatePush,Parameters=2529B0F0-8415-4A4E-971B-38D6CDD2406A}">
-              <Button.Content>
-                <Image Source="MediaMenu\track.png" Stretch="Uniform" Opacity="1"/>
-              </Button.Content>
-              <Button.Triggers>
-                <Trigger Property="HasFocus" Value="True">
-                  <Setter TargetName="ItemLabel" Property="Content" Value="Tracks"/>
-                </Trigger>
-              </Button.Triggers>
-            </Button>
-          </ListViewItem>
-          <ListViewItem>
-            <Button Width="170" Height="159" Focusable="True" Margin="{ThemeResource TileMargin}" Style="{ThemeResource SubMenuButtonStyle}"
-                    VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
-                    Command="{Command Source={Service WorkflowManager},Path=NavigatePush,Parameters=2529B0F0-8415-4A4E-971B-38D6CDD2406A}">
-              <Button.Content>
-                <Image Source="MediaMenu\Album.png" Stretch="Uniform" Opacity="1"/>
-              </Button.Content>
-              <Button.Triggers>
-                <Trigger Property="HasFocus" Value="True">
-                  <Setter TargetName="ItemLabel" Property="Content" Value="Album"/>
-                </Trigger>
-              </Button.Triggers>
-            </Button>
-          </ListViewItem>
-          <ListViewItem>
-            <Button Width="170" Height="159" Focusable="True" Margin="{ThemeResource TileMargin}" Style="{ThemeResource SubMenuButtonStyle}"
-                    VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
-                    Command="{Command Source={Service WorkflowManager},Path=NavigatePush,Parameters=2529B0F0-8415-4A4E-971B-38D6CDD2406A}">
-              <Button.Content>
-                <Image Source="MediaMenu\actor.png" Stretch="Uniform" Opacity="1"/>
-              </Button.Content>
-              <Button.Triggers>
-                <Trigger Property="HasFocus" Value="True">
-                  <Setter TargetName="ItemLabel" Property="Content" Value="Interpret"/>
-                </Trigger>
-              </Button.Triggers>
-            </Button>
-          </ListViewItem>
-          <ListViewItem>
-            <Button Width="170" Height="159" Focusable="True" Margin="{ThemeResource TileMargin}" Style="{ThemeResource SubMenuButtonStyle}"
-                    VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
-                    Command="{Command Source={Service WorkflowManager},Path=NavigatePush,Parameters=2529B0F0-8415-4A4E-971B-38D6CDD2406A}">
-              <Button.Content>
-                <Image Source="MediaMenu\year.png" Stretch="Uniform" Opacity="1"/>
-              </Button.Content>
-              <Button.Triggers>
-                <Trigger Property="HasFocus" Value="True">
-                  <Setter TargetName="ItemLabel" Property="Content" Value="Year"/>
-                </Trigger>
-              </Button.Triggers>
-            </Button>
-          </ListViewItem>
-        </ListView>
+  <!--Album shortcut button-->
+  <Style x:Key="AlbumShortcutItemControlStyle" BasedOn="{ThemeResource BaseShortcutItemControlStyle}">
+    <Style.Resources>
+      <ResourceWrapper x:Key="Shortcut_Item_Label" Value="Album"/>
+      <ResourceWrapper x:Key="Shortcut_Item_Image" Value="MediaMenu\album.png"/>
+    </Style.Resources>
+  </Style>
 
+  <DataTemplate DataType="{x:Type nereus_home_content:AudioGenreShortcut}">
+    <Control Style="{ThemeResource AudioGenreShortcutItemControlStyle}"/>
+  </DataTemplate>
 
-        <ListViewItem DataContext="{Binding Source={StaticResource MediaListModel}, Path=Lists[LatestAudio]}"
-                      Style="{ThemeResource MediaGridTemplateStyle}" Width="{ThemeResource TileGroupWidthNarrow}"
-                      Visibility="{Binding Source={Binding AllItems}, Converter={StaticResource MediaListVisibilityConverter}}">
-          <ListViewItem.Resources>
-            <ResourceWrapper x:Key="Grid_Label" Resource="[Nereus.Home.LatestAdded]"/>
-            <ResourceWrapper x:Key="Grid_Style" Resource="{ThemeResource SquareTileLayout1Template}"/>
-          </ListViewItem.Resources>
-        </ListViewItem>
+  <DataTemplate DataType="{x:Type nereus_home_content:AudioTrackShortcut}">
+    <Control Style="{ThemeResource TrackShortcutItemControlStyle}"/>
+  </DataTemplate>
 
-        <ListViewItem DataContext="{Binding Source={StaticResource MediaListModel}, Path=Lists[ContinuePlayAlbum]}"
-                      Style="{ThemeResource MediaGridTemplateStyle}" Width="{ThemeResource TileGroupWidthNarrow}"
-                      Visibility="{Binding Source={Binding AllItems}, Converter={StaticResource MediaListVisibilityConverter}}">
-          <ListViewItem.Resources>
-            <ResourceWrapper x:Key="Grid_Label" Resource="[Nereus.Home.ContinuePlayed]"/>
-            <ResourceWrapper x:Key="Grid_Style" Resource="{ThemeResource SquareTileLayout2Template}"/>
-          </ListViewItem.Resources>
-        </ListViewItem>
+  <DataTemplate DataType="{x:Type nereus_home_content:AudioAlbumShortcut}">
+    <Control Style="{ThemeResource AlbumShortcutItemControlStyle}"/>
+  </DataTemplate>
 
-        <ListViewItem DataContext="{Binding Source={StaticResource MediaListModel}, Path=Lists[FavoriteAudio]}"
-                      Style="{ThemeResource MediaGridTemplateStyle}" Width="{ThemeResource TileGroupWidthNarrow}"
-                      Visibility="{Binding Source={Binding AllItems}, Converter={StaticResource MediaListVisibilityConverter}}">
-          <ListViewItem.Resources>
-            <ResourceWrapper x:Key="Grid_Label" Resource="[Nereus.Home.Favorites]"/>
-            <ResourceWrapper x:Key="Grid_Style" Resource="{ThemeResource SquareTileLayout1Template}"/>
-          </ListViewItem.Resources>
-        </ListViewItem>
+  <DataTemplate DataType="{x:Type nereus_home_content:LatestAudioList}">
 
+    <Control Style="{ThemeResource MediaGridTemplateStyle}" Width="{ThemeResource TileGroupWidthMedium}">
+      <Control.Resources>
+        <ResourceWrapper x:Key="Tile_Layout_Template" Value="{ThemeResource SquareTileLayout1Template}"/>
+      </Control.Resources>
+    </Control>
 
-        <ListViewItem DataContext="{Binding Source={StaticResource MediaListModel}, Path=Lists[UnplayedAlbums]}"
-                      Style="{ThemeResource MediaGridTemplateStyle}" Width="{ThemeResource TileGroupWidthNarrow}"
-                      Visibility="{Binding Source={Binding AllItems}, Converter={StaticResource MediaListVisibilityConverter}}">
-          <ListViewItem.Resources>
-            <ResourceWrapper x:Key="Grid_Label" Resource="[Nereus.Home.Unplayed]"/>
-            <ResourceWrapper x:Key="Grid_Style" Resource="{ThemeResource SquareTileLayout2Template}"/>
-          </ListViewItem.Resources>
-        </ListViewItem>
+  </DataTemplate>
 
-      </ListView>
-    </Grid>
-  </ControlTemplate>
+  <DataTemplate DataType="{x:Type nereus_home_content:ContinueAlbumList}">
+
+    <Control Style="{ThemeResource MediaGridTemplateStyle}" Width="{ThemeResource TileGroupWidthMedium}">
+      <Control.Resources>
+        <ResourceWrapper x:Key="Tile_Layout_Template" Value="{ThemeResource SquareTileLayout2Template}"/>
+      </Control.Resources>
+    </Control>
+
+  </DataTemplate>
+
+  <DataTemplate DataType="{x:Type nereus_home_content:FavoriteAudioList}">
+
+    <Control Style="{ThemeResource MediaGridTemplateStyle}" Width="{ThemeResource TileGroupWidthMedium}">
+      <Control.Resources>
+        <ResourceWrapper x:Key="Tile_Layout_Template" Value="{ThemeResource SquareTileLayout1Template}"/>
+      </Control.Resources>
+    </Control>
+
+  </DataTemplate>
+
+  <DataTemplate DataType="{x:Type nereus_home_content:UnplayedAlbumList}">
+
+    <Control Style="{ThemeResource MediaGridTemplateStyle}" Width="{ThemeResource TileGroupWidthMedium}">
+      <Control.Resources>
+        <ResourceWrapper x:Key="Tile_Layout_Template" Value="{ThemeResource SquareTileLayout2Template}"/>
+      </Control.Resources>
+    </Control>
+
+  </DataTemplate>
+
+  <DataTemplate DataType="{x:Type nereus_home_content:AudioHomeContent}">
+
+    <ListView Style="{ThemeResource HomeTilesListViewStyle}" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+              IsEnabled="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=IsEnabled}"
+              ItemsSource="{Binding Items}">
+      <ListView.Resources>
+        <ResourceWrapper x:Key="Square_Tile_Template" Value="{ThemeResource SquareTileTemplate}"/>
+        <ResourceWrapper x:Key="Thumbnail_Tile_Template" Value="{ThemeResource SquareTileTemplate}"/>
+        <ResourceWrapper x:Key="Poster_Tile_Template" Value="{ThemeResource SeriesPosterTileTemplate}"/>
+        <ResourceWrapper x:Key="Banner_Tile_Template" Value="{ThemeResource SeriesBannerTileTemplate}"/>
+      </ListView.Resources>
+    </ListView>
+
+  </DataTemplate>
 
   <!--++++++++++ News +++++++++++-->
 
-  <ControlTemplate x:Key="bb49a591-7705-408f-8177-45d633fdfad0">
+  <DataTemplate DataType="{x:Type nereus_home_content:NewsHomeContent}">
     <Grid Margin="0,70,0,0" Height="350" Width="980" HorizontalAlignment="Left" VerticalAlignment="Top"
           DataContext="{Binding Source={StaticResource CurrentNewsModel}}">
       <Grid.ColumnDefinitions>
@@ -1571,11 +1460,11 @@
              Content="{Binding CurrentNewsItem.Summary}" HorizontalAlignment="Stretch" Opacity="1.3"
              Color="{ThemeResource MenuTextBackground}" FontSize="{ThemeResource SmallFontSize}"/>
     </Grid>
-  </ControlTemplate>
+  </DataTemplate>
 
   <!--++++++++++ Weather +++++++++++-->
 
-  <ControlTemplate x:Key="e34fdb62-1f3e-4aa9-8a61-d143e0af77b5">
+  <DataTemplate DataType="{x:Type nereus_home_content:WeatherHomeContent}">
     <Grid DataContext="{Binding Source={StaticResource CurrentWeatherModel}}" VerticalAlignment="Top" Margin="0,70,0,0">
       <Grid.ColumnDefinitions>
         <ColumnDefinition Width="Auto" />
@@ -1607,307 +1496,196 @@
         </StackPanel>
       </StackPanel>
     </Grid>
-  </ControlTemplate>
+  </DataTemplate>
 
   <!--++++++++++ TV +++++++++++-->
 
-  <ControlTemplate x:Key="b4a9199f-6dd4-4bda-a077-de9c081f7703">
-    <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
-      <Grid.ColumnDefinitions>
-        <ColumnDefinition Width="*"/>
-      </Grid.ColumnDefinitions>
-      <Grid.RowDefinitions>
-        <RowDefinition Height="*"/>
-      </Grid.RowDefinitions>
+  <!--Live TV shortcut button-->
+  <Style x:Key="LiveTVShortcutItemControlStyle" BasedOn="{ThemeResource BaseShortcutItemControlStyle}">
+    <Style.Resources>
+      <ResourceWrapper x:Key="Shortcut_Item_Label" Value="LiveTV"/>
+      <ResourceWrapper x:Key="Shortcut_Item_Image" Value="MediaMenu\LiveTV.png"/>
+    </Style.Resources>
+  </Style>
 
-      <Grid.Resources>
-        <ControlTemplate x:Key="Square_Tile_Template">
-          <Control Template="{ThemeResource TVChannelTileTemplate}"/>
-        </ControlTemplate>
-        <ControlTemplate x:Key="Thumbnail_Tile_Template">
-          <Control Template="{ThemeResource TVChannelTileTemplate}"/>
-        </ControlTemplate>
-        <ControlTemplate x:Key="Poster_Tile_Template">
-          <Control Template="{ThemeResource TVChannelTileTemplate}"/>
-        </ControlTemplate>
-        <ControlTemplate x:Key="Banner_Tile_Template">
-          <Control Template="{ThemeResource TVChannelTileTemplate}"/>
-        </ControlTemplate>
-      </Grid.Resources>
+  <!--EPG shortcut button-->
+  <Style x:Key="EPGShortcutItemControlStyle" BasedOn="{ThemeResource BaseShortcutItemControlStyle}">
+    <Style.Resources>
+      <ResourceWrapper x:Key="Shortcut_Item_Label" Value="TV-Guide"/>
+      <ResourceWrapper x:Key="Shortcut_Item_Image" Value="MediaMenu\EPG.png"/>
+    </Style.Resources>
+  </Style>
 
-      <ListView Style="{ThemeResource HomeTilesListViewStyle}"
-                IsEnabled="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=IsEnabled}">
+  <!--Schedules shortcut button-->
+  <Style x:Key="SchedulesShortcutItemControlStyle" BasedOn="{ThemeResource BaseShortcutItemControlStyle}">
+    <Style.Resources>
+      <ResourceWrapper x:Key="Shortcut_Item_Label" Value="Schedules"/>
+      <ResourceWrapper x:Key="Shortcut_Item_Image" Value="MediaMenu\schedules.png"/>
+    </Style.Resources>
+  </Style>
 
-        <ListView Width="190" Margin="0,35,15,0">
-          <ListViewItem>
-            <Button Width="170" Height="159" Focusable="True" Margin="{ThemeResource TileMargin}" Style="{ThemeResource SubMenuButtonStyle}"
-                    VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
-                    Command="{Command Source={Service WorkflowManager},Path=NavigatePush,Parameters=C7646667-5E63-48c7-A490-A58AC9518CFA}">
-              <Button.Content>
-                <Image Source="MediaMenu\LiveTV.png" Stretch="Uniform" Opacity="1"/>
-              </Button.Content>
-              <Button.Triggers>
-                <Trigger Property="HasFocus" Value="True">
-                  <Setter TargetName="ItemLabel" Property="Content" Value="LiveTV"/>
-                </Trigger>
-              </Button.Triggers>
-            </Button>
-          </ListViewItem>
-          <ListViewItem>
-            <Button Width="170" Height="159" Focusable="True" Margin="{ThemeResource TileMargin}" Style="{ThemeResource SubMenuButtonStyle}"
-                    VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
-                    Command="{Command Source={Service WorkflowManager},Path=NavigatePush,Parameters=7323BEB9-F7B0-48c8-80FF-8B59A4DB5385}">
-              <Button.Content>
-                <Image Source="MediaMenu\EPG.png" Stretch="Uniform" Opacity="1"/>
-              </Button.Content>
-              <Button.Triggers>
-                <Trigger Property="HasFocus" Value="True">
-                  <Setter TargetName="ItemLabel" Property="Content" Value="TV-Guide"/>
-                </Trigger>
-              </Button.Triggers>
-            </Button>
-          </ListViewItem>
-          <ListViewItem>
-            <Button Width="170" Height="159" Focusable="True" Margin="{ThemeResource TileMargin}" Style="{ThemeResource SubMenuButtonStyle}"
-                    VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
-                    Command="{Command Source={Service WorkflowManager},Path=NavigatePush,Parameters=88842E97-2EF9-4658-AD35-8D74E3C689A4}">
-              <Button.Content>
-                <Image Source="MediaMenu\schedules.png" Stretch="Uniform" Opacity="1"/>
-              </Button.Content>
-              <Button.Triggers>
-                <Trigger Property="HasFocus" Value="True">
-                  <Setter TargetName="ItemLabel" Property="Content" Value="Schedules"/>
-                </Trigger>
-              </Button.Triggers>
-            </Button>
-          </ListViewItem>
-          <ListViewItem>
-            <Button Width="170" Height="159" Focusable="True" Margin="{ThemeResource TileMargin}" Style="{ThemeResource SubMenuButtonStyle}"
-                    VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
-                    Command="{Command Source={Service WorkflowManager},Path=NavigatePush,Parameters=9D5B01A7-035F-46CF-8246-3C158C6CA960}">
-              <Button.Content>
-                <Image Source="MediaMenu\Recordings.png" Stretch="Uniform" Opacity="1"/>
-              </Button.Content>
-              <Button.Triggers>
-                <Trigger Property="HasFocus" Value="True">
-                  <Setter TargetName="ItemLabel" Property="Content" Value="Recordings"/>
-                </Trigger>
-              </Button.Triggers>
-            </Button>
-          </ListViewItem>
-          <ListViewItem>
-            <Button Width="170" Height="159" Focusable="True" Margin="{ThemeResource TileMargin}" Style="{ThemeResource SubMenuButtonStyle}"
-                    VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
-                    Command="{Command Source={Service WorkflowManager},Path=NavigatePush,Parameters=CB5D4851-27D2-4222-B6A0-703EDC2071B5}">
-              <Button.Content>
-                <Image Source="MediaMenu\search.png" Stretch="Uniform" Opacity="1"/>
-              </Button.Content>
-              <Button.Triggers>
-                <Trigger Property="HasFocus" Value="True">
-                  <Setter TargetName="ItemLabel" Property="Content" Value="Search Program"/>
-                </Trigger>
-              </Button.Triggers>
-            </Button>
-          </ListViewItem>
-        </ListView>
+  <!--Recordings shortcut button-->
+  <Style x:Key="RecordingsShortcutItemControlStyle" BasedOn="{ThemeResource BaseShortcutItemControlStyle}">
+    <Style.Resources>
+      <ResourceWrapper x:Key="Shortcut_Item_Label" Value="Recordings"/>
+      <ResourceWrapper x:Key="Shortcut_Item_Image" Value="MediaMenu\Recordings.png"/>
+    </Style.Resources>
+  </Style>
 
-        <ListViewItem DataContext="{Binding Source={StaticResource MediaListModel}, Path=Lists[LastPlayTV]}"
-                      Style="{ThemeResource MediaGridTemplateStyle}" Width="{ThemeResource TileGroupWidthVeryNarrow}"
-                      Visibility="{Binding Source={Binding AllItems}, Converter={StaticResource MediaListVisibilityConverter}}">
-          <ListViewItem.Resources>
-            <ResourceWrapper x:Key="Grid_Label" Resource="[Nereus.Home.LatestPlayed]"/>
-            <ResourceWrapper x:Key="Grid_Style" Resource="{ThemeResource SquareTileLayout3Template}"/>
-          </ListViewItem.Resources>
-        </ListViewItem>
-        
-        <ListViewItem DataContext="{Binding Source={StaticResource MediaListModel}, Path=Lists[FavoriteTV]}"
-                      Style="{ThemeResource MediaGridTemplateStyle}" Width="{ThemeResource TileGroupWidthTiny}"
-                      Visibility="{Binding Source={Binding AllItems}, Converter={StaticResource MediaListVisibilityConverter}}">
-          <ListViewItem.Resources>
-            <ResourceWrapper x:Key="Grid_Label" Resource="[Nereus.Home.Favorites]"/>
-            <ResourceWrapper x:Key="Grid_Style" Resource="{ThemeResource SquareTileLayout4Template}"/>
-          </ListViewItem.Resources>
-        </ListViewItem>
+  <DataTemplate DataType="{x:Type nereus_home_content:LiveTVShortcut}">
+    <Control Style="{ThemeResource LiveTVShortcutItemControlStyle}"/>
+  </DataTemplate>
 
-        <ListViewItem DataContext="{Binding Source={StaticResource MediaListModel}, Path=Lists[CurrentPrograms]}"
-                      Style="{ThemeResource MediaGridTemplateStyle}" Width="{ThemeResource TileGroupWidthNarrow}"
-                      Visibility="{Binding Source={Binding AllItems}, Converter={StaticResource MediaListVisibilityConverter}}">
-          <ListViewItem.Resources>
-            <ResourceWrapper x:Key="Grid_Label" Resource="[Nereus.Home.CurrentPrograms]"/>
-            <ResourceWrapper x:Key="Grid_Style" Resource="{ThemeResource SquareTileLayout4Template}"/>
-            <ControlTemplate x:Key="Square_Tile_Template">
-              <Control Template="{ThemeResource TVProgramTileTemplate}"/>
-            </ControlTemplate>
-            <ControlTemplate x:Key="Thumbnail_Tile_Template">
-              <Control Template="{ThemeResource TVProgramTileTemplate}"/>
-            </ControlTemplate>
-            <ControlTemplate x:Key="Poster_Tile_Template">
-              <Control Template="{ThemeResource TVProgramTileTemplate}"/>
-            </ControlTemplate>
-            <ControlTemplate x:Key="Banner_Tile_Template">
-              <Control Template="{ThemeResource TVProgramTileTemplate}"/>
-            </ControlTemplate>
-          </ListViewItem.Resources>
-        </ListViewItem>
+  <DataTemplate DataType="{x:Type nereus_home_content:EPGShortcut}">
+    <Control Style="{ThemeResource EPGShortcutItemControlStyle}"/>
+  </DataTemplate>
 
-        <ListViewItem DataContext="{Binding Source={StaticResource MediaListModel}, Path=Lists[CurrentSchedules]}"
-                      Style="{ThemeResource MediaGridTemplateStyle}" Width="{ThemeResource TileGroupWidthNarrow}"
-                      Visibility="{Binding Source={Binding AllItems}, Converter={StaticResource MediaListVisibilityConverter}}">
-          <ListViewItem.Resources>
-            <ResourceWrapper x:Key="Grid_Label" Resource="[Nereus.Home.CurrentSchedules]"/>
-            <ResourceWrapper x:Key="Grid_Style" Resource="{ThemeResource SquareTileLayout4Template}"/>
-            <ControlTemplate x:Key="Square_Tile_Template">
-              <Control Template="{ThemeResource TVScheduleTileTemplate}"/>
-            </ControlTemplate>
-            <ControlTemplate x:Key="Thumbnail_Tile_Template">
-              <Control Template="{ThemeResource TVScheduleTileTemplate}"/>
-            </ControlTemplate>
-            <ControlTemplate x:Key="Poster_Tile_Template">
-              <Control Template="{ThemeResource TVScheduleTileTemplate}"/>
-            </ControlTemplate>
-            <ControlTemplate x:Key="Banner_Tile_Template">
-              <Control Template="{ThemeResource TVScheduleTileTemplate}"/>
-            </ControlTemplate>
-          </ListViewItem.Resources>
-        </ListViewItem>
-        
-      </ListView>
-    </Grid>
-  </ControlTemplate>
+  <DataTemplate DataType="{x:Type nereus_home_content:SchedulesShortcut}">
+    <Control Style="{ThemeResource SchedulesShortcutItemControlStyle}"/>
+  </DataTemplate>
+
+  <DataTemplate DataType="{x:Type nereus_home_content:RecordingsShortcut}">
+    <Control Style="{ThemeResource RecordingsShortcutItemControlStyle}"/>
+  </DataTemplate>
+
+  <DataTemplate DataType="{x:Type nereus_home_content:LastPlayTVList}">
+
+    <Control Style="{ThemeResource MediaGridTemplateStyle}" Width="{ThemeResource TileGroupWidthVeryNarrow}">
+      <Control.Resources>
+        <ResourceWrapper x:Key="Tile_Layout_Template" Value="{ThemeResource SquareTileLayout3Template}"/>
+      </Control.Resources>
+    </Control>
+
+  </DataTemplate>
+
+  <DataTemplate DataType="{x:Type nereus_home_content:FavoriteTVList}">
+
+    <Control Style="{ThemeResource MediaGridTemplateStyle}" Width="{ThemeResource TileGroupWidthTiny}">
+      <Control.Resources>
+        <ResourceWrapper x:Key="Tile_Layout_Template" Value="{ThemeResource SquareTileLayout4Template}"/>
+      </Control.Resources>
+    </Control>
+
+  </DataTemplate>
+
+  <DataTemplate DataType="{x:Type nereus_home_content:CurrentTVList}">
+
+    <Control Style="{ThemeResource MediaGridTemplateStyle}" Width="{ThemeResource TileGroupWidthNarrow}">
+      <Control.Resources>
+        <ResourceWrapper x:Key="Square_Tile_Template" Value="{ThemeResource TVProgramTileTemplate}"/>
+        <ResourceWrapper x:Key="Tile_Layout_Template" Value="{ThemeResource SquareTileLayout4Template}"/>
+      </Control.Resources>
+    </Control>
+
+  </DataTemplate>
+
+  <DataTemplate DataType="{x:Type nereus_home_content:CurrentSchedulesList}">
+
+    <Control Style="{ThemeResource MediaGridTemplateStyle}" Width="{ThemeResource TileGroupWidthNarrow}">
+      <Control.Resources>
+        <ResourceWrapper x:Key="Square_Tile_Template" Value="{ThemeResource TVScheduleTileTemplate}"/>
+        <ResourceWrapper x:Key="Tile_Layout_Template" Value="{ThemeResource SquareTileLayout4Template}"/>
+      </Control.Resources>
+    </Control>
+
+  </DataTemplate>
+
+  <DataTemplate DataType="{x:Type nereus_home_content:TVHomeContent}">
+
+    <ListView Style="{ThemeResource HomeTilesListViewStyle}" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+              IsEnabled="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=IsEnabled}"
+              ItemsSource="{Binding Items}">
+      <ListView.Resources>
+        <ResourceWrapper x:Key="Square_Tile_Template" Value="{ThemeResource TVChannelTileTemplate}"/>
+        <ResourceWrapper x:Key="Thumbnail_Tile_Template" Value="{ThemeResource TVChannelTileTemplate}"/>
+        <ResourceWrapper x:Key="Poster_Tile_Template" Value="{ThemeResource TVChannelTileTemplate}"/>
+        <ResourceWrapper x:Key="Banner_Tile_Template" Value="{ThemeResource TVChannelTileTemplate}"/>
+      </ListView.Resources>
+    </ListView>
+
+  </DataTemplate>
 
   <!--++++++++++ Image +++++++++++-->
+  
+  <!--Image location shortcut button-->
+  <Style x:Key="ImageLocationShortcutItemControlStyle" BasedOn="{ThemeResource BaseShortcutItemControlStyle}">
+    <Style.Resources>
+      <ResourceWrapper x:Key="Shortcut_Item_Label" Value="Place"/>
+      <ResourceWrapper x:Key="Shortcut_Item_Image" Value="MediaMenu\place.png"/>
+    </Style.Resources>
+  </Style>
 
-  <ControlTemplate x:Key="55556593-9fe9-436c-a3b6-a971e10c9d44">
-    <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
-      <Grid.ColumnDefinitions>
-        <ColumnDefinition Width="*"/>
-      </Grid.ColumnDefinitions>
-      <Grid.RowDefinitions>
-        <RowDefinition Height="*"/>
-      </Grid.RowDefinitions>
+  <!--Image system shortcut button-->
+  <Style x:Key="ImageSystemShortcutItemControlStyle" BasedOn="{ThemeResource BaseShortcutItemControlStyle}">
+    <Style.Resources>
+      <ResourceWrapper x:Key="Shortcut_Item_Label" Value="System"/>
+      <ResourceWrapper x:Key="Shortcut_Item_Image" Value="MediaMenu\System.png"/>
+    </Style.Resources>
+  </Style>
 
-      <Grid.Resources>
-        <ControlTemplate x:Key="Square_Tile_Template">
-          <Control Template="{ThemeResource SquareTileTemplate}"/>
-        </ControlTemplate>
-        <ControlTemplate x:Key="Thumbnail_Tile_Template">
-          <Control Template="{ThemeResource SquareTileTemplate}"/>
-        </ControlTemplate>
-        <ControlTemplate x:Key="Poster_Tile_Template">
-          <Control Template="{ThemeResource SeriesPosterTileTemplate}"/>
-        </ControlTemplate>
-        <ControlTemplate x:Key="Banner_Tile_Template">
-          <Control Template="{ThemeResource SeriesBannerTileTemplate}"/>
-        </ControlTemplate>
-      </Grid.Resources>
+  <!--Image size shortcut button-->
+  <Style x:Key="ImageSizeShortcutItemControlStyle" BasedOn="{ThemeResource BaseShortcutItemControlStyle}">
+    <Style.Resources>
+      <ResourceWrapper x:Key="Shortcut_Item_Label" Value="Size"/>
+      <ResourceWrapper x:Key="Shortcut_Item_Image" Value="MediaMenu\Size.png"/>
+    </Style.Resources>
+  </Style>
 
-      <ListView Style="{ThemeResource HomeTilesListViewStyle}"
-                IsEnabled="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=IsEnabled}">
+  <DataTemplate DataType="{x:Type nereus_home_content:ImageLocationShortcut}">
+    <Control Style="{ThemeResource ImageLocationShortcutItemControlStyle}"/>
+  </DataTemplate>
 
-        <ListView Width="190" Margin="0,35,15,0">
-          <ListViewItem>
-            <Button Width="170" Height="159" Focusable="True" Margin="{ThemeResource TileMargin}" Style="{ThemeResource SubMenuButtonStyle}"
-                    VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
-                    Command="{Command Source={Service WorkflowManager},Path=NavigatePush,Parameters=2529B0F0-8415-4A4E-971B-38D6CDD2406A}">
-              <Button.Content>
-                <Image Source="MediaMenu\year.png" Stretch="Uniform" Opacity="1"/>
-              </Button.Content>
-              <Button.Triggers>
-                <Trigger Property="HasFocus" Value="True">
-                  <Setter TargetName="ItemLabel" Property="Content" Value="Year"/>
-                </Trigger>
-              </Button.Triggers>
-            </Button>
-          </ListViewItem>
-          <ListViewItem>
-            <Button Width="170" Height="159" Focusable="True" Margin="{ThemeResource TileMargin}" Style="{ThemeResource SubMenuButtonStyle}"
-                    VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
-                    Command="{Command Source={Service WorkflowManager},Path=NavigatePush,Parameters=2529B0F0-8415-4A4E-971B-38D6CDD2406A}">
-              <Button.Content>
-                <Image Source="MediaMenu\place.png" Stretch="Uniform" Opacity="1"/>
-              </Button.Content>
-              <Button.Triggers>
-                <Trigger Property="HasFocus" Value="True">
-                  <Setter TargetName="ItemLabel" Property="Content" Value="Place"/>
-                </Trigger>
-              </Button.Triggers>
-            </Button>
-          </ListViewItem>
-          <ListViewItem>
-            <Button Width="170" Height="159" Focusable="True" Margin="{ThemeResource TileMargin}" Style="{ThemeResource SubMenuButtonStyle}"
-                    VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
-                    Command="{Command Source={Service WorkflowManager},Path=NavigatePush,Parameters=2529B0F0-8415-4A4E-971B-38D6CDD2406A}">
-              <Button.Content>
-                <Image Source="MediaMenu\System.png" Stretch="Uniform" Opacity="1"/>
-              </Button.Content>
-              <Button.Triggers>
-                <Trigger Property="HasFocus" Value="True">
-                  <Setter TargetName="ItemLabel" Property="Content" Value="System"/>
-                </Trigger>
-              </Button.Triggers>
-            </Button>
-          </ListViewItem>
-          <ListViewItem>
-            <Button Width="170" Height="159" Focusable="True" Margin="{ThemeResource TileMargin}" Style="{ThemeResource SubMenuButtonStyle}"
-                    VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
-                    Command="{Command Source={Service WorkflowManager},Path=NavigatePush,Parameters=2529B0F0-8415-4A4E-971B-38D6CDD2406A}">
-              <Button.Content>
-                <Image Source="MediaMenu\Size.png" Stretch="Uniform" Opacity="1"/>
-              </Button.Content>
-              <Button.Triggers>
-                <Trigger Property="HasFocus" Value="True">
-                  <Setter TargetName="ItemLabel" Property="Content" Value="Size"/>
-                </Trigger>
-              </Button.Triggers>
-            </Button>
-          </ListViewItem>
-          <ListViewItem>
-            <Button Width="170" Height="159" Focusable="True" Margin="{ThemeResource TileMargin}" Style="{ThemeResource SubMenuButtonStyle}"
-                    VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
-                    Command="{Command Source={Service WorkflowManager},Path=NavigatePush,Parameters=2529B0F0-8415-4A4E-971B-38D6CDD2406A}">
-              <Button.Content>
-                <Image Source="MediaMenu\Search.png" Stretch="Uniform" Opacity="1"/>
-              </Button.Content>
-              <Button.Triggers>
-                <Trigger Property="HasFocus" Value="True">
-                  <Setter TargetName="ItemLabel" Property="Content" Value="Search"/>
-                </Trigger>
-              </Button.Triggers>
-            </Button>
-          </ListViewItem>
-        </ListView>
+  <DataTemplate DataType="{x:Type nereus_home_content:ImageSystemShortcut}">
+    <Control Style="{ThemeResource ImageSystemShortcutItemControlStyle}"/>
+  </DataTemplate>
 
+  <DataTemplate DataType="{x:Type nereus_home_content:ImageSizeShortcut}">
+    <Control Style="{ThemeResource ImageSizeShortcutItemControlStyle}"/>
+  </DataTemplate>
 
-        <ListViewItem DataContext="{Binding Source={StaticResource MediaListModel}, Path=Lists[LatestImages]}"
-                      Style="{ThemeResource MediaGridTemplateStyle}" Width="{ThemeResource TileGroupWidthWide}"
-                      Visibility="{Binding Source={Binding AllItems}, Converter={StaticResource MediaListVisibilityConverter}}">
-          <ListViewItem.Resources>
-            <ResourceWrapper x:Key="Grid_Label" Resource="[Nereus.Home.LatestAdded]"/>
-            <ResourceWrapper x:Key="Grid_Style" Resource="{ThemeResource SquareTileLayout1Template}"/>
-          </ListViewItem.Resources>
-        </ListViewItem>
+  <DataTemplate DataType="{x:Type nereus_home_content:LatestImageList}">
 
-        <ListViewItem DataContext="{Binding Source={StaticResource MediaListModel}, Path=Lists[FavoriteImages]}"
-                      Style="{ThemeResource MediaGridTemplateStyle}" Width="{ThemeResource TileGroupWidthWide}"
-                      Visibility="{Binding Source={Binding AllItems}, Converter={StaticResource MediaListVisibilityConverter}}">
-          <ListViewItem.Resources>
-            <ResourceWrapper x:Key="Grid_Label" Resource="[Nereus.Home.Favorites]"/>
-            <ResourceWrapper x:Key="Grid_Style" Resource="{ThemeResource SquareTileLayout1Template}"/>
-          </ListViewItem.Resources>
-        </ListViewItem>
+    <Control Style="{ThemeResource MediaGridTemplateStyle}">
+      <Control.Resources>
+        <ResourceWrapper x:Key="Tile_Layout_Template" Value="{ThemeResource SquareTileLayout1Template}"/>
+      </Control.Resources>
+    </Control>
 
+  </DataTemplate>
 
-        <ListViewItem DataContext="{Binding Source={StaticResource MediaListModel}, Path=Lists[UnplayedImages]}"
-                      Style="{ThemeResource MediaGridTemplateStyle}" Width="{ThemeResource TileGroupWidthWide}"
-                      Visibility="{Binding Source={Binding AllItems}, Converter={StaticResource MediaListVisibilityConverter}}">
-          <ListViewItem.Resources>
-            <ResourceWrapper x:Key="Grid_Label" Resource="[Nereus.Home.Unplayed]"/>
-            <ResourceWrapper x:Key="Grid_Style" Resource="{ThemeResource SquareTileLayout2Template}"/>
-          </ListViewItem.Resources>
-        </ListViewItem>
+  <DataTemplate DataType="{x:Type nereus_home_content:FavoriteImageList}">
 
-      </ListView>
-    </Grid>
-  </ControlTemplate>
+    <Control Style="{ThemeResource MediaGridTemplateStyle}">
+      <Control.Resources>
+        <ResourceWrapper x:Key="Tile_Layout_Template" Value="{ThemeResource SquareTileLayout1Template}"/>
+      </Control.Resources>
+    </Control>
+
+  </DataTemplate>
+
+  <DataTemplate DataType="{x:Type nereus_home_content:UnplayedImageList}">
+
+    <Control Style="{ThemeResource MediaGridTemplateStyle}">
+      <Control.Resources>
+        <ResourceWrapper x:Key="Tile_Layout_Template" Value="{ThemeResource SquareTileLayout2Template}"/>
+      </Control.Resources>
+    </Control>
+
+  </DataTemplate>
+
+  <DataTemplate DataType="{x:Type nereus_home_content:ImageHomeContent}">
+
+    <ListView Style="{ThemeResource HomeTilesListViewStyle}" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+              IsEnabled="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=IsEnabled}"
+              ItemsSource="{Binding Items}">
+      <ListView.Resources>
+        <ResourceWrapper x:Key="Square_Tile_Template" Value="{ThemeResource SquareTileTemplate}"/>
+        <ResourceWrapper x:Key="Thumbnail_Tile_Template" Value="{ThemeResource SquareTileTemplate}"/>
+        <ResourceWrapper x:Key="Poster_Tile_Template" Value="{ThemeResource SeriesPosterTileTemplate}"/>
+        <ResourceWrapper x:Key="Banner_Tile_Template" Value="{ThemeResource SeriesBannerTileTemplate}"/>
+      </ListView.Resources>
+    </ListView>
+
+  </DataTemplate>
 
 </ResourceDictionary>

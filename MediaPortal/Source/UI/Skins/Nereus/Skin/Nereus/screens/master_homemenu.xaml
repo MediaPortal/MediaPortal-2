@@ -31,7 +31,6 @@ Parameters which have to be accessible by a DynamicResource lookup:
     xmlns="www.team-mediaportal.com/2008/mpf/directx"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     Source="screens\master_home.xaml"
-    xmlns:nereus_markup_extensions="clr-namespace:MediaPortal.UiComponents.Nereus.MarkupExtensions;assembly=Nereus"
     xmlns:imagesources="clr-namespace:MediaPortal.UI.SkinEngine.Controls.ImageSources;assembly=SkinEngine"
     xmlns:fanart="clr-namespace:MediaPortal.Extensions.UserServices.FanArtService.Client;assembly=FanArtService.Client"
     >
@@ -148,6 +147,11 @@ Parameters which have to be accessible by a DynamicResource lookup:
             </Grid.RowDefinitions>
 
             <Grid.Resources>
+
+              <!--Command to execute when a tile gets focus-->
+              <Command x:Key="Menu_Focus_Command" Source="{StaticResource HomeMenuModel}" Path="SetSelectedHomeTile"
+                       Parameters="{LateBoundValue BindingValue={Binding}}"/>
+
               <!-- HomeContent Storyboard -->
               <Storyboard x:Key="SlideInStoryboard" FillBehavior="HoldEnd">
                 <DoubleAnimation BeginTime="00:00:00" FillBehavior="HoldEnd" Storyboard.TargetProperty="RenderTransform.X"
@@ -177,7 +181,7 @@ Parameters which have to be accessible by a DynamicResource lookup:
             <!-- To allow the next home content to slide in whilst the previous slides out we use the HomeMenuModel
                To alternate the content between HomeContent0Control and HomeContent1Control below -->
 
-            <!-- Home Content 0 -->
+            <!-- Home Content 1 -->
             <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch"                  
                   DataContext="{Binding Source={StaticResource HomeMenuModel}}">
               <Grid.ColumnDefinitions>
@@ -193,34 +197,34 @@ Parameters which have to be accessible by a DynamicResource lookup:
                 <!-- Trigger for the HomeContent Storyboard -->
                 <DataTrigger Binding="{Binding ContentIndex}" Value="0">
                   <DataTrigger.EnterActions>
-                    <BeginStoryboard x:Name="Content0BeginSlideInStoryboard" Storyboard="{StaticResource SlideInStoryboard}"/>
+                    <BeginStoryboard x:Name="Content1BeginSlideInStoryboard" Storyboard="{StaticResource SlideInStoryboard}"/>
                   </DataTrigger.EnterActions>
                   <DataTrigger.ExitActions>
-                    <BeginStoryboard x:Name="Content0BeginSlideOutStoryboard" Storyboard="{StaticResource SlideOutStoryboard}"/>
-                    <StopStoryboard BeginStoryboardName="Content0BeginSlideInStoryboard"/>
+                    <BeginStoryboard x:Name="Content1BeginSlideOutStoryboard" Storyboard="{StaticResource SlideOutStoryboard}"/>
+                    <StopStoryboard BeginStoryboardName="Content1BeginSlideInStoryboard"/>
                   </DataTrigger.ExitActions>
                 </DataTrigger>
               </Grid.Triggers>
 
-              <Control x:Name="HomeContent0Control" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
-                       IsEnabled="True"
-                       Template="{nereus_markup_extensions:DynamicResourceBindingExtension ResourceKey={Binding Content0ActionId}}">
-                <Control.Resources>
-                  <!--Command to execute when a tile gets focus-->
-                  <Command x:Key="Menu_Focus_Command" Source="{StaticResource HomeMenuModel}" Path="SetSelectedHomeTile"
-                           Parameters="{LateBoundValue BindingValue={Binding}}"/>
-                </Control.Resources>
-                
-                <Control.Triggers>
-                  <!-- Only enable the content when visible to prevent hidden content from getting focus -->
+              <ContentControl HorizontalAlignment="Stretch" VerticalAlignment="Stretch" IsEnabled="True"
+                              Content="{Binding Source={StaticResource HomeMenuModel}, Path=Content1}">
+                <ContentControl.Template>
+                  <ControlTemplate>
+                    <ContentPresenter HorizontalAlignment="Stretch" VerticalAlignment="Stretch" />
+                  </ControlTemplate>
+                </ContentControl.Template>
+                <ContentControl.Triggers>
+                  <!--Only enable the content when visible to prevent hidden content from getting focus-->
                   <DataTrigger Binding="{Binding ContentIndex}" Value="1">
                     <Setter Property="IsEnabled" Value="False"/>
                   </DataTrigger>
-                </Control.Triggers>
-              </Control>
+                </ContentControl.Triggers>
+
+              </ContentControl>
+              
             </Grid>
 
-            <!-- Home Content 1 -->
+            <!-- Home Content 2 -->
             <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch"                  
                   DataContext="{Binding Source={StaticResource HomeMenuModel}}">
               <Grid.ColumnDefinitions>
@@ -236,31 +240,31 @@ Parameters which have to be accessible by a DynamicResource lookup:
                 <!-- Trigger for the HomeContent Storyboard -->
                 <DataTrigger Binding="{Binding ContentIndex}" Value="1">
                   <DataTrigger.EnterActions>
-                    <BeginStoryboard x:Name="Content1BeginSlideInStoryboard" Storyboard="{StaticResource SlideInStoryboard}"/>
+                    <BeginStoryboard x:Name="Content2BeginSlideInStoryboard" Storyboard="{StaticResource SlideInStoryboard}"/>
                   </DataTrigger.EnterActions>
                   <DataTrigger.ExitActions>
-                    <BeginStoryboard x:Name="Content1BeginSlideOutStoryboard" Storyboard="{StaticResource SlideOutStoryboard}"/>
-                    <StopStoryboard BeginStoryboardName="Content1BeginSlideInStoryboard"/>
+                    <BeginStoryboard x:Name="Content2BeginSlideOutStoryboard" Storyboard="{StaticResource SlideOutStoryboard}"/>
+                    <StopStoryboard BeginStoryboardName="Content2BeginSlideInStoryboard"/>
                   </DataTrigger.ExitActions>
                 </DataTrigger>
               </Grid.Triggers>
 
-              <Control x:Name="HomeContent1Control" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
-                       IsEnabled="True"
-                       Template="{nereus_markup_extensions:DynamicResourceBindingExtension ResourceKey={Binding Content1ActionId}}">
-                <Control.Resources>
-                  <!--Command to execute when a tile gets focus-->
-                  <Command x:Key="Menu_Focus_Command" Source="{StaticResource HomeMenuModel}" Path="SetSelectedHomeTile"
-                           Parameters="{LateBoundValue BindingValue={Binding}}"/>
-                </Control.Resources>
-                
-                <Control.Triggers>
-                  <!-- Only enable the content when visible to prevent hidden content from getting focus -->
+              <ContentControl HorizontalAlignment="Stretch" VerticalAlignment="Stretch" IsEnabled="True"
+                              Content="{Binding Source={StaticResource HomeMenuModel}, Path=Content2}">
+                <ContentControl.Template>
+                  <ControlTemplate>
+                    <ContentPresenter HorizontalAlignment="Stretch" VerticalAlignment="Stretch" />
+                  </ControlTemplate>
+                </ContentControl.Template>
+                <ContentControl.Triggers>
+                  <!--Only enable the content when visible to prevent hidden content from getting focus-->
                   <DataTrigger Binding="{Binding ContentIndex}" Value="0">
                     <Setter Property="IsEnabled" Value="False"/>
                   </DataTrigger>
-                </Control.Triggers>
-              </Control>
+                </ContentControl.Triggers>
+
+              </ContentControl>
+              
             </Grid>
             
           </Grid>

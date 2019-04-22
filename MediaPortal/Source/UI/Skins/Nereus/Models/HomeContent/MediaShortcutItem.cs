@@ -22,45 +22,48 @@
 
 #endregion
 
-using MediaPortal.Common.General;
+using MediaPortal.Common;
+using MediaPortal.Common.Commands;
 using MediaPortal.UI.Presentation.DataObjects;
+using MediaPortal.UI.Presentation.Workflow;
+using System;
 
-namespace MediaPortal.UiComponents.Nereus.Models.HomeTiles
+namespace MediaPortal.UiComponents.Nereus.Models.HomeContent
 {
-  /// <summary>
-  /// Holds a single item of a <see cref="HomeTileGroup"/>.
-  /// </summary>
-  public class HomeTile : ListItem
+  public class MediaShortcutItem : ListItem
   {
-    protected AbstractProperty _itemProperty = new WProperty(typeof(object), null);
 
-    public HomeTile()
+  }
+
+  public class WorkflowNavigationShortcutItem : MediaShortcutItem
+  {
+    public WorkflowNavigationShortcutItem(Guid stateId)
     {
-
+      Command = new MethodDelegateCommand(() => 
+      {
+        var wm = ServiceRegistration.Get<IWorkflowManager>();
+        wm.NavigatePush(stateId);
+      });
     }
+  }
 
-    public HomeTile(object item)
-    {
-      UpdateItem(item);
-    }
+  public class GenreShortcutItem : MediaShortcutItem
+  {
+  }
 
-    public void UpdateItem(object item)
-    {
-      TileItem = item;
+  public class YearShortcutItem : MediaShortcutItem
+  {
+  }
 
-      ListItem listItem = item as ListItem;
-      Command = listItem != null ? listItem.Command : null;
-    }
+  public class AgeShortcutItem : MediaShortcutItem
+  {
+  }
 
-    public AbstractProperty TileItemProperty
-    {
-      get { return _itemProperty; }
-    }
+  public class ActorShortcutItem : MediaShortcutItem
+  {
+  }
 
-    public object TileItem
-    {
-      get { return _itemProperty.GetValue(); }
-      set { _itemProperty.SetValue(value); }
-    }
+  public class SearchShortcutItem : MediaShortcutItem
+  {
   }
 }
