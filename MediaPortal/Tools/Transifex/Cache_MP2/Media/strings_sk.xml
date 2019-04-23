@@ -288,6 +288,7 @@
   <string name="Media.SortByDate">Dátum</string>
   <string name="Media.GroupingBrowseDefault">Predvolené</string>
   <!--Stubs-->
+  <!--Virtual-->
   <!--Settings-->
   <string name="Settings.Players">Prehrávače</string>
   <string name="Settings.Players.ClosePlayersWhenFinished">Zatvoriť prehrávače po dokončení</string>

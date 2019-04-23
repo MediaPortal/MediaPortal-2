@@ -1644,7 +1644,7 @@
               <Border x:Name="PiPControlBorder"
                   DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}"
                   BorderBrush="{ThemeResource PipBorderColor}" BorderThickness="{ThemeResource PipBorderThickness}">
-                <Grid>
+                <Grid Background="{ThemeResource DialogBackgroundGradient2Color}">
                   <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="Auto"/>
                   </Grid.ColumnDefinitions>
@@ -1666,8 +1666,16 @@
                   <Image x:Name="PiPAudio" IsVisible="{Binding IsAudioPlayerPresent}" Stretch="Uniform" Width="200" Height="200">
                     <Image.Source>
                       <fanart:FanArtImageSource fanart:FanArtMediaType="Album" fanart:FanArtType="Poster" fanart:FanArtName="{Binding MediaItem.MediaItemId}"
-                                            fanart:MaxWidth="200" fanart:MaxHeight="200"/>
+                                                fanart:MaxWidth="200" fanart:MaxHeight="200"/>
                     </Image.Source>
+                  </Image>
+                  <Image Stretch="Uniform" Source="audio.png" HorizontalAlignment="Center" VerticalAlignment="Center" Width="160" Height="160" Margin="20">
+                    <Image.IsVisible>
+                      <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0}&amp;&amp;{1}">
+                        <Binding ElementName="PiPAudio" Path="!HasImage"/>
+                        <Binding Path="IsAudioPlayerPresent"/>
+                      </MultiBinding>
+                    </Image.IsVisible>
                   </Image>
                 </Grid>
               </Border>

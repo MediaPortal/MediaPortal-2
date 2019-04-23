@@ -34,6 +34,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
+using TagLib;
 
 namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor
 {
@@ -58,6 +59,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor
     public static Guid FANARTHANDLER_ID = new Guid(FANARTHANDLER_ID_STR);
 
     private static readonly ICollection<string> MKV_EXTENSIONS = new HashSet<string>(StringComparer.InvariantCultureIgnoreCase) { ".mkv", ".mk3d", ".webm" };
+    private static readonly ICollection<string> MP4_EXTENSIONS = new HashSet<string>(StringComparer.InvariantCultureIgnoreCase) { ".mp4", ".m4v" };
 
     private static readonly ICollection<Tuple<string, string>> MKV_PATTERNS = new List<Tuple<string, string>>
     {
@@ -106,9 +108,8 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor
       if (ShouldCacheLocalFanArt(mediaItemLocator.NativeResourcePath, VideoMetadataExtractor.CacheLocalFanArt, VideoMetadataExtractor.CacheOfflineFanArt))
         await ExtractFolderFanArt(mediaItemLocator, mediaItemId, title).ConfigureAwait(false);
 
-      //Fanart in MKV tags
-      if (MKV_EXTENSIONS.Contains(ResourcePathHelper.GetExtension(mediaItemLocator.NativeResourcePath.FileName)))
-        await ExtractMkvFanArt(mediaItemLocator, mediaItemId, title).ConfigureAwait(false);
+      //Fanart in tags
+      await ExtractFanArt(mediaItemLocator, mediaItemId, title).ConfigureAwait(false);
     }
 
     public override void DeleteFanArt(Guid mediaItemId)
@@ -123,13 +124,13 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor
     #region Protected methods
 
     /// <summary>
-    /// Reads all mkv tag images and caches them in the <see cref="IFanArtCache"/> service.
+    /// Reads all tag images and caches them in the <see cref="IFanArtCache"/> service.
     /// </summary>
     /// <param name="mediaItemLocator"><see cref="IResourceLocator>"/> that points to the file.</param>
     /// <param name="mediaItemId">Id of the media item.</param>
     /// <param name="title">Title of the media item.</param>
     /// <returns><see cref="Task"/> that completes when the images have been cached.</returns>
-    protected async Task ExtractMkvFanArt(IResourceLocator mediaItemLocator, Guid mediaItemId, string title)
+    protected async Task ExtractFanArt(IResourceLocator mediaItemLocator, Guid mediaItemId, string title)
     {
       try
       {
@@ -137,7 +138,12 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor
         using (IResourceAccessor mediaItemAccessor = mediaItemLocator.CreateAccessor())
         using (LocalFsResourceAccessorHelper rah = new LocalFsResourceAccessorHelper(mediaItemAccessor))
         using (rah.LocalFsResourceAccessor.EnsureLocalFileSystemAccess())
-          await ExtractMkvFanArt(rah.LocalFsResourceAccessor, mediaItemId, title).ConfigureAwait(false);
+        {
+          if (MKV_EXTENSIONS.Contains(ResourcePathHelper.GetExtension(mediaItemLocator.NativeResourcePath.FileName)))
+            await ExtractMkvFanArt(rah.LocalFsResourceAccessor, mediaItemId, title).ConfigureAwait(false);
+          if (MP4_EXTENSIONS.Contains(ResourcePathHelper.GetExtension(mediaItemLocator.NativeResourcePath.FileName)))
+            await ExtractTagFanArt(rah.LocalFsResourceAccessor, mediaItemId, title).ConfigureAwait(false);
+        }
       }
       catch (Exception ex)
       {
@@ -165,8 +171,73 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor
         if (binaryData == null)
           continue;
         string filename = pattern + Path.GetFileNameWithoutExtension(lfsra.LocalFileSystemPath);
-        await fanArtCache.TrySaveFanArt(mediaItemId, title, pattern.Item2,
-          p => TrySaveFileImage(binaryData, p, filename)).ConfigureAwait(false);
+        await fanArtCache.TrySaveFanArt(mediaItemId, title, pattern.Item2, p => TrySaveFileImage(binaryData, p, filename)).ConfigureAwait(false);
+      }
+    }
+
+    /// <summary>
+    /// Reads all tag images and caches them in the <see cref="IFanArtCache"/> service.
+    /// </summary>
+    /// <param name="lfsra"><see cref="ILocalFsResourceAccessor>"/> for the file.</param>
+    /// <param name="mediaItemId">Id of the media item.</param>
+    /// <param name="title">Title of the media item.</param>
+    /// <returns><see cref="Task"/> that completes when the images have been cached.</returns>
+    protected async Task ExtractTagFanArt(ILocalFsResourceAccessor lfsra, Guid mediaItemId, string title)
+    {
+      TagLib.File tag;
+      if (!TryCreateTagReader(lfsra, out tag))
+        return;
+
+      using (tag)
+      {
+        IFanArtCache fanArtCache = ServiceRegistration.Get<IFanArtCache>();
+        IPicture[] pics = tag.Tag.Pictures;
+        if (pics.Length > 0)
+        {
+          string filename = Path.GetFileNameWithoutExtension(lfsra.LocalFileSystemPath);
+          bool posterFound = false;
+          foreach (var pic in pics)
+          {
+            if (pic.Type == PictureType.FrontCover)
+            {
+              posterFound = true;
+              filename = "poster." + filename;
+              await fanArtCache.TrySaveFanArt(mediaItemId, title, FanArtTypes.Poster, p => TrySaveFileImage(pic.Data.Data, p, filename)).ConfigureAwait(false);
+            }
+            if (pic.Type == PictureType.MovieScreenCapture)
+            {
+              posterFound = true;
+              filename = "thumb." + filename;
+              await fanArtCache.TrySaveFanArt(mediaItemId, title, FanArtTypes.Thumbnail, p => TrySaveFileImage(pic.Data.Data, p, filename)).ConfigureAwait(false);
+            }
+          }
+          if (!posterFound) //No image found by type, use first image
+          {
+            filename = "thumb." + filename;
+            await fanArtCache.TrySaveFanArt(mediaItemId, title, FanArtTypes.Thumbnail, p => TrySaveFileImage(pics[0].Data.Data, p, filename)).ConfigureAwait(false);
+          }
+        }
+      }
+    }
+
+    protected bool TryCreateTagReader(ILocalFsResourceAccessor lfsra, out TagLib.File tag)
+    {
+      tag = null;
+      if (lfsra == null)
+        return false;
+
+      try
+      {
+        ByteVector.UseBrokenLatin1Behavior = true;  // Otherwise we have problems retrieving non-latin1 chars
+        tag = TagLib.File.Create(lfsra.LocalFileSystemPath);
+        return true;
+      }
+      catch (CorruptFileException)
+      {
+        // Only log at the info level here - And simply return false. This makes the importer know that we
+        // couldn't perform our task here.
+        Logger.Info("VideoFanArtHandler: Video file '{0}' seems to be broken", lfsra.CanonicalLocalResourcePath);
+        return false;
       }
     }
 

@@ -279,7 +279,6 @@
     <Content Include="Skin\BlueVision\themes\Titanium Extended\screens\MultiDetails.inc">
       <SubType>Designer</SubType>
     </Content>
-    <Content Include="Skin\BlueVision\themes\Titanium Extended\screens\ProgramInfoSlim.inc" />
     <Content Include="Skin\BlueVision\themes\Titanium Extended\sounds\click.wav" />
     <Content Include="Skin\BlueVision\themes\Titanium Extended\sounds\navigate.wav" />
     <Content Include="Skin\BlueVision\themes\Titanium Extended\theme.xml" />
@@ -346,10 +345,6 @@
     <ProjectReference Include="..\..\UiComponents\SkinBase\SkinBase.csproj">
       <Project>{4efed5be-2f6a-4944-bb96-053d5945ba1f}</Project>
       <Name>SkinBase</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\Input\MceRemoteReceiver\MceRemoteReceiver.csproj">
-      <Project>{AA23A7F2-8B6D-4C0C-8FAD-F2F58E3F8B08}</Project>
-      <Name>MceRemoteReceiver</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

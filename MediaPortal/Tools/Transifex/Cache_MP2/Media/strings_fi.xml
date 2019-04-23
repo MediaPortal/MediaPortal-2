@@ -292,6 +292,7 @@
   <string name="Media.SortByDate">Pvm</string>
   <string name="Media.GroupingBrowseDefault">Oletus</string>
   <!--Stubs-->
+  <!--Virtual-->
   <!--Settings-->
   <string name="Settings.Players">Soittimet</string>
   <string name="Settings.Players.ClosePlayersWhenFinished">Sammuta soittimet lopuksi</string>

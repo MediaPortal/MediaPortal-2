@@ -877,18 +877,19 @@ namespace MediaPortal.Plugins.SlimTv.Service
         return false;
       foreach (TvDatabase.Schedule schedule in TvDatabase.Schedule.ListAll().Where(schedule => schedule.IsRecordingProgram(canceledProgram, true)))
       {
-        switch (schedule.ScheduleType)
+        RemoteControl.Instance.StopRecordingSchedule(schedule.IdSchedule);
+        if (schedule.ScheduleType == (int)ScheduleRecordingType.Once || recordingType != ScheduleRecordingType.Once)
         {
-          case (int)ScheduleRecordingType.Once:
-            schedule.Delete();
-            RemoteControl.Instance.OnNewSchedule();
-            break;
-          default:
-            CanceledSchedule canceledSchedule = new CanceledSchedule(schedule.IdSchedule, schedule.IdChannel, program.StartTime);
-            canceledSchedule.Persist();
-            RemoteControl.Instance.OnNewSchedule();
-            break;
+          // Delete single schedule, or whole series
+          schedule.Delete();
         }
+        else
+        {
+          // Delete this program only
+          CanceledSchedule canceledSchedule = new CanceledSchedule(schedule.IdSchedule, schedule.IdChannel, program.StartTime);
+          canceledSchedule.Persist();
+        }
+        RemoteControl.Instance.OnNewSchedule();
       }
       return true;
     }

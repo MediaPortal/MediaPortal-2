@@ -22,10 +22,7 @@
   <string name="Settings.Players.VideoPlayer.PreferMultiChannelAudio">Luồng dữ liệu audio nhiều kênh ưa thích</string>
   <string name="Settings.Players.VideoPlayer.PreferMultiChannelAudio.Help">Nếu được bật, các luồng dữ liệu 6ch được chọn (ví dụ. AC3, AAC)</string>
   <string name="Settings.Players.DVDPlayer">Trình xem DVD</string>
-  <string name="Settings.Players.DVDPlayer.EnableClosedCaption">Đầu đề bị đóng</string>
-  <string name="Settings.Players.DVDPlayer.EnableClosedCaption.Help">Chọn nếu phần đầu đề bị đóng nên được bật theo mặc định</string>
-  <string name="Settings.Players.DVDPlayer.EnableSubtitles">Phụ đề</string>
-  <string name="Settings.Players.DVDPlayer.EnableSubtitles.Help">Chọn nếu phụ đề nên được bật theo mặc định</string>
+  <string name="Settings.Players.Subtitles">Phụ đề</string>
   <string name="Playback.NotSpecified">Chưa xác định</string>
   <string name="Playback.CaptionNormal">Đầu đề thông thường</string>
   <string name="Playback.CaptionBig">Đầu đề dạng lớn</string>

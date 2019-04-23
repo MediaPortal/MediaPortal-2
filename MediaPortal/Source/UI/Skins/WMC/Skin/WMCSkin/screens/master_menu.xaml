@@ -60,8 +60,8 @@ Parameters which have to be accessible by a DynamicResource lookup:
         </DockPanel.Resources>
 
         <ListView x:Name="MainMenu" DockPanel.Dock="Left" Margin="10,30,0,10" Style="{ThemeResource LeftMenuListViewStyle}"
-            Width="400" VerticalAlignment="Stretch" SetFocusPrio="Fallback"
-            ItemsSource="{Binding Source={StaticResource MenuModel},Path=MenuItems,Mode=OneTime}">
+                  Width="400" VerticalAlignment="Stretch" SetFocusPrio="Fallback"
+                  ItemsSource="{Binding Source={StaticResource MenuModel},Path=MenuItems,Mode=OneTime}">
           <ListView.Resources>
             <CommandBridge x:Key="Menu_Command" Command="{Binding Path=Command,Mode=OneTime}"/>
           </ListView.Resources>   
@@ -76,16 +76,16 @@ Parameters which have to be accessible by a DynamicResource lookup:
             <RowDefinition Height="*"/>
           </Grid.RowDefinitions>
           <GroupBox x:Name="ContentGroupBox" Grid.Row="0" Grid.Column="0" Margin="10,-15,0,0"
-              Header="{Binding Source={DynamicResource ResourceKey=Header_Text},Path=Resource}" DockPanel.Dock="Center"
-              VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
-              IsVisible="{Binding ElementName=ContentControl,Path=Template,Converter={StaticResource ReferenceToBoolConverter}}"
-              Style="{ThemeResource ContentGroupBoxStyle}">
+                    Header="{Binding Source={DynamicResource ResourceKey=Header_Text},Path=Resource}" DockPanel.Dock="Center"
+                    VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
+                    IsVisible="{Binding ElementName=ContentControl,Path=Template,Converter={StaticResource ReferenceToBoolConverter}}"
+                    Style="{ThemeResource ContentGroupBoxStyle}">
             <Control x:Name="ContentControl" Template="{DynamicResource ResourceKey=Contents_Template}"/>
           </GroupBox>
           <Control x:Name="AlternativeContentControl" Grid.Row="0" Grid.Column="0"
-             VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
-             Template="{DynamicResource ResourceKey=Alternative_Contents_Template}"
-             IsVisible="{Binding RelativeSource={RelativeSource Self},Path=Template,Converter={StaticResource ReferenceToBoolConverter}}"/>
+                   VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
+                   Template="{DynamicResource ResourceKey=Alternative_Contents_Template}"
+                   IsVisible="{Binding RelativeSource={RelativeSource Self},Path=Template,Converter={StaticResource ReferenceToBoolConverter}}"/>
         </Grid>
       </DockPanel>
     </ControlTemplate>

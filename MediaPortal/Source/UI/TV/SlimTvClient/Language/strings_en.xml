@@ -56,12 +56,12 @@
   <string name="SlimTvClient.CancelProgramsOfSeriesSchedule">Delete single programs of schedule</string>
 
   <string name="SlimTvClient.ScheduleRecordingType_Once">Once</string>
-  <string name="SlimTvClient.ScheduleRecordingType_Daily">Daily</string>
-  <string name="SlimTvClient.ScheduleRecordingType_Weekly">Weekly</string>
+  <string name="SlimTvClient.ScheduleRecordingType_Daily">Every day at this time</string>
+  <string name="SlimTvClient.ScheduleRecordingType_Weekly">Every week at this time</string>
   <string name="SlimTvClient.ScheduleRecordingType_EveryTimeOnThisChannel">Every time on this channel</string>
   <string name="SlimTvClient.ScheduleRecordingType_EveryTimeOnEveryChannel">Every time on every channel</string>
-  <string name="SlimTvClient.ScheduleRecordingType_Weekends">Weekends</string>
-  <string name="SlimTvClient.ScheduleRecordingType_WorkingDays">Working days</string>
+  <string name="SlimTvClient.ScheduleRecordingType_Weekends">Weekends at this time</string>
+  <string name="SlimTvClient.ScheduleRecordingType_WorkingDays">Working days at this time</string>
   <string name="SlimTvClient.ScheduleRecordingType_WeeklyEveryTimeOnThisChannel">Weekly every time on this channel</string>
 
   <string name="SlimTvClient.ShowAllRecordingsItemsMenuItem">Name</string>

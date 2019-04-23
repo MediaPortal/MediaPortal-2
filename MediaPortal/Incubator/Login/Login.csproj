@@ -156,11 +156,6 @@
     </Content>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Skin\BlueVision\themes\Win10\screens\UserManagement.xaml">
-      <SubType>Designer</SubType>
-    </Content>
-  </ItemGroup>
-  <ItemGroup>
     <Content Include="Skin\default\screens\DialogSelectRestrictions.xaml">
       <SubType>Designer</SubType>
     </Content>
@@ -187,6 +182,11 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Skin\BlueVision\themes\Titanium Extended\screens\UserManagement.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\BlueVision\themes\Win10\screens\UserManagement.xaml">
       <SubType>Designer</SubType>
     </Content>
   </ItemGroup>

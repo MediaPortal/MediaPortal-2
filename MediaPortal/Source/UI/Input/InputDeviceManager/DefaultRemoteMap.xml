@@ -15,320 +15,251 @@
   <!--Remote codes-->
   <MappedKeyCode Key="Key.Power">
     <Code Key="PowerTV">
-      <Code>101</Code>
+      <Code>2101</Code>
     </Code>
   </MappedKeyCode>
 
-  <MappedKeyCode Key="Key.Escape">
-    <Code Key="Back">
-      <Code>35</Code>
-    </Code>
-  </MappedKeyCode>
   <MappedKeyCode Key="Key.Start">
     <Code Key="Start">
-      <Code>13</Code>
+      <Code>2013</Code>
     </Code>
   </MappedKeyCode>
 
   <MappedKeyCode Key="Key.RecordedTV">
     <Code Key="RecordedTV">
-      <Code>72</Code>
+      <Code>2072</Code>
     </Code>
   </MappedKeyCode>
   <MappedKeyCode Key="Key.Guide">
     <Code Key="Guide">
-      <Code>38</Code>
+      <Code>2038</Code>
     </Code>
   </MappedKeyCode>
   <MappedKeyCode Key="Key.LiveTV">
     <Code Key="LiveTV">
-      <Code>37</Code>
+      <Code>2037</Code>
     </Code>
   </MappedKeyCode>
   <MappedKeyCode Key="Key.DVDMenu">
     <Code Key="DVDMenu">
-      <Code>36</Code>
+      <Code>2036</Code>
     </Code>
   </MappedKeyCode>
 
-  <MappedKeyCode Key="Key.VolumeUp">
-    <Code Key="VolumeUp">
-      <Code>16</Code>
+  <MappedKeyCode Key="Key.ZoomMode">
+    <Code Key="Zoom">
+      <Code>2039</Code>
     </Code>
   </MappedKeyCode>
-  <MappedKeyCode Key="Key.VolumeDown">
-    <Code Key="VolumeDown">
-      <Code>17</Code>
-    </Code>
-  </MappedKeyCode>
-  <MappedKeyCode Key="Key.Mute">
-    <Code Key="Mute">
-      <Code>14</Code>
-    </Code>
-  </MappedKeyCode>
-
-  <MappedKeyCode Key="Key.PageUp">
-    <Code Key="ChannelUp">
-      <Code>18</Code>
-    </Code>
-  </MappedKeyCode>
-  <MappedKeyCode Key="Key.PageDown">
-    <Code Key="ChannelDown">
-      <Code>19</Code>
-    </Code>
-  </MappedKeyCode>
-
-  <MappedKeyCode Key="Key.Info">
-    <Code Key="Info">
-      <Code>15</Code>
-    </Code>
-  </MappedKeyCode>
-  
-  <MappedKeyCode Key="Key.Stop">
-    <Code Key="Stop">
-      <Code>25</Code>
-    </Code>
-  </MappedKeyCode>
-  <MappedKeyCode Key="Key.Pause">
-    <Code Key="Pause">
-      <Code>24</Code>
-    </Code>
-  </MappedKeyCode>
-  <MappedKeyCode Key="Key.Record">
-    <Code Key="Record">
-      <Code>23</Code>
-    </Code>
-  </MappedKeyCode>
-  <MappedKeyCode Key="Key.Play">
-    <Code Key="Play">
-      <Code>22</Code>
-    </Code>
-  </MappedKeyCode>
-  <MappedKeyCode Key="Key.Rew">
-    <Code Key="Rewind">
-      <Code>21</Code>
-    </Code>
-  </MappedKeyCode>
-  <MappedKeyCode Key="Key.Fwd">
-    <Code Key="Forward">
-      <Code>20</Code>
-    </Code>
-  </MappedKeyCode>
+ 
   <MappedKeyCode Key="Key.TeleText">
     <Code Key="Teletext">
-      <Code>90</Code>
+      <Code>2090</Code>
     </Code>
   </MappedKeyCode>
-
   <MappedKeyCode Key="Key.Red">
     <Code Key="Red">
-      <Code>91</Code>
+      <Code>2091</Code>
     </Code>
   </MappedKeyCode>
   <MappedKeyCode Key="Key.Green">
     <Code Key="Green">
-      <Code>92</Code>
+      <Code>2092</Code>
     </Code>
   </MappedKeyCode>
   <MappedKeyCode Key="Key.Yellow">
     <Code Key="Yellow">
-      <Code>93</Code>
+      <Code>2093</Code>
     </Code>
   </MappedKeyCode>
   <MappedKeyCode Key="Key.Blue">
     <Code Key="Blue">
-      <Code>94</Code>
+      <Code>2094</Code>
     </Code>
   </MappedKeyCode>
 
   <MappedKeyCode Key="Home.Home-&gt;Audio">
     <Code Key="MyMusic">
-      <Code>71</Code>
+      <Code>2071</Code>
     </Code>
   </MappedKeyCode>
   <MappedKeyCode Key="Home.Home-&gt;Images">
     <Code Key="MyPictures">
-      <Code>73</Code>
+      <Code>2073</Code>
     </Code>
   </MappedKeyCode>
-  <MappedKeyCode Key="Home.Home-&gt;SlimTvClient">
+  <MappedKeyCode Key="Home.SlimTvClient-&gt;Guide">
     <Code Key="MyRadio">
-      <Code>80</Code>
+      <Code>2080</Code>
     </Code>
   </MappedKeyCode>
-  <MappedKeyCode Key="Home.Home-&gt;SlimTvClient">
+  <MappedKeyCode Key="Home.SlimTvClient-&gt;Guide">
     <Code Key="MyTV">
-      <Code>70</Code>
+      <Code>2070</Code>
     </Code>
   </MappedKeyCode>
   <MappedKeyCode Key="Home.Home-&gt;Videos">
     <Code Key="MyVideos">
-      <Code>74</Code>
+      <Code>2074</Code>
     </Code>
   </MappedKeyCode>
   
   <!--Consumer codes-->
   <MappedKeyCode Key="Key.Power">
     <Code Key="Power">
-      <Code>48</Code>
+      <Code>3048</Code>
     </Code>
   </MappedKeyCode>
 
   <MappedKeyCode Key="Key.Escape">
     <Code Key="AppCtrlBack">
-      <Code>548</Code>
+      <Code>3548</Code>
     </Code>
   </MappedKeyCode>
   <MappedKeyCode Key="Key.Guide">
     <Code Key="MediaSelectProgramGuide">
-      <Code>141</Code>
+      <Code>3141</Code>
     </Code>
   </MappedKeyCode>
   <MappedKeyCode Key="Key.LiveTV">
     <Code Key="MediaSelectTv">
-      <Code>137</Code>
+      <Code>3137</Code>
     </Code>
   </MappedKeyCode>
   <MappedKeyCode Key="Key.DVDMenu">
     <Code Key="MediaSelectDvd">
-      <Code>139</Code>
+      <Code>3139</Code>
     </Code>
   </MappedKeyCode>
 
   <MappedKeyCode Key="Key.VolumeUp">
     <Code Key="VolumeIncrement">
-      <Code>233</Code>
+      <Code>3233</Code>
     </Code>
   </MappedKeyCode>
   <MappedKeyCode Key="Key.VolumeDown">
     <Code Key="VolumeDecrement">
-      <Code>234</Code>
+      <Code>3234</Code>
     </Code>
   </MappedKeyCode>
   <MappedKeyCode Key="Key.Mute">
     <Code Key="Mute">
-      <Code>226</Code>
+      <Code>3226</Code>
     </Code>
   </MappedKeyCode>
 
-
   <MappedKeyCode Key="Key.PageUp">
     <Code Key="ChannelIncrement">
-      <Code>156</Code>
+      <Code>3156</Code>
     </Code>
   </MappedKeyCode>
   <MappedKeyCode Key="Key.PageDown">
     <Code Key="ChannelDecrement">
-      <Code>157</Code>
+      <Code>3157</Code>
     </Code>
   </MappedKeyCode>
 
   <MappedKeyCode Key="Key.Info">
     <Code Key="AppCtrlProperties">
-      <Code>521</Code>
+      <Code>3521</Code>
     </Code>
   </MappedKeyCode>
 
   <MappedKeyCode Key="Key.Stop">
     <Code Key="Stop">
-      <Code>183</Code>
+      <Code>3183</Code>
     </Code>
   </MappedKeyCode>
   <MappedKeyCode Key="Key.Pause">
     <Code Key="Pause">
-      <Code>177</Code>
+      <Code>3177</Code>
     </Code>
   </MappedKeyCode>
   <MappedKeyCode Key="Key.Record">
     <Code Key="Record">
-      <Code>178</Code>
+      <Code>3178</Code>
     </Code>
   </MappedKeyCode>
   <MappedKeyCode Key="Key.Play">
     <Code Key="Play">
-      <Code>176</Code>
+      <Code>3176</Code>
     </Code>
   </MappedKeyCode>
   <MappedKeyCode Key="Key.PlayPause">
     <Code Key="PlayPause">
-      <Code>205</Code>
+      <Code>3205</Code>
     </Code>
   </MappedKeyCode>
   <MappedKeyCode Key="Key.Rew">
     <Code Key="Rewind">
-      <Code>180</Code>
+      <Code>3180</Code>
     </Code>
   </MappedKeyCode>
   <MappedKeyCode Key="Key.Fwd">
     <Code Key="FastForward">
-      <Code>179</Code>
+      <Code>3179</Code>
     </Code>
   </MappedKeyCode>
   <MappedKeyCode Key="Key.Previous">
     <Code Key="ScanPreviousTrack">
-      <Code>182</Code>
+      <Code>3182</Code>
     </Code>
   </MappedKeyCode>
   <MappedKeyCode Key="Key.Next">
     <Code Key="ScanNextTrack">
-      <Code>181</Code>
+      <Code>3181</Code>
     </Code>
   </MappedKeyCode>
 
   <MappedKeyCode Key="Key.ZoomMode">
     <Code Key="AppCtrlZoom">
-      <Code>559</Code>
+      <Code>3559</Code>
     </Code>
   </MappedKeyCode>
   <MappedKeyCode Key="Key.Fullscreen">
     <Code Key="AppCtrlFullScreenView">
-      <Code>560</Code>
+      <Code>3560</Code>
     </Code>
   </MappedKeyCode>
 
   <MappedKeyCode Key="Key.Cut">
     <Code Key="AppCtrlCut">
-      <Code>540</Code>
+      <Code>3540</Code>
     </Code>
   </MappedKeyCode>
   <MappedKeyCode Key="Key.Copy">
     <Code Key="AppCtrlCopy">
-      <Code>539</Code>
+      <Code>3539</Code>
     </Code>
   </MappedKeyCode>
   <MappedKeyCode Key="Key.Paste">
     <Code Key="AppCtrlPaste">
-      <Code>541</Code>
+      <Code>3541</Code>
     </Code>
   </MappedKeyCode>
   <MappedKeyCode Key="Key.Clear">
     <Code Key="AppCtrlDelete">
-      <Code>618</Code>
+      <Code>3618</Code>
     </Code>
   </MappedKeyCode>
 
   <MappedKeyCode Key="Home.Home-&gt;Audio">
     <Code Key="AppLaunchAudioBrowser">
-      <Code>439</Code>
+      <Code>3439</Code>
     </Code>
   </MappedKeyCode>
   <MappedKeyCode Key="Home.Home-&gt;Images">
     <Code Key="AppLaunchImageBrowser">
-      <Code>438</Code>
-    </Code>
-  </MappedKeyCode>
-  <MappedKeyCode Key="Home.Home-&gt;SlimTvClient">
-    <Code Key="MediaSelectTv">
-      <Code>137</Code>
+      <Code>3438</Code>
     </Code>
   </MappedKeyCode>
   <MappedKeyCode Key="Home.Home-&gt;Videos">
     <Code Key="AppLaunchMovieBrowser">
-      <Code>440</Code>
+      <Code>3440</Code>
     </Code>
   </MappedKeyCode>
   
-  <!--Keyboard codes-->
+  <!--Keyboard codes--> 
   <MappedKeyCode Key="Key.ZapBack">
     <Code Key="ShiftKey">
       <Code>16</Code>

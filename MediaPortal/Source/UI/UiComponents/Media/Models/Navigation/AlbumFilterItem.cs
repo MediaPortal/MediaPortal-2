@@ -70,7 +70,7 @@ namespace MediaPortal.UiComponents.Media.Models.Navigation
           TotalTracks = "";
 
         if (VirtualMediaHelper.ShowVirtualAudioMedia)
-          Tracks = TotalTracks;
+          Tracks = string.IsNullOrEmpty(TotalTracks) ? AvailableTracks : TotalTracks;
         else
           Tracks = AvailableTracks;
       }

@@ -1,19 +1,26 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-  <string name="Settings.InputDeviceManager.Section">Hantera inmatning</string>
-  <string name="Settings.InputDeviceManager.EnterKeyConfig">Hantera tangentinmatning</string>
-  <string name="Settings.InputDeviceManager.EnterKeyConfigHelp">Ger dig möjlighet att koppla HID-enheter till olika tangentaktiviteter</string>
-  <string name="Settings.InputDeviceManager.EnterScreenConfig">Hantera skärminmatning</string>
-  <string name="Settings.InputDeviceManager.EnterScreenConfigHelp">Ger dig möjlighet att koppla HID-enheter till olika skärmar</string>
+  <string name="Settings.InputDeviceManager.Section">Inmatningsenheter</string>
+  <string name="Settings.InputDeviceManager.EnterKeyConfig">Snabbval för funktioner</string>
+  <string name="Settings.InputDeviceManager.EnterKeyConfigHelp">Här kan du knyta funktioner i MediaPortal 2 till knappar/tangenter på din inmatningsenhet. Du kan t.ex. knyta ljudvolym upp/ner till \"+\" och \"-\" på ditt tangentbord om du saknar ljudvolymknappar på ditt tangentbord.</string>
+  <string name="Settings.InputDeviceManager.EnterScreenConfig">Snabbval för konfigurering</string>
+  <string name="Settings.InputDeviceManager.EnterScreenConfigHelp">Här kan du skapa snabbval genom att knyta konfigurationssidor och inställningssidor till knappar/tangenter på din inmatningsenhet. </string>
+  <string name="Settings.InputDeviceManager.EnterScreenHome">Snabbval för sidor</string>
+  <string name="Settings.InputDeviceManager.EnterScreenHomeHelp">Här kan du skapa snabbval genom att knyta menyval till knappar/tangenter på din inmatningsenhet. T.ex. kan du knyta \'F2\' på tangentbordet till \'Nyheter\'</string>
 
-  <string name="InputDeviceManager.SelectDevice.Header">Tryck på en knapp/tangent på inmatningsenheten som du vill konfigurera</string>
+  <string name="InputDeviceManager.SelectDevice.Header">Tryck på en tangent/ knapp på inmatningsenheten som du vill konfigurera</string>
   <string name="InputDeviceManager.FocusItem">Visa nuvarande mappningar och välj den du vill ändra</string>
 
-  <string name="InputDeviceManager.AddKey.Header">Tryck den önskade tangentkombinationen på inmatningsenheten!</string>
-  <string name="InputDeviceManager.Screen">Skärm</string>
-  <string name="InputDeviceManager.Key">Tangent</string>
+  <string name="InputDeviceManager.AddKey.Header">Tryck på önskad tangent/knapp på inmatningsenheten</string>
+  <string name="InputDeviceManager.Screen">Sida</string>
+  <string name="InputDeviceManager.Key">Tangent/knapp</string>
 
   <string name="InputDeviceManager.KeyMapping.Button.ClearMapping">Rensa</string>
   <string name="InputDeviceManager.KeyMapping.Dialog.RemoveMapping">Ta bort mappning?</string>
   <string name="InputDeviceManager.KeyMapping.Dialog.AddMapping">Lägg till mappning?</string>
+
+  <string name="InputDeviceManager.DefaultConfig.Title">Välj förvald mappning</string>
+  <string name="InputDeviceManager.DefaultConfig.Description">Observera att den valda mappningen kommer att ersätta den nuvarande mappningen.</string>
+  <string name="InputDeviceManager.DefaultConfig.Keyboard">Förvalt tangentbord</string>
+  <string name="InputDeviceManager.DefaultConfig.Remote">Förvald fjärrkontroll</string>
 </resources>

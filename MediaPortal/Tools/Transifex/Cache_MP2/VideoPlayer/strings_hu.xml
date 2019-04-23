@@ -22,10 +22,7 @@
   <string name="Settings.Players.VideoPlayer.PreferMultiChannelAudio">Többcsatornás hangsávok előnyben részesítése</string>
   <string name="Settings.Players.VideoPlayer.PreferMultiChannelAudio.Help">Ha be van kapcsolva, akkor a 6-csatornás hangsávok előnyt élveznek (pl. AC3, AAC) </string>
   <string name="Settings.Players.DVDPlayer">DVD lejátszó</string>
-  <string name="Settings.Players.DVDPlayer.EnableClosedCaption">Feliratok hallássérülteknek</string>
-  <string name="Settings.Players.DVDPlayer.EnableClosedCaption.Help">Hallássérülteknek szánt feliratok alapértelmezés szerint be legyenek-e kapcsolva</string>
-  <string name="Settings.Players.DVDPlayer.EnableSubtitles">Feliratok</string>
-  <string name="Settings.Players.DVDPlayer.EnableSubtitles.Help">Feliratok alapértelmezés szerint be legyenek-e kapcsolva</string>
+  <string name="Settings.Players.Subtitles">Feliratok</string>
   <string name="Playback.NotSpecified">Nincs megadva</string>
   <string name="Playback.CaptionNormal">Normál szövegek</string>
   <string name="Playback.CaptionBig">Nagy szövegek</string>

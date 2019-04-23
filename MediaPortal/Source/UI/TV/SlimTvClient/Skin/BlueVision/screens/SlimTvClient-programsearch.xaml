@@ -43,6 +43,13 @@
           </ListView.Resources>
         </ListView>
 
+        <Grid xmlns="www.team-mediaportal.com/2008/mpf/directx"
+            xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+            >
+          <KeyBinding Key="Record" Command="{Command Path=RecordMenu}" />
+          <KeyBinding Key="Info" Command="{Command Path=RecordMenu}" />
+        </Grid>
+
         <Grid Grid.Column="0" Grid.ColumnSpan="2" Grid.Row="3" Margin="-10,10,20,0">
           <Control VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
             <Control.TemplateControl>

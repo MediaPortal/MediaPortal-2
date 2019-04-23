@@ -30,6 +30,15 @@ namespace MediaPortal.Common.MediaManagement.MLQueries
     Descending
   }
 
+  public enum AggregateFunction
+  {
+    Max,
+    Min,
+    Avg,
+    Count,
+    Sum
+  }
+
   /// <summary>
   /// Marker interface for sorting information.
   /// </summary>

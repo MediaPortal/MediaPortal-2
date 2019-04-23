@@ -33,6 +33,7 @@ namespace MediaPortal.UI.Players.Video.Settings.Configuration
     {
       _items.Add(LocalizationHelper.CreateResourceString("[Settings.Players.EnableAtscClosedCaptions]"));
       _items.Add(LocalizationHelper.CreateResourceString("[Settings.Players.EnableDvbSubtitles]"));
+      _items.Add(LocalizationHelper.CreateResourceString("[Settings.Players.EnableTeletextSubtitles]"));
       _items.Add(LocalizationHelper.CreateResourceString("[Settings.Players.EnableMpcHcEngineSubtitles]"));
       _items.Add(LocalizationHelper.CreateResourceString("[Settings.Players.EnableDvdSubtitles]"));
       _items.Add(LocalizationHelper.CreateResourceString("[Settings.Players.EnableDvdClosedCaptions]"));
@@ -46,12 +47,14 @@ namespace MediaPortal.UI.Players.Video.Settings.Configuration
         _selected.Add(0);
       if (settings.EnableDvbSubtitles)
         _selected.Add(1);
-      if (settings.EnableMpcSubtitlesEngine)
+      if (settings.EnableTeletextSubtitles)
         _selected.Add(2);
-      if (settings.EnableDvdSubtitles)
+      if (settings.EnableMpcSubtitlesEngine)
         _selected.Add(3);
-      if (settings.EnableDvdClosedCaptions)
+      if (settings.EnableDvdSubtitles)
         _selected.Add(4);
+      if (settings.EnableDvdClosedCaptions)
+        _selected.Add(5);
     }
 
     public override void Save()
@@ -60,9 +63,10 @@ namespace MediaPortal.UI.Players.Video.Settings.Configuration
       var settings = SettingsManager.Load<VideoSettings>();
       settings.EnableAtscClosedCaptions = _selected.Contains(0);
       settings.EnableDvbSubtitles = _selected.Contains(1);
-      settings.EnableMpcSubtitlesEngine = _selected.Contains(2);
-      settings.EnableDvdSubtitles = _selected.Contains(3);
-      settings.EnableDvdClosedCaptions = _selected.Contains(4);
+      settings.EnableTeletextSubtitles = _selected.Contains(2);
+      settings.EnableMpcSubtitlesEngine = _selected.Contains(3);
+      settings.EnableDvdSubtitles = _selected.Contains(4);
+      settings.EnableDvdClosedCaptions = _selected.Contains(5);
       SettingsManager.Save(settings);
     }
   }

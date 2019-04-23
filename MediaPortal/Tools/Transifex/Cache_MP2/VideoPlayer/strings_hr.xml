@@ -22,10 +22,7 @@
   <string name="Settings.Players.VideoPlayer.PreferMultiChannelAudio">Preferiraj višekanalne audio zapise</string>
   <string name="Settings.Players.VideoPlayer.PreferMultiChannelAudio.Help">Ako je omogućeno, preferiraj 6-kanalne zapise ( tj. AC3, AAC)</string>
   <string name="Settings.Players.DVDPlayer">DVD reproduktor</string>
-  <string name="Settings.Players.DVDPlayer.EnableClosedCaption">Closed Captions</string>
-  <string name="Settings.Players.DVDPlayer.EnableClosedCaption.Help">Odaberite ako bi Closed Captions trebali biti omogućeni kao zadani</string>
-  <string name="Settings.Players.DVDPlayer.EnableSubtitles">Titlovi</string>
-  <string name="Settings.Players.DVDPlayer.EnableSubtitles.Help">Odaberite ako bi titlovi trebali biti omogućeni kao zadani</string>
+  <string name="Settings.Players.Subtitles">Titlovi</string>
   <string name="Playback.NotSpecified">Nije određeno</string>
   <string name="Playback.CaptionNormal">Normalni titlovi</string>
   <string name="Playback.CaptionBig">Veliki titlovi</string>

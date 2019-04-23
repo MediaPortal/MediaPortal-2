@@ -12,6 +12,7 @@
   <string name="HomeEditor.Configuration.DisplayName">Naamweergave</string>
   <string name="HomeEditor.Configuration.RestoreDefaults">Herstel standaardwaarden</string>
   
+  <string name="HomeEditor.Configuration.GroupEdit.Label">Groepsmenu-acties</string>
   <string name="HomeEditor.Configuration.ActionEdit.Header">Bewerk actie</string>
   <string name="HomeEditor.Configuration.ActionRemove.Header">Verwijder actie</string>
   <string name="HomeEditor.Configuration.ActionRemove.Label">Kies te verwijderen acties</string>

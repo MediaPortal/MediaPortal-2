@@ -12,6 +12,7 @@
   <!-- SlimTvClient model -->
   <Model x:Key="SlimTvClient" Id="8BEC1372-1C76-484c-8A69-C7F3103708EC"/>
   <Model x:Key="SlimTvMultiChannelGuide" Id="5054408D-C2A9-451f-A702-E84AFCD29C10"/>
+  <Model x:Key="SlimTvExtSchedule" Id="EB9CB370-9CD6-4D72-8354-73E446104438"/>
   <Model x:Key="TimeModel" Id="E821B1C8-0666-4339-8027-AA45A4F6F107"/>
   <tv:SlimTvDateFormatConverter x:Key="SlimTvDateFormatConverter" />
 
@@ -124,8 +125,10 @@
                 <Button x:Name="SelectSubtitleButton" Style="{ThemeResource SelectSubtitleButtonStyle}" Margin="0"
                         IsVisible="{Binding Source={StaticResource VideoPlayerModel},Path=PlayerUIContributor.SubtitlesAvailable}"
                         Command="{Command Source={StaticResource VideoPlayerModel},Path=PlayerUIContributor.OpenChooseSubtitleDialog}"/>
-                <Button x:Name="Audio" Style="{ThemeResource AudioActiveButtonStyle}" Margin="0"
-                        IsVisible="{Binding IsAudio}" Command="{Command AudioButtonPressed}"/>
+                <Button x:Name="AudioActiveButton" IsVisible="{Binding IsAudio}" Style="{ThemeResource AudioActiveButtonStyle}" 
+                        Command="{Command AudioButtonPressed}"/>
+                <Button x:Name="AudioInactiveButton" IsVisible="{Binding !IsAudio}" Style="{ThemeResource AudioInactiveButtonStyle}"
+                        Command="{Command AudioButtonPressed}"/>
                 <Button x:Name="VolumeDownButton" Style="{ThemeResource VolumeDownButtonStyle}" Margin="0"
                         Command="{Command Source={StaticResource GeneralPlayerModel},Path=VolumeDown}"/>
                 <Button x:Name="VolumeUpButton" Style="{ThemeResource VolumeUpButtonStyle}" Margin="0" 
@@ -639,6 +642,25 @@
             <Button.Triggers>
               <Trigger Property="HasFocus" Value="True">
                 <Setter TargetName="ItemLabel" Property="Scroll" Value="Auto"/>
+                <Trigger.EnterActions>
+                  <TriggerCommand>
+                    <TriggerCommand.Command>
+                      <Command x:Key="SelectionChanged_Command"
+                                 Source="{StaticResource SlimTvExtSchedule}"
+                                 Path="FocusToItem"
+                                 Parameters="{LateBoundValue BindingValue={Binding}}" />
+                    </TriggerCommand.Command>
+                  </TriggerCommand>
+                </Trigger.EnterActions>
+                <Trigger.ExitActions>
+                  <TriggerCommand>
+                    <TriggerCommand.Command>
+                      <Command x:Key="SelectionChanged_Command"
+                                  Source="{StaticResource SlimTvExtSchedule}"
+                                  Path="ClearItem" />
+                    </TriggerCommand.Command>
+                  </TriggerCommand>
+                </Trigger.ExitActions>
               </Trigger>
             </Button.Triggers>
           </Button>
@@ -1067,6 +1089,15 @@
                     </TriggerCommand.Command>
                   </TriggerCommand>
                 </Trigger.EnterActions>
+                <Trigger.ExitActions>
+                  <TriggerCommand>
+                    <TriggerCommand.Command>
+                      <Command x:Key="SelectionChanged_Command"
+                                  Source="{StaticResource SlimTvMultiChannelGuide}"
+                                  Path="ClearItem" />
+                    </TriggerCommand.Command>
+                  </TriggerCommand>
+                </Trigger.ExitActions>
               </Trigger>
             </Button.Triggers>
           </Button>

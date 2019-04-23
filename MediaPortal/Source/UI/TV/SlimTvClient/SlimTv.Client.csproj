@@ -26,7 +26,7 @@
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' ">
     <DebugSymbols>true</DebugSymbols>
     <OutputPath>bin\x86\Debug\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <DefineConstants>TRACE;DEBUG</DefineConstants>
     <DebugType>full</DebugType>
     <PlatformTarget>x86</PlatformTarget>
     <ErrorReport>prompt</ErrorReport>
@@ -44,15 +44,19 @@
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="PresentationCore" />
+    <Reference Include="PresentationFramework" />
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Drawing" />
     <Reference Include="System.ServiceModel" />
     <Reference Include="System.Windows.Forms" />
+    <Reference Include="System.Xaml" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
+    <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\..\Backend\BackendComponents\ServerSettings.Interfaces\ServerSettings.Interfaces.csproj">
@@ -188,7 +192,6 @@
     <Compile Include="Player\SlimTvPlayerBuilder.cs" />
     <Compile Include="TvHandler\TimeshiftContext.cs" />
     <Compile Include="MediaExtensions\RecordingsFilterByChannelScreenData.cs" />
-    <Content Include="Skin\ApolloOne\screens\ProgramInfoSlim.inc" />
     <Content Include="Skin\BlueVision\screens\MediaItemRecordingDetails.inc" />
     <Content Include="Skin\BlueVision\screens\ProgramInfo.inc" />
     <Content Include="Skin\BlueVision\screens\ProgramInfoSlim.inc" />
@@ -199,9 +202,10 @@
     <Content Include="Skin\default\images\PIP_off.png" />
     <Content Include="Skin\default\images\PIP_on.png" />
     <Content Include="Skin\default\images\tvguide_recordserie_button.png" />
+    <Content Include="Skin\default\screens\FullscreenTvKeybindings.inc" />
     <Content Include="Skin\default\screens\MediaItemFanArt.inc" />
     <Content Include="Skin\default\screens\MediaItemRecordingDetails.inc" />
-    <Content Include="Skin\default\screens\FullscreenTvKeybindings.inc" />
+    <Content Include="Skin\default\screens\TvGuideKeybindings.inc" />
     <Content Include="Skin\default\shortcuts\SlimTvClient-shortcuts.xml" />
     <Content Include="Skin\default\workflow\SlimTvClient-actions.xml" />
     <Content Include="Skin\default\screens\SlimTvClient-main.xaml" />
@@ -212,21 +216,12 @@
     </Content>
     <Content Include="Skin\default\screens\SlimTvClient-guide.xaml" />
     <Content Include="Skin\default\screens\ProgramInfo.inc" />
-    <Content Include="Skin\default\screens\DialogProgramActions.xaml" />
     <Content Include="Skin\default\screens\ProgramInfoSlim.inc" />
     <Content Include="Skin\default\screens\SlimTvClient-fullguide.xaml" />
-    <Content Include="Skin\default\screens\DialogProgramActionsFull.xaml" />
     <Content Include="Skin\default\themes\default\styles\SlimTvConsts.xaml" />
     <Content Include="Skin\default\screens\SlimTvClient-miniguide.xaml" />
-    <Content Include="Skin\Reflexion\themes\default\styles\ProgramInfoSlim.inc" />
-    <Content Include="Skin\RisingSkin\themes\Silver\styles\SlimTvStyles.xaml" />
     <Content Include="Skin\default\themes\default\styles\SlimTvColors.xaml" />
-    <Content Include="Skin\Reflexion\themes\default\styles\SlimTvStyles.xaml" />
-    <Content Include="Skin\Reflexion\themes\default\styles\SlimTvConsts.xaml" />
     <Content Include="Skin\default\screens\RecordingsByChannel.xaml" />
-    <Content Include="Skin\Titanium\screens\ProgramInfoSlim.inc" />
-    <Content Include="Skin\Titanium\themes\default\styles\SlimTvConsts.xaml" />
-    <Content Include="Skin\Titanium\themes\default\styles\SlimTvStyles.xaml" />
   </ItemGroup>
   <ItemGroup>
     <None Include="build.targets">
@@ -240,11 +235,6 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Skin\default\screens\SlimTvClient-extschedule.xaml">
-      <SubType>Designer</SubType>
-    </Content>
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="Skin\Titanium\screens\SlimTvClient-extschedule.xaml">
       <SubType>Designer</SubType>
     </Content>
   </ItemGroup>
@@ -263,71 +253,9 @@
       <SubType>Designer</SubType>
     </Content>
   </ItemGroup>
-  <ItemGroup>
-    <Content Include="Skin\Titanium\screens\SlimTvClient-schedulelist.xaml">
-      <SubType>Designer</SubType>
-    </Content>
-  </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Skin\Reflexion\screens\" />
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="Skin\Titanium\screens\SlimTvClient-guide.xaml">
-      <SubType>Designer</SubType>
-    </Content>
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="Skin\Titanium\screens\FullScreenContentTv.xaml">
-      <SubType>Designer</SubType>
-    </Content>
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="Skin\Titanium\screens\SlimTvClient-fullguide.xaml">
-      <SubType>Designer</SubType>
-    </Content>
-  </ItemGroup>
+  <ItemGroup />
   <ItemGroup>
     <Content Include="Skin\default\screens\DialogClientModel.xaml">
-      <SubType>Designer</SubType>
-    </Content>
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="Skin\Titanium\screens\SlimTvClient-main.xaml">
-      <SubType>Designer</SubType>
-    </Content>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Skin\Titanium\screens\master_tv_menu.xaml">
-      <SubType>Designer</SubType>
-    </None>
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="Skin\ApolloOne\screens\FullScreenContentTv.xaml">
-      <SubType>Designer</SubType>
-    </Content>
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="Skin\ApolloOne\screens\SlimTvClient-fullguide.xaml">
-      <SubType>Designer</SubType>
-    </Content>
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="Skin\ApolloOne\screens\SlimTvClient-guide.xaml">
-      <SubType>Designer</SubType>
-    </Content>
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="Skin\ApolloOne\themes\default\styles\SlimTvConsts.xaml">
-      <SubType>Designer</SubType>
-    </Content>
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="Skin\ApolloOne\themes\default\styles\SlimTvStyles.xaml">
-      <SubType>Designer</SubType>
-    </Content>
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="Skin\ApolloOne\themes\default\styles\SlimTvColors.xaml">
       <SubType>Designer</SubType>
     </Content>
   </ItemGroup>

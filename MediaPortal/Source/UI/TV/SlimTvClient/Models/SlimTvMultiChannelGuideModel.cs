@@ -54,15 +54,6 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
     protected double _programWidthFactor = 6;
     protected double _programsStartOffset = 370;
 
-    #region Constructor
-
-    public SlimTvMultiChannelGuideModel()
-    {
-      _programActionsDialogName = "DialogProgramActionsFull"; // for MultiChannelGuide we need another dialog
-    }
-
-    #endregion
-
     #region Protected fields
 
     protected AbstractProperty _guideStartTimeProperty = null;
@@ -164,10 +155,50 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
       Scroll(TimeSpan.FromDays(-1));
     }
 
+    public void ScrollForward12Hours()
+    {
+      Scroll(TimeSpan.FromHours(12));
+    }
+
+    public void ScrollBackward12Hours()
+    {
+      Scroll(TimeSpan.FromHours(-12));
+    }
+
+    public void ScrollForward1Screen()
+    {
+      Scroll(TimeSpan.FromHours(VisibleHours));
+    }
+
+    public void ScrollBackward1Screen()
+    {
+      Scroll(TimeSpan.FromHours(-VisibleHours));
+    }
+
     public void Scroll(TimeSpan difference)
     {
       GuideStartTime = GuideStartTime + difference;
-      _ = UpdatePrograms();
+      _ = UpdateProgramsAfterScroll(difference);
+    }
+
+    public void GoToChannelIndex(int number)
+    {
+      if(number >= 0 && number < ChannelList.Count)
+        SlimTvClientMessaging.SendSlimTvClientMessage(SlimTvClientMessaging.MessageType.GoToChannelIndex, "Channel", number);
+    }
+
+    public void GoToChannelNumber(int channel)
+    {
+      int cIndex = 0;
+      foreach (ChannelProgramListItem ch in ChannelList)
+      {
+        if (ch.Channel.ChannelNumber == channel)
+        {
+          GoToChannelIndex(cIndex);
+          return;
+        }
+        cIndex++;
+      }
     }
 
     #endregion
@@ -275,6 +306,12 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
       return item;
     }
 
+    public void RecordPressed()
+    {
+      if (_selectedItem != null)
+        base.ShowProgramActions(_selectedItem.AdditionalProperties["PROGRAM"] as IProgram);
+    }
+
     /// <summary>
     /// Opens the context menu for the give program.
     /// </summary>
@@ -323,12 +360,23 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
 
     protected async Task UpdatePrograms()
     {
+      await updatePrograms();
+      SlimTvClientMessaging.SendSlimTvClientMessage(SlimTvClientMessaging.MessageType.ProgramsChanged);
+    }
+
+    protected async Task UpdateProgramsAfterScroll(TimeSpan difference)
+    {
+      await updatePrograms();
+      SlimTvClientMessaging.SendSlimTvClientMessage(SlimTvClientMessaging.MessageType.ProgramsChanged, "MoveCursor", difference);
+    }
+
+    private async Task updatePrograms()
+    {
       await UpdateProgramsForGroup();
       foreach (ChannelProgramListItem channel in _channelList)
         UpdateChannelPrograms(channel);
 
       _channelList.FireChange();
-      SlimTvClientMessaging.SendSlimTvClientMessage(SlimTvClientMessaging.MessageType.ProgramsChanged);
       UpdateProgramsState();
     }
 
@@ -379,6 +427,34 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
       }
       listProgram.Program.UpdateState(recordingStatus.RecordingStatus);
       return true;
+    }
+
+    protected override void OnRecordingStatusChanged(IProgram program, RecordingStatus oldStatus, RecordingStatus newStatus, ScheduleRecordingType type)
+    {
+      base.OnRecordingStatusChanged(program, oldStatus, newStatus, type);
+      if (type == ScheduleRecordingType.Once)
+        return;     // Change only affected one program
+      // Look for all other programs that might be affected
+      List<IProgram> candidates = new List<IProgram>();
+      foreach(IProgram p in _groupPrograms)
+      {
+        if (p.ChannelId == program.ChannelId && p.StartTime == program.StartTime && p.EndTime == program.EndTime)
+          candidates.Add(p);
+        else if (p.Title == program.Title)
+          candidates.Add(p);
+      }
+      if (candidates.Count > 0)
+        UpdateRecordingStatus(candidates).Start();
+    }
+
+    async Task UpdateRecordingStatus(List<IProgram> programs)
+    {
+      foreach(IProgram p in programs)
+      {
+        RecordingStatus? status = await GetRecordingStatusAsync(p);
+        if (status != null)
+          UpdateRecordingStatus(p, (RecordingStatus)status);
+      }
     }
 
     private void UpdateProgramsState()

@@ -66,6 +66,7 @@
   <string name="Media.ConductorMenuItem">Dirigent</string>
   <string name="Media.CompilationMenuItem">Compilatie</string>
   <string name="Media.AlbumCompilationMenuItem">Album compilatie</string>
+  <string name="Media.ContentGroupMenuItem">Inhoudsgroep</string>
   <string name="Media.CertificationMenuItem">Certificaat</string>
   <string name="Media.SimpleSearchFilterMenuItem">Zoeken</string>
   <!--Filter titles-->
@@ -123,6 +124,8 @@
   <string name="Media.FilterConductorNavbarDisplayLabel">Dirigent: {0}</string>
   <string name="Media.FilterCompilationNavbarDisplayLabel">Compilaties</string>
   <string name="Media.FilterAlbumCompilationNavbarDisplayLabel">Album compilaties</string>
+  <string name="Media.FilterContentGroupNavbarDisplayLabel">Inhoudsgroep: {0}</string>
+  <string name="Media.FilterCertificationNavbarDisplayLabel">Certificaat: {0} </string>
   <!--Display labels for workflow navigation contexts-->
   <string name="Media.BrowseMediaNavigationRootWorkflowNavigationContextDisplayLabel">Blader door media</string>
   <string name="Media.LocalMediaNavigationRootWorkflowNavigationContextDisplayLabel">Lokale media</string>
@@ -192,9 +195,12 @@
   <string name="Media.ChooseSystemHeader">Systemen</string>
   <string name="Media.ChooseVideoHeader">Video\'s</string>
   <string name="Media.ChooseVideoLanguageHeader">Talen</string>
+  <string name="Media.ChoosePlayCountHeader">Kijk Statussen</string>
   <string name="Media.ChooseAlbumCompilationHeader">Album compilaties</string>
   <string name="Media.ChooseCompilationHeader">Compilaties</string>
   <string name="Media.ChooseConductorHeader">Dirigenten</string>
+  <string name="Media.ChooseContentGroupHeader">Inhoudsgroepen</string>
+  <string name="Media.ChooseCertificationHeader">Certificaten</string>
   <string name="Media.PlaylistsOverviewHeader">Afspeellijsten</string>
   <string name="Media.SavePlaylistEditNameHeader">Afspeellijst opslaan</string>
   <string name="Media.SavePlaylistFailedHeader">Afspeellijst opslaan</string>
@@ -275,8 +281,15 @@
   <string name="Media.DeleteFromStorage">Verwijder uit opslag</string>
   <string name="Media.DeleteFromStorage.Confirmation">Weet je zeker dat je dit item wilt verwijderen? Dit kan niet ongedaan worden gemaakt. </string>
   <string name="Media.ConfirmAction">Bevestig actie</string>
+  <string name="Media.ReimportMediaItem.Title">Selecteer de juiste overeenkomst</string>
+  <string name="Media.ReimportMediaItem.Id">Id</string>
   <string name="Media.ReimportMediaItem.Done">Gereed</string>
+  <string name="Media.ReimportMediaItem.SearchResultHeader">Zoekresultaat</string>
+  <string name="Media.ReimportMediaItem.SearchTypeHeader">Zoektype</string>
+  <string name="Media.ReimportMediaItem.AutoMatch">Automatisch toekennen</string>
+  <string name="Media.ReimportMediaItem.ManualSearch">Handmatig zoeken</string>
   <string name="Media.ReimportMediaItem.Description">Beschrijving</string>
+  <string name="Media.ReimportMediaItem.Hint">Opmerking: Vereist een internetverbinding en ten minste één online scrapper geselecteerd in mediabibliotheekinstellingen</string>
   <!--Play items dialog-->
   <string name="Media.PlayItemDialogHeader">Item afspelen</string>
   <string name="Media.PlayAudioItems">Audio items afspelen</string>
@@ -405,6 +418,9 @@
   <!--Stubs-->
   <string name="Media.Stub.Title">Plaats disc</string>
   <string name="Media.Stub.Message">Plaats disc a.u.b.</string>
+  <!--Virtual-->
+  <string name="Media.Virtual.Title">Niet afspeelbare media</string>
+  <string name="Media.Virtual.Message">Kan media niet afspelen omdat deze virtueel is.</string>
   <!--Settings-->
   <string name="Settings.Players">Spelers</string>
   <string name="Settings.Players.ClosePlayersWhenFinished">Sluit spelers wanneer gereed</string>
@@ -423,6 +439,8 @@
   <string name="Settings.Players.OpenPlayerConfigInOsd.Help">Activeer deze optie om de instellingen van de speler te tonen nadat \'info\' een tweede keer wordt ingedrukt</string>
   <string name="Settings.Media">Media bibliotheek</string>
   <string name="Settings.Media.ShowVirtual">Toon alle bekende media items</string>
+  <string name="Settings.Media.ShowVirtual.Help">Selecteer of alle bekende media-items moeten worden weergegeven, zelfs als er geen lokale bestandsverwijzing is</string>
+  <string name="Settings.Media.ShowVirtual.Audio">Toon alle bekende albumtracks</string>
   <!--Secondary filters-->
   <string name="Filter.RemoteNumericAlphabet0"></string>
   <string name="Filter.RemoteNumericAlphabet1"></string>

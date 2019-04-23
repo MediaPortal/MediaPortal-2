@@ -6,5 +6,4 @@
   <!--Schedule management-->
   <!--Settings-->
   <string name="SlimTvClient.RecordingsMenuItem">Gravações</string>
-  <string name="SlimTvClient.NameFilterNavBarItemLabel">{0}</string>
 </resources>

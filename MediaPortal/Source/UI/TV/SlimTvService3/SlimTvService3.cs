@@ -844,18 +844,19 @@ namespace MediaPortal.Plugins.SlimTv.Service
       //Delete matching schedules
       foreach (TvDatabase.Schedule schedule in matchingSchedules)
       {
-        switch (schedule.ScheduleType)
+        _tvControl.StopRecordingSchedule(schedule.IdSchedule);
+        if (schedule.ScheduleType == (int)ScheduleRecordingType.Once || recordingType != ScheduleRecordingType.Once)
         {
-          case (int)ScheduleRecordingType.Once:
-            schedule.Delete();
-            _tvControl.OnNewSchedule();
-            break;
-          default:
-            CanceledSchedule canceledSchedule = new CanceledSchedule(schedule.IdSchedule, schedule.IdChannel, program.StartTime);
-            canceledSchedule.Persist();
-            _tvControl.OnNewSchedule();
-            break;
+          // Delete single schedule, or whole series
+          schedule.Delete();
         }
+        else
+        {
+          // Delete this program only
+          CanceledSchedule canceledSchedule = new CanceledSchedule(schedule.IdSchedule, schedule.IdChannel, program.StartTime);
+          canceledSchedule.Persist();
+        }
+        _tvControl.OnNewSchedule();
       }
       return true;
     }

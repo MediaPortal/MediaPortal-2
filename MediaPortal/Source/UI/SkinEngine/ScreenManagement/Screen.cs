@@ -489,6 +489,8 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
           _root.UpdateLayoutRoot(skinSize);
         }
         HandleScheduledFocus();
+        if (!_root.IsKeyboardFocusWithin)
+          _root.TrySetFocus(true);
       }
     }
 

@@ -22,10 +22,7 @@
   <string name="Settings.Players.VideoPlayer.PreferMultiChannelAudio">Çoklu kanal ses kaynaklarını tercih et</string>
   <string name="Settings.Players.VideoPlayer.PreferMultiChannelAudio.Help">Seçiliyse, 6 kanal ses kaynakları tercih edilir (örn: AC3, AAC)</string>
   <string name="Settings.Players.DVDPlayer">DVD oynatıcı</string>
-  <string name="Settings.Players.DVDPlayer.EnableClosedCaption">Alt Yazılar</string>
-  <string name="Settings.Players.DVDPlayer.EnableClosedCaption.Help">Alt Yazıların varsayılan olarak kullanılması için seçin</string>
-  <string name="Settings.Players.DVDPlayer.EnableSubtitles">Altyazılar</string>
-  <string name="Settings.Players.DVDPlayer.EnableSubtitles.Help">Alt Yazıların varsayılan olarak kullanılması için seçin</string>
+  <string name="Settings.Players.Subtitles">Altyazılar</string>
   <string name="Playback.NotSpecified">Tanımlanmamış</string>
   <string name="Playback.CaptionNormal">Normal Altyazı</string>
   <string name="Playback.CaptionBig">Büyük Altyazı</string>
