@@ -27,6 +27,7 @@ using MediaPortal.Common;
 using MediaPortal.Common.General;
 using MediaPortal.UI.Presentation.DataObjects;
 using System.Linq;
+using System;
 
 namespace MediaPortal.UiComponents.News.Models
 {
@@ -41,6 +42,7 @@ namespace MediaPortal.UiComponents.News.Models
     protected readonly AbstractProperty _currentNewsItemProperty = new WProperty(typeof(NewsItem), new NewsItem());
     protected ItemsList _currentNewsItems = new ItemsList();
     protected ItemsList _currentTopNewsItems = new ItemsList();
+    protected ItemsList _currentFeedItems = new ItemsList();
     protected bool _inited = false;
 
     /// <summary>
@@ -76,6 +78,14 @@ namespace MediaPortal.UiComponents.News.Models
       get { return _currentTopNewsItems; }
     }
 
+    /// <summary>
+    /// Current news feeds ordered by date
+    /// </summary>
+    public ItemsList CurrentNewsFeeds
+    {
+      get { return _currentFeedItems; }
+    }
+
     public CurrentNewsModel()
       : base(true, 100)
     {
@@ -92,20 +102,39 @@ namespace MediaPortal.UiComponents.News.Models
         {
           newNewsItem.CopyTo(CurrentNewsItem);
 
-          _currentNewsItems.Clear();
-          _currentTopNewsItems.Clear();
-          var items = newsCollector.GetAllNewsItems();
-          if (items?.Count > 0)
+          var feeds = newsCollector.GetAllFeeds();
+          //Only update if changed
+          if (!feeds.Select(f => f.LastUpdated).SequenceEqual(_currentFeedItems.Select(f => (f as NewsFeed)?.LastUpdated ?? DateTime.Now)))
           {
-            foreach (var newsItem in items.OrderByDescending(i => i.PublishDate))
+            _currentFeedItems.Clear();
+            if (feeds?.Count > 0)
             {
-              _currentNewsItems.Add(newsItem);
-              if (_currentTopNewsItems.Count < NEWSITEM_TOP_COUNT)
-                _currentTopNewsItems.Add(newsItem);
+              foreach (var feed in feeds.OrderByDescending(f => f.LastUpdated))
+              {
+                _currentFeedItems.Add(feed);
+              }
             }
+            _currentFeedItems.FireChange();
           }
-          _currentNewsItems.FireChange();
-          _currentTopNewsItems.FireChange();
+
+          var items = newsCollector.GetAllNewsItems();
+          //Only update if changed
+          if (!items.Select(i => i.PublishDate).SequenceEqual(_currentNewsItems.Select(i => (i as NewsItem)?.PublishDate ?? DateTime.Now)))
+          {
+            _currentNewsItems.Clear();
+            _currentTopNewsItems.Clear();
+            if (items?.Count > 0)
+            {
+              foreach (var newsItem in items.OrderByDescending(i => i.PublishDate))
+              {
+                _currentNewsItems.Add(newsItem);
+                if (_currentTopNewsItems.Count < NEWSITEM_TOP_COUNT)
+                  _currentTopNewsItems.Add(newsItem);
+              }
+            }
+            _currentNewsItems.FireChange();
+            _currentTopNewsItems.FireChange();
+          }
 
           if (!_inited)
           {
