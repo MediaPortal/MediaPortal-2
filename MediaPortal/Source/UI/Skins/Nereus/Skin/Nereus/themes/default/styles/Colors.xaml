@@ -23,7 +23,10 @@
   <ResourceWrapper x:Key="StarRatingBackgroundColor" Resource="#009999"/>
 
   <ResourceWrapper x:Key="DialogHeaderBackgroundColor" Resource="#FF244043"/>
-  <ResourceWrapper x:Key="DialogScreenBackgroundColor" Resource="#4D000000"/>
+  <ResourceWrapper x:Key="DialogScreenBackgroundColor" Resource="#80000000"/>
+  <ResourceWrapper x:Key="DialogBorderBackgroundColor" Resource="#99FFFFFF"/>
+  <ResourceWrapper x:Key="DialogBackgroundColor" Resource="#FF000000"/>
+  <ResourceWrapper x:Key="DialogBorderColor" Resource="#33FFFFFF"/>
 
   <!-- ************************** Nereus colors end ****************************** -->
   
@@ -64,16 +67,6 @@
   <ResourceWrapper x:Key="DialogBackgroundGradient2Color" Resource="#F2124273"/>
 
   <ResourceWrapper x:Key="DialogBackgroundFadeColor" Resource="{ThemeResource NereusColorMedium}"/>
-
-  <ResourceWrapper x:Key="DialogBorderColor">
-    <ResourceWrapper.Resource>
-      <LinearGradientBrush StartPoint="0.5,0" EndPoint="0.5,1">
-        <GradientStop Offset="0" Color="#40505050"/>
-        <GradientStop Offset="0.5" Color="#A0808080"/>
-        <GradientStop Offset="1" Color="#40505050"/>
-      </LinearGradientBrush >
-    </ResourceWrapper.Resource>
-  </ResourceWrapper>
 
   <ResourceWrapper x:Key="ProgressBarBorderColor" Resource="#80000000"/>
   <ResourceWrapper x:Key="ProgressBarBackgroundColor" Resource="#FFc1c1c1"/>

@@ -58,15 +58,22 @@
       <Link>Properties\VersionInfo.cs</Link>
     </Compile>
     <Compile Include="Actions\SkinSettingsAction.cs" />
-    <Compile Include="Controls\TileGroupWrapper.cs" />
     <Compile Include="Controls\ItemsListFilter.cs" />
     <Compile Include="Converters\ItemsListActionFilter.cs" />
-    <Compile Include="Converters\MediaListVisibilityConverter.cs" />
     <Compile Include="Converters\RoundingFormatConverter.cs" />
-    <Compile Include="MarkupExtensions\DynamicResourceBindingExtension.cs" />
+    <Compile Include="Models\HomeContent\AbstractHomeContent.cs" />
+    <Compile Include="Models\HomeContent\DefaultHomeContent.cs" />
+    <Compile Include="Models\HomeContent\MediaShortcutItem.cs" />
+    <Compile Include="Models\HomeContent\AudioHomeContent.cs" />
+    <Compile Include="Models\HomeContent\ImageHomeContent.cs" />
+    <Compile Include="Models\HomeContent\TVHomeContent.cs" />
+    <Compile Include="Models\HomeContent\WeatherHomeContent.cs" />
+    <Compile Include="Models\HomeContent\NewsHomeContent.cs" />
+    <Compile Include="Models\HomeContent\SeriesHomeContent.cs" />
+    <Compile Include="Models\HomeContent\MovieHomeContent.cs" />
+    <Compile Include="Models\HomeContent\MediaShortcutListWrapper.cs" />
     <Compile Include="Models\HomeMenuModel.cs" />
-    <Compile Include="Models\HomeTiles\HomeTile.cs" />
-    <Compile Include="Models\HomeTiles\HomeTileGroup.cs" />
+    <Compile Include="Models\HomeContent\ItemsListWrapper.cs" />
     <Compile Include="Models\ScreenModeModel.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Settings\Configuration\BaseGridViewTypeConfiguration.cs" />

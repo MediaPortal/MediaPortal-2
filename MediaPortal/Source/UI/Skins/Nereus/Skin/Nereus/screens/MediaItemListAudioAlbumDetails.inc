@@ -31,7 +31,7 @@
     </Grid.ColumnDefinitions>
     <Image Stretch="Fill" Margin="0,-190,0,0" Width="420" Height="420" HorizontalAlignment="Center" VerticalAlignment="Top">
       <Image.Source>
-        <ImageSourceWrapper Delay="0.5" DelayInOut="true" FallbackSource="CD.png" VerticalTextureAlignment="Center"
+        <ImageSourceWrapper Delay="0.5" DelayInOut="true" VerticalTextureAlignment="Center"
                             Source="{Binding Source={StaticResource FanArtBackgroundModel}, Path=ImageSource, Converter={StaticResource FanArtImageSourceConverter}, ConverterParameter=DiscArt;420;420}"/>
       </Image.Source>
     </Image>

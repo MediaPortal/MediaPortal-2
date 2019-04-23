@@ -1,4 +1,4 @@
-#region Copyright (C) 2007-2018 Team MediaPortal
+﻿#region Copyright (C) 2007-2018 Team MediaPortal
 
 /*
     Copyright (C) 2007-2018 Team MediaPortal
@@ -22,27 +22,15 @@
 
 #endregion
 
-namespace MediaPortal.Common.MediaManagement.MLQueries
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace MediaPortal.UiComponents.Nereus.Models.HomeContent
 {
-  public enum SortDirection
-  {
-    Ascending,
-    Descending
-  }
-
-  public enum AggregateFunction
-  {
-    Max,
-    Min,
-    Avg,
-    Count,
-    Sum
-  }
-
-  /// <summary>
-  /// Marker interface for sorting information.
-  /// </summary>
-  public interface ISortInformation
+  public class DefaultHomeContent
   {
   }
 }

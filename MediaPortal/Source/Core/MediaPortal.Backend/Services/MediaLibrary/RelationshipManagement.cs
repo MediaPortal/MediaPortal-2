@@ -493,7 +493,16 @@ namespace MediaPortal.Backend.Services.MediaLibrary
       {
         using (IDbCommand command = InsertNewVirtualResourceCommand(transaction, item))
         {
-          int affectedRows = command.ExecuteNonQuery();
+          try
+          {
+            int affectedRows = command.ExecuteNonQuery();
+          }
+          catch
+          {
+            //Because the delete and insert statements are not atomic, another delete operation 
+            //might already have inserted the virtual resource. Also there is no standard error to 
+            //identify this error, so we have to ignore all errors
+          }
         }
       }
     }

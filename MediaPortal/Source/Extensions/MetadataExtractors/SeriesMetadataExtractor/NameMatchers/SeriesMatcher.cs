@@ -125,14 +125,6 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor.Name
                 MetadataUpdater.SetOrUpdateValue(ref episodeInfo.SeriesFirstAired, new DateTime(Convert.ToInt32(yearMa.Groups[GROUP_YEAR].Value), 1, 1));
               }
             }
-            if (!episodeInfo.SeriesName.IsEmpty)
-            {
-              episodeInfo.SeriesName.Text = CultureInfo.InvariantCulture.TextInfo.ToTitleCase(episodeInfo.SeriesName.Text);
-            }
-            if (!episodeInfo.EpisodeName.IsEmpty)
-            {
-              episodeInfo.EpisodeName.Text = CultureInfo.InvariantCulture.TextInfo.ToTitleCase(episodeInfo.EpisodeName.Text);
-            }
             return true;
           }
         }

@@ -111,6 +111,7 @@
     <Compile Include="MediaManagement\MetadataUpdater.cs" />
     <Compile Include="MediaManagement\MLQueries\AbstractRelationshipFilter.cs" />
     <Compile Include="MediaManagement\MLQueries\AbstractUserDataFilter.cs" />
+    <Compile Include="MediaManagement\MLQueries\ChildAggregateAttributeSortInformation.cs" />
     <Compile Include="MediaManagement\MLQueries\DataSortInformation.cs" />
     <Compile Include="MediaManagement\MLQueries\EmptyUserDataFilter.cs" />
     <Compile Include="MediaManagement\MLQueries\AttributeSortInformation.cs" />

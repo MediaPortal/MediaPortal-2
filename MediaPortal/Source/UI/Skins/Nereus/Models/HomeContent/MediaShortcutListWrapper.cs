@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2017 Team MediaPortal
+﻿#region Copyright (C) 2007-2018 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2017 Team MediaPortal
+    Copyright (C) 2007-2018 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -23,22 +23,21 @@
 #endregion
 
 using MediaPortal.UI.Presentation.DataObjects;
-using MediaPortal.UI.SkinEngine.Controls.Visuals;
-using MediaPortal.UI.SkinEngine.MpfElements.Converters;
-using MediaPortal.UI.SkinEngine.Xaml;
-using System;
-using System.Globalization;
+using System.Collections.Generic;
 
-namespace MediaPortal.UiComponents.Nereus.Converters
+namespace MediaPortal.UiComponents.Nereus.Models.HomeContent
 {
-  public class MediaListVisibilityConverter : AbstractSingleDirectionConverter
+  public class MediaShortcutListWrapper : ItemsListWrapper
   {
-    public override bool Convert(object val, Type targetType, object parameter, CultureInfo culture, out object result)
+    public MediaShortcutListWrapper(IList<ListItem> itemsList)
+      : base(itemsList, string.Empty)
     {
-      ItemsList mediaList = val as ItemsList;
-      VisibilityEnum visibility = mediaList != null && mediaList.Count > 0 ? VisibilityEnum.Visible : VisibilityEnum.Collapsed;
-      result = TypeConverter.Convert(visibility, targetType);
-      return true;
+
+    }
+
+    public IList<ListItem> Items
+    {
+      get { return _itemsList; }
     }
   }
 }

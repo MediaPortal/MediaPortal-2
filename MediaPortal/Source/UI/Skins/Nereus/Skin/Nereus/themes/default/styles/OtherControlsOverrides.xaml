@@ -428,6 +428,57 @@
 
   <!--++++++++++++++++++++++++ MEDIAMENU BUTTON STYLE ++++++++++++++++++++++++-->
 
+  <DataTemplate x:Key="MediaMenuCoverItemDataTemplate">
+    <Grid x:Name="ItemControl" Margin="6">
+      <Grid.ColumnDefinitions>
+        <ColumnDefinition Width="170"/>
+      </Grid.ColumnDefinitions>
+      <Grid.RowDefinitions>
+        <RowDefinition Height="170"/>
+      </Grid.RowDefinitions>
+
+      <Image x:Name="ItemBackground" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Stretch="Fill">
+        <Image.Source>
+          <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? ({3}+{1}) : ({3}+{2})">
+            <Binding RelativeSource="{RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}}" Path="HasFocus"/>
+            <Binding Source="tile_background_focus.jpg"/>
+            <Binding Source="tile_background_nofocus.jpg"/>
+            <Binding Source="MediaMenu\"/>
+          </MultiBinding>
+        </Image.Source>
+      </Image>
+      <Image x:Name="ItemImage" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Stretch="Fill" FallbackSource="MediaMenu\Search.png">
+        <Image.Source>
+          <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0}+{1}">
+            <Binding Source="MediaMenu\"/>
+            <Binding Source="{Binding Converter={StaticResource ListItemActionIdConverter}, ConverterParameter=.png}"/>
+          </MultiBinding>
+        </Image.Source>
+      </Image>
+
+      <Grid x:Name="ItemBandGrid" HorizontalAlignment="Stretch" VerticalAlignment="Bottom" RenderTransformOrigin="0.5,1">
+        <Grid.ColumnDefinitions>
+          <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+          <RowDefinition Height="40"/>
+        </Grid.RowDefinitions>
+        <Grid.RenderTransform>
+          <TransformGroup>
+            <ScaleTransform ScaleX="1" ScaleY="0"/>
+          </TransformGroup>
+        </Grid.RenderTransform>
+        <Rectangle x:Name="ItemBand" Fill="Black" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Opacity="0.4"/>
+        <Label x:Name="ItemLabel" HorizontalAlignment="Center" VerticalAlignment="Center" Content="{Binding [Name]}" 
+               FontSize="{ThemeResource SmallerFontSize}" Color="{ThemeResource MenuTextForeground}" Margin="5,-5,5,5"
+               ScrollDelay="0" Scroll="None" FontFamily="SegoeUIBold"/>
+      </Grid>
+
+      <Rectangle Fill="#FFFFFF" Height="5" VerticalAlignment="Bottom" HorizontalAlignment="Stretch" 
+                 IsVisible="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}},Path=HasFocus}"/>
+    </Grid>
+  </DataTemplate>
+
   <DataTemplate x:Key="MediaMenuItemDataTemplate">
     <Grid x:Name="ItemControl" Margin="6">
       <Grid.ColumnDefinitions>
@@ -474,7 +525,7 @@
                ScrollDelay="0" Scroll="None" FontFamily="SegoeUIBold"/>
       </Grid>
       
-      <Rectangle Fill="#FFFFFF" Width="5" Grid.RowSpan="2" HorizontalAlignment="Left" VerticalAlignment="Stretch" 
+      <Rectangle Fill="#FFFFFF" Width="5" HorizontalAlignment="Left" VerticalAlignment="Stretch" 
                  IsVisible="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}},Path=HasFocus}"/>
     </Grid>
   </DataTemplate>
@@ -530,6 +581,7 @@
   <Style x:Key="HomeItemContainerStyleHorizontal" BasedOn="{ThemeResource HomeItemContainerStyle}">
     <Setter TargetName="GrowControl" Property="Margin" Value="0,-10"/>
     <Setter TargetName="ButtonContentPresenter" Property="Margin" Value="0,20"/>
+    <Setter Property="HorizontalContentAlignment" Value="Center" />
   </Style>
 
   <Style x:Key="HomeMenuListViewStyle" BasedOn="{ThemeResource DefaultListViewStyle}">
@@ -639,7 +691,7 @@
         </ItemsPanelTemplate>
       </Setter.Value>
     </Setter>
-    <Setter Property="ItemTemplate" Value="{ThemeResource MediaMenuItemDataTemplate}"/>
+    <Setter Property="ItemTemplate" Value="{ThemeResource MediaMenuCoverItemDataTemplate}"/>
     <Setter Property="ItemContainerStyle" Value="{ThemeResource HomeItemContainerStyleHorizontal}"/>
   </Style>
 

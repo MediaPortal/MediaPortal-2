@@ -25,7 +25,6 @@
 using MediaPortal.Common;
 using MediaPortal.Common.General;
 using MediaPortal.Common.Messaging;
-using MediaPortal.Common.Runtime;
 using MediaPortal.Extensions.UserServices.FanArtService.Client.Models;
 using MediaPortal.UI.Presentation.DataObjects;
 using MediaPortal.UI.Presentation.Models;
@@ -33,9 +32,11 @@ using MediaPortal.UI.Presentation.Screens;
 using MediaPortal.UI.Presentation.Workflow;
 using MediaPortal.UI.SkinEngine.MpfElements;
 using MediaPortal.UiComponents.Media.Models;
+using MediaPortal.UiComponents.Nereus.Models.HomeContent;
 using MediaPortal.UiComponents.SkinBase.General;
 using MediaPortal.Utilities.Events;
 using System;
+using System.Collections.Generic;
 using System.Windows.Forms;
 
 namespace MediaPortal.UiComponents.Nereus.Models
@@ -54,18 +55,25 @@ namespace MediaPortal.UiComponents.Nereus.Models
 
     protected readonly object _syncObj = new object();
 
-    protected AbstractProperty _content0ActionIdProperty;
-    protected AbstractProperty _content1ActionIdProperty;
+    protected AbstractProperty _content1Property;
+    protected AbstractProperty _content2Property;
+    protected AbstractProperty[] _contentProperties;
+
     protected AbstractProperty _contentIndexProperty;
     protected AbstractProperty _selectedItemProperty;
 
     protected bool _isInit = false;
     protected DelayedEvent _updateEvent;
 
+    protected IDictionary<Guid, object> _homeContent = new Dictionary<Guid, object>();
+    protected static readonly DefaultHomeContent DEFAULT_HOME_CONTENT = new DefaultHomeContent();
+
     public HomeMenuModel()
     {
-      _content0ActionIdProperty = new WProperty(typeof(string), null);
-      _content1ActionIdProperty = new WProperty(typeof(string), null);
+      _content1Property = new WProperty(typeof(object), null);
+      _content2Property = new WProperty(typeof(object), null);
+      _contentProperties = new[] { _content1Property, _content2Property };
+
       _contentIndexProperty = new WProperty(typeof(int), 0);
       _selectedItemProperty = new WProperty(typeof(ListItem), null);
 
@@ -75,6 +83,14 @@ namespace MediaPortal.UiComponents.Nereus.Models
 
       GetMediaListModel().Limit = 6;
 
+      _homeContent.Add(new Guid("80d2e2cc-baaa-4750-807b-f37714153751"), new MovieHomeContent());
+      _homeContent.Add(new Guid("30f57cba-459c-4202-a587-09fff5098251"), new SeriesHomeContent());
+      _homeContent.Add(new Guid("30715d73-4205-417f-80aa-e82f0834171f"), new AudioHomeContent());
+      _homeContent.Add(new Guid("55556593-9fe9-436c-a3b6-a971e10c9d44"), new ImageHomeContent());
+      _homeContent.Add(new Guid("b4a9199f-6dd4-4bda-a077-de9c081f7703"), new TVHomeContent());
+      _homeContent.Add(new Guid("bb49a591-7705-408f-8177-45d633fdfad0"), new NewsHomeContent());
+      _homeContent.Add(new Guid("e34fdb62-1f3e-4aa9-8a61-d143e0af77b5"), new WeatherHomeContent());
+      
       SubscribeToMessages();
     }
 
@@ -140,26 +156,26 @@ namespace MediaPortal.UiComponents.Nereus.Models
 
     #region Members to be accessed from the GUI
 
-    public AbstractProperty Content0ActionIdProperty
+    public AbstractProperty Content1Property
     {
-      get { return _content0ActionIdProperty; }
+      get { return _content1Property; }
     }
 
-    public string Content0ActionId
+    public object Content1
     {
-      get { return (string)_content0ActionIdProperty.GetValue(); }
-      set { _content0ActionIdProperty.SetValue(value); }
+      get { return _content1Property.GetValue(); }
+      set { _content1Property.SetValue(value); }
     }
 
-    public AbstractProperty Content1ActionIdProperty
+    public AbstractProperty Content2Property
     {
-      get { return _content1ActionIdProperty; }
+      get { return _content2Property; }
     }
 
-    public string Content1ActionId
+    public object Content2
     {
-      get { return (string)_content1ActionIdProperty.GetValue(); }
-      set { _content1ActionIdProperty.SetValue(value); }
+      get { return _content2Property.GetValue(); }
+      set { _content2Property.SetValue(value); }
     }
 
     public AbstractProperty ContentIndexProperty
@@ -231,26 +247,17 @@ namespace MediaPortal.UiComponents.Nereus.Models
 
     protected void UpdateContent(WorkflowAction action)
     {
-      string nextContentActionId = action?.ActionId.ToString();
-      AbstractProperty nextContentActionIdProperty;
-      int nextContentIndex;
-      int currentContentIndex = ContentIndex;
-      if (currentContentIndex == 0)
-      {
-        if (Content0ActionId == nextContentActionId)
-          return;
-        nextContentIndex = 1;
-        nextContentActionIdProperty = _content1ActionIdProperty;
-      }
-      else
-      {
-        if (Content1ActionId == nextContentActionId)
-          return;
-        nextContentIndex = 0;
-        nextContentActionIdProperty = _content0ActionIdProperty;
-      }
-      nextContentActionIdProperty.SetValue(nextContentActionId);
-      ContentIndex = nextContentIndex;
+      object nextContent;
+      if (action == null || !_homeContent.TryGetValue(action.ActionId, out nextContent))
+        nextContent = DEFAULT_HOME_CONTENT;
+
+      int currentIndex = ContentIndex;
+      if (ReferenceEquals(_contentProperties[currentIndex].GetValue(), nextContent))
+        return;
+
+      int nextIndex = (currentIndex + 1) % _contentProperties.Length;
+      _contentProperties[nextIndex].SetValue(nextContent);
+      ContentIndex = nextIndex;
     }
 
     protected void UpdateSelectedFanArtItem(ListItem item)

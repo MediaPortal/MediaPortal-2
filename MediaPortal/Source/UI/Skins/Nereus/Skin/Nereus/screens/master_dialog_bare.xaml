@@ -54,12 +54,14 @@ Parameters which have to be accessible by a DynamicResource lookup:
       <RowDefinition Height="*"/>
     </Grid.RowDefinitions>
 
-    <Border x:Name="DialogBorder" Margin="50" VerticalAlignment="Center" HorizontalAlignment="Center" BorderThickness="0" Background="#DD000000">
-      <DockPanel x:Name="DialogBackgroundPanel" LastChildFill="True">
+    <Border x:Name="DialogBorder" Margin="45" VerticalAlignment="Center" HorizontalAlignment="Center"
+            BorderThickness="5" Background="{ThemeResource DialogBorderBackgroundColor}" BorderBrush="{ThemeResource DialogBorderColor}">
+
+      <DockPanel x:Name="DialogBackgroundPanel" LastChildFill="True" Background="{ThemeResource DialogBackgroundColor}" Margin="5">
         <DockPanel.Resources>
           <Model x:Key="MenuModel" Id="CED34107-565C-48D9-BEC8-195F7969F90F"/>
         </DockPanel.Resources>
-
+       
         <mp_special_controls:UserInputCapture VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
                MousePositionMode="Relative" Buttons="Left"
                MouseClickedCommand="{CommandStencil Source={StaticResource MenuModel},Path=CloseTopmostDialog}"
