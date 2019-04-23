@@ -520,6 +520,8 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
     protected override void OnCurrentGroupChanged(int oldindex, int newindex)
     {
       base.OnCurrentGroupChanged(oldindex, newindex);
+      UpdateProgramStatus(null);
+      ChannelName = "";
       UpdateChannels();
       _ = UpdatePrograms();
       // Notify listeners about group change
