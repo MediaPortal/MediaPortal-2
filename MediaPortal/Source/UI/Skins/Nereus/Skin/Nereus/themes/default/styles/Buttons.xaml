@@ -2367,12 +2367,12 @@
     <Setter Property="Template">
       <Setter.Value>
         <ControlTemplate>
-          <Border BorderThickness="3" Background="#FF000000" BorderBrush="{ThemeResource DialogBorderColor}">
-            <StackPanel Margin="5">
+          <Border BorderThickness="5" Background="{ThemeResource DialogBorderBackgroundColor}" BorderBrush="{ThemeResource DialogBorderColor}">
+            <StackPanel Margin="5" Background="{ThemeResource DialogBackgroundColor}">
               <Label Content="{Binding RelativeSource={RelativeSource TemplatedParent},Path=VisibleText}"
                      IsVisible="{Binding RelativeSource={RelativeSource TemplatedParent},Path=ShowVisibleText}" FontSize="{ThemeResource NormalFontSize}"
                      Color="{ThemeResource TextColor}" HorizontalAlignment="Center"/>
-              <VirtualKeyboardPresenter/>
+              <VirtualKeyboardPresenter Margin="5"/>
             </StackPanel>
           </Border>
         </ControlTemplate>

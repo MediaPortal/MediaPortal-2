@@ -24,7 +24,9 @@
 
   <ResourceWrapper x:Key="DialogHeaderBackgroundColor" Resource="#FF244043"/>
   <ResourceWrapper x:Key="DialogScreenBackgroundColor" Resource="#80000000"/>
-  <ResourceWrapper x:Key="DialogBorderColor" Resource="#A0FFFFFF"/>
+  <ResourceWrapper x:Key="DialogBorderBackgroundColor" Resource="#99FFFFFF"/>
+  <ResourceWrapper x:Key="DialogBackgroundColor" Resource="#FF000000"/>
+  <ResourceWrapper x:Key="DialogBorderColor" Resource="#33FFFFFF"/>
 
   <!-- ************************** Nereus colors end ****************************** -->
   
