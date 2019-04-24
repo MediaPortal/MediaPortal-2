@@ -273,6 +273,8 @@ namespace MediaPortal.Plugins.SlimTv.Client.Helpers
             }
           }
         }
+        else
+          ChannelName = "";
         ChannelLogoType = channel.GetFanArtMediaType();
         _settingProgram = true;
         IProgramSeries series = program as IProgramSeries;
