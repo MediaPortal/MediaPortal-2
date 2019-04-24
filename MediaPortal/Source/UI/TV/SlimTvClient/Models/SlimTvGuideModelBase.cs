@@ -209,6 +209,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
       ILocalization loc = ServiceRegistration.Get<ILocalization>();
 
       ItemsList actions = new ItemsList();
+      bool isRunning = DateTime.Now >= program.StartTime && DateTime.Now <= program.EndTime;
       // if program is over already, there is nothing to do.
       if (program.EndTime < DateTime.Now)
       {
@@ -217,7 +218,6 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
       else
       {
         // Check if program is currently running.
-        bool isRunning = DateTime.Now >= program.StartTime && DateTime.Now <= program.EndTime;
         if (isRunning)
         {
           actions.Add(new ListItem(Consts.KEY_NAME, loc.ToString("[SlimTvClient.WatchNow]"))
@@ -225,21 +225,20 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
             Command = new AsyncMethodDelegateCommand(() => TuneChannelByProgram(program))
           });
         }
-
-        if (_tvHandler.ScheduleControl != null)
+      }
+      if (_tvHandler.ScheduleControl != null)
+      {
+        var result = _tvHandler.ScheduleControl.GetRecordingStatusAsync(program).Result;
+        if (result.Success)
         {
-          var result = _tvHandler.ScheduleControl.GetRecordingStatusAsync(program).Result;
-          if (result.Success)
-          {
-            if (isRunning && result.Result != RecordingStatus.None)
-              actions.Add(
-                new ListItem(Consts.KEY_NAME, loc.ToString("[SlimTvClient.WatchFromBeginning]"))
-                {
-                  Command = new AsyncMethodDelegateCommand(() => _tvHandler.WatchRecordingFromBeginningAsync(program))
-                });
+          if (isRunning && result.Result != RecordingStatus.None)
+            actions.Add(
+              new ListItem(Consts.KEY_NAME, loc.ToString("[SlimTvClient.WatchFromBeginning]"))
+              {
+                Command = new AsyncMethodDelegateCommand(() => _tvHandler.WatchRecordingFromBeginningAsync(program))
+              });
 
-            AddRecordingOptions(actions, program, result.Result);
-          }
+          AddRecordingOptions(actions, program, result.Result);
         }
       }
       SlimTvExtScheduleModel.ShowDialog("[SlimTvClient.ChooseProgramAction]", actions);
