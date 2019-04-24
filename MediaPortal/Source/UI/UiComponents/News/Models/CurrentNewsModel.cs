@@ -102,35 +102,29 @@ namespace MediaPortal.UiComponents.News.Models
         {
           newNewsItem.CopyTo(CurrentNewsItem);
 
-          var feeds = newsCollector.GetAllFeeds();
+          var feeds = newsCollector.GetAllFeeds().OrderByDescending(f => f.LastUpdated);
           //Only update if changed
           if (!feeds.Select(f => f.LastUpdated).SequenceEqual(_currentFeedItems.Select(f => (f as NewsFeed)?.LastUpdated ?? DateTime.Now)))
           {
             _currentFeedItems.Clear();
-            if (feeds?.Count > 0)
+            foreach (var feed in feeds)
             {
-              foreach (var feed in feeds.OrderByDescending(f => f.LastUpdated))
-              {
-                _currentFeedItems.Add(feed);
-              }
+              _currentFeedItems.Add(feed);
             }
             _currentFeedItems.FireChange();
           }
 
-          var items = newsCollector.GetAllNewsItems();
+          var items = newsCollector.GetAllNewsItems().OrderByDescending(i => i.PublishDate);
           //Only update if changed
           if (!items.Select(i => i.PublishDate).SequenceEqual(_currentNewsItems.Select(i => (i as NewsItem)?.PublishDate ?? DateTime.Now)))
           {
             _currentNewsItems.Clear();
             _currentTopNewsItems.Clear();
-            if (items?.Count > 0)
+            foreach (var newsItem in items)
             {
-              foreach (var newsItem in items.OrderByDescending(i => i.PublishDate))
-              {
-                _currentNewsItems.Add(newsItem);
-                if (_currentTopNewsItems.Count < NEWSITEM_TOP_COUNT)
-                  _currentTopNewsItems.Add(newsItem);
-              }
+              _currentNewsItems.Add(newsItem);
+              if (_currentTopNewsItems.Count < NEWSITEM_TOP_COUNT)
+                _currentTopNewsItems.Add(newsItem);
             }
             _currentNewsItems.FireChange();
             _currentTopNewsItems.FireChange();
