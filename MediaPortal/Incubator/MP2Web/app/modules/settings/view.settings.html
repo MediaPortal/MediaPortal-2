@@ -1,9 +1,0 @@
-﻿<template [ngIf]="!loading">
-  <h3>{{settingId}}</h3>
-  
-  <settings [input]="output" (on-setting-changed)="onSettingChanged($event)"></settings>
-</template>
-
-<template [ngIf]="loading">
-  <i class="fa fa-cog fa-spin"></i> Loading...
-</template>
