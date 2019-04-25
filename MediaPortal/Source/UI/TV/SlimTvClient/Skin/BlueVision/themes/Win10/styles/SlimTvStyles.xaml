@@ -79,7 +79,7 @@
                   Command="{Command Next}" IsEnabled="{Binding IsEnabled}"/>
           <DockPanel LastChildFill="False">
             <Label DockPanel.Dock="Top" x:Name="EndTimeLabel" Color="{ThemeResource TextColor}" FontSize="28" FontFamily="DefaultBold" Margin="10,10,20,0"
-                   Content="{Binding Source={StaticResource SlimTvClient}, Path=CurrentProgram.EndTime, Converter={StaticResource SlimTvDateFormatConverter}}"/>
+                   Content="{Binding Source={StaticResource SlimTvClient}, Path=CurrentProgram.EndTime, Converter={StaticResource SlimTvDateFormatConverter}, ConverterParameter=Time}"/>
             <Label DockPanel.Dock="Bottom" x:Name="CurrentTimeLabel" Margin="10,0,20,10" Color="{ThemeResource OSDProgressBarFillColor}" FontSize="28" FontFamily="DefaultBold"
                    Content="{Binding Source={StaticResource TimeModel}, Path=CurrentTime}"/>
           </DockPanel>
@@ -91,20 +91,6 @@
                   Command="{Command Source={StaticResource SlimTvClient},Path=ZapNextChannel}" IsEnabled="{Binding IsEnabled}"/>
           <Button x:Name="RecordButton" Style="{ThemeResource RecordButtonStyle}" Command="{Command Source={StaticResource SlimTvClient},Path=RecordDialog}"
                   Margin="{ThemeResource PlayerControlButtonMargins}" IsEnabled="{Binding IsEnabled}"/>
-          <Button x:Name="SelectMenuButton" Style="{ThemeResource SelectContextMenuButtonStyle}" Margin="{ThemeResource PlayerControlButtonMargins}"
-                  Command="{Command Source={StaticResource VideoPlayerModel},Path=OpenPlayerConfigurationDialog}" IsEnabled="{Binding IsEnabled}"/>
-          <Button x:Name="SelectTitleButton" Style="{ThemeResource ShowDvdMenuButtonStyle}" Margin="{ThemeResource PlayerControlButtonMargins}"
-                  IsVisible="{Binding Source={StaticResource VideoPlayerModel},Path=PlayerUIContributor.TitlesAvailable}"
-                  Command="{Command Source={StaticResource VideoPlayerModel},Path=PlayerUIContributor.OpenChooseTitleDialog}" IsEnabled="{Binding IsEnabled}"/>
-          <Button x:Name="PreviousChapterButton" Style="{ThemeResource PreviousChapterButtonStyle}" Margin="{ThemeResource PlayerControlButtonMargins}"
-                  IsVisible="{Binding Source={StaticResource VideoPlayerModel},Path=PlayerUIContributor.ChaptersAvailable}"
-                  Command="{Command Source={StaticResource VideoPlayerModel},Path=PlayerUIContributor.PrevChapter}" IsEnabled="{Binding IsEnabled}"/>
-          <Button x:Name="SelectChapterButton" Style="{ThemeResource SelectChapterButtonStyle}" Margin="{ThemeResource PlayerControlButtonMargins}"
-                  IsVisible="{Binding Source={StaticResource VideoPlayerModel},Path=PlayerUIContributor.ChaptersAvailable}"
-                  Command="{Command Source={StaticResource VideoPlayerModel},Path=PlayerUIContributor.OpenChooseChapterDialog}" IsEnabled="{Binding IsEnabled}"/>
-          <Button x:Name="NextChapterButton" Style="{ThemeResource NextChapterButtonStyle}" Margin="{ThemeResource PlayerControlButtonMargins}"
-                  IsVisible="{Binding Source={StaticResource VideoPlayerModel},Path=PlayerUIContributor.ChaptersAvailable}"
-                  Command="{Command Source={StaticResource VideoPlayerModel},Path=PlayerUIContributor.NextChapter}" IsEnabled="{Binding IsEnabled}"/>
           <Button x:Name="SelectSubtitleButton" Style="{ThemeResource SelectSubtitleButtonStyle}" Margin="{ThemeResource PlayerControlButtonMargins}"
                   IsVisible="{Binding Source={StaticResource VideoPlayerModel},Path=PlayerUIContributor.SubtitlesAvailable}"
                   Command="{Command Source={StaticResource VideoPlayerModel},Path=PlayerUIContributor.OpenChooseSubtitleDialog}" IsEnabled="{Binding IsEnabled}"/>
@@ -227,6 +213,42 @@
               </Trigger.ExitActions>
             </Trigger>
           </ControlTemplate.Triggers>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+    <Setter Property="PlayerContext" Value="PrimaryPlayer"/>
+  </Style>
+
+  <Style x:Key="PrimaryRadioOSDStyle" TargetType="{x:Type mp_special_controls:PlayerControl}">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="{x:Type mp_special_controls:PlayerControl}">
+
+          <Control Style="{ThemeResource OSDAudioContainer}" Width="{ThemeResource FullScreenContentAudioPrimaryPlayerOSDWidth}"
+                   DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}">
+            <Control.Resources>
+
+              <ControlTemplate x:Key="OSD_Progress_Template">
+                <DockPanel LastChildFill="true">
+                  <Grid DockPanel.Dock="Center" HorizontalAlignment="Stretch">
+                    <Grid.ColumnDefinitions>
+                      <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                      <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+                    <ProgressBar x:Name="CurrentProgramProgress" Height="18" HorizontalAlignment="Stretch" VerticalAlignment="Center" Margin="0,5,0,0"
+                                 Style="{ThemeResource OSDProgressBarStyle}" Value="{Binding Source={StaticResource SlimTvClient},Path=ProgramProgress}" />
+                  </Grid>
+                </DockPanel>
+              </ControlTemplate>
+
+              <ControlTemplate x:Key="OSD_Controls_Template">
+                <Control Template="{ThemeResource GenericTVOSDControlsControl}" />
+              </ControlTemplate>
+
+            </Control.Resources>
+          </Control>
         </ControlTemplate>
       </Setter.Value>
     </Setter>
