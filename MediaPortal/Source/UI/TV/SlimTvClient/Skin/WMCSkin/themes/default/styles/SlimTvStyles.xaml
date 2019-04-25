@@ -63,6 +63,7 @@
         <ControlTemplate TargetType="{x:Type mp_special_controls:PlayerControl}">
           <ControlTemplate.Resources>
             <Model x:Key="VideoPlayerModel" Id="4E2301B4-3C17-4a1d-8DE5-2CEA169A0256"/>
+            <Model x:Key="AudioPlayerModel" Id="D8998340-DA2D-42be-A29B-6D7A72AEA2DC"/>
           </ControlTemplate.Resources>
 
           <Grid x:Name="MainOSDGrid" HorizontalAlignment="Stretch" VerticalAlignment="Bottom" Margin="10" 
@@ -77,7 +78,7 @@
             </Grid.RowDefinitions>
 
             <Image Source="PlayerControl\BOTTOM.SHADOW.PNG" Stretch="Fill" Grid.ColumnSpan="2"
-                   Margin="-190,-10,-20,-20" Opacity="0.8" Grid.Row="1" Panel.ZIndex="0" />
+                   Margin="-890,-10,-20,-20" Opacity="0.8" Grid.Row="1" Panel.ZIndex="0" />
 
             <Image x:Name="ChannelLogo" Grid.Column="0" Grid.RowSpan="2" Stretch="Uniform" Margin="10" Width="150">
               <Image.Source>
@@ -135,17 +136,17 @@
                         Command="{Command Source={StaticResource GeneralPlayerModel},Path=VolumeUp}"/>
               </StackPanel>
 
-              <Grid DockPanel.Dock="Left" VerticalAlignment="Bottom" Margin="0,0,0,10">
+              <Grid DockPanel.Dock="Left" VerticalAlignment="Bottom" Margin="0,0,0,10" IsVisible="{Binding !IsRadio}">
                 <Grid.ColumnDefinitions>
                   <ColumnDefinition Width="Auto"/>
                   <ColumnDefinition Width="*"/>
                 </Grid.ColumnDefinitions>
                 <Label x:Name="CurrentProgramTitleLabel" Grid.Column="0" Content="{Binding Source={StaticResource SlimTvClient},Path=CurrentProgram.Title}" 
-                   HorizontalAlignment="Stretch" VerticalAlignment="Center" FontFamily="SegoeUIBold" Panel.ZIndex="1" Margin="20,0,20,0"
-                   Color="{ThemeResource TextColor}" Scroll="Auto"/>
+                       HorizontalAlignment="Stretch" VerticalAlignment="Center" FontFamily="SegoeUIBold" Panel.ZIndex="1" Margin="20,0,20,0"
+                       Color="{ThemeResource TextColor}" Scroll="Auto"/>
                 <Label x:Name="CurrentProgramSeriesLabel" Color="{ThemeResource TextColor}" Grid.Column="1" Panel.ZIndex="1" 
-                   IsVisible="{Binding Source={StaticResource SlimTvClient},Path=CurrentProgram.Series, Converter={StaticResource EmptyStringToFalseConverter}}"
-                   HorizontalAlignment="Left" VerticalAlignment="Center" FontFamily="SegoeUIBold" Scroll="Auto" ScrollDelay="0">
+                       IsVisible="{Binding Source={StaticResource SlimTvClient},Path=CurrentProgram.Series, Converter={StaticResource EmptyStringToFalseConverter}}"
+                       HorizontalAlignment="Left" VerticalAlignment="Center" FontFamily="SegoeUIBold" Scroll="Auto" ScrollDelay="0">
                   <Label.Content>
                     <Binding Source="{StaticResource SlimTvClient}" Path="CurrentProgram.Series" Converter="{StaticResource StringFormatConverter}" ConverterParameter="{} ({0})"/>
                   </Label.Content>
@@ -163,8 +164,8 @@
                 <RowDefinition Height="Auto"/>
               </Grid.RowDefinitions>
               <Label x:Name="StartTimeLabel" Grid.Column="0" Grid.Row="0" FontFamily="SegoeUIBold" Opacity="0.9" Panel.ZIndex="101"
-                       Content="{Binding Source={StaticResource SlimTvClient},Path=CurrentProgram.StartTime, Converter={StaticResource SlimTvDateFormatConverter}}"
-                       HorizontalAlignment="Center" VerticalAlignment="Center" Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}"/>
+                     Content="{Binding Source={StaticResource SlimTvClient},Path=CurrentProgram.StartTime, Converter={StaticResource SlimTvDateFormatConverter},ConverterParameter=Time}"
+                     HorizontalAlignment="Center" VerticalAlignment="Center" Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}"/>
 
               <Image Grid.Column="0" Grid.Row="0" Source="PlayerControl\Time.shadow.png" Stretch="Fill" Height="70" Margin="-30,0,-30,0" Panel.ZIndex="100">
                 <Image.Width>
@@ -175,8 +176,8 @@
               </Image>
 
               <Label x:Name="EndTimeLabel" Grid.Column="2" Grid.Row="0" FontFamily="SegoeUIBold" Opacity="0.9" Panel.ZIndex="101"
-                       Content="{Binding Source={StaticResource SlimTvClient},Path=CurrentProgram.EndTime, Converter={StaticResource SlimTvDateFormatConverter}}"
-                       Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                     Content="{Binding Source={StaticResource SlimTvClient},Path=CurrentProgram.EndTime, Converter={StaticResource SlimTvDateFormatConverter},ConverterParameter=Time}"
+                     Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
               <Image Grid.Column="2" Grid.Row="0" Source="PlayerControl\Time.shadow.png" Stretch="Fill" Height="70" Margin="-30,0,-30,0" Panel.ZIndex="100">
                 <Image.Width>
                   <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0}+60">
