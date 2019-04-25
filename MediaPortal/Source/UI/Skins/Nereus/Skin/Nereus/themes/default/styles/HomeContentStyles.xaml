@@ -1808,7 +1808,7 @@
   <DataTemplate DataType="{x:Type nereus_home_content:NewsHomeContent}">
     <DataTemplate.Resources>
          <Style x:Key="NewsFeedsStyle" BasedOn="{ThemeResource MenuListViewStyle}">
-        <Setter Property="ItemContainerStyle" Value="{ThemeResource FeedDataTemplate}"/>
+        <Setter Property="ItemTemplate" Value="{ThemeResource FeedDataTemplate}"/>
         <Setter Property="Background" Value="Blue"/>
       </Style>     
     </DataTemplate.Resources>
@@ -1816,7 +1816,7 @@
     <ListView HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Style="{ThemeResource NewsFeedsStyle}"
               IsEnabled="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=IsEnabled}"
               DataContext="{Binding Source={StaticResource CurrentNewsModel}}"
-              ItemsSource="{Binding CurrentFeedItems}">
+              ItemsSource="{Binding CurrentNewsFeeds}">
       <ListView.Resources>
 
       </ListView.Resources>
