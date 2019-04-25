@@ -5,6 +5,7 @@
     xmlns:fanart="clr-namespace:MediaPortal.Extensions.UserServices.FanArtService.Client;assembly=FanArtService.Client"
     xmlns:nereus_converters="clr-namespace:MediaPortal.UiComponents.Nereus.Converters;assembly=Nereus"
     xmlns:nereus_home_content="clr-namespace:MediaPortal.UiComponents.Nereus.Models.HomeContent;assembly=Nereus"
+    xmlns:collections="clr-namespace:MediaPortal.UI.Presentation.DataObjects;assembly=MediaPortal.UI"
     DependsOnStyleResources="OtherControls,OtherControlsOverrides,MediaConsts,Colors,Buttons,Consts"
     >
 
@@ -645,8 +646,29 @@
     </Button>
   </ControlTemplate>
 
+  <!--Base Template for all wide tiles-->
+  <ControlTemplate x:Key="WideTileContainerTemplate">
+    <ControlTemplate.Resources>
+
+      <!--Banner shadow-->
+      <ControlTemplate x:Key="ContentShadowTemplate">
+        <Image Source="wide_small.png" Stretch="Fill"/>
+      </ControlTemplate>
+
+      <!--Banner tile template-->
+      <ControlTemplate x:Key="ContentControlTemplate">
+        <Control Template="{DynamicResource Wide_Tile_Template}"/>
+      </ControlTemplate>
+
+    </ControlTemplate.Resources>
+
+    <!--Actual container for the tile that displays the template-->
+    <Control Template="{ThemeResource TileButtonTemplate}" />
+
+  </ControlTemplate>
+
   <!--Base Template for all square tiles-->
-  <ControlTemplate x:Key="SquareTileContainerTemplate">
+  <ControlTemplate x:Key="SquareTileLargeContainerTemplate">
     <ControlTemplate.Resources>
 
       <!--Square shadow-->
@@ -665,9 +687,29 @@
     <Control Template="{ThemeResource TileButtonTemplate}" />
 
   </ControlTemplate>
+  
+  <ControlTemplate x:Key="SquareTileSmallContainerTemplate">
+    <ControlTemplate.Resources>
+
+      <!--Square shadow-->
+      <ControlTemplate x:Key="ContentShadowTemplate">
+        <Image Source="square_small.png" Stretch="Fill"/>
+      </ControlTemplate>
+
+      <!--Square plugin tile-->
+      <ControlTemplate x:Key="ContentControlTemplate">
+        <Control Template="{DynamicResource Square_Tile_Template}"/>
+      </ControlTemplate>
+
+    </ControlTemplate.Resources>
+
+    <!--Actual container for the tile that displays the template-->
+    <Control Template="{ThemeResource TileButtonTemplate}" />
+
+  </ControlTemplate>
 
   <!--Base Template for all poster tiles-->
-  <ControlTemplate x:Key="PosterTileContainerTemplate">
+  <ControlTemplate x:Key="PosterTileLargeContainerTemplate">
     <ControlTemplate.Resources>
 
       <!--Poster shadow-->
@@ -687,8 +729,28 @@
 
   </ControlTemplate>
 
+  <ControlTemplate x:Key="PosterTileSmallContainerTemplate">
+    <ControlTemplate.Resources>
+
+      <!--Poster shadow-->
+      <ControlTemplate x:Key="ContentShadowTemplate">
+        <Image Source="poster_small.png" Stretch="Fill"/>
+      </ControlTemplate>
+
+      <!--Poster tile template-->
+      <ControlTemplate x:Key="ContentControlTemplate">
+        <Control Template="{DynamicResource Poster_Tile_Template}"/>
+      </ControlTemplate>
+
+    </ControlTemplate.Resources>
+
+    <!--Actual container for the tile that displays the template-->
+    <Control Template="{ThemeResource TileButtonTemplate}"/>
+
+  </ControlTemplate>
+
   <!--Base Template for all banner tiles-->
-  <ControlTemplate x:Key="BannerTileContainerTemplate">
+  <ControlTemplate x:Key="BannerTileLargeContainerTemplate">
     <ControlTemplate.Resources>
 
       <!--Banner shadow-->
@@ -702,6 +764,67 @@
         </ControlTemplate>
 
       </ControlTemplate.Resources>
+
+    <!--Actual container for the tile that displays the template-->
+    <Control Template="{ThemeResource TileButtonTemplate}" />
+
+  </ControlTemplate>
+  
+  <ControlTemplate x:Key="BannerTileSmallContainerTemplate">
+    <ControlTemplate.Resources>
+
+      <!--Banner shadow-->
+      <ControlTemplate x:Key="ContentShadowTemplate">
+        <Image Source="banner_small.png" Stretch="Fill"/>
+      </ControlTemplate>
+
+      <!--Banner tile template-->
+      <ControlTemplate x:Key="ContentControlTemplate">
+        <Control Template="{DynamicResource Banner_Tile_Template}"/>
+      </ControlTemplate>
+
+    </ControlTemplate.Resources>
+
+    <!--Actual container for the tile that displays the template-->
+    <Control Template="{ThemeResource TileButtonTemplate}" />
+
+  </ControlTemplate>
+
+  <!--Base Template for all Thumbnail tiles-->
+  <ControlTemplate x:Key="ThumbnailTileLargeContainerTemplate">
+    <ControlTemplate.Resources>
+
+      <!--Thumbnail shadow-->
+      <ControlTemplate x:Key="ContentShadowTemplate">
+        <Image Source="Thumbnail_large.png" Stretch="Fill"/>
+      </ControlTemplate>
+
+      <!--Thumbnail tile template-->
+      <ControlTemplate x:Key="ContentControlTemplate">
+        <Control Template="{DynamicResource Thumbnail_Tile_Template}"/>
+      </ControlTemplate>
+
+    </ControlTemplate.Resources>
+
+    <!--Actual container for the tile that displays the template-->
+    <Control Template="{ThemeResource TileButtonTemplate}" />
+
+  </ControlTemplate>
+
+  <ControlTemplate x:Key="ThumbnailTileSmallContainerTemplate">
+    <ControlTemplate.Resources>
+
+      <!--Thumbnail shadow-->
+      <ControlTemplate x:Key="ContentShadowTemplate">
+        <Image Source="Thumbnail_small.png" Stretch="Fill"/>
+      </ControlTemplate>
+
+      <!--Thumbnail tile template-->
+      <ControlTemplate x:Key="ContentControlTemplate">
+        <Control Template="{DynamicResource Thumbnail_Tile_Template}"/>
+      </ControlTemplate>
+
+    </ControlTemplate.Resources>
 
     <!--Actual container for the tile that displays the template-->
     <Control Template="{ThemeResource TileButtonTemplate}" />
@@ -731,35 +854,34 @@
       </Grid.RowDefinitions>
 
       <Control x:Name="Tile1" Grid.Column="0" Grid.Row="0" Grid.ColumnSpan="2" Grid.RowSpan="2"
-               Template="{ThemeResource SquareTileContainerTemplate}"
+               Template="{ThemeResource SquareTileLargeContainerTemplate}"
                DataContext="{Binding Item1}"
                IsVisible="{Binding Converter={StaticResource ReferenceToBoolConverter}}"/>
 
       <Control x:Name="Tile2" Grid.Column="2" Grid.Row="0"
-               Template="{ThemeResource SquareTileContainerTemplate}"
+               Template="{ThemeResource SquareTileSmallContainerTemplate}"
                DataContext="{Binding Item2}"
                IsVisible="{Binding Converter={StaticResource ReferenceToBoolConverter}}"/>
 
       <Control x:Name="Tile3" Grid.Column="2" Grid.Row="1"
-               Template="{ThemeResource SquareTileContainerTemplate}"
+               Template="{ThemeResource SquareTileSmallContainerTemplate}"
                DataContext="{Binding Item3}"
                IsVisible="{Binding Converter={StaticResource ReferenceToBoolConverter}}"/>
 
       <Control x:Name="Tile4" Grid.Column="0" Grid.Row="2"
-               Template="{ThemeResource SquareTileContainerTemplate}"
+               Template="{ThemeResource SquareTileSmallContainerTemplate}"
                DataContext="{Binding Item4}"
                IsVisible="{Binding Converter={StaticResource ReferenceToBoolConverter}}"/>
 
       <Control x:Name="Tile5" Grid.Column="0" Grid.Row="3"
-               Template="{ThemeResource SquareTileContainerTemplate}"
+               Template="{ThemeResource SquareTileSmallContainerTemplate}"
                DataContext="{Binding Item5}"
                IsVisible="{Binding Converter={StaticResource ReferenceToBoolConverter}}"/>
 
       <Control x:Name="Tile6" Grid.Column="1" Grid.Row="2" Grid.ColumnSpan="2" Grid.RowSpan="2"
-               Template="{ThemeResource SquareTileContainerTemplate}"
+               Template="{ThemeResource SquareTileLargeContainerTemplate}"
                DataContext="{Binding Item6}"
                IsVisible="{Binding Converter={StaticResource ReferenceToBoolConverter}}"/>
-
     </Grid>
   </ControlTemplate>
 
@@ -780,35 +902,34 @@
       </Grid.RowDefinitions>
 
       <Control x:Name="Tile1" Grid.Column="0" Grid.Row="0"
-               Template="{ThemeResource SquareTileContainerTemplate}"
+               Template="{ThemeResource SquareTileSmallContainerTemplate}"
                DataContext="{Binding Item1}"
                IsVisible="{Binding Converter={StaticResource ReferenceToBoolConverter}}"/>
 
       <Control x:Name="Tile2" Grid.Column="0" Grid.Row="1"
-               Template="{ThemeResource SquareTileContainerTemplate}"
+               Template="{ThemeResource SquareTileSmallContainerTemplate}"
                DataContext="{Binding Item2}"
                IsVisible="{Binding Converter={StaticResource ReferenceToBoolConverter}}"/>
 
       <Control x:Name="Tile3" Grid.Column="1" Grid.Row="0" Grid.ColumnSpan="2" Grid.RowSpan="2"
-               Template="{ThemeResource SquareTileContainerTemplate}"
+               Template="{ThemeResource SquareTileLargeContainerTemplate}"
                DataContext="{Binding Item3}"
                IsVisible="{Binding Converter={StaticResource ReferenceToBoolConverter}}"/>
 
       <Control x:Name="Tile4" Grid.Column="0" Grid.Row="2" Grid.ColumnSpan="2" Grid.RowSpan="2"
-               Template="{ThemeResource SquareTileContainerTemplate}"
+               Template="{ThemeResource SquareTileLargeContainerTemplate}"
                DataContext="{Binding Item4}"
                IsVisible="{Binding Converter={StaticResource ReferenceToBoolConverter}}"/>
 
       <Control x:Name="Tile5" Grid.Column="2" Grid.Row="2"
-               Template="{ThemeResource SquareTileContainerTemplate}"
+               Template="{ThemeResource SquareTileSmallContainerTemplate}"
                DataContext="{Binding Item5}"
                IsVisible="{Binding Converter={StaticResource ReferenceToBoolConverter}}"/>
 
       <Control x:Name="Tile6" Grid.Column="2" Grid.Row="3"
-               Template="{ThemeResource SquareTileContainerTemplate}"
+               Template="{ThemeResource SquareTileSmallContainerTemplate}"
                DataContext="{Binding Item6}"
                IsVisible="{Binding Converter={StaticResource ReferenceToBoolConverter}}"/>
-
     </Grid>
   </ControlTemplate>
 
@@ -829,35 +950,34 @@
       </Grid.RowDefinitions>
 
       <Control x:Name="Tile1" Grid.Column="0" Grid.Row="0" Grid.ColumnSpan="2" Grid.RowSpan="2"
-               Template="{ThemeResource SquareTileContainerTemplate}"
+               Template="{ThemeResource SquareTileLargeContainerTemplate}"
                DataContext="{Binding Item1}"
                IsVisible="{Binding Converter={StaticResource ReferenceToBoolConverter}}"/>
 
       <Control x:Name="Tile2" Grid.Column="0" Grid.Row="2"
-               Template="{ThemeResource SquareTileContainerTemplate}"
+               Template="{ThemeResource SquareTileSmallContainerTemplate}"
                DataContext="{Binding Item2}"
                IsVisible="{Binding Converter={StaticResource ReferenceToBoolConverter}}"/>
 
       <Control x:Name="Tile3" Grid.Column="1" Grid.Row="2"
-               Template="{ThemeResource SquareTileContainerTemplate}"
+               Template="{ThemeResource SquareTileSmallContainerTemplate}"
                DataContext="{Binding Item3}"
                IsVisible="{Binding Converter={StaticResource ReferenceToBoolConverter}}"/>
 
       <Control x:Name="Tile4" Grid.Column="0" Grid.Row="3"
-               Template="{ThemeResource SquareTileContainerTemplate}"
+               Template="{ThemeResource SquareTileSmallContainerTemplate}"
                DataContext="{Binding Item4}"
                IsVisible="{Binding Converter={StaticResource ReferenceToBoolConverter}}"/>
 
       <Control x:Name="Tile5" Grid.Column="1" Grid.Row="3"
-               Template="{ThemeResource SquareTileContainerTemplate}"
+               Template="{ThemeResource SquareTileSmallContainerTemplate}"
                DataContext="{Binding Item5}"
                IsVisible="{Binding Converter={StaticResource ReferenceToBoolConverter}}"/>
 
       <Control x:Name="Tile6" Grid.Column="0" Grid.Row="4"
-               Template="{ThemeResource SquareTileContainerTemplate}"
+               Template="{ThemeResource SquareTileSmallContainerTemplate}"
                DataContext="{Binding Item6}"
                IsVisible="{Binding Converter={StaticResource ReferenceToBoolConverter}}"/>
-
     </Grid>
   </ControlTemplate>
 
@@ -878,27 +998,257 @@
       
 
       <Control x:Name="Tile1" Grid.Row="0"
-               Template="{ThemeResource SquareTileContainerTemplate}"
+               Template="{ThemeResource SquareTileSmallContainerTemplate}"
                DataContext="{Binding Item1}"
                IsVisible="{Binding Converter={StaticResource ReferenceToBoolConverter}}"/>
 
       <Control x:Name="Tile2" Grid.Row="1"
-               Template="{ThemeResource SquareTileContainerTemplate}"
+               Template="{ThemeResource SquareTileSmallContainerTemplate}"
                DataContext="{Binding Item2}"
                IsVisible="{Binding Converter={StaticResource ReferenceToBoolConverter}}"/>
 
       <Control x:Name="Tile3" Grid.Row="2"
-               Template="{ThemeResource SquareTileContainerTemplate}"
+               Template="{ThemeResource SquareTileSmallContainerTemplate}"
                DataContext="{Binding Item3}"
                IsVisible="{Binding Converter={StaticResource ReferenceToBoolConverter}}"/>
 
       <Control x:Name="Tile4" Grid.Row="3"
-               Template="{ThemeResource SquareTileContainerTemplate}"
+               Template="{ThemeResource SquareTileSmallContainerTemplate}"
                DataContext="{Binding Item4}"
                IsVisible="{Binding Converter={StaticResource ReferenceToBoolConverter}}"/>
 
       <Control x:Name="Tile5" Grid.Row="4"
-               Template="{ThemeResource SquareTileContainerTemplate}"
+               Template="{ThemeResource SquareTileSmallContainerTemplate}"
+               DataContext="{Binding Item5}"
+               IsVisible="{Binding Converter={StaticResource ReferenceToBoolConverter}}"/>
+    </Grid>
+  </ControlTemplate>
+
+  <!-- 6 square tiles, 2 large and 4 small -->
+  <ControlTemplate x:Key="ThumbnailTileLayout1Template">
+    <Grid>
+      <Grid.ColumnDefinitions>
+        <ColumnDefinition Width="*"/>
+        <ColumnDefinition Width="*"/>
+        <ColumnDefinition Width="*"/>
+      </Grid.ColumnDefinitions>
+
+      <Grid.RowDefinitions>
+        <RowDefinition Height="*"/>
+        <RowDefinition Height="*"/>
+        <RowDefinition Height="*"/>
+        <RowDefinition Height="*"/>
+      </Grid.RowDefinitions>
+
+      <Control x:Name="Tile1" Grid.Column="0" Grid.Row="0" Grid.ColumnSpan="2" Grid.RowSpan="2"
+               Template="{ThemeResource ThumbnailTileLargeContainerTemplate}"
+               DataContext="{Binding Item1}"
+               IsVisible="{Binding Converter={StaticResource ReferenceToBoolConverter}}"/>
+
+      <Control x:Name="Tile2" Grid.Column="2" Grid.Row="0"
+               Template="{ThemeResource ThumbnailTileSmallContainerTemplate}"
+               DataContext="{Binding Item2}"
+               IsVisible="{Binding Converter={StaticResource ReferenceToBoolConverter}}"/>
+
+      <Control x:Name="Tile3" Grid.Column="2" Grid.Row="1"
+               Template="{ThemeResource ThumbnailTileSmallContainerTemplate}"
+               DataContext="{Binding Item3}"
+               IsVisible="{Binding Converter={StaticResource ReferenceToBoolConverter}}"/>
+
+      <Control x:Name="Tile4" Grid.Column="0" Grid.Row="2"
+               Template="{ThemeResource ThumbnailTileSmallContainerTemplate}"
+               DataContext="{Binding Item4}"
+               IsVisible="{Binding Converter={StaticResource ReferenceToBoolConverter}}"/>
+
+      <Control x:Name="Tile5" Grid.Column="0" Grid.Row="3"
+               Template="{ThemeResource ThumbnailTileSmallContainerTemplate}"
+               DataContext="{Binding Item5}"
+               IsVisible="{Binding Converter={StaticResource ReferenceToBoolConverter}}"/>
+
+      <Control x:Name="Tile6" Grid.Column="1" Grid.Row="2" Grid.ColumnSpan="2" Grid.RowSpan="2"
+               Template="{ThemeResource ThumbnailTileLargeContainerTemplate}"
+               DataContext="{Binding Item6}"
+               IsVisible="{Binding Converter={StaticResource ReferenceToBoolConverter}}"/>
+    </Grid>
+  </ControlTemplate>
+
+  <!-- 6 thumbnail tiles, 2 large and 4 small, mirrors ThumbnailTileLayout1Template -->
+  <ControlTemplate x:Key="ThumbnailTileLayout2Template">
+    <Grid>
+      <Grid.ColumnDefinitions>
+        <ColumnDefinition Width="*"/>
+        <ColumnDefinition Width="*"/>
+        <ColumnDefinition Width="*"/>
+      </Grid.ColumnDefinitions>
+
+      <Grid.RowDefinitions>
+        <RowDefinition Height="*"/>
+        <RowDefinition Height="*"/>
+        <RowDefinition Height="*"/>
+        <RowDefinition Height="*"/>
+      </Grid.RowDefinitions>
+
+      <Control x:Name="Tile1" Grid.Column="0" Grid.Row="0"
+               Template="{ThemeResource ThumbnailTileSmallContainerTemplate}"
+               DataContext="{Binding Item1}"
+               IsVisible="{Binding Converter={StaticResource ReferenceToBoolConverter}}"/>
+
+      <Control x:Name="Tile2" Grid.Column="0" Grid.Row="1"
+               Template="{ThemeResource ThumbnailTileSmallContainerTemplate}"
+               DataContext="{Binding Item2}"
+               IsVisible="{Binding Converter={StaticResource ReferenceToBoolConverter}}"/>
+
+      <Control x:Name="Tile3" Grid.Column="1" Grid.Row="0" Grid.ColumnSpan="2" Grid.RowSpan="2"
+               Template="{ThemeResource ThumbnailTileLargeContainerTemplate}"
+               DataContext="{Binding Item3}"
+               IsVisible="{Binding Converter={StaticResource ReferenceToBoolConverter}}"/>
+
+      <Control x:Name="Tile4" Grid.Column="0" Grid.Row="2" Grid.ColumnSpan="2" Grid.RowSpan="2"
+               Template="{ThemeResource ThumbnailTileLargeContainerTemplate}"
+               DataContext="{Binding Item4}"
+               IsVisible="{Binding Converter={StaticResource ReferenceToBoolConverter}}"/>
+
+      <Control x:Name="Tile5" Grid.Column="2" Grid.Row="2"
+               Template="{ThemeResource ThumbnailTileSmallContainerTemplate}"
+               DataContext="{Binding Item5}"
+               IsVisible="{Binding Converter={StaticResource ReferenceToBoolConverter}}"/>
+
+      <Control x:Name="Tile6" Grid.Column="2" Grid.Row="3"
+               Template="{ThemeResource ThumbnailTileSmallContainerTemplate}"
+               DataContext="{Binding Item6}"
+               IsVisible="{Binding Converter={StaticResource ReferenceToBoolConverter}}"/>
+    </Grid>
+  </ControlTemplate>
+
+  <!-- 6 thumbnail tiles, 1 large and 5 small -->
+  <ControlTemplate x:Key="ThumbnailTileLayout3Template">
+    <Grid>
+      <Grid.ColumnDefinitions>
+        <ColumnDefinition Width="*"/>
+        <ColumnDefinition Width="*"/>
+      </Grid.ColumnDefinitions>
+
+      <Grid.RowDefinitions>
+        <RowDefinition Height="*"/>
+        <RowDefinition Height="*"/>
+        <RowDefinition Height="*"/>
+        <RowDefinition Height="*"/>
+        <RowDefinition Height="*"/>
+      </Grid.RowDefinitions>
+
+      <Control x:Name="Tile1" Grid.Column="0" Grid.Row="0" Grid.ColumnSpan="2" Grid.RowSpan="2"
+               Template="{ThemeResource ThumbnailTileLargeContainerTemplate}"
+               DataContext="{Binding Item1}"
+               IsVisible="{Binding Converter={StaticResource ReferenceToBoolConverter}}"/>
+
+      <Control x:Name="Tile2" Grid.Column="0" Grid.Row="2"
+               Template="{ThemeResource ThumbnailTileSmallContainerTemplate}"
+               DataContext="{Binding Item2}"
+               IsVisible="{Binding Converter={StaticResource ReferenceToBoolConverter}}"/>
+
+      <Control x:Name="Tile3" Grid.Column="1" Grid.Row="2"
+               Template="{ThemeResource ThumbnailTileSmallContainerTemplate}"
+               DataContext="{Binding Item3}"
+               IsVisible="{Binding Converter={StaticResource ReferenceToBoolConverter}}"/>
+
+      <Control x:Name="Tile4" Grid.Column="0" Grid.Row="3"
+               Template="{ThemeResource ThumbnailTileSmallContainerTemplate}"
+               DataContext="{Binding Item4}"
+               IsVisible="{Binding Converter={StaticResource ReferenceToBoolConverter}}"/>
+
+      <Control x:Name="Tile5" Grid.Column="1" Grid.Row="3"
+               Template="{ThemeResource ThumbnailTileSmallContainerTemplate}"
+               DataContext="{Binding Item5}"
+               IsVisible="{Binding Converter={StaticResource ReferenceToBoolConverter}}"/>
+
+      <Control x:Name="Tile6" Grid.Column="0" Grid.Row="4"
+               Template="{ThemeResource ThumbnailTileSmallContainerTemplate}"
+               DataContext="{Binding Item6}"
+               IsVisible="{Binding Converter={StaticResource ReferenceToBoolConverter}}"/>
+    </Grid>
+  </ControlTemplate>
+
+  <!-- 5 equal Thumbnail tiles -->
+  <ControlTemplate x:Key="ThumbnailTileLayout4Template">
+    <Grid>
+      <Grid.ColumnDefinitions>
+        <ColumnDefinition Width="*"/>
+      </Grid.ColumnDefinitions>
+
+      <Grid.RowDefinitions>
+        <RowDefinition Height="*"/>
+        <RowDefinition Height="*"/>
+        <RowDefinition Height="*"/>
+        <RowDefinition Height="*"/>
+        <RowDefinition Height="*"/>
+      </Grid.RowDefinitions>
+
+
+      <Control x:Name="Tile1" Grid.Row="0"
+               Template="{ThemeResource ThumbnailTileSmallContainerTemplate}"
+               DataContext="{Binding Item1}"
+               IsVisible="{Binding Converter={StaticResource ReferenceToBoolConverter}}"/>
+
+      <Control x:Name="Tile2" Grid.Row="1"
+               Template="{ThemeResource ThumbnailTileSmallContainerTemplate}"
+               DataContext="{Binding Item2}"
+               IsVisible="{Binding Converter={StaticResource ReferenceToBoolConverter}}"/>
+
+      <Control x:Name="Tile3" Grid.Row="2"
+               Template="{ThemeResource ThumbnailTileSmallContainerTemplate}"
+               DataContext="{Binding Item3}"
+               IsVisible="{Binding Converter={StaticResource ReferenceToBoolConverter}}"/>
+
+      <Control x:Name="Tile4" Grid.Row="3"
+               Template="{ThemeResource ThumbnailTileSmallContainerTemplate}"
+               DataContext="{Binding Item4}"
+               IsVisible="{Binding Converter={StaticResource ReferenceToBoolConverter}}"/>
+
+      <Control x:Name="Tile5" Grid.Row="4"
+               Template="{ThemeResource ThumbnailTileSmallContainerTemplate}"
+               DataContext="{Binding Item5}"
+               IsVisible="{Binding Converter={StaticResource ReferenceToBoolConverter}}"/>
+    </Grid>
+  </ControlTemplate>
+
+  <!-- 5 equal Wide tiles -->
+  <ControlTemplate x:Key="WideTileLayoutTemplate">
+    <Grid>
+      <Grid.ColumnDefinitions>
+        <ColumnDefinition Width="*"/>
+      </Grid.ColumnDefinitions>
+
+      <Grid.RowDefinitions>
+        <RowDefinition Height="*"/>
+        <RowDefinition Height="*"/>
+        <RowDefinition Height="*"/>
+        <RowDefinition Height="*"/>
+        <RowDefinition Height="*"/>
+      </Grid.RowDefinitions>
+
+
+      <Control x:Name="Tile1" Grid.Row="0"
+               Template="{ThemeResource WideTileContainerTemplate}"
+               DataContext="{Binding Item1}"
+               IsVisible="{Binding Converter={StaticResource ReferenceToBoolConverter}}"/>
+
+      <Control x:Name="Tile2" Grid.Row="1"
+               Template="{ThemeResource WideTileContainerTemplate}"
+               DataContext="{Binding Item2}"
+               IsVisible="{Binding Converter={StaticResource ReferenceToBoolConverter}}"/>
+
+      <Control x:Name="Tile3" Grid.Row="2"
+               Template="{ThemeResource WideTileContainerTemplate}"
+               DataContext="{Binding Item3}"
+               IsVisible="{Binding Converter={StaticResource ReferenceToBoolConverter}}"/>
+
+      <Control x:Name="Tile4" Grid.Row="3"
+               Template="{ThemeResource WideTileContainerTemplate}"
+               DataContext="{Binding Item4}"
+               IsVisible="{Binding Converter={StaticResource ReferenceToBoolConverter}}"/>
+
+      <Control x:Name="Tile5" Grid.Row="4"
+               Template="{ThemeResource WideTileContainerTemplate}"
                DataContext="{Binding Item5}"
                IsVisible="{Binding Converter={StaticResource ReferenceToBoolConverter}}"/>
     </Grid>
@@ -921,32 +1271,32 @@
       </Grid.RowDefinitions>
 
       <Control x:Name="Tile1" Grid.Column="0" Grid.Row="0" Grid.ColumnSpan="2" Grid.RowSpan="2"
-               Template="{ThemeResource PosterTileContainerTemplate}"
+               Template="{ThemeResource PosterTileLargeContainerTemplate}"
                DataContext="{Binding Item1}"
                IsVisible="{Binding Converter={StaticResource ReferenceToBoolConverter}}"/>
 
       <Control x:Name="Tile2" Grid.Column="2" Grid.Row="0"
-               Template="{ThemeResource PosterTileContainerTemplate}"
+               Template="{ThemeResource PosterTileSmallContainerTemplate}"
                DataContext="{Binding Item2}"
                IsVisible="{Binding Converter={StaticResource ReferenceToBoolConverter}}"/>
 
       <Control x:Name="Tile3" Grid.Column="3" Grid.Row="0"
-               Template="{ThemeResource PosterTileContainerTemplate}"
+               Template="{ThemeResource PosterTileSmallContainerTemplate}"
                DataContext="{Binding Item3}"
                IsVisible="{Binding Converter={StaticResource ReferenceToBoolConverter}}"/>
 
       <Control x:Name="Tile4" Grid.Column="0" Grid.Row="2"
-               Template="{ThemeResource PosterTileContainerTemplate}"
+               Template="{ThemeResource PosterTileSmallContainerTemplate}"
                DataContext="{Binding Item4}"
                IsVisible="{Binding Converter={StaticResource ReferenceToBoolConverter}}"/>
 
       <Control x:Name="Tile5" Grid.Column="1" Grid.Row="2"
-               Template="{ThemeResource PosterTileContainerTemplate}"
+               Template="{ThemeResource PosterTileSmallContainerTemplate}"
                DataContext="{Binding Item5}"
                IsVisible="{Binding Converter={StaticResource ReferenceToBoolConverter}}"/>
 
       <Control x:Name="Tile6" Grid.Column="2" Grid.Row="1" Grid.ColumnSpan="2" Grid.RowSpan="2"
-               Template="{ThemeResource PosterTileContainerTemplate}"
+               Template="{ThemeResource PosterTileLargeContainerTemplate}"
                DataContext="{Binding Item6}"
                IsVisible="{Binding Converter={StaticResource ReferenceToBoolConverter}}"/>
 
@@ -970,32 +1320,32 @@
       </Grid.RowDefinitions>
 
       <Control x:Name="Tile1" Grid.Column="0" Grid.Row="0"
-               Template="{ThemeResource PosterTileContainerTemplate}"
+               Template="{ThemeResource PosterTileSmallContainerTemplate}"
                DataContext="{Binding Item1}"
                IsVisible="{Binding Converter={StaticResource ReferenceToBoolConverter}}"/>
 
       <Control x:Name="Tile2" Grid.Column="1" Grid.Row="0"
-               Template="{ThemeResource PosterTileContainerTemplate}"
+               Template="{ThemeResource PosterTileSmallContainerTemplate}"
                DataContext="{Binding Item2}"
                IsVisible="{Binding Converter={StaticResource ReferenceToBoolConverter}}"/>
 
       <Control x:Name="Tile3" Grid.Column="2" Grid.Row="0" Grid.ColumnSpan="2" Grid.RowSpan="2"
-               Template="{ThemeResource PosterTileContainerTemplate}"
+               Template="{ThemeResource PosterTileLargeContainerTemplate}"
                DataContext="{Binding Item3}"
                IsVisible="{Binding Converter={StaticResource ReferenceToBoolConverter}}"/>
 
       <Control x:Name="Tile4" Grid.Column="0" Grid.Row="1" Grid.ColumnSpan="2" Grid.RowSpan="2"
-               Template="{ThemeResource PosterTileContainerTemplate}"
+               Template="{ThemeResource PosterTileLargeContainerTemplate}"
                DataContext="{Binding Item4}"
                IsVisible="{Binding Converter={StaticResource ReferenceToBoolConverter}}"/>
 
       <Control x:Name="Tile5" Grid.Column="2" Grid.Row="2"
-               Template="{ThemeResource PosterTileContainerTemplate}"
+               Template="{ThemeResource PosterTileSmallContainerTemplate}"
                DataContext="{Binding Item5}"
                IsVisible="{Binding Converter={StaticResource ReferenceToBoolConverter}}"/>
 
       <Control x:Name="Tile6" Grid.Column="3" Grid.Row="2"
-               Template="{ThemeResource PosterTileContainerTemplate}"
+               Template="{ThemeResource PosterTileSmallContainerTemplate}"
                DataContext="{Binding Item6}"
                IsVisible="{Binding Converter={StaticResource ReferenceToBoolConverter}}"/>
 
@@ -1019,32 +1369,32 @@
       </Grid.RowDefinitions>
 
       <Control x:Name="Tile1" Grid.Column="0" Grid.Row="0" Grid.ColumnSpan="2" Grid.RowSpan="2"
-               Template="{ThemeResource PosterTileContainerTemplate}"
+               Template="{ThemeResource PosterTileLargeContainerTemplate}"
                DataContext="{Binding Item1}"
                IsVisible="{Binding Converter={StaticResource ReferenceToBoolConverter}}"/>
 
       <Control x:Name="Tile2" Grid.Column="2" Grid.Row="0" Grid.ColumnSpan="2" Grid.RowSpan="2"
-               Template="{ThemeResource PosterTileContainerTemplate}"
+               Template="{ThemeResource PosterTileLargeContainerTemplate}"
                DataContext="{Binding Item2}"
                IsVisible="{Binding Converter={StaticResource ReferenceToBoolConverter}}"/>
 
       <Control x:Name="Tile3" Grid.Column="0" Grid.Row="2"
-               Template="{ThemeResource PosterTileContainerTemplate}"
+               Template="{ThemeResource PosterTileSmallContainerTemplate}"
                DataContext="{Binding Item3}"
                IsVisible="{Binding Converter={StaticResource ReferenceToBoolConverter}}"/>
 
       <Control x:Name="Tile4" Grid.Column="1" Grid.Row="2"
-               Template="{ThemeResource PosterTileContainerTemplate}"
+               Template="{ThemeResource PosterTileSmallContainerTemplate}"
                DataContext="{Binding Item4}"
                IsVisible="{Binding Converter={StaticResource ReferenceToBoolConverter}}"/>
 
       <Control x:Name="Tile5" Grid.Column="2" Grid.Row="2"
-               Template="{ThemeResource PosterTileContainerTemplate}"
+               Template="{ThemeResource PosterTileSmallContainerTemplate}"
                DataContext="{Binding Item5}"
                IsVisible="{Binding Converter={StaticResource ReferenceToBoolConverter}}"/>
 
       <Control x:Name="Tile6" Grid.Column="3" Grid.Row="2" 
-               Template="{ThemeResource PosterTileContainerTemplate}"
+               Template="{ThemeResource PosterTileSmallContainerTemplate}"
                DataContext="{Binding Item6}"
                IsVisible="{Binding Converter={StaticResource ReferenceToBoolConverter}}"/>
 
@@ -1296,7 +1646,7 @@
 
     <Control Style="{ThemeResource MediaGridTemplateStyle}" Width="{ThemeResource TileGroupWidthWide}">
       <Control.Resources>
-        <ResourceWrapper x:Key="Tile_Layout_Template" Value="{ThemeResource SquareTileLayout1Template}"/>
+        <ResourceWrapper x:Key="Tile_Layout_Template" Value="{ThemeResource ThumbnailTileLayout1Template}"/>
       </Control.Resources>
     </Control>
 
@@ -1442,7 +1792,39 @@
 
   <!--++++++++++ News +++++++++++-->
 
+  <DataTemplate x:Key="FeedDataTemplate" DataType="{x:Type collections:ListItem}">
+    <Grid Background="Red">
+      <Grid.ColumnDefinitions>
+        <ColumnDefinition Width="*"/>
+      </Grid.ColumnDefinitions>
+      <Grid.RowDefinitions>
+        <RowDefinition Height="*"/>
+      </Grid.RowDefinitions>
+      <Label x:Name="ItemLabel" FontSize="{ThemeResource SmallFontSize}"
+             Color="{ThemeResource TextColor}" Content="{Binding Title}"/>
+    </Grid>
+  </DataTemplate>
+
   <DataTemplate DataType="{x:Type nereus_home_content:NewsHomeContent}">
+    <DataTemplate.Resources>
+         <Style x:Key="NewsFeedsStyle" BasedOn="{ThemeResource MenuListViewStyle}">
+        <Setter Property="ItemContainerStyle" Value="{ThemeResource FeedDataTemplate}"/>
+        <Setter Property="Background" Value="Blue"/>
+      </Style>     
+    </DataTemplate.Resources>
+
+    <ListView HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Style="{ThemeResource NewsFeedsStyle}"
+              IsEnabled="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=IsEnabled}"
+              DataContext="{Binding Source={StaticResource CurrentNewsModel}}"
+              ItemsSource="{Binding CurrentFeedItems}">
+      <ListView.Resources>
+
+      </ListView.Resources>
+    </ListView>
+
+  </DataTemplate>
+
+  <!--DataTemplate DataType="{x:Type nereus_home_content:NewsHomeContent}">
     <Grid Margin="0,70,0,0" Height="350" Width="980" HorizontalAlignment="Left" VerticalAlignment="Top"
           DataContext="{Binding Source={StaticResource CurrentNewsModel}}">
       <Grid.ColumnDefinitions>
@@ -1460,7 +1842,7 @@
              Content="{Binding CurrentNewsItem.Summary}" HorizontalAlignment="Stretch" Opacity="1.3"
              Color="{ThemeResource MenuTextBackground}" FontSize="{ThemeResource SmallFontSize}"/>
     </Grid>
-  </DataTemplate>
+  </-->
 
   <!--++++++++++ Weather +++++++++++-->
 
@@ -1572,8 +1954,8 @@
 
     <Control Style="{ThemeResource MediaGridTemplateStyle}" Width="{ThemeResource TileGroupWidthNarrow}">
       <Control.Resources>
-        <ResourceWrapper x:Key="Square_Tile_Template" Value="{ThemeResource TVProgramTileTemplate}"/>
-        <ResourceWrapper x:Key="Tile_Layout_Template" Value="{ThemeResource SquareTileLayout4Template}"/>
+        <ResourceWrapper x:Key="Wide_Tile_Template" Value="{ThemeResource TVProgramTileTemplate}"/>
+        <ResourceWrapper x:Key="Tile_Layout_Template" Value="{ThemeResource WideTileLayoutTemplate}"/>
       </Control.Resources>
     </Control>
 
@@ -1583,8 +1965,8 @@
 
     <Control Style="{ThemeResource MediaGridTemplateStyle}" Width="{ThemeResource TileGroupWidthNarrow}">
       <Control.Resources>
-        <ResourceWrapper x:Key="Square_Tile_Template" Value="{ThemeResource TVScheduleTileTemplate}"/>
-        <ResourceWrapper x:Key="Tile_Layout_Template" Value="{ThemeResource SquareTileLayout4Template}"/>
+        <ResourceWrapper x:Key="Wide_Tile_Template" Value="{ThemeResource TVScheduleTileTemplate}"/>
+        <ResourceWrapper x:Key="Tile_Layout_Template" Value="{ThemeResource WideTileLayoutTemplate}"/>
       </Control.Resources>
     </Control>
 
@@ -1647,7 +2029,7 @@
 
     <Control Style="{ThemeResource MediaGridTemplateStyle}" Width="{ThemeResource TileGroupWidthWide}">
       <Control.Resources>
-        <ResourceWrapper x:Key="Tile_Layout_Template" Value="{ThemeResource SquareTileLayout1Template}"/>
+        <ResourceWrapper x:Key="Tile_Layout_Template" Value="{ThemeResource ThumbnailTileLayout1Template}"/>
       </Control.Resources>
     </Control>
 
@@ -1657,7 +2039,7 @@
 
     <Control Style="{ThemeResource MediaGridTemplateStyle}" Width="{ThemeResource TileGroupWidthWide}">
       <Control.Resources>
-        <ResourceWrapper x:Key="Tile_Layout_Template" Value="{ThemeResource SquareTileLayout1Template}"/>
+        <ResourceWrapper x:Key="Tile_Layout_Template" Value="{ThemeResource ThumbnailTileLayout1Template}"/>
       </Control.Resources>
     </Control>
 
@@ -1667,7 +2049,7 @@
 
     <Control Style="{ThemeResource MediaGridTemplateStyle}" Width="{ThemeResource TileGroupWidthWide}">
       <Control.Resources>
-        <ResourceWrapper x:Key="Tile_Layout_Template" Value="{ThemeResource SquareTileLayout2Template}"/>
+        <ResourceWrapper x:Key="Tile_Layout_Template" Value="{ThemeResource ThumbnailTileLayout2Template}"/>
       </Control.Resources>
     </Control>
 
