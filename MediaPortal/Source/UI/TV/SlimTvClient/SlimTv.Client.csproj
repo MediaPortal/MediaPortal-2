@@ -123,6 +123,7 @@
     <Compile Include="Helpers\ProgramListItem.cs" />
     <Compile Include="Helpers\ProgramProperties.cs" />
     <Compile Include="Helpers\ResourceHelper.cs" />
+    <Compile Include="Actions\DeleteAllRecordings.cs" />
     <Compile Include="MediaItemActions\DeleteRecordingFromStorage.cs" />
     <Compile Include="MediaLists\BaseFavoriteChannelMediaListProvider.cs" />
     <Compile Include="MediaLists\SlimTvLastWatchedRecordingsMediaListProvider.cs" />
