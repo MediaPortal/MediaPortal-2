@@ -41,7 +41,7 @@ using SharpDX.Direct3D9;
 
 namespace MediaPortal.Plugins.SlimTv.Client.Player
 {
-  public class LiveTvPlayer : TsVideoPlayer, IUIContributorPlayer, IReusablePlayer
+  public class LiveTvPlayer : TsVideoPlayer, IUIContributorPlayer, IReusablePlayer, ILivePlayer
   {
     #region Variables
 
@@ -116,16 +116,10 @@ namespace MediaPortal.Plugins.SlimTv.Client.Player
       if (channelHistory != null && !forceRefresh)
         return;
 
-      IPlayerContextManager playerContextManager = ServiceRegistration.Get<IPlayerContextManager>();
-      for (int index = 0; index < playerContextManager.NumActivePlayerContexts; index++)
-      {
-        IPlayerContext playerContext = playerContextManager.GetPlayerContext(index);
-        if (playerContext == null || playerContext.CurrentPlayer != this)
-          continue;
+      LiveTvMediaItem liveTvMediaItem = CurrentItem;
 
-        LiveTvMediaItem liveTvMediaItem = playerContext.CurrentMediaItem as LiveTvMediaItem;
-        if (liveTvMediaItem == null)
-          continue;
+      if (liveTvMediaItem != null)
+      {
 
         _timeshiftContexes = liveTvMediaItem.TimeshiftContexes;
         var reversedList = new List<ITimeshiftContext>(_timeshiftContexes);
@@ -143,6 +137,35 @@ namespace MediaPortal.Plugins.SlimTv.Client.Player
 
       // We only use the channel history
       return string.Format("{0}", timeshiftContext.Channel.Name);
+    }
+
+    public LiveTvMediaItem CurrentItem
+    {
+      get
+      {
+        IPlayerContextManager playerContextManager = ServiceRegistration.Get<IPlayerContextManager>();
+        for (int index = 0; index < playerContextManager.NumActivePlayerContexts; index++)
+        {
+          IPlayerContext playerContext = playerContextManager.GetPlayerContext(index);
+          if (playerContext == null || playerContext.CurrentPlayer != this)
+            continue;
+
+          LiveTvMediaItem liveTvMediaItem = playerContext.CurrentMediaItem as LiveTvMediaItem;
+          if (liveTvMediaItem != null)
+            return liveTvMediaItem;
+        }
+        return null;
+      }
+    }
+
+    public void NotifyBeginZap(object sender)
+    {
+      OnBeginZap?.Invoke(sender, EventArgs.Empty);
+    }
+
+    public void NotifyEndZap(object sender)
+    {
+      OnEndZap?.Invoke(sender, EventArgs.Empty);
     }
 
     public void BeginZap()
