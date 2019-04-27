@@ -34,6 +34,8 @@ using MediaPortal.Common;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.ResourceAccess;
 using MediaPortal.Common.Settings;
+using MediaPortal.Common.UserManagement;
+using MediaPortal.Common.UserProfileDataManagement;
 using MediaPortal.UI.Control.InputManager;
 using MediaPortal.UI.Players.Video.Settings;
 using MediaPortal.UI.Players.Video.Subtitles;
@@ -294,6 +296,21 @@ namespace MediaPortal.UI.Players.Video
           SubtitleLanguage = new CultureInfo(videoSettings.PreferredSubtitleLanguage).ThreeLetterISOLanguageName,
           MenuLanguage = new CultureInfo(videoSettings.PreferredMenuLanguage).ThreeLetterISOLanguageName,
         };
+
+        IUserManagement userManagement = ServiceRegistration.Get<IUserManagement>();
+        if (userManagement?.CurrentUser != null)
+        {
+          if (userManagement.CurrentUser.TryGetAdditionalData(UserDataKeysKnown.KEY_PREFERRED_AUDIO_LANGUAGE, 0, out string audioLang))
+            bdsettings.AudioLanguage = audioLang;
+          if (userManagement.CurrentUser.TryGetAdditionalData(UserDataKeysKnown.KEY_PREFERRED_SUBTITLE_LANGUAGE, 0, out string subtitleLang))
+            bdsettings.SubtitleLanguage = subtitleLang;
+          if (userManagement.CurrentUser.TryGetAdditionalData(UserDataKeysKnown.KEY_PREFERRED_MENU_LANGUAGE, 0, out string menuLang))
+          {
+            bdsettings.CountryCode = menuLang;
+            bdsettings.MenuLanguage = menuLang;
+          }
+        }
+
         switch (settings.RegionCode)
         {
           case "A":

@@ -42,7 +42,7 @@ namespace MediaPortal.Common.Services.ResourceAccess
     /// <summary>
     /// Base HTTP path for resource server.
     /// </summary>
-    public const string RESOURCE_SERVER_BASE_PATH = "/MediaPortal/ResourceServer_";
+    public const string RESOURCE_SERVER_BASE_PATH = "/MediaPortal";
 
     /// <summary>
     /// Argument name for the resource path argument, e.g. "ResourcePath".

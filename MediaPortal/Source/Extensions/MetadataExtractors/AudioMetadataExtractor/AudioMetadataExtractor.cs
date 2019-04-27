@@ -547,10 +547,6 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
 
               fileName = ProviderPathHelper.GetFileNameWithoutExtension(fileName) ?? string.Empty;
               GuessMetadataFromFileName(fileName, out title, out artist, out trackNo);
-              if (!string.IsNullOrEmpty(title))
-                title = CultureInfo.InvariantCulture.TextInfo.ToTitleCase(title.ToLowerInvariant());
-              if (!string.IsNullOrEmpty(artist))
-                artist = CultureInfo.InvariantCulture.TextInfo.ToTitleCase(artist.ToLowerInvariant());
 
               if (!string.IsNullOrEmpty(tag.Tag.Title))
                 title = tag.Tag.Title.Trim();

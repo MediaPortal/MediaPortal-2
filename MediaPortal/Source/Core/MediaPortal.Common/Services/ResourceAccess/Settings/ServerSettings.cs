@@ -36,11 +36,8 @@ namespace MediaPortal.Common.Services.ResourceAccess.Settings
     protected bool _useIPv6 = true;
     protected bool _limitIPEndpoints = false;
     protected string _ipAddressBindings = null;
+    protected bool _webAutorizationEnabled = true;
 
-    /// <summary>
-    /// Port where the local HTTP server is started. Use a value of <c>0</c> to let the system choose
-    /// an available port automatically.
-    /// </summary>
     [Setting(SettingScope.Global)]
     public int HttpServerPort
     {
@@ -76,8 +73,15 @@ namespace MediaPortal.Common.Services.ResourceAccess.Settings
       set { _limitIPEndpoints = value; }
     }
 
+    [Setting(SettingScope.Global, true)]
+    public bool WebAutorizationEnabled
+    {
+      get { return _webAutorizationEnabled; }
+      set { _webAutorizationEnabled = value; }
+    }
+
     /// <summary>
-    /// Gets a list of <see cref="IPAddressBindings"/> that are already splitted by <c>,</c>.
+    /// Gets a list of <see cref="IPAddressBindings"/> that are already split by <c>,</c>.
     /// </summary>
     public List<string> IPAddressBindingsList
     {

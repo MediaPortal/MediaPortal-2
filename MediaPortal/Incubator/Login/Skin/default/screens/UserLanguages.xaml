@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Include
+    xmlns="www.team-mediaportal.com/2008/mpf/directx"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    Source="screens\master_bare.xaml"
+    >
+  <Include.Resources>
+
+    <!-- Only for WMC skin, as there is no content area margin -->
+    <ResourceWrapper x:Key="Client_Margin" Resource="40,0,40,0"/>
+
+    <!-- Header -->
+    <ResourceWrapper x:Key="Header_Text" Resource="[UserConfig.UserLanguages.Title]"/>
+
+    <!-- User language model -->
+    <Model x:Key="Model" Id="E26A7613-4B9C-4B84-A982-A7B69D83DC3A"/>
+
+    <!-- Contents -->
+    <ControlTemplate x:Key="Client_Template">
+      <Grid DataContext="{Binding Source={StaticResource Model}}">
+        <Grid.RowDefinitions>
+          <RowDefinition Height="Auto"/>
+          <RowDefinition Height="Auto"/>
+          <RowDefinition Height="Auto"/>
+          <RowDefinition Height="Auto"/>
+          <RowDefinition Height="Auto"/>
+          <RowDefinition Height="Auto"/>
+          <RowDefinition Height="Auto"/>
+          <RowDefinition Height="*"/>
+          <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+          <ColumnDefinition Width="370"/>
+          <ColumnDefinition Width="*"/>
+          <ColumnDefinition Width="40"/>
+          <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+        <Label Grid.Row="0" Margin="10" Content="[UserConfig.Users]" Color="{ThemeResource TextColor}" Opacity="0.5"/>
+        <ListView Name="ServerUsersList" Margin="10" Grid.Row="1" Grid.RowSpan="9" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+                  Style="{ThemeResource SingleMarkableListViewStyle}"
+                  IsVisible="{Binding IsHomeServerConnected}"
+                  ItemsSource="{Binding Path=UserList,Mode=OneTime}">
+        </ListView>
+        <Label Margin="10" Grid.Row="1" Grid.RowSpan="8" IsVisible="{Binding !IsHomeServerConnected}" Opacity="0.5"
+               Content="[UserConfig.NoConfigUserHomeServerNotConnected]" Wrap="true"
+               Color="{ThemeResource HintTextColor}" FontSize="{ThemeResource SmallFontSize}"/>
+
+        <Label Grid.Row="1" Grid.Column="1" Margin="5"
+               Content="[UserConfig.UserName]" Color="{ThemeResource TextColor}"/>
+        <Label Grid.Row="1" Grid.Column="3" Margin="10" Content="{Binding Path=UserProxy.Name}" 
+               Color="{ThemeResource TextColor}" Opacity="0.5"/>
+
+        <Label Margin="5" Grid.Row="2" Grid.Column="1" Content="[UserConfig.MainAudioLanguage]" Color="{ThemeResource TextColor}"/>
+        <Button x:Name="EditMainAudioButton" Grid.Row="2" Grid.Column="3" Style="{ThemeResource WizardButtonStyle}"
+                Content="{Binding Path=UserProxy.LanguageAudioMain}" IsVisible="{Binding Path=!IsRestrictedToOwn}"
+                IsEnabled="{Binding UserProxy.IsUserValid}"
+                Command="{Command OpenAudioMainLanguageDialog}">
+        </Button>
+
+        <Label Margin="5" Grid.Row="3" Grid.Column="1" Content="[UserConfig.SecondaryAudioLanguage]" Color="{ThemeResource TextColor}"/>
+        <Button x:Name="EditSecondaryAudioButton" Grid.Row="3" Grid.Column="3" Style="{ThemeResource WizardButtonStyle}"
+                Content="{Binding Path=UserProxy.LanguageAudioSecondary}" IsVisible="{Binding Path=!IsRestrictedToOwn}"
+                IsEnabled="{Binding UserProxy.IsUserValid}"
+                Command="{Command OpenAudioSecondaryLanguageDialog}">
+        </Button>
+
+        <Label Margin="5" Grid.Row="4" Grid.Column="1" Content="[UserConfig.MainSubtitleLanguage]" Color="{ThemeResource TextColor}"/>
+        <Button x:Name="EditMainSubtitleButton" Grid.Row="4" Grid.Column="3" Style="{ThemeResource WizardButtonStyle}"
+                Content="{Binding Path=UserProxy.LanguageSubtitleMain}" IsVisible="{Binding Path=!IsRestrictedToOwn}"
+                IsEnabled="{Binding UserProxy.IsUserValid}"
+                Command="{Command OpenSubtitleMainLanguageDialog}">
+        </Button>
+
+        <Label Margin="5" Grid.Row="5" Grid.Column="1" Content="[UserConfig.SecondarySubtitleLanguage]" Color="{ThemeResource TextColor}"/>
+        <Button x:Name="EditSecondarySubtitleButton" Grid.Row="5" Grid.Column="3" Style="{ThemeResource WizardButtonStyle}"
+                Content="{Binding Path=UserProxy.LanguageSubtitleSecondary}" IsVisible="{Binding Path=!IsRestrictedToOwn}"
+                IsEnabled="{Binding UserProxy.IsUserValid}"
+                Command="{Command OpenSubtitleSecondaryLanguageDialog}">
+        </Button>
+
+        <Label Margin="5" Grid.Row="6" Grid.Column="1" Content="[UserConfig.MainMenuLanguage]" Color="{ThemeResource TextColor}"/>
+        <Button x:Name="EditMainMenuButton" Grid.Row="6" Grid.Column="3" Style="{ThemeResource WizardButtonStyle}"
+                Content="{Binding Path=UserProxy.LanguageMenuMain}" IsVisible="{Binding Path=!IsRestrictedToOwn}"
+                IsEnabled="{Binding UserProxy.IsUserValid}"
+                Command="{Command OpenMenuMainLanguageDialog}">
+        </Button>
+
+        <Label Margin="5" Grid.Row="7" Grid.Column="1" Content="[UserConfig.SecondaryMenuLanguage]" Color="{ThemeResource TextColor}"/>
+        <Button x:Name="EditSecondaryMenuButton" Grid.Row="7" Grid.Column="3" Style="{ThemeResource WizardButtonStyle}"
+                Content="{Binding Path=UserProxy.LanguageMenuSecondary}" IsVisible="{Binding Path=!IsRestrictedToOwn}"
+                IsEnabled="{Binding UserProxy.IsUserValid}"
+                Command="{Command OpenMenuSecondaryLanguageDialog}">
+        </Button>
+
+        <Button x:Name="SaveUserButton" Grid.Row="8" Grid.Column="3" Style="{ThemeResource WizardButtonStyle}" Margin="10,10,0,10"
+                  Content="[UserConfig.SaveUser]" IsEnabled="{Binding UserProxy.IsUserValid}" Command="{Command SaveUser}"/>
+      </Grid>
+    </ControlTemplate>
+
+  </Include.Resources>
+</Include>
+

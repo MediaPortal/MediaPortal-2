@@ -665,9 +665,17 @@ namespace MediaPortal.Plugins.SlimTv.Service
 
     public abstract Task<AsyncResult<ISchedule>> CreateScheduleByTimeAsync(IChannel channel, DateTime from, DateTime to, ScheduleRecordingType recordingType);
 
+    public abstract Task<AsyncResult<ISchedule>> CreateScheduleByTimeAsync(IChannel channel, string title, DateTime from, DateTime to, ScheduleRecordingType recordingType);
+
+    public abstract Task<AsyncResult<ISchedule>> CreateScheduleDetailedAsync(IChannel channel, string title, DateTime from, DateTime to, ScheduleRecordingType recordingType, int preRecordInterval, int postRecordInterval, string directory, int priority);
+
+    public abstract Task<bool> EditScheduleAsync(ISchedule schedule, IChannel channel = null, string title = null, DateTime? from = null, DateTime? to = null, ScheduleRecordingType? recordingType = null, int? preRecordInterval = null, int? postRecordInterval = null, string directory = null, int? priority = null);
+
     public abstract Task<bool> RemoveScheduleForProgramAsync(IProgram program, ScheduleRecordingType recordingType);
 
     public abstract Task<bool> RemoveScheduleAsync(ISchedule schedule);
+
+	public abstract Task<bool> UnCancelScheduleAsync(IProgram program);
 
     public abstract Task<AsyncResult<RecordingStatus>> GetRecordingStatusAsync(IProgram program);
 
@@ -680,6 +688,10 @@ namespace MediaPortal.Plugins.SlimTv.Service
     {
       return string.Format("{0}-{1}", clientName, slotIndex);
     }
+
+	public abstract Task<AsyncResult<List<ICard>>> GetCardsAsync();
+
+    public abstract Task<AsyncResult<List<IVirtualCard>>> GetActiveVirtualCardsAsync();
 
     #endregion
   }

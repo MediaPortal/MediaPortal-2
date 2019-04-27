@@ -27,6 +27,7 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Globalization;
 using System.IO;
+using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Windows.Forms;
@@ -39,6 +40,8 @@ using MediaPortal.Common.Logging;
 using MediaPortal.Common.Messaging;
 using MediaPortal.Common.ResourceAccess;
 using MediaPortal.Common.Settings;
+using MediaPortal.Common.UserManagement;
+using MediaPortal.Common.UserProfileDataManagement;
 using MediaPortal.UI.Control.InputManager;
 using MediaPortal.UI.General;
 using MediaPortal.UI.Players.Video.Interfaces;
@@ -266,18 +269,82 @@ namespace MediaPortal.UI.Players.Video
     {
       VideoSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<VideoSettings>();
       ServiceRegistration.Get<ILogger>().Info("DVDPlayer: SetDefaultLanguages");
-      int setError = _dvdCtrl.SelectDefaultAudioLanguage(settings.PreferredAudioLanguage, DvdAudioLangExt.NotSpecified);
-      string errorText = GetErrorText(setError);
-      ServiceRegistration.Get<ILogger>().Info("DVDPlayer: Set default language to: {0}. {1}", settings.PreferredAudioLanguage, errorText);
 
-      setError = _dvdCtrl.SelectDefaultMenuLanguage(settings.PreferredMenuLanguage);
-      errorText = GetErrorText(setError);
-      ServiceRegistration.Get<ILogger>().Info("DVDPlayer: Set default menu language to:{0}. {1}", settings.PreferredMenuLanguage, errorText);
+      int langId = 0;
+      int setError = 0;
+      string errorText = null;
+      IUserManagement userManagement = ServiceRegistration.Get<IUserManagement>();
+      if (userManagement?.CurrentUser != null)
+      {
+        var cultures = CultureInfo.GetCultures(CultureTypes.SpecificCultures);
+        if (userManagement.CurrentUser.TryGetAdditionalData(UserDataKeysKnown.KEY_PREFERRED_AUDIO_LANGUAGE, 0, out string audioLang))
+        {
+          langId = cultures?.FirstOrDefault(c => c.TwoLetterISOLanguageName == audioLang)?.LCID ?? 0;
+          setError = _dvdCtrl.SelectDefaultAudioLanguage(langId, DvdAudioLangExt.NotSpecified);
+        }
+        if (setError != 0 && userManagement.CurrentUser.TryGetAdditionalData(UserDataKeysKnown.KEY_PREFERRED_AUDIO_LANGUAGE, 1, out string audioLang2))
+        {
+          langId = cultures?.FirstOrDefault(c => c.TwoLetterISOLanguageName == audioLang2)?.LCID ?? 0;
+          setError = _dvdCtrl.SelectDefaultAudioLanguage(langId, DvdAudioLangExt.NotSpecified);
+        }
+        if(setError != 0)
+        {
+          langId = settings.PreferredAudioLanguage;
+          setError = _dvdCtrl.SelectDefaultAudioLanguage(langId, DvdAudioLangExt.NotSpecified);
+        }
+        errorText = GetErrorText(setError);
+        ServiceRegistration.Get<ILogger>().Info("DVDPlayer: Set default language to: {0}. {1}", langId, errorText);
 
-      setError = _dvdCtrl.SelectDefaultSubpictureLanguage(settings.PreferredSubtitleLanguage, DvdSubPictureLangExt.NotSpecified);
-      errorText = GetErrorText(setError);
-      ServiceRegistration.Get<ILogger>().Info("DVDPlayer: Set default subtitle language:{0}. {1}", settings.PreferredSubtitleLanguage, errorText);
+        if (userManagement.CurrentUser.TryGetAdditionalData(UserDataKeysKnown.KEY_PREFERRED_SUBTITLE_LANGUAGE, 0, out string subLang))
+        {
+          langId = cultures?.FirstOrDefault(c => c.TwoLetterISOLanguageName == subLang)?.LCID ?? 0;
+          setError = _dvdCtrl.SelectDefaultSubpictureLanguage(langId, DvdSubPictureLangExt.NotSpecified);
+        }
+        if (setError != 0 && userManagement.CurrentUser.TryGetAdditionalData(UserDataKeysKnown.KEY_PREFERRED_SUBTITLE_LANGUAGE, 1, out string subLang2))
+        {
+          langId = cultures?.FirstOrDefault(c => c.TwoLetterISOLanguageName == subLang2)?.LCID ?? 0;
+          setError = _dvdCtrl.SelectDefaultSubpictureLanguage(langId, DvdSubPictureLangExt.NotSpecified);
+        }
+        if (setError != 0)
+        {
+          langId = settings.PreferredSubtitleLanguage;
+          setError = _dvdCtrl.SelectDefaultSubpictureLanguage(langId, DvdSubPictureLangExt.NotSpecified);
+        }
+        errorText = GetErrorText(setError);
+        ServiceRegistration.Get<ILogger>().Info("DVDPlayer: Set default subtitle language:{0}. {1}", langId, errorText);
 
+        if (userManagement.CurrentUser.TryGetAdditionalData(UserDataKeysKnown.KEY_PREFERRED_MENU_LANGUAGE, 0, out string menuLang))
+        {
+          langId = cultures?.FirstOrDefault(c => c.TwoLetterISOLanguageName == menuLang)?.LCID ?? 0;
+          setError = _dvdCtrl.SelectDefaultMenuLanguage(langId);
+        }
+        if (setError != 0 && userManagement.CurrentUser.TryGetAdditionalData(UserDataKeysKnown.KEY_PREFERRED_MENU_LANGUAGE, 1, out string menuLang2))
+        {
+          langId = cultures?.FirstOrDefault(c => c.TwoLetterISOLanguageName == menuLang2)?.LCID ?? 0;
+          setError = _dvdCtrl.SelectDefaultMenuLanguage(langId);
+        }
+        if (setError != 0)
+        {
+          langId = settings.PreferredMenuLanguage;
+          setError = _dvdCtrl.SelectDefaultMenuLanguage(langId);
+        }
+        errorText = GetErrorText(setError);
+        ServiceRegistration.Get<ILogger>().Info("DVDPlayer: Set default menu language to:{0}. {1}", langId, errorText);
+      }
+      else
+      {
+        setError = _dvdCtrl.SelectDefaultAudioLanguage(settings.PreferredAudioLanguage, DvdAudioLangExt.NotSpecified);
+        errorText = GetErrorText(setError);
+        ServiceRegistration.Get<ILogger>().Info("DVDPlayer: Set default language to: {0}. {1}", settings.PreferredAudioLanguage, errorText);
+
+        setError = _dvdCtrl.SelectDefaultMenuLanguage(settings.PreferredMenuLanguage);
+        errorText = GetErrorText(setError);
+        ServiceRegistration.Get<ILogger>().Info("DVDPlayer: Set default menu language to:{0}. {1}", settings.PreferredMenuLanguage, errorText);
+
+        setError = _dvdCtrl.SelectDefaultSubpictureLanguage(settings.PreferredSubtitleLanguage, DvdSubPictureLangExt.NotSpecified);
+        errorText = GetErrorText(setError);
+        ServiceRegistration.Get<ILogger>().Info("DVDPlayer: Set default subtitle language:{0}. {1}", settings.PreferredSubtitleLanguage, errorText);
+      }
       _dvdCtrl.SetSubpictureState(settings.EnableDvdSubtitles, DvdCmdFlags.None, out _cmdOption);
     }
 

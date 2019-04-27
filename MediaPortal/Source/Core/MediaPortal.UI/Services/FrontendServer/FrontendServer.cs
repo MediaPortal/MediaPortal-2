@@ -140,6 +140,7 @@ namespace MediaPortal.UI.Services.FrontendServer
       UPnPConfiguration.USE_IPV6 = serverSettings.UseIPv6;
       UPnPConfiguration.IP_ADDRESS_BINDINGS = serverSettings.IPAddressBindingsList;
       NetworkUtils.LimitIPEndpoints = serverSettings.LimitIPEndpoints;
+      NetworkUtils.UseClientPort = true;
       //HttpResponse.HTTP_SERVER_NAME = MP2_HTTP_SERVER_NAME;
 
       ISystemResolver systemResolver = ServiceRegistration.Get<ISystemResolver>();

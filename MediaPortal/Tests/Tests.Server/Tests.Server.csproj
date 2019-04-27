@@ -93,6 +93,10 @@
     <Compile Include="FanArt\TestLocalMovieFanArt.cs" />
     <Compile Include="FanArt\TestLocalSeriesFanArt.cs" />
     <Compile Include="FanArt\TestLocalVideoFanArt.cs" />
+    <Compile Include="MediaServer\TestActions.cs" />
+    <Compile Include="MediaServer\TestMediaLibrary.cs" />
+    <Compile Include="MediaServer\TestMessageBuilder.cs" />
+    <Compile Include="MediaServer\TestParser.cs" />
     <Compile Include="NfoMetadataExtractor\NfoEpisodeReaderForTests.cs" />
     <Compile Include="NfoMetadataExtractor\TestNfoArtistReader.cs" />
     <Compile Include="NfoMetadataExtractor\TestNfoMovieReader.cs" />
@@ -111,6 +115,10 @@
     <EmbeddedResource Include="NfoMetadataExtractor\TestData\MovieNfo\movie.nfo" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\Incubator\MediaServer\MediaServer.csproj">
+      <Project>{1ba81eb2-6556-4213-a7a5-9e5b508f186f}</Project>
+      <Name>MediaServer</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\Source\Core\MediaPortal.Backend\MediaPortal.Backend.csproj">
       <Project>{5b27eb95-b829-40f4-b445-0225ca206f85}</Project>
       <Name>MediaPortal.Backend</Name>
@@ -122,6 +130,10 @@
     <ProjectReference Include="..\..\Source\Core\MediaPortal.Utilities\MediaPortal.Utilities.csproj">
       <Project>{4fe7b8ae-1330-424a-91a1-c68d7abf9cb8}</Project>
       <Name>MediaPortal.Utilities</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\Source\Core\UPnP\UPnP.csproj">
+      <Project>{455e7d70-1c85-4d7f-9f01-dc801b8b8c34}</Project>
+      <Name>UPnP</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\Source\Extensions\MetadataExtractors\AudioMetadataExtractor\AudioMetadataExtractor.csproj">
       <Project>{11fd64f0-97c0-40b5-8aaa-1e56255d3ef7}</Project>

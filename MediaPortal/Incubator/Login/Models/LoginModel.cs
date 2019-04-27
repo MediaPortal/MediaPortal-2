@@ -253,7 +253,7 @@ namespace MediaPortal.UiComponents.Login.Models
       if (!result.Success)
         return;
       UserProfile userProfile = result.Result;
-      if (Utils.VerifyPassword(UserPassword, userProfile.Password))
+      if (UserProfile.VerifyPassword(UserPassword, userProfile.Password))
       {
         IsPasswordIncorrect = false;
         ServiceRegistration.Get<IScreenManager>().CloseTopmostDialog();
@@ -492,7 +492,7 @@ namespace MediaPortal.UiComponents.Login.Models
         return;
       UserProfile userProfile = result.Result;
 
-      if (string.IsNullOrEmpty(userProfile.Password) || Utils.VerifyPassword(password, userProfile.Password))
+      if (string.IsNullOrEmpty(userProfile.Password) || UserProfile.VerifyPassword(password, userProfile.Password))
       {
         await SetCurrentUser(userProfile);
         await userManagement.UserProfileDataManagement.LoginProfileAsync(profileId);
@@ -508,7 +508,7 @@ namespace MediaPortal.UiComponents.Login.Models
       if (profileId != Guid.Empty && userManagement.UserProfileDataManagement != null)
       {
         var result = await userManagement.UserProfileDataManagement.GetProfileAsync(profileId);
-        if (result.Success && Utils.VerifyPassword(password, result.Result.Password))
+        if (result.Success && UserProfile.VerifyPassword(password, result.Result.Password))
           userProfile = result.Result;
       }
 

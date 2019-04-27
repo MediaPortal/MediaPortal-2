@@ -24,6 +24,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Runtime.InteropServices;
 using DirectShow;
@@ -35,6 +36,8 @@ using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Common.ResourceAccess;
 using MediaPortal.Common.Settings;
+using MediaPortal.Common.UserManagement;
+using MediaPortal.Common.UserProfileDataManagement;
 using MediaPortal.UI.Players.Video.Interfaces;
 using MediaPortal.UI.Players.Video.Settings;
 using MediaPortal.UI.Players.Video.Subtitles;
@@ -415,7 +418,31 @@ namespace MediaPortal.UI.Players.Video
       VideoSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<VideoSettings>() ?? new VideoSettings();
 
       // first try to find a stream by it's exact LCID.
-      StreamInfo streamInfo = _streamInfoSubtitles.FindStream(settings.PreferredSubtitleLanguage) ?? _streamInfoSubtitles.FindSimilarStream(settings.PreferredSubtitleStreamName);
+      int preferredSubtitleLanguage = settings.PreferredSubtitleLanguage;
+      IUserManagement userManagement = ServiceRegistration.Get<IUserManagement>();
+      if (userManagement?.CurrentUser != null)
+      {
+        preferredSubtitleLanguage = 0;
+        var cultures = CultureInfo.GetCultures(CultureTypes.SpecificCultures);
+        if (userManagement.CurrentUser.TryGetAdditionalData(UserDataKeysKnown.KEY_PREFERRED_SUBTITLE_LANGUAGE, 0, out string subLang))
+        {
+          int langId = cultures?.FirstOrDefault(c => c.TwoLetterISOLanguageName == subLang)?.LCID ?? 0;
+          if (_streamInfoSubtitles.Any(s => s.LCID == langId))
+            preferredSubtitleLanguage = langId;
+        }
+        if (preferredSubtitleLanguage == 0 && userManagement.CurrentUser.TryGetAdditionalData(UserDataKeysKnown.KEY_PREFERRED_SUBTITLE_LANGUAGE, 1, out string subLang2))
+        {
+          int langId = cultures?.FirstOrDefault(c => c.TwoLetterISOLanguageName == subLang2)?.LCID ?? 0;
+          if (_streamInfoSubtitles.Any(s => s.LCID == langId))
+            preferredSubtitleLanguage = langId;
+        }
+        if (preferredSubtitleLanguage == 0)
+        {
+          preferredSubtitleLanguage = settings.PreferredSubtitleLanguage;
+        }
+      }
+
+      StreamInfo streamInfo = _streamInfoSubtitles.FindStream(preferredSubtitleLanguage) ?? _streamInfoSubtitles.FindSimilarStream(settings.PreferredSubtitleStreamName);
       if (streamInfo == null || !settings.EnableDvbSubtitles || !settings.EnableTeletextSubtitles)
       {
         // Tell the renderer it should not render subtitles

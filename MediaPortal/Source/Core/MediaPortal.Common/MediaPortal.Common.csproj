@@ -128,6 +128,7 @@
     <Compile Include="MediaManagement\MetadataUpdater.cs" />
     <Compile Include="MediaManagement\MLQueries\AbstractRelationshipFilter.cs" />
     <Compile Include="MediaManagement\MLQueries\AbstractUserDataFilter.cs" />
+    <Compile Include="MediaManagement\MLQueries\ChildAggregateAttributeSortInformation.cs" />
     <Compile Include="MediaManagement\MLQueries\DataSortInformation.cs" />
     <Compile Include="MediaManagement\MLQueries\EmptyUserDataFilter.cs" />
     <Compile Include="MediaManagement\MLQueries\AttributeSortInformation.cs" />
@@ -204,6 +205,7 @@
     <Compile Include="Services\ResourceAccess\ImpersonationService\TokenWrapper.cs" />
     <Compile Include="Services\ResourceAccess\ImpersonationService\WindowsIdentityWrapper.cs" />
     <Compile Include="Services\ResourceAccess\ImpersonationService\WindowsImpersonationContextWrapper.cs" />
+    <Compile Include="Services\ResourceAccess\MediaPortalAuthorizeAttribute.cs" />
     <Compile Include="Services\ResourceAccess\VirtualResourceProvider\VirtualResourceAccessor.cs" />
     <Compile Include="Services\ResourceAccess\VirtualResourceProvider\VirtualResourceProvider.cs" />
     <Compile Include="Services\ResourceAccess\RawUrlResourceProvider\RawUrlResourceProvider.cs" />
@@ -541,11 +543,20 @@
     <PackageReference Include="DuoVia.FuzzyStrings">
       <Version>1.0.1</Version>
     </PackageReference>
+    <PackageReference Include="Microsoft.AspNet.WebApi.Owin">
+      <Version>5.2.7</Version>
+    </PackageReference>
+    <PackageReference Include="Microsoft.Owin.Security.OAuth">
+      <Version>4.0.1</Version>
+    </PackageReference>
     <PackageReference Include="Microsoft.Owin">
       <Version>4.0.1</Version>
     </PackageReference>
     <PackageReference Include="Microsoft.Tpl.Dataflow">
       <Version>4.5.24</Version>
+    </PackageReference>
+    <PackageReference Include="Newtonsoft.Json">
+      <Version>10.0.3</Version>
     </PackageReference>
   </ItemGroup>
   <ItemGroup />
