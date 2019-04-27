@@ -66,11 +66,7 @@ namespace MediaPortal.Common.Services.ResourceAccess
     {
       ServerSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<ServerSettings>();
       List<string> filters = settings.IPAddressBindingsList;
-      if (NetworkUtils.UseClientPort)
-        _serverPort = UPnPServer.DEFAULT_UPNP_AND_SERVICE_PORT_NUMBER + 1;
-      else
-        _serverPort = UPnPServer.DEFAULT_UPNP_AND_SERVICE_PORT_NUMBER;
-
+      _serverPort = UPnPServer.DEFAULT_UPNP_AND_SERVICE_PORT_NUMBER;
       _servicePrefix = ResourceHttpAccessUrlUtils.RESOURCE_SERVER_BASE_PATH;
       var startOptions = UPnPServer.BuildStartOptions(_servicePrefix, filters, _serverPort);
 
