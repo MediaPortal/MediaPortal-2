@@ -28,7 +28,6 @@ using System.IO;
 using System.Net;
 using System.Xml.Linq;
 using Xunit;
-using Moq;
 using MP2BootstrapperApp.ChainPackages;
 
 namespace Tests

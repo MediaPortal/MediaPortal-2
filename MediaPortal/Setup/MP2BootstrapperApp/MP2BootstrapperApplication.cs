@@ -22,36 +22,39 @@
 
 #endregion
 
+using System.Windows;
 using System.Windows.Threading;
+using MP2BootstrapperApp.BootstrapperWrapper;
 using MP2BootstrapperApp.Models;
 using MP2BootstrapperApp.ViewModels;
 using MP2BootstrapperApp.Views;
-using Microsoft.Tools.WindowsInstallerXml.Bootstrapper;
 
 namespace MP2BootstrapperApp
 {
   /// <summary>
   /// A custom bootstrapper application. 
   /// </summary>
-  public class MP2BootstrapperApplication : BootstrapperApplication
+  public class MP2BootstrapperApplication : BootstrapperApplicationWrapper
   {
-    public static Dispatcher Dispatcher { get; set; }
+    private IDispatcher _dispatcher;
 
     protected override void Run()
     {
-      Dispatcher = Dispatcher.CurrentDispatcher;
+      _dispatcher = new DispatcherWrapper();
 
-      var model = new BootstrapperApplicationModel(this);
+      MessageBox.Show("dd");
 
-      var viewModel = new InstallWizardViewModel(model);
-      var view = new InstallWizardView(viewModel);
+      IBootstrapperApplicationModel model = new BootstrapperApplicationModel(this);
+
+      InstallWizardViewModel viewModel = new InstallWizardViewModel(model, _dispatcher);
+      InstallWizardView view = new InstallWizardView(viewModel);
 
       model.SetWindowHandle(view);
 
       Engine.Detect();
 
       view.Show();
-      Dispatcher.Run();
+      _dispatcher.Run();
       Engine.Quit(model.FinalResult);
     }
   }

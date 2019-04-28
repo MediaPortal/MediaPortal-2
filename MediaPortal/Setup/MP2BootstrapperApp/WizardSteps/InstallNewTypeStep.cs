@@ -51,40 +51,31 @@ namespace MP2BootstrapperApp.WizardSteps
       switch (page?.InstallType)
       {
         case InstallType.ClientServer:
-          foreach (var package in _viewModel.BundlePackages)
-          {
-            if (package.CurrentInstallState != PackageState.Present)
-            {
-              package.RequestedInstallState = RequestState.Present;
-            }
-          }
+          SetInstallStateForClientAndServer(wizard);
           break;
         case InstallType.Server:
-          foreach (var package in _viewModel.BundlePackages)
-          {
-            if (package.CurrentInstallState == PackageState.Present || package.Id == "MP2Client" || package.Id == "directx9" || package.Id == "LAVFilters")
-            {
-              continue;
-            }
-            package.RequestedInstallState = RequestState.Present;
-          }
+          SetInstallStateForServer(wizard);
           break;
         case InstallType.Client:
-          foreach (var package in _viewModel.BundlePackages)
-          {
-            if (package.CurrentInstallState == PackageState.Present || package.Id == "MP2Server")
-            {
-              continue;
-            }
-            package.RequestedInstallState = RequestState.Present;
-          }
+          SetInstallStateToClient(wizard);
           break;
-          case InstallType.Custom:
+        case InstallType.Custom:
           // TODO
           break;
       }
-      wizard.Step = new InstallOverviewStep(_viewModel, _logger);
-      _viewModel.CurrentPage = new InstallOverviewPageViewModel(_viewModel);
+    }
+
+    private void SetInstallStateToClient(Wizard wizard)
+    {
+      foreach (var package in _viewModel.BundlePackages)
+      {
+        if (package.CurrentInstallState == PackageState.Present || package.Id == "MP2Server")
+        {
+          continue;
+        }
+        package.RequestedInstallState = RequestState.Present;
+      }
+      MoveToOverview(wizard);
     }
 
     public void Back(Wizard wizard)
@@ -105,6 +96,37 @@ namespace MP2BootstrapperApp.WizardSteps
       InstallNewTypePageViewModel page = _viewModel.CurrentPage as InstallNewTypePageViewModel;
 
       return true;
+    }
+
+    private void SetInstallStateForServer(Wizard wizard)
+    {
+      foreach (var package in _viewModel.BundlePackages)
+      {
+        if (package.CurrentInstallState == PackageState.Present || package.Id == "MP2Client" || package.Id == "directx9" || package.Id == "LAVFilters")
+        {
+          continue;
+        }
+        package.RequestedInstallState = RequestState.Present;
+      }
+      MoveToOverview(wizard);
+    }
+
+    private void SetInstallStateForClientAndServer(Wizard wizard)
+    {
+      foreach (var package in _viewModel.BundlePackages)
+      {
+        if (package.CurrentInstallState != PackageState.Present)
+        {
+          package.RequestedInstallState = RequestState.Present;
+        }
+      }
+      MoveToOverview(wizard);
+    }
+
+    private void MoveToOverview(Wizard wizard)
+    {
+      wizard.Step = new InstallOverviewStep(_viewModel, _logger);
+      _viewModel.CurrentPage = new InstallOverviewPageViewModel(_viewModel);
     }
   }
 }

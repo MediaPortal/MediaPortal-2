@@ -26,13 +26,14 @@ using System;
 using System.Windows;
 using System.Windows.Interop;
 using Microsoft.Tools.WindowsInstallerXml.Bootstrapper;
+using MP2BootstrapperApp.BootstrapperWrapper;
 
 namespace MP2BootstrapperApp.Models
 {
   /// <summary>
   /// Model class for the <see cref="MP2BootstrapperApplication"/>
   /// </summary>
-  public class BootstrapperApplicationModel
+  public class BootstrapperApplicationModel : IBootstrapperApplicationModel
   {
     #region Fields
 
@@ -42,7 +43,7 @@ namespace MP2BootstrapperApp.Models
 
     #region Constructors and destructor
 
-    public BootstrapperApplicationModel(BootstrapperApplication bootstreApplication)
+    public BootstrapperApplicationModel(IBootstrapperApp bootstreApplication)
     {
       BootstrapperApplication = bootstreApplication;
       _hwnd = IntPtr.Zero;
@@ -52,8 +53,8 @@ namespace MP2BootstrapperApp.Models
 
     #region Properties
 
-    public BootstrapperApplication BootstrapperApplication { get; set; }
-
+    public IBootstrapperApp BootstrapperApplication { get; }
+   
     public int FinalResult { get; set; }
 
     #endregion
