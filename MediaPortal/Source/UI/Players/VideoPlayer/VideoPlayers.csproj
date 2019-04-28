@@ -191,7 +191,7 @@
       <Version>2.0.0.1</Version>
     </PackageReference>
     <PackageReference Include="MediaPortal.TsReader">
-      <Version>5.2.3.43</Version>
+      <Version>5.2.3.44</Version>
     </PackageReference>
     <PackageReference Include="SharpDX">
       <Version>4.0.1</Version>
