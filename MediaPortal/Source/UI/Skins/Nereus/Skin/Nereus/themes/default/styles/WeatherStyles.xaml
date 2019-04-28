@@ -47,8 +47,8 @@
       <Grid.RowDefinitions>
         <RowDefinition Height="*"/>
       </Grid.RowDefinitions>
-      
-      <Border Margin="1" BorderThickness="0" CornerRadius="8" Background="#0D000000" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
+
+      <Border Margin="1" BorderThickness="0" Background="{ThemeResource NereusColorMedium}" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
       <StackPanel VerticalAlignment="Center" Margin="10,10,10,10" HorizontalAlignment="Center">
         <Label FontSize="{ThemeResource SmallerFontSize}" Color="{ThemeResource TextColor}" Content="{Binding Day}" HorizontalAlignment="Center"/>
         <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="10" HorizontalAlignment="Stretch">
@@ -66,7 +66,6 @@
           </StackPanel>
         </StackPanel>
       </StackPanel>
-      <Image Source="focus.frame.png" Stretch="Fill"/>
     </Grid>
   </DataTemplate>
 
