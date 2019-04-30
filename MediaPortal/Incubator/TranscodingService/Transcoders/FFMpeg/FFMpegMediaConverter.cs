@@ -746,6 +746,7 @@ namespace MediaPortal.Extensions.TranscodingService.Service.Transcoders.FFMpeg
       if (data.Context.Segmented == true)
         await FFMpegPlaylistManifest.CreatePlaylistFilesAsync(data.TranscodeData).ConfigureAwait(false);
 
+      bool isFile = true;
       bool isSlimTv = false;
       int liveChannelId = 0;
       bool runProcess = true;
@@ -787,6 +788,10 @@ namespace MediaPortal.Extensions.TranscodingService.Service.Transcoders.FFMpeg
           }
         }
       }
+      if (data.TranscodeData.InputResourceAccessor is INetworkResourceAccessor)
+      {
+        isFile = false;
+      }
 
       ProcessStartInfo startInfo = new ProcessStartInfo()
       {
@@ -811,7 +816,6 @@ namespace MediaPortal.Extensions.TranscodingService.Service.Transcoders.FFMpeg
         {
           //TODO: Fix usages of obsolete and deprecated methods when alternative is available
 #if !TRANSCODE_CONSOLE_TEST
-          bool isFile = true; // TODO: temporary compile fix
           using (ServiceRegistration.Get<IImpersonationService>().CheckImpersonationFor((mediaAccessor).CanonicalLocalResourcePath))
           {
             //Only when the server is running as a service it will have elevation rights
