@@ -83,6 +83,11 @@ namespace MediaPortal.Plugins.SlimTv.Client.Actions
         return;
       }
       List<MediaItem> mediaItems = navigationData.CurrentScreenData.GetAllMediaItems().ToList();
+      QueryDeleteAll(mediaItems);
+    }
+
+    public void QueryDeleteAll(List<MediaItem> mediaItems)
+    {
       if (mediaItems.Count == 0)
       {
         ServiceRegistration.Get<ILogger>().Error("DeleteAllRecordings: No items to delete");
@@ -104,13 +109,13 @@ namespace MediaPortal.Plugins.SlimTv.Client.Actions
         });
     }
 
-    async Task DeleteList(List<MediaItem> items)
+    public async Task DeleteList(List<MediaItem> items)
     {
       DeleteRecordingFromStorage deleter = new DeleteRecordingFromStorage();
       foreach(MediaItem item in items)
       {
-        await deleter.IsAvailableAsync(item);
-        await deleter.ProcessAsync(item);
+        if (await deleter.IsAvailableAsync(item))
+          await deleter.ProcessAsync(item);
       }
     }
 
