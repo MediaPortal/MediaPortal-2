@@ -348,7 +348,7 @@
       <Grid Grid.Column="1" Margin="10,15,10,15" Grid.RowSpan="2">
         <Image VerticalAlignment="Center" HorizontalAlignment="Center" Stretch="Uniform">
           <Image.Source>
-            <Binding Path="Progress" Converter="{StaticResource RoundingFormatConverter}" ConverterParameter="{}5;CircularBar\{0}.png"/>
+            <Binding Path="Progress" Converter="{StaticResource RoundingFormatConverter}" ConverterParameter="{}5;CircularBarDark\{0}.png"/>
           </Image.Source>
         </Image>
         <Label VerticalAlignment="Center" HorizontalAlignment="Center" FontSize="{ThemeResource SmallerFontSize}" Color="White"
