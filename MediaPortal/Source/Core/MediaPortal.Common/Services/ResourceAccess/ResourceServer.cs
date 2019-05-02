@@ -100,10 +100,11 @@ namespace MediaPortal.Common.Services.ResourceAccess
           HttpConfiguration config = new HttpConfiguration();
 
           // Support conventional routing
+          var routeTemplate = (_servicePrefix + "/api/{controller}/{id}").TrimStart('/'); // No leading slash allowed
           config.Routes.MapHttpRoute(
-              name: "DefaultApi",
-              routeTemplate: "MediaPortal/api/{controller}/{id}",
-              defaults: new { id = RouteParameter.Optional }
+              "DefaultApi",
+              routeTemplate,
+              new { id = RouteParameter.Optional }
           );
 
           // Support attribute based routing
@@ -144,7 +145,7 @@ namespace MediaPortal.Common.Services.ResourceAccess
       if (userManagement != null)
       {
         var user = await userManagement.GetProfileByNameAsync(context.UserName);
-        if(user.Success)
+        if (user.Success)
         {
           var pass = GetPassword(context.Password);
           if (UserProfile.VerifyPassword(pass, user.Result.Password))
