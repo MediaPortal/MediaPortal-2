@@ -477,7 +477,6 @@
     <Compile Include="WSS\WebResolution.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="bower.json" />
     <None Include="build.targets" />
   </ItemGroup>
   <ItemGroup>
