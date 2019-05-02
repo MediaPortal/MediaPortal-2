@@ -34,35 +34,14 @@ namespace MediaPortal.UiComponents.Media.Extensions
   /// <summary>
   /// Plugin item builder for <c>MediaViewActionBuilder</c> plugin items.
   /// </summary>
-  public class MediaViewActionBuilder : IPluginItemBuilder
+  public class MediaViewActionBuilder : BaseActionBuilder<MediaViewActionExtension>
   {
     public const string MEDIA_EXTENSION_PATH = "/MediaView/Extensions";
 
-    #region IPluginItemBuilder Member
-
-    public object BuildItem(PluginItemMetadata itemData, PluginRuntime plugin)
+    public MediaViewActionBuilder()
+      : base((Type type, string caption, string sort, string restrictionGroup, string id) => new MediaViewActionExtension(type, caption, sort, restrictionGroup, id))
     {
-      BuilderHelper.CheckParameter("ClassName", itemData);
-      BuilderHelper.CheckParameter("Caption", itemData);
-      BuilderHelper.CheckParameter("Sort", itemData);
-      string restrictionGroup; // optional
-      if (itemData.Attributes.TryGetValue("RestrictionGroup", out restrictionGroup))
-        ServiceRegistration.Get<IUserManagement>().RegisterRestrictionGroup(restrictionGroup);
-
-      return new MediaViewActionExtension(plugin.GetPluginType(itemData.Attributes["ClassName"]), itemData.Attributes["Caption"], itemData.Attributes["Sort"], restrictionGroup, itemData.Id);
     }
-
-    public void RevokeItem(object item, PluginItemMetadata itemData, PluginRuntime plugin)
-    {
-      // Noting to do
-    }
-
-    public bool NeedsPluginActive(PluginItemMetadata itemData, PluginRuntime plugin)
-    {
-      return true;
-    }
-
-    #endregion
   }
 
   /// <summary>

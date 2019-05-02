@@ -113,6 +113,7 @@
     <Compile Include="Actions\VisibilityDependsOnServerConnectStateAction.cs" />
     <Compile Include="Actions\BrowseLocalMediaAction.cs" />
     <Compile Include="Controls\AudioSpectrumAnalyzer.cs" />
+    <Compile Include="Extensions\BaseActionBuilder.cs" />
     <Compile Include="Extensions\IMediaItemAction.cs" />
     <Compile Include="Extensions\IMediaViewAction.cs" />
     <Compile Include="Extensions\MediaItemActionBuilder.cs" />

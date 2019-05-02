@@ -2,6 +2,7 @@
 using MediaPortal.Common.Async;
 using MediaPortal.Common.Localization;
 using MediaPortal.Common.MediaManagement;
+using MediaPortal.Common.UserProfileDataManagement;
 using MediaPortal.Plugins.SlimTv.Client.Actions;
 using MediaPortal.Plugins.SlimTv.Client.Models.Navigation;
 using MediaPortal.Plugins.SlimTv.Client.TvHandler;
@@ -16,7 +17,7 @@ using System.Threading.Tasks;
 
 namespace MediaPortal.Plugins.SlimTv.Client.MediaViewActions
 {
-  public class DeleteAllRecordingsAction : IMediaViewActionConfirmation
+  public class DeleteAllRecordingsAction : IMediaViewActionConfirmation, IUserRestriction
   {
     public string ConfirmationMessage(View view)
     {
@@ -36,5 +37,6 @@ namespace MediaPortal.Plugins.SlimTv.Client.MediaViewActions
       return true;
     }
 
+    public string RestrictionGroup { get; set; }
   }
 }

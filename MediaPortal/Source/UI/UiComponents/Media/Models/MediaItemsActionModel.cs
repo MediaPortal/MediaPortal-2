@@ -99,6 +99,8 @@ namespace MediaPortal.UiComponents.Media.Models
         Sort = extension.Sort;
         _action = extension.Action;
         Restriction = _action as IUserRestriction;
+        if (Restriction != null)
+          Restriction.RestrictionGroup = extension.RestrictionGroup;
         Deferred = _action is IDeferredMediaItemAction;
       }
 
@@ -144,6 +146,8 @@ namespace MediaPortal.UiComponents.Media.Models
         Sort = extension.Sort;
         _action = extension.Action;
         Restriction = _action as IUserRestriction;
+        if (Restriction != null)
+          Restriction.RestrictionGroup = extension.RestrictionGroup;
         Deferred = _action is IDeferredMediaViewAction;
       }
 
