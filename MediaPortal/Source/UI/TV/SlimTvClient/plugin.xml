@@ -137,6 +137,7 @@
     <Model Id="117A9807-8B10-47F1-8780-C748DBCF45BA" Name="RecordingsContributorModel" ClassName="MediaPortal.Plugins.SlimTv.Client.Models.RecordingsAction"/>
     <Model Id="1C7DCFFE-E34E-41FD-9104-9AA594E49375" Name="ChannelZapModel" ClassName="MediaPortal.Plugins.SlimTv.Client.Models.ChannelZapModel" />
     <Model Id="7F283468-27E9-46B9-8B3B-17E3143AFEEB" Name="SlimTvNotificationModel" ClassName="MediaPortal.Plugins.SlimTv.Client.Models.SlimTvNotificationModel" />
+    <Model Id="3E826CA9-5C0B-4B16-9025-FA8273A5B7E4" Name="DeleteAllRecordings" ClassName="MediaPortal.Plugins.SlimTv.Client.Actions.DeleteAllRecordings"/>
   </Register>
 
   <Register Location="/Media/MediaListProviders">

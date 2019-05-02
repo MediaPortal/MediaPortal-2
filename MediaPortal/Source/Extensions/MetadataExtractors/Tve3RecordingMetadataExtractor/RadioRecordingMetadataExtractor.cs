@@ -27,7 +27,9 @@ using MediaPortal.Common;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
+using MediaPortal.Common.MediaManagement.Helpers;
 using MediaPortal.Common.ResourceAccess;
+using MediaPortal.Utilities;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -65,7 +67,7 @@ namespace MediaPortal.Extensions.MetadataExtractors
 
     public RadioRecordingMetadataExtractor()
     {
-      _metadata = new MetadataExtractorMetadata(METADATAEXTRACTOR_ID, "Radio recording metadata extractor", MetadataExtractorPriority.Extended, false,
+      _metadata = new MetadataExtractorMetadata(METADATAEXTRACTOR_ID, "Radio recording metadata extractor", MetadataExtractorPriority.Core, false,
           MEDIA_CATEGORIES, new MediaItemAspectMetadata[]
               {
                 MediaAspect.Metadata,
@@ -83,20 +85,14 @@ namespace MediaPortal.Extensions.MetadataExtractors
 
     public Task<bool> TryExtractMetadataAsync(IResourceAccessor mediaItemAccessor, IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData, bool forceQuickMode)
     {
-      IFileSystemResourceAccessor fsra = mediaItemAccessor as IFileSystemResourceAccessor;
-      if (fsra == null || !fsra.IsFile)
-        return Task.FromResult(false);
-      if (extractedAspectData.ContainsKey(VideoAspect.ASPECT_ID))
-        return Task.FromResult(false); //Ignore video recordings
       if (extractedAspectData.ContainsKey(AudioAspect.ASPECT_ID))
+        return Task.FromResult(false);
+      if (!CanExtract(mediaItemAccessor, extractedAspectData))
         return Task.FromResult(false);
 
       try
       {
-        var extension = DosPathHelper.GetExtension(fsra.ResourceName).ToLowerInvariant();
-        if (extension != ".ts")
-          return Task.FromResult(false);
-
+        IFileSystemResourceAccessor fsra = mediaItemAccessor as IFileSystemResourceAccessor;
         using (MediaInfoWrapper mediaInfo = ReadMediaInfo(fsra))
         {
           // Before we start evaluating the file, check if it is not a video file
@@ -105,6 +101,8 @@ namespace MediaPortal.Extensions.MetadataExtractors
 
           string fileName = ProviderPathHelper.GetFileNameWithoutExtension(fsra.Path) ?? string.Empty;
           MediaItemAspect.SetAttribute(extractedAspectData, MediaAspect.ATTR_TITLE, fileName);
+          MediaItemAspect.SetAttribute(extractedAspectData, MediaAspect.ATTR_SORT_TITLE, BaseInfo.GetSortTitle(fileName));
+
           MultipleMediaItemAspect providerResourceAspect = MediaItemAspect.CreateAspect(extractedAspectData, ProviderResourceAspect.Metadata);
           providerResourceAspect.SetAttribute(ProviderResourceAspect.ATTR_RESOURCE_INDEX, 0);
           providerResourceAspect.SetAttribute(ProviderResourceAspect.ATTR_SIZE, fsra.Size);
@@ -132,7 +130,7 @@ namespace MediaPortal.Extensions.MetadataExtractors
       {
         // Only log at the info level here - And simply return false. This makes the importer know that we
         // couldn't perform our task here
-        ServiceRegistration.Get<ILogger>().Info("RadioRecordingMetadataExtractor: Exception reading resource '{0}' (Text: '{1}')", fsra.CanonicalLocalResourcePath, e.Message);
+        ServiceRegistration.Get<ILogger>().Info("RadioRecordingMetadataExtractor: Exception reading resource '{0}' (Text: '{1}')", mediaItemAccessor.CanonicalLocalResourcePath, e.Message);
         return Task.FromResult(false);
       }
     }
@@ -155,6 +153,22 @@ namespace MediaPortal.Extensions.MetadataExtractors
     public Task<bool> AddMatchedAspectDetailsAsync(IDictionary<Guid, IList<MediaItemAspect>> matchedAspectData)
     {
       return Task.FromResult(false);
+    }
+
+    protected static bool CanExtract(IResourceAccessor mediaItemAccessor, IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData)
+    {
+      IFileSystemResourceAccessor fsra = mediaItemAccessor as IFileSystemResourceAccessor;
+      if (fsra == null || !fsra.IsFile)
+        return false;
+
+      string filePath = mediaItemAccessor.CanonicalLocalResourcePath.ToString();
+      string lowerExtension = StringUtils.TrimToEmpty(ProviderPathHelper.GetExtension(filePath)).ToLowerInvariant();
+      if (lowerExtension != ".ts")
+        return false;
+      string metaFilePath = ProviderPathHelper.ChangeExtension(filePath, ".xml");
+      if (!ResourcePath.Deserialize(metaFilePath).TryCreateLocalResourceAccessor(out _))
+        return false;
+      return true;
     }
 
     protected MediaInfoWrapper ReadMediaInfo(IFileSystemResourceAccessor mediaItemAccessor)

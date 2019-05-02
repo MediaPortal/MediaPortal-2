@@ -284,14 +284,17 @@ namespace MediaInfoLib
     }
 
     /// <summary>
-    /// Returns the duration of the video in the specified video <paramref name="stream"/>.
+    /// Returns the duration of the video in the specified video or audio <paramref name="stream"/>.
     /// </summary>
-    /// <param name="stream">Number of video stream to examine.</param>
-    /// <returns>Duration of the video in milliseconds or <c>null</c>, if the specified video
+    /// <param name="stream">Number of video/audio stream to examine.</param>
+    /// <returns>Duration of the video/audio in milliseconds or <c>null</c>, if the specified video/audio
     /// stream doesn't exist.</returns>
     public long? GetPlaytime(int stream)
     {
-      return GetLongOrNull(_mediaInfo.Get(StreamKind.Video, stream, "PlayTime"));
+      if (GetVideoCount() > 0)
+        return GetLongOrNull(_mediaInfo.Get(StreamKind.Video, stream, "PlayTime"));
+      else
+        return GetLongOrNull(_mediaInfo.Get(StreamKind.Audio, stream, "PlayTime"));
     }
 
     /// <summary>

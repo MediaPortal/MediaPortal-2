@@ -489,7 +489,7 @@ namespace MediaPortal.Plugins.InputDeviceManager
       //because they lack device information needed to map them.
       if (hidEvent.Device == null)
       {
-        LogEvent("Invalid device", hidEvent);
+        //LogEvent("Invalid device", hidEvent);
         return false;
       }
       long deviceId = (hidEvent.Device.VendorId << 16) | hidEvent.Device.ProductId;

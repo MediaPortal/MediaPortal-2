@@ -123,6 +123,7 @@
     <Compile Include="Helpers\ProgramListItem.cs" />
     <Compile Include="Helpers\ProgramProperties.cs" />
     <Compile Include="Helpers\ResourceHelper.cs" />
+    <Compile Include="Actions\DeleteAllRecordings.cs" />
     <Compile Include="MediaItemActions\DeleteRecordingFromStorage.cs" />
     <Compile Include="MediaLists\BaseFavoriteChannelMediaListProvider.cs" />
     <Compile Include="MediaLists\SlimTvLastWatchedRecordingsMediaListProvider.cs" />
@@ -161,7 +162,9 @@
     <Compile Include="Notifications\ISlimTvNotificationService.cs" />
     <Compile Include="Notifications\SlimTvNotificationService.cs" />
     <Compile Include="Notifications\SlimTvRecordingNotification.cs" />
+    <Compile Include="Player\ILivePlayer.cs" />
     <Compile Include="Player\LiveRadioPlayer.cs" />
+    <Compile Include="Player\LiveRadioUIContributor.cs" />
     <Compile Include="Player\WTVPlayer.cs" />
     <Compile Include="Player\LiveTvPlayer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -206,6 +209,7 @@
     <Content Include="Skin\default\images\PIP_on.png" />
     <Content Include="Skin\default\images\tvguide_recordserie_button.png" />
     <Content Include="Skin\default\screens\FullscreenTvKeybindings.inc" />
+    <Content Include="Skin\default\screens\FullscreenRadioKeybindings.inc" />
     <Content Include="Skin\default\screens\MediaItemFanArt.inc" />
     <Content Include="Skin\default\screens\MediaItemRecordingDetails.inc" />
     <Content Include="Skin\default\screens\TvGuideKeybindings.inc" />
@@ -253,6 +257,11 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Skin\default\screens\DialogScheduleManagement.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\BlueVision\screens\FullScreenContentRadio.xaml">
       <SubType>Designer</SubType>
     </Content>
   </ItemGroup>
@@ -612,6 +621,37 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Skin\Nereus\screens\SlimTvClient-manualschedule.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\WMCSkin\screens\CurrentlyPlayingRadio.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="Skin\WMCSkin\screens\FullScreenContentRadio.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="Skin\WMCSkin\screens\FullScreenContentRadioRecording.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\BlueVision\screens\FullScreenContentRadioRecording.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\BlueVision\themes\Win10\screens\FullScreenContentRadio.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\BlueVision\themes\Titanium Extended\screens\FullScreenContentRadio.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\BlueVision\themes\Titanium Extended\screens\FullScreenContentRadioRecording.xaml">
       <SubType>Designer</SubType>
     </Content>
   </ItemGroup>

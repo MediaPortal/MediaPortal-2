@@ -185,6 +185,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
     protected void OnRecordingTypeChanged(AbstractProperty property, object oldValue)
     {
       RecordingTypeName = GetLocalizedRecordingTypeName(RecordingType);
+      UpdateIsScheduleValid();
     }
 
     private void OnTimeChanged(AbstractProperty property, object oldValue)
@@ -198,7 +199,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
 
     protected void UpdateIsScheduleValid()
     {
-      IsScheduleValid = CheckScheduleValid(Channel, StartTime, EndTime);
+      IsScheduleValid = CheckScheduleValid(Channel, StartTime, EndTime, RecordingType);
     }
 
     #endregion
@@ -349,7 +350,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
       DateTime endTime = EndTime;
       ScheduleRecordingType recordingType = RecordingType;
 
-      if (!CheckScheduleValid(channel, startTime, endTime))
+      if (!CheckScheduleValid(channel, startTime, endTime, recordingType))
         return;
 
       ITvHandler tvHandler = ServiceRegistration.Get<ITvHandler>();
@@ -444,6 +445,8 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
       foreach (ScheduleRecordingType recordingType in Enum.GetValues(typeof(ScheduleRecordingType)))
       {
         ScheduleRecordingType currentType = recordingType;
+        if (currentType.ToString().Contains("EveryTime"))
+          continue;     // Cannot use every time options with manual recording, as they require a program name
         ListItem recTypeItem = new ListItem(Consts.KEY_NAME, GetLocalizedRecordingTypeName(currentType))
         {
           Command = new MethodDelegateCommand(() => RecordingType = currentType),
@@ -496,9 +499,9 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
       return string.Format("[SlimTvClient.ScheduleRecordingType_{0}]", Enum.GetName(typeof(ScheduleRecordingType), recordingType));
     }
 
-    protected static bool CheckScheduleValid(IChannel channel, DateTime startTime, DateTime endTime)
+    protected static bool CheckScheduleValid(IChannel channel, DateTime startTime, DateTime endTime, ScheduleRecordingType recordingType)
     {
-      return channel != null && endTime > startTime && endTime > DateTime.Now;
+      return channel != null && endTime > startTime && (endTime > DateTime.Now || recordingType != ScheduleRecordingType.Once);
     }
 
     #endregion

@@ -239,7 +239,7 @@ namespace MediaPortal.UiComponents.Media.Models
       navigationContext.SetContextVariable(Consts.KEY_NAVIGATION_DATA, navigationData);
     }
 
-    protected IEnumerable<MediaItem> GetMediaItemsFromCurrentView(MediaItem selectedMediaItem)
+    public IEnumerable<MediaItem> GetMediaItemsFromCurrentView(MediaItem selectedMediaItem)
     {
       foreach (var mediaItem in GetMediaItemsFromCurrentView())
       {

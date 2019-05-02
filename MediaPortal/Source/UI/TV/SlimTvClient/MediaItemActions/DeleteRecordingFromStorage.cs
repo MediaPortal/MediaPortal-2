@@ -22,8 +22,10 @@
 
 #endregion
 
+using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using System.Linq;
 using MediaPortal.Common;
 using MediaPortal.Common.Async;
 using MediaPortal.Common.Logging;
@@ -86,12 +88,34 @@ namespace MediaPortal.Plugins.SlimTv.Client.MediaItemActions
       if (_schedule != null)
       {
         var tvHandler = ServiceRegistration.Get<ITvHandler>(false);
-        if (tvHandler != null)
+        if (tvHandler != null && tvHandler.ScheduleControl != null)
         {
-          ServiceRegistration.Get<ILogger>().Warn("DeleteRecordingFromStorage: Failed to remove current schedule.");
-          var result = tvHandler.ScheduleControl.RemoveScheduleAsync(_schedule).Result;
-          if (!result)
-            return falseResult;
+          bool deleteWholeSchedule = true;
+          if (_schedule.IsSeries)
+          {
+            // Schedule is a series - we only want to stop the recording of the current program
+            var programs = await tvHandler.ScheduleControl.GetProgramsForScheduleAsync(_schedule);
+            if (programs.Success)
+            {
+              deleteWholeSchedule = false;
+              foreach (IProgram program in programs.Result)
+              {
+                IProgramRecordingStatus s = program as IProgramRecordingStatus;
+                // If this program is recording, just cancel this recording, not the whole schedule.
+                if (s != null && s.RecordingStatus.HasFlag(RecordingStatus.Recording))
+                  await tvHandler.ScheduleControl.RemoveScheduleForProgramAsync(program, ScheduleRecordingType.Once);
+              }
+            }
+          }
+          if(deleteWholeSchedule)
+          {
+            var result = tvHandler.ScheduleControl.RemoveScheduleAsync(_schedule).Result;
+            if (!result)
+            {
+              ServiceRegistration.Get<ILogger>().Warn("DeleteRecordingFromStorage: Failed to remove current schedule.");
+              return falseResult;
+            }
+          }
         }
       }
 
