@@ -175,5 +175,31 @@
       </Setter.Value>
     </Setter>
   </Style>
-  
+
+  <Style x:Key="OSDRadioContainer" TargetType="{x:Type Control}">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate>
+          <ControlTemplate.Resources>
+            <Model x:Key="AudioPlayerModel" Id="D8998340-DA2D-42be-A29B-6D7A72AEA2DC"/>
+          </ControlTemplate.Resources>
+
+          <Grid x:Name="MainOSDGrid" HorizontalAlignment="Stretch" VerticalAlignment="Bottom" Height="260" Width="1920">
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="Auto"/>
+              <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+              <RowDefinition Height="*"/>
+              <RowDefinition Height="90"/>
+            </Grid.RowDefinitions>
+
+            <Control x:Name="ControlsPresenter" Grid.ColumnSpan="2" Grid.Row="1" HorizontalAlignment="Stretch" VerticalAlignment="Top"
+                     Template="{DynamicResource ResourceKey=OSD_Controls_Template}" Margin="20,0,20,-20" SetFocusPrio="Default"/>
+          </Grid>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+
 </ResourceDictionary>

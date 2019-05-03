@@ -349,8 +349,6 @@
                 <DockPanel x:Name="PlayControlsPanel" LastChildFill="False" VerticalAlignment="Bottom" HorizontalAlignment="Stretch">
 
                   <StackPanel x:Name="PlayControlsPanel_Front" DockPanel.Dock="Left" Orientation="Horizontal" VerticalAlignment="Center" HorizontalAlignment="Stretch" Height="90">
-                    <Button x:Name="SkipBackButton" Style="{ThemeResource SkipBackButtonStyle}" Margin="{ThemeResource PlayerControlButtonMargins}" IsVisible="{Binding CanSkipBack}"
-                            Command="{Command Previous}"/>
                     <Button x:Name="RewindButton" Style="{ThemeResource RewindButtonStyle}" Margin="{ThemeResource PlayerControlButtonMargins}" IsVisible="{Binding CanSeekBackward}"
                             Command="{Command SeekBackward}"/>
                     <Button x:Name="PlayButton" Style="{ThemeResource PlayButtonStyle}" Margin="{ThemeResource PlayerControlButtonMargins}" IsVisible="{Binding CanPlay}"
@@ -361,18 +359,13 @@
                             Command="{Command Stop}"/>
                     <Button x:Name="ForwardButton" Style="{ThemeResource ForwardButtonStyle}" Margin="{ThemeResource PlayerControlButtonMargins}" IsVisible="{Binding CanSeekForward}"
                             Command="{Command SeekForward}"/>
-                    <Button x:Name="SkipForwardButton" Style="{ThemeResource SkipForwardButtonStyle}" Margin="{ThemeResource PlayerControlButtonMargins}" IsVisible="{Binding CanSkipForward}"
-                            Command="{Command Next}"/>
                     <Button x:Name="RecordButton" Style="{ThemeResource RecordButtonStyle}" Command="{Command RecordDialog}"
                             Context="{Model Id=8BEC1372-1C76-484c-8A69-C7F3103708EC}"/>
                   </StackPanel>
 
                   <StackPanel x:Name="PlayControlsPanel_Back" DockPanel.Dock="Right" Orientation="Horizontal" VerticalAlignment="Center" HorizontalAlignment="Stretch" Height="90">
                     <Button x:Name="SelectContextMenuButton" Style="{ThemeResource SelectContextMenuButtonStyle}" Margin="{ThemeResource PlayerControlButtonMargins}"
-                          Command="{Command Source={StaticResource VideoPlayerModel},Path=OpenPlayerConfigurationDialog}"/>
-                    <Button x:Name="SelectTitleButton" Style="{ThemeResource ShowDvdMenuButtonStyle}" Margin="{ThemeResource PlayerControlButtonMargins}"
-                          IsVisible="{Binding Source={StaticResource VideoPlayerModel},Path=PlayerUIContributor.TitlesAvailable}"
-                          Command="{Command Source={StaticResource VideoPlayerModel},Path=PlayerUIContributor.OpenChooseTitleDialog}"/>
+                            Command="{Command Source={StaticResource VideoPlayerModel},Path=OpenPlayerConfigurationDialog}"/>
                     <StackPanel Orientation="Vertical" Margin="0,7,1,2">
                       <Button x:Name="NextChapterButton" Style="{ThemeResource ChapterUpButtonStyle}"
                               Command="{Command Source={StaticResource SlimTvClient},Path=ZapNextChannel}"/>
@@ -403,17 +396,100 @@
 
             </Control.Resources>
           </Control>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+    <Setter Property="PlayerContext" Value="PrimaryPlayer"/>
+  </Style>
 
-          <ControlTemplate.Triggers>
-            <Trigger Property="IsCurrentPlayer" Value="True">
-              <Trigger.EnterActions>
-                <BeginStoryboard x:Name="CurrentPlayer_BeginStoryboard" Storyboard="{ThemeResource OSDCurrentPlayerControlStoryboard}"/>
-              </Trigger.EnterActions>
-              <Trigger.ExitActions>
-                <StopStoryboard BeginStoryboardName="CurrentPlayer_BeginStoryboard"/>
-              </Trigger.ExitActions>
-            </Trigger>
-          </ControlTemplate.Triggers>
+  <Style x:Key="PrimaryRadioOSDStyle" TargetType="{x:Type mp_special_controls:PlayerControl}">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="{x:Type mp_special_controls:PlayerControl}">
+          <ControlTemplate.Resources>
+            <Model x:Key="AudioPlayerModel" Id="D8998340-DA2D-42be-A29B-6D7A72AEA2DC"/>
+          </ControlTemplate.Resources>
+
+          <Control Style="{ThemeResource OSDRadioContainer}" Width="{ThemeResource FullScreenContentVideoPrimaryPlayerOSDWidth}" 
+                   DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}">
+            <Control.Resources>
+
+              <ControlTemplate x:Key="OSD_Progress_Template">
+                <DockPanel LastChildFill="true" Margin="3,3,3,15">
+                  <Grid DockPanel.Dock="Center" HorizontalAlignment="Stretch" DataContext="{Binding Source={StaticResource SlimTvClient}}">
+                    <Grid.ColumnDefinitions>
+                      <ColumnDefinition Width="Auto"/>
+                      <ColumnDefinition Width="*"/>
+                      <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                      <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+
+                    <Label x:Name="CurrentProgramStartLabel" Grid.Column="0" Margin="5,0,5,0"
+                           Content="{Binding Path=CurrentProgram.StartTime, Converter={StaticResource SlimTvDateFormatConverter}}"
+                           Color="{ThemeResource TextColor}" HorizontalAlignment="Right" VerticalAlignment="Center"
+                           FontSize="{ThemeResource SmallerFontSize}" Scroll="Auto" ScrollDelay="0" ScrollSpeed="20"/>
+
+                    <ProgressBar x:Name="CurrentProgramProgress" Grid.Column="1" Height="18" HorizontalAlignment="Stretch" VerticalAlignment="Center" Margin="5,5,5,0"
+                                 Style="{ThemeResource OSDTVProgressBarStyle}" Value="{Binding Source={StaticResource SlimTvClient},Path=ProgramProgress}" />
+
+                    <Label x:Name="CurrentProgramEndLabel" Grid.Column="2" Margin="5,0,5,0"
+                           Content="{Binding Path=CurrentProgram.EndTime, Converter={StaticResource SlimTvDateFormatConverter}}"
+                           Color="{ThemeResource TextColor}" HorizontalAlignment="Left" VerticalAlignment="Center"
+                           FontSize="{ThemeResource SmallerFontSize}" Scroll="Auto" ScrollDelay="0" ScrollSpeed="20"/>
+                  </Grid>
+                </DockPanel>
+              </ControlTemplate>
+
+              <ControlTemplate x:Key="OSD_Controls_Template">
+                <DockPanel x:Name="PlayControlsPanel" LastChildFill="False" VerticalAlignment="Bottom" HorizontalAlignment="Stretch">
+
+                  <StackPanel x:Name="PlayControlsPanel_Front" DockPanel.Dock="Left" Orientation="Horizontal" VerticalAlignment="Center" HorizontalAlignment="Stretch" Height="90">
+                    <Button x:Name="RewindButton" Style="{ThemeResource RewindButtonStyle}" Margin="{ThemeResource PlayerControlButtonMargins}" IsVisible="{Binding CanSeekBackward}"
+                            Command="{Command SeekBackward}"/>
+                    <Button x:Name="PlayButton" Style="{ThemeResource PlayButtonStyle}" Margin="{ThemeResource PlayerControlButtonMargins}" IsVisible="{Binding CanPlay}"
+                            Command="{Command Play}"/>
+                    <Button x:Name="PauseButton" Style="{ThemeResource PauseButtonStyle}" Margin="{ThemeResource PlayerControlButtonMargins}" IsVisible="{Binding CanPause}"
+                            Command="{Command Pause}"/>
+                    <Button x:Name="StopButton" Style="{ThemeResource StopButtonStyle}" Margin="{ThemeResource PlayerControlButtonMargins}" IsVisible="{Binding CanStop}"
+                            Command="{Command Stop}"/>
+                    <Button x:Name="ForwardButton" Style="{ThemeResource ForwardButtonStyle}" Margin="{ThemeResource PlayerControlButtonMargins}" IsVisible="{Binding CanSeekForward}"
+                            Command="{Command SeekForward}"/>
+                    <Button x:Name="RecordButton" Style="{ThemeResource RecordButtonStyle}" Command="{Command RecordDialog}"
+                            Context="{Model Id=8BEC1372-1C76-484c-8A69-C7F3103708EC}"/>
+                  </StackPanel>
+
+                  <StackPanel x:Name="PlayControlsPanel_Back" DockPanel.Dock="Right" Orientation="Horizontal" VerticalAlignment="Center" HorizontalAlignment="Stretch" Height="90">
+                    <Button x:Name="SelectContextMenuButton" Style="{ThemeResource SelectContextMenuButtonStyle}" Margin="{ThemeResource PlayerControlButtonMargins}"
+                            Command="{Command Source={StaticResource VideoPlayerModel},Path=OpenPlayerConfigurationDialog}"/>
+                    <StackPanel Orientation="Vertical" Margin="0,7,1,2">
+                      <Button x:Name="NextChannel" Style="{ThemeResource ChapterUpButtonStyle}"
+                              Command="{Command Source={StaticResource SlimTvClient},Path=ZapNextChannel}"/>
+                      <Button x:Name="PreviousChannel" Style="{ThemeResource ChapterDownButtonStyle}" 
+                              Command="{Command Source={StaticResource SlimTvClient},Path=ZapPrevChannel}"/>
+                    </StackPanel>
+                    <Button x:Name="AudioActiveButton" IsVisible="{Binding IsAudio}" Style="{ThemeResource AudioActiveButtonStyle}" Command="{Command AudioButtonPressed}"/>
+                    <StackPanel Orientation="Vertical" Margin="0,3,1,-3">
+                      <Button x:Name="VolumeUpButton" Style="{ThemeResource VolumeUpButtonStyle}"  
+                              Command="{Command Source={StaticResource GeneralPlayerModel},Path=VolumeUp}"/>
+                      <Button x:Name="VolumeDownButton" Style="{ThemeResource VolumeDownButtonStyle}"
+                              Command="{Command Source={StaticResource GeneralPlayerModel},Path=VolumeDown}"/>
+                    </StackPanel>
+                    <Button x:Name="BackButton" Style="{ThemeResource NavigateBackButtonStyle}" Margin="{ThemeResource PlayerControlButtonMargins}"
+                            Command="{Command Source={Service WorkflowManager},Path=NavigatePop,Parameters=1}"/>
+                    <Button x:Name="CloseButton" Style="{ThemeResource CloseButtonStyle}" Margin="{ThemeResource PlayerControlButtonMargins}"
+                            Command="{Command Source={Service WorkflowManager},Path=NavigatePush,Parameters=BBFA7DB7-5055-48D5-A904-0F0C79849369}"/>
+                  </StackPanel>
+
+                  <Control x:Name="ProgressPresenter" DockPanel.Dock="Center" HorizontalAlignment="Stretch" VerticalAlignment="Bottom"
+                           Template="{DynamicResource ResourceKey=OSD_Progress_Template}" Margin="20,0,20,0"/>
+
+                </DockPanel>
+              </ControlTemplate>
+
+            </Control.Resources>
+          </Control>
         </ControlTemplate>
       </Setter.Value>
     </Setter>
