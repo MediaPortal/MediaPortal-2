@@ -100,18 +100,21 @@
             <media:MediaAspectWrapper MediaItem="{Binding Source={StaticResource FanArtBackgroundModel},Path=MediaItem}">
               <media:MediaAspectWrapper.Template>
                 <ControlTemplate>
-                  <StackPanel Orientation="Horizontal" DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}">
-                    <Image Source="HomeContentIcons\year.png" Height="27" Width="27" Stretch="Uniform" Margin="0,-1,5,1" VerticalAlignment="Center"/>
-                    <Label x:Name="Year" Grid.Row="0" Grid.Column="1" FontSize="{ThemeResource SmallFontSize}" VerticalAlignment="Center"
+                  <Grid DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}">
+                    <Image Source="HomeContentIcons\year.png" Height="27" Width="27" Stretch="Uniform" Margin="0,-1,5,1"
+                           VerticalAlignment="Center" HorizontalAlignment="Left"/>
+                    <Label x:Name="Year" FontSize="{ThemeResource SmallFontSize}" VerticalAlignment="Center" Margin="40,0,0,0"
                            Content="{Binding Path=RecordingTime, Converter={StaticResource DateFormatConverter}, ConverterParameter=yyyy}" Color="{ThemeResource TextColorForeground}"/>
-                  </StackPanel>
+                  </Grid>
                 </ControlTemplate>
               </media:MediaAspectWrapper.Template>
             </media:MediaAspectWrapper>
 
-            <StackPanel Orientation="Horizontal" IsVisible="{Binding Source={StaticResource FanArtBackgroundModel}, Path=MediaItem, Converter={StaticResource ReferenceToBoolConverter}}">
-              <Image Source="HomeContentIcons\audiogenre.png" Height="30" Width="30" Stretch="Uniform" Margin="0,0,5,0" VerticalAlignment="Center"/>
-              <Label x:Name="Genre" FontSize="{ThemeResource SmallFontSize}" TextTrimming="WordEllipsis" Color="{ThemeResource TextColorForeground}">
+            <Grid IsVisible="{Binding Source={StaticResource FanArtBackgroundModel}, Path=MediaItem, Converter={StaticResource ReferenceToBoolConverter}}">
+              <Image Source="HomeContentIcons\audiogenre.png" Height="30" Width="30" Stretch="Uniform" Margin="0,0,5,0" 
+                     VerticalAlignment="Center" HorizontalAlignment="Left"/>
+              <Label x:Name="Genre" FontSize="{ThemeResource SmallFontSize}" TextTrimming="WordEllipsis" 
+                     Color="{ThemeResource TextColorForeground}" Margin="40,0,0,0">
                 <Label.Content>
                   <MultiBinding Converter="{StaticResource MultiAspectAttributeConverter}">
                     <Binding Source="{StaticResource FanArtBackgroundModel}" Path="MediaItem"/>
@@ -119,17 +122,20 @@
                   </MultiBinding>
                 </Label.Content>
               </Label>
-            </StackPanel>
+            </Grid>
 
-            <StackPanel Orientation="Horizontal" DataContext="{Binding Source={StaticResource FanArtBackgroundModel},Path=SelectedItem}"
+            <Grid DataContext="{Binding Source={StaticResource FanArtBackgroundModel},Path=SelectedItem}"
                         IsVisible="{Binding Path=Tracks,Converter={StaticResource ReferenceToBoolConverter}}">
-              <Image Source="HomeContentIcons\track.png" Height="29" Width="28" Stretch="Uniform" Margin="0,0,5,0" VerticalAlignment="Center"/>
-              <Label x:Name="NumTracks" Content="{Binding Tracks}" VerticalAlignment="Center"
-                     Color="{ThemeResource TextColorForeground}" FontSize="{ThemeResource SmallFontSize}"/>
-              <Label Content=" " IsVisible="{Binding Path=Tracks,Converter={StaticResource ReferenceToBoolConverter}}" VerticalAlignment="Center"/>
-              <Label x:Name="NumTrackLabel" Content="[Media.TrackItemsHeader]" Color="{ThemeResource TextColorForeground}" FontSize="{ThemeResource SmallFontSize}"
-                     IsVisible="{Binding Path=Tracks,Converter={StaticResource ReferenceToBoolConverter}}" VerticalAlignment="Center"/>
-            </StackPanel>
+              <Image Source="HomeContentIcons\track.png" Height="29" Width="28" Stretch="Uniform" Margin="0,0,5,0"
+                     VerticalAlignment="Center" HorizontalAlignment="Left"/>
+              <StackPanel Orientation="Horizontal" Margin="40,0,0,0">
+                <Label x:Name="NumTracks" Content="{Binding Tracks}" VerticalAlignment="Center"
+                       Color="{ThemeResource TextColorForeground}" FontSize="{ThemeResource SmallFontSize}"/>
+                <Label Content=" " IsVisible="{Binding Path=Tracks,Converter={StaticResource ReferenceToBoolConverter}}" VerticalAlignment="Center"/>
+                <Label x:Name="NumTrackLabel" Content="[Media.TrackItemsHeader]" Color="{ThemeResource TextColorForeground}" FontSize="{ThemeResource SmallFontSize}"
+                       IsVisible="{Binding Path=Tracks,Converter={StaticResource ReferenceToBoolConverter}}" VerticalAlignment="Center"/>
+              </StackPanel>
+            </Grid>
 
           </StackPanel>
 

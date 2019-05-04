@@ -77,22 +77,26 @@
             </Label>
           </StackPanel>
 
-          <StackPanel Orientation="Horizontal" Margin="0,0,20,0" IsVisible="{Binding Path=Album,Converter={StaticResource ReferenceToBoolConverter}}">
-            <Image Source="HomeContentIcons\album.png" Height="26" Width="26" Stretch="Uniform" Margin="2,-1,5,1" VerticalAlignment="Center"/>
+          <Grid Margin="0,0,20,0" IsVisible="{Binding Path=Album,Converter={StaticResource ReferenceToBoolConverter}}">
+            <Image Source="HomeContentIcons\album.png" Height="26" Width="26" Stretch="Uniform" Margin="2,-1,5,1" 
+                   VerticalAlignment="Center" HorizontalAlignment="Left"/>
             <Label x:Name="Album" Grid.Row="0" Grid.Column="1" FontSize="{ThemeResource SmallFontSize}"
-                   Content="{Binding Album}" Color="{ThemeResource TextColorForeground}"/>
-          </StackPanel>
+                   Content="{Binding Album}" Color="{ThemeResource TextColorForeground}" Margin="40,0,0,0"/>
+          </Grid>
 
-          <StackPanel Orientation="Horizontal" DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}" Margin="0,0,20,0"
-                      IsVisible="{Binding Path=AlbumArtists,Converter={StaticResource ReferenceToBoolConverter}}">
-            <Image Source="HomeContentIcons\person.png" Height="30" Width="30" Stretch="Uniform" Margin="0,0,5,0" VerticalAlignment="Center"/>
+          <Grid DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}" Margin="0,0,20,0"
+                IsVisible="{Binding Path=AlbumArtists,Converter={StaticResource ReferenceToBoolConverter}}">
+            <Image Source="HomeContentIcons\person.png" Height="30" Width="30" Stretch="Uniform" Margin="0,0,5,0"
+                   VerticalAlignment="Center" HorizontalAlignment="Left"/>
             <Label x:Name="AlbumArtists" FontSize="{ThemeResource SmallFontSize}" VerticalAlignment="Center"
-                   Content="{Binding Path=AlbumArtists}" Color="{ThemeResource TextColorForeground}"/>
-          </StackPanel>
+                   Content="{Binding Path=AlbumArtists}" Color="{ThemeResource TextColorForeground}" Margin="40,0,0,0"/>
+          </Grid>
 
-          <StackPanel Orientation="Horizontal" IsVisible="{Binding Source={StaticResource FanArtBackgroundModel}, Path=MediaItem, Converter={StaticResource ReferenceToBoolConverter}}">
-            <Image Source="HomeContentIcons\audiogenre.png" Height="30" Width="30" Stretch="Uniform" Margin="0,0,5,0" VerticalAlignment="Center"/>
-            <Label x:Name="Genre" FontSize="{ThemeResource SmallFontSize}" TextTrimming="WordEllipsis" Color="{ThemeResource TextColorForeground}">
+          <Grid IsVisible="{Binding Source={StaticResource FanArtBackgroundModel}, Path=MediaItem, Converter={StaticResource ReferenceToBoolConverter}}">
+            <Image Source="HomeContentIcons\audiogenre.png" Height="30" Width="30" Stretch="Uniform" Margin="0,0,5,0" 
+                   VerticalAlignment="Center" HorizontalAlignment="Left"/>
+            <Label x:Name="Genre" FontSize="{ThemeResource SmallFontSize}" TextTrimming="WordEllipsis" 
+                   Color="{ThemeResource TextColorForeground}" Margin="40,0,0,0">
               <Label.Content>
                 <MultiBinding Converter="{StaticResource MultiAspectAttributeConverter}">
                   <Binding Source="{StaticResource FanArtBackgroundModel}" Path="MediaItem"/>
@@ -100,51 +104,56 @@
                 </MultiBinding>
               </Label.Content>
             </Label>
-          </StackPanel>
+          </Grid>
 
           <media:MediaAspectWrapper MediaItem="{Binding Source={StaticResource FanArtBackgroundModel},Path=MediaItem}" Margin="0,30,20,0">
             <media:MediaAspectWrapper.Template>
               <ControlTemplate>
-                <StackPanel Orientation="Horizontal" DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}">
-                  <Image Source="HomeContentIcons\year.png" Height="27" Width="27" Stretch="Uniform" Margin="0,-1,5,1" VerticalAlignment="Center"/>
-                  <Label x:Name="Year" Grid.Row="0" Grid.Column="1" FontSize="{ThemeResource SmallFontSize}" VerticalAlignment="Center"
-                         Content="{Binding Path=RecordingTime, Converter={StaticResource DateFormatConverter}, ConverterParameter=yyyy}" Color="{ThemeResource TextColorForeground}"/>
-                </StackPanel>
+                <Grid DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}">
+                  <Image Source="HomeContentIcons\year.png" Height="27" Width="27" Stretch="Uniform" Margin="0,-1,5,1" 
+                         VerticalAlignment="Center" HorizontalAlignment="Left"/>
+                  <Label x:Name="Year" FontSize="{ThemeResource SmallFontSize}" VerticalAlignment="Center" Color="{ThemeResource TextColorForeground}"
+                         Content="{Binding Path=RecordingTime, Converter={StaticResource DateFormatConverter}, ConverterParameter=yyyy}" Margin="40,0,0,0"/>
+                </Grid>
               </ControlTemplate>
             </media:MediaAspectWrapper.Template>
           </media:MediaAspectWrapper>
 
-          <StackPanel Orientation="Horizontal" Margin="0,0,20,0"
+          <Grid Margin="0,0,20,0"
                       IsVisible="{Binding Path=Track,Converter={StaticResource ReferenceToBoolConverter}}">
-            <Image Source="HomeContentIcons\track.png" Height="29" Width="28" Stretch="Uniform" Margin="0,0,5,0" VerticalAlignment="Center"/>
-            <Label Content="{Binding Track}" Color="{ThemeResource TextColorForeground}"
+            <Image Source="HomeContentIcons\track.png" Height="29" Width="28" Stretch="Uniform" Margin="0,0,5,0"
+                   VerticalAlignment="Center" HorizontalAlignment="Left"/>
+            <Label Content="{Binding Track}" Color="{ThemeResource TextColorForeground}" Margin="40,0,0,0"
                    VerticalAlignment="Center" FontSize="{ThemeResource SmallFontSize}"/>
-          </StackPanel>
+          </Grid>
 
-          <StackPanel IsVisible="{Binding Path=Duration,Converter={StaticResource ReferenceToBoolConverter}}" Orientation="Horizontal" >
-            <Image Source="HomeContentIcons\duration.png" Height="26" Width="26" Stretch="Uniform" Margin="2,-1,5,1" VerticalAlignment="Center"/>
-            <Label x:Name="Duration" FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColorForeground}"
+          <Grid IsVisible="{Binding Path=Duration,Converter={StaticResource ReferenceToBoolConverter}}">
+            <Image Source="HomeContentIcons\duration.png" Height="26" Width="26" Stretch="Uniform" Margin="2,-1,5,1"
+                   VerticalAlignment="Center" HorizontalAlignment="Left"/>
+            <Label x:Name="Duration" FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColorForeground}" Margin="40,0,0,0"
                    Content="{Binding Path=Duration, Converter={StaticResource DurationConverter}, ConverterParameter=mm\:ss}"/>
-          </StackPanel>
+          </Grid>
 
-          <StackPanel Orientation="Horizontal" Margin="0,0,20,0"
-                      IsVisible="{Binding Path=NumDiscs,Converter={StaticResource ReferenceToBoolConverter}}">
-            <Image Source="HomeContentIcons\disc.png" Height="28" Width="28" Stretch="Uniform" Margin="2,-1,5,1" VerticalAlignment="Center"/>
-            <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+          <Grid Margin="0,0,20,0" IsVisible="{Binding Path=NumDiscs,Converter={StaticResource ReferenceToBoolConverter}}">
+            <Image Source="HomeContentIcons\disc.png" Height="28" Width="28" Stretch="Uniform" Margin="2,-1,5,1"
+                   VerticalAlignment="Center" HorizontalAlignment="Left"/>
+            <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="40,0,0,0">
               <Label FontSize="{ThemeResource SmallFontSize}" Content="{Binding Path=DiscId}" Color="{ThemeResource TextColorForeground}" VerticalAlignment="Center"/>
               <Label FontSize="{ThemeResource SmallerFontSize}" Content=" | " Color="{ThemeResource TextColorForeground}" VerticalAlignment="Center"/>
               <Label FontSize="{ThemeResource SmallFontSize}" Content="{Binding Path=NumDiscs}" Color="{ThemeResource TextColorForeground}" VerticalAlignment="Center"/>
             </StackPanel>
-          </StackPanel>
+          </Grid>
 
-          <StackPanel Orientation="Horizontal" Margin="0,0,20,0">
-            <Image Source="HomeContentIcons\settings.png" Height="28" Width="28" Stretch="Uniform" Margin="2,0,5,0" VerticalAlignment="Center"/>
-            <Label x:Name="Bitrate" Color="{ThemeResource TextColorForeground}" FontSize="{ThemeResource SmallFontSize}" VerticalAlignment="Center">
+          <Grid Margin="0,0,20,0">
+            <Image Source="HomeContentIcons\settings.png" Height="28" Width="28" Stretch="Uniform" Margin="2,0,5,0" 
+                   VerticalAlignment="Center" HorizontalAlignment="Left"/>
+            <Label x:Name="Bitrate" Color="{ThemeResource TextColorForeground}" FontSize="{ThemeResource SmallFontSize}" 
+                   VerticalAlignment="Center" Margin="40,0,0,0">
               <Label.Content>
                 <Binding Path="BitRate" Converter="{StaticResource StringFormatConverter}" ConverterParameter="{}{0} kBit"/>
               </Label.Content>
             </Label>
-          </StackPanel>
+          </Grid>
 
         </StackPanel>
       </ControlTemplate>

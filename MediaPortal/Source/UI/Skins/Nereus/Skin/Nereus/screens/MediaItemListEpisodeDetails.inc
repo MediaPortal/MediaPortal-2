@@ -68,8 +68,8 @@
         <ControlTemplate>
           <Grid DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}" VerticalAlignment="Center">
             <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="0,4,0,0">
-              <StarRatingPanel x:Name="RatingReadOnly" IsReadOnly="True" StarReadOnlyTemplate="{StaticResource StarReadOnlyTemplate}"
-                               Maximum="5" VerticalAlignment="Center" IsVisible="{Binding Path=TotalRating,Converter={StaticResource ReferenceToBoolConverter}}">
+              <StarRatingPanel x:Name="RatingReadOnly" IsReadOnly="True" StarReadOnlyTemplate="{StaticResource StarReadOnlyTemplate}" Maximum="5" 
+                               VerticalAlignment="Center" IsVisible="{Binding Path=TotalRating,Converter={StaticResource ReferenceToBoolConverter}}">
                 <StarRatingPanel.Value>
                   <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0}/2">
                     <Binding Path="TotalRating"/>
@@ -97,18 +97,21 @@
     <media:MediaAspectWrapper MediaItem="{Binding Source={StaticResource FanArtBackgroundModel},Path=MediaItem}">
       <media:MediaAspectWrapper.Template>
         <ControlTemplate>
-          <StackPanel Orientation="Horizontal" DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}">
-            <Image Source="HomeContentIcons\year.png" Height="27" Width="27" Stretch="Uniform" Margin="0,-1,5,1" VerticalAlignment="Center"/>
-            <Label x:Name="FirstAired" FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColorForeground}"
+          <Grid DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}">
+            <Image Source="HomeContentIcons\year.png" Height="27" Width="27" Stretch="Uniform" Margin="0,-1,5,1"
+                   VerticalAlignment="Center" HorizontalAlignment="Left"/>
+            <Label x:Name="FirstAired" FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColorForeground}" Margin="40,0,0,0"
                    Content="{Binding Path=RecordingTime, Converter={StaticResource DateFormatConverter}, ConverterParameter=d}" />
-          </StackPanel>
+          </Grid>
         </ControlTemplate>
       </media:MediaAspectWrapper.Template>
     </media:MediaAspectWrapper>
 
-    <StackPanel Orientation="Horizontal">
-      <Image Source="HomeContentIcons\genre.png" Height="30" Width="30" Stretch="Uniform" Margin="0,0,5,0" VerticalAlignment="Center"/>
-      <Label x:Name="Genre" FontSize="{ThemeResource SmallFontSize}" TextTrimming="WordEllipsis" Color="{ThemeResource TextColorForeground}">
+    <Grid>
+      <Image Source="HomeContentIcons\genre.png" Height="30" Width="30" Stretch="Uniform" Margin="0,0,5,0" 
+             VerticalAlignment="Center" HorizontalAlignment="Left"/>
+      <Label x:Name="Genre" FontSize="{ThemeResource SmallFontSize}" TextTrimming="WordEllipsis" 
+             Color="{ThemeResource TextColorForeground}" Margin="40,0,0,0">
         <Label.Content>
           <MultiBinding Converter="{StaticResource MultiAspectAttributeConverter}">
             <Binding Source="{StaticResource FanArtBackgroundModel}" Path="MediaItem"/>
@@ -116,15 +119,17 @@
           </MultiBinding>
         </Label.Content>
       </Label>
-    </StackPanel>
+    </Grid>
 
     <media:VideoStreamAspectWrapper MediaItem="{Binding Source={StaticResource FanArtBackgroundModel},Path=MediaItem}">
       <media:VideoStreamAspectWrapper.Template>
         <ControlTemplate>
-          <StackPanel DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}"
-                      Orientation="Horizontal" IsVisible="{Binding Path=Duration,Converter={StaticResource ReferenceToBoolConverter}}">
-            <Image Source="HomeContentIcons\duration.png" Height="26" Width="26" Stretch="Uniform" Margin="2,-1,5,1" VerticalAlignment="Center"/>
-            <Label x:Name="Duration" FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColorForeground}" VerticalAlignment="Center">
+          <Grid DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}"
+                      IsVisible="{Binding Path=Duration,Converter={StaticResource ReferenceToBoolConverter}}">
+            <Image Source="HomeContentIcons\duration.png" Height="26" Width="26" Stretch="Uniform" Margin="2,-1,5,1" 
+                   VerticalAlignment="Center" HorizontalAlignment="Left"/>
+            <Label x:Name="Duration" FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColorForeground}" 
+                   VerticalAlignment="Center" Margin="40,0,0,0">
               <Label.Content>
                 <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0}/60">
                   <Binding Path="Duration"/>
@@ -132,8 +137,9 @@
               </Label.Content>
             </Label>
             <Label Content=" " VerticalAlignment="Center"/>
-            <Label Content="[Media.Minutes]" FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColorForeground}" VerticalAlignment="Center"/>
-          </StackPanel>
+            <Label Content="[Media.Minutes]" FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColorForeground}" 
+                   VerticalAlignment="Center"/>
+          </Grid>
         </ControlTemplate>
       </media:VideoStreamAspectWrapper.Template>
     </media:VideoStreamAspectWrapper>

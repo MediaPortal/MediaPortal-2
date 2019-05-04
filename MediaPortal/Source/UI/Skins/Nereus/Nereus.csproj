@@ -696,7 +696,6 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Content>
-    <Content Include="Skin\Nereus\screens\MediaItemAudioAlbumDetails.inc" />
     <Content Include="Skin\Nereus\screens\MediaItemHomeEpisodeDetails.inc">
       <SubType>Designer</SubType>
     </Content>
@@ -722,41 +721,24 @@
     <Content Include="Skin\Nereus\screens\MediaItemHomeSeriesDetails.inc">
       <SubType>Designer</SubType>
     </Content>
-    <Content Include="Skin\Nereus\screens\MediaItemMovieCollectionDetails.inc">
-      <SubType>Designer</SubType>
-    </Content>
     <Content Include="Skin\Nereus\screens\MediaItemHomeMovieDetails.inc">
       <SubType>Designer</SubType>
     </Content>
     <Content Include="Skin\Nereus\screens\MediaItemHomeOthersDetails.inc">
       <SubType>Designer</SubType>
     </Content>
-    <Content Include="Skin\Nereus\screens\MediaItemSeasonDetails.inc" />
     <Content Include="Skin\Nereus\screens\MediaItemListImageDetails.inc" />
     <Content Include="Skin\Nereus\screens\MediaItemListAudioDetails.inc">
       <SubType>Designer</SubType>
     </Content>
-    <Content Include="Skin\Nereus\screens\MediaItemAudioDetails.inc" />
     <Content Include="Skin\Nereus\screens\MediaItemImageDetails.inc" />
     <Content Include="Skin\Nereus\screens\MediaItemListMovieDetails.inc">
-      <SubType>Designer</SubType>
-    </Content>
-    <Content Include="Skin\Nereus\screens\MediaItemMovieDetails.inc">
       <SubType>Designer</SubType>
     </Content>
     <Content Include="Skin\Nereus\screens\MediaItemListOthersDetails.inc">
       <SubType>Designer</SubType>
     </Content>
-    <Content Include="Skin\Nereus\screens\MediaItemOthersDetails.inc">
-      <SubType>Designer</SubType>
-    </Content>
     <Content Include="Skin\Nereus\screens\MediaItemListSeriesDetails.inc">
-      <SubType>Designer</SubType>
-    </Content>
-    <Content Include="Skin\Nereus\screens\MediaItemEpisodeDetails.inc">
-      <SubType>Designer</SubType>
-    </Content>
-    <Content Include="Skin\Nereus\screens\MediaItemSeriesDetails.inc">
       <SubType>Designer</SubType>
     </Content>
     <Content Include="Skin\Nereus\screens\MediaItemsList.inc">
@@ -803,7 +785,6 @@
     <None Include="Skin\Nereus\fonts\seguisb.ttf" />
     <Content Include="Skin\Nereus\fonts\seguisb.desc" />
     <Content Include="Skin\Nereus\screens\InfoMovieGeneral.inc" />
-    <Content Include="Skin\Nereus\screens\MediaItemPersonDetails.inc" />
     <Content Include="Skin\Nereus\screens\MediaItemListPersonDetails.inc">
       <SubType>Designer</SubType>
     </Content>
