@@ -3,6 +3,7 @@
     xmlns="www.team-mediaportal.com/2008/mpf/directx"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:fanart="clr-namespace:MediaPortal.Extensions.UserServices.FanArtService.Client;assembly=FanArtService.Client"
+    xmlns:media="clr-namespace:MediaPortal.UiComponents.Media.Models.AspectWrappers;assembly=Media"
     xmlns:nereus_converters="clr-namespace:MediaPortal.UiComponents.Nereus.Converters;assembly=Nereus"
     xmlns:nereus_home_content="clr-namespace:MediaPortal.UiComponents.Nereus.Models.HomeContent;assembly=Nereus"
     xmlns:collections="clr-namespace:MediaPortal.UI.Presentation.DataObjects;assembly=MediaPortal.UI"
@@ -43,6 +44,34 @@
   <Model x:Key="TimeModel" Id="E821B1C8-0666-4339-8027-AA45A4F6F107"/>
 
   <nereus_converters:RoundingFormatConverter x:Key="RoundingFormatConverter"/>
+
+  <Style x:Key="HomeContentProgressBarStyle" TargetType="{x:Type ProgressBar}">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="{x:Type ProgressBar}">
+          <Grid x:Name="ProgressBarGrid">
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+              <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+            <Rectangle x:Name="ProgressBarTrack" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+              <Rectangle.Fill>
+                <LinearGradientBrush EndPoint="0.5,0" StartPoint="0.5,1">
+                  <GradientStop Color="#FF000000" Offset="0"/>
+                  <GradientStop Color="#FF000000" Offset="0.7"/>
+                  <GradientStop Color="#00000000" Offset="1"/>
+                </LinearGradientBrush>
+              </Rectangle.Fill>
+            </Rectangle>
+            <Rectangle x:Name="ProgressBarIndicator" Width="{TemplateBinding PartIndicatorWidth}" HorizontalAlignment="Left"
+                       Fill="{ThemeResource NereusColorLight}" Margin="0,4,0,1"/>
+          </Grid>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
 
   <!--
 		############################################################################################################################################################
@@ -157,6 +186,21 @@
         </Image.Source>
       </Image>
 
+      <media:UserDataWrapper MediaItem="{Binding MediaItem}" Grid.Row="1" HorizontalAlignment="Stretch" VerticalAlignment="Bottom">
+        <media:UserDataWrapper.Template>
+          <ControlTemplate>
+            <ProgressBar Height="16" HorizontalAlignment="Stretch" VerticalAlignment="Bottom"
+                         DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}"
+                         Style="{ThemeResource HomeContentProgressBarStyle}" Value="{Binding Path=PlayPercentage}">
+              <ProgressBar.IsVisible>
+                <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}({0} != 0) &amp;&amp; ({0} != 100)">
+                  <Binding Path="PlayPercentage"/>
+                </MultiBinding>
+              </ProgressBar.IsVisible>
+            </ProgressBar>
+          </ControlTemplate>
+        </media:UserDataWrapper.Template>
+      </media:UserDataWrapper>
     </Grid>
   </ControlTemplate>
 
@@ -262,7 +306,7 @@
   <!--Template for an album cover-->
 
   <ControlTemplate x:Key="AudioCoverTileTemplate">
-    <Grid x:Name="ItemControl">
+    <Grid x:Name="ItemControl" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
       <Grid.ColumnDefinitions>
         <ColumnDefinition Width="*"/>
       </Grid.ColumnDefinitions>
@@ -271,16 +315,45 @@
         <RowDefinition Height="60"/>
       </Grid.RowDefinitions>
 
+      <!-- Background fill -->
       <Rectangle Grid.Row="0" Grid.Column="0" Grid.RowSpan="2"
-                 x:Name="HomeFill" Fill="black" Opacity="0.4" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
+                   x:Name="HomeFill" Fill="black" Opacity="0.4" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
 
-      <Image Grid.Row="0" Grid.Column="0" Grid.RowSpan="2" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Stretch="Fill">
-        <Image.Source>
-          <fanart:FanArtImageSource fanart:FanArtMediaType="Album" fanart:FanArtType="Poster" fanart:FanArtName="{Binding Source={Binding MediaItem}, Path=MediaItemId}"
-                    fanart:MaxWidth="{StaticResource PosterChacheWidth}" fanart:MaxHeight="{StaticResource PosterChacheWidth}"/>
-        </Image.Source>
-      </Image>
+      <!-- Image -->
+      <Image Grid.Row="0" Grid.Column="0" Grid.RowSpan="2" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Stretch="UniformToFill"
+             Source="{Binding MediaItem}"/>
 
+      <!-- Darkened band -->
+      <Rectangle Grid.Row="1" Grid.Column="0" Fill="#FF000000" Opacity="0.749"
+                 HorizontalAlignment="Stretch" VerticalAlignment="Stretch" />
+
+      <!-- Item label -->
+      <Label Grid.Row="1" Grid.Column="0" x:Name="ItemLabel" HorizontalAlignment="Center" VerticalAlignment="Center" Content="{Binding SimpleTitle}"
+             FontSize="{ThemeResource BigFontSize}" Color="{ThemeResource TextColor}" Margin="5,0,5,5" ScrollDelay="0">
+        <Label.Scroll>
+          <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
+            <Binding RelativeSource="{RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}}" Path="HasFocus"/>
+            <Binding Source="Auto"/>
+            <Binding Source="None"/>
+          </MultiBinding>
+        </Label.Scroll>
+      </Label>
+
+      <media:UserDataWrapper MediaItem="{Binding MediaItem}" Grid.Row="1" HorizontalAlignment="Stretch" VerticalAlignment="Bottom">
+        <media:UserDataWrapper.Template>
+          <ControlTemplate>
+            <ProgressBar Height="16" HorizontalAlignment="Stretch" VerticalAlignment="Bottom"
+                         DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}"
+                         Style="{ThemeResource HomeContentProgressBarStyle}" Value="{Binding Path=PlayPercentage}">
+              <ProgressBar.IsVisible>
+                <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}({0} != 0) &amp;&amp; ({0} != 100)">
+                  <Binding Path="PlayPercentage"/>
+                </MultiBinding>
+              </ProgressBar.IsVisible>
+            </ProgressBar>
+          </ControlTemplate>
+        </media:UserDataWrapper.Template>
+      </media:UserDataWrapper>
     </Grid>
   </ControlTemplate>
 
@@ -1781,7 +1854,7 @@
               IsEnabled="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=IsEnabled}"
               ItemsSource="{Binding Items}">
       <ListView.Resources>
-        <ResourceWrapper x:Key="Square_Tile_Template" Value="{ThemeResource SquareTileTemplate}"/>
+        <ResourceWrapper x:Key="Square_Tile_Template" Value="{ThemeResource AudioCoverTileTemplate}"/>
         <ResourceWrapper x:Key="Thumbnail_Tile_Template" Value="{ThemeResource SquareTileTemplate}"/>
         <ResourceWrapper x:Key="Poster_Tile_Template" Value="{ThemeResource SeriesPosterTileTemplate}"/>
         <ResourceWrapper x:Key="Banner_Tile_Template" Value="{ThemeResource SeriesBannerTileTemplate}"/>
