@@ -32,5 +32,9 @@
   <string name="Nereus.Home.CurrentSchedules">Current Schedules</string>
   <string name="Nereus.Home.Favorites">Favorites</string>
   <string name="Nereus.Home.Unplayed">Unplayed</string>
+  <string name="Nereus.Home.CurrentWeather">Current</string>
+  <string name="Nereus.Home.Forecast">Forecast</string>
+  <string name="Nereus.Home.News">News</string>
+  <string name="Nereus.Home.TopNews">Top News</string>
 
 </resources>

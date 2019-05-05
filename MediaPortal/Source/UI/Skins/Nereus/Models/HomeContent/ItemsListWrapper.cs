@@ -48,6 +48,10 @@ namespace MediaPortal.UiComponents.Nereus.Models.HomeContent
     protected IList<ListItem> _itemsList;
     protected IObservable _observable;
 
+    public ItemsListWrapper(IList<ListItem> itemsList)
+      : this(itemsList, string.Empty)
+    { }
+
     public ItemsListWrapper(IList<ListItem> itemsList, string name)
       : base(Consts.KEY_NAME, name)
     {

@@ -1,7 +1,7 @@
-﻿#region Copyright (C) 2007-2018 Team MediaPortal
+#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2018 Team MediaPortal
+    Copyright (C) 2007-2017 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -23,21 +23,28 @@
 #endregion
 
 using MediaPortal.UI.Presentation.DataObjects;
-using System.Collections.Generic;
+using MediaPortal.UI.SkinEngine.MpfElements.Converters;
+using MediaPortal.UiComponents.Nereus.Models.HomeContent;
+using System;
+using System.Globalization;
 
-namespace MediaPortal.UiComponents.Nereus.Models.HomeContent
+namespace MediaPortal.UiComponents.Nereus.Converters
 {
-  public class MediaShortcutListWrapper : ItemsListWrapper
+  public class ListToGridConverter : AbstractSingleDirectionConverter
   {
-    public MediaShortcutListWrapper(IList<ListItem> itemsList)
-      : base(itemsList)
+    public override bool Convert(object val, Type targetType, object parameter, CultureInfo culture, out object result)
     {
+      // We can only work on ItemsLists
+      ItemsList list = val as ItemsList;
+      if (list == null)
+      {
+        result = null;
+        return false;
+      }
 
-    }
-
-    public IList<ListItem> Items
-    {
-      get { return _itemsList; }
+      string name = parameter as string;
+      result = new ItemsListWrapper(list, string.IsNullOrEmpty(name) ? string.Empty : name);
+      return true;
     }
   }
 }

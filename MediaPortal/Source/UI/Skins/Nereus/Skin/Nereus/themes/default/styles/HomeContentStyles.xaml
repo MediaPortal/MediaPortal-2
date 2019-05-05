@@ -44,6 +44,7 @@
   <Model x:Key="TimeModel" Id="E821B1C8-0666-4339-8027-AA45A4F6F107"/>
 
   <nereus_converters:RoundingFormatConverter x:Key="RoundingFormatConverter"/>
+  <nereus_converters:ListToGridConverter x:Key="ListToGridConverter"/>
 
   <Style x:Key="HomeContentProgressBarStyle" TargetType="{x:Type ProgressBar}">
     <Setter Property="Template">
@@ -1865,7 +1866,7 @@
 
   <!--++++++++++ News +++++++++++-->
 
-  <DataTemplate x:Key="FeedDataTemplate" DataType="{x:Type collections:ListItem}">
+  <ControlTemplate x:Key="FeedDataTemplate" TargetType="{x:Type Control}">
     <Grid Background="Red">
       <Grid.ColumnDefinitions>
         <ColumnDefinition Width="*"/>
@@ -1876,50 +1877,57 @@
       <Label x:Name="ItemLabel" FontSize="{ThemeResource SmallFontSize}"
              Color="{ThemeResource TextColor}" Content="{Binding Title}"/>
     </Grid>
-  </DataTemplate>
+  </ControlTemplate>
 
-  <DataTemplate DataType="{x:Type nereus_home_content:NewsHomeContent}">
-    <DataTemplate.Resources>
-         <Style x:Key="NewsFeedsStyle" BasedOn="{ThemeResource MenuListViewStyle}">
-        <Setter Property="ItemTemplate" Value="{ThemeResource FeedDataTemplate}"/>
-        <Setter Property="Background" Value="Blue"/>
-      </Style>     
-    </DataTemplate.Resources>
-
-    <ListView HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Style="{ThemeResource NewsFeedsStyle}"
-              IsEnabled="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=IsEnabled}"
-              DataContext="{Binding Source={StaticResource CurrentNewsModel}}"
-              ItemsSource="{Binding CurrentNewsFeeds}">
-      <ListView.Resources>
-
-      </ListView.Resources>
-    </ListView>
-
-  </DataTemplate>
-
-  <!--DataTemplate DataType="{x:Type nereus_home_content:NewsHomeContent}">
-    <Grid Margin="0,70,0,0" Height="350" Width="980" HorizontalAlignment="Left" VerticalAlignment="Top"
-          DataContext="{Binding Source={StaticResource CurrentNewsModel}}">
+  <ControlTemplate x:Key="TopNewsDataTemplate" TargetType="{x:Type Control}">
+    <Grid Background="Red">
       <Grid.ColumnDefinitions>
-        <ColumnDefinition Width="*" />
+        <ColumnDefinition Width="*"/>
       </Grid.ColumnDefinitions>
       <Grid.RowDefinitions>
-        <RowDefinition Height="Auto" />
-        <RowDefinition Height="*" />
-        <RowDefinition Height="Auto" />
+        <RowDefinition Height="*"/>
       </Grid.RowDefinitions>
-
-      <Label Grid.Row="0" x:Name="News" FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColor}" Wrap="True"
-             Content="{Binding CurrentNewsItem.Title}" FontFamily="SegoeUIBold" HorizontalAlignment="Stretch"/>
-      <Label Grid.Row="1" Margin="0,10,0,20" x:Name="NewSummary" Wrap="True"
-             Content="{Binding CurrentNewsItem.Summary}" HorizontalAlignment="Stretch" Opacity="1.3"
-             Color="{ThemeResource MenuTextBackground}" FontSize="{ThemeResource SmallFontSize}"/>
+      <Label x:Name="ItemLabel" FontSize="{ThemeResource SmallFontSize}"
+             Color="{ThemeResource TextColor}" Content="{Binding Title}"/>
     </Grid>
-  </-->
+  </ControlTemplate>
+
+  <DataTemplate DataType="{x:Type nereus_home_content:NewsHomeContent}">
+
+    <StackPanel Orientation="Horizontal" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+                DataContext="{Binding Source={StaticResource CurrentNewsModel}}">
+
+      <!-- Feeds -->
+
+      <!-- For mysterious reasons we have to bind the list to the Context property,
+           rather than DataContext, to get the converter to run -->
+      <Control Context="{Binding Path=CurrentNewsFeeds, Converter={StaticResource ListToGridConverter}, ConverterParameter=[Nereus.Home.News]}"
+               Style="{ThemeResource MediaGridTemplateStyle}" Width="{ThemeResource TileGroupWidthWide}">
+        <Control.Resources>
+          <ResourceWrapper x:Key="Thumbnail_Tile_Template" Value="{ThemeResource FeedDataTemplate}"/>
+          <ResourceWrapper x:Key="Tile_Layout_Template" Value="{ThemeResource ThumbnailTileLayout3Template}"/>
+        </Control.Resources>
+      </Control>
+
+      <!-- Top news -->
+
+      <!-- For mysterious reasons we have to bind the list to the Context property,
+           rather than DataContext, to get the converter to run -->
+      <Control Context="{Binding Path=CurrentTopNewsItems, Converter={StaticResource ListToGridConverter}, ConverterParameter=[Nereus.Home.TopNews]}"
+               Style="{ThemeResource MediaGridTemplateStyle}" Width="{ThemeResource TileGroupWidthWide}">
+        <Control.Resources>
+          <ResourceWrapper x:Key="Thumbnail_Tile_Template" Value="{ThemeResource TopNewsDataTemplate}"/>
+          <ResourceWrapper x:Key="Tile_Layout_Template" Value="{ThemeResource ThumbnailTileLayout3Template}"/>
+        </Control.Resources>
+      </Control>
+
+    </StackPanel>
+
+  </DataTemplate>
 
   <!--++++++++++ Weather +++++++++++-->
 
-  <DataTemplate DataType="{x:Type nereus_home_content:WeatherHomeContent}">
+  <!--<DataTemplate DataType="{x:Type nereus_home_content:WeatherHomeContent}">
     <Grid DataContext="{Binding Source={StaticResource CurrentWeatherModel}}" VerticalAlignment="Top" Margin="0,70,0,0">
       <Grid.ColumnDefinitions>
         <ColumnDefinition Width="Auto" />
@@ -1951,6 +1959,74 @@
         </StackPanel>
       </StackPanel>
     </Grid>
+  </DataTemplate>-->
+
+  <ControlTemplate x:Key="CurrentWeatherControlTemplate">
+    <Grid Background="Red">
+      <Grid.ColumnDefinitions>
+        <ColumnDefinition Width="*"/>
+      </Grid.ColumnDefinitions>
+      <Grid.RowDefinitions>
+        <RowDefinition Height="*"/>
+      </Grid.RowDefinitions>
+      
+      <Label x:Name="ItemLabel" FontSize="{ThemeResource SmallFontSize}"
+             Color="{ThemeResource TextColor}" Content="{Binding CurrentLocation.Condition.Temperature}"/>
+      
+    </Grid>
+  </ControlTemplate>
+
+  <ControlTemplate x:Key="CurrentWeatherTileTemplate" TargetType="{x:Type Control}">
+    <DockPanel x:Name="MediaGridPanel" Margin="{ThemeResource TileGroupMargin}"
+               Height="{ThemeResource TileGroupHeight}">
+
+      <Label x:Name="Label" FontFamily="SegoeUIBold" DockPanel.Dock="Top" HorizontalAlignment="Left"
+             Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallerFontSize}"
+             Content="[Nereus.Home.CurrentWeather]"/>
+
+      <Control x:Name="Tile" Template="{ThemeResource ThumbnailTileLargeContainerTemplate}"/>
+
+    </DockPanel>
+  </ControlTemplate>
+
+  <ControlTemplate x:Key="DayForecastControlTemplate" TargetType="{x:Type Control}">
+    <Grid Background="Red">
+      <Grid.ColumnDefinitions>
+        <ColumnDefinition Width="*"/>
+      </Grid.ColumnDefinitions>
+      <Grid.RowDefinitions>
+        <RowDefinition Height="*"/>
+      </Grid.RowDefinitions>
+      <Label x:Name="ItemLabel" FontSize="{ThemeResource SmallFontSize}"
+             Color="{ThemeResource TextColor}" Content="{Binding Day}"/>
+    </Grid>
+  </ControlTemplate>
+
+  <DataTemplate DataType="{x:Type nereus_home_content:WeatherHomeContent}">
+    <StackPanel Orientation="Horizontal" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+                DataContext="{Binding Source={StaticResource CurrentWeatherModel}}">
+
+      <!-- Current weather -->
+
+      <Control Template="{ThemeResource CurrentWeatherTileTemplate}" Width="{ThemeResource TileGroupWidthMedium}">
+        <Control.Resources>
+          <ResourceWrapper x:Key="Thumbnail_Tile_Template" Value="{ThemeResource CurrentWeatherControlTemplate}"/>
+        </Control.Resources>
+      </Control>
+
+      <!-- Daily forecast grid-->
+      
+      <!-- For mysterious reasons we have to bind the list to the Context property,
+           rather than DataContext, to get the converter to run -->
+      <Control Context="{Binding Path=CurrentLocation.ForecastCollection, Converter={StaticResource ListToGridConverter}, ConverterParameter=[Nereus.Home.Forecast]}"
+               Style="{ThemeResource MediaGridTemplateStyle}" Width="{ThemeResource TileGroupWidthWide}">
+        <Control.Resources>
+          <ResourceWrapper x:Key="Thumbnail_Tile_Template" Value="{ThemeResource DayForecastControlTemplate}"/>
+          <ResourceWrapper x:Key="Tile_Layout_Template" Value="{ThemeResource ThumbnailTileLayout1Template}"/>
+        </Control.Resources>
+      </Control>
+
+    </StackPanel>
   </DataTemplate>
 
   <!--++++++++++ TV +++++++++++-->
