@@ -803,6 +803,26 @@
 
   </ControlTemplate>
 
+  <ControlTemplate x:Key="PosterTileMediumContainerTemplate">
+    <ControlTemplate.Resources>
+
+      <!--Poster shadow-->
+      <ControlTemplate x:Key="ContentShadowTemplate">
+        <Image Source="poster_medium.png" Stretch="Fill"/>
+      </ControlTemplate>
+
+      <!--Poster tile template-->
+      <ControlTemplate x:Key="ContentControlTemplate">
+        <Control Template="{DynamicResource Poster_Tile_Template}"/>
+      </ControlTemplate>
+
+    </ControlTemplate.Resources>
+
+    <!--Actual container for the tile that displays the template-->
+    <Control Template="{ThemeResource TileButtonTemplate}"/>
+
+  </ControlTemplate>
+
   <ControlTemplate x:Key="PosterTileSmallContainerTemplate">
     <ControlTemplate.Resources>
 
@@ -1098,7 +1118,7 @@
     </Grid>
   </ControlTemplate>
 
-  <!-- 6 square tiles, 2 large and 4 small -->
+  <!-- 6 thumbnail tiles, 2 large and 4 small -->
   <ControlTemplate x:Key="ThumbnailTileLayout1Template">
     <Grid>
       <Grid.ColumnDefinitions>
@@ -1472,6 +1492,52 @@
                DataContext="{Binding Item6}"
                IsVisible="{Binding Converter={StaticResource ReferenceToBoolConverter}}"/>
 
+    </Grid>
+  </ControlTemplate>
+
+  <!-- 6 equal poster tiles in two rows -->
+  <ControlTemplate x:Key="PosterTileLayout4Template">
+    <Grid>
+      <Grid.ColumnDefinitions>
+        <ColumnDefinition Width="*"/>
+        <ColumnDefinition Width="*"/>
+        <ColumnDefinition Width="*"/>
+      </Grid.ColumnDefinitions>
+
+      <Grid.RowDefinitions>
+        <RowDefinition Height="*"/>
+        <RowDefinition Height="*"/>
+      </Grid.RowDefinitions>
+
+      <Control x:Name="Tile1" Grid.Column="0" Grid.Row="0" 
+               Template="{ThemeResource PosterTileMediumContainerTemplate}"
+               DataContext="{Binding Item1}"
+               IsVisible="{Binding Converter={StaticResource ReferenceToBoolConverter}}"/>
+
+      <Control x:Name="Tile2" Grid.Column="1" Grid.Row="0" 
+               Template="{ThemeResource PosterTileMediumContainerTemplate}"
+               DataContext="{Binding Item2}"
+               IsVisible="{Binding Converter={StaticResource ReferenceToBoolConverter}}"/>
+
+      <Control x:Name="Tile3" Grid.Column="2" Grid.Row="0"
+               Template="{ThemeResource PosterTileMediumContainerTemplate}"
+               DataContext="{Binding Item3}"
+               IsVisible="{Binding Converter={StaticResource ReferenceToBoolConverter}}"/>
+
+      <Control x:Name="Tile4" Grid.Column="0" Grid.Row="1"
+               Template="{ThemeResource PosterTileMediumContainerTemplate}"
+               DataContext="{Binding Item4}"
+               IsVisible="{Binding Converter={StaticResource ReferenceToBoolConverter}}"/>
+
+      <Control x:Name="Tile5" Grid.Column="1" Grid.Row="1"
+               Template="{ThemeResource PosterTileMediumContainerTemplate}"
+               DataContext="{Binding Item5}"
+               IsVisible="{Binding Converter={StaticResource ReferenceToBoolConverter}}"/>
+
+      <Control x:Name="Tile6" Grid.Column="2" Grid.Row="1" 
+               Template="{ThemeResource PosterTileMediumContainerTemplate}"
+               DataContext="{Binding Item6}"
+               IsVisible="{Binding Converter={StaticResource ReferenceToBoolConverter}}"/>
     </Grid>
   </ControlTemplate>
 
@@ -1867,28 +1933,59 @@
   <!--++++++++++ News +++++++++++-->
 
   <ControlTemplate x:Key="FeedDataTemplate" TargetType="{x:Type Control}">
-    <Grid Background="Red">
+    <Grid Background="{ThemeResource NereusColorMedium}">
       <Grid.ColumnDefinitions>
         <ColumnDefinition Width="*"/>
       </Grid.ColumnDefinitions>
       <Grid.RowDefinitions>
         <RowDefinition Height="*"/>
+        <RowDefinition Height="60"/>
       </Grid.RowDefinitions>
-      <Label x:Name="ItemLabel" FontSize="{ThemeResource SmallFontSize}"
-             Color="{ThemeResource TextColor}" Content="{Binding Title}"/>
+      
+      <Image Stretch="Uniform" Source="{Binding Icon}" FallbackSource="RssIcon.png" Margin="10"
+             VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
+
+      <!-- Darkened band -->
+      <Rectangle Grid.Row="1" Grid.Column="0" Fill="#FF000000" Opacity="0.4"
+                 HorizontalAlignment="Stretch" VerticalAlignment="Stretch" />
+
+      <Label x:Name="ItemLabel" FontSize="{ThemeResource SmallFontSize}" Grid.Row="1" ScrollDelay="0"
+             Color="{ThemeResource TextColor}" Content="{Binding Title}" Margin="10,5,10,10"
+             VerticalAlignment="Center" HorizontalAlignment="Stretch">
+        <Label.Scroll>
+          <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
+            <Binding RelativeSource="{RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}}" Path="HasFocus"/>
+            <Binding Source="Auto"/>
+            <Binding Source="None"/>
+          </MultiBinding>
+        </Label.Scroll>
+      </Label>
     </Grid>
   </ControlTemplate>
 
   <ControlTemplate x:Key="TopNewsDataTemplate" TargetType="{x:Type Control}">
-    <Grid Background="Red">
+    <Grid Background="{ThemeResource NereusColorMedium}">
       <Grid.ColumnDefinitions>
+        <ColumnDefinition Width="*"/>
         <ColumnDefinition Width="*"/>
       </Grid.ColumnDefinitions>
       <Grid.RowDefinitions>
         <RowDefinition Height="*"/>
       </Grid.RowDefinitions>
-      <Label x:Name="ItemLabel" FontSize="{ThemeResource SmallFontSize}"
-             Color="{ThemeResource TextColor}" Content="{Binding Title}"/>
+
+      <Label x:Name="ItemLabel" FontSize="{ThemeResource SmallFontSize}" Margin="10" Wrap="True"
+             Color="{ThemeResource TextColor}" Content="{Binding Title}" ScrollDelay="0">
+        <Label.Scroll>
+          <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
+            <Binding RelativeSource="{RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}}" Path="HasFocus"/>
+            <Binding Source="Auto"/>
+            <Binding Source="None"/>
+          </MultiBinding>
+        </Label.Scroll>
+      </Label>
+      <Image Grid.Column="1" x:Name="thumb" Stretch="UniformToFill" Source="{Binding Thumb}"
+             HorizontalAlignment="Right" VerticalAlignment="Center"/>
+
     </Grid>
   </ControlTemplate>
 
@@ -1896,16 +1993,15 @@
 
     <StackPanel Orientation="Horizontal" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
                 DataContext="{Binding Source={StaticResource CurrentNewsModel}}">
-
       <!-- Feeds -->
 
       <!-- For mysterious reasons we have to bind the list to the Context property,
            rather than DataContext, to get the converter to run -->
       <Control Context="{Binding Path=CurrentNewsFeeds, Converter={StaticResource ListToGridConverter}, ConverterParameter=[Nereus.Home.News]}"
-               Style="{ThemeResource MediaGridTemplateStyle}" Width="{ThemeResource TileGroupWidthWide}">
+               Style="{ThemeResource MediaGridTemplateStyle}" Width="{ThemeResource TileGroupWidthVeryNarrow}">
         <Control.Resources>
-          <ResourceWrapper x:Key="Thumbnail_Tile_Template" Value="{ThemeResource FeedDataTemplate}"/>
-          <ResourceWrapper x:Key="Tile_Layout_Template" Value="{ThemeResource ThumbnailTileLayout3Template}"/>
+          <ResourceWrapper x:Key="Square_Tile_Template" Value="{ThemeResource FeedDataTemplate}"/>
+          <ResourceWrapper x:Key="Tile_Layout_Template" Value="{ThemeResource SquareTileLayout3Template}"/>
         </Control.Resources>
       </Control>
 
@@ -1927,52 +2023,35 @@
 
   <!--++++++++++ Weather +++++++++++-->
 
-  <!--<DataTemplate DataType="{x:Type nereus_home_content:WeatherHomeContent}">
-    <Grid DataContext="{Binding Source={StaticResource CurrentWeatherModel}}" VerticalAlignment="Top" Margin="0,70,0,0">
-      <Grid.ColumnDefinitions>
-        <ColumnDefinition Width="Auto" />
-        <ColumnDefinition Width="30" />
-        <ColumnDefinition Width="Auto" />
-      </Grid.ColumnDefinitions>
-      <Grid.RowDefinitions>
-        <RowDefinition Height="Auto" />
-        <RowDefinition Height="Auto" />
-      </Grid.RowDefinitions>
-
-      <Label x:Name="Temperature" FontSize="{ThemeResource HugeFontSize}" Color="{ThemeResource TextColor}" 
-             Content="{Binding CurrentLocation.Condition.Temperature}" HorizontalAlignment="Center"/>
-      <Label Grid.Column="2" x:Name="LocName" FontSize="{ThemeResource HugeFontSize}" Color="{ThemeResource TextColor}" Content="{Binding CurrentLocation.Name}"/>
-      <Image Grid.Row="1" x:Name="BigIcon" Stretch="Fill" Height="175" Width="175" HorizontalAlignment="Center" VerticalAlignment="Center"
-             Source="{Binding CurrentLocation.Condition.BigIconProperty}"/>
-
-      <StackPanel Grid.Row="1" Grid.Column="2">
-        <Label x:Name="Date" FontSize="{ThemeResource NormalFontSize}"
-               Content="{Binding Source={StaticResource TimeModel}, Path=CurrentDate}" Color="{ThemeResource TextColor}"/>
-        <Label x:Name="Wind" FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource MenuTextBackground}" 
-               Content="{Binding CurrentLocation.Condition.Wind}" Opacity="1.3"/>
-        <StackPanel Orientation="Horizontal">
-          <Label x:Name="Humidity" FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource MenuTextBackground}" 
-                 Content="{Binding CurrentLocation.Condition.Humidity}" Opacity="1.3"/>
-          <Label FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource MenuTextBackground}" Content="   " Opacity="1.3"/>
-          <Label x:Name="Pressure" FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource MenuTextBackground}" 
-                 Content="{Binding CurrentLocation.Condition.Pressure}" Opacity="1.3"/>
-        </StackPanel>
-      </StackPanel>
-    </Grid>
-  </DataTemplate>-->
-
   <ControlTemplate x:Key="CurrentWeatherControlTemplate">
-    <Grid Background="Red">
+    <Grid Background="{ThemeResource NereusColorMedium}">
       <Grid.ColumnDefinitions>
         <ColumnDefinition Width="*"/>
       </Grid.ColumnDefinitions>
       <Grid.RowDefinitions>
         <RowDefinition Height="*"/>
       </Grid.RowDefinitions>
-      
-      <Label x:Name="ItemLabel" FontSize="{ThemeResource SmallFontSize}"
-             Color="{ThemeResource TextColor}" Content="{Binding CurrentLocation.Condition.Temperature}"/>
-      
+
+      <StackPanel Orientation="Vertical" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="20">
+        <Label FontSize="90" 
+               Color="{ThemeResource TextColor}" Content="{Binding CurrentLocation.Condition.Temperature}"/>
+        <Label x:Name="Date" FontSize="{ThemeResource NormalFontSize}"
+               Content="{Binding Source={StaticResource TimeModel}, Path=CurrentDate}" Color="{ThemeResource TextColor}"/>
+        <Label FontSize="{ThemeResource HugeFontSize}" Color="{ThemeResource TextColor}" Content="{Binding CurrentLocation.Name}"/>
+      </StackPanel>
+
+      <Image x:Name="BigIcon" Stretch="Fill" Height="300" Width="300" HorizontalAlignment="Right" VerticalAlignment="Center"
+             Source="{Binding CurrentLocation.Condition.BigIconProperty}" Margin="50"/>
+
+      <StackPanel Orientation="Vertical" HorizontalAlignment="Left" VerticalAlignment="Bottom" Margin="20">
+        <Label x:Name="Wind" FontSize="{ThemeResource NormalFontSize}" Color="{ThemeResource TextColor}" 
+               Content="{Binding CurrentLocation.Condition.Wind}" Opacity="0.6"/>
+        <Label x:Name="Humidity" FontSize="{ThemeResource NormalFontSize}" Color="{ThemeResource TextColor}" 
+               Content="{Binding CurrentLocation.Condition.Humidity}" Opacity="0.6"/>
+        <Label x:Name="Pressure" FontSize="{ThemeResource NormalFontSize}" Color="{ThemeResource TextColor}" 
+               Content="{Binding CurrentLocation.Condition.Pressure}" Opacity="0.6"/>
+      </StackPanel>
+
     </Grid>
   </ControlTemplate>
 
@@ -1990,15 +2069,31 @@
   </ControlTemplate>
 
   <ControlTemplate x:Key="DayForecastControlTemplate" TargetType="{x:Type Control}">
-    <Grid Background="Red">
+    <Grid Background="{ThemeResource NereusColorMedium}">
       <Grid.ColumnDefinitions>
         <ColumnDefinition Width="*"/>
       </Grid.ColumnDefinitions>
       <Grid.RowDefinitions>
         <RowDefinition Height="*"/>
       </Grid.RowDefinitions>
-      <Label x:Name="ItemLabel" FontSize="{ThemeResource SmallFontSize}"
-             Color="{ThemeResource TextColor}" Content="{Binding Day}"/>
+      <StackPanel VerticalAlignment="Center" Margin="5" HorizontalAlignment="Center">
+        <Label FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColor}" Content="{Binding Day}" 
+               HorizontalAlignment="Center" Opacity="0.6"/>
+        <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="10" HorizontalAlignment="Stretch">
+          <StackPanel Orientation="Vertical" Margin="5" HorizontalAlignment="Stretch">
+            <Image Stretch="Uniform" Source="{Binding BigIconProperty}" Height="160" HorizontalAlignment="Center"/>
+            <StackPanel Orientation="Horizontal" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="5">
+              <Image Source="temp_measure.png" Stretch="Uniform" Width="42" Margin="0,1,15,-1"/>
+              <StackPanel Orientation="Vertical" VerticalAlignment="Center">
+                <Label FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColor}"
+                       Content="{Binding High}" HorizontalAlignment="Center"/>
+                <Label FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColor}"
+                       Content="{Binding Low}" HorizontalAlignment="Center"/>
+              </StackPanel>
+            </StackPanel>
+          </StackPanel>
+        </StackPanel>
+      </StackPanel>
     </Grid>
   </ControlTemplate>
 
@@ -2008,7 +2103,7 @@
 
       <!-- Current weather -->
 
-      <Control Template="{ThemeResource CurrentWeatherTileTemplate}" Width="{ThemeResource TileGroupWidthMedium}">
+      <Control Template="{ThemeResource CurrentWeatherTileTemplate}" Width="{ThemeResource TileGroupWidthMedium}" Margin="-20,0,0,0">
         <Control.Resources>
           <ResourceWrapper x:Key="Thumbnail_Tile_Template" Value="{ThemeResource CurrentWeatherControlTemplate}"/>
         </Control.Resources>
@@ -2021,8 +2116,8 @@
       <Control Context="{Binding Path=CurrentLocation.ForecastCollection, Converter={StaticResource ListToGridConverter}, ConverterParameter=[Nereus.Home.Forecast]}"
                Style="{ThemeResource MediaGridTemplateStyle}" Width="{ThemeResource TileGroupWidthWide}">
         <Control.Resources>
-          <ResourceWrapper x:Key="Thumbnail_Tile_Template" Value="{ThemeResource DayForecastControlTemplate}"/>
-          <ResourceWrapper x:Key="Tile_Layout_Template" Value="{ThemeResource ThumbnailTileLayout1Template}"/>
+          <ResourceWrapper x:Key="Poster_Tile_Template" Value="{ThemeResource DayForecastControlTemplate}"/>
+          <ResourceWrapper x:Key="Tile_Layout_Template" Value="{ThemeResource PosterTileLayout4Template}"/>
         </Control.Resources>
       </Control>
 
