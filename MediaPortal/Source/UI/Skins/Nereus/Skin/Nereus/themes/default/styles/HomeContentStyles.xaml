@@ -19,6 +19,8 @@
   <ResourceWrapper x:Key="TileGroupWidthNarrow" Resource="650" />
   <ResourceWrapper x:Key="TileGroupWidthMedium" Resource="760" />
   <ResourceWrapper x:Key="TileGroupWidthWide" Resource="900" />
+  <ResourceWrapper x:Key="TileGroupWidthVeryWide" Resource="1050" />
+
 
   <!--Sizes of each tile-->
   <ResourceWrapper x:Key="PosterChacheWidth" Resource="334" />
@@ -549,25 +551,6 @@
             <Control x:Name="ItemShadow" Template="{DynamicResource ContentShadowTemplate}"/>
             <Control Margin="8" x:Name="ContentControl" Template="{DynamicResource ResourceKey=ContentControlTemplate}" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
             <Control Margin="8" Style="{ThemeResource HomeTileButtonControlStyle}" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
-            <!--Label FontSize="18" Margin="8">
-              <Label.Content>
-                <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" 
-                              ConverterParameter="{}{0}/{1} &gt; 1.1 ? ({1} &gt; 210 ? {2}:{3}) : ({0}/{1} &gt; 0.85 ? ({0} &gt; 210 ? {4}:{5}) : ({0}/{1} &gt; 0.3 ? ({1} &gt; 300 ? {6}:{7}) : ({1} &gt; 590 ? {8}:{9})))">
-                  <Binding RelativeSource="{RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}}" Path="ActualHeight"/>
-                  <Binding RelativeSource="{RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}}" Path="ActualWidth"/>
-                  <Binding Source="poster_shadow_large"/>
-                  <Binding Source="poster_shadow_small"/>
-                  <Binding Source="square_shadow_large"/>
-                  <Binding Source="square_shadow_small"/>
-                  <Binding Source="thumbnail_shadow_large"/>
-                  <Binding Source="thumbnail_shadow_small"/>
-                  <Binding Source="banner_shadow_large"/>
-                  <Binding Source="banner_shadow_small"/>
-                </MultiBinding>
-              </Label.Content>
-            </>
-            <Label Content="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}}, Path=ActualHeight}" Margin="8,30,8,8"/>
-            <Label Content="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}}, Path=ActualWidth}" Margin="8,60,8,8"/-->
           </Grid>
           <ControlTemplate.Triggers>
             <Trigger Property="HasFocus" Value="True">
@@ -721,208 +704,177 @@
   </ControlTemplate>
 
   <!--Base Template for all wide tiles-->
+  
   <ControlTemplate x:Key="WideTileContainerTemplate">
     <ControlTemplate.Resources>
-
       <!--Banner shadow-->
       <ControlTemplate x:Key="ContentShadowTemplate">
         <Image Source="wide_small.png" Stretch="Fill"/>
       </ControlTemplate>
-
       <!--Banner tile template-->
       <ControlTemplate x:Key="ContentControlTemplate">
         <Control Template="{DynamicResource Wide_Tile_Template}"/>
       </ControlTemplate>
-
     </ControlTemplate.Resources>
-
     <!--Actual container for the tile that displays the template-->
     <Control Template="{ThemeResource TileButtonTemplate}" />
-
   </ControlTemplate>
 
   <!--Base Template for all square tiles-->
+  
   <ControlTemplate x:Key="SquareTileLargeContainerTemplate">
     <ControlTemplate.Resources>
-
       <!--Square shadow-->
       <ControlTemplate x:Key="ContentShadowTemplate">
         <Image Source="square_large.png" Stretch="Fill"/>
       </ControlTemplate>
-
       <!--Square plugin tile-->
       <ControlTemplate x:Key="ContentControlTemplate">
         <Control Template="{DynamicResource Square_Tile_Template}"/>
       </ControlTemplate>
-
     </ControlTemplate.Resources>
-
     <!--Actual container for the tile that displays the template-->
     <Control Template="{ThemeResource TileButtonTemplate}" />
-
   </ControlTemplate>
   
   <ControlTemplate x:Key="SquareTileSmallContainerTemplate">
     <ControlTemplate.Resources>
-
       <!--Square shadow-->
       <ControlTemplate x:Key="ContentShadowTemplate">
         <Image Source="square_small.png" Stretch="Fill"/>
       </ControlTemplate>
-
       <!--Square plugin tile-->
       <ControlTemplate x:Key="ContentControlTemplate">
         <Control Template="{DynamicResource Square_Tile_Template}"/>
       </ControlTemplate>
-
     </ControlTemplate.Resources>
-
     <!--Actual container for the tile that displays the template-->
     <Control Template="{ThemeResource TileButtonTemplate}" />
-
   </ControlTemplate>
 
   <!--Base Template for all poster tiles-->
+  
   <ControlTemplate x:Key="PosterTileLargeContainerTemplate">
     <ControlTemplate.Resources>
-
       <!--Poster shadow-->
       <ControlTemplate x:Key="ContentShadowTemplate">
         <Image Source="poster_large.png" Stretch="Fill"/>
       </ControlTemplate>
-
       <!--Poster tile template-->
       <ControlTemplate x:Key="ContentControlTemplate">
         <Control Template="{DynamicResource Poster_Tile_Template}"/>
       </ControlTemplate>
-
     </ControlTemplate.Resources>
-
     <!--Actual container for the tile that displays the template-->
     <Control Template="{ThemeResource TileButtonTemplate}"/>
-
   </ControlTemplate>
 
   <ControlTemplate x:Key="PosterTileMediumContainerTemplate">
     <ControlTemplate.Resources>
-
       <!--Poster shadow-->
       <ControlTemplate x:Key="ContentShadowTemplate">
         <Image Source="poster_medium.png" Stretch="Fill"/>
       </ControlTemplate>
-
       <!--Poster tile template-->
       <ControlTemplate x:Key="ContentControlTemplate">
         <Control Template="{DynamicResource Poster_Tile_Template}"/>
       </ControlTemplate>
-
     </ControlTemplate.Resources>
-
     <!--Actual container for the tile that displays the template-->
     <Control Template="{ThemeResource TileButtonTemplate}"/>
-
   </ControlTemplate>
 
   <ControlTemplate x:Key="PosterTileSmallContainerTemplate">
     <ControlTemplate.Resources>
-
       <!--Poster shadow-->
       <ControlTemplate x:Key="ContentShadowTemplate">
         <Image Source="poster_small.png" Stretch="Fill"/>
       </ControlTemplate>
-
       <!--Poster tile template-->
       <ControlTemplate x:Key="ContentControlTemplate">
         <Control Template="{DynamicResource Poster_Tile_Template}"/>
       </ControlTemplate>
-
     </ControlTemplate.Resources>
-
     <!--Actual container for the tile that displays the template-->
     <Control Template="{ThemeResource TileButtonTemplate}"/>
-
   </ControlTemplate>
 
   <!--Base Template for all banner tiles-->
   <ControlTemplate x:Key="BannerTileLargeContainerTemplate">
     <ControlTemplate.Resources>
-
       <!--Banner shadow-->
       <ControlTemplate x:Key="ContentShadowTemplate">
         <Image Source="banner_large.png" Stretch="Fill"/>
       </ControlTemplate>
-
-      <!--Banner tile template-->
-        <ControlTemplate x:Key="ContentControlTemplate">
-          <Control Template="{DynamicResource Banner_Tile_Template}"/>
-        </ControlTemplate>
-
-      </ControlTemplate.Resources>
-
-    <!--Actual container for the tile that displays the template-->
-    <Control Template="{ThemeResource TileButtonTemplate}" />
-
-  </ControlTemplate>
-  
-  <ControlTemplate x:Key="BannerTileSmallContainerTemplate">
-    <ControlTemplate.Resources>
-
-      <!--Banner shadow-->
-      <ControlTemplate x:Key="ContentShadowTemplate">
-        <Image Source="banner_small.png" Stretch="Fill"/>
-      </ControlTemplate>
-
       <!--Banner tile template-->
       <ControlTemplate x:Key="ContentControlTemplate">
         <Control Template="{DynamicResource Banner_Tile_Template}"/>
       </ControlTemplate>
-
     </ControlTemplate.Resources>
-
     <!--Actual container for the tile that displays the template-->
     <Control Template="{ThemeResource TileButtonTemplate}" />
-
+  </ControlTemplate>
+  
+  <ControlTemplate x:Key="BannerTileSmallContainerTemplate">
+    <ControlTemplate.Resources>
+      <!--Banner shadow-->
+      <ControlTemplate x:Key="ContentShadowTemplate">
+        <Image Source="banner_small.png" Stretch="Fill"/>
+      </ControlTemplate>
+      <!--Banner tile template-->
+      <ControlTemplate x:Key="ContentControlTemplate">
+        <Control Template="{DynamicResource Banner_Tile_Template}"/>
+      </ControlTemplate>
+    </ControlTemplate.Resources>
+    <!--Actual container for the tile that displays the template-->
+    <Control Template="{ThemeResource TileButtonTemplate}" />
   </ControlTemplate>
 
   <!--Base Template for all Thumbnail tiles-->
+  
   <ControlTemplate x:Key="ThumbnailTileLargeContainerTemplate">
     <ControlTemplate.Resources>
-
       <!--Thumbnail shadow-->
       <ControlTemplate x:Key="ContentShadowTemplate">
         <Image Source="Thumbnail_large.png" Stretch="Fill"/>
       </ControlTemplate>
-
       <!--Thumbnail tile template-->
       <ControlTemplate x:Key="ContentControlTemplate">
         <Control Template="{DynamicResource Thumbnail_Tile_Template}"/>
       </ControlTemplate>
-
     </ControlTemplate.Resources>
-
     <!--Actual container for the tile that displays the template-->
     <Control Template="{ThemeResource TileButtonTemplate}" />
+  </ControlTemplate>
 
+  <ControlTemplate x:Key="ThumbnailTileMediumContainerTemplate">
+    <ControlTemplate.Resources>
+      <!--Thumbnail shadow-->
+      <ControlTemplate x:Key="ContentShadowTemplate">
+        <Image Source="Thumbnail_medium.png" Stretch="Fill"/>
+      </ControlTemplate>
+      <!--Thumbnail tile template-->
+      <ControlTemplate x:Key="ContentControlTemplate">
+        <Control Template="{DynamicResource Thumbnail_Tile_Template}"/>
+      </ControlTemplate>
+    </ControlTemplate.Resources>
+    <!--Actual container for the tile that displays the template-->
+    <Control Template="{ThemeResource TileButtonTemplate}" />
   </ControlTemplate>
 
   <ControlTemplate x:Key="ThumbnailTileSmallContainerTemplate">
     <ControlTemplate.Resources>
-
       <!--Thumbnail shadow-->
       <ControlTemplate x:Key="ContentShadowTemplate">
         <Image Source="Thumbnail_small.png" Stretch="Fill"/>
       </ControlTemplate>
-
       <!--Thumbnail tile template-->
       <ControlTemplate x:Key="ContentControlTemplate">
         <Control Template="{DynamicResource Thumbnail_Tile_Template}"/>
       </ControlTemplate>
-
     </ControlTemplate.Resources>
-
     <!--Actual container for the tile that displays the template-->
     <Control Template="{ThemeResource TileButtonTemplate}" />
-
   </ControlTemplate>
 
   <!--
@@ -1301,6 +1253,52 @@
       <Control x:Name="Tile5" Grid.Row="4"
                Template="{ThemeResource ThumbnailTileSmallContainerTemplate}"
                DataContext="{Binding Item5}"
+               IsVisible="{Binding Converter={StaticResource ReferenceToBoolConverter}}"/>
+    </Grid>
+  </ControlTemplate>
+
+  <!-- 6 equal thumbnail tiles in two rows -->
+  <ControlTemplate x:Key="ThumbnailTileLayout5Template">
+    <Grid>
+      <Grid.ColumnDefinitions>
+        <ColumnDefinition Width="*"/>
+        <ColumnDefinition Width="*"/>
+      </Grid.ColumnDefinitions>
+
+      <Grid.RowDefinitions>
+        <RowDefinition Height="*"/>
+        <RowDefinition Height="*"/>
+        <RowDefinition Height="*"/>
+      </Grid.RowDefinitions>
+
+      <Control x:Name="Tile1" Grid.Row="0" Grid.Column="0"
+               Template="{ThemeResource ThumbnailTileMediumContainerTemplate}"
+               DataContext="{Binding Item1}"
+               IsVisible="{Binding Converter={StaticResource ReferenceToBoolConverter}}"/>
+
+      <Control x:Name="Tile2" Grid.Row="0" Grid.Column="1"
+               Template="{ThemeResource ThumbnailTileMediumContainerTemplate}"
+               DataContext="{Binding Item2}"
+               IsVisible="{Binding Converter={StaticResource ReferenceToBoolConverter}}"/>
+
+      <Control x:Name="Tile3" Grid.Row="1" Grid.Column="0"
+               Template="{ThemeResource ThumbnailTileMediumContainerTemplate}"
+               DataContext="{Binding Item3}"
+               IsVisible="{Binding Converter={StaticResource ReferenceToBoolConverter}}"/>
+
+      <Control x:Name="Tile4" Grid.Row="1" Grid.Column="1"
+               Template="{ThemeResource ThumbnailTileMediumContainerTemplate}"
+               DataContext="{Binding Item4}"
+               IsVisible="{Binding Converter={StaticResource ReferenceToBoolConverter}}"/>
+
+      <Control x:Name="Tile5" Grid.Row="2" Grid.Column="0"
+               Template="{ThemeResource ThumbnailTileMediumContainerTemplate}"
+               DataContext="{Binding Item5}"
+               IsVisible="{Binding Converter={StaticResource ReferenceToBoolConverter}}"/>
+
+      <Control x:Name="Tile6" Grid.Row="2" Grid.Column="1"
+               Template="{ThemeResource ThumbnailTileMediumContainerTemplate}"
+               DataContext="{Binding Item6}"
                IsVisible="{Binding Converter={StaticResource ReferenceToBoolConverter}}"/>
     </Grid>
   </ControlTemplate>
@@ -1939,7 +1937,7 @@
       </Grid.ColumnDefinitions>
       <Grid.RowDefinitions>
         <RowDefinition Height="*"/>
-        <RowDefinition Height="60"/>
+        <RowDefinition Height="47"/>
       </Grid.RowDefinitions>
       
       <Image Stretch="Uniform" Source="{Binding Icon}" FallbackSource="RssIcon.png" Margin="10"
@@ -1950,7 +1948,7 @@
                  HorizontalAlignment="Stretch" VerticalAlignment="Stretch" />
 
       <Label x:Name="ItemLabel" FontSize="{ThemeResource SmallFontSize}" Grid.Row="1" ScrollDelay="0"
-             Color="{ThemeResource TextColor}" Content="{Binding Title}" Margin="10,5,10,10"
+             Color="{ThemeResource TextColor}" Content="{Binding Title}" Margin="10,0,10,1"
              VerticalAlignment="Center" HorizontalAlignment="Stretch">
         <Label.Scroll>
           <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
@@ -1971,9 +1969,33 @@
       </Grid.ColumnDefinitions>
       <Grid.RowDefinitions>
         <RowDefinition Height="*"/>
+        <RowDefinition Height="105"/>
       </Grid.RowDefinitions>
 
-      <Label x:Name="ItemLabel" FontSize="{ThemeResource SmallFontSize}" Margin="10" Wrap="True"
+      <Image Grid.ColumnSpan="2" Grid.RowSpan="2" x:Name="thumb" Stretch="UniformToFill" Source="{Binding Thumb}"
+             HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
+
+      <!-- Darkened band -->
+      <Rectangle Grid.Row="1" Grid.ColumnSpan="2" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+                 IsVisible="{Binding ElementName=thumb, Path=HasImage}">
+        <Rectangle.Fill>
+          <LinearGradientBrush StartPoint="0.5,1" EndPoint="0.5,0">
+            <GradientStop Color="#D8000000" Offset="0"/>
+            <GradientStop Color="#D8000000" Offset="0.75"/>
+            <GradientStop Color="#00000000" Offset="1"/>
+          </LinearGradientBrush>
+        </Rectangle.Fill>
+      </Rectangle>
+
+      <Image Stretch="Uniform" Margin="10,6,8,10" Height="50" VerticalAlignment="Top" HorizontalAlignment="Right" 
+             Grid.Column="2" Source="News.png"/>
+
+      <Label Content="{Binding PublishDate}" Color="{ThemeResource TextColor}" Margin="10,10,-50,10" FontFamily="SegoeUIBold"
+             IsVisible="{Binding ElementName=thumb, Path=!HasImage}" FontSize="{ThemeResource SmallFontSize}" />
+
+      <Label Grid.Row="1" Grid.ColumnSpan="2" x:Name="ItemLabel" FontSize="{ThemeResource SmallFontSize}" 
+             Margin="10,20,10,5" Wrap="True" VerticalAlignment="Stretch" HorizontalContentAlignment="Stretch"
+             IsVisible="{Binding ElementName=thumb, Path=HasImage}"
              Color="{ThemeResource TextColor}" Content="{Binding Title}" ScrollDelay="0">
         <Label.Scroll>
           <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
@@ -1982,9 +2004,34 @@
             <Binding Source="None"/>
           </MultiBinding>
         </Label.Scroll>
+        <Label.TextTrimming>
+          <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
+            <Binding RelativeSource="{RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}}" Path="HasFocus"/>
+            <Binding Source="None"/>
+            <Binding Source="CharacterEllipsis"/>
+          </MultiBinding>
+        </Label.TextTrimming>
       </Label>
-      <Image Grid.Column="1" x:Name="thumb" Stretch="UniformToFill" Source="{Binding Thumb}"
-             HorizontalAlignment="Right" VerticalAlignment="Center"/>
+
+      <Label Grid.RowSpan="2" Grid.ColumnSpan="2" x:Name="ItemLabel2" FontSize="{ThemeResource SmallFontSize}" 
+             Margin="10,60,10,10" Wrap="True" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Opacity="0.7"
+             IsVisible="{Binding ElementName=thumb, Path=!HasImage}" VerticalContentAlignment="Center"
+             Color="{ThemeResource TextColor}" Content="{Binding Title}" ScrollDelay="0">
+        <Label.Scroll>
+          <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
+            <Binding RelativeSource="{RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}}" Path="HasFocus"/>
+            <Binding Source="Auto"/>
+            <Binding Source="None"/>
+          </MultiBinding>
+        </Label.Scroll>
+        <Label.TextTrimming>
+          <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
+            <Binding RelativeSource="{RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}}" Path="HasFocus"/>
+            <Binding Source="None"/>
+            <Binding Source="CharacterEllipsis"/>
+          </MultiBinding>
+        </Label.TextTrimming>
+      </Label>
 
     </Grid>
   </ControlTemplate>
@@ -2010,10 +2057,10 @@
       <!-- For mysterious reasons we have to bind the list to the Context property,
            rather than DataContext, to get the converter to run -->
       <Control Context="{Binding Path=CurrentTopNewsItems, Converter={StaticResource ListToGridConverter}, ConverterParameter=[Nereus.Home.TopNews]}"
-               Style="{ThemeResource MediaGridTemplateStyle}" Width="{ThemeResource TileGroupWidthWide}">
+               Style="{ThemeResource MediaGridTemplateStyle}" Width="{ThemeResource TileGroupWidthVeryWide}">
         <Control.Resources>
           <ResourceWrapper x:Key="Thumbnail_Tile_Template" Value="{ThemeResource TopNewsDataTemplate}"/>
-          <ResourceWrapper x:Key="Tile_Layout_Template" Value="{ThemeResource ThumbnailTileLayout3Template}"/>
+          <ResourceWrapper x:Key="Tile_Layout_Template" Value="{ThemeResource ThumbnailTileLayout5Template}"/>
         </Control.Resources>
       </Control>
 
