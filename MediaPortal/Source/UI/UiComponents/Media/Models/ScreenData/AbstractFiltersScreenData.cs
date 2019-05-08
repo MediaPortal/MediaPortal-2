@@ -271,6 +271,8 @@ namespace MediaPortal.UiComponents.Media.Models.ScreenData
               _sortable &= filterValue.Item != null;
               string filterTitle = filterValue.Title;
               IFilter selectAttributeFilter = filterValue.SelectAttributeFilter;
+              MediaLibraryQueryViewSpecification subVS = currentVS.CreateSubViewSpecification(filterTitle,
+                FilterTreePath.Combine(_filterPath, filterValue.RelativeFilterPath), filterValue.Filter, filterValue.LinkedId);
               T filterValueItem = new T
               {
                 // Support non-playable MediaItems (i.e. Series, Seasons)
@@ -280,13 +282,12 @@ namespace MediaPortal.UiComponents.Media.Models.ScreenData
                 Id = filterValue.Id,
                 Command = new MethodDelegateCommand(() =>
                 {
-                  MediaLibraryQueryViewSpecification subVS = currentVS.CreateSubViewSpecification(filterTitle,
-                    FilterTreePath.Combine(_filterPath, filterValue.RelativeFilterPath), filterValue.Filter, filterValue.LinkedId);
                   if (grouping)
                     NavigateToGroup(subVS, selectAttributeFilter);
                   else
                     NavigateToSubView(subVS);
-                })
+                }),
+                View = subVS.BuildView()
               };
               itemsList.Add(filterValueItem);
               if (filterValue.NumItems.HasValue)

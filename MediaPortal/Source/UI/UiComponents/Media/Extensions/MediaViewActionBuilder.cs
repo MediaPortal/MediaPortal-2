@@ -1,4 +1,4 @@
-#region Copyright (C) 2007-2018 Team MediaPortal
+﻿#region Copyright (C) 2007-2018 Team MediaPortal
 
 /*
     Copyright (C) 2007-2018 Team MediaPortal
@@ -23,27 +23,31 @@
 #endregion
 
 using System;
+using MediaPortal.Common;
+using MediaPortal.Common.PluginManager;
+using MediaPortal.Common.Services.PluginManager.Builders;
+using MediaPortal.Common.UserManagement;
 using MediaPortal.Common.UserProfileDataManagement;
 
 namespace MediaPortal.UiComponents.Media.Extensions
 {
   /// <summary>
-  /// Plugin item builder for <c>MediaItemActionBuilder</c> plugin items.
+  /// Plugin item builder for <c>MediaViewActionBuilder</c> plugin items.
   /// </summary>
-  public class MediaItemActionBuilder : BaseActionBuilder<MediaItemActionExtension>
+  public class MediaViewActionBuilder : BaseActionBuilder<MediaViewActionExtension>
   {
-    public const string MEDIA_EXTENSION_PATH = "/Media/Extensions";
+    public const string MEDIA_EXTENSION_PATH = "/MediaView/Extensions";
 
-    public MediaItemActionBuilder()
-      : base((Type type, string caption, string sort, string restrictionGroup, string id) => new MediaItemActionExtension(type, caption, sort, restrictionGroup, id))
+    public MediaViewActionBuilder()
+      : base((Type type, string caption, string sort, string restrictionGroup, string id) => new MediaViewActionExtension(type, caption, sort, restrictionGroup, id))
     {
     }
   }
-  
+
   /// <summary>
-  /// <see cref="MediaItemActionExtension"/> holds extension metadata.
+  /// <see cref="MediaViewActionExtension"/> holds extension metadata.
   /// </summary>
-  public class MediaItemActionExtension : IUserRestriction
+  public class MediaViewActionExtension : IUserRestriction
   {
     /// <summary>
     /// Gets the registered type.
@@ -73,9 +77,9 @@ namespace MediaPortal.UiComponents.Media.Extensions
     /// <summary>
     /// Gets the instance of the action.
     /// </summary>
-    public IMediaItemAction Action { get; set; }
+    public IMediaViewAction Action { get; set; }
 
-    public MediaItemActionExtension(Type type, string caption, string sort, string restrictionGroup, string id)
+    public MediaViewActionExtension(Type type, string caption, string sort, string restrictionGroup, string id)
     {
       ExtensionClass = type;
       Caption = caption;

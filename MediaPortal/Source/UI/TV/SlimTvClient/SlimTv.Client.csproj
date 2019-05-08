@@ -139,6 +139,7 @@
     <Compile Include="MediaLists\SlimTvLastWatchedTVMediaListProvider.cs" />
     <Compile Include="MediaLists\SlimTvContinueWatchRecordingsMediaListProvider.cs" />
     <Compile Include="MediaLists\SlimTvLatestRecordingsMediaListProvider.cs" />
+    <Compile Include="MediaViewActions\DeleteAllRecordingsAction.cs" />
     <Compile Include="Messaging\SlimTvClientMessaging.cs" />
     <Compile Include="Models\AspectWrappers\RecordingAspectWrapper.cs" />
     <Compile Include="Models\ChannelZapModel.cs" />
