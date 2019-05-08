@@ -116,6 +116,10 @@
     <MediaItemActionBuilder Id="{E4B962BE-13DA-4256-A27D-7E0C5759794A}" Caption="[Media.DeleteFromStorage]" Sort="D.2" ClassName="MediaPortal.Plugins.SlimTv.Client.MediaItemActions.DeleteRecordingFromStorage" RestrictionGroup="SlimTvClient.DeleteRecording"/>
   </Register>
 
+  <Register Location="/MediaView/Extensions">
+    <MediaViewActionBuilder Id="{53CDEF4B-2E44-408E-99AF-4C8B540908CF}" Caption="[SlimTvClient.DeleteAllRecordings.Text]" Sort="D.3" ClassName="MediaPortal.Plugins.SlimTv.Client.MediaViewActions.DeleteAllRecordingsAction" RestrictionGroup="SlimTvClient.DeleteRecording"/>
+  </Register>
+
   <!-- MediaNavigationFilter -->
   <Register Location="/Media/Filters">
     <MediaNavigationFilterBuilder Id="{DD6FC152-0A98-4E4B-B3F4-643A68364470}" ClassName="VideosNavigationInitializer"
