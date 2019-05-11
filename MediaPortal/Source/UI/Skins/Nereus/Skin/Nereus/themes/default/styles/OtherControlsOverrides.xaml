@@ -86,6 +86,27 @@
     </Setter>
   </Style>
 
+  <Style x:Key="HorizontalCoverScrollViewerStyle" TargetType="{x:Type ScrollViewer}">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="{x:Type ScrollViewer}">
+          <Grid x:Name="ScrollViewerGridHorizontal" Margin="0,-50,0,-50">
+            <!--The negative margin is necessary and needs to be compensated in the 
+            ScrollContentPresenter to avoid graphic errors with grow effect-->
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+              <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+            <!-- Content -->
+            <ScrollContentPresenter Grid.ZIndex="50" Margin="0,50,0,50" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
+          </Grid>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+
   <Style x:Key="HorizontalTopMenuScrollViewerStyle" TargetType="{x:Type ScrollViewer}">
     <Setter Property="Template">
       <Setter.Value>

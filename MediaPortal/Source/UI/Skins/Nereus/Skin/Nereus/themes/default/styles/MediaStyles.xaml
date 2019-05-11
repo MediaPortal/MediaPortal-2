@@ -1971,20 +1971,29 @@
         <Image x:Name="poster" Stretch="Fill" Margin="3">
           <Image.Source>
             <fanart:FanArtImageSource fanart:FanArtMediaType="MovieCollection" fanart:FanArtType="Poster" fanart:FanArtName="{Binding MediaItem.MediaItemId}"
-                                    fanart:MaxWidth="{StaticResource FANART_POSTER_WIDTH}" fanart:MaxHeight="{StaticResource FANART_POSTER_HEIGHT}"/>
+                                      fanart:MaxWidth="{StaticResource POSTER_GRID_WIDTH}" fanart:MaxHeight="{StaticResource POSTER_GRID_HEIGHT}"/>
           </Image.Source>
         </Image>
 
         <!-- Fallback Content, if no poster existing -->
         <Image Source="video.png" HorizontalAlignment="Left" VerticalAlignment="Top" Height="70" Width="70" Stretch="Uniform" Margin="-5"
                IsVisible="{Binding ElementName=poster, Path=!HasImage}"/>
-        <Label FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColor}" Wrap="True" TextTrimming="CharacterEllipsis"
-               Margin="15,50,10,10" IsVisible="{Binding ElementName=banner, Path=!HasImage}"
-               Content="{Binding SimpleTitle}" VerticalAlignment="Center" HorizontalAlignment="Stretch"/>
+
+        <media:MovieAspectWrapper MediaItem="{Binding MediaItem}" Margin="15,50,10,10"
+                                  IsVisible="{Binding ElementName=poster, Path=!HasImage}">
+          <media:MovieAspectWrapper.Template>
+            <ControlTemplate>
+              <Grid >
+                <Label FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColor}" Wrap="True" TextTrimming="CharacterEllipsis"
+                       Content="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=MovieName}" VerticalAlignment="Center" HorizontalAlignment="Stretch"/>
+              </Grid>
+            </ControlTemplate>
+          </media:MovieAspectWrapper.Template>
+        </media:MovieAspectWrapper>
 
         <!-- watched indicator -->
         <Control HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0" Template="{StaticResource Cover_WatchedFlag_Template}" 
-               IsVisible="{Binding Source={StaticResource SkinSettingsModel}, Path=[Nereus].EnableGridWatchedFlags}"/>
+                 IsVisible="{Binding Source={StaticResource SkinSettingsModel}, Path=[Nereus].EnableGridWatchedFlags}"/>
       </Grid>
 
       <Grid x:Name="BannerGrid" Width="{StaticResource BANNER_GRID_WIDTH}" Height="{StaticResource BANNER_GRID_HEIGHT}">
@@ -2003,13 +2012,22 @@
         <!-- Fallback Content, if no banner existing -->
         <Image Source="video.png" HorizontalAlignment="Left" VerticalAlignment="Top" Height="70" Width="70" Stretch="Uniform" Margin="-5"
                IsVisible="{Binding ElementName=banner, Path=!HasImage}"/>
-        <Label FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColor}" Wrap="True" TextTrimming="CharacterEllipsis"
-               Margin="50,15,10,10" IsVisible="{Binding ElementName=banner, Path=!HasImage}"
-               Content="{Binding SimpleTitle}" VerticalAlignment="Center" HorizontalAlignment="Stretch"/>
+
+        <media:MovieAspectWrapper MediaItem="{Binding MediaItem}" Margin="50,15,10,10"
+                                  IsVisible="{Binding ElementName=banner, Path=!HasImage}">
+          <media:MovieAspectWrapper.Template>
+            <ControlTemplate>
+              <Grid >
+                <Label FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColor}" Wrap="True" TextTrimming="CharacterEllipsis"
+                       Content="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=MovieName}" VerticalAlignment="Center" HorizontalAlignment="Stretch"/>
+              </Grid>
+            </ControlTemplate>
+          </media:MovieAspectWrapper.Template>
+        </media:MovieAspectWrapper>
 
         <!-- watched indicator -->
         <Control HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0" Template="{StaticResource Cover_WatchedFlag_Template}" 
-               IsVisible="{Binding Source={StaticResource SkinSettingsModel}, Path=[Nereus].EnableGridWatchedFlags}"/>
+                 IsVisible="{Binding Source={StaticResource SkinSettingsModel}, Path=[Nereus].EnableGridWatchedFlags}"/>
       </Grid>
 
       <Grid x:Name="ThumbnailGrid" Width="{StaticResource THUMBNAIL_GRID_WIDTH}" Height="{StaticResource THUMBNAIL_GRID_HEIGHT}">
@@ -2028,15 +2046,23 @@
         <!-- Fallback Content, if no thumbnail existing -->
         <Image Source="video.png" HorizontalAlignment="Left" VerticalAlignment="Top" Height="70" Width="70" Stretch="Uniform" Margin="-5"
                IsVisible="{Binding ElementName=thumbnail, Path=!HasImage}"/>
-        <Label FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColor}" Wrap="True" TextTrimming="CharacterEllipsis"
-               Margin="15,50,10,10" IsVisible="{Binding ElementName=thumbnail, Path=!HasImage}"
-               Content="{Binding SimpleTitle}" VerticalAlignment="Center" HorizontalAlignment="Stretch"/>
+
+        <media:MovieAspectWrapper MediaItem="{Binding MediaItem}" Margin="15,50,10,10"
+                                  IsVisible="{Binding ElementName=thumbnail, Path=!HasImage}">
+          <media:MovieAspectWrapper.Template>
+            <ControlTemplate>
+              <Grid >
+                <Label FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColor}" Wrap="True" TextTrimming="CharacterEllipsis"
+                       Content="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=MovieName}" VerticalAlignment="Center" HorizontalAlignment="Stretch"/>
+              </Grid>
+            </ControlTemplate>
+          </media:MovieAspectWrapper.Template>
+        </media:MovieAspectWrapper>
 
         <!-- watched indicator -->
         <Control HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0" Template="{StaticResource Cover_WatchedFlag_Template}" 
                  IsVisible="{Binding Source={StaticResource SkinSettingsModel}, Path=[Nereus].EnableGridWatchedFlags}"/>
       </Grid>
-      
     </Grid>
   </ControlTemplate>
 
@@ -4023,7 +4049,7 @@
                 <!--Grid-->
                 <Binding Source="{ThemeResource VerticalMediaScrollViewerStyle}"/>
                 <!--List-->
-                <Binding Source="{ThemeResource HorizontalMediaScrollViewerStyle}"/>
+                <Binding Source="{ThemeResource HorizontalCoverScrollViewerStyle}"/>
                 <!--Cover-->
               </MultiBinding>
             </ScrollViewer.Style>
@@ -4051,7 +4077,7 @@
                           </LinearGradientBrush>
                         </Border.Background>
                       <Label FontSize="{ThemeResource SmallerFontSize}" Color="{ThemeResource MediaItemUnwatchedColor}" HorizontalAlignment="Left" VerticalAlignment="Center"
-                               Content="{Binding Path=GroupingValue}" Margin="6,1,1,2" />
+                             Content="{Binding Path=GroupingValue}" Margin="6,1,1,2" />
                       </Border>
                   </DataTemplate>
                 </Binding.Source>
@@ -4067,7 +4093,7 @@
 
                       <StackPanel Orientation="Horizontal" Margin="3" HorizontalAlignment="Left" VerticalAlignment="Top">
                         <Label FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource MediaItemUnwatchedColor}"
-                                 Content="{Binding Path=GroupingValue}" />
+                               Content="{Binding Path=GroupingValue}" />
                       </StackPanel>
                     </Grid>
                   </DataTemplate>

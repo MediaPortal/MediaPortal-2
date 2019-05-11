@@ -1940,7 +1940,7 @@
         <RowDefinition Height="47"/>
       </Grid.RowDefinitions>
       
-      <Image Stretch="Uniform" Source="{Binding Icon}" FallbackSource="RssIcon.png" Margin="10"
+      <Image Stretch="Uniform" Source="{Binding Icon}" FallbackSource="RssIcon.png" Margin="25"
              VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
 
       <!-- Darkened band -->
