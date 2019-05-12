@@ -4,8 +4,8 @@ using System.Runtime.InteropServices;
 // Allgemeine Informationen über eine Assembly werden über die folgenden 
 // Attribute gesteuert. Ändern Sie diese Attributwerte, um die Informationen zu ändern,
 // die mit einer Assembly verknüpft sind.
-[assembly: AssemblyTitle("WMC Skin")]
-[assembly: AssemblyDescription("WMC skin for MP2")]
+[assembly: AssemblyTitle("Nereus Skin")]
+[assembly: AssemblyDescription("Nereus Skin for MP2")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
