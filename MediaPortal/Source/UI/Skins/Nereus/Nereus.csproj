@@ -732,7 +732,6 @@
     <Content Include="Skin\Nereus\screens\MediaItemListAudioDetails.inc">
       <SubType>Designer</SubType>
     </Content>
-    <Content Include="Skin\Nereus\screens\MediaItemImageDetails.inc" />
     <Content Include="Skin\Nereus\screens\MediaItemListMovieDetails.inc">
       <SubType>Designer</SubType>
     </Content>

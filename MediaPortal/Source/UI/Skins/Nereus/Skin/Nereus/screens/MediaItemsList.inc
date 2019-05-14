@@ -37,7 +37,7 @@
     <DockPanel DataContext="{Binding Source={Model 4CDD601F-E280-43b9-AD0A-6D7B2403C856},Path=NavigationData.CurrentScreenData}"
                VerticalAlignment="Bottom" HorizontalAlignment="Right" LastChildFill="false" IsVisible="{Binding IsItemsValid}">
       <!---Grid+ListView-->
-      <Grid DockPanel.Dock="Right" Margin="120,0,-125,20" Width="100">
+      <Grid DockPanel.Dock="Right" Margin="120,-20,-125,40" Width="100">
         <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" >
           <Label VerticalAlignment="Center" Margin="0,0,10,0"
                  Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallerFontSize}">

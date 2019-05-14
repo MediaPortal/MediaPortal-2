@@ -128,17 +128,20 @@
                       IsVisible="{Binding Path=Duration,Converter={StaticResource ReferenceToBoolConverter}}">
             <Image Source="HomeContentIcons\duration.png" Height="26" Width="26" Stretch="Uniform" Margin="2,-1,5,1" 
                    VerticalAlignment="Center" HorizontalAlignment="Left"/>
-            <Label x:Name="Duration" FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColorForeground}" 
-                   VerticalAlignment="Center" Margin="40,0,0,0">
-              <Label.Content>
-                <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0}/60">
-                  <Binding Path="Duration"/>
-                </MultiBinding>
-              </Label.Content>
-            </Label>
-            <Label Content=" " VerticalAlignment="Center"/>
-            <Label Content="[Media.Minutes]" FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColorForeground}" 
-                   VerticalAlignment="Center"/>
+            <StackPanel Orientation="Horizontal" Margin="40,0,0,0">
+              <Label x:Name="Duration" FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColorForeground}" 
+                     VerticalAlignment="Center">
+                <Label.Content>
+                  <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0}/60">
+                    <Binding Path="Duration"/>
+                  </MultiBinding>
+                </Label.Content>
+              </Label>
+              <Label Content=" " VerticalAlignment="Center"/>
+              <Label Content="[Media.Minutes]" FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColorForeground}" 
+                     VerticalAlignment="Center"/>              
+            </StackPanel>
+
           </Grid>
         </ControlTemplate>
       </media:VideoStreamAspectWrapper.Template>
@@ -167,7 +170,7 @@
   </StackPanel>
 
   <media:EpisodeAspectWrapper MediaItem="{Binding Source={StaticResource FanArtBackgroundModel},Path=MediaItem}" 
-                              Grid.Column="0" Grid.Row="2" Margin="0,30,10,50">
+                              Grid.Column="0" Grid.Row="2" Margin="0,30,10,90">
     <media:EpisodeAspectWrapper.Template>
       <ControlTemplate>
         <Grid>

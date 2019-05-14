@@ -67,7 +67,7 @@
   <Label x:Name="MediaItemDescription" Wrap="True" Grid.Column="0" Grid.Row="1"  TextTrimming="WordEllipsis" Opacity="0.6"
          HorizontalAlignment="Stretch" FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColor}"
          Content="{Binding Source={StaticResource FanArtBackgroundModel}, Path=ItemDescription}"
-         Margin="0,40,10,60"/>
+         Margin="0,40,10,90"/>
 
   <StackPanel Grid.ColumnSpan="2" Grid.Row="0" Margin="0,0,10,0" VerticalAlignment="Stretch" Orientation="Vertical">
 

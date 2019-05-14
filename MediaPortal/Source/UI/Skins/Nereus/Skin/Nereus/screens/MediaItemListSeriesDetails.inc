@@ -215,7 +215,7 @@
                                Margin="0,40,300,80">
       <media:SeriesAspectWrapper.Template>
         <ControlTemplate>
-          <Grid VerticalAlignment="Stretch" MaxHeight="300">
+          <Grid VerticalAlignment="Stretch" MaxHeight="320">
             <Label x:Name="MediaItemDescription" DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}"
                    Wrap="True" TextTrimming="WordEllipsis" FontSize="{ThemeResource SmallFontSize}" Opacity="0.6"
                    VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Content="{Binding Description}" Color="{ThemeResource TextColor}"/>
