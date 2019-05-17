@@ -5,7 +5,7 @@
   xmlns:fanart="clr-namespace:MediaPortal.Extensions.UserServices.FanArtService.Client;assembly=FanArtService.Client"
   xmlns:media="clr-namespace:MediaPortal.UiComponents.Media.Models.AspectWrappers;assembly=Media"
   xmlns:aspect="clr-namespace:MediaPortal.Common.MediaManagement.DefaultItemAspects;assembly=MediaPortal.Common"
-  x:Name="MediaItemDetails" Margin="0,30,20,-200"
+  x:Name="MediaItemDetails" Margin="0,300,20,-10"
   HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
 
   <Grid.Resources>
@@ -14,72 +14,70 @@
   </Grid.Resources>
 
   <media:PersonAspectWrapper MediaItem="{Binding Source={StaticResource FanArtBackgroundModel},Path=MediaItem}"
-                           HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+                             HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Height="900">
     <media:PersonAspectWrapper.Template>
       <ControlTemplate>
-        <Grid DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}">
+        <Grid DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}" VerticalAlignment="Stretch">
           <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
+            <RowDefinition Height="456"/>
           </Grid.RowDefinitions>
           <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="540"/>
-            <ColumnDefinition Width="350"/>
+            <ColumnDefinition Width="474"/>
+            <ColumnDefinition Width="456"/>
           </Grid.ColumnDefinitions>
 
-          <Image Grid.Column="1" HorizontalAlignment="Right" Stretch="Fill"
-                 Margin="0,10,10,0" Height="320" Width="320">
-            <Image.Source>
-              <ImageSourceWrapper Delay="0.5" DelayInOut="true" Transition="transitions\dissolve" TransitionDuration="0.5"
-                                  Source="{Binding Source={StaticResource FanArtBackgroundModel},Path=MediaItem}"/>
-            </Image.Source>
-            <Image.OpacityMask>
-              <VisualBrush>
-                <VisualBrush.Visual>
-                  <Border Name="mask" Background="White" CornerRadius="6" BorderThickness="0" BorderBrush="Black"/>
-                </VisualBrush.Visual>
-              </VisualBrush>
-            </Image.OpacityMask>
-          </Image>
+          <Grid Grid.Column="1" Grid.Row="1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Height="456">
+            <Image HorizontalAlignment="Right" VerticalAlignment="Center" Stretch="Fill" Margin="0" Width="456" Height="456">
+              <Image.Source>
+                <ImageSourceWrapper Delay="0.5" DelayInOut="true" Transition="transitions\dissolve" TransitionDuration="0.5"
+                                    Source="Square_large.png"/>
+              </Image.Source>
+            </Image>
+            <Image x:Name="Person" HorizontalAlignment="Right" VerticalAlignment="Center" Stretch="Fill" Margin="8" Width="440" Height="440">
+              <Image.Source>
+                <ImageSourceWrapper Delay="0.5" DelayInOut="true" Transition="transitions\dissolve" TransitionDuration="0.5"
+                                    Source="{Binding Source={StaticResource FanArtBackgroundModel},Path=MediaItem}"/>
+              </Image.Source>
+            </Image>
+            <Image HorizontalAlignment="Center" VerticalAlignment="Center" Stretch="Uniform" Width="200" Height="200"
+                   Source="person.png" IsVisible="{Binding ElementName=Person, Path=!HasImage}"/>
+          </Grid>
 
-          <StackPanel Orientation="Vertical" Grid.Row="0" Grid.Column="0" Margin="0,0,20,0">
-            <Label VerticalAlignment="Stretch" Content="{Binding PersonName}" TextTrimming="WordEllipsis"
-                   Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}" FontFamily="SegoeUIBold" Wrap="True"/>
-            <StackPanel Orientation="Horizontal">
-              <Label FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColor}"
-                     Content="{Binding Path=BornDate, Converter={StaticResource DateFormatConverter}, ConverterParameter=yyyy}"/>
-              <Label FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColor}"
-                     Content=" - " IsVisible="{Binding Path=DeathDate,Converter={StaticResource ReferenceToBoolConverter}}"/>
-              <Label FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColor}"
-                     Content="{Binding Path=DeathDate, Converter={StaticResource DateFormatConverter}, ConverterParameter=yyyy}"/>
-            </StackPanel>
-            <!--Label FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource MenuTextBackground}" Opacity="1.3">
-              <Label.Content>
-                <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" 
-                              ConverterParameter="{}{0} == {1} ? {6} : ({0} == {2} ? {7} : ({0} == {3} ? {8} : ({0} == {4} ? {9} : ({0} == {5} ? {10}))))">
-                  <Binding Path="Occupation"/>
-                  <Binding Source="ARTIST"/>
-                  <Binding Source="ACTOR"/>
-                  <Binding Source="WRITER"/>
-                  <Binding Source="DIRECTOR"/>
-                  <Binding Source="COMPOSER"/>
-                  <Binding Source="[Media.ArtistOccupationName]"/>
-                  <Binding Source="[Media.ActorOccupationName]"/>
-                  <Binding Source="[Media.WriterOccupationName]"/>
-                  <Binding Source="[Media.DirectorOccupationName]"/>
-                  <Binding Source="[Media.ComposerOccupationName]"/>
-                </MultiBinding>
-              </Label.Content>
-            </Label-->
-            <Label Content="{Binding Origin}" FontSize="{ThemeResource SmallFontSize}"
-                   Color="{ThemeResource MenuTextBackground}" Opacity="1.3" TextTrimming="WordEllipsis"/>
-          </StackPanel>
-
-          <Label x:Name="MediaItemDescription"
-                 Grid.ColumnSpan="2" Grid.Row="1" Margin="0,30,10,10" Height="440"
+          <Label x:Name="MediaItemDescription" Grid.Row="1" Margin="0,0,10,30" Height="456"
                  Wrap="True" TextTrimming="WordEllipsis" FontSize="{ThemeResource SmallFontSize}"
                  VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Content="{Binding Biography}"
-                 Opacity="1.3" Color="{ThemeResource MenuTextBackground}"/>
+                 Color="{ThemeResource MenuTextBackground}"/>
+
+          <StackPanel Orientation="Vertical" Grid.Row="0" Grid.Column="0" Margin="0,0,20,0">
+            <Label VerticalAlignment="Stretch" Content="{Binding PersonName}" TextTrimming="WordEllipsis" Margin="0,0,-200,0"
+                   Color="{ThemeResource TextColor}" FontSize="{ThemeResource NormalFontSize}" FontFamily="SegoeUIBold" Wrap="True"/>
+            <Grid DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}" Margin="0,0,20,0">
+              <Image Source="HomeContentIcons\year.png" Height="30" Width="30" Stretch="Uniform" Margin="0,0,5,0"
+                     IsVisible="{Binding Path=BornDate,Converter={StaticResource ReferenceToBoolConverter}}"
+                     VerticalAlignment="Center" HorizontalAlignment="Left"/>
+              <Image Source="HomeContentIcons\year.png" Height="30" Width="30" Stretch="Uniform" Margin="0,0,5,0"
+                     IsVisible="{Binding Path=DeathDate,Converter={StaticResource ReferenceToBoolConverter}}"
+                     VerticalAlignment="Center" HorizontalAlignment="Left"/>
+              <StackPanel Orientation="Horizontal" Margin="40,0,0,0">
+                <Label FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColorForeground}"
+                       Content="{Binding Path=BornDate, Converter={StaticResource DateFormatConverter}, ConverterParameter=yyyy}"/>
+                <Label FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColorForeground}"
+                       Content=" - " IsVisible="{Binding Path=DeathDate,Converter={StaticResource ReferenceToBoolConverter}}"/>
+                <Label FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColorForeground}"
+                       Content="{Binding Path=DeathDate, Converter={StaticResource DateFormatConverter}, ConverterParameter=yyyy}"/>
+              </StackPanel>
+            </Grid>
+
+            <Grid DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}" Margin="0,0,20,0"
+                  IsVisible="{Binding Path=Origin,Converter={StaticResource ReferenceToBoolConverter}}">
+              <Image Source="HomeContentIcons\place.png" Height="30" Width="30" Stretch="Uniform" Margin="0,0,5,0"
+                     VerticalAlignment="Center" HorizontalAlignment="Left"/>
+              <Label Content="{Binding Origin}" FontSize="{ThemeResource SmallFontSize}" Margin="40,0,0,0"
+                     Color="{ThemeResource TextColorForeground}" TextTrimming="WordEllipsis"/>
+            </Grid>
+          </StackPanel>
+
         </Grid>
       </ControlTemplate>
     </media:PersonAspectWrapper.Template>

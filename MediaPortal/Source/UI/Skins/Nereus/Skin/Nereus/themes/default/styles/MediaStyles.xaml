@@ -972,88 +972,110 @@
   <ControlTemplate x:Key="GridViewFilterItemTemplate">
     <Grid x:Name="ItemControl">
       <Grid.ColumnDefinitions>
-        <ColumnDefinition Width="{StaticResource VIDEO_GRID_WIDTH}"/>
+        <ColumnDefinition Width="{StaticResource THUMBNAIL_GRID_WIDTH}"/>
       </Grid.ColumnDefinitions>
       <Grid.RowDefinitions>
-        <RowDefinition Height="{StaticResource VIDEO_GRID_HEIGHT}"/>
+        <RowDefinition Height="{StaticResource THUMBNAIL_GRID_HEIGHT}"/>
       </Grid.RowDefinitions>
-      <Border VerticalAlignment="Stretch" HorizontalAlignment="Stretch" CornerRadius="4" BorderThickness="0" Margin="0,1.5,0,0">
-        <Border.Background>
-          <LinearGradientBrush StartPoint="0,1" EndPoint="1,0">
-            <GradientStop Color="{ThemeResource MediaItemBackgroundColor1}" Offset="0"/>
-            <GradientStop Color="{ThemeResource MediaItemBackgroundColor2}" Offset="1"/>
-          </LinearGradientBrush>
-        </Border.Background>
-      </Border>
-      <Image x:Name="ItemTypeImage" Grid.Row="0" Stretch="Uniform" Margin="7">
+
+      <Image Stretch="Fill" Source="thumbnail_small.png" Margin="-5"/>
+
+      <!-- Thumbnail available-->
+      <Image x:Name="thumbnail" Stretch="Fill" Margin="3">
         <Image.Source>
           <fanart:FanArtImageSource fanart:FanArtMediaType="Undefined" fanart:FanArtType="Thumbnail" fanart:FanArtName="{Binding FirstMediaItem.MediaItemId}"
-             fanart:MaxWidth="{StaticResource FANART_POSTER_WIDTH}" fanart:MaxHeight="{StaticResource FANART_POSTER_HEIGHT}"/>
+             fanart:MaxWidth="{StaticResource THUMBNAIL_GRID_WIDTH}" fanart:MaxHeight="{StaticResource THUMBNAIL_GRID_HEIGHT}"/>
         </Image.Source>
       </Image>
-      <Label x:Name="ItemLabel" HorizontalAlignment="Center" VerticalAlignment="Stretch" Wrap="True" 
-             TextTrimming="CharacterEllipsis" IsVisible="{Binding ElementName=ItemTypeImage, Path=!HasImage}"
-             Content="{Binding SimpleTitle}" Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}" Margin="5,5,5,45"/>
-      <Label x:Name="NumItems" Content="{Binding NumItems}"
-             HorizontalAlignment="Right" VerticalAlignment="Bottom"
-             Color="{ThemeResource MediaItemUnwatchedColor}" FontSize="{ThemeResource SmallerFontSize}" Margin="10,0,5,5"/>
+      <Border VerticalAlignment="Bottom" HorizontalAlignment="Stretch" BorderThickness="0" Background="Black" Opacity="0.5" 
+              Height="45" Margin="3" IsVisible="{Binding ElementName=thumbnail, Path=HasImage}"/>
+      <Label x:Name="ItemLabel" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center" VerticalAlignment="Bottom" Margin="5,5,5,8" 
+             Color="{ThemeResource TextColor}" Height="45" VerticalContentAlignment="Center" FontSize="{ThemeResource SmallFontSize}" 
+             IsVisible="{Binding ElementName=thumbnail, Path=HasImage}" Content="{Binding Path=SimpleTitle}">
+        <Label.Scroll>
+          <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
+            <Binding RelativeSource="{RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}}" Path="HasFocus"/>
+            <Binding Source="Auto"/>
+            <Binding Source="None"/>
+          </MultiBinding>
+        </Label.Scroll>
+      </Label>
+
+      <!-- Thumbnail not available-->
+      <Border VerticalAlignment="Stretch" HorizontalAlignment="Stretch" BorderThickness="0"
+              IsVisible="{Binding ElementName=thumbnail, Path=!HasImage}" Margin="3">
+        <Border.Background>
+          <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
+            <Binding RelativeSource="{RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}}" Path="!HasFocus"/>
+            <Binding Source="{ThemeResource NereusColorMedium}"/>
+            <Binding Source="{ThemeResource NereusColorLight}"/>
+          </MultiBinding>
+        </Border.Background>
+      </Border>
+      <!--Image Source="homecontenticons\filter.png" HorizontalAlignment="Left" VerticalAlignment="Top" Height="35" Width="35" Stretch="Uniform" Margin="10"
+             IsVisible="{Binding ElementName=thumbnail, Path=!HasImage}">
+        <Image.Opacity>
+          <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
+            <Binding RelativeSource="{RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}}" Path="HasFocus"/>
+            <Binding Source="1"/>
+            <Binding Source="0.5"/>
+          </MultiBinding>
+        </Image.Opacity>
+      </-->
+      <Label x:Name="ItemLabel2" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center" VerticalAlignment="Stretch" Margin="5,40,5,8" 
+             Color="{ThemeResource TextColor}" VerticalContentAlignment="Center" FontSize="{ThemeResource SmallFontSize}" Wrap="True"
+             IsVisible="{Binding ElementName=thumbnail, Path=!HasImage}" Content="{Binding Path=SimpleTitle}">
+      </Label>
+      <Label x:Name="NumItems" Content="{Binding NumItems}" IsVisible="{Binding ElementName=thumbnail, Path=!HasImage}"
+             HorizontalAlignment="Right" VerticalAlignment="Top" Opacity="0.6" Margin="10"
+             Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallerFontSize}"/>
     </Grid>
   </ControlTemplate>
 
   <ControlTemplate x:Key="CoverViewFilterItemTemplate">
-    <Grid x:Name="ItemControl">
+    <Grid x:Name="ItemControl" Margin="2">
       <Grid.ColumnDefinitions>
-        <ColumnDefinition Width="{StaticResource POSTER_COVER_WIDTH}"/>
+        <ColumnDefinition Width="{StaticResource AUDIO_COVER_WIDTH}"/>
       </Grid.ColumnDefinitions>
       <Grid.RowDefinitions>
         <RowDefinition Height="*"/>
-        <RowDefinition Height="{StaticResource POSTER_COVER_WIDTH}"/>
-        <RowDefinition Height="72"/>
+        <RowDefinition Height="{StaticResource AUDIO_COVER_HEIGHT}"/>
+        <RowDefinition Height="130"/>
       </Grid.RowDefinitions>
 
-      <Grid Grid.Row="1" Name="PosterGrid" HorizontalAlignment="Center" VerticalAlignment="Center">
-        <Grid.OpacityMask>
-          <VisualBrush>
-            <VisualBrush.Visual>
-              <Border Name="mask" Background="White" CornerRadius="7" BorderThickness="0" BorderBrush="Black"/>
-            </VisualBrush.Visual>
-          </VisualBrush>
-        </Grid.OpacityMask>
-        <Grid.Background>
-          <LinearGradientBrush StartPoint="0,1" EndPoint="1,0">
-            <GradientStop Color="{ThemeResource MediaItemBackgroundColor1}" Offset="0"/>
-            <GradientStop Color="{ThemeResource MediaItemBackgroundColor2}" Offset="1"/>
-          </LinearGradientBrush>
-        </Grid.Background>
-        <Grid>
-          <Grid.RowDefinitions>
-            <RowDefinition Height="*"/>
-          </Grid.RowDefinitions>
-        </Grid>
-        <Image Grid.Row="0" HorizontalAlignment="Center" VerticalAlignment="Center" Stretch="Uniform"
-               Source="folder.png" Margin="20"/>
-      </Grid>
-      <Rectangle Name="ButtonBase" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Grid.Row="1"
-                 RadiusX="4" RadiusY="4" StrokeThickness="3" Margin="-3,-2,-3,-3"
-                 IsVisible="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}},Path=HasFocus}">
-        <Rectangle.Stroke>
-          <LinearGradientBrush StartPoint="0,0" EndPoint="0.02,1.4">
-            <GradientStop Color="#CCFFFFFF" Offset="0"/>
-            <GradientStop Color="#CCFFFFFF" Offset="0.7"/>
-            <GradientStop Color="#66FFFFFF" Offset="1"/>
-          </LinearGradientBrush>
-        </Rectangle.Stroke>
-      </Rectangle>
-      <Rectangle Name="ButtonUpperShine" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Grid.Row="1"
-                 RadiusX="5" RadiusY="5" StrokeThickness="0" Margin="0"
-                 IsVisible="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}},Path=HasFocus}">
-        <Rectangle.Fill>
-          <ImageBrush ImageSource="Glass_frame.PNG" Stretch="Fill"/>
-        </Rectangle.Fill>
-      </Rectangle>
-      <Label x:Name="ItemLabel" Grid.Row="2" Grid.Column="0" Content="{Binding SimpleTitle}" Wrap="True" Margin="0,10,0,0"
+      <Image Grid.Row="1" Source="Square_large.png" Stretch="Fill" Margin="-6"/>
+      <Border Grid.Row="1" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" BorderThickness="0"
+              IsVisible="{Binding ElementName=thumbnail, Path=!HasImage}">
+        <Border.Background>
+          <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
+            <Binding RelativeSource="{RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}}" Path="!HasFocus"/>
+            <Binding Source="{ThemeResource NereusColorMedium}"/>
+            <Binding Source="{ThemeResource NereusColorLight}"/>
+          </MultiBinding>
+        </Border.Background>
+      </Border>
+      <Image x:Name="thumb" Grid.Row="1" Stretch="Fill">
+        <Image.Source>
+          <Image.Source>
+            <fanart:FanArtImageSource fanart:FanArtMediaType="Undefined" fanart:FanArtType="Thumbnail" fanart:FanArtName="{Binding MediaItem.MediaItemId}"
+                    fanart:MaxWidth="{StaticResource AUDIO_COVER_WIDTH}" fanart:MaxHeight="{StaticResource AUDIO_COVER_HEIGHT}"/>
+          </Image.Source>
+        </Image.Source>
+      </Image>
+      <Image Grid.Row="1" Source="folder.png" Stretch="Uniform" IsVisible="{Binding ElementName=thumb, Path=!HasImage}"/>
+
+      <Border IsVisible="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}},Path=HasFocus}"
+              BorderThickness="5" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+              CornerRadius="{ThemeResource ButtonControlRadiusX}" Grid.Row="1" Margin="0"
+              BorderBrush="#80000000"/>
+      <Border IsVisible="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}},Path=HasFocus}"
+              BorderThickness="4" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+              CornerRadius="{ThemeResource ButtonControlRadiusX}" Grid.Row="1" Margin="0"
+              BorderBrush="{ThemeResource TileFocusedBorderBrush}"/>
+
+      <Label x:Name="ItemLabel" Grid.Row="2" Grid.Column="0" Content="{Binding SimpleTitle}" Wrap="True" Margin="8,10,8,0"
              FontFamily="SegoeUIBold" TextTrimming="CharacterEllipsis"
-             Opacity="1.3" FontSize="{ThemeResource SmallerFontSize}" Width="{StaticResource POSTER_COVER_WIDTH}">
+             HorizontalAlignment="Center" FontSize="{ThemeResource SmallerFontSize}" Width="{StaticResource AUDIO_COVER_WIDTH}">
         <Label.Color>
           <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
             <Binding RelativeSource="{RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}}" Path="!HasFocus"/>
@@ -1124,8 +1146,15 @@
         <RowDefinition Height="{StaticResource THUMBNAIL_GRID_HEIGHT}"/>
       </Grid.RowDefinitions>
       <Image Stretch="Fill" Source="thumbnail_small.png" Margin="-5"/>
-      <Border HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="3"
-              Background="{ThemeResource NereusColorMedium}" BorderThickness="0"/>
+      <Border HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="3" BorderThickness="0">
+        <Border.Background>
+          <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
+            <Binding RelativeSource="{RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}}" Path="!HasFocus"/>
+            <Binding Source="{ThemeResource NereusColorMedium}"/>
+            <Binding Source="{ThemeResource NereusColorLight}"/>
+          </MultiBinding>
+        </Border.Background>
+      </Border>
       <Image x:Name="ItemTypeImage" Stretch="Uniform" Margin="7,30,7,30">
         <Image.Source>
           <Binding Path="Id" Converter="{StaticResource StringFormatConverter}" ConverterParameter="{}Certification\{0}.png"/>
@@ -1134,10 +1163,9 @@
 
       <Label x:Name="ItemLabel" HorizontalAlignment="Center" VerticalAlignment="Center" Wrap="True" 
              IsVisible="{Binding ElementName=ItemTypeImage, Path=!HasImage}"
-             Content="{Binding SimpleTitle}" Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}" Margin="5,5,5,45"/>
-      <Label x:Name="NumItems" Content="{Binding NumItems}"
-             HorizontalAlignment="Right" VerticalAlignment="Bottom"
-             Color="{ThemeResource MediaItemUnwatchedColor}" FontSize="{ThemeResource SmallerFontSize}" Margin="10,0,10,5"/>
+             Content="{Binding SimpleTitle}" Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}" Margin="5,45,5,5"/>
+      <Label x:Name="NumItems" Content="{Binding NumItems}" HorizontalAlignment="Right" VerticalAlignment="Top"
+             Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallerFontSize}" Margin="10" Opacity="0.6"/>
     </Grid>
   </ControlTemplate>
 
@@ -1152,9 +1180,16 @@
         <RowDefinition Height="72"/>
       </Grid.RowDefinitions>
 
-      <Image Grid.Row="1" Stretch="Fill" Source="Square_large.png" Margin="-7"/>
-      <Border Grid.Row="1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
-              Background="{ThemeResource NereusColorMedium}" BorderThickness="0" Margin="-1,0,0,0"/>
+      <Image Grid.Row="1" Stretch="Fill" Source="Square_large.png" Margin="-6"/>
+      <Border Grid.Row="1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" BorderThickness="0" Margin="-1,0,0,0">
+        <Border.Background>
+          <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
+            <Binding RelativeSource="{RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}}" Path="!HasFocus"/>
+            <Binding Source="{ThemeResource NereusColorMedium}"/>
+            <Binding Source="{ThemeResource NereusColorLight}"/>
+          </MultiBinding>
+        </Border.Background>
+      </Border>
       <Image Grid.Row="1" HorizontalAlignment="Center" VerticalAlignment="Center" Stretch="Uniform" Margin="40">
         <Image.Source>
           <Binding Path="Id" Converter="{StaticResource StringFormatConverter}" ConverterParameter="{}Certification\{0}.png"/>
@@ -1228,82 +1263,110 @@
   <ControlTemplate x:Key="GridViewContainerItemTemplate">
     <Grid x:Name="ItemControl">
       <Grid.ColumnDefinitions>
-        <ColumnDefinition Width="{StaticResource VIDEO_GRID_WIDTH}"/>
+        <ColumnDefinition Width="{StaticResource THUMBNAIL_GRID_WIDTH}"/>
       </Grid.ColumnDefinitions>
       <Grid.RowDefinitions>
-        <RowDefinition Height="{StaticResource VIDEO_GRID_HEIGHT}"/>
+        <RowDefinition Height="{StaticResource THUMBNAIL_GRID_HEIGHT}"/>
       </Grid.RowDefinitions>
-      <Border VerticalAlignment="Stretch" HorizontalAlignment="Stretch" CornerRadius="4" BorderThickness="0" Margin="0,1.5,0,0">
+
+      <Image Stretch="Fill" Source="thumbnail_small.png" Margin="-5"/>
+
+      <!-- Thumbnail available-->
+      <Image x:Name="thumbnail" Stretch="Fill" Margin="3">
+        <Image.Source>
+          <fanart:FanArtImageSource fanart:FanArtMediaType="Undefined" fanart:FanArtType="Thumbnail" fanart:FanArtName="{Binding FirstMediaItem.MediaItemId}"
+             fanart:MaxWidth="{StaticResource THUMBNAIL_GRID_WIDTH}" fanart:MaxHeight="{StaticResource THUMBNAIL_GRID_HEIGHT}"/>
+        </Image.Source>
+      </Image>
+      <Border VerticalAlignment="Bottom" HorizontalAlignment="Stretch" BorderThickness="0" Background="Black" Opacity="0.5" 
+              Height="45" Margin="3" IsVisible="{Binding ElementName=thumbnail, Path=HasImage}"/>
+      <Label x:Name="ItemLabel" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center" VerticalAlignment="Bottom" Margin="5,5,5,8" 
+             Color="{ThemeResource TextColor}" Height="45" VerticalContentAlignment="Center" FontSize="{ThemeResource SmallFontSize}" 
+             IsVisible="{Binding ElementName=thumbnail, Path=HasImage}" Content="{Binding Path=SimpleTitle}">
+        <Label.Scroll>
+          <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
+            <Binding RelativeSource="{RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}}" Path="HasFocus"/>
+            <Binding Source="Auto"/>
+            <Binding Source="None"/>
+          </MultiBinding>
+        </Label.Scroll>
+      </Label>
+
+      <!-- Thumbnail not available-->
+      <Border VerticalAlignment="Stretch" HorizontalAlignment="Stretch" BorderThickness="0"
+              IsVisible="{Binding ElementName=thumbnail, Path=!HasImage}" Margin="3">
         <Border.Background>
-          <LinearGradientBrush StartPoint="0,1" EndPoint="1,0">
-            <GradientStop Color="{ThemeResource MediaItemBackgroundColor1}" Offset="0"/>
-            <GradientStop Color="{ThemeResource MediaItemBackgroundColor2}" Offset="1"/>
-          </LinearGradientBrush>
+          <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
+            <Binding RelativeSource="{RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}}" Path="!HasFocus"/>
+            <Binding Source="{ThemeResource NereusColorMedium}"/>
+            <Binding Source="{ThemeResource NereusColorLight}"/>
+          </MultiBinding>
         </Border.Background>
       </Border>
-      <!--Image x:Name="ItemTypeImage" Grid.Row="0" Stretch="Uniform" Source="NavigationLarge.png"/-->
-      <Label x:Name="ItemLabel" HorizontalAlignment="Center" VerticalAlignment="Stretch" Wrap="True" TextTrimming="CharacterEllipsis"
-             Content="{Binding SimpleTitle}" Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}" Margin="5,5,5,45"/>
-      <Label x:Name="NumItems" Content="{Binding NumItems}"
-             HorizontalAlignment="Right" VerticalAlignment="Bottom"
-             Color="{ThemeResource MediaItemUnwatchedColor}" FontSize="{ThemeResource SmallerFontSize}" Margin="10,0,5,5"/>
+      <!--Image Source="homecontenticons\folder.png" HorizontalAlignment="Left" VerticalAlignment="Top" Height="35" Width="35" Stretch="Uniform" Margin="10"
+             IsVisible="{Binding ElementName=thumbnail, Path=!HasImage}">
+        <Image.Opacity>
+          <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
+            <Binding RelativeSource="{RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}}" Path="HasFocus"/>
+            <Binding Source="1"/>
+            <Binding Source="0.5"/>
+          </MultiBinding>
+        </Image.Opacity>
+      </-->
+      <Label x:Name="ItemLabel2" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center" VerticalAlignment="Stretch" Margin="5,40,5,8" 
+             Color="{ThemeResource TextColor}" VerticalContentAlignment="Center" FontSize="{ThemeResource SmallFontSize}" Wrap="True"
+             IsVisible="{Binding ElementName=thumbnail, Path=!HasImage}" Content="{Binding Path=SimpleTitle}">
+      </Label>
+      <Label x:Name="NumItems" Content="{Binding NumItems}" IsVisible="{Binding ElementName=thumbnail, Path=!HasImage}"
+             HorizontalAlignment="Right" VerticalAlignment="Top" Opacity="0.6" Margin="10"
+             Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallerFontSize}"/>
     </Grid>
   </ControlTemplate>
 
   <ControlTemplate x:Key="CoverViewContainerItemTemplate">
-    <Grid x:Name="ItemControl">
+    <Grid x:Name="ItemControl" Margin="2">
       <Grid.ColumnDefinitions>
-        <ColumnDefinition Width="{StaticResource POSTER_COVER_WIDTH}"/>
+        <ColumnDefinition Width="{StaticResource AUDIO_COVER_WIDTH}"/>
       </Grid.ColumnDefinitions>
       <Grid.RowDefinitions>
         <RowDefinition Height="*"/>
-        <RowDefinition Height="{StaticResource POSTER_COVER_WIDTH}"/>
-        <RowDefinition Height="72"/>
+        <RowDefinition Height="{StaticResource AUDIO_COVER_HEIGHT}"/>
+        <RowDefinition Height="130"/>
       </Grid.RowDefinitions>
 
-      <Grid Grid.Row="1" Name="PosterGrid" HorizontalAlignment="Center" VerticalAlignment="Center">
-        <Grid.OpacityMask>
-          <VisualBrush>
-            <VisualBrush.Visual>
-              <Border Name="mask" Background="White" CornerRadius="7" BorderThickness="0" BorderBrush="Black"/>
-            </VisualBrush.Visual>
-          </VisualBrush>
-        </Grid.OpacityMask>
-        <Grid.Background>
-          <LinearGradientBrush StartPoint="0,1" EndPoint="1,0">
-            <GradientStop Color="{ThemeResource MediaItemBackgroundColor1}" Offset="0"/>
-            <GradientStop Color="{ThemeResource MediaItemBackgroundColor2}" Offset="1"/>
-          </LinearGradientBrush>
-        </Grid.Background>
-        <Grid>
-          <Grid.RowDefinitions>
-            <RowDefinition Height="*"/>
-          </Grid.RowDefinitions>
-        </Grid>
-        <Image Grid.Row="0" HorizontalAlignment="Center" VerticalAlignment="Center" Stretch="Uniform"
-               Source="folder.png" Margin="20"/>
-      </Grid>
-      <Rectangle Name="ButtonBase" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Grid.Row="1"
-                 RadiusX="4" RadiusY="4" StrokeThickness="3" Margin="-3,-2,-3,-3"
-                 IsVisible="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}},Path=HasFocus}">
-        <Rectangle.Stroke>
-          <LinearGradientBrush StartPoint="0,0" EndPoint="0.02,1.4">
-            <GradientStop Color="#CCFFFFFF" Offset="0"/>
-            <GradientStop Color="#CCFFFFFF" Offset="0.7"/>
-            <GradientStop Color="#66FFFFFF" Offset="1"/>
-          </LinearGradientBrush>
-        </Rectangle.Stroke>
-      </Rectangle>
-      <Rectangle Name="ButtonUpperShine" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Grid.Row="1"
-                 RadiusX="5" RadiusY="5" StrokeThickness="0" Margin="0"
-                 IsVisible="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}},Path=HasFocus}">
-        <Rectangle.Fill>
-          <ImageBrush ImageSource="Glass_frame.PNG" Stretch="Fill"/>
-        </Rectangle.Fill>
-      </Rectangle>
-      <Label x:Name="ItemLabel" Grid.Row="2" Grid.Column="0" Content="{Binding SimpleTitle}" Wrap="True" Margin="0,10,0,0"
+      <Image Grid.Row="1" Source="Square_large.png" Stretch="Fill" Margin="-6"/>
+      <Border Grid.Row="1" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" BorderThickness="0"
+              IsVisible="{Binding ElementName=thumbnail, Path=!HasImage}">
+        <Border.Background>
+          <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
+            <Binding RelativeSource="{RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}}" Path="!HasFocus"/>
+            <Binding Source="{ThemeResource NereusColorMedium}"/>
+            <Binding Source="{ThemeResource NereusColorLight}"/>
+          </MultiBinding>
+        </Border.Background>
+      </Border>
+      <Image x:Name="thumb" Grid.Row="1" Stretch="Fill">
+        <Image.Source>
+          <Image.Source>
+            <fanart:FanArtImageSource fanart:FanArtMediaType="Undefined" fanart:FanArtType="Thumbnail" fanart:FanArtName="{Binding MediaItem.MediaItemId}"
+                    fanart:MaxWidth="{StaticResource AUDIO_COVER_WIDTH}" fanart:MaxHeight="{StaticResource AUDIO_COVER_HEIGHT}"/>
+          </Image.Source>
+        </Image.Source>
+      </Image>
+      <Image Grid.Row="1" Source="folder.png" Stretch="Uniform" IsVisible="{Binding ElementName=thumb, Path=!HasImage}"/>
+
+      <Border IsVisible="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}},Path=HasFocus}"
+              BorderThickness="5" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+              CornerRadius="{ThemeResource ButtonControlRadiusX}" Grid.Row="1" Margin="0"
+              BorderBrush="#80000000"/>
+      <Border IsVisible="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}},Path=HasFocus}"
+              BorderThickness="4" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+              CornerRadius="{ThemeResource ButtonControlRadiusX}" Grid.Row="1" Margin="0"
+              BorderBrush="{ThemeResource TileFocusedBorderBrush}"/>
+
+      <Label x:Name="ItemLabel" Grid.Row="2" Grid.Column="0" Content="{Binding SimpleTitle}" Wrap="True" Margin="8,10,8,0"
              FontFamily="SegoeUIBold" TextTrimming="CharacterEllipsis"
-             Opacity="1.3" FontSize="{ThemeResource SmallerFontSize}" Width="{StaticResource POSTER_COVER_WIDTH}">
+             HorizontalAlignment="Center" FontSize="{ThemeResource SmallerFontSize}" Width="{StaticResource AUDIO_COVER_WIDTH}">
         <Label.Color>
           <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
             <Binding RelativeSource="{RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}}" Path="!HasFocus"/>
@@ -2607,13 +2670,32 @@
    <ControlTemplate x:Key="GridViewAudioItemTemplate">
     <Grid x:Name="ItemControl" Width="{StaticResource AUDIO_GRID_WIDTH}" Height="{StaticResource AUDIO_GRID_HEIGHT}">
       <Image Stretch="Fill" Source="square_small.png" Margin="-5"/>
-      <Image x:Name="poster" Source="{Binding MediaItem}" Stretch="Fill" Margin="3"/>
+      
+      <Image x:Name="thumbnail" Source="{Binding MediaItem}" Stretch="Fill" Margin="3"/>
 
-      <!-- Fallback Content, if no poster existing -->
-      <Image Source="audio.png" HorizontalAlignment="Left" VerticalAlignment="Top" Height="70" Width="70" Stretch="Uniform" Margin="-5"
-             IsVisible="{Binding ElementName=poster, Path=!HasImage}"/>
+      <!-- thumbnail not existing -->
+      <Border VerticalAlignment="Stretch" HorizontalAlignment="Stretch" BorderThickness="0"
+              IsVisible="{Binding ElementName=thumbnail, Path=!HasImage}" Margin="3">
+        <Border.Background>
+          <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
+            <Binding RelativeSource="{RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}}" Path="!HasFocus"/>
+            <Binding Source="{ThemeResource NereusColorMedium}"/>
+            <Binding Source="{ThemeResource NereusColorLight}"/>
+          </MultiBinding>
+        </Border.Background>
+      </Border>
+      <Image Source="homecontenticons\track.png" HorizontalAlignment="Left" VerticalAlignment="Top" Height="35" Width="35" Stretch="Uniform" Margin="10"
+             IsVisible="{Binding ElementName=thumbnail, Path=!HasImage}">
+        <Image.Opacity>
+          <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
+            <Binding RelativeSource="{RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}}" Path="HasFocus"/>
+            <Binding Source="1"/>
+            <Binding Source="0.5"/>
+          </MultiBinding>
+        </Image.Opacity>
+      </Image>
       <media:AudioAspectWrapper MediaItem="{Binding MediaItem}" 
-                                Margin="15,50,10,10" IsVisible="{Binding ElementName=poster, Path=!HasImage}">
+                                Margin="15,50,10,10" IsVisible="{Binding ElementName=thumbnail, Path=!HasImage}">
         <media:AudioAspectWrapper.Template>
           <ControlTemplate>
             <Grid DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}">
@@ -2651,9 +2733,20 @@
         <RowDefinition Height="130"/>
       </Grid.RowDefinitions>
 
-      <Image Grid.Row="1" Source="Square_large.png" Stretch="Fill" Margin="-7"/>
-      <Image Grid.Row="1" x:Name="thumb" Stretch="Fill" Source="{Binding MediaItem}"/>
-      <Image Grid.Row="1" Source="audio.png" Stretch="Uniform" IsVisible="{Binding ElementName=thumb, Path=!HasImage}"/>
+      <Image Grid.Row="1" Source="Square_large.png" Stretch="Fill" Margin="-6"/>
+
+      <Image Grid.Row="1" x:Name="thumbnail" Stretch="Fill" Source="{Binding MediaItem}"/>
+      <Border Grid.Row="1" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" BorderThickness="0"
+              IsVisible="{Binding ElementName=thumbnail, Path=!HasImage}">
+        <Border.Background>
+          <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
+            <Binding RelativeSource="{RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}}" Path="!HasFocus"/>
+            <Binding Source="{ThemeResource NereusColorMedium}"/>
+            <Binding Source="{ThemeResource NereusColorLight}"/>
+          </MultiBinding>
+        </Border.Background>
+      </Border>
+      <Image Grid.Row="1" Source="audio.png" Stretch="Uniform" IsVisible="{Binding ElementName=thumbnail, Path=!HasImage}"/>
 
       <Control HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,-3,-3,0" Template="{StaticResource Cover_OfflineFlag_Template}" 
                IsVisible="{Binding Source={StaticResource SkinSettingsModel}, Path=[Nereus].EnableGridWatchedFlags}"/>
@@ -2769,14 +2862,24 @@
         <RowDefinition Height="130"/>
       </Grid.RowDefinitions>
 
-      <Image Grid.Row="1" Source="Square_large.png" Stretch="Fill" Margin="-7"/>
-      <Image x:Name="thumb" Grid.Row="1" Stretch="Fill">
+      <Image Grid.Row="1" Source="Square_large.png" Stretch="Fill" Margin="-6"/>
+      <Image x:Name="thumbnail" Grid.Row="1" Stretch="Fill">
         <Image.Source>
           <fanart:FanArtImageSource fanart:FanArtMediaType="Album" fanart:FanArtType="Poster" fanart:FanArtName="{Binding MediaItem.MediaItemId}"
                     fanart:MaxWidth="{StaticResource FANART_POSTER_WIDTH}" fanart:MaxHeight="{StaticResource FANART_POSTER_HEIGHT}"/>
         </Image.Source>
       </Image>
-      <Image Grid.Row="1" Source="audio.png" Stretch="Uniform" IsVisible="{Binding ElementName=thumb, Path=!HasImage}"/>
+      <Border Grid.Row="1" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" BorderThickness="0"
+              IsVisible="{Binding ElementName=thumbnail, Path=!HasImage}">
+        <Border.Background>
+          <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
+            <Binding RelativeSource="{RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}}" Path="!HasFocus"/>
+            <Binding Source="{ThemeResource NereusColorMedium}"/>
+            <Binding Source="{ThemeResource NereusColorLight}"/>
+          </MultiBinding>
+        </Border.Background>
+      </Border>
+      <Image Grid.Row="1" Source="audio.png" Stretch="Uniform" IsVisible="{Binding ElementName=thumbnail, Path=!HasImage}"/>
       
       <Border IsVisible="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}},Path=HasFocus}"
               BorderThickness="5" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
@@ -2788,7 +2891,7 @@
               BorderBrush="{ThemeResource TileFocusedBorderBrush}"/>
 
       <Label x:Name="ItemLabel" Grid.Row="2" Grid.Column="0" Content="{Binding SimpleTitle}" Wrap="True" Margin="8,10,8,0"
-             Opacity="1.3" FontFamily="SegoeUIBold" TextTrimming="CharacterEllipsis"
+             FontFamily="SegoeUIBold" TextTrimming="CharacterEllipsis"
              HorizontalAlignment="Center" FontSize="{ThemeResource SmallerFontSize}" Width="{StaticResource AUDIO_COVER_WIDTH}">
         <Label.Color>
           <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
@@ -2955,41 +3058,55 @@
   <!--++++++++++++++++++++++++ Person +++++++++++++++++++++++++++-->
   
   <ControlTemplate x:Key="GridViewPersonFilterItemTemplate">
-    <Grid x:Name="ItemControl">
-      <Grid.ColumnDefinitions>
-        <ColumnDefinition Width="{StaticResource ARTIST_GRID_WIDTH}"/>
-      </Grid.ColumnDefinitions>
-      <Grid.RowDefinitions>
-        <RowDefinition Height="{StaticResource ARTIST_GRID_HEIGHT}"/>
-      </Grid.RowDefinitions>
-      <Grid.OpacityMask>
-        <VisualBrush>
-          <VisualBrush.Visual>
-            <Border Background="White" CornerRadius="6" BorderThickness="0" BorderBrush="Black"/>
-          </VisualBrush.Visual>
-        </VisualBrush>
-      </Grid.OpacityMask>
-      <Image x:Name="ItemTypeImage" Stretch="UniformToFill" Margin="0,1.5,0,0">
+    <Grid x:Name="PosterGrid" Width="{StaticResource AUDIO_GRID_WIDTH}" Height="{StaticResource AUDIO_GRID_HEIGHT}">
+      <Image Stretch="Fill" Source="square_small.png" Margin="-5"/>
+
+      <!-- Thumbnail available-->
+      <Image x:Name="thumbnail" Stretch="Fill" Margin="3">
         <Image.Source>
-          <fanart:FanArtImageSource fanart:FanArtMediaType="Undefined" fanart:FanArtType="Thumbnail" fanart:FanArtName="{Binding FirstMediaItem.MediaItemId}"
-             fanart:MaxWidth="{StaticResource FANART_POSTER_WIDTH}" fanart:MaxHeight="{StaticResource FANART_POSTER_HEIGHT}"/>
+          <fanart:FanArtImageSource fanart:FanArtMediaType="Undefined" fanart:FanArtType="Thumbnail" fanart:FanArtName="{Binding MediaItem.MediaItemId}"
+                                    fanart:MaxWidth="{StaticResource AUDIO_GRID_WIDTH}" fanart:MaxHeight="{StaticResource AUDIO_GRID_HEIGHT}"/>
         </Image.Source>
       </Image>
-      <Border VerticalAlignment="Stretch" HorizontalAlignment="Stretch" BorderThickness="0" 
-              Margin="0,1.5,0,0" IsVisible="{Binding ElementName=ItemTypeImage, Path=!HasImage}">
+      <Border VerticalAlignment="Bottom" HorizontalAlignment="Stretch" BorderThickness="0" Background="Black" Opacity="0.5" 
+              Height="45" Margin="3" IsVisible="{Binding ElementName=thumbnail, Path=HasImage}"/>
+      <Label x:Name="ItemLabel" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center" VerticalAlignment="Bottom" Margin="5,5,5,8" 
+             Color="{ThemeResource TextColor}" Height="45" VerticalContentAlignment="Center" FontSize="{ThemeResource SmallFontSize}" 
+             IsVisible="{Binding ElementName=thumbnail, Path=HasImage}" Content="{Binding Path=SimpleTitle}">
+        <Label.Scroll>
+          <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
+            <Binding RelativeSource="{RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}}" Path="HasFocus"/>
+            <Binding Source="Auto"/>
+            <Binding Source="None"/>
+          </MultiBinding>
+        </Label.Scroll>
+      </Label>
+
+      <!-- Thumbnail not available-->
+      <Border VerticalAlignment="Stretch" HorizontalAlignment="Stretch" BorderThickness="0"
+              IsVisible="{Binding ElementName=thumbnail, Path=!HasImage}" Margin="3">
         <Border.Background>
-          <LinearGradientBrush StartPoint="0,1" EndPoint="1,0">
-            <GradientStop Color="{ThemeResource MediaItemBackgroundColor1}" Offset="0"/>
-            <GradientStop Color="{ThemeResource MediaItemBackgroundColor2}" Offset="1"/>
-          </LinearGradientBrush>
+          <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
+            <Binding RelativeSource="{RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}}" Path="!HasFocus"/>
+            <Binding Source="{ThemeResource NereusColorMedium}"/>
+            <Binding Source="{ThemeResource NereusColorLight}"/>
+          </MultiBinding>
         </Border.Background>
       </Border>
-      <Image Stretch="UniformToFill" Source="person.png" Margin="0,0,0,25"
-             IsVisible="{Binding ElementName=ItemTypeImage, Path=!HasImage}">
+      <Image Source="homecontenticons\person.png" HorizontalAlignment="Left" VerticalAlignment="Top" Height="35" Width="35" Stretch="Uniform" Margin="10"
+             IsVisible="{Binding ElementName=thumbnail, Path=!HasImage}">
+        <Image.Opacity>
+          <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
+            <Binding RelativeSource="{RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}}" Path="HasFocus"/>
+            <Binding Source="1"/>
+            <Binding Source="0.5"/>
+          </MultiBinding>
+        </Image.Opacity>
       </Image>
-      <Label x:Name="ItemLabel" HorizontalAlignment="Center" VerticalAlignment="Bottom" 
-             TextTrimming="CharacterEllipsis" IsVisible="{Binding ElementName=ItemTypeImage, Path=!HasImage}"
-             Content="{Binding SimpleTitle}" Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallerFontSize}" Margin="5"/>
+      <Label x:Name="ItemLabel2" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center" VerticalAlignment="Stretch" Margin="6,40,6,8" 
+             Color="{ThemeResource TextColor}" VerticalContentAlignment="Center" FontSize="{ThemeResource SmallFontSize}" Wrap="True"
+             IsVisible="{Binding ElementName=thumbnail, Path=!HasImage}" Content="{Binding Path=SimpleTitle}">
+      </Label>
     </Grid>
   </ControlTemplate>
 
@@ -3044,9 +3161,9 @@
   </ControlTemplate>
 
   <ControlTemplate x:Key="CoverViewPersonFilterItemTemplate">
-    <Grid x:Name="ItemControl">
+    <Grid x:Name="ItemControl" Margin="2">
       <Grid.ColumnDefinitions>
-        <ColumnDefinition Width="*"/>
+        <ColumnDefinition Width="{StaticResource AUDIO_COVER_WIDTH}"/>
       </Grid.ColumnDefinitions>
       <Grid.RowDefinitions>
         <RowDefinition Height="*"/>
@@ -3054,55 +3171,36 @@
         <RowDefinition Height="130"/>
       </Grid.RowDefinitions>
 
-      <Rectangle Name="ButtonBase" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" 
-                 RadiusX="4" RadiusY="4" StrokeThickness="3.5" Margin="-2.5" Grid.Row="1"
-                 IsVisible="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}},Path=HasFocus}">
-        <Rectangle.Stroke>
-          <LinearGradientBrush StartPoint="0,0" EndPoint="0.02,1.4">
-            <GradientStop Color="#CCFFFFFF" Offset="0"/>
-            <GradientStop Color="#CCFFFFFF" Offset="0.7"/>
-            <GradientStop Color="#66FFFFFF" Offset="1"/>
-          </LinearGradientBrush>
-        </Rectangle.Stroke>
-      </Rectangle>
-
-      <Image x:Name="thumb" Grid.Row="1" Width="{StaticResource AUDIO_COVER_WIDTH}" Height="{StaticResource AUDIO_COVER_HEIGHT}" Stretch="Fill">
+      <Image Grid.Row="1" Source="Square_large.png" Stretch="Fill" Margin="-6"/>
+      <Image x:Name="thumbnail" Grid.Row="1" Stretch="Fill">
         <Image.Source>
           <fanart:FanArtImageSource fanart:FanArtMediaType="Undefined" fanart:FanArtType="Thumbnail" fanart:FanArtName="{Binding MediaItem.MediaItemId}"
-                    fanart:MaxWidth="{StaticResource FANART_POSTER_WIDTH}" fanart:MaxHeight="{StaticResource FANART_POSTER_HEIGHT}"/>
+                    fanart:MaxWidth="{StaticResource AUDIO_COVER_WIDTH}" fanart:MaxHeight="{StaticResource AUDIO_COVER_HEIGHT}"/>
         </Image.Source>
-        <Image.OpacityMask>
-          <VisualBrush>
-            <VisualBrush.Visual>
-              <Border Name="mask" Background="White" CornerRadius="5" BorderThickness="0" BorderBrush="Black"/>
-            </VisualBrush.Visual>
-          </VisualBrush>
-        </Image.OpacityMask>
       </Image>
-
-      <Border Grid.Row="1" VerticalAlignment="Center" HorizontalAlignment="Center" CornerRadius="4" BorderThickness="0" 
-              Width="{StaticResource AUDIO_COVER_WIDTH}" Height="{StaticResource AUDIO_COVER_HEIGHT}"
-              IsVisible="{Binding ElementName=thumb, Path=!HasImage}">
+      <Border Grid.Row="1" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" BorderThickness="0"
+              IsVisible="{Binding ElementName=thumbnail, Path=!HasImage}">
         <Border.Background>
-          <LinearGradientBrush StartPoint="0,1" EndPoint="1,0">
-            <GradientStop Color="{ThemeResource MediaItemBackgroundColor1}" Offset="0"/>
-            <GradientStop Color="{ThemeResource MediaItemBackgroundColor2}" Offset="1"/>
-          </LinearGradientBrush>
+          <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
+            <Binding RelativeSource="{RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}}" Path="HasFocus"/>
+            <Binding Source="{ThemeResource NereusColorLight}"/>
+            <Binding Source="{ThemeResource NereusColorMedium}"/>
+          </MultiBinding>
         </Border.Background>
       </Border>
-      <Image Grid.Row="1" Width="{StaticResource AUDIO_COVER_WIDTH}" Height="{StaticResource AUDIO_COVER_HEIGHT}"
-             Source="person.png" Stretch="Uniform" IsVisible="{Binding ElementName=thumb, Path=!HasImage}"/>
+      <Image Grid.Row="1" Source="person.png" Stretch="Uniform" IsVisible="{Binding ElementName=thumbnail, Path=!HasImage}"/>
 
-      <Rectangle Grid.Row="1" Name="ButtonUpperShine" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" 
-                 RadiusX="5" RadiusY="5" StrokeThickness="0" Margin="0"
-                 IsVisible="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}},Path=HasFocus}">
-        <Rectangle.Fill>
-          <ImageBrush ImageSource="Glass_frame.PNG" Stretch="Fill"/>
-        </Rectangle.Fill>
-      </Rectangle>
+      <Border IsVisible="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}},Path=HasFocus}"
+              BorderThickness="5" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+              CornerRadius="{ThemeResource ButtonControlRadiusX}" Grid.Row="1" Margin="0"
+              BorderBrush="#80000000"/>
+      <Border IsVisible="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}},Path=HasFocus}"
+              BorderThickness="4" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+              CornerRadius="{ThemeResource ButtonControlRadiusX}" Grid.Row="1" Margin="0"
+              BorderBrush="{ThemeResource TileFocusedBorderBrush}"/>
 
-      <Label x:Name="ItemLabel" Grid.Row="2" Grid.Column="0" Content="{Binding SimpleTitle}" Wrap="True" Margin="0,10,0,0"
-             Opacity="1.3" FontFamily="SegoeUIBold" TextTrimming="CharacterEllipsis"
+      <Label x:Name="ItemLabel" Grid.Row="2" Grid.Column="0" Content="{Binding SimpleTitle}" Wrap="True" Margin="8,10,8,0"
+             FontFamily="SegoeUIBold" TextTrimming="CharacterEllipsis"
              HorizontalAlignment="Center" FontSize="{ThemeResource SmallerFontSize}" Width="{StaticResource AUDIO_COVER_WIDTH}">
         <Label.Color>
           <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
@@ -3116,116 +3214,9 @@
   </ControlTemplate>
 
   <!--+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++-->
-  <!--++++++++++++++++++++++++ Genre ++++++++++++++++++++++++++++-->
+  <!--++++++++++++++++++++++ VideoGenre +++++++++++++++++++++++++-->
 
-  <ControlTemplate x:Key="GridViewGenreFilterItemTemplate">
-    <Grid x:Name="ItemControl">
-      <Grid.ColumnDefinitions>
-        <ColumnDefinition Width="{StaticResource ARTIST_GRID_WIDTH}"/>
-      </Grid.ColumnDefinitions>
-      <Grid.RowDefinitions>
-        <RowDefinition Height="{StaticResource ARTIST_GRID_HEIGHT}"/>
-      </Grid.RowDefinitions>
-      <Grid.OpacityMask>
-        <VisualBrush>
-          <VisualBrush.Visual>
-            <Border Background="White" CornerRadius="6" BorderThickness="0" BorderBrush="Black"/>
-          </VisualBrush.Visual>
-        </VisualBrush>
-      </Grid.OpacityMask>
-      <Border VerticalAlignment="Stretch" HorizontalAlignment="Stretch" BorderThickness="0">
-        <Border.Background>
-          <LinearGradientBrush StartPoint="0,1" EndPoint="1,0">
-            <GradientStop Color="{ThemeResource MediaItemBackgroundColor1}" Offset="0"/>
-            <GradientStop Color="{ThemeResource MediaItemBackgroundColor2}" Offset="1"/>
-          </LinearGradientBrush>
-        </Border.Background>
-      </Border>
-      <Label x:Name="ItemLabel" HorizontalAlignment="Center" VerticalAlignment="Bottom" Margin="5" Color="{ThemeResource TextColor}"
-             TextTrimming="CharacterEllipsis" Content="{Binding SimpleTitle}" FontSize="{ThemeResource SmallerFontSize}" />
-    </Grid>
-  </ControlTemplate>
-
-  <ControlTemplate x:Key="ListViewGenreFilterItemTemplate">
-    <Grid x:Name="ItemControl">
-      <Grid.ColumnDefinitions>
-        <ColumnDefinition Width="Auto"/>
-        <ColumnDefinition Width="*"/>
-        <ColumnDefinition Width="Auto"/>
-      </Grid.ColumnDefinitions>
-      <Grid.RowDefinitions>
-        <RowDefinition Height="Auto"/>
-        <RowDefinition Height="Auto"/>
-      </Grid.RowDefinitions>
-      <Label Grid.Row="0" Grid.Column="1" x:Name="ItemLabel" FontSize="{ThemeResource SmallFontSize}" FontFamily="SegoeUIBold" Color="{ThemeResource MediaItemUnwatchedColor}">
-        <Label.Content>
-          <Binding Path="SimpleTitle" />
-        </Label.Content>
-      </Label>
-      <Label x:Name="NumItems" Grid.Row="0" Grid.Column="2" Content="{Binding NumItems}" FontFamily="SegoeUIBold"
-          Color="{ThemeResource MediaItemUnwatchedColor}" FontSize="{ThemeResource SmallFontSize}" Margin="10,0,10,0"/>
-    </Grid>
-  </ControlTemplate>
-
-  <ControlTemplate x:Key="CoverViewGenreFilterItemTemplate">
-    <Grid x:Name="ItemControl">
-      <Grid.ColumnDefinitions>
-        <ColumnDefinition Width="{StaticResource AUDIO_COVER_WIDTH}"/>
-      </Grid.ColumnDefinitions>
-      <Grid.RowDefinitions>
-        <RowDefinition Height="*"/>
-        <RowDefinition Height="{StaticResource AUDIO_COVER_HEIGHT}"/>
-        <RowDefinition Height="130"/>
-      </Grid.RowDefinitions>
-
-      <Rectangle Name="ButtonBase" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" 
-                 RadiusX="4" RadiusY="4" StrokeThickness="3.5" Margin="-2.5" Grid.Row="1"
-                 IsVisible="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}},Path=HasFocus}">
-        <Rectangle.Stroke>
-          <LinearGradientBrush StartPoint="0,0" EndPoint="0.02,1.4">
-            <GradientStop Color="#CCFFFFFF" Offset="0"/>
-            <GradientStop Color="#CCFFFFFF" Offset="0.7"/>
-            <GradientStop Color="#66FFFFFF" Offset="1"/>
-          </LinearGradientBrush>
-        </Rectangle.Stroke>
-      </Rectangle>
-
-      <Border Grid.Row="1" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" CornerRadius="4" BorderThickness="0" 
-              Width="{StaticResource AUDIO_COVER_WIDTH}" Height="{StaticResource AUDIO_COVER_HEIGHT}">
-        <Border.Background>
-          <LinearGradientBrush StartPoint="0,1" EndPoint="1,0">
-            <GradientStop Color="{ThemeResource MediaItemBackgroundColor1}" Offset="0"/>
-            <GradientStop Color="{ThemeResource MediaItemBackgroundColor2}" Offset="1"/>
-          </LinearGradientBrush>
-        </Border.Background>
-      </Border>
-
-      <Rectangle Grid.Row="1" Name="ButtonUpperShine" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
-                 RadiusX="5" RadiusY="5" StrokeThickness="0" Width="{StaticResource AUDIO_COVER_WIDTH}" Height="{StaticResource AUDIO_COVER_HEIGHT}"
-                 IsVisible="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}},Path=HasFocus}">
-        <Rectangle.Fill>
-          <ImageBrush ImageSource="Glass_frame.PNG" Stretch="Fill"/>
-        </Rectangle.Fill>
-      </Rectangle>
-
-      <Label x:Name="ItemLabel" Grid.Row="2" Grid.Column="0" Content="{Binding SimpleTitle}" Wrap="True" Margin="0,10,0,0"
-             Opacity="1.3" FontFamily="SegoeUIBold" TextTrimming="CharacterEllipsis"
-             HorizontalAlignment="Center" FontSize="{ThemeResource SmallerFontSize}" Width="{StaticResource AUDIO_COVER_WIDTH}">
-        <Label.Color>
-          <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
-            <Binding RelativeSource="{RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}}" Path="!HasFocus"/>
-            <Binding Source="{ThemeResource MenuTextBackground}"/>
-            <Binding Source="{ThemeResource TextColor}"/>
-          </MultiBinding>
-        </Label.Color>
-      </Label>
-    </Grid>
-  </ControlTemplate>
-
-  <!--+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++-->
-  <!--++++++++++++++++++++++ MovieGenre +++++++++++++++++++++++++-->
-
-  <ControlTemplate x:Key="GridViewMovieGenreFilterItemTemplate">
+  <ControlTemplate x:Key="GridViewVideoGenreFilterItemTemplate">
     <Grid x:Name="ItemControl">
       <Grid.ColumnDefinitions>
         <ColumnDefinition Width="{StaticResource THUMBNAIL_GRID_WIDTH}"/>
@@ -3233,23 +3224,61 @@
       <Grid.RowDefinitions>
         <RowDefinition Height="{StaticResource THUMBNAIL_GRID_HEIGHT}"/>
       </Grid.RowDefinitions>
+
       <Image Stretch="Fill" Source="thumbnail_small.png" Margin="-5"/>
+
+      <!-- Thumbnail available-->
       <Image x:Name="thumbnail" Stretch="Fill" Margin="3">
         <Image.Source>
           <Binding Path="Id" Converter="{StaticResource StringFormatConverter}" ConverterParameter="{}GenreVideo\Wide\{0}.jpg"/>
         </Image.Source>
       </Image>
-      <Image Source="genre.png" HorizontalAlignment="Left" VerticalAlignment="Top" Height="70" Width="70" Stretch="Uniform" Margin="-5"
-               IsVisible="{Binding ElementName=thumbnail, Path=!HasImage}"/>
-      <Border VerticalAlignment="Bottom" HorizontalAlignment="Stretch" BorderThickness="0" Background="Black" 
-              Opacity="0.5" Height="37" Margin="3"/>
-      <Label x:Name="ItemLabel" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center" VerticalAlignment="Bottom" Margin="5" 
-             Color="{ThemeResource TextColor}" Height="35" TextTrimming="CharacterEllipsis"
-             FontSize="{ThemeResource SmallerFontSize}" Content="{Binding Path=SimpleTitle}"/>
+      <Border VerticalAlignment="Bottom" HorizontalAlignment="Stretch" BorderThickness="0" Background="Black" Opacity="0.5" 
+              Height="45" Margin="3" IsVisible="{Binding ElementName=thumbnail, Path=HasImage}"/>
+      <Label x:Name="ItemLabel" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center" VerticalAlignment="Bottom" Margin="5,5,5,8" 
+             Color="{ThemeResource TextColor}" Height="45" VerticalContentAlignment="Center" FontSize="{ThemeResource SmallFontSize}" 
+             IsVisible="{Binding ElementName=thumbnail, Path=HasImage}" Content="{Binding Path=SimpleTitle}">
+        <Label.Scroll>
+          <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
+            <Binding RelativeSource="{RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}}" Path="HasFocus"/>
+            <Binding Source="Auto"/>
+            <Binding Source="None"/>
+          </MultiBinding>
+        </Label.Scroll>
+      </Label>
+
+      <!-- Thumbnail not available-->
+      <Border VerticalAlignment="Stretch" HorizontalAlignment="Stretch" BorderThickness="0"
+              IsVisible="{Binding ElementName=thumbnail, Path=!HasImage}" Margin="3">
+        <Border.Background>
+          <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
+            <Binding RelativeSource="{RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}}" Path="!HasFocus"/>
+            <Binding Source="{ThemeResource NereusColorMedium}"/>
+            <Binding Source="{ThemeResource NereusColorLight}"/>
+          </MultiBinding>
+        </Border.Background>
+      </Border>
+      <Image Source="homecontenticons\genre.png" HorizontalAlignment="Left" VerticalAlignment="Top" Height="35" Width="35" Stretch="Uniform" Margin="10"
+             IsVisible="{Binding ElementName=thumbnail, Path=!HasImage}">
+        <Image.Opacity>
+          <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
+            <Binding RelativeSource="{RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}}" Path="HasFocus"/>
+            <Binding Source="1"/>
+            <Binding Source="0.5"/>
+          </MultiBinding>
+        </Image.Opacity>
+      </Image>
+      <Label x:Name="ItemLabel2" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center" VerticalAlignment="Stretch" Margin="5,40,5,8" 
+             Color="{ThemeResource TextColor}" VerticalContentAlignment="Center" FontSize="{ThemeResource SmallFontSize}" Wrap="True"
+             IsVisible="{Binding ElementName=thumbnail, Path=!HasImage}" Content="{Binding Path=SimpleTitle}">
+      </Label>
+      <Label x:Name="NumItems" Content="{Binding NumItems}" IsVisible="{Binding ElementName=thumbnail, Path=!HasImage}"
+             HorizontalAlignment="Right" VerticalAlignment="Top" Opacity="0.6" Margin="10"
+             Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallerFontSize}"/>
     </Grid>
   </ControlTemplate>
 
-  <ControlTemplate x:Key="ListViewMovieGenreFilterItemTemplate">
+  <ControlTemplate x:Key="ListViewVideoGenreFilterItemTemplate">
     <Grid x:Name="ItemControl">
       <Grid.ColumnDefinitions>
         <ColumnDefinition Width="Auto"/>
@@ -3302,8 +3331,8 @@
     </Grid>
   </ControlTemplate>
 
-  <ControlTemplate x:Key="CoverViewMovieGenreFilterItemTemplate">
-    <Grid x:Name="ItemControl">
+  <ControlTemplate x:Key="CoverViewVideoGenreFilterItemTemplate">
+    <Grid x:Name="ItemControl" Margin="2">
       <Grid.ColumnDefinitions>
         <ColumnDefinition Width="{StaticResource AUDIO_COVER_WIDTH}"/>
       </Grid.ColumnDefinitions>
@@ -3313,185 +3342,35 @@
         <RowDefinition Height="130"/>
       </Grid.RowDefinitions>
 
-      <Rectangle Name="ButtonBase" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" 
-                 RadiusX="4" RadiusY="4" StrokeThickness="3.5" Margin="-2.5" Grid.Row="1"
-                 IsVisible="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}},Path=HasFocus}">
-        <Rectangle.Stroke>
-          <LinearGradientBrush StartPoint="0,0" EndPoint="0.02,1.4">
-            <GradientStop Color="#CCFFFFFF" Offset="0"/>
-            <GradientStop Color="#CCFFFFFF" Offset="0.7"/>
-            <GradientStop Color="#66FFFFFF" Offset="1"/>
-          </LinearGradientBrush>
-        </Rectangle.Stroke>
-      </Rectangle>
-
-      <Border Grid.Row="1" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" CornerRadius="4" BorderThickness="0" 
-              Width="{StaticResource AUDIO_COVER_WIDTH}" Height="{StaticResource AUDIO_COVER_HEIGHT}">
-        <Border.Background>
-          <LinearGradientBrush StartPoint="0,1" EndPoint="1,0">
-            <GradientStop Color="{ThemeResource MediaItemBackgroundColor1}" Offset="0"/>
-            <GradientStop Color="{ThemeResource MediaItemBackgroundColor2}" Offset="1"/>
-          </LinearGradientBrush>
-        </Border.Background>
-      </Border>
-
-      <Image x:Name="thumb" Grid.Row="1" Width="{StaticResource AUDIO_COVER_WIDTH}" Height="{StaticResource AUDIO_COVER_HEIGHT}" Stretch="Uniform" Margin="10">
+      <Image Grid.Row="1" Source="Square_large.png" Stretch="Fill" Margin="-6"/>
+      <Image x:Name="thumb" Grid.Row="1" Stretch="Fill">
         <Image.Source>
           <Binding Path="Id" Converter="{StaticResource StringFormatConverter}" ConverterParameter="{}GenreVideo\Square\{0}.jpg"/>
         </Image.Source>
       </Image>
-
-      <Rectangle Grid.Row="1" Name="ButtonUpperShine" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
-                 RadiusX="5" RadiusY="5" StrokeThickness="0" Width="{StaticResource AUDIO_COVER_WIDTH}" Height="{StaticResource AUDIO_COVER_HEIGHT}"
-                 IsVisible="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}},Path=HasFocus}">
-        <Rectangle.Fill>
-          <ImageBrush ImageSource="Glass_frame.PNG" Stretch="Fill"/>
-        </Rectangle.Fill>
-      </Rectangle>
-
-      <Label x:Name="ItemLabel" Grid.Row="2" Grid.Column="0" Content="{Binding SimpleTitle}" Wrap="True" Margin="0,10,0,0"
-             Opacity="1.3" FontFamily="SegoeUIBold" TextTrimming="CharacterEllipsis"
-             HorizontalAlignment="Center" FontSize="{ThemeResource SmallerFontSize}" Width="{StaticResource AUDIO_COVER_WIDTH}">
-        <Label.Color>
+      <Border Grid.Row="1" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" BorderThickness="0"
+              IsVisible="{Binding ElementName=thumbnail, Path=!HasImage}">
+        <Border.Background>
           <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
             <Binding RelativeSource="{RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}}" Path="!HasFocus"/>
-            <Binding Source="{ThemeResource MenuTextBackground}"/>
-            <Binding Source="{ThemeResource TextColor}"/>
+            <Binding Source="{ThemeResource NereusColorMedium}"/>
+            <Binding Source="{ThemeResource NereusColorLight}"/>
           </MultiBinding>
-        </Label.Color>
-      </Label>
-    </Grid>
-  </ControlTemplate>
-
-  <!--+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++-->
-  <!--++++++++++++++++++++++ SeriesGenre +++++++++++++++++++++++++-->
-
-  <ControlTemplate x:Key="GridViewSeriesGenreFilterItemTemplate">
-    <Grid x:Name="ItemControl">
-      <Grid.ColumnDefinitions>
-        <ColumnDefinition Width="{StaticResource THUMBNAIL_GRID_WIDTH}"/>
-      </Grid.ColumnDefinitions>
-      <Grid.RowDefinitions>
-        <RowDefinition Height="{StaticResource THUMBNAIL_GRID_HEIGHT}"/>
-      </Grid.RowDefinitions>
-      <Image Stretch="Fill" Source="thumbnail_small.png" Margin="-5"/>
-      <Image x:Name="thumbnail" Stretch="Fill" Margin="3">
-        <Image.Source>
-          <Binding Path="Id" Converter="{StaticResource StringFormatConverter}" ConverterParameter="{}GenreVideo\Wide\{0}.jpg"/>
-        </Image.Source>
-      </Image>
-      <Image Source="genre.png" HorizontalAlignment="Left" VerticalAlignment="Top" Height="70" Width="70" Stretch="Uniform" Margin="-5"
-               IsVisible="{Binding ElementName=thumbnail, Path=!HasImage}"/>
-      <Border VerticalAlignment="Bottom" HorizontalAlignment="Stretch" BorderThickness="0" Background="Black" 
-              Opacity="0.5" Height="37" Margin="3"/>
-      <Label x:Name="ItemLabel" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center" VerticalAlignment="Bottom" Margin="5" 
-             Color="{ThemeResource TextColor}" Height="35" TextTrimming="CharacterEllipsis"
-             FontSize="{ThemeResource SmallerFontSize}" Content="{Binding Path=SimpleTitle}"/>
-    </Grid>
-  </ControlTemplate>
-
-  <ControlTemplate x:Key="ListViewSeriesGenreFilterItemTemplate">
-    <Grid x:Name="ItemControl">
-      <Grid.ColumnDefinitions>
-        <ColumnDefinition Width="Auto"/>
-        <ColumnDefinition Width="*"/>
-        <ColumnDefinition Width="Auto"/>
-      </Grid.ColumnDefinitions>
-      <Grid.RowDefinitions>
-        <RowDefinition Height="Auto"/>
-        <RowDefinition Height="Auto"/>
-      </Grid.RowDefinitions>
-      <DockPanel LastChildFill="True" Grid.Row="0" Grid.Column="0" Grid.RowSpan="2" Margin="5,0,5,0">
-        <Image x:Name="ItemTypeSmall" Stretch="Uniform" Margin="0"
-               Width="{StaticResource MEDIA_THUMB_WIDTH_S}" Height="{StaticResource MEDIA_THUMB_HEIGHT_S}">
-          <Image.Source>
-              <Binding Path="Id" Converter="{StaticResource StringFormatConverter}" ConverterParameter="{}GenreVideo\Wide\{0}.jpg"/>
-          </Image.Source>
-          <Image.IsVisible>
-            <Binding Source="{StaticResource ViewModeModel}" Path="LayoutSize" Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0} == {LayoutSize}.{Small}"/>
-          </Image.IsVisible>
-        </Image>
-        <Image x:Name="ItemTypeMedium" Stretch="Uniform" Margin="-15,-5,0,-5"
-               Width="{StaticResource MEDIA_THUMB_WIDTH_M}" Height="{StaticResource MEDIA_THUMB_HEIGHT_M}">
-          <Image.Source>
-              <Binding Path="Id" Converter="{StaticResource StringFormatConverter}" ConverterParameter="{}GenreVideo\Wide\{0}.jpg"/>
-          </Image.Source>
-          <Image.IsVisible>
-            <Binding Source="{StaticResource ViewModeModel}" Path="LayoutSize" Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0} == {LayoutSize}.{Medium}"/>
-          </Image.IsVisible>
-        </Image>
-        <Image x:Name="ItemTypeLarge" Stretch="Uniform" Margin="-25,-5,0,-5"
-               Width="{StaticResource MEDIA_THUMB_WIDTH_L}" Height="{StaticResource MEDIA_THUMB_HEIGHT_L}">
-          <Image.Source>
-              <Binding Path="Id" Converter="{StaticResource StringFormatConverter}" ConverterParameter="{}GenreVideo\Wide\{0}.jpg"/>
-          </Image.Source>
-          <Image.IsVisible>
-            <Binding Source="{StaticResource ViewModeModel}" Path="LayoutSize" Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0} == {LayoutSize}.{Large}"/>
-          </Image.IsVisible>
-        </Image>
-      </DockPanel>
-      <Label Grid.Row="0" Grid.Column="1" x:Name="ItemLabel" FontSize="{ThemeResource SmallFontSize}" FontFamily="SegoeUIBold" Color="{ThemeResource MediaItemUnwatchedColor}">
-        <Label.Content>
-          <Binding Path="SimpleTitle" />
-        </Label.Content>
-      </Label>
-
-      <!--Label x:Name="ItemLabel" Grid.Row="0" Grid.Column="1" Content="{Binding SimpleTitle}" FontFamily="SegoeUIBold"
-          Color="{ThemeResource MediaItemUnwatchedColor}" FontSize="{ThemeResource SmallFontSize}"/-->
-      <Label x:Name="NumItems" Grid.Row="0" Grid.Column="2" Content="{Binding NumItems}" FontFamily="SegoeUIBold"
-          Color="{ThemeResource MediaItemUnwatchedColor}" FontSize="{ThemeResource SmallFontSize}" Margin="10,0,10,0"/>
-    </Grid>
-  </ControlTemplate>
-
-  <ControlTemplate x:Key="CoverViewSeriesGenreFilterItemTemplate">
-    <Grid x:Name="ItemControl">
-      <Grid.ColumnDefinitions>
-        <ColumnDefinition Width="{StaticResource AUDIO_COVER_WIDTH}"/>
-      </Grid.ColumnDefinitions>
-      <Grid.RowDefinitions>
-        <RowDefinition Height="*"/>
-        <RowDefinition Height="{StaticResource AUDIO_COVER_HEIGHT}"/>
-        <RowDefinition Height="130"/>
-      </Grid.RowDefinitions>
-
-      <Rectangle Name="ButtonBase" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" 
-                 RadiusX="4" RadiusY="4" StrokeThickness="3.5" Margin="-2.5" Grid.Row="1"
-                 IsVisible="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}},Path=HasFocus}">
-        <Rectangle.Stroke>
-          <LinearGradientBrush StartPoint="0,0" EndPoint="0.02,1.4">
-            <GradientStop Color="#CCFFFFFF" Offset="0"/>
-            <GradientStop Color="#CCFFFFFF" Offset="0.7"/>
-            <GradientStop Color="#66FFFFFF" Offset="1"/>
-          </LinearGradientBrush>
-        </Rectangle.Stroke>
-      </Rectangle>
-
-      <Border Grid.Row="1" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" CornerRadius="4" BorderThickness="0" 
-              Width="{StaticResource AUDIO_COVER_WIDTH}" Height="{StaticResource AUDIO_COVER_HEIGHT}">
-        <Border.Background>
-          <LinearGradientBrush StartPoint="0,1" EndPoint="1,0">
-            <GradientStop Color="{ThemeResource MediaItemBackgroundColor1}" Offset="0"/>
-            <GradientStop Color="{ThemeResource MediaItemBackgroundColor2}" Offset="1"/>
-          </LinearGradientBrush>
         </Border.Background>
       </Border>
+      <Image Grid.Row="1" Source="genre.png" Stretch="Uniform" IsVisible="{Binding ElementName=thumbnail, Path=!HasImage}"/>
 
-      <Image x:Name="thumb" Grid.Row="1" Width="{StaticResource AUDIO_COVER_WIDTH}" Height="{StaticResource AUDIO_COVER_HEIGHT}" Stretch="Uniform" Margin="10">
-        <Image.Source>
-          <Binding Path="Id" Converter="{StaticResource StringFormatConverter}" ConverterParameter="{}GenreVideo\Square\{0}.jpg"/>
-        </Image.Source>
-      </Image>
+      <Border IsVisible="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}},Path=HasFocus}"
+              BorderThickness="5" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+              CornerRadius="{ThemeResource ButtonControlRadiusX}" Grid.Row="1" Margin="0"
+              BorderBrush="#80000000"/>
+      <Border IsVisible="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}},Path=HasFocus}"
+              BorderThickness="4" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+              CornerRadius="{ThemeResource ButtonControlRadiusX}" Grid.Row="1" Margin="0"
+              BorderBrush="{ThemeResource TileFocusedBorderBrush}"/>
 
-      <Rectangle Grid.Row="1" Name="ButtonUpperShine" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
-                 RadiusX="5" RadiusY="5" StrokeThickness="0" Width="{StaticResource AUDIO_COVER_WIDTH}" Height="{StaticResource AUDIO_COVER_HEIGHT}"
-                 IsVisible="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}},Path=HasFocus}">
-        <Rectangle.Fill>
-          <ImageBrush ImageSource="Glass_frame.PNG" Stretch="Fill"/>
-        </Rectangle.Fill>
-      </Rectangle>
-
-      <Label x:Name="ItemLabel" Grid.Row="2" Grid.Column="0" Content="{Binding SimpleTitle}" Wrap="True" Margin="0,10,0,0"
-             Opacity="1.3" FontFamily="SegoeUIBold" TextTrimming="CharacterEllipsis"
+      <Label x:Name="ItemLabel" Grid.Row="2" Grid.Column="0" Content="{Binding SimpleTitle}" Wrap="True" Margin="8,10,8,0"
+             FontFamily="SegoeUIBold" TextTrimming="CharacterEllipsis"
              HorizontalAlignment="Center" FontSize="{ThemeResource SmallerFontSize}" Width="{StaticResource AUDIO_COVER_WIDTH}">
         <Label.Color>
           <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
@@ -3515,19 +3394,57 @@
       <Grid.RowDefinitions>
         <RowDefinition Height="{StaticResource THUMBNAIL_GRID_HEIGHT}"/>
       </Grid.RowDefinitions>
+
       <Image Stretch="Fill" Source="thumbnail_small.png" Margin="-5"/>
+
+      <!-- Thumbnail available-->
       <Image x:Name="thumbnail" Stretch="Fill" Margin="3">
         <Image.Source>
           <Binding Path="Id" Converter="{StaticResource StringFormatConverter}" ConverterParameter="{}GenreAudio\Wide\{0}.jpg"/>
         </Image.Source>
       </Image>
-      <Image Source="genre.png" HorizontalAlignment="Left" VerticalAlignment="Top" Height="70" Width="70" Stretch="Uniform" Margin="-5"
-               IsVisible="{Binding ElementName=thumbnail, Path=!HasImage}"/>
-      <Border VerticalAlignment="Bottom" HorizontalAlignment="Stretch" BorderThickness="0" Background="Black" 
-              Opacity="0.5" Height="37" Margin="3"/>
-      <Label x:Name="ItemLabel" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center" VerticalAlignment="Bottom" Margin="5" 
-             Color="{ThemeResource TextColor}" Height="35" TextTrimming="CharacterEllipsis"
-             FontSize="{ThemeResource SmallerFontSize}" Content="{Binding Path=SimpleTitle}"/>
+      <Border VerticalAlignment="Bottom" HorizontalAlignment="Stretch" BorderThickness="0" Background="Black" Opacity="0.5" 
+              Height="45" Margin="3" IsVisible="{Binding ElementName=thumbnail, Path=HasImage}"/>
+      <Label x:Name="ItemLabel" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center" VerticalAlignment="Bottom" Margin="5,5,5,8" 
+             Color="{ThemeResource TextColor}" Height="45" VerticalContentAlignment="Center" FontSize="{ThemeResource SmallFontSize}" 
+             IsVisible="{Binding ElementName=thumbnail, Path=HasImage}" Content="{Binding Path=SimpleTitle}">
+        <Label.Scroll>
+          <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
+            <Binding RelativeSource="{RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}}" Path="HasFocus"/>
+            <Binding Source="Auto"/>
+            <Binding Source="None"/>
+          </MultiBinding>
+        </Label.Scroll>
+      </Label>
+
+      <!-- Thumbnail not available-->
+      <Border VerticalAlignment="Stretch" HorizontalAlignment="Stretch" BorderThickness="0" Background="{ThemeResource NereusColorMedium}"
+              IsVisible="{Binding ElementName=thumbnail, Path=!HasImage}" Margin="3">
+        <Border.Background>
+          <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
+            <Binding RelativeSource="{RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}}" Path="!HasFocus"/>
+            <Binding Source="{ThemeResource NereusColorMedium}"/>
+            <Binding Source="{ThemeResource NereusColorLight}"/>
+          </MultiBinding>
+        </Border.Background>
+      </Border>
+      <Image Source="homecontenticons\genre.png" HorizontalAlignment="Left" VerticalAlignment="Top" Height="35" Width="35" Stretch="Uniform" Margin="10"
+             IsVisible="{Binding ElementName=thumbnail, Path=!HasImage}">
+        <Image.Opacity>
+          <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
+            <Binding RelativeSource="{RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}}" Path="HasFocus"/>
+            <Binding Source="1"/>
+            <Binding Source="0.5"/>
+          </MultiBinding>
+        </Image.Opacity>
+      </Image>
+      <Label x:Name="ItemLabel2" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center" VerticalAlignment="Stretch" Margin="5,40,5,8" 
+             Color="{ThemeResource TextColor}" VerticalContentAlignment="Center" FontSize="{ThemeResource SmallFontSize}" Wrap="True"
+             IsVisible="{Binding ElementName=thumbnail, Path=!HasImage}" Content="{Binding Path=SimpleTitle}">
+      </Label>
+      <Label x:Name="NumItems" Content="{Binding NumItems}" IsVisible="{Binding ElementName=thumbnail, Path=!HasImage}"
+             HorizontalAlignment="Right" VerticalAlignment="Top" Opacity="0.6" Margin="10"
+             Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallerFontSize}"/>
     </Grid>
   </ControlTemplate>
 
@@ -3585,7 +3502,7 @@
   </ControlTemplate>
 
   <ControlTemplate x:Key="CoverViewAudioGenreFilterItemTemplate">
-    <Grid x:Name="ItemControl">
+    <Grid x:Name="ItemControl" Margin="2">
       <Grid.ColumnDefinitions>
         <ColumnDefinition Width="{StaticResource AUDIO_COVER_WIDTH}"/>
       </Grid.ColumnDefinitions>
@@ -3595,44 +3512,35 @@
         <RowDefinition Height="130"/>
       </Grid.RowDefinitions>
 
-      <Rectangle Name="ButtonBase" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" 
-                 RadiusX="4" RadiusY="4" StrokeThickness="3.5" Margin="-2.5" Grid.Row="1"
-                 IsVisible="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}},Path=HasFocus}">
-        <Rectangle.Stroke>
-          <LinearGradientBrush StartPoint="0,0" EndPoint="0.02,1.4">
-            <GradientStop Color="#CCFFFFFF" Offset="0"/>
-            <GradientStop Color="#CCFFFFFF" Offset="0.7"/>
-            <GradientStop Color="#66FFFFFF" Offset="1"/>
-          </LinearGradientBrush>
-        </Rectangle.Stroke>
-      </Rectangle>
-
-      <Border Grid.Row="1" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" CornerRadius="4" BorderThickness="0" 
-              Width="{StaticResource AUDIO_COVER_WIDTH}" Height="{StaticResource AUDIO_COVER_HEIGHT}">
-        <Border.Background>
-          <LinearGradientBrush StartPoint="0,1" EndPoint="1,0">
-            <GradientStop Color="{ThemeResource MediaItemBackgroundColor1}" Offset="0"/>
-            <GradientStop Color="{ThemeResource MediaItemBackgroundColor2}" Offset="1"/>
-          </LinearGradientBrush>
-        </Border.Background>
-      </Border>
-
-      <Image x:Name="thumb" Grid.Row="1" Width="{StaticResource AUDIO_COVER_WIDTH}" Height="{StaticResource AUDIO_COVER_HEIGHT}" Stretch="Uniform" Margin="10">
+      <Image Grid.Row="1" Source="Square_large.png" Stretch="Fill" Margin="-6"/>
+      <Image x:Name="thumbnail" Grid.Row="1" Stretch="Fill">
         <Image.Source>
           <Binding Path="Id" Converter="{StaticResource StringFormatConverter}" ConverterParameter="{}GenreAudio\Square\{0}.jpg"/>
         </Image.Source>
       </Image>
+      <Border Grid.Row="1" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" BorderThickness="0"
+              IsVisible="{Binding ElementName=thumbnail, Path=!HasImage}">
+        <Border.Background>
+          <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
+            <Binding RelativeSource="{RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}}" Path="!HasFocus"/>
+            <Binding Source="{ThemeResource NereusColorMedium}"/>
+            <Binding Source="{ThemeResource NereusColorLight}"/>
+          </MultiBinding>
+        </Border.Background>
+      </Border>
+      <Image Grid.Row="1" Source="genre.png" Stretch="Uniform" IsVisible="{Binding ElementName=thumbnail, Path=!HasImage}"/>
 
-      <Rectangle Grid.Row="1" Name="ButtonUpperShine" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
-                 RadiusX="5" RadiusY="5" StrokeThickness="0" Width="{StaticResource AUDIO_COVER_WIDTH}" Height="{StaticResource AUDIO_COVER_HEIGHT}"
-                 IsVisible="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}},Path=HasFocus}">
-        <Rectangle.Fill>
-          <ImageBrush ImageSource="Glass_frame.PNG" Stretch="Fill"/>
-        </Rectangle.Fill>
-      </Rectangle>
+      <Border IsVisible="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}},Path=HasFocus}"
+              BorderThickness="5" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+              CornerRadius="{ThemeResource ButtonControlRadiusX}" Grid.Row="1" Margin="0"
+              BorderBrush="#80000000"/>
+      <Border IsVisible="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}},Path=HasFocus}"
+              BorderThickness="4" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+              CornerRadius="{ThemeResource ButtonControlRadiusX}" Grid.Row="1" Margin="0"
+              BorderBrush="{ThemeResource TileFocusedBorderBrush}"/>
 
-      <Label x:Name="ItemLabel" Grid.Row="2" Grid.Column="0" Content="{Binding SimpleTitle}" Wrap="True" Margin="0,10,0,0"
-             Opacity="1.3" FontFamily="SegoeUIBold" TextTrimming="CharacterEllipsis"
+      <Label x:Name="ItemLabel" Grid.Row="2" Grid.Column="0" Content="{Binding SimpleTitle}" Wrap="True" Margin="8,10,8,0"
+             FontFamily="SegoeUIBold" TextTrimming="CharacterEllipsis"
              HorizontalAlignment="Center" FontSize="{ThemeResource SmallerFontSize}" Width="{StaticResource AUDIO_COVER_WIDTH}">
         <Label.Color>
           <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
@@ -3868,27 +3776,14 @@
     </Control>
   </DataTemplate>
 
-  <DataTemplate DataType="{x:Type navitems:GenreFilterItem}">
-    <Control>
-      <Control.Template>
-        <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} == {LayoutType}.{ListLayout} ? {1} : ({0} == {LayoutType}.{GridLayout} ? {2} : {3})">
-          <Binding Source="{StaticResource ViewModeModel}" Path="LayoutType"/>
-          <Binding Source="{StaticResource ListViewGenreFilterItemTemplate}"/>
-          <Binding Source="{StaticResource GridViewGenreFilterItemTemplate}"/>
-          <Binding Source="{StaticResource CoverViewGenreFilterItemTemplate}"/>
-        </MultiBinding>
-      </Control.Template>
-    </Control>
-  </DataTemplate>
-
   <DataTemplate DataType="{x:Type navitems:SeriesGenreFilterItem}">
     <Control>
       <Control.Template>
         <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} == {LayoutType}.{ListLayout} ? {1} : ({0} == {LayoutType}.{GridLayout} ? {2} : {3})">
           <Binding Source="{StaticResource ViewModeModel}" Path="LayoutType"/>
-          <Binding Source="{StaticResource ListViewSeriesGenreFilterItemTemplate}"/>
-          <Binding Source="{StaticResource GridViewSeriesGenreFilterItemTemplate}"/>
-          <Binding Source="{StaticResource CoverViewSeriesGenreFilterItemTemplate}"/>
+          <Binding Source="{StaticResource ListViewVideoGenreFilterItemTemplate}"/>
+          <Binding Source="{StaticResource GridViewVideoGenreFilterItemTemplate}"/>
+          <Binding Source="{StaticResource CoverViewVideoGenreFilterItemTemplate}"/>
         </MultiBinding>
       </Control.Template>
     </Control>
@@ -3899,9 +3794,9 @@
       <Control.Template>
         <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} == {LayoutType}.{ListLayout} ? {1} : ({0} == {LayoutType}.{GridLayout} ? {2} : {3})">
           <Binding Source="{StaticResource ViewModeModel}" Path="LayoutType"/>
-          <Binding Source="{StaticResource ListViewMovieGenreFilterItemTemplate}"/>
-          <Binding Source="{StaticResource GridViewMovieGenreFilterItemTemplate}"/>
-          <Binding Source="{StaticResource CoverViewMovieGenreFilterItemTemplate}"/>
+          <Binding Source="{StaticResource ListViewVideoGenreFilterItemTemplate}"/>
+          <Binding Source="{StaticResource GridViewVideoGenreFilterItemTemplate}"/>
+          <Binding Source="{StaticResource CoverViewVideoGenreFilterItemTemplate}"/>
         </MultiBinding>
       </Control.Template>
     </Control>
