@@ -34,7 +34,7 @@
       </Image.Source>
     </Image>
     <Image HorizontalAlignment="Center" VerticalAlignment="Center" Stretch="Uniform" Width="200" Height="200"
-       Source="video.png" IsVisible="{Binding ElementName=SeriesPoster, Path=!HasImage}"/>
+           Source="video.png" IsVisible="{Binding ElementName=SeriesPoster, Path=!HasImage}"/>
 
     <media:SeriesAspectWrapper MediaItem="{Binding Source={StaticResource FanArtBackgroundModel},Path=MediaItem}" 
                                HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,-90,0,0"
