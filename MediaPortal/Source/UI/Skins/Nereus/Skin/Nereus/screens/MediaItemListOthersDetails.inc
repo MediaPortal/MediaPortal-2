@@ -23,13 +23,6 @@
       <ImageSourceWrapper Delay="0.5" DelayInOut="true" Transition="transitions\dissolve" TransitionDuration="0.5"
                           Source="{Binding Source={StaticResource FanArtBackgroundModel}, Path=ImageSource, Converter={StaticResource FanArtImageSourceConverter}, ConverterParameter=Poster;380;520}"/>
     </Image.Source>
-    <Image.OpacityMask>
-      <VisualBrush>
-        <VisualBrush.Visual>
-          <Border Name="mask" Background="White" CornerRadius="6" BorderThickness="0" BorderBrush="Black"/>
-        </VisualBrush.Visual>
-      </VisualBrush>
-    </Image.OpacityMask>
   </Image>
 
   <Grid Grid.Row="1" Grid.Column="1" HorizontalAlignment="Right" VerticalAlignment="Bottom" Width="294" Height="428" Margin="0,-30,10,30">
@@ -50,9 +43,9 @@
       <StackPanel Orientation="Vertical" DataContext="{Binding Source={StaticResource FanArtBackgroundModel}}">
         <StackPanel Orientation="Horizontal">
           <Label FontSize="{ThemeResource SmallFontSize}" Content="{Binding NumItems}"
-                 Margin="0,0,8,0" Color="{ThemeResource MenuTextBackground}" Opacity="1.3"/>
+                 Margin="0,0,8,0" Color="{ThemeResource MenuTextBackground}"/>
           <Label FontSize="{ThemeResource SmallFontSize}" Content="[Media.MediaItemsHeader]"
-                 Margin="0,0,8,0" Color="{ThemeResource MenuTextBackground}" Opacity="1.3"
+                 Margin="0,0,8,0" Color="{ThemeResource MenuTextBackground}"
                  IsVisible="{Binding Path=NumItems,Converter={StaticResource ReferenceToBoolConverter}}"/>
         </StackPanel>
       </StackPanel>
@@ -82,7 +75,7 @@
                   </MultiBinding>
                 </Label.Content>
               </Label>
-              <Label Content=" min." FontSize="{ThemeResource SmallFontSize}" Opacity="1.3" Color="{ThemeResource MenuTextBackground}"
+              <Label Content=" min." FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource MenuTextBackground}"
                      IsVisible="{Binding Path=Duration,Converter={StaticResource ReferenceToBoolConverter}}"/>
             </StackPanel>
           </Grid>
