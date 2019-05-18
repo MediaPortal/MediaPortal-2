@@ -103,7 +103,7 @@
       </MultiBinding>
     </Control.IsVisible>
     <Control.TemplateControl>
-      <!--Include Source="screens\MediaItemHomeOthersDetails.inc"/-->
+      <Include Source="screens\MediaItemHomeOthersDetails.inc"/>
     </Control.TemplateControl>
   </Control>
   

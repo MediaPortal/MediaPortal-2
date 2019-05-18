@@ -130,7 +130,7 @@
         </media:MediaAspectWrapper.Template>
       </media:MediaAspectWrapper>
 
-    <Grid>
+    <Grid IsVisible="{Binding Source={StaticResource FanArtBackgroundModel}, Path=MediaItem, Converter={StaticResource ReferenceToBoolConverter}}">
       <Image Source="HomeContentIcons\genre.png" Height="30" Width="30" Stretch="Uniform" Margin="0,0,5,0" 
              VerticalAlignment="Center" HorizontalAlignment="Left"/>
       <Label x:Name="Genre" FontSize="{ThemeResource SmallFontSize}" TextTrimming="WordEllipsis" Margin="40,0,0,0"

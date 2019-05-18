@@ -2317,37 +2317,30 @@
   </DataTemplate>
 
   <DataTemplate DataType="{x:Type nereus_home_content:LatestImageList}">
-
     <Control Style="{ThemeResource MediaGridTemplateStyle}" Width="{ThemeResource TileGroupWidthWide}">
       <Control.Resources>
         <ResourceWrapper x:Key="Tile_Layout_Template" Value="{ThemeResource ThumbnailTileLayout1Template}"/>
       </Control.Resources>
     </Control>
-
   </DataTemplate>
 
   <DataTemplate DataType="{x:Type nereus_home_content:FavoriteImageList}">
-
     <Control Style="{ThemeResource MediaGridTemplateStyle}" Width="{ThemeResource TileGroupWidthWide}">
       <Control.Resources>
         <ResourceWrapper x:Key="Tile_Layout_Template" Value="{ThemeResource ThumbnailTileLayout1Template}"/>
       </Control.Resources>
     </Control>
-
   </DataTemplate>
 
   <DataTemplate DataType="{x:Type nereus_home_content:UnplayedImageList}">
-
     <Control Style="{ThemeResource MediaGridTemplateStyle}" Width="{ThemeResource TileGroupWidthWide}">
       <Control.Resources>
         <ResourceWrapper x:Key="Tile_Layout_Template" Value="{ThemeResource ThumbnailTileLayout2Template}"/>
       </Control.Resources>
     </Control>
-
   </DataTemplate>
 
   <DataTemplate DataType="{x:Type nereus_home_content:ImageHomeContent}">
-
     <ListView Style="{ThemeResource HomeTilesListViewStyle}" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
               IsEnabled="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=IsEnabled}"
               ItemsSource="{Binding Items}">
@@ -2358,7 +2351,87 @@
         <ResourceWrapper x:Key="Banner_Tile_Template" Value="{ThemeResource SeriesBannerTileTemplate}"/>
       </ListView.Resources>
     </ListView>
+  </DataTemplate>
 
+  <!--++++++++++ Video +++++++++++-->
+
+  <!--Video location shortcut button>
+  <Style x:Key="VideoLocationShortcutItemControlStyle" BasedOn="{ThemeResource BaseShortcutItemControlStyle}">
+    <Style.Resources>
+      <ResourceWrapper x:Key="Shortcut_Item_Label" Value="Place"/>
+      <ResourceWrapper x:Key="Shortcut_Item_Video" Value="MediaMenu\place.png"/>
+    </Style.Resources>
+  </Style>
+
+  <Style x:Key="VideoSystemShortcutItemControlStyle" BasedOn="{ThemeResource BaseShortcutItemControlStyle}">
+    <Style.Resources>
+      <ResourceWrapper x:Key="Shortcut_Item_Label" Value="System"/>
+      <ResourceWrapper x:Key="Shortcut_Item_Video" Value="MediaMenu\System.png"/>
+    </Style.Resources>
+  </Style>
+
+  <Style x:Key="VideoSizeShortcutItemControlStyle" BasedOn="{ThemeResource BaseShortcutItemControlStyle}">
+    <Style.Resources>
+      <ResourceWrapper x:Key="Shortcut_Item_Label" Value="Size"/>
+      <ResourceWrapper x:Key="Shortcut_Item_Video" Value="MediaMenu\Size.png"/>
+    </Style.Resources>
+  </Style>
+
+  <DataTemplate DataType="{x:Type nereus_home_content:VideoLocationShortcut}">
+    <Control Style="{ThemeResource VideoLocationShortcutItemControlStyle}"/>
+  </DataTemplate>
+
+  <DataTemplate DataType="{x:Type nereus_home_content:VideoSystemShortcut}">
+    <Control Style="{ThemeResource VideoSystemShortcutItemControlStyle}"/>
+  </DataTemplate>
+
+  <DataTemplate DataType="{x:Type nereus_home_content:VideoSizeShortcut}">
+    <Control Style="{ThemeResource VideoSizeShortcutItemControlStyle}"/>
+  </DataTemplate-->
+
+  <DataTemplate DataType="{x:Type nereus_home_content:LatestVideoList}">
+    <Control Style="{ThemeResource MediaGridTemplateStyle}" Width="{ThemeResource TileGroupWidthWide}">
+      <Control.Resources>
+        <ResourceWrapper x:Key="Tile_Layout_Template" Value="{ThemeResource ThumbnailTileLayout1Template}"/>
+      </Control.Resources>
+    </Control>
+  </DataTemplate>
+
+  <DataTemplate DataType="{x:Type nereus_home_content:ContinuePlayVideoList}">
+    <Control Style="{ThemeResource MediaGridTemplateStyle}" Width="{ThemeResource TileGroupWidthWide}">
+      <Control.Resources>
+        <ResourceWrapper x:Key="Tile_Layout_Template" Value="{ThemeResource ThumbnailTileLayout2Template}"/>
+      </Control.Resources>
+    </Control>
+  </DataTemplate>
+
+  <DataTemplate DataType="{x:Type nereus_home_content:FavoriteVideoList}">
+    <Control Style="{ThemeResource MediaGridTemplateStyle}" Width="{ThemeResource TileGroupWidthWide}">
+      <Control.Resources>
+        <ResourceWrapper x:Key="Tile_Layout_Template" Value="{ThemeResource ThumbnailTileLayout1Template}"/>
+      </Control.Resources>
+    </Control>
+  </DataTemplate>
+
+  <DataTemplate DataType="{x:Type nereus_home_content:UnplayedVideoList}">
+    <Control Style="{ThemeResource MediaGridTemplateStyle}" Width="{ThemeResource TileGroupWidthWide}">
+      <Control.Resources>
+        <ResourceWrapper x:Key="Tile_Layout_Template" Value="{ThemeResource ThumbnailTileLayout2Template}"/>
+      </Control.Resources>
+    </Control>
+  </DataTemplate>
+
+  <DataTemplate DataType="{x:Type nereus_home_content:VideoHomeContent}">
+    <ListView Style="{ThemeResource HomeTilesListViewStyle}" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+              IsEnabled="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=IsEnabled}"
+              ItemsSource="{Binding Items}">
+      <ListView.Resources>
+        <ResourceWrapper x:Key="Square_Tile_Template" Value="{ThemeResource SquareTileTemplate}"/>
+        <ResourceWrapper x:Key="Thumbnail_Tile_Template" Value="{ThemeResource SquareTileTemplate}"/>
+        <ResourceWrapper x:Key="Poster_Tile_Template" Value="{ThemeResource SeriesPosterTileTemplate}"/>
+        <ResourceWrapper x:Key="Banner_Tile_Template" Value="{ThemeResource SeriesBannerTileTemplate}"/>
+      </ListView.Resources>
+    </ListView>
   </DataTemplate>
 
 </ResourceDictionary>

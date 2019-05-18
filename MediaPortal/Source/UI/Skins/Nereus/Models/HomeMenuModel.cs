@@ -87,6 +87,7 @@ namespace MediaPortal.UiComponents.Nereus.Models
       _homeContent.Add(new Guid("30f57cba-459c-4202-a587-09fff5098251"), new SeriesHomeContent());
       _homeContent.Add(new Guid("30715d73-4205-417f-80aa-e82f0834171f"), new AudioHomeContent());
       _homeContent.Add(new Guid("55556593-9fe9-436c-a3b6-a971e10c9d44"), new ImageHomeContent());
+      _homeContent.Add(new Guid("A4DF2DF6-8D66-479a-9930-D7106525EB07"), new VideoHomeContent());
       _homeContent.Add(new Guid("b4a9199f-6dd4-4bda-a077-de9c081f7703"), new TVHomeContent());
       _homeContent.Add(new Guid("bb49a591-7705-408f-8177-45d633fdfad0"), new NewsHomeContent());
       _homeContent.Add(new Guid("e34fdb62-1f3e-4aa9-8a61-d143e0af77b5"), new WeatherHomeContent());
@@ -115,6 +116,11 @@ namespace MediaPortal.UiComponents.Nereus.Models
       list = mlm.Lists["LatestImages"]?.AllItems;
       list = mlm.Lists["FavoriteImages"]?.AllItems;
       list = mlm.Lists["UnplayedImages"]?.AllItems;
+
+      list = mlm.Lists["LatestVideo"]?.AllItems;
+      list = mlm.Lists["ContinuePlayVideo"]?.AllItems;
+      list = mlm.Lists["FavoriteVideo"]?.AllItems;
+      list = mlm.Lists["UnplayedVideo"]?.AllItems;
 
       list = mlm.Lists["LastPlayTV"]?.AllItems;
       list = mlm.Lists["FavoriteTV"]?.AllItems;

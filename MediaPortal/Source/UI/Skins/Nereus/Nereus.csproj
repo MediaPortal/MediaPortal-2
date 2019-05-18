@@ -64,6 +64,7 @@
     <Compile Include="Converters\RoundingFormatConverter.cs" />
     <Compile Include="Models\HomeContent\AbstractHomeContent.cs" />
     <Compile Include="Models\HomeContent\DefaultHomeContent.cs" />
+    <Compile Include="Models\HomeContent\VideoHomeContent.cs" />
     <Compile Include="Models\HomeContent\MediaShortcutItem.cs" />
     <Compile Include="Models\HomeContent\AudioHomeContent.cs" />
     <Compile Include="Models\HomeContent\ImageHomeContent.cs" />

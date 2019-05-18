@@ -1644,8 +1644,25 @@
               <!-- Outer grid is needed because of DataContext used by Button -->
               <Grid Context="{StaticResource NotificationsModel}">
                 <!-- Need to repeat the context here because the Button (ContentControl) sets the DataContext on the Content element -->
-                <Image x:Name="icon" Source="{Binding NotificationSymbolRelFilePath}" Width="80" Height="80" Stretch="Uniform" Opacity="0.7" Margin="10"
-                       IsVisible="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}},Path=!HasFocus}"/>
+                <!--Image x:Name="icon" Source="{Binding NotificationSymbolRelFilePath}" Width="80" Height="80" Stretch="Uniform" Opacity="0.7" Margin="10"
+                       IsVisible="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}},Path=!HasFocus}"/-->
+                <Image x:Name="icon_nofocus" Width="80" Height="80" Stretch="Uniform" Margin="10" Opacity="0.7"
+                       IsVisible="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}},Path=!HasFocus}">
+                  <Image.Source>
+                    <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0}=={1} ? {2} : ({0}=={3} ? {4} : ({0}=={5} ? {6} : ({0}=={7} ? {8} : {9})))">
+                      <Binding Path="NotificationSymbolRelFilePath"/>
+                      <Binding Source="error-icon.png"/>
+                      <Binding Source="NotificationMenu\error-icon.png"/>
+                      <Binding Source="info-icon.png"/>
+                      <Binding Source="NotificationMenu\info-icon.png"/>
+                      <Binding Source="user-interaction-required-icon.png"/>
+                      <Binding Source="NotificationMenu\user-interaction-required-icon.png"/>
+                      <Binding Source="warning-icon.png"/>
+                      <Binding Source="NotificationMenu\warning-icon.png"/>
+                      <Binding Source=""/>
+                    </MultiBinding>
+                  </Image.Source>
+                </Image>
                 <Image x:Name="icon_focus" Width="80" Height="80" Stretch="Uniform" Margin="10"
                        IsVisible="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}},Path=HasFocus}">
                   <Image.Source>

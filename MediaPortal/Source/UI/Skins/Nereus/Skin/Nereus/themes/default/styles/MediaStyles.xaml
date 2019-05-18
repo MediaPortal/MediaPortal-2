@@ -1856,7 +1856,7 @@
     </Grid>
   </ControlTemplate>
 
-  <ControlTemplate x:Key="GridViewEpisodeItemTemplate">
+  <ControlTemplate x:Key="GridViewEpisodeItemTemplate"> 
     <Grid x:Name="ItemControl" Width="{StaticResource THUMBNAIL_GRID_WIDTH}" Height="{StaticResource THUMBNAIL_GRID_HEIGHT}">
       <Image Stretch="Fill" Source="thumbnail_small.png" Margin="-5"/>
       <Image x:Name="thumbnail" Stretch="UniformToFill" Margin="3" Source="{Binding MediaItem}"/>
@@ -2431,121 +2431,71 @@
   </ControlTemplate>
 
   <ControlTemplate x:Key="GridViewVideoItemTemplate">
-    <Grid x:Name="ItemControl">
-      <Grid.ColumnDefinitions>
-        <ColumnDefinition Width="{StaticResource VIDEO_GRID_WIDTH}"/>
-      </Grid.ColumnDefinitions>
-      <Grid.RowDefinitions>
-        <RowDefinition Height="{StaticResource VIDEO_GRID_HEIGHT}"/>
-      </Grid.RowDefinitions>
-      <Grid.OpacityMask>
-        <VisualBrush>
-          <VisualBrush.Visual>
-            <Border Name="mask" Background="White" CornerRadius="6" BorderThickness="0" BorderBrush="Black"/>
-          </VisualBrush.Visual>
-        </VisualBrush>
-      </Grid.OpacityMask>
-      <Image x:Name="thumb" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Stretch="UniformToFill" Source="{Binding MediaItem}">
-        <Image.OpacityMask>
-          <VisualBrush>
-            <VisualBrush.Visual>
-              <Border Name="mask2" Background="White" CornerRadius="6" BorderThickness="0" BorderBrush="Black"/>
-            </VisualBrush.Visual>
-          </VisualBrush>
-        </Image.OpacityMask>
-      </Image>
-      <Border VerticalAlignment="Stretch" HorizontalAlignment="Stretch" CornerRadius="6" BorderThickness="0"
-              IsVisible="{Binding ElementName=thumb, Path=!HasImage}">
-        <Border.Background>
-          <LinearGradientBrush StartPoint="0,1" EndPoint="1,0">
-            <GradientStop Color="{ThemeResource MediaItemBackgroundColor1}" Offset="0"/>
-            <GradientStop Color="{ThemeResource MediaItemBackgroundColor2}" Offset="1"/>
-          </LinearGradientBrush>
-        </Border.Background>
-      </Border>
-      <Image Source="video.png" Stretch="Uniform" IsVisible="{Binding ElementName=thumb, Path=!HasImage}"/>
+    <Grid x:Name="ItemControl" Width="{StaticResource THUMBNAIL_GRID_WIDTH}" Height="{StaticResource THUMBNAIL_GRID_HEIGHT}">
+      <Image Stretch="Fill" Source="thumbnail_small.png" Margin="-5"/>
+      <Image x:Name="thumbnail" Stretch="UniformToFill" Margin="3" Source="{Binding MediaItem}"/>
 
-      <Control HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,-2.4,-2.4,0" Template="{StaticResource Cover_WatchedFlag_Template}" 
+      <!-- Fallback Content, if no thumbnail existing -->
+      <Image Source="video.png" HorizontalAlignment="Left" VerticalAlignment="Top" Height="70" Width="70" Stretch="Uniform" Margin="-5"
+             IsVisible="{Binding ElementName=thumbnail, Path=!HasImage}"/>
+      <Label FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColor}" Wrap="True" TextTrimming="CharacterEllipsis"
+             Margin="15,50,10,10" IsVisible="{Binding ElementName=thumbnail, Path=!HasImage}"
+             Content="{Binding SimpleTitle}" VerticalAlignment="Center" HorizontalAlignment="Stretch"/>
+
+      <!-- watched indicator -->
+      <Control HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0" Template="{StaticResource Cover_WatchedFlag_Template}" 
                IsVisible="{Binding Source={StaticResource SkinSettingsModel}, Path=[Nereus].EnableGridWatchedFlags}"/>
-      <Control HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,-2.4,-2.4,0" Template="{StaticResource Cover_OfflineFlag_Template}" 
+      <Control HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0" Template="{StaticResource Cover_OfflineFlag_Template}" 
                IsVisible="{Binding Source={StaticResource SkinSettingsModel}, Path=[Nereus].EnableGridWatchedFlags}"/>
     </Grid>
   </ControlTemplate>
 
   <ControlTemplate x:Key="CoverViewVideoItemTemplate">
-    <Grid x:Name="ItemControl" Width="{StaticResource VIDEO_COVER_WIDTH}">
+    <Grid x:Name="ItemControl" Width="{StaticResource VIDEO_COVER_WIDTH}" Margin="2">
       <Grid.RowDefinitions>
         <RowDefinition Height="*"/>
         <RowDefinition Height="Auto"/>
-        <RowDefinition Height="72"/>
+        <RowDefinition Height="100"/>
       </Grid.RowDefinitions>
 
-      <Border Grid.Row="1" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" CornerRadius="4" BorderThickness="0" Margin="1">
-        <Border.Background>
-          <LinearGradientBrush StartPoint="0,1" EndPoint="1,0">
-            <GradientStop Color="{ThemeResource MediaItemBackgroundColor1}" Offset="0"/>
-            <GradientStop Color="{ThemeResource MediaItemBackgroundColor2}" Offset="1"/>
-          </LinearGradientBrush>
-        </Border.Background>
-      </Border>
-
-      <Grid Name="PosterGrid" Grid.Row="1" HorizontalAlignment="Center" VerticalAlignment="Center">
-        <Grid.OpacityMask>
-          <VisualBrush>
-            <VisualBrush.Visual>
-              <Border Name="mask" Background="White" CornerRadius="7" BorderThickness="0" BorderBrush="Black"/>
-            </VisualBrush.Visual>
-          </VisualBrush>
-        </Grid.OpacityMask>
-        <Grid>
-          <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"/>
-          </Grid.RowDefinitions>
-        </Grid>
-        <Image x:Name="thumb" Grid.Row="0" HorizontalAlignment="Center" VerticalAlignment="Center" Stretch="Uniform"
+      <Grid Name="PosterGrid" Grid.Row="1" HorizontalAlignment="Center" VerticalAlignment="Center" Panel.ZIndex="1"
+            MaxHeight="{StaticResource VIDEO_COVER_HEIGHT}" Width="{StaticResource VIDEO_COVER_WIDTH}">
+        <Image x:Name="thumb" HorizontalAlignment="Center" VerticalAlignment="Center" Stretch="Uniform"
                Source="{Binding MediaItem}"/>
-        <Border VerticalAlignment="Center" HorizontalAlignment="Center" CornerRadius="4" BorderThickness="0" 
-              Width="{StaticResource VIDEO_COVER_HEIGHT}" Height="{StaticResource VIDEO_COVER_HEIGHT}"
-              IsVisible="{Binding ElementName=thumb, Path=!HasImage}">
-          <Border.Background>
-            <LinearGradientBrush StartPoint="0,1" EndPoint="1,0">
-              <GradientStop Color="{ThemeResource MediaItemBackgroundColor1}" Offset="0"/>
-              <GradientStop Color="{ThemeResource MediaItemBackgroundColor2}" Offset="1"/>
-            </LinearGradientBrush>
-          </Border.Background>
-        </Border>
-        <Image Width="{StaticResource VIDEO_COVER_HEIGHT}" Height="{StaticResource VIDEO_COVER_HEIGHT}"
-             Source="video.png" Stretch="Uniform" IsVisible="{Binding ElementName=thumb, Path=!HasImage}"/>
+        <Image Source="video.png" Stretch="Uniform" IsVisible="{Binding ElementName=thumb, Path=!HasImage}"/>
       </Grid>
 
-      <Rectangle Name="ButtonBase" VerticalAlignment="Stretch" Grid.Row="1"
-                 RadiusX="4" RadiusY="4" StrokeThickness="3" Margin="-2"
-                 IsVisible="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}},Path=HasFocus}">
-        <Rectangle.Stroke>
-          <LinearGradientBrush StartPoint="0,0" EndPoint="0.02,1.4">
-            <GradientStop Color="#CCFFFFFF" Offset="0"/>
-            <GradientStop Color="#CCFFFFFF" Offset="0.7"/>
-            <GradientStop Color="#66FFFFFF" Offset="1"/>
-          </LinearGradientBrush>
-        </Rectangle.Stroke>
-      </Rectangle>
+      <Image Source="Thumbnail_small.png" Grid.Row="1" Stretch="Fill" Panel.ZIndex="0" Margin="-8"
+             HorizontalAlignment="Center" VerticalAlignment="Center">
+        <Image.Height>
+          <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0}+15">
+            <Binding Source="{Binding ElementName=thumb, Path=ActualHeight}"/>
+          </MultiBinding>
+        </Image.Height>
+        <Image.Width>
+          <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0}+15">
+            <Binding Source="{Binding ElementName=thumb, Path=ActualWidth}"/>
+          </MultiBinding>
+        </Image.Width>
+      </Image>
+
+      <Border IsVisible="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}},Path=HasFocus}"
+              BorderThickness="5" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Panel.ZIndex="2"
+              CornerRadius="{ThemeResource ButtonControlRadiusX}" Margin="0" Grid.Row="1"
+              BorderBrush="#80000000"/>
+      <Border IsVisible="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}},Path=HasFocus}"
+              BorderThickness="4" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Panel.ZIndex="3"
+              CornerRadius="{ThemeResource ButtonControlRadiusX}" Margin="0" Grid.Row="1"
+              BorderBrush="{ThemeResource TileFocusedBorderBrush}"/>
 
       <!-- watched indicator -->
-      <Control Grid.Row="1" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,-2.4,-2.4,0" Template="{StaticResource Cover_WatchedFlag_Template}" 
+      <Control Grid.Row="1" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,-3,-3,0" Template="{StaticResource Cover_WatchedFlag_Template}" 
                IsVisible="{Binding Source={StaticResource SkinSettingsModel}, Path=[Nereus].EnableCoverWatchedFlags}"/>
-      <Control Grid.Row="1" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,-2.4,-2.4,0" Template="{StaticResource Cover_OfflineFlag_Template}" 
+      <Control Grid.Row="1" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,-3,-3,0" Template="{StaticResource Cover_OfflineFlag_Template}" 
                IsVisible="{Binding Source={StaticResource SkinSettingsModel}, Path=[Nereus].EnableGridWatchedFlags}"/>
 
-      <Rectangle Name="ButtonUpperShine" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
-                           RadiusX="4" RadiusY="4" StrokeThickness="0" Grid.Row="1"
-                           IsVisible="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}},Path=HasFocus}">
-        <Rectangle.Fill>
-          <ImageBrush ImageSource="Glass_frame.PNG" Stretch="Fill"/>
-        </Rectangle.Fill>
-      </Rectangle>
-
-      <Label x:Name="ItemLabel" Grid.Row="2" Grid.Column="0" Content="{Binding SimpleTitle}" Wrap="True" Margin="0,10,0,0" 
-             TextTrimming="CharacterEllipsis" FontFamily="SegoeUIBold" Opacity="1.3"
+      <Label x:Name="ItemLabel" Grid.Row="2" Grid.Column="0" Wrap="True" Content="{Binding SimpleTitle}"
+             Margin="0,10,0,0" TextTrimming="CharacterEllipsis" FontFamily="SegoeUIBold"
              HorizontalAlignment="Center" FontSize="{ThemeResource SmallerFontSize}" Width="{StaticResource VIDEO_COVER_WIDTH}">
         <Label.Color>
           <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
@@ -2555,7 +2505,6 @@
           </MultiBinding>
         </Label.Color>
       </Label>
-
     </Grid>
   </ControlTemplate>
 
