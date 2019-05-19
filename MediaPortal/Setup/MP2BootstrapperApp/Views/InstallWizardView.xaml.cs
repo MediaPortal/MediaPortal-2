@@ -23,6 +23,7 @@
 #endregion
 
 using System.Windows;
+using System.Windows.Input;
 using MP2BootstrapperApp.ViewModels;
 
 namespace MP2BootstrapperApp.Views
@@ -38,6 +39,21 @@ namespace MP2BootstrapperApp.Views
       DataContext = viewModel;
 
       Closed += (sender, e) => viewModel.CancelCommand.Execute(this);
+    }
+
+    /// <summary>
+    /// Workaround method to allow move the main window.
+    /// Needed because WindowsStyle is set to "None"
+    /// </summary>
+    /// <param name="sender"></param>
+    /// <param name="e"></param>
+    private void Window_MouseDown(object sender, MouseButtonEventArgs e)
+    {
+      if (e.LeftButton == MouseButtonState.Pressed)
+      {
+        DragMove();
+      }
+
     }
   }
 }
