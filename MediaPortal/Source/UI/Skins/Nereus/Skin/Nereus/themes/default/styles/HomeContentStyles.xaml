@@ -140,7 +140,7 @@
 
       <!-- Background fill -->
       <Rectangle Grid.Row="0" Grid.Column="0" Grid.RowSpan="2"
-                   x:Name="HomeFill" Fill="black" Opacity="0.4" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
+                 x:Name="HomeFill" Fill="black" Opacity="0.4" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
 
       <!-- Image -->
       <Image Grid.Row="0" Grid.Column="0" Grid.RowSpan="2" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Stretch="UniformToFill"
@@ -148,7 +148,7 @@
 
       <!-- Darkened band -->
       <Rectangle Grid.Row="1" Grid.Column="0" Fill="#FF000000" Opacity="0.749"
-                   HorizontalAlignment="Stretch" VerticalAlignment="Stretch" />
+                 HorizontalAlignment="Stretch" VerticalAlignment="Stretch" />
 
       <!-- Item label -->
       <Label Grid.Row="1" Grid.Column="0" x:Name="ItemLabel" HorizontalAlignment="Center" VerticalAlignment="Center" Content="{Binding SimpleTitle}"
@@ -2427,7 +2427,7 @@
               ItemsSource="{Binding Items}">
       <ListView.Resources>
         <ResourceWrapper x:Key="Square_Tile_Template" Value="{ThemeResource SquareTileTemplate}"/>
-        <ResourceWrapper x:Key="Thumbnail_Tile_Template" Value="{ThemeResource SquareTileTemplate}"/>
+        <ResourceWrapper x:Key="Thumbnail_Tile_Template" Value="{ThemeResource AudioCoverTileTemplate}"/>
         <ResourceWrapper x:Key="Poster_Tile_Template" Value="{ThemeResource SeriesPosterTileTemplate}"/>
         <ResourceWrapper x:Key="Banner_Tile_Template" Value="{ThemeResource SeriesBannerTileTemplate}"/>
       </ListView.Resources>

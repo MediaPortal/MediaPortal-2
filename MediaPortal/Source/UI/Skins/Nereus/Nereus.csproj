@@ -760,6 +760,16 @@
     </Content>
     <Content Include="Skin\Nereus\skin.xml" />
     <Content Include="Skin\Nereus\themes\default\styles\Colors.xaml" />
+    <Content Include="Skin\Nereus\themes\simple\images\HomeMenu\30715D73-4205-417f-80AA-E82F0834171F.png" />
+    <Content Include="Skin\Nereus\themes\simple\images\HomeMenu\30F57CBA-459C-4202-A587-09FFF5098251.png" />
+    <Content Include="Skin\Nereus\themes\simple\images\HomeMenu\55556593-9FE9-436c-A3B6-A971E10C9D44.png" />
+    <Content Include="Skin\Nereus\themes\simple\images\HomeMenu\80D2E2CC-BAAA-4750-807B-F37714153751.png" />
+    <Content Include="Skin\Nereus\themes\simple\images\HomeMenu\A4DF2DF6-8D66-479a-9930-D7106525EB07.png" />
+    <Content Include="Skin\Nereus\themes\simple\images\HomeMenu\B4A9199F-6DD4-4bda-A077-DE9C081F7703.png" />
+    <Content Include="Skin\Nereus\themes\simple\images\HomeMenu\BB49A591-7705-408F-8177-45D633FDFAD0.png" />
+    <Content Include="Skin\Nereus\themes\simple\images\HomeMenu\C33E39CC-910E-41C8-BFFD-9ECCD340B569.png" />
+    <Content Include="Skin\Nereus\themes\simple\images\HomeMenu\E34FDB62-1F3E-4aa9-8A61-D143E0AF77B5.png" />
+    <Content Include="Skin\Nereus\themes\simple\theme.xml" />
     <Content Include="Skin\Nereus\workflow\wmc-actions.xml" />
     <Content Include="Skin\Nereus\themes\default\styles\Consts.xaml" />
     <Content Include="plugin.xml">
@@ -1041,6 +1051,7 @@
       <SubType>Designer</SubType>
     </Content>
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="build.targets" />
 </Project>
