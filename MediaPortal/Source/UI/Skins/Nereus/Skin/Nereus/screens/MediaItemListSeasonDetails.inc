@@ -35,7 +35,7 @@
       </Image.Source>
     </Image>
     <Image HorizontalAlignment="Center" VerticalAlignment="Center" Stretch="Uniform" Width="200" Height="200"
-           Source="video.png" IsVisible="{Binding ElementName=SeriesPoster, Path=!HasImage}"/>
+           Source="video.png" IsVisible="{Binding ElementName=SeasonPoster, Path=!HasImage}"/>
   </Grid>
   
   <media:SeasonAspectWrapper MediaItem="{Binding Source={StaticResource FanArtBackgroundModel},Path=MediaItem}" VerticalAlignment="Stretch"
