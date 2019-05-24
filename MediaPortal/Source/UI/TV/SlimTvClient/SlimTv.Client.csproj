@@ -149,6 +149,7 @@
     <Compile Include="Models\ScreenData\AbstractChannelFilterScreenData.cs" />
     <Compile Include="Models\ScreenData\RecordingsSimpleSearchScreenData.cs" />
     <Compile Include="Models\ScreenData\RecordingsShowItemsScreenData.cs" />
+    <Compile Include="Models\SlimTvSettingsModel.cs" />
     <Compile Include="Models\SlimTvManualScheduleModel.cs" />
     <Compile Include="Models\SlimTvNotificationModel.cs" />
     <Compile Include="Models\SlimTvProgramSearchModel.cs" />
