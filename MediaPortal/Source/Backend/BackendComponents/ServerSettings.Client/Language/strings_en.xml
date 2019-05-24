@@ -9,7 +9,8 @@
   <string name="Settings.ServerSettings.Password">Password:</string>
   <string name="Settings.ServerSettings.ImporterWorker">Automatic share refresh</string>
   <string name="Settings.ServerSettings.ImporterWorker.Help">Configure automatic refreshes of shares</string>
-  <string name="Settings.ServerSettings.ImporterWorker.EnableAutoRefresh">Enable automatic refresh</string>
+  <string name="Settings.ServerSettings.ImporterWorker.EnableAutoRefresh">Enable automatic server refresh</string>
+  <string name="Settings.ServerSettings.ImporterWorker.EnableClientAutoRefresh">Enable automatic client refresh</string>
   <string name="Settings.ServerSettings.ImporterWorker.RunAtHour">Run at hour of day (24h base)</string>
 
   <string name="Settings.ServerSettings.AudioMDESettings">Audio import settings</string>

@@ -14,14 +14,15 @@
 
     <!-- SlimTvClient model -->
     <Model x:Key="SlimTvMultiChannelGuide" Id="5054408D-C2A9-451f-A702-E84AFCD29C10"/>
+    <Model x:Key="SlimTvSettings" Id="F5D4AA07-8469-46A7-8FD0-E1CD1E8F5898"/>
     <tv:SlimTvGuideTimeFormatConverter x:Key="SlimTvGuideTimeFormatConverter" />
 
     <ResourceWrapper x:Key="DynamicMultiGuideHeaderWidth" EnableBindings="True">
       <ResourceWrapper.Resource>
         <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}({0} ? 90 : 0) + ({1} ? 110 : 0) + ({2} ? 200 : 0)">
-          <Binding Source="{StaticResource SlimTvMultiChannelGuide}" Path="ShowChannelNumbers" />
-          <Binding Source="{StaticResource SlimTvMultiChannelGuide}" Path="ShowChannelLogos" />
-          <Binding Source="{StaticResource SlimTvMultiChannelGuide}" Path="ShowChannelNames" />
+          <Binding Source="{StaticResource SlimTvSettings}" Path="ShowChannelNumbers" />
+          <Binding Source="{StaticResource SlimTvSettings}" Path="ShowChannelLogos" />
+          <Binding Source="{StaticResource SlimTvSettings}" Path="ShowChannelNames" />
         </MultiBinding>
       </ResourceWrapper.Resource>
     </ResourceWrapper>

@@ -192,7 +192,6 @@ namespace MediaPortal.UI.Players.Video
       else if (shouldAddClosedCaptionsFilter)
       {
         _subtitleRenderer.AddClosedCaptionsFilter(_graphBuilder);
-        _closedCaptionsFilterAdded = true;
       }
     }
 

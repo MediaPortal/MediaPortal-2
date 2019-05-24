@@ -27,6 +27,7 @@ using System.Collections.Generic;
 using MediaPortal.Common;
 using MediaPortal.Common.General;
 using MediaPortal.Common.Services.MediaManagement;
+using MediaPortal.Common.Settings;
 using MediaPortal.UI.Presentation.Models;
 using MediaPortal.UI.Presentation.Workflow;
 
@@ -37,6 +38,7 @@ namespace MediaPortal.Plugins.ServerSettings.Models
     public const string IMPORTER_SETUP_MODEL_ID_STR = "B3109220-78E4-4ED1-90E1-D3180E02B401";
 
     protected AbstractProperty _enableAutoRefreshProperty;
+    protected AbstractProperty _enableClientAutoRefreshProperty;
     protected AbstractProperty _runAtHourProperty;
 
     public AbstractProperty EnableAutoRefreshProperty
@@ -48,6 +50,17 @@ namespace MediaPortal.Plugins.ServerSettings.Models
     {
       get { return (bool) _enableAutoRefreshProperty.GetValue(); }
       set { _enableAutoRefreshProperty.SetValue(value); }
+    }
+
+    public AbstractProperty EnableClientAutoRefreshProperty
+    {
+      get { return _enableClientAutoRefreshProperty; }
+    }
+
+    public bool EnableClientAutoRefresh
+    {
+      get { return (bool)_enableClientAutoRefreshProperty.GetValue(); }
+      set { _enableClientAutoRefreshProperty.SetValue(value); }
     }
 
     public AbstractProperty RunAtHourProperty
@@ -64,6 +77,7 @@ namespace MediaPortal.Plugins.ServerSettings.Models
     public ServerImporterWorkerSetupModel()
     {
       _enableAutoRefreshProperty = new SProperty(typeof(bool), false);
+      _enableClientAutoRefreshProperty = new SProperty(typeof(bool), false);
       _runAtHourProperty = new SProperty(typeof(double), 0d);
     }
 
@@ -72,6 +86,12 @@ namespace MediaPortal.Plugins.ServerSettings.Models
     /// </summary>
     public void SaveSettings()
     {
+      ISettingsManager localSettingsManager = ServiceRegistration.Get<ISettingsManager>();
+      ImporterWorkerSettings localSettings = localSettingsManager.Load<ImporterWorkerSettings>();
+      localSettings.EnableAutoRefresh = EnableAutoRefresh && EnableClientAutoRefresh;
+      localSettings.ImporterStartTime = RunAtHour;
+      localSettingsManager.Save(localSettings);
+
       IServerSettingsClient settingsManager = ServiceRegistration.Get<IServerSettingsClient>();
       ImporterWorkerSettings settings = settingsManager.Load<ImporterWorkerSettings>();
       settings.EnableAutoRefresh = EnableAutoRefresh;
@@ -82,8 +102,11 @@ namespace MediaPortal.Plugins.ServerSettings.Models
     private void InitModel()
     {
       IServerSettingsClient settingsManager = ServiceRegistration.Get<IServerSettingsClient>();
+      ISettingsManager localSettingsManager = ServiceRegistration.Get<ISettingsManager>();
       ImporterWorkerSettings settings = settingsManager.Load<ImporterWorkerSettings>();
+      ImporterWorkerSettings localSettings = localSettingsManager.Load<ImporterWorkerSettings>();
       EnableAutoRefresh = settings.EnableAutoRefresh;
+      EnableClientAutoRefresh = localSettings.EnableAutoRefresh;
       RunAtHour = settings.ImporterStartTime;
     }
 
