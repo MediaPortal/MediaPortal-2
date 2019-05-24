@@ -20,10 +20,10 @@
 
     <ResourceWrapper x:Key="DynamicMultiGuideHeaderWidth" EnableBindings="True">
       <ResourceWrapper.Resource>
-        <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}({0} ? 90 : 0) + ({1} ? 110 : 0) + ({2} ? 200 : 0)">
-          <Binding Source="{StaticResource SlimTvMultiChannelGuide}" Path="ShowChannelNumbers" />
-          <Binding Source="{StaticResource SlimTvMultiChannelGuide}" Path="ShowChannelLogos" />
-          <Binding Source="{StaticResource SlimTvMultiChannelGuide}" Path="ShowChannelNames" />
+        <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}({0} ? 90 : 0) + ({1} ? 140 : 0) + ({2} ? 200 : 0)">
+          <Binding Source="{StaticResource SlimTvSettings}" Path="ShowChannelNumbers" />
+          <Binding Source="{StaticResource SlimTvSettings}" Path="ShowChannelLogos" />
+          <Binding Source="{StaticResource SlimTvSettings}" Path="ShowChannelNames" />
         </MultiBinding>
       </ResourceWrapper.Resource>
     </ResourceWrapper>

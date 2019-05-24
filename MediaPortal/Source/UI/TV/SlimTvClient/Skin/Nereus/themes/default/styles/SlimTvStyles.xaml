@@ -11,8 +11,7 @@
     >
   <!-- SlimTvClient model -->
   <Model x:Key="SlimTvClient" Id="8BEC1372-1C76-484c-8A69-C7F3103708EC"/>
-  <Model x:Key="SlimTvMultiChannelGuide" Id="5054408D-C2A9-451f-A702-E84AFCD29C10"/>
-  <!--Model x:Key="SlimTvSingleChannelGuide" Id="74F50A53-BEF7-415c-A240-2EC718DA8C0F"/-->
+  <Model x:Key="SlimTvSettings" Id="F5D4AA07-8469-46A7-8FD0-E1CD1E8F5898"/>
   <Model x:Key="TimeModel" Id="E821B1C8-0666-4339-8027-AA45A4F6F107"/>
   <Model x:Key="VideoPlayerModel" Id="4E2301B4-3C17-4a1d-8DE5-2CEA169A0256"/>
   <tv:SlimTvDateFormatConverter x:Key="SlimTvDateFormatConverter" />
@@ -678,9 +677,9 @@
         <ControlTemplate>
           <DockPanel Name="ButtonControlRectangle">
             <Rectangle DockPanel.Dock="Center" RadiusX="0" RadiusY="0" Name="ButtonBase" Fill="{ThemeResource ProgramBaseFill}" Stroke="Transparent"/>
-            <Rectangle DockPanel.Dock="Center" Name="ButtonHover" Fill="" IsVisible="{Binding Source={StaticResource SlimTvMultiChannelGuide}, Path=!ShowGenreColors}"/>
+            <Rectangle DockPanel.Dock="Center" Name="ButtonHover" Fill="" IsVisible="{Binding Source={StaticResource SlimTvSettings}, Path=!ShowGenreColors}"/>
             <Rectangle DockPanel.Dock="Center" Name="ButtonGenre" Fill="{Binding Program.EpgGenreColor}"
-                       StrokeThickness="0" IsVisible="{Binding Source={StaticResource SlimTvMultiChannelGuide}, Path=ShowGenreColors}"/>
+                       StrokeThickness="0" IsVisible="{Binding Source={StaticResource SlimTvSettings}, Path=ShowGenreColors}"/>
             <Rectangle DockPanel.Dock="Center" Name="ButtonOverlay" Fill=""/>
             <Rectangle DockPanel.Dock="Center" Name="ButtonFocusFrameShadow" StrokeThickness="3" Margin="4" Stroke="Black" Fill="" Opacity="0.8" IsVisible="False"/>
             <Rectangle DockPanel.Dock="Center" Name="ButtonFocusFrame" StrokeThickness="3" Margin="3" Stroke="White" Fill="" IsVisible="False"/>
@@ -696,9 +695,9 @@
         <ControlTemplate>
           <DockPanel Name="ButtonControlRectangle">
             <Rectangle DockPanel.Dock="Center" RadiusX="0" RadiusY="0" Name="ButtonBase" Fill="{ThemeResource BaseFill}" Stroke="Transparent"/>
-            <Rectangle DockPanel.Dock="Center" Name="ButtonHover" Fill="" IsVisible="{Binding Source={StaticResource SlimTvMultiChannelGuide}, Path=!ShowGenreColors}"/>
+            <Rectangle DockPanel.Dock="Center" Name="ButtonHover" Fill="" IsVisible="{Binding Source={StaticResource SlimTvSettings}, Path=!ShowGenreColors}"/>
             <Rectangle DockPanel.Dock="Center" Name="ButtonGenre" Fill="{Binding Program.EpgGenreColor}"
-                       StrokeThickness="0" IsVisible="{Binding Source={StaticResource SlimTvMultiChannelGuide}, Path=ShowGenreColors}"/>
+                       StrokeThickness="0" IsVisible="{Binding Source={StaticResource SlimTvSettings}, Path=ShowGenreColors}"/>
             <Rectangle DockPanel.Dock="Center" Name="ButtonOverlay" Fill=""/>
             <Rectangle DockPanel.Dock="Center" Name="ButtonFocusFrameShadow" StrokeThickness="3" Margin="4" Stroke="Black" Fill="" Opacity="0.8" IsVisible="False"/>
             <Rectangle DockPanel.Dock="Center" Name="ButtonFocusFrame" StrokeThickness="3" Margin="3" Stroke="White" Fill="" IsVisible="False"/>
@@ -744,7 +743,7 @@
             <MultiTrigger>
               <MultiTrigger.Conditions>
                 <Condition Binding="{Binding IsRunning}" Value="True" />
-                <Condition Binding="{Binding Source={StaticResource SlimTvMultiChannelGuide}, Path=ShowGenreColors}" Value="False" />
+                <Condition Binding="{Binding Source={StaticResource SlimTvSettings}, Path=ShowGenreColors}" Value="False" />
               </MultiTrigger.Conditions>
               <Setter TargetName="ButtonBase" Property="Fill" Value="{ThemeResource ProgramRunningFill}"/>
             </MultiTrigger>
@@ -764,7 +763,7 @@
             <MultiTrigger>
               <MultiTrigger.Conditions>
                 <Condition Binding="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Button}, Path=HasFocus}" Value="True"/>
-                <Condition Binding="{Binding Source={StaticResource SlimTvMultiChannelGuide}, Path=ShowGenreColors}" Value="True" />
+                <Condition Binding="{Binding Source={StaticResource SlimTvSettings}, Path=ShowGenreColors}" Value="True" />
               </MultiTrigger.Conditions>
               <Setter TargetName="ButtonFocusFrameShadow" Property="IsVisible" Value="True"/>
               <Setter TargetName="ButtonFocusFrame" Property="IsVisible" Value="True"/>
@@ -818,7 +817,7 @@
             <MultiTrigger>
               <MultiTrigger.Conditions>
                 <Condition Binding="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Button}, Path=HasFocus}" Value="True"/>
-                <Condition Binding="{Binding Source={StaticResource SlimTvMultiChannelGuide}, Path=ShowGenreColors}" Value="True" />
+                <Condition Binding="{Binding Source={StaticResource SlimTvSettings}, Path=ShowGenreColors}" Value="True" />
               </MultiTrigger.Conditions>
               <Setter TargetName="ButtonFocusFrameShadow" Property="IsVisible" Value="True"/>
               <Setter TargetName="ButtonFocusFrame" Property="IsVisible" Value="True"/>
@@ -857,7 +856,7 @@
     <Setter Property="GroupButtonTemplate">
       <Setter.Value>
         <ControlTemplate>
-          <Button Style="{ThemeResource BaseGuideButtonStyle}" Command="{Command Source={StaticResource SlimTvMultiChannelGuide}, Path=SelectGroup}" VerticalAlignment="Stretch">
+          <Button Style="{ThemeResource BaseGuideButtonStyle}" Command="{Command Source={StaticResource SlimTvSettings}, Path=SelectGroup}" VerticalAlignment="Stretch">
             <Label x:Name="GroupNameLabel" Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}" VerticalContentAlignment="Center" HorizontalContentAlignment="Center"
                    Opacity="0.5" Content="{Binding GroupName}" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="0,0,8,0">
               <Label.LayoutTransform>
@@ -892,7 +891,7 @@
               <Label x:Name="ChannelNumber" Grid.Column="0" Content="{Binding Channel.ChannelNumber}" VerticalAlignment="Center" FontFamily="SegoeUIBold" Opacity="0.4"
                      Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}" Margin="5,-2,0,-2" MinWidth="50">
                 <Label.IsVisible>
-                  <Binding Source="{StaticResource SlimTvMultiChannelGuide}" Path="ShowChannelNumbers" />
+                  <Binding Source="{StaticResource SlimTvSettings}" Path="ShowChannelNumbers" />
                 </Label.IsVisible>
               </Label>
               <Image x:Name="ChannelLogo" Grid.Column="1" Stretch="Uniform" Margin="5,-1,0,-1" Width="{ThemeResource ChannelLogoWidth}" HorizontalAlignment="Center"
@@ -902,14 +901,14 @@
                                             fanart:FanArtName="{Binding ChannelLogoPath}" fanart:MaxWidth="0" fanart:MaxHeight="0" />
                 </Image.Source>
                 <Image.IsVisible>
-                  <Binding Source="{StaticResource SlimTvMultiChannelGuide}" Path="ShowChannelLogos" />
+                  <Binding Source="{StaticResource SlimTvSettings}" Path="ShowChannelLogos" />
                 </Image.IsVisible>
               </Image>
 
               <Label Grid.Column="2" x:Name="NameLabel" Content="{Binding [Name]}" VerticalAlignment="Center" Margin="5,0,0,0" ScrollDelay="0"
                      Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}">
                 <Label.IsVisible>
-                  <Binding Source="{StaticResource SlimTvMultiChannelGuide}" Path="ShowChannelNames" />
+                  <Binding Source="{StaticResource SlimTvSettings}" Path="ShowChannelNames" />
                 </Label.IsVisible>
                 <Label.Triggers>
                   <DataTrigger Binding="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Button}, Path=HasFocus}" Value="True">
@@ -932,7 +931,7 @@
               Command="{Binding Command}"
               >
             <Button.ContextMenuCommand>
-              <Command Source="{StaticResource SlimTvMultiChannelGuide}" Path="ShowProgramContextMenu" Parameters="{LateBoundValue BindingValue={Binding}}"/>
+              <Command Source="{StaticResource SlimTvSettings}" Path="ShowProgramContextMenu" Parameters="{LateBoundValue BindingValue={Binding}}"/>
             </Button.ContextMenuCommand>
             <Button.Triggers>
               <Trigger Property="HasFocus" Value="True">
@@ -941,7 +940,7 @@
                   <TriggerCommand>
                     <TriggerCommand.Command>
                       <Command x:Key="SelectionChanged_Command"
-                               Source="{StaticResource SlimTvMultiChannelGuide}"
+                               Source="{StaticResource SlimTvSettings}"
                                Path="UpdateProgram"
                                Parameters="{LateBoundValue BindingValue={Binding}}" />
                     </TriggerCommand.Command>
@@ -1267,10 +1266,10 @@
           <ColumnDefinition Width="Auto"/>
         </Grid.ColumnDefinitions>
 
-        <Label x:Name="ChannelNumber" Grid.Column="0" Content="{Binding Source={StaticResource SlimTvMultiChannelGuide}, Path=CurrentChannel.ChannelNumber}" VerticalAlignment="Center" FontFamily="SegoeUIBold" Opacity="0.4"
+        <Label x:Name="ChannelNumber" Grid.Column="0" Content="{Binding Source={StaticResource SlimTvSettings}, Path=CurrentChannel.ChannelNumber}" VerticalAlignment="Center" FontFamily="SegoeUIBold" Opacity="0.4"
                Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}" Margin="5,-2,0,-2" MinWidth="50">
           <Label.IsVisible>
-            <Binding Source="{StaticResource SlimTvMultiChannelGuide}" Path="ShowChannelNumbers" />
+            <Binding Source="{StaticResource SlimTvSettings}" Path="ShowChannelNumbers" />
           </Label.IsVisible>
         </Label>
 
@@ -1279,14 +1278,14 @@
             <fanart:FanArtImageSource fanart:FanArtMediaType="{Binding Program.ChannelLogoType}" fanart:FanArtType="Banner" fanart:FanArtName="{Binding Program.ChannelName}" fanart:MaxWidth="0" fanart:MaxHeight="0"/>
           </Image.Source>
           <Image.IsVisible>
-            <Binding Source="{StaticResource SlimTvMultiChannelGuide}" Path="ShowChannelLogo" />
+            <Binding Source="{StaticResource SlimTvSettings}" Path="ShowChannelLogo" />
           </Image.IsVisible>
         </Image>
 
         <Label x:Name="NameLabel" Grid.Column="2" Margin="3,1,5,3" Content="{Binding Program.ChannelName}" Color="{ThemeResource TextColor}" Width="280"
                VerticalAlignment="Center" FontSize="{ThemeResource SmallFontSize}" ScrollDelay="0" Scroll="None">
           <Label.IsVisible>
-            <Binding Source="{StaticResource SlimTvMultiChannelGuide}" Path="ShowChannelNames" />
+            <Binding Source="{StaticResource SlimTvSettings}" Path="ShowChannelNames" />
           </Label.IsVisible>
           <Label.Triggers>
             <DataTrigger Binding="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Button}, Path=HasFocus}" Value="True">
@@ -1382,7 +1381,7 @@
         <Label x:Name="ChannelNumber" Grid.Column="0" Content="{Binding Channel.ChannelNumber}" VerticalAlignment="Center" FontFamily="SegoeUIBold" Opacity="0.4"
                Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}" Margin="5,-2,0,-2" MinWidth="50">
           <Label.IsVisible>
-            <Binding Source="{StaticResource SlimTvMultiChannelGuide}" Path="ShowChannelNumbers" />
+            <Binding Source="{StaticResource SlimTvSettings}" Path="ShowChannelNumbers" />
           </Label.IsVisible>
         </Label>
 
@@ -1391,14 +1390,14 @@
             <fanart:FanArtImageSource fanart:FanArtMediaType="{Binding ChannelLogoType}" fanart:FanArtType="Banner" fanart:FanArtName="{Binding ChannelLogoPath}" fanart:MaxWidth="0" fanart:MaxHeight="0"/>
           </Image.Source>
           <Image.IsVisible>
-            <Binding Source="{StaticResource SlimTvMultiChannelGuide}" Path="ShowChannelLogo" />
+            <Binding Source="{StaticResource SlimTvSettings}" Path="ShowChannelLogo" />
           </Image.IsVisible>
         </Image>
 
         <Label x:Name="NameLabel" Grid.Column="2" Margin="3,1,5,3" Content="{Binding Channel.Name}" Color="{ThemeResource TextColor}" Width="280"
                VerticalAlignment="Center" FontSize="{ThemeResource SmallFontSize}" ScrollDelay="0" Scroll="None">
           <Label.IsVisible>
-            <Binding Source="{StaticResource SlimTvMultiChannelGuide}" Path="ShowChannelNames" />
+            <Binding Source="{StaticResource SlimTvSettings}" Path="ShowChannelNames" />
           </Label.IsVisible>
           <Label.Triggers>
             <DataTrigger Binding="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Button}, Path=HasFocus}" Value="True">
