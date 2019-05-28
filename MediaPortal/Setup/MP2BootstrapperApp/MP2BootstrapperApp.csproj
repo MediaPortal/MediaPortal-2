@@ -97,9 +97,13 @@
     <Compile Include="Logger.cs" />
     <Compile Include="Models\IBootstrapperApplicationModel.cs" />
     <Compile Include="ViewModels\ModifyPageViewModel.cs" />
+    <Compile Include="ViewModels\InstallationInProgressPageViewModel.cs" />
     <Compile Include="ViewModels\RepairPageViewModel.cs" />
     <Compile Include="ViewModels\UninstallPageViewModel.cs" />
     <Compile Include="ViewModels\UpdatePageViewModel.cs" />
+    <Compile Include="Views\InstallationInProgressPageView.xaml.cs">
+      <DependentUpon>InstallationInProgressPageView.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Views\ModifyPageView.xaml.cs">
       <DependentUpon>ModifyPageView.xaml</DependentUpon>
     </Compile>
@@ -112,6 +116,7 @@
     <Compile Include="Views\UpdatePageView.xaml.cs">
       <DependentUpon>UpdatePageView.xaml</DependentUpon>
     </Compile>
+    <Compile Include="WizardSteps\InstallationInProgressStep.cs" />
     <Compile Include="WizardSteps\InstallExistInstallStep.cs" />
     <Compile Include="WizardSteps\InstallFinishStep.cs" />
     <Compile Include="WizardSteps\ModifyStep.cs" />
@@ -162,6 +167,10 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
+    <Page Include="Views\InstallationInProgressPageView.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
     <Page Include="Views\InstallExistTypePageView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>

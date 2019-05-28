@@ -244,6 +244,7 @@ namespace MP2BootstrapperApp.ViewModels
 
     protected void ApplyComplete(object sender, ApplyCompleteEventArgs e)
     {
+      _wizard.Step = new InstallFinishStep(this);
       CurrentPage = new InstallFinishPageViewModel(this);
       _bootstrapperApplicationModel.FinalResult = e.Status;
     }

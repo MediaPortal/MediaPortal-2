@@ -57,7 +57,11 @@
             <view:UninstallView />
         </DataTemplate>
 
-        <!-- Our style for the ToggleButton -->
+        <DataTemplate DataType="{x:Type viewModels:InstallationInProgressPageViewModel}">
+            <view:InstallationInProgressPageView />
+        </DataTemplate>
+
+    <!-- Our style for the ToggleButton -->
         <Style x:Key="ToggleButtonWindowClose" TargetType="{x:Type ToggleButton}">
             <!-- Here you can set the initial properties for the control -->
             <Setter Property="Background" Value="Transparent" />
