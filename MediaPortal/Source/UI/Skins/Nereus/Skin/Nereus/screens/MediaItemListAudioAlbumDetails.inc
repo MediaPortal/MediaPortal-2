@@ -71,9 +71,9 @@
                    IsVisible="{Binding Path=Album,Converter={StaticResource ReferenceToBoolConverter}}"/>
 
             <Label Content="{Binding Path=Artists}" FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColor}"
-                   TextTrimming="WordEllipsis" Wrap="True" IsVisible="{Binding Path=Artists,Converter={StaticResource ReferenceToBoolConverter}}"/>
+                   TextTrimming="WordEllipsis" Wrap="True" IsVisible="{Binding Path=Artists,Converter={StaticResource EmptyStringToFalseConverter}}"/>
 
-            <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Center"
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="0,3,0,3"
                         IsVisible="{Binding Path=TotalRating,Converter={StaticResource ReferenceToBoolConverter}}">
               <StarRatingPanel x:Name="RatingReadOnly" IsReadOnly="True" StarReadOnlyTemplate="{StaticResource StarReadOnlyTemplate}"
                                Maximum="5" VerticalAlignment="Center">
@@ -100,7 +100,8 @@
             <media:MediaAspectWrapper MediaItem="{Binding Source={StaticResource FanArtBackgroundModel},Path=MediaItem}">
               <media:MediaAspectWrapper.Template>
                 <ControlTemplate>
-                  <Grid DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}">
+                  <Grid DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}"
+                        IsVisible="{Binding ElementName=Year, Path=Content, Converter={StaticResource EmptyStringToFalseConverter}}">
                     <Image Source="HomeContentIcons\year.png" Height="27" Width="27" Stretch="Uniform" Margin="0,-1,5,1"
                            VerticalAlignment="Center" HorizontalAlignment="Left"/>
                     <Label x:Name="Year" FontSize="{ThemeResource SmallFontSize}" VerticalAlignment="Center" Margin="40,0,0,0"
@@ -110,7 +111,7 @@
               </media:MediaAspectWrapper.Template>
             </media:MediaAspectWrapper>
 
-            <Grid IsVisible="{Binding Source={StaticResource FanArtBackgroundModel}, Path=MediaItem, Converter={StaticResource ReferenceToBoolConverter}}">
+            <Grid IsVisible="{Binding ElementName=Genre, Path=Content, Converter={StaticResource EmptyStringToFalseConverter}}">
               <Image Source="HomeContentIcons\audiogenre.png" Height="30" Width="30" Stretch="Uniform" Margin="0,0,5,0" 
                      VerticalAlignment="Center" HorizontalAlignment="Left"/>
               <Label x:Name="Genre" FontSize="{ThemeResource SmallFontSize}" TextTrimming="WordEllipsis" 
@@ -125,7 +126,7 @@
             </Grid>
 
             <Grid DataContext="{Binding Source={StaticResource FanArtBackgroundModel},Path=SelectedItem}"
-                        IsVisible="{Binding Path=Tracks,Converter={StaticResource ReferenceToBoolConverter}}">
+                  IsVisible="{Binding Path=Tracks,Converter={StaticResource ReferenceToBoolConverter}}">
               <Image Source="HomeContentIcons\track.png" Height="29" Width="28" Stretch="Uniform" Margin="0,0,5,0"
                      VerticalAlignment="Center" HorizontalAlignment="Left"/>
               <StackPanel Orientation="Horizontal" Margin="40,0,0,0">
@@ -139,28 +140,12 @@
 
           </StackPanel>
 
-          <Label x:Name="Description" Grid.Row="1" Margin="0,40,0,0" TextTrimming="WordEllipsis"
+          <Label x:Name="Description" Grid.Row="1" Margin="0,40,0,30" TextTrimming="WordEllipsis"
                  HorizontalAlignment="Stretch" Wrap="True" Opacity="0.6" Content="{Binding Path=Description}"
                  FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColor}"/>
         </Grid>
       </ControlTemplate>
     </media:AudioAlbumAspectWrapper.Template>
   </media:AudioAlbumAspectWrapper>
-
-  <!--media:UserDataWrapper MediaItem="{Binding Source={StaticResource FanArtBackgroundModel},Path=MediaItem}" Grid.Row="5">
-              <media:UserDataWrapper.Template>
-                <ControlTemplate>
-                  <Grid DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}"
-                        IsVisible="{Binding Path=PlayPercentage,Converter={StaticResource ReferenceToBoolConverter}}">
-                    <Image HorizontalAlignment="Right" VerticalAlignment="Center" Stretch="Fill" Width="95" Height="95" Margin="0,10,10,10" >
-                      <Image.Source>
-                        <Binding Path="PlayPercentage" Converter="{StaticResource StringFormatConverter}" ConverterParameter="{}CircularBar\{0:F0}.png"/>
-                      </Image.Source>
-                    </Image>
-                  </Grid>
-                </ControlTemplate>
-              </media:UserDataWrapper.Template>
-            </media:UserDataWrapper-->
-
 
 </Grid>

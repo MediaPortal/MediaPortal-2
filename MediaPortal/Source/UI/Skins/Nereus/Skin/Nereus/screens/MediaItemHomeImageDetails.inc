@@ -28,7 +28,8 @@
     <media:MediaAspectWrapper MediaItem="{Binding Source={StaticResource FanArtBackgroundModel},Path=MediaItem}">
       <media:MediaAspectWrapper.Template>
         <ControlTemplate>
-          <Grid DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}">
+          <Grid DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}"
+                IsVisible="{Binding ElementName=Year, Path=Content, Converter={StaticResource EmptyStringToFalseConverter}}">
             <Grid.RowDefinitions>
               <RowDefinition Height="*"/>
             </Grid.RowDefinitions>
@@ -49,18 +50,18 @@
       <media:ImageAspectWrapper.Template>
         <ControlTemplate>
           <Grid DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}" Margin="20,0,0,0"
-                IsVisible="{Binding Path=AspectHeight,Converter={StaticResource ReferenceToBoolConverter}}">
+                IsVisible="{Binding ElementName=Height, Path=Content, Converter={StaticResource EmptyStringToFalseConverter}}">
             <Grid.ColumnDefinitions>
             <ColumnDefinition Width="Auto"/>
               <ColumnDefinition Width="Auto"/>
               <ColumnDefinition Width="Auto"/>
               <ColumnDefinition Width="Auto"/>
             </Grid.ColumnDefinitions>
-            <Image Source="HomeContentIcons\settings.png" Stretch="Uniform" Height="25" VerticalAlignment="Center" Margin="0,-1,5,1"/>
+            <Image Source="HomeContentIcons\resolution.png" Stretch="Uniform" Height="25" VerticalAlignment="Center" Margin="0,-1,5,1"/>
             <Label Content="{Binding AspectWidth}" Grid.Column="1" Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallerFontSize}" Opacity="0.6"/>
             <Label Content=" x " Grid.Column="2" FontSize="{ThemeResource SmallerFontSize}" Color="{ThemeResource TextColor}" Opacity="0.6"/>    
             <Label Content="{Binding AspectHeight}" Grid.Column="3" Color="{ThemeResource TextColor}" 
-                   FontSize="{ThemeResource SmallerFontSize}" Opacity="0.6"/>
+                   x:Name="Height" FontSize="{ThemeResource SmallerFontSize}" Opacity="0.6"/>
           </Grid>
         </ControlTemplate>
       </media:ImageAspectWrapper.Template>
