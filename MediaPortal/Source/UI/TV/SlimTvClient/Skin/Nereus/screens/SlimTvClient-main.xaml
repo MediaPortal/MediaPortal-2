@@ -123,7 +123,7 @@
           <Label Grid.Row="1" Grid.Column="1" x:Name="Description" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
                  Wrap="True" Scroll="Auto" ScrollDelay="5" ScrollSpeed="10" Opacity="0.6"
                  Content="{Binding Path=SelectedCurrentProgram.Description}"
-                 Color="{ThemeResource TextColor}" Margin="0,0,0,5" />
+                 Color="{ThemeResource TextColor}" Margin="0,0,20,5" />
         </Grid>
         
       </Grid>  

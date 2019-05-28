@@ -4,7 +4,7 @@
   xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
   xmlns:fanart="clr-namespace:MediaPortal.Extensions.UserServices.FanArtService.Client;assembly=FanArtService.Client"
   xmlns:media="clr-namespace:MediaPortal.UiComponents.Media.Models.AspectWrappers;assembly=Media"
-  Grid.Column="2" Grid.Row="0" x:Name="MediaItemDetails" Margin="0,30,20,-200"
+  x:Name="MediaItemDetails" Margin="0,320,20,-60"
   HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
 
   <StackPanel Orientation="Vertical" Margin="0">
@@ -22,15 +22,13 @@
               <ColumnDefinition Width="450"/>
             </Grid.ColumnDefinitions>
 
-            <Label x:Name="TitleLabel" Grid.Row="0" Grid.Column="0"
-                Content="[Media.ImageTitleLabel]" FontSize="{ThemeResource SmallFontSize}" Opacity="1.3" Color="{ThemeResource MenuTextBackground}"/>
-            <Label x:Name="Title" Grid.Row="0" Grid.Column="1" Scroll="Auto" FontSize="{ThemeResource SmallFontSize}"
-                Content="{Binding Title}" Color="{ThemeResource TextColor}" TextTrimming="CharacterEllipsis"/>
+            <Label x:Name="Title" Grid.Row="0" Grid.ColumnSpan="2" Scroll="Auto" FontSize="{ThemeResource NormalFontSize}" FontFamily="SegoeUIBold"
+                Content="{Binding Title}" Color="{ThemeResource TextColor}" TextTrimming="CharacterEllipsis" Margin="0,0,0,10"/>
 
             <Label x:Name="YearLabel" Grid.Row="1" Grid.Column="0" FontSize="{ThemeResource SmallFontSize}"
-                Content="[Media.VideoYearLabel]" Opacity="1.3" Color="{ThemeResource MenuTextBackground}"/>
-            <Label x:Name="Year" Grid.Row="1" Grid.Column="1" FontSize="{ThemeResource SmallFontSize}"
-                Content="{Binding Path=RecordingTime, Converter={StaticResource DateFormatConverter}, ConverterParameter=g}" Color="{ThemeResource TextColor}"/>
+                Content="[Media.VideoYearLabel]" Color="{ThemeResource TextColor}"/>
+            <Label x:Name="Year" Grid.Row="1" Grid.Column="1" FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColorForeground}"
+                Content="{Binding Path=RecordingTime, Converter={StaticResource DateFormatConverter}, ConverterParameter=g}" />
 
           </Grid>
         </ControlTemplate>
@@ -46,9 +44,9 @@
               <ColumnDefinition Width="450"/>
             </Grid.ColumnDefinitions>
             <Label x:Name="CameraMakeLabel" Grid.Row="0" Grid.Column="0"
-               Content="[Media.CameraMake]" FontSize="{ThemeResource SmallFontSize}" Opacity="1.3" Color="{ThemeResource MenuTextBackground}"/>
+               Content="[Media.CameraMake]" FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColor}"/>
             <Label x:Name="CameraMake" Grid.Row="0" Grid.Column="1" Scroll="Auto"
-                Content="{Binding EquipmentMake}" FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColor}"/>
+                Content="{Binding EquipmentMake}" FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColorForeground}"/>
           </Grid>
         </ControlTemplate>
       </media:ImageAspectWrapper.Template>
@@ -63,9 +61,9 @@
               <ColumnDefinition Width="450"/>
             </Grid.ColumnDefinitions>
             <Label x:Name="CameraModelLabel" Grid.Row="0" Grid.Column="0"
-                Content="[Media.CameraModel]" FontSize="{ThemeResource SmallFontSize}" Opacity="1.3" Color="{ThemeResource MenuTextBackground}"/>
+                Content="[Media.CameraModel]" FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColor}"/>
             <Label x:Name="CameraModel" Grid.Row="0" Grid.Column="1"
-                Content="{Binding EquipmentModel}" FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColor}"/>
+                Content="{Binding EquipmentModel}" FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColorForeground}"/>
           </Grid>
         </ControlTemplate>
       </media:ImageAspectWrapper.Template>
@@ -80,9 +78,9 @@
               <ColumnDefinition Width="350"/>
             </Grid.ColumnDefinitions>
             <Label x:Name="ImageISOSpeedLabel" Grid.Row="0" Grid.Column="0"
-                 Content="[Media.ImageISOSpeedLabel]" FontSize="{ThemeResource SmallFontSize}" Opacity="1.3" Color="{ThemeResource MenuTextBackground}"/>
+                 Content="[Media.ImageISOSpeedLabel]" FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColor}"/>
             <Label x:Name="ImageISOSpeed" Grid.Row="0" Grid.Column="1"
-                Content="{Binding ISOSpeedRating}" FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColor}"/>
+                Content="{Binding ISOSpeedRating}" FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColorForeground}"/>
           </Grid>
         </ControlTemplate>
       </media:ImageAspectWrapper.Template>
@@ -97,9 +95,9 @@
               <ColumnDefinition Width="350"/>
             </Grid.ColumnDefinitions>
             <Label x:Name="ImageExposureTimeLabel" Grid.Row="0" Grid.Column="0"
-                Content="[Media.ImageExposureTimeLabel]" FontSize="{ThemeResource SmallFontSize}" Opacity="1.3" Color="{ThemeResource MenuTextBackground}"/>
+                Content="[Media.ImageExposureTimeLabel]" FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColor}"/>
             <Label x:Name="ImageExposureTime" Grid.Row="0" Grid.Column="1"
-                Content="{Binding ExposureTime}" FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColor}"/>
+                Content="{Binding ExposureTime}" FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColorForeground}"/>
           </Grid>
         </ControlTemplate>
       </media:ImageAspectWrapper.Template>
@@ -114,9 +112,9 @@
               <ColumnDefinition Width="350"/>
             </Grid.ColumnDefinitions>
             <Label x:Name="ImageFNumberLabel" Grid.Row="0" Grid.Column="0"
-                Content="[Media.ImageFNumberLabel]" FontSize="{ThemeResource SmallFontSize}" Opacity="1.3" Color="{ThemeResource MenuTextBackground}"/>
+                Content="[Media.ImageFNumberLabel]" FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColor}"/>
             <Label x:Name="ImageFNumber" Grid.Row="0" Grid.Column="1"
-                Content="{Binding FNumber}" FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColor}"/>
+                Content="{Binding FNumber}" FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColorForeground}"/>
           </Grid>
         </ControlTemplate>
       </media:ImageAspectWrapper.Template>
@@ -131,9 +129,9 @@
               <ColumnDefinition Width="350"/>
             </Grid.ColumnDefinitions>
             <Label x:Name="ImageMeteringModeLabel" Grid.Row="0" Grid.Column="0"
-                Content="[Media.ImageMeteringModeLabel]" FontSize="{ThemeResource SmallFontSize}" Opacity="1.3" Color="{ThemeResource MenuTextBackground}"/>
+                Content="[Media.ImageMeteringModeLabel]" FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColor}"/>
             <Label x:Name="ImageMeteringMode" Grid.Row="0" Grid.Column="1"
-                Content="{Binding MeteringMode}" FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColor}"/>
+                Content="{Binding MeteringMode}" FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColorForeground}"/>
           </Grid>
         </ControlTemplate>
       </media:ImageAspectWrapper.Template>
@@ -148,9 +146,9 @@
               <ColumnDefinition Width="350"/>
             </Grid.ColumnDefinitions>
             <Label x:Name="ImageCountryLabel" Grid.Row="0" Grid.Column="0"
-                Content="[Media.ImageCountryLabel]" FontSize="{ThemeResource SmallFontSize}" Opacity="1.3" Color="{ThemeResource MenuTextBackground}"/>
+                Content="[Media.ImageCountryLabel]" FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColor}"/>
             <Label x:Name="ImageCountry" Grid.Row="0" Grid.Column="1"
-                Content="{Binding Country}" FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColor}"/>
+                Content="{Binding Country}" FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColorForeground}"/>
           </Grid>
         </ControlTemplate>
       </media:ImageAspectWrapper.Template>
@@ -165,9 +163,9 @@
               <ColumnDefinition Width="350"/>
             </Grid.ColumnDefinitions>
             <Label x:Name="ImageStateLabel" Grid.Row="0" Grid.Column="0"
-                Content="[Media.ImageStateLabel]" FontSize="{ThemeResource SmallFontSize}" Opacity="1.3" Color="{ThemeResource MenuTextBackground}"/>
+                Content="[Media.ImageStateLabel]" FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColor}"/>
             <Label x:Name="ImageState" Grid.Row="0" Grid.Column="1"
-                Content="{Binding State}" FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColor}"/>
+                Content="{Binding State}" FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColorForeground}"/>
           </Grid>
         </ControlTemplate>
       </media:ImageAspectWrapper.Template>
@@ -186,11 +184,13 @@
               <ColumnDefinition Width="Auto"/>
             </Grid.ColumnDefinitions>
             <Label x:Name="Resolution" Grid.Row="0" Grid.Column="0"
-                   Content="Resolution:" FontSize="{ThemeResource SmallFontSize}" Opacity="1.3" Color="{ThemeResource MenuTextBackground}"/>
+                   Content="Resolution:" FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColor}"/>
             <Label  Grid.Row="0" Grid.Column="1" Content="{Binding AspectWidth}"
-                    Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}"/>
-            <Label Content=" x " Grid.Row="0" Grid.Column="2" FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColor}"/>
-            <Label Content="{Binding AspectHeight}" Grid.Row="0" Grid.Column="3" Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}"/>
+                    Color="{ThemeResource TextColorForeground}" FontSize="{ThemeResource SmallFontSize}"/>
+            <Label Content=" x " Grid.Row="0" Grid.Column="2" FontSize="{ThemeResource SmallFontSize}" 
+                   Color="{ThemeResource TextColorForeground}"/>
+            <Label Content="{Binding AspectHeight}" Grid.Row="0" Grid.Column="3" Color="{ThemeResource TextColorForeground}" 
+                   FontSize="{ThemeResource SmallFontSize}"/>
           </Grid>
         </ControlTemplate>
       </media:ImageAspectWrapper.Template>
@@ -205,9 +205,9 @@
               <ColumnDefinition Width="Auto"/>
             </Grid.ColumnDefinitions>
             <Label x:Name="ImageCityLabel" Grid.Row="0" Grid.Column="0"
-                Content="[Media.ImageCityLabel]" FontSize="{ThemeResource SmallFontSize}" Opacity="1.3" Color="{ThemeResource MenuTextBackground}"/>
+                Content="[Media.ImageCityLabel]" FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColor}"/>
             <Label x:Name="ImageCity" Grid.Row="0" Grid.Column="1"
-                Content="{Binding City}" FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColor}"/>
+                Content="{Binding City}" FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColorForeground}"/>
           </Grid>
         </ControlTemplate>
       </media:ImageAspectWrapper.Template>
