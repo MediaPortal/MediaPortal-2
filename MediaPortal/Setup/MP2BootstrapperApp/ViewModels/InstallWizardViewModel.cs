@@ -51,12 +51,13 @@ namespace MP2BootstrapperApp.ViewModels
       Canceled
     }
 
-    #region Fields
-
     private readonly IBootstrapperApplicationModel _bootstrapperApplicationModel;
     private InstallWizardPageViewModelBase _currentPage;
     private ReadOnlyCollection<BundlePackage> _bundlePackages;
     private string _header;
+    private string _buttonNextContent;
+    private string _buttonBackContent;
+    private string _buttonCancelContent;
     private InstallState _state;
     private int _progress;
     private int _cacheProgress;
@@ -65,8 +66,6 @@ namespace MP2BootstrapperApp.ViewModels
     private readonly Wizard _wizard;
     private readonly Logger _logger;
     private IDispatcher _dispatcher;
-
-    #endregion
 
     public InstallWizardViewModel(IBootstrapperApplicationModel model, IDispatcher dispatcher)
     {
@@ -105,6 +104,24 @@ namespace MP2BootstrapperApp.ViewModels
     {
       get { return _header; }
       set { SetProperty(ref _header, value); }
+    }
+
+    public string ButtonNextContent
+    {
+      get { return _buttonNextContent; }
+      set { SetProperty(ref _buttonNextContent, value); }
+    }
+
+    public string ButtonBackContent
+    {
+      get { return _buttonBackContent; }
+      set { SetProperty(ref _buttonBackContent, value); }
+    }
+
+    public string ButtonCancelContent
+    {
+      get { return _buttonCancelContent; }
+      set { SetProperty(ref _buttonCancelContent, value); }
     }
 
     public ICommand CancelCommand { get; private set; }

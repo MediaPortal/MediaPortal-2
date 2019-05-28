@@ -29,6 +29,9 @@ namespace MP2BootstrapperApp.ViewModels
     public ModifyPageViewModel(InstallWizardViewModel viewModel)
     {
       viewModel.Header = "Modify Installation";
+      viewModel.ButtonNextContent = "Next";
+      viewModel.ButtonBackContent = "Back";
+      viewModel.ButtonCancelContent = "Abort";
     }
   }
 }

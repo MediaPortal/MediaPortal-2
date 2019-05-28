@@ -195,11 +195,11 @@
         <ColumnDefinition Width="*" />
       </Grid.ColumnDefinitions>
 
-      <Button Grid.Row="0" Grid.Column="0" x:Name="Abort" IsEnabled="True" Command="{Binding Path=CancelCommand}" Content="Abort"
+      <Button Grid.Row="0" Grid.Column="0" x:Name="Abort" IsEnabled="True" Command="{Binding Path=CancelCommand}" Content="{Binding Path=ButtonCancelContent}"
               HorizontalAlignment="Left" HorizontalContentAlignment="Center" VerticalAlignment="Center" FontSize="22" Margin="50,0,0,0"/>
-      <Button Grid.Row="0" Grid.Column="1" x:Name="Back" IsEnabled="True" Command="{Binding Path=BackCommand}" Content="Back"
+      <Button Grid.Row="0" Grid.Column="1" x:Name="Back" IsEnabled="True" Command="{Binding Path=BackCommand}" Content="{Binding Path=ButtonBackContent}"
               HorizontalAlignment="Right" HorizontalContentAlignment="Center" VerticalAlignment="Center" FontSize="22" Margin="0,0,0,0"/>
-      <Button Grid.Row="0" Grid.Column="2" x:Name="Next" IsEnabled="True" Command="{Binding Path=NextCommand}" Content="Next"
+      <Button Grid.Row="0" Grid.Column="2" x:Name="Next" IsEnabled="True" Command="{Binding Path=NextCommand}" Content="{Binding Path=ButtonNextContent}"
               HorizontalAlignment="Right" HorizontalContentAlignment="Center" VerticalAlignment="Center" FontSize="22" Margin="0,0,50,0"/>
     </Grid>
 
