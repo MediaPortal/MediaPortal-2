@@ -86,7 +86,6 @@
     <Compile Include="ChainPackages\PackageId.cs" />
     <Compile Include="ChainPackages\Vc2010.cs" />
     <Compile Include="ChainPackages\Vc2013.cs" />
-    <Compile Include="ChainPackages\Vc2015.cs" />
     <Compile Include="ChainPackages\Vc2008Sp1.cs" />
     <Compile Include="ChainPackages\Vc2017.cs" />
     <Compile Include="EnumToBooleanConverter.cs" />
@@ -235,7 +234,6 @@
   <ItemGroup>
     <Resource Include="Resources\VC2010_x86.png" />
     <Resource Include="Resources\VC2013_x86.png" />
-    <Resource Include="Resources\VC2015_x86.png" />
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Resources\MP2Common.png" />
