@@ -5,6 +5,6 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:MP2BootstrapperApp.Views">
     <Grid>
-        <TextBlock TextAlignment="Center" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="White" FontStretch="SemiCondensed" FontSize="22" Margin="0,40,0,0"> <Run Text="Installation is now complete."/></TextBlock>
+        <TextBlock TextAlignment="Center" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="White" FontStretch="SemiCondensed" FontSize="22" Margin="0,40,0,0"> <Run Text="Installation is now complete. Show some links to wiki?"/></TextBlock>
     </Grid>
 </UserControl>

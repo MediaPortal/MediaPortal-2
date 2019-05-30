@@ -6,6 +6,6 @@
              xmlns:local="clr-namespace:MP2BootstrapperApp.Views"
              xmlns:conv="clr-namespace:MP2BootstrapperApp" Margin="10,20,10,0">
   <Grid>
-    <TextBlock TextAlignment="Center" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="White" FontStretch="SemiCondensed" FontSize="22" Margin="0,40,0,0"> <Run Text="Installation in progress..."/></TextBlock>
+    <TextBlock TextAlignment="Center" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="White" FontStretch="SemiCondensed" FontSize="22" Margin="0,40,0,0"> <Run Text="Installation in progress... What can we show here?"/></TextBlock>
   </Grid>
 </UserControl>
