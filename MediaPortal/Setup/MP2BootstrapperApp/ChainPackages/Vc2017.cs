@@ -20,8 +20,7 @@ namespace MP2BootstrapperApp.ChainPackages
       {
         return false;
       }
-
-      return _packageChecker.IsEqualOrHigherVersion(vc2017Path, new Version(14, 0, 24215, 0));
+      return _packageChecker.IsEqualOrHigherVersion(vc2017Path, new Version(14, 11, 25325, 0));
     }
   }
 }
