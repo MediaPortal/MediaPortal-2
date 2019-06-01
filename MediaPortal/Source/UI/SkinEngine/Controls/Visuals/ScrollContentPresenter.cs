@@ -612,13 +612,13 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     public event ScrolledDlgt Scrolled;
 
-    public bool DoScroll
+    public virtual bool DoScroll
     {
       get { return _doScroll; }
       set { _doScroll = value; }
     }
 
-    public float TotalWidth
+    public virtual float TotalWidth
     {
       get
       {
@@ -627,7 +627,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       }
     }
 
-    public float TotalHeight
+    public virtual float TotalHeight
     {
       get
       {
@@ -636,42 +636,42 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       }
     }
 
-    public float ViewPortWidth
+    public virtual float ViewPortWidth
     {
       get { return (float) ActualWidth; }
     }
 
-    public float ViewPortStartX
+    public virtual float ViewPortStartX
     {
       get { return -_actualScrollOffsetX; }
     }
 
-    public float ViewPortHeight
+    public virtual float ViewPortHeight
     {
       get { return (float) ActualHeight; }
     }
 
-    public float ViewPortStartY
+    public virtual float ViewPortStartY
     {
       get { return -_actualScrollOffsetY; }
     }
 
-    public bool IsViewPortAtTop
+    public virtual bool IsViewPortAtTop
     {
       get { return TemplateControl == null || Math.Abs(_actualScrollOffsetY) < DELTA_DOUBLE; }
     }
 
-    public bool IsViewPortAtBottom
+    public virtual bool IsViewPortAtBottom
     {
       get { return TemplateControl == null || -_actualScrollOffsetY + ActualHeight + DELTA_DOUBLE >= TotalHeight; }
     }
 
-    public bool IsViewPortAtLeft
+    public virtual bool IsViewPortAtLeft
     {
       get { return TemplateControl == null || Math.Abs(_actualScrollOffsetX) < DELTA_DOUBLE; }
     }
 
-    public bool IsViewPortAtRight
+    public virtual bool IsViewPortAtRight
     {
       get { return TemplateControl == null || -_actualScrollOffsetX + ActualWidth + DELTA_DOUBLE >= TotalWidth; }
     }

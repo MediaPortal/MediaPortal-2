@@ -58,6 +58,7 @@
       <Link>Properties\VersionInfo.cs</Link>
     </Compile>
     <Compile Include="Actions\SkinSettingsAction.cs" />
+    <Compile Include="Controls\HomeTilesScrollContentPresenter.cs" />
     <Compile Include="Controls\ItemsListFilter.cs" />
     <Compile Include="Converters\ListToGridConverter.cs" />
     <Compile Include="Converters\ItemsListActionFilter.cs" />
