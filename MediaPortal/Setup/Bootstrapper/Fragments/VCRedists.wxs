@@ -18,8 +18,7 @@
       <ExePackage Id="VC2008SP1_x86" Cache="yes" PerMachine="yes" Permanent="yes" Vital="yes" Compressed="no"
                   Name="vcredist90_x86.exe"
                   DownloadUrl="http://install.team-mediaportal.com/MP2/install/vcredist90_x86.exe"
-                  InstallCommand="/q /norestart"
-                  InstallCondition="NOT MFC90_Version_x86">
+                  InstallCommand="/q /norestart">
         <RemotePayload Description="Microsoft Visual C++ 2008 Redistributable Setup" ProductName="Microsoft Visual C++ 2008 Redistributable" Size="4216840 " Version="9.0.30729.17" Hash="6939100e397cef26ec22e95e53fcd9fc979b7bc9"/>
       </ExePackage>
     </PackageGroup>

@@ -31,6 +31,9 @@ namespace MP2BootstrapperApp.ViewModels
     public InstallNewTypePageViewModel(InstallWizardViewModel viewModel)
     {
       viewModel.Header = "New Installation";
+      viewModel.ButtonNextContent = "Next";
+      viewModel.ButtonBackContent = "Back";
+      viewModel.ButtonCancelContent = "Abort";
     }
 
     public InstallType InstallType

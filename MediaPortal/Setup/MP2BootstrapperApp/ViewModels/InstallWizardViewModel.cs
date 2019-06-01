@@ -31,6 +31,7 @@ using System.Reflection;
 using System.Windows.Input;
 using System.Xml.Linq;
 using Microsoft.Tools.WindowsInstallerXml.Bootstrapper;
+using MP2BootstrapperApp.BootstrapperWrapper;
 using MP2BootstrapperApp.ChainPackages;
 using MP2BootstrapperApp.Models;
 using MP2BootstrapperApp.WizardSteps;
@@ -50,12 +51,13 @@ namespace MP2BootstrapperApp.ViewModels
       Canceled
     }
 
-    #region Fields
-
-    private readonly BootstrapperApplicationModel _bootstrapperApplicationModel;
+    private readonly IBootstrapperApplicationModel _bootstrapperApplicationModel;
     private InstallWizardPageViewModelBase _currentPage;
     private ReadOnlyCollection<BundlePackage> _bundlePackages;
     private string _header;
+    private string _buttonNextContent;
+    private string _buttonBackContent;
+    private string _buttonCancelContent;
     private InstallState _state;
     private int _progress;
     private int _cacheProgress;
@@ -63,12 +65,12 @@ namespace MP2BootstrapperApp.ViewModels
     private readonly PackageContext _packageContext;
     private readonly Wizard _wizard;
     private readonly Logger _logger;
+    private IDispatcher _dispatcher;
 
-    #endregion
-
-    public InstallWizardViewModel(BootstrapperApplicationModel model)
+    public InstallWizardViewModel(IBootstrapperApplicationModel model, IDispatcher dispatcher)
     {
       _bootstrapperApplicationModel = model;
+      _dispatcher = dispatcher;
       _logger = new Logger(model);
       State = InstallState.Initializing;
       _packageContext = new PackageContext();
@@ -102,6 +104,24 @@ namespace MP2BootstrapperApp.ViewModels
     {
       get { return _header; }
       set { SetProperty(ref _header, value); }
+    }
+
+    public string ButtonNextContent
+    {
+      get { return _buttonNextContent; }
+      set { SetProperty(ref _buttonNextContent, value); }
+    }
+
+    public string ButtonBackContent
+    {
+      get { return _buttonBackContent; }
+      set { SetProperty(ref _buttonBackContent, value); }
+    }
+
+    public string ButtonCancelContent
+    {
+      get { return _buttonCancelContent; }
+      set { SetProperty(ref _buttonCancelContent, value); }
     }
 
     public ICommand CancelCommand { get; private set; }
@@ -159,13 +179,13 @@ namespace MP2BootstrapperApp.ViewModels
       }
       else
       {
-        MP2BootstrapperApplication.Dispatcher.InvokeShutdown();
+        _dispatcher.InvokeShutdown();
       }
     }
 
     internal void CloseWizard()
     {
-      MP2BootstrapperApplication.Dispatcher.InvokeShutdown();
+      _dispatcher.InvokeShutdown();
     }
 
     internal void Install()
@@ -194,7 +214,7 @@ namespace MP2BootstrapperApp.ViewModels
     {
       if (State == InstallState.Canceled)
       {
-        MP2BootstrapperApplication.Dispatcher.InvokeShutdown();
+        _dispatcher.InvokeShutdown();
         return;
       }
 
@@ -224,6 +244,7 @@ namespace MP2BootstrapperApp.ViewModels
 
     protected void ApplyComplete(object sender, ApplyCompleteEventArgs e)
     {
+      _wizard.Step = new InstallFinishStep(this);
       CurrentPage = new InstallFinishPageViewModel(this);
       _bootstrapperApplicationModel.FinalResult = e.Status;
     }
@@ -262,7 +283,7 @@ namespace MP2BootstrapperApp.ViewModels
 
     private void Refresh()
     {
-      MP2BootstrapperApplication.Dispatcher.Invoke(() =>
+      _dispatcher.Invoke(() =>
       {
         ((DelegateCommand) NextCommand).RaiseCanExecuteChanged();
         ((DelegateCommand) BackCommand).RaiseCanExecuteChanged();
@@ -272,17 +293,17 @@ namespace MP2BootstrapperApp.ViewModels
 
     private void WireUpEventHandlers()
     {
-      _bootstrapperApplicationModel.BootstrapperApplication.DetectRelatedBundle += DetectRelatedBundle;
-      _bootstrapperApplicationModel.BootstrapperApplication.DetectPackageComplete += DetectedPackageComplete;
-      _bootstrapperApplicationModel.BootstrapperApplication.PlanComplete += PlanComplete;
-      _bootstrapperApplicationModel.BootstrapperApplication.ApplyComplete += ApplyComplete;
-      _bootstrapperApplicationModel.BootstrapperApplication.ApplyBegin += ApplyBegin;
-      _bootstrapperApplicationModel.BootstrapperApplication.ExecutePackageBegin += ExecutePackageBegin;
-      _bootstrapperApplicationModel.BootstrapperApplication.ExecutePackageComplete += ExecutePackageComplete;
-      _bootstrapperApplicationModel.BootstrapperApplication.PlanPackageBegin += PlanPackageBegin;
-      _bootstrapperApplicationModel.BootstrapperApplication.ResolveSource += ResolveSource;
-      _bootstrapperApplicationModel.BootstrapperApplication.CacheAcquireProgress += CacheAcquireProgress;
-      _bootstrapperApplicationModel.BootstrapperApplication.ExecuteProgress += ExecuteProgress;
+      _bootstrapperApplicationModel.BootstrapperApplication.WrapperDetectRelatedBundle += DetectRelatedBundle;
+      _bootstrapperApplicationModel.BootstrapperApplication.WrapperDetectPackageComplete += DetectedPackageComplete;
+      _bootstrapperApplicationModel.BootstrapperApplication.WrapperPlanComplete += PlanComplete;
+      _bootstrapperApplicationModel.BootstrapperApplication.WrapperApplyComplete += ApplyComplete;
+      _bootstrapperApplicationModel.BootstrapperApplication.WrapperApplyBegin += ApplyBegin;
+      _bootstrapperApplicationModel.BootstrapperApplication.WrapperExecutePackageBegin += ExecutePackageBegin;
+      _bootstrapperApplicationModel.BootstrapperApplication.WrapperExecutePackageComplete += ExecutePackageComplete;
+      _bootstrapperApplicationModel.BootstrapperApplication.WrapperPlanPackageBegin += PlanPackageBegin;
+      _bootstrapperApplicationModel.BootstrapperApplication.WrapperResolveSource += ResolveSource;
+      _bootstrapperApplicationModel.BootstrapperApplication.WrapperCacheAcquireProgress += CacheAcquireProgress;
+      _bootstrapperApplicationModel.BootstrapperApplication.WrapperExecuteProgress += ExecuteProgress;
     }
 
     private void ComputeBundlePackages()

@@ -29,6 +29,9 @@ namespace MP2BootstrapperApp.ViewModels
     public RepairPageViewModel(InstallWizardViewModel viewModel)
     {
       viewModel.Header = "Repair installation";
+      viewModel.ButtonNextContent = "Next";
+      viewModel.ButtonBackContent = "Back";
+      viewModel.ButtonCancelContent = "Abort";
     }
     
   }

@@ -40,7 +40,8 @@ namespace MP2BootstrapperApp.WizardSteps
     public void Next(Wizard wizard)
     {
       _viewModel.Install();
-      wizard.Step = new InstallFinishStep(_viewModel);
+      wizard.Step = new InstallationInProgressStep();
+      _viewModel.CurrentPage = new InstallationInProgressPageViewModel(_viewModel);
     }
 
     public void Back(Wizard wizard)

@@ -29,6 +29,9 @@ namespace MP2BootstrapperApp.ViewModels
     public InstallFinishPageViewModel(InstallWizardViewModel viewModel)
     {
       viewModel.Header = "Enjoy your Mediaportal 2 experience";
+      viewModel.ButtonNextContent = "Finish";
+      viewModel.ButtonBackContent = "Back";
+      viewModel.ButtonCancelContent = "Abort";
     }
   }
 }

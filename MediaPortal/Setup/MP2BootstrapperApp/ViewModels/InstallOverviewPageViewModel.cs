@@ -33,6 +33,9 @@ namespace MP2BootstrapperApp.ViewModels
     public InstallOverviewPageViewModel(InstallWizardViewModel viewModel)
     {
       viewModel.Header = "Overview";
+      viewModel.ButtonNextContent = "Install";
+      viewModel.ButtonBackContent = "Back";
+      viewModel.ButtonCancelContent = "Abort";
       Packages = new ObservableCollection<string>();
       foreach (var package in viewModel.BundlePackages)
       {

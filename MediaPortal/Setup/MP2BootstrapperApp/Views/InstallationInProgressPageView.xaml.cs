@@ -22,30 +22,18 @@
 
 #endregion
 
-using System;
-using System.IO;
+using System.Windows.Controls;
 
-namespace MP2BootstrapperApp.ChainPackages
+namespace MP2BootstrapperApp.Views
 {
-  public class Vc2015 : IPackage
+  /// <summary>
+  /// Interaction logic for InstallationInProgressPageView.xaml
+  /// </summary>
+  public partial class InstallationInProgressPageView : UserControl
   {
-    private readonly IPackageChecker _packageChecker;
-
-    public Vc2015(IPackageChecker packageChecker)
+    public InstallationInProgressPageView()
     {
-      _packageChecker = packageChecker;
-    }
-
-    public bool IsInstalled()
-    {
-      string vc2015Path = Path.Combine(Environment.SystemDirectory, "mfc140.dll");
-
-      if (!_packageChecker.Exists(vc2015Path))
-      {
-        return false;
-      }
-
-      return _packageChecker.IsEqualOrHigherVersion(vc2015Path, new Version(14, 0, 24215, 0));
+      InitializeComponent();
     }
   }
 }

@@ -36,7 +36,7 @@ namespace MP2BootstrapperApp.ChainPackages
       _packages.Add(PackageId.VC2008SP1_x86, new Vc2008Sp1(_packageChecker));
       _packages.Add(PackageId.VC2010_x86, new Vc2010(_packageChecker));
       _packages.Add(PackageId.VC2013_x86, new Vc2013(_packageChecker));
-      _packages.Add(PackageId.VC2015_x86, new Vc2015(_packageChecker));
+      _packages.Add(PackageId.VC2017_x86, new Vc2017(_packageChecker));
       _packages.Add(PackageId.directx9, new DirectX(_packageChecker));
       _packages.Add(PackageId.LAVFilters, new LavFilters(_packageChecker));
       _packages.Add(PackageId.dokan, new Dokan(_packageChecker));

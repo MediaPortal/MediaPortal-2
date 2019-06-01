@@ -29,9 +29,9 @@ namespace MP2BootstrapperApp
 {
   public class Logger
   {
-    private readonly BootstrapperApplicationModel _model;
+    private readonly IBootstrapperApplicationModel _model;
 
-    public Logger(BootstrapperApplicationModel model)
+    public Logger(IBootstrapperApplicationModel model)
     {
       _model = model;
     }
