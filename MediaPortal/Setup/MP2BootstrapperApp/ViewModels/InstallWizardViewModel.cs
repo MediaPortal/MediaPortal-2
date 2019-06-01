@@ -170,24 +170,24 @@ namespace MP2BootstrapperApp.ViewModels
 
     internal void Install()
     {
-      _bootstrapperApplicationModel.PlanAction(LaunchAction.Install);
+      //_bootstrapperApplicationModel.PlanAction(LaunchAction.Install);
     }
 
     protected void DetectedPackageComplete(object sender, DetectPackageCompleteEventArgs e)
     {
-      var package = BundlePackages.FirstOrDefault(pkg => pkg.Id == e.PackageId);
+     /* var package = BundlePackages.FirstOrDefault(pkg => pkg.Id == e.PackageId);
 
       if (package != null)
       {
         PackageId id = (PackageId)Enum.Parse(typeof(PackageId), package.Id);
         package.CurrentInstallState = _packageContext.CheckInstallState(id) ? PackageState.Present : PackageState.Absent;
-      }
+      } */
     }
 
     private void DetectRelatedBundle(object sender, DetectRelatedBundleEventArgs e)
     {
-      _wizard.Step = new InstallExistInstallStep(this);
-      CurrentPage = new InstallExistTypePageViewModel(this);
+      //_wizard.Step = new InstallExistInstallStep(this);
+      //CurrentPage = new InstallExistTypePageViewModel(this);
     }
 
     protected void PlanComplete(object sender, PlanCompleteEventArgs e)
