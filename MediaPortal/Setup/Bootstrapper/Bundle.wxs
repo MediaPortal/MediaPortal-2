@@ -32,7 +32,7 @@
       <RollbackBoundary />
       <MsiPackage Id="MP2Client" SourceFile="..\MP2Client\bin\$(var.Configuration)\en-us\MP2Client.msi" DisplayInternalUI="no" Compressed="yes" Vital="yes" Visible="yes"/>
       <MsiPackage Id="MP2Common" SourceFile="..\MP2Common\bin\$(var.Configuration)\en-us\MP2Common.msi" DisplayInternalUI="no" Compressed="yes" Vital="yes" Visible="yes"/>
-      <!--<MsiPackage Id="MP2Server" SourceFile="..\MP2Server\bin\$(var.Configuration)\en-us\MP2Server.msi" DisplayInternalUI="no" Compressed="yes" Vital="yes" Visible="yes"/> -->
+      <MsiPackage Id="MP2Server" SourceFile="..\MP2Server\bin\$(var.Configuration)\en-us\MP2Server.msi" DisplayInternalUI="no" Compressed="yes" Vital="yes" Visible="yes"/>
     </Chain>
   </Bundle>
 </Wix>
