@@ -38,7 +38,6 @@
       <Model x:Key="MouseModel" Id="CA6428A7-A6E2-4dd3-9661-F89CEBAF8E62"/>
       <Model x:Key="SlimTvClient" Id="8BEC1372-1C76-484c-8A69-C7F3103708EC"/>
       <Model x:Key="AudioPlayerModel" Id="D8998340-DA2D-42be-A29B-6D7A72AEA2DC"/>
-
     </Grid.Resources>
 
     <Grid.ColumnDefinitions>
@@ -158,33 +157,6 @@
       </DockPanel>
 
     </Grid>
-
-    <!-- Mouse control buttons>
-    <Grid x:Name="MouseButtonsPanel" Grid.Column="2" Grid.Row="0" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,0,5,0">
-      <StackPanel Orientation="Horizontal">
-        <StackPanel Margin="0,0,0,0" Orientation="Horizontal" Context="{Service Window}"  IsVisible="{Binding Source={StaticResource MouseModel},Path=IsMouseUsed}">
-          <Button x:Name="WindowedButton" Style="{ThemeResource MinMaxButtonStyle}" Margin="5,2,0,0" HorizontalAlignment="Right"
-                  Command="{Command Source={Service Window},Path=SwitchMode,Parameters=NormalWindowed}">
-            <Button.IsVisible>
-              <Binding Source="{StaticResource ScreenModeModel}" Path="CurrentScreenMode" Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0} == {ScreenMode}.{FullScreen}"/>
-            </Button.IsVisible>
-          </Button>
-          <Button x:Name="MaximizedButton" Style="{ThemeResource MinMaxButtonStyle}" Margin="5,2,0,0" HorizontalAlignment="Right"
-                  Command="{Command Source={Service Window},Path=SwitchMode,Parameters=FullScreen}">
-            <Button.IsVisible>
-              <Binding Source="{StaticResource ScreenModeModel}" Path="CurrentScreenMode" Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0} != {ScreenMode}.{FullScreen}"/>
-            </Button.IsVisible>
-          </Button>
-          <Button x:Name="ExitButton" Style="{ThemeResource ExitButtonStyle}" Margin="5,2,0,0" HorizontalAlignment="Right"
-                  Command="{Command Source={Service Window},Path=Shutdown}">
-            <Button.IsVisible>
-              <Binding Source="{StaticResource ScreenModeModel}" Path="CurrentScreenMode" Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0} == {ScreenMode}.{FullScreen}"/>
-            </Button.IsVisible>
-          </Button>
-        </StackPanel>
-      </StackPanel>
-    </Grid-->
-
   </Grid>
 
 </Screen>
