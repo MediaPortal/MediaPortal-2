@@ -8,14 +8,18 @@
     >
 
   <SolidColorBrush x:Key="NewsItemSeparatorBrush" Color="{ThemeResource HintTextColor}"/>
+  <Model x:Key="ViewModeModel" Id="08BB1CFE-8AF3-4DD1-BB9C-582DD7EA8BBF"/>
 
   <!-- Default no transformation for scrollbars -->
   <ResourceWrapper x:Key="VerticalScrollbarRenderTransform">
   </ResourceWrapper>
 
-  <!-- Style for a single feed item -->
-  <DataTemplate x:Key="NewsFeedDataTemplate" DataType="{x:Type collections:ListItem}">
-    <Grid Margin="5,2,5,2">
+  <!-- ################################################################# -->
+  <!-- ##################   NEWS FEED STYLES  ########################## -->
+  <!-- ################################################################# -->
+
+  <DataTemplate x:Key="NewsFeedListDataTemplate" DataType="{x:Type collections:ListItem}">
+    <Grid Margin="0,2,0,2">
       <Grid.ColumnDefinitions>
         <ColumnDefinition Width="*"/>
       </Grid.ColumnDefinitions>
@@ -23,30 +27,303 @@
         <RowDefinition Height="*"/>
       </Grid.RowDefinitions>
       <Label x:Name="ItemLabel" FontSize="{ThemeResource SmallFontSize}" FontFamily="SegoeUIBold"
-             Color="{ThemeResource MediaItemWatchedColor}" Content="{Binding Title}" Margin="5,0,5,0"/>
+             Color="{ThemeResource MediaItemUnwatchedColor}" Content="{Binding Title}" Margin="10,0,10,0"/>
     </Grid>
   </DataTemplate>
 
-  <!-- Style for a single news item -->
-  <DataTemplate x:Key="NewsItemDataTemplate" DataType="{x:Type collections:ListItem}">
-    <Grid Margin="5,2,5,2">
+  <DataTemplate x:Key="NewsFeedGridDataTemplate" DataType="{x:Type collections:ListItem}">
+    <Grid Width="423" Height="225" Margin="2">
+      <Grid.ColumnDefinitions>
+        <ColumnDefinition Width="*"/>
+      </Grid.ColumnDefinitions>
+      <Grid.RowDefinitions>
+        <RowDefinition Height="*"/>
+        <RowDefinition Height="47"/>
+      </Grid.RowDefinitions>
+      <!-- Shadow and Background -->
+      <Image Grid.RowSpan="2" Source="Thumbnail_medium.png" Stretch="Fill" Margin="-7"/>
+      <Rectangle Grid.RowSpan="2" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+        <Rectangle.Fill>
+          <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
+            <Binding RelativeSource="{RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}}" Path="HasFocus"/>
+            <Binding Source="{ThemeResource NereusColorLight}"/>
+            <Binding Source="{ThemeResource NereusColorMedium}"/>
+          </MultiBinding>
+        </Rectangle.Fill>
+      </Rectangle>
+
+      <Image Stretch="Uniform" Source="{Binding Icon}" FallbackSource="RssIcon.png" Margin="25"
+             VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
+
+      <!-- Darkened band -->
+      <Rectangle Grid.Row="1" Grid.Column="0" Fill="#FF000000" Opacity="0.4"
+                 HorizontalAlignment="Stretch" VerticalAlignment="Stretch" />
+
+      <Label x:Name="ItemLabel" FontSize="{ThemeResource SmallFontSize}" Grid.Row="1" ScrollDelay="0"
+             Color="{ThemeResource TextColor}" Content="{Binding Title}" Margin="10,0,10,1"
+             VerticalAlignment="Center" HorizontalAlignment="Stretch">
+        <Label.Scroll>
+          <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
+            <Binding RelativeSource="{RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}}" Path="HasFocus"/>
+            <Binding Source="Auto"/>
+            <Binding Source="None"/>
+          </MultiBinding>
+        </Label.Scroll>
+      </Label>
+    </Grid>
+  </DataTemplate>
+
+  <Style x:Key="NewsListViewContainerStyle" BasedOn="{ThemeResource DefaultItemContainerStyle}">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="{x:Type ListViewItem}">
+          <Button Style="{ThemeResource ButtonWideStyle_List}"
+                  Command="{DynamicResource ResourceKey=Menu_Command}"
+                  IsEnabled="{Binding Enabled}" SetFocus="{Binding Path=Selected,Mode=OneTime}">
+            <Button.Triggers>
+              <Trigger Property="HasFocus" Value="True">
+                <Setter TargetName="ItemLabel" Property="Scroll" Value="Auto"/>
+                <Setter TargetName="ItemLabel" Property="Color" Value="{ThemeResource MediaItemFocussedColor}"/>
+                <Setter TargetName="NumberLabel" Property="Color" Value="{ThemeResource MediaItemFocussedColor}"/>
+              </Trigger>
+            </Button.Triggers>
+          </Button>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+
+  <Style x:Key="NewsGridViewContainerStyle" BasedOn="{ThemeResource DefaultItemContainerStyle}">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="{x:Type ListViewItem}">
+          <Button Style="{ThemeResource ButtonWideStyle_Grid}"
+                  Command="{DynamicResource ResourceKey=Menu_Command}"
+                  IsEnabled="{Binding Enabled}" SetFocus="{Binding Path=Selected,Mode=OneTime}">
+          </Button>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+
+  <Style x:Key="NewsFeedsContainerStyle" BasedOn="{ThemeResource LeftMenuListViewStyle}">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="{x:Type ListView}">
+          <ScrollViewer CanContentScroll="True" Margin="0" Style="{ThemeResource VerticalMediaScrollViewerStyle}" 
+               HorizontalAlignment="Stretch" VerticalAlignment="Stretch" HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Disabled" >
+            <ItemsPresenter VerticalAlignment="Stretch" HorizontalAlignment="Stretch" />
+          </ScrollViewer>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+    <BindingSetter Property="ItemTemplate">
+      <BindingSetter.BindingWrapper>
+        <BindingWrapper>
+          <BindingWrapper.Binding>
+            <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} == {LayoutType}.{ListLayout} ? {1} : {2}">
+              <Binding Source="{StaticResource ViewModeModel}" Path="LayoutType"/>
+              <Binding Source="{ThemeResource NewsFeedListDataTemplate}"/>
+              <Binding Source="{ThemeResource NewsFeedGridDataTemplate}"/>
+            </MultiBinding>
+          </BindingWrapper.Binding>
+        </BindingWrapper>
+      </BindingSetter.BindingWrapper>
+    </BindingSetter>
+    <BindingSetter Property="ItemContainerStyle">
+      <BindingSetter.BindingWrapper>
+        <BindingWrapper>
+          <BindingWrapper.Binding>
+            <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} == {LayoutType}.{ListLayout} ? {1} : {2}">
+              <Binding Source="{StaticResource ViewModeModel}" Path="LayoutType"/>
+              <Binding Source="{ThemeResource NewsListViewContainerStyle}"/>
+              <Binding Source="{ThemeResource NewsGridViewContainerStyle}"/>
+            </MultiBinding>
+          </BindingWrapper.Binding>
+        </BindingWrapper>
+      </BindingSetter.BindingWrapper>
+    </BindingSetter>
+    <BindingSetter Property="ItemsPanel">
+      <BindingSetter.BindingWrapper>
+        <BindingWrapper>
+          <BindingWrapper.Binding>
+            <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} == {LayoutType}.{ListLayout} ? {1} : {2}">
+              <Binding Source="{StaticResource ViewModeModel}" Path="LayoutType"/>
+              <!-- List layout -->
+              <Binding>
+                <Binding.Source>
+                  <ItemsPanelTemplate>
+                    <AnimatedStackPanel x:Name="ListItemsHost" IsItemsHost="True" ScrollMargin="130,130" Margin="0,-10,0,-40">
+                      <AnimatedStackPanel.Resources>
+                        <Storyboard x:Key="ScrollAnimation" FillBehavior="HoldEnd">
+                          <DoubleAnimation BeginTime="00:00:00" From="0" To="1" Duration="00:00:00.300" 
+                                           FillBehavior="HoldEnd" Storyboard.TargetName="ListItemsHost" Storyboard.TargetProperty="ScrollOffsetMultiplier" />
+                        </Storyboard>
+                      </AnimatedStackPanel.Resources>
+                      <AnimatedStackPanel.Triggers>
+                        <EventTrigger RoutedEvent="AnimatedStackPanel.Scroll">
+                          <EventTrigger.Actions>
+                            <BeginStoryboard Storyboard="{ThemeResource ScrollAnimation}"/>
+                          </EventTrigger.Actions>
+                        </EventTrigger>
+                      </AnimatedStackPanel.Triggers>
+                    </AnimatedStackPanel>
+                  </ItemsPanelTemplate>
+                </Binding.Source>
+              </Binding>
+              <!-- Grid layout -->
+              <Binding>
+                <Binding.Source>
+                  <ItemsPanelTemplate>
+                    <AnimatedWrapPanel x:Name="GridItemsHost" IsItemsHost="True" Orientation="Horizontal" ScrollMargin="400,400" Margin="43,-270,0,-305">
+                      <AnimatedWrapPanel.Resources>
+                        <Storyboard x:Key="ScrollAnimation" FillBehavior="HoldEnd">
+                          <DoubleAnimation BeginTime="00:00:00" From="0" To="1" Duration="00:00:00.400" 
+                                           FillBehavior="HoldEnd" Storyboard.TargetName="GridItemsHost" Storyboard.TargetProperty="ScrollOffsetMultiplier" />
+                        </Storyboard>
+                      </AnimatedWrapPanel.Resources>
+                      <AnimatedWrapPanel.Triggers>
+                        <EventTrigger RoutedEvent="AnimatedWrapPanel.Scroll">
+                          <EventTrigger.Actions>
+                            <BeginStoryboard Storyboard="{ThemeResource ScrollAnimation}"/>
+                          </EventTrigger.Actions>
+                        </EventTrigger>
+                      </AnimatedWrapPanel.Triggers>
+                    </AnimatedWrapPanel>
+                  </ItemsPanelTemplate>
+                </Binding.Source>
+              </Binding>
+            </MultiBinding>
+          </BindingWrapper.Binding>
+        </BindingWrapper>
+      </BindingSetter.BindingWrapper>
+    </BindingSetter>
+  </Style>
+
+  <!-- ################################################################# -->
+  <!-- ##################   NEWS ITEM STYLES  ########################## -->
+  <!-- ################################################################# -->
+
+  <DataTemplate x:Key="NewsItemListDataTemplate" DataType="{x:Type collections:ListItem}">
+    <Grid Margin="0,2,0,2">
       <Grid.ColumnDefinitions>
         <ColumnDefinition Width="*"/>
       </Grid.ColumnDefinitions>
       <Grid.RowDefinitions>
         <RowDefinition Height="*"/>
       </Grid.RowDefinitions>
-        <!--Label FontSize="{ThemeResource TinyFontSize}" Color="{ThemeResource TextColor}" Content="{Binding Path=PublishDate, Converter={StaticResource DateFormatConverter}, ConverterParameter=g}"
-               Wrap="true" HorizontalAlignment="Right" Margin="0,0,5,0"
-               MaxWidth="{ResolutionResource NewsItemDateWidth}"/-->
-      <Label x:Name="ItemLabel" FontSize="{ThemeResource SmallFontSize}" FontFamily="SegoeUIBold" 
-             Color="{ThemeResource MediaItemWatchedColor}" Content="{Binding Title}" VerticalAlignment="Center"/>
-
-        <!--VirtualizingStackPanel x:Name="ListItemsHost" IsItemsHost="True"/-->
+      <Label x:Name="ItemLabel" FontSize="{ThemeResource SmallFontSize}" FontFamily="SegoeUIBold"
+             Color="{ThemeResource MediaItemUnwatchedColor}" Content="{Binding Title}" Margin="10,0,10,0"/>
     </Grid>
   </DataTemplate>
 
-  <!-- Style for a single news feed bookmark item in the config list -->
+  <DataTemplate x:Key="NewsItemGridDataTemplate" DataType="{x:Type collections:ListItem}">
+    <Grid Width="423" Height="225" Margin="2">
+      <Grid.ColumnDefinitions>
+        <ColumnDefinition Width="*"/>
+        <ColumnDefinition Width="*"/>
+      </Grid.ColumnDefinitions>
+      <Grid.RowDefinitions>
+        <RowDefinition Height="*"/>
+        <RowDefinition Height="47"/>
+      </Grid.RowDefinitions>
+
+      <!-- Shadow and Background -->
+      <Image Grid.RowSpan="2" Grid.ColumnSpan="2" Source="Thumbnail_medium.png" Stretch="Fill" Margin="-7"/>
+      <Rectangle Grid.RowSpan="2" Grid.ColumnSpan="2" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+        <Rectangle.Fill>
+          <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
+            <Binding RelativeSource="{RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}}" Path="HasFocus"/>
+            <Binding Source="{ThemeResource NereusColorLight}"/>
+            <Binding Source="{ThemeResource NereusColorMedium}"/>
+          </MultiBinding>
+        </Rectangle.Fill>
+      </Rectangle>
+
+      <Image Grid.ColumnSpan="2" Grid.RowSpan="2" x:Name="thumb" Stretch="UniformToFill" Source="{Binding Thumb}"
+             HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
+
+      <!-- Darkened band -->
+      <Rectangle Grid.Row="1" Grid.ColumnSpan="2" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+                 IsVisible="{Binding ElementName=thumb, Path=HasImage}">
+        <Rectangle.Fill>
+          <LinearGradientBrush StartPoint="0.5,1" EndPoint="0.5,0">
+            <GradientStop Color="#D8000000" Offset="0"/>
+            <GradientStop Color="#D8000000" Offset="0.75"/>
+            <GradientStop Color="#00000000" Offset="1"/>
+          </LinearGradientBrush>
+        </Rectangle.Fill>
+      </Rectangle>
+
+      <Image Stretch="Uniform" Margin="10,6,8,10" Height="50" VerticalAlignment="Top" HorizontalAlignment="Right" 
+             Grid.Column="2" Source="News.png"/>
+
+      <Label Content="{Binding PublishDate}" Color="{ThemeResource TextColor}" Margin="10,10,-50,10" FontFamily="SegoeUIBold"
+             IsVisible="{Binding ElementName=thumb, Path=!HasImage}" FontSize="{ThemeResource SmallFontSize}" />
+
+      <Label Grid.Row="1" Grid.ColumnSpan="2" x:Name="ItemLabel" FontSize="{ThemeResource SmallFontSize}" 
+             Margin="10,20,10,5" Wrap="True" VerticalAlignment="Stretch" HorizontalContentAlignment="Stretch"
+             IsVisible="{Binding ElementName=thumb, Path=HasImage}"
+             Color="{ThemeResource TextColor}" Content="{Binding Title}" ScrollDelay="0">
+        <Label.Scroll>
+          <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
+            <Binding RelativeSource="{RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}}" Path="HasFocus"/>
+            <Binding Source="Auto"/>
+            <Binding Source="None"/>
+          </MultiBinding>
+        </Label.Scroll>
+        <Label.TextTrimming>
+          <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
+            <Binding RelativeSource="{RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}}" Path="HasFocus"/>
+            <Binding Source="None"/>
+            <Binding Source="CharacterEllipsis"/>
+          </MultiBinding>
+        </Label.TextTrimming>
+      </Label>
+
+      <Label Grid.RowSpan="2" Grid.ColumnSpan="2" x:Name="ItemLabel2" FontSize="{ThemeResource SmallFontSize}" 
+             Margin="10,60,10,10" Wrap="True" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Opacity="0.7"
+             IsVisible="{Binding ElementName=thumb, Path=!HasImage}" VerticalContentAlignment="Center"
+             Color="{ThemeResource TextColor}" Content="{Binding Title}" ScrollDelay="0">
+        <Label.Scroll>
+          <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
+            <Binding RelativeSource="{RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}}" Path="HasFocus"/>
+            <Binding Source="Auto"/>
+            <Binding Source="None"/>
+          </MultiBinding>
+        </Label.Scroll>
+        <Label.TextTrimming>
+          <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
+            <Binding RelativeSource="{RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}}" Path="HasFocus"/>
+            <Binding Source="None"/>
+            <Binding Source="CharacterEllipsis"/>
+          </MultiBinding>
+        </Label.TextTrimming>
+      </Label>
+
+    </Grid>
+  </DataTemplate>
+
+  <Style x:Key="NewsItemsContainerStyle" BasedOn="{ThemeResource NewsFeedsContainerStyle}">
+    <BindingSetter Property="ItemTemplate">
+      <BindingSetter.BindingWrapper>
+        <BindingWrapper>
+          <BindingWrapper.Binding>
+            <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} == {LayoutType}.{ListLayout} ? {1} : {2}">
+              <Binding Source="{StaticResource ViewModeModel}" Path="LayoutType"/>
+              <Binding Source="{ThemeResource NewsItemListDataTemplate}"/>
+              <Binding Source="{ThemeResource NewsItemGridDataTemplate}"/>
+            </MultiBinding>
+          </BindingWrapper.Binding>
+        </BindingWrapper>
+      </BindingSetter.BindingWrapper>
+    </BindingSetter>
+  </Style>
+
+  <!-- ################################################################# -->
+  <!-- ################   NEWS BOOKMARK STYLES  ######################## -->
+  <!-- ################################################################# -->
+
   <DataTemplate x:Key="NewsFeedBookmarkItemDataTemplate" DataType="{x:Type collections:ListItem}">
     <Grid x:Name="ItemControl" VerticalAlignment="Center" HorizontalAlignment="Stretch">
       <Grid.ColumnDefinitions>
@@ -63,78 +340,6 @@
       <Label Grid.Column="2" Content="X" FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColor}" IsVisible="{Binding Selected}"/>
     </Grid>
   </DataTemplate>
-
-  <!-- ListView style for all news feeds -->
-  <Style x:Key="NewsFeedsContainerStyle" BasedOn="{ThemeResource LeftMenuListViewStyle}">
-    <Setter Property="Template">
-      <Setter.Value>
-        <ControlTemplate TargetType="{x:Type ListView}">
-          <ScrollViewer CanContentScroll="True" Margin="0" Style="{ThemeResource VerticalMediaScrollViewerStyle}" 
-               HorizontalAlignment="Stretch" VerticalAlignment="Stretch" HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Disabled" >
-            <ItemsPresenter VerticalAlignment="Stretch" HorizontalAlignment="Stretch" />
-          </ScrollViewer>
-        </ControlTemplate>
-      </Setter.Value>
-    </Setter>
-    <Setter Property="ItemTemplate" Value="{ThemeResource NewsFeedDataTemplate}"/>
-    <Setter Property="ItemsPanel">
-      <Setter.Value>
-        <ItemsPanelTemplate>
-          <AnimatedStackPanel x:Name="ListItemsHost" IsItemsHost="True" ScrollMargin="130,130" Margin="0,-20,0,-60">
-            <AnimatedStackPanel.Resources>
-              <Storyboard x:Key="ScrollAnimation" FillBehavior="HoldEnd">
-                <DoubleAnimation BeginTime="00:00:00" From="0" To="1" Duration="00:00:00.300" 
-                                           FillBehavior="HoldEnd" Storyboard.TargetName="ListItemsHost" Storyboard.TargetProperty="ScrollOffsetMultiplier" />
-              </Storyboard>
-            </AnimatedStackPanel.Resources>
-            <AnimatedStackPanel.Triggers>
-              <EventTrigger RoutedEvent="AnimatedStackPanel.Scroll">
-                <EventTrigger.Actions>
-                  <BeginStoryboard Storyboard="{ThemeResource ScrollAnimation}"/>
-                </EventTrigger.Actions>
-              </EventTrigger>
-            </AnimatedStackPanel.Triggers>
-          </AnimatedStackPanel>
-        </ItemsPanelTemplate>
-      </Setter.Value>
-    </Setter>
-  </Style>
-
-  <!-- ListView style for all news items -->
-  <Style x:Key="NewsItemsContainerStyle" BasedOn="{ThemeResource LeftMenuListViewStyle}">
-    <Setter Property="Template">
-      <Setter.Value>
-        <ControlTemplate TargetType="{x:Type ListView}">
-          <ScrollViewer CanContentScroll="True" Margin="0" Style="{ThemeResource VerticalMediaScrollViewerStyle}" 
-               HorizontalAlignment="Stretch" VerticalAlignment="Stretch" HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Disabled" >
-            <ItemsPresenter VerticalAlignment="Stretch" HorizontalAlignment="Stretch" />
-          </ScrollViewer>
-        </ControlTemplate>
-      </Setter.Value>
-    </Setter>
-    <Setter Property="ItemTemplate" Value="{ThemeResource NewsItemDataTemplate}"/>
-    <Setter Property="ItemsPanel">
-      <Setter.Value>
-        <ItemsPanelTemplate>
-          <AnimatedStackPanel x:Name="ListItemsHost" IsItemsHost="True" ScrollMargin="130,130" Margin="0,-20,0,-60">
-            <AnimatedStackPanel.Resources>
-              <Storyboard x:Key="ScrollAnimation" FillBehavior="HoldEnd">
-                <DoubleAnimation BeginTime="00:00:00" From="0" To="1" Duration="00:00:00.300" 
-                                           FillBehavior="HoldEnd" Storyboard.TargetName="ListItemsHost" Storyboard.TargetProperty="ScrollOffsetMultiplier" />
-              </Storyboard>
-            </AnimatedStackPanel.Resources>
-            <AnimatedStackPanel.Triggers>
-              <EventTrigger RoutedEvent="AnimatedStackPanel.Scroll">
-                <EventTrigger.Actions>
-                  <BeginStoryboard Storyboard="{ThemeResource ScrollAnimation}"/>
-                </EventTrigger.Actions>
-              </EventTrigger>
-            </AnimatedStackPanel.Triggers>
-          </AnimatedStackPanel>
-        </ItemsPanelTemplate>
-      </Setter.Value>
-    </Setter>
-  </Style>
 
   <!-- ListView style to be used for the list in the news feeds configuration dialog -->
   <Style x:Key="NewsFeedsBookmarksListViewStyle" BasedOn="{ThemeResource ContentsMenuListViewStyle}">

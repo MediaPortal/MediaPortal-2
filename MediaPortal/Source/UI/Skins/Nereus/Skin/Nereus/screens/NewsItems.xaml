@@ -3,9 +3,9 @@
 <Include
     xmlns="www.team-mediaportal.com/2008/mpf/directx"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    Source="screens\master_bare.xaml"
-    xmlns:mp_special_controls="clr-namespace:MediaPortal.UI.SkinEngine.SpecialElements.Controls;assembly=SkinEngine"
-    >
+    Source="screens\master_mediamenu.xaml"
+    xmlns:mp_special_controls="clr-namespace:MediaPortal.UI.SkinEngine.SpecialElements.Controls;assembly=SkinEngine">
+  
   <Include.Resources>
 
     <!-- Header -->
@@ -14,112 +14,157 @@
     <!-- News model -->
     <Model x:Key="Model" Id="D5B308C1-4585-4051-AB78-E10D17C3CC2D"/>
 
-    <ControlTemplate x:Key="FanArtBackground_Template">
-      <Image Stretch="Fill" Opacity="{Binding Source={StaticResource SkinSettingsModel}, Path=[Nereus].FanartOverlayOpacity}">
-        <Image.Source>
-          <Binding Source="Background_ListView.png"/>
-        </Image.Source>
-      </Image>
+    <ControlTemplate x:Key="TopGradient_Template">
+      <Border HorizontalAlignment="Stretch" VerticalAlignment="Stretch" BorderThickness="0" Margin="0,0,0,0" Panel.ZIndex="1000">
+        <Border.Background>
+          <LinearGradientBrush StartPoint="0.5,0" EndPoint="0.5,1">
+            <GradientStop Color="#E6000000" Offset="0" />
+            <GradientStop Color="#00000000" Offset="1" />
+          </LinearGradientBrush>
+        </Border.Background>
+      </Border>
     </ControlTemplate>
 
-    <ControlTemplate x:Key="Client_Template">
-      <DockPanel LastChildFill="True" Margin="20,10,20,-160" DataContext="{Binding Source={StaticResource Model}}">
+    <ControlTemplate x:Key="BottomGradient_Template">
+      <Border HorizontalAlignment="Stretch" VerticalAlignment="Bottom" BorderThickness="0" Margin="0,0,0,0" Height="100" Panel.ZIndex="1000">
+        <Border.Background>
+          <LinearGradientBrush StartPoint="0.5,0" EndPoint="0.5,1">
+            <GradientStop Color="#00000000" Offset="0" />
+            <GradientStop Color="#E6000000" Offset="1" />
+          </LinearGradientBrush>
+        </Border.Background>
+      </Border>
+    </ControlTemplate>
 
-        <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+    <ControlTemplate x:Key="FanArtBackground_Template">
+      <Grid>
+        <Image Stretch="Fill" Source="news_background.jpg" />
+        <Image Stretch="Fill" Source="Background_GridView.png"/>
+      </Grid>
+    </ControlTemplate>
+
+    <ControlTemplate x:Key="Contents_Template">
+      <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch" 
+            Margin="0,-90,0,-270" DataContext="{Binding Source={StaticResource Model}}">
+        <Grid.ColumnDefinitions>
+          <ColumnDefinition Width="*"/>
+          <ColumnDefinition Width="1000"/>
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+          <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <Grid Grid.Column="1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="45,0,-20,0" Height="1200">
           <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="*1"/>
-            <ColumnDefinition Width="*1"/>
+            <ColumnDefinition Width="Auto"/>
+            <ColumnDefinition Width="*"/>
           </Grid.ColumnDefinitions>
           <Grid.RowDefinitions>
             <RowDefinition Height="*"/>
           </Grid.RowDefinitions>
-          <!-- Items -->
-          <ListView x:Name="newsitemlist" Margin="30,0,50,0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
-                    Style="{ThemeResource NewsItemsContainerStyle}"
-                    ItemsSource="{Binding Path=SelectedFeed.Items}">
-            <ListView.Resources>
-              <ResourceWrapper x:Key="VerticalScrollbarRenderTransform" Value="{ThemeResource VerticalScrollbarRenderTransform}" />
-              <!--Command x:Key="Menu_Command" Source="{StaticResource Model}" Path="Select"
-                       Parameters="{LateBoundValue BindingValue={Binding}}"/-->
-            </ListView.Resources>
-          </ListView>
-          <Grid Grid.Row="0" Grid.Column="1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="40,0,40,20">
-            <Grid.RowDefinitions>
-              <RowDefinition Height="250"/>
-              <RowDefinition Height="*"/>
-            </Grid.RowDefinitions>
-            <Grid.ColumnDefinitions>
-              <ColumnDefinition Width="500"/>
-              <ColumnDefinition Width="*"/>
-            </Grid.ColumnDefinitions>
-              <Image Grid.Column="1" Grid.Row="0" Grid.RowSpan="1" Stretch="Uniform" DataContext="{Binding ElementName=newsitemlist,Path=CurrentItem}"
-                 HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,10,10,0" Height="210">
-                <Image.Source>
-                  <ImageSourceWrapper Delay="0" DelayInOut="true" Transition="transitions\dissolve" FallbackSource="RssIcon.png"
-                                    TransitionDuration="0" VerticalTextureAlignment="Top" HorizontalTextureAlignment="Right"
-                   Source="{Binding Path=Thumb}"/>
-                </Image.Source>
-              </Image>
 
-            <Grid Grid.Row="0" Grid.Column="0" VerticalAlignment="Stretch" Height="280" Width="500">
-              <Grid.RowDefinitions>
-                <RowDefinition Height="Auto"/>
-                <RowDefinition Height="Auto"/>
-                <RowDefinition Height="*"/>
-              </Grid.RowDefinitions>
-              <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="*"/>
-              </Grid.ColumnDefinitions>
+          <Image x:Name="Thumb" Stretch="UniformToFill" DataContext="{Binding ElementName=newsitemlist,Path=CurrentItem}" 
+                 Height="500" Source="{Binding Path=Thumb}" VerticalAlignment="Top"/>
+          <Image x:Name="FanArtImageBackground" Stretch="UniformToFill" VerticalAlignment="Top" Source="news_background.jpg" 
+                 HorizontalAlignment="Stretch" Height="500" IsVisible="{Binding ElementName=Thumb, Path=!HasImage}"/>
+          <Image Grid.RowSpan="2" Stretch="Fill" Source="List_overlay.png"/>
+          <Image Grid.RowSpan="2" Source="ContentGlow.png" Stretch="Uniform" VerticalAlignment="Stretch" HorizontalAlignment="Left" Margin="-20,0,0,0"/>
 
-              <Label Grid.Row="0" Grid.Column="0" Color="{ThemeResource TextColor}" Margin="0,0,0,7"
-                     FontSize="{ThemeResource SmallFontSize}" VerticalAlignment="Stretch" FontFamily="SegoeUIBold"
-                     Content="{Binding Path=SelectedFeed.Title}" Wrap="True" />
-
-              <Label Grid.Row="1" Grid.Column="0" DataContext="{Binding ElementName=newsitemlist,Path=CurrentItem}" Color="{ThemeResource TextColor}" 
-                     FontSize="{ThemeResource SmallFontSize}" VerticalAlignment="Stretch" TextTrimming="WordEllipsis" Margin="0,0,0,7"
-                     Content="{Binding Title}" Wrap="True"/>
-
-              <Label Grid.Row="2" Grid.Column="0" Color="{ThemeResource TextColor}" DataContext="{Binding ElementName=newsitemlist,Path=CurrentItem}" 
-                     FontSize="{ThemeResource SmallFontSize}" VerticalAlignment="Stretch" Margin="0,0,0,7"
-                     Content="{Binding Path=PublishDate, Converter={StaticResource DateFormatConverter}, ConverterParameter=g}" />
-            </Grid>
-
-            <ScrollViewer Grid.ColumnSpan="2" Grid.Row="1" CanContentScroll="True" Margin="0,40,0,20" VerticalScrollBarVisibility="Hidden"
-                          DataContext="{Binding ElementName=newsitemlist,Path=CurrentItem}" HorizontalScrollBarVisibility="Disabled" Focusable="True">
-              <ScrollViewer.Resources>
-                <ResourceWrapper x:Key="VerticalScrollbarRenderTransform" Value="{ThemeResource VerticalScrollbarRenderTransform}" />
-              </ScrollViewer.Resources>
-              <Label FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource MediaItemUnwatchedColor}"
-                     Content="{Binding Summary}" Wrap="true" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
-            </ScrollViewer>  
-          </Grid>
-          <!-- Updating Overlay -->
-          <Label Content="Refreshing Data ..." IsVisible="{Binding IsUpdating}" 
-                 Color="{ThemeResource MediaItemUnwatchedColor}" FontSize="{ThemeResource SmallFontSize}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-          <DockPanel Grid.Column="1" Grid.Row="1" VerticalAlignment="Bottom" HorizontalAlignment="Right" LastChildFill="false"
-                   IsVisible="{Binding IsItemsValid}">
-            <StackPanel DockPanel.Dock="Right" Margin="0,10,45,-10" Orientation="Horizontal">
-              <Label HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0,0,10,0"
-                 Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallerFontSize}">
-                <Label.Content>
-                  <MultiBinding Converter="{StaticResource GetIndexMultiConverter}" ConverterParameter="1">
-                    <Binding ElementName="newsitemlist" Path="CurrentItem"/>
-                    <Binding ElementName="newsitemlist" Path="ItemsSource"/>
-                  </MultiBinding>
-                </Label.Content>
-              </Label>
-              <Label Color="{ThemeResource TextColor}" Content="| " FontSize="{ThemeResource SmallerFontSize}"
-                 Opacity="0.4"/>
-              <Label Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallerFontSize}" Opacity="0.4">
-                <Label.Content>
-                  <Binding ElementName="newsitemlist" Path="ItemsCount" />
-                </Label.Content>
-              </Label>
-            </StackPanel>
-          </DockPanel>
+          <Border Grid.RowSpan="2" BorderThickness="0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+            <Border.Background>
+              <LinearGradientBrush StartPoint="1,0.3" EndPoint="0,1">
+                <GradientStop Color="#44000000" Offset="0.0"/>
+                <GradientStop Color="#77000000" Offset="1"/>
+              </LinearGradientBrush>
+            </Border.Background>
+          </Border>
         </Grid>
-      </DockPanel>
-    </ControlTemplate>
 
+        <ListView x:Name="newsitemlist" Margin="-10,-20,-45,-20" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" SetFocus="true"
+                  Style="{ThemeResource NewsItemsContainerStyle}" ItemsSource="{Binding Path=SelectedFeed.Items}">
+          <ListView.Resources>
+            <ResourceWrapper x:Key="VerticalScrollbarRenderTransform" Value="{ThemeResource VerticalScrollbarRenderTransform}" />
+            <!--Command x:Key="Menu_Command" Source="{StaticResource Model}" Path="Select"
+                       Parameters="{LateBoundValue BindingValue={Binding}}"/-->
+          </ListView.Resources>
+        </ListView>
+
+        <Grid Grid.Column="1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="70,250,0,80">
+          <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+          </Grid.RowDefinitions>
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="60*"/>
+            <ColumnDefinition Width="40*"/>
+          </Grid.ColumnDefinitions>
+          
+          <Label Color="{ThemeResource TextColor}" Wrap="True" Width="900" VerticalAlignment="Stretch"
+                 FontSize="{ThemeResource NormalFontSize}" FontFamily="SegoeUIBold" Grid.ColumnSpan="2"
+                 Content="{Binding Path=SelectedFeed.Title}" Margin="0,0,0,10"/>
+
+          <Grid Grid.Row="1" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Grid.ColumnSpan="2">
+            <Image Source="HomeContentIcons\news.png" Height="30" Width="30" Stretch="Uniform" Margin="0,8,5,0"
+                   VerticalAlignment="Top" HorizontalAlignment="Left"/>
+            <Label VerticalAlignment="Stretch" DataContext="{Binding ElementName=newsitemlist,Path=CurrentItem}"
+                   Content="{Binding Title}" Wrap="True" Width="860"
+                   FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColorForeground}" Margin="40,0,0,0"/>
+          </Grid>
+
+          <Grid Grid.Row="2" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Grid.ColumnSpan="2">
+            <Image Source="HomeContentIcons\year.png" Height="30" Width="30" Stretch="Uniform" Margin="0,0,5,0"
+                   VerticalAlignment="Center" HorizontalAlignment="Left"/>
+            <Label VerticalAlignment="Center" HorizontalAlignment="Left" DataContext="{Binding ElementName=newsitemlist,Path=CurrentItem}"
+                   Content="{Binding Path=PublishDate, Converter={StaticResource DateFormatConverter}, ConverterParameter=g}"
+                   FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColorForeground}" Margin="40,0,0,0"/>
+          </Grid>
+
+          <Image Grid.Column="1" Grid.Row="3" Stretch="Uniform" DataContext="{Binding ElementName=newsitemlist,Path=CurrentItem}"
+                 HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="15,10,30,50">
+            <Image.Source>
+              <ImageSourceWrapper Delay="0" DelayInOut="true" Transition="transitions\dissolve" FallbackSource="RssIcon.png"
+                                  TransitionDuration="0" VerticalTextureAlignment="Bottom" HorizontalTextureAlignment="Right"
+                                  Source="{Binding Path=Thumb}"/>
+            </Image.Source>
+          </Image>
+
+          <ScrollViewer Grid.Row="3" CanContentScroll="True" Margin="0,30,0,20" VerticalScrollBarVisibility="Hidden"
+                        DataContext="{Binding ElementName=newsitemlist,Path=CurrentItem}" HorizontalScrollBarVisibility="Disabled" Focusable="True">
+            <ScrollViewer.Resources>
+              <ResourceWrapper x:Key="VerticalScrollbarRenderTransform" Value="{ThemeResource VerticalScrollbarRenderTransform}" />
+            </ScrollViewer.Resources>
+            <Label FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource MediaItemUnwatchedColor}"
+                   Content="{Binding Summary}" Wrap="true" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
+          </ScrollViewer>
+        </Grid>
+        
+        <!-- Updating Overlay -->
+        <Label Content="Refreshing Data ..." IsVisible="{Binding IsUpdating}" 
+               Color="{ThemeResource MediaItemUnwatchedColor}" FontSize="{ThemeResource SmallFontSize}" 
+               HorizontalAlignment="Center" VerticalAlignment="Center"/>
+        <DockPanel Grid.Column="1" Grid.Row="1" VerticalAlignment="Bottom" HorizontalAlignment="Left" IsVisible="{Binding IsItemsValid}">
+          <StackPanel DockPanel.Dock="Right" Margin="65,-80,25,80" Orientation="Horizontal">
+            <Label HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0,0,10,0"
+                   Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallerFontSize}">
+              <Label.Content>
+                <MultiBinding Converter="{StaticResource GetIndexMultiConverter}" ConverterParameter="1">
+                  <Binding ElementName="newsitemlist" Path="CurrentItem"/>
+                  <Binding ElementName="newsitemlist" Path="ItemsSource"/>
+                </MultiBinding>
+              </Label.Content>
+            </Label>
+            <Label Color="{ThemeResource TextColorForeground}" Content="| " FontSize="{ThemeResource SmallerFontSize}"/>
+            <Label Color="{ThemeResource TextColorForeground}" FontSize="{ThemeResource SmallerFontSize}">
+              <Label.Content>
+                <Binding ElementName="newsitemlist" Path="ItemsCount" />
+              </Label.Content>
+            </Label>
+          </StackPanel>
+        </DockPanel>
+      </Grid>
+
+    </ControlTemplate>
   </Include.Resources>
 </Include>
