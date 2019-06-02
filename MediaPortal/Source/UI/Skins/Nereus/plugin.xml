@@ -50,6 +50,16 @@
     <HomeEditorRegistration Id="4D0738C3-84BA-4DBC-904D-9951911403C0" SkinName="WMCSkin"/>
   </Register-->
 
+  <Register Location="/Workflow/ViewModes">
+    <!-- Example: News list -->
+    <WorkflowStateViewModes Skin="Nereus" Id="{84B535A3-4E7E-4560-8FCC-6C542C80DE51}" StateId="7A8AB062-07E9-4727-B9C5-05A65CDD6F12" ViewModes="ListLayout,GridLayout"/>
+    <!-- GUITest Main-->
+    <!-- A selection is offered, because more than one mode is defined. The default is the first one in the list. -->
+    <WorkflowStateViewModes Skin="default" Id="{2EBFA5FC-9CAF-4DAD-98DA-98637EAFAC77}" StateId="F660C2CA-A340-4694-A7F4-9E68AB9721C4" ViewModes="ListLayout,GridLayout"/>
+    <!-- No selection is offered, because only one mode is defined, which is also the default. -->
+    <WorkflowStateViewModes Skin="BlueVision" Id="{898363B3-DF33-4126-8072-C040F1208CA0}" StateId="F660C2CA-A340-4694-A7F4-9E68AB9721C4" ViewModes="GridLayout"/>
+  </Register>
+
   <!-- Contents of '/Appearance' section -->
   <Register Location="/Configuration/Settings/Appearance">
     <ConfigSection

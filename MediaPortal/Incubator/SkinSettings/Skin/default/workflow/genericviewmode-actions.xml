@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Action to switch the view mode -->
+<Workflow DescriptorVersion="1.0">
+  <MenuActions>
+    <WorkflowContributorAction Id="E24F4EBA-C814-423A-8A7A-DADF71C9C3E2"
+        Name="*->Generic switch view mode"
+        DisplayCategory="a"
+        SortOrder="a3"
+        SourceStates="*"
+        ContributorModelId="93C73448-DE70-44F7-A248-624B0BE31747"/> <!-- ViewMode action -->
+  </MenuActions>
+</Workflow>
