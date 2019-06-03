@@ -32,11 +32,13 @@ using MediaPortal.Common.Logging;
 using MediaPortal.Common.Messaging;
 using MediaPortal.Common.PluginManager;
 using MediaPortal.Common.PluginManager.Exceptions;
+using MediaPortal.Common.Settings;
 using MediaPortal.UI.Presentation;
 using MediaPortal.UI.Presentation.DataObjects;
 using MediaPortal.UI.Presentation.Screens;
 using MediaPortal.UI.Presentation.Workflow;
 using MediaPortal.UI.SkinEngine.ScreenManagement;
+using SkinSettings.Settings;
 
 namespace SkinSettings
 {
@@ -58,23 +60,40 @@ namespace SkinSettings
 
     #endregion
 
-    protected readonly object _syncObj = new object();
-    protected IPluginItemStateTracker _pluginItemStateTracker;
+    protected static readonly object _syncObj = new object();
+    protected static IPluginItemStateTracker _pluginItemStateTracker;
     protected readonly AbstractProperty _layoutTypeProperty;
     protected readonly ItemsList _viewModeItemsList = new ItemsList();
-    private Dictionary<string, Dictionary<Guid, List<LayoutType>>> _viewModes;
+    private static Dictionary<string, Dictionary<Guid, List<LayoutType>>> _viewModes;
     protected WeakEventMulticastDelegate _objectChanged = new WeakEventMulticastDelegate();
     protected AsynchronousMessageQueue _messageQueue;
 
-    public WorkflowStateViewModeModel()
+    public static int GetNumberOfViewModes()
+    {
+      var skinName = ((ScreenManager)ServiceRegistration.Get<IScreenManager>()).SkinName;
+      var wfState = ServiceRegistration.Get<IWorkflowManager>().CurrentNavigationContext.WorkflowState.StateId;
+
+      Dictionary<Guid, List<LayoutType>> views;
+      List<LayoutType> viewModes;
+      if (!_viewModes.TryGetValue(skinName, out views) || !views.TryGetValue(wfState, out viewModes) || !viewModes.Any())
+        return 0;
+      return viewModes.Count;
+    }
+
+    static WorkflowStateViewModeModel()
     {
       InitRegisteredViewModes();
+    }
 
+    public WorkflowStateViewModeModel()
+    {
       _layoutTypeProperty = new WProperty(typeof(LayoutType), LayoutType.ListLayout);
 
       _messageQueue = new AsynchronousMessageQueue(this, new string[] { WorkflowManagerMessaging.CHANNEL });
       _messageQueue.MessageReceived += OnMessageReceived;
       _messageQueue.Start();
+
+      FireChange();
     }
 
     private void OnMessageReceived(AsynchronousMessageQueue queue, SystemMessage message)
@@ -85,7 +104,7 @@ namespace SkinSettings
       }
     }
 
-    protected void InitRegisteredViewModes()
+    protected static void InitRegisteredViewModes()
     {
       lock (_syncObj)
       {
@@ -129,7 +148,6 @@ namespace SkinSettings
 
         _viewModes = viewModes;
       }
-      FireChange();
     }
 
     public event ObjectChangedDlgt ObjectChanged
@@ -156,7 +174,7 @@ namespace SkinSettings
 
       foreach (LayoutType layoutType in viewModes)
       {
-        ListItem smallList = new ListItem(KEY_NAME, layoutType.ToString())
+        ListItem smallList = new ListItem(KEY_NAME, "[SkinSettings.ViewModes.LayoutType." + layoutType + "]")
         {
           Command = new MethodDelegateCommand(() => SetViewMode(layoutType)),
         };
@@ -164,13 +182,28 @@ namespace SkinSettings
         _viewModeItemsList.Add(smallList);
       }
 
-      LayoutType = viewModes.First();
+      var viewSettings = ServiceRegistration.Get<ISettingsManager>().Load<ViewSettings>();
+
+      ViewModeDictionary<Guid, LayoutType> layouts;
+      LayoutType layout;
+      if (viewSettings.WorkflowLayouts.TryGetValue(skinName, out layouts) && layouts.TryGetValue(wfState, out layout))
+        LayoutType = layout;
+      else
+        LayoutType = viewModes.First();
     }
 
     protected void SetViewMode(LayoutType layoutType)
     {
       LayoutType = layoutType;
-      // TODO: save to settings
+
+      var skinName = ((ScreenManager)ServiceRegistration.Get<IScreenManager>()).SkinName;
+      var wfState = ServiceRegistration.Get<IWorkflowManager>().CurrentNavigationContext.WorkflowState.StateId;
+      var settingsManager = ServiceRegistration.Get<ISettingsManager>();
+      var viewSettings = settingsManager.Load<ViewSettings>();
+      if (!viewSettings.WorkflowLayouts.ContainsKey(skinName))
+        viewSettings.WorkflowLayouts[skinName] = new ViewModeDictionary<Guid, LayoutType>();
+      viewSettings.WorkflowLayouts[skinName][wfState] = layoutType;
+      settingsManager.Save(viewSettings);
     }
 
     protected void UpdateSelectedFlag(ItemsList itemsList)

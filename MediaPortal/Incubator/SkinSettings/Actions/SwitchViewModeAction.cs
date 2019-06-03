@@ -54,9 +54,8 @@ namespace SkinSettings.Actions
 
     public bool IsActionVisible(NavigationContext context)
     {
-      var wfVmModel = (WorkflowStateViewModeModel)ServiceRegistration.Get<IWorkflowManager>().GetModel(WorkflowStateViewModeModel.VM_MODEL_ID);
-      wfVmModel.Update();
-      return wfVmModel.ViewModeItemsList.Count > 1;
+      var numberOfViewModes = WorkflowStateViewModeModel.GetNumberOfViewModes();
+      return numberOfViewModes > 1;
     }
 
     public bool IsActionEnabled(NavigationContext context)

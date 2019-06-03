@@ -42,6 +42,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Actions\SwitchViewModeAction.cs" />
+    <Compile Include="Settings\ViewSettings.cs" />
     <Compile Include="SkinChangeMonitor.cs" />
     <Compile Include="WorkflowStateViewModeModel.cs" />
     <Compile Include="WorkflowStateViewModesBuilder.cs" />
