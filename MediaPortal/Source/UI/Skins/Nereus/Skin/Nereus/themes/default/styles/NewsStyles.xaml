@@ -218,14 +218,14 @@
   </DataTemplate>
 
   <DataTemplate x:Key="NewsItemGridDataTemplate" DataType="{x:Type collections:ListItem}">
-    <Grid Width="423" Height="225" Margin="2">
+    <Grid Width="423" Height="235" Margin="2">
       <Grid.ColumnDefinitions>
         <ColumnDefinition Width="*"/>
         <ColumnDefinition Width="*"/>
       </Grid.ColumnDefinitions>
       <Grid.RowDefinitions>
         <RowDefinition Height="*"/>
-        <RowDefinition Height="47"/>
+        <RowDefinition Height="80"/>
       </Grid.RowDefinitions>
 
       <!-- Shadow and Background -->
@@ -249,36 +249,21 @@
         <Rectangle.Fill>
           <LinearGradientBrush StartPoint="0.5,1" EndPoint="0.5,0">
             <GradientStop Color="#D8000000" Offset="0"/>
-            <GradientStop Color="#D8000000" Offset="0.75"/>
             <GradientStop Color="#00000000" Offset="1"/>
           </LinearGradientBrush>
         </Rectangle.Fill>
       </Rectangle>
 
-      <Image Stretch="Uniform" Margin="10,6,8,10" Height="50" VerticalAlignment="Top" HorizontalAlignment="Right" 
+      <Image Stretch="Uniform" Margin="10,6,8,10" Height="40" VerticalAlignment="Top" HorizontalAlignment="Right" 
              Grid.Column="2" Source="News.png"/>
 
       <Label Content="{Binding PublishDate}" Color="{ThemeResource TextColor}" Margin="10,10,-50,10" FontFamily="SegoeUIBold"
              IsVisible="{Binding ElementName=thumb, Path=!HasImage}" FontSize="{ThemeResource SmallFontSize}" />
 
-      <Label Grid.Row="1" Grid.ColumnSpan="2" x:Name="ItemLabel" FontSize="{ThemeResource SmallFontSize}" 
-             Margin="10,20,10,5" Wrap="True" VerticalAlignment="Stretch" HorizontalContentAlignment="Stretch"
-             IsVisible="{Binding ElementName=thumb, Path=HasImage}"
+      <Label Grid.Row="1" Grid.ColumnSpan="2" x:Name="ItemLabel" FontSize="{ThemeResource SmallerFontSize}" 
+             Margin="10,10,10,10" Wrap="True" VerticalAlignment="Stretch" HorizontalContentAlignment="Stretch"
+             IsVisible="{Binding ElementName=thumb, Path=HasImage}" TextTrimming="CharacterEllipsis"
              Color="{ThemeResource TextColor}" Content="{Binding Title}" ScrollDelay="0">
-        <Label.Scroll>
-          <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
-            <Binding RelativeSource="{RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}}" Path="HasFocus"/>
-            <Binding Source="Auto"/>
-            <Binding Source="None"/>
-          </MultiBinding>
-        </Label.Scroll>
-        <Label.TextTrimming>
-          <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
-            <Binding RelativeSource="{RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}}" Path="HasFocus"/>
-            <Binding Source="None"/>
-            <Binding Source="CharacterEllipsis"/>
-          </MultiBinding>
-        </Label.TextTrimming>
       </Label>
 
       <Label Grid.RowSpan="2" Grid.ColumnSpan="2" x:Name="ItemLabel2" FontSize="{ThemeResource SmallFontSize}" 

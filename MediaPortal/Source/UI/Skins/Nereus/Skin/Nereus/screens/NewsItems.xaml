@@ -66,7 +66,7 @@
           <Image x:Name="Thumb" Stretch="UniformToFill" DataContext="{Binding ElementName=newsitemlist,Path=CurrentItem}" 
                  Height="500" Source="{Binding Path=Thumb}" VerticalAlignment="Top"/>
           <Image x:Name="FanArtImageBackground" Stretch="UniformToFill" VerticalAlignment="Top" Source="news_background.jpg" 
-                 HorizontalAlignment="Stretch" Height="500" IsVisible="{Binding ElementName=Thumb, Path=!HasImage}"/>
+                 HorizontalAlignment="Stretch" Height="480" IsVisible="{Binding ElementName=Thumb, Path=!HasImage}"/>
           <Image Grid.RowSpan="2" Stretch="Fill" Source="List_overlay.png"/>
           <Image Grid.RowSpan="2" Source="ContentGlow.png" Stretch="Uniform" VerticalAlignment="Stretch" HorizontalAlignment="Left" Margin="-20,0,0,0"/>
 
@@ -89,7 +89,7 @@
           </ListView.Resources>
         </ListView>
 
-        <Grid Grid.Column="1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="70,250,0,80">
+        <Grid Grid.Column="1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="70,300,0,100">
           <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
@@ -121,16 +121,16 @@
                    FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColorForeground}" Margin="40,0,0,0"/>
           </Grid>
 
-          <Image Grid.Column="1" Grid.Row="3" Stretch="Uniform" DataContext="{Binding ElementName=newsitemlist,Path=CurrentItem}"
+          <!--Image Grid.Column="1" Grid.Row="3" Stretch="Uniform" DataContext="{Binding ElementName=newsitemlist,Path=CurrentItem}"
                  HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="15,10,30,50">
             <Image.Source>
               <ImageSourceWrapper Delay="0" DelayInOut="true" Transition="transitions\dissolve" FallbackSource="RssIcon.png"
                                   TransitionDuration="0" VerticalTextureAlignment="Bottom" HorizontalTextureAlignment="Right"
                                   Source="{Binding Path=Thumb}"/>
             </Image.Source>
-          </Image>
+          </-->
 
-          <ScrollViewer Grid.Row="3" CanContentScroll="True" Margin="0,30,0,20" VerticalScrollBarVisibility="Hidden"
+          <ScrollViewer Grid.Row="3" Grid.ColumnSpan="2" CanContentScroll="True" Margin="0,30,0,30" VerticalScrollBarVisibility="Hidden"
                         DataContext="{Binding ElementName=newsitemlist,Path=CurrentItem}" HorizontalScrollBarVisibility="Disabled" Focusable="True">
             <ScrollViewer.Resources>
               <ResourceWrapper x:Key="VerticalScrollbarRenderTransform" Value="{ThemeResource VerticalScrollbarRenderTransform}" />

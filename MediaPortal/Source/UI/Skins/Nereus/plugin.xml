@@ -51,8 +51,13 @@
   </Register-->
 
   <Register Location="/Workflow/ViewModes">
-    <!-- Example: News list -->
+    <!-- News list -->
     <WorkflowStateViewModes Skin="Nereus" Id="{84B535A3-4E7E-4560-8FCC-6C542C80DE51}" StateId="7A8AB062-07E9-4727-B9C5-05A65CDD6F12" ViewModes="ListLayout,GridLayout"/>
+    <!-- News Item list -->
+    <WorkflowStateViewModes Skin="Nereus" Id="{F2461E2D-D6EF-4b08-B8CC-A0662BFABDD1}" StateId="380B17A6-010E-4BB2-B79C-965CC3F8EFDD" ViewModes="ListLayout,GridLayout"/>
+    <!-- WebRadio -->
+    <WorkflowStateViewModes Skin="Nereus" Id="{E23F342D-13B8-4f26-9FF6-EAFF3653A7BB}" StateId="263FADFE-87BE-4563-83F0-E62707891E1B" ViewModes="ListLayout,GridLayout"/>    
+    
     <!-- GUITest Main-->
     <!-- A selection is offered, because more than one mode is defined. The default is the first one in the list. -->
     <!--WorkflowStateViewModes Skin="default" Id="{2EBFA5FC-9CAF-4DAD-98DA-98637EAFAC77}" StateId="F660C2CA-A340-4694-A7F4-9E68AB9721C4" ViewModes="ListLayout,GridLayout"/-->

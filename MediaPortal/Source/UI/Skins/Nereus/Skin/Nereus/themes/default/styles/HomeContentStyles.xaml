@@ -1999,13 +1999,12 @@
         <Rectangle.Fill>
           <LinearGradientBrush StartPoint="0.5,1" EndPoint="0.5,0">
             <GradientStop Color="#D8000000" Offset="0"/>
-            <GradientStop Color="#D8000000" Offset="0.75"/>
             <GradientStop Color="#00000000" Offset="1"/>
           </LinearGradientBrush>
         </Rectangle.Fill>
       </Rectangle>
 
-      <Image Stretch="Uniform" Margin="10,6,8,10" Height="50" VerticalAlignment="Top" HorizontalAlignment="Right" 
+      <Image Stretch="Uniform" Margin="10,6,8,10" Height="40" VerticalAlignment="Top" HorizontalAlignment="Right" 
              Grid.Column="2" Source="News.png"/>
 
       <Label Content="{Binding PublishDate}" Color="{ThemeResource TextColor}" Margin="10,10,-50,10" FontFamily="SegoeUIBold"
