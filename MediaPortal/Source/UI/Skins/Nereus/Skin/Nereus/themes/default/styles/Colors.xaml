@@ -28,6 +28,11 @@
   <ResourceWrapper x:Key="DialogBackgroundColor" Resource="#FF000000"/>
   <ResourceWrapper x:Key="DialogBorderColor" Resource="#33FFFFFF"/>
 
+  <ResourceWrapper x:Key="ScrollBarStrokeColor" Resource="#00000000"/>
+  <ResourceWrapper x:Key="ScrollBarBackgroundColor" Resource="#D8000000"/>
+  <ResourceWrapper x:Key="ScrollBarKnobStrokeColor" Resource="00000000"/>
+  <ResourceWrapper x:Key="ScrollBarKnobBackgroundColor" Resource="White"/>
+
   <!-- ************************** Nereus colors end ****************************** -->
   
   <ResourceWrapper x:Key="MenuTextForeground" Resource="White"/>
@@ -156,20 +161,6 @@
   <ResourceWrapper x:Key="DialogCloseButtonCrossColor" Resource="#FF484848"/>
 
     
-
-    <!-- Light blue with some green -->
-
-
-  <ResourceWrapper x:Key="ScrollBarStrokeColor" Resource="#FFA0A0A0"/>
-
-  <ResourceWrapper x:Key="ScrollBarBackgroundColor" Resource="#10909090"/>
-
-  <ResourceWrapper x:Key="ScrollBarKnobStrokeColor" Resource="#FFA0A0A0"/>
-
-  <ResourceWrapper x:Key="ScrollBarKnobBackgroundColor" Resource="#20A0A0A0"/>
-
-  <ResourceWrapper x:Key="ScrollBarWidth" Resource="12"/>
-
   <!-- White -->
   <ResourceWrapper x:Key="ControlHandleColor" Resource="#FFFFFFFF"/>
 

@@ -50,5 +50,8 @@
   <ResourceWrapper x:Key="OSDControlWidth" Resource="14" />
   <ResourceWrapper x:Key="OSDControlMargin" Resource="5,2,5,2" />
 
-  
+  <ResourceWrapper x:Key="ScrollBarWidth" Resource="5"/>
+  <ResourceWrapper x:Key="ScrollBarKnobWidth" Resource="7" />
+
+
 </ResourceDictionary>

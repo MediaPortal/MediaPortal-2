@@ -59,6 +59,80 @@
     <ImageBrush x:Name="BackdropImageBackground" ImageSource="Background.png" />
   </ResourceWrapper>
 
+  <Style x:Key="DefaultScrollViewerStyle" TargetType="{x:Type ScrollViewer}">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="{x:Type ScrollViewer}">
+          <Grid x:Name="ScrollViewerGrid">
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="*"/>
+              <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+              <RowDefinition Height="*"/>
+              <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+            <!-- Content -->
+            <ScrollContentPresenter Grid.Row="0" Grid.Column="0" Grid.ZIndex="100"
+                                    VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
+            <Grid x:Name="HorizontalScrollBar" IsVisible="{TemplateBinding ScrollBarXVisible}" Grid.Row="1" Grid.Column="0"
+                  Grid.ZIndex="0" Margin="2,10,2,2"
+                  RenderTransform="{DynamicResource ResourceKey=HorizontalScrollBarRenderTransform}">
+              <!-- RenderTransform can be applied by any ListView by defining a transform inside ResourceWrapper x:Key="HorizontalScrollBarRenderTransform" -->
+              <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+              </Grid.ColumnDefinitions>
+              <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+              </Grid.RowDefinitions>
+              <!-- Background -->
+              <Rectangle x:Name="ScrollBarXBackground" Grid.Row="0" Grid.Column="0"
+                         Stroke="{ThemeResource ScrollBarStrokeColor}"
+                         Height="{ThemeResource ScrollBarWidth}"
+                         ActualWidth="{TemplateBinding Path=ScrollBarXSize,Mode=OneWayToSource}"
+                         Fill="{ThemeResource ScrollBarBackgroundColor}">
+              </Rectangle>
+              <!-- Knob -->
+              <StackPanel Grid.Row="0" Grid.Column="0" Orientation="Horizontal">
+                <StackPanel Width="{TemplateBinding ScrollBarXKnobPos}"/>
+                <Rectangle x:Name="ScrollBarXKnob" Width="{TemplateBinding ScrollBarXKnobWidth}" Height="{ThemeResource ScrollBarKnobWidth}"
+                           Stroke="{ThemeResource ScrollBarKnobStrokeColor}" 
+                           Fill="{ThemeResource ScrollBarKnobBackgroundColor}">
+                </Rectangle>
+              </StackPanel>
+            </Grid>
+            <Grid x:Name="VerticalScrollBar" IsVisible="{TemplateBinding ScrollBarYVisible}" Grid.Row="0" Grid.Column="1"
+                  Grid.ZIndex="0" Margin="10,2,2,2"
+                  RenderTransform="{DynamicResource ResourceKey=VerticalScrollbarRenderTransform}">
+              <!-- RenderTransform can be applied by any ListView by defining a transform inside ResourceWrapper x:Key="VerticalScrollbarRenderTransform" -->
+              <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/>
+              </Grid.ColumnDefinitions>
+              <Grid.RowDefinitions>
+                <RowDefinition Height="*"/>
+              </Grid.RowDefinitions>
+              <!-- Background -->
+              <Rectangle x:Name="ScrollBarYBackground" Grid.Row="0" Grid.Column="0"
+                         Stroke="{ThemeResource ScrollBarStrokeColor}" 
+                         Width="{ThemeResource ScrollBarWidth}"
+                         ActualHeight="{TemplateBinding Path=ScrollBarYSize,Mode=OneWayToSource}"
+                         Fill="{ThemeResource ScrollBarBackgroundColor}">  
+              </Rectangle>
+              <!-- Knob -->
+              <StackPanel Grid.Row="0" Grid.Column="0" Orientation="Vertical">
+                <StackPanel Height="{TemplateBinding ScrollBarYKnobPos}"/>
+                <Rectangle x:Name="ScrollBarYKnob" Width="{ThemeResource ScrollBarKnobWidth}" Height="{TemplateBinding ScrollBarYKnobHeight}"
+                           Stroke="{ThemeResource ScrollBarKnobStrokeColor}" 
+                           Fill="{ThemeResource ScrollBarKnobBackgroundColor}">    
+                </Rectangle>
+              </StackPanel>
+            </Grid>
+          </Grid>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+
   <Style x:Key="HorizontalMediaScrollViewerStyle" TargetType="{x:Type ScrollViewer}">
     <Setter Property="Template">
       <Setter.Value>
