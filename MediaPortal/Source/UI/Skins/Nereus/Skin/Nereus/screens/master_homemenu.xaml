@@ -88,7 +88,6 @@ Parameters which have to be accessible by a DynamicResource lookup:
 
         <!--Slide content in and out depending on hidden menu state-->
         <Grid.Triggers>
-
           <DataTrigger Binding="{Binding Source={StaticResource MenuModel},Path=IsMenuOpen}" Value="True">
             <DataTrigger.EnterActions>
               <BeginStoryboard x:Name="SlideIn" Storyboard="{ThemeResource HiddenMenuSlideIn}"/>
@@ -98,7 +97,6 @@ Parameters which have to be accessible by a DynamicResource lookup:
               <StopStoryboard BeginStoryboardName="SlideIn"/>
             </DataTrigger.ExitActions>
           </DataTrigger>
-          
         </Grid.Triggers>
 
         <Grid x:Name="ContentView" Grid.Column="1" HorizontalAlignment="Left" VerticalAlignment="Stretch">

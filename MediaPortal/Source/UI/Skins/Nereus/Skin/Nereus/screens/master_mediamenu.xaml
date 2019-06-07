@@ -59,7 +59,7 @@ Parameters which have to be accessible by a DynamicResource lookup:
     </ControlTemplate>
 
     <ControlTemplate x:Key="TopGradient_Template">
-      <Border HorizontalAlignment="Stretch" VerticalAlignment="Stretch" BorderThickness="0" Margin="0,0,0,0" Panel.ZIndex="1000">
+      <Border HorizontalAlignment="Stretch" VerticalAlignment="Stretch" BorderThickness="0" Panel.ZIndex="1000">
         <Border.Background>
           <LinearGradientBrush StartPoint="0.5,0" EndPoint="0.5,1">
             <GradientStop Color="#E6000000" Offset="0" />
@@ -70,7 +70,7 @@ Parameters which have to be accessible by a DynamicResource lookup:
     </ControlTemplate>
 
     <ControlTemplate x:Key="BottomGradient_Template">
-      <Border HorizontalAlignment="Stretch" VerticalAlignment="Bottom" BorderThickness="0" Margin="0,0,0,0" Height="100" Panel.ZIndex="1000">
+      <Border HorizontalAlignment="Stretch" VerticalAlignment="Bottom" BorderThickness="0" Height="100" Panel.ZIndex="1000">
         <Border.Background>
           <LinearGradientBrush StartPoint="0.5,0" EndPoint="0.5,1">
             <GradientStop Color="#00000000" Offset="0" />
@@ -210,7 +210,7 @@ Parameters which have to be accessible by a DynamicResource lookup:
                     IsVisible="{Binding RelativeSource={RelativeSource Self},Path=Template,Converter={StaticResource ReferenceToBoolConverter}}"/>
         </Grid>
 
-        <Grid x:Name="SlideMenuPanel" Grid.RowSpan="2" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Margin="0,-100,0,-270">
+        <Grid x:Name="SlideMenuPanel" Grid.RowSpan="2" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Margin="0,-100,0,-200">
           <Grid.IsVisible>
             <Binding Source="{StaticResource ViewModeModel}" Path="LayoutType" 
                      Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0} != {LayoutType}.{CoverLayout}"/>
