@@ -130,12 +130,12 @@
             </Image.Source>
           </-->
 
-          <ScrollViewer Grid.Row="3" Grid.ColumnSpan="2" CanContentScroll="True" Margin="0,30,0,30" VerticalScrollBarVisibility="Hidden"
+          <ScrollViewer Grid.Row="3" Grid.ColumnSpan="2" CanContentScroll="True" Margin="0,30,20,30" VerticalScrollBarVisibility="Hidden"
                         DataContext="{Binding ElementName=newsitemlist,Path=CurrentItem}" HorizontalScrollBarVisibility="Disabled" Focusable="True">
             <ScrollViewer.Resources>
               <ResourceWrapper x:Key="VerticalScrollbarRenderTransform" Value="{ThemeResource VerticalScrollbarRenderTransform}" />
             </ScrollViewer.Resources>
-            <Label FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource MediaItemUnwatchedColor}"
+            <Label FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColor}" Opacity="0.8"
                    Content="{Binding Summary}" Wrap="true" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
           </ScrollViewer>
         </Grid>

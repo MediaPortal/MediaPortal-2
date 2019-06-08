@@ -7,12 +7,7 @@
     DependsOnStyleResources="Colors,Buttons,NewsConsts"
     >
 
-  <SolidColorBrush x:Key="NewsItemSeparatorBrush" Color="{ThemeResource HintTextColor}"/>
   <Model x:Key="GenericViewModeModel" Id="08BB1CFE-8AF3-4DD1-BB9C-582DD7EA8BBF"/>
-
-  <!-- Default no transformation for scrollbars -->
-  <ResourceWrapper x:Key="VerticalScrollbarRenderTransform">
-  </ResourceWrapper>
 
   <!-- ################################################################# -->
   <!-- ##################   NEWS FEED STYLES  ########################## -->
@@ -221,7 +216,7 @@
     <Grid Width="423" Height="235" Margin="2">
       <Grid.ColumnDefinitions>
         <ColumnDefinition Width="*"/>
-        <ColumnDefinition Width="*"/>
+        <ColumnDefinition Width="Auto"/>
       </Grid.ColumnDefinitions>
       <Grid.RowDefinitions>
         <RowDefinition Height="*"/>
