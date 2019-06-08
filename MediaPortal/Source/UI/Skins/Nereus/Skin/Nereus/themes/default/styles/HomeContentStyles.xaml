@@ -1949,7 +1949,7 @@
           </MultiBinding>
         </Rectangle.Fill>
       </Rectangle>
-      <Image Stretch="Uniform" Source="{Binding Icon}" FallbackSource="RssIcon.png" Margin="25"
+      <Image Stretch="Uniform" Source="{Binding Icon}" FallbackSource="RssIcon.png" Margin="10,25,10,25"
              VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
 
       <!-- Darkened band -->
