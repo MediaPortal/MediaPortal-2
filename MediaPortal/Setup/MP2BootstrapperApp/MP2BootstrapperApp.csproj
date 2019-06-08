@@ -223,7 +223,6 @@
     <Resource Include="Resources\MP2Server.png" />
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="Resources\directx9.png" />
     <Resource Include="Resources\dokan.png" />
     <Resource Include="Resources\LAVFilters.png" />
   </ItemGroup>
