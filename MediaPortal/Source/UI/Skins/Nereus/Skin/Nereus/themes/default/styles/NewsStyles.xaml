@@ -8,7 +8,7 @@
     >
 
   <SolidColorBrush x:Key="NewsItemSeparatorBrush" Color="{ThemeResource HintTextColor}"/>
-  <Model x:Key="ViewModeModel" Id="08BB1CFE-8AF3-4DD1-BB9C-582DD7EA8BBF"/>
+  <Model x:Key="GenericViewModeModel" Id="08BB1CFE-8AF3-4DD1-BB9C-582DD7EA8BBF"/>
 
   <!-- Default no transformation for scrollbars -->
   <ResourceWrapper x:Key="VerticalScrollbarRenderTransform">
@@ -122,7 +122,7 @@
         <BindingWrapper>
           <BindingWrapper.Binding>
             <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} == {LayoutType}.{ListLayout} ? {1} : {2}">
-              <Binding Source="{StaticResource ViewModeModel}" Path="LayoutType"/>
+              <Binding Source="{StaticResource GenericViewModeModel}" Path="LayoutType"/>
               <Binding Source="{ThemeResource NewsFeedListDataTemplate}"/>
               <Binding Source="{ThemeResource NewsFeedGridDataTemplate}"/>
             </MultiBinding>
@@ -135,7 +135,7 @@
         <BindingWrapper>
           <BindingWrapper.Binding>
             <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} == {LayoutType}.{ListLayout} ? {1} : {2}">
-              <Binding Source="{StaticResource ViewModeModel}" Path="LayoutType"/>
+              <Binding Source="{StaticResource GenericViewModeModel}" Path="LayoutType"/>
               <Binding Source="{ThemeResource NewsListViewContainerStyle}"/>
               <Binding Source="{ThemeResource NewsGridViewContainerStyle}"/>
             </MultiBinding>
@@ -148,7 +148,7 @@
         <BindingWrapper>
           <BindingWrapper.Binding>
             <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} == {LayoutType}.{ListLayout} ? {1} : {2}">
-              <Binding Source="{StaticResource ViewModeModel}" Path="LayoutType"/>
+              <Binding Source="{StaticResource GenericViewModeModel}" Path="LayoutType"/>
               <!-- List layout -->
               <Binding>
                 <Binding.Source>
@@ -295,7 +295,7 @@
         <BindingWrapper>
           <BindingWrapper.Binding>
             <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} == {LayoutType}.{ListLayout} ? {1} : {2}">
-              <Binding Source="{StaticResource ViewModeModel}" Path="LayoutType"/>
+              <Binding Source="{StaticResource GenericViewModeModel}" Path="LayoutType"/>
               <Binding Source="{ThemeResource NewsItemListDataTemplate}"/>
               <Binding Source="{ThemeResource NewsItemGridDataTemplate}"/>
             </MultiBinding>
