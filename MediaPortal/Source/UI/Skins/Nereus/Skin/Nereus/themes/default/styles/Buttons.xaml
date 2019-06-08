@@ -875,9 +875,9 @@
               <RowDefinition Height="Auto"/>
             </Grid.RowDefinitions>
             <ContentPresenter x:Name="RadioButtonContentPresenter" Grid.Column="0" Grid.Row="0" Margin="10,0,10,0"
-                HorizontalAlignment="Stretch" VerticalAlignment="Center"/>
+                              HorizontalAlignment="Stretch" VerticalAlignment="Center"/>
             <Control x:Name="GrowControl" Grid.Column="1" Grid.Row="0" Style="{ThemeResource RadioButtonControlStyle}"
-                VerticalAlignment="Center" HorizontalAlignment="Center" RenderTransformOrigin="0.5,0.5">
+                     VerticalAlignment="Center" HorizontalAlignment="Center" RenderTransformOrigin="0.5,0.5">
               <Control.RenderTransform>
                 <TransformGroup>
                   <ScaleTransform ScaleX="1" ScaleY="1"/>
@@ -885,7 +885,7 @@
               </Control.RenderTransform>
             </Control>
             <Ellipse Grid.Column="1" Grid.Row="0" x:Name="InnerCircle" HorizontalAlignment="Center" VerticalAlignment="Center"
-                Width="5" Height="5" Fill="{ThemeResource ControlHandleColor}" Visibility="Hidden"/>
+                     Width="5" Height="5" Fill="{ThemeResource ControlHandleColor}" Visibility="Hidden"/>
           </Grid>
           <ControlTemplate.Triggers>
             <Trigger Property="IsChecked" Value="True">
@@ -903,7 +903,7 @@
             <Trigger Property="IsPressed" Value="True">
               <Trigger.EnterActions>
                 <BeginStoryboard x:Name="Pressed_BeginStoryboard" Storyboard="{ThemeResource PressedButtonStoryboard}"
-                    HandoffBehavior="TemporaryReplace"/>
+                                 HandoffBehavior="TemporaryReplace"/>
                 <SoundPlayerAction Source="click.wav" DisableOnAudioOutput="True"/>
               </Trigger.EnterActions>
               <Trigger.ExitActions>

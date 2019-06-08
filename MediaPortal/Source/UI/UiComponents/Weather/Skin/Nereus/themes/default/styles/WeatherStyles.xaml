@@ -9,7 +9,7 @@
 
   <!-- A simple data template to show the Name of the ListItem in a Label -->
   <DataTemplate x:Key="WeatherLocationItemDataTemplate" DataType="{x:Type collections:ListItem}">
-    <Grid x:Name="ItemControl" VerticalAlignment="Center" HorizontalAlignment="Stretch">
+    <Grid x:Name="ItemControl" VerticalAlignment="Center" HorizontalAlignment="Stretch" Margin="-19,0,-19,0">
       <Grid.ColumnDefinitions>
         <ColumnDefinition Width="300"/>
         <ColumnDefinition Width="20"/>
@@ -18,8 +18,10 @@
       <Grid.RowDefinitions>
         <RowDefinition Height="Auto"/>
       </Grid.RowDefinitions>
-      <Label Grid.Row="0" Grid.Column="0" x:Name="ItemLabel" Content="{Binding [Name]}" FontSize="{ThemeResource BigFontSize}" Color="{ThemeResource TextColor}"/>
-      <Label Grid.Row="0" Grid.Column="2" x:Name="DetailLabel" Content="{Binding [Detail]}" FontSize="{ThemeResource BigFontSize}" Color="{ThemeResource TextColor}"/>
+      <Label Grid.Row="0" Grid.Column="0" x:Name="ItemLabel" Content="{Binding [Name]}" Margin="10,0,10,0"
+             FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColor}"/>
+      <Label Grid.Row="0" Grid.Column="2" x:Name="DetailLabel" Content="{Binding [Detail]}" Margin="10,0,10,0"
+             FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColor}"/>
     </Grid>
   </DataTemplate>
 
@@ -30,13 +32,12 @@
     <Setter Property="ItemTemplate" Value="{ThemeResource WeatherLocationItemDataTemplate}"/>
     <Setter Property="DataStringProvider" Value="{ThemeResource WeatherLocationItemDataStringProvider}"/>
     <Setter Property="ItemContainerStyle" Value="{ThemeResource DefaultHighlightableItemContainerStyle}"/>
-    <Setter Property="Background" Value="{ThemeResource ItemsControlDialogShadowBackgroundColor}"/>
+    <!--Setter Property="Background" Value="{ThemeResource ItemsControlDialogShadowBackgroundColor}"/-->
   </Style>
 
   <Style x:Key="WeatherLocationSearchListViewStyle" BasedOn="{ThemeResource MenuListViewStyle}">
     <Setter Property="ItemTemplate" Value="{ThemeResource WeatherLocationItemDataTemplate}"/>
   </Style>
-
 
   <!-- Styles for a single day forecast -->
   <DataTemplate x:Key="ForecastItemDataTemplate" DataType="{x:Type collections:ListItem}">

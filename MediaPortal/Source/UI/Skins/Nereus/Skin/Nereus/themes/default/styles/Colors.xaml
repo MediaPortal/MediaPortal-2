@@ -33,6 +33,9 @@
   <ResourceWrapper x:Key="ScrollBarKnobStrokeColor" Resource="00000000"/>
   <ResourceWrapper x:Key="ScrollBarKnobBackgroundColor" Resource="White"/>
 
+  <ResourceWrapper x:Key="PassiveFocusBackgroundColor" Resource="{ThemeResource NereusColorMedium}"/>
+
+
   <!-- ************************** Nereus colors end ****************************** -->
   
   <ResourceWrapper x:Key="MenuTextForeground" Resource="White"/>
@@ -60,7 +63,6 @@
   <ResourceWrapper x:Key="BackgroundGradientLightColor" Resource="#FF505050"/>
 
   <ResourceWrapper x:Key="BackgroundGradientDarkColor" Resource="#FF101010"/>
-  <ResourceWrapper x:Key="PassiveFocusBackgroundColor" Resource="{ThemeResource NereusColorMedium}"/>
 
   <ResourceWrapper x:Key="KeyBindingsPanelBackgroundGradient1Color" Resource="#B04CE64F"/>
   <ResourceWrapper x:Key="KeyBindingsPanelBackgroundGradient2Color" Resource="#B078FF7B"/>
