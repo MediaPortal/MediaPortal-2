@@ -72,7 +72,6 @@
   <ItemGroup>
     <Compile Include="ActionType.cs" />
     <Compile Include="BootstrapperWrapper\BootstrapperApplicationWrapper.cs" />
-    <Compile Include="ChainPackages\DirectX.cs" />
     <Compile Include="ChainPackages\Dokan.cs" />
     <Compile Include="ChainPackages\IPackageChecker.cs" />
     <Compile Include="ChainPackages\IPackage.cs" />

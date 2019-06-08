@@ -29,7 +29,6 @@ namespace MP2BootstrapperApp.ChainPackages
     MP2Client,
     MP2Server,
     MP2Common,
-    directx9,
     dokan,
     LAVFilters,
     VC2008SP1_x86,
