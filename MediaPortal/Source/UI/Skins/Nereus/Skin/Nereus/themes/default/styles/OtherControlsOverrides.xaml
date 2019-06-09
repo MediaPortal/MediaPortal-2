@@ -1145,6 +1145,72 @@
     <Setter Property="ItemContainerStyle" Value="{ThemeResource DefaultItemContainerStyle}"/>
   </Style>
 
+  
+  <!-- ListView style to be used for menus which display an image with a label -->
+
+  <Style x:Key="ImageDialogContainerStyle" BasedOn="{ThemeResource DefaultItemContainerStyle}">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="{x:Type ListViewItem}">
+          <Button Style="{ThemeResource ButtonWideStyle_Grid}"
+                  Command="{DynamicResource ResourceKey=Menu_Command}"
+                  IsEnabled="{Binding Enabled}" SetFocus="{Binding Path=Selected,Mode=OneTime}">
+            <!--Button.ContextMenuCommand>
+              <Command Source="{StaticResource MediaItemsActionModel}" Path="ShowMediaItemActions" Parameters="{LateBoundValue BindingValue={Binding MediaItem}}"/>
+            </Button.ContextMenuCommand-->
+          </Button>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+
+  <DataTemplate x:Key="ImageDialogItemsDataTemplate" DataType="{x:Type collections:ListItem}">
+    <Grid x:Name="ItemControl" Margin="2">
+      <Grid.ColumnDefinitions>
+        <ColumnDefinition Width="250"/>
+      </Grid.ColumnDefinitions>
+      <Grid.RowDefinitions>
+        <RowDefinition Height="150"/>
+      </Grid.RowDefinitions>
+
+      <Rectangle HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+        <Rectangle.Fill>
+          <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
+            <Binding RelativeSource="{RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}}" Path="HasFocus"/>
+            <Binding Source="{ThemeResource NereusColorLight}"/>
+            <Binding Source="{ThemeResource NereusColorMedium}"/>
+          </MultiBinding>
+        </Rectangle.Fill>
+      </Rectangle>
+
+      <Image x:Name="Image" Thumbnail="True" Stretch="Fill"
+             Source="{Binding [ImageSrc]}" FallbackSource="{Binding [DefaultIconSrc]}"/>
+      <Rectangle VerticalAlignment="Bottom" Height="60">
+        <Rectangle.Fill>
+          <LinearGradientBrush StartPoint="0.5,1" EndPoint="0.5,0">
+            <GradientStop Color="#D8000000" Offset="0"/>
+            <GradientStop Color="#00000000" Offset="1"/>
+          </LinearGradientBrush>
+        </Rectangle.Fill>
+      </Rectangle>
+      <Label x:Name="ItemLabel" Margin="10,5,10,5" Content="{Binding [Name]}" Color="{ThemeResource TextColor}"
+             HorizontalAlignment="Center" VerticalAlignment="Bottom" FontSize="{ThemeResource SmallFontSize}"/>
+    </Grid>
+  </DataTemplate>
+
+  <Style x:Key="ImageDialogListViewStyle" BasedOn="{ThemeResource MenuListViewStyle}">
+    <Setter Property="ItemTemplate" Value="{ThemeResource ImageDialogItemsDataTemplate}"/>
+    <Setter Property="DataStringProvider" Value="{ThemeResource ImageDialogItemDataStringProvider}"/>
+    <Setter Property="ItemContainerStyle" Value="{ThemeResource ImageDialogContainerStyle}"/>
+    <Setter Property="ItemsPanel">
+      <Setter.Value>
+        <ItemsPanelTemplate>
+          <WrapPanel x:Name="GridItemsHost" IsItemsHost="True" Orientation="Horizontal" Margin="0" MaxWidth="1100" MaxHeight="500"/>
+        </ItemsPanelTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+
   <!-- ****************************** Notification area ********************************** -->
 
   <Model x:Key="NotificationsModel" Id="843F373D-0B4B-47ba-8DD1-0D18F00FAAD3"/>
