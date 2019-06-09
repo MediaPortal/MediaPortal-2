@@ -327,13 +327,13 @@ namespace MP2BootstrapperApp.ViewModels
           bundleManifestData = xDoc.Element(manifestNamespace + "BootstrapperApplicationData");
         }
 
-        var mbaPrereqs = bundleManifestData?.Descendants(manifestNamespace + "WixMbaPrereqInformation")
+        List<BootstrapperAppPrereqPackage> mbaPrereqPackages = bundleManifestData?.Descendants(manifestNamespace + "WixMbaPrereqInformation")
           .Select(x => new BootstrapperAppPrereqPackage(x))
           .ToList();
 
         packages = bundleManifestData?.Descendants(manifestNamespace + "WixPackageProperties")
           .Select(x => new BundlePackage(x))
-          .Where(pkg => !mbaPrereqs.Any(preReq => preReq.PackageId == pkg.Id));
+          .Where(pkg => mbaPrereqPackages.All(preReq => preReq.PackageId != pkg.Id));
       }
 
       BundlePackages = new ReadOnlyCollection<BundlePackage>(packages.ToList());

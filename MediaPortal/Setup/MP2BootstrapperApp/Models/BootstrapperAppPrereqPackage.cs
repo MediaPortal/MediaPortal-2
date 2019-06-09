@@ -22,7 +22,9 @@
 
 #endregion
 
+using System;
 using System.Xml.Linq;
+using MP2BootstrapperApp.ChainPackages;
 
 namespace MP2BootstrapperApp.Models
 {
@@ -41,9 +43,9 @@ namespace MP2BootstrapperApp.Models
     /// <summary>
     /// 
     /// </summary>
-    public string PackageId
+    public PackageId PackageId
     {
-      get { return _packageElement.Attribute("PackageId").Value; }
+      get { return Enum.TryParse(_packageElement.Attribute("PackageId")?.Value, out PackageId packageId) ? packageId : PackageId.Unknown; }
     }
     
   }
