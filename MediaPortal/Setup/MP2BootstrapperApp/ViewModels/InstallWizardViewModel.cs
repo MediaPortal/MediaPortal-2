@@ -53,7 +53,6 @@ namespace MP2BootstrapperApp.ViewModels
 
     private readonly IBootstrapperApplicationModel _bootstrapperApplicationModel;
     private InstallWizardPageViewModelBase _currentPage;
-    private ReadOnlyCollection<BundlePackage> _bundlePackages;
     private string _header;
     private string _buttonNextContent;
     private string _buttonBackContent;
@@ -154,11 +153,8 @@ namespace MP2BootstrapperApp.ViewModels
         Refresh();
       }
     }
-
-    public ReadOnlyCollection<BundlePackage> BundlePackages
-    {
-      get { return _bundlePackages; }
-    }
+    
+    public ReadOnlyCollection<BundlePackage> BundlePackages { get; private set; }
 
     public int Progress
     {
@@ -195,12 +191,13 @@ namespace MP2BootstrapperApp.ViewModels
 
     protected void DetectedPackageComplete(object sender, DetectPackageCompleteEventArgs e)
     {
-      var package = BundlePackages.FirstOrDefault(pkg => pkg.Id == e.PackageId);
-
-      if (package != null)
+      if (Enum.TryParse(e.PackageId, out PackageId detectedPackageId))
       {
-        PackageId id = (PackageId)Enum.Parse(typeof(PackageId), package.Id);
-        package.CurrentInstallState = _packageContext.CheckInstallState(id) ? PackageState.Present : PackageState.Absent;
+        BundlePackage bundlePackage = BundlePackages.FirstOrDefault(pkg => pkg.Id == detectedPackageId);
+        if (bundlePackage != null)
+        {
+          bundlePackage.CurrentInstallState = _packageContext.CheckInstallState(bundlePackage.Id) ? PackageState.Present : PackageState.Absent;
+        } 
       }
     }
 
@@ -251,9 +248,14 @@ namespace MP2BootstrapperApp.ViewModels
 
     protected void PlanPackageBegin(object sender, PlanPackageBeginEventArgs planPackageBeginEventArgs)
     {
-      string packageId = planPackageBeginEventArgs.PackageId;
-      BundlePackage package = BundlePackages.FirstOrDefault(p => p.Id == packageId);
-      planPackageBeginEventArgs.State = package.RequestedInstallState;
+      if (Enum.TryParse(planPackageBeginEventArgs.PackageId, out PackageId id))
+      {
+        BundlePackage package = BundlePackages.FirstOrDefault(p => p.Id == id);
+        if (package != null)
+        {
+          planPackageBeginEventArgs.State = package.RequestedInstallState; 
+        }
+      }
     }
 
     private void ResolveSource(object sender, ResolveSourceEventArgs e)
@@ -334,7 +336,7 @@ namespace MP2BootstrapperApp.ViewModels
           .Where(pkg => !mbaPrereqs.Any(preReq => preReq.PackageId == pkg.Id));
       }
 
-      _bundlePackages = new ReadOnlyCollection<BundlePackage>(packages.ToList());
+      BundlePackages = new ReadOnlyCollection<BundlePackage>(packages.ToList());
     }
   }
 }

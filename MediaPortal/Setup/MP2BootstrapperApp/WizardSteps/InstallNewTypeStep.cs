@@ -24,6 +24,7 @@
 
 using System.Linq;
 using Microsoft.Tools.WindowsInstallerXml.Bootstrapper;
+using MP2BootstrapperApp.ChainPackages;
 using MP2BootstrapperApp.Models;
 using MP2BootstrapperApp.ViewModels;
 
@@ -69,7 +70,7 @@ namespace MP2BootstrapperApp.WizardSteps
     {
       foreach (var package in _viewModel.BundlePackages)
       {
-        if (package.CurrentInstallState == PackageState.Present || package.Id == "MP2Server")
+        if (package.CurrentInstallState == PackageState.Present || package.Id == PackageId.MP2Server)
         {
           continue;
         }
@@ -102,7 +103,7 @@ namespace MP2BootstrapperApp.WizardSteps
     {
       foreach (var package in _viewModel.BundlePackages)
       {
-        if (package.CurrentInstallState == PackageState.Present || package.Id == "MP2Client" || package.Id == "directx9" || package.Id == "LAVFilters")
+        if (package.CurrentInstallState == PackageState.Present || package.Id == PackageId.MP2Client || package.Id == PackageId.LAVFilters)
         {
           continue;
         }

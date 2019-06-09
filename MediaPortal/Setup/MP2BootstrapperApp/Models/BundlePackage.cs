@@ -22,8 +22,10 @@
 
 #endregion
 
+using System;
 using System.Xml.Linq;
 using Microsoft.Tools.WindowsInstallerXml.Bootstrapper;
+using MP2BootstrapperApp.ChainPackages;
 
 namespace MP2BootstrapperApp.Models
 {
@@ -42,9 +44,9 @@ namespace MP2BootstrapperApp.Models
     /// <summary>
     /// 
     /// </summary>
-    public string Id
+    public PackageId Id
     {
-      get { return _packagElement.Attribute("Package").Value; }
+      get { return Enum.TryParse(_packagElement.Attribute("Package")?.Value, out PackageId packageId) ? packageId : PackageId.Unknown; }
     }
 
     /// <summary>

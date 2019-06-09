@@ -34,6 +34,7 @@ namespace MP2BootstrapperApp.ChainPackages
     VC2008SP1_x86,
     VC2010_x86,
     VC2013_x86,
-    VC2017_x86
+    VC2017_x86,
+    Unknown
   }
 }
