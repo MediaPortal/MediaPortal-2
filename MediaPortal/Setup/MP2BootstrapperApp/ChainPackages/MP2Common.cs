@@ -22,17 +22,38 @@
 
 #endregion
 
+using System;
+using System.IO;
+
 namespace MP2BootstrapperApp.ChainPackages
 {
-  public class MP2Common : MP2Msi, IPackage 
+  public class MP2Common : IPackage 
   {
-    public MP2Common(IPackageChecker packageChecker) : base(packageChecker) { }
-
-    public bool IsInstalled()
+    private readonly IPackageChecker _packageChecker;
+    
+    public MP2Common(IPackageChecker packageChecker)
     {
-      string regValue = "INSTALLDIR_SERVICE_MONITOR";
-      string serviceMonitorExe = "MP2-ServiceMonitor.exe";
-      return base.IsInstalled(regValue, serviceMonitorExe);
+      _packageChecker = packageChecker;
+    }
+
+    public Version GetInstalledVersion()
+    {
+      const string mp2RegKey = "SOFTWARE\\Team MediaPortal\\MediaPortal 2";
+      const string mp2SrvMonitorRegValue = "INSTALLDIR_SERVICE_MONITOR";
+      string mp2SrvMonitorInstallDir = _packageChecker.GetDataFromLocalMachineRegistry(mp2RegKey, mp2SrvMonitorRegValue);
+
+      if (string.IsNullOrEmpty(mp2SrvMonitorInstallDir))
+      {
+        return new Version();
+      }
+      const string mp2SrvMonitorExe = "MP2-ServiceMonitor.exe";
+      string pathToMp2SrvMonitorExe = Path.Combine(mp2SrvMonitorInstallDir, mp2SrvMonitorExe);
+      int majorVersion = _packageChecker.GetFileMajorVersion(pathToMp2SrvMonitorExe);
+      int minorVersion = _packageChecker.GetFileMinorVersion(pathToMp2SrvMonitorExe);
+      int buildVersion = _packageChecker.GetFileBuildVersion(pathToMp2SrvMonitorExe);
+      int revision = _packageChecker.GetFilePrivateVersion(pathToMp2SrvMonitorExe);
+      
+      return new Version(majorVersion, minorVersion, buildVersion, revision);
     }
   }
 }

@@ -34,28 +34,33 @@ namespace MP2BootstrapperApp.Models
   /// </summary>
   public class BundlePackage
   {
-    private readonly XElement _packagElement;
+    private readonly XElement _packageElement;
 
-    public BundlePackage(XElement packagElement)
+    public BundlePackage(XElement packageElement)
     {
-      _packagElement = packagElement;
+      _packageElement = packageElement;
     }
 
     /// <summary>
     /// 
     /// </summary>
-    public PackageId Id
+    public PackageId GetId()
     {
-      get { return Enum.TryParse(_packagElement.Attribute("Package")?.Value, out PackageId packageId) ? packageId : PackageId.Unknown; }
+      return Enum.TryParse(_packageElement.Attribute("Package")?.Value, out PackageId packageId) ? packageId : PackageId.Unknown;
     }
 
     /// <summary>
     /// 
     /// </summary>
-    public string Version
+    public Version GetVersion()
     {
-      get { return _packagElement.Attribute("Version").Value; }
+      return Version.TryParse(_packageElement.Attribute("Version")?.Value, out Version result) ? result : null;
     }
+
+    /// <summary>
+    /// 
+    /// </summary>
+    public Version InstalledVersion { get; set; }
 
     /// <summary>
     /// 

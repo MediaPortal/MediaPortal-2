@@ -36,16 +36,21 @@ namespace MP2BootstrapperApp.ChainPackages
       _packageChecker = packageChecker;
     }
 
-    public bool IsInstalled()
+    public Version GetInstalledVersion()
     {
-      string dokanPath = Path.Combine(Environment.SystemDirectory, "DOKAN1.dll");
+      const string dokanDll = "DOKAN1.dll";
+      string dokanDllPath = Path.Combine(Environment.SystemDirectory, dokanDll);
 
-      if (!_packageChecker.Exists(dokanPath))
+      if (!_packageChecker.Exists(dokanDllPath))
       {
-        return false;
+        return new Version();
       }
-
-      return _packageChecker.IsEqualOrHigherVersion(dokanPath, new Version(1, 0, 3, 1000));
+      int majorVersion = _packageChecker.GetFileMajorVersion(dokanDllPath);
+      int minorVersion = _packageChecker.GetFileMinorVersion(dokanDllPath);
+      int buildVersion = _packageChecker.GetFileBuildVersion(dokanDllPath);
+      int revision = _packageChecker.GetFilePrivateVersion(dokanDllPath);
+      
+      return new Version(majorVersion, minorVersion, buildVersion, revision);
     }
   }
 }

@@ -41,11 +41,11 @@ namespace MP2BootstrapperApp.ViewModels
       {
         if (package.RequestedInstallState == RequestState.Present)
         {
-          Packages.Add(@"..\resources\" + package.Id + ".png");
+          Packages.Add(@"..\resources\" + package.GetId() + ".png");
         }
       }
     }
 
-    public ObservableCollection<string> Packages { get; set; }
+    public ObservableCollection<string> Packages { get; }
   }
 }

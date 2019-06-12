@@ -22,21 +22,33 @@
 
 #endregion
 
+using System;
+
 namespace MP2BootstrapperApp.ChainPackages
 {
   public class Vc2008Sp1 : IPackage
   {
     private readonly IPackageChecker _packageChecker;
-
+    
     public Vc2008Sp1(IPackageChecker packageChecker)
     {
       _packageChecker = packageChecker;
     }
 
-    public bool IsInstalled()
+    public Version GetInstalledVersion()
     {
-      string vc2008Sp1x86ProductCode = "{9A25302D-30C0-39D9-BD6F-21E6EC160475}";
-      return _packageChecker.CheckInstallPresenceByMsiProductCode(vc2008Sp1x86ProductCode);
+      const string vc2008Sp1X86ProductCode = "{9A25302D-30C0-39D9-BD6F-21E6EC160475}";
+
+      if (!_packageChecker.CheckInstallPresenceByMsiProductCode(vc2008Sp1X86ProductCode))
+      {
+        return new Version();
+      }
+      const int majorVersion = 9;
+      const int minorVersion = 0;
+      const int buildVersion = 30729;
+      const int revision = 17;
+      
+      return new Version(majorVersion, minorVersion, buildVersion, revision);
     }
   }
 }

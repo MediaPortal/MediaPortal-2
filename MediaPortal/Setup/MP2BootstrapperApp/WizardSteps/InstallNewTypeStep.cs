@@ -70,7 +70,7 @@ namespace MP2BootstrapperApp.WizardSteps
     {
       foreach (var package in _viewModel.BundlePackages)
       {
-        if (package.CurrentInstallState == PackageState.Present || package.Id == PackageId.MP2Server)
+        if (package.CurrentInstallState == PackageState.Present || package.GetId() == PackageId.MP2Server)
         {
           continue;
         }
@@ -103,7 +103,7 @@ namespace MP2BootstrapperApp.WizardSteps
     {
       foreach (var package in _viewModel.BundlePackages)
       {
-        if (package.CurrentInstallState == PackageState.Present || package.Id == PackageId.MP2Client || package.Id == PackageId.LAVFilters)
+        if (package.CurrentInstallState == PackageState.Present || package.GetId() == PackageId.MP2Client || package.GetId() == PackageId.LAVFilters)
         {
           continue;
         }

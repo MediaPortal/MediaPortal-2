@@ -22,6 +22,7 @@
 
 #endregion
 
+using System;
 using System.Collections.Generic;
 
 namespace MP2BootstrapperApp.ChainPackages
@@ -44,9 +45,9 @@ namespace MP2BootstrapperApp.ChainPackages
       _packages.Add(PackageId.MP2Common, new MP2Common(_packageChecker));
     }
 
-    public bool CheckInstallState(PackageId id)
+    public Version GetInstalledVersion(PackageId id)
     {
-      return _packages[id].IsInstalled();
+      return _packages[id].GetInstalledVersion();
     }
   }
 }

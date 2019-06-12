@@ -36,16 +36,21 @@ namespace MP2BootstrapperApp.ChainPackages
       _packageChecker = packageChecker;
     }
 
-    public bool IsInstalled()
+    public Version GetInstalledVersion()
     {
-      string vc2013Path = Path.Combine(Environment.SystemDirectory, "mfc120.dll");
+      const string mfc120Dll = "mfc120.dll";
+      string vc2013Path = Path.Combine(Environment.SystemDirectory, mfc120Dll);
 
       if (!_packageChecker.Exists(vc2013Path))
       {
-        return false;
+        return new Version();
       }
-
-      return _packageChecker.IsEqualOrHigherVersion(vc2013Path, new Version(12, 0, 21005, 1));
+      int majorVersion = _packageChecker.GetFileMajorVersion(vc2013Path);
+      int minorVersion = _packageChecker.GetFileMinorVersion(vc2013Path);
+      int buildVersion = _packageChecker.GetFileBuildVersion(vc2013Path);
+      int revision = _packageChecker.GetFilePrivateVersion(vc2013Path);
+      
+      return new Version(majorVersion, minorVersion, buildVersion, revision);
     }
   }
 }

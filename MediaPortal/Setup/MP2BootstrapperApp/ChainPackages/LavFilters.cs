@@ -36,19 +36,23 @@ namespace MP2BootstrapperApp.ChainPackages
       _packageChecker = packageChecker;
     }
 
-    public bool IsInstalled()
+    public Version GetInstalledVersion()
     {
       // TODO: add registry check to find the installed path
       // TODO: does the LAV filters installer allows at all a custom install path?
-
-      string lavFiltersPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ProgramFilesX86), "LAV Filters\\x86\\LAVSplitter.ax");
+      
+      const string lavSplitterPath = "LAV Filters\\x86\\LAVSplitter.ax";
+      string lavFiltersPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ProgramFilesX86), lavSplitterPath);
 
       if (!_packageChecker.Exists(lavFiltersPath))
       {
-        return false;
+        return new Version();
       }
-
-      return _packageChecker.IsEqualOrHigherVersion(lavFiltersPath, new Version(0, 70, 0, 0));
+      int majorVersion = _packageChecker.GetFileMajorVersion(lavFiltersPath);
+      int minorVersion = _packageChecker.GetFileMinorVersion(lavFiltersPath);
+      int buildVersion = _packageChecker.GetFileBuildVersion(lavFiltersPath);
+      int revision = _packageChecker.GetFilePrivateVersion(lavFiltersPath);
+      return new Version(majorVersion, minorVersion, buildVersion, revision);
     }
   }
 }

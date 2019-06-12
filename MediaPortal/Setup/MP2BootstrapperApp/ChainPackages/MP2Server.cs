@@ -22,18 +22,38 @@
 
 #endregion
 
+using System;
+using System.IO;
+
 namespace MP2BootstrapperApp.ChainPackages
 {
-  public class MP2Server : MP2Msi, IPackage
+  public class MP2Server : IPackage
   {
-    public MP2Server(IPackageChecker packageChecker) : base(packageChecker) { }
+    private readonly IPackageChecker _packageChecker;
 
-    public bool IsInstalled()
+    public MP2Server(IPackageChecker packageChecker)
     {
-      string regValue = "INSTALLDIR_SERVER";
-      string serverExe = "MP2-Server.exe";
+      _packageChecker = packageChecker;
+    }
 
-      return base.IsInstalled(regValue, serverExe);
+    public Version GetInstalledVersion()
+    {
+      const string mp2RegKey = "SOFTWARE\\Team MediaPortal\\MediaPortal 2";
+      const string mp2ServerRegValue = "INSTALLDIR_SERVER";
+      string mp2ServerInstallDir = _packageChecker.GetDataFromLocalMachineRegistry(mp2RegKey, mp2ServerRegValue);
+
+      if (string.IsNullOrEmpty(mp2ServerInstallDir))
+      {
+        return new Version();
+      }
+      const string mp2ServerExe = "MP2-Server.exe";
+      string pathToMp2ServerExe = Path.Combine(mp2ServerInstallDir, mp2ServerExe);
+      int majorVersion = _packageChecker.GetFileMajorVersion(pathToMp2ServerExe);
+      int minorVersion = _packageChecker.GetFileMinorVersion(pathToMp2ServerExe);
+      int buildVersion = _packageChecker.GetFileBuildVersion(pathToMp2ServerExe);
+      int revision = _packageChecker.GetFilePrivateVersion(pathToMp2ServerExe);
+      
+      return new Version(majorVersion, minorVersion, buildVersion, revision);
     }
   }
 }

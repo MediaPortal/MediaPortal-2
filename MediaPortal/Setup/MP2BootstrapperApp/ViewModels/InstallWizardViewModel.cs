@@ -193,11 +193,42 @@ namespace MP2BootstrapperApp.ViewModels
     {
       if (Enum.TryParse(e.PackageId, out PackageId detectedPackageId))
       {
-        BundlePackage bundlePackage = BundlePackages.FirstOrDefault(pkg => pkg.Id == detectedPackageId);
-        if (bundlePackage != null)
+        UpdateBundlePackage(detectedPackageId);
+      }
+    }
+
+    private void UpdateBundlePackage(PackageId detectedPackageId)
+    {
+      BundlePackage bundlePackage = BundlePackages.FirstOrDefault(pkg => pkg.GetId() == detectedPackageId);
+      if (bundlePackage != null)
+      {
+        PackageId bundlePackageId = bundlePackage.GetId();
+        Version installedVersion = _packageContext.GetInstalledVersion(bundlePackageId);
+        int comparisionResult = bundlePackage.GetVersion().CompareTo(installedVersion);
+        if (installedVersion.Equals(new Version()))
         {
-          bundlePackage.CurrentInstallState = _packageContext.CheckInstallState(bundlePackage.Id) ? PackageState.Present : PackageState.Absent;
-        } 
+          bundlePackage.CurrentInstallState = PackageState.Absent;
+          bundlePackage.InstalledVersion = new Version();
+          bundlePackage.RequestedInstallState = RequestState.Present;
+        }
+        else if(comparisionResult > 0)
+        {
+          bundlePackage.CurrentInstallState = PackageState.Present;
+          bundlePackage.InstalledVersion = installedVersion;
+          bundlePackage.RequestedInstallState = RequestState.None;
+        }
+        else if (comparisionResult < 0)
+        {
+          bundlePackage.CurrentInstallState = PackageState.Present;
+          bundlePackage.InstalledVersion = installedVersion;
+          bundlePackage.RequestedInstallState = RequestState.Present;
+        }
+        else
+        {
+          bundlePackage.CurrentInstallState = PackageState.Present;
+          bundlePackage.InstalledVersion = bundlePackage.GetVersion();
+          bundlePackage.RequestedInstallState = RequestState.Present;
+        }
       }
     }
 
@@ -250,10 +281,10 @@ namespace MP2BootstrapperApp.ViewModels
     {
       if (Enum.TryParse(planPackageBeginEventArgs.PackageId, out PackageId id))
       {
-        BundlePackage package = BundlePackages.FirstOrDefault(p => p.Id == id);
-        if (package != null)
+        BundlePackage bundlePackage = BundlePackages.FirstOrDefault(p => p.GetId() == id);
+        if (bundlePackage != null)
         {
-          planPackageBeginEventArgs.State = package.RequestedInstallState; 
+          planPackageBeginEventArgs.State = bundlePackage.RequestedInstallState; 
         }
       }
     }
@@ -317,26 +348,29 @@ namespace MP2BootstrapperApp.ViewModels
       string manifestPath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
       if (manifestPath != null)
       {
-        string bootstrapperDataFilePath = Path.Combine(manifestPath, "BootstrapperApplicationData.xml");
+        const string bootstrapperApplicationData = "BootstrapperApplicationData.xml";
+        string bootstrapperDataFilePath = Path.Combine(manifestPath, bootstrapperApplicationData);
         XElement bundleManifestData;
 
-        using (var reader = new StreamReader(bootstrapperDataFilePath))
+        using (StreamReader reader = new StreamReader(bootstrapperDataFilePath))
         {
-          var xml = reader.ReadToEnd();
-          var xDoc = XDocument.Parse(xml);
+          string xml = reader.ReadToEnd();
+          XDocument xDoc = XDocument.Parse(xml);
           bundleManifestData = xDoc.Element(manifestNamespace + "BootstrapperApplicationData");
         }
 
-        List<BootstrapperAppPrereqPackage> mbaPrereqPackages = bundleManifestData?.Descendants(manifestNamespace + "WixMbaPrereqInformation")
+        IList<BootstrapperAppPrereqPackage> mbaPrereqPackages = bundleManifestData?.Descendants(manifestNamespace + "WixMbaPrereqInformation")
           .Select(x => new BootstrapperAppPrereqPackage(x))
           .ToList();
 
         packages = bundleManifestData?.Descendants(manifestNamespace + "WixPackageProperties")
           .Select(x => new BundlePackage(x))
-          .Where(pkg => mbaPrereqPackages.All(preReq => preReq.PackageId != pkg.Id));
+          .Where(pkg => mbaPrereqPackages.All(preReq => preReq.PackageId != pkg.GetId()));
       }
 
-      BundlePackages = new ReadOnlyCollection<BundlePackage>(packages.ToList());
+      BundlePackages = packages != null
+        ? new ReadOnlyCollection<BundlePackage>(packages.ToList())
+        : new ReadOnlyCollection<BundlePackage>(new List<BundlePackage>());
     }
   }
 }

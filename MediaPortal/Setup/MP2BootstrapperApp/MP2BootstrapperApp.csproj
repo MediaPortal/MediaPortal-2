@@ -78,7 +78,6 @@
     <Compile Include="ChainPackages\LavFilters.cs" />
     <Compile Include="ChainPackages\MP2Client.cs" />
     <Compile Include="ChainPackages\MP2Common.cs" />
-    <Compile Include="ChainPackages\MP2Msi.cs" />
     <Compile Include="ChainPackages\MP2Server.cs" />
     <Compile Include="ChainPackages\PackageChecker.cs" />
     <Compile Include="ChainPackages\PackageContext.cs" />

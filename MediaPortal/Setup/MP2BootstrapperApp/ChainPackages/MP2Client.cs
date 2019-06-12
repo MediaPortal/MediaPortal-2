@@ -22,18 +22,38 @@
 
 #endregion
 
+using System;
+using System.IO;
+
 namespace MP2BootstrapperApp.ChainPackages
 {
-  public class MP2Client : MP2Msi, IPackage
+  public class MP2Client : IPackage
   {
-    public MP2Client(IPackageChecker packageChecker) : base(packageChecker) { }
+    private readonly IPackageChecker _packageChecker;
 
-    public bool IsInstalled()
+    public MP2Client(IPackageChecker packageChecker)
     {
-      string regValue = "INSTALLDIR_CLIENT";
-      string clientExe = "MP2-Client.exe";
+      _packageChecker = packageChecker;
+    }
 
-      return base.IsInstalled(regValue, clientExe);
+    public Version GetInstalledVersion()
+    {
+      const string mp2RegKey = "SOFTWARE\\Team MediaPortal\\MediaPortal 2";
+      const string mp2ClientRegValue = "INSTALLDIR_CLIENT";
+      string mp2ClientInstallDir = _packageChecker.GetDataFromLocalMachineRegistry(mp2RegKey, mp2ClientRegValue);
+
+      if (string.IsNullOrEmpty(mp2ClientInstallDir))
+      {
+        return new Version();
+      }
+      const string mp2ClientExe = "MP2-Client.exe";
+      string pathToMp2ClientExe = Path.Combine(mp2ClientInstallDir, mp2ClientExe);
+      int majorVersion = _packageChecker.GetFileMajorVersion(pathToMp2ClientExe);
+      int minorVersion = _packageChecker.GetFileMinorVersion(pathToMp2ClientExe);
+      int buildVersion = _packageChecker.GetFileBuildVersion(pathToMp2ClientExe);
+      int revision = _packageChecker.GetFilePrivateVersion(pathToMp2ClientExe);
+      
+      return new Version(majorVersion, minorVersion, buildVersion, revision);
     }
   }
 }

@@ -22,10 +22,12 @@
 
 #endregion
 
+using System;
+
 namespace MP2BootstrapperApp.ChainPackages
 {
   public interface IPackage
   {
-    bool IsInstalled();
+    Version GetInstalledVersion();
   }
 }
