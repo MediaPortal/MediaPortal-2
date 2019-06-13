@@ -22,6 +22,8 @@
     <ItemGroup>
       <ReferencesX86 Include="$(TargetDir)References\x86\*.*" />
       <ReferencesX64 Include="$(TargetDir)References\x64\*.*" />
+      <ReferencesX86 Include="$(TargetDir)x86\*.*" />
+      <ReferencesX64 Include="$(TargetDir)x64\*.*" />
       <References Include="$(TargetDir)SharpDX.dll" />
       <References Include="$(TargetDir)SharpDX.Direct3D9.dll" />
       <References Include="$(TargetDir)SharpDX.Mathematics.dll" />
