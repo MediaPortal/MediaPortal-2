@@ -191,47 +191,23 @@ namespace MP2BootstrapperApp.ViewModels
 
     protected void DetectedPackageComplete(object sender, DetectPackageCompleteEventArgs e)
     {
-      if (Enum.TryParse(e.PackageId, out PackageId detectedPackageId))
-      {
-        UpdateBundlePackage(detectedPackageId);
-      }
+      UpdateBundlePackage(e);
     }
 
-    private void UpdateBundlePackage(PackageId detectedPackageId)
+    private void UpdateBundlePackage(DetectPackageCompleteEventArgs detectPackageCompleteEventArgs)
     {
-      BundlePackage bundlePackage = BundlePackages.FirstOrDefault(pkg => pkg.GetId() == detectedPackageId);
-      if (bundlePackage != null)
+      if (Enum.TryParse(detectPackageCompleteEventArgs.PackageId, out PackageId detectedPackageId))
       {
-        PackageId bundlePackageId = bundlePackage.GetId();
-        Version installedVersion = _packageContext.GetInstalledVersion(bundlePackageId);
-        int comparisionResult = bundlePackage.GetVersion().CompareTo(installedVersion);
-        if (installedVersion.Equals(new Version()))
+        BundlePackage bundlePackage = BundlePackages.FirstOrDefault(pkg => pkg.GetId() == detectedPackageId);
+        if (bundlePackage != null)
         {
-          bundlePackage.CurrentInstallState = PackageState.Absent;
-          bundlePackage.InstalledVersion = new Version();
-          bundlePackage.RequestedInstallState = RequestState.Present;
-        }
-        else if(comparisionResult > 0)
-        {
-          bundlePackage.CurrentInstallState = PackageState.Present;
-          bundlePackage.InstalledVersion = installedVersion;
-          bundlePackage.RequestedInstallState = RequestState.None;
-        }
-        else if (comparisionResult < 0)
-        {
-          bundlePackage.CurrentInstallState = PackageState.Present;
-          bundlePackage.InstalledVersion = installedVersion;
-          bundlePackage.RequestedInstallState = RequestState.Present;
-        }
-        else
-        {
-          bundlePackage.CurrentInstallState = PackageState.Present;
-          bundlePackage.InstalledVersion = bundlePackage.GetVersion();
-          bundlePackage.RequestedInstallState = RequestState.Present;
+          PackageId bundlePackageId = bundlePackage.GetId();
+          bundlePackage.InstalledVersion = _packageContext.GetInstalledVersion(bundlePackageId);
+          bundlePackage.CurrentInstallState = detectPackageCompleteEventArgs.State;
         }
       }
     }
-
+    
     private void DetectRelatedBundle(object sender, DetectRelatedBundleEventArgs e)
     {
       _wizard.Step = new InstallExistInstallStep(this);
