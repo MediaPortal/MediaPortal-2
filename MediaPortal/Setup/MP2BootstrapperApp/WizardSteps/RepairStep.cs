@@ -28,11 +28,14 @@ namespace MP2BootstrapperApp.WizardSteps
 {
   public class RepairStep : IStep
   {
-    private InstallWizardViewModel _viewModel;
+    private readonly InstallWizardViewModel _viewModel;
+    private readonly Logger _logger;
 
-    public RepairStep(InstallWizardViewModel wizardViewModel)
+    public RepairStep(InstallWizardViewModel viewModel, Logger logger)
     {
-      _viewModel = wizardViewModel;
+      _viewModel = viewModel;
+      _viewModel.CurrentPage = new RepairPageViewModel(_viewModel);
+      _logger = logger;
     }
 
     public void Next(Wizard wizard)
@@ -42,8 +45,7 @@ namespace MP2BootstrapperApp.WizardSteps
 
     public void Back(Wizard wizard)
     {
-      wizard.Step = new InstallExistInstallStep(_viewModel);
-      _viewModel.CurrentPage = new InstallExistTypePageViewModel(_viewModel);
+      wizard.Step = new InstallExistInstallStep(_viewModel, _logger);
     }
 
     public bool CanGoNext()

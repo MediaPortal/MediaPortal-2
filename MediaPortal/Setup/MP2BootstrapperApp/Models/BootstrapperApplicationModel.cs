@@ -35,31 +35,17 @@ namespace MP2BootstrapperApp.Models
   /// </summary>
   public class BootstrapperApplicationModel : IBootstrapperApplicationModel
   {
-    #region Fields
-
     private IntPtr _hwnd;
-
-    #endregion
-
-    #region Constructors and destructor
-
+    
     public BootstrapperApplicationModel(IBootstrapperApp bootstreApplication)
     {
       BootstrapperApplication = bootstreApplication;
       _hwnd = IntPtr.Zero;
     }
 
-    #endregion
-
-    #region Properties
-
     public IBootstrapperApp BootstrapperApplication { get; }
    
     public int FinalResult { get; set; }
-
-    #endregion
-
-    #region Public methods
 
     public void SetWindowHandle(Window view)
     {
@@ -80,8 +66,5 @@ namespace MP2BootstrapperApp.Models
     {
       BootstrapperApplication.Engine.Log(logLevel, message);
     }
-
-    #endregion
-
   }
 }

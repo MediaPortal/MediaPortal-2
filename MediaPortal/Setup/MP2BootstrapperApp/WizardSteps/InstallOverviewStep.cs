@@ -31,23 +31,21 @@ namespace MP2BootstrapperApp.WizardSteps
     private readonly InstallWizardViewModel _viewModel;
     private readonly Logger _logger;
 
-    public InstallOverviewStep(InstallWizardViewModel wizardViewModel, Logger logger)
+    public InstallOverviewStep(InstallWizardViewModel viewModel, Logger logger)
     {
-      _viewModel = wizardViewModel;
+      _viewModel = viewModel;
       _logger = logger;
+      _viewModel.CurrentPage = new InstallOverviewPageViewModel(_viewModel);
     }
 
     public void Next(Wizard wizard)
     {
-      _viewModel.Install();
-      wizard.Step = new InstallationInProgressStep();
-      _viewModel.CurrentPage = new InstallationInProgressPageViewModel(_viewModel);
+      wizard.Step = new InstallationInProgressStep(_viewModel);
     }
 
     public void Back(Wizard wizard)
     {
-      wizard.Step = new InstallNewTypeStep(_viewModel, _logger);
-      _viewModel.CurrentPage = new InstallNewTypePageViewModel(_viewModel);
+      
     }
 
     public bool CanGoNext()

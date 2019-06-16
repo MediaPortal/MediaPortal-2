@@ -24,7 +24,6 @@
 
 using System.Collections.ObjectModel;
 using Microsoft.Tools.WindowsInstallerXml.Bootstrapper;
-using MP2BootstrapperApp.Models;
 
 namespace MP2BootstrapperApp.ViewModels
 {

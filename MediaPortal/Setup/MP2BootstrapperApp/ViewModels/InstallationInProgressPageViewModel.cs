@@ -1,6 +1,4 @@
-﻿using System.Collections.ObjectModel;
-using Microsoft.Tools.WindowsInstallerXml.Bootstrapper;
-
+﻿
 namespace MP2BootstrapperApp.ViewModels
 {
   public class InstallationInProgressPageViewModel : InstallWizardPageViewModelBase

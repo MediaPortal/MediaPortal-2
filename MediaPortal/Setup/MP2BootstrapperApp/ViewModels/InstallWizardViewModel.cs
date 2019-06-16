@@ -64,7 +64,7 @@ namespace MP2BootstrapperApp.ViewModels
     private readonly PackageContext _packageContext;
     private readonly Wizard _wizard;
     private readonly Logger _logger;
-    private IDispatcher _dispatcher;
+    private readonly IDispatcher _dispatcher;
 
     public InstallWizardViewModel(IBootstrapperApplicationModel model, IDispatcher dispatcher)
     {
@@ -82,8 +82,6 @@ namespace MP2BootstrapperApp.ViewModels
       NextCommand = new DelegateCommand(() => _wizard.GoNext(), () => _wizard.CanGoNext());
       BackCommand = new DelegateCommand(() => _wizard.GoBack(), () => _wizard.CanGoBack());
       CancelCommand = new DelegateCommand(() => CancelInstall(), () => State != InstallState.Canceled);
-
-      CurrentPage = new InstallWelcomePageViewModel(this);
     }
 
     public InstallState State
@@ -189,12 +187,12 @@ namespace MP2BootstrapperApp.ViewModels
       _bootstrapperApplicationModel.PlanAction(LaunchAction.Install);
     }
 
-    protected void DetectedPackageComplete(object sender, DetectPackageCompleteEventArgs e)
+    protected void DetectedPackageComplete(object sender, DetectPackageCompleteEventArgs detectPackageCompleteEventArgs)
     {
-      UpdateBundlePackage(e);
+      UpdatePackageCurrentState(detectPackageCompleteEventArgs);
     }
 
-    private void UpdateBundlePackage(DetectPackageCompleteEventArgs detectPackageCompleteEventArgs)
+    private void UpdatePackageCurrentState(DetectPackageCompleteEventArgs detectPackageCompleteEventArgs)
     {
       if (Enum.TryParse(detectPackageCompleteEventArgs.PackageId, out PackageId detectedPackageId))
       {
@@ -210,8 +208,7 @@ namespace MP2BootstrapperApp.ViewModels
     
     private void DetectRelatedBundle(object sender, DetectRelatedBundleEventArgs e)
     {
-      _wizard.Step = new InstallExistInstallStep(this);
-      CurrentPage = new InstallExistTypePageViewModel(this);
+      _wizard.Step = new InstallExistInstallStep(this, _logger);
     }
 
     protected void PlanComplete(object sender, PlanCompleteEventArgs e)
@@ -221,7 +218,6 @@ namespace MP2BootstrapperApp.ViewModels
         _dispatcher.InvokeShutdown();
         return;
       }
-
       _bootstrapperApplicationModel.ApplyAction();
     }
 
@@ -248,19 +244,23 @@ namespace MP2BootstrapperApp.ViewModels
 
     protected void ApplyComplete(object sender, ApplyCompleteEventArgs e)
     {
-      _wizard.Step = new InstallFinishStep(this);
-      CurrentPage = new InstallFinishPageViewModel(this);
+      _wizard.Step = new InstallFinishStep(this, _logger);
       _bootstrapperApplicationModel.FinalResult = e.Status;
     }
 
     protected void PlanPackageBegin(object sender, PlanPackageBeginEventArgs planPackageBeginEventArgs)
+    {
+      UpdatePackageRequestState(planPackageBeginEventArgs);
+    }
+
+    private void UpdatePackageRequestState(PlanPackageBeginEventArgs planPackageBeginEventArgs)
     {
       if (Enum.TryParse(planPackageBeginEventArgs.PackageId, out PackageId id))
       {
         BundlePackage bundlePackage = BundlePackages.FirstOrDefault(p => p.GetId() == id);
         if (bundlePackage != null)
         {
-          planPackageBeginEventArgs.State = bundlePackage.RequestedInstallState; 
+          planPackageBeginEventArgs.State = bundlePackage.RequestedInstallState;
         }
       }
     }
@@ -324,22 +324,25 @@ namespace MP2BootstrapperApp.ViewModels
       string manifestPath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
       if (manifestPath != null)
       {
-        const string bootstrapperApplicationData = "BootstrapperApplicationData.xml";
-        string bootstrapperDataFilePath = Path.Combine(manifestPath, bootstrapperApplicationData);
+        const string bootstrapperApplicationData = "BootstrapperApplicationData";
+        const string xmlExtension = ".xml";
+        string bootstrapperDataFilePath = Path.Combine(manifestPath, bootstrapperApplicationData + xmlExtension);
         XElement bundleManifestData;
 
         using (StreamReader reader = new StreamReader(bootstrapperDataFilePath))
         {
           string xml = reader.ReadToEnd();
           XDocument xDoc = XDocument.Parse(xml);
-          bundleManifestData = xDoc.Element(manifestNamespace + "BootstrapperApplicationData");
+          bundleManifestData = xDoc.Element(manifestNamespace + bootstrapperApplicationData);
         }
 
-        IList<BootstrapperAppPrereqPackage> mbaPrereqPackages = bundleManifestData?.Descendants(manifestNamespace + "WixMbaPrereqInformation")
+        const string wixMbaPrereqInfo = "WixMbaPrereqInformation";
+        IList<BootstrapperAppPrereqPackage> mbaPrereqPackages = bundleManifestData?.Descendants(manifestNamespace + wixMbaPrereqInfo)
           .Select(x => new BootstrapperAppPrereqPackage(x))
           .ToList();
 
-        packages = bundleManifestData?.Descendants(manifestNamespace + "WixPackageProperties")
+        const string wixPackageProperties = "WixPackageProperties";
+        packages = bundleManifestData?.Descendants(manifestNamespace + wixPackageProperties)
           .Select(x => new BundlePackage(x))
           .Where(pkg => mbaPrereqPackages.All(preReq => preReq.PackageId != pkg.GetId()));
       }

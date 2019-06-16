@@ -28,11 +28,14 @@ namespace MP2BootstrapperApp.WizardSteps
 {
   public class InstallExistInstallStep : IStep
   {
-    private InstallWizardViewModel _viewModel;
+    private readonly InstallWizardViewModel _viewModel;
+    private readonly Logger _logger;
 
-    public InstallExistInstallStep(InstallWizardViewModel wizardViewModel)
+    public InstallExistInstallStep(InstallWizardViewModel viewModel, Logger logger)
     {
-      _viewModel = wizardViewModel;
+      _viewModel = viewModel;
+      _viewModel.CurrentPage = new InstallExistTypePageViewModel(_viewModel);
+      _logger = logger;
     }
 
     public void Next(Wizard wizard)
@@ -42,27 +45,23 @@ namespace MP2BootstrapperApp.WizardSteps
       switch (page?.ActionType)
       {
         case ActionType.Update:
-          wizard.Step = new UpdateStep(_viewModel);
-          _viewModel.CurrentPage = new UpdatePageViewModel(_viewModel);
+          wizard.Step = new UpdateStep(_viewModel, _logger);
           break;
         case ActionType.Modify:
-          wizard.Step = new ModifyStep(_viewModel);
-          _viewModel.CurrentPage = new ModifyPageViewModel(_viewModel);
+          wizard.Step = new ModifyStep(_viewModel, _logger);
           break;
         case ActionType.Repair:
-          wizard.Step = new RepairStep(_viewModel);
-          _viewModel.CurrentPage = new RepairPageViewModel(_viewModel);
+          wizard.Step = new RepairStep(_viewModel, _logger);
           break;
         case ActionType.Uninstall:
-          wizard.Step = new UninstallStep(_viewModel);
-          _viewModel.CurrentPage = new UninstallPageViewModel(_viewModel);
+          wizard.Step = new UninstallStep(_viewModel, _logger);
           break;
       }
     }
 
     public void Back(Wizard wizard)
     {
-      // do nothing
+      wizard.Step = new InstallWelcomeStep(_viewModel, _logger);
     }
 
     public bool CanGoNext()

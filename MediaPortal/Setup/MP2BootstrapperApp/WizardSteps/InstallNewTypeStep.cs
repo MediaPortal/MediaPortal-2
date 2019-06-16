@@ -22,7 +22,6 @@
 
 #endregion
 
-using System.Linq;
 using Microsoft.Tools.WindowsInstallerXml.Bootstrapper;
 using MP2BootstrapperApp.ChainPackages;
 using MP2BootstrapperApp.Models;
@@ -35,11 +34,12 @@ namespace MP2BootstrapperApp.WizardSteps
     private readonly InstallWizardViewModel _viewModel;
     private readonly Logger _logger;
 
-    public InstallNewTypeStep(InstallWizardViewModel wizardViewModel, Logger logger)
+    public InstallNewTypeStep(InstallWizardViewModel viewModel, Logger logger)
     {
-      _viewModel = wizardViewModel;
+      _viewModel = viewModel;
       _logger = logger;
-      foreach (var package in _viewModel.BundlePackages)
+      _viewModel.CurrentPage = new InstallNewTypePageViewModel(_viewModel);
+      foreach (BundlePackage package in _viewModel.BundlePackages)
       {
         package.RequestedInstallState = RequestState.None;
       }
@@ -58,7 +58,7 @@ namespace MP2BootstrapperApp.WizardSteps
           SetInstallStateForServer(wizard);
           break;
         case InstallType.Client:
-          SetInstallStateToClient(wizard);
+          SetInstallStateForClient(wizard);
           break;
         case InstallType.Custom:
           // TODO
@@ -66,42 +66,41 @@ namespace MP2BootstrapperApp.WizardSteps
       }
     }
 
-    private void SetInstallStateToClient(Wizard wizard)
-    {
-      foreach (var package in _viewModel.BundlePackages)
-      {
-        if (package.CurrentInstallState == PackageState.Present || package.GetId() == PackageId.MP2Server)
-        {
-          continue;
-        }
-        package.RequestedInstallState = RequestState.Present;
-      }
-      MoveToOverview(wizard);
-    }
-
     public void Back(Wizard wizard)
     {
       wizard.Step = new InstallWelcomeStep(_viewModel, _logger);
-      _viewModel.CurrentPage = new InstallWelcomePageViewModel( _viewModel);
     }
 
     public bool CanGoNext()
     {
-      InstallNewTypePageViewModel page = _viewModel.CurrentPage as InstallNewTypePageViewModel;
-
       return true;
     }
 
     public bool CanGoBack()
     {
-      InstallNewTypePageViewModel page = _viewModel.CurrentPage as InstallNewTypePageViewModel;
-
       return true;
+    }
+    
+    private void SetInstallStateForClientAndServer(Wizard wizard)
+    {
+      foreach (BundlePackage package in _viewModel.BundlePackages)
+      {
+        if (package.CurrentInstallState != PackageState.Present)
+        {
+          package.RequestedInstallState = RequestState.Present;
+        }
+      }
+      MoveToOverview(wizard);
+    }
+    
+    private void MoveToOverview(Wizard wizard)
+    {
+      wizard.Step = new InstallOverviewStep(_viewModel, _logger);
     }
 
     private void SetInstallStateForServer(Wizard wizard)
     {
-      foreach (var package in _viewModel.BundlePackages)
+      foreach (BundlePackage package in _viewModel.BundlePackages)
       {
         if (package.CurrentInstallState == PackageState.Present || package.GetId() == PackageId.MP2Client || package.GetId() == PackageId.LAVFilters)
         {
@@ -112,22 +111,17 @@ namespace MP2BootstrapperApp.WizardSteps
       MoveToOverview(wizard);
     }
 
-    private void SetInstallStateForClientAndServer(Wizard wizard)
+    private void SetInstallStateForClient(Wizard wizard)
     {
-      foreach (var package in _viewModel.BundlePackages)
+      foreach (BundlePackage package in _viewModel.BundlePackages)
       {
-        if (package.CurrentInstallState != PackageState.Present)
+        if (package.CurrentInstallState == PackageState.Present || package.GetId() == PackageId.MP2Server)
         {
-          package.RequestedInstallState = RequestState.Present;
+          continue;
         }
+        package.RequestedInstallState = RequestState.Present;
       }
       MoveToOverview(wizard);
-    }
-
-    private void MoveToOverview(Wizard wizard)
-    {
-      wizard.Step = new InstallOverviewStep(_viewModel, _logger);
-      _viewModel.CurrentPage = new InstallOverviewPageViewModel(_viewModel);
     }
   }
 }
