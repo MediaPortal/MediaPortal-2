@@ -22,7 +22,7 @@ namespace Tests
       InstallWizardViewModel viewModel = new InstallWizardViewModel(applicationModel, dispatcher);
 
       // Act
-      Wizard wizard = new Wizard(new InstallWelcomeStep(viewModel, new Logger(applicationModel)));
+      Wizard wizard = new Wizard(new InstallWelcomeStep(viewModel), applicationModel);
       wizard.GoNext();
 
       // Assert
@@ -42,7 +42,7 @@ namespace Tests
       viewModelNewInstall.InstallType = InstallType.Client;
 
       // Act
-      Wizard wizard = new Wizard(new InstallNewTypeStep(viewModelMain, new Logger(applicationModel)));
+      Wizard wizard = new Wizard(new InstallNewTypeStep(viewModelMain), applicationModel);
       wizard.GoNext();
 
       // Assert

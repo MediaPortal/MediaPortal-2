@@ -29,13 +29,11 @@ namespace MP2BootstrapperApp.WizardSteps
   public class InstallExistInstallStep : IStep
   {
     private readonly InstallWizardViewModel _viewModel;
-    private readonly Logger _logger;
 
-    public InstallExistInstallStep(InstallWizardViewModel viewModel, Logger logger)
+    public InstallExistInstallStep(InstallWizardViewModel viewModel)
     {
       _viewModel = viewModel;
       _viewModel.CurrentPage = new InstallExistTypePageViewModel(_viewModel);
-      _logger = logger;
     }
 
     public void Next(Wizard wizard)
@@ -45,23 +43,23 @@ namespace MP2BootstrapperApp.WizardSteps
       switch (page?.ActionType)
       {
         case ActionType.Update:
-          wizard.Step = new UpdateStep(_viewModel, _logger);
+          wizard.Step = new UpdateStep(_viewModel);
           break;
         case ActionType.Modify:
-          wizard.Step = new ModifyStep(_viewModel, _logger);
+          wizard.Step = new ModifyStep(_viewModel);
           break;
         case ActionType.Repair:
-          wizard.Step = new RepairStep(_viewModel, _logger);
+          wizard.Step = new RepairStep(_viewModel);
           break;
         case ActionType.Uninstall:
-          wizard.Step = new UninstallStep(_viewModel, _logger);
+          wizard.Step = new UninstallStep(_viewModel);
           break;
       }
     }
 
     public void Back(Wizard wizard)
     {
-      wizard.Step = new InstallWelcomeStep(_viewModel, _logger);
+      wizard.Step = new InstallWelcomeStep(_viewModel);
     }
 
     public bool CanGoNext()

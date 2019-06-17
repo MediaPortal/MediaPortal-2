@@ -22,6 +22,7 @@
 
 #endregion
 
+using MP2BootstrapperApp.Models;
 using MP2BootstrapperApp.ViewModels;
 
 namespace MP2BootstrapperApp.WizardSteps
@@ -29,13 +30,11 @@ namespace MP2BootstrapperApp.WizardSteps
   public class UninstallStep : IStep
   {
     private readonly InstallWizardViewModel _viewModel;
-    private readonly Logger _logger;
 
-    public UninstallStep(InstallWizardViewModel viewModel, Logger logger)
+    public UninstallStep(InstallWizardViewModel viewModel)
     {
       _viewModel = viewModel;
       _viewModel.CurrentPage = new UninstallPageViewModel(_viewModel);
-      _logger = logger;
     }
     
     public void Next(Wizard wizard)
@@ -45,7 +44,7 @@ namespace MP2BootstrapperApp.WizardSteps
 
     public void Back(Wizard wizard)
     {
-      wizard.Step = new InstallExistInstallStep(_viewModel, _logger);
+      wizard.Step = new InstallExistInstallStep(_viewModel);
     }
 
     public bool CanGoNext()

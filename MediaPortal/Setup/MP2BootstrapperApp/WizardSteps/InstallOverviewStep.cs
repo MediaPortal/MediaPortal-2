@@ -22,6 +22,7 @@
 
 #endregion
 
+using Microsoft.Tools.WindowsInstallerXml.Bootstrapper;
 using MP2BootstrapperApp.ViewModels;
 
 namespace MP2BootstrapperApp.WizardSteps
@@ -29,17 +30,17 @@ namespace MP2BootstrapperApp.WizardSteps
   public class InstallOverviewStep : IStep
   {
     private readonly InstallWizardViewModel _viewModel;
-    private readonly Logger _logger;
 
-    public InstallOverviewStep(InstallWizardViewModel viewModel, Logger logger)
+    public InstallOverviewStep(InstallWizardViewModel viewModel)
     {
       _viewModel = viewModel;
-      _logger = logger;
       _viewModel.CurrentPage = new InstallOverviewPageViewModel(_viewModel);
     }
 
     public void Next(Wizard wizard)
     {
+      wizard.BootstrapperApplicationModel.PlanAction(LaunchAction.Install);
+      wizard.BootstrapperApplicationModel.LogMessage(LogLevel.Standard, "starting installation");
       wizard.Step = new InstallationInProgressStep(_viewModel);
     }
 

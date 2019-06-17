@@ -32,12 +32,10 @@ namespace MP2BootstrapperApp.WizardSteps
   public class InstallNewTypeStep : IStep
   {
     private readonly InstallWizardViewModel _viewModel;
-    private readonly Logger _logger;
 
-    public InstallNewTypeStep(InstallWizardViewModel viewModel, Logger logger)
+    public InstallNewTypeStep(InstallWizardViewModel viewModel)
     {
       _viewModel = viewModel;
-      _logger = logger;
       _viewModel.CurrentPage = new InstallNewTypePageViewModel(_viewModel);
       foreach (BundlePackage package in _viewModel.BundlePackages)
       {
@@ -52,23 +50,24 @@ namespace MP2BootstrapperApp.WizardSteps
       switch (page?.InstallType)
       {
         case InstallType.ClientServer:
-          SetInstallStateForClientAndServer(wizard);
+          SetInstallStateForClientAndServer();
           break;
         case InstallType.Server:
-          SetInstallStateForServer(wizard);
+          SetInstallStateForServer();
           break;
         case InstallType.Client:
-          SetInstallStateForClient(wizard);
+          SetInstallStateForClient();
           break;
         case InstallType.Custom:
           // TODO
           break;
       }
+      wizard.Step = new InstallOverviewStep(_viewModel);
     }
 
     public void Back(Wizard wizard)
     {
-      wizard.Step = new InstallWelcomeStep(_viewModel, _logger);
+      wizard.Step = new InstallWelcomeStep(_viewModel);
     }
 
     public bool CanGoNext()
@@ -81,7 +80,7 @@ namespace MP2BootstrapperApp.WizardSteps
       return true;
     }
     
-    private void SetInstallStateForClientAndServer(Wizard wizard)
+    private void SetInstallStateForClientAndServer()
     {
       foreach (BundlePackage package in _viewModel.BundlePackages)
       {
@@ -90,15 +89,9 @@ namespace MP2BootstrapperApp.WizardSteps
           package.RequestedInstallState = RequestState.Present;
         }
       }
-      MoveToOverview(wizard);
-    }
-    
-    private void MoveToOverview(Wizard wizard)
-    {
-      wizard.Step = new InstallOverviewStep(_viewModel, _logger);
     }
 
-    private void SetInstallStateForServer(Wizard wizard)
+    private void SetInstallStateForServer()
     {
       foreach (BundlePackage package in _viewModel.BundlePackages)
       {
@@ -108,10 +101,9 @@ namespace MP2BootstrapperApp.WizardSteps
         }
         package.RequestedInstallState = RequestState.Present;
       }
-      MoveToOverview(wizard);
     }
 
-    private void SetInstallStateForClient(Wizard wizard)
+    private void SetInstallStateForClient()
     {
       foreach (BundlePackage package in _viewModel.BundlePackages)
       {
@@ -121,7 +113,6 @@ namespace MP2BootstrapperApp.WizardSteps
         }
         package.RequestedInstallState = RequestState.Present;
       }
-      MoveToOverview(wizard);
     }
   }
 }

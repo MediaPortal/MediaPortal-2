@@ -63,21 +63,20 @@ namespace MP2BootstrapperApp.ViewModels
     private int _executeProgress;
     private readonly PackageContext _packageContext;
     private readonly Wizard _wizard;
-    private readonly Logger _logger;
     private readonly IDispatcher _dispatcher;
 
     public InstallWizardViewModel(IBootstrapperApplicationModel model, IDispatcher dispatcher)
     {
       _bootstrapperApplicationModel = model;
       _dispatcher = dispatcher;
-      _logger = new Logger(model);
       State = InstallState.Initializing;
       _packageContext = new PackageContext();
 
       WireUpEventHandlers();
       ComputeBundlePackages();
 
-      _wizard = new Wizard(new InstallWelcomeStep(this, _logger));
+      IStep welcomeStep = new InstallWelcomeStep(this);
+      _wizard = new Wizard(welcomeStep, model);
 
       NextCommand = new DelegateCommand(() => _wizard.GoNext(), () => _wizard.CanGoNext());
       BackCommand = new DelegateCommand(() => _wizard.GoBack(), () => _wizard.CanGoBack());
@@ -121,9 +120,9 @@ namespace MP2BootstrapperApp.ViewModels
       set { SetProperty(ref _buttonCancelContent, value); }
     }
 
-    public ICommand CancelCommand { get; private set; }
-    public ICommand NextCommand { get; private set; }
-    public ICommand BackCommand { get; private set; }
+    public ICommand CancelCommand { get; }
+    public ICommand NextCommand { get; }
+    public ICommand BackCommand { get; }
 
     public InstallWizardPageViewModelBase CurrentPage
     {
@@ -166,7 +165,6 @@ namespace MP2BootstrapperApp.ViewModels
 
     private void CancelInstall()
     {
-      _logger.LogStandard("Cancelling..");
       if (State == InstallState.Applaying)
       {
         State = InstallState.Canceled;
@@ -175,16 +173,6 @@ namespace MP2BootstrapperApp.ViewModels
       {
         _dispatcher.InvokeShutdown();
       }
-    }
-
-    internal void CloseWizard()
-    {
-      _dispatcher.InvokeShutdown();
-    }
-
-    internal void Install()
-    {
-      _bootstrapperApplicationModel.PlanAction(LaunchAction.Install);
     }
 
     protected void DetectedPackageComplete(object sender, DetectPackageCompleteEventArgs detectPackageCompleteEventArgs)
@@ -208,7 +196,7 @@ namespace MP2BootstrapperApp.ViewModels
     
     private void DetectRelatedBundle(object sender, DetectRelatedBundleEventArgs e)
     {
-      _wizard.Step = new InstallExistInstallStep(this, _logger);
+      _wizard.Step = new InstallExistInstallStep(this);
     }
 
     protected void PlanComplete(object sender, PlanCompleteEventArgs e)
@@ -244,7 +232,7 @@ namespace MP2BootstrapperApp.ViewModels
 
     protected void ApplyComplete(object sender, ApplyCompleteEventArgs e)
     {
-      _wizard.Step = new InstallFinishStep(this, _logger);
+      _wizard.Step = new InstallFinishStep(this, _dispatcher);
       _bootstrapperApplicationModel.FinalResult = e.Status;
     }
 
@@ -270,7 +258,6 @@ namespace MP2BootstrapperApp.ViewModels
       if (!string.IsNullOrEmpty(e.DownloadSource))
       {
         e.Result = Result.Download;
-        _logger.LogStandard("Called download");
       }
       else
       {

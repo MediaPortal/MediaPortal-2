@@ -22,17 +22,22 @@
 
 #endregion
 
+using MP2BootstrapperApp.Models;
+
 namespace MP2BootstrapperApp.WizardSteps
 {
   public class Wizard
   {
-    public Wizard(IStep step)
+    public Wizard(IStep step, IBootstrapperApplicationModel model)
     {
       Step = step;
+      BootstrapperApplicationModel = model;
     }
 
     public IStep Step { get; set; }
 
+    public IBootstrapperApplicationModel BootstrapperApplicationModel { get; }
+    
     public void GoNext()
     {
       Step.Next(this);
