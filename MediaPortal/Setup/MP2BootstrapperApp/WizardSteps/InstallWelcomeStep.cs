@@ -33,7 +33,6 @@ namespace MP2BootstrapperApp.WizardSteps
     public InstallWelcomeStep(InstallWizardViewModel viewModel)
     {
       _viewModel = viewModel;
-      _viewModel.CurrentPage = new InstallWelcomePageViewModel(_viewModel);
     }
 
     public void Next(Wizard wizard)

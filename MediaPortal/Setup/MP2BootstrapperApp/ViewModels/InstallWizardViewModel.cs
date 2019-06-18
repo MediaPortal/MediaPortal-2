@@ -81,6 +81,7 @@ namespace MP2BootstrapperApp.ViewModels
       NextCommand = new DelegateCommand(() => _wizard.GoNext(), () => _wizard.CanGoNext());
       BackCommand = new DelegateCommand(() => _wizard.GoBack(), () => _wizard.CanGoBack());
       CancelCommand = new DelegateCommand(() => CancelInstall(), () => State != InstallState.Canceled);
+      CurrentPage = new InstallWelcomePageViewModel(this);
     }
 
     public InstallState State
