@@ -1680,10 +1680,10 @@
 	-->
 
   <LinearGradientBrush x:Key="ScrollViewerOpacityMask" StartPoint="0,0.5" EndPoint="1,0.5">
-    <GradientStop Color="Transparent" Offset="0" />
+    <GradientStop Color="Black" Offset="0" />
     <GradientStop Color="Black" Offset="0.01" />
     <GradientStop Color="Black" Offset="0.99" />
-    <GradientStop Color="Transparent" Offset="1" />
+    <GradientStop Color="Black" Offset="1" />
   </LinearGradientBrush>
 
   <SolidColorBrush x:Key="DummyOpacityMask" Color="Black"/>
@@ -1692,7 +1692,7 @@
     <Setter Property="Template">
       <Setter.Value>
         <ControlTemplate TargetType="{x:Type ScrollViewer}">
-          <Grid x:Name="ScrollViewerGrid" OpacityMask="{ThemeResource ScrollViewerOpacityMask}">
+          <Grid x:Name="ScrollViewerGrid" OpacityMask="{ThemeResource ScrollViewerOpacityMask}" Margin="-50,0,0,0">
             <Grid.ColumnDefinitions>
               <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
@@ -1700,13 +1700,12 @@
               <RowDefinition Height="*"/>
             </Grid.RowDefinitions>
             <!-- Content -->
-            <nereus_controls:HomeTilesScrollContentPresenter x:Name="AnimatedScroller" Grid.Row="0" Grid.Column="0" Grid.ZIndex="100" Margin="50,0"
+            <nereus_controls:HomeTilesScrollContentPresenter x:Name="AnimatedScroller" Grid.Row="0" Grid.Column="0" Grid.ZIndex="100" Margin="60,0"
                                                              VerticalAlignment="Stretch" HorizontalAlignment="Stretch" EnableAnimations="True"
-                                                             OpacityMask="{ThemeResource DummyOpacityMask}"
-                                                             >
+                                                             OpacityMask="{ThemeResource DummyOpacityMask}">
               <nereus_controls:HomeTilesScrollContentPresenter.Resources>
                 <Storyboard x:Key="ScrollAnimation" FillBehavior="HoldEnd">
-                  <DoubleAnimation BeginTime="00:00:00" From="0" To="1" Duration="00:00:00.400" DecelerationRatio="0.4" AccelerationRatio="0.4"
+                  <DoubleAnimation BeginTime="00:00:00" From="0" To="1" Duration="00:00:00.500" DecelerationRatio="0.4" AccelerationRatio="0.4"
                                    FillBehavior="HoldEnd" Storyboard.TargetName="AnimatedScroller" Storyboard.TargetProperty="ScrollOffsetMultiplier" />
                 </Storyboard>
               </nereus_controls:HomeTilesScrollContentPresenter.Resources>
