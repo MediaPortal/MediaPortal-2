@@ -380,19 +380,10 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
 
           if ((from potentialFanArtFile in potentialFanArtFiles
                let potentialFanArtFileNameWithoutExtension = Path.GetFileNameWithoutExtension(potentialFanArtFile.ToString()).ToLowerInvariant()
-               where potentialFanArtFileNameWithoutExtension == "poster" || potentialFanArtFileNameWithoutExtension == "folder" || potentialFanArtFileNameWithoutExtension == "movieset-poster"
-               select potentialFanArtFile).Count() > 0)
-            return true;
-
-          if ((from potentialFanArtFile in potentialFanArtFiles
-               let potentialFanArtFileNameWithoutExtension = Path.GetFileNameWithoutExtension(potentialFanArtFile.ToString()).ToLowerInvariant()
-               where potentialFanArtFileNameWithoutExtension == "banner" || potentialFanArtFileNameWithoutExtension == "movieset-banner"
-               select potentialFanArtFile).Count() > 0)
-            return true;
-
-          if ((from potentialFanArtFile in potentialFanArtFiles
-               let potentialFanArtFileNameWithoutExtension = Path.GetFileNameWithoutExtension(potentialFanArtFile.ToString()).ToLowerInvariant()
-               where potentialFanArtFileNameWithoutExtension == "backdrop" || potentialFanArtFileNameWithoutExtension == "fanart" || potentialFanArtFileNameWithoutExtension == "movieset-fanart"
+               where potentialFanArtFileNameWithoutExtension == "poster" || potentialFanArtFileNameWithoutExtension == "folder" || potentialFanArtFileNameWithoutExtension == "keyart" ||
+               potentialFanArtFileNameWithoutExtension.StartsWith("backdrop") || potentialFanArtFileNameWithoutExtension.StartsWith("fanart") ||
+               potentialFanArtFileNameWithoutExtension == "banner" ||
+               potentialFanArtFileNameWithoutExtension.StartsWith("movieset-")
                select potentialFanArtFile).Count() > 0)
             return true;
 
