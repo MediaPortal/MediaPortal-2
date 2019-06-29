@@ -91,7 +91,6 @@
     <Compile Include="BootstrapperWrapper\IDispatcher.cs" />
     <Compile Include="BootstrapperWrapper\DispatcherWrapper.cs" />
     <Compile Include="InstallType.cs" />
-    <Compile Include="Logger.cs" />
     <Compile Include="Models\IBootstrapperApplicationModel.cs" />
     <Compile Include="ViewModels\ModifyPageViewModel.cs" />
     <Compile Include="ViewModels\InstallationInProgressPageViewModel.cs" />

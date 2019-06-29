@@ -59,7 +59,6 @@ namespace MP2BootstrapperApp.WizardSteps
 
     public void Back(Wizard wizard)
     {
-      wizard.Step = new InstallWelcomeStep(_viewModel);
     }
 
     public bool CanGoNext()

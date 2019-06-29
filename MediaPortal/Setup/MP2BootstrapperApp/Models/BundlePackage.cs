@@ -54,7 +54,7 @@ namespace MP2BootstrapperApp.Models
     /// </summary>
     public Version GetVersion()
     {
-      return Version.TryParse(_packageElement.Attribute("Version")?.Value, out Version result) ? result : null;
+      return Version.TryParse(_packageElement.Attribute("Version")?.Value, out Version result) ? result : new Version();
     }
 
     /// <summary>

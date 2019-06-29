@@ -23,7 +23,6 @@
 #endregion
 
 using System.Windows;
-using System.Windows.Threading;
 using MP2BootstrapperApp.BootstrapperWrapper;
 using MP2BootstrapperApp.Models;
 using MP2BootstrapperApp.ViewModels;
@@ -45,7 +44,6 @@ namespace MP2BootstrapperApp
       MessageBox.Show("dd");
 
       IBootstrapperApplicationModel model = new BootstrapperApplicationModel(this);
-
       InstallWizardViewModel viewModel = new InstallWizardViewModel(model, _dispatcher);
       InstallWizardView view = new InstallWizardView(viewModel);
 
