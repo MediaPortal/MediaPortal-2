@@ -193,6 +193,10 @@ namespace MediaPortal.UI.Players.Video
       {
         _subtitleRenderer.AddClosedCaptionsFilter(_graphBuilder);
       }
+      ServiceRegistration.Get<ILogger>().Debug("TsVideoPlayer.AddSubtitleFilter: shouldAddDvbFilter: {0},  shouldRenderTeletextSubtitles: {1}, " +
+                                               "shouldAddClosedCaptionsFilter: {2}, RenderSubtitles is: {3}, subtitleStreamCount: {4}, teletextStreamCount: {5}",
+        shouldAddDvbFilter.ToString(), shouldRenderTeletextSubtitles.ToString(), shouldAddClosedCaptionsFilter.ToString(), _subtitleRenderer.RenderSubtitles.ToString(),
+        subtitleStreamCount.ToString(), teletextStreamCount.ToString());
     }
 
     protected override void SetSubtitleRenderer()
@@ -350,6 +354,7 @@ namespace MediaPortal.UI.Players.Video
 
     public override void SetSubtitle(string subtitle)
     {
+      ServiceRegistration.Get<ILogger>().Debug("SetSubtitle called for subtitle: {0}", subtitle);
       EnumerateStreams();
       if (_streamInfoSubtitles is TsReaderStreamInfoHandler tsStreamInfoHandler)
       {
@@ -363,6 +368,7 @@ namespace MediaPortal.UI.Players.Video
         _subtitleRenderer.RenderSubtitles = !tsTeletextInfoHandler.DisableSubs;
         SaveSubtitlePreference();
       }
+      ServiceRegistration.Get<ILogger>().Debug("SetSubtitle: set RenderSubtitles to {0}.", _subtitleRenderer.RenderSubtitles.ToString());
     }
 
     protected override void SaveSubtitlePreference()
@@ -374,6 +380,7 @@ namespace MediaPortal.UI.Players.Video
       }
       if (subtitleStreams == null)
       {
+        ServiceRegistration.Get<ILogger>().Debug("SaveSubtitlePreference: no valid subtitle streams.");
         return;
       }
 
@@ -399,6 +406,9 @@ namespace MediaPortal.UI.Players.Video
                                       subtitleStreams.CurrentStreamName.ToLowerInvariant().Contains(FORCED_SUBTITLES.ToLowerInvariant()) == false;
       }
       ServiceRegistration.Get<ISettingsManager>().Save(settings);
+      ServiceRegistration.Get<ILogger>().Debug("SaveSubtitlePreference: PreferredSubtitleStreamName: {0}, PreferredSubtitleLanguage lcid: {1}, " +
+                                               "EnableDvbSubtitles is set to {2}, EnableTeletextSubtitles is set to {3}", 
+        settings.PreferredSubtitleStreamName, settings.PreferredSubtitleLanguage, settings.EnableDvbSubtitles.ToString(), settings.EnableTeletextSubtitles.ToString());
     }
 
     protected override void SetPreferredSubtitle()
@@ -407,6 +417,7 @@ namespace MediaPortal.UI.Players.Video
       ITeletextSource teletextSource = _tsReader as ITeletextSource;
       if (_streamInfoSubtitles == null || (subtitleStream == null && teletextSource == null))
       {
+        ServiceRegistration.Get<ILogger>().Debug("SetPreferredSubtitle: no valid subtitles stream.");
         return;
       }
 
@@ -418,10 +429,14 @@ namespace MediaPortal.UI.Players.Video
       {
         // Tell the renderer it should not render subtitles
         if (_subtitleRenderer != null)
+        {
           _subtitleRenderer.RenderSubtitles = false;
+          ServiceRegistration.Get<ILogger>().Debug("SetPreferredSubtitle: set RenderSubtitles to false.");
+        }
       }
       else
       {
+        ServiceRegistration.Get<ILogger>().Debug("SetPreferredSubtitle: enable stream for {0}", streamInfo.Name);
         _streamInfoSubtitles.EnableStream(streamInfo.Name);
       }
     }

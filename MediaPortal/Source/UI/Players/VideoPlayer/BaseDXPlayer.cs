@@ -248,8 +248,9 @@ namespace MediaPortal.UI.Players.Video
         ServiceRegistration.Get<ILogger>().Debug("{0}: Adding source filter", PlayerTitle);
         AddSourceFilter();
 
-        ServiceRegistration.Get<ILogger>().Debug("{0}: Adding subtitle filter", PlayerTitle);
+        ServiceRegistration.Get<ILogger>().Debug("{0}: Set subtitle renderer", PlayerTitle);
         SetSubtitleRenderer();
+        ServiceRegistration.Get<ILogger>().Debug("{0}: Adding subtitle filter", PlayerTitle);
         AddSubtitleFilter(true);
 
         ServiceRegistration.Get<ILogger>().Debug("{0}: Run graph", PlayerTitle);
