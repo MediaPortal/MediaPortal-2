@@ -37,6 +37,7 @@
   
   <string name="Settings.ServerSettings.MDESettings.MDEFilter.Artists">Populate artist filter</string>
   <string name="Settings.ServerSettings.MDESettings.MDEFilter.Composers">Populate composer filter</string>
+  <string name="Settings.ServerSettings.MDESettings.MDEFilter.Conductors">Populate conductor filter</string>
   <string name="Settings.ServerSettings.MDESettings.MDEFilter.MusicLabels">Populate music label filter</string>
   <string name="Settings.ServerSettings.MDESettings.MDEFilter.Actors">Populate actor filter</string>
   <string name="Settings.ServerSettings.MDESettings.MDEFilter.Characters">Populate character filter</string>

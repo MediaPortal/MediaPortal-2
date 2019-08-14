@@ -89,6 +89,9 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
 
     public async Task<bool> TryExtractRelationshipsAsync(IResourceAccessor mediaItemAccessor, IDictionary<Guid, IList<MediaItemAspect>> aspects, IList<IDictionary<Guid, IList<MediaItemAspect>>> extractedLinkedAspects)
     {
+      if (!SeriesMetadataExtractor.IncludeActorDetails)
+        return false;
+
       SeriesInfo seriesInfo = new SeriesInfo();
       if (!seriesInfo.FromMetadata(aspects))
         return false;
@@ -96,7 +99,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
       if (RelationshipExtractorUtils.TryCreateInfoFromLinkedAspects(extractedLinkedAspects, out List<PersonInfo> actors))
         seriesInfo.Actors = actors;
 
-      if (SeriesMetadataExtractor.IncludeActorDetails && !SeriesMetadataExtractor.SkipOnlineSearches)
+      if ( !SeriesMetadataExtractor.SkipOnlineSearches)
         await OnlineMatcherService.Instance.UpdateSeriesPersonsAsync(seriesInfo, PersonAspect.OCCUPATION_ACTOR).ConfigureAwait(false);
 
       foreach (PersonInfo person in seriesInfo.Actors.Take(SeriesMetadataExtractor.MaximumActorCount))

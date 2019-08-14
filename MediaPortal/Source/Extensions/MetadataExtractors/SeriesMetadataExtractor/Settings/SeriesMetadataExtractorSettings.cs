@@ -246,7 +246,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor.Sett
     public bool CacheLocalFanArt { get; set; }
 
     /// <summary>
-    /// If <c>true</c>, Actor details will be fetched from online sources.
+    /// If <c>true</c>, Actor details will be includeded.
     /// </summary>
     [Setting(SettingScope.Global, true)]
     public bool IncludeActorDetails { get; set; }
@@ -258,7 +258,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor.Sett
     public int MaximumActorCount { get; set; }
 
     /// <summary>
-    /// If <c>true</c>, Character details will be fetched from online sources.
+    /// If <c>true</c>, Character details will be includeded.
     /// </summary>
     [Setting(SettingScope.Global, true)]
     public bool IncludeCharacterDetails { get; set; }
@@ -270,25 +270,25 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor.Sett
     public int MaximumCharacterCount { get; set; }
 
     /// <summary>
-    /// If <c>true</c>, Director details will be fetched from online sources.
+    /// If <c>true</c>, Director details will be includeded.
     /// </summary>
     [Setting(SettingScope.Global, true)]
     public bool IncludeDirectorDetails { get; set; }
 
     /// <summary>
-    /// If <c>true</c>, Writer details will be fetched from online sources.
+    /// If <c>true</c>, Writer details will be includeded.
     /// </summary>
     [Setting(SettingScope.Global, true)]
     public bool IncludeWriterDetails { get; set; }
 
     /// <summary>
-    /// If <c>true</c>, TV Network details will be fetched from online sources.
+    /// If <c>true</c>, TV Network details will be includeded.
     /// </summary>
     [Setting(SettingScope.Global, true)]
     public bool IncludeTVNetworkDetails { get; set; }
 
     /// <summary>
-    /// If <c>true</c>, Production company details will be fetched from online sources.
+    /// If <c>true</c>, Production company details will be includeded.
     /// </summary>
     [Setting(SettingScope.Global, true)]
     public bool IncludeProductionCompanyDetails { get; set; }

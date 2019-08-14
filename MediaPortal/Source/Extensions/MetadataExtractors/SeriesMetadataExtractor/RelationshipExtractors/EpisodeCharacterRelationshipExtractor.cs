@@ -95,6 +95,9 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
 
     public async Task<bool> TryExtractRelationshipsAsync(IResourceAccessor mediaItemAccessor, IDictionary<Guid, IList<MediaItemAspect>> aspects, IList<IDictionary<Guid, IList<MediaItemAspect>>> extractedLinkedAspects)
     {
+      if (!SeriesMetadataExtractor.IncludeCharacterDetails)
+        return false;
+
       if (BaseInfo.IsVirtualResource(aspects))
         return false;
 
@@ -105,7 +108,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
       if (RelationshipExtractorUtils.TryCreateInfoFromLinkedAspects(extractedLinkedAspects, out List<CharacterInfo> characters))
         episodeInfo.Characters = characters;
 
-      if (SeriesMetadataExtractor.IncludeCharacterDetails && !SeriesMetadataExtractor.SkipOnlineSearches)
+      if (!SeriesMetadataExtractor.SkipOnlineSearches)
         await OnlineMatcherService.Instance.UpdateEpisodeCharactersAsync(episodeInfo).ConfigureAwait(false);
       
       foreach (CharacterInfo character in episodeInfo.Characters.Take(SeriesMetadataExtractor.MaximumCharacterCount))

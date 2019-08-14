@@ -117,6 +117,9 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
 
     public async Task<bool> TryExtractRelationshipsAsync(IResourceAccessor mediaItemAccessor, IDictionary<Guid, IList<MediaItemAspect>> aspects, IList<IDictionary<Guid, IList<MediaItemAspect>>> extractedLinkedAspects)
     {
+      if (!NfoMovieMetadataExtractor.IncludeActorDetails)
+        return false;
+
       MovieInfo reimport = null;
       if (aspects.ContainsKey(ReimportAspect.ASPECT_ID))
       {
