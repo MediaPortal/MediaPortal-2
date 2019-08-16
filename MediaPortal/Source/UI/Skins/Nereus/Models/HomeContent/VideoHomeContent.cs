@@ -34,6 +34,12 @@ namespace MediaPortal.UiComponents.Nereus.Models.HomeContent
     {
       MediaListModel mlm = GetMediaListModel();
 
+      // Wrap each group of tiles to show in an ItemsListWrapper and add
+      // the wrapper to the backing list.
+      // For the media home content, the firat item is a list of shortcuts
+      // to media filters, followed by a group of tiles for each media list.
+
+      // Add the video media filters as the first tile group
       _backingList.Add(new MediaShortcutListWrapper(new List<ListItem>
       {
         new VideoYearShortcut(),
@@ -43,12 +49,17 @@ namespace MediaPortal.UiComponents.Nereus.Models.HomeContent
         new VideoSearchShortcut()
       }));
 
+      // Add a wrapper for each video media list, we use a separate type for each wrapper
+      // so we can use automatic template selection when they are displayed in an ItemsControl.
       _backingList.Add(new LatestVideoList(mlm.Lists["LatestVideo"].AllItems));
       _backingList.Add(new ContinuePlayVideoList(mlm.Lists["ContinuePlayVideo"].AllItems));
       _backingList.Add(new FavoriteVideoList(mlm.Lists["FavoriteVideo"].AllItems));
       _backingList.Add(new UnplayedVideoList(mlm.Lists["UnplayedVideo"].AllItems));
     }
   }
+
+  // Separate classes for each type of media shortcut and media list to
+  // allow automatic template selection when displayed in an ItemsControl.
 
   public class LatestVideoList : ItemsListWrapper
   {

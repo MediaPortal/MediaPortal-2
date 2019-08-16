@@ -2481,4 +2481,31 @@
     </ListView>
   </DataTemplate>
 
+  <!--++++++++++ Other Plugins +++++++++++-->
+
+  <Style x:Key="PluginTilesListViewStyle" BasedOn="{ThemeResource HomeTilesListViewStyle}">
+    <Setter Property="ItemTemplate" Value="{ThemeResource HomeMenuItemDataTemplate}"/>
+    <Setter Property="ItemContainerStyle" Value="{ThemeResource HomeItemContainerStyle}"/>
+
+    <Setter Property="ItemsPanel">
+      <Setter.Value>
+        <ItemsPanelTemplate>
+          <WrapPanel x:Name="ListItemsHost" IsItemsHost="True" Orientation="Vertical" DoScroll="False"/>
+        </ItemsPanelTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+
+  <DataTemplate DataType="{x:Type nereus_home_content:OtherPluginsHomeContent}">
+    
+    <ListView Style="{ThemeResource PluginTilesListViewStyle}" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+              IsEnabled="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=IsEnabled}"
+              ItemsSource="{Binding Items}">
+      <ListView.Resources>
+        <CommandBridge x:Key="Menu_Command" Command="{Binding Path=Command,Mode=OneTime}"/>
+      </ListView.Resources>
+    </ListView>
+    
+  </DataTemplate>
+
 </ResourceDictionary>

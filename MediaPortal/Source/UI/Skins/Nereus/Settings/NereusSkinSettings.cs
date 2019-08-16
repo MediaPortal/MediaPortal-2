@@ -23,6 +23,7 @@
 #endregion
 
 using MediaPortal.Common.Settings;
+using System;
 
 namespace MediaPortal.UiComponents.Nereus.Settings
 {
@@ -63,5 +64,35 @@ namespace MediaPortal.UiComponents.Nereus.Settings
 
     [Setting(SettingScope.User, true)]
     public bool EnableAgeCertificationLogos { get; set; }
+
+    static readonly Guid[] DEFAULT_HOME_MENU_ACTION_IDS = new []
+    {
+      new Guid("bb49a591-7705-408f-8177-45d633fdfad0"),
+      new Guid("b4a9199f-6dd4-4bda-a077-de9c081f7703"),
+      new Guid("30f57cba-459c-4202-a587-09fff5098251"),
+      new Guid("80d2e2cc-baaa-4750-807b-f37714153751"),
+      new Guid("30715d73-4205-417f-80aa-e82f0834171f"),
+      new Guid("c33E39cc-910e-41c8-bffd-9eccd340b569"),
+      new Guid("55556593-9fe9-436c-a3b6-a971e10c9d44"),
+      new Guid("e34fdb62-1f3e-4aa9-8a61-d143e0af77b5"),
+      new Guid("a4df2df6-8d66-479a-9930-d7106525eb07"),
+      new Guid("a24958e2-538a-455e-a1db-a7bb241aF7ec"),
+      new Guid("2ded75c0-5eae-4e69-9913-6b50a9ab2956")
+    };
+
+    Guid[] _homeMenuActionIds = null;
+
+    [Setting(SettingScope.User, null)]
+    public Guid[] HomeMenuActionIds
+    {
+      get
+      {
+        var actionIds = _homeMenuActionIds;
+        if (actionIds == null || actionIds.Length == 0)
+          _homeMenuActionIds = actionIds = DEFAULT_HOME_MENU_ACTION_IDS;
+        return actionIds;
+      }
+      set { _homeMenuActionIds = value; }
+    }
   }
 }

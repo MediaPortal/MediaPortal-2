@@ -57,6 +57,7 @@
     <Compile Include="..\..\..\Core\MediaPortal.Common\VersionInfo\VersionInfo.cs">
       <Link>Properties\VersionInfo.cs</Link>
     </Compile>
+    <Compile Include="Actions\OtherPluginsAction.cs" />
     <Compile Include="Actions\SkinSettingsAction.cs" />
     <Compile Include="Controls\HomeTilesScrollContentPresenter.cs" />
     <Compile Include="Controls\ItemsListFilter.cs" />
@@ -64,6 +65,7 @@
     <Compile Include="Converters\ItemsListActionFilter.cs" />
     <Compile Include="Converters\RoundingFormatConverter.cs" />
     <Compile Include="Models\HomeContent\AbstractHomeContent.cs" />
+    <Compile Include="Models\HomeContent\OtherPluginsHomeContent.cs" />
     <Compile Include="Models\HomeContent\DefaultHomeContent.cs" />
     <Compile Include="Models\HomeContent\VideoHomeContent.cs" />
     <Compile Include="Models\HomeContent\MediaShortcutItem.cs" />

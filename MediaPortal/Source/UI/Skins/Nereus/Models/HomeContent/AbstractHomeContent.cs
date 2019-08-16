@@ -31,14 +31,37 @@ using System.Collections.Generic;
 
 namespace MediaPortal.UiComponents.Nereus.Models.HomeContent
 {
+  /// <summary>
+  /// Base class for home content that shows a list of <see cref="ItemsListWrapper"/>s that should be
+  /// automatically shown and hidden on changes to the <see cref="ItemsListWrapper.HasItems"/> property.
+  /// </summary>
   public abstract class AbstractHomeContent
   {
+    // All known ItemsListWrappers
     protected IList<ItemsListWrapper> _backingList = new List<ItemsListWrapper>();
-    protected ItemsList _items = new ItemsList();
+
+    // All ItemsListWrappers that currently have items
+    protected ItemsList _availableItems = new ItemsList();
+
     protected bool _isInit = false;
 
+    public ItemsList Items
+    {
+      get
+      {
+        Init();
+        return _availableItems;
+      }
+    }
+
+    /// <summary>
+    /// Implementaions of this method should populate <see cref="_backingList"/>
+    /// with the <see cref="ItemsListWrapper"/>s to show.
+    /// </summary>
     protected abstract void PopulateBackingList();
 
+    // Lazily called by the Items property getter,
+    // usually by the screen showing this content.
     protected void Init()
     {
       if (_isInit)
@@ -48,17 +71,19 @@ namespace MediaPortal.UiComponents.Nereus.Models.HomeContent
       // Overidden in derived classes
       PopulateBackingList();
 
-      AttachToBackingLists();
+      AttachItemsListWrappers();
       UpdateAvailableItems();
     }
 
-    protected void AttachToBackingLists()
+    protected void AttachItemsListWrappers()
     {
+      // Attach to each HasItems property so we can add/remove
+      // the wrapper from the list of available items if it changes.
       foreach (ItemsListWrapper wrapper in _backingList)
         wrapper.HasItemsProperty.Attach(OnHasItemsChanged);
     }
 
-    protected void DetachToBackingLists()
+    protected void DetachItemsListWrappers()
     {
       foreach (ItemsListWrapper wrapper in _backingList)
         wrapper.HasItemsProperty.Detach(OnHasItemsChanged);
@@ -69,25 +94,20 @@ namespace MediaPortal.UiComponents.Nereus.Models.HomeContent
       UpdateAvailableItems();
     }
 
+    /// <summary>
+    /// Adds a;; <see cref="ItemsListWrapper"/>s that
+    /// have items to the list of available items.
+    /// </summary>
     protected void UpdateAvailableItems()
     {
-      lock (_items.SyncRoot)
+      lock (_availableItems.SyncRoot)
       {
-        _items.Clear();
+        _availableItems.Clear();
         foreach (ItemsListWrapper wrapper in _backingList)
           if (wrapper.HasItems)
-            _items.Add(wrapper);
+            _availableItems.Add(wrapper);
       }
-      _items.FireChange();
-    }
-
-    public ItemsList Items
-    {
-      get
-      {
-        Init();
-        return _items;
-      }
+      _availableItems.FireChange();
     }
 
     protected static MediaListModel GetMediaListModel()

@@ -23,8 +23,11 @@
 #endregion
 
 using MediaPortal.Common;
+using MediaPortal.Common.Commands;
 using MediaPortal.Common.General;
+using MediaPortal.Common.Logging;
 using MediaPortal.Common.Messaging;
+using MediaPortal.Common.Services.Settings;
 using MediaPortal.Extensions.UserServices.FanArtService.Client.Models;
 using MediaPortal.UI.Presentation.DataObjects;
 using MediaPortal.UI.Presentation.Models;
@@ -32,11 +35,16 @@ using MediaPortal.UI.Presentation.Screens;
 using MediaPortal.UI.Presentation.Workflow;
 using MediaPortal.UI.SkinEngine.MpfElements;
 using MediaPortal.UiComponents.Media.Models;
+using MediaPortal.UiComponents.Nereus.Actions;
 using MediaPortal.UiComponents.Nereus.Models.HomeContent;
+using MediaPortal.UiComponents.Nereus.Settings;
 using MediaPortal.UiComponents.SkinBase.General;
+using MediaPortal.UiComponents.SkinBase.Models;
+using MediaPortal.Utilities;
 using MediaPortal.Utilities.Events;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Windows.Forms;
 
 namespace MediaPortal.UiComponents.Nereus.Models
@@ -68,6 +76,16 @@ namespace MediaPortal.UiComponents.Nereus.Models
     protected IDictionary<Guid, object> _homeContent = new Dictionary<Guid, object>();
     protected static readonly DefaultHomeContent DEFAULT_HOME_CONTENT = new DefaultHomeContent();
 
+    protected SettingsChangeWatcher<NereusSkinSettings> _settingsWatcher;
+
+    protected ItemsList _allHomeMenuItems;
+    protected ItemsList _mainMenuItems = new ItemsList();
+    protected ItemsList _otherMenuItems = new ItemsList();
+
+    protected ListItem _otherPluginsMenuItem;
+
+    protected bool _isAttachedToMenuItems = false;
+
     public HomeMenuModel()
     {
       _content1Property = new WProperty(typeof(object), null);
@@ -91,51 +109,26 @@ namespace MediaPortal.UiComponents.Nereus.Models
       _homeContent.Add(new Guid("b4a9199f-6dd4-4bda-a077-de9c081f7703"), new TVHomeContent());
       _homeContent.Add(new Guid("bb49a591-7705-408f-8177-45d633fdfad0"), new NewsHomeContent());
       _homeContent.Add(new Guid("e34fdb62-1f3e-4aa9-8a61-d143e0af77b5"), new WeatherHomeContent());
+
+      // Home content for displaying a list of all other plugins
+      _homeContent.Add(OtherPluginsAction.ACTION_ID, new OtherPluginsHomeContent(_otherMenuItems));
       
       SubscribeToMessages();
-    }
-
-    void InitDefaultLists()
-    {
-      var mlm = GetMediaListModel();
-      var list = mlm.Lists["LatestAudio"]?.AllItems;
-      list = mlm.Lists["ContinuePlayAlbum"]?.AllItems;
-      list = mlm.Lists["FavoriteAudio"]?.AllItems;
-      list = mlm.Lists["UnplayedAlbums"]?.AllItems;
-
-      list = mlm.Lists["LatestMovies"]?.AllItems;
-      list = mlm.Lists["ContinuePlayMovies"]?.AllItems;
-      list = mlm.Lists["FavoriteMovies"]?.AllItems;
-      list = mlm.Lists["UnplayedMovies"]?.AllItems;
-
-      list = mlm.Lists["LatestEpisodes"]?.AllItems;
-      list = mlm.Lists["ContinuePlaySeries"]?.AllItems;
-      list = mlm.Lists["FavoriteSeries"]?.AllItems;
-      list = mlm.Lists["UnplayedSeries"]?.AllItems;
-
-      list = mlm.Lists["LatestImages"]?.AllItems;
-      list = mlm.Lists["FavoriteImages"]?.AllItems;
-      list = mlm.Lists["UnplayedImages"]?.AllItems;
-
-      list = mlm.Lists["LatestVideo"]?.AllItems;
-      list = mlm.Lists["ContinuePlayVideo"]?.AllItems;
-      list = mlm.Lists["FavoriteVideo"]?.AllItems;
-      list = mlm.Lists["UnplayedVideo"]?.AllItems;
-
-      list = mlm.Lists["LastPlayTV"]?.AllItems;
-      list = mlm.Lists["FavoriteTV"]?.AllItems;
-      list = mlm.Lists["CurrentPrograms"]?.AllItems;
-      list = mlm.Lists["CurrentSchedules"]?.AllItems;
     }
 
     #region Message Handling
 
     private void SubscribeToMessages()
     {
-      if (_messageQueue == null)
-        return;
+      _settingsWatcher = new SettingsChangeWatcher<NereusSkinSettings>(true);
+      _settingsWatcher.SettingsChanged += OnSettingsChanged;
+
       _messageQueue.SubscribeToMessageChannel(WorkflowManagerMessaging.CHANNEL);
       _messageQueue.MessageReceived += OnMessageReceived;
+    }
+
+    private void OnSettingsChanged(object sender, EventArgs e)
+    {
     }
 
     private void OnMessageReceived(AsynchronousMessageQueue queue, SystemMessage message)
@@ -149,10 +142,24 @@ namespace MediaPortal.UiComponents.Nereus.Models
         if (messageType == WorkflowManagerMessaging.MessageType.NavigationComplete)
         {
           var context = ServiceRegistration.Get<IWorkflowManager>().CurrentNavigationContext;
+
           if (context != null && context.WorkflowState.StateId == HOME_STATE_ID)
           {
-            _isInit = true;
-            InitDefaultLists();
+            if (context.WorkflowState.StateId == HOME_STATE_ID)
+            {
+              // If this is the first time entering the home state, we need to get and attach to the home items.
+              // If not, then we are returning to the home state and need to re-attach and refresh the items as we
+              // detached and missed any changes when leaving.
+              if (!CheckHomeMenuItems())
+                AttachAndRefreshHomeMenuItems();
+            }
+            else
+            {
+              // The items can change outside of the home state if a different WF state adds some temporary actions to the WF manager.
+              // Usually these temporary actions will be removed again before returning to the home state. To ensure that we don't
+              // unnecessarily update our items, which can prevent restoring focus correctly, don't listen to changes outside of the home state.
+              DetachHomeMenuItems();
+            }
           }
         }
       }
@@ -161,6 +168,24 @@ namespace MediaPortal.UiComponents.Nereus.Models
     #endregion
 
     #region Members to be accessed from the GUI
+
+    public ItemsList MainMenuItems
+    {
+      get
+      {
+        CheckHomeMenuItems();
+        return _mainMenuItems;
+      }
+    }
+
+    public ItemsList OtherMenuItems
+    {
+      get
+      {
+        CheckHomeMenuItems();
+        return _otherMenuItems;
+      }
+    }
 
     public AbstractProperty Content1Property
     {
@@ -230,14 +255,140 @@ namespace MediaPortal.UiComponents.Nereus.Models
 
     #endregion
 
+    protected bool CheckHomeMenuItems()
+    {
+      lock (_syncObj)
+        if (_allHomeMenuItems != null)
+          return false;
+
+      NavigationContext currentContext = ServiceRegistration.Get<IWorkflowManager>().CurrentNavigationContext;
+      if (currentContext == null || currentContext.WorkflowState.StateId != HOME_STATE_ID)
+        return false;
+
+      ItemsList items = GetMenuModel().MenuItems;
+      lock (_syncObj)
+      {
+        if (_allHomeMenuItems != null)
+          return false;
+        _allHomeMenuItems = items;
+      }
+      AttachAndRefreshHomeMenuItems();
+      return true;
+    }
+
+    protected ItemsList GetHomeMenuItems()
+    {
+      NavigationContext currentContext = ServiceRegistration.Get<IWorkflowManager>().CurrentNavigationContext;
+      if (currentContext == null || currentContext.WorkflowState.StateId != HOME_STATE_ID)
+        return null;
+
+      return GetMenuModel().MenuItems;
+    }
+
+    private void AttachAndRefreshHomeMenuItems()
+    {
+      lock (_syncObj)
+      {
+        if (_isAttachedToMenuItems || _allHomeMenuItems == null)
+          return;
+        _allHomeMenuItems.ObjectChanged += OnHomeMenuItemsChanged;
+        _isAttachedToMenuItems = true;
+      }
+      OnHomeMenuItemsChanged(_allHomeMenuItems);
+    }
+
+    private void DetachHomeMenuItems()
+    {
+      lock (_syncObj)
+      {
+        if (!_isAttachedToMenuItems)
+          return;
+        if(_allHomeMenuItems != null)
+          _allHomeMenuItems.ObjectChanged -= OnHomeMenuItemsChanged;
+        _isAttachedToMenuItems = false;
+      }
+    }
+
+    private void OnHomeMenuItemsChanged(IObservable observable)
+    {
+      var items = observable as ItemsList;
+      if (items == null)
+        return;
+
+      // Get the action ids that will be visible in the main menu.
+      // All other actions will be placed under 'Other'.
+      var actionIds = new HashSet<Guid>(_settingsWatcher.Settings.HomeMenuActionIds);
+            
+      // Sort the changed items into the main menu items and the 'other' items.
+      List<ListItem> changedMainItems = new List<ListItem>();
+      List<ListItem> changedOtherItems = new List<ListItem>();
+      lock (items.SyncRoot)
+      {
+        foreach (var item in items)
+        {
+          if (TryGetAction(item, out var action) && actionIds.Contains(action.ActionId))
+            changedMainItems.Add(item);
+          else // no action or it's not in our list of actions to show in the main menu
+            changedOtherItems.Add(item);
+        }
+      }
+
+      // We need to create the other plugins menu item if necessary and
+      // add it to the changed main items manually to ensure that the
+      // current and changed items are compared correctly.
+      if (_otherPluginsMenuItem == null)
+      {
+        WorkflowAction action = new OtherPluginsAction();
+        ListItem item = new ListItem("Name", action.DisplayTitle)
+        {
+          Command = new MethodDelegateCommand(action.Execute)
+        };
+        item.AdditionalProperties[Consts.KEY_ITEM_ACTION] = action;
+        item.SetLabel("Help", action.HelpText);
+        _otherPluginsMenuItem = item;
+      }
+      changedMainItems.Add(_otherPluginsMenuItem);
+
+      // Rebuild the items lists only if the actions have actually changed
+      if (RebuildMenuItemsIfNotEqual(_mainMenuItems, changedMainItems))
+        _mainMenuItems.FireChange();
+
+      if (RebuildMenuItemsIfNotEqual(_otherMenuItems, changedOtherItems))
+        _otherMenuItems.FireChange();
+    }
+
+    protected bool RebuildMenuItemsIfNotEqual(ItemsList current, IList<ListItem> updated)
+    {
+      lock (current.SyncRoot)
+      {
+        // Actions are equal so no need to rebuild
+        if (ActionIdsAreEqual(current, updated))
+          return false;
+        
+        current.Clear();
+        CollectionUtils.AddAll(current, updated);
+        return true;
+      }
+    }
+
+    protected bool ActionIdsAreEqual(IList<ListItem> current, IList<ListItem> updated)
+    {
+      if (current.Count != updated.Count)
+        return false;
+
+      // Check that we have the same actions in the same order
+      for (int i = 0; i < current.Count; i++)
+        if (GetAction(current[i])?.ActionId != GetAction(updated[i])?.ActionId)
+          return false;
+      return true;
+    }
+
     private void OnSelectedItemChanged(AbstractProperty property, object oldValue)
     {
       ListItem item = SelectedItem;
       if (item == null)
         return;
-      WorkflowAction action;
-      if (!TryGetAction(item, out action))
-        action = null;
+      WorkflowAction action = GetAction(item);
       EnqueueUpdate(action);
     }
 
@@ -282,6 +433,16 @@ namespace MediaPortal.UiComponents.Nereus.Models
     protected static MediaListModel GetMediaListModel()
     {
       return (MediaListModel)ServiceRegistration.Get<IWorkflowManager>().GetModel(MediaListModel.MEDIA_LIST_MODEL_ID);
+    }
+
+    protected static MenuModel GetMenuModel()
+    {
+      return (MenuModel)ServiceRegistration.Get<IWorkflowManager>().GetModel(MenuModel.MENU_MODEL_ID);
+    }
+
+    protected static WorkflowAction GetAction(ListItem item)
+    {
+      return item.AdditionalProperties[Consts.KEY_ITEM_ACTION] as WorkflowAction;
     }
 
     protected static bool TryGetAction(ListItem item, out WorkflowAction action)
