@@ -23,7 +23,9 @@
 #endregion
 
 using MediaPortal.UI.Presentation.DataObjects;
+using MediaPortal.UiComponents.Media.General;
 using MediaPortal.UiComponents.Media.Models;
+using MediaPortal.UiComponents.Media.Models.ScreenData;
 using System.Collections.Generic;
 
 namespace MediaPortal.UiComponents.Nereus.Models.HomeContent
@@ -79,17 +81,38 @@ namespace MediaPortal.UiComponents.Nereus.Models.HomeContent
   }
 
   public class MovieGenreShortcut : GenreShortcutItem
-  { }
+  {
+    public MovieGenreShortcut()
+      : base(Consts.WF_STATE_ID_MOVIES_NAVIGATION_ROOT, typeof(MovieFilterByGenreScreenData))
+    { }
+  }
 
   public class MovieYearShortcut : YearShortcutItem
-  { }
+  {
+    public MovieYearShortcut()
+      : base(Consts.WF_STATE_ID_MOVIES_NAVIGATION_ROOT, typeof(VideosFilterByYearScreenData))
+    { }
+  }
 
   public class MovieAgeShortcut : AgeShortcutItem
-  { }
+  {
+    public MovieAgeShortcut()
+      : base(Consts.WF_STATE_ID_MOVIES_NAVIGATION_ROOT, typeof(MovieFilterByCertificationScreenData))
+    { }
+
+  }
 
   public class MovieActorShortcut : ActorShortcutItem
-  { }
+  {
+    public MovieActorShortcut()
+      : base(Consts.WF_STATE_ID_MOVIES_NAVIGATION_ROOT, typeof(MovieFilterByActorScreenData))
+    { }
+  }
 
   public class MovieSearchShortcut : SearchShortcutItem
-  { }
+  {
+    public MovieSearchShortcut()
+      : base(Consts.WF_STATE_ID_MOVIES_NAVIGATION_ROOT, typeof(VideosSimpleSearchScreenData))
+    { }
+  }
 }

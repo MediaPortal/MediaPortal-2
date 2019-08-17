@@ -26,13 +26,14 @@ using MediaPortal.Common;
 using MediaPortal.Common.Commands;
 using MediaPortal.UI.Presentation.DataObjects;
 using MediaPortal.UI.Presentation.Workflow;
+using MediaPortal.UiComponents.Media.Models;
+using MediaPortal.UiComponents.Media.Models.NavigationModel;
 using System;
 
 namespace MediaPortal.UiComponents.Nereus.Models.HomeContent
 {
   public class MediaShortcutItem : ListItem
   {
-
   }
 
   public class WorkflowNavigationShortcutItem : MediaShortcutItem
@@ -47,23 +48,73 @@ namespace MediaPortal.UiComponents.Nereus.Models.HomeContent
     }
   }
 
-  public class GenreShortcutItem : MediaShortcutItem
+  public class MediaScreenShortcutItem : MediaShortcutItem
   {
+    public MediaScreenShortcutItem() { }
+
+    public MediaScreenShortcutItem(Guid mediaNavigationRootState, Type filterScreenType)
+    {
+      Command = new MethodDelegateCommand(() => NavigateToFilterScreen(mediaNavigationRootState, filterScreenType));
+    }
+
+    /// <summary>
+    /// Navigates to the given media navigation state and shows the given screen.
+    /// </summary>
+    /// <param name="mediaNavigationRootState">The root media navigation state.</param>
+    /// <param name="filterScreenType">The type of screen data to show.</param>
+    public void NavigateToFilterScreen(Guid mediaNavigationRootState, Type filterScreenType)
+    {
+      MediaNavigationConfig config = new MediaNavigationConfig
+      {
+        DefaultScreenType = filterScreenType,
+        AlwaysUseDefaultScreen = true
+      };
+      MediaNavigationModel.NavigateToRootState(mediaNavigationRootState, config);
+    }
   }
 
-  public class YearShortcutItem : MediaShortcutItem
+  public class GenreShortcutItem : MediaScreenShortcutItem
   {
+    public GenreShortcutItem() { }
+
+    public GenreShortcutItem(Guid mediaNavigationRootState, Type filterScreenType)
+      : base(mediaNavigationRootState, filterScreenType)
+    { }
   }
 
-  public class AgeShortcutItem : MediaShortcutItem
+  public class YearShortcutItem : MediaScreenShortcutItem
   {
+    public YearShortcutItem() { }
+
+    public YearShortcutItem(Guid mediaNavigationRootState, Type filterScreenType)
+      : base(mediaNavigationRootState, filterScreenType)
+    { }
   }
 
-  public class ActorShortcutItem : MediaShortcutItem
+  public class AgeShortcutItem : MediaScreenShortcutItem
   {
+    public AgeShortcutItem() { }
+
+    public AgeShortcutItem(Guid mediaNavigationRootState, Type filterScreenType)
+      : base(mediaNavigationRootState, filterScreenType)
+    { }
   }
 
-  public class SearchShortcutItem : MediaShortcutItem
+  public class ActorShortcutItem : MediaScreenShortcutItem
   {
+    public ActorShortcutItem() { }
+
+    public ActorShortcutItem(Guid mediaNavigationRootState, Type filterScreenType)
+      : base(mediaNavigationRootState, filterScreenType)
+    { }
+  }
+
+  public class SearchShortcutItem : MediaScreenShortcutItem
+  {
+    public SearchShortcutItem() { }
+
+    public SearchShortcutItem(Guid mediaNavigationRootState, Type filterScreenType)
+      : base(mediaNavigationRootState, filterScreenType)
+    { }
   }
 }
