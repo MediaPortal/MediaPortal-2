@@ -23,7 +23,9 @@
 #endregion
 
 using MediaPortal.UI.Presentation.DataObjects;
+using MediaPortal.UiComponents.Media.General;
 using MediaPortal.UiComponents.Media.Models;
+using MediaPortal.UiComponents.Media.Models.ScreenData;
 using System.Collections.Generic;
 
 namespace MediaPortal.UiComponents.Nereus.Models.HomeContent
@@ -79,17 +81,38 @@ namespace MediaPortal.UiComponents.Nereus.Models.HomeContent
   }
 
   public class SeriesGenreShortcut : GenreShortcutItem
-  { }
+  {
+    public SeriesGenreShortcut()
+      : base(Consts.WF_STATE_ID_SERIES_NAVIGATION_ROOT, typeof(SeriesFilterByGenreScreenData))
+    { }
+  }
 
   public class SeriesYearShortcut : YearShortcutItem
-  { }
+  {
+    public SeriesYearShortcut()
+    {
+      // ToDo: There is no series filter for year...
+    }
+  }
 
   public class SeriesAgeShortcut : AgeShortcutItem
-  { }
+  {
+    public SeriesAgeShortcut()
+      : base(Consts.WF_STATE_ID_SERIES_NAVIGATION_ROOT, typeof(SeriesFilterByCertificationScreenData))
+    { }
+  }
 
   public class SeriesActorShortcut : ActorShortcutItem
-  { }
+  {
+    public SeriesActorShortcut()
+      : base(Consts.WF_STATE_ID_SERIES_NAVIGATION_ROOT, typeof(SeriesEpisodeFilterByActorScreenData))
+    { }
+  }
 
   public class SeriesSearchShortcut : SearchShortcutItem
-  { }
+  {
+    public SeriesSearchShortcut()
+      : base(Consts.WF_STATE_ID_SERIES_NAVIGATION_ROOT, typeof(SeriesSimpleSearchScreenData))
+    { }
+  }
 }

@@ -23,7 +23,9 @@
 #endregion
 
 using MediaPortal.UI.Presentation.DataObjects;
+using MediaPortal.UiComponents.Media.General;
 using MediaPortal.UiComponents.Media.Models;
+using MediaPortal.UiComponents.Media.Models.ScreenData;
 using System.Collections.Generic;
 
 namespace MediaPortal.UiComponents.Nereus.Models.HomeContent
@@ -79,17 +81,37 @@ namespace MediaPortal.UiComponents.Nereus.Models.HomeContent
   }
 
   public class AudioGenreShortcut : GenreShortcutItem
-  { }
+  {
+    public AudioGenreShortcut()
+      : base(Consts.WF_STATE_ID_AUDIO_NAVIGATION_ROOT, typeof(AudioFilterByGenreScreenData))
+    { }
+  }
 
-  public class AudioTrackShortcut : MediaShortcutItem
-  { }
+  public class AudioTrackShortcut : MediaScreenShortcutItem
+  {
+    public AudioTrackShortcut()
+      : base(Consts.WF_STATE_ID_AUDIO_NAVIGATION_ROOT, typeof(AudioShowItemsScreenData))
+    { }
+  }
 
-  public class AudioAlbumShortcut : MediaShortcutItem
-  { }
+  public class AudioAlbumShortcut : MediaScreenShortcutItem
+  {
+    public AudioAlbumShortcut()
+      : base(Consts.WF_STATE_ID_AUDIO_NAVIGATION_ROOT, typeof(AudioFilterByAlbumScreenData))
+    { }
+  }
 
   public class AudioArtistShortcut : ActorShortcutItem
-  { }
+  {
+    public AudioArtistShortcut()
+      : base(Consts.WF_STATE_ID_AUDIO_NAVIGATION_ROOT, typeof(AudioFilterByAlbumArtistScreenData))
+    { }
+  }
 
   public class AudioYearShortcut : YearShortcutItem
-  { }
+  {
+    public AudioYearShortcut()
+      : base(Consts.WF_STATE_ID_AUDIO_NAVIGATION_ROOT, typeof(AudioFilterByDecadeScreenData))
+    { }
+  }
 }

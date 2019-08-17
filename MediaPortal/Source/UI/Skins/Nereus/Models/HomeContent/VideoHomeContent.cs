@@ -23,7 +23,9 @@
 #endregion
 
 using MediaPortal.UI.Presentation.DataObjects;
+using MediaPortal.UiComponents.Media.General;
 using MediaPortal.UiComponents.Media.Models;
+using MediaPortal.UiComponents.Media.Models.ScreenData;
 using System.Collections.Generic;
 
 namespace MediaPortal.UiComponents.Nereus.Models.HomeContent
@@ -90,17 +92,39 @@ namespace MediaPortal.UiComponents.Nereus.Models.HomeContent
   }
 
   public class VideoYearShortcut : YearShortcutItem
-  { }
+  {
+    public VideoYearShortcut()
+      : base(Consts.WF_STATE_ID_VIDEOS_NAVIGATION_ROOT, typeof(VideosFilterByYearScreenData))
+    { }
+  }
 
-  public class VideoLocationShortcut : MediaShortcutItem
-  { }
+  public class VideoLocationShortcut : MediaScreenShortcutItem
+  {
+    public VideoLocationShortcut()
+    {
+      // ToDo: Add video location filter...
+    }
+  }
 
-  public class VideoSystemShortcut : MediaShortcutItem
-  { }
+  public class VideoSystemShortcut : MediaScreenShortcutItem
+  {
+    public VideoSystemShortcut()
+      : base(Consts.WF_STATE_ID_VIDEOS_NAVIGATION_ROOT, typeof(VideosFilterBySystemScreenData))
+    { }
+  }
 
-  public class VideoSizeShortcut : MediaShortcutItem
-  { }
+  public class VideoSizeShortcut : MediaScreenShortcutItem
+  {
+    public VideoSizeShortcut()
+    {
+      // ToDo: Add video size filter...
+    }
+  }
 
   public class VideoSearchShortcut : SearchShortcutItem
-  { }
+  {
+    public VideoSearchShortcut()
+      : base(Consts.WF_STATE_ID_VIDEOS_NAVIGATION_ROOT, typeof(VideosSimpleSearchScreenData))
+    { }
+  }
 }

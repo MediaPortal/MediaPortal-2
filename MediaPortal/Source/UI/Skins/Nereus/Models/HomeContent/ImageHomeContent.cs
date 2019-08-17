@@ -23,7 +23,9 @@
 #endregion
 
 using MediaPortal.UI.Presentation.DataObjects;
+using MediaPortal.UiComponents.Media.General;
 using MediaPortal.UiComponents.Media.Models;
+using MediaPortal.UiComponents.Media.Models.ScreenData;
 using System.Collections.Generic;
 
 namespace MediaPortal.UiComponents.Nereus.Models.HomeContent
@@ -71,17 +73,37 @@ namespace MediaPortal.UiComponents.Nereus.Models.HomeContent
   }
 
   public class ImageYearShortcut : YearShortcutItem
-  { }
+  {
+    public ImageYearShortcut()
+      : base(Consts.WF_STATE_ID_IMAGES_NAVIGATION_ROOT, typeof(ImagesFilterByYearScreenData))
+    { }
+  }
 
-  public class ImageLocationShortcut : MediaShortcutItem
-  { }
+  public class ImageLocationShortcut : MediaScreenShortcutItem
+  {
+    public ImageLocationShortcut()
+      : base(Consts.WF_STATE_ID_IMAGES_NAVIGATION_ROOT, typeof(ImagesFilterByCityScreenData))
+    { }
+  }
 
-  public class ImageSystemShortcut : MediaShortcutItem
-  { }
+  public class ImageSystemShortcut : MediaScreenShortcutItem
+  {
+    public ImageSystemShortcut()
+      : base(Consts.WF_STATE_ID_IMAGES_NAVIGATION_ROOT, typeof(ImagesFilterBySystemScreenData))
+    { }
+  }
 
-  public class ImageSizeShortcut : MediaShortcutItem
-  { }
+  public class ImageSizeShortcut : MediaScreenShortcutItem
+  {
+    public ImageSizeShortcut()
+      : base(Consts.WF_STATE_ID_IMAGES_NAVIGATION_ROOT, typeof(ImagesFilterBySizeScreenData))
+    { }
+  }
 
   public class ImageSearchShortcut : SearchShortcutItem
-  { }
+  {
+    public ImageSearchShortcut()
+      : base(Consts.WF_STATE_ID_IMAGES_NAVIGATION_ROOT, typeof(ImagesSimpleSearchScreenData))
+    { }
+  }
 }
