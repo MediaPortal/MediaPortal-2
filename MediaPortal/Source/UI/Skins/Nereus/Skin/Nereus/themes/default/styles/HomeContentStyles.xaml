@@ -1731,7 +1731,7 @@
       <Setter.Value>
         <ControlTemplate TargetType="{x:Type ListView}">
           <ScrollViewer CanContentScroll="False" HorizontalScrollBarVisibility="Hidden" VerticalScrollBarVisibility="Hidden"
-            Style="{ThemeResource HomeTilesAnimatedScrollViewerStyle}">
+                        Style="{ThemeResource HomeTilesAnimatedScrollViewerStyle}">
             <ItemsPresenter VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
           </ScrollViewer>
         </ControlTemplate>
@@ -2484,7 +2484,7 @@
   <!--++++++++++ Other Plugins +++++++++++-->
 
   <Style x:Key="PluginTilesListViewStyle" BasedOn="{ThemeResource HomeTilesListViewStyle}">
-    <Setter Property="ItemTemplate" Value="{ThemeResource HomeMenuItemDataTemplate}"/>
+    <Setter Property="ItemTemplate" Value="{ThemeResource OtherMenuItemDataTemplate}"/>
     <Setter Property="ItemContainerStyle" Value="{ThemeResource HomeItemContainerStyle}"/>
 
     <Setter Property="ItemsPanel">
