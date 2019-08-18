@@ -2635,7 +2635,7 @@
       </ListView.Resources>
     </-->
 
-      <Control Context="{Binding Path=Items, Converter={StaticResource ListToGridConverter}, ConverterParameter=Test}"
+      <Control Context="{Binding Path=Items, Converter={StaticResource ListToGridConverter}, ConverterParameter=[Nereus.Home.OtherPlugins]}"
                Style="{ThemeResource MediaGridTemplateStyle}" Width="1300">
         <Control.Resources>
           <ResourceWrapper x:Key="Square_Tile_Template" Value="{ThemeResource OtherPluginsControlTemplate}"/>
