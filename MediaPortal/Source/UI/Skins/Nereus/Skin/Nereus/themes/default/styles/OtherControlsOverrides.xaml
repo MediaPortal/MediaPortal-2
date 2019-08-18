@@ -525,7 +525,7 @@
   </DataTemplate>
 
   <DataTemplate x:Key="OtherMenuItemDataTemplate">
-    <Grid x:Name="ItemControl" Margin="6" Height="159">
+    <Grid x:Name="ItemControl" Margin="2" Height="159">
       <Grid.ColumnDefinitions>
         <ColumnDefinition Width="170"/>
       </Grid.ColumnDefinitions>
@@ -534,7 +534,7 @@
         <RowDefinition Height="Auto"/>
       </Grid.RowDefinitions>
 
-      <!--Image Source="square_small.png" Stretch="Fill" Margin="-4"/-->
+      <Image Grid.RowSpan="2" Source="square_small.png" Stretch="Fill" Margin="-6"/>
       <Rectangle Grid.RowSpan="2" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
         <Rectangle.Fill>
           <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
@@ -544,7 +544,8 @@
           </MultiBinding>
         </Rectangle.Fill>
       </Rectangle>
-      <Image x:Name="ItemImage" Grid.RowSpan="2" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Stretch="Fill" Opacity="0.7">
+      
+      <Image x:Name="ItemImage" Grid.RowSpan="2" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Stretch="Fill">
         <Image.Source>
           <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0}+{1}">
             <Binding Source="HomeMenu\"/>
@@ -724,6 +725,52 @@
     </Setter>
     <Setter TargetName="GrowControl" Property="Margin" Value="-10,0"/>
     <Setter TargetName="ButtonContentPresenter" Property="Margin" Value="20,0"/>
+  </Style>
+
+  <Style x:Key="OtherItemContainerStyle" BasedOn="{ThemeResource DefaultItemContainerStyle}">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="{x:Type ListViewItem}">
+          <Button Style="{ThemeResource OtherButtonStyle}"
+                  Command="{DynamicResource ResourceKey=Menu_Command}"
+                  IsEnabled="{Binding Enabled}" SetFocus="{Binding Path=Selected,Mode=OneTime}">
+            <Button.Triggers>
+              <Trigger Property="HasFocus" Value="True">
+                <Setter TargetName="ItemLabel" Property="Scroll" Value="Auto"/>
+                <Trigger.EnterActions>
+                  <BeginStoryboard x:Name="SlideOut">
+                    <BeginStoryboard.Storyboard>
+                      <Storyboard>
+                        <DoubleAnimation BeginTime="00:00:00" From="0" To="1" Duration="00:00:00.7" DecelerationRatio="1"
+                                         FillBehavior="HoldEnd" Storyboard.TargetName="ItemBandGrid" 
+                                         Storyboard.TargetProperty="RenderTransform.Children[0].ScaleY">
+                          <DoubleAnimation.EasingFunction>
+                            <BackEase Amplitude="0.6" EasingMode="EaseOut"/>
+                          </DoubleAnimation.EasingFunction>
+                        </DoubleAnimation>
+                      </Storyboard>
+                    </BeginStoryboard.Storyboard>
+                  </BeginStoryboard>
+                </Trigger.EnterActions>
+                <Trigger.ExitActions>
+                  <BeginStoryboard x:Name="SlideBack">
+                    <BeginStoryboard.Storyboard>
+                      <Storyboard>
+                        <DoubleAnimation
+                           Storyboard.TargetName="ItemBandGrid"
+                           Storyboard.TargetProperty="RenderTransform.Children[0].ScaleY"
+                           From="1" To="0" BeginTime="0:0:0" Duration="00:00:00.35"
+                           FillBehavior="HoldEnd"/>
+                      </Storyboard>
+                    </BeginStoryboard.Storyboard>
+                  </BeginStoryboard>
+                </Trigger.ExitActions>
+              </Trigger>
+            </Button.Triggers>
+          </Button>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
   </Style>
 
   <Style x:Key="HomeItemContainerStyleHorizontal" BasedOn="{ThemeResource HomeItemContainerStyle}">
