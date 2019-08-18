@@ -30,17 +30,6 @@
   Format has to be a ";" delimited list of Guids
   -->
   <!--ResourceWrapper x:Key="ActionIdFilter">
-    D5D980B9-EB3C-4f07-AB20-0684C35D2764;
-    652C8DEE-38F8-4479-BBB3-F25557641E60;
-    63935BB2-3434-482b-BE52-EBE787522EA7;
-    D83604C0-0936-4416-9DE8-7B6D7C50023C;
-    36FA3773-8428-4e0c-BE5B-4ECFF5A5E11F;
-    9C3E6701-6856-49ec-A4CD-0CEB15F385F6;
-    985AD907-0EDB-4feb-AA99-2B52DDEADE6F;
-    09eae702-d9ec-4325-82d9-4843502c966b
-  </-->
-
-  <ResourceWrapper x:Key="ActionIdFilter">
     bb49a591-7705-408f-8177-45d633fdfad0;
     b4a9199f-6dd4-4bda-a077-de9c081f7703;
     30f57cba-459c-4202-a587-09fff5098251;
@@ -52,6 +41,11 @@
     a4df2df6-8d66-479a-9930-d7106525eb07;
     a24958e2-538a-455e-a1db-a7bb241aF7ec;
     2ded75c0-5eae-4e69-9913-6b50a9ab2956
+  </-->
+
+  <ResourceWrapper x:Key="ActionIdFilter">
+    93442DF7-186D-42e5-A0F5-CF1493E68F49;
+    F6255762-C52A-4231-9E67-14C28735216E
   </ResourceWrapper>
 
   <!-- default brush used to paint the background of a page/window -->

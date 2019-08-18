@@ -769,7 +769,7 @@
     <Content Include="Skin\Nereus\themes\simple\images\HomeMenu\C33E39CC-910E-41C8-BFFD-9ECCD340B569.png" />
     <Content Include="Skin\Nereus\themes\simple\images\HomeMenu\E34FDB62-1F3E-4aa9-8A61-D143E0AF77B5.png" />
     <Content Include="Skin\Nereus\themes\simple\theme.xml" />
-    <Content Include="Skin\Nereus\workflow\wmc-actions.xml" />
+    <Content Include="Skin\Nereus\workflow\nereus-actions.xml" />
     <Content Include="Skin\Nereus\themes\default\styles\Consts.xaml" />
     <Content Include="plugin.xml">
       <SubType>Designer</SubType>
