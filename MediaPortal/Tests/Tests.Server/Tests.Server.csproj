@@ -61,6 +61,7 @@
     <Compile Include="Backend\TestMediaItemAspectMetadata.cs" />
     <Compile Include="Backend\TestQueryEngine.cs" />
     <Compile Include="Backend\TestReconciler.cs" />
+    <Compile Include="Backend\TestUserProfile.cs" />
     <Compile Include="Backend\TestUtils.cs" />
     <Compile Include="FanArt\FanArtHandlersForTests\AudioFanArtHandlerForTests.cs" />
     <Compile Include="FanArt\FanArtHandlersForTests\BaseFanArtHandlerForTests.cs" />

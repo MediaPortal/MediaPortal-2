@@ -44,6 +44,7 @@ namespace MediaPortal.Common.UserProfileDataManagement
     public const string KEY_INCLUDE_UNRATED_CONTENT = "IncludeUnratedContent"; //Include media items for which a parent is required
     public const string KEY_CHANNEL_PLAY_COUNT = "ChannelPlayCount"; //Number of hours a user played a channel
     public const string KEY_CHANNEL_PLAY_DATE = "ChannelPlayDate"; //Date the channel was last played
+    public const string KEY_FEATURE_USAGE_STATS = "FeatureUsageStats"; //Structure with statistics for feature usage
 
     public static string GetSortablePlayCountString(long value)
     {
