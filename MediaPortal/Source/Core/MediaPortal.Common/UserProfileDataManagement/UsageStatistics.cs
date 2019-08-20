@@ -59,7 +59,6 @@ namespace MediaPortal.Common.UserProfileDataManagement
   [Serializable]
   public class UsageStatisticsList : List<UsageStatistics>
   {
-
     private static readonly XmlSerializer _serializer = new XmlSerializer(typeof(UsageStatisticsList));
 
     public static UsageStatisticsList Deserialize(string serializedStatistics)
@@ -113,12 +112,42 @@ namespace MediaPortal.Common.UserProfileDataManagement
     public const int MAX_STORED_ENTRIES = 20;
     public const int MAX_RETURNED_ENTRIES = 6;
 
+    private static readonly XmlSerializer _serializer = new XmlSerializer(typeof(UsageStatistics));
+
     [XmlAttribute("s")]
     public string Scope { get; set; }
     [XmlElement("t")]
     public List<NameCount> TopUsed { get; set; } = new List<NameCount>();
     [XmlElement("l")]
     public List<NameTime> LastUsed { get; set; } = new List<NameTime>();
+
+    public static UsageStatistics Deserialize(string serializedStatistics)
+    {
+      using (TextReader reader = new StringReader(serializedStatistics))
+        return (UsageStatistics)_serializer.Deserialize(reader);
+    }
+
+    public static UsageStatistics Deserialize(XmlReader reader)
+    {
+      return (UsageStatistics)_serializer.Deserialize(reader);
+    }
+
+    public string Serialize(int maxEntries = MAX_STORED_ENTRIES, XmlWriter xw = null)
+    {
+      XmlWriterSettings settings = new XmlWriterSettings { OmitXmlDeclaration = true };
+      XmlSerializerNamespaces ns = new XmlSerializerNamespaces();
+      ns.Add("", "");
+      StringBuilder sb = new StringBuilder();
+      bool created = xw == null;
+      using (TextWriter sw = new StringWriter(sb))
+      {
+        xw = xw ?? XmlWriter.Create(sw, settings);
+        _serializer.Serialize(xw, LimitEntries(maxEntries), ns);
+        if (created)
+          xw.Dispose();
+      }
+      return sb.ToString();
+    }
 
     public UsageStatistics LimitEntries(int maxEntries = MAX_STORED_ENTRIES)
     {

@@ -468,6 +468,7 @@
     <Compile Include="UPnP\UPnPDtDictionary.cs" />
     <Compile Include="UPnP\UPnPDtMediaCategoryEnumeration.cs" />
     <Compile Include="UPnP\UPnPDtRelationshipItemEnumeration.cs" />
+    <Compile Include="UPnP\UPnPDtUsageStatistics.cs" />
     <Compile Include="UPnP\UPnPSystemResumeHelper.cs" />
     <Compile Include="UPnP\UPnPTypesAndIds.cs" />
     <Compile Include="UPnP\UPnPExtendedDataTypes.cs" />
