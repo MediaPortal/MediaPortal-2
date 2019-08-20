@@ -87,6 +87,7 @@ namespace MediaPortal.Common.UPnP
       AddDataType(DtUsageStatistics);
       AddDataType(DtDictionaryGuidDateTime);
       AddDataType(DtDictionaryGuidInt32);
+      AddDataType(DtRelationshipItemEnumeration);
     }
 
     public static void AddDataType(UPnPExtendedDataType type)
