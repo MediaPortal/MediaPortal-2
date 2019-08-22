@@ -51,6 +51,8 @@ namespace MediaPortal.Extensions.MetadataExtractors.OCVVideoThumbnailer
     /// </summary>
     public static Guid METADATAEXTRACTOR_ID = new Guid(METADATAEXTRACTOR_ID_STR);
 
+    private const double DEFAULT_THUMBNAIL_OFFSET = 1.0 / 3.0;
+
     #endregion
 
     #region Protected fields and classes
@@ -156,8 +158,8 @@ namespace MediaPortal.Extensions.MetadataExtractors.OCVVideoThumbnailer
       {
         if ((videoDuration = videoAspects[0].GetAttributeValue<long>(VideoStreamAspect.ATTR_DURATION)) > 0)
         {
-          if (defaultVideoOffset > videoDuration * 1 / 3)
-            defaultVideoOffset = Convert.ToInt32(videoDuration * 1 / 3);
+          if (defaultVideoOffset > videoDuration * DEFAULT_THUMBNAIL_OFFSET)
+            defaultVideoOffset = Convert.ToInt32(videoDuration * DEFAULT_THUMBNAIL_OFFSET);
         }
 
         width = videoAspects[0].GetAttributeValue<int>(VideoStreamAspect.ATTR_WIDTH);
@@ -175,7 +177,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.OCVVideoThumbnailer
           {
             var duration = capture.FrameCount / capture.Fps;
             if (defaultVideoOffset > duration)
-              capturePos = Convert.ToInt32(duration * 300);
+              capturePos = Convert.ToInt32(duration * DEFAULT_THUMBNAIL_OFFSET * 1000);
           }
           if (capture.FrameWidth > 0 && width == 0)
           {
