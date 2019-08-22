@@ -143,7 +143,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
         return false;
 
       extractedLinkedAspects.Clear();
-      foreach (PersonInfo person in actors)
+      foreach (PersonInfo person in actors.Take(NfoSeriesMetadataExtractor.MaximumActorCount))
       {
         if (person.SetLinkedMetadata() && person.LinkedAspects.ContainsKey(ExternalIdentifierAspect.ASPECT_ID))
           extractedLinkedAspects.Add(person.LinkedAspects);

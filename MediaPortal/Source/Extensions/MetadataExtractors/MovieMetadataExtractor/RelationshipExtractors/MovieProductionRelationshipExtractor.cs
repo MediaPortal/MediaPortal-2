@@ -89,9 +89,6 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
 
     public async Task<bool> TryExtractRelationshipsAsync(IResourceAccessor mediaItemAccessor, IDictionary<Guid, IList<MediaItemAspect>> aspects, IList<IDictionary<Guid, IList<MediaItemAspect>>> extractedLinkedAspects)
     {
-      if (!MovieMetadataExtractor.IncludeProductionCompanyDetails)
-        return false;
-
       if (BaseInfo.IsVirtualResource(aspects))
         return false;
 
@@ -99,7 +96,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
       if (!movieInfo.FromMetadata(aspects))
         return false;
 
-      if (!MovieMetadataExtractor.SkipOnlineSearches)
+      if (MovieMetadataExtractor.IncludeProductionCompanyDetails && !MovieMetadataExtractor.SkipOnlineSearches)
         await OnlineMatcherService.Instance.UpdateCompaniesAsync(movieInfo, CompanyAspect.COMPANY_PRODUCTION).ConfigureAwait(false);
 
       foreach (CompanyInfo company in movieInfo.ProductionCompanies)

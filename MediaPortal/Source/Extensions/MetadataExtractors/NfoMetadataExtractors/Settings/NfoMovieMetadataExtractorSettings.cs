@@ -40,6 +40,8 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.Settin
 
     // A valid IMDB-ID starts with "tt" followed by exactly 7 digits
     private const string REGEX_STRING_IMDBID = @"(tt\d{7})";
+    private const int DEFAULT_MAXIMUM_ACTOR_COUNT = 10;
+    private const int DEFAULT_MAXIMUM_CHARACTER_COUNT = 10;
 
     #endregion
 
@@ -94,6 +96,18 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.Settin
     /// </summary>
     [Setting(SettingScope.Global, true)]
     public bool IncludeDirectorDetails { get; set; }
+
+    /// <summary>
+    /// The maximum number of actors to extract.
+    /// </summary>
+    [Setting(SettingScope.Global, DEFAULT_MAXIMUM_ACTOR_COUNT)]
+    public int MaximumActorCount { get; set; }
+
+    /// <summary>
+    /// The maximum number of characters to extract.
+    /// </summary>
+    [Setting(SettingScope.Global, DEFAULT_MAXIMUM_CHARACTER_COUNT)]
+    public int MaximumCharacterCount { get; set; }
 
     #endregion
   }

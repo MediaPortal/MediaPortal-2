@@ -88,9 +88,6 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
 
     public async Task<bool> TryExtractRelationshipsAsync(IResourceAccessor mediaItemAccessor, IDictionary<Guid, IList<MediaItemAspect>> aspects, IList<IDictionary<Guid, IList<MediaItemAspect>>> extractedLinkedAspects)
     {
-      if (!SeriesMetadataExtractor.IncludeProductionCompanyDetails)
-        return false;
-
       SeriesInfo seriesInfo = new SeriesInfo();
       if (!seriesInfo.FromMetadata(aspects))
         return false;
@@ -98,7 +95,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
       if (RelationshipExtractorUtils.TryCreateInfoFromLinkedAspects(extractedLinkedAspects, out List<CompanyInfo> companies))
         seriesInfo.ProductionCompanies = companies;
 
-      if (!SeriesMetadataExtractor.SkipOnlineSearches)
+      if (SeriesMetadataExtractor.IncludeProductionCompanyDetails && !SeriesMetadataExtractor.SkipOnlineSearches)
         await OnlineMatcherService.Instance.UpdateSeriesCompaniesAsync(seriesInfo, CompanyAspect.COMPANY_PRODUCTION).ConfigureAwait(false);
       
       foreach (CompanyInfo company in seriesInfo.ProductionCompanies)

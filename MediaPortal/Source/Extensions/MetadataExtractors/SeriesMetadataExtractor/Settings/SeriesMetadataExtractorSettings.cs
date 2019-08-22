@@ -146,8 +146,8 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor.Sett
   /// </summary>
   public class SeriesMetadataExtractorSettings
   {
-    private const int DEFAULT_MAXIMUM_ACTOR_COUNT = 10;
-    private const int DEFAULT_MAXIMUM_CHARACTER_COUNT = 10;
+    private const int DEFAULT_MAXIMUM_ACTOR_COUNT = 20;
+    private const int DEFAULT_MAXIMUM_CHARACTER_COUNT = 20;
 
     public SeriesMetadataExtractorSettings()
     {
