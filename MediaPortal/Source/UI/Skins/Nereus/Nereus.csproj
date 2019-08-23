@@ -588,8 +588,6 @@
     <Content Include="Skin\Nereus\images\PlayerControl\UP_FOCUS.png" />
     <Content Include="Skin\Nereus\images\PlayerControl\UP_NOFOCUS.png" />
     <Content Include="Skin\Nereus\images\preview.png" />
-    <Content Include="Skin\Nereus\images\RECORD.SERIES.PNG" />
-    <Content Include="Skin\Nereus\images\RECORD.SINGLE.PNG" />
     <Content Include="Skin\Nereus\images\watched.png" />
     <Content Include="Skin\Nereus\images\Weather\128x128\0.png" />
     <Content Include="Skin\Nereus\images\Weather\128x128\1.png" />
