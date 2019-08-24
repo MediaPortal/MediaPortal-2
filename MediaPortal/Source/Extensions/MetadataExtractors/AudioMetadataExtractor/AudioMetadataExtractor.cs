@@ -234,6 +234,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
     public static bool CacheLocalFanArt { get; private set; }
     public static bool IncludeArtistDetails { get; private set; }
     public static bool IncludeComposerDetails { get; private set; }
+    public static bool IncludeConductorDetails { get; private set; }
     public static bool IncludeMusicLabelDetails { get; private set; }
 
     private void LoadSettings()
@@ -244,6 +245,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
       CacheLocalFanArt = _settingWatcher.Settings.CacheLocalFanArt;
       IncludeArtistDetails = _settingWatcher.Settings.IncludeArtistDetails;
       IncludeComposerDetails = _settingWatcher.Settings.IncludeComposerDetails;
+      IncludeConductorDetails = _settingWatcher.Settings.IncludeConductorDetails;
       IncludeMusicLabelDetails = _settingWatcher.Settings.IncludeMusicLabelDetails;
     }
 

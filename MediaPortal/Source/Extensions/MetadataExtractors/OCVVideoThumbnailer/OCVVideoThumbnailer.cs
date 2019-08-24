@@ -148,6 +148,8 @@ namespace MediaPortal.Extensions.MetadataExtractors.OCVVideoThumbnailer
       // Check for a reasonable time offset
       int defaultVideoOffset = 720;
       long videoDuration;
+      double width = 0;
+      double height = 0;
       double downscale = 2; // Reduces the video frame size to a half of original
       IList<MultipleMediaItemAspect> videoAspects;
       if (MediaItemAspect.TryGetAspects(extractedAspectData, VideoStreamAspect.Metadata, out videoAspects))
@@ -158,8 +160,8 @@ namespace MediaPortal.Extensions.MetadataExtractors.OCVVideoThumbnailer
             defaultVideoOffset = Convert.ToInt32(videoDuration * 1 / 3);
         }
 
-        double width = videoAspects[0].GetAttributeValue<int>(VideoStreamAspect.ATTR_WIDTH);
-        double height = videoAspects[0].GetAttributeValue<int>(VideoStreamAspect.ATTR_HEIGHT);
+        width = videoAspects[0].GetAttributeValue<int>(VideoStreamAspect.ATTR_WIDTH);
+        height = videoAspects[0].GetAttributeValue<int>(VideoStreamAspect.ATTR_HEIGHT);
         downscale = width / 256.0; //256 is max size of large thumbnail aspect
       }
 
@@ -168,13 +170,25 @@ namespace MediaPortal.Extensions.MetadataExtractors.OCVVideoThumbnailer
         using (VideoCapture capture = new VideoCapture())
         {
           capture.Open(lfsra.LocalFileSystemPath);
-          capture.PosMsec = defaultVideoOffset * 1000;
+          int capturePos = defaultVideoOffset * 1000;
+          if (capture.FrameCount > 0 && capture.Fps > 0)
+          {
+            var duration = capture.FrameCount / capture.Fps;
+            if (defaultVideoOffset > duration)
+              capturePos = Convert.ToInt32(duration * 300);
+          }
+          if (capture.FrameWidth > 0 && width == 0)
+          {
+            width = capture.FrameWidth;
+            downscale = width / 256.0; //256 is max size of large thumbnail aspect
+          }
+          capture.PosMsec = capturePos;
           using (var mat = capture.RetrieveMat())
           {
             if (mat.Height > 0 && mat.Width > 0)
             {
-              double width = mat.Width;
-              double height = mat.Height;
+              width = mat.Width;
+              height = mat.Height;
               ServiceRegistration.Get<ILogger>().Debug("OCVVideoThumbnailer: Scaling thumbnail of size {1}x{2} for resource '{0}'", lfsra.LocalFileSystemPath, width, height);
               using (var scaledMat = mat.Resize(new OpenCvSharp.Size(width / downscale, height / downscale)))
               {
