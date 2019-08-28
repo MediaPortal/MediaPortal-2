@@ -36,18 +36,6 @@ namespace MediaPortal.UiComponents.Nereus.Models.HomeContent
   {
     protected AbstractProperty _hasItemsProperty = new WProperty(typeof(bool), false);
 
-    protected AbstractProperty _item1Property = new WProperty(typeof(object), null);
-    protected AbstractProperty _item2Property = new WProperty(typeof(object), null);
-    protected AbstractProperty _item3Property = new WProperty(typeof(object), null);
-    protected AbstractProperty _item4Property = new WProperty(typeof(object), null);
-    protected AbstractProperty _item5Property = new WProperty(typeof(object), null);
-    protected AbstractProperty _item6Property = new WProperty(typeof(object), null);
-
-    protected AbstractProperty[] _itemProperties;
-
-    protected IList<ListItem> _itemsList;
-    protected IObservable _observable;
-
     public ItemsListWrapper(IList<ListItem> itemsList)
       : this(itemsList, string.Empty)
     { }
@@ -55,7 +43,7 @@ namespace MediaPortal.UiComponents.Nereus.Models.HomeContent
     public ItemsListWrapper(IList<ListItem> itemsList, string name)
       : base(Consts.KEY_NAME, name)
     {
-      _itemProperties = new[] { _item1Property, _item2Property, _item3Property, _item4Property, _item5Property, _item6Property };
+      AdditionalProperties["SubItems"] = itemsList;
       AttachToItemsList(itemsList);
     }
 
@@ -72,108 +60,25 @@ namespace MediaPortal.UiComponents.Nereus.Models.HomeContent
       set { _hasItemsProperty.SetValue(value); }
     }
 
-    public AbstractProperty Item1Property
-    {
-      get { return _item1Property; }
-    }
-
-    public object Item1
-    {
-      get { return _item1Property.GetValue(); }
-      set { _item1Property.SetValue(value); }
-    }
-
-    public AbstractProperty Item2Property
-    {
-      get { return _item2Property; }
-    }
-
-    public object Item2
-    {
-      get { return _item2Property.GetValue(); }
-      set { _item2Property.SetValue(value); }
-    }
-
-    public AbstractProperty Item3Property
-    {
-      get { return _item3Property; }
-    }
-
-    public object Item3
-    {
-      get { return _item3Property.GetValue(); }
-      set { _item3Property.SetValue(value); }
-    }
-
-    public AbstractProperty Item4Property
-    {
-      get { return _item4Property; }
-    }
-
-    public object Item4
-    {
-      get { return _item4Property.GetValue(); }
-      set { _item4Property.SetValue(value); }
-    }
-
-    public AbstractProperty Item5Property
-    {
-      get { return _item5Property; }
-    }
-
-    public object Item5
-    {
-      get { return _item5Property.GetValue(); }
-      set { _item5Property.SetValue(value); }
-    }
-
-    public AbstractProperty Item6Property
-    {
-      get { return _item6Property; }
-    }
-
-    public object Item6
-    {
-      get { return _item6Property.GetValue(); }
-      set { _item6Property.SetValue(value); }
-    }
-
     #endregion
 
     public void AttachToItemsList(IList<ListItem> list)
     {
-      DetachFromItemsList();
-
-      _itemsList = list;
       IObservable observable = list as IObservable;
       if (observable != null)
         observable.ObjectChanged += OnAttachedItemsChanged;
 
-      UpdateItemProperties();
-    }
-
-    public void DetachFromItemsList()
-    {
-      IObservable observable = _itemsList as IObservable;
-      _itemsList = null;
-      if (observable != null)
-        observable.ObjectChanged -= OnAttachedItemsChanged;
+      UpdateHasItemsProperty(list);
     }
 
     private void OnAttachedItemsChanged(IObservable observable)
     {
-      UpdateItemProperties();
+      UpdateHasItemsProperty(observable as IList<ListItem>);
     }
 
-    protected void UpdateItemProperties()
+    protected void UpdateHasItemsProperty(IList<ListItem> items)
     {
-      IList<ListItem> items = _itemsList;
-      bool hasItems = items != null && items.Count > 0;
-
-      for (int i = 0; i < _itemProperties.Length; i++)
-        _itemProperties[i].SetValue(hasItems && items.Count > i ? items[i] : null);
-
-      HasItems = hasItems;
+      HasItems = items != null && items.Count > 0;
     }
   }
 }
