@@ -62,7 +62,7 @@ namespace MediaPortal.Plugins.SlimTv.Interfaces.ResourceProvider
 
     public bool IsFile
     {
-      get { return true; }
+      get { return !Uri.TryCreate(ResourcePathName, UriKind.Absolute, out Uri result); }
     }
 
     public string Path

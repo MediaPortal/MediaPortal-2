@@ -167,6 +167,7 @@
     <Compile Include="Player\ILivePlayer.cs" />
     <Compile Include="Player\LiveRadioPlayer.cs" />
     <Compile Include="Player\LiveRadioUIContributor.cs" />
+    <Compile Include="Player\LiveTvStreamPlayer.cs" />
     <Compile Include="Player\WTVPlayer.cs" />
     <Compile Include="Player\LiveTvPlayer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
