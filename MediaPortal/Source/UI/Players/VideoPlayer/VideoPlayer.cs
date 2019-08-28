@@ -232,14 +232,15 @@ namespace MediaPortal.UI.Players.Video
 
       // Check if CC is added, in this case the EVR needs one more input pin
       VideoSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<VideoSettings>();
+      var streamCount = _streamCount;
       if (settings.EnableAtscClosedCaptions)
       {
-        _streamCount++;
+        streamCount++;
       }
 
       // Set the number of video/subtitle/cc streams that are allowed to be connected to EVR. This has to be done after the custom presenter is initialized.
       IEVRFilterConfig config = (IEVRFilterConfig)_evr;
-      config.SetNumberOfStreams(_streamCount);
+      config.SetNumberOfStreams(streamCount);
 
       _graphBuilder.AddFilter(_evr, EVR_FILTER_NAME);
     }
