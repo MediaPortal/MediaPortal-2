@@ -35,9 +35,9 @@ namespace MediaPortal.UiComponents.Nereus.Models.HomeContent
   {
     public OtherPluginsHomeContent(ItemsList items)
     {
-      Items = items;
+      OtherPlugins = items;
     }
 
-    public ItemsList Items { get; }
+    public ItemsList OtherPlugins { get; }
   }
 }

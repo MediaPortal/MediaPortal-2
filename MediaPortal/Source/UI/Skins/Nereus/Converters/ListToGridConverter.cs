@@ -25,6 +25,7 @@
 using MediaPortal.UI.Presentation.DataObjects;
 using MediaPortal.UI.SkinEngine.MpfElements.Converters;
 using MediaPortal.UiComponents.Nereus.Models.HomeContent;
+using MediaPortal.UiComponents.SkinBase.General;
 using System;
 using System.Globalization;
 
@@ -43,7 +44,9 @@ namespace MediaPortal.UiComponents.Nereus.Converters
       }
 
       string name = parameter as string;
-      result = new ItemsListWrapper(list, string.IsNullOrEmpty(name) ? string.Empty : name);
+      ListItem gridItem = new ListItem(Consts.KEY_NAME, name ?? string.Empty);
+      gridItem.AdditionalProperties["SubItems"] = list;
+      result = gridItem;
       return true;
     }
   }

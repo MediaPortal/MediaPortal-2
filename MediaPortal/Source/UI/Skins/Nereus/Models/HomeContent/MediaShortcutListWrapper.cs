@@ -32,12 +32,6 @@ namespace MediaPortal.UiComponents.Nereus.Models.HomeContent
     public MediaShortcutListWrapper(IList<ListItem> itemsList)
       : base(itemsList)
     {
-
-    }
-
-    public IList<ListItem> Items
-    {
-      get { return _itemsList; }
     }
   }
 }
