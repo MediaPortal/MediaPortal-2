@@ -229,27 +229,9 @@ namespace SlimTv.TvMosaicProvider
 
     public MediaItem CreateMediaItem(int slotIndex, string streamUrl, IChannel channel)
     {
-      LiveTvMediaItem tvStream = SlimTvMediaItemBuilder.CreateMediaItem(slotIndex, streamUrl, channel);
-      if (tvStream != null)
-      {
-        IList<MultipleMediaItemAspect> providerAspects;
-        if (MediaItemAspect.TryGetAspects(tvStream.Aspects, ProviderResourceAspect.Metadata, out providerAspects))
-        {
-          var providerResourceAspect = providerAspects.First();
-          providerResourceAspect.SetAttribute(ProviderResourceAspect.ATTR_MIME_TYPE, LiveTvMediaItem.MIME_TYPE_TV_STREAM);
-        }
-        // Add program infos to the LiveTvMediaItem
-        //IProgram currentProgram;
-        //if (GetCurrentProgram(channel, out currentProgram))
-        //  tvStream.AdditionalProperties[LiveTvMediaItem.CURRENT_PROGRAM] = currentProgram;
-
-        //IProgram nextProgram;
-        //if (GetNextProgram(channel, out nextProgram))
-        //  tvStream.AdditionalProperties[LiveTvMediaItem.NEXT_PROGRAM] = nextProgram;
-
-        return tvStream;
-      }
-      return null;
+      bool isTv = true;
+      LiveTvMediaItem tvStream = SlimTvMediaItemBuilder.CreateMediaItem(slotIndex, streamUrl, channel, isTv, LiveTvMediaItem.MIME_TYPE_TV_STREAM);
+      return tvStream;
     }
   }
 }
