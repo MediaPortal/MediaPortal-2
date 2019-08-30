@@ -1,0 +1,165 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<Include
+    xmlns="www.team-mediaportal.com/2008/mpf/directx"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    Source="screens\master_mediamenu.xaml"
+    xmlns:mp_special_controls="clr-namespace:MediaPortal.UI.SkinEngine.SpecialElements.Controls;assembly=SkinEngine">
+  
+  <Include.Resources>
+
+    <!-- Header -->
+    <ResourceWrapper x:Key="Header_Text" Resource="[News.Title]"/>
+
+    <!-- News model -->
+    <Model x:Key="Model" Id="D5B308C1-4585-4051-AB78-E10D17C3CC2D"/>
+
+    <ControlTemplate x:Key="TopGradient_Template">
+      <Border HorizontalAlignment="Stretch" VerticalAlignment="Stretch" BorderThickness="0" Margin="0,0,0,0" Panel.ZIndex="1000">
+        <Border.Background>
+          <LinearGradientBrush StartPoint="0.5,0" EndPoint="0.5,1">
+            <GradientStop Color="#E6000000" Offset="0" />
+            <GradientStop Color="#00000000" Offset="1" />
+          </LinearGradientBrush>
+        </Border.Background>
+      </Border>
+    </ControlTemplate>
+
+    <ControlTemplate x:Key="BottomGradient_Template">
+      <Border HorizontalAlignment="Stretch" VerticalAlignment="Bottom" BorderThickness="0" Margin="0,0,0,0" Height="100" Panel.ZIndex="1000">
+        <Border.Background>
+          <LinearGradientBrush StartPoint="0.5,0" EndPoint="0.5,1">
+            <GradientStop Color="#00000000" Offset="0" />
+            <GradientStop Color="#E6000000" Offset="1" />
+          </LinearGradientBrush>
+        </Border.Background>
+      </Border>
+    </ControlTemplate>
+
+    <ControlTemplate x:Key="FanArtBackground_Template">
+      <Grid>
+        <Image Stretch="Fill" Source="news_background.jpg"/>
+        <Image Stretch="Fill" Source="Background_GridView.png"/>
+      </Grid>
+    </ControlTemplate>
+
+    <ControlTemplate x:Key="Contents_Template">
+      <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch" 
+            Margin="0,-90,0,-270" DataContext="{Binding Source={StaticResource Model}}">
+        <Grid.ColumnDefinitions>
+          <ColumnDefinition Width="*"/>
+          <ColumnDefinition Width="1000"/>
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+          <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+
+        <Grid Grid.Column="1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="45,0,-20,0" Height="1200">
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="Auto"/>
+            <ColumnDefinition Width="*"/>
+          </Grid.ColumnDefinitions>
+          <Grid.RowDefinitions>
+            <RowDefinition Height="*"/>
+          </Grid.RowDefinitions>
+
+          <Image x:Name="FanArtImageBackground" Stretch="Fill" VerticalAlignment="Top" Source="news_background.jpg" HorizontalAlignment="Stretch" Height="600"
+                 IsVisible="{Binding Source={StaticResource SkinSettingsModel}, Path=[Nereus].EnableFanart}"/>
+          <Image Grid.RowSpan="2" Stretch="Fill" Source="List_overlay.png"/>
+          <Image Grid.RowSpan="2" Source="ContentGlow.png" Stretch="Uniform" VerticalAlignment="Stretch" HorizontalAlignment="Left" Margin="-20,0,0,0"/>
+
+          <Border Grid.RowSpan="2" BorderThickness="0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+            <Border.Background>
+              <LinearGradientBrush StartPoint="1,0.3" EndPoint="0,1">
+                <GradientStop Color="#44000000" Offset="0.0"/>
+                <GradientStop Color="#77000000" Offset="1"/>
+              </LinearGradientBrush>
+            </Border.Background>
+          </Border>
+        </Grid>
+
+        <ListView x:Name="newslist" Margin="-10,-20,-45,-20" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" SetFocus="true"
+                  Style="{ThemeResource NewsFeedsContainerStyle}" ItemsSource="{Binding Path=Feeds}" SetFocusPrio="Highest">
+          <ListView.Resources>
+            <ResourceWrapper x:Key="VerticalScrollbarRenderTransform" Value="{ThemeResource VerticalScrollbarRenderTransform}" />
+            <Command x:Key="Menu_Command" Source="{StaticResource Model}" Path="Select"
+                       Parameters="{LateBoundValue BindingValue={Binding}}"/>
+          </ListView.Resources>
+        </ListView>
+
+        <Grid Grid.Column="1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="70,300,0,80">
+          <Grid.RowDefinitions>
+            <RowDefinition Height="50*" />
+            <RowDefinition Height="50*" />
+          </Grid.RowDefinitions>
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="60*"  />
+            <ColumnDefinition Width="40*"  />
+          </Grid.ColumnDefinitions>
+
+          <Image Grid.Column="1" Grid.Row="1" Stretch="Uniform" DataContext="{Binding ElementName=newslist,Path=CurrentItem}" MaxHeight="250"
+                 HorizontalAlignment="Right" VerticalAlignment="Top" Margin="10,10,30,0">
+            <Image.Source>
+              <ImageSourceWrapper Delay="0" DelayInOut="true" Transition="transitions\dissolve" FallbackSource="RssIcon.png"
+                                  TransitionDuration="0" VerticalTextureAlignment="Top" HorizontalTextureAlignment="Right"
+                                  Source="{Binding Path=Icon}"/>
+            </Image.Source>
+          </Image>
+
+          <StackPanel Orientation="Vertical" Grid.ColumnSpan="2" Grid.Row="0" Margin="5">
+            <Label DataContext="{Binding ElementName=newslist,Path=CurrentItem}" Color="{ThemeResource TextColor}" 
+                   FontSize="{ThemeResource NormalFontSize}" FontFamily="SegoeUIBold"
+                   Content="{Binding Title}" Margin="0,0,0,10" Wrap="True" VerticalAlignment="Stretch" />
+            <Grid>
+              <Image Source="HomeContentIcons\year.png" Height="30" Width="30" Stretch="Uniform" Margin="0,0,5,0"
+                     VerticalAlignment="Center" HorizontalAlignment="Left"/>
+              <Label VerticalAlignment="Center" HorizontalAlignment="Left" DataContext="{Binding ElementName=newslist,Path=CurrentItem}"
+                     Content="{Binding Path=LastUpdated, Converter={StaticResource DateFormatConverter}, ConverterParameter=g}"
+                     FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColorForeground}" Margin="40,0,0,0"/>
+            </Grid>
+            <Grid>
+              <Image Source="HomeContentIcons\news.png" Height="30" Width="30" Stretch="Uniform" Margin="0,0,5,0"
+                     VerticalAlignment="Center" HorizontalAlignment="Left"/>
+              <Label VerticalAlignment="Center" HorizontalAlignment="Left" DataContext="{Binding ElementName=newslist,Path=CurrentItem}"
+                     Content="{Binding Path=Items.Count}"
+                     FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColorForeground}" Margin="40,0,0,0"/>
+            </Grid>
+          </StackPanel>
+          
+          <Label Grid.Row="1" DataContext="{Binding ElementName=newslist,Path=CurrentItem}" 
+                 Color="{ThemeResource TextColor}" Opacity="0.5" FontSize="{ThemeResource SmallFontSize}"
+                 Content="{Binding Description}" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" 
+                 Wrap="True" Margin="0,40,0,0" TextTrimming="WordEllipsis"/>
+        </Grid>
+
+        <!-- Updating Overlay -->
+        <Label Content="Refreshing Data ..." IsVisible="{Binding IsUpdating}" 
+               Color="{ThemeResource HintTextColor}" FontSize="{ThemeResource SmallFontSize}" 
+               HorizontalAlignment="Center" VerticalAlignment="Center"/>
+
+        <DockPanel Grid.Column="1" VerticalAlignment="Bottom" HorizontalAlignment="Left" IsVisible="{Binding IsItemsValid}">
+          <StackPanel DockPanel.Dock="Right" Margin="65,-80,25,80" Orientation="Horizontal">
+            <Label HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0,0,10,0"
+                   Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallerFontSize}">
+              <Label.Content>
+                <MultiBinding Converter="{StaticResource GetIndexMultiConverter}" ConverterParameter="1">
+                  <Binding ElementName="newslist" Path="CurrentItem"/>
+                  <Binding ElementName="newslist" Path="ItemsSource"/>
+                </MultiBinding>
+              </Label.Content>
+            </Label>
+            <Label Color="{ThemeResource TextColorForeground}" Content="| " FontSize="{ThemeResource SmallerFontSize}"/>
+            <Label Color="{ThemeResource TextColorForeground}" FontSize="{ThemeResource SmallerFontSize}">
+              <Label.Content>
+                <Binding ElementName="newslist" Path="ItemsCount" />
+              </Label.Content>
+            </Label>
+          </StackPanel>
+        </DockPanel>
+
+      </Grid>
+
+    </ControlTemplate>
+  </Include.Resources>
+</Include>

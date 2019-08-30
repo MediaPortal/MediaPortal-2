@@ -45,6 +45,11 @@ namespace MediaPortal.UiComponents.Media.Models.NavigationModel
     public Type DefaultScreenType { get; set; }
 
     /// <summary>
+    /// Whether to ignore the saved screen hierarchy and always show the <see cref="DefaultScreenType"/>.
+    /// </summary>
+    public bool AlwaysUseDefaultScreen { get; set; }
+
+    /// <summary>
     /// Media item id to use to apply a MediaItemIdFilter to the root media view.
     /// </summary>
     public Guid? LinkedId { get; set; }

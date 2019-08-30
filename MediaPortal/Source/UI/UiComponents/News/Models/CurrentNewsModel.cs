@@ -25,6 +25,9 @@
 using MediaPortal.UI.Presentation.Models;
 using MediaPortal.Common;
 using MediaPortal.Common.General;
+using MediaPortal.UI.Presentation.DataObjects;
+using System.Linq;
+using System;
 
 namespace MediaPortal.UiComponents.News.Models
 {
@@ -34,8 +37,13 @@ namespace MediaPortal.UiComponents.News.Models
     /// Update interval for the current news item.
     /// </summary>
     const long NEWSITEM_UPDATE_INTERVAL = 10 * 1000;
+    const int NEWSITEM_TOP_COUNT = 10;
 
     protected readonly AbstractProperty _currentNewsItemProperty = new WProperty(typeof(NewsItem), new NewsItem());
+    protected ItemsList _currentNewsItems = new ItemsList();
+    protected ItemsList _currentTopNewsItems = new ItemsList();
+    protected ItemsList _currentFeedItems = new ItemsList();
+    protected bool _inited = false;
 
     /// <summary>
     /// Exposes the current news item to the skin.
@@ -54,9 +62,34 @@ namespace MediaPortal.UiComponents.News.Models
       set { _currentNewsItemProperty.SetValue(value); }
     }
 
+    /// <summary>
+    /// Current news items ordered by date
+    /// </summary>
+    public ItemsList CurrentNewsItems
+    {
+      get { return _currentNewsItems; }
+    }
+
+    /// <summary>
+    /// Current top news items ordered by date
+    /// </summary>
+    public ItemsList CurrentTopNewsItems
+    {
+      get { return _currentTopNewsItems; }
+    }
+
+    /// <summary>
+    /// Current news feeds ordered by date
+    /// </summary>
+    public ItemsList CurrentNewsFeeds
+    {
+      get { return _currentFeedItems; }
+    }
+
     public CurrentNewsModel()
       : base(true, 100)
     {
+      _inited = false;
     }
 
     protected override void Update()
@@ -69,8 +102,40 @@ namespace MediaPortal.UiComponents.News.Models
         {
           newNewsItem.CopyTo(CurrentNewsItem);
 
-          // Decrease interval once we have the first item
-          ChangeInterval(NEWSITEM_UPDATE_INTERVAL);
+          var feeds = newsCollector.GetAllFeeds().OrderByDescending(f => f.LastUpdated);
+          //Only update if changed
+          if (!feeds.Select(f => f.LastUpdated).SequenceEqual(_currentFeedItems.Select(f => (f as NewsFeed)?.LastUpdated ?? DateTime.Now)))
+          {
+            _currentFeedItems.Clear();
+            foreach (var feed in feeds)
+            {
+              _currentFeedItems.Add(feed);
+            }
+            _currentFeedItems.FireChange();
+          }
+
+          var items = newsCollector.GetAllNewsItems().OrderByDescending(i => i.PublishDate);
+          //Only update if changed
+          if (!items.Select(i => i.PublishDate).SequenceEqual(_currentNewsItems.Select(i => (i as NewsItem)?.PublishDate ?? DateTime.Now)))
+          {
+            _currentNewsItems.Clear();
+            _currentTopNewsItems.Clear();
+            foreach (var newsItem in items)
+            {
+              _currentNewsItems.Add(newsItem);
+              if (_currentTopNewsItems.Count < NEWSITEM_TOP_COUNT)
+                _currentTopNewsItems.Add(newsItem);
+            }
+            _currentNewsItems.FireChange();
+            _currentTopNewsItems.FireChange();
+          }
+
+          if (!_inited)
+          {
+            // Decrease interval once we have the first item
+            ChangeInterval(NEWSITEM_UPDATE_INTERVAL);
+          }
+          _inited = true;
         }
       } 
     }

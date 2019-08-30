@@ -218,4 +218,9 @@
       <SubType>Designer</SubType>
     </Content>
   </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\Nereus\screens\UserManagement.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
 </Project>

@@ -44,6 +44,7 @@ namespace MediaPortal.UiComponents.News
     protected bool _forceRefresh = false;
     protected NewsItem _lastRandomNewsItem = null;
     protected List<NewsFeed> _feeds = new List<NewsFeed>();
+    protected List<NewsItem> _latestNewsItems = new List<NewsItem>();
     protected bool _refeshInProgress = false;
     protected SettingsChangeWatcher<NewsSettings> _settings = new SettingsChangeWatcher<NewsSettings>(true);
     IntervalWork _work = null;
@@ -62,14 +63,28 @@ namespace MediaPortal.UiComponents.News
 
     public NewsItem GetRandomNewsItem()
     {
-      List<ListItem> items;
+      List<NewsItem> items = new List<NewsItem>();
       lock (_feeds)
       {
-        items = _feeds.SelectMany(f => f.Items).Where(i => i != _lastRandomNewsItem).ToList();
+        items = _latestNewsItems.Where(i => i != _lastRandomNewsItem).ToList();
+
+        if (items.Count == 0)
+          _lastRandomNewsItem = _latestNewsItems.FirstOrDefault();
+        else if (items.Count == 1)
+          _lastRandomNewsItem = items.FirstOrDefault();
+        else
+          _lastRandomNewsItem = items[_random.Next(items.Count)];
       }
-      if (items.Count == 0) return null;
-      if (items.Count == 1) return (NewsItem) items.First();
-      return (NewsItem) items[_random.Next(items.Count)];
+
+      return _lastRandomNewsItem;
+    }
+
+    public List<NewsItem> GetAllNewsItems()
+    {
+      lock (_feeds)
+      {
+        return _latestNewsItems;
+      }
     }
 
     public List<NewsFeed> GetAllFeeds()
@@ -81,7 +96,7 @@ namespace MediaPortal.UiComponents.News
       }
     }
 
-    public bool IsRefeshing { get { return _refeshInProgress; } }
+    public bool IsRefeshing => _refeshInProgress;
     public event Action RefeshStarted;
     public event Action<INewsCollector> RefeshFinished;
 
@@ -138,6 +153,7 @@ namespace MediaPortal.UiComponents.News
           {
             _feeds.Clear();
             _feeds.AddRange(freshFeeds);
+            _latestNewsItems = _feeds.SelectMany(f => f.Items).Where(i => i != null).Cast<NewsItem>().ToList();
           }
         }
         catch (Exception ex)

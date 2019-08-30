@@ -30,6 +30,7 @@ namespace MediaPortal.UiComponents.News
 {
   public interface INewsCollector : IDisposable
   {
+    List<NewsItem> GetAllNewsItems();
     NewsItem GetRandomNewsItem();
     List<NewsFeed> GetAllFeeds();
     bool IsRefeshing { get; }
