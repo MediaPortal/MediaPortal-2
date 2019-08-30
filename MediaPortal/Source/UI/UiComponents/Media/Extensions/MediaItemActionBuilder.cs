@@ -23,47 +23,21 @@
 #endregion
 
 using System;
-using MediaPortal.Common;
-using MediaPortal.Common.PluginManager;
-using MediaPortal.Common.Services.PluginManager.Builders;
-using MediaPortal.Common.UserManagement;
 using MediaPortal.Common.UserProfileDataManagement;
-using MediaPortal.UI.Services.UserManagement;
 
 namespace MediaPortal.UiComponents.Media.Extensions
 {
   /// <summary>
   /// Plugin item builder for <c>MediaItemActionBuilder</c> plugin items.
   /// </summary>
-  public class MediaItemActionBuilder : IPluginItemBuilder
+  public class MediaItemActionBuilder : BaseActionBuilder<MediaItemActionExtension>
   {
     public const string MEDIA_EXTENSION_PATH = "/Media/Extensions";
 
-    #region IPluginItemBuilder Member
-
-    public object BuildItem(PluginItemMetadata itemData, PluginRuntime plugin)
+    public MediaItemActionBuilder()
+      : base((Type type, string caption, string sort, string restrictionGroup, string id) => new MediaItemActionExtension(type, caption, sort, restrictionGroup, id))
     {
-      BuilderHelper.CheckParameter("ClassName", itemData);
-      BuilderHelper.CheckParameter("Caption", itemData);
-      BuilderHelper.CheckParameter("Sort", itemData);
-      string restrictionGroup; // optional
-      if (itemData.Attributes.TryGetValue("RestrictionGroup", out restrictionGroup))
-        ServiceRegistration.Get<IUserManagement>().RegisterRestrictionGroup(restrictionGroup);
-
-      return new MediaItemActionExtension(plugin.GetPluginType(itemData.Attributes["ClassName"]), itemData.Attributes["Caption"], itemData.Attributes["Sort"], restrictionGroup, itemData.Id);
     }
-
-    public void RevokeItem(object item, PluginItemMetadata itemData, PluginRuntime plugin)
-    {
-      // Noting to do
-    }
-
-    public bool NeedsPluginActive(PluginItemMetadata itemData, PluginRuntime plugin)
-    {
-      return true;
-    }
-
-    #endregion
   }
   
   /// <summary>

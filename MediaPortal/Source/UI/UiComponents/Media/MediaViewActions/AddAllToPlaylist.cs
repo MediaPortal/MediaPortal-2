@@ -30,24 +30,31 @@ using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.Services.ServerCommunication;
 using MediaPortal.UiComponents.Media.Extensions;
 using MediaPortal.UI.Presentation.Workflow;
+using MediaPortal.UiComponents.Media.Views;
+using MediaPortal.UiComponents.Media.Models;
+using System.Linq;
+using System.Collections.Generic;
 
-namespace MediaPortal.UiComponents.Media.MediaItemActions
+namespace MediaPortal.UiComponents.Media.MediaViewActions
 {
-  public class AddAllToPlaylist : AbstractMediaItemAction, IDeferredMediaItemAction
+  public class AddAllToPlaylist : IMediaViewAction, IDeferredMediaViewAction
   {
-    public static Guid ACTION_ID_ADD_ALL_TO_PLAYLIST = new Guid("09243059-EE44-460d-8412-2E994CCB5A98");
 
-    public override Task<bool> IsAvailableAsync(MediaItem mediaItem)
+    public Task<bool> IsAvailableAsync(View view)
     {
-      var result = ServiceRegistration.Get<IWorkflowManager>().MenuStateActions.ContainsKey(ACTION_ID_ADD_ALL_TO_PLAYLIST);
-      return Task.FromResult(result);
+      return Task.FromResult(!view.IsEmpty);
     }
 
-    public override Task<AsyncResult<ContentDirectoryMessaging.MediaItemChangeType>> ProcessAsync(MediaItem mediaItem)
+    public async Task<bool> ProcessAsync(View view)
     {
-      var result = new AsyncResult<ContentDirectoryMessaging.MediaItemChangeType>(false, ContentDirectoryMessaging.MediaItemChangeType.None);
-      result.Success = ServiceRegistration.Get<IWorkflowManager>().TryExecuteAction(ACTION_ID_ADD_ALL_TO_PLAYLIST);
-      return Task.FromResult(result);
+      MediaNavigationModel model = MediaNavigationModel.GetCurrentInstance();
+      List<MediaItem> items = view.AllMediaItems.ToList();
+      IWorkflowManager workflowManager = ServiceRegistration.Get<IWorkflowManager>();
+      var navData = MediaNavigationModel.GetNavigationData(workflowManager.CurrentNavigationContext, false);
+      if (navData.CurrentSorting != null)
+        items.Sort(navData.CurrentSorting);
+      model.AddMediaItemstoPlaylist(() => items);
+      return true;
     }
   }
 }

@@ -33,6 +33,7 @@ using MediaPortal.Common.UserProfileDataManagement;
 using MediaPortal.UI.Presentation.Players;
 using MediaPortal.UI.Presentation.Players.ResumeState;
 using MediaPortal.UI.Services.Players;
+using MediaPortal.UiComponents.Media.Extensions;
 
 namespace MediaPortal.UiComponents.Media.Models.Navigation
 {
@@ -44,7 +45,7 @@ namespace MediaPortal.UiComponents.Media.Models.Navigation
   /// View's items lists contain view items (<see cref="ViewItem"/>s) as well as
   /// playable items (<see cref="PlayableMediaItem"/>).
   /// </remarks>
-  public abstract class PlayableMediaItem : NavigationItem
+  public abstract class PlayableMediaItem : NavigationItem, IMediaItemListItem
   {
     #region Protected fields
 

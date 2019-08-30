@@ -100,19 +100,11 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Local
             var potentialFanArtFiles = LocalFanartHelper.GetPotentialFanArtFiles(directoryFsra);
 
             if (fanArtType == FanArtTypes.Thumbnail)
-              fanArtPaths.AddRange(
-                from potentialFanArtFile in potentialFanArtFiles
-                let potentialFanArtFileNameWithoutExtension = ResourcePathHelper.GetFileNameWithoutExtension(potentialFanArtFile.ToString()).ToLowerInvariant()
-                where potentialFanArtFileNameWithoutExtension == "folder"
-                select potentialFanArtFile);
+              fanArtPaths.AddRange(LocalFanartHelper.FilterPotentialFanArtFilesByName(potentialFanArtFiles, LocalFanartHelper.POSTER_FILENAMES));
 
             if (fanArtType == FanArtTypes.FanArt)
             {
-              fanArtPaths.AddRange(
-                from potentialFanArtFile in potentialFanArtFiles
-                let potentialFanArtFileNameWithoutExtension = ResourcePathHelper.GetFileNameWithoutExtension(potentialFanArtFile.ToString()).ToLowerInvariant()
-                where potentialFanArtFileNameWithoutExtension == "backdrop" || potentialFanArtFileNameWithoutExtension == "fanart"
-                select potentialFanArtFile);
+              fanArtPaths.AddRange(LocalFanartHelper.FilterPotentialFanArtFilesByPrefix(potentialFanArtFiles, LocalFanartHelper.BACKDROP_FILENAMES));
 
               if (directoryFsra.ResourceExists("ExtraFanArt/"))
                 using (var extraFanArtDirectoryFsra = directoryFsra.GetResource("ExtraFanArt/"))

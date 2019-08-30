@@ -30,6 +30,7 @@
           <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
           </Grid.RowDefinitions>
 
           <Label Grid.Row="0" Grid.Column="0" Content="[Settings.ServerSettings.ImporterWorker.EnableAutoRefresh]" Color="{ThemeResource TextColor}" Margin="5"/>
@@ -38,10 +39,17 @@
               IsChecked="{Binding Path=EnableAutoRefresh,Mode=TwoWay}"
               Content="{Binding}" />
 
-          <Label Grid.Row="1" Grid.Column="0" Content="[Settings.ServerSettings.ImporterWorker.RunAtHour]" Color="{ThemeResource TextColor}" Margin="5"
+          <Label Grid.Row="1" Grid.Column="0" Content="[Settings.ServerSettings.ImporterWorker.EnableClientAutoRefresh]" Color="{ThemeResource TextColor}" Margin="5"
+                 IsVisible="{Binding Path=EnableAutoRefresh}"/>
+          
+          <CheckBox Grid.Row="1" Grid.Column="1" x:Name="EnableClientAutoRefresh" Margin="5" Style="{ThemeResource DefaultCheckBoxStyle}"
+              IsChecked="{Binding Path=EnableClientAutoRefresh,Mode=TwoWay}"
+              Content="{Binding}" IsVisible="{Binding Path=EnableAutoRefresh}"/>
+
+          <Label Grid.Row="2" Grid.Column="0" Content="[Settings.ServerSettings.ImporterWorker.RunAtHour]" Color="{ThemeResource TextColor}" Margin="5"
                  IsVisible="{Binding Path=EnableAutoRefresh}" />
 
-          <TextBox Grid.Row="1" Grid.Column="1" Text="{Binding Path=RunAtHour,Mode=TwoWay}" Margin="5" Style="{ThemeResource DefaultTextBoxStyle}" 
+          <TextBox Grid.Row="2" Grid.Column="1" Text="{Binding Path=RunAtHour,Mode=TwoWay}" Margin="5" Style="{ThemeResource DefaultTextBoxStyle}" 
                  IsVisible="{Binding Path=EnableAutoRefresh}" />
 
         </Grid>

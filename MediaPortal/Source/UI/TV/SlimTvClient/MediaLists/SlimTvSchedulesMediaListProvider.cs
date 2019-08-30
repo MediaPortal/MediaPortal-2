@@ -42,7 +42,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.MediaLists
   {
     ICollection<Tuple<ISchedule, ProgramProperties>> _currentSchedules = new List<Tuple<ISchedule, ProgramProperties>>();
 
-    private async Task<ListItem> CreateScheduleItem(ISchedule schedule, ProgramProperties program)
+    private ListItem CreateScheduleItem(ISchedule schedule, ProgramProperties program)
     {
       ListItem item = null;
       DateTime start = schedule.StartTime;
@@ -141,8 +141,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.MediaLists
       if (_currentSchedules.Select(s => s.Item1.ScheduleId).SequenceEqual(scheduleList.Select(s => s.Item1.ScheduleId)))
         return true;
 
-      // Async calls need to be outside of locks
-      ListItem[]  items = await Task.WhenAll(scheduleList.Select(s => CreateScheduleItem(s.Item1, s.Item2)));
+      ListItem[]  items = scheduleList.Select(s => CreateScheduleItem(s.Item1, s.Item2)).ToArray();
       lock (_allItems.SyncRoot)
       {
         _currentSchedules = scheduleList;

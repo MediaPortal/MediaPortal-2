@@ -12,6 +12,7 @@
   <!-- SlimTvClient model -->
   <Model x:Key="SlimTvClient" Id="8BEC1372-1C76-484c-8A69-C7F3103708EC"/>
   <Model x:Key="SlimTvMultiChannelGuide" Id="5054408D-C2A9-451f-A702-E84AFCD29C10"/>
+  <Model x:Key="SlimTvSettings" Id="F5D4AA07-8469-46A7-8FD0-E1CD1E8F5898"/>
   <Model x:Key="SlimTvExtSchedule" Id="EB9CB370-9CD6-4D72-8354-73E446104438"/>
   <Model x:Key="TimeModel" Id="E821B1C8-0666-4339-8027-AA45A4F6F107"/>
   <Model x:Key="VideoPlayerModel" Id="4E2301B4-3C17-4a1d-8DE5-2CEA169A0256"/>
@@ -450,7 +451,7 @@
           <DockPanel Name="ButtonControlRectangle">
             <Rectangle DockPanel.Dock="Center" Name="ButtonBase" Fill="{ThemeResource ProgramBaseFill}" Stroke="Transparent"/>
             <Rectangle DockPanel.Dock="Center" Name="ButtonGenre" Fill="{Binding Program.EpgGenreColor}" 
-                       IsVisible="{Binding Source={StaticResource SlimTvMultiChannelGuide}, Path=ShowGenreColors}"/>
+                       IsVisible="{Binding Source={StaticResource SlimTvSettings}, Path=ShowGenreColors}"/>
             <Rectangle DockPanel.Dock="Center" Name="ButtonOverlay" Fill=""/>
             <Rectangle DockPanel.Dock="Center" Name="ButtonFocusFrame" StrokeThickness="3" RadiusX="3" RadiusY="3" Stroke="White" Fill="" IsVisible="False"/>
           </DockPanel>
@@ -493,7 +494,7 @@
             <MultiTrigger>
               <MultiTrigger.Conditions>
                 <Condition Binding="{Binding IsRunning}" Value="True" />
-                <Condition Binding="{Binding Source={StaticResource SlimTvMultiChannelGuide}, Path=ShowGenreColors}" Value="False" />
+                <Condition Binding="{Binding Source={StaticResource SlimTvSettings}, Path=ShowGenreColors}" Value="False" />
               </MultiTrigger.Conditions>
               <Setter TargetName="ButtonBase" Property="Fill" Value="{ThemeResource ProgramRunningFill}"/>
             </MultiTrigger>
@@ -501,7 +502,7 @@
             <MultiTrigger>
               <MultiTrigger.Conditions>
                 <Condition Binding="{Binding Program.IsScheduled}" Value="True" />
-                <Condition Binding="{Binding Source={StaticResource SlimTvMultiChannelGuide}, Path=ShowGenreColors}" Value="False" />
+                <Condition Binding="{Binding Source={StaticResource SlimTvSettings}, Path=ShowGenreColors}" Value="False" />
               </MultiTrigger.Conditions>
               <Setter TargetName="ButtonBase" Property="Fill" Value="{ThemeResource ProgramScheduledFill}"/>
             </MultiTrigger>
@@ -510,7 +511,7 @@
               <MultiTrigger.Conditions>
                 <Condition Binding="{Binding Program.IsScheduled}" Value="True" />
                 <Condition Binding="{Binding Program.IsSeriesScheduled}" Value="False" />
-                <Condition Binding="{Binding Source={StaticResource SlimTvMultiChannelGuide}, Path=ShowGenreColors}" Value="True" />
+                <Condition Binding="{Binding Source={StaticResource SlimTvSettings}, Path=ShowGenreColors}" Value="True" />
               </MultiTrigger.Conditions>
               <Setter TargetName="RecIndicator" Property="IsVisible" Value="True"/>
             </MultiTrigger>
@@ -518,7 +519,7 @@
             <MultiTrigger>
               <MultiTrigger.Conditions>
                 <Condition Binding="{Binding Program.IsSeriesScheduled}" Value="True" />
-                <Condition Binding="{Binding Source={StaticResource SlimTvMultiChannelGuide}, Path=ShowGenreColors}" Value="True" />
+                <Condition Binding="{Binding Source={StaticResource SlimTvSettings}, Path=ShowGenreColors}" Value="True" />
               </MultiTrigger.Conditions>
               <Setter TargetName="SeriesRecIndicator" Property="IsVisible" Value="True"/>
             </MultiTrigger>
@@ -526,7 +527,7 @@
             <MultiTrigger>
               <MultiTrigger.Conditions>
                 <Condition Binding="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Button}, Path=HasFocus}" Value="True"/>
-                <Condition Binding="{Binding Source={StaticResource SlimTvMultiChannelGuide}, Path=ShowGenreColors}" Value="True" />
+                <Condition Binding="{Binding Source={StaticResource SlimTvSettings}, Path=ShowGenreColors}" Value="True" />
               </MultiTrigger.Conditions>
               <Setter TargetName="ButtonFocusFrame" Property="IsVisible" Value="True"/>
             </MultiTrigger>

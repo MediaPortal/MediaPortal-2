@@ -25,7 +25,6 @@
 using System;
 using System.Threading.Tasks;
 using MediaPortal.Common;
-using MediaPortal.Common.Async;
 using MediaPortal.Common.Commands;
 using MediaPortal.Common.General;
 using MediaPortal.Common.Localization;
@@ -34,14 +33,10 @@ using MediaPortal.Plugins.SlimTv.Client.Helpers;
 using MediaPortal.Plugins.SlimTv.Client.Messaging;
 using MediaPortal.Plugins.SlimTv.Interfaces;
 using MediaPortal.Plugins.SlimTv.Interfaces.Items;
-using MediaPortal.Plugins.SlimTv.Interfaces.UPnP.Items;
 using MediaPortal.UI.Presentation.DataObjects;
-using MediaPortal.UI.Presentation.Screens;
 using MediaPortal.UI.Presentation.Workflow;
 using MediaPortal.UiComponents.Media.General;
 using MediaPortal.UI.SkinEngine.MpfElements;
-using MediaPortal.Common.Services.Settings;
-using MediaPortal.Plugins.SlimTv.Client.Settings;
 
 namespace MediaPortal.Plugins.SlimTv.Client.Models
 {
@@ -54,13 +49,8 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
 
     protected AbstractProperty _groupNameProperty = null;
     protected AbstractProperty _currentProgramProperty = null;
-    protected AbstractProperty _showChannelNamesProperty = null;
-    protected AbstractProperty _showChannelNumbersProperty = null;
-    protected AbstractProperty _showChannelLogosProperty = null;
-    protected AbstractProperty _showGenreColorsProperty = null;
-    protected ListItem _selectedItem;
 
-    protected SettingsChangeWatcher<SlimTvClientSettings> _settings = null;
+    protected ListItem _selectedItem;
 
     #endregion
 
@@ -98,74 +88,6 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
     public AbstractProperty CurrentProgramProperty
     {
       get { return _currentProgramProperty; }
-    }
-
-    /// <summary>
-    /// Exposes whether channel names should be shown by the skin.
-    /// </summary>
-    public bool ShowChannelNames
-    {
-      get { return (bool)_showChannelNamesProperty.GetValue(); }
-      protected set { _showChannelNamesProperty.SetValue(value); }
-    }
-
-    /// <summary>
-    /// Exposes whether channel names should be shown by the skin.
-    /// </summary>
-    public AbstractProperty ShowChannelNamesProperty
-    {
-      get { return _showChannelNamesProperty; }
-    }
-
-    /// <summary>
-    /// Exposes whether channel numbers should be shown by the skin.
-    /// </summary>
-    public bool ShowChannelNumbers
-    {
-      get { return (bool)_showChannelNumbersProperty.GetValue(); }
-      protected set { _showChannelNumbersProperty.SetValue(value); }
-    }
-
-    /// <summary>
-    /// Exposes whether channel numbers should be shown by the skin.
-    /// </summary>
-    public AbstractProperty ShowChannelNumbersProperty
-    {
-      get { return _showChannelNumbersProperty; }
-    }
-
-    /// <summary>
-    /// Exposes whether channel logos should be shown by the skin.
-    /// </summary>
-    public bool ShowChannelLogos
-    {
-      get { return (bool)_showChannelLogosProperty.GetValue(); }
-      protected set { _showChannelLogosProperty.SetValue(value); }
-    }
-
-    /// <summary>
-    /// Exposes whether channel logos should be shown by the skin.
-    /// </summary>
-    public AbstractProperty ShowChannelLogosProperty
-    {
-      get { return _showChannelLogosProperty; }
-    }
-
-    /// <summary>
-    /// Exposes whether EPG genre colors should be shown by the skin.
-    /// </summary>
-    public bool ShowGenreColors
-    {
-      get { return (bool)_showGenreColorsProperty.GetValue(); }
-      set { _showGenreColorsProperty.SetValue(value); }
-    }
-
-    /// <summary>
-    /// Exposes whether EPG genre colors should be shown by the skin.
-    /// </summary>
-    public AbstractProperty ShowGenreColorsProperty
-    {
-      get { return _showGenreColorsProperty; }
     }
 
     public ListItem SelectedItem
@@ -209,6 +131,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
       ILocalization loc = ServiceRegistration.Get<ILocalization>();
 
       ItemsList actions = new ItemsList();
+      bool isRunning = DateTime.Now >= program.StartTime && DateTime.Now <= program.EndTime;
       // if program is over already, there is nothing to do.
       if (program.EndTime < DateTime.Now)
       {
@@ -217,7 +140,6 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
       else
       {
         // Check if program is currently running.
-        bool isRunning = DateTime.Now >= program.StartTime && DateTime.Now <= program.EndTime;
         if (isRunning)
         {
           actions.Add(new ListItem(Consts.KEY_NAME, loc.ToString("[SlimTvClient.WatchNow]"))
@@ -225,21 +147,20 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
             Command = new AsyncMethodDelegateCommand(() => TuneChannelByProgram(program))
           });
         }
-
-        if (_tvHandler.ScheduleControl != null)
+      }
+      if (_tvHandler.ScheduleControl != null)
+      {
+        var result = _tvHandler.ScheduleControl.GetRecordingStatusAsync(program).Result;
+        if (result.Success)
         {
-          var result = _tvHandler.ScheduleControl.GetRecordingStatusAsync(program).Result;
-          if (result.Success)
-          {
-            if (isRunning && result.Result != RecordingStatus.None)
-              actions.Add(
-                new ListItem(Consts.KEY_NAME, loc.ToString("[SlimTvClient.WatchFromBeginning]"))
-                {
-                  Command = new AsyncMethodDelegateCommand(() => _tvHandler.WatchRecordingFromBeginningAsync(program))
-                });
+          if (isRunning && result.Result != RecordingStatus.None)
+            actions.Add(
+              new ListItem(Consts.KEY_NAME, loc.ToString("[SlimTvClient.WatchFromBeginning]"))
+              {
+                Command = new AsyncMethodDelegateCommand(() => _tvHandler.WatchRecordingFromBeginningAsync(program))
+              });
 
-            AddRecordingOptions(actions, program, result.Result);
-          }
+          AddRecordingOptions(actions, program, result.Result);
         }
       }
       SlimTvExtScheduleModel.ShowDialog("[SlimTvClient.ChooseProgramAction]", actions);
@@ -289,11 +210,6 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
       {
         _groupNameProperty = new WProperty(typeof(string), String.Empty);
         _currentProgramProperty = new WProperty(typeof(ProgramProperties), new ProgramProperties());
-        _showChannelNamesProperty = new WProperty(typeof(bool), true);
-        _showChannelNumbersProperty = new WProperty(typeof(bool), true);
-        _showChannelLogosProperty = new WProperty(typeof(bool), true);
-        _showGenreColorsProperty = new WProperty(typeof(bool), false);
-        InitSettingsWatcher();
 
         _isInitialized = true;
       }
@@ -320,28 +236,6 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
             break;
         }
       }
-    }
-
-    void InitSettingsWatcher()
-    {
-      if (_settings != null)
-        return;
-      _settings = new SettingsChangeWatcher<SlimTvClientSettings>(true);
-      UpdatePropertiesFromSettings(_settings.Settings);
-      _settings.SettingsChanged = OnSettingsChanged;
-    }
-
-    protected void OnSettingsChanged(object sender, EventArgs e)
-    {
-      UpdatePropertiesFromSettings(_settings.Settings);
-    }
-
-    protected void UpdatePropertiesFromSettings(SlimTvClientSettings settings)
-    {
-      ShowChannelNames = settings.EpgShowChannelNames;
-      ShowChannelNumbers = settings.EpgShowChannelNumbers;
-      ShowChannelLogos = settings.EpgShowChannelLogos;
-      ShowGenreColors = settings.EpgShowGenreColors;
     }
 
     #endregion

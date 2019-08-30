@@ -239,7 +239,7 @@ namespace MediaPortal.UiComponents.Media.Models
       navigationContext.SetContextVariable(Consts.KEY_NAVIGATION_DATA, navigationData);
     }
 
-    protected IEnumerable<MediaItem> GetMediaItemsFromCurrentView(MediaItem selectedMediaItem)
+    public IEnumerable<MediaItem> GetMediaItemsFromCurrentView(MediaItem selectedMediaItem)
     {
       foreach (var mediaItem in GetMediaItemsFromCurrentView())
       {
@@ -276,9 +276,12 @@ namespace MediaPortal.UiComponents.Media.Models
       {
         ServiceRegistration.Get<ILogger>().Error("MediaNavigationModel: Cannot add current view to playlist - There is no enabled navigation data available");
       }
-      string mode = Mode;
-      GetMediaItemsDlgt getMediaItemsWithSelection = () => GetMediaItemsFromCurrentView(selectedMediaItem);
+      AddMediaItemstoPlaylist(() => GetMediaItemsFromCurrentView(selectedMediaItem));
+    }
 
+    public void AddMediaItemstoPlaylist(GetMediaItemsDlgt getMediaItemsWithSelection)
+    {
+      string mode = Mode;
       switch (mode)
       {
         case MediaNavigationMode.Audio:

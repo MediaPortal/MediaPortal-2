@@ -643,29 +643,21 @@ namespace MediaPortal.UI.Players.Video.Subtitles
           // TemporaryRenderTarget changes RenderTarget to texture and restores settings when done (Dispose)
           using (new TemporaryRenderTarget(targetTexture))
           {
-            // Check the target texture dimensions and adjust scaling and translation
-            SurfaceDescription desc = targetTexture.GetLevelDescription(0);
             Matrix transform = Matrix.Identity;
 
-            // Position subtitle and scale it to match video frame size, if required
+            // Position subtitle
             transform *= Matrix.Translation(currentSubtitle.HorizontalPosition, currentSubtitle.FirstScanLine, 0);
-            if (currentSubtitle.ScreenWidth != desc.Width || currentSubtitle.ScreenHeight != desc.Height)
-            {
-              var factorW = (float)desc.Width / currentSubtitle.ScreenWidth;
-              var factorH = (float)desc.Height / currentSubtitle.ScreenHeight;
-              transform *= Matrix.Scaling(factorW, factorH, 1);
-            }
 
             if (!string.IsNullOrWhiteSpace(currentSubtitle.Text))
             {
               // TODO: this calculation works at the moment only in fullscreen mode. When using windowed mode, the text is off screen on bottom and not visible.
               // Calculate font size by the available target height divided by the number of teletext lines (25).
-              float fontSize = (float)Math.Floor(desc.Height / 25f);
+              float fontSize = (float)Math.Floor(SkinContext.SkinResources.SkinHeight / 25f);
               if (_textBuffer == null)
                 _textBuffer = new TextBuffer(FontManager.DefaultFontFamily, fontSize);
               _textBuffer.Text = currentSubtitle.Text;
 
-              RectangleF rectangleF = new RectangleF(0, 0, desc.Width, desc.Height);
+              RectangleF rectangleF = new RectangleF(0, 0, SkinContext.SkinResources.SkinWidth, SkinContext.SkinResources.SkinHeight);
 
               HorizontalTextAlignEnum horzAlign = HorizontalTextAlignEnum.Center;
               VerticalTextAlignEnum vertAlign = VerticalTextAlignEnum.Top;

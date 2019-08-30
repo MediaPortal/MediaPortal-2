@@ -348,6 +348,7 @@ namespace MediaPortal.UiComponents.Weather.Grabbers
       string unit;
       switch (temperatureUnit)
       {
+        case "celsius":
         case "metric":
           unit = "°C";
           break;
