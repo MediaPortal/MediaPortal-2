@@ -23,7 +23,7 @@
 #endregion
 
 using System;
-using System.Threading;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using MediaPortal.Common.Messaging;
 using MediaPortal.Common.Settings;
@@ -31,54 +31,6 @@ using MediaPortal.Common.UserManagement;
 
 namespace MediaPortal.Common.Services.Settings
 {
-  internal static class SettingsChangeWatcher
-  {
-    private static AsynchronousMessageQueue _messageQueue;
-    private static int _eventCount = 0;
-    private readonly static object _syncObject = new object();
-
-    internal static event MessageReceivedHandler MessageReceived
-    {
-      add
-      {
-        if (_messageQueue == null)
-          return;
-        _messageQueue.MessageReceived += value;
-        Interlocked.Increment(ref _eventCount);
-      }
-      remove
-      {
-        if (_messageQueue == null)
-          return;
-        _messageQueue.MessageReceived -= value;
-        var count = Interlocked.Decrement(ref _eventCount);
-        if (count <= 0)
-          StopSettingWatcher();
-      }
-    }
-
-    internal static void StartSettingWatcher()
-    {
-      lock (_syncObject)
-      {
-        if (_messageQueue == null)
-        {
-          _messageQueue = new AsynchronousMessageQueue(nameof(SettingsChangeWatcher), new[] { SettingsManagerMessaging.CHANNEL, UserMessaging.CHANNEL });
-          _messageQueue.Start();
-        }
-      }
-    }
-    internal static void StopSettingWatcher()
-    {
-      lock (_syncObject)
-      {
-        _messageQueue?.Shutdown();
-        _messageQueue?.Dispose();
-        _messageQueue = null;
-      }
-    }
-  }
-
   /// <summary>
   /// <see cref="SettingsChangeWatcher{T}"/> provides a generic watcher for settings that automatically refreshes
   /// the <see cref="Settings"/> if it gets notified using <see cref="SettingsManagerMessaging"/>.
@@ -89,10 +41,8 @@ namespace MediaPortal.Common.Services.Settings
   {
     #region Fields
 
+    protected AsynchronousMessageQueue _messageQueue;
     protected T _settings;
-
-    private readonly bool _updateOnUserChange;
-    private readonly object _syncObject = new object();
 
     #endregion
 
@@ -101,11 +51,12 @@ namespace MediaPortal.Common.Services.Settings
 
     public SettingsChangeWatcher(bool updateOnUserChange)
     {
-      _updateOnUserChange = updateOnUserChange;
-
-      SettingsChangeWatcher.StartSettingWatcher();
-
-      SettingsChangeWatcher.MessageReceived += OnMessageReceived;
+      List<string> channels = new List<string> { SettingsManagerMessaging.CHANNEL };
+      if (updateOnUserChange)
+        channels.Add(UserMessaging.CHANNEL);
+      _messageQueue = new AsynchronousMessageQueue(this, channels);
+      _messageQueue.MessageReceived += OnMessageReceived;
+      _messageQueue.Start();
     }
 
     /// <summary>
@@ -146,7 +97,7 @@ namespace MediaPortal.Common.Services.Settings
 
     protected void OnMessageReceived(AsynchronousMessageQueue queue, SystemMessage message)
     {
-      if (_updateOnUserChange && message.ChannelName == UserMessaging.CHANNEL)
+      if (message.ChannelName == UserMessaging.CHANNEL)
       {
         UserMessaging.MessageType messageType = (UserMessaging.MessageType)message.MessageType;
         switch (messageType)
@@ -178,7 +129,8 @@ namespace MediaPortal.Common.Services.Settings
 
     public void Dispose()
     {
-      SettingsChangeWatcher.MessageReceived -= OnMessageReceived;
+      _messageQueue.MessageReceived -= OnMessageReceived;
+      _messageQueue.Shutdown();
     }
 
     #endregion
