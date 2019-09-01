@@ -8,6 +8,10 @@
            match="//wix:Component[wix:File/@Source = '$(var.MediaPortal.Client.TargetDir)\MP2-Client.exe']"
            use="@Id"/>
 
+  <xsl:key name="MP2-Client_x64.exe"
+           match="//wix:Component[wix:File/@Source = '$(var.MediaPortal.Client.TargetDir)\MP2-Client (x64).exe']"
+           use="@Id"/>
+
   <!-- Copy all nodes from source to target and apply templates. -->
   <xsl:template match="node()|@*">
     <xsl:copy>
@@ -29,6 +33,8 @@
   -->
   <xsl:template match="wix:Component[@Id = key('MP2-Client.exe', @Id)/@Id]"/>
   <xsl:template match="wix:ComponentRef[@Id = key('MP2-Client.exe', @Id)/@Id]"/>
+  <xsl:template match="wix:Component[@Id = key('MP2-Client_x64.exe', @Id)/@Id]"/>
+  <xsl:template match="wix:ComponentRef[@Id = key('MP2-Client_x64.exe', @Id)/@Id]"/>
 
   <!-- Explicitly set DirectoryID to allow referencing to it. -->
   <xsl:template match="wix:DirectoryRef[@Id = 'INSTALLDIR_CLIENT']/wix:Directory[@Name = 'Plugins']">
