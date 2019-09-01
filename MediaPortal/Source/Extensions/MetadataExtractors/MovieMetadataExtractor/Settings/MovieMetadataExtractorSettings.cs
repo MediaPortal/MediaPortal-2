@@ -33,6 +33,9 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor.Setti
   /// </summary>
   public class MovieMetadataExtractorSettings
   {
+    private const int DEFAULT_MAXIMUM_ACTOR_COUNT = 10;
+    private const int DEFAULT_MAXIMUM_CHARACTER_COUNT = 10;
+
     public MovieMetadataExtractorSettings()
     {
       // Init default patterns.
@@ -109,6 +112,18 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor.Setti
     /// </summary>
     [Setting(SettingScope.Global, true)]
     public bool IncludeProductionCompanyDetails { get; set; }
+
+    /// <summary>
+    /// The maximum number of actors to extract.
+    /// </summary>
+    [Setting(SettingScope.Global, DEFAULT_MAXIMUM_ACTOR_COUNT)]
+    public int MaximumActorCount { get; set; }
+
+    /// <summary>
+    /// The maximum number of characters to extract.
+    /// </summary>
+    [Setting(SettingScope.Global, DEFAULT_MAXIMUM_CHARACTER_COUNT)]
+    public int MaximumCharacterCount { get; set; }
 
     #endregion
   }

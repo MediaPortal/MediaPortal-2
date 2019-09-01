@@ -89,9 +89,6 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
 
     public async Task<bool> TryExtractRelationshipsAsync(IResourceAccessor mediaItemAccessor, IDictionary<Guid, IList<MediaItemAspect>> aspects, IList<IDictionary<Guid, IList<MediaItemAspect>>> extractedLinkedAspects)
     {
-      if (!AudioMetadataExtractor.IncludeArtistDetails)
-        return false;
-
       if (BaseInfo.IsVirtualResource(aspects))
         return false;
 

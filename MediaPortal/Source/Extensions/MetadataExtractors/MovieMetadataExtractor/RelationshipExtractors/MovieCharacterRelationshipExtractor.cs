@@ -95,9 +95,6 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
 
     public async Task<bool> TryExtractRelationshipsAsync(IResourceAccessor mediaItemAccessor, IDictionary<Guid, IList<MediaItemAspect>> aspects, IList<IDictionary<Guid, IList<MediaItemAspect>>> extractedLinkedAspects)
     {
-      if (!MovieMetadataExtractor.IncludeCharacterDetails)
-        return false;
-
       if (BaseInfo.IsVirtualResource(aspects))
         return false;
 
@@ -108,10 +105,10 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
       if (RelationshipExtractorUtils.TryCreateInfoFromLinkedAspects(extractedLinkedAspects, out List<CharacterInfo> characters))
         movieInfo.Characters = characters;
 
-      if (!MovieMetadataExtractor.SkipOnlineSearches)
+      if (MovieMetadataExtractor.IncludeCharacterDetails && !MovieMetadataExtractor.SkipOnlineSearches)
         await OnlineMatcherService.Instance.UpdateCharactersAsync(movieInfo).ConfigureAwait(false);
       
-      foreach (CharacterInfo character in movieInfo.Characters)
+      foreach (CharacterInfo character in movieInfo.Characters.Take(MovieMetadataExtractor.MaximumCharacterCount))
       {
         if (character.LinkedAspects != null)
           character.SetLinkedMetadata();

@@ -173,9 +173,9 @@ namespace MediaPortal.Common.FanArt
       
       paths.AddRange(FanArtTypes.Banner, LocalFanartHelper.FilterPotentialFanArtFilesByNameOrPrefix(potentialFanArtFiles,
         LocalFanartHelper.BANNER_FILENAMES, LocalFanartHelper.BANNER_FILENAMES.Select(f => filename + "-" + f)));
-      
+
       paths.AddRange(FanArtTypes.FanArt, LocalFanartHelper.FilterPotentialFanArtFilesByNameOrPrefix(potentialFanArtFiles,
-        LocalFanartHelper.BACKDROP_FILENAMES, LocalFanartHelper.BACKDROP_FILENAMES));
+        LocalFanartHelper.BACKDROP_FILENAMES, LocalFanartHelper.BACKDROP_FILENAMES.Select(f => filename + "-" + f)));
     }
 
     /// <summary>

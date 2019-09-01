@@ -154,7 +154,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
         return false;
 
       extractedLinkedAspects.Clear();      
-      foreach (CharacterInfo character in characters)
+      foreach (CharacterInfo character in characters.Take(NfoSeriesMetadataExtractor.MaximumCharacterCount))
       {
         if (character.SetLinkedMetadata() && character.LinkedAspects.ContainsKey(ExternalIdentifierAspect.ASPECT_ID))
           extractedLinkedAspects.Add(character.LinkedAspects);
