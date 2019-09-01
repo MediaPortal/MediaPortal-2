@@ -26,6 +26,7 @@
           <RowDefinition Height="Auto"/>
           <RowDefinition Height="Auto"/>
           <RowDefinition Height="Auto"/>
+          <RowDefinition Height="Auto"/>
           <RowDefinition Height="*"/>
           <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
@@ -92,7 +93,7 @@
                 Command="{Command OpenMenuSecondaryLanguageDialog}">
         </Button>
 
-        <Button x:Name="SaveUserButton" Grid.Row="8" Grid.Column="3" Style="{ThemeResource WizardButtonStyle}" Margin="10,10,0,10"
+        <Button x:Name="SaveUserButton" Grid.Row="9" Grid.Column="3" Style="{ThemeResource WizardButtonStyle}" Margin="10,10,0,10"
                   Content="[UserConfig.SaveUser]" IsEnabled="{Binding UserProxy.IsUserValid}" Command="{Command SaveUser}"/>
       </Grid>
     </ControlTemplate>

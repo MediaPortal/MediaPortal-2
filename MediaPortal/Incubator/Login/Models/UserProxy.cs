@@ -33,6 +33,8 @@ using MediaPortal.UiComponents.Login.General;
 using MediaPortal.UI.Presentation.DataObjects;
 using MediaPortal.Common.Localization;
 using System.Globalization;
+using MediaPortal.Common.Settings;
+using MediaPortal.Common;
 
 namespace MediaPortal.UiComponents.Login.Models
 {
@@ -122,9 +124,10 @@ namespace MediaPortal.UiComponents.Login.Models
       RestrictionGroups = userProfile.RestrictionGroups;
 
       string defaultText = LocalizationHelper.CreateResourceString("[UserConfig.Default]").Evaluate();
-      LanguageAudioMain = defaultText;
-      LanguageMenuMain = defaultText;
-      LanguageSubtitleMain = defaultText;
+      RegionSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<RegionSettings>();
+      LanguageAudioMain = settings.Culture;
+      LanguageMenuMain = settings.Culture;
+      LanguageSubtitleMain = settings.Culture;
       LanguageAudioSecondary = defaultText;
       LanguageMenuSecondary = defaultText;
       LanguageSubtitleSecondary = defaultText;

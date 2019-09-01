@@ -41,6 +41,7 @@ using MediaPortal.Common.Localization;
 using System.Threading.Tasks;
 using MediaPortal.Common.UserManagement;
 using System.Globalization;
+using MediaPortal.Common.Settings;
 
 namespace MediaPortal.UiComponents.Login.Models
 {
@@ -101,7 +102,7 @@ namespace MediaPortal.UiComponents.Login.Models
       _langaugeList = new ItemsList();
       ListItem item = new ListItem();
       item.SetLabel(Consts.KEY_NAME, LocalizationHelper.CreateResourceString("[UserConfig.Default]"));
-      item.AdditionalProperties[Consts.KEY_LANGUAGE] = null;
+      item.AdditionalProperties[Consts.KEY_LANGUAGE] = "";
       _langaugeList.Add(item);
       foreach (var ci in cultures)
       {
@@ -322,25 +323,26 @@ namespace MediaPortal.UiComponents.Login.Models
             // If the current user is restricted to own profile, we skip all properties that would allow a "self unrestriction"
             if (!IsRestrictedToOwn)
             {
-              var cultures = CultureInfo.GetCultures(CultureTypes.SpecificCultures);
+              RegionSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<RegionSettings>();
+              var cultures = CultureInfo.GetCultures(CultureTypes.AllCultures);
               var culture = cultures.FirstOrDefault(c => c.DisplayName == UserProxy.LanguageAudioMain);
               langData.Add(UserDataKeysKnown.KEY_PREFERRED_AUDIO_LANGUAGE, new Dictionary<int, string>());
-              langData[UserDataKeysKnown.KEY_PREFERRED_AUDIO_LANGUAGE].Add(0, culture?.TwoLetterISOLanguageName);
+              langData[UserDataKeysKnown.KEY_PREFERRED_AUDIO_LANGUAGE].Add(0, string.IsNullOrEmpty(culture?.TwoLetterISOLanguageName) ? new CultureInfo(settings.Culture).TwoLetterISOLanguageName : culture.TwoLetterISOLanguageName);
               culture = cultures.FirstOrDefault(c => c.DisplayName == UserProxy.LanguageAudioSecondary);
-              langData[UserDataKeysKnown.KEY_PREFERRED_AUDIO_LANGUAGE].Add(1, culture?.TwoLetterISOLanguageName);
+              langData[UserDataKeysKnown.KEY_PREFERRED_AUDIO_LANGUAGE].Add(1, culture?.TwoLetterISOLanguageName ?? "");
 
               culture = cultures.FirstOrDefault(c => c.DisplayName == UserProxy.LanguageSubtitleMain);
               langData.Add(UserDataKeysKnown.KEY_PREFERRED_SUBTITLE_LANGUAGE, new Dictionary<int, string>());
-              langData[UserDataKeysKnown.KEY_PREFERRED_SUBTITLE_LANGUAGE].Add(0, culture?.TwoLetterISOLanguageName);
+              langData[UserDataKeysKnown.KEY_PREFERRED_SUBTITLE_LANGUAGE].Add(0, string.IsNullOrEmpty(culture?.TwoLetterISOLanguageName) ? new CultureInfo(settings.Culture).TwoLetterISOLanguageName : culture.TwoLetterISOLanguageName);
               culture = cultures.FirstOrDefault(c => c.DisplayName == UserProxy.LanguageSubtitleSecondary);
-              langData[UserDataKeysKnown.KEY_PREFERRED_SUBTITLE_LANGUAGE].Add(1, culture?.TwoLetterISOLanguageName);
+              langData[UserDataKeysKnown.KEY_PREFERRED_SUBTITLE_LANGUAGE].Add(1, culture?.TwoLetterISOLanguageName ?? "");
 
               culture = cultures.FirstOrDefault(c => c.DisplayName == UserProxy.LanguageMenuMain);
               langData.Add(UserDataKeysKnown.KEY_PREFERRED_MENU_LANGUAGE, new Dictionary<int, string>());
-              langData[UserDataKeysKnown.KEY_PREFERRED_MENU_LANGUAGE].Add(0, culture?.TwoLetterISOLanguageName);
+              langData[UserDataKeysKnown.KEY_PREFERRED_MENU_LANGUAGE].Add(0, string.IsNullOrEmpty(culture?.TwoLetterISOLanguageName) ? new CultureInfo(settings.Culture).TwoLetterISOLanguageName : culture.TwoLetterISOLanguageName);
               success &= await userManagement.UserProfileDataManagement.SetUserAdditionalDataAsync(userId, UserDataKeysKnown.KEY_PREFERRED_MENU_LANGUAGE, culture?.TwoLetterISOLanguageName, 0);
               culture = cultures.FirstOrDefault(c => c.DisplayName == UserProxy.LanguageMenuSecondary);
-              langData[UserDataKeysKnown.KEY_PREFERRED_MENU_LANGUAGE].Add(1, culture?.TwoLetterISOLanguageName);
+              langData[UserDataKeysKnown.KEY_PREFERRED_MENU_LANGUAGE].Add(1, culture?.TwoLetterISOLanguageName ?? "");
 
               foreach(var dataKey in langData.Keys)
               {
