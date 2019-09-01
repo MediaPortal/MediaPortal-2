@@ -179,7 +179,12 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.Common
             return true;
           byte[] data = null;
           using (WebClient webClient = new CompressionWebClient())
+          {
+            foreach (KeyValuePair<string, string> headerEntry in Headers)
+              webClient.Headers[headerEntry.Key] = headerEntry.Value;
+
             data = await webClient.DownloadDataTaskAsync(url).ConfigureAwait(false);
+          }
           if (data?.LongLength > 0)
           {
             using (FileStream sourceStream = new FileStream(downloadFile, FileMode.Create, FileAccess.Write, FileShare.None, bufferSize: 4096, useAsync: true))
