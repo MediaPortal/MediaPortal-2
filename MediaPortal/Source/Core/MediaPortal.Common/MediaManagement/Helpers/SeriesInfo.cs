@@ -279,6 +279,8 @@ namespace MediaPortal.Common.MediaManagement.Helpers
           }
           Episodes.Sort();
         }
+
+        MergeDataProviders(series);
         return true;
       }
       return false;

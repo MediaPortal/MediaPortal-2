@@ -537,6 +537,18 @@ namespace MediaPortal.Common.Services.ServerCommunication
       return MarshallingHelper.DeserializeGuid((string)outParameters[0]);
     }
 
+    public async Task<bool> DownloadMetadataAsync(Guid mediaItemId, IEnumerable<MediaItemAspect> mediaItemAspects)
+    {
+      CpAction action = GetAction("X_MediaPortal_DownloadMetadata");
+      IList<object> inParameters = new List<object>
+        {
+            MarshallingHelper.SerializeGuid(mediaItemId),
+            mediaItemAspects
+        };
+      IList<object> outParameters = await action.InvokeAsync(inParameters);
+      return (bool)outParameters[0];
+    }
+
     public async Task<IList<MediaItem>> ReconcileMediaItemRelationshipsAsync(Guid mediaItemId, IEnumerable<MediaItemAspect> mediaItemAspects,
       IEnumerable<RelationshipItem> relationshipItems)
     {

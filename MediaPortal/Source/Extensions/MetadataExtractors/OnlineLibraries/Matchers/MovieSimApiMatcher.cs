@@ -34,15 +34,6 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
 {
   public class MovieSimApiMatcher : MovieMatcher<string, string>
   {
-    #region Static instance
-
-    public static MovieSimApiMatcher Instance
-    {
-      get { return ServiceRegistration.Get<MovieSimApiMatcher>(); }
-    }
-
-    #endregion
-
     #region Constants
 
     public static string CACHE_PATH = ServiceRegistration.Get<IPathManager>().GetPath(@"<DATA>\SimApi\");

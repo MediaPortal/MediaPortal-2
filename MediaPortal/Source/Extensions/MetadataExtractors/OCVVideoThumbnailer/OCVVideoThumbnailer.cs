@@ -218,6 +218,11 @@ namespace MediaPortal.Extensions.MetadataExtractors.OCVVideoThumbnailer
       return Task.FromResult(false);
     }
 
+    public Task<bool> DownloadMetadataAsync(Guid mediaItemId, IDictionary<Guid, IList<MediaItemAspect>> aspectData)
+    {
+      return Task.FromResult(false);
+    }
+
     #endregion
   }
 }

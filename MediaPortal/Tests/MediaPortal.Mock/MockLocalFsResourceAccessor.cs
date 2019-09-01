@@ -98,6 +98,11 @@ namespace Test.OnlineLibraries
       throw new NotImplementedException();
     }
 
+    public Stream CreateOpenWrite(string file, bool overwrite)
+    {
+      throw new NotImplementedException();
+    }
+
     public IResourceProvider ParentProvider
     {
       get { throw new NotImplementedException(); }
@@ -129,6 +134,11 @@ namespace Test.OnlineLibraries
     }
 
     public void Dispose()
+    {
+      throw new NotImplementedException();
+    }
+
+    public Stream OpenWrite(bool createIfNotExists = false)
     {
       throw new NotImplementedException();
     }

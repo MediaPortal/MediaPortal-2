@@ -369,5 +369,10 @@ namespace Tests.Server.MediaServer
     {
       throw new NotImplementedException();
     }
+
+    public bool DownloadMetadata(Guid mediaItemId, IEnumerable<MediaItemAspect> mediaItemAspects)
+    {
+      throw new NotImplementedException();
+    }
   }
 }

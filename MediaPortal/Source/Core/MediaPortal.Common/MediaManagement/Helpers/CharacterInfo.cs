@@ -139,6 +139,7 @@ namespace MediaPortal.Common.MediaManagement.Helpers
         HasChanged |= MetadataUpdater.SetOrUpdateString(ref Name, character.Name, overwriteShorterStrings);
         HasChanged |= MetadataUpdater.SetOrUpdateString(ref ActorName, character.ActorName, overwriteShorterStrings);
 
+        MergeDataProviders(character);
         return true;
       }
       return false;

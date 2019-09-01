@@ -36,15 +36,6 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
 {
   public class MovieTheMovieDbMatcher : MovieMatcher<ImageItem, string>
   {
-    #region Static instance
-
-    public static MovieTheMovieDbMatcher Instance
-    {
-      get { return ServiceRegistration.Get<MovieTheMovieDbMatcher>(); }
-    }
-
-    #endregion
-
     #region Constants
 
     public static string CACHE_PATH = ServiceRegistration.Get<IPathManager>().GetPath(@"<DATA>\TheMovieDB\");

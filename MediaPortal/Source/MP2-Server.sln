@@ -176,6 +176,12 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OCVVideoThumbnailer", "Exte
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MP2Extended", "..\Incubator\MP2Extended\MP2Extended.csproj", "{76F39ABC-7CC4-4373-BE19-AAF989C8EAD6}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SubtitleMetadataExtractor", "Extensions\MetadataExtractors\SubtitleMetadataExtractor\SubtitleMetadataExtractor.csproj", "{4CBD029B-7F5F-442F-8577-CB830A8F0CF1}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "SubtitleProviders", "SubtitleProviders", "{1A4364AE-E225-42F8-BE12-811D4E5FCF66}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SubtitleDownloaderProvider", "Extensions\MetadataExtractors\SubtitleDownloaderProvider\SubtitleDownloaderProvider.csproj", "{D83D417B-6EB3-4C09-B0A9-94C219C9A426}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x86 = Debug|x86
@@ -426,6 +432,14 @@ Global
 		{76F39ABC-7CC4-4373-BE19-AAF989C8EAD6}.Debug|x86.Build.0 = Debug|x86
 		{76F39ABC-7CC4-4373-BE19-AAF989C8EAD6}.Release|x86.ActiveCfg = Release|x86
 		{76F39ABC-7CC4-4373-BE19-AAF989C8EAD6}.Release|x86.Build.0 = Release|x86
+		{4CBD029B-7F5F-442F-8577-CB830A8F0CF1}.Debug|x86.ActiveCfg = Debug|x86
+		{4CBD029B-7F5F-442F-8577-CB830A8F0CF1}.Debug|x86.Build.0 = Debug|x86
+		{4CBD029B-7F5F-442F-8577-CB830A8F0CF1}.Release|x86.ActiveCfg = Release|x86
+		{4CBD029B-7F5F-442F-8577-CB830A8F0CF1}.Release|x86.Build.0 = Release|x86
+		{D83D417B-6EB3-4C09-B0A9-94C219C9A426}.Debug|x86.ActiveCfg = Debug|x86
+		{D83D417B-6EB3-4C09-B0A9-94C219C9A426}.Debug|x86.Build.0 = Debug|x86
+		{D83D417B-6EB3-4C09-B0A9-94C219C9A426}.Release|x86.ActiveCfg = Release|x86
+		{D83D417B-6EB3-4C09-B0A9-94C219C9A426}.Release|x86.Build.0 = Release|x86
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -511,6 +525,9 @@ Global
 		{69ED3BA8-4E60-42BD-9FD3-887358BFB247} = {D78DACAE-6316-45F4-B7D7-31A50791E977}
 		{F367E2D6-DDD7-4F44-AA45-F9BD4D61A4EC} = {69ED3BA8-4E60-42BD-9FD3-887358BFB247}
 		{9049F675-1A23-46A1-B0A9-BBA94C492AAD} = {35DF0F35-CB07-4868-AD8B-146E5D5B5DB0}
+		{4CBD029B-7F5F-442F-8577-CB830A8F0CF1} = {1B4741DC-78EA-4D93-8EED-00CB9617AD2F}
+		{1A4364AE-E225-42F8-BE12-811D4E5FCF66} = {26B21F24-5C09-4F49-ABE3-C1B3F9059D2B}
+		{D83D417B-6EB3-4C09-B0A9-94C219C9A426} = {1A4364AE-E225-42F8-BE12-811D4E5FCF66}
 		{76F39ABC-7CC4-4373-BE19-AAF989C8EAD6} = {34807E8F-6902-498A-AEDA-ABD62CFC26C9}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution

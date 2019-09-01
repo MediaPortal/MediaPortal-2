@@ -39,15 +39,6 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
   /// </summary>
   public class SeriesFanArtTvMatcher : SeriesMatcher<FanArtMovieThumb, string>
   {
-    #region Static instance
-
-    public static SeriesFanArtTvMatcher Instance
-    {
-      get { return ServiceRegistration.Get<SeriesFanArtTvMatcher>(); }
-    }
-
-    #endregion
-
     #region Constants
 
     public static string CACHE_PATH = ServiceRegistration.Get<IPathManager>().GetPath(@"<DATA>\FanArtTV\");

@@ -1052,8 +1052,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
       if (!matchedAspects.Any(a => miatr.LocallySupportedReimportMediaItemAspectTypes.ContainsKey(a.Metadata.AspectId)))
         return; //Aspect not supported for reimport
       ITransaction transaction = database.BeginTransaction();
-      Dictionary<ResourcePath, Share> importPaths = new Dictionary<ResourcePath, Share>();
-      List<ResourcePath> basePaths = new List<ResourcePath>();
+      List<IDictionary<Guid, IList<MediaItemAspect>>> changedItems = new List<IDictionary<Guid, IList<MediaItemAspect>>>();
 
       try
       {
@@ -1106,6 +1105,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
             IList<MultipleMediaItemAspect> providerAspects;
             if (!MediaItemAspect.TryGetAspects(item.Aspects, ProviderResourceAspect.Metadata, out providerAspects))
               continue;
+            changedItems.Add(item.Aspects);
 
             //Delete the media item so it can be reimported
             foreach (var pra in providerAspects.Where(p => p.GetAttributeValue<int>(ProviderResourceAspect.ATTR_TYPE) == ProviderResourceAspect.TYPE_PRIMARY))
@@ -1166,34 +1166,6 @@ namespace MediaPortal.Backend.Services.MediaLibrary
               MediaItemAspect importerAspect = _miaManagement.GetMediaItemAspect(transaction, newId, ImporterAspect.ASPECT_ID);
               importerAspect.SetAttribute(ImporterAspect.ATTR_DIRTY, true);
               _miaManagement.AddOrUpdateMIA(transaction, newId, importerAspect, false);
-
-              //Determine base import path
-              if (basePaths.Count == 0)
-              {
-                //Add as a base import path
-                basePaths.Add(resPath);
-              }
-              else if (!basePaths.Any(p => p.IsSameOrParentOf(resPath)))
-              {
-                //There no parent or same paths as this
-                //Find a parent that contains most or all current base paths
-                string pathDir = ResourcePathHelper.GetDirectoryName(path);
-                while (pathDir != null)
-                {
-                  ResourcePath resPathDir = ResourcePath.Deserialize(pathDir);
-                  if (basePaths.Any(p => resPathDir.IsSameOrParentOf(p)))
-                  {
-                    basePaths.RemoveAll(p => resPathDir.IsSameOrParentOf(p));
-                    basePaths.Add(resPathDir);
-                    break;
-                  }
-                  pathDir = ResourcePathHelper.GetDirectoryName(pathDir);
-                }
-
-                //If no new parent base path was found add it as a new base path
-                if (pathDir == null)
-                  basePaths.Add(resPath);
-              }
             }
           }
         }
@@ -1206,6 +1178,128 @@ namespace MediaPortal.Backend.Services.MediaLibrary
         throw;
       }
 
+      //Schedule imports
+      try
+      {
+        ScheduleImportOfChangedItems(changedItems);
+      }
+      catch (Exception e)
+      {
+        Logger.Error("MediaLibrary: Error scheduling refresh for reimporting media item {0}", e, mediaItemId);
+      }
+    }
+
+    public bool DownloadMetadata(Guid mediaItemId, IEnumerable<MediaItemAspect> aspects)
+    {
+      ISQLDatabase database = ServiceRegistration.Get<ISQLDatabase>();
+      IMediaAccessor mediaAccessor = ServiceRegistration.Get<IMediaAccessor>();
+      bool success = false;
+      var mediaAspects = MediaItemAspect.GetAspects(aspects);
+
+      try
+      {
+        foreach (IMetadataExtractor extractor in mediaAccessor.LocalMetadataExtractors.Values)
+        {
+          success |= extractor.DownloadMetadataAsync(mediaItemId, mediaAspects).Result;
+        }
+      }
+      catch (Exception e)
+      {
+        Logger.Error("MediaLibrary: Error downloading metadata for media item {0}", e, mediaItemId);
+        throw;
+      }
+
+      ITransaction transaction = database.BeginTransaction();
+      try
+      {
+        IList<MultipleMediaItemAspect> providerAspects;
+        if (!MediaItemAspect.TryGetAspects(mediaAspects, ProviderResourceAspect.Metadata, out providerAspects))
+          return false;
+
+        //Reimport each path so it can be potentially be merged with already existing media items
+        foreach (var pra in providerAspects.Where(p => p.GetAttributeValue<int>(ProviderResourceAspect.ATTR_TYPE) == ProviderResourceAspect.TYPE_PRIMARY))
+        {
+          var parentDir = pra.GetAttributeValue<Guid>(ProviderResourceAspect.ATTR_PARENT_DIRECTORY_ID);
+          var path = pra.GetAttributeValue<string>(ProviderResourceAspect.ATTR_RESOURCE_ACCESSOR_PATH);
+          var sysId = pra.GetAttributeValue<string>(ProviderResourceAspect.ATTR_SYSTEM_ID);
+          var resPath = ResourcePath.Deserialize(path);
+
+          //Set media item as changed to force update
+          MediaItemAspect importerAspect = _miaManagement.GetMediaItemAspect(transaction, mediaItemId, ImporterAspect.ASPECT_ID);
+          importerAspect.SetAttribute(ImporterAspect.ATTR_DIRTY, true);
+          _miaManagement.AddOrUpdateMIA(transaction, mediaItemId, importerAspect, false);
+        }
+        transaction.Commit();
+      }
+      catch (Exception e)
+      {
+        transaction.Rollback();
+        Logger.Error("MediaLibrary: Error updating metadata for media item {0}", e, mediaItemId);
+        throw;
+      }
+
+      if (success)
+      {
+        //Schedule imports
+        try
+        {
+          ScheduleImportOfChangedItems(new[] { MediaItemAspect.GetAspects(aspects) });
+        }
+        catch (Exception e)
+        {
+          Logger.Error("MediaLibrary: Error scheduling refresh for updating metadata for media item {0}", e, mediaItemId);
+        }
+      }
+      return success;
+    }
+
+    private void ScheduleImportOfChangedItems(IEnumerable<IDictionary<Guid, IList<MediaItemAspect>>> changedItemsAspects)
+    {
+      Dictionary<ResourcePath, Share> importPaths = new Dictionary<ResourcePath, Share>();
+      List<ResourcePath> basePaths = new List<ResourcePath>();
+      foreach (var itemAspects in changedItemsAspects)
+      {
+        IList<MultipleMediaItemAspect> providerAspects;
+        if (!MediaItemAspect.TryGetAspects(itemAspects, ProviderResourceAspect.Metadata, out providerAspects))
+          continue;
+
+        foreach (var pra in providerAspects.Where(p => p.GetAttributeValue<int>(ProviderResourceAspect.ATTR_TYPE) == ProviderResourceAspect.TYPE_PRIMARY))
+        {
+          var parentDir = pra.GetAttributeValue<Guid>(ProviderResourceAspect.ATTR_PARENT_DIRECTORY_ID);
+          var path = pra.GetAttributeValue<string>(ProviderResourceAspect.ATTR_RESOURCE_ACCESSOR_PATH);
+          var sysId = pra.GetAttributeValue<string>(ProviderResourceAspect.ATTR_SYSTEM_ID);
+          var resPath = ResourcePath.Deserialize(path);
+
+          //Determine base import path
+          if (basePaths.Count == 0)
+          {
+            //Add as a base import path
+            basePaths.Add(resPath);
+          }
+          else if (!basePaths.Any(p => p.IsSameOrParentOf(resPath)))
+          {
+            //There no parent or same paths as this
+            //Find a parent that contains most or all current base paths
+            string pathDir = ResourcePathHelper.GetDirectoryName(path);
+            while (pathDir != null)
+            {
+              ResourcePath resPathDir = ResourcePath.Deserialize(pathDir);
+              if (basePaths.Any(p => resPathDir.IsSameOrParentOf(p)))
+              {
+                basePaths.RemoveAll(p => resPathDir.IsSameOrParentOf(p));
+                basePaths.Add(resPathDir);
+                break;
+              }
+              pathDir = ResourcePathHelper.GetDirectoryName(pathDir);
+            }
+
+            //If no new parent base path was found add it as a new base path
+            if (pathDir == null)
+              basePaths.Add(resPath);
+          }
+        }
+      }
+
       //Find shares for base paths
       var shares = GetShares(_localSystemId);
       foreach (var basePath in basePaths)
@@ -1216,15 +1310,8 @@ namespace MediaPortal.Backend.Services.MediaLibrary
       }
 
       //Schedule imports
-      try
-      {
-        foreach (var import in importPaths)
-          TryScheduleLocalMediaItemRefresh(import.Value, import.Key);
-      }
-      catch (Exception e)
-      {
-        Logger.Error("MediaLibrary: Error scheduling refresh for reimporting media item {0}", e, mediaItemId);
-      }
+      foreach (var import in importPaths)
+        TryScheduleLocalMediaItemRefresh(import.Value, import.Key);
     }
 
     public MediaItem LoadItem(string systemId, ResourcePath path,

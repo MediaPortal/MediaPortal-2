@@ -91,6 +91,7 @@
     <Compile Include="MediaManagement\Helpers\GenreInfo.cs" />
     <Compile Include="MediaManagement\Helpers\BaseInfo.cs" />
     <Compile Include="MediaManagement\Helpers\HelperExtensionMethods.cs" />
+    <Compile Include="MediaManagement\Helpers\SubtitleInfo.cs" />
     <Compile Include="MediaManagement\Helpers\RelationshipCache.cs" />
     <Compile Include="MediaManagement\Helpers\SimpleRating.cs" />
     <Compile Include="MediaManagement\Helpers\SimpleTitle.cs" />
@@ -128,6 +129,7 @@
     <Compile Include="MediaManagement\TransientAspects\TempAlbumAspect.cs" />
     <Compile Include="MediaManagement\TransientAspects\TempActorAspect.cs" />
     <Compile Include="MediaManagement\TransientAspects\TempArtistAspect.cs" />
+    <Compile Include="MediaManagement\TransientAspects\TempSubtitleAspect.cs" />
     <Compile Include="MediaManagement\TransientAspects\TempSeriesAspect.cs" />
     <Compile Include="ResourceAccess\IUncachableResource.cs" />
     <Compile Include="ResourceAccess\IImpersonationService.cs" />

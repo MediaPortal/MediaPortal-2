@@ -864,6 +864,16 @@ namespace MediaPortal.Backend.Services.ClientCommunication
           });
       AddAction(mpnp10ReconcileMediaItemRelationshipsAction);
 
+      DvAction mpnp10DownloadMetadataAction = new DvAction("X_MediaPortal_DownloadMetadata", OnMPnP10DownloadMetadata,
+          new DvArgument[] {
+            new DvArgument("MediaItemId", A_ARG_TYPE_Uuid, ArgumentDirection.In),
+            new DvArgument("MediaItemAspects", A_ARG_TYPE_MediaItemAspects, ArgumentDirection.In),
+          },
+          new DvArgument[] {
+            new DvArgument("Success", A_ARG_TYPE_Bool, ArgumentDirection.Out, true)
+          });
+      AddAction(mpnp10DownloadMetadataAction);
+
       DvAction mpnp10DeleteMediaItemOrPathAction = new DvAction("X_MediaPortal_DeleteMediaItemOrPath", OnMPnP10DeleteMediaItemOrPath,
           new DvArgument[] {
             new DvArgument("SystemId", A_ARG_TYPE_SystemId, ArgumentDirection.In),
@@ -1779,6 +1789,16 @@ namespace MediaPortal.Backend.Services.ClientCommunication
       IEnumerable<MediaItemAspect> mediaItemAspects = (IEnumerable<MediaItemAspect>)inParams[1];
       IEnumerable<RelationshipItem> relationshipItems = (IEnumerable<RelationshipItem>)inParams[2];
       IList<MediaItem> result = MediaLibrary.ReconcileMediaItemRelationships(mediaItemId, mediaItemAspects, relationshipItems);
+      outParams = new List<object> { result };
+      return null;
+    }
+
+    static UPnPError OnMPnP10DownloadMetadata(DvAction action, IList<object> inParams, out IList<object> outParams,
+        CallContext context)
+    {
+      Guid mediaItemId = MarshallingHelper.DeserializeGuid((string)inParams[0]);
+      IEnumerable<MediaItemAspect> mediaItemAspects = (IEnumerable<MediaItemAspect>)inParams[1];
+      bool result = MediaLibrary.DownloadMetadata(mediaItemId, mediaItemAspects);
       outParams = new List<object> { result };
       return null;
     }

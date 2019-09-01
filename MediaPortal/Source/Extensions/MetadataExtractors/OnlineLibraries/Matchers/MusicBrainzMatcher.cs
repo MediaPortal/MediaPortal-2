@@ -38,15 +38,6 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
 {
   public class MusicBrainzMatcher : MusicMatcher<TrackImage, string>
   {
-    #region Static instance
-
-    public static MusicBrainzMatcher Instance
-    {
-      get { return ServiceRegistration.Get<MusicBrainzMatcher>(); }
-    }
-
-    #endregion
-
     #region Constants
 
     public static string CACHE_PATH = ServiceRegistration.Get<IPathManager>().GetPath(@"<DATA>\MusicBrainz\");

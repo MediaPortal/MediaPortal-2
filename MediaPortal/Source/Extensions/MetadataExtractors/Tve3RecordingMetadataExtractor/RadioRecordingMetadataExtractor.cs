@@ -157,6 +157,11 @@ namespace MediaPortal.Extensions.MetadataExtractors
       return Task.FromResult(false);
     }
 
+    public Task<bool> DownloadMetadataAsync(Guid mediaItemId, IDictionary<Guid, IList<MediaItemAspect>> aspectData)
+    {
+      return Task.FromResult(false);
+    }
+
     protected MediaInfoWrapper ReadMediaInfo(IFileSystemResourceAccessor mediaItemAccessor)
     {
       MediaInfoWrapper result = new MediaInfoWrapper();

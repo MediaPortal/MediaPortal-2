@@ -1010,6 +1010,11 @@ namespace Tests.WifiRemote
       {
         throw new NotImplementedException();
       }
+
+      public Task<bool> DownloadMetadataAsync(Guid mediaItemId, IEnumerable<MediaItemAspect> mediaItemAspects)
+      {
+        throw new NotImplementedException();
+      }
     }
 
     private class TestPlayer : IPlayer, IMediaPlaybackControl

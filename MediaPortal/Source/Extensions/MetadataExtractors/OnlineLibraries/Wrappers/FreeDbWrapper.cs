@@ -37,8 +37,10 @@ using System.Threading.Tasks;
 
 namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
 {
-  class FreeDbWrapper : ApiWrapper<string, string>
+  class FreeDbWrapper : ApiMediaWrapper<string, string>
   {
+    private const string PROVIDER_NAME = "freedb.org";
+
     private string _fileFormat = "CD_{0}.xmcd";
 
     protected FreeDBQuery _freeDbHandler;
@@ -108,7 +110,8 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
                 TrackNum = foundTrack.TrackNumber,
                 TrackName = foundTrack.Title,
                 Artists = ConvertToPersons(foundTrack.Artist, PersonAspect.OCCUPATION_ARTIST),
-                Duration = foundTrack.Duration
+                Duration = foundTrack.Duration,
+                DataProviders = new List<string>() { PROVIDER_NAME }
               };
               tracks.Add(info);
             }
@@ -159,6 +162,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
                 Artists = ConvertToPersons(discInfo.Artist, PersonAspect.OCCUPATION_ARTIST),
                 TotalTracks = discInfo.Tracks.Count(),
                 ReleaseDate = discInfo.Year > 0 ? new DateTime(discInfo.Year, 1, 1) : default(DateTime?),
+                DataProviders = new List<string>() { PROVIDER_NAME }
               };
               albums.Add(info);
             }
@@ -186,7 +190,8 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
         new PersonInfo()
         {
           Name = name,
-          Occupation = occupation
+          Occupation = occupation,
+          DataProviders = new List<string>() { PROVIDER_NAME }
         }
       };
     }
@@ -229,6 +234,9 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
           track.Artists = ConvertToPersons(foundTrack.Artist, PersonAspect.OCCUPATION_ARTIST);
           track.Duration = foundTrack.Duration;
 
+          if (!track.DataProviders.Contains(PROVIDER_NAME))
+            track.DataProviders.Add(PROVIDER_NAME);
+
           return Task.FromResult(true);
         }
         return Task.FromResult(false);
@@ -257,6 +265,8 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
           album.Artists = ConvertToPersons(discInfo.Artist, PersonAspect.OCCUPATION_ARTIST);
           album.TotalTracks = discInfo.Tracks.Count();
           album.ReleaseDate = discInfo.Year > 0 ? new DateTime(discInfo.Year, 1, 1) : default(DateTime?);
+          if (!album.DataProviders.Contains(PROVIDER_NAME))
+            album.DataProviders.Add(PROVIDER_NAME);
 
           foreach (FreeDBCDTrackDetail trackDetail in discInfo.Tracks)
           {
@@ -273,6 +283,8 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
               Artists = ConvertToPersons(trackDetail.Artist, PersonAspect.OCCUPATION_ARTIST),
               Duration = trackDetail.Duration
             };
+            if (!track.DataProviders.Contains(PROVIDER_NAME))
+              track.DataProviders.Add(PROVIDER_NAME);
             album.Tracks.Add(track);
           }
 

@@ -38,8 +38,10 @@ using System.Threading.Tasks;
 
 namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
 {
-  class SimApiWrapper : ApiWrapper<string, string>
+  class SimApiWrapper : ApiMediaWrapper<string, string>
   {
+    private const string PROVIDER_NAME = "moviesapi.com";
+
     protected SimApiV1 _simApiHandler;
 
     /// <summary>
@@ -64,6 +66,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
         ImdbId = m.ImdbID,
         MovieName = new SimpleTitle(m.Title, true),
         ReleaseDate = m.Year.HasValue ? new DateTime(m.Year.Value, 1, 1) : default(DateTime?),
+        DataProviders = new List<string>() { PROVIDER_NAME }
       }).ToList();
     }
 
@@ -77,6 +80,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
       {
         ImdbId = p.ImdbID,
         Name = p.Name,
+        DataProviders = new List<string>() { PROVIDER_NAME }
       }).ToList();
     }
 
@@ -121,6 +125,9 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
         //if (movie.Directors.Count == 0)
         //  movie.Directors = ConvertToPersons(movieDetail.Directors, PersonAspect.OCCUPATION_DIRECTOR, movieDetail.Title);
 
+        if (!movie.DataProviders.Contains(PROVIDER_NAME))
+          movie.DataProviders.Add(PROVIDER_NAME);
+
         return true;
       }
       catch (Exception ex)
@@ -146,6 +153,9 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
         person.DateOfBirth = personDetail.BirthYear.HasValue ? (DateTime?)new DateTime(personDetail.BirthYear.Value, 1, 1) : null;
         person.Orign = personDetail.BirthPlace;
 
+        if (!person.DataProviders.Contains(PROVIDER_NAME))
+          person.DataProviders.Add(PROVIDER_NAME);
+
         return true;
       }
       catch (Exception ex)
@@ -167,7 +177,15 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
       int sortOrder = 0;
       List<PersonInfo> retValue = new List<PersonInfo>();
       foreach (string name in names)
-        retValue.Add(new PersonInfo() { Name = name, Occupation = occupation, Order = sortOrder++, MediaName = media, ParentMediaName = parentMedia });
+        retValue.Add(new PersonInfo()
+        {
+          Name = name,
+          Occupation = occupation,
+          Order = sortOrder++,
+          MediaName = media,
+          ParentMediaName = parentMedia,
+          DataProviders = new List<string>() { PROVIDER_NAME }
+        });
       return retValue;
     }
 

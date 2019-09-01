@@ -210,6 +210,11 @@ namespace MediaPortal.Extensions.MetadataExtractors.StubMetadataExtractors
       return Task.FromResult(false);
     }
 
+    public Task<bool> DownloadMetadataAsync(Guid mediaItemId, IDictionary<Guid, IList<MediaItemAspect>> aspectData)
+    {
+      return Task.FromResult(false);
+    }
+
     public bool IsStubResource(IResourceAccessor mediaItemAccessor)
     {
       if (IsDvd(mediaItemAccessor))

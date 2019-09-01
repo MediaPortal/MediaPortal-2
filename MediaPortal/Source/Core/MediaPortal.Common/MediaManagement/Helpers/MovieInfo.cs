@@ -234,6 +234,7 @@ namespace MediaPortal.Common.MediaManagement.Helpers
         MetadataUpdater.SetOrUpdateList(ProductionCompanies, movie.ProductionCompanies.Where(c => !string.IsNullOrEmpty(c.Name)).Distinct().ToList(), ProductionCompanies.Count == 0, overwriteShorterStrings);
         MetadataUpdater.SetOrUpdateList(Writers, movie.Writers.Where(p => !string.IsNullOrEmpty(p.Name)).Distinct().ToList(), Writers.Count == 0, overwriteShorterStrings);
 
+        MergeDataProviders(movie);
         return true;
       }
       return false;

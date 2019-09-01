@@ -31,6 +31,7 @@ using System.Drawing.Imaging;
 using System.Text.RegularExpressions;
 using DuoVia.FuzzyStrings;
 using MediaPortal.Utilities;
+using System.Linq;
 
 namespace MediaPortal.Common.MediaManagement.Helpers
 {
@@ -56,18 +57,9 @@ namespace MediaPortal.Common.MediaManagement.Helpers
     /// Binary data for the thumbnail image.
     /// </summary>
     public byte[] Thumbnail = null;
-
-    private IDictionary<Guid, IList<MediaItemAspect>> _linkedAspects;
     private bool _hasThumbnail = false;
-    private bool _hasChanged = false;
-    private DateTime? _lastChange = null;
-    private DateTime? _dateAdded = null;
 
-    public IDictionary<Guid, IList<MediaItemAspect>> LinkedAspects
-    {
-      get { return _linkedAspects; }
-    }
-
+    public IDictionary<Guid, IList<MediaItemAspect>> LinkedAspects { get; private set; }
 
     public bool HasThumbnail
     {
@@ -75,23 +67,13 @@ namespace MediaPortal.Common.MediaManagement.Helpers
       set { _hasThumbnail = value; }
     }
 
-    public bool HasChanged
-    {
-      get { return _hasChanged; }
-      set { _hasChanged = value; }
-    }
+    public bool HasChanged { get; set; } = false;
 
-    public DateTime? LastChanged
-    {
-      get { return _lastChange; }
-      set { _lastChange = value; }
-    }
+    public DateTime? LastChanged { get; set; } = null;
 
-    public DateTime? DateAdded
-    {
-      get { return _dateAdded; }
-      set { _dateAdded = value; }
-    }
+    public DateTime? DateAdded { get; set; } = null;
+
+    public IList<string> DataProviders { get; set; } = new List<string>();
 
     public bool IsRefreshed
     {
@@ -264,9 +246,9 @@ namespace MediaPortal.Common.MediaManagement.Helpers
       SingleMediaItemAspect importerAspect;
       if (MediaItemAspect.TryGetAspect(aspectData, ImporterAspect.Metadata, out importerAspect))
       {
-        _hasChanged = importerAspect.GetAttributeValue<bool>(ImporterAspect.ATTR_DIRTY);
-        _lastChange = importerAspect.GetAttributeValue<DateTime?>(ImporterAspect.ATTR_LAST_IMPORT_DATE);
-        _dateAdded = importerAspect.GetAttributeValue<DateTime?>(ImporterAspect.ATTR_DATEADDED);
+        HasChanged = importerAspect.GetAttributeValue<bool>(ImporterAspect.ATTR_DIRTY);
+        LastChanged = importerAspect.GetAttributeValue<DateTime?>(ImporterAspect.ATTR_LAST_IMPORT_DATE);
+        DateAdded = importerAspect.GetAttributeValue<DateTime?>(ImporterAspect.ATTR_DATEADDED);
       }
     }
 
@@ -275,10 +257,10 @@ namespace MediaPortal.Common.MediaManagement.Helpers
       SingleMediaItemAspect importerAspect;
       if (MediaItemAspect.TryGetAspect(aspectData, ImporterAspect.Metadata, out importerAspect))
       {
-        if (_hasChanged)
+        if (HasChanged)
         {
           //Set to dirty to mark it as changed
-          importerAspect.SetAttribute(ImporterAspect.ATTR_DIRTY, _hasChanged);
+          importerAspect.SetAttribute(ImporterAspect.ATTR_DIRTY, HasChanged);
         }
       }
     }
@@ -291,16 +273,16 @@ namespace MediaPortal.Common.MediaManagement.Helpers
 
     public virtual bool SetLinkedMetadata()
     {
-      if (_linkedAspects == null)
+      if (LinkedAspects == null)
         return false;
-      return SetMetadata(_linkedAspects);
+      return SetMetadata(LinkedAspects);
     }
 
     public virtual bool FromLinkedMetadata(IDictionary<Guid, IList<MediaItemAspect>> aspectData)
     {
       if (aspectData == null)
         return false;
-      _linkedAspects = aspectData;
+      LinkedAspects = aspectData;
       return FromMetadata(aspectData);
     }
 
@@ -334,6 +316,11 @@ namespace MediaPortal.Common.MediaManagement.Helpers
           return nameId;
       }
       return null;
+    }
+
+    protected void MergeDataProviders(BaseInfo other)
+    {
+      DataProviders = DataProviders.Except(other.DataProviders).Concat(other.DataProviders).ToList();
     }
 
     #endregion

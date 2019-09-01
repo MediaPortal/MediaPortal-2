@@ -28,11 +28,14 @@ using MediaPortal.Common.Configuration.ConfigurationClasses;
 using MediaPortal.Extensions.OnlineLibraries;
 using MediaPortal.Common.Localization;
 using MediaPortal.Common.Settings;
+using System.Collections.Generic;
 
 namespace MediaPortal.Plugins.ServerSettings.Settings.Configuration
 {
   public class ServerMovieMDESourceEnable : MultipleSelectionList, IDisposable
   {
+    private Dictionary<string, int> _dictionary = new Dictionary<string, int>();
+
     public ServerMovieMDESourceEnable()
     {
       Enabled = false;
@@ -73,6 +76,7 @@ namespace MediaPortal.Plugins.ServerSettings.Settings.Configuration
           if (setting.Enabled)
             _selected.Add(_items.Count - 1);
         }
+        _dictionary[setting.Id] = _items.Count - 1;
       }
     }
 
@@ -86,29 +90,9 @@ namespace MediaPortal.Plugins.ServerSettings.Settings.Configuration
       ISettingsManager localSettings = ServiceRegistration.Get<ISettingsManager>();
       IServerSettingsClient serverSettings = ServiceRegistration.Get<IServerSettingsClient>();
       OnlineLibrarySettings settings = serverSettings.Load<OnlineLibrarySettings>();
-      int selectedNo = 0;
       foreach (MatcherSetting setting in settings.MovieMatchers)
       {
-        if (setting.Id.Equals("MovieOmDbMatcher", StringComparison.InvariantCultureIgnoreCase))
-        {
-          setting.Enabled = _selected.Contains(selectedNo);
-          selectedNo++;
-        }
-        else if (setting.Id.Equals("MovieFanArtTvMatcher", StringComparison.InvariantCultureIgnoreCase))
-        {
-          setting.Enabled = _selected.Contains(selectedNo);
-          selectedNo++;
-        }
-        else if (setting.Id.Equals("MovieTheMovieDbMatcher", StringComparison.InvariantCultureIgnoreCase))
-        {
-          setting.Enabled = _selected.Contains(selectedNo);
-          selectedNo++;
-        }
-        else if (setting.Id.Equals("MovieSimApiMatcher", StringComparison.InvariantCultureIgnoreCase))
-        {
-          setting.Enabled = _selected.Contains(selectedNo);
-          selectedNo++;
-        }
+        setting.Enabled = _selected.Contains(_dictionary[setting.Id]);
       }
       serverSettings.Save(settings);
       localSettings.Save(settings);
