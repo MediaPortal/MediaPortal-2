@@ -2,7 +2,7 @@
 <Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="4.0">
 
   <PropertyGroup>
-    <PluginDestination>$(SolutionDir)..\Bin\$(TargetName)\bin\$(PlatformName)\$(ConfigurationName)\</PluginDestination>
+    <PluginDestination>$(SolutionDir)..\Bin\$(TargetName)\bin\$(ConfigurationName)\</PluginDestination>
   </PropertyGroup>
 
   <Target Name="AfterBuild">

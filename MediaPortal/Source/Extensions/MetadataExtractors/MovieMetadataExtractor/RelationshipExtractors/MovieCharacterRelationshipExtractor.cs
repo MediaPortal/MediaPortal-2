@@ -108,7 +108,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
       if (MovieMetadataExtractor.IncludeCharacterDetails && !MovieMetadataExtractor.SkipOnlineSearches)
         await OnlineMatcherService.Instance.UpdateCharactersAsync(movieInfo).ConfigureAwait(false);
       
-      foreach (CharacterInfo character in movieInfo.Characters)
+      foreach (CharacterInfo character in movieInfo.Characters.Take(MovieMetadataExtractor.MaximumCharacterCount))
       {
         if (character.LinkedAspects != null)
           character.SetLinkedMetadata();

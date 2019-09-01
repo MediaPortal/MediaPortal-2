@@ -21,12 +21,12 @@
           <ColumnDefinition Width="*"/>
         </Grid.ColumnDefinitions>
         <ListView Margin="10" Grid.Row="1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
-            Style="{ThemeResource SharesOverviewListViewStyle}"
-            IsVisible="{Binding IsHomeServerConnected}"
-            ItemsSource="{Binding Path=SharesList,Mode=OneTime}"/>
+                  Style="{ThemeResource SharesOverviewListViewStyle}"
+                  IsVisible="{Binding IsHomeServerConnected}"
+                  ItemsSource="{Binding Path=SharesList,Mode=OneTime}"/>
         <Label Grid.Row="0" Margin="10" HorizontalAlignment="Center" VerticalAlignment="Center"
-            Content="[SharesOverview.NotConnectedToHomeServer]" Color="{ThemeResource HintTextColor}"
-            IsVisible="{Binding !IsHomeServerConnected}" Wrap="True"/>
+               Content="[SharesOverview.NotConnectedToHomeServer]" Color="{ThemeResource HintTextColor}"
+               IsVisible="{Binding !IsHomeServerConnected}" Wrap="True"/>
       </Grid>
     </ControlTemplate>
 

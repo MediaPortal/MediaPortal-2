@@ -102,7 +102,8 @@ namespace MediaPortal.Plugins.SlimTv.Client.MediaExtensions
         VideoAspect.ASPECT_ID,
         VideoStreamAspect.ASPECT_ID,
         VideoAudioStreamAspect.ASPECT_ID,
-        ImageAspect.ASPECT_ID
+        ImageAspect.ASPECT_ID,
+        GenreAspect.ASPECT_ID
       }.Union(MediaNavigationModel.GetMediaSkinOptionalMIATypes(MediaNavigationMode));
 
       _customRootViewSpecification = new StackingViewSpecification(_viewName, null, _necessaryMias, optionalMias, true)

@@ -35,6 +35,7 @@ using MediaPortal.Extensions.TranscodingService.Interfaces.Metadata;
 using MediaPortal.Extensions.TranscodingService.Interfaces.Analyzers;
 using MediaPortal.Extensions.TranscodingService.Interfaces;
 using System.Text;
+using MediaPortal.Utilities.SystemAPI;
 
 namespace MediaPortal.Extensions.TranscodingService.Service.Transcoders.FFMpeg.Parsers
 {
@@ -173,7 +174,7 @@ namespace MediaPortal.Extensions.TranscodingService.Service.Transcoders.FFMpeg.P
         StandardErrorEncoding = Encoding.UTF8
       };
 #if !TRANSCODE_CONSOLE_TEST
-      using (ServiceRegistration.Get<IImpersonationService>().CheckImpersonationFor((mediaAccessor).CanonicalLocalResourcePath))
+      using (ServiceRegistration.Get<IImpersonationService>().CheckImpersonationFor(accessor.CanonicalLocalResourcePath))
       {
         //Only when the server is running as a service it will have elevation rights
         using (ImpersonationProcess ffmpeg = new ImpersonationProcess { StartInfo = startInfo })

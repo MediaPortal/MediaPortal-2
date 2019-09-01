@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Include
+    xmlns="www.team-mediaportal.com/2008/mpf/directx"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    Source="screens\master_configuration_menu.xaml">
+
+  <Include.Resources>
+
+    <!-- Header -->
+    <ResourceWrapper x:Key="Header_Text" Resource="[Settings.General.Connectivity.WifiConnection]"/>
+
+    <!-- WifiConnectionModel -->
+    <Model x:Key="Model" Id="0A5A7384-72C5-412F-BCD4-6FBD64238858"/>
+
+    <!-- Contents -->
+    <ControlTemplate x:Key="Contents_Template">
+      <Grid DataContext="{Binding Source={StaticResource Model}}">
+        <Grid.ColumnDefinitions>
+          <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+          <RowDefinition Height="Auto"/>
+          <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        <StackPanel Grid.Row="0" Grid.Column="0" Orientation="Vertical" IsVisible="{Binding !IsWifiAvailable}">
+          <Label Content="[Network.NoWirelessNetworksFound]" Color="{ThemeResource TextColor}" Wrap="True"/>
+        </StackPanel>
+        <ListView ItemsSource="{Binding Networks}" Style="{ThemeResource WifiListViewStyle}"
+                  Grid.Row="0" Grid.Column="1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+                  IsVisible="{Binding IsWifiAvailable}">
+          <ListView.Resources>
+            <CommandList x:Key="Menu_Command">
+              <Command Source="{StaticResource Model}" Path="SetCurrentItem" Parameters="{LateBoundValue BindingValue={Binding}}"/>
+              <Command Source="{Service ScreenManager}" Path="ShowDialog" Parameters="dialogWifiOptions" />
+            </CommandList>
+          </ListView.Resources>
+        </ListView>
+      </Grid>
+    </ControlTemplate>
+
+  </Include.Resources>
+</Include>

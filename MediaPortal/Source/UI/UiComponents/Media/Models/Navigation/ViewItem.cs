@@ -23,6 +23,7 @@
 #endregion
 
 using System.Linq;
+using MediaPortal.UiComponents.Media.Extensions;
 using MediaPortal.UiComponents.Media.Views;
 
 namespace MediaPortal.UiComponents.Media.Models.Navigation
@@ -35,10 +36,11 @@ namespace MediaPortal.UiComponents.Media.Models.Navigation
   /// View's items lists contain view items (<see cref="ViewItem"/>s) as well as
   /// playable items (<see cref="PlayableMediaItem"/>).
   /// </remarks>
-  public class ViewItem : ContainerItem
+  public class ViewItem : ContainerItem, IViewListItem
   {
     public ViewItem(View view, string overrideName, int? absNumItems) : base(absNumItems)
     {
+      View = view;
       if (view.Specification is MediaLibraryBrowseViewSpecification mlbvs)
       {
         Id = mlbvs.DirectoryId.ToString();
@@ -52,5 +54,7 @@ namespace MediaPortal.UiComponents.Media.Models.Navigation
           NumItems = itemCount;
       }
     }
+
+    public View View { get; private set; }
   }
 }

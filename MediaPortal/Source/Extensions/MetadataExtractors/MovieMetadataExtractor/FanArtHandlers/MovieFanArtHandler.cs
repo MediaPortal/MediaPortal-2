@@ -41,6 +41,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
     #region Constants
 
     private static readonly Guid[] FANART_ASPECTS = { MovieAspect.ASPECT_ID, PersonAspect.ASPECT_ID, CharacterAspect.ASPECT_ID, CompanyAspect.ASPECT_ID };
+    private const string MOVIESET_FANART_FOLDER = "MoviesetArtwork";
 
     /// <summary>
     /// GUID string for the movie FanArt handler.
@@ -230,10 +231,16 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
     protected async Task ExtractCollectionFolderFanArt(IResourceLocator mediaItemLocator, Guid collectionMediaItemId, string title)
     {
       var collectionDirectory = ResourcePathHelper.Combine(mediaItemLocator.NativeResourcePath, "../../");
+      var centralCollectionDirectory = ResourcePathHelper.Combine(mediaItemLocator.NativeResourcePath, "../../../" + MOVIESET_FANART_FOLDER);
+      var centralCollectionDirectory2 = ResourcePathHelper.Combine(mediaItemLocator.NativeResourcePath, "../../" + MOVIESET_FANART_FOLDER);
       var movieDirectory = ResourcePathHelper.Combine(mediaItemLocator.NativeResourcePath, "../");
       try
       {
         FanArtPathCollection paths = new FanArtPathCollection();
+        using (IResourceAccessor accessor = new ResourceLocator(mediaItemLocator.NativeSystemId, centralCollectionDirectory).CreateAccessor())
+          paths.AddRange(GetCollectionFolderFanArt(accessor as IFileSystemResourceAccessor));
+        using (IResourceAccessor accessor = new ResourceLocator(mediaItemLocator.NativeSystemId, centralCollectionDirectory2).CreateAccessor())
+          paths.AddRange(GetCollectionFolderFanArt(accessor as IFileSystemResourceAccessor));
         using (IResourceAccessor accessor = new ResourceLocator(mediaItemLocator.NativeSystemId, collectionDirectory).CreateAccessor())
           paths.AddRange(GetCollectionFolderFanArt(accessor as IFileSystemResourceAccessor));
         using (IResourceAccessor accessor = new ResourceLocator(mediaItemLocator.NativeSystemId, movieDirectory).CreateAccessor())

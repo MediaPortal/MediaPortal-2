@@ -49,6 +49,8 @@ namespace Tests.Server.FanArt
       _mockResourceAccess.Provider.AddDirectory("Movies/TestCollection/TestMovie/", new[] { "poster.png", "movie.mkv" });
       _mockResourceAccess.Provider.AddDirectory("Movies/TestCollection/TestMovie/.actors", new[] { "movie_actor1-thumb.png", "movie_actor2-thumb.png" });
       _mockResourceAccess.Provider.AddDirectory("Movies/TestCollection/TestMovie/ExtraFanArt", new[] { "fanart.png" });
+      _mockResourceAccess.Provider.AddDirectory("Movies/MoviesetArtwork", new[] { "" });
+      _mockResourceAccess.Provider.AddDirectory("Movies/TestCollection/MoviesetArtwork", new[] { "thumb.png" });
 
       _fanArtCache = new MockFanArtCache();
       ServiceRegistration.Set<IFanArtCache>(_fanArtCache);
@@ -121,6 +123,7 @@ namespace Tests.Server.FanArt
       ICollection<string> fanartBasePaths = fanart.Select(p => ResourcePath.Deserialize(p).BasePathSegment.Path).ToList();
       CollectionAssert.Contains(fanartBasePaths, "Movies/TestCollection/thumb.png");
       CollectionAssert.Contains(fanartBasePaths, "Movies/TestCollection/ExtraFanArt/fanart.png");
+      CollectionAssert.Contains(fanartBasePaths, "Movies/TestCollection/MoviesetArtwork/thumb.png");
     }
   }
 }

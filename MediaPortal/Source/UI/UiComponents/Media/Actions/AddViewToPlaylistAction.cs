@@ -51,7 +51,7 @@ namespace MediaPortal.UiComponents.Media.Actions
     public bool IsActionVisible(NavigationContext context)
     {
       NavigationData navigationData = MediaNavigationModel.GetNavigationData(context, false);
-      return navigationData != null && navigationData.IsEnabled;
+      return navigationData != null && navigationData.IsEnabled && !navigationData.CurrentScreenData.IsItemsEmpty;
     }
 
     public bool IsActionEnabled(NavigationContext context)

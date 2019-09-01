@@ -45,6 +45,7 @@ using MediaPortal.UI.SkinEngine.SkinManagement;
 using SharpDX;
 using SharpDX.Direct3D9;
 using Color = System.Drawing.Color;
+using NativeMethods = MediaPortal.Utilities.SystemAPI.NativeMethods;
 using Rectangle = System.Drawing.Rectangle;
 using RectangleF = SharpDX.RectangleF;
 
@@ -251,6 +252,10 @@ namespace MediaPortal.UI.Players.Video.Subtitles
     /// </summary>
     public SubtitleRenderer(Action onTextureInvalidated)
     {
+      string absolutePlatformDir;
+      if (!NativeMethods.SetPlatformSearchDirectories(out absolutePlatformDir))
+        throw new Exception("Error adding dll probe path");
+
       _onTextureInvalidated = onTextureInvalidated;
       _subtitles = new LinkedList<Subtitle>();
       //instance.textCallBack = new TextSubtitleCallback(instance.OnTextSubtitle);
@@ -465,7 +470,8 @@ namespace MediaPortal.UI.Players.Video.Subtitles
       IBaseFilter baseFilter = null;
       try
       {
-        _filter = FilterLoader.LoadFilterFromDll("DVBSub3.ax", CLSID_DVBSUB3, true);
+        var platform = IntPtr.Size > 4 ? "x64" : "x86";
+        _filter = FilterLoader.LoadFilterFromDll($"{platform}\\DVBSub3.ax", CLSID_DVBSUB3, true);
         baseFilter = _filter.GetFilter();
         _subFilter = baseFilter as IDVBSubtitleSource;
         ServiceRegistration.Get<ILogger>().Debug("SubtitleRenderer: CreateFilter success: " + (_filter != null) + " & " + (_subFilter != null));
@@ -496,7 +502,9 @@ namespace MediaPortal.UI.Players.Video.Subtitles
 
     public IBaseFilter AddClosedCaptionsFilter(IGraphBuilder graphBuilder)
     {
-      FilterFileWrapper ccFilter = FilterLoader.LoadFilterFromDll(CCFILTER_FILENAME, new Guid(CCFILTER_CLSID), true);
+      // ClosedCaptions filter
+      var platform = IntPtr.Size > 4 ? "x64" : "x86";
+      FilterFileWrapper ccFilter = FilterLoader.LoadFilterFromDll($"{platform}\\{CCFILTER_FILENAME}", new Guid(CCFILTER_CLSID), true);
       IBaseFilter baseFilter = ccFilter.GetFilter();
       if (baseFilter != null)
       {
@@ -635,29 +643,21 @@ namespace MediaPortal.UI.Players.Video.Subtitles
           // TemporaryRenderTarget changes RenderTarget to texture and restores settings when done (Dispose)
           using (new TemporaryRenderTarget(targetTexture))
           {
-            // Check the target texture dimensions and adjust scaling and translation
-            SurfaceDescription desc = targetTexture.GetLevelDescription(0);
             Matrix transform = Matrix.Identity;
 
-            // Position subtitle and scale it to match video frame size, if required
+            // Position subtitle
             transform *= Matrix.Translation(currentSubtitle.HorizontalPosition, currentSubtitle.FirstScanLine, 0);
-            if (currentSubtitle.ScreenWidth != desc.Width || currentSubtitle.ScreenHeight != desc.Height)
-            {
-              var factorW = (float)desc.Width / currentSubtitle.ScreenWidth;
-              var factorH = (float)desc.Height / currentSubtitle.ScreenHeight;
-              transform *= Matrix.Scaling(factorW, factorH, 1);
-            }
 
             if (!string.IsNullOrWhiteSpace(currentSubtitle.Text))
             {
               // TODO: this calculation works at the moment only in fullscreen mode. When using windowed mode, the text is off screen on bottom and not visible.
               // Calculate font size by the available target height divided by the number of teletext lines (25).
-              float fontSize = (float)Math.Floor(desc.Height / 25f);
+              float fontSize = (float)Math.Floor(SkinContext.SkinResources.SkinHeight / 25f);
               if (_textBuffer == null)
                 _textBuffer = new TextBuffer(FontManager.DefaultFontFamily, fontSize);
               _textBuffer.Text = currentSubtitle.Text;
 
-              RectangleF rectangleF = new RectangleF(0, 0, desc.Width, desc.Height);
+              RectangleF rectangleF = new RectangleF(0, 0, SkinContext.SkinResources.SkinWidth, SkinContext.SkinResources.SkinHeight);
 
               HorizontalTextAlignEnum horzAlign = HorizontalTextAlignEnum.Center;
               VerticalTextAlignEnum vertAlign = VerticalTextAlignEnum.Top;

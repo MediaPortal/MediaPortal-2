@@ -12,6 +12,7 @@
   <!-- SlimTvClient model -->
   <Model x:Key="SlimTvClient" Id="8BEC1372-1C76-484c-8A69-C7F3103708EC"/>
   <Model x:Key="SlimTvMultiChannelGuide" Id="5054408D-C2A9-451f-A702-E84AFCD29C10"/>
+  <Model x:Key="SlimTvSettings" Id="F5D4AA07-8469-46A7-8FD0-E1CD1E8F5898"/>
   <Model x:Key="SlimTvExtSchedule" Id="EB9CB370-9CD6-4D72-8354-73E446104438"/>
   <Model x:Key="TimeModel" Id="E821B1C8-0666-4339-8027-AA45A4F6F107"/>
   <tv:SlimTvDateFormatConverter x:Key="SlimTvDateFormatConverter" />
@@ -63,6 +64,7 @@
         <ControlTemplate TargetType="{x:Type mp_special_controls:PlayerControl}">
           <ControlTemplate.Resources>
             <Model x:Key="VideoPlayerModel" Id="4E2301B4-3C17-4a1d-8DE5-2CEA169A0256"/>
+            <Model x:Key="AudioPlayerModel" Id="D8998340-DA2D-42be-A29B-6D7A72AEA2DC"/>
           </ControlTemplate.Resources>
 
           <Grid x:Name="MainOSDGrid" HorizontalAlignment="Stretch" VerticalAlignment="Bottom" Margin="10" 
@@ -77,7 +79,7 @@
             </Grid.RowDefinitions>
 
             <Image Source="PlayerControl\BOTTOM.SHADOW.PNG" Stretch="Fill" Grid.ColumnSpan="2"
-                   Margin="-190,-10,-20,-20" Opacity="0.8" Grid.Row="1" Panel.ZIndex="0" />
+                   Margin="-890,-10,-20,-20" Opacity="0.8" Grid.Row="1" Panel.ZIndex="0" />
 
             <Image x:Name="ChannelLogo" Grid.Column="0" Grid.RowSpan="2" Stretch="Uniform" Margin="10" Width="150">
               <Image.Source>
@@ -135,17 +137,17 @@
                         Command="{Command Source={StaticResource GeneralPlayerModel},Path=VolumeUp}"/>
               </StackPanel>
 
-              <Grid DockPanel.Dock="Left" VerticalAlignment="Bottom" Margin="0,0,0,10">
+              <Grid DockPanel.Dock="Left" VerticalAlignment="Bottom" Margin="0,0,0,10" IsVisible="{Binding !IsRadio}">
                 <Grid.ColumnDefinitions>
                   <ColumnDefinition Width="Auto"/>
                   <ColumnDefinition Width="*"/>
                 </Grid.ColumnDefinitions>
                 <Label x:Name="CurrentProgramTitleLabel" Grid.Column="0" Content="{Binding Source={StaticResource SlimTvClient},Path=CurrentProgram.Title}" 
-                   HorizontalAlignment="Stretch" VerticalAlignment="Center" FontFamily="SegoeUIBold" Panel.ZIndex="1" Margin="20,0,20,0"
-                   Color="{ThemeResource TextColor}" Scroll="Auto"/>
+                       HorizontalAlignment="Stretch" VerticalAlignment="Center" FontFamily="SegoeUIBold" Panel.ZIndex="1" Margin="20,0,20,0"
+                       Color="{ThemeResource TextColor}" Scroll="Auto"/>
                 <Label x:Name="CurrentProgramSeriesLabel" Color="{ThemeResource TextColor}" Grid.Column="1" Panel.ZIndex="1" 
-                   IsVisible="{Binding Source={StaticResource SlimTvClient},Path=CurrentProgram.Series, Converter={StaticResource EmptyStringToFalseConverter}}"
-                   HorizontalAlignment="Left" VerticalAlignment="Center" FontFamily="SegoeUIBold" Scroll="Auto" ScrollDelay="0">
+                       IsVisible="{Binding Source={StaticResource SlimTvClient},Path=CurrentProgram.Series, Converter={StaticResource EmptyStringToFalseConverter}}"
+                       HorizontalAlignment="Left" VerticalAlignment="Center" FontFamily="SegoeUIBold" Scroll="Auto" ScrollDelay="0">
                   <Label.Content>
                     <Binding Source="{StaticResource SlimTvClient}" Path="CurrentProgram.Series" Converter="{StaticResource StringFormatConverter}" ConverterParameter="{} ({0})"/>
                   </Label.Content>
@@ -163,8 +165,8 @@
                 <RowDefinition Height="Auto"/>
               </Grid.RowDefinitions>
               <Label x:Name="StartTimeLabel" Grid.Column="0" Grid.Row="0" FontFamily="SegoeUIBold" Opacity="0.9" Panel.ZIndex="101"
-                       Content="{Binding Source={StaticResource SlimTvClient},Path=CurrentProgram.StartTime, Converter={StaticResource SlimTvDateFormatConverter}}"
-                       HorizontalAlignment="Center" VerticalAlignment="Center" Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}"/>
+                     Content="{Binding Source={StaticResource SlimTvClient},Path=CurrentProgram.StartTime, Converter={StaticResource SlimTvDateFormatConverter},ConverterParameter=Time}"
+                     HorizontalAlignment="Center" VerticalAlignment="Center" Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}"/>
 
               <Image Grid.Column="0" Grid.Row="0" Source="PlayerControl\Time.shadow.png" Stretch="Fill" Height="70" Margin="-30,0,-30,0" Panel.ZIndex="100">
                 <Image.Width>
@@ -175,8 +177,8 @@
               </Image>
 
               <Label x:Name="EndTimeLabel" Grid.Column="2" Grid.Row="0" FontFamily="SegoeUIBold" Opacity="0.9" Panel.ZIndex="101"
-                       Content="{Binding Source={StaticResource SlimTvClient},Path=CurrentProgram.EndTime, Converter={StaticResource SlimTvDateFormatConverter}}"
-                       Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                     Content="{Binding Source={StaticResource SlimTvClient},Path=CurrentProgram.EndTime, Converter={StaticResource SlimTvDateFormatConverter},ConverterParameter=Time}"
+                     Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
               <Image Grid.Column="2" Grid.Row="0" Source="PlayerControl\Time.shadow.png" Stretch="Fill" Height="70" Margin="-30,0,-30,0" Panel.ZIndex="100">
                 <Image.Width>
                   <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0}+60">
@@ -306,7 +308,7 @@
           <DockPanel Name="ButtonControlRectangle">
             <Rectangle DockPanel.Dock="Center" RadiusX="3" RadiusY="3" Name="ButtonBase" Fill="{ThemeResource ProgramBaseFill}" StrokeThickness="0"/>
             <Rectangle DockPanel.Dock="Center" RadiusX="3" RadiusY="3" Name="ButtonGenre" Fill="{Binding Program.EpgGenreColor}"
-                       StrokeThickness="0" IsVisible="{Binding Source={StaticResource SlimTvMultiChannelGuide}, Path=ShowGenreColors}"/>
+                       StrokeThickness="0" IsVisible="{Binding Source={StaticResource SlimTvSettings}, Path=ShowGenreColors}"/>
             <Rectangle DockPanel.Dock="Center" Name="ButtonHover" Fill=""/>
             <Rectangle DockPanel.Dock="Center" Name="ButtonOverlay" Fill=""/>
           </DockPanel>
@@ -504,7 +506,7 @@
             <MultiTrigger>
               <MultiTrigger.Conditions>
                 <Condition Binding="{Binding IsRunning}" Value="True" />
-                <Condition Binding="{Binding Source={StaticResource SlimTvMultiChannelGuide}, Path=ShowGenreColors}" Value="False" />
+                <Condition Binding="{Binding Source={StaticResource SlimTvSettings}, Path=ShowGenreColors}" Value="False" />
               </MultiTrigger.Conditions>
               <Setter TargetName="ButtonBase" Property="Fill" Value="{ThemeResource ProgramRunningFill}"/>
             </MultiTrigger>
@@ -1019,7 +1021,7 @@
               <Label x:Name="ChannelNumber" Grid.Column="0" Content="{Binding Channel.ChannelNumber}" VerticalAlignment="Center"
                      Color="{ThemeResource MenuTextBackground}" FontSize="{ThemeResource SmallerFontSize}" Margin="5,-2,0,-2" MinWidth="50">
                 <Label.IsVisible>
-                  <Binding Source="{StaticResource SlimTvMultiChannelGuide}" Path="ShowChannelNumbers" />
+                  <Binding Source="{StaticResource SlimTvSettings}" Path="ShowChannelNumbers" />
                 </Label.IsVisible>
               </Label>
 
@@ -1030,14 +1032,14 @@
                                             fanart:FanArtName="{Binding ChannelLogoPath}" fanart:MaxWidth="0" fanart:MaxHeight="0"/>
                 </Image.Source>
                 <Image.IsVisible>
-                  <Binding Source="{StaticResource SlimTvMultiChannelGuide}" Path="ShowChannelLogos" />
+                  <Binding Source="{StaticResource SlimTvSettings}" Path="ShowChannelLogos" />
                 </Image.IsVisible>
               </Image>
 
               <Label Grid.Column="2" x:Name="NameLabel" Content="{Binding [Name]}" VerticalAlignment="Center" Opacity="0.5" Margin="5,0,0,0" ScrollDelay="0"
                      Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallerFontSize}">
                 <Label.IsVisible>
-                  <Binding Source="{StaticResource SlimTvMultiChannelGuide}" Path="ShowChannelNames" />
+                  <Binding Source="{StaticResource SlimTvSettings}" Path="ShowChannelNames" />
                 </Label.IsVisible>
                 <Label.Triggers>
                   <DataTrigger Binding="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Button}, Path=HasFocus}" Value="True">

@@ -24,14 +24,16 @@
 
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
+using MediaPortal.UiComponents.Media.Extensions;
 using MediaPortal.UiComponents.Media.General;
+using MediaPortal.UiComponents.Media.Views;
 
 namespace MediaPortal.UiComponents.Media.Models.Navigation
 {
   /// <summary>
   /// Holds a GUI item which represents a filter choice.
   /// </summary>
-  public class FilterItem : ContainerItem
+  public class FilterItem : ContainerItem, IViewListItem
   {
     public FilterItem(string name, int? numItems)
       : base(numItems)
@@ -70,6 +72,8 @@ namespace MediaPortal.UiComponents.Media.Models.Navigation
       get { return (bool?)AdditionalProperties[Consts.KEY_VIRTUAL]; }
       set { AdditionalProperties[Consts.KEY_VIRTUAL] = value; }
     }
+
+    public View View { get; set; }
 
     public virtual void Update(MediaItem mediaItem)
     {

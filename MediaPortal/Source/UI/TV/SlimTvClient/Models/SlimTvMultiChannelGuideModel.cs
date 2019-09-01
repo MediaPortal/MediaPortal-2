@@ -520,6 +520,8 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
     protected override void OnCurrentGroupChanged(int oldindex, int newindex)
     {
       base.OnCurrentGroupChanged(oldindex, newindex);
+      UpdateProgramStatus(null);
+      ChannelName = "";
       UpdateChannels();
       _ = UpdatePrograms();
       // Notify listeners about group change
@@ -534,7 +536,6 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
       GuideStartTime = DateTime.Now.RoundDateTime(15, DateFormatExtension.RoundingDirection.Down);
       var settings = ServiceRegistration.Get<ISettingsManager>().Load<SlimTvClientSettings>();
       VisibleHours = settings.EpgVisibleHours;
-      ShowGenreColors = settings.EpgShowGenreColors;
       _bufferStartTime = _bufferEndTime = DateTime.MinValue;
     }
 

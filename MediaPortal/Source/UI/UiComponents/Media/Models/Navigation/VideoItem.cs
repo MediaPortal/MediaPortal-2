@@ -47,6 +47,11 @@ namespace MediaPortal.UiComponents.Media.Models.Navigation
       if (mediaItem == null)
         return;
 
+      //Radio recordings are also treated as video items, so check if this is actually a radio recording
+      SingleMediaItemAspect audioAspect;
+      if (MediaItemAspect.TryGetAspect(mediaItem.Aspects, AudioAspect.Metadata, out audioAspect) && MediaItemAspect.TryGetAttribute(mediaItem.Aspects, MediaAspect.ATTR_COMMENT, out string comment))
+        StoryPlot = comment;
+
       SingleMediaItemAspect videoAspect;
       if (MediaItemAspect.TryGetAspect(mediaItem.Aspects, VideoAspect.Metadata, out videoAspect))
         StoryPlot = (string)videoAspect[VideoAspect.ATTR_STORYPLOT];

@@ -2054,7 +2054,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
           bool needsUpdate;
           MediaItem matchedMediaItem = MatchExternalItem(database, transaction, itemMatcher, item.Aspects, out needsUpdate);
           if (matchedMediaItem != null)
-          {
+          { 
             linkedId = matchedMediaItem.MediaItemId;
             if (needsUpdate)
               UpdateMediaItem(database, transaction, matchedMediaItem.MediaItemId, item.Aspects.Values.SelectMany(x => x));
@@ -2084,19 +2084,19 @@ namespace MediaPortal.Backend.Services.MediaLibrary
             isVirtual = false;
           UpdateReconciledItem(database, transaction, mediaItemId, relationshipAspects, !isVirtual);
         }
+
+        if (updatedItemIds.Count > 0)
+        {
+          ICollection<MediaItem> items;
+          items = GetMediaItems(database, transaction, updatedItemIds, null, GetManagedMediaItemAspectMetadata().Keys, false, null, true, false);
+          result.AddRange(items);
+        }
+
         transaction.Commit();
       }
 
       //Notify listeners that the reconciled item has changed
       MediaLibraryMessaging.SendMediaItemsAddedOrUpdatedMessage(mediaItemId);
-
-      if (updatedItemIds.Count > 0)
-      {
-        ICollection<MediaItem> items;
-        using (ITransaction transaction = database.BeginTransaction())
-          items = GetMediaItems(database, transaction, updatedItemIds, null, GetManagedMediaItemAspectMetadata().Keys, false, null, true, false);
-        result.AddRange(items);
-      }
 
       if (result.Count > 0)
         MediaLibraryMessaging.SendMediaItemsAddedOrUpdatedMessage(result.Select(mi => mi.MediaItemId).ToArray());

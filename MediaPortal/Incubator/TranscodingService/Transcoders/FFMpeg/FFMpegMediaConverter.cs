@@ -746,6 +746,7 @@ namespace MediaPortal.Extensions.TranscodingService.Service.Transcoders.FFMpeg
       if (data.Context.Segmented == true)
         await FFMpegPlaylistManifest.CreatePlaylistFilesAsync(data.TranscodeData).ConfigureAwait(false);
 
+      bool isFile = true;
       bool isSlimTv = false;
       int liveChannelId = 0;
       bool runProcess = true;
@@ -786,6 +787,10 @@ namespace MediaPortal.Extensions.TranscodingService.Service.Transcoders.FFMpeg
             exitCode = 5001;
           }
         }
+      }
+      if (data.TranscodeData.InputResourceAccessor is INetworkResourceAccessor)
+      {
+        isFile = false;
       }
 
       ProcessStartInfo startInfo = new ProcessStartInfo()

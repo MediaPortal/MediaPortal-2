@@ -66,11 +66,7 @@ namespace MediaPortal.Common.Services.ResourceAccess
     {
       ServerSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<ServerSettings>();
       List<string> filters = settings.IPAddressBindingsList;
-      if (NetworkUtils.UseClientPort)
-        _serverPort = UPnPServer.DEFAULT_UPNP_AND_SERVICE_PORT_NUMBER + 1;
-      else
-        _serverPort = UPnPServer.DEFAULT_UPNP_AND_SERVICE_PORT_NUMBER;
-
+      _serverPort = UPnPServer.DEFAULT_UPNP_AND_SERVICE_PORT_NUMBER;
       _servicePrefix = ResourceHttpAccessUrlUtils.RESOURCE_SERVER_BASE_PATH;
       var startOptions = UPnPServer.BuildStartOptions(_servicePrefix, filters, _serverPort);
 
@@ -104,10 +100,11 @@ namespace MediaPortal.Common.Services.ResourceAccess
           HttpConfiguration config = new HttpConfiguration();
 
           // Support conventional routing
+          var routeTemplate = (_servicePrefix + "/api/{controller}/{id}").TrimStart('/'); // No leading slash allowed
           config.Routes.MapHttpRoute(
-              name: "DefaultApi",
-              routeTemplate: "MediaPortal/api/{controller}/{id}",
-              defaults: new { id = RouteParameter.Optional }
+              "DefaultApi",
+              routeTemplate,
+              new { id = RouteParameter.Optional }
           );
 
           // Support attribute based routing
@@ -148,7 +145,7 @@ namespace MediaPortal.Common.Services.ResourceAccess
       if (userManagement != null)
       {
         var user = await userManagement.GetProfileByNameAsync(context.UserName);
-        if(user.Success)
+        if (user.Success)
         {
           var pass = GetPassword(context.Password);
           if (UserProfile.VerifyPassword(pass, user.Result.Password))

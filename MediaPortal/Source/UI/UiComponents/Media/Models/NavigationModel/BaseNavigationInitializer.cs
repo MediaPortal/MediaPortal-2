@@ -123,6 +123,8 @@ namespace MediaPortal.UiComponents.Media.Models.NavigationModel
       //Default configuration
       string viewName = _viewName;
 
+      AbstractScreenData nextScreen = null;
+
       //Apply any custom configuration
       if (config != null)
       {
@@ -140,7 +142,13 @@ namespace MediaPortal.UiComponents.Media.Models.NavigationModel
           //Use the configured default screen if there is no saved screen hierarchy
           AbstractScreenData configDefault = config.DefaultScreenType != null ? _availableScreens.FirstOrDefault(s => s.GetType() == config.DefaultScreenType) : null;
           if (configDefault != null)
+          {
             _defaultScreen = configDefault;
+            // If we want to force the default screen to be shown, set the next screen
+            // here to avoid loading it from the screen hierarchy below.
+            if (config.AlwaysUseDefaultScreen)
+              nextScreen = configDefault;
+          }
         }
 
         //Apply any additional filters
@@ -154,11 +162,8 @@ namespace MediaPortal.UiComponents.Media.Models.NavigationModel
       if (_optionalMias != null)
         optionalMIATypeIDs = optionalMIATypeIDs.Union(_optionalMias).Except(_necessaryMias);
 
-      string nextScreenName;
-      AbstractScreenData nextScreen = null;
-
-      // Try to load the prefered next screen from settings.
-      if (NavigationData.LoadScreenHierarchy(viewName, out nextScreenName))
+      // Try to load the prefered next screen from settings if not already set.
+      if (nextScreen == null && NavigationData.LoadScreenHierarchy(viewName, out string nextScreenName))
       {
         // Support for browsing mode.
         if (nextScreenName == Consts.USE_BROWSE_MODE)

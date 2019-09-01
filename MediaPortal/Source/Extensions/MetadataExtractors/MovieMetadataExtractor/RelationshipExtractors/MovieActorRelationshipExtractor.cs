@@ -102,7 +102,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
       if (MovieMetadataExtractor.IncludeActorDetails && !MovieMetadataExtractor.SkipOnlineSearches)
         await OnlineMatcherService.Instance.UpdatePersonsAsync(movieInfo, PersonAspect.OCCUPATION_ACTOR).ConfigureAwait(false);
       
-      foreach (PersonInfo person in movieInfo.Actors)
+      foreach (PersonInfo person in movieInfo.Actors.Take(MovieMetadataExtractor.MaximumActorCount))
       {
         if (person.LinkedAspects != null)
           person.SetLinkedMetadata();

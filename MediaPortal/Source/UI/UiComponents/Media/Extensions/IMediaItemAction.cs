@@ -70,4 +70,12 @@ namespace MediaPortal.UiComponents.Media.Extensions
   public interface IDeferredMediaItemAction : IMediaItemAction
   {
   }
+
+  /// <summary>
+  /// Interface to be used by all Listitems which might have IMediaItemActions attached
+  /// </summary>
+  public interface IMediaItemListItem
+  {
+    MediaItem MediaItem { get; }
+  }
 }

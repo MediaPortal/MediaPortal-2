@@ -292,8 +292,26 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
         foreach (ISchedule schedule in schedules)
         {
           var progResult = await _tvHandler.ScheduleControl.GetProgramsForScheduleAsync(schedule);
-          if (!progResult.Success)
-            continue;
+          if (!progResult.Success || progResult.Result.Count == 0)
+          {
+            if(schedule.Name != "Manual" || schedule.EndTime < DateTime.Now)
+              continue;
+            // Make dummy program for manual schedule
+            MediaPortal.Plugins.SlimTv.Interfaces.UPnP.Items.Program program = new Interfaces.UPnP.Items.Program()
+            {
+              ChannelId = schedule.ChannelId,
+              Title = "[SlimTvClient.ManualRecordingTitle]",
+              StartTime = schedule.StartTime,
+              EndTime = schedule.EndTime,
+              RecordingStatus = RecordingStatus.Scheduled
+            };
+            if (program.StartTime <= DateTime.Now && program.EndTime >= DateTime.Now)
+              program.RecordingStatus |= RecordingStatus.Recording;
+            if (schedule.RecordingType != ScheduleRecordingType.Once)
+              program.RecordingStatus |= RecordingStatus.SeriesScheduled;
+            progResult.Result = new List<IProgram>();
+            progResult.Result.Add(program);
+          }
 
           IList<IProgram> schedulePrograms = progResult.Result;
 
@@ -383,7 +401,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
     private ListItem CreateScheduleItem(ISchedule schedule)
     {
       ISchedule currentSchedule = schedule;
-      ListItem item = new ListItem("Name", schedule.Name)
+      ListItem item = new ListItem("Name", schedule.Name == "Manual" ? "[SlimTvClient.ManualRecordingTitle]" : schedule.Name)
       {
         Command = new MethodDelegateCommand(() => ShowActions(currentSchedule))
       };

@@ -41,6 +41,7 @@ using MediaPortal.UI.ServerCommunication;
 using MediaPortal.UiComponents.Media.Models;
 using MediaPortal.UiComponents.PartyMusicPlayer.General;
 using MediaPortal.UiComponents.PartyMusicPlayer.Settings;
+using MediaPortal.Utilities;
 
 namespace MediaPortal.UiComponents.PartyMusicPlayer.Models
 {
@@ -249,8 +250,19 @@ namespace MediaPortal.UiComponents.PartyMusicPlayer.Models
         ShowServerNotConnectedDialog();
         return false;
       }
+      // Big playlists cannot be loaded in one single step. We have several problems if we try to do so:
+      // 1) Loading the playlist at once at the server results in one huge SQL IN statement which might break the SQL engine
+      // 2) The time to load the playlist might lead the UPnP call to break because of the timeout when calling methods
+      // 3) The resulting UPnP XML document might be too big to fit into memory
+
+      // For that reason, we load the playlist in two steps:
+      // 1) Load media item ids in the playlist
+      // 2) Load media items in clusters - for each cluster, an own query will be executed at the content directory
       PlaylistRawData playlistData = await cd.ExportPlaylistAsync(_playlistId);
-      _mediaItems = await cd.LoadCustomPlaylistAsync(playlistData.MediaItemIds, Consts.NECESSARY_AUDIO_MIAS, Consts.EMPTY_GUID_ENUMERATION);
+      List<MediaItem> result = new List<MediaItem>();
+      foreach (IList<Guid> itemIds in CollectionUtils.Cluster(playlistData.MediaItemIds, 500))
+        result.AddRange(await cd.LoadCustomPlaylistAsync(itemIds, Consts.NECESSARY_AUDIO_MIAS, Consts.EMPTY_GUID_ENUMERATION));
+      _mediaItems = result;
       return true;
     }
 

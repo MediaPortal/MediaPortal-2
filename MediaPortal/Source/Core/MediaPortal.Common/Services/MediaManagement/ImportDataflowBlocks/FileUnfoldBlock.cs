@@ -235,6 +235,8 @@ namespace MediaPortal.Common.Services.MediaManagement.ImportDataflowBlocks
             result.UnionWith(files.Select(f => new PendingImportResourceNewGen(importResource.ResourceAccessor.CanonicalLocalResourcePath, f, ToString(), ParentImportJobController, importResource.MediaItemId,
               path2MediaItem.ContainsKey(f.CanonicalLocalResourcePath) ? path2MediaItem[f.CanonicalLocalResourcePath] : (Guid?)null)));
           }
+          // We set the directory resource as invalid because directories have no need for further processing
+          importResource.IsValid = false;
         }
 
         // If this is a RefreshImport and we found files of the current directory in the MediaLibrary,

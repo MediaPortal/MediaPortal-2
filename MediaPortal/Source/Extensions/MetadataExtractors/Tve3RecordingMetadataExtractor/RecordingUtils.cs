@@ -24,9 +24,9 @@
 
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
-using MediaPortal.Plugins.SlimTv.Interfaces.Aspects;
 using System;
 using System.Collections.Generic;
+using MediaPortal.Plugins.SlimTv.Interfaces.Aspects;
 
 namespace MediaPortal.Extensions.MetadataExtractors
 {
