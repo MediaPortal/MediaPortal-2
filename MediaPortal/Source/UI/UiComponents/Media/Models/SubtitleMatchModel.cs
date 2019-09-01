@@ -38,6 +38,8 @@ using MediaPortal.Common.MediaManagement.TransientAspects;
 using MediaPortal.Common.Messaging;
 using MediaPortal.Common.ResourceAccess;
 using MediaPortal.Common.SystemCommunication;
+using MediaPortal.Common.UserManagement;
+using MediaPortal.Common.UserProfileDataManagement;
 using MediaPortal.UI.Presentation.DataObjects;
 using MediaPortal.UI.Presentation.Screens;
 using MediaPortal.UI.ServerCommunication;
@@ -245,7 +247,27 @@ namespace MediaPortal.UiComponents.Media.Models
 
       _searchAspects = mediaItem.Aspects;
       var subSearch = MediaItemAspect.GetOrCreateAspect(_searchAspects, TempSubtitleAspect.Metadata);
-      subSearch.SetAttribute(TempSubtitleAspect.ATTR_LANGUAGE, "en-US"); //TODO: Add comma separated list of user preferred sub languages
+
+      IUserManagement userManagement = ServiceRegistration.Get<IUserManagement>();
+      if (userManagement?.CurrentUser != null)
+      {
+        var subLangs = userManagement.CurrentUser.AdditionalData.Where(d => d.Key == UserDataKeysKnown.KEY_PREFERRED_SUBTITLE_LANGUAGE);
+        if(subLangs.Any())
+        {
+          List<string> languages = new List<string>();
+          var cultures = CultureInfo.GetCultures(CultureTypes.SpecificCultures);
+          foreach(var subLang in subLangs)
+          {
+            foreach(var lang in subLang.Value.OrderBy(l => l.Key))
+              languages.Add(cultures?.FirstOrDefault(c => c.TwoLetterISOLanguageName == lang.Value).Name);
+          }
+          subSearch.SetAttribute(TempSubtitleAspect.ATTR_LANGUAGE, string.Join(",", languages));
+        }
+        else
+        {
+          subSearch.SetAttribute(TempSubtitleAspect.ATTR_LANGUAGE, "en-US");
+        }
+      }
 
       _isVirtual = mediaItem.IsVirtual;
 
