@@ -71,7 +71,7 @@ namespace MediaPortal.UiComponents.BlueVision.Models
     readonly ItemsList _mainMenuGroupList = new ItemsList();
     readonly ItemsList _positionedItems = new ItemsList();
     readonly ItemsList _nextPageItems = new ItemsList();
-    protected SettingsChangeWatcher<MenuSettings> _menuSettings;
+    protected SynchronousSettingsChangeWatcher<MenuSettings> _menuSettings;
     protected AbstractProperty _lastSelectedItemNameProperty;
     protected AbstractProperty _isHomeProperty;
     protected AbstractProperty _isHomeScreenProperty;

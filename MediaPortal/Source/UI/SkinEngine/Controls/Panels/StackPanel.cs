@@ -732,7 +732,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
       {
         OpacityMask.Dispose();
         OpacityMask = null;
-        _opacityMaskContext.Dispose();
+        _opacityMaskContext?.Dispose();
         _opacityMaskContext = null;
         _forcedOpacityMask = false;
       }

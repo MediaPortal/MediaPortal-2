@@ -227,6 +227,14 @@ namespace MediaPortal.Extensions.ResourceProviders.NetworkNeighborhoodResourcePr
         return _underlayingResource.OpenWrite();
     }
 
+    public Stream CreateOpenWrite(string file, bool overwrite)
+    {
+      if (_underlayingResource == null)
+        return null;
+      using (ServiceRegistration.Get<IImpersonationService>().CheckImpersonationFor(CanonicalLocalResourcePath))
+        return _underlayingResource.CreateOpenWrite(file, overwrite);
+    }
+
     public IResourceAccessor Clone()
     {
       return new NetworkNeighborhoodResourceAccessor(_parent, _path);

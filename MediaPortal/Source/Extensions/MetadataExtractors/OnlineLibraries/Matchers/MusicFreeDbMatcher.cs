@@ -34,15 +34,6 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
 {
   public class MusicFreeDbMatcher : MusicMatcher<string, string>
   {
-    #region Static instance
-
-    public static MusicFreeDbMatcher Instance
-    {
-      get { return ServiceRegistration.Get<MusicFreeDbMatcher>(); }
-    }
-
-    #endregion
-
     #region Constants
 
     public static string CACHE_PATH = ServiceRegistration.Get<IPathManager>().GetPath(@"<DATA>\FreeDB\");

@@ -35,15 +35,6 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
 {
   public class SeriesTvMazeMatcher : SeriesMatcher<TvMazeImageCollection, string>
   {
-    #region Static instance
-
-    public static SeriesTvMazeMatcher Instance
-    {
-      get { return ServiceRegistration.Get<SeriesTvMazeMatcher>(); }
-    }
-
-    #endregion
-
     #region Constants
 
     public static string CACHE_PATH = ServiceRegistration.Get<IPathManager>().GetPath(@"<DATA>\TvMaze\");

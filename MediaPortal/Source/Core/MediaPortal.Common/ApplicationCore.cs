@@ -100,9 +100,10 @@ namespace MediaPortal.Common
       logger.Info("ApplicationCore: Copyright:        {0}", fileVersionInfo.LegalCopyright);
       logger.Info("ApplicationCore: Version:          {0}", fileVersionInfo.FileVersion);
       logger.Info("ApplicationCore: Source:           {0}", fileVersionInfo.ProductVersion);
+      logger.Info("ApplicationCore: Architecture:     {0}", IntPtr.Size > 4 ? "x64" : "x86");
       // Operating system info
       logger.Info("ApplicationCore: OS version:       {0}", Environment.OSVersion);
-      foreach (string key in new[] { "ProductName", "ReleaseId", "BuildLab", "InstallationType", "EditionID", "EditionSubstring" })
+      foreach (string key in new[] { "ProductName", "ReleaseId", "BuildLab", "InstallationType", "EditionID" })
       {
         try
         {

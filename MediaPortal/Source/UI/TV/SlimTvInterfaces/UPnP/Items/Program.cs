@@ -47,9 +47,17 @@ namespace MediaPortal.Plugins.SlimTv.Interfaces.UPnP.Items
     public string EpgGenreColor { get; set; }
     public DateTime StartTime { get; set; }
     public DateTime EndTime { get; set; }
+    public DateTime? OriginalAirDate { get; set; }
+    public String Classification { get; set; }
+    public int ParentalRating { get; set; }
+    public int StarRating { get; set; }
     public RecordingStatus RecordingStatus { get; set; }
+    public bool IsScheduled { get; set; }
+    public bool HasConflict { get; set; }
     public string SeasonNumber { get; set; }
     public string EpisodeNumber { get; set; }
+    public string EpisodeNumberDetailed { get; set; }
+    public string EpisodePart { get; set; }
     public string EpisodeTitle { get; set; }
 
     #endregion

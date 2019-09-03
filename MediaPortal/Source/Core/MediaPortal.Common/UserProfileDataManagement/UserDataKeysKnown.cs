@@ -45,6 +45,9 @@ namespace MediaPortal.Common.UserProfileDataManagement
     public const string KEY_CHANNEL_PLAY_COUNT = "ChannelPlayCount"; //Number of hours a user played a channel
     public const string KEY_CHANNEL_PLAY_DATE = "ChannelPlayDate"; //Date the channel was last played
     public const string KEY_FEATURE_USAGE_STATS = "FeatureUsageStats"; //Structure with statistics for feature usage
+    public const string KEY_PREFERRED_AUDIO_LANGUAGE = "PreferredAudioLanguage"; //The preferred audio languages (2-letter ISO) in priority order
+    public const string KEY_PREFERRED_SUBTITLE_LANGUAGE = "PreferredSubtitleLanguage"; //The preferred subtitle languages (2-letter ISO) in priority order
+    public const string KEY_PREFERRED_MENU_LANGUAGE = "PreferredMenuLanguage"; //The preferred menu languages (2-letter ISO) in priority order
 
     public static string GetSortablePlayCountString(long value)
     {

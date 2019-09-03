@@ -122,16 +122,15 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.FanArtDataflow
       //Persist any newly pending actions
       _persistBlock.Post(null);
       await LoadAspects(actions);
+      List<Task> actionTasks = new List<Task>();
       foreach (var action in actions)
       {
         if (action.Type == ActionType.Collect)
-        {
-          if (action.Aspects != null)
-            await CollectFanArt(action.MediaItemId, action.Aspects);
-        }
+          actionTasks.Add(CollectFanArt(action.MediaItemId, action.Aspects));
         else if (action.Type == ActionType.Delete)
-          await DeleteFanArt(action.MediaItemId);
+          actionTasks.Add(DeleteFanArt(action.MediaItemId));
       }
+      await Task.WhenAll(actionTasks);
       return actions;
     }
 
@@ -248,9 +247,14 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.FanArtDataflow
       }
     }
 
-    protected void AddPendingAction(Guid actionId, ActionType actionType, Guid mediaItemId)
+    protected bool AddPendingAction(Guid actionId, ActionType actionType, Guid mediaItemId)
     {
-      _pendingFanArtDownloads.TryAdd(actionId, new FanArtManagerAction(actionType, mediaItemId) { ActionId = actionId });
+      //We use the dictionary enumeration to avoid locking the concurrent dictionary. The probabality of the same media item action being 
+      //posted while the check is done is minimal.
+      if (_pendingFanArtDownloads.Any(pfd => pfd.Value.MediaItemId == mediaItemId && pfd.Value.Type == actionType))
+        return false;
+
+      return _pendingFanArtDownloads.TryAdd(actionId, new FanArtManagerAction(actionType, mediaItemId) { ActionId = actionId });
     }
 
     /// <summary>
@@ -288,6 +292,9 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.FanArtDataflow
     {
       try
       {
+        if ((aspects?.Count ?? 0) == 0)
+          return;
+
         IMediaAccessor mediaAccessor = ServiceRegistration.Get<IMediaAccessor>();
         IEnumerable<IMediaFanArtHandler> handlers = mediaAccessor.LocalFanArtHandlers.Values.Where(h => h.FanArtAspects.Any(a => aspects.ContainsKey(a)));
         foreach (IMediaFanArtHandler handler in handlers)
@@ -330,9 +337,13 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.FanArtDataflow
     /// <returns>True if the action was scheduled.</returns>
     public bool Post(FanArtManagerAction action)
     {
-      AddPendingAction(action.ActionId, action.Type, action.MediaItemId);
-      // Post the action for processing
-      return _inputBlock.Post(action);
+      if (AddPendingAction(action.ActionId, action.Type, action.MediaItemId))
+      {
+        // Post the action for processing
+        return _inputBlock.Post(action);
+      }
+      //We return success because the action is already scheduled
+      return true;
     }
 
     public void Restore()

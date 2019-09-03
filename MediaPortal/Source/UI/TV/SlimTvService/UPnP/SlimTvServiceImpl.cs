@@ -271,6 +271,7 @@ namespace MediaPortal.Plugins.SlimTv.Service.UPnP
                             new[]
                                      {
                                        new DvArgument("ChannelId", A_ARG_TYPE_ChannelId, ArgumentDirection.In),
+                                       new DvArgument("Title", A_ARG_TYPE_String, ArgumentDirection.In),
                                        new DvArgument("TimeFrom", A_ARG_TYPE_DateTime, ArgumentDirection.In),
                                        new DvArgument("TimeTo", A_ARG_TYPE_DateTime, ArgumentDirection.In),
                                        new DvArgument("ScheduleRecordingType", A_ARG_TYPE_ScheduleRecordingType, ArgumentDirection.In)
@@ -582,15 +583,16 @@ namespace MediaPortal.Plugins.SlimTv.Service.UPnP
         return new UPnPError(500, "IChannelAndGroupInfo or IScheduleControl service not available");
 
       int channelId = (int)inParams[0];
-      DateTime startTime = (DateTime)inParams[1];
-      DateTime endTime = (DateTime)inParams[2];
-      ScheduleRecordingType recordingType = (ScheduleRecordingType)inParams[3];
+      string title = (string)inParams[1];
+      DateTime startTime = (DateTime)inParams[2];
+      DateTime endTime = (DateTime)inParams[3];
+      ScheduleRecordingType recordingType = (ScheduleRecordingType)inParams[4];
       ISchedule schedule = null;
 
       AsyncResult<IChannel> result = channelAndGroupInfo.GetChannelAsync(channelId).Result;
       if (result.Success)
       {
-        var scheduleResult = scheduleControl.CreateScheduleByTimeAsync(result.Result, startTime, endTime, recordingType).Result;
+        var scheduleResult = scheduleControl.CreateScheduleByTimeAsync(result.Result, title, startTime, endTime, recordingType).Result;
         if (scheduleResult.Success)
           schedule = scheduleResult.Result;
       }

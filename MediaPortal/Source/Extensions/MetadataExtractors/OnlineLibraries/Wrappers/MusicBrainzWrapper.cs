@@ -36,8 +36,10 @@ using System.Threading.Tasks;
 
 namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
 {
-  class MusicBrainzWrapper : ApiWrapper<TrackImage, string>
+  class MusicBrainzWrapper : ApiMediaWrapper<TrackImage, string>
   {
+    private const string PROVIDER_NAME = "musicbrainz.org";
+
     protected MusicBrainzApiV2 _musicBrainzHandler;
 
     /// <summary>
@@ -88,7 +90,8 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
           Album = track.Album,
           Compilation = track.FromCompilation,
           AlbumHasBarcode = !string.IsNullOrEmpty(track.AlbumBarcode),
-          AlbumHasOnlineCover = track.AlbumHasCover
+          AlbumHasOnlineCover = track.AlbumHasCover,
+          DataProviders = new List<string>() { PROVIDER_NAME }
         };
         info.Languages.Add(track.Country);
         tracks.Add(info);
@@ -123,6 +126,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
           MusicLabels = ConvertToCompanies(album.Labels, CompanyAspect.COMPANY_MUSIC_LABEL),
           HasOnlineCover = album.CoverArt != null && album.CoverArt.Front ? true : false,
           HasBarcode = !string.IsNullOrEmpty(album.Barcode),
+          DataProviders = new List<string>() { PROVIDER_NAME }
         };
         info.Languages.Add(album.Country);
         albums.Add(info);
@@ -153,6 +157,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
           Name = artist.Name,
           Occupation = PersonAspect.OCCUPATION_ARTIST,
           IsGroup = string.IsNullOrEmpty(artist.Type) ? false : artist.Type.IndexOf("Group", StringComparison.InvariantCultureIgnoreCase) >= 0,
+          DataProviders = new List<string>() { PROVIDER_NAME }
         };
         persons.Add(info);
       }
@@ -181,6 +186,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
           MusicBrainzId = company.Id,
           Name = company.Name,
           Type = CompanyAspect.COMPANY_MUSIC_LABEL,
+          DataProviders = new List<string>() { PROVIDER_NAME }
         };
         companies.Add(info);
       }
@@ -211,7 +217,8 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
           MusicBrainzId = person.Id,
           Name = person.Name,
           Occupation = occupation,
-          Order = sortOrder++
+          Order = sortOrder++,
+          DataProviders = new List<string>() { PROVIDER_NAME }
         });
       }
       return retValue;
@@ -230,7 +237,8 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
         {
           Name = person,
           Occupation = occupation,
-          Order = sortOrder++
+          Order = sortOrder++,
+          DataProviders = new List<string>() { PROVIDER_NAME }
         });
       }
       return retValue;
@@ -244,7 +252,14 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
       int sortOrder = 0;
       List<CompanyInfo> retValue = new List<CompanyInfo>();
       foreach (TrackLabel label in companies)
-        retValue.Add(new CompanyInfo() { MusicBrainzId = label.Label.Id, Name = label.Label.Name, Type = type, Order = sortOrder++ });
+        retValue.Add(new CompanyInfo()
+        {
+          MusicBrainzId = label.Label.Id,
+          Name = label.Label.Name,
+          Type = type,
+          Order = sortOrder++,
+          DataProviders = new List<string>() { PROVIDER_NAME }
+        });
       return retValue;
     }
 
@@ -265,6 +280,8 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
         company.MusicBrainzId = labelDetail.Label.Id;
         company.Name = labelDetail.Label.Name;
         company.Type = CompanyAspect.COMPANY_MUSIC_LABEL;
+        if (!company.DataProviders.Contains(PROVIDER_NAME))
+          company.DataProviders.Add(PROVIDER_NAME);
 
         return true;
       }
@@ -289,6 +306,8 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
         person.DateOfDeath = artistDetail.LifeSpan != null ? artistDetail.LifeSpan.End : null;
         person.IsGroup = string.IsNullOrEmpty(artistDetail.Type) ? false : artistDetail.Type.IndexOf("Group", StringComparison.InvariantCultureIgnoreCase) >= 0;
         person.Occupation = PersonAspect.OCCUPATION_ARTIST;
+        if (!person.DataProviders.Contains(PROVIDER_NAME))
+          person.DataProviders.Add(PROVIDER_NAME);
 
         return true;
       }
@@ -394,6 +413,9 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
           }
         }
 
+        if (!track.DataProviders.Contains(PROVIDER_NAME))
+          track.DataProviders.Add(PROVIDER_NAME);
+
         return true;
       }
       catch (Exception ex)
@@ -425,6 +447,9 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
         if (albumDetail.Labels != null)
           album.MusicLabels = ConvertToCompanies(albumDetail.Labels, CompanyAspect.COMPANY_MUSIC_LABEL);
 
+        if (!album.DataProviders.Contains(PROVIDER_NAME))
+          album.DataProviders.Add(PROVIDER_NAME);
+
         foreach (TrackMedia media in albumDetail.Media)
         {
           if (media.Tracks == null || media.Tracks.Count <= 0)
@@ -450,6 +475,9 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
 
               track.Artists = ConvertToPersons(trackDetail.Artists, PersonAspect.OCCUPATION_ARTIST);
               track.AlbumArtists = ConvertToPersons(albumDetail.Artists, PersonAspect.OCCUPATION_ARTIST);
+
+              if (!track.DataProviders.Contains(PROVIDER_NAME))
+                track.DataProviders.Add(PROVIDER_NAME);
 
               album.Tracks.Add(track);
             }

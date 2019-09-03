@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="4.0">
+
+  <PropertyGroup>
+    <IgnoreDNXRuntime>true</IgnoreDNXRuntime>
+    <PublishOutputPathNoTrailingSlash>.\bin</PublishOutputPathNoTrailingSlash>
+    <NoSourceFlag>true</NoSourceFlag>
+  </PropertyGroup>
+
+  <Target Name="CopyAll" AfterTargets="AfterBuild">
+
+    <PropertyGroup>
+      <PluginDestination>$(SolutionDir)..\Bin\$(SolutionName)\$(OutDir)Plugins\$(ProjectName)\</PluginDestination>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <PluginFiles Include="$(TargetDir)$(ProjectName).dll" />
+      <PluginFiles Include="$(ProjectDir)plugin.xml" />
+      <PluginFiles Include="$(ProjectDir)ResourceAccess\WSS\Profiles\*.xml" />
+    </ItemGroup>
+
+    <ItemGroup Condition=" '$(Configuration)' == 'Debug' ">
+      <PluginFiles Include="$(TargetDir)*.pdb" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <PluginFiles Include="$(TargetDir)SlimTv.Interfaces.dll"/>
+      <PluginFiles Include="$(TargetDir)OnlineVideos.dll" />
+      <PluginFiles Include="$(TargetDir)TranscodingService.Interfaces.dll" />
+      <PluginFiles Include="$(TargetDir)FanArtService.Interfaces.dll" />
+    </ItemGroup>
+
+    <Copy SourceFiles="@(PluginFiles)" DestinationFolder="$(PluginDestination)" />
+  </Target>
+
+</Project>

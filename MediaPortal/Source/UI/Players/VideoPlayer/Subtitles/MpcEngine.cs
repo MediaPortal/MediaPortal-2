@@ -26,12 +26,20 @@ using System;
 using System.Runtime.InteropServices;
 using DirectShow;
 using MediaPortal.UI.Players.Video.Settings;
+using MediaPortal.Utilities.SystemAPI;
 using SharpDX;
 
 namespace MediaPortal.UI.Players.Video.Subtitles
 {
   public class MpcSubtitles
   {
+    static MpcSubtitles()
+    {
+      string absolutePlatformDir;
+      if (!NativeMethods.SetPlatformSearchDirectories(out absolutePlatformDir))
+        throw new Exception("Error adding dll probe path");
+    }
+
     //set default subtitle's style (call before LoadSubtitles to take effect)
     [DllImport("mpcSubs.dll", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true, CharSet = CharSet.Unicode)]
     public static extern void SetDefaultStyle([In] ref SubtitleStyle style, bool overrideUserStyle);

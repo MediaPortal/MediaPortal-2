@@ -707,7 +707,7 @@ namespace MediaPortal.Common.Services.MediaManagement
           MetadataExtractorMetadata mem = extractor.Metadata;
           ServiceRegistration.Get<ILogger>().Error("MediaAccessor: Error extracting metadata from metadata extractor '{0}' (Id: '{1}')",
               e, mem.Name, mem.MetadataExtractorId);
-          throw;
+          //throw;
         }
       }
       return success ? result : null;

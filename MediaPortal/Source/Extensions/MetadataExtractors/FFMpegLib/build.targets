@@ -20,7 +20,8 @@
     <Copy SourceFiles="@(PluginFiles)" DestinationFolder="$(PluginDestination)" />
     <Copy SourceFiles="@(ReferencesX86)" DestinationFolder="$(PluginDestination)\x86" />
     <Copy SourceFiles="@(ReferencesX64)" DestinationFolder="$(PluginDestination)\x64" />
-    <Copy SourceFiles="@(Fonts)" DestinationFiles="@(Fonts->'$(PluginDestination)\fonts\%(RecursiveDir)%(Filename)%(Extension)')" />
+    <Copy SourceFiles="@(Fonts)" DestinationFiles="@(Fonts->'$(PluginDestination)\x86\fonts\%(RecursiveDir)%(Filename)%(Extension)')" />
+    <Copy SourceFiles="@(Fonts)" DestinationFiles="@(Fonts->'$(PluginDestination)\x64\fonts\%(RecursiveDir)%(Filename)%(Extension)')" />
   </Target>
 
 </Project>

@@ -266,6 +266,13 @@ namespace MediaPortal.Common.Services.ResourceAccess.RemoteResourceProvider
       return null;
     }
 
+    public Stream CreateOpenWrite(string file, bool overwrite)
+    {
+      if (_isFile)
+        throw new IllegalCallException("Only directories can create stream access");
+      return null;
+    }
+
     public IResourceAccessor Clone()
     {
       RemoteFileSystemResourceAccessor result = new RemoteFileSystemResourceAccessor(_nativeSystemId, _nativeResourcePath,

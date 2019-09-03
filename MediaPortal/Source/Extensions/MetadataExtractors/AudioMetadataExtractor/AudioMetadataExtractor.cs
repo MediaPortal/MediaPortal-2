@@ -234,6 +234,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
     public static bool CacheLocalFanArt { get; private set; }
     public static bool IncludeArtistDetails { get; private set; }
     public static bool IncludeComposerDetails { get; private set; }
+    public static bool IncludeConductorDetails { get; private set; }
     public static bool IncludeMusicLabelDetails { get; private set; }
 
     private void LoadSettings()
@@ -244,6 +245,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
       CacheLocalFanArt = _settingWatcher.Settings.CacheLocalFanArt;
       IncludeArtistDetails = _settingWatcher.Settings.IncludeArtistDetails;
       IncludeComposerDetails = _settingWatcher.Settings.IncludeComposerDetails;
+      IncludeConductorDetails = _settingWatcher.Settings.IncludeConductorDetails;
       IncludeMusicLabelDetails = _settingWatcher.Settings.IncludeMusicLabelDetails;
     }
 
@@ -1001,6 +1003,8 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
               Name = $"{(string.IsNullOrWhiteSpace(match.Album) ? "" : $"{match.Album}: ")}{match.TrackName}" +
                 $"{(match.Artists.Count > 0 ? $" [{string.Join(", ", match.Artists)}]" : "")}",
               Description = match.ReleaseDate.HasValue ? "" : match.ReleaseDate.Value.ToShortDateString(),
+              MatchPercentage = 100,
+              Providers = new List<string>(match.DataProviders),
             };
 
             //Add external Ids
@@ -1028,6 +1032,8 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
               Name = $"{match.Album}{(match.ReleaseDate.HasValue ? $" ({match.ReleaseDate.Value.Year})" : "")}" +
                 $"{(match.Artists.Count > 0 ? $" [{string.Join(", ", match.Artists)}]" : "")}",
               Description = match.Description.IsEmpty ? "" : match.Description.Text,
+              MatchPercentage = 100,
+              Providers = new List<string>(match.DataProviders),
             };
 
             //Add external Ids
@@ -1088,6 +1094,11 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
           AudioAlbumAspect.ASPECT_ID, AudioAspect.ASPECT_ID, ReimportAspect.ASPECT_ID, GenreAspect.ASPECT_ID };
       foreach (var aspect in aspectData.Where(a => !reimportAspects.Contains(a.Key)).ToList())
         aspectData.Remove(aspect.Key);
+    }
+
+    public Task<bool> DownloadMetadataAsync(Guid mediaItemId, IDictionary<Guid, IList<MediaItemAspect>> aspectData)
+    {
+      return Task.FromResult(false);
     }
 
     #endregion

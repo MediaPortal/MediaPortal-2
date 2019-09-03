@@ -395,7 +395,7 @@ namespace MediaPortal.Plugins.InputDeviceManager
       else if (hidEvent.IsKeyboard)
         str += ", Keyboard" + (object)", Virtual Key: " + hidEvent.VirtualKey.ToString();
       else if (hidEvent.IsMouse)
-        str += ", Mouse, Flags: " + hidEvent.RawInput.mouse.buttonsStr.usButtonFlags;
+        str += ", Mouse, Flags: " + hidEvent.RawInput.data.mouse.mouseData.buttonsStr.usButtonFlags;
       if (hidEvent.IsBackground)
         str += ", Background";
       if (hidEvent.IsRepeat)
@@ -519,7 +519,7 @@ namespace MediaPortal.Plugins.InputDeviceManager
       else if (hidEvent.IsMouse)
       {
         int id = 0;
-        switch (hidEvent.RawInput.mouse.buttonsStr.usButtonFlags)
+        switch (hidEvent.RawInput.data.mouse.mouseData.buttonsStr.usButtonFlags)
         {
           case RawInputMouseButtonFlags.RI_MOUSE_LEFT_BUTTON_DOWN:
           case RawInputMouseButtonFlags.RI_MOUSE_LEFT_BUTTON_UP:

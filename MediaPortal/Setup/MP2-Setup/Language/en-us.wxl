@@ -27,6 +27,9 @@
   <String Id="SC_Client">MediaPortal 2</String>
   <String Id="SC_Client_Desc">Start MediaPortal 2</String>
 
+  <String Id="SC_Client_x64">MediaPortal 2 (x64)</String>
+  <String Id="SC_Client_Desc_x64">Start MediaPortal 2 (x64)</String>
+
   <!-- Server related strings -->
   <String Id="F_Server">Server</String>
   <String Id="F_Server_Desc">The server part of MediaPortal 2. Provides the MediaLibrary and other services.</String>

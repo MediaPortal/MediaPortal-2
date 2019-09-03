@@ -153,6 +153,8 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
     public static bool IncludeProductionCompanyDetails { get; private set; }
     public static bool IncludeWriterDetails { get; private set; }
     public static bool OnlyLocalMedia { get; private set; }
+    public static int MaximumActorCount { get; private set; }
+    public static int MaximumCharacterCount { get; private set; }
 
     private void LoadSettings()
     {
@@ -166,6 +168,8 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
       IncludeProductionCompanyDetails = _settingWatcher.Settings.IncludeProductionCompanyDetails;
       IncludeWriterDetails = _settingWatcher.Settings.IncludeWriterDetails;
       OnlyLocalMedia = _settingWatcher.Settings.OnlyLocalMedia;
+      MaximumActorCount = _settingWatcher.Settings.MaximumActorCount;
+      MaximumCharacterCount = _settingWatcher.Settings.MaximumCharacterCount;
     }
 
     private void SettingsChanged(object sender, EventArgs e)
@@ -514,6 +518,8 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
               Name = $"{match.MovieName.Text}{(match.ReleaseDate == null ? "" : $" ({match.ReleaseDate.Value.Year})")}" +
                 $"{(string.IsNullOrWhiteSpace(match.OriginalName) || string.Compare(match.MovieName.Text, match.OriginalName, true) == 0 ? "" : $" [{match.OriginalName}]")}",
               Description = match.Summary.IsEmpty ? "" : match.Summary.Text,
+              MatchPercentage = 100,
+              Providers = new List<string>(match.DataProviders),
             };
 
             //Add external Ids
@@ -565,6 +571,11 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
         MovieAspect.ASPECT_ID, VideoAspect.ASPECT_ID, ReimportAspect.ASPECT_ID, GenreAspect.ASPECT_ID };
       foreach (var aspect in aspectData.Where(a => !reimportAspects.Contains(a.Key)).ToList())
         aspectData.Remove(aspect.Key);
+    }
+
+    public Task<bool> DownloadMetadataAsync(Guid mediaItemId, IDictionary<Guid, IList<MediaItemAspect>> aspectData)
+    {
+      return Task.FromResult(false);
     }
 
     #endregion

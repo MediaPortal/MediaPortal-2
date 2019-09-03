@@ -173,21 +173,27 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor.Setti
     public bool CacheLocalFanArt { get; set; }
 
     /// <summary>
-    /// If <c>true</c>, Artists details will be fetched from online sources.
+    /// If <c>true</c>, Artists details will be included.
     /// </summary>
     [Setting(SettingScope.Global, true)]
     public bool IncludeArtistDetails { get; set; }
 
     /// <summary>
-    /// If <c>true</c>, Composer details will be fetched from online sources.
+    /// If <c>true</c>, Composer details will be included.
     /// </summary>
     [Setting(SettingScope.Global, true)]
     public bool IncludeComposerDetails { get; set; }
 
     /// <summary>
-    /// If <c>true</c>, Music Label details will be fetched from online sources.
+    /// If <c>true</c>, Music Label details will be included.
     /// </summary>
     [Setting(SettingScope.Global, true)]
     public bool IncludeMusicLabelDetails { get; set; }
+
+    /// <summary>
+    /// If <c>true</c>, Conductor details will be included.
+    /// </summary>
+    [Setting(SettingScope.Global, true)]
+    public bool IncludeConductorDetails { get; set; }
   }
 }

@@ -41,6 +41,24 @@
   <PropertyGroup>
     <StartupObject />
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|AnyCPU'">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <DebugType>full</DebugType>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|AnyCPU'">
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <Optimize>true</Optimize>
+    <DebugType>pdbonly</DebugType>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -65,6 +83,7 @@
     <Compile Include="Libraries\FreeGeoIP\Data\IpInfoResponse.cs" />
     <Compile Include="Libraries\IMatcher.cs" />
     <Compile Include="Libraries\IOnlineMatcherService.cs" />
+    <Compile Include="Libraries\ISubtitleMatcher.cs" />
     <Compile Include="Libraries\MovieDbV3\Data\ChangeCollection.cs" />
     <Compile Include="Libraries\MovieDbV3\Data\Change.cs" />
     <Compile Include="Libraries\MovieDbV3\Data\Network.cs" />
@@ -91,6 +110,8 @@
     <Compile Include="Libraries\MusicBrainzV2\Data\TrackRecording.cs" />
     <Compile Include="Libraries\MusicBrainzV2\Data\TrackReleaseSearchResult.cs" />
     <Compile Include="Libraries\MusicBrainzV2\MusicBrainzDownloader.cs" />
+    <Compile Include="Libraries\SubDbV1\Data\SubDbSearchResult.cs" />
+    <Compile Include="Libraries\SubDbV1\SubDbV1.cs" />
     <Compile Include="Libraries\SimApiV1\Data\SimApiPerson.cs" />
     <Compile Include="Libraries\SimApiV1\Data\SimApiMovie.cs" />
     <Compile Include="Libraries\SimApiV1\Data\SimApiPersonSearchResult.cs" />
@@ -128,8 +149,10 @@
     <Compile Include="Libraries\TvMazeV1\TvMazeApiV1.cs" />
     <Compile Include="Libraries\IMovieMatcher.cs" />
     <Compile Include="Libraries\ISeriesMatcher.cs" />
-    <Compile Include="Libraries\IMusicMatcher.cs" />
+    <Compile Include="Libraries\IAudioMatcher.cs" />
     <Compile Include="Matchers\MovieSimApiMatcher.cs" />
+    <Compile Include="Matchers\SubDbMatcher.cs" />
+    <Compile Include="Matchers\SubtitleMatcher.cs" />
     <Compile Include="Matchers\MusicMatcher.cs" />
     <Compile Include="Matchers\IdMapper.cs" />
     <Compile Include="Matchers\SimpleNameMatcher.cs" />
@@ -137,12 +160,19 @@
     <Compile Include="Matchers\MovieMatcher.cs" />
     <Compile Include="Matchers\MovieFanArtTvMatcher.cs" />
     <Compile Include="Matchers\MovieOmDbMatcher.cs" />
-    <Compile Include="Matches\BaseMatch.cs" />
+    <Compile Include="Matches\BaseSubtitleMatch.cs" />
+    <Compile Include="Matches\BaseMediaMatch.cs" />
+    <Compile Include="Matches\BaseSubtitleMatcher.cs" />
     <Compile Include="Matches\IdMatch.cs" />
     <Compile Include="Matches\SimpleNameMatch.cs" />
     <Compile Include="OnlineMatcherService.cs" />
     <Compile Include="Settings\MatcherSetting.cs" />
     <Compile Include="Settings\OnlineLibrarySettings.cs" />
+    <Compile Include="OnlineProviderBuilder.cs" />
+    <Compile Include="Wrappers\ApiSubtitleWrapper.cs" />
+    <Compile Include="Wrappers\ApiMediaWrapper.cs" />
+    <Compile Include="Wrappers\SubDbWrapper.cs" />
+    <Compile Include="Wrappers\UpdateFinishedEventArgs.cs" />
     <Compile Include="Wrappers\ApiWrapperImageCollection.cs" />
     <Compile Include="Wrappers\SimApiWrapper.cs" />
     <Compile Include="Wrappers\OmDbWrapper.cs" />
@@ -242,7 +272,7 @@
     <Compile Include="Matchers\MusicTheAudioDbMatcher.cs" />
     <Compile Include="Matchers\MusicBrainzMatcher.cs" />
     <Compile Include="Wrappers\MusicBrainzWrapper.cs" />
-    <Compile Include="Matches\BaseMatcher.cs" />
+    <Compile Include="Matches\BaseMediaMatcher.cs" />
     <Compile Include="Libraries\MovieDbV3\Data\ImageCollection.cs" />
     <Compile Include="Libraries\MovieDbV3\Data\Configuration.cs" />
     <Compile Include="Libraries\MovieDbV3\Data\ImageItem.cs" />
@@ -295,7 +325,6 @@
     <Compile Include="Matches\SeriesMatch.cs" />
     <Compile Include="Libraries\Common\Settings.cs" />
     <Compile Include="Wrappers\TheMovieDbWrapper.cs" />
-    <Compile Include="Wrappers\ApiWrapper.cs" />
     <Compile Include="Wrappers\TvDbWrapper.cs" />
     <Compile Include="Wrappers\TvMazeWrapper.cs" />
     <Compile Include="UniqueEventedQueue.cs" />
@@ -314,7 +343,9 @@
     <Content Include="plugin.xml" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="build.targets" />
+    <None Include="build.targets">
+      <SubType>Designer</SubType>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Microsoft.Tpl.Dataflow">

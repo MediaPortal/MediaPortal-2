@@ -277,6 +277,11 @@ namespace MediaPortal.Extensions.ResourceProviders.ZipResourceProvider
       return null;
     }
 
+    public Stream CreateOpenWrite(string file, bool overwrite)
+    {
+      return null;
+    }
+
     public bool ResourceExists(string path)
     {
       return path.Equals(_pathToDirOrFile) || IsResource(_zipProxy.ZipFile, ToEntryPath(ExpandPath(path)));

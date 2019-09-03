@@ -40,6 +40,23 @@
     <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|AnyCPU'">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <DebugType>full</DebugType>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|AnyCPU'">
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <Optimize>true</Optimize>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
   <ItemGroup>
     <Reference Include="log4net, Version=1.2.10.0, Culture=neutral, PublicKeyToken=1b44e1d426115821, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
@@ -91,6 +108,7 @@
     <Compile Include="MediaManagement\Helpers\GenreInfo.cs" />
     <Compile Include="MediaManagement\Helpers\BaseInfo.cs" />
     <Compile Include="MediaManagement\Helpers\HelperExtensionMethods.cs" />
+    <Compile Include="MediaManagement\Helpers\SubtitleInfo.cs" />
     <Compile Include="MediaManagement\Helpers\RelationshipCache.cs" />
     <Compile Include="MediaManagement\Helpers\SimpleRating.cs" />
     <Compile Include="MediaManagement\Helpers\SimpleTitle.cs" />
@@ -128,6 +146,7 @@
     <Compile Include="MediaManagement\TransientAspects\TempAlbumAspect.cs" />
     <Compile Include="MediaManagement\TransientAspects\TempActorAspect.cs" />
     <Compile Include="MediaManagement\TransientAspects\TempArtistAspect.cs" />
+    <Compile Include="MediaManagement\TransientAspects\TempSubtitleAspect.cs" />
     <Compile Include="MediaManagement\TransientAspects\TempSeriesAspect.cs" />
     <Compile Include="ResourceAccess\IUncachableResource.cs" />
     <Compile Include="ResourceAccess\IImpersonationService.cs" />
@@ -188,6 +207,7 @@
     <Compile Include="Services\ResourceAccess\ImpersonationService\TokenWrapper.cs" />
     <Compile Include="Services\ResourceAccess\ImpersonationService\WindowsIdentityWrapper.cs" />
     <Compile Include="Services\ResourceAccess\ImpersonationService\WindowsImpersonationContextWrapper.cs" />
+    <Compile Include="Services\ResourceAccess\MediaPortalAuthorizeAttribute.cs" />
     <Compile Include="Services\ResourceAccess\VirtualResourceProvider\VirtualResourceAccessor.cs" />
     <Compile Include="Services\ResourceAccess\VirtualResourceProvider\VirtualResourceProvider.cs" />
     <Compile Include="Services\ResourceAccess\RawUrlResourceProvider\RawUrlResourceProvider.cs" />
@@ -527,11 +547,20 @@
     <PackageReference Include="DuoVia.FuzzyStrings">
       <Version>1.0.1</Version>
     </PackageReference>
+    <PackageReference Include="Microsoft.AspNet.WebApi.Owin">
+      <Version>5.2.7</Version>
+    </PackageReference>
+    <PackageReference Include="Microsoft.Owin.Security.OAuth">
+      <Version>4.0.1</Version>
+    </PackageReference>
     <PackageReference Include="Microsoft.Owin">
       <Version>4.0.1</Version>
     </PackageReference>
     <PackageReference Include="Microsoft.Tpl.Dataflow">
       <Version>4.5.24</Version>
+    </PackageReference>
+    <PackageReference Include="Newtonsoft.Json">
+      <Version>10.0.3</Version>
     </PackageReference>
   </ItemGroup>
   <ItemGroup />

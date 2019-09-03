@@ -42,6 +42,24 @@
     <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|AnyCPU'">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <DebugType>full</DebugType>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|AnyCPU'">
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <Optimize>true</Optimize>
+    <DebugType>pdbonly</DebugType>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -61,6 +79,7 @@
     <Compile Include="Actions\SkinSettingsAction.cs" />
     <Compile Include="Controls\HomeTilesScrollContentPresenter.cs" />
     <Compile Include="Controls\ItemsListFilter.cs" />
+    <Compile Include="Controls\NereusTileControl.cs" />
     <Compile Include="Converters\ListToGridConverter.cs" />
     <Compile Include="Converters\ItemsListActionFilter.cs" />
     <Compile Include="Converters\RoundingFormatConverter.cs" />
@@ -588,8 +607,6 @@
     <Content Include="Skin\Nereus\images\PlayerControl\UP_FOCUS.png" />
     <Content Include="Skin\Nereus\images\PlayerControl\UP_NOFOCUS.png" />
     <Content Include="Skin\Nereus\images\preview.png" />
-    <Content Include="Skin\Nereus\images\RECORD.SERIES.PNG" />
-    <Content Include="Skin\Nereus\images\RECORD.SINGLE.PNG" />
     <Content Include="Skin\Nereus\images\watched.png" />
     <Content Include="Skin\Nereus\images\Weather\128x128\0.png" />
     <Content Include="Skin\Nereus\images\Weather\128x128\1.png" />

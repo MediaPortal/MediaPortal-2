@@ -274,6 +274,8 @@ namespace MediaPortal.Common.MediaManagement.Helpers
           //In some cases the album artists can be "Various Artist" and/or "Multiple Artists" or track variations
           MetadataUpdater.SetOrUpdateList(AlbumArtists, track.AlbumArtists.Where(p => !string.IsNullOrEmpty(p.Name)).Distinct().ToList(), AlbumArtists.Count == 0, overwriteShorterStrings);
         }
+
+        MergeDataProviders(track);
         return true;
       }
       return false;

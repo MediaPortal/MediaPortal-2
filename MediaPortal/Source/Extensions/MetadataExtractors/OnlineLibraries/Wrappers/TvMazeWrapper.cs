@@ -37,8 +37,10 @@ using System.Threading.Tasks;
 
 namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
 {
-  class TvMazeWrapper : ApiWrapper<TvMazeImageCollection, string>
+  class TvMazeWrapper : ApiMediaWrapper<TvMazeImageCollection, string>
   {
+    private const string PROVIDER_NAME = "tvmaze.com";
+
     protected TvMazeApiV1 _tvMazeHandler;
     protected TimeSpan _cacheTimeout = TimeSpan.FromHours(12);
 
@@ -87,6 +89,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
               SeriesName = seriesSearch.SeriesName,
               SeasonNumber = episode.SeasonNumber,
               EpisodeName = new SimpleTitle(episode.Name, true),
+              DataProviders = new List<string>() { PROVIDER_NAME }
             };
             info.EpisodeNumbers.Add(episode.EpisodeNumber);
             info.CopyIdsFrom(seriesSearch);
@@ -103,6 +106,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
           SeriesName = seriesSearch.SeriesName,
           SeasonNumber = episodeSearch.SeasonNumber,
           EpisodeName = episodeSearch.EpisodeName,
+          DataProviders = new List<string>() { PROVIDER_NAME }
         };
         info.CopyIdsFrom(seriesSearch);
         info.EpisodeNumbers = info.EpisodeNumbers.Union(episodeSearch.EpisodeNumbers).ToList();
@@ -128,6 +132,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
         TvRageId = s.Externals.TvRageId ?? 0,
         SeriesName = new SimpleTitle(s.Name, true),
         FirstAired = s.Premiered,
+        DataProviders = new List<string>() { PROVIDER_NAME }
       }).ToList();
     }
 
@@ -139,6 +144,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
       {
         TvMazeId = p.Id,
         Name = p.Name,
+        DataProviders = new List<string>() { PROVIDER_NAME }
       }).ToList();
     }
 
@@ -194,7 +200,8 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
                 SeriesName = new SimpleTitle(seriesDetail.Name, true),
                 SeasonNumber = episodeDetail.SeasonNumber,
                 FirstAired = episodeDetail.AirDate,
-                TotalEpisodes = seriesDetail.Embedded.Episodes.FindAll(e => e.SeasonNumber == episodeDetail.SeasonNumber).Count
+                TotalEpisodes = seriesDetail.Embedded.Episodes.FindAll(e => e.SeasonNumber == episodeDetail.SeasonNumber).Count,
+                DataProviders = new List<string>() { PROVIDER_NAME }
               };
               if (!series.Seasons.Contains(seasonInfo))
                 series.Seasons.Add(seasonInfo);
@@ -216,6 +223,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
                 EpisodeName = new SimpleTitle(episodeDetail.Name, true),
                 Summary = new SimpleTitle(episodeDetail.Summary, true),
                 Genres = seriesDetail.Genres.Where(s => !string.IsNullOrEmpty(s?.Trim())).Select(s => new GenreInfo { Name = s.Trim() }).ToList(),
+                DataProviders = new List<string>() { PROVIDER_NAME }
               };
 
               info.Actors = series.Actors.ToList();
@@ -235,6 +243,9 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
               series.NextEpisodeSeasonNumber = nextEpisode.SeasonNumber;
               series.NextEpisodeNumber = nextEpisode.EpisodeNumber;
             }
+
+            if (!series.DataProviders.Contains(PROVIDER_NAME))
+              series.DataProviders.Add(PROVIDER_NAME);
           }
         }
 
@@ -275,6 +286,8 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
         season.FirstAired = seasonDetail.PremiereDate;
         season.SeasonNumber = seasonDetail.SeasonNumber;
         season.TotalEpisodes = seasonDetail.EpisodeCount ?? 0;
+        if (!season.DataProviders.Contains(PROVIDER_NAME))
+          season.DataProviders.Add(PROVIDER_NAME);
 
         return true;
       }
@@ -325,6 +338,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
               EpisodeName = new SimpleTitle(episodeDetail.Name, true),
               Summary = new SimpleTitle(episodeDetail.Summary, true),
               Genres = seriesDetail.Genres.Where(s => !string.IsNullOrEmpty(s?.Trim())).Select(s => new GenreInfo { Name = s.Trim() }).ToList(),
+              DataProviders = new List<string>() { PROVIDER_NAME }
             };
 
             if (seriesDetail.Embedded != null && seriesDetail.Embedded.Cast != null)
@@ -336,6 +350,9 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
             episodeDetails.Add(info);
           }
         }
+        if (!episode.DataProviders.Contains(PROVIDER_NAME))
+          episode.DataProviders.Add(PROVIDER_NAME);
+
         if (episodeDetails.Count > 1)
         {
           SetMultiEpisodeDetails(episode, episodeDetails);
@@ -366,6 +383,8 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
 
         person.TvMazeId = personDetail.Id;
         person.Name = personDetail.Name;
+        if (!person.DataProviders.Contains(PROVIDER_NAME))
+          person.DataProviders.Add(PROVIDER_NAME);
 
         return true;
       }
@@ -402,6 +421,8 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
               character.Name = characters[index].Name;
               character.Order = characters[index].Order;
               character.ParentMediaName = seriesDetail.Name;
+              if (!character.DataProviders.Contains(PROVIDER_NAME))
+                character.DataProviders.Add(PROVIDER_NAME);
 
               return true;
             }
@@ -433,7 +454,14 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
 
       List<PersonInfo> retValue = new List<PersonInfo>();
       foreach (TvMazeCast person in cast)
-        retValue.Add(new PersonInfo() { TvMazeId = person.Person.Id, Name = person.Person.Name, Occupation = occupation, ParentMediaName = series });
+        retValue.Add(new PersonInfo()
+        {
+          TvMazeId = person.Person.Id,
+          Name = person.Person.Name,
+          Occupation = occupation,
+          ParentMediaName = series,
+          DataProviders = new List<string>() { PROVIDER_NAME }
+        });
       return retValue;
     }
 
@@ -450,7 +478,8 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
           ActorName = person.Person.Name,
           TvMazeId = person.Character.Id,
           Name = person.Character.Name,
-          ParentMediaName = series
+          ParentMediaName = series,
+          DataProviders = new List<string>() { PROVIDER_NAME }
         });
       return retValue;
     }
@@ -467,7 +496,8 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
           {
              TvMazeId = company.Id,
              Name = company.Name,
-             Type = type
+             Type = type,
+             DataProviders = new List<string>() { PROVIDER_NAME }
           }
       });
     }

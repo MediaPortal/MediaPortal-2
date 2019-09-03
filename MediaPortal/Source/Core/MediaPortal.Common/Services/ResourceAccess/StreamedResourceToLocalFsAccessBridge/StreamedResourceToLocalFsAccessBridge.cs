@@ -252,6 +252,16 @@ namespace MediaPortal.Common.Services.ResourceAccess.StreamedResourceToLocalFsAc
       return File.OpenWrite(_localFsPath);
     }
 
+    public Stream CreateOpenWrite(string file, bool overwrite)
+    {
+      if (string.IsNullOrEmpty(_localFsPath) || !Directory.Exists(_localFsPath))
+        return null;
+      string filePath = System.IO.Path.Combine(_localFsPath, file);
+      if (File.Exists(filePath) && !overwrite)
+        return File.OpenWrite(filePath);
+      return File.Create(filePath);
+    }
+
     public IResourceAccessor Clone()
     {
       return new StreamedResourceToLocalFsAccessBridge(_mountingDataProxy, _path);

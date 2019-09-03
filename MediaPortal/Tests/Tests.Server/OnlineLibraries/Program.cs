@@ -39,6 +39,7 @@ using MediaPortal.Common.ResourceAccess;
 using MediaPortal.Common.Services.Logging;
 using MediaPortal.Common.Services.PathManager;
 using MediaPortal.Extensions.MetadataExtractors;
+using MediaPortal.Extensions.OnlineLibraries;
 using MediaPortal.Extensions.OnlineLibraries.Matchers;
 using MediaPortal.Mock;
 using MediaPortal.Utilities;
@@ -224,7 +225,7 @@ namespace Tests.Server.OnlineLibraries
         {
           TvdbId = Int32.Parse(value)
         };
-        SeriesTvDbMatcher.Instance.UpdateSeriesAsync(seriesInfo, false).Wait();
+        OnlineMatcherService.Instance.UpdateSeriesAsync(seriesInfo, false).Wait();
         Console.WriteLine("{0}: {1}", seriesInfo.SeriesName, seriesInfo.Description);
       }
     }

@@ -26,17 +26,30 @@ using System;
 using System.Collections.Generic;
 using System.Net;
 using System.Net.Sockets;
+using System.Security.Claims;
+using System.Text;
+using System.Threading.Tasks;
+using System.Web.Http;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.ResourceAccess;
 using MediaPortal.Common.Services.ResourceAccess.Settings;
 using MediaPortal.Common.Settings;
+using MediaPortal.Common.UserManagement;
+using MediaPortal.Common.UserProfileDataManagement;
+using MediaPortal.Utilities.Network;
+using Microsoft.Owin;
 using Microsoft.Owin.Hosting;
+using Microsoft.Owin.Security.OAuth;
+using Owin;
 using UPnP.Infrastructure.Dv;
 
+[assembly: OwinStartup(typeof(MediaPortal.Common.Services.ResourceAccess.ResourceServer))]
 namespace MediaPortal.Common.Services.ResourceAccess
 {
   public class ResourceServer : IResourceServer, IDisposable
   {
+    public const string MEDIAPORTAL_AUTHENTICATION_TYPE = "MediaPortal";
+
     protected readonly List<Type> _middleWares = new List<Type>();
     protected IDisposable _httpServer;
     protected int _serverPort = UPnPServer.DEFAULT_UPNP_AND_SERVICE_PORT_NUMBER;
@@ -46,57 +59,124 @@ namespace MediaPortal.Common.Services.ResourceAccess
     public ResourceServer()
     {
       AddHttpModule(typeof(ResourceAccessModule));
-      CreateAndStartServer();
+      //CreateAndStartServer();
     }
 
     private void CreateAndStartServer()
     {
-      try
+      ServerSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<ServerSettings>();
+      List<string> filters = settings.IPAddressBindingsList;
+      _serverPort = UPnPServer.DEFAULT_UPNP_AND_SERVICE_PORT_NUMBER;
+      _servicePrefix = ResourceHttpAccessUrlUtils.RESOURCE_SERVER_BASE_PATH;
+      var startOptions = UPnPServer.BuildStartOptions(_servicePrefix, filters, _serverPort);
+
+      lock (_syncObj)
       {
-        ServerSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<ServerSettings>();
-        List<string> filters = settings.IPAddressBindingsList;
+        if (_httpServer != null) //Already started
+          return;
 
-        _servicePrefix = ResourceHttpAccessUrlUtils.RESOURCE_SERVER_BASE_PATH + Guid.NewGuid().GetHashCode().ToString("X");
-        var startOptions = UPnPServer.BuildStartOptions(_servicePrefix, filters);
-
-        try
+        _httpServer = WebApp.Start(startOptions, builder =>
         {
-          lock (_syncObj)
+          // Configure OAuth Authorization Server
+          builder.UseOAuthAuthorizationServer(new OAuthAuthorizationServerOptions
           {
-            _httpServer = WebApp.Start(startOptions, builder =>
+            AuthenticationType = MEDIAPORTAL_AUTHENTICATION_TYPE,
+            TokenEndpointPath = new PathString("/Token"),
+            ApplicationCanDisplayErrors = true,
+            AuthorizationCodeExpireTimeSpan = TimeSpan.FromDays(7),
+#if DEBUG
+            AllowInsecureHttp = true,
+#endif
+            // Authorization server provider which controls the lifecycle of Authorization Server
+            Provider = new OAuthAuthorizationServerProvider
             {
-              foreach (Type middleWareType in _middleWares)
-              {
-                builder.Use(middleWareType);
-              }
-            });
+              OnValidateClientAuthentication = ValidateClientAuthentication,
+              OnGrantResourceOwnerCredentials = GrantResourceOwnerCredentials,
+            }
+          });
+          builder.UseOAuthBearerAuthentication(new OAuthBearerAuthenticationOptions());
+
+          // Configure Web API
+          HttpConfiguration config = new HttpConfiguration();
+
+          // Support conventional routing
+          var routeTemplate = (_servicePrefix + "/api/{controller}/{id}").TrimStart('/'); // No leading slash allowed
+          config.Routes.MapHttpRoute(
+              "DefaultApi",
+              routeTemplate,
+              new { id = RouteParameter.Optional }
+          );
+
+          // Support attribute based routing
+          config.MapHttpAttributeRoutes();
+
+          // Set json as default instead of xml
+          config.Formatters.JsonFormatter.MediaTypeMappings
+            .Add(new System.Net.Http.Formatting.RequestHeaderMapping(
+              "Accept", "text/html", StringComparison.InvariantCultureIgnoreCase, true, "application/json"));
+
+          builder.UseWebApi(config);
+
+          // Configure MiddleWare
+          foreach (Type middleWareType in _middleWares)
+          {
+            builder.Use(middleWareType);
           }
-        }
-        catch (Exception ex)
+        });
+      }
+    }
+
+    private Task ValidateClientAuthentication(OAuthValidateClientAuthenticationContext context)
+    {
+      context.Validated();
+      return Task.CompletedTask;
+    }
+
+    public async Task GrantResourceOwnerCredentials(OAuthGrantResourceOwnerCredentialsContext context)
+    {
+      var userManagement = ServiceRegistration.Get<IUserProfileDataManagement>(false);
+      if (userManagement == null)
+      {
+        //Try client service
+        IUserManagement clientUserManagement = ServiceRegistration.Get<IUserManagement>();
+        userManagement = clientUserManagement.UserProfileDataManagement;
+      }
+
+      if (userManagement != null)
+      {
+        var user = await userManagement.GetProfileByNameAsync(context.UserName);
+        if (user.Success)
         {
-          if (filters.Count > 0)
-            ServiceRegistration.Get<ILogger>().Warn("ResourceServer: Error starting HTTP server with filters. Fallback to no filters", ex);
+          var pass = GetPassword(context.Password);
+          if (UserProfile.VerifyPassword(pass, user.Result.Password))
+          {
+            bool isAdmin = !user.Result.RestrictShares && !user.Result.RestrictAges && user.Result.ProfileType == UserProfileType.UserProfile &&
+              !user.Result.EnableRestrictionGroups;
+
+            var identity = new ClaimsIdentity(context.Options.AuthenticationType);
+            identity.AddClaim(new Claim(ClaimTypes.Name, context.UserName));
+            identity.AddClaim(new Claim(ClaimTypes.Sid, user.Result.ProfileId.ToString()));
+            identity.AddClaim(new Claim(ClaimTypes.Role, isAdmin ? "Admin" : "User"));
+            await userManagement.LoginProfileAsync(user.Result.ProfileId);
+
+            context.Validated(identity);
+            return;
+          }
           else
-            throw ex;
-
-          _httpServer?.Dispose();
-          startOptions = UPnPServer.BuildStartOptions(_servicePrefix, new List<string>());
-          lock (_syncObj)
           {
-            _httpServer = WebApp.Start(startOptions, builder =>
-            {
-              foreach (Type middleWareType in _middleWares)
-              {
-                builder.Use(middleWareType);
-              }
-            });
+            context.Rejected();
+            context.SetError("invalid_grant", "The user name or password is incorrect.");
           }
         }
       }
-      catch (Exception ex)
-      {
-        ServiceRegistration.Get<ILogger>().Error("ResourceServer: Error starting HTTP servers", ex);
-      }
+      context.Rejected();
+      context.SetError("invalid_grant", "User management not available.");
+    }
+
+    private string GetPassword(string encoded)
+    {
+      byte[] converted = Convert.FromBase64String(encoded);
+      return Encoding.UTF8.GetString(converted);
     }
 
     public void Dispose()
@@ -147,6 +227,7 @@ namespace MediaPortal.Common.Services.ResourceAccess
     public void Startup()
     {
       CreateAndStartServer();
+      ServiceRegistration.Get<ILogger>().Info("ResourceServer: HTTP servers running on {0}", GetServiceUrl(IPAddress.Any));
     }
 
     public void Shutdown()

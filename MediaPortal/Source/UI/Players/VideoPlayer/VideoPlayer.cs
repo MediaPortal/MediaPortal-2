@@ -36,6 +36,9 @@ using MediaPortal.Common.Localization;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.ResourceAccess;
 using MediaPortal.Common.Settings;
+using MediaPortal.UI.Players.Video.Native;
+using MediaPortal.Common.UserManagement;
+using MediaPortal.Common.UserProfileDataManagement;
 using MediaPortal.UI.Players.Video.Settings;
 using MediaPortal.UI.Players.Video.Subtitles;
 using MediaPortal.UI.Players.Video.Tools;
@@ -69,16 +72,6 @@ namespace MediaPortal.UI.Players.Video
       int SetNumberOfStreams(uint dwMaxStreams);
       int GetNumberOfStreams(ref uint pdwMaxStreams);
     }
-
-    #endregion
-
-    #region DLL imports
-
-    [DllImport("EVRPresenter.dll", ExactSpelling = true, CharSet = CharSet.Auto, SetLastError = true)]
-    private static extern int EvrInit(IEVRPresentCallback callback, uint dwD3DDevice, IBaseFilter evrFilter, IntPtr monitor, out IntPtr presenterInstance);
-
-    [DllImport("EVRPresenter.dll", ExactSpelling = true, CharSet = CharSet.Auto, SetLastError = true)]
-    private static extern void EvrDeinit(IntPtr presenterInstance);
 
     #endregion
 
@@ -157,6 +150,7 @@ namespace MediaPortal.UI.Players.Video
         throw new EnvironmentException("This video player can only run on Windows Vista or above");
 
       PlayerTitle = "VideoPlayer";
+
       _mpcSubsRenderer = new MpcSubsRenderer(OnTextureInvalidated);
     }
 
@@ -187,9 +181,7 @@ namespace MediaPortal.UI.Players.Video
     protected override void AddSubtitleFilter(bool isSourceFilterPresent)
     {
       VideoSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<VideoSettings>() ?? new VideoSettings();
-      int preferredSubtitleLcid = settings.PreferredSubtitleLanguage;
       var fileSystemResourceAccessor = _resourceAccessor as IFileSystemResourceAccessor;
-
       if (fileSystemResourceAccessor != null)
       {
         ServiceRegistration.Get<ILogger>().Debug("{0}: Adding MPC-HC subtitle engine", PlayerTitle);
@@ -200,7 +192,31 @@ namespace MediaPortal.UI.Players.Video
         IntPtr upDevice = SkinContext.Device.NativePointer;
         string filename = fileSystemResourceAccessor.ResourcePathName;
 
-        MpcSubtitles.LoadSubtitles(upDevice, _displaySize, filename, _graphBuilder, @".\", preferredSubtitleLcid);
+        bool loaded = false;
+        IUserManagement userManagement = ServiceRegistration.Get<IUserManagement>();
+        if (userManagement?.CurrentUser != null)
+        {
+          var cultures = CultureInfo.GetCultures(CultureTypes.SpecificCultures);
+          if (userManagement.CurrentUser.TryGetAdditionalData(UserDataKeysKnown.KEY_PREFERRED_SUBTITLE_LANGUAGE, 0, out string subLang))
+          {
+            int langId = cultures?.FirstOrDefault(c => c.TwoLetterISOLanguageName == subLang)?.LCID ?? 0;
+            loaded = MpcSubtitles.LoadSubtitles(upDevice, _displaySize, filename, _graphBuilder, @".\", langId);
+          }
+          if (!loaded && userManagement.CurrentUser.TryGetAdditionalData(UserDataKeysKnown.KEY_PREFERRED_SUBTITLE_LANGUAGE, 1, out string subLang2))
+          {
+            int langId = cultures?.FirstOrDefault(c => c.TwoLetterISOLanguageName == subLang2)?.LCID ?? 0;
+            loaded = MpcSubtitles.LoadSubtitles(upDevice, _displaySize, filename, _graphBuilder, @".\", langId);
+          }
+          if (!loaded)
+          {
+            loaded = MpcSubtitles.LoadSubtitles(upDevice, _displaySize, filename, _graphBuilder, @".\", settings.PreferredSubtitleLanguage);
+          }
+        }
+        else
+        {
+          loaded = MpcSubtitles.LoadSubtitles(upDevice, _displaySize, filename, _graphBuilder, @".\", settings.PreferredSubtitleLanguage);
+        }
+        
         if (settings.EnableMpcSubtitlesEngine)
         {
           MpcSubtitles.SetEnable(true);
@@ -222,7 +238,7 @@ namespace MediaPortal.UI.Players.Video
       _evr = (IBaseFilter)new EnhancedVideoRenderer();
 
       IntPtr upDevice = SkinContext.Device.NativePointer;
-      int hr = EvrInit(_evrCallback, (uint)upDevice.ToInt32(), _evr, SkinContext.Form.Handle, out _presenterInstance);
+      int hr = EvrPresenterWrapper.EvrInit(_evrCallback, upDevice, _evr, SkinContext.Form.Handle, out _presenterInstance);
       if (hr != 0)
       {
         SafeEvrDeinit();
@@ -232,14 +248,15 @@ namespace MediaPortal.UI.Players.Video
 
       // Check if CC is added, in this case the EVR needs one more input pin
       VideoSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<VideoSettings>();
+      var streamCount = _streamCount;
       if (settings.EnableAtscClosedCaptions)
       {
-        _streamCount++;
+        streamCount++;
       }
 
       // Set the number of video/subtitle/cc streams that are allowed to be connected to EVR. This has to be done after the custom presenter is initialized.
       IEVRFilterConfig config = (IEVRFilterConfig)_evr;
-      config.SetNumberOfStreams(_streamCount);
+      config.SetNumberOfStreams(streamCount);
 
       _graphBuilder.AddFilter(_evr, EVR_FILTER_NAME);
     }
@@ -291,7 +308,7 @@ namespace MediaPortal.UI.Players.Video
     {
       if (_presenterInstance == IntPtr.Zero)
         return;
-      EvrDeinit(_presenterInstance);
+      EvrPresenterWrapper.EvrDeinit(_presenterInstance);
       _presenterInstance = IntPtr.Zero;
     }
 
@@ -415,6 +432,26 @@ namespace MediaPortal.UI.Players.Video
 
       // Check if there are multiple audio streams for the PreferredAudioLanguage.
       int preferredAudioLCID = settings.PreferredAudioLanguage;
+      IUserManagement userManagement = ServiceRegistration.Get<IUserManagement>();
+      if (userManagement?.CurrentUser != null)
+      {
+        preferredAudioLCID = 0;
+        var cultures = CultureInfo.GetCultures(CultureTypes.SpecificCultures);
+        if (userManagement.CurrentUser.TryGetAdditionalData(UserDataKeysKnown.KEY_PREFERRED_AUDIO_LANGUAGE, 0, out string audioLang))
+        {
+          int langId = cultures?.FirstOrDefault(c => c.TwoLetterISOLanguageName == audioLang)?.LCID ?? 0;
+          if (audioStreams.ToList().FindAll(a => a.LCID == langId && a.LCID != 0).Any())
+            preferredAudioLCID = langId;
+        }
+        if (preferredAudioLCID == 0 && userManagement.CurrentUser.TryGetAdditionalData(UserDataKeysKnown.KEY_PREFERRED_AUDIO_LANGUAGE, 1, out string audioLang2))
+        {
+          int langId = cultures?.FirstOrDefault(c => c.TwoLetterISOLanguageName == audioLang2)?.LCID ?? 0;
+          if (audioStreams.ToList().FindAll(a => a.LCID == langId && a.LCID != 0).Any())
+            preferredAudioLCID = langId;
+        }
+        if (preferredAudioLCID == 0)
+          preferredAudioLCID = settings.PreferredAudioLanguage;
+      }
 
       List<StreamInfo> streamsForLCID = audioStreams.ToList().FindAll(a => a.LCID == preferredAudioLCID && a.LCID != 0);
       int count = streamsForLCID.Count;
@@ -456,7 +493,7 @@ namespace MediaPortal.UI.Players.Video
         audioStreams.EnableStream(streamInfo.Name);
       else
         if (useFirstAsDefault)
-          audioStreams.EnableStream(audioStreams[0].Name);
+        audioStreams.EnableStream(audioStreams[0].Name);
     }
 
     public virtual void SetAudioStream(string audioStream)
@@ -881,7 +918,31 @@ namespace MediaPortal.UI.Players.Video
       VideoSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<VideoSettings>() ?? new VideoSettings();
 
       // first try to find a stream by it's exact LCID.
-      StreamInfo streamInfo = subtitleStreams.FindStream(settings.PreferredSubtitleLanguage) ?? subtitleStreams.FindSimilarStream(settings.PreferredSubtitleStreamName);
+      int preferredSubtitleLanguage = settings.PreferredSubtitleLanguage;
+      IUserManagement userManagement = ServiceRegistration.Get<IUserManagement>();
+      if (userManagement?.CurrentUser != null)
+      {
+        preferredSubtitleLanguage = 0;
+        var cultures = CultureInfo.GetCultures(CultureTypes.SpecificCultures);
+        if (userManagement.CurrentUser.TryGetAdditionalData(UserDataKeysKnown.KEY_PREFERRED_SUBTITLE_LANGUAGE, 0, out string subLang))
+        {
+          int langId = cultures?.FirstOrDefault(c => c.TwoLetterISOLanguageName == subLang)?.LCID ?? 0;
+          if (subtitleStreams.Any(s => s.LCID == langId))
+            preferredSubtitleLanguage = langId;
+        }
+        if (preferredSubtitleLanguage == 0 && userManagement.CurrentUser.TryGetAdditionalData(UserDataKeysKnown.KEY_PREFERRED_SUBTITLE_LANGUAGE, 1, out string subLang2))
+        {
+          int langId = cultures?.FirstOrDefault(c => c.TwoLetterISOLanguageName == subLang2)?.LCID ?? 0;
+          if (subtitleStreams.Any(s => s.LCID == langId))
+            preferredSubtitleLanguage = langId;
+        }
+        if (preferredSubtitleLanguage == 0)
+        {
+          preferredSubtitleLanguage = settings.PreferredSubtitleLanguage;
+        }
+      }
+
+      StreamInfo streamInfo = subtitleStreams.FindStream(preferredSubtitleLanguage) ?? subtitleStreams.FindSimilarStream(settings.PreferredSubtitleStreamName);
       if (streamInfo == null || !settings.EnableMpcSubtitlesEngine)
       {
         // auto-activate forced subtitles

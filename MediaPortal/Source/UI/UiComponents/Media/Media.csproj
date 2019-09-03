@@ -41,6 +41,26 @@
     <Prefer32Bit>false</Prefer32Bit>
     <NoWarn>CS0067</NoWarn>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|AnyCPU'">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <NoWarn>CS0067</NoWarn>
+    <DebugType>full</DebugType>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|AnyCPU'">
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <Optimize>true</Optimize>
+    <NoWarn>CS0067</NoWarn>
+    <DebugType>pdbonly</DebugType>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -157,6 +177,7 @@
     <Compile Include="MediaItemActions\DeleteFromStorage.cs" />
     <Compile Include="MediaItemActions\AbstractWatchedAction.cs" />
     <Compile Include="MediaItemActions\AbstractRefeshMediaItemAction.cs" />
+    <Compile Include="MediaItemActions\SearchForSubtitles.cs" />
     <Compile Include="MediaItemActions\ReimportMediaItem.cs" />
     <Compile Include="MediaItemActions\RefreshMediaItem.cs" />
     <Compile Include="MediaItemActions\SetWatched.cs" />
@@ -233,6 +254,7 @@
     <Compile Include="Models\LatestMediaModel.cs" />
     <Compile Include="Models\MediaFilterModel.cs" />
     <Compile Include="Models\MediaGroupingModel.cs" />
+    <Compile Include="Models\SubtitleMatchModel.cs" />
     <Compile Include="Models\MediaListModel.cs" />
     <Compile Include="Models\MediaSortingModel.cs" />
     <Compile Include="Models\DefaultAudioPlayerUIContributor.cs" />
@@ -739,6 +761,11 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Skin\default\screens\DialogChooseMatch.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\default\screens\DialogChooseSubtitleMatch.xaml">
       <SubType>Designer</SubType>
     </Content>
   </ItemGroup>

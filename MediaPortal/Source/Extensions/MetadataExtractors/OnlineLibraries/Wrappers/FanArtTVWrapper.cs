@@ -35,7 +35,7 @@ using System.Threading.Tasks;
 
 namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
 {
-  class FanArtTVWrapper : ApiWrapper<FanArtMovieThumb, string>
+  class FanArtTVWrapper : ApiMediaWrapper<FanArtMovieThumb, string>
   {
     protected FanArtTVApiV3 _fanArtTvHandler;
 

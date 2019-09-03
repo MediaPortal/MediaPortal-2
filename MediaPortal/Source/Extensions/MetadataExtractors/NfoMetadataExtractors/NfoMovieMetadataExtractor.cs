@@ -137,12 +137,16 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
     public static bool IncludeActorDetails { get; private set; }
     public static bool IncludeCharacterDetails { get; private set; }
     public static bool IncludeDirectorDetails { get; private set; }
+    public static int MaximumActorCount { get; private set; }
+    public static int MaximumCharacterCount { get; private set; }
 
     protected override void LoadSettings()
     {
       IncludeActorDetails = _settingWatcher.Settings.IncludeActorDetails;
       IncludeCharacterDetails = _settingWatcher.Settings.IncludeCharacterDetails;
       IncludeDirectorDetails = _settingWatcher.Settings.IncludeDirectorDetails;
+      MaximumActorCount = _settingWatcher.Settings.MaximumActorCount;
+      MaximumCharacterCount = _settingWatcher.Settings.MaximumCharacterCount;
     }
 
     #endregion
@@ -328,6 +332,11 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
     }
 
     public Task<bool> AddMatchedAspectDetailsAsync(IDictionary<Guid, IList<MediaItemAspect>> matchedAspectData)
+    {
+      return Task.FromResult(false);
+    }
+
+    public Task<bool> DownloadMetadataAsync(Guid mediaItemId, IDictionary<Guid, IList<MediaItemAspect>> aspectData)
     {
       return Task.FromResult(false);
     }

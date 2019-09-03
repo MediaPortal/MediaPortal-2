@@ -36,8 +36,10 @@ using System.Threading.Tasks;
 
 namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
 {
-  class TheAudioDbWrapper : ApiWrapper<string, string>
+  class TheAudioDbWrapper : ApiMediaWrapper<string, string>
   {
+    private const string PROVIDER_NAME = "theaudiodb.com";
+
     protected AudioDbApiV1 _audioDbHandler;
 
     /// <summary>
@@ -100,6 +102,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
           TrackNum = track.TrackNumber,
           Album = track.Album,
           Artists = ConvertToPersons(track.ArtistID ?? 0, track.MusicBrainzArtistID, track.Artist, PersonAspect.OCCUPATION_ARTIST, track.Track, track.Album),
+          DataProviders = new List<string>() { PROVIDER_NAME }
         };
         tracks.Add(info);
       }
@@ -137,6 +140,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
           ReleaseDate = album.Year != null && album.Year.Value > 1900 ? new DateTime(album.Year.Value, 1, 1) : default(DateTime?),
           Artists = ConvertToPersons(album.ArtistId ?? 0, album.MusicBrainzArtistID, album.Artist, PersonAspect.OCCUPATION_ARTIST, null, album.Album),
           MusicLabels = ConvertToCompanies(album.LabelId ?? 0, album.Label, CompanyAspect.COMPANY_MUSIC_LABEL),
+          DataProviders = new List<string>() { PROVIDER_NAME }
         };
         albums.Add(info);
       }
@@ -168,6 +172,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
           AlternateName = artist.ArtistAlternate,
           Occupation = PersonAspect.OCCUPATION_ARTIST,
           IsGroup = artist.Members.HasValue ? artist.Members.Value > 1 : false,
+          DataProviders = new List<string>() { PROVIDER_NAME }
         };
         persons.Add(info);
       }
@@ -197,7 +202,8 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
           Occupation = occupation,
           Order = sortOrder++,
           MediaName = track,
-          ParentMediaName = album
+          ParentMediaName = album,
+          DataProviders = new List<string>() { PROVIDER_NAME }
         });
 
       }
@@ -216,7 +222,8 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
           AudioDbId = companyId,
           Name = company,
           Type = type,
-          Order = 0
+          Order = 0,
+          DataProviders = new List<string>() { PROVIDER_NAME }
         }
       };
     }
@@ -263,6 +270,8 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
         person.Orign = artistDetail.Country;
         person.IsGroup = artistDetail.Members.HasValue ? artistDetail.Members.Value > 1 : false;
         person.Occupation = PersonAspect.OCCUPATION_ARTIST;
+        if (!person.DataProviders.Contains(PROVIDER_NAME))
+          person.DataProviders.Add(PROVIDER_NAME);
 
         return true;
       }
@@ -350,6 +359,9 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
             track.MusicLabels = ConvertToCompanies(album.LabelId.Value, album.Label, CompanyAspect.COMPANY_MUSIC_LABEL);
         }
 
+        if (!track.DataProviders.Contains(PROVIDER_NAME))
+          track.DataProviders.Add(PROVIDER_NAME);
+
         return !cacheIncomplete;
       }
       catch (Exception ex)
@@ -402,6 +414,9 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
         if (albumDetail.LabelId.HasValue)
           album.MusicLabels = ConvertToCompanies(albumDetail.LabelId.Value, albumDetail.Label, CompanyAspect.COMPANY_MUSIC_LABEL);
 
+        if (!album.DataProviders.Contains(PROVIDER_NAME))
+          album.DataProviders.Add(PROVIDER_NAME);
+
         List<AudioDbTrack> albumTracks = await _audioDbHandler.GetTracksByAlbumIdAsync(albumDetail.AlbumId, language, cacheOnly).ConfigureAwait(false);
         if (cacheOnly && albumTracks == null)
           cacheIncomplete = true;
@@ -437,6 +452,9 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
 
             track.AlbumArtists = album.Artists.ToList();
             track.MusicLabels = album.MusicLabels.ToList();
+
+            if (!track.DataProviders.Contains(PROVIDER_NAME))
+              track.DataProviders.Add(PROVIDER_NAME);
 
             album.Tracks.Add(track);
           }
@@ -476,6 +494,8 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
           company.AudioDbId = albumDetail.LabelId.Value;
           company.Name = albumDetail.Label;
           company.Type = CompanyAspect.COMPANY_MUSIC_LABEL;
+          if (!company.DataProviders.Contains(PROVIDER_NAME))
+            company.DataProviders.Add(PROVIDER_NAME);
           return true;
         }
 
