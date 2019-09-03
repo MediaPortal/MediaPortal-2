@@ -47,7 +47,7 @@
   </Register>
 
   <!-- Root configuration sections -->
-  <Register Location="/Configuration/Settings">
+  <Register Location="/Configuration/Settings/General/Connectivity">
     <ConfigSection
         Id="DLNA"
         Sort="X100"
@@ -56,7 +56,7 @@
   </Register>
 
   <!-- Contents of '/DLNA' section -->
-  <Register Location="/Configuration/Settings/DLNA">
+  <Register Location="/Configuration/Settings/General/Connectivity/DLNA">
     <ConfigSetting
         Id="AllowTranscoding"
         RestrictionGroup="Settings"

@@ -32,6 +32,12 @@
   <!-- Root configuration sections -->
   <Register Location="/Configuration/Settings">
     <ConfigSection
+        Id="InputDevices"
+        Redundant="true"
+        Text="[Settings.InputDevice.Section]"/>
+  </Register>
+  <Register Location="/Configuration/Settings/InputDevices">
+    <ConfigSection
         Id="WifiRemote"
         Sort="X100"
         Redundant="true"
@@ -39,7 +45,7 @@
   </Register>
 
   <!-- Contents of '/WifiRemote' section -->
-  <Register Location="/Configuration/Settings/WifiRemote">
+  <Register Location="/Configuration/Settings/InputDevices/WifiRemote">
     <ConfigSetting
         Id="WifiRemoteAuthenticationMethod"
         RestrictionGroup="Settings"

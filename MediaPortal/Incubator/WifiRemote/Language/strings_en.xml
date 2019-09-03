@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
+  <string name="Settings.InputDevice.Section">Input Devices</string>
+  
   <string name="Settings.WifiRemote.Title">Wifi Remote</string> <!-- Section name -->
   <string name="Settings.WifiRemote.AuthMode.None">No authentication</string>
   <string name="Settings.WifiRemote.AuthMode.UserPassword">User name and password</string>
