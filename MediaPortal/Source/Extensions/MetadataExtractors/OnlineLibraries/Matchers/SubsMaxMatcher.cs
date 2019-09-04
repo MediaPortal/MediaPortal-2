@@ -30,11 +30,11 @@ using System.Threading.Tasks;
 
 namespace MediaPortal.Extensions.OnlineLibraries.Matchers
 {
-  public class SubDbMatcher : SubtitleMatcher<string>
+  public class SubsMaxMatcher : SubtitleMatcher<string>
   {
     #region Init
 
-    public SubDbMatcher() : base(nameof(SubDbMatcher))
+    public SubsMaxMatcher() : base(nameof(SubsMaxMatcher))
     {
       //Will be overridden if the user enables it in setttings
       Enabled = true;
@@ -44,7 +44,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
     {
       try
       {
-        SubDbWrapper wrapper = new SubDbWrapper();
+        SubsMaxWrapper wrapper = new SubsMaxWrapper();
         if (wrapper.Init())
         {
           _wrapper = wrapper;
@@ -53,7 +53,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
       }
       catch (Exception ex)
       {
-        ServiceRegistration.Get<ILogger>().Error("SubDbMatcher: Error initializing wrapper", ex);
+        ServiceRegistration.Get<ILogger>().Error("SubsMaxMatcher: Error initializing wrapper", ex);
       }
       return Task.FromResult(false);
     }

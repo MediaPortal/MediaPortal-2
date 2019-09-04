@@ -250,6 +250,30 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
 
     #region Helpers
 
+    protected string GetCultureInfoName(string name)
+    {
+      foreach (CultureInfo info in CultureInfo.GetCultures(CultureTypes.AllCultures))
+      {
+        if (info.ThreeLetterISOLanguageName.Equals(name, StringComparison.InvariantCultureIgnoreCase))
+          return info.Name;
+        if (info.TwoLetterISOLanguageName.Equals(name, StringComparison.InvariantCultureIgnoreCase))
+          return info.Name;
+        if (info.DisplayName.Equals(name, StringComparison.InvariantCultureIgnoreCase))
+          return info.Name;
+      }
+      return "";
+    }
+
+    protected string GetNameWithoutPartNo(string name)
+    {
+      var subPartMatch = _regexMultiPartVideo.Match(name);
+      if (subPartMatch.Success && int.TryParse(subPartMatch.Groups["disc"].Value, out var partNum))
+      {
+        return _regexMultiPartVideo.Replace(name, "${1}${2}${4}${3}");
+      }
+      return name;
+    }
+
     protected List<SubtitleInfo> MergeMultiPartSubtitles(List<SubtitleInfo> subtitles)
     {
       Dictionary<string, SubtitleInfo> subtitlePairs = new Dictionary<string, SubtitleInfo>();

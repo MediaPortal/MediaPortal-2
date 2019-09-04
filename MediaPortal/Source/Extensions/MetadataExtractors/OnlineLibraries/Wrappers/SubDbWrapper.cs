@@ -117,6 +117,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
       return results.Where(r => langs.Any(l => l.Equals(r.LanguageCode, System.StringComparison.InvariantCultureIgnoreCase))).
         Select(s => new SubtitleInfo
         {
+          DisplayName = Path.GetFileNameWithoutExtension(mediaFile.NativeResourcePath.FileName),
           Name = Path.GetFileNameWithoutExtension(mediaFile.NativeResourcePath.FileName) + ".srt",
           TvdbId = subtitleSearch.TvdbId,
           Language = new CultureInfo(s.LanguageCode).Name,

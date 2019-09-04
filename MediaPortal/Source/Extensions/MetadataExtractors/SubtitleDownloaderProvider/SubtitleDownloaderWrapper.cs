@@ -113,16 +113,6 @@ namespace MediaPortal.Extensions.MetadataExtractors.SubtitleDownloaderProvider
       }).ToList();
     }
 
-    protected string GetCultureInfoName(string name)
-    {
-      foreach (CultureInfo info in CultureInfo.GetCultures(CultureTypes.AllCultures))
-      {
-        if (info.ThreeLetterISOLanguageName == name)
-          return new CultureInfo(info.Name).Name;
-      }
-
-      return "";
-    }
     #endregion
 
     #region Download
