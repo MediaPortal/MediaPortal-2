@@ -46,7 +46,7 @@ namespace MP2BootstrapperApp.WizardSteps
 
     public void Back(Wizard wizard)
     {
-      
+      wizard.Step = new InstallNewTypeStep(_viewModel);
     }
 
     public bool CanGoNext()

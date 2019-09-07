@@ -22,17 +22,43 @@
 
 #endregion
 
+using System.Collections.ObjectModel;
+using MP2BootstrapperApp.Models;
+
 namespace MP2BootstrapperApp.ViewModels
 {
   public class UpdatePageViewModel : InstallWizardPageViewModelBase
   {
     public UpdatePageViewModel(InstallWizardViewModel viewModel)
     {
-      viewModel.Header = "Update Mediaportal";
+      viewModel.Header = "Update MediaPortal 2";
       viewModel.ButtonNextContent = "Next";
       viewModel.ButtonBackContent = "Back";
       viewModel.ButtonCancelContent = "Abort";
+      Packages = new ObservableCollection<Pack>();
+      foreach (BundlePackage package in viewModel.BundlePackages)
+      {
+        Packages.Add(new Pack
+        {
+          BundleVersion = package.GetVersion().ToString(),
+          InstalledVersion = package.InstalledVersion.ToString(),
+          ImagePath = @"..\resources\" + package.GetId() + ".png",
+          Name = package.Id
+        });
+      }
     }
     
+    public ObservableCollection<Pack> Packages { get; }
+  }
+
+  public class Pack
+  {
+    public string Name { get; set; }
+    
+    public string ImagePath { get; set; }
+    
+    public string InstalledVersion { get; set; }
+    
+    public string BundleVersion { get; set; }
   }
 }

@@ -49,6 +49,15 @@ namespace MP2BootstrapperApp.Models
       return Enum.TryParse(_packageElement.Attribute("Package")?.Value, out PackageId packageId) ? packageId : PackageId.Unknown;
     }
 
+    public string Id
+    {
+      get
+      {
+        PackageId id = Enum.TryParse(_packageElement.Attribute("Package")?.Value, out PackageId packageId) ? packageId : PackageId.Unknown;
+        return id.ToString();
+      }
+    }
+
     /// <summary>
     /// 
     /// </summary>
