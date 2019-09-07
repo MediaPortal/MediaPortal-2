@@ -39,8 +39,8 @@ namespace MP2BootstrapperApp.WizardSteps
 
     public void Next(Wizard wizard)
     {
-      wizard.BootstrapperApplicationModel.PlanAction(LaunchAction.Install);
-      wizard.BootstrapperApplicationModel.LogMessage(LogLevel.Standard, "starting installation");
+      //wizard.BootstrapperApplicationModel.PlanAction(LaunchAction.Install);
+      //wizard.BootstrapperApplicationModel.LogMessage(LogLevel.Standard, "starting installation");
       wizard.Step = new InstallationInProgressStep(_viewModel);
     }
 
