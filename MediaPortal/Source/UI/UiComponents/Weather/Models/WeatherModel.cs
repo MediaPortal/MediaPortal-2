@@ -40,6 +40,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using MediaPortal.Common.UserManagement;
 using MediaPortal.Common.UserProfileDataManagement;
+using MediaPortal.UI.Services.UserManagement;
 
 namespace MediaPortal.UiComponents.Weather.Models
 {
@@ -396,9 +397,7 @@ namespace MediaPortal.UiComponents.Weather.Models
     private void NotifyUsage()
     {
       IUserManagement userManagement = ServiceRegistration.Get<IUserManagement>();
-      if (!userManagement.IsValidUser)
-        return;
-      userManagement.UserProfileDataManagement.NotifyFeatureUsageAsync(userManagement.CurrentUser.ProfileId, "weather", "main");
+      userManagement.NotifyUsage("weather", "main").Wait();
 
       var stats = userManagement.UserProfileDataManagement.GetFeatureUsageStatisticsAsync(userManagement.CurrentUser.ProfileId, "weather").Result;
     }
