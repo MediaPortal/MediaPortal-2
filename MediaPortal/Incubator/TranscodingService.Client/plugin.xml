@@ -28,7 +28,7 @@
   </Register>
 
   <!-- Root configuration sections -->
-  <Register Location="/Configuration/Settings">
+  <Register Location="/Configuration/Settings/General/System">
     <ConfigSection
         Id="Transcoding"
         Sort="X100"
@@ -37,7 +37,7 @@
   </Register>
 
   <!-- Contents of '/Transcoding' section -->
-  <Register Location="/Configuration/Settings/Transcoding">
+  <Register Location="/Configuration/Settings/General/System/Transcoding">
     <ConfigSetting
         Id="HWAcceleration"
         RestrictionGroup="Settings"

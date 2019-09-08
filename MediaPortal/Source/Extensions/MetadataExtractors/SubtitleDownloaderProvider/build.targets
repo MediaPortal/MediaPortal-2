@@ -19,7 +19,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <SubtitleFiles Include="$(ProjectDir)SubtitleDownloaders\**\*.*" />
+    <SubtitleFiles Include="$(TargetDir)SubtitleDownloaders\**\*.*" />
   </ItemGroup>
 
   <Target Name="AfterBuild">

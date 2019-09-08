@@ -79,7 +79,9 @@
     <Compile Include="SubtitleDownloader\SubtitleDownloaderV1.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="build.targets" />
+    <None Include="build.targets">
+      <SubType>Designer</SubType>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <Content Include="plugin.xml">
@@ -98,7 +100,7 @@
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="MediaPortal.SubtitleDownloader">
-      <Version>3.0.17</Version>
+      <Version>3.0.17.2</Version>
     </PackageReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
