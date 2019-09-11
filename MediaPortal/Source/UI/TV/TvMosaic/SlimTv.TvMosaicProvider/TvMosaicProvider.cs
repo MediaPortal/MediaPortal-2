@@ -17,6 +17,7 @@ using MediaPortal.Plugins.SlimTv.Interfaces.ResourceProvider;
 using MediaPortal.Plugins.SlimTv.Interfaces.UPnP.Items;
 using TvMosaic.API;
 using MPChannel = MediaPortal.Plugins.SlimTv.Interfaces.UPnP.Items.Channel;
+using Program = MediaPortal.Plugins.SlimTv.Interfaces.UPnP.Items.Program;
 
 namespace SlimTv.TvMosaicProvider
 {
@@ -39,6 +40,7 @@ namespace SlimTv.TvMosaicProvider
     {
       // TODO
       _dvbLink = new HttpDataProvider("127.0.0.1", 9270, string.Empty, string.Empty);
+      var caps = _dvbLink.GetStreamingCapabilities(new CapabilitiesRequest()).Result;
       return true;
     }
 
@@ -57,6 +59,12 @@ namespace SlimTv.TvMosaicProvider
       if (!_idMapping.ContainsKey(key))
         return _idMapping[key] = _idMapping.Count + 1;
       return _idMapping[key];
+    }
+
+    private string GetTvMosaicId(int key)
+    {
+      KeyValuePair<string, int> map = _idMapping.FirstOrDefault(m => m.Value == key);
+      return map.Key;
     }
 
     private async Task<bool> LoadChannels()
@@ -124,6 +132,7 @@ namespace SlimTv.TvMosaicProvider
         if (channelGroup != null)
           return new AsyncResult<IList<IChannel>>(true, _channelGroups[channelGroup]);
       }
+
       return new AsyncResult<IList<IChannel>>(false, null);
 
     }
@@ -156,17 +165,54 @@ namespace SlimTv.TvMosaicProvider
 
     public async Task<AsyncResult<IList<IProgram>>> GetProgramsAsync(IChannel channel, DateTime @from, DateTime to)
     {
+      return await GetPrograms(new List<IChannel> { channel }, from, to);
+    }
+
+    protected async Task<AsyncResult<IList<IProgram>>> GetPrograms(IEnumerable<IChannel> channels, DateTime @from, DateTime to, string keyWord = null)
+    {
+      EpgSearcher epgSearcher = channels != null ?
+        new EpgSearcher(new ChannelIDList(channels.Select(c => GetTvMosaicId(c.ChannelId)).ToList()), false, from.ToUnixTime(), to.ToUnixTime()) :
+        new EpgSearcher(keyWord, false, from.ToUnixTime(), to.ToUnixTime());
+
+      var programs = await _dvbLink.SearchEpg(epgSearcher);
+      if (programs.Status == StatusCode.STATUS_OK && programs.Result.Any())
+      {
+        return new AsyncResult<IList<IProgram>>(true, ToProgram(programs.Result));
+      }
       return new AsyncResult<IList<IProgram>>(false, null);
+    }
+
+    public IList<IProgram> ToProgram(ChannelsIdWithPrograms programs)
+    {
+      IList<IProgram> mpPrograms = new List<IProgram>();
+      foreach (ChannelIdWithPrograms idWithPrograms in programs)
+        foreach (var tvMosaicProgram in idWithPrograms.Programs)
+        {
+          var startTime = tvMosaicProgram.StartTime.FromUnixTime();
+          var endTime = startTime.AddSeconds(tvMosaicProgram.Duration);
+          var mpProgram = new Program
+          {
+            ChannelId = GetId(idWithPrograms.ChannelId),
+            ProgramId = Int32.Parse(tvMosaicProgram.Id),
+            Title = tvMosaicProgram.Title,
+            Description = tvMosaicProgram.ShortDesc,
+            StartTime = startTime,
+            EndTime = endTime,
+          };
+          mpPrograms.Add(mpProgram);
+        }
+      return mpPrograms.OrderBy(p => p.ChannelId).ThenBy(p => p.StartTime).ToList();
     }
 
     public async Task<AsyncResult<IList<IProgram>>> GetProgramsAsync(string title, DateTime @from, DateTime to)
     {
-      return new AsyncResult<IList<IProgram>>(false, null);
+      return await GetPrograms(null, from, to, title);
     }
 
     public async Task<AsyncResult<IList<IProgram>>> GetProgramsGroupAsync(IChannelGroup channelGroup, DateTime @from, DateTime to)
     {
-      return new AsyncResult<IList<IProgram>>(false, null);
+      var channels = await GetChannelsAsync(channelGroup);
+      return await GetPrograms(channels.Result, from, to);
     }
 
     public async Task<AsyncResult<IChannel>> GetChannelAsync(IProgram program)
@@ -194,23 +240,27 @@ namespace SlimTv.TvMosaicProvider
         var tvMosaicChannel = _mpChannels.OfType<TvMosaicChannel>().FirstOrDefault(c => c.ChannelId == channel.ChannelId);
         var serverAddress = "127.0.0.1";
         Transcoder transcoder = null;
-        var reqStream = new RequestStream(serverAddress, tvMosaicChannel.TvMosaicId, GetTimeshiftUserName(slotIndex), "raw_http_timeshift", transcoder);
-        DVBLinkResponse<Streamer> strm = await _dvbLink.PlayChannel(reqStream);
-        if (strm.Status == StatusCode.STATUS_OK)
+        if (tvMosaicChannel != null)
         {
-          var streamUrl = strm.Result.Url;
+          var reqStream = new RequestStream(serverAddress, tvMosaicChannel.TvMosaicId, GetTimeshiftUserName(slotIndex), "raw_http_timeshift", transcoder);
+          DVBLinkResponse<Streamer> strm = await _dvbLink.PlayChannel(reqStream);
+          if (strm.Status == StatusCode.STATUS_OK)
+          {
+            var streamUrl = strm.Result.Url;
 
-          _tunedChannels[slotIndex] = channel;
+            _tunedChannels[slotIndex] = channel;
 
-          // assign a MediaItem, can be null if streamUrl is the same.
-          var timeshiftMediaItem = CreateMediaItem(slotIndex, streamUrl, channel);
-          return new AsyncResult<MediaItem>(true, timeshiftMediaItem);
+            // assign a MediaItem, can be null if streamUrl is the same.
+            var timeshiftMediaItem = CreateMediaItem(slotIndex, streamUrl, channel);
+            return new AsyncResult<MediaItem>(true, timeshiftMediaItem);
+          }
         }
       }
       catch (Exception ex)
       {
         ServiceRegistration.Get<ILogger>().Error("TvMosaic: error playing channel {0}", ex, channel.Name);
       }
+
       return new AsyncResult<MediaItem>(false, null);
     }
 
@@ -232,6 +282,47 @@ namespace SlimTv.TvMosaicProvider
       bool isTv = true;
       LiveTvMediaItem tvStream = SlimTvMediaItemBuilder.CreateMediaItem(slotIndex, streamUrl, channel, isTv, LiveTvMediaItem.MIME_TYPE_TV_STREAM);
       return tvStream;
+    }
+  }
+
+  public static class DateExtensions
+  {
+    public static DateTime FromUnixTime(this long ut)
+    {
+      DateTime dt = FromUnixTimeUtc(ut);
+      return dt.ToLocalTime();
+    }
+
+    public static DateTime FromUnixTimeUtc(this long ut)
+    {
+      if (ut == 0) return DateTime.MinValue;
+      long l = ut;
+      l += (long)(369 * 365 + 89) * 86400;
+      l *= 10000000;
+      return DateTime.FromFileTimeUtc(l);
+    }
+
+    public static uint ToUnixTime(this DateTime val)
+    {
+      uint ut;
+      try
+      {
+        if (val == DateTime.MinValue)
+          ut = 0;
+        else
+        {
+          long l = val.ToFileTimeUtc();
+          l /= 10000000;
+          l -= (long)(369 * 365 + 89) * 86400;
+          ut = (uint)l;
+        }
+      }
+      catch
+      {
+        ut = 0;
+      }
+
+      return ut;
     }
   }
 }
