@@ -67,5 +67,18 @@ namespace Test.TVMosaic
       Assert.IsNotNull(channelResult.Result);
       Assert.AreEqual(1, channelResult.Result.ChannelId);
     }
+
+    [Test]
+    public async Task TestPrograms()
+    {
+      var channelInfo = _provider as IChannelAndGroupInfoAsync;
+      Assert.IsNotNull(channelInfo);
+      var programInfo = _provider as IProgramInfoAsync;
+      Assert.IsNotNull(programInfo);
+      var channelResult = await channelInfo.GetChannelAsync(1);
+      var programResult = await programInfo.GetProgramsAsync(channelResult.Result, DateTime.Now, DateTime.Now.AddHours(4));
+      Assert.IsTrue(programResult.Success);
+      Assert.IsNotNull(programResult.Result);
+    }
   }
 }
