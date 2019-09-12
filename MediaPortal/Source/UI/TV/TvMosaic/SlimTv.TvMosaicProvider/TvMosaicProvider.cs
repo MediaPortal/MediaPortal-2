@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
@@ -155,12 +156,40 @@ namespace SlimTv.TvMosaicProvider
 
     public async Task<AsyncResult<IProgram[]>> GetNowNextProgramAsync(IChannel channel)
     {
-      return new AsyncResult<IProgram[]>(false, null);
+      var programs = await GetPrograms(new List<IChannel> { channel }, DateTime.Now, DateTime.Now.AddHours(3));
+      var result = ToNowNext(programs).Values.FirstOrDefault();
+      return new AsyncResult<IProgram[]> (result != null, result);
     }
 
     public async Task<AsyncResult<IDictionary<int, IProgram[]>>> GetNowAndNextForChannelGroupAsync(IChannelGroup channelGroup)
     {
-      return new AsyncResult<IDictionary<int, IProgram[]>>(false, null);
+      var channels = await GetChannelsAsync(channelGroup);
+      var programs = await GetPrograms(channels.Result, DateTime.Now, DateTime.Now.AddHours(3));
+      var result = ToNowNext(programs);
+      return new AsyncResult<IDictionary<int, IProgram[]>>(true, result);
+    }
+
+    private static IDictionary<int, IProgram[]> ToNowNext(AsyncResult<IList<IProgram>> programs)
+    {
+      IDictionary<int, IProgram[]> result = new Dictionary<int, IProgram[]>();
+      foreach (var program in programs.Result)
+      {
+        if (!result.ContainsKey(program.ChannelId))
+          result[program.ChannelId] = new IProgram[2];
+        else
+        {
+          // We processed programs for this channel already
+          continue;
+        }
+
+        var channelPrograms = programs.Result.Where(p => p.ChannelId == program.ChannelId).Take(2).ToArray();
+        if (channelPrograms.Length > 0)
+          result[program.ChannelId][0] = channelPrograms[0];
+        if (channelPrograms.Length > 1)
+          result[program.ChannelId][1] = channelPrograms[1];
+      }
+
+      return result;
     }
 
     public async Task<AsyncResult<IList<IProgram>>> GetProgramsAsync(IChannel channel, DateTime @from, DateTime to)
@@ -198,9 +227,13 @@ namespace SlimTv.TvMosaicProvider
             Description = tvMosaicProgram.ShortDesc,
             StartTime = startTime,
             EndTime = endTime,
+            SeasonNumber = tvMosaicProgram.SeasonNum > 0 ? tvMosaicProgram.SeasonNum.ToString() : null,
+            EpisodeNumber = tvMosaicProgram.EpisodeNum > 0 ? tvMosaicProgram.EpisodeNum.ToString() : null,
+            // TODO Genres
           };
           mpPrograms.Add(mpProgram);
         }
+      // Order matters here, the client expects programs in time order
       return mpPrograms.OrderBy(p => p.ChannelId).ThenBy(p => p.StartTime).ToList();
     }
 
