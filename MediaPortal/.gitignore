@@ -64,3 +64,10 @@ strings_*.xml
 # =========================
 **/.vs/*
 *.ilk
+
+# =========================
+# Rider
+# Rider auto-generates .iml files, and contentModel.xml
+# =========================
+**/.idea/**/
+
