@@ -59,18 +59,23 @@
   </Fragment>
 
   <Fragment>
-    <util:FileSearch Id="MFC140_Version_x86"
-                 Variable="MFC140_Version_x86" Path="[SystemFolder64]mfc140.dll"
-                 Result="version"/>
-
+    <util:FileSearch Id="MFC140_Version_x86" 
+                     Variable="MFC140_Version_x86" Path="[SystemFolder64]mfc140.dll"
+                     Result="version"/>
     <PackageGroup Id="redist_vc140">
-      <ExePackage Id="VC2017_x86" Cache="yes" PerMachine="yes" Permanent="yes" Vital="yes" Compressed="no"
-                  Name="vcredist140_2017_x86.exe"
-                  DownloadUrl="http://install.team-mediaportal.com/MP2/install/vcredist140_2017_x86.exe"
+      <ExePackage Id="VC2019_x86" Cache="yes" PerMachine="yes" Permanent="yes" Vital="yes" Compressed="no"
+                  Name="vc_redist_2019_x86.exe.exe"
+                  DownloadUrl="http://install.team-mediaportal.com/MP2/install/vc_redist_2019_x86.exe"
                   InstallCommand="/passive /norestart"
-                  InstallCondition="(NOT MFC140_Version_x86 >= v14.11.25325) OR NOT MFC140_Version_x86"
+                  InstallCondition="(NOT MFC140_Version_x86 >= v14.22.27821) OR NOT MFC140_Version_x86"
                   Protocol="burn">
-        <RemotePayload Description="Microsoft Visual C++ 2017 Redistributable (x86) - 14.11.25325" ProductName="Microsoft Visual C++ 2017 Redistributable (x86) - 14.11.25325" Size="14426128" Version="14.11.25325.0" Hash="370583C380C26064885289037380AF7D8D5F4E81"/>
+    <RemotePayload CertificatePublicKey="6608A9DBA86701156A4C17CE63BA99BE8B932F8D" 
+                   CertificateThumbprint="62009AAABDAE749FD47D19150958329BF6FF4B34" 
+                   Description="Microsoft Visual C++ 2015-2019 Redistributable (x86) - 14.22.27821" 
+                   Hash="13439C916FAAF5E08CAFCE790381578685B0A552" 
+                   ProductName="Microsoft Visual C++ 2015-2019 Redistributable (x86) - 14.22.27821" 
+                   Size="14381032" 
+                   Version="14.22.27821.0" />
       </ExePackage>
     </PackageGroup>
   </Fragment>
