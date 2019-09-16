@@ -638,8 +638,8 @@
               </Grid.RenderTransform>
               <Rectangle x:Name="ItemBand" Fill="Black" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Opacity="0.4"/>
               <Label x:Name="ItemLabel" HorizontalAlignment="Center" VerticalAlignment="Center" Content="" 
-               FontSize="{ThemeResource SmallerFontSize}" Color="{ThemeResource MenuTextForeground}" Margin="5,-5,5,1"
-               ScrollDelay="0" Scroll="None" FontFamily="SegoeUIBold"/>
+                     FontSize="{ThemeResource SmallerFontSize}" Color="{ThemeResource MenuTextForeground}" Margin="5,-5,5,1"
+                     ScrollDelay="0" Scroll="None" FontFamily="SegoeUIBold"/>
             </Grid>
           </Grid>
 
@@ -1701,11 +1701,11 @@
     <Setter Property="Template">
       <Setter.Value>
         <ControlTemplate>
-          <Button Width="170" Height="159" Focusable="True" Margin="{ThemeResource TileMargin}" Style="{ThemeResource SubMenuButtonStyle}"
-                    VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
-                    Command="{Binding Command}">
+          <Button Width="159" Height="159" Focusable="True" Margin="{ThemeResource TileMargin}" Style="{ThemeResource SubMenuButtonStyle}"
+                  VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
+                  Command="{Binding Command}">
             <Button.Content>
-              <Image Source="{Binding Source={DynamicResource Shortcut_Item_Image}, Path=Value}" Stretch="Uniform" Opacity="1"/>
+              <Image Source="{Binding Source={DynamicResource Shortcut_Item_Image}, Path=Value}" Stretch="Fill" Opacity="1"/>
             </Button.Content>
             <Button.Triggers>
               <Trigger Property="HasFocus" Value="True">
@@ -1787,7 +1787,7 @@
   </Style>
 
   <DataTemplate DataType="{x:Type nereus_home_content:MediaShortcutListWrapper}">
-    <ListView Width="190" Margin="0,35,15,0" RestoreFocus="True"
+    <ListView Width="175" Margin="0,35,15,0" RestoreFocus="True"
               Style="{ThemeResource MediaShortcutListViewStyle}"
               ItemsSource="{Binding AdditionalProperties[SubItems]}"/>
   </DataTemplate>
