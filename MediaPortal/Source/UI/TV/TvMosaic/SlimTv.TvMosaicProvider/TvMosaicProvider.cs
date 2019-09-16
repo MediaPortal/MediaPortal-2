@@ -36,13 +36,29 @@ namespace SlimTv.TvMosaicProvider
     private readonly IDictionary<IChannelGroup, List<IChannel>> _channelGroups = new ConcurrentDictionary<IChannelGroup, List<IChannel>>();
     private readonly IList<IChannel> _mpChannels = new List<IChannel>();
     private readonly Dictionary<int, IChannel> _tunedChannels = new Dictionary<int, IChannel>();
+    private readonly Dictionary<int, long> _tunedChannelHandles = new Dictionary<int, long>();
+    private bool _supportsTimeshift;
 
     public bool Init()
     {
       // TODO
       _dvbLink = new HttpDataProvider("127.0.0.1", 9270, string.Empty, string.Empty);
       var caps = _dvbLink.GetStreamingCapabilities(new CapabilitiesRequest()).Result;
-      return true;
+      if (caps.Status == StatusCode.STATUS_OK)
+      {
+        var streamingCapabilities = caps.Result;
+        _supportsTimeshift = streamingCapabilities.SupportsTimeshift;
+        ServiceRegistration.Get<ILogger>().Info("TvMosaic: Initialized connection. Caps: Record {0}; Timeshift {1}; DeviceManagement {2}; SupTranscoders {3}; SupPbTranscoders: {4}",
+          streamingCapabilities.CanRecord,
+          streamingCapabilities.SupportsTimeshift,
+          streamingCapabilities.DeviceManagement,
+          streamingCapabilities.SupTranscoders,
+          streamingCapabilities.SupPbTranscoders);
+        return true;
+      }
+
+      ServiceRegistration.Get<ILogger>().Error("TvMosaic: Could not initialize connection. Status: {0}; ", caps.Status);
+      return false;
     }
 
     public bool DeInit()
@@ -135,7 +151,6 @@ namespace SlimTv.TvMosaicProvider
       }
 
       return new AsyncResult<IList<IChannel>>(false, null);
-
     }
 
     public async Task<AsyncResult<IChannel>> GetChannelAsync(int channelId)
@@ -158,7 +173,7 @@ namespace SlimTv.TvMosaicProvider
     {
       var programs = await GetPrograms(new List<IChannel> { channel }, DateTime.Now, DateTime.Now.AddHours(3));
       var result = ToNowNext(programs).Values.FirstOrDefault();
-      return new AsyncResult<IProgram[]> (result != null, result);
+      return new AsyncResult<IProgram[]>(result != null, result);
     }
 
     public async Task<AsyncResult<IDictionary<int, IProgram[]>>> GetNowAndNextForChannelGroupAsync(IChannelGroup channelGroup)
@@ -171,6 +186,8 @@ namespace SlimTv.TvMosaicProvider
 
     private static IDictionary<int, IProgram[]> ToNowNext(AsyncResult<IList<IProgram>> programs)
     {
+      if (programs == null)
+        return null;
       IDictionary<int, IProgram[]> result = new Dictionary<int, IProgram[]>();
       foreach (var program in programs.Result)
       {
@@ -250,7 +267,7 @@ namespace SlimTv.TvMosaicProvider
 
     public async Task<AsyncResult<IChannel>> GetChannelAsync(IProgram program)
     {
-      return new AsyncResult<IChannel>(false, null);
+      return await GetChannelAsync(program.ChannelId);
     }
 
     public bool GetProgram(int programId, out IProgram program)
@@ -275,12 +292,16 @@ namespace SlimTv.TvMosaicProvider
         Transcoder transcoder = null;
         if (tvMosaicChannel != null)
         {
-          var reqStream = new RequestStream(serverAddress, tvMosaicChannel.TvMosaicId, GetTimeshiftUserName(slotIndex), "raw_http_timeshift", transcoder);
+          // Currently always a new stream is started, so make sure to properly end the former
+          await StopTimeshiftAsync(slotIndex);
+          var streamType = _supportsTimeshift ? "raw_http_timeshift" : "raw_http";
+          var reqStream = new RequestStream(serverAddress, tvMosaicChannel.TvMosaicId, GetTimeshiftUserName(slotIndex), streamType, transcoder);
           DVBLinkResponse<Streamer> strm = await _dvbLink.PlayChannel(reqStream);
           if (strm.Status == StatusCode.STATUS_OK)
           {
             var streamUrl = strm.Result.Url;
 
+            _tunedChannelHandles[slotIndex] = strm.Result.ChannelHandle;
             _tunedChannels[slotIndex] = channel;
 
             // assign a MediaItem, can be null if streamUrl is the same.
@@ -299,8 +320,13 @@ namespace SlimTv.TvMosaicProvider
 
     public async Task<bool> StopTimeshiftAsync(int slotIndex)
     {
-      var request = new StopStream(GetTimeshiftUserName(slotIndex));
+      if (!_tunedChannelHandles.TryGetValue(slotIndex, out long tunedChannelHandle) || tunedChannelHandle == 0)
+        return false;
+
+      var request = new StopStream(tunedChannelHandle);
       var result = await _dvbLink.StopStream(request);
+      _tunedChannelHandles[slotIndex] = 0;
+
       return true;
     }
 

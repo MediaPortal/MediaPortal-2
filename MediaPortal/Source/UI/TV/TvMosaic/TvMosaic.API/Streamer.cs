@@ -79,11 +79,11 @@ namespace TvMosaic.API
   [DataContract(Name = "stream", Namespace = "")]
   public class Streamer
   {
-    [DataMember(Name = "channel_handle", EmitDefaultValue = false)]
-    public long ChannelHandle { get; set; }
-
-    [DataMember(Name = "url", EmitDefaultValue = false)]
+    [DataMember(Name = "url", EmitDefaultValue = false, Order = 0)]
     public string Url { get; set; }
+
+    [DataMember(Name = "channel_handle", EmitDefaultValue = false, Order = 1)]
+    public long ChannelHandle { get; set; }
   }
 
   [DataContract(Name = "stop_stream", Namespace = "")]

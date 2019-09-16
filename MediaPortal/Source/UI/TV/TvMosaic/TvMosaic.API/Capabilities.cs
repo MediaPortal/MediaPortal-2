@@ -35,14 +35,26 @@ namespace TvMosaic.API
     [DataMember(Name = "transcoders", EmitDefaultValue = false, Order = 1)]
     public int Transcoders { get; set; }
 
-    [DataMember(Name = "pb_protocols", EmitDefaultValue = false, Order = 2)]
-    public int PbProtocols { get; set; }
-
-    [DataMember(Name = "pb_transcoders", EmitDefaultValue = false, Order = 3)]
+    [DataMember(Name = "pb_transcoders", EmitDefaultValue = false, Order = 2)]
     public int PbTranscoders { get; set; }
 
-    [DataMember(Name = "can_record", EmitDefaultValue = false, Order = 4)]
+    [DataMember(Name = "pb_protocols", EmitDefaultValue = false, Order = 3)]
+    public int PbProtocols { get; set; }
+
+    [DataMember(Name = "addressees", EmitDefaultValue = false, Order = 4)]
+    public object Addresses { get; set; }
+
+    [DataMember(Name = "can_record", EmitDefaultValue = false, Order = 5)]
     public bool CanRecord { get; set; }
+
+    [DataMember(Name = "supports_timeshift", EmitDefaultValue = false, Order = 6)]
+    public bool SupportsTimeshift { get; set; }
+
+    [DataMember(Name = "timeshift_version", EmitDefaultValue = false, Order = 7)]
+    public int TimeshiftVersion { get; set; }
+
+    [DataMember(Name = "device_management", EmitDefaultValue = false, Order = 8)]
+    public bool DeviceManagement { get; set; }
 
     public SupportedProtocol SupProtocols
     {
