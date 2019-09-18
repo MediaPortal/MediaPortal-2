@@ -8,7 +8,53 @@
   <Grid HorizontalAlignment="Center">
     <Grid.Resources>
       <conv:EnumToBooleanConverter x:Key="EnumToBooleanConverter" />
+      <Style x:Key="ActionButton" TargetType="RadioButton">
+        <Style.Triggers>
+          <Trigger Property="IsChecked" Value="False">
+            <Setter Property="Opacity" Value="0.5"/>
+          </Trigger>
+        </Style.Triggers>
+        <Setter Property="Template">
+          <Setter.Value>
+            <ControlTemplate TargetType="RadioButton">
+              <Image Name="Icon" Source="{Binding Path=Content, RelativeSource={RelativeSource TemplatedParent}}" 
+                     Stretch="Fill" Width="65" Height="65" RenderTransformOrigin="0.5,0.5">
+                <Image.RenderTransform>
+                  <TransformGroup>
+                    <ScaleTransform/>
+                  </TransformGroup>
+                </Image.RenderTransform>
+              </Image>
+              <ControlTemplate.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                  <Trigger.EnterActions>
+                    <BeginStoryboard>
+                      <Storyboard>
+                        <DoubleAnimation Storyboard.TargetName="Icon" To="1.2"  Duration="0:0:0.09"
+                                         Storyboard.TargetProperty="(UIElement.RenderTransform).(TransformGroup.Children)[0].(ScaleTransform.ScaleX)"/>
+                        <DoubleAnimation Storyboard.TargetName="Icon" To="1.2" Duration="0:0:0.09" 
+                                         Storyboard.TargetProperty="(UIElement.RenderTransform).(TransformGroup.Children)[0].(ScaleTransform.ScaleY)"/>
+                      </Storyboard>
+                    </BeginStoryboard>
+                  </Trigger.EnterActions>
+                  <Trigger.ExitActions>
+                    <BeginStoryboard>
+                      <Storyboard>
+                        <DoubleAnimation Storyboard.TargetName="Icon" To="1"  Duration="0:0:0.09"
+                                         Storyboard.TargetProperty="(UIElement.RenderTransform).(TransformGroup.Children)[0].(ScaleTransform.ScaleX)"/>
+                        <DoubleAnimation Storyboard.TargetName="Icon" To="1" Duration="0:0:0.09"
+                                         Storyboard.TargetProperty="(UIElement.RenderTransform).(TransformGroup.Children)[0].(ScaleTransform.ScaleY)"/>
+                      </Storyboard>
+                    </BeginStoryboard>
+                  </Trigger.ExitActions>
+                </Trigger>
+              </ControlTemplate.Triggers>
+            </ControlTemplate>
+          </Setter.Value>
+        </Setter>
+      </Style>
     </Grid.Resources>
+
     <Grid.ColumnDefinitions>
       <ColumnDefinition Width="*" />
       <ColumnDefinition Width="*" />
@@ -18,9 +64,41 @@
     <Grid.RowDefinitions>
       <RowDefinition Height="*" />
     </Grid.RowDefinitions>
-    <RadioButton Grid.Column="0" Grid.Row="0" IsChecked="{Binding Path=ActionType, Converter={StaticResource EnumToBooleanConverter}, ConverterParameter={x:Static conv:ActionType.Update}}" Content="Update" Foreground="White" FontSize="26"/>
+    <StackPanel Orientation="Vertical" Grid.Column="0" Grid.Row="0" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="10">
+      <RadioButton Name="Radio1" GroupName="ActionTypes" Style="{StaticResource ActionButton}" Content="..\resources\InstallTypes\update.png"
+                   IsChecked="{Binding Path=ActionType, Converter={StaticResource EnumToBooleanConverter}, ConverterParameter={x:Static conv:ActionType.Update}}"
+                   HorizontalAlignment="Center" HorizontalContentAlignment="Center" VerticalAlignment="Top"/>
+      <Label FontSize="22" Foreground=" White" HorizontalContentAlignment="Center" Content="Update"
+             Opacity="{Binding Opacity, ElementName=Radio1, Mode=Default}"/>
+    </StackPanel>
+
+    <StackPanel Orientation="Vertical" Grid.Column="1" Grid.Row="0" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="10">
+      <RadioButton Name="Radio2" GroupName="ActionTypes" Style="{StaticResource ActionButton}" Content="..\resources\InstallTypes\modify.png"
+                   IsChecked="{Binding Path=ActionType, Converter={StaticResource EnumToBooleanConverter}, ConverterParameter={x:Static conv:ActionType.Modify}}"
+                   HorizontalAlignment="Center" HorizontalContentAlignment="Center" VerticalAlignment="Top" />
+      <Label FontSize="22" Foreground="White" HorizontalContentAlignment="Center" Content="Modify"
+             Opacity="{Binding Opacity, ElementName=Radio2, Mode=Default}"/>
+    </StackPanel>
+
+    <StackPanel Orientation="Vertical" Grid.Column="2" Grid.Row="0" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="10">
+      <RadioButton Name="Radio3" GroupName="ActionTypes" Style="{StaticResource ActionButton}" Content="..\resources\InstallTypes\repair.png"
+                   IsChecked="{Binding Path=ActionType, Converter={StaticResource EnumToBooleanConverter}, ConverterParameter={x:Static conv:ActionType.Repair}}"
+                   HorizontalAlignment="Center" HorizontalContentAlignment="Center" VerticalAlignment="Top" />
+      <Label FontSize="22" Foreground="White" HorizontalContentAlignment="Center" Content="Repair"
+             Opacity="{Binding Opacity, ElementName=Radio3, Mode=Default}"/>
+    </StackPanel>
+
+    <StackPanel Orientation="Vertical" Grid.Column="3" Grid.Row="0" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="10">
+      <RadioButton Name="Radio4" GroupName="ActionTypes" Style="{StaticResource ActionButton}" Content="..\resources\InstallTypes\uninstall.png"
+                   IsChecked="{Binding Path=ActionType, Converter={StaticResource EnumToBooleanConverter}, ConverterParameter={x:Static conv:ActionType.Uninstall}}"
+                   HorizontalAlignment="Center" HorizontalContentAlignment="Center" VerticalAlignment="Top" />
+      <Label FontSize="22" Foreground="White" HorizontalContentAlignment="Center" Content="Uninstall"
+             Opacity="{Binding Opacity, ElementName=Radio4, Mode=Default}"/>
+    </StackPanel>
+
+    <!--RadioButton Grid.Column="0" Grid.Row="0" IsChecked="{Binding Path=ActionType, Converter={StaticResource EnumToBooleanConverter}, ConverterParameter={x:Static conv:ActionType.Update}}" Content="Update" Foreground="White" FontSize="26"/>
     <RadioButton Grid.Column="1" Grid.Row="0" IsChecked="{Binding Path=ActionType, Converter={StaticResource EnumToBooleanConverter}, ConverterParameter={x:Static conv:ActionType.Modify}}" Content="Modify" Foreground="White" FontSize="26"/>
     <RadioButton Grid.Column="2" Grid.Row="0" IsChecked="{Binding Path=ActionType, Converter={StaticResource EnumToBooleanConverter}, ConverterParameter={x:Static conv:ActionType.Repair}}" Content="Repair" Foreground="White" FontSize="26"/>
-    <RadioButton Grid.Column="3" Grid.Row="0" IsChecked="{Binding Path=ActionType, Converter={StaticResource EnumToBooleanConverter}, ConverterParameter={x:Static conv:ActionType.Uninstall}}" Content="Uninstall" Foreground="White" FontSize="26"/>
+    <RadioButton Grid.Column="3" Grid.Row="0" IsChecked="{Binding Path=ActionType, Converter={StaticResource EnumToBooleanConverter}, ConverterParameter={x:Static conv:ActionType.Uninstall}}" Content="Uninstall" Foreground="White" FontSize="26"/-->
     </Grid>
 </UserControl>

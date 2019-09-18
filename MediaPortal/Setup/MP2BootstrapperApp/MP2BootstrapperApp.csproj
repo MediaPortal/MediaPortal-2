@@ -244,5 +244,11 @@
   <ItemGroup>
     <Resource Include="Resources\VC2019_x86.png" />
   </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\InstallTypes\modify.png" />
+    <Resource Include="Resources\InstallTypes\repair.png" />
+    <Resource Include="Resources\InstallTypes\uninstall.png" />
+    <Resource Include="Resources\InstallTypes\update.png" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
