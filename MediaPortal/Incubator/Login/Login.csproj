@@ -157,19 +157,16 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Skin\WMCSkin\screens\Login.xaml">
-      <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Content>
   </ItemGroup>
   <ItemGroup>
     <Content Include="Skin\BlueVision\screens\Login.xaml">
       <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
     </Content>
   </ItemGroup>
   <ItemGroup>
     <Content Include="Skin\BlueVision\themes\Win10\screens\Login.xaml">
-      <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Content>
   </ItemGroup>
@@ -222,5 +219,13 @@
     <Content Include="Skin\Nereus\screens\UserManagement.xaml">
       <SubType>Designer</SubType>
     </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\Nereus\screens\Login.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Skin\Nereus\themes\default\styles\" />
   </ItemGroup>
 </Project>
