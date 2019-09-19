@@ -36,6 +36,7 @@ namespace Tests.Server.MediaServer
     public void BeforeTest()
     {
       _library.Clear();
+      _library.AddShare("11111111-aaaa-aaaa-aaaa-111111111111", "Test", "/Test", "Share", new[] { "Audio" });
     }
 
     private CallContext CreateContext()
@@ -49,8 +50,6 @@ namespace Tests.Server.MediaServer
     [Test]
     public void TestBrowse()
     {
-      _library.AddShare("11111111-aaaa-aaaa-aaaa-111111111111", "Test", "/Test", "Share", new[] { "Audio" });
-
       UPnPContentDirectoryServiceImpl service = new UPnPContentDirectoryServiceImpl();
 
       DvAction browse = service.Actions["Browse"];

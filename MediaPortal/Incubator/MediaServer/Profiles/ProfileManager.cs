@@ -654,7 +654,7 @@ namespace MediaPortal.Extensions.MediaServer.Profiles
           }
           else if (link.Profile == AUTO_PROFILE)
           {
-            settings.Profile = null;
+            //settings.Profile = null;
             settings.AutoProfile = true;
           }
           else if (Profiles.ContainsKey(DLNA_DEFAULT_PROFILE_ID) == true)
