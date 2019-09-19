@@ -94,9 +94,13 @@
     <Compile Include="FanArt\TestLocalSeriesFanArt.cs" />
     <Compile Include="FanArt\TestLocalVideoFanArt.cs" />
     <Compile Include="MediaServer\TestActions.cs" />
+    <Compile Include="MediaServer\TestAudioAnalyzer.cs" />
     <Compile Include="MediaServer\TestMediaLibrary.cs" />
     <Compile Include="MediaServer\TestMessageBuilder.cs" />
     <Compile Include="MediaServer\TestParser.cs" />
+    <Compile Include="MediaServer\TestProfileUserDataManagement.cs" />
+    <Compile Include="MediaServer\TestResourceServer.cs" />
+    <Compile Include="MediaServer\TestTranscodeProfileManager.cs" />
     <Compile Include="NfoMetadataExtractor\NfoEpisodeReaderForTests.cs" />
     <Compile Include="NfoMetadataExtractor\TestNfoArtistReader.cs" />
     <Compile Include="NfoMetadataExtractor\TestNfoMovieReader.cs" />
@@ -118,6 +122,10 @@
     <ProjectReference Include="..\..\Incubator\MediaServer\MediaServer.csproj">
       <Project>{1ba81eb2-6556-4213-a7a5-9e5b508f186f}</Project>
       <Name>MediaServer</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\Incubator\TranscodingService.Interfaces\TranscodingService.Interfaces.csproj">
+      <Project>{5057EBD5-A262-42A6-A975-360730CFE322}</Project>
+      <Name>TranscodingService.Interfaces</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\Source\Core\MediaPortal.Backend\MediaPortal.Backend.csproj">
       <Project>{5b27eb95-b829-40f4-b445-0225ca206f85}</Project>
@@ -174,6 +182,10 @@
     <ProjectReference Include="..\..\Source\Extensions\MetadataExtractors\VideoMetadataExtractor\VideoMetadataExtractor.csproj">
       <Project>{000c12a6-9734-4acb-99e9-d3f726c5858f}</Project>
       <Name>VideoMetadataExtractor</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\Source\UI\TV\SlimTvInterfaces\SlimTv.Interfaces.csproj">
+      <Project>{F31C71FA-4A24-4D33-B0EE-52CF667DCEF4}</Project>
+      <Name>SlimTv.Interfaces</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\Source\UI\TV\SlimTvResources\SlimTv.Resources.csproj">
       <Project>{9158967E-4FEB-4504-8C1E-02BE96045D34}</Project>

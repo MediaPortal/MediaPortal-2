@@ -57,6 +57,8 @@ namespace MediaPortal.Extensions.MediaServer.ResourceAccess
 
     public const string SYNTAX = RESOURCE_ACCESS_PATH + "/[media item guid]";
 
+    public const int DEFAULT_IMAGE_SIZE = 160;
+
     public static string GetResourceUrl(string mediaItem)
     {
       return RESOURCE_ACCESS_PATH + "/" + mediaItem;
@@ -217,7 +219,7 @@ namespace MediaPortal.Extensions.MediaServer.ResourceAccess
       // Using MP2's FanArtService provides access to all kind of resources, thumbnails from ML and also local fanart from filesystem
       string url = string.Format("{0}/FanartService?mediatype={1}&fanarttype={2}&name={3}&width={4}&height={5}",
         GetBaseResourceURL(), mediaType, FanArtTypes.Thumbnail, item.MediaItemId,
-        client.Profile.Settings.Thumbnails.MaxWidth, client.Profile.Settings.Thumbnails.MaxHeight);
+        client.Profile?.Settings.Thumbnails.MaxWidth ?? DEFAULT_IMAGE_SIZE, client.Profile?.Settings.Thumbnails.MaxHeight ?? DEFAULT_IMAGE_SIZE);
       return url;
     }
 
@@ -226,7 +228,7 @@ namespace MediaPortal.Extensions.MediaServer.ResourceAccess
       string mediaType = isTV ? FanArtMediaTypes.ChannelTv : FanArtMediaTypes.ChannelRadio;
       string url = string.Format("{0}/FanartService?mediatype={1}&fanarttype={2}l&name={3}&width={4}&height={5}",
           GetBaseResourceURL(), mediaType, FanArtTypes.Thumbnail, WebUtility.UrlEncode(channelName),
-          client.Profile.Settings.Thumbnails.MaxWidth, client.Profile.Settings.Thumbnails.MaxHeight);
+          client.Profile?.Settings.Thumbnails.MaxWidth ?? DEFAULT_IMAGE_SIZE, client.Profile?.Settings.Thumbnails.MaxHeight ?? DEFAULT_IMAGE_SIZE);
       return url;
     }
 

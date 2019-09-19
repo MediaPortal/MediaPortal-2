@@ -40,7 +40,7 @@ namespace UPnP.Infrastructure.Dv
 
     public IOwinRequest Request
     {
-      get { return _httpContext.Request; }
+      get { return _httpContext?.Request; }
     }
 
     public IOwinContext HttpContext
