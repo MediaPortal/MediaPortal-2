@@ -714,10 +714,6 @@
     <Content Include="Skin\Nereus\screens\WindowControlButtons.inc">
       <SubType>Designer</SubType>
     </Content>
-    <Content Include="Skin\Nereus\screens\LatestMedia.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Content>
     <Content Include="Skin\Nereus\screens\MediaItemHomeEpisodeDetails.inc">
       <SubType>Designer</SubType>
     </Content>
