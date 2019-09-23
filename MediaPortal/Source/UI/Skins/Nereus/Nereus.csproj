@@ -39,7 +39,7 @@
     <DebugType>pdbonly</DebugType>
     <PlatformTarget>x86</PlatformTarget>
     <ErrorReport>prompt</ErrorReport>
-    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
+    <CodeAnalysisRuleSet>CppCoreCheckRules.ruleset</CodeAnalysisRuleSet>
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
@@ -62,6 +62,7 @@
     <Compile Include="Controls\HomeTilesScrollContentPresenter.cs" />
     <Compile Include="Controls\ItemsListFilter.cs" />
     <Compile Include="Controls\NereusTileControl.cs" />
+    <Compile Include="Converters\StringCaseConverter.cs" />
     <Compile Include="Converters\ListToGridConverter.cs" />
     <Compile Include="Converters\ItemsListActionFilter.cs" />
     <Compile Include="Converters\RoundingFormatConverter.cs" />
