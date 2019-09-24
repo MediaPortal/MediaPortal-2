@@ -325,6 +325,8 @@
   <string name="Media.SubtitleSearch.Language">Language</string>
   <string name="Media.SubtitleSearch.Hint">Note: Requires internet connection and at least one subtitle scraper selected in media library settings</string>
   
+  <string name="Media.ChooseEditionDialogHeader">Choose edition</string>
+  
   <!-- Play items dialog -->
   <string name="Media.PlayItemDialogHeader">Play item</string>
 
