@@ -101,8 +101,23 @@ namespace TvMosaic.API
     [DataMember(Name = "repeat", EmitDefaultValue = false, IsRequired = false, Order = 2)]
     public bool IsRepeat { get; set; }
 
-    [DataMember(Name = "recordings_to_keep", EmitDefaultValue = false, IsRequired = false, Order = 3)]
+    [DataMember(Name = "new_only", EmitDefaultValue = false, IsRequired = false, Order = 3)]
+    public bool NewOnly { get; set; }
+
+    [DataMember(Name = "day_mask", EmitDefaultValue = false, IsRequired = false, Order = 4)]
+    public int DayMask { get; set; }
+
+    [DataMember(Name = "start_before", EmitDefaultValue = false, IsRequired = false, Order = 5)]
+    public int StartBefore { get; set; }
+
+    [DataMember(Name = "start_after", EmitDefaultValue = false, IsRequired = false, Order = 6)]
+    public int StartAfter { get; set; }
+
+    [DataMember(Name = "recordings_to_keep", EmitDefaultValue = false, IsRequired = false, Order = 7)]
     public int RecordingsToKeep { get; set; }
+
+    [DataMember(Name = "program", EmitDefaultValue = false, IsRequired = false, Order = 8)]
+    public Program Program { get; set; }
 
     public ByEpgSchedule()
         : this(null, null)

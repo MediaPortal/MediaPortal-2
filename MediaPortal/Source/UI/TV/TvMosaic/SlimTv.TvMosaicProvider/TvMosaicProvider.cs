@@ -19,6 +19,7 @@ using MediaPortal.Plugins.SlimTv.Interfaces.UPnP.Items;
 using TvMosaic.API;
 using MPChannel = MediaPortal.Plugins.SlimTv.Interfaces.UPnP.Items.Channel;
 using Program = MediaPortal.Plugins.SlimTv.Interfaces.UPnP.Items.Program;
+using Schedule = MediaPortal.Plugins.SlimTv.Interfaces.UPnP.Items.Schedule;
 
 namespace SlimTv.TvMosaicProvider
 {
@@ -27,7 +28,7 @@ namespace SlimTv.TvMosaicProvider
     public string TvMosaicId { get; set; }
   }
 
-  public class TvMosaicProvider : ITvProvider, IChannelAndGroupInfoAsync, ITimeshiftControlAsync, IProgramInfoAsync
+  public class TvMosaicProvider : ITvProvider, IChannelAndGroupInfoAsync, ITimeshiftControlAsync, IProgramInfoAsync, IScheduleControlAsync
   {
     private static readonly string LOCAL_SYSTEM = SystemName.LocalHostName;
     private HttpDataProvider _dvbLink;
@@ -234,24 +235,35 @@ namespace SlimTv.TvMosaicProvider
       foreach (ChannelIdWithPrograms idWithPrograms in programs)
         foreach (var tvMosaicProgram in idWithPrograms.Programs)
         {
-          var startTime = tvMosaicProgram.StartTime.FromUnixTime();
-          var endTime = startTime.AddSeconds(tvMosaicProgram.Duration);
-          var mpProgram = new Program
-          {
-            ChannelId = GetId(idWithPrograms.ChannelId),
-            ProgramId = Int32.Parse(tvMosaicProgram.Id),
-            Title = tvMosaicProgram.Title,
-            Description = tvMosaicProgram.ShortDesc,
-            StartTime = startTime,
-            EndTime = endTime,
-            SeasonNumber = tvMosaicProgram.SeasonNum > 0 ? tvMosaicProgram.SeasonNum.ToString() : null,
-            EpisodeNumber = tvMosaicProgram.EpisodeNum > 0 ? tvMosaicProgram.EpisodeNum.ToString() : null,
-            // TODO Genres
-          };
+          var mpProgram = ToProgram(tvMosaicProgram, idWithPrograms.ChannelId);
           mpPrograms.Add(mpProgram);
         }
       // Order matters here, the client expects programs in time order
       return mpPrograms.OrderBy(p => p.ChannelId).ThenBy(p => p.StartTime).ToList();
+    }
+
+    private Program ToProgram(TvMosaic.API.Program tvMosaicProgram, string channelId = "")
+    {
+      var startTime = tvMosaicProgram.StartTime.FromUnixTime();
+      var endTime = startTime.AddSeconds(tvMosaicProgram.Duration);
+      var mpProgram = new Program
+      {
+        ChannelId = GetId(channelId),
+        ProgramId = ToUniqueProgramId(channelId, tvMosaicProgram.Id),
+        Title = tvMosaicProgram.Title,
+        Description = tvMosaicProgram.ShortDesc,
+        StartTime = startTime,
+        EndTime = endTime,
+        SeasonNumber = tvMosaicProgram.SeasonNum > 0 ? tvMosaicProgram.SeasonNum.ToString() : null,
+        EpisodeNumber = tvMosaicProgram.EpisodeNum > 0 ? tvMosaicProgram.EpisodeNum.ToString() : null,
+        // TODO Genres
+      };
+      return mpProgram;
+    }
+
+    public static int ToUniqueProgramId(string channelId, string programId)
+    {
+      return (channelId + programId).GetHashCode();
     }
 
     public async Task<AsyncResult<IList<IProgram>>> GetProgramsAsync(string title, DateTime @from, DateTime to)
@@ -341,6 +353,137 @@ namespace SlimTv.TvMosaicProvider
       bool isTv = true;
       LiveTvMediaItem tvStream = SlimTvMediaItemBuilder.CreateMediaItem(slotIndex, streamUrl, channel, isTv, LiveTvMediaItem.MIME_TYPE_TV_STREAM);
       return tvStream;
+    }
+
+    public async Task<AsyncResult<ISchedule>> CreateScheduleAsync(IProgram program, ScheduleRecordingType recordingType)
+    {
+      var channelId = GetTvMosaicId(program.ChannelId);
+      var programId = program.StartTime.ToUnixTime().ToString(); // Translate start time back to timestamp
+      var byEpg = new ByEpgSchedule(channelId, programId);
+      var scheduleRequest = new TvMosaic.API.Schedule(byEpg);
+      var result = await _dvbLink.AddSchedule(scheduleRequest);
+      if (result.Status == StatusCode.STATUS_OK)
+      {
+        var sResult = await _dvbLink.GetSchedules(new SchedulesRequest());
+        if (sResult.Status == StatusCode.STATUS_OK)
+        {
+          var createdSchedule = sResult.Result.FirstOrDefault(s => s.ByEpg != null && ToUniqueProgramId(s.ByEpg.ChannelId, s.ByEpg.ProgramId) == ToUniqueProgramId(channelId, programId));
+          if (createdSchedule != null)
+          {
+            return new AsyncResult<ISchedule>(true, ToSchedule(createdSchedule));
+          }
+        }
+      }
+      return new AsyncResult<ISchedule>(false, null);
+    }
+
+    private ISchedule ToSchedule(TvMosaic.API.Schedule createdSchedule)
+    {
+      if (createdSchedule.ByEpg != null)
+      {
+        var program = ToProgram(createdSchedule.ByEpg.Program, createdSchedule.ByEpg.ChannelId);
+        var mpSchedule = new Schedule
+        {
+          ChannelId = GetId(createdSchedule.ByEpg.ChannelId),
+          StartTime = program.StartTime,
+          EndTime = program.EndTime,
+          ScheduleId = Int32.Parse(createdSchedule.ScheduleID),
+          RecordingType = ScheduleRecordingType.Once
+        };
+        return mpSchedule;
+      }
+
+      // TODO: repeated recordings
+      return null;
+    }
+
+    public async Task<AsyncResult<ISchedule>> CreateScheduleByTimeAsync(IChannel channel, DateTime @from, DateTime to, ScheduleRecordingType recordingType)
+    {
+      var channelId = GetTvMosaicId(channel.ChannelId);
+      int dayMask = 0;
+      var startTime = @from.ToUnixTime();
+      var manualSchedule = new ManualSchedule(channelId, "Manual schedule", startTime, (int)(to-from).TotalSeconds, dayMask);
+      var scheduleRequest = new TvMosaic.API.Schedule(manualSchedule);
+      var result = await _dvbLink.AddSchedule(scheduleRequest);
+      if (result.Status == StatusCode.STATUS_OK)
+      {
+        var sResult = await _dvbLink.GetSchedules(new SchedulesRequest());
+        if (sResult.Status == StatusCode.STATUS_OK)
+        {
+          var createdSchedule = sResult.Result.FirstOrDefault(s => s.Manual != null && s.Manual.ChannelId == channelId && s.Manual.StartTime == startTime);
+          if (createdSchedule != null)
+          {
+            return new AsyncResult<ISchedule>(true, ToSchedule(createdSchedule));
+          }
+        }
+      }
+      return new AsyncResult<ISchedule>(false, null);
+    }
+
+    public async Task<bool> RemoveScheduleForProgramAsync(IProgram program, ScheduleRecordingType recordingType)
+    {
+      var channelId = GetTvMosaicId(program.ChannelId);
+      var programId = program.ProgramId.ToString();
+      var sResult = await _dvbLink.GetSchedules(new SchedulesRequest());
+      if (sResult.Status == StatusCode.STATUS_OK)
+      {
+        var schedule = sResult.Result.FirstOrDefault(s => s.ByEpg != null && s.ByEpg.ProgramId == programId && s.ByEpg.ChannelId == channelId);
+        if (schedule != null)
+        {
+          var result = await _dvbLink.RemoveSchedule(new ScheduleRemover(schedule.ScheduleID));
+          return result.Status == StatusCode.STATUS_OK;
+        }
+      }
+
+      return false;
+    }
+
+    public async Task<bool> RemoveScheduleAsync(ISchedule schedule)
+    {
+      var result = await _dvbLink.RemoveSchedule(new ScheduleRemover(schedule.ScheduleId.ToString()));
+      return result.Status == StatusCode.STATUS_OK;
+    }
+
+    public async Task<AsyncResult<RecordingStatus>> GetRecordingStatusAsync(IProgram program)
+    {
+      string channelId = GetTvMosaicId(program.ChannelId);
+      var programId = program.ProgramId.ToString();
+      var sResult = await _dvbLink.GetSchedules(new SchedulesRequest());
+      if (sResult.Status == StatusCode.STATUS_OK)
+      {
+        var createdSchedule = sResult.Result.FirstOrDefault(s => s.ByEpg != null && s.ByEpg.ProgramId == programId && s.ByEpg.ChannelId == channelId);
+        if (createdSchedule != null)
+        {
+          return new AsyncResult<RecordingStatus>(true, RecordingStatus.Scheduled);
+        }
+      }
+      return new AsyncResult<RecordingStatus>(true, RecordingStatus.None);
+    }
+
+    public Task<AsyncResult<string>> GetRecordingFileOrStreamAsync(IProgram program)
+    {
+      throw new NotImplementedException();
+    }
+
+    public Task<AsyncResult<IList<IProgram>>> GetProgramsForScheduleAsync(ISchedule schedule)
+    {
+      throw new NotImplementedException();
+    }
+
+    public async Task<AsyncResult<IList<ISchedule>>> GetSchedulesAsync()
+    {
+      var schedules = await _dvbLink.GetSchedules(new SchedulesRequest());
+      if (schedules.Status == StatusCode.STATUS_OK)
+      {
+        var mpSchedules = schedules.Result.Select(ToSchedule).ToList();
+        return new AsyncResult<IList<ISchedule>>(true, mpSchedules);
+      }
+      return new AsyncResult<IList<ISchedule>>(false, null);
+    }
+
+    public Task<AsyncResult<ISchedule>> IsCurrentlyRecordingAsync(string fileName)
+    {
+      throw new NotImplementedException();
     }
   }
 
