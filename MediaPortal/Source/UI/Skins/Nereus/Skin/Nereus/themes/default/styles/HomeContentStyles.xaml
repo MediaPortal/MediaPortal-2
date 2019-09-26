@@ -2602,19 +2602,6 @@
 
   <!--++++++++++ Other Plugins +++++++++++-->
 
-  <!--Style x:Key="PluginTilesListViewStyle" BasedOn="{ThemeResource HomeTilesListViewStyle}">
-    <Setter Property="ItemTemplate" Value="{ThemeResource OtherMenuItemDataTemplate}"/>
-    <Setter Property="ItemContainerStyle" Value="{ThemeResource OtherItemContainerStyle}"/>
-
-    <Setter Property="ItemsPanel">
-      <Setter.Value>
-        <ItemsPanelTemplate>
-          <WrapPanel x:Name="ListItemsHost" IsItemsHost="True" Orientation="Vertical" DoScroll="False"/>
-        </ItemsPanelTemplate>
-      </Setter.Value>
-    </Setter>
-  </-->
-
   <ControlTemplate x:Key="OtherPluginsControlTemplate" TargetType="{x:Type Control}">
     <Grid Background="{ThemeResource NereusColorMedium}">
       <Grid.ColumnDefinitions>
