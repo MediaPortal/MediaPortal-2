@@ -2237,13 +2237,21 @@
   <!--++++++++++ Weather +++++++++++-->
 
   <ControlTemplate x:Key="CurrentWeatherControlTemplate">
-    <Grid Background="{ThemeResource NereusColorMedium}">
+    <Grid>
       <Grid.ColumnDefinitions>
         <ColumnDefinition Width="*"/>
       </Grid.ColumnDefinitions>
       <Grid.RowDefinitions>
         <RowDefinition Height="*"/>
       </Grid.RowDefinitions>
+
+      <Grid.Background>
+        <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
+          <Binding RelativeSource="{RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}}" Path="!HasFocus"/>
+          <Binding Source="{ThemeResource NereusColorMedium}"/>
+          <Binding Source="{ThemeResource NereusColorLight}"/>
+        </MultiBinding>
+      </Grid.Background>
 
       <StackPanel Orientation="Vertical" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="20">
         <Label FontSize="90" 
@@ -2282,13 +2290,22 @@
   </ControlTemplate>
 
   <ControlTemplate x:Key="DayForecastControlTemplate" TargetType="{x:Type Control}">
-    <Grid Background="{ThemeResource NereusColorMedium}">
+    <Grid>
       <Grid.ColumnDefinitions>
         <ColumnDefinition Width="*"/>
       </Grid.ColumnDefinitions>
       <Grid.RowDefinitions>
         <RowDefinition Height="*"/>
       </Grid.RowDefinitions>
+
+      <Grid.Background>
+        <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
+          <Binding RelativeSource="{RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}}" Path="!HasFocus"/>
+          <Binding Source="{ThemeResource NereusColorMedium}"/>
+          <Binding Source="{ThemeResource NereusColorLight}"/>
+        </MultiBinding>
+      </Grid.Background>
+
       <StackPanel VerticalAlignment="Center" Margin="5" HorizontalAlignment="Center">
         <Label FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColor}" Content="{Binding Day}" 
                HorizontalAlignment="Center" Opacity="0.6"/>
