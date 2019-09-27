@@ -597,9 +597,10 @@
             <Grid.RowDefinitions>
               <RowDefinition Height="*"/>
             </Grid.RowDefinitions>
+
             <Grid.Background>
-              <ImageBrush Stretch="Fill" ImageSource="square_shadow.png"/>
-            </Grid.Background>
+              <ImageBrush Stretch="Fill" ImageSource="Square_small.png" Opacity="0.7"/>
+            </Grid.Background>              
 
             <!--Border BorderThickness="0" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Margin="8">
               <Border.Background>
@@ -710,7 +711,7 @@
     <ControlTemplate.Resources>
       <!--Banner shadow-->
       <ControlTemplate x:Key="ContentShadowTemplate">
-        <Image Source="wide_small.png" Stretch="Fill"/>
+        <Image Source="wide_small.png" Stretch="Fill" Opacity="0.7"/>
       </ControlTemplate>
       <!--Banner tile template-->
       <ControlTemplate x:Key="ContentControlTemplate">
@@ -727,7 +728,7 @@
     <ControlTemplate.Resources>
       <!--Square shadow-->
       <ControlTemplate x:Key="ContentShadowTemplate">
-        <Image Source="square_large.png" Stretch="Fill"/>
+        <Image Source="square_large.png" Stretch="Fill" Opacity="0.7"/>
       </ControlTemplate>
       <!--Square plugin tile-->
       <ControlTemplate x:Key="ContentControlTemplate">
@@ -742,7 +743,7 @@
     <ControlTemplate.Resources>
       <!--Square shadow-->
       <ControlTemplate x:Key="ContentShadowTemplate">
-        <Image Source="square_small.png" Stretch="Fill"/>
+        <Image Source="square_small.png" Stretch="Fill" Opacity="0.7"/>
       </ControlTemplate>
       <!--Square plugin tile-->
       <ControlTemplate x:Key="ContentControlTemplate">
@@ -759,7 +760,7 @@
     <ControlTemplate.Resources>
       <!--Poster shadow-->
       <ControlTemplate x:Key="ContentShadowTemplate">
-        <Image Source="poster_large.png" Stretch="Fill"/>
+        <Image Source="poster_large.png" Stretch="Fill" Opacity="0.7"/>
       </ControlTemplate>
       <!--Poster tile template-->
       <ControlTemplate x:Key="ContentControlTemplate">
@@ -774,7 +775,7 @@
     <ControlTemplate.Resources>
       <!--Poster shadow-->
       <ControlTemplate x:Key="ContentShadowTemplate">
-        <Image Source="poster_medium.png" Stretch="Fill"/>
+        <Image Source="poster_medium.png" Stretch="Fill" Opacity="0.7"/>
       </ControlTemplate>
       <!--Poster tile template-->
       <ControlTemplate x:Key="ContentControlTemplate">
@@ -789,7 +790,7 @@
     <ControlTemplate.Resources>
       <!--Poster shadow-->
       <ControlTemplate x:Key="ContentShadowTemplate">
-        <Image Source="poster_small.png" Stretch="Fill"/>
+        <Image Source="poster_small.png" Stretch="Fill" Opacity="0.7"/>
       </ControlTemplate>
       <!--Poster tile template-->
       <ControlTemplate x:Key="ContentControlTemplate">
@@ -805,7 +806,7 @@
     <ControlTemplate.Resources>
       <!--Banner shadow-->
       <ControlTemplate x:Key="ContentShadowTemplate">
-        <Image Source="banner_large.png" Stretch="Fill"/>
+        <Image Source="banner_large.png" Stretch="Fill" Opacity="0.7"/>
       </ControlTemplate>
       <!--Banner tile template-->
       <ControlTemplate x:Key="ContentControlTemplate">
@@ -820,7 +821,7 @@
     <ControlTemplate.Resources>
       <!--Banner shadow-->
       <ControlTemplate x:Key="ContentShadowTemplate">
-        <Image Source="banner_small.png" Stretch="Fill"/>
+        <Image Source="banner_small.png" Stretch="Fill" Opacity="0.7"/>
       </ControlTemplate>
       <!--Banner tile template-->
       <ControlTemplate x:Key="ContentControlTemplate">
@@ -837,7 +838,7 @@
     <ControlTemplate.Resources>
       <!--Thumbnail shadow-->
       <ControlTemplate x:Key="ContentShadowTemplate">
-        <Image Source="Thumbnail_large.png" Stretch="Fill"/>
+        <Image Source="Thumbnail_large.png" Stretch="Fill" Opacity="0.7"/>
       </ControlTemplate>
       <!--Thumbnail tile template-->
       <ControlTemplate x:Key="ContentControlTemplate">
@@ -852,7 +853,7 @@
     <ControlTemplate.Resources>
       <!--Thumbnail shadow-->
       <ControlTemplate x:Key="ContentShadowTemplate">
-        <Image Source="Thumbnail_medium.png" Stretch="Fill"/>
+        <Image Source="Thumbnail_medium.png" Stretch="Fill" Opacity="0.7"/>
       </ControlTemplate>
       <!--Thumbnail tile template-->
       <ControlTemplate x:Key="ContentControlTemplate">
@@ -867,7 +868,7 @@
     <ControlTemplate.Resources>
       <!--Thumbnail shadow-->
       <ControlTemplate x:Key="ContentShadowTemplate">
-        <Image Source="Thumbnail_small.png" Stretch="Fill"/>
+        <Image Source="Thumbnail_small.png" Stretch="Fill" Opacity="0.7"/>
       </ControlTemplate>
       <!--Thumbnail tile template-->
       <ControlTemplate x:Key="ContentControlTemplate">
