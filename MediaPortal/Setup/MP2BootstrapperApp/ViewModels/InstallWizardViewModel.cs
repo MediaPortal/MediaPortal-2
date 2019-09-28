@@ -189,12 +189,32 @@ namespace MP2BootstrapperApp.ViewModels
         if (bundlePackage != null)
         {
           PackageId bundlePackageId = bundlePackage.GetId();
-          bundlePackage.InstalledVersion = _packageContext.GetInstalledVersion(bundlePackageId);
-          bundlePackage.CurrentInstallState = detectPackageCompleteEventArgs.State;
+          Version installed = _packageContext.GetInstalledVersion(bundlePackageId);
+          bundlePackage.InstalledVersion = installed;
+          bundlePackage.CurrentInstallState = GetInstallState(installed, bundlePackage.GetVersion());
         }
       }
     }
-    
+
+    private PackageState GetInstallState(Version installed, Version bundled)
+    {
+      PackageState state;
+      int comparisonResult = installed.CompareTo(bundled);
+      if (comparisonResult > 0)
+      {
+        state = PackageState.Present;
+      }
+      else if (comparisonResult < 0)
+      {
+        state = PackageState.Absent;
+      }
+      else
+      {
+        state = PackageState.Present;
+      }
+      return state;
+    }
+
     private void DetectRelatedBundle(object sender, DetectRelatedBundleEventArgs e)
     {
       _wizard.Step = new InstallExistInstallStep(this);

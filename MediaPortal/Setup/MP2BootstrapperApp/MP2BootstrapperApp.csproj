@@ -92,6 +92,7 @@
     <Compile Include="BootstrapperWrapper\DispatcherWrapper.cs" />
     <Compile Include="InstallType.cs" />
     <Compile Include="Models\IBootstrapperApplicationModel.cs" />
+    <Compile Include="Models\Package.cs" />
     <Compile Include="ViewModels\ModifyPageViewModel.cs" />
     <Compile Include="ViewModels\InstallationInProgressPageViewModel.cs" />
     <Compile Include="ViewModels\RepairPageViewModel.cs" />
