@@ -11,11 +11,13 @@ using MediaPortal.Common.General;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
+using MediaPortal.Common.Settings;
 using MediaPortal.Plugins.SlimTv.Interfaces;
 using MediaPortal.Plugins.SlimTv.Interfaces.Items;
 using MediaPortal.Plugins.SlimTv.Interfaces.LiveTvMediaItem;
 using MediaPortal.Plugins.SlimTv.Interfaces.ResourceProvider;
 using MediaPortal.Plugins.SlimTv.Interfaces.UPnP.Items;
+using SlimTv.TvMosaicProvider.Settings;
 using TvMosaic.API;
 using MPChannel = MediaPortal.Plugins.SlimTv.Interfaces.UPnP.Items.Channel;
 using Program = MediaPortal.Plugins.SlimTv.Interfaces.UPnP.Items.Program;
@@ -39,11 +41,14 @@ namespace SlimTv.TvMosaicProvider
     private readonly Dictionary<int, IChannel> _tunedChannels = new Dictionary<int, IChannel>();
     private readonly Dictionary<int, long> _tunedChannelHandles = new Dictionary<int, long>();
     private bool _supportsTimeshift;
+    private string _host;
 
     public bool Init()
     {
       // TODO
-      _dvbLink = new HttpDataProvider("127.0.0.1", 9270, string.Empty, string.Empty);
+      var settings = ServiceRegistration.Get<ISettingsManager>().Load<TvMosaicProviderSettings>();
+      _host = settings.Host;
+      _dvbLink = new HttpDataProvider(_host, 9270, settings.Username ?? string.Empty, settings.Password ?? string.Empty);
       var caps = _dvbLink.GetStreamingCapabilities(new CapabilitiesRequest()).Result;
       if (caps.Status == StatusCode.STATUS_OK)
       {
@@ -137,7 +142,7 @@ namespace SlimTv.TvMosaicProvider
       if (!await LoadChannels())
         return new AsyncResult<IList<IChannelGroup>>(false, null);
 
-      var groups = _channelGroups.Keys.ToList();
+      var groups = _channelGroups.Keys.OrderBy(g => g.ChannelGroupId).ToList();
 
       return new AsyncResult<IList<IChannelGroup>>(groups.Count > 0, groups);
     }
@@ -164,7 +169,21 @@ namespace SlimTv.TvMosaicProvider
     }
 
     public int SelectedChannelId { get; set; } = 0;
-    public int SelectedChannelGroupId { get; set; } = 0;
+
+    public int SelectedChannelGroupId
+    {
+      get
+      {
+        TvMosaicProviderSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<TvMosaicProviderSettings>();
+        return settings.LastChannelGroupId;
+      }
+      set
+      {
+        TvMosaicProviderSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<TvMosaicProviderSettings>();
+        settings.LastChannelGroupId = value;
+        ServiceRegistration.Get<ISettingsManager>().Save(settings);
+      }
+    }
 
     #endregion
 
@@ -300,7 +319,7 @@ namespace SlimTv.TvMosaicProvider
       try
       {
         var tvMosaicChannel = _mpChannels.OfType<TvMosaicChannel>().FirstOrDefault(c => c.ChannelId == channel.ChannelId);
-        var serverAddress = "127.0.0.1";
+        var serverAddress = _host;
         Transcoder transcoder = null;
         if (tvMosaicChannel != null)
         {
@@ -402,7 +421,7 @@ namespace SlimTv.TvMosaicProvider
       var channelId = GetTvMosaicId(channel.ChannelId);
       int dayMask = 0;
       var startTime = @from.ToUnixTime();
-      var manualSchedule = new ManualSchedule(channelId, "Manual schedule", startTime, (int)(to-from).TotalSeconds, dayMask);
+      var manualSchedule = new ManualSchedule(channelId, "Manual schedule", startTime, (int)(to - from).TotalSeconds, dayMask);
       var scheduleRequest = new TvMosaic.API.Schedule(manualSchedule);
       var result = await _dvbLink.AddSchedule(scheduleRequest);
       if (result.Status == StatusCode.STATUS_OK)
