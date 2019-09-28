@@ -95,7 +95,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
     }
 
     /// <summary>
-    /// Gets the currently selected channel group, or <c>null</c> if not initilalized.
+    /// Gets the currently selected channel group, or <c>null</c> if not initialized.
     /// </summary>
     public IChannelGroup CurrentChannelGroup
     {
@@ -564,6 +564,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
 
     protected virtual void OnCurrentGroupChanged(int oldindex, int newindex)
     {
+      SetCurrentChannelGroup();
     }
 
     protected virtual void OnCurrentChannelChanged(int oldindex, int newindex)
