@@ -20,6 +20,8 @@
   <ResourceWrapper x:Key="SmallerFontSize" Resource="27"/>
   <ResourceWrapper x:Key="TinyFontSize" Resource="13"/>
 
+  <ResourceWrapper x:Key="InfoFontSize" Resource="20"/>
+
   <ResourceWrapper x:Key="DialogButtonMinWidth" Resource="300"/>
 
   <ResourceWrapper x:Key="TextBoxBorderThickness" Resource="3"/>

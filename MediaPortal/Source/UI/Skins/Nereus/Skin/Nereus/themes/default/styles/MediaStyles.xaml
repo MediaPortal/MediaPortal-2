@@ -3789,7 +3789,6 @@
               <Binding Source="{ThemeResource MediaItemWithContextMenuContainerStyle}"/>
               <Binding Source="{ThemeResource MediaItemGridViewContainerStyle}"/>
               <Binding Source="{ThemeResource CoverMediaItemContainerStyle}"/>
-              
             </MultiBinding>
           </BindingWrapper.Binding>
         </BindingWrapper>
