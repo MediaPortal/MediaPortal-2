@@ -99,7 +99,7 @@ namespace MediaPortal.Plugins.SlimTv.Interfaces.ResourceProvider
     public static IResourceAccessor GetResourceAccessor(int slotIndex, string path)
     {
       // Test for RTSP url
-      if (path.StartsWith("rtsp://", StringComparison.OrdinalIgnoreCase))
+      if (path.StartsWith("rtsp://", StringComparison.OrdinalIgnoreCase) || path.StartsWith("http://", StringComparison.OrdinalIgnoreCase))
         return new SlimTvResourceAccessor(slotIndex, path);
       // otherwise it's a local file.
       return new SlimTvFsResourceAccessor(slotIndex, path);
