@@ -60,6 +60,10 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Settings\Configuration\Password.cs" />
+    <Compile Include="Settings\Configuration\ServerAddress.cs" />
+    <Compile Include="Settings\Configuration\Username.cs" />
+    <Compile Include="Settings\TvMosaicProviderSettings.cs" />
     <Compile Include="TvMosaicProvider.cs" />
   </ItemGroup>
   <ItemGroup>
