@@ -1,16 +1,13 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using MediaPortal.Common;
 using MediaPortal.Common.Async;
 using MediaPortal.Common.General;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.MediaManagement;
-using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Common.Settings;
 using MediaPortal.Plugins.SlimTv.Interfaces;
 using MediaPortal.Plugins.SlimTv.Interfaces.Items;
@@ -20,8 +17,8 @@ using MediaPortal.Plugins.SlimTv.Interfaces.UPnP.Items;
 using SlimTv.TvMosaicProvider.Settings;
 using TvMosaic.API;
 using MPChannel = MediaPortal.Plugins.SlimTv.Interfaces.UPnP.Items.Channel;
-using Program = MediaPortal.Plugins.SlimTv.Interfaces.UPnP.Items.Program;
-using Schedule = MediaPortal.Plugins.SlimTv.Interfaces.UPnP.Items.Schedule;
+using MPProgram = MediaPortal.Plugins.SlimTv.Interfaces.UPnP.Items.Program;
+using MPSchedule = MediaPortal.Plugins.SlimTv.Interfaces.UPnP.Items.Schedule;
 
 namespace SlimTv.TvMosaicProvider
 {
@@ -45,7 +42,6 @@ namespace SlimTv.TvMosaicProvider
 
     public bool Init()
     {
-      // TODO
       var settings = ServiceRegistration.Get<ISettingsManager>().Load<TvMosaicProviderSettings>();
       _host = settings.Host;
       _dvbLink = new HttpDataProvider(_host, 9270, settings.Username ?? string.Empty, settings.Password ?? string.Empty);
@@ -236,9 +232,10 @@ namespace SlimTv.TvMosaicProvider
 
     protected async Task<AsyncResult<IList<IProgram>>> GetPrograms(IEnumerable<IChannel> channels, DateTime @from, DateTime to, string keyWord = null)
     {
+      var adjustedFrom = @from.AddHours(-2);
       EpgSearcher epgSearcher = channels != null ?
-        new EpgSearcher(new ChannelIDList(channels.Select(c => GetTvMosaicId(c.ChannelId)).ToList()), false, from.ToUnixTime(), to.ToUnixTime()) :
-        new EpgSearcher(keyWord, false, from.ToUnixTime(), to.ToUnixTime());
+        new EpgSearcher(new ChannelIDList(channels.Select(c => GetTvMosaicId(c.ChannelId)).ToList()), false, adjustedFrom.ToUnixTime(), to.ToUnixTime()) :
+        new EpgSearcher(keyWord, false, adjustedFrom.ToUnixTime(), to.ToUnixTime());
 
       var programs = await _dvbLink.SearchEpg(epgSearcher);
       if (programs.Status == StatusCode.STATUS_OK && programs.Result.Any())
@@ -261,11 +258,11 @@ namespace SlimTv.TvMosaicProvider
       return mpPrograms.OrderBy(p => p.ChannelId).ThenBy(p => p.StartTime).ToList();
     }
 
-    private Program ToProgram(TvMosaic.API.Program tvMosaicProgram, string channelId = "")
+    private MPProgram ToProgram(TvMosaic.API.Program tvMosaicProgram, string channelId = "")
     {
       var startTime = tvMosaicProgram.StartTime.FromUnixTime();
       var endTime = startTime.AddSeconds(tvMosaicProgram.Duration);
-      var mpProgram = new Program
+      var mpProgram = new MPProgram
       {
         ChannelId = GetId(channelId),
         ProgramId = ToUniqueProgramId(channelId, tvMosaicProgram.Id),
@@ -401,7 +398,7 @@ namespace SlimTv.TvMosaicProvider
       if (createdSchedule.ByEpg != null)
       {
         var program = ToProgram(createdSchedule.ByEpg.Program, createdSchedule.ByEpg.ChannelId);
-        var mpSchedule = new Schedule
+        var mpSchedule = new MPSchedule
         {
           ChannelId = GetId(createdSchedule.ByEpg.ChannelId),
           StartTime = program.StartTime,
