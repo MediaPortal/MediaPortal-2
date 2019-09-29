@@ -24,10 +24,7 @@
 
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
-using System.Runtime.InteropServices;
-using DirectShow;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.MediaManagement;
@@ -36,7 +33,6 @@ using MediaPortal.Plugins.SlimTv.Client.Models;
 using MediaPortal.Plugins.SlimTv.Interfaces.Items;
 using MediaPortal.Plugins.SlimTv.Interfaces.LiveTvMediaItem;
 using MediaPortal.UI.Players.Video;
-using MediaPortal.UI.Players.Video.Tools;
 using MediaPortal.UI.Presentation.Players;
 using MediaPortal.UI.Presentation.Workflow;
 using MediaPortal.UI.SkinEngine.SkinManagement;
@@ -45,7 +41,7 @@ using SharpDX.Direct3D9;
 
 namespace MediaPortal.Plugins.SlimTv.Client.Player
 {
-  public class LiveTvStreamPlayer : VideoPlayer, IUIContributorPlayer/*, IReusablePlayer*/, ILivePlayer
+  public class LiveTvStreamPlayer : VideoPlayer, IUIContributorPlayer, IReusablePlayer, ILivePlayer
   {
     #region Variables
 
@@ -53,7 +49,6 @@ namespace MediaPortal.Plugins.SlimTv.Client.Player
     protected IList<IChannel> _channelHistory = null;
     protected static TimeSpan TIMESPAN_LIVE = TimeSpan.FromMilliseconds(50);
     protected bool _zapping; // Indicates that we are currently changing a channel.
-    protected FilterFileWrapper _filterWrapper;
 
     #endregion
 
@@ -209,66 +204,6 @@ namespace MediaPortal.Plugins.SlimTv.Client.Player
       EnumerateChapters(true);
     }
 
-    //protected override void AddSourceFilter()
-    //{
-    //  const string FilterName = "MediaPortal Url Source Splitter";
-    //  const string FilterCLSID = "59ED045A-A938-4A09-A8A6-8231F5834259";
-    //  _filterWrapper = FilterLoader.LoadFilterFromDll(
-    //    Path.Combine(Path.GetDirectoryName(GetType().Assembly.Location), @"..\OnlineVideos\MPUrlSourceSplitter\MPUrlSourceSplitter.ax"),
-    //    new Guid(FilterCLSID));
-    //  var sourceFilter = _filterWrapper.GetFilter();
-    //  if (sourceFilter != null)
-    //  {
-    //    _graphBuilder.AddFilter(sourceFilter, FilterName);
-    //    var filterStateEx = sourceFilter as IFilterStateEx;
-    //    if (filterStateEx != null)
-    //      LoadAndWaitForMPUrlSourceFilter(filterStateEx);
-    //    else
-    //    {
-    //      var fileSourceFilter = sourceFilter as IFileSourceFilter;
-    //      if (fileSourceFilter != null)
-    //        Marshal.ThrowExceptionForHR(fileSourceFilter.Load(_resourceAccessor.ResourcePathName, null));
-    //    }
-    //  }
-    //  else
-    //  {
-    //    base.AddSourceFilter();
-    //  }
-    //}
-
-    void LoadAndWaitForMPUrlSourceFilter(IFilterStateEx filterStateEx)
-    {
-      string url = _resourceAccessor.ResourcePathName;
-      int result = filterStateEx.LoadAsync(url);
-      if (result < 0)
-        throw new Exception("Loading URL async error: " + result);
-
-      bool opened = false;
-      while (!opened)
-      {
-        System.Threading.Thread.Sleep(1);
-        result = filterStateEx.IsStreamOpened(out opened);
-        if (result < 0)
-          throw new Exception("Check stream open error: " + result);
-      }
-
-      bool ready = false;
-      while (!ready)
-      {
-        System.Threading.Thread.Sleep(50);
-        result = filterStateEx.IsFilterReadyToConnectPins(out ready);
-        if (result != 0)
-          throw new Exception("IsFilterReadyToConnectPins error: " + result);
-      }
-    }
-
-
-    protected override void FreeCodecs()
-    {
-      base.FreeCodecs();
-      FilterGraphTools.TryDispose(ref _filterWrapper);
-    }
-
     protected override void PostProcessTexture(Texture targetTexture)
     {
       if (_zapping)
@@ -366,107 +301,4 @@ namespace MediaPortal.Plugins.SlimTv.Client.Player
 
     #endregion
   }
-
-  /// <summary>
-  /// Specifies interface for splitter state.
-  /// </summary>
-  [ComImport, Guid("420E98EF-0338-472F-B77B-C5BA8997ED10"), InterfaceType(ComInterfaceType.InterfaceIsIUnknown)]
-  public interface IFilterState
-  {
-    /// <summary>
-    /// Tests if filter is ready to connect output pins.
-    /// </summary>
-    /// <param name="ready">The reference to variable to get filter state.</param>
-    /// <returns>0 if successful, error code otherwise</returns>
-    [PreserveSig]
-    [return: MarshalAs(UnmanagedType.I4)]
-    int IsFilterReadyToConnectPins([Out, MarshalAs(UnmanagedType.Bool)] out Boolean ready);
-
-    /// <summary>
-    /// Gets filter cache file name.
-    /// </summary>
-    /// <param name="cacheFileName">The reference to variable to get filter cache file name.</param>
-    /// <returns>0 if successful, error code otherwise</returns>
-    [PreserveSig]
-    [return: MarshalAs(UnmanagedType.I4)]
-    int GetCacheFileName([Out, MarshalAs(UnmanagedType.LPWStr)] out String cacheFileName);
-  }
-
-  /// <summary>
-  /// Specifies interface for distinguishing MediaPortal IPTV filter and url source splitter from previous MediaPortal Url Source Splitter.
-  /// </summary>
-  [ComImport, Guid("505C28D8-01F4-41C7-BD51-013FA6DBBD39"), InterfaceType(ComInterfaceType.InterfaceIsIUnknown)]
-  public interface IFilterStateEx : IFilterState
-  {
-    #region IFilterState interface
-
-    /// <summary>
-    /// Tests if filter is ready to connect output pins.
-    /// </summary>
-    /// <param name="ready">The reference to variable to get filter state.</param>
-    /// <returns>0 if successful, error code otherwise</returns>
-    [PreserveSig]
-    [return: MarshalAs(UnmanagedType.I4)]
-    new int IsFilterReadyToConnectPins([Out, MarshalAs(UnmanagedType.Bool)] out Boolean ready);
-
-
-    /// <summary>
-    /// Gets filter cache file name.
-    /// </summary>
-    /// <param name="cacheFileName">The reference to variable to get filter cache file name.</param>
-    /// <returns>0 if successful, error code otherwise</returns>
-    [PreserveSig]
-    [return: MarshalAs(UnmanagedType.I4)]
-    new int GetCacheFileName([Out, MarshalAs(UnmanagedType.LPWStr)] out String cacheFileName);
-
-    #endregion
-
-    /// <summary>
-    /// Gets filter version.
-    /// </summary>
-    /// <param name="version">The reference to variable to get filter version.</param>
-    /// <returns>0 if successful, error code otherwise</returns>
-    [PreserveSig]
-    [return: MarshalAs(UnmanagedType.I4)]
-    int GetVersion([Out, MarshalAs(UnmanagedType.U4)] out uint version);
-
-    /// <summary>
-    /// Tests if error code if filter error code.
-    /// </summary>
-    /// <param name="isFilterError">The reference to variable to test.</param>
-    /// <param name="error">The error code to test.</param>
-    /// <returns>0 if successful, error code otherwise</returns>
-    [PreserveSig]
-    [return: MarshalAs(UnmanagedType.I4)]
-    int IsFilterError([Out, MarshalAs(UnmanagedType.Bool)] out Boolean isFilterError, [In, MarshalAs(UnmanagedType.I4)] int error);
-
-    /// <summary>
-    /// Gets description of filter error.
-    /// </summary>
-    /// <param name="error">The filter error code to get error description.</param>
-    /// <param name="description">The reference to variable to get filter error description.</param>
-    /// <returns>0 if successful, error code otherwise</returns>
-    [PreserveSig]
-    [return: MarshalAs(UnmanagedType.I4)]
-    int GetErrorDescription([In, MarshalAs(UnmanagedType.I4)] int error, [Out, MarshalAs(UnmanagedType.LPWStr)] out String description);
-
-    /// <summary>
-    /// Loads stream into file.
-    /// </summary>
-    /// <param name="url">The formatted URL to load stream.</param>
-    /// <returns>0 if successful, 1 if pending, error code otherwise</returns>
-    [PreserveSig]
-    [return: MarshalAs(UnmanagedType.I4)]
-    int LoadAsync([In, MarshalAs(UnmanagedType.LPWStr)] String url);
-
-    /// <summary>
-    /// Tests if stream is opened.
-    /// </summary>
-    /// <param name="opened">The reference to variable to get filter stream state.</param>
-    /// <returns>0 if successful, error code otherwise</returns>
-    [PreserveSig]
-    [return: MarshalAs(UnmanagedType.I4)]
-    int IsStreamOpened([Out, MarshalAs(UnmanagedType.Bool)] out Boolean opened);
-  }
-
 }
