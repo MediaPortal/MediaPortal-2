@@ -95,7 +95,7 @@
 		               FontSize="{ThemeResource SmallFontSize}" VerticalAlignment="Center" Margin="0,0,0,-5"/>
           <Button Grid.Row="11" Grid.Column="4" Margin="10,1,0,-3" Content="[AppLauncher.Settings.Add.Search]" Style="{ThemeResource WizardButtonStyle}"
 			            HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Command="{Command SearchIcon}" FontSize="{ThemeResource SmallFontSize}" />
-          <Image Grid.Row="9" Grid.Column="2" Grid.RowSpan="3" Stretch="Uniform" HorizontalAlignment="Left" VerticalAlignment="Top" Source="{Binding Path=IconPath}" FallbackSource="{Binding Path=Fallback}"/>
+          <Image Grid.Row="9" Grid.Column="2" Grid.RowSpan="3" Stretch="Uniform" HorizontalAlignment="Left" VerticalAlignment="Top" Source="{Binding Path=IconPath}" FallbackSource="no-icon.png"/>
 
           <!--View Mode-->
           <StackPanel Orientation="Horizontal" Grid.Row="12" Grid.Column="0" Grid.ColumnSpan="2">

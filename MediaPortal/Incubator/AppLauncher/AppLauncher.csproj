@@ -105,7 +105,7 @@
     </Content>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Skin\Nereus\images\873EB147-C998-4632-8F86-D5E24062BE2E.jpg" />
+    <Content Include="Skin\Nereus\images\applauncher_background.jpg" />
     <Content Include="Skin\Nereus\images\no-icon.png" />
     <Content Include="Skin\Titanium\screens\AppLauncherSettingsAdd.xaml">
       <SubType>Designer</SubType>
@@ -141,7 +141,12 @@
       <SubType>Designer</SubType>
     </Content>
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <Content Include="Skin\Nereus\screens\DlgAppLauncherRemoveGroup.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
   <ItemGroup>
     <Content Include="Skin\BlueVision\screens\AppLauncherHome.xaml">
       <Generator>MSBuild:Compile</Generator>
