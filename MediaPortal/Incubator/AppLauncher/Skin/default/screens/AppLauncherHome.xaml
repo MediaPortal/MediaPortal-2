@@ -1,0 +1,57 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Include
+  xmlns="www.team-mediaportal.com/2008/mpf/directx"
+  xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+  Source="screens\master_menu.xaml">
+  <Include.Resources>
+
+    <!-- Header -->
+    <ResourceWrapper x:Key="Header_Text" Resource="[AppLauncher.Title]"/>
+
+    <Model x:Key="Model" Id="624339C2-0D3B-437B-8046-6F540D704A93"/>
+    
+    <!-- Contents -->
+    <ControlTemplate x:Key="Contents_Template">
+      <DockPanel DataContext="{Binding Source={StaticResource Model}}">
+        <Grid>
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="30*" />
+            <ColumnDefinition Width="70*" />
+          </Grid.ColumnDefinitions>
+          <Grid.RowDefinitions>
+            <RowDefinition Height="100*" />
+          </Grid.RowDefinitions>
+
+          <!--List of Groups-->
+          <ListView x:Name="Groups" Margin="15,5,15,30" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Style="{ThemeResource ContentsMenuListViewStyle}" 
+            ItemsSource="{Binding Path=Groups, Mode=TwoWay}"  Grid.Column="0">
+            <ListView.Resources>
+              <CommandList x:Key="Menu_Command">
+                <Command Source="{StaticResource Model}" Path="SelectGroup">
+                  <Command.Parameters>
+                    <LateBoundValue BindingValue="{Binding}"/>
+                  </Command.Parameters>
+                </Command>
+              </CommandList>
+            </ListView.Resources>
+          </ListView>
+          
+          <!--List of Apps-->
+          <ListView x:Name="Apps" Margin="15,5,15,30" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Style="{ThemeResource AppLauncherListViewStyle}"
+            ItemsSource="{Binding Path=items, Mode=TwoWay}" Grid.Column="1">
+            <ListView.Resources>
+              <CommandList x:Key="Menu_Command">
+                <Command Source="{StaticResource Model}" Path="StartApp">
+                  <Command.Parameters>
+                    <LateBoundValue BindingValue="{Binding}"/>
+                  </Command.Parameters>
+                </Command>
+              </CommandList>
+            </ListView.Resources>
+          </ListView>
+
+        </Grid>
+      </DockPanel>
+    </ControlTemplate>
+  </Include.Resources>
+</Include>

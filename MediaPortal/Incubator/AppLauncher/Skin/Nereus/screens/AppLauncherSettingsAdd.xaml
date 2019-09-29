@@ -1,0 +1,130 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Include
+  xmlns="www.team-mediaportal.com/2008/mpf/directx"
+  xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+  Source="screens\master_configuration_menu.xaml">
+  <Include.Resources>
+
+    <!-- Header -->
+    <ResourceWrapper x:Key="Dialog_Header_Text" Resource="[AppLauncher.Settings.Title]"/>
+
+    <Model x:Key="Model" Id="D47E22A3-3D0F-4A28-8EF6-1121B811508C"/>
+
+    <ControlTemplate x:Key="Contents_Template">
+      <DockPanel DataContext="{Binding Source={StaticResource Model}}">
+        <Grid Margin="20,0,30,0">
+          <Grid.RowDefinitions>
+            <RowDefinition Height="55"/>
+            <RowDefinition Height="45"/>
+            <RowDefinition Height="55"/>
+            <RowDefinition Height="45"/>
+            <RowDefinition Height="55"/>
+            <RowDefinition Height="45"/>
+            <RowDefinition Height="55"/>
+            <RowDefinition Height="45"/>
+            <RowDefinition Height="55"/>
+            <RowDefinition Height="45"/>
+            <RowDefinition Height="55"/>
+            <RowDefinition Height="45"/>
+            <RowDefinition Height="80"/>
+            <RowDefinition Height="45"/>
+          </Grid.RowDefinitions>
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="33*" />
+            <ColumnDefinition Width="33*" />
+            <ColumnDefinition Width="16*" />
+            <ColumnDefinition Width="16*" />
+          </Grid.ColumnDefinitions>
+
+          <!--Shortname-->
+          <Label Grid.Row="0" Grid.ColumnSpan="4" Content="[AppLauncher.Settings.Add.Shortname]"
+                 VerticalAlignment="Bottom" HorizontalAlignment="Left" FontSize="{ThemeResource SmallerFontSize}" Color="{ThemeResource TextColor}" />
+
+          <TextBox Grid.Row="1" Grid.ColumnSpan="2" Text="{Binding Path=ShortName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                   FontSize="{ThemeResource SmallerFontSize}" VerticalAlignment="Center"/>
+
+          <Button Grid.Row="1" Grid.Column="2" Margin="10,0,10,0" Content="[AppLauncher.Settings.Add.Select]"
+                  Command="{Command SelectApp}" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" FontSize="{ThemeResource SmallerFontSize}" />
+          <Button Grid.Row="1" Grid.Column="3" Margin="10,0,0,0" Content="[AppLauncher.Settings.Add.Search]"
+			            Command="{Command SearchApp}" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" FontSize="{ThemeResource SmallerFontSize}" />
+
+          <!--Arguments-->
+          <Label Grid.Row="2" Grid.ColumnSpan="4" Content="[AppLauncher.Settings.Add.Arguments]"
+                 VerticalAlignment="Bottom" HorizontalAlignment="Left" FontSize="{ThemeResource SmallerFontSize}" Color="{ThemeResource TextColor}" />
+          <TextBox Grid.Row="3" Grid.ColumnSpan="4" Text="{Binding Path=Arguments, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+		               FontSize="{ThemeResource SmallerFontSize}" VerticalAlignment="Center" />
+
+          <!--Path-->
+          <Label Grid.Row="4" Grid.ColumnSpan="4" Content="[AppLauncher.Settings.Add.Path]"
+                 VerticalAlignment="Bottom" HorizontalAlignment="Left" FontSize="{ThemeResource SmallerFontSize}" Color="{ThemeResource TextColor}" />
+          <TextBox Grid.Row="5" Grid.ColumnSpan="4" Text="{Binding Path=AppPath, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+		               FontSize="{ThemeResource SmallerFontSize}" VerticalAlignment="Center" />
+
+          <!--Infotext-->
+          <Label Grid.Row="6" Grid.Column="0" Grid.ColumnSpan="2" Content="[AppLauncher.Settings.Add.Description]"
+				    VerticalAlignment="Bottom" HorizontalAlignment="Left" FontSize="{ThemeResource SmallerFontSize}" Color="{ThemeResource TextColor}" />
+          <TextBox Grid.Row="7" Grid.Column="0" Grid.ColumnSpan="2" Text="{Binding Path=Description, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+		        FontSize="{ThemeResource SmallerFontSize}" VerticalAlignment="Center" />
+          
+          <!--Group-->
+          <TextBox Grid.Row="7" Grid.Column="2" Text="{Binding Path=Group, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+		        FontSize="{ThemeResource SmallerFontSize}" VerticalAlignment="Center" />
+          <Button Grid.Row="7" Grid.Column="3" Margin="10,0,0,0" Content="[AppLauncher.Group]"
+            HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Command="{Command SelectGroup}" FontSize="{ThemeResource SmallerFontSize}" />
+
+          <!--Username-->
+          <Label Grid.Row="8" Grid.Column="0" Content="[AppLauncher.Settings.Add.Username]"
+				    VerticalAlignment="Bottom" HorizontalAlignment="Left" FontSize="{ThemeResource SmallerFontSize}" Color="{ThemeResource TextColor}" />
+          <TextBox Grid.Row="9" Grid.Column="0" Text="{Binding Path=Username, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+		        FontSize="{ThemeResource SmallerFontSize}" VerticalAlignment="Center" />
+
+          <!--Password-->
+          <Label Grid.Row="8" Grid.Column="1" Content="[AppLauncher.Settings.Add.Password]"
+				    VerticalAlignment="Bottom" HorizontalAlignment="Left" FontSize="{ThemeResource SmallerFontSize}" Color="{ThemeResource TextColor}" />
+          <TextBox Grid.Row="9" Grid.Column="1" Text="{Binding Path=Password, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Style="{ThemeResource PasswordTextBoxStyle}"
+		        FontSize="{ThemeResource SmallerFontSize}" VerticalAlignment="Center" />
+
+          <!--Run as Admin-->
+          <CheckBox Grid.Row="9" Grid.Column="3" Margin="10,0,0,0" Content="[AppLauncher.Settings.Add.AsAdmin]" Style="{ThemeResource DefaultCheckBoxStyle}"
+              FontSize="{ThemeResource SmallerFontSize}" VerticalAlignment="Center"  IsChecked="{Binding Path=asAdmin,Mode=TwoWay}"/>
+
+          <!--Iconpath-->
+          <Label Grid.Row="10" Grid.Column="0" Grid.ColumnSpan="2" Content="[AppLauncher.Settings.Add.Icon]"
+				    VerticalAlignment="Bottom" HorizontalAlignment="Left" FontSize="{ThemeResource SmallerFontSize}" Color="{ThemeResource TextColor}" />
+          <TextBox Grid.Row="11" Grid.Column="0" Grid.ColumnSpan="2" Text="{Binding Path=IconPath, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+		        FontSize="{ThemeResource SmallerFontSize}" VerticalAlignment="Center" />
+          <Button Grid.Row="11" Grid.Column="4" Margin="10,0,0,0" Content="[AppLauncher.Settings.Add.Search]"
+			      HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Command="{Command SearchIcon}" FontSize="{ThemeResource SmallerFontSize}" />
+          <Image Grid.Row="9" Grid.Column="2" Grid.RowSpan="3" Stretch="Uniform" HorizontalAlignment="Left" VerticalAlignment="Top" Source="{Binding Path=IconPath}" FallbackSource="{Binding Path=Fallback}"/>
+
+          <!--View Mode-->
+          <Label Grid.Row="12" Grid.Column="0" Grid.ColumnSpan="2" Content="[AppLauncher.Settings.Add.Screenmode]" Margin="0,20,0,0"
+				    VerticalAlignment="Bottom" HorizontalAlignment="Left" FontSize="{ThemeResource SmallerFontSize}" Color="{ThemeResource TextColor}" />
+          <Label Grid.Row="12" Grid.Column="0" Margin="150,0,0,0" Content="{Binding Path=WindowStyle, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+				    VerticalAlignment="Bottom" HorizontalAlignment="Left" FontSize="{ThemeResource SmallerFontSize}" Color="{ThemeResource TextColor}"/>
+          <StackPanel Orientation="Horizontal" Grid.Column="0" Grid.ColumnSpan="2" Grid.Row="13">
+            <!--           <Button Grid.Row="13" Grid.Column="0" Content="[AppLauncher.Settings.Add.Minimum]" Width="150" HorizontalAlignment="Left"
+			      HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Command="{Command Minimum}" FontSize="{ThemeResource SmallerFontSize}" />
+          <Button Grid.Row="13" Grid.Column="0" Content="[AppLauncher.Settings.Add.Normal]" Width="150" HorizontalAlignment="Right"
+			      HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Command="{Command Normal}" FontSize="{ThemeResource SmallerFontSize}" />
+          <Button Grid.Row="13" Grid.Column="0" Content="[AppLauncher.Settings.Add.Maximum]" Width="150" HorizontalAlignment="Left"
+			      HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Command="{Command Maximum}" FontSize="{ThemeResource SmallerFontSize}" />
+		      <Button Grid.Row="13" Grid.Column="0" Content="[AppLauncher.Settings.Add.NoWindow]" Width="150" HorizontalAlignment="Right"
+			      HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Command="{Command NoWindow}" FontSize="{ThemeResource SmallerFontSize}" /> -->
+            <Button Content="[AppLauncher.Settings.Add.Minimum]" Width="150"
+                  HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Command="{Command Minimum}" FontSize="{ThemeResource SmallerFontSize}" />
+            <Button  Content="[AppLauncher.Settings.Add.Normal]" Width="150"
+              HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Command="{Command Normal}" FontSize="{ThemeResource SmallerFontSize}" />
+            <Button  Content="[AppLauncher.Settings.Add.Maximum]" Width="150"
+              HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Command="{Command Maximum}" FontSize="{ThemeResource SmallerFontSize}" />
+            <Button  Content="[AppLauncher.Settings.Add.NoWindow]" Width="150"
+                  HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Command="{Command NoWindow}" FontSize="{ThemeResource SmallerFontSize}" />
+          </StackPanel>
+          <!--Add-->
+          <Button Grid.Row="13" Grid.Column="3"  Content="[AppLauncher.Settings.Add]" 
+			      HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Command="{Command Add}" FontSize="{ThemeResource SmallerFontSize}" />
+        </Grid>
+      </DockPanel>
+    </ControlTemplate>
+  </Include.Resources>
+</Include>

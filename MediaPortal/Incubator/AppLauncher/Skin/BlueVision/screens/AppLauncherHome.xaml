@@ -1,0 +1,84 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Include
+  xmlns="www.team-mediaportal.com/2008/mpf/directx"
+  xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+  Source="screens\master_configuration_menu.xaml">
+  <Include.Resources>
+
+    <!-- Header -->
+    <ResourceWrapper x:Key="Header_Text" Resource="[AppLauncher.Title]"/>
+
+    <Model x:Key="Model" Id="624339C2-0D3B-437B-8046-6F540D704A93"/>
+    
+    <!-- Contents -->
+    <ControlTemplate x:Key="Contents_Template">
+      <DockPanel DataContext="{Binding Source={StaticResource Model}}">
+        <Grid Margin="-40,-35,0,-140">
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="35*" />
+            <ColumnDefinition Width="65*" />
+          </Grid.ColumnDefinitions>
+          <Grid.RowDefinitions>
+            <RowDefinition Height="35" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="100" />
+          </Grid.RowDefinitions>
+
+          <!--List of Groups-->
+          <ListView x:Name="Groups" Margin="0,5,-5,35" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Style="{ThemeResource MenuListViewStyle}" 
+            ItemsSource="{Binding Path=Groups, Mode=TwoWay}"  Grid.Column="0" Grid.Row="1">
+            <ListView.Resources>
+              <CommandList x:Key="Menu_Command">
+                <Command Source="{StaticResource Model}" Path="SelectGroup">
+                  <Command.Parameters>
+                    <LateBoundValue BindingValue="{Binding}"/>
+                  </Command.Parameters>
+                </Command>
+              </CommandList>
+            </ListView.Resources>
+          </ListView>
+          
+          <!--List of Apps-->
+          <ListView x:Name="Apps" Margin="15,5,-15,35" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Style="{ThemeResource AppLauncherListViewStyle}"
+            ItemsSource="{Binding Path=Items, Mode=TwoWay}" Grid.Column="1" Grid.Row="1">
+            <ListView.Resources>
+              <CommandList x:Key="Menu_Command">
+                <Command Source="{StaticResource Model}" Path="StartApp">
+                  <Command.Parameters>
+                    <LateBoundValue BindingValue="{Binding}"/>
+                  </Command.Parameters>
+                </Command>
+              </CommandList>
+            </ListView.Resources>
+          </ListView>
+
+          <Grid Grid.Column="0" Grid.ColumnSpan="2" Grid.Row="2" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="20,5,0,0" >
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="Auto" />
+              <ColumnDefinition Width="*" />
+              <ColumnDefinition Width="200" />
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+              <RowDefinition Height="Auto" />
+            </Grid.RowDefinitions>
+            <StackPanel Grid.Column="0" Grid.Row="0" Orientation="Vertical" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="0" >
+              <Label Color="{ThemeResource TextColor}" Wrap="True" Scroll="Auto" FontFamily="DefaultBold"
+                     DataContext="{Binding ElementName=Apps,Path=CurrentItem}"
+                     Content="{Binding Path=[Name]}" />
+              <!--Label Color="{ThemeResource TextColor}" Wrap="True" Scroll="Auto" Opacity="0.6"
+                     DataContext="{Binding ElementName=Groups,Path=CurrentItem}"
+                     Content="{Binding Path=[Name]}" /-->
+              <Label Color="{ThemeResource TextColor}" Wrap="True" Scroll="Auto" Opacity="0.6"
+                     DataContext="{Binding ElementName=Apps,Path=CurrentItem}"
+                     Content="{Binding Path=[Description]}" />         
+            </StackPanel>
+            <Image Grid.Column="2" Grid.Row="0" Stretch="Uniform" Width="180"
+                   DataContext="{Binding ElementName=Apps,Path=CurrentItem}"
+                   HorizontalAlignment="Right" VerticalAlignment="Stretch"
+                   Source="{Binding [ImageSrc]}" FallbackSource="{Binding [DefaultIcon]}" Margin="20,15,-5,-80"/>
+          </Grid>
+        </Grid>
+      </DockPanel>
+    </ControlTemplate>
+  </Include.Resources>
+</Include>
