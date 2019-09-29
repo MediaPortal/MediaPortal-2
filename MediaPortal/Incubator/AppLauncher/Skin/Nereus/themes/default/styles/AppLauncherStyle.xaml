@@ -4,55 +4,86 @@
   xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
   xmlns:collections="clr-namespace:MediaPortal.UI.Presentation.DataObjects;assembly=MediaPortal.UI"
   xmlns:wrh="clr-namespace:AppLauncher.Models"
-  DependsOnStyleResources="OtherControls">
+  DependsOnStyleResources="OtherControls,OtherControlsOverrides,MediaConsts,MediaStyles">
 
-  <!-- Data template for a simple share entry in the shares list -->
-  <DataTemplate x:Key="AppLauncherDataTemplate" DataType="{x:Type collections:ListItem}" >
-      <Grid x:Name="ItemControl" Margin="6">
-        <Grid.ColumnDefinitions>
-          <ColumnDefinition Width="170"/>
-        </Grid.ColumnDefinitions>
-        <Grid.RowDefinitions>
-          <RowDefinition Height="170"/>
-        </Grid.RowDefinitions>
+  <Model x:Key="ViewModeModel" Id="08BB1CFE-8AF3-4DD1-BB9C-582DD7EA8BBF"/>
 
-        <Image x:Name="ItemBackground" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Stretch="Fill">
-          <Image.Source>
-            <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? ({3}+{1}) : ({3}+{2})">
-              <Binding RelativeSource="{RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}}" Path="HasFocus"/>
-              <Binding Source="tile_background_focus.jpg"/>
-              <Binding Source="tile_background_nofocus.jpg"/>
-              <Binding Source="MediaMenu\"/>
-            </MultiBinding>
-          </Image.Source>
-        </Image>
-        <Image x:Name="ItemImage" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Width="70" Stretch="Uniform" Thumbnail="False"
-               Source="{Binding [ImageSrc]}" FallbackSource="{Binding [DefaultIcon]}" Margin="20"/>
+  <DataTemplate x:Key="AppLauncherListDataTemplate" DataType="{x:Type collections:ListItem}">
+    <DockPanel x:Name="ItemControl" LastChildFill="False">
+      <Image DockPanel.Dock="Left" Margin="15,0,15,0" Stretch="Uniform" Height="34"
+             Source="{Binding [ImageSrc]}" FallbackSource="{Binding [DefaultIcon]}"/>
 
-        <Grid x:Name="ItemBandGrid" HorizontalAlignment="Stretch" VerticalAlignment="Bottom" RenderTransformOrigin="0.5,1">
-          <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="*"/>
-          </Grid.ColumnDefinitions>
-          <Grid.RowDefinitions>
-            <RowDefinition Height="40"/>
-          </Grid.RowDefinitions>
-          <Grid.RenderTransform>
-            <TransformGroup>
-              <ScaleTransform ScaleX="1" ScaleY="0"/>
-            </TransformGroup>
-          </Grid.RenderTransform>
-          <Rectangle x:Name="ItemBand" Fill="Black" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Opacity="0.4"/>
-          <Label x:Name="ItemLabel" HorizontalAlignment="Center" VerticalAlignment="Center" Content="{Binding [Name]}"
-                 FontSize="{ThemeResource SmallerFontSize}" Color="{ThemeResource MenuTextForeground}" Margin="5,-5,5,5"
-                 ScrollDelay="0" Scroll="None" FontFamily="SegoeUIBold"/>
-        </Grid>
-      </Grid>
-      <!--Label x:Name="Description" Grid.Row="1" Grid.Column="1" Content="{Binding [Description]}" FontSize="{ThemeResource SmallerFontSize}"
-          HorizontalAlignment="Left" VerticalAlignment="Center"
-          Color="{ThemeResource HintTextColor}"/-->
+      <Label x:Name="ItemLabel" DockPanel.Dock="Center" Content="{Binding [Name]}" Margin="10,0,10,0"
+             HorizontalAlignment="Left" VerticalAlignment="Center" FontSize="{ThemeResource SmallFontSize}"
+             Color="{ThemeResource MediaItemUnwatchedColor}" FontFamily="SegoeUIBold"/>
+    </DockPanel>
   </DataTemplate>
 
-  <Style x:Key="AppLauncherContainerStyle" BasedOn="{ThemeResource DefaultItemContainerStyle}">
+  <DataTemplate x:Key="AppLauncherGridDataTemplate" DataType="{x:Type collections:ListItem}" >
+    <Grid x:Name="ItemControl">
+      <Grid.ColumnDefinitions>
+        <ColumnDefinition Width="{ThemeResource AUDIO_GRID_WIDTH}"/>
+      </Grid.ColumnDefinitions>
+      <Grid.RowDefinitions>
+        <RowDefinition Height="{ThemeResource AUDIO_GRID_HEIGHT}"/>
+      </Grid.RowDefinitions>
+
+      <Image Source="Square_small.png" Stretch="Fill" Margin="-5"/>
+
+      <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="3">
+        <Grid.Background>
+          <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
+            <Binding RelativeSource="{RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}}" Path="HasFocus"/>
+            <Binding Source="{ThemeResource NereusColorLight}"/>
+            <Binding Source="{ThemeResource NereusColorMedium}"/>
+          </MultiBinding>
+        </Grid.Background>
+      </Grid>
+
+      <Image x:Name="ItemImage" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Width="75" Stretch="Uniform" Thumbnail="False"
+               Source="{Binding [ImageSrc]}" FallbackSource="{Binding [DefaultIcon]}" Margin="20"/>
+
+      <Grid x:Name="ItemBandGrid" HorizontalAlignment="Stretch" VerticalAlignment="Bottom" RenderTransformOrigin="0.5,1">
+        <Grid.ColumnDefinitions>
+          <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+          <RowDefinition Height="40"/>
+        </Grid.RowDefinitions>
+        <Grid.RenderTransform>
+          <TransformGroup>
+            <ScaleTransform ScaleX="1" ScaleY="0"/>
+          </TransformGroup>
+        </Grid.RenderTransform>
+        <Rectangle x:Name="ItemBand" Fill="Black" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Opacity="0.4"/>
+        <Label x:Name="ItemLabel" HorizontalAlignment="Center" VerticalAlignment="Center" Content="{Binding [Name]}"
+                 FontSize="{ThemeResource SmallerFontSize}" Color="{ThemeResource MenuTextForeground}" Margin="5,-5,5,5"
+                 ScrollDelay="0" Scroll="None" FontFamily="SegoeUIBold"/>
+      </Grid>
+    </Grid>
+  </DataTemplate>
+
+  <Style x:Key="AppLauncherListContainerStyle" BasedOn="{ThemeResource DefaultItemContainerStyle}">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="{x:Type ListViewItem}">
+          <Button Style="{ThemeResource ButtonWideStyle_List}" Margin="0,0,0,0"
+                  Command="{DynamicResource ResourceKey=Menu_Command}"
+                  IsEnabled="{Binding Enabled}" SetFocus="{Binding Path=Selected,Mode=OneTime}">
+            <Button.Triggers>
+              <Trigger Property="HasFocus" Value="True">
+                <Setter TargetName="ItemLabel" Property="Color" Value="{ThemeResource TextColor}"/>
+                <Setter TargetName="ItemLabel" Property="Scroll" Value="Auto"/>
+                <Setter Property="StackPanel.ZIndex" Value="100.0"/>
+              </Trigger>
+            </Button.Triggers>
+          </Button>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+
+  <Style x:Key="AppLauncherGridContainerStyle" BasedOn="{ThemeResource DefaultItemContainerStyle}">
     <Setter Property="Template">
       <Setter.Value>
         <ControlTemplate TargetType="{x:Type ListViewItem}">
@@ -98,27 +129,122 @@
       </Setter.Value>
     </Setter>
   </Style>
-  
+
   <!-- ListView style to be used in the content area of the screens -->
-  <Style x:Key="AppLauncherListViewStyle" BasedOn="{ThemeResource DefaultListViewStyle}">
-    <Setter Property="ItemTemplate" Value="{ThemeResource AppLauncherDataTemplate}"/>
+  <Style x:Key="AppLauncherListViewStyle" BasedOn="{ThemeResource MediaItemsListListViewStyle}">
+    <BindingSetter Property="ItemTemplate">
+      <BindingSetter.BindingWrapper>
+        <BindingWrapper>
+          <BindingWrapper.Binding>
+            <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} == {LayoutType}.{ListLayout} ? {1} : {2}">
+              <Binding Source="{StaticResource ViewModeModel}" Path="LayoutType"/>
+              <Binding Source="{ThemeResource AppLauncherListDataTemplate}"/>
+              <Binding Source="{ThemeResource AppLauncherGridDataTemplate}"/>
+            </MultiBinding>
+          </BindingWrapper.Binding>
+        </BindingWrapper>
+      </BindingSetter.BindingWrapper>
+    </BindingSetter>
     <Setter Property="DataStringProvider" Value="{ThemeResource ContentsMenuItemDataStringProvider}"/>
-    <Setter Property="ItemContainerStyle" Value="{ThemeResource AppLauncherContainerStyle}"/>
-    <Setter Property="ItemsPanel">
+    <BindingSetter Property="ItemContainerStyle">
+      <BindingSetter.BindingWrapper>
+        <BindingWrapper>
+          <BindingWrapper.Binding>
+            <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} == {LayoutType}.{ListLayout} ? {1} : {2}">
+              <Binding Source="{StaticResource ViewModeModel}" Path="LayoutType"/>
+              <Binding Source="{ThemeResource AppLauncherListContainerStyle}"/>
+              <Binding Source="{ThemeResource AppLauncherGridContainerStyle}"/>
+            </MultiBinding>
+          </BindingWrapper.Binding>
+        </BindingWrapper>
+      </BindingSetter.BindingWrapper>
+    </BindingSetter>
+    <Setter Property="Template">
       <Setter.Value>
-        <ItemsPanelTemplate>
-          <VirtualizingWrapPanel x:Name="ListItemsHost" IsItemsHost="True"/>
-        </ItemsPanelTemplate>
+        <ControlTemplate TargetType="{x:Type ListView}">
+          <ScrollViewer CanContentScroll="True" Margin="5" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+                        HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Disabled">
+            <ScrollViewer.Style>
+              <Binding Source="{ThemeResource VerticalMediaScrollViewerStyle}"/>
+            </ScrollViewer.Style>
+            <ItemsPresenter VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
+          </ScrollViewer>
+        </ControlTemplate>
       </Setter.Value>
     </Setter>
+    <BindingSetter Property="ItemsPanel">
+      <BindingSetter.BindingWrapper>
+        <BindingWrapper>
+          <BindingWrapper.Binding>
+            <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} == {LayoutType}.{ListLayout} ? {1} : {2}">
+              <Binding Source="{StaticResource ViewModeModel}" Path="LayoutType"/>
+              <!-- List layout -->
+              <Binding>
+                <Binding.Source>
+                  <ItemsPanelTemplate>
+                    <AnimatedStackPanel x:Name="ListItemsHost" IsItemsHost="True" ScrollMargin="130,130" Margin="0,-10,15,-40">
+                      <AnimatedStackPanel.Resources>
+                        <Storyboard x:Key="ScrollAnimation" FillBehavior="HoldEnd">
+                          <DoubleAnimation BeginTime="00:00:00" From="0" To="1" Duration="00:00:00.300"
+                                           FillBehavior="HoldEnd" Storyboard.TargetName="ListItemsHost" Storyboard.TargetProperty="ScrollOffsetMultiplier" />
+                        </Storyboard>
+                      </AnimatedStackPanel.Resources>
+                      <AnimatedStackPanel.Triggers>
+                        <EventTrigger RoutedEvent="AnimatedStackPanel.Scroll">
+                          <EventTrigger.Actions>
+                            <BeginStoryboard Storyboard="{ThemeResource ScrollAnimation}"/>
+                          </EventTrigger.Actions>
+                        </EventTrigger>
+                      </AnimatedStackPanel.Triggers>
+                    </AnimatedStackPanel>
+                  </ItemsPanelTemplate>
+                </Binding.Source>
+              </Binding>
+              <!-- Grid layout -->
+              <Binding>
+                <Binding.Source>
+                  <ItemsPanelTemplate>
+                    <AnimatedWrapPanel x:Name="GridItemsHost" IsItemsHost="True" Orientation="Horizontal" ScrollMargin="400,400" Margin="45,-270,0,-305">
+                      <AnimatedWrapPanel.Resources>
+                        <Storyboard x:Key="ScrollAnimation" FillBehavior="HoldEnd">
+                          <DoubleAnimation BeginTime="00:00:00" From="0" To="1" Duration="00:00:00.400"
+                                           FillBehavior="HoldEnd" Storyboard.TargetName="GridItemsHost" Storyboard.TargetProperty="ScrollOffsetMultiplier" />
+                        </Storyboard>
+                      </AnimatedWrapPanel.Resources>
+                      <AnimatedWrapPanel.Triggers>
+                        <EventTrigger RoutedEvent="AnimatedWrapPanel.Scroll">
+                          <EventTrigger.Actions>
+                            <BeginStoryboard Storyboard="{ThemeResource ScrollAnimation}"/>
+                          </EventTrigger.Actions>
+                        </EventTrigger>
+                      </AnimatedWrapPanel.Triggers>
+                    </AnimatedWrapPanel>
+                  </ItemsPanelTemplate>
+                </Binding.Source>
+              </Binding>
+            </MultiBinding>
+          </BindingWrapper.Binding>
+        </BindingWrapper>
+      </BindingSetter.BindingWrapper>
+    </BindingSetter>
   </Style>
+
+  <DataTemplate x:Key="AppLauncherContentItemDataTemplate" DataType="{x:Type collections:ListItem}">
+    <DockPanel x:Name="ItemControl" LastChildFill="False">
+      <Image Thumbnail="True" Stretch="Uniform" DockPanel.Dock="Left" Height="32" Width="32" Margin="20,0,10,0"
+             Source="{Binding [ImageSrc]}" FallbackSource="{Binding [DefaultIconSrc]}"/>
+      <Label x:Name="ItemLabel" DockPanel.Dock="Center" Content="{Binding [Name]}"
+             HorizontalAlignment="Left" VerticalAlignment="Center" FontSize="{ThemeResource SmallFontSize}"
+             Color="{ThemeResource TextColor}"/>
+    </DockPanel>
+  </DataTemplate>
 
   <DataTemplate x:Key="AppLauncherSelectItemDataTemplate" DataType="{x:Type collections:ListItem}">
     <DockPanel x:Name="ItemControl" LastChildFill="False">
       <CheckBox DockPanel.Dock="Left" IsChecked="{Binding Selected}" />
       <Label x:Name="ItemLabel" DockPanel.Dock="Center" Content="{Binding [Name]}"
-        HorizontalAlignment="Left" VerticalAlignment="Center" FontSize="{ThemeResource SmallFontSize}"
-        Color="{ThemeResource TextColor}"/>
+             HorizontalAlignment="Left" VerticalAlignment="Center" FontSize="{ThemeResource SmallFontSize}"
+             Color="{ThemeResource TextColor}"/>
     </DockPanel>
   </DataTemplate>
 
@@ -129,9 +255,14 @@
     <Setter Property="ItemsPanel">
       <Setter.Value>
         <ItemsPanelTemplate>
-          <VirtualizingWrapPanel x:Name="ListItemsHost" IsItemsHost="True"/>
+          <VirtualizingStackPanel x:Name="ListItemsHost" IsItemsHost="True"/>
         </ItemsPanelTemplate>
       </Setter.Value>
     </Setter>
   </Style>
+
+  <Style x:Key="AppLauncherContentListViewStyle" BasedOn="{ThemeResource ContentsMenuListViewStyle}">
+    <Setter Property="ItemTemplate" Value="{ThemeResource AppLauncherContentItemDataTemplate}"/>
+  </Style>
+
 </ResourceDictionary>

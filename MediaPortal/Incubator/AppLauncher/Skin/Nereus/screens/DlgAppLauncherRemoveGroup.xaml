@@ -1,28 +1,25 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Include
   xmlns="www.team-mediaportal.com/2008/mpf/directx"
   xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-  Source="screens\master_configuration_menu.xaml">
+  Source="screens\master_configuration_dialog_wb.xaml">
   <Include.Resources>
 
     <!-- Header -->
-    <ResourceWrapper x:Key="Header_Text" Resource="[AppLauncher.Settings.Title]"/>
+    <ResourceWrapper x:Key="Dialog_Header_Text" Resource="[AppLauncher.RemoveGroup]"/>
 
-    <Model x:Key="Model" Id="3C19B13A-D64C-4918-9AD6-17EC2D9AAE29"/>
+    <Model x:Key="Model" Id="3C38DF86-AE80-4411-8C3D-9480E7AAB279"/>
 
-    <!-- Contents -->
     <ControlTemplate x:Key="Contents_Template">
       <DockPanel DataContext="{Binding Source={StaticResource Model}}">
         <Grid>
           <Grid.RowDefinitions>
-            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
           </Grid.RowDefinitions>
-          <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="*"/>
-          </Grid.ColumnDefinitions>
 
-          <ListView HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Style="{ThemeResource AppLauncherContentListViewStyle}"
-            ItemsSource="{Binding Path=Items, Mode=TwoWay}">
+          <ListView x:Name="lvFavorites" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="10"
+                    Style="{ThemeResource AppLauncherSelectListViewStyle}" ItemsSource="{Binding Path=items}" >
             <ListView.Resources>
               <CommandList x:Key="Menu_Command">
                 <Command Source="{StaticResource Model}" Path="Select">
@@ -33,6 +30,9 @@
               </CommandList>
             </ListView.Resources>
           </ListView>
+
+          <Button Grid.Row="1" Margin="-10,0,-10,0" Content="[AppLauncher.RemoveGroup]" 
+                  Command="{Command Delete}" FontSize="{ThemeResource SmallFontSize}"/>
 
         </Grid>
       </DockPanel>
