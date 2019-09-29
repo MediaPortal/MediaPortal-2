@@ -58,6 +58,7 @@
   <ItemGroup>
     <Compile Include="ApplicationCore.cs" />
     <Compile Include="Async\AsyncResult.cs" />
+    <Compile Include="Async\ControlAwaiter.cs" />
     <Compile Include="Async\SynchronizationContextRemover.cs" />
     <Compile Include="Commands\AsyncMethodDelegateCommand.cs" />
     <Compile Include="Certifications\CertificationMapper.cs" />
