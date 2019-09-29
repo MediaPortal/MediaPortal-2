@@ -272,6 +272,11 @@ namespace SlimTv.TvMosaicProvider
         EndTime = endTime,
         SeasonNumber = tvMosaicProgram.SeasonNum > 0 ? tvMosaicProgram.SeasonNum.ToString() : null,
         EpisodeNumber = tvMosaicProgram.EpisodeNum > 0 ? tvMosaicProgram.EpisodeNum.ToString() : null,
+        RecordingStatus = tvMosaicProgram.IsRecord ?
+          (tvMosaicProgram.IsRepeatRecord ?
+            RecordingStatus.SeriesScheduled :
+            RecordingStatus.Scheduled)
+          : RecordingStatus.None
         // TODO Genres
       };
       return mpProgram;
@@ -363,7 +368,6 @@ namespace SlimTv.TvMosaicProvider
       return _tunedChannels.TryGetValue(slotIndex, out IChannel channel) ? channel : null;
     }
 
-
     public MediaItem CreateMediaItem(int slotIndex, string streamUrl, IChannel channel)
     {
       bool isTv = true;
@@ -438,12 +442,11 @@ namespace SlimTv.TvMosaicProvider
 
     public async Task<bool> RemoveScheduleForProgramAsync(IProgram program, ScheduleRecordingType recordingType)
     {
-      var channelId = GetTvMosaicId(program.ChannelId);
-      var programId = program.ProgramId.ToString();
+      var programId = program.ProgramId;
       var sResult = await _dvbLink.GetSchedules(new SchedulesRequest());
       if (sResult.Status == StatusCode.STATUS_OK)
       {
-        var schedule = sResult.Result.FirstOrDefault(s => s.ByEpg != null && s.ByEpg.ProgramId == programId && s.ByEpg.ChannelId == channelId);
+        var schedule = sResult.Result.FirstOrDefault(s => s.ByEpg != null && ToUniqueProgramId(s.ByEpg.ChannelId, s.ByEpg.ProgramId) == programId);
         if (schedule != null)
         {
           var result = await _dvbLink.RemoveSchedule(new ScheduleRemover(schedule.ScheduleID));
@@ -462,12 +465,11 @@ namespace SlimTv.TvMosaicProvider
 
     public async Task<AsyncResult<RecordingStatus>> GetRecordingStatusAsync(IProgram program)
     {
-      string channelId = GetTvMosaicId(program.ChannelId);
-      var programId = program.ProgramId.ToString();
+      var programId = program.ProgramId;
       var sResult = await _dvbLink.GetSchedules(new SchedulesRequest());
       if (sResult.Status == StatusCode.STATUS_OK)
       {
-        var createdSchedule = sResult.Result.FirstOrDefault(s => s.ByEpg != null && s.ByEpg.ProgramId == programId && s.ByEpg.ChannelId == channelId);
+        var createdSchedule = sResult.Result.FirstOrDefault(s => s.ByEpg != null && ToUniqueProgramId(s.ByEpg.ChannelId, s.ByEpg.ProgramId) == programId);
         if (createdSchedule != null)
         {
           return new AsyncResult<RecordingStatus>(true, RecordingStatus.Scheduled);
@@ -499,7 +501,7 @@ namespace SlimTv.TvMosaicProvider
 
     public Task<AsyncResult<ISchedule>> IsCurrentlyRecordingAsync(string fileName)
     {
-      throw new NotImplementedException();
+      return Task.FromResult(new AsyncResult<ISchedule>(false, null));
     }
   }
 
