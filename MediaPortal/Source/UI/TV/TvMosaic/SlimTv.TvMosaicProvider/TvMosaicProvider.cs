@@ -277,8 +277,50 @@ namespace SlimTv.TvMosaicProvider
             RecordingStatus.SeriesScheduled :
             RecordingStatus.Scheduled)
           : RecordingStatus.None
-        // TODO Genres
       };
+
+      List<string> genres = new List<string>();
+      // Genres
+      if (tvMosaicProgram.IsAction)
+        genres.Add("Action");
+      if (tvMosaicProgram.IsComedy)
+        genres.Add("Comedy");
+      if (tvMosaicProgram.IsReality)
+        genres.Add("Reality");
+      if (tvMosaicProgram.IsAdult)
+        genres.Add("Adult");
+      if (tvMosaicProgram.IsDocumentary)
+        genres.Add("Documentary");
+      if (tvMosaicProgram.IsDrama)
+        genres.Add("Drama");
+      if (tvMosaicProgram.IsEducational)
+        genres.Add("Educational");
+      if (tvMosaicProgram.IsHorror)
+        genres.Add("Horror");
+      if (tvMosaicProgram.IsKids)
+        genres.Add("Kids");
+      if (tvMosaicProgram.IsMovie)
+        genres.Add("Movie");
+      if (tvMosaicProgram.IsMusic)
+        genres.Add("Music");
+      if (tvMosaicProgram.IsRomance)
+        genres.Add("Romance");
+      if (tvMosaicProgram.IsNews)
+        genres.Add("News");
+      if (tvMosaicProgram.IsScifi)
+        genres.Add("Science Fiction");
+      if (tvMosaicProgram.IsSoap)
+        genres.Add("Soap");
+      if (tvMosaicProgram.IsSports)
+        genres.Add("Sports");
+      if (tvMosaicProgram.IsSpecial)
+        genres.Add("Special");
+      if (tvMosaicProgram.IsThriller)
+        genres.Add("Thriller");
+
+      if (genres.Count > 0)
+        mpProgram.Genre = string.Join(", ", genres.ToArray());
+
       return mpProgram;
     }
 
