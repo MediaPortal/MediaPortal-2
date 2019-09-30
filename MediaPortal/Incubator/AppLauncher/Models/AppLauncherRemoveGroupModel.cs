@@ -61,26 +61,7 @@ namespace MediaPortal.Plugins.AppLauncher.Models
 
     #endregion
 
-    #region public Members
-
-    public void Init()
-    {
-      var settingsManager = ServiceRegistration.Get<ISettingsManager>();
-       _apps = settingsManager.Load<Apps>();
-       var groups = new List<string>();
-
-      _items.Clear();
-
-      foreach (var a in _apps.AppsList.Where(a => !groups.Contains(a.Group) & a.Group != ""))
-      {
-        groups.Add(a.Group);
-        var item = new ListItem();
-        item.AdditionalProperties[Consts.KEY_GROUP] = a.Group;
-        item.SetLabel(Consts.KEY_NAME, a.Group);
-        _items.Add(item);
-      }
-      _items.FireChange();
-    }
+    #region Public Methods
 
     public void Select(ListItem item)
     {
@@ -98,6 +79,35 @@ namespace MediaPortal.Plugins.AppLauncher.Models
 
       // Close the Dialog
       ServiceRegistration.Get<IScreenManager>().CloseTopmostDialog();
+    }
+
+    #endregion
+
+    #region Private Methods
+
+    private void Init()
+    {
+      Clear();
+      _apps = Helper.LoadApps();
+      var groups = new List<string>();
+
+      _items.Clear();
+
+      foreach (var a in _apps.AppsList.Where(a => !groups.Contains(a.Group) & a.Group != ""))
+      {
+        groups.Add(a.Group);
+        var item = new ListItem();
+        item.AdditionalProperties[Consts.KEY_GROUP] = a.Group;
+        item.SetLabel(Consts.KEY_NAME, a.Group);
+        _items.Add(item);
+      }
+      _items.FireChange();
+    }
+
+    private void Clear()
+    {
+      _items.Clear();
+      _apps?.AppsList?.Clear();
     }
 
     #endregion
@@ -121,6 +131,7 @@ namespace MediaPortal.Plugins.AppLauncher.Models
 
     public void ExitModelContext(NavigationContext oldContext, NavigationContext newContext)
     {
+      Clear();
     }
 
     public void ChangeModelContext(NavigationContext oldContext, NavigationContext newContext, bool push)

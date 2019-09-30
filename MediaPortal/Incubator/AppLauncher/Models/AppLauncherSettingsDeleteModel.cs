@@ -70,6 +70,7 @@ namespace MediaPortal.Plugins.AppLauncher.Models
     /// </summary>
     private void Init()
     {
+      Clear();
       _apps = Helper.LoadApps();
       FillItems();
     }
@@ -79,8 +80,8 @@ namespace MediaPortal.Plugins.AppLauncher.Models
     /// </summary>
     private void FillItems()
     {
-       Items.Clear();
-       foreach (var a in _apps.AppsList)
+      _items.Clear();
+      foreach (var a in _apps.AppsList)
       {
         var item = new ListItem();
         item.AdditionalProperties[Consts.KEY_ID] = Convert.ToString(a.Id);
@@ -89,6 +90,12 @@ namespace MediaPortal.Plugins.AppLauncher.Models
         Items.Add(item);
       }
       Items.FireChange();
+    }
+
+    private void Clear()
+    {
+      _items.Clear();
+      _apps?.AppsList?.Clear();
     }
 
     #region IWorkflowModel implementation
@@ -111,6 +118,7 @@ namespace MediaPortal.Plugins.AppLauncher.Models
     public void ExitModelContext(NavigationContext oldContext, NavigationContext newContext)
     {
       Helper.SaveApps(_apps);
+      Clear();
     }
 
     public void ChangeModelContext(NavigationContext oldContext, NavigationContext newContext, bool push)

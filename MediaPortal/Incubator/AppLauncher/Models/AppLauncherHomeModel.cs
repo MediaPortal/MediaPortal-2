@@ -58,6 +58,7 @@ namespace MediaPortal.Plugins.AppLauncher.Models
     private AbstractProperty _primaryTitle = new WProperty(typeof(string), string.Empty);
     private AbstractProperty _secondaryTitle = new WProperty(typeof(string), string.Empty);
     private AbstractProperty _secondaryVisible = new WProperty(typeof(bool), false);
+    private AbstractProperty _selectedGroup = new WProperty(typeof(string), string.Empty);
 
     #endregion
 
@@ -73,6 +74,7 @@ namespace MediaPortal.Plugins.AppLauncher.Models
       foreach (var group in _groupItems)
         group.Selected = false;
       item.Selected = true;
+      SelectedGroup = item.Labels[Consts.KEY_NAME].Evaluate();
       FillItems((string)item.AdditionalProperties[Consts.KEY_GROUP]);
     }
 
@@ -133,6 +135,17 @@ namespace MediaPortal.Plugins.AppLauncher.Models
       set { _secondaryVisible.SetValue(value); }
     }
 
+    public AbstractProperty SelectedGroupProperty
+    {
+      get { return _selectedGroup; }
+    }
+
+    public string SelectedGroup
+    {
+      get { return (string)_selectedGroup.GetValue(); }
+      set { _selectedGroup.SetValue(value); }
+    }
+
     public ItemsList Items
     {
       get => _items;
@@ -147,7 +160,7 @@ namespace MediaPortal.Plugins.AppLauncher.Models
 
     #endregion
 
-    #region private Methods
+    #region Private Methods
 
     private void Start(App app)
     {
@@ -218,7 +231,7 @@ namespace MediaPortal.Plugins.AppLauncher.Models
 
     private void Init()
     {
-      _groupItems.Clear();
+      Clear();
 
       var settingsManager = ServiceRegistration.Get<ISettingsManager>();
       _apps = settingsManager.Load<Apps>();
@@ -228,6 +241,7 @@ namespace MediaPortal.Plugins.AppLauncher.Models
       item.AdditionalProperties[Consts.KEY_GROUP] = "";
       item.SetLabel(Consts.KEY_NAME, Consts.RES_UNGROUPED);
       item.Selected = true;
+      SelectedGroup = item.Labels[Consts.KEY_NAME].Evaluate();
       _groupItems.Add(item);
       foreach (var a in _apps.AppsList.Where(a => !groups.Contains(a.Group) && a.Group != ""))
       {
@@ -245,20 +259,23 @@ namespace MediaPortal.Plugins.AppLauncher.Models
     private void FillItems(string group)
     {
       _items.Clear();
-
-      foreach (var a in _apps.AppsList)
+      foreach (var a in _apps.AppsList.Where(a => a.Group == group))
       {
-        if (a.Group == group)
-        {
-          var item = new ListItem();
-          item.AdditionalProperties[Consts.KEY_ID] = Convert.ToString(a.Id);
-          item.SetLabel(Consts.KEY_ICON, a.IconPath);
-          item.SetLabel(Consts.KEY_DESCRIPTION, a.Description);
-          item.SetLabel(Consts.KEY_NAME, a.ShortName);
-          _items.Add(item);
-        }
+        var item = new ListItem();
+        item.AdditionalProperties[Consts.KEY_ID] = Convert.ToString(a.Id);
+        item.SetLabel(Consts.KEY_ICON, a.IconPath);
+        item.SetLabel(Consts.KEY_DESCRIPTION, a.Description);
+        item.SetLabel(Consts.KEY_NAME, a.ShortName);
+        _items.Add(item);
       }
       _items.FireChange();
+    }
+
+    private void Clear()
+    {
+      _items.Clear();
+      _groupItems.Clear();
+      _apps?.AppsList?.Clear();
     }
 
     #endregion
@@ -282,6 +299,7 @@ namespace MediaPortal.Plugins.AppLauncher.Models
 
     public void ExitModelContext(NavigationContext oldContext, NavigationContext newContext)
     {
+      Clear();
     }
 
     public void ChangeModelContext(NavigationContext oldContext, NavigationContext newContext, bool push)

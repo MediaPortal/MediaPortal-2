@@ -65,9 +65,9 @@
               <Label Color="{ThemeResource TextColor}" Wrap="True" Scroll="Auto" FontFamily="DefaultBold"
                      DataContext="{Binding ElementName=Apps,Path=CurrentItem}"
                      Content="{Binding Path=[Name]}" />
-              <!--Label Color="{ThemeResource TextColor}" Wrap="True" Scroll="Auto" Opacity="0.6"
-                     DataContext="{Binding ElementName=Groups,Path=CurrentItem}"
-                     Content="{Binding Path=[Name]}" /-->
+              <Label Color="{ThemeResource TextColor}" Wrap="True" Scroll="Auto" Opacity="0.6"
+                     DataContext="{Binding Source={StaticResource Model}}"
+                     Content="{Binding Path=SelectedGroup}" />
               <Label Color="{ThemeResource TextColor}" Wrap="True" Scroll="Auto" Opacity="0.6"
                      DataContext="{Binding ElementName=Apps,Path=CurrentItem}"
                      Content="{Binding Path=[Description]}" />         

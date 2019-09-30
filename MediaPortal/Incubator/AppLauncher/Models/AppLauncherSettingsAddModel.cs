@@ -203,7 +203,7 @@ namespace MediaPortal.Plugins.AppLauncher.Models
 
     #endregion
 
-    public void Init()
+    private void Init()
     {
       _apps = Helper.LoadApps();
 
@@ -435,6 +435,7 @@ namespace MediaPortal.Plugins.AppLauncher.Models
     {
       _groupItems.Clear();
       _appItems.Clear();
+      _apps?.AppsList?.Clear();
 
       ShortName = "";
       Arguments = "";
@@ -466,6 +467,7 @@ namespace MediaPortal.Plugins.AppLauncher.Models
 
     public void ExitModelContext(NavigationContext oldContext, NavigationContext newContext)
     {
+      Clear();
       AppLauncherSettingsEditModel.CurrentApp = null;
     }
 

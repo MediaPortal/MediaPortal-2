@@ -38,7 +38,7 @@
           
           <!--List of Apps-->
           <ListView x:Name="Apps" Margin="15,5,15,30" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Style="{ThemeResource AppLauncherListViewStyle}"
-            ItemsSource="{Binding Path=items, Mode=TwoWay}" Grid.Column="1">
+            ItemsSource="{Binding Path=Items, Mode=TwoWay}" Grid.Column="1">
             <ListView.Resources>
               <CommandList x:Key="Menu_Command">
                 <Command Source="{StaticResource Model}" Path="StartApp">
