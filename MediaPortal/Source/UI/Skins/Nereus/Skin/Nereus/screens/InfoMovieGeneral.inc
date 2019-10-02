@@ -65,18 +65,13 @@
   </media:MovieAspectWrapper>
 
    <mp_special_controls:PlayerControl PlayerContext="CurrentPlayer" Grid.Row="1">
-        <mp_special_controls:PlayerControl.TemplateControl>
+      <mp_special_controls:PlayerControl.TemplateControl>
 
-          <Label x:Name="StoryPlot" Wrap="True" Margin="0,40,10,20" TextTrimming="WordEllipsis" Color="{ThemeResource MenuTextBackground}"
-                       HorizontalAlignment="Stretch" VerticalAlignment="Stretch" FontSize="{ThemeResource SmallFontSize}" 
-                       Content="{Binding VideoStoryPlot}" DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}"/>
-        </mp_special_controls:PlayerControl.TemplateControl>
-      </mp_special_controls:PlayerControl>
-
-  <Label x:Name="MediaItemDescription" Wrap="True" Grid.Column="0" Grid.Row="1"  TextTrimming="WordEllipsis" Opacity="0.6"
-         HorizontalAlignment="Stretch" FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColor}"
-         Content="{Binding ItemDescription}"
-         Margin="0,40,10,90"/>
+        <Label x:Name="StoryPlot" Wrap="True" Margin="0,40,10,20" TextTrimming="WordEllipsis" Color="{ThemeResource MenuTextBackground}"
+               HorizontalAlignment="Stretch" VerticalAlignment="Stretch" FontSize="{ThemeResource SmallFontSize}" 
+               Content="{Binding VideoStoryPlot}" DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}"/>
+      </mp_special_controls:PlayerControl.TemplateControl>
+   </mp_special_controls:PlayerControl>
 
   <StackPanel Grid.ColumnSpan="2" Grid.Row="0" Margin="0,0,10,0" VerticalAlignment="Stretch" Orientation="Vertical">
 

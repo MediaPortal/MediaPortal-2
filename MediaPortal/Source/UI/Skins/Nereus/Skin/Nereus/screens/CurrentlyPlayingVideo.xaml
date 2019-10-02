@@ -38,16 +38,12 @@
     </ControlTemplate>
 
     <ControlTemplate x:Key="FanArtBackground_Template">
-      <ControlTemplate.Resources>
-        <fanart:FanArtImageSourceConverter x:Key="FanArtImageSourceConverter"/>
-        <Model x:Key="FanArtBackgroundModel" Id="8F42C8E9-E8A3-475C-A50A-99E1E644DC91"/>
-      </ControlTemplate.Resources>
       <mp_special_controls:PlayerControl PlayerContext="CurrentPlayer">
         <mp_special_controls:PlayerControl.TemplateControl>
           <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch" DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}">
             <Image x:Name="FanArtImageBackground" Stretch="UniformToFill">
               <Image.Source>
-                <fanart:FanArtImageSource fanart:FanArtMediaType="Movie" fanart:FanArtType="FanArt" fanart:FanArtName="{Binding MediaItem.MediaItemId}"
+                <fanart:FanArtImageSource fanart:FanArtMediaType="Other" fanart:FanArtType="FanArt" fanart:FanArtName="{Binding MediaItem.MediaItemId}"
                                           fanart:MaxWidth="1920" fanart:MaxHeight="1080"/>
               </Image.Source>
             </Image>
@@ -217,7 +213,7 @@
                   </media:VideoStreamAspectWrapper.Template>
                 </media:VideoStreamAspectWrapper>
 
-                <Control x:Name="Info_MovieGeneral" Grid.Row="1" Margin="0,0,0,100">
+                <Control x:Name="Info_Movie" Grid.Row="1" Margin="0,0,0,100">
                   <Control.IsVisible>
                     <MultiBinding Converter="{StaticResource MediaItemAspectToBoolConverter}">
                       <Binding Path="MediaItem"  />
@@ -229,6 +225,18 @@
                   </Control.TemplateControl>
                 </Control>
 
+                <Control x:Name="Info_Series" Grid.Row="1" Margin="0,0,0,100">
+                  <Control.IsVisible>
+                    <MultiBinding Converter="{StaticResource MediaItemAspectToBoolConverter}">
+                      <Binding Path="MediaItem"  />
+                      <Binding Source="{x:Static aspect:EpisodeAspect.ASPECT_ID}" />
+                    </MultiBinding>
+                  </Control.IsVisible>
+                  <Control.TemplateControl>
+                    <Include Source="screens\InfoSeriesGeneral.inc"/>
+                  </Control.TemplateControl>
+                </Control>
+
               </Grid>
             </Grid>
 
@@ -237,56 +245,26 @@
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
               </Grid.RowDefinitions>
-              
-              <!-- Cast+Crew INFO TAB -->
-              <Grid HorizontalAlignment="Stretch">
-                <Grid.RowDefinitions>
-                  <RowDefinition Height="50"/>
-                  <RowDefinition Height="Auto"/>
-                </Grid.RowDefinitions>
-                <Grid.ColumnDefinitions>
-                  <ColumnDefinition Width="*"/>
-                </Grid.ColumnDefinitions>
-                
-                <Label Content="Actors" VerticalAlignment="Center" Color="{ThemeResource TextColor}"
-                       FontSize="{ThemeResource SmallerFontSize}" Opacity="0.5" Margin="200,20,0,0"/>
-                
-                <ListView Style="{ThemeResource PersonCPListViewStyle}" Grid.Row="1"
-                          HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="10">
-                  <ListView.ItemsSource>
-                    <RelationshipQuery
-                       NecessaryRequestedMIAs="{x:Static media_consts:Consts.NECESSARY_PERSON_MIAS}"
-                       OptionalRequestedMIAs="{x:Static media_consts:Consts.OPTIONAL_PERSON_MIAS}"
-                       Role="{x:Static aspect:PersonAspect.ROLE_ACTOR}"
-                       LinkedMediaItemId="{Binding Source={Binding MediaItem}, Path=MediaItemId}"/>
-                  </ListView.ItemsSource>
-                </ListView>
-                <!--ListView Grid.Row="1" Style="{ThemeResource PersonCPListViewStyle}"
-                          HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="10,0,20,0">
-                  <ListView.ItemsSource>
-                    <RelationshipQuery
-                       NecessaryRequestedMIAs="{x:Static media_consts:Consts.NECESSARY_PERSON_MIAS}"
-                       OptionalRequestedMIAs="{x:Static media_consts:Consts.OPTIONAL_PERSON_MIAS}"
-                       Role="{x:Static aspect:PersonAspect.ROLE_CHARACTER}"
-                       LinkedMediaItemId="{Binding Source={Binding MediaItem}, Path=MediaItemId}"/>
-                  </ListView.ItemsSource>
-                </ListView-->
-              </Grid>
 
               <!-- AUDIO INFO TAB-->
-              <Grid HorizontalAlignment="Stretch" Grid.Row="1">
+              <Grid HorizontalAlignment="Stretch">
                 <Grid.RowDefinitions>
-                  <RowDefinition Height="50"/>
+                  <RowDefinition Height="45"/>
                   <RowDefinition Height="180"/>
                 </Grid.RowDefinitions>
                 <Grid.ColumnDefinitions>
                   <ColumnDefinition Width="*"/>
                 </Grid.ColumnDefinitions>
 
-                <Label Content="Audio tracks" VerticalAlignment="Center" Color="{ThemeResource TextColor}"
-                       FontSize="{ThemeResource SmallerFontSize}" Opacity="0.5" Margin="200,20,0,0"/>
-                
+                <Grid Margin="200,15,0,-2">
+                  <Image Source="HomeContentIcons\track.png" Height="27" Width="27" Stretch="Uniform" Margin="0,1,5,-1" 
+                         VerticalAlignment="Center" HorizontalAlignment="Left"/>
+                  <Label x:Name="Audio tracks" FontSize="{ThemeResource SmallerFontSize}" Opacity="0.5"
+                         Color="{ThemeResource TextColor}" VerticalAlignment="Center" Margin="40,0,0,0" Content="Audio tracks"/>
+                </Grid>
+
                 <media:VideoAspectWrapper HorizontalAlignment="Stretch" VerticalAlignment="Stretch" MediaItem="{Binding MediaItem}" Grid.Row="1">
                   <media:VideoAspectWrapper.Template>
                     <ControlTemplate>
@@ -299,17 +277,21 @@
               </Grid>
 
               <!-- SUBTITLE INFO TAB-->
-              <Grid HorizontalAlignment="Stretch" Grid.Row="2">
+              <Grid HorizontalAlignment="Stretch" Grid.Row="1">
                 <Grid.RowDefinitions>
-                  <RowDefinition Height="50"/>
+                  <RowDefinition Height="45"/>
                   <RowDefinition Height="180"/>
                 </Grid.RowDefinitions>
                 <Grid.ColumnDefinitions>
                   <ColumnDefinition Width="*"/>
                 </Grid.ColumnDefinitions>
 
-                <Label Content="Subtitles" VerticalAlignment="Center" Color="{ThemeResource TextColor}" 
-                       FontSize="{ThemeResource SmallerFontSize}" Opacity="0.5" Margin="200,20,0,0"/>
+                <Grid Margin="200,15,0,-2">
+                  <Image Source="HomeContentIcons\language.png" Height="27" Width="27" Stretch="Uniform" Margin="0,1,5,-1" 
+                         VerticalAlignment="Center" HorizontalAlignment="Left"/>
+                  <Label x:Name="Subtitles" FontSize="{ThemeResource SmallerFontSize}" Opacity="0.5"
+                         Color="{ThemeResource TextColor}" VerticalAlignment="Center" Margin="40,0,0,0" Content="Subtitles"/>
+                </Grid>
 
                 <media:VideoAspectWrapper HorizontalAlignment="Stretch" VerticalAlignment="Stretch" MediaItem="{Binding MediaItem}" Grid.Row="1">
                   <media:VideoAspectWrapper.Template>
@@ -321,9 +303,113 @@
                   </media:VideoAspectWrapper.Template>
                 </media:VideoAspectWrapper>
               </Grid>
+
+              <!-- Actors -->
+              <Grid HorizontalAlignment="Stretch" Grid.Row="2">
+                <Grid.RowDefinitions>
+                  <RowDefinition Height="45"/>
+                  <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                  <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+
+                <Grid Margin="200,15,0,-2">
+                  <Image Source="HomeContentIcons\person.png" Height="27" Width="27" Stretch="Uniform" Margin="0,1,5,-1"
+                         VerticalAlignment="Center" HorizontalAlignment="Left"/>
+                  <Label x:Name="Actors" FontSize="{ThemeResource SmallerFontSize}" Opacity="0.5"
+                         Color="{ThemeResource TextColor}" VerticalAlignment="Center" Margin="40,0,0,0" Content="Actors"/>
+                </Grid>
+
+                <ListView Style="{ThemeResource PersonCPListViewStyle}" Grid.Row="1"
+                          HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="10">
+                  <ListView.ItemsSource>
+                    <RelationshipQuery
+                       NecessaryRequestedMIAs="{x:Static media_consts:Consts.NECESSARY_PERSON_MIAS}"
+                       OptionalRequestedMIAs="{x:Static media_consts:Consts.OPTIONAL_PERSON_MIAS}"
+                       Role="{x:Static aspect:PersonAspect.ROLE_ACTOR}"
+                       LinkedMediaItemId="{Binding Source={Binding MediaItem}, Path=MediaItemId}"/>
+                  </ListView.ItemsSource>
+                </ListView>
+              </Grid>
+
+              <!-- Director -->
+              <Grid HorizontalAlignment="Stretch" Grid.Row="3">
+                <Grid.RowDefinitions>
+                  <RowDefinition Height="45"/>
+                  <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                  <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+
+                <Grid Margin="200,15,0,-2">
+                  <Image Source="HomeContentIcons\director.png" Height="27" Width="27" Stretch="Uniform" Margin="0,1,5,-1"
+                         VerticalAlignment="Center" HorizontalAlignment="Left"/>
+                  <Label x:Name="Director" FontSize="{ThemeResource SmallerFontSize}" Opacity="0.5"
+                         Color="{ThemeResource TextColor}" VerticalAlignment="Center" Margin="40,0,0,0" Content="Director"/>
+                </Grid>
+
+                <ListView Style="{ThemeResource PersonCPListViewStyle}" Grid.Row="1"
+                          HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="10">
+                  <ListView.ItemsSource>
+                    <RelationshipQuery
+                       NecessaryRequestedMIAs="{x:Static media_consts:Consts.NECESSARY_PERSON_MIAS}"
+                       OptionalRequestedMIAs="{x:Static media_consts:Consts.OPTIONAL_PERSON_MIAS}"
+                       Role="{x:Static aspect:PersonAspect.ROLE_DIRECTOR}"
+                       LinkedMediaItemId="{Binding Source={Binding MediaItem}, Path=MediaItemId}"/>
+                  </ListView.ItemsSource>
+                </ListView>
+              </Grid>
+
+              <!-- Collection -->
+              <Grid HorizontalAlignment="Stretch" Grid.Row="3" Margin="370,0,0,0">
+                <Grid.RowDefinitions>
+                  <RowDefinition Height="45"/>
+                  <RowDefinition Height="180"/>
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                  <ColumnDefinition Width="300"/>
+                </Grid.ColumnDefinitions>
+
+                <Grid Margin="0,15,0,-2">
+                  <Image Source="HomeContentIcons\Category.png" Height="27" Width="27" Stretch="Uniform" Margin="0,1,5,-1" 
+                         VerticalAlignment="Center" HorizontalAlignment="Left"/>
+                  <Label x:Name="Collection" FontSize="{ThemeResource SmallerFontSize}" Opacity="0.5"
+                         Color="{ThemeResource TextColor}" VerticalAlignment="Center" Margin="40,0,0,0" Content="Collection"/>
+                </Grid>
+
+                <DockPanel Grid.Row="1" Margin="10">
+                   <media:MovieCollectionAspectWrapper HorizontalAlignment="Stretch" VerticalAlignment="Stretch" 
+                                                       MediaItem="{Binding MediaItem}" DockPanel.Dock="Left">
+                    <media:MovieCollectionAspectWrapper.Template>
+                      <ControlTemplate>
+                        <Image x:Name="MovieCollectionPoster" HorizontalAlignment="Center" VerticalAlignment="Center" Stretch="Uniform" 
+                               Height="140" DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}">
+                          <Image.Source>
+                            <fanart:FanArtImageSource fanart:FanArtMediaType="MovieCollection" fanart:FanArtType="Poster" fanart:FanArtName="{Binding MediaItem.MediaItemId}"
+                                    fanart:MaxWidth="{StaticResource FANART_POSTER_WIDTH}" fanart:MaxHeight="{StaticResource FANART_POSTER_HEIGHT}"/>
+                          </Image.Source>
+                        </Image>
+                      </ControlTemplate>
+                    </media:MovieCollectionAspectWrapper.Template>
+                  </media:MovieCollectionAspectWrapper>
+
+                  <media:MovieAspectWrapper HorizontalAlignment="Stretch" VerticalAlignment="Stretch" 
+                                            MediaItem="{Binding MediaItem}" DockPanel.Dock="Right">
+                    <media:MovieAspectWrapper.Template>
+                      <ControlTemplate>
+                        <Label Content="{Binding CollectionName}" DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}"
+                               Color="{ThemeResource TextColor}" VerticalAlignment="Center" Margin="5" Wrap="True" FontSize="{ThemeResource SmallerFontSize}"/>
+                      </ControlTemplate>
+                    </media:MovieAspectWrapper.Template>
+                  </media:MovieAspectWrapper>                 
+                </DockPanel>
+
+              </Grid>
+
             </Grid>
-           
-            </Grid>
+          </Grid>
         </mp_special_controls:PlayerControl.TemplateControl>
       </mp_special_controls:PlayerControl>
     </ControlTemplate>

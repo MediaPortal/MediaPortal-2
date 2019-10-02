@@ -711,6 +711,7 @@
     <Content Include="Skin\Nereus\images\Weather\64x64\na.png" />
     <Content Include="Skin\Nereus\images\Weather\64x64\permission.txt" />
     <Content Include="Skin\Nereus\images\Weather\64x64\WEATHERALERT.png" />
+    <Content Include="Skin\Nereus\screens\InfoSeriesGeneral.inc" />
     <Content Include="Skin\Nereus\screens\NotificationsBar.inc" />
     <Content Include="Skin\Nereus\screens\WindowControlButtons.inc">
       <SubType>Designer</SubType>
