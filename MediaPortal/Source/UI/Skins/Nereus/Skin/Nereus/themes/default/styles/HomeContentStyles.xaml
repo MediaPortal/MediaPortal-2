@@ -1874,47 +1874,38 @@
   <!--++++++++++ Movies +++++++++++-->
 
   <DataTemplate DataType="{x:Type nereus_home_content:LatestMovieList}">
-
     <Control Style="{ThemeResource MediaGridTemplateStyle}" Width="{ThemeResource TileGroupWidthMedium}">
       <Control.Resources>
         <ResourceWrapper x:Key="Tile_Layout_Template" Value="{ThemeResource PosterTileLayout1Template}"/>
       </Control.Resources>
     </Control>
-
   </DataTemplate>
 
   <DataTemplate DataType="{x:Type nereus_home_content:ContinueMovieList}">
-
     <Control Style="{ThemeResource MediaGridTemplateStyle}" Width="{ThemeResource TileGroupWidthMedium}">
       <Control.Resources>
         <ResourceWrapper x:Key="Tile_Layout_Template" Value="{ThemeResource PosterTileLayout2Template}"/>
       </Control.Resources>
     </Control>
-
   </DataTemplate>
 
   <DataTemplate DataType="{x:Type nereus_home_content:FavoriteMovieList}">
-
     <Control Style="{ThemeResource MediaGridTemplateStyle}" Width="{ThemeResource TileGroupWidthMedium}">
       <Control.Resources>
         <ResourceWrapper x:Key="Tile_Layout_Template" Value="{ThemeResource PosterTileLayout1Template}"/>
       </Control.Resources>
     </Control>
-
   </DataTemplate>
 
   <DataTemplate DataType="{x:Type nereus_home_content:UnplayedMovieList}">
-
     <Control Style="{ThemeResource MediaGridTemplateStyle}" Width="{ThemeResource TileGroupWidthMedium}">
       <Control.Resources>
         <ResourceWrapper x:Key="Tile_Layout_Template" Value="{ThemeResource PosterTileLayout2Template}"/>
       </Control.Resources>
     </Control>
-
   </DataTemplate>
 
   <DataTemplate DataType="{x:Type nereus_home_content:MovieHomeContent}">
-
     <ListView Style="{ThemeResource HomeTilesListViewStyle}" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
               IsEnabled="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=IsEnabled}"
               ItemsSource="{Binding Items}">
@@ -1925,53 +1916,43 @@
         <ResourceWrapper x:Key="Banner_Tile_Template" Value="{ThemeResource MovieBannerTileTemplate}"/>
       </ListView.Resources>
     </ListView>
-
   </DataTemplate>
 
   <!--++++++++++ Series +++++++++++-->
 
   <DataTemplate DataType="{x:Type nereus_home_content:LatestEpisodeList}">
-
     <Control Style="{ThemeResource MediaGridTemplateStyle}" Width="{ThemeResource TileGroupWidthWide}">
       <Control.Resources>
         <ResourceWrapper x:Key="Tile_Layout_Template" Value="{ThemeResource ThumbnailTileLayout1Template}"/>
       </Control.Resources>
     </Control>
-
   </DataTemplate>
 
   <DataTemplate DataType="{x:Type nereus_home_content:ContinueSeriesList}">
-
     <Control Style="{ThemeResource MediaGridTemplateStyle}" Width="{ThemeResource TileGroupWidthMedium}">
       <Control.Resources>
         <ResourceWrapper x:Key="Tile_Layout_Template" Value="{ThemeResource PosterTileLayout3Template}"/>
       </Control.Resources>
     </Control>
-
   </DataTemplate>
 
   <DataTemplate DataType="{x:Type nereus_home_content:FavoriteSeriesList}">
-
     <Control Style="{ThemeResource MediaGridTemplateStyle}" Width="{ThemeResource TileGroupWidthMedium}">
       <Control.Resources>
         <ResourceWrapper x:Key="Tile_Layout_Template" Value="{ThemeResource PosterTileLayout1Template}"/>
       </Control.Resources>
     </Control>
-
   </DataTemplate>
 
   <DataTemplate DataType="{x:Type nereus_home_content:UnplayedSeriesList}">
-
     <Control Style="{ThemeResource MediaGridTemplateStyle}" Width="{ThemeResource TileGroupWidthMedium}">
       <Control.Resources>
         <ResourceWrapper x:Key="Tile_Layout_Template" Value="{ThemeResource PosterTileLayout2Template}"/>
       </Control.Resources>
     </Control>
-
   </DataTemplate>
 
   <DataTemplate DataType="{x:Type nereus_home_content:SeriesHomeContent}">
-
     <ListView Style="{ThemeResource HomeTilesListViewStyle}" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
               IsEnabled="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=IsEnabled}"
               ItemsSource="{Binding Items}">
@@ -1982,7 +1963,6 @@
         <ResourceWrapper x:Key="Banner_Tile_Template" Value="{ThemeResource SeriesBannerTileTemplate}"/>
       </ListView.Resources>
     </ListView>
-
   </DataTemplate>
 
   <!--++++++++++ Audio +++++++++++-->
@@ -2024,47 +2004,38 @@
   </DataTemplate>
 
   <DataTemplate DataType="{x:Type nereus_home_content:LatestAudioList}">
-
     <Control Style="{ThemeResource MediaGridTemplateStyle}" Width="{ThemeResource TileGroupWidthNarrow}">
       <Control.Resources>
         <ResourceWrapper x:Key="Tile_Layout_Template" Value="{ThemeResource SquareTileLayout1Template}"/>
       </Control.Resources>
     </Control>
-
   </DataTemplate>
 
   <DataTemplate DataType="{x:Type nereus_home_content:ContinueAlbumList}">
-
     <Control Style="{ThemeResource MediaGridTemplateStyle}" Width="{ThemeResource TileGroupWidthNarrow}">
       <Control.Resources>
         <ResourceWrapper x:Key="Tile_Layout_Template" Value="{ThemeResource SquareTileLayout2Template}"/>
       </Control.Resources>
     </Control>
-
   </DataTemplate>
 
   <DataTemplate DataType="{x:Type nereus_home_content:FavoriteAudioList}">
-
     <Control Style="{ThemeResource MediaGridTemplateStyle}" Width="{ThemeResource TileGroupWidthNarrow}">
       <Control.Resources>
         <ResourceWrapper x:Key="Tile_Layout_Template" Value="{ThemeResource SquareTileLayout1Template}"/>
       </Control.Resources>
     </Control>
-
   </DataTemplate>
 
   <DataTemplate DataType="{x:Type nereus_home_content:UnplayedAlbumList}">
-
     <Control Style="{ThemeResource MediaGridTemplateStyle}" Width="{ThemeResource TileGroupWidthNarrow}">
       <Control.Resources>
         <ResourceWrapper x:Key="Tile_Layout_Template" Value="{ThemeResource SquareTileLayout2Template}"/>
       </Control.Resources>
     </Control>
-
   </DataTemplate>
 
   <DataTemplate DataType="{x:Type nereus_home_content:AudioHomeContent}">
-
     <ListView Style="{ThemeResource HomeTilesListViewStyle}" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
               IsEnabled="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=IsEnabled}"
               ItemsSource="{Binding Items}">
@@ -2075,7 +2046,6 @@
         <ResourceWrapper x:Key="Banner_Tile_Template" Value="{ThemeResource SeriesBannerTileTemplate}"/>
       </ListView.Resources>
     </ListView>
-
   </DataTemplate>
 
   <!--++++++++++ News +++++++++++-->
@@ -2204,7 +2174,6 @@
   </ControlTemplate>
 
   <DataTemplate DataType="{x:Type nereus_home_content:NewsHomeContent}">
-
     <StackPanel Orientation="Horizontal" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
                 DataContext="{Binding Source={StaticResource CurrentNewsModel}}">
       <!-- Feeds -->
@@ -2232,7 +2201,6 @@
       </Control>
 
     </StackPanel>
-
   </DataTemplate>
 
   <!--++++++++++ Weather +++++++++++-->
@@ -2331,7 +2299,6 @@
   <DataTemplate DataType="{x:Type nereus_home_content:WeatherHomeContent}">
     <StackPanel Orientation="Horizontal" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
                 DataContext="{Binding Source={StaticResource CurrentWeatherModel}}">
-
       <!-- Current weather -->
 
       <Control Template="{ThemeResource CurrentWeatherTileTemplate}" Width="{ThemeResource TileGroupWidthMedium}" Margin="-20,0,0,0">
@@ -2339,9 +2306,8 @@
           <ResourceWrapper x:Key="Thumbnail_Tile_Template" Value="{ThemeResource CurrentWeatherControlTemplate}"/>
         </Control.Resources>
       </Control>
-
-      <!-- Daily forecast grid-->
       
+      <!-- Daily forecast grid-->
       <!-- For mysterious reasons we have to bind the list to the Context property,
            rather than DataContext, to get the converter to run -->
       <Control Context="{Binding Path=CurrentLocation.ForecastCollection, Converter={StaticResource ListToGridConverter}, ConverterParameter=[Nereus.Home.Forecast]}"
@@ -2406,49 +2372,40 @@
   </DataTemplate>
 
   <DataTemplate DataType="{x:Type nereus_home_content:LastPlayTVList}">
-
     <Control Style="{ThemeResource MediaGridTemplateStyle}" Width="{ThemeResource TileGroupWidthVeryNarrow}">
       <Control.Resources>
         <ResourceWrapper x:Key="Tile_Layout_Template" Value="{ThemeResource SquareTileLayout3Template}"/>
       </Control.Resources>
     </Control>
-
   </DataTemplate>
 
   <DataTemplate DataType="{x:Type nereus_home_content:FavoriteTVList}">
-
     <Control Style="{ThemeResource MediaGridTemplateStyle}" Width="{ThemeResource TileGroupWidthTiny}">
       <Control.Resources>
         <ResourceWrapper x:Key="Tile_Layout_Template" Value="{ThemeResource SquareTileLayout4Template}"/>
       </Control.Resources>
     </Control>
-
   </DataTemplate>
 
   <DataTemplate DataType="{x:Type nereus_home_content:CurrentTVList}">
-
     <Control Style="{ThemeResource MediaGridTemplateStyle}" Width="{ThemeResource TileGroupWidthNarrow}">
       <Control.Resources>
         <ResourceWrapper x:Key="Wide_Tile_Template" Value="{ThemeResource TVProgramTileTemplate}"/>
         <ResourceWrapper x:Key="Tile_Layout_Template" Value="{ThemeResource WideTileLayoutTemplate}"/>
       </Control.Resources>
     </Control>
-
   </DataTemplate>
 
   <DataTemplate DataType="{x:Type nereus_home_content:CurrentSchedulesList}">
-
     <Control Style="{ThemeResource MediaGridTemplateStyle}" Width="{ThemeResource TileGroupWidthNarrow}">
       <Control.Resources>
         <ResourceWrapper x:Key="Wide_Tile_Template" Value="{ThemeResource TVScheduleTileTemplate}"/>
         <ResourceWrapper x:Key="Tile_Layout_Template" Value="{ThemeResource WideTileLayoutTemplate}"/>
       </Control.Resources>
     </Control>
-
   </DataTemplate>
 
   <DataTemplate DataType="{x:Type nereus_home_content:TVHomeContent}">
-
     <ListView Style="{ThemeResource HomeTilesListViewStyle}" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
               IsEnabled="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=IsEnabled}"
               ItemsSource="{Binding Items}">
@@ -2459,7 +2416,6 @@
         <ResourceWrapper x:Key="Banner_Tile_Template" Value="{ThemeResource TVChannelTileTemplate}"/>
       </ListView.Resources>
     </ListView>
-
   </DataTemplate>
 
   <!--++++++++++ Image +++++++++++-->
@@ -2675,15 +2631,6 @@
 
   <DataTemplate DataType="{x:Type nereus_home_content:OtherPluginsHomeContent}">
     <StackPanel Orientation="Horizontal" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
-
-      <!--ListView Style="{ThemeResource PluginTilesListViewStyle}" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
-              IsEnabled="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=IsEnabled}"
-              ItemsSource="{Binding Items}">
-      <ListView.Resources>
-        <CommandBridge x:Key="Menu_Command" Command="{Binding Path=Command,Mode=OneTime}"/>
-      </ListView.Resources>
-    </-->
-
       <Control Context="{Binding Path=OtherPlugins, Converter={StaticResource ListToGridConverter}, ConverterParameter=[Nereus.Home.OtherPlugins]}"
                Style="{ThemeResource MediaGridTemplateStyle}" Width="1500">
         <Control.Resources>
