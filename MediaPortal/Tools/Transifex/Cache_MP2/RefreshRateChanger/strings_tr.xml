@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<resources>
+  <string name="RefreshRateChanger.IsEnabled">yenileme hızı değiştirme özelliğini etkinleştir</string>
+  <string name="RefreshRateChanger.IsEnabled.Help">etkinleştirilirse ekran yenileme hızı video fps ine eşitlemek için değiştirilmeye çalışılır</string>
+  <string name="RefreshRateChanger.NoChangeForRate">yenileme hızlarını çıkar</string>
+  <string name="RefreshRateChanger.NoChangeForRate.Help">yenileme hızları listesini değişikliklerden çıkar.değerleri virgülle ayrılmış tamsayılar olarak gir(mesela 23,25,50)</string>
+</resources>
