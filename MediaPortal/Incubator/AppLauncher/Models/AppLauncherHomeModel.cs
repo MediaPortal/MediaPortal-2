@@ -23,6 +23,7 @@
 #endregion
 
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
@@ -59,10 +60,19 @@ namespace MediaPortal.Plugins.AppLauncher.Models
     private AbstractProperty _secondaryTitle = new WProperty(typeof(string), string.Empty);
     private AbstractProperty _secondaryVisible = new WProperty(typeof(bool), false);
     private AbstractProperty _selectedGroup = new WProperty(typeof(string), string.Empty);
+    private static ConcurrentDictionary<string, bool> _appStarted = new ConcurrentDictionary<string, bool>();
 
     #endregion
 
     #region public Methods
+
+    public static bool AnyAppWasLaunched(string requestId)
+    {
+      if (_appStarted.TryAdd(requestId, false))
+        return true;
+
+      return _appStarted.TryUpdate(requestId, false, true);
+    }
 
     public void StartApp(ListItem item)
     {
@@ -212,6 +222,13 @@ namespace MediaPortal.Plugins.AppLauncher.Models
 
         var p = new Process { StartInfo = pInfo };
         p.Start();
+
+        app.LastUsed = DateTime.Now;
+        app.StartCount++;
+        Helper.SaveApps(_apps);
+
+        foreach (var key in _appStarted.Keys.ToList())
+          _appStarted.TryUpdate(key, true, false);
       }
       catch (Exception ex)
       {
