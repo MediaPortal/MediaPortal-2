@@ -35,11 +35,11 @@
               <RowDefinition Height="Auto"/>
             </Grid.RowDefinitions>
 
-            <Grid.Triggers>
+            <!--Grid.Triggers>
               <Trigger Property="New" Value="True">
                 <Setter Property="Background" Value="10FFFFFF"/>
               </Trigger>
-            </Grid.Triggers>
+            </Grid.Triggers-->
 
             <Image Grid.Row="0" Source="{Binding ImagePath}" Margin="5"/>
             <!--Label Grid.Row="0" FontSize="12" Foreground="White" Content="{Binding Name}"/-->
@@ -49,17 +49,17 @@
               <Label FontSize="12" Foreground="White" Content="{Binding InstalledVersion}" Opacity="0.4"/>              
             </StackPanel>
             <StackPanel Grid.Row="2" Orientation="Horizontal" Margin="0,-5,0,0" 
-                        Visibility="{Binding Path=Version, Converter={StaticResource EnumToBooleanConverter}, ConverterParameter={x:Static conv:Version.present}}">
+                        Visibility="{Binding Path=PackageState, Converter={StaticResource EnumToBooleanConverter}, ConverterParameter={x:Static conv:PackageState.present}}">
               <Label FontSize="12" Foreground="White" Content="Bundled: " Opacity="0.4"/>
               <Label FontSize="12" Foreground="White" Content="{Binding BundleVersion}" Opacity="0.4"/>
             </StackPanel>
             
             <Image x:Name="PresentIndicator" Grid.Row="1" Grid.RowSpan="2" HorizontalAlignment="Right" VerticalAlignment="Bottom" 
                    Width="40" Height="40" Margin="0,0,5,5" Source="..\resources\present.png"
-                   Visibility="{Binding Path=Version, Converter={StaticResource EnumToBooleanConverter}, ConverterParameter={x:Static conv:Version.present}}"/>
+                   Visibility="{Binding Path=PackageState, Converter={StaticResource EnumToBooleanConverter}, ConverterParameter={x:Static conv:PackageState.present}}"/>
             <Image x:Name="AbsentIndicator" Grid.Row="1" Grid.RowSpan="2" HorizontalAlignment="Right" VerticalAlignment="Bottom" 
                    Width="40" Height="40" Margin="0,0,5,5" Source="..\resources\absent.png"
-                   Visibility="{Binding Path=Version, Converter={StaticResource EnumToBooleanConverter}, ConverterParameter={x:Static conv:Version.absent}}"/>
+                   Visibility="{Binding Path=PackageState, Converter={StaticResource EnumToBooleanConverter}, ConverterParameter={x:Static conv:PackageState.absent}}"/>
           </Grid>
         </DataTemplate>
       </ItemsControl.ItemTemplate>
