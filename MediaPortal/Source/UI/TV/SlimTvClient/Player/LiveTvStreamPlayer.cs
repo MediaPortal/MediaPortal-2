@@ -25,6 +25,8 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using DirectShow;
+using DirectShow.Helper;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.MediaManagement;
@@ -33,6 +35,7 @@ using MediaPortal.Plugins.SlimTv.Client.Models;
 using MediaPortal.Plugins.SlimTv.Interfaces.Items;
 using MediaPortal.Plugins.SlimTv.Interfaces.LiveTvMediaItem;
 using MediaPortal.UI.Players.Video;
+using MediaPortal.UI.Players.Video.Tools;
 using MediaPortal.UI.Presentation.Players;
 using MediaPortal.UI.Presentation.Workflow;
 using MediaPortal.UI.SkinEngine.SkinManagement;
@@ -71,8 +74,8 @@ namespace MediaPortal.Plugins.SlimTv.Client.Player
       get { return typeof(SlimTvUIContributor); }
     }
 
-    public EventHandler OnBeginZap;
-    public EventHandler OnEndZap;
+    public event EventHandler OnBeginZap;
+    public event EventHandler OnEndZap;
 
     #endregion
 
@@ -173,8 +176,6 @@ namespace MediaPortal.Plugins.SlimTv.Client.Player
       ServiceRegistration.Get<ILogger>().Debug("{0}: Begin zapping", PlayerTitle);
       // Set indicator for zapping to blank the video surface with black.
       _zapping = true;
-      // Tell the TsReader that we are zapping, before we actually tune the new channel.
-      //_tsReader.OnZapping(0x80);
     }
 
     public void EndZap()
@@ -230,6 +231,31 @@ namespace MediaPortal.Plugins.SlimTv.Client.Player
         return true;
       }
       return false;
+    }
+
+    protected override void AddSourceFilter()
+    {
+      Guid CLSID_LAV_SPLITTER = new Guid("{B98D13E7-55DB-4385-A33D-09FD1BA26338}");
+      var networkResourceAccessor = _resourceAccessor as INetworkResourceAccessor;
+      if (networkResourceAccessor != null)
+      {
+        ServiceRegistration.Get<ILogger>().Debug("{0}: Initializing for network media item '{1}'", PlayerTitle, networkResourceAccessor.URL);
+
+        var sourceFilter = FilterGraphTools.AddFilterFromClsid(_graphBuilder, CLSID_LAV_SPLITTER, "LAV Splitter Source");
+        if (sourceFilter != null)
+        {
+          var fileSourceFilter = ((IFileSourceFilter)sourceFilter);
+          var hr = (HRESULT)fileSourceFilter.Load(networkResourceAccessor.URL, null);
+
+          new HRESULT(hr).Throw();
+
+          using (DSFilter source2 = new DSFilter(sourceFilter))
+            foreach (DSPin pin in source2.Output)
+              hr = pin.Render(); // Some pins might fail rendering (i.e. subtitles), but the graph can be still playable
+        }
+        return;
+      }
+      base.AddSourceFilter();
     }
 
     #region IChapterPlayer overrides
