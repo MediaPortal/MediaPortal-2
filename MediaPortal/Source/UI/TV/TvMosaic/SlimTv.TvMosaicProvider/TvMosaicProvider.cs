@@ -191,7 +191,7 @@ namespace SlimTv.TvMosaicProvider
     public async Task<AsyncResult<IProgram[]>> GetNowNextProgramAsync(IChannel channel)
     {
       var programs = await GetPrograms(new List<IChannel> { channel }, DateTime.Now, DateTime.Now.AddHours(3));
-      var result = ToNowNext(programs).Values.FirstOrDefault();
+      var result = ToNowNext(programs)?.Values.FirstOrDefault();
       return new AsyncResult<IProgram[]>(result != null, result);
     }
 
@@ -200,7 +200,7 @@ namespace SlimTv.TvMosaicProvider
       var channels = await GetChannelsAsync(channelGroup);
       var programs = await GetPrograms(channels.Result, DateTime.Now, DateTime.Now.AddHours(3));
       var result = ToNowNext(programs);
-      return new AsyncResult<IDictionary<int, IProgram[]>>(true, result);
+      return new AsyncResult<IDictionary<int, IProgram[]>>(result != null, result);
     }
 
     private static IDictionary<int, IProgram[]> ToNowNext(AsyncResult<IList<IProgram>> programs)
