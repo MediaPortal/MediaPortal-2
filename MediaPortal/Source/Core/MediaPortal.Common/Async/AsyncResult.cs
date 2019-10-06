@@ -43,7 +43,7 @@ namespace MediaPortal.Common.Async
     /// </summary>
     public bool Success { get; set; }
     /// <summary>
-    /// Returns <c>true</c> if successful.
+    /// Returns the result if successful.
     /// </summary>
     public T Result { get; set; }
   }

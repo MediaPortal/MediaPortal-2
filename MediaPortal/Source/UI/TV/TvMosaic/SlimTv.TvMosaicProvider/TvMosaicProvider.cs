@@ -97,6 +97,9 @@ namespace SlimTv.TvMosaicProvider
       DVBLinkResponse<Channels> channels = await _dvbLink.GetChannels(new ChannelsRequest());
       lock (_syncObj)
       {
+        if (channels.Status != StatusCode.STATUS_OK)
+          return false;
+
         foreach (var channel in channels.Result)
         {
           var mappedId = GetId(channel.Id);
@@ -202,7 +205,7 @@ namespace SlimTv.TvMosaicProvider
 
     private static IDictionary<int, IProgram[]> ToNowNext(AsyncResult<IList<IProgram>> programs)
     {
-      if (programs == null)
+      if (programs == null || !programs.Success)
         return null;
       IDictionary<int, IProgram[]> result = new Dictionary<int, IProgram[]>();
       foreach (var program in programs.Result)
