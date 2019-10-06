@@ -26,7 +26,7 @@ using MediaPortal.Common.Settings;
 
 namespace SlimTv.TvMosaicProvider.Settings
 {
-  class TvMosaicProviderSettings
+  public class TvMosaicProviderSettings
   {
     /// <summary>
     /// Holds the host name or IP address of the TV4home service (running on same machine as TvServer).
