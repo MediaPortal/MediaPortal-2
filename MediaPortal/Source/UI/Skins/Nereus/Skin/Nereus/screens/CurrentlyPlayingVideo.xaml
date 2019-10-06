@@ -363,7 +363,8 @@
               </Grid>
 
               <!-- Collection -->
-              <Grid HorizontalAlignment="Stretch" Grid.Row="3" Margin="370,0,0,0">
+              <Grid HorizontalAlignment="Stretch" Grid.Row="3" Margin="400,0,0,0"
+                    IsVisible="{Binding ElementName=CollectionLabel, Path=Content, Converter={StaticResource EmptyStringToFalseConverter}}">
                 <Grid.RowDefinitions>
                   <RowDefinition Height="45"/>
                   <RowDefinition Height="180"/>
@@ -372,40 +373,62 @@
                   <ColumnDefinition Width="300"/>
                 </Grid.ColumnDefinitions>
 
-                <Grid Margin="0,15,0,-2">
-                  <Image Source="HomeContentIcons\Category.png" Height="27" Width="27" Stretch="Uniform" Margin="0,1,5,-1" 
+                <Grid Margin="10,15,0,-2">
+                  <Image Source="HomeContentIcons\Category.png" Height="25" Width="25" Stretch="Uniform" Margin="0,1,5,-1" 
                          VerticalAlignment="Center" HorizontalAlignment="Left"/>
                   <Label x:Name="Collection" FontSize="{ThemeResource SmallerFontSize}" Opacity="0.5"
                          Color="{ThemeResource TextColor}" VerticalAlignment="Center" Margin="40,0,0,0" Content="Collection"/>
                 </Grid>
 
-                <DockPanel Grid.Row="1" Margin="10">
-                   <media:MovieCollectionAspectWrapper HorizontalAlignment="Stretch" VerticalAlignment="Stretch" 
-                                                       MediaItem="{Binding MediaItem}" DockPanel.Dock="Left">
-                    <media:MovieCollectionAspectWrapper.Template>
-                      <ControlTemplate>
-                        <Image x:Name="MovieCollectionPoster" HorizontalAlignment="Center" VerticalAlignment="Center" Stretch="Uniform" 
-                               Height="140" DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}">
-                          <Image.Source>
-                            <fanart:FanArtImageSource fanart:FanArtMediaType="MovieCollection" fanart:FanArtType="Poster" fanart:FanArtName="{Binding MediaItem.MediaItemId}"
+                <Button Style="{ThemeResource NereusFrameButtonStyle}" Grid.Row="1" Margin="10,11,10,11">
+                  <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch" DockPanel.Dock="Center" Margin="1"
+                        IsVisible="{Binding ElementName=CollectionLabel, Path=Content, Converter={StaticResource EmptyStringToFalseConverter}}">
+                    <Grid.RowDefinitions>
+                      <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                      <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    
+                    <Image Margin="-8" Source="Thumbnail_small.png" Stretch="Fill"/>
+                    
+                    <DockPanel HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+                      <DockPanel.Background>
+                        <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
+                          <Binding RelativeSource="{RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}}" Path="!HasFocus"/>
+                          <Binding Source="{ThemeResource NereusColorMedium}"/>
+                          <Binding Source="{ThemeResource NereusColorLight}"/>
+                        </MultiBinding>
+                      </DockPanel.Background>
+                      
+                      <media:MovieCollectionAspectWrapper HorizontalAlignment="Stretch" VerticalAlignment="Stretch" 
+                                                          MediaItem="{Binding MediaItem}" DockPanel.Dock="Left">
+                        <media:MovieCollectionAspectWrapper.Template>
+                          <ControlTemplate>
+                            <Image x:Name="MovieCollectionPoster" HorizontalAlignment="Center" VerticalAlignment="Center" Stretch="Uniform" 
+                                   Height="150" DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}">
+                              <Image.Source>
+                                <fanart:FanArtImageSource fanart:FanArtMediaType="MovieCollection" fanart:FanArtType="Poster" fanart:FanArtName="{Binding MediaItem.MediaItemId}"
                                     fanart:MaxWidth="{StaticResource FANART_POSTER_WIDTH}" fanart:MaxHeight="{StaticResource FANART_POSTER_HEIGHT}"/>
-                          </Image.Source>
-                        </Image>
-                      </ControlTemplate>
-                    </media:MovieCollectionAspectWrapper.Template>
-                  </media:MovieCollectionAspectWrapper>
+                              </Image.Source>
+                            </Image>
+                          </ControlTemplate>
+                        </media:MovieCollectionAspectWrapper.Template>
+                      </media:MovieCollectionAspectWrapper>
 
-                  <media:MovieAspectWrapper HorizontalAlignment="Stretch" VerticalAlignment="Stretch" 
-                                            MediaItem="{Binding MediaItem}" DockPanel.Dock="Right">
-                    <media:MovieAspectWrapper.Template>
-                      <ControlTemplate>
-                        <Label Content="{Binding CollectionName}" DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}"
-                               Color="{ThemeResource TextColor}" VerticalAlignment="Center" Margin="5" Wrap="True" FontSize="{ThemeResource SmallerFontSize}"/>
-                      </ControlTemplate>
-                    </media:MovieAspectWrapper.Template>
-                  </media:MovieAspectWrapper>                 
-                </DockPanel>
-
+                      <media:MovieAspectWrapper HorizontalAlignment="Stretch" VerticalAlignment="Stretch" 
+                                                MediaItem="{Binding MediaItem}" DockPanel.Dock="Right">
+                        <media:MovieAspectWrapper.Template>
+                          <ControlTemplate>
+                            <Label x:Name="CollectionLabel" Content="{Binding CollectionName}" DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}"
+                                   Color="{ThemeResource TextColor}" VerticalAlignment="Center" Margin="5" Wrap="True" FontSize="{ThemeResource SmallerFontSize}"/>
+                          </ControlTemplate>
+                        </media:MovieAspectWrapper.Template>
+                      </media:MovieAspectWrapper>
+                    </DockPanel>
+                  </Grid>
+                </Button>
+                
               </Grid>
 
             </Grid>
