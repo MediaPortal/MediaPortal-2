@@ -105,6 +105,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
     protected AbstractProperty _piPEnabledProperty = null;
 
     // Channel zapping
+    private AbstractProperty _isZappingProperty;
     protected DelayedEvent _zapTimer;
     protected int _zapChannelIndex;
 
@@ -426,6 +427,17 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
       PiPEnabled = !PiPEnabled;
     }
 
+    public AbstractProperty IsZappingProperty
+    {
+      get { return _isZappingProperty; }
+    }
+
+    public bool IsZapping
+    {
+      get { return (bool)_isZappingProperty.GetValue(); }
+      set { _isZappingProperty.SetValue(value); }
+    }
+
     #endregion
 
     #region Members
@@ -530,12 +542,14 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
 
     private void BeginZap()
     {
+      IsZapping = true;
       SlotPlayer?.BeginZap();
     }
 
     private void EndZap()
     {
       SlotPlayer?.EndZap();
+      IsZapping = false;
     }
 
     /// <summary>
@@ -780,6 +794,8 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
 
         _piPAvailableProperty = new WProperty(typeof(bool), false);
         _piPEnabledProperty = new WProperty(typeof(bool), false);
+
+        _isZappingProperty = new WProperty(typeof(bool), false);
 
         //Get current Tv Server state
         var ssm = ServiceRegistration.Get<IServerStateManager>();
