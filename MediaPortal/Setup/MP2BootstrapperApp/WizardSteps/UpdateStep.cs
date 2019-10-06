@@ -22,6 +22,7 @@
 
 #endregion
 
+using Microsoft.Tools.WindowsInstallerXml.Bootstrapper;
 using MP2BootstrapperApp.ViewModels;
 
 namespace MP2BootstrapperApp.WizardSteps
@@ -38,7 +39,14 @@ namespace MP2BootstrapperApp.WizardSteps
     
     public void Next(Wizard wizard)
     {
-      
+      foreach (var bundlePackage in _viewModel.BundlePackages)
+      {
+        if (bundlePackage.CurrentInstallState == PackageState.Absent)
+        {
+          bundlePackage.RequestedInstallState = RequestState.Present;
+        }
+      }
+      wizard.Step = new InstallOverviewStep(_viewModel);
     }
 
     public void Back(Wizard wizard)
@@ -48,7 +56,7 @@ namespace MP2BootstrapperApp.WizardSteps
 
     public bool CanGoNext()
     {
-      return false;
+      return true;
     }
 
     public bool CanGoBack()

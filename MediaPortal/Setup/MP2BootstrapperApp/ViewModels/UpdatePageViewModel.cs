@@ -35,30 +35,20 @@ namespace MP2BootstrapperApp.ViewModels
       viewModel.ButtonNextContent = "Next";
       viewModel.ButtonBackContent = "Back";
       viewModel.ButtonCancelContent = "Abort";
-      Packages = new ObservableCollection<Pack>();
+      Packages = new ObservableCollection<Package>();
       foreach (BundlePackage package in viewModel.BundlePackages)
       {
-        Packages.Add(new Pack
+        Packages.Add(new Package
         {
           BundleVersion = package.GetVersion().ToString(),
           InstalledVersion = package.InstalledVersion.ToString(),
           ImagePath = @"..\resources\" + package.GetId() + ".png",
-          Name = package.Id
+          Name = package.Id,
+          PackageState = package.CurrentInstallState
         });
       }
     }
     
-    public ObservableCollection<Pack> Packages { get; }
-  }
-
-  public class Pack
-  {
-    public string Name { get; set; }
-    
-    public string ImagePath { get; set; }
-    
-    public string InstalledVersion { get; set; }
-    
-    public string BundleVersion { get; set; }
+    public ObservableCollection<Package> Packages { get; }
   }
 }
