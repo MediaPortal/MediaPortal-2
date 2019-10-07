@@ -44,7 +44,7 @@ using System.Threading.Tasks;
 
 namespace MediaPortal.Extensions.OnlineLibraries.Matchers
 {
-  public abstract class MusicMatcher<TImg, TLang> : BaseMatcher<TrackMatch, string, TImg, TLang>, IMusicMatcher
+  public abstract class MusicMatcher<TImg, TLang> : BaseMediaMatcher<TrackMatch, string, TImg, TLang>, IAudioMatcher
   {
     public class MusicMatcherSettings
     {
@@ -1204,16 +1204,16 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
       }
     }
 
-    private void CacheUpdateFinished(ApiWrapper<TImg, TLang>.UpdateFinishedEventArgs _event)
+    private void CacheUpdateFinished(UpdateFinishedEventArgs _event)
     {
       try
       {
-        if (_event.UpdatedItemType == ApiWrapper<TImg, TLang>.UpdateType.AudioAlbum)
+        if (_event.UpdatedItemType == UpdateType.AudioAlbum)
         {
           _config.LastUpdatedAlbums.AddRange(_event.UpdatedItems);
           SaveConfig();
         }
-        if (_event.UpdatedItemType == ApiWrapper<TImg, TLang>.UpdateType.Audio)
+        if (_event.UpdatedItemType == UpdateType.Audio)
         {
           _config.LastUpdatedTracks.AddRange(_event.UpdatedItems);
           SaveConfig();

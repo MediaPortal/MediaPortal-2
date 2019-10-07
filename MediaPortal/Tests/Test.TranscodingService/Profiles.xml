@@ -1,0 +1,79 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<!--Thanks go to the Serviio community for creating the profiles on which these are based-->
+<Profiles version="1.0">
+  <Profile id="Test" name="Test profile" active="true">
+    <Settings>
+      <Thumbnails maxWidth="160" maxHeight="160" delivery="All" />
+      <Video maxHeight="1080" qualityFactor="3" />
+      <H262Video qualityFactor="3" preset="Fast" profile="Main" />
+      <H264Video levelCheck="Any" qualityFactor="25" preset="Veryfast" profile="Baseline" level="3.0" />
+      <H265Video qualityFactor="25" preset="Veryfast" profile="Main" level="3.0" />
+      <Images maxWidth="4096" maxHeight="4096" autoRotate="false" />
+      <Audio defaultStereo="false" defaultBitrate="192" />
+      <Communication allowChunckedTransfer="true" initialBufferSize="0" defaultBufferSize="1500" />
+      <Metadata delivery="All" />
+      <Subtitles bitmapBasedSupported="true" textBasedSupported="true" support="None" />
+    </Settings>
+    <MediaTranscoding>
+      <ImageTarget container="Png">
+        <ImageSource />
+      </ImageTarget>
+      <AudioTarget container="Mp3">
+        <AudioSource />
+      </AudioTarget>
+      <VideoTarget container="Matroska">
+        <VideoSource />
+      </VideoTarget>
+    </MediaTranscoding>
+  </Profile>
+  <Profile id="SoftSubs" name="Test profile" active="true">
+    <Settings>
+      <Thumbnails maxWidth="160" maxHeight="160" delivery="All" />
+      <Video maxHeight="1080" qualityFactor="3" />
+      <H262Video qualityFactor="3" preset="Fast" profile="Main" />
+      <H264Video levelCheck="Any" qualityFactor="25" preset="Veryfast" profile="Baseline" level="3.0" />
+      <H265Video qualityFactor="25" preset="Veryfast" profile="Main" level="3.0" />
+      <Images maxWidth="4096" maxHeight="4096" autoRotate="false" />
+      <Audio defaultStereo="false" defaultBitrate="192" />
+      <Communication allowChunckedTransfer="true" initialBufferSize="0" defaultBufferSize="1500" />
+      <Metadata delivery="All" />
+      <Subtitles bitmapBasedSupported="true" textBasedSupported="true" support="SoftCoded" />
+    </Settings>
+    <MediaTranscoding>
+      <ImageTarget container="Jpeg">
+        <ImageSource />
+      </ImageTarget>
+      <AudioTarget container="Mp3">
+        <AudioSource />
+      </AudioTarget>
+      <VideoTarget container="Matroska">
+        <VideoSource />
+      </VideoTarget>
+    </MediaTranscoding>
+  </Profile>
+  <Profile id="EmbedSubs" name="Test profile" active="true">
+    <Settings>
+      <Thumbnails maxWidth="160" maxHeight="160" delivery="All" />
+      <Video maxHeight="1080" qualityFactor="3" />
+      <H262Video qualityFactor="3" preset="Fast" profile="Main" />
+      <H264Video levelCheck="Any" qualityFactor="25" preset="Veryfast" profile="Baseline" level="3.0" />
+      <H265Video qualityFactor="25" preset="Veryfast" profile="Main" level="3.0" />
+      <Images maxWidth="4096" maxHeight="4096" autoRotate="false" />
+      <Audio defaultStereo="false" defaultBitrate="192" />
+      <Communication allowChunckedTransfer="true" initialBufferSize="0" defaultBufferSize="1500" />
+      <Metadata delivery="All" />
+      <Subtitles bitmapBasedSupported="true" textBasedSupported="true" support="Embedded" />
+    </Settings>
+    <MediaTranscoding>
+      <ImageTarget container="Jpeg">
+        <ImageSource />
+      </ImageTarget>
+      <AudioTarget container="Mp3">
+        <AudioSource />
+      </AudioTarget>
+      <VideoTarget container="Matroska">
+        <VideoSource />
+      </VideoTarget>
+    </MediaTranscoding>
+  </Profile>
+</Profiles>

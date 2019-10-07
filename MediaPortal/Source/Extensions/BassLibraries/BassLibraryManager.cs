@@ -27,6 +27,7 @@ using System.Collections.Generic;
 using System.IO;
 using MediaPortal.Utilities;
 using MediaPortal.Utilities.FileSystem;
+using MediaPortal.Utilities.SystemAPI;
 using Un4seen.Bass;
 
 namespace MediaPortal.Extensions.BassLibraries
@@ -58,7 +59,11 @@ namespace MediaPortal.Extensions.BassLibraries
       {
         if (_bassLibraryManager != null)
           return _bassLibraryManager;
-        string playerPluginsDirectory = FileUtils.BuildAssemblyRelativePath("Plugins");
+
+        string absolutePlatformDir;
+        if (!NativeMethods.SetPlatformSearchDirectories(out absolutePlatformDir))
+          throw new Exception("Error adding dll probe path");
+        string playerPluginsDirectory = Path.Combine(absolutePlatformDir, "Plugins");
         _bassLibraryManager = new BassLibraryManager();
         _bassLibraryManager.Initialize(playerPluginsDirectory);
         return _bassLibraryManager;
@@ -109,8 +114,9 @@ namespace MediaPortal.Extensions.BassLibraries
       Directory.SetCurrentDirectory(playerPluginsDirectory);
 
       IDictionary<int, string> plugins = Bass.BASS_PluginLoadDirectory(playerPluginsDirectory);
-      foreach (string pluginFile in plugins.Values)
-        Log.Debug("Loaded plugin '{0}'", pluginFile);
+      if (plugins != null)
+        foreach (string pluginFile in plugins.Values)
+          Log.Debug("Loaded plugin '{0}'", pluginFile);
       CollectionUtils.AddAll(_decoderPluginHandles, plugins.Keys);
 
       if (plugins.Count == 0)

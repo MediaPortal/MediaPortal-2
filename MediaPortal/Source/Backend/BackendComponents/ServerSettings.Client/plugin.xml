@@ -101,6 +101,10 @@
         Id="ImageMDESettings"
         Redundant="true"
         Text="[Settings.ServerSettings.ImageMDESettings]"/>
+    <ConfigSection
+        Id="SubtitleMDESettings"
+        Redundant="true"
+        Text="[Settings.ServerSettings.SubtitleMDESettings]"/>
   <ConfigSection
         Id="FanArtSettings"
         Redundant="true"
@@ -210,6 +214,15 @@
         HelpText="[Settings.ServerSettings.ImageMDESettings.ServerImageMDEGeoLocation.Help]"
         ClassName="MediaPortal.Plugins.ServerSettings.Settings.Configuration.ServerImageMDEGeoLocation"/>
   </Register>
+
+  <!-- Subtitle importer settings -->
+  <Register Location="/Configuration/Settings/Media/SubtitleMDESettings">
+    <ConfigSetting
+        Id="ServerSubtitleMDESourceEnable"
+        Text="[Settings.ServerSettings.MDESettings.MDESourceEnable]"
+        HelpText="[Settings.ServerSettings.MDESettings.MDESourceEnable.Help]"
+        ClassName="MediaPortal.Plugins.ServerSettings.Settings.Configuration.ServerSubtitleMDESourceEnable"/>
+  </Register>
   
   <!-- FanArt importer settings -->
   <Register Location="/Configuration/Settings/Media/FanArtSettings">
@@ -272,6 +285,11 @@
         Text="[Settings.ServerSettings.LanguageSettings.ServerSeriesLanguage]"
         HelpText="[Settings.ServerSettings.LanguageSettings.ServerSeriesLanguage.Help]"
         ClassName="MediaPortal.Plugins.ServerSettings.Settings.Configuration.ServerSeriesLanguage"/>
+    <ConfigSetting
+        Id="ServerSubtitleLanguage"
+        Text="[Settings.ServerSettings.LanguageSettings.ServerSubtitleLanguage]"
+        HelpText="[Settings.ServerSettings.LanguageSettings.ServerSubtitleLanguage.Help]"
+        ClassName="MediaPortal.Plugins.ServerSettings.Settings.Configuration.ServerSubtitleLanguage"/>
   </Register>
 
   <!-- Contents of '/Shares' section -->

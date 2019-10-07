@@ -94,5 +94,13 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries
     void StoreSeriesCompanyMatch(CompanyInfo company);
 
     #endregion
+
+    #region Subtitles
+
+    Task<IEnumerable<SubtitleInfo>> FindMatchingEpisodeSubtitlesAsync(SubtitleInfo subtitleInfo, List<string> languages);
+    Task<IEnumerable<SubtitleInfo>> FindMatchingMovieSubtitlesAsync(SubtitleInfo subtitleInfo, List<string> languages);
+    Task<bool> DownloadSubtitleAsync(SubtitleInfo subtitleInfo, bool overwriteExisting);
+
+    #endregion
   }
 }

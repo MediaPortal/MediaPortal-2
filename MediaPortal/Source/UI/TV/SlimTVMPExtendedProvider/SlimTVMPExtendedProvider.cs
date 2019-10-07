@@ -755,7 +755,12 @@ namespace MediaPortal.Plugins.SlimTv.Providers
       }
     }
 
-    public async Task<AsyncResult<ISchedule>> CreateScheduleByTimeAsync(IChannel channel, DateTime from, DateTime to, ScheduleRecordingType recordingType)
+    public Task<AsyncResult<ISchedule>> CreateScheduleByTimeAsync(IChannel channel, DateTime from, DateTime to, ScheduleRecordingType recordingType)
+    {
+      return CreateScheduleByTimeAsync(channel, "Manual", from, to, recordingType);
+    }
+
+    public async Task<AsyncResult<ISchedule>> CreateScheduleByTimeAsync(IChannel channel, string title, DateTime from, DateTime to, ScheduleRecordingType recordingType)
     {
       Channel indexChannel = channel as Channel;
       if (indexChannel == null || !CheckConnection(indexChannel.ServerIndex))
@@ -763,13 +768,23 @@ namespace MediaPortal.Plugins.SlimTv.Providers
 
       try
       {
-        var result = TvServer(indexChannel.ServerIndex).AddSchedule(channel.ChannelId, "Manual", from, to, (WebScheduleType)recordingType);
+        var result = TvServer(indexChannel.ServerIndex).AddSchedule(channel.ChannelId, title, from, to, (WebScheduleType)recordingType);
         return new AsyncResult<ISchedule>(true, null);
       }
       catch
       {
         return new AsyncResult<ISchedule>(false, null);
       }
+    }
+
+    public Task<AsyncResult<ISchedule>> CreateScheduleDetailedAsync(IChannel channel, string title, DateTime from, DateTime to, ScheduleRecordingType recordingType, int preRecordInterval, int postRecordInterval, string directory, int priority)
+    {
+      throw new NotImplementedException();
+    }
+
+    public Task<bool> EditScheduleAsync(ISchedule schedule, IChannel channel = null, string title = null, DateTime? from = null, DateTime? to = null, ScheduleRecordingType? recordingType = null, int? preRecordInterval = null, int? postRecordInterval = null, string directory = null, int? priority = null)
+    {
+      throw new NotImplementedException();
     }
 
     public async Task<bool> RemoveScheduleForProgramAsync(IProgram program, ScheduleRecordingType recordingType)
@@ -816,6 +831,11 @@ namespace MediaPortal.Plugins.SlimTv.Providers
       {
         return false;
       }
+    }
+
+    public Task<bool> UnCancelScheduleAsync(IProgram program)
+    {
+      throw new NotImplementedException();
     }
 
     public async Task<AsyncResult<IList<ISchedule>>> GetSchedulesAsync()
@@ -882,6 +902,7 @@ namespace MediaPortal.Plugins.SlimTv.Providers
         return new AsyncResult<string>(false, null);
       }
     }
+
     #endregion
   }
 }

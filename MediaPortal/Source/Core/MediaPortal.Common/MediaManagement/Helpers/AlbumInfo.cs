@@ -230,6 +230,8 @@ namespace MediaPortal.Common.MediaManagement.Helpers
           Compilation = true;
           HasChanged = true;
         }
+
+        MergeDataProviders(album);
         return true;
       }
       return false;

@@ -44,7 +44,7 @@ using System.Threading.Tasks;
 
 namespace MediaPortal.Extensions.OnlineLibraries.Matchers
 {
-  public abstract class MovieMatcher<TImg, TLang> : BaseMatcher<MovieMatch, string, TImg, TLang>, IMovieMatcher
+  public abstract class MovieMatcher<TImg, TLang> : BaseMediaMatcher<MovieMatch, string, TImg, TLang>, IMovieMatcher
   {
     public class MovieMatcherSettings
     {
@@ -1027,16 +1027,16 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
       }
     }
 
-    private void CacheUpdateFinished(ApiWrapper<TImg, TLang>.UpdateFinishedEventArgs _event)
+    private void CacheUpdateFinished(UpdateFinishedEventArgs _event)
     {
       try
       {
-        if (_event.UpdatedItemType == ApiWrapper<TImg, TLang>.UpdateType.Movie)
+        if (_event.UpdatedItemType == UpdateType.Movie)
         {
           _config.LastUpdatedMovies.AddRange(_event.UpdatedItems);
           SaveConfig();
         }
-        if (_event.UpdatedItemType == ApiWrapper<TImg, TLang>.UpdateType.MovieCollection)
+        if (_event.UpdatedItemType == UpdateType.MovieCollection)
         {
           _config.LastUpdatedMovieCollections.AddRange(_event.UpdatedItems);
           SaveConfig();

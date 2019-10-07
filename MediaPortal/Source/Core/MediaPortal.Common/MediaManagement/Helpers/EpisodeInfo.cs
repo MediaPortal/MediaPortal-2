@@ -317,6 +317,8 @@ namespace MediaPortal.Common.MediaManagement.Helpers
         MetadataUpdater.SetOrUpdateList(Characters, episode.Characters.Where(p => !string.IsNullOrEmpty(p.Name)).Distinct().ToList(), Characters.Count == 0, overwriteShorterStrings);
         MetadataUpdater.SetOrUpdateList(Directors, episode.Directors.Where(p => !string.IsNullOrEmpty(p.Name)).Distinct().ToList(), Directors.Count == 0, overwriteShorterStrings);
         MetadataUpdater.SetOrUpdateList(Writers, episode.Writers.Where(p => !string.IsNullOrEmpty(p.Name)).Distinct().ToList(), Writers.Count == 0, overwriteShorterStrings);
+
+        MergeDataProviders(episode);
         return true;
       }
       return false;

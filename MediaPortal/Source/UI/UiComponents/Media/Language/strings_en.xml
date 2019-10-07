@@ -299,6 +299,7 @@
   <string name="Media.SetUnplayed">Set unplayed</string>
   <string name="Media.Refresh">Refresh</string>
   <string name="Media.Reimport">Reimport</string>
+  <string name="Media.SubtitleSearch">Subtitle search</string>
   <string name="Media.DeleteFromStorage">Delete from storage</string>
   <string name="Media.DeleteFromStorage.Confirmation">Are you sure that you want to delete this item? This cannot be undone.</string>
   <string name="Media.ConfirmAction">Confirm action</string>
@@ -311,7 +312,20 @@
   <string name="Media.ReimportMediaItem.AutoMatch">Auto Match</string>
   <string name="Media.ReimportMediaItem.ManualSearch">Manual Search</string>
   <string name="Media.ReimportMediaItem.Description">Description</string>
-  <string name="Media.ReimportMediaItem.Hint">Note: Requires internet connection and at least one online scrapper selected in media library settings</string>
+  <string name="Media.ReimportMediaItem.Hint">Note: Requires internet connection and at least one online scraper selected in media library settings</string>
+  <string name="Media.SubtitleReplace.Confirmation">Are you sure you want to replace existing subtitles by a selected match? This cannot be undone.</string>
+  <string name="Media.SubtitleSearch.Title">Select a matching subtitle</string>
+  <string name="Media.SubtitleSearch.Id">Id</string>
+  <string name="Media.SubtitleSearch.SearchResultHeader">Search Result</string>
+  <string name="Media.SubtitleSearch.SearchTypeHeader">Search Type</string>
+  <string name="Media.SubtitleSearch.AutoMatch">Auto Match</string>
+  <string name="Media.SubtitleSearch.ManualSearch">Manual Search</string>
+  <string name="Media.SubtitleSearch.Provider">Provider</string>
+  <string name="Media.SubtitleSearch.Percentage">Match Percenatge</string>
+  <string name="Media.SubtitleSearch.Language">Language</string>
+  <string name="Media.SubtitleSearch.Hint">Note: Requires internet connection and at least one subtitle scraper selected in media library settings</string>
+  
+  <string name="Media.ChooseEditionDialogHeader">Choose edition</string>
   
   <!-- Play items dialog -->
   <string name="Media.PlayItemDialogHeader">Play item</string>

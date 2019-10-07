@@ -136,6 +136,11 @@ namespace MediaPortal.Plugins.SlimTv.Interfaces.ResourceProvider
       return null;
     }
 
+    public Stream CreateOpenWrite(string file, bool overwrite)
+    {
+      return null;
+    }
+
     public IResourceAccessor Clone()
     {
       return new SlimTvFsResourceAccessor(_slotIndex, _path);

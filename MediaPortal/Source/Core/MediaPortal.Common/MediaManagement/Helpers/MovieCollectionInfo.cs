@@ -118,6 +118,8 @@ namespace MediaPortal.Common.MediaManagement.Helpers
         {
           MetadataUpdater.SetOrUpdateList(Movies, collection.Movies.Distinct().ToList(), true, overwriteShorterStrings);
         }
+
+        MergeDataProviders(collection);
         return true;
       }
       return false;

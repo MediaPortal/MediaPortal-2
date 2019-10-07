@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Include
+    xmlns="www.team-mediaportal.com/2008/mpf/directx"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    Source="screens\master_bare.xaml"
+    >
+  <Include.Resources>
+
+    <!-- Only for WMC skin, as there is no content area margin -->
+    <ResourceWrapper x:Key="Client_Margin" Resource="40,0,40,0"/>
+
+    <!-- Header -->
+    <ResourceWrapper x:Key="Header_Text" Resource="[Settings.DLNA.Clients.Config]"/>
+
+    <!-- Client configuration model -->
+    <Model x:Key="Model" Id="A5E439BD-6A88-4B1B-9032-0C6F1CE9DD30"/>
+
+    <!-- Contents -->
+    <ControlTemplate x:Key="Client_Template">
+      <Grid DataContext="{Binding Source={StaticResource Model}}">
+        <Grid.RowDefinitions>
+          <RowDefinition Height="Auto"/>
+          <RowDefinition Height="Auto"/>
+          <RowDefinition Height="Auto"/>
+          <RowDefinition Height="*"/>
+          <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+          <ColumnDefinition Width="370"/>
+          <ColumnDefinition Width="*"/>
+          <ColumnDefinition Width="40"/>
+          <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+
+        <Label Grid.Row="0" Margin="10" Content="[Settings.DLNA.Clients.Config.Clients]" Color="{ThemeResource TextColor}" Opacity="0.5"/>
+        <ListView Name="DLNACLientList" Margin="10" Grid.Row="1" Grid.RowSpan="4" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+                  Style="{ThemeResource SingleMarkableListViewStyle}"
+                  IsVisible="{Binding IsHomeServerConnected}"
+                  ItemsSource="{Binding Path=ClientList,Mode=OneTime}">
+        </ListView>
+
+        <Label Margin="10" Grid.Row="1" Grid.RowSpan="3" IsVisible="{Binding !IsHomeServerConnected}" Opacity="0.5"
+               Content="[Settings.DLNA.Clients.NoConfigHomeServerNotConnected]" Wrap="true"
+               Color="{ThemeResource HintTextColor}" FontSize="{ThemeResource SmallFontSize}"/>
+
+        <Label Grid.Row="1" Grid.Column="1" Margin="5" Content="[Settings.DLNA.Clients.Config.ClientName]" Color="{ThemeResource TextColor}"/>
+        <Label Grid.Row="1" Grid.Column="3" Content="{Binding Path=SelectedClientName}" Color="{ThemeResource TextColor}"/>
+
+        <Label Grid.Row="2" Grid.Column="1" Margin="5" Content="[Settings.DLNA.Clients.Config.Profile]" Color="{ThemeResource TextColor}"/>
+        <Button x:Name="EditProfileButton" Grid.Row="2" Grid.Column="3" Style="{ThemeResource WizardButtonStyle}"
+                IsEnabled="{Binding Path=IsClientSelected}"
+                Content="{Binding SelectedProfileInfo}"
+                Command="{Command OpenSelectProfileDialog}">
+        </Button>
+
+        <Label Grid.Row="3" Grid.Column="1" Margin="5" Content="[Settings.DLNA.Clients.Config.DefaultUser]" Color="{ThemeResource TextColor}"/>
+        <Button x:Name="EditUserButton" Grid.Row="3" Grid.Column="3" Style="{ThemeResource WizardButtonStyle}"
+                IsEnabled="{Binding Path=IsClientSelected}"
+                Content="{Binding SelectedUserInfo}"
+                Command="{Command OpenSelectUserDialog}">
+        </Button>
+
+        <UniformGrid Columns="2" Grid.ColumnSpan="2" Grid.Row="4" Height="80" VerticalAlignment="Bottom">
+          <Button x:Name="DeleteClientButton" Style="{ThemeResource WizardButtonStyle}" Margin="10"
+                  Content="[Settings.DLNA.Clients.Config.DeleteClient]" IsEnabled="{Binding IsClientSelected}"  Command="{Command OpenConfirmDeleteDialog}"/>
+          <Button x:Name="SaveClientButton" Style="{ThemeResource WizardButtonStyle}" Margin="10,10,0,10"
+                  Content="[Settings.DLNA.Clients.Config.SaveClients]" IsEnabled="{Binding IsClientSelected}" Command="{Command SaveClients}"/>
+        </UniformGrid>
+      </Grid>
+    </ControlTemplate>
+
+  </Include.Resources>
+</Include>
+

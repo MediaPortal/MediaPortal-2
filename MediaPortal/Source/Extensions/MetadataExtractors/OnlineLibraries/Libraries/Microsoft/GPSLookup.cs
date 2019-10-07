@@ -25,6 +25,7 @@
 using System;
 using System.Device.Location;
 using System.Net;
+using System.Threading;
 using System.Threading.Tasks;
 using MediaPortal.Common.Async;
 using MediaPortal.Common.Services.ServerCommunication;
@@ -84,21 +85,28 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.Microsoft
             _gps.Start(suppressPermissionPrompt: true);
         };
 
-      _gps.Start(suppressPermissionPrompt: true);
-
-      if (tcs.Task.Wait(10000)) // 10 seconds.
+      try
       {
-        _coordinates = tcs.Task.Result;
+        _gps.Start(suppressPermissionPrompt: true);
 
-        CivicAddressResolver resolver = new CivicAddressResolver();
-        _address = resolver.ResolveAddress(_coordinates);
+        using (var cts = new CancellationTokenSource(10000))
+        {
+          _coordinates = await tcs.Task.WaitAsync(cts.Token);
 
-        return new AsyncResult<Tuple<CivicAddress, GeoCoordinate>>(true, new Tuple<CivicAddress, GeoCoordinate>(_address, _coordinates));
+          CivicAddressResolver resolver = new CivicAddressResolver();
+          _address = resolver.ResolveAddress(_coordinates);
+
+          return new AsyncResult<Tuple<CivicAddress, GeoCoordinate>>(true, new Tuple<CivicAddress, GeoCoordinate>(_address, _coordinates));
+        }
       }
-
-      _gps.Stop();
-
-      return new AsyncResult<Tuple<CivicAddress, GeoCoordinate>>(false, null);
+      catch (TaskCanceledException)
+      {
+        return new AsyncResult<Tuple<CivicAddress, GeoCoordinate>>(false, null);
+      }
+      finally
+      {
+        _gps.Stop();
+      }
     }
 
     #endregion Private methods

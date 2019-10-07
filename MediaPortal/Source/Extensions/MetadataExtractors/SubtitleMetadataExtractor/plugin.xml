@@ -1,0 +1,28 @@
+<Plugin
+    DescriptorVersion="1.0"
+    Name="SubtitleMetadataExtractor"
+    PluginId="{E1C16CD7-2AD4-4BEA-9350-6917CC5D9606}"
+    Author = "Henso"
+    Copyright="GPL"
+    Description="Metadata extractor for many kinds of subtitle file formats">
+
+  <Version
+    PluginVersion="1.0"
+    ReleaseDate="2019-04-01 01:00:00 GMT+01:00"
+    CurrentAPI="1"/>
+
+  <DependsOn>
+    <CoreDependency Name="MediaPortal.Common" CompatibleAPI="2" />
+    <CoreDependency Name="MediaPortal.Utilities" CompatibleAPI="1" />
+  </DependsOn>
+
+  <Runtime>
+    <Assembly FileName="SubtitleMetadataExtractor.dll"/>
+  </Runtime>
+
+  <Register Location="/Media/MetadataExtractors">
+    <Instance
+        Id="SubtitleMetadataExtractor"
+        ClassName="MediaPortal.Extensions.MetadataExtractors.SubtitleMetadataExtractor.SubtitleMetadataExtractor"/>
+  </Register>
+</Plugin>

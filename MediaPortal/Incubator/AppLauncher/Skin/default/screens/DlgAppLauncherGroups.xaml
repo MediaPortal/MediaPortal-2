@@ -1,0 +1,48 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Include
+  xmlns="www.team-mediaportal.com/2008/mpf/directx"
+  xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+  Source="screens\master_configuration_dialog.xaml">
+  <Include.Resources>
+
+    <!-- Header -->
+    <ResourceWrapper x:Key="Dialog_Header_Text" Resource="[AppLauncher.SelectGroup]"/>
+
+    <Model x:Key="Model" Id="D47E22A3-3D0F-4A28-8EF6-1121B811508C"/>
+
+    <ControlTemplate x:Key="Contents_Template">
+      <DockPanel DataContext="{Binding Source={StaticResource Model}}">
+        <Grid>
+          <Grid.RowDefinitions>
+            <RowDefinition Height="1"/>
+            <RowDefinition Height="50"/>
+            <RowDefinition Height="*"/>
+          </Grid.RowDefinitions>
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="100*" />
+          </Grid.ColumnDefinitions>
+          <Label Grid.Row="0" Content="{Binding Path=MaxString, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Height="1"></Label>
+
+          <Label Grid.Row="1" VerticalAlignment="Center" HorizontalAlignment="Left" DataContext="{Binding ElementName=Apps,Path=CurrentItem}"
+              Content="{Binding [Path]}" FontSize="{ThemeResource SmallerFontSize}" Color="{ThemeResource TextColor}"/>
+
+          <!--List of Apps-->
+          <ListView x:Name="Apps" Grid.Row="2" Margin="0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Style="{ThemeResource ContentsMenuListViewStyle}"
+            ItemsSource="{Binding Path=GroupItems, Mode=TwoWay}">
+            <ListView.Resources>
+              <CommandList x:Key="Menu_Command">
+                <Command Source="{StaticResource Model}" Path="SelectGroup">
+                  <Command.Parameters>
+                    <LateBoundValue BindingValue="{Binding}"/>
+                  </Command.Parameters>
+                </Command>
+              </CommandList>
+            </ListView.Resources>
+          </ListView>
+
+        </Grid>
+      </DockPanel>
+    </ControlTemplate>
+  </Include.Resources>
+</Include>
+

@@ -204,6 +204,8 @@ namespace MediaPortal.Common.MediaManagement.Helpers
 
         HasChanged |= MetadataUpdater.SetOrUpdateValue(ref FirstAired, season.FirstAired);
         HasChanged |= MetadataUpdater.SetOrUpdateValue(ref SeasonNumber, season.SeasonNumber);
+
+        MergeDataProviders(season);
         return true;
       }
       return false;

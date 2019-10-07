@@ -20,10 +20,10 @@
         <StackPanel Margin="10" HorizontalAlignment="Stretch">
           <Label Margin="10,5,10,5" HorizontalAlignment="Left" Content="[News.EnterFeedName]" Color="{ThemeResource TextColor}"/>
           <TextBox Margin="10,5,10,5" HorizontalAlignment="Stretch" BorderThickness="1"
-            Text="{Binding Path=NewFeedBookmark.Name,Mode=OneWayToSource}"/>
+                   Text="{Binding Path=NewFeedBookmark.Name,Mode=OneWayToSource}"/>
           <Label Margin="10,5,10,5" HorizontalAlignment="Left" Content="[News.EnterFeedUrl]" Color="{ThemeResource TextColor}"/>
           <TextBox Margin="10,5,10,5" HorizontalAlignment="Stretch" BorderThickness="1"
-            Text="{Binding Path=NewFeedBookmark.Url,Mode=OneWayToSource}"/>
+                   Text="{Binding Path=NewFeedBookmark.Url,Mode=OneWayToSource}"/>
         </StackPanel>
         <Grid HorizontalAlignment="Stretch">
           <Grid.ColumnDefinitions>
@@ -34,7 +34,7 @@
             <RowDefinition Height="Auto"/>
           </Grid.RowDefinitions>
           <Button Grid.Column="0" Grid.Row="0" Style="{ThemeResource DialogButtonStyle}" Content="[System.Done]"
-              HorizontalAlignment="Center">
+                  HorizontalAlignment="Center">
             <Button.Command>
               <CommandList>
                 <Command Path="AddNewFeed"/>
@@ -43,7 +43,7 @@
             </Button.Command>
           </Button>
           <Button Grid.Column="1" Grid.Row="0" Style="{ThemeResource DialogButtonStyle}" Content="[System.Cancel]"
-              HorizontalAlignment="Center" Command="{Command Source={Service ScreenManager},Path=CloseTopmostDialog}"/>
+                  HorizontalAlignment="Center" Command="{Command Source={Service ScreenManager},Path=CloseTopmostDialog}"/>
         </Grid>
       </StackPanel>
     </ControlTemplate>

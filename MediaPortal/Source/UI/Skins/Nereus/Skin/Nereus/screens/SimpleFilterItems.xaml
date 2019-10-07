@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- This screen acts as a simple base screen for each special screen which shows media items and which
+     doesn't bring in special images/controls/etc. -->
+<Include
+  xmlns="www.team-mediaportal.com/2008/mpf/directx"
+  xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+  xmlns:fanart="clr-namespace:MediaPortal.Extensions.UserServices.FanArtService.Client;assembly=FanArtService.Client"
+  Source="screens\master_mediamenu.xaml">
+  
+  <Include.Resources>
+
+    <!-- Header_Text resource has to be added by including screen -->
+
+    <!-- Contents -->
+    <ControlTemplate x:Key="Contents_Template">
+      <Grid>
+        <Grid.RowDefinitions>
+          <RowDefinition Height="Auto"/>
+          <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+          <ColumnDefinition Width="*"/>
+          <ColumnDefinition Width="Auto"/>
+        </Grid.ColumnDefinitions>
+
+        <!---Space for Listview Details-->
+        <Grid Grid.Column="1" Width="1000" Height="1200" Background="#33000000" Margin="45,-90,-20,-270">
+          <Grid.RowDefinitions>
+            <RowDefinition Height="*"/>
+          </Grid.RowDefinitions>
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>
+          </Grid.ColumnDefinitions>
+          <Grid.IsVisible>
+            <Binding Source="{StaticResource ViewModeModel}" Path="LayoutType"
+                     Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0} != {LayoutType}.{CoverLayout}"/>
+          </Grid.IsVisible>
+
+          <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+            <Grid.Resources>
+              <fanart:FanArtImageSourceConverter x:Key="FanArtImageSourceConverter"/>
+              <Model x:Key="FanArtBackgroundModel" Id="8F42C8E9-E8A3-475C-A50A-99E1E644DC91"/>
+              <Model x:Key="SkinSettingsModel" Id="13961014-16C4-4361-9751-8E2C585EFD44"/>
+            </Grid.Resources>
+            <Image x:Name="FanArtImageBackground" Stretch="Uniform" Grid.Column="1" VerticalAlignment="Top"
+               IsVisible="{Binding Source={StaticResource SkinSettingsModel}, Path=[Nereus].EnableFanart}">
+              <Image.Source>
+                <ImageSourceWrapper Delay="0.5" DelayInOut="true" Transition="transitions\dissolve" TransitionDuration="0.5"
+                   Source="{Binding Source={StaticResource FanArtBackgroundModel}, Path=ImageSource, Converter={StaticResource FanArtImageSourceConverter}, ConverterParameter=FanArt;1920;1080;False}"/>
+              </Image.Source>
+            </Image>
+            <Image Stretch="Fill">
+              <Image.Source>
+                <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} == {LayoutType}.{GridLayout} ? {1} : ({0} == {LayoutType}.{ListLayout} ? {2} : {3})">
+                  <Binding Source="{StaticResource ViewModeModel}" Path="LayoutType"/>
+                  <Binding Source="List_overlay.png"/>
+                  <!--Grid-->
+                  <Binding Source="List_overlay.png"/>
+                  <!--List-->
+                  <Binding Source="Background_GridView.png"/>
+                  <!--Cover-->
+                </MultiBinding>
+              </Image.Source>
+            </Image>
+            <Image Source="ContentGlow.png" Stretch="Uniform" VerticalAlignment="Stretch" HorizontalAlignment="Left" Margin="-20,0,0,0"/>
+            <Border BorderThickness="0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+              <Border.Background>
+                <LinearGradientBrush StartPoint="1,0.3" EndPoint="0,1">
+                  <GradientStop Color="#44000000" Offset="0.0"/>
+                  <GradientStop Color="#77000000" Offset="1"/>
+                </LinearGradientBrush>
+              </Border.Background>
+            </Border>
+          </Grid>
+
+          <!---Listview Details-->
+          <Control x:Name="ListDetails" Grid.Column="0" Grid.Row="0" Template="{DynamicResource ResourceKey=ListDetails_Template}"
+                   VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
+            <Control.TemplateControl>
+              <Include Source="screens\MultiListDetails.inc"/>
+            </Control.TemplateControl>
+          </Control>
+
+        </Grid>
+
+        <!--Loads MediaItemList and adjusts margin according to layout-->
+        <Control Grid.Column="0" Grid.Row="0" VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
+          <Control.TemplateControl>
+            <Include Source="screens\MediaItemsList.inc"/>
+          </Control.TemplateControl>
+          <Control.Margin>
+            <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} != {LayoutType}.{CoverLayout} ? {1} : {2}">
+              <Binding Source="{StaticResource ViewModeModel}" Path="LayoutType"/>
+              <Binding Source="-15,-80,-50,-240"/>
+              <Binding Source="0,250,-180,-150"/>
+            </MultiBinding>
+          </Control.Margin>
+        </Control>
+
+      </Grid>
+    </ControlTemplate>
+
+  </Include.Resources>
+</Include>

@@ -46,15 +46,6 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
   /// </summary>
   public class SeriesTvDbMatcher : SeriesMatcher<TvdbBanner, TvdbLanguage>
   {
-    #region Static instance
-
-    public static SeriesTvDbMatcher Instance
-    {
-      get { return ServiceRegistration.Get<SeriesTvDbMatcher>(); }
-    }
-
-    #endregion
-
     #region Constants
 
     public static string CACHE_PATH = ServiceRegistration.Get<IPathManager>().GetPath(@"<DATA>\TvDB\");

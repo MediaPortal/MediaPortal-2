@@ -24,7 +24,7 @@
 
 namespace MediaPortal.Extensions.OnlineLibraries.Matches
 {
-  public class IdMatch : BaseMatch<string>
+  public class IdMatch : BaseMediaMatch<string>
   {
   }
 }

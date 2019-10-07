@@ -1,0 +1,148 @@
+<Plugin
+    DescriptorVersion="1.0"
+    Name="Nereus"
+    PluginId="{DFD14B03-F168-4020-8CE4-B14AE337083A}"
+    Author="Ge2301, Brownard"
+    Copyright="GPL"
+    AutoActivate="true"
+    Description="Nereus Skin for MP2.">
+
+  <Version
+    PluginVersion="1.0"
+    ReleaseDate="2016-03-27 01:00:00 GMT+01:00"
+    CurrentAPI="1"/>
+
+  <Runtime>
+    <Assembly FileName="Nereus.dll"/>
+  </Runtime>
+
+  <DependsOn>
+    <PluginReference PluginId="{D87D92F0-5E71-470a-A2A4-430F90A28BF3}" CompatibleAPI="5"/> <!-- SkinEngine -->
+    <PluginReference PluginId="{5D239050-02B8-4f58-8301-7630A1C4CF85}" CompatibleAPI="1"/> <!-- SkinBase -->
+    <PluginReference PluginId="{F6C71648-3874-4d27-9232-C41EBEDE0337}" CompatibleAPI="1"/> <!-- Background Manager -->
+    <PluginReference PluginId="{DF6A25DF-D937-4DFF-B1BD-563641A62417}" CompatibleAPI="1"/> <!-- Home Menu Editor -->
+    <PluginReference PluginId="{1AFF4467-64B0-4ca1-AF28-9AEDF3525BCE}" CompatibleAPI="1"/> <!-- ConfigurationManager -->
+    <PluginReference PluginId="{B765A4B6-F455-4941-BDAE-2CE45208BFEB}" CompatibleAPI="1"/> <!-- Configuration plugin -->
+    <PluginReference PluginId="{B4D6171B-81CB-4813-ACBE-FD3133ADC504}" CompatibleAPI="1"/> <!-- SkinSettings plugin -->
+    <PluginReference PluginId="{15FB35F7-8C85-4404-BC67-BFF28446158A}" CompatibleAPI="2"/> <!-- Media -->
+  </DependsOn>
+
+  <Register Location="/Models">
+    <Model Id="CED34107-565C-48D9-BEC8-195F7969F90F" Name="NereusHomeMenuModel" ClassName="MediaPortal.UiComponents.Nereus.Models.HomeMenuModel"/>
+    <Model Id="6A232D95-9BDE-4005-905E-69CB092B012B" Name="ScreenModeModel" ClassName="MediaPortal.UiComponents.Nereus.Models.ScreenModeModel"/>
+    <Model Id="E06B2C11-AB3F-41DA-8E91-33D83EA30A9A" Name="SkinSettingsActionContributor" ClassName="MediaPortal.UiComponents.Nereus.Actions.SkinSettingsAction"/>
+  </Register>
+  
+  <!-- Language resources -->
+  <Register Location="/Resources/Language">
+    <Resource Id="NereusLanguage" Directory="Language" Type="Language"/>
+  </Register>
+
+  <Register Location="/Resources/Skin">
+    <Resource Id="NereusSkin" Directory="Skin" Type="Skin"/>
+  </Register>
+
+  <Register Location="/SkinSettings">
+    <SkinSettings Id="CC3C2ED3-027A-47EE-A12D-652D79D02676" Name="Nereus" ClassName="MediaPortal.UiComponents.Nereus.Settings.NereusSkinSettings"/>
+  </Register>
+
+  <!--Register support for the home editor to ensure its configuration is visible in this skin-->
+  <!--Register Location="/HomeEditor">
+    <HomeEditorRegistration Id="4D0738C3-84BA-4DBC-904D-9951911403C0" SkinName="WMCSkin"/>
+  </Register-->
+
+  <Register Location="/Workflow/ViewModes">
+    <!-- News list -->
+    <WorkflowStateViewModes Skin="Nereus" Id="{84B535A3-4E7E-4560-8FCC-6C542C80DE51}" StateId="7A8AB062-07E9-4727-B9C5-05A65CDD6F12" ViewModes="ListLayout,GridLayout"/>
+    <!-- News Item list -->
+    <WorkflowStateViewModes Skin="Nereus" Id="{F2461E2D-D6EF-4b08-B8CC-A0662BFABDD1}" StateId="380B17A6-010E-4BB2-B79C-965CC3F8EFDD" ViewModes="ListLayout,GridLayout"/>
+    <!-- WebRadio -->
+    <WorkflowStateViewModes Skin="Nereus" Id="{E23F342D-13B8-4f26-9FF6-EAFF3653A7BB}" StateId="263FADFE-87BE-4563-83F0-E62707891E1B" ViewModes="ListLayout,GridLayout"/>
+    <!-- OnlineVideos SiteGroup -->
+    <WorkflowStateViewModes Skin="Nereus" Id="{5E1097BA-A671-4627-8756-BD3CBD1F5990}" StateId="629FD4EB-1EB5-4ADA-BA69-0977274C2FB0" ViewModes="ListLayout,GridLayout"/>
+    <!-- OnlineVideos Sites -->
+    <WorkflowStateViewModes Skin="Nereus" Id="{53E87028-32BF-4c6f-AFD4-D2DEA0274FCC}" StateId="F9D7500D-EC5C-4FEF-8FAE-E4DED8A22CE0" ViewModes="ListLayout,GridLayout"/>
+    <!-- OnlineVideos Categories -->
+    <WorkflowStateViewModes Skin="Nereus" Id="{4FC8A99C-5D4C-4639-B51B-4D48DF2CBDE0}" StateId="517DD2C8-27C4-4AE1-ABDC-B8001BFC95DA" ViewModes="ListLayout,GridLayout"/>
+    <!-- OnlineVideos Videos -->
+    <WorkflowStateViewModes Skin="Nereus" Id="{A16E281E-FCC8-4885-90E8-83AAA9D823BC}" StateId="FF474A1A-CA39-4247-BFEA-4E7B578F482B" ViewModes="ListLayout,GridLayout"/>
+    <!-- OnlineVideos Details -->
+    <WorkflowStateViewModes Skin="Nereus" Id="{EC8A5817-0DAB-4e72-AB82-CA9BE0B11C9C}" StateId="F7DF593E-A606-4096-B8E1-BE702C43A325" ViewModes="ListLayout,GridLayout"/>
+    <!-- App Launcher -->
+    <WorkflowStateViewModes Skin="Nereus" Id="{4277C0DA-2528-48a2-8AAA-224671B5C7D2}" StateId="EE23FB37-043C-46DE-9DAC-7F023135C0B2" ViewModes="ListLayout,GridLayout"/>
+  </Register>
+
+  <!-- Contents of '/Appearance' section -->
+  <Register Location="/Configuration/Settings/Appearance">
+    <ConfigSection
+        Id="Skin"
+        Redundant="true"
+        Text="[Settings.Appearance.Skin]"/>
+  </Register>
+
+  <!-- Contents of '/Appearance/Skin' section -->
+  <Register Location="/Configuration/Settings/Appearance/Skin">
+    <ConfigSection
+        Id="SkinSettings"
+        Redundant="true"
+        Text="[SkinSettings.Configuration.SkinSettings]"/>
+  </Register>
+
+  <!-- Contents of '/Appearance/Skin/SkinAndTheme' group -->
+  <Register Location="/Configuration/Settings/Appearance/Skin/SkinSettings">
+    <ConfigSetting
+        Id="NereusEnableFanart"
+        Text="[Nereus.Configuration.EnableFanart]"
+        HelpText="[Nereus.Configuration.EnableFanart.Help]"
+        ClassName="MediaPortal.UiComponents.Nereus.Settings.Configuration.EnableFanartConfiguration"/>
+    
+    <ConfigSetting
+        Id="NereusFanartOverlayOpacity"
+        Text="[Nereus.Configuration.FanartOverlayOpacity]"
+        HelpText="[Nereus.Configuration.FanartOverlayOpacity.Help]"
+        ClassName="MediaPortal.UiComponents.Nereus.Settings.Configuration.FanartOverlayOpacityConfiguration"/>
+    
+    <ConfigSetting
+        Id="NereusEnableWatchedFlags"
+        Text="[Nereus.Configuration.EnableWatchedFlags]"
+        HelpText="[Nereus.Configuration.EnableWatchedFlags.Help]"
+        ClassName="MediaPortal.UiComponents.Nereus.Settings.Configuration.EnableWatchedFlagsConfiguration"/>
+    
+    <ConfigSetting
+        Id="NereusEnableAgeCertificationLogos"
+        Text="[Nereus.Configuration.EnableAgeCertificationLogos]"
+        HelpText="[Nereus.Configuration.EnableAgeCertificationLogos.Help]"
+        ClassName="MediaPortal.UiComponents.Nereus.Settings.Configuration.EnableAgeCertificationLogosConfiguration"/>
+
+    <ConfigSetting
+        Id="NereusMovieGridViewType"
+        Text="[Nereus.Configuration.MovieGridViewType]"
+        HelpText="[Nereus.Configuration.MovieGridViewType.Help]"
+        ClassName="MediaPortal.UiComponents.Nereus.Settings.Configuration.MovieGridViewTypeConfiguration"/>
+
+    <ConfigSetting
+        Id="NereusSeriesGridViewType"
+        Text="[Nereus.Configuration.SeriesGridViewType]"
+        HelpText="[Nereus.Configuration.SeriesGridViewType.Help]"
+        ClassName="MediaPortal.UiComponents.Nereus.Settings.Configuration.SeriesGridViewTypeConfiguration"/>
+
+    <ConfigSetting
+        Id="NereusSeasonGridViewType"
+        Text="[Nereus.Configuration.SeasonGridViewType]"
+        HelpText="[Nereus.Configuration.SeasonGridViewType.Help]"
+        ClassName="MediaPortal.UiComponents.Nereus.Settings.Configuration.SeasonGridViewTypeConfiguration"/>
+
+    <ConfigSetting
+        Id="NereusEnableHomeContent"
+        Text="[Nereus.Configuration.EnableHomeContent]"
+        HelpText="[Nereus.Configuration.EnableHomeContent.Help]"
+        ClassName="MediaPortal.UiComponents.Nereus.Settings.Configuration.EnableHomeContentConfiguration"/>
+
+    <ConfigSetting
+        Id="NereusEnableMediaItemDetailsView"
+        Text="[Nereus.Configuration.EnableMediaItemDetailsView]"
+        HelpText="[Nereus.Configuration.EnableMediaItemDetailsView.Help]"
+        ClassName="MediaPortal.UiComponents.Nereus.Settings.Configuration.EnableMediaItemDetailsViewConfiguration"/>
+  </Register>
+
+</Plugin>

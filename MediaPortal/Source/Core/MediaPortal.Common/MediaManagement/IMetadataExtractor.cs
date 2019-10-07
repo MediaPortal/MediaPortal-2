@@ -37,19 +37,31 @@ namespace MediaPortal.Common.MediaManagement
     /// <summary>
     /// External Ids found in the match.
     /// </summary>
-    public IDictionary<string, string> ExternalIds = new Dictionary<string, string>();
+    public IDictionary<string, string> ExternalIds { get; set; } = new Dictionary<string, string>();
     /// <summary>
     /// A descriptive (preferably unique) name for the match. 
     /// </summary>
-    public string Name;
+    public string Name { get; set; }
     /// <summary>
     /// Detailed description of the match if available.
     /// </summary>
-    public string Description;
+    public string Description { get; set; }
+    /// <summary>
+    /// Provider that made the match.
+    /// </summary>
+    public List<string> Providers { get; set; } = new List<string>();
+    /// <summary>
+    /// Match percentage.
+    /// </summary>
+    public int MatchPercentage { get; set; }
+    /// <summary>
+    /// Match language.
+    /// </summary>
+    public string Language { get; set; }
     /// <summary>
     /// Aspect data for the match that can be used for storing if needed.
     /// </summary>
-    public IDictionary<Guid, IList<MediaItemAspect>> AspectData = new Dictionary<Guid, IList<MediaItemAspect>>();
+    public IDictionary<Guid, IList<MediaItemAspect>> AspectData { get; set; } = new Dictionary<Guid, IList<MediaItemAspect>>();
   }
 
   /// <summary>
@@ -137,5 +149,14 @@ namespace MediaPortal.Common.MediaManagement
     /// <param name="matchedAspectData">A dictionary containing all the currently matched aspects to which details can be added if available.</param>
     /// <returns><c>true</c> if details were added, else <c>false</c>.
     Task<bool> AddMatchedAspectDetailsAsync(IDictionary<Guid, IList<MediaItemAspect>> matchedAspectData);
+
+    /// <summary>
+    /// Downloads metadata based on aspect data <paramref name="aspectData"/>.
+    /// The downloads from various sources like files, online data etc.
+    /// </summary>
+    /// <param name="mediaItemId">The media item the aspect data comes from.</param>
+    /// <param name="aspectData">A dictionary containing all the current aspects from which the needed metadata should be found.</param>
+    /// <returns><c>true</c> if metadata was downloaded, else <c>false</c>.
+    Task<bool> DownloadMetadataAsync(Guid mediaItemId, IDictionary<Guid, IList<MediaItemAspect>> aspectData);
   }
 }

@@ -45,7 +45,7 @@ using System.Threading.Tasks;
 
 namespace MediaPortal.Extensions.OnlineLibraries.Matchers
 {
-  public abstract class SeriesMatcher<TImg, TLang> : BaseMatcher<SeriesMatch, string, TImg, TLang>, ISeriesMatcher
+  public abstract class SeriesMatcher<TImg, TLang> : BaseMediaMatcher<SeriesMatch, string, TImg, TLang>, ISeriesMatcher
   {
     public class SeriresMatcherSettings
     {
@@ -1545,16 +1545,16 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
       SaveConfig();
     }
 
-    private void CacheUpdateFinished(ApiWrapper<TImg, TLang>.UpdateFinishedEventArgs _event)
+    private void CacheUpdateFinished(UpdateFinishedEventArgs _event)
     {
       try
       {
-        if (_event.UpdatedItemType == ApiWrapper<TImg, TLang>.UpdateType.Series)
+        if (_event.UpdatedItemType == UpdateType.Series)
         {
           _config.LastUpdatedSeries.AddRange(_event.UpdatedItems);
           SaveConfig();
         }
-        if (_event.UpdatedItemType == ApiWrapper<TImg, TLang>.UpdateType.Episode)
+        if (_event.UpdatedItemType == UpdateType.Episode)
         {
           _config.LastUpdatedEpisodes.AddRange(_event.UpdatedItems);
           SaveConfig();

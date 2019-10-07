@@ -39,10 +39,13 @@ using MediaPortal.Common.Services.GenreConverter;
 
 namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
 {
-  class TheMovieDbWrapper : ApiWrapper<ImageItem, string>
+  class TheMovieDbWrapper : ApiMediaWrapper<ImageItem, string>
   {
+    private const string PROVIDER_NAME = "themoviedb.org";
+
     protected MovieDbApiV3 _movieDbHandler;
     protected TimeSpan _cacheTimeout = TimeSpan.FromHours(23.5);
+
     private bool _movieMode = true;
 
     /// <summary>
@@ -75,6 +78,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
         MovieName = new SimpleTitle(m.Title, false),
         OriginalName = m.OriginalTitle,
         ReleaseDate = m.ReleaseDate,
+        DataProviders = new List<string>() { PROVIDER_NAME }
       }).ToList() : null;
     }
 
@@ -129,6 +133,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
                 SeriesName = seriesSearch?.SeriesName ?? episodeSearch.SeriesName,
                 SeasonNumber = episode.SeasonNumber,
                 EpisodeName = new SimpleTitle(episode.Name, false),
+                DataProviders = new List<string>() { PROVIDER_NAME }
               };
               info.EpisodeNumbers.Add(episode.EpisodeNumber);
               info.CopyIdsFrom(seriesSearch);
@@ -146,6 +151,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
           SeriesName = seriesSearch?.SeriesName ?? episodeSearch.SeriesName,
           SeasonNumber = episodeSearch.SeasonNumber,
           EpisodeName = episodeSearch.EpisodeName,
+          DataProviders = new List<string>() { PROVIDER_NAME }
         };
         info.CopyIdsFrom(seriesSearch);
         info.EpisodeNumbers = info.EpisodeNumbers.Union(episodeSearch.EpisodeNumbers).ToList();
@@ -171,6 +177,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
         SeriesName = new SimpleTitle(s.Name, true),
         OriginalName = s.OriginalName,
         FirstAired = s.FirstAirDate,
+        DataProviders = new List<string>() { PROVIDER_NAME }
       }).ToList();
     }
 
@@ -184,6 +191,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
       {
         MovieDbId = p.Id,
         Name = p.Name,
+        DataProviders = new List<string>() { PROVIDER_NAME }
       }).ToList();
     }
 
@@ -197,6 +205,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
       {
         MovieDbId = p.Id,
         Name = p.Name,
+        DataProviders = new List<string>() { PROVIDER_NAME }
       }).ToList();
     }
 
@@ -255,6 +264,9 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
           movie.Characters = ConvertToCharacters(movieCasts.Cast, movieDetail.Title);
         }
 
+        if (!movie.DataProviders.Contains(PROVIDER_NAME))
+          movie.DataProviders.Add(PROVIDER_NAME);
+
         return !cacheIncomplete;
       }
       catch (Exception ex)
@@ -279,6 +291,9 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
         collection.CollectionName = new SimpleTitle(collectionDetail.Name, false);
         collection.Movies = ConvertToMovies(collectionDetail, collectionDetail.Movies);
         collection.TotalMovies = collectionDetail.Movies.Count;
+
+        if (!collection.DataProviders.Contains(PROVIDER_NAME))
+          collection.DataProviders.Add(PROVIDER_NAME);
 
         return true;
       }
@@ -321,6 +336,9 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
         person.DateOfDeath = personDetail.DateOfDeath;
         person.Orign = personDetail.PlaceOfBirth;
 
+        if (!person.DataProviders.Contains(PROVIDER_NAME))
+          person.DataProviders.Add(PROVIDER_NAME);
+
         return true;
       }
       catch (Exception ex)
@@ -353,6 +371,8 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
             character.ActorName = characters[index].ActorName;
             character.Name = characters[index].Name;
             character.Order = characters[index].Order;
+            if (!character.DataProviders.Contains(PROVIDER_NAME))
+              character.DataProviders.Add(PROVIDER_NAME);
 
             return true;
           }
@@ -383,6 +403,8 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
         company.MovieDbId = companyDetail.Id;
         company.Name = companyDetail.Name;
         company.Description = new SimpleTitle(companyDetail.Description, false);
+        if (!company.DataProviders.Contains(PROVIDER_NAME))
+          company.DataProviders.Add(PROVIDER_NAME);
 
         return true;
       }
@@ -495,7 +517,8 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
               FirstAired = currentSeason.AirDate,
               Description = new SimpleTitle(currentSeason.Overview, false),
               TotalEpisodes = currentSeason.Episodes.Count,
-              SeasonNumber = currentSeason.SeasonNumber
+              SeasonNumber = currentSeason.SeasonNumber,
+              DataProviders = new List<string>() { PROVIDER_NAME }
             };
             series.Seasons.Add(seasonInfo);
 
@@ -516,7 +539,8 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
                 Rating = new SimpleRating(episodeDetail.Rating, episodeDetail.RatingCount),
                 EpisodeName = new SimpleTitle(episodeDetail.Name, false),
                 Summary = new SimpleTitle(episodeDetail.Overview, false),
-                Genres = ConvertToSeriesGenreIds(seriesDetail.Genres)
+                Genres = ConvertToSeriesGenreIds(seriesDetail.Genres),
+                DataProviders = new List<string>() { PROVIDER_NAME }
               };
 
               episodeInfo.Actors = new List<PersonInfo>();
@@ -547,6 +571,8 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
 
         series.TotalSeasons = series.Seasons.Count;
         series.TotalEpisodes = series.Episodes.Count;
+        if (!series.DataProviders.Contains(PROVIDER_NAME))
+          series.DataProviders.Add(PROVIDER_NAME);
 
         return !cacheIncomplete;
       }
@@ -617,6 +643,9 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
         season.Description = new SimpleTitle(seasonDetail.Overview, false);
         season.SeasonNumber = seasonDetail.SeasonNumber;
         season.TotalEpisodes = seasonDetail.Episodes.Count;
+
+        if (!season.DataProviders.Contains(PROVIDER_NAME))
+          season.DataProviders.Add(PROVIDER_NAME);
 
         return true;
       }
@@ -691,7 +720,8 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
               Rating = new SimpleRating(episodeDetail.Rating, episodeDetail.RatingCount),
               EpisodeName = new SimpleTitle(episodeDetail.Name, false),
               Summary = new SimpleTitle(episodeDetail.Overview, false),
-              Genres = ConvertToSeriesGenreIds(seriesDetail.Genres)
+              Genres = ConvertToSeriesGenreIds(seriesDetail.Genres),
+              DataProviders = new List<string>() { PROVIDER_NAME }
             };
 
             info.Actors = new List<PersonInfo>();
@@ -709,6 +739,9 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
             episodeDetails.Add(info);
           }
         }
+        if (!episode.DataProviders.Contains(PROVIDER_NAME))
+          episode.DataProviders.Add(PROVIDER_NAME);
+
         if (episodeDetails.Count > 1)
         {
           SetMultiEpisodeDetails(episode, episodeDetails);
@@ -757,6 +790,8 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
 
           company.MovieDbId = companyDetail.Id;
           company.Name = companyDetail.Name;
+          if (!company.DataProviders.Contains(PROVIDER_NAME))
+            company.DataProviders.Add(PROVIDER_NAME);
 
           return true;
         }
@@ -792,6 +827,8 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
             character.ActorName = characters[index].ActorName;
             character.Name = characters[index].Name;
             character.Order = characters[index].Order;
+            if (!character.DataProviders.Contains(PROVIDER_NAME))
+              character.DataProviders.Add(PROVIDER_NAME);
 
             return true;
           }
@@ -832,7 +869,8 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
           MovieName = new SimpleTitle(movie.Title, false),
           OriginalName = movie.OriginalTitle,
           ReleaseDate = movie.ReleaseDate,
-          Order = retValue.Count
+          Order = retValue.Count,
+          DataProviders = new List<string>() { PROVIDER_NAME }
         });
       }
       return retValue;
@@ -852,7 +890,8 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
           Name = person.Name,
           Occupation = occupation,
           MediaName = media,
-          ParentMediaName = parentMedia
+          ParentMediaName = parentMedia,
+          DataProviders = new List<string>() { PROVIDER_NAME }
         });
       }
       return retValue;
@@ -872,7 +911,8 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
           Name = person.Name,
           Occupation = occupation,
           Order = person.Order,
-          MediaName = media
+          MediaName = media,
+          DataProviders = new List<string>() { PROVIDER_NAME }
         });
       }
       return retValue;
@@ -892,7 +932,8 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
           Name = person.Character,
           Order = person.Order,
           MediaName = media,
-          ParentMediaName = parentMedia
+          ParentMediaName = parentMedia,
+          DataProviders = new List<string>() { PROVIDER_NAME }
         });
       return retValue;
     }
@@ -909,7 +950,8 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
         {
           MovieDbId = company.Id,
           Name = company.Name,
-          Type = type
+          Type = type,
+          DataProviders = new List<string>() { PROVIDER_NAME }
         });
       }
       return retValue;

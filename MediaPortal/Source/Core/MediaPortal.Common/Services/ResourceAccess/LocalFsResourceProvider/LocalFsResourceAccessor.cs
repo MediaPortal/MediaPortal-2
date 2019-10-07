@@ -146,6 +146,17 @@ namespace MediaPortal.Common.Services.ResourceAccess.LocalFsResourceProvider
       return File.OpenWrite(dosPath);
     }
 
+    public Stream CreateOpenWrite(string file, bool overwrite)
+    {
+      string dosPath = LocalFsResourceProviderBase.ToDosPath(_path);
+      if (string.IsNullOrEmpty(dosPath) || !Directory.Exists(dosPath))
+        return null;
+      string filePath = System.IO.Path.Combine(dosPath, file);
+      if (File.Exists(filePath) && !overwrite)
+        return File.OpenWrite(filePath);
+      return File.Create(filePath);
+    }
+
     public IResourceAccessor Clone()
     {
       return new LocalFsResourceAccessor(_provider, _path);

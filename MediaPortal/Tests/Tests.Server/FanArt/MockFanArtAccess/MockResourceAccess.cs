@@ -188,6 +188,11 @@ namespace Tests.Server.FanArt.MockFanArtAccess
       throw new NotImplementedException();
     }
 
+    public Stream CreateOpenWrite(string file, bool overwrite)
+    {
+      throw new NotImplementedException();
+    }
+
     public void PrepareStreamAccess()
     {
       throw new NotImplementedException();

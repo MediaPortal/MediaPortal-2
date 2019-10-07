@@ -62,6 +62,7 @@
         WorkflowModel="CC11183C-01A9-4F96-AF90-FAA046981006"/>
   </Register>
 
+  <!-- Root configuration sections -->
   <Register Location="/Configuration/Settings">
     <ConfigSection
         Id="InputDevices"
@@ -69,6 +70,7 @@
         Text="[Settings.InputDeviceManager.Section]"/>
   </Register>
 
+  <!-- Contents of '/InputDevices' section -->
   <Register Location="/Configuration/Settings/InputDevices">
     <CustomConfigSetting
         Id="InputDevicesConfKeys"

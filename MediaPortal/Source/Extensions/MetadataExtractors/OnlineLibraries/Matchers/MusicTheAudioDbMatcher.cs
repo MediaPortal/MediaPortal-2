@@ -36,15 +36,6 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
 {
   public class MusicTheAudioDbMatcher : MusicMatcher<string, string>
   {
-    #region Static instance
-
-    public static MusicTheAudioDbMatcher Instance
-    {
-      get { return ServiceRegistration.Get<MusicTheAudioDbMatcher>(); }
-    }
-
-    #endregion
-
     #region Constants
 
     public static string CACHE_PATH = ServiceRegistration.Get<IPathManager>().GetPath(@"<DATA>\TheAudioDB\");

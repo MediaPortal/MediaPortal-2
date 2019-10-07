@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<resources>
+	<string name="AppLauncher.Title">App Launcher</string>
+  <string name="AppLauncher.Stop">Stop</string>
+  <string name="AppLauncher.Pause">Pause</string>
+  <string name="AppLauncher.SwitchPlaying">Change playback status</string>
+	<string name="AppLauncher.Settings.Title">Settings</string>	
+	<string name="AppLauncher.Settings.Helptext">Select your external Applications</string>
+	<string name="AppLauncher.Settings.Add">Add Application</string>
+  <string name="AppLauncher.Settings.Add.Shortname">Short Name</string>
+  <string name="AppLauncher.Settings.Add.Arguments">Arguments</string>
+  <string name="AppLauncher.Settings.Add.Path">Application Path</string>
+  <string name="AppLauncher.Settings.Add.Description">Description</string>
+  <string name="AppLauncher.Settings.Add.Username">User Name</string>
+  <string name="AppLauncher.Settings.Add.Password">Password</string>
+  <string name="AppLauncher.Settings.Add.Icon">Icon Path</string>
+  <string name="AppLauncher.Settings.Add.Screenmode">Screen Mode</string>
+  <string name="AppLauncher.Settings.Add.Search">Search</string>
+  <string name="AppLauncher.Settings.Add.Select">Select</string>
+  <string name="AppLauncher.Settings.Add.Minimum">Minimum</string>
+  <string name="AppLauncher.Settings.Add.Normal">Normal</string>
+  <string name="AppLauncher.Settings.Add.Maximum">Maximum</string>
+  <string name="AppLauncher.Settings.Add.NoWindow">No Window</string>
+  <string name="AppLauncher.Settings.Add.SearchIcon">Search Icon</string>
+  <string name="AppLauncher.Settings.Add.SearchApp">Search Application</string>
+  <string name="AppLauncher.Settings.Add.AsAdmin">Run as Admin</string>
+  <string name="AppLauncher.Settings.Edit">Edit Application</string>
+	<string name="AppLauncher.Settings.Delete">Delete Application</string>
+	<string name="AppLauncher.Settings.Test">Test Application</string>
+  <string name="AppLauncher.Group">Group</string>
+  <string name="AppLauncher.Ungrouped">Ungrouped</string>
+  <string name="AppLauncher.SelectGroup">Select a Group</string>
+  <string name="AppLauncher.SelectApp">Select an Application</string>
+  <string name="AppLauncher.RemoveGroup">Remove Group</string>
+  <string name="AppLauncher.Delete">Delete</string>
+  <string name="AppLauncher.Settings.Add.Helptext">Added a new Application</string>
+  <string name="AppLauncher.Settings.Edit.Helptext">Edit an existing Application</string>
+  <string name="AppLauncher.Settings.Delete.Helptext">Remove an existing Application</string>
+  <string name="AppLauncher.Settings.RemoveGroup.Helptext">Remove an existing Group</string>
+</resources>

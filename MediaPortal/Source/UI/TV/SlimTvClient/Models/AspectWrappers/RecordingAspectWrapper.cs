@@ -26,7 +26,7 @@ using System;
 using System.Collections.Generic;
 using MediaPortal.Common.General;
 using MediaPortal.Common.MediaManagement;
-using MediaPortal.Extensions.MetadataExtractors.Aspects;
+using MediaPortal.Plugins.SlimTv.Interfaces.Aspects;
 using MediaPortal.UI.SkinEngine.Controls.Visuals;
 
 namespace MediaPortal.Plugins.SlimTv.Client.Models.AspectWrappers

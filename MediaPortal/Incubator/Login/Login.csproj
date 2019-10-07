@@ -38,6 +38,24 @@
     <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|AnyCPU'">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <DebugType>full</DebugType>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|AnyCPU'">
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <Optimize>true</Optimize>
+    <DebugType>pdbonly</DebugType>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -52,14 +70,15 @@
     </Compile>
     <Compile Include="Actions\UserLoginAction.cs" />
     <Compile Include="General\Consts.cs" />
-    <Compile Include="General\Utils.cs" />
     <Compile Include="LoginPlugin.cs" />
     <Compile Include="Models\LoginModel.cs" />
+    <Compile Include="Models\UserLanguageModel.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Settings\Configuration\AutoLoginUserSetting.cs" />
     <Compile Include="Settings\Configuration\AutoLogoutTimeoutSetting.cs" />
     <Compile Include="Settings\Configuration\AutoLogoutSettings.cs" />
     <Compile Include="Settings\Configuration\UserLoginScreenSettings.cs" />
+    <Compile Include="Settings\Configuration\UserLanguageSetting.cs" />
     <Compile Include="Settings\UserTemplateSettings.cs" />
     <Compile Include="Settings\UserSettingStorage.cs" />
     <Compile Include="Settings\Configuration\UserConfigSettings.cs" />
@@ -138,19 +157,16 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Skin\WMCSkin\screens\Login.xaml">
-      <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Content>
   </ItemGroup>
   <ItemGroup>
     <Content Include="Skin\BlueVision\screens\Login.xaml">
       <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
     </Content>
   </ItemGroup>
   <ItemGroup>
     <Content Include="Skin\BlueVision\themes\Win10\screens\Login.xaml">
-      <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Content>
   </ItemGroup>
@@ -188,5 +204,28 @@
     <Content Include="Skin\BlueVision\themes\Win10\screens\UserManagement.xaml">
       <SubType>Designer</SubType>
     </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\default\screens\UserLanguages.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\default\screens\DialogSelectLanguage.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\Nereus\screens\UserManagement.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\Nereus\screens\Login.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Skin\Nereus\themes\default\styles\" />
   </ItemGroup>
 </Project>

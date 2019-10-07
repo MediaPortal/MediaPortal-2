@@ -32,8 +32,8 @@ using MediaPortal.Common.Logging;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.ResourceAccess;
 using MediaPortal.Common.Services.ServerCommunication;
-using MediaPortal.Extensions.MetadataExtractors.Aspects;
 using MediaPortal.Plugins.SlimTv.Interfaces;
+using MediaPortal.Plugins.SlimTv.Interfaces.Aspects;
 using MediaPortal.Plugins.SlimTv.Interfaces.Items;
 using MediaPortal.UiComponents.Media.MediaItemActions;
 
