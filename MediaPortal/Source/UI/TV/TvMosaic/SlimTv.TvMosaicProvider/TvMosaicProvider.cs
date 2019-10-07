@@ -485,6 +485,21 @@ namespace SlimTv.TvMosaicProvider
       return new AsyncResult<ISchedule>(false, null);
     }
 
+    public Task<AsyncResult<ISchedule>> CreateScheduleByTimeAsync(IChannel channel, string title, DateTime @from, DateTime to, ScheduleRecordingType recordingType)
+    {
+      throw new NotImplementedException();
+    }
+
+    public Task<AsyncResult<ISchedule>> CreateScheduleDetailedAsync(IChannel channel, string title, DateTime @from, DateTime to, ScheduleRecordingType recordingType, int preRecordInterval, int postRecordInterval, string directory, int priority)
+    {
+      throw new NotImplementedException();
+    }
+
+    public Task<bool> EditScheduleAsync(ISchedule schedule, IChannel channel = null, string title = null, DateTime? @from = null, DateTime? to = null, ScheduleRecordingType? recordingType = null, int? preRecordInterval = null, int? postRecordInterval = null, string directory = null, int? priority = null)
+    {
+      throw new NotImplementedException();
+    }
+
     public async Task<bool> RemoveScheduleForProgramAsync(IProgram program, ScheduleRecordingType recordingType)
     {
       var programId = program.ProgramId;
@@ -506,6 +521,11 @@ namespace SlimTv.TvMosaicProvider
     {
       var result = await _dvbLink.RemoveSchedule(new ScheduleRemover(schedule.ScheduleId.ToString()));
       return result.Status == StatusCode.STATUS_OK;
+    }
+
+    public Task<bool> UnCancelScheduleAsync(IProgram program)
+    {
+      throw new NotImplementedException();
     }
 
     public async Task<AsyncResult<RecordingStatus>> GetRecordingStatusAsync(IProgram program)
