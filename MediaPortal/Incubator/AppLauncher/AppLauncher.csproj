@@ -32,17 +32,10 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="MediaPortal.Common">
-      <HintPath>..\..\Source\Core\MediaPortal.Common\bin\Debug\MediaPortal.Common.dll</HintPath>
-    </Reference>
-    <Reference Include="MediaPortal.UI">
-      <HintPath>..\..\Source\Core\MediaPortal.UI\bin\Debug\MediaPortal.UI.dll</HintPath>
-    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Drawing" />
     <Reference Include="System.Windows.Forms" />
-    <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="..\..\Source\Core\MediaPortal.Common\VersionInfo\VersionInfo.cs">
@@ -184,6 +177,16 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\Source\Core\MediaPortal.Common\MediaPortal.Common.csproj">
+      <Project>{ECF060E7-CAA1-4466-851F-F80B857641EA}</Project>
+      <Name>MediaPortal.Common</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\Source\Core\MediaPortal.UI\MediaPortal.UI.csproj">
+      <Project>{52E587D0-A274-44DA-8846-8EEAF5414923}</Project>
+      <Name>MediaPortal.UI</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="build.targets" />
