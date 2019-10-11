@@ -70,8 +70,7 @@ namespace MediaPortal.UiComponents.Nereus.Models
 
     protected AbstractProperty _contentIndexProperty;
     protected AbstractProperty _selectedItemProperty;
-
-    protected bool _isInit = false;
+    
     protected DelayedEvent _updateEvent;
 
     protected IDictionary<Guid, object> _homeContent = new Dictionary<Guid, object>();
@@ -138,9 +137,6 @@ namespace MediaPortal.UiComponents.Nereus.Models
 
     private void OnMessageReceived(AsynchronousMessageQueue queue, SystemMessage message)
     {
-      if (_isInit)
-        return;
-
       if (message.ChannelName == WorkflowManagerMessaging.CHANNEL)
       {
         WorkflowManagerMessaging.MessageType messageType = (WorkflowManagerMessaging.MessageType)message.MessageType;
@@ -152,11 +148,9 @@ namespace MediaPortal.UiComponents.Nereus.Models
           {
             if (context.WorkflowState.StateId == HOME_STATE_ID)
             {
-              // If this is the first time entering the home state, we need to get and attach to the home items.
-              // If not, then we are returning to the home state and need to re-attach and refresh the items as we
-              // detached and missed any changes when leaving.
-              if (!CheckHomeMenuItems())
-                AttachAndRefreshHomeMenuItems();
+              // If we are returning to the home state then we need to manually
+              // attach and refresh the items, as we detached and missed any changes when leaving.
+              AttachAndRefreshHomeMenuItems();
             }
             else
             {
@@ -320,6 +314,10 @@ namespace MediaPortal.UiComponents.Nereus.Models
       if (items == null)
         return;
 
+      // Get the currently selected item so we can try
+      // and focus it again if the list is rebuilt
+      ListItem previousSelectedItem = SelectedItem;
+
       // Get the action ids that will be visible in the main menu.
       // All other actions will be placed under 'Other'.
       var actionIds = new HashSet<Guid>(_settingsWatcher.Settings.HomeMenuActionIds);
@@ -356,7 +354,12 @@ namespace MediaPortal.UiComponents.Nereus.Models
 
       // Rebuild the items lists only if the actions have actually changed
       if (RebuildMenuItemsIfNotEqual(_mainMenuItems, changedMainItems))
+      {
+        // The list has been rebuilt, try and set focus on the previously selected action
+        WorkflowAction previousSelectedAction = previousSelectedItem != null ? GetAction(previousSelectedItem) : null;
+        TryRestoreSelectedAction(previousSelectedAction, changedMainItems);
         _mainMenuItems.FireChange();
+      }
 
       if (RebuildMenuItemsIfNotEqual(_otherMenuItems, changedOtherItems))
         _otherMenuItems.FireChange();
@@ -386,6 +389,25 @@ namespace MediaPortal.UiComponents.Nereus.Models
         if (GetAction(current[i])?.ActionId != GetAction(updated[i])?.ActionId)
           return false;
       return true;
+    }
+
+    protected void TryRestoreSelectedAction(WorkflowAction previousSelectedAction, IList<ListItem> items)
+    {
+      // The list has been rebuilt, try and set focus on the previously selected action
+      bool hasSelected = false;
+      foreach (ListItem item in items)
+      {
+        // Shortcut if we've already selected an item
+        if (hasSelected)
+          item.Selected = false;
+        else
+        {
+          // Select either the first item if there's no previous action, or the action with the same id as the previous action. 
+          hasSelected = previousSelectedAction == null || previousSelectedAction.ActionId == GetAction(item)?.ActionId;
+          // Always update the property so previously selected items are reset.
+          item.Selected = hasSelected;
+        }
+      }
     }
 
     private void OnSelectedItemChanged(AbstractProperty property, object oldValue)

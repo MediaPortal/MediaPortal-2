@@ -282,7 +282,7 @@ Parameters which have to be accessible by a DynamicResource lookup:
                  Opacity="0.9" VerticalAlignment="Center" Margin="0,0,-25,0"/>
 
           <ListView x:Name="MainMenu" Style="{ThemeResource HomeMenuListViewStyle}" RestoreFocus="True" Height="1200"
-                    HorizontalAlignment="Center" VerticalAlignment="Stretch" SetFocusPrio="DefaultHigh" SetFocus="True"
+                    HorizontalAlignment="Center" VerticalAlignment="Stretch" SetFocusPrio="DefaultHigh"
                     ItemsSource="{Binding Source={StaticResource HomeMenuModel}, Path=MainMenuItems, Mode=OneTime}"
                     SelectionChanged="{CommandStencil Source={StaticResource HomeMenuModel}, Path=SetSelectedItem}">
             <ListView.Resources>
