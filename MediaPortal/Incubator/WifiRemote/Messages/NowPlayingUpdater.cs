@@ -54,13 +54,13 @@ namespace MediaPortal.Plugins.WifiRemote.Messages
 
     private static void DoNowPlayingUpdate()
     {
-      ServiceRegistration.Get<ILogger>().Debug("Start now-playing update thread");
+      ServiceRegistration.Get<ILogger>().Debug("WifiRemote: Start now-playing update thread");
       _nowPlayingUpdateThreadRunning = true;
       while (_nowPlayingUpdateThreadRunning)
       {
         if (Helper.IsNowPlaying() && _nowPlayingUpdateThreadRunning)
         {
-          ServiceRegistration.Get<ILogger>().Debug("Send Nowplaying");
+          ServiceRegistration.Get<ILogger>().Debug("WifiRemote: Send Nowplaying");
           if (_nowPlayingWasSend)
             SendMessageToAllClients.Send(new MessageNowPlayingUpdate(), ref SocketServer.Instance.connectedSockets);
           else
@@ -71,7 +71,7 @@ namespace MediaPortal.Plugins.WifiRemote.Messages
         }
         Thread.Sleep(UPDATE_INTERVAL);
       }
-      ServiceRegistration.Get<ILogger>().Debug("Stop now-playing update thread");
+      ServiceRegistration.Get<ILogger>().Debug("WifiRemote: Stop now-playing update thread");
     }
   }
 }

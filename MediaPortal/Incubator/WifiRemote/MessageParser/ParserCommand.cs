@@ -52,7 +52,7 @@ namespace MediaPortal.Plugins.WifiRemote.MessageParser
     public static Task<bool> ParseAsync(JObject message, SocketServer server, AsyncSocket sender)
     {
       string command = GetMessageValue<string>(message, "Command");
-      ServiceRegistration.Get<ILogger>().Debug("WifiRemote Parser Command: Command: {0}", command);
+      ServiceRegistration.Get<ILogger>().Debug("WifiRemote: Parser Command: Command: {0}", command);
       SendCommand(command);
       return Task.FromResult(true);
     }
