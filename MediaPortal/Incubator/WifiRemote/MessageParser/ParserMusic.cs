@@ -82,7 +82,7 @@ namespace MediaPortal.Plugins.WifiRemote.MessageParser
           var mediaItemGuid = await GetIdFromNameAsync(client, albumName, id, Helper.GetAlbumByAlbumNameAsync);
           if (mediaItemGuid == null)
           {
-            ServiceRegistration.Get<ILogger>().Error("WifiRemote List Tracks: Couldn't convert AlbumId '{0} to Guid", id);
+            ServiceRegistration.Get<ILogger>().Error("WifiRemote: List Tracks: Couldn't convert AlbumId '{0} to Guid", id);
             return false;
           }
           var list = await Helper.GetTracksByAlbumIdAsync(client.UserId, mediaItemGuid.Value);
@@ -96,19 +96,19 @@ namespace MediaPortal.Plugins.WifiRemote.MessageParser
         // Play a track
         else if (action.Equals("playtrack", StringComparison.InvariantCultureIgnoreCase))
         {
-          ServiceRegistration.Get<ILogger>().Debug("WifiRemote Play Track: AlbumName: {0}, AlbumId: {1}, DiscNumber: {2}, TrackNumber: {3}, StartPos: {4}", albumName, id, discNum, trackNum, startPos);
+          ServiceRegistration.Get<ILogger>().Debug("WifiRemote: Play Track: AlbumName: {0}, AlbumId: {1}, DiscNumber: {2}, TrackNumber: {3}, StartPos: {4}", albumName, id, discNum, trackNum, startPos);
 
           var mediaItemGuid = await GetIdFromNameAsync(client, albumName, id, Helper.GetAlbumByAlbumNameAsync);
           if (mediaItemGuid == null)
           {
-            ServiceRegistration.Get<ILogger>().Error("WifiRemote Play Track: Couldn't convert AlbumId '{0} to Guid", id);
+            ServiceRegistration.Get<ILogger>().Error("WifiRemote: Play Track: Couldn't convert AlbumId '{0} to Guid", id);
             return false;
           }
 
           var episode = await Helper.GetTrackByAlbumTrackAsync(client.UserId, mediaItemGuid.Value, discNum, trackNum);
           if (!(episode?.Count > 0))
           {
-            ServiceRegistration.Get<ILogger>().Error("WifiRemote Play Track: Couldn't find track");
+            ServiceRegistration.Get<ILogger>().Error("WifiRemote: Play Track: Couldn't find track");
             return false;
           }
 
@@ -121,14 +121,14 @@ namespace MediaPortal.Plugins.WifiRemote.MessageParser
           var mediaItemGuid = await GetIdFromNameAsync(client, albumName, id, Helper.GetAlbumByAlbumNameAsync);
           if (mediaItemGuid == null)
           {
-            ServiceRegistration.Get<ILogger>().Error("WifiRemote Play Track: Couldn't convert AlbumId '{0} to Guid", id);
+            ServiceRegistration.Get<ILogger>().Error("WifiRemote: Play Track: Couldn't convert AlbumId '{0} to Guid", id);
             return false;
           }
 
           var tracks = await Helper.GetTracksByAlbumIdAsync(client.UserId, mediaItemGuid.Value);
           if (!(tracks?.Count > 0))
           {
-            ServiceRegistration.Get<ILogger>().Error("WifiRemote Play Track: Couldn't find track");
+            ServiceRegistration.Get<ILogger>().Error("WifiRemote: Play Track: Couldn't find track");
             return false;
           }
 
@@ -137,7 +137,7 @@ namespace MediaPortal.Plugins.WifiRemote.MessageParser
             track = tracks.LastOrDefault(e => Convert.ToInt32(e.UserData.FirstOrDefault(d => d.Key == UserDataKeysKnown.KEY_PLAY_PERCENTAGE).Value ?? "0") == 100);
           if (track == null)
           {
-            ServiceRegistration.Get<ILogger>().Error("WifiRemote Play Track: Couldn't find tracks");
+            ServiceRegistration.Get<ILogger>().Error("WifiRemote: Play Track: Couldn't find tracks");
             return false;
           }
 
@@ -145,19 +145,19 @@ namespace MediaPortal.Plugins.WifiRemote.MessageParser
         }
         else if (action.Equals("playrandomtrack", StringComparison.InvariantCultureIgnoreCase))
         {
-          ServiceRegistration.Get<ILogger>().Debug("WifiRemote Play Track: AlbumName: {0}, AlbumId: {1}", albumName, id);
+          ServiceRegistration.Get<ILogger>().Debug("WifiRemote: Play Track: AlbumName: {0}, AlbumId: {1}", albumName, id);
 
           var mediaItemGuid = await GetIdFromNameAsync(client, albumName, id, Helper.GetAlbumByAlbumNameAsync);
           if (mediaItemGuid == null)
           {
-            ServiceRegistration.Get<ILogger>().Error("WifiRemote Play Track: Couldn't convert AlbumId '{0} to Guid", id);
+            ServiceRegistration.Get<ILogger>().Error("WifiRemote: Play Track: Couldn't convert AlbumId '{0} to Guid", id);
             return false;
           }
 
           var tracks = await Helper.GetTracksByAlbumIdAsync(client.UserId, mediaItemGuid.Value);
           if (!(tracks?.Count > 0))
           {
-            ServiceRegistration.Get<ILogger>().Error("WifiRemote Play Track: Couldn't find tracks");
+            ServiceRegistration.Get<ILogger>().Error("WifiRemote: Play Track: Couldn't find tracks");
             return false;
           }
 
@@ -167,12 +167,12 @@ namespace MediaPortal.Plugins.WifiRemote.MessageParser
         }
         else if (action.Equals("playalbum", StringComparison.InvariantCultureIgnoreCase))
         {
-          ServiceRegistration.Get<ILogger>().Debug("WifiRemote Play Album: AlbumName: {0}, AlbumId: {1}, OnlyUnplayedTracks: {2}", albumName, id, onlyUnwatched);
+          ServiceRegistration.Get<ILogger>().Debug("WifiRemote: Play Album: AlbumName: {0}, AlbumId: {1}, OnlyUnplayedTracks: {2}", albumName, id, onlyUnwatched);
 
           var mediaItemGuid = await GetIdFromNameAsync(client, albumName, id, Helper.GetAlbumByAlbumNameAsync);
           if (mediaItemGuid == null)
           {
-            ServiceRegistration.Get<ILogger>().Error("WifiRemote Play Album: Couldn't convert AlbumId '{0} to Guid", id);
+            ServiceRegistration.Get<ILogger>().Error("WifiRemote: Play Album: Couldn't convert AlbumId '{0} to Guid", id);
             return false;
           }
 
@@ -185,7 +185,7 @@ namespace MediaPortal.Plugins.WifiRemote.MessageParser
 
           if (!(tracks?.Count() > 0))
           {
-            ServiceRegistration.Get<ILogger>().Error("WifiRemote Play Album: Couldn't find any tracks");
+            ServiceRegistration.Get<ILogger>().Error("WifiRemote: Play Album: Couldn't find any tracks");
             return false;
           }
 

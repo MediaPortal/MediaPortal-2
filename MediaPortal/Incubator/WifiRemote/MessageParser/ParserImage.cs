@@ -48,7 +48,7 @@ namespace MediaPortal.Plugins.WifiRemote.MessageParser
       string id = GetMessageValue<string>(message, "ImageId");
       var client = sender.GetRemoteClient();
 
-      ServiceRegistration.Get<ILogger>().Debug("WifiRemote Get Image: UserTag: {0}, ImageId: {1}, ImagePath: {2}, MaximumWidth: {3}, MaximumHeight: {4}", userTag, id, imagePath, maxWidth, maxHeight);
+      ServiceRegistration.Get<ILogger>().Debug("WifiRemote: Get Image: UserTag: {0}, ImageId: {1}, ImagePath: {2}, MaximumWidth: {3}, MaximumHeight: {4}", userTag, id, imagePath, maxWidth, maxHeight);
 
       if (!string.IsNullOrEmpty(imagePath) && string.IsNullOrEmpty(id))
       {
@@ -58,7 +58,7 @@ namespace MediaPortal.Plugins.WifiRemote.MessageParser
 
       if (!Guid.TryParse(id, out Guid mediaItemGuid))
       {
-        ServiceRegistration.Get<ILogger>().Error("WifiRemote Get Image: Couldn't convert ImageId {0} to Guid", id);
+        ServiceRegistration.Get<ILogger>().Error("WifiRemote: Get Image: Couldn't convert ImageId {0} to Guid", id);
         return false;
       }
 
@@ -71,7 +71,7 @@ namespace MediaPortal.Plugins.WifiRemote.MessageParser
         IFileSystemResourceAccessor fsra = ra as IFileSystemResourceAccessor;
         if (fsra == null)
         {
-          ServiceRegistration.Get<ILogger>().Error("WifiRemote Get Image: Couldn't read image {0}", id);
+          ServiceRegistration.Get<ILogger>().Error("WifiRemote: Get Image: Couldn't read image {0}", id);
           return false;
         }
         using (Stream stream = fsra.OpenRead())
