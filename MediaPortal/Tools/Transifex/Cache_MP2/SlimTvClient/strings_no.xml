@@ -21,8 +21,8 @@
   <string name="SlimTvClient.DeleteSchedule">Fjerne planlagt</string>
   <string name="SlimTvClient.CreateSchedule">Planlegg opptak</string>
   <!--Extended recording features-->
-  <string name="SlimTvClient.ShowAllRecordingsItemsMenuItem">Opptak etter navn</string>
-  <string name="SlimTvClient.FilterRecordingsItemsNavbarDisplayLabel">Opptak etter navn</string>
+  <string name="SlimTvClient.ShowAllRecordingsItemsMenuItem">Navn</string>
+  <string name="SlimTvClient.FilterRecordingsItemsNavbarDisplayLabel">Navn</string>
   <!--Schedule management-->
   <string name="SlimTvClient.ErrorNoTvProvider">Ingen TV kilde er tilgjengelig (enda)</string>
   <!--Settings-->
@@ -30,10 +30,7 @@
   <string name="SlimTvClient.NoColor">Ingen</string>
   <string name="SlimTvClient.RecordingsMenuItem">Opptak</string>
   <string name="SlimTvClient.RecordingsRootViewName">TV opptak</string>
-  <string name="SlimTvClient.ChannelMenuItemLabel">Filtrer etter kanal</string>
+  <string name="SlimTvClient.ChannelMenuItemLabel">Kanal</string>
   <string name="SlimTvClient.ChannelNavBarItemLabel">Kanal: {0}</string>
   <string name="SlimTvClient.RecordingsByChannelHeader">Opptak etter kanal</string>
-  <string name="SlimTvClient.NameFilterMenuItemLabel">Filtrer etter navn</string>
-  <string name="SlimTvClient.NameFilterNavBarItemLabel">{0}</string>
-  <string name="SlimTvClient.RecordingsByNameHeader">Opptak etter navn</string>
 </resources>

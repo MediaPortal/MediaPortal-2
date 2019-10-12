@@ -422,6 +422,9 @@ Du kan inte ångra ersättningen.</string>
   <!--Stubs-->
   <string name="Media.Stub.Title">Sätt i skiva</string>
   <string name="Media.Stub.Message">Sätt i skiva</string>
+  <!--Virtual-->
+  <string name="Media.Virtual.Title">Inte spelbar media</string>
+  <string name="Media.Virtual.Message">Kan inte spela media eftersom den är virtuell.</string>
   <!--Settings-->
   <string name="Settings.Players">Spelare</string>
   <string name="Settings.Players.ClosePlayersWhenFinished">Stäng av spelarna när speltiden är slut</string>

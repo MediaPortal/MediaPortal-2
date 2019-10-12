@@ -23,6 +23,7 @@
 #endregion
 
 using MediaPortal.Common.MediaManagement;
+using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Common.MediaManagement.Helpers;
 using MediaPortal.UiComponents.Media.General;
 using MediaPortal.Utilities;
@@ -43,6 +44,10 @@ namespace MediaPortal.UiComponents.Media.Models.Navigation
       if (mediaItem == null)
         return;
 
+      SingleMediaItemAspect mediaAspect;
+      if (MediaItemAspect.TryGetAspect(mediaItem.Aspects, MediaAspect.Metadata, out mediaAspect))
+        Description = (string)mediaAspect[MediaAspect.ATTR_COMMENT];
+
       TrackInfo trackInfo = new TrackInfo();
       if (!trackInfo.FromMetadata(mediaItem.Aspects))
         return;
@@ -52,6 +57,12 @@ namespace MediaPortal.UiComponents.Media.Models.Navigation
       SimpleTitle = Title + (string.IsNullOrEmpty(artists) ? string.Empty : (" (" + artists + ")"));
       
       FireChange();
+    }
+
+    public string Description
+    {
+      get { return this[Consts.KEY_DESCRIPTION]; }
+      set { SetLabel(Consts.KEY_DESCRIPTION, value); }
     }
 
     public string Album

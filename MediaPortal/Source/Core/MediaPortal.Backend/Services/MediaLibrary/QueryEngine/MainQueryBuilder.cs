@@ -29,6 +29,7 @@ using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.MLQueries;
 using MediaPortal.Utilities;
 using System;
+using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 
 namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
 {
@@ -252,39 +253,12 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
         BindVar userVar = null;
         foreach (ISortInformation sortInformation in _sortInformation)
         {
-          AttributeSortInformation attributeSort = sortInformation as AttributeSortInformation;
-          if (attributeSort != null)
-          {
-            if (attributeSort.AttributeType.ParentMIAM.IsTransientAspect)
-              continue;
-            MediaItemAspectMetadata.AttributeSpecification attr = attributeSort.AttributeType;
-            if (attr.Cardinality != Cardinality.Inline && attr.Cardinality != Cardinality.ManyToOne)
-              // Sorting can only be done for Inline and MTO attributes
-              continue;
-            RequestedAttribute ra;
-            RequestSimpleAttribute(new QueryAttribute(attr), tableQueries, tableJoins, "LEFT OUTER JOIN", requestedAttributes,
-                miaTypeTableQueries, miaIdAttribute, out ra);
-            compiledSortInformation.Add(new CompiledSortInformation(ra, attributeSort.Direction));
+          if (AddAttributeSortInformation(sortInformation, miaIdAttribute, requestedAttributes, miaTypeTableQueries, tableQueries, tableJoins, compiledSortInformation))
             continue;
-          }
-
-          DataSortInformation dataSort = sortInformation as DataSortInformation;
-          if (dataSort != null && _userProfileId.HasValue)
-          {
-            TableQueryData tqd = new TableQueryData(UserProfileDataManagement.UserProfileDataManagement_SubSchema.USER_MEDIA_ITEM_DATA_TABLE_NAME);
-            RequestedAttribute ra = new RequestedAttribute(tqd, UserProfileDataManagement.UserProfileDataManagement_SubSchema.USER_DATA_VALUE_COL_NAME);
-            compiledSortInformation.Add(new CompiledSortInformation(ra, dataSort.Direction));
-
-            if (userVar == null)
-            {
-              userVar = new BindVar("UID", _userProfileId.Value, typeof(Guid));
-              sqlVars.Add(userVar);
-            }
-            TableJoin join = new TableJoin("LEFT OUTER JOIN", tqd, new RequestedAttribute(tqd, UserProfileDataManagement.UserProfileDataManagement_SubSchema.USER_PROFILE_ID_COL_NAME), "@" + userVar.Name);
-            join.AddCondition(new RequestedAttribute(tqd, MIA_Management.MIA_MEDIA_ITEM_ID_COL_NAME), miaIdAttribute);
-            join.AddCondition(new RequestedAttribute(tqd, UserProfileDataManagement.UserProfileDataManagement_SubSchema.USER_DATA_KEY_COL_NAME), $"'{dataSort.UserDataKey}'");
-            tableJoins.Add(join);
-          }
+          if (AddChildAggregateAttributeSortInformation(sortInformation, ns, bvNamespace, miaIdAttribute, tableJoins, compiledSortInformation, sqlVars))
+            continue;
+          if (AddDataSortInformation(sortInformation, miaIdAttribute, tableJoins, compiledSortInformation, sqlVars, ref userVar))
+            continue;
         }
       }
       StringBuilder result = new StringBuilder("SELECT ");
@@ -376,6 +350,159 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
         }
       }
       statementStr = result.ToString();
+    }
+
+    protected bool AddAttributeSortInformation(ISortInformation sortInformation, RequestedAttribute miaIdAttribute, IDictionary<QueryAttribute, RequestedAttribute> requestedAttributes,
+      IDictionary<MediaItemAspectMetadata, TableQueryData> miaTypeTableQueries, IDictionary<object, TableQueryData> tableQueries, IList<TableJoin> tableJoins, IList<CompiledSortInformation> compiledSortInformation)
+    {
+      AttributeSortInformation attributeSort = sortInformation as AttributeSortInformation;
+      if (attributeSort != null)
+      {
+        if (attributeSort.AttributeType.ParentMIAM.IsTransientAspect)
+          return false;
+        if (attributeSort.AttributeType.ParentMIAM is MultipleMediaItemAspectMetadata)
+          return false;
+
+        MediaItemAspectMetadata.AttributeSpecification attr = attributeSort.AttributeType;
+        if (attr.Cardinality != Cardinality.Inline && attr.Cardinality != Cardinality.ManyToOne)
+          // Sorting can only be done for Inline and MTO attributes
+          return false;
+
+        RequestedAttribute ra;
+        RequestSimpleAttribute(new QueryAttribute(attr), tableQueries, tableJoins, "LEFT OUTER JOIN", requestedAttributes,
+            miaTypeTableQueries, miaIdAttribute, out ra);
+        compiledSortInformation.Add(new CompiledSortInformation(ra, attributeSort.Direction));
+
+        return true;
+      }
+      return false;
+    }
+
+    protected bool AddChildAggregateAttributeSortInformation(ISortInformation sortInformation, Namespace ns, BindVarNamespace bvNamespace, RequestedAttribute miaIdAttribute, IList<TableJoin> tableJoins,
+      IList<CompiledSortInformation> compiledSortInformation, IList<BindVar> bindVars)
+    {
+      ChildAggregateAttributeSortInformation childAttributeSort = sortInformation as ChildAggregateAttributeSortInformation;
+      if (childAttributeSort != null)
+      {
+        if (childAttributeSort.ChildAttributeType.ParentMIAM.IsTransientAspect)
+          return false;
+
+        var relation = _miaManagement.LocallyKnownRelationshipTypes.FirstOrDefault(r => (r.ChildRole == childAttributeSort.ChildRole && r.ParentRole == childAttributeSort.ParentRole));
+        if (relation == null)
+          return false;
+
+        if (!_miaManagement.ManagedMediaItemAspectTypes.TryGetValue(relation.ChildAspectId, out var childMetadata))
+          return false;
+
+        BindVar roleVar = new BindVar(bvNamespace.CreateNewBindVarName("V"), childAttributeSort.ParentRole, typeof(Guid));
+        bindVars.Add(roleVar);
+        BindVar linkedRoleVar = new BindVar(bvNamespace.CreateNewBindVarName("V"), childAttributeSort.ChildRole, typeof(Guid));
+        bindVars.Add(linkedRoleVar);
+
+        var table = new TableQueryData($"({BuildRelationshipPart(childAttributeSort, childMetadata, false, roleVar, linkedRoleVar)} UNION {BuildRelationshipPart(childAttributeSort, childMetadata, true, roleVar, linkedRoleVar)})");
+        var tableName = table.GetAlias(ns);
+        tableJoins.Add(new TableJoin("INNER JOIN", table, $"{tableName}.ID", miaIdAttribute.GetQualifiedName(ns)));
+
+        RequestedAttribute ra = new RequestedAttribute(table, "SORT");
+        compiledSortInformation.Add(new CompiledSortInformation(ra, childAttributeSort.Direction));
+        return true;
+      }
+      return false;
+    }
+
+    private string BuildRelationshipPart(ChildAggregateAttributeSortInformation childAttributeSort, MediaItemAspectMetadata childMetadata, bool reverse, BindVar roleVar, BindVar linkedRoleVar)
+    {
+      string selectColumn;
+      string roleColumn;
+      string linkedRoleColumn;
+      string linkedIdColumn;
+      if (reverse)
+      {
+        //if this is the reverse part, reverse the column names
+        selectColumn = _miaManagement.GetMIAAttributeColumnName(RelationshipAspect.ATTR_LINKED_ID);
+        roleColumn = _miaManagement.GetMIAAttributeColumnName(RelationshipAspect.ATTR_LINKED_ROLE);
+        linkedRoleColumn = _miaManagement.GetMIAAttributeColumnName(RelationshipAspect.ATTR_ROLE);
+        linkedIdColumn = MIA_Management.MIA_MEDIA_ITEM_ID_COL_NAME;
+      }
+      else
+      {
+        selectColumn = MIA_Management.MIA_MEDIA_ITEM_ID_COL_NAME;
+        roleColumn = _miaManagement.GetMIAAttributeColumnName(RelationshipAspect.ATTR_ROLE);
+        linkedRoleColumn = _miaManagement.GetMIAAttributeColumnName(RelationshipAspect.ATTR_LINKED_ROLE);
+        linkedIdColumn = _miaManagement.GetMIAAttributeColumnName(RelationshipAspect.ATTR_LINKED_ID);
+      }
+
+      StringBuilder joinSql = new StringBuilder();
+      joinSql.Append($"SELECT R.{selectColumn} ID, ");
+      if (childAttributeSort.AggregateFunction == AggregateFunction.Avg)
+        joinSql.Append("AVG");
+      else if (childAttributeSort.AggregateFunction == AggregateFunction.Count)
+        joinSql.Append("COUNT");
+      else if (childAttributeSort.AggregateFunction == AggregateFunction.Max)
+        joinSql.Append("MAX");
+      else if (childAttributeSort.AggregateFunction == AggregateFunction.Min)
+        joinSql.Append("MIN");
+      else if (childAttributeSort.AggregateFunction == AggregateFunction.Sum)
+        joinSql.Append("SUM");
+
+      if (childMetadata.AspectId != childAttributeSort.ChildAttributeType.ParentMIAM.AspectId)
+        joinSql.Append($"(S.{_miaManagement.GetMIAAttributeColumnName(childAttributeSort.ChildAttributeType)}) SORT");
+      else
+        joinSql.Append($"(C.{_miaManagement.GetMIAAttributeColumnName(childAttributeSort.ChildAttributeType)}) SORT");
+      joinSql.Append(" FROM ");
+      joinSql.Append(_miaManagement.GetMIATableName(childMetadata));
+      joinSql.Append(" C");
+      joinSql.Append(" INNER JOIN ");
+      joinSql.Append(_miaManagement.GetMIATableName(RelationshipAspect.Metadata));
+      joinSql.Append(" R ON R.");
+      joinSql.Append(linkedIdColumn);
+      joinSql.Append("=C.");
+      joinSql.Append(MIA_Management.MIA_MEDIA_ITEM_ID_COL_NAME);
+      joinSql.Append(" AND R.");
+      joinSql.Append(linkedRoleColumn);
+      joinSql.Append("=@" + linkedRoleVar.Name);
+      joinSql.Append(" AND R.");
+      joinSql.Append(roleColumn);
+      joinSql.Append("=@" + roleVar.Name);
+
+      //If sort property is from a different aspect we must also join the sort aspect
+      if (childMetadata.AspectId != childAttributeSort.ChildAttributeType.ParentMIAM.AspectId)
+      {
+        joinSql.Append(" LEFT OUTER JOIN ");
+        joinSql.Append(_miaManagement.GetMIATableName(childAttributeSort.ChildAttributeType.ParentMIAM));
+        joinSql.Append($" S ON S.");
+        joinSql.Append(MIA_Management.MIA_MEDIA_ITEM_ID_COL_NAME);
+        joinSql.Append("=C.");
+        joinSql.Append(MIA_Management.MIA_MEDIA_ITEM_ID_COL_NAME);
+      }
+      joinSql.Append($" GROUP BY R.{selectColumn}");
+
+      return joinSql.ToString();
+    }
+
+    protected bool AddDataSortInformation(ISortInformation sortInformation, RequestedAttribute miaIdAttribute, IList<TableJoin> tableJoins, IList<CompiledSortInformation> compiledSortInformation,
+      IList<BindVar> bindVars, ref BindVar userVar)
+    {
+      DataSortInformation dataSort = sortInformation as DataSortInformation;
+      if (dataSort != null && _userProfileId.HasValue)
+      {
+        TableQueryData tqd = new TableQueryData(UserProfileDataManagement.UserProfileDataManagement_SubSchema.USER_MEDIA_ITEM_DATA_TABLE_NAME);
+        RequestedAttribute ra = new RequestedAttribute(tqd, UserProfileDataManagement.UserProfileDataManagement_SubSchema.USER_DATA_VALUE_COL_NAME);
+        compiledSortInformation.Add(new CompiledSortInformation(ra, dataSort.Direction));
+
+        if (userVar == null)
+        {
+          userVar = new BindVar("UID", _userProfileId.Value, typeof(Guid));
+          bindVars.Add(userVar);
+        }
+        TableJoin join = new TableJoin("LEFT OUTER JOIN", tqd, new RequestedAttribute(tqd, UserProfileDataManagement.UserProfileDataManagement_SubSchema.USER_PROFILE_ID_COL_NAME), "@" + userVar.Name);
+        join.AddCondition(new RequestedAttribute(tqd, MIA_Management.MIA_MEDIA_ITEM_ID_COL_NAME), miaIdAttribute);
+        join.AddCondition(new RequestedAttribute(tqd, UserProfileDataManagement.UserProfileDataManagement_SubSchema.USER_DATA_KEY_COL_NAME), $"'{dataSort.UserDataKey}'");
+        tableJoins.Add(join);
+
+        return true;
+      }
+      return false;
     }
 
     protected virtual CompiledFilter CreateCompiledFilter(Namespace ns, BindVarNamespace bvNamespace, string outerMIIDJoinVariable, IList<TableJoin> tableJoins)

@@ -3,9 +3,10 @@
   <string name="SlimTvClient.Main">TV</string>
   <string name="SlimTvClient.GenreLabel">Είδος</string>
   <!--Extended recording features-->
+  <string name="SlimTvClient.ShowAllRecordingsItemsMenuItem">Όνομα</string>
+  <string name="SlimTvClient.FilterRecordingsItemsNavbarDisplayLabel">Όνομα</string>
   <!--Schedule management-->
   <!--Settings-->
   <string name="SlimTvClient.Notifications">Ειδοποιήσεις</string>
   <string name="SlimTvClient.NoColor">Κανένα</string>
-  <string name="SlimTvClient.NameFilterNavBarItemLabel">{0}</string>
 </resources>

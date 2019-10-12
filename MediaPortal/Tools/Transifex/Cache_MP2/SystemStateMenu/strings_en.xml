@@ -10,7 +10,7 @@
   <string name="SystemState.Hibernate">Hibernate</string>
   <string name="SystemState.Shutdown">Shutdown</string>
   <string name="SystemState.Suspend">Suspend</string>
-  <string name="SystemState.Restart">Restart</string>
+  <string name="SystemState.Restart">Restart Windows</string>
   <string name="SystemState.RestartMP">Restart MediaPortal</string>
   <string name="SystemState.Logoff">Logoff</string>
   <string name="SystemState.SleepTimerConfig">Setup sleep timer</string>

@@ -27,7 +27,7 @@
               </Trigger>
             </Button.Triggers>
             <Button.ContextMenuCommand>
-              <Command Source="{StaticResource MediaItemsActionModel}" Path="ShowMediaItemActions" Parameters="{LateBoundValue BindingValue={Binding MediaItem}}"/>
+              <Command Source="{StaticResource MediaItemsActionModel}" Path="ShowMediaItemActionsEx" Parameters="{LateBoundValue BindingValue={Binding}}"/>
             </Button.ContextMenuCommand>
           </Button>
         </ControlTemplate>

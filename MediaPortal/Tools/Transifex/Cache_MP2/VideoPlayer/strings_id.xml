@@ -22,10 +22,7 @@
   <string name="Settings.Players.VideoPlayer.PreferMultiChannelAudio">Pilih multichannel audio streams</string>
   <string name="Settings.Players.VideoPlayer.PreferMultiChannelAudio.Help">Bila aktif, stream 6ch akan dipilih (contoh AC3, AAC)</string>
   <string name="Settings.Players.DVDPlayer">Pemutar DVD</string>
-  <string name="Settings.Players.DVDPlayer.EnableClosedCaption">Keterangan Penutup</string>
-  <string name="Settings.Players.DVDPlayer.EnableClosedCaption.Help">Pilih bila Keterangan Penutup harus diaktifkan secara baku</string>
-  <string name="Settings.Players.DVDPlayer.EnableSubtitles">Subtitel</string>
-  <string name="Settings.Players.DVDPlayer.EnableSubtitles.Help">Pilih jika subtitel harus diaktifkan secara baku</string>
+  <string name="Settings.Players.Subtitles">Subtitel</string>
   <string name="Playback.NotSpecified">Tidak dispesifikasikan</string>
   <string name="Playback.CaptionNormal">Keterangan Normal</string>
   <string name="Playback.CaptionBig">Keterangan Besar</string>

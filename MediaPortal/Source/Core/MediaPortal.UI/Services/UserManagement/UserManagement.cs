@@ -67,7 +67,7 @@ namespace MediaPortal.UI.Services.UserManagement
         var newUser = value ?? UNKNOWN_USER;
         bool changed = !Equals(_currentUser, newUser);
         _currentUser = newUser;
-        if (changed)
+        if (changed && IsValidUser)
         {
           // Set new user name to allow overriding settings, but only if explicit user management is enabled
           var settingsManager = ServiceRegistration.Get<ISettingsManager>();

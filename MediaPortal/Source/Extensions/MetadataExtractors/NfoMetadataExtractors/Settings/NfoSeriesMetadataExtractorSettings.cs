@@ -35,6 +35,9 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.Settin
   /// </remarks>
   public class NfoSeriesMetadataExtractorSettings : NfoMetadataExtractorSettingsBase
   {
+    private const int DEFAULT_MAXIMUM_ACTOR_COUNT = 20;
+    private const int DEFAULT_MAXIMUM_CHARACTER_COUNT = 20;
+
     #region Ctor
 
     /// <summary>
@@ -67,6 +70,18 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.Settin
     /// </summary>
     [Setting(SettingScope.Global, true)]
     public bool IncludeCharacterDetails { get; set; }
+
+    /// <summary>
+    /// The maximum number of actors to extract.
+    /// </summary>
+    [Setting(SettingScope.Global, DEFAULT_MAXIMUM_ACTOR_COUNT)]
+    public int MaximumActorCount { get; set; }
+
+    /// <summary>
+    /// The maximum number of characters to extract.
+    /// </summary>
+    [Setting(SettingScope.Global, DEFAULT_MAXIMUM_CHARACTER_COUNT)]
+    public int MaximumCharacterCount { get; set; }
 
     #endregion
   }

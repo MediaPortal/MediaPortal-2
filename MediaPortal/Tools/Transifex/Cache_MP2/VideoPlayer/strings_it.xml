@@ -26,10 +26,7 @@
   <string name="Settings.Players.VideoPlayer.PreferMultiChannelAudio">Preferisci i flussi audio multicanale</string>
   <string name="Settings.Players.VideoPlayer.PreferMultiChannelAudio.Help">se abilitato, flussi audio a 6ch avranno la preferenza (es: AC3, AAC)</string>
   <string name="Settings.Players.DVDPlayer">Player DVD </string>
-  <string name="Settings.Players.DVDPlayer.EnableClosedCaption">Closed Caption</string>
-  <string name="Settings.Players.DVDPlayer.EnableClosedCaption.Help">Decidi se i closed caption debbano essere abilitati per impostazione predefinita</string>
-  <string name="Settings.Players.DVDPlayer.EnableSubtitles">Sottotitoli</string>
-  <string name="Settings.Players.DVDPlayer.EnableSubtitles.Help">Deicidi se i sottotitoli debbano essere abilitati per impostazione predefinita</string>
+  <string name="Settings.Players.Subtitles">Sottotitoli</string>
   <string name="Playback.NotSpecified">Non specificato</string>
   <string name="Playback.CaptionNormal">Sottotitoli normali</string>
   <string name="Playback.CaptionBig">Sottotitoli grandi</string>

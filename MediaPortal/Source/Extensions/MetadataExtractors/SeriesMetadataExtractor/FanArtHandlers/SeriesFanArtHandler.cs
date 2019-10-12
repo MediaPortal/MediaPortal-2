@@ -211,7 +211,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
 
       List<ResourcePath> potentialFanArtFiles = LocalFanartHelper.GetPotentialFanArtFiles(episodeDirectory);
       paths.AddRange(FanArtTypes.Thumbnail,
-        LocalFanartHelper.FilterPotentialFanArtFilesByNameOrPrefix(potentialFanArtFiles, "thumb", filename + "-thumb"));
+        LocalFanartHelper.FilterPotentialFanArtFilesByNameOrPrefix(potentialFanArtFiles, LocalFanartHelper.THUMB_FILENAMES, LocalFanartHelper.THUMB_FILENAMES.Select(f => filename + "-" + f)));
 
       return paths;
     }
@@ -384,7 +384,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
           LocalFanartHelper.BANNER_FILENAMES.SelectMany(f => prefixes.Select(p => p + "-" + f))));
 
       if (paths.Count(FanArtTypes.FanArt) == 0)
-        paths.AddRange(FanArtTypes.FanArt, LocalFanartHelper.FilterPotentialFanArtFilesByName(potentialFanArtFiles,
+        paths.AddRange(FanArtTypes.FanArt, LocalFanartHelper.FilterPotentialFanArtFilesByPrefix(potentialFanArtFiles,
           LocalFanartHelper.BACKDROP_FILENAMES.SelectMany(f => prefixes.Select(p => p + "-" + f))));
     }
 

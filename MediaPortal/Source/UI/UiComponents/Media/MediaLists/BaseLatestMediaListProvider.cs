@@ -61,7 +61,7 @@ namespace MediaPortal.UiComponents.Media.MediaLists
         Filter = userProfile.HasValue ? new FilteredRelationshipFilter(_role, _linkedRole, await AppendUserFilterAsync(null,
           _necessaryLinkedMias)) : null,
         SubqueryFilter = GetNavigationFilter(_navigationInitializerType),
-        SortInformation = new List<ISortInformation> { new AttributeSortInformation(ImporterAspect.ATTR_DATEADDED, SortDirection.Descending) }
+        SortInformation = new List<ISortInformation> { new ChildAggregateAttributeSortInformation(_role, _linkedRole, ImporterAspect.ATTR_DATEADDED, AggregateFunction.Max, SortDirection.Descending) }
       };
     }
   }

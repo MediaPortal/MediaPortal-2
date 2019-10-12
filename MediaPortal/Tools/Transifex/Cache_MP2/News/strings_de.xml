@@ -7,7 +7,7 @@
   <string name="News.ConfiguredFeeds">Konfigurierte Feeds</string>
   <string name="News.AddFeed">Newsfeed hinzufügen</string>
   <string name="News.EnterFeedName">Name für den Feed eingeben</string>
-  <string name="News.EnterFeedUrl">Geben Sie die URL des Feeds ein</string>
+  <string name="News.EnterFeedUrl">Webadresse (URL) des Feeds eingeben</string>
   <string name="Settings.Plugins.News">Nachrichten</string>
   <string name="Settings.Plugins.News.FeedsSetup">Feeds verwalten</string>
   <string name="Settings.Plugins.News.FeedsSetup.Help">Einstellungen für Feeds, die Daten für News sammeln</string>

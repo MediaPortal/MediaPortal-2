@@ -62,8 +62,7 @@ Parameters which have to be accessible by a DynamicResource lookup:
     <Control x:Name="FanArtBackground" Grid.Column="0" Grid.Row="0" Grid.RowSpan="2" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="-1"
              Template="{DynamicResource ResourceKey=FanArtBackground_Template}"/>
 
-    <DockPanel Grid.Column="0" Grid.Row="0" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
-               LastChildFill="True">
+    <DockPanel Grid.Column="0" Grid.Row="0" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" LastChildFill="True">
       <Grid x:Name="HeaderPanel" DockPanel.Dock="Top">
         <Grid.RowDefinitions>
           <RowDefinition Height="90"/>
@@ -148,8 +147,8 @@ Parameters which have to be accessible by a DynamicResource lookup:
             <ColumnDefinition Width="Auto"/>
           </Grid.ColumnDefinitions>
           <Label x:Name="HeaderLabel" HorizontalAlignment="Right" Margin="0,0,50,0"
-                       FontSize="{ThemeResource HeaderFontSize}" Color="{ThemeResource WindowHeaderColor}"
-                       Content="{Binding Source={DynamicResource Header_Text},Path=Resource}">
+                 FontSize="{ThemeResource HeaderFontSize}" Color="{ThemeResource WindowHeaderColor}"
+                 Content="{Binding Source={DynamicResource Header_Text},Path=Resource}">
           </Label>
           <Grid.OpacityMask>
             <LinearGradientBrush StartPoint="0.5,0.0" EndPoint="0.5,1.0">
@@ -163,7 +162,8 @@ Parameters which have to be accessible by a DynamicResource lookup:
       <!-- Order matters here: The client area control has to be the last control (LastChildFill) -->
       <Control x:Name="ClientArea" DockPanel.Dock="Center" 
                Template="{DynamicResource ResourceKey=Client_Template}"
-               Margin="{DynamicResource ResourceKey=Client_Margin}">
+               Margin="{DynamicResource ResourceKey=Client_Margin}"
+               SetFocusPrio="Default">
       </Control>
     </DockPanel>
 

@@ -78,6 +78,7 @@
   <string name="Media.ImageFilterBig">Grand</string>
   <string name="Media.DiscNumberFilter">Disque {0}</string>
   <string name="Media.CompilationFilterCompiled">Compilations</string>
+  <string name="Media.CompilationFilterUncompiled">Non Compilé</string>
   <string name="Media.ContentGroupFilter">{0}</string>
   <string name="Media.SwitchToBrowseMLView">vers vue : Serveur</string>
   <string name="Media.SwitchToLocalMediaView">Affichage Locale</string>
@@ -123,6 +124,7 @@
   <string name="Media.FilterConductorNavbarDisplayLabel">Chef d\'orchestre: {0}</string>
   <string name="Media.FilterCompilationNavbarDisplayLabel">Compilations</string>
   <string name="Media.FilterAlbumCompilationNavbarDisplayLabel">Compilations</string>
+  <string name="Media.FilterContentGroupNavbarDisplayLabel">Groupe de contenu: {0}</string>
   <string name="Media.FilterCertificationNavbarDisplayLabel">Certification: {0}</string>
   <!--Display labels for workflow navigation contexts-->
   <string name="Media.BrowseMediaNavigationRootWorkflowNavigationContextDisplayLabel">Parcourir les fichiers multimédias</string>
@@ -197,6 +199,8 @@
   <string name="Media.ChooseAlbumCompilationHeader">Compilations</string>
   <string name="Media.ChooseCompilationHeader">Compilations</string>
   <string name="Media.ChooseConductorHeader">Chef d\'orchestres</string>
+  <string name="Media.ChooseContentGroupHeader">Groupes de contenu</string>
+  <string name="Media.ChooseCertificationHeader">Code régional</string>
   <string name="Media.PlaylistsOverviewHeader">Playlists</string>
   <string name="Media.SavePlaylistEditNameHeader">Sauvegarde la playlist</string>
   <string name="Media.SavePlaylistFailedHeader">Sauvegarde la playlist</string>
@@ -418,6 +422,9 @@ Vous ne pourrez pas revenir sur ce choix. </string>
   <!--Stubs-->
   <string name="Media.Stub.Title">Insérer un disque</string>
   <string name="Media.Stub.Message">SVP, insérer un disque</string>
+  <!--Virtual-->
+  <string name="Media.Virtual.Title">Média illisible</string>
+  <string name="Media.Virtual.Message">Impossible de lire le média car il est virtuel.</string>
   <!--Settings-->
   <string name="Settings.Players">Lecteurs</string>
   <string name="Settings.Players.ClosePlayersWhenFinished">Fermeture des lecteurs aprés lecture</string>
@@ -440,7 +447,12 @@ Vous ne pourrez pas revenir sur ce choix. </string>
   <string name="Settings.Media.ShowVirtual.Audio">Afficher tous les titres de l\'album connu</string>
   <string name="Settings.Media.ShowVirtual.Movie">Afficher toutes les collections de films connus</string>
   <string name="Settings.Media.ShowVirtual.Series">Afficher toutes les séries et épisodes connus</string>
+  <string name="Settings.Media.Certification">Pays du code régional</string>
   <string name="Settings.Media.Certification.None">Original (comme importé)</string>
+  <string name="Settings.Media.Certification.Movie">Pays du système du code régional du film</string>
+  <string name="Settings.Media.Certification.Movie.Help">Sélectionnez le pays du système du code régionale du film à utiliser lors de l\'affichage des codes régionaux de film</string>
+  <string name="Settings.Media.Certification.Series">Pays du système du code régional de la série</string>
+  <string name="Settings.Media.Certification.Series.Help">Sélectionnez le pays du système de certification à utiliser lors de l\'affichage des certifications de série</string>
   <!--Secondary filters-->
   <string name="Filter.RemoteNumericAlphabet0"></string>
   <string name="Filter.RemoteNumericAlphabet1"></string>

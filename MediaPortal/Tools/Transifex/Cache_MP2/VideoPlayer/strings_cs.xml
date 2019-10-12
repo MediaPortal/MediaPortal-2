@@ -22,10 +22,7 @@
   <string name="Settings.Players.VideoPlayer.PreferMultiChannelAudio">Upřednostňovat vícekanálové stopy audia</string>
   <string name="Settings.Players.VideoPlayer.PreferMultiChannelAudio.Help">Pokud je povoleno, jsou upřednostňovány 6k stopy (např. AC3, AAC)</string>
   <string name="Settings.Players.DVDPlayer">Přehrávač DVD</string>
-  <string name="Settings.Players.DVDPlayer.EnableClosedCaption">Skryté titulky</string>
-  <string name="Settings.Players.DVDPlayer.EnableClosedCaption.Help">Vyberte, pokud mají být skryté titulky povoleny ve výchozím stavu</string>
-  <string name="Settings.Players.DVDPlayer.EnableSubtitles">Titulky</string>
-  <string name="Settings.Players.DVDPlayer.EnableSubtitles.Help">Vyberte, pokud mají být titulky povoleny ve výchozím stavu</string>
+  <string name="Settings.Players.Subtitles">Titulky</string>
   <string name="Playback.NotSpecified">Neurčeno</string>
   <string name="Playback.CaptionNormal">Normální titulky</string>
   <string name="Playback.CaptionBig">Velké titulky</string>

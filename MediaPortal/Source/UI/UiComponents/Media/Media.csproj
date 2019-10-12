@@ -113,9 +113,12 @@
     <Compile Include="Actions\VisibilityDependsOnServerConnectStateAction.cs" />
     <Compile Include="Actions\BrowseLocalMediaAction.cs" />
     <Compile Include="Controls\AudioSpectrumAnalyzer.cs" />
+    <Compile Include="Extensions\BaseActionBuilder.cs" />
     <Compile Include="Extensions\IMediaItemAction.cs" />
+    <Compile Include="Extensions\IMediaViewAction.cs" />
     <Compile Include="Extensions\MediaItemActionBuilder.cs" />
     <Compile Include="Extensions\MediaNavigationFilterBuilder.cs" />
+    <Compile Include="Extensions\MediaViewActionBuilder.cs" />
     <Compile Include="FilterCriteria\FilterByPersonCriterion.cs" />
     <Compile Include="FilterCriteria\FilterByAlbumArtistCriterion.cs" />
     <Compile Include="FilterCriteria\FilterByAlbumCompilationCriterion.cs" />
@@ -150,7 +153,7 @@
     <Compile Include="General\Consts.cs" />
     <Compile Include="MediaItemActions\AbstractMediaItemAction.cs" />
     <Compile Include="MediaItemActions\AddSingleToPlaylist.cs" />
-    <Compile Include="MediaItemActions\AddAllToPlaylist.cs" />
+    <Compile Include="MediaViewActions\AddAllToPlaylist.cs" />
     <Compile Include="MediaItemActions\DeleteFromStorage.cs" />
     <Compile Include="MediaItemActions\AbstractWatchedAction.cs" />
     <Compile Include="MediaItemActions\AbstractRefeshMediaItemAction.cs" />

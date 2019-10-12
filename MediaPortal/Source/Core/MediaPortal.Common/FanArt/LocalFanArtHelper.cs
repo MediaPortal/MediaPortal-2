@@ -33,13 +33,16 @@ namespace MediaPortal.Common.FanArt
   {
     public static readonly ICollection<String> EXTENSIONS = new HashSet<string>(StringComparer.OrdinalIgnoreCase) { ".jpg", ".png", ".tbn" };
 
-    public static readonly string[] THUMB_FILENAMES = new[] { "thumb" };
-    public static readonly string[] POSTER_FILENAMES = new[] { "poster", "folder", "cover" };
-    public static readonly string[] LOGO_FILENAMES = new[] { "logo" };
+    public static readonly string[] THUMB_FILENAMES = new[] { "thumb", "landscape" };
+    public static readonly string[] POSTER_FILENAMES = new[] { "poster", "folder", "cover", "keyart" };
+    public static readonly string[] LOGO_FILENAMES = new[] { "logo", "clearlogo" };
     public static readonly string[] CLEARART_FILENAMES = new[] { "clearart" };
     public static readonly string[] DISCART_FILENAMES = new[] { "cdart", "discart", "disc" };
     public static readonly string[] BANNER_FILENAMES = new[] { "banner" };
     public static readonly string[] BACKDROP_FILENAMES = new[] { "backdrop", "fanart" };
+    public static readonly string[] ARTIST_FILENAMES = new[] { "artist", "artistthumb" };
+    public static readonly string[] ACTOR_FILENAMES = new[] { "actor", "actorthumb" };
+    public static readonly string[] CHARACTER_FILENAMES = new[] { "character", "characterart" };
 
     /// <summary>
     /// Returns a list of ResourcePaths to all potential FanArt files in a given directory
@@ -97,7 +100,7 @@ namespace MediaPortal.Common.FanArt
     /// <param name="directoryAccessor">ResourceAccessor pointing to the directory where FanArt files should be searched</param>
     /// <returns>List of ResourcePaths to potential FanArt files</returns>
     public static List<ResourcePath> FilterPotentialFanArtFilesByNameOrPrefix(IEnumerable<ResourcePath> potentialFanArtFiles,
-      IEnumerable<string> filenames, IEnumerable<string> prefixes)
+      IEnumerable<string> filenames, IEnumerable<string> prefixes = null)
     {
       var result = new List<ResourcePath>();
       foreach (var potentialFanArtFile in potentialFanArtFiles)

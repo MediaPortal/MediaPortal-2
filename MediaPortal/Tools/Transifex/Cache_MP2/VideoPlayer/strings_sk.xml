@@ -22,10 +22,7 @@
   <string name="Settings.Players.VideoPlayer.PreferMultiChannelAudio">Preferovať viackanálový zvuk</string>
   <string name="Settings.Players.VideoPlayer.PreferMultiChannelAudio.Help">Preferenica 6 kanálového zvuku (napr. AC3, AAC)</string>
   <string name="Settings.Players.DVDPlayer">DVD prehrávač</string>
-  <string name="Settings.Players.DVDPlayer.EnableClosedCaption">Titulky pre nepočujúcich</string>
-  <string name="Settings.Players.DVDPlayer.EnableClosedCaption.Help">Vyberte, ak majú byť titulky pre nepočujúcich predvolené</string>
-  <string name="Settings.Players.DVDPlayer.EnableSubtitles">Titulky</string>
-  <string name="Settings.Players.DVDPlayer.EnableSubtitles.Help">Vyberte, ak majú byť titulky predvolené</string>
+  <string name="Settings.Players.Subtitles">Titulky</string>
   <string name="Playback.NotSpecified">Nešpecifikované</string>
   <string name="Playback.CaptionNormal">Normálne titulky</string>
   <string name="Playback.CaptionBig">Veľké titulky</string>

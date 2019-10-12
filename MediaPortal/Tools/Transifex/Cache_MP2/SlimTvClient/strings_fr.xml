@@ -31,6 +31,9 @@
   <string name="SlimTvClient.CreateManualSchedule">Programmer un enregistrement manuellement</string>
   <string name="SlimTvClient.DeleteRecording.Confirmation">Êtes vous sur de vouloir arrêter ou supprimer cet enregistrement?
 Vous ne pourrez pas revenir sur ce choix. </string>
+  <string name="SlimTvClient.DeleteAllRecordings.Text">Effacer ces enregeistrements</string>
+  <string name="SlimTvClient.DeleteAllRecordings.Confirmation">Êtes vous sur de vouloir effacer {0} enregistrements?
+Vous ne pourrez pas revenir sur ce choix. </string>
   <string name="SlimTvClient.ProgramSearch">Recherche de programmes</string>
   <string name="SlimTvClient.ProgramSearch.Help">Chercher les titre des programmes dans l\'EPG et trouver vos émissions souhaitées. </string>
   <!--Extended recording features-->
@@ -55,8 +58,8 @@ Vous ne pourrez pas revenir sur ce choix. </string>
   <string name="SlimTvClient.ScheduleRecordingType_Weekends">Week-end</string>
   <string name="SlimTvClient.ScheduleRecordingType_WorkingDays">Jours ouvrables</string>
   <string name="SlimTvClient.ScheduleRecordingType_WeeklyEveryTimeOnThisChannel">Chaque semaine et à chaque fois sur cette chaîne</string>
-  <string name="SlimTvClient.ShowAllRecordingsItemsMenuItem">Enregistrements triés par nom</string>
-  <string name="SlimTvClient.FilterRecordingsItemsNavbarDisplayLabel">Enregistrements triés par nom</string>
+  <string name="SlimTvClient.ShowAllRecordingsItemsMenuItem">Par nom</string>
+  <string name="SlimTvClient.FilterRecordingsItemsNavbarDisplayLabel">Par nom</string>
   <!--Schedule management-->
   <string name="SlimTvClient.ScheduleDetails">Détails de la programmation</string>
   <string name="SlimTvClient.ScheduleName">Nom de la programmation</string>
@@ -99,16 +102,34 @@ Vous ne pourrez pas revenir sur ce choix. </string>
   <string name="SlimTvClient.ShowRecordingStartedNotifications.Help">Indique que cela affiche une notification lorsqu\'un enregistrement commence.</string>
   <string name="SlimTvClient.ShowRecordingEndedNotifications">Afficher une notification lorsqu\'un enregistrement est fini</string>
   <string name="SlimTvClient.ShowRecordingEndedNotifications.Help">Indique que cela affiche une notification lorsqu\'un enregistrement se termine.</string>
+  <string name="SlimTvClient.ShowEpgGenreColors">Afficher les couleurs des genres pour les EPG</string>
+  <string name="SlimTvClient.ShowEpgGenreColors.Help">Indique si les couleurs des genres doivent être affichées en regardant l\'EPG.</string>
+  <string name="SlimTvClient.EpgGenreColors">Couleurs des genres EPG</string>
+  <string name="SlimTvClient.EpgMovieGenreColor">Couleur du genre Film</string>
+  <string name="SlimTvClient.EpgMovieGenreColor.Help">Couleur utilisée pour les programmes du genre Film dans l\'EPG</string>
+  <string name="SlimTvClient.EpgSeriesGenreColor">Couleur du genre Séries</string>
+  <string name="SlimTvClient.EpgSeriesGenreColor.Help">Couleur utilisée pour les programmes du genre Série dans l\'EPG</string>
+  <string name="SlimTvClient.EpgDocumentaryGenreColor">Couleur du genre Documentaire</string>
+  <string name="SlimTvClient.EpgDocumentaryGenreColor.Help">Couleur utilisée pour les programmes du genre Documentaire dans l\'EPG</string>
+  <string name="SlimTvClient.EpgMusicGenreColor">Couleur du genre Musical</string>
+  <string name="SlimTvClient.EpgMusicGenreColor.Help">Couleur utilisée pour les programmes du genre Musical dans l\'EPG</string>
+  <string name="SlimTvClient.EpgKidsGenreColor">Couleur du genre Jeunesse</string>
+  <string name="SlimTvClient.EpgKidsGenreColor.Help">Couleur utilisée pour les programmes du genre Jeunesse dans l\'EPG</string>
+  <string name="SlimTvClient.EpgNewsGenreColor">Couleur du genre Journal Télévisé</string>
+  <string name="SlimTvClient.EpgNewsGenreColor.Help">Couleur utilisée pour les programmes du genre Journal Télévisé dans l\'EPG</string>
+  <string name="SlimTvClient.EpgSportGenreColor">Couleur du genre Sport</string>
+  <string name="SlimTvClient.EpgSportGenreColor.Help">Couleur utilisée pour les programmes du genre Sport dans l\'EPG</string>
+  <string name="SlimTvClient.EpgSpecialGenreColor">Couleur du genre Spécial</string>
+  <string name="SlimTvClient.EpgSpecialGenreColor.Help">Couleur utilisée pour les programmes du genre Spécial dans l\'EPG</string>
   <string name="SlimTvClient.NoColor">Aucun</string>
   <string name="SlimTvClient.RecordingsMenuItem">Enregistrements</string>
+  <string name="SlimTvClient.ChannelsMenuItem">Chaînes </string>
   <string name="SlimTvClient.Recordings.Help">Ici vous trouverez une liste de vos programmes enregistrés accessible à la lecture.</string>
   <string name="SlimTvClient.RecordingsRootViewName">Enregistrements TV</string>
-  <string name="SlimTvClient.ChannelMenuItemLabel">Filtrer par chaîne</string>
+  <string name="SlimTvClient.ChannelMenuItemLabel">Chaîne</string>
   <string name="SlimTvClient.ChannelNavBarItemLabel">Chaîne: {0}</string>
   <string name="SlimTvClient.RecordingsByChannelHeader">Enregistrements triés par chaîne</string>
-  <string name="SlimTvClient.NameFilterMenuItemLabel">Filtrer par nom</string>
-  <string name="SlimTvClient.NameFilterNavBarItemLabel">{0}</string>
-  <string name="SlimTvClient.RecordingsByNameHeader">Enregistrements triés par nom</string>
   <string name="SlimTvClient.RecordingStartedHeader">Enregistrement en cours</string>
   <string name="SlimTvClient.RecordingEndedHeader">Enregistrement terminé</string>
+  <string name="RestrictionGroup.SlimTvClient.DeleteRecording">TV: Supprimer enregistrements</string>
 </resources>

@@ -211,6 +211,15 @@ namespace MediaPortal.Plugins.SlimTv.Client.TvHandler
       ServiceRegistration.Get<ILogger>().Debug("SlimTvHandler: StartTimeshift slot {0} for channel '{1}'", slotIndex, channel.Name);
 
       int newSlotIndex = GetMatchingSlotIndex(slotIndex);
+      if (_slotContexes[newSlotIndex].Channel != null && _slotContexes[newSlotIndex].Channel.MediaType != channel.MediaType)
+      {
+        // Switching between TV and radio - must close old player and start brand new one
+        IPlayerContext playerContext = existingPlayerContext(newSlotIndex);
+        if (playerContext == null)
+          return false;
+        playerContext.Close();
+        await StopTimeshiftAsync(newSlotIndex);
+      }
       var result = await TimeshiftControl.StartTimeshiftAsync(newSlotIndex, channel);
       IList<MultipleMediaItemAspect> pras;
       MediaItem timeshiftMediaItem = result.Result;
@@ -230,7 +239,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.TvHandler
           try
           {
             _slotContexes[newSlotIndex].CardChanging = true;
-            UpdateExistingMediaItem(timeshiftMediaItem);
+            UpdateExistingMediaItem(timeshiftMediaItem, newSlotIndex);
           }
           finally
           {
@@ -260,7 +269,27 @@ namespace MediaPortal.Plugins.SlimTv.Client.TvHandler
       timeshiftMediaItem.AdditionalProperties[LiveTvMediaItem.CHANNEL] = channel;
     }
 
-    private void UpdateExistingMediaItem(MediaItem timeshiftMediaItem)
+    private void UpdateExistingMediaItem(MediaItem timeshiftMediaItem, int slotIndex)
+    {
+      LiveTvMediaItem newLiveTvMediaItem = timeshiftMediaItem as LiveTvMediaItem;
+      IPlayerContext playerContext = existingPlayerContext(slotIndex);
+      if (playerContext == null)
+        return;
+      LiveTvMediaItem liveTvMediaItem = playerContext.CurrentMediaItem as LiveTvMediaItem;
+      if (!IsSameLiveTvItem(liveTvMediaItem, newLiveTvMediaItem))
+      {
+        // Switch MediaItem in current slot, the LiveTvPlayer implements IReusablePlayer and will change its source without need to change full player.
+        playerContext.DoPlay(newLiveTvMediaItem);
+        // Copy old channel history into new item
+        liveTvMediaItem.TimeshiftContexes.ToList().ForEach(tc => newLiveTvMediaItem.TimeshiftContexes.Add(tc));
+        // Use new MediaItem, so new context will be added to new instance.
+        liveTvMediaItem = newLiveTvMediaItem;
+      }
+      // Add new timeshift context
+      AddOrUpdateTimeshiftContext(liveTvMediaItem, newLiveTvMediaItem.AdditionalProperties[LiveTvMediaItem.CHANNEL] as IChannel);
+    }
+
+    private IPlayerContext existingPlayerContext(int slotIndex)
     {
       IPlayerContextManager playerContextManager = ServiceRegistration.Get<IPlayerContextManager>();
       for (int index = 0; index < playerContextManager.NumActivePlayerContexts; index++)
@@ -269,34 +298,12 @@ namespace MediaPortal.Plugins.SlimTv.Client.TvHandler
         if (playerContext == null)
           continue;
         LiveTvMediaItem liveTvMediaItem = playerContext.CurrentMediaItem as LiveTvMediaItem;
-        LiveTvMediaItem newLiveTvMediaItem = timeshiftMediaItem as LiveTvMediaItem;
         // Check if this is "our" media item to update.
-        if (liveTvMediaItem == null || newLiveTvMediaItem == null || !IsSameSlot(liveTvMediaItem, newLiveTvMediaItem))
+        if (liveTvMediaItem == null || (int)liveTvMediaItem.AdditionalProperties[LiveTvMediaItem.SLOT_INDEX] != slotIndex)
           continue;
-
-        if (!IsSameLiveTvItem(liveTvMediaItem, newLiveTvMediaItem))
-        {
-          // Switch MediaItem in current slot, the LiveTvPlayer implements IReusablePlayer and will change its source without need to change full player.
-          playerContext.DoPlay(newLiveTvMediaItem);
-          // Copy old channel history into new item
-          liveTvMediaItem.TimeshiftContexes.ToList().ForEach(tc => newLiveTvMediaItem.TimeshiftContexes.Add(tc));
-          // Use new MediaItem, so new context will be added to new instance.
-          liveTvMediaItem = newLiveTvMediaItem;
-        }
-        // Add new timeshift context
-        AddOrUpdateTimeshiftContext(liveTvMediaItem, newLiveTvMediaItem.AdditionalProperties[LiveTvMediaItem.CHANNEL] as IChannel);
+        return playerContext;
       }
-    }
-
-    /// <summary>
-    /// Checks if both <see cref="LiveTvMediaItem"/> are representing the same player slot.
-    /// </summary>
-    /// <param name="oldItem"></param>
-    /// <param name="newItem"></param>
-    /// <returns><c>true</c> if same</returns>
-    protected bool IsSameSlot(LiveTvMediaItem oldItem, LiveTvMediaItem newItem)
-    {
-      return ((int)oldItem.AdditionalProperties[LiveTvMediaItem.SLOT_INDEX] == (int)newItem.AdditionalProperties[LiveTvMediaItem.SLOT_INDEX]);
+      return null;
     }
 
     /// <summary>

@@ -22,10 +22,7 @@
   <string name="Settings.Players.VideoPlayer.PreferMultiChannelAudio">Eelista multichannel audio streams</string>
   <string name="Settings.Players.VideoPlayer.PreferMultiChannelAudio.Help">Eelista, 6ch streame (i.e. AC3, AAC)</string>
   <string name="Settings.Players.DVDPlayer">DVD Player</string>
-  <string name="Settings.Players.DVDPlayer.EnableClosedCaption">Subtiitrid</string>
-  <string name="Settings.Players.DVDPlayer.EnableClosedCaption.Help">Subtiitrid vaikimisi</string>
-  <string name="Settings.Players.DVDPlayer.EnableSubtitles">Subtiitrid</string>
-  <string name="Settings.Players.DVDPlayer.EnableSubtitles.Help">Subtiitrid vaikimisi</string>
+  <string name="Settings.Players.Subtitles">Subtiitrid</string>
   <string name="Playback.NotSpecified">Pole täpsustatud</string>
   <string name="Playback.CaptionNormal">Tavalised subtiitrid</string>
   <string name="Playback.CaptionBig">Suured subtiitrid</string>

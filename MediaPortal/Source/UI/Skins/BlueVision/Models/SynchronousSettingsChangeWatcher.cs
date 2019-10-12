@@ -22,11 +22,6 @@
 
 #endregion
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using MediaPortal.Common.Messaging;
 using MediaPortal.Common.Services.Settings;
 
@@ -43,6 +38,12 @@ namespace MediaPortal.UiComponents.BlueVision.Models
       _messageQueue = new AsynchronousMessageQueue(this, new string[] { SettingsManagerMessaging.CHANNEL });
       _messageQueue.PreviewMessage += OnMessageReceived;
       _messageQueue.Start();
+    }
+
+    public new void Dispose()
+    {
+      _messageQueue.PreviewMessage -= OnMessageReceived;
+      base.Dispose();
     }
   }
 }

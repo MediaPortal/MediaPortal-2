@@ -21,14 +21,14 @@
   <string name="SlimTvClient.DeleteSchedule">Kayıt zamanlamasını sil</string>
   <string name="SlimTvClient.CreateSchedule">Zamanı gelince kaydet</string>
   <!--Extended recording features-->
+  <string name="SlimTvClient.ShowAllRecordingsItemsMenuItem">İsim</string>
+  <string name="SlimTvClient.FilterRecordingsItemsNavbarDisplayLabel">İsim</string>
   <!--Schedule management-->
   <!--Settings-->
   <string name="SlimTvClient.Notifications">Bildirimler</string>
   <string name="SlimTvClient.NoColor">Hiçbiri</string>
   <string name="SlimTvClient.RecordingsMenuItem">Kayıtlar</string>
   <string name="SlimTvClient.RecordingsRootViewName">TV Kayıtları</string>
-  <string name="SlimTvClient.ChannelMenuItemLabel">Kanala göre filtrele</string>
+  <string name="SlimTvClient.ChannelMenuItemLabel">Kanal</string>
   <string name="SlimTvClient.ChannelNavBarItemLabel">Kanal: {0}</string>
-  <string name="SlimTvClient.NameFilterMenuItemLabel">İsme göre filtrele</string>
-  <string name="SlimTvClient.NameFilterNavBarItemLabel">{0}</string>
 </resources>

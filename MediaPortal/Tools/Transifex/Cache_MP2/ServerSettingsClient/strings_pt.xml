@@ -8,6 +8,26 @@
   <string name="Settings.ServerSettings.Username">Utilizador:</string>
   <string name="Settings.ServerSettings.Password">Palavra-passe:</string>
   <string name="Settings.ServerSettings.ImporterWorker.Help">Configurar atualização automática das partilhas</string>
-  <string name="Settings.ServerSettings.ImporterWorker.EnableAutoRefresh">Ativar actualização automática</string>
   <string name="Settings.ServerSettings.ImporterWorker.RunAtHour">Executar á hora (Base 24h)</string>
+  <string name="Settings.ServerSettings.AudioMDESettings">Definições de importação de áudio</string>
+  <string name="Settings.ServerSettings.MovieMDESettings">Definições de importação de filme</string>
+  <string name="Settings.ServerSettings.SeriesMDESettings">Definições de importação de séries</string>
+  <string name="Settings.ServerSettings.VideoMDESettings">Definições de importação de vídeo</string>
+  <string name="Settings.ServerSettings.ImageMDESettings">Definições de importação de imagem</string>
+  <string name="Settings.ServerSettings.FanArtSettings">Definições de FanArt</string>
+  <string name="Settings.ServerSettings.MDESettings.MDEOnlineData">Dados a transferir das fontes on-line</string>
+  <string name="Settings.ServerSettings.MDESettings.MDEOnlineData.Help">Selecione quais os dados a transferir das fontes on-line.</string>
+  <string name="Settings.ServerSettings.MDESettings.MDEOnlineData.Media">Transferir apenas os detalhes</string>
+  <string name="Settings.ServerSettings.MDESettings.MDEOnlineData.FanArt">Transferir apenas FanArt</string>
+  <string name="Settings.ServerSettings.MDESettings.MDEOnlineData.None">Não transferir nada</string>
+  <string name="Settings.ServerSettings.MDESettings.SeriesMDEDownloadAllSeriesEpisodes">Transferir metadados para todos os episódios numa série</string>
+  <string name="Settings.ServerSettings.LanguageSettings">Definições de idioma</string>
+  <string name="Settings.ServerSettings.LanguageSettings.ServerLanguage">Idioma predefinido preferido</string>
+  <string name="Settings.ServerSettings.LanguageSettings.ServerLanguage.Help">O idioma preferido para as \"strings\" relacionadas com o servidor.</string>
+  <string name="Settings.ServerSettings.LanguageSettings.ServerAudioLanguage">Idioma de áudio on-line preferido</string>
+  <string name="Settings.ServerSettings.LanguageSettings.ServerAudioLanguage.Help">O idioma preferido dos detalhes de áudio on-line.</string>
+  <string name="Settings.ServerSettings.LanguageSettings.ServerMovieLanguage">O idioma de filme on-line preferido.</string>
+  <string name="Settings.ServerSettings.LanguageSettings.ServerMovieLanguage.Help">O idioma preferido dos detalhes de filme on-line.</string>
+  <string name="Settings.ServerSettings.LanguageSettings.ServerSeriesLanguage">O idioma de séries on-line preferido.</string>
+  <string name="Settings.ServerSettings.LanguageSettings.ServerSeriesLanguage.Help">O idioma preferido dos detalhes de séries on-line.</string>
 </resources>

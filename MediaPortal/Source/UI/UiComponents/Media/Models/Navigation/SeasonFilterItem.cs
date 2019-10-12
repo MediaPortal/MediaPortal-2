@@ -64,7 +64,7 @@ namespace MediaPortal.UiComponents.Media.Models.Navigation
           TotalEpisodes = "";
 
         if (VirtualMediaHelper.ShowVirtualSeriesMedia)
-          Episodes = TotalEpisodes;
+          Episodes = string.IsNullOrEmpty(TotalEpisodes) ? AvailableEpisodes : TotalEpisodes;
         else
           Episodes = AvailableEpisodes;
       }
