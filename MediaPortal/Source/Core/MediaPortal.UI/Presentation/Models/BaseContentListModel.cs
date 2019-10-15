@@ -75,6 +75,16 @@ namespace MediaPortal.UI.Presentation.Models
       get { return _listProviders; }
     }
 
+    protected virtual bool ServerConnectionRequired
+    {
+      get { return true; }
+    }
+
+    protected virtual bool UpdateRequired
+    {
+      get { return false; }
+    }
+
     public BaseContentListModel(string providerPath)
       : base(true, 1000)
     {
@@ -90,22 +100,23 @@ namespace MediaPortal.UI.Presentation.Models
       Task.Run(UpdateAllProvidersAsync);
     }
 
-    protected async Task<bool> UpdateAllProvidersAsync()
+    protected virtual async Task<bool> UpdateAllProvidersAsync()
     {
       try
       {
         var contentDirectory = ServiceRegistration.Get<IServerConnectionManager>().ContentDirectory;
-        if (contentDirectory == null)
+        if (ServerConnectionRequired && contentDirectory == null)
         {
+          //Server not connected. Request update when it does
           _updatePending = true;
           return false;
         }
 
         UpdateReason updateReason = UpdateReason.None;
-        if (_updatePending) updateReason |= UpdateReason.Forced;
+        if (_updatePending || UpdateRequired) updateReason |= UpdateReason.Forced;
         if (_importUpdatePending) updateReason |= UpdateReason.ImportComplete;
         if (_playbackUpdatePending) updateReason |= UpdateReason.PlaybackComplete;
-        if (_nextMinute < DateTime.Now) updateReason |= UpdateReason.PeriodicMinute;
+        if (_nextMinute < DateTime.UtcNow) updateReason |= UpdateReason.PeriodicMinute;
         if (_mediaItemUpdatePending) updateReason |= UpdateReason.MediaItemChanged;
         if (updateReason == UpdateReason.None)
           return false;
@@ -114,7 +125,7 @@ namespace MediaPortal.UI.Presentation.Models
         _importUpdatePending = false;
         _playbackUpdatePending = false;
         _mediaItemUpdatePending = false;
-        _nextMinute = DateTime.Now.AddMinutes(1);
+        _nextMinute = DateTime.UtcNow.AddMinutes(1);
 
         int maxItems = Limit;
         foreach (var provider in _listProviders.EnabledProviders)
@@ -129,7 +140,7 @@ namespace MediaPortal.UI.Presentation.Models
       }
     }
 
-    protected async Task<bool> UpdateProviderAsync(IContentListProvider provider, int maxItems, UpdateReason updateReason)
+    protected virtual async Task<bool> UpdateProviderAsync(IContentListProvider provider, int maxItems, UpdateReason updateReason)
     {
       try
       {

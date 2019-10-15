@@ -36,7 +36,7 @@ namespace MediaPortal.Plugins.AppLauncher.ContentLists
   {
     public override Task<bool> UpdateItemsAsync(int maxItems, UpdateReason updateReason)
     {
-      if (!AppLauncherHomeModel.AnyAppWasLaunched(nameof(LatestLaunchedAppsListProvider)))
+      if (!updateReason.HasFlag(UpdateReason.Forced))
         return Task.FromResult(false);
 
       var apps = Helper.LoadApps();

@@ -68,7 +68,7 @@ namespace MediaPortal.Plugins.AppLauncher.ContentLists
 
     protected Task StartApp(ListItem item)
     {
-      AppLauncherHomeModel model = ServiceRegistration.Get<IWorkflowManager>().GetModel(Guid.Parse(AppLauncherHomeModel.MODEL_ID_STR)) as AppLauncherHomeModel;
+      AppLauncherHomeModel model = ServiceRegistration.Get<IWorkflowManager>().GetModel(AppLauncherHomeModel.APP_HOME_ID) as AppLauncherHomeModel;
       if (model != null)
       {
         model.StartApp(item);
