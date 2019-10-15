@@ -32,14 +32,14 @@ namespace MediaPortal.UiComponents.Nereus.Models.HomeContent
     {
       var alm = GetAppListModel();
 
-      _backingList.Add(new LatestLauncehedAppList(alm.Lists["LastLaunchApps"].AllItems));
+      _backingList.Add(new LatestLaunchedAppList(alm.Lists["LastLaunchApps"].AllItems));
       _backingList.Add(new FavoriteAppList(alm.Lists["FavoriteApps"].AllItems));
     }
   }
 
-  public class LatestLauncehedAppList : ItemsListWrapper
+  public class LatestLaunchedAppList : ItemsListWrapper
   {
-    public LatestLauncehedAppList(ItemsList mediaList)
+    public LatestLaunchedAppList(ItemsList mediaList)
       : base(mediaList, "[Nereus.Home.LatestLaunched]")
     { }
   }
