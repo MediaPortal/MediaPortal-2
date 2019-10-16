@@ -2429,7 +2429,6 @@
         <Label x:Name="ItemLabel" HorizontalAlignment="Center" VerticalAlignment="Center" Content="{Binding [Name]}"
                FontSize="{ThemeResource SmallerFontSize}" Color="{ThemeResource MenuTextForeground}" Margin="5,-5,5,5"
                ScrollDelay="0" Scroll="None" FontFamily="SegoeUIBold"/>
-
         <Grid.Triggers>
           <DataTrigger Binding="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Button}, Path=HasFocus}" Value="True">
             <Setter TargetName="ItemLabel" Property="Scroll" Value="Auto"/>
@@ -2463,12 +2462,11 @@
             </DataTrigger.ExitActions>
           </DataTrigger>
         </Grid.Triggers>
-
       </Grid>
     </Grid>
   </ControlTemplate>
 
-  <DataTemplate DataType="{x:Type nereus_home_content:LatestLauncehedAppList}">
+  <DataTemplate DataType="{x:Type nereus_home_content:LatestLaunchedAppList}">
     <Control Style="{ThemeResource MediaGridTemplateStyle}" Width="{ThemeResource TileGroupWidthVeryNarrow}">
       <Control.Resources>
         <ResourceWrapper x:Key="Square_Tile_Template" Value="{ThemeResource AppLauncherDataTemplate}"/>
