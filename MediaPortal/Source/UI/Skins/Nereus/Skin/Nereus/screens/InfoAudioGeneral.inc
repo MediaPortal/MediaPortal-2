@@ -6,6 +6,7 @@
   xmlns:aspect="clr-namespace:MediaPortal.Common.MediaManagement.DefaultItemAspects;assembly=MediaPortal.Common"
   xmlns:media="clr-namespace:MediaPortal.UiComponents.Media.Models.AspectWrappers;assembly=Media"
   xmlns:mp_special_controls="clr-namespace:MediaPortal.UI.SkinEngine.SpecialElements.Controls;assembly=SkinEngine"
+  xmlns:media_consts="clr-namespace:MediaPortal.UiComponents.Media.General;assembly=Media"
   x:Name="MediaItemDetails" Margin="30,10,20,10"
   HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
 
@@ -22,13 +23,14 @@
     <ColumnDefinition Width="*"/>
   </Grid.ColumnDefinitions>
 
-        <mp_special_controls:PlayerControl PlayerContext="CurrentPlayer" Grid.Row="1" Grid.Column="1" Margin="-250,-100,0,0">
+        <mp_special_controls:PlayerControl PlayerContext="CurrentPlayer" Grid.Row="1" Grid.Column="1" Margin="-250,-100,20,30"
+                                           VerticalAlignment="Bottom" HorizontalAlignment="Right">
            <mp_special_controls:PlayerControl.TemplateControl>
               <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="0,0,0,0">
 
                 <Image x:Name="CDImage" Stretch="Fill"
                        FallbackSource="CD.png" HorizontalAlignment="Right" RenderTransformOrigin="0.498,0.498"
-                       VerticalAlignment="Center" Width="380" Height="380" Margin="-40,0,190,25">
+                       VerticalAlignment="Center" Width="380" Height="380" Margin="-40,0,190,20">
                   <Image.Source>
                     <fanart:FanArtImageSource fanart:FanArtMediaType="Album" fanart:FanArtType="DiscArt" fanart:FanArtName="{Binding MediaItem.MediaItemId}"
                                               fanart:MaxWidth="380" fanart:MaxHeight="380"/>
@@ -72,12 +74,19 @@
            </mp_special_controls:PlayerControl.TemplateControl>
       </mp_special_controls:PlayerControl>
 
+      <Image Grid.Row="1" Grid.Column="1" Margin="-200,-230,10,0" HorizontalAlignment="Center" VerticalAlignment="Top" Stretch="Uniform" Height="140">
+        <Image.Source>
+          <fanart:FanArtImageSource fanart:FanArtMediaType="Audio" fanart:FanArtType="ClearArt" fanart:FanArtName="{Binding MediaItem.MediaItemId}"
+                                    fanart:MaxWidth="250" fanart:MaxHeight="120"/>
+        </Image.Source>
+      </Image>
+
   <media:AudioAspectWrapper MediaItem="{Binding MediaItem}" >
     <media:AudioAspectWrapper.Template>
       <ControlTemplate>
         <StackPanel Orientation="Vertical" DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}" Margin="0,0,20,0">
 
-          <Label x:Name="Title" FontSize="{ThemeResource NormalFontSize}" Wrap="True" TextTrimming="WordEllipsis"
+          <Label x:Name="Title" FontSize="{ThemeResource NormalFontSize}" Wrap="True" TextTrimming="WordEllipsis" Margin="0,0,-300,0"
                  Content="{Binding TrackName}" Color="{ThemeResource TextColor}" FontFamily="SegoeUIBold"/>
 
           <Label x:Name="Artists" FontSize="{ThemeResource SmallFontSize}"
@@ -153,8 +162,32 @@
           <Grid Margin="0,0,20,0" IsVisible="{Binding ElementName=TrackLabel, Path=Content, Converter={StaticResource EmptyStringToFalseConverter}}">
             <Image Source="HomeContentIcons\track.png" Height="29" Width="28" Stretch="Uniform" Margin="0,0,5,0"
                    VerticalAlignment="Center" HorizontalAlignment="Left"/>
-            <Label x:Name="TrackLabel" Content="{Binding Track}" Color="{ThemeResource TextColorForeground}" Margin="40,0,0,0"
-                   VerticalAlignment="Center" FontSize="{ThemeResource SmallFontSize}"/>
+            <StackPanel Orientation="Horizontal" Margin="40,0,0,0">
+              <Label x:Name="TrackLabel" Content="{Binding Track}" Color="{ThemeResource TextColorForeground}" 
+                     VerticalAlignment="Center" FontSize="{ThemeResource SmallFontSize}"/>
+               <mp_special_controls:PlayerControl PlayerContext="CurrentPlayer">
+                 <mp_special_controls:PlayerControl.TemplateControl>
+              <media:AudioAlbumAspectWrapper DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}">
+                <media:AudioAlbumAspectWrapper.MediaItem>
+                  <RelationshipQuery NecessaryRequestedMIAs="{x:Static media_consts:Consts.NECESSARY_ALBUM_MIAS}"
+                                     OptionalRequestedMIAs="{x:Static media_consts:Consts.OPTIONAL_ALBUM_MIAS}"
+                                     Role="{x:Static aspect:AudioAlbumAspect.ROLE_ALBUM}"
+                                     LinkedRole="{x:Static aspect:AudioAspect.ROLE_TRACK}"
+                                     LinkedMediaItemId="{Binding Source={Binding MediaItem}, Path=MediaItemId}"/>
+                </media:AudioAlbumAspectWrapper.MediaItem>
+                <media:AudioAlbumAspectWrapper.Template>
+                  <ControlTemplate>
+                    <StackPanel Orientation="Horizontal"
+                                DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}">
+                      <Label Content="|" Color="{ThemeResource TextColorForeground}"/>
+                      <Label x:Name="NumTracks" Content="{Binding NumTracks}" Color="{ThemeResource TextColorForeground}"/>
+                    </StackPanel>
+                  </ControlTemplate>
+                </media:AudioAlbumAspectWrapper.Template>
+              </media:AudioAlbumAspectWrapper>
+                  </mp_special_controls:PlayerControl.TemplateControl>
+                </mp_special_controls:PlayerControl>
+            </StackPanel>
           </Grid>
 
           <Grid IsVisible="{Binding ElementName=Duration, Path=Content, Converter={StaticResource EmptyStringToFalseConverter}}">

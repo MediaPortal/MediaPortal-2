@@ -363,8 +363,7 @@
               </Grid>
 
               <!-- Collection -->
-              <Grid HorizontalAlignment="Stretch" Grid.Row="3" Margin="400,0,0,0"
-                    IsVisible="{Binding ElementName=CollectionLabel, Path=Content, Converter={StaticResource EmptyStringToFalseConverter}}">
+              <Grid HorizontalAlignment="Stretch" Grid.Row="3" Margin="400,0,0,0">
                 <Grid.RowDefinitions>
                   <RowDefinition Height="45"/>
                   <RowDefinition Height="180"/>
@@ -372,6 +371,12 @@
                 <Grid.ColumnDefinitions>
                   <ColumnDefinition Width="300"/>
                 </Grid.ColumnDefinitions>
+
+                <Grid.Triggers>
+                  <DataTrigger Binding="{Binding ElementName=CollectionLabel, Path=Visibility}" Value="Hidden">
+                    <Setter Property="Visibility" Value="Hidden"/>
+                  </DataTrigger>
+                </Grid.Triggers>
 
                 <Grid Margin="10,15,0,-2">
                   <Image Source="HomeContentIcons\Category.png" Height="25" Width="25" Stretch="Uniform" Margin="0,1,5,-1" 
@@ -381,8 +386,7 @@
                 </Grid>
 
                 <Button Style="{ThemeResource NereusFrameButtonStyle}" Grid.Row="1" Margin="10,11,10,11">
-                  <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch" DockPanel.Dock="Center" Margin="1"
-                        IsVisible="{Binding ElementName=CollectionLabel, Path=Content, Converter={StaticResource EmptyStringToFalseConverter}}">
+                  <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch" DockPanel.Dock="Center" Margin="1">
                     <Grid.RowDefinitions>
                       <RowDefinition Height="*"/>
                     </Grid.RowDefinitions>
@@ -421,6 +425,7 @@
                         <media:MovieAspectWrapper.Template>
                           <ControlTemplate>
                             <Label x:Name="CollectionLabel" Content="{Binding CollectionName}" DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}"
+                                   IsVisible="{Binding Path=CollectionName, Converter={StaticResource EmptyStringToFalseConverter}}"
                                    Color="{ThemeResource TextColor}" VerticalAlignment="Center" Margin="5" Wrap="True" FontSize="{ThemeResource SmallerFontSize}"/>
                           </ControlTemplate>
                         </media:MovieAspectWrapper.Template>
