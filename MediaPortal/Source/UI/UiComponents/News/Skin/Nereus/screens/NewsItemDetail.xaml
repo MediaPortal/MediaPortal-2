@@ -73,7 +73,7 @@
 
           <Label Color="{ThemeResource TextColor}" Wrap="True" Width="900" VerticalAlignment="Stretch"
                  FontSize="{ThemeResource NormalFontSize}" FontFamily="SegoeUIBold"
-                 Content="{Binding SelectedItem.Feed}" Margin="0,0,0,10"/>
+                 Content="{Binding SelectedItem.Feed.Title}" Margin="0,0,0,10"/>
 
           <Grid Grid.Row="1" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Grid.ColumnSpan="2">
             <Image Source="HomeContentIcons\news.png" Height="30" Width="30" Stretch="Uniform" Margin="0,8,5,0"
