@@ -28,7 +28,7 @@ using System.Net.NetworkInformation;
 using System.Text;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
-using ZeroconfService;
+using ArkaneSystems.Arkane.Zeroconf;
 
 namespace MediaPortal.Plugins.WifiRemote
 {
@@ -37,7 +37,7 @@ namespace MediaPortal.Plugins.WifiRemote
     /// <summary>
     /// The Bonjour service publish object
     /// </summary>
-    NetService _publishService;
+    RegisterService _publishService;
 
     /// <summary>
     /// Bonjour service name (your hostname)
@@ -88,37 +88,54 @@ namespace MediaPortal.Plugins.WifiRemote
     {
       if (_servicePublishing)
       {
-        Logger.Debug("Already in the process of publishing the Bonjour service. Aborting publish ...");
-        return;
-      }
-
-      // Test if Bonjour is installed
-      try
-      {
-        //float bonjourVersion = NetService.GetVersion();
-        Version bonjourVersion = NetService.DaemonVersion;
-        Logger.Info("Bonjour version {0} found.", bonjourVersion.ToString());
-      }
-      catch
-      {
-        Logger.Error("Bonjour enabled but not installed! Get it at http://support.apple.com/downloads/Bonjour_for_Windows");
-        Logger.Info("Disabling Bonjour for this session.");
-        _disableBonjour = true;
+        Logger.Debug("WifiRemote: Already in the process of publishing the Bonjour service. Aborting publish ...");
         return;
       }
 
       _servicePublishing = true;
 
-      _publishService = new NetService(_domain, serviceType, _serviceName, _port);
+      try
+      {
+        _publishService = new RegisterService();
+        _publishService.Name = _serviceName;
+        _publishService.RegType = serviceType;
+        _publishService.ReplyDomain = _domain;
+        _publishService.Port = Convert.ToInt16(_port);
 
-      // Get the MAC addresses and set it as bonjour txt record
-      // Needed by the clients to implement wake on lan
-      Hashtable dict = new Hashtable { { "hwAddr", GetHardwareAddresses() } };
-      _publishService.TXTRecordData = NetService.DataFromTXTRecordDictionary(dict);
-      _publishService.DidPublishService += publishService_DidPublishService;
-      _publishService.DidNotPublishService += publishService_DidNotPublishService;
+        // Get the MAC addresses and set it as bonjour txt record
+        // Needed by the clients to implement wake on lan
+        TxtRecord txt_record = new TxtRecord();
+        txt_record.Add("hwAddr", GetHardwareAddresses());
+        _publishService.TxtRecord = txt_record;
 
-      _publishService.Publish();
+        _publishService.Response += PublishService_Response;
+        _publishService.Register();
+      }
+      catch (Exception ex)
+      {
+        Logger.Error("WifiRemote: Bonjour enabled but failed to publish! If not installed get it at http://support.apple.com/downloads/Bonjour_for_Windows", ex);
+        Logger.Info("WifiRemote: Disabling Bonjour for this session.");
+        _disableBonjour = true;
+        return;
+      }
+    }
+
+    private void PublishService_Response(object o, RegisterServiceEventArgs args)
+    {
+      if (_servicePublishing)
+      {
+        if (args.IsRegistered)
+        {
+          Logger.Info("WifiRemote: Published Service via Bonjour!");
+          _servicePublishing = false;
+          _servicePublished = true;
+        }
+        else
+        {
+          Logger.Error(String.Format("WifiRemote: Bonjour publish error: {0}", args.ServiceError.ToString()));
+          _servicePublishing = false;
+        }
+      }
     }
 
     /// <summary>
@@ -126,31 +143,11 @@ namespace MediaPortal.Plugins.WifiRemote
     /// </summary>
     public void Stop()
     {
-      if (!_servicePublished) return;
-      _publishService.Stop();
+      if (!_servicePublished)
+        return;
+
+      _publishService.Dispose();
       _publishService = null;
-    }
-
-    /// <summary>
-    /// Service couldn't be published
-    /// </summary>
-    /// <param name="service"></param>
-    /// <param name="exception"></param>
-    private void publishService_DidNotPublishService(NetService service, DNSServiceException exception)
-    {
-      Logger.Error(String.Format("Bonjour publish error: {0}", exception.Message));
-      _servicePublishing = false;
-    }
-
-    /// <summary>
-    /// Service was published
-    /// </summary>
-    /// <param name="service"></param>
-    private void publishService_DidPublishService(NetService service)
-    {
-      Logger.Info("Published Service via Bonjour!");
-      _servicePublishing = false;
-      _servicePublished = true;
     }
 
     /// <summary>
@@ -182,7 +179,7 @@ namespace MediaPortal.Plugins.WifiRemote
       }
       catch (NetworkInformationException e)
       {
-        Logger.Error("Could not get hardware address: {0}", e.Message);
+        Logger.Error("WifiRemote: Could not get hardware address: {0}", e.Message);
       }
 
       return hardwareAddresses.ToString();

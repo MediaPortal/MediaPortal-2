@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <resources>
-	<string name="AppLauncher.Title">App Launcher</string>
+	<string name="AppLauncher.Title">Launcher</string>
   <string name="AppLauncher.Stop">Stop</string>
   <string name="AppLauncher.Pause">Pause</string>
   <string name="AppLauncher.SwitchPlaying">Change playback status</string>

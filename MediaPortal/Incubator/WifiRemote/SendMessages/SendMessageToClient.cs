@@ -43,7 +43,7 @@ namespace MediaPortal.Plugins.WifiRemote.SendMessages
     {
       if (message == null)
       {
-        ServiceRegistration.Get<ILogger>().Debug("SendMessageToClient failed: IMessage object is null");
+        ServiceRegistration.Get<ILogger>().Debug("WifiRemote: SendMessageToClient failed: IMessage object is null");
         return;
       }
 
@@ -71,11 +71,10 @@ namespace MediaPortal.Plugins.WifiRemote.SendMessages
     {
       if (message == null)
       {
-        ServiceRegistration.Get<ILogger>().Debug("SendMessageToClient failed: Message string is null");
+        ServiceRegistration.Get<ILogger>().Debug("WifiRemote: SendMessageToClient failed: Message string is null");
         return;
       }
 
-      //WifiRemote.LogMessage("Send to " + client.LocalAddress + ": " + message, WifiRemote.LogType.Debug);
       byte[] data = Encoding.UTF8.GetBytes(message + "\r\n");
       if (client.GetRemoteClient().IsAuthenticated || ignoreAuth)
       {
@@ -83,7 +82,7 @@ namespace MediaPortal.Plugins.WifiRemote.SendMessages
       }
       else
       {
-        ServiceRegistration.Get<ILogger>().Info("SendMessageToClient failed: No Auth: {0}, ignoreAuth: {1}", client.GetRemoteClient().IsAuthenticated, ignoreAuth);
+        ServiceRegistration.Get<ILogger>().Info("WifiRemote: SendMessageToClient failed: No Auth: {0}, ignoreAuth: {1}", client.GetRemoteClient().IsAuthenticated, ignoreAuth);
       }
     }
 

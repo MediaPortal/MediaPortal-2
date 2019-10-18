@@ -25,8 +25,10 @@
 using MediaPortal.Common;
 using MediaPortal.Common.General;
 using MediaPortal.UI.Presentation.DataObjects;
+using MediaPortal.UI.Presentation.Models;
 using MediaPortal.UI.Presentation.Workflow;
 using MediaPortal.UiComponents.Media.Models;
+using System;
 using System.Collections.Generic;
 
 namespace MediaPortal.UiComponents.Nereus.Models.HomeContent
@@ -113,6 +115,11 @@ namespace MediaPortal.UiComponents.Nereus.Models.HomeContent
     protected static MediaListModel GetMediaListModel()
     {
       return (MediaListModel)ServiceRegistration.Get<IWorkflowManager>().GetModel(MediaListModel.MEDIA_LIST_MODEL_ID);
+    }
+
+    protected static BaseContentListModel GetAppListModel()
+    {
+      return (BaseContentListModel)ServiceRegistration.Get<IWorkflowManager>().GetModel(HomeMenuModel.APPS_LIST_MODEL_ID);
     }
   }
 }

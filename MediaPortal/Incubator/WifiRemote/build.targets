@@ -20,7 +20,7 @@
 
   <ItemGroup>
     <References Include="$(TargetDir)Newtonsoft.Json.dll" />
-    <References Include="$(TargetDir)ZeroconfService.dll" />
+    <References Include="$(TargetDir)Arkane.Zeroconf.dll" />
   </ItemGroup>
 
   <Target Name="AfterBuild">

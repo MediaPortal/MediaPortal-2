@@ -36,10 +36,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using MediaPortal.Common.UserManagement;
+using MediaPortal.UI.ContentLists;
 
 namespace MediaPortal.Plugins.SlimTv.Client.MediaLists
 {
-  public abstract class SlimTvMediaListProviderBase : IMediaListProvider
+  public abstract class SlimTvMediaListProviderBase : IContentListProvider
   {
     protected MediaType _mediaType = MediaType.TV;
     protected ITvHandler _tvHandler;

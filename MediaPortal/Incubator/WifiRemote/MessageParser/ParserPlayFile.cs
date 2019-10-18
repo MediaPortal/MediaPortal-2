@@ -41,12 +41,12 @@ namespace MediaPortal.Plugins.WifiRemote.MessageParser
       int startPos = GetMessageValue<int>(message, "StartPosition");
       var client = sender.GetRemoteClient();
 
-      ServiceRegistration.Get<ILogger>().Debug("WifiRemote Play File: FileType: {0}, FilePath: {1}, FileId: {2}, StartPos: {3}", fileType, filePath, id, startPos);
+      ServiceRegistration.Get<ILogger>().Debug("WifiRemote: Play File: FileType: {0}, FilePath: {1}, FileId: {2}, StartPos: {3}", fileType, filePath, id, startPos);
 
       var mediaItemGuid = await GetIdFromNameAsync(client, filePath, id, Helper.GetMediaItemByFileNameAsync);
       if (mediaItemGuid == null)
       {
-        ServiceRegistration.Get<ILogger>().Error("WifiRemote Play File: Couldn't convert FileId '{0} to Guid", id);
+        ServiceRegistration.Get<ILogger>().Error("WifiRemote: Play File: Couldn't convert FileId '{0} to Guid", id);
         return false;
       }
 

@@ -203,7 +203,6 @@
     <Compile Include="MediaLists\FavoriteRecordingMediaListProvider.cs" />
     <Compile Include="MediaLists\FavoriteAlbumMediaListProvider.cs" />
     <Compile Include="MediaLists\FavoriteVideoMediaListProvider.cs" />
-    <Compile Include="MediaLists\IMediaListProvider.cs" />
     <Compile Include="MediaLists\ContinueWatchSeriesMediaListProvider.cs" />
     <Compile Include="MediaLists\ContinueWatchAlbumMediaListProvider.cs" />
     <Compile Include="MediaLists\ContinueWatchAudioMediaListProvider.cs" />
@@ -228,7 +227,6 @@
     <Compile Include="MediaLists\LatestMovieMediaListProvider.cs" />
     <Compile Include="MediaLists\LatestRecordingMediaListProvider.cs" />
     <Compile Include="MediaLists\LatestVideoMediaListProvider.cs" />
-    <Compile Include="MediaLists\MediaListProviderBuilder.cs" />
     <Compile Include="Models\AspectWrappers\AudioAlbumAspectWrapper.cs" />
     <Compile Include="Models\AspectWrappers\AudioAspectWrapper.cs" />
     <Compile Include="Models\AspectWrappers\CharacterAspectWrapper.cs" />

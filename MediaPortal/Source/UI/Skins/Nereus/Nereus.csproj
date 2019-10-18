@@ -85,6 +85,7 @@
     <Compile Include="Converters\ItemsListActionFilter.cs" />
     <Compile Include="Converters\RoundingFormatConverter.cs" />
     <Compile Include="Models\HomeContent\AbstractHomeContent.cs" />
+    <Compile Include="Models\HomeContent\LauncherHomeContent.cs" />
     <Compile Include="Models\HomeContent\OtherPluginsHomeContent.cs" />
     <Compile Include="Models\HomeContent\DefaultHomeContent.cs" />
     <Compile Include="Models\HomeContent\VideoHomeContent.cs" />

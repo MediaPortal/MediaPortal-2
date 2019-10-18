@@ -35,6 +35,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using MediaPortal.Utilities;
+using MediaPortal.UI.ContentLists;
 
 namespace MediaPortal.Plugins.SlimTv.Client.MediaLists
 {

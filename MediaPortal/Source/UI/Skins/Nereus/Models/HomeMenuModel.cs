@@ -58,6 +58,7 @@ namespace MediaPortal.UiComponents.Nereus.Models
 
     public static readonly Guid MODEL_ID = new Guid("CED34107-565C-48D9-BEC8-195F7969F90F");
     public static readonly Guid HOME_STATE_ID = new Guid("7F702D9C-F2DD-42da-9ED8-0BA92F07787F");
+    public static readonly Guid APPS_LIST_MODEL_ID = new Guid("E35E2C12-1B97-43EE-B7A2-D1527DF41D89");
 
     protected const int UPDATE_DELAY_MS = 500;
 
@@ -85,6 +86,8 @@ namespace MediaPortal.UiComponents.Nereus.Models
 
     protected bool _isAttachedToMenuItems = false;
 
+    private const int CONTENT_LIST_LIMIT = 6;
+
     public HomeMenuModel()
     {
       _content1Property = new WProperty(typeof(object), null);
@@ -98,7 +101,8 @@ namespace MediaPortal.UiComponents.Nereus.Models
       _updateEvent.OnEventHandler += OnUpdate;
       _selectedItemProperty.Attach(OnSelectedItemChanged);
 
-      GetMediaListModel().Limit = 6;
+      GetMediaListModel().Limit = CONTENT_LIST_LIMIT;
+      GetAppListModel().Limit = CONTENT_LIST_LIMIT;
 
       _homeContent.Add(new Guid("80d2e2cc-baaa-4750-807b-f37714153751"), new MovieHomeContent());
       _homeContent.Add(new Guid("30f57cba-459c-4202-a587-09fff5098251"), new SeriesHomeContent());
@@ -108,6 +112,7 @@ namespace MediaPortal.UiComponents.Nereus.Models
       _homeContent.Add(new Guid("b4a9199f-6dd4-4bda-a077-de9c081f7703"), new TVHomeContent());
       _homeContent.Add(new Guid("bb49a591-7705-408f-8177-45d633fdfad0"), new NewsHomeContent());
       _homeContent.Add(new Guid("e34fdb62-1f3e-4aa9-8a61-d143e0af77b5"), new WeatherHomeContent());
+      _homeContent.Add(new Guid("873eb147-c998-4632-8f86-d5e24062be2e"), new LauncherHomeContent());
 
       // Home content for displaying a list of all other plugins
       _homeContent.Add(OtherPluginsAction.ACTION_ID, new OtherPluginsHomeContent(_otherMenuItems));
@@ -455,6 +460,11 @@ namespace MediaPortal.UiComponents.Nereus.Models
     protected static MediaListModel GetMediaListModel()
     {
       return (MediaListModel)ServiceRegistration.Get<IWorkflowManager>().GetModel(MediaListModel.MEDIA_LIST_MODEL_ID);
+    }
+
+    protected static BaseContentListModel GetAppListModel()
+    {
+      return (BaseContentListModel)ServiceRegistration.Get<IWorkflowManager>().GetModel(APPS_LIST_MODEL_ID);
     }
 
     protected static MenuModel GetMenuModel()

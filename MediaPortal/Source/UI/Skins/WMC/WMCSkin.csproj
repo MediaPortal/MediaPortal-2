@@ -1202,21 +1202,6 @@
     </Content>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Skin\WMCSkin\screens\NewsFeeds.xaml">
-      <SubType>Designer</SubType>
-    </Content>
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="Skin\WMCSkin\screens\NewsItems.xaml">
-      <SubType>Designer</SubType>
-    </Content>
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="Skin\WMCSkin\themes\default\styles\NewsStyles.xaml">
-      <SubType>Designer</SubType>
-    </Content>
-  </ItemGroup>
-  <ItemGroup>
     <Content Include="Skin\WMCSkin\themes\default\styles\Animations.xaml">
       <SubType>Designer</SubType>
     </Content>

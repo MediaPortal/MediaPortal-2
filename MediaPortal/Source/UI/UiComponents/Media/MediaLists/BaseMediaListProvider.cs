@@ -43,10 +43,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using MediaPortal.Common.UserManagement;
+using MediaPortal.UI.ContentLists;
 
 namespace MediaPortal.UiComponents.Media.MediaLists
 {
-  public abstract class BaseMediaListProvider : IMediaListProvider
+  public abstract class BaseMediaListProvider : IContentListProvider
   {
     public delegate PlayableMediaItem PlayableMediaItemToListItemAction(MediaItem mediaItem);
     public delegate PlayableContainerMediaItem PlayableContainerMediaItemToListItemAction(MediaItem mediaItem);

@@ -17,17 +17,20 @@
 
 	<DependsOn>
     <CoreDependency Name="MediaPortal.Common" CompatibleAPI="2" />
-    <CoreDependency Name="MediaPortal.UI" CompatibleAPI="2" />
+    <CoreDependency Name="MediaPortal.UI" CompatibleAPI="3" />
     <PluginReference PluginId="{1AFF4467-64B0-4ca1-AF28-9AEDF3525BCE}" CompatibleAPI="1"/> <!-- ConfigurationManager -->
     <PluginReference PluginId="{B765A4B6-F455-4941-BDAE-2CE45208BFEB}" CompatibleAPI="1"/> <!-- Configuration plugin -->
   </DependsOn>
 
   <Register Location="/Models">
     <Model Id="624339C2-0D3B-437B-8046-6F540D704A93" ClassName="MediaPortal.Plugins.AppLauncher.Models.AppLauncherHomeModel"/>
+    
     <Model Id="873EB147-C998-4632-8F86-D5E24062BE2E" ClassName="MediaPortal.Plugins.AppLauncher.Models.AppLauncherSettingsEditModel"/>
     <Model Id="D47E22A3-3D0F-4A28-8EF6-1121B811508C" ClassName="MediaPortal.Plugins.AppLauncher.Models.AppLauncherSettingsAddModel"/>
     <Model Id="3C19B13A-D64C-4918-9AD6-17EC2D9AAE29" ClassName="MediaPortal.Plugins.AppLauncher.Models.AppLauncherSettingsDeleteModel"/>
     <Model Id="3C38DF86-AE80-4411-8C3D-9480E7AAB279" ClassName="MediaPortal.Plugins.AppLauncher.Models.AppLauncherRemoveGroupModel"/>
+    
+    <Model Id="E35E2C12-1B97-43EE-B7A2-D1527DF41D89" ClassName="MediaPortal.Plugins.AppLauncher.Models.AppsListModel"/>
   </Register>
 
   <Register Location="/Workflow/States">
@@ -68,6 +71,11 @@
 
   <Register Location="/Resources/Language">
     <Resource Id="AppLauncherLanguge" Directory="Language" Type="Language"/>
+  </Register>
+
+  <Register Location="/Content/AppsListProviders">
+    <ContentList Id="{68461E8E-AFB8-44CD-9B05-4AC356003B3A}" Key="FavoriteApps" ClassName="MediaPortal.Plugins.AppLauncher.ContentLists.FavoriteAppsListProvider"/>
+    <ContentList Id="{9CEAAF9C-B883-4FB4-AA89-2A23081DE35E}" Key="LastLaunchApps" ClassName="MediaPortal.Plugins.AppLauncher.ContentLists.LatestLaunchedAppsListProvider"/>
   </Register>
 
   <!--Content of Settings/Plugins section-->

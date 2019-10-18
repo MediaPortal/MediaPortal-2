@@ -503,12 +503,6 @@
     <Content Include="Skin\BlueVision\themes\Titanium Extended\styles\MediaStyles.xaml">
       <SubType>Designer</SubType>
     </Content>
-    <Content Include="Skin\BlueVision\themes\Titanium Extended\styles\NewsConsts.xaml">
-      <SubType>Designer</SubType>
-    </Content>
-    <Content Include="Skin\BlueVision\themes\Titanium Extended\styles\NewsStyles.xaml">
-      <SubType>Designer</SubType>
-    </Content>
     <Content Include="Skin\BlueVision\themes\Titanium Extended\styles\OSD.xaml">
       <SubType>Designer</SubType>
     </Content>
