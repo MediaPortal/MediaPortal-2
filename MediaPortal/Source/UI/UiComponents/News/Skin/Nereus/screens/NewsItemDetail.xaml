@@ -60,6 +60,14 @@
           </Image.Source>
         </Image>
 
+        <Image Stretch="Uniform" HorizontalAlignment="Stretch" VerticalAlignment="Bottom" Margin="50,50,20,100" MaxHeight="200">
+          <Image.Source>
+            <ImageSourceWrapper Delay="0" DelayInOut="true" Transition="transitions\dissolve" FallbackSource="RssIcon.png"
+                                  TransitionDuration="0" VerticalTextureAlignment="Top" HorizontalTextureAlignment="Left"
+                                  Source="{Binding SelectedItem.Feed.Icon}"/>
+          </Image.Source>
+        </Image>
+
         <Grid Grid.Column="1" HorizontalAlignment="Stretch" VerticalAlignment="Top" Margin="70,10,0,100">
           <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
