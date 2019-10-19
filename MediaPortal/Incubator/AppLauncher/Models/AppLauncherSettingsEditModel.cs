@@ -66,7 +66,7 @@ namespace MediaPortal.Plugins.AppLauncher.Models
     {
       Clear();
       CurrentApp = null;
-      _apps = Helper.LoadApps();
+      _apps = Helper.LoadApps(true);
 
       FillItems();
     }
@@ -88,7 +88,7 @@ namespace MediaPortal.Plugins.AppLauncher.Models
     private void Clear()
     {
       _items.Clear();
-      _apps?.AppsList?.Clear();
+      _apps = null;
     }
 
     #region IWorkflowModel implementation

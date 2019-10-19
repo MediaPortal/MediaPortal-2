@@ -76,13 +76,16 @@ namespace MediaPortal.Plugins.AppLauncher.General
         var s = Crypter.Encrypt(a.Password);
         a.Password = s;
       }
-      ServiceRegistration.Get<ISettingsManager>().Save(apps);
+      var settingsManager = ServiceRegistration.Get<ISettingsManager>();
+      settingsManager.Save(apps);
     }
 
-    public static Apps LoadApps()
+    public static Apps LoadApps(bool decryptPasswords)
     {
       var settingsManager = ServiceRegistration.Get<ISettingsManager>();
       var apps = settingsManager.Load<Apps>() ?? new Apps(new List<App>());
+      if (!decryptPasswords)
+        return apps;
 
       foreach (var a in apps.AppsList)
       {
@@ -90,7 +93,6 @@ namespace MediaPortal.Plugins.AppLauncher.General
         var s = Crypter.Decrypt(a.Password);
         a.Password = s;
       }
-
       return apps;
     }
   }

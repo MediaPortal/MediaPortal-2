@@ -205,9 +205,8 @@ namespace MediaPortal.Plugins.AppLauncher.Models
 
     private void Init()
     {
-      _apps = Helper.LoadApps();
-
-      Clear();
+      Clear(true);
+      _apps = Helper.LoadApps(true);
       InitInstalledApps();
       InitGroups();
 
@@ -431,11 +430,14 @@ namespace MediaPortal.Plugins.AppLauncher.Models
     /// <summary>
     /// Clear all Fields in Screen
     /// </summary>
-    private void Clear()
+    private void Clear(bool includeInitData = false)
     {
-      _groupItems.Clear();
-      _appItems.Clear();
-      _apps?.AppsList?.Clear();
+      if (includeInitData)
+      {
+        _appItems.Clear();
+        _apps = null;
+        _groupItems.Clear();
+      }
 
       ShortName = "";
       Arguments = "";
@@ -467,7 +469,7 @@ namespace MediaPortal.Plugins.AppLauncher.Models
 
     public void ExitModelContext(NavigationContext oldContext, NavigationContext newContext)
     {
-      Clear();
+      Clear(true);
       AppLauncherSettingsEditModel.CurrentApp = null;
     }
 

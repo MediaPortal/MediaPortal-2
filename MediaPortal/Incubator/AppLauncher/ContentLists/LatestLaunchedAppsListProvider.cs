@@ -39,7 +39,7 @@ namespace MediaPortal.Plugins.AppLauncher.ContentLists
       if (!updateReason.HasFlag(UpdateReason.Forced))
         return Task.FromResult(false);
 
-      var apps = Helper.LoadApps();
+      var apps = Helper.LoadApps(false);
       IEnumerable<ListItem> listItems = apps.AppsList.OrderByDescending(a => a.LastUsed).Select(a => CreateAppItem(a));
       _allItems.Clear();
       foreach (var item in listItems.Take(maxItems))

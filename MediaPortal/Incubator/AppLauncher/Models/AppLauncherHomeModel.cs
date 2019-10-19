@@ -94,8 +94,7 @@ namespace MediaPortal.Plugins.AppLauncher.Models
     {
       if ((_apps?.AppsList?.Count ?? 0) == 0)
       {
-        var settingsManager = ServiceRegistration.Get<ISettingsManager>();
-        _apps = settingsManager.Load<Apps>();
+        _apps = Helper.LoadApps(true);
       }
       Start(_apps.AppsList.FirstOrDefault(a => Convert.ToString(a.Id) == (string)item.AdditionalProperties[Consts.KEY_ID]));
     }
@@ -270,8 +269,7 @@ namespace MediaPortal.Plugins.AppLauncher.Models
     {
       Clear();
 
-      var settingsManager = ServiceRegistration.Get<ISettingsManager>();
-      _apps = settingsManager.Load<Apps>();
+      _apps = Helper.LoadApps(true);
       var groups = new List<string>();
 
       var item = new ListItem();
@@ -312,7 +310,7 @@ namespace MediaPortal.Plugins.AppLauncher.Models
     {
       _items.Clear();
       _groupItems.Clear();
-      _apps?.AppsList?.Clear();
+      _apps = null;
     }
 
     #endregion

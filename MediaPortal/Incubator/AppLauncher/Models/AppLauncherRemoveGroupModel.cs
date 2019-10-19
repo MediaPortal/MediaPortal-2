@@ -88,7 +88,7 @@ namespace MediaPortal.Plugins.AppLauncher.Models
     private void Init()
     {
       Clear();
-      _apps = Helper.LoadApps();
+      _apps = Helper.LoadApps(true);
       var groups = new List<string>();
 
       _items.Clear();
@@ -107,7 +107,7 @@ namespace MediaPortal.Plugins.AppLauncher.Models
     private void Clear()
     {
       _items.Clear();
-      _apps?.AppsList?.Clear();
+      _apps = null;
     }
 
     #endregion
