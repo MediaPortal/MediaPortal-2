@@ -1,0 +1,12 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="Diagnostics.Settings.Diagnostics">tanı aracı </string>
+    <string name="Diagnostics.Settings.Diagnostics.AllLogs">DEBUG günlüğünü aktifleştir</string>
+    <string name="Diagnostics.Settings.Diagnostics.AllLogsHelpText">günlüklerin ayrıntı düzeyini arttır</string>
+    <string name="Diagnostics.Settings.Image.FocusStealing">potansiyel odak çalınmaları kaydedilsin</string>
+    <string name="Diagnostics.Settings.Image.FocusStealingHelpText">potansiyel odak çalınmaları kaydedilsin</string>
+    <string name="Diagnostics.Settings.Collectlogs">günlük dosyaları oluştur</string>
+    <string name="Diagnostics.Settings.CollectlogsHelpText">tüm log dosyalarını içeren bir zip dosyası oluşturmak için Log collector ü çalıştırır</string>
+    <string name="Diagnostics.Settings.ShowLogs">Günlükleri göster</string>
+    <string name="Diagnostics.Settings.ShowLogsHelpText">Günlükleri ayrı pencerede göster</string>
+</resources>
