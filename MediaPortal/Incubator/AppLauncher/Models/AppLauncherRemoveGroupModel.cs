@@ -76,6 +76,7 @@ namespace MediaPortal.Plugins.AppLauncher.Models
         a.Group = "";
       }
       Helper.SaveApps(_apps);
+      AppLauncherHomeModel.AnyAppWasChangedToggle = true;
 
       // Close the Dialog
       ServiceRegistration.Get<IScreenManager>().CloseTopmostDialog();

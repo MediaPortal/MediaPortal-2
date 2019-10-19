@@ -425,6 +425,7 @@ namespace MediaPortal.Plugins.AppLauncher.Models
       }
       Helper.SaveApps(_apps);
       Clear();
+      AppLauncherHomeModel.AnyAppWasChangedToggle = true;
     }
 
     /// <summary>

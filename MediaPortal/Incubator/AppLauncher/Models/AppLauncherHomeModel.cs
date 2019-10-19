@@ -61,31 +61,31 @@ namespace MediaPortal.Plugins.AppLauncher.Models
     private AbstractProperty _secondaryTitle = new WProperty(typeof(string), string.Empty);
     private AbstractProperty _secondaryVisible = new WProperty(typeof(bool), false);
     private AbstractProperty _selectedGroup = new WProperty(typeof(string), string.Empty);
-    private static bool _anyAppStarted = false;
+    private static bool _anyAppChanged = false;
     private static object _syncObject = new object();
 
     #endregion
 
     #region public Methods
 
-    public static bool AnyAppWasLaunched
+    public static bool AnyAppWasChangedToggle
     {
       get
       {
         lock(_syncObject)
         {
-          if (!_anyAppStarted)
+          if (!_anyAppChanged)
             return false;
 
-          _anyAppStarted = false;
+          _anyAppChanged = false;
           return true;
         }
       }
-      private set
+      set
       {
         lock(_syncObject)
         {
-          _anyAppStarted = value;
+          _anyAppChanged = value;
         }
       }
     }
@@ -247,7 +247,7 @@ namespace MediaPortal.Plugins.AppLauncher.Models
         app.StartCount++;
         Helper.SaveApps(_apps);
 
-        AnyAppWasLaunched = true;
+        AnyAppWasChangedToggle = true;
       }
       catch (Exception ex)
       {
