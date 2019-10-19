@@ -37,8 +37,11 @@ namespace MediaPortal.Plugins.SlimTv.Client.MediaLists
     public SlimTvLatestRecordingsMediaListProvider()
     {
       _necessaryMias = SlimTvConsts.NECESSARY_RECORDING_MIAS;
-      //Needed for calculating play percentage
-      _optionalMias = new Guid[] { VideoStreamAspect.ASPECT_ID };
+      _optionalMias = new Guid[] {
+        VideoStreamAspect.ASPECT_ID,    // Needed for calculating play percentage
+        VideoAspect.Metadata.AspectId,  // Needed for playing TV recording
+        AudioAspect.Metadata.AspectId   // Needed for playing Radio recording
+      };
       _playableConverterAction = mi => new RecordingItem(mi) { Command = new MethodDelegateCommand(() => PlayItemsModel.CheckQueryPlayAction(mi)) };
     }
   }

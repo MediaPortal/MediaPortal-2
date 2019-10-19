@@ -25,6 +25,8 @@
 using MediaPortal.Plugins.SlimTv.Client.Models;
 using MediaPortal.Plugins.SlimTv.Interfaces.Extensions;
 using MediaPortal.Plugins.SlimTv.Interfaces.Items;
+using MediaPortal.Common;
+using MediaPortal.UI.Presentation.Workflow;
 
 namespace MediaPortal.Plugins.SlimTv.Client.Extensions
 {
@@ -41,7 +43,9 @@ namespace MediaPortal.Plugins.SlimTv.Client.Extensions
 
     public bool IsAvailable (IProgram program)
     {
-      return true;
+      // Don't put up extended schedule action if extended schedule is already the current model.
+      var wf = ServiceRegistration.Get<IWorkflowManager>();
+      return wf.CurrentNavigationContext.WorkflowModelId != SlimTvExtScheduleModel.MODEL_ID;
     }
 
     public ProgramActionDelegate ProgramAction

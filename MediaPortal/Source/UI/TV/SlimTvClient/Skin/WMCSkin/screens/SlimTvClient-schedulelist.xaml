@@ -87,6 +87,7 @@
                 <Setter TargetName="ScheduleLabel" Property="Color" Value="{ThemeResource TextColor}"/>
               </Trigger>
             </Grid.Triggers>
+            <KeyBinding Key="Record" Command="{Command Path=RecordMenu}" />
           </Grid>
         </StackPanel>
 

@@ -9,7 +9,8 @@
   <string name="Settings.ServerSettings.Password">Lösenord:</string>
   <string name="Settings.ServerSettings.ImporterWorker">Aktivera automatisk återimport av mediamappar</string>
   <string name="Settings.ServerSettings.ImporterWorker.Help">Konfigurera automatiska mappimporteringar</string>
-  <string name="Settings.ServerSettings.ImporterWorker.EnableAutoRefresh">Aktivera automatiska mappimporteringar</string>
+  <string name="Settings.ServerSettings.ImporterWorker.EnableAutoRefresh">Aktivera automatisk återimport av mediamappar på servern</string>
+  <string name="Settings.ServerSettings.ImporterWorker.EnableClientAutoRefresh">Aktivera automatisk återimport av mediamappar på klienten</string>
   <string name="Settings.ServerSettings.ImporterWorker.RunAtHour">Kör automatiska mappimporteringar klockan</string>
   <string name="Settings.ServerSettings.AudioMDESettings">Inställningar för import av ljudfiler (t ex musik)</string>
   <string name="Settings.ServerSettings.MovieMDESettings">Inställningar för import av filmer</string>
@@ -33,6 +34,7 @@
   <string name="Settings.ServerSettings.MDESettings.MDEBrowseOfflineLocal">Spara Fanart på en lokal disk.</string>
   <string name="Settings.ServerSettings.MDESettings.MDEFilter.Artists">Skapa artistfilter</string>
   <string name="Settings.ServerSettings.MDESettings.MDEFilter.Composers">Skapa kompositörsfilter</string>
+  <string name="Settings.ServerSettings.MDESettings.MDEFilter.Conductors">Skapa filter för dirigenter</string>
   <string name="Settings.ServerSettings.MDESettings.MDEFilter.MusicLabels">Skapa filter för musikbolag</string>
   <string name="Settings.ServerSettings.MDESettings.MDEFilter.Actors">Skapa filter för skådespelare</string>
   <string name="Settings.ServerSettings.MDESettings.MDEFilter.Characters">Skapa filter för roller</string>

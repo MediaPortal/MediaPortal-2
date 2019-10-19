@@ -51,8 +51,8 @@
   <string name="SlimTvClient.ScheduleRecordingType_Weekends">Крај недеље</string>
   <string name="SlimTvClient.ScheduleRecordingType_WorkingDays">Радним данима</string>
   <string name="SlimTvClient.ScheduleRecordingType_WeeklyEveryTimeOnThisChannel">Недељно, сваки пут на овом каналу</string>
-  <string name="SlimTvClient.ShowAllRecordingsItemsMenuItem">Снимци по имену</string>
-  <string name="SlimTvClient.FilterRecordingsItemsNavbarDisplayLabel">Снимци по имену</string>
+  <string name="SlimTvClient.ShowAllRecordingsItemsMenuItem">Име</string>
+  <string name="SlimTvClient.FilterRecordingsItemsNavbarDisplayLabel">Име</string>
   <!--Schedule management-->
   <string name="SlimTvClient.ScheduleDetails">Детаљи заказаних снимања</string>
   <string name="SlimTvClient.ScheduleName">Име заказивања</string>
@@ -90,10 +90,7 @@
   <string name="SlimTvClient.RecordingsMenuItem">Снимљено</string>
   <string name="SlimTvClient.Recordings.Help">Овде можете пронаћи списак за пуштање свих снимљених програма.</string>
   <string name="SlimTvClient.RecordingsRootViewName">ТВ снимци</string>
-  <string name="SlimTvClient.ChannelMenuItemLabel">Филтрирај по каналима</string>
+  <string name="SlimTvClient.ChannelMenuItemLabel">Канал</string>
   <string name="SlimTvClient.ChannelNavBarItemLabel">Канал: {0}</string>
   <string name="SlimTvClient.RecordingsByChannelHeader">Снимци по каналу</string>
-  <string name="SlimTvClient.NameFilterMenuItemLabel">Филтрирај по имену</string>
-  <string name="SlimTvClient.NameFilterNavBarItemLabel">{0}</string>
-  <string name="SlimTvClient.RecordingsByNameHeader">Снимци по имену</string>
 </resources>

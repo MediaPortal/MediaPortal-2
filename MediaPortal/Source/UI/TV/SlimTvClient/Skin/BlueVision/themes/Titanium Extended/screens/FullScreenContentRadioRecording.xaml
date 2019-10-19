@@ -1,0 +1,198 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Screen
+    xmlns="www.team-mediaportal.com/2008/mpf/directx"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:mp_special_workflow="clr-namespace:MediaPortal.UI.SkinEngine.SpecialElements.Workflow;assembly=SkinEngine"
+    xmlns:mp_audio_viz="clr-namespace:MediaPortal.UiComponents.Media.Controls;assembly=Media"
+    mp_special_workflow:WorkflowContext.StateSlot="Root"
+    xmlns:mp_special_controls="clr-namespace:MediaPortal.UI.SkinEngine.SpecialElements.Controls;assembly=SkinEngine"
+    xmlns:fanart="clr-namespace:MediaPortal.Extensions.UserServices.FanArtService.Client;assembly=FanArtService.Client"
+    xmlns:aspect="clr-namespace:MediaPortal.Common.MediaManagement.DefaultItemAspects;assembly=MediaPortal.Common"
+    xmlns:tv="clr-namespace:MediaPortal.Plugins.SlimTv.Client.Models.AspectWrappers;assembly=SlimTv.Client"
+    xmlns:media="clr-namespace:MediaPortal.UiComponents.Media.Models.AspectWrappers;assembly=Media"
+    x:Name="FullscreenContentRadioRecordingScreen">
+
+  <Include Source="screens\FullScreenContentAudioKeyBindings.inc"/>
+
+  <mp_special_controls:PlayerControl PlayerContext="CurrentPlayer" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+    <mp_special_controls:PlayerControl.TemplateControl>
+      <Grid DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}">
+        <Grid.Background>
+          <VisualBrush x:Name="FanartVisualBrush">
+            <VisualBrush.Visual>
+              <Grid DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}"
+                HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+                <Grid.RowDefinitions>
+                  <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                  <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                <Image x:Name="FanArtImageBackground" Stretch="UniformToFill" Source="radio_background.jpg"/>
+              </Grid>
+            </VisualBrush.Visual>
+          </VisualBrush>
+        </Grid.Background>
+
+        <Grid.Resources>
+          <Model x:Key="ExtendedVideoSkip" Id="8573DBD8-A257-426a-9875-9DB155D32D47"/>
+          <Model x:Key="MouseModel" Id="CA6428A7-A6E2-4dd3-9661-F89CEBAF8E62"/>
+          <Model x:Key="AudioPlayerModel" Id="D8998340-DA2D-42be-A29B-6D7A72AEA2DC"/>
+          <MultiAspectAttributeConverter x:Key="MultiAspectAttributeConverter"/>
+        </Grid.Resources>
+
+        <Grid.ColumnDefinitions>
+          <ColumnDefinition Width="18*"/>
+          <ColumnDefinition Width="30*"/>
+          <ColumnDefinition Width="52*"/>
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+          <RowDefinition Height="*"/>
+          <RowDefinition Height="350"/>
+        </Grid.RowDefinitions>
+
+        <!--Playerstate overlay-->
+        <Grid Grid.ColumnSpan="3" Grid.RowSpan="3" HorizontalAlignment="Center" VerticalAlignment="Center">
+          <Image Width="250" Stretch="Uniform" Opacity="0.7" VerticalAlignment="Center" HorizontalAlignment="Center">
+            <Image.Source>
+              <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {3} : ({1} ? {4} : ({2} ? {5} : {6}))">
+                <Binding Path="IsSeekingForward"/>
+                <Binding Path="IsSeekingBackward"/>
+                <Binding Path="IsPaused"/>
+                <Binding Source="fastforward.png"/>
+                <Binding Source="fastrewind.png"/>
+                <Binding Source="pause.png"/>
+                <Binding Source=""/>
+              </MultiBinding>
+            </Image.Source>
+          </Image>
+          <Label Content="{Binding SeekHint}" FontSize="50" FontFamily="DefaultBold" Opacity="0.7" Margin="0,0,0,5"
+                 Color="Black" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+        </Grid>
+
+        <Control Grid.RowSpan="2" Grid.ColumnSpan="3">
+          <Control.Background>
+            <LinearGradientBrush StartPoint="0.5,0" EndPoint="0.5,1">
+              <GradientStop Color="#00000000" Offset="0"/>
+              <GradientStop Color="#00000000" Offset="0.6"/>
+              <GradientStop Color="#D9000000" Offset="0.67"/>
+              <GradientStop Color="#F2000000" Offset="1"/>
+            </LinearGradientBrush >
+          </Control.Background>
+        </Control>
+
+        <Image Grid.Row="1" Grid.Column="0" HorizontalAlignment="Left" VerticalAlignment="Bottom" 
+           Source="Radio_logo.png" Stretch="Uniform" Width="300" Height="300" Margin="40,20,20,20"/>
+
+        <tv:RecordingAspectWrapper MediaItem="{Binding MediaItem}" Grid.Column="1" Grid.Row="1" 
+                                   Margin="60,30,0,0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+          <tv:RecordingAspectWrapper.Template>
+            <ControlTemplate>
+              <StackPanel Orientation="Vertical" Margin="0,0,20,0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+                          DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}">
+
+                <media:MediaAspectWrapper MediaItem="{Binding MediaItem}">
+                  <media:MediaAspectWrapper.Template>
+                    <ControlTemplate>
+                      <Grid DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}" Margin="0,0,20,10">
+                        <Label x:Name="Title" Scroll="Auto" ScrollDelay="0"
+                               Content="{Binding Title}" Color="{ThemeResource TextColor}" FontFamily="DefaultBold"/>
+                      </Grid>
+                    </ControlTemplate>
+                  </media:MediaAspectWrapper.Template>
+                </media:MediaAspectWrapper>
+
+                <Label x:Name="StartTime" Color="{ThemeResource TextColor}"
+                       Content="{Binding Path=StartTime, Converter={StaticResource SlimTvDateFormatConverter}}"/>
+
+                <Image x:Name="ChannelLogo" Width="{ThemeResource ChannelLogoWidth}" Margin="0,10,0,0" 
+                       DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}"
+                       Stretch="Uniform" HorizontalAlignment="Left" VerticalAlignment="Center"
+                       IsVisible="{Binding RelativeSource={RelativeSource TemplatedParent},Path=Channel,Converter={StaticResource ReferenceToBoolConverter}}">
+                  <Image.Source>
+                    <fanart:FanArtImageSource fanart:FanArtMediaType="ChannelTv" fanart:FanArtType="Banner"
+                                        fanart:FanArtName="{Binding Channel}" fanart:MaxWidth="0" fanart:MaxHeight="0"/>
+                  </Image.Source>
+                </Image>
+                <Label x:Name="Channel" TextTrimming="WordEllipsis" Content="{Binding Channel}" Color="{ThemeResource TextColor}"/>
+
+                <media:AudioAspectWrapper MediaItem="{Binding MediaItem}">
+                  <media:AudioAspectWrapper.Template>
+                    <ControlTemplate>
+                      <StackPanel Orientation="Horizontal" DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}">
+                        <Label x:Name="Duration" Opacity="0.6" Color="{ThemeResource TextColor}"
+                               IsVisible="{Binding Path=Duration,Converter={StaticResource ReferenceToBoolConverter}}">
+                          <Label.Content>
+                            <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0}/60">
+                              <Binding Path="Duration"/>
+                            </MultiBinding>
+                          </Label.Content>
+                        </Label>
+                        <Label Content=" " IsVisible="{Binding Path=Duration,Converter={StaticResource ReferenceToBoolConverter}}"/>
+                        <Label Content="[Media.Minutes]" Opacity="0.6" Color="{ThemeResource TextColor}"
+                               IsVisible="{Binding Path=Duration,Converter={StaticResource ReferenceToBoolConverter}}"/>
+                      </StackPanel>
+                    </ControlTemplate>
+                  </media:AudioAspectWrapper.Template>
+                </media:AudioAspectWrapper>
+
+                <Label x:Name="Genre" TextTrimming="WordEllipsis" Opacity="0.6" Color="{ThemeResource TextColor}"
+                       IsVisible="{Binding Path=MediaItem, Converter={StaticResource ReferenceToBoolConverter}}">
+                  <Label.Content>
+                    <MultiBinding Converter="{StaticResource MultiAspectAttributeConverter}">
+                      <Binding Source="{Binding MediaItem}"/>
+                      <Binding Source="{x:Static aspect:GenreAspect.ATTR_GENRE}" />
+                    </MultiBinding>
+                  </Label.Content>
+                </Label>
+
+              </StackPanel>
+            </ControlTemplate>
+          </tv:RecordingAspectWrapper.Template>
+        </tv:RecordingAspectWrapper>
+
+        <media:MediaAspectWrapper MediaItem="{Binding MediaItem}" Grid.Row="1" Grid.Column="2" Margin="0,20,20,0"
+                                  HorizontalAlignment="Stretch" VerticalAlignment="Top">
+          <media:MediaAspectWrapper.Template>
+            <ControlTemplate>
+              <Grid DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}" Margin="0,0,20,0">
+                <Label x:Name="Comment" Opacity="0.6" Color="{ThemeResource TextColor}"
+                       Content="{Binding Comment}" Wrap="True" HorizontalAlignment="Stretch" Height="150"/>
+              </Grid>
+            </ControlTemplate>
+          </media:MediaAspectWrapper.Template>
+        </media:MediaAspectWrapper>
+
+        <Grid x:Name="OSD_LayoutPanel" Grid.RowSpan="2" Grid.Column="1" Grid.ColumnSpan="2"
+              VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Margin="330,0,-120,-130">
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="Auto"/>
+            <ColumnDefinition Width="40"/>
+          </Grid.ColumnDefinitions>
+          <Grid.RowDefinitions>
+            <RowDefinition Height="150"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+          </Grid.RowDefinitions>
+
+          <DockPanel x:Name="OSD_RightPanel" Grid.Row="0" Grid.RowSpan="3"  Grid.Column="1" Grid.ColumnSpan="2"
+                     LastChildFill="false" HorizontalAlignment="Right">
+            <mp_special_controls:PlayerControl x:Name="PrimaryOSD" DockPanel.Dock="Bottom"
+                    Style="{ThemeResource PrimaryAudioOSDStyle}" IsVisible="{Binding IsOSDVisible}"
+                    VerticalAlignment="Stretch" HorizontalAlignment="Right"/>
+          </DockPanel>
+
+          <Control x:Name="PiP" Grid.Column="1" Grid.Row="1" Style="{ThemeResource PipControlStyle}"
+                   IsVisible="{Binding !IsOSDVisible}"/>
+
+          <DockPanel x:Name="OSD_PiPPanel" Grid.Column="1" Grid.Row="1" LastChildFill="false" IsVisible="{Binding IsOSDVisible}" Margin="0,0,20,0">
+            <mp_special_controls:PlayerControl x:Name="SecondaryOSD" DockPanel.Dock="Right"
+                     Style="{ThemeResource SecondaryMediaOSDStyle}" AutoVisibility="true"/>
+          </DockPanel>
+
+        </Grid>
+      </Grid>
+    </mp_special_controls:PlayerControl.TemplateControl>
+  </mp_special_controls:PlayerControl>
+</Screen>

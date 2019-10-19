@@ -285,6 +285,7 @@ namespace MediaPortal.Extensions.MetadataExtractors
         MediaItemAspect.SetAttribute(extractedAspectData, RecordingAspect.ATTR_STARTTIME, recording.ProgramStartTime);
 
         MediaItemAspect.SetAttribute(extractedAspectData, RecordingAspect.ATTR_ENDTIME, recording.ProgramStopTime);
+        RecordingUtils.CheckAndPrepareAspectRefresh(extractedAspectData);
 
         if (!string.IsNullOrWhiteSpace(recording.Director))
           MediaItemAspect.SetCollectionAttribute(extractedAspectData, VideoAspect.ATTR_DIRECTORS, recording.Director.Split(new[] { ';' }, StringSplitOptions.RemoveEmptyEntries));

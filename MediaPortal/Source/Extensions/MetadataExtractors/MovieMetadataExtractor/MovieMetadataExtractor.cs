@@ -153,6 +153,8 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
     public static bool IncludeProductionCompanyDetails { get; private set; }
     public static bool IncludeWriterDetails { get; private set; }
     public static bool OnlyLocalMedia { get; private set; }
+    public static int MaximumActorCount { get; private set; }
+    public static int MaximumCharacterCount { get; private set; }
 
     private void LoadSettings()
     {
@@ -166,6 +168,8 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
       IncludeProductionCompanyDetails = _settingWatcher.Settings.IncludeProductionCompanyDetails;
       IncludeWriterDetails = _settingWatcher.Settings.IncludeWriterDetails;
       OnlyLocalMedia = _settingWatcher.Settings.OnlyLocalMedia;
+      MaximumActorCount = _settingWatcher.Settings.MaximumActorCount;
+      MaximumCharacterCount = _settingWatcher.Settings.MaximumCharacterCount;
     }
 
     private void SettingsChanged(object sender, EventArgs e)
@@ -380,19 +384,10 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
 
           if ((from potentialFanArtFile in potentialFanArtFiles
                let potentialFanArtFileNameWithoutExtension = Path.GetFileNameWithoutExtension(potentialFanArtFile.ToString()).ToLowerInvariant()
-               where potentialFanArtFileNameWithoutExtension == "poster" || potentialFanArtFileNameWithoutExtension == "folder" || potentialFanArtFileNameWithoutExtension == "movieset-poster"
-               select potentialFanArtFile).Count() > 0)
-            return true;
-
-          if ((from potentialFanArtFile in potentialFanArtFiles
-               let potentialFanArtFileNameWithoutExtension = Path.GetFileNameWithoutExtension(potentialFanArtFile.ToString()).ToLowerInvariant()
-               where potentialFanArtFileNameWithoutExtension == "banner" || potentialFanArtFileNameWithoutExtension == "movieset-banner"
-               select potentialFanArtFile).Count() > 0)
-            return true;
-
-          if ((from potentialFanArtFile in potentialFanArtFiles
-               let potentialFanArtFileNameWithoutExtension = Path.GetFileNameWithoutExtension(potentialFanArtFile.ToString()).ToLowerInvariant()
-               where potentialFanArtFileNameWithoutExtension == "backdrop" || potentialFanArtFileNameWithoutExtension == "fanart" || potentialFanArtFileNameWithoutExtension == "movieset-fanart"
+               where potentialFanArtFileNameWithoutExtension == "poster" || potentialFanArtFileNameWithoutExtension == "folder" || potentialFanArtFileNameWithoutExtension == "keyart" ||
+               potentialFanArtFileNameWithoutExtension.StartsWith("backdrop") || potentialFanArtFileNameWithoutExtension.StartsWith("fanart") ||
+               potentialFanArtFileNameWithoutExtension == "banner" ||
+               potentialFanArtFileNameWithoutExtension.StartsWith("movieset-")
                select potentialFanArtFile).Count() > 0)
             return true;
 

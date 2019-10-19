@@ -33,8 +33,8 @@
   <string name="SlimTvClient.RecordProgram">录制节目</string>
   <string name="SlimTvClient.DontRecordProgram">不要录制</string>
   <string name="SlimTvClient.ChooseScheduleType">选择录制方案类型</string>
-  <string name="SlimTvClient.ShowAllRecordingsItemsMenuItem">按名称录制</string>
-  <string name="SlimTvClient.FilterRecordingsItemsNavbarDisplayLabel">按名称录制</string>
+  <string name="SlimTvClient.ShowAllRecordingsItemsMenuItem">名称</string>
+  <string name="SlimTvClient.FilterRecordingsItemsNavbarDisplayLabel">名称</string>
   <!--Schedule management-->
   <string name="SlimTvClient.ErrorNoTvProvider">没有可用的电视提供商</string>
   <!--Settings-->
@@ -46,10 +46,7 @@
   <string name="SlimTvClient.NoColor">无</string>
   <string name="SlimTvClient.RecordingsMenuItem">录制</string>
   <string name="SlimTvClient.RecordingsRootViewName">电视录制</string>
-  <string name="SlimTvClient.ChannelMenuItemLabel">按频道过滤</string>
+  <string name="SlimTvClient.ChannelMenuItemLabel">频道</string>
   <string name="SlimTvClient.ChannelNavBarItemLabel">频道：{0}</string>
   <string name="SlimTvClient.RecordingsByChannelHeader">按频道录制</string>
-  <string name="SlimTvClient.NameFilterMenuItemLabel">按名称过滤</string>
-  <string name="SlimTvClient.NameFilterNavBarItemLabel">{0}</string>
-  <string name="SlimTvClient.RecordingsByNameHeader">按名称录制</string>
 </resources>

@@ -51,6 +51,25 @@
         </ControlTemplate>
       </media:VideoStreamAspectWrapper.Template>
     </media:VideoStreamAspectWrapper>
+
+    <media:AudioAspectWrapper MediaItem="{Binding Source={StaticResource FanArtBackgroundModel},Path=MediaItem}">
+      <media:AudioAspectWrapper.Template>
+        <ControlTemplate>
+          <StackPanel Orientation="Horizontal" DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}">
+            <Label x:Name="Duration" Color="{ThemeResource TextColor}" IsVisible="{Binding Path=Duration,Converter={StaticResource ReferenceToBoolConverter}}">
+              <Label.Content>
+                <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0}/60">
+                  <Binding Path="Duration"/>
+                </MultiBinding>
+              </Label.Content>
+            </Label>
+            <Label Content=" " IsVisible="{Binding Path=Duration,Converter={StaticResource ReferenceToBoolConverter}}"/>
+            <Label Content="[Media.Minutes]" Color="{ThemeResource TextColor}" IsVisible="{Binding Path=Duration,Converter={StaticResource ReferenceToBoolConverter}}"/>
+          </StackPanel>
+        </ControlTemplate>
+      </media:AudioAspectWrapper.Template>
+    </media:AudioAspectWrapper>
+
     <tv:RecordingAspectWrapper MediaItem="{Binding Source={StaticResource FanArtBackgroundModel},Path=MediaItem}" >
       <tv:RecordingAspectWrapper.Template>
         <ControlTemplate>

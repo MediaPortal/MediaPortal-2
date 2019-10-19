@@ -2,12 +2,13 @@
 <resources>
   <string name="Settings.General.System.SystemStateDialog">Schließen-Menü</string>
   <string name="Settings.General.System.SystemStateDialog.Help">Anzeige und Reihenfolge der \"Schließen\"-Menüeinträge konfigurieren</string>
-  <string name="SystemState.Configuration.Dialog.Title">Schließen-Menü Einträge konfigurieren</string>
+  <string name="SystemState.Configuration.Dialog.Title">Einträge im Schließen-Menü konfigurieren</string>
   <string name="SystemState.Title">Schließen-Menü</string>
   <string name="SystemState.Hibernate">Ruhezustand</string>
   <string name="SystemState.Shutdown">Herunterfahren</string>
   <string name="SystemState.Suspend">Standby</string>
-  <string name="SystemState.Restart">PC neu starten</string>
+  <string name="SystemState.Restart">Windows neu starten</string>
+  <string name="SystemState.RestartMP">MediaPortal neu starten</string>
   <string name="SystemState.Logoff">Abmelden</string>
   <string name="SystemState.SleepTimerConfig">Sleep-Timer aktivieren</string>
   <string name="SystemState.SleepTimerStop">Sleep-Timer stoppen</string>

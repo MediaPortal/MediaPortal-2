@@ -23,31 +23,20 @@
 #endregion
 
 using System;
-using System.Collections.Generic;
 using System.Threading.Tasks;
 using MediaPortal.Common;
-using MediaPortal.Common.Async;
 using MediaPortal.Common.Commands;
 using MediaPortal.Common.General;
 using MediaPortal.Common.Localization;
-using MediaPortal.Common.Logging;
 using MediaPortal.Common.Messaging;
-using MediaPortal.Common.PluginManager;
-using MediaPortal.Common.PluginManager.Exceptions;
-using MediaPortal.Common.Services.ServerCommunication;
 using MediaPortal.Plugins.SlimTv.Client.Helpers;
 using MediaPortal.Plugins.SlimTv.Client.Messaging;
 using MediaPortal.Plugins.SlimTv.Interfaces;
-using MediaPortal.Plugins.SlimTv.Interfaces.Extensions;
 using MediaPortal.Plugins.SlimTv.Interfaces.Items;
-using MediaPortal.Plugins.SlimTv.Interfaces.UPnP.Items;
 using MediaPortal.UI.Presentation.DataObjects;
-using MediaPortal.UI.Presentation.Screens;
 using MediaPortal.UI.Presentation.Workflow;
 using MediaPortal.UiComponents.Media.General;
 using MediaPortal.UI.SkinEngine.MpfElements;
-using MediaPortal.Common.Services.Settings;
-using MediaPortal.Plugins.SlimTv.Client.Settings;
 
 namespace MediaPortal.Plugins.SlimTv.Client.Models
 {
@@ -58,30 +47,10 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
   {
     #region Protected fields
 
-    protected IPluginItemStateTracker _slimTvExtensionsPluginItemStateTracker;
-    protected Dictionary<Guid, TvExtension> _programExtensions = new Dictionary<Guid, TvExtension>();
-
     protected AbstractProperty _groupNameProperty = null;
     protected AbstractProperty _currentProgramProperty = null;
-    protected AbstractProperty _showChannelNamesProperty = null;
-    protected AbstractProperty _showChannelNumbersProperty = null;
-    protected AbstractProperty _showChannelLogosProperty = null;
-    protected AbstractProperty _showGenreColorsProperty = null;
 
-    protected SettingsChangeWatcher<SlimTvClientSettings> _settings = null;
-
-    public struct TvExtension
-    {
-      public string Caption;
-      public IProgramAction Extension;
-    }
-
-    #endregion
-
-    #region Variables
-
-    protected ItemsList _programActions;
-    protected string _programActionsDialogName = "DialogProgramActions";
+    protected ListItem _selectedItem;
 
     #endregion
 
@@ -105,14 +74,6 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
     }
 
     /// <summary>
-    /// Exposes the list of actions for a program, i.e. watch now, schedule.
-    /// </summary>
-    public ItemsList ProgramActions
-    {
-      get { return _programActions; }
-    }
-
-    /// <summary>
     /// Exposes the current program of tuned channel to the skin.
     /// </summary>
     public ProgramProperties CurrentProgram
@@ -129,77 +90,15 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
       get { return _currentProgramProperty; }
     }
 
-    /// <summary>
-    /// Exposes whether channel names should be shown by the skin.
-    /// </summary>
-    public bool ShowChannelNames
+    public ListItem SelectedItem
     {
-      get { return (bool)_showChannelNamesProperty.GetValue(); }
-      protected set { _showChannelNamesProperty.SetValue(value); }
-    }
-
-    /// <summary>
-    /// Exposes whether channel names should be shown by the skin.
-    /// </summary>
-    public AbstractProperty ShowChannelNamesProperty
-    {
-      get { return _showChannelNamesProperty; }
-    }
-
-    /// <summary>
-    /// Exposes whether channel numbers should be shown by the skin.
-    /// </summary>
-    public bool ShowChannelNumbers
-    {
-      get { return (bool)_showChannelNumbersProperty.GetValue(); }
-      protected set { _showChannelNumbersProperty.SetValue(value); }
-    }
-
-    /// <summary>
-    /// Exposes whether channel numbers should be shown by the skin.
-    /// </summary>
-    public AbstractProperty ShowChannelNumbersProperty
-    {
-      get { return _showChannelNumbersProperty; }
-    }
-
-    /// <summary>
-    /// Exposes whether channel logos should be shown by the skin.
-    /// </summary>
-    public bool ShowChannelLogos
-    {
-      get { return (bool)_showChannelLogosProperty.GetValue(); }
-      protected set { _showChannelLogosProperty.SetValue(value); }
-    }
-
-    /// <summary>
-    /// Exposes whether channel logos should be shown by the skin.
-    /// </summary>
-    public AbstractProperty ShowChannelLogosProperty
-    {
-      get { return _showChannelLogosProperty; }
-    }
-
-    /// <summary>
-    /// Exposes whether EPG genre colors should be shown by the skin.
-    /// </summary>
-    public bool ShowGenreColors
-    {
-      get { return (bool)_showGenreColorsProperty.GetValue(); }
-      set { _showGenreColorsProperty.SetValue(value); }
-    }
-
-    /// <summary>
-    /// Exposes whether EPG genre colors should be shown by the skin.
-    /// </summary>
-    public AbstractProperty ShowGenreColorsProperty
-    {
-      get { return _showGenreColorsProperty; }
+      get { return _selectedItem; }
     }
 
     // this overload is used by MultiChannelGuide in got focus trigger
     public void UpdateProgram(ListItem selectedItem)
     {
+      _selectedItem = selectedItem;
       if (selectedItem != null)
       {
         IProgram program = (IProgram)selectedItem.AdditionalProperties["PROGRAM"];
@@ -211,6 +110,12 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
     public void UpdateProgram(object sender, SelectionChangedEventArgs e)
     {
       UpdateProgram(e.FirstAddedItem as ListItem);
+    }
+
+    // Lost focus trigger
+    public void ClearItem()
+    {
+      _selectedItem = null;
     }
 
     protected virtual void UpdateGuiProperties()
@@ -225,87 +130,40 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
 
       ILocalization loc = ServiceRegistration.Get<ILocalization>();
 
-      _programActions = new ItemsList();
+      ItemsList actions = new ItemsList();
+      bool isRunning = DateTime.Now >= program.StartTime && DateTime.Now <= program.EndTime;
       // if program is over already, there is nothing to do.
       if (program.EndTime < DateTime.Now)
       {
-        _programActions.Add(new ListItem(Consts.KEY_NAME, loc.ToString("[SlimTvClient.ProgramOver]")));
+        actions.Add(new ListItem(Consts.KEY_NAME, loc.ToString("[SlimTvClient.ProgramOver]")));
       }
       else
       {
         // Check if program is currently running.
-        bool isRunning = DateTime.Now >= program.StartTime && DateTime.Now <= program.EndTime;
         if (isRunning)
         {
-          _programActions.Add(new ListItem(Consts.KEY_NAME, loc.ToString("[SlimTvClient.WatchNow]"))
-              {
-                Command = new AsyncMethodDelegateCommand(() => TuneChannelByProgram(program))
-              });
-        }
-
-        if (_tvHandler.ScheduleControl != null)
-        {
-          var result = _tvHandler.ScheduleControl.GetRecordingStatusAsync(program).Result;
-          if (result.Success && result.Result != RecordingStatus.None)
+          actions.Add(new ListItem(Consts.KEY_NAME, loc.ToString("[SlimTvClient.WatchNow]"))
           {
-            if (isRunning)
-              _programActions.Add(
-                new ListItem(Consts.KEY_NAME, loc.ToString("[SlimTvClient.WatchFromBeginning]"))
-                  {
-                    Command = new AsyncMethodDelegateCommand(() => _tvHandler.WatchRecordingFromBeginningAsync(program))
-                  });
-
-            _programActions.Add(
-              new ListItem(Consts.KEY_NAME, loc.ToString(isRunning ? "[SlimTvClient.StopCurrentRecording]" : "[SlimTvClient.DeleteSchedule]", program.Title))
-                {
-                  Command = new AsyncMethodDelegateCommand(async () =>
-                                                        {
-                                                          if (await _tvHandler.ScheduleControl.RemoveScheduleForProgramAsync(program, ScheduleRecordingType.Once))
-                                                            UpdateRecordingStatus(program, RecordingStatus.None);
-                                                        }
-                    )
-                });
-          }
-          else
-          {
-            _programActions.Add(
-              new ListItem(Consts.KEY_NAME, loc.ToString(isRunning ? "[SlimTvClient.RecordNow]" : "[SlimTvClient.CreateSchedule]"))
-                {
-                  Command = new AsyncMethodDelegateCommand(async () =>
-                                                        {
-                                                          AsyncResult<ISchedule> recResult;
-                                                          // "No Program" placeholder
-                                                          if (program.ProgramId == -1)
-                                                            recResult = await _tvHandler.ScheduleControl.CreateScheduleByTimeAsync(new Channel { ChannelId = program.ChannelId }, program.StartTime, program.EndTime, ScheduleRecordingType.Once);
-                                                          else
-                                                            recResult = await _tvHandler.ScheduleControl.CreateScheduleAsync(program, ScheduleRecordingType.Once);
-
-                                                          if (recResult.Success)
-                                                            UpdateRecordingStatus(program, RecordingStatus.Scheduled);
-                                                        }
-                    )
-                });
-          }
+            Command = new AsyncMethodDelegateCommand(() => TuneChannelByProgram(program))
+          });
         }
       }
-
-      // Add list entries for extensions
-      foreach (KeyValuePair<Guid, TvExtension> programExtension in _programExtensions)
+      if (_tvHandler.ScheduleControl != null)
       {
-        TvExtension extension = programExtension.Value;
-        // First check if this extension applies for the selected program
-        if (!extension.Extension.IsAvailable(program))
-          continue;
+        var result = _tvHandler.ScheduleControl.GetRecordingStatusAsync(program).Result;
+        if (result.Success)
+        {
+          if (isRunning && result.Result != RecordingStatus.None)
+            actions.Add(
+              new ListItem(Consts.KEY_NAME, loc.ToString("[SlimTvClient.WatchFromBeginning]"))
+              {
+                Command = new AsyncMethodDelegateCommand(() => _tvHandler.WatchRecordingFromBeginningAsync(program))
+              });
 
-        _programActions.Add(
-            new ListItem(Consts.KEY_NAME, loc.ToString(extension.Caption))
-            {
-              Command = new MethodDelegateCommand(() => extension.Extension.ProgramAction(program))
-            });
+          AddRecordingOptions(actions, program, result.Result);
+        }
       }
-
-      IScreenManager screenManager = ServiceRegistration.Get<IScreenManager>();
-      screenManager.ShowDialog(_programActionsDialogName);
+      SlimTvExtScheduleModel.ShowDialog("[SlimTvClient.ChooseProgramAction]", actions);
     }
 
     protected async Task TuneChannelByProgram(IProgram program)
@@ -319,7 +177,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
         {
           await model.Tune(result.Result);
           // Always switch to fullscreen
-          workflowManager.NavigatePush(Consts.WF_STATE_ID_FULLSCREEN_VIDEO);
+          workflowManager.NavigatePush(result.Result.MediaType == MediaType.Radio ? Consts.WF_STATE_ID_FULLSCREEN_AUDIO : Consts.WF_STATE_ID_FULLSCREEN_VIDEO);
         }
       }
     }
@@ -352,49 +210,11 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
       {
         _groupNameProperty = new WProperty(typeof(string), String.Empty);
         _currentProgramProperty = new WProperty(typeof(ProgramProperties), new ProgramProperties());
-        _showChannelNamesProperty = new WProperty(typeof(bool), true);
-        _showChannelNumbersProperty = new WProperty(typeof(bool), true);
-        _showChannelLogosProperty = new WProperty(typeof(bool), true);
-        _showGenreColorsProperty = new WProperty(typeof(bool), false);
-        InitSettingsWatcher();
-
-        BuildExtensions();
 
         _isInitialized = true;
       }
       SubscribeToMessages();
       base.InitModel();
-    }
-
-    protected void BuildExtensions()
-    {
-      _slimTvExtensionsPluginItemStateTracker = new FixedItemStateTracker("SlimTvHandler - Extension registration");
-
-      IPluginManager pluginManager = ServiceRegistration.Get<IPluginManager>();
-      foreach (PluginItemMetadata itemMetadata in pluginManager.GetAllPluginItemMetadata(SlimTvExtensionBuilder.SLIMTVEXTENSIONPATH))
-      {
-        try
-        {
-          SlimTvProgramExtension slimTvProgramExtension = pluginManager.RequestPluginItem<SlimTvProgramExtension>(
-              SlimTvExtensionBuilder.SLIMTVEXTENSIONPATH, itemMetadata.Id, _slimTvExtensionsPluginItemStateTracker);
-          if (slimTvProgramExtension == null)
-            ServiceRegistration.Get<ILogger>().Warn("Could not instantiate SlimTv extension with id '{0}'", itemMetadata.Id);
-          else
-          {
-            Type extensionClass = slimTvProgramExtension.ExtensionClass;
-            if (extensionClass == null)
-              throw new PluginInvalidStateException("Could not find class type for extension {0}", slimTvProgramExtension.Caption);
-            IProgramAction action = Activator.CreateInstance(extensionClass) as IProgramAction;
-            if (action == null)
-              throw new PluginInvalidStateException("Could not create IProgramAction instance of class {0}", extensionClass);
-            _programExtensions[slimTvProgramExtension.Id] = new TvExtension { Caption = slimTvProgramExtension.Caption, Extension = action };
-          }
-        }
-        catch (PluginInvalidStateException e)
-        {
-          ServiceRegistration.Get<ILogger>().Warn("Cannot add SlimTv extension with id '{0}'", e, itemMetadata.Id);
-        }
-      }
     }
 
     void SubscribeToMessages()
@@ -416,28 +236,6 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
             break;
         }
       }
-    }
-
-    void InitSettingsWatcher()
-    {
-      if (_settings != null)
-        return;
-      _settings = new SettingsChangeWatcher<SlimTvClientSettings>(true);
-      UpdatePropertiesFromSettings(_settings.Settings);
-      _settings.SettingsChanged = OnSettingsChanged;
-    }
-
-    protected void OnSettingsChanged(object sender, EventArgs e)
-    {
-      UpdatePropertiesFromSettings(_settings.Settings);
-    }
-
-    protected void UpdatePropertiesFromSettings(SlimTvClientSettings settings)
-    {
-      ShowChannelNames = settings.EpgShowChannelNames;
-      ShowChannelNumbers = settings.EpgShowChannelNumbers;
-      ShowChannelLogos = settings.EpgShowChannelLogos;
-      ShowGenreColors = settings.EpgShowGenreColors;
     }
 
     #endregion

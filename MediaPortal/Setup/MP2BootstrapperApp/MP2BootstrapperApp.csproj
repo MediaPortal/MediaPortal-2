@@ -252,10 +252,8 @@
     <Resource Include="Resources\InstallTypes\update.png" />
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="Resources\InstallTypes\modify.png" />
-    <Resource Include="Resources\InstallTypes\repair.png" />
-    <Resource Include="Resources\InstallTypes\uninstall.png" />
-    <Resource Include="Resources\InstallTypes\update.png" />
+    <Content Include="Resources\absent.png" />
+    <Content Include="Resources\present.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

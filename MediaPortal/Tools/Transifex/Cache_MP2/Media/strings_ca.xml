@@ -276,6 +276,7 @@
   <string name="Media.SortByDate">Data</string>
   <string name="Media.GroupingBrowseDefault">Per defecte</string>
   <!--Stubs-->
+  <!--Virtual-->
   <!--Settings-->
   <string name="Settings.Players">Reproductors</string>
   <string name="Settings.Players.ClosePlayersWhenFinished">Tanca els reproductors en acabar</string>

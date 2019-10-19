@@ -1,0 +1,266 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{690C4618-718B-4D07-916D-456B5C211A7A}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>MP2BootstrapperApp</RootNamespace>
+    <AssemblyName>MP2BootstrapperApp</AssemblyName>
+    <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <PlatformTarget>x86</PlatformTarget>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x86'">
+    <PlatformTarget>x86</PlatformTarget>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>TRACE;DEBUG</DefineConstants>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x86'">
+    <PlatformTarget>x86</PlatformTarget>
+    <OutputPath>bin\x86\Release\</OutputPath>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="BootstrapperCore, Version=3.0.0.0, Culture=neutral, PublicKeyToken=ce35f76fcda82bad, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\..\..\..\..\..\Program Files (x86)\WiX Toolset v3.11\SDK\BootstrapperCore.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Deployment.WindowsInstaller, Version=3.0.0.0, Culture=neutral, PublicKeyToken=ce35f76fcda82bad, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\..\..\..\..\..\Program Files (x86)\WiX Toolset v3.11\SDK\Microsoft.Deployment.WindowsInstaller.dll</HintPath>
+    </Reference>
+    <Reference Include="PresentationCore" />
+    <Reference Include="PresentationFramework" />
+    <Reference Include="Prism, Version=6.3.0.0, Culture=neutral, PublicKeyToken=40ee6c3a2184dc59, processorArchitecture=MSIL">
+      <HintPath>..\..\Packages\Prism.Core.6.3.0\lib\net45\Prism.dll</HintPath>
+    </Reference>
+    <Reference Include="Prism.Wpf, Version=6.3.0.0, Culture=neutral, PublicKeyToken=40ee6c3a2184dc59, processorArchitecture=MSIL">
+      <HintPath>..\..\Packages\Prism.Wpf.6.3.0\lib\net45\Prism.Wpf.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.ServiceProcess" />
+    <Reference Include="System.Xaml" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Net.Http" />
+    <Reference Include="System.Xml" />
+    <Reference Include="WindowsBase" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="ActionType.cs" />
+    <Compile Include="BootstrapperWrapper\BootstrapperApplicationWrapper.cs" />
+    <Compile Include="ChainPackages\Dokan.cs" />
+    <Compile Include="ChainPackages\IPackageChecker.cs" />
+    <Compile Include="ChainPackages\IPackage.cs" />
+    <Compile Include="ChainPackages\LavFilters.cs" />
+    <Compile Include="ChainPackages\MP2Client.cs" />
+    <Compile Include="ChainPackages\MP2Common.cs" />
+    <Compile Include="ChainPackages\MP2Server.cs" />
+    <Compile Include="ChainPackages\PackageChecker.cs" />
+    <Compile Include="ChainPackages\PackageContext.cs" />
+    <Compile Include="ChainPackages\PackageId.cs" />
+    <Compile Include="ChainPackages\Vc2010.cs" />
+    <Compile Include="ChainPackages\Vc2013.cs" />
+    <Compile Include="ChainPackages\Vc2008Sp1.cs" />
+    <Compile Include="ChainPackages\Vc2019.cs" />
+    <Compile Include="EnumToBooleanConverter.cs" />
+    <Compile Include="BootstrapperWrapper\IBootstrapperApp.cs" />
+    <Compile Include="BootstrapperWrapper\IDispatcher.cs" />
+    <Compile Include="BootstrapperWrapper\DispatcherWrapper.cs" />
+    <Compile Include="InstallType.cs" />
+    <Compile Include="Models\IBootstrapperApplicationModel.cs" />
+    <Compile Include="Models\Package.cs" />
+    <Compile Include="ViewModels\ModifyPageViewModel.cs" />
+    <Compile Include="ViewModels\InstallationInProgressPageViewModel.cs" />
+    <Compile Include="ViewModels\RepairPageViewModel.cs" />
+    <Compile Include="ViewModels\UninstallPageViewModel.cs" />
+    <Compile Include="ViewModels\UpdatePageViewModel.cs" />
+    <Compile Include="Views\InstallationInProgressPageView.xaml.cs">
+      <DependentUpon>InstallationInProgressPageView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\ModifyPageView.xaml.cs">
+      <DependentUpon>ModifyPageView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\RepairPageView.xaml.cs">
+      <DependentUpon>RepairPageView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\UninstallView.xaml.cs">
+      <DependentUpon>UninstallView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\UpdatePageView.xaml.cs">
+      <DependentUpon>UpdatePageView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="WizardSteps\InstallationInProgressStep.cs" />
+    <Compile Include="WizardSteps\InstallExistInstallStep.cs" />
+    <Compile Include="WizardSteps\InstallFinishStep.cs" />
+    <Compile Include="WizardSteps\ModifyStep.cs" />
+    <Compile Include="WizardSteps\RepairStep.cs" />
+    <Compile Include="WizardSteps\UninstallStep.cs" />
+    <Compile Include="WizardSteps\UpdateStep.cs" />
+    <Compile Include="WizardSteps\Wizard.cs" />
+    <Compile Include="WizardSteps\InstallOverviewStep.cs" />
+    <Compile Include="WizardSteps\InstallNewTypeStep.cs" />
+    <Compile Include="Models\BundlePackage.cs" />
+    <Compile Include="Models\BootstrapperAppPrereqPackage.cs" />
+    <Compile Include="MP2BootstrapperApplication.cs" />
+    <Compile Include="Models\BootstrapperApplicationModel.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="WizardSteps\IStep.cs" />
+    <Compile Include="ViewModels\InstallExistTypePageViewModel.cs" />
+    <Compile Include="ViewModels\InstallNewTypePageViewModel.cs" />
+    <Compile Include="ViewModels\InstallFinishPageViewModel.cs" />
+    <Compile Include="ViewModels\InstallOverviewPageViewModel.cs" />
+    <Compile Include="ViewModels\InstallWelcomePageViewModel.cs" />
+    <Compile Include="ViewModels\InstallWizardPageViewModelBase.cs" />
+    <Compile Include="ViewModels\InstallWizardViewModel.cs" />
+    <Compile Include="Views\InstallExistTypePageView.xaml.cs">
+      <DependentUpon>InstallExistTypePageView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\InstallFinishPageView.xaml.cs">
+      <DependentUpon>InstallFinishPageView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\InstallNewTypePageView.xaml.cs">
+      <DependentUpon>InstallNewTypePageView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\InstallOverviewPageView.xaml.cs">
+      <DependentUpon>InstallOverviewPageView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\InstallWelcomePageView.xaml.cs">
+      <DependentUpon>InstallWelcomePageView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\InstallWizardView.xaml.cs">
+      <DependentUpon>InstallWizardView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="WizardSteps\InstallWelcomeStep.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="BootstrapperCore.config">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <Page Include="Views\InstallationInProgressPageView.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Views\InstallExistTypePageView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\InstallFinishPageView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\InstallNewTypePageView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\InstallOverviewPageView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\InstallWelcomePageView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\InstallWizardView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\ModifyPageView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\RepairPageView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\UninstallView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\UpdatePageView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\background.jpg" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\banner.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\MP2Client.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\MP2Server.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\dokan.png" />
+    <Resource Include="Resources\LAVFilters.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\VC2008SP1_x86.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\VC2010_x86.png" />
+    <Resource Include="Resources\VC2013_x86.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\MP2Common.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\InstallTypes\custom_install.png" />
+    <Resource Include="Resources\InstallTypes\full_install.png" />
+    <Resource Include="Resources\InstallTypes\MP2Client.png" />
+    <Resource Include="Resources\InstallTypes\MP2Common.png" />
+    <Resource Include="Resources\InstallTypes\MP2Server.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\VC2019_x86.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\InstallTypes\modify.png" />
+    <Resource Include="Resources\InstallTypes\repair.png" />
+    <Resource Include="Resources\InstallTypes\uninstall.png" />
+    <Resource Include="Resources\InstallTypes\update.png" />
+  </ItemGroup>
+  <ItemGroup>
+<<<<<<< HEAD
+    <Resource Include="Resources\InstallTypes\modify.png" />
+    <Resource Include="Resources\InstallTypes\repair.png" />
+    <Resource Include="Resources\InstallTypes\uninstall.png" />
+    <Resource Include="Resources\InstallTypes\update.png" />
+=======
+    <Content Include="Resources\absent.png" />
+    <Content Include="Resources\present.png" />
+>>>>>>> origin/WIP_Custom_Installer
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+</Project>

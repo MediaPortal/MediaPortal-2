@@ -260,6 +260,7 @@
   <string name="Media.SortByDate">Kuupäev</string>
   <string name="Media.GroupingBrowseDefault">Vaikimisi</string>
   <!--Stubs-->
+  <!--Virtual-->
   <!--Settings-->
   <string name="Settings.Players">Pleierid</string>
   <string name="Settings.Players.ClosePlayersWhenFinished">Sule pleierid kui lõpetavad</string>

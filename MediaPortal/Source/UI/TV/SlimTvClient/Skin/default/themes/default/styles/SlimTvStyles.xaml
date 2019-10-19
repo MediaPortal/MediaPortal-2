@@ -11,6 +11,7 @@
     >
   <!-- SlimTvClient model -->
   <Model x:Key="SlimTvClient" Id="8BEC1372-1C76-484c-8A69-C7F3103708EC"/>
+  <Model x:Key="SlimTvExtSchedule" Id="EB9CB370-9CD6-4D72-8354-73E446104438"/>
   <tv:SlimTvDateFormatConverter x:Key="SlimTvDateFormatConverter" />
 
   <Style x:Key="PrimarySlimTvOSDStyle" TargetType="{x:Type mp_special_controls:PlayerControl}">
@@ -381,7 +382,25 @@
             <Button.Triggers>
               <Trigger Property="HasFocus" Value="True">
                 <Setter TargetName="ItemLabel" Property="Scroll" Value="Auto"/>
-              </Trigger>
+                <Trigger.EnterActions>
+                  <TriggerCommand>
+                    <TriggerCommand.Command>
+                      <Command x:Key="SelectionChanged_Command"
+                                 Source="{StaticResource SlimTvExtSchedule}"
+                                 Path="FocusToItem"
+                                 Parameters="{LateBoundValue BindingValue={Binding}}" />
+                    </TriggerCommand.Command>
+                  </TriggerCommand>
+                </Trigger.EnterActions>
+                <Trigger.ExitActions>
+                  <TriggerCommand>
+                    <TriggerCommand.Command>
+                      <Command x:Key="SelectionChanged_Command"
+                                  Source="{StaticResource SlimTvExtSchedule}"
+                                  Path="ClearItem" />
+                    </TriggerCommand.Command>
+                  </TriggerCommand>
+                </Trigger.ExitActions>              </Trigger>
             </Button.Triggers>
           </Button>
         </ControlTemplate>
@@ -760,6 +779,15 @@
                     </TriggerCommand.Command>
                   </TriggerCommand>
                 </Trigger.EnterActions>
+                <Trigger.ExitActions>
+                  <TriggerCommand>
+                    <TriggerCommand.Command>
+                      <Command x:Key="SelectionChanged_Command"
+                                  Source="{StaticResource SlimTvMultiChannelGuide}"
+                                  Path="ClearItem" />
+                    </TriggerCommand.Command>
+                  </TriggerCommand>
+                </Trigger.ExitActions>
               </Trigger>
             </Button.Triggers>
 

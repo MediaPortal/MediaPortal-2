@@ -113,8 +113,6 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
       // Contains CompiledSortInformation instances for each sort information instance
       IList<CompiledSortInformation> compiledSortInformation = null;
 
-      List<BindVar> sqlVars = new List<BindVar>();
-
       // Ensure that the tables for all necessary MIAs are requested first (INNER JOIN)
       foreach (MediaItemAspectMetadata miaType in _necessaryRequestedMIAs)
       {
@@ -197,47 +195,14 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
         BindVar userVar = null;
         foreach (ISortInformation sortInformation in _sortInformation)
         {
-          AttributeSortInformation attributeSort = sortInformation as AttributeSortInformation;
-          if (attributeSort != null)
-          {
-            if (attributeSort.AttributeType.ParentMIAM.IsTransientAspect)
-              continue;
-            if (attributeSort.AttributeType.ParentMIAM is MultipleMediaItemAspectMetadata)
-              continue;
-
-            MediaItemAspectMetadata.AttributeSpecification attr = attributeSort.AttributeType;
-            if (attr.Cardinality != Cardinality.Inline && attr.Cardinality != Cardinality.ManyToOne)
-              // Sorting can only be done for Inline and MTO attributes
-              continue;
-
-            RequestedAttribute ra;
-            RequestSimpleAttribute(new QueryAttribute(attr), tableQueries, tableJoins, "LEFT OUTER JOIN", requestedAttributes,
-                miaTypeTableQueries, miaIdAttribute, out ra);
-            compiledSortInformation.Add(new CompiledSortInformation(ra, attributeSort.Direction));
+          if (AddAttributeSortInformation(sortInformation, miaIdAttribute, requestedAttributes, miaTypeTableQueries, tableQueries, tableJoins, compiledSortInformation))
             continue;
-          }
-
-          DataSortInformation dataSort = sortInformation as DataSortInformation;
-          if (dataSort != null && _userProfileId.HasValue)
-          {
-            TableQueryData tqd = new TableQueryData(UserProfileDataManagement.UserProfileDataManagement_SubSchema.USER_MEDIA_ITEM_DATA_TABLE_NAME);
-            RequestedAttribute ra = new RequestedAttribute(tqd, UserProfileDataManagement.UserProfileDataManagement_SubSchema.USER_DATA_VALUE_COL_NAME);
-            compiledSortInformation.Add(new CompiledSortInformation(ra, dataSort.Direction));
-
-            if (userVar == null)
-            {
-              userVar = new BindVar("UID", _userProfileId.Value, typeof(Guid));
-              sqlVars.Add(userVar);
-            }
-            TableJoin join = new TableJoin("LEFT OUTER JOIN", tqd, new RequestedAttribute(tqd, UserProfileDataManagement.UserProfileDataManagement_SubSchema.USER_PROFILE_ID_COL_NAME), "@" + userVar.Name);
-            join.AddCondition(new RequestedAttribute(tqd, MIA_Management.MIA_MEDIA_ITEM_ID_COL_NAME), miaIdAttribute);
-            join.AddCondition(new RequestedAttribute(tqd, UserProfileDataManagement.UserProfileDataManagement_SubSchema.USER_DATA_KEY_COL_NAME), $"'{dataSort.UserDataKey}'");
-            tableJoins.Add(join);
-          }
+          if (AddChildAggregateAttributeSortInformation(sortInformation, ns, bvNamespace, miaIdAttribute, tableJoins, compiledSortInformation, bindVars))
+            continue;
+          if (AddDataSortInformation(sortInformation, miaIdAttribute, tableJoins, compiledSortInformation, bindVars, ref userVar))
+            continue;
         }
       }
-      foreach (BindVar bv in sqlVars)
-        bindVars.Add(bv);
 
       //Build sql statement
       StringBuilder result = new StringBuilder("SELECT ");

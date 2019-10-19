@@ -22,6 +22,7 @@
 
 #endregion
 
+using MediaInfoLib;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.MediaManagement;
@@ -85,6 +86,8 @@ namespace MediaPortal.Extensions.MetadataExtractors
         IResourceAccessor metaFileAccessor;
         if (!CanExtract(mediaItemAccessor, extractedAspectData, out metaFileAccessor))
           return false;
+        if (!extractedAspectData.ContainsKey(VideoAspect.ASPECT_ID))
+          return false; //Ignore radio recordings
         if (extractedAspectData.ContainsKey(EpisodeAspect.ASPECT_ID))
           return false;
 
@@ -283,37 +286,13 @@ namespace MediaPortal.Extensions.MetadataExtractors
             tags = (Tags)GetTagsXmlSerializer().Deserialize(metaStream);
         }
 
+        //Assign all tags to the aspects for both tv and radio recordings
         string value;
         MediaItemAspect.SetAttribute(extractedAspectData, MediaAspect.ATTR_ISVIRTUAL, false);
-        MediaItemAspect.SetAttribute(extractedAspectData, VideoAspect.ATTR_ISDVD, false);
-
-        if (TryGet(tags, TAG_TITLE, out value) && !string.IsNullOrEmpty(value))
+        if (TryGet(tags, TAG_TITLE, out value) && !string.IsNullOrEmpty(value) && !value.Equals("manual", StringComparison.InvariantCultureIgnoreCase))
         {
           MediaItemAspect.SetAttribute(extractedAspectData, MediaAspect.ATTR_TITLE, value);
           MediaItemAspect.SetAttribute(extractedAspectData, MediaAspect.ATTR_SORT_TITLE, BaseInfo.GetSortTitle(value));
-        }
-
-        if (TryGet(tags, TAG_GENRE, out value) && !string.IsNullOrEmpty(value?.Trim()))
-        {
-          List<GenreInfo> genreList = new List<GenreInfo>(new GenreInfo[] { new GenreInfo { Name = value.Trim() } });
-          IGenreConverter converter = ServiceRegistration.Get<IGenreConverter>();
-          foreach (var genre in genreList)
-          {
-            if (!genre.Id.HasValue && converter.GetGenreId(genre.Name, GenreCategory.Movie, null, out int genreId))
-              genre.Id = genreId;
-          }
-          MultipleMediaItemAspect genreAspect = MediaItemAspect.CreateAspect(extractedAspectData, GenreAspect.Metadata);
-          genreAspect.SetAttribute(GenreAspect.ATTR_ID, genreList[0].Id);
-          genreAspect.SetAttribute(GenreAspect.ATTR_GENRE, genreList[0].Name);
-        }
-
-        if (TryGet(tags, TAG_PLOT, out value))
-        {
-          MediaItemAspect.SetAttribute(extractedAspectData, VideoAspect.ATTR_STORYPLOT, value);
-          Match yearMatch = _yearMatcher.Match(value);
-          int guessedYear;
-          if (int.TryParse(yearMatch.Value, out guessedYear))
-            MediaItemAspect.SetAttribute(extractedAspectData, MediaAspect.ATTR_RECORDINGTIME, new DateTime(guessedYear, 1, 1));
         }
 
         if (TryGet(tags, TAG_CHANNEL, out value))
@@ -348,9 +327,68 @@ namespace MediaPortal.Extensions.MetadataExtractors
           recordingEnd = programEnd;
 
         if (recordingStart.HasValue)
+        {
           MediaItemAspect.SetAttribute(extractedAspectData, RecordingAspect.ATTR_STARTTIME, recordingStart.Value);
+        }
         if (recordingEnd.HasValue)
+        {
           MediaItemAspect.SetAttribute(extractedAspectData, RecordingAspect.ATTR_ENDTIME, recordingEnd.Value);
+          RecordingUtils.CheckAndPrepareAspectRefresh(extractedAspectData);
+        }
+
+        if (extractedAspectData.ContainsKey(VideoAspect.ASPECT_ID)) //Only add video information for actual video recordings
+        {
+          // Force MimeType
+          IList<MultipleMediaItemAspect> providerAspects;
+          MediaItemAspect.TryGetAspects(extractedAspectData, ProviderResourceAspect.Metadata, out providerAspects);
+          foreach (MultipleMediaItemAspect aspect in providerAspects)
+          {
+            aspect.SetAttribute(ProviderResourceAspect.ATTR_MIME_TYPE, "slimtv/video");
+          }
+
+          MediaItemAspect.SetAttribute(extractedAspectData, VideoAspect.ATTR_ISDVD, false);
+          if (TryGet(tags, TAG_PLOT, out value))
+          {
+            MediaItemAspect.SetAttribute(extractedAspectData, VideoAspect.ATTR_STORYPLOT, value);
+            Match yearMatch = _yearMatcher.Match(value);
+            int guessedYear;
+            if (int.TryParse(yearMatch.Value, out guessedYear))
+              MediaItemAspect.SetAttribute(extractedAspectData, MediaAspect.ATTR_RECORDINGTIME, new DateTime(guessedYear, 1, 1));
+          }
+          if (TryGet(tags, TAG_GENRE, out value) && !string.IsNullOrEmpty(value?.Trim()))
+          {
+            List<GenreInfo> genreList = new List<GenreInfo>(new GenreInfo[] { new GenreInfo { Name = value.Trim() } });
+            IGenreConverter converter = ServiceRegistration.Get<IGenreConverter>();
+            foreach (var genre in genreList)
+            {
+              if (!genre.Id.HasValue && converter.GetGenreId(genre.Name, GenreCategory.Movie, null, out int genreId))
+                genre.Id = genreId;
+            }
+            MultipleMediaItemAspect genreAspect = MediaItemAspect.CreateAspect(extractedAspectData, GenreAspect.Metadata);
+            genreAspect.SetAttribute(GenreAspect.ATTR_ID, genreList[0].Id);
+            genreAspect.SetAttribute(GenreAspect.ATTR_GENRE, genreList[0].Name);
+          }
+        }
+        else //Add comment for radio recordings
+        {
+          if (TryGet(tags, TAG_PLOT, out value))
+          {
+            MediaItemAspect.SetAttribute(extractedAspectData, MediaAspect.ATTR_COMMENT, value);
+          }
+          if (TryGet(tags, TAG_GENRE, out value) && !string.IsNullOrEmpty(value?.Trim()))
+          {
+            List<GenreInfo> genreList = new List<GenreInfo>(new GenreInfo[] { new GenreInfo { Name = value.Trim() } });
+            IGenreConverter converter = ServiceRegistration.Get<IGenreConverter>();
+            foreach (var genre in genreList)
+            {
+              if (!genre.Id.HasValue && converter.GetGenreId(genre.Name, GenreCategory.Music, null, out int genreId))
+                genre.Id = genreId;
+            }
+            MultipleMediaItemAspect genreAspect = MediaItemAspect.CreateAspect(extractedAspectData, GenreAspect.Metadata);
+            genreAspect.SetAttribute(GenreAspect.ATTR_ID, genreList[0].Id);
+            genreAspect.SetAttribute(GenreAspect.ATTR_GENRE, genreList[0].Name);
+          }
+        }
 
         return Task.FromResult(true);
       }
@@ -368,10 +406,6 @@ namespace MediaPortal.Extensions.MetadataExtractors
       metaFileAccessor = null;
       IFileSystemResourceAccessor fsra = mediaItemAccessor as IFileSystemResourceAccessor;
       if (fsra == null || !fsra.IsFile)
-        return false;
-
-      string title;
-      if (!MediaItemAspect.TryGetAttribute(extractedAspectData, MediaAspect.ATTR_TITLE, out title) || string.IsNullOrEmpty(title))
         return false;
 
       string filePath = mediaItemAccessor.CanonicalLocalResourcePath.ToString();

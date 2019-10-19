@@ -54,15 +54,6 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
     protected double _programWidthFactor = 6;
     protected double _programsStartOffset = 370;
 
-    #region Constructor
-
-    public SlimTvMultiChannelGuideModel()
-    {
-      _programActionsDialogName = "DialogProgramActionsFull"; // for MultiChannelGuide we need another dialog
-    }
-
-    #endregion
-
     #region Protected fields
 
     protected AbstractProperty _guideStartTimeProperty = null;
@@ -315,6 +306,12 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
       return item;
     }
 
+    public void RecordPressed()
+    {
+      if (_selectedItem != null)
+        base.ShowProgramActions(_selectedItem.AdditionalProperties["PROGRAM"] as IProgram);
+    }
+
     /// <summary>
     /// Opens the context menu for the give program.
     /// </summary>
@@ -432,6 +429,34 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
       return true;
     }
 
+    protected override void OnRecordingStatusChanged(IProgram program, RecordingStatus oldStatus, RecordingStatus newStatus, ScheduleRecordingType type)
+    {
+      base.OnRecordingStatusChanged(program, oldStatus, newStatus, type);
+      if (type == ScheduleRecordingType.Once)
+        return;     // Change only affected one program
+      // Look for all other programs that might be affected
+      List<IProgram> candidates = new List<IProgram>();
+      foreach(IProgram p in _groupPrograms)
+      {
+        if (p.ChannelId == program.ChannelId && p.StartTime == program.StartTime && p.EndTime == program.EndTime)
+          candidates.Add(p);
+        else if (p.Title == program.Title)
+          candidates.Add(p);
+      }
+      if (candidates.Count > 0)
+        UpdateRecordingStatus(candidates).Start();
+    }
+
+    async Task UpdateRecordingStatus(List<IProgram> programs)
+    {
+      foreach(IProgram p in programs)
+      {
+        RecordingStatus? status = await GetRecordingStatusAsync(p);
+        if (status != null)
+          UpdateRecordingStatus(p, (RecordingStatus)status);
+      }
+    }
+
     private void UpdateProgramsState()
     {
       lock (_channelList.SyncRoot)
@@ -495,6 +520,8 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
     protected override void OnCurrentGroupChanged(int oldindex, int newindex)
     {
       base.OnCurrentGroupChanged(oldindex, newindex);
+      UpdateProgramStatus(null);
+      ChannelName = "";
       UpdateChannels();
       _ = UpdatePrograms();
       // Notify listeners about group change
@@ -509,7 +536,6 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
       GuideStartTime = DateTime.Now.RoundDateTime(15, DateFormatExtension.RoundingDirection.Down);
       var settings = ServiceRegistration.Get<ISettingsManager>().Load<SlimTvClientSettings>();
       VisibleHours = settings.EpgVisibleHours;
-      ShowGenreColors = settings.EpgShowGenreColors;
       _bufferStartTime = _bufferEndTime = DateTime.MinValue;
     }
 

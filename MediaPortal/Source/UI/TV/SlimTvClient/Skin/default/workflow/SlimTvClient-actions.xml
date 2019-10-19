@@ -50,5 +50,12 @@
       SourceStates="C7646667-5E63-48c7-A490-A58AC9518CFA"
       ContributorModelId="117A9807-8B10-47F1-8780-C748DBCF45BA"/>    <!-- Recordings action -->
 
+    <WorkflowContributorAction Id="786E1F62-58B8-4FE2-8C6E-111B2E0F167D"
+        Name="*->DeleteAllRecordings"
+        DisplayCategory="a-Recordings"
+        SortOrder="h"
+        SourceStates="*"
+        ContributorModelId="3E826CA9-5C0B-4B16-9025-FA8273A5B7E4"/>
+    <!-- AddToPlaylist action -->
   </MenuActions>
 </Workflow>

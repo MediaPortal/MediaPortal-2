@@ -106,6 +106,13 @@
             <CommandBridge x:Key="Menu_Command" Command="{Binding Path=Command,Mode=OneTime}"/>
           </ListView.Resources>
         </ListView>
+        <Grid xmlns="www.team-mediaportal.com/2008/mpf/directx"
+            xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+            >
+          <KeyBinding Key="Record" Command="{Command Path=RecordMenu}" />
+          <KeyBinding Key="Info" Command="{Command Path=RecordMenu}" />
+        </Grid>
+
 
         <Label x:Name="Time" Grid.Column="1" Grid.Row="2" FontSize="{ThemeResource SmallFontSize}" HorizontalAlignment="Right" Margin="0,-20,0,0"
                Content="{Binding Source={StaticResource TimeModel}, Path=CurrentTime}" Color="{ThemeResource MenuTextBackground}" Opacity="1.3"/>

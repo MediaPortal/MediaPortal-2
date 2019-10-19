@@ -21,9 +21,11 @@
   <string name="SlimTvClient.DeleteSchedule">Удалить запланированную запись</string>
   <string name="SlimTvClient.CreateSchedule">Запланировать запись</string>
   <!--Extended recording features-->
+  <string name="SlimTvClient.ShowAllRecordingsItemsMenuItem">Имя</string>
+  <string name="SlimTvClient.FilterRecordingsItemsNavbarDisplayLabel">Имя</string>
   <!--Schedule management-->
   <!--Settings-->
   <string name="SlimTvClient.NoColor">Никто</string>
   <string name="SlimTvClient.RecordingsMenuItem">Записанные файлы</string>
-  <string name="SlimTvClient.NameFilterNavBarItemLabel">{0}</string>
+  <string name="SlimTvClient.ChannelMenuItemLabel">Канал</string>
 </resources>

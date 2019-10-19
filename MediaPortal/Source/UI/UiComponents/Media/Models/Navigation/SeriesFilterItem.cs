@@ -72,7 +72,7 @@ namespace MediaPortal.UiComponents.Media.Models.Navigation
           TotalSeasons = count.Value.ToString();
 
         if (VirtualMediaHelper.ShowVirtualSeriesMedia)
-          Seasons = TotalSeasons;
+          Seasons = string.IsNullOrEmpty(TotalSeasons) ? AvailableSeasons : TotalSeasons;
         else
           Seasons = AvailableSeasons;
 
@@ -83,7 +83,7 @@ namespace MediaPortal.UiComponents.Media.Models.Navigation
           TotalEpisodes = count.Value.ToString();
 
         if (VirtualMediaHelper.ShowVirtualSeriesMedia)
-          Episodes = TotalEpisodes;
+          Episodes = string.IsNullOrEmpty(TotalEpisodes) ? AvailableEpisodes : TotalEpisodes;
         else
           Episodes = AvailableEpisodes;
 

@@ -366,7 +366,7 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Client.Models
       {
         MediaItem = audioItem.MediaItem;
         SimpleTitle = audioItem.SimpleTitle;
-        ItemDescription = string.Empty;
+        ItemDescription = audioItem.Description;
         return;
       }
       ActorFilterItem actorItem = SelectedItem as ActorFilterItem;

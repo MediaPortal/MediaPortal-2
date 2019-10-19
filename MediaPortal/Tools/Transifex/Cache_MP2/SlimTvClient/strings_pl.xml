@@ -18,18 +18,15 @@
   <string name="SlimTvClient.RecordNow">Rozpocznij nagrywanie</string>
   <string name="SlimTvClient.CreateSchedule">Zaplanuj nagrywanie</string>
   <!--Extended recording features-->
-  <string name="SlimTvClient.ShowAllRecordingsItemsMenuItem">Nagrania wg nazwy</string>
-  <string name="SlimTvClient.FilterRecordingsItemsNavbarDisplayLabel">Nagrania wg nazwy</string>
+  <string name="SlimTvClient.ShowAllRecordingsItemsMenuItem">Nazwa</string>
+  <string name="SlimTvClient.FilterRecordingsItemsNavbarDisplayLabel">Nazwa</string>
   <!--Schedule management-->
   <!--Settings-->
   <string name="SlimTvClient.Notifications">Powiadomienia</string>
   <string name="SlimTvClient.NoColor">Żaden</string>
   <string name="SlimTvClient.RecordingsMenuItem">Nagrania</string>
   <string name="SlimTvClient.RecordingsRootViewName">Nagrania TV</string>
-  <string name="SlimTvClient.ChannelMenuItemLabel">Filtruj wg kanału</string>
+  <string name="SlimTvClient.ChannelMenuItemLabel">Kanał</string>
   <string name="SlimTvClient.ChannelNavBarItemLabel">Kanał: {0}</string>
   <string name="SlimTvClient.RecordingsByChannelHeader">Nagrania wg kanału</string>
-  <string name="SlimTvClient.NameFilterMenuItemLabel">Filtruj wg nazwy</string>
-  <string name="SlimTvClient.NameFilterNavBarItemLabel">{0}</string>
-  <string name="SlimTvClient.RecordingsByNameHeader">Nagrania wg nazwy</string>
 </resources>

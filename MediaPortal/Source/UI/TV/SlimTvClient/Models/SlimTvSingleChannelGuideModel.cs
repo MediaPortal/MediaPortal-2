@@ -24,9 +24,12 @@
 
 using System;
 using System.Linq;
+using MediaPortal.Common;
 using MediaPortal.Common.Commands;
 using MediaPortal.Common.General;
+using MediaPortal.Common.Settings;
 using MediaPortal.Plugins.SlimTv.Client.Helpers;
+using MediaPortal.Plugins.SlimTv.Client.Settings;
 using MediaPortal.Plugins.SlimTv.Interfaces;
 using MediaPortal.Plugins.SlimTv.Interfaces.Items;
 using MediaPortal.UI.Presentation.DataObjects;
@@ -121,6 +124,14 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
 
     #region Channel, groups and programs
 
+    public void RecordMenu()
+    {
+      ProgramListItem item = SlimTvExtScheduleModel.CurrentItem as ProgramListItem;
+      if (item == null)
+        return;
+      ShowProgramActions(item.AdditionalProperties["PROGRAM"] as IProgram);
+    }
+
     protected override void Update()
     { }
 
@@ -144,7 +155,8 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
         return;
       }
 
-      var result = await _tvHandler.ProgramInfo.GetProgramsAsync(channel, DateTime.Now.AddHours(-2), DateTime.Now.AddDays(_settings.Settings.SingleChannelGuideDays));
+      var settings = ServiceRegistration.Get<ISettingsManager>().Load<SlimTvClientSettings>();
+      var result = await _tvHandler.ProgramInfo.GetProgramsAsync(channel, DateTime.Now.AddHours(-2), DateTime.Now.AddDays(settings.SingleChannelGuideDays));
       if (result.Success)
       {
         _programs = result.Result;

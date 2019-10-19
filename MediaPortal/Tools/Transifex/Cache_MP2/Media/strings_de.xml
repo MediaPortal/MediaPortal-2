@@ -10,7 +10,7 @@
   <string name="Media.CurrentSchedules">Aktuelle Aufnahmepläne</string>
   <!--Menu items for the five Media navigation parts-->
   <string name="Media.BrowseMediaMenuItem">Medien durchsuchen</string>
-  <string name="Media.BrowseMediaMenuItem.Help">Durchsuchen der Medienbibliothek nach allen Arten von Medien, angeordnet nach der Dateistruktur. Der Zugriff auf Wechseldatenträger ist hier ebenfalls möglich.</string>
+  <string name="Media.BrowseMediaMenuItem.Help">Durchsuchen der Medienbibliothek nach allen Arten von Medien, angeordnet nach der Dateistruktur. Hier ist auch der Zugriff auf Wechseldatenträger möglich.</string>
   <string name="Media.LocalMediaMenuItem">Lokale Medien</string>
   <string name="Media.AudioMenuItem">Audio</string>
   <string name="Media.AudioMenuItem.Help">Musik oder Hörbücher aus der Medienbibliothek wiedergeben und zusätzliche Medieninformationen abrufen. Hier lassen sich auch Playlisten mit eigenen Lieblingssongs erstellen.</string>
@@ -41,7 +41,7 @@
   <string name="Media.SizeMenuItem">Größe</string>
   <string name="Media.SystemMenuItem">System</string>
   <string name="Media.ActorMenuItem">Darsteller</string>
-  <string name="Media.DirectorMenuItem">Regisseure</string>
+  <string name="Media.DirectorMenuItem">Regisseur</string>
   <string name="Media.CharacterMenuItem">Rolle</string>
   <string name="Media.WriterMenuItem">Autoren</string>
   <string name="Media.DurationMenuItem">Dauer</string>
@@ -123,7 +123,7 @@
   <string name="Media.FilterMoviesNavbarDisplayLabel">Filme: {0}</string>
   <string name="Media.FilterConductorNavbarDisplayLabel">Dirigent: {0}</string>
   <string name="Media.FilterCompilationNavbarDisplayLabel">Zusammenstellungen</string>
-  <string name="Media.FilterAlbumCompilationNavbarDisplayLabel">Album Zusammenstellung</string>
+  <string name="Media.FilterAlbumCompilationNavbarDisplayLabel">Album-Zusammenstellungen</string>
   <string name="Media.FilterContentGroupNavbarDisplayLabel">Inhaltsgruppe: {0}</string>
   <string name="Media.FilterCertificationNavbarDisplayLabel">Altersfreigabe: {0}</string>
   <!--Display labels for workflow navigation contexts-->
@@ -279,20 +279,20 @@
   <string name="Media.SetPlayed">Als gesehen markieren</string>
   <string name="Media.SetUnplayed">Als ungesehen markieren</string>
   <string name="Media.Refresh">Ansicht aktualisieren</string>
-  <string name="Media.Reimport">Reimportieren</string>
+  <string name="Media.Reimport">Erneut importieren</string>
   <string name="Media.DeleteFromStorage">Von Speicher löschen</string>
   <string name="Media.DeleteFromStorage.Confirmation">Soll das gewählte Element endgültig gelöscht werden? Diese Aktion kann nicht rückgängig gemacht werden.</string>
   <string name="Media.ConfirmAction">Bestätigung</string>
-  <string name="Media.ReimportMediaItem.Confirmation">Sind Sie sicher, dass Sie das Medienelement neu importieren wollen und alle existierenden Daten durch die neue Auswahl ersetzen? Der Vorgang kann nicht rückgängig gemacht werden.</string>
+  <string name="Media.ReimportMediaItem.Confirmation">Sind Sie sicher, dass Sie das Medienelement neu importieren und alle Daten durch die neue Auswahl ersetzen wollen? Der Vorgang kann nicht rückgängig gemacht werden.</string>
   <string name="Media.ReimportMediaItem.Title">Bitte wählen Sie das passende Suchergebnis</string>
   <string name="Media.ReimportMediaItem.Id">Id</string>
   <string name="Media.ReimportMediaItem.Done">Fertig</string>
   <string name="Media.ReimportMediaItem.SearchResultHeader">Suchergebnis</string>
-  <string name="Media.ReimportMediaItem.SearchTypeHeader">Such Variante</string>
+  <string name="Media.ReimportMediaItem.SearchTypeHeader">Such-Variante</string>
   <string name="Media.ReimportMediaItem.AutoMatch">Automatische Übereinstimmung</string>
   <string name="Media.ReimportMediaItem.ManualSearch">Manuelle Suche</string>
   <string name="Media.ReimportMediaItem.Description">Beschreibung</string>
-  <string name="Media.ReimportMediaItem.Hint">Hinweis: Es wird eine Internetverbindung benötigt und mindestens ein Online-Scraper muss in den Einstellungen aktiviert sein</string>
+  <string name="Media.ReimportMediaItem.Hint">Hinweis: Es wird eine Internetverbindung und mindestens ein in den Einstellungen aktivierter Online-Scraper benötigt.</string>
   <!--Play items dialog-->
   <string name="Media.PlayItemDialogHeader">Element abspielen</string>
   <string name="Media.PlayAudioItems">Audiotitel abspielen</string>
@@ -320,7 +320,7 @@
   <string name="Media.Rating">Bewertung:</string>
   <string name="Media.VideoTitleLabel">Titel: </string>
   <string name="Media.VideoGenreLabel">Genre:</string>
-  <string name="Media.VideoCollectionLabel">Sammlung:</string>
+  <string name="Media.VideoCollectionLabel">Reihe:</string>
   <string name="Media.VideoYearLabel">Jahr:</string>
   <string name="Media.VideoDurationLabel">Dauer:</string>
   <string name="Media.VideoActorsLabel">Darsteller:</string>
@@ -421,6 +421,9 @@
   <!--Stubs-->
   <string name="Media.Stub.Title">Medium einlegen</string>
   <string name="Media.Stub.Message">Bitte Medium einlegen</string>
+  <!--Virtual-->
+  <string name="Media.Virtual.Title">Nicht-abspielbares Medienelement</string>
+  <string name="Media.Virtual.Message">Medienelement ist virtuell und kann deshalb nicht wiedergegeben werden.</string>
   <!--Settings-->
   <string name="Settings.Players">Player</string>
   <string name="Settings.Players.ClosePlayersWhenFinished">Player nach Wiedergabe schließen</string>
@@ -437,7 +440,7 @@
   <string name="Settings.Players.WatchedPlayPercentage.Help">Legt eine Prozentangabe fest, ab der ein Medienelement als \"Gesehen\" markiert wird</string>
   <string name="Settings.Players.OpenPlayerConfigInOsd">Player-Konfigurationsdialog im OSD anzeigen</string>
   <string name="Settings.Players.OpenPlayerConfigInOsd.Help">Wenn aktiviert, wird beim zweiten Drücken von \'Info\' der Player-Konfigurationsdialog eingeblendet.</string>
-  <string name="Settings.Media">Medien-Bibliothek</string>
+  <string name="Settings.Media">Medienbibliothek</string>
   <string name="Settings.Media.ShowVirtual">Alle bekannten Medienelemente anzeigen</string>
   <string name="Settings.Media.ShowVirtual.Help">Legt fest, ob auch Informationen zu bekannten Medienelementen angezeigt werden, die nicht in der Medienbibliothek verfügbar sind</string>
   <string name="Settings.Media.ShowVirtual.Audio">Alle bekannten Album-Titel anzeigen</string>

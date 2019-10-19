@@ -432,14 +432,14 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
 
     #region TV control methods
 
-    protected LiveTvPlayer SlotPlayer
+    protected ILivePlayer SlotPlayer
     {
       get
       {
         IPlayerContextManager pcm = ServiceRegistration.Get<IPlayerContextManager>();
         if (pcm == null)
           return null;
-        LiveTvPlayer player = pcm[SlotIndex] as LiveTvPlayer;
+        ILivePlayer player = pcm[SlotIndex] as ILivePlayer;
         return player;
       }
     }
@@ -470,7 +470,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
         return false;
 
       // Invoke event handler before pausing to avoid flashing of pause symbol
-      SlotPlayer?.OnBeginZap?.Invoke(this, EventArgs.Empty);
+      SlotPlayer?.NotifyBeginZap(this);
       SlotPlayer?.Pause();
 
       // Set the current index of the tuned channel
@@ -494,7 +494,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
       }
 
       // Notify end of zapping
-      SlotPlayer?.OnEndZap?.Invoke(this, EventArgs.Empty);
+      SlotPlayer?.NotifyEndZap(this);
       return true;
     }
 
@@ -584,10 +584,36 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
       }
     }
 
+    /// <summary>
+    /// Presents a dialog with recording options for the currently selected program/channel.
+    /// </summary>
+    public async void RecordMenu()
+    {
+      if (SlimTvExtScheduleModel.CurrentItem == null)
+        return;
+      ChannelProgramListItem item = SlimTvExtScheduleModel.CurrentItem as ChannelProgramListItem;
+      if (item == null || item.Programs == null)
+        return;
+      IProgram program = null;
+      IChannel channel = null;
+      lock (item.Programs.SyncRoot)
+        if (item.Programs.Count == 2)
+        {
+          program = item.Programs[0].AdditionalProperties["PROGRAM"] as IProgram;
+          channel = item.AdditionalProperties["CHANNEL"] as IChannel;
+        }
+      if (program != null && channel != null && await InitActionsList(program, channel))
+      {
+        IScreenManager screenManager = ServiceRegistration.Get<IScreenManager>();
+        screenManager.ShowDialog("DialogClientModel");
+      }
+    }
+
     private void ShowOSD()
     {
       IWorkflowManager workflowManager = ServiceRegistration.Get<IWorkflowManager>();
-      VideoPlayerModel model = workflowManager.GetModel(VideoPlayerModel.MODEL_ID) as VideoPlayerModel;
+      BaseOSDPlayerModel model = workflowManager.GetModel(_tvHandler.GetChannel(SlotIndex).MediaType == MediaType.Radio ?
+        AudioPlayerModel.MODEL_ID : VideoPlayerModel.MODEL_ID) as BaseOSDPlayerModel;
       if (model == null)
         return;
 
@@ -598,7 +624,8 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
     private void CloseOSD()
     {
       IWorkflowManager workflowManager = ServiceRegistration.Get<IWorkflowManager>();
-      VideoPlayerModel model = workflowManager.GetModel(VideoPlayerModel.MODEL_ID) as VideoPlayerModel;
+      BaseOSDPlayerModel model = workflowManager.GetModel(_tvHandler.GetChannel(SlotIndex).MediaType == MediaType.Radio ?
+        AudioPlayerModel.MODEL_ID : VideoPlayerModel.MODEL_ID) as BaseOSDPlayerModel;
       if (model == null)
         return;
 
@@ -608,43 +635,33 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
 
     private async Task<bool> InitActionsList()
     {
-      _dialogActionsList.Clear();
-      DialogHeader = "[SlimTvClient.RecordActions]";
       IPlayerContextManager playerContextManager = ServiceRegistration.Get<IPlayerContextManager>();
       IPlayerContext playerContext = playerContextManager.GetPlayerContext(PlayerChoice.PrimaryPlayer);
       if (playerContext == null)
         return false;
       LiveTvMediaItem liveTvMediaItem = playerContext.CurrentMediaItem as LiveTvMediaItem;
-      LiveTvPlayer player = playerContext.CurrentPlayer as LiveTvPlayer;
+      ILivePlayer player = playerContext.CurrentPlayer as ILivePlayer;
       if (liveTvMediaItem == null || player == null)
         return false;
 
-      ITimeshiftContext context = player.TimeshiftContexes.LastOrDefault();
+      ITimeshiftContext context = liveTvMediaItem.TimeshiftContexes.LastOrDefault();
       if (context == null || context.Channel == null)
         return false;
 
-      ListItem item;
       ILocalization localization = ServiceRegistration.Get<ILocalization>();
-      bool isRecording = false;
       var result = await _tvHandler.ProgramInfo.GetNowNextProgramAsync(context.Channel);
-      if (result.Success)
+      return await InitActionsList(result.Success ? result.Result[0] : null, context.Channel);
+    }
+
+    private async Task<bool> InitActionsList(IProgram program, IChannel channel)
+    {
+      _dialogActionsList.Clear();
+      DialogHeader = "[SlimTvClient.RecordActions]";
+      if (program != null)
       {
-        IProgram programNow = result.Result[0];
-        var recStatus = await GetRecordingStatusAsync(programNow);
-        isRecording = recStatus.HasValue && recStatus.Value.HasFlag(RecordingStatus.Scheduled | RecordingStatus.Recording);
-        item = new ListItem(Consts.KEY_NAME, localization.ToString(isRecording ? "[SlimTvClient.StopCurrentRecording]" : "[SlimTvClient.RecordCurrentProgram]", programNow.Title))
-        {
-          Command = new AsyncMethodDelegateCommand(() => CreateOrDeleteSchedule(programNow))
-        };
-        _dialogActionsList.Add(item);
-      }
-      if (!isRecording)
-      {
-        item = new ListItem(Consts.KEY_NAME, "[SlimTvClient.RecordManual]")
-        {
-          Command = new AsyncMethodDelegateCommand(() => CreateOrDeleteScheduleByTimeAsync(context.Channel, DateTime.Now, DateTime.Now.AddDays(1)))
-        };
-        _dialogActionsList.Add(item);
+        var recStatus = await GetRecordingStatusAsync(program);
+        if (recStatus.HasValue)
+          AddRecordingOptions(_dialogActionsList, program, recStatus.Value);
       }
       _dialogActionsList.FireChange();
       return true;
@@ -887,10 +904,11 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
       IPlayerContext playerContext = playerContextManager.GetPlayerContext(PlayerChoice.PrimaryPlayer);
       if (playerContext != null)
       {
-        LiveTvPlayer player = playerContext.CurrentPlayer as LiveTvPlayer;
+        ILivePlayer player = playerContext.CurrentPlayer as ILivePlayer;
         if (player != null)
         {
-          ITimeshiftContext context = player.TimeshiftContexes.LastOrDefault();
+          LiveTvMediaItem item = player.CurrentItem;
+          ITimeshiftContext context = item == null ? null : item.TimeshiftContexes.LastOrDefault();
           IProgram currentProgram = null;
           IProgram nextProgram = null;
           IChannel channel = null;

@@ -28,6 +28,8 @@
   <string name="Match.Video.Animation">Animatie|Cartoon|Anime</string>
   <string name="Match.Video.Comedy">Komedie</string>
   <string name="Match.Video.Crime">Crime</string>
+  <string name="Match.Video.Documentary">Documentaire</string>
+  <string name="Match.Video.Biography">Biografie</string>
   <string name="Match.Video.Drama">Drama</string>
   <string name="Match.Video.Family">Familie</string>
   <string name="Match.Video.Fantasy">Fantasie</string>
@@ -47,12 +49,16 @@
   <string name="Match.Video.Soap">Soap</string>
   <string name="Match.Video.Talk">Praat</string>
   <string name="Match.Video.Politics">Politiek</string>
+  <string name="Match.Video.Sport">Sport</string>
   <string name="Match.Epg.Movie">Films</string>
   <string name="Match.Epg.Series">Series</string>
   <string name="Match.Epg.Documentary">Documentaire|Biografie</string>
   <string name="Match.Epg.Music">Muziek</string>
   <string name="Match.Epg.Kids">Peuters|Kinderen|Tieners</string>
   <string name="Match.Epg.News">Nieuws</string>
+  <string name="Match.Epg.Sport">Sport</string>
+
+  <string name="Label.Audio.Classic">Klassiek</string>
   <string name="Label.Audio.Metal">Metal</string>
   <string name="Label.Audio.Country">Land</string>
   <string name="Label.Audio.Comedy">Komedie</string>
@@ -65,6 +71,8 @@
   <string name="Label.Video.Adventure">Avontuur</string>
   <string name="Label.Video.Comedy">Komedie</string>
   <string name="Label.Video.Crime">Crime</string>
+  <string name="Label.Video.Documentary">Documentaire</string>
+  <string name="Label.Video.Biography">Biografie</string>
   <string name="Label.Video.Drama">Drama</string>
   <string name="Label.Video.Family">Familie</string>
   <string name="Label.Video.Fantasy">Fantasie</string>
@@ -78,8 +86,11 @@
   <string name="Label.Video.Western">Western</string>
   <string name="Label.Video.News">Nieuws</string>
   <string name="Label.Video.Soap">Soap</string>
+  <string name="Label.Video.Sport">Sport</string>
   <string name="Label.Epg.Movie">Films</string>
   <string name="Label.Epg.Series">Series</string>
+  <string name="Label.Epg.Documentary">Documentaire</string>
   <string name="Label.Epg.Music">Muziek</string>
   <string name="Label.Epg.News">Nieuws</string>
-  </resources>
+  <string name="Label.Epg.Sport">Sport</string>
+</resources>
