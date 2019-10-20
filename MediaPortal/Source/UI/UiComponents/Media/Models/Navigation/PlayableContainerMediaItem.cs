@@ -24,6 +24,7 @@
 
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.UserProfileDataManagement;
+using MediaPortal.UiComponents.Media.Extensions;
 using MediaPortal.UiComponents.Media.General;
 using System;
 
@@ -32,7 +33,7 @@ namespace MediaPortal.UiComponents.Media.Models.Navigation
   /// <summary>
   /// Holds a GUI item which encapsulates the basics of a playable media item.
   /// </summary>
-  public abstract class PlayableContainerMediaItem : FilterItem
+  public abstract class PlayableContainerMediaItem : FilterItem, IMediaItemListItem
   {
     public override void Update(MediaItem mediaItem)
     {
