@@ -56,10 +56,10 @@
             </StackPanel>
             
             <Image x:Name="PresentIndicator" Grid.Row="1" Grid.RowSpan="2" HorizontalAlignment="Right" VerticalAlignment="Bottom" 
-                   Width="40" Height="40" Margin="0,0,5,5" Source="..\resources\present.png" 
+                   Width="30" Height="30" Margin="0,0,5,5" Source="..\resources\present.png" 
                    Visibility="{Binding Path=PackageState, Converter={StaticResource EnumToBooleanConverter}, ConverterParameter={x:Static bootstrapper:PackageState.Present}}"/>
             <Image x:Name="AbsentIndicator" Grid.Row="1" Grid.RowSpan="2" HorizontalAlignment="Right" VerticalAlignment="Bottom" 
-                   Width="40" Height="40" Margin="0,0,5,5" Source="..\resources\absent.png"
+                   Width="30" Height="30" Margin="0,0,5,5" Source="..\resources\absent.png"
                    Visibility="{Binding Path=PackageState, Converter={StaticResource EnumToBooleanConverter}, ConverterParameter={x:Static bootstrapper:PackageState.Absent}}"/>
           </Grid>
         </DataTemplate>
