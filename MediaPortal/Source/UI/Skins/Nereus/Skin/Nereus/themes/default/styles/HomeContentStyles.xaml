@@ -2058,7 +2058,7 @@
       </Grid.ColumnDefinitions>
       <Grid.RowDefinitions>
         <RowDefinition Height="*"/>
-        <RowDefinition Height="47"/>
+        <RowDefinition Height="45"/>
       </Grid.RowDefinitions>
 
       <Rectangle Grid.RowSpan="2" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
@@ -2077,9 +2077,9 @@
       <Rectangle Grid.Row="1" Grid.Column="0" Fill="#FF000000" Opacity="0.4"
                  HorizontalAlignment="Stretch" VerticalAlignment="Stretch" />
 
-      <Label x:Name="ItemLabel" FontSize="{ThemeResource SmallFontSize}" Grid.Row="1" ScrollDelay="0"
-             Color="{ThemeResource TextColor}" Content="{Binding Title}" Margin="10,0,10,1"
-             VerticalAlignment="Center" HorizontalAlignment="Stretch">
+      <Label x:Name="ItemLabel" FontSize="{ThemeResource SmallerFontSize}" Grid.Row="1" ScrollDelay="0"
+             Color="{ThemeResource TextColor}" Content="{Binding Title}" Margin="5,0,5,5"
+             VerticalAlignment="Center" HorizontalAlignment="Stretch" FontFamily="SegoeUIBold">
         <Label.Scroll>
           <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
             <Binding RelativeSource="{RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}}" Path="HasFocus"/>
@@ -2342,56 +2342,35 @@
         </Grid.Background>
       </Grid>
 
-      <Image x:Name="ItemImage" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Width="75" Stretch="Uniform" Thumbnail="False"
-             Source="{Binding [ImageSrc]}" FallbackSource="{Binding [DefaultIcon]}" Margin="20"/>
+      <Grid>
+        <Grid.ColumnDefinitions>
+          <ColumnDefinition Width="30*"/>
+          <ColumnDefinition Width="40*"/>
+          <ColumnDefinition Width="30*"/>
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+          <RowDefinition Height="30*"/>
+          <RowDefinition Height="40*"/>
+          <RowDefinition Height="30*"/>
+        </Grid.RowDefinitions>
+        <Image x:Name="ItemImage" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Stretch="Uniform" Thumbnail="False"
+               Source="{Binding [ImageSrc]}" FallbackSource="{Binding [DefaultIcon]}" Grid.Column="1" Grid.Row="1"/>        
+      </Grid>
 
       <Grid x:Name="ItemBandGrid" HorizontalAlignment="Stretch" VerticalAlignment="Bottom" RenderTransformOrigin="0.5,1">
         <Grid.ColumnDefinitions>
           <ColumnDefinition Width="*"/>
         </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
-          <RowDefinition Height="40"/>
+          <RowDefinition Height="45"/>
         </Grid.RowDefinitions>
-        <Grid.RenderTransform>
-          <TransformGroup>
-            <ScaleTransform ScaleX="1" ScaleY="0"/>
-          </TransformGroup>
-        </Grid.RenderTransform>
         <Rectangle x:Name="ItemBand" Fill="Black" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Opacity="0.4"/>
         <Label x:Name="ItemLabel" HorizontalAlignment="Center" VerticalAlignment="Center" Content="{Binding [Name]}"
-               FontSize="{ThemeResource SmallerFontSize}" Color="{ThemeResource MenuTextForeground}" Margin="5,-5,5,5"
+               FontSize="{ThemeResource SmallerFontSize}" Color="{ThemeResource MenuTextForeground}" Margin="5,0,5,5"
                ScrollDelay="0" Scroll="None" FontFamily="SegoeUIBold"/>
         <Grid.Triggers>
           <DataTrigger Binding="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Button}, Path=HasFocus}" Value="True">
             <Setter TargetName="ItemLabel" Property="Scroll" Value="Auto"/>
-            <DataTrigger.EnterActions>
-              <BeginStoryboard x:Name="SlideOut">
-                <BeginStoryboard.Storyboard>
-                  <Storyboard>
-                    <DoubleAnimation BeginTime="00:00:00" From="0" To="1" Duration="00:00:00.7" DecelerationRatio="1"
-                                     FillBehavior="HoldEnd" Storyboard.TargetName="ItemBandGrid"
-                                     Storyboard.TargetProperty="RenderTransform.Children[0].ScaleY">
-                      <DoubleAnimation.EasingFunction>
-                        <BackEase Amplitude="0.6" EasingMode="EaseOut"/>
-                      </DoubleAnimation.EasingFunction>
-                    </DoubleAnimation>
-                  </Storyboard>
-                </BeginStoryboard.Storyboard>
-              </BeginStoryboard>
-            </DataTrigger.EnterActions>
-            <DataTrigger.ExitActions>
-              <BeginStoryboard x:Name="SlideBack">
-                <BeginStoryboard.Storyboard>
-                  <Storyboard>
-                    <DoubleAnimation
-                       Storyboard.TargetName="ItemBandGrid"
-                       Storyboard.TargetProperty="RenderTransform.Children[0].ScaleY"
-                       From="1" To="0" BeginTime="0:0:0" Duration="00:00:00.35"
-                       FillBehavior="HoldEnd"/>
-                  </Storyboard>
-                </BeginStoryboard.Storyboard>
-              </BeginStoryboard>
-            </DataTrigger.ExitActions>
           </DataTrigger>
         </Grid.Triggers>
       </Grid>
