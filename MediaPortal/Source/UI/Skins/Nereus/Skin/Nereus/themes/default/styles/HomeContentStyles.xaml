@@ -2087,6 +2087,13 @@
             <Binding Source="None"/>
           </MultiBinding>
         </Label.Scroll>
+        <Label.Opacity>
+          <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
+            <Binding RelativeSource="{RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}}" Path="HasFocus"/>
+            <Binding Source="1"/>
+            <Binding Source="0.5"/>
+          </MultiBinding>
+        </Label.Opacity>
       </Label>
     </Grid>
   </ControlTemplate>
@@ -2367,12 +2374,22 @@
         <Rectangle x:Name="ItemBand" Fill="Black" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Opacity="0.4"/>
         <Label x:Name="ItemLabel" HorizontalAlignment="Center" VerticalAlignment="Center" Content="{Binding [Name]}"
                FontSize="{ThemeResource SmallerFontSize}" Color="{ThemeResource MenuTextForeground}" Margin="5,0,5,5"
-               ScrollDelay="0" Scroll="None" FontFamily="SegoeUIBold"/>
-        <Grid.Triggers>
-          <DataTrigger Binding="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Button}, Path=HasFocus}" Value="True">
-            <Setter TargetName="ItemLabel" Property="Scroll" Value="Auto"/>
-          </DataTrigger>
-        </Grid.Triggers>
+               ScrollDelay="0" FontFamily="SegoeUIBold">
+          <Label.Scroll>
+            <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
+              <Binding RelativeSource="{RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}}" Path="HasFocus"/>
+              <Binding Source="Auto"/>
+              <Binding Source="None"/>
+            </MultiBinding>
+          </Label.Scroll>
+          <Label.Opacity>
+            <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
+              <Binding RelativeSource="{RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}}" Path="HasFocus"/>
+              <Binding Source="1"/>
+              <Binding Source="0.5"/>
+            </MultiBinding>
+          </Label.Opacity>
+        </Label>
       </Grid>
     </Grid>
   </ControlTemplate>
