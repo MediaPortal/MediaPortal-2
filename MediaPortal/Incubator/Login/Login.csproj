@@ -228,4 +228,9 @@
   <ItemGroup>
     <Folder Include="Skin\Nereus\themes\default\styles\" />
   </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\Nereus\screens\UserLanguages.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
 </Project>
