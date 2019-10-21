@@ -93,7 +93,7 @@
       </Grid.ColumnDefinitions>
       <Grid.RowDefinitions>
         <RowDefinition Height="*"/>
-        <RowDefinition Height="60"/>
+        <RowDefinition Height="55"/>
       </Grid.RowDefinitions>
 
       <!-- Background fill -->
@@ -110,7 +110,7 @@
 
       <!-- Item label -->
       <Label Grid.Row="1" Grid.Column="0" x:Name="ItemLabel" HorizontalAlignment="Center" VerticalAlignment="Center" Content="{Binding SimpleTitle}"
-             FontSize="{ThemeResource BigFontSize}" Color="{ThemeResource TextColor}" Margin="5,0,5,0" ScrollDelay="0">
+             FontSize="{ThemeResource SmallerFontSize}" Color="{ThemeResource TextColor}" Margin="5,0,5,10" ScrollDelay="0" FontFamily="SegoeUIBold">
         <Label.Scroll>
           <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
             <Binding RelativeSource="{RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}}" Path="HasFocus"/>
@@ -118,6 +118,13 @@
             <Binding Source="None"/>
           </MultiBinding>
         </Label.Scroll>
+        <Label.Opacity>
+          <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
+            <Binding RelativeSource="{RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}}" Path="HasFocus"/>
+            <Binding Source="1"/>
+            <Binding Source="0.5"/>
+          </MultiBinding>
+        </Label.Opacity>
       </Label>
     </Grid>
   </ControlTemplate>
@@ -317,7 +324,7 @@
       </Grid.ColumnDefinitions>
       <Grid.RowDefinitions>
         <RowDefinition Height="*"/>
-        <RowDefinition Height="60"/>
+        <RowDefinition Height="55"/>
       </Grid.RowDefinitions>
 
       <!-- Background fill -->
@@ -334,7 +341,7 @@
 
       <!-- Item label -->
       <Label Grid.Row="1" Grid.Column="0" x:Name="ItemLabel" HorizontalAlignment="Center" VerticalAlignment="Center" Content="{Binding SimpleTitle}"
-             FontSize="{ThemeResource BigFontSize}" Color="{ThemeResource TextColor}" Margin="5,0,5,5" ScrollDelay="0">
+             FontSize="{ThemeResource SmallerFontSize}" Color="{ThemeResource TextColor}" Margin="5,0,5,10" ScrollDelay="0" FontFamily="SegoeUIBold">
         <Label.Scroll>
           <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
             <Binding RelativeSource="{RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}}" Path="HasFocus"/>
@@ -342,6 +349,13 @@
             <Binding Source="None"/>
           </MultiBinding>
         </Label.Scroll>
+        <Label.Opacity>
+          <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
+            <Binding RelativeSource="{RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}}" Path="HasFocus"/>
+            <Binding Source="1"/>
+            <Binding Source="0.5"/>
+          </MultiBinding>
+        </Label.Opacity>
       </Label>
 
       <media:UserDataWrapper MediaItem="{Binding MediaItem}" Grid.Row="1" HorizontalAlignment="Stretch" VerticalAlignment="Bottom">
