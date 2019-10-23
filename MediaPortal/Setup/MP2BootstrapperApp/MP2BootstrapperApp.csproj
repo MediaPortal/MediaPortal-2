@@ -71,6 +71,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ActionType.cs" />
+    <Compile Include="PackageStateToVisibilityConverter.cs" />
     <Compile Include="BootstrapperWrapper\BootstrapperApplicationWrapper.cs" />
     <Compile Include="ChainPackages\Dokan.cs" />
     <Compile Include="ChainPackages\IPackageChecker.cs" />

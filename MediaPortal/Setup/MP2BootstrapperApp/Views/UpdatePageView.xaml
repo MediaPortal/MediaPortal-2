@@ -28,6 +28,7 @@
             
             <Grid.Resources>
               <conv:EnumToBooleanConverter x:Key="EnumToBooleanConverter" />
+              <conv:PackageStateToVisibilityConverter x:Key="PackageStateToVisibilityConverter" />
             </Grid.Resources>
             
             <Grid.RowDefinitions>
@@ -54,13 +55,12 @@
               <Label FontSize="12" Foreground="White" Content="Bundled: " Opacity="0.4"/>
               <Label FontSize="12" Foreground="White" Content="{Binding BundleVersion}" Opacity="0.4"/>
             </StackPanel>
-            
             <Image x:Name="PresentIndicator" Grid.Row="1" Grid.RowSpan="2" HorizontalAlignment="Right" VerticalAlignment="Bottom" 
                    Width="30" Height="30" Margin="0,0,5,5" Source="..\resources\present.png" 
-                   Visibility="{Binding Path=PackageState, Converter={StaticResource EnumToBooleanConverter}, ConverterParameter={x:Static bootstrapper:PackageState.Present}}"/>
+                   Visibility="{Binding Path=PackageState, Converter={StaticResource PackageStateToVisibilityConverter}, ConverterParameter={x:Static bootstrapper:PackageState.Present}}"/>
             <Image x:Name="AbsentIndicator" Grid.Row="1" Grid.RowSpan="2" HorizontalAlignment="Right" VerticalAlignment="Bottom" 
                    Width="30" Height="30" Margin="0,0,5,5" Source="..\resources\absent.png"
-                   Visibility="{Binding Path=PackageState, Converter={StaticResource EnumToBooleanConverter}, ConverterParameter={x:Static bootstrapper:PackageState.Absent}}"/>
+                   Visibility="{Binding Path=PackageState, Converter={StaticResource PackageStateToVisibilityConverter}, ConverterParameter={x:Static bootstrapper:PackageState.Absent}}"/> 
           </Grid>
         </DataTemplate>
       </ItemsControl.ItemTemplate>
