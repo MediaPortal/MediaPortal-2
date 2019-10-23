@@ -24,6 +24,7 @@
 
 using MediaPortal.Common;
 using MediaPortal.Common.PluginManager;
+using MediaPortal.UI.ContentLists;
 using MediaPortal.UI.Services.Players.Builders;
 using MediaPortal.UI.Services.Workflow;
 
@@ -40,6 +41,7 @@ namespace MediaPortal.UI.PluginItemBuilders
     public const string MODEL_BUILDER_NAME = "Model";
     public const string WORKFLOW_STATE_BUILDER_NAME = "WorkflowState";
     public const string DIALOG_STATE_BUILDER_NAME = "DialogState";
+    public const string CONTENT_LIST_BUILDER_NAME = "ContentList";
 
     public static void Register()
     {
@@ -53,6 +55,8 @@ namespace MediaPortal.UI.PluginItemBuilders
       pluginManager.RegisterSystemPluginItemBuilder(WORKFLOW_STATE_BUILDER_NAME, new WorkflowStateBuilder());
 
       pluginManager.RegisterSystemPluginItemBuilder(DIALOG_STATE_BUILDER_NAME, new WorkflowStateBuilder());
+
+      pluginManager.RegisterSystemPluginItemBuilder(CONTENT_LIST_BUILDER_NAME, new ContentListProviderBuilder());
     }
   }
 }

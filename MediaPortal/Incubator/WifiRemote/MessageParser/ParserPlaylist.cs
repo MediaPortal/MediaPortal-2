@@ -83,14 +83,14 @@ namespace MediaPortal.Plugins.WifiRemote.MessageParser
               var mediaItemGuid = await GetIdFromNameAsync(client, fileName, id, Helper.GetMediaItemByFileNameAsync);
               if (mediaItemGuid == null)
               {
-                ServiceRegistration.Get<ILogger>().Error("WifiRemote Playlist: Couldn't convert FileId '{0} to Guid", id);
+                ServiceRegistration.Get<ILogger>().Error("WifiRemote: Playlist: Couldn't convert FileId '{0} to Guid", id);
                 return false;
               }
 
               MediaItem item = await Helper.GetMediaItemByIdAsync(client.UserId, mediaItemGuid.Value);
               if (item == null)
               {
-                ServiceRegistration.Get<ILogger>().Warn("WifiRemote Playlist: Not media item found");
+                ServiceRegistration.Get<ILogger>().Warn("WifiRemote: Playlist: Not media item found");
                 continue;
               }
 
@@ -265,7 +265,7 @@ namespace MediaPortal.Plugins.WifiRemote.MessageParser
         }
         else
         {
-          Logger.Warn("WifiRemote Playlist: Must specify a name to save a playlist");
+          Logger.Warn("WifiRemote: Playlist: Must specify a name to save a playlist");
         }
       }
       else if (action.Equals("shuffle", StringComparison.InvariantCultureIgnoreCase))
@@ -275,7 +275,7 @@ namespace MediaPortal.Plugins.WifiRemote.MessageParser
       }
       else if (action.Equals("repeat", StringComparison.InvariantCultureIgnoreCase))
       {
-        Logger.Debug("Playlist action repeat");
+        Logger.Debug("WifiRemote: Playlist action repeat");
         bool repeat = GetMessageValue<bool>(message, "Repeat");
         RepeatMode repeatMode;
         if (repeat)

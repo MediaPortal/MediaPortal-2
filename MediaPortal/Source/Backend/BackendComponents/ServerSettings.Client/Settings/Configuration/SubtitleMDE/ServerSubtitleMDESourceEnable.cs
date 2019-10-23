@@ -112,6 +112,12 @@ namespace MediaPortal.Plugins.ServerSettings.Settings.Configuration
           if (setting.Enabled)
             _selected.Add(_items.Count - 1);
         }
+        else if (setting.Id.Equals("SubsMaxMatcher", StringComparison.InvariantCultureIgnoreCase))
+        {
+          _items.Add(LocalizationHelper.CreateStaticString("SubsMax.com"));
+          if (setting.Enabled)
+            _selected.Add(_items.Count - 1);
+        }
         _dictionary[setting.Id] = _items.Count - 1;
       }
     }

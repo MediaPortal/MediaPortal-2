@@ -7,7 +7,7 @@
   <string name="SystemState.Hibernate">Veille prolongée</string>
   <string name="SystemState.Shutdown">Arrêt</string>
   <string name="SystemState.Suspend">Veille</string>
-  <string name="SystemState.Restart">Redémarrer</string>
+  <string name="SystemState.Restart">Redémarrer Windows</string>
   <string name="SystemState.RestartMP">Redémarrer MediaPortal</string>
   <string name="SystemState.Logoff">Déconnexion</string>
   <string name="SystemState.SleepTimerConfig">Paramétrage de la minuterie avant la mise en veille</string>

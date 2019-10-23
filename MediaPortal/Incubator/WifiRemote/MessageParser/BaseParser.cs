@@ -77,7 +77,7 @@ namespace MediaPortal.Plugins.WifiRemote.MessageParser
     {
       if (!ServiceRegistration.IsRegistered<ITvHandler>())
       {
-        Logger.Error($"WifiRemote Play Channel: No tv handler");
+        Logger.Error($"WifiRemote: Play Channel: No tv handler");
         return false;
       }
 
@@ -85,7 +85,7 @@ namespace MediaPortal.Plugins.WifiRemote.MessageParser
       var channel = await tvHandler.ChannelAndGroupInfo.GetChannelAsync(channelId);
       if (!channel.Success)
       {
-        Logger.Info($"WifiRemote Play Channel: Channel with id '{0}' not found", channelId);
+        Logger.Info($"WifiRemote: Play Channel: Channel with id '{0}' not found", channelId);
         return false;
       }
 
@@ -101,7 +101,7 @@ namespace MediaPortal.Plugins.WifiRemote.MessageParser
     {
       if (!ServiceRegistration.IsRegistered<ITvHandler>())
       {
-        Logger.Error($"WifiRemote List Schedules: No tv handler");
+        Logger.Error($"WifiRemote: List Schedules: No tv handler");
         return new List<ISchedule>();
       }
 
@@ -109,7 +109,7 @@ namespace MediaPortal.Plugins.WifiRemote.MessageParser
       var schedules = await tvHandler.ScheduleControl.GetSchedulesAsync();
       if (!schedules.Success)
       {
-        Logger.Error($"WifiRemote List Schedules: Error getting schedules");
+        Logger.Error($"WifiRemote: List Schedules: Error getting schedules");
         return new List<ISchedule>();
       }
 
@@ -120,7 +120,7 @@ namespace MediaPortal.Plugins.WifiRemote.MessageParser
     {
       if (!ServiceRegistration.IsRegistered<ITvHandler>())
       {
-        Logger.Error($"WifiRemote Remove Schedule: No tv handler");
+        Logger.Error($"WifiRemote: Remove Schedule: No tv handler");
         return false;
       }
 
@@ -128,14 +128,14 @@ namespace MediaPortal.Plugins.WifiRemote.MessageParser
       var schedules = await tvHandler.ScheduleControl.GetSchedulesAsync();
       if (!schedules.Success)
       {
-        Logger.Error($"WifiRemote Remove Schedule: Error getting schedules");
+        Logger.Error($"WifiRemote: Remove Schedule: Error getting schedules");
         return false;
       }
 
       var schedule = schedules.Result.FirstOrDefault(s => s.ScheduleId == scheduleId);
       if (schedule == null)
       {
-        Logger.Error($"WifiRemote Remove Schedule: Schedule with id '{0}' not found", scheduleId);
+        Logger.Error($"WifiRemote: Remove Schedule: Schedule with id '{0}' not found", scheduleId);
         return false;
       }
 
@@ -146,7 +146,7 @@ namespace MediaPortal.Plugins.WifiRemote.MessageParser
     {
       if (!ServiceRegistration.IsRegistered<ITvHandler>())
       {
-        Logger.Error($"WifiRemote List Channel Groups: No tv handler");
+        Logger.Error($"WifiRemote: List Channel Groups: No tv handler");
         return new List<IChannelGroup>();
       }
 
@@ -154,7 +154,7 @@ namespace MediaPortal.Plugins.WifiRemote.MessageParser
       var channelGroups = await tvHandler.ChannelAndGroupInfo.GetChannelGroupsAsync();
       if (!channelGroups.Success)
       {
-        Logger.Error($"WifiRemote List Channel Groups: Error getting groups");
+        Logger.Error($"WifiRemote: List Channel Groups: Error getting groups");
         return new List<IChannelGroup>();
       }
 
@@ -165,7 +165,7 @@ namespace MediaPortal.Plugins.WifiRemote.MessageParser
     {
       if (!ServiceRegistration.IsRegistered<ITvHandler>())
       {
-        Logger.Error($"WifiRemote List Channels: No tv handler");
+        Logger.Error($"WifiRemote: List Channels: No tv handler");
         return new List<IChannel>();
       }
 
@@ -173,21 +173,21 @@ namespace MediaPortal.Plugins.WifiRemote.MessageParser
       var channelGroups = await tvHandler.ChannelAndGroupInfo.GetChannelGroupsAsync();
       if (!channelGroups.Success)
       {
-        Logger.Error($"WifiRemote List Channels: Error getting groups");
+        Logger.Error($"WifiRemote: List Channels: Error getting groups");
         return new List<IChannel>();
       }
 
       var channelGroup = channelGroups.Result.FirstOrDefault(g => g.ChannelGroupId == channelGroupId && g.MediaType == (isTv ? MediaType.TV : MediaType.Radio));
       if (channelGroup == null)
       {
-        Logger.Info($"WifiRemote List Channels: Channel group with id '{0}' not found", channelGroupId);
+        Logger.Info($"WifiRemote: List Channels: Channel group with id '{0}' not found", channelGroupId);
         return new List<IChannel>();
       }
 
       var channels = await tvHandler.ChannelAndGroupInfo.GetChannelsAsync(channelGroup);
       if (!channels.Success)
       {
-        Logger.Error($"WifiRemote List Channels: Error getting channels");
+        Logger.Error($"WifiRemote: List Channels: Error getting channels");
         return new List<IChannel>();
       }
 
@@ -198,7 +198,7 @@ namespace MediaPortal.Plugins.WifiRemote.MessageParser
     {
       if (!ServiceRegistration.IsRegistered<ITvHandler>())
       {
-        Logger.Error($"WifiRemote List Channel EPG: No tv handler");
+        Logger.Error($"WifiRemote: List Channel EPG: No tv handler");
         return new List<IProgram>();
       }
 
@@ -206,14 +206,14 @@ namespace MediaPortal.Plugins.WifiRemote.MessageParser
       var channel = await tvHandler.ChannelAndGroupInfo.GetChannelAsync(channelId);
       if (!channel.Success)
       {
-        Logger.Info($"WifiRemote List Channel EPG: Channel with id '{0}' not found", channelId);
+        Logger.Info($"WifiRemote: List Channel EPG: Channel with id '{0}' not found", channelId);
         return new List<IProgram>();
       }
 
       var programs = await tvHandler.ProgramInfo.GetProgramsAsync(channel.Result, DateTime.Now, DateTime.Now.AddHours(hours));
       if (!programs.Success)
       {
-        Logger.Error($"WifiRemote List Channel EPG: Error getting programs");
+        Logger.Error($"WifiRemote: List Channel EPG: Error getting programs");
         return new List<IProgram>();
       }
 
@@ -224,7 +224,7 @@ namespace MediaPortal.Plugins.WifiRemote.MessageParser
     {
       if (!ServiceRegistration.IsRegistered<ITvHandler>())
       {
-        Logger.Error($"WifiRemote List EPG: No tv handler");
+        Logger.Error($"WifiRemote: List EPG: No tv handler");
         return new List<IProgram>();
       }
 
@@ -232,21 +232,21 @@ namespace MediaPortal.Plugins.WifiRemote.MessageParser
       var channelGroups = await tvHandler.ChannelAndGroupInfo.GetChannelGroupsAsync();
       if (!channelGroups.Success)
       {
-        Logger.Error($"WifiRemote List EPG: Error getting groups");
+        Logger.Error($"WifiRemote: List EPG: Error getting groups");
         return new List<IProgram>();
       }
 
       var channelGroup = channelGroups.Result.FirstOrDefault(g => g.ChannelGroupId == channelGroupId && g.MediaType == (isTv ? MediaType.TV : MediaType.Radio));
       if (channelGroup == null)
       {
-        Logger.Info($"WifiRemote List EPG: Channel group with id '{0}' not found", channelGroupId);
+        Logger.Info($"WifiRemote: List EPG: Channel group with id '{0}' not found", channelGroupId);
         return new List<IProgram>();
       }
 
       var programs = await tvHandler.ProgramInfo.GetProgramsGroupAsync(channelGroup, DateTime.Now, DateTime.Now.AddHours(hours));
       if (!programs.Success)
       {
-        Logger.Error($"WifiRemote List EPG: Error getting programs");
+        Logger.Error($"WifiRemote: List EPG: Error getting programs");
         return new List<IProgram>();
       }
 

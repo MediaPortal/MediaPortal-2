@@ -78,6 +78,9 @@ namespace MediaPortal.Extensions.MediaServer.Profiles
     {
       try
       {
+        if (string.IsNullOrEmpty(address))
+          return IPAddress.Loopback;
+
         // Get host IP addresses
         IPAddress[] hostIPs = Dns.GetHostAddresses(address);
         // Get local IP addresses
@@ -114,7 +117,7 @@ namespace MediaPortal.Extensions.MediaServer.Profiles
         await LoadProfileLinksAsync();
       }
 
-      if (request.RemoteIpAddress == null)
+      if (request?.RemoteIpAddress == null)
       {
         Logger.Error("DetectProfile: Couldn't find remote address!");
         return null;
@@ -651,7 +654,7 @@ namespace MediaPortal.Extensions.MediaServer.Profiles
           }
           else if (link.Profile == AUTO_PROFILE)
           {
-            settings.Profile = null;
+            //settings.Profile = null;
             settings.AutoProfile = true;
           }
           else if (Profiles.ContainsKey(DLNA_DEFAULT_PROFILE_ID) == true)

@@ -7,7 +7,7 @@
   <string name="SystemState.Hibernate">Hibernar</string>
   <string name="SystemState.Shutdown">Encerrar</string>
   <string name="SystemState.Suspend">Suspender</string>
-  <string name="SystemState.Restart">Reiniciar</string>
+  <string name="SystemState.RestartMP">Reiniciar MediaPortal</string>
   <string name="SystemState.Logoff">terminar sessão</string>
   <string name="SystemState.SleepTimerConfig">Configurar o temporizador para dormir</string>
   <string name="SystemState.SleepTimerStop">Parar o temporizador para dormir</string>

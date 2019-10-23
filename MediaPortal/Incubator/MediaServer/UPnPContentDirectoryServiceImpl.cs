@@ -316,15 +316,14 @@ namespace MediaPortal.Extensions.MediaServer
       int totalMatches = 0;
       int containterUpdateId;
 
-      IPAddress ip = ProfileManager.ResolveIpAddress(context.Request.RemoteIpAddress);
+      IPAddress ip = ProfileManager.ResolveIpAddress(context.Request?.RemoteIpAddress);
       EndPointSettings deviceClient = ProfileManager.DetectProfileAsync(context.Request).Result;
-      deviceClient.InitializeAsync(ip.ToString()).Wait();
-
-      if (deviceClient == null || deviceClient.Profile == null)
+      if (deviceClient?.Profile == null)
       {
         outParams = null;
         return null;
       }
+      deviceClient.InitializeAsync(ip.ToString()).Wait();
 
       //Check if user login
       CheckUserLogin(objectId, deviceClient);
@@ -456,15 +455,14 @@ namespace MediaPortal.Extensions.MediaServer
       int numberReturned = 0;
       int totalMatches = 0;
 
-      IPAddress ip = ProfileManager.ResolveIpAddress(context.Request.RemoteIpAddress);
+      IPAddress ip = ProfileManager.ResolveIpAddress(context.Request?.RemoteIpAddress);
       EndPointSettings deviceClient = ProfileManager.DetectProfileAsync(context.Request).Result;
-      deviceClient.InitializeAsync(ip.ToString()).Wait();
-
-      if (deviceClient == null || deviceClient.Profile == null)
+      if (deviceClient?.Profile == null)
       {
         outParams = null;
         return null;
       }
+      deviceClient.InitializeAsync(ip.ToString()).Wait();
 
       GenericContentDirectoryFilter deviceFilter = GenericContentDirectoryFilter.GetContentFilter(deviceClient.Profile.DirectoryContentFilter);
       var newObjectId = deviceFilter.FilterObjectId(objectId, true);

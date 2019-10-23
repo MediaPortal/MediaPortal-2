@@ -1,0 +1,117 @@
+﻿<Plugin
+  DescriptorVersion="1.0"
+  Name="AppLauncher"
+  PluginId="{C2939FD8-9399-4577-934E-C7471D30C306}"
+  Author="BigGranu"
+  Copyright="GPL"
+  Description="Start a external Application">
+
+  <Version
+    PluginVersion="1.4"
+    ReleaseDate="2014-11-11 01:00:00 GMT+01:00"
+    CurrentAPI="1"/>
+
+  <Runtime>
+    <Assembly FileName="AppLauncher.dll"/>
+  </Runtime>
+
+	<DependsOn>
+    <CoreDependency Name="MediaPortal.Common" CompatibleAPI="2" />
+    <CoreDependency Name="MediaPortal.UI" CompatibleAPI="3" />
+    <PluginReference PluginId="{1AFF4467-64B0-4ca1-AF28-9AEDF3525BCE}" CompatibleAPI="1"/> <!-- ConfigurationManager -->
+    <PluginReference PluginId="{B765A4B6-F455-4941-BDAE-2CE45208BFEB}" CompatibleAPI="1"/> <!-- Configuration plugin -->
+  </DependsOn>
+
+  <Register Location="/Models">
+    <Model Id="624339C2-0D3B-437B-8046-6F540D704A93" ClassName="MediaPortal.Plugins.AppLauncher.Models.AppLauncherHomeModel"/>
+    
+    <Model Id="873EB147-C998-4632-8F86-D5E24062BE2E" ClassName="MediaPortal.Plugins.AppLauncher.Models.AppLauncherSettingsEditModel"/>
+    <Model Id="D47E22A3-3D0F-4A28-8EF6-1121B811508C" ClassName="MediaPortal.Plugins.AppLauncher.Models.AppLauncherSettingsAddModel"/>
+    <Model Id="3C19B13A-D64C-4918-9AD6-17EC2D9AAE29" ClassName="MediaPortal.Plugins.AppLauncher.Models.AppLauncherSettingsDeleteModel"/>
+    <Model Id="3C38DF86-AE80-4411-8C3D-9480E7AAB279" ClassName="MediaPortal.Plugins.AppLauncher.Models.AppLauncherRemoveGroupModel"/>
+    
+    <Model Id="E35E2C12-1B97-43EE-B7A2-D1527DF41D89" ClassName="MediaPortal.Plugins.AppLauncher.Models.AppsListModel"/>
+  </Register>
+
+  <Register Location="/Workflow/States">
+    <WorkflowState Id="EE23FB37-043C-46DE-9DAC-7F023135C0B2"
+      Name="Home" 
+      MainScreen="AppLauncherHome"
+      DisplayLabel="[AppLauncher.Title]"
+      WorkflowModel="624339C2-0D3B-437B-8046-6F540D704A93"/>
+
+    <WorkflowState Id="EE5988B6-1FB7-4F62-9A92-4AFAF34E460C"
+      Name="SettingsEdit" 
+      MainScreen="AppLauncherSettingsEdit"
+      DisplayLabel="[AppLauncher.Settings.Edit]"
+      WorkflowModel="873EB147-C998-4632-8F86-D5E24062BE2E"/>
+
+    <WorkflowState Id="63B0EBCE-8B52-4DE6-9B8F-D902507CC53D"
+      Name="SettingsAdd"
+      MainScreen="AppLauncherSettingsAdd"
+      DisplayLabel="[AppLauncher.Settings.Add]"
+      WorkflowModel="D47E22A3-3D0F-4A28-8EF6-1121B811508C"/>
+
+    <WorkflowState Id="684211ED-48C9-4BD7-B9D8-4F7B10D63678"
+      Name="SettingsDelete"
+      MainScreen="AppLauncherSettingsDelete"
+      DisplayLabel="[AppLauncher.Settings.Delete]"
+      WorkflowModel="3C19B13A-D64C-4918-9AD6-17EC2D9AAE29"/>   
+    
+    <DialogState Id="683B8FB9-9032-4260-AF07-CDBAFDCA58AE"
+      Name="RemoveGroup"
+      DialogScreen="DlgAppLauncherRemoveGroup"
+      DisplayLabel="[AppLauncher.RemoveGroup]"
+      WorkflowModel="3C38DF86-AE80-4411-8C3D-9480E7AAB279"/>
+  </Register>
+
+  <Register Location="/Resources/Skin">
+    <Resource Id="AppLauncherSkin" Directory="Skin" Type="Skin"/>
+  </Register>
+
+  <Register Location="/Resources/Language">
+    <Resource Id="AppLauncherLanguge" Directory="Language" Type="Language"/>
+  </Register>
+
+  <Register Location="/Content/AppsListProviders">
+    <ContentList Id="{68461E8E-AFB8-44CD-9B05-4AC356003B3A}" Key="FavoriteApps" ClassName="MediaPortal.Plugins.AppLauncher.ContentLists.FavoriteAppsListProvider"/>
+    <ContentList Id="{9CEAAF9C-B883-4FB4-AA89-2A23081DE35E}" Key="LastLaunchApps" ClassName="MediaPortal.Plugins.AppLauncher.ContentLists.LatestLaunchedAppsListProvider"/>
+  </Register>
+
+  <!--Content of Settings/Plugins section-->
+  <Register Location="/Configuration/Settings/Plugins">
+    <ConfigSection
+        Id="AppLauncher"
+        Redundant="true"
+        Text="[AppLauncher.Title]"/>
+  </Register>
+
+  <!--Content of Settings/Plugins/AppLauncher section-->
+  <Register Location="/Configuration/Settings/Plugins/AppLauncher">   
+    <CustomConfigSetting
+      Id="AppLauncherSettingsAdd"
+      Text="[AppLauncher.Settings.Add]"
+      HelpText="[AppLauncher.Settings.Add.Helptext]"
+      ClassName="MediaPortal.Plugins.AppLauncher.Settings.Configuration.Add"
+      AdditionalData="WorkflowState=63B0EBCE-8B52-4DE6-9B8F-D902507CC53D,ConfAppPanel=..."/>
+    <CustomConfigSetting
+      Id="AppLauncherSettingsEdit"
+      Text="[AppLauncher.Settings.Edit]"
+      HelpText="[AppLauncher.Settings.Edit.Helptext]"
+      ClassName="MediaPortal.Plugins.AppLauncher.Settings.Configuration.Edit"
+			AdditionalData="WorkflowState=EE5988B6-1FB7-4F62-9A92-4AFAF34E460C,ConfAppPanel=..."/>
+    <CustomConfigSetting
+      Id="AppLauncherSettingsDelete"
+      Text="[AppLauncher.Settings.Delete]"
+      HelpText="[AppLauncher.Settings.Delete.Helptext]"
+      ClassName="MediaPortal.Plugins.AppLauncher.Settings.Configuration.Delete"
+			AdditionalData="WorkflowState=684211ED-48C9-4BD7-B9D8-4F7B10D63678,ConfAppPanel=..."/>
+    <CustomConfigSetting
+      Id="AppLauncherSettingsRemoveGroup"
+      Text="[AppLauncher.RemoveGroup]"
+      HelpText="[AppLauncher.Settings.RemoveGroup.Helptext]"
+      ClassName="MediaPortal.Plugins.AppLauncher.Settings.Configuration.RemoveGroup"
+      AdditionalData="WorkflowState=683B8FB9-9032-4260-AF07-CDBAFDCA58AE,ConfAppPanel=..."/>
+  </Register>
+  
+</Plugin>

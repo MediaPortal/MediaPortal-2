@@ -2,8 +2,10 @@
 using System.Collections.Generic;
 using MediaPortal.Backend.MediaLibrary;
 using MediaPortal.Common;
+using MediaPortal.Common.Localization;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.Services.Logging;
+using MediaPortal.Common.UserProfileDataManagement;
 using MediaPortal.Extensions.MediaServer;
 using MediaPortal.Extensions.MediaServer.Profiles;
 using Microsoft.Owin;
@@ -22,8 +24,10 @@ namespace Tests.Server.MediaServer
     [OneTimeSetUp]
     public void Init()
     {
-      ServiceRegistration.Set<ILogger>(new ConsoleLogger(LogLevel.All, true));
+      ServiceRegistration.Set<ILogger>(new NoLogger());
+      ServiceRegistration.Set<ILocalization>(new NoLocalization());
       ServiceRegistration.Set<IMediaLibrary>(_library = new TestMediaLibrary());
+      ServiceRegistration.Set<IUserProfileDataManagement>(new TestUserProfileDataManagement());
 
       ProfileManager.Profiles["DLNADefault"] = new EndPointProfile();
     }
@@ -32,20 +36,20 @@ namespace Tests.Server.MediaServer
     public void BeforeTest()
     {
       _library.Clear();
+      _library.AddShare("11111111-aaaa-aaaa-aaaa-111111111111", "Test", "/Test", "Share", new[] { "Audio" });
     }
 
     private CallContext CreateContext()
     {
-      IOwinRequest request = new OwinRequest();
-      CallContext context = new CallContext(request, null, null);
+      CallContext context = new CallContext(new OwinRequest(), new OwinContext(), null);
+      context.Request.RemoteIpAddress = "127.0.0.1";
+      context.Request.RemotePort = 1000;
       return context;
     }
 
     [Test]
     public void TestBrowse()
     {
-      _library.AddShare("11111111-aaaa-aaaa-aaaa-111111111111", "Test", "/Test", "Share", new[] { "Audio" });
-
       UPnPContentDirectoryServiceImpl service = new UPnPContentDirectoryServiceImpl();
 
       DvAction browse = service.Actions["Browse"];

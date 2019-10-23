@@ -82,6 +82,7 @@ namespace MediaPortal.Extensions.OnlineLibraries
       _seriesMatchers.Add(new SeriesFanArtTvMatcher());
 
       _subtitleMatchers.Add(new SubDbMatcher());
+      _subtitleMatchers.Add(new SubsMaxMatcher());
 
       InitProviders();
 

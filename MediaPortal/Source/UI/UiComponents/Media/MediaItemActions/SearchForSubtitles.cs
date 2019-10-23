@@ -70,6 +70,7 @@ namespace MediaPortal.UiComponents.Media.MediaItemActions
           return new AsyncResult<ContentDirectoryMessaging.MediaItemChangeType>(false, ContentDirectoryMessaging.MediaItemChangeType.None);
 
         SubtitleMatchModel misub = ServiceRegistration.Get<IWorkflowManager>().GetModel(SubtitleMatchModel.MODEL_ID_SUBMATCH) as SubtitleMatchModel;
+        await misub.OpenSelectEditionDialogAsync(mediaItem).ConfigureAwait(false);
         IEnumerable<MediaItemAspect> aspects = await misub.OpenSelectMatchDialogAsync(mediaItem).ConfigureAwait(false);
         if (aspects != null)
         {

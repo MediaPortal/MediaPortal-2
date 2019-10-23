@@ -36,6 +36,7 @@
   <string name="Nereus.Home.Forecast">Forecast</string>
   <string name="Nereus.Home.News">News</string>
   <string name="Nereus.Home.TopNews">Top News</string>
+  <string name="Nereus.Home.LatestLaunched">Latest Launched</string>
   
   <string name="Nereus.Home.OtherPlugins">Others</string>
   <string name="Nereus.Home.OtherPlugins.Help">All other plugins.</string>

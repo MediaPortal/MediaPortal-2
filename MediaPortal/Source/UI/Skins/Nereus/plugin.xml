@@ -68,6 +68,8 @@
     <WorkflowStateViewModes Skin="Nereus" Id="{A16E281E-FCC8-4885-90E8-83AAA9D823BC}" StateId="FF474A1A-CA39-4247-BFEA-4E7B578F482B" ViewModes="ListLayout,GridLayout"/>
     <!-- OnlineVideos Details -->
     <WorkflowStateViewModes Skin="Nereus" Id="{EC8A5817-0DAB-4e72-AB82-CA9BE0B11C9C}" StateId="F7DF593E-A606-4096-B8E1-BE702C43A325" ViewModes="ListLayout,GridLayout"/>
+    <!-- App Launcher -->
+    <WorkflowStateViewModes Skin="Nereus" Id="{4277C0DA-2528-48a2-8AAA-224671B5C7D2}" StateId="EE23FB37-043C-46DE-9DAC-7F023135C0B2" ViewModes="ListLayout,GridLayout"/>
   </Register>
 
   <!-- Contents of '/Appearance' section -->

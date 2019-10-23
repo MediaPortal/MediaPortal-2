@@ -25,9 +25,12 @@
 using MediaPortal.Common;
 using MediaPortal.Common.General;
 using MediaPortal.UI.Presentation.DataObjects;
+using MediaPortal.UI.Presentation.Models;
 using MediaPortal.UI.Presentation.Workflow;
 using MediaPortal.UiComponents.Media.Models;
+using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace MediaPortal.UiComponents.Nereus.Models.HomeContent
 {
@@ -62,7 +65,7 @@ namespace MediaPortal.UiComponents.Nereus.Models.HomeContent
 
     // Lazily called by the Items property getter,
     // usually by the screen showing this content.
-    protected void Init()
+    protected async void Init()
     {
       if (_isInit)
         return;
@@ -70,8 +73,13 @@ namespace MediaPortal.UiComponents.Nereus.Models.HomeContent
 
       // Overidden in derived classes
       PopulateBackingList();
-
       AttachItemsListWrappers();
+
+      // In some situations the backing list will stay hidden if initially being empty and then 
+      // almost immediately after being filled with items.
+      // TODO: This delay seems to fix it but should be removed when a better solution is found.
+      await Task.Delay(500);
+
       UpdateAvailableItems();
     }
 
@@ -113,6 +121,11 @@ namespace MediaPortal.UiComponents.Nereus.Models.HomeContent
     protected static MediaListModel GetMediaListModel()
     {
       return (MediaListModel)ServiceRegistration.Get<IWorkflowManager>().GetModel(MediaListModel.MEDIA_LIST_MODEL_ID);
+    }
+
+    protected static BaseContentListModel GetAppListModel()
+    {
+      return (BaseContentListModel)ServiceRegistration.Get<IWorkflowManager>().GetModel(HomeMenuModel.APPS_LIST_MODEL_ID);
     }
   }
 }

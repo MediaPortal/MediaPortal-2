@@ -129,6 +129,8 @@
     <Compile Include="Libraries\OmDbV1\Data\OmDbSeries.cs" />
     <Compile Include="Libraries\OmDbV1\Data\OmDbMovie.cs" />
     <Compile Include="Libraries\OmDbV1\OmDbApiV1.cs" />
+    <Compile Include="Libraries\SubsMaxV1\Data\SubsMaxSearchResult.cs" />
+    <Compile Include="Libraries\SubsMaxV1\SubsMaxV1.cs" />
     <Compile Include="Libraries\TvMazeV1\Data\TvMazeCountry.cs" />
     <Compile Include="Libraries\TvMazeV1\Data\TvMazeSeason.cs" />
     <Compile Include="Libraries\TvMazeV1\Data\TvMazeLink.cs" />
@@ -151,6 +153,7 @@
     <Compile Include="Libraries\ISeriesMatcher.cs" />
     <Compile Include="Libraries\IAudioMatcher.cs" />
     <Compile Include="Matchers\MovieSimApiMatcher.cs" />
+    <Compile Include="Matchers\SubsMaxMatcher.cs" />
     <Compile Include="Matchers\SubDbMatcher.cs" />
     <Compile Include="Matchers\SubtitleMatcher.cs" />
     <Compile Include="Matchers\MusicMatcher.cs" />
@@ -171,6 +174,7 @@
     <Compile Include="OnlineProviderBuilder.cs" />
     <Compile Include="Wrappers\ApiSubtitleWrapper.cs" />
     <Compile Include="Wrappers\ApiMediaWrapper.cs" />
+    <Compile Include="Wrappers\SubsMaxWrapper.cs" />
     <Compile Include="Wrappers\SubDbWrapper.cs" />
     <Compile Include="Wrappers\UpdateFinishedEventArgs.cs" />
     <Compile Include="Wrappers\ApiWrapperImageCollection.cs" />

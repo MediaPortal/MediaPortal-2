@@ -52,7 +52,7 @@ namespace MediaPortal.Plugins.WifiRemote.Messages
 
     private static void DoStatusUpdate()
     {
-      ServiceRegistration.Get<ILogger>().Debug("Start status update thread");
+      ServiceRegistration.Get<ILogger>().Debug("WifiRemote: Start status update thread");
       _statusUpdateThreadRunning = true;
       while (_statusUpdateThreadRunning)
       {
@@ -60,7 +60,7 @@ namespace MediaPortal.Plugins.WifiRemote.Messages
         {
           if (WifiRemotePlugin.MessageStatus.IsChanged())
           {
-            ServiceRegistration.Get<ILogger>().Debug("Send Statusupdate");
+            ServiceRegistration.Get<ILogger>().Debug("WifiRemote: Send Statusupdate");
             SendMessageToAllClients.Send(WifiRemotePlugin.MessageStatus, ref SocketServer.Instance.connectedSockets);
           }
         }

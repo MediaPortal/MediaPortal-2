@@ -24,75 +24,25 @@
 
 using System;
 using System.Collections.Generic;
-using System.Net;
+using MediaPortal.Backend.MediaLibrary;
 using MediaPortal.Common;
+using MediaPortal.Common.Localization;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Common.ResourceAccess;
-using MediaPortal.Common.Services.Logging;
+using MediaPortal.Common.Settings;
+using MediaPortal.Common.UserProfileDataManagement;
 using MediaPortal.Extensions.MediaServer.DIDL;
 using MediaPortal.Extensions.MediaServer.Objects;
+using MediaPortal.Extensions.MediaServer.Objects.Basic;
 using MediaPortal.Extensions.MediaServer.Objects.MediaLibrary;
 using MediaPortal.Extensions.MediaServer.Profiles;
+using MediaPortal.Extensions.TranscodingService.Interfaces;
 using NUnit.Framework;
 
 namespace Tests.Server.MediaServer
 {
-  internal class ResourceServer : IResourceServer
-  {
-
-    public string AddressIPv4
-    {
-      get { return "localhost"; }
-    }
-
-    public int PortIPv4
-    {
-      get { return 0; }
-    }
-
-    public string AddressIPv6
-    {
-      get { return null; }
-    }
-
-    public int PortIPv6
-    {
-      get { return -1; }
-    }
-
-    public void Startup()
-    {
-      throw new NotImplementedException();
-    }
-
-    public void Shutdown()
-    {
-      throw new NotImplementedException();
-    }
-
-    public void RestartHttpServers()
-    {
-      throw new NotImplementedException();
-    }
-
-    public string GetServiceUrl(IPAddress ipAddress)
-    {
-      throw new NotImplementedException();
-    }
-
-    public void AddHttpModule(Type moduleType)
-    {
-      throw new NotImplementedException();
-    }
-
-    public void RemoveHttpModule(Type moduleType)
-    {
-      throw new NotImplementedException();
-    }
-  }
-
   class TestMediaLibraryAlbumItem : MediaLibraryAlbumItem
   {
     public TestMediaLibraryAlbumItem(MediaItem item, EndPointSettings settings) : base(item, settings) { }
@@ -104,14 +54,27 @@ namespace Tests.Server.MediaServer
     [OneTimeSetUp]
     public void OneTimeSetUp()
     {
-      ServiceRegistration.Set<ILogger>(new ConsoleLogger(LogLevel.All, true));
-      ServiceRegistration.Set<IResourceServer>(new ResourceServer());
+      ServiceRegistration.Set<ILogger>(new NoLogger());
+      ServiceRegistration.Set<IResourceServer>(new TestResourceServer());
+      ServiceRegistration.Set<ILocalization>(new NoLocalization());
+      ServiceRegistration.Set<ISettingsManager>(new NoSettingsManager());
+      ServiceRegistration.Set<IMediaLibrary>(new TestMediaLibrary());
+      ServiceRegistration.Set<IUserProfileDataManagement>(new TestUserProfileDataManagement());
+      ServiceRegistration.Set<IMediaAnalyzer>(new TestAudioAnalyzer());
+      ServiceRegistration.Set<ITranscodeProfileManager>(new TestTranscodeProfileManager());
     }
 
     [Test]
     public void TestAudioItem()
     {
       IList<IDirectoryObject> objects = new List<IDirectoryObject>();
+
+      BasicContainer root = new BasicContainer("TEST", new EndPointSettings
+      {
+        PreferredSubtitleLanguages = new string[] { "EN" },
+        PreferredAudioLanguages = new string[] { "EN" },
+        Profile = new EndPointProfile()
+      });
 
       Guid id = new Guid("11111111-aaaa-aaaa-aaaa-111111111111");
       IDictionary<Guid, IList<MediaItemAspect>> aspects = new Dictionary<Guid, IList<MediaItemAspect>>();
@@ -129,7 +92,7 @@ namespace Tests.Server.MediaServer
 
       MediaItem item = new MediaItem(id, aspects);
 
-      objects.Add(MediaLibraryHelper.InstansiateMediaLibraryObject(item, null, null));
+      objects.Add(MediaLibraryHelper.InstansiateMediaLibraryObject(item, root, "Test"));
 
       GenericDidlMessageBuilder builder = new GenericDidlMessageBuilder();
       builder.BuildAll("*", objects);
@@ -145,6 +108,7 @@ namespace Tests.Server.MediaServer
       {
         PreferredSubtitleLanguages = new string[] { "EN" },
         PreferredAudioLanguages = new string[] { "EN" },
+        Profile = new EndPointProfile()
       };
 
       IList<IDirectoryObject> objects = new List<IDirectoryObject>();

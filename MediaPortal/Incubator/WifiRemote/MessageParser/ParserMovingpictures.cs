@@ -69,12 +69,12 @@ namespace MediaPortal.Plugins.WifiRemote.MessageParser
         // Play a movie
         else if (action.Equals("playmovie", StringComparison.InvariantCultureIgnoreCase))
         {
-          ServiceRegistration.Get<ILogger>().Debug("WifiRemote Play Movie: MovieName: {0}, MovieId: {1}, StartPos: {2}", movieName, id, startPos);
+          ServiceRegistration.Get<ILogger>().Debug("WifiRemote: Play Movie: MovieName: {0}, MovieId: {1}, StartPos: {2}", movieName, id, startPos);
 
           var mediaItemGuid = await GetIdFromNameAsync(client, movieName, id, Helper.GetMovieByMovieNameAsync);
           if (mediaItemGuid == null)
           {
-            ServiceRegistration.Get<ILogger>().Error("WifiRemote Play Movie: Couldn't convert MovieId '{0} to Guid", id);
+            ServiceRegistration.Get<ILogger>().Error("WifiRemote: Play Movie: Couldn't convert MovieId '{0} to Guid", id);
             return false;
           }
 

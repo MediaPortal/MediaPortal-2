@@ -1,0 +1,135 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Include
+  xmlns="www.team-mediaportal.com/2008/mpf/directx"
+  xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+  Source="screens\master_mediamenu.xaml">
+  <Include.Resources>
+
+    <!-- Header -->
+    <ResourceWrapper x:Key="Header_Text" Resource="[AppLauncher.Title]"/>
+
+    <Model x:Key="Model" Id="624339C2-0D3B-437B-8046-6F540D704A93"/>
+    
+    <ControlTemplate x:Key="FanArtBackground_Template">
+      <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+        <Grid.Background>
+          <ImageBrush ImageSource="applauncher_background.jpg"/>
+        </Grid.Background>
+        <Image Stretch="Fill" Source="Background_GridView.png" Opacity="1"/>
+      </Grid>
+    </ControlTemplate>
+    
+    <!-- Contents -->
+    <ControlTemplate x:Key="Contents_Template">
+      <Grid Margin="0,-135,0,-350" DataContext="{Binding Source={StaticResource Model}}">
+        <Grid.RowDefinitions>
+          <RowDefinition Height="Auto"/>
+          <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+          <ColumnDefinition Width="*"/>
+          <ColumnDefinition Width="Auto"/>
+        </Grid.ColumnDefinitions>
+
+        <Grid Grid.Column="1" Grid.RowSpan="2" Width="1000" Height="1200" Background="#33000000" Margin="20,0,-20,0">
+
+          <Image x:Name="FanArtImageBackground" Stretch="Uniform" VerticalAlignment="Top">
+            <Image.Source>
+              <ImageSourceWrapper Delay="0.5" DelayInOut="true" Transition="transitions\dissolve" TransitionDuration="0.5"
+                   Source="applauncher_background.jpg"/>
+            </Image.Source>
+          </Image>
+          <Image Stretch="Fill" Source="List_overlay.png"/>
+          <Image Source="ContentGlow.png" Stretch="Uniform" VerticalAlignment="Stretch" HorizontalAlignment="Left" Margin="-20,0,0,0"/>
+          <Border BorderThickness="0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+            <Border.Background>
+              <LinearGradientBrush StartPoint="1,0.3" EndPoint="0,1">
+                <GradientStop Color="#44000000" Offset="0.0"/>
+                <GradientStop Color="#77000000" Offset="1"/>
+              </LinearGradientBrush>
+            </Border.Background>
+          </Border>
+
+          <StackPanel Orientation="Vertical" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="30,300,30,0">
+            <Label Color="{ThemeResource TextColor}" Wrap="True" FontSize="{ThemeResource NormalFontSize}" 
+                   FontFamily="SegoeUIBold" DataContext="{Binding ElementName=Apps,Path=CurrentItem}" Content="{Binding Path=[Name]}" />
+
+            <Grid IsVisible="{Binding ElementName=Group, Path=Content, Converter={StaticResource EmptyStringToFalseConverter}}"
+                  DataContext="{Binding Source={StaticResource Model}}">
+              <Image Source="HomeContentIcons\category.png" Height="27" Width="27" Stretch="Uniform" Margin="0,-1,5,1" 
+                     VerticalAlignment="Center" HorizontalAlignment="Left"/>
+              <Label x:Name="Group" HorizontalAlignment="Left" FontSize="{ThemeResource SmallFontSize}" 
+                       Color="{ThemeResource TextColorForeground}" VerticalAlignment="Center" Margin="40,0,0,0"
+                       Content="{Binding Path=SelectedGroup}"/>
+            </Grid>
+
+            <Grid IsVisible="{Binding ElementName=Description, Path=Content, Converter={StaticResource EmptyStringToFalseConverter}}"
+                  DataContext="{Binding ElementName=Apps,Path=CurrentItem}">
+              <Image Source="HomeContentIcons\page.png" Height="27" Width="27" Stretch="Uniform" Margin="0,-1,5,1" 
+                     VerticalAlignment="Center" HorizontalAlignment="Left"/>
+              <Label x:Name="Description" HorizontalAlignment="Left" FontSize="{ThemeResource SmallFontSize}" 
+                     Color="{ThemeResource TextColorForeground}" VerticalAlignment="Center" Margin="40,0,0,0"
+                     Content="{Binding Path=[Description]}"/>
+            </Grid>
+
+            <Image Stretch="Uniform" Width="120"
+                   DataContext="{Binding ElementName=Apps,Path=CurrentItem}"
+                   HorizontalAlignment="Right" VerticalAlignment="Stretch"
+                   Source="{Binding [ImageSrc]}" FallbackSource="{Binding [DefaultIcon]}" Margin="20,45,20,0"/>
+          </StackPanel>
+
+        </Grid>
+
+        <!--List of Groups-->
+        <ListView x:Name="Groups" Margin="30,55,0,200" HorizontalAlignment="Stretch" 
+                  VerticalAlignment="Bottom" Style="{ThemeResource MenuListViewStyle}" 
+                  ItemsSource="{Binding Path=Groups, Mode=TwoWay}"  Grid.Column="1" Grid.Row="1">
+          <ListView.Resources>
+            <CommandList x:Key="Menu_Command">
+              <Command Source="{StaticResource Model}" Path="SelectGroup">
+                <Command.Parameters>
+                  <LateBoundValue BindingValue="{Binding}"/>
+                </Command.Parameters>
+              </Command>
+            </CommandList>
+          </ListView.Resources>
+        </ListView>
+
+        <!--List of Apps-->
+        <ListView x:Name="Apps" Margin="-15,5,-40,35" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" 
+                  Style="{ThemeResource AppLauncherListViewStyle}" Grid.RowSpan="2"
+                  ItemsSource="{Binding Path=Items, Mode=TwoWay}">
+          <ListView.Resources>
+            <CommandList x:Key="Menu_Command">
+              <Command Source="{StaticResource Model}" Path="StartApp">
+                <Command.Parameters>
+                  <LateBoundValue BindingValue="{Binding}"/>
+                </Command.Parameters>
+              </Command>
+            </CommandList>
+          </ListView.Resources>
+        </ListView>
+
+        <!-- Actual Item / Total items -->
+        <StackPanel Grid.Column="1" Grid.Row="1" Margin="50,200,-80,160" Orientation="Horizontal" VerticalAlignment="Bottom">
+          <Label VerticalAlignment="Center" Margin="0,0,10,0"
+                 Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallerFontSize}">
+            <Label.Content>
+              <MultiBinding Converter="{StaticResource GetIndexMultiConverter}" ConverterParameter="1">
+                <Binding Source="{Binding ElementName=Apps,Path=CurrentItem}"/>
+                <Binding Source="{Binding ElementName=Apps,Path=ItemsSource}"/>
+              </MultiBinding>
+            </Label.Content>
+          </Label>
+          <Label Color="{ThemeResource TextColorForeground}" Content="| " FontSize="{ThemeResource SmallerFontSize}"/>
+          <Label Color="{ThemeResource TextColorForeground}" FontSize="{ThemeResource SmallerFontSize}">
+            <Label.Content>
+              <Binding Source="{Binding ElementName=Apps,Path=ItemsSource.Count}"/>
+            </Label.Content>
+          </Label>
+        </StackPanel>
+
+      </Grid>
+    </ControlTemplate>
+  </Include.Resources>
+</Include>

@@ -61,6 +61,7 @@ namespace MediaPortal.UiComponents.Media.Models
     public const string KEY_MATCH = "Match";
     public const string KEY_LANG = "Language";
     public const string KEY_ASPECTS = "Aspects";
+    public const string KEY_INDEXES = "Indexes";
 
     #endregion
 
@@ -68,11 +69,13 @@ namespace MediaPortal.UiComponents.Media.Models
 
     protected object _syncObj = new object();
     protected ItemsList _matchList = null;
+    protected ItemsList _editionList = null;
     protected IDictionary<Guid, IList<MediaItemAspect>> _searchAspects = null;
     protected bool _isVirtual = false;
     protected System.Timers.Timer _liveSearchTimer = new System.Timers.Timer(3000);
     protected DialogCloseWatcher _dialogCloseWatcher = null;
     protected Guid? _matchDialogHandle = null;
+    protected IList<int> _selectedEditionIndexes = null;
 
     protected AbstractProperty _isSearchingProperty;
     protected AbstractProperty _isManualSearchProperty;
@@ -107,6 +110,7 @@ namespace MediaPortal.UiComponents.Media.Models
       _liveSearchTimer.AutoReset = false;
       _liveSearchTimer.Elapsed += LiveSearchTimeout_Elapsed;
       _matchList = new ItemsList();
+      _editionList = new ItemsList();
     }
 
     private void LiveSearchTimeout_Elapsed(object sender, System.Timers.ElapsedEventArgs e)
@@ -117,6 +121,7 @@ namespace MediaPortal.UiComponents.Media.Models
     public void Dispose()
     {
       _matchList = null;
+      _editionList = null;
     }
 
     #endregion
@@ -129,6 +134,15 @@ namespace MediaPortal.UiComponents.Media.Models
       {
         lock (_syncObj)
           return _matchList;
+      }
+    }
+
+    public ItemsList EditionList
+    {
+      get
+      {
+        lock (_syncObj)
+          return _editionList;
       }
     }
 
@@ -236,6 +250,44 @@ namespace MediaPortal.UiComponents.Media.Models
       return true;
     }
 
+    public Task<bool> OpenSelectEditionDialogAsync(MediaItem mediaItem)
+    {
+      _selectedEditionIndexes = null;
+      _editionList.Clear();
+      if (!IsValidMediaItem(mediaItem))
+      {
+        ServiceRegistration.Get<ILogger>().Error("Error finding subtitles for media item '{0}'. No valid aspects found.", mediaItem.MediaItemId);
+        return null;
+      }
+      if(!mediaItem.HasEditions)
+      {
+        return null;
+      }
+
+      foreach (var edition in mediaItem.Editions)
+      {
+        ListItem listItem = new ListItem();
+        listItem.SetLabel(KEY_NAME, edition.Value.Name);
+        listItem.AdditionalProperties[KEY_INDEXES] = edition.Value.PrimaryResourceIndexes;
+        _editionList.Add(listItem);
+      }
+
+      var selectionComplete = new TaskCompletionSource<bool>();
+      _matchDialogHandle = ServiceRegistration.Get<IScreenManager>().ShowDialog("DialogChooseSubtitleEdition", (s, g) =>
+      {
+        try
+        {
+          selectionComplete.SetResult(_selectedEditionIndexes != null);
+        }
+        catch (Exception ex)
+        {
+          ServiceRegistration.Get<ILogger>().Error("Error selecting subtitle edition for media item '{0}'", ex, mediaItem.MediaItemId);
+          selectionComplete.TrySetResult(false);
+        }
+      });
+      return selectionComplete.Task;
+    }
+
     public Task<IEnumerable<MediaItemAspect>> OpenSelectMatchDialogAsync(MediaItem mediaItem)
     {
       ClearData();
@@ -246,19 +298,26 @@ namespace MediaPortal.UiComponents.Media.Models
       }
 
       _searchAspects = mediaItem.Aspects;
+      if(_selectedEditionIndexes != null)
+      {
+        FilterSelectedAspects(ProviderResourceAspect.Metadata, ProviderResourceAspect.ATTR_RESOURCE_INDEX);
+        FilterSelectedAspects(VideoStreamAspect.Metadata, VideoStreamAspect.ATTR_RESOURCE_INDEX);
+        FilterSelectedAspects(VideoAudioStreamAspect.Metadata, VideoAudioStreamAspect.ATTR_RESOURCE_INDEX);
+        FilterSelectedAspects(SubtitleAspect.Metadata, SubtitleAspect.ATTR_RESOURCE_INDEX);
+      }
       var subSearch = MediaItemAspect.GetOrCreateAspect(_searchAspects, TempSubtitleAspect.Metadata);
 
       IUserManagement userManagement = ServiceRegistration.Get<IUserManagement>();
       if (userManagement?.CurrentUser != null)
       {
         var subLangs = userManagement.CurrentUser.AdditionalData.Where(d => d.Key == UserDataKeysKnown.KEY_PREFERRED_SUBTITLE_LANGUAGE);
-        if(subLangs.Any())
+        if (subLangs.Any())
         {
           List<string> languages = new List<string>();
           var cultures = CultureInfo.GetCultures(CultureTypes.SpecificCultures);
-          foreach(var subLang in subLangs)
+          foreach (var subLang in subLangs)
           {
-            foreach(var lang in subLang.Value.OrderBy(l => l.Key))
+            foreach (var lang in subLang.Value.OrderBy(l => l.Key))
               languages.Add(cultures?.FirstOrDefault(c => c.TwoLetterISOLanguageName == lang.Value).Name);
           }
           subSearch.SetAttribute(TempSubtitleAspect.ATTR_LANGUAGE, string.Join(",", languages));
@@ -290,6 +349,18 @@ namespace MediaPortal.UiComponents.Media.Models
       });
       _ = DoSearchAsync();
       return selectionComplete.Task;
+    }
+
+    protected void FilterSelectedAspects(MultipleMediaItemAspectMetadata metadata, MultipleMediaItemAspectMetadata.MultipleAttributeSpecification indexAttribute)
+    {
+      IList<MultipleMediaItemAspect> aspects;
+      if (MediaItemAspect.TryGetAspects(_searchAspects, metadata, out aspects))
+      {
+        var relevantAspects = aspects.Where(p => _selectedEditionIndexes.Contains(p.GetAttributeValue<int>(indexAttribute)));
+        _searchAspects[metadata.AspectId].Clear();
+        foreach (var aspect in relevantAspects)
+          _searchAspects[metadata.AspectId].Add(aspect);
+      }
     }
 
     protected async Task DoSearchAsync()
@@ -370,6 +441,13 @@ namespace MediaPortal.UiComponents.Media.Models
         IsSearching = false;
         _matchList.FireChange();
       }
+    }
+
+    public void SetEdition(ListItem item)
+    {
+      var indexes = (IList<int>)item.AdditionalProperties[KEY_INDEXES];
+      _selectedEditionIndexes = indexes;
+      ServiceRegistration.Get<ILogger>().Info("Subtitle edition: Setting selected edition");
     }
 
     public void SetMatch(ListItem item)

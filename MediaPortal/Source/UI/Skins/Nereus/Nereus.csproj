@@ -80,10 +80,12 @@
     <Compile Include="Controls\HomeTilesScrollContentPresenter.cs" />
     <Compile Include="Controls\ItemsListFilter.cs" />
     <Compile Include="Controls\NereusTileControl.cs" />
+    <Compile Include="Converters\StringCaseConverter.cs" />
     <Compile Include="Converters\ListToGridConverter.cs" />
     <Compile Include="Converters\ItemsListActionFilter.cs" />
     <Compile Include="Converters\RoundingFormatConverter.cs" />
     <Compile Include="Models\HomeContent\AbstractHomeContent.cs" />
+    <Compile Include="Models\HomeContent\LauncherHomeContent.cs" />
     <Compile Include="Models\HomeContent\OtherPluginsHomeContent.cs" />
     <Compile Include="Models\HomeContent\DefaultHomeContent.cs" />
     <Compile Include="Models\HomeContent\VideoHomeContent.cs" />
@@ -710,13 +712,11 @@
     <Content Include="Skin\Nereus\images\Weather\64x64\na.png" />
     <Content Include="Skin\Nereus\images\Weather\64x64\permission.txt" />
     <Content Include="Skin\Nereus\images\Weather\64x64\WEATHERALERT.png" />
+    <Content Include="Skin\Nereus\screens\InfoAudioGeneral.inc" />
+    <Content Include="Skin\Nereus\screens\InfoSeriesGeneral.inc" />
     <Content Include="Skin\Nereus\screens\NotificationsBar.inc" />
     <Content Include="Skin\Nereus\screens\WindowControlButtons.inc">
       <SubType>Designer</SubType>
-    </Content>
-    <Content Include="Skin\Nereus\screens\LatestMedia.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
     </Content>
     <Content Include="Skin\Nereus\screens\MediaItemHomeEpisodeDetails.inc">
       <SubType>Designer</SubType>
