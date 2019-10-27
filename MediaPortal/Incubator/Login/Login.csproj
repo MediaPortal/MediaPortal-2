@@ -233,4 +233,9 @@
       <SubType>Designer</SubType>
     </Content>
   </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\Nereus\screens\AutoLoginUser.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
 </Project>

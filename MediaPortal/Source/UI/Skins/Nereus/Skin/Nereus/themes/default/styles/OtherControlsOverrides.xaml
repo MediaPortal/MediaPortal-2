@@ -1234,8 +1234,9 @@
           </LinearGradientBrush>
         </Rectangle.Fill>
       </Rectangle>
-      <Label x:Name="ItemLabel" Margin="10,5,10,5" Content="{Binding [Name]}" Color="{ThemeResource TextColor}"
-             HorizontalAlignment="Center" VerticalAlignment="Bottom" FontSize="{ThemeResource SmallFontSize}"/>
+      <Label x:Name="ItemLabel" Margin="10,5,10,0" Content="{Binding [Name]}"
+             Color="{ThemeResource TextColor}" FontFamily="SegoeUIBold" FontSize="{ThemeResource SmallerFontSize}"
+             HorizontalAlignment="Center" VerticalAlignment="Bottom"/>
     </Grid>
   </DataTemplate>
 
