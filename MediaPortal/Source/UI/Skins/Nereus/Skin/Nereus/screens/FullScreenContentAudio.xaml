@@ -152,13 +152,13 @@
               <StackPanel Orientation="Vertical" Margin="0,0,20,0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
                          DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}">
 
-                <Label x:Name="Title" FontSize="{ThemeResource SmallFontSize}" Scroll="Auto" ScrollDelay="0"
+                <Label x:Name="Title" FontSize="{ThemeResource SmallFontSize}" Scroll="Auto" ScrollDelay="0" Margin="0,0,0,-5"
                        Content="{Binding TrackName}" Color="{ThemeResource TextColor}" FontFamily="SegoeUIBold"/>
 
                 <Label x:Name="Artists" FontSize="{ThemeResource SmallFontSize}" TextTrimming="WordEllipsis"
-                       Content="{Binding Artists}" Color="{ThemeResource TextColor}"/>
+                       Content="{Binding Artists}" Color="{ThemeResource TextColor}" Margin="0,0,0,-5"/>
 
-                <StackPanel Orientation="Horizontal" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="0,0,0,-5">
                   <media:MediaAspectWrapper MediaItem="{Binding MediaItem}">
                     <media:MediaAspectWrapper.Template>
                       <ControlTemplate>
@@ -194,7 +194,7 @@
                   </StackPanel>
                 </StackPanel>
 
-                <Label x:Name="Genre" FontSize="{ThemeResource SmallFontSize}" TextTrimming="WordEllipsis"
+                <Label x:Name="Genre" FontSize="{ThemeResource SmallFontSize}" TextTrimming="WordEllipsis" Margin="0,0,0,-5"
                        IsVisible="{Binding Path=MediaItem, Converter={StaticResource ReferenceToBoolConverter}}"
                        Opacity="0.6" Color="{ThemeResource TextColor}">
                   <Label.Content>
@@ -206,10 +206,10 @@
                 </Label>
 
                 <Label x:Name="Duration" FontSize="{ThemeResource SmallFontSize}" Opacity="0.6" Color="{ThemeResource TextColor}"
-                       IsVisible="{Binding Path=Duration,Converter={StaticResource ReferenceToBoolConverter}}"
+                       IsVisible="{Binding Path=Duration,Converter={StaticResource ReferenceToBoolConverter}}" Margin="0,0,0,-5"
                        Content="{Binding Path=Duration, Converter={StaticResource DurationConverter}, ConverterParameter=mm\:ss}"/>
 
-                <StackPanel Orientation="Horizontal" DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}" Margin="0,0,20,0">
+                <StackPanel Orientation="Horizontal" DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}" Margin="0,0,20,-5">
                   <Label Content="[Media.TrackMenuItem]" Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}"
                          IsVisible="{Binding Path=Track,Converter={StaticResource ReferenceToBoolConverter}}" Opacity="0.6"/>
                   <Label Content=" " Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}"
@@ -220,7 +220,7 @@
                 <StackPanel Orientation="Horizontal" IsVisible="{Binding Path=NumDiscs,Converter={StaticResource ReferenceToBoolConverter}}">
                   <Label FontSize="{ThemeResource SmallFontSize}" Content="[Media.DiscNumberMenuItem]" Color="{ThemeResource TextColor}" Opacity="0.6"/>
                   <Label FontSize="{ThemeResource SmallFontSize}" Content=" " Color="{ThemeResource TextColor}" Opacity="0.6"/>
-                  <Label FontSize="{ThemeResource SmallFontSize}" Content="{Binding Path=DiscId}" Color="{ThemeResource MenuTextBackground}" Opacity="0.6"/>
+                  <Label FontSize="{ThemeResource SmallFontSize}" Content="{Binding Path=DiscId}" Color="{ThemeResource TextColor}" Opacity="0.6"/>
                   <Label FontSize="{ThemeResource SmallFontSize}" Content="/" Color="{ThemeResource TextColor}" Opacity="0.6"/>
                   <Label FontSize="{ThemeResource SmallFontSize}" Content="{Binding Path=NumDiscs}" Color="{ThemeResource TextColor}" Opacity="0.6"/>
                 </StackPanel>
