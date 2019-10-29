@@ -4,7 +4,7 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:mp_special_controls="clr-namespace:MediaPortal.UI.SkinEngine.SpecialElements.Controls;assembly=SkinEngine"
     xmlns:mp_special_workflow="clr-namespace:MediaPortal.UI.SkinEngine.SpecialElements.Workflow;assembly=SkinEngine"
-    Source="screens\master_menu.xaml"
+    Source="screens\master_configuration_menu.xaml"
     >
   <Include.Resources>
     <Model x:Key="PlaylistImportModel" Id="D8E1EF69-1372-430D-9F36-3F163E0D12A8"/>
@@ -34,12 +34,12 @@
         </Grid.RowDefinitions>
 
         <StackPanel Orientation="Vertical" HorizontalAlignment="Stretch" Grid.Row="0" Grid.Column="0">
-          <Label Content="[Utilities.ImportPlaylistFile]" Color="{ThemeResource TextColor}" Margin="10,10,10,0"/>
+          <Label Content="[Utilities.ImportPlaylistFile]" Color="{ThemeResource TextColor}" Margin="10,10,10,0" Opacity="0.5"/>
           <DockPanel LastChildFill="True">
             <Button Content="[Utilities.ChoosePlaylistFile]" Margin="0,10,10,10" DockPanel.Dock="Right"
-                Command="{Command ChooseImportFile}" SetFocusPrio="Default"/>
+                    Command="{Command ChooseImportFile}" SetFocusPrio="Default"/>
             <Label Content="{Binding ImportFile}" Color="{ThemeResource TextColor}" Margin="10"
-                DockPanel.Dock="Center"/>
+                   DockPanel.Dock="Center"/>
           </DockPanel>
 
           <Label Content="[Utilities.EditPlaylistName]" Color="{ThemeResource TextColor}" Margin="10,10,10,0"/>
@@ -47,16 +47,15 @@
 
           <Label Content="[Utilities.LocationOfShareContainingItems]" Color="{ThemeResource TextColor}" Margin="10,10,10,0"/>
           <ListView x:Name="ShareLocations" Style="{ThemeResource ShareLocationsListViewStyle}"
-              ItemsSource="{Binding ShareLocations}" HorizontalAlignment="Stretch"/>
+                    ItemsSource="{Binding ShareLocations}" HorizontalAlignment="Stretch"/>
         </StackPanel>
 
         <Label Content="{Binding ErrorHint}" Color="{ThemeResource ErrorTextColor}" Margin="10"
-            Grid.Row="1" Grid.Column="0"/>
+               Grid.Row="1" Grid.Column="0"/>
 
         <Button x:Name="StartImport" Content="[Utilities.StartPlaylistImport]" Grid.Row="2" Grid.Column="0"
-            HorizontalAlignment="Center" VerticalAlignment="Center"
-            Command="{Command ImportPlaylist}"
-            IsEnabled="{Binding IsDataValid}"/>
+                HorizontalAlignment="Center" VerticalAlignment="Center"
+                Command="{Command ImportPlaylist}" IsEnabled="{Binding IsDataValid}"/>
       </Grid>
     </ControlTemplate>
   </Include.Resources>

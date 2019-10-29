@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Include
+    xmlns="www.team-mediaportal.com/2008/mpf/directx"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    Source="screens\master_configuration_menu.xaml"
+    >
+  <Include.Resources>
+
+    <!-- Header -->
+    <ResourceWrapper x:Key="Header_Text" Resource="[Media.PlaylistsOverviewHeader]"/>
+
+    <!-- Manage playlists model -->
+    <Model x:Key="Model" Id="039151B6-800B-4279-A1BE-7F421EEA8C9A"/>
+
+    <!-- Contents -->
+    <ControlTemplate x:Key="Contents_Template">
+      <DockPanel LastChildFill="True" DataContext="{Binding Source={StaticResource Model}}">
+        <DockPanel Margin="0,0,0,10" DockPanel.Dock="Center"
+            LastChildFill="True">
+          <ListView Margin="10" DockPanel.Dock="Center" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+              Style="{ThemeResource PlaylistsListViewStyle}"
+              IsVisible="{Binding IsHomeServerConnected}"
+              ItemsSource="{Binding Path=Playlists,Mode=OneTime}">
+            <ListView.Resources>
+              <CommandBridge x:Key="Menu_Command" Command="{Binding Path=Command,Mode=OneTime}"/>
+            </ListView.Resources>
+          </ListView>
+          <Label Margin="10" DockPanel.Dock="Center" IsVisible="{Binding !IsHomeServerConnected}"
+              Content="[Media.NoConfigPlaylistsHomeServerNotConnectedText]" Wrap="true"
+              Color="{ThemeResource HintTextColor}" FontSize="{ThemeResource SmallFontSize}"/>
+        </DockPanel>
+      </DockPanel>
+    </ControlTemplate>
+
+  </Include.Resources>
+</Include>
