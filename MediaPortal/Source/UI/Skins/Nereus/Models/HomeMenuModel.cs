@@ -59,6 +59,7 @@ namespace MediaPortal.UiComponents.Nereus.Models
     public static readonly Guid MODEL_ID = new Guid("CED34107-565C-48D9-BEC8-195F7969F90F");
     public static readonly Guid HOME_STATE_ID = new Guid("7F702D9C-F2DD-42da-9ED8-0BA92F07787F");
     public static readonly Guid APPS_LIST_MODEL_ID = new Guid("E35E2C12-1B97-43EE-B7A2-D1527DF41D89");
+    public static readonly Guid OV_LIST_MODEL_ID = new Guid("AFD048F1-9EBB-4EBC-84C8-B27B561B77D0");
 
     protected const int UPDATE_DELAY_MS = 500;
 
@@ -113,6 +114,7 @@ namespace MediaPortal.UiComponents.Nereus.Models
       _homeContent.Add(new Guid("bb49a591-7705-408f-8177-45d633fdfad0"), new NewsHomeContent());
       _homeContent.Add(new Guid("e34fdb62-1f3e-4aa9-8a61-d143e0af77b5"), new WeatherHomeContent());
       _homeContent.Add(new Guid("873eb147-c998-4632-8f86-d5e24062be2e"), new LauncherHomeContent());
+      _homeContent.Add(new Guid("c33e39cc-910e-41c8-bffd-9eccd340b569"), new OnlineVideosHomeContent());
 
       // Home content for displaying a list of all other plugins
       _homeContent.Add(OtherPluginsAction.ACTION_ID, new OtherPluginsHomeContent(_otherMenuItems));

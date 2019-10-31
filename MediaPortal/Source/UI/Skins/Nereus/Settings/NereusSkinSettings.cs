@@ -78,7 +78,8 @@ namespace MediaPortal.UiComponents.Nereus.Settings
       new Guid("a4df2df6-8d66-479a-9930-d7106525eb07"),
       new Guid("a24958e2-538a-455e-a1db-a7bb241aF7ec"),
       new Guid("2ded75c0-5eae-4e69-9913-6b50a9ab2956"),
-      new Guid("873EB147-C998-4632-8F86-D5E24062BE2E")
+      new Guid("873EB147-C998-4632-8F86-D5E24062BE2E"),
+      new Guid("c33e39cc-910e-41c8-bffd-9eccd340b569")
     };
 
     Guid[] _homeMenuActionIds = null;
