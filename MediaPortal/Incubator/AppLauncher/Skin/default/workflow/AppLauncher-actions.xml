@@ -10,6 +10,7 @@
 			SortOrder="a"
 			SourceStates="7F702D9C-F2DD-42da-9ED8-0BA92F07787F"
 			TargetState="EE23FB37-043C-46DE-9DAC-7F023135C0B2"
-			DisplayTitle="[AppLauncher.Title]"/>
+			DisplayTitle="[AppLauncher.Title]"
+      HelpText="[AppLauncher.Helptext]"/>
   </MenuActions>
 </Workflow>

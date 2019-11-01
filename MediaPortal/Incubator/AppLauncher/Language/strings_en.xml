@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <resources>
 	<string name="AppLauncher.Title">Launcher</string>
+  <string name="AppLauncher.Helptext">Link external applications and launch them from within MediaPortal 2</string>
   <string name="AppLauncher.Stop">Stop</string>
   <string name="AppLauncher.Pause">Pause</string>
   <string name="AppLauncher.SwitchPlaying">Change playback status</string>

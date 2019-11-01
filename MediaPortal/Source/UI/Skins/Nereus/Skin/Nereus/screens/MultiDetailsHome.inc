@@ -16,6 +16,7 @@
 
   <Grid.Resources>
     <Model x:Key="BackgroundManagerModel" Id="1F4CAEDE-7108-483d-B5C8-18BEC7EC58E5"/>
+    <Model x:Key="MenuModel" Id="9E9D0CD9-4FDB-4c0f-A0C4-F356E151BDE0"/>
   </Grid.Resources>
 
   <Control x:Name="AudioDetails">
@@ -106,5 +107,11 @@
       <Include Source="screens\MediaItemHomeOthersDetails.inc"/>
     </Control.TemplateControl>
   </Control>
+
+  <!-- Show help label only in "Home" workflow state to avoid overlapping with contents in other screens-->
+  <Label DataContext="{Binding Source={StaticResource BackgroundManagerModel}, Path=SelectedItem}" Margin="0,5,0,-5"
+         Content="{Binding [Help]}" Color="{ThemeResource TextColor}" Wrap="True" FontSize="{ThemeResource SmallerFontSize}"
+         IsVisible="{Binding Source={StaticResource MenuModel},Path=IsMenuOpen}">
+  </Label>
   
 </Grid>
