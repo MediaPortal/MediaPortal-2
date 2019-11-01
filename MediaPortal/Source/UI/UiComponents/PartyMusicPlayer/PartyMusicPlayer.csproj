@@ -137,6 +137,16 @@
   <ItemGroup>
     <None Include="build.targets" />
   </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\Nereus\screens\PartyMusicPlayer.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\Nereus\screens\PartyMusicConfig.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="build.targets" />
 </Project>

@@ -48,7 +48,7 @@
             <ColumnDefinition Width="Auto" />
             <ColumnDefinition Width="*" />
           </Grid.ColumnDefinitions>
-          <Label Grid.Column="0" Content="[SleepTimer.MaxMinutes]" Color="{ThemeResource TextColor}"/>
+          <Label Grid.Column="0" Content="[SleepTimer.MaxMinutes]" Color="{ThemeResource TextColor}" Margin="5,0,5,0"/>
           <TextBox Text="{Binding Path=MaxMinutes,Mode=TwoWay}" Margin="5,0,5,0" Grid.Column="1" Width="100" HorizontalAlignment="Right"/>
         </Grid>
         <Grid Height="10"/>
@@ -62,12 +62,9 @@
             <RowDefinition Height="Auto" />
           </Grid.RowDefinitions>
 
-          <Button Name="ButtonOk"
-                  Grid.Column="0"
-                  Grid.Row="0"
-                  Style="{ThemeResource DialogButtonStyle}"
-                  Content="[System.Ok]"
-                  HorizontalAlignment="Center">
+          <Button Name="ButtonOk" Grid.Column="0" Grid.Row="0"
+                  Style="{ThemeResource DialogButtonStyle}" Margin="20,0,20,0"
+                  Content="[System.Ok]" HorizontalAlignment="Center">
             <Button.Command>
               <CommandList>
                 <Command Path="SaveSettings" />
@@ -77,13 +74,9 @@
             </Button.Command>
           </Button>
 
-          <Button Name="ButtonCancel"
-                  Grid.Column="1"
-                  Grid.Row="0"
-                  SetFocusPrio="Default"
-                  Style="{ThemeResource DialogButtonStyle}"
-                  Content="[System.Cancel]"
-                  HorizontalAlignment="Center"
+          <Button Name="ButtonCancel" Grid.Column="1" Grid.Row="0" Margin="20,0,20,0"
+                  SetFocusPrio="Default" Style="{ThemeResource DialogButtonStyle}"
+                  Content="[System.Cancel]" HorizontalAlignment="Center"
                   Command="{Command Source={Service ScreenManager},Path=CloseTopmostDialog}" />
         </Grid>
       </StackPanel>

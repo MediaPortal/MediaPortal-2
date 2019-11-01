@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<Include
+    xmlns="www.team-mediaportal.com/2008/mpf/directx"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    Source="screens\master_configuration_dialog_wb.xaml"
+    >
+  <Include.Resources>
+    <!-- Configuration model -->
+    <Model x:Key="Model" Id="545674F1-D92A-4383-B6C1-D758CECDBDF5"/>
+
+    <ControlTemplate x:Key="Config_Contents_Template">
+      <DockPanel LastChildFill="True" Margin="5,5,0,0">
+        <StackPanel DockPanel.Dock="Bottom" Orientation="Horizontal">
+          <Button Style="{ThemeResource VolumeUpButtonStyle}"
+		              IsEnabled="{Binding Source={StaticResource Model},Path=CurrentConfigController.IsAddRemoveEnabled}"
+                  Command="{Command Source={StaticResource Model},Path=CurrentConfigController.Add}"
+			            HorizontalContentAlignment="Center" VerticalContentAlignment="Center"/>
+          <Button Style="{ThemeResource VolumeDownButtonStyle}" Margin="0,5,0,0"
+		              IsEnabled="{Binding Source={StaticResource Model},Path=CurrentConfigController.IsAddRemoveEnabled}"
+                  Command="{Command Source={StaticResource Model},Path=CurrentConfigController.Remove}"
+			            HorizontalContentAlignment="Center" VerticalContentAlignment="Center"/>
+          <Button Style="{ThemeResource ChapterUpButtonStyle}" Margin="0,5,0,0"
+                  IsEnabled="{Binding Source={StaticResource Model},Path=CurrentConfigController.IsUpDownEnabled}"
+                  Command="{Command Source={StaticResource Model},Path=CurrentConfigController.Up}"
+			            HorizontalContentAlignment="Center"/>
+          <Button Style="{ThemeResource ChapterDownButtonStyle}" Margin="0,5,0,0"
+                  IsEnabled="{Binding Source={StaticResource Model},Path=CurrentConfigController.IsUpDownEnabled}"
+                  Command="{Command Source={StaticResource Model},Path=CurrentConfigController.Down}"
+			            HorizontalContentAlignment="Center"/>
+        </StackPanel>
+
+        <!--PreferredTextLength="{Binding Source={StaticResource Model},Path=CurrentConfigController.DisplayLength}"-->
+        <TextBox x:Name="EntryContent" DockPanel.Dock="Bottom" Margin="0,4,0,0"
+                 IsEnabled="{Binding Source={StaticResource Model},Path=CurrentConfigController.IsEntrySelected}"
+                 Text="{Binding Source={StaticResource Model},Path=CurrentConfigController.Value,Mode=TwoWay}"
+                 HorizontalAlignment="Stretch" VerticalAlignment="Center"/>
+
+        <ListView x:Name="SingleSelectionListBox"
+                  DockPanel.Dock="Center" Height="150"
+			            Style="{ThemeResource SingleMarkableListViewStyle}"
+                  ItemsSource="{Binding Source={StaticResource Model},Path=CurrentConfigController.Items,Mode=OneWay}"/>
+      </DockPanel>
+    </ControlTemplate>
+  </Include.Resources>
+</Include>

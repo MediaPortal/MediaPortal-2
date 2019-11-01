@@ -38,14 +38,37 @@
           <ColumnDefinition Width="*"/>
         </Grid.ColumnDefinitions>
 
-        <Image Grid.RowSpan="11" Source="ContentGlow.png" Stretch="Uniform" VerticalAlignment="Stretch" HorizontalAlignment="Right" Margin="0,-92,-20,-230" RenderTransformOrigin="0.5,0.5">
+        <Image Grid.RowSpan="11" Source="ContentGlow.png" Stretch="Uniform" VerticalAlignment="Stretch" 
+               HorizontalAlignment="Right" Margin="0,-92,-20,-230" RenderTransformOrigin="0.5,0.5">
           <Image.RenderTransform>
             <RotateTransform Angle="180"/>
           </Image.RenderTransform>
         </Image>
         <Border Grid.RowSpan="11" Margin="0,-92,0,-230" Background="Black" Opacity="1"/>
 
-        <Label Grid.Row="0" Margin="10" Content="[UserConfig.Users]" Color="{ThemeResource TextColor}" />
+        <!-- Top Gradient Overlay-->
+        <Border Grid.RowSpan="3"  HorizontalAlignment="Stretch" VerticalAlignment="Top" 
+                Grid.ColumnSpan="4" BorderThickness="0" Height="100" Margin="0,-92,0,0">
+          <Border.Background>
+            <LinearGradientBrush StartPoint="0.5,0" EndPoint="0.5,1">
+              <GradientStop Color="#E6000000" Offset="0" />
+              <GradientStop Color="#00000000" Offset="1" />
+            </LinearGradientBrush>
+          </Border.Background>
+        </Border>
+
+        <!-- Bottom Gradient Overlay-->
+        <Border Grid.Row="8" Grid.RowSpan="3" HorizontalAlignment="Stretch" VerticalAlignment="Bottom" 
+                Grid.ColumnSpan="4" BorderThickness="0" Height="100" Margin="0,0,0,-230">
+          <Border.Background>
+            <LinearGradientBrush StartPoint="0.5,0" EndPoint="0.5,1">
+              <GradientStop Color="#00000000" Offset="0" />
+              <GradientStop Color="#E6000000" Offset="1" />
+            </LinearGradientBrush>
+          </Border.Background>
+        </Border>
+
+        <Label Grid.Row="0" Margin="10" Content="[UserConfig.Users]" Color="{ThemeResource TextColor}" Opacity="0.5"/>
         
         <ListView Name="ServerUsersList" Margin="10" Grid.Row="1" Grid.RowSpan="9" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
                   Style="{ThemeResource SingleMarkableListViewStyle}"

@@ -9,7 +9,8 @@
   <string name="Settings.ServerSettings.Password">Passwort:</string>
   <string name="Settings.ServerSettings.ImporterWorker">Automatische Aktualisierung der Medien-Shares</string>
   <string name="Settings.ServerSettings.ImporterWorker.Help">Automatische Aktualisierung der Medien-Shares konfigurieren</string>
-  <string name="Settings.ServerSettings.ImporterWorker.EnableAutoRefresh">Automatische Aktualisierung aktivieren</string>
+  <string name="Settings.ServerSettings.ImporterWorker.EnableAutoRefresh">Automatische Server-Aktualisierung</string>
+  <string name="Settings.ServerSettings.ImporterWorker.EnableClientAutoRefresh">Automatische Client-Aktualisierung</string>
   <string name="Settings.ServerSettings.ImporterWorker.RunAtHour">Zu dieser Stunde ausführen (24h Basis)</string>
   <string name="Settings.ServerSettings.AudioMDESettings">Audio-Import Einstellungen</string>
   <string name="Settings.ServerSettings.MovieMDESettings">Film-Import Einstellungen</string>
@@ -34,6 +35,7 @@ Das Abwählen einzelner Quellen erhöht die Import-Geschwindigkeit, aber manche 
   <string name="Settings.ServerSettings.MDESettings.MDEBrowseOfflineLocal">FanArt auf lokalem Laufwerk cachen</string>
   <string name="Settings.ServerSettings.MDESettings.MDEFilter.Artists">Interpret</string>
   <string name="Settings.ServerSettings.MDESettings.MDEFilter.Composers">Komponist</string>
+  <string name="Settings.ServerSettings.MDESettings.MDEFilter.Conductors">Dirigent</string>
   <string name="Settings.ServerSettings.MDESettings.MDEFilter.MusicLabels">Musiklabel</string>
   <string name="Settings.ServerSettings.MDESettings.MDEFilter.Actors">Schauspieler</string>
   <string name="Settings.ServerSettings.MDESettings.MDEFilter.Characters">Rolle</string>
