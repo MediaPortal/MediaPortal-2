@@ -147,11 +147,13 @@
                                  Color="{ThemeResource TextColor}" FontSize="{ThemeResource InfoFontSize}" FontFamily="SegoeUIBold"/>
                         </Grid>
 
-                        <Image HorizontalAlignment="Center" VerticalAlignment="Stretch" Stretch="Uniform">
-                          <Image.Source>
-                            <Binding Path="VideoEncoding" Converter="{StaticResource SafeFilenameConverter}" ConverterParameter="{}Medialogos\video\{0}.png"/>
-                          </Image.Source>
-                        </Image>
+                        <Grid IsVisible="{Binding ElementName=Encoding, Path=Source, Converter={StaticResource EmptyStringToFalseConverter}}">
+                          <Image x:Name="Encoding" HorizontalAlignment="Center" VerticalAlignment="Stretch" Stretch="Uniform">
+                            <Image.Source>
+                              <Binding Path="VideoEncoding" Converter="{StaticResource SafeFilenameConverter}" ConverterParameter="{}Medialogos\video\{0}.png"/>
+                            </Image.Source>
+                          </Image>
+                        </Grid>
 
                         <Image HorizontalAlignment="Center" VerticalAlignment="Stretch" Stretch="Uniform">
                           <Image.Source>
