@@ -17,6 +17,7 @@
   <Grid.Resources>
     <Model x:Key="BackgroundManagerModel" Id="1F4CAEDE-7108-483d-B5C8-18BEC7EC58E5"/>
     <Model x:Key="MenuModel" Id="9E9D0CD9-4FDB-4c0f-A0C4-F356E151BDE0"/>
+    <Model x:Key="SkinSettingsModel" Id="13961014-16C4-4361-9751-8E2C585EFD44"/>
   </Grid.Resources>
 
   <Control x:Name="AudioDetails">
@@ -110,8 +111,13 @@
 
   <!-- Show help label only in "Home" workflow state to avoid overlapping with contents in other screens-->
   <Label DataContext="{Binding Source={StaticResource BackgroundManagerModel}, Path=SelectedItem}" Margin="0,5,0,-5"
-         Content="{Binding [Help]}" Color="{ThemeResource TextColor}" Wrap="True" FontSize="{ThemeResource SmallerFontSize}"
-         IsVisible="{Binding Source={StaticResource MenuModel},Path=IsMenuOpen}">
+         Content="{Binding [Help]}" Color="{ThemeResource TextColor}" Wrap="True" FontSize="{ThemeResource SmallerFontSize}">
+    <Label.IsVisible>
+      <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{} {0} &amp;&amp; {1}">
+        <Binding Source="{StaticResource MenuModel}" Path="IsMenuOpen"/>
+        <Binding Source="{StaticResource SkinSettingsModel}" Path="[Nereus].EnableHelpTexts"/>
+      </MultiBinding>
+    </Label.IsVisible>
   </Label>
   
 </Grid>
