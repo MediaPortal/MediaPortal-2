@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-  <string name="Nereus.Configuration.EnableHelpTexts">Enable help texts</string>
+  <string name="Nereus.Configuration.EnableHelpTexts">Disable help texts</string>
   <string name="Nereus.Configuration.EnableHelpTexts.Help">Whether to display help texts for menues on the home screen.</string>
   <string name="Nereus.Configuration.EnableFanart">Enable Fanart</string>
   <string name="Nereus.Configuration.EnableFanart.Help">Whether to display background fanart.</string>

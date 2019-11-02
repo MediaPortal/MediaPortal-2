@@ -115,7 +115,7 @@
     <Label.IsVisible>
       <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{} {0} &amp;&amp; {1}">
         <Binding Source="{StaticResource MenuModel}" Path="IsMenuOpen"/>
-        <Binding Source="{StaticResource SkinSettingsModel}" Path="[Nereus].EnableHelpTexts"/>
+        <Binding Source="{StaticResource SkinSettingsModel}" Path="![Nereus].EnableHelpTexts"/>
       </MultiBinding>
     </Label.IsVisible>
   </Label>
