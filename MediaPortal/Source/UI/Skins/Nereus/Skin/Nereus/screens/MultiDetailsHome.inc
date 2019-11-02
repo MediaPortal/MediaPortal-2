@@ -110,13 +110,29 @@
   </Control>
 
   <!-- Show help label only in "Home" workflow state to avoid overlapping with contents in other screens-->
-  <Grid>
+  <Grid x:Name="Helptext">
     <Grid.IsVisible>
       <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{} {0} &amp;&amp; {1}">
         <Binding Source="{StaticResource MenuModel}" Path="IsMenuOpen"/>
         <Binding Source="{StaticResource SkinSettingsModel}" Path="![Nereus].EnableHelpTexts"/>
       </MultiBinding>
     </Grid.IsVisible>
+    
+    <Grid.Resources>
+      <Storyboard x:Key="StartStoryboard">
+        <DoubleAnimation Storyboard.TargetProperty="Opacity" From="0.0" To="1.0"
+                         Duration="0:0:1" AutoReverse="False" Storyboard.TargetName="Helptext"/>
+        </Storyboard>
+    </Grid.Resources>
+    
+    <Grid.Triggers>
+      <Trigger Property="Visibility" Value="Visible">
+        <Trigger.EnterActions>
+          <BeginStoryboard x:Name="BeginStoryboard" Storyboard="{ThemeResource StartStoryboard}"/>
+        </Trigger.EnterActions>
+      </Trigger>
+    </Grid.Triggers>
+
     <Image Source="HomeContentIcons\helptext.png" Height="26" Width="26" Stretch="Uniform" Margin="0,10,5,-5"
            VerticalAlignment="Top" HorizontalAlignment="Left"/>
     <Label DataContext="{Binding Source={StaticResource BackgroundManagerModel}, Path=SelectedItem}" Opacity="0.6" Margin="38,5,0,-5"
