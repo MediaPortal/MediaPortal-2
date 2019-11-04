@@ -8,7 +8,7 @@
     xmlns:nereus_home_content="clr-namespace:MediaPortal.UiComponents.Nereus.Models.HomeContent;assembly=Nereus"
     xmlns:nc="clr-namespace:MediaPortal.UiComponents.Nereus.Controls;assembly=Nereus"
     xmlns:collections="clr-namespace:MediaPortal.UI.Presentation.DataObjects;assembly=MediaPortal.UI"
-    DependsOnStyleResources="OtherControls,OtherControlsOverrides,MediaConsts,Colors,Buttons,Consts,OnlineVideosStyles,OnlineVideosConsts"
+    DependsOnStyleResources="OtherControls,OtherControlsOverrides,MediaConsts,Colors,Buttons,Consts"
     >
 
   <!--Sizes of each tile group-->
@@ -2467,7 +2467,7 @@
           <RowDefinition Height="30*"/>
         </Grid.RowDefinitions>
         <Image x:Name="ItemImage" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Stretch="Uniform" Thumbnail="False"
-               Source="{Binding Path=Site, Converter={StaticResource ovsSiteUtilIconConverter}}" FallbackSource="{Binding [DefaultIcon]}" Grid.Column="1" Grid.Row="1"/>
+               Source="{Binding Image}" FallbackSource="{Binding [DefaultIcon]}" Grid.Column="1" Grid.Row="1"/>
       </Grid>
 
       <Grid x:Name="ItemBandGrid" HorizontalAlignment="Stretch" VerticalAlignment="Bottom" RenderTransformOrigin="0.5,1">
